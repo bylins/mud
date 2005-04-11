@@ -410,7 +410,7 @@ int trade_with(OBJ_DATA * item, int shop_nr, int mode)
 				    OBJ_FLAGGED(item, ITEM_SHARPEN) ||
 				    OBJ_FLAGGED(item, ITEM_NODONATE) ||
 				    OBJ_FLAGGED(item, ITEM_NODROP) ||
-				    OBJ_FLAGGED(item, ITEM_NOSELL) || OBJ_FLAGGED(item, ITEM_NORENT))
+				    OBJ_FLAGGED(item, ITEM_NOSELL))
 				return (OBJECT_NOTOK);
 			else if (evaluate_expression(item, word_for_mode(shop_nr, counter, mode))) {
 				return (OBJECT_OK);
@@ -1393,7 +1393,7 @@ void shopping_repair_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, in
 
 	if (price <= 0 ||
 	    OBJ_FLAGGED(obj, ITEM_DECAY) ||
-	    OBJ_FLAGGED(obj, ITEM_NORENT) || OBJ_FLAGGED(obj, ITEM_NOSELL) || OBJ_FLAGGED(obj, ITEM_NODROP)) {
+	    OBJ_FLAGGED(obj, ITEM_NOSELL) || OBJ_FLAGGED(obj, ITEM_NODROP)) {
 		sprintf(buf, "%s! Я не буду тратить свое драгоценное время на %s.", GET_NAME(ch), OBJN(obj, ch, 3));
 		do_tell(keeper, buf, cmd_tell, 0);
 		return;
