@@ -69,6 +69,7 @@ void perform_remove(CHAR_DATA * ch, int pos);
 int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
 void feed_charmice(CHAR_DATA * ch, char *arg);
 int get_player_charms(CHAR_DATA * ch, int spellnum);
+void create_skin(CHAR_DATA * mob);
 
 ACMD(do_split);
 ACMD(do_remove);
@@ -115,6 +116,110 @@ void perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 	}
 }
 
+void create_skin(CHAR_DATA *mob,CHAR_DATA *ch)
+{
+	OBJ_DATA *skin;
+	int definitor, vnum, eff, limit, i, k = 0, num, effect;
+	const int vnum_skin_prototype = 1660;
+
+	const int effects[36][2] = { {APPLY_STR, 3},
+	{APPLY_DEX, 3},
+	{APPLY_INT, 3},
+	{APPLY_WIS, 3},
+	{APPLY_CON, 3},
+	{APPLY_CHA, 3},
+	{APPLY_CHAR_WEIGHT, 10},
+	{APPLY_MANAREG, 30},
+	{APPLY_HIT, 80},
+	{APPLY_MOVE, 140},
+	{APPLY_HITROLL, 4},
+	{APPLY_DAMROLL, 4},
+	{APPLY_SAVING_WILL, -20},
+	{APPLY_RESIST_FIRE, 20},
+	{APPLY_RESIST_AIR, 20},
+	{APPLY_SAVING_CRITICAL, -20},
+	{APPLY_SAVING_STABILITY, -20},
+	{APPLY_HITREG, 76},
+	{APPLY_MOVEREG, 150},
+	{APPLY_C1, 4},
+	{APPLY_C2, 4},
+	{APPLY_C3, 3},
+	{APPLY_C4, 3},
+	{APPLY_C5, 2},
+	{APPLY_C6, 2},
+	{APPLY_SIZE, 15},
+	{APPLY_SAVING_REFLEX, -20},
+	{APPLY_CAST_SUCCESS, 10},
+	{APPLY_MORALE, 12},
+	{APPLY_INITIATIVE, 12},
+	{APPLY_ABSORBE, 25},
+	{APPLY_RESIST_WATER, 20},
+	{APPLY_RESIST_EARTH, 20},
+	{APPLY_RESIST_VITALITY, 15},
+	{APPLY_RESIST_MIND, 15},
+	{APPLY_RESIST_IMMUNITY, 25}
+	}; 
+
+	vnum = vnum_skin_prototype + MIN((int)(GET_LEVEL(mob) / 5), 9);
+	skin = read_object(vnum, VIRTUAL);
+	if (skin == NULL) {
+		mudlog("Неверно задан номер протитипа для освежевания в act.item.cpp::create_skin!",
+										NRM, LVL_GRGOD, ERRLOG, TRUE);
+		return;
+	}
+
+	definitor = (int)((GET_STR(mob) + GET_DEX(mob) + GET_CON(mob) + GET_WIS(mob) + GET_INT(mob) + GET_CHA(mob)) / 6);
+	GET_OBJ_PARENT(skin) = GET_MOB_VNUM(mob);
+	trans_obj_name(skin, mob);
+	if (0 <= definitor && definitor <= 15) {
+		limit = 4;
+		eff = number(0, 1);
+		//aff = 0;
+		GET_OBJ_VAL(skin, 0) = number(1, 3);
+		GET_OBJ_VAL(skin, 1) = number(0, 2);
+	} else if (16 <= definitor && definitor <= 25) {
+			limit = 6;
+			eff = number(0, 2);
+			//aff = number(0, 1);
+			GET_OBJ_VAL(skin, 0) = number(2, 5);
+			GET_OBJ_VAL(skin, 1) = number(2, 5);
+		} else if (26 <= definitor && definitor <= 35) {
+				limit = 8;
+				eff = number(0, 3);
+				//aff = number(0, 1);
+			GET_OBJ_VAL(skin, 0) = number(4, 7);
+			GET_OBJ_VAL(skin, 1) = number(4, 6);
+			} else if (36 <= definitor && definitor <= 45) {
+					limit = 9;
+					eff = number(0, 4);
+					//aff = number(0, 2);
+					GET_OBJ_VAL(skin, 0) = number(6, 9);
+					GET_OBJ_VAL(skin, 1) = number(5, 7);
+				} else {
+					limit = 10;
+					eff = number(0, 5);
+					//aff = number(0, 3);
+					GET_OBJ_VAL(skin, 0) = number(6, 10);
+					GET_OBJ_VAL(skin, 1) = number(5, 8);
+				}
+
+	for (i = 0; i <= eff; i++) {
+		if (number(0, 1000) <= 200)
+			continue;
+		k++;
+		num = number(0, 36);
+		(skin)->affected[k].location = effects[num][0];
+		effect = number(0, (int)(effects[num][1] * limit / 10));
+		if (number(0, 1000) <= 150)
+			effect *= -1;
+		(skin)->affected[k].modifier = effect;
+	}
+	GET_OBJ_COST(skin) = GET_LEVEL(mob) * number(30, 50);
+	GET_OBJ_VAL(skin, 2) = (int)(1 + (GET_WEIGHT(mob) + GET_SIZE(mob)) / 20);
+
+	can_carry_obj(ch, skin);
+	return;
+}
 
 /* The following put modes are supported by the code below:
 
@@ -2668,6 +2773,7 @@ ACMD(do_makefood)
 		//sprintf (buf, "Вы умело вырезали %s из $o1.", tobj->PNames[3]);
 		act("Вы умело освежевали $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		dl_load_obj(obj, mob, ch, DL_SKIN);
+		create_skin(mob, ch);
 		if (obj->carried_by == ch)
 			can_carry_obj(ch, tobj);
 		else

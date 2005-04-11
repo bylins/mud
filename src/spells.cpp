@@ -293,13 +293,15 @@ ASPELL(spell_relocate)
 	if (victim == NULL)
 		return;
 
-	if (!IS_NPC(ch) &&
+/*	if (!IS_NPC(ch) &&
 	    (GET_LEVEL(victim) > GET_LEVEL(ch)) &&
 	    !GET_COMMSTATE(ch) && !PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
-	}
-	if (IS_NPC(victim) && !GET_COMMSTATE(ch)) {
+	} */
+
+	if ((IS_NPC(victim) && !GET_COMMSTATE(ch)) ||
+		(GET_LEVEL(victim) > GET_LEVEL(ch)) || IS_IMMORTAL(victim)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -317,7 +319,7 @@ ASPELL(spell_relocate)
 	}
 	// в случае, если жертва не может зайти в замок (по любой причине)
 	// прыжок в зону ближайшей ренты
-	if (!House_can_enter(victim, to_room, HCE_PORTAL))
+	if (!House_can_enter(ch, to_room, HCE_PORTAL))
 		fnd_room = House_closestrent(to_room);
 	else
 		fnd_room = to_room;
@@ -339,11 +341,13 @@ ASPELL(spell_relocate)
 	}
 
 	act("$n медленно исчез$q из виду.", FALSE, ch, 0, 0, TO_ROOM);
+	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
 	char_from_room(ch);
 	char_to_room(ch, fnd_room);
 	check_horse(ch);
 	act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
 	look_at_room(ch, 0);
+	WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 	entry_memory_mtrigger(ch);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
@@ -643,8 +647,9 @@ ASPELL(spell_locate_object)
 
 		if (i->carried_by)
 			if (SECT(IN_ROOM(i->carried_by)) == SECT_SECRET ||
-			    (OBJ_FLAGGED(i, ITEM_NOLOCATE) && IS_NPC(i->carried_by)))
-				continue;
+			    (OBJ_FLAGGED(i, ITEM_NOLOCATE) && IS_NPC(i->carried_by)) ||
+				IS_IMMORTAL(i->carried_by))
+					continue;
 
 		if (i->carried_by) {
 			if (world[IN_ROOM(i->carried_by)]->zone == world[IN_ROOM(ch)]->zone || !IS_NPC(i->carried_by))
