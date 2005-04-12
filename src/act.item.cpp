@@ -2755,8 +2755,8 @@ ACMD(do_makefood)
 	}
 	mob = (mob_proto + real_mobile(mobn));
 	if (!IS_IMMORTAL(ch) &&
-	    !(GET_CLASS(mob) == CLASS_ANIMAL) &&
-	    !(GET_CLASS(mob) == CLASS_BASIC_NPC) && (wgt = GET_WEIGHT(mob)) < 180) {
+	    (!(GET_CLASS(mob) == CLASS_ANIMAL) ||
+	    !(GET_CLASS(mob) == CLASS_BASIC_NPC) && (wgt = GET_WEIGHT(mob)) < 11)) {
 		send_to_char("Этот труп невозможно освежевать.", ch);
 		return;
 	}
@@ -2764,7 +2764,7 @@ ACMD(do_makefood)
 	percent =
 	    train_skill(ch, SKILL_MAKEFOOD, skill_info[SKILL_MAKEFOOD].max_percent,
 			mob) + number(1, GET_REAL_DEX(ch)) + number(1, GET_REAL_STR(ch));
-	if (prob > percent || !(tobj = read_object(meet_vnum[number(0, MIN(3, MAX(0, (wgt - 180) / 5)))], VIRTUAL))) {
+	if (prob > percent || !(tobj = read_object(meet_vnum[number(0, 3)], VIRTUAL))) {
 		act("Вы не сумели освежевать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u освежевать $o3, но неудачно.", FALSE, ch, obj, 0, TO_ROOM);
 	} else {

@@ -2172,7 +2172,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 
 	case MEDIT_WEIGHT:
-			GET_WEIGHT(OLC_MOB(d)) = MIN(200, MAX(50, atoi(arg)));
+			GET_WEIGHT(OLC_MOB(d)) = MIN(200, MAX(1, atoi(arg)));
 			break;
 
 	case MEDIT_HEIGHT:
