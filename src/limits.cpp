@@ -33,6 +33,8 @@
 
 //F@N|
 extern void extract_exchange_item(EXCHANGE_ITEM_DATA * item);
+extern int check_dupes_host(DESCRIPTOR_DATA * d);
+extern room_rnum r_unreg_start_room;
 
 extern CHAR_DATA *character_list;
 extern CHAR_DATA *mob_proto;
@@ -379,11 +381,16 @@ void beat_points_update(int pulse)
 
 //      if (IN_ROOM(ch)==NOWHERE) continue;
 
+		// Проверяем на выпуск чара из кутузки
 		if (PLR_FLAGGED(i, PLR_HELLED) && HELL_DURATION(i) && HELL_DURATION(i) <= time(NULL)) {
 			restore = PLR_TOG_CHK(i, PLR_HELLED);
 			if (HELL_REASON(i))
 				free(HELL_REASON(i));
 			HELL_REASON(i) = 0;
+			GET_HELL_LEV(i) = 0;
+			HELL_GODID(i) = 0;
+			HELL_DURATION(i) = 0;
+
 			send_to_char("Вас выпустили из темницы.\r\n", i);
 			if ((restore = GET_LOADROOM(i)) == NOWHERE)
 				restore = calc_loadroom(i);
@@ -401,7 +408,17 @@ void beat_points_update(int pulse)
 			    FALSE, i, 0, 0, TO_ROOM);
 		}
 		if (PLR_FLAGGED(i, PLR_NAMED) && NAME_DURATION(i) && NAME_DURATION(i) <= time(NULL)) {
+
 			restore = PLR_TOG_CHK(i, PLR_NAMED);
+
+			if (NAME_REASON(i))
+				free(NAME_REASON(i));
+
+			NAME_REASON(i) = 0;
+			GET_NAME_LEV(i) = 0;
+			NAME_GODID(i) = 0;
+			NAME_DURATION(i) = 0;
+
 			send_to_char("Вас выпустили из КОМНАТЫ ИМЕНИ.\r\n", i);
 			if ((restore = GET_LOADROOM(i)) == NOWHERE)
 				restore = calc_loadroom(i);
@@ -420,9 +437,14 @@ void beat_points_update(int pulse)
 		}
 		if (PLR_FLAGGED(i, PLR_MUTE) && MUTE_DURATION(i) != 0 && MUTE_DURATION(i) <= time(NULL)) {
 			restore = PLR_TOG_CHK(i, PLR_MUTE);
+
 			if (MUTE_REASON(i))
 				free(MUTE_REASON(i));
 			MUTE_REASON(i) = 0;
+			GET_MUTE_LEV(i) = 0;
+			MUTE_GODID(i) = 0;
+			MUTE_DURATION(i) = 0;
+
 			send_to_char("Вы можете орать.\r\n", i);
 		}
 		if (PLR_FLAGGED(i, PLR_DUMB) && DUMB_DURATION(i) != 0 && DUMB_DURATION(i) <= time(NULL)) {
@@ -430,6 +452,10 @@ void beat_points_update(int pulse)
 			if (DUMB_REASON(i))
 				free(DUMB_REASON(i));
 			DUMB_REASON(i) = 0;
+			GET_DUMB_LEV(i) = 0;
+			DUMB_GODID(i) = 0;
+			DUMB_DURATION(i) = 0;
+
 			send_to_char("Вы можете говорить.\r\n", i);
 		}
 		if (GET_GOD_FLAG(i, GF_GODSLIKE) && GCURSE_DURATION(i) != 0 && GCURSE_DURATION(i) <= time(NULL)) {
@@ -445,9 +471,71 @@ void beat_points_update(int pulse)
 			if (FREEZE_REASON(i))
 				free(FREEZE_REASON(i));
 			FREEZE_REASON(i) = 0;
+			GET_FREEZE_LEV(i) = 0;
+			FREEZE_GODID(i) = 0;
+			FREEZE_DURATION(i) = 0;
+
 			send_to_char("Вы оттаяли.\r\n", i);
 		}
+		// Проверяем а там ли мы где должны быть по флагам.
+		
+		if (IN_ROOM(i) == NOWHERE)
+			restore = GET_WAS_IN(i);
+		else 
+			restore = IN_ROOM(i);
 
+		if (PLR_FLAGGED(i, PLR_HELLED))
+		{
+			if (restore != r_helled_start_room)
+			{
+				if (IN_ROOM(i) == NOWHERE)
+					GET_WAS_IN(i) = r_helled_start_room;
+				else 	
+				{		
+					send_to_char("Чья-то злая воля вернула Вас в темницу.\r\n", i);
+					char_from_room(i);
+					char_to_room(i, r_helled_start_room);
+					look_at_room(i, r_helled_start_room);
+					GET_WAS_IN(i) = NOWHERE;
+				};
+			}
+		} else if (PLR_FLAGGED(i, PLR_NAMED))
+		{
+			if (restore != r_named_start_room)
+			{
+				if (IN_ROOM(i) == NOWHERE)
+					GET_WAS_IN(i) = r_named_start_room;
+				else 	
+				{		
+					send_to_char("Чья-то злая воля вернула Вас в комнату имени.\r\n", i);
+					act("$n возвращен$a в комнату имени.",
+					    FALSE, i, 0, 0, TO_ROOM);
+
+					char_from_room(i);
+					char_to_room(i, r_named_start_room);
+					look_at_room(i, r_named_start_room);
+					GET_WAS_IN(i) = NOWHERE;
+				};	
+			};
+		} else if (!PLR_FLAGGED(i, PLR_REGISTERED))
+		{
+			if (IN_ROOM(i) != r_unreg_start_room && i->desc && !check_dupes_host(i->desc)) {
+				if (IN_ROOM(i) == NOWHERE)
+					GET_WAS_IN(i) = r_unreg_start_room;
+				else 	
+				{		
+					send_to_char("Чья-то злая воля вернула Вас в комнату для незарегистированных игроков.\r\n", i);
+
+					act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.",
+					    FALSE, i, 0, 0, TO_ROOM);
+
+					char_from_room(i);
+					char_to_room(i, r_unreg_start_room);
+					look_at_room(i, r_unreg_start_room);
+					GET_WAS_IN(i) = NOWHERE;
+				};	
+			}
+		}
 		if (GET_POS(i) < POS_STUNNED)
 			continue;
 

@@ -478,10 +478,11 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 
 				sprintf(buf, "%s$N поместил$G Вас в темницу.%s",
 					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
-				sprintf(buf2, "$n водворен$a в темницу !.");
+				sprintf(buf2, "$n водворен$a в темницу !");
 			break;
 
 			case SCMD_NAME:
+
 				SET_BIT(PLR_FLAGS(vict, PLR_NAMED), PLR_NAMED);
 
         			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
@@ -503,7 +504,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 
 				sprintf(buf, "%s$N поместил$G Вас в комнату имени.%s",
 					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
-				sprintf(buf2, "$n помещен$a в комнату имени !.");
+				sprintf(buf2, "$n помещен$a в комнату имени !");
 			break;
 			
 		}
