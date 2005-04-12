@@ -406,11 +406,11 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				SET_BIT(PLR_FLAGS(vict, PLR_MUTE), PLR_MUTE);
         			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;				
 	
-				sprintf(buf, "Mute ON for %s by %s(%dh).", GET_NAME(vict), GET_NAME(ch), times);
+				sprintf(buf, "Mute ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 				imm_log(buf);
 
-				sprintf(buf, "Mute ON (%dh) by %s", times , GET_NAME(ch));
+				sprintf(buf, "Mute ON (%ldh) by %s", times , GET_NAME(ch));
 				add_karma(vict, buf, reason);
 		
 				sprintf(buf, "%s$N запретил$G Вам кричать.%s",
@@ -424,11 +424,11 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				SET_BIT(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN);
         			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
 	
-				sprintf(buf, "Freeze ON for %s by %s(%dh).", GET_NAME(vict), GET_NAME(ch), times);
+				sprintf(buf, "Freeze ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 				imm_log(buf);
 
-				sprintf(buf, "Freeze ON (%dh) by %s", times , GET_NAME(ch));
+				sprintf(buf, "Freeze ON (%ldh) by %s", times , GET_NAME(ch));
 				add_karma(vict, buf, reason);
 		
 				sprintf(buf, "%sАдский холод сковал Ваше тело ледяным панцирем.\r\n%s",
@@ -444,11 +444,11 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				SET_BIT(PLR_FLAGS(vict, PLR_DUMB), PLR_DUMB);
         			pundata->duration = (times > 0) ? time(NULL) + times * 60 : MAX_TIME;					
 
-				sprintf(buf, "Dumb ON for %s by %s(%dm).", GET_NAME(vict), GET_NAME(ch), times);
+				sprintf(buf, "Dumb ON for %s by %s(%ldm).", GET_NAME(vict), GET_NAME(ch), times);
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 				imm_log(buf);
 
-				sprintf(buf, "Dumb ON (%dm) by %s", times , GET_NAME(ch));
+				sprintf(buf, "Dumb ON (%ldm) by %s", times , GET_NAME(ch));
 				add_karma(vict, buf, reason);
 		
 				sprintf(buf, "%s$N запретил$G Вам издавать звуки.%s",
@@ -470,10 +470,10 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				if (GET_WAS_IN(vict) != NOWHERE)	// add by Pereplut
 					GET_WAS_IN(vict) = NOWHERE;
 
-				sprintf(buf, "%s moved TO hell by %s(%dh).", GET_NAME(vict), GET_NAME(ch), times);
+				sprintf(buf, "%s moved TO hell by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 				imm_log(buf);
-				sprintf(buf, "Moved TO hell (%dh) by %s", times, GET_NAME(ch));
+				sprintf(buf, "Moved TO hell (%ldh) by %s", times, GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
 				sprintf(buf, "%s$N поместил$G Вас в темницу.%s",
@@ -495,10 +495,10 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				if (GET_WAS_IN(vict) != NOWHERE)	// add by Pereplut
 					GET_WAS_IN(vict) = NOWHERE;
 
-				sprintf(buf, "%s removed to nameroom by %s(%dh).", GET_NAME(vict), GET_NAME(ch), times);
+				sprintf(buf, "%s removed to nameroom by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 				imm_log(buf);
-				sprintf(buf, "Removed TO nameroom (%dh) by %s", times, GET_NAME(ch));
+				sprintf(buf, "Removed TO nameroom (%ldh) by %s", times, GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
 				sprintf(buf, "%s$N поместил$G Вас в комнату имени.%s",
