@@ -2425,9 +2425,9 @@ ACMD(do_score)
 	if (RENTABLE(ch)) 
 		sprintf(buf + strlen(buf),
 			" || %sВ связи с боевыми действиями Вы не можете уйти на постой.                       %s||\r\n",
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE) && GODS_DURATION(ch)) {
-		int hrs = (GODS_DURATION(ch) - time(NULL)) / 3600;
-		int mins = ((GODS_DURATION(ch) - time(NULL)) % 3600 + 59) / 60;
+
+	if (has_mail(GET_IDNUM(ch)))
+		sprintf(buf + strlen(buf),
 			" || %sВас ожидает новое письмо, зайдите на почту                                      %s||\r\n",
 			CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
@@ -2693,9 +2693,9 @@ ACMD(do_score)
 	}
 	if (PLR_FLAGGED(ch, PLR_DUMB) && DUMB_DURATION(ch) != 0 && DUMB_DURATION(ch) > time(NULL)) {
 		int hrs = (DUMB_DURATION(ch) - time(NULL)) / 3600;
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE) && GODS_DURATION(ch)) {
-		int hrs = (GODS_DURATION(ch) - time(NULL)) / 3600;
-		int mins = ((GODS_DURATION(ch) - time(NULL)) % 3600 + 59) / 60;
+		sprintf(buf, "Вы не сможете заходить с одного IP еще %d %s %d %s [%s].\r\n",
+			hrs, desc_count(hrs, WHAT_HOUR),
+			mins, desc_count(mins, WHAT_MINu), UNREG_REASON(ch) ? UNREG_REASON(ch) : "-");
 		send_to_char(buf, ch);
 	}
 

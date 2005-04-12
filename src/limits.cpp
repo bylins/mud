@@ -432,11 +432,11 @@ void beat_points_update(int pulse)
 			DUMB_REASON(i) = 0;
 			send_to_char("Вы можете говорить.\r\n", i);
 		}
-		if (GET_GOD_FLAG(i, GF_GODSLIKE) && GODS_DURATION(i) != 0 && GODS_DURATION(i) <= time(NULL)) {
+		if (GET_GOD_FLAG(i, GF_GODSLIKE) && GCURSE_DURATION(i) != 0 && GCURSE_DURATION(i) <= time(NULL)) {
 			CLR_GOD_FLAG(i, GF_GODSLIKE);
 			send_to_char("Вы более не под защитой Богов.\r\n", i);
 		}
-		if (GET_GOD_FLAG(i, GF_GODSCURSE) && GODS_DURATION(i) != 0 && GODS_DURATION(i) <= time(NULL)) {
+		if (GET_GOD_FLAG(i, GF_GODSCURSE) && GCURSE_DURATION(i) != 0 && GCURSE_DURATION(i) <= time(NULL)) {
 			CLR_GOD_FLAG(i, GF_GODSCURSE);
 			send_to_char("Боги более не в обиде на Вас.\r\n", i);
 		}
@@ -975,11 +975,11 @@ void point_update(void)
 				count = PLR_TOG_CHK(i, PLR_DUMB);
 				send_to_char("Вы можете говорить.\r\n", i);
 			}
-			if (GET_GOD_FLAG(i, GF_GODSLIKE) && GODS_DURATION(i) != 0 && GODS_DURATION(i) <= time(NULL)) {
+			if (GET_GOD_FLAG(i, GF_GODSLIKE) && GCURSE_DURATION(i) != 0 && GCURSE_DURATION(i) <= time(NULL)) {
 				CLR_GOD_FLAG(i, GF_GODSLIKE);
 				send_to_char("Вы более не под защитой Богов.\r\n", i);
 			}
-			if (GET_GOD_FLAG(i, GF_GODSCURSE) && GODS_DURATION(i) != 0 && GODS_DURATION(i) <= time(NULL)) {
+			if (GET_GOD_FLAG(i, GF_GODSCURSE) && GCURSE_DURATION(i) != 0 && GCURSE_DURATION(i) <= time(NULL)) {
 				CLR_GOD_FLAG(i, GF_GODSCURSE);
 				send_to_char("Боги более не в обиде на Вас.\r\n", i);
 			}

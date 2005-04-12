@@ -320,7 +320,6 @@ void gettimeofday(struct timeval *t, struct timezone *dummy)
 
 int main(int argc, char **argv)
 {
-
 #ifdef OS_UNIX
 	extern char *malloc_options;
 	malloc_options = "A";
@@ -424,7 +423,6 @@ int main(int argc, char **argv)
 
 	/* All arguments have been parsed, try to open log file. */
 	setup_logs();
-
 
 	/*
 	 * Moved here to distinguish command line options and to show up
@@ -2959,6 +2957,7 @@ void signal_setup(void)
 	my_signal(SIGPIPE, SIG_IGN);
 	my_signal(SIGALRM, SIG_IGN);
 	my_signal(SIGSEGV, crash_handle);
+	my_signal(SIGBUS, crash_handle);
 }
 
 #endif				/* CIRCLE_UNIX || CIRCLE_MACINTOSH */

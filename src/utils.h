@@ -465,13 +465,6 @@ extern SPECIAL(postmaster);
 #define GET_HOUSE_RANK(ch)     ((ch)->player_specials->saved.HouseRank)
 #define LAST_LOGON(ch)         ((ch)->player_specials->saved.LastLogon)
 
-#define GODS_DURATION(ch)  ((ch)->player_specials->saved.GodsDuration)
-#define MUTE_DURATION(ch)  ((ch)->player_specials->saved.MuteDuration)
-#define DUMB_DURATION(ch)  ((ch)->player_specials->saved.DumbDuration)
-#define FREEZE_DURATION(ch)  ((ch)->player_specials->saved.FreezeDuration)
-#define HELL_DURATION(ch)  ((ch)->player_specials->saved.HellDuration)
-#define NAME_DURATION(ch)  ((ch)->player_specials->saved.NameDuration)
-
 #define NAME_GOD(ch)  ((ch)->player_specials->saved.NameGod)
 #define NAME_ID_GOD(ch)  ((ch)->player_specials->saved.NameIDGod)
 /*
@@ -624,7 +617,6 @@ extern SPECIAL(postmaster);
 #define GET_LOADROOM(ch)   CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.load_room))
 #define GET_INVIS_LEV(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.invis_level))
 #define GET_WIMP_LEV(ch)   CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.wimp_level))
-#define GET_FREEZE_LEV(ch) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.freeze_level))
 #define GET_BAD_PWS(ch)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.bad_pws))
 #define GET_TALK(ch, i)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.talks[i]))
 #define POOFIN(ch)              CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->poofin))
@@ -650,10 +642,35 @@ extern SPECIAL(postmaster);
 #define GET_PORTALS(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->portals))
 #define GET_LOGS(ch)            CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->logs))
 
-#define MUTE_REASON(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->MuteReason))
-#define DUMB_REASON(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->DumbReason))
-#define HELL_REASON(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->HellReason))
-#define FREEZE_REASON(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->FreezeReason))
+// Punishments structs 
+#define MUTE_REASON(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pmute.reason))
+#define DUMB_REASON(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pdumb.reason))
+#define HELL_REASON(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->phell.reason))
+#define FREEZE_REASON(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pfreeze.reason))
+#define GCURSE_REASON(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pgcurse.reason))
+#define NAME_REASON(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pname.reason))
+
+#define GET_MUTE_LEV(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pmute.level))
+#define GET_DUMB_LEV(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pdumb.level))
+#define GET_HELL_LEV(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->phell.level))
+#define GET_FREEZE_LEV(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pfreeze.level))
+#define GET_GCURSE_LEV(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pgcurse.level))
+#define GET_NAME_LEV(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pname.level))
+
+#define MUTE_GODID(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pmute.godid))
+#define DUMB_GODID(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pdumb.godid))
+#define HELL_GODID(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->phell.godid))
+#define FREEZE_GODID(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pfreeze.godid))
+#define GCURSE_GODID(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pgcurse.godid))
+#define NAME_GODID(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pname.godid))
+
+#define GCURSE_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pgcurse.duration)) 
+#define MUTE_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pmute.duration))  
+#define DUMB_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pdumb.duration))  
+#define FREEZE_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pfreeze.duration))  
+#define HELL_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->phell.duration))  
+#define NAME_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pname.duration))  
+
 #define KARMA(ch) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->Karma))
 #define LOGON_LIST(ch) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->logons))
 

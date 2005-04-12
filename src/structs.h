@@ -1665,8 +1665,6 @@ struct player_special_data_saved {
 	int
 	 wimp_level;		/* Below this # of hit points, flee!  */
 	int
-	 freeze_level;		/* Level of god who froze char, if any */
-	int
 	 invis_level;		/* level of invisibility      */
 	room_vnum load_room;	/* Which room to place char in      */
 	FLAG_DATA pref;		/* preference flags for PC's.    */
@@ -1714,23 +1712,11 @@ struct player_special_data_saved {
 	 spare15;
 
 	long
-	 NameDuration;
-	long
 	 GodsLike;
-	long
-	 GodsDuration;
-	long
-	 MuteDuration;
-	long
-	 FreezeDuration;
-	long
-	 HellDuration;
 	long
 	 HouseUID;
 	long
 	 LastLogon;
-	long
-	 DumbDuration;
 	long
 	 NameIDGod;
 	long
@@ -1773,6 +1759,13 @@ struct logon_data {
 	logon_data * next;
 };
 
+struct punish_data {
+	long duration;
+	char * reason;
+	int  level;
+	long godid;
+};
+
 /*
  * Specials needed only by PCs, not NPCs.  Space for this structure is
  * not allocated in memory for NPCs, but it is for PCs and the portion
@@ -1805,18 +1798,26 @@ struct player_special_data {
 	struct _im_rskill_tag *rskill;	/* Известные рецепты */
 	struct char_portal_type *portals;	/* порталы теперь живут тут */
 	int *logs;		// уровни подробности каналов log
-	char *MuteReason;
-	char *DumbReason;
-	char *HellReason;
-	char *FreezeReason;
+
 	char *LastAllTell;
 //F@N|
 	char *Exchange_filter;
 // shapirus
 	struct ignore_data *ignores;
-// Alez 
+// Alez Karma
 	char *Karma; /* Записи о поощрениях, наказаниях персонажа*/
+
+// Alez logons.
 	struct logon_data * logons; /*Записи о входах чара*/
+
+// Punishments structs 
+	struct punish_data pmute;
+	struct punish_data pdumb;
+	struct punish_data phell;
+	struct punish_data pname;
+	struct punish_data pfreeze;
+	struct punish_data pgcurse;
+
 	int page_height;
 };
 

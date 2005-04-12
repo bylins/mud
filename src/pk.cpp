@@ -96,7 +96,7 @@ void pk_check_spamm(CHAR_DATA * ch)
 {
 	if (pk_calc_spamm(ch) > MAX_PKILL_FOR_PERIOD) {
 		SET_GOD_FLAG(ch, GF_GODSCURSE);
-		GODS_DURATION(ch) = time(0) + TIME_GODS_CURSE * 60 * 60;
+		GCURSE_DURATION(ch) = time(0) + TIME_GODS_CURSE * 60 * 60;
 		act("Боги прокляли тот день, когда ты появился на свет !", FALSE, ch, 0, 0, TO_CHAR);
 	}
 	if (pk_count(ch) >= KillerPK)

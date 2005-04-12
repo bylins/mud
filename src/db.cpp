@@ -3914,7 +3914,7 @@ void load_ignores(CHAR_DATA * ch, char *line)
 int load_char_ascii(char *name, CHAR_DATA * ch)
 {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, i;
-	long int lnum;
+	long int lnum = 0, lnum2 = 0 , lnum3 = 0, lnum4 = 0, lnum5 = 0;
 	FBFILE *fl;
 	char filename[40];
 	char buf[128], line[MAX_INPUT_LENGTH + 1], tag[6];
@@ -3975,15 +3975,44 @@ int load_char_ascii(char *name, CHAR_DATA * ch)
 	GET_DEX(ch) = 10;
 	GET_COND(ch, DRUNK) = 0;
 	GET_DRUNK_STATE(ch) = 0;
+
+// Punish Init
 	DUMB_DURATION(ch) = 0;
 	DUMB_REASON(ch) = 0;
-	GET_DR(ch) = 0;
-	GET_EXP(ch) = 0;
-	GET_FREEZE_LEV(ch) = 0;
+	GET_DUMB_LEV(ch) = 0;
+	DUMB_GODID(ch) = 0;
+
+	MUTE_DURATION(ch) = 0;
+	MUTE_REASON(ch) = 0;
+	GET_MUTE_LEV(ch) = 0;
+	MUTE_GODID(ch) = 0;
+
+	HELL_DURATION(ch) = 0;
+	HELL_REASON(ch) = 0;
+	GET_HELL_LEV(ch) = 0;
+	HELL_GODID(ch) = 0;
+
 	FREEZE_DURATION(ch) = 0;
 	FREEZE_REASON(ch) = 0;
+	GET_FREEZE_LEV(ch) = 0;
+	FREEZE_GODID(ch) = 0;
+
+	GCURSE_DURATION(ch) = 0;
+	GCURSE_REASON(ch) = 0;
+	GET_GCURSE_LEV(ch) = 0;
+	GCURSE_GODID(ch) = 0;
+
+	NAME_DURATION(ch) = 0;
+	NAME_REASON(ch) = 0;
+	GET_NAME_LEV(ch) = 0;
+	NAME_GODID(ch) = 0;
+// End punish init
+
+	GET_DR(ch) = 0;
+	GET_EXP(ch) = 0;
 	GET_GOLD(ch) = 0;
-	GODS_DURATION(ch) = 0;
+
+
 	GET_GLORY(ch) = 0;
 	ch->player_specials->saved.GodsLike = 0;
 	GET_HIT(ch) = 21;
@@ -3992,8 +4021,6 @@ int load_char_ascii(char *name, CHAR_DATA * ch)
 	GET_HOME(ch) = 0;
 	GET_HR(ch) = 0;
 	GET_COND(ch, FULL) = 0;
-	HELL_DURATION(ch) = 0;
-	HELL_REASON(ch) = 0;
 	GET_HOUSE_UID(ch) = 0;
 	GET_IDNUM(ch) = 0;
 	GET_INT(ch) = 10;
@@ -4003,11 +4030,8 @@ int load_char_ascii(char *name, CHAR_DATA * ch)
 	ch->player.time.logon = time(0);
 	GET_MOVE(ch) = 44;
 	GET_MAX_MOVE(ch) = 44;
-	MUTE_DURATION(ch) = 0;
-	MUTE_REASON(ch) = 0;
 	KARMA(ch) = 0;
 	LOGON_LIST(ch) = 0;
-	NAME_DURATION(ch) = 0;
 	NAME_GOD(ch) = 0;
 	NAME_ID_GOD(ch) = 0;
 	GET_OLC_ZONE(ch) = 0;
@@ -4106,6 +4130,7 @@ int load_char_ascii(char *name, CHAR_DATA * ch)
 				GET_COND(ch, DRUNK) = num;
 			else if (!strcmp(tag, "DrSt"))
 				GET_DRUNK_STATE(ch) = num;
+			// Оставлено для совместимости со старым форматом наказаний 
 			else if (!strcmp(tag, "DmbD")) {
 				DUMB_DURATION(ch) = lnum;
 				while (line[i] && a_isspace(line[i]))
@@ -4128,6 +4153,7 @@ int load_char_ascii(char *name, CHAR_DATA * ch)
 			break;
 
 		case 'F':
+			// Оставлено для совместимости со старым форматом наказаний 
 			if (!strcmp(tag, "Frez"))
 				GET_FREEZE_LEV(ch) = num;
 			else if (!strcmp(tag, "FrzD")) {
@@ -4143,7 +4169,7 @@ int load_char_ascii(char *name, CHAR_DATA * ch)
 			if (!strcmp(tag, "Gold"))
 				GET_GOLD(ch) = num;
 			else if (!strcmp(tag, "GodD"))
-				GODS_DURATION(ch) = lnum;
+				GCURSE_DURATION(ch) = lnum;
 			else if (!strcmp(tag, "Glor"))
 				GET_GLORY(ch) = num;
 			else if (!strcmp(tag, "GdFl"))
@@ -4163,6 +4189,7 @@ int load_char_ascii(char *name, CHAR_DATA * ch)
 				GET_HR(ch) = num;
 			else if (!strcmp(tag, "Hung"))
 				GET_COND(ch, FULL) = num;
+			// Оставлено для совместимости со старым форматом наказаний 
 			else if (!strcmp(tag, "HelD")) {
 				HELL_DURATION(ch) = lnum;
 				while (line[i] && a_isspace(line[i]))
@@ -4298,6 +4325,56 @@ int load_char_ascii(char *name, CHAR_DATA * ch)
 				add_portal_to_char(ch, num);
 			else if (!strcmp(tag, "PgHt"))
 				PAGE_HEIGHT(ch) = num;
+		// Loads Here new punishment strings  
+			else if (!strcmp(tag, "PMut"))
+			{
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+				MUTE_DURATION(ch)=lnum;
+				GET_MUTE_LEV(ch)= num2;
+				MUTE_GODID(ch)=lnum3;
+				MUTE_REASON(ch)=str_dup(buf);
+			}
+			else if (!strcmp(tag, "PHel"))
+			{
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+				HELL_DURATION(ch)=lnum;
+				GET_HELL_LEV(ch)= num2;
+				HELL_GODID(ch)=lnum3;
+				HELL_REASON(ch)=str_dup(buf);
+			}
+			else if (!strcmp(tag, "PDum"))
+			{
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+				DUMB_DURATION(ch)=lnum;
+				GET_DUMB_LEV(ch)= num2;
+				DUMB_GODID(ch)=lnum3;
+				DUMB_REASON(ch)=str_dup(buf);
+			}
+			else if (!strcmp(tag, "PNam"))
+			{
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+				NAME_DURATION(ch)=lnum;
+				GET_NAME_LEV(ch)= num2;
+				NAME_GODID(ch)=lnum3;
+				NAME_REASON(ch)=str_dup(buf);
+			}
+			else if (!strcmp(tag, "PFrz"))
+			{
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+				FREEZE_DURATION(ch)=lnum;
+				GET_FREEZE_LEV(ch)= num2;
+				FREEZE_GODID(ch)=lnum3;
+				FREEZE_REASON(ch)=str_dup(buf);
+			}
+			else if (!strcmp(tag, "PGcs"))
+			{
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+				GCURSE_DURATION(ch)=lnum;
+				GET_GCURSE_LEV(ch)= num2;
+				GCURSE_GODID(ch)=lnum3;
+				GCURSE_REASON(ch)=str_dup(buf);
+			}
+
 			break;
 
 		case 'Q':
@@ -4984,6 +5061,7 @@ void free_char(CHAR_DATA * ch)
 			struct char_portal_type *prt_next;
 			prt_next = GET_PORTALS(ch)->next;
 			free(GET_PORTALS(ch));
+			GET_PORTALS(ch) = prt_next;
 		}
 // Cleanup punish reasons 
 		if (MUTE_REASON(ch))
@@ -4992,6 +5070,10 @@ void free_char(CHAR_DATA * ch)
 			free(DUMB_REASON(ch));
 		if (HELL_REASON(ch))
 			free(HELL_REASON(ch));
+		if (FREEZE_REASON(ch))
+			free(FREEZE_REASON(ch));
+		if (NAME_REASON(ch))
+			free(NAME_REASON(ch));
 // End reasons cleanup
 
 		if (KARMA(ch))
@@ -6230,16 +6312,20 @@ void new_save_char(CHAR_DATA * ch, room_rnum load_room)
 		fprintf(saved, "HsID: %ld\n", GET_HOUSE_UID(ch));
 	if (GET_HOUSE_RANK(ch) != 0)
 		fprintf(saved, "Rank: %d\n", GET_HOUSE_RANK(ch));
-	if (NAME_DURATION(ch) > 0)
-		fprintf(saved, "NamD: %ld\n", NAME_DURATION(ch));
-	if (GODS_DURATION(ch) > 0)
-		fprintf(saved, "GodD: %ld\n", GODS_DURATION(ch));
-	if (MUTE_DURATION(ch) > 0) {
-		if (MUTE_REASON(ch))
-			fprintf(saved, "MutD: %ld %s\n", MUTE_DURATION(ch), MUTE_REASON(ch));
-		else
-			fprintf(saved, "MutD: %ld\n", MUTE_DURATION(ch));
-	}
+		fprintf(saved, "HsID: %ld\n", GET_HOUSE_UID(ch));
+	if (GET_HOUSE_RANK(ch) != 0)
+		fprintf(saved, "PMut: %ld %d %ld %s~\n", MUTE_DURATION(ch), GET_MUTE_LEV(ch), MUTE_GODID(ch), MUTE_REASON(ch));
+
+		fprintf(saved, "PNam: %ld %d %ld %s~\n", NAME_DURATION(ch), GET_NAME_LEV(ch), NAME_GODID(ch), NAME_REASON(ch));
+		fprintf(saved, "PMut: %ld %d %ld %s~\n", MUTE_DURATION(ch), GET_MUTE_LEV(ch), MUTE_GODID(ch), MUTE_REASON(ch));
+		fprintf(saved, "PDum: %ld %d %ld %s~\n", DUMB_DURATION(ch), GET_DUMB_LEV(ch), DUMB_GODID(ch), DUMB_REASON(ch));
+		fprintf(saved, "PNam: %ld %d %ld %s~\n", NAME_DURATION(ch), GET_NAME_LEV(ch), NAME_GODID(ch), NAME_REASON(ch));
+		fprintf(saved, "PHel: %ld %d %ld %s~\n", HELL_DURATION(ch), GET_HELL_LEV(ch), HELL_GODID(ch), HELL_REASON(ch));
+		fprintf(saved, "PDum: %ld %d %ld %s~\n", DUMB_DURATION(ch), GET_DUMB_LEV(ch), DUMB_GODID(ch), DUMB_REASON(ch));
+		fprintf(saved, "PGcs: %ld %d %ld %s~\n", GCURSE_DURATION(ch), GET_GCURSE_LEV(ch), GCURSE_GODID(ch), GCURSE_REASON(ch));
+		fprintf(saved, "PHel: %ld %d %ld %s~\n", HELL_DURATION(ch), GET_HELL_LEV(ch), HELL_GODID(ch), HELL_REASON(ch));
+		fprintf(saved, "PFrz: %ld %d %ld %s~\n", FREEZE_DURATION(ch), GET_FREEZE_LEV(ch), FREEZE_GODID(ch), FREEZE_REASON(ch));
+	if (KARMA(ch) > 0) {
 	if (KARMA(ch) > 0) {
 		strcpy(buf, KARMA(ch));
 		kill_ems(buf);
@@ -6259,24 +6345,6 @@ void new_save_char(CHAR_DATA * ch, room_rnum load_room)
 		fprintf(saved, "LogL:\n%s~\n",buf);
 		log("Saved: %s",buf);
 			next_log = next_log->next;
-	}
-	if (FREEZE_DURATION(ch) > 0) {
-		if (FREEZE_REASON(ch))
-			fprintf(saved, "FrzD: %ld %s\n", FREEZE_DURATION(ch), FREEZE_REASON(ch));
-		else
-			fprintf(saved, "FrzD: %ld\n", FREEZE_DURATION(ch));
-	}
-	if (HELL_DURATION(ch) > 0) {
-		if (HELL_REASON(ch))
-			fprintf(saved, "HelD: %ld %s\n", HELL_DURATION(ch), HELL_REASON(ch));
-		else
-			fprintf(saved, "HelD: %ld\n", HELL_DURATION(ch));
-	}
-	if (DUMB_DURATION(ch) > 0) {
-		if (DUMB_REASON(ch))
-			fprintf(saved, "DmbD: %ld %s\n", DUMB_DURATION(ch), DUMB_REASON(ch));
-		else
-			fprintf(saved, "DmbD: %ld\n", DUMB_DURATION(ch));
 		}
 	fprintf(saved, "LstL: %ld\n", LAST_LOGON(ch));
 	fprintf(saved, "GdFl: %ld\n", ch->player_specials->saved.GodsLike);

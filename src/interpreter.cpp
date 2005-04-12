@@ -938,7 +938,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"taste", POS_RESTING, do_eat, 0, SCMD_TASTE, 500},
 	{"teleport", POS_DEAD, do_teleport, LVL_GRGOD, 0, -1},
 	{"tell", POS_RESTING, do_tell, 0, 0, -1},
-	{"thaw", POS_DEAD, do_wizutil, LVL_FREEZE, SCMD_THAW, 0},
+//	{"thaw", POS_DEAD, do_wizutil, LVL_FREEZE, SCMD_THAW, 0},
 	{"time", POS_DEAD, do_time, 0, 0, 0},
 	{"title", POS_DEAD, do_title, LVL_IMMORT, 0, 0},
 	{"touch", POS_FIGHTING, do_touch, 0, 0, -1},

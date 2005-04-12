@@ -174,6 +174,347 @@ void add_karma(CHAR_DATA * ch, char * punish , char * reason)
 	};
 }
 
+
+int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , long times)
+{
+	struct punish_data * pundata = 0;
+	int result;
+
+	if (ch == vict) {
+		send_to_char("Это слишком жестоко...\r\n", ch);
+		return 0;
+	}
+
+
+	if (GET_LEVEL(vict) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL) {
+	send_to_char("Кем вы себя возомнили?\r\n", ch);
+		return 0;
+	}
+	// Проверяем а может ли чар вообще работать с этим наказанием.
+	switch (punish)
+	{
+		case SCMD_MUTE:
+			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pmute));
+		break;
+		case SCMD_DUMB:
+			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pdumb));	
+		break;
+		case SCMD_HELL:
+			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->phell));	
+		break;
+		case SCMD_NAME:
+			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pname));	
+		break;
+
+		case SCMD_FREEZE:
+			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pfreeze));	
+		break;
+
+	}
+	assert(pundata);	
+	if (GET_LEVEL(ch) < pundata->level)
+	{
+		send_to_char("Да кто ты такой!!? Чтобы оспаривать волю СТАРШИХ БОГОВ !!!\r\n", ch);
+		return 0;
+	}
+
+	// Проверяем наказание или освобождение.
+	if (times == 0)
+	{
+		// Чара досрочно освобождают от наказания.
+		if (!reason || !*reason) 
+		{
+			send_to_char("Укажите причину такой милости.\r\n", ch);
+			return 0;
+		} else 
+			skip_spaces(&reason);
+		// 
+
+		pundata->duration = 0;
+		pundata->level = 0;
+		pundata->godid = 0;
+
+		if (pundata->reason)  
+			free(pundata->reason);
+
+		pundata->reason = 0;
+
+		switch (punish)
+		{
+			case SCMD_MUTE:
+				if (!PLR_FLAGGED(vict, PLR_MUTE)) {
+					send_to_char("Ваша жертва и так может кричать.\r\n", ch);
+					return (0);
+				};
+				REMOVE_BIT(PLR_FLAGS(vict, PLR_MUTE), PLR_MUTE);
+	
+
+				sprintf(buf, "Mute OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
+				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				imm_log(buf);
+
+				sprintf(buf, "Mute OFF by %s", GET_NAME(ch));
+				add_karma(vict, buf, reason);
+
+				sprintf(buf, "%s$N разрешил$G Вам кричать.%s",
+					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+
+				sprintf(buf2, "$n2 вернулся голос.");
+			break;
+			case SCMD_FREEZE:
+				if (!PLR_FLAGGED(vict, PLR_FROZEN)) {
+					send_to_char("Ваша жертва уже разморожена.\r\n", ch);
+					return (0);
+				};
+				REMOVE_BIT(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN);
+	
+
+				sprintf(buf, "Freeze OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
+				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				imm_log(buf);
+
+				sprintf(buf, "Freeze OFF by %s", GET_NAME(ch));
+				add_karma(vict, buf, reason);
+
+				sprintf(buf, "%sЛедяные оковы растаяли под добрым взглядом $N1.%s",
+					CCIYEL(vict, C_NRM), CCNRM(vict, C_NRM));
+
+				sprintf(buf2, "$n2 освободился из ледяного плена.");
+			break;
+
+			case SCMD_DUMB:
+				if (!PLR_FLAGGED(vict, PLR_DUMB)) {
+					send_to_char("Ваша жертва и так может издавать звуки.\r\n", ch);
+					return (0);
+				};
+				REMOVE_BIT(PLR_FLAGS(vict, PLR_DUMB), PLR_DUMB);
+
+				sprintf(buf, "Dumb OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
+				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				imm_log(buf);
+
+				sprintf(buf, "Dumb OFF by %s", GET_NAME(ch));
+				add_karma(vict, buf, reason);
+
+				sprintf(buf, "%s$N разрешил$G Вам издавать звуки.%s",
+					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+
+				sprintf(buf2, "$n2 нарушил обет молчания.");
+
+			break;
+
+			case SCMD_HELL:
+				if (!PLR_FLAGGED(vict, PLR_HELLED)) {
+					send_to_char("Ваша жертва и так на свободе.\r\n", ch);
+					return (0);
+				};
+				REMOVE_BIT(PLR_FLAGS(vict, PLR_HELLED), PLR_HELLED);
+
+				sprintf(buf, "%s removed FROM hell by %s.", GET_NAME(vict), GET_NAME(ch));
+				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				imm_log(buf);
+
+				sprintf(buf, "Removed FROM hell by %s", GET_NAME(ch));
+				add_karma(vict, buf, reason);
+
+				act("$n выпущен$a из темницы !", FALSE, vict, 0, 0, TO_ROOM);
+
+				if ((result = GET_LOADROOM(vict)) == NOWHERE)
+					result = calc_loadroom(vict);
+
+				result = real_room(result);
+
+				if (result == NOWHERE) {
+					if (GET_LEVEL(vict) >= LVL_IMMORT)
+						result = r_immort_start_room;
+					else
+						result = r_mortal_start_room;
+				}
+
+				char_from_room(vict);
+				char_to_room(vict, result);
+				look_at_room(vict, result);
+
+				sprintf(buf, "%s$N выпустил$G Вас из темницы.%s",
+					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+
+				sprintf(buf2, "$n выпущен$a из темницы !");
+			break;
+
+			case SCMD_NAME:
+
+				if (!PLR_FLAGGED(vict, PLR_NAMED)) {
+					send_to_char("Вашей жертвы там нет.\r\n", ch);
+					return (0);
+				};
+				REMOVE_BIT(PLR_FLAGS(vict, PLR_NAMED), PLR_NAMED);
+
+				sprintf(buf, "%s removed FROM name room by %s.", GET_NAME(vict), GET_NAME(ch));
+				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				imm_log(buf);
+
+				sprintf(buf, "Removed FROM name room by %s", GET_NAME(ch));
+				add_karma(vict, buf, reason);
+
+				act("$n выпущен$a из комнаты имени!", FALSE, vict, 0, 0, TO_ROOM);
+
+				if ((result = GET_LOADROOM(vict)) == NOWHERE)
+					result = calc_loadroom(vict);
+
+				result = real_room(result);
+
+				if (result == NOWHERE) {
+					if (GET_LEVEL(vict) >= LVL_IMMORT)
+						result = r_immort_start_room;
+					else
+						result = r_mortal_start_room;
+				}
+
+				char_from_room(vict);
+				char_to_room(vict, result);
+				look_at_room(vict, result);
+
+				sprintf(buf, "%s$N выпустил$G Вас из комнаты имени.%s",
+					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+
+				sprintf(buf2, "$n выпущен$a из комнаты имени !");
+			break;
+
+		}
+
+	} else
+	{
+	 	// Чара наказывают.
+		if (!reason || !*reason) 
+		{
+			send_to_char("Укажите причину наказания.\r\n", ch);
+			return 0;
+		} else 
+			skip_spaces(&reason);
+
+		pundata->level = GET_LEVEL(ch);
+		pundata->godid = GET_UNIQUE(ch);
+
+		// Добавляем в причину имя имма
+
+		sprintf(buf, "%s : %s", GET_NAME(ch), reason);				
+		pundata->reason = str_dup(buf);
+
+		switch (punish)
+		{
+			case SCMD_MUTE:
+				SET_BIT(PLR_FLAGS(vict, PLR_MUTE), PLR_MUTE);
+        			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;				
+	
+				sprintf(buf, "Mute ON for %s by %s(%dh).", GET_NAME(vict), GET_NAME(ch), times);
+				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				imm_log(buf);
+
+				sprintf(buf, "Mute ON (%dh) by %s", times , GET_NAME(ch));
+				add_karma(vict, buf, reason);
+		
+				sprintf(buf, "%s$N запретил$G Вам кричать.%s",
+					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+
+				sprintf(buf2, "$n подавился своим криком.");
+
+			break;
+
+			case SCMD_FREEZE:
+				SET_BIT(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN);
+        			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
+	
+				sprintf(buf, "Freeze ON for %s by %s(%dh).", GET_NAME(vict), GET_NAME(ch), times);
+				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				imm_log(buf);
+
+				sprintf(buf, "Freeze ON (%dh) by %s", times , GET_NAME(ch));
+				add_karma(vict, buf, reason);
+		
+				sprintf(buf, "%sАдский холод сковал Ваше тело ледяным панцирем.\r\n%s",
+					CCIBLU(vict, C_NRM), CCNRM(vict, C_NRM));
+
+				sprintf(buf2, "Ледяной панцирь покрыл тело $n1! Стало очень тихо и холодно.");
+
+			break;
+
+
+			case SCMD_DUMB:
+
+				SET_BIT(PLR_FLAGS(vict, PLR_DUMB), PLR_DUMB);
+        			pundata->duration = (times > 0) ? time(NULL) + times * 60 : MAX_TIME;					
+
+				sprintf(buf, "Dumb ON for %s by %s(%dm).", GET_NAME(vict), GET_NAME(ch), times);
+				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				imm_log(buf);
+
+				sprintf(buf, "Dumb ON (%dm) by %s", times , GET_NAME(ch));
+				add_karma(vict, buf, reason);
+		
+				sprintf(buf, "%s$N запретил$G Вам издавать звуки.%s",
+					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+
+				sprintf(buf2, "$n дал обет молчания.");
+			break;
+			case SCMD_HELL:
+				SET_BIT(PLR_FLAGS(vict, PLR_HELLED), PLR_HELLED);
+
+        			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
+
+				act("$n водворен$a в темницу !", FALSE, vict, 0, 0, TO_ROOM);
+
+				char_from_room(vict);
+				char_to_room(vict, r_helled_start_room);
+				look_at_room(vict, r_helled_start_room);
+
+				if (GET_WAS_IN(vict) != NOWHERE)	// add by Pereplut
+					GET_WAS_IN(vict) = NOWHERE;
+
+				sprintf(buf, "%s moved TO hell by %s(%dh).", GET_NAME(vict), GET_NAME(ch), times);
+				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				imm_log(buf);
+				sprintf(buf, "Moved TO hell (%dh) by %s", times, GET_NAME(ch));
+				add_karma(vict, buf, reason);
+
+				sprintf(buf, "%s$N поместил$G Вас в темницу.%s",
+					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+				sprintf(buf2, "$n водворен$a в темницу !.");
+			break;
+
+			case SCMD_NAME:
+				SET_BIT(PLR_FLAGS(vict, PLR_NAMED), PLR_NAMED);
+
+        			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
+
+				act("$n водворен$a в комнату имени !", FALSE, vict, 0, 0, TO_ROOM);
+
+				char_from_room(vict);
+				char_to_room(vict, r_named_start_room);
+				look_at_room(vict, r_named_start_room);
+
+				if (GET_WAS_IN(vict) != NOWHERE)	// add by Pereplut
+					GET_WAS_IN(vict) = NOWHERE;
+
+				sprintf(buf, "%s removed to nameroom by %s(%dh).", GET_NAME(vict), GET_NAME(ch), times);
+				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				imm_log(buf);
+				sprintf(buf, "Removed TO nameroom (%dh) by %s", times, GET_NAME(ch));
+				add_karma(vict, buf, reason);
+
+				sprintf(buf, "%s$N поместил$G Вас в комнату имени.%s",
+					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+				sprintf(buf2, "$n помещен$a в комнату имени !.");
+			break;
+			
+		}
+	}
+	act(buf, FALSE, vict, 0, ch, TO_CHAR);
+	act(buf2, FALSE, vict, 0, ch, TO_ROOM);
+	return 1;
+}
+
+
+
 ACMD(do_email)
 {
 	CHAR_DATA *victim;
@@ -1051,12 +1392,12 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 				(DUMB_DURATION(k) - time(NULL)) / 60, DUMB_REASON(k) ? DUMB_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
-		if (GET_GOD_FLAG(k, GF_GODSLIKE) && GODS_DURATION(k)) {
-			sprintf(buf, "Под защитой Богов : %ld час.\r\n", (GODS_DURATION(k) - time(NULL)) / 3600);
+		if (GET_GOD_FLAG(k, GF_GODSLIKE) && GCURSE_DURATION(k)) {
+			sprintf(buf, "Под защитой Богов : %ld час.\r\n", (GCURSE_DURATION(k) - time(NULL)) / 3600);
 			send_to_char(buf, ch);
 		}
-		if (GET_GOD_FLAG(k, GF_GODSCURSE) && GODS_DURATION(k)) {
-			sprintf(buf, "Проклят Богами : %ld час.\r\n", (GODS_DURATION(k) - time(NULL)) / 3600);
+		if (GET_GOD_FLAG(k, GF_GODSCURSE) && GCURSE_DURATION(k)) {
+			sprintf(buf, "Проклят Богами : %ld час.\r\n", (GCURSE_DURATION(k) - time(NULL)) / 3600);
 			send_to_char(buf, ch);
 		}
 	}
@@ -2544,6 +2885,9 @@ ACMD(do_zreset)
 }
 
 
+// Функции установки разных наказаний.
+
+
 /*
  *  General fn for wizcommands of the sort: cmd <player>
  */
@@ -2552,7 +2896,7 @@ ACMD(do_wizutil)
 {
 	CHAR_DATA *vict;
 	long result;
-	int times;
+	int times = 0;
 	char *reason;
 	char num[MAX_INPUT_LENGTH];
 
@@ -2607,277 +2951,25 @@ ACMD(do_wizutil)
 		case SCMD_SQUELCH:
 			break;
 		case SCMD_MUTE:
-			if (GET_LEVEL(vict) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL) {
-				send_to_char("Кем вы себя возомнили?\r\n", ch);
-				return;
-			}
-			if (*num && reason && *reason) {
-				skip_spaces(&reason);
-				times = atol(num);
-				MUTE_DURATION(vict) = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
-				SET_BIT(PLR_FLAGS(vict, PLR_MUTE), PLR_MUTE);
-				sprintf(num, "%s : %s", GET_NAME(ch), reason);
-				if (MUTE_REASON(vict))
-					free(MUTE_REASON(vict));
-				MUTE_REASON(vict) = strcpy((char *) (malloc(strlen(num) + 1)), num);
-			} else {
-				if (!PLR_FLAGGED(vict, PLR_MUTE)) {
-					send_to_char("Ваша жертва и так может кричать.\r\n", ch);
-					return;
-				} else {
-					MUTE_DURATION(vict) = 0;
-					REMOVE_BIT(PLR_FLAGS(vict, PLR_MUTE), PLR_MUTE);
-					if (MUTE_REASON(vict))
-						free(MUTE_REASON(vict));
-					MUTE_REASON(vict) = 0;
-				}
-			}
-			result = PLR_FLAGGED(vict, PLR_MUTE);
-			sprintf(buf, "%s$N %s$G Вам кричать.%s",
-				CCIRED(vict, C_NRM), (result ? "запретил" : "разрешил"), CCNRM(vict, C_NRM));
-			act(buf, FALSE, vict, 0, ch, TO_CHAR);
-			if (result) {
-				sprintf(buf, "Mute ON for %s by %s(%dh).", GET_NAME(vict), GET_NAME(ch), times);
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-				imm_log(buf);
-				sprintf(buf, "Mute ON (%dh) by %s", times , GET_NAME(ch));
-				add_karma(vict, buf, reason);
-			} else {
-				sprintf(buf, "Mute OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-				imm_log(buf);
-				sprintf(buf, "Mute OFF by %s", GET_NAME(ch));
-				add_karma(vict, buf, "???");
-			}
+			if (num && *num) times=atol(num);
+			set_punish(ch, vict, SCMD_MUTE, reason, times);
 			break;
 		case SCMD_DUMB:
-			if (GET_LEVEL(vict) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL) {
-				send_to_char("Кем вы себя возомнили?\r\n", ch);
-				return;
-			}
-			if (*num && reason && *reason) {
-				skip_spaces(&reason);
-				times = atol(num);
-				DUMB_DURATION(vict) = (times > 0) ? time(NULL) + times * 60 : MAX_TIME;
-				SET_BIT(PLR_FLAGS(vict, PLR_DUMB), PLR_DUMB);
-				sprintf(num, "%s : %s", GET_NAME(ch), reason);
-				if (DUMB_REASON(vict))
-					free(DUMB_REASON(vict));
-				DUMB_REASON(vict) = strcpy((char *) (malloc(strlen(num) + 1)), num);
-			} else {
-				if (!PLR_FLAGGED(vict, PLR_DUMB)) {
-					send_to_char("Ваша жертва и так может говорить.\r\n", ch);
-					return;
-				} else {
-					DUMB_DURATION(vict) = 0;
-					REMOVE_BIT(PLR_FLAGS(vict, PLR_DUMB), PLR_DUMB);
-					if (DUMB_REASON(vict))
-						free(DUMB_REASON(vict));
-					DUMB_REASON(vict) = 0;
-				}
-			}
-			result = PLR_FLAGGED(vict, PLR_DUMB);
-			sprintf(buf, "%s$N %s$G Вам говорить.%s",
-				CCIRED(vict, C_NRM), (result ? "запретил" : "разрешил"), CCNRM(vict, C_NRM));
-			act(buf, FALSE, vict, 0, ch, TO_CHAR);
-			if (result) {
-				sprintf(buf, "Dumb ON for %s by %s(%dm).", GET_NAME(vict), GET_NAME(ch), times);
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-				imm_log(buf);
-				sprintf(buf, "Dumb ON (%dm) by %s", times, GET_NAME(ch));
-				add_karma(vict, buf, reason);
-			} else {
-				sprintf(buf, "Dumb OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-				imm_log(buf);
-				sprintf(buf, "Dumb OFF by %s", GET_NAME(ch));
-				add_karma(vict, buf, "???");
-			}
+			if (num && *num) times=atol(num);
+			set_punish(ch, vict, SCMD_DUMB, reason, times);
 			break;
 		case SCMD_FREEZE:
-			if (ch == vict) {
-				send_to_char("Это слишком жестоко...\r\n", ch);
-				return;
-			}
-			if (*num && reason && *reason) {
-				if (GET_FREEZE_LEV(vict) > GET_LEVEL(ch)
-				    && FREEZE_DURATION(vict)) {
-					sprintf(buf,
-						"Извините, %s заморожен(а) старшими богами... Вы не в состоянии разморозить %s.\r\n",
-						GET_NAME(vict), HMHR(vict));
-					send_to_char(buf, ch);
-					return;
-				}
-				skip_spaces(&reason);
-				times = atol(num);
-				FREEZE_DURATION(vict) = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
-				GET_FREEZE_LEV(vict) = GET_LEVEL(ch);
-				sprintf(num, "%s : %s", GET_NAME(ch), reason);
-				if (FREEZE_REASON(vict))
-					free(FREEZE_REASON(vict));
-				FREEZE_REASON(vict) = strcpy((char *) (malloc(strlen(num) + 1)), num);
-				sprintf(buf, "Freezed ON (%dh) by %s", times, GET_NAME(ch));
-				add_karma(vict, buf, reason);
-			} else {
-				if (PLR_FLAGGED(vict, PLR_FROZEN)) {
-					send_to_char("Ваша жертва и так заморожена.\r\n", ch);
-					return;
-				} else {
-					send_to_char("Формат команды: freeze <victim> <time> <reason>\r\n", ch);
-					return;
-				}
-			}
-			SET_BIT(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN);
-			sprintf(buf, "%s$N заморозил$G Вас.%s", CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
-			act(buf, FALSE, vict, 0, ch, TO_CHAR);
-			send_to_char("Адский холод сковал Ваше тело ледяным панцирем.\r\n", vict);
-			act("Ледяной панцирь покрыл тело $n1!", FALSE, vict, 0, 0, TO_ROOM);
-			sprintf(buf, "%s frozen by %s(%dh).", GET_NAME(vict), GET_NAME(ch), times);
-			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
-
+			if (num && *num) times=atol(num);
+			set_punish(ch, vict, SCMD_FREEZE, reason, times);
 			break;
 		case SCMD_HELL:
-			if (GET_LEVEL(vict) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL && vict != ch) {
-				send_to_char("Кем вы себя возомнили?\r\n", ch);
-				return;
-			}
-			if (*num && reason && *reason) {
-				skip_spaces(&reason);
-				times = atol(num);
-				HELL_DURATION(vict) = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
-				sprintf(num, "%s : %s", GET_NAME(ch), reason);
-				if (HELL_REASON(vict))
-					free(HELL_REASON(vict));
-				HELL_REASON(vict) = strcpy((char *) (malloc(strlen(num) + 1)), num);
-			} else {
-				if (GET_LEVEL(ch) < LVL_GOD) {
-					send_to_char("Вы не имеете права сделать это.\r\n", ch);
-					return;
-				}
-				HELL_DURATION(vict) = 0;
-				if (HELL_REASON(vict))
-					free(HELL_REASON(vict));
-				HELL_REASON(vict) = 0;
-			}
-
-			if (HELL_DURATION(vict)) {
-				if (PLR_FLAGGED(vict, PLR_HELLED)) {
-					send_to_char("Ваша жертва и так в темнице.\r\n", ch);
-					return;
-				}
-				SET_BIT(PLR_FLAGS(vict, PLR_HELLED), PLR_HELLED);
-				sprintf(buf, "%s$N поместил$G Вас в темницу.%s",
-					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
-				act(buf, FALSE, vict, 0, ch, TO_CHAR);
-				act("$n водворен$a в темницу !", FALSE, vict, 0, 0, TO_ROOM);
-				char_from_room(vict);
-				char_to_room(vict, r_helled_start_room);
-				look_at_room(vict, r_helled_start_room);
-				if (GET_WAS_IN(vict) != NOWHERE)	// add by Pereplut
-					GET_WAS_IN(vict) = NOWHERE;
-				act("$n водворен$a в темницу !", FALSE, vict, 0, 0, TO_ROOM);
-				sprintf(buf, "%s removed to hell by %s(%dh).", GET_NAME(vict), GET_NAME(ch), times);
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-				imm_log(buf);
-				sprintf(buf, "Removed TO hell (%dh) by %s", times, GET_NAME(ch));
-				add_karma(vict, buf, reason);
-
-			} else {
-				if (!PLR_FLAGGED(vict, PLR_HELLED)) {
-					send_to_char("Ваша жертва и так на свободе.\r\n", ch);
-					return;
-				}
-				REMOVE_BIT(PLR_FLAGS(vict, PLR_HELLED), PLR_HELLED);
-				send_to_char("Вас выпустили из темницы.\r\n", vict);
-				if ((result = GET_LOADROOM(vict)) == NOWHERE)
-					result = calc_loadroom(vict);
-				result = real_room(result);
-				if (result == NOWHERE) {
-					if (GET_LEVEL(vict) >= LVL_IMMORT)
-						result = r_immort_start_room;
-					else
-						result = r_mortal_start_room;
-				}
-				act("$n выпущен$a из темницы !", FALSE, vict, 0, 0, TO_ROOM);
-				char_from_room(vict);
-				char_to_room(vict, result);
-				look_at_room(vict, result);
-				act("$n выпущен$a из темницы !", FALSE, vict, 0, 0, TO_ROOM);
-				sprintf(buf, "%s removed from hell by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-				imm_log(buf);
-				sprintf(buf, "Removed FROM hell by %s", GET_NAME(ch));
-				add_karma(vict, buf, "???");
-
-			}
+			if (num && *num) times=atol(num);
+			set_punish(ch, vict, SCMD_HELL, reason, times);
 			break;
 
 		case SCMD_NAME:
-			if (GET_LEVEL(vict) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL) {
-				send_to_char("Кем вы себя возомнили?\r\n", ch);
-				return;
-			}
-			if (sscanf(argument, "%s %d", arg, &times) > 1)
-				NAME_DURATION(vict) = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
-			else {
-				/*
-				   if ( GET_LEVEL(ch) < LVL_GOD ) 
-				   {
-				   send_to_char("Вы не имеете права сделать это.\r\n", ch);
-				   return;
-				   }
-				 */
-				NAME_DURATION(vict) = 0;
-			}
-
-			if (NAME_DURATION(vict)) {
-				if (PLR_FLAGGED(vict, PLR_NAMED)) {
-					send_to_char("Ваша жертва и так в комнате имени.\r\n", ch);
-					return;
-				}
-				SET_BIT(PLR_FLAGS(vict, PLR_NAMED), PLR_NAMED);
-				sprintf(buf, "%s$N поместил$G Вас в комнату имен.%s",
-					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
-				act(buf, FALSE, vict, 0, ch, TO_CHAR);
-				act("$n водворен$a в КОМНАТУ ИМЕНИ !", FALSE, vict, 0, 0, TO_ROOM);
-				char_from_room(vict);
-				char_to_room(vict, r_named_start_room);
-				look_at_room(vict, r_named_start_room);
-				act("$n водворен$a в КОМНАТУ ИМЕНИ !", FALSE, vict, 0, 0, TO_ROOM);
-				sprintf(buf, "%s removed to NAMES ROOM by %s(%dh).", GET_NAME(vict), GET_NAME(ch),
-					times);
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-				imm_log(buf);
-				sprintf(buf, "Moved TO nameroom by %s", GET_NAME(ch));
-				add_karma(vict, buf, "???");
-			} else {
-				if (!PLR_FLAGGED(vict, PLR_NAMED)) {
-					send_to_char("Вашей жертвы там нет.\r\n", ch);
-					return;
-				}
-				REMOVE_BIT(PLR_FLAGS(vict, PLR_NAMED), PLR_NAMED);
-				send_to_char("Вас выпустили из КОМНАТЫ ИМЕНИ.\r\n", vict);
-				if ((result = GET_LOADROOM(vict)) == NOWHERE)
-					result = calc_loadroom(vict);
-				result = real_room(result);
-				if (result == NOWHERE) {
-					if (GET_LEVEL(vict) >= LVL_IMMORT)
-						result = r_immort_start_room;
-					else
-						result = r_mortal_start_room;
-				}
-				act("$n выпущен$a из КОМНАТЫ ИМЕНИ !", FALSE, vict, 0, 0, TO_ROOM);
-				char_from_room(vict);
-				char_to_room(vict, result);
-				look_at_room(vict, result);
-				act("$n выпущен$a из КОМНАТЫ ИМЕНИ !", FALSE, vict, 0, 0, TO_ROOM);
-				sprintf(buf, "%s removed from NAMES ROOM by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-				imm_log(buf);
-				sprintf(buf, "Moved FROM nameroom by %s", GET_NAME(ch));
-				add_karma(vict, buf, "???");
-			}
+			if (num && *num) times=atol(num);
+			set_punish(ch, vict, SCMD_NAME, reason, times);
 			break;
 
 		case SCMD_REGISTER:
@@ -2939,35 +3031,6 @@ ACMD(do_wizutil)
 			add_karma(vict, buf, "???");
 			break;
 
-		case SCMD_THAW:
-			if (!PLR_FLAGGED(vict, PLR_FROZEN)) {
-				send_to_char("Ваша цель и так не заморожена.\r\n", ch);
-				return;
-			}
-			if (GET_FREEZE_LEV(vict) > GET_LEVEL(ch)
-			    && FREEZE_DURATION(vict)) {
-				sprintf(buf,
-					"Извините, %s заморожен(а) старшими богами... Вы не в состоянии разморозить %s.\r\n",
-					GET_NAME(vict), HMHR(vict));
-				send_to_char(buf, ch);
-				return;
-			}
-			sprintf(buf, "%s un-frozen by %s.", GET_NAME(vict), GET_NAME(ch));
-			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
-
-			REMOVE_BIT(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN);
-			GET_FREEZE_LEV(vict) = 0;
-			if (FREEZE_REASON(vict))
-				free(FREEZE_REASON(vict));
-			FREEZE_REASON(vict) = 0;
-			send_to_char("Огненный шар разметал в клочки панцирь, сковывающий Ваше тело.\r\n", vict);
-			act("Огненный шар освободил $n3 из ледового плена.", FALSE, vict, 0, 0, TO_ROOM);
-
-			sprintf(buf, "Un-frozen by %s", GET_NAME(ch));
-			add_karma(vict, buf, "???");
-
-			break;
 		case SCMD_UNAFFECT:
 			if (vict->affected) {
 				while (vict->affected)
@@ -3512,7 +3575,7 @@ struct set_struct		/*
 
 int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 {
-	int i, j, c, on = 0, off = 0, value = 0, return_code = 1, ptnum, times, result;
+	int i, j, c, on = 0, off = 0, value = 0, return_code = 1, ptnum, times=0;
 	char npad[NUM_PADS][256];
 	char *reason;
 	room_rnum rnum;
@@ -3698,59 +3761,9 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_NOHASSLE), PRF_NOHASSLE);
 		break;
 	case 26:
-		if (ch == vict) {
-			send_to_char("Лучше не стоит - Вас ожидает долгая зима :)\r\n", ch);
-			return (0);
-		}
 		reason = one_argument(val_arg, num);
-		if (*num && reason && *reason) {
-			if (GET_FREEZE_LEV(vict) > GET_LEVEL(ch)
-			    && FREEZE_DURATION(vict)) {
-				sprintf(buf,
-					"Извините, %s заморожен(а) старшими богами... Вы не в состоянии разморозить %s.\r\n",
-					GET_NAME(vict), HMHR(vict));
-				send_to_char(buf, ch);
-				return (0);
-			}
-			skip_spaces(&reason);
-			times = atol(num);
-			FREEZE_DURATION(vict) = (times >= 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
-			if (FREEZE_REASON(vict))
-				free(FREEZE_REASON(vict));
-			FREEZE_REASON(vict) = 0;
-		} else {
-			send_to_char
-			    ("Формат команды: set [ file | player ] <character> frozen <value> <reason>\r\n", ch);
-			return (0);
-		}
-		if (FREEZE_DURATION(vict)) {
-			GET_FREEZE_LEV(vict) = GET_LEVEL(ch);
-			sprintf(num, "%s : %s", GET_NAME(ch), reason);
-			FREEZE_REASON(vict) = strcpy((char *) (malloc(strlen(num) + 1)), num);
-			SET_BIT(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN);
-			if (IN_ROOM(vict) != NOWHERE) {
-				sprintf(buf, "%s$N заморозил$G Вас.%s", CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
-				act(buf, FALSE, vict, 0, ch, TO_CHAR);
-				send_to_char("Адский холод сковал Ваше тело ледяным панцирем.\r\n", vict);
-				act("Ледяной панцирь покрыл тело $n1!", FALSE, vict, 0, 0, TO_ROOM);
-			}
-			sprintf(buf, "%s frozen by %s(%dh).", GET_NAME(vict), GET_NAME(ch), times);
-			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
-			sprintf(buf, "Freezed ON (%dh) by %s", times, GET_NAME(ch));
-			add_karma(vict, buf, reason);
-		} else {
-			REMOVE_BIT(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN);
-			GET_FREEZE_LEV(vict) = 0;
-			if (IN_ROOM(vict) != NOWHERE) {
-				sprintf(buf, "%s un-frozen by %s.", GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-				imm_log(buf);
-				send_to_char
-				    ("Огненный шар разметал в клочки панцирь, сковывающий Ваше тело.\r\n", vict);
-				act("Огненный шар освободил $n3 из ледового плена.", FALSE, vict, 0, 0, TO_ROOM);
-			}
-		}
+		if (num && *num) times=atol(num);
+		if (!set_punish(ch, vict, SCMD_FREEZE, reason, times)) return (0);
 		break;
 	case 27:
 	case 28:
@@ -3909,9 +3922,9 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		if (on) {
 			SET_GOD_FLAG(vict, GF_GODSLIKE);
 			if (sscanf(val_arg, "%s %d", npad[0], &i) != 0)
-				GODS_DURATION(vict) = (i > 0) ? time(NULL) + i * 60 * 60 : MAX_TIME;
+				GCURSE_DURATION(vict) = (i > 0) ? time(NULL) + i * 60 * 60 : MAX_TIME;
 			else
-				GODS_DURATION(vict) = 0;
+				GCURSE_DURATION(vict) = 0;
 		} else if (off)
 			CLR_GOD_FLAG(vict, GF_GODSLIKE);
 		break;
@@ -3919,9 +3932,9 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		if (on) {
 			SET_GOD_FLAG(vict, GF_GODSCURSE);
 			if (sscanf(val_arg, "%s %d", npad[0], &i) != 0)
-				GODS_DURATION(vict) = (i > 0) ? time(NULL) + i * 60 * 60 : MAX_TIME;
+				GCURSE_DURATION(vict) = (i > 0) ? time(NULL) + i * 60 * 60 : MAX_TIME;
 			else
-				GODS_DURATION(vict) = 0;
+				GCURSE_DURATION(vict) = 0;
 		} else if (off)
 			CLR_GOD_FLAG(vict, GF_GODSCURSE);
 		break;
@@ -4107,63 +4120,9 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 
 	case 60:
-		if (GET_LEVEL(vict) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL) {
-			send_to_char("Кем вы себя возомнили?\r\n", ch);
-			return (0);
-		}
 		reason = one_argument(val_arg, num);
-		if (*num && reason && *reason) {
-			skip_spaces(&reason);
-			times = atol(num);
-			HELL_DURATION(vict) = (times >= 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
-			sprintf(num, "%s : %s", GET_NAME(ch), reason);
-			if (HELL_REASON(vict))
-				free(HELL_REASON(vict));
-			HELL_REASON(vict) = strcpy((char *) (malloc(strlen(num) + 1)), num);
-		} else {
-			send_to_char("Формат команды: set [ file | player ] <character> hell <value> <reason>\r\n", ch);
-			return (0);
-		}
-		if (HELL_DURATION(vict)) {
-			SET_BIT(PLR_FLAGS(vict, PLR_HELLED), PLR_HELLED);
-			if (IN_ROOM(vict) != NOWHERE) {
-				sprintf(buf, "%s$N поместил$G Вас в темницу.%s",
-					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
-				act(buf, FALSE, vict, 0, ch, TO_CHAR);
-				act("$n водворен$a в темницу !", FALSE, vict, 0, 0, TO_ROOM);
-				char_from_room(vict);
-				char_to_room(vict, r_helled_start_room);
-				look_at_room(vict, r_helled_start_room);
-				act("$n водворен$a в темницу !", FALSE, vict, 0, 0, TO_ROOM);
-			}
-			sprintf(buf, "%s removed to hell by %s(%dh).", GET_NAME(vict), GET_NAME(ch), times);
-			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf, GET_NAME(vict), GET_NAME(ch), times);
-			sprintf(buf, "Removed to hell (%dh) by %s", times, GET_NAME(ch));
-			add_karma(vict, buf, reason);
-		} else {
-			REMOVE_BIT(PLR_FLAGS(vict, PLR_HELLED), PLR_HELLED);
-			if (IN_ROOM(vict) != NOWHERE) {
-				send_to_char("Вас выпустили из темницы.\r\n", vict);
-				if ((result = GET_LOADROOM(vict)) == NOWHERE)
-					result = calc_loadroom(vict);
-				result = real_room(result);
-				if (result == NOWHERE) {
-					if (GET_LEVEL(vict) >= LVL_IMMORT)
-						result = r_immort_start_room;
-					else
-						result = r_mortal_start_room;
-				}
-				act("$n выпущен$a из темницы !", FALSE, vict, 0, 0, TO_ROOM);
-				char_from_room(vict);
-				char_to_room(vict, result);
-				look_at_room(vict, result);
-				act("$n выпущен$a из темницы !", FALSE, vict, 0, 0, TO_ROOM);
-			}
-			sprintf(buf, "%s removed from hell by %s.", GET_NAME(vict), GET_NAME(ch));
-			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf, GET_NAME(vict), GET_NAME(ch));
-		}
+		if (num && *num) times=atol(num);
+		if (!set_punish(ch, vict, SCMD_HELL, reason, times)) return (0);
 		break;
 	case 61:
 		if (*val_arg && (dog_pos = strchr(val_arg, '@')) && dog_pos > val_arg && *(dog_pos + 1)) {
@@ -4194,76 +4153,14 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 	case 64:
-		if (GET_LEVEL(vict) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL) {
-			send_to_char("Кем вы себя возомнили?\r\n", ch);
-			return (0);
-		}
 		reason = one_argument(val_arg, num);
-		if (*num && reason && *reason) {
-			skip_spaces(&reason);
-			times = atol(num);
-			MUTE_DURATION(vict) = (times >= 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
-			sprintf(num, "%s : %s", GET_NAME(ch), reason);
-			if (MUTE_REASON(vict))
-				free(MUTE_REASON(vict));
-			MUTE_REASON(vict) = strcpy((char *) (malloc(strlen(num) + 1)), num);
-		} else {
-			send_to_char("Формат команды: set [ file | player ] <character> mute <value> <reason>\r\n", ch);
-			return (0);
-		}
-		if (MUTE_DURATION(vict)) {
-			SET_BIT(PLR_FLAGS(vict, PLR_MUTE), PLR_MUTE);
-			sprintf(buf, "%s$N запретил$G Вам кричать.%s", CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
-			act(buf, FALSE, vict, 0, ch, TO_CHAR);
-			sprintf(buf, "Mute ON for %s by %s(%dh).", GET_NAME(vict), GET_NAME(ch), times);
-			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
-			sprintf(buf, "Mute ON (%dh) by %s", times, GET_NAME(ch));
-			add_karma(vict, buf, reason);
-		} else {
-			REMOVE_BIT(PLR_FLAGS(vict, PLR_MUTE), PLR_MUTE);
-			sprintf(buf, "%s$N разрешил$G Вам кричать.%s", CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
-			act(buf, FALSE, vict, 0, ch, TO_CHAR);
-			sprintf(buf, "Mute OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
-			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
-		}
+		if (num && *num) times=atol(num);
+		if (!set_punish(ch, vict, SCMD_MUTE, reason, times)) return (0);
 		break;
 	case 65:
-		if (GET_LEVEL(vict) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL) {
-			send_to_char("Кем вы себя возомнили?\r\n", ch);
-			return (0);
-		}
 		reason = one_argument(val_arg, num);
-		if (*num && reason && *reason) {
-			skip_spaces(&reason);
-			times = atol(num);
-			DUMB_DURATION(vict) = (times >= 0) ? time(NULL) + times * 60 : MAX_TIME;
-			sprintf(num, "%s : %s", GET_NAME(ch), reason);
-			if (DUMB_REASON(vict))
-				free(DUMB_REASON(vict));
-			DUMB_REASON(vict) = strcpy((char *) (malloc(strlen(num) + 1)), num);
-		} else {
-			send_to_char("Формат команды: set [ file | player ] <character> dumb <value> <reason>\r\n", ch);
-			return (0);
-		}
-		if (DUMB_DURATION(vict)) {
-			SET_BIT(PLR_FLAGS(vict, PLR_DUMB), PLR_DUMB);
-			sprintf(buf, "%s$N запретил$G Вам говорить.%s", CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
-			act(buf, FALSE, vict, 0, ch, TO_CHAR);
-			sprintf(buf, "Dumb ON for %s by %s(%dm).", GET_NAME(vict), GET_NAME(ch), times);
-			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
-			sprintf(buf, "Dumb ON (%dm) by %s", times, GET_NAME(ch));
-			add_karma(vict, buf, reason);
-		} else {
-			REMOVE_BIT(PLR_FLAGS(vict, PLR_DUMB), PLR_DUMB);
-			sprintf(buf, "%s$N разрешил$G Вам говорить.%s", CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
-			act(buf, FALSE, vict, 0, ch, TO_CHAR);
-			sprintf(buf, "Dumb OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
-			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
-		}
+		if (num && *num) times=atol(num);
+		if (!set_punish(ch, vict, SCMD_DUMB, reason, times)) return (0);
 		break;
 	case 66:      
 		if (GET_LEVEL(vict) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL) {
@@ -4274,7 +4171,17 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		if (*num && reason && *reason) {
 			skip_spaces(&reason);
 			sprintf(buf, "%s by %s", num, GET_NAME(ch));
-			add_karma(vict,buf,reason);
+			if (!strcmp(reason,"clear")) 
+			{
+				if KARMA(vict) 
+					free(KARMA(vict));
+
+				KARMA(vict) = 0;
+				act("Вы отпустили $N2 все грехи.", FALSE, ch, 0, vict, TO_CHAR);
+				sprintf(buf, "%s", GET_NAME(ch));			
+				add_karma(vict,"Очистка грехов", buf);
+
+			} else  add_karma(vict,buf,reason);
 		} else {
 			send_to_char("Формат команды: set [ file | player ] <character> karma <action> <reason>\r\n", ch);
 			return (0);
@@ -4337,7 +4244,8 @@ ACMD(do_set)
 	/* find the target */
 	if (!is_file) {
 		if (is_player) {
-			if (!(vict = get_player_vis(ch, name, FIND_CHAR_WORLD | FIND_CHAR_DISCONNECTED))) {
+
+			if (!(vict = get_player_pun(ch, name, FIND_CHAR_WORLD))) {
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
 			}
