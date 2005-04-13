@@ -216,7 +216,7 @@ OBJ_DATA *create_skin(CHAR_DATA *mob,CHAR_DATA *ch)
 		concidence = TRUE;
 		while (concidence && i != 0) {
 			for (n = 0; n <= k; n++)
-				if (num == (skin)->affected[k].location) {
+				if (effects[num][0] == (skin)->affected[k].location) {
 					concidence = TRUE;
 					num = number(0, max_eff);
 				} else
