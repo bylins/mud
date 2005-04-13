@@ -734,6 +734,7 @@ typedef struct trig_data
 #define ITEM_BOOK      24	/**** Item is book */
 #define ITEM_INGRADIENT 25	/**** Item is magical ingradient */
 #define ITEM_MING      26	/* Магический ингредиент */
+#define ITEM_MATERIAL	27	/* Материал для крафтовых умений */
 
 
 /* Take/Wear flags: used by obj_data.obj_flags.wear_flags */

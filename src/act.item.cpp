@@ -69,7 +69,7 @@ void perform_remove(CHAR_DATA * ch, int pos);
 int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
 void feed_charmice(CHAR_DATA * ch, char *arg);
 int get_player_charms(CHAR_DATA * ch, int spellnum);
-void create_skin(CHAR_DATA * mob);
+OBJ_DATA *create_skin(CHAR_DATA * mob);
 
 ACMD(do_split);
 ACMD(do_remove);
@@ -116,10 +116,11 @@ void perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 	}
 }
 
-void create_skin(CHAR_DATA *mob,CHAR_DATA *ch)
+OBJ_DATA *create_skin(CHAR_DATA *mob,CHAR_DATA *ch)
 {
 	OBJ_DATA *skin;
-	int definitor, vnum, eff, limit, i, k = 0, num, effect;
+	int definitor, vnum, eff, limit, i, n, k = 0, num, effect, max_eff;
+	bool concidence;
 	const int vnum_skin_prototype = 1660;
 
 	const int effects[36][2] = { {APPLY_STR, 3},
@@ -165,39 +166,44 @@ void create_skin(CHAR_DATA *mob,CHAR_DATA *ch)
 	if (skin == NULL) {
 		mudlog("Неверно задан номер протитипа для освежевания в act.item.cpp::create_skin!",
 										NRM, LVL_GRGOD, ERRLOG, TRUE);
-		return;
+		return NULL;
 	}
 
-	definitor = (int)((GET_STR(mob) + GET_DEX(mob) + GET_CON(mob) + GET_WIS(mob) + GET_INT(mob) + GET_CHA(mob)) / 6);
+	definitor = (int)((GET_STR(mob) + GET_DEX(mob) + GET_CON(mob) + GET_WIS(mob) + GET_INT(mob)) / 5);
 	GET_OBJ_PARENT(skin) = GET_MOB_VNUM(mob);
 	trans_obj_name(skin, mob);
 	if (0 <= definitor && definitor <= 15) {
-		limit = 4;
+		limit = 5;
 		eff = number(0, 1);
+		max_eff = 9;
 		//aff = 0;
 		GET_OBJ_VAL(skin, 0) = number(1, 3);
 		GET_OBJ_VAL(skin, 1) = number(0, 2);
 	} else if (16 <= definitor && definitor <= 25) {
-			limit = 6;
+			limit = 7;
 			eff = number(0, 2);
+			max_eff = 12;
 			//aff = number(0, 1);
 			GET_OBJ_VAL(skin, 0) = number(2, 5);
 			GET_OBJ_VAL(skin, 1) = number(2, 5);
 		} else if (26 <= definitor && definitor <= 35) {
 				limit = 8;
 				eff = number(0, 3);
+				max_eff = 20;
 				//aff = number(0, 1);
 			GET_OBJ_VAL(skin, 0) = number(4, 7);
 			GET_OBJ_VAL(skin, 1) = number(4, 6);
 			} else if (36 <= definitor && definitor <= 45) {
 					limit = 9;
 					eff = number(0, 4);
+					max_eff = 30;
 					//aff = number(0, 2);
 					GET_OBJ_VAL(skin, 0) = number(6, 9);
 					GET_OBJ_VAL(skin, 1) = number(5, 7);
 				} else {
 					limit = 10;
-					eff = number(0, 5);
+					eff = number(0, 6);
+					max_eff = 39;
 					//aff = number(0, 3);
 					GET_OBJ_VAL(skin, 0) = number(6, 10);
 					GET_OBJ_VAL(skin, 1) = number(5, 8);
@@ -206,19 +212,27 @@ void create_skin(CHAR_DATA *mob,CHAR_DATA *ch)
 	for (i = 0; i <= eff; i++) {
 		if (number(0, 1000) <= 200)
 			continue;
+		num = number(0, max_eff);
+		concidence = TRUE;
+		while (concidence && i != 0) {
+			for (n = 0; n <= k; n++)
+				if (num == (skin)->affected[k].location) {
+					concidence = TRUE;
+					num = number(0, max_eff);
+				} else
+					concidence = FALSE;
+		}
 		k++;
-		num = number(0, 36);
 		(skin)->affected[k].location = effects[num][0];
-		effect = number(0, (int)(effects[num][1] * limit / 10));
+		effect = number(1, (int)(effects[num][1] * limit / 10));
 		if (number(0, 1000) <= 150)
 			effect *= -1;
 		(skin)->affected[k].modifier = effect;
 	}
-	GET_OBJ_COST(skin) = GET_LEVEL(mob) * number(30, 50);
+	GET_OBJ_COST(skin) = GET_LEVEL(mob) * number(1, MAX(2, 3 * k));
 	GET_OBJ_VAL(skin, 2) = (int)(1 + (GET_WEIGHT(mob) + GET_SIZE(mob)) / 20);
 
-	can_carry_obj(ch, skin);
-	return;
+	return skin;
 }
 
 /* The following put modes are supported by the code below:
@@ -2727,7 +2741,7 @@ const int meet_vnum[] = { 320, 321, 322, 323 };
 
 ACMD(do_makefood)
 {
-	OBJ_DATA *obj, *tobj;
+	OBJ_DATA *obj, *tobj, *skin;
 	CHAR_DATA *mob;
 	int prob, percent = 0, mobn, wgt = 0;
 
@@ -2772,12 +2786,20 @@ ACMD(do_makefood)
 		act("$n умело освежевал$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
 		//sprintf (buf, "Вы умело вырезали %s из $o1.", tobj->PNames[3]);
 		act("Вы умело освежевали $o3.", FALSE, ch, obj, 0, TO_CHAR);
+
 		dl_load_obj(obj, mob, ch, DL_SKIN);
-		create_skin(mob, ch);
+		skin = create_skin(mob, ch);
+		if ((skin != NULL) && (number(1, GET_SKILL(ch, SKILL_MAKEFOOD)) >= prob)) {
+			if (obj->carried_by == ch)
+				can_carry_obj(ch, skin);
+			else
+				obj_to_room(skin, IN_ROOM(ch));
+		}
 		if (obj->carried_by == ch)
 			can_carry_obj(ch, tobj);
 		else
 			obj_to_room(tobj, IN_ROOM(ch));
+
 //  obj_decay(tobj);
 	}
 //Зачем-то труп выкидывался в комнату перед уничтожением.

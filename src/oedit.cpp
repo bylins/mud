@@ -778,6 +778,9 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 	case ITEM_MING:
 		oedit_disp_val4_menu(d);
 		break;
+	case ITEM_MATERIAL:
+		send_to_char("Первый параметр: ", d->character);
+		break;
 	default:
 		oedit_disp_menu(d);
 	}
@@ -826,6 +829,9 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 	case ITEM_INGRADIENT:
 		send_to_char("Виртуальный номер прототипа  : ", d->character);
 		break;
+	case ITEM_MATERIAL:
+		send_to_char("Второй параметр: ", d->character);
+		break;
 	default:
 		oedit_disp_menu(d);
 	}
@@ -862,6 +868,9 @@ void oedit_disp_val3_menu(DESCRIPTOR_DATA * d)
 	case ITEM_INGRADIENT:
 		send_to_char("Сколько раз можно использовать : ", d->character);
 		break;
+	case ITEM_MATERIAL:
+		send_to_char("Введите количество (размер): ", d->character);
+		break;
 	default:
 		oedit_disp_menu(d);
 	}
@@ -890,6 +899,9 @@ void oedit_disp_val4_menu(DESCRIPTOR_DATA * d)
 		break;
 	case ITEM_MING:
 		send_to_char("Класс ингредиента (0-РОСЛЬ,1-ЖИВЬ,2-ТВЕРДЬ): ", d->character);
+		break;
+	case ITEM_MATERIAL:
+		send_to_char("Введите материал: ", d->character);
 		break;
 	default:
 		oedit_disp_menu(d);
@@ -1774,6 +1786,10 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			min_val = 0;
 			max_val = NUM_LIQ_TYPES - 1;
 			break;
+		case ITEM_MATERIAL:
+			min_val = 0;
+			max_val = 1000;
+			break;
 		default:
 			min_val = -32000;
 			max_val = 32000;
@@ -1802,6 +1818,10 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case ITEM_MING:
 			min_val = 0;
 			max_val = 2;
+			break;
+		case ITEM_MATERIAL:
+			min_val = 0;
+			max_val = 100;
 			break;
 		default:
 			min_val = -32000;
