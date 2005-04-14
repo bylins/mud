@@ -116,55 +116,60 @@ void perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 	}
 }
 
+const int effects[][2] = { {APPLY_MOVEREG, 100},
+    {APPLY_HITROLL, 2},
+    {APPLY_DAMROLL, 2},
+    {APPLY_MANAREG, 30},
+    {APPLY_MOVE, 100},
+    {APPLY_C1, 4},
+    {APPLY_C2, 4},
+    {APPLY_CHAR_WEIGHT, 10},
+    {APPLY_HITREG, 76},
+    {APPLY_SAVING_CRITICAL, -20},
+    {APPLY_SAVING_STABILITY, -20},
+    {APPLY_RESIST_FIRE, 20},
+    {APPLY_RESIST_AIR, 20},
+    {APPLY_C4, 3},
+    {APPLY_SAVING_WILL, -20},
+    {APPLY_HIT, 80},
+    {APPLY_C3, 3},
+    {APPLY_HITROLL, 4},
+    {APPLY_DAMROLL, 4},
+    {APPLY_SIZE, 15},
+    {APPLY_STR, 3},
+    {APPLY_DEX, 3},
+    {APPLY_INT, 3},
+    {APPLY_WIS, 3},
+    {APPLY_CON, 3},
+    {APPLY_CHA, 3},
+    {APPLY_SAVING_REFLEX, -20},
+    {APPLY_INITIATIVE, 12},
+    {APPLY_ABSORBE, 25},
+    {APPLY_RESIST_WATER, 20},
+    {APPLY_RESIST_EARTH, 20},
+    {APPLY_RESIST_VITALITY, 15},
+    {APPLY_RESIST_IMMUNITY, 25},
+    {APPLY_C5, 2},
+    {APPLY_MORALE, 12},
+    {APPLY_C6, 2},
+    {APPLY_CAST_SUCCESS, 12},
+    {APPLY_RESIST_MIND, 15},
+    {APPLY_C8, 1},	
+    {APPLY_C9, 1}
+    }; 
+
 OBJ_DATA *create_skin(CHAR_DATA *mob,CHAR_DATA *ch)
 {
-	OBJ_DATA *skin;
+        OBJ_DATA *skin;
 	int definitor, vnum, eff, limit, i, n, k = 0, num, effect, max_eff;
 	bool concidence;
 	const int vnum_skin_prototype = 1660;
-
-	const int effects[36][2] = { {APPLY_STR, 3},
-	{APPLY_DEX, 3},
-	{APPLY_INT, 3},
-	{APPLY_WIS, 3},
-	{APPLY_CON, 3},
-	{APPLY_CHA, 3},
-	{APPLY_CHAR_WEIGHT, 10},
-	{APPLY_MANAREG, 30},
-	{APPLY_HIT, 80},
-	{APPLY_MOVE, 140},
-	{APPLY_HITROLL, 4},
-	{APPLY_DAMROLL, 4},
-	{APPLY_SAVING_WILL, -20},
-	{APPLY_RESIST_FIRE, 20},
-	{APPLY_RESIST_AIR, 20},
-	{APPLY_SAVING_CRITICAL, -20},
-	{APPLY_SAVING_STABILITY, -20},
-	{APPLY_HITREG, 76},
-	{APPLY_MOVEREG, 150},
-	{APPLY_C1, 4},
-	{APPLY_C2, 4},
-	{APPLY_C3, 3},
-	{APPLY_C4, 3},
-	{APPLY_C5, 2},
-	{APPLY_C6, 2},
-	{APPLY_SIZE, 15},
-	{APPLY_SAVING_REFLEX, -20},
-	{APPLY_CAST_SUCCESS, 10},
-	{APPLY_MORALE, 12},
-	{APPLY_INITIATIVE, 12},
-	{APPLY_ABSORBE, 25},
-	{APPLY_RESIST_WATER, 20},
-	{APPLY_RESIST_EARTH, 20},
-	{APPLY_RESIST_VITALITY, 15},
-	{APPLY_RESIST_MIND, 15},
-	{APPLY_RESIST_IMMUNITY, 25}
-	}; 
+					
 
 	vnum = vnum_skin_prototype + MIN((int)(GET_LEVEL(mob) / 5), 9);
 	skin = read_object(vnum, VIRTUAL);
 	if (skin == NULL) {
-		mudlog("Неверно задан номер протитипа для освежевания в act.item.cpp::create_skin!",
+		mudlog("Неверно задан номер прототипа для освежевания в act.item.cpp::create_skin!",
 										NRM, LVL_GRGOD, ERRLOG, TRUE);
 		return NULL;
 	}
@@ -189,12 +194,12 @@ OBJ_DATA *create_skin(CHAR_DATA *mob,CHAR_DATA *ch)
 		} else if (26 <= definitor && definitor <= 35) {
 				limit = 8;
 				eff = number(0, 3);
-				max_eff = 20;
+				max_eff = 25;
 				//aff = number(0, 1);
 			GET_OBJ_VAL(skin, 0) = number(4, 7);
 			GET_OBJ_VAL(skin, 1) = number(4, 6);
 			} else if (36 <= definitor && definitor <= 45) {
-					limit = 9;
+					limit = 10;
 					eff = number(0, 4);
 					max_eff = 30;
 					//aff = number(0, 2);
@@ -209,25 +214,24 @@ OBJ_DATA *create_skin(CHAR_DATA *mob,CHAR_DATA *ch)
 					GET_OBJ_VAL(skin, 1) = number(5, 8);
 				}
 
-	for (i = 0; i <= eff; i++) {
-		if (number(0, 1000) <= 200)
+    for (i = 1; i <= eff; i++) {
+	    if (number(0, 1000) <= 200)
 			continue;
+	    concidence = TRUE;
+	    while (concidence) {
 		num = number(0, max_eff);
-		concidence = TRUE;
-		while (concidence && i != 0) {
-			for (n = 0; n <= k; n++)
-				if (effects[num][0] == (skin)->affected[k].location) {
-					concidence = TRUE;
-					num = number(0, max_eff);
-				} else
-					concidence = FALSE;
+		concidence = FALSE;
+		for (n = 0; n <= k && i > 1; n++) {
+		    if (effects[num][0] == (skin)->affected[n].location)
+		        concidence = TRUE;
 		}
-		k++;
-		(skin)->affected[k].location = effects[num][0];
-		effect = number(1, (int)(effects[num][1] * limit / 10));
-		if (number(0, 1000) <= 150)
-			effect *= -1;
-		(skin)->affected[k].modifier = effect;
+	    }
+	    (skin)->affected[k].location = effects[num][0];
+	    effect = number(1, (int)(effects[num][1] * limit / 10));
+	    if (number(0, 1000) <= 150)
+		effect *= -1;
+	    (skin)->affected[k].modifier = effect;
+	    k++;
 	}
 	GET_OBJ_COST(skin) = GET_LEVEL(mob) * number(1, MAX(2, 3 * k));
 	GET_OBJ_VAL(skin, 2) = (int)(1 + (GET_WEIGHT(mob) + GET_SIZE(mob)) / 20);
@@ -2788,12 +2792,14 @@ ACMD(do_makefood)
 		act("Вы умело освежевали $o3.", FALSE, ch, obj, 0, TO_CHAR);
 
 		dl_load_obj(obj, mob, ch, DL_SKIN);
-		skin = create_skin(mob, ch);
-		if ((skin != NULL) && (number(1, GET_SKILL(ch, SKILL_MAKEFOOD)) >= prob)) {
+		if (number(1, GET_SKILL(ch, SKILL_MAKEFOOD)) >= prob) {
+		    skin = create_skin(mob, ch);
+		    if (skin != NULL) {
 			if (obj->carried_by == ch)
-				can_carry_obj(ch, skin);
+			    can_carry_obj(ch, skin);
 			else
-				obj_to_room(skin, IN_ROOM(ch));
+			    obj_to_room(skin, IN_ROOM(ch));
+			}
 		}
 		if (obj->carried_by == ch)
 			can_carry_obj(ch, tobj);
