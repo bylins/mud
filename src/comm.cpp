@@ -2865,6 +2865,7 @@ RETSIGTYPE crash_handle(int sig)
 		fflush(logs[i].logfile);
 
 	my_signal(SIGSEGV, SIG_DFL);
+	my_signal(SIGBUS, SIG_DFL);
 }
 
 
@@ -2958,6 +2959,7 @@ void signal_setup(void)
 	my_signal(SIGALRM, SIG_IGN);
 	my_signal(SIGSEGV, crash_handle);
 	my_signal(SIGBUS, crash_handle);
+
 }
 
 #endif				/* CIRCLE_UNIX || CIRCLE_MACINTOSH */
