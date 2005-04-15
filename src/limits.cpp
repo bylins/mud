@@ -371,6 +371,12 @@ void beat_points_update(int pulse)
 		if (IS_NPC(i))
 			continue;
 
+		if (IN_ROOM(i) == NOWHERE)		
+		{
+			log("SYSERR: Pulse character in NOWHERE.");
+			continue;
+		}
+
 		if (RENTABLE(i) < time(NULL)) {
 			RENTABLE(i) = 0;
 			AGRESSOR(i) = 0;
@@ -378,8 +384,6 @@ void beat_points_update(int pulse)
 		}
 		if (AGRO(i) < time(NULL))
 			AGRO(i) = 0;
-
-//      if (IN_ROOM(ch)==NOWHERE) continue;
 
 		// Проверяем на выпуск чара из кутузки
 		if (PLR_FLAGGED(i, PLR_HELLED) && HELL_DURATION(i) && HELL_DURATION(i) <= time(NULL)) {
@@ -392,9 +396,12 @@ void beat_points_update(int pulse)
 			HELL_DURATION(i) = 0;
 
 			send_to_char("Вас выпустили из темницы.\r\n", i);
+
 			if ((restore = GET_LOADROOM(i)) == NOWHERE)
 				restore = calc_loadroom(i);
+
 			restore = real_room(restore);
+
 			if (restore == NOWHERE) {
 				if (GET_LEVEL(i) >= LVL_IMMORT)
 					restore = r_immort_start_room;
@@ -478,8 +485,8 @@ void beat_points_update(int pulse)
 			send_to_char("Вы оттаяли.\r\n", i);
 		}
 		// Проверяем а там ли мы где должны быть по флагам.
-		
-		if (IN_ROOM(i) == NOWHERE)
+
+		if (IN_ROOM(i) == STRANGE_ROOM)
 			restore = GET_WAS_IN(i);
 		else 
 			restore = IN_ROOM(i);
@@ -488,7 +495,7 @@ void beat_points_update(int pulse)
 		{
 			if (restore != r_helled_start_room)
 			{
-				if (IN_ROOM(i) == NOWHERE)
+				if (IN_ROOM(i) == STRANGE_ROOM)
 					GET_WAS_IN(i) = r_helled_start_room;
 				else 	
 				{		
@@ -503,7 +510,7 @@ void beat_points_update(int pulse)
 		{
 			if (restore != r_named_start_room)
 			{
-				if (IN_ROOM(i) == NOWHERE)
+				if (IN_ROOM(i) == STRANGE_ROOM)
 					GET_WAS_IN(i) = r_named_start_room;
 				else 	
 				{		
@@ -519,8 +526,9 @@ void beat_points_update(int pulse)
 			};
 		} else if (!PLR_FLAGGED(i, PLR_REGISTERED))
 		{
-			if (IN_ROOM(i) != r_unreg_start_room && i->desc && !check_dupes_host(i->desc)) {
-				if (IN_ROOM(i) == NOWHERE)
+			if (restore != r_unreg_start_room && i->desc && !check_dupes_host(i->desc)) {
+
+				if (IN_ROOM(i) == STRANGE_ROOM)
 					GET_WAS_IN(i) = r_unreg_start_room;
 				else 	
 				{		
