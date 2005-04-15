@@ -499,6 +499,12 @@ void affect_total(CHAR_DATA * ch)
 	int i, j;
 	FLAG_DATA saved;
 
+	// Init struct 
+	saved.flags[0] = 0;
+	saved.flags[1] = 0;
+	saved.flags[2] = 0;
+	saved.flags[3] = 0;
+
 	// Clear all affect, because recalc one
 	memset((char *) &ch->add_abils, 0, sizeof(struct char_played_ability_data));
 
