@@ -256,7 +256,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				sprintf(buf, "Mute OFF by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
-				sprintf(buf, "%s$N разрешил$G Вам кричать.%s",
+				sprintf(buf, "%s%s разрешил$G Вам кричать.%s", GET_NAME(ch),
 					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n2 вернулся голос.");
@@ -296,7 +296,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				sprintf(buf, "Dumb OFF by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
-				sprintf(buf, "%s$N разрешил$G Вам издавать звуки.%s",
+				sprintf(buf, "%s%s разрешил$G Вам издавать звуки.%s", GET_NAME(ch),
 					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n2 нарушил обет молчания.");
@@ -335,7 +335,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				char_to_room(vict, result);
 				look_at_room(vict, result);
 
-				sprintf(buf, "%s$N выпустил$G Вас из темницы.%s",
+				sprintf(buf, "%s%s выпустил$G Вас из темницы.%s",GET_NAME(ch),
 					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n выпущен$a из темницы !");
@@ -374,7 +374,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				char_to_room(vict, result);
 				look_at_room(vict, result);
 
-				sprintf(buf, "%s$N выпустил$G Вас из комнаты имени.%s",
+				sprintf(buf, "%s%s выпустил$G Вас из комнаты имени.%s", GET_NAME(ch),
 					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n выпущен$a из комнаты имени !");
@@ -413,7 +413,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				sprintf(buf, "Mute ON (%ldh) by %s", times , GET_NAME(ch));
 				add_karma(vict, buf, reason);
 		
-				sprintf(buf, "%s$N запретил$G Вам кричать.%s",
+				sprintf(buf, "%s%s запретил$G Вам кричать.%s", GET_NAME(ch),
 					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n подавился своим криком.");
@@ -451,7 +451,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				sprintf(buf, "Dumb ON (%ldm) by %s", times , GET_NAME(ch));
 				add_karma(vict, buf, reason);
 		
-				sprintf(buf, "%s$N запретил$G Вам издавать звуки.%s",
+				sprintf(buf, "%s%s запретил$G Вам издавать звуки.%s", GET_NAME(ch),
 					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n дал обет молчания.");
@@ -476,7 +476,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				sprintf(buf, "Moved TO hell (%ldh) by %s", times, GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
-				sprintf(buf, "%s$N поместил$G Вас в темницу.%s",
+				sprintf(buf, "%s%s поместил$G Вас в темницу.%s", GET_NAME(ch),
 					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
 				sprintf(buf2, "$n водворен$a в темницу !");
 			break;
