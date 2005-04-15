@@ -233,7 +233,7 @@ OBJ_DATA *create_skin(CHAR_DATA *mob,CHAR_DATA *ch)
 	    (skin)->affected[k].modifier = effect;
 	    k++;
 	}
-	GET_OBJ_COST(skin) = GET_LEVEL(mob) * number(1, MAX(2, 3 * k));
+	GET_OBJ_COST(skin) = GET_LEVEL(mob) * number(2, MAX(3, 3 * k));
 	GET_OBJ_VAL(skin, 2) = (int)(1 + (GET_WEIGHT(mob) + GET_SIZE(mob)) / 20);
 
 	return skin;
@@ -2749,6 +2749,9 @@ ACMD(do_makefood)
 	CHAR_DATA *mob;
 	int prob, percent = 0, mobn, wgt = 0;
 
+//	send_to_char("Временно не доступно.\r\n",ch);
+//	return;
+	
 	if (!GET_SKILL(ch, SKILL_MAKEFOOD)) {
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
@@ -2792,7 +2795,7 @@ ACMD(do_makefood)
 		act("Вы умело освежевали $o3.", FALSE, ch, obj, 0, TO_CHAR);
 
 		dl_load_obj(obj, mob, ch, DL_SKIN);
-		if (number(1, GET_SKILL(ch, SKILL_MAKEFOOD)) >= prob) {
+		if (number(1, GET_SKILL(ch, SKILL_MAKEFOOD)) + number(1, GET_REAL_DEX(ch)) >= prob) {
 		    skin = create_skin(mob, ch);
 		    if (skin != NULL) {
 			if (obj->carried_by == ch)
