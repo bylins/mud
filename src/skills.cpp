@@ -752,7 +752,7 @@ int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict)
 							&& !AFF_FLAGGED(vict, AFF_CHARM)
 							&& !IS_HORSE(vict))))
 			improove_skill(ch, skill_no, percent >= max_value, vict);
-	} else
+	} else if (!IS_CHARMICE(ch))
 	    if (GET_SKILL(ch, skill_no) > 0 &&
 		GET_REAL_INT(ch) <= number(0, 1000 - 20 * GET_REAL_WIS(ch)) &&
 		GET_SKILL(ch, skill_no) < skill_info[skill_no].max_percent)
