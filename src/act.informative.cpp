@@ -31,7 +31,7 @@
 #include "pk.h"
 #include "dg_scripts.h"
 #include "privileges.hpp"
-
+#include "mail.h"
 
 #include <string>
 using std::string;
@@ -2425,6 +2425,11 @@ ACMD(do_score)
 	if (RENTABLE(ch)) 
 		sprintf(buf + strlen(buf),
 			" || %sВ связи с боевыми действиями Вы не можете уйти на постой.                       %s||\r\n",
+			CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
+	else if ((IN_ROOM(ch) != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER)) 
+		sprintf(buf + strlen(buf),
+			" || %sТут Вы чувствуете себя в безопасности.                                          %s||\r\n",
+			CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
 	if (has_mail(GET_IDNUM(ch)))
 		sprintf(buf + strlen(buf),
@@ -2664,6 +2669,11 @@ ACMD(do_score)
 	strcat(buf, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 	if (RENTABLE(ch)) {
+		sprintf(buf,
+			"%sВ связи с боевыми действиями Вы не можете уйти на постой.%s\r\n",
+			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
+	} else if ((IN_ROOM(ch) != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER)) {
 		sprintf(buf, "%sТут Вы чувствуете себя в безопасности.%s\r\n", CCIGRN(ch, C_NRM), CCINRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	}
