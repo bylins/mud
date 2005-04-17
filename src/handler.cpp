@@ -1616,7 +1616,17 @@ void object_list_new_owner(OBJ_DATA * list, CHAR_DATA * ch)
 		list->carried_by = ch;
 	}
 }
-
+// Отложенная очистка ... для все тех же .удаков
+void waited_free_obj(OBJ_DATA * obj)
+{
+	// Add obj to waited for free obj list
+	// Проверяем а не подсовывают ли нам 0-ой указатель.
+	if (obj) {
+		log("Add OBJ to Cleanup queue");
+		obj->next = obj_freed_list;
+		obj_freed_list = obj;
+	}
+}
 
 /* Extract an object from the world */
 void extract_obj(OBJ_DATA * obj)
@@ -1678,7 +1688,7 @@ void extract_obj(OBJ_DATA * obj)
 
 	free_script(SCRIPT(obj));	// без комментариев
 
-	free_obj(obj);
+	waited_free_obj(obj);
 	log("Stop extract obj %s", name);
 }
 
@@ -1769,7 +1779,7 @@ void waited_free_char(CHAR_DATA *ch)
 	// Add chars to waited for free characters list
 	// Проверяем а не подсовывают ли нам 0-ой указатель.
 	if (ch) {
-		log("Add CH to Cleanup queue !");
+		log("Add CHAR to Cleanup queue");
 		ch->next = char_freed_list;
 		char_freed_list = ch;
 	}

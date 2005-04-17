@@ -79,6 +79,9 @@ CHAR_DATA *mob_proto;		/* prototypes for mobs           */
 mob_rnum top_of_mobt = 0;	/* top of mobile index table     */
 
 OBJ_DATA *object_list = NULL;	/* global linked list of objs    */
+OBJ_DATA *obj_freed_list = NULL;	
+				/* global linked list of objs  waited 
+				for free()  */
 INDEX_DATA *obj_index;		/* index table for object file   */
 OBJ_DATA *obj_proto;		/* prototypes for objs           */
 obj_rnum top_of_objt = 0;	/* top of object index table     */

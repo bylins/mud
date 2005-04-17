@@ -1067,6 +1067,9 @@ void game_loop(socket_t mother_desc)
 void cleanup_freed()
 {
 	CHAR_DATA *next_ch, *i = char_freed_list;
+	OBJ_DATA *next_obj, *j = obj_freed_list;
+
+	// Чистим чаров
 	while (i)
 	{
 		next_ch = i->next;
@@ -1074,6 +1077,15 @@ void cleanup_freed()
 		i = next_ch;
 	}
 	char_freed_list = NULL;
+
+	// Чистим объекты
+	while (j)
+	{
+		next_obj = j->next;
+		free_obj(j);
+		j = next_obj;
+	}
+	obj_freed_list = NULL;
 }
 
 void beat_points_update(int pulse);
