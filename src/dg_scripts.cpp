@@ -2339,7 +2339,7 @@ void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *lin
 	char tmp[MAX_INPUT_LENGTH], repl_str[MAX_INPUT_LENGTH], *var, *field, *p;
 	char *subfield_p, subfield[MAX_INPUT_LENGTH];
 	char *local_p, local[MAX_INPUT_LENGTH];
-	int left, len;
+	int left = 0 , len = 0;
 	int paren_count = 0;
 
 	if (!strchr(line, '%')) {
@@ -2430,7 +2430,7 @@ int is_num(char *num)
 /* evaluates 'lhs op rhs', and copies to result */
 void eval_op(char *op, char *lhs, char *rhs, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig)
 {
-	char *p;
+	char *p = 0;
 	int n;
 
 	/* strip off extra spaces at begin and end */
