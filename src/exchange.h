@@ -43,7 +43,7 @@ extern EXCHANGE_ITEM_DATA *exchange_item_list;
 #define GET_EXCHANGE_ITEM(item)  ((item)->obj)
 
 
-
+void extract_exchange_item(EXCHANGE_ITEM_DATA * item);
 
 
 struct exchange_item_data {
