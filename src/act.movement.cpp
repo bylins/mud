@@ -345,6 +345,12 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			if (!has_boat(ch))
 				return (FALSE);
 		}
+
+		// Добавляем проверку на то что моб может вскрыть дверь
+		if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED) &&
+		      !MOB_FLAGGED(ch, MOB_OPENDOOR))
+			return (FALSE);
+
 		if (!MOB_FLAGGED(ch, MOB_FLYING) &&
 		    !AFF_FLAGGED(ch, AFF_FLY) && SECT(EXIT(ch, dir)->to_room) == SECT_FLYING)
 			return (FALSE);

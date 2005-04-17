@@ -723,7 +723,6 @@ void mobile_activity(int activity_level, int missed_pulses)
 					if (!rdata ||
 					    rdata->to_room == NOWHERE ||
 					    !legal_dir(ch, door, TRUE, FALSE) ||
-					    IS_SET(rdata->exit_info, EX_CLOSED) ||
 					    (world[rdata->to_room]->forbidden
 					     && (number(1, 100) <= world[rdata->to_room]->forbidden_percent))
 					    || IS_DARK(rdata->to_room)
@@ -770,9 +769,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		    (door >= 0 && door < NUM_OF_DIRS) &&
 		    EXIT(ch, door) &&
 		    EXIT(ch, door)->to_room != NOWHERE &&
-		    (legal_dir(ch, door, TRUE, FALSE) ||
-		     (EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED) &&
-		      MOB_FLAGGED(ch, MOB_OPENDOOR))) &&
+		    legal_dir(ch, door, TRUE, FALSE) &&
 		    !(world[EXIT(ch, door)->to_room]->forbidden &&
 		      (number(1, 100) <= world[EXIT(ch, door)->to_room]->forbidden_percent))
 		    && (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
