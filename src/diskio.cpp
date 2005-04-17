@@ -26,7 +26,7 @@ int fbgetline(FBFILE * fbfl, char *line)
 	if (!fbfl || !line || !*fbfl->ptr)
 		return FALSE;
 
-	for (; *r && *r != '\n' && r <= fbfl->buf + fbfl->size; r++)
+	for (; *r && (*r != '\n') && (r <= (fbfl->buf + fbfl->size)); r++)
 		*(w++) = *r;
 
 	while (*r == '\r' || *r == '\n')
@@ -155,7 +155,7 @@ FBFILE *fbopen_for_read(char *fname)
 	}
 
 	fbfl->size = sb.st_size;
-	if (!(fbfl->buf = (char *) malloc(fbfl->size))) {
+	if (!(fbfl->buf = (char *) malloc(fbfl->size+1))) {
 		free(fbfl);
 		return NULL;
 	}
