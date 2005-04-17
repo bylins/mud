@@ -1763,6 +1763,17 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 		}
 	}
 }
+/* Used to prevent access to also freed char data*/
+void waited_free_char(CHAR_DATA *ch)
+{
+	// Add chars to waited for free characters list
+	// Проверяем а не подсовывают ли нам 0-ой указатель.
+	if (ch) {
+		log("Add CH to Cleanup queue !");
+		ch->next = char_freed_list;
+		char_freed_list = ch;
+	}
+}
 
 /* Extract a ch completely from the world, and leave his stuff behind */
 void extract_char(CHAR_DATA * ch, int clear_objs)
@@ -1885,7 +1896,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 		}
 
 		SET_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
-		free_char(ch);
+		waited_free_char(ch);
 		freed = 1;
 	}
 
@@ -1901,7 +1912,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 	} else {		/* if a player gets purged from within the game */
 		if (!freed) {
 			SET_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
-			free_char(ch);
+			waited_free_char(ch);
 		}
 	}
 	log("[Extract char] Stop function for char %s", name);
@@ -1976,7 +1987,7 @@ void extract_mob(CHAR_DATA * ch)
 	}
 
 	SET_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
-	free_char(ch);
+	waited_free_char(ch);
 }
 
 

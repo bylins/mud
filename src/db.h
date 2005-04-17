@@ -356,6 +356,7 @@ extern vector < ROOM_DATA * >world;
 
 extern OBJ_DATA *object_list;
 extern CHAR_DATA *character_list;
+extern CHAR_DATA *char_freed_list;
 extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;
 extern DESCRIPTOR_DATA *descriptor_list;

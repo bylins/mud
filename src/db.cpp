@@ -65,6 +65,11 @@ room_rnum top_of_world = 0;	/* ref to top element of world   */
 
 CHAR_DATA *character_list = NULL;	/* global linked list of
 					 * chars         */
+
+CHAR_DATA *char_freed_list = NULL;	/* global linked list of
+					 * chars waited for free() */
+
+
 INDEX_DATA **trig_index;	/* index table for triggers      */
 int top_of_trigt = 0;		/* top of trigger index table    */
 long max_id = MOBOBJ_ID_BASE;	/* for unique mob/obj id's       */

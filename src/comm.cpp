@@ -1062,6 +1062,20 @@ void game_loop(socket_t mother_desc)
 	}
 }
 
+// Чистим персонажей ожидающих удаления (это-все потому что какие-то 
+// .удаки по всему коду любят юзать указатели на чара после его смерти
+void cleanup_freed()
+{
+	CHAR_DATA *next_ch, *i = char_freed_list;
+	while (i)
+	{
+		next_ch = i->next;
+		free_char(i);
+		i = next_ch;
+	}
+	char_freed_list = NULL;
+}
+
 void beat_points_update(int pulse);
 #define FRAC_SAVE TRUE
 
@@ -1114,7 +1128,7 @@ inline void heartbeat()
 	/* Old proc
 	   if (!(pulse % PULSE_MOBILE))
 	   {// log("Mobile activity...");
-	   mobile_activity();
+		mobile_activity();
 	   }
 	 */
 	//log("Mobile activity...");
@@ -1125,7 +1139,11 @@ inline void heartbeat()
 // желательно, чтобы этот период был таким, чтобы различные задержки,
 // выраженные в количестве пульсов, были ему кратны.
 	if (!(pulse % 10))
+	{
 		mobile_activity(pulse, 10);
+		// Чистим указатели освобожденных char-ов
+		cleanup_freed();
+	}
 	//log("Stop it...");
 
 	if (!(pulse % (2 * PASSES_PER_SEC))) {	//log("Death trap activity...");
@@ -1296,6 +1314,8 @@ inline void heartbeat()
 			memcpy(&syslog_o, syslog_n, sizeof(struct tm));
 		}
 	}
+
+
 	//log("---------- Stop heartbeat ----------");
 }
 
