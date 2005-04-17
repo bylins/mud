@@ -28,12 +28,11 @@
 #include "dg_scripts.h"
 #include "house.h"
 #include "constants.h"
-//F@N|
 #include "exchange.h"
 
-//F@N|
-extern void extract_exchange_item(EXCHANGE_ITEM_DATA * item);
 extern int check_dupes_host(DESCRIPTOR_DATA * d);
+extern void check_berserk(CHAR_DATA * ch);
+
 extern room_rnum r_unreg_start_room;
 
 extern CHAR_DATA *character_list;
@@ -358,9 +357,7 @@ int interpolate(int min_value, int pulse)
 void beat_points_update(int pulse)
 {
 	CHAR_DATA *i, *next_char;
-	int restore, j;
-	AFFECT_DATA af[2];
-	struct timed_type timed;
+	int restore;
 
 	if (!UPDATE_PC_ON_BEAT)
 		return;
@@ -526,7 +523,7 @@ void beat_points_update(int pulse)
 			};
 		} else if (!PLR_FLAGGED(i, PLR_REGISTERED))
 		{
-			if (restore != r_unreg_start_room && i->desc && !check_dupes_host(i->desc)) {
+			if ((restore != r_unreg_start_room) && i->desc && !check_dupes_host(i->desc)) {
 
 				if (IN_ROOM(i) == STRANGE_ROOM)
 					GET_WAS_IN(i) = r_unreg_start_room;
@@ -544,6 +541,7 @@ void beat_points_update(int pulse)
 				};	
 			}
 		}
+
 		if (GET_POS(i) < POS_STUNNED)
 			continue;
 
@@ -558,53 +556,7 @@ void beat_points_update(int pulse)
 
 		// Проверка аффекта !исступление!. Поместил именно здесь,
 		// но если кто найдет более подходящее место переносите =)
-		if (affected_by_spell(i, SPELL_BERSERK) &&
-		    (GET_HIT(i) > GET_REAL_MAX_HIT(i) / 2)) {
-			affect_from_char(i, SPELL_BERSERK);
-			send_to_char("Предсмертное исступление оставило Вас.\r\n", i);
-		}
-		if (!IS_NPC(i) && GET_SKILL(i, SKILL_BERSERK) && FIGHTING(i) &&
-		    !timed_by_skill(i, SKILL_BERSERK) && !AFF_FLAGGED(i, AFF_BERSERK) &&
-		    (GET_HIT(i) < GET_REAL_MAX_HIT(i) / 4)) {
-
-			timed.skill = SKILL_BERSERK;
-			timed.time = 6;
-			timed_to_char(i, &timed);
-
-			af[0].type = SPELL_BERSERK;
-			af[0].duration = pc_duration(i, 1, MAX(0, GET_SKILL(i, SKILL_BERSERK)-40), 30, 0, 0);
-			af[0].modifier = 0;
-			af[0].location = APPLY_NONE;
-			af[0].battleflag = 0;
-			af[1].type = SPELL_BERSERK;
-			af[1].duration = pc_duration(i, 1, MAX(0, GET_SKILL(i, SKILL_BERSERK)-40), 30, 0, 0);
-			af[1].modifier = 0;
-			af[1].location = APPLY_NONE;
-			af[1].battleflag = 0;
-
-			// Я знаю, очень-очень криво. Но надо было сделать расскачку скила
-			// более частой, чем если бы только когда скил успешно прошел.
-			// Причем заклинание !исступление! висит всегда пока идут просветы,
-			// а вот плюшки идут только если установлен соотв. аффект =)
-			// Да и еще этот аффект !флик. Вообщем нет предела совершенству. 
-			// Дерзайте, правьте если знаете как. А нет - стирайте этот флейм.
-			if (calculate_skill(i, SKILL_BERSERK, skill_info[SKILL_BERSERK].max_percent, 0) >= 
-			    number(1, skill_info[SKILL_BERSERK].max_percent) ||
-			    number(1, 20) >= 10 + MAX(0, (GET_LEVEL(i) - 14 - GET_REMORT(i)) / 2)) {
-				af[0].bitvector = AFF_NOFLEE;
-				af[1].bitvector = AFF_BERSERK;
-				act("Вас обуяла предсмертная ярость!", FALSE, i, 0, 0, TO_CHAR);
-				act("$n0 исступленно взвыл$g и бросил$u на противника!.", FALSE, i, 0, 0, TO_ROOM);
-			} else {
-				af[0].bitvector = 0;
-				af[1].bitvector = 0;
-				act("Вы истошно завопили, пытась напугать противника. Без толку.", FALSE, i, 0, 0, TO_CHAR);
-				act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", FALSE, i, 0, 0, TO_ROOM);
-			}
-
-			for (j = 0; j < 2; j++)
-				affect_join(i, &af[j], TRUE, FALSE, TRUE, FALSE);
-		}
+		check_berserk(i);
 
 		// Restore PC caster mem
 		if (!IS_MANA_CASTER(i) && !MEMQUEUE_EMPTY(i)) {

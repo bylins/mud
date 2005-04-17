@@ -125,6 +125,62 @@ struct attack_hit_type attack_hit_text[] = {
 	{"*", "*"}
 };
 
+void check_berserk(CHAR_DATA * ch)
+{
+	AFFECT_DATA af[2];
+	struct timed_type timed;
+	int j;
+
+	if (affected_by_spell(ch, SPELL_BERSERK) &&
+		    (GET_HIT(ch) > GET_REAL_MAX_HIT(ch) / 2)) {
+			affect_from_char(ch, SPELL_BERSERK);
+			send_to_char("Предсмертное исступление оставило Вас.\r\n", ch);
+	}
+	if (!IS_NPC(ch) && GET_SKILL(ch, SKILL_BERSERK) && FIGHTING(ch) &&
+	    !timed_by_skill(ch, SKILL_BERSERK) && !AFF_FLAGGED(ch, AFF_BERSERK) &&
+	    (GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4)) {
+
+		timed.skill = SKILL_BERSERK;
+		timed.time = 6;
+		timed_to_char(ch, &timed);
+
+		af[0].type = SPELL_BERSERK;
+		af[0].duration = pc_duration(ch, 1, MAX(0, GET_SKILL(ch, SKILL_BERSERK)-40), 30, 0, 0);
+		af[0].modifier = 0;
+		af[0].location = APPLY_NONE;
+		af[0].battleflag = 0;
+
+		af[1].type = SPELL_BERSERK;
+		af[1].duration = pc_duration(ch, 1, MAX(0, GET_SKILL(ch, SKILL_BERSERK)-40), 30, 0, 0);
+		af[1].modifier = 0;
+		af[1].location = APPLY_NONE;
+		af[1].battleflag = 0;
+
+		// Я знаю, очень-очень криво. Но надо было сделать расскачку скила
+		// более частой, чем если бы только когда скил успешно прошел.
+		// Причем заклинание !исступление! висит всегда пока идут просветы,
+		// а вот плюшки идут только если установлен соотв. аффект =)
+		// Да и еще этот аффект !флик. Вообщем нет предела совершенству. 
+		// Дерзайте, правьте если знаете как. А нет - стирайте этот флейм.
+		if (calculate_skill(ch, SKILL_BERSERK, skill_info[SKILL_BERSERK].max_percent, 0) >= 
+		    number(1, skill_info[SKILL_BERSERK].max_percent) ||
+		    number(1, 20) >= 10 + MAX(0, (GET_LEVEL(ch) - 14 - GET_REMORT(ch)) / 2)) {
+			af[0].bitvector = AFF_NOFLEE;
+			af[1].bitvector = AFF_BERSERK;
+			act("Вас обуяла предсмертная ярость!", FALSE, ch, 0, 0, TO_CHAR);
+			act("$n0 исступленно взвыл$g и бросил$u на противника!.", FALSE, ch, 0, 0, TO_ROOM);
+		} else {
+			af[0].bitvector = 0;
+			af[1].bitvector = 0;
+			act("Вы истошно завопили, пытась напугать противника. Без толку.", FALSE, ch, 0, 0, TO_CHAR);
+			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", FALSE, ch, 0, 0, TO_ROOM);
+		}
+
+		for (j = 0; j < 2; j++)
+			affect_join(ch, &af[j], TRUE, FALSE, TRUE, FALSE);
+	}
+}
+
 void go_autoassist(CHAR_DATA * ch)
 {
 	struct follow_type *k;
