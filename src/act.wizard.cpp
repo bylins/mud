@@ -316,24 +316,26 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 
 				sprintf(buf, "Removed FROM hell by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
+				
+				if (IN_ROOM(vict) != NOWHERE)
+				{
+					act("$n выпущен$a из темницы !", FALSE, vict, 0, 0, TO_ROOM);
 
-				act("$n выпущен$a из темницы !", FALSE, vict, 0, 0, TO_ROOM);
+					if ((result = GET_LOADROOM(vict)) == NOWHERE)
+						result = calc_loadroom(vict);
+			
+					result = real_room(result);
 
-				if ((result = GET_LOADROOM(vict)) == NOWHERE)
-					result = calc_loadroom(vict);
-
-				result = real_room(result);
-
-				if (result == NOWHERE) {
-					if (GET_LEVEL(vict) >= LVL_IMMORT)
-						result = r_immort_start_room;
-					else
-						result = r_mortal_start_room;
-				}
-
-				char_from_room(vict);
-				char_to_room(vict, result);
-				look_at_room(vict, result);
+					if (result == NOWHERE) {
+						if (GET_LEVEL(vict) >= LVL_IMMORT)
+							result = r_immort_start_room;
+						else
+							result = r_mortal_start_room;
+					}
+					char_from_room(vict);
+					char_to_room(vict, result);
+					look_at_room(vict, result);
+				};
 
 				sprintf(buf, "%s%s выпустил$G Вас из темницы.%s",GET_NAME(ch),
 					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
@@ -356,24 +358,27 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				sprintf(buf, "Removed FROM name room by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
-				act("$n выпущен$a из комнаты имени!", FALSE, vict, 0, 0, TO_ROOM);
+				if (IN_ROOM(vict) != NOWHERE)
+				{
 
-				if ((result = GET_LOADROOM(vict)) == NOWHERE)
-					result = calc_loadroom(vict);
+					act("$n выпущен$a из комнаты имени!", FALSE, vict, 0, 0, TO_ROOM);
+		
+					if ((result = GET_LOADROOM(vict)) == NOWHERE)
+						result = calc_loadroom(vict);
 
-				result = real_room(result);
+					result = real_room(result);
+		
+					if (result == NOWHERE) {
+						if (GET_LEVEL(vict) >= LVL_IMMORT)
+							result = r_immort_start_room;
+						else
+							result = r_mortal_start_room;
+					}
 
-				if (result == NOWHERE) {
-					if (GET_LEVEL(vict) >= LVL_IMMORT)
-						result = r_immort_start_room;
-					else
-						result = r_mortal_start_room;
-				}
-
-				char_from_room(vict);
-				char_to_room(vict, result);
-				look_at_room(vict, result);
-
+					char_from_room(vict);
+					char_to_room(vict, result);
+					look_at_room(vict, result);
+				};
 				sprintf(buf, "%s%s выпустил$G Вас из комнаты имени.%s", GET_NAME(ch),
 					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
 
@@ -461,11 +466,15 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 
         			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
 
-				act("$n водворен$a в темницу !", FALSE, vict, 0, 0, TO_ROOM);
 
-				char_from_room(vict);
-				char_to_room(vict, r_helled_start_room);
-				look_at_room(vict, r_helled_start_room);
+				if (IN_ROOM(vict) != NOWHERE)
+				{
+					act("$n водворен$a в темницу !", FALSE, vict, 0, 0, TO_ROOM);
+		
+					char_from_room(vict);
+					char_to_room(vict, r_helled_start_room);
+					look_at_room(vict, r_helled_start_room);
+				};
 
 				if (GET_WAS_IN(vict) != NOWHERE)	// add by Pereplut
 					GET_WAS_IN(vict) = NOWHERE;
@@ -487,11 +496,13 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 
         			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
 
-				act("$n водворен$a в комнату имени !", FALSE, vict, 0, 0, TO_ROOM);
-
-				char_from_room(vict);
-				char_to_room(vict, r_named_start_room);
-				look_at_room(vict, r_named_start_room);
+				if (IN_ROOM(vict) != NOWHERE)
+				{
+					act("$n водворен$a в комнату имени !", FALSE, vict, 0, 0, TO_ROOM);
+					char_from_room(vict);
+					char_to_room(vict, r_named_start_room);
+					look_at_room(vict, r_named_start_room);
+				};
 
 				if (GET_WAS_IN(vict) != NOWHERE)	// add by Pereplut
 					GET_WAS_IN(vict) = NOWHERE;
@@ -509,8 +520,11 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 			
 		}
 	}
-	act(buf, FALSE, vict, 0, ch, TO_CHAR);
-	act(buf2, FALSE, vict, 0, ch, TO_ROOM);
+	if (IN_ROOM(ch) != NOWHERE)
+	{
+		act(buf, FALSE, vict, 0, ch, TO_CHAR);
+		act(buf2, FALSE, vict, 0, ch, TO_ROOM);       		
+	};
 	return 1;
 }
 
