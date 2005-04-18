@@ -1688,7 +1688,7 @@ void extract_obj(OBJ_DATA * obj)
 
 	free_script(SCRIPT(obj));	// без комментариев
 
-	waited_free_obj(obj);
+	free_obj(obj);
 	log("Stop extract obj %s", name);
 }
 
@@ -1906,7 +1906,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 		}
 
 		SET_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
-		waited_free_char(ch);
+		free_char(ch);
 		freed = 1;
 	}
 
@@ -1922,7 +1922,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 	} else {		/* if a player gets purged from within the game */
 		if (!freed) {
 			SET_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
-			waited_free_char(ch);
+			free_char(ch);
 		}
 	}
 	log("[Extract char] Stop function for char %s", name);
@@ -1997,7 +1997,7 @@ void extract_mob(CHAR_DATA * ch)
 	}
 
 	SET_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
-	waited_free_char(ch);
+	free_char(ch);
 }
 
 
