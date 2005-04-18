@@ -1,0 +1,957 @@
+ADVANCE
+
+Формат:$COLORR advance <персонаж> <уровень>$COLORn
+
+Повышает уровень персонажа до указанного.
+
+Например:
+
+  > advance Иван 31
+
+См. также:$COLORC SET $COLORn
+#31
+AT WIZAT
+
+Формат:$COLORR at <room VNUM | item | mob | имя_игрока> <команда> <аргумент>$COLORn
+
+Используется для выполнения команды 
+1) в комнате VNUM
+2) рядом с предметом / игроком / мобом с указанным именем
+
+Например:
+
+  > at 3001 смотреть
+  > at хомяк убить хомяк
+  > at 3.труп взять все труп
+  > at Иван помочь Иван
+
+См. также:$COLORC GOTO $COLORn
+#31
+ATTACH
+
+Формат:$COLORR attach { mtr | otr | wtr } { vnum триггера } { vnum комнаты/предмета/моба }$COLORn
+
+Присоединяет указанный триггер к указанной комнате/предмету/мобу.
+
+См. также:$COLORC DETACH, VDELETE $COLORn
+#31
+BAN UNBAN ЗАПРЕТ
+
+Формат:$COLORR ban [<all | new | select> <site>] $COLORn
+        $COLORRunban <site> $COLORn
+
+Команда предотвращает вхождение в игру игроков с указанного сайта (или
+с сайта, содержащего в имени указанную подстроку).
+Вы можете использовать опции ALL, NEW or SELECT.  
+NEW - предотвращает создание новых героев.  
+ALL - предотвращает вход/создание любых (в т.ч. имеющихся героев)
+SELECT - предотвращает вхождение игроков только с флагом site-ok
+
+Команда unban удаляет имеющийся запрет.
+
+Например:
+
+  > ban all whitehouse.gov
+  > unban ai.mit.edu
+
+См. также:$COLORC RULES, WIZLOCK, MUTE, DUMB, HELL, NAME $COLORn
+#31
+BEEP
+
+Формат:$COLORR beep <персонаж>$COLORn
+
+Данная команда служит для привлечения внимания указанного игрока,
+при этом игроку выдается сообщение и раздается звуковой сигнал.
+
+См. также:$COLORC PAGE $COLORn
+#31
+DATE
+
+Указывает текущее РЕАЛЬНОЕ время сервера.
+#
+DC
+
+Формат:$COLORR dc <descriptor number>$COLORn
+
+DC (DisConnect) используется для раз'единения указанного соединения.
+При этом обрывается соединение, но персонаж из текущего мира не удаляется
+(остается в комнате), его инвентарь не выбрасывается.
+
+См.также: $COLORC USERS $COLORn
+#31
+DETACH
+
+Формат:$COLORR detach { mtr | otr | wtr } { vnum триггера } { vnum комнаты/предмета/моба }$COLORn
+
+Отсоединяет указанный триггер от указанной комнаты/предмета/моба.
+
+См. также:$COLORC ATTACH, VDELETE $COLORn
+#31
+DUMB
+
+Формат:$COLORR dumb <игрок> <срок в минутах> <причина>$COLORn
+
+Лишает указанного персонажа возможности говорить, писать социалы,
+колдовать на указанный срок.
+
+См. также:$COLORC RULES, FLAGS, MUTE, HELL, NAME, BAN $COLORn
+#31
+ECHO GECHO QECHO SEND ВОЗЗВАТЬ  ЭХО
+
+Формат:$COLORR gecho <сообщение>$COLORn
+        $COLORRвоззвать <сообщение>$COLORn
+        $COLORRqecho <сообщение>$COLORn
+        $COLORRsend <игрок> <строка>$COLORn
+
+ВОЗЗВАТЬ - выводит сообщение всем богам в игре
+QECHO - выводит сообщение всем игрокам с установленным флагом QUEST
+СКАЗАТЬ/SEND - выводит сообщение указанному персонажу.
+
+Например:
+
+  > говорить Привет, товарищи сокамерники.
+  > gecho Эй, есть тут кто в игре ?
+  > сказать Петр Я тебя вижу :)
+#
+EMAIL
+
+Формат:$COLORR email <игрок>$COLORn
+
+Служит для отправки пароля указанного персонажа по e-mail, указанному при регистрации, в случае утери.
+
+#31
+ERRLOG
+
+Формат:$COLORR errlog { нет | начальный | краткий | нормальный | полный }$COLORn
+
+Включает отображение лога ошибок и его глубину.
+Подробность лога зависит от уровня Ваших привилегий.
+
+См. также:$COLORC SYSLOG, IMLOG$COLORn
+#31
+FORCE ЗАСТАВИТЬ
+
+Формат:$COLORR force <персонаж | all> <command> <arguments>$COLORn
+
+Команда заставляет игрока или моба выполнить указанную команду.
+FORCE ALL  - заставляет выполнить эту команду всем игрокам, находящимся в игре; 
+FORCE ROOM - заставляет выполнить данную команду всем, находящихся в этой же
+             комнате
+
+Например:
+
+  > force Князь бросить меч
+  > force all молиться
+  > force room смотреть Пират
+
+Если Вы невидимы - команда выполнится от имени безымяного пользователя.
+#31
+FREEZE THAW ЗАМОРОЗИТь
+
+Формат:$COLORR freeze <персонаж>$COLORn
+        $COLORRthaw <персонаж>$COLORn
+
+FREEZE - игра просто перестает реагировать на ЛЮБЫЕ команды указанного
+персонажа.
+THAW - вновь устанавливает режим послушания игры :)
+
+См. также:$COLORC SET -> FROZEN $COLORn
+#31
+GOTO TRANS TRANSFER TELEPORT ПРЫЖОК 
+
+Формат:$COLORR goto/прыжок <!куда!>$COLORn
+        $COLORRtrans <персонаж>$COLORn
+        $COLORRteleport <персонаж> <!куда!>$COLORn
+
+Используется для перемещения себя или других персонажей между различными
+комнатами.
+GOTO     - перемещает себя самого; 
+TRANS    - перемещает персонажа из другой комнаты к Вам;
+TELEPORT - перемещает персонаж в другую комнату.
+
+Для команд GOTO и TELEPORT !куда! - обозначает или виртуальный номер комнаты,
+или предмет, или персонаж.
+
+Например:
+
+  > goto 3001
+  > goto Иван
+  > trans стражник
+  > teleport стражник 3001
+  > teleport русалка Черномор
+
+См. также:$COLORC POOFIN, POOFOUT, SET -> ROOM, WIZAT $COLORn
+#31
+GLORY
+
+Формат:$COLORR  glory <персонаж> [+- количество славы]$COLORn
+
+Изменяет славу персонажа.
+
+См. также:$COLORC СЛАВА, STAT $COLORn
+#31
+HELL
+
+Формат:$COLORR  hell <игрок> <срок в часах> <причина>$COLORn
+
+Отправляет игрока на заслуженный (или не заслуженный) отдых
+в помещение, в народе именуемое "ад". Живется там игрокам и в правду 
+не сладко: ни еды ни питья, полная изоляция от окружающего мира.
+
+См. также:$COLORC  RULES, FLAGS, MUTE, DUMB, NAME, BAN $COLORn
+#31
+HCONTROL
+
+Формат: hcontrol build[возвести] <внум замка> <внум ренты> <направление выхода> <имя воеводы> <аббревиатура> [полное название]
+        hcontrol destroy[разрушить] <внум замка>
+        hcontrol pay[налог] <внум замка>
+        hcontrol show[показать]
+        hcontrol guard[охранник] <внум замка> <внум моба охранника>
+        hcontrol leader[лидер] <новый воевода> <старый воевода>
+        hcontrol prison[темница] <внум замка> <внум темницы|0>
+
+HCONTROL используется для просмотра информации о дружинах. 
+Создания или удаления дружин, смены воеводы или моба-охранника дружины.
+
+См. также:$COLORC ДРУЖИНА $COLORn
+
+#31
+HOLYLIGHT
+
+Формат:$COLORR holylight$COLORn
+
+Включает режим 'вечный свет' позволяющий Вам увидеть:
+  Невидимых людей или объекты, даже без аффекта !определение невидимости!.
+  Спрятавшихся людей, даже без аффекта !определение жизни!
+  Темные комнаты, даже без наличия источников света.
+
+См. также:$COLORC ОПРЕДЕЛЕНИЕЖИЗНИ, ВИДЕТЬНЕВИДИМОЕ $COLORn
+
+#31
+GODNEWS RULES
+
+Формат $COLORRrules$COLORn
+
+Отображает устав для Бессмертных
+
+Формат:$COLORR godnews$COLORn
+
+Содержит информацию о последних изменениях, адресованную Бессмертным.
+
+См. также:$COLORC НОВОСТИ $COLORn
+#31
+IMLOG
+
+Формат:$COLORR  imlog { нет | начальный | краткий | нормальный | полный }$COLORn
+
+Включает отображение информации о событиях каким-либо образом связанных
+с ингридиентами и ингридиентной магией.
+Подробность сислога зависит от уровня Ваших привилегий.
+
+См. также:$COLORC $COLORn
+#31
+INVIS
+
+Формат:$COLORR invis [уровень невидимости]$COLORn
+
+Команда invis устанавливает Ваш уровень невидимости, чтобы быть не заметным
+для игроков, чей уровень ниже указанного. 
+
+Пример:
+
+  > invis
+  > invis 31
+
+См. также:$COLORC ПОЯВИТЬСЯ $COLORn
+#31
+LAST
+
+Формат:$COLORR last <имя игрока>$COLORn
+
+Используется для уточнения, когда игрок в последний раз заходил в игру.
+(при этом можжно узнать его ip адрес и ID).
+
+Пример: 
+
+  > last Добрыня
+  [  24] [14 Бо] Добрыня      : somesite.edu : Tue May 16 22:07:09 1995
+
+См. также:$COLORC STAT $COLORn
+#31
+LOAD
+
+Формат:$COLORR load <mob | obj> <виртуальный номер>$COLORn
+
+LOAD используется для создания объектов или мобов. Первый аргумент
+определяет, кого или что вы собственно пытаетесь загрузить - объект
+или моба. Второй аргумент - виртуальный номер моба / объекта.
+
+Примеры:
+
+  > load obj 777
+  Вы создали бутылку пива!
+
+  > load mob 666
+  Вы создали Черта!
+
+См. также:$COLORC VNUM $COLORn
+#31
+MEDIT
+
+Формат:$COLORR  medit <внум моба>$COLORn
+
+С помощью этой команды можно редактировать параметры мобов.
+
+Примечание: не забывайте сохранять полученный результат,
+чтобы после креша не пришлось начинать с начала.
+
+См. также:$COLORC OLC, MLIST, OEDIT, REDIT, SEDIT, ZEDIT, TRIGEDIT$COLORn
+#31
+MLIST МСПИСОК
+
+Формат:$COLORR  mlist [наименьший внум] [наибольший внум]$COLORn
+
+Отображает список мобов, чей vnum находится в указанном диапазоне.
+
+См. также:$COLORC MEDIT, OLIST, RLIST, TLIST, ZLIST$COLORn
+#31
+MUTE ЗАМОЛЧАТЬ
+
+Формат:$COLORR mute <игрок> <время в часах> <причина>$COLORn
+
+MUTE запрещает персонажу болтать/орать/кричать в эфир на определенное время.
+
+См. также:$COLORC RULES, FLAGS, DUMB, HELL, NAME, BAN $COLORn
+#31
+NAME
+
+Формат:$COLORR  name <имя> <срок>$COLORn
+
+Помещает указанного персонажа в комнату, для персонажей,
+чьи имена не подходят для мира МПМ Былины.
+
+См. также:$COLORC RULES, MUTE, DUMB, HELL, BAN$COLORn
+#31
+NOHASSLE
+
+Формат:$COLORR nohassle$COLORn
+
+Устанавливает флаг, предотвращающий агрессию агромобов.
+#31
+NOTITLE
+
+Формат:$COLORR notitle <жертва>$COLORn
+
+После этого, будет невозможно изменить титул для указанного персонажа.
+#31
+NOWIZ
+
+Формат:$COLORR nowiz$COLORn
+
+Позволяет Вам игнорировать сообщения имм-канала.
+
+См. также:$COLORC WIZNET $COLORn
+#31
+OEDIT
+
+Формат:$COLORR  oedit <внум объекта>$COLORn
+
+С помощью этой команды можно редактировать параметры объектов.
+
+Примечание: не забывайте сохранять полученный результат,
+чтобы после креша не пришлось начинать с начала.
+
+См. также:$COLORC OLC, OLIST, MEDIT, REDIT, SEDIT, ZEDIT, TRIGEDIT$COLORn
+#31
+OLC
+
+Формат:$COLORR olc$COLORn
+
+Показывает информацию о файлах, которые были
+изменены посредством OLC команд.
+
+См. также:$COLORC OEDIT, MEDIT, REDIT, SEDIT, ZEDIT, TRIGEDIT$COLORn
+#31
+OLIST ОСПИСОК
+
+Формат:$COLORR  olist [наименьший внум] [наибольший внум]$COLORn
+
+Отображает список объектов, чей vnum находится в указанном диапазоне.
+
+См. также:$COLORC OEDIT, MLIST, RLIST, TLIST, ZLIST$COLORn
+#31
+PAGE
+
+Формат:$COLORR page <player | all> <сообщение>$COLORn
+
+Команда PAGE используется для отправки сообщения с использованием звукового 
+сигнала, другому игроку.
+
+PAGE ALL - отображает сообщение для всех игроков.
+
+Пример:
+
+  > page Рамзес Эй, ты все еще в игре?
+  > page all [ОСТАНОВКА через 30 секунд]
+
+#31
+PARDON
+
+Формат:$COLORR pardon <жертва>$COLORn
+
+Снимает состояние боевых действий и флаг !вор с игрока.
+#31
+POOFIN POOFOUT
+
+Формат:$COLORR poofin <сообщение>$COLORn
+        $COLORRpoofout <сообщение>$COLORn
+
+Меняет сообщения, появляющиеся, при использовании Вами команды GOTO.
+
+См. также:$COLORC GOTO $COLORn
+#31
+PRIVILEGES
+
+Формат:$COLORR  privileges [имя персонажа] [add] [имя команды]$COLORn
+
+При помощи этой команды редактируется список привилегированных комманд у указанных персонажей.
+
+См. также:$COLORC SYSLOG, ERRLOG, IMLOG $COLORn
+#31
+PURGE
+
+Формат:$COLORR purge [имя]$COLORn
+
+PURGE уничтожает вещи. Если используется без аргументов - очищает текущую комнату
+от объектов и мобов, но не игроков. Если в кач-ве аргумента указан моб - моб
+исчезает, оставляя все свои вещи лежать на земле.
+Если аргумент - имя игрока, то экипировка и инвентарь игрока остаются на земле,
+сам же игрок теряет соединение.
+
+Пример:
+
+  > purge
+  > purge Игвовед
+  > purge дымчатый.топор
+  > purge двухголовый.змей
+
+См. также:$COLORC DC $COLORn
+#31
+REDIT
+
+Формат:$COLORR  redit <внум комнаты>$COLORn
+
+С помощью этой команды можно редактировать параметры комнат.
+
+Примечание: не забывайте сохранять полученный результат,
+чтобы после креша не пришлось начинать с начала.
+
+См. также:$COLORC OLC, RLIST, OEDIT, MEDIT, SEDIT, ZEDIT, TRIGEDIT$COLORn
+#31
+RELOAD
+
+Формат:$COLORR reload < '*' | все | file >$COLORn
+
+Перезагружает некоторую информацию из файлов. (в случае если эти файлы претерпели
+изменения, нет необходимости перезагружать мад-сервер).
+
+Примечание: на момент написания этого топика команда 'все' не перезагружает "все".
+
+Возможные значения:
+
+  Имя         Путь до файлов
+  background (/mud_dir/lib/text/background)
+  credits    (/mud_dir/lib/text/credits)
+  greetings  (/mud_dir/lib/text/greetings)
+  handbook   (/mud_dir/lib/text/handbook)
+  help       (/mud_dir/lib/text/help)
+  immlist    (/mud_dir/lib/text/immlist)
+  imotd      (/mud_dir/lib/text/imotd)
+  news       (/mud_dir/lib/text/news)
+  motd       (/mud_dir/lib/text/motd)
+  info       (/mud_dir/lib/text/info)
+  policy     (/mud_dir/lib/text/policies)
+  wizlist    (/mud_dir/lib/text/wizlist)
+  xhelp      (/mud_dir/lib/text/help/*)
+#31
+REROLL
+
+Формат:$COLORR reroll <игрок>$COLORn
+
+Изменяет ролл игрока. (дает ему новое сочетание статсов).
+
+См. также:$COLORC STAT $COLORn
+#31
+RESTORE
+
+Формат:$COLORR restore <игрок | моб>$COLORn
+
+Используется для восстановления хп, маны, энергии у мобов/игроков.
+(у кастеров так-же восстанавливается мем).
+#31
+RETURN
+
+Формат:$COLORR return$COLORn
+
+RETURN используется для того, чтобы выйти из режима SWITCH
+
+См. также:$COLORC SWITCH $COLORn
+#31
+RLIST КСПИСОК
+
+Формат:$COLORR  rlist [наименьший внум] [наибольший внум]$COLORn
+
+Отображает список комнат, чей vnum находится в указанном диапазоне.
+
+См. также:$COLORC REDIT, OLIST, MLIST, TLIST, ZLIST$COLORn
+#31
+ROOMFLAGS ФЛАГИКОМНАТ
+
+Формат:$COLORR режим флагикомнат, режим roomflags, roomflags$COLORn
+
+Позволяет видеть флаги текущей команты, отображаемые после 
+имени комнаты, а так-же vnum'ы вещей из экипировки,
+vnum'ы лежащих на земле объектов и находящихся в комнате мобов.
+#31
+SEDIT
+
+Формат:$COLORR  sedit <внум магазина>$COLORn
+
+С помощью этой команды можно редактировать параметры магазинов.
+
+Примечание: не забывайте сохранять полученный результат,
+чтобы после креша не пришлось начинать с начала.
+
+См. также:$COLORC OLC, SHOW->SHOPS, MLIST, OEDIT, REDIT, SEDIT, ZEDIT, TRIGEDIT$COLORn
+#31
+SET
+
+Формат:$COLORR set [ file | player ] <персонаж> <поле> <значение>$COLORn
+
+Спомощью команды SET можно изменять различные параметры игроков, мобов, объектов 
+и т.д.
+
+SET PLAYER используется, когда изменяются параметры у игроков.
+
+SET FILE используется в случае, когда требуетися изменить параметр,
+у персонажа, которого нет в данный момент в игре.
+
+У полей с бинарным значением, значение может быть: ON или OFF.
+
+Доступные параметры:
+
+Поле           Уровень          Кто     Тип          Описание
+-----------------------------------------------------------------------------
+brief          LVL_GOD          PC      BINARY       Краткий режим
+invstart       LVL_GOD          PC      BINARY       Wiz-Invis при входе в игру
+title          LVL_GOD          PC      MISC         Титул игрока
+nosummon       LVL_GRGOD        PC      BINARY       Флаг !призвать
+maxhit         LVL_GRGOD        BOTH    NUMBER       Макс. HP
+maxmana        LVL_GRGOD        BOTH    NUMBER       Макс. мана
+maxmove        LVL_GRGOD        BOTH    NUMBER       Макс. энергия
+hit            LVL_GRGOD        BOTH    NUMBER       Текущие HP
+mana           LVL_GRGOD        BOTH    NUMBER       Текущая мана
+move           LVL_GRGOD        BOTH    NUMBER       Текущая энергия
+race           LVL_IMPL         PC      NUMBER       Расса персонажа
+str            LVL_GRGOD        BOTH    NUMBER       Strength
+size           LVL_IMPL         BOTH    NUMBER       Размер
+int            LVL_GRGOD        BOTH    NUMBER       Интеллект
+wis            LVL_GRGOD        BOTH    NUMBER       Мудрость
+dex            LVL_GRGOD        BOTH    NUMBER       Ловкость
+con            LVL_GRGOD        BOTH    NUMBER       Тело
+cha            LVL_GRGOD        BOTH    NUMBER       Обаяние
+ac             LVL_GRGOD        BOTH    NUMBER       Класс брони
+gold           LVL_GOD          BOTH    NUMBER       Золото (на руках)
+bank           LVL_GOD          PC      NUMBER       Золото (в банке)
+exp            LVL_GRGOD        BOTH    NUMBER       Очки опыта
+hitroll        LVL_GRGOD        BOTH    NUMBER       Модификатор to-hit
+damroll        LVL_GRGOD        BOTH    NUMBER       Модификатор damage
+invis          LVL_IMPL         PC      NUMBER       Уровень невидимости
+nohassle       LVL_GRGOD        PC      BINARY       Флаг NOHASSLE
+frozen         LVL_FREEZE       PC      BINARY       Флаг FROZEN
+practices      LVL_GRGOD        PC      NUMBER       # of practices
+lessons        LVL_GRGOD        PC      NUMBER       # of practices
+drunk          LVL_GRGOD        BOTH    MISC         Уровень алкоголя в крови
+hunger         LVL_GRGOD        BOTH    MISC         Часы голода
+thirst         LVL_GRGOD        BOTH    MISC         Часы жажды
+killer         LVL_GOD          PC      BINARY       Флаг KILLER
+thief          LVL_GOD          PC      BINARY       Флаг THIEF
+level          LVL_IMPL         BOTH    NUMBER       Уровень
+room           LVL_IMPL         BOTH    NUMBER       Перемещает в комнату
+roomflag       LVL_GRGOD        PC      BINARY       Флаг ROOMFLAGS
+siteok         LVL_GRGOD        PC      BINARY       Флаг SITEOK
+deleted        LVL_IMPL         PC      BINARY       Флаг DELETED
+class          LVL_GRGOD        BOTH    MISC         Класс
+nowizlist      LVL_GOD          PC      BINARY       Не виден список богов
+quest          LVL_GOD          PC      BINARY       Флаг QUESTING
+loadroom       LVL_GRGOD        PC      MISC         Комната ренты (#/off)
+color          LVL_GOD          PC      BINARY       Флаг COLOR
+idnum          LVL_IMPL         PC      NUMBER       ID Номер
+passwd         LVL_IMPL         PC      MISC         Пароль игрока
+nodelete       LVL_GOD          PC      BINARY       Флаг NoDelete
+sex            LVL_GRGOD        BOTH    MISC         Пол
+age            LVL_GRGOD        BOTH    NUMBER       Возраст игрока
+height         LVL_IMPL         BOTH    NUMBER       Рост
+weight         LVL_IMPL         BOTH    NUMBER       Вес
+godslike       LVL_IMPL         PC      BINARY       Флаг GODSLIK
+godscurse      LVL_IMPL         PC      BINARY       Флаг GODSCURE
+olc            LVL_IMPL         PC      BINARY       ФЛАГ OLC
+name           LVL_IMORT        PC      MISC         Имя (7 падежей)
+trgguest       LVL_IMPL         PC      BINARY       Квесты
+mkill          LVL_IMPL         PC      BINARY       [ ??? ]
+highgod        LVL_IMPL         PC      NUMBER       [ Откючено ]
+glory          LVL_IMPL         PC      NUMBER       Кол-во славы
+remort         LVL_IMPL         PC      NUMBER       Кол-во перевоплощений
+hell           LVL_IMPL         PC      BINARY       Флаг HELL
+email          LVL_GOD          PC      MISC         E-mail персонажа
+religion       LVL_IMPL         PC      MISC         Регилия персонажа
+demigod        LVL_IMPL         PC      BINARY       [ Откючено ]
+
+См. также:$COLORC STAT $COLORn
+#31
+SHOW
+
+Формат:$COLORR show <что_то> [аргумент]$COLORn
+
+Что можно увидеть:
+
+zones          player         rent           stats          errors         
+death          godrooms       shops          houses         snoop          
+desc           linkdrop       punishment     paths          loadrooms      
+
+Некоторые разделы просто отображают специфическую информацию, для некоторых
+необходим аргумент, например имя игрока.
+
+     death: Показывает названия и vnum'ы ДТ.
+    errors: Показывает пустые выходы из комнат.
+  godrooms: Показывает комнаты с флагом 'для богов'
+    houses: Показывает информацию о дружинах.
+  linkdrop: Выводит список персонажей ушелдших в ЛД.
+ loadrooms: [ Откючено ]
+      path: Отображает входы/выходы из указанной зоны.
+    player: Показывает краткую информацию о персонаже
+punishment: Выводит на экран список наказанных игроков.
+      rent: Показывает информацию из rent-файла игрока.
+     shops: Выводит список магазинов, а так-же информацию о их параметрах.
+     snoop: Выводит список тех кто ведет подслушивание и тех кого подслушивают.
+     stats: Показывает игровую статистику. (колво прототипом мобов, объектов и проч).
+     zones: Показывает список зон с указанием различной информации об этих зонах.
+
+См. также:$COLORC STAT, ZRESET, SNOOP $COLORn
+#31
+SHUTDOWN
+
+Формат:$COLORR shutdown [reboot|now|die|pause|schedule|cancel] [кол-во секунд]$COLORn
+
+Как следует из названия, эта команда служит для отрубания мад-сервера или 
+его перезагрузки.
+
+<без аргументов> - отображает информация о параметрах, с которыми можно 
+                   использовать команду shutdown.
+
+REBOOT           - перезагрузка мад-сервера.
+
+DIE              - остановка мад-сервера.
+
+PAUSE            - в корневом каталоге образуется файл 'pause', до тех пор, пока 
+                   он не будет удален мад будет невозможно загрузить.
+                   
+SCHEDULE         - [ ??? ]
+
+CANCEL           - отмена перезагрузки/остановки.
+
+NOW              - перезагрузка/остановка будет выполнена сразу-же.
+                   
+#31
+SKILLSET
+
+Формат:$COLORR skillset <имя персонажа> '<название умения/заклинания>' <процент владения умением/1 для заклинаний>$COLORn
+
+Устанавливает уровень владения умением, или добавляет
+указанное заклинание в резы.
+
+См. также:$COLORC SET $COLORn
+#31
+SLOWNS
+
+Формат:$COLORR slowns$COLORn
+
+Если есть возможность прочитать не только ip адрес игрока, но и доменное имя,
+то оно будет отображаться. Если slowns в позиции enabled, команда
+USERS будет отображать только IP адреса.
+
+См. также:$COLORC USERS $COLORn
+#31
+SNOOP
+
+Usage: $COLORRsnoop [имя_игрока]$COLORn
+
+Эта команда позволяет видеть всю информацию, которую получает или отправляет игрок.
+
+Эта команда нарушает конституционные права на свободу личной информации и еще ряд других прав, 
+поэтому Вы можете подслушивать не более 1 человека за раз :).
+
+Напечатайте snoop <ваше_имя> или просто "snoop", чтобы прекратить это непристойное занятие.
+#31
+STAT
+
+Формат:$COLORR stat [player | object | mobile | file] <имя>$COLORn
+
+Выдает информацию, относительно игрока, игрового моба или объекта.
+
+STAT PLAYER <имя> - используется, чтобы указать, что требуется информация 
+                    только об игроках.
+
+STAT OBJECT <имя> - используется, чтобы указать, что требуется информация 
+                    только об объектах.
+
+STAT MODILE <имя> - используется, чтобы указать, что требуется информация 
+                    только об мобах.
+
+STAT FILE <имя> -   используется для определения параметров персонажа, которого
+                    нет в данный момент в игре.
+
+Примеры:
+
+  > stat рыба
+  > stat player Пандора
+  > stat mobile охотник
+  > stat file Полиграф
+  > stat object платиновый.доспех
+
+См. также:$COLORC VSTAT $COLORn
+#31
+SWITCH
+
+Формат:$COLORR switch <имя моба>$COLORn
+
+SWITCH используется для контроля над мобом (после "переключения" все команды
+будут исполняться от лица моба. Если моба убьют, пока вы "переключены" Вас
+автоматически перенесет обратно.
+
+См. также:$COLORC RETURN $COLORn
+#31
+SYSLOG
+
+Формат:$COLORR syslog { нет | начальный | краткий | нормальный | полный }$COLORn
+
+Команда syslog позволяет видеть часть информации из системного лога.
+Подробность лога зависит Вашего от уровня и привилегий.
+
+Примеры:
+
+  > syslog краткий
+  > syslog нет
+
+См. также:$COLORC ERRLOG, IMLOG$COLORn
+#31
+TRIGEDIT
+
+Формат:$COLORR  trigedit <внум триггера>$COLORn
+
+С помощью этой команды можно редактировать синтаксис триггеров.
+
+Примечание: не забывайте сохранять полученный результат,
+чтобы после креша не пришлось начинать с начала.
+
+См. также:$COLORC OLC, TLIST, TSTAT, OEDIT, MEDIT, ZEDIT $COLORn
+#31
+TSTAT
+
+Формат:$COLORR  tstat <внум триггера>$COLORn
+
+Позволяет просмотреть текст указанного триггера.
+
+См. также:$COLORC OLC, TLIST, TRIGEDIT$COLORn
+#31
+TLIST
+
+Формат:$COLORR  tlist [наименьший внум] [наибольший внум]$COLORn
+
+Отображает список триггеров, чей vnum находится в указанном диапазоне.
+
+См. также:$COLORC TEDIT, TSTAT, OLIST, RLIST, TLIST, ZLIST$COLORn
+#31
+UNAFFECT
+
+Формат:$COLORR unaffect <цель>$COLORn
+
+Снимает все наложенные аффекты с персонажа.
+
+См. также:$COLORC STAT $COLORn
+#31
+UPTIME
+
+Формат:$COLORR uptime$COLORn
+
+Отображает время старта игрового сервера, а также отображает
+продолжительность его работы до текущего момента.
+#31
+USERS
+
+Формат:$COLORR users [аргументы]$COLORn
+
+Выводит на экран список всех сокетов (активных соединений).
+Выводимая информация: номер сокета, класс, уровень имя персонажа а также 
+тип соединения и ip адрес.
+
+Следующие аргументы доступны:
+
+-k или -o   Список лиц находящихся вне закона (убийцы, воры).
+-p          Только список сокетов игроков находящихся в игре.
+-d          Отображает список порванных соединений.
+-l мин-макс Отобразит список сокетов персонажей указанных уровней.
+-n <name>   Отобразит список сокетов персонажей с указанным именем.
+-h <host>   Показывает все соединения с указанного хоста
+-c список   Отобразит список сокетов персонажей указанных классов.
+
+См. также:$COLORC DC, SLOWNS $COLORn
+
+#31
+VNUM
+
+Формат:$COLORR vnum <mob | obj> <имя>$COLORn
+
+Выводит список виртуальных номеров (идентификаторов) объектов/мобов
+с указанным именем.
+
+Примеры:
+
+  > vnum obj кольцо
+  1. [  904] платиновое кольцо
+  2. [ 2543] серебренное кольцо
+  3. [ 2588] колько всевластия
+  
+  > vnum mob зме
+  1. [    1] маленькая змейка
+  2. [  908] двухголовый красный змей
+  3. [ 2548] детеныш полупрозрачного змея
+#31
+VSTAT
+
+Формат:$COLORR vstat < mob | obj > <виртуальный номер>$COLORn
+
+Используется для вывода на экран характеристик прототипа моба/объекта.
+
+Examples:
+
+  > vstat obj 3000
+  > vstat mob 3001
+
+См. также:$COLORC LOAD, STAT, VNUM $COLORn
+#31
+WIZHELP
+
+Формат:$COLORR wizhelp$COLORn
+
+Отображает список привилегированных команд, которые 
+доступны Вам в настоящее время.
+
+Примерный список привилигированных комманд:
+;              advance        at             attach         ban            
+beep           date           dc             detach         dumb           
+echo           email          errlog         force          forcetime      
+freeze         gecho          glory          goto           handbook       
+hcontrol       hell           holylight      imlog          imotd          
+invis          last           load           medit          mlist          
+mngarena       mredit         mrlist         mute           name           
+nohassle       notitle        nowiz          oedit          olc            
+olist          page           pardon         poofin         poofout        
+privileges     proxy          purge          redit          register       
+reload         reroll         restore        rlist          roomflags      
+rset           sedit          send           set            show           
+shutdow        shutdown       skillset       slowns         snoop          
+stat           switch         syslog         teleport       thaw           
+title          tlist          trackthru      transfer       trigedit       
+tstat          unaffect       unban          uptime         users          
+vdelete        vnum           vstat          wizhelp        wizlock        
+wiznet         zedit          zlist          zreset         гэхо           
+иммзаставка    имя            исписок        ксписок        мсписок        
+осписок        пометить       послать        прыжок         сохранить      
+титул          заломать       замолчать      заморозить     запрет         
+заставить      зсписок        эхо            
+
+См. также:$COLORC PRIVILEGES $COLORn
+#31
+WIZLOCK
+
+Формат:$COLORR wizlock [значение]$COLORn
+
+WIZLOCK позволяет Вам заблокировать игру.
+
+Возможные значения аргумента:
+'1'    - запрещает создание новых персонажей.
+'2-34' - запрещает создание новых персонажей, а также позволяет заходить 
+         в игру персонажам указанного в аргументе и более высокого уровня.
+''     - отображает текущее значение WIZLOCK
+
+См. также:$COLORC BAN $COLORn
+
+#31
+WIZNET ;
+
+Канал для общения бессмертных.
+
+Формат:$COLORR wiznet [ '@' | '*' | '#' ] [<сообщение>]$COLORn
+
+Примеры:
+
+  >; <сообщение>            - отправляет сообщение в имм. канал
+  >; @                      - выводит на экран список богов, которых Вы можете увидеть
+  >; #<уровень> <сообщение> - сообщение смогут увидеть лишь боги указанного уровня
+  >; *<сообщение>           - используется для описания эмоции
+
+См. также:$COLORC NOWIZ $COLORn
+#31
+ZEDIT
+
+Формат:$COLORR  zedit [lock|unlock|save]<внум зоны>$COLORn
+
+С помощью этой команды можно редактировать параметры зон.
+
+Параметры: Lock - для заблокирования зоны
+           Unlock - для разблокирования зоны.
+           Save - сохранения изменений, сделанных в OLC.
+
+Примечание: не забывайте сохранять полученный результат,
+чтобы после креша не пришлось начинать с начала.
+
+См. также:$COLORC OLC, ZLIST, OEDIT, MEDIT, REDIT, SEDIT, TRIGEDIT$COLORn
+#31
+REGISTER
+
+Формат:$COLORR  register [игрок]$COLORn
+
+Регистрирует игрока, как играющего через прокси.
+
+См. также:$COLORC RULES, USERS $COLORn
+#31
+VDELETE
+
+Формат:$COLORR  vdelete <имя переменной> <id объекта>$COLORn
+
+Удаляет переменную принадлежащую указанному объекту.
+
+См. также:$COLORC ATTACH, DETACH$COLORn
+#31
+ZRESET
+
+Формат:$COLORR zreset < зона | '*' | '.' >$COLORn
+
+Используется для принудительной перезагрузки зоны. Аргумент '*' - для 
+перезагрузки всех зон мада. Аргумент '.' - для перезагрузки зоны, в 
+которой Вы находитесь.
+
+См. также:$COLORC SHOW -> ZONES $COLORn
+#31
+ZLIST ЗСПИСОК
+
+Формат:$COLORR  zlist [наименьший внум] [наибольший внум]$COLORn
+
+Отображает список игровых зон, чей vnum находится в указанном диапазоне.
+
+См. также:$COLORC REDIT, OLIST, MLIST, RLIST, TLIST$COLORn
+
+#31
+$
+$
