@@ -485,7 +485,8 @@ void beat_punish(CHAR_DATA * i)
 				GET_WAS_IN(i) = NOWHERE;
 			};	
 		};
-	} else if (!PLR_FLAGGED(i, PLR_REGISTERED))
+	} 
+/*	else if (!PLR_FLAGGED(i, PLR_REGISTERED))
 	{
 		if (!RENTABLE(i) && (restore != r_unreg_start_room) && i->desc 
 		&& ((STATE(i->desc) == CON_PLAYING) || (STATE(i->desc) == CON_DISCONNECT)) && !check_dupes_host(i->desc)) {
@@ -505,7 +506,7 @@ void beat_punish(CHAR_DATA * i)
 			};	
 		}
 	}
-	
+*/	
 }
 
 void beat_points_update(int pulse)
