@@ -1705,9 +1705,10 @@ ASPELL(spell_fear)
 		modi += (GET_LEVEL(ch) - 10);
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
 		modi = modi - 50;
+	if (AFF_FLAGGED(victim, AFF_BLESS))
+		modi -= 25;
 
-	if (!MOB_FLAGGED(victim, MOB_NOFEAR) &&
-	    !AFF_FLAGGED(victim, AFF_BLESS) && !general_savingthrow(victim, SAVING_WILL, modi, 0))
+	if (!MOB_FLAGGED(victim, MOB_NOFEAR) && !general_savingthrow(victim, SAVING_WILL, modi, 0))
 		go_flee(victim);
 }
 
