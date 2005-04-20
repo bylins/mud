@@ -2697,7 +2697,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		d->snooping->snoop_by = NULL;
 
 	if (d->snoop_by) {
-		SEND_TO_Q("Your victim is no longer among us.\r\n", d->snoop_by);
+		SEND_TO_Q("Ваш подопечный выключил компьютер.\r\n", d->snoop_by);
 		d->snoop_by->snooping = NULL;
 	}
 	/*. Kill any OLC stuff . */
