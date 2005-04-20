@@ -486,10 +486,10 @@ void beat_punish(CHAR_DATA * i)
 			};	
 		};
 	} 
-/*	else if (!PLR_FLAGGED(i, PLR_REGISTERED))
+	else if (!PLR_FLAGGED(i, PLR_REGISTERED))
 	{
-		if (!RENTABLE(i) && (restore != r_unreg_start_room) && i->desc 
-		&& ((STATE(i->desc) == CON_PLAYING) || (STATE(i->desc) == CON_DISCONNECT)) && !check_dupes_host(i->desc)) {
+		if ((!RENTABLE(i)) && (restore != r_unreg_start_room) && i->desc
+		&& (STATE(i->desc) == CON_PLAYING) && !check_dupes_host(i->desc)) {
 
 			if (IN_ROOM(i) == STRANGE_ROOM)
 				GET_WAS_IN(i) = r_unreg_start_room;
@@ -506,7 +506,7 @@ void beat_punish(CHAR_DATA * i)
 			};	
 		}
 	}
-*/	
+	
 }
 
 void beat_points_update(int pulse)
