@@ -649,6 +649,7 @@ extern SPECIAL(postmaster);
 #define FREEZE_REASON(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pfreeze.reason))
 #define GCURSE_REASON(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pgcurse.reason))
 #define NAME_REASON(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pname.reason))
+#define UNREG_REASON(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->punreg.reason))
 
 #define GET_MUTE_LEV(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pmute.level))
 #define GET_DUMB_LEV(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pdumb.level))
@@ -656,6 +657,7 @@ extern SPECIAL(postmaster);
 #define GET_FREEZE_LEV(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pfreeze.level))
 #define GET_GCURSE_LEV(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pgcurse.level))
 #define GET_NAME_LEV(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pname.level))
+#define GET_UNREG_LEV(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->punreg.level))
 
 #define MUTE_GODID(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pmute.godid))
 #define DUMB_GODID(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pdumb.godid))
@@ -663,6 +665,7 @@ extern SPECIAL(postmaster);
 #define FREEZE_GODID(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pfreeze.godid))
 #define GCURSE_GODID(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pgcurse.godid))
 #define NAME_GODID(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pname.godid))
+#define UNREG_GODID(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->punreg.godid))
 
 #define GCURSE_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pgcurse.duration)) 
 #define MUTE_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pmute.duration))  
@@ -670,6 +673,7 @@ extern SPECIAL(postmaster);
 #define FREEZE_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pfreeze.duration))  
 #define HELL_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->phell.duration))  
 #define NAME_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pname.duration))  
+#define UNREG_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->punreg.duration))  
 
 #define KARMA(ch) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->Karma))
 #define LOGON_LIST(ch) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->logons))

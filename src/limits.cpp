@@ -426,6 +426,41 @@ void beat_punish(CHAR_DATA * i)
 		DUMB_DURATION(i) = 0;
 		send_to_char("Вы можете говорить.\r\n", i);
 	}
+
+	if (!PLR_FLAGGED(i, PLR_REGISTERED) && UNREG_DURATION(i) != 0 && UNREG_DURATION(i) <= time(NULL)) {
+		restore = PLR_TOG_CHK(i, PLR_REGISTERED);
+		if (UNREG_REASON(i))
+			free(UNREG_REASON(i));
+		UNREG_REASON(i) = 0;
+		GET_UNREG_LEV(i) = 0;
+		UNREG_GODID(i) = 0;
+		UNREG_DURATION(i) = 0;
+		send_to_char("Ваша регистрация восстановлена.\r\n", i);
+
+		if (IN_ROOM(i) == r_unreg_start_room)
+		{
+			if ((restore = GET_LOADROOM(i)) == NOWHERE)
+				restore = calc_loadroom(i);
+
+			restore = real_room(restore);
+
+			if (restore == NOWHERE) {
+				if (GET_LEVEL(i) >= LVL_IMMORT)
+					restore = r_immort_start_room;
+				else
+					restore = r_mortal_start_room;
+			}
+
+			char_from_room(i);
+			char_to_room(i, restore);
+			look_at_room(i, restore);
+
+			act("$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации !",
+			    FALSE, i, 0, 0, TO_ROOM);
+		};
+		
+	}
+
 	if (GET_GOD_FLAG(i, GF_GODSLIKE) && GCURSE_DURATION(i) != 0 && GCURSE_DURATION(i) <= time(NULL)) {
 		CLR_GOD_FLAG(i, GF_GODSLIKE);
 		send_to_char("Вы более не под защитой Богов.\r\n", i);
@@ -505,7 +540,7 @@ void beat_punish(CHAR_DATA * i)
 				GET_WAS_IN(i) = NOWHERE;
 			};	
 		}
-	}
+	} 
 	
 }
 
@@ -974,64 +1009,6 @@ void point_update(void)
 			else
 				gain_condition(i, THIRST, -1);
 
-			if (PLR_FLAGGED(i, PLR_HELLED) && HELL_DURATION(i) && HELL_DURATION(i) <= time(NULL)) {
-				restore = PLR_TOG_CHK(i, PLR_HELLED);
-				send_to_char("Вас выпустили из темницы.\r\n", i);
-				if ((restore = GET_LOADROOM(i)) == NOWHERE)
-					restore = calc_loadroom(i);
-				restore = real_room(restore);
-				if (restore == NOWHERE) {
-					if (GET_LEVEL(i) >= LVL_IMMORT)
-						restore = r_immort_start_room;
-					else
-						restore = r_mortal_start_room;
-				}
-				char_from_room(i);
-				char_to_room(i, restore);
-				look_at_room(i, restore);
-				act("Насвистывая \"От звонка до звонка...\", $n появил$u в центре комнаты.",
-				    FALSE, i, 0, 0, TO_ROOM);
-			}
-
-			if (PLR_FLAGGED(i, PLR_NAMED) && NAME_DURATION(i) && NAME_DURATION(i) <= time(NULL)) {
-				restore = PLR_TOG_CHK(i, PLR_NAMED);
-				send_to_char("Вас выпустили из КОМНАТЫ ИМЕНИ.\r\n", i);
-				if ((restore = GET_LOADROOM(i)) == NOWHERE)
-					restore = calc_loadroom(i);
-				restore = real_room(restore);
-				if (restore == NOWHERE) {
-					if (GET_LEVEL(i) >= LVL_IMMORT)
-						restore = r_immort_start_room;
-					else
-						restore = r_mortal_start_room;
-				}
-				char_from_room(i);
-				char_to_room(i, restore);
-				look_at_room(i, restore);
-				act("С ревом \"Имья, сеструа, имья...\", $n появил$u в центре комнаты.",
-				    FALSE, i, 0, 0, TO_ROOM);
-			}
-
-			if (PLR_FLAGGED(i, PLR_MUTE) && MUTE_DURATION(i) != 0 && MUTE_DURATION(i) <= time(NULL)) {
-				count = PLR_TOG_CHK(i, PLR_MUTE);
-				send_to_char("Вы можете орать.\r\n", i);
-			}
-			if (PLR_FLAGGED(i, PLR_DUMB) && DUMB_DURATION(i) != 0 && DUMB_DURATION(i) <= time(NULL)) {
-				count = PLR_TOG_CHK(i, PLR_DUMB);
-				send_to_char("Вы можете говорить.\r\n", i);
-			}
-			if (GET_GOD_FLAG(i, GF_GODSLIKE) && GCURSE_DURATION(i) != 0 && GCURSE_DURATION(i) <= time(NULL)) {
-				CLR_GOD_FLAG(i, GF_GODSLIKE);
-				send_to_char("Вы более не под защитой Богов.\r\n", i);
-			}
-			if (GET_GOD_FLAG(i, GF_GODSCURSE) && GCURSE_DURATION(i) != 0 && GCURSE_DURATION(i) <= time(NULL)) {
-				CLR_GOD_FLAG(i, GF_GODSCURSE);
-				send_to_char("Боги более не в обиде на Вас.\r\n", i);
-			}
-			if (PLR_FLAGGED(i, PLR_FROZEN) && FREEZE_DURATION(i) != 0 && FREEZE_DURATION(i) <= time(NULL)) {
-				count = PLR_TOG_CHK(i, PLR_FROZEN);
-				send_to_char("Вы оттаяли.\r\n", i);
-			}
 		}
 		if (GET_POS(i) >= POS_STUNNED) {	/* Restore hitpoints */
 			if (IS_NPC(i) || !UPDATE_PC_ON_BEAT) {

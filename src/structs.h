@@ -1818,6 +1818,7 @@ struct player_special_data {
 	struct punish_data pname;
 	struct punish_data pfreeze;
 	struct punish_data pgcurse;
+	struct punish_data punreg;
 
 	int page_height;
 };

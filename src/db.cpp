@@ -4014,6 +4014,12 @@ int load_char_ascii(char *name, CHAR_DATA * ch)
 	NAME_REASON(ch) = 0;
 	GET_NAME_LEV(ch) = 0;
 	NAME_GODID(ch) = 0;
+
+	UNREG_DURATION(ch) = 0;
+	UNREG_REASON(ch) = 0;
+	GET_UNREG_LEV(ch) = 0;
+	UNREG_GODID(ch) = 0;
+
 // End punish init
 
 	GET_DR(ch) = 0;
@@ -4381,6 +4387,14 @@ int load_char_ascii(char *name, CHAR_DATA * ch)
 				GET_GCURSE_LEV(ch)= num2;
 				GCURSE_GODID(ch)=lnum3;
 				GCURSE_REASON(ch)=str_dup(buf);
+			}
+			else if (!strcmp(tag, "PUnr"))
+			{
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+				UNREG_DURATION(ch)=lnum;
+				GET_UNREG_LEV(ch)= num2;
+				UNREG_GODID(ch)=lnum3;
+				UNREG_REASON(ch)=str_dup(buf);
 			}
 
 			break;
@@ -6332,6 +6346,9 @@ void new_save_char(CHAR_DATA * ch, room_rnum load_room)
 		fprintf(saved, "PDum: %ld %d %ld %s~\n", DUMB_DURATION(ch), GET_DUMB_LEV(ch), DUMB_GODID(ch), DUMB_REASON(ch));
 		fprintf(saved, "PGcs: %ld %d %ld %s~\n", GCURSE_DURATION(ch), GET_GCURSE_LEV(ch), GCURSE_GODID(ch), GCURSE_REASON(ch));
 		fprintf(saved, "PHel: %ld %d %ld %s~\n", HELL_DURATION(ch), GET_HELL_LEV(ch), HELL_GODID(ch), HELL_REASON(ch));
+		fprintf(saved, "PFrz: %ld %d %ld %s~\n", FREEZE_DURATION(ch), GET_FREEZE_LEV(ch), FREEZE_GODID(ch), FREEZE_REASON(ch));
+		fprintf(saved, "PGcs: %ld %d %ld %s~\n", GCURSE_DURATION(ch), GET_GCURSE_LEV(ch), GCURSE_GODID(ch), GCURSE_REASON(ch));
+		fprintf(saved, "PUnr: %ld %d %ld %s~\n", UNREG_DURATION(ch), GET_UNREG_LEV(ch), UNREG_GODID(ch), UNREG_REASON(ch));
 		fprintf(saved, "PFrz: %ld %d %ld %s~\n", FREEZE_DURATION(ch), GET_FREEZE_LEV(ch), FREEZE_GODID(ch), FREEZE_REASON(ch));
 	if (KARMA(ch) > 0) {
 	if (KARMA(ch) > 0) {

@@ -2467,6 +2467,19 @@ ACMD(do_score)
 			CCRED(ch, C_NRM), hrs, string(desc_count(hrs, WHAT_HOUR)).substr(0, 5).c_str(),
 			mins, (string(desc_count(mins, WHAT_MINu)) + string(".")).substr(0, 38).c_str(),
 			CCCYN(ch, C_NRM), CCRED(ch, C_NRM),
+			(string(MUTE_REASON(ch) ? MUTE_REASON(ch) : "-") + string("].")).substr(0, 79).c_str(),
+			CCCYN(ch, C_NRM));
+ 	}
+
+	if (!PLR_FLAGGED(ch, PLR_REGISTERED) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(NULL)) {
+		int hrs = (UNREG_DURATION(ch) - time(NULL)) / 3600;
+		int mins = ((UNREG_DURATION(ch) - time(NULL)) % 3600 + 59) / 60;
+		sprintf(buf + strlen(buf),
+			" || %sВы не сможете входить с одного IP еще %6d %-5s %2d %-38s%s||\r\n"
+			" || %s[%-79s%s||\r\n",
+			CCRED(ch, C_NRM), hrs, string(desc_count(hrs, WHAT_HOUR)).substr(0, 5).c_str(),
+			mins, (string(desc_count(mins, WHAT_MINu)) + string(".")).substr(0, 38).c_str(),
+			CCCYN(ch, C_NRM), CCRED(ch, C_NRM),
 			(string(UNREG_REASON(ch) ? UNREG_REASON(ch) : "-") + string("].")).substr(0, 79).c_str(),
 			CCCYN(ch, C_NRM));
  	}
@@ -2703,6 +2716,16 @@ ACMD(do_score)
 	}
 	if (PLR_FLAGGED(ch, PLR_DUMB) && DUMB_DURATION(ch) != 0 && DUMB_DURATION(ch) > time(NULL)) {
 		int hrs = (DUMB_DURATION(ch) - time(NULL)) / 3600;
+		int mins = ((DUMB_DURATION(ch) - time(NULL)) % 3600 + 59) / 60;
+		sprintf(buf, "Вы будете молчать еще %d %s %d %s [%s].\r\n",
+			hrs, desc_count(hrs, WHAT_HOUR),
+			mins, desc_count(mins, WHAT_MINu), DUMB_REASON(ch) ? DUMB_REASON(ch) : "-");
+		send_to_char(buf, ch);
+	}
+
+	if (!PLR_FLAGGED(ch, PLR_REGISTERED) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(NULL)) {
+		int hrs = (UNREG_DURATION(ch) - time(NULL)) / 3600;
+		int mins = ((UNREG_DURATION(ch) - time(NULL)) % 3600 + 59) / 60;
 		sprintf(buf, "Вы не сможете заходить с одного IP еще %d %s %d %s [%s].\r\n",
 			hrs, desc_count(hrs, WHAT_HOUR),
 			mins, desc_count(mins, WHAT_MINu), UNREG_REASON(ch) ? UNREG_REASON(ch) : "-");

@@ -210,6 +210,11 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pfreeze));	
 		break;
 
+		case SCMD_UNREGISTER:
+			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->punreg));	
+		break;
+
+
 	}
 	assert(pundata);	
 	if (GET_LEVEL(ch) < pundata->level)
@@ -256,8 +261,8 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				sprintf(buf, "Mute OFF by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
-				sprintf(buf, "%s%s разрешил$G Вам кричать.%s", GET_NAME(ch),
-					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+				sprintf(buf, "%s%s разрешил$G Вам кричать.%s", 
+					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n2 вернулся голос.");
 			break;
@@ -296,8 +301,8 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				sprintf(buf, "Dumb OFF by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
-				sprintf(buf, "%s%s разрешил$G Вам издавать звуки.%s", GET_NAME(ch),
-					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+				sprintf(buf, "%s%s разрешил$G Вам издавать звуки.%s", 
+					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n2 нарушил обет молчания.");
 
@@ -337,8 +342,8 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 					look_at_room(vict, result);
 				};
 
-				sprintf(buf, "%s%s выпустил$G Вас из темницы.%s",GET_NAME(ch),
-					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+				sprintf(buf, "%s%s выпустил$G Вас из темницы.%s",
+					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n выпущен$a из темницы !");
 			break;
@@ -379,10 +384,53 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 					char_to_room(vict, result);
 					look_at_room(vict, result);
 				};
-				sprintf(buf, "%s%s выпустил$G Вас из комнаты имени.%s", GET_NAME(ch),
-					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+				sprintf(buf, "%s%s выпустил$G Вас из комнаты имени.%s", 
+					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n выпущен$a из комнаты имени !");
+			break;
+
+			case SCMD_UNREGISTER:
+				// Регистриуем чара 
+				if (PLR_FLAGGED(vict, PLR_REGISTERED)) {
+					send_to_char("Вашей жертва уже зарегистрирована.\r\n", ch);
+					return (0);
+				};
+				SET_BIT(PLR_FLAGS(vict, PLR_REGISTERED), PLR_REGISTERED);
+
+				sprintf(buf, "%s registered by %s.", GET_NAME(vict), GET_NAME(ch));
+				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				imm_log(buf);
+
+				sprintf(buf, "Registered by %s", GET_NAME(ch));
+				add_karma(vict, buf, reason);
+
+				if (IN_ROOM(vict) != NOWHERE)
+				{
+
+					act("$n зарегистрирован$a!", FALSE, vict, 0, 0, TO_ROOM);
+		
+					if ((result = GET_LOADROOM(vict)) == NOWHERE)
+						result = calc_loadroom(vict);
+
+					result = real_room(result);
+		
+					if (result == NOWHERE) {
+						if (GET_LEVEL(vict) >= LVL_IMMORT)
+							result = r_immort_start_room;
+						else
+							result = r_mortal_start_room;
+					}
+
+					char_from_room(vict);
+					char_to_room(vict, result);
+					look_at_room(vict, result);
+				};
+				sprintf(buf, "%s%s зарегистрировал$G Вас.%s", 
+					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
+
+				sprintf(buf2, "$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации !");
+
 			break;
 
 		}
@@ -418,8 +466,8 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				sprintf(buf, "Mute ON (%ldh) by %s", times , GET_NAME(ch));
 				add_karma(vict, buf, reason);
 		
-				sprintf(buf, "%s%s запретил$G Вам кричать.%s", GET_NAME(ch),
-					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+				sprintf(buf, "%s%s запретил$G Вам кричать.%s", 
+					CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n подавился своим криком.");
 
@@ -456,8 +504,8 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				sprintf(buf, "Dumb ON (%ldm) by %s", times , GET_NAME(ch));
 				add_karma(vict, buf, reason);
 		
-				sprintf(buf, "%s%s запретил$G Вам издавать звуки.%s", GET_NAME(ch),
-					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+				sprintf(buf, "%s%s запретил$G Вам издавать звуки.%s", 
+					CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n дал обет молчания.");
 			break;
@@ -513,9 +561,42 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				sprintf(buf, "Removed TO nameroom (%ldh) by %s", times, GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
-				sprintf(buf, "%s$N поместил$G Вас в комнату имени.%s",
-					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+				sprintf(buf, "%s%s поместил$G Вас в комнату имени.%s",
+					CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 				sprintf(buf2, "$n помещен$a в комнату имени !");
+			break;
+
+			case SCMD_UNREGISTER:
+				REMOVE_BIT(PLR_FLAGS(vict, PLR_REGISTERED), PLR_REGISTERED);
+
+        			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
+
+				if (IN_ROOM(vict) != NOWHERE)
+				{
+
+					if (vict->desc && !check_dupes_host(vict->desc) && IN_ROOM(vict) != r_unreg_start_room) 
+					{
+						act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.",
+						    FALSE, vict, 0, 0, TO_ROOM);
+						char_from_room(vict);
+						char_to_room(vict, r_unreg_start_room);
+						look_at_room(vict, r_unreg_start_room);
+					}
+				}
+
+				if (GET_WAS_IN(vict) != NOWHERE)	// add by Pereplut
+					GET_WAS_IN(vict) = NOWHERE;
+
+				sprintf(buf, "%s unregistred by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
+				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+				imm_log(buf);
+				sprintf(buf, "Unregistered (%ldh) by %s", times, GET_NAME(ch));
+				add_karma(vict, buf, reason);
+
+				sprintf(buf, "%s%s снял$G с Вас ... регистрацию :).%s",
+					CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
+				sprintf(buf2, "$n лишен$a регистрации!");
+				
 			break;
 			
 		}
@@ -1407,6 +1488,12 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 				(DUMB_DURATION(k) - time(NULL)) / 60, DUMB_REASON(k) ? DUMB_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
+		if (!PLR_FLAGGED(k, PLR_REGISTERED) && UNREG_DURATION(k)) {
+			sprintf(buf, "Не будет зарегестрирован : %ld час [%s].\r\n",
+				(UNREG_DURATION(k) - time(NULL)) / 3600, UNREG_REASON(k) ? UNREG_REASON(k) : "-");
+			send_to_char(buf, ch);
+		}
+
 		if (GET_GOD_FLAG(k, GF_GODSLIKE) && GCURSE_DURATION(k)) {
 			sprintf(buf, "Под защитой Богов : %ld час.\r\n", (GCURSE_DURATION(k) - time(NULL)) / 3600);
 			send_to_char(buf, ch);
@@ -2988,62 +3075,12 @@ ACMD(do_wizutil)
 			break;
 
 		case SCMD_REGISTER:
-			if (ch == vict) {
-				send_to_char("Господи, не чуди...\r\n", ch);
-				return;
-			}
-			if (PLR_FLAGGED(vict, PLR_REGISTERED)) {
-				send_to_char("Респондент уже зарегистрирован.\r\n", ch);
-				return;
-			}
-			SET_BIT(PLR_FLAGS(vict, PLR_REGISTERED), PLR_REGISTERED);
-			send_to_char("Вас зарегистрировали.\r\n", vict);
-			if (IN_ROOM(vict) == r_unreg_start_room) {
-				if ((result = GET_LOADROOM(vict)) == NOWHERE)
-					result = calc_loadroom(vict);
-				result = real_room(result);
-				if (result == NOWHERE) {
-					if (GET_LEVEL(vict) >= LVL_IMMORT)
-						result = r_immort_start_room;
-					else
-						result = r_mortal_start_room;
-				}
-				char_from_room(vict);
-				char_to_room(vict, result);
-				look_at_room(vict, result);
-				act("$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации !",
-				    FALSE, vict, 0, 0, TO_ROOM);
-			}
-			sprintf(buf, "%s registered by %s.", GET_NAME(vict), GET_NAME(ch));
-			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
-			sprintf(buf, "Registred by %s", GET_NAME(ch));
-			add_karma(vict, buf, "???");
+			set_punish(ch, vict, SCMD_UNREGISTER, reason, 0);			
 			break;
 
 		case SCMD_UNREGISTER:
-			if (ch == vict) {
-				send_to_char("Господи, не чуди...\r\n", ch);
-				return;
-			}
-			if (!PLR_FLAGGED(vict, PLR_REGISTERED)) {
-				send_to_char("Респондент и так не зарегистрирован.\r\n", ch);
-				return;
-			}
-			REMOVE_BIT(PLR_FLAGS(vict, PLR_REGISTERED), PLR_REGISTERED);
-			send_to_char("С Вас сняли регистрацию.\r\n", vict);
-			if (vict->desc && !check_dupes_host(vict->desc) && IN_ROOM(vict) != r_unreg_start_room) {
-				act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.",
-				    FALSE, vict, 0, 0, TO_ROOM);
-				char_from_room(vict);
-				char_to_room(vict, r_unreg_start_room);
-				look_at_room(vict, r_unreg_start_room);
-			}
-			sprintf(buf, "%s unregistered by %s.", GET_NAME(vict), GET_NAME(ch));
-			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
-			sprintf(buf, "Unregistred by %s", GET_NAME(ch));
-			add_karma(vict, buf, "???");
+			if (num && *num) times=atol(num);
+			set_punish(ch, vict, SCMD_UNREGISTER, reason, times);
 			break;
 
 		case SCMD_UNAFFECT:
@@ -3424,6 +3461,13 @@ ACMD(do_show)
 					(HELL_DURATION(d->character) - time(NULL)) / 3600,
 					HELL_REASON(d->character) ? HELL_REASON(d->character) : "-");
 
+			if (!PLR_FLAGGED(d->character, PLR_REGISTERED)
+			    && UNREG_DURATION(d->character))
+				sprintf(buf + strlen(buf), "Не сможет заходить с одного IP : %ld час [%s].\r\n",
+					(UNREG_DURATION(d->character) - time(NULL)) / 3600,
+					UNREG_REASON(d->character) ? UNREG_REASON(d->character) : "-");
+
+
 			if (buf[0]) {
 				send_to_char(GET_NAME(d->character), ch);
 				send_to_char("\r\n", ch);
@@ -3584,7 +3628,8 @@ struct set_struct		/*
 	{"perslog", LVL_IMPL, PC, BINARY},
 	{"mute", LVL_GOD, PC, MISC},
 	{"dumb", LVL_GOD, PC, MISC},	/* 65 */
-	{"karma", LVL_GOD, PC, MISC},	
+	{"karma", LVL_IMPL, PC, MISC},	
+	{"unreg", LVL_GOD, PC, MISC},	
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -4202,6 +4247,12 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			return (0);
 		}
 		break;
+	case 67:      // Разрегистрация персонажа
+		reason = one_argument(val_arg, num);
+		if (num && *num) times=atol(num);
+		if (!set_punish(ch, vict, SCMD_UNREGISTER, reason, times)) return (0);
+		break;
+
 	default:
 		send_to_char("Не могу установить это!\r\n", ch);
 		return (0);
