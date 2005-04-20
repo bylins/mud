@@ -90,7 +90,7 @@ int calc_anti_savings(CHAR_DATA * ch)
 		modi = -50;
 	else
 		modi = GET_CAST_SUCCESS(ch);
-	modi += MAX (0, (int)((GET_REAL_WIS (ch) - 23) * 3 / 2));
+	modi += MAX (0, MIN(20, (int)((GET_REAL_WIS (ch) - 23) * 3 / 2)));
 //  log("[EXT_APPLY] Name==%s modi==%d",GET_NAME(ch), modi);
 	return modi;
 }
