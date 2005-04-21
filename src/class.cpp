@@ -2548,10 +2548,14 @@ int backstab_mult(int level)
 		return 6;	/* level 21 - 28 */
 	else if (level <= 30)
 		return 7;	/* level 21 - 28 */
-	else if (level < LVL_GRGOD)
-		return 10;	/* all remaining mortal levels */
 	else
-		return 20;	/* immortals */
+		return 10;
+	
+//	Adept: убрал, бо хайлевел мобы со стаба батыров сносили :)
+//	 if (level < LVL_GRGOD)
+//		return 10;	/* all remaining mortal levels */
+//	else
+//		return 20;	/* immortals */ 
 }
 
 
