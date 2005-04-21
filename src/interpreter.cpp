@@ -1972,7 +1972,8 @@ int check_dupes_host(DESCRIPTOR_DATA * d)
 		if (i->character && !IS_IMMORTAL(i->character)
 		    && (STATE(i) == CON_PLAYING || STATE(i) == CON_MENU)
 		    && !str_cmp(i->host, d->host)) {
-			if (!is_proxy(d)) {
+//	if (!is_proxy(d)) 
+			{
 				sprintf(buf, "Вы вошли с игроком %s с одного IP(%s) !\r\n"
 					"Вам необходимо обратиться к Богам для регистрации.\r\n"
 					"Пока Вы будете помещены в комнату для незарегистрированных игроков.\r\n",
