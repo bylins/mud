@@ -2368,7 +2368,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	case SPELL_CLONE:
 		msg = 10;
 		fmsg = number(3, 5);	/* Random fail message. */
-		mob_num = MOB_BONEDRAGON;
+		mob_num = MOB_DOUBLE;
 		pfail = 50 - GET_CAST_SUCCESS(ch) - GET_REMORT(ch) * 5;	/* 50% failure, should be based on something later. */
 		keeper = TRUE;
 		break;
@@ -2414,13 +2414,17 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 				mob_num = MOB_ZOMBIE;
 			else if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 24)
 				mob_num = MOB_BONEDOG;
-			else
+			else if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 30)
 				mob_num = MOB_BONEDRAGON;
+			else
+				mob_num = MOB_BONESPIRIT;	
+				
 			if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 15 && mob_num > MOB_ZOMBIE)
 			        mob_num = MOB_ZOMBIE;
 			else if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 25 && mob_num > MOB_BONEDOG) 
 			        mob_num = MOB_BONEDOG;
-				
+			else if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 32 && mob_num > MOB_BONEDRAGON)
+				mob_num = MOB_BONEDRAGON;	
 		}
 		handle_corpse = TRUE;
 		msg = number(1, 9);

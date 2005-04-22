@@ -15,11 +15,13 @@
 #define _MAGIC_H_
 
 /* These mobiles do not exist. */
-#define MOB_SKELETON      100
-#define MOB_ZOMBIE        101
-#define MOB_BONEDOG       102
-#define MOB_BONEDRAGON    103
-#define LAST_NECR_MOB	  103
+#define MOB_DOUBLE        3000 /*внум прототипа для клона*/
+#define MOB_SKELETON      3001
+#define MOB_ZOMBIE        3002
+#define MOB_BONEDOG       3003
+#define MOB_BONEDRAGON    3004
+#define MOB_BONESPIRIT    3005
+#define LAST_NECR_MOB	  3005
 #define MOB_KEEPER        104
 #define MOB_FIREKEEPER    105
 
