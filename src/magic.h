@@ -19,6 +19,7 @@
 #define MOB_ZOMBIE        101
 #define MOB_BONEDOG       102
 #define MOB_BONEDRAGON    103
+#define LAST_NECR_MOB	  103
 #define MOB_KEEPER        104
 #define MOB_FIREKEEPER    105
 

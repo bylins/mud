@@ -285,7 +285,8 @@
 #define SPELL_PEACEFUL			162	/* Усмирение. dzMUDiST */
 #define SPELL_MAGICBATTLE               163
 #define SPELL_BERSERK            	164
-#define LAST_USED_SPELL			164
+#define SPELL_STONEBONES            	165
+#define LAST_USED_SPELL			166
 
 /*
  *  NON-PLAYER AND OBJECT SPELLS AND SKILLS

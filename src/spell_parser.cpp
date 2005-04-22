@@ -4002,6 +4002,9 @@ void mag_assign_spells(void)
 //164
 	spello(SPELL_BERSERK, "!исступление!", "!set by programm!", 0, 0, 0, 255, 0,
 		FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
+//165
+	spello(SPELL_STONEBONES, "каменные кости", "stone bones", 80, 40, 1,
+		POS_STANDING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
 
 	/* NON-castable spells should appear below here. */
 

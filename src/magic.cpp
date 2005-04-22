@@ -1150,7 +1150,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			dam = 0;
 		if (ch != victim &&
 		    AFF_FLAGGED(victim, AFF_AIRAURA) && IS_SET(SpINFO.violent, MTYPE_AIR) && number(1, 100) <= 25)
-			dam = 0; */
+		dam = 0; */
 
 		if (dam > 0) {
 			koeff *= 1000;
@@ -2240,6 +2240,19 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].bitvector = AFF_PEACEFUL;
 		to_room = "Взгляд $n1 потускнел, а сам он успокоился.";
 		to_vict = "Ваша душа очистилась от зла и странно успокоилась.";
+		break;
+
+	case SPELL_STONEBONES:
+		if (GET_MOB_VNUM(victim) < MOB_SKELETON || GET_MOB_VNUM(victim) > LAST_NECR_MOB) {
+			send_to_char(NOEFFECT, ch);
+			success = FALSE;
+		}
+		af[0].location = APPLY_ARMOUR;
+		af[0].duration = pc_duration(victim, 100, level, 1, 0, 0);
+		af[0].modifier = level + 10;
+		accum_duration = TRUE;
+		to_vict = " ";
+		to_room = "Кости $n1 обрели твердость кремня.";
 		break;
 	}
 
