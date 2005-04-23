@@ -115,7 +115,8 @@ void assign_mobiles(void)
 	ASSIGNMOB(1, puff);
 
 	/* HOTEL */
-	ASSIGNMOB(3005, receptionist);
+//Adept: пока закомментил мешающее - потом надо посмотреть какого оно утт вообще делает.
+//	ASSIGNMOB(3005, receptionist);
 	ASSIGNMOB(3122, receptionist);
 	ASSIGNMOB(4022, receptionist);
 	ASSIGNMOB(106, receptionist);
