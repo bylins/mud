@@ -1509,7 +1509,7 @@ int slot_for_char(CHAR_DATA * ch, int slot_num)
 			wis_is = MERCHANT_SLOTS[(int) GET_LEVEL(ch) - 1][slot_num];
 		break;
 	}
-	return (wis_is ? MIN(25, wis_is + GET_SLOT(ch, slot_num) + GET_REMORT(ch)) : 0);
+	return (wis_is + (GET_REMORT(ch) / 4) ? MIN(25, wis_is + GET_SLOT(ch, slot_num) + GET_REMORT(ch)) : 0);
 }
 
 
