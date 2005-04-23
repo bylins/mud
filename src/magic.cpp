@@ -974,7 +974,8 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		    sdice = MAX(1, GET_REAL_WIS(ch) - 10);
 		    adice = MAX(1, 2 + 30 - GET_LEVEL(ch) + (GET_REAL_WIS(ch) - 29)) / 7;
 		if (ch == victim ||
-			    !general_savingthrow (victim, SAVING_CRITICAL, CALC_SUCCESS (modi, GET_REAL_WIS (ch)),0)) {
+		    (!general_savingthrow (victim, SAVING_CRITICAL, CALC_SUCCESS (modi, GET_REAL_WIS (ch)),0) &&
+		     number(0, 1000) <= 500)) {
 		    GET_POS(victim) = POS_INCAP;	
 		    WAIT_STATE(victim, adice * PULSE_VIOLENCE);
 		}
