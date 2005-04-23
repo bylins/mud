@@ -1442,7 +1442,7 @@ const int PALADINE_SLOTS[][MAX_PA_SLOT] = { {1, 0, 0, 0},	// lvl 8 wis 10,11
 
 int slot_for_char(CHAR_DATA * ch, int slot_num)
 {
-	int wis_is = 0, /*i, */ wis_line, wis_block;
+	int wis_is = -1, /*i, */ wis_line, wis_block;
 
 	if (slot_num < 1 || slot_num > MAX_SLOT || GET_LEVEL(ch) < 1 || IS_NPC(ch))
 		return -1;
@@ -1509,7 +1509,9 @@ int slot_for_char(CHAR_DATA * ch, int slot_num)
 			wis_is = MERCHANT_SLOTS[(int) GET_LEVEL(ch) - 1][slot_num];
 		break;
 	}
-	return (wis_is + (GET_REMORT(ch) / 4) ? MIN(25, wis_is + GET_SLOT(ch, slot_num) + GET_REMORT(ch)) : 0);
+	if (wis_is == -1) return 0; /*Go here if no magic for char*/
+	return ((wis_is || (GET_REMORT(ch) > slot_num)) ? MIN(25, wis_is + GET_SLOT(ch, slot_num) + GET_REMORT(ch)) : 0);
+	
 }
 
 
