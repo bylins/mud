@@ -1116,10 +1116,10 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	case ITEM_BOOK:
 		if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS) {
 			drndice = GET_OBJ_VAL(obj, 1);
-			if (spell_info[GET_OBJ_VAL (obj, 1)].min_rem[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] > GET_REMORT(ch) ) 
+			if (MIN_CAST_REM(spell_info[GET_OBJ_VAL (obj, 1)],ch) > GET_REMORT(ch) ) 
 				drsdice = 34;
 			else
-				drsdice = spell_info[GET_OBJ_VAL (obj, 1)].min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)];
+				drsdice = MIN_CAST_LEV(spell_info[GET_OBJ_VAL (obj, 1)],ch);
 			sprintf(buf, "содержит заклинание        : \"%s\"\r\n", spell_info[drndice].name);
 			send_to_char(buf, ch);
 			sprintf(buf, "уровень изучения (для Вас) : %d\r\n", drsdice);
@@ -1310,7 +1310,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			sprintf(buf, "содержит заклинание        : \"%s\"\r\n", spell_info[GET_OBJ_VAL(obj, 1)].name);
 			send_to_char(buf, ch);
 			sprintf(buf, "уровень изучения (для Вас) : %d\r\n",
-				spell_info[GET_OBJ_VAL (obj, 1)].min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)]);
+				MIN_CAST_LEV(spell_info[GET_OBJ_VAL (obj, 1)],ch));
 			send_to_char(buf, ch);
 		}
 		break;

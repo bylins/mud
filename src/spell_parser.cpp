@@ -1533,10 +1533,10 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 							min_caster_level)), SpINFO.mana_min));
 	};
 	if (!IS_MANA_CASTER(ch)
-	    && GET_LEVEL(ch) >= SpINFO.min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
-	    && GET_REMORT (ch) >= SpINFO.min_rem[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
+	    && GET_LEVEL(ch) >= MIN_CAST_LEV(SpINFO,ch)
+	    && GET_REMORT (ch) >= MIN_CAST_REM(SpINFO,ch)) {
 		mana_cost = MAX(SpINFO.mana_max - (SpINFO.mana_change *
-						   (GET_LEVEL(ch) - SpINFO.min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])),
+			   (GET_LEVEL(ch) - MIN_CAST_LEV(SpINFO,ch))),
 				SpINFO.mana_min);
 		if (SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] < 0)
 			mana_cost = mana_cost * (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))) / 100;
@@ -2552,9 +2552,11 @@ ACMD(do_cast)
 
 	/* Caster is lower than spell level */
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP | SPELL_KNOW) ||
-	     GET_REMORT(ch) < SpINFO.min_rem[(int) GET_CLASS (ch)][(int) GET_KIN (ch)]) && (GET_LEVEL(ch) < LVL_GRGOD) && (!IS_NPC(ch))) {
-		if (GET_LEVEL (ch) < SpINFO.min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] 
-		   || GET_REMORT (ch) < SpINFO.min_rem[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] 
+		     GET_REMORT(ch) < MIN_CAST_REM(SpINFO,ch)) && 
+		    (GET_LEVEL(ch) < LVL_GRGOD) && (!IS_NPC(ch))) 
+	{
+		if (GET_LEVEL (ch) < MIN_CAST_LEV(SpINFO,ch) 
+		   || GET_REMORT (ch) < MIN_CAST_REM(SpINFO,ch) 
 		   ||  slot_for_char (ch, SpINFO.slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)]) <= 0){
 			send_to_char("Рано еще Вам бросаться такими словами !\r\n", ch);
 			return;
@@ -2865,8 +2867,8 @@ ACMD(do_learn)
 		return;
 	}
 
-	if (SpINFO.min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] > GET_LEVEL (ch) 
-	   || SpINFO.min_rem[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] > GET_REMORT (ch) 
+	if (MIN_CAST_LEV(SpINFO,ch) > GET_LEVEL (ch) 
+	   || MIN_CAST_REM(SpINFO,ch) > GET_REMORT (ch) 
 	   ||  slot_for_char (ch, SpINFO.slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)]) <= 0){
 		sprintf(buf,
 			"- \"Какие интересные буковки ! Особенно %s, похожая на %s\".\r\n"
@@ -3074,8 +3076,8 @@ ACMD(do_remember)
 		return;
 	}
 	/* Caster is lower than spell level */
-	if (GET_LEVEL (ch) < SpINFO.min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] 
-	   ||  GET_REMORT (ch) < SpINFO.min_rem[(int) GET_CLASS  (ch)][(int) GET_KIN (ch)] 
+	if (GET_LEVEL (ch) < MIN_CAST_LEV(SpINFO,ch) 
+	   ||  GET_REMORT (ch) < MIN_CAST_REM(SpINFO,ch) 
 	   ||    slot_for_char (ch, SpINFO.slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)]) <= 0){
 		send_to_char("Рано еще Вам бросаться такими словами !\r\n", ch);
 		return;
@@ -3193,7 +3195,7 @@ mspell_remort (char *name, int spell, int kin, int chclass, int remort)
 		bad = 1;
 	}
 	if (!bad){
-		spell_info[spell].min_rem[chclass][kin] = remort;
+		spell_info[spell].min_remort[chclass][kin] = remort;
 		log ("REMORT set '%s' kin '%d' classes %d value %d", name, kin, chclass, remort);
 	}
 }
@@ -3271,7 +3273,7 @@ spello(int spl, const char *name, const char *syn,
 	int i,j;
 	for (i = 0; i < NUM_CLASSES; i++) 
 		for (j = 0; j < NUM_KIN; j++){
-			spell_info[spl].min_rem[i][j] = MAX_REMORT;
+			spell_info[spl].min_remort[i][j] = MAX_REMORT;
 			spell_info[spl].min_level[i][j] = LVL_IMPL;
 			spell_info[spl].slot_forc[i][j] = MAX_SLOT;
 			spell_info[spl].class_change[i][j] = 0;
@@ -3301,7 +3303,7 @@ void unused_spell(int spl)
 	int i,j;
 	for (i = 0; i < NUM_CLASSES; i++) 
 		for (j = 0; j < NUM_KIN; j++){
-			spell_info[spl].min_rem[i][j] = MAX_REMORT;
+			spell_info[spl].min_remort[i][j] = MAX_REMORT;
 			spell_info[spl].min_level[i][j] = LVL_IMPL + 1;
 			spell_info[spl].slot_forc[i][j] = MAX_SLOT;
 			spell_info[spl].class_change[i][j] = 0;

@@ -4531,7 +4531,7 @@ int load_char_ascii(char *name, CHAR_DATA * ch)
 				REMOVE_BIT(GET_SPELL_TYPE(ch, i), SPELL_KNOW);
 // shapirus: изученное не убираем на всякий случай, но из мема выкидываем,
 // если мортов мало
-			if (GET_REMORT(ch) < spell_info[i].min_rem[(int) GET_CLASS (ch)][(int) GET_KIN (ch)])			
+			if (GET_REMORT(ch) < MIN_CAST_REM(spell_info[i],ch))
 				GET_SPELL_MEM(ch, i) = 0;
 		}
 	}

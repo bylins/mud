@@ -2891,8 +2891,8 @@ int *MemQ_slots(CHAR_DATA * ch)
 		if ((n = GET_SPELL_MEM(ch, i)) == 0)
 			continue;
 		sloti = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
-		if (spell_info[i].min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] > GET_LEVEL (ch) 
-		   || spell_info[i].min_rem[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] > GET_REMORT (ch)){
+		if (MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL (ch) 
+		   || MIN_CAST_REM(spell_info[i],ch) > GET_REMORT (ch)){
 			GET_SPELL_MEM(ch, i) = 0;
 			continue;
 		}
@@ -2908,8 +2908,8 @@ int *MemQ_slots(CHAR_DATA * ch)
 		sloti = spell_info[q[0]->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;			if (sloti >= 0 && sloti <= 10) {
 			--slots[sloti];
 			if (slots[sloti] >= 0 &&
-			    spell_info[q[0]->spellnum].min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] <= GET_LEVEL (ch)
-			    && spell_info[q[0]->spellnum].min_rem[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] <= GET_REMORT (ch)){
+			    MIN_CAST_LEV(spell_info[q[0]->spellnum],ch) <= GET_LEVEL (ch)
+			    && MIN_CAST_REM(spell_info[q[0]->spellnum],ch) <= GET_REMORT (ch)){
 				q = &(q[0]->link);
 			} else {
 				if (q == &ch->MemQueue.queue)

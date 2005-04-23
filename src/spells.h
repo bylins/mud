@@ -370,7 +370,7 @@ struct spell_info_type {
 	int mana_min;		/* Min amount of mana used by a spell (highest lev) */
 	int mana_max;		/* Max amount of mana used by a spell (lowest lev) */
 	int mana_change;	/* Change in mana used by spell from lev to lev */
-	int min_rem[MAX_REMORT][NUM_KIN];
+	int min_remort[MAX_REMORT][NUM_KIN];
 	int min_level[NUM_CLASSES][NUM_KIN];
 	int slot_forc[NUM_CLASSES][NUM_KIN];
 	int class_change[NUM_CLASSES][NUM_KIN];

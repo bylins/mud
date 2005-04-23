@@ -219,9 +219,9 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 		if (!GET_SPELL_TYPE(ch, i) && !all_spells)
 			continue;
 
-		if ((spell_info[i].min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] > GET_LEVEL (ch)
-		    ||spell_info[i].min_rem[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] > GET_REMORT (ch) 
-		    ||slot_for_char (ch,spell_info[i].slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)]) <= 0)
+		if ((MIN_CAST_LEV(spell_info[i],ch) > GET_LEVEL (ch)
+		    || MIN_CAST_REM(spell_info[i],ch) > GET_REMORT (ch) 
+		    || slot_for_char (ch,spell_info[i].slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)]) <= 0)
 		    && all_spells && !GET_SPELL_TYPE(ch, i))
 			continue;
 
@@ -238,7 +238,7 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 			can_cast = 1;
 		}
 
-		if (spell_info[i].min_rem[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] > GET_REMORT (ch) )
+		if (MIN_CAST_REM(spell_info[i],ch) > GET_REMORT (ch) )
 			slot_num = MAX_SLOT - 1;
 		else  	
 			slot_num = spell_info[i].slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] - 1;
@@ -1235,9 +1235,9 @@ int npc_move(CHAR_DATA * ch, int dir, int need_specials_check)
 		return (FALSE);
 	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room == NOWHERE)
 		return (FALSE);
-	else if (ch->master && IN_ROOM(ch) == IN_ROOM(ch->master)) {
+	else if (ch->master && IN_ROOM(ch) == IN_ROOM(ch->master)) 
 		return (FALSE);
-	} else if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED)) {
+	else if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED)) {
 		if (!EXIT_FLAGGED(EXIT(ch, dir), EX_ISDOOR))
 			return (FALSE);
 		rdata = EXIT(ch, dir);
