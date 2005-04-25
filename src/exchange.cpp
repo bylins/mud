@@ -44,7 +44,7 @@ extern char *diag_weapon_to_char(OBJ_DATA * obj, int show_wear);
 extern char *diag_timer_to_char(OBJ_DATA * obj);
 extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
-
+extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
 //свои ф-ии
 int exchange_exhibit(CHAR_DATA * ch, char *arg);
@@ -275,6 +275,7 @@ int exchange_change_cost(CHAR_DATA * ch, char *arg)
 {
 	EXCHANGE_ITEM_DATA *item = NULL, *j, *next_thing = NULL;
 	int lot, newcost, pay;
+	char tmpbuf[MAX_INPUT_LENGTH];
 
 	if (!*arg) {
 		send_to_char(info_message, ch);
@@ -316,7 +317,16 @@ int exchange_change_cost(CHAR_DATA * ch, char *arg)
 	GET_EXCHANGE_ITEM_COST(item) = newcost;
 	if (pay > 0)
 		GET_BANK_GOLD(ch) -= (int) (pay * EXCHANGE_EXHIBIT_PAY_COEFF);
-	send_to_char("Ладушки.\r\n", ch);
+
+	sprintf(tmpbuf, "Вы назначили цену %d %s, за %s (лот %d).\r\n",
+		newcost, desc_count(newcost, WHAT_MONEYu), GET_EXCHANGE_ITEM(item)->PNames[3], GET_EXCHANGE_ITEM_LOT(item));
+	send_to_char(tmpbuf, ch);
+	sprintf(tmpbuf,
+		"Базар : лот (%d) - %s - выставлен за новую цену %d %s.\r\n",
+		GET_EXCHANGE_ITEM_LOT(item), GET_EXCHANGE_ITEM(item)->PNames[0], newcost, desc_count(newcost, WHAT_MONEYa));
+	message_exchange(tmpbuf, ch, item);
+	set_wait(ch, 2, FALSE);
+//	send_to_char("Ладушки.\r\n", ch);
 	return true;
 }
 
