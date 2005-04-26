@@ -1384,7 +1384,7 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 	int fight_count = 0;
 	string tmpstr = "";
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE)) {
+	if (AFF_FLAGGED(ch, AFF_DEAFNESS)) {
 		send_to_char("Вы забыли, что вы глухи ?\r\n", ch);
 		return;
 	}
