@@ -69,6 +69,8 @@ CHAR_DATA *character_list = NULL;	/* global linked list of
 CHAR_DATA *char_freed_list = NULL;	/* global linked list of
 					 * chars waited for free() */
 
+CHAR_DATA *char_index_table = NULL; 	/* глобальная таблица соответствий
+					 GET_ID-ов и CHAR_DATA для ускорения*/
 
 INDEX_DATA **trig_index;	/* index table for triggers      */
 int top_of_trigt = 0;		/* top of trigger index table    */
@@ -978,7 +980,13 @@ void index_boot(int mode)
 {
 	const char *index_filename, *prefix = NULL;	/* NULL or egcs 1.1 complains */
 	FILE *index, *db_file;
-	int rec_count = 0, size[2], count;
+
+	int rec_count = 0, counter;
+	int size[2];
+
+
+	log("Index booting %d", mode);
+
 
 	switch (mode) {
 	case DB_BOOT_TRG:
@@ -1010,6 +1018,7 @@ void index_boot(int mode)
 		exit(1);
 	}
 
+
 	if (mini_mud)
 		index_filename = MINDEX_FILE;
 	else
@@ -1038,12 +1047,12 @@ void index_boot(int mode)
 			else if (mode == DB_BOOT_HLP)
 				rec_count += count_alias_records(db_file);
 			else if (mode == DB_BOOT_WLD) {
-				count = count_hash_records(db_file);
-				if (count >= 99) {
+				counter = count_hash_records(db_file);
+				if (counter >= 99) {
 					log("SYSERR: File '%s' list more than 98 room", buf2);
 					exit(1);
 				}
-				rec_count += (count + 1);
+				rec_count += (counter + 1);
 			} else
 				rec_count += count_hash_records(db_file);
 		}
@@ -1324,6 +1333,19 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 		asciiflag_conv(flags, &world[room_nr]->room_flags);
 		world[room_nr]->sector_type = t[2];
 	}
+	
+	// Обнуляем флаги от аффектов и сами аффекты на комнате.
+	world[room_nr]->affected = NULL;
+	world[room_nr]->affected_by.flags[0] = 0;
+	world[room_nr]->affected_by.flags[1] = 0;
+	world[room_nr]->affected_by.flags[2] = 0;
+	world[room_nr]->affected_by.flags[3] = 0;
+	// Обнуляем базовые параметры (пока нет их загрузки)
+	memset(&world[room_nr]->base_property,0,sizeof(room_property_data));
+
+	// Обнуляем добавочные параметры комнаты
+	memset(&world[room_nr]->add_property,0,sizeof(room_property_data));
+
 
 	world[room_nr]->func = NULL;
 	world[room_nr]->contents = NULL;
@@ -2808,7 +2830,7 @@ CHAR_DATA *create_char(void)
 	ch->next = character_list;
 	character_list = ch;
 	GET_ID(ch) = max_id++;
-
+	
 	return (ch);
 }
 
@@ -6546,7 +6568,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 --*/
 {
 	int i;
-		// Сохраняю track, contents, people
+	EXTRA_DESCR_DATA **pddd, *sdd;
 
 	{
 		// Сохраняю track, contents, people, аффекты
@@ -6554,7 +6576,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 		OBJ_DATA *contents = dst->contents;
 		CHAR_DATA *people = dst->people;
 
-		// Восстанавливаю track, contents, people
+		// Копирую все поверх
 		*dst = *src;
 
 		// Восстанавливаю track, contents, people, аффекты
@@ -6645,6 +6667,14 @@ void room_free(ROOM_DATA * room)
 	free_script(SCRIPT(room));
 
 	if (room->ing_list) {
+		free(room->ing_list);
+		room->ing_list = NULL;
+	}
+	
+	AFFECT_DATA *af,*next_af;
+	for (af = room->affected; af; af = next_af)
+	{
+		next_af = af->next;
 		free(af);
 	}
 	room->affected = NULL;

@@ -497,6 +497,27 @@ const char *affected_bits[] = { "слепота",	/* 0 */
 	"\n"
 };
 
+/* AFF_ROOM_x */
+/* Список описаний аффектов на комнатах которые видны - без DETECT_MAGIC*/
+const char *room_aff_visib_bits[] = {
+ 	"&W... земля освещена колдовством ...&n",	/* 0 */
+	"&G... все окутано туманом ...&n", 		/* AFF_FOG */
+	"\n",
+	"\n",
+	"\n",
+	"\n"
+};
+
+/* Список описаний аффектов на комнатах готорые видны - с DETECT_MAGIC */
+const char *room_aff_invis_bits[] = {
+ 	"&W... земля освещена колдовством ...&n",	/* 0 */
+	"&G... колдовской туман плывет над Вами &n ...", /* AFF_FOG */ 
+	"\n",
+	"\n",
+	"\n",
+	"\n",
+};
+
 /* CON_x */
 const char *connected_types[] = { "В игре",
 	"Disconnecting",
@@ -1960,17 +1981,20 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	/* 0 */
 	"!SPELL_EARTHFALL!",
 	"!SPELL_SONICWAVE!",
 	"!SPELL_HOLYSTRIKE!",
-	"!SPELL_SPELL_ANGEL!",
+	"!SPELL_SPELL_ANGEL!",                 /* 155 */
 	"!SPELL_SPELL_MASS_FEAR!",
 	"Ваша красота куда-то пропала.",
 	"Ваша душа успокоилась.",
 	"!SPELL_OBLIVION!",
-	"!SPELL_BURDEN_OF_TIME!",
+	"!SPELL_BURDEN_OF_TIME!",        /* 160 */
 	"!SPELL_GROUP_REFRESH!",
 	"Смирение в вашей душе вдруг куда-то исчезло.",
 	"К Вам вернулась способность нормально сражаться.",
 	"Неистовство оставило Вас.",
-	"!stone bones!"
+	"!stone bones!",               /* 165 */
+	"Комната погрузилась во тьму.",          /* SPELL_ROOM_LIGHT - строка при снятии аффекта   */
+	"Порыв ветра развеял ядовитый туман.",   /* SPELL_POISONED_FOG - строка при снятии аффекта */
+	"Ветер прогнал грозовые тучи."		 /* SPELL_THUNDERSTORM - строка при снятии аффекта */
 };
 
 
@@ -2341,10 +2365,14 @@ const char *cast_phrase[LAST_USED_SPELL + 1][2] = { {"\nRESERVED DB.C",	/* 0 */
 {"\n!Исступление!",
  "\n"},
 {"Обращу кости их в твердый камень.",
- "...и тот, кто упадет на камень сей, разобьется."}
+ "...и тот, кто упадет на камень сей, разобьется."}, // SPELL_STONE_BONE
+{"Да буде СВЕТ !!!",
+ "...ибо сказал МОНТЕР !!!"}, // SPELL_ROOM_LIGHT
+{"Порчу воздух !!!",
+ "...и зловонное дыхание его."}, // SPELL_POISONED_FOG
+{"Дети ПЕРУНА покарают Вас !!!",
+ "...и молнии як мечи в их руках."} // SPELL_THUNDERSTORM
 };
-
-
 
 
 const char *npc_class_types[] = { "Обычный",

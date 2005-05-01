@@ -214,6 +214,7 @@ void zlib_free(void *opaque, void *address);
 void reboot_wizlists(void);
 void boot_world(void);
 void player_affect_update(void);	/* In spells.cpp */
+void room_affect_update(void);		/* In spells.cpp */
 void mobile_affect_update(void);
 void mobile_activity(int activity_level, int missed_pulses);
 void perform_violence(void);
@@ -1154,7 +1155,7 @@ inline void heartbeat()
 	{
 		mobile_activity(pulse, 10);
 		// Чистим указатели освобожденных char-ов
-		cleanup_freed();
+		// cleanup_freed();
 	}
 	//log("Stop it...");
 
@@ -1189,10 +1190,17 @@ inline void heartbeat()
 		//log("Stop it...");
 	}
 
+	if (!(pulse % (SECS_PER_ROOM_AFFECT * PASSES_PER_SEC))) {	//log ("Player affect update...");
+		room_affect_update();
+		//log("Stop it...");
+	}
+
 	if (!(pulse % (SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC))) {	//log ("Player affect update...");
 		player_affect_update();
 		//log("Stop it...");
 	}
+
+
 
 	if (!(pulse % (TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {	//log("Hour msg update...");
 		hour_update();

@@ -31,6 +31,7 @@ using std::string;
 using std::list;
 
 /* public functions in utils.cpp */
+CHAR_DATA *find_char(long n);
 char *title_noname(struct char_data *ch);
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
@@ -48,6 +49,7 @@ void log_death_trap(CHAR_DATA * ch);
 int number(int from, int to);
 int dice(int number, int size);
 int sprintbit(bitvector_t vektor, const char *names[], char *result);
+int sprintbitwd(bitvector_t vektor, const char *names[], char *result, char * div);
 void sprintbits(FLAG_DATA flags, const char *names[], char *result, char *div);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE * fl, char *buf);
@@ -178,6 +180,7 @@ void update_pos(CHAR_DATA * victim);
 #define DAYS_PER_MONTH         30
 #define MONTHS_PER_YEAR        12
 #define SECS_PER_PLAYER_AFFECT 2
+#define SECS_PER_ROOM_AFFECT 2
 #define TIME_KOEFF             2
 #define MOB_MEM_KOEFF          SECS_PER_MUD_HOUR
 #define SECS_PER_MUD_HOUR     60
@@ -298,6 +301,7 @@ extern SPECIAL(postmaster);
 #define PRF_FLAGS(ch,flag)  (GET_FLAG((ch)->player_specials->saved.pref, flag))
 #define AFF_FLAGS(ch,flag)  (GET_FLAG((ch)->char_specials.saved.affected_by, flag))
 #define NPC_FLAGS(ch,flag)  (GET_FLAG((ch)->mob_specials.npc_flags, flag))
+#define ROOM_AFF_FLAGS(room,flag)  (GET_FLAG((room)->affected_by, flag))
 #define EXTRA_FLAGS(ch,flag)(GET_FLAG((ch)->Temporary, flag))
 #define ROOM_FLAGS(loc,flag)(GET_FLAG(world[(loc)]->room_flags, flag))
 #define DESC_FLAGS(d)   ((d)->options)
@@ -314,6 +318,7 @@ extern SPECIAL(postmaster);
 #define NPC_FLAGGED(ch, flag)   (IS_SET(NPC_FLAGS(ch,flag), (flag)))
 #define EXTRA_FLAGGED(ch, flag) (IS_SET(EXTRA_FLAGS(ch,flag), (flag)))
 #define ROOM_FLAGGED(loc, flag) (IS_SET(ROOM_FLAGS((loc),(flag)), (flag)))
+#define ROOM_AFFECTED(loc, flag) (IS_SET(ROOM_AFF_FLAGS((world[(loc)]),(flag)), (flag)))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
 #define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
 #define OBJWEAR_FLAGGED(obj, flag)   (IS_SET((obj)->obj_flags.wear_flags, (flag)))
@@ -325,9 +330,10 @@ extern SPECIAL(postmaster);
                                      (ch)->extra_attack.victim     = vict;})
 #define GET_EXTRA_SKILL(ch)          ((ch)->extra_attack.used_skill)
 #define GET_EXTRA_VICTIM(ch)         ((ch)->extra_attack.victim)
-#define SET_CAST(ch,snum,dch,dobj)   ({(ch)->cast_attack.spellnum  = snum; \
+#define SET_CAST(ch,snum,dch,dobj,droom)   ({(ch)->cast_attack.spellnum  = snum; \
                                        (ch)->cast_attack.tch       = dch; \
-                                       (ch)->cast_attack.tobj      = dobj;})
+                                       (ch)->cast_attack.tobj      = dobj; \
+				       (ch)->cast_attack.troom     = droom;})
 #define GET_CAST_SPELL(ch)         ((ch)->cast_attack.spellnum)
 #define GET_CAST_CHAR(ch)          ((ch)->cast_attack.tch)
 #define GET_CAST_OBJ(ch)           ((ch)->cast_attack.tobj)
@@ -369,8 +375,9 @@ extern SPECIAL(postmaster);
 
 #define IS_DARK(room)      ((world[room]->gdark > world[room]->glight) || \
                             (!(world[room]->gdark < world[room]->glight) && \
-                             !(world[room]->light+world[room]->fires) && \
-                              (ROOM_FLAGGED(room, ROOM_DARK) || \
+                            !(world[room]->light+world[room]->fires) && \
+                              !ROOM_AFFECTED(room, AFF_ROOM_LIGHT) && \
+				(ROOM_FLAGGED(room, ROOM_DARK) || \
                               (SECT(room) != SECT_INSIDE && \
                                SECT(room) != SECT_CITY   && \
                                ( weather_info.sunlight == SUN_SET || \
@@ -571,6 +578,11 @@ extern SPECIAL(postmaster);
 #define HUNTING(ch)        ((ch)->char_specials.hunting)
 #define PROTECTING(ch)    ((ch)->Protecting)
 #define TOUCHING(ch)   ((ch)->Touching)
+
+/*Макросы доступа к полям параметров комнат*/
+#define GET_ROOM_BASE_POISON(room) ((room)->base_property.poison)
+#define GET_ROOM_ADD_POISON(room) ((room)->add_property.poison)
+#define GET_ROOM_POISON(room) (GET_ROOM_BASE_POISON(room)+GET_ROOM_ADD_POISON(room))
 
 /* Получение кубиков урона - работает только для мобов! */
 #define GET_NDD(ch) ((ch)->mob_specials.damnodice)

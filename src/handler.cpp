@@ -455,6 +455,30 @@ void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool a
 	}			/* switch */
 }
 
+void affect_room_modify(ROOM_DATA * room, byte loc, sbyte mod, bitvector_t bitv, bool add)
+{
+	if (add) {
+		SET_BIT(ROOM_AFF_FLAGS(room, bitv), bitv);
+	} else {
+		REMOVE_BIT(ROOM_AFF_FLAGS(room, bitv), bitv);
+		mod = -mod;
+	}
+
+	switch (loc) {
+	case APPLY_ROOM_NONE:
+		break;
+	case APPLY_ROOM_POISON:
+		/* Увеличиваем загаженность от аффекта вызываемого SPELL_POISONED_FOG */
+		/* Хотя это сделанно скорее для примера пока не обрабатывается вообще */
+			GET_ROOM_ADD_POISON(room) += mod;
+		break;
+	default:
+		log("SYSERR: Unknown room apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
+		break;
+
+	}			/* switch */
+}
+
 void total_gods_affect(CHAR_DATA * ch)
 {
 	struct gods_celebrate_apply_type *cur = NULL;
@@ -487,6 +511,25 @@ int char_stealth_aff[] = { AFF_HIDE,
 	AFF_CAMOUFLAGE,
 	0
 };
+/* Тут осуществляется апдейт аффектов влияющих на комнату */
+void affect_room_total(ROOM_DATA * room)
+{
+	AFFECT_DATA *af;
+	// А че тут надо делать пересуммирование аффектов от заклов.
+	/* Вобщем все комнаты имеют (вроде как базовую и 
+	   добавочную характеристику) если скажем ввести 
+	   возможность устанавливать степень зараженности комнтаы
+	   в OLC , то дополнительное загаживание только будет вносить 
+	   + но не обнулять это значение. */
+
+	/* обнуляем все добавочные характеристики */
+	memset(&room->add_property, 0 , sizeof(room_property_data));
+	
+	/* перенакладываем аффекты  */
+	for (af = room->affected; af; af = af->next)
+		affect_room_modify(room, af->location, af->modifier, af->bitvector, TRUE);
+		
+}
 
 /* This updates a character by subtracting everything he is affected by */
 /* restoring original abilities, and then affecting all again           */
@@ -657,6 +700,25 @@ void affect_total(CHAR_DATA * ch)
 	}
 }
 
+/* Намазываем аффект на комнату.
+  Автоматически ставим нузные флаги */
+void affect_to_room(ROOM_DATA * room, AFFECT_DATA * af)
+{
+	AFFECT_DATA *affected_alloc;
+
+	CREATE(affected_alloc, AFFECT_DATA, 1);
+
+	*affected_alloc = *af;
+	affected_alloc->next = room->affected;
+	room->affected = affected_alloc;
+
+	affect_room_modify(room, af->location, af->modifier, af->bitvector, TRUE);
+	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
+	affect_room_total(room);
+	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Stop");
+//	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
+}
+
 
 
 /* Insert an affect_type in a char_data structure
@@ -748,6 +810,37 @@ void affect_remove(CHAR_DATA * ch, AFFECT_DATA * af)
 
 
 
+void affect_room_remove(ROOM_DATA * room, AFFECT_DATA * af)
+{
+
+	AFFECT_DATA *temp;
+	int change = 0;
+
+	// if (IS_IMMORTAL(ch))
+	//   {sprintf(buf,"<%d>\r\n",was_hdrk);
+	//    send_to_char(buf,ch);
+	//   }
+
+	if (room->affected == NULL) {
+		log("SYSERR: affect_room_remove when no affects...");
+		// core_dump();
+		return;
+	}
+
+	affect_room_modify(room, af->location, af->modifier, af->bitvector, FALSE);
+	if (change)
+		affect_room_modify(room, af->location, af->modifier, af->bitvector, TRUE);
+	else {
+		REMOVE_FROM_LIST(af, room->affected, next);
+		free(af);
+	}
+	//log("[AFFECT_REMOVE->AFFECT_TOTAL] Start");
+	affect_room_total(room);
+	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Stop");
+//	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
+}
+
+
 /* Call affect_remove with every spell of spelltype "skill" */
 void affect_from_char(CHAR_DATA * ch, int type)
 {
@@ -786,6 +879,17 @@ bool affected_by_spell(CHAR_DATA * ch, int type)
 
 	return (FALSE);
 }
+/* Проверяем а не висит ли на комнате закла ужо */
+bool room_affected_by_spell(ROOM_DATA * room, int type)
+{
+	AFFECT_DATA *hjp;
+
+	for (hjp = room->affected; hjp; hjp = hjp->next)
+		if (hjp->type == type)
+			return (TRUE);
+
+	return (FALSE);
+}
 
 void affect_join_fspell(CHAR_DATA * ch, AFFECT_DATA * af)
 {
@@ -807,6 +911,52 @@ void affect_join_fspell(CHAR_DATA * ch, AFFECT_DATA * af)
 		affect_to_char(ch, af);
 	}
 }
+void affect_room_join_fspell(ROOM_DATA * room, AFFECT_DATA * af)
+{
+	AFFECT_DATA *hjp;
+	bool found = FALSE;
+
+	for (hjp = room->affected; !found && hjp; hjp = hjp->next) {
+		if ((hjp->type == af->type) && (hjp->location == af->location)) {
+
+			if (hjp->modifier < af->modifier)
+				hjp->modifier = af->modifier;
+			if (hjp->duration < af->duration)
+				hjp->duration = af->duration;
+			affect_room_total(room);
+			found = TRUE;
+		}
+	}
+	if (!found) {
+		affect_to_room(room, af);
+	}
+}
+
+void affect_room_join(ROOM_DATA * room, AFFECT_DATA * af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod)
+{
+	AFFECT_DATA *hjp;
+	bool found = FALSE;
+
+	for (hjp = room->affected; !found && hjp && af->location; hjp = hjp->next) {
+		if ((hjp->type == af->type) && (hjp->location == af->location)) {
+			if (add_dur)
+				af->duration += hjp->duration;
+			if (avg_dur)
+				af->duration /= 2;
+			if (add_mod)
+				af->modifier += hjp->modifier;
+			if (avg_mod)
+				af->modifier /= 2;
+			affect_room_remove(room, hjp);
+			affect_to_room(room, af);
+			found = TRUE;
+		}
+	}
+	if (!found) {
+		affect_to_room(room, af);
+	}
+}
+
 
 void affect_join(CHAR_DATA * ch, AFFECT_DATA * af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod)
 {
@@ -1758,7 +1908,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 		if (GET_EXTRA_VICTIM(k) == ch)
 			SET_EXTRA(k, 0, NULL);
 		if (GET_CAST_CHAR(k) == ch)
-			SET_CAST(k, 0, NULL, NULL);
+			SET_CAST(k, 0, NULL, NULL, NULL);
 		if (FIGHTING(k) == ch && IN_ROOM(k) != NOWHERE) {
 			log("[Change fighting] Change victim");
 			for (j = world[IN_ROOM(ch)]->people; j; j = j->next_in_room)
@@ -2905,7 +3055,8 @@ int *MemQ_slots(CHAR_DATA * ch)
 	}
 
 	for (q = &ch->MemQueue.queue; q[0];) {
-		sloti = spell_info[q[0]->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;			if (sloti >= 0 && sloti <= 10) {
+		sloti = spell_info[q[0]->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;			
+		if (sloti >= 0 && sloti <= 10) {
 			--slots[sloti];
 			if (slots[sloti] >= 0 &&
 			    MIN_CAST_LEV(spell_info[q[0]->spellnum],ch) <= GET_LEVEL (ch)

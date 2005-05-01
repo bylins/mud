@@ -495,7 +495,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	INITIATIVE(ch) = 0;
 	BATTLECNTR(ch) = 0;
 	SET_EXTRA(ch, 0, NULL);
-	SET_CAST(ch, 0, NULL, NULL);
+	SET_CAST(ch, 0, NULL, NULL, NULL);
 	restore_battle_pos(ch);
 	NUL_AF_BATTLE(ch);
 	// sprintf(buf,"[Stop fighting] %s - %s\r\n",GET_NAME(ch),switch_others ? "switching" : "no switching");
@@ -514,7 +514,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 		if (GET_EXTRA_VICTIM(temp) == ch)
 			SET_EXTRA(temp, 0, NULL);
 		if (GET_CAST_CHAR(temp) == ch)
-			SET_CAST(temp, 0, NULL, NULL);
+			SET_CAST(temp, 0, NULL, NULL, NULL);
 		if (FIGHTING(temp) == ch && switch_others) {
 			log("[Stop fighting] %s : Change victim for fighting", GET_NAME(temp));
 			for (found = combat_list; found; found = found->next_fighting)
@@ -4156,7 +4156,7 @@ void mob_casting(CHAR_DATA * ch)
 				break;
 			}
 
-		cast_spell(ch, victim, NULL, spellnum);
+		cast_spell(ch, victim, 0, NULL, spellnum);
 	}
 }
 
@@ -4657,11 +4657,11 @@ void perform_violence(void)
 					if (AFF_FLAGGED(ch, AFF_SIELENCE))
 						send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 					else {
-						cast_spell(ch, GET_CAST_CHAR(ch), GET_CAST_OBJ(ch), GET_CAST_SPELL(ch));
+						cast_spell(ch, GET_CAST_CHAR(ch), GET_CAST_OBJ(ch), 0, GET_CAST_SPELL(ch));
 						if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)
 						      || CHECK_WAIT(ch)))
 							WAIT_STATE(ch, PULSE_VIOLENCE);
-						SET_CAST(ch, 0, NULL, NULL);
+						SET_CAST(ch, 0, NULL, NULL, NULL);
 					}
 					if (INITIATIVE(ch) > min_init) {
 						INITIATIVE(ch)--;

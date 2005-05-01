@@ -794,10 +794,10 @@ void mobile_activity(int activity_level, int missed_pulses)
 					    // PRF_FLAGGED(vict, PRF_SUMMONABLE) &&
 					    CAN_SEE(ch, vict) && !PRF_FLAGGED(vict, PRF_NOHASSLE)) {
 						if (GET_SPELL_MEM(ch, SPELL_SUMMON) > 0) {
-							cast_spell(ch, vict, 0, SPELL_SUMMON);
+							cast_spell(ch, vict, 0 , 0,SPELL_SUMMON);
 							break;
 						} else if (GET_SPELL_MEM(ch, SPELL_RELOCATE) > 0) {
-							cast_spell(ch, vict, 0, SPELL_RELOCATE);
+							cast_spell(ch, vict, 0 , 0,SPELL_RELOCATE);
 							break;
 						}
 /*                       if (IN_ROOM(vict) == IN_ROOM(ch) && 

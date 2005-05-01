@@ -44,17 +44,18 @@
 #define STYPE_MIND	8
 #define STYPE_LIFE	9
 
-#define MAG_DAMAGE	    (1 << 0)
-#define MAG_AFFECTS	    (1 << 1)
-#define MAG_UNAFFECTS	(1 << 2)
-#define MAG_POINTS	    (1 << 3)
-#define MAG_ALTER_OBJS	(1 << 4)
-#define MAG_GROUPS	    (1 << 5)
-#define MAG_MASSES	    (1 << 6)
-#define MAG_AREAS	    (1 << 7)
-#define MAG_SUMMONS	    (1 << 8)
-#define MAG_CREATIONS	(1 << 9)
-#define MAG_MANUAL	    (1 << 10)
+#define MAG_DAMAGE	    	(1 << 0)
+#define MAG_AFFECTS	    	(1 << 1)
+#define MAG_UNAFFECTS		(1 << 2)
+#define MAG_POINTS	    	(1 << 3)
+#define MAG_ALTER_OBJS		(1 << 4)
+#define MAG_GROUPS	    	(1 << 5)
+#define MAG_MASSES	    	(1 << 6)
+#define MAG_AREAS	    	(1 << 7)
+#define MAG_SUMMONS	    	(1 << 8)
+#define MAG_CREATIONS		(1 << 9)
+#define MAG_MANUAL	    	(1 << 10)
+/* А чего это тут дырка Ж) */
 #define NPC_DAMAGE_PC           (1 << 16)
 #define NPC_DAMAGE_PC_MINHP     (1 << 17)
 #define NPC_AFFECT_PC           (1 << 18)
@@ -63,6 +64,12 @@
 #define NPC_UNAFFECT_NPC        (1 << 21)
 #define NPC_UNAFFECT_NPC_CASTER (1 << 22)
 #define NPC_DUMMY               (1 << 23)
+#define MAG_ROOM	        (1 << 24)
+/* Данный флаг используется для указания где 
+    чар может находиться чтобы аффекты от закла продолжали действовать*/
+#define MAG_CASTER_INROOM       (1 << 25) /* Аффект от этого спелла действует пока кастер в комнате */
+#define MAG_CASTER_INWORLD      (1 << 26) /* висит пока кастер в мире */
+#define MAG_CASTER_ANYWHERE     (1 << 27) /* висит пока не упадет сам */
 #define NPC_CALCULATE           (0xff << 16)
 /***** Extra attack bit flags */
 #define EAF_PARRY       (1 << 0)
@@ -286,7 +293,10 @@
 #define SPELL_MAGICBATTLE               163
 #define SPELL_BERSERK            	164
 #define SPELL_STONEBONES            	165
-#define LAST_USED_SPELL			166
+#define SPELL_ROOM_LIGHT		166	/* Закл освящения комнаты */ 
+#define SPELL_POISONED_FOG		167	/* Закл отравленного тумана */ 
+#define SPELL_THUNDERSTORM		168	/* Закл отравленного тумана */ 
+#define LAST_USED_SPELL			169
 
 /*
  *  NON-PLAYER AND OBJECT SPELLS AND SKILLS
@@ -363,7 +373,10 @@
 #define TAR_OBJ_ROOM    (1 << 8)
 #define TAR_OBJ_WORLD   (1 << 9)
 #define TAR_OBJ_EQUIP	(1 << 10)
-#define MAX_SLOT        10
+#define TAR_ROOM_THIS	(1 << 11) /* Цель комната в которой сидит чар*/
+#define TAR_ROOM_DIR	(1 << 12) /* Цель комната в каком-то направлении от чара*/
+#define TAR_ROOM_WORLD	(1 << 13) /* Цель какая-то комната в мире*/
+#define MAX_SLOT        13
 
 struct spell_info_type {
 	byte min_position;	/* Position for caster   */
@@ -485,7 +498,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype);
 
-int mag_masses(int level, CHAR_DATA * ch, int spellnum, int savetype);
+int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int savetype);
 
 int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype);
 
@@ -501,11 +514,13 @@ int mag_creations(int level, CHAR_DATA * ch, int spellnum);
 
 int mag_single_target(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int casttype);
 
-int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int level, int casttype);
+int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
+
+int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DATA *rvict, int spellnum, int level, int casttype);
 
 void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument);
 
-int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, int spellnum);
+int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA *troom, int spellnum);
 
 /* other prototypes */
 void mspell_remort (char *name ,int spell,int kin ,int chclass, int remort);

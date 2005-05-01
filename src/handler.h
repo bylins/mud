@@ -38,6 +38,16 @@ void timed_to_char(CHAR_DATA * ch, struct timed_type *timed);
 void timed_from_char(CHAR_DATA * ch, struct timed_type *timed);
 int timed_by_skill(CHAR_DATA * ch, int skill);
 
+/* Обработка аффектов комнат*/
+void affect_room_total(ROOM_DATA * room);
+void affect_room_modify(ROOM_DATA * room, byte loc, sbyte mod, bitvector_t bitv, bool add);
+void affect_to_room(ROOM_DATA * room, AFFECT_DATA * af);
+void affect_room_remove(ROOM_DATA * room, AFFECT_DATA * af);
+void affect_from_room(ROOM_DATA * room, int type);
+bool room_affected_by_spell(ROOM_DATA * room, int type);
+void affect_room_join_fspell(ROOM_DATA *room, AFFECT_DATA * af);
+void affect_room_join(ROOM_DATA * room, AFFECT_DATA * af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
+
 /* utility */
 char *money_desc(int amount, int padis);
 OBJ_DATA *create_money(int amount);

@@ -1191,7 +1191,7 @@ ACMD(do_drink)
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 			level = GET_OBJ_VAL(obj_potion, 0);
 			for (i = 1; i <= 3; i++)
-				if (call_magic(ch, ch, NULL, GET_OBJ_VAL(obj_potion, i), level, CAST_POTION) <= 0)
+				if (call_magic(ch, ch, NULL, world[IN_ROOM(ch)], GET_OBJ_VAL(obj_potion, i), level, CAST_POTION) <= 0)
 					break;
 			//Если все зелье выпито - обнуляем внум зелья-прототипа
 			if (--GET_OBJ_VAL(temp, 1) <= 0 && GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN) {

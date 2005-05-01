@@ -44,10 +44,11 @@ extern const char *what_weapon[];
  * Функция осуществляет поиск цели для DG_CAST
  * Облегченная версия find_cast_target
  */
-int find_dg_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OBJ_DATA ** tobj)
+int find_dg_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OBJ_DATA ** tobj, ROOM_DATA ** troom)
 {
 	*tch = NULL;
 	*tobj = NULL;
+	*troom = world[IN_ROOM(ch)];
 
 	if (spellnum == SPELL_CONTROL_WEATHER) {
 		if (!t || (what_sky = search_block(t, what_sky_type, FALSE)) < 0) {
@@ -68,6 +69,12 @@ int find_dg_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch,
 
 	if (IS_SET(SpINFO.targets, TAR_IGNORE))
 		return TRUE;
+
+	if (IS_SET(SpINFO.targets, TAR_ROOM_THIS))
+	{
+		*troom = world[IN_ROOM(ch)];
+		return TRUE;
+	}
 
 	if (t != NULL && *t) {
 		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM)) {
@@ -139,6 +146,8 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 	CHAR_DATA *caster = NULL;
 	CHAR_DATA *tch = NULL;
 	OBJ_DATA *tobj = NULL;
+	ROOM_DATA *troom = NULL;
+
 	ROOM_DATA *caster_room = NULL;
 	char *s, *t;
 	int spellnum, target = 0;
@@ -237,10 +246,10 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 		skip_spaces(&t);
 	}
 
-	target = find_dg_cast_target(spellnum, t, caster, &tch, &tobj);
+	target = find_dg_cast_target(spellnum, t, caster, &tch, &tobj, &troom);
 
 	if (target) {
-		call_magic(caster, tch, tobj, spellnum, GET_LEVEL(caster), CAST_SPELL);
+		call_magic(caster, tch, tobj, troom, spellnum, GET_LEVEL(caster), CAST_SPELL);
 	} else {
 		sprintf(buf2, "dg_cast: target not found (%s)", cmd);
 		trig_log(trig, buf2);

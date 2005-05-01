@@ -56,6 +56,8 @@ extern const char *kin_name[][NUM_SEXES];
 extern const char *religion_name[][NUM_SEXES];
 extern const char *pray_metter[];
 extern const char *pray_whom[];
+extern const char *room_aff_visib_bits[];
+extern const char *room_aff_invis_bits[];
 extern const struct str_app_type str_app[];
 extern const struct dex_skill_type dex_app_skill[];
 extern const struct dex_app_type dex_app[];

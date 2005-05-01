@@ -69,6 +69,18 @@ char AltToLat[] = {
 
 const char *ACTNULL = "<NULL>";
 
+
+/* return char with UID n */
+CHAR_DATA *find_char(long n)
+{
+	CHAR_DATA *ch;
+	for (ch = character_list; ch; ch = ch->next)
+		if (GET_ID(ch) == n)
+			return (ch);
+	return NULL;
+}
+
+
 /*
  * Function to skip over the leading spaces of a string.
  */
@@ -423,7 +435,7 @@ void mudlog(const char *str, int type, int level, int channel, int file)
  * Doesn't really matter since this function doesn't change the array though.
  */
 char *empty_string = "ничего";
-int sprintbit(bitvector_t bitvector, const char *names[], char *result)
+int sprintbitwd(bitvector_t bitvector, const char *names[], char *result, char *div)
 {
 	long nr = 0, fail = 0, divider = FALSE;
 
@@ -448,11 +460,11 @@ int sprintbit(bitvector_t bitvector, const char *names[], char *result)
 		if (IS_SET(bitvector, 1)) {
 			if (*names[nr] != '\n') {
 				strcat(result, names[nr]);
-				strcat(result, ",");
+				strcat(result, div);
 				divider = TRUE;
 			} else {
 				strcat(result, "UNDEF");
-				strcat(result, ",");
+				strcat(result, div);
 				divider = TRUE;
 			}
 		}
@@ -468,13 +480,18 @@ int sprintbit(bitvector_t bitvector, const char *names[], char *result)
 	return TRUE;
 }
 
+int sprintbit(bitvector_t bitvector, const char *names[], char *result)
+{
+	return sprintbitwd(bitvector,names,result, ",");
+}
+
 void sprintbits(FLAG_DATA flags, const char *names[], char *result, char *div)
 {
 	char buffer[MAX_STRING_LENGTH];
 	int i;
 	*result = '\0';
 	for (i = 0; i < 4; i++) {
-		if (sprintbit(flags.flags[i] | (i << 30), names, buffer)) {
+		if (sprintbitwd(flags.flags[i] | (i << 30), names, buffer, div)) {
 			if (strlen(result))
 				strcat(result, div);
 			strcat(result, buffer);

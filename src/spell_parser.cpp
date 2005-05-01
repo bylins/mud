@@ -1511,7 +1511,6 @@ int slot_for_char(CHAR_DATA * ch, int slot_num)
 	}
 	if (wis_is == -1) return 0; /*Go here if no magic for char*/
 	return ((wis_is || (GET_REMORT(ch) > slot_num)) ? MIN(25, wis_is + GET_SLOT(ch, slot_num) + GET_REMORT(ch)) : 0);
-	
 }
 
 
@@ -1878,8 +1877,13 @@ int check_mobile_list(CHAR_DATA * ch)
 	return (FALSE);
 }
 
+/* Реакция на каст */
 void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
 {
+	// Если оказались под своим заклом то не реагируем на него.
+	if (caster == victim) 
+		return;
+
 	if (!check_mobile_list(victim) || !SpINFO.violent)
 		return;
 
@@ -1905,13 +1909,13 @@ void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
 	if (!CAN_SEE(victim, caster) && (GET_REAL_INT(victim) > 25 || GET_REAL_INT(victim) > number(10, 25))) {
 		if (!AFF_FLAGGED(victim, AFF_DETECT_INVIS)
 		    && GET_SPELL_MEM(victim, SPELL_DETECT_INVIS) > 0)
-			cast_spell(victim, victim, 0, SPELL_DETECT_INVIS);
+			cast_spell(victim, victim, 0, 0,  SPELL_DETECT_INVIS);
 		else if (!AFF_FLAGGED(victim, AFF_SENSE_LIFE)
 			 && GET_SPELL_MEM(victim, SPELL_SENSE_LIFE) > 0)
-			cast_spell(victim, victim, 0, SPELL_SENSE_LIFE);
+			cast_spell(victim, victim, 0, 0, SPELL_SENSE_LIFE);
 		else if (!AFF_FLAGGED(victim, AFF_INFRAVISION)
 			 && GET_SPELL_MEM(victim, SPELL_LIGHT) > 0)
-			cast_spell(victim, victim, 0, SPELL_LIGHT);
+			cast_spell(victim, victim, 0, 0, SPELL_LIGHT);
 	}
 
 }
@@ -1924,7 +1928,7 @@ void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
  * This is also the entry point for non-spoken or unrestricted spells.
  * Spellnum 0 is legal but silently ignored here, to make callers simpler.
  */
-int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int level, int casttype)
+int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DATA *rvict, int spellnum, int level, int casttype)
 {
 	int savetype;
 
@@ -1967,13 +1971,16 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spel
 	// Проверка модификаторов целеуказаний
 
 	if (IS_SET(SpINFO.routines, MAG_MASSES))
-		return mag_masses(level, caster, spellnum, savetype);
+		return mag_masses(level, caster, rvict, spellnum, savetype);
 
 	if (IS_SET(SpINFO.routines, MAG_GROUPS))
 		return mag_groups(level, caster, spellnum, savetype);
 
 	if (IS_SET(SpINFO.routines, MAG_AREAS))
 		return mag_areas(level, caster, cvict, spellnum, savetype);
+
+	if (IS_SET(SpINFO.routines, MAG_ROOM))
+		return mag_room(level, caster, rvict, spellnum);
 
 	return mag_single_target(level, caster, cvict, ovict, spellnum, savetype);
 }
@@ -2043,10 +2050,11 @@ const char *what_weapon[] = { "плеть",
 	"\n"
 };
 
-int find_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OBJ_DATA ** tobj)
+int find_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OBJ_DATA ** tobj, ROOM_DATA ** troom)
 {
 	*tch = NULL;
 	*tobj = NULL;
+	*troom = world[IN_ROOM(ch)];
 
 	if (spellnum == SPELL_CONTROL_WEATHER) {
 		if (!t || (what_sky = search_block(t, what_sky_type, FALSE)) < 0) {
@@ -2069,7 +2077,12 @@ int find_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OB
 	if (t)
 		strcat(cast_argument, t);
 
-
+	if (IS_SET(SpINFO.targets, TAR_ROOM_THIS))
+	{
+		*troom = world[IN_ROOM(ch)];
+		return TRUE;
+	}
+	/* TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD */		
 	if (IS_SET(SpINFO.targets, TAR_IGNORE))
 		return TRUE;
 	else if (t != NULL && *t) {
@@ -2125,6 +2138,7 @@ int find_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OB
 			return TRUE;
 		}
 	}
+	/* TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD */		
 	sprintf(buf, "На %s Вы хотите ЭТО колдовать ?\r\n",
 		IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
 		? "ЧТО" : "КОГО");
@@ -2139,6 +2153,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument)
 	int level;
 	CHAR_DATA *tch = NULL, *next_tch;
 	OBJ_DATA *tobj = NULL;
+	ROOM_DATA *troom = NULL;
 
 	one_argument(argument, arg);
 	*cast_argument = '\0';
@@ -2184,12 +2199,12 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument)
 				for (i = 0, tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
 					i++;
 				while (i-- > 0)
-					call_magic(ch, NULL, NULL, GET_OBJ_VAL(obj, 3), level, CAST_STAFF);
+					call_magic(ch, NULL, NULL, world[IN_ROOM(ch)], GET_OBJ_VAL(obj, 3), level, CAST_STAFF);
 			} else {
 				for (tch = world[IN_ROOM(ch)]->people; tch; tch = next_tch) {
 					next_tch = tch->next_in_room;
 					if (ch != tch)
-						call_magic(ch, tch, NULL, GET_OBJ_VAL(obj, 3), level, CAST_STAFF);
+						call_magic(ch, tch, NULL, world[IN_ROOM(ch)], GET_OBJ_VAL(obj, 3), level, CAST_STAFF);
 				}
 			}
 		}
@@ -2199,7 +2214,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument)
 
 		if (!*argument)
 			tch = ch;
-		else if (!find_cast_target(spellnum, argument, ch, &tch, &tobj))
+		else if (!find_cast_target(spellnum, argument, ch, &tch, &tobj, &troom))
 			return;
 
 
@@ -2250,7 +2265,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument)
 		}
 		GET_OBJ_VAL(obj, 2)--;
 		WAIT_STATE(ch, PULSE_VIOLENCE);
-		call_magic(ch, tch, tobj, GET_OBJ_VAL(obj, 3), level, CAST_WAND);
+		call_magic(ch, tch, tobj, world[IN_ROOM(ch)], GET_OBJ_VAL(obj, 3), level, CAST_WAND);
 		break;
 	case ITEM_SCROLL:
 		if (AFF_FLAGGED(ch, AFF_SIELENCE)) {
@@ -2265,7 +2280,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument)
 		spellnum = GET_OBJ_VAL(obj, 1);
 		if (!*argument)
 			tch = ch;
-		else if (!find_cast_target(spellnum, argument, ch, &tch, &tobj))
+		else if (!find_cast_target(spellnum, argument, ch, &tch, &tobj, &troom))
 			return;
 
 		if (obj->action_description)
@@ -2279,7 +2294,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument)
 
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		for (i = 1; i <= 3; i++)
-			if (call_magic(ch, tch, tobj, GET_OBJ_VAL(obj, i), level, CAST_SCROLL) <= 0)
+			if (call_magic(ch, tch, tobj, world[IN_ROOM(ch)], GET_OBJ_VAL(obj, i), level, CAST_SCROLL) <= 0)
 				break;
 
 		if (obj != NULL)
@@ -2296,7 +2311,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument)
 
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		for (i = 1; i <= 3; i++)
-			if (call_magic(ch, ch, NULL, GET_OBJ_VAL(obj, i), level, CAST_POTION) <= 0)
+			if (call_magic(ch, ch, NULL, world[IN_ROOM(ch)], GET_OBJ_VAL(obj, i), level, CAST_POTION) <= 0)
 				break;
 
 		if (obj != NULL)
@@ -2323,7 +2338,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument)
                                       (ch)->ManaMemNeeded += mag_manacost(ch,spellnum);})
 */
 
-int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, int spellnum)
+int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * troom, int spellnum)
 {
 	int ignore;
 	CHAR_DATA *ch_vict;
@@ -2333,9 +2348,15 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, int spellnum)
 		return (0);
 	}
 //проверка на алайнмент мобов
+	
 	if (tch && ch) {
 		if (IS_MOB(tch) && IS_MOB(ch) && !SAME_ALIGN(ch, tch) && SpINFO.violent == 0)
 			return (0);
+	}
+	if (!troom) 
+	{
+		// Вызвали с пустой комнатой значит будем кастить тут
+		troom = world[IN_ROOM(ch)];
 	}
 
 	if (GET_POS(ch) < SpINFO.min_position) {
@@ -2372,10 +2393,11 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, int spellnum)
 		send_to_char("Колдовать ? ЭТО ? На себя ?! Да Вы с ума сошли !\r\n", ch);
 		return (0);
 	}
-	if ((!tch || IN_ROOM(tch) == NOWHERE) && !tobj &&
+	if ((!tch || IN_ROOM(tch) == NOWHERE) && !tobj && !troom &&
 	    IS_SET(SpINFO.targets,
 		   TAR_CHAR_ROOM | TAR_CHAR_WORLD | TAR_FIGHT_SELF | TAR_FIGHT_VICT
-		   | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)) {
+		   | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_WORLD | TAR_OBJ_EQUIP | TAR_ROOM_THIS 
+	  	   | TAR_ROOM_DIR)) {
 		send_to_char("Цель заклинания не доступна.\r\n", ch);
 		return (0);
 	}
@@ -2444,7 +2466,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, int spellnum)
 			send_to_char(buf, ch);
 		}
 	}
-
+	/*Комнату тут в say_spell не обрабатываем - будет сказал "что-то"*/ 
 	say_spell(ch, spellnum, tch, tobj);
 	if (GET_SPELL_MEM(ch, spellnum) > 0)
 		GET_SPELL_MEM(ch, spellnum)--;
@@ -2467,7 +2489,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, int spellnum)
 	} else {
 		GET_CASTER(ch) -= (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
 	}
-	return (call_magic(ch, tch, tobj, spellnum, GET_LEVEL(ch), CAST_SPELL));
+	return (call_magic(ch, tch, tobj, troom, spellnum, GET_LEVEL(ch), CAST_SPELL));
 }
 
 int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int spellnum)
@@ -2482,14 +2504,8 @@ int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int 
 	case SAVING_NONE:
 		prob = int_app[GET_REAL_WIS(ch)].spell_success + GET_CAST_SUCCESS(ch);
 
-		if ((IS_MAGE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MAGE)) || (IS_CLERIC(ch)
-													&& ch->
-													in_room !=
-													NOWHERE
-													&&
-													ROOM_FLAGGED
-													(IN_ROOM(ch),
-													 ROOM_CLERIC))
+		if ((IS_MAGE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MAGE)) 
+		    || (IS_CLERIC(ch) && IN_ROOM(ch) != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_CLERIC))
 		    || (IS_PALADINE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PALADINE))
 		    || (IS_MERCHANT(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MERCHANT)))
 			prob += 10;
@@ -2520,6 +2536,8 @@ ACMD(do_cast)
 {
 	CHAR_DATA *tch = NULL;
 	OBJ_DATA *tobj = NULL;
+	ROOM_DATA *troom = NULL;
+
 	char *s, *t;
 	int spellnum, target = 0;
 
@@ -2545,6 +2563,8 @@ ACMD(do_cast)
 	t = strtok(NULL, "\0");
 
 	spellnum = find_spell_num(s);
+
+        log("In do_cast spellnum = %d",spellnum);	
 
 	/* Unknown spell */
 	if (spellnum < 1 || spellnum > MAX_SPELLS) {
@@ -2580,7 +2600,7 @@ ACMD(do_cast)
 		skip_spaces(&t);
 	}
 
-	target = find_cast_target(spellnum, t, ch, &tch, &tobj);
+	target = find_cast_target(spellnum, t, ch, &tch, &tobj, &troom);
 
 	if (target && (tch == ch) && SpINFO.violent) {
 		send_to_char("Лекари не рекомендуют использовать ЭТО на себя !\r\n", ch);
@@ -2594,8 +2614,8 @@ ACMD(do_cast)
 
 	/* You throws the dice and you takes your chances.. 101% is total failure */
 	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
-	SET_CAST(ch, 0, NULL, NULL);
-
+	SET_CAST(ch, 0, NULL, NULL, NULL);
+	
 	if (!spell_use_success(ch, tch, SAVING_STABILITY, spellnum)) {
 		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
 			WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -2613,13 +2633,13 @@ ACMD(do_cast)
 			send_to_char("Вы не смогли сосредоточиться !\r\n", ch);
 	} else {		/* cast spell returns 1 on success; subtract mana & set waitstate */
 		if (FIGHTING(ch) && !IS_IMPL(ch)) {
-			SET_CAST(ch, spellnum, tch, tobj);
+			SET_CAST(ch, spellnum, tch, tobj, troom);
 			sprintf(buf,
 				"Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
 				CCCYN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM),
-				tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : "");
+				tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " НА " : "");
 			act(buf, FALSE, ch, tobj, tch, TO_CHAR);
-		} else if (cast_spell(ch, tch, tobj, spellnum) >= 0) {
+		} else if (cast_spell(ch, tch, tobj, troom, spellnum) >= 0) {
 			if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
 				WAIT_STATE(ch, PULSE_VIOLENCE);
 		}
@@ -2630,6 +2650,7 @@ ACMD(do_mixture)
 {
 	CHAR_DATA *tch = NULL;
 	OBJ_DATA *tobj = NULL;
+	ROOM_DATA *troom = NULL;
 	char *s, *t;
 	int spellnum, target = 0;
 
@@ -2686,7 +2707,7 @@ ACMD(do_mixture)
 		skip_spaces(&t);
 	}
 
-	target = find_cast_target(spellnum, t, ch, &tch, &tobj);
+	target = find_cast_target(spellnum, t, ch, &tch, &tobj, &troom);
 
 	if (target && (tch == ch) && SpINFO.violent) {
 		send_to_char("Лекари не рекомендуют использовать ЭТО на себя !\r\n", ch);
@@ -2729,7 +2750,7 @@ ACMD(do_mixture)
 			}
 
 		} else {	/* call magic returns 1 on success; set waitstate */
-			if (call_magic(ch, tch, tobj, spellnum, GET_LEVEL(ch),
+			if (call_magic(ch, tch, tobj, world[IN_ROOM(ch)], spellnum, GET_LEVEL(ch),
 				       subcmd == SCMD_ITEMS ? CAST_ITEMS : CAST_RUNES) >= 0) {
 				if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
 					WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -4009,6 +4030,18 @@ void mag_assign_spells(void)
 //165
 	spello(SPELL_STONEBONES, "каменные кости", "stone bones", 80, 40, 1,
 		POS_STANDING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
+
+//166 - SPELL_ROOM_LIGHT
+	spello(SPELL_ROOM_LIGHT, "осветить комнату", "room light", 10, 10, 1,
+		POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_ROOM , 0, STYPE_LIGHT);
+
+//167 - SPELL_POISONED_FOG
+	spello(SPELL_POISONED_FOG, "ядовитый туман", "poisoned fog", 10, 10, 1,
+		POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_LIFE);
+
+//168 - SPELL_THUNDERSTORM
+	spello(SPELL_THUNDERSTORM, "гроза", "thunderstorm", 10, 10, 1,
+		POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_ROOM | MAG_CASTER_INWORLD, 0, STYPE_AIR);
 
 	/* NON-castable spells should appear below here. */
 

@@ -1257,6 +1257,19 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		show_extend_room(world[ch->in_room]->description, ch);
 	}
 
+	/* Отображаем аффекты комнаты */
+	if AFF_FLAGGED(ch, AFF_DETECT_MAGIC) 
+		sprintbits(world[ch->in_room]->affected_by, room_aff_invis_bits, buf2, "\n");
+	else 
+		sprintbits(world[ch->in_room]->affected_by, room_aff_visib_bits, buf2, "\n");
+
+	// подавляем если нет аффектов
+	if (strcmp(buf2,"ничего"))
+	{
+		sprintf(buf, "%s\r\n\r\n",buf2);
+		send_to_char(buf, ch);
+	}
+
 	/* autoexits */
 	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_AUTOEXIT))
 		do_auto_exits(ch);

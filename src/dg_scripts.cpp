@@ -306,17 +306,6 @@ int count_obj_vnum(long n)
  * search by number routines
  ************************************************************/
 
-/* return char with UID n */
-CHAR_DATA *find_char(long n)
-{
-	CHAR_DATA *ch;
-	for (ch = character_list; ch; ch = ch->next)
-		if (GET_ID(ch) == n)
-			return (ch);
-	return NULL;
-}
-
-
 /* return object with UID n */
 OBJ_DATA *find_obj(long n)
 {

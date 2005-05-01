@@ -85,6 +85,7 @@ typedef struct descriptor_data
  DESCRIPTOR_DATA;
 typedef struct affect_data
  AFFECT_DATA;
+
 typedef struct char_data
  CHAR_DATA;
 typedef struct obj_data
@@ -171,6 +172,10 @@ typedef struct trig_data
 #define ROOM_RUSICHI        (INT_TWO|(1<<1))
 #define ROOM_VIKINGI        (INT_TWO|(1<<2))
 #define ROOM_STEPNYAKI      (INT_TWO|(1<<3))
+
+/* Флаги комнатных аффектов НЕ сохраняются в файлах и возникают только от заклов */
+#define AFF_ROOM_LIGHT       (1 << 0) /* Аффект освещения комнаты  - SPELL_ROOM_LIGHT */
+#define AFF_ROOM_FOG         (2 << 0) /* Комната затуманена для SPELL_POISONED_FOG */
 
 /* Exit info: used in room_data.dir_option.exit_info */
 #define EX_ISDOOR    (1 << 0)	/* Exit is a door     */
@@ -946,6 +951,12 @@ typedef struct trig_data
 #define APPLY_RESIST_IMMUNITY  50	/* Apply to RESIST throw: poison, disease etc.  */
 #define NUM_APPLIES	       51
 
+/* APPLY - эффекты для комнат */
+#define APPLY_ROOM_NONE        0
+#define APPLY_ROOM_POISON      1 	/* Изменяет в комнате уровень ядности */ 
+#define APPLY_ROOM_FLAME       2 	/* Изменяет в комнате уровень огня (для потомков) */ 
+#define NUM_ROOM_APPLIES       3
+
 #define MAT_NONE               0
 #define MAT_BULAT              1
 #define MAT_BRONZE             2
@@ -1192,6 +1203,7 @@ struct extra_descr_data {
 };
 
 
+
 /* object-related structures ******************************************/
 
 
@@ -1413,6 +1425,11 @@ struct weather_control {
 	int
 	 duration;
 };
+/* Структура хранит разннобразные характеристики комнат */
+struct room_property_data
+{
+	int poison; /*Пока только степень зараженности для SPELL_POISONED_FOG*/
+};
 
 
 /* ================== Memory Structure for room ======================= */
@@ -1443,18 +1460,33 @@ struct room_data {
 	OBJ_DATA *contents;	/* List of items in room              */
 	CHAR_DATA *people;	/* List of NPC / PC in room           */
 
-	ubyte fires;		/* Time when fires                    */
+	AFFECT_DATA *affected;	/* affected by what spells       */
+	FLAG_DATA affected_by; /* флаги которые в отличии от room_flags появляются от аффектов
+				и не могут быть записаны на диск */
+
+	// Всякие характеристики комнаты 
+	ubyte fires;		/* Time when fires - костерок    */
 	ubyte forbidden;	/* Time when room forbidden for mobs  */
 	int
 	 forbidden_percent;	/* Probability for the mobs to be blocked */
+
 	ubyte ices;		/* Time when ices restore */
 	int
 	 portal_room;
-	ubyte portal_time;
-	bool isPortalEntry;
-	int holes;
 
+	ubyte portal_time; 	/* Время жисти пентаграммы*/
+
+	bool isPortalEntry;
+
+	int holes;		/* Дырки для камне - копателей */
 	int *ing_list;		/* загружаемые ингредиенты */
+	
+	// Параметры которые грузяться из файла (по крайней мере так планируется)
+	struct room_property_data	base_property;
+	// Добавки к параметрам  которые модифицируются аффектами ...
+	struct room_property_data	add_property;
+
+	int poison;		/* Степень заражения территории в SPELL_POISONED_FOG */
 };
 /* ====================================================================== */
 
@@ -1537,6 +1569,8 @@ struct char_ability_data {
 	sbyte damroll;
 	sbyte armor;
 };
+
+/* Дополнительные свойства навешиваемые на комнаты например с помощью аффектов*/
 
 /* Char's additional abilities. Used only while work */
 struct char_played_ability_data {
@@ -1871,7 +1905,12 @@ struct affect_data {
 	 battleflag;	   /**** SUCH AS HOLD,SIELENCE etc **/
 	long
 	 bitvector;		/* Tells which bits to set (AFF_XXX) */
-
+	long
+	 caster_id; /*Unique caster ID */
+	bool 
+	 must_handled; /* Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) */
+	sh_int 
+	 apply_time; /* Указывает сколько аффект висит (пока используется только в комнатах) */	
 	AFFECT_DATA *next;
 };
 
@@ -1900,6 +1939,7 @@ struct cast_attack_type {
 	 spellnum;
 	CHAR_DATA *tch;
 	OBJ_DATA *tobj;
+	ROOM_DATA *troom;
 };
 
 /* Structure used for tracking a mob */
