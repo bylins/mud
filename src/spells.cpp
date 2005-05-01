@@ -65,6 +65,7 @@ void perform_remove(CHAR_DATA * ch, int pos);
 int get_zone_rooms(int, int *, int *);
 
 int pk_action_type_summon(CHAR_DATA * agressor, CHAR_DATA * victim);
+void pk_increment_revenge(CHAR_DATA * agressor, CHAR_DATA * victim);
 
 int what_sky = SKY_CLOUDLESS;
 /*
@@ -366,7 +367,7 @@ ASPELL(spell_portal)
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
-// пентить чаров <=10 уровня нельзя
+	// пентить чаров <=10 уровня нельзя
 	if (!IS_NPC(victim) && !IS_GOD(ch) && GET_LEVEL(victim) <= 10) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
@@ -391,14 +392,30 @@ ASPELL(spell_portal)
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
+
+	/* чтобы пента не превратилась во врата (односторонний портал) - не даем ставить двойные пенты */
 	if (world[fnd_room]->portal_time) {
 		send_to_char("Неведомая сила не дает вам поставить портал в это место!\r\n", ch);
 		return;
 	}
+	if (world[IN_ROOM(ch)]->portal_time) {
+		send_to_char("Неведомая сила не дает вам поставить портал в это место!\r\n", ch);
+		return;
+	}
+
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(victim, GF_GODSCURSE)
-	    || (pk_action_type_summon(ch, victim) <= PK_ACTION_REVENGE)
+	    /* раньше было <= PK_ACTION_REVENGE, что вызывало абьюз при пенте на чара на арене,
+	       или пенте кидаемой с арены т.к. в данном случае использовалось PK_ACTION_NO которое меньше PK_ACTION_REVENGE */
+	    || (pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE || 
+	        pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT)
 	    || (!IS_NPC(victim) && PRF_FLAGGED(victim, PRF_SUMMONABLE))
 	    || same_group(ch, victim)) {
+		/* Если пента по мести - то считаем постановку пенты попыткой ее реализовать */
+		// после 3ех попыток реализаци (3ех пент) -- месть исчезает
+		if (pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
+		    pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT) {
+			pk_increment_revenge(ch, victim);
+		}
 		to_room = IN_ROOM(ch);
 		world[fnd_room]->portal_room = to_room;
 		world[fnd_room]->portal_time = 1;
@@ -413,10 +430,6 @@ ASPELL(spell_portal)
 	}
 }
 
-/* ВНИМАНИЕ все фишки связанные с некогда существовавшими в "Былинах" и "Circle" возможностями
-   суммонить мобов, и запреты на суммон из определенных зон убраны из кода. 
-   + Все условия переписаны с нуля, т.к. старый код суммона был ужасающим. (С) Pereplut.
-*/
 ASPELL(spell_summon)
 {
 	room_rnum ch_room, vic_room;
