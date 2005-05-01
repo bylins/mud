@@ -1154,8 +1154,6 @@ inline void heartbeat()
 	if (!(pulse % 10))
 	{
 		mobile_activity(pulse, 10);
-		// Чистим указатели освобожденных char-ов
-		// cleanup_freed();
 	}
 	//log("Stop it...");
 
