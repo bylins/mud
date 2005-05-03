@@ -1538,6 +1538,11 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	send_to_char(buf, ch);
 
 	if (!IS_NPC(k)) {
+		if (GET_HOUSE_RANK(k) && House_name(k) != NULL && House_rank(k) != NULL) {
+			sprintf(buf, "Дружина: \'%s\' Ранг: \'%s\'.\r\n", House_name(k), House_rank(k));
+			send_to_char(buf, ch);
+		}
+
 		strcpy(buf1, (char *) asctime(localtime(&(k->player.time.birth))));
 		strcpy(buf2, (char *) asctime(localtime(&(k->player.time.logon))));
 		buf1[10] = buf2[10] = '\0';
@@ -1614,7 +1619,8 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	send_to_char(buf, ch);
 
 	sprinttype(GET_POS(k), position_types, buf2);
-	sprintf(buf, "Положение: %s, Сражается: %s", buf2, (FIGHTING(k) ? GET_NAME(FIGHTING(k)) : "Нет"));
+	sprintf(buf, "Положение: %s, Сражается: %s, Экипирован в металл: %s", 
+		buf2, (FIGHTING(k) ? GET_NAME(FIGHTING(k)) : "Нет"), (equip_in_metall(k) ? "Да" : "Нет"));
 
 	if (IS_NPC(k)) {
 		strcat(buf, ", Тип атаки: ");
