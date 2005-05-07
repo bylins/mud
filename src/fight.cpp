@@ -628,7 +628,6 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 	GET_OBJ_VAL(corpse, 0) = 0;	/* You can't store stuff in a corpse */
 	GET_OBJ_VAL(corpse, 2) = IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1;
 	GET_OBJ_VAL(corpse, 3) = 1;	/* corpse identifier */
-	GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch) + IS_CARRYING_W(ch);
 	GET_OBJ_RENT(corpse) = 100000;
 	if (IS_NPC(ch))
 		GET_OBJ_TIMER(corpse) = max_npc_corpse_time * 2;
@@ -643,6 +642,8 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 			remove_otrigger(GET_EQ(ch, i), ch);
 			obj_to_char(unequip_char(ch, i), ch);
 		}
+	// Считаем вес шмоток после того как разденем чара
+	GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch) + IS_CARRYING_W(ch);
 
 	/* transfer character's inventory to the corpse */
 	corpse->contains = ch->carrying;
