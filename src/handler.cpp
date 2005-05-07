@@ -1750,7 +1750,7 @@ void obj_from_obj(OBJ_DATA * obj)
 	/* Subtract weight from char that carries the object */
 	GET_OBJ_WEIGHT(temp) = MAX(1,GET_OBJ_WEIGHT(temp) - GET_OBJ_WEIGHT(obj));
 	if (temp->carried_by)
-		IS_CARRYING_W(temp->carried_by) = MAX(1, IS_CARRING_W(temp->carried_by) - GET_OBJ_WEIGHT(obj));
+		IS_CARRYING_W(temp->carried_by) = MAX(1, IS_CARRYING_W(temp->carried_by) - GET_OBJ_WEIGHT(obj));
 
 	obj->in_obj = NULL;
 	obj->next_content = NULL;
