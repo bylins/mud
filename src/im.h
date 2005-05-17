@@ -89,7 +89,9 @@ typedef struct _im_rskill_tag im_rskill;
 extern im_recipe *imrecipes;
 
 void im_parse(int **ing_list, char *line);
-void im_reset_room(ROOM_DATA * room);
+//MZ.load
+void im_reset_room(ROOM_DATA * room, int level, int type);
+//-MZ.load
 void im_make_corpse(OBJ_DATA * corpse, int *ing_list);
 int im_assign_power(OBJ_DATA * obj);
 int im_get_recipe(int id);
@@ -104,3 +106,4 @@ void trg_recipeturn(CHAR_DATA * ch, int rid, int recipediff);
 void trg_recipeadd(CHAR_DATA * ch, int rid, int recipediff);
 int im_get_recipe_by_name(char *name);
 im_rskill *im_get_char_rskill(CHAR_DATA * ch, int rid);
+

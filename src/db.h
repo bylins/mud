@@ -16,6 +16,10 @@
 
 /* arbitrary constants used by index_boot() (must be unique) */
 #define MAX_PROTO_NUMBER 999999	//Максимально возможный номер комнаты, предмета и т.д.
+//MZ.load
+#define MIN_ZONE_LEVEL	1
+#define MAX_ZONE_LEVEL	50
+//-MZ.load
 
 #define DB_BOOT_WLD	0
 #define DB_BOOT_MOB	1
@@ -230,6 +234,11 @@ struct reset_com {
 /* zone definition structure. for the 'zone-table'   */
 struct zone_data {
 	char *name;		/* name of this zone                  */
+//MZ.load
+	int level;	/* level of this zone (is used in ingredient loading)	*/
+	int type;	/* the surface type of this zone (is used in ingredient loading)	*/
+//-MZ.load
+
 	int lifespan;		/* how long between resets (minutes)  */
 	int age;		/* current age of this zone (minutes) */
 	room_vnum top;		/* upper limit for rooms in this zone */
@@ -375,3 +384,4 @@ int dl_parse(load_list ** dl_list, char *line);
 int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_TYPE);
 int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch);
 void dl_list_copy(load_list * *pdst, load_list * src);
+

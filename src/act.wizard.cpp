@@ -3117,10 +3117,15 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone)
 {
 	char tmpstr[255];
 	sprintf(tmpstr,
-		"%3d %-30.30s Age: %3d; Reset: %3d (%1d)(%1d); Top: %5d %s%s\r\n"
-		"    ResetIdle: %s; Used: %s; Activity: %.2Lf\r\n",
+//MZ.load
+		"%3d %-30.30s Level: %2d; Type: %-10.10s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
+		"    Top: %5d %s%s; ResetIdle: %s; Used: %s; Activity: %.2Lf\r\n",
+//-MZ.load
 		zone_table[zone].number, zone_table[zone].name,
-		zone_table[zone].age, zone_table[zone].lifespan,
+//MZ.load
+		zone_table[zone].level, zone_types[zone_table[zone].type].name,
+//-MZ.load
+zone_table[zone].age, zone_table[zone].lifespan,
 		zone_table[zone].reset_mode,
 		(zone_table[zone].reset_mode ==
 		 3) ? (can_be_reset(zone) ? 1 : 0) : (is_empty(zone) ? 1 : 0),
@@ -4486,10 +4491,14 @@ ACMD(do_liblist)
 		sprintf(bf, "Список зон от %d до %d\r\n", first, last);
 		for (nr = 0; nr <= top_of_zone_table && (zone_table[nr].number <= last); nr++) {
 			if (zone_table[nr].number >= first) {
-				sprintf(bf, "%s%5d. [%s%s] [%5d] (%3d) %s\r\n", bf, ++found,
+//MZ.load
+				sprintf(bf, "%s%5d. [%s%s] [%5d] (%3d) (%3d) %s\r\n", bf, ++found,
+//-MZ.load
 					zone_table[nr].locked ? "L " : "",
 					zone_table[nr].under_construction ? "T" : " ",
-					zone_table[nr].number, zone_table[nr].lifespan, zone_table[nr].name);
+//MZ.load
+					zone_table[nr].number, zone_table[nr].lifespan, zone_table[nr].level, zone_table[nr].name);
+//-MZ.load
 			}
 		}
 		break;
@@ -4823,3 +4832,4 @@ ACMD(do_forcetime)
 	send_to_char(OK, ch);
 
 }
+

@@ -78,6 +78,10 @@ extern int mana[];
 extern int mana_gain_cs[];
 extern int mana_cost_cs[][9];
 
+//MZ.load
+extern struct zone_type * zone_types;
+//-MZ.load
+
 /*The number of changing coefficients (the others are unchanged) */
 #define	MAX_EXP_COEFFICIENTS_USED 15
 
@@ -126,3 +130,4 @@ extern int START_FRUNE;
    уровень моба 50 */
 #define CHARM_MOB_VNUM 200
 #endif
+

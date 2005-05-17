@@ -262,6 +262,11 @@ extern struct olc_save_info *olc_save_list;
 #define ZEDIT_MOVE_ENTRY		22
 #define ZEDIT_TYPE_A_LIST		23
 #define ZEDIT_TYPE_B_LIST		24
+//MZ.load
+#define ZEDIT_ZONE_LEVEL	25
+#define ZEDIT_ZONE_TYPE		26
+//-MZ.load
+
 
 
 /*
@@ -403,3 +408,4 @@ extern struct olc_save_info *olc_save_list;
 
 void xedit_disp_ing(DESCRIPTOR_DATA * d, int *ping);
 int xparse_ing(DESCRIPTOR_DATA * d, int **pping, char *arg);
+

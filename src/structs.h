@@ -2241,6 +2241,14 @@ struct message_list {
 	struct message_type *msg;	/* List of messages.       */
 };
 
+//MZ.load
+struct zone_type {
+	char *name;			/* type name */
+	int ingr_qty;		/* quantity of ingredient types */
+	int *ingr_types;	/* types of ingredients, which are loaded in zones of this type */
+};
+//-MZ.load
+
 
 struct dex_skill_type {
 	int
@@ -2593,3 +2601,4 @@ struct set_struct {
 extern int grouping[14][15];
 
 #endif
+

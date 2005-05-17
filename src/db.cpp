@@ -199,6 +199,11 @@ int init_grouping(void);
 void init_portals(void);
 void init_im(void);
 
+//MZ.load
+void init_zone_types(void);
+//-MZ.load
+
+
 /* external functions */
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
 void free_alias(struct alias_data *a);
@@ -436,6 +441,9 @@ ACMD(do_reboot)
 		go_boot_xhelp();
 		go_boot_socials();
 		init_im();
+//MZ.load
+		init_zone_types();
+//-MZ.load
 		init_portals();
 		priv->reload();
 		load_sheduled_reboot();
@@ -445,6 +453,11 @@ ACMD(do_reboot)
 		priv->reload();
 	else if (!str_cmp(arg, "imagic"))
 		init_im();
+//MZ.load
+	else if (!str_cmp(arg, "ztypes"))
+		init_zone_types();
+//-MZ.load
+
 	else if (!str_cmp(arg, "wizlist"))
 		file_to_string_alloc(WIZLIST_FILE, &wizlist);
 	else if (!str_cmp(arg, "immlist"))
@@ -620,6 +633,136 @@ void boot_world(void)
 	}
 }
 
+//MZ.load
+void init_zone_types(void)
+{
+	FILE *zt_file;
+	char tmp[1024], dummy[128], name[128], itype_num[128];
+	int names = 0;
+	int i, j, k, n;
+
+	if (zone_types != NULL)
+	{
+		for (i = 0; *zone_types[i].name != '\n'; i++)
+		{
+			if (zone_types[i].ingr_qty > 0)
+				free(zone_types[i].ingr_types);
+				
+			free(zone_types[i].name);	
+		}		
+		free(zone_types[i].name);
+		free(zone_types);
+		zone_types = NULL;
+	}
+
+	zt_file = fopen(LIB_MISC "ztypes.lst", "r");
+	if (!zt_file)
+	{
+		log("Can not open ztypes.lst");
+		return;
+	}
+
+	while (get_line(zt_file, tmp))
+	{
+		if (!strn_cmp(tmp, "ИМЯ", 3))
+		{
+			if (sscanf(tmp, "%s %s", dummy, name) != 2)
+			{
+				log("Corrupted file : ztypes.lst");
+				return;
+			}
+			if (!get_line(zt_file, tmp))
+			{
+				log("Corrupted file : ztypes.lst");
+				return;
+			}
+			if (!strn_cmp(tmp, "ТИПЫ", 4))
+			{
+				if (tmp[4] != ' ' && tmp[4] != '\0')
+				{
+					log("Corrupted file : ztypes.lst");
+					return;
+				}
+				for (i = 4; tmp[i] != '\0'; i++)
+				{
+					if (!isdigit(tmp[i]) && !isspace(tmp[i]))
+					{
+						log("Corrupted file : ztypes.lst");
+						return;
+					}
+				}
+			}
+			else
+			{
+				log("Corrupted file : ztypes.lst");
+				return;
+			}
+			names++;
+		}
+		else
+		{
+			log("Corrupted file : ztypes.lst");
+			return;
+		}
+	}
+	names++;
+
+	CREATE(zone_types, struct zone_type, names);
+	for (i = 0; i < names; i++)
+	{
+		zone_types[i].name = NULL;
+		zone_types[i].ingr_qty = 0;
+		zone_types[i].ingr_types = NULL;
+	}
+
+	rewind(zt_file);
+	i = 0;
+	while (get_line(zt_file, tmp))
+	{
+		sscanf(tmp, "%s %s", dummy, name);
+		for (j = 0; name[j] != '\0'; j++)
+			if (name[j] == '_')
+				name[j] = ' ';
+		zone_types[i].name = str_dup(name);
+		if (get_line(zt_file, tmp));
+		for (j = 4; tmp[j] != '\0'; j++)
+		{
+			if (isspace(tmp[j]))
+				continue;
+			zone_types[i].ingr_qty++;
+			for (; tmp[j] != '\0' && isdigit(tmp[j]); j++);
+			j--;
+		}
+		i++;
+	}
+	zone_types[i].name = str_dup("\n");
+
+	for (i = 0; *zone_types[i].name != '\n'; i++)
+		if (zone_types[i].ingr_qty > 0)
+			CREATE(zone_types[i].ingr_types, int, zone_types[i].ingr_qty);
+
+	rewind(zt_file);
+	i = 0;
+	while (get_line(zt_file, tmp))
+	{
+		if (get_line(zt_file, tmp));
+		for (j = 4, n = 0; tmp[j] != '\0'; j++)
+		{
+			if (isspace(tmp[j]))
+				continue;
+			for (k = 0; tmp[j] != '\0' && isdigit(tmp[j]); j++)
+				itype_num[k++] = tmp[j];
+			itype_num[k] = '\0';
+			zone_types[i].ingr_types[n] = atoi(itype_num);
+			n++;
+			j--;
+		}
+		i++;
+	}
+
+	fclose(zt_file);
+}
+//-MZ.load
 
 
 /* body of the booting system */
@@ -658,6 +801,11 @@ void boot_db(void)
 
 	log("Booting IM");
 	init_im();
+
+//MZ.load
+	log("Booting zone types and ingredient types for each zone type.");
+	init_zone_types();
+//-MZ.load
 
 	boot_world();
 
@@ -746,7 +894,7 @@ void boot_db(void)
 	init_spec_procs();
 
 	log("Booting guilds");
-	init_guilds();
+//	init_guilds();
 
 	log("Booting portals for 'town portal' spell");
 	portals_list = NULL;
@@ -2488,6 +2636,10 @@ void load_zones(FILE * fl, char *zonename)
 	int cmd_no, num_of_cmds = 0, line_num = 0, tmp, error, a_number = 0, b_number = 0;
 	char *ptr, buf[256], zname[256];
 	char t1[80], t2[80];
+//MZ.load
+	Z.level = 1;
+	Z.type = 0;
+//-MZ.load
 	Z.typeA_count = 0;
 	Z.typeB_count = 0;
 	Z.locked = FALSE;
@@ -2534,9 +2686,17 @@ void load_zones(FILE * fl, char *zonename)
 	if ((ptr = strchr(buf, '~')) != NULL)	/* take off the '~' if it's there */
 		*ptr = '\0';
 	Z.name = str_dup(buf);
+
+//MZ.load
+	line_num += get_line(fl, buf);
+	if (*buf == '#')
+	{
+		sscanf(buf, "#%d %d", &Z.level, &Z.type);
+		line_num += get_line(fl, buf);
+	}
+//-MZ.load
 	*t1 = 0;
 	*t2 = 0;
-	line_num += get_line(fl, buf);
 	if (sscanf(buf, " %d %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, (int *)&Z.reset_idle, t1, t2) < 4) {
 		// если нет четырех констант, то, возможно, это старый формат -- попробуем прочитать три
 		if (sscanf(buf, " %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, t1, t2) < 3) {
@@ -3468,7 +3628,10 @@ void reset_zone(zone_rnum zone)
 
 		log("[Reset] Ingredients");
 		for (rnum = rnum_start; rnum <= rnum_stop; ++rnum) {
-			im_reset_room(world[rnum]);
+//MZ.load
+im_reset_room(world[rnum], zone_table[zone].level, zone_table[zone].type);
+//-MZ.load
+
 		}
 	}
 
@@ -6676,6 +6839,8 @@ void room_free(ROOM_DATA * room)
 	{
 		next_af = af->next;
 		free(af);
+
+
 	}
 	room->affected = NULL;
 }

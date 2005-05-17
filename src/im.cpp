@@ -798,19 +798,58 @@ void im_parse(int **ing_list, char *line)
 	*ing_list = res;
 }
 
+//MZ.load
 // Перезагрузка комнаты
 // Убрать старые ингредиенты, загрузить новые
-void im_reset_room(ROOM_DATA * room)
+void im_reset_room(ROOM_DATA * room, int level, int type)
 {
 	OBJ_DATA *o, *next;
-	int indx;
+	int i, indx;
+	im_memb *after, *before;
+	int pow, lev = 40 * level / MAX_ZONE_LEVEL;
 
 	for (o = room->contents; o; o = next) {
 		next = o->next_content;
 		if (GET_OBJ_TYPE(o) == ITEM_MING)
 			extract_obj(o);
 	}
-
+	if (!zone_types[type].ingr_qty)
+		return;
+	for (i = 0; i < zone_types[type].ingr_qty; i++)
+//	3% - 1-17
+//	2% - 18-34
+//	1% - 35-50
+		if (number(1, 100) <= 3 - 3 * (level - 1) / MAX_ZONE_LEVEL)
+		{
+			indx = im_type_rnum(zone_types[type].ingr_types[i]);
+			if (indx == -1)
+			{
+				log("SYSERR: WRONG INGREDIENT TYPE ID %d IN ZTYPES.LST", zone_types[type].ingr_types[i]);
+				continue;
+			}
+			after = NULL;
+			before = imtypes[indx].head;
+			while (before && before->power < lev)
+			{
+				after = before;
+				before = before->next;
+			}
+			if (after == NULL && before == NULL)
+			{
+				log("SYSERR: NO INGREDIENTS OF TYPE %d AVAILABLE NOW", indx);
+				continue;
+			}
+			else if (after == NULL)
+				pow = before->power;
+			else if (before == NULL)
+				pow = after->power;
+			else
+				pow = lev - after->power < before->power - lev ? after->power : before->power;
+			o = load_ingredient(indx, pow, -1);
+			if (o)
+				obj_to_room(o, real_room(room->number));
+		}
+/*MZ
 	if (!room->ing_list)
 		return;		// загружать нечего
 
@@ -826,9 +865,9 @@ void im_reset_room(ROOM_DATA * room)
 		if (o)
 			obj_to_room(o, real_room(room->number));
 	}
-
+-MZ*/
 }
-
+//-MZ.load
 // Создание трупа
 // Загрузить ингредиенты в труп
 void im_make_corpse(OBJ_DATA * corpse, int *ing_list)
@@ -1508,3 +1547,4 @@ ACMD(do_imlist)
 		page_string(ch->desc, buf, 1);
 
 }
+
