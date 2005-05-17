@@ -894,7 +894,7 @@ void boot_db(void)
 	init_spec_procs();
 
 	log("Booting guilds");
-//	init_guilds();
+	init_guilds();
 
 	log("Booting portals for 'town portal' spell");
 	portals_list = NULL;
