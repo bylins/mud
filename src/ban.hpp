@@ -27,7 +27,8 @@
 #include <map>
 #include <fstream>
 #include <sstream>
-#include <boost/algorithm/string.hpp>
+// пока там на серве не перепишется буст >=1.32 бум без этого, а он не перепишется, т.к. sf.net лежит Ж)
+//#include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 
 struct BanNode {

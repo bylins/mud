@@ -3579,6 +3579,21 @@ bool PrivList::rm_cmd_show_priv(const std::string & char_name, const std::string
 	return true;
 }
 
+// удаляем все пробелы и кавычки в начале и конце строки
+void SkipSpaces(std::string & buffer)
+{
+	std::string::size_type i;
+	for (i = 0; i != buffer.length(); ++i)
+		if (!isspace(buffer[i]) && buffer[i] != '\'')
+			break;
+	buffer.erase(0, i);
+
+	for (i = buffer.length() - 1; i != 0; --i)
+		if (!isspace(buffer[i]) && buffer[i] != '\'')
+			break;
+	buffer.erase(++i);
+}
+
 // берем из первой строки одно слово или подстроку в кавычках, результат удаляется из buffer
 void GetOneParam(std::string & buffer, std::string & buffer2)
 {

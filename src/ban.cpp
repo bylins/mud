@@ -27,7 +27,7 @@ extern BanList *ban;
 /* external functions */
 extern void log(const char *format, ...)
     __attribute__ ((format(printf, 1, 2)));
-
+extern void SkipSpaces(std::string & buffer);
 
 /* local functions */
 void load_banned(void);
@@ -273,7 +273,7 @@ void LoadProxyList()
 	while (file) {
 		file >> ip >> num;
 		std::getline(file, buffer);
-		boost::trim(buffer);
+		SkipSpaces(buffer);
 		if (ip.empty() || buffer.empty() || num < 2 || num > MAX_PROXY_CONNECT) {
 			log("Error read file: %s! IP: %s Num: %d Text: %s (%s %s %d)", PROXY_FILE, ip.c_str(),
 				num, buffer.c_str(), __FILE__, __func__, __LINE__);
@@ -353,7 +353,7 @@ ACMD(do_proxy)
 			return;
 		}
 
-		boost::trim(buffer);
+		SkipSpaces(buffer);
 		if (buffer.empty()) {
 			send_to_char("Укажите причину регистрации.\r\n", ch);
 			return;
