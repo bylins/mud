@@ -27,7 +27,7 @@ extern BanList *ban;
 /* external functions */
 extern void log(const char *format, ...)
     __attribute__ ((format(printf, 1, 2)));
-extern void SkipSpaces(std::string & buffer);
+void SkipSpaces(std::string & buffer);
 
 /* local functions */
 void load_banned(void);
@@ -274,6 +274,7 @@ void LoadProxyList()
 		file >> ip >> num;
 		std::getline(file, buffer);
 		SkipSpaces(buffer);
+//		boost::trim(buffer);
 		if (ip.empty() || buffer.empty() || num < 2 || num > MAX_PROXY_CONNECT) {
 			log("Error read file: %s! IP: %s Num: %d Text: %s (%s %s %d)", PROXY_FILE, ip.c_str(),
 				num, buffer.c_str(), __FILE__, __func__, __LINE__);
@@ -326,12 +327,16 @@ ACMD(do_proxy)
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
 	if (CompareParam(buffer2, "list") || CompareParam(buffer2, "список")) {
-		boost::format proxyFormat(" %-15d   %-2s   %s\r\n");
+//		boost::format proxyFormat(" %-15d   %-2s   %s\r\n");
 		std::ostringstream buffer3;
 		buffer3 << "Формат списка: IP | Максимум соединений | Комментарий\r\n";
 
-		for (ProxyListIt it = proxyList.begin(); it != proxyList.end(); ++it)
-			buffer3 << proxyFormat % (*it).first % (*it).second->num % (*it).second->text;
+		for (ProxyListIt it = proxyList.begin(); it != proxyList.end(); ++it) {
+//			buffer3 << proxyFormat % (*it).first % (*it).second->num % (*it).second->text;
+			buffer3 << std::setw(15) << std::left << (*it).first << "  ";
+			buffer3 << std::setw(2) << (*it).second->num << "  ";
+			buffer3 << (*it).second->text << "\r\n";
+		}
 
 		send_to_char(buffer3.str(), ch);
 	} else if (CompareParam(buffer2, "add") || CompareParam(buffer2, "добавить")) {
@@ -354,6 +359,7 @@ ACMD(do_proxy)
 		}
 
 		SkipSpaces(buffer);
+//		boost::trim(buffer);
 		if (buffer.empty()) {
 			send_to_char("Укажите причину регистрации.\r\n", ch);
 			return;
