@@ -333,7 +333,7 @@ ACMD(do_proxy)
 
 		for (ProxyListIt it = proxyList.begin(); it != proxyList.end(); ++it) {
 //			buffer3 << proxyFormat % (*it).first % (*it).second->num % (*it).second->text;
-			buffer3 << std::setw(15) << std::left << (*it).first << "  ";
+			buffer3 << std::setw(15) << (*it).first << "  ";
 			buffer3 << std::setw(2) << (*it).second->num << "  ";
 			buffer3 << (*it).second->text << "\r\n";
 		}

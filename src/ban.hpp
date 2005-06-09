@@ -28,8 +28,8 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include <iostream>
 //я хз как это заставить работать с бустом на серве
+//#include <ios>
 //#include <boost/algorithm/string.hpp>
 //#include <boost/format.hpp>
 
