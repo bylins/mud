@@ -28,7 +28,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include <ios>
+#include <iostream>
 //я хз как это заставить работать с бустом на серве
 //#include <boost/algorithm/string.hpp>
 //#include <boost/format.hpp>

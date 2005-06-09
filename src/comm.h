@@ -15,6 +15,8 @@
 #ifndef __COMM_H__
 #define __COMM_H__
 
+#include <string>
+
 #define NUM_RESERVED_DESCS	8
 
 /* comm.cpp */

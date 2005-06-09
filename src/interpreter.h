@@ -12,6 +12,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include <string>
+
 #define ACMD(name)  \
    void name(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 
