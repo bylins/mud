@@ -259,6 +259,7 @@ extern struct month_temperature_type year_temp[];
 extern const char *pc_class_types[];
 extern char *house_rank[];
 extern struct pclean_criteria_data pclean_criteria[];
+extern void LoadProxyList();
 
 void roll_real_abils(CHAR_DATA * ch);
 #define READ_SIZE 256
@@ -447,6 +448,7 @@ ACMD(do_reboot)
 		init_portals();
 		priv->reload();
 		load_sheduled_reboot();
+		LoadProxyList();
 	} else if (!str_cmp(arg, "portals"))
 		init_portals();
 	else if (!str_cmp(arg, "privileges"))
@@ -495,7 +497,9 @@ ACMD(do_reboot)
 		file_to_string_alloc(GODNEWS_FILE, &godnews);
 		if (stat(GODNEWS_FILE, &sb) >= 0)
 			lastgodnews = sb.st_mtime;
-	} else {
+	} else if (!str_cmp(arg, "proxy"))
+		LoadProxyList();
+	else {
 		send_to_char("Неверный параметр для перезагрузки файлов.\r\n", ch);
 		return;
 	}
@@ -911,6 +915,9 @@ void boot_db(void)
 
 	log("Load shedule reboot time");
 	load_sheduled_reboot();
+
+	log("Load proxy list");
+	LoadProxyList();
 
 	log("Boot db -- DONE.");
 }

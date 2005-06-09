@@ -84,7 +84,7 @@ extern PrivList *priv;
 extern int reboot_uptime;
 extern BanList *ban;
 
-extern int check_dupes_host(DESCRIPTOR_DATA * d);
+extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
 /* extern functions */
 int level_exp(CHAR_DATA * ch, int level);

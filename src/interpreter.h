@@ -35,6 +35,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg);
 int is_abbrev(const char *arg1, const char *arg2);
 int is_number(const char *str);
 int find_command(const char *command);
+//подобная фигня для стрингов
+void GetOneParam(std::string & buffer, std::string & buffer2);
+bool CompareParam(const std::string & buffer, const char *arg, bool full = 0);
 
 char *delete_doubledollar(char *string);
 /** Cоответствие классов и религий (Кард)*/

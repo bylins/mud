@@ -3033,6 +3033,13 @@ void send_to_char(CHAR_DATA * ch, const char *messg, ...)
 		SEND_TO_Q(tmpbuf, ch->desc);
 }
 
+// а вот те еще одна едишн Ж)
+void send_to_char(const std::string & buffer, CHAR_DATA * ch)
+{
+	if (ch->desc && !buffer.empty())
+		SEND_TO_Q(buffer.c_str(), ch->desc);
+}
+
 
 void send_to_all(const char *messg)
 {

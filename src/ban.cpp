@@ -226,71 +226,167 @@ void Read_Invalid_List(void)
 	fclose(fp);
 }
 
-// Обработка зарегистрированных в качестве прокси ip
+// Тут все, что связано с регистрацией клубов и т.п.
+#define MAX_PROXY_CONNECT 20
 
-int is_proxy(DESCRIPTOR_DATA * ch)
+struct ProxyIp {
+	int num;          // кол-во максимальных коннектов
+	std::string text; // комментарий
+};
+
+typedef boost::shared_ptr<ProxyIp> ProxyIpPtr;
+typedef std::map<std::string, ProxyIpPtr> ProxyListType;
+typedef std::map<std::string, ProxyIpPtr>::iterator ProxyListIt;
+// собственно список ип и кол-ва коннектов
+static ProxyListType proxyList;
+
+// сохранение списка прокси в файл
+void SaveProxyList()
 {
+	std::ofstream file(PROXY_FILE);
+	if (!file.is_open()) {
+		log("Error open file: %s! (%s %s %d)", PROXY_FILE, __FILE__, __func__, __LINE__);
+		return;
+	}
+
+	for (ProxyListIt it = proxyList.begin(); it != proxyList.end(); ++it)
+		file << (*it).first << "  " << (*it).second->num << "  " << (*it).second->text << "\n";
+
+	file.close();
+}
+
+// лоад списка ip и максимально разрешенных коннектов с них
+void LoadProxyList()
+{
+	// если релоадим
+	proxyList.clear();
+
+	std::ifstream file(PROXY_FILE);
+	if (!file.is_open()) {
+		log("Error open file: %s! (%s %s %d)", PROXY_FILE, __FILE__, __func__, __LINE__);
+		return;
+	}
+
+	std::string buffer, ip;
+	int num = 0;
+
+	while (file) {
+		file >> ip >> num;
+		std::getline(file, buffer);
+		boost::trim(buffer);
+		if (ip.empty() || buffer.empty() || num < 2 || num > MAX_PROXY_CONNECT) {
+			log("Error read file: %s! IP: %s Num: %d Text: %s (%s %s %d)", PROXY_FILE, ip.c_str(),
+				num, buffer.c_str(), __FILE__, __func__, __LINE__);
+			// не стоит грузить файл, если там чет не то - похерится потом при сохранении
+			// хотя будет смешно, если после неудачного лоада кто-то добавит запись в онлайне Ж)
+			proxyList.clear();
+			return;
+		}
+
+		ProxyIpPtr tempIp(new ProxyIp);
+		tempIp->num = num;
+		tempIp->text = buffer;
+		proxyList[ip] = tempIp;
+	}
+	file.close();
+	SaveProxyList();
+}
+
+// проверка на присутствие в списке зарегистрированных ip и кол-ва соединений
+// 0 - нету, 1 - в маде уже макс. число коннектов с данного ip, 2 - все ок
+int CheckProxy(DESCRIPTOR_DATA * ch)
+{
+	std::string ip = ch->host;
+	//сначала ищем в списке, зачем зря коннекты считать
+	ProxyListIt it;
+	it = proxyList.find(ip);
+	if (it == proxyList.end())
+		return 0;
+
+	// терь можно и посчитать
 	DESCRIPTOR_DATA *i;
 	int num_ip = 0;
-
-	FILE *fp;
-	char temp[256];
-	char ip[16];
-	int count;
-
-// count ip in game
-
 	for (i = descriptor_list; i; i = i->next) {
 		if (i == ch)
 			continue;
-
-		if (i->character && !IS_IMMORTAL(i->character)
-		    && !str_cmp(i->host, ch->host))
+		if (i->character && !IS_IMMORTAL(i->character) && !str_cmp(i->host, ch->host))
 			num_ip++;
 	}
 
-// read proxy-list
+	// проверяем на кол-во коннектов
+	if (it->second->num <= num_ip)
+		return 1;
 
-	if (!(fp = fopen(PROXY_FILE, "r"))) {
-		perror("SYSERR: Unable to open '" PROXY_FILE "' for reading");
-		return (0);
-	}
-
-	while (get_line(fp, temp)) {
-		sscanf(temp, "%s %d", ip, &count);
-		if (!strcmp(ip, ch->host) && num_ip < count)
-			return (1);
-	}
-
-	fclose(fp);
-	return (0);
+	return 2;
 }
 
+// команда proxy
 ACMD(do_proxy)
 {
-	FILE *fp;
-	char temp[256];
-	char *buffer = NULL;
-	char header[256];
-	char localbuf[256];
+	std::string buffer = argument, buffer2;
+	GetOneParam(buffer, buffer2);
+	if (CompareParam(buffer2, "list") || CompareParam(buffer2, "список")) {
+		boost::format proxyFormat(" %-15d   %-2s   %s\r\n");
+		std::ostringstream buffer3;
+		buffer3 << "Формат списка: IP | Максимум соединений | Комментарий\r\n";
 
-	if (!*argument) {
-		if (!(fp = fopen(PROXY_FILE, "r"))) {
-			send_to_char("No sites are registered.\r\n", ch);
+		for (ProxyListIt it = proxyList.begin(); it != proxyList.end(); ++it)
+			buffer3 << proxyFormat % (*it).first % (*it).second->num % (*it).second->text;
+
+		send_to_char(buffer3.str(), ch);
+	} else if (CompareParam(buffer2, "add") || CompareParam(buffer2, "добавить")) {
+		GetOneParam(buffer, buffer2);
+		if (buffer2.empty()) {
+			send_to_char("Укажите регистрируемый IP адрес.\r\n", ch);
 			return;
 		}
-		strcpy(header, "Формат списка: IP/Максимум соединений/Коментарий\r\n");
-		buffer = str_add(buffer, header);
+		std::string ip = buffer2;
 
-		while (get_line(fp, temp)) {
-			sprintf(localbuf, "%s\r\n", temp);
-			buffer = str_add(buffer, localbuf);
+		GetOneParam(buffer, buffer2);
+		if (buffer2.empty()) {
+			send_to_char("Укажите максимальное кол-во коннектов.\r\n", ch);
+			return;
+		}
+		int num = atoi(buffer2.c_str());
+		if (num < 2 || num > MAX_PROXY_CONNECT) {
+			send_to_char(ch, "Некорректное число коннектов (2-%d).\r\n", MAX_PROXY_CONNECT);
+			return;
 		}
 
-		fclose(fp);
-		page_string(ch->desc, buffer, 1);
-		free(buffer);
-	}
+		boost::trim(buffer);
+		if (buffer.empty()) {
+			send_to_char("Укажите причину регистрации.\r\n", ch);
+			return;
+		}
+		std::string text = buffer;
+
+		ProxyIpPtr tempIp(new ProxyIp);
+		tempIp->num = num;
+		tempIp->text = text;
+		proxyList[ip] = tempIp;
+		SaveProxyList();
+		send_to_char("Запись добавлена.\r\n", ch);
+
+	} else if (CompareParam(buffer2, "remove") || CompareParam(buffer2, "удалить")) {
+		GetOneParam(buffer, buffer2);
+		if (buffer2.empty()) {
+			send_to_char("Укажите удаляемый IP адрес.\r\n", ch);
+			return;
+		}
+		ProxyListIt it;
+		it = proxyList.find(buffer2);
+		if (it == proxyList.end()) {
+			send_to_char("Данный IP и так не зарегистрирован.\r\n", ch);
+			return;
+		}
+		proxyList.erase(it);
+		SaveProxyList();
+		send_to_char("Запись удалена.\r\n", ch);
+
+	} else
+		send_to_char("Формат: proxy list|список\r\n"
+					"        proxy add|добавить ip количество-коннектов  комментарий\r\n"
+					"        proxy remove|удалить ip\r\n",ch);
 }
 
 //////////////////////////////////////////////////////////////////////////////

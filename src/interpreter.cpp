@@ -103,7 +103,6 @@ int special(CHAR_DATA * ch, int cmd, char *arg);
 int Valid_Name(char *newname);
 int Is_Valid_Name(char *newname);
 int Is_Valid_Dc(char *newname);
-int is_proxy(DESCRIPTOR_DATA * ch);
 void read_aliases(CHAR_DATA * ch);
 void read_saved_vars(CHAR_DATA * ch);
 void oedit_parse(DESCRIPTOR_DATA * d, char *arg);
@@ -119,6 +118,8 @@ int calc_loadroom(CHAR_DATA * ch);
 int delete_char(char *name);
 void do_aggressive_mob(CHAR_DATA * ch, int check_sneak);
 extern int process_auto_agreement(DESCRIPTOR_DATA * d);
+extern int CheckProxy(DESCRIPTOR_DATA * ch);
+
 // void list_names (CHAR_DATA * ch);
 
 /* local functions */
@@ -238,7 +239,6 @@ ACMD(do_order);
 ACMD(do_page);
 ACMD(do_page_height);
 ACMD(do_pray);
-ACMD(do_proxy);
 ACMD(do_poofset);
 ACMD(do_pour);
 ACMD(do_skills);
@@ -330,6 +330,7 @@ ACMD(do_prison);
 ACMD(do_dig);
 ACMD(do_insertgem);
 ACMD(do_ignore);
+ACMD(do_proxy);
 
 
 /* DG Script ACMD's */
@@ -1959,7 +1960,10 @@ int pre_help(CHAR_DATA * ch, char *arg)
 	return (0);
 }
 
-int check_dupes_host(DESCRIPTOR_DATA * d)
+// вобщем флажок для зареганных ип, потому что при очередной автопроверке, если превышен
+// лимит коннектов с ип - сядут все сместе, что выглядит имхо странно, может там комп новый воткнули
+// и просто еще до иммов не достучались лимит поднять... вобщем сидит тот, кто не успел Ж)
+int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0)
 {
 	DESCRIPTOR_DATA *i;
 	if (!d->character || IS_IMMORTAL(d->character)
@@ -1969,14 +1973,14 @@ int check_dupes_host(DESCRIPTOR_DATA * d)
 		if (i == d)
 			continue;
 
-		if (i->character && !IS_IMMORTAL(i->character)
-		    && (STATE(i) == CON_PLAYING || STATE(i) == CON_MENU)
+		if (i->character && !IS_IMMORTAL(i->character) 
+			&& (STATE(i) == CON_PLAYING || STATE(i) == CON_MENU)
 		    && !str_cmp(i->host, d->host)) {
-//	if (!is_proxy(d)) 
-			{
-				sprintf(buf, "Вы вошли с игроком %s с одного IP(%s) !\r\n"
+			switch (CheckProxy(d)) {
+			case 0:
+				sprintf(buf, "&RВы вошли с игроком %s с одного IP(%s) !\r\n"
 					"Вам необходимо обратиться к Богам для регистрации.\r\n"
-					"Пока Вы будете помещены в комнату для незарегистрированных игроков.\r\n",
+					"Пока Вы будете помещены в комнату для незарегистрированных игроков.&n\r\n",
 					GET_PAD(i->character, 4), i->host);
 				send_to_char(buf, d->character);
 				sprintf(buf,
@@ -1985,7 +1989,15 @@ int check_dupes_host(DESCRIPTOR_DATA * d)
 					"Игрок помещен в комнату незарегистрированных игроков.",
 					GET_NAME(d->character), GET_NAME(i->character), d->host);
 				mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
-				return (0);
+				return 0;
+			case 1:
+				if (autocheck)
+					return 1;
+				send_to_char("&RС Вашего IP адреса находится максимально допустимое количество игроков.\r\n"
+					"Обратитесь к Богам для увеличения лимита игроков с вашего адреса.&n", d->character);
+				return 0;
+			default:
+				return 1;
 			}
 		}
 	}
@@ -3565,4 +3577,50 @@ bool PrivList::rm_cmd_show_priv(const std::string & char_name, const std::string
 		return true;
 	}
 	return true;
+}
+
+// берем из первой строки одно слово или подстроку в кавычках, результат удаляется из buffer
+void GetOneParam(std::string & buffer, std::string & buffer2)
+{
+	std::string::size_type i;
+	// лучше резануть лишний раз ведущие пробелы для читабельности
+	for (i = 0; i != buffer.length() - 1; ++i)
+		if (!isspace(buffer[i]))
+			break;
+	buffer.erase(0, i);
+
+	// если слово начинается с ' - ищем вторую ' или до конца строки
+	if (buffer[0] == '\'') {
+		for (i = 1; i != buffer.length(); ++i)
+			if (buffer[i] == '\'')
+				break;
+		buffer2 = buffer.substr(1, --i);
+		buffer.erase(0, ++i);
+	}
+	// иначе выделяем одно слово
+	else {
+		for (i = 1; i != buffer.length(); ++i)
+			if (isspace(buffer[i]))
+				break;
+		buffer2 = buffer.substr(0, i);
+		buffer.erase(0, i);
+	}
+
+}
+
+// регистронезависимое сравнение двух строк по длине первой, флаг - для учета длины строк (неравенство)
+bool CompareParam(const std::string & buffer, const char *arg, bool full)
+{
+	if (!*arg || buffer.empty() || (full && buffer.length() != strlen(arg)))
+		return 0;
+
+	std::string::size_type i;
+	for (i = 0; i != buffer.length() && *arg; ++i, ++arg)
+		if (LOWER(buffer[i]) != LOWER(*arg))
+			return (0);
+
+	if (i == buffer.length())
+		return (1);
+	else
+		return (0);
 }

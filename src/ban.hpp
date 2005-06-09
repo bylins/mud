@@ -23,6 +23,13 @@
 #include "diskio.h"
 ////////////////////////////////////////////////////////////////////////////////
 
+// для прокси-списка
+#include <map>
+#include <fstream>
+#include <sstream>
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
+
 struct BanNode {
 	std::string BannedIp;
 	std::string BanReason;

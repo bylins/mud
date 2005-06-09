@@ -30,7 +30,7 @@
 #include "constants.h"
 #include "exchange.h"
 
-extern int check_dupes_host(DESCRIPTOR_DATA * d);
+extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 extern void check_berserk(CHAR_DATA * ch);
 
 extern room_rnum r_unreg_start_room;
@@ -54,6 +54,7 @@ extern room_rnum r_immort_start_room;
 extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;
 extern struct spell_create_type spell_create[];
+extern int CheckProxy(DESCRIPTOR_DATA * ch);
 
 void decrease_level(CHAR_DATA * ch);
 int max_exp_gain_pc(CHAR_DATA * ch);
@@ -524,14 +525,14 @@ void beat_punish(CHAR_DATA * i)
 	else if (!PLR_FLAGGED(i, PLR_REGISTERED))
 	{
 		if ((!RENTABLE(i)) && (restore != r_unreg_start_room) && i->desc
-		&& (STATE(i->desc) == CON_PLAYING) && !check_dupes_host(i->desc)) {
+		&& (STATE(i->desc) == CON_PLAYING) && !check_dupes_host(i->desc, 1)) {
 
 			if (IN_ROOM(i) == STRANGE_ROOM)
 				GET_WAS_IN(i) = r_unreg_start_room;
 			else 	
 			{		
 				send_to_char("Чья-то злая воля вернула Вас в комнату для незарегистированных игроков.\r\n", i);
-				act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.",
+				act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.\r\n",
 				    FALSE, i, 0, 0, TO_ROOM);
 
 				char_from_room(i);
