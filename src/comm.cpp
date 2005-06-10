@@ -241,6 +241,7 @@ void dupe_player_index(void);
 void Crash_frac_save_all(int frac_part);
 void Crash_frac_rent_time(int frac_part);
 void dt_activity(void);
+unsigned long TxtToIp(const char * text);
 //F@N|
 int exchange_database_save(void);
 int exchange_database_savebackup(void);
@@ -1936,6 +1937,9 @@ int new_descriptor(int s)
 		strncpy(newd->host, from->h_name, HOST_LENGTH);
 		*(newd->host + HOST_LENGTH) = '\0';
 	}
+
+	// ип в виде числа
+	newd->ip = TxtToIp(newd->host);
 
 	/* determine if the site is banned */
 #if 0

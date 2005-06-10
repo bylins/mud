@@ -227,20 +227,55 @@ void Read_Invalid_List(void)
 }
 
 // Тут все, что связано с регистрацией клубов и т.п.
-#define MAX_PROXY_CONNECT 20
+
+// конвертация строкового ip в число для сравнений
+unsigned long TxtToIp(const char * text)
+{
+	int ip1 = 0, ip2 = 0, ip3 = 0, ip4 = 0;
+	unsigned long ip = 0;
+
+	sscanf(text, "%d.%d.%d.%d", &ip1, &ip2, &ip3, &ip4);
+	ip = (ip1 << 24) + (ip2 << 16) + (ip3 << 8) + ip4;
+	return ip;
+}
+
+// тоже для строкового аргумента
+unsigned long TxtToIp(std::string &text)
+{
+	int ip1 = 0, ip2 = 0, ip3 = 0, ip4 = 0;
+	unsigned long ip = 0;
+
+	sscanf(text.c_str(), "%d.%d.%d.%d", &ip1, &ip2, &ip3, &ip4);
+	ip = (ip1 << 24) + (ip2 << 16) + (ip3 << 8) + ip4;
+	return ip;
+}
+
+// тоже самое, только обратно для визуального отображения
+std::string IpToTxt(unsigned long ip)
+{
+	char text[16];
+	sprintf(text, "%lu.%lu.%lu.%lu", ip >> 24, ip >> 16 & 0xff, ip >> 8 & 0xff, ip & 0xff);
+	std::string buffer = text;
+	return buffer;
+}
+
+#define MAX_PROXY_CONNECT 50
 
 struct ProxyIp {
-	int num;          // кол-во максимальных коннектов
-	std::string text; // комментарий
+	bool mask;           // флаг наличия диапазона ип
+	unsigned long ip2;   // конечный ип в случае диапазона
+	int num;             // кол-во максимальных коннектов
+	std::string text;    // комментарий
+	std::string textIp;  // ип в виде строки
+	std::string textIp2; // конечный ип в виде строки
 };
 
 typedef boost::shared_ptr<ProxyIp> ProxyIpPtr;
-typedef std::map<std::string, ProxyIpPtr> ProxyListType;
-typedef std::map<std::string, ProxyIpPtr>::iterator ProxyListIt;
+typedef std::map<unsigned long, ProxyIpPtr> ProxyListType;
 // собственно список ип и кол-ва коннектов
 static ProxyListType proxyList;
 
-// сохранение списка прокси в файл
+// сохранение списка прокси в файл (ип в текстовом виде, шоб менять можно было в файле)
 void SaveProxyList()
 {
 	std::ofstream file(PROXY_FILE);
@@ -249,9 +284,10 @@ void SaveProxyList()
 		return;
 	}
 
-	for (ProxyListIt it = proxyList.begin(); it != proxyList.end(); ++it)
-		file << (*it).first << "  " << (*it).second->num << "  " << (*it).second->text << "\n";
-
+	for (ProxyListType::const_iterator it = proxyList.begin(); it != proxyList.end(); ++it) {
+		file << (*it).second->textIp << "  " << ((*it).second->textIp2.empty() ? "0"
+			: (*it).second->textIp2) << "  " << (*it).second->num << "  " << (*it).second->text << "\n";
+	}
 	file.close();
 }
 
@@ -267,17 +303,17 @@ void LoadProxyList()
 		return;
 	}
 
-	std::string buffer, ip;
+	std::string buffer, textIp, textIp2;
 	int num = 0;
 
 	while (file) {
-		file >> ip >> num;
+		file >> textIp >> textIp2 >> num;
 		std::getline(file, buffer);
 		SkipSpaces(buffer);
 //		boost::trim(buffer);
-		if (ip.empty() || buffer.empty() || num < 2 || num > MAX_PROXY_CONNECT) {
-			log("Error read file: %s! IP: %s Num: %d Text: %s (%s %s %d)", PROXY_FILE, ip.c_str(),
-				num, buffer.c_str(), __FILE__, __func__, __LINE__);
+		if (textIp.empty() || textIp2.empty() || buffer.empty() || num < 2 || num > MAX_PROXY_CONNECT) {
+			log("Error read file: %s! IP: %s IP2: %s Num: %d Text: %s (%s %s %d)", PROXY_FILE, textIp.c_str(),
+				textIp2.c_str(), num, buffer.c_str(), __FILE__, __func__, __LINE__);
 			// не стоит грузить файл, если там чет не то - похерится потом при сохранении
 			// хотя будет смешно, если после неудачного лоада кто-то добавит запись в онлайне Ж)
 			proxyList.clear();
@@ -287,6 +323,18 @@ void LoadProxyList()
 		ProxyIpPtr tempIp(new ProxyIp);
 		tempIp->num = num;
 		tempIp->text = buffer;
+		tempIp->textIp = textIp;
+		// 0 тут значит, что это не диапазон, чтобы не портить вид списка в маде - лучше пустую строку
+		if (textIp2 != "0")
+			tempIp->textIp2 = textIp2;
+		unsigned long ip = TxtToIp(textIp);
+		unsigned long ip2 = TxtToIp(textIp2);
+		tempIp->ip2 = ip2;
+		// вобщем по второму ип выясняем записан у нас один ип или диапазон
+		if (!ip2)
+			tempIp->mask = 0;
+		else
+			tempIp->mask = 1;
 		proxyList[ip] = tempIp;
 	}
 	file.close();
@@ -297,22 +345,27 @@ void LoadProxyList()
 // 0 - нету, 1 - в маде уже макс. число коннектов с данного ip, 2 - все ок
 int CheckProxy(DESCRIPTOR_DATA * ch)
 {
-	std::string ip = ch->host;
 	//сначала ищем в списке, зачем зря коннекты считать
-	ProxyListIt it;
-	it = proxyList.find(ip);
+	ProxyListType::const_iterator it;
+	// мысль простая - смотрим флаг маски и приналичии сверяем вхождение в диапазон ип
+	for (it = proxyList.begin(); it != proxyList.end(); ++it) {
+		if (!(*it).second->mask) {
+			if ((*it).first == ch->ip)
+				break;
+		} else
+			if (((*it).first < ch->ip) && (ch->ip < (*it).second->ip2))
+				break;
+	}
+//	it = proxyList.find(ch->ip);
 	if (it == proxyList.end())
 		return 0;
 
 	// терь можно и посчитать
 	DESCRIPTOR_DATA *i;
 	int num_ip = 0;
-	for (i = descriptor_list; i; i = i->next) {
-		if (i == ch)
-			continue;
-		if (i->character && !IS_IMMORTAL(i->character) && !str_cmp(i->host, ch->host))
+	for (i = descriptor_list; i; i = i->next)
+		if (i != ch && i->character && !IS_IMMORTAL(i->character) && (i->ip == ch->ip))
 			num_ip++;
-	}
 
 	// проверяем на кол-во коннектов
 	if (it->second->num <= num_ip)
@@ -329,11 +382,12 @@ ACMD(do_proxy)
 	if (CompareParam(buffer2, "list") || CompareParam(buffer2, "список")) {
 //		boost::format proxyFormat(" %-15d   %-2s   %s\r\n");
 		std::ostringstream buffer3;
-		buffer3 << "Формат списка: IP | Максимум соединений | Комментарий\r\n";
+		buffer3 << "Формат списка: IP | IP2 | Максимум соединений | Комментарий\r\n";
 
-		for (ProxyListIt it = proxyList.begin(); it != proxyList.end(); ++it) {
+		for (ProxyListType::const_iterator it = proxyList.begin(); it != proxyList.end(); ++it) {
 //			buffer3 << proxyFormat % (*it).first % (*it).second->num % (*it).second->text;
-			buffer3 << std::setw(15) << (*it).first << "  ";
+			buffer3 << std::setw(15) << (*it).second->textIp << "  "
+				<< std::setw(15) << (*it).second->textIp2 << "  ";
 			buffer3 << std::setw(2) << (*it).second->num << "  ";
 			buffer3 << (*it).second->text << "\r\n";
 		}
@@ -342,10 +396,29 @@ ACMD(do_proxy)
 	} else if (CompareParam(buffer2, "add") || CompareParam(buffer2, "добавить")) {
 		GetOneParam(buffer, buffer2);
 		if (buffer2.empty()) {
-			send_to_char("Укажите регистрируемый IP адрес.\r\n", ch);
+			send_to_char("Укажите регистрируемый IP адрес или параметр mask|маска.\r\n", ch);
 			return;
 		}
-		std::string ip = buffer2;
+		// случай добавления диапазона ип
+		bool mask = 0;
+		std::string textIp, textIp2;
+		if (CompareParam(buffer2, "mask") || CompareParam(buffer2, "маска")) {
+			mask = 1;
+			GetOneParam(buffer, buffer2);
+			if (buffer2.empty()) {
+				send_to_char("Укажите начало диапазона.\r\n", ch);
+				return;
+			}
+			textIp = buffer2;
+			// должен быть второй ип
+			GetOneParam(buffer, buffer2);
+			if (buffer2.empty()) {
+				send_to_char("Укажите конец диапазона.\r\n", ch);
+				return;
+			}
+			textIp2 = buffer2;
+		} else // если это не диапазон и не пустая строка - значит это простой ип
+			textIp = buffer2;
 
 		GetOneParam(buffer, buffer2);
 		if (buffer2.empty()) {
@@ -369,6 +442,19 @@ ACMD(do_proxy)
 		ProxyIpPtr tempIp(new ProxyIp);
 		tempIp->num = num;
 		tempIp->text = text;
+		tempIp->textIp = textIp;
+		tempIp->textIp2 = textIp2;
+		unsigned long ip = TxtToIp(textIp);
+		unsigned long ip2 = TxtToIp(textIp2);
+		if (ip2 && ((ip2 - ip) > 65535)) {
+			send_to_char("Слишком широкий диапазон. (Максимум x.x.0.0. до x.x.255.255).\r\n", ch);
+			return;
+		}
+		if (!ip2)
+			tempIp->mask = 0;
+		else
+			tempIp->mask = 1;
+		tempIp->ip2 = ip2;
 		proxyList[ip] = tempIp;
 		SaveProxyList();
 		send_to_char("Запись добавлена.\r\n", ch);
@@ -376,13 +462,14 @@ ACMD(do_proxy)
 	} else if (CompareParam(buffer2, "remove") || CompareParam(buffer2, "удалить")) {
 		GetOneParam(buffer, buffer2);
 		if (buffer2.empty()) {
-			send_to_char("Укажите удаляемый IP адрес.\r\n", ch);
+			send_to_char("Укажите удаляемый IP адрес или начало диапазона.\r\n", ch);
 			return;
 		}
-		ProxyListIt it;
-		it = proxyList.find(buffer2);
+		unsigned long ip = TxtToIp(buffer2);
+		ProxyListType::iterator it;
+		it = proxyList.find(ip);
 		if (it == proxyList.end()) {
-			send_to_char("Данный IP и так не зарегистрирован.\r\n", ch);
+			send_to_char("Данный IP/диапазон и так не зарегистрирован.\r\n", ch);
 			return;
 		}
 		proxyList.erase(it);
@@ -392,6 +479,7 @@ ACMD(do_proxy)
 	} else
 		send_to_char("Формат: proxy list|список\r\n"
 					"        proxy add|добавить ip количество-коннектов  комментарий\r\n"
+					"        proxy add|добавить mask|маска ip ip2 количество-коннектов  комментарий\r\n"
 					"        proxy remove|удалить ip\r\n",ch);
 }
 

@@ -2207,6 +2207,7 @@ struct descriptor_data {
 	int
 	 mccp_version;
 #endif
+	unsigned long ip;	// ип адрес в виде числа для внутреннего пользования
 };
 
 
