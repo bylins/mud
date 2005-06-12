@@ -284,8 +284,8 @@ void SaveProxyList()
 	}
 
 	for (ProxyListType::const_iterator it = proxyList.begin(); it != proxyList.end(); ++it) {
-		file << (*it).second->textIp << "  " << ((*it).second->textIp2.empty() ? "0"
-			: (*it).second->textIp2) << "  " << (*it).second->num << "  " << (*it).second->text << "\n";
+		file << it->second->textIp << "  " << (it->second->textIp2.empty() ? "0"
+			: it->second->textIp2) << "  " << it->second->num << "  " << it->second->text << "\n";
 	}
 	file.close();
 }
@@ -342,11 +342,11 @@ int CheckProxy(DESCRIPTOR_DATA * ch)
 	ProxyListType::const_iterator it;
 	// мысль простая - есть второй ип, знач смотрим диапазон, нету - знач сверяем на равенство ип
 	for (it = proxyList.begin(); it != proxyList.end(); ++it) {
-		if (!(*it).second->ip2) {
-			if ((*it).first == ch->ip)
+		if (!it->second->ip2) {
+			if (it->first == ch->ip)
 				break;
 		} else
-			if (((*it).first < ch->ip) && (ch->ip < (*it).second->ip2))
+			if ((it->first < ch->ip) && (ch->ip < it->second->ip2))
 				break;
 	}
 	if (it == proxyList.end())
@@ -379,8 +379,8 @@ ACMD(do_proxy)
 		buffer4 = str_add(buffer4, buffer3);
 
 		for (ProxyListType::const_iterator it = proxyList.begin(); it != proxyList.end(); ++it) {
-//			buffer3 << proxyFormat % (*it).first % (*it).second->num % (*it).second->text;
-			sprintf(buffer3, " %-15s   %-15s   %-2d   %s\r\n", (*it).second->textIp.c_str(), (*it).second->textIp2.c_str(), (*it).second->num, (*it).second->text.c_str());
+//			buffer3 << proxyFormat % it->first % it->second->num % it->second->text;
+			sprintf(buffer3, " %-15s   %-15s   %-2d   %s\r\n", it->second->textIp.c_str(), it->second->textIp2.c_str(), it->second->num, it->second->text.c_str());
 			buffer4 = str_add(buffer4, buffer3);
 		}
 
