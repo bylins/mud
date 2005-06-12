@@ -35,7 +35,7 @@ void postmaster_receive_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char 
 SPECIAL(postmaster);
 
 extern int no_mail;
-int find_name(char *name);
+int find_name(const char *name);
 
 mail_index_type *mail_index = NULL;	/* list of recs in the mail file  */
 position_list_type *free_list = NULL;	/* list of free positions in file */

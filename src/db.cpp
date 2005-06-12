@@ -216,7 +216,7 @@ void sort_commands(void);
 void sort_spells(void);
 void Read_Invalid_List(void);
 void boot_the_shops(FILE * shop_f, char *filename, int rec_count);
-int find_name(char *name);
+int find_name(const char *name);
 int hsort(const void *a, const void *b);
 int csort(const void *a, const void *b);
 void prune_crlf(char *txt);
@@ -241,6 +241,8 @@ extern void tascii(int *pointer, int num_planes, char *ascii);
 extern void repop_decay(zone_rnum zone);	/* рассыпание обьектов ITEM_REPOP_DECAY */
 int real_zone(int number);
 int level_exp(CHAR_DATA * ch, int level);
+extern void NewNameRemove(CHAR_DATA * ch);
+extern void NewNameLoad();
 
 /* external vars */
 extern int no_specials;
@@ -918,6 +920,9 @@ void boot_db(void)
 
 	log("Load proxy list");
 	LoadProxyList();
+
+	log("Load new_name list");
+	NewNameLoad();
 
 	log("Boot db -- DONE.");
 }
@@ -4111,10 +4116,10 @@ void load_ignores(CHAR_DATA * ch, char *line)
 
 /* new load_char reads ascii pfiles */
 /* Load a char, TRUE if loaded, FALSE if not */
-int load_char_ascii(char *name, CHAR_DATA * ch)
+int load_char_ascii(const char *name, CHAR_DATA * ch)
 {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, i;
-	long int lnum = 0, lnum2 = 0 , lnum3 = 0, lnum4 = 0, lnum5 = 0;
+	long int lnum = 0, lnum3 = 0;
 	FBFILE *fl;
 	char filename[40];
 	char buf[128], line[MAX_INPUT_LENGTH + 1], tag[6];
@@ -4749,7 +4754,7 @@ int load_char_ascii(char *name, CHAR_DATA * ch)
 
 
 
-int load_char(char *name, CHAR_DATA * char_element)
+int load_char(const char *name, CHAR_DATA * char_element)
 {
 	int player_i;
 
@@ -6706,6 +6711,9 @@ int delete_char(char *name)
 
 	CREATE(st, CHAR_DATA, 1);
 	clear_char(st);
+	if ((id = load_char(name, st)) >= 0) {
+		// 1) Mark char as deleted
+		SET_BIT(PLR_FLAGS(st, PLR_DELETED), PLR_DELETED);
 
 		// выносим из листа неодобренных имен, если есть
 		NewNameRemove(st);

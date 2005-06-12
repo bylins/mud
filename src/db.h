@@ -176,7 +176,7 @@ int get_zone_rooms(int, int *, int *);
 
 void char_to_store(CHAR_DATA * ch, struct char_file_u *st);
 void store_to_char(struct char_file_u *st, CHAR_DATA * ch);
-int load_char(char *name, CHAR_DATA * char_element);
+int load_char(const char *name, CHAR_DATA * char_element);
 void save_char(CHAR_DATA * ch, room_rnum load_room);
 void init_char(CHAR_DATA * ch);
 CHAR_DATA *create_char(void);

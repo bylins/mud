@@ -107,6 +107,8 @@ extern bool can_be_reset(zone_rnum zone);
 extern int is_empty(zone_rnum zone_nr);
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
+extern void NewNameShow(CHAR_DATA * ch);
+extern void NewNameRemove(CHAR_DATA * ch);
 
 /* local functions */
 int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg);
@@ -4079,6 +4081,9 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
             return (0);
            }
 */
+			// выносим из листа неодобренных имен, если есть
+			NewNameRemove(vict);
+
 			ptnum = get_ptable_by_name(GET_NAME(vict));
 			if (ptnum < 0)
 				return (0);
@@ -4533,29 +4538,6 @@ ACMD(do_liblist)
 	page_string(ch->desc, bf, 1);
 }
 
-
-
-void delete_name(char *name)
-{
-	FILE *fp, *tp;
-	char s[256];
-	fp = fopen(NNAME_FILE, "r");
-	tp = fopen(TNNAME_FILE, "w");
-	if (fp == NULL || tp == NULL)
-		return;
-	do {
-		fgets(s, 256, fp);
-		if (!(name == s))
-			fputs(s, tp);
-	}
-	while (!feof(fp));
-	fclose(fp);
-	fclose(tp);
-	rename(TNNAME_FILE, NNAME_FILE);
-	remove(LIB_MISC "new_name.tmp");
-	return;
-}
-
 void go_name(CHAR_DATA * ch, CHAR_DATA * vict, char *argum)
 {
 	int lev;
@@ -4588,7 +4570,6 @@ void go_name(CHAR_DATA * ch, CHAR_DATA * vict, char *argum)
 		sprintf(buf, "&GВаше имя одобрено Богом %s!!!&n\r\n", GET_NAME(ch));
 		send_to_char(buf, vict);
 		agree_name(vict, GET_NAME(ch), GET_LEVEL(ch));
-		delete_name(GET_NAME(vict));
 	} else if (is_abbrev(arg, "запретить")) {
 		NAME_GOD(vict) = GET_LEVEL(ch);
 		NAME_ID_GOD(vict) = GET_IDNUM(ch);
@@ -4596,56 +4577,11 @@ void go_name(CHAR_DATA * ch, CHAR_DATA * vict, char *argum)
 		sprintf(buf, "&RВаше имя запрещено Богом %s!!!&n\r\n", GET_NAME(ch));
 		send_to_char(buf, vict);
 		disagree_name(vict, GET_NAME(ch), GET_LEVEL(ch));
-		delete_name(GET_NAME(vict));
 	} else {
 		send_to_char("Можно либо 'одобрить' либо 'запретить'.\r\n", ch);
 	}
 
 }
-
-// Выводим список имен
-void list_names(CHAR_DATA * ch)
-{
-	FILE *fp;
-	char temp[MAX_INPUT_LENGTH];
-	char mortname[MAX_INPUT_LENGTH];
-	CHAR_DATA *tch;
-
-	if (!(fp = fopen(NNAME_FILE, "r"))) {
-		imm_log("SYSERR: Unable to open '" NNAME_FILE "' for reading");
-		return;
-	}
-	while (get_line(fp, temp)) {
-		sscanf(temp, "%s", mortname);
-
-		if ((tch = get_char_vis(ch, mortname, FIND_CHAR_WORLD)) != NULL) {
-
-			if (IS_NPC(tch)) {
-				continue;
-			}
-			sprintf(temp, "Имя: %s/%s/%s/%s/%s/%s  E-mail: %s\r\n",
-				GET_PAD(tch, 0), GET_PAD(tch, 1), GET_PAD(tch, 2),
-				GET_PAD(tch, 3), GET_PAD(tch, 4), GET_PAD(tch, 5), GET_EMAIL(tch));
-			send_to_char(temp, ch);
-		} else {
-			CREATE(tch, CHAR_DATA, 1);
-			clear_char(tch);
-			if (load_char(mortname, tch) < 0) {
-				delete_name(mortname);
-				free(tch);
-				continue;
-			}
-			sprintf(temp, "Имя: %s/%s/%s/%s/%s/%s  E-mail: %s\r\n",
-				GET_PAD(tch, 0), GET_PAD(tch, 1), GET_PAD(tch, 2),
-				GET_PAD(tch, 3), GET_PAD(tch, 4), GET_PAD(tch, 5), GET_EMAIL(tch));
-			send_to_char(temp, ch);
-			free_char(tch);
-		}
-
-	}
-	fclose(fp);
-}
-
 
 ACMD(do_name)
 {
@@ -4653,7 +4589,7 @@ ACMD(do_name)
 	argument = one_argument(argument, arg);
 
 	if (!*arg) {
-//      list_names (ch);
+		NewNameShow(ch);
 		send_to_char("Кого будем одобрять?\r\n", ch);
 		return;
 	}

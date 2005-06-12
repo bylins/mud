@@ -119,8 +119,8 @@ int delete_char(char *name);
 void do_aggressive_mob(CHAR_DATA * ch, int check_sneak);
 extern int process_auto_agreement(DESCRIPTOR_DATA * d);
 extern int CheckProxy(DESCRIPTOR_DATA * ch);
-
-// void list_names (CHAR_DATA * ch);
+extern void NewNameShow(CHAR_DATA * ch);
+extern void NewNameAdd(CHAR_DATA * ch, bool save = 1);
 
 /* local functions */
 int perform_dupe_check(DESCRIPTOR_DATA * d);
@@ -129,7 +129,7 @@ void free_alias(struct alias_data *a);
 void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data *a);
 int perform_alias(DESCRIPTOR_DATA * d, char *orig);
 int reserved_word(char *argument);
-int find_name(char *name);
+int find_name(const char *name);
 int _parse_name(char *arg, char *name);
 void add_logon_record(DESCRIPTOR_DATA * d);
 /* prototypes for all do_x functions. */
@@ -1765,7 +1765,7 @@ int special(CHAR_DATA * ch, int cmd, char *arg)
 
 
 /* locate entry in p_table with entry->name == name. -1 mrks failed search */
-int find_name(char *name)
+int find_name(const char *name)
 {
 	int i;
 
@@ -1921,9 +1921,7 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 		act("$n восстановил$g связь.", TRUE, d->character, 0, 0, TO_ROOM);
 		sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
 		mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
-// пока имя не перестанет лагать мад и не будет чиститься список
-//      if (GET_LEVEL (d->character) >= LVL_IMMORT)
-//      list_names (d->character);
+		NewNameShow(d->character);
 		break;
 	case USURP:
 //    toggle_compression(d);
@@ -2218,14 +2216,13 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	}
 	if (has_mail(GET_IDNUM(d->character)))
 		send_to_char("&R\r\nВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!\r\n\r\n&n", d->character);
-// пока имя не перестанет лагать мад и не будет чиститься список
-//  if (GET_LEVEL (d->character) >= LVL_IMMORT)
-//    list_names (d->character);
 	look_at_room(d->character, 0);
 	// sprintf(buf,"NEWS %ld %ld(%s)",lastnews,LAST_LOGON(d->character),GET_NAME(d->character));
 	// mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 	// sprintf(buf,"У Вас %s.\r\n",d->character->desc ? "есть дескриптор" : "нет дескриптора");
 	// send_to_char(buf,d->character);
+	if (GET_LEVEL (d->character) >= LVL_IMMORT)
+		NewNameShow(d->character);
 	d->has_prompt = 0;
 }
 
@@ -2870,14 +2867,17 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		if ((int) NAME_FINE(d->character)) {
 			sprintf(buf, "%s - новый игрок (e-mail: %s).", GET_NAME(d->character), GET_EMAIL(d->character));
 		} else {
-			sprintf(buf, "%s - новый игрок (e-mail: %s Падежи: %s/%s/%s/%s/%s/%s). ]\r\n"
+			sprintf(buf, "%s - новый игрок. Падежи: %s/%s/%s/%s/%s/%s Email: %s Пол: %s. ]\r\n"
 				"[ %s ждет одобрения имени.",
-				GET_NAME(d->character), GET_EMAIL(d->character),
-				GET_PAD(d->character, 0), GET_PAD(d->character, 1),
-				GET_PAD(d->character, 2), GET_PAD(d->character, 3),
-				GET_PAD(d->character, 4), GET_PAD(d->character, 5), GET_NAME(d->character));
+				GET_NAME(d->character),	GET_PAD(d->character, 0),
+				GET_PAD(d->character, 1), GET_PAD(d->character, 2),
+				GET_PAD(d->character, 3), GET_PAD(d->character, 4),
+				GET_PAD(d->character, 5), GET_EMAIL(d->character),
+				genders[(int)GET_SEX(d->character)], GET_NAME(d->character));
 		}
 		mudlog(buf, DEF, LVL_IMMORT, SYSLOG, TRUE);
+		// добавляем в список ждущих одобрения
+		NewNameAdd(d->character);
 		//send_to_gods(buf);
 		SEND_TO_Q(motd, d);
 		SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);

@@ -53,7 +53,7 @@ int sprintbitwd(bitvector_t vektor, const char *names[], char *result, char * di
 void sprintbits(FLAG_DATA flags, const char *names[], char *result, char *div);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE * fl, char *buf);
-int get_filename(char *orig_name, char *filename, int mode);
+int get_filename(const char *orig_name, char *filename, int mode);
 TIME_INFO_DATA *age(CHAR_DATA * ch);
 int num_pc_in_room(ROOM_DATA * room);
 void core_dump_real(const char *, int);
