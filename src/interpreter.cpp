@@ -2875,10 +2875,10 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				GET_PAD(d->character, 3), GET_PAD(d->character, 4),
 				GET_PAD(d->character, 5), GET_EMAIL(d->character),
 				genders[(int)GET_SEX(d->character)], GET_NAME(d->character));
+				// добавляем в список ждущих одобрения
+				NewNameAdd(d->character);
 		}
 		mudlog(buf, DEF, LVL_IMMORT, SYSLOG, TRUE);
-		// добавляем в список ждущих одобрения
-		NewNameAdd(d->character);
 		//send_to_gods(buf);
 		SEND_TO_Q(motd, d);
 		SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
