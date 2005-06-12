@@ -1921,7 +1921,8 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 		act("$n восстановил$g связь.", TRUE, d->character, 0, 0, TO_ROOM);
 		sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
 		mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
-		NewNameShow(d->character);
+		if (GET_LEVEL (d->character) >= LVL_IMMORT)
+			NewNameShow(d->character);
 		break;
 	case USURP:
 //    toggle_compression(d);
