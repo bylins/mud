@@ -3328,10 +3328,10 @@ ACMD(do_who)
 			if (PLR_FLAGGED(tch, PLR_MUTE))
 				sprintf(buf + strlen(buf), " (ÕœÃﬁ…‘)");
 			if (PLR_FLAGGED(tch, PLR_DUMB))
-						"\r\n¡ƒ≈÷…: %s/%s/%s/%s/%s/%s  E-mail: %s",
-						GET_PAD(tch, 0), GET_PAD(tch, 1), GET_PAD(tch,
-											  2),
-						GET_PAD(tch, 3), GET_PAD(tch, 4), GET_PAD(tch, 5), GET_EMAIL(tch));
+				sprintf(buf + strlen(buf), " (Œ≈Õ%s)", GET_CH_SUF_6(tch));
+			if (PLR_FLAGGED(tch, PLR_KILLER) == PLR_KILLER)
+				sprintf(buf + strlen(buf), "&R (‰ı˚ÂÁı‚)&n");
+			if (IS_IMMORTAL(ch) && !NAME_GOD(tch)
 			    && GET_LEVEL(tch) <= NAME_LEVEL) {
 				sprintf(buf + strlen(buf), " &W!ÓÂ Ô‰Ô‚ÚÂÓÔ!&n");
 				if (showname) {

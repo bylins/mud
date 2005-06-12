@@ -109,6 +109,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 extern void NewNameShow(CHAR_DATA * ch);
 extern void NewNameRemove(CHAR_DATA * ch);
+extern void NewNameRemove(const char * name, CHAR_DATA * ch);
 
 /* local functions */
 int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg);
@@ -4589,8 +4590,20 @@ ACMD(do_name)
 	argument = one_argument(argument, arg);
 
 	if (!*arg) {
+		// вывод списка неодобренных оффлайн
 		NewNameShow(ch);
 		send_to_char("Кого будем одобрять?\r\n", ch);
+		return;
+	}
+	// для удаления из списка нежелательного имени без его одобрения/запрета
+	if (is_abbrev(arg, "remove") || is_abbrev(arg, "удалить")) {
+		skip_spaces(&argument);
+		if (argument) {
+			*argument = UPPER(*argument);
+			NewNameRemove(argument, ch);
+			return;
+		}
+		send_to_char("Укажите имя, которое вы хотите удалить из списка.\r\n", ch);
 		return;
 	}
 

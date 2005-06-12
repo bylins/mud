@@ -204,6 +204,21 @@ void NewNameRemove(CHAR_DATA * ch)
 	NewNameSave();
 }
 
+// для удаление через команду имма
+void NewNameRemove(const char * name, CHAR_DATA * ch)
+{
+	NewNameListType::iterator it;
+	std::string buffer = name;
+	it = NewNameList.find(buffer);
+	if (it != NewNameList.end()) {
+		NewNameList.erase(it);
+		send_to_char("Запись удалена.\r\n", ch);
+	} else
+		send_to_char("В списке нет такого имени.\r\n", ch);
+
+	NewNameSave();
+}
+
 // лоад списка неодобренных имен
 void NewNameLoad()
 {
