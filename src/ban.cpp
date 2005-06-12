@@ -262,7 +262,6 @@ std::string IpToTxt(unsigned long ip)
 #define MAX_PROXY_CONNECT 50
 
 struct ProxyIp {
-	bool mask;           // флаг наличия диапазона ип
 	unsigned long ip2;   // конечный ип в случае диапазона
 	int num;             // кол-во максимальных коннектов
 	std::string text;    // комментарий
@@ -328,13 +327,7 @@ void LoadProxyList()
 		if (textIp2 != "0")
 			tempIp->textIp2 = textIp2;
 		unsigned long ip = TxtToIp(textIp);
-		unsigned long ip2 = TxtToIp(textIp2);
-		tempIp->ip2 = ip2;
-		// вобщем по второму ип выясняем записан у нас один ип или диапазон
-		if (!ip2)
-			tempIp->mask = 0;
-		else
-			tempIp->mask = 1;
+		tempIp->ip2 = TxtToIp(textIp2);
 		proxyList[ip] = tempIp;
 	}
 	file.close();
@@ -347,16 +340,15 @@ int CheckProxy(DESCRIPTOR_DATA * ch)
 {
 	//сначала ищем в списке, зачем зря коннекты считать
 	ProxyListType::const_iterator it;
-	// мысль простая - смотрим флаг маски и приналичии сверяем вхождение в диапазон ип
+	// мысль простая - есть второй ип, знач смотрим диапазон, нету - знач сверяем на равенство ип
 	for (it = proxyList.begin(); it != proxyList.end(); ++it) {
-		if (!(*it).second->mask) {
+		if (!(*it).second->ip2) {
 			if ((*it).first == ch->ip)
 				break;
 		} else
 			if (((*it).first < ch->ip) && (ch->ip < (*it).second->ip2))
 				break;
 	}
-//	it = proxyList.find(ch->ip);
 	if (it == proxyList.end())
 		return 0;
 
@@ -379,6 +371,7 @@ ACMD(do_proxy)
 {
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
+
 	if (CompareParam(buffer2, "list") || CompareParam(buffer2, "список")) {
 //		boost::format proxyFormat(" %-15d   %-2s   %s\r\n");
 		std::ostringstream buffer3;
@@ -393,6 +386,7 @@ ACMD(do_proxy)
 		}
 
 		send_to_char(buffer3.str(), ch);
+
 	} else if (CompareParam(buffer2, "add") || CompareParam(buffer2, "добавить")) {
 		GetOneParam(buffer, buffer2);
 		if (buffer2.empty()) {
@@ -400,10 +394,8 @@ ACMD(do_proxy)
 			return;
 		}
 		// случай добавления диапазона ип
-		bool mask = 0;
 		std::string textIp, textIp2;
 		if (CompareParam(buffer2, "mask") || CompareParam(buffer2, "маска")) {
-			mask = 1;
 			GetOneParam(buffer, buffer2);
 			if (buffer2.empty()) {
 				send_to_char("Укажите начало диапазона.\r\n", ch);
@@ -437,11 +429,13 @@ ACMD(do_proxy)
 			send_to_char("Укажите причину регистрации.\r\n", ch);
 			return;
 		}
-		std::string text = buffer;
+		char timeBuf[11];
+		time_t now = time(0);
+		strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&now));
 
 		ProxyIpPtr tempIp(new ProxyIp);
+		tempIp->text = buffer + " [" + GET_NAME(ch) + " " + timeBuf + "]";
 		tempIp->num = num;
-		tempIp->text = text;
 		tempIp->textIp = textIp;
 		tempIp->textIp2 = textIp2;
 		unsigned long ip = TxtToIp(textIp);
@@ -450,10 +444,6 @@ ACMD(do_proxy)
 			send_to_char("Слишком широкий диапазон. (Максимум x.x.0.0. до x.x.255.255).\r\n", ch);
 			return;
 		}
-		if (!ip2)
-			tempIp->mask = 0;
-		else
-			tempIp->mask = 1;
 		tempIp->ip2 = ip2;
 		proxyList[ip] = tempIp;
 		SaveProxyList();
@@ -477,10 +467,10 @@ ACMD(do_proxy)
 		send_to_char("Запись удалена.\r\n", ch);
 
 	} else
-		send_to_char("Формат: proxy list|список\r\n"
-					"        proxy add|добавить ip количество-коннектов  комментарий\r\n"
-					"        proxy add|добавить mask|маска ip ip2 количество-коннектов  комментарий\r\n"
-					"        proxy remove|удалить ip\r\n",ch);
+		send_to_char("Формат: proxy <list|список>\r\n"
+					"        proxy <add|добавить> ip <количество коннектов> комментарий\r\n"
+					"        proxy <add|добавить> <mask|маска> <начало диапазона> <конец диапазона> <количество коннектов> комментарий\r\n"
+					"        proxy <remove|удалить> ip\r\n",ch);
 }
 
 //////////////////////////////////////////////////////////////////////////////
