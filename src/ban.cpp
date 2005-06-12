@@ -373,19 +373,20 @@ ACMD(do_proxy)
 	GetOneParam(buffer, buffer2);
 
 	if (CompareParam(buffer2, "list") || CompareParam(buffer2, "список")) {
-//		boost::format proxyFormat(" %-15d   %-2s   %s\r\n");
-		std::ostringstream buffer3;
-		buffer3 << "Формат списка: IP | IP2 | Максимум соединений | Комментарий\r\n";
+//		boost::format proxyFormat(" %-15s   %-15s   %-2d   %s\r\n");
+		char buffer3[MAX_INPUT_LENGTH], *buffer4 = 0;
+		strcpy(buffer3, "Формат списка: IP | IP2 | Максимум соединений | Комментарий\r\n");
+		buffer4 = str_add(buffer4, buffer3);
 
 		for (ProxyListType::const_iterator it = proxyList.begin(); it != proxyList.end(); ++it) {
 //			buffer3 << proxyFormat % (*it).first % (*it).second->num % (*it).second->text;
-			buffer3 << std::setw(15) << (*it).second->textIp << "  "
-				<< std::setw(15) << (*it).second->textIp2 << "  ";
-			buffer3 << std::setw(2) << (*it).second->num << "  ";
-			buffer3 << (*it).second->text << "\r\n";
+			sprintf(buffer3, " %-15s   %-15s   %-2d   %s\r\n", (*it).second->textIp.c_str(), (*it).second->textIp2.c_str(), (*it).second->num, (*it).second->text.c_str());
+			buffer4 = str_add(buffer4, buffer3);
 		}
 
-		send_to_char(buffer3.str(), ch);
+//		send_to_char(buffer3.str(), ch);
+		page_string(ch->desc, buffer4, 1);
+		free(buffer4);
 
 	} else if (CompareParam(buffer2, "add") || CompareParam(buffer2, "добавить")) {
 		GetOneParam(buffer, buffer2);
