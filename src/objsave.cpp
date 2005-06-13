@@ -100,6 +100,7 @@ int Crash_calculate_rent_eq(OBJ_DATA * obj);
 int Crash_delete_files(int index);
 int Crash_read_timer(int index, int temp);
 void Crash_save_all_rent();
+int Crash_calc_charmee_items (CHAR_DATA *ch);
 
 #define DIV_CHAR  '#'
 #define END_CHAR  '$'
@@ -1861,6 +1862,28 @@ int Crash_calcitems(OBJ_DATA * obj)
 	return (i);
 }
 
+int Crash_calc_charmee_items (CHAR_DATA *ch)
+{
+  CHAR_DATA * charmee = NULL;
+  struct follow_type *k, *next;
+  int num = 0;
+  int j = 0;
+
+  if (!ch->followers) 
+    return 0;
+  for (k = ch->followers; k && k->follower->master; k = next) 
+  {
+    next = k->next;
+    charmee = ch->followers->follower;
+    if (!IS_CHARMICE(charmee))
+      continue;
+    for (j = 0; j < NUM_WEARS; j++)
+      num += Crash_calcitems(GET_EQ(charmee, j));
+    num += Crash_calcitems(charmee->carrying);
+  }
+  return num;
+}
+
 #define CRASH_LENGTH   0x40000
 #define CRASH_DEPTH    0x1000
 
@@ -1892,6 +1915,8 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 	char fname[MAX_STRING_LENGTH];
 	struct save_rent_info rent;
 	int j, num = 0, iplayer = -1, cost;
+  CHAR_DATA * charmee = NULL;
+  struct follow_type *k, *next;
 
 	if (IS_NPC(ch))
 		return FALSE;
@@ -1911,6 +1936,8 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 	for (j = 0; j < NUM_WEARS; j++)
 		num += Crash_calcitems(GET_EQ(ch, j));
 	num += Crash_calcitems(ch->carrying);
+
+  num += Crash_calc_charmee_items (ch);
 
 	if (!num) {
 		Crash_delete_files(iplayer);
@@ -1956,13 +1983,34 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 	Crashbufferpos = Crashbufferdata;
 	*Crashbufferpos = '\0';
 
-	for (j = 0; j < NUM_WEARS; j++)
+  /*
+This shit is saving all stuff for given ch and its iplayer.
+*/
+
+  for (j = 0; j < NUM_WEARS; j++)
 		if (GET_EQ(ch, j)) {
 			Crash_save(iplayer, GET_EQ(ch, j), j + 1);
 			Crash_restore_weight(GET_EQ(ch, j));
 		}
 	Crash_save(iplayer, ch->carrying, 0);
 	Crash_restore_weight(ch->carrying);
+
+  if (ch->followers) 
+    for (k = ch->followers; k && k->follower->master; k = next) 
+    {
+      next = k->next;
+      charmee = ch->followers->follower;
+      if (!IS_CHARMICE(charmee))
+        continue;
+      for (j = 0; j < NUM_WEARS; j++)
+		    if (GET_EQ(charmee, j)) {
+			    Crash_save(iplayer, GET_EQ(charmee, j), 0);
+			    Crash_restore_weight(GET_EQ(charmee, j));
+		    }
+	    Crash_save(iplayer, charmee->carrying, 0);
+	    Crash_restore_weight(charmee->carrying);
+    }
+
 
 	if (savetype != RENT_CRASH) {
 		for (j = 0; j < NUM_WEARS; j++)
