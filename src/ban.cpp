@@ -346,7 +346,7 @@ int CheckProxy(DESCRIPTOR_DATA * ch)
 			if (it->first == ch->ip)
 				break;
 		} else
-			if ((it->first < ch->ip) && (ch->ip < it->second->ip2))
+			if ((it->first <= ch->ip) && (ch->ip <= it->second->ip2))
 				break;
 	}
 	if (it == proxyList.end())

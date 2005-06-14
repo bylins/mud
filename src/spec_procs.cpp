@@ -2283,7 +2283,7 @@ SPECIAL(bank)
 			return (1);
 		}
 		if (amount <= 100) {
-			send_to_char("Сумма перевода должна быть не меньше 100 кун.\r\n", ch);
+			send_to_char("Сумма перевода должна быть больше 100 кун.\r\n", ch);
 			return (1);
 		}
 
