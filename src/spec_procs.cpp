@@ -2292,7 +2292,7 @@ SPECIAL(bank)
 			return (1);
 		}
 		if (GET_BANK_GOLD(ch) < amount + ((amount * 5) / 100)) {
-			send_to_char("У вас не хватит деняг на налоги !\r\n", ch);
+			send_to_char("У вас не хватит денег на налоги !\r\n", ch);
 			return (1);
 		}
 
