@@ -162,7 +162,6 @@ char *str_dup(const char *source)
 	return (strcpy(new_z, ""));
 }
 
-
 /*
  * Strips \r\n from end of string.
  */

@@ -1393,6 +1393,7 @@ struct exit_data {
 	char *general_description;	/* When look DIR.         */
 
 	char *keyword;		/* for open/close       */
+	char *vkeyword;		// алиас двери в винительном падеже для открывания/закрывания
 
 	sh_int exit_info;	/* Exit info             */
 	obj_vnum key;		/* Key's number (-1 for no key) */

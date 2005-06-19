@@ -1595,7 +1595,21 @@ void setup_dir(FILE * fl, int room, int dir)
 
 	CREATE(world[room]->dir_option[dir], EXIT_DATA, 1);
 	world[room]->dir_option[dir]->general_description = fread_string(fl, buf2);
-	world[room]->dir_option[dir]->keyword = fread_string(fl, buf2);
+
+	// парс строки алиаса двери на имя;вининельный падеж, если он есть
+	char *alias = fread_string(fl, buf2);
+	if (alias && *alias) {
+		std::string buffer(alias);
+		std::string::size_type i = buffer.find('|');
+		if (i != std::string::npos) {
+			world[room]->dir_option[dir]->keyword = str_dup(buffer.substr(0,i).c_str());
+			world[room]->dir_option[dir]->vkeyword = str_dup(buffer.substr(++i).c_str());
+		} else {
+			world[room]->dir_option[dir]->keyword = str_dup(buffer.c_str());
+			world[room]->dir_option[dir]->vkeyword = str_dup(buffer.c_str());
+		}
+	}
+	free(alias);
 
 	if (!get_line(fl, line)) {
 		log("SYSERR: Format error, %s", buf2);
@@ -6777,6 +6791,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 			// Копируем числа
 			*dst->dir_option[i] = *rdd;
 			// Выделяем память
+			dst->dir_option[i]->general_description =
 			    (rdd->general_description ? str_dup(rdd->general_description) : NULL);
 			dst->dir_option[i]->keyword = (rdd->keyword ? str_dup(rdd->keyword) : NULL);
 			dst->dir_option[i]->vkeyword = (rdd->vkeyword ? str_dup(rdd->vkeyword) : NULL);
@@ -6824,6 +6839,8 @@ void room_free(ROOM_DATA * room)
 	for (i = 0; i < NUM_OF_DIRS; i++)
 		if (room->dir_option[i]) {
 			if (room->dir_option[i]->general_description)
+				free(room->dir_option[i]->general_description);
+			if (room->dir_option[i]->keyword)
 				free(room->dir_option[i]->keyword);
 			if (room->dir_option[i]->vkeyword)
 				free(room->dir_option[i]->vkeyword);

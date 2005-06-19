@@ -350,6 +350,11 @@ void redit_save_to_disk(int zone_num)
 					 */
 					if (room->dir_option[counter2]->keyword)
 						strcpy(buf2, room->dir_option[counter2]->keyword);
+					// алиас в винительном падеже пишется сюда же через ;
+					if (room->dir_option[counter2]->vkeyword) {
+						strcpy(buf2 + strlen(buf2), "|");
+						strcpy(buf2 + strlen(buf2), room->dir_option[counter2]->vkeyword);
+					}
 					else
 						*buf2 = '\0';
 
@@ -455,7 +460,7 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 #endif
 		"%s1%s) Ведет в        : %s%d\r\n"
 		"%s2%s) Описание       :-\r\n%s%s\r\n"
-		"%s3%s) Синонимы двери : %s%s\r\n"
+		"%s3%s) Синонимы двери : %s%s (%s)\r\n"
 		"%s4%s) Номер ключа    : %s%d\r\n"
 		"%s5%s) Флаги двери    : %s%s\r\n"
 		"%s6%s) Очистить выход.\r\n"
@@ -466,7 +471,8 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 		yel,
 		OLC_EXIT(d)->general_description ? OLC_EXIT(d)->
 		general_description : "<NONE>", grn, nrm, yel,
-		OLC_EXIT(d)->keyword ? OLC_EXIT(d)->keyword : "<NONE>", grn, nrm,
+		OLC_EXIT(d)->keyword ? OLC_EXIT(d)->keyword : "<NONE>",
+		OLC_EXIT(d)->vkeyword ? OLC_EXIT(d)->vkeyword : "<NONE>", grn, nrm,
 		cyn, OLC_EXIT(d)->key, grn, nrm, cyn, buf2, grn, nrm);
 
 	send_to_char(buf, d->character);
@@ -819,6 +825,8 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			 */
 			if (OLC_EXIT(d)->keyword)
 				free(OLC_EXIT(d)->keyword);
+			if (OLC_EXIT(d)->vkeyword)
+				free(OLC_EXIT(d)->vkeyword);
 			if (OLC_EXIT(d)->general_description)
 				free(OLC_EXIT(d)->general_description);
 			if (OLC_EXIT(d))
@@ -851,7 +859,23 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case REDIT_EXIT_KEYWORD:
 		if (OLC_EXIT(d)->keyword)
 			free(OLC_EXIT(d)->keyword);
-		OLC_EXIT(d)->keyword = ((arg && *arg) ? str_dup(arg) : NULL);
+		if (OLC_EXIT(d)->vkeyword)
+			free(OLC_EXIT(d)->vkeyword);
+
+		if (arg && *arg) {
+			std::string buffer(arg);
+			std::string::size_type i = buffer.find('|');
+			if (i != std::string::npos) {
+				OLC_EXIT(d)->keyword = str_dup(buffer.substr(0,i).c_str());
+				OLC_EXIT(d)->vkeyword = str_dup(buffer.substr(++i).c_str());
+			} else {
+				OLC_EXIT(d)->keyword = str_dup(buffer.c_str());
+				OLC_EXIT(d)->vkeyword = str_dup(buffer.c_str());
+			}
+		} else {
+			OLC_EXIT(d)->keyword = NULL;
+			OLC_EXIT(d)->vkeyword = NULL;
+		}
 		redit_disp_exit_menu(d);
 		return;
 

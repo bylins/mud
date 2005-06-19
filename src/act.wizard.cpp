@@ -1157,10 +1157,11 @@ void do_stat_room(CHAR_DATA * ch)
 					GET_ROOM_VNUM(rm->dir_option[i]->to_room), CCNRM(ch, C_NRM));
 			sprintbit(rm->dir_option[i]->exit_info, exit_bits, buf2);
 			sprintf(buf,
-				"Выход %s%-5s%s:  Ведет в : [%s], Ключ: [%5d], Название: %s, Тип: %s\r\n ",
+				"Выход %s%-5s%s:  Ведет в : [%s], Ключ: [%5d], Название: %s (%s), Тип: %s\r\n ",
 				CCCYN(ch, C_NRM), dirs[i], CCNRM(ch, C_NRM), buf1,
 				rm->dir_option[i]->key,
-				rm->dir_option[i]->keyword ? rm->dir_option[i]->keyword : "Нет(дверь)", buf2);
+				rm->dir_option[i]->keyword ? rm->dir_option[i]->keyword : "Нет(дверь)",
+				rm->dir_option[i]->vkeyword ? rm->dir_option[i]->vkeyword : "Нет(дверь)", buf2);
 			send_to_char(buf, ch);
 			if (rm->dir_option[i]->general_description)
 				strcpy(buf, rm->dir_option[i]->general_description);

@@ -929,8 +929,8 @@ int find_door(CHAR_DATA * ch, const char *type, char *dir, const char *cmdname)
 			return (-1);
 		}
 		if (EXIT(ch, door)) {	/* Braces added according to indent. -gg */
-			if (EXIT(ch, door)->keyword) {
-				if (isname(type, EXIT(ch, door)->keyword))
+			if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) {
+				if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword))
 					return (door);
 				else {
 					sprintf(buf2, "Вы не видите '%s' в этой комнате.\r\n", type);
@@ -952,8 +952,8 @@ int find_door(CHAR_DATA * ch, const char *type, char *dir, const char *cmdname)
 		}
 		for (door = 0; door < NUM_OF_DIRS; door++) {
 			if (EXIT(ch, door)) {
-				if (EXIT(ch, door)->keyword) {
-					if (isname(type, EXIT(ch, door)->keyword))
+				if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) {
+					if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword))
 						return (door);
 				} else if (DOOR_IS(ch, door) && (is_abbrev(type, "дверь") || is_abbrev(type, "door")))
 					return (door);
@@ -1095,13 +1095,13 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 	}
 
 	/* Notify the room */
-	sprintf(buf + strlen(buf), "%s.", (obj) ? "$p" : (EXIT(ch, door)->keyword ? "$F" : "дверь"));
+	sprintf(buf + strlen(buf), "%s.", (obj) ? "$p" : (EXIT(ch, door)->vkeyword ? "$F" : "дверь"));
 	if (!(obj) || (obj->in_room != NOWHERE))
-		act(buf, FALSE, ch, obj, obj ? 0 : EXIT(ch, door)->keyword, TO_ROOM);
+		act(buf, FALSE, ch, obj, obj ? 0 : EXIT(ch, door)->vkeyword, TO_ROOM);
 
 	/* Notify the other room */
 	if ((scmd == SCMD_OPEN || scmd == SCMD_CLOSE) && back) {
-		sprintf(buf, "$N %s %s.", cmd_door[scmd], (back->keyword ? fname(back->keyword) : "дверь"));
+		sprintf(buf, "$N %s %s.", cmd_door[scmd], (back->vkeyword ? fname(back->vkeyword) : "дверь"));
 		if (world[EXIT(ch, door)->to_room]->people) {
 			act(buf, FALSE, world[EXIT(ch, door)->to_room]->people, 0, ch, TO_ROOM);
 			act(buf, FALSE, world[EXIT(ch, door)->to_room]->people, 0, ch, TO_CHAR);
@@ -1304,8 +1304,8 @@ ACMD(do_enter)
 				 * keyword */
 			for (door = 0; door < NUM_OF_DIRS; door++)
 				if (EXIT(ch, door))
-					if (EXIT(ch, door)->keyword)
-						if (!str_cmp(EXIT(ch, door)->keyword, buf)) {
+					if (EXIT(ch, door)->keyword && EXIT(ch, door)->keyword)
+						if (isname(buf, EXIT(ch, door)->keyword) || isname(buf, EXIT(ch, door)->vkeyword)) {
 							perform_move(ch, door, 1, TRUE, 0);
 							return;
 						}

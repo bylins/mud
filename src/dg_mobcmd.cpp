@@ -1143,6 +1143,8 @@ ACMD(do_mdoor)
 				free(exit->general_description);
 			if (exit->keyword)
 				free(exit->keyword);
+			if (exit->vkeyword)
+				free(exit->vkeyword);
 			free(exit);
 			rm->dir_option[dir] = NULL;
 		}
@@ -1151,6 +1153,10 @@ ACMD(do_mdoor)
 			CREATE(exit, EXIT_DATA, 1);
 			rm->dir_option[dir] = exit;
 		}
+
+		std::string buffer;
+		std::string::size_type i;
+
 		switch (fd) {
 		case 1:	/* description */
 			if (exit->general_description)
@@ -1168,8 +1174,19 @@ ACMD(do_mdoor)
 		case 4:	/* name        */
 			if (exit->keyword)
 				free(exit->keyword);
-			CREATE(exit->keyword, char, strlen(value) + 1);
-			strcpy(exit->keyword, value);
+			if (exit->vkeyword)
+				free(exit->vkeyword);
+			buffer = value;
+			i = buffer.find('|');
+			if (i != std::string::npos) {
+				exit->keyword = str_dup(buffer.substr(0,i).c_str());
+				exit->vkeyword = str_dup(buffer.substr(++i).c_str());
+			} else {
+				exit->keyword = str_dup(buffer.c_str());
+				exit->vkeyword = str_dup(buffer.c_str());
+			}
+//			CREATE(exit->keyword, char, strlen(value) + 1);
+//			strcpy(exit->keyword, value);
 			break;
 		case 5:	/* room        */
 			if ((to_room = real_room(atoi(value))) != NOWHERE)
