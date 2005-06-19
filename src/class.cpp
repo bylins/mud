@@ -65,8 +65,6 @@ byte extend_saving_throws(int class_num, int type, int level);
 int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
 
-void roll_real_abils(CHAR_DATA * ch);
-
 /* Names first */
 
 const char *class_abbrevs[] = { "Ï≈",

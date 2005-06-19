@@ -263,7 +263,6 @@ extern char *house_rank[];
 extern struct pclean_criteria_data pclean_criteria[];
 extern void LoadProxyList();
 
-void roll_real_abils(CHAR_DATA * ch);
 #define READ_SIZE 256
 
 /* Separate a 4-character id tag from the data it precedes */
@@ -5659,9 +5658,6 @@ void init_char(CHAR_DATA * ch)
 		ch->real_abils.dex = 25;
 		ch->real_abils.str = 25;
 		ch->real_abils.con = 25;
-
-/*  if (GET_LEVEL(ch) != LVL_IMPL)
-     roll_real_abils(ch); */
 		ch->real_abils.cha = 25;
 	}
 	ch->real_abils.size = 50;

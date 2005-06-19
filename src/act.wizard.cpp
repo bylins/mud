@@ -93,7 +93,7 @@ void hcontrol_list_houses(CHAR_DATA * ch);
 void do_start(CHAR_DATA * ch, int newbie);
 void appear(CHAR_DATA * ch);
 void reset_zone(zone_rnum zone);
-void roll_real_abils(CHAR_DATA * ch);
+void roll_real_abils(CHAR_DATA * ch, bool hand = 0);
 int parse_class(char arg);
 extern CHAR_DATA *find_char(long n);
 void rename_char(CHAR_DATA * ch, char *oname);

@@ -2759,7 +2759,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		GET_RACE(d->character) = load_result;
-		roll_real_abils(d->character);
+		roll_real_abils(d->character, 1);
 		SEND_TO_Q(genchar_help, d);
 		SEND_TO_Q("\r\n\r\nНажмите любую клавишу.\r\n", d);
 		STATE(d) = CON_ROLL_STATS;
@@ -2779,7 +2779,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			 return;
 		}
 		GET_RACE (d->character) = load_result;
-		roll_real_abils (d->character);
+		roll_real_abils (d->character, 1);
 		SEND_TO_Q (genchar_help, d);
 		SEND_TO_Q ("\r\n\r\nНажмите любую клавишу.\r\n", d);
 		STATE (d) = CON_ROLL_STATS;
@@ -2799,7 +2799,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		GET_RACE (d->character) = load_result;
-		roll_real_abils (d->character);
+		roll_real_abils (d->character, 1);
 		SEND_TO_Q (genchar_help, d);
 		SEND_TO_Q ("\r\n\r\nНажмите любую клавишу.\r\n", d);
 		STATE (d) = CON_ROLL_STATS;

@@ -199,7 +199,9 @@ int genchar_parse(CHAR_DATA * ch, char *arg)
  * the best 3 out of 4 rolls of a 6-sided die.  Each class then decides
  * which priority will be given for the best to worst stats.
  */
-void roll_real_abils(CHAR_DATA * ch)
+// hand - для разделения авто/ручного ролла, ну и вообще бы надо все профы проверить на соответствие
+// мин/макс статам авто/ручки, т.к. при первом выводе меню ручной генерации цифры выводятся как по автоматическому ролу
+void roll_real_abils(CHAR_DATA * ch, bool hand)
 {
 	int i;
 
@@ -294,13 +296,19 @@ void roll_real_abils(CHAR_DATA * ch)
 		ch->real_abils.cha = 10;
 		do {
 			ch->real_abils.str = 20 + number(0, 4);
-			ch->real_abils.dex = 8 + number(0, 3);
+			if (hand)
+				ch->real_abils.dex = 11;
+			else
+				ch->real_abils.dex = 8 + number(0, 3);
 			ch->real_abils.con = 20 + number(0, 3);
 		}		// 55/48 roll 10/7
 		while (ch->real_abils.str + ch->real_abils.con + ch->real_abils.dex != 55);
 		do {
 			ch->real_abils.intel = 11 + number(0, 4);
-			ch->real_abils.wis = 11 + number(0, 4);
+			if (hand)
+				ch->real_abils.wis = 12 + number(0, 3);
+			else
+				ch->real_abils.wis = 11 + number(0, 4);
 		}		// 92/87 roll 8/5
 		while (ch->real_abils.str + ch->real_abils.con + ch->real_abils.dex +
 		       ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);

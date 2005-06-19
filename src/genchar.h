@@ -23,4 +23,4 @@ extern char *genchar_help;
 
 void genchar_disp_menu(CHAR_DATA * ch);
 int genchar_parse(CHAR_DATA * ch, char *arg);
-void roll_real_abils(CHAR_DATA * ch);
+void roll_real_abils(CHAR_DATA * ch, bool hand = 0);
