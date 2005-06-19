@@ -1350,7 +1350,7 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 		count += sprintf(buf, "%s%s:%s ", CCYEL(ch, C_NRM), Dirs[dir], CCNRM(ch, C_NRM));
 		if (EXIT_FLAGGED(rdata, EX_CLOSED)) {
 			if (rdata->keyword)
-				count += sprintf(buf + count, " закрыто (%s).\r\n", fname(rdata->keyword));
+				count += sprintf(buf + count, " закрыто (%s).\r\n", rdata->keyword);
 			else
 				count += sprintf(buf + count, " закрыто (вероятно дверь).\r\n");
 			send_to_char(buf, ch);

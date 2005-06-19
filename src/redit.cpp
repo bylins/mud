@@ -797,7 +797,9 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		case '2':
 			OLC_MODE(d) = REDIT_EXIT_DESCRIPTION;
-			SEND_TO_Q("Введите описание выхода: (/s сохранить /h помощь)\r\n\r\n", d);
+			send_to_char("Введите описание выхода : ", d->character);
+			return;
+/*			SEND_TO_Q("Введите описание выхода: (/s сохранить /h помощь)\r\n\r\n", d);
 			d->backstr = NULL;
 			if (OLC_EXIT(d)->general_description) {
 				SEND_TO_Q(OLC_EXIT(d)->general_description, d);
@@ -806,7 +808,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			d->str = &OLC_EXIT(d)->general_description;
 			d->max_str = MAX_EXIT_DESC;
 			d->mail_to = 0;
-			return;
+*/
 		case '3':
 			OLC_MODE(d) = REDIT_EXIT_KEYWORD;
 			send_to_char("Введите ключевое слово : ", d->character);
@@ -850,12 +852,20 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		return;
 
 	case REDIT_EXIT_DESCRIPTION:
+		if (OLC_EXIT(d)->general_description)
+			free(OLC_EXIT(d)->general_description);
+		OLC_EXIT(d)->general_description = ((arg && *arg) ? str_dup(arg) : NULL);
+
+		redit_disp_exit_menu(d);
+		return;
+
 		/*
 		 * We should NEVER get here, hopefully.
 		 */
+/*
 		mudlog("SYSERR: Reached REDIT_EXIT_DESC case in parse_redit", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		break;
-
+*/
 	case REDIT_EXIT_KEYWORD:
 		if (OLC_EXIT(d)->keyword)
 			free(OLC_EXIT(d)->keyword);
