@@ -2344,7 +2344,7 @@ ACMD(do_clanlist)
 			aid = GET_IDNUM(ch);
 			m = clanlist_searchid(&vid, arg2);
 			if (m == 0)
-				send_to_char("Не дело это, Богов добалять куда не надо....\r\n", ch);
+				send_to_char("Не дело это, Богов добавлять куда не надо....\r\n", ch);
 			else if (!m)
 				send_to_char("Интересующий Вас персонаж не зарегистрирован.\r\n", ch);
 			else {
