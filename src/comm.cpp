@@ -747,7 +747,7 @@ int shutting_down(void)
 		if (wait < 60)
 			sprintf(buf + strlen(buf), "%d %s.\r\n", wait, desc_count(wait, WHAT_SEC));
 		else
-			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, desc_count(wait / 60, WHAT_MINa));
+			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, desc_count(wait / 60, WHAT_MINu));
 		send_to_all(buf);
 		lastmessage = time(NULL);
 	}

@@ -124,7 +124,7 @@ struct olc_save_info {
  * Exported globals.
  */
 #ifdef _OASIS_OLC_
-char *nrm, *grn, *cyn, *yel, *iyel, *ired;
+const char *nrm, *grn, *cyn, *yel, *iyel, *ired;
 struct olc_save_info *olc_save_list = NULL;
 #else
 extern char *nrm, *grn, *cyn, *yel, *iyel, *ired;

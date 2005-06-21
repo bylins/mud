@@ -1476,8 +1476,13 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 		world[room_nr]->room_flags.flags[3] = 0;
 		world[room_nr]->sector_type = SECT_SECRET;
 	} else {
-		(world[room_nr]->name = fread_string(fl, buf2)) ? : (world[room_nr]->name = str_dup(""));
-		(world[room_nr]->description = fread_string(fl, buf2)) ? : (world[room_nr]->description = str_dup(""));
+		// не ставьте тут конструкцию ? : , т.к. gcc >=4.х вызывает в ней fread_string два раза
+		world[room_nr]->name = fread_string(fl, buf2);
+		if(!world[room_nr]->name)
+			world[room_nr]->name = str_dup("");
+		world[room_nr]->description = fread_string(fl, buf2);
+		if (!world[room_nr]->description)
+			world[room_nr]->description = str_dup("");
 
 		if (!get_line(fl, line)) {
 			log("SYSERR: Expecting roomflags/sector type of room #%d but file ended!", virtual_nr);
@@ -5126,6 +5131,7 @@ int create_entry(char *name)
 /* read and allocate space for a '~'-terminated string from a given file */
 char *fread_string(FILE * fl, char *error)
 {
+log("test: %s", error);
 	char buf[MAX_STRING_LENGTH], tmp[512], *rslt;
 	register char *point;
 	int done = 0, length = 0, templength;
@@ -5179,7 +5185,6 @@ char *fread_string(FILE * fl, char *error)
 		strcpy(rslt, buf);
 	} else
 		rslt = NULL;
-
 	return (rslt);
 }
 

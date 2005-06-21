@@ -77,7 +77,7 @@ void remove_pent_pk(CHAR_DATA * agressor, CHAR_DATA * victim);
 // Информационные функции отображения статуса ПК
 
 void aura(CHAR_DATA * ch, int lvl, CHAR_DATA * victim, char *s);
-char *CCPK(CHAR_DATA * ch, int lvl, CHAR_DATA * victim);
+const char *CCPK(CHAR_DATA * ch, int lvl, CHAR_DATA * victim);
 void pk_list_sprintf(CHAR_DATA * ch, char *buff);
 
 //*************************************************************************

@@ -536,7 +536,7 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim)
 }
 
 
-char *CCPK(CHAR_DATA * ch, int lvl, CHAR_DATA * victim)
+const char *CCPK(CHAR_DATA * ch, int lvl, CHAR_DATA * victim)
 {
 	int i;
 

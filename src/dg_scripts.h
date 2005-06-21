@@ -223,7 +223,7 @@ void do_dg_affect(void *go, struct script_data *sc, TRIG_DATA * trig, int type, 
 
 
 
-void add_var_cntx(struct trig_var_data **var_list, char *name, char *value, long id);
+void add_var_cntx(struct trig_var_data **var_list, char *name, const char *value, long id);
 struct trig_var_data *find_var_cntx(struct trig_var_data **var_list, char *name, long id);
 int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 

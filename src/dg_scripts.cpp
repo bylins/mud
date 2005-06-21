@@ -1138,7 +1138,7 @@ void free_var_el(struct trig_var_data *var)
 }
 
 
-void add_var_cntx(struct trig_var_data **var_list, char *name, char *value, long id)
+void add_var_cntx(struct trig_var_data **var_list, char *name, const char *value, long id)
 /*++
 	Добавление переменной в список с учетом контекста (СТРОГИЙ поиск).
     При добавлении в список локальных переменных контекст должен быть 0.
@@ -1244,7 +1244,7 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id)
 
 
 /* Изменение указанной целочисленной константы */
-long gm_char_field(CHAR_DATA * ch, char *field, char *subfield, long &val)
+long gm_char_field(CHAR_DATA * ch, char *field, char *subfield, long val)
 {
 	int tmpval;
 	if (*subfield) {
@@ -2723,7 +2723,7 @@ struct cmdlist_element *find_end(TRIG_DATA * trig, struct cmdlist_element *cl)
 	char tmpbuf[MAX_INPUT_LENGTH];
 	char *p;
 #ifdef DG_CODE_ANALYZE
-	char *cmd = cl ? cl->cmd : "<NULL>";
+	const char *cmd = cl ? cl->cmd : "<NULL>";
 #endif
 
 	while ((cl = cl ? cl->next : cl) != NULL) {
@@ -2755,7 +2755,7 @@ struct cmdlist_element *find_else_end(TRIG_DATA * trig,
 {
 	char *p;
 #ifdef DG_CODE_ANALYZE
-	char *cmd = cl ? cl->cmd : "<NULL>";
+	const char *cmd = cl ? cl->cmd : "<NULL>";
 #endif
 
 	while ((cl = cl ? cl->next : cl) != NULL) {
@@ -2794,7 +2794,7 @@ struct cmdlist_element *find_done(TRIG_DATA * trig, struct cmdlist_element *cl)
 {
 	char *p;
 #ifdef DG_CODE_ANALYZE
-	char *cmd = cl ? cl->cmd : "<NULL>";
+	const char *cmd = cl ? cl->cmd : "<NULL>";
 #endif
 
 	while ((cl = cl ? cl->next : cl) != NULL) {
@@ -2826,7 +2826,7 @@ struct cmdlist_element *find_case(TRIG_DATA * trig,
 	char result[MAX_INPUT_LENGTH];
 	char *p;
 #ifdef DG_CODE_ANALYZE
-	char *cmd = cl ? cl->cmd : "<NULL>";
+	const char *cmd = cl ? cl->cmd : "<NULL>";
 #endif
 
 	eval_expr(cond, result, go, sc, trig, type);

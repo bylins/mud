@@ -150,7 +150,7 @@ const char *ObjState[8][2] = { {"рассыпается", "рассыпается"},
 char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode)
 {
 	static char out_str[80] = "\0";
-	char *color;
+	const char *color;
 	int percent;
 
 	if (GET_OBJ_MAX(obj) > 0)

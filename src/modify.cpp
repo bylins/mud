@@ -907,7 +907,7 @@ ACMD(do_skillset)
 char *next_page(char *str, CHAR_DATA * ch)
 {
 	int col = 1, line = 1, spec_code = FALSE;
-	char *color;
+	const char *color;
 
 	for (;; str++) {	/* If end of string, return NULL. */
 		if (*str == '\0')

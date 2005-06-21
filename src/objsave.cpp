@@ -1173,7 +1173,16 @@ void Crash_create_timer(int index, int num)
 {
 	if (SAVEINFO(index))
 		free(SAVEINFO(index));
-	MAKEINFO((char *) SAVEINFO(index), num);
+
+	if (((sizeof(struct save_info) + sizeof(struct save_time_info) * num)) * sizeof(char) <= 0)
+		log("SYSERR: Zero bytes or less requested at %s:%d.", __FILE__, __LINE__);
+	if (!((((player_table+index)->timer)) = (save_info *) calloc (((sizeof(struct save_info)
+	+ sizeof(struct save_time_info) * num)), sizeof(char)))) {
+		perror("SYSERR: malloc failure");
+		abort();
+	}
+
+//	MAKEINFO((char *) SAVEINFO(index), num);
 	memset(SAVEINFO(index), 0, MAKESIZE(num));
 }
 
