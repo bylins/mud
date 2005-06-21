@@ -3219,7 +3219,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 				break;
 
 			case 'F':
-				CHECK_NULL(vict_obj, fname((const char *) vict_obj));
+				CHECK_NULL(vict_obj, (const char *) vict_obj);
 				break;
 
 			case '$':
