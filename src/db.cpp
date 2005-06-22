@@ -5131,7 +5131,6 @@ int create_entry(char *name)
 /* read and allocate space for a '~'-terminated string from a given file */
 char *fread_string(FILE * fl, char *error)
 {
-log("test: %s", error);
 	char buf[MAX_STRING_LENGTH], tmp[512], *rslt;
 	register char *point;
 	int done = 0, length = 0, templength;
