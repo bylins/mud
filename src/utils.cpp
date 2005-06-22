@@ -131,13 +131,10 @@ int MAX(int a, int b)
 }
 
 
-const char *CAP(const char *txt)
+char * CAP(char *txt)
 {
-	std::string buffer = txt;
-	buffer[0] = UPPER(buffer[0]);
-	return buffer.c_str();
-//	*txt = UPPER(*txt);
-//	return (txt);
+	*txt = UPPER(*txt);
+	return (txt);
 }
 
 /* Create and append to dinamyc length string - Alez */

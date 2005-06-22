@@ -1359,8 +1359,10 @@ void shopping_repair_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, in
 	repair = GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj);
 	price = MAX(1, price * MAX(0, repair) / MAX(1, GET_OBJ_MAX(obj)));
 	if (repair <= 0) {
+		std::string obj_name = OBJN(obj, ch, 0);
+		obj_name[0] = UPPER(obj_name[0]);
 		sprintf(buf, "%s! %s не нужда%s в починке.", GET_NAME(ch),
-			CAP(OBJN(obj, ch, 0)), GET_OBJ_SEX(obj) == SEX_POLY ? "ются" : "ется");
+			obj_name.c_str(), GET_OBJ_SEX(obj) == SEX_POLY ? "ются" : "ется");
 		do_tell(keeper, buf, cmd_tell, 0);
 		return;
 	}

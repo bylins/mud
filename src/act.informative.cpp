@@ -363,18 +363,18 @@ void show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_stat
 					sprintf(buf2 + strlen(buf2), " (пуст%s)", GET_OBJ_SUF_6(object));
 			}
 		} else if (mode >= 2 && how <= 1) {
+			std::string obj_name = OBJN(object, ch, 0);
+			obj_name[0] = UPPER(obj_name[0]);
 			if (GET_OBJ_TYPE(object) == ITEM_LIGHT) {
 				if (GET_OBJ_VAL(object, 2) == -1)
-					sprintf(buf2, "\r\n%s дает вечный свет.", CAP(OBJN(object, ch, 0)));
+					sprintf(buf2, "\r\n%s дает вечный свет.", obj_name.c_str());
 				else if (GET_OBJ_VAL(object, 2) == 0)
-					sprintf(buf2, "\r\n%s погас%s.",
-						CAP(OBJN(object, ch, 0)), GET_OBJ_SUF_4(object));
+					sprintf(buf2, "\r\n%s погас%s.", obj_name.c_str(), GET_OBJ_SUF_4(object));
 				else
-					sprintf(buf2, "\r\n%s будет светить %d %s.",
-						CAP(OBJN(object, ch, 0)), GET_OBJ_VAL(object, 2),
+					sprintf(buf2, "\r\n%s будет светить %d %s.", obj_name.c_str(), GET_OBJ_VAL(object, 2),
 						desc_count(GET_OBJ_VAL(object, 2), WHAT_HOUR));
 			} else if (GET_OBJ_CUR(object) < GET_OBJ_MAX(object))
-				sprintf(buf2, "\r\n%s %s.", CAP(OBJN(object, ch, 0)), diag_obj_to_char(ch, object, 2));
+				sprintf(buf2, "\r\n%s %s.", obj_name.c_str(), diag_obj_to_char(ch, object, 2));
 		}
 		strcat(buf, buf2);
 	}
