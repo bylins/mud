@@ -1946,7 +1946,8 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 		num += Crash_calcitems(GET_EQ(ch, j));
 	num += Crash_calcitems(ch->carrying);
 
-  num += Crash_calc_charmee_items (ch);
+	if (savetype == RENT_CRASH)
+		num += Crash_calc_charmee_items (ch);
 
 	if (!num) {
 		Crash_delete_files(iplayer);
@@ -2004,7 +2005,7 @@ This shit is saving all stuff for given ch and its iplayer.
 	Crash_save(iplayer, ch->carrying, 0);
 	Crash_restore_weight(ch->carrying);
 
-  if (ch->followers) 
+  if (ch->followers && 	savetype == RENT_CRASH) 
     for (k = ch->followers; k && k->follower->master; k = next) 
     {
       next = k->next;
