@@ -15,7 +15,6 @@
 #include "conf.h"
 #include "sysdep.h"
 
-
 #include "structs.h"
 #include "utils.h"
 #include "interpreter.h"
@@ -720,6 +719,50 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				redit_disp_extradesc_menu(d);
 				break;
 			}
+		// добавление сообщения на доску
+		} else if (STATE(d) == CON_WRITEBOARD) {
+			if (terminator == 1 && *d->str) {
+				d->message->date = time(0);
+				d->message->text = *(d->str);
+				// чтобы реагировать на добавление/удаление клановых/персональных досок во время написания
+				if(d->board) {
+					// в случае полной доски делетим первую месагу
+					if (d->board->type != NEWS_BOARD && d->board->type != GODNEWS_BOARD && d->board->messages.size() >= MAX_BOARD_MESSAGES)
+						d->board->messages.erase(d->board->messages.begin());
+					DESCRIPTOR_DATA *f;
+					std::string buffer = "Новое сообщение в разделе '" + d->board->name + "' от " + GET_PAD(d->character, 1) + ", тема: " + d->message->subject + "\r\n";
+					// оповещаем соклановцев
+					if (d->board->type == CLAN_BOARD || d->board->type == CLANNEWS_BOARD) {
+						for (f = descriptor_list; f; f = f->next)
+							if (f->character && STATE(f) == CON_PLAYING && GET_CLAN_RENT(f->character) == d->board->clanRent && PRF_FLAGGED(f->character, PRF_BOARDS))
+								send_to_char(buffer.c_str(), f->character);
+					// оповещаем весь мад кто с правами чтения
+					} else if (d->board->type != PERS_BOARD) {
+						for (f = descriptor_list; f; f = f->next)
+							if (f->character && STATE(f) == CON_PLAYING && (d->board->Access(f->character) != 2) && (d->board->Access(f->character) != 0) && PRF_FLAGGED(f->character, PRF_BOARDS))
+								send_to_char(buffer.c_str(), f->character);
+					}
+					d->message->num = 0;
+					d->board->messages.push_back(d->message);
+					int count = 0;
+					for (MessageListType::reverse_iterator it = d->board->messages.rbegin(); it != d->board->messages.rend(); ++it)
+						(*it)->num = count++;
+					d->board->lastWrite = GET_UNIQUE(d->character);
+					d->board->Save();
+					SEND_TO_Q("Спасибо за Ваши излияния души, послание сохранено.\r\n", d);
+				}
+				else
+					SEND_TO_Q("Ошибочка вышла...\r\n", d);
+			} else
+				SEND_TO_Q("Сообщение прервано.\r\n", d);
+
+			d->message.reset();
+			d->board.reset();
+			if (*(d->str))
+				free(*d->str);
+			if (d->str)
+				free(d->str);
+			d->connected = CON_PLAYING;
 		} else if (!d->connected && (PLR_FLAGGED(d->character, PLR_MAILING))) {
 			if ((terminator == 1) && *d->str) {	//log("[SA] 4s");
 				store_mail(d->mail_to, GET_IDNUM(d->character), *d->str);
@@ -734,11 +777,6 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			if (d->str)
 				free(d->str);
 			//log("[SA] 5f");
-		} else if (d->mail_to >= BOARD_MAGIC) {	//log("[SA] 6s");
-			Board_save_board(d->mail_to - BOARD_MAGIC);
-			SEND_TO_Q("Послание добавлено. Используйте ОЧИСТИТЬ <номер послания>.\r\n", d);
-			d->mail_to = 0;
-			//log("[SA] 6f");
 		} else if (STATE(d) == CON_EXDESC) {	//log("[SA] 7s");
 			if (terminator != 1)
 				SEND_TO_Q("Создание описания прервано.\r\n", d);
@@ -898,9 +936,6 @@ ACMD(do_skillset)
 *
 *********************************************************************/
 
-//#define PAGE_LENGTH     22
-#define PAGE_WIDTH      80
-
 /* Traverse down the string until the begining of the next page has been
  * reached.  Return NULL if this is the last page of the string.
  */
@@ -914,7 +949,7 @@ char *next_page(char *str, CHAR_DATA * ch)
 			return (NULL);
 
 		/* If we're at the start of the next page, return this fact. */
-		else if (PAGE_HEIGHT(ch) && line > PAGE_HEIGHT(ch))
+		else if (line > (IS_NPC(ch) ? 25 : STRING_WIDTH(ch)))
 			return (str);
 
 		/* Check for the begining of an ANSI color code block. */
@@ -994,7 +1029,7 @@ char *next_page(char *str, CHAR_DATA * ch)
 			/* We need to check here and see if we are over the page width,
 			 * and if so, compensate by going to the begining of the next line.
 			 */
-			else if (col++ > PAGE_WIDTH) {
+			else if (col++ > (IS_NPC(ch) ? 80 : STRING_LENGTH(ch))) {
 				col = 1;
 				line++;
 			}

@@ -1050,8 +1050,26 @@ void game_loop(socket_t mother_desc)
 
 		/* Now execute the heartbeat functions */
 		while (missed_pulses--) {
+#ifdef PERF_GRAPH
+			struct timeval before, after, diff;
+			static int emin = 1000000, emax = -1, etotal=0, enumber=0;
+			static float eavg = 0.0;
+
+			gettimeofday(&before, (struct timezone *) 0);
+#endif
 			process_io(input_set, output_set, exc_set, null_set, mother_desc, maxdesc);
 			heartbeat();
+#ifdef PERF_GRAPH
+			gettimeofday(&after, (struct timezone *) 0);
+			timediff(&diff, &after, &before);
+			int elapsed = diff.tv_sec * 1000000 + diff.tv_usec;
+			if (elapsed < emin) emin = elapsed;
+			if (elapsed > emax) emax = elapsed;
+			etotal += elapsed;
+			enumber++;
+			eavg = float(etotal)/float(enumber);
+			printf("heartbeat + io %d, min %d, max %d, avg %g\n", elapsed, emin, emax, eavg);
+#endif
 		}
 
 		// dupe_player_index();
@@ -1279,9 +1297,11 @@ inline void heartbeat()
 		}
 	}
 
-	if (auto_save && !((pulse + 13) % (60 * PASSES_PER_SEC))) {	//log("House save all...");
-		House_save_all();
-		//log("Stop it...");
+	// снятие денег за шмот в клановых сундуках. сейв кланов, сундуков
+	if (!((pulse + 14) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC))) {
+		Clan::ChestUpdate();
+		Clan::ChestSave();
+		Clan::ClanSave();
 	}
 
 	if (!((pulse + 17) % (5 * 60 * PASSES_PER_SEC))) {	/* 5 minutes *///log("Record usage...");

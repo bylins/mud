@@ -16,6 +16,7 @@
 
 #include "conf.h"
 #include "sysdep.h"
+#include <sstream>
 
 #include "structs.h"
 #include "utils.h"
@@ -86,7 +87,6 @@ ACMD(do_toggle);
 ACMD(do_color);
 ACMD(do_recall);
 ACMD(do_dig);
-ACMD(do_page_height);
 
 ACMD(do_antigods)
 {
@@ -183,8 +183,6 @@ ACMD(do_save)
 	write_aliases(ch);
 	save_char(ch, NOWHERE);
 	Crash_crashsave(ch);
-	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE_CRASH))
-		House_crashsave(GET_ROOM_VNUM(IN_ROOM(ch)));
 }
 
 
@@ -1201,21 +1199,55 @@ ACMD(do_split)
 
 		GET_GOLD(ch) -= share * (num - 1);
 
-		sprintf(buf, "%s разделил%s %d %s; Вам досталось %d.\r\n",
-			GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, WHAT_MONEYu), share);
 		if (AFF_FLAGGED(k, AFF_GROUP) && IN_ROOM(k) == IN_ROOM(ch) && !IS_NPC(k) && k != ch) {
-			GET_GOLD(k) += share;
+			if (GET_CLAN_RENT(k)) {
+				int temp_share = share;
+				int tax = Clan::SetTax(k, &temp_share);
+				if (tax <= 0)
+					sprintf(buf, "%s разделил%s %d %s. Вам досталось %d.\r\n",
+						GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, WHAT_MONEYu), temp_share);
+				else
+					sprintf(buf, "%s разделил%s %d %s. Вам досталось %d (и %d в казну Вашей дружины).\r\n",
+						GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, WHAT_MONEYu), temp_share, tax);
+				GET_GOLD(k) += temp_share;
+			} else {
+				sprintf(buf, "%s разделил%s %d %s. Вам досталось %d.\r\n",
+					GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, WHAT_MONEYu), share);
+				GET_GOLD(k) += share;
+			}
 			send_to_char(buf, k);
 		}
 		for (f = k->followers; f; f = f->next) {
 			if (AFF_FLAGGED(f->follower, AFF_GROUP) &&
 			    !IS_NPC(f->follower) && IN_ROOM(f->follower) == IN_ROOM(ch) && f->follower != ch) {
-				GET_GOLD(f->follower) += share;
+				if (GET_CLAN_RENT(f->follower)) {
+					int temp_share = share;
+					int tax = Clan::SetTax(f->follower, &temp_share);
+					if (tax <= 0)
+						sprintf(buf, "%s разделил%s %d %s. Вам досталось %d.\r\n",
+							GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, WHAT_MONEYu), temp_share);
+					else
+						sprintf(buf, "%s разделил%s %d %s. Вам досталось %d (и %d в казну Вашей дружины).\r\n",
+							GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, WHAT_MONEYu), temp_share, tax);
+					GET_GOLD(k) += temp_share;
+				} else
+					GET_GOLD(f->follower) += share;
 				send_to_char(buf, f->follower);
 			}
 		}
-		sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
-			amount, desc_count(amount, WHAT_MONEYu), num, share);
+
+		if (GET_CLAN_RENT(ch)) {
+			int temp_share = share;
+			int tax = Clan::SetTax(ch, &temp_share);
+			if (tax <= 0)
+				sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n", amount, desc_count(amount, WHAT_MONEYu), num, share);
+			else {
+				sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому (из них %d в казну Вашей дружины).\r\n", amount, desc_count(amount, WHAT_MONEYu), num, share, tax);
+				GET_GOLD(ch) -= tax;
+			}
+		} else
+			sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n", amount, desc_count(amount, WHAT_MONEYu), num, share);
+
 		if (rest)
 			sprintf(buf + strlen(buf),
 				"Как истинный еврей Вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
@@ -1518,14 +1550,12 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 	"цвет", "color",
 	"повтор", "norepeat",
 	"обращения", "notell",
-// shapirus
 	"кто-то", "noinvistell",
 	"болтать", "nogossip",
 	"кричать", "noshout",
 	"орать", "noholler",
 	"поздравления", "nogratz",
 	"аукцион", "noauction",
-//F@N|
 	"базар", "exchange",
 	"задание", "quest",
 	"автозаучивание", "automem",
@@ -1545,6 +1575,12 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 	"автодележ", "autosplit",
 	"брать куны", "automoney",
 	"арена", "arena",
+	"ширина", "length",
+	"высота", "width",
+	"экран", "screen",
+	"союзники", "alliance",
+	"казна", "treasury",
+	"доски", "boards",
 	"\n"
 };
 
@@ -1555,26 +1591,19 @@ struct gen_tog_param_type {
 	int level;
 	int subcmd;
 } gen_tog_param[] = {
-	{
-	0, SCMD_AUTOEXIT}, {
+	{0, SCMD_AUTOEXIT}, {
 	0, SCMD_BRIEF}, {
 	0, SCMD_COMPACT}, {
 	0, SCMD_COLOR}, {
 	0, SCMD_NOREPEAT}, {
-	0, SCMD_NOTELL},
-// shapirus
-	{
+	0, SCMD_NOTELL}, {
 	0, SCMD_NOINVISTELL}, {
 	0, SCMD_NOGOSSIP}, {
 	0, SCMD_NOSHOUT}, {
 	0, SCMD_NOHOLLER}, {
 	0, SCMD_NOGRATZ}, {
-	0, SCMD_NOAUCTION},
-//F@N++
-	{
-	0, SCMD_NOEXCHANGE},
-//F@N--
-	{
+	0, SCMD_NOAUCTION}, {
+	0, SCMD_NOEXCHANGE}, {
 	0, SCMD_QUEST}, {
 	0, SCMD_AUTOMEM}, {
 	LVL_GRGOD, SCMD_NOHASSLE}, {
@@ -1586,15 +1615,19 @@ struct gen_tog_param_type {
 	LVL_GOD, SCMD_HOLYLIGHT}, {
 	LVL_IMPL, SCMD_CODERINFO}, {
 	0, SCMD_GOAHEAD}, {
-	0, SCMD_SHOWGROUP},
-// shapirus
-	{
+	0, SCMD_SHOWGROUP}, {
 	0, SCMD_NOCLONES}, {
 	0, SCMD_AUTOASSIST}, {
 	0, SCMD_AUTOLOOT}, {
 	0, SCMD_AUTOSPLIT}, {
 	0, SCMD_AUTOMONEY}, {
-	0, SCMD_NOARENA}
+	0, SCMD_NOARENA}, {
+	0, SCMD_LENGTH}, {
+	0, SCMD_WIDTH}, {
+	0, SCMD_SCREEN}, {
+	0, SCMD_ALLIANCE}, {
+	0, SCMD_CLAN_TAX}, {
+	0, SCMD_NO_BOARD}
 };
 
 ACMD(do_mode)
@@ -1627,6 +1660,59 @@ ACMD(do_mode)
 		send_to_char(buf, ch);
 	}
 }
+
+// установки экрана flag: 0 - ширина, 1 - высота
+void SetScreen(CHAR_DATA * ch, char *argument, int flag)
+{
+	if (IS_NPC(ch))
+		return;
+	skip_spaces(&argument);
+	int size = atoi(argument);
+
+	if (!flag && (size < 30 || size > 300))
+		send_to_char("Ширина экрана должна быть в пределах 30 - 300 символов.\r\n", ch);
+	else if (flag == 1 && (size < 10 || size > 200))
+		send_to_char("Высота экрана должна быть в пределах 10 - 200 строк.\r\n", ch);
+	else if (!flag) {
+		STRING_LENGTH(ch) = size;
+		send_to_char("Ладушки.\r\n", ch);
+		save_char(ch, NOWHERE);
+	} else if (flag == 1) {
+		STRING_WIDTH(ch) = size;
+		send_to_char("Ладушки.\r\n", ch);
+		save_char(ch, NOWHERE);
+	} else {
+		std::ostringstream buffer;
+		for (int i = 50; i > 0; --i)
+			buffer << i << "\r\n";
+		send_to_char(buffer.str(), ch);
+	}
+}
+
+// режим отдачи процента лута в клан-банк
+void SetClanTax(CHAR_DATA * ch, char *argument)
+{
+	if (IS_NPC(ch))
+		return;
+	if (!GET_CLAN_RENT(ch)) {
+		send_to_char("Сначала найдите себе достойную Ваших отчислений дружину.\r\n", ch);
+		return;
+	}
+	skip_spaces(&argument);
+	int num = atoi(argument);
+	if (!*argument)
+		send_to_char(ch, "Формат команды: режим казна число (процент от заработанных лутом денег)\r\n");
+	else if (num < 0 || num > 100)
+		send_to_char("Процент отчислений в дружинную казну должен быть от 0 до 100.\r\n", ch);
+	else {
+		ClanListType::const_iterator clan = Clan::GetClan(ch);
+		if (clan != Clan::ClanList.end()) {
+			(*clan)->_members[GET_UNIQUE(ch)]->tax = num;
+			send_to_char("Ладушки.\r\n", ch);
+		}
+	}
+}
+
 
 ACMD(do_gen_tog)
 {
@@ -1693,16 +1779,20 @@ ACMD(do_gen_tog)
 		 "Вы будете автоматически брать куны, оставшиеся в трупах.\r\n"},
 		{"Вы будете слышать сообщения с арены.\r\n",
 		 "Вы не будете слышать сообщения с арены.\r\n"},
-//F@N++
 		{"Вам будут выводиться сообщения базара.\r\n",
 		 "Вы отключены от участия в базаре.\r\n"},
-//F@N--
-// <shapirus>
 		{"При просмотре состава группы будут отображаться все последователи.\r\n",
 		 "При просмотре состава группы не будут отображаться чужие двойники и хранители.\r\n"},
 		{"К Вам сможет обратиться кто угодно.\r\n",
-		 "К Вам смогут обратиться только те, кого Вы видите.\r\n"}
-// </shapirus>
+		 "К Вам смогут обратиться только те, кого Вы видите.\r\n"},
+		{"", ""},	// SCMD_LENGTH
+		{"", ""},	// SCMD_WIDTH
+		{"", ""},	// SCMD_SCREEN
+		{"Вы слышите разговор в канале союзников.\r\n",
+		 "Вы игнорируете разговор в канале союзников.\r\n"},
+		{"", ""},	// SCMD_CLAN_TAX
+		{"Вы не видите уведомлений о новых сообещениях на досках.\r\n",
+		 "Вы получаете уведомления о новых сообещниях на досках.\r\n"}
 	};
 
 
@@ -1814,7 +1904,28 @@ ACMD(do_gen_tog)
 		result = PRF_TOG_CHK(ch, PRF_NOINVISTELL);
 		break;
 // </shapirus>
-
+	case SCMD_LENGTH:
+		SetScreen(ch, argument, 0);
+		return;
+		break;
+	case SCMD_WIDTH:
+		SetScreen(ch, argument, 1);
+		return;
+		break;
+	case SCMD_SCREEN:
+		SetScreen(ch, argument, 2);
+		return;
+		break;
+	case SCMD_ALLIANCE:
+		result = PRF_TOG_CHK(ch, PRF_ALLIANCE);
+		break;
+	case SCMD_CLAN_TAX:
+		SetClanTax(ch, argument);
+		return;
+		break;
+	case SCMD_NO_BOARD:
+		result = PRF_TOG_CHK(ch, PRF_BOARDS);
+		break;
 	default:
 		log("SYSERR: Unknown subcmd %d in do_gen_toggle.", subcmd);
 		return;
@@ -1962,7 +2073,7 @@ ACMD(do_recall)
 	    !ROOM_FLAGGED(ch->in_room, ROOM_SLOWDEATH) &&
 	    !ROOM_FLAGGED(ch->in_room, ROOM_ICEDEATH) &&
 	    (!ROOM_FLAGGED(ch->in_room, ROOM_GODROOM) || IS_IMMORTAL(ch)) &&
-	    House_can_enter(ch, ch->in_room, HCE_PORTAL)) {
+	    Clan::MayEnter(ch, ch->in_room, HCE_PORTAL)) {
 		send_to_char("У вас не получилось вернуться!\r\n", ch);
 		return;
 	}
@@ -2681,41 +2792,4 @@ ACMD(do_insertgem)
 
 	}
 	extract_obj(gemobj);
-}
-
-ACMD(do_page_height)
-{
-	int height;
-
-	if (IS_NPC(ch))
-		return;
-
-	one_argument(argument, arg);
-
-	if (!*arg) {
-		if (PAGE_HEIGHT(ch)) {
-			sprintf(buf, "Размер страницы при постраничном просмотре: %d %s.\r\n",
-				PAGE_HEIGHT(ch), desc_count(PAGE_HEIGHT(ch), WHAT_ROW));
-			send_to_char(buf, ch);
-			return;
-		} else {
-			send_to_char("Длинные списки на строки разбиваться не будут.\r\n", ch);
-			return;
-		}
-	}
-
-	if (sscanf(arg, "%d", &height) == 1) {
-		if (height < 0) {
-			send_to_char("Размер страницы при постраничном просмотре не может быть отрицательным.\r\n", ch);
-		} else if (height == 0) {
-			send_to_char("Теперь длинные списки на строки разбиваться не будут.\r\n", ch);
-			PAGE_HEIGHT(ch) = 0;
-		} else {
-			PAGE_HEIGHT(ch) = height;
-			sprintf(buf, "Теперь размер страницы при постраничном просмотре будет %d %s.\r\n",
-				PAGE_HEIGHT(ch), desc_count(PAGE_HEIGHT(ch), WHAT_ROW));
-			send_to_char(buf, ch);
-		}
-	} else
-		send_to_char("Нужно указать целое число.\r\n", ch);
 }

@@ -8,6 +8,9 @@
 *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
 ************************************************************************ */
 
+#ifndef _SPELLS_H_
+#define _SPELLS_H_
+
 #define DEFAULT_STAFF_LVL	12
 #define DEFAULT_WAND_LVL	12
 #define CAST_UNDEFINED	-1
@@ -533,3 +536,5 @@ const char *skill_name(int num);
 const char *spell_name(int num);
 
 #define CALC_SUCCESS(modi,perc)         ((modi)-100+(perc))
+
+#endif

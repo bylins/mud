@@ -48,7 +48,6 @@ void postequip_char(CHAR_DATA * ch, OBJ_DATA * obj);
 
 /* local functions */
 int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
-void get_check_money(CHAR_DATA * ch, OBJ_DATA * obj);
 int perform_get_from_room(CHAR_DATA * ch, OBJ_DATA * obj);
 void get_from_room(CHAR_DATA * ch, char *arg, int amount);
 void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount);
@@ -57,14 +56,14 @@ int perform_drop(CHAR_DATA * ch, OBJ_DATA * obj, byte mode, const int sname, roo
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
 CHAR_DATA *give_find_vict(CHAR_DATA * ch, char *arg);
 void weight_change_object(OBJ_DATA * obj, int weight);
-void perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont);
+bool perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont);
 void name_from_drinkcon(OBJ_DATA * obj);
 void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount);
 void name_to_drinkcon(OBJ_DATA * obj, int type);
 void wear_message(CHAR_DATA * ch, OBJ_DATA * obj, int where);
 void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where);
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
-void perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont, int mode);
+bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont, int mode);
 void perform_remove(CHAR_DATA * ch, int pos);
 int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
 void feed_charmice(CHAR_DATA * ch, char *arg);
@@ -86,10 +85,19 @@ ACMD(do_wield);
 ACMD(do_grab);
 ACMD(do_upgrade);
 
-void perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
+// return 0 - чтобы словить невозможность положить в клан-сундук,
+// иначе при пол все сун будет спам на каждый предмет, мол низя
+bool perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 {
 	if (!drop_otrigger(obj, ch))
-		return;
+		return 1;
+
+	// если кладем в клановый сундук
+	if (cont->item_number == real_object(CLAN_CHEST)) {
+		if (!Clan::PutChest(ch, obj, cont))
+			return 0;
+		return 1;
+	}
 
 	if (GET_OBJ_WEIGHT(cont) + GET_OBJ_WEIGHT(obj) > GET_OBJ_VAL(cont, 0))
 		act("$O : $o не помещается туда.", FALSE, ch, obj, cont, TO_CHAR);
@@ -114,6 +122,7 @@ void perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 		} else
 			act("Вы положили $o3 в $O3.", FALSE, ch, obj, cont, TO_CHAR);
 	}
+	return 1;
 }
 
 const int effects[][2] = { {APPLY_MOVEREG, 100},
@@ -329,7 +338,13 @@ ACMD(do_put)
 						return;
 					obj_to_char(obj, ch);
 					GET_GOLD(ch) -= howmany;
-					perform_put(ch, obj, cont);
+					// если положить не удалось - возвращаем все взад
+					if (!perform_put(ch, obj, cont)) {
+						obj_from_char(obj);
+						extract_obj(obj);
+						GET_GOLD(ch) += howmany;
+						return;
+					}
 				} else if (!(obj = get_obj_in_list_vis(ch, theobj, ch->carrying))) {
 					sprintf(buf, "У Вас нет '%s'.\r\n", theobj);
 					send_to_char(buf, ch);
@@ -339,7 +354,8 @@ ACMD(do_put)
 					OBJ_DATA *next_obj;
 					while (obj && howmany--) {
 						next_obj = obj->next_content;
-						perform_put(ch, obj, cont);
+						if (!perform_put(ch, obj, cont))
+							return;
 						obj = get_obj_in_list_vis(ch, theobj, next_obj);
 					}
 				}
@@ -349,7 +365,8 @@ ACMD(do_put)
 					if (obj != cont && CAN_SEE_OBJ(ch, obj) &&
 					    (obj_dotmode == FIND_ALL || isname(theobj, obj->name))) {
 						found = 1;
-						perform_put(ch, obj, cont);
+						if (!perform_put(ch, obj, cont))
+							return;
 					}
 				}
 				if (!found) {
@@ -383,18 +400,12 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	} else if (invalid_anti_class(ch, obj)) {
 		act("$p: Эта вещь не предназначена для Вас !", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
-	} else
-	    if ((find_house(GET_ROOM_VNUM(IN_ROOM(ch))) != NOHOUSE) &&
-		(house_control[House_for_uid(GET_HOUSE_UID(ch))].vnum == GET_ROOM_VNUM(IN_ROOM(ch)))
-		&& (GET_HOUSE_RANK(ch) < RANK_CENTURION)) {
-		act("$p: Вам по рангу не положено брать отсюда вещи !", FALSE, ch, obj, 0, TO_CHAR);
-		return (0);
 	}
 	return (1);
 }
 
 
-void get_check_money(CHAR_DATA * ch, OBJ_DATA * obj)
+void get_check_money(CHAR_DATA * ch, OBJ_DATA * obj, bool clan = 0)
 {
 	char local_buf[256];
 	int value = GET_OBJ_VAL(obj, 0);
@@ -405,32 +416,50 @@ void get_check_money(CHAR_DATA * ch, OBJ_DATA * obj)
 	obj_from_char(obj);
 	extract_obj(obj);
 
-	GET_GOLD(ch) += value;
-
-	sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_MONEYu));
-	send_to_char(buf, ch);
 	if (IS_AFFECTED(ch, AFF_GROUP) && PRF_FLAGGED(ch, PRF_AUTOSPLIT)) {
+		GET_GOLD(ch) += value;
 		sprintf(local_buf, "%ld", (long) value);
 		do_split(ch, local_buf, 0, 0);
+	} else if (clan && GET_CLAN_RENT(ch) && !IS_AFFECTED(ch, AFF_GROUP)) {
+		// отчисления в клановый банк, в группе там свой кусок на эту тему после раздела уже
+		send_to_char(ch, "Это составило %d %s", value, desc_count(value, WHAT_MONEYu));
+		int tax = Clan::SetTax(ch, &value);
+		GET_GOLD(ch) += value;
+		if (tax <= 0)
+			send_to_char(".\r\n", ch);
+		else
+			send_to_char(ch, " (из них %d идет в казну Вашей дружины).\r\n", tax);
+	} else {
+		GET_GOLD(ch) += value;
+		send_to_char(ch, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_MONEYu));
 	}
 }
 
 
-void perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont, int mode)
+// return 0 - чтобы словить невозможность взять из клан-сундука,
+// иначе при вз все сун будет спам на каждый предмет, мол низя
+bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont, int mode)
 {
 	if ((mode == FIND_OBJ_INV || mode == FIND_OBJ_ROOM || mode == FIND_OBJ_EQUIP) && can_take_obj(ch, obj)) {
 		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 			act("$o: Вы не можете нести столько вещей.", FALSE, ch, obj, 0, TO_CHAR);
 		else if (get_otrigger(obj, ch)) {
+			// если берем из клан-сундука
+			if (cont->item_number == real_object(CLAN_CHEST)) {
+				if (!Clan::TakeChest(ch, obj, cont))
+					return 0;
+				return 1;
+			}
 			obj_from_obj(obj);
 			obj_to_char(obj, ch);
 			if (obj->carried_by == ch) {
 				act("Вы взяли $o3 из $O1.", FALSE, ch, obj, cont, TO_CHAR);
 				act("$n взял$g $o3 из $O1.", TRUE, ch, obj, cont, TO_ROOM);
-				get_check_money(ch, obj);
+				get_check_money(ch, obj, 1);
 			}
 		}
 	}
+	return 1;
 }
 
 
@@ -450,7 +479,8 @@ void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, in
 			OBJ_DATA *obj_next;
 			while (obj && howmany--) {
 				obj_next = obj->next_content;
-				perform_get_from_container(ch, obj, cont, mode);
+				if (!perform_get_from_container(ch, obj, cont, mode))
+					return;
 				obj = get_obj_in_list_vis(ch, arg, obj_next);
 			}
 		}
@@ -463,7 +493,8 @@ void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, in
 			next_obj = obj->next_content;
 			if (CAN_SEE_OBJ(ch, obj) && (obj_dotmode == FIND_ALL || isname(arg, obj->name))) {
 				found = 1;
-				perform_get_from_container(ch, obj, cont, mode);
+				if (!perform_get_from_container(ch, obj, cont, mode))
+					return;
 			}
 		}
 		if (!found) {
@@ -722,8 +753,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 					extract_obj(obj);
 					return;
 				}
-				sprintf(buf, "Вы бросили %d %s на землю.", amount, desc_count(amount, WHAT_MONEYu));
-				send_to_char(buf, ch);
+				send_to_char(ch, "Вы бросили %d %s на землю.\r\n", amount, desc_count(amount, WHAT_MONEYu));
 				sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
 				act(buf, TRUE, ch, 0, 0, TO_ROOM);
 				obj_to_room(obj, ch->in_room);
@@ -731,8 +761,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 		} else {
 			sprintf(buf, "$n пожертвовал$g %s... В подарок Богам !", money_desc(amount, 3));
 			act(buf, FALSE, ch, 0, 0, TO_ROOM);
-			sprintf(buf, "Вы пожертвовали Богам %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
-			send_to_char(buf, ch);
+			send_to_char(ch, "Вы пожертвовали Богам %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
 		}
 		GET_GOLD(ch) -= amount;
 	}
@@ -976,6 +1005,12 @@ void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 	act(buf, TRUE, ch, 0, vict, TO_NOTVICT);
 	if (IS_NPC(ch) || !IS_IMPL(ch))
 		GET_GOLD(ch) -= amount;
+
+	if (IS_NPC(ch) && GET_CLAN_RENT(vict)) {
+		int tax = Clan::SetTax(vict, &amount);
+		if (tax > 0)
+			send_to_char(vict, "Из них %d идет в казну Вашей дружины.\r\n", tax);
+	}
 	GET_GOLD(vict) += amount;
 	bribe_mtrigger(vict, ch, amount);
 }

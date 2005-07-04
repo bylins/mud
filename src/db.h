@@ -12,6 +12,9 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#ifndef _DB_H_
+#define _DB_H_
+
 #define USE_SINGLE_PLAYER 1
 
 /* arbitrary constants used by index_boot() (must be unique) */
@@ -48,6 +51,7 @@
 #define LIB_TEXT_HELP	":text:help:"
 #define LIB_MISC	":misc:"
 #define LIB_ETC		":etc:"
+#define ETC_BOARD	":etc:board:"
 #define LIB_PLRTEXT	":plrtext:"
 #define LIB_PLROBJS	":plrobjs:"
 #define LIB_PLRS    ":plrs:"
@@ -63,6 +67,7 @@
 #define LIB_MISC	"misc/"
 #define LIB_STAT	"stat/"
 #define LIB_ETC		"etc/"
+#define ETC_BOARD	"etc/board/"
 #define LIB_PLRTEXT	"plrtext/"
 #define LIB_PLROBJS	"plrobjs/"
 #define LIB_PLRS    "plrs/"
@@ -118,8 +123,6 @@
 #define PLAYER_Z_PREFIX LIB_PLRS""LIB_Z
 
 #define CREDITS_FILE	LIB_TEXT"credits"	/* for the 'credits' command   */
-#define NEWS_FILE       LIB_TEXT"news"	/* for the 'news' command      */
-#define GODNEWS_FILE    LIB_TEXT"godnews"	/* news for immortal's         */
 #define MOTD_FILE       LIB_TEXT"motd"	/* messages of the day / mortal        */
 #define RULES_FILE      LIB_TEXT"rules"	/* rules for immort        */
 #define GREETINGS_FILE	LIB_TEXT"greetings"	/* The opening screen.  */
@@ -142,6 +145,7 @@
 #define DNAME_FILE	    LIB_MISC"dis_name"	/* disagree names */
 #define NNAME_FILE	    LIB_MISC"new_name"	/* disagree names */
 #define TNNAME_FILE	    LIB_MISC"tnew_name"	/* temp disagree names */
+#define GODLIST_FILE    LIB_MISC"god.lst" // список иммов
 
 #define MAIL_FILE	    LIB_ETC"plrmail"	/* for the mudmail system       */
 #define BAN_FILE	    LIB_ETC"badsites"	/* for the siteban system       */
@@ -385,3 +389,4 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch);
 void dl_list_copy(load_list * *pdst, load_list * src);
 
+#endif

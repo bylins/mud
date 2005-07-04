@@ -11,10 +11,16 @@
 *  $Date$                                           *
 *  $Revision$                                                       *
 ************************************************************************ */
+
 #ifndef _STRUCTS_H_
 #define _STRUCTS_H_
+
 #include <list>
+#include <string>
+#include <boost/shared_ptr.hpp>
+
 using std::list;
+
 /*
  * Intended use of this macro is to allow external packages to work with
  * a variety of CircleMUD versions without modifications.  For instance,
@@ -552,11 +558,11 @@ typedef struct trig_data
 #define PRF_AUTOSPLIT   (INT_ONE | 1 << 6)	/* Autosplit */
 #define PRF_AUTOMONEY   (INT_ONE | 1 << 7)	/* Automoney */
 #define PRF_NOARENA     (INT_ONE | 1 << 8)	/* Не слышит арену */
-//F@N|
 #define PRF_NOEXCHANGE  (INT_ONE | 1 << 9)	/* Не слышит базар */
-//shapirus
 #define PRF_NOCLONES	(INT_ONE | 1 << 10)	/* Не видит в группе чужих клонов */
 #define PRF_NOINVISTELL	(INT_ONE | 1 << 11)	/* Не хочет, чтобы телял "кто-то" */
+#define PRF_ALLIANCE    (INT_ONE | 1 << 12) /* Игнор канала альянса */
+#define PRF_BOARDS      (INT_ONE | 1 << 13) /* Игнор уведомлений о новых мессагах на досках */
 
 /* Affect bits: used in char_data.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
@@ -682,7 +688,8 @@ typedef struct trig_data
 #define CON_RACES        39
 #define CON_RACEV        40
 #define CON_COLOR        41
-
+#define CON_WRITEBOARD   42 // написание на доску
+#define CON_CLANEDIT     43 // команда house
 
 /* Character equipment positions: used as index for char_data.equipment[] */
 /* NOTE: Don't confuse these constants with the ITEM_ bitvectors
@@ -1095,12 +1102,12 @@ typedef struct trig_data
 /* Max amount of output that can be buffered */
 #define LARGE_BUFSIZE            (MAX_SOCK_BUF - GARBAGE_SPACE - MAX_PROMPT_LENGTH)
 
-#define HISTORY_SIZE       5	/* Keep last 5 commands. */
-#define MAX_STRING_LENGTH     8192
+#define HISTORY_SIZE          5	/* Keep last 5 commands. */
+#define MAX_STRING_LENGTH     16384
 #define MAX_EXTEND_LENGTH     0xFFFF
 #define MAX_INPUT_LENGTH      256	/* Max length per *line* of input */
-#define MAX_RAW_INPUT_LENGTH          512	/* Max size of *raw* input */
-#define MAX_MESSAGES       600
+#define MAX_RAW_INPUT_LENGTH  512	/* Max size of *raw* input */
+#define MAX_MESSAGES          600
 #define MAX_NAME_LENGTH       20	/* Used in char_file_u *DO*NOT*CHANGE* */
 #define MIN_NAME_LENGTH                 4
 #define MAX_PWD_LENGTH        10	/* Used in char_file_u *DO*NOT*CHANGE* */
@@ -1777,6 +1784,9 @@ struct player_special_data_saved {
 	 remember[MAX_REMEMBER_TELLS][MAX_RAW_INPUT_LENGTH];
 	int
 	 lasttell;
+
+	int stringLength;
+	int stringWidth;
 };
 
 // shapirus
@@ -1855,7 +1865,22 @@ struct player_special_data {
 	struct punish_data pgcurse;
 	struct punish_data punreg;
 
-	int page_height;
+	char *clanStatus;
+	room_vnum clanRent;
+	int clanRankNum;
+
+	long GeneralBoardDate;    // последнее прочтенное на общей доске
+	long NewsBoardDate;       // -//- новости
+	long IdeaBoardDate;       // -//- идеи
+	long ErrorBoardDate;      // -//- ошибки
+	long GodNewsBoardDate;    // -//- новости богов
+	long GodGeneralBoardDate; // -//- общая богов
+	long GodBuildBoardDate;   // -//- билдерская
+	long GodCodeBoardDate;    // -//- кодерская
+	long GodPunishBoardDate;  // -//- наказания
+	long PersBoardDate;       // -//- блокнот
+	long ClanBoardDate;       // -//- клан-доска
+	long ClanNewsBoardDate;   // -//- клан-новости
 };
 
 
@@ -2209,6 +2234,10 @@ struct descriptor_data {
 	 mccp_version;
 #endif
 	unsigned long ip;	// ип адрес в виде числа для внутреннего пользования
+	boost::shared_ptr<class Board> board;       // редактируемая доска
+	boost::shared_ptr<struct Message> message;  // редактируемое сообщение
+	boost::shared_ptr<struct ClanOLC> clan_olc; // редактирование привилегий клана
+	boost::shared_ptr<struct ClanInvite> clan_invite; // приглашение в дружину
 };
 
 
@@ -2603,4 +2632,3 @@ struct set_struct {
 extern int grouping[14][15];
 
 #endif
-

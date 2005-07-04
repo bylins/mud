@@ -12,6 +12,9 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#ifndef _MAIL_H_
+#define _MAIL_H_
+
 /******* MUD MAIL SYSTEM HEADER FILE **********************
  ***     written by Jeremy Elson (jelson@circlemud.org) ***
  *********************************************************/
@@ -110,3 +113,5 @@ struct mail_index_type_d {
 };
 
 typedef struct mail_index_type_d mail_index_type;
+
+#endif

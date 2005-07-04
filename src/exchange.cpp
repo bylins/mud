@@ -19,7 +19,7 @@
 #include "handler.h"
 #include "db.h"
 #include "screen.h"
-
+#include "house.h"
 #include "exchange.h"
 #include "im.h"
 #include "constants.h"
@@ -568,7 +568,12 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 		}
 
 		load_pkills(seller);
-		GET_BANK_GOLD(seller) += GET_EXCHANGE_ITEM_COST(item);
+		if (GET_CLAN_RENT(seller)) {
+			int amount = GET_EXCHANGE_ITEM_COST(item);
+			Clan::SetTax(seller, &amount);
+			GET_BANK_GOLD(seller) += amount;
+		} else
+			GET_BANK_GOLD(seller) += GET_EXCHANGE_ITEM_COST(item);
 		GET_BANK_GOLD(ch) -= GET_EXCHANGE_ITEM_COST(item);
 		save_char(seller, GET_LOADROOM(seller));
 		free_char(seller);
@@ -588,7 +593,23 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 
 		return true;
 	} else {
-		GET_BANK_GOLD(seller) += GET_EXCHANGE_ITEM_COST(item);
+		if (GET_CLAN_RENT(seller)) {
+			int amount = GET_EXCHANGE_ITEM_COST(item);
+			int tax = Clan::SetTax(seller, &amount);
+			GET_BANK_GOLD(seller) += amount;
+			sprintf(tmpbuf, "Базар : лот %d(%s) продан%s. %d %s переведено на Ваш счет.\r\n", lot,
+				GET_EXCHANGE_ITEM(item)->PNames[0], GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
+				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYa));
+			act(tmpbuf, FALSE, seller, 0, NULL, TO_CHAR);
+			if (tax > 0)
+				send_to_char(seller, "В казну Вашей дружины отчисленно: %d %s.\r\n", tax, desc_count(tax, WHAT_MONEYa));
+		} else {
+			GET_BANK_GOLD(seller) += GET_EXCHANGE_ITEM_COST(item);
+			sprintf(tmpbuf, "Базар : лот %d(%s) продан%s. %d %s переведено на Ваш счет.\r\n", lot,
+				GET_EXCHANGE_ITEM(item)->PNames[0], GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
+				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYa));
+			act(tmpbuf, FALSE, seller, 0, NULL, TO_CHAR);
+		}
 		GET_BANK_GOLD(ch) -= GET_EXCHANGE_ITEM_COST(item);
 
 		act("Вы купили $O3 на базаре.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
@@ -597,11 +618,6 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 			GET_EXCHANGE_ITEM(item)->PNames[0], GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 			GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYu));
 		message_exchange(tmpbuf, seller, item);
-		sprintf(tmpbuf,
-			"Базар : лот %d(%s) продан%s. %d %s переведено на Ваш счет.\r\n", lot,
-			GET_EXCHANGE_ITEM(item)->PNames[0], GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
-			GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYa));
-		act(tmpbuf, FALSE, seller, 0, NULL, TO_CHAR);
 
 		obj_to_char(GET_EXCHANGE_ITEM(item), ch);
 		clear_exchange_lot(item);

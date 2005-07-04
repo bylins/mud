@@ -69,7 +69,6 @@ int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
 int min_rent_cost(CHAR_DATA * ch);
 void name_from_drinkcon(OBJ_DATA * obj);
 void name_to_drinkcon(OBJ_DATA * obj, int type);
-int delete_char(char *name);
 OBJ_DATA *create_obj(void);
 void asciiflag_conv(char *flag, void *value);
 void tascii(int *pointer, int num_planes, char *ascii);
@@ -2005,22 +2004,20 @@ This shit is saving all stuff for given ch and its iplayer.
 	Crash_save(iplayer, ch->carrying, 0);
 	Crash_restore_weight(ch->carrying);
 
-  if (ch->followers && 	savetype == RENT_CRASH) 
-    for (k = ch->followers; k && k->follower->master; k = next) 
-    {
-      next = k->next;
-      charmee = ch->followers->follower;
-      if (!IS_CHARMICE(charmee))
-        continue;
-      for (j = 0; j < NUM_WEARS; j++)
-		    if (GET_EQ(charmee, j)) {
-			    Crash_save(iplayer, GET_EQ(charmee, j), 0);
-			    Crash_restore_weight(GET_EQ(charmee, j));
-		    }
-	    Crash_save(iplayer, charmee->carrying, 0);
-	    Crash_restore_weight(charmee->carrying);
-    }
-
+	if (ch->followers && savetype == RENT_CRASH) 
+		for (k = ch->followers; k && k->follower->master; k = next) {
+			next = k->next;
+			charmee = ch->followers->follower;
+			if (!IS_CHARMICE(charmee))
+				continue;
+			for (j = 0; j < NUM_WEARS; j++)
+				if (GET_EQ(charmee, j)) {
+					Crash_save(iplayer, GET_EQ(charmee, j), 0);
+					Crash_restore_weight(GET_EQ(charmee, j));
+				}
+			Crash_save(iplayer, charmee->carrying, 0);
+			Crash_restore_weight(charmee->carrying);
+	}
 
 	if (savetype != RENT_CRASH) {
 		for (j = 0; j < NUM_WEARS; j++)
@@ -2287,7 +2284,7 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 		act("$n сказал$g : \"Не люблю говорить с теми, кого я не вижу !\"", FALSE, recep, 0, 0, TO_ROOM);
 		return (TRUE);
 	}
-	if (in_enemy_clanzone(ch)) {
+	if (Clan::InEnemyZone(ch)) {
 		act("$n сказал$g : \"Чужакам здесь не место !\"", FALSE, recep, 0, 0, TO_ROOM);
 		return (TRUE);
 	}

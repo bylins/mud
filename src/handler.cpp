@@ -2978,7 +2978,7 @@ void MemQ_remember(CHAR_DATA * ch, int num)
 	slotcnt -= slots[slotn];	// кол-во свободных слотов
 
 	if (slotcnt <= 0) {
-		send_to_char("У Вас нет свободных ячеек этого круга.", ch);
+		send_to_char("У Вас нет свободных ячеек этого круга.\r\n", ch);
 		return;
 	}
 

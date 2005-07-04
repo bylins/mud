@@ -11,6 +11,7 @@
 *  $Date$                                           *
 *  $Revision$                                                      *
 ************************************************************************ */
+
 #ifndef _SKILLS_H_
 #define _SKILLS_H_
 
@@ -106,8 +107,6 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 
 int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict);
 
-#endif
-
 // зптопе демп
 
 #define DIG_DFLT_HOLE_MAX_DEEP		10
@@ -185,3 +184,5 @@ struct skillvariables_insgem {
 	int timer_plus_percent;
 	int timer_minus_percent;
 };
+
+#endif

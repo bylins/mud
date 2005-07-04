@@ -189,8 +189,8 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 	}
 
 
-	if (GET_LEVEL(vict) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL) {
-	send_to_char("Кем вы себя возомнили?\r\n", ch);
+	if (!IS_IMPL(ch)) {
+		send_to_char("Кем вы себя возомнили?\r\n", ch);
 		return 0;
 	}
 	// Проверяем а может ли чар вообще работать с этим наказанием.
@@ -889,7 +889,7 @@ room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 			send_to_char("В комнату не телепортировать\r\n", ch);
 			return (NOWHERE);
 		}
-		if (!House_can_enter(ch, location, HCE_PORTAL)) {
+		if (!Clan::MayEnter(ch, location, HCE_PORTAL)) {
 			send_to_char("Частная собственность - посторонним в ней делать нечего !\r\n", ch);
 			return (NOWHERE);
 		}
@@ -1426,21 +1426,19 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 
 	sprinttype(GET_SEX(k), genders, buf);
 
-	sprintf(buf2, " %s '%s'  IDNum: [%5ld], В комнате [%5d]\r\n",
+	sprintf(buf2, " %s '%s' IDNum: [%ld] В комнате [%d] Текущий ID:[%ld]\r\n",
 		(!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
 		GET_NAME(k), GET_IDNUM(k), IS_IMPL(ch) ? GET_ROOM_VNUM(IN_ROOM(k))
 		: ((IS_GRGOD(ch)
-		    && IS_NPC(k)) ? GET_ROOM_VNUM(IN_ROOM(k)) : -1));
+		    && IS_NPC(k)) ? GET_ROOM_VNUM(IN_ROOM(k)) : -1), GET_ID(k));
 	send_to_char(strcat(buf, buf2), ch);
-	sprintf(buf, "Текущий ID чара или моба: %ld\r\n", GET_ID(k));
-	send_to_char(buf, ch);
 	if (IS_MOB(k)) {
 		sprintf(buf, "Синонимы: %s, VNum: [%5d], RNum: [%5d]\r\n",
 			k->player.name, GET_MOB_VNUM(k), GET_MOB_RNUM(k));
 		send_to_char(buf, ch);
 	}
 
-	sprintf(buf, "Падежи: %s/%s/%s/%s/%s/%s\r\n",
+	sprintf(buf, "Падежи: %s/%s/%s/%s/%s/%s ",
 		GET_PAD(k, 0), GET_PAD(k, 1), GET_PAD(k, 2), GET_PAD(k, 3), GET_PAD(k, 4), GET_PAD(k, 5));
 	send_to_char(buf, ch);
 
@@ -1460,8 +1458,9 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 
 		sprintf(buf, "Вероисповедание: %s\r\n", religion_name[(int) GET_RELIGION(k)][(int) GET_SEX(k)]);
 		send_to_char(buf, ch);
-
-		sprintf(buf, "E-mail : %s\r\n" "Unique : %d\r\n", GET_EMAIL(k), GET_UNIQUE(k));
+		std::string file_name = GET_NAME(k);
+		CreateFileName(file_name);
+		sprintf(buf, "E-mail: %s Unique: %d File: %s\r\n", GET_EMAIL(k), GET_UNIQUE(k), file_name.c_str());
 		send_to_char(buf, ch);
 		if (GET_REMORT(k)) {
 			sprintf(buf, "Перевоплощений: %d\r\n", GET_REMORT(k));
@@ -1517,9 +1516,9 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	send_to_char(buf, ch);
 	
 	if (IS_NPC (k)){
-		send_to_char ("Племя: --\r\n", ch);		
+		send_to_char ("Племя: --", ch);		
 	} else{
-		sprintf (buf, "Племя: %s\r\n",pc_kin_types[(int) GET_KIN(k)]);
+		sprintf (buf, "Племя: %s",pc_kin_types[(int) GET_KIN(k)]);
 		send_to_char (buf, ch);
 	}
 
@@ -1540,27 +1539,23 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 		GET_EXP(k), CCNRM(ch, C_NRM), GET_ALIGNMENT(k));
 	strcat(buf, buf2);
 	send_to_char(buf, ch);
-
+	if (GET_CLAN_RENT(k))
+		send_to_char(ch, "Статус дружины: %s\r\n", GET_CLAN_STATUS(k));
 	if (!IS_NPC(k)) {
-		if (GET_HOUSE_RANK(k) && House_name(k) != NULL && House_rank(k) != NULL) {
-			sprintf(buf, "Дружина: \'%s\' Ранг: \'%s\'.\r\n", House_name(k), House_rank(k));
-			send_to_char(buf, ch);
-		}
-
 		strcpy(buf1, (char *) asctime(localtime(&(k->player.time.birth))));
 		strcpy(buf2, (char *) asctime(localtime(&(k->player.time.logon))));
 		buf1[10] = buf2[10] = '\0';
 
 		sprintf(buf,
-			"Создан: [%s], Последний вход: [%s], Играл [%dh %dm], Возраст [%d]\r\n",
+			"Создан: [%s] Последний вход: [%s] Играл: [%dh %dm] Возраст: [%d]\r\n",
 			buf1, buf2, k->player.time.played / 3600, ((k->player.time.played % 3600) / 60), age(k)->year);
 		send_to_char(buf, ch);
 
-		sprintf(buf, "На постое: [%d], Говорил: [%d/%d/%d]",
-			k->player.hometown, GET_TALK(k, 0), GET_TALK(k, 1), GET_TALK(k, 2));
+		sprintf(buf, "Рента: [%d] На постое: [%d], Говорил: [%d/%d/%d]",
+			GET_LOADROOM(k), k->player.hometown, GET_TALK(k, 0), GET_TALK(k, 1), GET_TALK(k, 2));
 		/*. Display OLC zone for immorts . */
 		if (GET_LEVEL(k) >= LVL_IMMORT)
-			sprintf(buf, "%s, OLC[%d]", buf, GET_OLC_ZONE(k));
+			sprintf(buf, "%s OLC: [%d]", buf, GET_OLC_ZONE(k));
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	} else {
@@ -2107,7 +2102,7 @@ ACMD(do_switch)
 		send_to_char("Вы не столь могущественны, чтобы контроолировать тело игрока.\r\n", ch);
 	else if (GET_LEVEL(ch) < LVL_GRGOD && ROOM_FLAGGED(IN_ROOM(victim), ROOM_GODROOM))
 		send_to_char("Вы не можете находиться в той комнате.\r\n", ch);
-	else if (!IS_GRGOD(ch) && !House_can_enter(ch, IN_ROOM(victim), HCE_PORTAL))
+	else if (!IS_GRGOD(ch) && !Clan::MayEnter(ch, IN_ROOM(victim), HCE_PORTAL))
 		send_to_char("Вы не сможете проникнуть на частную территорию.\r\n", ch);
 	else {
 		send_to_char(OK, ch);
@@ -3240,7 +3235,7 @@ ACMD(do_show)
 //          if (show_fields[i].level <= GET_LEVEL(ch) || GET_COMMSTATE(ch))
 			if (priv->
 			    enough_cmd_show_priv(std::string(GET_NAME(ch)), GET_LEVEL(ch),
-						 std::string(show_fields[i].cmd))
+						 std::string(show_fields[i].cmd), GET_UNIQUE(ch))
 			    || GET_COMMSTATE(ch))
 				sprintf(buf + strlen(buf), "%-15s%s", show_fields[i].cmd, (!(++j % 5) ? "\r\n" : ""));
 		strcat(buf, "\r\n");
@@ -3254,7 +3249,7 @@ ACMD(do_show)
 		if (!strncmp(field, show_fields[l].cmd, strlen(field)))
 			break;
 
-	if (!priv->enough_cmd_show_priv(std::string(GET_NAME(ch)), GET_LEVEL(ch), std::string(show_fields[l].cmd))
+	if (!priv->enough_cmd_show_priv(std::string(GET_NAME(ch)), GET_LEVEL(ch), std::string(show_fields[l].cmd), GET_UNIQUE(ch))
 	    && !GET_COMMSTATE(ch)) {
 		send_to_char("Вы не столь могущественны, чтобы узнать это.\r\n", ch);
 		return;
@@ -3404,7 +3399,7 @@ ACMD(do_show)
 		show_shops(ch, value);
 		break;
 	case 9:
-		hcontrol_list_houses(ch);
+		// этот пункт убрать вообще
 		break;
 	case 10:
 		*buf = '\0';
@@ -3675,7 +3670,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 	}
 //  if (GET_LEVEL(ch) < set_fields[mode].level && !GET_COMMSTATE(ch))
-	if (!priv->enough_cmd_set_priv(std::string(GET_NAME(ch)), GET_LEVEL(ch), std::string(set_fields[mode].cmd))
+	if (!priv->enough_cmd_set_priv(std::string(GET_NAME(ch)), GET_LEVEL(ch), std::string(set_fields[mode].cmd), GET_UNIQUE(ch))
 	    && !GET_COMMSTATE(ch)) {
 		send_to_char("Кем Вы себя возомнили ?\r\n", ch);
 		return (0);
@@ -3906,9 +3901,9 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 	case 41:
 		/* Флаг для морталов с привилегиями */
-		if (GET_LEVEL(ch) < LVL_IMPL || str_cmp(GET_NAME(ch), "Стрибог")) {
-			send_to_char("Для выдачи привилегий игрокам обращайтесь к Стрибогу (:\r\n", ch);
-			return (0);
+		if (!IS_IMPL(ch)) {
+			send_to_char("Вы не столь Божественны, как Вам кажется!\r\n", ch);
+			return 0;
 		}
 		if (on) {
 			SET_GOD_FLAG(vict, GF_DEMIGOD);
@@ -4045,11 +4040,9 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			sprintf(buf, "Произведена замена падежей.\r\n");
 			send_to_char(buf, ch);
 		} else {
-			if (GET_LEVEL(ch) < LVL_IMPL) {
-				send_to_char
-				    ("Для изменения падежей пользуйтесь форматом 'set имя name *падеж1 падеж2 падеж3 падеж4 падеж5 падеж6'.\r\nРенеймы не разрешаются.\r\n",
-				     ch);
-				return (0);
+			if (!IS_IMPL(ch)) {
+				send_to_char("Для изменения падежей пользуйтесь форматом 'set имя name *падеж1 падеж2 падеж3 падеж4 падеж5 падеж6'.\r\nРенеймы не разрешаются.\r\n", ch);
+				return 0;
 			}
 
 			if (_parse_name(npad[0], npad[0]) ||
@@ -4241,9 +4234,9 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		if (!set_punish(ch, vict, SCMD_DUMB, reason, times)) return (0);
 		break;
 	case 66:      
-		if (GET_LEVEL(vict) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL) {
+		if(!IS_IMPL(ch)) {
 			send_to_char("Кем вы себя возомнили?\r\n", ch);
-			return (0);
+			return 0;
 		}
 		reason = one_argument(val_arg, num);
 		if (*num && reason && *reason) {
@@ -4297,7 +4290,7 @@ ACMD(do_set)
 		for (int i = 0; set_fields[i].level; i++)
 			if (priv->
 			    enough_cmd_set_priv(std::string(GET_NAME(ch)), GET_LEVEL(ch),
-						std::string(set_fields[i].cmd))
+						std::string(set_fields[i].cmd), GET_UNIQUE(ch))
 			    || GET_COMMSTATE(ch))
 				sprintf(buf + strlen(buf), "%-15s%s", set_fields[i].cmd,
 					(!((i + 1) % 5) ? "\r\n" : ""));
@@ -4654,7 +4647,7 @@ ACMD(do_privileges)
 		return;
 	}
 
-	if (GET_LEVEL(ch) < LVL_IMPL || str_cmp(GET_NAME(ch), "Стрибог")) {
+	if (!IS_IMPL(ch) || str_cmp(GET_NAME(ch), "Стрибог")) {
 		send_to_char("Для выдачи команд обращайтесь к Стрибогу (:\r\n", ch);
 		return;
 	}

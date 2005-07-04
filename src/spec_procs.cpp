@@ -15,6 +15,7 @@
 #include "conf.h"
 #include "sysdep.h"
 
+#include "house.h"
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -1143,9 +1144,10 @@ int npc_scavenge(CHAR_DATA * ch)
 		best_obj = NULL;
 		cont = NULL;
 		best_cont = NULL;
-		for (obj = world[ch->in_room]->contents; obj; obj = obj->next_content)
+		int chest = real_object(CLAN_CHEST); // шоб не брали из клан-хранилищ
+		for (obj = world[ch->in_room]->contents; obj; obj = obj->next_content) {
 			if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER) {
-				if (IS_CORPSE(obj) || OBJVAL_FLAGGED(obj, CONT_LOCKED))
+				if (IS_CORPSE(obj) || OBJVAL_FLAGGED(obj, CONT_LOCKED) || obj->item_number == chest)
 					continue;
 				for (cobj = obj->contains; cobj; cobj = cobj->next_content)
 					if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj) && GET_OBJ_COST(cobj) > max) {
@@ -1159,6 +1161,7 @@ int npc_scavenge(CHAR_DATA * ch)
 				best_obj = obj;
 				max = GET_OBJ_COST(obj);
 			}
+		}
 		if (best_obj != NULL) {
 			if (best_obj != best_cont) {
 				obj_from_room(best_obj);
@@ -1675,6 +1678,28 @@ int npc_steal(CHAR_DATA * ch)
 void npc_group(CHAR_DATA * ch)
 {
 	CHAR_DATA *vict, *leader = NULL;
+/*
+int zone = ((((((((
+(unsigned long)(1 << 3) < (unsigned long)(1 << 30)
+	? (ch)->char_specials.saved.act.flags[0]
+	: (unsigned long)(1 << 3) < (unsigned long)(2 << 30)
+		? (ch)->char_specials.saved.act.flags[1]
+		: (unsigned long)(1 << 3) < (unsigned long)(3 << 30)
+			? (ch)->char_specials.saved.act.flags[2]
+			: (ch)->char_specials.saved.act.flags[3])) & 0x3FFFFFFF) & ((1 << 3)))) && ((ch)->nr) >= 0)
+					? mob_index[((ch)->nr)].vnum
+					: -1) / 100),
+group = ((((((((((unsigned long)(1 << 3) < (unsigned long)(1 << 30)
+	? (ch)->char_specials.saved.act.flags[0]
+	: (unsigned long)(1 << 3) < (unsigned long)(2 << 30)
+		? (ch)->char_specials.saved.act.flags[1]
+		: (unsigned long)(1 << 3) < (unsigned long)(3 << 30)
+			? (ch)->char_specials.saved.act.flags[2]
+			: (ch)->char_specials.saved.act.flags[3])) & 0x3FFFFFFF) & ((1 << 3)))) && ((ch)->nr) >= 0)
+				? mob_index[((ch)->nr)].vnum
+				: -1) % 100) / 10),
+members = 0;
+*/
 	int zone = ZONE(ch), group = GROUP(ch), members = 0;
 
 	if (GET_DEST(ch) == NOWHERE || IN_ROOM(ch) == NOWHERE)
@@ -2326,6 +2351,7 @@ SPECIAL(bank)
 			free_char(vict);
 			return (1);
 		}
-	} else
-		return (0);
+	} else if (CMD_IS("казна"))
+		return (Clan::BankManage(ch, argument));
+	return 0;
 }

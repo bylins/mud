@@ -12,6 +12,9 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#ifndef _GENCHAR_H_
+#define _GENCHAR_H_
+
 #define SUM_ALL_STATS 93
 #define SUM_ALL_STATS_NOGEN 95
 #define SUM_STATS(ch) (GET_STR(ch) + GET_DEX(ch) + GET_INT(ch) +  GET_WIS(ch) + GET_CON(ch) +  GET_CHA(ch))
@@ -24,3 +27,5 @@ extern char *genchar_help;
 void genchar_disp_menu(CHAR_DATA * ch);
 int genchar_parse(CHAR_DATA * ch, char *arg);
 void roll_real_abils(CHAR_DATA * ch, bool hand = 0);
+
+#endif

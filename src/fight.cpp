@@ -30,6 +30,7 @@
 #include "im.h"
 #include "fight.h"
 #include "skills.h"
+#include "house.h"
 
 extern CHAR_DATA *mob_proto;
 
@@ -986,6 +987,13 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 	} else
 		send_to_char("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
 
+	if (GET_CLAN_RENT(ch)) {
+		ClanListType::const_iterator clan = Clan::GetClan(ch);
+		if (clan != Clan::ClanList.end()) {
+			(*clan)->exp += exp;
+			(*clan)->_members[GET_UNIQUE(ch)]->exp += exp;
+		}
+	}
 	gain_exp(ch, exp);
 	change_alignment(ch, victim);
 }

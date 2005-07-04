@@ -564,9 +564,14 @@ void beat_points_update(int pulse)
 			log("SYSERR: Pulse character in NOWHERE.");
 			continue;
 		}
-
-		if (RENTABLE(i) < time(NULL)) {
-			RENTABLE(i) = 0;
+//		if (RENTABLE(i) < time(NULL)) {
+//			RENTABLE(i) = 0;
+		if (i->player_specials == &dummy_mob) {
+			log("SYSERR: Mob using 'i->player_specials->may_rent' at %s:%s:%d", __FILE__, __func__, __LINE__);
+			continue;
+		}
+		if (i->player_specials->may_rent < time(0)) {
+			i->player_specials->may_rent = 0;
 			AGRESSOR(i) = 0;
 			AGRO(i) = 0;
 		}
@@ -1267,8 +1272,36 @@ void point_update(void)
 
 
 	/* objects */
+	int chest = real_object(CLAN_CHEST);
+
 	for (j = object_list; j; j = next_thing) {
 		next_thing = j->next;	/* Next in object list */
+		// смотрим клан-сундуки
+		if (j->in_obj && j->in_obj->item_number == chest) {
+			if (GET_OBJ_TIMER(j) > 0)
+				GET_OBJ_TIMER(j)--;
+
+			if (j && ((OBJ_FLAGGED(j, ITEM_ZONEDECAY) && GET_OBJ_ZONE(j) != NOWHERE
+					&& up_obj_where(j->in_obj) != NOWHERE
+					&& GET_OBJ_ZONE(j) != world[up_obj_where(j->in_obj)]->zone)
+					|| GET_OBJ_TIMER(j) <= 0)) {
+				int room = GET_ROOM_VNUM(j->in_obj->in_room);
+				DESCRIPTOR_DATA *d;
+
+				for (d = descriptor_list; d; d = d->next)
+					if (d->character && STATE(d) == CON_PLAYING
+					    && !AFF_FLAGGED(d->character, AFF_DEAFNESS)
+					    && GET_CLAN_RENT(d->character)
+					    && GET_CLAN_RENT(d->character) == room)
+						send_to_char(d->character,
+							     "[Хранилище]: %s'%s рассыпал%s в прах'%s\r\n",
+							     CCIRED(d->character, C_NRM), j->short_description,
+							     GET_OBJ_SUF_2(j), CCNRM(d->character, C_NRM));
+				obj_from_obj(j);
+				extract_obj(j);
+			}
+			continue;
+		}
 		/* If this is a corpse */
 		if (IS_CORPSE(j)) {	/* timer count down */
 			if (GET_OBJ_TIMER(j) > 0)
@@ -1319,9 +1352,7 @@ void point_update(void)
 					timer_otrigger(j);
 					j = NULL;
 				}
-			} else /* Destroy objects on ground */ if (GET_OBJ_DESTROY(j) > 0
-								   && !NO_DESTROY(j) &&
-								   (find_house(GET_ROOM_VNUM(j->in_room)) == NOHOUSE))
+			} else if (GET_OBJ_DESTROY(j) > 0 && !NO_DESTROY(j))
 				GET_OBJ_DESTROY(j)--;
 
 			if ((j->in_room != NOWHERE) && GET_OBJ_TIMER(j) > 0 && !NO_DESTROY(j))

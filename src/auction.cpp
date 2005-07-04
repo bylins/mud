@@ -19,7 +19,7 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
-
+#include "house.h"
 #include "auction.h"
 #include "constants.h"
 
@@ -616,7 +616,16 @@ void trans_auction(int lot)
 	obj_from_char(obj);
 	obj_to_char(obj, tch);
 
-	GET_BANK_GOLD(ch) += GET_LOT(lot)->cost;
+	if (GET_CLAN_RENT(ch)) {
+		int amount = GET_LOT(lot)->cost;
+		int tax = Clan::SetTax(ch, &amount);
+		if (tax > 0) {
+			GET_BANK_GOLD(ch) += amount;
+			send_to_char(ch, "В казну Вашей дружины отчисленно: %d %s.\r\n", tax, desc_count(tax, WHAT_MONEYa));
+		}
+	} else
+		GET_BANK_GOLD(ch) += GET_LOT(lot)->cost;
+
 	if ((GET_BANK_GOLD(tch) -= (GET_LOT(lot)->cost + (GET_LOT(lot)->cost / 10))) < 0) {
 		GET_GOLD(tch) += GET_BANK_GOLD(tch);
 		GET_BANK_GOLD(tch) = 0;
@@ -678,7 +687,17 @@ void sell_auction(int lot)
 
 	obj_from_char(obj);
 	obj_to_char(obj, tch);
-	GET_BANK_GOLD(ch) += GET_LOT(lot)->cost;
+
+	if (GET_CLAN_RENT(ch)) {
+		int amount = GET_LOT(lot)->cost;
+		int tax = Clan::SetTax(ch, &amount);
+		if (tax > 0) {
+			GET_BANK_GOLD(ch) += amount;
+			send_to_char(ch, "В казну Вашей дружины отчисленно: %d %s.\r\n", tax, desc_count(tax, WHAT_MONEYa));
+		}
+	} else
+		GET_BANK_GOLD(ch) += GET_LOT(lot)->cost;
+
 	if ((GET_BANK_GOLD(tch) -= GET_LOT(lot)->cost) < 0) {
 		GET_GOLD(tch) += GET_BANK_GOLD(tch);
 		GET_BANK_GOLD(tch) = 0;

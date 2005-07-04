@@ -35,6 +35,7 @@
 #include "pk.h"
 #include "genchar.h"
 #include "ban.hpp"
+#include "boards.h"
 #include "privileges.hpp"
 #include "item.creation.hpp"
 #include "arena.hpp"
@@ -80,8 +81,6 @@ extern const char *race_types[];
 extern const char *race_types_step[];
 extern const char *race_types_vik[];
 extern const char *kin_types[];
-extern long lastnews;
-extern long lastgodnews;
 extern struct cheat_list_type *cheaters_list;
 extern struct set_struct set_fields[];
 extern struct show_struct show_fields[];
@@ -115,7 +114,7 @@ void delete_unique(CHAR_DATA * ch);
 void Crash_timer_obj(int index, long timer_dec);
 int find_social(char *name);
 int calc_loadroom(CHAR_DATA * ch);
-int delete_char(char *name);
+void delete_char(char *name);
 void do_aggressive_mob(CHAR_DATA * ch, int check_sneak);
 extern int process_auto_agreement(DESCRIPTOR_DATA * d);
 extern int CheckProxy(DESCRIPTOR_DATA * ch);
@@ -204,12 +203,9 @@ ACMD(do_goto);
 ACMD(do_grab);
 ACMD(do_group);
 ACMD(do_gsay);
-ACMD(do_hcontrol);
 ACMD(do_help);
 ACMD(do_hide);
 ACMD(do_hit);
-ACMD(do_house);
-ACMD(do_hchannel);
 ACMD(do_info);
 ACMD(do_index);
 ACMD(do_insult);
@@ -227,7 +223,6 @@ ACMD(do_chopoff);
 ACMD(do_deviate);
 ACMD(do_leave);
 ACMD(do_levels);
-ACMD(do_listclan);
 ACMD(do_liblist);
 ACMD(do_load);
 ACMD(do_look);
@@ -237,7 +232,6 @@ ACMD(do_offer);
 ACMD(do_olc);
 ACMD(do_order);
 ACMD(do_page);
-ACMD(do_page_height);
 ACMD(do_pray);
 ACMD(do_poofset);
 ACMD(do_pour);
@@ -266,9 +260,7 @@ ACMD(do_say);
 ACMD(do_score);
 ACMD(do_send);
 ACMD(do_set);
-ACMD(do_set_politics);
 ACMD(do_show);
-ACMD(do_show_politics);
 ACMD(do_shutdown);
 ACMD(do_sit);
 ACMD(do_skillset);
@@ -304,8 +296,6 @@ ACMD(do_weather);
 ACMD(do_where);
 ACMD(do_who);
 ACMD(do_who_new);
-ACMD(do_whohouse);
-ACMD(do_whoclan);
 ACMD(do_wield);
 ACMD(do_wimpy);
 ACMD(do_wizlock);
@@ -326,7 +316,6 @@ ACMD(do_touch);
 ACMD(do_transform_weapon);
 ACMD(do_protect);
 ACMD(do_privileges);
-ACMD(do_prison);
 ACMD(do_dig);
 ACMD(do_insertgem);
 ACMD(do_ignore);
@@ -369,10 +358,8 @@ ACMD(do_looking);
 ACMD(do_ident);
 ACMD(do_upgrade);
 ACMD(do_armored);
-ACMD(do_newsclan);
 ACMD(do_recall);
 ACMD(do_pray_gods);
-ACMD(do_clanlist);
 ACMD(do_rset);
 ACMD(do_recipes);
 ACMD(do_cook);
@@ -470,28 +457,29 @@ cpp_extern const struct command_info cmd_info[] = {
 
 	{"аффекты", POS_DEAD, do_affects, 0, SCMD_AUCTION, 0},
 	{"авторы", POS_DEAD, do_gen_ps, 0, SCMD_CREDITS, 0},
-	{"альянс", POS_STANDING, do_set_politics, 0, SCMD_ALLIANCE, 0},
 	{"атаковать", POS_FIGHTING, do_hit, 0, SCMD_MURDER, -1},
 	{"аукцион", POS_RESTING, do_gen_comm, 0, SCMD_AUCTION, 100},
 
-//F@N|
 	{"базар", POS_STANDING, do_not_here, 1, 0, -1},
 	{"баланс", POS_STANDING, do_not_here, 1, 0, 0},
 	{"бежать", POS_FIGHTING, do_flee, 1, 0, -1},
+	{"билдер", POS_STANDING, DoBoard, 1, GODBUILD_BOARD, -1},
 	{"блок", POS_FIGHTING, do_block, 0, 0, -1},
+	{"блокнот", POS_STANDING, DoBoard, 1, PERS_BOARD, -1},
 	{"боги", POS_DEAD, do_gen_ps, 0, SCMD_IMMLIST, 0},
+	{"божества", POS_STANDING, DoBoard, 1, GODGENERAL_BOARD, -1},
 	{"болтать", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, -1},
 	{"бросить", POS_RESTING, do_drop, 0, SCMD_DROP, -1},
 
 	{"варить", POS_RESTING, do_cook, 0, 0, 200},
 	{"версия", POS_DEAD, do_gen_ps, 0, SCMD_VERSION, 0},
+	{"вече", POS_STANDING, DoBoard, 1, GENERAL_BOARD, -1},
 	{"взять", POS_RESTING, do_get, 0, 0, 200},
 	{"взглянуть", POS_RESTING, do_diagnose, 0, 0, 100},
 	{"взломать", POS_STANDING, do_gen_door, 1, SCMD_PICK, -1},
 	{"вложить", POS_STANDING, do_not_here, 1, 0, -1},
 	{"вернуться", POS_DEAD, do_return, 0, 0, -1},
 	{"войти", POS_STANDING, do_enter, 0, 0, -2},
-	{"война", POS_STANDING, do_set_politics, 0, SCMD_WAR, 0},
 	{"вооружиться", POS_RESTING, do_wield, 0, 0, 200},
 	{"возврат", POS_RESTING, do_recall, 0, 0, -1},
 	{"воззвать", POS_DEAD, do_pray_gods, 0, 0, -1},
@@ -509,11 +497,11 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"говорить", POS_RESTING, do_say, 0, 0, -1},
 	{"ггруппа", POS_SLEEPING, do_gsay, 0, 0, 500},
 	{"гговорить", POS_SLEEPING, do_gsay, 0, 0, 500},
-	{"гдругам", POS_SLEEPING, do_hchannel, 0, SCMD_CHANNEL, 0},
+	{"гдругам", POS_SLEEPING, DoClanChannel, 0, SCMD_CHANNEL, 0},
 	{"где", POS_RESTING, do_where, 1, 0, 0},
 	{"глоток", POS_RESTING, do_drink, 0, SCMD_SIP, 200},
 	{"группа", POS_SLEEPING, do_group, 1, 0, -1},
-	{"гсоюзникам", POS_SLEEPING, do_hchannel, 0, SCMD_ACHANNEL, 0},
+	{"гсоюзникам", POS_SLEEPING, DoClanChannel, 0, SCMD_ACHANNEL, 0},
 	{"гэхо", POS_DEAD, do_gecho, LVL_GOD, 0, 0},
 
 	{"дать", POS_RESTING, do_give, 0, 0, 500},
@@ -521,9 +509,12 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"делить", POS_RESTING, do_split, 1, 0, 200},
 	{"держать", POS_RESTING, do_grab, 0, 0, 300},
 	{"доложить", POS_RESTING, do_report, 0, 0, 500},
-	{"дружины", POS_RESTING, do_listclan, 0, 0, 0},
-	{"дрновости", POS_RESTING, do_newsclan, 0, 0, 0},
-	{"дрлист", POS_SLEEPING, do_clanlist, 0, 1, 0},
+
+	{"доски", POS_RESTING, DoBoardList, 0, 0, 0},
+	{"дружины", POS_RESTING, DoClanList, 0, 0, 0},
+	{"дрновости", POS_STANDING, DoBoard, 1, CLANNEWS_BOARD, -1},
+	{"дрвече", POS_STANDING, DoBoard, 1, CLAN_BOARD, -1},
+	{"дрлист", POS_SLEEPING, DoClanPkList, 0, 1, 0},
 
 	{"есть", POS_RESTING, do_eat, 0, SCMD_EAT, 500},
 
@@ -538,6 +529,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"замести", POS_STANDING, do_hidetrack, 1, 0, -1},
 	{"замолчать", POS_DEAD, do_wizutil, LVL_GOD, SCMD_MUTE, 0},
 	{"заморозить", POS_DEAD, do_wizutil, LVL_FREEZE, SCMD_FREEZE, 0},
+	{"замок", POS_RESTING, DoHouse, 0, 0, 0},
 	{"запомнить", POS_RESTING, do_remember, 0, 0, 0},
 	{"запереть", POS_SITTING, do_gen_door, 0, SCMD_LOCK, 500},
 	{"запрет", POS_DEAD, do_ban, LVL_GRGOD, 0, 0},
@@ -551,13 +543,16 @@ cpp_extern const struct command_info cmd_info[] = {
 
 	{"инвентарь", POS_DEAD, do_inventory, 0, 0, 0},
 	{"игнорировать", POS_DEAD, do_ignore, 0, 0, 0},
-	{"идея", POS_DEAD, do_gen_write, 0, SCMD_IDEA, 0},
+	{"идеи", POS_STANDING, DoBoard, 1, IDEA_BOARD, 0},
+	{"идея", POS_STANDING, DoBoard, 1, IDEA_BOARD, 0},
 	{"изучить", POS_SITTING, do_learn, 0, 0, 0},
 	{"информация", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
 	{"испить", POS_RESTING, do_use, 0, SCMD_QUAFF, 500},
 	{"имя", POS_SLEEPING, do_name, LVL_IMMORT, 0, 0},
 
 	{"колдовать", POS_SITTING, do_cast, 1, 0, -1},
+	{"казна", POS_RESTING, do_not_here, 1, 0, 0},
+	{"кодер", POS_STANDING, DoBoard, 1, GODCODE_BOARD, -1},
 	{"команды", POS_DEAD, do_commands, 0, SCMD_COMMANDS, 0},
 	{"коне", POS_SLEEPING, do_quit, 0, 0, 0},
 	{"конец", POS_SLEEPING, do_quit, 0, SCMD_QUIT, 0},
@@ -565,9 +560,8 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"красться", POS_STANDING, do_hidemove, 1, 0, -2},
 	{"кричать", POS_RESTING, do_gen_comm, 0, SCMD_SHOUT, -1},
 	{"кто", POS_RESTING, do_who, 0, 0, 0},
+	{"ктодружина", POS_RESTING, DoWhoClan, 0, 0, 0},
 	{"ктои", POS_RESTING, do_who_new, LVL_IMMORT, 0, 0},
-	{"ктодружина", POS_RESTING, do_whohouse, 0, 0, 0},
-	{"ктоклан", POS_RESTING, do_whoclan, 0, 0, 0},
 	{"ктоя", POS_DEAD, do_gen_ps, 0, SCMD_WHOAMI, 0},
 	{"купить", POS_STANDING, do_not_here, 0, 0, -1},
 
@@ -583,13 +577,13 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"молот", POS_FIGHTING, do_mighthit, 0, 0, -1},
 	{"молиться", POS_STANDING, do_pray, 1, SCMD_PRAY, -1},
 
+	{"наказания", POS_STANDING, DoBoard, 1, GODPUNISH_BOARD, -1},
 	{"налить", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
 	{"наполнить", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
 	{"найти", POS_STANDING, do_sense, 0, 0, 500},
 	{"нанять", POS_STANDING, do_findhelpee, 0, SCMD_BUYHELPEE, -1},
-	{"нейтралитет", POS_STANDING, do_set_politics, 0, SCMD_NEUTRAL, 0},
 	{"новичок", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
-	{"новости", POS_SLEEPING, do_gen_ps, 0, SCMD_NEWS, 0},
+	{"новости", POS_STANDING, DoBoard, 1, NEWS_BOARD, -1},
 
 	{"обезоружить", POS_FIGHTING, do_disarm, 0, 0, -1},
 	{"облачить", POS_RESTING, do_wear, 0, 0, 500},
@@ -621,12 +615,12 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"оценить", POS_STANDING, do_not_here, 0, 0, 500},
 	{"очки", POS_DEAD, do_score, 0, 0, 0},
 	{"очистить", POS_DEAD, do_not_here, 0, SCMD_CLEAR, -1},
-	{"ошибка", POS_DEAD, do_gen_write, 0, SCMD_BUG, 0},
+	{"ошибка", POS_STANDING, DoBoard, 1, ERROR_BOARD, 0},
+	{"ошибки", POS_STANDING, DoBoard, 1, ERROR_BOARD, 0},
 
 	{"парировать", POS_FIGHTING, do_parry, 0, 0, -1},
 	{"перехватить", POS_FIGHTING, do_touch, 0, 0, -1},
-	{"перековать", POS_STANDING, do_transform_weapon, 0, SKILL_TRANSFORMWEAPON,
-	 -1},
+	{"перековать", POS_STANDING, do_transform_weapon, 0, SKILL_TRANSFORMWEAPON, -1},
 	{"передать", POS_STANDING, do_givehorse, 0, 0, -1},
 	{"перевести", POS_STANDING, do_not_here, 1, 0, -1},
 	{"послать", POS_DEAD, do_email, LVL_IMPL, 0, 0},
@@ -635,7 +629,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"перелить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
 	{"пить", POS_RESTING, do_drink, 0, SCMD_DRINK, 400},
 	{"писать", POS_STANDING, do_write, 1, 0, -1},
-	{"пклист", POS_SLEEPING, do_clanlist, 0, 0, 0},
+	{"пклист", POS_SLEEPING, DoClanPkList, 0, 0, 0},
 	{"пнуть", POS_FIGHTING, do_kick, 1, 0, -1},
 	{"погода", POS_RESTING, do_weather, 0, 0, 0},
 	{"подкрасться", POS_STANDING, do_sneak, 1, 0, 500},
@@ -645,7 +639,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"покинуть", POS_STANDING, do_leave, 0, 0, -2},
 	{"положить", POS_RESTING, do_put, 0, 0, 400},
 	{"получить", POS_STANDING, do_not_here, 1, 0, -1},
-	{"политика", POS_SLEEPING, do_show_politics, 0, 0, 0},
+	{"политика", POS_SLEEPING, DoShowPolitics, 0, 0, 0},
 	{"помочь", POS_FIGHTING, do_assist, 1, 0, -1},
 	{"помощь", POS_DEAD, do_help, 0, 0, 0},
 	{"пометить", POS_DEAD, do_mark, LVL_IMPL, 0, 0},
@@ -714,10 +708,8 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"стереть", POS_DEAD, do_gen_ps, 0, SCMD_CLEAR, 0},
 	{"стиль", POS_RESTING, do_style, 0, 0, 0},
 	{"строка", POS_DEAD, do_display, 0, 0, 0},
-	{"страница", POS_DEAD, do_page_height, 0, 0, 0},
 	{"счет", POS_DEAD, do_score, 0, 0, 0},
 
-	{"темница", POS_RESTING, do_prison, 0, 0, 0},
 	{"титул", POS_DEAD, do_title, LVL_IMMORT, 0, 0},
 	{"трусость", POS_DEAD, do_wimpy, 0, 0, 0},
 
@@ -731,6 +723,8 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"уровень", POS_DEAD, do_score, 0, 0, 0},
 	{"уровни", POS_DEAD, do_levels, 0, 0, 0},
 	{"учить", POS_STANDING, do_not_here, 0, 0, -1},
+
+	{"хранилище", POS_DEAD, DoStorehouse, 0, 0, 0},
 
 	{"цвет", POS_DEAD, do_color, 0, 0, 0},
 
@@ -768,7 +762,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"bash", POS_FIGHTING, do_bash, 1, 0, -1},
 	{"beep", POS_DEAD, do_beep, LVL_IMMORT, 0},
 	{"block", POS_FIGHTING, do_block, 0, 0, -1},
-	{"bug", POS_DEAD, do_gen_write, 0, SCMD_BUG, 0},
+	{"bug", POS_STANDING, DoBoard, 1, ERROR_BOARD, 0},
 	{"buy", POS_STANDING, do_not_here, 0, 0, -1},
 	{"cast", POS_SITTING, do_cast, 1, 0, -1},
 	{"check", POS_STANDING, do_not_here, 1, 0, -1},
@@ -812,7 +806,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"gecho", POS_DEAD, do_gecho, LVL_GOD, 0, 0},
 	{"get", POS_RESTING, do_get, 0, 0, 500},
 	{"give", POS_RESTING, do_give, 0, 0, 500},
-	{"godnews", POS_SLEEPING, do_gen_ps, LVL_IMMORT, SCMD_GODNEWS, 0},
+	{"godnews", POS_STANDING, DoBoard, 1, GODNEWS_BOARD, -1},
 	{"gold", POS_RESTING, do_gold, 0, 0, 0},
 	{"glory", POS_RESTING, do_glory, LVL_BUILDER, 0, 0},
 	{"gossip", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, -1},
@@ -822,7 +816,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"gsay", POS_SLEEPING, do_gsay, 0, 0, -1},
 	{"gtell", POS_SLEEPING, do_gsay, 0, 0, -1},
 	{"handbook", POS_DEAD, do_gen_ps, LVL_IMMORT, SCMD_HANDBOOK, 0},
-	{"hcontrol", POS_DEAD, do_hcontrol, LVL_GRGOD, 0, 0},
+	{"hcontrol", POS_DEAD, DoHcontrol, LVL_GRGOD, 0, 0},
 	{"help", POS_DEAD, do_help, 0, 0, 0},
 	{"hell", POS_DEAD, do_wizutil, LVL_GOD, SCMD_HELL, 0},
 	{"hide", POS_STANDING, do_hide, 1, 0, 0},
@@ -830,9 +824,9 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"hold", POS_RESTING, do_grab, 1, 0, 500},
 	{"holler", POS_RESTING, do_gen_comm, 1, SCMD_HOLLER, -1},
 	{"horse", POS_STANDING, do_not_here, 0, 0, -1},
-	{"house", POS_RESTING, do_house, 0, 0, 0},
+	{"house", POS_RESTING, DoHouse, 0, 0, 0},
 	{"huk", POS_FIGHTING, do_mighthit, 0, 0, -1},
-	{"idea", POS_DEAD, do_gen_write, 0, SCMD_IDEA, 0},
+	{"idea", POS_STANDING, DoBoard, 1, IDEA_BOARD, 0},
 	{"ignore", POS_DEAD, do_ignore, 0, 0, 0},
 	{"immlist", POS_DEAD, do_gen_ps, 0, SCMD_IMMLIST, 0},
 	{"index", POS_RESTING, do_index, 1, 0, 500},
@@ -860,7 +854,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"mute", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_MUTE, 0},
 	{"medit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_MEDIT},
 	{"name", POS_DEAD, do_wizutil, LVL_GOD, SCMD_NAME, 0},
-	{"news", POS_SLEEPING, do_gen_ps, 0, SCMD_NEWS, 0},
+	{"news", POS_STANDING, DoBoard, 1, NEWS_BOARD, -1},
 	{"notitle", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_NOTITLE, 0},
 	{"oedit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_OEDIT},
 	{"offer", POS_STANDING, do_not_here, 1, 0, 0},
@@ -868,7 +862,6 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"open", POS_SITTING, do_gen_door, 0, SCMD_OPEN, 500},
 	{"order", POS_RESTING, do_order, 1, 0, -1},
 	{"page", POS_DEAD, do_page, LVL_GOD, 0, 0},
-	{"pagesize", POS_DEAD, do_page_height, 0, 0, 0},
 	{"pardon", POS_DEAD, do_wizutil, LVL_IMPL, SCMD_PARDON, 0},
 	{"parry", POS_FIGHTING, do_parry, 0, 0, -1},
 	{"pick", POS_STANDING, do_gen_door, 1, SCMD_PICK, -1},
@@ -1097,7 +1090,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		return;
 	if (!IS_NPC(ch)) {
 		log("<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), argument);
-		if (GET_LEVEL(ch) >= LVL_IMMORT || GET_GOD_FLAG(ch, GF_PERSLOG))
+		if (GET_LEVEL(ch) >= LVL_IMMORT || GET_GOD_FLAG(ch, GF_PERSLOG) || GET_GOD_FLAG(ch, GF_DEMIGOD))
 			pers_log(GET_NAME(ch), "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), argument);
 	}
 	/*
@@ -1139,9 +1132,8 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 			if (!strcmp(cmd_info[cmd].command, arg))
 //           {if (GET_LEVEL(ch) >= cmd_info[cmd].minimum_level || GET_COMMSTATE(ch))
 			{
-				if (priv->
-				    enough_cmd_priv(std::string(GET_NAME(ch)), GET_LEVEL(ch),
-						    std::string(cmd_info[cmd].command), cmd)
+				if (priv->enough_cmd_priv(std::string(GET_NAME(ch)), GET_LEVEL(ch),
+					    std::string(cmd_info[cmd].command), cmd, (IS_NPC(ch) ? 0 : GET_UNIQUE(ch)))
 				    || GET_COMMSTATE(ch))
 					break;
 			}
@@ -1149,9 +1141,8 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 			if (!strncmp(cmd_info[cmd].command, arg, length))
 //             {if (GET_LEVEL(ch) >= cmd_info[cmd].minimum_level || GET_COMMSTATE(ch))
 			{
-				if (priv->
-				    enough_cmd_priv(std::string(GET_NAME(ch)), GET_LEVEL(ch),
-						    std::string(cmd_info[cmd].command), cmd)
+				if (priv->enough_cmd_priv(std::string(GET_NAME(ch)), GET_LEVEL(ch),
+					    std::string(cmd_info[cmd].command), cmd, (IS_NPC(ch) ? 0 : GET_UNIQUE(ch)))
 				    || GET_COMMSTATE(ch))
 					break;
 			}
@@ -2070,12 +2061,11 @@ void add_logon_record(DESCRIPTOR_DATA * d)
 
 void do_entergame(DESCRIPTOR_DATA * d)
 {
-	int load_room, neednews = 0, needgodnews = 0, i, cmd, flag = 0;
+	int load_room, i, cmd, flag = 0;
 	CHAR_DATA *ch;
 
 	reset_char(d->character);
 	read_aliases(d->character);
-	sync_char_with_clan(d->character);
 
 	if (GET_LEVEL(d->character) == LVL_IMMORT)
 		GET_LEVEL(d->character) = LVL_GOD;
@@ -2096,12 +2086,12 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		GET_GOLD(d->character) = 0;
 		GET_BANK_GOLD(d->character) = 0;
 	}
-	if (GET_LEVEL(d->character) >= LVL_IMMORT && GET_LEVEL(d->character) < LVL_IMPL || GET_COMMSTATE(d->character)) {
+	if (GET_LEVEL(d->character) >= LVL_IMMORT && GET_LEVEL(d->character) < LVL_IMPL ||
+		GET_COMMSTATE(d->character)) {
 		for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 			if (!strcmp(cmd_info[cmd].command, "syslog"))
-				if (priv->
-				    enough_cmd_priv(std::string(GET_NAME(d->character)),
-						    GET_LEVEL(d->character), std::string(cmd_info[cmd].command), cmd)) {
+				if (priv->enough_cmd_priv(std::string(GET_NAME(d->character)),
+						    GET_LEVEL(d->character), std::string(cmd_info[cmd].command), cmd, GET_UNIQUE(d->character))) {
 					flag = 1;
 					break;
 				}
@@ -2128,8 +2118,8 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		load_room = real_room(load_room);
 	}
 
-	if (!House_can_enter(d->character, load_room, HCE_PORTAL))
-		load_room = House_closestrent(load_room);
+	if (!Clan::MayEnter(d->character, load_room, HCE_PORTAL))
+		load_room = Clan::CloseRent(load_room);
 
 	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));
 	/* If char was saved with NOWHERE, or real_room above failed... */
@@ -2156,12 +2146,6 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	char_to_room(d->character, load_room);
 	if (GET_LEVEL(d->character) != 0)
 		Crash_load(d->character);
-
-	if (lastnews && LAST_LOGON(d->character) < lastnews)
-		neednews = TRUE;
-
-	if (IS_IMMORTAL(d->character) && lastgodnews && LAST_LOGON(d->character) < lastgodnews)
-		needgodnews = TRUE;
 
 	/* сбрасываем телы для команды "вспомнить" */
 	for (i = 0; i < MAX_REMEMBER_TELLS; i++)
@@ -2203,28 +2187,26 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
 	mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 
-	if (neednews) {
-		sprintf(buf,
-			"%s\r\nВас ожидают свежие новости (команда НОВОСТИ)%s\r\n",
-			CCWHT(d->character, C_NRM), CCNRM(d->character, C_NRM));
-		send_to_char(buf, d->character);
-	}
-	if (needgodnews) {
-		sprintf(buf,
-			"%s\r\nВас ожидают свежие новости для Богов (godnews)%s\r\n",
-			CCWHT(d->character, C_NRM), CCNRM(d->character, C_NRM));
-		send_to_char(buf, d->character);
-	}
 	if (has_mail(GET_IDNUM(d->character)))
 		send_to_char("&R\r\nВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!\r\n\r\n&n", d->character);
 	look_at_room(d->character, 0);
-	// sprintf(buf,"NEWS %ld %ld(%s)",lastnews,LAST_LOGON(d->character),GET_NAME(d->character));
-	// mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
-	// sprintf(buf,"У Вас %s.\r\n",d->character->desc ? "есть дескриптор" : "нет дескриптора");
-	// send_to_char(buf,d->character);
 	if (GET_LEVEL (d->character) >= LVL_IMMORT)
 		NewNameShow(d->character);
 	d->has_prompt = 0;
+	// пихая это сюда мы решаем проблемы одобрения до входа в игру и вывода напоминания при каждом входе игрока
+	if (NAME_GOD(d->character) < 1000 && !NAME_GOD(d->character) && GET_LEVEL(d->character) <= NAME_LEVEL) {
+		sprintf(buf, "%s - новый игрок. Падежи: %s/%s/%s/%s/%s/%s Email: %s Пол: %s. ]\r\n"
+			"[ %s ждет одобрения имени.",
+			GET_NAME(d->character),	GET_PAD(d->character, 0),
+			GET_PAD(d->character, 1), GET_PAD(d->character, 2),
+			GET_PAD(d->character, 3), GET_PAD(d->character, 4),
+			GET_PAD(d->character, 5), GET_EMAIL(d->character),
+			genders[(int)GET_SEX(d->character)], GET_NAME(d->character));
+		// добавляем в список ждущих одобрения
+		NewNameAdd(d->character);
+		mudlog(buf, DEF, LVL_IMMORT, SYSLOG, TRUE);
+	}
+	Clan::SetClanData(d->character);
 }
 
 void DoAfterPassword(DESCRIPTOR_DATA * d)
@@ -2257,15 +2239,8 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 
 //  toggle_compression(d);
 
-	if (GET_LEVEL(d->character) < LVL_IMMORT) {
-		if (GET_HOUSE_UID(d->character)) {
-			if (!House_news(d))
-				SEND_TO_Q(motd, d);
-		} else
-			SEND_TO_Q(motd, d);
-	}
-	sprintf(buf, "%s [%s] has connected.", GET_NAME(d->character), d->host);
-	log(buf);
+	SEND_TO_Q(motd, d);
+	log("%s [%s] has connected.", GET_NAME(d->character), d->host);
 
 	if (load_result) {
 		sprintf(buf, "\r\n\r\n\007\007\007"
@@ -2314,6 +2289,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		break;
 	case CON_MREDIT:
 		mredit_parse(d, arg);
+		break;
+	case CON_CLANEDIT:
+		d->clan_olc->clan->Manage(d, arg);
 		break;
 		/*. End of OLC states . */
 
@@ -2865,21 +2843,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		strncpy(GET_EMAIL(d->character), arg, 127);
 		*(GET_EMAIL(d->character) + 127) = '\0';
 		save_char(d->character, NOWHERE);
-		if ((int) NAME_FINE(d->character)) {
-			sprintf(buf, "%s - новый игрок (e-mail: %s).", GET_NAME(d->character), GET_EMAIL(d->character));
-		} else {
-			sprintf(buf, "%s - новый игрок. Падежи: %s/%s/%s/%s/%s/%s Email: %s Пол: %s. ]\r\n"
-				"[ %s ждет одобрения имени.",
-				GET_NAME(d->character),	GET_PAD(d->character, 0),
-				GET_PAD(d->character, 1), GET_PAD(d->character, 2),
-				GET_PAD(d->character, 3), GET_PAD(d->character, 4),
-				GET_PAD(d->character, 5), GET_EMAIL(d->character),
-				genders[(int)GET_SEX(d->character)], GET_NAME(d->character));
-				// добавляем в список ждущих одобрения
-				NewNameAdd(d->character);
-		}
-		mudlog(buf, DEF, LVL_IMMORT, SYSLOG, TRUE);
-		//send_to_gods(buf);
 		SEND_TO_Q(motd, d);
 		SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 		STATE(d) = CON_RMOTD;
@@ -3276,16 +3239,20 @@ int search_privil(const std::string & cmd_name)
 }
 
 bool PrivList::enough_cmd_priv(const std::string & char_name, int char_level,
-			       const std::string & cmd_name, int cmd_number)
+			       const std::string & cmd_name, int cmd_number, long unique)
 {
 	// Передавать избыточную информацию некрасиво, но лишний раз рыться по cmd_info не хочется
-	if (char_level == LVL_IMPL)
-		return true;
 	//////////////////////////////////////////////////////////////////////////
 	if (cmd_info[cmd_number].minimum_level < LVL_IMMORT)
 		if (char_level >= cmd_info[cmd_number].minimum_level)
 			return true;
-	//////////////////////////////////////////////////////////////////////////   
+	//////////////////////////////////////////////////////////////////////////
+	if(!GodListCheck(char_name, unique))
+		return false;
+
+	if (char_level == LVL_IMPL)
+		return true;
+
 	if (char_level >= LVL_IMMORT && (search_privil(cmd_name) != -1))
 		return true;
 	PrivListType::iterator i = Priv_List.find(char_name);
@@ -3295,8 +3262,11 @@ bool PrivList::enough_cmd_priv(const std::string & char_name, int char_level,
 	return false;
 }
 
-bool PrivList::enough_cmd_set_priv(const std::string & char_name, int char_level, const std::string & set_subcmd)
+bool PrivList::enough_cmd_set_priv(const std::string & char_name, int char_level, const std::string & set_subcmd, long unique)
 {
+	if(!GodListCheck(char_name, unique))
+		return false;
+
 	if (char_level == LVL_IMPL || (char_level >= LVL_IMMORT && (set_subcmd == "title" || set_subcmd == "name")))
 		return true;
 
@@ -3307,8 +3277,11 @@ bool PrivList::enough_cmd_set_priv(const std::string & char_name, int char_level
 	return false;
 }
 
-bool PrivList::enough_cmd_show_priv(const std::string & char_name, int char_level, const std::string & show_subcmd)
+bool PrivList::enough_cmd_show_priv(const std::string & char_name, int char_level, const std::string & show_subcmd, long unique)
 {
+	if(!GodListCheck(char_name, unique))
+		return false;
+
 	if (char_level == LVL_IMPL || (char_level >= LVL_IMMORT
 				       && (show_subcmd == "punishment" || show_subcmd == "stats"
 					   || show_subcmd == "player")))
@@ -3639,4 +3612,83 @@ bool CompareParam(const std::string & buffer, const char *arg, bool full)
 		return (1);
 	else
 		return (0);
+}
+
+// тоже самое с обоими аргументами стринг
+bool CompareParam(const std::string & buffer, const std::string & buffer2, bool full)
+{
+	if (buffer.empty() || buffer2.empty()
+	    || (full && buffer.length() != buffer2.length()))
+		return 0;
+
+	std::string::size_type i;
+	for (i = 0; i != buffer.length() && i != buffer2.length(); ++i)
+		if (LOWER(buffer[i]) != LOWER(buffer2[i]))
+			return (0);
+
+	if (i == buffer.length())
+		return (1);
+	else
+		return (0);
+}
+
+// ищет дескриптор игрока(онлайн состояние) по его УИДу
+DESCRIPTOR_DATA *DescByUID(long unique)
+{
+	DESCRIPTOR_DATA *d;
+
+	for (d = descriptor_list; d; d = d->next)
+		if (d->character && STATE(d) == CON_PLAYING && GET_UNIQUE(d->character) == unique)
+			break;
+	return (d);
+}
+
+// ищет УИД игрока по его имени, второй необязательный параметр - учитывать или нет БОГОВ
+long GetUniqueByName(const std::string & name, bool god)
+{
+	for (int i = 0; i <= top_of_p_table; ++i)
+		if (!str_cmp(player_table[i].name, name.c_str())) {
+			if (!god)
+				return player_table[i].unique;
+			else {
+				if (player_table[i].level < LVL_IMMORT)
+					return player_table[i].unique;
+				else
+					return -1;
+			}
+
+		}
+	return 0;
+}
+
+// ищет имя игрока по его УИДу, второй необязательный параметр - учитывать или нет БОГОВ
+const char *GetNameByUnique(long unique, bool god)
+{
+	for (int i = 0; i <= top_of_p_table; ++i)
+		if (player_table[i].unique == unique) {
+			if (!god)
+				return player_table[i].name;
+			else {
+				if (player_table[i].level < LVL_IMMORT)
+					return player_table[i].name;
+				else
+					return 0;
+			}
+		}
+	return 0;
+}
+
+// замена в name русских символов на англ в нижнем регистре (для файлов)
+void CreateFileName(std::string &name)
+{
+	for (unsigned i = 0; i != name.length(); ++i)
+		name[i] = LOWER(AtoL(name[i]));
+}
+
+void ReadEndString(std::ifstream &file)
+{
+  char c;
+  while (file.get(c))
+    if (c == '\n')
+      return;
 }

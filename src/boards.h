@@ -1,61 +1,96 @@
-/* ************************************************************************
-*   File: boards.h                                      Part of Bylins    *
-*  Usage: header file for bulletin boards                                 *
-*                                                                         *
-*  All rights reserved.  See license.doc for complete information.        *
-*                                                                         *
-*  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
-*  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
-*                                                                         *
-*  $Author$                                                        *
-*  $Date$                                           *
-*  $Revision$                                                       *
-************************************************************************ */
+/* ****************************************************************************
+* File: boards.h                                               Part of Bylins *
+* Usage: Header file for bulletin boards                                      *
+* (c) 2005 Krodo                                                              *
+******************************************************************************/
 
-#define NUM_OF_BOARDS		11	/* change if needed! */
-#define MAX_BOARD_MESSAGES 	120	/* arbitrary -- change if needed */
-#define MAX_MESSAGE_LENGTH	4096	/* arbitrary -- change if needed */
+#ifndef _BOARDS_H_
+#define _BOARDS_H_
 
-#define INDEX_SIZE	   ((NUM_OF_BOARDS*MAX_BOARD_MESSAGES) + 5)
+#include <string>
+#include <vector>
+#include <boost/shared_ptr.hpp>
 
-#define BOARD_MAGIC	1048575	/* arbitrary number - see modify.cpp */
+#include "conf.h"
+#include "sysdep.h"
+#include "structs.h"
+#include "utils.h"
+#include "db.h"
+#include "interpreter.h"
 
-struct board_msginfo {
-	int slot_num;		/* pos of message in "master index" */
-	char *heading;		/* pointer to message's heading */
-	int level;		/* level of poster */
-	int heading_len;	/* size of header (for file write) */
-	int message_len;	/* size of message text (for file write) */
+#define MAX_MESSAGE_LENGTH 4096 // максимальный размер сообщения
+#define MAX_BOARD_MESSAGES 200  // максимальное кол-во сообщений на одной доске
+#define MIN_WRITE_LEVEL    6    // мин.левел для поста на общих досках
+// типы досок
+#define GENERAL_BOARD    0  // общая
+#define IDEA_BOARD       1  // идеи
+#define ERROR_BOARD      2  // ошибки
+#define NEWS_BOARD       3  // новости
+#define GODNEWS_BOARD    4  // новости (только для иммов)
+#define GODGENERAL_BOARD 5  // общая (только для иммов)
+#define GODBUILD_BOARD   6  // билдеры (только для иммов)
+#define GODCODE_BOARD    7  // кодеры (только для иммов)
+#define GODPUNISH_BOARD  8  // наказания (только для иммов)
+#define PERS_BOARD       9  // персональная (только для иммов)
+#define CLAN_BOARD       10 // клановая
+#define CLANNEWS_BOARD   11 // клановые новости
+// преметы, на которые вешаем спешиалы для старого способа работы с досками
+#define GODGENERAL_BOARD_OBJ 250
+#define GENERAL_BOARD_OBJ    251
+#define GODCODE_BOARD_OBJ    253
+#define GODPUNISH_BOARD_OBJ  257
+#define GODBUILD_BOARD_OBJ   259
+
+typedef boost::shared_ptr<class Board> BoardPtr;
+typedef std::vector<BoardPtr> BoardListType;
+typedef boost::shared_ptr<struct Message> MessagePtr;
+typedef std::vector<MessagePtr> MessageListType;
+
+// отдельное сообщение
+struct Message {
+	int num;             // номер на доске
+	std::string author;  // имя автора
+	long unique;         // уид автора
+	int level;           // уровень автора (для всех, кроме клановых и персональных досок)
+	long date;           // дата поста
+	std::string subject; // тема
+	std::string text;    // текст сообщения
 };
 
-struct board_info_type {
-	obj_vnum vnum;		/* vnum of this board */
-	int read_lvl;		/* min level to read messages on this board */
-	int write_lvl;		/* min level to write messages on this board */
-	int remove_lvl;		/* min level to remove messages from this board */
-	char filename[50];	/* file to save this board to */
-	obj_rnum rnum;		/* rnum of this board */
-	char lastwrite[MAX_NAME_LENGTH + 1];	/* name of last write on this board */
+// доски... наследование нафик
+class Board
+{
+	public:
+	Board();
+	int type;                 // тип доски
+	std::string name;         // имя доски
+	std::string desc;         // описание доски
+	long lastWrite;           // уид последнего писавшего (до ребута)
+	int clanRent;             // номер ренты клана (для клановых досок)
+	int persUnique;           // уид (для персональной доски)
+	std::string persName;     // имя (для персональной доски)
+	MessageListType messages; // список сообщений
+	std::string file;         // имя файла для сейва/лоада
+
+	int Access(CHAR_DATA * ch);
+	void SetLastReadDate(CHAR_DATA * ch, long date);
+	long LastReadDate(CHAR_DATA * ch);
+	void Load();
+	void Save();
+
+	static BoardListType BoardList; // список досок
+
+	static void BoardInit();
+	static void Board::ClanInit();
+	static void Board::GodInit();
+	static void ShowMessage(CHAR_DATA * ch, MessagePtr message);
+	static SPECIAL(Board::Special);
+
+	friend ACMD(DoBoard);
+	friend ACMD(DoBoardList);
+
+	private:
+
 };
 
-#define BOARD_VNUM(i) (board_info[i].vnum)
-#define READ_LVL(i) (board_info[i].read_lvl)
-#define WRITE_LVL(i) (board_info[i].write_lvl)
-#define REMOVE_LVL(i) (board_info[i].remove_lvl)
-#define FILENAME(i) (board_info[i].filename)
-#define BOARD_RNUM(i) (board_info[i].rnum)
-#define LAST_WRITE(i) (board_info[i].lastwrite)
-
-#define NEW_MSG_INDEX(i) (msg_index[i][num_of_msgs[i]])
-#define MSG_HEADING(i, j) (msg_index[i][j].heading)
-#define MSG_SLOTNUM(i, j) (msg_index[i][j].slot_num)
-#define MSG_LEVEL(i, j) (msg_index[i][j].level)
-
-int Board_display_msg(int board_type, CHAR_DATA * ch, char *arg, OBJ_DATA * board);
-int Board_show_board(int board_type, CHAR_DATA * ch, char *arg, OBJ_DATA * board);
-int Board_remove_msg(int board_type, CHAR_DATA * ch, char *arg, OBJ_DATA * board);
-int Board_autoremove_msg(int board_type, OBJ_DATA * board);
-int Board_write_message(int board_type, CHAR_DATA * ch, char *arg, OBJ_DATA * board);
-void Board_save_board(int board_type);
-void Board_load_board(int board_type);
-void Board_reset_board(int board_num);
+#endif

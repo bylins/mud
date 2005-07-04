@@ -12,6 +12,9 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#ifndef _SCREEN_H_
+#define _SCREEN_H_
+
 #define KNRM  "\x1B[0;37m"
 #define KRED  "\x1B[0;31m"
 #define KGRN  "\x1B[0;32m"
@@ -73,3 +76,4 @@
 #define CCMANA(ch,C_SPR,perc) (perc >=90 ? CCCYN(ch,C_SPR)  :\
 			       perc >= 5 ? CCICYN(ch,C_SPR) :\
 					   CCIBLU(ch,C_SPR))
+#endif
