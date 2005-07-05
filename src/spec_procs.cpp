@@ -65,16 +65,8 @@ SPECIAL(guild_mono);
 SPECIAL(guild_poly);
 SPECIAL(guild);
 SPECIAL(dump);
-SPECIAL(mayor);
-SPECIAL(snake);
-SPECIAL(thief);
-SPECIAL(magic_user);
 SPECIAL(guild_guard);
-SPECIAL(puff);
-SPECIAL(fido);
-SPECIAL(janitor);
 SPECIAL(cityguard);
-SPECIAL(pet_shops);
 SPECIAL(bank);
 
 

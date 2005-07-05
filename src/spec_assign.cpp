@@ -104,30 +104,12 @@ void ASSIGNMASTER(mob_vnum mob, SPECIAL(fname), int learn_info)
 /* assign special procedures to mobiles */
 void assign_mobiles(void)
 {
-//  assign_kings_castle();
-
-	/* HOTEL */
-//Adept: пока закомментил мешающее - потом надо посмотреть какого оно утт вообще делает.
-//	ASSIGNMOB(3005, receptionist);
-	ASSIGNMOB(3122, receptionist);
-	ASSIGNMOB(4022, receptionist);
-	ASSIGNMOB(106, receptionist);
-
-	/* POSTMASTER */
-	ASSIGNMOB(3027, postmaster);
-	ASSIGNMOB(3102, postmaster);
-	ASSIGNMOB(4002, postmaster);
-
-	/* BANK */
-	ASSIGNMOB(3019, bank);
-	ASSIGNMOB(3101, bank);
-	ASSIGNMOB(4001, bank);
-
-	/* HORSEKEEPER */
-	ASSIGNMOB(3123, horse_keeper);
-	ASSIGNMOB(4023, horse_keeper);
+    // Do nothing for now.
+    // Mobile special procs declarations go to specials.lst
+    // If you want, you can declare here special procs for mobs
+    // in addition to those declared in specials.lst
+    //    -- al
 }
-
 
 
 /* assign special procedures to objects */
@@ -142,7 +124,6 @@ void assign_objects(void)
 }
 
 
-
 /* assign special procedures to rooms */
 void assign_rooms(void)
 {
@@ -153,7 +134,6 @@ void assign_rooms(void)
 			if (ROOM_FLAGGED(i, ROOM_DEATH))
 				world[i]->func = dump;
 }
-
 
 
 void init_spec_procs(void)
