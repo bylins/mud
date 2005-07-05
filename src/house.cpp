@@ -33,6 +33,11 @@ extern const char *weapon_affects[];
 extern const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
 extern int ext_search_block(char *arg, const char **list, int exact);
 
+
+inline bool Clan::SortRank::operator() (const CHAR_DATA * ch1, const CHAR_DATA * ch2) {
+    return GET_CLAN_RANKNUM(ch1) < GET_CLAN_RANKNUM(ch2);
+}
+
 ClanListType Clan::ClanList;
 
 // аббревиатура дружины по игроку

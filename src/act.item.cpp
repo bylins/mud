@@ -32,10 +32,6 @@
 
 /* extern variables */
 extern room_rnum donation_room_1;
-#if 0
-extern room_rnum donation_room_2;	/* uncomment if needed! */
-extern room_rnum donation_room_3;	/* uncomment if needed! */
-#endif
 extern OBJ_DATA *obj_proto;
 extern CHAR_DATA *mob_proto;
 extern struct house_control_rec house_control[];
@@ -845,9 +841,6 @@ ACMD(do_drop)
 		case 2:
 			RDR = real_room(donation_room_1);
 			break;
-/*    case 3: RDR = real_room(donation_room_2); break;
-      case 4: RDR = real_room(donation_room_3); break;
-*/
 		}
 		if (RDR == NOWHERE) {
 			send_to_char("Вы не можете этого здесь сделать.\r\n", ch);

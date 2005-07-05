@@ -193,9 +193,8 @@ class Clan
 		bool operator() (const ClanMemberPtr ch1, const ClanMemberPtr ch2) {
 			return ch1->rankNum < ch2->rankNum;
 		}
-		bool operator() (const CHAR_DATA * ch1, const CHAR_DATA * ch2) {
-			return GET_CLAN_RANKNUM(ch1) < GET_CLAN_RANKNUM(ch2);
-		}
+
+		bool operator() (const CHAR_DATA * ch1, const CHAR_DATA * ch2);
 	};
 };
 

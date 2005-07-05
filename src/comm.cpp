@@ -1843,15 +1843,6 @@ int new_descriptor(int s)
 	newd->ip = TxtToIp(newd->host);
 
 	/* determine if the site is banned */
-#if 0
-	/*
-	 * Log new connections - probably unnecessary, but you may want it.
-	 * Note that your immortals may wonder if they see a connection from
-	 * your site, but you are wizinvis upon login.
-	 */
-	sprintf(buf2, "New connection from [%s]", newd->host);
-	mudlog(buf2, CMP, LVL_GOD, SYSLOG, FALSE);
-#endif
 	if (ban->is_banned(newd->host) == BanList::BAN_ALL) {
 		time_t bantime = ban->getBanDate(newd->host);
 		sprintf(buf, "Sorry, your IP is banned till %s",
@@ -3240,9 +3231,8 @@ void sanity_check(void)
 		plant_magic(buf2);
 		plant_magic(arg);
 	}
-#if 0
-	log("Statistics: buf=%d buf1=%d buf2=%d arg=%d", strlen(buf), strlen(buf1), strlen(buf2), strlen(arg));
-#endif
+
+	// log("Statistics: buf=%d buf1=%d buf2=%d arg=%d", strlen(buf), strlen(buf1), strlen(buf2), strlen(arg));
 }
 
 extern FILE *logfile;

@@ -2057,12 +2057,10 @@ void parse_espec(char *buf, int i, int nr)
 		*(ptr++) = '\0';
 		while (a_isspace(*ptr))
 			ptr++;
-#if 0				/* Need to evaluate interpret_espec()'s NULL handling. */
-	}
-#else
+				/* Need to evaluate interpret_espec()'s NULL handling. */
 	} else
 		ptr = "";
-#endif
+
 	interpret_espec(buf, ptr, i, nr);
 }
 
@@ -5997,17 +5995,6 @@ int check_object_spell_number(OBJ_DATA * obj, int val)
 		error = TRUE;
 	if (GET_OBJ_VAL(obj, val) > TOP_SPELL_DEFINE)
 		error = TRUE;
-
-	/*
-	 * This bug has been fixed, but if you don't like the special behavior...
-	 */
-#if 0
-	if (GET_OBJ_TYPE(obj) == ITEM_STAFF && HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, val), MAG_AREAS | MAG_MASSES))
-		log("... '%s' (#%d) uses %s spell '%s'.",
-		    obj->short_description, GET_OBJ_VNUM(obj),
-		    HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, val),
-				      MAG_AREAS) ? "area" : "mass", spell_name(GET_OBJ_VAL(obj, val)));
-#endif
 	if (error)
 				      MAG_AREAS) ? "area" : "mass", spell_name(GET_OBJ_VAL(obj, val)));
 #endif
