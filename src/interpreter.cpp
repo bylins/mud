@@ -2117,6 +2117,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		load_room = real_room(load_room);
 	}
 
+	Clan::SetClanData(d->character);
 	if (!Clan::MayEnter(d->character, load_room, HCE_PORTAL))
 		load_room = Clan::CloseRent(load_room);
 
@@ -2205,7 +2206,6 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		NewNameAdd(d->character);
 		mudlog(buf, DEF, LVL_IMMORT, SYSLOG, TRUE);
 	}
-	Clan::SetClanData(d->character);
 }
 
 void DoAfterPassword(DESCRIPTOR_DATA * d)

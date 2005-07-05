@@ -1707,7 +1707,7 @@ void SetClanTax(CHAR_DATA * ch, char *argument)
 	else {
 		ClanListType::const_iterator clan = Clan::GetClan(ch);
 		if (clan != Clan::ClanList.end()) {
-			(*clan)->_members[GET_UNIQUE(ch)]->tax = num;
+			(*clan)->members[GET_UNIQUE(ch)]->tax = num;
 			send_to_char("Ладушки.\r\n", ch);
 		}
 	}

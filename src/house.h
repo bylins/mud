@@ -93,7 +93,6 @@ typedef boost::shared_ptr<ClanPk> ClanPkPtr;
 typedef std::map<long, ClanPkPtr> ClanPkList;
 typedef std::vector<std::bitset<CLAN_PRIVILEGES_NUM> > ClanPrivileges;
 typedef std::map<room_vnum, int> ClanPolitics;
-typedef std::vector< OBJ_DATA *> ClanObjList;
 
 struct ClanOLC {
 	int mode;                  // для контроля состояния олц
@@ -120,7 +119,7 @@ class Clan
 	ClanPrivileges privileges;    // список привилегий для рангов
 	long bank;                    // состояние счета банка
 	unsigned long long exp;       // суммарная экспа клана
-	ClanMemberList _members;      // список членов дружины (уид, имя, номер ранга)
+	ClanMemberList members;       // список членов дружины (уид, имя, номер ранга)
 
 	static void ClanLoad();
 	static void ClanSave();
@@ -153,19 +152,19 @@ class Clan
 	friend ACMD(DoStorehouse);
 
 	private:
-	std::string _name;   // длинное имя клана
-	std::string _title;  // что будет видно в титуле членов клана (лучше род.падеж, если это не аббревиатура)
-	std::string _owner;  // имя воеводы
-	mob_vnum _guard;     // охранник замка
-	time_t _builtOn;     // дата создания
-	double _bankBuffer;  // буффер для более точного снятия за хранилище
-	bool _entranceMode;  // вход в замок для всех/только свои и альянс
-	std::vector <std::string> _ranks; // список названий рангов
-	ClanPolitics _politics;     // состояние политики
-	ClanPkList _pkList;  // пклист
-	ClanPkList _frList;  // дрлист
-	ClanObjList _chest;  // список предметов в сундуке
-	bool _storehouse;    // опция выборки из хранилища по параметрам шмота
+	std::string name;   // длинное имя клана
+	std::string title;  // что будет видно в титуле членов клана (лучше род.падеж, если это не аббревиатура)
+	std::string owner;  // имя воеводы
+	mob_vnum guard;     // охранник замка
+	time_t builtOn;     // дата создания
+	double bankBuffer;  // буффер для более точного снятия за хранилище
+	bool entranceMode;  // вход в замок для всех/только свои и альянс
+	std::vector <std::string> ranks; // список названий рангов
+	ClanPolitics politics;     // состояние политики
+	ClanPkList pkList;  // пклист
+	ClanPkList frList;  // дрлист
+	room_vnum out_rent; // номер румы для отписанных, чтобы не тусовались в замке дальше
+	bool storehouse;    // опция выборки из хранилища по параметрам шмота
 	// вообще, если появится еще пара-тройка опций, то надо будет это в битсет засунуть
 
 	int CheckPolitics(room_vnum victim);

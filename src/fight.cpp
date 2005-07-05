@@ -991,7 +991,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		ClanListType::const_iterator clan = Clan::GetClan(ch);
 		if (clan != Clan::ClanList.end()) {
 			(*clan)->exp += exp;
-			(*clan)->_members[GET_UNIQUE(ch)]->exp += exp;
+			(*clan)->members[GET_UNIQUE(ch)]->exp += exp;
 		}
 	}
 	gain_exp(ch, exp);
