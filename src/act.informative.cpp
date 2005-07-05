@@ -51,7 +51,6 @@ extern char *credits;
 extern char *info;
 extern char *motd;
 extern char *rules;
-extern char *wizlist;
 extern char *immlist;
 extern char *policies;
 extern char *handbook;
@@ -3980,9 +3979,6 @@ ACMD(do_users)
 
 	//DESCRIPTOR_DATA *d;
 	switch (subcmd) {
-		break;
-	case SCMD_WIZLIST:
-		page_string(ch->desc, wizlist, 0);
 	case SCMD_CREDITS:
 		page_string(ch->desc, news, 0);
 		break;

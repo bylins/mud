@@ -112,7 +112,6 @@ char *rules = NULL;		/* rules for immorts             */
 char *GREETINGS = NULL;		/* opening credits screen        */
 char *help = NULL;		/* help screen                   */
 char *info = NULL;		/* info page                     */
-char *wizlist = NULL;		/* list of higher gods           */
 char *immlist = NULL;		/* list of peon gods             */
 char *background = NULL;	/* background story              */
 char *handbook = NULL;		/* handbook for new immortals    */
@@ -156,7 +155,6 @@ int is_empty(zone_rnum zone_nr);
 void reset_zone(zone_rnum zone);
 int file_to_string(const char *name, char *buf);
 int file_to_string_alloc(const char *name, char **buf);
-void reboot_wizlists(void);
 ACMD(do_reboot);
 void boot_world(void);
 int count_alias_records(FILE * fl);
@@ -278,14 +276,6 @@ void tag_argument(char *argument, char *tag)
 /*************************************************************************
 *  routines for booting the system                                       *
 *************************************************************************/
-
-/* this is necessary for the autowiz system */
-void reboot_wizlists(void)
-{
-	file_to_string_alloc(WIZLIST_FILE, &wizlist);
-	file_to_string_alloc(IMMLIST_FILE, &immlist);
-}
-
 void go_boot_socials(void)
 {
 	int i;
@@ -414,7 +404,6 @@ ACMD(do_reboot)
 	if (!str_cmp(arg, "all") || *arg == '*') {
 		if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 			prune_crlf(GREETINGS);
-		file_to_string_alloc(WIZLIST_FILE, &wizlist);
 		file_to_string_alloc(IMMLIST_FILE, &immlist);
 		file_to_string_alloc(CREDITS_FILE, &credits);
 		file_to_string_alloc(MOTD_FILE, &motd);
@@ -445,8 +434,6 @@ ACMD(do_reboot)
 		init_zone_types();
 //-MZ.load
 
-	else if (!str_cmp(arg, "wizlist"))
-		file_to_string_alloc(WIZLIST_FILE, &wizlist);
 	else if (!str_cmp(arg, "immlist"))
 		file_to_string_alloc(IMMLIST_FILE, &immlist);
 	else if (!str_cmp(arg, "credits"))
@@ -770,7 +757,6 @@ void boot_db(void)
 	file_to_string_alloc(RULES_FILE, &rules);
 	file_to_string_alloc(HELP_PAGE_FILE, &help);
 	file_to_string_alloc(INFO_FILE, &info);
-	file_to_string_alloc(WIZLIST_FILE, &wizlist);
 	file_to_string_alloc(IMMLIST_FILE, &immlist);
 	file_to_string_alloc(POLICIES_FILE, &policies);
 	file_to_string_alloc(HANDBOOK_FILE, &handbook);

@@ -965,7 +965,6 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"wimpy", POS_DEAD, do_wimpy, 0, 0, 0},
 	{"withdraw", POS_STANDING, do_not_here, 1, 0, -1},
 	{"wizhelp", POS_SLEEPING, do_commands, LVL_IMMORT, SCMD_WIZHELP, 0},
-	{"wizlist", POS_DEAD, do_gen_ps, 0, SCMD_WIZLIST, 0},
 	{"wizlock", POS_DEAD, do_wizlock, LVL_IMPL, 0, 0},
 	{"wiznet", POS_DEAD, do_wiznet, LVL_IMMORT, 0, 0},
 	{"write", POS_STANDING, do_write, 1, 0, -1},

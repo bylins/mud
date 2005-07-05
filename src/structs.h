@@ -387,27 +387,27 @@ typedef struct trig_data
 
 /* Player flags: used by char_data.char_specials.act */
 #define PLR_KILLER       (1 << 0)	/* Player is a player-killer     */
-#define PLR_THIEF     (1 << 1)	/* Player is a player-thief      */
+#define PLR_THIEF        (1 << 1)	/* Player is a player-thief      */
 #define PLR_FROZEN       (1 << 2)	/* Player is frozen        */
-#define PLR_DONTSET     (1 << 3)	/* Don't EVER set (ISNPC bit)  */
+#define PLR_DONTSET      (1 << 3)	/* Don't EVER set (ISNPC bit)  */
 #define PLR_WRITING      (1 << 4)	/* Player writing (board/mail/olc)  */
 #define PLR_MAILING      (1 << 5)	/* Player is writing mail     */
-#define PLR_CRASH     (1 << 6)	/* Player needs to be crash-saved   */
+#define PLR_CRASH        (1 << 6)	/* Player needs to be crash-saved   */
 #define PLR_SITEOK       (1 << 7)	/* Player has been site-cleared  */
-#define PLR_MUTE      (1 << 8)	/* Player not allowed to shout/goss/auct  */
+#define PLR_MUTE         (1 << 8)	/* Player not allowed to shout/goss/auct  */
 #define PLR_NOTITLE      (1 << 9)	/* Player not allowed to set title  */
 #define PLR_DELETED      (1 << 10)	/* Player deleted - space reusable  */
-#define PLR_LOADROOM (1 << 11)	/* Player uses nonstandard loadroom  */
-#define PLR_NOWIZLIST   (1 << 12)	/* Player shouldn't be on wizlist */
-#define PLR_NODELETE (1 << 13)	/* Player shouldn't be deleted */
-#define PLR_INVSTART (1 << 14)	/* Player should enter game wizinvis */
-#define PLR_CRYO      (1 << 15)	/* Player is cryo-saved (purge prog)   */
+#define PLR_LOADROOM     (1 << 11)	/* Player uses nonstandard loadroom  */
+//место свободно
+#define PLR_NODELETE     (1 << 13)	/* Player shouldn't be deleted */
+#define PLR_INVSTART     (1 << 14)	/* Player should enter game wizinvis */
+#define PLR_CRYO         (1 << 15)	/* Player is cryo-saved (purge prog)   */
 #define PLR_HELLED       (1 << 16)	/* Player is in Hell */
-#define PLR_NAMED     (1 << 17)	/* Player is in Names Room */
-#define PLR_REGISTERED      (1 << 18)
-#define PLR_DUMB      (1 << 19)	/* Player is not allowed to tell/emote/social */
-#define PLR_DELETE          (1 << 28)	/* RESERVED - ONLY INTERNALLY */
-#define PLR_FREE            (1 << 29)	/* RESERVED - ONLY INTERBALLY */
+#define PLR_NAMED        (1 << 17)	/* Player is in Names Room */
+#define PLR_REGISTERED   (1 << 18)
+#define PLR_DUMB         (1 << 19)	/* Player is not allowed to tell/emote/social */
+#define PLR_DELETE       (1 << 28)	/* RESERVED - ONLY INTERNALLY */
+#define PLR_FREE         (1 << 29)	/* RESERVED - ONLY INTERBALLY */
 
 
 /* Mobile flags: used by char_data.char_specials.act */

@@ -116,7 +116,7 @@ struct alias_data {
 #define SCMD_HANDBOOK   1
 #define SCMD_CREDITS    2
 // free
-#define SCMD_WIZLIST    4
+// тож свободно
 #define SCMD_POLICIES   5
 #define SCMD_VERSION    6
 #define SCMD_IMMLIST    7

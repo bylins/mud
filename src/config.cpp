@@ -336,20 +336,6 @@ const char *START_MESSG =
 /****************************************************************************/
 /****************************************************************************/
 
-
-/* AUTOWIZ OPTIONS */
-
-/*
- * Should the game automatically create a new wizlist/immlist every time
- * someone immorts, or is promoted to a higher (or lower) god level?
- * NOTE: this only works under UNIX systems.
- */
-int use_autowiz = YES;
-
-/* If yes, what is the lowest level which should be on the wizlist?  (All
-   immort levels below the level you specify will go on the immlist instead.) */
-int min_wizlist_lev = LVL_GOD;
-
 extern float exp_coefficients[];
 int max_exp_gain_pc(CHAR_DATA * ch)
 {

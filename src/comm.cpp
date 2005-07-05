@@ -133,7 +133,6 @@ log_info logs[NLOG] = {
 char src_path[4096];
 
 /* functions in this file */
-RETSIGTYPE reread_wizlists(int sig);
 RETSIGTYPE unrestrict_game(int sig);
 RETSIGTYPE reap(int sig);
 RETSIGTYPE checkpointing(int sig);
@@ -181,7 +180,6 @@ void zlib_free(void *opaque, void *address);
 
 
 /* extern fcnts */
-void reboot_wizlists(void);
 void boot_world(void);
 void player_affect_update(void);	/* In spells.cpp */
 void room_affect_update(void);		/* In spells.cpp */
@@ -2680,13 +2678,6 @@ void nonblock(socket_t s)
 *  signal-handling functions (formerly signals.c).  UNIX only.      *
 ****************************************************************** */
 
-RETSIGTYPE reread_wizlists(int sig)
-{
-	mudlog("Signal received - rereading wizlists.", CMP, LVL_IMMORT, SYSLOG, TRUE);
-	reboot_wizlists();
-}
-
-
 RETSIGTYPE unrestrict_game(int sig)
 {
 	mudlog("Received SIGUSR2 - completely unrestricting game (emergent)", BRF, LVL_IMMORT, SYSLOG, TRUE);
@@ -2775,9 +2766,6 @@ void signal_setup(void)
 {
 	struct itimerval itime;
 	struct timeval interval;
-
-	/* user signal 1: reread wizlists.  Used by autowiz system. */
-	my_signal(SIGUSR1, reread_wizlists);
 
 	/*
 	 * user signal 2: unrestrict game.  Used for emergencies if you lock
