@@ -32,36 +32,6 @@
 #include "conf.h"
 #include "sysdep.h"
 
-#ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
-# define SIGPIPE 13
-# define SIGALRM 14
-  /* GUSI headers */
-# include <sys/ioctl.h>
-  /* Codewarrior dependant */
-# include <SIOUX.h>
-# include <console.h>
-#endif
-
-#ifdef CIRCLE_WINDOWS		/* Includes for Win32 */
-# ifdef __BORLANDC__
-#  include <dir.h>
-# else				/* MSVC */
-#  include <direct.h>
-# endif
-# include <mmsystem.h>
-#endif				/* CIRCLE_WINDOWS */
-
-#ifdef CIRCLE_AMIGA		/* Includes for the Amiga */
-# include <sys/ioctl.h>
-# include <clib/socket_protos.h>
-#endif				/* CIRCLE_AMIGA */
-
-#ifdef CIRCLE_ACORN		/* Includes for the Acorn (RiscOS) */
-# include <socklib.h>
-# include <inetlib.h>
-# include <sys/ioctl.h>
-#endif
-
 /*
  * Note, most includes for all platforms are in sysdep.h.  The list of
  * files that is included is controlled by conf.h for that platform.
@@ -294,28 +264,6 @@ const char str_goahead[] = { IAC, GA, 0 };
 *  main game loop and related stuff                                    *
 ***********************************************************************/
 
-#if defined(CIRCLE_WINDOWS) || defined(CIRCLE_MACINTOSH)
-
-/*
- * Windows doesn't have gettimeofday, so we'll simulate it.
- * The Mac doesn't have gettimeofday either.
- * Borland C++ warns: "Undefined structure 'timezone'"
- */
-void gettimeofday(struct timeval *t, struct timezone *dummy)
-{
-#if defined(CIRCLE_WINDOWS)
-	DWORD millisec = GetTickCount();
-#elif defined(CIRCLE_MACINTOSH)
-	unsigned long int millisec;
-	millisec = (int) ((float) TickCount() * 1000.0 / 60.0);
-#endif
-
-	t->tv_sec = (int) (millisec / 1000);
-	t->tv_usec = (millisec % 1000) * 1000;
-}
-
-#endif				/* CIRCLE_WINDOWS || CIRCLE_MACINTOSH */
-
 
 #define plant_magic(x)	do { (x)[sizeof(x) - 1] = MAGIC_NUMBER; } while (0)
 #define test_magic(x)	((x)[sizeof(x) - 1])
@@ -336,16 +284,6 @@ int main(int argc, char **argv)
 	plant_magic(buf1);
 	plant_magic(buf2);
 	plant_magic(arg);
-
-#ifdef CIRCLE_MACINTOSH
-	/*
-	 * ccommand() calls the command line/io redirection dialog box from
-	 * Codewarriors's SIOUX library
-	 */
-	argc = ccommand(&argv);
-	/* Initialize the GUSI library calls.  */
-	GUSIDefaultSetup();
-#endif
 
 	port = DFLT_PORT;
 	dir = DFLT_DIR;
@@ -469,10 +407,8 @@ void init_game(ush_int port)
 
 	boot_db();
 
-#if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
 	log("Signal trapping.");
 	signal_setup();
-#endif
 
 	/* If we made it this far, we will be able to restart without problem. */
 	remove(KILLSCRIPT_FILE);
@@ -559,28 +495,6 @@ socket_t init_socket(ush_int port)
 	int opt;
 	struct sockaddr_in sa;
 
-#ifdef CIRCLE_WINDOWS
-	{
-		WORD wVersionRequested;
-		WSADATA wsaData;
-
-		wVersionRequested = MAKEWORD(1, 1);
-
-		if (WSAStartup(wVersionRequested, &wsaData) != 0) {
-			log("SYSERR: WinSock not available!");
-			exit(1);
-		}
-		if ((wsaData.iMaxSockets - 4) < max_players) {
-			max_players = wsaData.iMaxSockets - 4;
-		}
-		log("Max players set to %d", max_players);
-
-		if ((s = socket(PF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) {
-			log("SYSERR: Error opening network connection: Winsock error #%d", WSAGetLastError());
-			exit(1);
-		}
-	}
-#else
 	/*
 	 * Should the first argument to socket() be AF_INET or PF_INET?  I don't
 	 * know, take your pick.  PF_INET seems to be more widely adopted, and
@@ -596,7 +510,6 @@ socket_t init_socket(ush_int port)
 		perror("SYSERR: Error creating socket");
 		exit(1);
 	}
-#endif				/* CIRCLE_WINDOWS */
 
 #if defined(SO_REUSEADDR) && !defined(CIRCLE_MACINTOSH)
 	opt = 1;
@@ -644,10 +557,6 @@ socket_t init_socket(ush_int port)
 
 int get_max_players(void)
 {
-#ifndef CIRCLE_UNIX
-	return (max_playing);
-#else
-
 	int max_descs = 0;
 	const char *method;
 
@@ -720,7 +629,6 @@ int get_max_players(void)
 	}
 	log("   Setting player limit to %d using %s.", max_descs, method);
 	return (max_descs);
-#endif				/* CIRCLE_UNIX */
 }
 
 int shutting_down(void)
@@ -899,29 +807,6 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		}
 	}
 
-#if 0
-	/* Send queued output out to the operating system (ultimately to user). */
-	for (d = descriptor_list; d; d = next_d) {
-		next_d = d->next;
-		if (*(d->output) && FD_ISSET(d->descriptor, &output_set)) {	/* Output for this player is ready */
-			if (process_output(d) < 0)
-				close_socket(d, FALSE);
-			else
-				d->has_prompt = 1;
-		}
-	}
-
-	/* Print prompts for other descriptors who had no other output */
-	for (d = descriptor_list; d; d = d->next) {
-		if (!d->has_prompt) {	//sprintf(buf,"\r\n%s",make_prompt(d));
-		//from_koi(buf, d->keytable);
-			SEND_TO_Q(make_prompt(d), d);
-			SEND_TO_Q(end_line, d);
-			d->has_prompt = 2;
-		}
-	}
-#endif
-
 	/* Kick out folks in the CON_CLOSE or CON_DISCONNECT state */
 	for (d = descriptor_list; d; d = next_d) {
 		next_d = d->next;
@@ -980,10 +865,8 @@ void game_loop(socket_t mother_desc)
 
 		maxdesc = mother_desc;
 		for (d = descriptor_list; d; d = d->next) {
-#ifndef CIRCLE_WINDOWS
 			if (d->descriptor > maxdesc)
 				maxdesc = d->descriptor;
-#endif
 			FD_SET(d->descriptor, &input_set);
 			FD_SET(d->descriptor, &output_set);
 			FD_SET(d->descriptor, &exc_set);
@@ -1050,15 +933,17 @@ void game_loop(socket_t mother_desc)
 
 		/* Now execute the heartbeat functions */
 		while (missed_pulses--) {
+
 #ifdef PERF_GRAPH
 			struct timeval before, after, diff;
 			static int emin = 1000000, emax = -1, etotal=0, enumber=0;
 			static float eavg = 0.0;
-
 			gettimeofday(&before, (struct timezone *) 0);
 #endif
+
 			process_io(input_set, output_set, exc_set, null_set, mother_desc, maxdesc);
 			heartbeat();
+
 #ifdef PERF_GRAPH
 			gettimeofday(&after, (struct timezone *) 0);
 			timediff(&diff, &after, &before);
@@ -1075,10 +960,8 @@ void game_loop(socket_t mother_desc)
 		// dupe_player_index();
 		// _exit(0);
 
-#ifdef CIRCLE_UNIX
 		/* Update tics for deadlock protection (UNIX only) */
 		tics++;
-#endif
 	}
 }
 
@@ -2201,42 +2084,6 @@ int process_output(DESCRIPTOR_DATA * t)
  * and one for all other platforms.
  */
 
-#if defined(CIRCLE_WINDOWS)
-
-ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
-{
-	ssize_t result;
-
-	result = send(desc, txt, length, 0);
-
-	if (result > 0) {
-		/* Write was sucessful */
-		number_of_bytes_written += result;
-		return (result);
-	}
-
-	if (result == 0) {
-		/* This should never happen! */
-		log("SYSERR: Huh??  write() returned 0???  Please report this!");
-		return (-1);
-	}
-
-	/* result < 0: An error was encountered. */
-
-	/* Transient error? */
-	if (WSAGetLastError() == WSAEWOULDBLOCK || WSAGetLastError() == WSAEINTR)
-		return (0);
-
-	/* Must be a fatal error. */
-	return (-1);
-}
-
-#else
-
-#if defined(CIRCLE_ACORN)
-#define write	socketwrite
-#endif
-
 /* perform_socket_write for all Non-Windows platforms */
 ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 {
@@ -2280,8 +2127,6 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 	/* Looks like the error was fatal.  Too bad. */
 	return (-1);
 }
-
-#endif				/* CIRCLE_WINDOWS */
 
 
 /*
@@ -2340,13 +2185,7 @@ ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left)
 {
 	ssize_t ret;
 
-#if defined(CIRCLE_ACORN)
-	ret = recv(desc, read_point, space_left, MSG_DONTWAIT);
-#elif defined(CIRCLE_WINDOWS)
-	ret = recv(desc, read_point, space_left, 0);
-#else
 	ret = read(desc, read_point, space_left);
-#endif
 
 	/* Read was successful. */
 	if (ret > 0) {
@@ -2363,11 +2202,6 @@ ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left)
 	/*
 	 * read returned a value < 0: there was an error
 	 */
-
-#if defined(CIRCLE_WINDOWS)	/* Windows */
-	if (WSAGetLastError() == WSAEWOULDBLOCK || WSAGetLastError() == WSAEINTR)
-		return (0);
-#else
 
 #ifdef EINTR			/* Interrupted system call - various platforms */
 	if (errno == EINTR)
@@ -2388,8 +2222,6 @@ ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left)
 	if (errno == EDEADLK)
 		return (0);
 #endif
-
-#endif				/* CIRCLE_WINDOWS */
 
 	/*
 	 * We don't know what happened, cut them off. This qualifies for
@@ -2828,44 +2660,6 @@ void check_idle_passwords(void)
  * this and various other NeXT fixes.)
  */
 
-#if defined(CIRCLE_WINDOWS)
-
-void nonblock(socket_t s)
-{
-	unsigned long val = 1;
-	ioctlsocket(s, FIONBIO, &val);
-}
-
-#elif defined(CIRCLE_AMIGA)
-
-void nonblock(socket_t s)
-{
-	long val = 1;
-	IoctlSocket(s, FIONBIO, &val);
-}
-
-#elif defined(CIRCLE_ACORN)
-
-void nonblock(socket_t s)
-{
-	int val = 1;
-	socket_ioctl(s, FIONBIO, &val);
-}
-
-#elif defined(CIRCLE_VMS)
-
-void nonblock(socket_t s)
-{
-	int val = 1;
-
-	if (ioctl(s, FIONBIO, &val) < 0) {
-		perror("SYSERR: Fatal error executing nonblock (comm.c)");
-		exit(1);
-	}
-}
-
-#elif defined(CIRCLE_UNIX) || defined(CIRCLE_OS2) || defined(CIRCLE_MACINTOSH)
-
 #ifndef O_NONBLOCK
 #define O_NONBLOCK O_NDELAY
 #endif
@@ -2882,14 +2676,9 @@ void nonblock(socket_t s)
 	}
 }
 
-#endif				/* CIRCLE_UNIX || CIRCLE_OS2 || CIRCLE_MACINTOSH */
-
-
 /* ******************************************************************
 *  signal-handling functions (formerly signals.c).  UNIX only.      *
 ****************************************************************** */
-
-#if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
 
 RETSIGTYPE reread_wizlists(int sig)
 {
@@ -2905,8 +2694,6 @@ RETSIGTYPE unrestrict_game(int sig)
 	circle_restrict = 0;
 	num_invalid = 0;
 }
-
-#ifdef CIRCLE_UNIX
 
 /* clean up our zombie kids to avoid defunct processes */
 RETSIGTYPE reap(int sig)
@@ -2947,7 +2734,6 @@ RETSIGTYPE hupsig(int sig)
 				 * substituted */
 }
 
-#endif				/* CIRCLE_UNIX */
 
 /*
  * This is an implementation of signal() using sigaction() for portability.
@@ -2987,7 +2773,6 @@ sigfunc *my_signal(int signo, sigfunc * func)
 
 void signal_setup(void)
 {
-#ifndef CIRCLE_MACINTOSH
 	struct itimerval itime;
 	struct timeval interval;
 
@@ -3014,7 +2799,6 @@ void signal_setup(void)
 	/* just to be on the safe side: */
 	my_signal(SIGHUP, hupsig);
 	my_signal(SIGCHLD, reap);
-#endif				/* CIRCLE_MACINTOSH */
 	my_signal(SIGINT, hupsig);
 	my_signal(SIGTERM, hupsig);
 	my_signal(SIGPIPE, SIG_IGN);
@@ -3024,7 +2808,6 @@ void signal_setup(void)
 
 }
 
-#endif				/* CIRCLE_UNIX || CIRCLE_MACINTOSH */
 
 /* ****************************************************************
 *       Public routines for system-to-player-communication        *
@@ -3534,14 +3317,6 @@ int open_logfile(log_info * li, FILE * stderr_fp)
 /*
  * This may not be pretty but it keeps game_loop() neater than if it was inline.
  */
-#if defined(CIRCLE_WINDOWS)
-
-inline void circle_sleep(struct timeval *timeout)
-{
-	Sleep(timeout->tv_sec * 1000 + timeout->tv_usec / 1000);
-}
-
-#else
 
 inline void circle_sleep(struct timeval *timeout)
 {
@@ -3552,8 +3327,6 @@ inline void circle_sleep(struct timeval *timeout)
 		}
 	}
 }
-
-#endif				/* CIRCLE_WINDOWS */
 
 #if defined(HAVE_ZLIB)
 

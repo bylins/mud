@@ -985,7 +985,6 @@ void core_dump_real(const char *who, int line)
 	int i;
 	log("SYSERR: Assertion failed at %s:%d!", who, line);
 
-#if defined(CIRCLE_UNIX)
 	/* These would be duplicated otherwise... */
 	fflush(stdout);
 	fflush(stderr);
@@ -998,7 +997,6 @@ void core_dump_real(const char *who, int line)
 	 */
 	if (fork() == 0)
 		abort();
-#endif
 }
 
 void to_koi(char *str, int from)

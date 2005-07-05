@@ -674,22 +674,16 @@ void set_title(CHAR_DATA * ch, char *title)
 
 void check_autowiz(CHAR_DATA * ch)
 {
-#if defined(CIRCLE_UNIX) || defined(CIRCLE_WINDOWS)
 	if (use_autowiz && GET_LEVEL(ch) >= LVL_IMMORT) {
 		char buf[128];
 
-#if defined(CIRCLE_UNIX)
 		sprintf(buf, "nice ../bin/autowiz %d %s %d %s %d &", min_wizlist_lev,
 			WIZLIST_FILE, LVL_IMMORT, IMMLIST_FILE, (int) getpid());
-#elif defined(CIRCLE_WINDOWS)
-		sprintf(buf, "autowiz %d %s %d %s", min_wizlist_lev, WIZLIST_FILE, LVL_IMMORT, IMMLIST_FILE);
-#endif				/* CIRCLE_WINDOWS */
 
 		mudlog("Initiating autowiz.", CMP, LVL_IMMORT, SYSLOG, FALSE);
 		system(buf);
 		reboot_wizlists();
 	}
-#endif				/* CIRCLE_UNIX || CIRCLE_WINDOWS */
 }
 
 

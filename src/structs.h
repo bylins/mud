@@ -1160,10 +1160,8 @@ typedef char
  bool;
 #endif
 
-#if !defined(CIRCLE_WINDOWS) || defined(LCC_WIN32)	/* Hm, sysdep.h? */
 typedef char
  byte;
-#endif
 
 typedef int
  room_vnum;			/* A room's vnum type */
