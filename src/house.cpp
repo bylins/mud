@@ -272,7 +272,7 @@ void Clan::ClanLoad()
 					ClanPkPtr tempRecord(new ClanPk);
 
 					tempRecord->author = author;
-					tempRecord->authorName = authorName;
+					tempRecord->authorName = authorName ? authorName : "Кто-то";
 					tempRecord->victimName = victimName;
 					tempRecord->time = tempTime;
 					tempRecord->text = buffer;
