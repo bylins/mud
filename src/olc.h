@@ -8,9 +8,6 @@
 *  $Revision$                                                       *
  ************************************************************************/
 
-#ifndef _OLC_H_
-#define _OLC_H_
-
 /*
  * If you don't want a short explanation of each field in your zone files,
  * change the number below to a 0 instead of a 1.
@@ -412,4 +409,3 @@ extern struct olc_save_info *olc_save_list;
 void xedit_disp_ing(DESCRIPTOR_DATA * d, int *ping);
 int xparse_ing(DESCRIPTOR_DATA * d, int **pping, char *arg);
 
-#endif

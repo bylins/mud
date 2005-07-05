@@ -31,9 +31,9 @@ class PrivList {
 	bool reload();
 	bool save();
 
-	bool enough_cmd_priv(const std::string & name, int char_level, const std::string & cmd_name, int cmd_number, long unique);
-	bool enough_cmd_set_priv(const std::string & name, int char_level, const std::string & set_subcmd, long unique);
-	bool enough_cmd_show_priv(const std::string & name, int char_level, const std::string & show_subcmd, long unique);
+	bool enough_cmd_priv(const std::string & name, int char_level, const std::string & cmd_name, int cmd_number);
+	bool enough_cmd_set_priv(const std::string & name, int char_level, const std::string & set_subcmd);
+	bool enough_cmd_show_priv(const std::string & name, int char_level, const std::string & show_subcmd);
 	bool add_cmd_priv(const std::string & char_name, const std::string & cmd_name);
 	bool add_cmd_set_priv(const std::string & char_name, const std::string & set_subcmd);
 	bool add_cmd_show_priv(const std::string & char_name, const std::string & show_subcmd);

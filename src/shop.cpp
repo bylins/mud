@@ -29,7 +29,6 @@
 #include "shop.h"
 #include "dg_scripts.h"
 #include "constants.h"
-#include "house.h"
 
 extern TIME_INFO_DATA time_info;
 
@@ -923,22 +922,16 @@ void shopping_sell_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int 
 	}
 
 	goldamt += sell_price(obj, ch, shop_nr);	// стоимость продаваемой шмотки
-/*	if (GET_GOLD(keeper) + SHOP_BANK(shop_nr) < goldamt) {
+	if (GET_GOLD(keeper) + SHOP_BANK(shop_nr) < goldamt) {
 		sprintf(buf, shop_index[shop_nr].missing_cash1, GET_NAME(ch));
 		do_tell(keeper, buf, cmd_tell, 0);
 		return;
 	}
 
 	GET_GOLD(keeper) -= goldamt;
-*/
 	obj_from_char(obj);
 	obj = slide_obj(obj, keeper, shop_nr);
 
-	if (GET_CLAN_RENT(ch)) {
-		int tax = Clan::SetTax(ch, &goldamt);
-		if (tax > 0)
-			send_to_char(ch, "В казну Вашей дружины отчисленно: %d %s.\r\n", tax, desc_count(tax, WHAT_MONEYa));
-	}
 	GET_GOLD(ch) += goldamt;
 	sprintf(buf, "$n продал$g %s.", times_message(obj, 0, sold, 3));
 	act(buf, FALSE, ch, obj, 0, TO_ROOM);

@@ -15,6 +15,7 @@
 #include "spells.h"
 #include "utils.h"
 #include "db.h"
+#include "boards.h"
 #include "shop.h"
 #include "olc.h"
 #include "dg_olc.h"
@@ -46,6 +47,7 @@ extern const char *weapon_affects[];
 extern const char *material_name[];
 extern const char *ingradient_bits[];
 extern struct spell_info_type spell_info[];
+extern struct board_info_type board_info[];
 extern DESCRIPTOR_DATA *descriptor_list;
 
 int real_zone(int number);
@@ -405,6 +407,11 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 						ZCMD.arg2++;
 					break;
 				}
+
+		/* Renumber notice boards. */
+		for (i = 0; i < NUM_OF_BOARDS; i++)
+			if (BOARD_RNUM(i) >= robj_num)
+				BOARD_RNUM(i) = BOARD_RNUM(i) + 1;
 
 		/* Renumber shop produce. */
 		for (shop = 0; shop < top_shop; shop++)
@@ -1339,7 +1346,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				d->backstr = str_dup(OLC_OBJ(d)->action_description);
 			}
 			d->str = &OLC_OBJ(d)->action_description;
-			d->max_str = 4096;
+			d->max_str = MAX_MESSAGE_LENGTH;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;
 			break;
@@ -1914,7 +1921,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				d->backstr = str_dup(OLC_DESC(d)->description);
 			}
 			d->str = &OLC_DESC(d)->description;
-			d->max_str = 4096;
+			d->max_str = MAX_MESSAGE_LENGTH;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;
 			return;

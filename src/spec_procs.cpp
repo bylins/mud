@@ -15,7 +15,6 @@
 #include "conf.h"
 #include "sysdep.h"
 
-#include "house.h"
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -65,8 +64,16 @@ SPECIAL(guild_mono);
 SPECIAL(guild_poly);
 SPECIAL(guild);
 SPECIAL(dump);
+SPECIAL(mayor);
+SPECIAL(snake);
+SPECIAL(thief);
+SPECIAL(magic_user);
 SPECIAL(guild_guard);
+SPECIAL(puff);
+SPECIAL(fido);
+SPECIAL(janitor);
 SPECIAL(cityguard);
+SPECIAL(pet_shops);
 SPECIAL(bank);
 
 
@@ -1136,10 +1143,9 @@ int npc_scavenge(CHAR_DATA * ch)
 		best_obj = NULL;
 		cont = NULL;
 		best_cont = NULL;
-		int chest = real_object(CLAN_CHEST); // шоб не брали из клан-хранилищ
-		for (obj = world[ch->in_room]->contents; obj; obj = obj->next_content) {
+		for (obj = world[ch->in_room]->contents; obj; obj = obj->next_content)
 			if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER) {
-				if (IS_CORPSE(obj) || OBJVAL_FLAGGED(obj, CONT_LOCKED) || obj->item_number == chest)
+				if (IS_CORPSE(obj) || OBJVAL_FLAGGED(obj, CONT_LOCKED))
 					continue;
 				for (cobj = obj->contains; cobj; cobj = cobj->next_content)
 					if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj) && GET_OBJ_COST(cobj) > max) {
@@ -1153,7 +1159,6 @@ int npc_scavenge(CHAR_DATA * ch)
 				best_obj = obj;
 				max = GET_OBJ_COST(obj);
 			}
-		}
 		if (best_obj != NULL) {
 			if (best_obj != best_cont) {
 				obj_from_room(best_obj);
@@ -1670,28 +1675,6 @@ int npc_steal(CHAR_DATA * ch)
 void npc_group(CHAR_DATA * ch)
 {
 	CHAR_DATA *vict, *leader = NULL;
-/*
-int zone = ((((((((
-(unsigned long)(1 << 3) < (unsigned long)(1 << 30)
-	? (ch)->char_specials.saved.act.flags[0]
-	: (unsigned long)(1 << 3) < (unsigned long)(2 << 30)
-		? (ch)->char_specials.saved.act.flags[1]
-		: (unsigned long)(1 << 3) < (unsigned long)(3 << 30)
-			? (ch)->char_specials.saved.act.flags[2]
-			: (ch)->char_specials.saved.act.flags[3])) & 0x3FFFFFFF) & ((1 << 3)))) && ((ch)->nr) >= 0)
-					? mob_index[((ch)->nr)].vnum
-					: -1) / 100),
-group = ((((((((((unsigned long)(1 << 3) < (unsigned long)(1 << 30)
-	? (ch)->char_specials.saved.act.flags[0]
-	: (unsigned long)(1 << 3) < (unsigned long)(2 << 30)
-		? (ch)->char_specials.saved.act.flags[1]
-		: (unsigned long)(1 << 3) < (unsigned long)(3 << 30)
-			? (ch)->char_specials.saved.act.flags[2]
-			: (ch)->char_specials.saved.act.flags[3])) & 0x3FFFFFFF) & ((1 << 3)))) && ((ch)->nr) >= 0)
-				? mob_index[((ch)->nr)].vnum
-				: -1) % 100) / 10),
-members = 0;
-*/
 	int zone = ZONE(ch), group = GROUP(ch), members = 0;
 
 	if (GET_DEST(ch) == NOWHERE || IN_ROOM(ch) == NOWHERE)
@@ -1805,6 +1788,207 @@ SPECIAL(dump)
 	return (1);
 }
 
+#if 0
+SPECIAL(mayor)
+{
+	const char open_path[] = "W3a3003b33000c111d0d111Oe333333Oe22c222112212111a1S.";
+	const char close_path[] = "W3a3003b33000c111d0d111CE333333CE22c222112212111a1S.";
+
+	static const char *path = NULL;
+	static int index;
+	static bool move = FALSE;
+
+	if (!move) {
+		if (time_info.hours == 6) {
+			move = TRUE;
+			path = open_path;
+			index = 0;
+		} else if (time_info.hours == 20) {
+			move = TRUE;
+			path = close_path;
+			index = 0;
+		}
+	}
+	if (cmd || !move || (GET_POS(ch) < POS_SLEEPING) || (GET_POS(ch) == POS_FIGHTING))
+		return (FALSE);
+
+	switch (path[index]) {
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+		perform_move(ch, path[index] - '0', 1, FALSE);
+		break;
+
+	case 'W':
+		GET_POS(ch) = POS_STANDING;
+		act("$n awakens and groans loudly.", FALSE, ch, 0, 0, TO_ROOM);
+		break;
+
+	case 'S':
+		GET_POS(ch) = POS_SLEEPING;
+		act("$n lies down and instantly falls asleep.", FALSE, ch, 0, 0, TO_ROOM);
+		break;
+
+	case 'a':
+		act("$n says 'Hello Honey!'", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n smirks.", FALSE, ch, 0, 0, TO_ROOM);
+		break;
+
+	case 'b':
+		act("$n says 'What a view!  I must get something done about that dump!'", FALSE, ch, 0, 0, TO_ROOM);
+		break;
+
+	case 'c':
+		act("$n says 'Vandals!  Youngsters nowadays have no respect for anything!'", FALSE, ch, 0, 0, TO_ROOM);
+		break;
+
+	case 'd':
+		act("$n says 'Good day, citizens!'", FALSE, ch, 0, 0, TO_ROOM);
+		break;
+
+	case 'e':
+		act("$n says 'I hereby declare the bazaar open!'", FALSE, ch, 0, 0, TO_ROOM);
+		break;
+
+	case 'E':
+		act("$n says 'I hereby declare Midgaard closed!'", FALSE, ch, 0, 0, TO_ROOM);
+		break;
+
+	case 'O':
+		do_gen_door(ch, "gate", 0, SCMD_UNLOCK);
+		do_gen_door(ch, "gate", 0, SCMD_OPEN);
+		break;
+
+	case 'C':
+		do_gen_door(ch, "gate", 0, SCMD_CLOSE);
+		do_gen_door(ch, "gate", 0, SCMD_LOCK);
+		break;
+
+	case '.':
+		move = FALSE;
+		break;
+
+	}
+
+	index++;
+	return (FALSE);
+}
+#endif
+
+/* ********************************************************************
+*  General special procedures for mobiles                             *
+******************************************************************** */
+
+
+
+SPECIAL(snake)
+{
+	if (cmd)
+		return (FALSE);
+
+	if (GET_POS(ch) != POS_FIGHTING)
+		return (FALSE);
+
+	if (FIGHTING(ch) && (FIGHTING(ch)->in_room == ch->in_room) && (number(0, 42 - GET_LEVEL(ch)) == 0)) {
+		act("$n bites $N!", 1, ch, 0, FIGHTING(ch), TO_NOTVICT);
+		act("$n bites you!", 1, ch, 0, FIGHTING(ch), TO_VICT);
+		call_magic(ch, FIGHTING(ch), NULL, world[IN_ROOM(ch)], SPELL_POISON, GET_LEVEL(ch), CAST_SPELL);
+		return (TRUE);
+	}
+	return (FALSE);
+}
+
+
+SPECIAL(thief)
+{
+	CHAR_DATA *cons;
+
+	if (cmd)
+		return (FALSE);
+
+	if (GET_POS(ch) != POS_STANDING)
+		return (FALSE);
+
+	for (cons = world[ch->in_room]->people; cons; cons = cons->next_in_room)
+		if (!IS_NPC(cons) && (GET_LEVEL(cons) < LVL_IMMORT) && (!number(0, 4))) {
+			do_npc_steal(ch, cons);
+			return (TRUE);
+		}
+	return (FALSE);
+}
+
+
+SPECIAL(magic_user)
+{
+	CHAR_DATA *vict;
+
+	if (cmd || GET_POS(ch) != POS_FIGHTING)
+		return (FALSE);
+
+	/* pseudo-randomly choose someone in the room who is fighting me */
+	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
+		if (FIGHTING(vict) == ch && !number(0, 4))
+			break;
+
+	/* if I didn't pick any of those, then just slam the guy I'm fighting */
+	if (vict == NULL && IN_ROOM(FIGHTING(ch)) == IN_ROOM(ch))
+		vict = FIGHTING(ch);
+
+	/* Hm...didn't pick anyone...I'll wait a round. */
+	if (vict == NULL)
+		return (TRUE);
+
+	if ((GET_LEVEL(ch) > 13) && (number(0, 10) == 0))
+		cast_spell(ch, vict, NULL, NULL, SPELL_SLEEP);
+
+	if ((GET_LEVEL(ch) > 7) && (number(0, 8) == 0))
+		cast_spell(ch, vict, NULL, NULL, SPELL_BLINDNESS);
+
+	if ((GET_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
+		if (IS_EVIL(ch))
+			cast_spell(ch, vict, NULL, NULL, SPELL_ENERGY_DRAIN);
+		else if (IS_GOOD(ch))
+			cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_EVIL);
+	}
+	if (number(0, 4))
+		return (TRUE);
+
+	switch (GET_LEVEL(ch)) {
+	case 4:
+	case 5:
+		cast_spell(ch, vict, NULL, NULL, SPELL_MAGIC_MISSILE);
+		break;
+	case 6:
+	case 7:
+		cast_spell(ch, vict, NULL, NULL, SPELL_CHILL_TOUCH);
+		break;
+	case 8:
+	case 9:
+		cast_spell(ch, vict, NULL, NULL, SPELL_BURNING_HANDS);
+		break;
+	case 10:
+	case 11:
+		cast_spell(ch, vict, NULL, NULL, SPELL_SHOCKING_GRASP);
+		break;
+	case 12:
+	case 13:
+		cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT);
+		break;
+	case 14:
+	case 15:
+	case 16:
+	case 17:
+		cast_spell(ch, vict, NULL, NULL, SPELL_COLOR_SPRAY);
+		break;
+	default:
+		cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL);
+		break;
+	}
+	return (TRUE);
+
+}
+
 
 /* ********************************************************************
 *  Special procedures for mobiles                                      *
@@ -1834,6 +2018,187 @@ SPECIAL(guild_guard)
 	}
 
 	return (FALSE);
+}
+
+
+
+SPECIAL(puff)
+{
+	if (cmd)
+		return (0);
+
+	switch (number(0, 60)) {
+	case 0:
+		do_say(ch, "My god!  It's full of stars!", 0, 0);
+		return (1);
+	case 1:
+		do_say(ch, "How'd all those fish get up here?", 0, 0);
+		return (1);
+	case 2:
+		do_say(ch, "I'm a very female dragon.", 0, 0);
+		return (1);
+	case 3:
+		do_say(ch, "I've got a peaceful, easy feeling.", 0, 0);
+		return (1);
+	default:
+		return (0);
+	}
+}
+
+
+
+SPECIAL(fido)
+{
+
+	OBJ_DATA *i, *temp, *next_obj;
+
+	if (cmd || !AWAKE(ch))
+		return (FALSE);
+
+	for (i = world[ch->in_room]->contents; i; i = i->next_content) {
+		if (IS_CORPSE(i)) {
+			act("$n savagely devours a corpse.", FALSE, ch, 0, 0, TO_ROOM);
+			for (temp = i->contains; temp; temp = next_obj) {
+				next_obj = temp->next_content;
+				obj_from_obj(temp);
+				obj_to_room(temp, ch->in_room);
+			}
+			extract_obj(i);
+			return (TRUE);
+		}
+	}
+	return (FALSE);
+}
+
+
+
+SPECIAL(janitor)
+{
+	OBJ_DATA *i;
+
+	if (cmd || !AWAKE(ch))
+		return (FALSE);
+
+	for (i = world[ch->in_room]->contents; i; i = i->next_content) {
+		if (!CAN_WEAR(i, ITEM_WEAR_TAKE))
+			continue;
+		if (GET_OBJ_TYPE(i) != ITEM_DRINKCON && GET_OBJ_COST(i) >= 15)
+			continue;
+		act("$n picks up some trash.", FALSE, ch, 0, 0, TO_ROOM);
+		obj_from_room(i);
+		obj_to_char(i, ch);
+		return (TRUE);
+	}
+
+	return (FALSE);
+}
+
+
+SPECIAL(cityguard)
+{
+	CHAR_DATA *tch, *evil;
+	int max_evil;
+
+	if (cmd || !AWAKE(ch) || FIGHTING(ch))
+		return (FALSE);
+
+	max_evil = 1000;
+	evil = 0;
+
+	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room) {
+		if (!IS_NPC(tch) && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, PLR_KILLER)) {
+			act("$n screams 'HEY!!!  You're one of those PLAYER KILLERS!!!!!!'", FALSE, ch, 0, 0, TO_ROOM);
+			hit(ch, tch, TYPE_UNDEFINED, 1);
+			return (TRUE);
+		}
+	}
+
+	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room) {
+		if (!IS_NPC(tch) && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, PLR_THIEF)) {
+			act("$n screams 'HEY!!!  You're one of those PLAYER THIEVES!!!!!!'", FALSE, ch, 0, 0, TO_ROOM);
+			hit(ch, tch, TYPE_UNDEFINED, 1);
+			return (TRUE);
+		}
+	}
+
+	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room) {
+		if (CAN_SEE(ch, tch) && FIGHTING(tch)) {
+			if ((GET_ALIGNMENT(tch) < max_evil) && (IS_NPC(tch) || IS_NPC(FIGHTING(tch)))) {
+				max_evil = GET_ALIGNMENT(tch);
+				evil = tch;
+			}
+		}
+	}
+
+	if (evil && (GET_ALIGNMENT(FIGHTING(evil)) >= 0)) {
+		act("$n screams 'PROTECT THE INNOCENT!  BANZAI!  CHARGE!  ARARARAGGGHH!'", FALSE, ch, 0, 0, TO_ROOM);
+		hit(ch, evil, TYPE_UNDEFINED, 1);
+		return (TRUE);
+	}
+	return (FALSE);
+}
+
+
+#define PET_PRICE(pet) (GET_LEVEL(pet) * 300)
+
+SPECIAL(pet_shops)
+{
+	char buf[MAX_STRING_LENGTH], pet_name[256];
+	room_rnum pet_room;
+	CHAR_DATA *pet;
+
+	pet_room = ch->in_room + 1;
+
+	if (CMD_IS("list")) {
+		send_to_char("Available pets are:\r\n", ch);
+		for (pet = world[pet_room]->people; pet; pet = pet->next_in_room) {
+			sprintf(buf, "%8d - %s\r\n", PET_PRICE(pet), GET_NAME(pet));
+			send_to_char(buf, ch);
+		}
+		return (TRUE);
+	} else if (CMD_IS("buy")) {
+		two_arguments(argument, buf, pet_name);
+
+		if (!(pet = get_char_room(buf, pet_room))) {
+			send_to_char("There is no such pet!\r\n", ch);
+			return (TRUE);
+		}
+		if (GET_GOLD(ch) < PET_PRICE(pet)) {
+			send_to_char("You don't have enough gold!\r\n", ch);
+			return (TRUE);
+		}
+		GET_GOLD(ch) -= PET_PRICE(pet);
+
+		pet = read_mobile(GET_MOB_RNUM(pet), REAL);
+		GET_EXP(pet) = 0;
+		SET_BIT(AFF_FLAGS(pet, AFF_CHARM), AFF_CHARM);
+
+		if (*pet_name) {
+			sprintf(buf, "%s %s", pet->player.name, pet_name);
+			/* free(pet->player.name); don't free the prototype! */
+			pet->player.name = str_dup(buf);
+
+			sprintf(buf,
+				"%sA small sign on a chain around the neck says 'My name is %s'\r\n",
+				pet->player.description, pet_name);
+			/* free(pet->player.description); don't free the prototype! */
+			pet->player.description = str_dup(buf);
+		}
+		char_to_room(pet, ch->in_room);
+		add_follower(pet, ch);
+		load_mtrigger(pet);
+
+		/* Be certain that pets can't get/carry/use/wield/wear items */
+		IS_CARRYING_W(pet) = 1000;
+		IS_CARRYING_N(pet) = 100;
+
+		send_to_char("May you enjoy your pet.\r\n", ch);
+		act("$n buys $N as a pet.", FALSE, ch, 0, pet, TO_ROOM);
+
+		return (1);
+	}
+	/* All commands except list and buy */
+	return (0);
 }
 
 
@@ -1961,7 +2326,6 @@ SPECIAL(bank)
 			free_char(vict);
 			return (1);
 		}
-	} else if (CMD_IS("казна"))
-		return (Clan::BankManage(ch, argument));
-	return 0;
+	} else
+		return (0);
 }

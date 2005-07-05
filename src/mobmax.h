@@ -11,9 +11,6 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#ifndef _MOBMAX_H_
-#define _MOBMAX_H_
-
 void new_load_mkill(CHAR_DATA * ch);
 int clear_kill_vnum(CHAR_DATA * vict, int vnum);
 void inc_kill_vnum(CHAR_DATA * ch, int vnum, int incvalue);
@@ -23,5 +20,3 @@ void save_mkill(CHAR_DATA * ch, FILE * saved);
 void free_mkill(CHAR_DATA * ch);
 void delete_mkill_file(char *name);
 void mob_lev_count(void);
-
-#endif

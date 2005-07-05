@@ -74,29 +74,6 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (FIGHTING(ch) || GET_MOB_HOLD(ch)) {
 		return (FALSE);
 	}
-	// если жертва пишет на доску - вываливаем его оттуда и чистим все это дело
-	if (victim->desc && (STATE(victim->desc) == CON_WRITEBOARD)) {
-		victim->desc->message.reset();
-		victim->desc->board.reset();
-		if (*(victim->desc->str))
-			free(*victim->desc->str);
-		if (victim->desc->str)
-			free(victim->desc->str);
-		STATE(victim->desc) = CON_PLAYING;
-		if (!IS_NPC(victim))
-			REMOVE_BIT(PLR_FLAGS(victim, PLR_WRITING), PLR_WRITING);
-		if (victim->desc->backstr)
-			free(victim->desc->backstr);
-		victim->desc->backstr = NULL;
-		victim->desc->str = NULL;
-		send_to_char(victim, "На Вас было совершено нападение, редактирование отменено!\r\n");
-	} else if (victim->desc && (STATE(victim->desc) == CON_CLANEDIT)) {
-	// аналогично, если жерва правит свою дружину в олц
-		victim->desc->clan_olc.reset();
-		STATE(victim->desc) = CON_PLAYING;
-		send_to_char(victim, "На Вас было совершено нападение, редактирование отменено!\r\n");
-	}
-
 	hit(ch, victim, TYPE_UNDEFINED, AFF_FLAGGED(ch, AFF_STOPRIGHT) ? 2 : 1);
 	set_wait(ch, 2, TRUE);
 	return (TRUE);
@@ -581,7 +558,7 @@ void go_flee(CHAR_DATA * ch)
 	for (i = 0; i < 6; i++) {
 		attempt = number(0, NUM_OF_DIRS - 1);	/* Select a random direction */
 		if (legal_dir(ch, attempt, TRUE, FALSE) && !ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_DEATH)) {
-			act("$n запаниковал$g и попытал$u сбежать !", TRUE, ch, 0, 0, TO_ROOM);
+			act("$n запаниковал$g и пытал$u сбежать !", TRUE, ch, 0, 0, TO_ROOM);
 			was_fighting = FIGHTING(ch);
 			if ((do_simple_move(ch, attempt | 0x80, TRUE, 0))) {
 				send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);

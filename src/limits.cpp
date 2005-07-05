@@ -45,6 +45,8 @@ extern INDEX_DATA *obj_index;
 extern int idle_rent_time;
 extern int idle_max_level;
 extern int idle_void;
+extern int use_autowiz;
+extern int min_wizlist_lev;
 extern int free_rent;
 extern unsigned long dg_global_pulse;
 extern room_rnum r_mortal_start_room;
@@ -64,12 +66,14 @@ int mag_manacost(CHAR_DATA * ch, int spellnum);
 
 /* local functions */
 int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6);
+void check_autowiz(CHAR_DATA * ch);
 
 void Crash_rentsave(CHAR_DATA * ch, int cost);
 int level_exp(CHAR_DATA * ch, int level);
 char *title_male(int chclass, int level);
 char *title_female(int chclass, int level);
 void update_char_objects(CHAR_DATA * ch);	/* handler.cpp */
+void reboot_wizlists(void);
 
 /* When age < 20 return the value p0 */
 /* When age in 20..29 calculate the line between p1 & p2 */
@@ -560,14 +564,9 @@ void beat_points_update(int pulse)
 			log("SYSERR: Pulse character in NOWHERE.");
 			continue;
 		}
-//		if (RENTABLE(i) < time(NULL)) {
-//			RENTABLE(i) = 0;
-		if (i->player_specials == &dummy_mob) {
-			log("SYSERR: Mob using 'i->player_specials->may_rent' at %s:%s:%d", __FILE__, __func__, __LINE__);
-			continue;
-		}
-		if (i->player_specials->may_rent < time(0)) {
-			i->player_specials->may_rent = 0;
+
+		if (RENTABLE(i) < time(NULL)) {
+			RENTABLE(i) = 0;
 			AGRESSOR(i) = 0;
 			AGRO(i) = 0;
 		}
@@ -667,6 +666,28 @@ void set_title(CHAR_DATA * ch, char *title)
 		GET_TITLE(ch) = str_dup(title);
 }
 
+
+void check_autowiz(CHAR_DATA * ch)
+{
+#if defined(CIRCLE_UNIX) || defined(CIRCLE_WINDOWS)
+	if (use_autowiz && GET_LEVEL(ch) >= LVL_IMMORT) {
+		char buf[128];
+
+#if defined(CIRCLE_UNIX)
+		sprintf(buf, "nice ../bin/autowiz %d %s %d %s %d &", min_wizlist_lev,
+			WIZLIST_FILE, LVL_IMMORT, IMMLIST_FILE, (int) getpid());
+#elif defined(CIRCLE_WINDOWS)
+		sprintf(buf, "autowiz %d %s %d %s", min_wizlist_lev, WIZLIST_FILE, LVL_IMMORT, IMMLIST_FILE);
+#endif				/* CIRCLE_WINDOWS */
+
+		mudlog("Initiating autowiz.", CMP, LVL_IMMORT, SYSLOG, FALSE);
+		system(buf);
+		reboot_wizlists();
+	}
+#endif				/* CIRCLE_UNIX || CIRCLE_WINDOWS */
+}
+
+
 void gain_exp(CHAR_DATA * ch, int gain)
 {
 	int is_altered = FALSE;
@@ -706,6 +727,7 @@ void gain_exp(CHAR_DATA * ch, int gain)
 			sprintf(buf, "%s advanced %d level%s to level %d.",
 				GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
 			mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
+			check_autowiz(ch);
 		}
 	} else if (gain < 0 && GET_LEVEL(ch) < LVL_IMMORT) {
 		gain = MAX(-max_exp_loss_pc(ch), gain);	/* Cap max exp lost per death */
@@ -726,6 +748,7 @@ void gain_exp(CHAR_DATA * ch, int gain)
 			sprintf(buf, "%s decreases %d level%s to level %d.",
 				GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
 			mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
+			check_autowiz(ch);
 		}
 	}
 	if ((GET_EXP(ch) < level_exp(ch, LVL_IMMORT) - 1) &&
@@ -762,6 +785,7 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 				sprintf(buf, "%s advanced %d level%s to level %d.",
 					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
 				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
+				check_autowiz(ch);
 			}
 		} else if (gain < 0) {
 			gain = MAX(-max_exp_loss_pc(ch), gain);	/* Cap max exp lost per death */
@@ -782,6 +806,7 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 				sprintf(buf, "%s decreases %d level%s to level %d.",
 					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
 				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
+				check_autowiz(ch);
 			}
 		}
 
@@ -1242,36 +1267,8 @@ void point_update(void)
 
 
 	/* objects */
-	int chest = real_object(CLAN_CHEST);
-
 	for (j = object_list; j; j = next_thing) {
 		next_thing = j->next;	/* Next in object list */
-		// смотрим клан-сундуки
-		if (j->in_obj && j->in_obj->item_number == chest) {
-			if (GET_OBJ_TIMER(j) > 0)
-				GET_OBJ_TIMER(j)--;
-
-			if (j && ((OBJ_FLAGGED(j, ITEM_ZONEDECAY) && GET_OBJ_ZONE(j) != NOWHERE
-					&& up_obj_where(j->in_obj) != NOWHERE
-					&& GET_OBJ_ZONE(j) != world[up_obj_where(j->in_obj)]->zone)
-					|| GET_OBJ_TIMER(j) <= 0)) {
-				int room = GET_ROOM_VNUM(j->in_obj->in_room);
-				DESCRIPTOR_DATA *d;
-
-				for (d = descriptor_list; d; d = d->next)
-					if (d->character && STATE(d) == CON_PLAYING
-					    && !AFF_FLAGGED(d->character, AFF_DEAFNESS)
-					    && GET_CLAN_RENT(d->character)
-					    && GET_CLAN_RENT(d->character) == room)
-						send_to_char(d->character,
-							     "[Хранилище]: %s'%s рассыпал%s в прах'%s\r\n",
-							     CCIRED(d->character, C_NRM), j->short_description,
-							     GET_OBJ_SUF_2(j), CCNRM(d->character, C_NRM));
-				obj_from_obj(j);
-				extract_obj(j);
-			}
-			continue;
-		}
 		/* If this is a corpse */
 		if (IS_CORPSE(j)) {	/* timer count down */
 			if (GET_OBJ_TIMER(j) > 0)
@@ -1322,7 +1319,9 @@ void point_update(void)
 					timer_otrigger(j);
 					j = NULL;
 				}
-			} else if (GET_OBJ_DESTROY(j) > 0 && !NO_DESTROY(j))
+			} else /* Destroy objects on ground */ if (GET_OBJ_DESTROY(j) > 0
+								   && !NO_DESTROY(j) &&
+								   (find_house(GET_ROOM_VNUM(j->in_room)) == NOHOUSE))
 				GET_OBJ_DESTROY(j)--;
 
 			if ((j->in_room != NOWHERE) && GET_OBJ_TIMER(j) > 0 && !NO_DESTROY(j))

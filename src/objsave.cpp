@@ -69,6 +69,7 @@ int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
 int min_rent_cost(CHAR_DATA * ch);
 void name_from_drinkcon(OBJ_DATA * obj);
 void name_to_drinkcon(OBJ_DATA * obj, int type);
+int delete_char(char *name);
 OBJ_DATA *create_obj(void);
 void asciiflag_conv(char *flag, void *value);
 void tascii(int *pointer, int num_planes, char *ascii);
@@ -80,7 +81,10 @@ void Crash_extract_norent_eq(CHAR_DATA * ch);
 int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location);
 int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int factor, int *totalcost);
 int Crash_report_unrentables(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj);
-void Crash_report_rent(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj, int *cost, long *nitems, int display, int factor, int equip, int recursive);
+void Crash_report_rent(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj,
+		       int *cost, long *nitems, int display, int factor, int equip, int recursive);
+OBJ_DATA *Obj_from_store(struct obj_file_elem object, int *location);
+int Obj_to_store(OBJ_DATA * obj, FILE * fl, int location);
 void update_obj_file(void);
 int Crash_write_rentcode(CHAR_DATA * ch, FILE * fl, struct save_rent_info *rent);
 int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int mode);
@@ -819,6 +823,150 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 	}
 	*data += count;
 	**data = '\0';
+}
+
+// Данная процедура помещает предмет в буфер [ВНИМАНИЕ С 10.12.04 ИСПОЛЬЗУЕТСЯ ДРУГОЙ ЕЕ ВАРИАНТ]
+/*
+void
+write_one_object (char **data, OBJ_DATA * object, int location)
+{
+  char buf[MAX_STRING_LENGTH];
+  EXTRA_DESCR_DATA *descr;
+  int count = 0, i, j;
+
+  count += sprintf (*data + count, "#%d\n", GET_OBJ_VNUM (object));
+  if (GET_OBJ_VNUM (object) < 0)
+    {				// Предмет не имеет прототипа
+      // Алиасы
+      count += sprintf (*data + count, "%s~\n", GET_OBJ_ALIAS (object));
+      // Падежи
+      for (i = 0; i < NUM_PADS; i++)
+	count += sprintf (*data + count, "%s~\n", GET_OBJ_PNAME (object, i));
+      // Описание когда на земле
+      count += sprintf (*data + count, "%s~\n",
+			GET_OBJ_DESC (object) ? GET_OBJ_DESC (object) : "");
+      // Описание при действии
+      count += sprintf (*data + count, "%s~\n",
+			GET_OBJ_ACT (object) ? GET_OBJ_ACT (object) : "");
+    }
+
+  count += sprintf (*data + count, "%d %d %d %d\n",
+		    GET_OBJ_SKILL (object),
+		    GET_OBJ_MAX (object),
+		    GET_OBJ_CUR (object), GET_OBJ_MATER (object));
+  count += sprintf (*data + count, "%d %d %d %d\n",
+		    GET_OBJ_SEX (object),
+		    GET_OBJ_TIMER (object),
+		    GET_OBJ_SPELL (object), GET_OBJ_LEVEL (object));
+  *buf = '\0';
+  tascii ((int *) &GET_OBJ_AFFECTS (object), 4, buf);
+  tascii ((int *) &GET_OBJ_ANTI (object), 4, buf);
+  tascii ((int *) &GET_OBJ_NO (object), 4, buf);
+  count += sprintf (*data + count, "%s\n", buf);
+  *buf = '\0';
+  tascii (&GET_OBJ_EXTRA (object, 0), 4, buf);
+  tascii (&GET_OBJ_WEAR (object), 4, buf);
+  count += sprintf (*data + count, "%d %s\n", GET_OBJ_TYPE (object), buf);
+  count += sprintf (*data + count, "%d %d %d %d\n",
+		    GET_OBJ_VAL (object, 0),
+		    GET_OBJ_VAL (object, 1),
+		    GET_OBJ_VAL (object, 2), GET_OBJ_VAL (object, 3));
+  count += sprintf (*data + count, "%d %d %d %d\n",
+		    GET_OBJ_WEIGHT (object),
+		    GET_OBJ_COST (object),
+		    GET_OBJ_RENT (object), GET_OBJ_RENTEQ (object));
+  count += sprintf (*data + count, "%d %d\n",
+		    location, GET_OBJ_OWNER (object));
+  for (descr = object->ex_description; descr; descr = descr->next)
+    count += sprintf (*data + count, "E\n%s~\n%s~\n",
+		      descr->keyword ? descr->keyword : "",
+		      descr->description ? descr->description : "");
+  for (j = 0; j < MAX_OBJ_AFFECT; j++)
+    if (object->affected[j].location)
+      count += sprintf (*data + count, "A\n%d %d\n",
+			object->affected[j].location,
+			object->affected[j].modifier);
+
+  if (GET_OBJ_MAKER (object))
+    count += sprintf (*data + count, "M\n%d\n", GET_OBJ_MAKER (object));
+
+  if (GET_OBJ_PARENT (object))
+    count += sprintf (*data + count, "P\n%d\n", GET_OBJ_PARENT (object));
+
+  *data += count;
+  **data = '\0';
+}
+*/
+
+/*Используется только в house.h, надо туда и перетащить*/
+OBJ_DATA *Obj_from_store(struct obj_file_elem object, int *location)
+{
+	OBJ_DATA *obj;
+	int j;
+
+	*location = 0;
+	if (real_object(object.item_number) >= 0) {
+		obj = read_object(object.item_number, VIRTUAL);
+		*location = object.location;
+		GET_OBJ_VAL(obj, 0) = object.value[0];
+		GET_OBJ_VAL(obj, 1) = object.value[1];
+		GET_OBJ_VAL(obj, 2) = object.value[2];
+		GET_OBJ_VAL(obj, 3) = object.value[3];
+		GET_OBJ_WEIGHT(obj) = object.weight;
+		GET_OBJ_TIMER(obj) = object.timer;
+		obj->obj_flags.Obj_max = object.maxstate;
+		obj->obj_flags.Obj_cur = object.curstate;
+		obj->obj_flags.Obj_owner = object.owner;
+		obj->obj_flags.Obj_mater = object.mater;
+		obj->obj_flags.extra_flags = object.extra_flags;
+		obj->obj_flags.affects = object.bitvector;
+		obj->obj_flags.wear_flags = object.wear_flags;
+
+
+		for (j = 0; j < MAX_OBJ_AFFECT; j++)
+			obj->affected[j] = object.affected[j];
+		if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON) {
+			name_from_drinkcon(obj);
+			if (GET_OBJ_VAL(obj, 1))
+				name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2));
+		}
+
+		return (obj);
+	} else
+		return (NULL);
+}
+
+
+/*Используется только в house.h, надо туда и перетащить*/
+int Obj_to_store(OBJ_DATA * obj, FILE * fl, int location)
+{
+	int j;
+	struct obj_file_elem object;
+
+	object.item_number = GET_OBJ_VNUM(obj);
+	object.location = location;
+	object.value[0] = GET_OBJ_VAL(obj, 0);
+	object.value[1] = GET_OBJ_VAL(obj, 1);
+	object.value[2] = GET_OBJ_VAL(obj, 2);
+	object.value[3] = GET_OBJ_VAL(obj, 3);
+	object.weight = GET_OBJ_WEIGHT(obj);
+	object.timer = GET_OBJ_TIMER(obj);
+	object.maxstate = obj->obj_flags.Obj_max;
+	object.curstate = obj->obj_flags.Obj_cur;
+	object.owner = obj->obj_flags.Obj_owner;
+	object.mater = obj->obj_flags.Obj_mater;
+
+	object.bitvector = obj->obj_flags.affects;
+	object.extra_flags = obj->obj_flags.extra_flags;
+	object.wear_flags = obj->obj_flags.wear_flags;
+	for (j = 0; j < MAX_OBJ_AFFECT; j++)
+		object.affected[j] = obj->affected[j];
+
+	if (fwrite(&object, sizeof(struct obj_file_elem), 1, fl) < 1) {
+		perror("SYSERR: error writing object in Obj_to_store");
+		return (0);
+	}
+	return (1);
 }
 
 int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
@@ -1857,20 +2005,22 @@ This shit is saving all stuff for given ch and its iplayer.
 	Crash_save(iplayer, ch->carrying, 0);
 	Crash_restore_weight(ch->carrying);
 
-	if (ch->followers && savetype == RENT_CRASH) 
-		for (k = ch->followers; k && k->follower->master; k = next) {
-			next = k->next;
-			charmee = ch->followers->follower;
-			if (!IS_CHARMICE(charmee))
-				continue;
-			for (j = 0; j < NUM_WEARS; j++)
-				if (GET_EQ(charmee, j)) {
-					Crash_save(iplayer, GET_EQ(charmee, j), 0);
-					Crash_restore_weight(GET_EQ(charmee, j));
-				}
-			Crash_save(iplayer, charmee->carrying, 0);
-			Crash_restore_weight(charmee->carrying);
-	}
+  if (ch->followers && 	savetype == RENT_CRASH) 
+    for (k = ch->followers; k && k->follower->master; k = next) 
+    {
+      next = k->next;
+      charmee = ch->followers->follower;
+      if (!IS_CHARMICE(charmee))
+        continue;
+      for (j = 0; j < NUM_WEARS; j++)
+		    if (GET_EQ(charmee, j)) {
+			    Crash_save(iplayer, GET_EQ(charmee, j), 0);
+			    Crash_restore_weight(GET_EQ(charmee, j));
+		    }
+	    Crash_save(iplayer, charmee->carrying, 0);
+	    Crash_restore_weight(charmee->carrying);
+    }
+
 
 	if (savetype != RENT_CRASH) {
 		for (j = 0; j < NUM_WEARS; j++)
@@ -2137,7 +2287,7 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 		act("$n сказал$g : \"Не люблю говорить с теми, кого я не вижу !\"", FALSE, recep, 0, 0, TO_ROOM);
 		return (TRUE);
 	}
-	if (Clan::InEnemyZone(ch)) {
+	if (in_enemy_clanzone(ch)) {
 		act("$n сказал$g : \"Чужакам здесь не место !\"", FALSE, recep, 0, 0, TO_ROOM);
 		return (TRUE);
 	}

@@ -9,8 +9,8 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#ifndef _CONSTANTS_H_
-#define _CONSTANTS_H_
+#ifndef _CONSTANTS_H
+#define _CONSTANTS_H
 
 extern const char *circlemud_version;
 extern const char *dirs[];
@@ -130,3 +130,4 @@ extern int START_FRUNE;
    уровень моба 50 */
 #define CHARM_MOB_VNUM 200
 #endif
+

@@ -310,14 +310,10 @@ int nameserver_is_slow = YES;
 
 const char *MENU = "\r\n"
 // "Добро пожаловать в мир Киевской Руси !\r\n"
-	"0) Отсоединиться.\r\n"
-	"1) Начать игру.\r\n"
-	"2) Ввести описание Вашего персонажа.\r\n"
-	"3) Узнать историю.\r\n"
-	"4) Изменить пароль.\r\n"
-	"5) Удалить персонажа.\r\n"
-	"\r\n"
-	"   Чего Ваша душа желает ? ";
+    "0) Отсоединиться.\r\n"
+    "1) Начать игру.\r\n"
+    "2) Ввести описание Вашего персонажа.\r\n"
+    "3) Узнать историю.\r\n" "4) Изменить пароль.\r\n" "5) Удалить персонаж.\r\n" "\r\n" "   Чего Ваша душа желает ? ";
 
 
 
@@ -335,6 +331,20 @@ const char *START_MESSG =
 
 /****************************************************************************/
 /****************************************************************************/
+
+
+/* AUTOWIZ OPTIONS */
+
+/*
+ * Should the game automatically create a new wizlist/immlist every time
+ * someone immorts, or is promoted to a higher (or lower) god level?
+ * NOTE: this only works under UNIX systems.
+ */
+int use_autowiz = YES;
+
+/* If yes, what is the lowest level which should be on the wizlist?  (All
+   immort levels below the level you specify will go on the immlist instead.) */
+int min_wizlist_lev = LVL_GOD;
 
 extern float exp_coefficients[];
 int max_exp_gain_pc(CHAR_DATA * ch)

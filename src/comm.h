@@ -12,8 +12,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#ifndef _COMM_H_
-#define _COMM_H_
+#ifndef __COMM_H__
+#define __COMM_H__
 
 #include <string>
 

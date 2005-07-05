@@ -29,6 +29,7 @@
 #include "screen.h"
 #include "house.h"
 #include "pk.h"
+
 #include "im.h"
 
 extern room_rnum r_mortal_start_room;
@@ -43,6 +44,8 @@ extern const char *weapon_affects[];
 extern TIME_INFO_DATA time_info;
 extern int mini_mud, cmd_tell;
 extern char cast_argument[MAX_INPUT_LENGTH];
+extern struct house_control_rec house_control[MAX_HOUSES];
+extern int num_of_houses;
 
 void clearMemory(CHAR_DATA * ch);
 void weight_change_object(OBJ_DATA * obj, int weight);
@@ -145,7 +148,7 @@ int get_teleport_target_room(CHAR_DATA * ch,	// ch - кого перемещают
 		    !ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) &&
 		    !ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) &&
 		    (!ROOM_FLAGGED(fnd_room, ROOM_GODROOM) || IS_IMMORTAL(ch)) &&
-		    Clan::MayEnter(ch, fnd_room, HCE_PORTAL))
+		    House_can_enter(ch, fnd_room, HCE_PORTAL))
 			break;
 	}
 
@@ -196,7 +199,7 @@ ASPELL(spell_recall)
 	(void) get_zone_rooms(world[to_room]->zone, &rnum_start, &rnum_stop);
 	fnd_room = get_teleport_target_room(victim, rnum_start, rnum_stop);
 	if (fnd_room == NOWHERE) {
-		to_room = Clan::CloseRent(to_room);
+		to_room = House_closestrent(to_room);
 		(void) get_zone_rooms(world[to_room]->zone, &rnum_start, &rnum_stop);
 		fnd_room = get_teleport_target_room(victim, rnum_start, rnum_stop);
 	}
@@ -317,8 +320,8 @@ ASPELL(spell_relocate)
 	}
 	// в случае, если жертва не может зайти в замок (по любой причине)
 	// прыжок в зону ближайшей ренты
-	if (!Clan::MayEnter(victim, to_room, HCE_PORTAL))
-		fnd_room = Clan::CloseRent(to_room);
+	if (!House_can_enter(ch, to_room, HCE_PORTAL))
+		fnd_room = House_closestrent(to_room);
 	else
 		fnd_room = to_room;
 
@@ -430,6 +433,7 @@ ASPELL(spell_portal)
 ASPELL(spell_summon)
 {
 	room_rnum ch_room, vic_room;
+	long ch_zn, vic_zn;
 
 	/* Если переменные не определены или каст на себя - завершаем. */
 	if (ch == NULL || victim == NULL || ch == victim)
@@ -437,6 +441,8 @@ ASPELL(spell_summon)
 
 	ch_room = IN_ROOM(ch);
 	vic_room = IN_ROOM(victim);
+	ch_zn = house_zone(ch_room);
+	vic_zn = house_zone(vic_room);
 
 	/* Нельзя суммонить находясь в NOWHERE или если цель в NOWHERE. */
 	if (ch_room == NOWHERE || vic_room == NOWHERE) {
@@ -508,7 +514,7 @@ ASPELL(spell_summon)
 		    ROOM_FLAGGED(ch_room, ROOM_PEACEFUL) ||	// суммонер в мирной комнате
 		    ROOM_FLAGGED(ch_room, ROOM_GODROOM) ||	// суммонер в комнате для бессмертных
 		    ROOM_FLAGGED(ch_room, ROOM_ARENA) ||	// суммонер на арене
-		    !Clan::MayEnter(victim, ch_room, HCE_PORTAL) ||	// суммонер стоит во внутренней части клан-замка
+		    !House_can_enter(victim, ch_room, HCE_PORTAL) ||	// суммонер стоит во внутренней части клан-замка
 		    SECT(IN_ROOM(ch)) == SECT_SECRET)	// суммонер стоит в клетке с типом "секретый"
 		{
 			send_to_char(SUMMON_FAIL, ch);
@@ -519,7 +525,7 @@ ASPELL(spell_summon)
 		    ROOM_FLAGGED(vic_room, ROOM_TUNNEL) ||	// жертва стоит в ван-руме
 		    ROOM_FLAGGED(vic_room, ROOM_GODROOM) ||	// жертва в комнате для бессмертных
 		    ROOM_FLAGGED(vic_room, ROOM_ARENA) ||	// жертва на арене
-		    !Clan::MayEnter(ch, vic_room, HCE_PORTAL))	// жертва во внутренних покоях клан-замка
+		    !House_can_enter(ch, vic_room, HCE_PORTAL))	// жертва во внутренних покоях клан-замка
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -684,13 +690,7 @@ ASPELL(spell_locate_object)
 				    && (OBJ_FLAGGED(i, ITEM_NOLOCATE)
 					|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
 					continue;
-			int chest_num = real_object(CLAN_CHEST);
-			if (chest_num >= 0 && i->in_obj->item_number == chest_num) {
-				ClanListType::const_iterator clan = Clan::IsClanRoom(IN_ROOM(i->in_obj));
-				if (clan != Clan::ClanList.end())
-					sprintf(buf, "%s находится в хранилище дружины '%s'.\r\n", i->short_description, (*clan)->abbrev.c_str());
-			} else
-				sprintf(buf, "%s находится в %s.\r\n", i->short_description, i->in_obj->PNames[5]);
+			sprintf(buf, "%s находится в %s.\r\n", i->short_description, i->in_obj->PNames[5]);
 		} else if (i->worn_by) {
 			if ((IS_NPC(i->worn_by) && !OBJ_FLAGGED(i, ITEM_NOLOCATE)
 			     && world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone) || !IS_NPC(i->worn_by))

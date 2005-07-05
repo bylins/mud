@@ -8,9 +8,8 @@
 *  $Date$                                           *
 *  $Revision$                                                       *
 **************************************************************************/
-
-#ifndef _DG_SCRIPTS_H_
-#define _DG_SCRIPTS_H_
+#ifndef DG_SCRIPTS_H
+#define DG_SCRIPTS_H
 
 #define DG_SCRIPT_VERSION "DG Scripts Version 0.99 Patch Level 7   12/98"
 

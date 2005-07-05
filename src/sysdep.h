@@ -12,9 +12,6 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#ifndef _SYSDEP_H_
-#define _SYSDEP_H_
-
 /*
  * CircleMUD uses the crypt(3) function to encrypt player passwords in the
  * playerfile so that they are never stored in plaintext form.  However,
@@ -123,6 +120,10 @@ extern void abort(), exit();
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
+#endif
+
+#ifdef CIRCLE_WINDOWS
+# include <sys\types.h>
 #endif
 
 #ifdef HAVE_UNISTD_H
@@ -264,10 +265,45 @@ struct in_addr {
 #if defined(__MWERKS__)
 # define isascii(c)	(a_isascii(c))	/* So easy to have, but ... */
 #endif
-
+/* Socket/header miscellany. */
+#if defined(CIRCLE_WINDOWS)	/* Definitions for Win32 */
+# if !defined(__BORLANDC__) && !defined(LCC_WIN32)	/* MSVC */
+#  define chdir _chdir
+#  pragma warning(disable:4761)	/* Integral size mismatch. */
+#  pragma warning(disable:4244)	/* Possible loss of data. */
+# endif
+# if defined(__BORLANDC__)	/* Silence warnings we don't care about. */
+#  pragma warn -par		/* to turn off >parameter< 'ident' is never used. */
+#  pragma warn -pia		/* to turn off possibly incorrect assignment. 'if (!(x=a))' */
+#  pragma warn -sig		/* to turn off conversion may lose significant digits. */
+# endif
+# ifndef _WINSOCK2API_		/* Winsock1 and Winsock 2 conflict. */
+#  include <winsock.h>
+# endif
+# ifndef FD_SETSIZE		/* MSVC 6 is reported to have 64. */
+#  define FD_SETSIZE		1024
+# endif
+#elif defined(CIRCLE_VMS)
+/*
+ * Necessary Definitions For DEC C With DEC C Sockets Under OpenVMS.
+ */
+# if defined(DECC)
+#  include <stdio.h>
+#  include <time.h>
+#  include <stropts.h>
+#  include <unixio.h>
+# endif
+#elif !defined(CIRCLE_MACINTOSH) && !defined(CIRCLE_UNIX) && !defined(CIRCLE_ACORN)
+# error "You forgot to include conf.h or do not have a valid system define."
+#endif
 /* SOCKET -- must be after the winsock.h #include. */
+#ifdef CIRCLE_WINDOWS
+# define CLOSE_SOCKET(sock)	closesocket(sock)
+typedef SOCKET socket_t;
+#else
 # define CLOSE_SOCKET(sock)	close(sock)
 typedef int socket_t;
+#endif
 
 #if defined(__cplusplus)	/* C++ */
 #define cpp_extern	extern
@@ -547,6 +583,6 @@ ssize_t write(int fildes, const void *buf, size_t nbyte);
 #endif
 
 #endif				/* __COMM_C__ */
-#endif				/* NO_LIBRARY_PROTOTYPES */
 
-#endif
+
+#endif				/* NO_LIBRARY_PROTOTYPES */

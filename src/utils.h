@@ -10,16 +10,8 @@
 *  $Date$                                           *
 *  $Revision$                                                       *
 ************************************************************************ */
-
-#ifndef _UTILS_H_
-#define _UTILS_H_
-
-#include <string>
-#include <list>
-#include <map>
-
-using std::string;
-using std::list;
+#ifndef _UTILS_H
+#define _UTILS_H
 
 /* external declarations and prototypes **********************************/
 
@@ -32,13 +24,17 @@ extern char KoiToWin2[];
 extern char AltToLat[];
 
 //#define log        basic_mud_log
+#include <string>
+#include <list>
+
+using std::string;
+using std::list;
 
 /* public functions in utils.cpp */
 CHAR_DATA *find_char(long n);
 char *title_noname(struct char_data *ch);
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
-char *str_dup(const std::string & buffer);
 char *str_add(char *dst, const char *src);
 int str_cmp(const char *arg1, const char *arg2);
 int strn_cmp(const char *arg1, const char *arg2, int n);
@@ -202,11 +198,6 @@ void update_pos(CHAR_DATA * victim);
 #define WEEK_CYCLE               7
 #define POLY_WEEK_CYCLE          9
 
-// работа со списком иммов (lib/misc/god.lst)
-typedef std::map<long, string> GodListType;
-void GodListLoad();
-bool GodListCheck(CHAR_DATA * ch);
-bool GodListCheck(const std::string name, long unique);
 
 /* real-life time (remember Real Life?) */
 #define SECS_PER_REAL_MIN  60
@@ -214,14 +205,14 @@ bool GodListCheck(const std::string name, long unique);
 #define SECS_PER_REAL_DAY  (24*SECS_PER_REAL_HOUR)
 #define SECS_PER_REAL_YEAR (365*SECS_PER_REAL_DAY)
 
+
 #define GET_COMMSTATE(ch)      ((ch)->player_specials->saved.Prelimit)
 #define SET_COMMSTATE(ch,val)  ((ch)->player_specials->saved.Prelimit = (val))
-
-#define IS_IMMORTAL(ch)     (!IS_NPC(ch) && (GET_LEVEL(ch) >= LVL_IMMORT || GET_COMMSTATE(ch)) && GodListCheck(ch))
-#define IS_GOD(ch)          (!IS_NPC(ch) && (GET_LEVEL(ch) >= LVL_GOD    || GET_COMMSTATE(ch)) && GodListCheck(ch))
-#define IS_GRGOD(ch)        (!IS_NPC(ch) && (GET_LEVEL(ch) >= LVL_GRGOD  || GET_COMMSTATE(ch)) && GodListCheck(ch))
-#define IS_IMPL(ch)         (!IS_NPC(ch) && (GET_LEVEL(ch) >= LVL_IMPL   || GET_COMMSTATE(ch)) && GodListCheck(ch))
-#define IS_HIGHGOD(ch)      (IS_IMPL(ch) && (GET_GOD_FLAG(ch,GF_HIGHGOD) || GET_COMMSTATE(ch)) && GodListCheck(ch))
+#define IS_IMMORTAL(ch)     (!IS_NPC(ch) && (GET_LEVEL(ch) >= LVL_IMMORT || GET_COMMSTATE(ch)))
+#define IS_GOD(ch)          (!IS_NPC(ch) && (GET_LEVEL(ch) >= LVL_GOD    || GET_COMMSTATE(ch)))
+#define IS_GRGOD(ch)        (!IS_NPC(ch) && (GET_LEVEL(ch) >= LVL_GRGOD  || GET_COMMSTATE(ch)))
+#define IS_IMPL(ch)         (!IS_NPC(ch) && (GET_LEVEL(ch) >= LVL_IMPL   || GET_COMMSTATE(ch)))
+#define IS_HIGHGOD(ch)      (IS_IMPL(ch) && (GET_GOD_FLAG(ch,GF_HIGHGOD) || GET_COMMSTATE(ch)))
 
 #define IS_BITS(mask, bitno) (IS_SET(mask,(1 << bitno)))
 #define IS_CASTER(ch)        (IS_BITS(MASK_CASTER,GET_CLASS(ch)))
@@ -298,7 +289,7 @@ extern SPECIAL(postmaster);
  * for it, 'wimpy' would be an extremely bad thing for a mob to do, as an
  * example.  If you really couldn't care less, change this to a '#if 0'.
  */
-#if 1
+#if 0
 /* Subtle bug in the '#var', but works well for now. */
 #define CHECK_PLAYER_SPECIAL(ch, var) \
    (*(((ch)->player_specials == &dummy_mob) ? (log("SYSERR: Mob using '"#var"' at %s:%d.", __FILE__, __LINE__), &(var)) : &(var)))
@@ -478,12 +469,12 @@ extern SPECIAL(postmaster);
 #define SET_GOD_FLAG(ch,flag)  (SET_BIT((ch)->player_specials->saved.GodsLike,flag))
 #define CLR_GOD_FLAG(ch,flag)  (REMOVE_BIT((ch)->player_specials->saved.GodsLike,flag))
 #define GET_UNIQUE(ch)         ((ch)->player_specials->saved.unique)
+#define GET_HOUSE_UID(ch)      ((ch)->player_specials->saved.HouseUID)
+#define GET_HOUSE_RANK(ch)     ((ch)->player_specials->saved.HouseRank)
 #define LAST_LOGON(ch)         ((ch)->player_specials->saved.LastLogon)
-#define NAME_GOD(ch)      ((ch)->player_specials->saved.NameGod)
-#define NAME_ID_GOD(ch)   ((ch)->player_specials->saved.NameIDGod)
-#define STRING_LENGTH(ch) ((ch)->player_specials->saved.stringLength)
-#define STRING_WIDTH(ch)  ((ch)->player_specials->saved.stringWidth)
 
+#define NAME_GOD(ch)  ((ch)->player_specials->saved.NameGod)
+#define NAME_ID_GOD(ch)  ((ch)->player_specials->saved.NameIDGod)
 /*
  * I wonder if this definition of GET_REAL_LEVEL should be the definition
  * of GET_LEVEL?  JE
@@ -650,6 +641,7 @@ extern SPECIAL(postmaster);
 #define EXCHANGE_FILTER(ch)     CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->Exchange_filter))
 // shapirus
 #define IGNORE_LIST(ch)     CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->ignores))
+#define PAGE_HEIGHT(ch)     CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->page_height))
 
 #define GET_BET(ch)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->bet))
 #define GET_BET_SLOT(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->bet_slot))
@@ -698,23 +690,6 @@ extern SPECIAL(postmaster);
 
 #define KARMA(ch) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->Karma))
 #define LOGON_LIST(ch) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->logons))
-
-#define GET_CLAN_RENT(ch)     CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->clanRent))
-#define GET_CLAN_STATUS(ch)   CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->clanStatus))
-#define GET_CLAN_RANKNUM(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->clanRankNum))
-
-#define GENERAL_BOARD_DATE(ch)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->GeneralBoardDate))
-#define NEWS_BOARD_DATE(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->NewsBoardDate))
-#define IDEA_BOARD_DATE(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->IdeaBoardDate))
-#define ERROR_BOARD_DATE(ch)      CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->ErrorBoardDate))
-#define GODNEWS_BOARD_DATE(ch)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->GodNewsBoardDate))
-#define GODGENERAL_BOARD_DATE(ch) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->GodGeneralBoardDate))
-#define GODBUILD_BOARD_DATE(ch)   CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->GodBuildBoardDate))
-#define GODCODE_BOARD_DATE(ch)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->GodCodeBoardDate))
-#define GODPUNISH_BOARD_DATE(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->GodPunishBoardDate))
-#define PERS_BOARD_DATE(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->PersBoardDate))
-#define CLAN_BOARD_DATE(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->ClanBoardDate))
-#define CLANNEWS_BOARD_DATE(ch)   CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->ClanNewsBoardDate))
 
 #define GET_SKILL(ch, i)   ((ch)->real_abils.Skills[i])
 #define SET_SKILL(ch, i, pct) ((ch)->real_abils.Skills[i] = pct)

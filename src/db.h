@@ -12,9 +12,6 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#ifndef _DB_H_
-#define _DB_H_
-
 #define USE_SINGLE_PLAYER 1
 
 /* arbitrary constants used by index_boot() (must be unique) */
@@ -45,13 +42,27 @@
 #define LIB_U       "U-Z"
 #define LIB_Z       "ZZZ"
 
+#if defined(CIRCLE_MACINTOSH)
+#define LIB_WORLD	":world:"
+#define LIB_TEXT	":text:"
+#define LIB_TEXT_HELP	":text:help:"
+#define LIB_MISC	":misc:"
+#define LIB_ETC		":etc:"
+#define LIB_PLRTEXT	":plrtext:"
+#define LIB_PLROBJS	":plrobjs:"
+#define LIB_PLRS    ":plrs:"
+#define LIB_PLRALIAS	":plralias:"
+#define LIB_HOUSE	":house:"
+#define LIB_PLRVARS	":plrvars:"
+#define LIB             ":lib:"
+#define SLASH		":"
+#elif defined(CIRCLE_AMIGA) || defined(CIRCLE_UNIX) || defined(CIRCLE_WINDOWS) || defined(CIRCLE_ACORN) || defined(CIRCLE_VMS)
 #define LIB_WORLD	"world/"
 #define LIB_TEXT	"text/"
 #define LIB_TEXT_HELP	"text/help/"
 #define LIB_MISC	"misc/"
 #define LIB_STAT	"stat/"
 #define LIB_ETC		"etc/"
-#define ETC_BOARD	"etc/board/"
 #define LIB_PLRTEXT	"plrtext/"
 #define LIB_PLROBJS	"plrobjs/"
 #define LIB_PLRS    "plrs/"
@@ -60,6 +71,9 @@
 #define LIB_PLRVARS	"plrvars/"
 #define LIB             "lib/"
 #define SLASH		"/"
+#else
+#error "Unknown path components."
+#endif
 
 #define SUF_OBJS	"objs"
 #define TEXT_SUF_OBJS	"textobjs"
@@ -72,9 +86,19 @@
 #define SUF_PKILLER "pkiller"
 #define SUF_QUESTS  "quests"
 #define SUF_PMKILL	"mobkill"
+#if defined(CIRCLE_AMIGA)
+#define FASTBOOT_FILE   "/.fastboot"	/* autorun: boot without sleep  */
+#define KILLSCRIPT_FILE "/.killscript"	/* autorun: shut mud down       */
+#define PAUSE_FILE      "/pause"	/* autorun: don't restart mud   */
+#elif defined(CIRCLE_MACINTOSH)
+#define FASTBOOT_FILE	"::.fastboot"	/* autorun: boot without sleep  */
+#define KILLSCRIPT_FILE	"::.killscript"	/* autorun: shut mud down       */
+#define PAUSE_FILE	"::pause"	/* autorun: don't restart mud   */
+#else
 #define FASTBOOT_FILE   "../.fastboot"	/* autorun: boot without sleep  */
 #define KILLSCRIPT_FILE "../.killscript"	/* autorun: shut mud down       */
 #define PAUSE_FILE      "../pause"	/* autorun: don't restart mud   */
+#endif
 
 /* names of various files and directories */
 #define INDEX_FILE	"index"	/* index of world files         */
@@ -94,11 +118,14 @@
 #define PLAYER_Z_PREFIX LIB_PLRS""LIB_Z
 
 #define CREDITS_FILE	LIB_TEXT"credits"	/* for the 'credits' command   */
+#define NEWS_FILE       LIB_TEXT"news"	/* for the 'news' command      */
+#define GODNEWS_FILE    LIB_TEXT"godnews"	/* news for immortal's         */
 #define MOTD_FILE       LIB_TEXT"motd"	/* messages of the day / mortal        */
 #define RULES_FILE      LIB_TEXT"rules"	/* rules for immort        */
 #define GREETINGS_FILE	LIB_TEXT"greetings"	/* The opening screen.  */
 #define HELP_PAGE_FILE	LIB_TEXT_HELP"screen"	/* for HELP <CR>        */
 #define INFO_FILE       LIB_TEXT"info"	/* for INFO             */
+#define WIZLIST_FILE	LIB_TEXT"wizlist"	/* for WIZLIST          */
 #define IMMLIST_FILE	LIB_TEXT"immlist"	/* for IMMLIST          */
 #define BACKGROUND_FILE	LIB_TEXT"background"	/* for the background story */
 #define POLICIES_FILE	LIB_TEXT"policies"	/* player policies/rules     */
@@ -115,7 +142,6 @@
 #define DNAME_FILE	    LIB_MISC"dis_name"	/* disagree names */
 #define NNAME_FILE	    LIB_MISC"new_name"	/* disagree names */
 #define TNNAME_FILE	    LIB_MISC"tnew_name"	/* temp disagree names */
-#define GODLIST_FILE    LIB_MISC"god.lst" // список иммов
 
 #define MAIL_FILE	    LIB_ETC"plrmail"	/* for the mudmail system       */
 #define BAN_FILE	    LIB_ETC"badsites"	/* for the siteban system       */
@@ -359,4 +385,3 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch);
 void dl_list_copy(load_list * *pdst, load_list * src);
 
-#endif

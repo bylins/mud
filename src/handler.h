@@ -12,9 +12,6 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#ifndef _HANDLER_H_
-#define _HANDLER_H_
-
 #define LIGHT_NO    0
 #define LIGHT_YES   1
 #define LIGHT_UNDEF 2
@@ -186,5 +183,3 @@ int MemQ_learn(CHAR_DATA * ch);
 void MemQ_remember(CHAR_DATA * ch, int num);
 void MemQ_forget(CHAR_DATA * ch, int num);
 int *MemQ_slots(CHAR_DATA * ch);
-
-#endif

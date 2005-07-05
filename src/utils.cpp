@@ -14,7 +14,7 @@
 
 #include "conf.h"
 #include "sysdep.h"
-#include <fstream>
+
 
 #include "structs.h"
 #include "utils.h"
@@ -27,7 +27,6 @@
 #include "constants.h"
 #include "im.h"
 #include "dg_scripts.h"
-#include "boards.h"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 
@@ -42,6 +41,9 @@ void prune_crlf(char *txt);
 
 /* external functions */
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
+char *House_name(CHAR_DATA * ch);
+char *House_rank(CHAR_DATA * ch);
+char *House_sname(CHAR_DATA * ch);
 
 // Файл для вывода
 FILE *logfile = NULL;
@@ -158,12 +160,6 @@ char *str_dup(const char *source)
 	}
 	CREATE(new_z, char, 1);
 	return (strcpy(new_z, ""));
-}
-
-// чтобы sstream спокойно сюда гнать
-char *str_dup(const std::string & buffer)
-{
-	return str_dup(buffer.c_str());
 }
 
 /*
@@ -985,6 +981,7 @@ void core_dump_real(const char *who, int line)
 	int i;
 	log("SYSERR: Assertion failed at %s:%d!", who, line);
 
+#if defined(CIRCLE_UNIX)
 	/* These would be duplicated otherwise... */
 	fflush(stdout);
 	fflush(stderr);
@@ -997,6 +994,7 @@ void core_dump_real(const char *who, int line)
 	 */
 	if (fork() == 0)
 		abort();
+#endif
 }
 
 void to_koi(char *str, int from)
@@ -1330,15 +1328,14 @@ char *noclan_title(CHAR_DATA * ch)
 
 char *title_noname(struct char_data *ch)
 {
-	static char title[MAX_STRING_LENGTH];
+	static char title[MAX_STRING_LENGTH], *hname, *hrank;
 	static char clan[MAX_STRING_LENGTH];
 	char *pos, *pos1;
-
-	if (GET_CLAN_RENT(ch))
-		sprintf(clan, " (%s)", GET_CLAN_STATUS(ch));
-	else
+	if ((hname = House_name(ch)) && (hrank = House_rank(ch)) && GET_HOUSE_RANK(ch)) {
+		sprintf(clan, " (%s %s)", hrank, House_sname(ch));
+	} else {
 		clan[0] = 0;
-
+	}
 	if (!GET_TITLE(ch) || !*GET_TITLE(ch))
 		sprintf(title, "%s%s", GET_NAME(ch), clan);
 	else {
@@ -1365,15 +1362,15 @@ char *title_noname(struct char_data *ch)
 
 char *only_title(CHAR_DATA * ch)
 {
-	static char title[MAX_STRING_LENGTH];
+	static char title[MAX_STRING_LENGTH], *hname, *hrank;
 	static char clan[MAX_STRING_LENGTH];
 	char *pos, *pos1;
 
-	if (GET_CLAN_RENT(ch))
-		sprintf(clan, " (%s)", GET_CLAN_STATUS(ch));
-	else
+	if ((hname = House_name(ch)) && (hrank = House_rank(ch)) && GET_HOUSE_RANK(ch)) {
+		sprintf(clan, " (%s %s)", hrank, House_sname(ch));
+	} else {
 		clan[0] = 0;
-
+	}
 	if (!GET_TITLE(ch) || !*GET_TITLE(ch))
 		sprintf(title, "%s%s", GET_NAME(ch), clan);
 	else {
@@ -1414,15 +1411,15 @@ char *only_title(CHAR_DATA * ch)
 
 char *race_or_title(CHAR_DATA * ch)
 {
-	static char title[MAX_STRING_LENGTH];
+	static char title[MAX_STRING_LENGTH], *hname, *hrank;
 	static char clan[MAX_STRING_LENGTH];
 	char *pos, *pos1;
 
-	if (GET_CLAN_RENT(ch))
-		sprintf(clan, " (%s)", GET_CLAN_STATUS(ch));
-	else
+	if ((hname = House_name(ch)) && (hrank = House_rank(ch)) && GET_HOUSE_RANK(ch)) {
+		sprintf(clan, " (%s %s)", hrank, House_sname(ch));
+	} else {
 		clan[0] = 0;
-
+	}
 	if (!GET_TITLE(ch) || !*GET_TITLE(ch))
 		sprintf(title, "%s %s%s", race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)], GET_NAME(ch), clan);
 	else {
@@ -1776,71 +1773,4 @@ bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 			return TRUE;
 	}
 	return FALSE;
-}
-
-GodListType GodList; // список иммов
-
-// лоад/релоад god.lst, ищем уиды, если нужно + втыкаем каждому по доске-блокноту
-void GodListLoad()
-{
-	// на случай релоада
-	GodList.clear();
-
-	// лоадим иммов
-	std::ifstream file(GODLIST_FILE);
-	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", GODLIST_FILE, __FILE__, __func__, __LINE__);
-		return;
-	}
-	std::string buffer, comment;
-	long unique = 0;
-	while (file >> buffer) {
-		// коментарии сохраняем для перезаписи
-		if (buffer[0] == ';') {
-			std::getline(file, buffer, '\n');
-			comment += ';' + buffer + '\n';
-			continue;
-		}
-		file >> unique;
-		if (!unique)
-			unique = GetUniqueByName(buffer);
-		// если имма сделетили, то пусть заново вписывают при ресторе
-		if (unique < 0)
-			continue;
-		GodList[unique] = buffer;
-	}
-	file.close();
-
-	// сохраняем список на случай нулевых уидов изначально
-	std::ofstream outfile(GODLIST_FILE);
-	if (!outfile.is_open()) {
-		log("Error open file: %s! (%s %s %d)", GODLIST_FILE, __FILE__, __func__, __LINE__);
-		return;
-	}
-	outfile << comment;
-	for (GodListType::const_iterator it = GodList.begin(); it != GodList.end(); ++it)
-		outfile << (*it).second << " " << (*it).first << '\n';
-	outfile.close();
-
-	// генерим блокноты
-	Board::GodInit();
-}
-
-// ищет имма в списке по уиду и полному совпадению имени
-bool GodListCheck(CHAR_DATA * ch)
-{
-	for (GodListType::const_iterator it = GodList.begin(); it != GodList.end(); ++it)
-		if ((*it).first == GET_UNIQUE(ch))
-			if (CompareParam((*it).second, GET_NAME(ch), 1))
-				return 1;
-	return 0;
-}
-
-bool GodListCheck(const std::string name, long unique)
-{
-	GodListType::const_iterator it = GodList.find(unique);
-	if (it != GodList.end())
-		if ((*it).second == name)
-			return 1;
-	return 0;
 }

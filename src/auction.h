@@ -8,8 +8,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#ifndef _AUCTION_HPP_
-#define _AUCTION_HPP_
+#ifndef __AUCTION_HPP__
+#define __AUCTION_HPP__
 
 typedef struct auction_data AUCTION_DATA;
 

@@ -12,10 +12,6 @@
 *  $Date$                                           *
 *  $Revision$                                                   *
 ************************************************************************ */
-
-#ifndef _DG_EVENT_H_
-#define _DG_EVENT_H_
-
 /*
 ** how often will heartbeat() call our event function?
 */
@@ -45,5 +41,3 @@ struct event_info {
 struct event_info *add_event(int time, EVENT(*func), void *info);
 void remove_event(struct event_info *event);
 void process_events(void);
-
-#endif

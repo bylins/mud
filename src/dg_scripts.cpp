@@ -1816,28 +1816,10 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			} else if (!str_cmp(field, "religion"))
 				sprintf(str, "%d", GET_RELIGION(c));
 			else if (!str_cmp(field, "gold")) {
-				if (!IS_NPC(c) && GET_CLAN_RENT(c)) {
-					// эта нудистика, потому что в gm_char_field уже парсится + или -  и от денег чара
-					int amount = (int) MAX(0, gm_char_field(c, field, subfield, (long) GET_GOLD(c)));
-					int add = amount - GET_GOLD(c);
-					if (add > 0) {
-						Clan::SetTax(c, &add);
-						GET_GOLD(c) += add;
-					}
-				} else 
-					GET_GOLD(c) = (int) MAX(0, gm_char_field(c, field, subfield, (long) GET_GOLD(c)));
+				GET_GOLD(c) = (int) MAX(0, gm_char_field(c, field, subfield, (long) GET_GOLD(c)));
 				sprintf(str, "%d", GET_GOLD(c));
 			} else if (!str_cmp(field, "bank")) {
-				if (!IS_NPC(c) && GET_CLAN_RENT(c)) {
-					// эта нудистика, потому что в gm_char_field уже парсится + или -  и от денег чара
-					int amount = (int) MAX(0, gm_char_field(c, field, subfield, (long) GET_BANK_GOLD(c)));
-					int add = amount - GET_BANK_GOLD(c);
-					if (add > 0) {
-						Clan::SetTax(c, &add);
-						GET_BANK_GOLD(c) += add;
-					}
-				} else 
-					GET_BANK_GOLD(c) = MAX(0, gm_char_field(c, field, subfield, GET_BANK_GOLD(c)));
+				GET_BANK_GOLD(c) = MAX(0, gm_char_field(c, field, subfield, GET_BANK_GOLD(c)));
 				sprintf(str, "%ld", GET_BANK_GOLD(c));
 			} else if (!str_cmp(field, "exp")) {
 				if (*subfield) {
@@ -1854,14 +1836,14 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			} else if (!str_cmp(field, "sex"))
 				sprintf(str, "%d", (int) GET_SEX(c));
 			else if (!str_cmp(field, "clan")) {
-				if (Clan::GetAbbrev(c)) {
-					sprintf(str, "%s", Clan::GetAbbrev(c));
+				if (House_sname(c) != NULL) {
+					sprintf(str, "%s", House_sname(c));
 					for (i = 0; str[i]; i++)
 						str[i] = LOWER(str[i]);
 				} else
 					sprintf(str, "null");
 			} else if (!str_cmp(field, "clanrank")) {
-				sprintf(str, "%d", GET_CLAN_RANKNUM(c));
+				sprintf(str, "%d", GET_HOUSE_RANK(c));
 			} else if (!str_cmp(field, "g"))
 				strcpy(str, GET_CH_SUF_1(c));
 			else if (!str_cmp(field, "q"))

@@ -15,8 +15,6 @@
 #include "conf.h"
 #include "sysdep.h"
 
-#include "boards.h"
-#include "house.h"
 #include "structs.h"
 #include "db.h"
 #include "constants.h"
@@ -41,7 +39,15 @@ SPECIAL(guild_guard);
 SPECIAL(guild_mono);
 SPECIAL(guild_poly);
 SPECIAL(horse_keeper);
+SPECIAL(puff);
+SPECIAL(fido);
+SPECIAL(janitor);
+SPECIAL(mayor);
+SPECIAL(snake);
+SPECIAL(thief);
+SPECIAL(magic_user);
 SPECIAL(bank);
+SPECIAL(gen_board);
 void assign_kings_castle(void);
 char *str_str(char *cs, char *ct);
 
@@ -104,24 +110,50 @@ void ASSIGNMASTER(mob_vnum mob, SPECIAL(fname), int learn_info)
 /* assign special procedures to mobiles */
 void assign_mobiles(void)
 {
-    // Do nothing for now.
-    // Mobile special procs declarations go to specials.lst
-    // If you want, you can declare here special procs for mobs
-    // in addition to those declared in specials.lst
-    //    -- al
+//  assign_kings_castle();
+
+	ASSIGNMOB(1, puff);
+
+	/* HOTEL */
+//Adept: пока закомментил мешающее - потом надо посмотреть какого оно утт вообще делает.
+//	ASSIGNMOB(3005, receptionist);
+	ASSIGNMOB(3122, receptionist);
+	ASSIGNMOB(4022, receptionist);
+	ASSIGNMOB(106, receptionist);
+
+	/* POSTMASTER */
+	ASSIGNMOB(3027, postmaster);
+	ASSIGNMOB(3102, postmaster);
+	ASSIGNMOB(4002, postmaster);
+
+	/* BANK */
+	ASSIGNMOB(3019, bank);
+	ASSIGNMOB(3101, bank);
+	ASSIGNMOB(4001, bank);
+
+	/* HORSEKEEPER */
+	ASSIGNMOB(3123, horse_keeper);
+	ASSIGNMOB(4023, horse_keeper);
 }
+
 
 
 /* assign special procedures to objects */
 void assign_objects(void)
 {
-	ASSIGNOBJ(GODGENERAL_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(GENERAL_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(GODCODE_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(GODPUNISH_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(GODBUILD_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(330, Clan::ClanChest);
+	ASSIGNOBJ(250, gen_board);
+	ASSIGNOBJ(251, gen_board);
+	ASSIGNOBJ(252, gen_board);
+	ASSIGNOBJ(253, gen_board);
+	ASSIGNOBJ(254, gen_board);
+	ASSIGNOBJ(255, gen_board);
+	ASSIGNOBJ(256, gen_board);
+	ASSIGNOBJ(257, gen_board);
+	ASSIGNOBJ(258, gen_board);
+	ASSIGNOBJ(259, gen_board);
+	ASSIGNOBJ(267, gen_board);
 }
+
 
 
 /* assign special procedures to rooms */
@@ -134,6 +166,7 @@ void assign_rooms(void)
 			if (ROOM_FLAGGED(i, ROOM_DEATH))
 				world[i]->func = dump;
 }
+
 
 
 void init_spec_procs(void)
@@ -160,7 +193,9 @@ void init_spec_procs(void)
 				log("Unknown mobile %d in specials assignment...", i);
 				continue;
 			}
-			if (!str_cmp(line2, "rent"))
+			if (!str_cmp(line2, "puff"))
+				ASSIGNMOB(i, puff);
+			else if (!str_cmp(line2, "rent"))
 				ASSIGNMOB(i, receptionist);
 			else if (!str_cmp(line2, "mail"))
 				ASSIGNMOB(i, postmaster);
@@ -179,6 +214,8 @@ void init_spec_procs(void)
 				log("Unknown object %d in specials assignment...", i);
 				continue;
 			}
+			if (!str_cmp(line2, "board"))
+				ASSIGNOBJ(i, gen_board);
 		} else if (!str_cmp(line1, "room")) {
 		} else {
 			log("Error in specials file !\r\n" "May be : mob, obj or room...");

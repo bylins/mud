@@ -30,7 +30,6 @@
 #include "im.h"
 #include "fight.h"
 #include "skills.h"
-#include "house.h"
 
 extern CHAR_DATA *mob_proto;
 
@@ -371,6 +370,24 @@ void update_pos(CHAR_DATA * victim)
 	if (IS_HORSE(victim) && GET_POS(victim) < POS_FIGHTING && on_horse(victim->master))
 		horse_drop(victim);
 }
+
+#if 0
+void check_killer(CHAR_DATA * ch, CHAR_DATA * vict)
+{
+	if (PLR_FLAGGED(vict, PLR_KILLER) || PLR_FLAGGED(vict, PLR_THIEF))
+		return;
+	if (PLR_FLAGGED(ch, PLR_KILLER) || IS_NPC(ch) || IS_NPC(vict)
+	    || ch == vict)
+		return;
+
+	/* SET_BIT(PLR_FLAGS(ch), PLR_KILLER);
+
+	   sprintf(buf, "PC Killer bit set on %s for initiating attack on %s at %s.",
+	   GET_NAME(ch), GET_NAME(vict), world[IN_ROOM(vict)]->name);
+	   mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+	 */
+}
+#endif
 
 void set_battle_pos(CHAR_DATA * ch)
 {
@@ -969,13 +986,6 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 	} else
 		send_to_char("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
 
-	if (GET_CLAN_RENT(ch)) {
-		ClanListType::const_iterator clan = Clan::GetClan(ch);
-		if (clan != Clan::ClanList.end()) {
-			(*clan)->exp += exp;
-			(*clan)->members[GET_UNIQUE(ch)]->exp += exp;
-		}
-	}
 	gain_exp(ch, exp);
 	change_alignment(ch, victim);
 }

@@ -11,16 +11,10 @@
 *  $Date$                                           *
 *  $Revision$                                                       *
 ************************************************************************ */
-
 #ifndef _STRUCTS_H_
 #define _STRUCTS_H_
-
 #include <list>
-#include <string>
-#include <boost/shared_ptr.hpp>
-
 using std::list;
-
 /*
  * Intended use of this macro is to allow external packages to work with
  * a variety of CircleMUD versions without modifications.  For instance,
@@ -387,27 +381,27 @@ typedef struct trig_data
 
 /* Player flags: used by char_data.char_specials.act */
 #define PLR_KILLER       (1 << 0)	/* Player is a player-killer     */
-#define PLR_THIEF        (1 << 1)	/* Player is a player-thief      */
+#define PLR_THIEF     (1 << 1)	/* Player is a player-thief      */
 #define PLR_FROZEN       (1 << 2)	/* Player is frozen        */
-#define PLR_DONTSET      (1 << 3)	/* Don't EVER set (ISNPC bit)  */
+#define PLR_DONTSET     (1 << 3)	/* Don't EVER set (ISNPC bit)  */
 #define PLR_WRITING      (1 << 4)	/* Player writing (board/mail/olc)  */
 #define PLR_MAILING      (1 << 5)	/* Player is writing mail     */
-#define PLR_CRASH        (1 << 6)	/* Player needs to be crash-saved   */
+#define PLR_CRASH     (1 << 6)	/* Player needs to be crash-saved   */
 #define PLR_SITEOK       (1 << 7)	/* Player has been site-cleared  */
-#define PLR_MUTE         (1 << 8)	/* Player not allowed to shout/goss/auct  */
+#define PLR_MUTE      (1 << 8)	/* Player not allowed to shout/goss/auct  */
 #define PLR_NOTITLE      (1 << 9)	/* Player not allowed to set title  */
 #define PLR_DELETED      (1 << 10)	/* Player deleted - space reusable  */
-#define PLR_LOADROOM     (1 << 11)	/* Player uses nonstandard loadroom  */
-//место свободно
-#define PLR_NODELETE     (1 << 13)	/* Player shouldn't be deleted */
-#define PLR_INVSTART     (1 << 14)	/* Player should enter game wizinvis */
-#define PLR_CRYO         (1 << 15)	/* Player is cryo-saved (purge prog)   */
+#define PLR_LOADROOM (1 << 11)	/* Player uses nonstandard loadroom  */
+#define PLR_NOWIZLIST   (1 << 12)	/* Player shouldn't be on wizlist */
+#define PLR_NODELETE (1 << 13)	/* Player shouldn't be deleted */
+#define PLR_INVSTART (1 << 14)	/* Player should enter game wizinvis */
+#define PLR_CRYO      (1 << 15)	/* Player is cryo-saved (purge prog)   */
 #define PLR_HELLED       (1 << 16)	/* Player is in Hell */
-#define PLR_NAMED        (1 << 17)	/* Player is in Names Room */
-#define PLR_REGISTERED   (1 << 18)
-#define PLR_DUMB         (1 << 19)	/* Player is not allowed to tell/emote/social */
-#define PLR_DELETE       (1 << 28)	/* RESERVED - ONLY INTERNALLY */
-#define PLR_FREE         (1 << 29)	/* RESERVED - ONLY INTERBALLY */
+#define PLR_NAMED     (1 << 17)	/* Player is in Names Room */
+#define PLR_REGISTERED      (1 << 18)
+#define PLR_DUMB      (1 << 19)	/* Player is not allowed to tell/emote/social */
+#define PLR_DELETE          (1 << 28)	/* RESERVED - ONLY INTERNALLY */
+#define PLR_FREE            (1 << 29)	/* RESERVED - ONLY INTERBALLY */
 
 
 /* Mobile flags: used by char_data.char_specials.act */
@@ -558,11 +552,11 @@ typedef struct trig_data
 #define PRF_AUTOSPLIT   (INT_ONE | 1 << 6)	/* Autosplit */
 #define PRF_AUTOMONEY   (INT_ONE | 1 << 7)	/* Automoney */
 #define PRF_NOARENA     (INT_ONE | 1 << 8)	/* Не слышит арену */
+//F@N|
 #define PRF_NOEXCHANGE  (INT_ONE | 1 << 9)	/* Не слышит базар */
+//shapirus
 #define PRF_NOCLONES	(INT_ONE | 1 << 10)	/* Не видит в группе чужих клонов */
 #define PRF_NOINVISTELL	(INT_ONE | 1 << 11)	/* Не хочет, чтобы телял "кто-то" */
-#define PRF_ALLIANCE    (INT_ONE | 1 << 12) /* Игнор канала альянса */
-#define PRF_BOARDS      (INT_ONE | 1 << 13) /* Игнор уведомлений о новых мессагах на досках */
 
 /* Affect bits: used in char_data.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
@@ -688,8 +682,7 @@ typedef struct trig_data
 #define CON_RACES        39
 #define CON_RACEV        40
 #define CON_COLOR        41
-#define CON_WRITEBOARD   42 // написание на доску
-#define CON_CLANEDIT     43 // команда house
+
 
 /* Character equipment positions: used as index for char_data.equipment[] */
 /* NOTE: Don't confuse these constants with the ITEM_ bitvectors
@@ -1102,12 +1095,12 @@ typedef struct trig_data
 /* Max amount of output that can be buffered */
 #define LARGE_BUFSIZE            (MAX_SOCK_BUF - GARBAGE_SPACE - MAX_PROMPT_LENGTH)
 
-#define HISTORY_SIZE          5	/* Keep last 5 commands. */
+#define HISTORY_SIZE       5	/* Keep last 5 commands. */
 #define MAX_STRING_LENGTH     16384
 #define MAX_EXTEND_LENGTH     0xFFFF
 #define MAX_INPUT_LENGTH      256	/* Max length per *line* of input */
-#define MAX_RAW_INPUT_LENGTH  512	/* Max size of *raw* input */
-#define MAX_MESSAGES          600
+#define MAX_RAW_INPUT_LENGTH          512	/* Max size of *raw* input */
+#define MAX_MESSAGES       600
 #define MAX_NAME_LENGTH       20	/* Used in char_file_u *DO*NOT*CHANGE* */
 #define MIN_NAME_LENGTH                 4
 #define MAX_PWD_LENGTH        10	/* Used in char_file_u *DO*NOT*CHANGE* */
@@ -1118,8 +1111,8 @@ typedef struct trig_data
 #define MAX_SKILLS         200	/* Used in char_file_u *DO*NOT*CHANGE* */
 #define MAX_SPELLS            350	/* Used in char_file_u *DO*NOT*CHANGE* */
 #define MAX_AFFECT         32	/* Used in char_file_u *DO*NOT*CHANGE* */
-#define MAX_OBJ_AFFECT        6
-#define MAX_TIMED_SKILLS      16
+#define MAX_OBJ_AFFECT        6	/* Used in obj_file_elem *DO*NOT*CHANGE* */
+#define MAX_TIMED_SKILLS      16	/* Used in obj_file_elem *DO*NOT*CHANGE* */
 /* Количество запомненных предложений для команды "вспомнить" */
 #define MAX_REMEMBER_TELLS          15
 
@@ -1160,8 +1153,10 @@ typedef char
  bool;
 #endif
 
+#if !defined(CIRCLE_WINDOWS) || defined(LCC_WIN32)	/* Hm, sysdep.h? */
 typedef char
  byte;
+#endif
 
 typedef int
  room_vnum;			/* A room's vnum type */
@@ -1263,6 +1258,8 @@ struct obj_flag_data {
 	 Obj_parent;		/* Vnum for object parent */
 };
 
+
+/* Used in obj_file_elem *DO*NOT*CHANGE* */
 struct obj_affected_type {
 	byte location;		/* Which ability to change (APPLY_XXX) */
 	sbyte modifier;		/* How much it changes by              */
@@ -1305,6 +1302,40 @@ struct obj_data {
 	int
 	 max_in_world;		/* max in world             */
 };
+/* ======================================================================= */
+
+
+/* ====================== File Element for Objects ======================= */
+/*                 BEWARE: Changing it will ruin rent files       */
+struct obj_file_elem {
+	obj_vnum item_number;
+
+#if USE_AUTOEQ
+	short int
+	 location;
+#endif
+	int
+	 value[NUM_OBJ_VAL_POSITIONS];
+	FLAG_DATA extra_flags;
+	int
+	 weight;
+	int
+	 timer;
+	int
+	 maxstate;
+	int
+	 curstate;
+	int
+	 owner;
+	int
+	 wear_flags;
+	int
+	 mater;
+	FLAG_DATA bitvector;
+	struct obj_affected_type
+	 affected[MAX_OBJ_AFFECT];
+};
+
 
 /* header block for rent files.  BEWARE: Changing it will ruin rent files  */
 struct save_rent_info {
@@ -1746,9 +1777,6 @@ struct player_special_data_saved {
 	 remember[MAX_REMEMBER_TELLS][MAX_RAW_INPUT_LENGTH];
 	int
 	 lasttell;
-
-	int stringLength;
-	int stringWidth;
 };
 
 // shapirus
@@ -1827,22 +1855,7 @@ struct player_special_data {
 	struct punish_data pgcurse;
 	struct punish_data punreg;
 
-	char *clanStatus;
-	room_vnum clanRent;
-	int clanRankNum;
-
-	long GeneralBoardDate;    // последнее прочтенное на общей доске
-	long NewsBoardDate;       // -//- новости
-	long IdeaBoardDate;       // -//- идеи
-	long ErrorBoardDate;      // -//- ошибки
-	long GodNewsBoardDate;    // -//- новости богов
-	long GodGeneralBoardDate; // -//- общая богов
-	long GodBuildBoardDate;   // -//- билдерская
-	long GodCodeBoardDate;    // -//- кодерская
-	long GodPunishBoardDate;  // -//- наказания
-	long PersBoardDate;       // -//- блокнот
-	long ClanBoardDate;       // -//- клан-доска
-	long ClanNewsBoardDate;   // -//- клан-новости
+	int page_height;
 };
 
 
@@ -2196,10 +2209,6 @@ struct descriptor_data {
 	 mccp_version;
 #endif
 	unsigned long ip;	// ип адрес в виде числа для внутреннего пользования
-	boost::shared_ptr<class Board> board;       // редактируемая доска
-	boost::shared_ptr<struct Message> message;  // редактируемое сообщение
-	boost::shared_ptr<struct ClanOLC> clan_olc; // редактирование привилегий клана
-	boost::shared_ptr<struct ClanInvite> clan_invite; // приглашение в дружину
 };
 
 
@@ -2594,3 +2603,4 @@ struct set_struct {
 extern int grouping[14][15];
 
 #endif
+
