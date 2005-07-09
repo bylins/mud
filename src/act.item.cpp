@@ -2093,7 +2093,6 @@ ACMD(do_wear)
 	}
 }
 
-
 ACMD(do_wield)
 {
 	OBJ_DATA *obj;
@@ -2102,7 +2101,7 @@ ACMD(do_wield)
 	if (IS_NPC(ch) && (!NPC_FLAGGED(ch, NPC_WIELDING) || MOB_FLAGGED(ch, MOB_RESURRECTED)))
 		return;
 
-	one_argument(argument, arg);
+	argument = one_argument(argument, arg);
 
 	if (!*arg)
 		send_to_char("Вооружиться чем ?\r\n", ch);
@@ -2118,15 +2117,20 @@ ACMD(do_wield)
 		else if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM) && MOB_FLAGGED(ch, MOB_CORPSE))
 			send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
 		else {
+			one_argument(argument, arg);
+			if (!str_cmp(arg, "обе") && CAN_WEAR(obj, ITEM_WEAR_BOTHS)) {
+				// иногда бывает надо
+				if (!IS_IMMORTAL(ch) && !OK_BOTH(ch, obj)) {
+					act("Вам слишком тяжело держать $o3 двумя руками.", FALSE, ch, obj, 0, TO_CHAR);
+					return;
+				};
+				perform_wear(ch, obj, WEAR_BOTHS);
+				return;
+			}
 			if (CAN_WEAR(obj, ITEM_WEAR_WIELD))
 				wear = WEAR_WIELD;
 			else
 				wear = WEAR_BOTHS;
-			/* This is too high
-			   if (GET_OBJ_SKILL(obj) == SKILL_BOTHHANDS ||
-			   GET_OBJ_SKILL(obj) == SKILL_BOWS)
-			   wear = WEAR_BOTHS;
-			 */
 			if (wear == WEAR_WIELD && !IS_IMMORTAL(ch) && !OK_WIELD(ch, obj)) {
 				act("Вам слишком тяжело держать $o3 в правой руке.", FALSE, ch, obj, 0, TO_CHAR);
 				if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
