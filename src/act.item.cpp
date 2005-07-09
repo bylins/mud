@@ -2739,7 +2739,7 @@ ACMD(do_repair)
 	} else {
 		GET_OBJ_MAX(obj) -= MAX(1, (GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj)) / 20);
 		GET_OBJ_CUR(obj) = MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1);
-		act("Теперь $o0 выглядит лучше.", FALSE, ch, obj, 0, TO_CHAR);
+		send_to_char(ch, "Теперь %s выгляд%s лучше.\r\n", GET_OBJ_PNAME(obj, 0), GET_OBJ_POLY_1(ch, obj));
 		act("$n умело починил$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
 	}
 
