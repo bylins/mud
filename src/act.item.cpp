@@ -2516,9 +2516,9 @@ ACMD(do_fire)
 	}
 }
 
-#define MAX_REMOVE  10
+#define MAX_REMOVE  11
 const int RemoveSpell[MAX_REMOVE] = { SPELL_SLEEP, SPELL_POISON, SPELL_WEAKNESS, SPELL_CURSE, SPELL_PLAQUE,
-	SPELL_SIELENCE, SPELL_BLINDNESS, SPELL_HAEMORRAGIA, SPELL_HOLD, SPELL_PEACEFUL
+	SPELL_SIELENCE, SPELL_BLINDNESS, SPELL_HAEMORRAGIA, SPELL_HOLD, SPELL_PEACEFUL, SPELL_CONE_OF_COLD
 };
 
 ACMD(do_firstaid)
@@ -2587,7 +2587,7 @@ ACMD(do_firstaid)
 		act("У Вас не хватит умения вылечить $N3.", FALSE, ch, 0, vict, TO_CHAR);
 	else {			//improove_skill(ch, SKILL_AID, TRUE, 0);
 		timed.skill = SKILL_AID;
-		timed.time = IS_IMMORTAL(ch) ? 2 : 6;
+		timed.time = IS_IMMORTAL(ch) ? 2 : IS_PALADINE(ch) ? 4 : IS_CLERIC(ch) ? 2 : 6;
 		timed_to_char(ch, &timed);
 		if (vict != ch) {
 			improove_skill(ch, SKILL_AID, success, 0);

@@ -1745,6 +1745,20 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		spellnum = SPELL_BLESS;
 		break;
 
+	case SPELL_CONE_OF_COLD:
+		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+			send_to_char(NOEFFECT, ch);
+			success = FALSE;
+		}
+		af[0].location = APPLY_DEX;
+		af[0].modifier = -dice(int (MAX (1, ((level - 14) / 7))), 3);
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
+								pc_duration(victim, 9, 0, 0, 0, 0));
+		accum_duration = FALSE;
+		to_vict = "Вы покрылись серебристым инеем.";
+		to_room = "$n1 покрылся красивым серебристым инеем.";
+		break;
+
 	case SPELL_AWARNESS:
 		af[0].duration = pc_duration(victim, 6, 0, 0, 0, 0);
 		af[0].bitvector = AFF_AWARNESS;

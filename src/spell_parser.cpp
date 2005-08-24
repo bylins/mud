@@ -3802,7 +3802,7 @@ void mag_assign_spells(void)
 //104
 	spello(SPELL_CONE_OF_COLD, "ледяной ветер", "cold wind",
 	       100, 90, 1, POS_FIGHTING,
-	       TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
+	       TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_AFFECTS | MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
 													15, STYPE_WATER);
 //105
 	spello(SPELL_BATTLE, "!получил в бою!", "!set by programm!",
