@@ -1109,6 +1109,10 @@ int item_nouse(OBJ_DATA * obj)
 	case ITEM_FOUNTAIN:
 		return (TRUE);
 		break;
+	case ITEM_MING:
+		return (TRUE);
+		break;
+
 	}
 	return (FALSE);
 }
@@ -1143,9 +1147,15 @@ int npc_scavenge(CHAR_DATA * ch)
 		best_obj = NULL;
 		cont = NULL;
 		best_cont = NULL;
-		for (obj = world[ch->in_room]->contents; obj; obj = obj->next_content)
+		for (obj = world[ch->in_room]->contents; obj; obj = obj->next_content) {
+			if (GET_OBJ_TYPE(obj) == ITEM_MING)
+					continue;
 			if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER) {
 				if (IS_CORPSE(obj) || OBJVAL_FLAGGED(obj, CONT_LOCKED))
+					continue;
+				if (OBJVAL_FLAGGED(obj, CONT_CLOSED))
+					do_doorcmd(ch, obj, 0, SCMD_OPEN);
+				if (OBJVAL_FLAGGED(obj, CONT_CLOSED))
 					continue;
 				for (cobj = obj->contains; cobj; cobj = cobj->next_content)
 					if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj) && GET_OBJ_COST(cobj) > max) {
@@ -1159,6 +1169,7 @@ int npc_scavenge(CHAR_DATA * ch)
 				best_obj = obj;
 				max = GET_OBJ_COST(obj);
 			}
+		}
 		if (best_obj != NULL) {
 			if (best_obj != best_cont) {
 				obj_from_room(best_obj);
