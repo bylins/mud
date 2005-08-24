@@ -1756,7 +1756,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 								pc_duration(victim, 9, 0, 0, 0, 0));
 		accum_duration = FALSE;
 		to_vict = "Вы покрылись серебристым инеем.";
-		to_room = "$n1 покрылся красивым серебристым инеем.";
+		to_room = "$n покрылся красивым серебристым инеем.";
 		break;
 
 	case SPELL_AWARNESS:
