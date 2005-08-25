@@ -216,6 +216,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	skill_is += int_app[GET_REAL_INT(ch)].to_skilluse;
 	switch (skill_no) {
 	case SKILL_BACKSTAB:	/*заколоть */
+		victim_sav = SAVING_REFLEX;
 		percent = skill_is + dex_app[GET_REAL_DEX(ch)].reaction * 2;
 		if (awake_others(ch))
 			percent -= 50;
@@ -228,13 +229,15 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			else if (AFF_FLAGGED(vict, AFF_AWARNESS))
 				victim_modi -= 30;
 			victim_modi += size_app[GET_POS_SIZE(vict)].ac;
-			victim_modi -= dex_app_skill[GET_REAL_DEX(vict)].traps;
+			victim_modi -= dex_app[GET_REAL_DEX(vict)].reaction;
 		}
 		break;
 	case SKILL_BASH:	/*сбить */
+		victim_sav = SAVING_REFLEX;
 		percent = skill_is +
 		    size_app[GET_POS_SIZE(ch)].interpolate +
-		    (dex_app[GET_REAL_DEX(ch)].reaction * 2) +
+		    dex_app[GET_REAL_DEX(ch)].reaction +
+		    dex_app[GET_REAL_STR(ch)].reaction +
 		    (GET_EQ(ch, WEAR_SHIELD) ?
 		     weapon_app[MIN(50, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].
 		     bashing : 0);
@@ -244,7 +247,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 				victim_modi -= 20;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
 				victim_modi -= (GET_SKILL(vict, SKILL_AWAKE) / 2);
-			victim_modi -= dex_app[GET_REAL_DEX(ch)].reaction;
+			victim_modi -= dex_app[GET_REAL_CON(vict)].reaction;// !!!!!
 		}
 		break;
 	case SKILL_HIDE:	/*спрятаться */
@@ -275,11 +278,13 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		}
 		break;
 	case SKILL_KICK:	/*пнуть */
-		percent =
-		    skill_is + GET_REAL_DEX(ch) + GET_REAL_HR(ch) +
-		    (AFF_FLAGGED(ch, AFF_BLESS) ? 2 : 0);
+		victim_sav = SAVING_STABILITY;
+		percent = skill_is + 
+			dex_app[GET_REAL_DEX(ch)].reaction +
+			dex_app[GET_REAL_STR(ch)].reaction;
 		if (vict) {
 			victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
+			victim_modi += dex_app[GET_REAL_CON(vict)].reaction;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
 				victim_modi -= (GET_SKILL(vict, SKILL_AWAKE) / 2);
 		}
@@ -440,9 +445,11 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		percent = skill_is + int_app[GET_REAL_INT(ch)].observation;
 		break;
 	case SKILL_DISARM:
-		percent = skill_is + dex_app[GET_REAL_DEX(ch)].reaction;
+		victim_sav = SAVING_REFLEX;
+		percent = skill_is + dex_app[GET_REAL_DEX(ch)].reaction +
+			dex_app[GET_REAL_STR(ch)].reaction;
 		if (vict) {
-			victim_modi -= dex_app[GET_REAL_DEX(ch)].reaction;
+			victim_modi -= dex_app[GET_REAL_STR(vict)].reaction;
 			if (GET_EQ(vict, WEAR_BOTHS))
 				victim_modi -= 10;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
@@ -502,9 +509,9 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		}
 		break;
 	case SKILL_CHOPOFF:
-		percent =
-		    skill_is + dex_app[GET_REAL_DEX(ch)].reaction +
-		    size_app[GET_POS_SIZE(ch)].ac;
+		victim_sav = SAVING_REFLEX;
+		percent = skill_is +
+			dex_app[GET_REAL_DEX(ch)].reaction + size_app[GET_POS_SIZE(ch)].ac;
 
 		if (equip_in_metall(ch))
 			percent -= 10;
@@ -517,8 +524,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			if (AWAKE(vict) && AFF_FLAGGED(vict, AFF_AWARNESS))
 				victim_modi -= 30;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
-				victim_modi -= GET_SKILL(ch, SKILL_AWAKE);
-			victim_modi -= dex_app[GET_REAL_DEX(vict)].reaction;
+				victim_modi -= (GET_SKILL(ch, SKILL_AWAKE) / 2);
 			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
@@ -537,16 +543,18 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		percent = skill_is;
 		break;
 	case SKILL_MIGHTHIT:
+		victim_sav = SAVING_STABILITY;
 		percent =
 		    skill_is + size_app[GET_POS_SIZE(ch)].shocking +
-		    str_app[GET_REAL_STR(ch)].tohit;
+		    str_app[GET_REAL_STR (ch)].todam;
 
 		if (vict) {
 			victim_modi -= size_app[GET_POS_SIZE(vict)].shocking;
 		}
 		break;
 	case SKILL_STUPOR:
-		percent = skill_is + str_app[GET_REAL_STR(ch)].tohit;
+		victim_sav = SAVING_STABILITY;
+		percent = skill_is + str_app[GET_REAL_STR (ch)].todam * 2;
 		if (GET_EQ(ch, WEAR_WIELD))
 			percent +=
 			    weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
@@ -565,6 +573,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		percent = skill_is + cha_app[GET_REAL_CHA(ch)].leadership;
 		break;
 	case SKILL_PUNCTUAL:
+		victim_sav = SAVING_CRITICAL;
 		percent = skill_is + int_app[GET_REAL_INT(ch)].observation;
 		if (GET_EQ(ch, WEAR_WIELD))
 			percent += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 18
@@ -631,17 +640,19 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 
 	percent = complex_skill_modifier(ch, skill_no, GAPPLY_SKILL_SUCCESS, percent);
 
-	if (vict && percent > skill_info[skill_no].max_percent)
-		victim_modi += percent - skill_info[skill_no].max_percent;
-
 	morale = cha_app[GET_REAL_CHA(ch)].morale + GET_MORALE(ch);
+	
+	if (vict && percent > skill_info[skill_no].max_percent)
+		victim_modi += percent - skill_info[skill_no].max_percent -
+		(MAX (0, morale - 50) * 2);//maksimum morali +50,  vse chto vyshe idet bonusom k skillu
+
 	if (AFF_FLAGGED(ch, AFF_DEAFNESS))
 		morale -= 20;	// у глухого мораль на 20 меньше
 
 // если мораль отрицательная, увеличивается вероятность, что умение не пройдет
 	if ((skill_is = number(0, 99)) >= 95 + (morale >= 0 ? 0 : morale))
 		percent = 0;
-	else if (skill_is <= morale)
+	else if (skill_is <= MIN (50,morale))
 		percent = skill_info[skill_no].max_percent;
 	else if (vict && general_savingthrow(vict, victim_sav, victim_modi, use))
 		percent = 0;
