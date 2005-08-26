@@ -350,12 +350,14 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 	prob = train_skill(ch, SKILL_BACKSTAB, skill_info[SKILL_BACKSTAB].max_percent, vict);
 
 	if (FIGHTING(vict))
-		prob = prob / 3 + GET_REAL_DEX(ch) - 25;
+		prob = prob * (GET_REAL_DEX(ch) + 50) / 100;
 
 	if (AFF_FLAGGED(ch, AFF_HIDE))
 		prob += 5;	// Add by Alez - Improove in hide stab probability 
 
-	if (GET_GOD_FLAG(vict, GF_GODSCURSE) || GET_MOB_HOLD(vict))
+ 	if (GET_MOB_HOLD(vict))
+		prob = prob * 5 / 4;
+	if (GET_GOD_FLAG(vict, GF_GODSCURSE))
 		prob = percent;
 	if (GET_GOD_FLAG(vict, GF_GODSLIKE) || GET_GOD_FLAG(ch, GF_GODSCURSE))
 		prob = 0;

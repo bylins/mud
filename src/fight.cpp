@@ -1342,6 +1342,9 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 	OBJ_DATA *obj;
 	int i, unequip_pos = 0;
 
+	if (!dam_critic)
+		return(dam);
+
 	for (i = 0; i < 4; i++) {
 		af[i].type = 0;
 		af[i].location = APPLY_NONE;
@@ -3109,10 +3112,12 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 
 	calc_thaco -= (str_app[STRENGTH_APPLY_INDEX(ch)].tohit + GET_REAL_HR(ch));
 
-	if ((skill == SKILL_THROW || skill == SKILL_BACKSTAB) && wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
+	if ((skill == SKILL_THROW || skill == SKILL_BACKSTAB) && wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON) {
 		skill_is = calculate_skill(ch, GET_OBJ_SKILL(wielded),
 					   skill_info[GET_OBJ_SKILL(wielded)].max_percent, victim);
-	else
+		if (skill == SKILL_BACKSTAB)
+			calc_thaco -= MAX(0, (GET_SKILL(ch,SKILL_SNEAK) + GET_SKILL(ch,SKILL_HIDE)- 100)/30);
+	} else
 // тюнинг оверности делается тут :)
 		calc_thaco += 4;
 
@@ -3262,7 +3267,9 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		if (AFF_FLAGGED(victim, AFF_SANCTUARY) && dam >= 2)
 			dam /= 2;
 		if (GET_SKILL(ch, SKILL_NOPARRYHIT))
-			dam += (GET_LEVEL(ch) / 3) + (GET_REMORT(ch) * 3);
+			dam += (int) ((GET_LEVEL(ch) / 3 + GET_REMORT(ch) * 3) *
+				GET_SKILL(ch, SKILL_NOPARRYHIT) / 
+				skill_info[SKILL_NOPARRYHIT].max_percent);
 
 		//dzMUDiST Обработка !исступления!
 		if (affected_by_spell(ch, SPELL_BERSERK)) {
@@ -3278,21 +3285,36 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		dam = MAX(1, dam);
 		if (weapon_pos)
 			alt_equip(ch, weapon_pos, dam, 10);
-		was_critic = FALSE;
-		dam_critic = 0;
+ 		dam_critic = 0;
+		was_critic = 19;
+		if (GET_CLASS(ch) == CLASS_THIEF) 
+			was_critic -= (int) (GET_SKILL(ch,SKILL_BACKSTAB) / 60);
+		if (GET_CLASS(ch) == CLASS_PALADINE) 
+			was_critic -= (int) (GET_SKILL(ch,SKILL_PUNCTUAL) / 80);
+		if (GET_CLASS(ch) == CLASS_ASSASINE) 
+			was_critic -= (int) (GET_SKILL(ch,SKILL_NOPARRYHIT) / 100);
+
+		//critical hit ignore magic_shields and armour
+		if (diceroll > was_critic)
+			was_critic = TRUE;
+		else
+			was_critic = FALSE;
 
 		if (type == SKILL_BACKSTAB) {
 			dam *= (GET_COMMSTATE(ch) ? 25 : backstab_mult(GET_LEVEL(ch)));
 			/* если критбакстаб, то дамаж равен 95% хитов жертвы 
 			   вероятность критстабба - стабб/20+ловкость-20 (кард) */
 			/*+скр.удар/20 */
-			if (IS_NPC(victim)
-			    && (number(1, 100) <
-				((GET_SKILL(ch, SKILL_BACKSTAB) +
-				  GET_SKILL(ch, SKILL_NOPARRYHIT)) / 20 + GET_DEX(ch) - 20))) {
-				dam = MAX(dam, GET_REAL_MAX_HIT(victim) - (GET_REAL_MAX_HIT(victim) / 20));
-				send_to_char("&GПрямо в сердце!&n\r\n", ch);
-			}
+			if (IS_NPC(victim) && (number(1, 100) <
+				(GET_SKILL(ch, SKILL_BACKSTAB) / 20 + GET_REAL_DEX(ch) - 20)))
+	  			if (!general_savingthrow(victim,SAVING_REFLEX,
+					MAX (0, GET_SKILL(ch,SKILL_BACKSTAB) -
+						skill_info[SKILL_BACKSTAB].max_percent +
+						dex_app[GET_REAL_DEX(ch)].reaction),0))	{
+					dam *= MAX(2, (GET_SKILL(ch,SKILL_BACKSTAB) - 40) / 8);
+					send_to_char("&GПрямо в сердце!&n\r\n", ch);
+				}				 
+
 //Adept: учитываем резисты от крит. повреждений
 			dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
 			extdamage(ch, victim, dam, w_type, 0, TRUE);
