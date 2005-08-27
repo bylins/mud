@@ -1116,6 +1116,9 @@ extern SPECIAL(postmaster);
 #define IS_CHARMICE(ch)    (IS_NPC(ch) && \
             (AFF_FLAGGED(ch,AFF_HELPER) && AFF_FLAGGED(ch,AFF_CHARM)))
 
+#define IS_UNDEAD(ch) (IS_NPC(ch) && \
+		(MOB_FLAGGED(ch, MOB_RESURRECTED) || (GET_CLASS(ch) == CLASS_UNDEAD)))
+
 #define LIKE_ROOM(ch) ((IS_CLERIC(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_CLERIC)) || \
                        (IS_MAGIC_USER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_MAGE)) || \
                        (IS_WARRIOR(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_WARRIOR)) || \

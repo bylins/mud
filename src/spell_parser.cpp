@@ -4148,5 +4148,6 @@ void mag_assign_spells(void)
 	skillo(SKILL_DIG, "горное дело", 100);
 	skillo(SKILL_INSERTGEM, "ювелир", 100);
 	skillo(SKILL_BERSERK, "исступление", 100);
+	skillo(SKILL_TURN_UNDEAD, "изгнать нежить", 100);
 
 }

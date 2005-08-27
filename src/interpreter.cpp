@@ -331,6 +331,7 @@ ACMD(do_dig);
 ACMD(do_insertgem);
 ACMD(do_ignore);
 ACMD(do_proxy);
+ACMD(do_turn_undead);
 
 
 /* DG Script ACMD's */
@@ -552,6 +553,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"инвентарь", POS_DEAD, do_inventory, 0, 0, 0},
 	{"игнорировать", POS_DEAD, do_ignore, 0, 0, 0},
 	{"идея", POS_DEAD, do_gen_write, 0, SCMD_IDEA, 0},
+	{"изгнать нежить", POS_RESTING, do_turn_undead, 0, 0, -1},
 	{"изучить", POS_SITTING, do_learn, 0, 0, 0},
 	{"информация", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
 	{"испить", POS_RESTING, do_use, 0, SCMD_QUAFF, 500},
@@ -947,6 +949,7 @@ cpp_extern const struct command_info cmd_info[] = {
 //  {"transfer", POS_SLEEPING, do_trans, LVL_GRGOD, 0, 0},
 	{"transfer", POS_STANDING, do_not_here, 1, 0, -1},
 	{"trigedit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_TRIGEDIT},
+	{"turn undead", POS_RESTING, do_turn_undead, 0, 0, -1},
 	{"typo", POS_DEAD, do_gen_write, 0, SCMD_TYPO, 0},
 	{"unaffect", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_UNAFFECT, 0},
 	{"unban", POS_DEAD, do_unban, LVL_GRGOD, 0, 0},

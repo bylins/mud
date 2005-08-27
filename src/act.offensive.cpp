@@ -51,6 +51,7 @@ ACMD(do_bash);
 ACMD(do_rescue);
 ACMD(do_kick);
 ACMD(do_manadrain);
+ACMD(do_coddle_out);
 
 int have_mind(CHAR_DATA * ch)
 {
@@ -1982,3 +1983,97 @@ ACMD(do_townportal)
 	spell_townportal(GET_LEVEL(ch), ch, NULL, NULL);
 
 }
+
+/* Added by Gorrah */
+ACMD(do_turn_undead)
+{
+	int prob, dam = 0;
+        int i, sum, ch_list_size, max_level;
+	struct timed_type timed;
+        CHAR_DATA **ch_list;
+        CHAR_DATA *ch_vict;
+
+	if (IS_NPC(ch))		/* Cannot use on mobs. */
+		return;
+
+	if (!GET_SKILL(ch, SKILL_TURN_UNDEAD)) {
+		send_to_char("Вам это не по силам.\r\n", ch);
+		return;
+	}
+
+	if (timed_by_skill(ch, SKILL_TURN_UNDEAD)) {
+		send_to_char("Вам сейчас не по силам изгонять нежить, нужно отдожнуть.\r\n", ch);
+		return;
+	}
+
+	timed.skill = SKILL_TURN_UNDEAD;
+	timed.time = IS_PALADINE(ch) ? 6 : 8;
+	timed_to_char(ch, &timed); 
+
+	send_to_char (ch, "Вы свели руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n");
+	act("$n свел$g руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n", FALSE, ch, 0, 0, TO_ROOM);
+
+//Составляем список всех персов в комнате и выкидываем дружественных и не-нежить
+        for (ch_list_size = 0, ch_vict = world[ch->in_room]->people;
+             ch_vict; ++ch_list_size, ch_vict = ch_vict->next_in_room);
+        CREATE(ch_list, CHAR_DATA *, ch_list_size);
+        for (i = 0, ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room) {
+                if (IS_IMMORTAL(ch_vict))
+                        continue;
+                if (!HERE(ch_vict))
+                        continue;
+                if (same_group(ch, ch_vict))
+                        continue;
+                if (!IS_UNDEAD(ch_vict))
+                        continue;
+	        if (!may_kill_here(ch, ch_vict))
+        	        return;
+                ch_list[i++] = ch_vict;
+        }
+        ch_list_size = i;
+
+	if (i > 0)
+		prob = train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, 0);
+	else {
+	        free(ch_list);
+		return;
+	}
+
+//Определяем максимальный уровень изгоняемой нежити
+	if (number(1, skill_info[SKILL_TURN_UNDEAD].max_percent) <= prob)
+		max_level = GET_LEVEL(ch) + number(1, 10);
+	else
+		max_level = GET_LEVEL(ch) - number(1, 5);
+	sum = dice(3, 8) + GET_LEVEL(ch) + prob / 5;
+
+//Применяем.
+//Если уровень больше максимального, или отсэйвилось - фейл по этому персу
+//Если поражение - то дамаг+страх, если от страха спасла воля - просто дамаг.
+        for (i = 0; i < ch_list_size; ++i) {
+		if (sum <= 0)
+			break;
+                ch_vict = ch_list[i];
+                if (IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+                        continue;
+		if ((GET_LEVEL(ch_vict) > max_level) ||
+			(dice(1, GET_SAVE(ch_vict, SAVING_STABILITY) - con_app[GET_REAL_CON(ch_vict)].affect_saving) > 
+				dice(1, GET_REAL_WIS(ch)))) {
+			send_to_char (ch, "Ваши потуги оказались напрасными.\r\n");
+			continue;
+		} 
+		sum -= GET_LEVEL(ch_vict);
+		if (GET_LEVEL(ch) - 8 >= GET_LEVEL(ch_vict)) {
+			dam = MAX (1, GET_HIT (ch_vict) + 11);
+		} else {
+			dam = dice(10, 2 * GET_LEVEL(ch)) + GET_LEVEL(ch);
+		}
+		damage(ch, ch_vict, dam, SKILL_TURN_UNDEAD + TYPE_HIT, TRUE);
+	        if (!MOB_FLAGGED(ch_vict, MOB_NOFEAR) &&
+				!general_savingthrow(ch_vict, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch), 0))
+	                go_flee(ch_vict);
+        }
+
+        free(ch_list);
+}
+/* End of changes */
+

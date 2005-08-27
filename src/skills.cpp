@@ -633,6 +633,10 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			percent -= number(10, 25);
 	case SKILL_HORSE:
 		percent = skill_is + cha_app[GET_REAL_CHA(ch)].leadership;
+		break;
+	case SKILL_TURN_UNDEAD:
+		percent = skill_is + int_app[GET_REAL_INT(ch)].to_skilluse;
+		break;
 	default:
 		percent = skill_is;
 		break;

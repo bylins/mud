@@ -95,6 +95,7 @@
 
 // Other skills
 #define SKILL_BERSERK     	    178
+#define SKILL_TURN_UNDEAD     	    179
 
 
 /* New skills may be added here up to MAX_SKILLS (200) */
