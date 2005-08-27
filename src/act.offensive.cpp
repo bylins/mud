@@ -2002,7 +2002,7 @@ ACMD(do_turn_undead)
 	}
 
 	if (timed_by_skill(ch, SKILL_TURN_UNDEAD)) {
-		send_to_char("Вам сейчас не по силам изгонять нежить, нужно отдожнуть.\r\n", ch);
+		send_to_char("Вам сейчас не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
 		return;
 	}
 
@@ -2065,7 +2065,7 @@ ACMD(do_turn_undead)
 		if (GET_LEVEL(ch) - 8 >= GET_LEVEL(ch_vict)) {
 			dam = MAX (1, GET_HIT (ch_vict) + 11);
 		} else {
-			dam = dice(10, 2 * GET_LEVEL(ch)) + GET_LEVEL(ch);
+			dam = dice(8, 3 * GET_LEVEL(ch)) + GET_LEVEL(ch);
 		}
 		damage(ch, ch_vict, dam, SKILL_TURN_UNDEAD + TYPE_HIT, TRUE);
 	        if (!MOB_FLAGGED(ch_vict, MOB_NOFEAR) &&
