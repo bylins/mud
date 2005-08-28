@@ -2257,10 +2257,10 @@ ACMD(do_score)
 		" %sОбаяние: %2d(%2d)      %s|------------------|"
 		" %sИммунитет: %3d%s   ||\r\n",
 		CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_GOLD(ch), CCCYN(ch, C_NRM),
-		" %sВоля: %3d%s        |------------------||\r\n",
+		CCICYN(ch, C_NRM), GET_CHA(ch), GET_REAL_CHA(ch), CCCYN(ch, C_NRM),
 		CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
-		CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_WILL), CCCYN(ch, C_NRM)
+	sprintf(buf+ strlen(buf),
 	        " || %sНа счету: %s%8ld%s |"
 		" %sЖизнь: %4d(%4d)    %s|"
 		" %sВоля:      %3d%s   |------------------||\r\n",
@@ -2318,7 +2318,7 @@ ACMD(do_score)
 	} else
 		sprintf(buf+ strlen(buf), " || %s%-19s%s|",
 				CCNRM(ch, C_NRM), string("Вы сидите верхом.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
-		CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_CRITICAL), CCCYN(ch, C_NRM),
+
 	sprintf(buf+ strlen(buf),
 		" %sВыносл.: %3d(%3d)    %s|"
 		" %sЗдоровье: %3d    %s|"
@@ -2336,7 +2336,8 @@ ACMD(do_score)
 		sprintf(buf + strlen(buf),
 			" %sМагическая сила:%s     |", CCICYN(ch, C_NRM), CCCYN(ch, C_NRM));
 	else
-		CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_STABILITY), CCCYN(ch, C_NRM),
+		strcat(buf, "                      |");
+	
 
 	sprintf(buf+ strlen(buf),
 		" %sСтойкость: %3d   %s|"
@@ -2353,9 +2354,9 @@ ACMD(do_score)
 
 	if (IS_MANA_CASTER(ch)) 
 		sprintf(buf + strlen(buf),
-		" %sРеакция: %3d     %s|"
+			" %s%4d(%4d)           %s|",
 			CCICYN(ch, C_NRM), GET_MANA_STORED(ch), GET_MAX_MANA(ch), CCCYN(ch, C_NRM));
-		CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_REFLEX), CCCYN(ch, C_NRM),
+	else
 		strcat(buf, "                      |");
 
 	sprintf(buf+ strlen(buf),
@@ -2375,7 +2376,7 @@ ACMD(do_score)
 
 	if (IS_MANA_CASTER(ch)) 
 		sprintf(buf + strlen(buf),
-		" %sУдача: %4d      %s|"	
+			" %sВосстан.: %3d сек.   %s|",
 			CCICYN(ch, C_NRM), mana_gain(ch), CCCYN(ch, C_NRM));
 	else
 		strcat(buf, "                      |");

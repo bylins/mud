@@ -139,8 +139,11 @@ int general_savingthrow(CHAR_DATA * ch, int type, int ext_apply, int use)
 			save >>= 1;
 	}
 	// Учет осторожного стиля
-	if (PRF_FLAGGED(ch, PRF_AWAKE) && (use != 1))
-		save -= ((GET_SKILL(ch, SKILL_AWAKE) + 5) / (5 / 2));
+	if (PRF_FLAGGED(ch, PRF_AWAKE) && (use != 1)) {
+		if (GET_CLASS(ch) == CLASS_GUARD)
+		  save -=MAX(0,GET_SKILL(ch, SKILL_AWAKE)-80)  /  2;
+		  save -=GET_SKILL(ch, SKILL_AWAKE)  /  2;
+	}
 
 	save += GET_SAVE(ch, type);	// одежда
 	save += ext_apply;	// внешний модификатор
