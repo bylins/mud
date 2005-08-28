@@ -2041,7 +2041,7 @@ ACMD(do_turn_undead)
 
 //Определяем максимальный уровень изгоняемой нежити
 	if (number(1, skill_info[SKILL_TURN_UNDEAD].max_percent) <= prob)
-		max_level = GET_LEVEL(ch) + number(1, 10);
+		max_level = GET_LEVEL(ch) + number(1, 15);
 	else
 		max_level = GET_LEVEL(ch) - number(1, 5);
 	sum = dice(3, 8) + GET_LEVEL(ch) + prob / 5;
