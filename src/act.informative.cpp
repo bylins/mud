@@ -560,7 +560,7 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 					strcat(buf, " невысокий худощавый мужчина.\r\n");
 			} else if (GET_HEIGHT(i) <= 185) {
 				if (GET_WEIGHT(i) >= 180)
-					strcat(buf, " среднего роста коренастный мужчина.\r\n");
+					strcat(buf, " среднего роста коренастый мужчина.\r\n");
 				else if (GET_WEIGHT(i) >= 165)
 					strcat(buf, " среднего роста крепкий мужчина.\r\n");
 				else
