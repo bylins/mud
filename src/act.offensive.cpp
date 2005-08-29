@@ -2065,11 +2065,10 @@ ACMD(do_turn_undead)
 		if (GET_LEVEL(ch) - 8 >= GET_LEVEL(ch_vict)) {
 			dam = MAX (1, GET_HIT (ch_vict) + 11);
 		} else {
-			dam = dice(8, 3 * GET_LEVEL(ch)) + GET_LEVEL(ch);
 			if (IS_CLERIC(ch))
-				dice(8, 3 * GET_REAL_WIS(ch)) + GET_LEVEL(ch);
+				dam = dice(8, 3 * GET_REAL_WIS(ch)) + GET_LEVEL(ch);
 			else
-				dice(8, 3 * GET_REAL_WIS(ch) + GET_LEVEL(ch)) + GET_LEVEL(ch);
+				dam = dice(8, 3 * GET_REAL_WIS(ch) + GET_LEVEL(ch)) + GET_LEVEL(ch);
 		}
 		damage(ch, ch_vict, dam, SKILL_TURN_UNDEAD + TYPE_HIT, TRUE);
 	        if (!MOB_FLAGGED(ch_vict, MOB_NOFEAR) &&
