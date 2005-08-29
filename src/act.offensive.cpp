@@ -2041,7 +2041,7 @@ ACMD(do_turn_undead)
 
 //Определяем максимальный уровень изгоняемой нежити
 	if (number(1, skill_info[SKILL_TURN_UNDEAD].max_percent) <= prob)
-		max_level = GET_LEVEL(ch) + number(1, 15);
+		max_level = GET_LEVEL(ch) + number(1, GET_SKILL(ch, SKILL_TURN_UNDEAD) / 10 + 5);
 	else
 		max_level = GET_LEVEL(ch) - number(1, 5);
 	sum = dice(3, 8) + GET_LEVEL(ch) + prob / 5;
@@ -2066,6 +2066,10 @@ ACMD(do_turn_undead)
 			dam = MAX (1, GET_HIT (ch_vict) + 11);
 		} else {
 			dam = dice(8, 3 * GET_LEVEL(ch)) + GET_LEVEL(ch);
+			if (IS_CLERIC(ch))
+				dice(8, 3 * GET_REAL_WIS(ch)) + GET_LEVEL(ch);
+			else
+				dice(8, 3 * GET_REAL_WIS(ch) + GET_LEVEL(ch)) + GET_LEVEL(ch);
 		}
 		damage(ch, ch_vict, dam, SKILL_TURN_UNDEAD + TYPE_HIT, TRUE);
 	        if (!MOB_FLAGGED(ch_vict, MOB_NOFEAR) &&
