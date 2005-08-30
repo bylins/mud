@@ -1987,7 +1987,7 @@ ACMD(do_townportal)
 /* Added by Gorrah */
 ACMD(do_turn_undead)
 {
-	int prob, dam = 0;
+	int percent, dam = 0;
         int i, sum, ch_list_size, max_level;
 	struct timed_type timed;
         CHAR_DATA **ch_list;
@@ -2033,18 +2033,18 @@ ACMD(do_turn_undead)
         ch_list_size = i;
 
 	if (i > 0)
-		prob = train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, 0);
+		percent = GET_SKILL(ch, SKILL_TURN_UNDEAD);
 	else {
 	        free(ch_list);
 		return;
 	}
 
 //Определяем максимальный уровень изгоняемой нежити
-	if (number(1, skill_info[SKILL_TURN_UNDEAD].max_percent) <= prob)
-		max_level = GET_LEVEL(ch) + number(1, GET_SKILL(ch, SKILL_TURN_UNDEAD) / 10 + 5);
+	if (number(1, skill_info[SKILL_TURN_UNDEAD].max_percent) <= percent)
+		max_level = GET_LEVEL(ch) + number(1, percent) / 10 + 5);
 	else
 		max_level = GET_LEVEL(ch) - number(1, 5);
-	sum = dice(3, 8) + GET_LEVEL(ch) + prob / 5;
+	sum = dice(3, 8) + GET_LEVEL(ch) + percent / 5;
 
 //Применяем.
 //Если уровень больше максимального, или отсэйвилось - фейл по этому персу
@@ -2070,6 +2070,7 @@ ACMD(do_turn_undead)
 			else
 				dam = dice(8, 3 * GET_REAL_WIS(ch) + GET_LEVEL(ch)) + GET_LEVEL(ch);
 		}
+		train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);
 		damage(ch, ch_vict, dam, SKILL_TURN_UNDEAD + TYPE_HIT, TRUE);
 	        if (!MOB_FLAGGED(ch_vict, MOB_NOFEAR) &&
 				!general_savingthrow(ch_vict, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch), 0))
