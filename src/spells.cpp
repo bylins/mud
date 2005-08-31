@@ -294,22 +294,38 @@ ASPELL(spell_relocate)
 	if (victim == NULL)
 		return;
 
-/*	if (!IS_NPC(ch) &&
-	    (GET_LEVEL(victim) > GET_LEVEL(ch)) &&
-	    !GET_COMMSTATE(ch) && !PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
-		send_to_char(SUMMON_FAIL, ch);
-		return;
-	} */
-
+	/* Если левел жертвы больше чем перемещяющегося - фейл */
 	if ((IS_NPC(victim) && !GET_COMMSTATE(ch)) ||
 		(GET_LEVEL(victim) > GET_LEVEL(ch)) || IS_IMMORTAL(victim)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT) && !IS_GOD(ch)) {
-		send_to_char(SUMMON_FAIL, ch);
-		return;
+	/* Для иммов обязательные для перемещения условия не существенны */
+	if (!IS_GOD(ch)) {
+		/* Нельзя перемещаться из клетки ROOM_NOTELEPORTOUT */
+		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT)) {
+			send_to_char(SUMMON_FAIL, ch);
+			return;
+		}
+		/* Перемещаться можно только с отключенным "режимом призыв" */
+		if (PRF_FLAGGED(ch, PRF_SUMMONABLE)) {
+			send_to_char("При применении заклинания требуется отключить \"режим призыв\"!\r\n", ch);
+			send_to_char(SUMMON_FAIL, ch);
+			return;
+		}
+		/* Перемещаться нельзя состоя в группе (т.к. пента на согрупника и суммон идут без режима) */
+		if (AFF_FLAGGED(ch, AFF_GROUP)) {
+			send_to_char("При применении заклинания нельзя состоять в группе!\r\n", ch);
+			send_to_char(SUMMON_FAIL, ch);
+			return;
+		}
+		/* Во избежания абьюза с заследованием а потом погрупливанием после перемещения и юзанием переместившегося как маяка */
+		if (ch->master) {
+			send_to_char(SUMMON_FAIL, ch);
+			return;
+		}
+		
 	}
 
 	to_room = IN_ROOM(victim);
@@ -348,7 +364,12 @@ ASPELL(spell_relocate)
 	check_horse(ch);
 	act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
 	look_at_room(ch, 0);
-	WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
+	/* Прыжок на чара в БД удваивает лаг */
+	if (RENTABLE(victim)) {
+		WAIT_STATE(ch, 4 * PULSE_VIOLENCE);
+	} else {
+		WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
+	}
 	entry_memory_mtrigger(ch);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
