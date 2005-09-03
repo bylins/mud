@@ -2058,6 +2058,7 @@ ACMD(do_turn_undead)
 		if ((GET_LEVEL(ch_vict) > max_level) ||
 			(dice(1, GET_SAVE(ch_vict, SAVING_STABILITY) - con_app[GET_REAL_CON(ch_vict)].affect_saving) > 
 				dice(1, GET_REAL_WIS(ch)))) {
+			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);				
 			send_to_char (ch, "Ваши потуги оказались напрасными.\r\n");
 			continue;
 		} 
