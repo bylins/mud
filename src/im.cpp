@@ -305,7 +305,7 @@ int im_assign_power(OBJ_DATA * obj)
 		rnum = real_mobile(GET_OBJ_VAL(obj, IM_INDEX_SLOT));
 		if (rnum < 0)
 			return 3;	// неверный VNUM базового моба
-		GET_OBJ_VAL(obj, IM_POWER_SLOT) = GET_LEVEL(mob_proto + rnum);
+		GET_OBJ_VAL(obj, IM_POWER_SLOT) = (GET_LEVEL(mob_proto + rnum) + 3) * 3 / 4;
 	}
 // Попробовать найти описатель ВИДА
 	for (p = imtypes[rind].head, sample = NULL;
@@ -806,7 +806,8 @@ void im_reset_room(ROOM_DATA * room, int level, int type)
 	OBJ_DATA *o, *next;
 	int i, indx;
 	im_memb *after, *before;
-	int pow, lev = 40 * level / MAX_ZONE_LEVEL;
+	int pow, lev = level;
+	// 40 * level / MAX_ZONE_LEVEL;
 
 	for (o = room->contents; o; o = next) {
 		next = o->next_content;
@@ -819,7 +820,8 @@ void im_reset_room(ROOM_DATA * room, int level, int type)
 //	3% - 1-17
 //	2% - 18-34
 //	1% - 35-50
-		if (number(1, 100) <= 3 - 3 * (level - 1) / MAX_ZONE_LEVEL)
+//		if (number(1, 100) <= 3 - 3 * (level - 1) / MAX_ZONE_LEVEL)
+		if (number(1, 1000) <= (4 - level / 10) * 10)
 		{
 			indx = im_type_rnum(zone_types[type].ingr_types[i]);
 			if (indx == -1)
