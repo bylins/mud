@@ -832,13 +832,23 @@ const char *anti_bits[] = { "!христиане",
 	"\n"
 };
 
+/*
 const char *apply_negative[] = { "защита",
-	"защита.от.парализующих.заклинаний",	// SAVING_WILL
-	"защита.от.магических.дыханий",		// SAVING_CRITICAL
-	"защита.от.магических.повреждений",	// SAVING_STABILITY
-	"защита.от.боевых.умений",		// SAVING_REFLEX
+	"защита.от.парализующих.заклинаний",	
+	"защита.от.магических.дыханий",		
+	"защита.от.магических.повреждений",	
+	"защита.от.боевых.умений",		
 	"\n"
+}; */
+
+const char *apply_negative[] = { "защита",
+        "воля",		// SAVING_WILL
+        "здоровье",	// SAVING_CRITICAL
+        "стойкость",	// SAVING_STABILITY
+        "реакция",	// SAVING_REFLEX
+        "\n"
 };
+					
 
 /* APPLY_x */
 const char *apply_types[] = { "ничего",
