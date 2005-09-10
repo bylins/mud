@@ -2069,7 +2069,7 @@ ACMD(do_turn_undead)
 			if (IS_CLERIC(ch))
 				dam = dice(8, 3 * GET_REAL_WIS(ch)) + GET_LEVEL(ch);
 			else
-				dam = dice(8, 3 * GET_REAL_WIS(ch) + GET_LEVEL(ch)) + GET_LEVEL(ch);
+				dam = dice(8, 3 * GET_REAL_WIS(ch) + 2 * GET_REAL_INT(ch)) + GET_LEVEL(ch);
 		}
 		train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);
 		damage(ch, ch_vict, dam, SKILL_TURN_UNDEAD + TYPE_HIT, TRUE);
