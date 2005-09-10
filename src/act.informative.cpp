@@ -1071,11 +1071,13 @@ void do_auto_exits(CHAR_DATA * ch)
 	*buf = '\0';
 
 	for (door = 0; door < NUM_OF_DIRS; door++)
-		if (EXIT(ch, door) &&
-		    EXIT(ch, door)->to_room != NOWHERE &&
-		    !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED) && !EXIT_FLAGGED(EXIT(ch, door), EX_HIDDEN))
-			slen += sprintf(buf + slen, "%c ", LOWER(*dirs[door]));
-
+	/* Наконец-то добавлена отрисовка в автовыходах закрытых дверей */
+		if (EXIT(ch, door) && EXIT(ch, door)->to_room != NOWHERE) {
+			if (EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED))
+				slen += sprintf(buf + slen, "(%c) ", LOWER(*dirs[door]));
+			else if (!EXIT_FLAGGED(EXIT(ch, door), EX_HIDDEN))
+				slen += sprintf(buf + slen, "%c ", LOWER(*dirs[door]));
+		}
 	sprintf(buf2, "%s[ Exits: %s]%s\r\n", CCCYN(ch, C_NRM), *buf ? buf : "None! ", CCNRM(ch, C_NRM));
 
 	send_to_char(buf2, ch);
