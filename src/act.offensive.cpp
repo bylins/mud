@@ -2044,7 +2044,7 @@ ACMD(do_turn_undead)
 		max_level = GET_LEVEL(ch) + number(1, percent) / 10 + 5;
 	else
 		max_level = GET_LEVEL(ch) - number(1, 5);
-	sum = dice(3, 8) + GET_LEVEL(ch) + percent / 5;
+	sum = dice(3, 8) + GET_LEVEL(ch) + percent / 2;
 
 //Применяем.
 //Если уровень больше максимального, или отсэйвилось - фейл по этому персу
