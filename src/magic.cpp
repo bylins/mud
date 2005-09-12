@@ -1291,7 +1291,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	case SPELL_HARM:
 		savetype = SAVING_CRITICAL;
 		ndice = 7;
-		sdice = 10;
+		sdice = level;
 		adice = level * GET_REMORT(ch) / 4;
 		//adice = (level + 4) / 5;
 		break;
