@@ -25,6 +25,8 @@
 #define MOB_KEEPER        104
 #define MOB_FIREKEEPER    105
 
+#define MAX_HITS 32000
+
 #define MAX_SPELL_AFFECTS 5	/* change if more needed */
 
 #define SpINFO spell_info[spellnum]

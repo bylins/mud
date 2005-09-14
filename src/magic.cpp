@@ -2999,7 +2999,7 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		pk_agro_action(ch, FIGHTING(victim));
 	}
 
-	if (spellnum == SPELL_EXTRA_HITS)
+	if ((spellnum == SPELL_EXTRA_HITS) && (GET_HIT(victim) < MAX_HITS))
 		GET_HIT(victim) = MAX(GET_HIT(victim),
 				      MIN(GET_HIT(victim) + hit,
 					  GET_REAL_MAX_HIT(victim) + GET_REAL_MAX_HIT(victim) * 33 / 100));
