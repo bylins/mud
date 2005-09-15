@@ -1427,6 +1427,10 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		}
 	}
 	dam = MAX(0, calculate_resistance_coeff(victim, get_resist_type(spellnum), dam));
+	
+	if (ch == victim)
+		dam = MIN (dam, GET_HIT(victim) + 1);
+			
 	for (; count > 0 && rand >= 0; count--) {
 		if (IN_ROOM(ch) != NOWHERE &&
 		    IN_ROOM(victim) != NOWHERE && GET_POS(ch) > POS_STUNNED && GET_POS(victim) > POS_DEAD)
