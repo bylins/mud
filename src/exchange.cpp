@@ -306,6 +306,10 @@ int exchange_change_cost(CHAR_DATA * ch, char *arg)
 		send_to_char("Вашя новая цена совпадает с текущей.\r\n", ch);
 		return false;
 	}
+	if (newcost <= 0) {
+	    send_to_char("Вы указали неправильную цену.\r\n", ch);
+	    return false;
+	}
 	pay = newcost - GET_EXCHANGE_ITEM_COST(item);
 	if (pay > 0)
 		if ((GET_BANK_GOLD(ch) < (pay * EXCHANGE_EXHIBIT_PAY_COEFF)) && (GET_LEVEL(ch) < LVL_IMPL)) {
