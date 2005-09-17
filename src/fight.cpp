@@ -2782,7 +2782,7 @@ inline int do_punctual(CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *wielded)
 			dam_critic = dice (3, 6);
 		else
 			dam_critic = dice (4, 5);
-		skill = 1.0 + GET_SKILL(ch,SKILL_PUNCTUAL) / 6.0;
+		skill = 1 + GET_SKILL(ch,SKILL_PUNCTUAL) / 6;
 		dam_critic = MIN (number (1,skill),dam_critic);
 
 	return dam_critic;
