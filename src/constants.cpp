@@ -832,22 +832,22 @@ const char *anti_bits[] = { "!христиане",
 	"\n"
 };
 
-/*
+
 const char *apply_negative[] = { "защита",
 	"защита.от.парализующих.заклинаний",	
 	"защита.от.магических.дыханий",		
 	"защита.от.магических.повреждений",	
 	"защита.от.боевых.умений",		
 	"\n"
-}; */
+}; 
 
-const char *apply_negative[] = { "защита",
+/* const char *apply_negative[] = { "защита",
         "воля",		// SAVING_WILL
         "здоровье",	// SAVING_CRITICAL
         "стойкость",	// SAVING_STABILITY
         "реакция",	// SAVING_REFLEX
         "\n"
-};
+}; */
 					
 
 /* APPLY_x */
