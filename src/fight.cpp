@@ -1368,15 +1368,16 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			return dam;
 		case 5:	// Hit genus, victim bashed, speed/2
 			SET_AF_BATTLE(victim, EAF_SLOW);
-			dam += (GET_REAL_MAX_HIT(victim) / 10);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 10);
 		case 4:	// victim bashed
-			GET_POS(victim) = POS_SITTING;
+			if (GET_POS (victim) > POS_SITTING)
+				GET_POS (victim) = POS_SITTING;
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 			to_char = "повалило $N3 на землю";
 			to_vict = "повредило Вам колено";
 			break;
 		case 6:	// foot damaged, speed/2
-			dam += (GET_REAL_MAX_HIT(victim) / 9);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL)/ 9);
 			to_char = "замедлило движения $N1";
 			to_vict = "сломало Вам лодыжку";
 			SET_AF_BATTLE(victim, EAF_SLOW);
@@ -1386,7 +1387,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			if (GET_EQ(victim, WEAR_LEGS))
 				alt_equip(victim, WEAR_LEGS, 100, 100);
 			else {
-				dam += (GET_REAL_MAX_HIT(victim) / 7);
+				dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 8);
 				to_char = "замедлило движения $N1";
 				to_vict = "сломало Вам ногу";
 				af[0].type = SPELL_BATTLE;
@@ -1395,7 +1396,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			}
 			break;
 		case 8:	// femor damaged, no speed
-			dam += (GET_REAL_MAX_HIT(victim) / 8);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 7);
 			to_char = "сильно замедлило движения $N1";
 			to_vict = "сломало Вам бедро";
 			af[0].type = SPELL_BATTLE;
@@ -1404,7 +1405,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 10:	// genus damaged, no speed, -2HR
-			dam += (GET_REAL_MAX_HIT(victim) / 10);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 7);
 			to_char = "сильно замедлило движения $N1";
 			to_vict = "раздробило Вам колено";
 			af[0].type = SPELL_BATTLE;
@@ -1414,7 +1415,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 11:	// femor damaged, no speed, no attack
-			dam += (GET_REAL_MAX_HIT(victim) / 8);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 7);
 			to_char = "вывело $N3 из строя";
 			to_vict = "раздробило Вам бедро";
 			af[0].type = SPELL_BATTLE;
@@ -1427,9 +1428,9 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			break;
 		default:	// femor damaged, no speed, no attack
 			if (dam_critic > 12)
-				dam += (GET_REAL_MAX_HIT(victim) / 5);
+				dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 5);
 			else
-				dam += (GET_REAL_MAX_HIT(victim) / 7);
+				dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 6);
 			to_char = "вывело $N3 из строя";
 			to_vict = "изуродовало Вам ногу";
 			af[0].type = SPELL_BATTLE;
@@ -1456,7 +1457,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			break;
 
 		case 5:	// abdomin damaged, waits 1, speed/2
-			dam += (GET_REAL_MAX_HIT(victim) / 7);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 8);
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 			to_char = "ранило $N3 в живот";
 			to_vict = "ранило Вас в живот";
@@ -1467,13 +1468,13 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			if (GET_EQ(victim, WEAR_WAIST))
 				alt_equip(victim, WEAR_WAIST, 100, 100);
 			else
-				dam += (GET_REAL_MAX_HIT(victim) / 5);
+				dam *= (GET_SKILL (ch, SKILL_PUNCTUAL)/ 7);
 			to_char = "повредило $N2 живот";
 			to_vict = "повредило Вам живот";
 			break;
 		case 7:
 		case 8:	// abdomin damage, speed/2, HR-2
-			dam += (GET_REAL_MAX_HIT(victim) / 7);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 6);
 			to_char = "ранило $N3 в живот";
 			to_vict = "ранило Вас в живот";
 			af[0].type = SPELL_BATTLE;
@@ -1483,7 +1484,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 9:	// armor damaged, abdomin damaged, speed/2, HR-2
-			dam += (GET_REAL_MAX_HIT(victim) / 7);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 5);
 			alt_equip(victim, WEAR_BODY, 100, 100);
 			to_char = "ранило $N3 в живот";
 			to_vict = "ранило Вас в живот";
@@ -1495,7 +1496,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 10:	// abdomin damaged, no speed, no attack
-			dam += (GET_REAL_MAX_HIT(victim) / 7);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 4);
 			to_char = "повредило $N2 живот";
 			to_vict = "повредило Вам живот";
 			af[0].type = SPELL_BATTLE;
@@ -1507,7 +1508,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 11:	// abdomin damaged, no speed, no attack
-			dam += (GET_REAL_MAX_HIT(victim) / 4);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 3);
 			to_char = "разорвало $N2 живот";
 			to_vict = "разорвало Вам живот";
 			af[0].type = SPELL_BATTLE;
@@ -1519,7 +1520,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		default:	// abdomin damaged, hits = 0
-			dam = GET_HIT(victim);
+			dam *= GET_SKILL (ch, SKILL_PUNCTUAL) / 2;
 			to_char = "размозжило $N2 живот";
 			to_vict = "размозжило Вам живот";
 			haemorragia(victim, 60);
@@ -1537,12 +1538,13 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			return dam;
 		case 4:	// waits 1d4, bashed
 			WAIT_STATE(victim, number(2, 5) * PULSE_VIOLENCE);
-			GET_POS(victim) = POS_SITTING;
+			if (GET_POS (victim) > POS_SITTING)
+				GET_POS(victim) = POS_SITTING;
 			to_char = "повредило $N2 грудь";
 			to_vict = "повредило Вам грудь";
 			break;
 		case 5:	// chest damaged, waits 1, speed/2
-			dam += (GET_REAL_MAX_HIT(victim) / 6);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 6);
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 			to_char = "повредило $N2 туловище";
 			to_vict = "повредило Вам туловище";
@@ -1552,7 +1554,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			break;
 		case 6:	// shield damaged, chest damaged, speed/2
 			alt_equip(victim, WEAR_SHIELD, 100, 100);
-			dam += (GET_REAL_MAX_HIT(victim) / 6);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 6);
 			to_char = "повредило $N2 туловище";
 			to_vict = "повредило Вам туловище";
 			af[0].type = SPELL_BATTLE;
@@ -1561,7 +1563,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			break;
 		case 7:	// srmor damaged, chest damaged, speed/2, HR-2
 			alt_equip(victim, WEAR_BODY, 100, 100);
-			dam += (GET_REAL_MAX_HIT(victim) / 6);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 5);
 			to_char = "повредило $N2 туловище";
 			to_vict = "повредило Вам туловище";
 			af[0].type = SPELL_BATTLE;
@@ -1571,7 +1573,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 8:	// chest damaged, no speed, no attack
-			dam += (GET_REAL_MAX_HIT(victim) / 6);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 5);
 			to_char = "вывело $N3 из строя";
 			to_vict = "повредило Вам туловище";
 			af[0].type = SPELL_BATTLE;
@@ -1583,7 +1585,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 9:	// chest damaged, speed/2, HR-2
-			dam += (GET_REAL_MAX_HIT(victim) / 6);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 4);
 			to_char = "заставило $N3 ослабить натиск";
 			to_vict = "сломало Вам ребра";
 			af[0].type = SPELL_BATTLE;
@@ -1595,7 +1597,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 10:	// chest damaged, no speed, no attack
-			dam += (GET_REAL_MAX_HIT(victim) / 8);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 4);
 			to_char = "вывело $N3 из строя";
 			to_vict = "сломало Вам ребра";
 			af[0].type = SPELL_BATTLE;
@@ -1610,7 +1612,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			af[0].type = SPELL_BATTLE;
 			af[0].bitvector = AFF_STOPFIGHT;
 			af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
-			dam = GET_HIT(victim);
+			dam *= GET_SKILL (ch, SKILL_PUNCTUAL) / 2;
 			haemorragia(victim, 50);
 			to_char = "вывело $N3 из строя";
 			to_vict = "разорвало Вам грудь";
@@ -1619,7 +1621,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			af[0].type = SPELL_BATTLE;
 			af[0].bitvector = AFF_STOPFIGHT;
 			af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
-			dam = GET_HIT(victim) + 11;
+			dam *= GET_SKILL (ch, SKILL_PUNCTUAL);
 			haemorragia(victim, 60);
 			to_char = "вывело $N3 из строя";
 			to_vict = "размозжило Вам грудь";
@@ -1673,14 +1675,14 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			else
 				alt_equip(victim, WEAR_HANDS, 100, 100);
 			if (!GET_EQ(victim, WEAR_ARMS) && !GET_EQ(victim, WEAR_HANDS))
-				dam += (GET_REAL_MAX_HIT(victim) / 8);
+				dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 7);
 			to_char = "ослабило атаку $N1";
 			to_vict = "повредило Вам руку";
 			break;
 		case 8:	// shield damaged, hands damaged, waits 1
 			alt_equip(victim, WEAR_SHIELD, 100, 100);
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
-			dam += (GET_REAL_MAX_HIT(victim) / 8);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 7);
 			to_char = "придержало $N3";
 			to_vict = "повредило Вам руку";
 			break;
@@ -1692,7 +1694,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 				unequip_pos = WEAR_WIELD;
 			else if (GET_EQ(victim, WEAR_HOLD))
 				unequip_pos = WEAR_HOLD;
-			dam += (GET_REAL_MAX_HIT(victim) / 8);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 6);
 			to_char = "придержало $N3";
 			to_vict = "повредило Вам руку";
 			break;
@@ -1742,7 +1744,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			af[1].bitvector = AFF_NOFLEE;
 			haemorragia(victim, 30);
 			if (dam_critic >= 13)
-				dam *= 2;
+				dam *= GET_SKILL (ch, SKILL_PUNCTUAL) / 5;
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		}
@@ -1769,7 +1771,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 				af[0].location = APPLY_HITROLL;
 				af[0].modifier = -2;
 			}
-			dam += (GET_REAL_MAX_HIT(victim) / 3);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 4);
 			to_char = "повредило $N2 голову";
 			to_vict = "повредило Вам голову";
 			break;
@@ -1777,7 +1779,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_HITROLL;
 			af[0].modifier = -2;
-			dam += (GET_REAL_MAX_HIT(victim) / 3);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 4);
 			to_char = "повредило $N2 голову";
 			to_vict = "повредило Вам голову";
 			break;
@@ -1794,7 +1796,8 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 		case 8:	// cap damaged, hits 0
 			WAIT_STATE(victim, 4 * PULSE_VIOLENCE);
 			alt_equip(victim, WEAR_HEAD, 100, 100);
-			dam = GET_HIT(victim);
+		//dam = GET_HIT(victim);
+			dam *= GET_SKILL (ch, SKILL_PUNCTUAL);
 			to_char = "отбило у $N1 сознание";
 			to_vict = "отбило у Вас сознание";
 			haemorragia(victim, 20);
@@ -1804,12 +1807,12 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			af[0].bitvector = AFF_STOPFIGHT;
 			af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
 			haemorragia(victim, 30);
-			dam += (GET_REAL_MAX_HIT(victim) / 3);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 3);
 			to_char = "повергло $N3 в оцепенение";
 			to_vict = "повергло Вас в оцепенение";
 			break;
 		case 10:	// head damaged, -1 INT/WIS/CHA
-			dam += (GET_REAL_MAX_HIT(victim) / 2);
+			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 2);
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_INT;
 			af[0].modifier = -1;
@@ -1833,7 +1836,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			to_vict = "сорвало у Вас крышу";
 			break;
 		case 11:	// hits 0, WIS/2, INT/2, CHA/2
-			dam = GET_HIT(victim);
+			dam *= GET_SKILL (ch, SKILL_PUNCTUAL);
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_INT;
 			af[0].modifier = -GET_INT(victim) / 2;
@@ -1869,7 +1872,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			af[2].modifier = -GET_CHA(victim) / 2;
 			af[2].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 			af[2].battleflag = AF_DEADKEEP;
-			dam = GET_HIT(victim) + 11;
+			dam *= GET_SKILL (ch, SKILL_PUNCTUAL);
 			to_char = "размозжило $N2 голову";
 			to_vict = "размозжило Вам голову";
 			haemorragia(victim, 90);
@@ -2759,87 +2762,28 @@ inline int do_punctual(CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *wielded)
 	int dam_critic = 0, skill, wapp;
 
 	if (wielded)
-		wapp = weapon_app[GET_OBJ_WEIGHT(wielded)].shocking;
+		wapp = GET_OBJ_WEIGHT(wielded);
 	else
 		wapp = 0;
 
-	skill = GET_SKILL(ch, SKILL_PUNCTUAL) + 2 * wapp -
-		2 * size_app[GET_POS_SIZE(victim)].shocking;
-
-	if (!wielded || skill < 100) {
-		dam_critic = dice(1, 6);
-	} else if (skill < 120) {
-		switch (number(1, 2)) {
-			case 1:
-				dam_critic = dice(1, 6); break;
-			case 2:
-				dam_critic = dice(2, 5); break;
-			default:
-				log("[SYSERR] do_punctual(): unknown case");
-		}
-	} else if (skill < 140) {
-		switch (number(1, 4)) {
-			case 1:
-				dam_critic = dice(1, 6); break;
-			case 2:
-			case 3:
-			case 4:
-				dam_critic = dice(2, 5); break;
-			default:
-				log("[SYSERR] do_punctual(): unknown case");
-		}
-	} else if (skill < 160) {
-		switch (number(1, 3)) {
-			case 1:
-			case 2:
-				dam_critic = dice(2, 5); break;
-			case 3:
-				dam_critic = dice(3, 5); break;
-			default:
-				log("[SYSERR] do_punctual(): unknown case");
-		}
-	} else if (skill < 180) {
-		switch (number(1, 3)) {
-			case 1:
-				dam_critic = dice(2, 5); break;
-			case 2:
-			case 3:
-				dam_critic = dice(3, 5); break;
-			default:
-				log("[SYSERR] do_punctual(): unknown case");
-		}
-	} else {
-		switch (number(1, 5)) {
-			case 1:
-				dam_critic = dice(2, 5); break;
-			case 2:
-			case 3:
-				dam_critic = dice(3, 5); break;
-			case 4:
-			case 5:
-				dam_critic = dice(4, 5); break;
-			default:
-				log("[SYSERR] do_punctual(): unknown case");
-		}
-	}
-
-/*
-//	if (percent == skill_info[SKILL_PUNCTUAL].max_percent)
-//		dam_critic = dice(2, 5);
-//	else
-	if (!wielded ||
-		 weapon_app[GET_OBJ_WEIGHT(wielded)].shocking <
-		 size_app[GET_POS_SIZE(victim)].shocking)
-		dam_critic = dice(1, 6);
-	else if (weapon_app[GET_OBJ_WEIGHT(wielded)].shocking ==
-		 size_app[GET_POS_SIZE(victim)].shocking)
-		dam_critic = dice(2, 4);
-	else if (weapon_app[GET_OBJ_WEIGHT(wielded)].shocking <=
-		 size_app[GET_POS_SIZE(victim)].shocking * 2)
-		dam_critic = dice(3, 5);	// dice(2,6);
-	else
-		dam_critic = dice(4, 5);	// dice(2,8);
-*/
+		if (wapp < 10)
+			dam_critic = dice (1, 6);
+		else
+		if (wapp < 19)
+			dam_critic = dice (2, 5);
+		else
+		if (wapp < 27)
+			dam_critic = dice (3, 4);
+		else
+		if (wapp < 36)
+			dam_critic = dice (3, 5);
+		else
+		if (wapp < 44)
+			dam_critic = dice (3, 6);
+		else
+			dam_critic = dice (4, 5);
+		skill = 1.0 + GET_SKILL(ch,SKILL_PUNCTUAL) / 6.0;
+		dam_critic = MIN (number (1,skill),dam_critic);
 
 	return dam_critic;
 }
