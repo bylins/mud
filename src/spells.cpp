@@ -388,11 +388,15 @@ ASPELL(spell_portal)
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
-	// пентить чаров <=10 уровня нельзя
-	if (!IS_NPC(victim) && !IS_GOD(ch) && GET_LEVEL(victim) <= 10) {
-		send_to_char(SUMMON_FAIL, ch);
-		return;
-	}
+	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
+	if (!IS_GOD(ch)) {
+		if ((!IS_NPC(victim) && GET_LEVEL(victim) <= 10) || IS_IMMORTAL(victim)) {
+			send_to_char(SUMMON_FAIL, ch);
+			return;
+		}
+	} 
+
+	
 	if (IS_NPC(victim) && !GET_COMMSTATE(ch)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
