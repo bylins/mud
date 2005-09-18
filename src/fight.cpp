@@ -1902,7 +1902,12 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 		sprintf(buf, "%sМеткое попадание $n1 %s.%s", CCIRED(victim, C_NRM), to_vict, CCNRM(victim, C_NRM));
 		act(buf, FALSE, ch, 0, victim, TO_VICT);
 	}
-	return calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
+	if (!IS_NPC(victim)){
+	    dam /= 5;
+	    return calculate_resistance_coeff(victim, VITALITY_RESISTANCE +
+							    GET_LEVEL(victim) + GET_REMORT(victim), dam);
+	} else
+	    return calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
 }
 
 void poison_victim(CHAR_DATA * ch, CHAR_DATA * vict, int modifier)
