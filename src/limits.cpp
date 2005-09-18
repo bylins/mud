@@ -1423,6 +1423,12 @@ void repop_decay(zone_rnum zone)
 		obj_zone_num = GET_OBJ_VNUM(j) / 100;
 		if (((obj_zone_num == zone_num) && IS_OBJ_STAT(j, ITEM_REPOP_DECAY))
 		    || (GET_OBJ_TYPE(j) == ITEM_INGRADIENT && GET_OBJ_SKILL(j) > 19)) {
+				/* F@N
+				 * Если мне кто-нибудь объяснит глубинный смысл последующей строчки,
+				 * буду очень признателен
+				 */
+//		    || (GET_OBJ_TYPE(j) == ITEM_INGRADIENT && GET_OBJ_SKILL(j) > 19)
+			) {		    
 			if (j->worn_by)
 				act("$o рассыпал$U, вспыхнув ярким светом...", FALSE, j->worn_by, j, 0, TO_CHAR);
 			else if (j->carried_by)
