@@ -150,11 +150,11 @@ void check_berserk(CHAR_DATA * ch)
 		af[0].location = APPLY_NONE;
 		af[0].battleflag = 0;
 
-		/*af[1].type = SPELL_BERSERK;
+		af[1].type = SPELL_BERSERK;
 		af[1].duration = pc_duration(ch, 1, MAX(0, GET_SKILL(ch, SKILL_BERSERK)-40), 30, 0, 0);
 		af[1].modifier = 0;
 		af[1].location = APPLY_NONE;
-		af[1].battleflag = 0; */
+		af[1].battleflag = 0; 
 
 		// Я знаю, очень-очень криво. Но надо было сделать расскачку скила
 		// более частой, чем если бы только когда скил успешно прошел.
