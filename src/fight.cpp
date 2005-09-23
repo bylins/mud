@@ -150,11 +150,11 @@ void check_berserk(CHAR_DATA * ch)
 		af[0].location = APPLY_NONE;
 		af[0].battleflag = 0;
 
-		af[1].type = SPELL_BERSERK;
+		/*af[1].type = SPELL_BERSERK;
 		af[1].duration = pc_duration(ch, 1, MAX(0, GET_SKILL(ch, SKILL_BERSERK)-40), 30, 0, 0);
 		af[1].modifier = 0;
 		af[1].location = APPLY_NONE;
-		af[1].battleflag = 0; 
+		af[1].battleflag = 0; */
 
 		// Я знаю, очень-очень криво. Но надо было сделать расскачку скила
 		// более частой, чем если бы только когда скил успешно прошел.
@@ -176,9 +176,9 @@ void check_berserk(CHAR_DATA * ch)
 			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", FALSE, ch, 0, 0, TO_ROOM);
 		}
 
-		for (j = 0; j < 2; j++)
-			affect_join(ch, &af[j], TRUE, FALSE, TRUE, FALSE);
-	}
+//		for (j = 0; j < 2; j++)
+			affect_join(ch, &af[0], TRUE, FALSE, TRUE, FALSE);
+//	}
 }
 
 void go_autoassist(CHAR_DATA * ch)
