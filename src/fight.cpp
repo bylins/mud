@@ -178,7 +178,7 @@ void check_berserk(CHAR_DATA * ch)
 
 //		for (j = 0; j < 2; j++)
 			affect_join(ch, &af[0], TRUE, FALSE, TRUE, FALSE);
-//	}
+	}
 }
 
 void go_autoassist(CHAR_DATA * ch)
