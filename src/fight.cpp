@@ -129,7 +129,7 @@ void check_berserk(CHAR_DATA * ch)
 {
 	AFFECT_DATA af[2];
 	struct timed_type timed;
-	int j;
+//	int j;
 
 	if (affected_by_spell(ch, SPELL_BERSERK) &&
 		    (GET_HIT(ch) > GET_REAL_MAX_HIT(ch) / 2)) {
