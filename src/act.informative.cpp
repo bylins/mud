@@ -3065,6 +3065,9 @@ ACMD(do_help)
 	if (!ch->desc)
 		return;
 
+        send_to_char("Справка временно недоступна.\r\n", ch);
+        return;
+	if (!*argument) {
 		page_string(ch->desc, help, 0);
 		return;
 	}
