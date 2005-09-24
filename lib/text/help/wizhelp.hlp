@@ -604,7 +604,7 @@ glory          LVL_IMPL         PC      NUMBER       Кол-во славы
 remort         LVL_IMPL         PC      NUMBER       Кол-во перевоплощений
 hell           LVL_IMPL         PC      BINARY       Флаг HELL
 email          LVL_GOD          PC      MISC         E-mail персонажа
-religion       LVL_IMPL         PC      MISC         Регилия персонажа
+religion       LVL_IMPL         PC      MISC         Религия персонажа
 demigod        LVL_IMPL         PC      BINARY       [ Отключено ]
 
 См. также:$COLORC STAT $COLORn
