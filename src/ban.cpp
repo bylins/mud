@@ -507,6 +507,8 @@ bool BanList::wildcard_compare(std::string str1, std::string str2)
   tokenizer::iterator ip2_seg = ip2.begin();
 
   for(int i = 0; i <4; i++){
+    if (ip1_seg == ip1.end() || ip2_seg == ip2.end()  )
+	return false;
     if (*ip1_seg != wildcard 
       && *ip2_seg != wildcard
       && *ip1_seg != *ip2_seg )
