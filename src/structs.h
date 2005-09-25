@@ -15,6 +15,8 @@
 #define _STRUCTS_H_
 #include <list>
 using std::list;
+#include <bitset>
+using std::bitset;
 /*
  * Intended use of this macro is to allow external packages to work with
  * a variety of CircleMUD versions without modifications.  For instance,
@@ -1113,6 +1115,8 @@ typedef struct trig_data
 #define MAX_AFFECT         32	/* Used in char_file_u *DO*NOT*CHANGE* */
 #define MAX_OBJ_AFFECT        6	/* Used in obj_file_elem *DO*NOT*CHANGE* */
 #define MAX_TIMED_SKILLS      16	/* Used in obj_file_elem *DO*NOT*CHANGE* */
+#define MAX_FEATS		64 /* Максимальное количество фитов */
+#define MAX_TIMED_FEATS		16 /* Макс. количество фитов с таймером */
 /* Количество запомненных предложений для команды "вспомнить" */
 #define MAX_REMEMBER_TELLS          15
 
@@ -1559,6 +1563,7 @@ struct char_ability_data {
 	ubyte Skills[MAX_SKILLS + 1];	/* array of skills plus skill 0     */
 	ubyte SplKnw[MAX_SPELLS + 1];	/* array of SPELL_KNOW_TYPE         */
 	ubyte SplMem[MAX_SPELLS + 1];	/* array of MEMed SPELLS            */
+	bitset<MAX_FEATS> Feats;
 	sbyte str;
 	sbyte intel;
 	sbyte wis;
@@ -2033,6 +2038,7 @@ struct char_data {
 
 	AFFECT_DATA *affected;	/* affected by what spells       */
 	struct timed_type *timed;	/* use which timed skill/spells  */
+	struct timed_type *timed_feat;	/* use which timed feats  */
 	OBJ_DATA *equipment[NUM_WEARS];	/* Equipment array               */
 
 	OBJ_DATA *carrying;	/* Head of list                  */
@@ -2127,6 +2133,8 @@ struct char_file_u {
 	AFFECT_DATA affected[MAX_AFFECT];
 	struct timed_type
 	 timed[MAX_TIMED_SKILLS];
+	struct timed_type
+	 timed_feat[MAX_TIMED_FEATS];
 
 	time_t last_logon;	/* Time (in secs) of last logon */
 	char

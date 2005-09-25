@@ -30,6 +30,7 @@
 #include "constants.h"
 #include "dg_scripts.h"
 #include "pk.h"
+#include "features.hpp"
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct spell_create_type spell_create[TOP_SPELL_DEFINE + 1];
@@ -1682,6 +1683,17 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
  * a valid spell/skill number.  A typical for() loop would not need to use
  * this because you can guarantee > 0 and <= TOP_SPELL_DEFINE.
  */
+
+const char *feat_name(int num)
+{
+	if (num > 0 && num < MAX_FEATS)
+		return (feat_info[num].name);
+	else if (num == -1)
+		return "UNUSED";
+	else
+		return "UNDEFINED";
+}
+
 const char *skill_name(int num)
 {
 	if (num > 0 && num <= MAX_SPELLS)
@@ -4148,6 +4160,6 @@ void mag_assign_spells(void)
 	skillo(SKILL_DIG, "горное дело", 100);
 	skillo(SKILL_INSERTGEM, "ювелир", 100);
 	skillo(SKILL_BERSERK, "исступление", 100);
-	skillo(SKILL_TURN_UNDEAD, "изгнать нежить", 140);
+	skillo(SKILL_TURN_UNDEAD, "изгнать нежить", 100);
 
 }
