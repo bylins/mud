@@ -3065,8 +3065,9 @@ ACMD(do_help)
 	if (!ch->desc)
 		return;
 
-        send_to_char("Справка временно недоступна.\r\n", ch);
-        return;
+	skip_spaces(&argument);
+
+	/* печатаем экран справки если нет аргументов */
 	if (!*argument) {
 		page_string(ch->desc, help, 0);
 		return;
@@ -3099,7 +3100,6 @@ ACMD(do_help)
 	if (strlen(argument) > 1 && *(argument + strlen(argument) - 1) == '!') {
 		strong = TRUE;
 		*(argument + strlen(argument) - 1) = '\0';
-		
 	}
 
 	/* длинна строкового аргумента */
@@ -3120,7 +3120,7 @@ ACMD(do_help)
 			// перемещаемся на 1ый подпадающий под аргумент топик справки
 			while (mid > 0) {
 				if (!strn_cmp(argument, help_table[mid - 1].keyword, minlen))
-			while (!strn_cmp(argument, help_table[mid].keyword, minlen)) {
+					mid--;
 				else
 					break;
 			}
@@ -3134,9 +3134,9 @@ ACMD(do_help)
 					if (strong && *(help_table[mid].keyword + minlen)) {
 						mid++;
 						continue;
-						topic_need = 0;
 					}
 					// если будет найден лишь 1 топик
+					if (!topic_need)
 						topic_need = mid;
 					// если используется индексация
 					topic_count++;
