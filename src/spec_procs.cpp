@@ -908,10 +908,10 @@ SPECIAL(guild_poly)
 					sfound = TRUE;
 				}
 
-				if ((skill_no = bits = (guild_mono_info[info_num].learn_info + i)->feat_no) > 0 
+				/* if ((skill_no = bits = (guild_mono_info[info_num].learn_info + i)->feat_no) > 0 
 					&& !HAVE_FEAT(ch, skill_no) && can_get_feat(ch, skill_no)
 						&& number_of_features(ch) < NUM_LEV_FEAT(ch))
-					sfound = TRUE;
+					sfound = TRUE; */
 
 				if (!(bits = -2 * bits) || bits == SPELL_TEMP)
 					bits = SPELL_KNOW;
