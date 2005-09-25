@@ -45,6 +45,7 @@ extern struct skillvariables_dig dig_vars;
 extern struct skillvariables_insgem insgem_vars;
 
 /* extern procedures */
+void list_feats(CHAR_DATA * ch, CHAR_DATA * vict);
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 void appear(CHAR_DATA * ch);
@@ -67,6 +68,7 @@ ACMD(do_sneak);
 ACMD(do_hide);
 ACMD(do_steal);
 ACMD(do_spells);
+ACMD(do_features);
 ACMD(do_skills);
 ACMD(do_visible);
 ACMD(do_title);
@@ -619,7 +621,12 @@ ACMD(do_steal)
 	go_steal(ch, vict, obj_name);
 }
 
-
+ACMD(do_features)
+{
+	if (IS_NPC(ch))
+		return;
+	list_feats(ch, ch);
+}
 
 ACMD(do_skills)
 {
