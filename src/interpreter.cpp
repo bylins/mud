@@ -164,6 +164,8 @@ ACMD(do_drink);
 ACMD(do_drunkoff);
 ACMD(do_findhelpee);
 ACMD(do_firstaid);
+ACMD(do_features);
+ACMD(do_featset);
 ACMD(do_fire);
 ACMD(do_drop);
 ACMD(do_eat);
@@ -358,6 +360,7 @@ ACMD(do_mhunt);
 ACMD(do_mremember);
 ACMD(do_mforget);
 ACMD(do_mtransform);
+ACMD(do_mfeatturn);
 ACMD(do_mskillturn);
 ACMD(do_mskilladd);
 ACMD(do_mspellturn);
@@ -704,6 +707,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"социалы", POS_DEAD, do_commands, 0, SCMD_SOCIALS, 0},
 	{"спать", POS_SLEEPING, do_sleep, 0, 0, -1},
 	{"спасти", POS_FIGHTING, do_rescue, 1, 0, -1},
+	{"способности", POS_SLEEPING, do_features, 0, 0, 0},
 	{"список", POS_STANDING, do_not_here, 0, 0, -1},
 	{"справка", POS_DEAD, do_help, 0, 0, 0},
 	{"спросить", POS_RESTING, do_spec_comm, 0, SCMD_ASK, -1},
@@ -804,6 +808,8 @@ cpp_extern const struct command_info cmd_info[] = {
 //F@N|
 	{"exchange", POS_STANDING, do_not_here, 1, 0, -1},
 	{"exits", POS_RESTING, do_exits, 0, 0, 500},
+	{"featset", POS_SLEEPING, do_featset, LVL_IMPL, 0, 0},
+	{"features", POS_SLEEPING, do_features, 0, 0, 0},
 	{"fill", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
 	{"flee", POS_FIGHTING, do_flee, 1, 0, -1},
 	{"follow", POS_RESTING, do_follow, 0, 0, -1},
@@ -1020,6 +1026,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"mremember", POS_DEAD, do_mremember, -1, 0, -1},
 	{"mforget", POS_DEAD, do_mforget, -1, 0, -1},
 	{"mtransform", POS_DEAD, do_mtransform, -1, 0, -1},
+	{"mfeatturn", POS_DEAD, do_mfeatturn, -1, 0, -1},
 	{"mskillturn", POS_DEAD, do_mskillturn, -1, 0, -1},
 	{"mskilladd", POS_DEAD, do_mskilladd, -1, 0, -1},
 	{"mspellturn", POS_DEAD, do_mspellturn, -1, 0, -1},

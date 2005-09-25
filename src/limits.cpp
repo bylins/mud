@@ -589,7 +589,8 @@ void beat_points_update(int pulse)
 
 		// Проверка аффекта !исступление!. Поместил именно здесь,
 		// но если кто найдет более подходящее место переносите =)
-		check_berserk(i);
+		//Gorrah: перенес в handler.cpp::affect_total
+		//check_berserk(i);
 
 		// Restore PC caster mem
 		if (!IS_MANA_CASTER(i) && !MEMQUEUE_EMPTY(i)) {

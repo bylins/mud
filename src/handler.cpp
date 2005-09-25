@@ -28,6 +28,7 @@
 #include "screen.h"
 #include "dg_scripts.h"
 #include "auction.h"
+#include "features.hpp"
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
 int max_stats2[][6] =
@@ -589,6 +590,14 @@ void affect_total(CHAR_DATA * ch)
 		}
 	}
 
+	/* move features modifiers - added by Gorrah */
+	for (i = 1; i < MAX_FEATS; i++) {
+		if (can_use_feat(ch, i) && (feat_info[i].type == AFFECT_FTYPE))
+			for (j = 0; j < MAX_FEAT_AFFECT; j++)
+				affect_modify(ch, feat_info[i].affected[j].location,
+								feat_info[i].affected[j].modifier, 0, TRUE);
+	}
+
 	/* move affect modifiers */
 	for (af = ch->affected; af; af = af->next)
 		affect_modify(ch, af->location, af->modifier, af->bitvector, TRUE);
@@ -691,7 +700,7 @@ void affect_total(CHAR_DATA * ch)
 		if (IS_SET(GET_FLAG(saved, j), j) && !IS_SET(AFF_FLAGS(ch, j), j))
 			CHECK_AGRO(ch) = TRUE;
 	}
-
+	check_berserk(ch);
 	if (FIGHTING(ch)) {
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_HIDE), AFF_HIDE);
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_SNEAK), AFF_SNEAK);
@@ -982,6 +991,44 @@ void affect_join(CHAR_DATA * ch, AFFECT_DATA * af, bool add_dur, bool avg_dur, b
 		affect_to_char(ch, af);
 	}
 }
+
+/* Обработка тикающих способностей - added by Gorrah */
+void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed)
+{
+	struct timed_type *timed_alloc;
+
+	CREATE(timed_alloc, struct timed_type, 1);
+
+	*timed_alloc = *timed;
+	timed_alloc->next = ch->timed_feat;
+	ch->timed_feat = timed_alloc;
+}
+
+void timed_feat_from_char(CHAR_DATA * ch, struct timed_type *timed)
+{
+	struct timed_type *temp;
+
+	if (ch->timed_feat == NULL) {
+		log("SYSERR: timed_feat_from_char(%s) when no timed...", GET_NAME(ch));
+		return;
+	}
+
+	REMOVE_FROM_LIST(timed, ch->timed_feat, next);
+	free(timed);
+}
+
+int timed_by_feat(CHAR_DATA * ch, int feat)
+{
+	struct timed_type *hjp;
+
+	for (hjp = ch->timed_feat; hjp; hjp = hjp->next)
+		if (hjp->skill == feat)
+			return (hjp->time);
+
+	return (0);
+}
+/* End of changes */
+
 
 /* Insert an timed_type in a char_data structure */
 void timed_to_char(CHAR_DATA * ch, struct timed_type *timed)
