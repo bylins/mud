@@ -23,6 +23,7 @@
 #include "spells.h"
 #include "db.h"
 #include "im.h"
+#include "features.hpp"
 
 extern const char *dirs[];
 extern struct zone_data *zone_table;
@@ -575,6 +576,51 @@ WCMD(do_wat)
 	reloc_target = -1;
 }
 
+WCMD(do_wfeatturn)
+{
+	int isFeat = 0;
+	CHAR_DATA *ch;
+	char name[MAX_INPUT_LENGTH], featname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	int featnum = 0, featdiff = 0;
+
+	one_argument(two_arguments(argument, name, featname), amount);
+
+	if (!*name || !*featname || !*amount) {
+		wld_log(room, "wfeatturn: too few arguments");
+		return;
+	}
+
+	while ((pos = strchr(featname, '.')))
+		*pos = ' ';
+	while ((pos = strchr(featname, '_')))
+		*pos = ' ';
+
+	if ((featnum = find_feat_num(featname)) > 0 && featnum <= MAX_SKILLS)
+		isFeat = 1;
+	else {
+		wld_log(room, "wfeatturn: feature not found");
+		return;
+	}
+
+	if (!str_cmp(amount, "set"))
+		featdiff = 1;
+	else if (!str_cmp(amount, "clear"))
+		featdiff = 0;
+	else {
+		wld_log(room, "wfeatturn: unknown set variable");
+		return;
+	}
+
+	if (!(ch = get_char_by_room(room, name))) {
+		wld_log(room, "wfeatturn: target not found");
+		return;
+	}
+
+	if (isFeat)
+		trg_featturn(ch, featnum, featdiff);
+}
+
+
 WCMD(do_wskillturn)
 {
 	int isSkill = 0;
@@ -841,6 +887,7 @@ const struct wld_command_info wld_cmd_info[] = {
 	{"wdamage", do_wdamage, 0},
 	{"wat", do_wat, 0},
 	{"wspellturn", do_wspellturn, 0},
+	{"wfeatturn", do_wfeatturn, 0},
 	{"wskillturn", do_wskillturn, 0},
 	{"wspelladd", do_wspelladd, 0},
 	{"wskilladd", do_wskilladd, 0},

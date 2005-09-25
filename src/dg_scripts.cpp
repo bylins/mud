@@ -23,6 +23,7 @@
 #include "screen.h"
 #include "house.h"
 #include "constants.h"
+#include "features.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -62,6 +63,7 @@ TRIG_DATA *read_trigger(int nr);
 OBJ_DATA *get_object_in_equip(CHAR_DATA * ch, char *name);
 void extract_trigger(TRIG_DATA * trig);
 int eval_lhs_op_rhs(char *expr, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type);
+bool feat_owner(CHAR_DATA * ch, char *feat);
 char *skill_percent(CHAR_DATA * ch, char *skill);
 char *spell_count(CHAR_DATA * ch, char *spell);
 char *spell_knowledge(CHAR_DATA * ch, char *spell);
@@ -1901,6 +1903,8 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					strcpy(str, "0");
 				else
 					strcpy(str, "1");
+			} else if (!str_cmp(field, "features")) {
+				sprintf(str, "%d", number_of_features(c));
 			} else if (!str_cmp(field, "agressor")) {
 				if (AGRESSOR(c))
 					sprintf(str, "%d", AGRESSOR(c));
@@ -1978,6 +1982,11 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 						}
 					} else if (!str_cmp(field, "skill"))
 						strcpy(str, skill_percent(c, subfield));
+					else if (!str_cmp(field, "feat"))
+						if (feat_owner(c, subfield))
+							strcpy(str, "1");
+						else
+							strcpy(str, "0");
 					else if (!str_cmp(field, "spellcount"))
 						strcpy(str, spell_count(c, subfield));
 					else if (!str_cmp(field, "spelltype"))

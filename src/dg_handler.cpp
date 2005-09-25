@@ -26,6 +26,7 @@
 #include "spells.h"
 #include "dg_event.h"
 #include "im.h"
+#include "features.hpp"
 
 extern INDEX_DATA **trig_index;
 extern TRIG_DATA *trigger_list;
@@ -108,6 +109,18 @@ char *skill_percent(CHAR_DATA * ch, char *skill)
 	}
 	return ("-1");
 }
+
+bool feat_owner(CHAR_DATA * ch, char *feat)
+{
+        int featnum;
+
+        featnum = find_feat_num(feat);
+        if (featnum > 0)
+		if (HAVE_FEAT(ch, featnum))
+			return 1;
+        return 0;
+}
+
 
 char *spell_count(CHAR_DATA * ch, char *spell)
 {

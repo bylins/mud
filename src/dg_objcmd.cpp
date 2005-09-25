@@ -23,6 +23,7 @@
 #include "db.h"
 #include "spells.h"
 #include "im.h"
+#include "features.hpp"
 
 
 extern INDEX_DATA *obj_index;
@@ -649,6 +650,51 @@ OCMD(do_osetval)
 		obj_log(obj, "osetval: position out of bounds!");
 }
 
+OCMD(do_ofeatturn)
+{
+	int isFeat = 0;
+	CHAR_DATA *ch;
+	char name[MAX_INPUT_LENGTH], featname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	int featnum = 0, featdiff = 0;
+
+	one_argument(two_arguments(argument, name, featname), amount);
+
+	if (!*name || !*featname || !*amount) {
+		obj_log(obj, "ofeatturn: too few arguments");
+		return;
+	}
+
+	while ((pos = strchr(featname, '.')))
+		*pos = ' ';
+	while ((pos = strchr(featname, '_')))
+		*pos = ' ';
+
+	if ((featnum = find_feat_num(featname)) > 0 && featnum < MAX_FEATS)
+		isFeat = 1;
+	else {
+		obj_log(obj, "ofeatturn: feat/recipe not found");
+		return;
+	}
+
+	if (!str_cmp(amount, "set"))
+		featdiff = 1;
+	else if (!str_cmp(amount, "clear"))
+		featdiff = 0;
+	else {
+		obj_log(obj, "ofeatturn: unknown set variable");
+		return;
+	}
+
+	if (!(ch = get_char_by_obj(obj, name))) {
+		obj_log(obj, "ofeatturn: target not found");
+		return;
+	}
+
+	if (isFeat)
+		trg_featturn(ch, featnum, featdiff);
+}
+
+
 OCMD(do_oskillturn)
 {
 	int isSkill = 0;
@@ -879,6 +925,7 @@ const struct obj_command_info obj_cmd_info[] = {
 	{"odoor", do_odoor, 0},
 	{"ospellturn", do_ospellturn, 0},
 	{"ospelladd", do_ospelladd, 0},
+	{"ofeatturn", do_ofeatturn, 0},
 	{"oskillturn", do_oskillturn, 0},
 	{"oskilladd", do_oskilladd, 0},
 	{"ospellitem", do_ospellitem, 0},
