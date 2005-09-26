@@ -694,10 +694,11 @@ SPECIAL(guild_mono)
 					found = TRUE;
 				}
 
-				if ((skill_no = bits = (guild_mono_info[info_num].learn_info + i)->feat_no) > 0 
-					&& !HAVE_FEAT(ch, skill_no) && can_get_feat(ch, skill_no)
+				if ((skill_no = (guild_mono_info[info_num].learn_info + i)->feat_no) > 0 
+					&& skill_no < MAX_FEATS)
+					if (!HAVE_FEAT(ch, skill_no) && can_get_feat(ch, skill_no)
 						&& number_of_features(ch) < NUM_LEV_FEAT(ch))
-					sfound = TRUE;
+						sfound = TRUE;
 			}
 			if (sfound)
 				act("$N сказал$G : \r\n"
@@ -908,10 +909,11 @@ SPECIAL(guild_poly)
 					sfound = TRUE;
 				}
 
-				/* if ((skill_no = bits = (guild_mono_info[info_num].learn_info + i)->feat_no) > 0 
-					&& !HAVE_FEAT(ch, skill_no) && can_get_feat(ch, skill_no)
+				 if ((skill_no = (guild_poly_info[info_num] + i)->feat_no) > 0 
+					&& skill_no < MAX_FEATS)
+					if (!HAVE_FEAT(ch, skill_no) && can_get_feat(ch, skill_no)
 						&& number_of_features(ch) < NUM_LEV_FEAT(ch))
-					sfound = TRUE; */
+						sfound = TRUE; 
 
 				if (!(bits = -2 * bits) || bits == SPELL_TEMP)
 					bits = SPELL_KNOW;
