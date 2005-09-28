@@ -1475,7 +1475,7 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 	    was_hlgt = AFF_FLAGGED(ch, AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
 	    was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, was_lamp = FALSE;
 
-	int j, skip_total = IS_SET(pos, 0x80);
+	int i, j, skip_total = IS_SET(pos, 0x80);
 	OBJ_DATA *obj;
 
 	REMOVE_BIT(pos, (0x80 | 0x40));
@@ -1501,6 +1501,14 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 
 	for (j = 0; j < MAX_OBJ_AFFECT; j++)
 		affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, 0, FALSE);
+		
+        /* move features modifiers - added by Gorrah */
+        for (i = 1; i < MAX_FEATS; i++) {
+                if (can_use_feat(ch, i) && (feat_info[i].type == AFFECT_FTYPE))
+                        for (j = 0; j < MAX_FEAT_AFFECT; j++)
+                                affect_modify(ch, feat_info[i].affected[j].location,
+		                                                feat_info[i].affected[j].modifier, 0, FALSE);
+	}
 
 	if (IN_ROOM(ch) != NOWHERE)
 		for (j = 0; weapon_affect[j].aff_bitvector >= 0; j++) {

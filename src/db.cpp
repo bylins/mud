@@ -4185,6 +4185,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 	ch->player.long_descr = NULL;
 
 
+	ch->real_abils.Feats.reset();
 	for (i = 1; i <= MAX_SKILLS; i++)
 		GET_SKILL(ch, i) = 0;
 	for (i = 1; i <= MAX_SPELLS; i++)
