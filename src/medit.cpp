@@ -19,7 +19,6 @@
 #include "handler.h"
 #include "dg_olc.h"
 #include "constants.h"
-#include "features.hpp"
 
 #include "im.h"
 
@@ -672,10 +671,6 @@ void medit_save_to_disk(int zone_num)
 			strcpy(buf1, "Special_Bitvector: ");
 			tascii(&mob->mob_specials.npc_flags.flags[0], 4, buf1);
 			fprintf(mob_file, "%s\n", buf1);
-			for (c = 1; c < MAX_FEATS; c++) {
-				if (HAVE_FEAT(mob, c))
-					fprintf(mob_file, "Feat: %d\n", c);
-			}
 			for (c = 1; c <= MAX_SKILLS; c++) {
 				if (GET_SKILL(mob, c))
 					fprintf(mob_file, "Skill: %d %d\n", c, GET_SKILL(mob, c));
@@ -834,31 +829,7 @@ void medit_disp_saves(DESCRIPTOR_DATA * d)
 }
 
 /*-------------------------------------------------------------------*/
-/*
- *  Display features - added by Gorrah
- */
-void medit_disp_features(DESCRIPTOR_DATA * d)
-{
-	int columns = 0, counter;
 
-	get_char_cols(d->character);
-#if defined(CLEAR_SCREEN)
-	send_to_char("[H[J", d->character);
-#endif
-	for (counter = 1; counter < MAX_FEATS; counter++) {
-		if (!feat_info[counter].name || *feat_info[counter].name == '!')
-			continue;
-		if (HAVE_FEAT(OLC_MOB(d), counter))
-			sprintf(buf1, " %s[%s*%s]%s ", cyn, grn, cyn, nrm);
-		else
-			strcpy(buf1, "     ");
-		sprintf(buf, "%s%3d%s) %25s%s%s", grn, counter, nrm,
-			feat_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
-		send_to_char(buf, d->character);
-	}
-	send_to_char("\r\nУкажите номер способности. (0 - конец) : ", d->character);
-}
-/*-------------------------------------------------------------------*/
 
 #if defined(OASIS_MPROG)
 /*
@@ -1292,7 +1263,6 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		"%sС%s) Резисты :\r\n"
 		"%sТ%s) Спас-броски :\r\n"
 		"%sУ%s) Дополнительные параметры :\r\n"
-		"%sФ%s) Способности :\r\n"
 		"%sS%s) Script     : %s%s\r\n" "%sQ%s) Quit\r\n" "Ваш выбор : ", grn, nrm, cyn, buf1,
 #if defined(OASIS_MPROG)
 		grn, nrm, cyn, (OLC_MPROGL(d) ? "Set." : "Not Set."),
@@ -1315,7 +1285,6 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		grn, nrm, cyn, mob->ing_list ? "Есть" : "Нет",
 		grn, nrm, cyn, mob->dl_list ? "Есть" : "Нет",
 		grn, nrm, cyn, npc_class_types[GET_CLASS(mob) - 100],
-		grn, nrm,
 		grn, nrm,
 		grn, nrm,
 		grn, nrm,
@@ -1721,11 +1690,6 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_MODE(d) = MEDIT_ADD_PARAMETERS;
 			medit_disp_add_parameters(d);
 			return;
-		case 'ф':
-		case 'Ф':
-			OLC_MODE(d) = MEDIT_FEATURES;
-			medit_disp_features(d);
-			return;
 		default:
 			medit_disp_menu(d);
 			return;
@@ -1745,21 +1709,6 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 /*-------------------------------------------------------------------*/
 	case MEDIT_CLASS:
 		GET_CLASS(OLC_MOB(d)) = MAX(100, MIN(CLASS_LAST_NPC - 1, atoi(arg) + 100));
-		break;
-/*-------------------------------------------------------------------*/
-	case MEDIT_FEATURES:
-		number = atoi(arg);
-		if (number == 0)
-			break;
-		if (number > MAX_FEATS || number <= 0 ||
-				!feat_info[number].name || *feat_info[number].name == '!')
-			send_to_char("Неверный номер.\r\n", d->character);
-        	else if (HAVE_FEAT(OLC_MOB(d), number))
-				UNSET_FEAT(OLC_MOB(d), number);
-		else
-				SET_FEAT(OLC_MOB(d), number);
-		medit_disp_features(d);
-		return;
 		break;
 /*-------------------------------------------------------------------*/
 	case MEDIT_RESISTANCES:

@@ -27,7 +27,6 @@
 #include "spells.h"
 #include "skills.h"
 #include "pk.h"
-#include "features.hpp"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -1989,7 +1988,7 @@ ACMD(do_townportal)
 ACMD(do_turn_undead)
 {
 	int percent, dam = 0;
-        int i, sum, ch_list_size, max_level, time;
+        int i, sum, ch_list_size, max_level;
 	struct timed_type timed;
         CHAR_DATA **ch_list;
         CHAR_DATA *ch_vict;
@@ -2006,13 +2005,9 @@ ACMD(do_turn_undead)
 		send_to_char("Вам сейчас не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
 		return;
 	}
-	
-	time = IS_PALADINE(ch) ? 6 : 8;
-	if (can_use_feat(ch, EXORCIST_FEAT))
-		time -= 2;
 
 	timed.skill = SKILL_TURN_UNDEAD;
-	timed.time = time;
+	timed.time = IS_PALADINE(ch) ? 6 : 8;
 	timed_to_char(ch, &timed); 
 
 	send_to_char (ch, "Вы свели руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n");
@@ -2043,9 +2038,6 @@ ACMD(do_turn_undead)
 	        free(ch_list);
 		return;
 	}
-
-	if (can_use_feat(ch, EXORCIST_FEAT))
-		percent += 20;
 
 //Определяем максимальный уровень изгоняемой нежити
 	if (number(1, skill_info[SKILL_TURN_UNDEAD].max_percent) <= percent)

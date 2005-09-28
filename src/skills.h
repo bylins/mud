@@ -106,7 +106,6 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victim);
 
 int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict);
-void check_berserk(CHAR_DATA * ch);
 
 #endif
 

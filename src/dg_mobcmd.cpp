@@ -47,7 +47,6 @@
 #include "comm.h"
 #include "spells.h"
 #include "im.h"
-#include "features.hpp"
 
 #define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, AFF_CHARM))
 
@@ -1204,72 +1203,6 @@ const char *skill_name(int num);
 const char *spell_name(int num);
 int find_skill_num(char *name);
 int find_spell_num(char *name);
-
-ACMD(do_mfeatturn)
-{
-	int isFeat = 0;
-	CHAR_DATA *victim;
-	char name[MAX_INPUT_LENGTH], featname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
-	int featnum = 0, featdiff = 0;
-
-	if (!MOB_OR_IMPL(ch)) {
-		send_to_char("Чаво ?\r\n", ch);
-		return;
-	}
-
-	if (AFF_FLAGGED(ch, AFF_CHARM))
-		return;
-
-	one_argument(two_arguments(argument, name, featname), amount);
-
-	if (!*name || !*featname || !*amount) {
-		mob_log(ch, "mfeatturn: too few arguments");
-		return;
-	}
-
-	while ((pos = strchr(featname, '.')))
-		*pos = ' ';
-	while ((pos = strchr(featname, '_')))
-		*pos = ' ';
-
-	if ((featnum = find_feat_num(featname)) > 0 && featnum < MAX_FEATS)
-		isFeat = 1;
-	else {
-		mob_log(ch, "mfeatturn: feature not found");
-		return;
-	}
-
-	if (!str_cmp(amount, "set"))
-		featdiff = 1;
-	else if (!str_cmp(amount, "clear"))
-		featdiff = 0;
-	else {
-		mob_log(ch, "mfeatturn: unknown set variable");
-		return;
-	}
-
-	if (AFF_FLAGGED(ch, AFF_CHARM))
-		return;
-
-	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
-		return;
-
-	if (*name == UID_CHAR) {
-		if (!(victim = get_char(name))) {
-			sprintf(buf, "mfeatturn: victim (%s) does not exist", name);
-			mob_log(ch, buf);
-			return;
-		}
-	} else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
-		sprintf(buf, "mfeatturn: victim (%s) does not exist", name);
-		mob_log(ch, buf);
-		return;
-	};
-
-	if (isFeat)
-		trg_featturn(victim, featnum, featdiff);
-
-}
 
 ACMD(do_mskillturn)
 {

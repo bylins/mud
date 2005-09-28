@@ -332,7 +332,6 @@ extern struct olc_save_info *olc_save_list;
 #define MEDIT_RESISTANCES		59
 #define MEDIT_SAVES			60
 #define MEDIT_ADD_PARAMETERS		61
-#define MEDIT_FEATURES			62
 
 #if defined(OASIS_MPROG)
 #define MEDIT_MPROG                     60

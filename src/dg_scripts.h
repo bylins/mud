@@ -294,7 +294,6 @@ int pick_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir);
 int open_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir, int unlock);
 int close_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir, int lock);
 
-void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff);
 void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff);
 void trg_skilladd(CHAR_DATA * ch, int skillnum, int skilldiff);
 void trg_spellturn(CHAR_DATA * ch, int spellnum, int spelldiff);

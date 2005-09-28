@@ -34,7 +34,6 @@
 #include "handler.h"
 #include "constants.h"
 #include "pk.h"
-#include "features.hpp"
 
 extern int siteok_everyone;
 extern struct spell_create_type spell_create[];
@@ -2452,10 +2451,6 @@ void advance_level(CHAR_DATA * ch)
 	ch->points.max_hit += MAX(1, add_hp);
 	ch->points.max_move += MAX(1, add_move);
 
-	for (i = 1; i < MAX_FEATS; i++)	
-		if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && can_get_feat(ch, i))
-			SET_FEAT(ch, i); 
-
 	if (IS_IMMORTAL(ch)) {
 		for (i = 0; i < 3; i++)
 			GET_COND(ch, i) = (char) -1;
@@ -2468,7 +2463,7 @@ void advance_level(CHAR_DATA * ch)
 void decrease_level(CHAR_DATA * ch)
 {
 	int con, add_hp, add_move = 0;
-	int prob, sval, max, i;
+	int prob, sval, max;
 
 	con = MAX(class_app[(int) GET_CLASS(ch)].min_con, MIN(GET_CON(ch), class_app[(int) GET_CLASS(ch)].max_con));
 	add_hp = class_app[(int) GET_CLASS(ch)].base_con + (con - class_app[(int)
@@ -2524,11 +2519,6 @@ void decrease_level(CHAR_DATA * ch)
 				GET_SKILL(ch, prob) =
 				    (wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20) + sval;
 		}
-
-	for (i = 1; i < MAX_FEATS; i++)	
-		if (!feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] &&
-			(feat_info[i].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] > GET_LEVEL(ch)))
-				UNSET_FEAT(ch, i);
 
 	save_char(ch, NOWHERE);
 }
@@ -2950,66 +2940,6 @@ void init_spell_levels(void)
 		}
 	}
 	fclose(magic);
-
-/* Load features variables - added by Gorrah */
-	if (!(magic = fopen(LIB_MISC "features.lst", "r"))) {
-		log("Cann't open features list file...");
-		_exit(1);
-	}
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf (name, "%s %s %d %d %d %d %d %d %d",	line1, line2, i, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6) != 9) {
-			log("Bad format for feature string !\r\n"
-			 	 "Format : <feature name (%%s %%s)>  <kin (%%d %%d %%d)> <class (%%d)> <remort (%%d)> <level (%%d)> <naturalfeat (%%d)>!");
-			_exit(1);
-		}
-		name[0] = '\0';
-		strcat(name, line1);
-		if (*line2 != '*') {
-			*(name + strlen(name) + 1) = '\0';
-			*(name + strlen(name) + 0) = ' ';
-			strcat(name, line2);
-		}
-		if ((sp_num = find_feat_num(name)) <= 0) {
-			log("Feat '%s' not found...", name);
-			_exit(1);                 
-		}
-		for (j = 0; j < NUM_KIN; j++)
-			if (i[j] < 0 || i[j] > 1){
-				log ("Bad race feat know type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
-				_exit (1);
-			}
-		if (i[3] < 0 || i[3] >= NUM_CLASSES) {
-			log("Bad class type for feat \"%s\"...", feat_info[sp_num].name);
-			_exit(1);
-		}
-		if (i[4] < 0 || i[4] >= MAX_REMORT){
-			log ("Bad remort type for feat \"%s\"...", feat_info[sp_num].name);
-			_exit (1);
-		}
-		if (i[6] < 0 || i[6] > 1){
-			log ("Bad natural classfeat type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
-			_exit (1);
-		}
-		for (j = 0; j < NUM_KIN; j++) 
-			if (i[j] == 1) { 
-				feat_info[sp_num].classknow[i[3]][j] = TRUE;
-				log ("Classknow feat set '%d' kin '%d' classes %d", sp_num, j, i[3]);
-
-				feat_info[sp_num].min_remort[i[3]][j] = i[4];
-				log ("Remort feat set '%d' kin '%d' classes %d value %d", sp_num, j, i[3], i[4]);
-
-				feat_info[sp_num].min_level[i[3]][j] = i[5];
-				log ("Level feat set '%d' kin '%d' classes %d value %d", sp_num, j, i[3], i[5]);
-
-				feat_info[sp_num].natural_classfeat[i[3]][j] = i[6];
-				log ("Natural classfeature set '%d' kin '%d' classes %d", sp_num, j, i[3]);
-			}       
-	}
-	fclose(magic); 
-/* End of changed */
-
 	if (!(magic = fopen(LIB_MISC "skillvariables.lst", "r"))) {
 		log("Cann't open skillvariables list file...");
 		_exit(1);

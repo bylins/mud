@@ -25,7 +25,6 @@
 #include "dg_scripts.h"
 #include "constants.h"
 #include "im.h"
-#include "features.hpp"
 
 /*
  * message for doing damage with a spell or skill
@@ -775,50 +774,4 @@ int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict)
 		GET_SKILL(ch, skill_no)++;
 
 	return (percent);
-}
-
-void check_berserk(CHAR_DATA * ch)
-{
-	AFFECT_DATA af[2];
-	struct timed_type timed;
-
-	if (affected_by_spell(ch, SPELL_BERSERK) &&
-		    (GET_HIT(ch) > GET_REAL_MAX_HIT(ch) / 2)) {
-			affect_from_char(ch, SPELL_BERSERK);
-			send_to_char("Предсмертное исступление оставило Вас.\r\n", ch);
-	}
-//!IS_NPC(ch) &&
-	if (HAVE_FEAT(ch, BERSERK_FEAT) && FIGHTING(ch) &&
-	    !timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, AFF_BERSERK) &&
-	    (GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4)) {
-
-//		if (!IS_NPC(ch)) {
-//Gorrah: вроде бы у мобов скиллы тикают так же, так что глюков быть не должно
-		timed.skill = BERSERK_FEAT;
-		timed.time = 4;
-		timed_feat_to_char(ch, &timed);
-//		}
-
-		af[0].type = SPELL_BERSERK;
-		af[0].duration = pc_duration(ch, 1, 60, 30, 0, 0);
-		af[0].modifier = 0;
-		af[0].location = APPLY_NONE;
-		af[0].battleflag = 0;
-
-/*		if (calculate_skill(ch, SKILL_BERSERK, skill_info[SKILL_BERSERK].max_percent, 0) >= 
-		    number(1, skill_info[SKILL_BERSERK].max_percent) ||
-		    number(1, 20) >= 10 + MAX(0, (GET_LEVEL(ch) - 14 - GET_REMORT(ch)) / 2)) { */
-		
-		if (number(1, 1000) <= 500 - GET_LEVEL(ch) * 10 - GET_REMORT(ch) * 5) {
-			af[0].bitvector = AFF_BERSERK;
-			act("Вас обуяла предсмертная ярость!", FALSE, ch, 0, 0, TO_CHAR);
-			act("$n0 исступленно взвыл$g и бросил$u на противника!", FALSE, ch, 0, 0, TO_ROOM);
-		} else {
-			af[0].bitvector = 0;
-			act("Вы истошно завопили, пытась напугать противника. Без толку.", FALSE, ch, 0, 0, TO_CHAR);
-			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", FALSE, ch, 0, 0, TO_ROOM);
-		}
-
-			affect_join(ch, &af[0], TRUE, FALSE, TRUE, FALSE);
-	}
 }
