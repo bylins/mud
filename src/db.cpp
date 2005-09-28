@@ -5600,6 +5600,7 @@ void clear_char(CHAR_DATA * ch)
 }
 
 
+        ch->real_abils.Feats.reset();
 void clear_char_skills(CHAR_DATA * ch)
 {
 	int i;
