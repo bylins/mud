@@ -6362,6 +6362,7 @@ void new_save_char(CHAR_DATA * ch, room_rnum load_room)
 	room_rnum location;
 	int i;
 	long int li;
+        struct timed_type *fkj;
 	AFFECT_DATA *aff, tmp_aff[MAX_AFFECT];
 	OBJ_DATA *char_eq[NUM_WEARS];
 	struct timed_type *skj;
@@ -6515,8 +6516,8 @@ void new_save_char(CHAR_DATA * ch, room_rnum load_room)
 	/* Задержки на cпособности */
 	if (GET_LEVEL(ch) < LVL_IMMORT) {
 		fprintf(saved, "FtTm:\n");
-		for (skj = ch->timed_feat; skj; skj = skj->next) {
-			fprintf(saved, "%d %d %s\n", skj->skill, skj->time, feat_info[skj->skill].name);
+		for (fkj = ch->timed_feat; fkj; fkj = fkj->next) {
+			fprintf(saved, "%d %d %s\n", fkj->skill, fkj->time, feat_info[fkj->skill].name);
 		}
 		fprintf(saved, "0 0\n");
 	}
