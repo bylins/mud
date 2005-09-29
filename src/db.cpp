@@ -4447,7 +4447,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 			if (!strcmp (tag, "Kin "))
 			    GET_KIN (ch) = num;
     			else if (!strcmp(tag, "Karm")) 
-			    KARMA(ch) = fbgetstring(fl);
+		           KARMA(ch) = fbgetstring(fl);
 			break;
 		case 'L':
 			if (!strcmp(tag, "LstL"))
@@ -4557,47 +4557,47 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 		// Loads Here new punishment strings  
 			else if (!strcmp(tag, "PMut"))
 			{
-				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf1[0]);
 				MUTE_DURATION(ch)=lnum;
 				GET_MUTE_LEV(ch)= num2;
 				MUTE_GODID(ch)=lnum3;
-				MUTE_REASON(ch)=str_dup(buf);
+				MUTE_REASON(ch)=str_dup(buf1);
 			}
 			else if (!strcmp(tag, "PHel"))
 			{
-				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf1[0]);
 				HELL_DURATION(ch)=lnum;
 				GET_HELL_LEV(ch)= num2;
 				HELL_GODID(ch)=lnum3;
-				HELL_REASON(ch)=str_dup(buf);
+				HELL_REASON(ch)=str_dup(buf1);
 			}
 			else if (!strcmp(tag, "PDum"))
 			{
-				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf1[0]);
 				DUMB_DURATION(ch)=lnum;
 				GET_DUMB_LEV(ch)= num2;
 				DUMB_GODID(ch)=lnum3;
-				DUMB_REASON(ch)=str_dup(buf);
+				DUMB_REASON(ch)=str_dup(buf1);
 			}
 			else if (!strcmp(tag, "PNam"))
 			{
-				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf1[0]);
 				NAME_DURATION(ch)=lnum;
 				GET_NAME_LEV(ch)= num2;
 				NAME_GODID(ch)=lnum3;
-				NAME_REASON(ch)=str_dup(buf);
+				NAME_REASON(ch)=str_dup(buf1);
 			}
 			else if (!strcmp(tag, "PFrz"))
 			{
-				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf1[0]);
 				FREEZE_DURATION(ch)=lnum;
 				GET_FREEZE_LEV(ch)= num2;
 				FREEZE_GODID(ch)=lnum3;
-				FREEZE_REASON(ch)=str_dup(buf);
+				FREEZE_REASON(ch)=str_dup(buf1);
 			}
 			else if (!strcmp(tag, "PGcs"))
 			{
-				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf1[0]);
 				GCURSE_DURATION(ch)=lnum;
 				GET_GCURSE_LEV(ch)= num2;
 				GCURSE_GODID(ch)=lnum3;
@@ -4605,11 +4605,11 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 			}
 			else if (!strcmp(tag, "PUnr"))
 			{
-				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf1[0]);
 				UNREG_DURATION(ch)=lnum;
 				GET_UNREG_LEV(ch)= num2;
 				UNREG_GODID(ch)=lnum3;
-				UNREG_REASON(ch)=str_dup(buf);
+				UNREG_REASON(ch)=str_dup(buf1);
 			}
 
 			break;
@@ -6561,19 +6561,18 @@ void new_save_char(CHAR_DATA * ch, room_rnum load_room)
 		fprintf(saved, "PGcs: %ld %d %ld %s~\n", GCURSE_DURATION(ch), GET_GCURSE_LEV(ch), GCURSE_GODID(ch), GCURSE_REASON(ch));
 		fbprintf(saved, "PUnr: %ld %d %ld %s~\n", UNREG_DURATION(ch), GET_UNREG_LEV(ch), UNREG_GODID(ch), UNREG_REASON(ch));
 		fprintf(saved, "PFrz: %ld %d %ld %s~\n", FREEZE_DURATION(ch), GET_FREEZE_LEV(ch), FREEZE_GODID(ch), FREEZE_REASON(ch));
-  if (KARMA(ch) > 0) {
+	if (UNREG_DURATION(ch) > 0) 
 		fbprintf(saved, "Karm:\n%s~\n", KARMA(ch));
 
 	if (KARMA(ch) > 0) {
-  if (LOGON_LIST(ch) > 0) {
+		fprintf(saved, "Karm:\n%s~\n", KARMA(ch));
 	}
 
 		fbprintf(saved, "LogL:\n");
-    while (next_log)
-		{
+		log("Start logon list save.");
 		struct logon_data * next_log = LOGON_LIST(ch);
 		fprintf(saved, "LogL:\n");
-      fbprintf(saved, buf1);
+			fbprintf(saved, buf1);
 			buf1[0] = 0;
 			sprintf(buf1,"%s %ld %ld\n",next_log->ip , next_log->count, next_log->lasttime);
 		fbprintf(saved, "~\n");
