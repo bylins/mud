@@ -181,7 +181,7 @@ int get_kill_vnum(CHAR_DATA * ch, int vnum)
 }
 
 /* сохраняет в аски файле замакс */
-void save_mkill(CHAR_DATA * ch, FBFILE * saved)
+void save_mkill(CHAR_DATA * ch, FILE * saved)
 {
 	int i;
 	mob_rnum r_num;
@@ -191,7 +191,7 @@ void save_mkill(CHAR_DATA * ch, FBFILE * saved)
 	if (ch->MobKill.vnum) {
 		for (i = 0; i < ch->MobKill.count; i++)
 			if ((r_num = real_mobile(*(ch->MobKill.vnum + i))) > -1) {
-				fbprintf(saved, "Mob : %d %d %s\n", *(ch->MobKill.vnum + i),
+				fprintf(saved, "Mob : %d %d %s\n", *(ch->MobKill.vnum + i),
 					*(ch->MobKill.howmany + i), mob_proto[r_num].player.short_descr);
 			}
 	}

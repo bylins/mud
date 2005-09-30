@@ -6302,7 +6302,7 @@ void kill_ems(char *str)
 	}
 	*ptr2 = '\0';
 }
-	FBFILE *saved;
+
 void new_save_char(CHAR_DATA * ch, room_rnum load_room)
 {
 	FILE *saved;
@@ -6329,7 +6329,7 @@ void new_save_char(CHAR_DATA * ch, room_rnum load_room)
 	log("Save char %s", GET_NAME(ch));
 	new_save_pkills(ch);
 	save_char_vars(ch);
-	if (!(saved = fbopen(filename, FB_WRITE))) {
+
 /* Запись чара в новом формате */
 	get_filename(GET_NAME(ch), filename, PLAYERS_FILE);
 	if (!(saved = fopen(filename, "w"))) {
@@ -6378,115 +6378,115 @@ void new_save_char(CHAR_DATA * ch, room_rnum load_room)
 
 	if ((i >= MAX_AFFECT) && aff && aff->next)
 		log("SYSERR: WARNING: OUT OF STORE ROOM FOR AFFECTED TYPES!!!");
-		fbprintf(saved, "Name: %s\n", GET_NAME(ch));
+
 /* запись */
-		fbprintf(saved, "NmI : %s\n", GET_PAD(ch, 0));
+	if (GET_NAME(ch))
 		fprintf(saved, "Name: %s\n", GET_NAME(ch));
-		fbprintf(saved, "NmR : %s\n", GET_PAD(ch, 1));
+	if (GET_PAD(ch, 0))
 		fprintf(saved, "NmI : %s\n", GET_PAD(ch, 0));
-		fbprintf(saved, "NmD : %s\n", GET_PAD(ch, 2));
+	if (GET_PAD(ch, 0))
 		fprintf(saved, "NmR : %s\n", GET_PAD(ch, 1));
-		fbprintf(saved, "NmV : %s\n", GET_PAD(ch, 3));
+	if (GET_PAD(ch, 0))
 		fprintf(saved, "NmD : %s\n", GET_PAD(ch, 2));
-		fbprintf(saved, "NmT : %s\n", GET_PAD(ch, 4));
+	if (GET_PAD(ch, 0))
 		fprintf(saved, "NmV : %s\n", GET_PAD(ch, 3));
-		fbprintf(saved, "NmP : %s\n", GET_PAD(ch, 5));
+	if (GET_PAD(ch, 0))
 		fprintf(saved, "NmT : %s\n", GET_PAD(ch, 4));
-		fbprintf(saved, "Pass: %s\n", GET_PASSWD(ch));
+	if (GET_PAD(ch, 0))
 		fprintf(saved, "NmP : %s\n", GET_PAD(ch, 5));
-		fbprintf(saved, "EMal: %s\n", GET_EMAIL(ch));
+	if (GET_PASSWD(ch))
 		fprintf(saved, "Pass: %s\n", GET_PASSWD(ch));
-		fbprintf(saved, "Titl: %s\n", GET_TITLE(ch));
+	if (GET_EMAIL(ch))
 		fprintf(saved, "EMal: %s\n", GET_EMAIL(ch));
 	if (GET_TITLE(ch))
 		fprintf(saved, "Titl: %s\n", GET_TITLE(ch));
-		fbprintf(saved, "Desc:\n%s~\n", buf);
+	if (ch->player.description && *ch->player.description) {
 		strcpy(buf, ch->player.description);
 		kill_ems(buf);
-		fbprintf(saved, "PfIn: %s\n", POOFIN(ch));
+		fprintf(saved, "Desc:\n%s~\n", buf);
 	}
-		fbprintf(saved, "PfOt: %s\n", POOFOUT(ch));
-	fbprintf(saved, "Sex : %d %s\n", GET_SEX(ch), genders[(int) GET_SEX(ch)]);
-	fbprintf (saved, "Kin : %d %s\n", GET_KIN (ch),kin_name[GET_KIN (ch)][(int) GET_SEX (ch)]);
-	fbprintf(saved, "Clas: %d %s\n", GET_CLASS(ch), pc_class_types[(int) GET_CLASS (ch)+14*GET_KIN (ch)]);
-	fbprintf(saved, "Levl: %d\n", GET_LEVEL(ch));
+	if (POOFIN(ch))
+		fprintf(saved, "PfIn: %s\n", POOFIN(ch));
+	if (POOFOUT(ch))
+		fprintf(saved, "PfOt: %s\n", POOFOUT(ch));
+	fprintf(saved, "Sex : %d %s\n", GET_SEX(ch), genders[(int) GET_SEX(ch)]);
 	fprintf (saved, "Kin : %d %s\n", GET_KIN (ch),kin_name[GET_KIN (ch)][(int) GET_SEX (ch)]);
-		fbprintf(saved, "Home: %d %s\n", GET_HOME(ch), world[(location)]->name);
+	fprintf(saved, "Clas: %d %s\n", GET_CLASS(ch), pc_class_types[(int) GET_CLASS (ch)+14*GET_KIN (ch)]);
 	fprintf(saved, "Levl: %d\n", GET_LEVEL(ch));
-	fbprintf(saved, "Brth: %ld %s\n", li, ctime(&li));
+	if ((location = real_room(GET_HOME(ch))) != NOWHERE)
 		fprintf(saved, "Home: %d %s\n", GET_HOME(ch), world[(location)]->name);
 	li = ch->player.time.birth;
 	fprintf(saved, "Brth: %ld %s\n", li, ctime(&li));
 	// Gunner
-	fbprintf(saved, "Plyd: %d\n", tmp);
+	// time.logon ЦАБ=---Lг- -= -Е-г ┐ёЮ-L-- - А┐АБг-Ц = time(0) -= БгLЦИ┐L ---г-Б
 	//-Юг-О - АгLЦ-г=Е А -=Г=L= ┐ёЮК
 	tmp += ch->player.time.played;
-	fbprintf(saved, "Last: %ld %s\n", li, ctime(&li));
+	fprintf(saved, "Plyd: %d\n", tmp);
 	// Gunner end
 	li = ch->player.time.logon;
 	fprintf(saved, "Last: %ld %s\n", li, ctime(&li));
 	if (ch->desc)
-	fbprintf(saved, "Host: %s\n", buf);
-	fbprintf(saved, "Hite: %d\n", GET_HEIGHT(ch));
-	fbprintf(saved, "Wate: %d\n", GET_WEIGHT(ch));
-	fbprintf(saved, "Size: %d\n", GET_SIZE(ch));
+		strcpy(buf, ch->desc->host);
+	else
+		strcpy(buf, "Unknown");
+	fprintf(saved, "Host: %s\n", buf);
 	fprintf(saved, "Hite: %d\n", GET_HEIGHT(ch));
-	fbprintf(saved, "Alin: %d\n", GET_ALIGNMENT(ch));
-	fbprintf(saved, "Id  : %ld\n", GET_IDNUM(ch));
-	fbprintf(saved, "UIN : %d\n", GET_UNIQUE(ch));
+	fprintf(saved, "Wate: %d\n", GET_WEIGHT(ch));
+	fprintf(saved, "Size: %d\n", GET_SIZE(ch));
+	/* структуры */
 	fprintf(saved, "Alin: %d\n", GET_ALIGNMENT(ch));
 	fprintf(saved, "Id  : %ld\n", GET_IDNUM(ch));
-	fbprintf(saved, "Act : %s\n", buf);
+	fprintf(saved, "UIN : %d\n", GET_UNIQUE(ch));
 	*buf = '\0';
 	tascii(&PLR_FLAGS(ch, 0), 4, buf);
-	fbprintf(saved, "Aff : %s\n", buf);
+	fprintf(saved, "Act : %s\n", buf);
 	*buf = '\0';
 	tascii(&AFF_FLAGS(ch, 0), 4, buf);
 	fprintf(saved, "Aff : %s\n", buf);
-	fbprintf(saved, "Str : %d\n", GET_STR(ch));
-	fbprintf(saved, "Int : %d\n", GET_INT(ch));
-	fbprintf(saved, "Wis : %d\n", GET_WIS(ch));
-	fbprintf(saved, "Dex : %d\n", GET_DEX(ch));
-	fbprintf(saved, "Con : %d\n", GET_CON(ch));
-	fbprintf(saved, "Cha : %d\n", GET_CHA(ch));
+
+	/* дальше не по порядку */
+	/* статсы */
+	fprintf(saved, "Str : %d\n", GET_STR(ch));
+	fprintf(saved, "Int : %d\n", GET_INT(ch));
+	fprintf(saved, "Wis : %d\n", GET_WIS(ch));
 	fprintf(saved, "Dex : %d\n", GET_DEX(ch));
 	fprintf(saved, "Con : %d\n", GET_CON(ch));
 	fprintf(saved, "Cha : %d\n", GET_CHA(ch));
-		fbprintf(saved, "Skil:\n");
+
 	/* скилы */
 	if (GET_LEVEL(ch) < LVL_IMMORT) {
-				fbprintf(saved, "%d %d %s\n", i, GET_SKILL(ch, i), skill_info[i].name);
+		fprintf(saved, "Skil:\n");
 		for (i = 1; i <= MAX_SKILLS; i++) {
-		fbprintf(saved, "0 0\n");
+			if (GET_SKILL(ch, i))
 				fprintf(saved, "%d %d %s\n", i, GET_SKILL(ch, i), skill_info[i].name);
 		}
 		fprintf(saved, "0 0\n");
 	}
-		fbprintf(saved, "SkTm:\n");
+
 	/* Задержки на скилы */
-			fbprintf(saved, "%d %d %s\n", skj->skill, skj->time, skill_info[skj->skill].name);
+	if (GET_LEVEL(ch) < LVL_IMMORT) {
 		fprintf(saved, "SkTm:\n");
-		fbprintf(saved, "0 0\n");
+		for (skj = ch->timed; skj; skj = skj->next) {
 			fprintf(saved, "%d %d %s\n", skj->skill, skj->time, skill_info[skj->skill].name);
 		}
 		fprintf(saved, "0 0\n");
 	}
-		fbprintf(saved, "Spel:\n");
+
 	/* спелы */
 	if (GET_LEVEL(ch) < LVL_IMPL) {
-				fbprintf(saved, "%d %d %s\n", i, GET_SPELL_TYPE(ch, i), spell_info[i].name);
+		fprintf(saved, "Spel:\n");
 		for (i = 1; i <= MAX_SPELLS; i++) {
-		fbprintf(saved, "0 0\n");
+			if (GET_SPELL_TYPE(ch, i))
 				fprintf(saved, "%d %d %s\n", i, GET_SPELL_TYPE(ch, i), spell_info[i].name);
 		}
 		fprintf(saved, "0 0\n");
 	}
-		fbprintf(saved, "SpMe:\n");
+
 	/* Замемленые спелы */
 	if (GET_LEVEL(ch) < LVL_IMMORT) {
-				fbprintf(saved, "%d %d %s\n", i, GET_SPELL_MEM(ch, i), spell_info[i].name);
+		fprintf(saved, "SpMe:\n");
 		for (i = 1; i <= MAX_SPELLS; i++) {
-		fbprintf(saved, "0 0\n");
+			if (GET_SPELL_MEM(ch, i))
 				fprintf(saved, "%d %d %s\n", i, GET_SPELL_MEM(ch, i), spell_info[i].name);
 		}
 		fprintf(saved, "0 0\n");
@@ -6494,97 +6494,97 @@ void new_save_char(CHAR_DATA * ch, room_rnum load_room)
 
 	/* Рецепты */
 //    if (GET_LEVEL(ch) < LVL_IMMORT) 
-		fbprintf(saved, "Rcps:\n");
+	{
 		im_rskill *rs;
 		im_recipe *r;
 		fprintf(saved, "Rcps:\n");
 		for (rs = GET_RSKILL(ch); rs; rs = rs->link) {
-			fbprintf(saved, "%d %d %s\n", r->id, rs->perc, r->name);
+			if (rs->perc <= 0)
 				continue;
-		fbprintf(saved, "-1 -1\n");
+			r = &imrecipes[rs->rid];
 			fprintf(saved, "%d %d %s\n", r->id, rs->perc, r->name);
 		}
-	fbprintf(saved, "Hrol: %d\n", GET_HR(ch));
-	fbprintf(saved, "Drol: %d\n", GET_DR(ch));
-	fbprintf(saved, "Ac  : %d\n", GET_AC(ch));
+		fprintf(saved, "-1 -1\n");
+	}
 
-	fbprintf(saved, "Hit : %d/%d\n", GET_HIT(ch), GET_MAX_HIT(ch));
-	fbprintf(saved, "Mana: %d/%d\n", GET_MEM_COMPLETED(ch), GET_MEM_TOTAL(ch));
-	fbprintf(saved, "Move: %d/%d\n", GET_MOVE(ch), GET_MAX_MOVE(ch));
-	fbprintf(saved, "Gold: %d\n", GET_GOLD(ch));
-	fbprintf(saved, "Bank: %ld\n", GET_BANK_GOLD(ch));
-	fbprintf(saved, "Exp : %ld\n", GET_EXP(ch));
-	fbprintf(saved, "PK  : %ld\n", IS_KILLER(ch));
+	fprintf(saved, "Hrol: %d\n", GET_HR(ch));
+	fprintf(saved, "Drol: %d\n", GET_DR(ch));
+	fprintf(saved, "Ac  : %d\n", GET_AC(ch));
 
-	fbprintf(saved, "Wimp: %d\n", GET_WIMP_LEV(ch));
-	fbprintf(saved, "PgHt: %d\n", PAGE_HEIGHT(ch));
-	fbprintf(saved, "Frez: %d\n", GET_FREEZE_LEV(ch));
-	fbprintf(saved, "Invs: %d\n", GET_INVIS_LEV(ch));
-	fbprintf(saved, "Room: %d\n", GET_LOADROOM(ch));
+	fprintf(saved, "Hit : %d/%d\n", GET_HIT(ch), GET_MAX_HIT(ch));
+	fprintf(saved, "Mana: %d/%d\n", GET_MEM_COMPLETED(ch), GET_MEM_TOTAL(ch));
+	fprintf(saved, "Move: %d/%d\n", GET_MOVE(ch), GET_MAX_MOVE(ch));
+	fprintf(saved, "Gold: %d\n", GET_GOLD(ch));
+	fprintf(saved, "Bank: %ld\n", GET_BANK_GOLD(ch));
+	fprintf(saved, "Exp : %ld\n", GET_EXP(ch));
+	fprintf(saved, "PK  : %ld\n", IS_KILLER(ch));
+
+	fprintf(saved, "Wimp: %d\n", GET_WIMP_LEV(ch));
+	fprintf(saved, "PgHt: %d\n", PAGE_HEIGHT(ch));
 	fprintf(saved, "Frez: %d\n", GET_FREEZE_LEV(ch));
-	fbprintf(saved, "Badp: %d\n", GET_BAD_PWS(ch));
+	fprintf(saved, "Invs: %d\n", GET_INVIS_LEV(ch));
 	fprintf(saved, "Room: %d\n", GET_LOADROOM(ch));
-		fbprintf(saved, "Hung: %d\n", GET_COND(ch, FULL));
+
 	fprintf(saved, "Badp: %d\n", GET_BAD_PWS(ch));
-		fbprintf(saved, "Thir: %d\n", GET_COND(ch, THIRST));
+	if (GET_LEVEL(ch) < LVL_IMMORT)
 		fprintf(saved, "Hung: %d\n", GET_COND(ch, FULL));
-		fbprintf(saved, "Drnk: %d\n", GET_COND(ch, DRUNK));
+	if (GET_LEVEL(ch) < LVL_IMMORT)
 		fprintf(saved, "Thir: %d\n", GET_COND(ch, THIRST));
-	fbprintf(saved, "Reli: %d %s\n", GET_RELIGION(ch), religion_name[GET_RELIGION(ch)][(int) GET_SEX(ch)]);
-	fbprintf(saved, "Race: %d %s\n", GET_RACE(ch), race_name[GET_RACE(ch)][(int) GET_SEX(ch)]);
-	fbprintf(saved, "DrSt: %d\n", GET_DRUNK_STATE(ch));
-	fbprintf(saved, "ComS: %d\n", GET_COMMSTATE(ch));
-	fbprintf(saved, "Glor: %d\n", GET_GLORY(ch));
-	fbprintf(saved, "Olc : %d\n", GET_OLC_ZONE(ch));
+	if (GET_LEVEL(ch) < LVL_IMMORT)
+		fprintf(saved, "Drnk: %d\n", GET_COND(ch, DRUNK));
+
+	fprintf(saved, "Reli: %d %s\n", GET_RELIGION(ch), religion_name[GET_RELIGION(ch)][(int) GET_SEX(ch)]);
+	fprintf(saved, "Race: %d %s\n", GET_RACE(ch), race_name[GET_RACE(ch)][(int) GET_SEX(ch)]);
+	fprintf(saved, "DrSt: %d\n", GET_DRUNK_STATE(ch));
 	fprintf(saved, "ComS: %d\n", GET_COMMSTATE(ch));
-		fbprintf(saved, "Rmrt: %d\n", GET_REMORT(ch));
+	fprintf(saved, "Glor: %d\n", GET_GLORY(ch));
 	fprintf(saved, "Olc : %d\n", GET_OLC_ZONE(ch));
 	if (GET_REMORT(ch) > 0)
-	fbprintf(saved, "Pref: %s\n", buf);
+		fprintf(saved, "Rmrt: %d\n", GET_REMORT(ch));
 	*buf = '\0';
-		fbprintf(saved, "HsID: %ld\n", GET_HOUSE_UID(ch));
+	tascii(&PRF_FLAGS(ch, 0), 4, buf);
 	fprintf(saved, "Pref: %s\n", buf);
-		fbprintf(saved, "Rank: %d\n", GET_HOUSE_RANK(ch));
+	if (GET_HOUSE_UID(ch) != 0)
 		fprintf(saved, "HsID: %ld\n", GET_HOUSE_UID(ch));
 	if (GET_HOUSE_RANK(ch) != 0)
-		fbprintf(saved, "PMut: %ld %d %ld %s~\n", MUTE_DURATION(ch), GET_MUTE_LEV(ch), MUTE_GODID(ch), MUTE_REASON(ch));
+		fprintf(saved, "Rank: %d\n", GET_HOUSE_RANK(ch));
 
-		fbprintf(saved, "PNam: %ld %d %ld %s~\n", NAME_DURATION(ch), GET_NAME_LEV(ch), NAME_GODID(ch), NAME_REASON(ch));
+	if (MUTE_DURATION(ch) > 0) 
 		fprintf(saved, "PMut: %ld %d %ld %s~\n", MUTE_DURATION(ch), GET_MUTE_LEV(ch), MUTE_GODID(ch), MUTE_REASON(ch));
-		fbprintf(saved, "PDum: %ld %d %ld %s~\n", DUMB_DURATION(ch), GET_DUMB_LEV(ch), DUMB_GODID(ch), DUMB_REASON(ch));
+	if (NAME_DURATION(ch) > 0) 
 		fprintf(saved, "PNam: %ld %d %ld %s~\n", NAME_DURATION(ch), GET_NAME_LEV(ch), NAME_GODID(ch), NAME_REASON(ch));
-		fbprintf(saved, "PHel: %ld %d %ld %s~\n", HELL_DURATION(ch), GET_HELL_LEV(ch), HELL_GODID(ch), HELL_REASON(ch));
+	if (DUMB_DURATION(ch) > 0) 
 		fprintf(saved, "PDum: %ld %d %ld %s~\n", DUMB_DURATION(ch), GET_DUMB_LEV(ch), DUMB_GODID(ch), DUMB_REASON(ch));
-		fbprintf(saved, "PGcs: %ld %d %ld %s~\n", GCURSE_DURATION(ch), GET_GCURSE_LEV(ch), GCURSE_GODID(ch), GCURSE_REASON(ch));
+	if (HELL_DURATION(ch) > 0) 
 		fprintf(saved, "PHel: %ld %d %ld %s~\n", HELL_DURATION(ch), GET_HELL_LEV(ch), HELL_GODID(ch), HELL_REASON(ch));
-		fbprintf(saved, "PFrz: %ld %d %ld %s~\n", FREEZE_DURATION(ch), GET_FREEZE_LEV(ch), FREEZE_GODID(ch), FREEZE_REASON(ch));
+	if (GCURSE_DURATION(ch) > 0) 
 		fprintf(saved, "PGcs: %ld %d %ld %s~\n", GCURSE_DURATION(ch), GET_GCURSE_LEV(ch), GCURSE_GODID(ch), GCURSE_REASON(ch));
-		fbprintf(saved, "PUnr: %ld %d %ld %s~\n", UNREG_DURATION(ch), GET_UNREG_LEV(ch), UNREG_GODID(ch), UNREG_REASON(ch));
+	if (FREEZE_DURATION(ch) > 0) 
 		fprintf(saved, "PFrz: %ld %d %ld %s~\n", FREEZE_DURATION(ch), GET_FREEZE_LEV(ch), FREEZE_GODID(ch), FREEZE_REASON(ch));
 	if (UNREG_DURATION(ch) > 0) 
-		fbprintf(saved, "Karm:\n%s~\n", KARMA(ch));
+		fprintf(saved, "PUnr: %ld %d %ld %s~\n", UNREG_DURATION(ch), GET_UNREG_LEV(ch), UNREG_GODID(ch), UNREG_REASON(ch));
 
 	if (KARMA(ch) > 0) {
 		fprintf(saved, "Karm:\n%s~\n", KARMA(ch));
 	}
 
-		fbprintf(saved, "LogL:\n");
+	if (LOGON_LIST(ch) > 0) {
 		log("Start logon list save.");
 		struct logon_data * next_log = LOGON_LIST(ch);
 		fprintf(saved, "LogL:\n");
-			fbprintf(saved, buf1);
+		while (next_log){
 			buf1[0] = 0;
 			sprintf(buf1,"%s %ld %ld\n",next_log->ip , next_log->count, next_log->lasttime);
-		fbprintf(saved, "~\n");
+			fprintf(saved, buf1);
 			next_log = next_log->next;
 		}
-	fbprintf(saved, "LstL: %ld\n", LAST_LOGON(ch));
-	fbprintf(saved, "GdFl: %ld\n", ch->player_specials->saved.GodsLike);
-	fbprintf(saved, "NamG: %d\n", NAME_GOD(ch));
-	fbprintf(saved, "NaID: %ld\n", NAME_ID_GOD(ch));
+		fprintf(saved, "~\n");
+		log("End logon list save.");
+	}
+	fprintf(saved, "LstL: %ld\n", LAST_LOGON(ch));
 	fprintf(saved, "GdFl: %ld\n", ch->player_specials->saved.GodsLike);
 	fprintf(saved, "NamG: %d\n", NAME_GOD(ch));
-		fbprintf(saved, "ExFl: %s\n", EXCHANGE_FILTER(ch));
+	fprintf(saved, "NaID: %ld\n", NAME_ID_GOD(ch));
 //F@N|
 	if (EXCHANGE_FILTER(ch))
 		fprintf(saved, "ExFl: %s\n", EXCHANGE_FILTER(ch));
@@ -6593,44 +6593,44 @@ void new_save_char(CHAR_DATA * ch, room_rnum load_room)
 	{
 		struct ignore_data *cur = IGNORE_LIST(ch);
 		if (cur) {
-				fbprintf(saved, "Ignr: [%ld]%ld\n", cur->mode, cur->id);
+			for (; cur; cur = cur->next) {
 				if (!cur->id)
 					continue;
 				fprintf(saved, "Ignr: [%ld]%ld\n", cur->mode, cur->id);
 			}
 		}
 	}
-		fbprintf(saved, "Affs:\n");
+
 	/* affected_type */
 	if (tmp_aff[0].type > 0) {
 		fprintf(saved, "Affs:\n");
-				fbprintf(saved, "%d %d %d %d %d %s\n", aff->type, aff->duration,
+		for (i = 0; i < MAX_AFFECT; i++) {
 			aff = &tmp_aff[i];
 			if (aff->type)
-		fbprintf(saved, "0 0 0 0 0\n");
+				fprintf(saved, "%d %d %d %d %d %s\n", aff->type, aff->duration,
 					aff->modifier, aff->location, (int) aff->bitvector, spell_name(aff->type));
 		}
 		fprintf(saved, "0 0 0 0 0\n");
 	}
-		fbprintf(saved, "Prtl: %d\n", prt->vnum);
+
 	/* порталы */
 	for (prt = GET_PORTALS(ch); prt; prt = prt->next) {
 		fprintf(saved, "Prtl: %d\n", prt->vnum);
 	}
 	for (i = 0; i < NLOG; ++i) {
 		if (!GET_LOGS(ch)) {
-		fbprintf(saved, "Logs: %d %d\n", i, GET_LOGS(ch)[i]);
+			log("SYSERR: Saving NULL logs for char %s", GET_NAME(ch));
 			break;
 		}
 		fprintf(saved, "Logs: %d %d\n", i, GET_LOGS(ch)[i]);
 	}
-			fbprintf(saved, "Qst : %d\n", *(ch->Questing.quests + i));
+	/* Квесты */
 	if (ch->Questing.quests) {
 		for (i = 0; i < ch->Questing.count; i++) {
 			fprintf(saved, "Qst : %d\n", *(ch->Questing.quests + i));
 		}
 	}
-	fbclose(saved);
+
 	save_mkill(ch, saved);
 
 	fclose(saved);
