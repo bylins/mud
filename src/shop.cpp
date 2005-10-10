@@ -821,9 +821,13 @@ int sell_price(OBJ_DATA * obj, CHAR_DATA * ch, int shop_nr)
 		profit = MMAX(SHOP_SELLPROFIT(shop_nr), 1.0);
 	else
 		profit = SHOP_SELLPROFIT(shop_nr);
+	sprintf(buf, "Цена: %d", profit);
+	send_to_ch(buf, ch);
 
 	if (GET_OBJ_TIMER(obj) < GET_OBJ_TIMER(obj_proto + GET_OBJ_RNUM(obj)))	// Если у шмотки все-таки таймер меньше текущего
 		profit = (profit * (GET_OBJ_TIMER(obj)) / GET_OBJ_TIMER(obj_proto + GET_OBJ_RNUM(obj)));
+	sprintf(buf, "Цена с учетом таймера: %d", profit);
+        send_to_ch(buf, ch);
 
 	if (GET_OBJ_CUR(obj) < MMAX(1, GET_OBJ_MAX(obj)))
 		return (MMAX(1, (int) (GET_OBJ_COST(obj) * profit * GET_OBJ_CUR(obj) / MMAX(1, GET_OBJ_MAX(obj)))));
