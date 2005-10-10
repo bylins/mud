@@ -2898,8 +2898,6 @@ ACMD(do_time)
 		strcat(buf, ", осень");
 		break;
 	}
-	if(*argument == 'x')
-	    free_obj(object_list);
 	strcat(buf, ".\r\n");
 	send_to_char(buf, ch);
 	gods_day_now(ch);

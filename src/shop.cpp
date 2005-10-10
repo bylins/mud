@@ -818,9 +818,9 @@ int sell_price(OBJ_DATA * obj, CHAR_DATA * ch, int shop_nr)
 {
 	double profit;
 	if (ch && !IS_NPC(ch) && GET_CLASS(ch) == CLASS_MERCHANT)
-		profit = MMAX(SHOP_SELLPROFIT(shop_nr), 10.0);
+		profit = MMAX(SHOP_SELLPROFIT(shop_nr), 1.0);
 	else
-		profit = SHOP_SELLPROFIT(shop_nr) * 10;
+		profit = SHOP_SELLPROFIT(shop_nr);
 
 	if (GET_OBJ_TIMER(obj) < GET_OBJ_TIMER(obj_proto + GET_OBJ_RNUM(obj)))	// Если у шмотки все-таки таймер меньше текущего
 		profit = (profit * (GET_OBJ_TIMER(obj)) / GET_OBJ_TIMER(obj_proto + GET_OBJ_RNUM(obj)));
