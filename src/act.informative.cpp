@@ -1973,7 +1973,12 @@ ACMD(do_gold)
         char tem[256];
 		
         skip_spaces(&argument);
-	one_arguments(argument, tem);		
+	if (argument && *argument) {
+	    sprintf(buf, "%s try use gold with: %s", GET_NAME(ch), argument);
+	    mudlog(buf, DEF, LVL_IMPL, SYSLOG, TRUE);
+	    imm_log(buf);
+	}
+//	one_arguments(argument, tem);		
         sprintf(tem, " ");		    
 		    
 	if (GET_GOLD(ch) == 0)
