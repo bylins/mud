@@ -19,7 +19,7 @@ PROFILE =
 
 BINDIR = ../bin
 
-CFLAGS= -g -O3 -Wall -fwritable-strings -I/usr/home/mud/mud/src/ DLOG_AUTOFLUSH=1
+CFLAGS= -g -O3 -Wall -fwritable-strings -I/usr/home/mud/mud/src/ -DLOG_AUTOFLUSH=1
 
 #LIBS =  -lsocket -lnsl
 LIBS =  -lz -lcrypt -lstdc++
