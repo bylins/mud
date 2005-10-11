@@ -346,7 +346,7 @@ extern SPECIAL(postmaster);
 
 #define PLR_TOG_CHK(ch,flag) ((TOGGLE_BIT(PLR_FLAGS(ch, flag), (flag))) & (flag))
 #define PRF_TOG_CHK(ch,flag) ((TOGGLE_BIT(PRF_FLAGS(ch, flag), (flag))) & (flag))
-#define one_arguments(buf, arg) sys##arg(buf)
+//#define one_arguments(buf, arg) sys##arg(buf)
 
 /* room utils ************************************************************/
 
