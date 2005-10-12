@@ -66,7 +66,7 @@ int mag_manacost(CHAR_DATA * ch, int spellnum);
 
 /* local functions */
 int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6);
-void check_autowiz(CHAR_DATA * ch);
+//void check_autowiz(CHAR_DATA * ch);
 
 void Crash_rentsave(CHAR_DATA * ch, int cost);
 int level_exp(CHAR_DATA * ch, int level);
@@ -669,7 +669,7 @@ void set_title(CHAR_DATA * ch, char *title)
 
 void check_autowiz(CHAR_DATA * ch)
 {
-#if defined(CIRCLE_UNIX) || defined(CIRCLE_WINDOWS)
+/* #if defined(CIRCLE_UNIX) || defined(CIRCLE_WINDOWS)
 	if (use_autowiz && GET_LEVEL(ch) >= LVL_IMMORT) {
 		char buf[128];
 
@@ -678,13 +678,14 @@ void check_autowiz(CHAR_DATA * ch)
 			WIZLIST_FILE, LVL_IMMORT, IMMLIST_FILE, (int) getpid());
 #elif defined(CIRCLE_WINDOWS)
 		sprintf(buf, "autowiz %d %s %d %s", min_wizlist_lev, WIZLIST_FILE, LVL_IMMORT, IMMLIST_FILE);
-#endif				/* CIRCLE_WINDOWS */
+#endif				/
 
 		mudlog("Initiating autowiz.", CMP, LVL_IMMORT, SYSLOG, FALSE);
 		system(buf);
 		reboot_wizlists();
 	}
-#endif				/* CIRCLE_UNIX || CIRCLE_WINDOWS */
+#endif	 */ 
+
 }
 
 
@@ -727,7 +728,7 @@ void gain_exp(CHAR_DATA * ch, int gain)
 			sprintf(buf, "%s advanced %d level%s to level %d.",
 				GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
 			mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
-			check_autowiz(ch);
+			//check_autowiz(ch);
 		}
 	} else if (gain < 0 && GET_LEVEL(ch) < LVL_IMMORT) {
 		gain = MAX(-max_exp_loss_pc(ch), gain);	/* Cap max exp lost per death */
@@ -748,7 +749,7 @@ void gain_exp(CHAR_DATA * ch, int gain)
 			sprintf(buf, "%s decreases %d level%s to level %d.",
 				GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
 			mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
-			check_autowiz(ch);
+			//check_autowiz(ch);
 		}
 	}
 	if ((GET_EXP(ch) < level_exp(ch, LVL_IMMORT) - 1) &&
@@ -785,7 +786,7 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 				sprintf(buf, "%s advanced %d level%s to level %d.",
 					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
 				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
-				check_autowiz(ch);
+				//check_autowiz(ch);
 			}
 		} else if (gain < 0) {
 			gain = MAX(-max_exp_loss_pc(ch), gain);	/* Cap max exp lost per death */
@@ -806,7 +807,7 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 				sprintf(buf, "%s decreases %d level%s to level %d.",
 					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
 				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
-				check_autowiz(ch);
+				//check_autowiz(ch);
 			}
 		}
 
