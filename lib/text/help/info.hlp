@@ -1732,7 +1732,7 @@ http://www.randomly.org/projects/MCCP/
 
 После чего можно запускать mcclient.exe
 Подключаться к МАД-серверу следует так:
-#connect localhost 4000 (для JMC)
+ #connect localhost 4000 (для JMC)
 
 Клиенты которые сами поддерживают MCCP:
  mmc
