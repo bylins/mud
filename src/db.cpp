@@ -5335,7 +5335,8 @@ void free_char(CHAR_DATA * ch)
 		while (LOGON_LIST(ch)) {
 			struct logon_data *log_next;
 			log_next = LOGON_LIST(ch)->next;
-			delete LOGON_LIST(ch);
+			free LOGON_LIST(ch)->ip;
+			delete LOGON_LIST(ch);			
 			LOGON_LIST(ch) = log_next;
 		}
 		LOGON_LIST(ch) = NULL;
