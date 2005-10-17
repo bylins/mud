@@ -395,8 +395,6 @@ ASPELL(spell_portal)
 			return;
 		}
 	} 
-
-	
 	if (IS_NPC(victim) && !GET_COMMSTATE(ch)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;

@@ -4447,7 +4447,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 			if (!strcmp (tag, "Kin "))
 			    GET_KIN (ch) = num;
     			else if (!strcmp(tag, "Karm")) 
-		           KARMA(ch) = fbgetstring(fl);
+			    KARMA(ch) = fbgetstring(fl);
 			break;
 		case 'L':
 			if (!strcmp(tag, "LstL"))
@@ -4557,47 +4557,47 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 		// Loads Here new punishment strings  
 			else if (!strcmp(tag, "PMut"))
 			{
-				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf1[0]);
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
 				MUTE_DURATION(ch)=lnum;
 				GET_MUTE_LEV(ch)= num2;
 				MUTE_GODID(ch)=lnum3;
-				MUTE_REASON(ch)=str_dup(buf1);
+				MUTE_REASON(ch)=str_dup(buf);
 			}
 			else if (!strcmp(tag, "PHel"))
 			{
-				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf1[0]);
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
 				HELL_DURATION(ch)=lnum;
 				GET_HELL_LEV(ch)= num2;
 				HELL_GODID(ch)=lnum3;
-				HELL_REASON(ch)=str_dup(buf1);
+				HELL_REASON(ch)=str_dup(buf);
 			}
 			else if (!strcmp(tag, "PDum"))
 			{
-				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf1[0]);
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
 				DUMB_DURATION(ch)=lnum;
 				GET_DUMB_LEV(ch)= num2;
 				DUMB_GODID(ch)=lnum3;
-				DUMB_REASON(ch)=str_dup(buf1);
+				DUMB_REASON(ch)=str_dup(buf);
 			}
 			else if (!strcmp(tag, "PNam"))
 			{
-				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf1[0]);
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
 				NAME_DURATION(ch)=lnum;
 				GET_NAME_LEV(ch)= num2;
 				NAME_GODID(ch)=lnum3;
-				NAME_REASON(ch)=str_dup(buf1);
+				NAME_REASON(ch)=str_dup(buf);
 			}
 			else if (!strcmp(tag, "PFrz"))
 			{
-				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf1[0]);
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
 				FREEZE_DURATION(ch)=lnum;
 				GET_FREEZE_LEV(ch)= num2;
 				FREEZE_GODID(ch)=lnum3;
-				FREEZE_REASON(ch)=str_dup(buf1);
+				FREEZE_REASON(ch)=str_dup(buf);
 			}
 			else if (!strcmp(tag, "PGcs"))
 			{
-				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf1[0]);
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
 				GCURSE_DURATION(ch)=lnum;
 				GET_GCURSE_LEV(ch)= num2;
 				GCURSE_GODID(ch)=lnum3;
@@ -4605,11 +4605,11 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 			}
 			else if (!strcmp(tag, "PUnr"))
 			{
-				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf1[0]);
+				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
 				UNREG_DURATION(ch)=lnum;
 				GET_UNREG_LEV(ch)= num2;
 				UNREG_GODID(ch)=lnum3;
-				UNREG_REASON(ch)=str_dup(buf1);
+				UNREG_REASON(ch)=str_dup(buf);
 			}
 
 			break;
@@ -5195,8 +5195,6 @@ void free_char(CHAR_DATA * ch)
 	struct alias_data *a;
 	struct helper_data_type *temp;
 
-	i = 1; j = 2; id = 10;
-	return;
 	log("[FREE CHAR] (%s) Start", GET_NAME(ch));
 
 	if (!IS_NPC(ch)) {
@@ -5335,8 +5333,9 @@ void free_char(CHAR_DATA * ch)
 		while (LOGON_LIST(ch)) {
 			struct logon_data *log_next;
 			log_next = LOGON_LIST(ch)->next;
-			free(ch->player_specials->logons->ip);
-			delete LOGON_LIST(ch);			
+//			free(LOGON_LIST(ch));
+                        free(ch->player_specials->logons->ip);
+                        delete LOGON_LIST(ch);
 			LOGON_LIST(ch) = log_next;
 		}
 		LOGON_LIST(ch) = NULL;
@@ -5359,8 +5358,7 @@ void free_obj(OBJ_DATA * obj)
 {
 	int nr, i;
 	EXTRA_DESCR_DATA *thisd, *next_one, *tmp, *tmp_next;
-	nr = 10; i = 11;
-	return;
+
 	if ((nr = GET_OBJ_RNUM(obj)) == -1) {
 		if (obj->name)
 			free(obj->name);
@@ -6565,21 +6563,25 @@ void new_save_char(CHAR_DATA * ch, room_rnum load_room)
 	if (UNREG_DURATION(ch) > 0) 
 		fprintf(saved, "PUnr: %ld %d %ld %s~\n", UNREG_DURATION(ch), GET_UNREG_LEV(ch), UNREG_GODID(ch), UNREG_REASON(ch));
 
-	if (KARMA(ch) > 0) {
-		fprintf(saved, "Karm:\n%s~\n", KARMA(ch));
-	}
 
+	if (KARMA(ch) > 0) {
+		strcpy(buf, KARMA(ch));
+		kill_ems(buf);
+		fprintf(saved, "Karm:\n%s~\n", buf);
+	}
 	if (LOGON_LIST(ch) > 0) {
 		log("Start logon list save.");
 		struct logon_data * next_log = LOGON_LIST(ch);
-		fprintf(saved, "LogL:\n");
-		while (next_log){
+		buf[0] = 0;
+		while (next_log)
+		{
 			buf1[0] = 0;
 			sprintf(buf1,"%s %ld %ld\n",next_log->ip , next_log->count, next_log->lasttime);
-			fprintf(saved, buf1);
+			sprintf(buf,"%s%s",buf,buf1);
 			next_log = next_log->next;
 		}
-		fprintf(saved, "~\n");
+		fprintf(saved, "LogL:\n%s~\n",buf);
+		log("Saved: %s",buf);
 		log("End logon list save.");
 	}
 	fprintf(saved, "LstL: %ld\n", LAST_LOGON(ch));
@@ -6871,3 +6873,5 @@ void room_free(ROOM_DATA * room)
 	}
 	room->affected = NULL;
 }
+
+

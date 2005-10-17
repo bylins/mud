@@ -493,38 +493,12 @@ const char *BanList::ban_types[] = {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-
-bool BanList::wildcard_compare(std::string str1, std::string str2)
-{
-  string wildcard = "*";
-  typedef boost::tokenizer < boost::char_separator < char > >tokenizer;
-  boost::char_separator < char >sep(".");
-	
-  tokenizer ip1(str1, sep);
-  tokenizer::iterator ip1_seg = ip1.begin();
-
-  tokenizer ip2(str2, sep);
-  tokenizer::iterator ip2_seg = ip2.begin();
-
-  for(int i = 0; i <4; i++){
-    if (ip1_seg == ip1.end() || ip2_seg == ip2.end()  )
-	return false;
-    if (*ip1_seg != wildcard 
-      && *ip2_seg != wildcard
-      && *ip1_seg != *ip2_seg )
-      return false;
-    ++ip1_seg;
-    ++ip2_seg;
-  }
-  return true;
-}
-
 bool BanList::ban_compare(BanNodePtr nodePtr, int mode, const void *op2)
 {
 	switch (mode) {
 	case BAN_IP_COMPARE:
-    if (wildcard_compare(nodePtr->BannedIp, *(std::string *) op2))
-      return true;
+		if (nodePtr->BannedIp == *(std::string *) op2)
+			return true;
 		break;
 	case BAN_TIME_COMPARE:
 		if (nodePtr->BanDate == *(long *) op2)
@@ -540,11 +514,12 @@ bool BanList::proxy_ban_compare(ProxyBanNodePtr nodePtr, int mode, const void *o
 {
 	switch (mode) {
 	case BAN_IP_COMPARE:
-    if (wildcard_compare(nodePtr->BannedIp, *(std::string *) op2))
-      return true;
+		if (nodePtr->BannedIp == *(std::string *) op2)
+			return true;
 		break;
 	default:;
 	}
+
 	return false;
 }
 
@@ -1107,9 +1082,9 @@ void BanList::disconnectBannedIp(std::string Ip)
 	DESCRIPTOR_DATA *d;
 
 	for (d = descriptor_list; d; d = d->next) {
-    if (wildcard_compare(d->host,Ip)) {
+		if (d->host == Ip) {
 			if (STATE(d) == CON_DISCONNECT || STATE(d) == CON_CLOSE)
-				continue;
+				return;
 			//send_to_char will crash, it char has not been loaded/created yet.
 			SEND_TO_Q("Your IP has been banned, disconnecting...\r\n", d);
 			if (STATE(d) == CON_PLAYING)

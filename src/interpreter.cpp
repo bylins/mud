@@ -211,6 +211,7 @@ ACMD(do_hit);
 ACMD(do_house);
 ACMD(do_hchannel);
 ACMD(do_info);
+ACMD(do_index);
 ACMD(do_insult);
 ACMD(do_inventory);
 ACMD(do_invis);
@@ -630,7 +631,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	 -1},
 	{"передать", POS_STANDING, do_givehorse, 0, 0, -1},
 	{"перевести", POS_STANDING, do_not_here, 1, 0, -1},
-//	{"послать", POS_DEAD, do_email, LVL_IMPL, 0, 0},
+	{"послать", POS_DEAD, do_email, LVL_IMPL, 0, 0},
 	{"перевоплотитьс", POS_STANDING, do_remort, 0, 0, -1},
 	{"перевоплотиться", POS_STANDING, do_remort, 0, 1, -1},
 	{"перелить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
@@ -673,7 +674,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"разбудить", POS_RESTING, do_wake, 0, SCMD_WAKEUP, -1},
 	{"разгруппировать", POS_DEAD, do_ungroup, 0, 0, 500},
 	{"разделить", POS_RESTING, do_split, 1, 0, 500},
-	{"разделы", POS_RESTING, do_help, 1, 0, 500},
+	{"разделы", POS_RESTING, do_index, 1, 0, 500},
 	{"разжечь", POS_STANDING, do_fire, 0, 0, -1},
 	{"распустить", POS_DEAD, do_ungroup, 0, 0, 500},
 	{"рассмотреть", POS_STANDING, do_not_here, 0, 0, -1},
@@ -797,7 +798,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"devour", POS_RESTING, do_eat, 0, SCMD_DEVOUR, 300},
 	{"echo", POS_SLEEPING, do_echo, LVL_IMMORT, SCMD_ECHO, 0},
 	{"emote", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},
-//	{"email", POS_DEAD, do_email, LVL_IMPL, 0, 0},
+	{"email", POS_DEAD, do_email, LVL_IMPL, 0, 0},
 	{"enter", POS_STANDING, do_enter, 0, 0, -2},
 	{"equipment", POS_SLEEPING, do_equipment, 0, 0, 0},
 	{"examine", POS_RESTING, do_examine, 0, 0, 500},
@@ -836,7 +837,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"idea", POS_DEAD, do_gen_write, 0, SCMD_IDEA, 0},
 	{"ignore", POS_DEAD, do_ignore, 0, 0, 0},
 	{"immlist", POS_DEAD, do_gen_ps, 0, SCMD_IMMLIST, 0},
-	{"index", POS_RESTING, do_help, 1, 0, 500},
+	{"index", POS_RESTING, do_index, 1, 0, 500},
 	{"info", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
 	{"insert", POS_STANDING, do_insertgem, 0, SKILL_INSERTGEM, -1},
 	{"insult", POS_RESTING, do_insult, 0, 0, -1},

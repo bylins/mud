@@ -39,7 +39,7 @@ void calc_easter(void);
 void calc_god_celebrate(void);
 
 
-int EasterMonth = 1;
+int EasterMonth = 0;
 int EasterDay = 0;
 int CurrentMonoCelebrate = 0;
 int CurrentPolyCelebrate = 0;

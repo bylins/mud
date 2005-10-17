@@ -36,9 +36,9 @@ extern TIME_INFO_DATA time_info;
 /* local functions */
 void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg);
 int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict);
-static char remember_pray[MAX_REMEMBER_PRAY][MAX_STRING_LENGTH];
+static char remember_pray[MAX_REMEMBER_PRAY][MAX_INPUT_LENGTH];
 static int num_pray = 0;
-static char remember_gossip[MAX_REMEMBER_GOSSIP][MAX_STRING_LENGTH];
+static char remember_gossip[MAX_REMEMBER_GOSSIP][MAX_INPUT_LENGTH];
 static int num_gossip = 0;
 
 /* external functions */
