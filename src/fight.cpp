@@ -143,11 +143,11 @@ void check_berserk(CHAR_DATA * ch)
 		timed.time = 6;
 		timed_to_char(ch, &timed);
 
-		af[0].type = SPELL_BERSERK;
-		af[0].duration = pc_duration(ch, 1, MAX(0, GET_SKILL(ch, SKILL_BERSERK)-40), 30, 0, 0);
-		af[0].modifier = 0;
-		af[0].location = APPLY_NONE;
-		af[0].battleflag = 0;
+		af.type = SPELL_BERSERK;
+		af.duration = pc_duration(ch, 1, MAX(0, GET_SKILL(ch, SKILL_BERSERK)-40), 30, 0, 0);
+		af.modifier = 0;
+		af.location = APPLY_NONE;
+		af.battleflag = 0;
 
 		// Я знаю, очень-очень криво. Но надо было сделать расскачку скила
 		// более частой, чем если бы только когда скил успешно прошел.
@@ -158,11 +158,11 @@ void check_berserk(CHAR_DATA * ch)
 		if (calculate_skill(ch, SKILL_BERSERK, skill_info[SKILL_BERSERK].max_percent, 0) >= 
 		    number(1, skill_info[SKILL_BERSERK].max_percent) ||
 		    number(1, 20) >= 10 + MAX(0, (GET_LEVEL(ch) - 14 - GET_REMORT(ch)) / 2)) {
-			af[0].bitvector = AFF_BERSERK;
+			af.bitvector = AFF_BERSERK;
 			act("Вас обуяла предсмертная ярость!", FALSE, ch, 0, 0, TO_CHAR);
 			act("$n0 исступленно взвыл$g и бросил$u на противника!.", FALSE, ch, 0, 0, TO_ROOM);
 		} else {
-			af[0].bitvector = 0;
+			af.bitvector = 0;
 			act("Вы истошно завопили, пытась напугать противника. Без толку.", FALSE, ch, 0, 0, TO_CHAR);
 			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", FALSE, ch, 0, 0, TO_ROOM);
 		}
