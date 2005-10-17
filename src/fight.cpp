@@ -167,6 +167,7 @@ void check_berserk(CHAR_DATA * ch)
 			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", FALSE, ch, 0, 0, TO_ROOM);
 		}
 		affect_join(ch, &af, TRUE, FALSE, TRUE, FALSE);
+	}	
 }
 
 void go_autoassist(CHAR_DATA * ch)
