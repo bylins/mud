@@ -20,7 +20,6 @@
 #include <boost/mem_fn.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/tokenizer.hpp>
-
 #include "diskio.h"
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -141,7 +140,6 @@ class BanList {
 	 current_proxy_sort_algorithm;
 	bool ban_compare(BanNodePtr nodePtr, int mode, const void *op2);
 	bool proxy_ban_compare(ProxyBanNodePtr nodePtr, int mode, const void *op2);
-  bool wildcard_compare(std::string str1, std::string str1);
 	bool ban_sort_func(const BanNodePtr & lft, const BanNodePtr & rght, int sort_algorithm);
 	bool proxy_ban_sort_func(const ProxyBanNodePtr & lft, const ProxyBanNodePtr & rght, int sort_algorithm);
 };
