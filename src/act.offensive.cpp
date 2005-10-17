@@ -1569,8 +1569,8 @@ void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim)
 		SET_AF_BATTLE(ch, EAF_STUPOR);
 		hit(ch, victim, TYPE_NOPARRY, 1);
 		set_wait(ch, 2, TRUE);
-	} else if ((FIGHTING(victim) != ch) && (FIGHTING(ch) != victim))
-		act("$N не сражается с Вами, не трогайте $S.", FALSE, ch, 0, victim, TO_CHAR);
+	} /* else if ((FIGHTING(victim) != ch) && (FIGHTING(ch) != victim))
+		act("$N не сражается с Вами, не трогайте $S.", FALSE, ch, 0, victim, TO_CHAR); */
 	else {
 		act("Вы попытаетесь оглушить $N3.", FALSE, ch, 0, victim, TO_CHAR);
 		if (FIGHTING(ch) != victim) {
