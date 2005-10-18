@@ -2992,7 +2992,7 @@ ACMD(do_weather)
 	}
 }
 
-
+/* отключено в виду расширения возможностей обычной команды "справка".
 ACMD(do_index)
 {
 	int i;
@@ -3013,8 +3013,8 @@ ACMD(do_index)
 
 	minlen = strlen(argument);
 
-	/* Персонажам с флагом gf_demigod позволяется
-	   читать справку до уровня LVL_IMMORT включительно  */
+	// Персонажам с флагом gf_demigod позволяется
+	// читать справку до уровня LVL_IMMORT включительно
 	if (GET_GOD_FLAG(ch, GF_DEMIGOD))
 		trust_level = LVL_IMMORT;
 	else
@@ -3038,59 +3038,84 @@ ACMD(do_index)
 	if (ch->desc)
 		page_string(ch->desc, buf, 1);
 
-}
+}*/
 
 ACMD(do_help)
 {
-	int chk, bot, top, mid, minlen, strong = FALSE;
-	int topic_num = 0;	// для организации поиска раздела с указанием индекса
-	int trust_level = 0;
+	int bin_search_direct  = 0; // будет показывать направление для бинарного поиска
+	int bin_search_bottom  = 0; // нижняя граница бинарного поиска
+	int bin_search_top  = 0; // верхняя граница бинарного оиска
+	int mid  = 0; // середина списка
+		
+	int minlen  = 0; // длинна аргумента
+	int strong  = 0; // строгий поиск
+	int topic_num  = 0; // индекс раздела, указываемый в кач-ве аргумента
+	int trust_level = 0; // для запрета юзания справки определенными левелами
+	int topic_count = 0; // кол-во найденных топиков ( >1 -- выводится список ключ. слов)
+	int topic_need = 0;  // ссылка на нужный топик
+
+	char *space_pos; // указатель на пробел в строке
 
 	if (!ch->desc)
 		return;
 
 	skip_spaces(&argument);
 
+	/* печатаем экран справки если нет аргументов */
 	if (!*argument) {
 		page_string(ch->desc, help, 0);
 		return;
 	}
+	
+	/*залочка на случай крешей и прочих багов */	
+//        send_to_char("Справка временно недоступна.\r\n", ch);
+//        return;
+
+	/* если таблица справки пуста */
 	if (!help_table) {
 		send_to_char("Помощь недоступна.\r\n", ch);
 		return;
 	}
 
-	sprintf(buf, "%s uses command HELP: %s", GET_NAME(ch), argument);
-	mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
+	/* подготовка к бинарному поиску */
+	bin_search_bottom = 0;
+	bin_search_top = top_of_helpt;
 
-	bot = 0;
-	top = top_of_helpt;
-
-	/* Персонажам с флагом gf_demigod позволяется
-	   читать справку до уровня LVL_IMMORT включительно  */
+	/* trust_level справки для демигодов - LVL_IMMORT */
 	if (GET_GOD_FLAG(ch, GF_DEMIGOD))
 		trust_level = LVL_IMMORT;
 	else
 		trust_level = GET_LEVEL(ch);;
 
-	sscanf(argument, "%d.%s", &topic_num, argument);	// включаем возможность индексации топика
+	/* Получаем topic_num для индексации топика*/
+	sscanf(argument, "%d.%s", &topic_num, argument);
 
+	/* Обрезаем пробелы */
+	if ((space_pos = strchr(argument, ' ')))
+		*(space_pos)='\0';
+	
+	/* если последний символ аргумента '!' -- включаем строгий поиск */
 	if (strlen(argument) > 1 && *(argument + strlen(argument) - 1) == '!') {
 		strong = TRUE;
 		*(argument + strlen(argument) - 1) = '\0';
 	}
-	minlen = strlen(argument);
-	for (;;) {
-		mid = (bot + top) / 2;
 
-		if (bot > top) {
-			send_to_char("Нет справки по выбранной теме.\r\n", ch);
-			sprintf(buf, "%s не нашел справку по команде: %s.", GET_NAME(ch), argument);
-			mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
+	/* длинна строкового аргумента */
+	minlen = strlen(argument);
+
+	/* бинарный поиск начинается*/	
+	for (;;) {
+		mid = (bin_search_bottom + bin_search_top) / 2;
+		if (bin_search_bottom > bin_search_top) {
+			// НЕ НАЙДЕНО
+			sprintf(buf1, "%s uses command HELP: %s (not found)", GET_NAME(ch), argument);
+			mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
+			sprintf(buf, "&WПо Вашему запросу '&w%s&W' ничего не было найдено.&n\r\n", argument);
+			sprintf(buf + strlen(buf), "\r\n\r\n&cИнформация:&n\r\nЕсли применять команду \"справка\" без параметров, будут отображены основные команды,\r\nособенно необходимые новичкам. Кроме того полезно ознакомиться с разделом &CНОВИЧОК&n.\r\n\r\nСправочная система позволяет использовать в запросе индексацию разделов и использовать строгий поиск.\r\n\r\n&cПримеры:&n\r\n\t\"справка 3.защита\"\r\n\t\"справка 4.защита\"\r\n\t\"справка защитаоттьмы\"\r\n\t\"справка защита!\"\r\n\t\"справка 3.защита!\"\r\n\r\nСм. также: &CИСПОЛЬЗОВАНИЕСПРАВКИ&n\r\n");
+			send_to_char(buf, ch);
 			return;
-		} else if (!(chk = strn_cmp(argument, help_table[mid].keyword, minlen)) &&
-			   trust_level >= help_table[mid].min_level) {
-			/* Находим начальный раздел, соответствующий нашему шаблону */
+		} else if (!(bin_search_direct = strn_cmp(argument, help_table[mid].keyword, minlen))) {
+			// перемещаемся на 1ый подпадающий под аргумент топик справки
 			while (mid > 0) {
 				if (!strn_cmp(argument, help_table[mid - 1].keyword, minlen))
 					mid--;
@@ -3098,42 +3123,61 @@ ACMD(do_help)
 					break;
 			}
 
-			/* Если найденный топик не для нашего уровня - ищем следующий подходящий */
-			while (trust_level < help_table[mid].min_level)
-				mid++;
-
-			if (strong) {	/* если поиск с указанной длинной строки */
-				while (mid < top
-				       && trust_level > help_table[mid + 1].min_level
-				       && !strn_cmp(argument, help_table[mid + 1].keyword, minlen)
-				       && *(help_table[mid].keyword + minlen)) {
-					mid++;
-				}
-			} else {
-				/* если мы указали индекс раздела */
-				while (topic_num > 1) {
-					if (!strn_cmp(argument, help_table[mid + 1].keyword, minlen)) {
-						if (trust_level >= help_table[mid + 1].min_level)
-							topic_num--;
+			// Перемещаемся по списку слов подпадающих под условие, если левел позволяет,
+			// записываем их в список + увеличиваем счетчик.
+			sprintf(buf, "&WПо Вашему запросу '&w%s&W' найдены следующие разделы справки:&n\r\n\r\n", argument);
+			while (help_table[mid].keyword != NULL && !strn_cmp(argument, help_table[mid].keyword, minlen)) {
+				if (trust_level >= help_table[mid].min_level) {
+					// строгий поиск
+					if (strong && *(help_table[mid].keyword + minlen)) {
 						mid++;
-					} else
-						topic_num = 0;
+						continue;
+					}
+					// если будет найден лишь 1 топик
+					if (!topic_need)
+						topic_need = mid;
+					// если используется индексация
+					topic_count++;
+					if (topic_num > 1) {
+						topic_num --;
+					} else if (topic_num == 1) {
+						topic_count = 1;
+						topic_need = mid;
+						break;
+					}
+					// разбивка по 3 слова в столбик
+					sprintf(buf + strlen(buf), "|&C%-23.23s &n|", help_table[mid].keyword);
+					if ((topic_count % 3) == 0)
+						strcat(buf, "\r\n");
 				}
-				while (trust_level < help_table[mid].min_level)
-					mid--;
+				mid++;
 			}
-
-			page_string(ch->desc, help_table[mid].entry, 0);
-			return;
+			sprintf(buf + strlen(buf), "\r\n\r\nДля получения справки по интересующему разделу, введите его название полностью,\r\nлибо воспользуйтесь индексацией или строгим поиском.\r\n\r\n&cПримеры:&n\r\n\t\"справка 3.защита\"\r\n\t\"справка 4.защита\"\r\n\t\"справка защитаоттьмы\"\r\n\t\"справка защита!\"\r\n\t\"справка 3.защита!\"\r\n\r\nСм. также: &CИСПОЛЬЗОВАНИЕСПРАВКИ&n\r\n");
+			mid--;
+			if (topic_count > 1) {
+				sprintf(buf1, "%s uses command HELP: %s (list)", GET_NAME(ch), argument);
+				mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
+				page_string(ch->desc, buf, 1);
+				return;
+			} else if (topic_count == 1) {
+				sprintf(buf1, "%s uses command HELP: %s (read)", GET_NAME(ch), argument);
+				mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
+				page_string(ch->desc, help_table[topic_need].entry, 0);
+				return;
+			} else {
+				bin_search_top = 0;
+			}
 		} else {
-			if (chk > 0)
-				bot = mid + 1;
+			// Перед следующей итерацией поиска
+			if (bin_search_direct > 0)
+				bin_search_bottom = mid + 1;
 			else
-				top = mid - 1;
+				bin_search_top = mid - 1;
 		}
+	
 	}
-}
 
+}
 
 #define IMM_WHO_FORMAT \
 "Формат: кто [минуров[-максуров]] [-n имя] [-c профлист] [-s] [-r] [-z] [-h] [-b|-и]\r\n"
