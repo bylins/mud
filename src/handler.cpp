@@ -28,6 +28,7 @@
 #include "screen.h"
 #include "dg_scripts.h"
 #include "auction.h"
+#include "features.hpp"
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
 int max_stats2[][6] =
@@ -589,6 +590,14 @@ void affect_total(CHAR_DATA * ch)
 		}
 	}
 
+	/* move features modifiers - added by Gorrah */
+	for (i = 1; i < MAX_FEATS; i++) {
+		if (can_use_feat(ch, i) && (feat_info[i].type == AFFECT_FTYPE))
+			for (j = 0; j < MAX_FEAT_AFFECT; j++)
+				affect_modify(ch, feat_info[i].affected[j].location,
+								feat_info[i].affected[j].modifier, 0, TRUE);
+	}
+
 	/* move affect modifiers */
 	for (af = ch->affected; af; af = af->next)
 		affect_modify(ch, af->location, af->modifier, af->bitvector, TRUE);
@@ -597,11 +606,11 @@ void affect_total(CHAR_DATA * ch)
 	if (!IS_NPC(ch)) {
 		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < NUM_CLASSES) {
 			extra_affect = class_app[(int) GET_CLASS(ch)].extra_affects;
-			extra_modifier = class_app[(int) GET_CLASS(ch)].extra_modifiers;
+			//extra_modifier = class_app[(int) GET_CLASS(ch)].extra_modifiers;
 
-			for (i = 0; extra_affect && (extra_affect + i)->affect != -1; i++)
+			/* for (i = 0; extra_affect && (extra_affect + i)->affect != -1; i++)
 				affect_modify(ch, APPLY_NONE, 0, (extra_affect + i)->affect,
-					      (extra_affect + i)->set_or_clear);
+					      (extra_affect + i)->set_or_clear); */
 			for (i = 0; extra_modifier && (extra_modifier + i)->location != -1; i++)
 				affect_modify(ch, (extra_modifier + i)->location,
 					      (extra_modifier + i)->modifier, 0, TRUE);
@@ -692,6 +701,7 @@ void affect_total(CHAR_DATA * ch)
 			CHECK_AGRO(ch) = TRUE;
 	}
 
+	check_berserk(ch);
 	if (FIGHTING(ch)) {
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_HIDE), AFF_HIDE);
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_SNEAK), AFF_SNEAK);
@@ -776,6 +786,8 @@ void affect_remove(CHAR_DATA * ch, AFFECT_DATA * af)
 		GET_DRUNK_STATE(ch) = GET_COND(ch, DRUNK) = MIN(GET_COND(ch, DRUNK), CHAR_DRUNKED - 1);
 	} else if (af->type == SPELL_DRUNKED) {
 		duration = pc_duration(ch, 3, MAX(0, GET_DRUNK_STATE(ch) - CHAR_DRUNKED), 0, 0, 0);
+		if (can_use_feat(ch, DRUNKARD_FEAT))
+			duration /= 2;
 		if (af->location == APPLY_AC) {
 			af->type = SPELL_ABSTINENT;
 			af->duration = duration;
@@ -982,6 +994,43 @@ void affect_join(CHAR_DATA * ch, AFFECT_DATA * af, bool add_dur, bool avg_dur, b
 		affect_to_char(ch, af);
 	}
 }
+
+/* Обработка тикающих способностей - added by Gorrah */
+void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed)
+{
+	struct timed_type *timed_alloc;
+
+	CREATE(timed_alloc, struct timed_type, 1);
+
+	*timed_alloc = *timed;
+	timed_alloc->next = ch->timed_feat;
+	ch->timed_feat = timed_alloc;
+}
+
+void timed_feat_from_char(CHAR_DATA * ch, struct timed_type *timed)
+{
+	struct timed_type *temp;
+
+	if (ch->timed_feat == NULL) {
+		log("SYSERR: timed_feat_from_char(%s) when no timed...", GET_NAME(ch));
+		return;
+	}
+
+	REMOVE_FROM_LIST(timed, ch->timed_feat, next);
+	free(timed);
+}
+
+int timed_by_feat(CHAR_DATA * ch, int feat)
+{
+	struct timed_type *hjp;
+
+	for (hjp = ch->timed_feat; hjp; hjp = hjp->next)
+		if (hjp->skill == feat)
+			return (hjp->time);
+
+	return (0);
+}
+/* End of changes */
 
 /* Insert an timed_type in a char_data structure */
 void timed_to_char(CHAR_DATA * ch, struct timed_type *timed)

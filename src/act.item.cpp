@@ -29,6 +29,7 @@
 #include "house.h"
 #include "magic.h"
 #include "fight.h"
+#include "features.hpp"
 
 /* extern variables */
 extern room_rnum donation_room_1;
@@ -1408,7 +1409,7 @@ ACMD(do_drunkoff)
 	}
 
 	timed.skill = SKILL_DRUNKOFF;
-	timed.time = 12;
+	timed.time = can_use_feat(ch, DRUNKARD_FEAT) ? feature_mod(DRUNKARD_FEAT, FEAT_TIMER) : 12;
 	timed_to_char(ch, &timed);
 
 	amount = MAX(1, GET_WEIGHT(ch) / 50);
@@ -2560,7 +2561,8 @@ ACMD(do_firstaid)
 	success = (prob >= percent);
 	need = FALSE;
 
-	if (GET_REAL_MAX_HIT(vict) && (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31) {
+	if ((GET_REAL_MAX_HIT(vict) && (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31)
+									|| can_use_feat(ch, HEALER_FEAT)) {
 		need = TRUE;
 		if (success) {
 			int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);

@@ -529,6 +529,7 @@ void mspell_slot (char *name ,int spell, int kin ,int chclass, int slot);
 void mspell_change(char *name, int spell, int kin, int chclass, int modifier);
 int general_savingthrow(CHAR_DATA * ch, int type, int ext_apply, int use);
 void init_spell_levels(void);
+const char *feat_name(int num);
 const char *skill_name(int num);
 const char *spell_name(int num);
 

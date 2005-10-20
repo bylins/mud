@@ -26,6 +26,7 @@
 #include "spells.h"
 #include "skills.h"
 #include "im.h"
+#include "features.hpp"
 
 void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg);
 void trig_data_free(TRIG_DATA * this_data);
@@ -444,6 +445,25 @@ void assign_triggers(void *i, int type)
 	}
 }
 
+void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff)
+{
+	if (HAVE_FEAT(ch, featnum)) {
+		if (featdiff)
+			return;
+		else {
+			sprintf(buf, "Вы утратили способность '%s'.\r\n", feat_info[featnum].name);
+			send_to_char(buf, ch);
+			UNSET_FEAT(ch, featnum);
+		}
+	} else {
+		if (featdiff) {
+			sprintf(buf, "Вы обрели способность '%s'.\r\n", feat_info[featnum].name);
+			send_to_char(buf, ch);
+		if (feat_info[featnum].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+			SET_FEAT(ch, featnum);
+		};
+	}
+}
 
 void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff)
 {

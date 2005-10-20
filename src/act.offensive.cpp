@@ -27,6 +27,7 @@
 #include "spells.h"
 #include "skills.h"
 #include "pk.h"
+#include "features.hpp"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -2008,6 +2009,8 @@ ACMD(do_turn_undead)
 
 	timed.skill = SKILL_TURN_UNDEAD;
 	timed.time = IS_PALADINE(ch) ? 6 : 8;
+	if (can_use_feat(ch, EXORCIST_FEAT))
+		timed.time -= 2;
 	timed_to_char(ch, &timed); 
 
 	send_to_char (ch, "Вы свели руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n");
@@ -2059,7 +2062,8 @@ ACMD(do_turn_undead)
 			(dice(1, GET_SAVE(ch_vict, SAVING_STABILITY) - con_app[GET_REAL_CON(ch_vict)].affect_saving) > 
 				dice(1, GET_REAL_WIS(ch)))) {
 			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);				
-			send_to_char (ch, "Ваши потуги оказались напрасными.\r\n");
+			damage(ch, ch_vict, 0, SKILL_TURN_UNDEAD + TYPE_HIT, TRUE);
+			//send_to_char (ch, "Ваши потуги оказались напрасными.\r\n");
 			continue;
 		} 
 		sum -= GET_LEVEL(ch_vict);

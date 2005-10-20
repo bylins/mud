@@ -23,6 +23,7 @@
 #include "screen.h"
 #include "house.h"
 #include "constants.h"
+#include "features.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -63,6 +64,7 @@ OBJ_DATA *get_object_in_equip(CHAR_DATA * ch, char *name);
 void extract_trigger(TRIG_DATA * trig);
 int eval_lhs_op_rhs(char *expr, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type);
 char *skill_percent(CHAR_DATA * ch, char *skill);
+bool feat_owner(CHAR_DATA * ch, char *feat);
 char *spell_count(CHAR_DATA * ch, char *spell);
 char *spell_knowledge(CHAR_DATA * ch, char *spell);
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
@@ -1397,6 +1399,7 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 	char *purge[] = { "mpurge", "opurge", "wpurge" };
 	char *teleport[] = { "mteleport", "oteleport", "wteleport" };
 	char *damage[] = { "mdamage", "odamage", "wdamage" };
+	char *featturn[] = { "mfeatturn", "ofeatturn", "wfeatturn" };
 	char *skillturn[] = { "mskillturn", "oskillturn", "wskillturn" };
 	char *skilladd[] = { "mskilladd", "oskilladd", "wskilladd" };
 	char *spellturn[] = { "mspellturn", "ospellturn", "wspellturn" };
@@ -1460,6 +1463,8 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				strcpy(str, echo_cmd[type]);
 			else if (!str_cmp(var, "echoaround"))
 				strcpy(str, echoaround_cmd[type]);
+			else if (!str_cmp(var, "featturn"))
+				strcpy(str, featturn[type]);
 			else if (!str_cmp(var, "skillturn"))
 				strcpy(str, skillturn[type]);
 			else if (!str_cmp(var, "skilladd"))
@@ -1901,6 +1906,17 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					strcpy(str, "0");
 				else
 					strcpy(str, "1");
+			} else if (!str_cmp(field, "can_get_feat")) {
+					if ((num = find_feat_num(subfield)) > 0) {
+						if (can_get_feat(c, num))
+							strcpy(str, "1");
+						else
+							strcpy(str, "0");
+					} else {
+						sprintf(buf, "wrong feature name '%s'!", subfield);
+						trig_log(trig, buf);
+						strcpy(str, "0");
+					}
 			} else if (!str_cmp(field, "agressor")) {
 				if (AGRESSOR(c))
 					sprintf(str, "%d", AGRESSOR(c));
@@ -1978,6 +1994,11 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 						}
 					} else if (!str_cmp(field, "skill"))
 						strcpy(str, skill_percent(c, subfield));
+					else if (!str_cmp(field, "feat"))
+						if (feat_owner(c, subfield))
+							strcpy(str, "1");
+						else
+							strcpy(str, "0");
 					else if (!str_cmp(field, "spellcount"))
 						strcpy(str, spell_count(c, subfield));
 					else if (!str_cmp(field, "spelltype"))

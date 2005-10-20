@@ -498,7 +498,7 @@ const char *affected_bits[] = { "слепота",	/* 0 */
 	"смирение",
 	"маг параплегия",
 	"\n",
-	"исступление",
+	"предсмертная ярость",
 	"\n",
 	"\n"
 };
@@ -1612,106 +1612,46 @@ struct weapon_app_type weapon_app[] = {
 };
 
 struct extra_affects_type ClericAffects[] = { {-1, -1} };
-struct obj_affected_type ClericModifiers[] = { {APPLY_HITREG, 50},
-{-1, -1}
-};
 struct extra_affects_type MageAffects[] = { {AFF_INFRAVISION, 1},
-{-1, -1}
-};
-struct obj_affected_type MageModifiers[] = { {APPLY_MANAREG, 100},
 {-1, -1}
 };
 struct extra_affects_type ThiefAffects[] = { {AFF_INFRAVISION, 1},
 {AFF_SENSE_LIFE, 1},
 {-1, -1}
 };
-struct obj_affected_type ThiefModifiers[] = { {APPLY_HITROLL, 1},
-{-1, -1}
-};
 struct extra_affects_type WarriorAffects[] = { {-1, -1} };
-struct obj_affected_type WarriorModifiers[] = { {-1, -1} };
 struct extra_affects_type AssasineAffects[] = { {AFF_INFRAVISION, 1},
 {-1, -1}
 };
-struct obj_affected_type AssasineModifiers[] = { {-1, -1} };
 struct extra_affects_type GuardAffects[] = { {-1, -1} };
-struct obj_affected_type GuardModifiers[] = { {APPLY_HITROLL, 1},
-{APPLY_DEX, 1},
-{-1, -1}
-};
 struct extra_affects_type DefenderAffects[] = { {-1, -1} };
-struct obj_affected_type DefenderModifiers[] = { {APPLY_INT, 1},
-{-1, -1}
-};
 struct extra_affects_type CharmerAffects[] = { {-1, -1} };
-struct obj_affected_type CharmerModifiers[] = { {APPLY_INT, 1},
-{-1, -1}
-};
 struct extra_affects_type NecromancerAffects[] = { {AFF_INFRAVISION, 1},
 {-1, -1}
 };
-struct obj_affected_type NecromancerModifiers[] = { {APPLY_MANAREG, 25},
-{-1, -1}
-};
-struct extra_affects_type PaladineAffects[] = { {-1, -1}
-};
-struct obj_affected_type PaladineModifiers[] = { {APPLY_MORALE, 5},
-{APPLY_CAST_SUCCESS, 25},
-{APPLY_AC, -40},
-{-1, -1}
-};
+struct extra_affects_type PaladineAffects[] = { {-1, -1} };
 struct extra_affects_type RangerAffects[] = { {AFF_INFRAVISION, 1},
 {AFF_SENSE_LIFE, 1},
 {-1, -1}
 };
-struct obj_affected_type RangerModifiers[] = { {APPLY_MOVEREG, 50},
-{APPLY_DAMROLL, 1},
-{-1, -1}
-};
 struct extra_affects_type SmithAffects[] = { {-1, -1} };
-struct obj_affected_type SmithModifiers[] = { {APPLY_DAMROLL, 2},
-{-1, -1}
-};
 struct extra_affects_type MerchantAffects[] = { {-1, -1} };
-struct obj_affected_type MerchantModifiers[] = { {APPLY_MOVEREG, 50},
-{APPLY_CAST_SUCCESS, 5},
-{APPLY_MANAREG, 25},
-{-1, -1}
-};
 struct extra_affects_type DruidAffects[] = { {-1, -1} };
-struct obj_affected_type DruidModifiers[] = { {APPLY_HITREG, 25},
-{APPLY_MOVEREG, 25},
-{-1, -1}
-};
 
-struct class_app_type class_app[NUM_CLASSES] = { {5, 40, 10, 8, 20, (struct extra_affects_type *) &ClericAffects,
-						  (struct obj_affected_type *) &ClericModifiers},
-{3, 33, 10, 5, 20, (struct extra_affects_type *) &MageAffects,
- (struct obj_affected_type *) &MageModifiers},
-{3, 50, 10, 12, 25, (struct extra_affects_type *) &ThiefAffects,
- (struct obj_affected_type *) &ThiefModifiers},
-{2, 100, 10, 18, 35, (struct extra_affects_type *) &WarriorAffects,
- (struct obj_affected_type *) &WarriorModifiers},
-{3, 50, 10, 12, 25, (struct extra_affects_type *) &AssasineAffects,
- (struct obj_affected_type *) &AssasineModifiers},
-{2, 100, 10, 17, 30, (struct extra_affects_type *) &GuardAffects,
- (struct obj_affected_type *) &GuardModifiers},
-{5, 33, 10, 5, 20, (struct extra_affects_type *) &DefenderAffects,
- (struct obj_affected_type *) &DefenderModifiers},
-{5, 33, 10, 5, 20, (struct extra_affects_type *) &CharmerAffects,
- (struct obj_affected_type *) &CharmerModifiers},
-{5, 33, 10, 5, 20, (struct extra_affects_type *) &NecromancerAffects,
- (struct obj_affected_type *) &NecromancerModifiers},
-{2, 100, 10, 16, 28, (struct extra_affects_type *) &PaladineAffects,
- (struct obj_affected_type *) &PaladineModifiers},
-{2, 100, 10, 16, 28, (struct extra_affects_type *) &RangerAffects,
- (struct obj_affected_type *) &RangerModifiers},
-{2, 100, 10, 16, 28, (struct extra_affects_type *) &SmithAffects,
- (struct obj_affected_type *) &SmithModifiers},
-{3, 50, 10, 15, 25, (struct extra_affects_type *) &MerchantAffects,
- (struct obj_affected_type *) &MerchantModifiers},
-{5, 33, 10, 8, 20, (struct extra_affects_type *) &DruidAffects,
- (struct obj_affected_type *) &DruidModifiers}
+struct class_app_type class_app[NUM_CLASSES] = { {5, 40, 10, 8, 20, (struct extra_affects_type *) &ClericAffects},
+{3, 33, 10, 5, 20, (struct extra_affects_type *) &MageAffects},
+{3, 50, 10, 12, 25, (struct extra_affects_type *) &ThiefAffects},
+{2, 100, 10, 18, 35, (struct extra_affects_type *) &WarriorAffects},
+{3, 50, 10, 12, 25, (struct extra_affects_type *) &AssasineAffects},
+{2, 100, 10, 17, 30, (struct extra_affects_type *) &GuardAffects},
+{5, 33, 10, 5, 20, (struct extra_affects_type *) &DefenderAffects},
+{5, 33, 10, 5, 20, (struct extra_affects_type *) &CharmerAffects},
+{5, 33, 10, 5, 20, (struct extra_affects_type *) &NecromancerAffects},
+{2, 100, 10, 16, 28, (struct extra_affects_type *) &PaladineAffects},
+{2, 100, 10, 16, 28, (struct extra_affects_type *) &RangerAffects},
+{2, 100, 10, 16, 28, (struct extra_affects_type *) &SmithAffects},
+{3, 50, 10, 15, 25, (struct extra_affects_type *) &MerchantAffects},
+{5, 33, 10, 8, 20, (struct extra_affects_type *) &DruidAffects}
 };
 
 struct extra_affects_type SeveraneAffects[] = { {-1, -1} };

@@ -21,7 +21,7 @@ using std::bitset;
 #define TWO_WEAPON_FIGHTING_FEAT	7   //двуручный бой
 #define LIGHT_WALK_FEAT			8   //легкая поступь
 #define DEPOSIT_FINDING_FEAT		9   //лозоходство
-#define SPELL_SUBSTITUTE_FEAT		10   //подмена заклинания
+#define SPELL_SUBSTITUTE_FEAT		10  //подмена заклинания
 #define POWER_ATTACK_FEAT		11  //мощная атака
 #define WOODEN_SKIN_FEAT		12  //деревянная кожа
 #define IRON_SKIN_FEAT			13  //железная кожа
@@ -30,22 +30,22 @@ using std::bitset;
 #define HEALER_FEAT			16  //целитель
 #define LIGHTING_REFLEX_FEAT		17  //мгновенная реакция
 #define DRUNKARD_FEAT			18  //пьяница
-#define DIEHARD_FEAT			19  //второе дыхание
+#define DIEHARD_FEAT			19  //обмануть смерть
 #define ENDURANCE_FEAT			20  //выносливость
 #define GREAT_FORTITUDE_FEAT		21  //сила духа
-#define SKILL_FOCUS_FEAT		22  //любимое умение
+#define FAST_REGENERATION_FEAT		22  //быстрое заживление
 #define STEALTHY_FEAT			23  //незаметность
-#define WEAPON_FOCUS_FEAT		24  //излюбленное оружие
+#define RELATED_TO_MAGIC_FEAT		24  //магическое родство
 #define SPLENDID_HEALTH_FEAT		25  //богатырское здоровье
 #define TRACKER_FEAT			26  //следопыт
-#define WEAPON_FINESSE_FEAT		27  //проворство
+#define WEAPON_FINESSE_FEAT		27  //фехтование
 #define COMBAT_CASTING_FEAT		28  //боевое чародейство
 #define PUNCH_MASTER_FEAT		29  //кулачный боец
 #define CLUBS_MASTER_FEAT		30  //мастер палицы
 #define AXES_MASTER_FEAT		31  //мастер секиры
 #define LONGS_MASTER_FEAT		32  //мастер меча
 #define SHORTS_MASTER_FEAT		33  //мастер кинжала
-#define NOSTANDART_MASTER_FEAT		34  //необычное оружие
+#define NONSTANDART_MASTER_FEAT		34  //необычное оружие
 #define BOTHHANDS_MASTER_FEAT		35  //мастер двуручника
 #define PICK_MASTER_FEAT		36  //мастер ножа
 #define SPADES_MASTER_FEAT		37  //мастер копья
@@ -55,14 +55,51 @@ using std::bitset;
 #define LUCKY_FEAT			41  //счастливчик
 #define SPIRIT_WARRIOR_FEAT		42  //боевой дух
 #define FIGHTING_TRICK_FEAT		43  //боевая уловка
-#define SPELL_FOCUS_FEAT		44  //любимое заклинание
-#define THIRD_RING_SPELL_FEAT		45  //
-#define FOURTH_RING_SPELL_FEAT		46  //
-#define FIFTH_RING_SPELL_FEAT		47  //
-#define SIXTH_RING_SPELL_FEAT		48  //
-#define SEVENTH_RING_SPELL_FEAT		49  //
+#define EXCELLENT_MEMORY_FEAT		44  //превосходная память
+#define THIRD_RING_SPELL_FEAT		45  //третья страница
+#define FOURTH_RING_SPELL_FEAT		46  //четвертая страница
+#define FIFTH_RING_SPELL_FEAT		47  //пятая страница
+#define SIXTH_RING_SPELL_FEAT		48  //шестая страница
+#define SEVENTH_RING_SPELL_FEAT		49  //седьмая страница
 #define LEGIBLE_WRITTING_FEAT		50  //четкий почерк
 #define BREW_POTION_FEAT		51  //варка зелья
+#define JUGGLER_FEAT			52  //жонглер
+#define NIMBLE_FINGERS_FEAT		53  //ловкач
+#define GREAT_POWER_ATTACK_FEAT		54  //улучшенная мощная атака
+#define IMMUNITY_FEAT			55  //привычка к яду
+#define MOBILITY_FEAT			56  //подвижность
+#define NATURAL_STRENGTH_FEAT		57  //силач
+#define NATURAL_DEXTERY_FEAT		58  //проворство
+#define NATURAL_INTELLECT_FEAT		59  //природный ум
+#define NATURAL_WISDOM_FEAT		60  //мудрец
+#define NATURAL_CONSTITUTION_FEAT	61  //здоровяк
+#define NATURAL_CHARISMA_FEAT		62  //природное обаяние
+#define MNEMONIC_ENHANCER_FEAT		63  //отличная память
+#define MAGNETIC_PERSONALITY_FEAT	64  //предводитель
+#define DAMROLL_BONUS_FEAT		65  //тяжел на руку
+#define HITROLL_BONUS_FEAT		66  //твердая рука
+#define MAGICAL_INSTINCT_FEAT		67  //магическое чутье
+#define PUNCH_FOCUS_FEAT		68  //любимое оружие: голые руки
+#define CLUB_FOCUS_FEAT			69  //любимое оружие: палица
+#define AXES_FOCUS_FEAT			70  //любимое оружие: секира
+#define LONGS_FOCUS_FEAT		71  //любимое оружие: меч
+#define SHORTS_FOCUS_FEAT		72  //любимое оружие: кинжал
+#define NONSTANDART_FOCUS_FEAT		73  //любимое оружие: необычное
+#define BOTHHANDS_FOCUS_FEAT		74  //любимое оружие: двуручник
+#define PICK_FOCUS_FEAT			75  //любимое оружие: нож
+#define SPADES_FOCUS_FEAT		76  //любимое оружие: копье
+#define BOWS_FOCUS_FEAT			77  //любимое оружие: лук
+
+/*
+#define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух
+#define FIRE_MAGIC_FOCUS_FEAT		  //любимая_магия: огонь
+#define WATER_MAGIC_FOCUS_FEAT		  //любимая_магия: вода
+#define EARTH_MAGIC_FOCUS_FEAT		  //любимая_магия: земля
+#define LIGHT_MAGIC_FOCUS_FEAT		  //любимая_магия: свет
+#define DARK_MAGIC_FOCUS_FEAT		  //любимая_магия: тьма
+#define MIND_MAGIC_FOCUS_FEAT		  //любимая_магия: разум
+#define LIFE_MAGIC_FOCUS_FEAT		  //любимая_магия: жизнь
+*/
 
 /* MAX_FEATS определяется в structs.h */
 
@@ -75,17 +112,18 @@ using std::bitset;
 #define MAX_ACC_FEAT	6 /* Максимально доступное количество не-врожденных способностей. */
 #define LEV_ACC_FEAT	5 /* Раз в сколько уровней появляется новая способность */
 
-/* Поля изменений для способностей (кроме AFFECT_FEAT_TYPE, для них сипользуются стардартные поля APPLY) */
+/* Поля изменений для способностей (кроме AFFECT_FTYPE, для них используются стардартные поля APPLY) */
 #define FEAT_TIMER 1
 
 extern struct feat_info_type feat_info[MAX_FEATS];
 
-SPECIAL(feat_teacher);
 int find_feat_num(char *name);
 void assign_feats(void);
 bool can_use_feat(CHAR_DATA *ch, int feat);
 bool can_get_feat(CHAR_DATA *ch, int feat);
-int number_of_features(CHAR_DATA *ch);
+int find_feat_slot(CHAR_DATA *ch, int feat);
+int feature_mod(int feat, int location);
+void check_berserk(CHAR_DATA * ch);
 
 #endif
 
@@ -97,5 +135,7 @@ struct feat_info_type {
 	struct obj_affected_type
 			affected[MAX_FEAT_AFFECT];
         int type;
+	bool up_slot;
         const char *name;
+
 };

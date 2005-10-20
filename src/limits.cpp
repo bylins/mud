@@ -31,7 +31,6 @@
 #include "exchange.h"
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
-extern void check_berserk(CHAR_DATA * ch);
 
 extern room_rnum r_unreg_start_room;
 
@@ -589,7 +588,8 @@ void beat_points_update(int pulse)
 
 		// Проверка аффекта !исступление!. Поместил именно здесь,
 		// но если кто найдет более подходящее место переносите =)
-		check_berserk(i);
+		//Gorrah: перенес в handler::affect_total
+		//check_berserk(i);
 
 		// Restore PC caster mem
 		if (!IS_MANA_CASTER(i) && !MEMQUEUE_EMPTY(i)) {

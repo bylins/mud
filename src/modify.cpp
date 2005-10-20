@@ -27,6 +27,7 @@
 #include "boards.h"
 #include "screen.h"
 #include "olc.h"
+#include "features.hpp"
 
 void show_string(DESCRIPTOR_DATA * d, char *input);
 
@@ -779,7 +780,105 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 	//log("[SA] Stop");
 }
 
+/* **********************************************************************
+* Set of character features
+*********************************************************************** */
 
+ACMD(do_featset)
+{
+	CHAR_DATA *vict;
+	char name[MAX_INPUT_LENGTH], buf2[128];
+	char buf[MAX_INPUT_LENGTH], help[MAX_STRING_LENGTH];
+	int skill = -1, feat = -1, value, i, qend;
+
+	argument = one_argument(argument, name);
+
+	if (!*name) {		/* no arguments. print an informative text */
+		send_to_char("Формат: featset <игрок> '<способность>' <значение>\r\n", ch);
+		strcpy(help, "Возможные способности:\r\n");
+		for (qend = 0, i = 0; i < MAX_FEATS; i++) {
+			if (feat_info[i].type == UNUSED_FTYPE)	/* This is valid. */
+				continue;
+			sprintf(help + strlen(help), "%30s", feat_info[i].name);
+			if (qend++ % 3 == 2) {
+				strcat(help, "\r\n");
+				send_to_char(help, ch);
+				*help = '\0';
+			}
+		}
+		if (*help)
+			send_to_char(help, ch);
+		send_to_char("\r\n", ch);
+		return;
+	}
+
+	if (!(vict = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+		send_to_char(NOPERSON, ch);
+		return;
+	}
+	skip_spaces(&argument);
+
+	/* If there is no chars in argument */
+	if (!*argument) {
+		send_to_char("Пропущено название способности.\r\n", ch);
+		return;
+	}
+	if (*argument != '\'') {
+		send_to_char("Название способности надо заключить в символы : ''\r\n", ch);
+		return;
+	}
+	/* Locate the last quote and lowercase the magic words (if any) */
+
+	for (qend = 1; argument[qend] && argument[qend] != '\''; qend++)
+		argument[qend] = LOWER(argument[qend]);
+
+	if (argument[qend] != '\'') {
+		send_to_char("Название способности должно быть заключено в символы : ''\r\n", ch);
+		return;
+	}
+	strcpy(help, (argument + 1));
+	help[qend - 1] = '\0';
+
+	if ((feat = find_feat_num(help)) <= 0) {
+		send_to_char("Неизвестная способность.\r\n", ch);
+		return;
+	}
+
+	argument += qend + 1;	/* skip to next parameter */
+	argument = one_argument(argument, buf);
+ 
+	if (!*buf) {
+		send_to_char("Не указан числовой параметр (0 или 1).\r\n", ch);
+		return;
+	}
+	value = atoi(buf);
+	if (value < 0 || value > 1) {
+		send_to_char("Допустимые значения: 0 (снять), 1 (установить).\r\n", ch);
+		return;
+	}
+
+	if (IS_NPC(vict)) {
+		send_to_char("Вы не можете добавить способность NPC, используйте OLC.\r\n", ch);
+		return;
+	}
+
+
+	sprintf(buf2, "%s changed %s's %s to '%s'.", GET_NAME(ch), GET_NAME(vict),
+		feat_info[skill].name, value ? "enabled" : "disabled");
+	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
+	imm_log("%s changed %s's %s to '%s'.", GET_NAME(ch), GET_NAME(vict),
+		feat_info[feat].name, value ? "enabled" : "disabled");
+	if (feat >= 0 && feat < MAX_FEATS)
+		if (value)
+			SET_FEAT(vict, feat);
+		else
+			UNSET_FEAT(vict, feat);
+	sprintf(buf2, "Вы изменили для %s '%s' на '%s'.\r\n", GET_PAD(vict, 1),
+		feat_info[feat].name, value ? "доступно" : "недоступно");
+	if (!can_get_feat(vict, feat) && value == 1)
+		send_to_char("Эта способность не доступна данному персонажу и будет удалена при повторном входе в игру.\r\n", ch);
+	send_to_char(buf2, ch);
+}
 
 /* **********************************************************************
 *  Modification of character skills                                     *

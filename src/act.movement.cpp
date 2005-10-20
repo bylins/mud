@@ -30,6 +30,7 @@
 #include "dg_scripts.h"
 #include "screen.h"
 #include "pk.h"
+#include "features.hpp"
 
 /* external functs */
 void add_follower(CHAR_DATA * ch, CHAR_DATA * leader);
@@ -305,9 +306,43 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
    * -- only check if following; this avoids 'double spec-proc' bug
    */
 
+int real_forest_paths_sect(int sect)
+{
+	switch (sect) {
+	case SECT_FOREST:
+		return SECT_FIELD;
+	break;
+	case SECT_FOREST_SNOW:
+		return SECT_FIELD_SNOW;
+	break;
+	case SECT_FOREST_RAIN:
+		return SECT_FIELD_RAIN;
+	break;
+	}
+	return sect;
+}
+
+int real_mountains_paths_sect(int sect)
+{
+	switch (sect) {
+	case SECT_HILLS:
+	case SECT_MOUNTAIN:
+		return SECT_FIELD;
+	break;
+	case SECT_HILLS_RAIN:
+		return SECT_FIELD_RAIN;
+	break;
+	case SECT_HILLS_SNOW:
+	case SECT_MOUNTAIN_SNOW:
+		return SECT_FIELD_SNOW;
+	break;
+	}
+	return sect;
+}
+
 int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 {
-	int need_movement = 0;
+	int need_movement = 0, ch_inroom, ch_toroom;
 	CHAR_DATA *tch;
 
 	if (need_specials_check && special(ch, dir + 1, ""))
@@ -389,8 +424,21 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			}
 		}
 		// move points needed is avg. move loss for src and destination sect type
-		need_movement = (IS_FLY(ch) || on_horse(ch)) ? 1 :
-		    (movement_loss[real_sector(ch->in_room)] + movement_loss[real_sector(EXIT(ch, dir)->to_room)]) / 2;
+		ch_inroom = real_sector(ch->in_room);
+		ch_toroom = real_sector(EXIT(ch, dir)->to_room);
+
+		if (can_use_feat(ch, FOREST_PATHS_FEAT)) {
+			ch_inroom = real_forest_paths_sect(ch_inroom);
+			ch_toroom = real_forest_paths_sect(ch_toroom);
+		}
+
+		if (can_use_feat(ch, MOUNTAIN_PATHS_FEAT)) {
+			ch_inroom = real_mountains_paths_sect(ch_inroom);
+			ch_toroom = real_mountains_paths_sect(ch_toroom);
+		}
+	
+		need_movement = (IS_FLY(ch) || on_horse(ch)) ? 1 : 
+						(movement_loss[ch_inroom] + movement_loss[ch_toroom]) / 2;
 
 		if (IS_IMMORTAL(ch))
 			need_movement = 0;

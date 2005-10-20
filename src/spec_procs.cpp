@@ -26,6 +26,7 @@
 #include "screen.h"
 #include "dg_scripts.h"
 #include "constants.h"
+#include "features.hpp"
 
 /*   external vars  */
 
@@ -55,6 +56,7 @@ int mag_manacost(CHAR_DATA * ch, int spellnum);
 void sort_spells(void);
 int compare_spells(const void *x, const void *y);
 char *how_good(CHAR_DATA * ch, int percent);
+void list_feats(CHAR_DATA * ch, CHAR_DATA * vict);
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 int slot_for_char(CHAR_DATA * ch, int i);
@@ -154,6 +156,95 @@ extern int prac_params[4][NUM_CLASSES];
 #define MAXGAIN(ch) (prac_params[MAX_PER_PRAC][(int)GET_CLASS(ch)])
 #define SPLSKL(ch) (prac_types[prac_params[PRAC_TYPE][(int)GET_CLASS(ch)]])
 
+/*
+1. Определяем есть ли способность, если нет - новый цикл
+2. Если есть
+2.2 Врожденная : таймер(отступ)+имя -> буфер врожденных
+2.3 Неврожденная: таймер(отступ)+имя -> 3
+3. Если слот <= макс слота и свободен -> номер слота+таймер+имя в массив имен под номер слота
+3.2. Если слот занят, увеличиваеим номер слота на 1 и переход на 3 пункт
+3.3 Иначе удаляем способность.
+Примечание: удаление реализовано с целью сделать возможнным изменение слота в процессе игры.
+Лишние способности у персонажей удалятся автоматически при использовании команды "способности".
+*/
+
+void list_feats(CHAR_DATA * ch, CHAR_DATA * vict)
+{
+	int i = 0, j = 0, sortpos, slot;
+	char names[MAX_ACC_FEAT][MAX_STRING_LENGTH];
+	char msg[MAX_STRING_LENGTH];
+	bool sfound;
+
+	for (i = 0; i < MAX_ACC_FEAT; i++)
+		*names[i] = '\0';
+
+	sprintf(buf1, "Вы обладаете следующими способностями :\r\n");
+	sprintf(buf2, "Врожденные способности :\r\n");
+
+	for (sortpos = 1; sortpos < MAX_FEATS; sortpos++) {
+		if (strlen(buf2) >= MAX_STRING_LENGTH - 60) {
+			strcat(buf2, "**OVERFLOW**\r\n");
+			break;
+		}  
+		if (HAVE_FEAT(ch, sortpos)) {
+			if (!feat_info[sortpos].name || *feat_info[sortpos].name == '!')
+				continue;
+
+                        switch (sortpos) {
+			case BERSERK_FEAT:
+				if (timed_by_feat(ch, sortpos))
+					sprintf(buf, "[%3d] ", timed_by_feat(ch, sortpos));
+				else
+					sprintf(buf, "[-!-] ");
+				break;
+			default:
+				sprintf(buf, "      ");
+			} 
+			sprintf(buf + strlen(buf), "%s%s%s\r\n",
+						can_use_feat(ch, sortpos) ? CCIYEL(vict, C_NRM) : CCNRM(vict, C_NRM),
+						feat_info[sortpos].name, CCNRM(vict, C_NRM));
+			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
+				sprintf(buf2 + strlen(buf2), "    ");				
+				strcat(buf2, buf);
+				j++;
+			} else {
+				slot = FEAT_SLOT(ch, sortpos);
+				sfound = FALSE;
+				while (slot < MAX_ACC_FEAT) {
+					if (*names[slot] == '\0') {
+						sprintf(names[slot], " %s%d%s) ",
+								CCGRN(vict, C_NRM), slot + 1, CCNRM(vict, C_NRM));
+						strcat(names[slot],  buf);
+						sfound = TRUE;
+						break;
+					} else
+						slot++;
+				}
+				if (!sfound) {
+					/* Если способность не врожденная и под нее нет слота - удаляем нафик
+						чтобы можно было менять слоты на лету и чтобы не читерили :) */
+					sprintf(msg, "WARNING: Unset out of slots feature '%s' for character '%s'!",
+									feat_info[sortpos].name, GET_NAME(ch));
+					mudlog(msg, BRF, LVL_IMPL, SYSLOG, TRUE);
+					UNSET_FEAT(ch, sortpos);
+				}
+			}
+		}
+	}
+
+	for (i = 0; i < MAX_ACC_FEAT; i++) {
+		if (*names[i] == '\0') 
+			sprintf(names[i], " %s%d%s)       %s[пусто]%s\r\n",
+				CCGRN(vict, C_NRM), i + 1, CCNRM(vict, C_NRM), CCIWHT(vict, C_NRM), CCNRM(vict, C_NRM));
+		if (i >= NUM_LEV_FEAT(ch) && GET_LEVEL(vict) < LVL_IMMORT)
+			break;
+	sprintf(buf1 + strlen(buf1), names[i]);
+	}
+	send_to_char(buf1, vict);
+	if (j)
+		send_to_char(buf2, vict);
+}
+
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	int i = 0, sortpos;
@@ -176,7 +267,6 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict)
 			case SKILL_IDENTIFY:
 			case SKILL_POISONED:
 			case SKILL_COURAGE:
-			case SKILL_BERSERK:
 			case SKILL_MANADRAIN:
 			case SKILL_TOWNPORTAL:
 			case SKILL_TURN_UNDEAD:
@@ -301,6 +391,7 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 }
 
 struct guild_learn_type {
+	int feat_no;
 	int skill_no;
 	int spell_no;
 	int level;
@@ -319,6 +410,7 @@ struct guild_poly_type {
 	int classes;		/* bitvector */
 	int religion;		/* bitvector */
 	int alignment;		/* bitvector */
+	int feat_no;
 	int skill_no;
 	int spell_no;
 	int level;
@@ -335,7 +427,7 @@ void init_guilds(void)
 	FILE *magic;
 	char name[MAX_INPUT_LENGTH],
 	    line[256], line1[256], line2[256], line3[256], line4[256], line5[256], line6[256], *pos;
-	int i, spellnum, skillnum, num, type = 0, lines = 0, level, pgcount = 0, mgcount = 0;
+	int i, spellnum, skillnum, featnum, num, type = 0, lines = 0, level, pgcount = 0, mgcount = 0;
 	struct guild_poly_type *poly_guild = NULL;
 	struct guild_mono_type mono_guild;
 
@@ -402,6 +494,7 @@ void init_guilds(void)
 					log("Create mono guild for mobile %s", line1);
 					RECREATE(mono_guild.learn_info, struct guild_learn_type, mgcount + 1);
 					(mono_guild.learn_info + mgcount)->skill_no = -1;
+					(mono_guild.learn_info + mgcount)->feat_no = -1;
 					(mono_guild.learn_info + mgcount)->spell_no = -1;
 					(mono_guild.learn_info + mgcount)->level = -1;
 					guild_mono_info[GUILDS_MONO_USED] = mono_guild;
@@ -420,6 +513,7 @@ void init_guilds(void)
 							 GUILDS_POLY_USED + 1);
 					log("Create poly guild for mobile %s", line1);
 					RECREATE(poly_guild, struct guild_poly_type, pgcount + 1);
+					(poly_guild + pgcount)->feat_no = -1;
 					(poly_guild + pgcount)->skill_no = -1;
 					(poly_guild + pgcount)->spell_no = -1;
 					(poly_guild + pgcount)->level = -1;
@@ -445,8 +539,15 @@ void init_guilds(void)
 					*pos = ' ';
 				skillnum = find_skill_num(line1);
 			}
-			if (skillnum <= 0 && spellnum <= 0) {
-				log("Unknown skill or spell for monoguild");
+
+			if ((featnum = atoi(line1)) == 0 || featnum >= MAX_FEATS) {
+				if ((pos = strchr(line1, '.')))
+					*pos = ' ';
+				featnum = find_feat_num(line1);
+			}
+
+			if (skillnum <= 0 && spellnum <= 0 && featnum <= 0) {
+				log("Unknown skill, spell or feat for monoguild");
 				_exit(1);
 			}
 			if ((level = atoi(line2)) == 0 || level >= LVL_IMMORT) {
@@ -458,7 +559,8 @@ void init_guilds(void)
 			else
 				RECREATE(mono_guild.learn_info, struct guild_learn_type, mgcount + 1);
 			(mono_guild.learn_info + mgcount)->spell_no = MAX(0, spellnum);
-			(mono_guild.learn_info + mgcount)->skill_no = skillnum;
+			(mono_guild.learn_info + mgcount)->skill_no = MAX(0, skillnum);
+			(mono_guild.learn_info + mgcount)->feat_no = MAX(0, featnum);
 			(mono_guild.learn_info + mgcount)->level = level;
 			// log("->%d %d %d<-",spellnum,skillnum,level);
 			mgcount++;
@@ -497,8 +599,17 @@ void init_guilds(void)
 					*pos = ' ';
 				skillnum = find_skill_num(line5);
 			}
-			if (skillnum <= 0 && spellnum <= 0) {
-				log("Unknown skill or spell for polyguild");
+
+			if ((featnum = atoi(line5)) == 0 || featnum >= MAX_FEATS) {
+				if ((pos = strchr(line5, '.')))
+					*pos = ' ';
+
+				featnum = find_feat_num(line1);
+				sprintf(buf, "feature number 2: %d", featnum);
+				featnum = find_feat_num(line5);
+			}
+			if (skillnum <= 0 && spellnum <= 0 && featnum <= 0) {
+				log("Unknown skill, spell or feat for polyguild");
 				_exit(1);
 			}
 			if ((level = atoi(line6)) == 0 || level >= LVL_IMMORT) {
@@ -506,7 +617,8 @@ void init_guilds(void)
 				_exit(1);
 			}
 			(poly_guild + pgcount)->spell_no = MAX(0, spellnum);
-			(poly_guild + pgcount)->skill_no = skillnum;
+			(poly_guild + pgcount)->skill_no = MAX(0, skillnum);
+			(poly_guild + pgcount)->feat_no = MAX(0, featnum);
 			(poly_guild + pgcount)->level = level;
 			// log("->%d %d %d<-",spellnum,skillnum,level);
 			pgcount++;
@@ -569,6 +681,12 @@ SPECIAL(guild_mono)
 							  CCCYN(ch, C_NRM), spell_name(skill_no), CCNRM(ch, C_NRM));
 					found = TRUE;
 				}
+				if ((skill_no = (guild_mono_info[info_num].learn_info + i)->feat_no) > 0
+				    && !HAVE_FEAT(ch, skill_no) && can_get_feat(ch, skill_no)) {
+					gcount += sprintf(buf + gcount, "- способность %s\"%s\"\%s\r\n",
+							  CCCYN(ch, C_NRM), feat_name(skill_no), CCNRM(ch, C_NRM));
+					found = TRUE;
+				}
 			}
 			if (!found) {
 				act("$N сказал$G : 'Похоже, твои знания полнее моих.'", FALSE, ch, 0, victim, TO_CHAR);
@@ -620,6 +738,11 @@ SPECIAL(guild_mono)
 					}
 					found = TRUE;
 				}
+
+				if ((skill_no = (guild_mono_info[info_num].learn_info + i)->feat_no) > 0 
+						 					&& skill_no < MAX_FEATS)
+					if (!HAVE_FEAT(ch, skill_no) && can_get_feat(ch, skill_no))
+						sfound = TRUE;
 			}
 			if (sfound)
 				act("$N сказал$G : \r\n"
@@ -627,6 +750,29 @@ SPECIAL(guild_mono)
 				    "'Выбери лишь самые необходимые тебе умения.'", FALSE, ch, 0, victim, TO_CHAR);
 			if (!found)
 				act("$N ничему новому Вас не научил$G.", FALSE, ch, 0, victim, TO_CHAR);
+			return (1);
+		}
+
+		if (((skill_no = find_feat_num(argument)) > 0 && skill_no < MAX_FEATS)) {
+			for (i = 0, found = FALSE; (guild_mono_info[info_num].learn_info + i)->feat_no >= 0; i++) {
+				if ((guild_mono_info[info_num].learn_info + i)->level > GET_LEVEL(ch))
+					continue;
+				if (skill_no == (guild_mono_info[info_num].learn_info + i)->feat_no) {
+					if (HAVE_FEAT(ch, skill_no))
+						act("$N сказал$g Вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'", FALSE, ch, 0, victim, TO_CHAR);
+					else if (!can_get_feat(ch, skill_no)) { 
+							act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
+					} else {
+						sprintf(buf, "$N научил$G Вас способности %s\"%s\"\%s",
+							CCCYN(ch, C_NRM), feat_name(skill_no), CCNRM(ch, C_NRM));
+						act(buf, FALSE, ch, 0, victim, TO_CHAR);
+						SET_FEAT(ch, skill_no);
+					}
+					found = TRUE;
+				}
+			}
+			if (!found)
+				act("$N сказал$G : 'Мне не ведомо такое мастерство.'", FALSE, ch, 0, victim, TO_CHAR);
 			return (1);
 		}
 
@@ -774,7 +920,14 @@ SPECIAL(guild_poly)
 							  CCCYN(ch, C_NRM), spell_name(skill_no), CCNRM(ch, C_NRM));
 					found = TRUE;
 				}
-			}
+				if ((skill_no = (guild_poly_info[info_num] + i)->feat_no) > 0
+					 					&& skill_no < MAX_FEATS)
+				    if (!HAVE_FEAT(ch, skill_no) && can_get_feat(ch, skill_no)) {
+					gcount += sprintf(buf + gcount, "- способность %s\"%s\"\%s\r\n",
+							  CCCYN(ch, C_NRM), feat_name(skill_no), CCNRM(ch, C_NRM));
+					found = TRUE;
+				}
+		}
 			if (!found) {
 				act("$N сказал$G : 'Похоже, я не смогу тебе помочь.'", FALSE, ch, 0, victim, TO_CHAR);
 				return (1);
@@ -799,6 +952,11 @@ SPECIAL(guild_poly)
 					// GET_SKILL(ch,skill_no) = 10;
 					sfound = TRUE;
 				}
+
+				if ((skill_no = (guild_poly_info[info_num] + i)->feat_no) > 0
+						 					&& skill_no < MAX_FEATS)
+					if (!HAVE_FEAT(ch, skill_no) && can_get_feat(ch, skill_no))
+						sfound = TRUE;
 
 				if (!(bits = -2 * bits) || bits == SPELL_TEMP)
 					bits = SPELL_KNOW;
@@ -857,6 +1015,33 @@ SPECIAL(guild_poly)
 							CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						GET_SKILL(ch, skill_no) = 10;
+					}
+					found = TRUE;
+				}
+			}
+			if (!found)
+				act("$N сказал$G : 'Мне не ведомо такое умение.'", FALSE, ch, 0, victim, TO_CHAR);
+			return (1);
+		}
+
+		if (((skill_no = find_feat_num(argument)) > 0 && skill_no < MAX_FEATS)) {
+			for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->feat_no >= 0; i++) {
+				if ((guild_poly_info[info_num] + i)->level > GET_LEVEL(ch))
+					continue;
+				if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
+				    || !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
+				    || !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch)))
+					continue;
+				if (skill_no == (guild_poly_info[info_num] + i)->feat_no) {
+					if (HAVE_FEAT(ch, skill_no))
+						act("$N сказал$G Вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'", FALSE, ch, 0, victim, TO_CHAR);
+					else if (!can_get_feat(ch, skill_no)) { 
+							act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
+					} else {
+						sprintf(buf, "$N научил$G Вас способности %s\"%s\"\%s",
+							CCCYN(ch, C_NRM), feat_name(skill_no), CCNRM(ch, C_NRM));
+						act(buf, FALSE, ch, 0, victim, TO_CHAR);
+						SET_FEAT(ch, skill_no);
 					}
 					found = TRUE;
 				}

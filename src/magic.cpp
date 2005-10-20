@@ -259,6 +259,13 @@ void mobile_affect_update(void)
 			else
 				timed_from_char(i, timed);
 		}
+		for (timed = i->timed_feat; timed; timed = timed_next) {
+			timed_next = timed->next;
+			if (timed->time >= 1)
+				timed->time--;
+			else
+				timed_feat_from_char(i, timed);
+		}
 
 		if (check_death_trap(i))
 			continue;

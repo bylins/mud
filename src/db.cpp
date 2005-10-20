@@ -41,6 +41,7 @@
 #include "ban.hpp"
 #include "privileges.hpp"
 #include "item.creation.hpp"
+#include "features.hpp"
 
 /**************************************************************************
 *  declarations of global containers and objects                          *
@@ -803,6 +804,9 @@ void boot_db(void)
 
 	log("Loading spell definitions.");
 	mag_assign_spells();
+
+	log("Loading feature definitions.");
+	assign_feats();
 
 	log("Booting IM");
 	init_im();
@@ -2039,12 +2043,26 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
   /**** Empty now */
 	}
 
+/* Gorrah */
+	CASE("Feat") {
+		if (sscanf(value, "%d", t) != 1) {
+			log("SYSERROR : Excepted format <#> for FEAT in MOB #%d", i);
+			return;
+		}
+		if (t[0] >= MAX_FEATS || t[0] <= 0) {
+			log("SYSERROR : Unknown feat No %d for MOB #%d", t[0], i);
+			return;
+		}
+		SET_FEAT(mob_proto + i, t[0]);
+	} 
+/* End of changes */
+
 	CASE("Skill") {
 		if (sscanf(value, "%d %d", t, t + 1) != 2) {
 			log("SYSERROR : Excepted format <# #> for SKILL in MOB #%d", i);
 			return;
 		}
-		if (t[0] > MAX_SKILLS && t[0] < 1) {
+		if (t[0] > MAX_SKILLS || t[0] < 1) {
 			log("SYSERROR : Unknown skill No %d for MOB #%d", t[0], i);
 			return;
 		}
@@ -2057,7 +2075,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 			log("SYSERROR : Excepted format <#> for SPELL in MOB #%d", i);
 			return;
 		}
-		if (t[0] > MAX_SPELLS && t[0] < 1) {
+		if (t[0] > MAX_SPELLS || t[0] < 1) {
 			log("SYSERROR : Unknown spell No %d for MOB #%d", t[0], i);
 			return;
 		}
@@ -4166,7 +4184,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 	ch->player.short_descr = NULL;
 	ch->player.long_descr = NULL;
 
-
+	ch->real_abils.Feats.reset();
 	for (i = 1; i <= MAX_SKILLS; i++)
 		GET_SKILL(ch, i) = 0;
 	for (i = 1; i <= MAX_SPELLS; i++)
@@ -4391,6 +4409,26 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 					++i;
 				if (line[i])
 					FREEZE_REASON(ch) = strcpy((char *) malloc(strlen(line + i) + 1), line + i);
+			} else if (!strcmp(tag, "Feat")) {
+				do {
+					fbgetline(fl, line);
+					sscanf(line, "%d", &num);
+					if (num > 0 && num < MAX_FEATS)
+						if(feat_info[num].classknow[(int) GET_CLASS(ch)][(int) GET_KIN (ch)]) 
+							SET_FEAT(ch, num);
+				}
+				while (num != 0);
+			} else if (!strcmp(tag, "FtTm")) {
+				do {
+					fbgetline(fl, line);
+					sscanf(line, "%d %d", &num, &num2);
+					if (num != 0) {
+						timed.skill = num;
+						timed.time = num2;
+						timed_feat_to_char(ch, &timed);
+					}
+				}
+				while (num != 0);
 			}
 			break;
 
@@ -4736,6 +4774,12 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 		GET_COND(ch, DRUNK) = -1;
 		GET_LOADROOM(ch) = NOWHERE;
 	}
+
+	/* Set natural features - added by Gorrah */
+	for (i = 1; i < MAX_FEATS; i++)
+		if (can_get_feat(ch, i) && feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+			SET_FEAT(ch, i);
+
 	if (IS_GRGOD(ch)) {
 		for (i = 0; i <= MAX_SPELLS; i++)
 			GET_SPELL_TYPE(ch, i) = GET_SPELL_TYPE(ch, i) |
@@ -4901,6 +4945,10 @@ void store_to_char(struct char_file_u *st, CHAR_DATA * ch)
 		    st->affected[i].type > 0 && st->affected[i].type <= LAST_USED_SPELL)
 			affect_to_char(ch, &st->affected[i]);
 
+	for (i = 0; i < MAX_TIMED_FEATS; i++)
+		if (st->timed_feat[i].time)
+			timed_feat_to_char(ch, &st->timed_feat[i]);
+
 	for (i = 0; i < MAX_TIMED_SKILLS; i++)
 		if (st->timed[i].time)
 			timed_to_char(ch, &st->timed[i]);
@@ -4939,7 +4987,7 @@ void store_to_char(struct char_file_u *st, CHAR_DATA * ch)
 /* copy vital data from a players char-structure to the file structure */
 void char_to_store(CHAR_DATA * ch, struct char_file_u *st)
 {
-	int i;
+	int i, j;
 	AFFECT_DATA *af;
 	struct timed_type *timed;
 	OBJ_DATA *char_eq[NUM_WEARS];
@@ -4974,6 +5022,27 @@ void char_to_store(CHAR_DATA * ch, struct char_file_u *st)
 			st->affected[i].next = 0;
 		}
 	}
+
+	log("[CHAR TO STORE] Clear timed feats");
+	for (timed = ch->timed, i = 0; i < MAX_TIMED_FEATS; i++) {
+		if (timed) {
+			st->timed_feat[i] = *timed;
+			st->timed_feat[i].next = 0;
+			timed = timed->next;
+		} else {
+			st->timed_feat[i].skill = 0;
+			st->timed_feat[i].time = 0;
+			st->timed_feat[i].next = 0;
+		}
+	}
+
+        /* remove features modifiers - added by Gorrah */
+        for (i = 1; i < MAX_FEATS; i++) {
+                if (can_use_feat(ch, i) && (feat_info[i].type == AFFECT_FTYPE))
+                        for (j = 0; j < MAX_FEAT_AFFECT; j++)
+                                affect_modify(ch, feat_info[i].affected[j].location,
+                                                                feat_info[i].affected[j].modifier, 0, FALSE);
+        }
 
 	log("[CHAR TO STORE] Clear timed");
 	for (timed = ch->timed, i = 0; i < MAX_TIMED_SKILLS; i++) {
@@ -5557,6 +5626,7 @@ void clear_char(CHAR_DATA * ch)
 void clear_char_skills(CHAR_DATA * ch)
 {
 	int i;
+	ch->real_abils.Feats.reset();
 	for (i = 0; i < MAX_SKILLS + 1; i++)
 		ch->real_abils.Skills[i] = 0;
 	for (i = 0; i < MAX_SPELLS + 1; i++)
@@ -5770,6 +5840,11 @@ ACMD(do_remort)
 		GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
 		GET_SPELL_MEM(ch, i) = 0;
 	}
+	while (ch->timed_feat)
+		timed_feat_from_char(ch, ch->timed_feat);
+	for (i = 1; i < MAX_FEATS; i++)
+		UNSET_FEAT(ch, i);
+
 	GET_HIT(ch) = GET_MAX_HIT(ch) = 10;
 	GET_MOVE(ch) = GET_MAX_MOVE(ch) = 82;
 	GET_MEM_TOTAL(ch) = GET_MEM_COMPLETED(ch) = 0;
@@ -6451,6 +6526,25 @@ void new_save_char(CHAR_DATA * ch, room_rnum load_room)
 	fprintf(saved, "Dex : %d\n", GET_DEX(ch));
 	fprintf(saved, "Con : %d\n", GET_CON(ch));
 	fprintf(saved, "Cha : %d\n", GET_CHA(ch));
+
+	/* способности - added by Gorrah */
+	if (GET_LEVEL(ch) < LVL_IMMORT) {
+		fprintf(saved, "Feat:\n");
+		for (i = 1; i < MAX_FEATS; i++) {
+			if (HAVE_FEAT(ch, i))
+				fprintf(saved, "%d %s\n", i, feat_info[i].name);
+		}
+		fprintf(saved, "0 0\n");
+	}
+
+	/* Задержки на cпособности */
+	if (GET_LEVEL(ch) < LVL_IMMORT) {
+		fprintf(saved, "FtTm:\n");
+		for (skj = ch->timed_feat; skj; skj = skj->next) {
+			fprintf(saved, "%d %d %s\n", skj->skill, skj->time, feat_info[skj->skill].name);
+		}
+		fprintf(saved, "0 0\n");
+	}
 
 	/* скилы */
 	if (GET_LEVEL(ch) < LVL_IMMORT) {

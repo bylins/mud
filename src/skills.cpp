@@ -25,6 +25,7 @@
 #include "dg_scripts.h"
 #include "constants.h"
 #include "im.h"
+#include "features.hpp"
 
 /*
  * message for doing damage with a spell or skill
@@ -252,8 +253,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	case SKILL_HIDE:	/*спрятаться */
 		percent =
-		    skill_is + dex_app_skill[GET_REAL_DEX(ch)].hide -
-		    size_app[GET_POS_SIZE(ch)].ac;
+		    skill_is + dex_app_skill[GET_REAL_DEX(ch)].hide - size_app[GET_POS_SIZE(ch)].ac
+					+ (can_use_feat(ch, STEALTHY_FEAT) ? feature_mod(STEALTHY_FEAT, SKILL_HIDE) : 0);
 
 		if (awake_others(ch))
 			percent -= 50;
@@ -290,7 +291,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		}
 		break;
 	case SKILL_PICK_LOCK:	/*pick lock */
-		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].p_locks;
+		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].p_locks
+				+ (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? feature_mod(NIMBLE_FINGERS_FEAT, SKILL_STEAL) : 0);
 		break;
 	case SKILL_PUNCH:	/*punch */
 		percent = skill_is;
@@ -300,7 +302,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		victim_modi = 100;
 		break;
 	case SKILL_SNEAK:	/*sneak */
-		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].sneak;
+		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].sneak
+				+ (can_use_feat(ch, STEALTHY_FEAT) ? feature_mod(STEALTHY_FEAT, SKILL_SNEAK) : 0);
 
 		if (awake_others(ch))
 			percent -= 50;
@@ -321,7 +324,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		}
 		break;
 	case SKILL_STEAL:	/*steal */
-		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].p_pocket;
+		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].p_pocket
+				+ (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? feature_mod(NIMBLE_FINGERS_FEAT, SKILL_STEAL) : 0);
 
 		if (awake_others(ch))
 			percent -= 50;
@@ -340,7 +344,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		}
 		break;
 	case SKILL_TRACK:	/*выследить */
-		percent = skill_is + int_app[GET_REAL_INT(ch)].observation;
+		percent = skill_is + int_app[GET_REAL_INT(ch)].observation
+				+ (can_use_feat(ch, TRACKER_FEAT) ? feature_mod(TRACKER_FEAT, SKILL_TRACK) : 0);
 
 		if (SECT(IN_ROOM(ch)) == SECT_FOREST || SECT(IN_ROOM(ch)) == SECT_FIELD)
 			percent += 10;
@@ -364,7 +369,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 
 	case SKILL_SENSE:
-		percent = skill_is + int_app[GET_REAL_INT(ch)].observation;
+		percent = skill_is + int_app[GET_REAL_INT(ch)].observation
+				+ (can_use_feat(ch, TRACKER_FEAT) ? feature_mod(TRACKER_FEAT, SKILL_SENSE) : 0);
 
 		percent =
 		    complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
@@ -472,9 +478,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		percent = skill_is + dex_app[GET_REAL_DEX(ch)].miss_att;
 		break;
 	case SKILL_CAMOUFLAGE:
-		percent =
-		    skill_is + dex_app_skill[GET_REAL_DEX(ch)].hide -
-		    size_app[GET_POS_SIZE(ch)].ac;
+		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].hide - size_app[GET_POS_SIZE(ch)].ac
+				+ (can_use_feat(ch, STEALTHY_FEAT) ? feature_mod(STEALTHY_FEAT, SKILL_CAMOUFLAGE) : 0);
 
 		if (awake_others(ch))
 			percent -= 100;
@@ -599,7 +604,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 
 	case SKILL_IDENTIFY:
-		percent = skill_is + int_app[GET_REAL_INT(ch)].observation;
+		percent = skill_is + int_app[GET_REAL_INT(ch)].observation
+				+ (can_use_feat(ch, CONNOISEUR_FEAT) ? feature_mod(CONNOISEUR_FEAT, SKILL_IDENTIFY) : 0);
 		break;
 
 	case SKILL_CREATE_POTION:
@@ -620,10 +626,11 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		percent = skill_is;
 		break;
 	case SKILL_DRUNKOFF:
-		percent = skill_is - con_app[GET_REAL_CON(ch)].hitp;
+		percent = skill_is - con_app[GET_REAL_CON(ch)].hitp + 
+					(can_use_feat(ch, DRUNKARD_FEAT) ? feature_mod(DRUNKARD_FEAT, SKILL_DRUNKOFF) : 0);
 		break;
 	case SKILL_AID:
-		percent = skill_is;
+		percent = skill_is + (can_use_feat(ch, HEALER_FEAT) ? feature_mod(HEALER_FEAT, SKILL_AID) : 0);
 		break;
 	case SKILL_FIRE:
 		percent = skill_is;
@@ -635,7 +642,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		percent = skill_is + cha_app[GET_REAL_CHA(ch)].leadership;
 		break;
 	case SKILL_TURN_UNDEAD:
-		percent = skill_is + int_app[GET_REAL_INT(ch)].to_skilluse;
+		percent = skill_is + int_app[GET_REAL_INT(ch)].to_skilluse
+				+ (can_use_feat(ch, EXORCIST_FEAT) ? feature_mod(EXORCIST_FEAT, SKILL_TURN_UNDEAD) : 0);
 		break;
 	default:
 		percent = skill_is;

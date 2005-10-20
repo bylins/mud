@@ -696,6 +696,11 @@ extern SPECIAL(postmaster);
 #define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[i])
 #define GET_SPELL_MEM(ch, i)  ((ch)->real_abils.SplMem[i])
 #define SET_SPELL(ch, i, pct) ((ch)->real_abils.SplMem[i] = pct)
+#define SET_FEAT(ch, feat) ((ch)->real_abils.Feats.set(feat))
+#define UNSET_FEAT(ch, feat) ((ch)->real_abils.Feats.reset(feat))
+#define HAVE_FEAT(ch, feat) ((ch)->real_abils.Feats.test(feat))
+#define	NUM_LEV_FEAT(ch) (MIN (MAX_ACC_FEAT, (GET_LEVEL(ch) / LEV_ACC_FEAT) + 1))
+#define FEAT_SLOT(ch, feat) (feat_info[feat].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] / LEV_ACC_FEAT)
 
 // Min cast level getting 
 #define MIN_CAST_LEV(sp, ch) (MMAX(0,MOD_CAST_LEV(sp,ch)))

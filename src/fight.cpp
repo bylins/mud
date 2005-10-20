@@ -30,6 +30,7 @@
 #include "im.h"
 #include "fight.h"
 #include "skills.h"
+#include "features.hpp"
 
 extern CHAR_DATA *mob_proto;
 
@@ -124,51 +125,6 @@ struct attack_hit_type attack_hit_text[] = {
 	{"*", "*"},
 	{"*", "*"}
 };
-
-void check_berserk(CHAR_DATA * ch)
-{
-	AFFECT_DATA af;
-	struct timed_type timed;
-
-	if (affected_by_spell(ch, SPELL_BERSERK) &&
-		    (GET_HIT(ch) > GET_REAL_MAX_HIT(ch) / 2)) {
-			affect_from_char(ch, SPELL_BERSERK);
-			send_to_char("Предсмертное исступление оставило Вас.\r\n", ch);
-	}
-	if (!IS_NPC(ch) && GET_SKILL(ch, SKILL_BERSERK) && FIGHTING(ch) &&
-	    !timed_by_skill(ch, SKILL_BERSERK) && !AFF_FLAGGED(ch, AFF_BERSERK) &&
-	    (GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4)) {
-
-		timed.skill = SKILL_BERSERK;
-		timed.time = 6;
-		timed_to_char(ch, &timed);
-
-		af.type = SPELL_BERSERK;
-		af.duration = pc_duration(ch, 1, MAX(0, GET_SKILL(ch, SKILL_BERSERK)-40), 30, 0, 0);
-		af.modifier = 0;
-		af.location = APPLY_NONE;
-		af.battleflag = 0;
-
-		// Я знаю, очень-очень криво. Но надо было сделать расскачку скила
-		// более частой, чем если бы только когда скил успешно прошел.
-		// Причем заклинание !исступление! висит всегда пока идут просветы,
-		// а вот плюшки идут только если установлен соотв. аффект =)
-		// Да и еще этот аффект !флик. Вообщем нет предела совершенству. 
-		// Дерзайте, правьте если знаете как. А нет - стирайте этот флейм.
-		if (calculate_skill(ch, SKILL_BERSERK, skill_info[SKILL_BERSERK].max_percent, 0) >= 
-		    number(1, skill_info[SKILL_BERSERK].max_percent) ||
-		    number(1, 20) >= 10 + MAX(0, (GET_LEVEL(ch) - 14 - GET_REMORT(ch)) / 2)) {
-			af.bitvector = AFF_BERSERK;
-			act("Вас обуяла предсмертная ярость!", FALSE, ch, 0, 0, TO_CHAR);
-			act("$n0 исступленно взвыл$g и бросил$u на противника!.", FALSE, ch, 0, 0, TO_ROOM);
-		} else {
-			af.bitvector = 0;
-			act("Вы истошно завопили, пытась напугать противника. Без толку.", FALSE, ch, 0, 0, TO_CHAR);
-			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", FALSE, ch, 0, 0, TO_ROOM);
-		}
-		affect_join(ch, &af, TRUE, FALSE, TRUE, FALSE);
-	}	
-}
 
 void go_autoassist(CHAR_DATA * ch)
 {
@@ -2663,7 +2619,7 @@ void apply_weapon_bonus(int ch_class, int skill, int *damroll, int *hitroll)
 			case SKILL_BOTHHANDS:	calc_thaco += 1; dam += 0; break;
 			case SKILL_PICK:	calc_thaco += 1; dam += 0; break;
 			case SKILL_SPADES:	calc_thaco -= 1; dam += 0; break;
-			case SKILL_BOWS:	calc_thaco -= 2; dam += 1; break;
+			case SKILL_BOWS:	calc_thaco -= 2; dam += 0; break;
 		}
 		break;
 		case CLASS_GUARD:
@@ -3209,12 +3165,10 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 				GET_SKILL(ch, SKILL_NOPARRYHIT) / 
 				skill_info[SKILL_NOPARRYHIT].max_percent);
 
-		//dzMUDiST Обработка !исступления!
+		//dzMUDiST Обработка !исступления! +Gorrah
 		if (affected_by_spell(ch, SPELL_BERSERK)) {
-			range =
-			    train_skill(ch, SKILL_BERSERK, skill_info[SKILL_BERSERK].max_percent, victim);
 			if (AFF_FLAGGED(ch, AFF_BERSERK)) {
-				dam = (dam * MAX (150, 100 + range + GET_LEVEL(ch) + dice (0, GET_REMORT(ch)) * 2)) / 100;
+				dam = (dam * MAX (150, 150 + GET_LEVEL(ch) + dice (0, GET_REMORT(ch)) * 2)) / 100;
 				calc_thaco -= (12 * ((GET_REAL_MAX_HIT(ch) / 2) - GET_HIT(ch)) / GET_REAL_MAX_HIT(ch));
 			}
 		}
