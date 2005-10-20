@@ -26,7 +26,7 @@ LIBS =  -lz -lcrypt -lstdc++
 
 OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	act.offensive.o act.other.o act.social.o act.wizard.o alias.o ban.o \
-	boards.o class.o comm.o config.o constants.o db.o fight.o \
+	boards.o class.o comm.o config.o constants.o features.o db.o fight.o \
 	graph.o handler.o house.o interpreter.o limits.o magic.o mail.o \
 	mobact.o modify.o objsave.o olc.o random.o shop.o spec_assign.o \
 	spec_procs.o spell_parser.o spells.o utils.o weather.o \
@@ -38,7 +38,7 @@ OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 
 CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	act.offensive.cpp act.other.cpp act.social.cpp act.wizard.cpp alias.cpp ban.cpp \
-	boards.cpp class.cpp comm.cpp config.cpp constants.cpp db.cpp fight.cpp \
+	boards.cpp class.cpp comm.cpp config.cpp constants.cpp features.cpp db.cpp fight.cpp \
 	graph.cpp handler.cpp house.cpp interpreter.cpp limits.cpp magic.cpp mail.cpp \
 	mobact.cpp modify.cpp objsave.cpp olc.cpp random.cpp shop.cpp spec_assign.cpp\
 	spec_procs.cpp spell_parser.cpp spells.cpp utils.cpp weather.cpp \
