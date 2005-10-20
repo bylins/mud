@@ -2862,7 +2862,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		if (!*arg) {
 			SEND_TO_Q("\r\nВаш E-mail : ", d);
 			return;
-		} else if (!(dog_pos = strchr(arg, '@')) || dog_pos == arg || !*(dog_pos + 1)) {
+//		} else if (!(dog_pos = strchr(arg, '@')) || dog_pos == arg || !*(dog_pos + 1)) {
+		} else if (!valid_email(arg)) {
 			SEND_TO_Q("\r\nНекорректный E-mail !" "\r\nВаш E-mail :  ", d);
 			return;
 		}

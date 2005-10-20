@@ -65,6 +65,7 @@ void from_koi(char *str, int);
 int real_sector(int room);
 char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *vict_obj);
 int roundup(float fl);
+int valid_email(const char *address);
 
 void skip_spaces(char **string);
 

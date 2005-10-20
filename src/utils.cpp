@@ -38,6 +38,7 @@ TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
 void die_follower(CHAR_DATA * ch);
 void add_follower(CHAR_DATA * ch, CHAR_DATA * leader);
 void prune_crlf(char *txt);
+int valid_email(const char *address);
 
 /* external functions */
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
@@ -1774,3 +1775,37 @@ bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 	}
 	return FALSE;
 }
+
+//Gorrah
+int valid_email(const char *address)
+{
+        int i, size, count = 0;
+	static string special_symbols("\r\n ()<>,;:\\\"[]|/&'`$");
+        string addr = address;
+	string::size_type dog_pos = 0, pos = 0;
+
+        /* Наличие запрещенных символов или кириллицы */
+	if (addr.find_first_of(special_symbols) != string::npos)
+		return 0;
+        size = 	addr.size();
+	for (i = 0; i < size; i++)
+		if (addr[i] <= ' ' || addr[i] >= 127)
+		    return 0;
+	/* Собака должна быть только одна и на второй и далее позиции */
+	while ((pos = addr.find_first_of('@', pos)) != string::npos) {
+	    dog_pos = pos;
+	    ++count;
+	    ++pos;
+	}
+	if (count != 1 || dog_pos == 0)
+	    return 0;
+	/* Проверяем правильность синтаксиса домена */
+	/* В доменной части должно быть как минимум 4 символа, считая собаку */
+	if (size - dog_pos <= 3)
+	    return 0;
+	/* Точка отсутствует, расположена сразу после собаки, или на последнем месте */
+	if (addr[dog_pos + 1] == '.' || addr[size - 1] == '.' || addr.find('.', dog_pos) == string::npos)
+	    return 0;
+
+        return 1;
+}	    
