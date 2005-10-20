@@ -608,12 +608,12 @@ void affect_total(CHAR_DATA * ch)
 			extra_affect = class_app[(int) GET_CLASS(ch)].extra_affects;
 			//extra_modifier = class_app[(int) GET_CLASS(ch)].extra_modifiers;
 
-			/* for (i = 0; extra_affect && (extra_affect + i)->affect != -1; i++)
+			 for (i = 0; extra_affect && (extra_affect + i)->affect != -1; i++)
 				affect_modify(ch, APPLY_NONE, 0, (extra_affect + i)->affect,
-					      (extra_affect + i)->set_or_clear); */
-			for (i = 0; extra_modifier && (extra_modifier + i)->location != -1; i++)
+					      (extra_affect + i)->set_or_clear); 
+			/* for (i = 0; extra_modifier && (extra_modifier + i)->location != -1; i++)
 				affect_modify(ch, (extra_modifier + i)->location,
-					      (extra_modifier + i)->modifier, 0, TRUE);
+					      (extra_modifier + i)->modifier, 0, TRUE);*/
 		}
 
 		if (GET_RACE(ch) < NUM_RACES) {
