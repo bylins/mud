@@ -2301,8 +2301,8 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 				dam -= (dam * MIN(50, decrease) / 100);
 			/* умножаем дамаг при крит ударе, если брони мало, санки нет и ее игнор ничего не дает
 			   по призме не умножаем, чтобы не уносило танков с 1 удара */
-			} else if (decrease <= 50 && !AFF_FLAGGED(victim, AFF_SANCTUARY)
-							&& !AFF_FLAGGED(victim, AFF_PRISMATICAURA))
+			} else if (decrease <= 20 && !AFF_FLAGGED(victim, AFF_PRISMATICAURA)
+								&& (GET_LEVEL(victim) >= 20 || !IS_NPC(ch)))
 				dam *= 2;
 
 		}
@@ -2326,7 +2326,8 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 			sprintf(buf, "%sМеткое попадание %s тяжело ранило Вас.%s\r\n",
 					CCRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
 			send_to_char(buf, victim);
-			act("Меткое попадание $N1 заставило $n3 пошатнуться.", TRUE, victim, 0, ch, TO_NOTVICT);
+			/* Закомментил чтобы не спамило, сделать потом в виде режима */
+			//act("Меткое попадание $N1 заставило $n3 пошатнуться.", TRUE, victim, 0, ch, TO_NOTVICT);
 		}
 	}
 	/* Обрезаем макс дамаг */
@@ -3241,21 +3242,22 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		if (weapon_pos)
 			alt_equip(ch, weapon_pos, dam, 10);
  		dam_critic = 0;
-		was_critic = 19;
-		/* Gorrah Мастерские фиты по оружию дают +5% к шансу критического попадания */
+		was_critic = MIN(GET_SKILL(ch, skill), 80);
+		/* Gorrah Мастерские фиты по оружию удваивают шанс критического попадания */
 		for (i = PUNCH_MASTER_FEAT; i <= BOWS_MASTER_FEAT; i++)
-			if ((ubyte) feat_info[i].affected[0].location == skill && can_use_feat(ch, i))
-				was_critic -= 1;			
+		    if ((ubyte) feat_info[i].affected[0].location == skill && can_use_feat(ch, i))
+			was_critic += MAX(0, GET_SKILL(ch, skill) -  80);
+			
 		if (GET_CLASS(ch) == CLASS_THIEF) 
-			was_critic -= (int) (GET_SKILL(ch,SKILL_BACKSTAB) / 60);
+		    was_critic += GET_SKILL(ch,SKILL_BACKSTAB);
 		if (GET_CLASS(ch) == CLASS_PALADINE) 
-			was_critic -= (int) (GET_SKILL(ch,SKILL_PUNCTUAL) / 80);
+		    was_critic += (int) (GET_SKILL(ch,SKILL_PUNCTUAL) / 2);
 		if (GET_CLASS(ch) == CLASS_ASSASINE) 
-			was_critic -= (int) (GET_SKILL(ch,SKILL_NOPARRYHIT) / 100);
-
+		    was_critic += (int) (GET_SKILL(ch,SKILL_NOPARRYHIT) / 3);
+		    
 		//critical hit ignore magic_shields and armour
-		if (diceroll > was_critic && !(IS_NPC(ch)
-				&& AFF_FLAGGED(ch,AFF_CHARM) && !AFF_FLAGGED(ch,AFF_HELPER)))
+		if (number(0, 2000) < was_critic && !(IS_NPC(ch)
+				&& AFF_FLAGGED(ch, AFF_CHARM) && !AFF_FLAGGED(ch, AFF_HELPER)))		    
 			was_critic = TRUE;
 		else
 			was_critic = FALSE;
