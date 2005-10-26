@@ -4037,7 +4037,7 @@ void mag_assign_spells(void)
 		FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 
 //164
-	spello(SPELL_BERSERK, "!исступление!", "!set by programm!", 0, 0, 0, 255, 0,
+	spello(SPELL_BERSERK, "!предсмертная ярость!", "!set by programm!", 0, 0, 0, 255, 0,
 		FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //165
 	spello(SPELL_STONEBONES, "каменные кости", "stone bones", 80, 40, 1,
@@ -4054,6 +4054,9 @@ void mag_assign_spells(void)
 //168 - SPELL_THUNDERSTORM
 	spello(SPELL_THUNDERSTORM, "гроза", "thunderstorm", 10, 10, 1,
 		POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_ROOM | MAG_CASTER_INWORLD, 0, STYPE_AIR);
+//169
+	spello(SPELL_LIGHT_WALK, "!легкая поступь!", "!set by programm!", 0, 0, 0, 255, 0,
+		FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 
 	/* NON-castable spells should appear below here. */
 

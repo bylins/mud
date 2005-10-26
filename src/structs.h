@@ -559,6 +559,10 @@ typedef struct trig_data
 //shapirus
 #define PRF_NOCLONES	(INT_ONE | 1 << 10)	/* Не видит в группе чужих клонов */
 #define PRF_NOINVISTELL	(INT_ONE | 1 << 11)	/* Не хочет, чтобы телял "кто-то" */
+#define PRF_POWERATTACK	(INT_ONE | 1 << 12)	/* мощная атака */
+#define PRF_GREATPOWERATTACK	(INT_ONE | 1 << 13)	/* улучшеная мощная атака */
+#define PRF_AIMINGATTACK	(INT_ONE | 1 << 14)	/* прицельная атака */
+#define PRF_GREATAIMINGATTACK	(INT_ONE | 1 << 15)	/* улучшеная прицельная атака */
 
 /* Affect bits: used in char_data.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
@@ -624,6 +628,7 @@ typedef struct trig_data
 #define AFF_PEACEFUL		(INT_ONE | (1 << 28))
 #define AFF_MAGICSTOPFIGHT	(INT_ONE | (1 << 29))
 #define AFF_BERSERK	(INT_TWO | (1 << 0))
+#define AFF_LIGHT_WALK	(INT_TWO | (1 << 1))
 
 
 // shapirus: modes of ignoring
@@ -1117,6 +1122,7 @@ typedef struct trig_data
 #define MAX_TIMED_SKILLS      16	/* Used in obj_file_elem *DO*NOT*CHANGE* */
 #define MAX_FEATS		128 /* Максимальное количество фитов */
 #define MAX_TIMED_FEATS		16 /* Макс. количество фитов с таймером */
+#define MAX_HITS 32000 /* Максимальное количество хитов и дамага */
 /* Количество запомненных предложений для команды "вспомнить" */
 #define MAX_REMEMBER_TELLS          15
 

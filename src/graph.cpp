@@ -25,6 +25,7 @@
 #include "db.h"
 #include "spells.h"
 #include "skills.h"
+#include "features.hpp"
 
 /* Externals */
 ACMD(do_say);
@@ -234,7 +235,7 @@ ACMD(do_sense)
 		return;
 	}
 
-	if (!check_moves(ch, SENSE_MOVES))
+	if (!check_moves(ch, can_use_feat(ch, TRACKER_FEAT) ? SENSE_MOVES / 2 : SENSE_MOVES))
 		return;
 
 	one_argument(argument, arg);
@@ -329,7 +330,7 @@ ACMD(do_track)
 		return;
 	}
 
-	if (!check_moves(ch, TRACK_MOVES))
+	if (!check_moves(ch, can_use_feat(ch, TRACKER_FEAT) ? TRACK_MOVES / 2 : TRACK_MOVES))
 		return;
 
 	calc_track = CALC_TRACK(ch, NULL);
@@ -504,7 +505,7 @@ ACMD(do_hidetrack)
 		send_to_char("Вы не видите своих следов.\r\n", ch);
 		return;
 	}
-	if (!check_moves(ch, HIDETRACK_MOVES))
+	if (!check_moves(ch, can_use_feat(ch, STEALTHY_FEAT) ? HIDETRACK_MOVES / 2 : HIDETRACK_MOVES))
 		return;
 	percent = number(1, skill_info[SKILL_HIDETRACK].max_percent);
 	prob = calculate_skill(ch, SKILL_HIDETRACK, skill_info[SKILL_HIDETRACK].max_percent, 0);

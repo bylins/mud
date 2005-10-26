@@ -296,7 +296,8 @@
 #define SPELL_ROOM_LIGHT		166	/* Закл освящения комнаты */ 
 #define SPELL_POISONED_FOG		167	/* Закл отравленного тумана */ 
 #define SPELL_THUNDERSTORM		168	/* Закл отравленного тумана */ 
-#define LAST_USED_SPELL			169
+#define SPELL_LIGHT_WALK		169
+#define LAST_USED_SPELL			170
 
 /*
  *  NON-PLAYER AND OBJECT SPELLS AND SKILLS

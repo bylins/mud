@@ -38,6 +38,7 @@
 #include "privileges.hpp"
 #include "item.creation.hpp"
 #include "arena.hpp"
+#include "features.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -231,6 +232,7 @@ ACMD(do_leave);
 ACMD(do_levels);
 ACMD(do_listclan);
 ACMD(do_liblist);
+ACMD(do_lightwalk);
 ACMD(do_load);
 ACMD(do_look);
 ACMD(do_sides);
@@ -694,6 +696,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"сесть", POS_RESTING, do_sit, 0, 0, -1},
 	{"синоним", POS_DEAD, do_alias, 0, 0, 0},
 	{"сказать", POS_RESTING, do_tell, 0, 0, -1},
+	{"скользить", POS_STANDING, do_lightwalk, 0, 0, 0},
 	{"следовать", POS_RESTING, do_follow, 0, 0, 500},
 	{"сложить", POS_FIGHTING, do_mixture, 0, SCMD_RUNES, -1},
 	{"смотреть", POS_RESTING, do_look, 0, SCMD_LOOK, 0},
@@ -822,6 +825,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"give", POS_RESTING, do_give, 0, 0, 500},
 	{"godnews", POS_SLEEPING, do_gen_ps, LVL_IMMORT, SCMD_GODNEWS, 0},
 	{"gold", POS_RESTING, do_gold, 0, 0, 0},
+	{"glide", POS_STANDING, do_lightwalk, 0, 0, 0},
 	{"glory", POS_RESTING, do_glory, LVL_BUILDER, 0, 0},
 	{"gossip", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, -1},
 	{"goto", POS_SLEEPING, do_goto, LVL_GOD, 0, 0},
@@ -2187,6 +2191,22 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	    && !GET_SKILL(d->character, SKILL_AWAKE))
 		REMOVE_BIT(PRF_FLAGS(d->character, PRF_AWAKE), PRF_AWAKE);
 
+	if (IS_SET(PRF_FLAGS(d->character, PRF_POWERATTACK), PRF_POWERATTACK)
+	    && !can_use_feat(d->character, POWER_ATTACK_FEAT))
+		REMOVE_BIT(PRF_FLAGS(d->character, PRF_POWERATTACK), PRF_POWERATTACK);
+
+	if (IS_SET(PRF_FLAGS(d->character, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK)
+	    && !can_use_feat(d->character, GREAT_POWER_ATTACK_FEAT))
+		REMOVE_BIT(PRF_FLAGS(d->character, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK);
+
+	if (IS_SET(PRF_FLAGS(d->character, PRF_AIMINGATTACK), PRF_AIMINGATTACK)
+	    && !can_use_feat(d->character, AIMING_ATTACK_FEAT))
+		REMOVE_BIT(PRF_FLAGS(d->character, PRF_AIMINGATTACK), PRF_AIMINGATTACK);
+
+	if (IS_SET(PRF_FLAGS(d->character, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK)
+	    && !can_use_feat(d->character, GREAT_AIMING_ATTACK_FEAT))
+		REMOVE_BIT(PRF_FLAGS(d->character, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
+
 	/* изменяем порталы */
 	check_portals(d->character);
 
@@ -2296,7 +2316,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 /* deal with newcomers and other non-playing sockets */
 void nanny(DESCRIPTOR_DATA * d, char *arg)
 {
-	char buf[MAX_STRING_LENGTH], *dog_pos;
+	char buf[MAX_STRING_LENGTH];
 	int player_i, load_result;
 	char tmp_name[MAX_INPUT_LENGTH], pwd_name[MAX_INPUT_LENGTH], pwd_pwd[MAX_INPUT_LENGTH];
 
@@ -2862,7 +2882,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		if (!*arg) {
 			SEND_TO_Q("\r\nВаш E-mail : ", d);
 			return;
-//		} else if (!(dog_pos = strchr(arg, '@')) || dog_pos == arg || !*(dog_pos + 1)) {
 		} else if (!valid_email(arg)) {
 			SEND_TO_Q("\r\nНекорректный E-mail !" "\r\nВаш E-mail :  ", d);
 			return;

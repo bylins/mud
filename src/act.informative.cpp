@@ -32,6 +32,7 @@
 #include "dg_scripts.h"
 #include "privileges.hpp"
 #include "mail.h"
+#include "features.hpp"
 
 #include <string>
 using std::string;
@@ -2138,11 +2139,9 @@ ACMD(do_score)
 		CCIGRN(ch, C_NRM), GET_ABSORBE(ch), CCCYN(ch, C_NRM),
 		CCWHT(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
-	hr += str_app[STRENGTH_APPLY_INDEX(ch)].tohit + GET_REAL_HR(ch)
-					- thaco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
 	max_dam = GET_REAL_DR(ch) + str_app[GET_REAL_STR (ch)].todam;
 	
-        if (IS_WARRIOR(ch)) {
+	if (IS_WARRIOR(ch)) {
 	        modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)) : 0));
 	        modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)) : 0));
 	        modi = MAX(100, modi);
@@ -2184,11 +2183,21 @@ ACMD(do_score)
 			if (GET_SKILL(ch, skill) == 0) {
        	                    hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
               	            max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
-			} else 
-			    apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
+			}  else 
+			    apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr); 
 		    }			    
 		}
-	}
+	} 
+
+	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
+		if (weapon && GET_OBJ_WEIGHT(weapon) > 20)
+			hr += str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
+		else
+			hr += str_app[GET_REAL_DEX(ch)].tohit;
+	else
+		hr += str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
+	hr += GET_REAL_HR(ch) - thaco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
+
 	max_dam = MAX(0, max_dam);
 	resist = MIN(GET_RESIST(ch, WATER_RESISTANCE), 75);
 	sprintf(buf+ strlen(buf),

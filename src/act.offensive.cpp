@@ -1702,6 +1702,14 @@ const char *cstyles[] = { "normal",
 	"точный",
 	"awake",
 	"осторожный",
+	"powerattack",
+	"мощнаяатака",
+	"grandpowerattack",
+	"улучшеннаямощнаяатака",
+	"aimattack",
+	"прицельнаяатака",
+	"grandaimattack",
+	"улучшеннаяприцельнаяатака",
 	"\n"
 };
 
@@ -1723,7 +1731,7 @@ ACMD(do_style)
 		return;
 	}
 	if (((tp = search_block(arg, cstyles, FALSE)) == -1)) {
-		send_to_char("Формат: стиль { обычный | точный | осторожный }\r\n", ch);
+		send_to_char("Формат: стиль { название стиля }\r\n", ch);
 		return;
 	}
 	tp >>= 1;
@@ -1731,25 +1739,94 @@ ACMD(do_style)
 		send_to_char("Вам неизвестен такой стиль боя.\r\n", ch);
 		return;
 	}
-
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_PUNCTUAL), PRF_PUNCTUAL);
-	REMOVE_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE);
-
-	SET_BIT(PRF_FLAGS(ch, PRF_PUNCTUAL), PRF_PUNCTUAL * (tp == 1));
-	SET_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE * (tp == 2));
-
-	if (FIGHTING(ch) && !(AFF_FLAGGED(ch, AFF_COURAGE) ||
-			      AFF_FLAGGED(ch, AFF_DRUNKED) || AFF_FLAGGED(ch, AFF_ABSTINENT))) {
-		CLR_AF_BATTLE(ch, EAF_PUNCTUAL);
-		CLR_AF_BATTLE(ch, EAF_AWAKE);
-		if (tp == 1)
-			SET_AF_BATTLE(ch, EAF_PUNCTUAL);
-		else if (tp == 2)
-			SET_AF_BATTLE(ch, EAF_AWAKE);
+	if ((tp == 3 && !can_use_feat(ch, POWER_ATTACK_FEAT)) || (tp == 4 && !can_use_feat(ch, GREAT_POWER_ATTACK_FEAT))) {
+		send_to_char("Вы не можете использовать эту атаку.\r\n", ch);
+		return;
 	}
+	if ((tp == 5 && !can_use_feat(ch, AIMING_ATTACK_FEAT)) || (tp == 6 && !can_use_feat(ch, GREAT_AIMING_ATTACK_FEAT))) {
+		send_to_char("Вы не можете использовать эту атаку.\r\n", ch);
+		return;
+	}
+	switch (tp) {
+	case 0:
+	case 1:
+	case 2:
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_PUNCTUAL), PRF_PUNCTUAL);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE);
 
-	sprintf(buf, "Вы выбрали %s%s%s стиль боя.\r\n",
-		CCRED(ch, C_SPR), tp == 0 ? "обычный" : tp == 1 ? "точный" : "осторожный", CCNRM(ch, C_OFF));
+		SET_BIT(PRF_FLAGS(ch, PRF_PUNCTUAL), PRF_PUNCTUAL * (tp == 1));
+		SET_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE * (tp == 2));
+
+		if (FIGHTING(ch) && !(AFF_FLAGGED(ch, AFF_COURAGE) ||
+				      AFF_FLAGGED(ch, AFF_DRUNKED) || AFF_FLAGGED(ch, AFF_ABSTINENT))) {
+			CLR_AF_BATTLE(ch, EAF_PUNCTUAL);
+			CLR_AF_BATTLE(ch, EAF_AWAKE);
+			if (tp == 1)
+				SET_AF_BATTLE(ch, EAF_PUNCTUAL);
+			else if (tp == 2)
+				SET_AF_BATTLE(ch, EAF_AWAKE);
+		}
+
+		sprintf(buf, "Вы выбрали %s%s%s стиль боя.\r\n",
+			CCRED(ch, C_SPR), tp == 0 ? "обычный" : tp == 1 ? "точный" : "осторожный", CCNRM(ch, C_OFF));
+	break;
+	case 3:
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_AIMINGATTACK), PRF_AIMINGATTACK);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK);
+		if (PRF_FLAGGED(ch, PRF_POWERATTACK)) {
+			REMOVE_BIT(PRF_FLAGS(ch, PRF_POWERATTACK), PRF_POWERATTACK);
+			sprintf(buf, "%sВы прекратили использовать мощную атаку.%s\r\n",
+								CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
+		} else {
+			SET_BIT(PRF_FLAGS(ch, PRF_POWERATTACK), PRF_POWERATTACK);
+			sprintf(buf, "%sВы решили использовать мощную атаку.%s\r\n",
+								CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
+		}
+	break;
+	case 4:
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_AIMINGATTACK), PRF_AIMINGATTACK);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_POWERATTACK), PRF_POWERATTACK);
+		if (PRF_FLAGGED(ch, PRF_GREATPOWERATTACK)) {
+			REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK);
+			sprintf(buf, "%sВы прекратили использовать улучшенную мощную атаку.%s\r\n",
+								CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
+		} else {
+			SET_BIT(PRF_FLAGS(ch, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK);
+			sprintf(buf, "%sВы решили использовать улучшенную мощную атаку.%s\r\n",
+								CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
+		}
+	break;
+	case 5:
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_POWERATTACK), PRF_POWERATTACK);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
+		if (PRF_FLAGGED(ch, PRF_AIMINGATTACK)) {
+			REMOVE_BIT(PRF_FLAGS(ch, PRF_AIMINGATTACK), PRF_AIMINGATTACK);
+			sprintf(buf, "%sВы прекратили использовать прицельную атаку.%s\r\n",
+								CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
+		} else {
+			SET_BIT(PRF_FLAGS(ch, PRF_AIMINGATTACK), PRF_AIMINGATTACK);
+			sprintf(buf, "%sВы решили использовать прицельную атаку.%s\r\n",
+								CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
+		}
+	break;
+	case 6:
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_POWERATTACK), PRF_POWERATTACK);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATPOWERATTACK), PRF_GREATPOWERATTACK);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_AIMINGATTACK), PRF_AIMINGATTACK);
+		if (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK)) {
+			REMOVE_BIT(PRF_FLAGS(ch, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
+			sprintf(buf, "%sВы прекратили использовать улучшенную прицельную атаку.%s\r\n",
+								CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
+		} else {
+			SET_BIT(PRF_FLAGS(ch, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
+			sprintf(buf, "%sВы решили использовать улучшенную прицельную атаку.%s\r\n",
+								CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
+		}
+	break;
+	}
 	send_to_char(buf, ch);
 	if (!WAITLESS(ch))
 		WAIT_STATE(ch, PULSE_VIOLENCE);

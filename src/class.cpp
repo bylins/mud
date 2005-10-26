@@ -2158,7 +2158,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 		obj = read_object(START_CLUB, VIRTUAL);
 		if (obj)
 			equip_char(ch, obj, WEAR_WIELD);
-		SET_SKILL(ch, SKILL_SATTACK, 10);
+		SET_SKILL(ch, SKILL_SATTACK, 50);
 		break;
 
 	case CLASS_THIEF:
@@ -2343,16 +2343,19 @@ void o_advance_level(CHAR_DATA * ch)
 		break;
 	}
 
+	for (i = 1; i < MAX_FEATS; i++)	
+		if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && can_get_feat(ch, i))
+			SET_FEAT(ch, i); 
+
+	if (HAVE_FEAT(ch, ENDURANCE_FEAT))
+		add_move += 3;
+	
 	add_hp_min = MIN(add_hp_min, add_hp_max);
 	add_hp_min = MAX(1, add_hp_min);
 	add_hp_max = MAX(1, add_hp_max);
 	log("Add hp for %s in range %d..%d", GET_NAME(ch), add_hp_min, add_hp_max);
 	ch->points.max_hit += number(add_hp_min, add_hp_max);
 	ch->points.max_move += MAX(1, add_move);
-
-	for (i = 1; i < MAX_FEATS; i++)	
-		if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && can_get_feat(ch, i))
-			SET_FEAT(ch, i); 
 
 	if (IS_IMMORTAL(ch)) {
 		for (i = 0; i < 3; i++)
@@ -2400,6 +2403,9 @@ void o_decrease_level(CHAR_DATA * ch)
 		add_move = GET_DEX(ch) / 5 + 1;
 		break;
 	}
+
+	if (HAVE_FEAT(ch, ENDURANCE_FEAT))
+		add_move += 3;
 
 	log("Dec hp for %s set ot %d", GET_NAME(ch), add_hp);
 	ch->points.max_hit -= MIN(ch->points.max_hit, MAX(1, add_hp));

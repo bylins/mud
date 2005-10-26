@@ -2288,9 +2288,8 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		if (dam && (IS_WEAPON(attacktype)
 			    || attacktype == (SKILL_KICK + TYPE_HIT))) {
 			alt_equip(victim, NOWHERE, dam, 50);
+			int decrease = MIN(25, (GET_ABSORBE(victim) + 1) / 2) + GET_ARMOUR(victim);
 			if (!was_critic) {
-				int decrease = MIN(25,
-						   (GET_ABSORBE(victim) + 1) / 2) + GET_ARMOUR(victim);
 				if (decrease >= number(dam, dam * 50)) {
 					act("Ваши доспехи полностью поглотили удар $n1.", FALSE,
 					    ch, 0, victim, TO_VICT);
@@ -2300,7 +2299,12 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 					return (0);
 				}
 				dam -= (dam * MIN(50, decrease) / 100);
-			}
+			/* умножаем дамаг при крит ударе, если брони мало, санки нет и ее игнор ничего не дает
+			   по призме не умножаем, чтобы не уносило танков с 1 удара */
+			} else if (decrease <= 50 && !AFF_FLAGGED(victim, AFF_SANCTUARY)
+							&& !AFF_FLAGGED(victim, AFF_PRISMATICAURA))
+				dam *= 2;
+
 		}
 	} else if (MOB_FLAGGED(victim, MOB_PROTECT)) {
 		return (0);
@@ -2315,7 +2319,18 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 	if (dam && was_critic) {
 		FS_damage = 0;
 		dam = compute_critical(ch, victim, dam);
+		if (!dam_critic) {
+			sprintf(buf, "%sВаше меткое попадание тяжело ранило %s.%s\r\n",
+						CCIGRN(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
+			send_to_char(buf,ch);
+			sprintf(buf, "%sМеткое попадание %s тяжело ранило Вас.%s\r\n",
+					CCRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
+			send_to_char(buf, victim);
+			act("Меткое попадание $N1 заставило $n3 пошатнуться.", TRUE, victim, 0, ch, TO_NOTVICT);
+		}
 	}
+	/* Обрезаем макс дамаг */
+	dam = MIN(dam, MAX_HITS);
 
 	if (attacktype == SPELL_FIRE_SHIELD) {
 		if ((GET_HIT(victim) -= dam) < 1)
@@ -2475,7 +2490,8 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 //      }
 		return (-1);
 	}
-	if (FS_damage && FIGHTING(victim) && GET_POS(victim) > POS_STUNNED && IN_ROOM(victim) != NOWHERE)
+	if (FS_damage && FIGHTING(victim) && GET_POS(victim) > POS_STUNNED
+			&& IN_ROOM(victim) != NOWHERE && attacktype != SKILL_TURN_UNDEAD + TYPE_HIT)
 		damage(victim, ch, FS_damage, SPELL_FIRE_SHIELD, FALSE);
 	return (dam);
 }
@@ -2567,23 +2583,12 @@ void apply_weapon_bonus(int ch_class, int skill, int *damroll, int *hitroll)
 	int calc_thaco = *hitroll;
 
 	switch (ch_class) {
-	case CLASS_CLERIC:
-		switch (skill) {
-			case SKILL_CLUBS:	calc_thaco -= 0; dam += 1; break;
-			case SKILL_AXES:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_LONGS:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_SHORTS:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_NONSTANDART:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_BOTHHANDS:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_PICK:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_SPADES:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_BOWS:	calc_thaco -= 0; dam += 0; break;
-		}
-		break;
+/*	case CLASS_CLERIC:
 	case CLASS_BATTLEMAGE:
 	case CLASS_DEFENDERMAGE:
 	case CLASS_CHARMMAGE:
 	case CLASS_NECROMANCER:
+	case CLASS_PALADINE:
 		switch (skill) {
 			case SKILL_CLUBS:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_AXES:	calc_thaco -= 0; dam += 0; break;
@@ -2595,110 +2600,97 @@ void apply_weapon_bonus(int ch_class, int skill, int *damroll, int *hitroll)
 			case SKILL_SPADES:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_BOWS:	calc_thaco -= 0; dam += 0; break;
 		}
-		break;
+		break;    */
 	case CLASS_WARRIOR:
 		switch (skill) {
-			case SKILL_CLUBS:	calc_thaco -= 2; dam += 0; break;
-			case SKILL_AXES:	calc_thaco -= 1; dam += 0; break;
-			case SKILL_LONGS:	calc_thaco -= 1; dam += 0; break;
-			case SKILL_SHORTS:	calc_thaco -= -2; dam += 0; break;
+			case SKILL_CLUBS:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_AXES:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_LONGS:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_SHORTS:	calc_thaco += 2; dam += 0; break;
 			case SKILL_NONSTANDART:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_BOTHHANDS:	calc_thaco -= 0; dam += 2; break;
-			case SKILL_PICK:	calc_thaco -= -2; dam += 0; break;
+			case SKILL_BOTHHANDS:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_PICK:	calc_thaco += 2; dam += 0; break;
 			case SKILL_SPADES:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_BOWS:	calc_thaco -= 0; dam += 0; break;
 		}
 		break;
 	case CLASS_RANGER:
 		switch (skill) {
-			case SKILL_CLUBS:	calc_thaco -= 1; dam += 0; break;
-			case SKILL_AXES:	calc_thaco -= 1; dam += 0; break;
-			case SKILL_LONGS:	calc_thaco += 1; dam += 0; break;
+			case SKILL_CLUBS:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_AXES:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_LONGS:	calc_thaco += 0; dam += 0; break;
 			case SKILL_SHORTS:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_NONSTANDART:	calc_thaco -= 1; dam += 0; break;
+			case SKILL_NONSTANDART:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_BOTHHANDS:	calc_thaco += 1; dam += 0; break;
 			case SKILL_PICK:	calc_thaco += 1; dam += 0; break;
-			case SKILL_SPADES:	calc_thaco -= 1; dam += 0; break;
-			case SKILL_BOWS:	calc_thaco -= 2; dam += 0; break;
-		}
-		break;
-		case CLASS_GUARD:
-	case CLASS_PALADINE:
-		switch (skill) {
-			case SKILL_CLUBS:	calc_thaco -= 1; dam += 0; break;
-			case SKILL_AXES:	calc_thaco -= 1; dam += 0; break;
-			case SKILL_LONGS:	calc_thaco -= 1; dam += 2; break;
-			case SKILL_SHORTS:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_NONSTANDART:	calc_thaco -= 1; dam += 0; break;
-			case SKILL_BOTHHANDS:	calc_thaco -= 1; dam += 3; break;
-			case SKILL_PICK:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_SPADES:	calc_thaco -= 1; dam += 1; break;
+			case SKILL_SPADES:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_BOWS:	calc_thaco -= 1; dam += 0; break;
 		}
 		break;
+		case CLASS_GUARD:
 	case CLASS_THIEF:
 		switch (skill) {
-			case SKILL_CLUBS:	calc_thaco -= -1; dam += 0; break;
-			case SKILL_AXES:	calc_thaco -= -1; dam += 0; break;
-			case SKILL_LONGS:	calc_thaco -= -1; dam += 0; break;
-			case SKILL_SHORTS:	calc_thaco -= 0; dam += 3; break;
-			case SKILL_NONSTANDART:	calc_thaco -= -1; dam += 0; break;
-			case SKILL_BOTHHANDS:	calc_thaco -= -1; dam += 0; break;
-			case SKILL_PICK:	calc_thaco -= 0; dam += 3; break;
-			case SKILL_SPADES:	calc_thaco -= -1; dam += 1; break;
-			case SKILL_BOWS:	calc_thaco -= -1; dam += 0; break;
+			case SKILL_CLUBS:	calc_thaco += 1; dam += 0; break;
+			case SKILL_AXES:	calc_thaco += 1; dam += 0; break;
+			case SKILL_LONGS:	calc_thaco += 1; dam += 0; break;
+			case SKILL_SHORTS:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_NONSTANDART:	calc_thaco += 1; dam += 0; break;
+			case SKILL_BOTHHANDS:	calc_thaco += 1; dam += 0; break;
+			case SKILL_PICK:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_SPADES:	calc_thaco += 1; dam += 0; break;
+			case SKILL_BOWS:	calc_thaco -= 0; dam += 0; break;
 		}
 		break;
 	case CLASS_ASSASINE:
 		switch (skill) {
-			case SKILL_CLUBS:	calc_thaco -= -1; dam += 0; break;
-			case SKILL_AXES:	calc_thaco -= -1; dam += 0; break;
-			case SKILL_LONGS:	calc_thaco -= 1; dam += 0; break;
-			case SKILL_SHORTS:	calc_thaco -= 2; dam += 7; break;
-			case SKILL_NONSTANDART:	calc_thaco -= -1; dam += 4; break;
-			case SKILL_BOTHHANDS:	calc_thaco -= -1; dam += 0; break;
-			case SKILL_PICK:	calc_thaco -= 2; dam += 7; break;
-			case SKILL_SPADES:	calc_thaco -= -1; dam += 4; break;
-			case SKILL_BOWS:	calc_thaco -= -1; dam += 0; break;
+			case SKILL_CLUBS:	calc_thaco += 1; dam += 0; break;
+			case SKILL_AXES:	calc_thaco += 1; dam += 0; break;
+			case SKILL_LONGS:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_SHORTS:	calc_thaco -= 1; dam += 1; break;
+			case SKILL_NONSTANDART:	calc_thaco += 1; dam += 1; break;
+			case SKILL_BOTHHANDS:	calc_thaco += 1; dam += 0; break;
+			case SKILL_PICK:	calc_thaco -= 1; dam += 1; break;
+			case SKILL_SPADES:	calc_thaco += 1; dam += 1; break;
+			case SKILL_BOWS:	calc_thaco -= 0; dam += 0; break;
 		}
 		break;
 	case CLASS_SMITH:
 		switch (skill) {
-			case SKILL_CLUBS:	calc_thaco -= 1; dam += 1; break;
-			case SKILL_AXES:	calc_thaco -= 1; dam += 1; break;
-			case SKILL_LONGS:	calc_thaco -= 1; dam += 1; break;
-			case SKILL_SHORTS:	calc_thaco -= -1; dam += -1; break;
+			case SKILL_CLUBS:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_AXES:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_LONGS:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_SHORTS:	calc_thaco += 1; dam += 0; break;
 			case SKILL_NONSTANDART:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_BOTHHANDS:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_PICK:	calc_thaco -= -1; dam += -1; break;
+			case SKILL_PICK:	calc_thaco += 1; dam += 0; break;
 			case SKILL_SPADES:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_BOWS:	calc_thaco -= -1; dam += -1; break;
+			case SKILL_BOWS:	calc_thaco += 1; dam += 0; break;
 		}
 		break;
 	case CLASS_MERCHANT:
 		switch (skill) {
-			case SKILL_CLUBS:	calc_thaco -= 1; dam += 1; break;
-			case SKILL_AXES:	calc_thaco -= -1; dam += 0; break;
-			case SKILL_LONGS:	calc_thaco -= -1; dam += 0; break;
-			case SKILL_SHORTS:	calc_thaco -= 1; dam += 1; break;
-			case SKILL_NONSTANDART:	calc_thaco -= 1; dam += 1; break;
-			case SKILL_BOTHHANDS:	calc_thaco -= -1; dam += -1; break;
-			case SKILL_PICK:	calc_thaco -= 1; dam += 1; break;
-			case SKILL_SPADES:	calc_thaco -= -1; dam += 0; break;
-			case SKILL_BOWS:	calc_thaco -= -1; dam += 0; break;
+			case SKILL_CLUBS:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_AXES:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_LONGS:	calc_thaco += 1; dam += 0; break;
+			case SKILL_SHORTS:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_NONSTANDART:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_BOTHHANDS:	calc_thaco += 1; dam += 0; break;
+			case SKILL_PICK:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_SPADES:	calc_thaco += 1; dam += 0; break;
+			case SKILL_BOWS:	calc_thaco -= 0; dam += 0; break;
 		}
 		break;
 	case CLASS_DRUID:
 		switch (skill) {
-			case SKILL_CLUBS:	calc_thaco -= 1; dam += 2; break;
-			case SKILL_AXES:	calc_thaco -= -1; dam += 0; break;
-			case SKILL_LONGS:	calc_thaco -= -1; dam += 0; break;
+			case SKILL_CLUBS:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_AXES:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_LONGS:	calc_thaco += 1; dam += 0; break;
 			case SKILL_SHORTS:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_NONSTANDART:	calc_thaco -= 1; dam += 0; break;
-			case SKILL_BOTHHANDS:	calc_thaco -= -1; dam += 0; break;
-			case SKILL_PICK:	calc_thaco -= -1; dam += 0; break;
-			case SKILL_SPADES:	calc_thaco -= -1; dam += 0; break;
-			case SKILL_BOWS:	calc_thaco -= -1; dam += 0; break;
+			case SKILL_NONSTANDART:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_BOTHHANDS:	calc_thaco += 1; dam += 0; break;
+			case SKILL_PICK:	calc_thaco += 0; dam += 0; break;
+			case SKILL_SPADES:	calc_thaco += 0; dam += 0; break;
+			case SKILL_BOWS:	calc_thaco += 1; dam += 0; break;
 		}
 		break;
 	}
@@ -2744,7 +2736,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 	OBJ_DATA *wielded = NULL;
 	CHAR_DATA *vict;
 //  int victim_old_ac;
-	int w_type = 0, victim_ac, calc_thaco, dam, diceroll, prob, range, skill =
+	int i, w_type = 0, victim_ac, calc_thaco, dam, diceroll, prob, range, skill =
 	    0, weapon_pos = WEAR_WIELD, percent, is_shit = (weapon == 2) ? 1 : 0, modi = 0, skill_is = 0;
 
 	if (!victim)
@@ -2818,24 +2810,19 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
               но сейчас закомментированы, потому что все равно
 	      они никогда не работали.
 
-	  if (weapon == 1 &&
-	      GET_EQ (ch, WEAR_HOLD) &&
-	      GET_OBJ_TYPE (GET_EQ (ch, WEAR_HOLD)) == ITEM_WEAPON)
-	    {
-	      if (weapon < EXPERT_WEAPON)
-		calc_thaco += 2;
-	      else
-		calc_thaco += 0;
-	    }
-	  else
-	    if (weapon == 2 && GET_EQ (ch, WEAR_WIELD) &&
-		GET_OBJ_TYPE (GET_EQ (ch, WEAR_WIELD)) == ITEM_WEAPON)
-	    {
-	      if (weapon < EXPERT_WEAPON)
-		calc_thaco += 4;
-	      else
-		calc_thaco += 2;
-	    }
+		if (weapon == 1 && GET_EQ (ch, WEAR_HOLD)
+				&& GET_OBJ_TYPE (GET_EQ (ch, WEAR_HOLD)) == ITEM_WEAPON) {
+			if (HAVE_FEAT(ch, TWO_WEAPON_FIGHTING_FEAT))
+				calc_thaco += 2;
+			else
+				calc_thaco += 4;
+		} else if (weapon == 2 && GET_EQ (ch, WEAR_WIELD)
+					&& GET_OBJ_TYPE (GET_EQ (ch, WEAR_WIELD)) == ITEM_WEAPON) {
+			if (HAVE_FEAT(ch, TWO_WEAPON_FIGHTING_FEAT))
+				calc_thaco += 8;
+			else
+				calc_thaco += 4;
+		}
 */
 			// Apply HR for light weapon
 			percent = 0;
@@ -2905,7 +2892,60 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		else
 			w_type += TYPE_HIT;
 	}
-
+	/* Gorrah: Проверка на фит "любимое оружие"
+	   Сделал в виде HAVE_FEAT. Если кому не нравится - меняйте :) */
+	switch (skill) {
+	case SKILL_PUNCH:
+		if (HAVE_FEAT(ch, PUNCH_FOCUS_FEAT)) {
+			calc_thaco -= 2; dam += 2;
+		}
+		break;
+	case SKILL_CLUBS:
+		if (HAVE_FEAT(ch, CLUB_FOCUS_FEAT)) {
+			calc_thaco -= 2; dam += 2;
+		}
+		break;
+	case SKILL_AXES:
+		if (HAVE_FEAT(ch, AXES_FOCUS_FEAT)) {
+			calc_thaco -= 1; dam += 2;
+		}
+		break;
+	case SKILL_LONGS:
+		if (HAVE_FEAT(ch, LONGS_FOCUS_FEAT)) {
+			calc_thaco -= 1; dam += 2;
+		}
+		break;
+	case SKILL_SHORTS:
+		if (HAVE_FEAT(ch, SHORTS_FOCUS_FEAT)) {
+			calc_thaco -= 1; dam += 3;
+		}
+		break;
+	case SKILL_NONSTANDART:
+		if (HAVE_FEAT(ch, NONSTANDART_FOCUS_FEAT)) {
+			calc_thaco -= 1; dam += 3;
+		}
+		break;
+	case SKILL_BOTHHANDS:
+		if (HAVE_FEAT(ch, BOTHHANDS_FOCUS_FEAT)) {
+			calc_thaco -= 1; dam += 3;
+		}
+		break;
+	case SKILL_PICK:
+		if (HAVE_FEAT(ch, PICK_FOCUS_FEAT)) {
+			calc_thaco -= 1; dam += 3;
+		}
+		break;
+	case SKILL_SPADES:
+		if (HAVE_FEAT(ch, SPADES_FOCUS_FEAT)) {
+			calc_thaco -= 1; dam += 3;
+		}
+		break;
+	case SKILL_BOWS:
+		if (HAVE_FEAT(ch, BOWS_FOCUS_FEAT)) {
+			calc_thaco -= 1; dam += 2;
+		}
+		break;
+	}
 	// courage
 	if (affected_by_spell(ch, SPELL_COURAGE)) {
 		range = number(1, skill_info[SKILL_COURAGE].max_percent + GET_REAL_MAX_HIT(ch) - GET_HIT(ch));
@@ -2958,9 +2998,9 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 	}
 	// not can see (blind, dark, etc)
 	if (!CAN_SEE(ch, victim))
-		calc_thaco += 6;
+		calc_thaco += (can_use_feat(ch, BLIND_FIGHT_FEAT) ? 2 : IS_NPC(ch) ? 6 : 10);
 	if (!CAN_SEE(victim, ch))
-		calc_thaco -= 6;
+		calc_thaco -= (can_use_feat(victim, BLIND_FIGHT_FEAT) ? 2 : 8);
 
 	// bless
 	if (AFF_FLAGGED(ch, AFF_BLESS)) {
@@ -2971,6 +3011,21 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		calc_thaco += 6;
 		dam -= 5;
 	}
+	/* Учет мощной и прицельной атаки */
+	if (PRF_FLAGGED(ch, PRF_POWERATTACK) && can_use_feat(ch, POWER_ATTACK_FEAT)) {
+		calc_thaco += 2;
+		dam += 5;
+	} else if  (PRF_FLAGGED(ch, PRF_GREATPOWERATTACK) && can_use_feat(ch, GREAT_POWER_ATTACK_FEAT)) {
+		calc_thaco += 4;
+		dam += 10;
+	} else if  (PRF_FLAGGED(ch, PRF_AIMINGATTACK) && can_use_feat(ch, AIMING_ATTACK_FEAT)) {
+		calc_thaco -= 2;
+		dam -= 5;
+	} else if  (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK) && can_use_feat(ch, GREAT_AIMING_ATTACK_FEAT)) {
+		calc_thaco -= 4;
+		dam -= 10;
+	}
+
 	// some protects
 	if (AFF_FLAGGED(victim, AFF_PROTECT_EVIL) && IS_EVIL(ch))
 		calc_thaco += 3;
@@ -3004,7 +3059,15 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 	else			// штраф мобам по рекомендации Триглава
 		calc_thaco += (25 - GET_LEVEL(ch) / 3);
 
-	calc_thaco -= (str_app[STRENGTH_APPLY_INDEX(ch)].tohit + GET_REAL_HR(ch));
+	/* Использование ловкости вместо силы для попадания */
+	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
+		if (wielded && GET_OBJ_WEIGHT(wielded) > 20)
+			calc_thaco -= str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
+		else
+			calc_thaco -= str_app[GET_REAL_DEX(ch)].tohit;		
+	else
+		calc_thaco -= str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
+	calc_thaco -= GET_REAL_HR(ch);
 
 	if ((skill == SKILL_THROW || skill == SKILL_BACKSTAB) && wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON) {
 		skill_is = calculate_skill(ch, GET_OBJ_SKILL(wielded),
@@ -3179,6 +3242,10 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			alt_equip(ch, weapon_pos, dam, 10);
  		dam_critic = 0;
 		was_critic = 19;
+		/* Gorrah Мастерские фиты по оружию дают +5% к шансу критического попадания */
+		for (i = PUNCH_MASTER_FEAT; i <= BOWS_MASTER_FEAT; i++)
+			if ((ubyte) feat_info[i].affected[0].location == skill && can_use_feat(ch, i))
+				was_critic -= 1;			
 		if (GET_CLASS(ch) == CLASS_THIEF) 
 			was_critic -= (int) (GET_SKILL(ch,SKILL_BACKSTAB) / 60);
 		if (GET_CLASS(ch) == CLASS_PALADINE) 
@@ -3187,7 +3254,8 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			was_critic -= (int) (GET_SKILL(ch,SKILL_NOPARRYHIT) / 100);
 
 		//critical hit ignore magic_shields and armour
-		if (diceroll > was_critic)
+		if (diceroll > was_critic && !(IS_NPC(ch)
+				&& AFF_FLAGGED(ch,AFF_CHARM) && !AFF_FLAGGED(ch,AFF_HELPER)))
 			was_critic = TRUE;
 		else
 			was_critic = FALSE;
@@ -3354,7 +3422,9 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 					prob = (int) (prob * 100 / range);
 
 					if (prob < 70 || ((skill == SKILL_BOWS || w_type == TYPE_MAUL)
-							  && !IS_IMMORTAL(victim))) {
+						&& !IS_IMMORTAL(victim)
+							&& (!can_use_feat(victim, PARRY_ARROW_FEAT)
+							|| number(1, 1000) >= 20 * MIN(GET_REAL_DEX(victim), 35)))) {
 						act("Вы не смогли отбить атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
 						act("$N не сумел$G отбить Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
 						act("$n не сумел$g отбить атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT);
@@ -3419,8 +3489,9 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 							skill_info[SKILL_MULTYPARRY].max_percent +
 							BATTLECNTR(ch) * 15, ch);
 					prob = (int) (prob * 100 / range);
-					if ((skill == SKILL_BOWS || w_type == TYPE_MAUL)
-					    && !IS_IMMORTAL(victim))
+					if ((skill == SKILL_BOWS || w_type == TYPE_MAUL) && !IS_IMMORTAL(victim)
+							&& (!can_use_feat(victim, PARRY_ARROW_FEAT)
+								|| number(1, 1000) >= 20 * MIN(GET_REAL_DEX(victim), 35)))
 						prob = 0;
 					else
 						BATTLECNTR(victim)++;

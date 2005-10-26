@@ -3668,7 +3668,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	char *reason;
 	room_rnum rnum;
 	room_vnum rvnum;
-	char output[MAX_STRING_LENGTH], *dog_pos, num[MAX_INPUT_LENGTH];
+	char output[MAX_STRING_LENGTH], num[MAX_INPUT_LENGTH];
 	int rod;
 
 	/* Check to make sure all the levels are correct */
@@ -4216,7 +4216,6 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		if (!set_punish(ch, vict, SCMD_HELL, reason, times)) return (0);
 		break;
 	case 61:
-//		if (*val_arg && (dog_pos = strchr(val_arg, '@')) && dog_pos > val_arg && *(dog_pos + 1)) {
 		if (valid_email(val_arg)) {
 			strncpy(GET_EMAIL(vict), val_arg, 127);
 			*(GET_EMAIL(vict) + 127) = '\0';

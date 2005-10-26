@@ -761,6 +761,9 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 			if (track) {
 				SET_BIT(track->time_income[Reverse[dir]], 1);
+				if (affected_by_spell(ch, SPELL_LIGHT_WALK) && !on_horse(ch))
+					if (AFF_FLAGGED(ch, AFF_LIGHT_WALK))
+						track->time_income[Reverse[dir]] <<= number(15, 30);
 				REMOVE_BIT(track->track_info, TRACK_HIDE);
 			}
 
@@ -780,6 +783,9 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 			}
 			if (track) {
 				SET_BIT(track->time_outgone[dir], 1);
+				if (affected_by_spell(ch, SPELL_LIGHT_WALK) && !on_horse(ch))
+					if (AFF_FLAGGED(ch, AFF_LIGHT_WALK))
+						track->time_outgone[dir] <<= number(15, 30);
 				REMOVE_BIT(track->track_info, TRACK_HIDE);
 			}
 		}

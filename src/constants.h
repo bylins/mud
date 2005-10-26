@@ -98,8 +98,8 @@ extern struct zone_type * zone_types;
 #define SNEAK_MOVES      1
 #define CAMOUFLAGE_MOVES 1
 #define PICKLOCK_MOVES   10
-#define TRACK_MOVES      2
-#define SENSE_MOVES      3
+#define TRACK_MOVES      3
+#define SENSE_MOVES      4
 #define HIDETRACK_MOVES  10
 
 #define MOB_ARMOUR_MULT  5
