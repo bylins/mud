@@ -3254,6 +3254,8 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		    was_critic += (int) (GET_SKILL(ch,SKILL_PUNCTUAL) / 2);
 		if (GET_CLASS(ch) == CLASS_ASSASINE) 
 		    was_critic += (int) (GET_SKILL(ch,SKILL_NOPARRYHIT) / 3);
+		if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
+		    was_critic += GET_LEVEL(ch);
 		    
 		//critical hit ignore magic_shields and armour
 		if (number(0, 2000) < was_critic && !(IS_NPC(ch)
