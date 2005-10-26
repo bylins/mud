@@ -83,12 +83,14 @@ using std::bitset;
 #define CLUB_FOCUS_FEAT			69  //любимое оружие: палица
 #define AXES_FOCUS_FEAT			70  //любимое оружие: секира
 #define LONGS_FOCUS_FEAT		71  //любимое оружие: меч
-#define SHORTS_FOCUS_FEAT		72  //любимое оружие: кинжал
+#define SHORTS_FOCUS_FEAT		72  //любимое оружие: нож
 #define NONSTANDART_FOCUS_FEAT		73  //любимое оружие: необычное
 #define BOTHHANDS_FOCUS_FEAT		74  //любимое оружие: двуручник
-#define PICK_FOCUS_FEAT			75  //любимое оружие: нож
+#define PICK_FOCUS_FEAT			75  //любимое оружие: кинжал
 #define SPADES_FOCUS_FEAT		76  //любимое оружие: копье
 #define BOWS_FOCUS_FEAT			77  //любимое оружие: лук
+#define AIMING_ATTACK_FEAT		78  //прицельная атака
+#define GREAT_AIMING_ATTACK_FEAT	79  //улучшенная прицельная атака
 
 /*
 #define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух
@@ -109,11 +111,12 @@ using std::bitset;
 #define SKILL_MOD_FTYPE	2
 
 #define MAX_FEAT_AFFECT	5 /* Количество пар "параметр-значение" */
-#define MAX_ACC_FEAT	6 /* Максимально доступное количество не-врожденных способностей. */
+#define MAX_ACC_FEAT	7 /* Максимально доступное количество не-врожденных способностей. */
 #define LEV_ACC_FEAT	5 /* Раз в сколько уровней появляется новая способность */
 
 /* Поля изменений для способностей (кроме AFFECT_FTYPE, для них используются стардартные поля APPLY) */
 #define FEAT_TIMER 1
+#define FEAT_SKILL 2
 
 extern struct feat_info_type feat_info[MAX_FEATS];
 
