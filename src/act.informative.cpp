@@ -3333,11 +3333,11 @@ ACMD(do_who)
 
 		if (short_list) {
 			if (IS_IMPL(ch))
-				sprintf(buf, "%s[%2d %s %s] %-20.15s%s",
+				sprintf(buf, "%s[%2d %s %s] %-30s%s",
 					IS_GOD(tch) ? CCWHT(ch, C_SPR) : "",
 					GET_LEVEL(tch), KIN_ABBR (tch), CLASS_ABBR(tch), name_who, IS_GOD(tch) ? CCNRM(ch, C_SPR) : "");
 			else
-				sprintf(buf, "%s      %-20.15s%s",
+				sprintf(buf, "%s%-30s%s",
 					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
 					name_who, IS_IMMORTAL(tch) ? CCNRM(ch, C_SPR) : "");
 		} else {
@@ -3744,7 +3744,7 @@ ACMD(do_users)
 	int count_pl;
 	int cycle_i, is, flag_change;
 	unsigned long a1, a2;
-	int showemail = 0, locating = 0;
+	int showremorts = 0, showemail = 0, locating = 0;
 	char sorting = '!';
 	register CHAR_DATA *ci;
 // ---
@@ -3812,6 +3812,11 @@ ACMD(do_users)
 				showemail = 1;
 				strcpy(buf, buf1);
 				break;
+			case 'r':
+				showremorts = 1;
+				strcpy(buf, buf1);
+				break;
+			
 			case 's':
 				sorting = 'i';
 				sorting = *(arg + 2);
@@ -3828,11 +3833,11 @@ ACMD(do_users)
 		}
 	}			/* end while (parser) */
 	if (showemail) {
-		strcpy(line, "Ном Професс    Имя         Состояние    Idl Логин    E-mail\r\n");
+		strcpy(line, "Ном Професс       Имя         Состояние       Idl Логин    Сайт       E-mail\r\n");
 	} else {
-		strcpy(line, "Ном Професс    Имя         Состояние    Idl Логин    Сайт\r\n");
+		strcpy(line, "Ном Професс       Имя         Состояние       Idl Логин    Сайт\r\n");
 	}
-	strcat(line, "--- ------- ------------ -------------- --- -------- ------------------------\r\n");
+	strcat(line, "--- ---------- ------------ ----------------- --- -------- ----------------------------\r\n");
 	send_to_char(line, ch);
 
 	one_argument(argument, arg);
@@ -3917,13 +3922,19 @@ ACMD(do_users)
 				continue;
 
 			if (d->original)
-				sprintf(classname, "[%2d %s %s]", GET_LEVEL(d->original), KIN_ABBR(d->original), CLASS_ABBR(d->original));
+				if (showremorts)
+					sprintf(classname, "[%2d %2d %s %s]", GET_LEVEL(d->original), GET_REMORT(d->original), KIN_ABBR(d->original), CLASS_ABBR(d->original));
+				else
+					sprintf(classname, "[%2d %s %s]   ", GET_LEVEL(d->original), KIN_ABBR(d->original), CLASS_ABBR(d->original));
 			else
-				sprintf(classname, "[%2d %s %s]", GET_LEVEL(d->character), KIN_ABBR(d->character), CLASS_ABBR(d->character));
+				if (showremorts)
+					sprintf(classname, "[%2d %2d %s %s]", GET_LEVEL(d->character), GET_REMORT(d->character), KIN_ABBR(d->character), CLASS_ABBR(d->character));
+				else
+					sprintf(classname, "[%2d %s %s]   ", GET_LEVEL(d->character), KIN_ABBR(d->character), CLASS_ABBR(d->character));
 		} else
-			strcpy(classname, "   -   ");
+			strcpy(classname, "      -      ");
 		if (GET_LEVEL(ch) < LVL_IMPL)
-			strcpy(classname, "   -   ");
+			strcpy(classname, "      -      ");
 		timeptr = asctime(localtime(&d->login_time));
 		timeptr += 11;
 		*(timeptr + 8) = '\0';
@@ -3949,15 +3960,17 @@ ACMD(do_users)
 		} else
 			sprintf(line, format, d->desc_num, "   -   ", "UNDEFINED", state, idletime, timeptr);
 // Хорс
-		if (showemail) {
-			sprintf(line2, "[%s]",
-				d->original ? GET_EMAIL(d->original) : d->character ? GET_EMAIL(d->character) : "");
-			strcat(line, line2);
-		} else if (d->host && *d->host) {
+		if (d->host && *d->host) {
 			sprintf(line2, "[%s]", d->host);
 			strcat(line, line2);
 		} else
 			strcat(line, "[Неизвестный хост]");
+
+		if (showemail) {
+			sprintf(line2, "[%s]",
+				d->original ? GET_EMAIL(d->original) : d->character ? GET_EMAIL(d->character) : "");
+			strcat(line, line2);
+		}
 
 		if (locating && (*name_search || *host_by_name))
 			if ((STATE(d) == CON_PLAYING)) {
