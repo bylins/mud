@@ -3242,24 +3242,28 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		if (weapon_pos)
 			alt_equip(ch, weapon_pos, dam, 10);
  		dam_critic = 0;
-		was_critic = MIN(GET_SKILL(ch, skill), 80);
-		/* Gorrah Мастерские фиты по оружию удваивают шанс критического попадания */
-		for (i = PUNCH_MASTER_FEAT; i <= BOWS_MASTER_FEAT; i++)
-		    if ((ubyte) feat_info[i].affected[0].location == skill && can_use_feat(ch, i))
-			was_critic += MAX(0, GET_SKILL(ch, skill) -  80);
-			
-		if (GET_CLASS(ch) == CLASS_THIEF) 
-		    was_critic += GET_SKILL(ch,SKILL_BACKSTAB);
-		if (GET_CLASS(ch) == CLASS_PALADINE) 
-		    was_critic += (int) (GET_SKILL(ch,SKILL_PUNCTUAL) / 2);
-		if (GET_CLASS(ch) == CLASS_ASSASINE) 
-		    was_critic += (int) (GET_SKILL(ch,SKILL_NOPARRYHIT) / 3);
-		if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
-		    was_critic += GET_LEVEL(ch);
-		    
+		was_critic = 0;
+		/* Маги, волхвы и не-купеческие чармисы не умеют критать */
+		if (!IS_MAGIC_USER(ch) && !IS_DRUID(ch)
+		    || (IS_NPC(ch) && (!AFF_FLAGGED(ch, AFF_CHARM) || AFF_FLAGGED(ch, AFF_HELPER)))) {
+			was_critic = MIN(GET_SKILL(ch, skill), 80);
+			/* Gorrah Мастерские фиты по оружию удваивают шанс критического попадания */
+			for (i = PUNCH_MASTER_FEAT; i <= BOWS_MASTER_FEAT; i++)
+			    if ((ubyte) feat_info[i].affected[0].location == skill && can_use_feat(ch, i)) {
+				was_critic += MAX(0, GET_SKILL(ch, skill) -  80);
+				break;
+			    }	
+			if (GET_CLASS(ch) == CLASS_THIEF) 
+			    was_critic += GET_SKILL(ch,SKILL_BACKSTAB);
+			if (GET_CLASS(ch) == CLASS_PALADINE) 
+			    was_critic += (int) (GET_SKILL(ch,SKILL_PUNCTUAL) / 2);
+			if (GET_CLASS(ch) == CLASS_ASSASINE) 
+			    was_critic += (int) (GET_SKILL(ch,SKILL_NOPARRYHIT) / 3);
+			if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
+			    was_critic += GET_LEVEL(ch);
+		}    
 		//critical hit ignore magic_shields and armour
-		if (number(0, 2000) < was_critic && !(IS_NPC(ch)
-				&& AFF_FLAGGED(ch, AFF_CHARM) && !AFF_FLAGGED(ch, AFF_HELPER)))		    
+		if (number(0, 2000) < was_critic)
 			was_critic = TRUE;
 		else
 			was_critic = FALSE;
