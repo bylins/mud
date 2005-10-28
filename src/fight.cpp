@@ -2299,11 +2299,13 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 					return (0);
 				}
 				dam -= (dam * MIN(50, decrease) / 100);
-			/* умножаем дамаг при крит ударе, если брони мало, санки нет и ее игнор ничего не дает
+			/* умножаем дамаг при крит ударе, если щитов нет и игнор ничего не дает
 			   по призме не умножаем, чтобы не уносило танков с 1 удара */
-			} else if (decrease <= 20 && !AFF_FLAGGED(victim, AFF_PRISMATICAURA)
-								&& (GET_LEVEL(victim) >= 20 || !IS_NPC(ch)))
-				dam *= 2;
+			} else if (dam <= (GET_REAL_MAX_HIT(ch) / 8)
+				   && !AFF_FLAGGED(victim, AFF_PRISMATICAURA) && !AFF_FLAGGED(victim, AFF_FIRESHIELD)
+				   && !AFF_FLAGGED(victim, AFF_ICESHIELD) && !AFF_FLAGGED(victim, AFF_AIRSHIELD)
+				   && (GET_LEVEL(victim) >= 5 || !IS_NPC(ch)))
+					dam *= 2;
 
 		}
 	} else if (MOB_FLAGGED(victim, MOB_PROTECT)) {
@@ -3246,11 +3248,11 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		/* Маги, волхвы и не-купеческие чармисы не умеют критать */
 		if (!IS_MAGIC_USER(ch) && !IS_DRUID(ch)
 		    || (IS_NPC(ch) && (!AFF_FLAGGED(ch, AFF_CHARM) || AFF_FLAGGED(ch, AFF_HELPER)))) {
-			was_critic = MIN(GET_SKILL(ch, skill), 80);
+			was_critic = MIN(GET_SKILL(ch, skill), 70);
 			/* Gorrah Мастерские фиты по оружию удваивают шанс критического попадания */
 			for (i = PUNCH_MASTER_FEAT; i <= BOWS_MASTER_FEAT; i++)
 			    if ((ubyte) feat_info[i].affected[0].location == skill && can_use_feat(ch, i)) {
-				was_critic += MAX(0, GET_SKILL(ch, skill) -  80);
+				was_critic += MAX(0, GET_SKILL(ch, skill) -  70);
 				break;
 			    }	
 			if (GET_CLASS(ch) == CLASS_THIEF) 
