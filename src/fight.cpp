@@ -2323,7 +2323,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		dam = compute_critical(ch, victim, dam);
 		if (!dam_critic) {
 			sprintf(buf, "%sВаше меткое попадание тяжело ранило %s.%s\r\n",
-						CCIGRN(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
+						CCIBLU(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
 			send_to_char(buf,ch);
 			sprintf(buf, "%sМеткое попадание %s тяжело ранило Вас.%s\r\n",
 					CCRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
