@@ -2301,7 +2301,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 				dam -= (dam * MIN(50, decrease) / 100);
 			/* умножаем дамаг при крит ударе, если щитов нет и игнор ничего не дает
 			   по призме не умножаем, чтобы не уносило танков с 1 удара */
-			} else if (dam <= (GET_REAL_MAX_HIT(ch) / 8)
+			} else if (dam <= (GET_REAL_MAX_HIT(victim) / 8)
 				   && !AFF_FLAGGED(victim, AFF_PRISMATICAURA) && !AFF_FLAGGED(victim, AFF_FIRESHIELD)
 				   && !AFF_FLAGGED(victim, AFF_ICESHIELD) && !AFF_FLAGGED(victim, AFF_AIRSHIELD)
 				   && (GET_LEVEL(victim) >= 5 || !IS_NPC(ch)))
