@@ -2288,8 +2288,8 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		if (dam && (IS_WEAPON(attacktype)
 			    || attacktype == (SKILL_KICK + TYPE_HIT))) {
 			alt_equip(victim, NOWHERE, dam, 50);
-			int decrease = MIN(25, (GET_ABSORBE(victim) + 1) / 2) + GET_ARMOUR(victim);
 			if (!was_critic) {
+				int decrease = MIN(25, (GET_ABSORBE(victim) + 1) / 2) + GET_ARMOUR(victim);
 				if (decrease >= number(dam, dam * 50)) {
 					act("Ваши доспехи полностью поглотили удар $n1.", FALSE,
 					    ch, 0, victim, TO_VICT);
