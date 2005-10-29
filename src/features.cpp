@@ -515,7 +515,7 @@ bool can_use_feat(CHAR_DATA *ch, int feat)
 			return FALSE;
 	break;
 	case GREAT_AIMING_ATTACK_FEAT:
-		if (GET_REAL_STR(ch) < 18)
+		if (GET_REAL_DEX(ch) < 18)
 			return FALSE;
 	break;
 	}
