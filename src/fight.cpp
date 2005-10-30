@@ -2321,7 +2321,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 	if (dam && was_critic) {
 		FS_damage = 0;
 		dam = compute_critical(ch, victim, dam);
-		if (!dam_critic) {
+		if (!dam_critic && attacktype != SPELL_POISON) {
 			sprintf(buf, "%sВаше меткое попадание тяжело ранило %s.%s\r\n",
 						CCIBLU(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
 			send_to_char(buf,ch);
