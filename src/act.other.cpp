@@ -32,6 +32,7 @@
 #include "pk.h"
 #include "fight.h"
 #include "magic.h"
+#include "features.hpp"
 /* extern variables */
 
 extern DESCRIPTOR_DATA *descriptor_list;

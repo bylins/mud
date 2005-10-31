@@ -23,6 +23,7 @@
 #include "db.h"
 #include "olc.h"
 #include "im.h"
+#include "features.hpp"
 
 #include "item.creation.hpp"
 

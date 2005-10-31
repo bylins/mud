@@ -25,6 +25,7 @@
 #include "comm.h"
 #include "constants.h"
 #include "screen.h"
+#include "features.hpp"
 
 #include "im.h"
 
@@ -1334,7 +1335,7 @@ ACMD(do_cook)
 	imlog(CMP, "Ингредиенты удалены");
 
 	// Кидаем кубики на создание
-	mres = number(1, 100);
+	mres = number(1, 100 - (can_use_feat(ch, BREW_POTION_FEAT) ? 5 : 0));
 	if (mres < (int) prob)
 		mres = IM_MSG_OK;
 	else {

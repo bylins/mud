@@ -1921,13 +1921,13 @@ void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
 	if (!CAN_SEE(victim, caster) && (GET_REAL_INT(victim) > 25 || GET_REAL_INT(victim) > number(10, 25))) {
 		if (!AFF_FLAGGED(victim, AFF_DETECT_INVIS)
 		    && GET_SPELL_MEM(victim, SPELL_DETECT_INVIS) > 0)
-			cast_spell(victim, victim, 0, 0,  SPELL_DETECT_INVIS);
+			cast_spell(victim, victim, 0, 0, SPELL_DETECT_INVIS,  SPELL_DETECT_INVIS);
 		else if (!AFF_FLAGGED(victim, AFF_SENSE_LIFE)
 			 && GET_SPELL_MEM(victim, SPELL_SENSE_LIFE) > 0)
-			cast_spell(victim, victim, 0, 0, SPELL_SENSE_LIFE);
+			cast_spell(victim, victim, 0, 0, SPELL_SENSE_LIFE, SPELL_SENSE_LIFE);
 		else if (!AFF_FLAGGED(victim, AFF_INFRAVISION)
 			 && GET_SPELL_MEM(victim, SPELL_LIGHT) > 0)
-			cast_spell(victim, victim, 0, 0, SPELL_LIGHT);
+			cast_spell(victim, victim, 0, 0, SPELL_LIGHT, SPELL_LIGHT);
 	}
 
 }
@@ -2350,7 +2350,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument)
                                       (ch)->ManaMemNeeded += mag_manacost(ch,spellnum);})
 */
 
-int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * troom, int spellnum)
+int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * troom, int spellnum, int spell_subst)
 {
 	int ignore;
 	CHAR_DATA *ch_vict;
@@ -2423,10 +2423,11 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		}
 	}
 
+/* Gorrah: убрал ограничение
 	if (IS_SET(SpINFO.routines, MAG_GROUPS) && !IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_GROUP)) {
 		send_to_char("Но Вы же не член группы !\r\n", ch);
 		return (0);
-	}
+	} */
 
 /* Начало изменений.
    (с) Дмитрий ака dzMUDiST ака Кудояр */
@@ -2480,15 +2481,15 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 	}
 	/*Комнату тут в say_spell не обрабатываем - будет сказал "что-то"*/ 
 	say_spell(ch, spellnum, tch, tobj);
-	if (GET_SPELL_MEM(ch, spellnum) > 0)
-		GET_SPELL_MEM(ch, spellnum)--;
+	if (GET_SPELL_MEM(ch, spell_subst) > 0)
+		GET_SPELL_MEM(ch, spell_subst)--;
 	else
-		GET_SPELL_MEM(ch, spellnum) = 0;
+		GET_SPELL_MEM(ch, spell_subst) = 0;
 	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
-		MemQ_remember(ch, spellnum);
+		MemQ_remember(ch, spell_subst);
 	if (!IS_NPC(ch)) {
-		if (!GET_SPELL_MEM(ch, spellnum))
-			REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
+		if (!GET_SPELL_MEM(ch, spell_subst))
+			REMOVE_BIT(GET_SPELL_TYPE(ch, spell_subst), SPELL_TEMP);
 		/*log("[CAST_SPELL->AFFECT_TOTAL] Start <%s(%d)> <%s(%d)> <%s> <%d>",
 		   GET_NAME(ch),
 		   IN_ROOM(ch),
@@ -2551,7 +2552,7 @@ ACMD(do_cast)
 	ROOM_DATA *troom = NULL;
 
 	char *s, *t;
-	int spellnum, target = 0;
+	int i, spellnum, spell_subst, target = 0;
 
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))
 		return;
@@ -2575,6 +2576,7 @@ ACMD(do_cast)
 	t = strtok(NULL, "\0");
 
 	spellnum = find_spell_num(s);
+	spell_subst = spellnum;
 
         log("In do_cast spellnum = %d",spellnum);	
 
@@ -2601,10 +2603,29 @@ ACMD(do_cast)
 	}
 
 	/* Caster havn't slot  */
-	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch)) {
-		send_to_char("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
-		return;
-	}
+	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch))
+		if (can_use_feat(ch, SPELL_SUBSTITUTE_FEAT)
+		    && (spellnum == SPELL_CURE_LIGHT || spellnum == SPELL_CURE_SERIOUS
+		    || spellnum == SPELL_CURE_CRITIC || spellnum == SPELL_HEAL)) {
+
+			for (i = 1; i <= MAX_SPELLS; i++)
+				if (GET_SPELL_MEM(ch, i) &&
+				    spell_info[i].slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] ==
+				    spell_info[spellnum].slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)]) {
+					spell_subst = i;
+					break;
+				}
+			if (i >= LAST_USED_SPELL) {
+				send_to_char("У Вас нет заученных заклинаний этого круга.\r\n", ch);
+				return;
+			}
+
+
+		} else {
+			send_to_char("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
+			return;
+		}
+
 
 	/* Find the target */
 	if (t != NULL) {
@@ -2631,13 +2652,13 @@ ACMD(do_cast)
 	if (!spell_use_success(ch, tch, SAVING_STABILITY, spellnum)) {
 		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
 			WAIT_STATE(ch, PULSE_VIOLENCE);
-		if (GET_SPELL_MEM(ch, spellnum)) {
-			GET_SPELL_MEM(ch, spellnum)--;
+		if (GET_SPELL_MEM(ch, spell_subst)) {
+			GET_SPELL_MEM(ch, spell_subst)--;
 		}
-		if (!GET_SPELL_MEM(ch, spellnum))
-			REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
+		if (!GET_SPELL_MEM(ch, spell_subst))
+			REMOVE_BIT(GET_SPELL_TYPE(ch, spell_subst), SPELL_TEMP);
 		if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
-			MemQ_remember(ch, spellnum);
+			MemQ_remember(ch, spell_subst);
 		//log("[DO_CAST->AFFECT_TOTAL] Start");
 		affect_total(ch);
 		//log("[DO_CAST->AFFECT_TOTAL] Stop");
@@ -2651,7 +2672,7 @@ ACMD(do_cast)
 				CCCYN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM),
 				tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " НА " : "");
 			act(buf, FALSE, ch, tobj, tch, TO_CHAR);
-		} else if (cast_spell(ch, tch, tobj, troom, spellnum) >= 0) {
+		} else if (cast_spell(ch, tch, tobj, troom, spellnum, spell_subst) >= 0) {
 			if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
 				WAIT_STATE(ch, PULSE_VIOLENCE);
 		}
@@ -3529,7 +3550,7 @@ void mag_assign_spells(void)
 	       100, 55, 3, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_AFFECTS, 0, STYPE_MIND);
 //21
 	spello(SPELL_DETECT_POISON, "определение яда", "detect poison",
-	       100, 55, 3, POS_STANDING, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM, FALSE, MAG_MANUAL, 0, STYPE_LIFE);
+	       40, 30, 1, POS_STANDING, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM, FALSE, MAG_MANUAL, 0, STYPE_LIFE);
 //22
 	spello(SPELL_DISPEL_EVIL, "изгнать зло", "dispel evil",
 	       100, 90, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE, 1, STYPE_LIGHT);
@@ -3550,10 +3571,10 @@ void mag_assign_spells(void)
 													2, STYPE_FIRE);
 //27
 	spello(SPELL_HARM, "вред", "harm",
-	       110, 100, 3, POS_FIGHTING,
+	       110, 100, 2, POS_FIGHTING,
 	       TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 5, STYPE_DARK);
 //28
-	spello(SPELL_HEAL, "исцеление", "heal", 110, 100, 1,
+	spello(SPELL_HEAL, "исцеление", "heal", 110, 100, 2,
 		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_POINTS | NPC_DUMMY, 10, STYPE_LIFE);
 //29
 	spello(SPELL_INVISIBLE, "невидимость", "invisible",
@@ -3583,7 +3604,7 @@ void mag_assign_spells(void)
 	       TAR_CHAR_ROOM | TAR_FIGHT_SELF | TAR_OBJ_INV | TAR_OBJ_EQUIP, FALSE,
 	       MAG_UNAFFECTS | MAG_ALTER_OBJS | NPC_UNAFFECT_NPC, 0, STYPE_LIGHT);
 //36
-	spello(SPELL_SANCTUARY, "освящение", "sanctuary", 85, 70, 1,
+	spello(SPELL_SANCTUARY, "освящение", "sanctuary", 85, 70, 2,
 		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
 //37
 	spello(SPELL_SHOCKING_GRASP, "обжигающая хватка", "shocking grasp", 50, 40, 1,
@@ -3597,7 +3618,7 @@ void mag_assign_spells(void)
 		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
 //40
 	spello(SPELL_SUMMON, "призвать", "summon",
-	       140, 120, 2, POS_STANDING, TAR_CHAR_WORLD | TAR_NOT_SELF, FALSE, MAG_MANUAL, 0, STYPE_MIND);
+	       110, 100, 2, POS_STANDING, TAR_CHAR_WORLD | TAR_NOT_SELF, FALSE, MAG_MANUAL, 0, STYPE_MIND);
 //41-not used now
 //42
 	spello(SPELL_WORD_OF_RECALL, "слово возврата", "recall", 140, 100, 4,
@@ -3770,11 +3791,11 @@ void mag_assign_spells(void)
 	       TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 1, STYPE_DARK);
 //91
 	spello(SPELL_DAMAGE_SERIOUS, "серьезный вред", "serious damage",
-	       70, 55, 1, POS_FIGHTING,
+	       85, 55, 4, POS_FIGHTING,
 	       TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 2, STYPE_DARK);
 //92
 	spello(SPELL_DAMAGE_CRITIC, "критический вред", "critical damage",
-	       85, 70, 1, POS_FIGHTING,
+	       100, 90, 1, POS_FIGHTING,
 	       TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 3, STYPE_DARK);
 //93
 	spello(SPELL_MASS_CURSE, "массовое проклятье", "mass curse", 140, 120, 2,
@@ -3830,7 +3851,7 @@ void mag_assign_spells(void)
 
 //108
 	spello(SPELL_WATERBREATH, "дышать водой", "waterbreath",
-	       100, 90, 1, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_AFFECTS, 0, STYPE_WATER);
+	       85, 70, 4, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_AFFECTS, 0, STYPE_WATER);
 //109
 	spello(SPELL_SLOW, "медлительность", "slow",
 	       55, 40, 1, POS_FIGHTING,
@@ -3852,7 +3873,7 @@ void mag_assign_spells(void)
 	       70, 55, 1, POS_FIGHTING,
 	       TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_LIFE);
 //115
-	spello(SPELL_CURE_PLAQUE, "вылечить лихорадку", "cure plaque", 110, 90, 2,
+	spello(SPELL_CURE_PLAQUE, "вылечить лихорадку", "cure plaque", 85, 70, 4,
 		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_UNAFFECTS | NPC_UNAFFECT_NPC, 0, STYPE_LIFE);
 //116
 	spello(SPELL_AWARNESS, "внимательность", "awarness", 100, 90, 1,
@@ -3875,7 +3896,7 @@ void mag_assign_spells(void)
 	       100, 80, 2, POS_STANDING, TAR_IGNORE, FALSE, MAG_SUMMONS, 0, STYPE_LIGHT);
 //122
 	spello(SPELL_FAST_REGENERATION, "быстрое восстановление",
-	       "fast regeneration", 85, 70, 1, POS_FIGHTING,
+	       "fast regeneration", 100, 90, 1, POS_FIGHTING,
 	       TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
 //123
 	spello(SPELL_CREATE_WEAPON, "создать оружие", "create weapon",
@@ -3930,7 +3951,7 @@ void mag_assign_spells(void)
 	       TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC | NPC_AFFECT_PC_CASTER,
 													0, STYPE_MIND);
 //138
-	spello(SPELL_PRISMATICAURA, "призматическая аура", "prismatic aura", 85, 70, 1,
+	spello(SPELL_PRISMATICAURA, "призматическая аура", "prismatic aura", 85, 70, 4,
 		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
 //139
 	spello(SPELL_EVILESS, "силы зла", "eviless", 150, 130, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL,
@@ -3975,7 +3996,7 @@ void mag_assign_spells(void)
 
 //149
 	spello(SPELL_REMOVE_DEAFNESS, "снять глухоту", "remove deafness",
-	       70, 55, 2, POS_FIGHTING,
+	       90, 80, 1, POS_FIGHTING,
 	       TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_UNAFFECTS | NPC_UNAFFECT_NPC | NPC_UNAFFECT_NPC_CASTER,
 													1, STYPE_LIFE);
 

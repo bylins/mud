@@ -27,6 +27,7 @@
 #include "constants.h"
 #include "im.h"
 #include "dg_scripts.h"
+#include "features.hpp"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 

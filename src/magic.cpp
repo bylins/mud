@@ -27,6 +27,7 @@
 #include "constants.h"
 #include "dg_scripts.h"
 #include "pk.h"
+#include "features.hpp"
 
 #include "magic.h"
 #include "fight.h"
@@ -1257,14 +1258,14 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		break;
 	case SPELL_DAMAGE_SERIOUS:
 		savetype = SAVING_CRITICAL;
-		ndice = 8;
+		ndice = 10;
 		sdice = 3;
 		adice = (level + 1) / 2;
 		break;
 	case SPELL_DAMAGE_CRITIC:
 		savetype = SAVING_CRITICAL;
 		ndice = 15;
-		sdice = 3;
+		sdice = 4;
 		adice = (level + 1) / 2;
 		break;
 	case SPELL_DISPEL_EVIL:
@@ -1603,10 +1604,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_FAST_REGENERATION:
 		af[0].location = APPLY_HITREG;
 		af[0].modifier = 50;
-		af[0].duration = pc_duration(victim, 2, level, 5, 0, 0);
+		af[0].duration = pc_duration(victim, 4, level, 5, 0, 0);
 		af[1].location = APPLY_MOVEREG;
 		af[1].modifier = 50;
-		af[1].duration = pc_duration(victim, 2, level, 5, 0, 0);
+		af[1].duration = pc_duration(victim, 4, level, 5, 0, 0);
 		accum_duration = TRUE;
 		to_room = "$n расцвел$g на Ваших глазах.";
 		to_vict = "Вас наполнила живительная сила.";

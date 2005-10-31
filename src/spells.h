@@ -521,7 +521,7 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 
 void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument);
 
-int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA *troom, int spellnum);
+int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA *troom, int spellnum, int spellnum);
 
 /* other prototypes */
 void mspell_remort (char *name ,int spell,int kin ,int chclass, int remort);

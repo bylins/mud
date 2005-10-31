@@ -29,6 +29,7 @@
 #include "shop.h"
 #include "dg_scripts.h"
 #include "constants.h"
+#include "features.hpp"
 
 extern TIME_INFO_DATA time_info;
 

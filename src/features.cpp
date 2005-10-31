@@ -184,7 +184,7 @@ void assign_feats(void)
 	feato(LIGHT_WALK_FEAT, "легкая поступь", NORMAL_FTYPE, TRUE, feat_app);
 //9-*
 	feato(DEPOSIT_FINDING_FEAT, "лозоходство", NORMAL_FTYPE, TRUE, feat_app);
-//10-*
+//10
 	feato(SPELL_SUBSTITUTE_FEAT, "подмена заклинания", NORMAL_FTYPE, TRUE, feat_app);
 //11
 	feato(POWER_ATTACK_FEAT, "мощная атака", NORMAL_FTYPE, TRUE, feat_app);
@@ -310,7 +310,7 @@ void assign_feats(void)
 	feat_app.insert(APPLY_MORALE, 5);
 	feato(LUCKY_FEAT, "счастливчик", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
-//42 -*
+//42
 	feato(SPIRIT_WARRIOR_FEAT, "боевой дух", NORMAL_FTYPE, TRUE, feat_app);
 //43 -*
 	feato(FIGHTING_TRICK_FEAT, "боевая уловка", NORMAL_FTYPE, TRUE, feat_app);
@@ -347,9 +347,9 @@ void assign_feats(void)
 	feat_app.clear();
 //50 -*
 	feato(LEGIBLE_WRITTING_FEAT, "четкий почерк", NORMAL_FTYPE, TRUE, feat_app);
-//51 -*
-	feato(BREW_POTION_FEAT, "варка зелья", NORMAL_FTYPE, TRUE, feat_app);
-//52 -*
+//51
+	feato(BREW_POTION_FEAT, "травник", NORMAL_FTYPE, TRUE, feat_app);
+//52
 	feato(JUGGLER_FEAT, "жонглер", NORMAL_FTYPE, TRUE, feat_app);
 //53
 	feato(NIMBLE_FINGERS_FEAT, "ловкач", SKILL_MOD_FTYPE, TRUE, feat_app);
@@ -448,13 +448,13 @@ void assign_feats(void)
 	feato(BOWS_FOCUS_FEAT, "любимое_оружие: лук", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //78
-	feat_app.insert(FEAT_SKILL, 5);
 	feato(AIMING_ATTACK_FEAT, "прицельная атака", NORMAL_FTYPE, TRUE, feat_app);
-	feat_app.clear();
 //79
-	feat_app.insert(FEAT_SKILL, 5);
 	feato(GREAT_AIMING_ATTACK_FEAT, "улучшенная прицельная атака", NORMAL_FTYPE, TRUE, feat_app);
-	feat_app.clear();
+//80
+	feato(DOUBLESHOT_FEAT, "двойной выстрел", NORMAL_FTYPE, TRUE, feat_app);
+//81
+	feato(PORTER_FEAT, "тяжеловоз", NORMAL_FTYPE, TRUE, feat_app);
 /*
 //
 	feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);
@@ -516,6 +516,10 @@ bool can_use_feat(CHAR_DATA *ch, int feat)
 	break;
 	case GREAT_AIMING_ATTACK_FEAT:
 		if (GET_REAL_DEX(ch) < 18)
+			return FALSE;
+	break;
+	case DOUBLESHOT_FEAT:
+		if (GET_SKILL(ch, SKILL_BOWS) < 40)
 			return FALSE;
 	break;
 	}
@@ -587,6 +591,10 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 		if (count >= 1)
 			return FALSE;		
 	break;
+	case SPIRIT_WARRIOR_FEAT:
+                if (!HAVE_FEAT(ch, GREAT_FORTITUDE_FEAT))
+                        return FALSE;
+	break;
 	case NIMBLE_FINGERS_FEAT:
 		if (!GET_SKILL(ch, SKILL_STEAL) && !GET_SKILL(ch, SKILL_PICK_LOCK))
 			return FALSE;
@@ -615,6 +623,10 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	break;
 	case GREAT_AIMING_ATTACK_FEAT:
 		if (!HAVE_FEAT(ch, AIMING_ATTACK_FEAT))
+			return FALSE;
+	break;
+	case DOUBLESHOT_FEAT:
+		if (!HAVE_FEAT(ch, BOWS_FOCUS_FEAT) || GET_SKILL(ch, SKILL_BOWS) < 40)
 			return FALSE;
 	break;
 	}
@@ -653,7 +665,7 @@ int find_feat_slot(CHAR_DATA *ch, int feat)
 	if (abs(sockets.count()) >= NUM_LEV_FEAT(ch))
 		return (-1);
 
-	for (; slot < MAX_ACC_FEAT && slot <= NUM_LEV_FEAT(ch);) {
+	for (; slot < MAX_ACC_FEAT && slot < NUM_LEV_FEAT(ch);) {
 		if (sockets.test(slot)) {
 			if (feat_info[feat].up_slot) {
 				slot++;

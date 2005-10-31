@@ -732,8 +732,9 @@ extern SPECIAL(postmaster);
 #define STRENGTH_APPLY_INDEX(ch) \
         ( GET_REAL_STR(ch) )
 
-#define CAN_CARRY_W(ch) (str_app[STRENGTH_APPLY_INDEX(ch)].carry_w)
-#define CAN_CARRY_N(ch) (5 + (GET_REAL_DEX(ch) >> 1) + (GET_LEVEL(ch) >> 1))
+#define CAN_CARRY_W(ch) (str_app[STRENGTH_APPLY_INDEX(ch) + (HAVE_FEAT(ch, PORTER_FEAT) ? 3 : 0)].carry_w)
+#define CAN_CARRY_N(ch) (5 + (GET_REAL_DEX(ch) >> 1) + (GET_LEVEL(ch) >> 1) \
+			 + (HAVE_FEAT(ch, JUGGLER_FEAT) ? (GET_LEVEL(ch) >> 1) : 0))
 #define AWAKE(ch) (GET_POS(ch) > POS_SLEEPING && !AFF_FLAGGED(ch,AFF_SLEEP))
 #define CAN_SEE_IN_DARK(ch) \
    (AFF_FLAGGED(ch, AFF_INFRAVISION) || (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_HOLYLIGHT)))

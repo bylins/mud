@@ -663,6 +663,9 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 
 	if (AFF_FLAGGED(ch, AFF_DEAFNESS))
 		morale -= 20;	// у глухого мораль на 20 меньше
+	/* Обработка способности "боевой дух"  */
+	if (vict && can_use_feat(vict, SPIRIT_WARRIOR_FEAT))
+		morale -= 3;
 
 // если мораль отрицательная, увеличивается вероятность, что умение не пройдет
 	if ((skill_is = number(0, 99)) >= 95 + (morale >= 0 ? 0 : morale))

@@ -14,7 +14,7 @@ using std::bitset;
 #define THAC0_FEAT			0   //DO NOT USED
 #define BERSERK_FEAT			1   //предсмертная ярость
 #define PARRY_ARROW_FEAT		2   //отбить стрелу
-#define BLIND_FIGHT_FEAT		3   //слепой боец
+#define BLIND_FIGHT_FEAT		3   //слепой бой
 #define CLEAVE_FEAT			4   //мгновенная атака
 #define APPROACHING_ATTACK_FEAT		5   //встречная атака
 #define DODGE_FEAT			6   //увертка
@@ -62,7 +62,7 @@ using std::bitset;
 #define SIXTH_RING_SPELL_FEAT		48  //шестая страница
 #define SEVENTH_RING_SPELL_FEAT		49  //седьмая страница
 #define LEGIBLE_WRITTING_FEAT		50  //четкий почерк
-#define BREW_POTION_FEAT		51  //варка зелья
+#define BREW_POTION_FEAT		51  //травник
 #define JUGGLER_FEAT			52  //жонглер
 #define NIMBLE_FINGERS_FEAT		53  //ловкач
 #define GREAT_POWER_ATTACK_FEAT		54  //улучшенная мощная атака
@@ -91,6 +91,8 @@ using std::bitset;
 #define BOWS_FOCUS_FEAT			77  //любимое оружие: лук
 #define AIMING_ATTACK_FEAT		78  //прицельная атака
 #define GREAT_AIMING_ATTACK_FEAT	79  //улучшенная прицельная атака
+#define DOUBLESHOT_FEAT			80  //двойной выстрел
+#define PORTER_FEAT			81  //тяжеловоз
 
 /*
 #define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух

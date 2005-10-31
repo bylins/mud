@@ -2548,17 +2548,22 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 			wielded = GET_EQ(ch, WEAR_BOTHS);
 	} else if (weapon == 2)
 		wielded = GET_EQ(ch, WEAR_HOLD);
+
 	percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
 	int div = 0;
 	if (wielded && !GET_EQ(ch, WEAR_SHIELD) &&
 	    GET_OBJ_SKILL(wielded) == SKILL_BOWS &&
-	    GET_EQ(ch, WEAR_BOTHS) &&
-	    ((prob =
-	      train_skill(ch, SKILL_ADDSHOT, skill_info[SKILL_ADDSHOT].max_percent,
-			  FIGHTING(ch))) >= percent || WAITLESS(ch))) {
-		hit(ch, FIGHTING(ch), type, weapon);
-// Изменено Стрибогом     
-//      if (prob / percent > 4 && FIGHTING(ch))
+	    GET_EQ(ch, WEAR_BOTHS)) {
+		/* Лук в обеих руках - юзаем доп. или двойной выстрел */
+		if (can_use_feat(ch, DOUBLESHOT_FEAT) && !GET_SKILL(ch, SKILL_ADDSHOT)
+		    && MIN(850, 200 + GET_SKILL(ch, SKILL_BOWS) * 4 + GET_REAL_DEX(ch) * 5) >= number(1, 1000)) {
+			hit(ch, FIGHTING(ch), type, weapon);
+			prob = 0;
+		} else
+			prob = train_skill(ch, SKILL_ADDSHOT, skill_info[SKILL_ADDSHOT].max_percent, FIGHTING(ch));
+
+		if (prob >= percent || WAITLESS(ch))
+			hit(ch, FIGHTING(ch), type, weapon);
 		// вероятность 66%
 		percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
 		if (prob * 2 > percent * 3 && FIGHTING(ch))
@@ -2586,24 +2591,35 @@ void apply_weapon_bonus(int ch_class, int skill, int *damroll, int *hitroll)
 	int calc_thaco = *hitroll;
 
 	switch (ch_class) {
-/*	case CLASS_CLERIC:
-	case CLASS_BATTLEMAGE:
-	case CLASS_DEFENDERMAGE:
-	case CLASS_CHARMMAGE:
-	case CLASS_NECROMANCER:
-	case CLASS_PALADINE:
+	case CLASS_CLERIC:
 		switch (skill) {
 			case SKILL_CLUBS:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_AXES:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_LONGS:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_LONGS:	calc_thaco += 2; dam -= 1; break;
 			case SKILL_SHORTS:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_NONSTANDART:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_NONSTANDART:	calc_thaco += 1; dam -= 2; break;
 			case SKILL_BOTHHANDS:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_PICK:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_SPADES:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_BOWS:	calc_thaco -= 0; dam += 0; break;
 		}
-		break;    */
+		break;
+	case CLASS_BATTLEMAGE:
+	case CLASS_DEFENDERMAGE:
+	case CLASS_CHARMMAGE:
+	case CLASS_NECROMANCER:
+		switch (skill) {
+			case SKILL_CLUBS:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_AXES:	calc_thaco += 1; dam += 0; break;
+			case SKILL_LONGS:	calc_thaco += 1; dam += 0; break;
+			case SKILL_SHORTS:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_NONSTANDART:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_BOTHHANDS:	calc_thaco += 1; dam -= 3; break;
+			case SKILL_PICK:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_SPADES:	calc_thaco += 1; dam += 0; break;
+			case SKILL_BOWS:	calc_thaco -= 0; dam += 0; break;
+		}
+		break;
 	case CLASS_WARRIOR:
 		switch (skill) {
 			case SKILL_CLUBS:	calc_thaco -= 0; dam += 0; break;
@@ -2621,23 +2637,23 @@ void apply_weapon_bonus(int ch_class, int skill, int *damroll, int *hitroll)
 		switch (skill) {
 			case SKILL_CLUBS:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_AXES:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_LONGS:	calc_thaco += 0; dam += 0; break;
+			case SKILL_LONGS:	calc_thaco += 1; dam += 0; break;
 			case SKILL_SHORTS:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_NONSTANDART:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_BOTHHANDS:	calc_thaco += 1; dam += 0; break;
-			case SKILL_PICK:	calc_thaco += 1; dam += 0; break;
+			case SKILL_PICK:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_SPADES:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_BOWS:	calc_thaco -= 1; dam += 0; break;
+			case SKILL_BOWS:	calc_thaco -= 0; dam += 0; break;
 		}
 		break;
 		case CLASS_GUARD:
 	case CLASS_THIEF:
 		switch (skill) {
-			case SKILL_CLUBS:	calc_thaco += 1; dam += 0; break;
+			case SKILL_CLUBS:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_AXES:	calc_thaco += 1; dam += 0; break;
 			case SKILL_LONGS:	calc_thaco += 1; dam += 0; break;
 			case SKILL_SHORTS:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_NONSTANDART:	calc_thaco += 1; dam += 0; break;
+			case SKILL_NONSTANDART:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_BOTHHANDS:	calc_thaco += 1; dam += 0; break;
 			case SKILL_PICK:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_SPADES:	calc_thaco += 1; dam += 0; break;
@@ -2646,30 +2662,31 @@ void apply_weapon_bonus(int ch_class, int skill, int *damroll, int *hitroll)
 		break;
 	case CLASS_ASSASINE:
 		switch (skill) {
-			case SKILL_CLUBS:	calc_thaco += 1; dam += 0; break;
+			case SKILL_CLUBS:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_AXES:	calc_thaco += 1; dam += 0; break;
-			case SKILL_LONGS:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_SHORTS:	calc_thaco -= 1; dam += 1; break;
-			case SKILL_NONSTANDART:	calc_thaco += 1; dam += 1; break;
+			case SKILL_LONGS:	calc_thaco += 1; dam += 0; break;
+			case SKILL_SHORTS:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_NONSTANDART:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_BOTHHANDS:	calc_thaco += 1; dam += 0; break;
-			case SKILL_PICK:	calc_thaco -= 1; dam += 1; break;
-			case SKILL_SPADES:	calc_thaco += 1; dam += 1; break;
+			case SKILL_PICK:	calc_thaco -= 0; dam += 0; break;
+			case SKILL_SPADES:	calc_thaco += 1; dam += 0; break;
 			case SKILL_BOWS:	calc_thaco -= 0; dam += 0; break;
 		}
 		break;
+/*	case CLASS_PALADINE:
 	case CLASS_SMITH:
 		switch (skill) {
 			case SKILL_CLUBS:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_AXES:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_LONGS:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_SHORTS:	calc_thaco += 1; dam += 0; break;
+			case SKILL_SHORTS:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_NONSTANDART:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_BOTHHANDS:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_PICK:	calc_thaco += 1; dam += 0; break;
+			case SKILL_PICK:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_SPADES:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_BOWS:	calc_thaco += 1; dam += 0; break;
+			case SKILL_BOWS:	calc_thaco -= 0; dam += 0; break;
 		}
-		break;
+		break; */
 	case CLASS_MERCHANT:
 		switch (skill) {
 			case SKILL_CLUBS:	calc_thaco -= 0; dam += 0; break;
@@ -2679,7 +2696,7 @@ void apply_weapon_bonus(int ch_class, int skill, int *damroll, int *hitroll)
 			case SKILL_NONSTANDART:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_BOTHHANDS:	calc_thaco += 1; dam += 0; break;
 			case SKILL_PICK:	calc_thaco -= 0; dam += 0; break;
-			case SKILL_SPADES:	calc_thaco += 1; dam += 0; break;
+			case SKILL_SPADES:	calc_thaco -= 0; dam += 0; break;
 			case SKILL_BOWS:	calc_thaco -= 0; dam += 0; break;
 		}
 		break;
@@ -2920,7 +2937,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		break;
 	case SKILL_SHORTS:
 		if (HAVE_FEAT(ch, SHORTS_FOCUS_FEAT)) {
-			calc_thaco -= 1; dam += 3;
+			calc_thaco -= 2; dam += 3;
 		}
 		break;
 	case SKILL_NONSTANDART:
@@ -2935,17 +2952,17 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		break;
 	case SKILL_PICK:
 		if (HAVE_FEAT(ch, PICK_FOCUS_FEAT)) {
-			calc_thaco -= 1; dam += 3;
+			calc_thaco -= 2; dam += 3;
 		}
 		break;
 	case SKILL_SPADES:
 		if (HAVE_FEAT(ch, SPADES_FOCUS_FEAT)) {
-			calc_thaco -= 1; dam += 3;
+			calc_thaco -= 1; dam += 2;
 		}
 		break;
 	case SKILL_BOWS:
 		if (HAVE_FEAT(ch, BOWS_FOCUS_FEAT)) {
-			calc_thaco -= 1; dam += 2;
+			calc_thaco -= 2; dam += 2;
 		}
 		break;
 	}
@@ -4152,7 +4169,7 @@ void mob_casting(CHAR_DATA * ch)
 				break;
 			}
 
-		cast_spell(ch, victim, 0, NULL, spellnum);
+		cast_spell(ch, victim, 0, NULL, spellnum, spellnum);
 	}
 }
 
@@ -4653,7 +4670,8 @@ void perform_violence(void)
 					if (AFF_FLAGGED(ch, AFF_SIELENCE))
 						send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 					else {
-						cast_spell(ch, GET_CAST_CHAR(ch), GET_CAST_OBJ(ch), 0, GET_CAST_SPELL(ch));
+						cast_spell(ch, GET_CAST_CHAR(ch), GET_CAST_OBJ(ch),
+								0, GET_CAST_SPELL(ch), GET_CAST_SPELL(ch));
 						if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)
 						      || CHECK_WAIT(ch)))
 							WAIT_STATE(ch, PULSE_VIOLENCE);
