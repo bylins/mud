@@ -73,6 +73,8 @@ char *title_male(int chclass, int level);
 char *title_female(int chclass, int level);
 void update_char_objects(CHAR_DATA * ch);	/* handler.cpp */
 void reboot_wizlists(void);
+// Delete this, if you delete overflow fix in beat_points_update below.
+void die(CHAR_DATA * ch, CHAR_DATA * killer);
 
 /* When age < 20 return the value p0 */
 /* When age in 20..29 calculate the line between p1 & p2 */
@@ -574,6 +576,14 @@ void beat_points_update(int pulse)
 
 		beat_punish(i);
 
+// This line is used only to control all situations when someone is
+// dead (POS_DEAD). You can comment it to minimize heartbeat function
+// working time, if you're sure, that you control these situations
+// everywhere. To the time of this code revision I've fix some of them
+// and haven't seen any other.
+//             if (GET_POS(i) == POS_DEAD)
+//                     die(i, NULL);
+
 		if (GET_POS(i) < POS_STUNNED)
 			continue;
 
@@ -638,7 +648,11 @@ void beat_points_update(int pulse)
 		// Restore moves
 		restore = move_gain(i);
 		restore = interpolate(restore, pulse);
-		GET_MOVE(i) = MIN(GET_MOVE(i) + restore, GET_REAL_MAX_MOVE(i));
+//		GET_MOVE(i) = MIN(GET_MOVE(i) + restore, GET_REAL_MAX_MOVE(i));
+//MZ.overflow_fix
+               if (GET_MOVE(i) < GET_REAL_MAX_MOVE(i))
+                       GET_MOVE(i) = MIN(GET_MOVE(i) + restore, GET_REAL_MAX_MOVE(i));
+//-MZ.overflow_fix
 	}
 }
 
@@ -1108,7 +1122,11 @@ void point_update(void)
 			}
 			// Restore moves
 			if (IS_NPC(i) || !UPDATE_PC_ON_BEAT)
-				GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_REAL_MAX_MOVE(i));
+//				GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_REAL_MAX_MOVE(i));
+//MZ.overflow_fix
+				if (GET_MOVE(i) < GET_REAL_MAX_MOVE(i))
+					GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_REAL_MAX_MOVE(i));
+//-MZ.overflow_fix
 
 	  /** Update poisoned - REMOVE TO UP !!!
           if ((IS_NPC(i) || !UPDATE_PC_ON_BEAT) && AFF_FLAGGED(i, AFF_POISON))

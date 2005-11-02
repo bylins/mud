@@ -1786,7 +1786,10 @@ ASPELL(spell_energydrain)
 // накачка хитов
 void do_sacrifice(CHAR_DATA * ch, int dam)
 {
-	GET_HIT(ch) = MIN(GET_HIT(ch) + MAX(1, dam), GET_REAL_MAX_HIT(ch) + GET_REAL_MAX_HIT(ch) * GET_LEVEL(ch) / 10);
+//MZ.overflow_fix
+	GET_HIT(ch) = MAX(GET_HIT(ch), MIN(GET_HIT(ch) + MAX(1, dam), GET_REAL_MAX_HIT(ch)
+									+ GET_REAL_MAX_HIT(ch) * GET_LEVEL(ch) / 10));
+//-MZ.overflow_fix
 	update_pos(ch);
 }
 

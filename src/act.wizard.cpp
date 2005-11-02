@@ -105,7 +105,7 @@ int compute_armor_class(CHAR_DATA * ch);
 int calc_loadroom(CHAR_DATA * ch);
 extern bool can_be_reset(zone_rnum zone);
 extern int is_empty(zone_rnum zone_nr);
-void list_feats(CHAR_DATA * ch, CHAR_DATA * vict);
+void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 extern void NewNameShow(CHAR_DATA * ch);
@@ -3555,7 +3555,7 @@ ACMD(do_show)
 			send_to_char("Нет такого игрока.\r\n", ch);
 			return;
 		}
-		list_feats(vict, ch);
+		list_feats(vict, ch, FALSE);
 		break;
 	default:
 		send_to_char("Извините, неверная команда.\r\n", ch);

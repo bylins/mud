@@ -2985,12 +2985,16 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		break;
 	case SPELL_HEAL:
 	case SPELL_GROUP_HEAL:
-		hit = GET_REAL_MAX_HIT(victim);
+//MZ.overflow_fix
+		hit = GET_REAL_MAX_HIT(victim) - GET_HIT(victim);
+//-MZ.overflow_fix
 		send_to_char("Вы почувствовали себя здоровым.\r\n", victim);
 		break;
 	case SPELL_REFRESH:
 	case SPELL_GROUP_REFRESH:
-		move = GET_REAL_MAX_MOVE(victim);
+//MZ.overflow_fix
+		move = GET_REAL_MAX_MOVE(victim) - GET_MOVE(victim);
+//-MZ.overflow_fix
 		send_to_char("Вы почувствовали себя полным сил.\r\n", victim);
 		break;
 	case SPELL_EXTRA_HITS:
@@ -3012,13 +3016,20 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	}
 
 	if ((spellnum == SPELL_EXTRA_HITS) && (GET_HIT(victim) < MAX_HITS))
+//MZ.extrahits_fix
+		if (GET_REAL_MAX_HIT(victim) <= 0)
+			GET_HIT(victim) = MAX(GET_HIT(victim), MIN(GET_HIT(victim) + hit, 1));
+		else
 		GET_HIT(victim) = MAX(GET_HIT(victim),
-				      MIN(GET_HIT(victim) + hit,
-					  GET_REAL_MAX_HIT(victim) + GET_REAL_MAX_HIT(victim) * 33 / 100));
+					MIN(GET_HIT(victim) + hit,
+						GET_REAL_MAX_HIT(victim) + GET_REAL_MAX_HIT(victim) * 33 / 100));
+//-MZ.extrahits_fix
 	else if (GET_HIT(victim) < GET_REAL_MAX_HIT(victim))
 		GET_HIT(victim) = MIN(GET_HIT(victim) + hit, GET_REAL_MAX_HIT(victim));
-
-	GET_MOVE(victim) = MIN(GET_REAL_MAX_MOVE(victim), GET_MOVE(victim) + move);
+//MZ.overflow_fix
+	if (GET_MOVE(victim) < GET_REAL_MAX_MOVE(victim))
+		GET_MOVE(victim) = MIN(GET_MOVE(victim) + move, GET_REAL_MAX_MOVE(victim));
+//-MZ.overflow_fix
 	update_pos(victim);
 	return 1;
 }

@@ -46,7 +46,7 @@ extern struct skillvariables_dig dig_vars;
 extern struct skillvariables_insgem insgem_vars;
 
 /* extern procedures */
-void list_feats(CHAR_DATA * ch, CHAR_DATA * vict);
+void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 void appear(CHAR_DATA * ch);
@@ -626,7 +626,11 @@ ACMD(do_features)
 {
 	if (IS_NPC(ch))
 		return;
-	list_feats(ch, ch);
+	skip_spaces(&argument);
+	if (is_abbrev(argument, "все") || is_abbrev(argument, "all"))
+		list_feats(ch, ch, TRUE);
+	else
+		list_feats(ch, ch, FALSE);
 }
 
 ACMD(do_skills)

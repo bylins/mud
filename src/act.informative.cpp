@@ -2086,7 +2086,7 @@ ACMD(do_score)
 	if (is_abbrev(argument, "все") || is_abbrev(argument, "all")) {
 
 	if (GET_LEVEL(ch) < 6) {
-		send_to_char(ch, "Вам следует достичь хотя бы шестого уровня, чтобы воспользоваться этой командой!");
+		send_to_char(ch, "Вам следует достичь хотя бы шестого уровня, чтобы воспользоваться этой командой!\r\n");
 		return;
 	}
 

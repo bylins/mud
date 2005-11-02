@@ -56,7 +56,7 @@ int mag_manacost(CHAR_DATA * ch, int spellnum);
 void sort_spells(void);
 int compare_spells(const void *x, const void *y);
 char *how_good(CHAR_DATA * ch, int percent);
-void list_feats(CHAR_DATA * ch, CHAR_DATA * vict);
+void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 int slot_for_char(CHAR_DATA * ch, int i);
@@ -168,7 +168,7 @@ extern int prac_params[4][NUM_CLASSES];
 Лишние способности у персонажей удалятся автоматически при использовании команды "способности".
 */
 
-void list_feats(CHAR_DATA * ch, CHAR_DATA * vict)
+void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 {
 	int i = 0, j = 0, sortpos, slot;
 	char names[MAX_ACC_FEAT][MAX_STRING_LENGTH];
@@ -176,10 +176,50 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict)
 	bool sfound;
 
 	for (i = 0; i < MAX_ACC_FEAT; i++)
-		*names[i] = '\0';
+		if (all_feats)
+			sprintf(names[i], "\r\nКруг %d:\r\n", i + 1);
+		else
+			*names[i] = '\0';
+
+	sprintf(buf2, "\r\nВрожденные способности :\r\n");
+
+	if (all_feats) {
+		send_to_char(" Список доступных способностей.\r\n"
+				" Зеленым цветом выделены уже изученые спосбности.\r\n"
+				" Красным цветом выделены способности, недоступные Вам в настоящий момент.\r\n"
+				"\r\n Способность				Уровень\r\n", vict);
+		for (sortpos = 1; sortpos < MAX_FEATS; sortpos++) {
+			if (!feat_info[sortpos].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+				continue;
+			sprintf(buf, "	%s%-30s%s%2d%s\r\n",
+				HAVE_FEAT(ch, sortpos) ? CCGRN(vict, C_NRM) :
+				can_get_feat(ch, sortpos) ? CCNRM(vict, C_NRM) : CCRED(vict, C_NRM),
+				feat_info[sortpos].name, CCCYN(vict, C_NRM),
+				feat_info[sortpos].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)], CCNRM(vict, C_NRM));
+
+			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
+				strcat(buf2, buf);
+				j++;
+			} else
+				strcat(names[FEAT_SLOT(ch, sortpos)], buf);
+		}
+		sprintf(buf1, "-------------------------------------");
+		for (i = 0; i < MAX_ACC_FEAT; i++) {
+			if (strlen(buf1) >= MAX_STRING_LENGTH - 60) {
+				strcat(buf1, "**OVERFLOW**\r\n");
+				break;
+			}
+			sprintf(buf1 + strlen(buf1), names[i]);
+		}
+
+		send_to_char(buf1, vict);
+//		page_string(ch->desc, buf, 1);
+		if (j)
+			send_to_char(buf2, vict);
+		return;
+	}
 
 	sprintf(buf1, "Вы обладаете следующими способностями :\r\n");
-	sprintf(buf2, "Врожденные способности :\r\n");
 
 	for (sortpos = 1; sortpos < MAX_FEATS; sortpos++) {
 		if (strlen(buf2) >= MAX_STRING_LENGTH - 60) {
@@ -266,6 +306,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict)
 	sprintf(buf1 + strlen(buf1), names[i]);
 	}
 	send_to_char(buf1, vict);
+
 	if (j)
 		send_to_char(buf2, vict);
 }

@@ -2311,6 +2311,12 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case MEDIT_DLIST_DEL:
 			number = atoi(arg);
 			if (number != 0) {
+				if (OLC_MOB(d)->dl_list == NULL || OLC_MOB(d)->dl_list->empty()) {
+					send_to_char("Список пуст!\r\n", d->character);
+					OLC_MODE(d) = MEDIT_DLIST_MENU;
+					disp_dl_list(d);
+					return;
+				}
 				// Удаляем указаный элемент.
 				i = 0;
 				load_list::iterator p = OLC_MOB(d)->dl_list->begin();

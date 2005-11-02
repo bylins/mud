@@ -2557,14 +2557,16 @@ ACMD(do_firstaid)
 
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) || GET_GOD_FLAG(vict, GF_GODSLIKE))
 		percent = prob;
-	if (GET_GOD_FLAG(vict, GF_GODSCURSE) || GET_GOD_FLAG(vict, GF_GODSCURSE))
+	if (GET_GOD_FLAG(ch, GF_GODSCURSE) || GET_GOD_FLAG(vict, GF_GODSCURSE))
 		prob = 0;
 	success = (prob >= percent);
 	need = FALSE;
 
-	if ((GET_REAL_MAX_HIT(vict) && (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31)
-									|| can_use_feat(ch, HEALER_FEAT)) {
-		need = TRUE;
+	if ((GET_REAL_MAX_HIT(vict) > 0 && (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31)
+			|| (GET_REAL_MAX_HIT(vict) <= 0 && GET_HIT(vict) < GET_REAL_MAX_HIT(vict))
+			|| (GET_HIT(vict) < GET_REAL_MAX_HIT(vict) && can_use_feat(ch, HEALER_FEAT))) {
+		if (!can_use_feat(ch, HEALER_FEAT))
+			need = TRUE;
 		if (success) {
 			int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
 			int add = MIN(dif, (dif * (prob - percent) / 100) + 1);
