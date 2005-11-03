@@ -1957,7 +1957,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 		if (GET_EXTRA_VICTIM(k) == ch)
 			SET_EXTRA(k, 0, NULL);
 		if (GET_CAST_CHAR(k) == ch)
-			SET_CAST(k, 0, NULL, NULL, NULL);
+			SET_CAST(k, 0, 0, NULL, NULL, NULL);
 		if (FIGHTING(k) == ch && IN_ROOM(k) != NOWHERE) {
 			log("[Change fighting] Change victim");
 			for (j = world[IN_ROOM(ch)]->people; j; j = j->next_in_room)

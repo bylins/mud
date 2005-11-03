@@ -1949,6 +1949,8 @@ struct extra_attack_type {
 struct cast_attack_type {
 	int
 	 spellnum;
+	int
+	 spell_subst;
 	CHAR_DATA *tch;
 	OBJ_DATA *tobj;
 	ROOM_DATA *troom;

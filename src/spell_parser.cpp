@@ -2647,7 +2647,7 @@ ACMD(do_cast)
 
 	/* You throws the dice and you takes your chances.. 101% is total failure */
 	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
-	SET_CAST(ch, 0, NULL, NULL, NULL);
+	SET_CAST(ch, 0, 0, NULL, NULL, NULL);
 	
 	if (!spell_use_success(ch, tch, SAVING_STABILITY, spellnum)) {
 		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
@@ -2666,7 +2666,7 @@ ACMD(do_cast)
 			send_to_char("Вы не смогли сосредоточиться !\r\n", ch);
 	} else {		/* cast spell returns 1 on success; subtract mana & set waitstate */
 		if (FIGHTING(ch) && !IS_IMPL(ch)) {
-			SET_CAST(ch, spellnum, tch, tobj, troom);
+			SET_CAST(ch, spellnum, spell_subst, tch, tobj, troom);
 			sprintf(buf,
 				"Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
 				CCCYN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM),

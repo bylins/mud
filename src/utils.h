@@ -332,11 +332,13 @@ extern SPECIAL(postmaster);
                                      (ch)->extra_attack.victim     = vict;})
 #define GET_EXTRA_SKILL(ch)          ((ch)->extra_attack.used_skill)
 #define GET_EXTRA_VICTIM(ch)         ((ch)->extra_attack.victim)
-#define SET_CAST(ch,snum,dch,dobj,droom)   ({(ch)->cast_attack.spellnum  = snum; \
+#define SET_CAST(ch,snum,subst,dch,dobj,droom)   ({(ch)->cast_attack.spellnum  = snum; \
+					(ch)->cast_attack.spell_subst  = subst; \
                                        (ch)->cast_attack.tch       = dch; \
                                        (ch)->cast_attack.tobj      = dobj; \
 				       (ch)->cast_attack.troom     = droom;})
 #define GET_CAST_SPELL(ch)         ((ch)->cast_attack.spellnum)
+#define GET_CAST_SUBST(ch)         ((ch)->cast_attack.spell_subst)
 #define GET_CAST_CHAR(ch)          ((ch)->cast_attack.tch)
 #define GET_CAST_OBJ(ch)           ((ch)->cast_attack.tobj)
 

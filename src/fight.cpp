@@ -440,7 +440,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	INITIATIVE(ch) = 0;
 	BATTLECNTR(ch) = 0;
 	SET_EXTRA(ch, 0, NULL);
-	SET_CAST(ch, 0, NULL, NULL, NULL);
+	SET_CAST(ch, 0, 0, NULL, NULL, NULL);
 	restore_battle_pos(ch);
 	NUL_AF_BATTLE(ch);
 	// sprintf(buf,"[Stop fighting] %s - %s\r\n",GET_NAME(ch),switch_others ? "switching" : "no switching");
@@ -459,7 +459,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 		if (GET_EXTRA_VICTIM(temp) == ch)
 			SET_EXTRA(temp, 0, NULL);
 		if (GET_CAST_CHAR(temp) == ch)
-			SET_CAST(temp, 0, NULL, NULL, NULL);
+			SET_CAST(temp, 0, 0, NULL, NULL, NULL);
 		if (FIGHTING(temp) == ch && switch_others) {
 			log("[Stop fighting] %s : Change victim for fighting", GET_NAME(temp));
 			for (found = combat_list; found; found = found->next_fighting)
@@ -2266,7 +2266,8 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		}
 
 		if ((dam > 0 && !was_critic && AFF_FLAGGED(victim, AFF_FIRESHIELD))
-		    && (attacktype != (TYPE_HIT + SKILL_BACKSTAB))) {
+		    && (attacktype != (TYPE_HIT + SKILL_BACKSTAB))
+		    && (attacktype != (TYPE_HIT + SKILL_THROW))) {
 			FS_damage = dam * 20 / 100;
 			dam -= (dam * number(10, 30) / 100);
 		}
@@ -3132,7 +3133,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 	//  log("AC     : %d ", victim_ac);
 
 	// roll the dice and take your chances...
-	diceroll = number(1, 20);
+	diceroll = number(1, 2000) / 100;
 
 //log("Attacker: %s, THAC0: %d, victim_ac: %d, diceroll: %d, skill_is: %d, skill: %d", GET_NAME(ch), calc_thaco, victim_ac, diceroll, skill_is, skill);
 
@@ -4671,11 +4672,11 @@ void perform_violence(void)
 						send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 					else {
 						cast_spell(ch, GET_CAST_CHAR(ch), GET_CAST_OBJ(ch),
-								0, GET_CAST_SPELL(ch), GET_CAST_SPELL(ch));
+								0, GET_CAST_SPELL(ch), GET_CAST_SUBST(ch));
 						if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)
 						      || CHECK_WAIT(ch)))
 							WAIT_STATE(ch, PULSE_VIOLENCE);
-						SET_CAST(ch, 0, NULL, NULL, NULL);
+						SET_CAST(ch, 0, 0, NULL, NULL, NULL);
 					}
 					if (INITIATIVE(ch) > min_init) {
 						INITIATIVE(ch)--;
