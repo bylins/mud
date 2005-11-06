@@ -2153,7 +2153,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 		obj = read_object(START_FRUNE, VIRTUAL);
 		if (obj)
 			obj_to_char(obj, ch);
-
+		break;
+		
 	case CLASS_CLERIC:
 		obj = read_object(START_CLUB, VIRTUAL);
 		if (obj)
