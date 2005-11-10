@@ -443,6 +443,7 @@ $COLORC Волхв $COLORn       - маг, черпающий свою силу из старинных артефактов.
  Основное качество       : $COLORCмудрость $COLORn
  Дополнительное качество : $COLORCум $COLORn
  Имеет бонус             : $COLORCк восстановлению жизни$COLORn
+ Штрафы                  : к использованию $COLORCдлинных лезвий$COLORn, и $COLORCдвуручного оружия$COLORn.
 
 См. также:$COLORC ЗАКЛИНАНИЯЛЕКАРЯ, УМЕНИЯЛЕКАРЯ $COLORn
 
@@ -656,6 +657,7 @@ $COLORWИммунитет$COLORn
  Дополнительное качество : $COLORCмудрость$COLORn
  Имеет бонус             : $COLORCк запоминанию$COLORn,
                            $COLORCинфравидение$COLORn
+ Штрафы                  : к использованию $COLORCдлинных лезвий$COLORn, $COLORCсекир$COLORn, $COLORCдвуручного оружия$COLORn и $COLORCкопий$COLORn.
 
 См. также:$COLORC ЗАКЛИНАНИЯКОЛДУНА, УМЕНИЯКОЛДУНА $COLORn
 
@@ -671,6 +673,7 @@ $COLORWИммунитет$COLORn
  Основное качество       : $COLORCум$COLORn
  Дополнительное качество : $COLORCобаяние$COLORn
  Имеет бонус             : $COLORC+1 ум$COLORn
+ Штрафы                  : к использованию $COLORCдлинных лезвий$COLORn, $COLORCсекир$COLORn, $COLORCдвуручного оружия$COLORn и $COLORCкопий$COLORn.
 
 См. также:$COLORC ЗАКЛИНАНИЯВОЛШЕБНИКА, УМЕНИЯВОЛШЕБНИКА $COLORn
 
@@ -687,6 +690,7 @@ $COLORWИммунитет$COLORn
  Основное качество       : $COLORCум $COLORn
  Дополнительное качество : $COLORCобаяние $COLORn
  Имеет бонус             : $COLORC+1 ум$COLORn
+ Штрафы                  : к использованию $COLORCдлинных лезвий$COLORn, $COLORCсекир$COLORn, $COLORCдвуручного оружия$COLORn и $COLORCкопий$COLORn.
 
 См. также:$COLORC ЗАКЛИНАНИЯКУДЕСНИКА, УМЕНИЯКУДЕСНИКА $COLORn
 
@@ -705,6 +709,7 @@ $COLORWИммунитет$COLORn
  Имеет бонус             : $COLORCк восстановлению энергии$COLORn,
                            $COLORCк запоминанию заклинаний$COLORn,
                            $COLORCк восстановлению жизни$COLORn
+ Штрафы                  : к использованию $COLORCдлинных лезвий$COLORn и $COLORCдвуручного оружия$COLORn.
 
 См. также:$COLORC НАНЯТЬ ЗАКЛИНАНИЯКУПЦА, УМЕНИЯКУПЦА $COLORn
 
@@ -735,6 +740,7 @@ $COLORWИммунитет$COLORn
  Дополнительное качество : $COLORCум $COLORn
  Имеет бонус             : $COLORCк запоминанию$COLORn,
                            $COLORCинфравидение$COLORn
+ Штрафы                  : к использованию $COLORCдлинных лезвий$COLORn, $COLORCсекир$COLORn, $COLORCдвуручного оружия$COLORn и $COLORCкопий$COLORn.
 
 См. также:$COLORC ЗАКЛИНАНИЯЧЕРНОКНИЖНИКА, УМЕНИЯЧЕРНОКНИЖНИКА $COLORn
 
@@ -755,6 +761,7 @@ $COLORWИммунитет$COLORn
  Дополнительное качество : $COLORCмудрость $COLORn
  Имеет бонус             : $COLORCк восстановлению энергии$COLORn,
                            $COLORCк восстановлению жизни$COLORn
+ Штрафы                  : к использованию $COLORCдлинных лезвий$COLORn, $COLORCдвуручного оружия$COLORn и $COLORCлуков$COLORn.
 
 См. также:$COLORC РУНЫ, СЛОЖИТЬ, СОСТАВ, УМЕНИЯВОЛХВА$COLORn
 
@@ -794,6 +801,7 @@ $COLORWИммунитет$COLORn
  Дополнительное качество : $COLORCсила $COLORn
  Имеет бонус             : $COLORCчувствовать жизнь$COLORn,
                            $COLORCинфравидение$COLORn
+ Штрафы                  : к использованию $COLORCдлинных лезвий$COLORn, $COLORCсекир$COLORn, $COLORCдвуручного оружия$COLORn и $COLORCкопий$COLORn.
 
 См. также:$COLORC УМЕНИЯТАТЕЙ $COLORn
 
@@ -816,6 +824,7 @@ $COLORWИммунитет$COLORn
 
  Основное качество       : $COLORCсила$COLORn
  Дополнительное качество : $COLORCтелосложение$COLORn
+ Штрафы                  : к использованию $COLORCкоротких лезвий$COLORn и $COLORCпроникающего оружия$COLORn.
 
 См. также:$COLORC УМЕНИЯБОГАТЫРЯ $COLORn
 
@@ -870,6 +879,7 @@ $COLORWИммунитет$COLORn
                            $COLORCк восстановлению энергии$COLORn,
                            $COLORCинфравидение$COLORn,
                            $COLORCчувствовать жизнь$COLORn
+ Штрафы                  : к использованию $COLORCдлинных лезвий$COLORn и $COLORCдвуручного оружия$COLORn.
 
 См. также:$COLORC УМЕНИЯОХОТНИКА $COLORn
 
@@ -893,6 +903,7 @@ $COLORWИммунитет$COLORn
  Основное качество       : $COLORCловкость$COLORn
  Дополнительное качество : $COLORCсила$COLORn
  Имеет бонус             : $COLORCк силе удара определенным типом оружия$COLORn
+ Штрафы                  : к использованию $COLORCдлинных лезвий$COLORn, $COLORCсекир$COLORn, $COLORCдвуручного оружия$COLORn и $COLORCкопий$COLORn.
 
 См. также:$COLORC УМЕНИЯНАЕМНИКА $COLORn
 
