@@ -2755,6 +2755,11 @@ ACMD(do_mixture)
 		return;
 	}
 
+	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(SpINFO.targets, TAR_SELF_ONLY)) {
+		send_to_char("Вы можете колдовать это только на себя !\r\n", ch);
+		return;
+	}
+
 	if (IS_MANA_CASTER(ch)) {
 // shapirus: проверку на достаточный левел делаем здесь, потому что
 // раньше она делалась в функции расчета стоимости заклинания -- там просто

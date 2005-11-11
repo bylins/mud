@@ -2289,7 +2289,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Исходящий с небес свет на мгновение озарил Вас.";
 		to_room = "Исходящий с небес свет на мгновение озарил $n3.";
 		spellnum = SPELL_PATRONAGE;
-		GET_HIT(ch) += GET_LEVEL(ch);
+		if (!AFF_FLAGGED(victim, AFF_PATRONAGE))
+			GET_HIT(ch) += GET_LEVEL(ch);
 		break;
 
 	case SPELL_SENSE_LIFE:
