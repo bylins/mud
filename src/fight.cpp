@@ -190,7 +190,7 @@ void appear(CHAR_DATA * ch)
 	REMOVE_BIT(AFF_FLAGS(ch, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);
 
 	if (appear_msg) {
-		if (GET_LEVEL(ch) < LVL_IMMORT)
+		if (IS_NPC(ch) || GET_LEVEL(ch) < LVL_IMMORT)
 			act("$n медленно появил$u из пустоты.", FALSE, ch, 0, 0, TO_ROOM);
 		else
 			act("Вы почувствовали странное присутствие $n1.", FALSE, ch, 0, 0, TO_ROOM);
@@ -2302,11 +2302,10 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 				dam -= (dam * MIN(50, decrease) / 100);
 			/* умножаем дамаг при крит ударе, если щитов нет и игнор ничего не дает
 			   по призме не умножаем, чтобы не уносило танков с 1 удара */
-			} else if (dam <= (GET_REAL_MAX_HIT(victim) / 8)
+			} else if ((GET_LEVEL(victim) >= 5 || !IS_NPC(ch))
 				   && !AFF_FLAGGED(victim, AFF_PRISMATICAURA) && !AFF_FLAGGED(victim, AFF_FIRESHIELD)
-				   && !AFF_FLAGGED(victim, AFF_ICESHIELD) && !AFF_FLAGGED(victim, AFF_AIRSHIELD)
-				   && (GET_LEVEL(victim) >= 5 || !IS_NPC(ch)))
-					dam *= 2;
+				   && !AFF_FLAGGED(victim, AFF_ICESHIELD) && !AFF_FLAGGED(victim, AFF_AIRSHIELD))
+					dam = MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2);
 
 		}
 	} else if (MOB_FLAGGED(victim, MOB_PROTECT)) {

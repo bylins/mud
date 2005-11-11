@@ -2277,6 +2277,21 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		spellnum = SPELL_STRENGTH;
 		break;
 
+	case SPELL_PATRONAGE:
+		af[0].duration = pc_duration(victim, 3, level, 10, 0, 0);
+		af[0].bitvector = AFF_PATRONAGE;
+		af[0].location = APPLY_HIT;
+		af[0].modifier = GET_LEVEL(ch);
+		af[1].duration = pc_duration(victim, 3, level, 10, 0, 0);
+		af[1].bitvector = AFF_PATRONAGE;
+		af[1].location = APPLY_HITROLL;
+		af[1].modifier = GET_LEVEL(ch) / 8;
+		to_vict = "Исходящий с небес свет на мгновение озарил Вас.";
+		to_room = "Исходящий с небес свет на мгновение озарил $n3.";
+		spellnum = SPELL_PATRONAGE;
+		GET_HIT(ch) += GET_LEVEL(ch);
+		break;
+
 	case SPELL_SENSE_LIFE:
 		to_vict = "Вы способны разглядеть даже микроба.";
 		af[0].duration = pc_duration(victim, 0, level, 5, 0, 0);

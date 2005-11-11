@@ -351,18 +351,18 @@ ASPELL(spell_relocate)
 	     ROOM_FLAGGED(fnd_room, ROOM_DEATH) ||
 	     ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) ||
 	     ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) ||
-	     ROOM_FLAGGED(fnd_room, ROOM_NOTELEPORTIN) ||
+//	     ROOM_FLAGGED(fnd_room, ROOM_NOTELEPORTIN) ||
 	     ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) || (ROOM_FLAGGED(fnd_room, ROOM_GODROOM) && !IS_IMMORTAL(ch)))) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	act("$n медленно исчез$q из виду.", FALSE, ch, 0, 0, TO_ROOM);
-	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
+	act("$n медленно исчез$q из виду.", TRUE, ch, 0, 0, TO_ROOM);
+	send_to_char("Лазурные сполохи пронеслись перед Вашими глазами.\r\n", ch);
 	char_from_room(ch);
 	char_to_room(ch, fnd_room);
 	check_horse(ch);
-	act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
+	act("$n медленно появил$u откуда-то.", TRUE, ch, 0, 0, TO_ROOM);
 	look_at_room(ch, 0);
 	/* Прыжок на чара в БД удваивает лаг */
 	if (RENTABLE(victim)) {

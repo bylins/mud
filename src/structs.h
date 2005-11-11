@@ -629,6 +629,7 @@ typedef struct trig_data
 #define AFF_MAGICSTOPFIGHT	(INT_ONE | (1 << 29))
 #define AFF_BERSERK	(INT_TWO | (1 << 0))
 #define AFF_LIGHT_WALK	(INT_TWO | (1 << 1))
+#define AFF_PATRONAGE	(INT_TWO | (1 << 2))
 
 
 // shapirus: modes of ignoring

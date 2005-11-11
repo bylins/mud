@@ -2527,6 +2527,9 @@ int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int 
 		break;
 	}
 
+	if (equip_in_metall(ch) && !can_use_feat(ch, COMBAT_CASTING_FEAT))
+		prob -= 50;
+
 	prob = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_SUCCESS, prob);
 	if (GET_GOD_FLAG(ch, GF_GODSCURSE) ||
 	    (SpINFO.violent && victim && GET_GOD_FLAG(victim, GF_GODSLIKE)) ||
@@ -3619,7 +3622,9 @@ void mag_assign_spells(void)
 //40
 	spello(SPELL_SUMMON, "призвать", "summon",
 	       110, 100, 2, POS_STANDING, TAR_CHAR_WORLD | TAR_NOT_SELF, FALSE, MAG_MANUAL, 0, STYPE_MIND);
-//41-not used now
+//41
+	spello(SPELL_PATRONAGE, "покровительство", "patronage", 95, 80, 2,
+		POS_FIGHTING, TAR_SELF_ONLY | TAR_CHAR_ROOM, FALSE, MAG_AFFECTS, 1, STYPE_LIGHT);
 //42
 	spello(SPELL_WORD_OF_RECALL, "слово возврата", "recall", 140, 100, 4,
 		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_MANUAL | NPC_DAMAGE_PC, 0, STYPE_MIND);
@@ -3886,7 +3891,7 @@ void mag_assign_spells(void)
 	spello(SPELL_AIR_SHIELD, "воздушный щит", "air shield", 140, 120, 2,
 		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_AIR);
 //119
-	spello(SPELL_PORTAL, "переход", "portal", 140, 120, 2,
+	spello(SPELL_PORTAL, "переход", "portal", 200, 180, 4,
 		POS_STANDING, TAR_CHAR_WORLD, FALSE, MAG_MANUAL, 0, STYPE_LIGHT);
 //120
 	spello(SPELL_DISPELL_MAGIC, "развеять магию", "dispel magic",

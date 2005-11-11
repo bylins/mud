@@ -250,8 +250,8 @@ void assign_feats(void)
 	feat_app.clear();
 //27
 	feato(WEAPON_FINESSE_FEAT, "ловкий удар", NORMAL_FTYPE, TRUE, feat_app);
-//28 -*
-	feato(COMBAT_CASTING_FEAT, "боевое чародейство", NORMAL_FTYPE, TRUE, feat_app);
+//28
+	feato(COMBAT_CASTING_FEAT, "боевое колдовство", NORMAL_FTYPE, TRUE, feat_app);
 //29
 	feat_app.insert(SKILL_PUNCH, APPLY_NONE);
 	feat_app.insert(PUNCH_FOCUS_FEAT, APPLY_NONE);
@@ -754,7 +754,7 @@ ACMD(do_lightwalk)
 		return;
 	}
 	if (timed_by_feat(ch, LIGHT_WALK_FEAT)) {
-		act("Вы слишком утомлены для этого.", FALSE, ch, 0, get_horse(ch), TO_CHAR);
+		send_to_char("Вы слишком утомлены для этого.\r\n", ch);
 		return;
 	}
 

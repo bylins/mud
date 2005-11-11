@@ -2348,9 +2348,6 @@ void o_advance_level(CHAR_DATA * ch)
 		if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && can_get_feat(ch, i))
 			SET_FEAT(ch, i); 
 
-	if (HAVE_FEAT(ch, ENDURANCE_FEAT))
-		add_move += 3;
-	
 	add_hp_min = MIN(add_hp_min, add_hp_max);
 	add_hp_min = MAX(1, add_hp_min);
 	add_hp_max = MAX(1, add_hp_max);
@@ -2404,9 +2401,6 @@ void o_decrease_level(CHAR_DATA * ch)
 		add_move = GET_DEX(ch) / 5 + 1;
 		break;
 	}
-
-	if (HAVE_FEAT(ch, ENDURANCE_FEAT))
-		add_move += 3;
 
 	log("Dec hp for %s set ot %d", GET_NAME(ch), add_hp);
 	ch->points.max_hit -= MIN(ch->points.max_hit, MAX(1, add_hp));

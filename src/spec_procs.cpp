@@ -185,13 +185,13 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 
 	if (all_feats) {
 		send_to_char(" Список доступных способностей.\r\n"
-				" Зеленым цветом выделены уже изученые спосбности.\r\n"
+				" Зеленым цветом выделены уже изученные способности.\r\n"
 				" Красным цветом выделены способности, недоступные Вам в настоящий момент.\r\n"
 				"\r\n Способность				Уровень\r\n", vict);
 		for (sortpos = 1; sortpos < MAX_FEATS; sortpos++) {
 			if (!feat_info[sortpos].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 				continue;
-			sprintf(buf, "	%s%-30s%s%2d%s\r\n",
+			sprintf(buf, "	%s%-30s%s %2d%s\r\n",
 				HAVE_FEAT(ch, sortpos) ? CCGRN(vict, C_NRM) :
 				can_get_feat(ch, sortpos) ? CCNRM(vict, C_NRM) : CCRED(vict, C_NRM),
 				feat_info[sortpos].name, CCCYN(vict, C_NRM),

@@ -165,7 +165,7 @@
 #define SPELL_SLEEP                  38	/* Reserved Skill[] DO NOT CHANGE */
 #define SPELL_STRENGTH               39	/* Reserved Skill[] DO NOT CHANGE */
 #define SPELL_SUMMON                 40	/* Reserved Skill[] DO NOT CHANGE */
-#define SPELL_VENTRILOQUATE          41	/* Reserved Skill[] DO NOT CHANGE */
+#define SPELL_PATRONAGE              41	/* Reserved Skill[] DO NOT CHANGE */
 #define SPELL_WORD_OF_RECALL         42	/* Reserved Skill[] DO NOT CHANGE */
 #define SPELL_REMOVE_POISON          43	/* Reserved Skill[] DO NOT CHANGE */
 #define SPELL_SENSE_LIFE             44	/* Reserved Skill[] DO NOT CHANGE */
