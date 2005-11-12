@@ -1791,8 +1791,8 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			max_val = 1000;
 			break;
 		default:
-			min_val = -32000;
-			max_val = 32000;
+			min_val = -999999;
+			max_val = 999999;
 		}
 		GET_OBJ_VAL(OLC_OBJ(d), 2) = MAX(min_val, MIN(number, max_val));
 		oedit_disp_val4_menu(d);
@@ -1824,8 +1824,8 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			max_val = 100;
 			break;
 		default:
-			min_val = -32000;
-			max_val = 32000;
+			min_val = -999999;
+			max_val = 999999;
 			break;
 		}
 		GET_OBJ_VAL(OLC_OBJ(d), 3) = MAX(min_val, MIN(number, max_val));

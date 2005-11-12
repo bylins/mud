@@ -5045,7 +5045,7 @@ void char_to_store(CHAR_DATA * ch, struct char_file_u *st)
         }
 	if (!IS_NPC(ch)) {
 		if (can_use_feat(ch, ENDURANCE_FEAT))
-			affect_modify(ch, APPLY_MOVE, GET_LEVEL(ch), 0, FALSE);
+			affect_modify(ch, APPLY_MOVE, GET_LEVEL(ch) * 2, 0, FALSE);
 		if (can_use_feat(ch, SPLENDID_HEALTH_FEAT))
 			affect_modify(ch, APPLY_HIT, GET_LEVEL(ch) * 2, 0, FALSE);
 	}

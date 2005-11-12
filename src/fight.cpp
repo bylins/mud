@@ -2305,7 +2305,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 			} else if ((GET_LEVEL(victim) >= 5 || !IS_NPC(ch))
 				   && !AFF_FLAGGED(victim, AFF_PRISMATICAURA) && !AFF_FLAGGED(victim, AFF_FIRESHIELD)
 				   && !AFF_FLAGGED(victim, AFF_ICESHIELD) && !AFF_FLAGGED(victim, AFF_AIRSHIELD))
-					dam = MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2);
+					dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2));
 
 		}
 	} else if (MOB_FLAGGED(victim, MOB_PROTECT)) {
@@ -2912,6 +2912,12 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		else
 			w_type += TYPE_HIT;
 	}
+
+	/*  Обработка доп. маг дамага */
+	if (AFF_FLAGGED(ch, AFF_CLOUD_OF_ARROWS) && IS_WEAPON(w_type))
+		mag_damage(GET_LEVEL(ch) / 2, ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
+
+
 	/* Gorrah: Проверка на фит "любимое оружие"
 	   Сделал в виде HAVE_FEAT. Если кому не нравится - меняйте :) */
 	switch (skill) {

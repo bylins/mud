@@ -831,6 +831,13 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 					strcat(aura_txt, "серебристая");
 				n++;
 			}
+			if (AFF_FLAGGED(i, AFF_BROKEN_CHAINS)) {
+				if (n > 0)
+					strcat(aura_txt, ", ярко-синяя");
+				else
+					strcat(aura_txt, "ярко-синяя");
+				n++;
+			}
 			if (AFF_FLAGGED(i, AFF_EVILESS)) {
 				if (n > 0)
 					strcat(aura_txt, ", черная");
@@ -1025,6 +1032,13 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 				strcat(aura_txt, ", серебристая");
 			else
 				strcat(aura_txt, "серебристая");
+			n++;
+		}
+		if (AFF_FLAGGED(i, AFF_BROKEN_CHAINS)) {
+			if (n > 0)
+				strcat(aura_txt, ", ярко-синяя");
+			else
+				strcat(aura_txt, "ярко-синяя");
 			n++;
 		}
 		if (n == 1)

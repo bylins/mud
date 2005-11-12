@@ -206,13 +206,13 @@ const char *religion_menu =
 /* Соответствие классов и религий. RELIGION_POLY-класс не может быть христианином 
                                    RELIGION_MONO-класс не может быть язычником  (Кард)
 				   RELIGION_ANY - класс может быть кем угодно */
-const int class_religion[] = { RELIGION_MONO,	/*Лекарь */
+const int class_religion[] = { RELIGION_ANY,	/*Лекарь */
 	RELIGION_POLY,		/*Колдун */
-	RELIGION_POLY,		/*Тать */
+	RELIGION_ANY,		/*Тать */
 	RELIGION_POLY,		/*Богатырь */
 	RELIGION_MONO,		/*Наемник */
 	RELIGION_ANY,		/*Дружинник */
-	RELIGION_MONO,		/*Кудесник */
+	RELIGION_ANY,		/*Кудесник */
 	RELIGION_MONO,		/*Волшебник */
 	RELIGION_POLY,		/*Чернокнижник */
 	RELIGION_MONO,		/*Витязь */
@@ -2310,6 +2310,12 @@ void o_advance_level(CHAR_DATA * ch)
 		break;
 
 	case CLASS_CLERIC:
+		// Not more then BORN CON + 1
+		add_hp_min = MIN(add_hp_min, GET_CON(ch) - 2);
+		add_hp_max = MIN(add_hp_max, GET_CON(ch) + 2);
+		add_move = number(GET_DEX(ch) / 6 + 1, GET_DEX(ch) / 5 + 1);
+		break;
+
 	case CLASS_DRUID:
 		// Not more then BORN CON + 1
 		add_hp_min = MIN(add_hp_min, GET_CON(ch) - 2);

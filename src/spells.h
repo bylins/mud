@@ -184,7 +184,7 @@
 #define SPELL_POWER_HOLD         55
 #define SPELL_MASS_HOLD          56
 #define SPELL_FLY                57
-
+#define SPELL_BROKEN_CHAINS      58
 #define SPELL_NOFLEE             59
 #define SPELL_CREATE_LIGHT       60
 #define SPELL_DARKNESS           61
@@ -197,7 +197,7 @@
 #define SPELL_IMPLOSION          68
 #define SPELL_WEAKNESS           69
 #define SPELL_GROUP_INVISIBLE    70
-#define SPELL_PROTECT_MAGIC      71
+#define SPELL_SHADOW_CLOAK       71
 #define SPELL_ACID               72
 #define SPELL_REPAIR             73
 #define SPELL_ENLARGE            74
@@ -212,7 +212,7 @@
 #define SPELL_POWER_SIELENCE     83
 #define SPELL_EXTRA_HITS         84
 #define SPELL_RESSURECTION       85
-#define SPELL_PROLONGATION       86
+#define SPELL_MAGICSHIELD        86
 #define SPELL_FORBIDDEN          87
 #define SPELL_MASS_SIELENCE      88
 #define SPELL_REMOVE_SIELENCE    89
@@ -260,7 +260,7 @@
 #define	SPELL_SHINEFLASH		 130
 #define SPELL_MADNESS			 131
 #define SPELL_GROUP_MAGICGLASS           132
-#define SPELL_STAIRS			 133
+#define SPELL_CLOUD_OF_ARROWS		 133
 #define SPELL_VACUUM			 134
 #define SPELL_METEORSTORM		 135
 #define SPELL_STONEHAND			 136
@@ -270,7 +270,7 @@
 #define SPELL_AIR_AURA                   140
 #define SPELL_FIRE_AURA                  141
 #define SPELL_ICE_AURA                   142
-//#define SPELL_TOWNPORTAL                 143
+#define SPELL_SHOCK                      143
 #define SPELL_MAGICGLASS		144
 #define SPELL_GROUP_SANCTUARY           145
 #define SPELL_GROUP_PRISMATICAURA       146
@@ -297,7 +297,8 @@
 #define SPELL_POISONED_FOG		167	/* Закл отравленного тумана */ 
 #define SPELL_THUNDERSTORM		168	/* Закл отравленного тумана */ 
 #define SPELL_LIGHT_WALK		169
-#define LAST_USED_SPELL			170
+#define SPELL_FAILURE			170
+#define LAST_USED_SPELL			171
 
 /*
  *  NON-PLAYER AND OBJECT SPELLS AND SKILLS

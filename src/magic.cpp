@@ -982,6 +982,13 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		return (mag_damage(level, ch, ch, spellnum, savetype));
 	}
 
+	if (AFF_FLAGGED(victim, AFF_SHADOW_CLOAK) && spellnum < MAX_SPELLS && number(1, 1000) <= 200) {
+		act("Густая тень вокруг $N1 жадно поглотила вашу магию.", FALSE, ch, 0, victim, TO_CHAR);
+		act("Густая тень вокруг $N1 жадно поглотила магию $n1.", FALSE, ch, 0, victim, TO_NOTVICT);
+		act("Густая тень вокруг Вас поглотила магию $n1.", FALSE, ch, 0, victim, TO_VICT);
+		return (0);
+	}
+
 	if (ch != victim) {
 		modi = calc_anti_savings(ch);
 	}
@@ -1340,6 +1347,13 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		adice = level * 2;
 		break;
 
+	case SPELL_SHOCK:
+		savetype = SAVING_REFLEX;
+		ndice = 6;
+		sdice = level / 2;
+		adice = (level + GET_REMORT(ch)) * 2;
+		break;
+
 	case SPELL_HOLYSTRIKE:
 		if (AFF_FLAGGED(victim, AFF_EVILESS)) {
 			dam = -1;
@@ -1394,16 +1408,12 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			}
 		}
 		dam = dice(ndice, sdice) + adice;
-		// sprintf(buf,"Базовое повреждение - %d хп",dam);
-		// act(buf,FALSE,ch,0,0,TO_CHAR);
 		dam = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, dam);
 		if ((GET_CLASS(ch) == CLASS_BATTLEMAGE)
 		    || (GET_CLASS(ch) == CLASS_NPC_BATLEMAGE)) {
 			dam += IS_NPC(victim) ? dam : 0;	/* колдуны всегда в 2 раза сильнее фрагают  */
 			if (GET_POS(victim) < POS_FIGHTING)
 				dam += (dam * (POS_FIGHTING - GET_POS(victim)) / 3);
-			//if (GET_MOB_HOLD(victim))
-			//	dam += (dam >> 1);
 		}
 		dam *= MAX (MIN (100, wis_app[GET_REAL_WIS (ch)].spell_success + 100
 					 + MAX(0, wis_app[GET_WIS(ch)].spell_success)),
@@ -1417,17 +1427,6 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		if (AFF_FLAGGED(victim, AFF_PRISMATICAURA))
 			koeff /= 2;
 		koeff -= (koeff * MIN((GET_ABSORBE(victim) + 1) / 2, 25) / 100);
-
-                /* Ауры теперь просто увеличивают резисты - обсчет тут можно убрать
-		if (ch != victim &&
-		    AFF_FLAGGED(victim, AFF_FIREAURA) && IS_SET(SpINFO.violent, MTYPE_WATER) && number(1, 100) <= 25)
-			dam = 0;
-		if (ch != victim &&
-		    AFF_FLAGGED(victim, AFF_ICEAURA) && IS_SET(SpINFO.violent, MTYPE_FIRE) && number(1, 100) <= 25)
-			dam = 0;
-		if (ch != victim &&
-		    AFF_FLAGGED(victim, AFF_AIRAURA) && IS_SET(SpINFO.violent, MTYPE_AIR) && number(1, 100) <= 25)
-		dam = 0; */
 
 		if (dam > 0) {
 			koeff *= 1000;
@@ -1844,16 +1843,15 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		spellnum = SPELL_HASTE;
 		break;
 
-/*
-  case SPELL_PROTECT_MAGIC:
-    af[0].location = APPLY_SAVING_STABILITY;
-    af[0].modifier = -20;
-    af[0].duration = pc_duration(victim,2,level,4,0,0);
-    accum_duration = TRUE;
-    to_room = "$n осветил$u на миг тусклым светом.";
-    to_vict = "Боги взяли Вас под свою опеку.";
-    break;
-*/
+	case SPELL_SHADOW_CLOAK:
+		af[0].bitvector = AFF_SHADOW_CLOAK;
+		af[0].location = APPLY_SAVING_STABILITY;
+		af[0].modifier = - GET_LEVEL(ch) / 3;
+		af[0].duration = pc_duration(victim,2,level,6,0,0);
+		accum_duration = TRUE;
+		to_room = "$n скрыл$u в густой тени.";
+		to_vict = "Густые тени окутали Вас.";
+		break;
 
 	case SPELL_ENLARGE:
 		if (affected_by_spell(victim, SPELL_ENLESS)) {
@@ -1891,6 +1889,16 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "$n3 покрыла зеркальная пелена.";
 		to_vict = "Вас прокрыло зеркало магии.";
 		spellnum = SPELL_MAGICGLASS;
+		break;
+
+	case SPELL_CLOUD_OF_ARROWS:
+		af[0].duration = pc_duration(victim, 2, 0, 0, 0, 0);
+		af[0].bitvector = AFF_CLOUD_OF_ARROWS;
+		af[0].location = APPLY_HITROLL;
+		af[0].modifier = level / 6;
+		accum_duration = TRUE;
+		to_room = "$n3 окружило облако летающих огненных стрел.";
+		to_vict = "Вас окружило облако летающих огненных стрел.";
 		break;
 
 	case SPELL_STONEHAND:
@@ -2020,7 +2028,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_WEB:
 		savetype = SAVING_REFLEX;
-		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+		if (AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
+		    || ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2074,7 +2083,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_MASS_SLOW:
 	case SPELL_SLOW:
 		savetype = SAVING_STABILITY;
-		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+		if (AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
+		    || ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2278,19 +2288,17 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_PATRONAGE:
-		af[0].duration = pc_duration(victim, 3, level, 10, 0, 0);
 		af[0].bitvector = AFF_PATRONAGE;
 		af[0].location = APPLY_HIT;
-		af[0].modifier = GET_LEVEL(ch);
-		af[1].duration = pc_duration(victim, 3, level, 10, 0, 0);
-		af[1].bitvector = AFF_PATRONAGE;
-		af[1].location = APPLY_HITROLL;
-		af[1].modifier = GET_LEVEL(ch) / 8;
-		to_vict = "Исходящий с небес свет на мгновение озарил Вас.";
-		to_room = "Исходящий с небес свет на мгновение озарил $n3.";
-		spellnum = SPELL_PATRONAGE;
-		if (!AFF_FLAGGED(victim, AFF_PATRONAGE))
-			GET_HIT(ch) += GET_LEVEL(ch);
+		af[0].duration = pc_duration(victim, 3, level, 10, 0, 0);
+		af[0].modifier = GET_LEVEL(ch) * 2 + GET_REMORT(ch);
+		if (GET_ALIGNMENT(victim) >= 0) {
+		    to_vict = "Исходящий с небес свет на мгновение озарил Вас.";
+		    to_room = "Исходящий с небес свет на мгновение озарил $n3.";
+		} else {
+		    to_vict = "Вас окутало клубящееся облако Тьмы.";
+		    to_room = "Клубящееся темное облако на мгновение окутало $n3.";
+		}
 		break;
 
 	case SPELL_SENSE_LIFE:
@@ -2325,7 +2333,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_MASS_HOLD:
 	case SPELL_POWER_HOLD:
 	case SPELL_HOLD:
-		if (AFF_FLAGGED(victim, AFF_SLEEP) || MOB_FLAGGED(victim, MOB_NOHOLD)
+		if (AFF_FLAGGED(victim, AFF_SLEEP)
+		    || MOB_FLAGGED(victim, MOB_NOHOLD) || AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
 		    || (ch != victim && general_savingthrow(victim, SAVING_WILL, modi, 0))) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
@@ -2344,6 +2353,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_SONICWAVE:
+	case SPELL_SHOCK:
 	case SPELL_MASS_DEAFNESS:
 	case SPELL_POWER_DEAFNESS:
 	case SPELL_DEAFNESS:
@@ -2361,6 +2371,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
 								pc_duration(victim, 2, level + 3, 4, 6, 0));
 			break;
+		case SPELL_SHOCK:
+				mag_affects(level, ch, victim, SPELL_BLINDNESS, SAVING_STABILITY); 
 		case SPELL_MASS_DEAFNESS:
 		case SPELL_DEAFNESS:
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
@@ -2410,6 +2422,14 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		spellnum = SPELL_FLY;
 		break;
 
+	case SPELL_BROKEN_CHAINS:
+		af[0].duration = pc_duration(victim, 4, 0, 0, 0, 0);
+		af[0].bitvector = AFF_BROKEN_CHAINS;
+		af[0].battleflag = AF_BATTLEDEC;
+		to_room = "Ярко-синий ореол вспыхнул вокруг $n и тут же угас.";
+		to_vict = "Волна ярко-синего света омыла Вас с головы до ног.";
+		break;
+
 	case SPELL_BLINK:
 		af[0].duration = pc_duration(victim, 8, level, 4, 0, 0);
 		af[0].bitvector = AFF_BLINK;
@@ -2417,9 +2437,25 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Вы начали мигать.";
 		break;
 
+	case SPELL_MAGICSHIELD:
+		af[0].location = APPLY_AC;
+		af[0].modifier = - GET_LEVEL(ch) * 10 / 6;
+		af[0].duration = pc_duration(victim, 0, level, 2, 0, 0);
+		af[1].location = APPLY_SAVING_REFLEX;
+		af[1].modifier = - GET_LEVEL(ch) / 5;
+		af[1].duration = af[0].duration;
+		af[2].location = APPLY_SAVING_STABILITY;
+		af[2].modifier = - GET_LEVEL(ch) / 5;
+		af[2].duration = af[0].duration;
+		accum_duration = TRUE;
+		to_room = "Сверкающий щит вспыхнул вокруг $n1 и угас.";
+		to_vict = "Сверкающий щит вспыхнул вокруг Вас и угас.";
+		break;
+
 	case SPELL_NOFLEE:
 		savetype = SAVING_WILL;
-		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+		if (AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
+		    || ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2577,6 +2613,24 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		to_vict = " ";
 		to_room = "Кости $n1 обрели твердость кремня.";
+		break;
+
+	case SPELL_FAILURE:
+		savetype = SAVING_WILL;
+		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+			send_to_char(NOEFFECT, ch);
+			success = FALSE;
+			break;
+		}
+		af[0].location = APPLY_MORALE;
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+								pc_duration(victim, 2, level, 2, 0, 0));
+		af[0].modifier = -5 - (GET_LEVEL(ch) + GET_REMORT(ch)) / 2;
+		af[1].location = number(1, 6);
+		af[1].duration = af[0].duration;
+		af[1].modifier = - (GET_LEVEL(ch) + GET_REMORT(ch) * 3) / 15;
+		to_room = "Тяжелое бурое облако сгустилось над $n4.";
+		to_vict = "Тяжелые тучи сгустились над Вами, и вы почувствовали, что удача покинула Вас.";
 		break;
 	}
 
@@ -3006,6 +3060,9 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 //-MZ.overflow_fix
 		send_to_char("Вы почувствовали себя здоровым.\r\n", victim);
 		break;
+	case SPELL_PATRONAGE:
+		hit = GET_LEVEL(victim) * 2 + GET_REMORT(victim);
+		break;
 	case SPELL_REFRESH:
 	case SPELL_GROUP_REFRESH:
 //MZ.overflow_fix
@@ -3031,7 +3088,8 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		pk_agro_action(ch, FIGHTING(victim));
 	}
 
-	if ((spellnum == SPELL_EXTRA_HITS) && (GET_HIT(victim) < MAX_HITS))
+	if ((spellnum == SPELL_EXTRA_HITS || spellnum == SPELL_PATRONAGE)
+							&& (GET_HIT(victim) < MAX_HITS))
 //MZ.extrahits_fix
 		if (GET_REAL_MAX_HIT(victim) <= 0)
 			GET_HIT(victim) = MAX(GET_HIT(victim), MIN(GET_HIT(victim) + hit, 1));
@@ -3055,7 +3113,8 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			hjp->bitvector == AFF_CHARM  || \
 			hjp->type == SPELL_CHARM || \
 			hjp->type == SPELL_QUEST || \
-			hjp->type == SPELL_FASCINATION)
+			hjp->type == SPELL_FASCINATION || \
+			hjp->type == SPELL_PATRONAGE)
 
 int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int type)
 {
@@ -3558,11 +3617,21 @@ const spl_message areas_messages[] = {
 	 "Негромкий хлопок $n1 породил воздушную волну, сокрушающую все на своем пути.",
 	 NULL,
 	 3},
-	{SPELL_BURDEN_OF_TIME,
-	 "Вы скрестили руки на груди, вызвав яркую вспышку света.",
-	 "$n0 скрестил$g руки на груди, вызвав яркую вспышку света.",
+	{SPELL_SHOCK,
+	 "Яркая вспышка слетела с кончиков ваших пальцев и с оглушительным грохотом взорвалась в воздухе.",
+	 "Выпущенная $n1 яркая вспышка с оглушительным грохотом взорвалась в воздухе.",
 	 NULL,
 	 8},
+	{SPELL_BURDEN_OF_TIME,
+	 "Вы скрестили руки на груди, вызвав яркую вспышку синего света.",
+	 "$n0 скрестил$g руки на груди, вызвав яркую вспышку синего света.",
+	 NULL,
+	 8},
+	{SPELL_FAILURE,
+	 "Вы простерли руки над головой, вызвав череду раскатов грома.",
+	 "$n0 вызвал$g череду раскатов грома, заставивших ве вокруг содрогнуться.",
+	 NULL,
+	 7},
 	{-1}
 };
 // Применение заклинания к комнате

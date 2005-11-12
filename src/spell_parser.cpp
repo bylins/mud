@@ -3628,8 +3628,8 @@ void mag_assign_spells(void)
 	spello(SPELL_SUMMON, "призвать", "summon",
 	       110, 100, 2, POS_STANDING, TAR_CHAR_WORLD | TAR_NOT_SELF, FALSE, MAG_MANUAL, 0, STYPE_MIND);
 //41
-	spello(SPELL_PATRONAGE, "покровительство", "patronage", 95, 80, 2,
-		POS_FIGHTING, TAR_SELF_ONLY | TAR_CHAR_ROOM, FALSE, MAG_AFFECTS, 1, STYPE_LIGHT);
+	spello(SPELL_PATRONAGE, "покровительство", "patronage", 85, 70, 2,
+		POS_FIGHTING, TAR_SELF_ONLY | TAR_CHAR_ROOM, FALSE, MAG_POINTS | MAG_AFFECTS, 1, STYPE_LIGHT);
 //42
 	spello(SPELL_WORD_OF_RECALL, "слово возврата", "recall", 140, 100, 4,
 		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_MANUAL | NPC_DAMAGE_PC, 0, STYPE_MIND);
@@ -3682,7 +3682,9 @@ void mag_assign_spells(void)
 													5, STYPE_MIND);
 //57
 	spello(SPELL_FLY, "полет", "fly", 50, 35, 1, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_AFFECTS, 0, STYPE_AIR);
-//58-not used now
+//58
+	spello(SPELL_BROKEN_CHAINS, "разбитые оковы", "broken chains", 125, 110, 2,
+		POS_FIGHTING, TAR_SELF_ONLY | TAR_CHAR_ROOM, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 5, STYPE_MIND);
 
 //59
 	spello(SPELL_NOFLEE, "приковать противника", "noflee",
@@ -3729,8 +3731,9 @@ void mag_assign_spells(void)
 //70
 	spello(SPELL_GROUP_INVISIBLE, "групповая невидимость", "group invisible",
 	       150, 130, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS, 0, STYPE_MIND);
-//71-not used now
-
+//71
+	spello(SPELL_SHADOW_CLOAK, "мантия теней", "shadow cloak", 100, 70, 3,
+		POS_FIGHTING, TAR_SELF_ONLY | TAR_CHAR_ROOM, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_DARK);
 //72
 	spello(SPELL_ACID, "кислота", "acid",
 	       90, 65, 1, POS_FIGHTING,
@@ -3782,7 +3785,9 @@ void mag_assign_spells(void)
 //85
 	spello(SPELL_RESSURECTION, "оживить труп", "ressurection",
 	       120, 100, 2, POS_STANDING, TAR_OBJ_ROOM, FALSE, MAG_SUMMONS, 0, STYPE_DARK);
-//86-not used now
+//86
+	spello(SPELL_MAGICSHIELD, "волшебный щит", "magic shield", 50, 30, 2,
+		POS_FIGHTING, TAR_SELF_ONLY | TAR_CHAR_ROOM, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIGHT);
 
 //87
 	spello(SPELL_FORBIDDEN, "запечатать комнату", "forbidden",
@@ -3891,7 +3896,6 @@ void mag_assign_spells(void)
 //117
 	spello(SPELL_RELIGION, "!молитва или жертва!", "!pray or donate!",
 		0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0,  STYPE_NEUTRAL);
-
 //118
 	spello(SPELL_AIR_SHIELD, "воздушный щит", "air shield", 140, 120, 2,
 		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_AIR);
@@ -3942,9 +3946,9 @@ void mag_assign_spells(void)
 //132
 	spello(SPELL_GROUP_MAGICGLASS, "магическое зеркало", "group magicglass",
 	       140, 120, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 4, STYPE_AIR);
-
-//133-not used now
-
+//133
+	spello(SPELL_CLOUD_OF_ARROWS, "облако стрел", "cloud of arrous", 95, 80, 2,
+		POS_FIGHTING, TAR_SELF_ONLY | TAR_CHAR_ROOM, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 4, STYPE_FIRE);
 //134
 	spello(SPELL_VACUUM, "круг пустоты", "vacuum sphere",
 	       150, 140, 1, POS_FIGHTING,
@@ -3976,9 +3980,9 @@ void mag_assign_spells(void)
 	spello(SPELL_ICE_AURA, "ледяная аура", "ice aura",
 	       140, 120, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_WATER);
 //143
-//  spello(SPELL_TOWNPORTAL, "врата", "town portal",
-//         140, 110, 2, POS_STANDING,
-//         TAR_IGNORE, FALSE, MAG_MANUAL, 0);
+	spello(SPELL_SHOCK, "шок", "shock", 100, 90, 2, POS_FIGHTING,
+	       TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+	       MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 1, STYPE_AIR);
 //144
 	spello(SPELL_MAGICGLASS, "зеркало магии", "magic glassie", 120, 110, 1,
 		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 2, STYPE_LIGHT);
@@ -4088,6 +4092,9 @@ void mag_assign_spells(void)
 //169
 	spello(SPELL_LIGHT_WALK, "!легкая поступь!", "!set by programm!", 0, 0, 0, 255, 0,
 		FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
+//170
+	spello(SPELL_FAILURE, "недоля", "failure", 100, 85, 2, POS_FIGHTING,
+	       TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_AREAS | MAG_AFFECTS | NPC_AFFECT_PC, 5, STYPE_DARK);
 
 	/* NON-castable spells should appear below here. */
 

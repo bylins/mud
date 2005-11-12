@@ -601,7 +601,7 @@ void affect_total(CHAR_DATA * ch)
 	/* Знаю, что кривовато, придумаете, как лучше - делайте */
 	if (!IS_NPC(ch)) {
 		if (can_use_feat(ch, ENDURANCE_FEAT))
-			affect_modify(ch, APPLY_MOVE, GET_LEVEL(ch), 0, TRUE);
+			affect_modify(ch, APPLY_MOVE, GET_LEVEL(ch) * 2, 0, TRUE);
 		if (can_use_feat(ch, SPLENDID_HEALTH_FEAT))
 			affect_modify(ch, APPLY_HIT, GET_LEVEL(ch) * 2, 0, TRUE);
 	}
@@ -815,13 +815,6 @@ void affect_remove(CHAR_DATA * ch, AFFECT_DATA * af)
 			af->bitvector = AFF_ABSTINENT;
 			change = 1;
 		}
-	}
-
-	if (af->type == SPELL_PATRONAGE && af->location == APPLY_HIT) {
-		GET_HIT(ch) -= af->modifier;
-		if (GET_HIT(ch) <= 0)
-			act("Внезапно $n застонал$g и рухнул на землю.", FALSE, ch, 0, 0, TO_ROOM);
-		update_pos(ch);
 	}
 
 	if (change)
