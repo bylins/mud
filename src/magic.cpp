@@ -2288,7 +2288,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_PATRONAGE:
-		af[0].bitvector = AFF_PATRONAGE;
 		af[0].location = APPLY_HIT;
 		af[0].duration = pc_duration(victim, 3, level, 10, 0, 0);
 		af[0].modifier = GET_LEVEL(ch) * 2 + GET_REMORT(ch);
