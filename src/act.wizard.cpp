@@ -3827,8 +3827,8 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		GET_BANK_GOLD(vict) = RANGE(0, 100000000);
 		break;
 	case 21:
-		//vict->points.exp = RANGE(0, 70000000);
-		RANGE(0, 1000000000);
+		//vict->points.exp = RANGE(0, 7000000);
+		RANGE(0, level_exp(vict, LVL_IMMORT) - 1);
 		gain_exp_regardless(vict, value - GET_EXP(vict));
 		break;
 	case 22:
