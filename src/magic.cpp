@@ -2614,7 +2614,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "Кости $n1 обрели твердость кремня.";
 		break;
 
-	case SPELL_FAILURE:
+	case 
+	SPELL_FAILURE:
 		savetype = SAVING_WILL;
 		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
 			send_to_char(NOEFFECT, ch);
@@ -3060,7 +3061,7 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		send_to_char("Вы почувствовали себя здоровым.\r\n", victim);
 		break;
 	case SPELL_PATRONAGE:
-		hit = GET_LEVEL(victim) * 2 + GET_REMORT(victim);
+		hit = (GET_LEVEL(victim) + GET_REMORT(victim)) * 2;
 		break;
 	case SPELL_REFRESH:
 	case SPELL_GROUP_REFRESH:
@@ -3628,7 +3629,7 @@ const spl_message areas_messages[] = {
 	 8},
 	{SPELL_FAILURE,
 	 "Вы простерли руки над головой, вызвав череду раскатов грома.",
-	 "$n0 вызвал$g череду раскатов грома, заставивших ве вокруг содрогнуться.",
+	 "$n0 вызвал$g череду раскатов грома, заставивших все вокруг содрогнуться.",
 	 NULL,
 	 7},
 	{-1}
