@@ -2915,7 +2915,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 
 	/*  Обработка доп. маг дамага */
 	if (AFF_FLAGGED(ch, AFF_CLOUD_OF_ARROWS) && IS_WEAPON(w_type))
-		mag_damage(GET_LEVEL(ch) / 2, ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
+		mag_damage(1, ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
 
 
 	/* Gorrah: Проверка на фит "любимое оружие"
