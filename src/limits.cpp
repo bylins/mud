@@ -773,7 +773,7 @@ void gain_exp(CHAR_DATA * ch, int gain)
 	}
 }
 
-// юзается исключительно в act.wizards.cpp в имм команде advance!
+// юзается исключительно в act.wizards.cpp в имм командах "advance" и "set exp".
 void gain_exp_regardless(CHAR_DATA * ch, int gain)
 {
 	int is_altered = FALSE;
