@@ -773,7 +773,7 @@ void gain_exp(CHAR_DATA * ch, int gain)
 	}
 }
 
-
+// юзается исключительно в act.wizards.cpp в имм команде advance!
 void gain_exp_regardless(CHAR_DATA * ch, int gain)
 {
 	int is_altered = FALSE;
@@ -802,15 +802,16 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 				check_autowiz(ch);
 			}
 		} else if (gain < 0) {
-			gain = MAX(-max_exp_loss_pc(ch), gain);	/* Cap max exp lost per death */
-			GET_EXP(ch) += gain;
-			if (GET_EXP(ch) < 0)
-				GET_EXP(ch) = 0;
+// Pereplut: глупый участок кода.
+//			gain = MAX(-max_exp_loss_pc(ch), gain);	/* Cap max exp lost per death */
+//			GET_EXP(ch) += gain;
+//			if (GET_EXP(ch) < 0)
+//				GET_EXP(ch) = 0;
 			while (GET_LEVEL(ch) > 1 && GET_EXP(ch) < level_exp(ch, GET_LEVEL(ch))) {
 				GET_LEVEL(ch) -= 1;
 				num_levels++;
 				sprintf(buf,
-					"%sВы потеряли уровень. Вам должно быть стыдно !%s\r\n",
+					"%sВы потеряли уровень!%s\r\n",
 					CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
 				decrease_level(ch);

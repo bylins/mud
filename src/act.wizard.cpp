@@ -90,7 +90,7 @@ extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 int level_exp(CHAR_DATA * ch, int level);
 void show_shops(CHAR_DATA * ch, char *value);
 void hcontrol_list_houses(CHAR_DATA * ch);
-void do_start(CHAR_DATA * ch, int newbie);
+//void do_start(CHAR_DATA * ch, int newbie);
 void appear(CHAR_DATA * ch);
 void reset_zone(zone_rnum zone);
 void roll_real_abils(CHAR_DATA * ch, bool hand = 0);
@@ -2428,9 +2428,11 @@ ACMD(do_advance)
 		return;
 	}
 	oldlevel = GET_LEVEL(victim);
-	if (newlevel < GET_LEVEL(victim)) {
-		do_start(victim, FALSE);
-		GET_LEVEL(victim) = newlevel;
+	if (newlevel < oldlevel) {
+		// Pereplut: ну что за кривой код -- опустить чара до 1 левела, выдать ему дефолтный стаф,
+		// дефолтный скилл опохмелиться и т.д. и т.п. а затем приравнять его уровень к нужному? -- убрал нафиг.
+		//do_start(victim, FALSE);
+		//GET_LEVEL(victim) = newlevel;
 		send_to_char("Вас окутало облако тьмы.\r\n" "Вы почувствовали себя лишенным чего-то.\r\n", victim);
 	} else {
 		act("$n сделал$g несколько странных пасов.\r\n"
@@ -2447,6 +2449,7 @@ ACMD(do_advance)
 		    GET_NAME(ch), GET_NAME(victim), newlevel, oldlevel);
 		imm_log("%s has advanced %s to level %d (from %d)", GET_NAME(ch), GET_NAME(victim), newlevel, oldlevel);
 	}
+	
 	gain_exp_regardless(victim, level_exp(victim, newlevel)
 			    - GET_EXP(victim));
 	save_char(victim, NOWHERE);
