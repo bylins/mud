@@ -2458,7 +2458,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				}
 				if (cmp_ptable_by_name(tmp_name, MIN_NAME_LENGTH + 1) >= 0) {
 					SEND_TO_Q
-					    ("Первые  символы Вашего имени совпадают с уже существующим персонажем.\r\n"
+					    ("Первые символы Вашего имени совпадают с уже существующим персонажем.\r\n"
 					     "Для исключения разных недоразумений Вам необходимо выбрать другое имя.\r\n"
 					     "Имя  : ", d);
 					return;
@@ -3073,7 +3073,10 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	case CON_NAME2:
 		skip_spaces(&arg);
 
-		if (!_parse_name(arg, tmp_name) && strlen(tmp_name) >= 4 && strlen(tmp_name) <= MAX_NAME_LENGTH) {
+		if (!_parse_name(arg, tmp_name) && 
+		    strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
+		    !strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
+		    ) {
 			CREATE(GET_PAD(d->character, 1), char, strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 1), CAP(tmp_name));
 			sprintf(buf, "Имя Вашего персонажа в дательном падеже [ отправить КОМУ ? ] ");
@@ -3088,7 +3091,10 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		break;
 	case CON_NAME3:
 		skip_spaces(&arg);
-		if (!_parse_name(arg, tmp_name) && strlen(tmp_name) >= 4 && strlen(tmp_name) <= MAX_NAME_LENGTH) {
+		if (!_parse_name(arg, tmp_name) && 
+		    strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
+		    !strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
+		    ) {
 			CREATE(GET_PAD(d->character, 2), char, strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 2), CAP(tmp_name));
 			sprintf(buf, "Имя Вашего персонажа в винительном падеже [ ударить КОГО ? ] ");
@@ -3103,7 +3109,10 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		break;
 	case CON_NAME4:
 		skip_spaces(&arg);
-		if (!_parse_name(arg, tmp_name) && strlen(tmp_name) >= 4 && strlen(tmp_name) <= MAX_NAME_LENGTH) {
+		if (!_parse_name(arg, tmp_name) && 
+		    strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
+		    !strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
+		    ) {
 			CREATE(GET_PAD(d->character, 3), char, strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 3), CAP(tmp_name));
 			sprintf(buf, "Имя Вашего персонажа в творительном падеже [ сражаться с КЕМ ? ] ");
@@ -3118,7 +3127,10 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		break;
 	case CON_NAME5:
 		skip_spaces(&arg);
-		if (!_parse_name(arg, tmp_name) && strlen(tmp_name) >= 4 && strlen(tmp_name) <= MAX_NAME_LENGTH) {
+		if (!_parse_name(arg, tmp_name) && 
+		    strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
+		    !strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
+		    ) {
 			CREATE(GET_PAD(d->character, 4), char, strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 4), CAP(tmp_name));
 			sprintf(buf, "Имя Вашего персонажа в предложном падеже [ говорить о КОМ ? ] ");
@@ -3133,7 +3145,10 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		break;
 	case CON_NAME6:
 		skip_spaces(&arg);
-		if (!_parse_name(arg, tmp_name) && strlen(tmp_name) >= 4 && strlen(tmp_name) <= MAX_NAME_LENGTH) {
+		if (!_parse_name(arg, tmp_name) && 
+		    strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
+		    !strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
+		    ) {
 			CREATE(GET_PAD(d->character, 5), char, strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 5), CAP(tmp_name));
 			sprintf(buf,
