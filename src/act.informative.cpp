@@ -1909,7 +1909,7 @@ ACMD(do_hearing)
 	if (!ch->desc)
 		return;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE)) {
+	if (AFF_FLAGGED(ch, AFF_DEAFNESS)) {
 		send_to_char("Вы глухи и все равно ничего не услышите.\r\n", ch);
 		return;
 	}
@@ -1917,7 +1917,7 @@ ACMD(do_hearing)
 	if (GET_POS(ch) < POS_SLEEPING)
 		send_to_char("Вам начали слышаться голоса предков, зовущие Вас к себе.\r\n", ch);
 	if (GET_POS(ch) == POS_SLEEPING)
-		send_to_char("мОрфей медленно задумчиво провел рукой по струнам и заиграл колыбельную.\r\n", ch);
+		send_to_char("Морфей медленно задумчиво провел рукой по струнам и заиграл колыбельную.\r\n", ch);
 	else if (GET_SKILL(ch, SKILL_HEARING)) {
 		if (check_moves(ch, HEARING_MOVES)) {
 			send_to_char("Вы начали сосредоточенно прислушиваться.\r\n", ch);
