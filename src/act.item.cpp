@@ -2565,8 +2565,7 @@ ACMD(do_firstaid)
 	if ((GET_REAL_MAX_HIT(vict) > 0 && (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31)
 			|| (GET_REAL_MAX_HIT(vict) <= 0 && GET_HIT(vict) < GET_REAL_MAX_HIT(vict))
 			|| (GET_HIT(vict) < GET_REAL_MAX_HIT(vict) && can_use_feat(ch, HEALER_FEAT))) {
-		if (!can_use_feat(ch, HEALER_FEAT))
-			need = TRUE;
+		need = TRUE;
 		if (success) {
 			int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
 			int add = MIN(dif, (dif * (prob - percent) / 100) + 1);
