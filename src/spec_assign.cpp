@@ -152,6 +152,8 @@ void assign_objects(void)
 	ASSIGNOBJ(258, gen_board);
 	ASSIGNOBJ(259, gen_board);
 	ASSIGNOBJ(267, gen_board);
+	ASSIGNOBJ(12635, gen_board);
+	ASSIGNOBJ(268, gen_board);
 }
 
 
