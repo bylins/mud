@@ -80,7 +80,7 @@ struct board_info_type board_info[NUM_OF_BOARDS] = { {250, LVL_IMMORT, LVL_IMMOR
 {258, 15, 15, LVL_IMMORT, LIB_ETC "board.mort.kill", 0},
 {259, LVL_IMMORT, LVL_GRGOD, LVL_GRGOD, LIB_ETC "board.builder", 0},
 {267, LVL_GRGOD, LVL_GRGOD, LVL_GRGOD, LIB_ETC "board.porenut", 0},
-{12635, 0, 0, LVL_IMPL, LIB_ETC "board.nd", 0},
+//{12635, 0, 0, LVL_IMPL, LIB_ETC "board.nd", 0},
 {268, 0, LVL_IMMORT, LVL_IMMORT, LIB_ETC "board.immortal_notice", 0}
 };
 

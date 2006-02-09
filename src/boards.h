@@ -12,7 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#define NUM_OF_BOARDS		13	/* change if needed! */
+#define NUM_OF_BOARDS		12	/* change if needed! */
 #define MAX_BOARD_MESSAGES 	120	/* arbitrary -- change if needed */
 #define MAX_MESSAGE_LENGTH	4096	/* arbitrary -- change if needed */
 
