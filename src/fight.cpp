@@ -2175,11 +2175,6 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		return 0;
 	}
 
-	if (IS_NPC(victim) && MOB_FLAGGED(ch, MOB_NOFIGHT)) {
-		act("Боги предотвратили Ваше нападение на $N3.", FALSE, ch, 0, victim, TO_CHAR);
-		return 0;
-	}
-
 	if (dam > 0) {
 		// You can't damage an immortal!
 		if (IS_GOD(victim))
