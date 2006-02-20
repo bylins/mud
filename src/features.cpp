@@ -150,7 +150,7 @@ void unused_feat(int feat)
 	feat_info[feat].type = UNUSED_FTYPE;
 	feat_info[feat].up_slot = FALSE;
 
-	for (i = 0; i < MAX_FEAT_AFFECT; i++) {
+	for (i = 0; i <= MAX_FEAT_AFFECT; i++) {
 		feat_info[feat].affected[i].location = APPLY_NONE;
 		feat_info[feat].affected[i].modifier = 0;
 	} 

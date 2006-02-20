@@ -23,9 +23,6 @@
 #include "screen.h"
 #include "house.h"
 #include "constants.h"
-//MZ.tops
-#include "top.h"
-//-MZ.tops
 #include "features.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
@@ -1837,12 +1834,8 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					else if (*subfield == '+')
 //                   GET_EXP(c) = MAX(1, GET_EXP(c) + atoi(subfield+1));
 						gain_exp(c, +MAX(1, atoi(subfield + 1)));
-					else if ((value = atoi(subfield)) > 0) {
+					else if ((value = atoi(subfield)) > 0)
 						GET_EXP(c) = value;
-//MZ.tops
-						upd_p_max_remort_top(c);
-//-MZ.tops
-					}
 				}
 				sprintf(str, "%ld", GET_EXP(c));
 			} else if (!str_cmp(field, "sex"))

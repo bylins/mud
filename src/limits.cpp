@@ -29,9 +29,6 @@
 #include "house.h"
 #include "constants.h"
 #include "exchange.h"
-//MZ.tops
-#include "top.h"
-//-MZ.tops
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
@@ -774,10 +771,6 @@ void gain_exp(CHAR_DATA * ch, int gain)
 		send_to_char(buf, ch);
 		CLR_GOD_FLAG(ch, GF_REMORT);
 	}
-
-//MZ.tops
-	upd_p_max_remort_top(ch);
-//-MZ.tops
 }
 
 // юзается исключительно в act.wizards.cpp в имм командах "advance" и "set exp".
@@ -833,10 +826,6 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 		}
 
 	}
-
-//MZ.tops
-	upd_p_max_remort_top(ch);
-//-MZ.tops
 }
 
 

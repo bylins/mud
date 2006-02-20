@@ -247,9 +247,6 @@ ACMD(do_poofset);
 ACMD(do_pour);
 ACMD(do_skills);
 ACMD(do_statistic);
-//MZ.tops
-ACMD(do_best);
-//-MZ.tops
 ACMD(do_spells);
 ACMD(do_remember);
 ACMD(do_learn);
@@ -723,9 +720,6 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"ставка", POS_STANDING, do_not_here, 0, 0, -1},
 	{"статус", POS_DEAD, do_display, 0, 0, 0},
 	{"статистика", POS_DEAD, do_statistic, 0, 0, 0},
-//MZ.tops
-	{"лучшие", POS_DEAD, do_best, 0, 0, 0},
-//-MZ.tops
 	{"стереть", POS_DEAD, do_gen_ps, 0, SCMD_CLEAR, 0},
 	{"стиль", POS_RESTING, do_style, 0, 0, 0},
 	{"строка", POS_DEAD, do_display, 0, 0, 0},
