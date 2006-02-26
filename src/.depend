@@ -20,8 +20,8 @@ act.social.o: act.social.cpp conf.h sysdep.h structs.h utils.h comm.h \
  interpreter.h handler.h db.h spells.h
 act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h comm.h \
  interpreter.h handler.h db.h spells.h house.h screen.h skills.h \
- constants.h olc.h dg_scripts.h mobmax.h pk.h im.h privileges.hpp \
- ban.hpp diskio.h
+ constants.h olc.h dg_scripts.h mobmax.h pk.h im.h top.h \
+ privileges.hpp ban.hpp diskio.h
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h interpreter.h \
  db.h
 ban.o: ban.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
@@ -29,7 +29,7 @@ ban.o: ban.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
 boards.o: boards.cpp conf.h sysdep.h structs.h utils.h comm.h db.h \
  boards.h interpreter.h handler.h
 class.o: class.cpp conf.h sysdep.h structs.h comm.h db.h utils.h \
- spells.h skills.h interpreter.h handler.h constants.h pk.h \
+ spells.h skills.h interpreter.h handler.h constants.h pk.h top.h \
  features.hpp
 comm.o: comm.cpp conf.h sysdep.h structs.h utils.h comm.h \
  interpreter.h handler.h db.h house.h olc.h dg_scripts.h screen.h \
@@ -43,8 +43,8 @@ features.o: features.cpp conf.h sysdep.h structs.h utils.h handler.h \
 db.o: db.cpp conf.h sysdep.h /usr/include/dirent.h structs.h utils.h \
  db.h comm.h handler.h spells.h mail.h interpreter.h house.h \
  constants.h dg_scripts.h mobmax.h pk.h olc.h diskio.h \
- /usr/include/sys/stat.h im.h ban.hpp privileges.hpp item.creation.hpp \
- features.hpp
+ /usr/include/sys/stat.h im.h top.h ban.hpp privileges.hpp \
+ item.creation.hpp features.hpp
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h comm.h handler.h \
  interpreter.h db.h spells.h screen.h constants.h dg_scripts.h \
  mobmax.h pk.h im.h fight.h skills.h features.hpp
@@ -62,7 +62,7 @@ interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
  diskio.h privileges.hpp item.creation.hpp arena.hpp features.hpp
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h spells.h \
  skills.h comm.h db.h handler.h screen.h interpreter.h constants.h \
- dg_scripts.h house.h exchange.h
+ dg_scripts.h house.h exchange.h top.h
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
  skills.h handler.h db.h interpreter.h screen.h constants.h \
  dg_scripts.h pk.h features.hpp magic.h fight.h
@@ -126,7 +126,7 @@ dg_objcmd.o: dg_objcmd.cpp conf.h sysdep.h structs.h screen.h \
  im.h features.hpp
 dg_scripts.o: dg_scripts.cpp conf.h sysdep.h structs.h dg_scripts.h \
  utils.h comm.h interpreter.h handler.h dg_event.h db.h screen.h \
- house.h constants.h features.hpp
+ house.h constants.h top.h features.hpp
 dg_triggers.o: dg_triggers.cpp conf.h sysdep.h structs.h dg_scripts.h \
  utils.h comm.h interpreter.h handler.h db.h olc.h
 dg_wldcmd.o: dg_wldcmd.cpp conf.h sysdep.h structs.h screen.h \
@@ -158,3 +158,5 @@ skills.o: skills.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
 exchange.o: exchange.cpp conf.h sysdep.h structs.h utils.h comm.h \
  interpreter.h handler.h db.h screen.h exchange.h im.h constants.h \
  skills.h
+top.o: top.cpp conf.h sysdep.h structs.h utils.h db.h interpreter.h \
+ comm.h top.h
