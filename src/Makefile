@@ -34,7 +34,7 @@ OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	dg_comm.o dg_db_scripts.o dg_event.o dg_handler.o dg_mobcmd.o \
 	dg_misc.o dg_objcmd.o dg_scripts.o dg_triggers.o dg_wldcmd.o dg_olc.o \
 	color.o mobmax.o pk.o genchar.o diskio.o im.o names.o auction.o \
-	item.creation.o arena.o skills.o exchange.o
+	item.creation.o arena.o skills.o exchange.o top.o
 
 CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	act.offensive.cpp act.other.cpp act.social.cpp act.wizard.cpp alias.cpp ban.cpp \
@@ -46,7 +46,7 @@ CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	dg_comm.cpp dg_db_scripts.cpp dg_event.cpp dg_handler.cpp dg_mobcmd.cpp \
 	dg_misc.cpp dg_objcmd.cpp dg_scripts.cpp dg_triggers.cpp dg_wldcmd.cpp dg_olc.cpp \
 	color.cpp mobmax.cpp pk.cpp genchar.cpp diskio.cpp im.cpp names.cpp \
-	auction.cpp item.creation.cpp arena.cpp skills.cpp exchange.cpp
+	auction.cpp item.creation.cpp arena.cpp skills.cpp exchange.cpp top.cpp
 
 default: circle
 
