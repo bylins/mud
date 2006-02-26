@@ -19,7 +19,7 @@ PROFILE =
 
 BINDIR = ../bin
 
-CFLAGS= -g -O3 -Wall -fwritable-strings -I/usr/home/mud/mud/src/
+CFLAGS= -g -O3 -Wall -fwritable-strings -I/usr/home/mud/mud/src/ -ftemplate-depth-30
 
 #LIBS =  -lsocket -lnsl
 LIBS =  -lz -lcrypt -lstdc++
