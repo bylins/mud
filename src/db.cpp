@@ -38,6 +38,9 @@
 #include "sys/stat.h"
 
 #include "im.h"
+//MZ.tops
+#include "top.h"
+//-MZ.tops
 #include "ban.hpp"
 #include "privileges.hpp"
 #include "item.creation.hpp"
@@ -451,6 +454,9 @@ ACMD(do_reboot)
 		priv->reload();
 		load_sheduled_reboot();
 		LoadProxyList();
+//MZ.tops
+		load_max_remort_top();
+//-MZ.tops
 	} else if (!str_cmp(arg, "portals"))
 		init_portals();
 	else if (!str_cmp(arg, "privileges"))
@@ -461,6 +467,10 @@ ACMD(do_reboot)
 	else if (!str_cmp(arg, "ztypes"))
 		init_zone_types();
 //-MZ.load
+//MZ.tops
+	else if (!str_cmp(arg, "classtops"))
+		load_max_remort_top();
+//-MZ.tops
 
 	else if (!str_cmp(arg, "wizlist"))
 		file_to_string_alloc(WIZLIST_FILE, &wizlist);
@@ -826,6 +836,11 @@ void boot_db(void)
 
 	log("Generating player index.");
 	build_player_index();
+
+//MZ.tops
+	log("Loading tops.");
+	load_max_remort_top();
+//-MZ.tops
 
 	log("Loading fight messages.");
 	load_messages();
@@ -6270,10 +6285,10 @@ void new_build_player_index(void)
 			continue;
 		if (sscanf(name, "%s ", playername) == 0)
 			continue;
-		for (c = 0; c < top_of_p_table; c++)
+		for (c = 0; c <= top_of_p_table; c++)
 			if (!str_cmp(playername, player_table[c].name))
 				break;
-		if (c < top_of_p_table)
+		if (c <= top_of_p_table)
 			continue;
 		entrycount(playername);
 	}
