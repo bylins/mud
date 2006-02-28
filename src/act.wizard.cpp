@@ -1626,6 +1626,10 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 		GET_RESIST(k, 0), GET_RESIST(k, 1), GET_RESIST(k, 2), GET_RESIST(k, 3),
 		GET_RESIST(k, 4), GET_RESIST(k, 5), GET_RESIST(k, 6));
 	send_to_char(buf, ch);
+	sprintf(buf,
+		"Magic affect resist : [%d], Magic damage resist : [%d]\r\n", GET_AR(k), GET_MR(k));
+	send_to_char(buf, ch);
+
 	sprintf(buf, "EffCha: [%f], PlusMem: [%d], HpReg: [%d], MoveReg: [%d], Absorbe: [%d]\r\n",
 		get_effective_cha(k, 0), GET_MANAREG(k), GET_HITREG(k), GET_MOVEREG(k), GET_ABSORBE(k));
 	send_to_char(buf, ch);

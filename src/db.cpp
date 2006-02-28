@@ -1964,6 +1964,14 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 		RANGE(-200, 200);
 		mob_proto[i].add_abils.absorb = num_arg;
 	}
+	CASE("AResist") {
+		RANGE(0, 100);
+		mob_proto[i].add_abils.aresist = num_arg;
+	}
+	CASE("MResist") {
+		RANGE(0, 100);
+		mob_proto[i].add_abils.mresist = num_arg;
+	}
 //End of changed
 	CASE("BareHandAttack") {
 		RANGE(0, 99);

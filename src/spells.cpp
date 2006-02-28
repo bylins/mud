@@ -1464,6 +1464,11 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 	val2 = GET_REAL_MAX_HIT(victim);
 	sprintf(buf, "Уровень : %d, может выдержать повреждений : %d(%d)\r\n", val0, val1, val2);
 	send_to_char(buf, ch);
+
+	val0 = MIN (GET_AR(victim), 100);
+	val1 = MIN (GET_MR(victim), 100);
+	sprintf(buf, "Защита от чар : %d, Защита от магических повреждений : %d\r\n", val0, val1);
+	send_to_char(buf, ch);
 	if (fullness < 90 && ch != victim)
 		return;
 
@@ -1543,6 +1548,11 @@ void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 		"Уровень : %d, может выдержать повреждений : %d(%d,%s%d%s)\r\n",
 		GET_LEVEL(victim), GET_HIT(victim), GET_MAX_HIT(victim),
 		CCIRED(ch, C_NRM), GET_REAL_MAX_HIT(victim), CCNRM(ch, C_NRM));
+	send_to_char(buf, ch);
+
+	sprintf(buf,
+		"Защита от чар : %d, Защита от магических повреждений : %d\r\n",
+		MIN (GET_AR(victim), 100), MIN (GET_MR(victim), 100));
 	send_to_char(buf, ch);
 
 	sprintf(buf,

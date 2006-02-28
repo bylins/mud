@@ -569,6 +569,8 @@ extern SPECIAL(postmaster);
 #define GET_SLOT(ch,i)    ((ch)->add_abils.slot_add[i])
 #define GET_SAVE(ch,i)    ((ch)->add_abils.apply_saving_throw[i])
 #define GET_RESIST(ch,i)  ((ch)->add_abils.apply_resistance_throw[i])
+#define GET_AR(ch)        ((ch)->add_abils.aresist)
+#define GET_MR(ch)        ((ch)->add_abils.mresist)
 #define GET_CASTER(ch)    ((ch)->CasterLevel)
 #define GET_DAMAGE(ch)    ((ch)->DamageLevel)
 #define GET_LIKES(ch)     ((ch)->mob_specials.LikeWork)

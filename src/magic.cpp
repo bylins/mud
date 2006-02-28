@@ -1056,7 +1056,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		sdice = 15;
 		adice = (level - 22) * 2;
 		if (GET_POS(victim) > POS_SITTING &&
-		    !WAITLESS(victim) &&
+		    !WAITLESS(victim) && (number (1, 999)  > GET_AR(victim) * 10) &&
 		    (GET_MOB_HOLD(victim) || !general_savingthrow(victim, SAVING_REFLEX, CALC_SUCCESS(modi, 30), 0))) {
 			act("$n3 повалило на землю.", FALSE, victim, 0, 0, TO_ROOM);
 			act("Вас повалило на землю.", FALSE, victim, 0, 0, TO_CHAR);
@@ -1072,7 +1072,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		sdice = 8;
 		adice = (level - 25) * 3;
 		if (GET_POS(victim) > POS_SITTING &&
-		    !WAITLESS(victim) &&
+		    !WAITLESS(victim) && (number (1, 999)  > GET_AR(victim) * 10) &&
 		    (GET_MOB_HOLD(victim) || !general_savingthrow(victim, SAVING_STABILITY, CALC_SUCCESS(modi, 60), 0))) {
 			act("$n3 повалило на землю.", FALSE, victim, 0, 0, TO_ROOM);
 			act("Вас повалило на землю.", FALSE, victim, 0, 0, TO_CHAR);
@@ -1228,7 +1228,8 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		// для всех
 	case SPELL_STUNNING:
 		if (ch == victim ||
-			!general_savingthrow(victim, SAVING_CRITICAL, CALC_SUCCESS (modi, GET_REAL_WIS(ch)), 0)) { 
+			((number (1, 999)  > GET_AR(victim) * 10) &&
+			!general_savingthrow(victim, SAVING_CRITICAL, CALC_SUCCESS (modi, GET_REAL_WIS(ch)), 0))) { 
 		    savetype = SAVING_STABILITY;
 		    ndice = GET_REAL_WIS(ch) / 5;
 		    sdice = GET_REAL_WIS(ch);
@@ -1250,6 +1251,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		    adice = MAX(1, 2 + 30 - GET_LEVEL(ch) + (GET_REAL_WIS(ch) - 29)) / 7;
 		if (ch == victim ||
 		    (!general_savingthrow (victim, SAVING_CRITICAL, CALC_SUCCESS (modi, GET_REAL_WIS (ch)),0) &&
+		     (number (1, 999)  > GET_AR(victim) * 10) &&
 		     number(0, 1000) <= 500)) {
 		    GET_POS(victim) = POS_INCAP;	
 		    WAIT_STATE(victim, adice * PULSE_VIOLENCE);
@@ -1434,6 +1436,9 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		}
 	}
 	dam = MAX(0, calculate_resistance_coeff(victim, get_resist_type(spellnum), dam));
+
+	if (number (1, 999) <= GET_MR(victim) * 10)
+		dam = 0;
 	
 	if (ch == victim)
 		dam = MIN (dam, GET_HIT(victim) + 1);
@@ -1522,6 +1527,11 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		act("Магическое зеркало $N1 отразило магию $n1 !", FALSE, ch, 0, victim, TO_NOTVICT);
 		act("Ваше магическое зеркало отразило поражение $n1 !", FALSE, ch, 0, victim, TO_VICT);
 		mag_affects(level, ch, ch, spellnum, savetype);
+		return 0;
+	}
+
+	if (ch != victim && SpINFO.violent && number(1, 999) <= GET_AR(victim) * 10) {
+		send_to_char(NOEFFECT, ch);
 		return 0;
 	}
 

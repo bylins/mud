@@ -959,7 +959,9 @@ typedef struct trig_data
 #define APPLY_RESIST_VITALITY  48	/* Apply to RESIST throw: light, dark, critical damage  */
 #define APPLY_RESIST_MIND      49	/* Apply to RESIST throw: mind magic  */
 #define APPLY_RESIST_IMMUNITY  50	/* Apply to RESIST throw: poison, disease etc.  */
-#define NUM_APPLIES	       51
+#define APPLY_AR	       51	/* Apply to Magic affect resist */
+#define APPLY_MR	       52	/* Apply to Magic damage resist */
+#define NUM_APPLIES	       53
 
 /* APPLY - эффекты для комнат */
 #define APPLY_ROOM_NONE        0
@@ -1642,6 +1644,8 @@ struct char_played_ability_data {
 	 pray_add;
 	sh_int apply_saving_throw[4];		/* Saving throw (Bonuses)  */
 	sh_int apply_resistance_throw[7];	/* Сопротивление (резисты) к магии, ядам и крит. ударам */
+	ubyte mresist;
+	ubyte aresist;
 };
 
 

@@ -128,6 +128,7 @@ void medit_mobile_init(CHAR_DATA * mob)
 	GET_HEIGHT(mob) = 198;
 	GET_SIZE(mob) = 30;
 	GET_CLASS(mob) = 100;
+	GET_MR(mob) = GET_AR(mob) =0;
 
 	mob->real_abils.str = mob->real_abils.intel = mob->real_abils.wis = 11;
 	mob->real_abils.dex = mob->real_abils.con = mob->real_abils.cha = 11;
@@ -638,6 +639,10 @@ void medit_save_to_disk(int zone_num)
 				fprintf(mob_file, "Initiative: %d\n", GET_INITIATIVE(mob));
 			if (GET_ABSORBE(mob) != 0)
 				fprintf(mob_file, "Absorbe: %d\n", GET_ABSORBE(mob));
+			if (GET_AR(mob) != 0)
+				fprintf(mob_file, "AResist: %d\n", GET_AR(mob));
+			if (GET_MR(mob) != 0)
+				fprintf(mob_file, "MResist: %d\n", GET_MR(mob));
 			if (GET_ATTACK(mob) != 0)
 				fprintf(mob_file, "BareHandAttack: %d\n", GET_ATTACK(mob));
 			for (c = 0; c < mob->mob_specials.dest_count; c++)
@@ -777,14 +782,18 @@ void medit_disp_add_parameters(DESCRIPTOR_DATA * d)
 		"%s4%s) Успех колдовства : %s%d%s\r\n"
 		"%s5%s) Удача : %s%d%s\r\n"
 		"%s6%s) Инициатива : %s%d%s\r\n"
-		"%s7%s) Поглощение : %s%d%s\r\n",
+		"%s7%s) Поглощение : %s%d%s\r\n"
+		"%s8%s) Иммунитет к магическим аффектам : %s%d%s\r\n"
+		"%s9%s) Иммунитет к магическим повреждениям : %s%d%s\r\n",
 		grn, nrm, cyn, GET_HITREG((OLC_MOB(d))), nrm,
 		grn, nrm, cyn, GET_ARMOUR((OLC_MOB(d))), nrm,
 		grn, nrm, cyn, GET_MANAREG((OLC_MOB(d))), nrm,
 		grn, nrm, cyn, GET_CAST_SUCCESS((OLC_MOB(d))), nrm,
 		grn, nrm, cyn, GET_MORALE((OLC_MOB(d))), nrm,
 		grn, nrm, cyn, GET_INITIATIVE((OLC_MOB(d))), nrm,
-		grn, nrm, cyn, GET_ABSORBE((OLC_MOB(d))), nrm);
+		grn, nrm, cyn, GET_ABSORBE((OLC_MOB(d))), nrm,
+		grn, nrm, cyn, GET_AR((OLC_MOB(d))), nrm,
+		grn, nrm, cyn, GET_MR((OLC_MOB(d))), nrm);
         send_to_char(buf, d->character); 
 	send_to_char("Введите номер и величину параметра (0 - конец) : ", d->character);
 }
@@ -1806,6 +1815,12 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 			case MEDIT_ABSORBE:
 				GET_ABSORBE(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+			break;
+			case MEDIT_AR:
+				GET_AR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
+			break;
+			case MEDIT_MR:
+				GET_MR(OLC_MOB(d)) = MIN(100, MAX(0, bit));
 			break;
 			default:
 			send_to_char("Неверный номер.\r\n", d->character);

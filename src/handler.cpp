@@ -449,6 +449,12 @@ void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool a
 	case APPLY_RESIST_IMMUNITY:
 		GET_RESIST(ch, IMMUNITY_RESISTANCE) += mod;
 		break;
+	case APPLY_AR:
+		GET_AR(ch) += mod;
+		break;
+	case APPLY_MR:
+		GET_MR(ch) += mod;
+		break;
 	default:
 		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
 		break;
