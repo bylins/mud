@@ -32,9 +32,6 @@
 #include "pk.h"
 #include "im.h"
 #include "utils.h"
-//MZ.tops
-#include "top.h"
-//-MZ.tops
 
 #include "privileges.hpp"
 #include "ban.hpp"
@@ -4120,7 +4117,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 				return (0);
 
 //MZ.tops
-			if (!IS_SET(PLR_FLAGS(vict, PLR_DELETED), PLR_DELETED) && !IS_IMMORTAL(vict))
+			if (!IS_SET(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN) && !IS_SET(PLR_FLAGS(vict, PLR_DELETED), PLR_DELETED) && !IS_IMMORTAL(vict))
 				del_p_max_remort_top(vict);
 //-MZ.tops
 
@@ -4137,7 +4134,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			strcpy(GET_NAME(vict), npad[0]);
 
 //MZ.tops
-			if (!IS_SET(PLR_FLAGS(vict, PLR_DELETED), PLR_DELETED) && !IS_IMMORTAL(vict))
+			if (!IS_SET(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN) && !IS_SET(PLR_FLAGS(vict, PLR_DELETED), PLR_DELETED) && !IS_IMMORTAL(vict))
 				add_p_max_remort_top(vict);
 //-MZ.tops
 
