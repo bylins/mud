@@ -46,7 +46,7 @@ static int num_pray = 0;
 #define HOLLER_SUFFIX ("'&n")
 #define PREFIX_LENGTH MMAX(strlen(GOSSIP_PREFIX), strlen(HOLLER_PREFIX))
 #define SUFFIX_LENGTH MMAX(strlen(GOSSIP_SUFFIX), strlen(HOLLER_SUFFIX))
-static char remember_gossip[MAX_REMEMBER_GOSSIP][(REMEMBER_TIME_LENGTH - 1) + PREFIX_LENGTH + MAX_INPUT_LENGTH + SUFFIX_LENGTH];
+static char remember_gossip[MAX_REMEMBER_GOSSIP][(REMEMBER_TIME_LENGTH-1)+PREFIX_LENGTH+MAX_INPUT_LENGTH+SUFFIX_LENGTH];
 //-MZ.gossip_fix
 static int num_gossip = 0;
 
