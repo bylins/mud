@@ -725,6 +725,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"статистика", POS_DEAD, do_statistic, 0, 0, 0},
 //MZ.tops
 	{"лучшие", POS_DEAD, do_best, 0, 0, 0},
+	{"рекорды", POS_DEAD, do_best, 0, 0, 0},
 //-MZ.tops
 	{"стереть", POS_DEAD, do_gen_ps, 0, SCMD_CLEAR, 0},
 	{"стиль", POS_RESTING, do_style, 0, 0, 0},
@@ -781,6 +782,9 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"ban", POS_DEAD, do_ban, LVL_GRGOD, 0, 0},
 	{"bash", POS_FIGHTING, do_bash, 1, 0, -1},
 	{"beep", POS_DEAD, do_beep, LVL_IMMORT, 0},
+//MZ.tops
+	{"best", POS_DEAD, do_best, 0, 0, 0},
+//-MZ.tops
 	{"block", POS_FIGHTING, do_block, 0, 0, -1},
 	{"bug", POS_DEAD, do_gen_write, 0, SCMD_BUG, 0},
 	{"buy", POS_STANDING, do_not_here, 0, 0, -1},

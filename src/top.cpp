@@ -21,6 +21,7 @@
 
 extern struct player_index_element *player_table;
 extern int top_of_p_table;
+extern const char *class_name[];
 
 struct max_remort_top_element max_remort_top[NUM_CLASSES][MAX_REMORT_TOP_SIZE];
 
@@ -97,7 +98,7 @@ void add_p_max_remort_top(CHAR_DATA * ch)
 // if player has become immortal or has been deleted he won't be shown in top only after reload or reboot
 void upd_p_max_remort_top(CHAR_DATA * ch)
 {
-	if (ch != NULL && !IS_NPC(ch) && !IS_SET(PLR_FLAGS(ch, PLR_DELETED), PLR_DELETED) && !IS_IMMORTAL(ch)) {
+	if (ch != NULL && !IS_NPC(ch) && !IS_SET(PLR_FLAGS(ch, PLR_FROZEN), PLR_FROZEN) && !IS_SET(PLR_FLAGS(ch, PLR_DELETED), PLR_DELETED) && !IS_IMMORTAL(ch)) {
 		del_p_max_remort_top(ch);
 		add_p_max_remort_top(ch);
 	}
@@ -218,11 +219,10 @@ ACMD(do_best)
 			break;
 		case TOP_ALL:
 			CREATE(last_word, char, strlen("перевоплощение") + 1);
-			buf[0] = '\0';
+			sprintf(buf, "&cЛучшие %s:&n\r\n", top_show_fields[i].cmd);
 			for (i = 0; *(top_show_fields[i].cmd) != '\n'; i++) {
-				sprintf(buf + strlen(buf), "&cЛучшие %s:&n\r\n", top_show_fields[i].cmd);
-				for (j = 0; j < MAX_REMORT_TOP_SIZE && *(max_remort_top[(int) top_show_fields[i].mode][j].name) != '\0'; j++) {
-					rem = max_remort_top[(int) top_show_fields[i].mode][j].remort;
+				if (*(max_remort_top[(int) top_show_fields[i].mode][0].name) != '\0') {
+					rem = max_remort_top[(int) top_show_fields[i].mode][0].remort;
 					if (!(rem % 10) || rem % 10 >= 5 && rem % 10 <= 9 || !((rem - 11) % 100) || !((rem - 12) % 100) || !((rem - 13) % 100) || !((rem - 14) % 100))
 						strcpy(last_word, "перевоплощений");
 					else if (rem % 10 == 1)
@@ -230,11 +230,12 @@ ACMD(do_best)
 					else
 						strcpy(last_word, "перевоплощения");
 					sprintf(buf + strlen(buf),
-						"\t%-20s %-2d %s\r\n",
-						max_remort_top[(int) top_show_fields[i].mode][j].name, max_remort_top[(int) top_show_fields[i].mode][j].remort, last_word);
+						"\t%-20s %-2d %-17s %s\r\n",
+						max_remort_top[(int) top_show_fields[i].mode][0].name,
+						max_remort_top[(int) top_show_fields[i].mode][0].remort,
+						last_word,
+						class_name[(int) top_show_fields[i].mode]);
 				}
-				if (*(top_show_fields[i+1].cmd) != '\n')
-					sprintf(buf + strlen(buf), "\r\n");
 			}
 			page_string(ch->desc, buf, 1);
 			free(last_word);
