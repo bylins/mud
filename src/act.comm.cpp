@@ -38,16 +38,7 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg);
 int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict);
 static char remember_pray[MAX_REMEMBER_PRAY][MAX_INPUT_LENGTH];
 static int num_pray = 0;
-//MZ.gossip_fix
-#define REMEMBER_TIME_LENGTH 24
-#define GOSSIP_PREFIX (" &y'")
-#define GOSSIP_SUFFIX ("'&n")
-#define HOLLER_PREFIX (" &Y'")
-#define HOLLER_SUFFIX ("'&n")
-#define PREFIX_LENGTH MMAX(strlen(GOSSIP_PREFIX), strlen(HOLLER_PREFIX))
-#define SUFFIX_LENGTH MMAX(strlen(GOSSIP_SUFFIX), strlen(HOLLER_SUFFIX))
-static char remember_gossip[MAX_REMEMBER_GOSSIP][(REMEMBER_TIME_LENGTH-1)+PREFIX_LENGTH+MAX_INPUT_LENGTH+SUFFIX_LENGTH];
-//-MZ.gossip_fix
+static char remember_gossip[MAX_REMEMBER_GOSSIP][MAX_INPUT_LENGTH];
 static int num_gossip = 0;
 
 /* external functions */
@@ -523,9 +514,7 @@ ACMD(do_gen_comm)
 {
 	DESCRIPTOR_DATA *i;
 	char color_on[24];
-//MZ.gossip_fix
-	char remember_time[REMEMBER_TIME_LENGTH];
-//-MZ.gossip_fix
+	char remember_time[24];
 	int ign_flag;
 	/*
 	 * com_msgs: Message if you can't perform the action because of mute
@@ -733,17 +722,13 @@ ACMD(do_gen_comm)
 			break;
 		}
 		if (subcmd == SCMD_HOLLER) {
-//MZ.gossip_fix
-			sprintf(remember_gossip[num_gossip], "%s%s%s%s", remember_time, HOLLER_PREFIX, argument, HOLLER_SUFFIX);
-//-MZ.gossip_fix
+			sprintf(remember_gossip[num_gossip], "%s &Y'%s'&n", remember_time, argument);
 			num_gossip++;
 			if (num_gossip == MAX_REMEMBER_GOSSIP)
 				num_gossip = 0;
 		}
 		if (subcmd == SCMD_GOSSIP) {
-//MZ.gossip_fix
-			sprintf(remember_gossip[num_gossip], "%s%s%s%s", remember_time, GOSSIP_PREFIX, argument, GOSSIP_SUFFIX);
-//-MZ.gossip_fix
+			sprintf(remember_gossip[num_gossip], "%s &y'%s'&n", remember_time, argument);
 			num_gossip++;
 			if (num_gossip == MAX_REMEMBER_GOSSIP)
 				num_gossip = 0;
