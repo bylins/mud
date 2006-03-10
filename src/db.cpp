@@ -122,7 +122,6 @@ char *rules = NULL;		/* rules for immorts             */
 char *GREETINGS = NULL;		/* opening credits screen        */
 char *help = NULL;		/* help screen                   */
 char *info = NULL;		/* info page                     */
-char *wizlist = NULL;		/* list of higher gods           */
 char *immlist = NULL;		/* list of peon gods             */
 char *background = NULL;	/* background story              */
 char *handbook = NULL;		/* handbook for new immortals    */
@@ -168,7 +167,6 @@ int is_empty(zone_rnum zone_nr);
 void reset_zone(zone_rnum zone);
 int file_to_string(const char *name, char *buf);
 int file_to_string_alloc(const char *name, char **buf);
-void reboot_wizlists(void);
 ACMD(do_reboot);
 void boot_world(void);
 int count_alias_records(FILE * fl);
@@ -192,11 +190,7 @@ void new_build_player_index(void);
 void renum_obj_zone(void);
 void renum_mob_zone(void);
 int get_zone_rooms(int, int *, int *);
-
-int new_load_char(char *name, struct char_file_u *char_element);
-
-void new_save_char(CHAR_DATA * ch, room_rnum load_room);
-
+void save_char(CHAR_DATA * ch, room_rnum load_room);
 void init_guilds(void);
 void init_basic_values(void);
 int init_grouping(void);
@@ -290,13 +284,6 @@ void tag_argument(char *argument, char *tag)
 /*************************************************************************
 *  routines for booting the system                                       *
 *************************************************************************/
-
-/* this is necessary for the autowiz system */
-void reboot_wizlists(void)
-{
-	file_to_string_alloc(WIZLIST_FILE, &wizlist);
-	file_to_string_alloc(IMMLIST_FILE, &immlist);
-}
 
 void go_boot_socials(void)
 {
@@ -428,7 +415,6 @@ ACMD(do_reboot)
 	if (!str_cmp(arg, "all") || *arg == '*') {
 		if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 			prune_crlf(GREETINGS);
-		file_to_string_alloc(WIZLIST_FILE, &wizlist);
 		file_to_string_alloc(IMMLIST_FILE, &immlist);
 		file_to_string_alloc(NEWS_FILE, &news);
 		if (stat(LIB "" NEWS_FILE, &sb) >= 0)
@@ -471,9 +457,6 @@ ACMD(do_reboot)
 	else if (!str_cmp(arg, "classtops"))
 		load_max_remort_top();
 //-MZ.tops
-
-	else if (!str_cmp(arg, "wizlist"))
-		file_to_string_alloc(WIZLIST_FILE, &wizlist);
 	else if (!str_cmp(arg, "immlist"))
 		file_to_string_alloc(IMMLIST_FILE, &immlist);
 	else if (!str_cmp(arg, "news")) {
@@ -801,7 +784,6 @@ void boot_db(void)
 	file_to_string_alloc(RULES_FILE, &rules);
 	file_to_string_alloc(HELP_PAGE_FILE, &help);
 	file_to_string_alloc(INFO_FILE, &info);
-	file_to_string_alloc(WIZLIST_FILE, &wizlist);
 	file_to_string_alloc(IMMLIST_FILE, &immlist);
 	file_to_string_alloc(POLICIES_FILE, &policies);
 	file_to_string_alloc(HANDBOOK_FILE, &handbook);
@@ -4852,343 +4834,6 @@ int load_char(const char *name, CHAR_DATA * char_element)
 	return (player_i);
 }
 
-/*
- * write the vital data of a player to the player file
- *
- * NOTE: load_room should be an *RNUM* now.  It is converted to a vnum here.
- */
-
-void save_char(CHAR_DATA * ch, room_rnum load_room)
-{
-	struct char_file_u st;
-	if (!now_entrycount)
-		if (IS_NPC(ch) || /* !ch->desc || */ GET_PFILEPOS(ch) < 0)
-			return;
-
-	if (USE_SINGLE_PLAYER) {
-		new_save_char(ch, load_room);
-		return;
-	}
-
-	char_to_store(ch, &st);
-
-	if (ch->desc) {
-		strncpy(st.host, ch->desc->host, HOST_LENGTH);
-		st.host[HOST_LENGTH] = '\0';
-	} else
-		strcpy(st.host, "Unknown");
-
-	if (!PLR_FLAGGED(ch, PLR_LOADROOM)) {
-		if (load_room == NOWHERE)
-			st.player_specials_saved.load_room = NOWHERE;
-		else {
-			st.player_specials_saved.load_room = GET_ROOM_VNUM(load_room);
-			GET_LOADROOM(ch) = GET_ROOM_VNUM(load_room);
-			log("Player %s save at room %d", GET_NAME(ch), GET_ROOM_VNUM(load_room));
-		}
-	}
-
-	fseek(player_fl, GET_PFILEPOS(ch) * sizeof(struct char_file_u), SEEK_SET);
-	fwrite(&st, sizeof(struct char_file_u), 1, player_fl);
-
-	save_pkills(ch);
-	save_char_vars(ch);
-}
-
-/* copy data from the file structure to a char struct */
-void store_to_char(struct char_file_u *st, CHAR_DATA * ch)
-{
-	int i;
-
-	/* to save memory, only PC's -- not MOB's -- have player_specials */
-	if (ch->player_specials == NULL)
-		CREATE(ch->player_specials, struct player_special_data, 1);
-
-	GET_SEX(ch) = st->sex;
-	GET_CLASS(ch) = st->chclass;
-	GET_LEVEL(ch) = st->level;
-
-	ch->player.short_descr = NULL;
-	ch->player.long_descr = NULL;
-	ch->player.title = str_dup(st->title);
-	ch->player.description = str_dup(st->description);
-
-	ch->player.hometown = st->hometown;
-	ch->player.time.birth = st->birth;
-	ch->player.time.played = st->played;
-	ch->player.time.logon = time(0);
-
-	ch->player.weight = st->weight;
-	ch->player.height = st->height;
-
-	if (ch->player.name == NULL)
-		CREATE(ch->player.name, char, strlen(st->name) + 1);
-	strcpy(ch->player.name, st->name);
-	strcpy(ch->player.passwd, st->pwd);
-  /*********************************************************/
-	for (i = 0; i < NUM_PADS; i++) {
-		CREATE(GET_PAD(ch, i), char, strlen(st->PNames[i]) + 1);
-		strcpy(GET_PAD(ch, i), st->PNames[i]);
-	}
-	GET_RACE(ch) = st->player_specials_saved.Race;
-	GET_KIN (ch) = st->player_specials_saved.Kin;
-	GET_RELIGION(ch) = st->player_specials_saved.Religion;
-	GET_LOWS(ch) = st->player_specials_saved.Lows;
-	GET_SIDE(ch) = st->player_specials_saved.Side;
-
-	ch->real_abils = st->abilities;
-	ch->points = st->points;
-	ch->char_specials.saved = st->char_specials_saved;
-	ch->player_specials->saved = st->player_specials_saved;
-
-	ch->char_specials.saved.affected_by = clear_flags;
-	POOFIN(ch) = NULL;
-	POOFOUT(ch) = NULL;
-	LAST_LOGON(ch) = st->last_logon;
-	GET_LAST_TELL(ch) = NOBODY;
-	GET_RSKILL(ch) = NULL;
-
-	ch->char_specials.carry_weight = 0;
-	ch->char_specials.carry_items = 0;
-	ch->real_abils.armor = 100;
-
-	GET_MEM_TOTAL(ch) = 0;
-	GET_MEM_COMPLETED(ch) = 0;
-	MemQ_init(ch);
-
-	/* Следующие 3 строки для сохранения маны у волхва - ВРЕМЕННО! ПОТОМ УБРАТЬ! */
-	if IS_MANA_CASTER
-		(ch) {
-		GET_MANA_STORED(ch) = st->player_specials_saved.spare15;
-		}
-
-	/* Add all spell effects */
-	for (i = 0; i < MAX_AFFECT; i++)
-		if (st->affected[i].type &&
-		    st->affected[i].type != SPELL_SLEEP &&
-		    st->affected[i].type != SPELL_ARMAGEDDON &&
-		    st->affected[i].type > 0 && st->affected[i].type <= LAST_USED_SPELL)
-			affect_to_char(ch, &st->affected[i]);
-
-	for (i = 0; i < MAX_TIMED_FEATS; i++)
-		if (st->timed_feat[i].time)
-			timed_feat_to_char(ch, &st->timed_feat[i]);
-
-	for (i = 0; i < MAX_TIMED_SKILLS; i++)
-		if (st->timed[i].time)
-			timed_to_char(ch, &st->timed[i]);
-
-  /**** Set all spells to GODS */
-	if (IS_GRGOD(ch)) {
-		for (i = 0; i <= MAX_SPELLS; i++)
-			GET_SPELL_TYPE(ch, i) = GET_SPELL_TYPE(ch, i) |
-			    SPELL_ITEMS | SPELL_KNOW | SPELL_RUNES | SPELL_SCROLL | SPELL_POTION | SPELL_WAND;
-	} else if (!IS_IMMORTAL(ch)) {
-		for (i = 0; i <= MAX_SPELLS; i++)
-			if (spell_info[i].slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] == MAX_SLOT)			
-				REMOVE_BIT(GET_SPELL_TYPE(ch, i), SPELL_KNOW);
-	}
-
-	if (IS_GRGOD(ch))
-		for (i = 1; i <= MAX_SKILLS; i++)
-			GET_SKILL(ch, i) = MAX(GET_SKILL(ch, i), 100);
-
-	/*
-	 * If you're not poisioned and you've been away for more than an hour of
-	 * real time, we'll set your HMV back to full
-	 */
-
-
-	if (!AFF_FLAGGED(ch, AFF_POISON) && (((long) (time(0) - st->last_logon)) >= SECS_PER_REAL_HOUR)) {
-		GET_HIT(ch) = GET_REAL_MAX_HIT(ch);
-		GET_MOVE(ch) = GET_REAL_MAX_MOVE(ch);
-	} else
-		GET_HIT(ch) = MIN(GET_HIT(ch), GET_REAL_MAX_HIT(ch));
-}				/* store_to_char */
-
-
-
-
-/* copy vital data from a players char-structure to the file structure */
-void char_to_store(CHAR_DATA * ch, struct char_file_u *st)
-{
-	int i, j;
-	AFFECT_DATA *af;
-	struct timed_type *timed;
-	OBJ_DATA *char_eq[NUM_WEARS];
-	/* Unaffect everything a character can be affected by */
-	log("[CHAR TO STORE] Unequip char %s", GET_NAME(ch));
-	for (i = 0; i < NUM_WEARS; i++) {
-		if (GET_EQ(ch, i)) {
-			char_eq[i] = unequip_char(ch, i | 0x80 | 0x40);
-#ifndef NO_EXTRANEOUS_TRIGGERS
-			remove_otrigger(char_eq[i], ch);
-#endif
-		} else
-			char_eq[i] = NULL;
-	}
-
-	log("[CHAR TO STORE] Clear affects");
-	for (af = ch->affected, i = 0; i < MAX_AFFECT; i++) {
-		if (af) {
-			if (af->type == SPELL_ARMAGEDDON || af->type < 1 || af->type > LAST_USED_SPELL)
-				i--;
-			else {
-				st->affected[i] = *af;
-				st->affected[i].next = 0;
-			}
-			af = af->next;
-		} else {
-			st->affected[i].type = 0;	/* Zero signifies not used */
-			st->affected[i].duration = 0;
-			st->affected[i].modifier = 0;
-			st->affected[i].location = 0;
-			st->affected[i].bitvector = 0;
-			st->affected[i].next = 0;
-		}
-	}
-
-	log("[CHAR TO STORE] Clear timed feats");
-	for (timed = ch->timed, i = 0; i < MAX_TIMED_FEATS; i++) {
-		if (timed) {
-			st->timed_feat[i] = *timed;
-			st->timed_feat[i].next = 0;
-			timed = timed->next;
-		} else {
-			st->timed_feat[i].skill = 0;
-			st->timed_feat[i].time = 0;
-			st->timed_feat[i].next = 0;
-		}
-	}
-
-        /* remove features modifiers - added by Gorrah */
-        for (i = 1; i < MAX_FEATS; i++) {
-                if (can_use_feat(ch, i) && (feat_info[i].type == AFFECT_FTYPE))
-                        for (j = 0; j < MAX_FEAT_AFFECT; j++)
-                                affect_modify(ch, feat_info[i].affected[j].location,
-                                                                feat_info[i].affected[j].modifier, 0, FALSE);
-        }
-	if (!IS_NPC(ch)) {
-		if (can_use_feat(ch, ENDURANCE_FEAT))
-			affect_modify(ch, APPLY_MOVE, GET_LEVEL(ch) * 2, 0, FALSE);
-		if (can_use_feat(ch, SPLENDID_HEALTH_FEAT))
-			affect_modify(ch, APPLY_HIT, GET_LEVEL(ch) * 2, 0, FALSE);
-	}
-
-	log("[CHAR TO STORE] Clear timed");
-	for (timed = ch->timed, i = 0; i < MAX_TIMED_SKILLS; i++) {
-		if (timed) {
-			st->timed[i] = *timed;
-			st->timed[i].next = 0;
-			timed = timed->next;
-		} else {
-			st->timed[i].skill = 0;
-			st->timed[i].time = 0;
-			st->timed[i].next = 0;
-		}
-	}
-
-	/*
-	 * remove the affections so that the raw values are stored; otherwise the
-	 * effects are doubled when the char logs back in.
-	 */
-
-	log("[CHAR TO STORE] Remove affects");
-	supress_godsapply = TRUE;
-	while (ch->affected)
-		affect_remove(ch, ch->affected);
-	supress_godsapply = FALSE;
-
-	if (ch->affected) {
-		sprintf(buf, "Char %s was affected !!!", GET_NAME(ch));
-		mudlog(buf, CMP, LVL_GOD, SYSLOG, FALSE);
-	}
-
-	if ((i >= MAX_AFFECT) && af && af->next)
-		log("SYSERR: WARNING: OUT OF STORE ROOM FOR AFFECTED TYPES!!!");
-	log("[CHAR TO STORE] Copy data");
-	st->birth = ch->player.time.birth;
-	st->played = ch->player.time.played;
-	st->played += (long) (time(0) - ch->player.time.logon);
-	st->last_logon = LAST_LOGON(ch) = time(0);
-	ch->player.time.played = st->played;
-	ch->player.time.logon = time(0);
-
-	st->hometown = ch->player.hometown;
-	st->weight = GET_WEIGHT(ch);
-	st->height = GET_HEIGHT(ch);
-	st->sex = GET_SEX(ch);
-	st->chclass = GET_CLASS(ch);
-	if (GET_TITLE(ch))
-		strcpy(st->title, GET_TITLE(ch));
-	else
-		*st->title = '\0';
-	if (ch->player.description)
-		strcpy(st->description, ch->player.description);
-	else
-		*st->description = '\0';
-	strcpy(st->name, GET_NAME(ch));
-	strcpy(st->pwd, GET_PASSWD(ch));
-	for (i = 0; i < 6; i++)
-		strcpy(st->PNames[i], GET_PAD(ch, i));
-
-	st->abilities = ch->real_abils;
-	st->points = ch->points;
-	st->level = GET_LEVEL(ch);
-	st->char_specials_saved = ch->char_specials.saved;
-	st->player_specials_saved = ch->player_specials->saved;
-	/* Следующие 3 строки для сохранения маны у волхва - ВРЕМЕННО! ПОТОМ УБРАТЬ! */
-	if IS_MANA_CASTER
-		(ch) {
-		st->player_specials_saved.spare15 = GET_MANA_STORED(ch);
-		}
-
-	st->player_specials_saved.Side = GET_SIDE(ch);
-	st->player_specials_saved.Religion = GET_RELIGION(ch);
-	st->player_specials_saved.Race = GET_RACE(ch);
-	st->player_specials_saved.Kin = GET_KIN (ch);
-	st->player_specials_saved.Lows = GET_LOWS(ch);
-
-	/* add spell and eq affections back in now */
-	log("[CHAR TO STORE] Restore affects");
-	for (i = 0; i < MAX_AFFECT; i++)
-		if (st->affected[i].type) {	/* sprintf(buf,"[CTS] T = %d",st->affected[i].type);
-						   mudlog(buf, CMP, LVL_GOD, SYSLOG, FALSE); */
-			affect_to_char(ch, &st->affected[i]);
-		}
-
-	log("[CHAR TO STORE] Reequip char");
-	for (i = 0; i < NUM_WEARS; i++) {
-		if (char_eq[i]) {
-#ifndef NO_EXTRANEOUS_TRIGGERS
-			if (wear_otrigger(char_eq[i], ch, i))
-#endif
-				equip_char(ch, char_eq[i], i | 0x80 | 0x40);
-#ifndef NO_EXTRANEOUS_TRIGGERS
-			else
-				obj_to_char(char_eq[i], ch);
-#endif
-		}
-	}
-	log("[CHAR TO STORE] Recalc affects");
-	affect_total(ch);
-	if ((i = get_ptable_by_name(GET_NAME(ch))) >= 0) {	// sprintf(buf,"%s (%d) (%d) (%d)",GET_NAME(ch),i,-1,GET_LEVEL(ch));
-		// mudlog(buf, CMP, LVL_GOD, SYSLOG, FALSE);
-		log("[CHAR TO STORE] Change logon time");
-		player_table[i].last_logon = -1;
-		player_table[i].level = GET_LEVEL(ch);
-	}
-	log("[CHAR TO STORE] Stop...");
-}				/* Char to store */
-
-
-
-void save_etext(CHAR_DATA * ch)
-{
-/* this will be really cool soon */
-
-}
-
 
 /*
  * Create a new entry in the in-memory index table for the player file.
@@ -6150,58 +5795,6 @@ int must_be_deleted(CHAR_DATA * cfu)
 	return (0);
 }
 
-void convert_char(char *name)
-{
-	FILE *player_file;
-	struct char_file_u cfd;
-	char filename[MAX_STRING_LENGTH];
-	long size;
-	int conv = 0;
-	CHAR_DATA *chr;
-
-	if (get_filename(name, filename, PLAYERS_FILE) && (player_file = fopen(filename, "r+b"))) {
-		fseek(player_file, 0L, SEEK_END);
-		size = ftell(player_file);
-		if (size == sizeof(struct char_file_u)) {
-			/* Необходима конвертация */
-			conv = 1;
-			fseek(player_file, 0L, SEEK_SET);
-			fread(&cfd, sizeof(struct char_file_u), 1, player_file);
-		}
-		fclose(player_file);
-		if (conv) {
-			log("Yeeee - convert char to ascii needed: %s", name);
-			CREATE(chr, CHAR_DATA, 1);
-			clear_char(chr);
-			store_to_char(&cfd, chr);
-			new_load_mkill(chr);
-			load_pkills(chr);
-			/* Почему то спелы скидываются при конвертации. */
-			chr->real_abils = cfd.abilities;
-
-			save_char(chr, GET_LOADROOM(chr));
-			extract_char(chr, FALSE);
-//			free_char(chr);
-		}
-	}
-}
-
-
-void convert_char1(char *name)
-{
-	CHAR_DATA *ch;
-
-	CREATE(ch, CHAR_DATA, 1);
-	clear_char(ch);
-	load_char(name, ch);
-	if (PRF_FLAGGED(ch, PRF_AWAKE))
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE);
-	save_pkills(ch);
-	save_char(ch, GET_LOADROOM(ch));
-	extract_char(ch, FALSE);
-//	free(ch);
-}
-
 
 void entrycount(char *name)
 {
@@ -6215,7 +5808,6 @@ void entrycount(char *name)
 		CREATE(dummy, CHAR_DATA, 1);
 		clear_char(dummy);
 		deleted = 1;
-//      convert_char1(name);
 		if (load_char(name, dummy) > -1) {
 			/* если чар удален или им долго не входили, то не создаем для него запись */
 			if (!must_be_deleted(dummy)) {
@@ -6369,30 +5961,6 @@ void dupe_player_index(void)
 }
 
 
-/* Load a char, TRUE if loaded, FALSE if not */
-int new_load_char(char *name, struct char_file_u *char_element)
-{
-	FILE *loaded;
-	int player_i;
-	char filename[MAX_STRING_LENGTH];
-
-	*filename = '\0';
-	log("Load char %s", name);
-	if (now_entrycount) {
-		player_i = 1;
-	} else {
-		player_i = find_name(name);
-	}
-	if ((player_i >= 0) && get_filename(name, filename, PLAYERS_FILE) && (loaded = fopen(filename, "r+b"))) {
-		fread(char_element, sizeof(struct char_file_u), 1, loaded);
-		fclose(loaded);
-		return (player_i);
-	} else {
-		log("Cann't load %d %s", player_i, filename);
-		return (-1);
-	}
-}
-
 /* remove ^M's from file output */
 void kill_ems(char *str)
 {
@@ -6410,7 +5978,7 @@ void kill_ems(char *str)
 	*ptr2 = '\0';
 }
 
-void new_save_char(CHAR_DATA * ch, room_rnum load_room)
+void save_char(CHAR_DATA * ch, room_rnum load_room)
 {
 	FILE *saved;
 	char filename[MAX_STRING_LENGTH];
@@ -6423,7 +5991,7 @@ void new_save_char(CHAR_DATA * ch, room_rnum load_room)
 	struct char_portal_type *prt;
 	int tmp = time(0) - ch->player.time.logon;
 	if (!now_entrycount)
-		if (IS_NPC(ch) || /* !ch->desc || */ GET_PFILEPOS(ch) < 0)
+		if (IS_NPC(ch) || GET_PFILEPOS(ch) < 0)
 			return;
 
 	if (!PLR_FLAGGED(ch, PLR_LOADROOM)) {
@@ -6434,7 +6002,7 @@ void new_save_char(CHAR_DATA * ch, room_rnum load_room)
 	}
 
 	log("Save char %s", GET_NAME(ch));
-	new_save_pkills(ch);
+	save_pkills(ch);
 	save_char_vars(ch);
 
 /* Запись чара в новом формате */

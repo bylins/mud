@@ -12,8 +12,6 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#define USE_SINGLE_PLAYER 1
-
 /* arbitrary constants used by index_boot() (must be unique) */
 #define MAX_PROTO_NUMBER 999999	//Максимально возможный номер комнаты, предмета и т.д.
 //MZ.load
@@ -125,7 +123,6 @@
 #define GREETINGS_FILE	LIB_TEXT"greetings"	/* The opening screen.  */
 #define HELP_PAGE_FILE	LIB_TEXT_HELP"screen"	/* for HELP <CR>        */
 #define INFO_FILE       LIB_TEXT"info"	/* for INFO             */
-#define WIZLIST_FILE	LIB_TEXT"wizlist"	/* for WIZLIST          */
 #define IMMLIST_FILE	LIB_TEXT"immlist"	/* for IMMLIST          */
 #define BACKGROUND_FILE	LIB_TEXT"background"	/* for the background story */
 #define POLICIES_FILE	LIB_TEXT"policies"	/* player policies/rules     */
@@ -174,8 +171,6 @@ char *get_name_by_id(long id);
 char *get_name_by_unique(long id);
 int get_zone_rooms(int, int *, int *);
 
-void char_to_store(CHAR_DATA * ch, struct char_file_u *st);
-void store_to_char(struct char_file_u *st, CHAR_DATA * ch);
 int load_char(const char *name, CHAR_DATA * char_element);
 void save_char(CHAR_DATA * ch, room_rnum load_room);
 void init_char(CHAR_DATA * ch);

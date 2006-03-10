@@ -3644,8 +3644,7 @@ struct set_struct		/*
 	{"siteok", LVL_GRGOD, PC, BINARY},
 	{"deleted", LVL_IMPL, PC, BINARY},
 	{"class", LVL_IMPL, BOTH, MISC},
-	{"nowizlist", LVL_GOD, PC, BINARY},	/* 40 */
-	{"demigod", LVL_IMPL, PC, BINARY},
+	{"demigod", LVL_IMPL, PC, BINARY}, /* 40 */
 	{"loadroom", LVL_GRGOD, PC, MISC},
 	{"color", LVL_GOD, PC, BINARY},
 	{"idnum", LVL_IMPL, PC, NUMBER},
@@ -3931,9 +3930,6 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		GET_CLASS(vict) = i;
 		break;
 	case 40:
-		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_NOWIZLIST), PLR_NOWIZLIST);
-		break;
-	case 41:
 		/* Флаг для морталов с привилегиями */
 		if (GET_LEVEL(ch) < LVL_IMPL || str_cmp(GET_NAME(ch), "Стрибог")) {
 			send_to_char("Для выдачи привилегий игрокам обращайтесь к Стрибогу (:\r\n", ch);

@@ -85,7 +85,7 @@ void pk_list_sprintf(CHAR_DATA * ch, char *buff);
 
 void load_pkills(CHAR_DATA * ch);
 void save_pkills(CHAR_DATA * ch);
-void new_save_pkills(CHAR_DATA * ch);
+void save_pkills(CHAR_DATA * ch);
 
 //*************************************************************************
 bool has_clan_members_in_group(CHAR_DATA * ch);

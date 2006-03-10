@@ -718,7 +718,7 @@ void pk_free_list(CHAR_DATA * ch)
 }
 
 
-void new_load_pkills(CHAR_DATA * ch)
+void load_pkills(CHAR_DATA * ch)
 {
 	FILE *loaded;
 	struct pkiller_file_u pk_data;
@@ -752,84 +752,8 @@ void new_load_pkills(CHAR_DATA * ch)
 	}
 }
 
-/* Load a char, TRUE if loaded, FALSE if not */
-void load_pkills(CHAR_DATA * ch)
-{
-	int i;
-	struct pkiller_file_u pk_data;
-	struct PK_Memory_type *pk_one = NULL;
-
-	if (USE_SINGLE_PLAYER) {
-		new_load_pkills(ch);
-		return;
-	}
-
-
- /**** read pkiller list for char */
-	fseek(pkiller_fl, GET_PFILEPOS(ch) * sizeof(struct pkiller_file_u) * MAX_PKILLER_MEM, SEEK_SET);
-	for (i = 0; i < MAX_PKILLER_MEM; i++) {
-		fread(&pk_data, sizeof(struct pkiller_file_u), 1, pkiller_fl);
-		if (pk_data.unique == -1 || !correct_unique(pk_data.unique))
-			break;
-		for (pk_one = ch->pk_list; pk_one; pk_one = pk_one->next)
-			if (pk_one->unique == pk_data.unique)
-				break;
-		if (pk_one) {
-			log("SYSERROR : duplicate entry pkillers data for %s", GET_NAME(ch));
-			continue;
-		}
-		// log("SYSINFO : load pkill one for %s", GET_NAME(ch));
-		CREATE(pk_one, struct PK_Memory_type, 1);
-		pk_one->unique = pk_data.unique;
-		pk_one->kill_num = pk_data.pkills;
-		pk_one->next = ch->pk_list;
-		ch->pk_list = pk_one;
-	};
-}
 
 void save_pkills(CHAR_DATA * ch)
-{
-	struct PK_Memory_type *pk, *temp, *tpk;
-	CHAR_DATA *tch = NULL;
-	struct pkiller_file_u pk_data;
-	int i;
-
-	if (USE_SINGLE_PLAYER) {
-		new_save_pkills(ch);
-		return;
-	}
-
-  /**** store pkiller list for char */
-	fseek(pkiller_fl, GET_PFILEPOS(ch) * sizeof(struct pkiller_file_u) * MAX_PKILLER_MEM, SEEK_SET);
-	for (i = 0, pk = ch->pk_list; i < MAX_PKILLER_MEM;) {
-		if (pk && correct_unique(pk->unique)) {
-			if (pk->kill_num && pk->revenge_num >= MAX_REVENGE && pk->battle_exp <= time(NULL)) {
-				for (tch = character_list; tch; tch = tch->next)
-					if (!IS_NPC(tch) && GET_UNIQUE(tch) == pk->unique)
-						break;
-				if (--(pk->kill_num) == 0 && tch)
-					act("Вы больше не можете мстить $N2.", FALSE, tch, 0, ch, TO_CHAR);
-			}
-			if (pk->kill_num <= 0) {
-				tpk = pk->next;
-				REMOVE_FROM_LIST(pk, ch->pk_list, next);
-				free(pk);
-				pk = tpk;
-				continue;
-			}
-			pk_data.unique = pk->unique;
-			pk_data.pkills = pk->kill_num;
-			pk = pk->next;
-		} else {
-			pk_data.unique = -1;
-			pk_data.pkills = -1;
-		}
-		fwrite(&pk_data, sizeof(struct pkiller_file_u), 1, pkiller_fl);
-		++i;
-	}
-}
-
-void new_save_pkills(CHAR_DATA * ch)
 {
 	FILE *saved;
 	struct PK_Memory_type *pk, *temp, *tpk;

@@ -163,7 +163,6 @@ log_info logs[NLOG] = {
 char src_path[4096];
 
 /* functions in this file */
-RETSIGTYPE reread_wizlists(int sig);
 RETSIGTYPE unrestrict_game(int sig);
 RETSIGTYPE reap(int sig);
 RETSIGTYPE checkpointing(int sig);
@@ -211,7 +210,6 @@ void zlib_free(void *opaque, void *address);
 
 
 /* extern fcnts */
-void reboot_wizlists(void);
 void boot_world(void);
 void player_affect_update(void);	/* In spells.cpp */
 void room_affect_update(void);		/* In spells.cpp */
@@ -493,10 +491,6 @@ void init_game(ush_int port)
 		close_socket(descriptor_list, TRUE);
 
 	CLOSE_SOCKET(mother_desc);
-	if (!USE_SINGLE_PLAYER) {
-		fclose(player_fl);
-		fclose(pkiller_fl);
-	}
 	if (circle_reboot != 2 && olc_save_list) {	/* Don't save zones. */
 		struct olc_save_info *entry, *next_entry;
 		int rznum;
@@ -1225,15 +1219,11 @@ inline void heartbeat()
 		point_update();
 		//log("Stop it...");
 		//log("Save player index...");
-		if (!USE_SINGLE_PLAYER) {
-			fflush(player_fl);
-			fflush(pkiller_fl);
-		} else
-			flush_player_index();
+		flush_player_index();
 		//log("Stop it...");
 	}
 
-	if (pulse == 720 && USE_SINGLE_PLAYER) {	//log("Dupe player index...");
+	if (pulse == 720) {	//log("Dupe player index...");
 		dupe_player_index();
 		//log("Stop it...");
 	}
@@ -2871,13 +2861,6 @@ void nonblock(socket_t s)
 
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
 
-RETSIGTYPE reread_wizlists(int sig)
-{
-	mudlog("Signal received - rereading wizlists.", CMP, LVL_IMMORT, SYSLOG, TRUE);
-	reboot_wizlists();
-}
-
-
 RETSIGTYPE unrestrict_game(int sig)
 {
 	mudlog("Received SIGUSR2 - completely unrestricting game (emergent)", BRF, LVL_IMMORT, SYSLOG, TRUE);
@@ -2970,9 +2953,6 @@ void signal_setup(void)
 #ifndef CIRCLE_MACINTOSH
 	struct itimerval itime;
 	struct timeval interval;
-
-	/* user signal 1: reread wizlists.  Used by autowiz system. */
-	my_signal(SIGUSR1, reread_wizlists);
 
 	/*
 	 * user signal 2: unrestrict game.  Used for emergencies if you lock

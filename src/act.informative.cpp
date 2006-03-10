@@ -57,7 +57,6 @@ extern char *godnews;
 extern char *info;
 extern char *motd;
 extern char *rules;
-extern char *wizlist;
 extern char *immlist;
 extern char *policies;
 extern char *handbook;
@@ -4074,9 +4073,6 @@ ACMD(do_gen_ps)
 		break;
 	case SCMD_INFO:
 		page_string(ch->desc, info, 0);
-		break;
-	case SCMD_WIZLIST:
-		page_string(ch->desc, wizlist, 0);
 		break;
 	case SCMD_IMMLIST:
 		page_string(ch->desc, immlist, 0);

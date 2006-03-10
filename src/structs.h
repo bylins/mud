@@ -394,7 +394,7 @@ typedef struct trig_data
 #define PLR_NOTITLE      (1 << 9)	/* Player not allowed to set title  */
 #define PLR_DELETED      (1 << 10)	/* Player deleted - space reusable  */
 #define PLR_LOADROOM (1 << 11)	/* Player uses nonstandard loadroom  */
-#define PLR_NOWIZLIST   (1 << 12)	/* Player shouldn't be on wizlist */
+// свободно
 #define PLR_NODELETE (1 << 13)	/* Player shouldn't be deleted */
 #define PLR_INVSTART (1 << 14)	/* Player should enter game wizinvis */
 #define PLR_CRYO      (1 << 15)	/* Player is cryo-saved (purge prog)   */
@@ -1117,24 +1117,24 @@ typedef struct trig_data
 /* Max amount of output that can be buffered */
 #define LARGE_BUFSIZE            (MAX_SOCK_BUF - GARBAGE_SPACE - MAX_PROMPT_LENGTH)
 
-#define HISTORY_SIZE       5	/* Keep last 5 commands. */
+#define HISTORY_SIZE					5	/* Keep last 5 commands. */
 #define MAX_STRING_LENGTH     16384
 #define MAX_EXTEND_LENGTH     0xFFFF
 #define MAX_INPUT_LENGTH      256	/* Max length per *line* of input */
-#define MAX_RAW_INPUT_LENGTH          512	/* Max size of *raw* input */
-#define MAX_MESSAGES       600
-#define MAX_NAME_LENGTH       20	/* Used in char_file_u *DO*NOT*CHANGE* */
-#define MIN_NAME_LENGTH                 4
-#define MAX_PWD_LENGTH        10	/* Used in char_file_u *DO*NOT*CHANGE* */
-#define MAX_TITLE_LENGTH      80	/* Used in char_file_u *DO*NOT*CHANGE* */
-#define HOST_LENGTH        30	/* Used in char_file_u *DO*NOT*CHANGE* */
-#define EXDSCR_LENGTH         512	/* Used in char_file_u *DO*NOT*CHANGE* */
-#define MAX_TONGUE         3	/* Used in char_file_u *DO*NOT*CHANGE* */
-#define MAX_SKILLS         200	/* Used in char_file_u *DO*NOT*CHANGE* */
-#define MAX_SPELLS            350	/* Used in char_file_u *DO*NOT*CHANGE* */
-#define MAX_AFFECT         32	/* Used in char_file_u *DO*NOT*CHANGE* */
-#define MAX_OBJ_AFFECT        6	/* Used in obj_file_elem *DO*NOT*CHANGE* */
-#define MAX_TIMED_SKILLS      16	/* Used in obj_file_elem *DO*NOT*CHANGE* */
+#define MAX_RAW_INPUT_LENGTH   512	/* Max size of *raw* input */
+#define MAX_MESSAGES      		 600
+#define MAX_NAME_LENGTH       	20
+#define MIN_NAME_LENGTH        	4
+#define MAX_PWD_LENGTH        	10
+#define MAX_TITLE_LENGTH      	80
+#define HOST_LENGTH       		 	30
+#define EXDSCR_LENGTH         	512
+#define MAX_TONGUE         			3
+#define MAX_SKILLS         			200
+#define MAX_SPELLS            	350
+#define MAX_AFFECT         			32
+#define MAX_OBJ_AFFECT        	6
+#define MAX_TIMED_SKILLS      	16
 #define MAX_FEATS		128 /* Максимальное количество фитов */
 #define MAX_TIMED_FEATS		16 /* Макс. количество фитов с таймером */
 #define MAX_HITS 32000 /* Максимальное количество хитов и дамага */
@@ -1579,7 +1579,7 @@ struct char_player_data {
 };
 
 
-/* Char's abilities.  Used in char_file_u *DO*NOT*CHANGE* */
+/* Char's abilities. */
 struct char_ability_data {
 	ubyte Skills[MAX_SKILLS + 1];	/* array of skills plus skill 0     */
 	ubyte SplKnw[MAX_SPELLS + 1];	/* array of SPELL_KNOW_TYPE         */
@@ -1659,7 +1659,7 @@ struct char_played_ability_data {
 };
 
 
-/* Char's points.  Used in char_file_u *DO*NOT*CHANGE* */
+/* Char's points. */
 struct char_point_data {
 	sh_int hit;
 	sh_int max_hit;		/* Max hit for PC/NPC                      */
@@ -1924,7 +1924,7 @@ struct mob_special_data {
 };
 
 
-/* An affect structure.  Used in char_file_u *DO*NOT*CHANGE* */
+/* An affect structure. */
 struct affect_data {
 	sh_int type;		/* The type of spell that caused this      */
 	sh_int duration;	/* For how long its effects will last      */
@@ -2122,54 +2122,7 @@ struct char_data {
 /* ====================================================================== */
 
 
-/* ==================== File Structure for Player ======================= */
-/*             BEWARE: Changing it will ruin the playerfile      */
-struct char_file_u {
-	/* char_player_data */
-	char
-	 name[MAX_NAME_LENGTH + 1];
-	char
-	 PNames[6][MAX_NAME_LENGTH + 1];	    /****/
-	char
-	 description[EXDSCR_LENGTH];
-	char
-	 title[MAX_TITLE_LENGTH + 1];
-	byte sex;
-	byte chclass;
-	byte level;
-	sh_int hometown;
-	time_t birth;		/* Time of birth of character     */
-	long
-	 played;		/* Number of secs played in total */
-	ubyte weight;
-	ubyte height;
-
-	char
-	 pwd[MAX_PWD_LENGTH + 1];	/* character's password */
-
-	struct char_special_data_saved
-	 char_specials_saved;
-	struct player_special_data_saved
-	 player_specials_saved;
-	struct char_ability_data
-	 abilities;
-	struct char_point_data
-	 points;
-	AFFECT_DATA affected[MAX_AFFECT];
-	struct timed_type
-	 timed[MAX_TIMED_SKILLS];
-	struct timed_type
-	 timed_feat[MAX_TIMED_FEATS];
-
-	time_t last_logon;	/* Time (in secs) of last logon */
-	char
-	 host[HOST_LENGTH + 1];	/* host of last logon */
-};
-/* ====================================================================== */
-
-
 /* descriptor-related structures ******************************************/
-
 
 struct txt_block {
 	char *text;
