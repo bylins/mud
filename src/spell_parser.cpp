@@ -2902,9 +2902,14 @@ ACMD(do_create)
 ACMD(do_learn)
 {
 	OBJ_DATA *obj;
-	int spellnum, addchance = 10, rcpt = -1;
-	im_rskill *rs;
+	int spellnum = 0, addchance = 10, rcpt = -1;
+	im_rskill *rs = NULL;
 	const char *spellname = "";
+
+	const char *stype0[] = {
+	"секрет",
+	"еще несколько секретов"
+	};
 
 	const char *stype1[] = {
 	"заклинание",
@@ -3009,10 +3014,8 @@ ACMD(do_learn)
 	} else if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= MAX_FEATS) {
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = feat_info[spellnum].name;
-	} else {
-		return;
 	}
-
+	
 	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL && GET_SKILL(ch, spellnum)) ||
 	    (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && GET_SPELL_TYPE(ch, spellnum) & SPELL_KNOW) ||
 	    (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && HAVE_FEAT(ch, spellnum)) ||
@@ -3030,9 +3033,19 @@ ACMD(do_learn)
 		return;
 	}
 
-	if ((GET_OBJ_VAL(obj, 2) > GET_LEVEL(ch) && (GET_OBJ_VAL(obj, 0) != BOOK_UPGRD || 
-			  GET_OBJ_VAL(obj, 0) != BOOK_SPELL || GET_OBJ_VAL(obj, 0) != BOOK_FEAT)) ||
-	    (GET_OBJ_VAL(obj, 0) == BOOK_SKILL || (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) && 
+	if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && GET_SKILL(ch, spellnum) >= GET_OBJ_VAL(obj, 3)) {
+		sprintf(buf, "Изучив %s от корки до корки Вы так и не узнали ничего нового.\r\n",
+			obj->PNames[3]);
+		send_to_char(buf, ch);
+		act("$n с интересом принял$g читать $o3.\r\n"
+		    "Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
+		    FALSE, ch, obj, 0, TO_ROOM);
+		return;
+	}
+
+	if ((GET_OBJ_VAL(obj, 2) > GET_LEVEL(ch) && GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && 
+			  GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_FEAT) ||
+	    ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL || GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) && 
 	      skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] != KNOW_SKILL) ||
 	    (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && !GET_SKILL(ch, GET_OBJ_VAL(obj, 1))) ||
 		  (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && 
@@ -3079,8 +3092,8 @@ ACMD(do_learn)
 	} else {
 		sprintf(buf, "Вы взяли в руки %s и начали изучать. Постепенно,\r\n"
 			"незнакомые доселе, буквы стали складываться в понятные слова и фразы.\r\n"
-			"Буквально через несколько минут Вы узнали секрет %s \"%s\".\r\n",
-			obj->PNames[3], stype2[GET_OBJ_VAL(obj, 0)], spellname);
+			"Буквально через несколько минут Вы узнали %s %s \"%s\".\r\n",
+			obj->PNames[3], (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) ? stype0[1] : stype0[0], stype2[GET_OBJ_VAL(obj, 0)], spellname);
 		send_to_char(buf, ch);
 		switch (GET_OBJ_VAL(obj, 0)) {
 		case BOOK_SPELL:
@@ -3097,7 +3110,7 @@ ACMD(do_learn)
 			rs->rid = spellnum;
 			rs->link = GET_RSKILL(ch);
 			GET_RSKILL(ch) = rs;
-			rs->perc = 1;
+			rs->perc = 5;
 			break;
 		case BOOK_FEAT:
 			SET_FEAT(ch, spellnum);
