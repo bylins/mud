@@ -2207,7 +2207,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			number = atoi(arg);
 			if (number == 0)
 				break;
-			if (number > MAX_SPELLS || !spell_info[number].name || *spell_info[number].name == '!')
+			if (number < 0 || (number > MAX_SPELLS || !spell_info[number].name || *spell_info[number].name == '!'))
 				send_to_char("Неизвестное заклинание.\r\n", d->character);
 			else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
 				send_to_char("Не указано количество заклинаний.\r\n", d->character);

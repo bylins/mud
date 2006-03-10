@@ -4700,7 +4700,9 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 					if (num < 0)
 						break;
 					num = im_get_recipe(num);
-					if (num < 0)
+// +newbook.patch (Alisher)
+					if (num < 0 || imrecipes[num].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)
+// -newbook.patch (Alisher)
 						continue;
 					CREATE(rs, im_rskill, 1);
 					rs->rid = num;

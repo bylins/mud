@@ -29,6 +29,7 @@
 #include "screen.h"
 #include "house.h"
 #include "pk.h"
+#include "features.hpp"
 
 #include "im.h"
 
@@ -1150,18 +1151,84 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		send_to_char(buf, ch);
 		break;
 	case ITEM_BOOK:
-		if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS) {
-			drndice = GET_OBJ_VAL(obj, 1);
-			if (MIN_CAST_REM(spell_info[GET_OBJ_VAL (obj, 1)],ch) > GET_REMORT(ch) ) 
-				drsdice = 34;
-			else
-				drsdice = MIN_CAST_LEV(spell_info[GET_OBJ_VAL (obj, 1)],ch);
-			sprintf(buf, "содержит заклинание        : \"%s\"\r\n", spell_info[drndice].name);
-			send_to_char(buf, ch);
-			sprintf(buf, "уровень изучения (для Вас) : %d\r\n", drsdice);
-			send_to_char(buf, ch);
-		}
-		break;
+// +newbook.patch (Alisher)
+	switch (GET_OBJ_VAL(obj, 0)) {
+		case BOOK_SPELL:
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS) {
+				drndice = GET_OBJ_VAL(obj, 1);
+				if (MIN_CAST_REM(spell_info[GET_OBJ_VAL (obj, 1)],ch) > GET_REMORT(ch) ) 
+					drsdice = 34;
+				else
+					drsdice = MIN_CAST_LEV(spell_info[GET_OBJ_VAL (obj, 1)],ch);
+				sprintf(buf, "содержит заклинание        : \"%s\"\r\n", spell_info[drndice].name);
+				send_to_char(buf, ch);
+				sprintf(buf, "уровень изучения (для Вас) : %d\r\n", drsdice);
+				send_to_char(buf, ch);
+			}
+			break;
+		case BOOK_SKILL:
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < TOP_SKILL_DEFINE) {
+				drndice = GET_OBJ_VAL(obj, 1);
+				if (skill_info[drndice].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] == KNOW_SKILL) {
+					drsdice = GET_OBJ_VAL(obj, 2);
+				} else {
+					drsdice = LVL_IMPL;
+				}
+				sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", skill_info[drndice].name);
+				send_to_char(buf, ch);
+				sprintf(buf, "уровень изучения (для Вас) : %d\r\n", drsdice);
+				send_to_char(buf, ch);
+			}
+			break;
+		case BOOK_UPGRD:
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < TOP_SKILL_DEFINE) {
+				drndice = GET_OBJ_VAL(obj, 1);
+				sprintf(buf, "повышает умение \"%s\"\r\n", skill_info[drndice].name);
+				send_to_char(buf, ch);
+			}
+			break;
+		case BOOK_RECPT:
+			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
+			if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE) {
+				drsdice = GET_OBJ_VAL(obj, 2);
+			} else {
+				drsdice = LVL_IMPL;
+			}
+			if (drndice >= 0) {
+				sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
+				send_to_char(buf, ch);
+				sprintf(buf, "уровень изучения (для Вас) : %d\r\n", drsdice);
+				send_to_char(buf, ch);
+			}
+			break;
+		case BOOK_COOK:
+			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
+			if (drndice >= 0) {
+				sprintf(buf, "содержит состав отвара     : \"%s\"\r\n", imrecipes[drndice].name);
+				send_to_char(buf, ch);
+			}
+			break;
+		case BOOK_FEAT:
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_FEATS) {
+				drndice = GET_OBJ_VAL(obj, 1);
+				if (can_get_feat(ch, drndice)) {
+					drsdice = feat_info[drndice].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
+				} else {
+					drsdice = LVL_IMPL;
+				}
+				sprintf(buf, "содержит секрет способности : \"%s\"\r\n", feat_info[drndice].name);
+				send_to_char(buf, ch);
+				sprintf(buf, "уровень изучения (для Вас) : %d\r\n", drsdice);
+				send_to_char(buf, ch);
+			}
+			break;
+		default:
+				strcpy(buf, "НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n");
+				send_to_char(buf, ch);
+				break;
+	}
+	break;
+// -newbook.patch (Alisher)
 	case ITEM_INGRADIENT:
 
 		sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
@@ -1250,7 +1317,7 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 {
-	int i, found, negative, j;
+	int i, found, negative, j, drndice = 0, drsdice = 0;
 	long int li;
 
 	send_to_char("Вы узнали следующее:\r\n", ch);
@@ -1342,14 +1409,84 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 		send_to_char(buf, ch);
 		break;
 	case ITEM_BOOK:
-		if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS) {
-			sprintf(buf, "содержит заклинание        : \"%s\"\r\n", spell_info[GET_OBJ_VAL(obj, 1)].name);
-			send_to_char(buf, ch);
-			sprintf(buf, "уровень изучения (для Вас) : %d\r\n",
-				MIN_CAST_LEV(spell_info[GET_OBJ_VAL (obj, 1)],ch));
-			send_to_char(buf, ch);
-		}
-		break;
+// +newbook.patch (Alisher)
+	switch (GET_OBJ_VAL(obj, 0)) {
+		case BOOK_SPELL:
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS) {
+				drndice = GET_OBJ_VAL(obj, 1);
+				if (MIN_CAST_REM(spell_info[GET_OBJ_VAL (obj, 1)],ch) > GET_REMORT(ch) ) 
+					drsdice = 34;
+				else
+					drsdice = MIN_CAST_LEV(spell_info[GET_OBJ_VAL (obj, 1)],ch);
+				sprintf(buf, "содержит заклинание        : \"%s\"\r\n", spell_info[drndice].name);
+				send_to_char(buf, ch);
+				sprintf(buf, "уровень изучения (для Вас) : %d\r\n", drsdice);
+				send_to_char(buf, ch);
+			}
+			break;
+		case BOOK_SKILL:
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < TOP_SKILL_DEFINE) {
+				drndice = GET_OBJ_VAL(obj, 1);
+				if (skill_info[drndice].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] == KNOW_SKILL) {
+					drsdice = GET_OBJ_VAL(obj, 2);
+				} else {
+					drsdice = LVL_IMPL;
+				}
+				sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", skill_info[drndice].name);
+				send_to_char(buf, ch);
+				sprintf(buf, "уровень изучения (для Вас) : %d\r\n", drsdice);
+				send_to_char(buf, ch);
+			}
+			break;
+		case BOOK_UPGRD:
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < TOP_SKILL_DEFINE) {
+				drndice = GET_OBJ_VAL(obj, 1);
+				sprintf(buf, "повышает умение \"%s\"\r\n", skill_info[drndice].name);
+				send_to_char(buf, ch);
+			}
+			break;
+		case BOOK_RECPT:
+			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
+			if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE) {
+				drsdice = GET_OBJ_VAL(obj, 2);
+			} else {
+				drsdice = LVL_IMPL;
+			}
+			if (drndice >= 0) {
+				sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
+				send_to_char(buf, ch);
+				sprintf(buf, "уровень изучения (для Вас) : %d\r\n", drsdice);
+				send_to_char(buf, ch);
+			}
+			break;
+		case BOOK_COOK:
+			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
+			if (drndice >= 0) {
+				sprintf(buf, "содержит состав отвара     : \"%s\"\r\n", imrecipes[drndice].name);
+				send_to_char(buf, ch);
+			}
+			break;
+		case BOOK_FEAT:
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_FEATS) {
+				drndice = GET_OBJ_VAL(obj, 1);
+				if (can_get_feat(ch, drndice)) {
+					drsdice = feat_info[drndice].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
+				} else {
+					drsdice = LVL_IMPL;
+				}
+				sprintf(buf, "содержит секрет способности : \"%s\"\r\n", feat_info[drndice].name);
+				send_to_char(buf, ch);
+				sprintf(buf, "уровень изучения (для Вас) : %d\r\n", drsdice);
+				send_to_char(buf, ch);
+			}
+			break;
+		default:
+				strcpy(buf, "НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n");
+				send_to_char(buf, ch);
+				break;
+	}
+	break;
+// -newbook.patch (Alisher)
 	case ITEM_INGRADIENT:
 
 		sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);

@@ -31,6 +31,9 @@
 #include "dg_scripts.h"
 #include "pk.h"
 #include "features.hpp"
+// +newbook.patch (Alisher)
+#include "im.h"
+// -newbook.patch (Alisher)
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct spell_create_type spell_create[TOP_SPELL_DEFINE + 1];
@@ -50,6 +53,9 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract)
 int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
 
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
+// +newbook.patch (Alisher)
+void show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
+// -newbook.patch (Alisher)
 /* local functions */
 void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj);
 void spello(int spl, const char *name, const char *syn, int max_mana, int min_mana, int mana_change,
@@ -2891,10 +2897,32 @@ ACMD(do_create)
 }
 
 
+// newbook.patch
+
 ACMD(do_learn)
 {
 	OBJ_DATA *obj;
-	int spellnum, addchance;
+	int spellnum, addchance = 10, rcpt = -1;
+	im_rskill *rs;
+	const char *spellname = "";
+
+	const char *stype1[] = {
+	"заклинание",
+	"умение",
+	"умение",
+	"рецепт",
+	"рецепт",
+	"способность"
+	};
+
+	const char *stype2[] = {
+	"заклинания",
+	"умения",
+	"умения",
+	"рецепта",
+	"рецепта",
+	"способности"
+	};
 
 	if (IS_NPC(ch))
 		return;
@@ -2919,21 +2947,100 @@ ACMD(do_learn)
 		return;
 	}
 
-	if (slot_for_char(ch, 1) <= 0) {
+	if (GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_SKILL && 
+	    GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && GET_OBJ_VAL(obj, 0) != BOOK_RECPT && 
+	    GET_OBJ_VAL(obj, 0) != BOOK_COOK && GET_OBJ_VAL(obj, 0) != BOOK_FEAT) {
+		act("НЕВЕРНЫЙ ТИП КНИГИ - сообщите Богам !", FALSE, ch, obj, 0, TO_CHAR);
+		return;
+	}
+
+	if (GET_OBJ_VAL(obj, 0) == BOOK_COOK) {
+		show_obj_to_char(obj, ch, 5, TRUE, 1);
+	  return;
+	}
+
+	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && slot_for_char(ch, 1) <= 0) {
 		send_to_char("Далась Вам эта магия ! Пошли-бы, водочки выпили...\r\n", ch);
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= LAST_USED_SPELL)
-		spellnum = GET_OBJ_VAL(obj, 1);
-	else {
-		send_to_char("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам !\r\n", ch);
+	if (GET_OBJ_VAL(obj, 2) < 1 && GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && 
+	    GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_FEAT) {
+		send_to_char("НЕКОРРЕКТНЫЙ УРОВЕНЬ - сообщите Богам !\r\n", ch);
 		return;
 	}
 
-	if (MIN_CAST_LEV(SpINFO,ch) > GET_LEVEL (ch) 
-	   || MIN_CAST_REM(SpINFO,ch) > GET_REMORT (ch) 
-	   ||  slot_for_char (ch, SpINFO.slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)]) <= 0){
+	if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT) {
+		rcpt = im_get_recipe(GET_OBJ_VAL(obj, 1));
+	}
+
+	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL || GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) 
+	     && GET_OBJ_VAL(obj, 1) < 1 && GET_OBJ_VAL(obj, 1) > TOP_SKILL_DEFINE) {
+		send_to_char("СТИЛЬ НЕ ОПРЕДЕЛЕН - сообщите Богам !\r\n", ch);
+		return;
+	}
+	if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && rcpt < 0) {
+		send_to_char("РЕЦЕПТ НЕ ОПРЕДЕЛЕН - сообщите Богам !\r\n", ch);
+		return;
+	}
+	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && (GET_OBJ_VAL(obj, 1) < 1 || GET_OBJ_VAL(obj, 1) > LAST_USED_SPELL)){
+		send_to_char("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам !\r\n", ch);
+		return;
+	}
+	if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT &&  (GET_OBJ_VAL(obj, 1) < 1 || GET_OBJ_VAL(obj, 1) > MAX_FEATS)) {
+		send_to_char("СПОСОБНОСТЬ НЕ ОПРЕДЕЛЕНА - сообщите Богам !\r\n", ch);
+		return;
+	}
+
+	if (GET_OBJ_VAL(obj, 0) == BOOK_SKILL && 
+	    skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] == KNOW_SKILL) {
+		spellnum = GET_OBJ_VAL(obj, 1);
+		spellname = skill_info[spellnum].name;
+	} else if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && GET_SKILL(ch, GET_OBJ_VAL(obj, 1))) {
+		spellnum = GET_OBJ_VAL(obj, 1);
+		spellname = skill_info[spellnum].name;
+	} else if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= LAST_USED_SPELL) {
+		spellnum = GET_OBJ_VAL(obj, 1);
+		spellname = SpINFO.name;
+	} else if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && imrecipes[rcpt].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE) {
+	  spellnum = rcpt;
+	  rs = im_get_char_rskill(ch, spellnum);
+		spellname = imrecipes[spellnum].name;
+	} else if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= MAX_FEATS) {
+		spellnum = GET_OBJ_VAL(obj, 1);
+		spellname = feat_info[spellnum].name;
+	} else {
+		return;
+	}
+
+	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL && GET_SKILL(ch, spellnum)) ||
+	    (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && GET_SPELL_TYPE(ch, spellnum) & SPELL_KNOW) ||
+	    (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && HAVE_FEAT(ch, spellnum)) ||
+		  (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && rs)) {
+		sprintf(buf, "Вы открыли %s и принялись с интересом\r\n"
+			"изучать. Каким же было разочарование, когда прочитав %s,\r\n"
+			"Вы поняли, что это %s \"%s\".\r\n",
+			obj->PNames[3],
+			number(0, 1) ? "несколько абзацев" :
+			number(0, 1) ? "пару строк" : "почти до конца", stype1[GET_OBJ_VAL(obj, 0)], spellname);
+		send_to_char(buf, ch);
+		act("$n с интересом принял$g читать $o3.\r\n"
+		    "Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
+		    FALSE, ch, obj, 0, TO_ROOM);
+		return;
+	}
+
+	if ((GET_OBJ_VAL(obj, 2) > GET_LEVEL(ch) && (GET_OBJ_VAL(obj, 0) != BOOK_UPGRD || 
+			  GET_OBJ_VAL(obj, 0) != BOOK_SPELL || GET_OBJ_VAL(obj, 0) != BOOK_FEAT)) ||
+	    (GET_OBJ_VAL(obj, 0) == BOOK_SKILL || (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) && 
+	      skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] != KNOW_SKILL) ||
+	    (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && !GET_SKILL(ch, GET_OBJ_VAL(obj, 1))) ||
+		  (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && 
+        (MIN_CAST_LEV(SpINFO,ch) > GET_LEVEL (ch) || MIN_CAST_REM(SpINFO,ch) > GET_REMORT (ch) ||
+    	   slot_for_char (ch, SpINFO.slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)]) <= 0)) ||
+		  (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && !can_get_feat(ch, spellnum)) ||
+	    (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && 
+	      imrecipes[rcpt].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)) {
 		sprintf(buf,
 			"- \"Какие интересные буковки ! Особенно %s, похожая на %s\".\r\n"
 			"Полюбовавшись еще несколько минут на сию красоту, Вы с чувством выполненного\r\n"
@@ -2950,42 +3057,56 @@ ACMD(do_learn)
 		return;
 	}
 
-	if (GET_SPELL_TYPE(ch, spellnum) & SPELL_KNOW) {
-		sprintf(buf, "Вы открыли %s и принялись с интересом\r\n"
-			"изучать. Каким же было разочарование, когда прочитав %s,\r\n"
-			"Вы поняли, что это заклинание \"%s\".\r\n",
-			obj->PNames[3],
-			number(0, 1) ? "несколько абзацев" :
-			number(0, 1) ? "пару строк" : "почти до конца", SpINFO.name);
-		send_to_char(buf, ch);
-		act("$n с интересом принял$g читать $o3.\r\n"
-		    "Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
-		    FALSE, ch, obj, 0, TO_ROOM);
-		return;
-	}
-
 	addchance = (IS_CLERIC(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_CLERIC)) ||
 	    (IS_MAGE(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MAGE)) ||
 	    (IS_PALADINE(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PALADINE)) ||
+	    (IS_THIEF(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_THIEF)) ||
+	    (IS_ASSASINE(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_ASSASINE)) ||
+	    (IS_WARRIOR(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_WARRIOR)) ||
+	    (IS_RANGER(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_RANGER)) ||
+	    (IS_GUARD(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_GUARD)) ||
+	    (IS_SMITH(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_SMITH)) ||
+	    (IS_DRUID(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_DRUID)) ||
 	    (IS_MERCHANT(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MERCHANT)) ? 10 : 0;
+	addchance += (GET_OBJ_VAL(obj, 0) == BOOK_SPELL) ? 0 : 10;
 
-	if (number(1, 100) <=
-	    int_app[POSI(GET_REAL_INT(ch))].spell_aknowlege + addchance || GET_GOD_FLAG(ch, GF_GODSLIKE)) {
-		sprintf(buf, "Вы взяли в руки %s и начали изучать. Постепенно,\r\n"
-			"незнакомые доселе, буквы стали складываться в понятные слова и фразы.\r\n"
-			"Буквально через несколько минут Вы узнали секрет заклинания \"%s\".\r\n",
-			obj->PNames[3], SpINFO.name);
-		send_to_char(buf, ch);
-		GET_SPELL_TYPE(ch, spellnum) |= SPELL_KNOW;
-	} else {
+	if (number(1, 100) > int_app[POSI(GET_REAL_INT(ch))].spell_aknowlege + addchance || GET_GOD_FLAG(ch, GF_GODSLIKE)) {
 		sprintf(buf, "Вы взяли в руки %s и начали изучать. Непослушные\r\n"
 			"буквы никак не хотели выстраиваться в понятные и доступные фразы.\r\n"
 			"Промучившись несколько минут, Вы бросили это унылое занятие,\r\n"
 			"с удивлением отметив исчезновение %s.\r\n", obj->PNames[3], obj->PNames[1]);
 		send_to_char(buf, ch);
+	} else {
+		sprintf(buf, "Вы взяли в руки %s и начали изучать. Постепенно,\r\n"
+			"незнакомые доселе, буквы стали складываться в понятные слова и фразы.\r\n"
+			"Буквально через несколько минут Вы узнали секрет %s \"%s\".\r\n",
+			obj->PNames[3], stype2[GET_OBJ_VAL(obj, 0)], spellname);
+		send_to_char(buf, ch);
+		switch (GET_OBJ_VAL(obj, 0)) {
+		case BOOK_SPELL:
+			GET_SPELL_TYPE(ch, spellnum) |= SPELL_KNOW;
+			break;
+		case BOOK_SKILL:
+			GET_SKILL(ch, spellnum) = 1;
+			break;
+		case BOOK_UPGRD:
+			GET_SKILL(ch, spellnum) = MIN(GET_SKILL(ch, spellnum) + GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 3));
+			break;
+		case BOOK_RECPT:
+			CREATE(rs, im_rskill, 1);
+			rs->rid = spellnum;
+			rs->link = GET_RSKILL(ch);
+			GET_RSKILL(ch) = rs;
+			rs->perc = 1;
+			break;
+		case BOOK_FEAT:
+			SET_FEAT(ch, spellnum);
+			break;
+		}
 	}
 	extract_obj(obj);
 }
+// -newbook.patch (Alisher)
 
 
 

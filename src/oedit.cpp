@@ -19,6 +19,9 @@
 #include "shop.h"
 #include "olc.h"
 #include "dg_olc.h"
+#include "im.h"
+#include "features.hpp"
+
 
 /*------------------------------------------------------------------------*/
 
@@ -49,6 +52,7 @@ extern const char *ingradient_bits[];
 extern struct spell_info_type spell_info[];
 extern struct board_info_type board_info[];
 extern DESCRIPTOR_DATA *descriptor_list;
+extern int top_imrecipes;
 
 int real_zone(int number);
 
@@ -83,6 +87,9 @@ void oedit_disp_type_menu(DESCRIPTOR_DATA * d);
 void oedit_disp_extra_menu(DESCRIPTOR_DATA * d);
 void oedit_disp_wear_menu(DESCRIPTOR_DATA * d);
 void oedit_disp_menu(DESCRIPTOR_DATA * d);
+void oedit_disp_skills_menu(DESCRIPTOR_DATA * d);
+void oedit_disp_receipts_menu(DESCRIPTOR_DATA * d);
+void oedit_disp_feats_menu(DESCRIPTOR_DATA * d);
 
 /*------------------------------------------------------------------------*\
   Utility and exported functions
@@ -714,12 +721,69 @@ void oedit_disp_spells_menu(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 0; counter < NUM_SPELLS; counter++) {
+	for (counter = 0; counter < MAX_SPELLS; counter++) {
+		if (!spell_info[counter].name || *spell_info[counter].name == '!')
+			continue;
 		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, counter, nrm, yel,
 			spell_info[counter].name, !(++columns % 3) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	sprintf(buf, "\r\n%sВыберите магию (0 - выход) : ", nrm);
+	send_to_char(buf, d->character);
+}
+
+void oedit_disp_skills2_menu(DESCRIPTOR_DATA * d)
+{
+	int counter, columns = 0;
+
+	get_char_cols(d->character);
+#if defined(CLEAR_SCREEN)
+	send_to_char("[H[J", d->character);
+#endif
+	for (counter = 0; counter < MAX_SKILLS; counter++) {
+		if (!skill_info[counter].name || *skill_info[counter].name == '!')
+			continue;
+		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, counter, nrm, yel,
+			skill_info[counter].name, !(++columns % 3) ? "\r\n" : "");
+		send_to_char(buf, d->character);
+	}
+	sprintf(buf, "\r\n%sВыберите умение (0 - выход) : ", nrm);
+	send_to_char(buf, d->character);
+}
+
+void oedit_disp_receipts_menu(DESCRIPTOR_DATA * d)
+{
+	int counter, columns = 0;
+
+	get_char_cols(d->character);
+#if defined(CLEAR_SCREEN)
+	send_to_char("[H[J", d->character);
+#endif
+	for (counter = 0; counter <= top_imrecipes; counter++) {
+		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, counter, nrm, yel,
+			imrecipes[counter].name, !(++columns % 3) ? "\r\n" : "");
+		send_to_char(buf, d->character);
+	}
+	sprintf(buf, "\r\n%sВыберите рецепт : ", nrm);
+	send_to_char(buf, d->character);
+}
+
+void oedit_disp_feats_menu(DESCRIPTOR_DATA * d)
+{
+	int counter, columns = 0;
+
+	get_char_cols(d->character);
+#if defined(CLEAR_SCREEN)
+	send_to_char("[H[J", d->character);
+#endif
+	for (counter = 0; counter < MAX_FEATS; counter++) {
+		if (!feat_info[counter].name || *feat_info[counter].name == '!')
+			continue;
+		sprintf(buf, "%s%2d%s) %s%-20.20s %s", grn, counter, nrm, yel,
+			feat_info[counter].name, !(++columns % 3) ? "\r\n" : "");
+		send_to_char(buf, d->character);
+	}
+	sprintf(buf, "\r\n%sВыберите способность (0 - выход) : ", nrm);
 	send_to_char(buf, d->character);
 }
 
@@ -770,7 +834,16 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 		 */
 		break;
 	case ITEM_BOOK:
-		send_to_char("Введите уровень изучения : ", d->character);
+//		send_to_char("Тип книги (0-закл, 1-ум, 2-ум+, 3-рецепт, 4-состав, 5-фит): ", d->character);
+		sprintf(buf,
+			"%s0%s) %sКнига заклинаний\r\n"
+			"%s1%s) %sКнига умений\r\n"
+			"%s2%s) %sУлучшение умения\r\n"
+			"%s3%s) %sКнига рецептов\r\n"
+			"%s4%s) %sСостав рецепта\r\n"
+			"%s5%s) %sКнига способностей\r\n"
+			"%sВыберите тип книги : ", grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, nrm);
+		send_to_char(buf, d->character);
 		break;
 	case ITEM_INGRADIENT:
 		send_to_char("Первый байт - лаг после применения в сек, 5 бит - уровень : ", d->character);
@@ -824,7 +897,28 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 		send_to_char("Начальное количество глотков : ", d->character);
 		break;
 	case ITEM_BOOK:
-		send_to_char("Введите номер заклинания : ", d->character);
+	switch (GET_OBJ_VAL(OLC_OBJ(d), 0)) {
+		case BOOK_SPELL:
+//		  send_to_char("Введите номер заклинания : ", d->character);
+			oedit_disp_spells_menu(d);
+			break;
+		case BOOK_SKILL:
+		case BOOK_UPGRD:
+//		  send_to_char("Введите номер умения : ", d->character);
+			oedit_disp_skills2_menu(d);
+			break;
+		case BOOK_RECPT:
+		case BOOK_COOK:
+//		  send_to_char("Введите номер рецепта : ", d->character);
+			oedit_disp_receipts_menu(d);
+			break;
+		case BOOK_FEAT:
+//		  send_to_char("Введите номер способности : ", d->character);
+			oedit_disp_feats_menu(d);
+			break;
+		default:
+			oedit_disp_val4_menu(d);
+		}
 		break;
 	case ITEM_INGRADIENT:
 		send_to_char("Виртуальный номер прототипа  : ", d->character);
@@ -865,6 +959,20 @@ void oedit_disp_val3_menu(DESCRIPTOR_DATA * d)
 	case ITEM_FOUNTAIN:
 		oedit_liquid_type(d);
 		break;
+	case ITEM_BOOK:
+//		send_to_char("Уровень изучения (+ к умению если тип = 2 ) : ", d->character);
+	switch (GET_OBJ_VAL(OLC_OBJ(d), 0)) {
+		case BOOK_SKILL:
+		case BOOK_RECPT:
+		  send_to_char("Введите уровень изучения : ", d->character);
+			break;
+		case BOOK_UPGRD:
+		  send_to_char("На сколько увеличится умение : ", d->character);
+			break;
+		default:
+			oedit_disp_val4_menu(d);
+		}
+		break;
 	case ITEM_INGRADIENT:
 		send_to_char("Сколько раз можно использовать : ", d->character);
 		break;
@@ -896,6 +1004,17 @@ void oedit_disp_val4_menu(DESCRIPTOR_DATA * d)
 	case ITEM_FOUNTAIN:
 	case ITEM_FOOD:
 		send_to_char("Отравлено (0 = не отравлено) : ", d->character);
+		break;
+	case ITEM_BOOK:
+//		send_to_char("Макс. уровень умения или тип способности (0-врожденная, 1) : ", d->character);
+	switch (GET_OBJ_VAL(OLC_OBJ(d), 0)) {
+		case BOOK_UPGRD:
+		  send_to_char("Максимальный % умения : ", d->character);
+			break;
+		default:
+      OLC_VAL(d) = 1;
+			oedit_disp_menu(d);
+		}
 		break;
 	case ITEM_MING:
 		send_to_char("Класс ингредиента (0-РОСЛЬ,1-ЖИВЬ,2-ТВЕРДЬ): ", d->character);
@@ -1720,12 +1839,20 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		 * Lucky, I don't need to check any of these for out of range values.
 		 * Hmm, I'm not so sure - Rv  
 		 */
-		GET_OBJ_VAL(OLC_OBJ(d), 0) = atoi(arg);
+		number = atoi(arg);
+
+		if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_BOOK && (number < 0 || number > 5)) {
+				send_to_char("Неправильный тип книги, повторите.\r\n", d->character);
+				oedit_disp_val1_menu(d);
+				return;
+		}
 		/*
 		 * proceed to menu 2 
 		 */
+		GET_OBJ_VAL(OLC_OBJ(d), 0) = number;
 		oedit_disp_val2_menu(d);
 		return;
+
 	case OEDIT_VALUE_2:
 		/*
 		 * Here, I do need to check for out of range values.
@@ -1734,7 +1861,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 		case ITEM_SCROLL:
 		case ITEM_POTION:
-			if (number < 0 || number >= NUM_SPELLS)
+			if (number < 0 || number >= LAST_USED_SPELL)
 				oedit_disp_val2_menu(d);
 			else {
 				GET_OBJ_VAL(OLC_OBJ(d), 1) = number;
@@ -1755,13 +1882,59 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			} else
 				oedit_disp_val3_menu(d);
 			break;
-
-		default:
-			GET_OBJ_VAL(OLC_OBJ(d), 1) = number;
-			oedit_disp_val3_menu(d);
+		case ITEM_BOOK:
+			switch (GET_OBJ_VAL(OLC_OBJ(d), 0)) {
+			case BOOK_SPELL:
+				if (number == 0) {
+					OLC_VAL(d) = 0;
+					oedit_disp_menu(d);
+					return;
+				}
+				if (number < 0 || (number > MAX_SPELLS || !spell_info[number].name || *spell_info[number].name == '!')) {
+					send_to_char("Неизвестное заклинание, повторите.\r\n", d->character);
+					oedit_disp_val2_menu(d);
+					return;
+				}
+				break;
+			case BOOK_SKILL:
+			case BOOK_UPGRD:
+				if (number == 0) {
+					OLC_VAL(d) = 0;
+					oedit_disp_menu(d);
+					return;
+				}
+				if (number > MAX_SKILLS || !skill_info[number].name || *skill_info[number].name == '!') {
+					send_to_char("Неизвестное умение, повторите.\r\n", d->character);
+					oedit_disp_val2_menu(d);
+					return;
+				}
+				break;
+			case BOOK_RECPT:
+			case BOOK_COOK:
+				if (number > top_imrecipes || number < 0  || !imrecipes[number].name) {
+					send_to_char("Неизвестный рецепт, повторите.\r\n", d->character);
+					oedit_disp_val2_menu(d);
+					return;
+				}
+				break;
+			case BOOK_FEAT:
+				if (number == 0) {
+					OLC_VAL(d) = 0;
+					oedit_disp_menu(d);
+					return;
+				}
+				if (number > MAX_FEATS || !feat_info[number].name || *feat_info[number].name == '!') {
+					send_to_char("Неизвестная способность, повторите.\r\n", d->character);
+					oedit_disp_val2_menu(d);
+					return;
+				}
+				break;
+			}
 		}
+		GET_OBJ_VAL(OLC_OBJ(d), 1) = number;
+		oedit_disp_val3_menu(d);
 		return;
-
+	
 	case OEDIT_VALUE_3:
 		number = atoi(arg);
 		/*
@@ -1771,7 +1944,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case ITEM_SCROLL:
 		case ITEM_POTION:
 			min_val = 0;
-			max_val = NUM_SPELLS - 1;
+			max_val = LAST_USED_SPELL - 1;
 			break;
 		case ITEM_WEAPON:
 			min_val = 1;
@@ -1804,12 +1977,12 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case ITEM_SCROLL:
 		case ITEM_POTION:
 			min_val = 0;
-			max_val = NUM_SPELLS - 1;
+			max_val = LAST_USED_SPELL - 1;
 			break;
 		case ITEM_WAND:
 		case ITEM_STAFF:
 			min_val = 1;
-			max_val = NUM_SPELLS - 1;
+			max_val = LAST_USED_SPELL - 1;
 			break;
 		case ITEM_WEAPON:
 			min_val = 0;

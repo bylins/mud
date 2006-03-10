@@ -62,6 +62,10 @@ typedef struct _im_addon_tag im_addon;
 #define IM_MSG_FAIL		1
 #define IM_MSG_DAM		2
 
+// +newbook.patch (Alisher)
+#define KNOW_RECIPE  1
+// -newbook.patch (Alisher)
+
 // Описание рецепта
 struct _im_recipe_tag {
 	int id;			// номер из im.lst
@@ -75,6 +79,9 @@ struct _im_recipe_tag {
 	char *msg_char[3];	// сообщения OK,FAIL,DAM
 	char *msg_room[3];	// сообщения OK,FAIL,DAM
 	int x, y;		// XdY - повреждения
+// +newbook.patch (Alisher)
+	int classknow[NUM_CLASSES]; // владеет ли класс данным рецептом
+// -newbook.patch (Alisher)
 };
 typedef struct _im_recipe_tag im_recipe;
 

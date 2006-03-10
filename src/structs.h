@@ -751,6 +751,16 @@ typedef struct trig_data
 #define ITEM_MING      26	/* Магический ингредиент */
 #define ITEM_MATERIAL	27	/* Материал для крафтовых умений */
 
+// +newbook.patch (Alisher)
+/* Типы магических книг */
+#define BOOK_SPELL		0	/* Книга заклинания */
+#define BOOK_SKILL		1	/* Книга умения */
+#define BOOK_UPGRD		2	/* Увеличение умения */
+#define BOOK_RECPT		3	/* Книга рецепта */	
+#define BOOK_COOK			4	/* Книга с _составом_ рецепта */
+#define BOOK_FEAT			5	/* Книга способности (feats) */
+// -newbook.patch (Alisher)
+
 
 /* Take/Wear flags: used by obj_data.obj_flags.wear_flags */
 #define ITEM_WEAR_TAKE     (1 << 0)	/* Item can be takes      */

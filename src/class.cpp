@@ -38,6 +38,9 @@
 #include "top.h"
 //-MZ.tops
 #include "features.hpp"
+// +newbook.patch (Alisher)
+#include "im.h"
+// -newbook.patch (Alisher)
 
 extern int siteok_everyone;
 extern struct spell_create_type spell_create[];
@@ -2765,7 +2768,7 @@ void init_spell_levels(void)
 {
 	FILE *magic;
 	char line1[256], line2[256], line3[256], line4[256], name[256];
-	int i[15], c, j, sp_num,l;
+	int i[15], c, j, sp_num, l, rcpt;
 	if (!(magic = fopen(LIB_MISC "magic.lst", "r"))) {
 		log("Cann't open magic list file...");
 		_exit(1);
@@ -3115,6 +3118,39 @@ void init_spell_levels(void)
 		name[0] = '\0';
 	}
 	fclose(magic);
+
+// +newbook.patch (Alisher)
+	if (!(magic = fopen(LIB_MISC "classrecipe.lst", "r"))) {
+		log("Cann't open classrecipe list file...");
+		_exit(1);
+	}
+	while (get_line(magic, name)) {
+		if (!name[0] || name[0] == ';')
+			continue;
+		if (sscanf(name, "%d %s %s", i, line1, line2) != 3) {
+			log("Bad format for magic string !\r\n"
+			    "Format : <recipe number (%%d)> <races (%%s)> <classes (%%d)>");
+			_exit(1);
+		}
+
+		rcpt = im_get_recipe(i[0]);
+
+		if (rcpt < 0) {
+			log("Invalid recipe (%d)", i[0]);
+			_exit(1);
+		}
+
+// line1 - ограничения для рас еще не реализованы
+
+		for (j = 0; line2[j] && j < NUM_CLASSES; j++) {
+			if (!strchr("1xX!", line2[j]))
+				continue;
+			imrecipes[rcpt].classknow[j] = KNOW_RECIPE;
+			log("Set recipe (%d '%s') classes %d is Know", i[0], imrecipes[rcpt].name, j);
+		}
+	}
+	fclose(magic);
+// -newbook.patch (Alisher)
 
 	return;
 }

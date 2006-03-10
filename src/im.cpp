@@ -896,13 +896,17 @@ void im_make_corpse(OBJ_DATA * corpse, int *ing_list)
 void list_recipes(CHAR_DATA * ch)
 {
 	int i = 0;
-	im_rskill *rs = GET_RSKILL(ch);
+// +newbook.patch (Alisher)
+	im_rskill *rs;
+// -newbook.patch (Alisher)
 
 	sprintf(buf, "Вы владеете следующими рецептами :\r\n");
 
 	strcpy(buf2, buf);
 
-	while (rs) {
+// newbook.patch ТУТ БЫЛ БЕСКОНЕЧНЫЙ ЦИКЛ
+	for (rs = GET_RSKILL(ch); rs; rs = rs->link) {
+// -newbook.patch (Alisher)
 		if (strlen(buf2) >= MAX_STRING_LENGTH - 60) {
 			strcat(buf2, "**OVERFLOW**\r\n");
 			break;
@@ -912,7 +916,6 @@ void list_recipes(CHAR_DATA * ch)
 		sprintf(buf, "%-30s %s\r\n", imrecipes[rs->rid].name, how_good(ch, rs->perc));
 		strcat(buf2, buf);
 		++i;
-		rs = rs->link;
 	}
 
 	if (!i)
@@ -1463,11 +1466,15 @@ void trg_recipeturn(CHAR_DATA * ch, int rid, int recipediff)
 	} else {
 		if (!recipediff)
 			return;
-		CREATE(rs, im_rskill, 1);
-		rs->rid = rid;
-		rs->link = GET_RSKILL(ch);
-		GET_RSKILL(ch) = rs;
-		rs->perc = 5;
+// +newbook.patch (Alisher)
+		if (imrecipes[rid].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE) {
+			CREATE(rs, im_rskill, 1);
+			rs->rid = rid;
+			rs->link = GET_RSKILL(ch);
+			GET_RSKILL(ch) = rs;
+			rs->perc = 5;
+		}
+// -newbook.patch (Alisher)
 		sprintf(buf, "Вы изучили рецепт '%s'.\r\n", imrecipes[rid].name);
 		send_to_char(buf, ch);
 	}
