@@ -2719,7 +2719,8 @@ inline int do_punctual(CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *wielded)
 	int dam_critic = 0, skill, wapp;
 
 	if (wielded)
-		wapp = GET_OBJ_WEIGHT(wielded);
+		wapp = (int)(GET_OBJ_SKILL(wielded) = SKILL_BOWS) ?
+					GET_OBJ_WEIGHT(wielded) * 2 / 3 : GET_OBJ_WEIGHT(wielded);
 	else
 		wapp = 0;
 
