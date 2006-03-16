@@ -919,8 +919,8 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		exp = MIN(max_exp_gain_npc, exp);
 		exp += MAX(0, (exp * MIN(4, (GET_LEVEL(victim) - GET_LEVEL(ch)))) / 8);
 	} else {
+		exp /= MAX (1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1);
 		exp = MIN(max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim));
-		exp /= MAX (1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED);
 	}
 
 	// 4. Последняя проверка
@@ -2343,7 +2343,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 	    OK_GAIN_EXP(ch, victim) &&
 	    !AFF_FLAGGED(victim, AFF_CHARM) && !MOB_FLAGGED(victim, MOB_ANGEL) && !IS_NPC(ch))
 		gain_exp(ch, MAX (1, (GET_LEVEL(victim) * dam + 4) / 5 * 
-					    MAX (1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED)));
+					    MAX (1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 	// gain_exp(ch, IS_NPC(ch) ? GET_LEVEL(victim) * dam : (GET_LEVEL(victim) * dam + 4) / 5);
 	// log("[DAMAGE] Updating pos...");
 	update_pos(victim);
