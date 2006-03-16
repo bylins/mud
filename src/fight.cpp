@@ -920,6 +920,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		exp += MAX(0, (exp * MIN(4, (GET_LEVEL(victim) - GET_LEVEL(ch)))) / 8);
 	} else {
 		exp = MIN(max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim));
+		exp /= MAX (1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED);
 	}
 
 	// 4. Последняя проверка
@@ -2720,7 +2721,7 @@ inline int do_punctual(CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *wielded)
 
 	if (wielded)
 		wapp = (int)(GET_OBJ_SKILL(wielded) == SKILL_BOWS) ?
-					GET_OBJ_WEIGHT(wielded) / 2 : GET_OBJ_WEIGHT(wielded);
+					GET_OBJ_WEIGHT(wielded) * 2 / 3 : GET_OBJ_WEIGHT(wielded);
 	else
 		wapp = 0;
 
