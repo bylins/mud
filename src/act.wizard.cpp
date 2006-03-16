@@ -3941,7 +3941,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			CLR_GOD_FLAG(vict, GF_DEMIGOD);
 		}
 		break;
-	case 42:
+	case 41:
 		if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
 			REMOVE_BIT(PLR_FLAGS(vict, PLR_LOADROOM), PLR_LOADROOM);
 		} else if (is_number(val_arg)) {
@@ -3962,16 +3962,16 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			return (0);
 		}
 		break;
-	case 43:
+	case 42:
 		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_COLOR_1), PRF_COLOR_1);
 		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_COLOR_2), PRF_COLOR_2);
 		break;
-	case 44:
+	case 43:
 		if (!IS_IMPL(ch) || !IS_NPC(vict))
 			return (0);
 		GET_IDNUM(vict) = value;
 		break;
-	case 45:
+	case 44:
 		if (!IS_IMPL(ch) && !GET_COMMSTATE(ch) && ch != vict) {
 			send_to_char("Давайте не будем экспериментировать.\r\n", ch);
 			return (0);
@@ -3984,10 +3984,10 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		*(GET_PASSWD(vict) + MAX_PWD_LENGTH) = '\0';
 		sprintf(output, "Пароль изменен на '%s'.", val_arg);
 		break;
-	case 46:
+	case 45:
 		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_NODELETE), PLR_NODELETE);
 		break;
-	case 47:
+	case 46:
 		if ((i = search_block(val_arg, genders, FALSE)) < 0) {
 			send_to_char
 			    ("Может быть 'мужчина', 'женщина', или 'бесполое'(а вот это я еще не оценил :).\r\n", ch);
@@ -3995,7 +3995,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		GET_SEX(vict) = i;
 		break;
-	case 48:		/* set age */
+	case 47:		/* set age */
 		if (value < 2 || value > 200) {	/* Arbitrary limits. */
 			send_to_char("Поддерживаются возрасты от 2 до 200.\r\n", ch);
 			return (0);
@@ -4008,17 +4008,17 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		vict->player.time.birth = time(0) - ((value - 17) * SECS_PER_MUD_YEAR);
 		break;
 
-	case 49:		/* Blame/Thank Rick Glover. :) */
+	case 48:		/* Blame/Thank Rick Glover. :) */
 		GET_HEIGHT(vict) = value;
 		affect_total(vict);
 		break;
 
-	case 50:
+	case 49:
 		GET_WEIGHT(vict) = value;
 		affect_total(vict);
 		break;
 
-	case 51:
+	case 50:
 		if (on) {
 			SET_GOD_FLAG(vict, GF_GODSLIKE);
 			if (sscanf(val_arg, "%s %d", npad[0], &i) != 0)
@@ -4028,7 +4028,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		} else if (off)
 			CLR_GOD_FLAG(vict, GF_GODSLIKE);
 		break;
-	case 52:
+	case 51:
 		if (on) {
 			SET_GOD_FLAG(vict, GF_GODSCURSE);
 			if (sscanf(val_arg, "%s %d", npad[0], &i) != 0)
@@ -4038,10 +4038,10 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		} else if (off)
 			CLR_GOD_FLAG(vict, GF_GODSCURSE);
 		break;
-	case 53:
+	case 52:
 		GET_OLC_ZONE(vict) = value;
 		break;
-	case 54:
+	case 53:
 		/* изменение имени !!! */
 
 		if ((i =
@@ -4146,7 +4146,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 
-	case 55:
+	case 54:
 
 		if (sscanf(val_arg, "%d %s", &ptnum, npad[0]) != 2) {
 			send_to_char("Формат : set <имя> trgquest <quest_num> <on|off>\r\n", ch);
@@ -4172,7 +4172,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 
-	case 56:
+	case 55:
 
 		if (sscanf(val_arg, "%d %s", &ptnum, npad[0]) != 2) {
 			send_to_char("Формат : set <имя> mkill <mob_vnum> <off|num>\r\n", ch);
@@ -4196,10 +4196,10 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 
-	case 57:
+	case 56:
 		return (0);
 		break;
-	case 58:
+	case 57:
 		skip_spaces(&val_arg);
 		if (!val_arg || !*val_arg || ((j = atoi(val_arg)) == 0 && str_cmp("zerro", val_arg))) {
 			sprintf(output, "%s заработал%s %d %s славы.", GET_NAME(vict),
@@ -4218,7 +4218,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			add_karma(vict,buf,"???");
 		}
 		break;
-	case 59:
+	case 58:
 		if (!GET_COMMSTATE(ch)) {
 			send_to_char("Coder only !\r\n", ch);
 			return (0);
@@ -4232,12 +4232,12 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 
-	case 60:
+	case 59:
 		reason = one_argument(val_arg, num);
 		if (num && *num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_HELL, reason, times)) return (0);
 		break;
-	case 61:
+	case 60:
 		if (valid_email(val_arg)) {
 			strncpy(GET_EMAIL(vict), val_arg, 127);
 			*(GET_EMAIL(vict) + 127) = '\0';
@@ -4246,7 +4246,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			return (0);
 		}
 		break;
-	case 62:
+	case 61:
 		/* Выставляется род для РС */
 		rod = (*val_arg);
 		if (rod != '0' && rod != '1') {
@@ -4257,7 +4257,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			GET_RELIGION(vict) = rod - '0';
 		}
 		break;
-	case 63:
+	case 62:
 		/* Отдельный лог команд персонажа */
 		if (on) {
 			SET_GOD_FLAG(vict, GF_PERSLOG);
@@ -4265,17 +4265,17 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			CLR_GOD_FLAG(vict, GF_PERSLOG);
 		}
 		break;
-	case 64:
+	case 63:
 		reason = one_argument(val_arg, num);
 		if (num && *num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_MUTE, reason, times)) return (0);
 		break;
-	case 65:
+	case 64:
 		reason = one_argument(val_arg, num);
 		if (num && *num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_DUMB, reason, times)) return (0);
 		break;
-	case 66:      
+	case 65:      
 		if (GET_LEVEL(vict) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL) {
 			send_to_char("Кем вы себя возомнили?\r\n", ch);
 			return (0);
@@ -4300,7 +4300,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			return (0);
 		}
 		break;
-	case 67:      // Разрегистрация персонажа
+	case 66:      // Разрегистрация персонажа
 		reason = one_argument(val_arg, num);
 		if (num && *num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_UNREGISTER, reason, times)) return (0);
