@@ -871,9 +871,12 @@ ACMD(do_pray_gods)
 // Обработка для "вспомнить взывания"
 		ct = time(0);
 		tmp = asctime(localtime(&ct));
-		sprintf(remember_pray[num_pray],
-			"&w[%5.5s] &R%s ответил%s %s : '%s'&n", (tmp + 11),
+//MZ.pray_fix
+		snprintf(remember_pray[num_pray], MAX_INPUT_LENGTH - SUFFIX_LENGTH,
+			"&w[%5.5s] &R%s ответил%s %s : '%s", (tmp + 11),
 			GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 2), argument);
+		sprintf(remember_pray[num_pray] + strlen(remember_pray[num_pray]), "%s", SUFFIX);
+//-MZ.pray_fix
 		num_pray++;
 		if (num_pray == MAX_REMEMBER_PRAY)
 			num_pray = 0;
@@ -882,9 +885,12 @@ ACMD(do_pray_gods)
 // Обработка для "вспомнить взывания"
 		ct = time(0);
 		tmp = asctime(localtime(&ct));
-		sprintf(remember_pray[num_pray],
-			"&w[%5.5s] &R%s воззвал%s к богам : '%s'&n", (tmp + 11),
+//MZ.pray_fix
+		snprintf(remember_pray[num_pray], MAX_INPUT_LENGTH - SUFFIX_LENGTH,
+			"&w[%5.5s] &R%s воззвал%s к богам : '%s", (tmp + 11),
 			GET_NAME(ch), GET_CH_SUF_1(ch), argument);
+		sprintf(remember_pray[num_pray] + strlen(remember_pray[num_pray]), "%s", SUFFIX);
+//-MZ.pray_fix
 		num_pray++;
 		if (num_pray == MAX_REMEMBER_PRAY)
 			num_pray = 0;
