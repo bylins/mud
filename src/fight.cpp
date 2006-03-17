@@ -879,6 +879,7 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 // Experience scaling introduced - the next line is not needed any more
 // exp = exp * MAX(1, 100 - GET_REMORT(ch) * 10) / 100;
 	exp = exp * MAX(5, koef) / 100;
+	exp /= MAX (1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1);
 
 	// if (!(base = victim->mob_specials.MaxFactor))
 	//    return (exp);
@@ -919,7 +920,6 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		exp = MIN(max_exp_gain_npc, exp);
 		exp += MAX(0, (exp * MIN(4, (GET_LEVEL(victim) - GET_LEVEL(ch)))) / 8);
 	} else {
-		exp /= MAX (1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1);
 		exp = MIN(max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim));
 	}
 
