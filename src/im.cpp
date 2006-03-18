@@ -450,9 +450,10 @@ void im_cleanup_recipe(im_recipe * r)
 void init_im(void)
 {
 	FILE *im_file;
-	char tmp[1024], tlist[1024];
+	char tmp[1024], tlist[1024], line1[256], line2[256], name[256];
 	im_memb *mbs, *mptr;
-	int i, j;
+	int i, j, rcpt;
+	int k[5];
 
 	im_file = fopen(LIB_MISC "im.lst", "r");
 	if (!im_file) {
@@ -724,7 +725,38 @@ void init_im(void)
 		imtypes[i].tlst.size = 0;
 		free(imtypes[i].tlst.types);
 	}
+	
+	im_file = fopen(LIB_MISC "classrecipe.lst", "r");
+	if (!im_file) {
+	    imlog(BRF, "Can not open classrecipe.lst");
+	    return;
+	}
+	while (get_line(im_file, name)) {
+	    if (!name[0] || tlist[0] == ';')
+		continue;
+	    if (sscanf(name, "%d %s %s", k, line1, line2) != 3) {
+		log("Bad format for magic string !\r\n"
+			"Format : <recipe number (%%d)> <races (%%s)> <classes (%%d)>");
+		continue;
+	    }
+	    rcpt = im_get_recipe(k[0]);
+	
+	    if (rcpt < 0) {
+		log("Invalid recipe (%d)", k[0]);
+		continue;
+	    }
+// line1 - ограничения для рас еще не реализованы
 
+	    for (j = 0; line2[j] && j < NUM_CLASSES; j++) {
+		if (!strchr("1xX!", line2[j]))
+		    continue;
+		imrecipes[rcpt].classknow[j] = KNOW_RECIPE;
+		log("Set recipe (%d '%s') classes %d is Know", k[0], imrecipes[rcpt].name, j);
+	    }
+	}
+	fclose(im_file);	    
+	
+	
 	im_translate_rskill_to_rid();
 
 #if 0

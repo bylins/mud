@@ -2768,7 +2768,7 @@ void init_spell_levels(void)
 {
 	FILE *magic;
 	char line1[256], line2[256], line3[256], line4[256], name[256];
-	int i[15], c, j, sp_num, l, rcpt;
+	int i[15], c, j, sp_num, l;
 	if (!(magic = fopen(LIB_MISC "magic.lst", "r"))) {
 		log("Cann't open magic list file...");
 		_exit(1);
@@ -3119,6 +3119,7 @@ void init_spell_levels(void)
 	}
 	fclose(magic);
 
+/* Remove to init_im::im.cpp - Gorrah
 // +newbook.patch (Alisher)
 	if (!(magic = fopen(LIB_MISC "classrecipe.lst", "r"))) {
 		log("Cann't open classrecipe list file...");
@@ -3151,7 +3152,7 @@ void init_spell_levels(void)
 	}
 	fclose(magic);
 // -newbook.patch (Alisher)
-
+*/
 	return;
 }
 
