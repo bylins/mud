@@ -2331,12 +2331,6 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 	/* Обрезаем макс дамаг */
 	dam = MIN(dam, MAX_HITS);
 
-	if (attacktype == SPELL_FIRE_SHIELD) {
-		if ((GET_HIT(victim) -= dam) < 1)
-			GET_HIT(victim) = 1;
-	} else
-		GET_HIT(victim) -= dam;
-
 	//*************** Gain exp for the hit
 	//Battle exp gain for mobs is DISABLED
 	if (ch != victim &&
@@ -2346,6 +2340,13 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 					    MAX (1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 	// gain_exp(ch, IS_NPC(ch) ? GET_LEVEL(victim) * dam : (GET_LEVEL(victim) * dam + 4) / 5);
 	// log("[DAMAGE] Updating pos...");
+	
+	if (attacktype == SPELL_FIRE_SHIELD) {
+		if ((GET_HIT(victim) -= dam) < 1)
+			GET_HIT(victim) = 1;
+	} else
+		GET_HIT(victim) -= dam;
+	
 	update_pos(victim);
 
 
@@ -2722,7 +2723,7 @@ inline int do_punctual(CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *wielded)
 
 	if (wielded)
 		wapp = (int)(GET_OBJ_SKILL(wielded) == SKILL_BOWS) ?
-					GET_OBJ_WEIGHT(wielded) * 2 / 3 : GET_OBJ_WEIGHT(wielded);
+					GET_OBJ_WEIGHT(wielded) * 4 / 5 : GET_OBJ_WEIGHT(wielded);
 	else
 		wapp = 0;
 
