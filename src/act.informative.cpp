@@ -322,10 +322,6 @@ char *diag_uses_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 
 void show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how)
 {
-// +newbook.patch (Alisher)
-	int rcpt = -1;
-
-// -newbook.patch (Alisher)
 	*buf = '\0';
 	if ((mode < 5) && PRF_FLAGGED(ch, PRF_ROOMFLAGS))
 		sprintf(buf, "[%5d] ", GET_OBJ_VNUM(object));
@@ -343,43 +339,6 @@ void show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_stat
 			} else
 				send_to_char("Чисто.\r\n", ch);
 			return;
-// +newbook.patch (Alisher)
-		} else if ((GET_OBJ_TYPE(object) == ITEM_BOOK) && (GET_OBJ_VAL(object, 0) == BOOK_COOK)) {
-			rcpt = im_get_recipe(GET_OBJ_VAL(object, 1));
-			if (rcpt < 0) {
-				send_to_char("РЕЦЕПТ НЕ ОПРЕДЕЛЕН - сообщите Богам !\r\n", ch);
-				return;
-			} else if (imrecipes[rcpt].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE || !im_get_char_rskill(ch, rcpt)) {
-				sprintf(buf,
-					"- \"Какие интересные буковки ! Особенно %s, похожая на %s\".\r\n"
-					"Полюбовавшись еще несколько минут на сию красоту, Вы с чувством выполненного\r\n"
-					"долга закрыли %s. До %s Вы еще не доросли.\r\n", number(0,
-												 1) ?
-					"вон та" : number(0, 1) ? "вот эта" : "пятая справа",
-					number(0, 1) ? "жука" : number(0, 1) ? "бабочку" : "русалку",
-					object->PNames[3],
-					object->obj_flags.Obj_sex ==
-					SEX_FEMALE ? "нее" : object->obj_flags.Obj_sex == SEX_POLY ? "них" : "него");
-				send_to_char(buf, ch);
-				act("$n с интересом осмотрел$g $o3, крякнул$g от досады и положил$g обратно.",
-				    FALSE, ch, object, 0, TO_ROOM);
-				return;
-			} else if (object->action_description) {
-//				sprintf(buf, "В состав отвара "%s" входят следующие ингридиенты :\r\n\r\n", imrecipes[rcpt].name);
-				strcat(buf, object->action_description);
-				page_string(ch->desc, buf, 1);
-				sprintf(buf, "Закончив чтение, Вы с удивлением отметили исчезновение %s.\r\n", object->PNames[1]);
-				send_to_char(buf, ch);
-			} else {
-				sprintf(buf, "Вы взяли в руки %s и начали изучать. Непослушные\r\n"
-					"буквы никак не хотели выстраиваться в понятные и доступные фразы.\r\n"
-					"Промучившись несколько минут, Вы бросили это унылое занятие,\r\n"
-					"с удивлением отметив исчезновение %s.\r\n", object->PNames[3], object->PNames[1]);
-				send_to_char(buf, ch);
-			}
-			extract_obj(object);
-			return;
-// -newbook.patch (Alisher)
 		} else if (GET_OBJ_TYPE(object) != ITEM_DRINKCON) {
 			strcpy(buf, "Вы не видите ничего необычного.");
 		} else		/* ITEM_TYPE == ITEM_DRINKCON||FOUNTAIN */

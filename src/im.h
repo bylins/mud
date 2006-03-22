@@ -81,6 +81,8 @@ struct _im_recipe_tag {
 	int x, y;		// XdY - повреждения
 // +newbook.patch (Alisher)
 	int classknow[NUM_CLASSES]; // владеет ли класс данным рецептом
+	int level; // на каком уровне можно выучить рецепт
+	int remort; // сколько ремортов необходимо для рецепта
 // -newbook.patch (Alisher)
 };
 typedef struct _im_recipe_tag im_recipe;
@@ -113,4 +115,6 @@ void trg_recipeturn(CHAR_DATA * ch, int rid, int recipediff);
 void trg_recipeadd(CHAR_DATA * ch, int rid, int recipediff);
 int im_get_recipe_by_name(char *name);
 im_rskill *im_get_char_rskill(CHAR_DATA * ch, int rid);
+void compose_recipe(CHAR_DATA * ch, char *argument, int subcmd);
+
 

@@ -834,15 +834,14 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 		 */
 		break;
 	case ITEM_BOOK:
-//		send_to_char("Тип книги (0-закл, 1-ум, 2-ум+, 3-рецепт, 4-состав, 5-фит): ", d->character);
+//		send_to_char("Тип книги (0-закл, 1-ум, 2-ум+, 3-рецепт, 4-фит): ", d->character);
 		sprintf(buf,
 			"%s0%s) %sКнига заклинаний\r\n"
 			"%s1%s) %sКнига умений\r\n"
 			"%s2%s) %sУлучшение умения\r\n"
 			"%s3%s) %sКнига рецептов\r\n"
-			"%s4%s) %sСостав рецепта\r\n"
-			"%s5%s) %sКнига способностей\r\n"
-			"%sВыберите тип книги : ", grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, nrm);
+			"%s4%s) %sКнига способностей\r\n"
+			"%sВыберите тип книги : ", grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, grn, nrm, yel, nrm);
 		send_to_char(buf, d->character);
 		break;
 	case ITEM_INGRADIENT:
@@ -908,7 +907,6 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 			oedit_disp_skills2_menu(d);
 			break;
 		case BOOK_RECPT:
-		case BOOK_COOK:
 //		  send_to_char("Введите номер рецепта : ", d->character);
 			oedit_disp_receipts_menu(d);
 			break;
@@ -963,7 +961,6 @@ void oedit_disp_val3_menu(DESCRIPTOR_DATA * d)
 //		send_to_char("Уровень изучения (+ к умению если тип = 2 ) : ", d->character);
 	switch (GET_OBJ_VAL(OLC_OBJ(d), 0)) {
 		case BOOK_SKILL:
-		case BOOK_RECPT:
 		  send_to_char("Введите уровень изучения : ", d->character);
 			break;
 		case BOOK_UPGRD:
@@ -1841,7 +1838,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		 */
 		number = atoi(arg);
 
-		if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_BOOK && (number < 0 || number > 5)) {
+		if (GET_OBJ_TYPE(OLC_OBJ(d)) == ITEM_BOOK && (number < 0 || number > 4)) {
 				send_to_char("Неправильный тип книги, повторите.\r\n", d->character);
 				oedit_disp_val1_menu(d);
 				return;
@@ -1867,7 +1864,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				GET_OBJ_VAL(OLC_OBJ(d), 1) = number;
 				oedit_disp_val3_menu(d);
 			}
-			break;
+			return;
 		case ITEM_CONTAINER:
 			/*
 			 * Needs some special handling since we are dealing with flag values
@@ -1881,7 +1878,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				oedit_disp_val2_menu(d);
 			} else
 				oedit_disp_val3_menu(d);
-			break;
+			return;
 		case ITEM_BOOK:
 			switch (GET_OBJ_VAL(OLC_OBJ(d), 0)) {
 			case BOOK_SPELL:
@@ -1910,7 +1907,6 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				}
 				break;
 			case BOOK_RECPT:
-			case BOOK_COOK:
 				if (number > top_imrecipes || number < 0  || !imrecipes[number].name) {
 					send_to_char("Неизвестный рецепт, повторите.\r\n", d->character);
 					oedit_disp_val2_menu(d);

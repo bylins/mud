@@ -2816,7 +2816,7 @@ ACMD(do_create)
 		return;
 
 	/* get: blank, spell name, target name */
-	one_argument(argument, arg);
+	argument = one_argument(argument, arg);
 
 	if (!arg || !*arg) {
 		if (subcmd == SCMD_RECIPE)
@@ -2833,12 +2833,15 @@ ACMD(do_create)
 		itemnum = SPELL_WAND;
 	else if (!strn_cmp(arg, "scroll", i) || !strn_cmp(arg, "свиток", i))
 		itemnum = SPELL_SCROLL;
-	else if (!strn_cmp(arg, "items", i) || !strn_cmp(arg, "смесь", i)) {
+	else if (!strn_cmp(arg, "recipe", i) || !strn_cmp(arg, "рецепт", i) ||
+					 !strn_cmp(arg, "отвар", i)) {
 		if (subcmd != SCMD_RECIPE) {
 			send_to_char("Магическую смесь необходимо СМЕШАТЬ.\r\n", ch);
 			return;
 		}
-		itemnum = SPELL_ITEMS;
+//		itemnum = SPELL_ITEMS;
+		compose_recipe(ch, argument, 0);
+		return;
 	} else if (!strn_cmp(arg, "runes", i) || !strn_cmp(arg, "руны", i)) {
 		if (subcmd != SCMD_RECIPE) {
 			send_to_char("Руны требуется сложить.\r\n", ch);
@@ -2897,7 +2900,7 @@ ACMD(do_create)
 }
 
 
-// newbook.patch
+// +newbook.patch (Alisher)
 
 ACMD(do_learn)
 {
@@ -2954,14 +2957,9 @@ ACMD(do_learn)
 
 	if (GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_SKILL && 
 	    GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && GET_OBJ_VAL(obj, 0) != BOOK_RECPT && 
-	    GET_OBJ_VAL(obj, 0) != BOOK_COOK && GET_OBJ_VAL(obj, 0) != BOOK_FEAT) {
+	    GET_OBJ_VAL(obj, 0) != BOOK_FEAT) {
 		act("НЕВЕРНЫЙ ТИП КНИГИ - сообщите Богам !", FALSE, ch, obj, 0, TO_CHAR);
 		return;
-	}
-
-	if (GET_OBJ_VAL(obj, 0) == BOOK_COOK) {
-		show_obj_to_char(obj, ch, 5, TRUE, 1);
-	  return;
 	}
 
 	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && slot_for_char(ch, 1) <= 0) {
@@ -2970,7 +2968,8 @@ ACMD(do_learn)
 	}
 
 	if (GET_OBJ_VAL(obj, 2) < 1 && GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && 
-	    GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_FEAT) {
+	    GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_FEAT &&
+	    GET_OBJ_VAL(obj, 0) != BOOK_RECPT) {
 		send_to_char("НЕКОРРЕКТНЫЙ УРОВЕНЬ - сообщите Богам !\r\n", ch);
 		return;
 	}
@@ -3011,6 +3010,10 @@ ACMD(do_learn)
 	  spellnum = rcpt;
 	  rs = im_get_char_rskill(ch, spellnum);
 		spellname = imrecipes[spellnum].name;
+		if (imrecipes[spellnum].level == -1 || imrecipes[spellnum].remort == -1) {
+			send_to_char("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
+			return;
+		}
 	} else if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= MAX_FEATS) {
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = feat_info[spellnum].name;
@@ -3044,7 +3047,8 @@ ACMD(do_learn)
 	}
 
 	if ((GET_OBJ_VAL(obj, 2) > GET_LEVEL(ch) && GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && 
-			  GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_FEAT) ||
+			  GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_FEAT &&
+			  GET_OBJ_VAL(obj, 0) != BOOK_RECPT) ||
 	    ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL || GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) && 
 	      skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] != KNOW_SKILL) ||
 	    (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && !GET_SKILL(ch, GET_OBJ_VAL(obj, 1))) ||
@@ -3053,7 +3057,9 @@ ACMD(do_learn)
     	   slot_for_char (ch, SpINFO.slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)]) <= 0)) ||
 		  (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && !can_get_feat(ch, spellnum)) ||
 	    (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && 
-	      imrecipes[rcpt].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)) {
+	    	(imrecipes[rcpt].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE ||
+	    	 imrecipes[rcpt].level > GET_LEVEL (ch) || imrecipes[rcpt].level == -1 ||
+	    	 imrecipes[rcpt].remort > GET_REMORT (ch) || imrecipes[rcpt].remort == -1))) {
 		sprintf(buf,
 			"- \"Какие интересные буковки ! Особенно %s, похожая на %s\".\r\n"
 			"Полюбовавшись еще несколько минут на сию красоту, Вы с чувством выполненного\r\n"

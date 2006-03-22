@@ -1189,23 +1189,24 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			break;
 		case BOOK_RECPT:
 			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
-			if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE) {
-				drsdice = GET_OBJ_VAL(obj, 2);
-			} else {
-				drsdice = LVL_IMPL;
-			}
 			if (drndice >= 0) {
+				drsdice = imrecipes[drndice].level;
+				count = imrecipes[drndice].remort;
+				if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)
+					drsdice = LVL_IMPL;
 				sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
 				send_to_char(buf, ch);
-				sprintf(buf, "уровень изучения (для Вас) : %d\r\n", drsdice);
-				send_to_char(buf, ch);
-			}
-			break;
-		case BOOK_COOK:
-			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
-			if (drndice >= 0) {
-				sprintf(buf, "содержит состав отвара     : \"%s\"\r\n", imrecipes[drndice].name);
-				send_to_char(buf, ch);
+				if (drsdice == -1 || count == -1) {
+					send_to_char(CCIRED(ch, C_NRM), ch);
+					send_to_char("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
+					send_to_char(CCNRM(ch, C_NRM), ch);
+				} else if (drsdice == LVL_IMPL) {
+					sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", drsdice);
+					send_to_char(buf, ch);
+				} else {
+					sprintf(buf, "уровень изучения (количество ремортов) : %d (%d)\r\n", drsdice, count);
+					send_to_char(buf, ch);
+				}
 			}
 			break;
 		case BOOK_FEAT:
@@ -1223,8 +1224,9 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			}
 			break;
 		default:
-				strcpy(buf, "НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n");
-				send_to_char(buf, ch);
+				send_to_char(CCIRED(ch, C_NRM), ch);
+				send_to_char("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
+				send_to_char(CCNRM(ch, C_NRM), ch);
 				break;
 	}
 	break;
@@ -1447,23 +1449,24 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			break;
 		case BOOK_RECPT:
 			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
-			if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE) {
-				drsdice = GET_OBJ_VAL(obj, 2);
-			} else {
-				drsdice = LVL_IMPL;
-			}
 			if (drndice >= 0) {
+				drsdice = imrecipes[drndice].level;
+				i = imrecipes[drndice].remort;
+				if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)
+					drsdice = LVL_IMPL;
 				sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
 				send_to_char(buf, ch);
-				sprintf(buf, "уровень изучения (для Вас) : %d\r\n", drsdice);
-				send_to_char(buf, ch);
-			}
-			break;
-		case BOOK_COOK:
-			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
-			if (drndice >= 0) {
-				sprintf(buf, "содержит состав отвара     : \"%s\"\r\n", imrecipes[drndice].name);
-				send_to_char(buf, ch);
+				if (drsdice == -1 || i == -1) {
+					send_to_char(CCIRED(ch, C_NRM), ch);
+					send_to_char("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
+					send_to_char(CCNRM(ch, C_NRM), ch);
+				} else if (drsdice == LVL_IMPL) {
+					sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", drsdice);
+					send_to_char(buf, ch);
+				} else {
+					sprintf(buf, "уровень изучения (количество ремортов) : %d (%d)\r\n", drsdice, i);
+					send_to_char(buf, ch);
+				}
 			}
 			break;
 		case BOOK_FEAT:
@@ -1481,8 +1484,9 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			}
 			break;
 		default:
-				strcpy(buf, "НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n");
-				send_to_char(buf, ch);
+				send_to_char(CCIRED(ch, C_NRM), ch);
+				send_to_char("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
+				send_to_char(CCNRM(ch, C_NRM), ch);
 				break;
 	}
 	break;

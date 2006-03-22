@@ -725,34 +725,65 @@ void init_im(void)
 		imtypes[i].tlst.size = 0;
 		free(imtypes[i].tlst.types);
 	}
+
+	// Прописываем для зарегестрированных рецептов всем классам KNOW_SKILL,
+	// но уровни и реморты равные -1, т.о. если файл classrecipe.lst поврежден,
+	// рецепты не будут обнулятся, просто станут недоступны для изучения
+		for (i = 0; i <= top_imrecipes; i++) {
+			for (j = 0; j < NUM_CLASSES; j++)
+				imrecipes[i].classknow[j] = KNOW_RECIPE;
+			imrecipes[i].level = -1;
+			imrecipes[i].remort = -1;
+		}
 	
 	im_file = fopen(LIB_MISC "classrecipe.lst", "r");
 	if (!im_file) {
-	    imlog(BRF, "Can not open classrecipe.lst");
-	    return;
+		imlog(BRF, "Can not open classrecipe.lst. All recipes unavailable now");
+    return;
 	}
 	while (get_line(im_file, name)) {
-	    if (!name[0] || tlist[0] == ';')
-		continue;
-	    if (sscanf(name, "%d %s %s", k, line1, line2) != 3) {
-		log("Bad format for magic string !\r\n"
-			"Format : <recipe number (%%d)> <races (%%s)> <classes (%%d)>");
-		continue;
-	    }
-	    rcpt = im_get_recipe(k[0]);
+	  if (!name[0] || tlist[0] == ';')
+			continue;
+	  if (sscanf(name, "%d %s %s %d %d", k, line1, line2, k + 1, k + 2) != 5) {
+			log("Bad format for recipe string, recipe unavailable now !\r\n"
+				"Format : <recipe number (%%d)> <races (%%s)> <classes (%%s)> <level (%%d)> <remort (%%d)>");
+			continue;
+	  }
+	  rcpt = im_get_recipe(k[0]);
 	
-	    if (rcpt < 0) {
-		log("Invalid recipe (%d)", k[0]);
-		continue;
-	    }
+	  if (rcpt < 0) {
+			log("Invalid recipe (%d)", k[0]);
+			continue;
+    }
+
+		if (k[1] < 0 || k[1] >= 31){
+			log ("Bad level type for recipe (%d '%s'), set level to -1 (unavailable)", k[0], imrecipes[rcpt].name);
+			imrecipes[rcpt].level = 0;
+			continue;
+		}
+
+		if (k[2] < 0 || k[2] >= MAX_REMORT){
+			log ("Bad remort type for recipe (%d '%s'), set remort to -1 (unavailable)", k[0], imrecipes[rcpt].name);
+			imrecipes[rcpt].remort = 0;
+			continue;
+		}
+
+		imrecipes[rcpt].level = k[1];
+		log("Set recipe (%d '%s') remort %d", k[0], imrecipes[rcpt].name, k[1]);
+
+		imrecipes[rcpt].remort = k[2];
+		log("Set recipe (%d '%s') remort %d", k[0], imrecipes[rcpt].name, k[2]);
+
 // line1 - ограничения для рас еще не реализованы
 
-	    for (j = 0; line2[j] && j < NUM_CLASSES; j++) {
-		if (!strchr("1xX!", line2[j]))
-		    continue;
-		imrecipes[rcpt].classknow[j] = KNOW_RECIPE;
-		log("Set recipe (%d '%s') classes %d is Know", k[0], imrecipes[rcpt].name, j);
-	    }
+    for (j = 0; line2[j] && j < NUM_CLASSES; j++) {
+			if (!strchr("1xX!", line2[j])) {
+				imrecipes[rcpt].classknow[j] = 0;
+		  } else {
+				imrecipes[rcpt].classknow[j] = KNOW_RECIPE;
+				log("Set recipe (%d '%s') classes %d is Know", k[0], imrecipes[rcpt].name, j);
+			}
+    }
 	}
 	fclose(im_file);	    
 	
@@ -925,19 +956,48 @@ void im_make_corpse(OBJ_DATA * corpse, int *ing_list)
 }
 
 
-void list_recipes(CHAR_DATA * ch)
+void list_recipes(CHAR_DATA * ch, bool all_recipes)
 {
-	int i = 0;
+	int i = 0, sortpos;
 // +newbook.patch (Alisher)
 	im_rskill *rs;
 // -newbook.patch (Alisher)
+
+	if (all_recipes) {
+		sprintf (buf, " Список доступных рецептов.\r\n"
+				" Зеленым цветом выделены уже изученные рецепты.\r\n"
+				" Красным цветом выделены рецепты, недоступные Вам в настоящий момент.\r\n"
+				"\r\n Рецепт                Уровень (реморт)\r\n"
+				"----------------------------------------\r\n");
+		strcpy(buf1, buf);
+		for (sortpos = 0, i = 0; sortpos <= top_imrecipes; sortpos++) {
+			if (!imrecipes[sortpos].classknow[(int) GET_CLASS(ch)])
+				continue;
+			if (strlen(buf1) >= MAX_STRING_LENGTH - 60) {
+				strcat(buf1, "**OVERFLOW**\r\n");
+				break;
+			}
+			rs = im_get_char_rskill(ch, sortpos);
+			sprintf (buf, " %s%-30s%s %2d (%2d)%s\r\n",
+				(imrecipes[sortpos].level < 0 || imrecipes[sortpos].level > GET_LEVEL(ch) ||
+				 imrecipes[sortpos].remort < 0 || imrecipes[sortpos].remort > GET_REMORT(ch)) ? 
+				 CCRED(ch, C_NRM) : rs ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM),	imrecipes[sortpos].name, CCCYN(ch, C_NRM),
+				imrecipes[sortpos].level, imrecipes[sortpos].remort, CCNRM(ch, C_NRM));
+			strcat(buf1, buf);
+			++i;
+		}
+		if (!i)
+			sprintf(buf1 + strlen(buf1), "Нет рецептов.\r\n");
+		page_string(ch->desc, buf1, 1);
+		return;
+	}
 
 	sprintf(buf, "Вы владеете следующими рецептами :\r\n");
 
 	strcpy(buf2, buf);
 
 // newbook.patch ТУТ БЫЛ БЕСКОНЕЧНЫЙ ЦИКЛ
-	for (rs = GET_RSKILL(ch); rs; rs = rs->link) {
+	for (rs = GET_RSKILL(ch), i = 0; rs; rs = rs->link) {
 // -newbook.patch (Alisher)
 		if (strlen(buf2) >= MAX_STRING_LENGTH - 60) {
 			strcat(buf2, "**OVERFLOW**\r\n");
@@ -960,7 +1020,11 @@ ACMD(do_recipes)
 {
 	if (IS_NPC(ch))
 		return;
-	list_recipes(ch);
+	skip_spaces(&argument);
+	if (is_abbrev(argument, "все") || is_abbrev(argument, "all"))
+		list_recipes(ch, TRUE);
+	else
+		list_recipes(ch, FALSE);
 }
 
 ACMD(do_rset)
@@ -1427,6 +1491,66 @@ ACMD(do_cook)
 
 	return;
 }
+
+void compose_recipe(CHAR_DATA * ch, char *argument, int subcmd)
+{
+	char name[MAX_STRING_LENGTH];
+	int *req;
+	int i, qend, rcpt = -1;
+	im_rskill *rs;
+
+	// Определяем, что за рецепт пытаемся варить
+	skip_spaces(&argument);
+	if (!*argument) {
+		send_to_char("Пропущено название рецепта.\r\n", ch);
+		return;
+	}
+	if (!IS_RECIPE_DELIM(*argument)) {
+		send_to_char("Рецепт надо заключить в символы : ' * или !\r\n", ch);
+		return;
+	}
+	for (qend = 1; argument[qend] && !IS_RECIPE_DELIM(argument[qend]); qend++)
+		argument[qend] = LOWER(argument[qend]);
+	if (!IS_RECIPE_DELIM(argument[qend])) {
+		send_to_char("Рецепт должен быть заключен в символы : ' * или !\r\n", ch);
+		return;
+	}
+	strcpy(name, (argument + 1));
+	argument += qend + 1;
+	name[qend - 1] = '\0';
+	rcpt = im_get_recipe_by_name(name);
+	if (rcpt < 0) {
+		send_to_char("Вам такой рецепт неизвестен.\r\n", ch);
+		return;
+	}
+
+	rs = im_get_char_rskill(ch, rcpt);
+	if (!rs) {
+		send_to_char("Вам такой рецепт неизвестен.\r\n", ch);
+		return;
+	}
+
+	// rs - используемый рецепт
+
+	send_to_char("Вам потребуется :\r\n", ch);
+
+	// Этап 1. Основные компоненты
+	i = 0;
+	req = imrecipes[rs->rid].require;
+	while (*req != -1) {
+		int ktype, osk;
+		ktype = *req++;
+		osk = *req++ & 0xFFFF;
+		++i;
+		sprintf(name, "%s%d%s) %s%s%s\r\n", CCIGRN(ch, C_NRM), i, 
+		CCNRM(ch, C_NRM), CCIYEL(ch, C_NRM), imtypes[ktype].name, CCNRM(ch, C_NRM));
+		send_to_char(name, ch);
+	}
+	sprintf(name, "для приготовления отвара '%s'\r\n", imrecipes[rs->rid].name);
+	send_to_char(name, ch);
+
+	// Этап 2. Дополнительные компоненты *** НЕ ОБРАБАТЫВАЮТСЯ ***
+}	
 
 int im_ing_dump(int *ping, char *s)
 {

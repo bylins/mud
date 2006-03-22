@@ -757,8 +757,7 @@ typedef struct trig_data
 #define BOOK_SKILL		1	/* Книга умения */
 #define BOOK_UPGRD		2	/* Увеличение умения */
 #define BOOK_RECPT		3	/* Книга рецепта */	
-#define BOOK_COOK			4	/* Книга с _составом_ рецепта */
-#define BOOK_FEAT			5	/* Книга способности (feats) */
+#define BOOK_FEAT			4	/* Книга способности (feats) */
 // -newbook.patch (Alisher)
 
 
