@@ -116,5 +116,6 @@ void trg_recipeadd(CHAR_DATA * ch, int rid, int recipediff);
 int im_get_recipe_by_name(char *name);
 im_rskill *im_get_char_rskill(CHAR_DATA * ch, int rid);
 void compose_recipe(CHAR_DATA * ch, char *argument, int subcmd);
+void forget_recipe(CHAR_DATA * ch, char *argument, int subcmd);
 
 

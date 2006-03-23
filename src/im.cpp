@@ -616,20 +616,40 @@ void init_im(void)
 					if (*tmp == '~')
 						break;
 					if (!strn_cmp(tmp, "OBJ", 3)) {
-						if (sscanf(tmp, "%s %d", dummy, &imrecipes[top_imrecipes].result) != 2)
+						if (sscanf(tmp, "%s %d", dummy, &imrecipes[top_imrecipes].result) != 2) {
+							log("[IM] Invalid OBJ recipe string (%2d) '%s' !\n"
+								"Format : OBJ <vnum (%%d)>",
+								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
+							sprintf(text, "[IM] Invalid OBJ recipe string (%2d) '%s' !", 
+								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
+							imlog(NRM, text);
 							break;
+						}
 					} else if (!strn_cmp(tmp, "IMP", 3)) {
 						if (sscanf
-						    (tmp, "%s %d", dummy, &imrecipes[top_imrecipes].k_improove) != 2)
+						    (tmp, "%s %d", dummy, &imrecipes[top_imrecipes].k_improove) != 2) {
+							log("[IM] Invalid IMP recipe string (%2d) '%s' !\n",
+								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
+							sprintf(text, "[IM] Invalid IMP recipe string (%2d) '%s' !", 
+								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
+							imlog(NRM, text);
 							break;
+						}
 					} else if (!strn_cmp(tmp, "CON", 3)) {
 						if (sscanf(tmp, "%s %f %f %f %f",
 							   dummy,
 							   &imrecipes[top_imrecipes].k[0],
 							   &imrecipes[top_imrecipes].k[1],
 							   &imrecipes[top_imrecipes].k[2],
-							   &imrecipes[top_imrecipes].kp) != 5)
+							   &imrecipes[top_imrecipes].kp) != 5) {
+							log("[IM] Invalid CON recipe string (%2d) '%s' !\n"
+								"Format : CON <k1 (%%d)> <k2 (%%f)> <k3 (%%d)> <kp (%%d)>",
+								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
+							sprintf(text, "[IM] Invalid CON recipe string (%2d) '%s' !", 
+								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
+							imlog(NRM, text);
 							break;
+						}
 					} else if (!strn_cmp(tmp, "MC1", 3)) {
 						p = tmp + 3;
 						skip_spaces(&p);
@@ -670,16 +690,30 @@ void init_im(void)
 						if (sscanf(tmp, "%s %dd%d",
 							   dummy,
 							   &imrecipes[top_imrecipes].x,
-							   &imrecipes[top_imrecipes].y) != 3)
+							   &imrecipes[top_imrecipes].y) != 3) {
+							log("[IM] Invalid DAM recipe string (%2d) '%s' !\n"
+								"Format : DAM <x (%%d)>d<y (%%d)>",
+								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
+							sprintf(text, "[IM] Invalid DAM recipe string (%2d) '%s' !", 
+								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
+							imlog(NRM, text);
 							break;
+						}
 					} else if (!strn_cmp(tmp, "REQ", 3)) {
 						im_parse(&imrecipes[top_imrecipes].require, tmp + 3);
 					} else if (!strn_cmp(tmp, "ADD", 3)) {
 						im_addon *adi;
 						int n, k0, k1, k2, id;
 						if (sscanf(tmp, "%s %d %s %d %d %d",
-							   dummy, &n, name, &k0, &k1, &k2) != 6)
+							   dummy, &n, name, &k0, &k1, &k2) != 6) {
+							log("[IM] Invalid ADD recipe string (%2d) '%s' !\n"
+								"Format : ADD <Nmax (%%d)> <type (%%s)> <n1 (%%d)> <n2 (%%d)> <n3 (%%d)>",
+								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
+							sprintf(text, "[IM] Invalid ADD recipe string (%2d) '%s' !", 
+								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
+							imlog(NRM, text);
 							break;
+						}
 						id = im_get_type_by_name(name, 1);
 						if (id < 0)
 							break;
@@ -742,7 +776,7 @@ void init_im(void)
     return;
 	}
 	while (get_line(im_file, name)) {
-	  if (!name[0] || tlist[0] == ';')
+	  if (!name[0] || name[0] == ';')
 			continue;
 	  if (sscanf(name, "%d %s %s %d %d", k, line1, line2, k + 1, k + 2) != 5) {
 			log("Bad format for recipe string, recipe unavailable now !\r\n"
@@ -1551,6 +1585,57 @@ void compose_recipe(CHAR_DATA * ch, char *argument, int subcmd)
 
 	// Этап 2. Дополнительные компоненты *** НЕ ОБРАБАТЫВАЮТСЯ ***
 }	
+
+// Поиск rid по имени
+void forget_recipe(CHAR_DATA * ch, char *argument, int subcmd)
+{
+	char name[MAX_STRING_LENGTH];
+	int i, qend, rcpt = -1;
+	im_rskill *rs;
+
+	argument = one_argument(argument, arg);
+
+	skip_spaces(&argument);
+	if (!*argument) {
+		send_to_char("Пропущено название рецепта.\r\n", ch);
+		return;
+	}
+
+	if (!IS_RECIPE_DELIM(*argument)) {
+		send_to_char("Рецепт надо заключить в символы : ' * или !\r\n", ch);
+		return;
+	}
+	for (qend = 1; argument[qend] && !IS_RECIPE_DELIM(argument[qend]); qend++)
+		argument[qend] = LOWER(argument[qend]);
+	if (!IS_RECIPE_DELIM(argument[qend])) {
+		send_to_char("Рецепт должен быть заключен в символы : ' * или !\r\n", ch);
+		return;
+	}
+	strcpy(name, (argument + 1));
+	argument += qend + 1;
+	name[qend - 1] = '\0';
+	i = strlen(name);
+
+	for (rcpt = top_imrecipes; rcpt >= 0; --rcpt)
+//		if (is_abbrev(name, imrecipes[rcpt].name))
+		if (!strn_cmp(name, imrecipes[rcpt].name, i))
+			break;
+
+	if (rcpt < 0) {
+		send_to_char("Неизвестный рецепт, введите название рецепта полностью.\r\n", ch);
+		return;
+	}
+
+	rs = im_get_char_rskill(ch, rcpt);
+	if (!rs || !rs->perc) {
+		send_to_char("Изучите сначала этот рецепт.\r\n", ch);
+		return;
+	}
+	rs->perc = 0;
+	sprintf(buf, "Вы забыли рецепт отвара '%s'.\r\n", imrecipes[rcpt].name);
+	send_to_char(buf, ch);
+}
+
 
 int im_ing_dump(int *ping, char *s)
 {

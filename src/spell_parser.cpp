@@ -3297,7 +3297,22 @@ ACMD(do_remember)
 ACMD(do_forget)
 {
 	char *s, *t;
-	int spellnum, in_mem;
+	int spellnum, in_mem, i;
+
+	// проверка на аргумент рецепт|отвар
+	one_argument(argument, arg);
+
+	if (!arg || !*arg) {
+			send_to_char("Что вы хотите забыть ?\r\n", ch);
+		return;
+	}
+
+	i = strlen(arg);
+	if (!strn_cmp(arg, "recipe", i) || !strn_cmp(arg, "рецепт", i) ||
+			 !strn_cmp(arg, "отвар", i)) {
+		forget_recipe(ch, argument, 0);
+		return;
+	}
 
 	/* get: blank, spell name, target name */
 	if (IS_IMMORTAL(ch)) {

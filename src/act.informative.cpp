@@ -1765,6 +1765,28 @@ void look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 			send_to_char(CCNRM(ch, C_NRM), ch);
 		}
 
+		if (can_use_feat(ch, BREW_POTION_FEAT) && GET_OBJ_TYPE(found_obj) == ITEM_MING) {
+			int imquality = GET_OBJ_VAL(found_obj, IM_POWER_SLOT);
+			if (GET_LEVEL(ch) >= imquality) {
+				sprintf(buf, "Качество ингредиента ");
+				if (imquality > 25)
+					strcat(buf, "наилучшее.\r\n");
+				else if (imquality > 20)
+					strcat(buf, "отличное.\r\n");
+				else if (imquality > 15)
+					strcat(buf, "очень хорошее.\r\n");
+				else if (imquality > 10)
+					strcat(buf, "выше среднего.\r\n");
+				else if (imquality > 5)
+					strcat(buf, "весьма посредственное.\r\n");
+				else
+					strcat(buf, "хуже не бывает.\r\n");
+				send_to_char(buf, ch);
+			} else {
+				send_to_char("Вы не в состоянии определить качество этого ингредиента.\r\n", ch);
+			}
+		}
+
 		if ((CAN_WEAR(found_obj, ITEM_WEAR_BODY) ||
 		     CAN_WEAR(found_obj, ITEM_WEAR_HEAD) ||
 		     CAN_WEAR(found_obj, ITEM_WEAR_LEGS) ||
