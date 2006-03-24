@@ -848,7 +848,9 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 		case 3:
 		case 4:
 		case 11:
-			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, MIN(SEVEN_DAYS, SEVEN_DAYS * prob / percent));
+//Polos.smith_craft_timer_up (max 3 weeks)
+			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, MIN(SEVEN_DAYS * 3, SEVEN_DAYS * prob / percent));
+//-Polos.smith_craft_timer_up	
 			GET_OBJ_MATER(tobj) = GET_OBJ_MATER(obj);
 			GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
 			GET_OBJ_CUR(tobj) = GET_OBJ_MAX(tobj);
@@ -903,7 +905,9 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 		case 8:
 		case 9:
 		case 10:
-			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, MIN(SEVEN_DAYS, SEVEN_DAYS * prob / percent));
+//Polos.smith_craft_timer_up (max 3 weeks)
+			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, MIN(SEVEN_DAYS * 3, SEVEN_DAYS * prob / percent));
+//-Polos.smith_craft_timer_up
 			GET_OBJ_MATER(tobj) = GET_OBJ_MATER(obj);
 			GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
 			GET_OBJ_CUR(tobj) = GET_OBJ_MAX(tobj);

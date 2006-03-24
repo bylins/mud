@@ -2725,6 +2725,11 @@ ACMD(do_repair)
 	prob = number(1, skill_info[SKILL_REPAIR].max_percent);
 	percent = train_skill(ch, SKILL_REPAIR, skill_info[SKILL_REPAIR].max_percent, 0);
 	if (prob > percent) {
+//Polos.repair_bug	
+//Потому что 0 уничтожает шмотку полностью даже при скиле 100+ и
+//состоянии шмотки <очень хорошо>
+		if (!percent) percent = GET_SKILL(ch, SKILL_REPAIR)/10;
+//-Polos.repair_bug
 		GET_OBJ_CUR(obj) = MAX(0, GET_OBJ_CUR(obj) * percent / prob);
 		if (obj->obj_flags.Obj_cur) {
 			act("Вы попытались починить $o3, но сломали $S еще больше.", FALSE, ch, obj, 0, TO_CHAR);
