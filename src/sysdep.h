@@ -30,8 +30,8 @@
  * See running.doc for details.
  */
 
-#define NOCRYPT 
-#define LOG_AUTOFLUSH
+//#define NOCRYPT 
+//#define LOG_AUTOFLUSH
 
 /**************************************************************************/
 
