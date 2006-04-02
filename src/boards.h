@@ -34,7 +34,7 @@
 #define PERS_BOARD       9  // персональная (только для иммов)
 #define CLAN_BOARD       10 // клановая
 #define CLANNEWS_BOARD   11 // клановые новости
-// преметы, на которые вешаем спешиалы для старого способа работы с досками
+// предметы, на которые вешаем спешиалы для старого способа работы с досками
 #define GODGENERAL_BOARD_OBJ 250
 #define GENERAL_BOARD_OBJ    251
 #define GODCODE_BOARD_OBJ    253
