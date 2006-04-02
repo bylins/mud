@@ -609,8 +609,10 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 			count +=
 			    sprintf(*data + count, "Desc: %s~\n", GET_OBJ_DESC(object) ? GET_OBJ_DESC(object) : "");
 		// Описание при действии
-		if (str_cmp(GET_OBJ_ACT(object), GET_OBJ_ACT(proto)))
-			count += sprintf(*data + count, "ADsc: %s~\n", GET_OBJ_ACT(object) ? GET_OBJ_ACT(object) : "");
+		if (GET_OBJ_ACT(object) != NULL && GET_OBJ_ACT(proto) != NULL) {
+			if (str_cmp(GET_OBJ_ACT(object), GET_OBJ_ACT(proto)))
+				count += sprintf(*data + count, "ADsc: %s~\n", GET_OBJ_ACT(object) ? GET_OBJ_ACT(object) : "");
+		}
 		// Тренируемый скилл
 		if (GET_OBJ_SKILL(object) != GET_OBJ_SKILL(proto))
 			count += sprintf(*data + count, "Skil: %d~\n", GET_OBJ_SKILL(object));
