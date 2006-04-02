@@ -14,7 +14,6 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "utils.h"
 #include "spells.h"
@@ -29,9 +28,7 @@
 #include "house.h"
 #include "constants.h"
 #include "exchange.h"
-//MZ.tops
 #include "top.h"
-//-MZ.tops
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
@@ -679,7 +676,7 @@ void set_title(CHAR_DATA * ch, char *title)
 }
 
 
-void gain_exp(CHAR_DATA * ch, int gain)
+void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 {
 	int is_altered = FALSE;
 	int num_levels = 0;
@@ -722,6 +719,8 @@ void gain_exp(CHAR_DATA * ch, int gain)
 	} else if (gain < 0 && GET_LEVEL(ch) < LVL_IMMORT) {
 		gain = MAX(-max_exp_loss_pc(ch), gain);	/* Cap max exp lost per death */
 		GET_EXP(ch) += gain;
+		if (CLAN(ch))
+			CLAN(ch)->SetClanExp(ch, gain); // клану
 		if (GET_EXP(ch) < 0)
 			GET_EXP(ch) = 0;
 		while (GET_LEVEL(ch) > 1 && GET_EXP(ch) < level_exp(ch, GET_LEVEL(ch))) {
@@ -750,6 +749,8 @@ void gain_exp(CHAR_DATA * ch, int gain)
 //MZ.tops
 	upd_p_max_remort_top(ch);
 //-MZ.tops
+	if (CLAN(ch))
+		CLAN(ch)->AddTopExp(ch, gain + clan_exp); // для рейтинга кланов
 }
 
 // юзается исключительно в act.wizards.cpp в имм командах "advance" и "set exp".
@@ -1267,8 +1268,32 @@ void point_update(void)
 
 
 	/* objects */
+	int chest = real_object(CLAN_CHEST);
+
 	for (j = object_list; j; j = next_thing) {
 		next_thing = j->next;	/* Next in object list */
+		// смотрим клан-сундуки
+		if (chest >= 0 && j->in_obj && j->in_obj->item_number == chest) {
+			if (GET_OBJ_TIMER(j) > 0)
+				GET_OBJ_TIMER(j)--;
+
+			if (j && ((OBJ_FLAGGED(j, ITEM_ZONEDECAY) && GET_OBJ_ZONE(j) != NOWHERE
+			&& up_obj_where(j->in_obj) != NOWHERE
+			&& GET_OBJ_ZONE(j) != world[up_obj_where(j->in_obj)]->zone)
+			|| GET_OBJ_TIMER(j) <= 0)) {
+				int room = GET_ROOM_VNUM(j->in_obj->in_room);
+				DESCRIPTOR_DATA *d;
+
+				for (d = descriptor_list; d; d = d->next)
+					if (d->character && STATE(d) == CON_PLAYING && !AFF_FLAGGED(d->character, AFF_DEAFNESS)
+					&& CLAN(d->character) && world[real_room(CLAN(d->character)->GetRent())]->zone == world[real_room(room)]->zone && PRF_FLAGGED(d->character, PRF_DECAY_MODE))
+						send_to_char(d->character, "[Хранилище]: %s'%s рассыпал%s в прах'%s\r\n",
+							CCIRED(d->character, C_NRM), j->short_description, GET_OBJ_SUF_2(j), CCNRM(d->character, C_NRM));
+				obj_from_obj(j);
+				extract_obj(j);
+			}
+			continue;
+		}
 		/* If this is a corpse */
 		if (IS_CORPSE(j)) {	/* timer count down */
 			if (GET_OBJ_TIMER(j) > 0)
@@ -1319,9 +1344,7 @@ void point_update(void)
 					timer_otrigger(j);
 					j = NULL;
 				}
-			} else /* Destroy objects on ground */ if (GET_OBJ_DESTROY(j) > 0
-								   && !NO_DESTROY(j) &&
-								   (find_house(GET_ROOM_VNUM(j->in_room)) == NOHOUSE))
+			} else if (GET_OBJ_DESTROY(j) > 0 && !NO_DESTROY(j))
 				GET_OBJ_DESTROY(j)--;
 
 			if ((j->in_room != NOWHERE) && GET_OBJ_TIMER(j) > 0 && !NO_DESTROY(j))

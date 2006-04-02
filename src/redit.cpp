@@ -14,11 +14,9 @@
 #include "comm.h"
 #include "utils.h"
 #include "db.h"
-#include "boards.h"
 #include "olc.h"
 #include "dg_olc.h"
 #include "constants.h"
-
 #include "im.h"
 
 /* List each room saved, was used for debugging. */
@@ -967,7 +965,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 				d->backstr = str_dup(OLC_DESC(d)->description);
 			}
 			d->str = &OLC_DESC(d)->description;
-			d->max_str = MAX_MESSAGE_LENGTH;
+			d->max_str = 4096;
 			d->mail_to = 0;
 			return;
 

@@ -14,7 +14,6 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -27,6 +26,7 @@
 #include "dg_scripts.h"
 #include "constants.h"
 #include "features.hpp"
+#include "house.h"
 
 /*   external vars  */
 
@@ -1400,8 +1400,9 @@ int npc_scavenge(CHAR_DATA * ch)
 		best_obj = NULL;
 		cont = NULL;
 		best_cont = NULL;
+		int chest = real_object(CLAN_CHEST); // шоб не брали из клан-хранилищ
 		for (obj = world[ch->in_room]->contents; obj; obj = obj->next_content) {
-			if (GET_OBJ_TYPE(obj) == ITEM_MING)
+			if (GET_OBJ_TYPE(obj) == ITEM_MING  || obj->item_number == chest)
 					continue;
 			if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER) {
 				if (IS_CORPSE(obj) || OBJVAL_FLAGGED(obj, CONT_LOCKED))
@@ -2590,6 +2591,7 @@ SPECIAL(bank)
 			free_char(vict);
 			return (1);
 		}
-	} else
-		return (0);
+	} else if (CMD_IS("казна"))
+		return (Clan::BankManage(ch, argument));
+	return 0;
 }

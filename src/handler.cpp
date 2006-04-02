@@ -12,10 +12,10 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
 #include <math.h>
 
+#include "conf.h"
+#include "sysdep.h"
 #include "structs.h"
 #include "constants.h"
 #include "utils.h"
@@ -29,6 +29,8 @@
 #include "dg_scripts.h"
 #include "auction.h"
 #include "features.hpp"
+#include "house.h"
+
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
 int max_stats2[][6] =
@@ -79,6 +81,7 @@ int slot_for_char(CHAR_DATA * ch, int i);
 int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
 int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj);
+int invalid_clan(CHAR_DATA * ch, OBJ_DATA * obj);
 void remove_follower(CHAR_DATA * ch);
 void clearMemory(CHAR_DATA * ch);
 void die_follower(CHAR_DATA * ch);
@@ -1184,6 +1187,17 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 		if (invalid_anti_class(ch, object) || invalid_unique(ch, object))
 			may_carry = FALSE;
 
+		if (strstr(object->name,"clan")) {
+			if (!CLAN(ch))
+				may_carry = FALSE;
+			else {
+				char buf[128];
+				sprintf (buf,"clan%d!",CLAN(ch)->GetRent());
+				if (!strstr(object->name,buf))
+					may_carry = FALSE;
+			}
+		}
+		
 		if (!may_carry) {
 			act("Вас обожгло при попытке взять $o3.", FALSE, ch, object, 0, TO_CHAR);
 			act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, object, 0, TO_ROOM);
@@ -1849,7 +1863,8 @@ void extract_obj(OBJ_DATA * obj)
 	OBJ_DATA *temp;
 
 	strcpy(name, obj->PNames[0]);
-	log("Start extract obj %s", name);
+	log("Extracting obj %s", name);
+// TODO: в дебаг log("Start extract obj %s", name);
 
 	/* Get rid of the contents of the object, as well. */
 	/* Обработка содержимого контейнера при его уничтожении */
@@ -1903,7 +1918,7 @@ void extract_obj(OBJ_DATA * obj)
 	free_script(SCRIPT(obj));	// без комментариев
 
 	free_obj(obj);
-	log("Stop extract obj %s", name);
+// TODO: в дебаг log("Stop extract obj %s", name);
 }
 
 

@@ -1,12 +1,15 @@
- /************************************************************************
- * OasisOLC - olc.h						v1.5	*
- *									*
- * Copyright 1996 Harvey Gilpin.					*
-*                                                                         *
-*  $Author$                                                        *
-*  $Date$                                           *
-*  $Revision$                                                       *
- ************************************************************************/
+/************************************************************************
+* OasisOLC - olc.h                                                 v1.5 *
+*                                                                       *
+* Copyright 1996 Harvey Gilpin.                                         *
+*                                                                       *
+*  $Author$                                                       *
+*  $Date$                                         *
+*  $Revision$                                                    *
+************************************************************************/
+
+#ifndef _OLC_H_
+#define _OLC_H_
 
 /*
  * If you don't want a short explanation of each field in your zone files,
@@ -412,3 +415,4 @@ extern struct olc_save_info *olc_save_list;
 void xedit_disp_ing(DESCRIPTOR_DATA * d, int *ping);
 int xparse_ing(DESCRIPTOR_DATA * d, int **pping, char *arg);
 
+#endif

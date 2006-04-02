@@ -12,10 +12,10 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include <boost/algorithm/string.hpp>
+
 #include "conf.h"
 #include "sysdep.h"
-
-
 #include "structs.h"
 #include "utils.h"
 #include "interpreter.h"
@@ -28,6 +28,7 @@
 #include "screen.h"
 #include "olc.h"
 #include "features.hpp"
+#include "house.h"
 
 void show_string(DESCRIPTOR_DATA * d, char *input);
 
@@ -721,6 +722,58 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				redit_disp_extradesc_menu(d);
 				break;
 			}
+		// добавление сообщения на доску
+		} else if (STATE(d) == CON_WRITEBOARD) {
+			if (terminator == 1 && *d->str) {
+				d->message->date = time(0);
+				d->message->text = *(d->str);
+				// для новостных отступов ну и вообще мож все так сейвить, посмотрим
+				if (d->board->GetType() == NEWS_BOARD || d->board->GetType() == GODNEWS_BOARD) {
+					StringReplace(d->message->text, '\n', "\n   ");
+					// вообще надо это в той функции все учесть, но пока влом
+					boost::trim(d->message->text);
+					d->message->text.insert(0, "   ");
+					d->message->text += '\n';
+				}
+				// чтобы реагировать на добавление/удаление клановых/персональных досок во время написания
+				if(d->board) {
+					// в случае полной доски делетим первую месагу
+					if (d->board->GetType() != NEWS_BOARD && d->board->GetType() != GODNEWS_BOARD && d->board->messages.size() >= MAX_BOARD_MESSAGES)
+						d->board->messages.erase(d->board->messages.begin());
+					DESCRIPTOR_DATA *f;
+					std::string buffer = "Новое сообщение в разделе '" + d->board->GetName() + "' от " + GET_PAD(d->character, 1) + ", тема: " + d->message->subject + "\r\n";
+					// оповещаем соклановцев
+					if (d->board->GetType() == CLAN_BOARD || d->board->GetType() == CLANNEWS_BOARD) {
+						for (f = descriptor_list; f; f = f->next)
+							if (f->character && STATE(f) == CON_PLAYING && CLAN(f->character) && CLAN(f->character)->GetRent() == d->board->GetClanRent() && PRF_FLAGGED(f->character, PRF_BOARD_MODE))
+								send_to_char(buffer.c_str(), f->character);
+					// оповещаем весь мад кто с правами чтения
+					} else if (d->board->GetType() != PERS_BOARD) {
+						for (f = descriptor_list; f; f = f->next)
+							if (f->character && STATE(f) == CON_PLAYING && (d->board->Access(f->character) != 2) && (d->board->Access(f->character) != 0) && PRF_FLAGGED(f->character, PRF_BOARD_MODE))
+								send_to_char(buffer.c_str(), f->character);
+					}
+					d->message->num = 0;
+					d->board->messages.push_back(d->message);
+					int count = 0;
+					for (MessageListType::reverse_iterator it = d->board->messages.rbegin(); it != d->board->messages.rend(); ++it)
+						(*it)->num = count++;
+					d->board->SetLastRead(GET_UNIQUE(d->character));
+					d->board->Save();
+					SEND_TO_Q("Спасибо за Ваши излияния души, послание сохранено.\r\n", d);
+				}
+				else
+					SEND_TO_Q("Ошибочка вышла...\r\n", d);
+			} else
+				SEND_TO_Q("Сообщение прервано.\r\n", d);
+
+			d->message.reset();
+			d->board.reset();
+			if (*(d->str))
+				free(*d->str);
+			if (d->str)
+				free(d->str);
+			d->connected = CON_PLAYING;
 		} else if (!d->connected && (PLR_FLAGGED(d->character, PLR_MAILING))) {
 			if ((terminator == 1) && *d->str) {	//log("[SA] 4s");
 				store_mail(d->mail_to, GET_IDNUM(d->character), *d->str);
@@ -735,11 +788,6 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			if (d->str)
 				free(d->str);
 			//log("[SA] 5f");
-		} else if (d->mail_to >= BOARD_MAGIC) {	//log("[SA] 6s");
-			Board_save_board(d->mail_to - BOARD_MAGIC);
-			SEND_TO_Q("Послание добавлено. Используйте ОЧИСТИТЬ <номер послания>.\r\n", d);
-			d->mail_to = 0;
-			//log("[SA] 6f");
 		} else if (STATE(d) == CON_EXDESC) {	//log("[SA] 7s");
 			if (terminator != 1)
 				SEND_TO_Q("Создание описания прервано.\r\n", d);
@@ -997,9 +1045,6 @@ ACMD(do_skillset)
 *
 *********************************************************************/
 
-//#define PAGE_LENGTH     22
-#define PAGE_WIDTH      80
-
 /* Traverse down the string until the begining of the next page has been
  * reached.  Return NULL if this is the last page of the string.
  */
@@ -1013,7 +1058,7 @@ char *next_page(char *str, CHAR_DATA * ch)
 			return (NULL);
 
 		/* If we're at the start of the next page, return this fact. */
-		else if (PAGE_HEIGHT(ch) && line > PAGE_HEIGHT(ch))
+		else if (STRING_WIDTH(ch) && line > STRING_WIDTH(ch))
 			return (str);
 
 		/* Check for the begining of an ANSI color code block. */
@@ -1093,7 +1138,7 @@ char *next_page(char *str, CHAR_DATA * ch)
 			/* We need to check here and see if we are over the page width,
 			 * and if so, compensate by going to the begining of the next line.
 			 */
-			else if (col++ > PAGE_WIDTH) {
+			else if (STRING_LENGTH(ch) && col++ > STRING_LENGTH(ch)) {
 				col = 1;
 				line++;
 			}
@@ -1152,6 +1197,14 @@ void page_string(DESCRIPTOR_DATA * d, char *str, int keep_internal)
 	show_string(d, "");
 }
 
+// TODO типа временно для стрингов
+void page_string(DESCRIPTOR_DATA * d, std::string buf, int keep_internal)
+{
+	char *str = str_dup(buf.c_str());
+	page_string(d, str, keep_internal);
+	free(str);
+}
+
 
 /* The call that displays the next page. */
 void show_string(DESCRIPTOR_DATA * d, char *input)
@@ -1190,8 +1243,7 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 		d->showstr_page = MAX(0, MIN(atoi(buf) - 1, d->showstr_count - 1));
 
 	else if (*buf) {
-		send_to_char
-		    ("Листать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы.\r\n", d->character);
+		send_to_char("Листать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы.\r\n", d->character);
 		return;
 	}
 	/* If we're displaying the last page, just send it to the character, and

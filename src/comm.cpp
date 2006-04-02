@@ -31,6 +31,7 @@
 
 #include "conf.h"
 #include "sysdep.h"
+#include "structs.h"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -485,6 +486,10 @@ void init_game(ush_int port)
 		Crash_save_all_rent();	//save all
 	}
 	//Crash_save_all();
+
+	Clan::ChestUpdate();
+	Clan::ChestSave();
+	Clan::ClanSave();
 
 	log("Closing all sockets.");
 	while (descriptor_list)
@@ -1269,10 +1274,18 @@ inline void heartbeat()
 		}
 	}
 
-	if (auto_save && !((pulse + 13) % (60 * PASSES_PER_SEC))) {	//log("House save all...");
-		House_save_all();
-		//log("Stop it...");
+	// снятие денег за шмот в клановых сундуках. сейв кланов, сундуков
+	if (!((pulse + 14) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC))) {
+		Clan::ChestUpdate();
+		Clan::ChestSave();
+		Clan::ClanSave();
 	}
+	// оповещение о скорой кончине денег в дружине
+	if (!((pulse + 15) % (60 * CHEST_INVOICE_PERIOD * PASSES_PER_SEC)))
+		Clan::ChestInvoice();
+	// обновление статов экспы в топе кланов для тех, кто вырубил показ на лету
+	if (!((pulse + 16) % (60 * CLAN_TOP_REFRESH_PERIOD * PASSES_PER_SEC)))
+		Clan::SyncTopExp();
 
 	if (!((pulse + 17) % (5 * 60 * PASSES_PER_SEC))) {	/* 5 minutes *///log("Record usage...");
 		record_usage();
@@ -1550,9 +1563,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 
 	/* Note, prompt is truncated at MAX_PROMPT_LENGTH chars (structs.h ) */
 	if (d->showstr_count)
-		sprintf(prompt,
-			"\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы (%d/%d).",
-			d->showstr_page, d->showstr_count);
+		sprintf(prompt, "\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы (%d/%d).", d->showstr_page, d->showstr_count);
 	else if (d->str)
 		strcpy(prompt, "] ");
 	else if (STATE(d) == CON_PLAYING && !IS_NPC(d->character)) {
@@ -2716,13 +2727,16 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	if (d->character) {	/*
 				 * Plug memory leak, from Eric Green.
 				 */
-		if (!IS_NPC(d->character) && PLR_FLAGGED(d->character, PLR_MAILING)
-		    && d->str) {
+		if (!IS_NPC(d->character) && (PLR_FLAGGED(d->character, PLR_MAILING) || STATE(d) == CON_WRITEBOARD) && d->str) {
 			if (*(d->str))
 				free(*(d->str));
 			if (d->str != NULL)
 				free(d->str);
 		}
+
+		if (STATE(d) == CON_WRITEBOARD || STATE(d) == CON_CLANEDIT)
+			STATE(d) = CON_PLAYING;
+
 		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT) {
 			act("$n потерял$g связь.", TRUE, d->character, 0, 0, TO_ROOM);
 			if (!IS_NPC(d->character)) {
@@ -2764,9 +2778,15 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		free(d->deflate);
 	}
 #endif
+
+	// TODO: деструктур не вызывается, пока у нас дескриптор не стал классом
+	d->board.reset();
+	d->message.reset();
+	d->clan_olc.reset();
+	d->clan_invite.reset();
+
 	free(d);
 }
-
 
 
 void check_idle_passwords(void)

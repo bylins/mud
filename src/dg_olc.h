@@ -12,6 +12,9 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
+#ifndef _DG_OLC_H_
+#define _DG_OLC_H_
+
 #include "dg_scripts.h"
 
 /* prototype exported functions from dg_olc.cpp */
@@ -57,3 +60,5 @@ void proto_script_free(struct trig_proto_list *src);
 #define OLC_SCRIPT_EDIT_MODE(d)	((d)->olc->script_mode)	/* parse input mode */
 #define OLC_SCRIPT(d)           ((d)->olc->script)	/* script editing   */
 #define OLC_ITEM_TYPE(d)	((d)->olc->item_type)	/* mob/obj/room     */
+
+#endif

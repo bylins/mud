@@ -8,8 +8,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#ifndef __EXCHANGE_HPP__
-#define __EXCHANGE_HPP__
+#ifndef _EXCHANGE_HPP_
+#define _EXCHANGE_HPP_
 
 SPECIAL(exchange);
 

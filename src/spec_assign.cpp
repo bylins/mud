@@ -14,12 +14,13 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "db.h"
 #include "constants.h"
 #include "interpreter.h"
 #include "utils.h"
+#include "house.h"
+#include "boards.h"
 
 extern int dts_are_dumps;
 extern int mini_mud;
@@ -27,7 +28,6 @@ extern int mini_mud;
 extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;
 
-//F@N|
 SPECIAL(exchange);
 SPECIAL(dump);
 SPECIAL(pet_shops);
@@ -47,7 +47,7 @@ SPECIAL(snake);
 SPECIAL(thief);
 SPECIAL(magic_user);
 SPECIAL(bank);
-SPECIAL(gen_board);
+
 void assign_kings_castle(void);
 char *str_str(char *cs, char *ct);
 
@@ -141,18 +141,12 @@ void assign_mobiles(void)
 /* assign special procedures to objects */
 void assign_objects(void)
 {
-	ASSIGNOBJ(250, gen_board);
-	ASSIGNOBJ(251, gen_board);
-	ASSIGNOBJ(252, gen_board);
-	ASSIGNOBJ(253, gen_board);
-	ASSIGNOBJ(254, gen_board);
-	ASSIGNOBJ(255, gen_board);
-	ASSIGNOBJ(256, gen_board);
-	ASSIGNOBJ(257, gen_board);
-	ASSIGNOBJ(258, gen_board);
-	ASSIGNOBJ(259, gen_board);
-	ASSIGNOBJ(267, gen_board);
-	ASSIGNOBJ(268, gen_board);
+	ASSIGNOBJ(GODGENERAL_BOARD_OBJ, Board::Special);
+	ASSIGNOBJ(GENERAL_BOARD_OBJ, Board::Special);
+	ASSIGNOBJ(GODCODE_BOARD_OBJ, Board::Special);
+	ASSIGNOBJ(GODPUNISH_BOARD_OBJ, Board::Special);
+	ASSIGNOBJ(GODBUILD_BOARD_OBJ, Board::Special);
+	ASSIGNOBJ(330, Clan::ClanChest);
 }
 
 
@@ -215,8 +209,6 @@ void init_spec_procs(void)
 				log("Unknown object %d in specials assignment...", i);
 				continue;
 			}
-			if (!str_cmp(line2, "board"))
-				ASSIGNOBJ(i, gen_board);
 		} else if (!str_cmp(line1, "room")) {
 		} else {
 			log("Error in specials file !\r\n" "May be : mob, obj or room...");

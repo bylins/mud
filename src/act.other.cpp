@@ -14,9 +14,10 @@
 
 #define __ACT_OTHER_C__
 
+#include <sstream>
+
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -33,8 +34,8 @@
 #include "fight.h"
 #include "magic.h"
 #include "features.hpp"
-/* extern variables */
 
+/* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;
 extern INDEX_DATA *mob_index;
 extern char *class_abbrevs[];
@@ -89,7 +90,6 @@ ACMD(do_toggle);
 ACMD(do_color);
 ACMD(do_recall);
 ACMD(do_dig);
-ACMD(do_page_height);
 
 ACMD(do_antigods)
 {
@@ -186,8 +186,6 @@ ACMD(do_save)
 	write_aliases(ch);
 	save_char(ch, NOWHERE);
 	Crash_crashsave(ch);
-	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE_CRASH))
-		House_crashsave(GET_ROOM_VNUM(IN_ROOM(ch)));
 }
 
 
@@ -1530,14 +1528,12 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 	"цвет", "color",
 	"повтор", "norepeat",
 	"обращения", "notell",
-// shapirus
 	"кто-то", "noinvistell",
 	"болтать", "nogossip",
 	"кричать", "noshout",
 	"орать", "noholler",
 	"поздравления", "nogratz",
 	"аукцион", "noauction",
-//F@N|
 	"базар", "exchange",
 	"задание", "quest",
 	"автозаучивание", "automem",
@@ -1557,6 +1553,14 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 	"автодележ", "autosplit",
 	"брать куны", "automoney",
 	"арена", "arena",
+	"ширина", "length",
+	"высота", "width",
+	"экран", "screen",
+	"новости", "news",
+	"доски", "boards",
+	"хранилище", "chest",
+	"пклист", "pklist",
+	"политика", "politics",
 	"\n"
 };
 
@@ -1573,20 +1577,14 @@ struct gen_tog_param_type {
 	0, SCMD_COMPACT}, {
 	0, SCMD_COLOR}, {
 	0, SCMD_NOREPEAT}, {
-	0, SCMD_NOTELL},
-// shapirus
-	{
+	0, SCMD_NOTELL}, {
 	0, SCMD_NOINVISTELL}, {
 	0, SCMD_NOGOSSIP}, {
 	0, SCMD_NOSHOUT}, {
 	0, SCMD_NOHOLLER}, {
 	0, SCMD_NOGRATZ}, {
-	0, SCMD_NOAUCTION},
-//F@N++
-	{
-	0, SCMD_NOEXCHANGE},
-//F@N--
-	{
+	0, SCMD_NOAUCTION}, {
+	0, SCMD_NOEXCHANGE}, {
 	0, SCMD_QUEST}, {
 	0, SCMD_AUTOMEM}, {
 	LVL_GRGOD, SCMD_NOHASSLE}, {
@@ -1598,15 +1596,21 @@ struct gen_tog_param_type {
 	LVL_GOD, SCMD_HOLYLIGHT}, {
 	LVL_IMPL, SCMD_CODERINFO}, {
 	0, SCMD_GOAHEAD}, {
-	0, SCMD_SHOWGROUP},
-// shapirus
-	{
+	0, SCMD_SHOWGROUP}, {
 	0, SCMD_NOCLONES}, {
 	0, SCMD_AUTOASSIST}, {
 	0, SCMD_AUTOLOOT}, {
 	0, SCMD_AUTOSPLIT}, {
 	0, SCMD_AUTOMONEY}, {
-	0, SCMD_NOARENA}
+	0, SCMD_NOARENA}, {
+	0, SCMD_LENGTH}, {
+	0, SCMD_WIDTH}, {
+	0, SCMD_SCREEN}, {
+	0, SCMD_NEWS_MODE}, {
+	0, SCMD_BOARD_MODE}, {
+	0, SCMD_CHEST_MODE}, {
+	0, SCMD_PKL_MODE}, {
+	0, SCMD_POLIT_MODE}
 };
 
 ACMD(do_mode)
@@ -1640,9 +1644,39 @@ ACMD(do_mode)
 	}
 }
 
+
+// установки экрана flag: 0 - ширина, 1 - высота
+void SetScreen(CHAR_DATA * ch, char *argument, int flag)
+{
+	if (IS_NPC(ch))
+		return;
+	skip_spaces(&argument);
+	int size = atoi(argument);
+
+	if (!flag && (size < 30 || size > 300))
+		send_to_char("Ширина экрана должна быть в пределах 30 - 300 символов.\r\n", ch);
+	else if (flag == 1 && (size < 10 || size > 100))
+		send_to_char("Высота экрана должна быть в пределах 10 - 100 строк.\r\n", ch);
+	else if (!flag) {
+		STRING_LENGTH(ch) = size;
+		send_to_char("Ладушки.\r\n", ch);
+		save_char(ch, NOWHERE);
+	} else if (flag == 1) {
+		STRING_WIDTH(ch) = size;
+		send_to_char("Ладушки.\r\n", ch);
+		save_char(ch, NOWHERE);
+	} else {
+		std::ostringstream buffer;
+		for (int i = 50; i > 0; --i)
+			buffer << i << "\r\n";
+		send_to_char(buffer.str(), ch);
+	}
+}
+
+
 ACMD(do_gen_tog)
 {
-	long result;
+	long result = 0;
 
 	const char *tog_messages[][2] = {
 		{"Вы защищены от призыва.\r\n",
@@ -1705,16 +1739,24 @@ ACMD(do_gen_tog)
 		 "Вы будете автоматически брать куны, оставшиеся в трупах.\r\n"},
 		{"Вы будете слышать сообщения с арены.\r\n",
 		 "Вы не будете слышать сообщения с арены.\r\n"},
-//F@N++
 		{"Вам будут выводиться сообщения базара.\r\n",
 		 "Вы отключены от участия в базаре.\r\n"},
-//F@N--
-// <shapirus>
 		{"При просмотре состава группы будут отображаться все последователи.\r\n",
 		 "При просмотре состава группы не будут отображаться чужие двойники и хранители.\r\n"},
 		{"К Вам сможет обратиться кто угодно.\r\n",
-		 "К Вам смогут обратиться только те, кого Вы видите.\r\n"}
-// </shapirus>
+		 "К Вам смогут обратиться только те, кого Вы видите.\r\n"},
+		{"", ""}, // SCMD_LENGTH
+		{"", ""}, // SCMD_WIDTH
+		{"", ""}, // SCMD_SCREEN
+		{"Вариант чтения новостей былин и дружины: лента.\r\n",
+		"Вариант чтения новостей былин и дружины: доска.\r\n"},
+		{"Вы не видите уведомлений о новых сообещениях на досках.\r\n",
+		"Вы получаете уведомления о новых сообещниях на досках.\r\n"},
+		{"", ""}, // SCMD_CHEST_MODE
+		{"Вы игнорируете уведомления о добавлении или очистке вас из листов дружин.\r\n",
+		"Вы получаете уведомления о добавлении или очистке вас из листов дружин.\r\n"},
+		{"Вы игнорируете уведомления об изменениях политики вашей и к вашей дружине.\r\n",
+		"Вы получаете уведомления об изменениях политики вашей и к вашей дружине.\r\n"}
 	};
 
 
@@ -1813,19 +1855,44 @@ ACMD(do_gen_tog)
 	case SCMD_NOARENA:
 		result = PRF_TOG_CHK(ch, PRF_NOARENA);
 		break;
-//F@N++
 	case SCMD_NOEXCHANGE:
 		result = PRF_TOG_CHK(ch, PRF_NOEXCHANGE);
 		break;
-//F@N--
-// <shapirus>
 	case SCMD_NOCLONES:
 		result = PRF_TOG_CHK(ch, PRF_NOCLONES);
 		break;
 	case SCMD_NOINVISTELL:
 		result = PRF_TOG_CHK(ch, PRF_NOINVISTELL);
 		break;
-// </shapirus>
+	case SCMD_LENGTH:
+		SetScreen(ch, argument, 0);
+		return;
+		break;
+	case SCMD_WIDTH:
+		SetScreen(ch, argument, 1);
+		return;
+		break;
+	case SCMD_SCREEN:
+		SetScreen(ch, argument, 2);
+		return;
+		break;
+	case SCMD_NEWS_MODE:
+		result = PRF_TOG_CHK(ch, PRF_NEWS_MODE);
+		break;
+	case SCMD_BOARD_MODE:
+		result = PRF_TOG_CHK(ch, PRF_BOARD_MODE);
+		break;
+	case SCMD_CHEST_MODE: {
+		std::string buffer = argument;
+		SetChestMode(ch, buffer);
+		break;
+	}
+	case SCMD_PKL_MODE:
+		result = PRF_TOG_CHK(ch, PRF_PKL_MODE);
+		break;
+	case SCMD_POLIT_MODE:
+		result = PRF_TOG_CHK(ch, PRF_POLIT_MODE);
+		break;
 
 	default:
 		log("SYSERR: Unknown subcmd %d in do_gen_toggle.", subcmd);
@@ -1974,7 +2041,7 @@ ACMD(do_recall)
 	    !ROOM_FLAGGED(ch->in_room, ROOM_SLOWDEATH) &&
 	    !ROOM_FLAGGED(ch->in_room, ROOM_ICEDEATH) &&
 	    (!ROOM_FLAGGED(ch->in_room, ROOM_GODROOM) || IS_IMMORTAL(ch)) &&
-	    House_can_enter(ch, ch->in_room, HCE_PORTAL)) {
+	    Clan::MayEnter(ch, ch->in_room, HCE_PORTAL)) {
 		send_to_char("У вас не получилось вернуться!\r\n", ch);
 		return;
 	}
@@ -2693,41 +2760,4 @@ ACMD(do_insertgem)
 
 	}
 	extract_obj(gemobj);
-}
-
-ACMD(do_page_height)
-{
-	int height;
-
-	if (IS_NPC(ch))
-		return;
-
-	one_argument(argument, arg);
-
-	if (!*arg) {
-		if (PAGE_HEIGHT(ch)) {
-			sprintf(buf, "Размер страницы при постраничном просмотре: %d %s.\r\n",
-				PAGE_HEIGHT(ch), desc_count(PAGE_HEIGHT(ch), WHAT_ROW));
-			send_to_char(buf, ch);
-			return;
-		} else {
-			send_to_char("Длинные списки на строки разбиваться не будут.\r\n", ch);
-			return;
-		}
-	}
-
-	if (sscanf(arg, "%d", &height) == 1) {
-		if (height < 0) {
-			send_to_char("Размер страницы при постраничном просмотре не может быть отрицательным.\r\n", ch);
-		} else if (height == 0) {
-			send_to_char("Теперь длинные списки на строки разбиваться не будут.\r\n", ch);
-			PAGE_HEIGHT(ch) = 0;
-		} else {
-			PAGE_HEIGHT(ch) = height;
-			sprintf(buf, "Теперь размер страницы при постраничном просмотре будет %d %s.\r\n",
-				PAGE_HEIGHT(ch), desc_count(PAGE_HEIGHT(ch), WHAT_ROW));
-			send_to_char(buf, ch);
-		}
-	} else
-		send_to_char("Нужно указать целое число.\r\n", ch);
 }

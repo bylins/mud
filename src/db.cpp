@@ -14,12 +14,11 @@
 
 #define __DB_C__
 
-#define  TEST_OBJECT_TIMER   30
+#include "dirent.h"
+#include "sys/stat.h"
 
 #include "conf.h"
 #include "sysdep.h"
-#include "dirent.h"
-
 #include "structs.h"
 #include "utils.h"
 #include "db.h"
@@ -35,16 +34,15 @@
 #include "pk.h"
 #include "olc.h"
 #include "diskio.h"
-#include "sys/stat.h"
-
 #include "im.h"
-//MZ.tops
 #include "top.h"
-//-MZ.tops
 #include "ban.hpp"
 #include "privileges.hpp"
 #include "item.creation.hpp"
 #include "features.hpp"
+#include "boards.h"
+
+#define  TEST_OBJECT_TIMER   30
 
 /**************************************************************************
 *  declarations of global containers and objects                          *
@@ -72,9 +70,6 @@ CHAR_DATA *character_list = NULL;	/* global linked list of
 
 CHAR_DATA *char_freed_list = NULL;	/* global linked list of
 					 * chars waited for free() */
-
-CHAR_DATA *char_index_table = NULL; 	/* глобальная таблица соответствий
-					 GET_ID-ов и CHAR_DATA для ускорения*/
 
 INDEX_DATA **trig_index;	/* index table for triggers      */
 int top_of_trigt = 0;		/* top of trigger index table    */
@@ -115,8 +110,6 @@ room_rnum r_named_start_room;
 room_rnum r_unreg_start_room;
 
 char *credits = NULL;		/* game credits                  */
-char *news = NULL;		/* mud news                      */
-long lastnews = 0;
 char *motd = NULL;		/* message of the day - mortals  */
 char *rules = NULL;		/* rules for immorts             */
 char *GREETINGS = NULL;		/* opening credits screen        */
@@ -126,8 +119,6 @@ char *immlist = NULL;		/* list of peon gods             */
 char *background = NULL;	/* background story              */
 char *handbook = NULL;		/* handbook for new immortals    */
 char *policies = NULL;		/* policies page                 */
-char *godnews = NULL;		/* mud news                      */
-long lastgodnews = 0;
 
 struct help_index_element *help_table = 0;	/* the help table        */
 int top_of_helpt = 0;		/* top of help index table       */
@@ -408,17 +399,12 @@ void load_sheduled_reboot()
  */
 ACMD(do_reboot)
 {
-	struct stat sb;
-
 	one_argument(argument, arg);
 
 	if (!str_cmp(arg, "all") || *arg == '*') {
 		if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 			prune_crlf(GREETINGS);
 		file_to_string_alloc(IMMLIST_FILE, &immlist);
-		file_to_string_alloc(NEWS_FILE, &news);
-		if (stat(LIB "" NEWS_FILE, &sb) >= 0)
-			lastnews = sb.st_mtime;
 		file_to_string_alloc(CREDITS_FILE, &credits);
 		file_to_string_alloc(MOTD_FILE, &motd);
 		file_to_string_alloc(RULES_FILE, &rules);
@@ -427,43 +413,27 @@ ACMD(do_reboot)
 		file_to_string_alloc(POLICIES_FILE, &policies);
 		file_to_string_alloc(HANDBOOK_FILE, &handbook);
 		file_to_string_alloc(BACKGROUND_FILE, &background);
-		file_to_string_alloc(GODNEWS_FILE, &godnews);
-		if (stat(LIB "" GODNEWS_FILE, &sb) >= 0)
-			lastgodnews = sb.st_mtime;
 		go_boot_xhelp();
 		go_boot_socials();
 		init_im();
-//MZ.load
 		init_zone_types();
-//-MZ.load
 		init_portals();
 		priv->reload();
 		load_sheduled_reboot();
-		LoadProxyList();
-//MZ.tops
 		load_max_remort_top();
-//-MZ.tops
 	} else if (!str_cmp(arg, "portals"))
 		init_portals();
 	else if (!str_cmp(arg, "privileges"))
 		priv->reload();
 	else if (!str_cmp(arg, "imagic"))
 		init_im();
-//MZ.load
 	else if (!str_cmp(arg, "ztypes"))
 		init_zone_types();
-//-MZ.load
-//MZ.tops
 	else if (!str_cmp(arg, "classtops"))
 		load_max_remort_top();
-//-MZ.tops
 	else if (!str_cmp(arg, "immlist"))
 		file_to_string_alloc(IMMLIST_FILE, &immlist);
-	else if (!str_cmp(arg, "news")) {
-		file_to_string_alloc(NEWS_FILE, &news);
-		if (stat(NEWS_FILE, &sb) >= 0)
-			lastnews = sb.st_mtime;
-	} else if (!str_cmp(arg, "credits"))
+	else if (!str_cmp(arg, "credits"))
 		file_to_string_alloc(CREDITS_FILE, &credits);
 	else if (!str_cmp(arg, "motd"))
 		file_to_string_alloc(MOTD_FILE, &motd);
@@ -488,12 +458,14 @@ ACMD(do_reboot)
 		go_boot_socials();
 	else if (!str_cmp(arg, "schedule"))
 		load_sheduled_reboot();
-	else if (!str_cmp(arg, "godnews")) {
-		file_to_string_alloc(GODNEWS_FILE, &godnews);
-		if (stat(GODNEWS_FILE, &sb) >= 0)
-			lastgodnews = sb.st_mtime;
-	} else if (!str_cmp(arg, "proxy"))
+	else if (!str_cmp(arg, "clan"))
+		Clan::ClanLoad();
+	else if (!str_cmp(arg, "godlist"))
+		GodListLoad();
+	else if (!str_cmp(arg, "proxy"))
 		LoadProxyList();
+	else if (!str_cmp(arg, "boards"))
+		Board::BoardInit();
 	else {
 		send_to_char("Неверный параметр для перезагрузки файлов.\r\n", ch);
 		return;
@@ -767,7 +739,6 @@ void init_zone_types(void)
 /* body of the booting system */
 void boot_db(void)
 {
-	struct stat sb;
 	zone_rnum i;
 
 	log("Boot db -- BEGIN.");
@@ -775,10 +746,7 @@ void boot_db(void)
 	log("Resetting the game time:");
 	reset_time();
 
-	log("Reading news, credits, help, bground, info & motds.");
-	file_to_string_alloc(NEWS_FILE, &news);
-	if (stat(NEWS_FILE, &sb) >= 0)
-		lastnews = sb.st_mtime;
+	log("Reading credits, help, bground, info & motds.");
 	file_to_string_alloc(CREDITS_FILE, &credits);
 	file_to_string_alloc(MOTD_FILE, &motd);
 	file_to_string_alloc(RULES_FILE, &rules);
@@ -788,9 +756,6 @@ void boot_db(void)
 	file_to_string_alloc(POLICIES_FILE, &policies);
 	file_to_string_alloc(HANDBOOK_FILE, &handbook);
 	file_to_string_alloc(BACKGROUND_FILE, &background);
-	file_to_string_alloc(GODNEWS_FILE, &godnews);
-	if (stat(GODNEWS_FILE, &sb) >= 0)
-		lastgodnews = sb.st_mtime;
 	if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 		prune_crlf(GREETINGS);
 
@@ -857,25 +822,10 @@ void boot_db(void)
 	Read_Invalid_List();
 	priv = new PrivList();
 
-/*Timed-out crash and rent files now checking in Crash_timer_obj*/
-/*
-  if (!no_rent_check)
-     {log("Deleting timed-out crash and rent files:");
-      update_obj_file();
-      log("   Done.");
-     }
-*/
-	/* Moved here so the object limit code works. -gg 6/24/98 */
-	if (!mini_mud) {
-		log("Booting houses.");
-		House_boot();
-	}
-	// Изменено Ладником
 	log("Booting rented objects info");
 	for (i = 0; i <= top_of_p_table; i++) {
 		(player_table + i)->timer = NULL;
 		Crash_read_timer(i, FALSE);
-//       log ("Player %s", (player_table + i)->name);
 	}
 
 	for (i = 0; i <= top_of_zone_table; i++) {
@@ -901,6 +851,14 @@ void boot_db(void)
 
 	log("Booting guilds");
 	init_guilds();
+
+	// последовательность лоада кланов/досок/иммов не менять
+	log("Booting boards");
+	Board::BoardInit();
+	log("Booting clans");
+	Clan::ClanLoad();
+	log("Booting GodList");
+	GodListLoad();
 
 	log("Booting portals for 'town portal' spell");
 	portals_list = NULL;
@@ -4285,6 +4243,8 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 	KARMA(ch) = 0;
 	LOGON_LIST(ch) = 0;
 	NAME_GOD(ch) = 0;
+	STRING_LENGTH(ch) = 80;
+	STRING_WIDTH(ch) = 25;
 	NAME_ID_GOD(ch) = 0;
 	GET_OLC_ZONE(ch) = 0;
 	ch->player.time.played = 0;
@@ -4308,13 +4268,24 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 	ch->Questing.count = 0;
 	GET_PORTALS(ch) = NULL;
 	GET_LASTIP(ch)[0] = 0;
-//F@N|
 	EXCHANGE_FILTER(ch) = NULL;
-// shapirus
 	IGNORE_LIST(ch) = NULL;
-	PAGE_HEIGHT(ch) = 22;
-
 	CREATE(GET_LOGS(ch), int, NLOG);
+
+	// TODO: здест можно указать дату, с которой пойдет отсет новых сообщений,
+	// например чтобы не пугать игрока 200+ новостями при первом запуске системы
+	GENERAL_BOARD_DATE(ch) = 1143706650;
+	NEWS_BOARD_DATE(ch) = 1143706650;
+	IDEA_BOARD_DATE(ch) = 1143706650;
+	ERROR_BOARD_DATE(ch) = 1143706650;
+	GODNEWS_BOARD_DATE(ch) = 1143706650;
+	GODGENERAL_BOARD_DATE(ch) = 1143706650;
+	GODBUILD_BOARD_DATE(ch) = 1143706650;
+	GODCODE_BOARD_DATE(ch) = 1143706650;
+	GODPUNISH_BOARD_DATE(ch) = 1143706650;
+	PERS_BOARD_DATE(ch) = 1143706650;
+	CLAN_BOARD_DATE(ch) = 1143706650;
+	CLANNEWS_BOARD_DATE(ch) = 1143706650;
 
 	while (fbgetline(fl, line)) {
 		tag_argument(line, tag);
@@ -4358,6 +4329,32 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 				GET_BAD_PWS(ch) = num;
 			else if (!strcmp(tag, "Bank"))
 				GET_BANK_GOLD(ch) = lnum;
+
+			else if (!strcmp(tag, "Br01"))
+				GENERAL_BOARD_DATE(ch) = lnum;
+			else if (!strcmp(tag, "Br02"))
+				NEWS_BOARD_DATE(ch) = lnum;
+			else if (!strcmp(tag, "Br03"))
+				IDEA_BOARD_DATE(ch) = lnum;
+			else if (!strcmp(tag, "Br04"))
+				ERROR_BOARD_DATE(ch) = lnum;
+			else if (!strcmp(tag, "Br05"))
+				GODNEWS_BOARD_DATE(ch) = lnum;
+			else if (!strcmp(tag, "Br06"))
+				GODGENERAL_BOARD_DATE(ch) = lnum;
+			else if (!strcmp(tag, "Br07"))
+				GODBUILD_BOARD_DATE(ch) = lnum;
+			else if (!strcmp(tag, "Br08"))
+				GODCODE_BOARD_DATE(ch) = lnum;
+			else if (!strcmp(tag, "Br09"))
+				GODPUNISH_BOARD_DATE(ch) = lnum;
+			else if (!strcmp(tag, "Br10"))
+				PERS_BOARD_DATE(ch) = lnum;
+			else if (!strcmp(tag, "Br11"))
+				CLAN_BOARD_DATE(ch) = lnum;
+			else if (!strcmp(tag, "Br12"))
+				CLANNEWS_BOARD_DATE(ch) = lnum;
+
 			else if (!strcmp(tag, "Brth"))
 				ch->player.time.birth = lnum;
 			break;
@@ -4595,9 +4592,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 				IS_KILLER(ch) = lnum;
 			else if (!strcmp(tag, "Prtl"))
 				add_portal_to_char(ch, num);
-			else if (!strcmp(tag, "PgHt"))
-				PAGE_HEIGHT(ch) = num;
-		// Loads Here new punishment strings  
+			// Loads Here new punishment strings  
 			else if (!strcmp(tag, "PMut"))
 			{
 				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
@@ -4742,6 +4737,10 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 				while (num != 0);
 			} else if (!strcmp(tag, "Str "))
 				GET_STR(ch) = num;
+			else if (!strcmp(tag, "StrL"))
+				STRING_LENGTH(ch) = num;
+			else if (!strcmp(tag, "StrW"))
+				STRING_WIDTH(ch) = num;
 			break;
 
 		case 'T':
@@ -5074,7 +5073,14 @@ void free_char(CHAR_DATA * ch)
 			IGNORE_LIST(ch) = ign_next;
 		}
 		IGNORE_LIST(ch) = NULL;
-// Чистим лист логонов
+
+		// пока без деструктора чистим сами
+		CLAN(ch).reset();
+		CLAN_MEMBER(ch).reset();
+		if (GET_CLAN_STATUS(ch))
+			free(GET_CLAN_STATUS(ch));
+
+		// Чистим лист логонов
 		while (LOGON_LIST(ch)) {
 			struct logon_data *log_next;
 			log_next = LOGON_LIST(ch)->next;
@@ -5334,17 +5340,7 @@ void init_char(CHAR_DATA * ch)
 	if (ch->player_specials == NULL)
 		CREATE(ch->player_specials, struct player_special_data, 1);
 
-	/* *** if this is our first player --- he be God *** */
-
-	if (top_of_p_table == 0) {
-		GET_EXP(ch) = EXP_IMPL;
-		GET_LEVEL(ch) = LVL_IMPL;
-
-		ch->points.max_hit = 500;
-		ch->points.max_move = 82;
-		start_room = immort_start_room;
-	} else
-		start_room = calc_loadroom(ch);
+	start_room = calc_loadroom(ch);
 	set_title(ch, NULL);
 	GET_PORTALS(ch) = NULL;
 	CREATE(GET_LOGS(ch), int, NLOG);
@@ -5424,7 +5420,22 @@ void init_char(CHAR_DATA * ch)
 	SET_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
 	SET_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
 	REMOVE_BIT(PRF_FLAGS(ch, PRF_SUMMONABLE), PRF_SUMMONABLE);
-	PAGE_HEIGHT(ch) = 22;
+	STRING_LENGTH(ch) = 80;
+	STRING_WIDTH(ch) = 25;
+	// новому игроку вываливать все новости/мессаги на доске как непроченные не имеет смысла
+	GENERAL_BOARD_DATE(ch) = time(0);
+	NEWS_BOARD_DATE(ch) = time(0);
+	IDEA_BOARD_DATE(ch) = time(0);
+	ERROR_BOARD_DATE(ch) = time(0);
+	GODNEWS_BOARD_DATE(ch) = time(0);
+	GODGENERAL_BOARD_DATE(ch) = time(0);
+	GODBUILD_BOARD_DATE(ch) = time(0);
+	GODCODE_BOARD_DATE(ch) = time(0);
+	GODPUNISH_BOARD_DATE(ch) = time(0);
+	PERS_BOARD_DATE(ch) = time(0);
+	CLAN_BOARD_DATE(ch) = time(0);
+	CLANNEWS_BOARD_DATE(ch) = time(0);
+
 	save_char(ch, NOWHERE);
 }
 
@@ -5984,7 +5995,7 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	char filename[MAX_STRING_LENGTH];
 	room_rnum location;
 	int i;
-	long int li;
+	time_t li;
 	AFFECT_DATA *aff, tmp_aff[MAX_AFFECT];
 	OBJ_DATA *char_eq[NUM_WEARS];
 	struct timed_type *skj;
@@ -6214,12 +6225,25 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	fprintf(saved, "PK  : %ld\n", IS_KILLER(ch));
 
 	fprintf(saved, "Wimp: %d\n", GET_WIMP_LEV(ch));
-	fprintf(saved, "PgHt: %d\n", PAGE_HEIGHT(ch));
 	fprintf(saved, "Frez: %d\n", GET_FREEZE_LEV(ch));
 	fprintf(saved, "Invs: %d\n", GET_INVIS_LEV(ch));
 	fprintf(saved, "Room: %d\n", GET_LOADROOM(ch));
 
 	fprintf(saved, "Badp: %d\n", GET_BAD_PWS(ch));
+
+	fprintf(saved, "Br01: %ld\n", GENERAL_BOARD_DATE(ch));
+	fprintf(saved, "Br02: %ld\n", NEWS_BOARD_DATE(ch));
+	fprintf(saved, "Br03: %ld\n", IDEA_BOARD_DATE(ch));
+	fprintf(saved, "Br04: %ld\n", ERROR_BOARD_DATE(ch));
+	fprintf(saved, "Br05: %ld\n", GODNEWS_BOARD_DATE(ch));
+	fprintf(saved, "Br06: %ld\n", GODGENERAL_BOARD_DATE(ch));
+	fprintf(saved, "Br07: %ld\n", GODBUILD_BOARD_DATE(ch));
+	fprintf(saved, "Br08: %ld\n", GODCODE_BOARD_DATE(ch));
+	fprintf(saved, "Br09: %ld\n", GODPUNISH_BOARD_DATE(ch));
+	fprintf(saved, "Br10: %ld\n", PERS_BOARD_DATE(ch));
+	fprintf(saved, "Br11: %ld\n", CLAN_BOARD_DATE(ch));
+	fprintf(saved, "Br12: %ld\n", CLANNEWS_BOARD_DATE(ch));
+
 	if (GET_LEVEL(ch) < LVL_IMMORT)
 		fprintf(saved, "Hung: %d\n", GET_COND(ch, FULL));
 	if (GET_LEVEL(ch) < LVL_IMMORT)
@@ -6265,7 +6289,7 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 		fprintf(saved, "Karm:\n%s~\n", buf);
 	}
 	if (LOGON_LIST(ch) > 0) {
-		log("Start logon list save.");
+		log("Saving logon list.");
 		struct logon_data * next_log = LOGON_LIST(ch);
 		buf[0] = 0;
 		while (next_log)
@@ -6276,18 +6300,20 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 			next_log = next_log->next;
 		}
 		fprintf(saved, "LogL:\n%s~\n",buf);
-		log("Saved: %s",buf);
-		log("End logon list save.");
+// TODO: ╒ ╓╔║═ё ╚╝ё ╞╝Б╝╛
+//		log("Saved: %s",buf);
+//		log("End logon list save.");
 	}
 	fprintf(saved, "LstL: %ld\n", LAST_LOGON(ch));
 	fprintf(saved, "GdFl: %ld\n", ch->player_specials->saved.GodsLike);
 	fprintf(saved, "NamG: %d\n", NAME_GOD(ch));
 	fprintf(saved, "NaID: %ld\n", NAME_ID_GOD(ch));
-//F@N|
+	fprintf(saved, "StrL: %d\n", STRING_LENGTH(ch));
+	fprintf(saved, "StrW: %d\n", STRING_WIDTH(ch));
 	if (EXCHANGE_FILTER(ch))
 		fprintf(saved, "ExFl: %s\n", EXCHANGE_FILTER(ch));
 
-// shapirus: игнор лист
+	// shapirus: игнор лист
 	{
 		struct ignore_data *cur = IGNORE_LIST(ch);
 		if (cur) {
@@ -6412,10 +6438,10 @@ void rename_char(CHAR_DATA * ch, char *oname)
 	rename(ofilename, filename);
 }
 
-int delete_char(char *name)
+void delete_char(char *name)
 {
 	CHAR_DATA *st;
-	int id, retval = TRUE;
+	int id;
 
 	CREATE(st, CHAR_DATA, 1);
 	clear_char(st);
@@ -6434,11 +6460,8 @@ int delete_char(char *name)
 		player_table[id].level = -1;
 		player_table[id].last_logon = -1;
 		player_table[id].activity = -1;
-	} else {
-		retval = FALSE;
+	} else
 		free(st);
-	}
-	return (retval);
 }
 
 void room_copy(ROOM_DATA * dst, ROOM_DATA * src)

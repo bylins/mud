@@ -13,7 +13,6 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "constants.h"
 #include "utils.h"
@@ -22,7 +21,6 @@
 #include "handler.h"
 #include "interpreter.h"
 #include "screen.h"
-
 #include "pk.h"
 
 struct pkiller_file_u {
@@ -206,7 +204,7 @@ void pk_increment_kill(CHAR_DATA * agressor, CHAR_DATA * victim, int rent, bool 
 {
 	struct PK_Memory_type *pk;
 
-	if (GET_HOUSE_UID(agressor) && (GET_HOUSE_UID(victim) || flag_temp)) {
+	if (CLAN(agressor) && (CLAN(victim) || flag_temp)) {
 		// межклановая разборка
 		pk_update_clanflag(agressor, victim);
 	} else {
@@ -255,7 +253,7 @@ void pk_decrement_kill(CHAR_DATA * agressor, CHAR_DATA * victim)
 	struct PK_Memory_type *pk;
 
 	// межклановые разборки
-	if (GET_HOUSE_UID(agressor) && GET_HOUSE_UID(victim)) {
+	if (CLAN(agressor) && CLAN(victim)) {
 		// Снимаю клан-флаг у трупа (agressor)
 		pk_clear_clanflag(agressor, victim);
 		return;
@@ -270,7 +268,7 @@ void pk_decrement_kill(CHAR_DATA * agressor, CHAR_DATA * victim)
 		return;		// а мести-то и не было :(
 
 	// check temporary flag
-	if (GET_HOUSE_UID(agressor) && pk->clan_exp > 0) {
+	if (CLAN(agressor) && pk->clan_exp > 0) {
 		// Снимаю клан-флаг у трупа (agressor)
 		pk_clear_clanflag(agressor, victim);
 		return;
@@ -302,8 +300,7 @@ void pk_increment_revenge(CHAR_DATA * agressor, CHAR_DATA * victim)
 		mudlog("Инкремент реализации без флага мести!", CMP, LVL_GOD, SYSLOG, TRUE);
 		return;
 	}
-	if (GET_HOUSE_UID(agressor)
-	    && (GET_HOUSE_UID(victim) || pk->clan_exp > time(NULL))) {
+	if (CLAN(agressor) && (CLAN(victim) || pk->clan_exp > time(NULL))) {
 		// межклановая разборка (любая атака после боя - взводится клан-флаг)
 		pk_update_clanflag(agressor, victim);
 		return;
@@ -413,13 +410,13 @@ int pk_action_type_summon(CHAR_DATA * agressor, CHAR_DATA * victim)
 			return PK_ACTION_FIGHT;
 		if (pk->revenge_num >= MAX_REVENGE)
 			pk_decrement_kill(victim, agressor);
-		if (GET_HOUSE_UID(agressor) &&	// атакующий должен быть в клане
-//       GET_HOUSE_UID(victim)   && // атакуемый может быть и не в клане
+		if (CLAN(agressor) &&	// атакующий должен быть в клане
+				// CLAN(victim)   && // атакуемый может быть и не в клане
 		    // это значит, что его исключили на время 
 		    // действия клан-флага
 		    pk->clan_exp > time(NULL))
 			return PK_ACTION_REVENGE;	// месть по клан-флагу
-		if (pk->kill_num && !(GET_HOUSE_UID(agressor) && GET_HOUSE_UID(victim)))
+		if (pk->kill_num && !(CLAN(agressor) && CLAN(victim)))
 			return PK_ACTION_REVENGE;	// обычная месть
 		if (pk->thief_exp > time(NULL))
 			return PK_ACTION_REVENGE;	// месть вору
@@ -520,13 +517,13 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim)
 			return PK_ACTION_FIGHT;
 		if (pk->revenge_num >= MAX_REVENGE)
 			pk_decrement_kill(victim, agressor);
-		if (GET_HOUSE_UID(agressor) &&	// атакующий должен быть в клане
-//       GET_HOUSE_UID(victim)   && // атакуемый может быть и не в клане
+		if (CLAN(agressor) &&	// атакующий должен быть в клане
+				// CLAN(victim)   && // атакуемый может быть и не в клане
 		    // это значит, что его исключили на время 
 		    // действия клан-флага
 		    pk->clan_exp > time(NULL))
 			return PK_ACTION_REVENGE;	// месть по клан-флагу
-		if (pk->kill_num && !(GET_HOUSE_UID(agressor) && GET_HOUSE_UID(victim)))
+		if (pk->kill_num && !(CLAN(agressor) && CLAN(victim)))
 			return PK_ACTION_REVENGE;	// обычная месть
 		if (pk->thief_exp > time(NULL))
 			return PK_ACTION_REVENGE;	// месть вору
@@ -632,8 +629,8 @@ ACMD(do_revenge)
 			if (pk->unique == GET_UNIQUE(ch)) {
 				if (pk->revenge_num >= MAX_REVENGE && pk->battle_exp <= time(NULL))
 					pk_decrement_kill(tch, ch);
-// Сначала проверка клан флага
-				if (GET_HOUSE_UID(ch) && pk->clan_exp > time(NULL)) {
+				// Сначала проверка клан флага
+				if (CLAN(ch) && pk->clan_exp > time(NULL)) {
 					sprintf(buf, "  %-40s <ВОЙНА>\r\n", GET_NAME(tch));
 				} else if (pk->clan_exp > time(NULL)) {
 					sprintf(buf, "  %-40s <ВРЕМЕННЫЙ ФЛАГ>\r\n", GET_NAME(tch));
@@ -878,12 +875,12 @@ bool has_clan_members_in_group(CHAR_DATA * ch)
 	leader = ch->master ? ch->master : ch;
 
 	// проверяем, был ли в группе клановый чар
-	if (GET_HOUSE_UID(leader))
+	if (CLAN(leader))
 		return true;
 	else
 		for (f = leader->followers; f; f = f->next)
 			if (AFF_FLAGGED(f->follower, AFF_GROUP) &&
-			    IN_ROOM(f->follower) == IN_ROOM(ch) && GET_HOUSE_UID(f->follower))
+			    IN_ROOM(f->follower) == IN_ROOM(ch) && CLAN(f->follower))
 				return true;
 	return false;
 }

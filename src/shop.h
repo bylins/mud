@@ -12,6 +12,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#ifndef _SHOP_H_
+#define _SHOP_H_
 
 struct shop_buy_data {
 	int type;
@@ -174,3 +176,5 @@ struct stack_data {
 #define MSG_NO_SELL_CLASS	"Я не торгую с такими особами!"
 #define MSG_NO_USED_WANDSTAFF	"Я не покупаю использованные вещи!"
 #define MSG_CANT_KILL_KEEPER	"Ступай отсюда, пока не пришли стражи!"
+
+#endif

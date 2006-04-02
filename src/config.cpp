@@ -16,7 +16,6 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "interpreter.h"	/* alias_data definition for structs.h */
 #include "utils.h"
@@ -217,16 +216,6 @@ room_vnum helled_start_room = 101;	/* something in castle */
 room_vnum named_start_room = 105;
 room_vnum unreg_start_room = 103;
 
-/*
- * virtual numbers of donation rooms.  note: you must change code in
- * do_drop of act.item.cpp if you change the number of non-NOWHERE
- * donation rooms.
- */
-room_vnum donation_room_1 = 100;
-room_vnum donation_room_2 = NOWHERE;	/* unused - room for expansion */
-room_vnum donation_room_3 = NOWHERE;	/* unused - room for expansion */
-
-
 /****************************************************************************/
 /****************************************************************************/
 
@@ -309,13 +298,14 @@ int nameserver_is_slow = YES;
 
 
 const char *MENU = "\r\n"
-// "Добро пожаловать в мир Киевской Руси !\r\n"
     "0) Отсоединиться.\r\n"
     "1) Начать игру.\r\n"
     "2) Ввести описание Вашего персонажа.\r\n"
-    "3) Узнать историю.\r\n" "4) Изменить пароль.\r\n" "5) Удалить персонаж.\r\n" "\r\n" "   Чего Ваша душа желает ? ";
-
-
+		"3) Узнать историю.\r\n"
+		"4) Изменить пароль.\r\n"
+		"5) Удалить персонажа.\r\n"
+		"\r\n"
+		"   Чего Ваша душа желает ? ";
 
 const char *WELC_MESSG =
     "\r\n"

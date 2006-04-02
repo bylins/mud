@@ -14,11 +14,11 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "spells.h"
 #include "skills.h"
 #include "interpreter.h"	/* alias_data */
+#include "house.h"
 
 cpp_extern const char *circlemud_version = "CircleMUD, version 3.00 beta patchlevel 16";
 
@@ -1953,7 +1953,8 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	/* 0 */
 	"Порыв ветра развеял ядовитый туман.",   /* SPELL_POISONED_FOG - строка при снятии аффекта */
 	"Ветер прогнал грозовые тучи.",		 /* SPELL_THUNDERSTORM - строка при снятии аффекта */
 	"Ваши следы вновь стали заметны.",
-	"Удача вновь вернулась к Вам."
+	"Удача вновь вернулась к Вам.",		/* 170 */
+	"Магические чары ослабели со временем и покинули Вас.",
 };
 
 
@@ -2334,7 +2335,9 @@ const char *cast_phrase[LAST_USED_SPELL + 1][2] = { {"\nRESERVED DB.C",	/* 0 */
 {"\n!легкая поступь!",
  "\n"},
 {"аще доля зла и удача немилостива",
- ".. и несчастен, и жалок, и нищ."}
+ ".. и несчастен, и жалок, и нищ."},
+{"\n!кланаффект!",
+"\n"}
 };
 
 
@@ -2601,6 +2604,7 @@ struct pray_affect_type pray_affect[] = { {0, APPLY_NONE, 0, AFF_INFRAVISION, 0}
 {7, APPLY_DAMROLL, 1, 0, 0},	/* Григорий Победоносец */
 {-1, -1, -1, -1, -1}
 };
+
 
 struct gods_celebrate_type gods_celebrate[] =
 /* Unique,Name,Day,Month,Duration,Religion */

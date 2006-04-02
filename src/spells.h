@@ -8,6 +8,9 @@
 *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
 ************************************************************************ */
 
+#ifndef _SPELLS_H_
+#define _SPELLS_H_
+
 #define DEFAULT_STAFF_LVL	12
 #define DEFAULT_WAND_LVL	12
 #define CAST_UNDEFINED	-1
@@ -298,7 +301,8 @@
 #define SPELL_THUNDERSTORM		168	/* Закл отравленного тумана */ 
 #define SPELL_LIGHT_WALK		169
 #define SPELL_FAILURE			170
-#define LAST_USED_SPELL			171
+#define SPELL_CLANPRAY		  171
+#define LAST_USED_SPELL			172
 
 /*
  *  NON-PLAYER AND OBJECT SPELLS AND SKILLS
@@ -536,3 +540,5 @@ const char *skill_name(int num);
 const char *spell_name(int num);
 
 #define CALC_SUCCESS(modi,perc)         ((modi)-100+(perc))
+
+#endif

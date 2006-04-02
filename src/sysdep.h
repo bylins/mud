@@ -12,6 +12,9 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#ifndef _SYSDEP_H_
+#define _SYSDEP_H_
+
 /*
  * CircleMUD uses the crypt(3) function to encrypt player passwords in the
  * playerfile so that they are never stored in plaintext form.  However,
@@ -27,7 +30,8 @@
  * See running.doc for details.
  */
 
-//#define NOCRYPT 
+#define NOCRYPT 
+#define LOG_AUTOFLUSH
 
 /**************************************************************************/
 
@@ -586,3 +590,5 @@ ssize_t write(int fildes, const void *buf, size_t nbyte);
 
 
 #endif				/* NO_LIBRARY_PROTOTYPES */
+
+#endif

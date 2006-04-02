@@ -7,27 +7,30 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include <map>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <boost/format.hpp>
+#include <boost/algorithm/string.hpp>
+
 #include "conf.h"
 #include "sysdep.h"
-
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
-
 #include "ban.hpp"
+
 ///////////////////////////////////////////////////////////////////////////
 
 extern DESCRIPTOR_DATA *descriptor_list;
 extern BanList *ban;
 
 /* external functions */
-extern void log(const char *format, ...)
-    __attribute__ ((format(printf, 1, 2)));
-void SkipSpaces(std::string & buffer);
+extern void log(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
 
 /* local functions */
 void load_banned(void);
@@ -308,8 +311,7 @@ void LoadProxyList()
 	while (file) {
 		file >> textIp >> textIp2 >> num;
 		std::getline(file, buffer);
-		SkipSpaces(buffer);
-//		boost::trim(buffer);
+		boost::trim(buffer);
 		if (textIp.empty() || textIp2.empty() || buffer.empty() || num < 2 || num > MAX_PROXY_CONNECT) {
 			log("Error read file: %s! IP: %s IP2: %s Num: %d Text: %s (%s %s %d)", PROXY_FILE, textIp.c_str(),
 				textIp2.c_str(), num, buffer.c_str(), __FILE__, __func__, __LINE__);
@@ -373,20 +375,14 @@ ACMD(do_proxy)
 	GetOneParam(buffer, buffer2);
 
 	if (CompareParam(buffer2, "list") || CompareParam(buffer2, "список")) {
-//		boost::format proxyFormat(" %-15s   %-15s   %-2d   %s\r\n");
-		char buffer3[MAX_INPUT_LENGTH], *buffer4 = 0;
-		strcpy(buffer3, "Формат списка: IP | IP2 | Максимум соединений | Комментарий\r\n");
-		buffer4 = str_add(buffer4, buffer3);
+		boost::format proxyFormat(" %-15s   %-15s   %-2d   %s\r\n");
+		std::ostringstream out;
+		out << "Формат списка: IP | IP2 | Максимум соединений | Комментарий\r\n";
 
-		for (ProxyListType::const_iterator it = proxyList.begin(); it != proxyList.end(); ++it) {
-//			buffer3 << proxyFormat % it->first % it->second->num % it->second->text;
-			sprintf(buffer3, " %-15s   %-15s   %-2d   %s\r\n", it->second->textIp.c_str(), it->second->textIp2.c_str(), it->second->num, it->second->text.c_str());
-			buffer4 = str_add(buffer4, buffer3);
-		}
+		for (ProxyListType::const_iterator it = proxyList.begin(); it != proxyList.end(); ++it)
+			out << proxyFormat % it->second->textIp % it->second->textIp2 % it->second->num % it->second->text;
 
-//		send_to_char(buffer3.str(), ch);
-		page_string(ch->desc, buffer4, 1);
-		free(buffer4);
+		page_string(ch->desc, out.str(), 1);
 
 	} else if (CompareParam(buffer2, "add") || CompareParam(buffer2, "добавить")) {
 		GetOneParam(buffer, buffer2);
@@ -424,8 +420,7 @@ ACMD(do_proxy)
 			return;
 		}
 
-		SkipSpaces(buffer);
-//		boost::trim(buffer);
+		boost::trim_if(buffer, boost::is_any_of(" \'"));
 		if (buffer.empty()) {
 			send_to_char("Укажите причину регистрации.\r\n", ch);
 			return;

@@ -8,6 +8,9 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#ifndef _IM_H_
+#define _IM_H_
+
 // Определение основных классов ингредиентов: росль, живь, твердь
 #define		IM_CLASS_ROSL		0
 #define		IM_CLASS_JIV		1
@@ -119,3 +122,4 @@ void compose_recipe(CHAR_DATA * ch, char *argument, int subcmd);
 void forget_recipe(CHAR_DATA * ch, char *argument, int subcmd);
 
 
+#endif

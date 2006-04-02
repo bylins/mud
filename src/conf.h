@@ -12,6 +12,9 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#ifndef _CONF_H_
+#define _CONF_H_
+
 /* src/conf.h.  Generated automatically by configure.  */
 /* src/conf.h.in.  Generated automatically from configure.in by autoheader.  */
 
@@ -140,3 +143,5 @@
 
 #define BOOST_NO_MT
 #define BOOST_DISABLE_THREADS
+
+#endif

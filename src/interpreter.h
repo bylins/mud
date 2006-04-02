@@ -12,6 +12,9 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#ifndef _INTERPRETER_H_
+#define _INTERPRETER_H_
+
 #include <string>
 
 #define ACMD(name)  \
@@ -37,13 +40,20 @@ void nanny(DESCRIPTOR_DATA * d, char *arg);
 int is_abbrev(const char *arg1, const char *arg2);
 int is_number(const char *str);
 int find_command(const char *command);
-//╞╝╓╝║╜═О Д╗ё╜О ╓╚О АБЮ╗╜ё╝╒
+// блок подобной же фигни для стрингов
 void GetOneParam(std::string & buffer, std::string & buffer2);
 bool CompareParam(const std::string & buffer, const char *arg, bool full = 0);
-void SkipSpaces(std::string & buffer);
+bool CompareParam(const std::string & buffer, const std::string & buffer2, bool full = 0);
+DESCRIPTOR_DATA *DescByUID(long unique, bool playing = 1);
+long GetUniqueByName(const std::string & name, bool god = 0);
+std::string GetNameByUnique(long unique, bool god = 0);
+void CreateFileName(std::string &name);
+void ReadEndString(std::ifstream &file);
+void StringReplace(std::string & buffer, char s, std::string d);
+std::string ExpFormat(long long exp);
 
 char *delete_doubledollar(char *string);
-/** C╝╝Б╒╔БАБ╒╗╔ ╙╚═АА╝╒ ╗ Ю╔╚╗ё╗╘ (┼═Ю╓)*/
+/** Cоответствие классов и религий (Кард)*/
 extern const int class_religion[];
 /****/
 
@@ -106,8 +116,8 @@ struct alias_data {
 #define SCMD_INFO       0
 #define SCMD_HANDBOOK   1
 #define SCMD_CREDITS    2
-#define SCMD_NEWS       3
-// свободно
+// free
+// free
 #define SCMD_POLICIES   5
 #define SCMD_VERSION    6
 #define SCMD_IMMLIST    7
@@ -115,7 +125,6 @@ struct alias_data {
 #define SCMD_RULES      9
 #define SCMD_CLEAR     10
 #define SCMD_WHOAMI    11
-#define SCMD_GODNEWS   12
 
 /* do_gen_tog */
 #define SCMD_NOSUMMON   0
@@ -148,11 +157,17 @@ struct alias_data {
 #define SCMD_AUTOSPLIT  27
 #define SCMD_AUTOMONEY  28
 #define SCMD_NOARENA    29
-//F@N|
 #define SCMD_NOEXCHANGE 30
-//shapirus
-#define SCMD_NOCLONES	31
+#define SCMD_NOCLONES		31
 #define SCMD_NOINVISTELL	32
+#define SCMD_LENGTH      33
+#define SCMD_WIDTH       34
+#define SCMD_SCREEN      35
+#define SCMD_NEWS_MODE   36
+#define SCMD_BOARD_MODE  37
+#define SCMD_CHEST_MODE  38
+#define SCMD_PKL_MODE    39
+#define SCMD_POLIT_MODE  40
 
 /* do_wizutil */
 #define SCMD_REROLL     0
@@ -279,11 +294,8 @@ struct alias_data {
 #define SCMD_WAKE 0
 #define SCMD_WAKEUP  1
 
-/* do_set_politics */
-#define SCMD_NEUTRAL 0
-#define SCMD_WAR 1
-#define SCMD_ALLIANCE 2
-
 /* do_hchannel */
 #define SCMD_CHANNEL 0
 #define SCMD_ACHANNEL 1
+
+#endif

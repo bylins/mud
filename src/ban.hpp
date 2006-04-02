@@ -21,17 +21,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/tokenizer.hpp>
 #include "diskio.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 
-// для прокси-списка
-#include <map>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-//я хз как это заставить работать с бустом на серве
-//#include <ios>
-//#include <boost/algorithm/string.hpp>
-//#include <boost/format.hpp>
 
 struct BanNode {
 	std::string BannedIp;

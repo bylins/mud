@@ -10,8 +10,6 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
-
 #include "structs.h"
 #include "dg_scripts.h"
 #include "utils.h"
@@ -23,9 +21,7 @@
 #include "screen.h"
 #include "house.h"
 #include "constants.h"
-//MZ.tops
 #include "top.h"
-//-MZ.tops
 #include "features.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
@@ -1848,14 +1844,17 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			} else if (!str_cmp(field, "sex"))
 				sprintf(str, "%d", (int) GET_SEX(c));
 			else if (!str_cmp(field, "clan")) {
-				if (House_sname(c) != NULL) {
-					sprintf(str, "%s", House_sname(c));
+				if (CLAN(c)) {
+					sprintf(str, "%s", CLAN(c)->GetAbbrev());
 					for (i = 0; str[i]; i++)
 						str[i] = LOWER(str[i]);
 				} else
 					sprintf(str, "null");
 			} else if (!str_cmp(field, "clanrank")) {
-				sprintf(str, "%d", GET_HOUSE_RANK(c));
+				if (CLAN(c) && CLAN_MEMBER(c))
+					sprintf(str, "%d", CLAN_MEMBER(c)->rank_num);
+				else
+					sprintf(str, "null");
 			} else if (!str_cmp(field, "g"))
 				strcpy(str, GET_CH_SUF_1(c));
 			else if (!str_cmp(field, "q"))

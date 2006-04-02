@@ -12,20 +12,20 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include <string>
+#include <sstream>
+
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
-
 #include "spells.h"
 #include "skills.h"
 #include "fight.h"
-
 #include "screen.h"
 #include "constants.h"
 #include "pk.h"
@@ -33,27 +33,21 @@
 #include "privileges.hpp"
 #include "mail.h"
 #include "features.hpp"
-// +newbook.patch (Alisher)
 #include "im.h"
-// -newbook.patch (Alisher)
+#include "house.h"
 
-#include <string>
 using std::string;
 
 /* extern variables */
-extern int
- top_of_helpt;
+extern int top_of_helpt;
 extern struct help_index_element *help_table;
 extern char *help;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *character_list;
 extern OBJ_DATA *object_list;
 extern OBJ_DATA *obj_proto;
-extern int
- top_of_socialk;
+extern int top_of_socialk;
 extern char *credits;
-extern char *news;
-extern char *godnews;
 extern char *info;
 extern char *motd;
 extern char *rules;
@@ -65,7 +59,6 @@ extern char *kin_abbrevs[];
 extern INDEX_DATA *obj_index;
 extern INDEX_DATA *mob_index;
 extern PrivList *priv;
-
 extern const char *material_name[];
 
 /* extern functions */
@@ -80,7 +73,7 @@ int low_charm(CHAR_DATA * ch);
 int pk_count(CHAR_DATA * ch);
 /* local functions */
 void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur);
-void show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
+const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
 void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode);
 char *diag_timer_to_char(OBJ_DATA * obj);
@@ -319,8 +312,8 @@ char *diag_uses_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 	return (out_str);
 }
 
-
-void show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how)
+// mode 1 show_state 3 для хранилище, я хз вешать туда таймер в вывод или нет, пока ничего нету
+const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how)
 {
 	*buf = '\0';
 	if ((mode < 5) && PRF_FLAGGED(ch, PRF_ROOMFLAGS))
@@ -338,14 +331,14 @@ void show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_stat
 				page_string(ch->desc, buf, 1);
 			} else
 				send_to_char("Чисто.\r\n", ch);
-			return;
+			return 0;
 		} else if (GET_OBJ_TYPE(object) != ITEM_DRINKCON) {
 			strcpy(buf, "Вы не видите ничего необычного.");
 		} else		/* ITEM_TYPE == ITEM_DRINKCON||FOUNTAIN */
 			strcpy(buf, "Это емкость для жидкости.");
 	}
 
-	if (show_state) {
+	if (show_state && show_state != 3) {
 		*buf2 = '\0';
 		if (mode == 1 && how <= 1) {
 			if (GET_OBJ_TYPE(object) == ITEM_LIGHT) {
@@ -357,7 +350,6 @@ void show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_stat
 					sprintf(buf2, " (%d %s)",
 						GET_OBJ_VAL(object, 2), desc_count(GET_OBJ_VAL(object, 2), WHAT_HOUR));
 			} else
-				// if (GET_OBJ_CUR(object) < GET_OBJ_MAX(object))
 				sprintf(buf2, " %s", diag_obj_to_char(ch, object, 1));
 			if (GET_OBJ_TYPE(object) == ITEM_CONTAINER) {
 				if (object->contains)
@@ -406,6 +398,12 @@ void show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_stat
 		if (IS_OBJ_STAT(object, ITEM_FIRE))
 			strcat(buf, " ..горит !");
 	}
+	// клан-сундук, выводим список разом постранично
+	if (show_state == 3 && mode == 1) {
+		sprintf(buf + strlen(buf), " [%d %s]\r\n", GET_OBJ_RENTEQ(object) * CLAN_STOREHOUSE_COEFF / 100,
+			desc_count(GET_OBJ_RENTEQ(object) * CLAN_STOREHOUSE_COEFF / 100, WHAT_MONEYa));
+		return buf;
+	}
 	strcat(buf, "\r\n");
 	if (mode >= 5) {
 		strcat(buf, diag_weapon_to_char(object, TRUE));
@@ -413,14 +411,16 @@ void show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_stat
 		strcat(buf, diag_uses_to_char(object, ch));
 	}
 	page_string(ch->desc, buf, TRUE);
+	return 0;
 }
-
 
 void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 {
 	OBJ_DATA *i, *push = NULL;
 	bool found = FALSE;
 	int push_count = 0;
+	std::ostringstream buffer;
+	long count = 0, cost = 0;
 
 	for (i = list; i; i = i->next_content) {
 		if (CAN_SEE_OBJ(ch, i)) {
@@ -434,7 +434,13 @@ void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 				 GET_OBJ_VAL(i, 2) != GET_OBJ_VAL(push, 2)) ||
 				(GET_OBJ_TYPE(i) == ITEM_CONTAINER &&
 				 i->contains && !push->contains) || GET_OBJ_VNUM(push) == -1) {
-				show_obj_to_char(push, ch, mode, show, push_count);
+				// если смотрим клан-сундук
+				if (show == 3 && mode == 1) {
+					buffer << show_obj_to_char(push, ch, mode, show, push_count);
+					count += push_count;
+					cost += GET_OBJ_RENTEQ(push) * push_count;
+				} else
+					show_obj_to_char(push, ch, mode, show, push_count);
 				push = i;
 				push_count = 1;
 			} else
@@ -442,16 +448,28 @@ void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 			found = TRUE;
 		}
 	}
-	if (push && push_count)
-		show_obj_to_char(push, ch, mode, show, push_count);
+	if (push && push_count) {
+		// если смотрим клан-сундук
+		if (show == 3 && mode == 1) {
+			buffer << show_obj_to_char(push, ch, mode, show, push_count);
+			count += push_count;
+			cost += GET_OBJ_RENTEQ(push) * push_count;
+		} else
+			show_obj_to_char(push, ch, mode, show, push_count);
+	}
 	if (!found && show) {
 		if (show == 1)
 			send_to_char(" Внутри ничего нет.\r\n", ch);
-		else
+		else if (show == 2)
 			send_to_char(" Вы ничего не несете.\r\n", ch);
+		else if (show == 3) {
+			send_to_char(" Пусто...\r\n", ch);
+			return;
+		}
 	}
+	if (show == 3 && mode == 1)
+		page_string(ch->desc, buffer.str(), TRUE);
 }
-
 
 void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch)
 {
@@ -2453,6 +2471,13 @@ ACMD(do_score)
 			(string(desc_count(GET_GLORY(ch), WHAT_POINT)) + string(" славы.")).substr(0, 61).c_str(),
 			CCCYN(ch, C_NRM));
 
+	if (CLAN(ch)) {
+		int value = CLAN(ch)->GetMemberExpPersent(ch);
+		if (value > 0) {
+			sprintf (buf + strlen(buf), " || Вы отдаете своей дружине %3d%% опыта                                             ||\r\n", value);
+		}
+	}
+
 	if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
 		sprintf(buf + strlen(buf),
 		        " || Вы можете быть призваны.                                                        ||\r\n");
@@ -3668,7 +3693,7 @@ ACMD(do_statistic)
 		if (IS_NPC(tch) || GET_LEVEL(tch) >= LVL_IMMORT || !HERE(tch))
 			continue;
 
-		if (GET_HOUSE_UID(tch))
+		if (CLAN(tch))
 			clan++;
 		else
 			noclan++;
@@ -4049,9 +4074,6 @@ ACMD(do_gen_ps)
 	case SCMD_CREDITS:
 		page_string(ch->desc, credits, 0);
 		break;
-	case SCMD_NEWS:
-		page_string(ch->desc, news, 0);
-		break;
 	case SCMD_INFO:
 		page_string(ch->desc, info, 0);
 		break;
@@ -4117,12 +4139,9 @@ ACMD(do_gen_ps)
 			sprintf(buf, "Перевоплощений: %d\r\n", GET_REMORT(ch));
 			send_to_char(buf, ch);
 			//Конец изменений. Фиопий.
-
+			Clan::CheckPkList(ch);
 			break;
 		}
-	case SCMD_GODNEWS:
-		page_string(ch->desc, godnews, 0);
-		break;
 	default:
 		log("SYSERR: Unhandled case in do_gen_ps. (%d)", subcmd);
 		return;
@@ -4418,7 +4437,6 @@ ACMD(do_toggle)
 	sprintf(buf,
 		" Уровень жизни : %-3s     "
 		" Обращения     : %-3s     " " Краткий режим : %-3s \r\n" " Энергия       : %-3s     "
-// shapirus
 		" Кто-то        : %-6s  "
 		" Сжатый режим  : %-3s \r\n"
 		" Опыт          : %-3s     "
@@ -4443,12 +4461,12 @@ ACMD(do_toggle)
 		" Показ группы  : %-7s "
 		" Автодележ     : %-3s \r\n"
 		" Автограбеж    : %-3s     " " Без двойников : %-3s     " " Арена         : %-3s \r\n"
-//F@N|
-		" Базар         : %-3s \r\n",
+		" Базар         : %-3s     " " Ширина экрана : %-3d     " " Высота экрана : %-3d \r\n"
+		" Новости (вид) : %-5s   "   " Доски         : %-3s     " " Хранилище     : %-10s\r\n"
+		" Пклист        : %-3s     " " Политика      : %-3s\r\n",
 		ONOFF(PRF_FLAGGED(ch, PRF_DISPHP)),
 		ONOFF(!PRF_FLAGGED(ch, PRF_NOTELL)),
 		ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)), ONOFF(PRF_FLAGGED(ch, PRF_DISPMOVE)),
-// shapirus
 		PRF_FLAGGED(ch, PRF_NOINVISTELL) ? "нельзя" : "можно",
 		ONOFF(PRF_FLAGGED(ch, PRF_COMPACT)),
 		ONOFF(PRF_FLAGGED(ch, PRF_DISPEXP)),
@@ -4475,10 +4493,15 @@ ACMD(do_toggle)
 		PRF_FLAGGED(ch, PRF_SHOWGROUP) ? "полный" : "краткий",
 		ONOFF(PRF_FLAGGED(ch, PRF_AUTOSPLIT)),
 		ONOFF(PRF_FLAGGED(ch, PRF_AUTOLOOT)),
-		ONOFF(PRF_FLAGGED(ch, PRF_NOCLONES)), ONOFF(!PRF_FLAGGED(ch, PRF_NOARENA)),
-//F@N|
-		ONOFF(!PRF_FLAGGED(ch, PRF_NOEXCHANGE)));
-
+		ONOFF(PRF_FLAGGED(ch, PRF_NOCLONES)),
+		ONOFF(!PRF_FLAGGED(ch, PRF_NOARENA)),
+		ONOFF(!PRF_FLAGGED(ch, PRF_NOEXCHANGE)),
+		STRING_LENGTH(ch), STRING_WIDTH(ch),
+		PRF_FLAGGED(ch, PRF_NEWS_MODE) ? "доска" : "лента",
+		ONOFF(PRF_FLAGGED(ch, PRF_BOARD_MODE)),
+		GetChestMode(ch).c_str(),
+		ONOFF(PRF_FLAGGED(ch, PRF_PKL_MODE)),
+		ONOFF(PRF_FLAGGED(ch, PRF_POLIT_MODE)));
 
 	send_to_char(buf, ch);
 }
@@ -4579,7 +4602,7 @@ ACMD(do_commands)
 //           (GET_LEVEL(vict) >= cmd_info[i].minimum_level || GET_COMMSTATE(vict)) &&
 			    (priv->
 			     enough_cmd_priv(std::string(GET_NAME(vict)), GET_LEVEL(vict),
-					     std::string(cmd_info[i].command), i)
+					     std::string(cmd_info[i].command), i, GET_UNIQUE(vict))
 			     || GET_COMMSTATE(vict))
 			    && (cmd_info[i].minimum_level >= LVL_IMMORT) == wizhelp
 			    && (wizhelp || socials == cmd_sort_info[i].is_social)) {

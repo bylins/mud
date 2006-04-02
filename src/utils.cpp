@@ -12,10 +12,10 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include <fstream>
+
 #include "conf.h"
 #include "sysdep.h"
-
-
 #include "structs.h"
 #include "utils.h"
 #include "db.h"
@@ -28,6 +28,7 @@
 #include "im.h"
 #include "dg_scripts.h"
 #include "features.hpp"
+#include "boards.h"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 
@@ -43,9 +44,6 @@ int valid_email(const char *address);
 
 /* external functions */
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
-char *House_name(CHAR_DATA * ch);
-char *House_rank(CHAR_DATA * ch);
-char *House_sname(CHAR_DATA * ch);
 
 // Файл для вывода
 FILE *logfile = NULL;
@@ -1189,15 +1187,10 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen)
 }
 
 
-char *some_pads[3][18] = { {"дней", "часов", "лет", "очков", "минут", "минут", "кун", "кун",
-			    "штук", "штук", "уровней", "верст", "верст", "единиц", "единиц",
-			    "секунд", "градусов", "строк"},
-{"день", "час", "год", "очко", "минута", "минуту", "куна", "куну",
- "штука", "штуку", "уровень", "верста", "версту", "единица", "единицу",
- "секунду", "градус", "строка"},
-{"дня", "часа", "года", "очка", "минуты", "минуты", "куны", "куны",
- "штуки", "штуки", "уровня", "версты", "версты", "единицы", "единицы",
- "секунды", "градуса", "строки"}
+char *some_pads[3][19] = {
+{"дней", "часов", "лет", "очков", "минут", "минут", "кун", "кун", "штук", "штук", "уровней", "верст", "верст", "единиц", "единиц", "секунд", "градусов", "строк", "предметов"},
+{"день", "час", "год", "очко", "минута", "минуту", "куна", "куну", "штука", "штуку", "уровень", "верста", "версту", "единица", "единицу", "секунду", "градус", "строка", "предмет"},
+{"дня", "часа", "года", "очка", "минуты", "минуты", "куны", "куны", "штуки", "штуки", "уровня", "версты", "версты", "единицы", "единицы", "секунды", "градуса", "строки", "предмета"}
 };
 
 char *desc_count(int how_many, int of_what)
@@ -1330,14 +1323,15 @@ char *noclan_title(CHAR_DATA * ch)
 
 char *title_noname(struct char_data *ch)
 {
-	static char title[MAX_STRING_LENGTH], *hname, *hrank;
+	static char title[MAX_STRING_LENGTH];
 	static char clan[MAX_STRING_LENGTH];
 	char *pos, *pos1;
-	if ((hname = House_name(ch)) && (hrank = House_rank(ch)) && GET_HOUSE_RANK(ch)) {
-		sprintf(clan, " (%s %s)", hrank, House_sname(ch));
-	} else {
+
+	if (CLAN(ch) && !IS_IMMORTAL(ch))
+		sprintf(clan, " (%s)", GET_CLAN_STATUS(ch));
+	else
 		clan[0] = 0;
-	}
+
 	if (!GET_TITLE(ch) || !*GET_TITLE(ch))
 		sprintf(title, "%s%s", GET_NAME(ch), clan);
 	else {
@@ -1364,15 +1358,15 @@ char *title_noname(struct char_data *ch)
 
 char *only_title(CHAR_DATA * ch)
 {
-	static char title[MAX_STRING_LENGTH], *hname, *hrank;
+	static char title[MAX_STRING_LENGTH];
 	static char clan[MAX_STRING_LENGTH];
 	char *pos, *pos1;
 
-	if ((hname = House_name(ch)) && (hrank = House_rank(ch)) && GET_HOUSE_RANK(ch)) {
-		sprintf(clan, " (%s %s)", hrank, House_sname(ch));
-	} else {
+	if (CLAN(ch) && !IS_IMMORTAL(ch))
+		sprintf(clan, " (%s)", GET_CLAN_STATUS(ch));
+	else
 		clan[0] = 0;
-	}
+
 	if (!GET_TITLE(ch) || !*GET_TITLE(ch))
 		sprintf(title, "%s%s", GET_NAME(ch), clan);
 	else {
@@ -1413,15 +1407,15 @@ char *only_title(CHAR_DATA * ch)
 
 char *race_or_title(CHAR_DATA * ch)
 {
-	static char title[MAX_STRING_LENGTH], *hname, *hrank;
+	static char title[MAX_STRING_LENGTH];
 	static char clan[MAX_STRING_LENGTH];
 	char *pos, *pos1;
 
-	if ((hname = House_name(ch)) && (hrank = House_rank(ch)) && GET_HOUSE_RANK(ch)) {
-		sprintf(clan, " (%s %s)", hrank, House_sname(ch));
-	} else {
+	if (CLAN(ch) && !IS_IMMORTAL(ch))
+		sprintf(clan, " (%s)", GET_CLAN_STATUS(ch));
+	else
 		clan[0] = 0;
-	}
+
 	if (!GET_TITLE(ch) || !*GET_TITLE(ch))
 		sprintf(title, "%s %s%s", race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)], GET_NAME(ch), clan);
 	else {
@@ -1612,7 +1606,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 				break;
 
 			case 'F':
-				CHECK_NULL(vict_obj, fname((const char *) vict_obj));
+				CHECK_NULL(vict_obj, (const char *) vict_obj);
 				break;
 
 			case '$':
@@ -1810,3 +1804,77 @@ int valid_email(const char *address)
 
         return 1;
 }	    
+
+
+GodListType GodList; // список иммов
+
+// лоад/релоад god.lst, ищем уиды, если нужно + втыкаем каждому по доске-блокноту
+// TODO: вообще этот список должен быть совмещен со списком привилегий, ибо дублируется
+// но тут есть момент, что привилегии могут быть добавлены из мада, а в этот список полюбому надо доступ до сервера
+void GodListLoad()
+{
+	// на случай релоада
+	GodList.clear();
+
+	// лоадим иммов
+	std::ifstream file(GODLIST_FILE);
+	if (!file.is_open()) {
+		log("Error open file: %s! (%s %s %d)", GODLIST_FILE, __FILE__, __func__, __LINE__);
+		return;
+	}
+	std::string buffer, comment;
+	long unique = 0;
+	while (file >> buffer) {
+		// коментарии сохраняем для перезаписи
+		if (buffer[0] == ';') {
+			std::getline(file, buffer, '\n');
+			comment += ';' + buffer + '\n';
+			continue;
+		}
+		file >> unique;
+		if (!unique)
+			unique = GetUniqueByName(buffer);
+		// если имма сделетили, то пусть заново вписывают при ресторе
+		if (unique < 0)
+			continue;
+		GodList[unique] = buffer;
+	}
+	file.close();
+
+	// сохраняем список на случай нулевых уидов изначально
+	std::ofstream outfile(GODLIST_FILE);
+	if (!outfile.is_open()) {
+		log("Error open file: %s! (%s %s %d)", GODLIST_FILE, __FILE__, __func__, __LINE__);
+		return;
+	}
+	outfile << comment;
+	for (GodListType::const_iterator it = GodList.begin(); it != GodList.end(); ++it)
+		outfile << (*it).second << " " << (*it).first << '\n';
+	outfile.close();
+
+	// генерим блокноты
+	Board::GodInit();
+}
+
+// ищет имма в списке по уиду и полному совпадению имени
+// TODO: первый вариант вообще в IS_IMPL и остальных макросах должен быть, но уж больно оно часто там
+// дергается, просто ужасно часто и не по делу, тормозить конечно не будет и вообще фик кто заметит,
+// но это все не прально. т.к. копать все вызовы влом - пока пусть дергается только второй вариант,
+// он на вводе команд стоит, имм вне списка ниче из wiz команд сделать не сможет
+bool GodListCheck(CHAR_DATA * ch)
+{
+	for (GodListType::const_iterator it = GodList.begin(); it != GodList.end(); ++it)
+		if ((*it).first == GET_UNIQUE(ch))
+			if (CompareParam((*it).second, GET_NAME(ch), 1))
+				return 1;
+	return 0;
+}
+
+bool GodListCheck(const std::string name, long unique)
+{
+	GodListType::const_iterator it = GodList.find(unique);
+	if (it != GodList.end())
+		if ((*it).second == name)
+			return 1;
+	return 0;
+}

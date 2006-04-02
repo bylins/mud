@@ -1,99 +1,244 @@
-/* ************************************************************************
-*   File: house.cpp                                     Part of Bylins    *
-*  Usage: Handling of player houses                                       *
-*                                                                         *
-*  All rights reserved.  See license.doc for complete information.        *
-*                                                                         *
-*  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
-*  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
-*                                                                         *
-*  $Author$                                                        *
-*  $Date$                                           *
-*  $Revision$                                                       *
-************************************************************************ */
+/* ****************************************************************************
+* File: house.h                                                Part of Bylins *
+* Usage: Handling of clan system                                              *
+* (c) 2005 Krodo                                                              *
+******************************************************************************/
 
-#define MAX_HOUSES	100
-#define MAX_GUESTS	500
-#define HOUSE_NAME_LEN  50
-#define HOUSE_SNAME_LEN  4
+#ifndef _HOUSE_H_
+#define _HOUSE_H_
 
-#define HOUSE_PRIVATE	0
+#include <vector>
+#include <map>
+#include <bitset>
+#include <string>
+#include <boost/shared_ptr.hpp>
 
-#define HCE_ATRIUM		0
-#define	HCE_PORTAL		1
+#include "conf.h"
+#include "sysdep.h"
+#include "structs.h"
+#include "utils.h"
+#include "db.h"
+#include "interpreter.h"
 
-#define RANK_KNIEZE      9
-#define RANK_CENTURION   7
-#define RANK_VETERAN     4
-#define RANK_JUNIOR      2
-#define RANK_NOVICE      1
-#define RANK_GUEST       0
+#define CLAN_PRIVILEGES_NUM 12
+#define MAY_CLAN_INFO       0
+#define MAY_CLAN_ADD        1
+#define MAY_CLAN_REMOVE     2
+#define MAY_CLAN_PRIVILEGES 3
+#define MAY_CLAN_CHANNEL    4
+#define MAY_CLAN_POLITICS   5
+#define MAY_CLAN_NEWS       6
+#define MAY_CLAN_PKLIST     7
+#define MAY_CLAN_CHEST_PUT  8
+#define MAY_CLAN_CHEST_TAKE 9
+#define MAY_CLAN_BANK       10
+#define MAY_CLAN_EXIT       11
+// не забываем про CLAN_PRIVILEGES_NUM
 
-#define POLITICS_NEUTRAL 0
-#define POLITICS_WAR     1
+#define POLITICS_NEUTRAL  0
+#define POLITICS_WAR      1
 #define POLITICS_ALLIANCE 2
 
-struct house_control_rec {
-	room_vnum vnum;		/* vnum of this house */
-	room_vnum atrium;	/* vnum of atrium */
-	room_vnum prison;	/* vnum клан-тюрьмы */
-	char name[HOUSE_NAME_LEN];
-	char sname[HOUSE_SNAME_LEN + 1];
-	sh_int exit_num;	/* direction of house's exit */
-	time_t built_on;	/* date this house was built */
-	int mode;		/* mode of ownership */
-	long owner;		/* idnum of house's owner */
-	int num_of_guests;	/* how many guests in this house */
-	long guests[MAX_GUESTS];	/* idnums of house's guests */
-	time_t last_payment;	/* date of last house payment */
-	room_vnum politics_vnum[MAX_HOUSES];	// array of corresponding house vnums
-	int politics_state[MAX_HOUSES];	// array of corresponding politics state
-	long unique;
-	long keeper;
-	long spare0;
-	long spare1;
-	long spare2;
-	long spare3;
-	long spare4;
-	long spare5;
-	long spare6;
-	long spare7;
-	room_vnum closest_rent;	/* vnum of closest rent */
+#define HCE_ATRIUM 0
+#define	HCE_PORTAL 1
+
+#define CLAN_MAIN_MENU      0
+#define CLAN_PRIVILEGE_MENU 1
+#define CLAN_SAVE_MENU      2
+#define CLAN_ADDALL_MENU    3
+#define CLAN_DELALL_MENU    4
+
+// vnum кланового сундука
+#define CLAN_CHEST 330
+// период снятия за ренту (минут)
+#define CHEST_UPDATE_PERIOD 10
+// период оповещения о скорой кончине денег (минут)
+#define CHEST_INVOICE_PERIOD 60
+// период обновление статов экспы в топе кланов в режиме запрета обновления на лету (минут)
+#define CLAN_TOP_REFRESH_PERIOD 360
+// клановый налог в день
+#define CLAN_TAX 1000
+// налог на выборку по параметрам из хранилища в день
+#define CLAN_STOREHOUSE_TAX 1000
+// процент стоимости ренты шмотки (одетой) для хранилища
+#define CLAN_STOREHOUSE_COEFF 50
+
+#define MAX_CLANLEVEL 5
+#define NUM_CLAN_BONUSES 5
+// номер зоны с прототипами клан-стафа
+#define CLAN_STUFF_ZONE 18
+
+struct ClanMember {
+	std::string name;   // имя игрока
+	int rank_num;       // номер ранга
+	long long money;    // баланс персонажа по отношению к клановой казне
+	long long exp;      // набранная топ-экспа
+	int exp_persent;    // процент икспы отчисляемый в клан
+	long long clan_exp; // набранная клан-экспа
 };
 
-#define HOUSE_UNIQUE(house_num) (house_control[house_num].unique)
-#define HOUSE_KEEPER(house_num) (house_control[house_num].keeper)
+struct ClanPk {
+	long author;            // уид автора
+	std::string victimName;	// имя жертвы
+	std::string authorName;	// имя автора
+	time_t time;            // время записи
+	std::string text;       // комментарий
+};
+
+struct ClanStuffName {
+	int num;
+	std::string name;
+	std::string desc;
+	std::string longdesc;
+	std::vector<std::string> PNames;
+};
+
+class Clan;
+
+typedef boost::shared_ptr<Clan> ClanPtr;
+typedef std::vector<ClanPtr> ClanListType;
+typedef boost::shared_ptr<ClanMember> ClanMemberPtr;
+typedef std::map<long, ClanMemberPtr> ClanMemberList;
+typedef boost::shared_ptr<ClanPk> ClanPkPtr;
+typedef std::map<long, ClanPkPtr> ClanPkList;
+typedef std::vector<std::bitset<CLAN_PRIVILEGES_NUM> > ClanPrivileges;
+typedef std::map<int, int> ClanPolitics;
+typedef std::vector<ClanStuffName> ClanStuffList;
+
+struct ClanOLC {
+	int mode;                  // для контроля состояния олц
+	ClanPtr clan;              // клан, который правим
+	ClanPrivileges privileges; // свой список привилегий на случай не сохранения при выходе
+	int rank;                  // редактируемый в данный момент ранг
+	std::bitset<CLAN_PRIVILEGES_NUM> all_ranks; // буфер для удаления/добавления всем рангам
+};
+
+struct ClanInvite {
+	ClanPtr clan; // приглашающий клан
+	int rank;     // номер приписываемого ранга
+};
 
 
+class Clan
+{
+	public:
+	Clan();
+	~Clan();
 
-#define TOROOM(room, dir) (world[room]->dir_option[dir] ? \
-                           world[room]->dir_option[dir]->to_room : NOWHERE)
+	static ClanListType ClanList; // список кланов
 
-void House_listrent(CHAR_DATA * ch, room_vnum vnum);
-void House_boot(void);
-void House_save_all(void);
-int House_can_enter(CHAR_DATA * ch, room_rnum house, int mode);
-void House_crashsave(room_vnum vnum);
-void House_list_guests(CHAR_DATA * ch, int i, int quiet);
-void House_list_rooms(CHAR_DATA * ch, int i, int quiet);
+	static void ClanLoad();
+	static void ClanSave();
+	static void ChestSave();
+	static void HconShow(CHAR_DATA * ch);
+	static void SetClanData(CHAR_DATA * ch);
+	static void ChestUpdate();
+	static bool MayEnter(CHAR_DATA * ch, room_rnum room, bool mode);
+	static bool InEnemyZone(CHAR_DATA * ch);
+	static bool PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest);
+	static bool TakeChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest);
+	static void ChestInvoice();
+	static bool BankManage(CHAR_DATA * ch, char *arg);
+	static room_rnum CloseRent(room_rnum to_room);
+	static SPECIAL(ClanChest);
+	static ClanListType::const_iterator IsClanRoom(room_rnum room);
+	static void CheckPkList(CHAR_DATA * ch);
+	static void SyncTopExp();
+	static int GetTotalCharScore(CHAR_DATA * ch);
+	static int GetRankByUID(long);
 
-int House_closestrent(int room);
-int House_atrium(int room);
-int House_vnum(int room);
+	void Manage(DESCRIPTOR_DATA * d, const char * arg);
+	void AddTopExp(CHAR_DATA * ch, int add_exp);
 
-int House_check_exist(long uid);
+	const char * GetAbbrev() { return this->abbrev.c_str(); };
+	int GetRent();
+	int SetClanExp(CHAR_DATA *ch, int add);  //На входе - икспа с моба - на выходе икспа собсно игроку. за вычетом той что идет в клан
+	int GetMemberExpPersent(CHAR_DATA *ch) { if (!CLAN(ch)) return 0; return CLAN_MEMBER(ch)->exp_persent;}; 
+	int GetClanLevel() { return this->clan_level; };
+	std::string GetClanTitle() { return this->title; };
+	bool CheckPrivilege(int rank, int privilege) { return this->privileges[rank][privilege]; };
 
-long house_zone(room_rnum rnum);
-void House_set_keeper(CHAR_DATA * ch);
-void House_channel(CHAR_DATA * ch, char *msg);
-int House_major(CHAR_DATA * ch);
-char *House_name(CHAR_DATA * ch);
-char *House_rank(CHAR_DATA * ch);
-char *House_sname(CHAR_DATA * ch);
-void House_list(CHAR_DATA * ch);
-void House_list_all(CHAR_DATA * ch);
-int House_news(DESCRIPTOR_DATA * d);
-void sync_char_with_clan(CHAR_DATA * ch);
-int find_house(room_vnum vnum);
-int House_for_uid(long uid);
-int in_enemy_clanzone(CHAR_DATA * ch);
+	friend ACMD(DoHouse);
+	friend ACMD(DoClanChannel);
+	friend ACMD(DoClanList);
+	friend ACMD(DoShowPolitics);
+	friend ACMD(DoHcontrol);
+	friend ACMD(DoWhoClan);
+	friend ACMD(DoClanPkList);
+	friend ACMD(DoStoreHouse);
+	friend ACMD(do_clanstuff);
+
+	private:
+	std::string abbrev; // аббревиатура клана, ОДНО слово
+	std::string name;   // длинное имя клана
+	std::string title;  // что будет видно в титуле членов клана (лучше род.падеж, если это не аббревиатура)
+	std::string owner;  // имя воеводы
+	mob_vnum guard;     // охранник замка
+	time_t builtOn;     // дата создания
+	double bankBuffer;  // буффер для более точного снятия за хранилище
+	bool entranceMode;  // вход в замок для всех/только свои и альянс
+	std::vector <std::string> ranks; // список названий рангов
+	std::vector <std::string> ranks_female; // список названий рангов для женского рода
+	ClanPolitics politics;     // состояние политики
+	ClanPkList pkList;  // пклист
+	ClanPkList frList;  // дрлист
+	long bank;          // состояние счета банка
+	long long exp; // суммарная топ-экспа
+	long long clan_exp; //суммарная клан-экспа
+	long exp_buf;  // буффер для суммарной топ-экспы в режиме запрета подсчета в ран-тайме (exp_info), синхронизация раз в 6 часов
+	int clan_level; // текущий уровень клана
+	int rent;       // номер центральной комнаты в замке, заодно УИД клана
+	int out_rent;   // номер румы для отписанных, чтобы не тусовались в замке дальше
+	int chest_room; // комната с сундуком, по дефолту равняется ренте. чтобы не искать постояно руму в циклах
+	ClanPrivileges privileges; // список привилегий для рангов
+	ClanMemberList members;    // список членов дружины (уид, имя, номер ранга)
+	ClanStuffList clanstuff;   // клан-стаф
+	bool storehouse;    // опция выборки из хранилища по параметрам шмота
+	bool exp_info;      // показывать или нет набранную экспу
+	bool test_clan;     // тестовый клан (привет рсп)
+	//no save
+	int chest_objcount;
+	int chest_discount;
+	int chest_weight;
+	// вообще, если появится еще пара-тройка опций, то надо будет это в битсет засунуть
+
+	void ClanUpgrade();
+	int CheckPolitics(int victim);
+	void SetPolitics(int victim, int state);
+	void ManagePolitics(CHAR_DATA * ch, std::string & buffer);
+	void HouseInfo(CHAR_DATA * ch);
+	void HouseAdd(CHAR_DATA * ch, std::string & buffer);
+	void HouseRemove(CHAR_DATA * ch, std::string & buffer);
+	void TaxManage(CHAR_DATA * ch, std::string & arg);
+	void ClanAddMember(CHAR_DATA * ch, int rank);
+	void HouseOwner(CHAR_DATA * ch, std::string & buffer);
+	void HouseLeave(CHAR_DATA * ch);
+	int GetClanScore();
+	void HouseStat(CHAR_DATA * ch, std::string & buffer);
+	// house аля олц
+	void MainMenu(DESCRIPTOR_DATA * d);
+	void PrivilegeMenu(DESCRIPTOR_DATA * d, unsigned num);
+	void AllMenu(DESCRIPTOR_DATA * d, unsigned flag);
+	void GodToChannel(CHAR_DATA *ch, std::string text, int subcmd);
+	void CharToChannel(CHAR_DATA *ch, std::string text, int subcmd);
+
+	static void HcontrolBuild(CHAR_DATA * ch, std::string & buffer);
+	static void HcontrolDestroy(CHAR_DATA * ch, std::string & buffer);
+	static void ChestLoad();
+	int ChestTax();
+	void ChestShow(OBJ_DATA * list, CHAR_DATA * ch);
+	int ChestMaxObjects() {return (this->clan_level+1)*500+100;};
+	int ChestMaxWeight() {return (this->clan_level+1)*2000+400;};
+
+	// для сортировки вывода членов клана по рангам, когда оно через поля чара дергается
+	class SortRank
+	{
+		public:
+		bool operator() (const CHAR_DATA * ch1, const CHAR_DATA * ch2);
+	};
+};
+
+void SetChestMode(CHAR_DATA *ch, std::string &buffer);
+std::string GetChestMode(CHAR_DATA *ch);
+
+#endif

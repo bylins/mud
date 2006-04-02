@@ -14,8 +14,6 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
-
 #include "structs.h"
 #include "comm.h"
 #include "handler.h"
@@ -69,7 +67,6 @@ int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
 int min_rent_cost(CHAR_DATA * ch);
 void name_from_drinkcon(OBJ_DATA * obj);
 void name_to_drinkcon(OBJ_DATA * obj, int type);
-int delete_char(char *name);
 OBJ_DATA *create_obj(void);
 void asciiflag_conv(char *flag, void *value);
 void tascii(int *pointer, int num_planes, char *ascii);
@@ -1182,7 +1179,7 @@ void Crash_create_timer(int index, int num)
 		abort();
 	}
 
-//	MAKEINFO((char *) SAVEINFO(index), num);
+	// выше - развертка MAKEINFO((char *) SAVEINFO(index), num);
 	memset(SAVEINFO(index), 0, MAKESIZE(num));
 }
 
@@ -2287,7 +2284,7 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 		act("$n сказал$g : \"Не люблю говорить с теми, кого я не вижу !\"", FALSE, recep, 0, 0, TO_ROOM);
 		return (TRUE);
 	}
-	if (in_enemy_clanzone(ch)) {
+	if (Clan::InEnemyZone(ch)) {
 		act("$n сказал$g : \"Чужакам здесь не место !\"", FALSE, recep, 0, 0, TO_ROOM);
 		return (TRUE);
 	}

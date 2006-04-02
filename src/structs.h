@@ -11,12 +11,18 @@
 *  $Date$                                           *
 *  $Revision$                                                       *
 ************************************************************************ */
+
 #ifndef _STRUCTS_H_
 #define _STRUCTS_H_
+
 #include <list>
-using std::list;
 #include <bitset>
+#include <string>
+#include <boost/shared_ptr.hpp>
+
+using std::list;
 using std::bitset;
+
 /*
  * Intended use of this macro is to allow external packages to work with
  * a variety of CircleMUD versions without modifications.  For instance,
@@ -554,15 +560,19 @@ typedef struct trig_data
 #define PRF_AUTOSPLIT   (INT_ONE | 1 << 6)	/* Autosplit */
 #define PRF_AUTOMONEY   (INT_ONE | 1 << 7)	/* Automoney */
 #define PRF_NOARENA     (INT_ONE | 1 << 8)	/* Не слышит арену */
-//F@N|
 #define PRF_NOEXCHANGE  (INT_ONE | 1 << 9)	/* Не слышит базар */
-//shapirus
 #define PRF_NOCLONES	(INT_ONE | 1 << 10)	/* Не видит в группе чужих клонов */
 #define PRF_NOINVISTELL	(INT_ONE | 1 << 11)	/* Не хочет, чтобы телял "кто-то" */
 #define PRF_POWERATTACK	(INT_ONE | 1 << 12)	/* мощная атака */
-#define PRF_GREATPOWERATTACK	(INT_ONE | 1 << 13)	/* улучшеная мощная атака */
-#define PRF_AIMINGATTACK	(INT_ONE | 1 << 14)	/* прицельная атака */
-#define PRF_GREATAIMINGATTACK	(INT_ONE | 1 << 15)	/* улучшеная прицельная атака */
+#define PRF_GREATPOWERATTACK  (INT_ONE | 1 << 13) /* улучшеная мощная атака */
+#define PRF_AIMINGATTACK      (INT_ONE | 1 << 14) /* прицельная атака */
+#define PRF_GREATAIMINGATTACK (INT_ONE | 1 << 15) /* улучшеная прицельная атака */
+#define PRF_NEWS_MODE   (INT_ONE | 1 << 16) // вариант чтения новостей мада и дружины
+#define PRF_BOARD_MODE  (INT_ONE | 1 << 17) // уведомления о новых мессагах на досках
+#define PRF_DECAY_MODE  (INT_ONE | 1 << 18) // канал хранилища, рассыпание шмота
+#define PRF_TAKE_MODE   (INT_ONE | 1 << 19) // канал хранилища, положили/взяли
+#define PRF_PKL_MODE    (INT_ONE | 1 << 20) // уведомления о добавлении/убирании в пкл
+#define PRF_POLIT_MODE  (INT_ONE | 1 << 21) // уведомления об изменении политики, своей и чужой
 
 /* Affect bits: used in char_data.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
@@ -692,7 +702,8 @@ typedef struct trig_data
 #define CON_RACES        39
 #define CON_RACEV        40
 #define CON_COLOR        41
-
+#define CON_WRITEBOARD   42 // написание на доску
+#define CON_CLANEDIT     43 // команда house
 
 /* Character equipment positions: used as index for char_data.equipment[] */
 /* NOTE: Don't confuse these constants with the ITEM_ bitvectors
@@ -1760,7 +1771,7 @@ struct player_special_data_saved {
 	int
 	 unique;
 	int
-	 HouseRank;
+	 HouseRank; // TODO: я в курсе
 	int
 	 Remorts;
 	int
@@ -1777,9 +1788,9 @@ struct player_special_data_saved {
 	long
 	 GodsLike;
 	long
-	 HouseUID;
-	long
-	 LastLogon;
+	 HouseUID; // TODO: я в курсе
+	time_t
+ 	 LastLogon; //by kilnik
 	long
 	 NameIDGod;
 	long
@@ -1804,6 +1815,9 @@ struct player_special_data_saved {
 	 remember[MAX_REMEMBER_TELLS][MAX_RAW_INPUT_LENGTH];
 	int
 	 lasttell;
+
+	int stringLength;
+	int stringWidth;
 };
 
 // shapirus
@@ -1818,7 +1832,7 @@ struct ignore_data {
 struct logon_data {
 	char * ip;
 	long count;
-	long lasttime;
+	time_t lasttime; //by kilnik
 	logon_data * next;
 };
 
@@ -1828,6 +1842,16 @@ struct punish_data {
 	int  level;
 	long godid;
 };
+
+// режим уведомлений
+#define TOTAL_INFORM_NUM    6
+#define INFORM_BOARD        0
+#define INFORM_PKL          1
+#define INFORM_POLITICS     2
+#define INFORM_INVITE       3
+#define INFORM_CHEST_DECAY  4
+#define INFORM_CHEST_CHANGE 5
+// не забываем про TOTAL_INFORM_NUM
 
 /*
  * Specials needed only by PCs, not NPCs.  Space for this structure is
@@ -1882,7 +1906,25 @@ struct player_special_data {
 	struct punish_data pgcurse;
 	struct punish_data punreg;
 
-	int page_height;
+	char *clanStatus; // строка для отображения приписки по кто
+	// TODO: вообще тут надо weak_ptr втыкать, но смотрится очень тупо ща с макросами и в структуре
+	// поэтому пока просто надо не забывать чистить указатели у плееров, чтобы не оставлять клан
+	boost::shared_ptr<class Clan> clan; // собсна клан, если он есть
+	boost::shared_ptr<struct ClanMember> clan_member; // поле мембера в клане
+	std::bitset<TOTAL_INFORM_NUM> inform; // список разрешенных/запрещенных уведомлений
+
+	long GeneralBoardDate;    // последнее прочтенное на общей доске
+	long NewsBoardDate;       // -//- новости
+	long IdeaBoardDate;       // -//- идеи
+	long ErrorBoardDate;      // -//- ошибки
+	long GodNewsBoardDate;    // -//- новости богов
+	long GodGeneralBoardDate; // -//- общая богов
+	long GodBuildBoardDate;   // -//- билдерская
+	long GodCodeBoardDate;    // -//- кодерская
+	long GodPunishBoardDate;  // -//- наказания
+	long PersBoardDate;       // -//- блокнот
+	long ClanBoardDate;       // -//- клан-доска
+	long ClanNewsBoardDate;   // -//- клан-новости
 };
 
 
@@ -2194,6 +2236,10 @@ struct descriptor_data {
 	 mccp_version;
 #endif
 	unsigned long ip;	// ип адрес в виде числа для внутреннего пользования
+	boost::shared_ptr<class Board> board;       // редактируемая доска
+	boost::shared_ptr<struct Message> message;  // редактируемое сообщение
+	boost::shared_ptr<struct ClanOLC> clan_olc; // редактирование привилегий клана
+	boost::shared_ptr<struct ClanInvite> clan_invite; // приглашение в дружину
 };
 
 

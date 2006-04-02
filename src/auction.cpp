@@ -10,16 +10,13 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "screen.h"
-
 #include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
-
 #include "auction.h"
 #include "constants.h"
 
@@ -198,6 +195,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 			"Аукцион : новый лот %d - %s - начальная ставка %d %s. \r\n",
 			lot, obj->PNames[0], value, desc_count(value, WHAT_MONEYa));
 		message_auction(tmpbuf, NULL);
+		set_wait(ch, 1, FALSE);
 		return true;
 		break;
 	case 1:		// Close
@@ -219,6 +217,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 			GET_LOT(lot)->item->PNames[0], GET_OBJ_SUF_6(GET_LOT(lot)->item));
 		clear_auction(lot);
 		message_auction(tmpbuf, NULL);
+		set_wait(ch, 1, FALSE);
 		return true;
 		break;
 	case 2:		// Set
@@ -279,6 +278,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 		sprintf(tmpbuf, "Аукцион : лот %d(%s) - новая ставка %d %s.", lot,
 			GET_LOT(lot)->item->PNames[0], value, desc_count(value, WHAT_MONEYa));
 		message_auction(tmpbuf, NULL);
+		set_wait(ch, 1, FALSE);
 		return true;
 		break;
 
@@ -315,6 +315,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 			message_auction(tmpbuf, NULL);
 			return true;
 		}
+		set_wait(ch, 1, FALSE);
 		return false;
 		break;
 	case 4:		// Transport //

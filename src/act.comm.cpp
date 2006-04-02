@@ -898,7 +898,8 @@ ACMD(do_pray_gods)
 	for (i = descriptor_list; i; i = i->next)
 		if (STATE(i) == CON_PLAYING && (IS_IMMORTAL(i->character)
 						|| IS_CODER(i->character)
-						|| GET_GOD_FLAG(i->character, GF_DEMIGOD)))
+						|| GET_GOD_FLAG(i->character, GF_DEMIGOD))
+						&& GodListCheck(GET_NAME(i->character), GET_UNIQUE(i->character)))
 			if (i->character != ch)
 				act(buf, 0, ch, 0, i->character, TO_VICT | TO_SLEEP);
 }

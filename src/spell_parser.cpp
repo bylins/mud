@@ -53,9 +53,6 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract)
 int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
 
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
-// +newbook.patch (Alisher)
-void show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
-// -newbook.patch (Alisher)
 /* local functions */
 void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj);
 void spello(int spl, const char *name, const char *syn, int max_mana, int min_mana, int mana_change,
@@ -4250,6 +4247,9 @@ void mag_assign_spells(void)
 //170
 	spello(SPELL_FAILURE, "недоля", "failure", 100, 85, 2, POS_FIGHTING,
 	       TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_AREAS | MAG_AFFECTS | NPC_AFFECT_PC, 5, STYPE_DARK);
+
+//171 
+	spello(SPELL_CLANPRAY, "!клановые чары!", "!clan affect!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0,  STYPE_NEUTRAL);
 
 	/* NON-castable spells should appear below here. */
 

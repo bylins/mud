@@ -12,11 +12,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-
 #include "conf.h"
 #include "sysdep.h"
-
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -459,7 +456,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		}
 
 		if (ROOM_FLAGGED(ch->in_room, ROOM_ATRIUM)) {
-			if (!House_can_enter(ch, EXIT(ch, dir)->to_room, HCE_ATRIUM)) {
+			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room, HCE_ATRIUM)) {
 				if (show_msg)
 					send_to_char("Частная собственность ! Вход воспрещен !\r\n", ch);
 				return (FALSE);
@@ -1301,7 +1298,7 @@ ACMD(do_enter)
 					}
 				}
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
-				if (!IS_IMMORTAL(ch) && ((!IS_NPC(ch) && (!House_can_enter(ch, door, HCE_PORTAL)
+				if (!IS_IMMORTAL(ch) && ((!IS_NPC(ch) && (!Clan::MayEnter(ch, door, HCE_PORTAL)
 									  || (GET_LEVEL(ch) <= 10
 									      && world[door]->portal_time)))
 							 || (ROOM_FLAGGED(from_room, ROOM_NOTELEPORTOUT)
