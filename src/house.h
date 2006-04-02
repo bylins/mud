@@ -64,7 +64,6 @@
 #define CLAN_STOREHOUSE_COEFF 50
 
 #define MAX_CLANLEVEL 5
-#define NUM_CLAN_BONUSES 5
 // номер зоны с прототипами клан-стафа
 #define CLAN_STUFF_ZONE 18
 
