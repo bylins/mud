@@ -1843,16 +1843,6 @@ struct punish_data {
 	long godid;
 };
 
-// режим уведомлений
-#define TOTAL_INFORM_NUM    6
-#define INFORM_BOARD        0
-#define INFORM_PKL          1
-#define INFORM_POLITICS     2
-#define INFORM_INVITE       3
-#define INFORM_CHEST_DECAY  4
-#define INFORM_CHEST_CHANGE 5
-// не забываем про TOTAL_INFORM_NUM
-
 /*
  * Specials needed only by PCs, not NPCs.  Space for this structure is
  * not allocated in memory for NPCs, but it is for PCs and the portion
@@ -1911,7 +1901,6 @@ struct player_special_data {
 	// поэтому пока просто надо не забывать чистить указатели у плееров, чтобы не оставлять клан
 	boost::shared_ptr<class Clan> clan; // собсна клан, если он есть
 	boost::shared_ptr<struct ClanMember> clan_member; // поле мембера в клане
-	std::bitset<TOTAL_INFORM_NUM> inform; // список разрешенных/запрещенных уведомлений
 
 	long GeneralBoardDate;    // последнее прочтенное на общей доске
 	long NewsBoardDate;       // -//- новости
