@@ -284,6 +284,7 @@ $COLORw"дружины все"$COLORn - выводит список членов всех дружин
 
    $COLORR ДХЛ  $COLORn -- $COLORc  http://ld.mud.ru/$COLORn
    $COLORR НД   $COLORn -- $COLORc  http://nd.mud.ru/$COLORn
+   $COLORR РП   $COLORn -- $COLORc  http://rp.gfns.net/   $COLORn
 
 См. также:$COLORC ДРУЖИНЫ $COLORn
 #
