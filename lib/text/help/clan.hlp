@@ -261,7 +261,7 @@ $COLORw"дружины все"$COLORn - выводит список членов всех дружин
 
   Список сайтов дружин (отсортирован по алфавиту):
 
-   $COLORR ВД   $COLORn -- $COLORc  http://nd.mud.ru/$COLORn
+   $COLORW ВД   $COLORn -- $COLORW  [ НЕТ ИНФОРМАЦИИ ]$COLORn   
    $COLORW ВЗ   $COLORn -- $COLORW  [ НЕТ ИНФОРМАЦИИ ]$COLORn   
    $COLORW ВС   $COLORn -- $COLORW  [ НЕТ ИНФОРМАЦИИ ]$COLORn
    $COLORR ГД   $COLORn -- $COLORc  http://www.gdclan.org$COLORn
@@ -279,6 +279,11 @@ $COLORw"дружины все"$COLORn - выводит список членов всех дружин
    $COLORR СП   $COLORn -- $COLORc  http://spdrug.narod.ru/$COLORn
    $COLORW ТВ   $COLORn -- $COLORW  [ НЕТ ИНФОРМАЦИИ ]$COLORn
    $COLORW ХРБ  $COLORn -- $COLORW  [ НЕТ ИНФОРМАЦИИ ]$COLORn
+
+  Список сайтов распущенных дружин (отсортирован по алфавиту):
+
+   $COLORR ДХЛ  $COLORn -- $COLORc  http://ld.mud.ru/$COLORn
+   $COLORR НД   $COLORn -- $COLORc  http://nd.mud.ru/$COLORn
 
 См. также:$COLORC ДРУЖИНЫ $COLORn
 #
