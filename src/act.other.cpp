@@ -2666,7 +2666,7 @@ ACMD(do_insertgem)
 
 //Polos.insert_wanted_gem
 	
-	argument = one_argument(argument, arg1);
+	argument = one_argument(argument, arg3);
 	
 	if (!*arg3)
 	{
