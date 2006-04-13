@@ -2541,6 +2541,7 @@ ACMD(do_insertgem)
 	int percent, prob, i;
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];
+        char arg3[MAX_INPUT_LENGTH];
 	char buf[300];
 	char *gem, *item;
 	struct obj_data *gemobj, *itemobj;
@@ -2667,7 +2668,7 @@ ACMD(do_insertgem)
 	
 	argument = one_argument(argument, arg1);
 	
-	if (!*arg1)
+	if (!*arg3)
 	{
 //-Polos.insert_wanted_gem
 	    if (percent > prob / insgem_vars.prob_divide) {
@@ -2704,7 +2705,7 @@ ACMD(do_insertgem)
 		return;
 	    }
 	    
-	    string str(arg1);
+	    string str(arg3);
 	    if (!iwg.exist(GET_OBJ_VNUM(gemobj), str))
 	    {
 		iwg.show(ch);
@@ -2738,7 +2739,7 @@ ACMD(do_insertgem)
 
 	if (GET_OBJ_MATER(gemobj) == 18) {
 //Polos.insert_wanted_gem
-	    if (!*arg1)
+	    if (!*arg3)
 	    {
 //-Polos.insert_wanted_gem
 		if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum)
@@ -2963,7 +2964,7 @@ ACMD(do_insertgem)
 		else
 		{
 		    int tmp_type, tmp_bit, tmp_qty;
-		    string str(arg1);
+		    string str(arg3);
 		    if (!(tmp_type=iwg.get_type(GET_OBJ_VNUM(gemobj), str))) 
 		    {
 			iwg.show(ch);
