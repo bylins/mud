@@ -20,6 +20,18 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 
+//Polos.inser_wanted_gem
+#include <fstream>
+#include <map>
+#include <iterator>
+
+using std::map;
+using std::iterator;
+using std::string;
+
+#define MAX_ALIAS_LENGTH 100
+//-Polos.insert_wanted_gem
+
 using std::list;
 using std::bitset;
 
@@ -2622,5 +2634,36 @@ struct set_struct {
 
 extern int grouping[14][15];
 
-#endif
+
+
+
+//Polos.insert_wanted_gem
+
+struct int3
+{
+    int type;
+    int bit;
+    int qty;
+};
+
+
+typedef map< string, int3 > alias_type;
+
+
+class insert_wanted_gem
+{
+	map< int, alias_type > content;
+
+public:
+	void init();
+	void show(CHAR_DATA *ch);
+	int get_type(int gem_vnum, string str);
+	int get_bit(int gem_vnum, string str);
+	int get_qty(int gem_vnum, string str);
+	int exist(int gem_vnum, string str);
+};
+
+//-Polos.insert_wanted_gem
+
+#endif /* __STRUCTS_H__ */
 

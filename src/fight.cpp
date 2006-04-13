@@ -1944,8 +1944,20 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				sprintf(buf, "%sВаш богатырский удар задел %s.%s\r\n",
 					CCBLU(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
-				lag = 3;
-				dam += (dam / 2);
+				lag = 1;
+				WAIT_STATE(victim, PULSE_VIOLENCE);
+				af.type = SPELL_BATTLE;
+				af.bitvector = AFF_STOPFIGHT;
+				af.location = 0;
+				af.modifier = 0;
+				af.duration = pc_duration(victim, 1, 0, 0, 0, 0);
+				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+				affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
+				sprintf(buf,
+					"%sВаше сознание затуманилось после удара %s.%s\r\n",
+					CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
+				send_to_char(buf, victim);
+				act("$N содрогнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT);
 			} else if (prob * 100 / percent < 400) {
 				sprintf(buf, "%sВаш богатырский удар пошатнул %s.%s\r\n",
 					CCGRN(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
@@ -1961,7 +1973,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
 				sprintf(buf,
-					"%sВаше сознание затуманилось после удара %s.%s\r\n",
+					"%sВаше сознание помутилось после удара %s.%s\r\n",
 					CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
 				send_to_char(buf, victim);
 				act("$N пошатнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT);

@@ -35,6 +35,23 @@
 #include "magic.h"
 #include "features.hpp"
 
+
+//Polos.insert_wanted_gem
+
+#include <fstream>
+#include <string>
+#include <map>
+#include <iterator>
+
+using std::ifstream;
+using std::fstream;
+using std::map;
+using std::iterator;
+
+
+extern class insert_wanted_gem iwg;
+//-Polos.insert_wanted_gem
+
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;
 extern INDEX_DATA *mob_index;
@@ -2107,6 +2124,151 @@ ACMD(do_beep)
 }
 
 
+//Polos.insert_wanted_gem
+
+void insert_wanted_gem::show(CHAR_DATA *ch)
+{
+    map< int, alias_type >::iterator it;
+    alias_type::iterator alias_it;
+    char buf[MAX_INPUT_LENGTH];
+    OBJ_DATA obj;
+    OBJ_DATA *p_obj = &obj;    
+    
+    for (it=content.begin();it!=content.end();++it)
+    {
+	
+	p_obj = read_object_mirror(it->first, p_obj);
+	sprintf(buf, "#%s\r\n", GET_OBJ_PNAME(p_obj, 0));
+	send_to_char(buf, ch);
+	
+	for(alias_it=it->second.begin();alias_it!=it->second.end();++alias_it)
+	{
+	    sprintf(buf, " %s\r\n", alias_it->first.c_str());
+	    send_to_char(buf, ch);
+	}
+    }
+    
+}
+
+void insert_wanted_gem::init()
+{
+    ifstream file;
+    char dummy;
+    char buf[MAX_INPUT_LENGTH];
+    string str;
+    int val, val2, curr_val=0;
+    map< int, alias_type >::iterator it;
+    alias_type temp;
+    alias_type::iterator alias_it;
+    struct int3 arr;
+    
+    content.clear();
+    temp.clear();
+    
+    file.open(LIB_MISC "insert_wanted.lst", fstream::in);
+    if (!file.is_open()) return;
+    
+    file.width(MAX_INPUT_LENGTH);
+    
+    while(1)
+    {
+	if (!(file >> dummy)) break;
+    
+	if (dummy == '*') 
+	{
+	    if (!file.getline(buf, MAX_INPUT_LENGTH)) break;
+	    continue;
+	}
+	
+	if (dummy == '#')
+	{
+	    if (!(file >> val)) break;
+	    
+	    if (!temp.empty() && (curr_val != 0))
+	    {
+		content.insert(std::make_pair(curr_val, temp));
+		temp.clear();
+	    }	
+	    curr_val = val;
+	    	    
+	    continue;
+	}
+	
+	if (dummy == '$')
+	{
+	    if (curr_val == 0) break;
+	    if (!(file >> str))  break;
+	    if (str.size() > MAX_ALIAS_LENGTH - 1) break;
+	    if (!(file >> val))  break;
+	    if (curr_val == 0) break;
+	    
+	    switch (val)
+	    {
+		case 1:
+			    if (!(file >> val >> val2)) break;
+			    
+			    arr.type=1; arr.bit=val; arr.qty=val2;
+			    temp.insert(std::make_pair(str, arr));
+			    			        
+			    break;
+			    
+		case 2:
+		case 3:
+			    if (!(file >> val2))  break;
+			    
+			    arr.type=val; arr.bit=val2; arr.qty=0;
+			    temp.insert(std::make_pair(str, arr));
+			    			        
+			    break;
+		default: 
+			    {file.close();return;}
+	    };
+	    
+	}
+    
+    }
+    
+    file.close();
+
+    if (!temp.empty())
+    {
+	content.insert(std::make_pair(curr_val, temp));
+    }	
+    
+    return;
+}
+
+int insert_wanted_gem::get_type(int gem_vnum, string str)
+{
+    return content[gem_vnum][str].type;
+}
+
+int insert_wanted_gem::get_bit(int gem_vnum, string str)
+{
+    return content[gem_vnum][str].bit;
+}
+
+int insert_wanted_gem::get_qty(int gem_vnum, string str)
+{
+    return content[gem_vnum][str].qty;
+}
+
+int insert_wanted_gem::exist(int gem_vnum, string str)
+{
+    map< int, alias_type >::iterator it;
+    alias_type::iterator alias_it;
+
+    it=content.find(gem_vnum);
+    if (it == content.end()) return 0;
+    alias_it=content[gem_vnum].find(str);
+    if (alias_it == content[gem_vnum].end()) return 0;
+    
+    return 1;
+}
+
+//-Polos.insert_wanted_gem
+
+
 int make_hole(struct char_data *ch)
 {
 	if (roundup(world[ch->in_room]->holes / HOLES_TIME) >= dig_vars.hole_max_deep) {
@@ -2482,7 +2644,7 @@ ACMD(do_insertgem)
 		send_to_char("Да тут темно хоть глаза выколи...\r\n", ch);
 		return;
 	}
-
+	
 	percent = number(1, skill_info[SKILL_INSERTGEM].max_percent);
 	prob = GET_SKILL(ch, SKILL_INSERTGEM);
 	improove_skill(ch, SKILL_INSERTGEM, 0, 0);
@@ -2501,22 +2663,68 @@ ACMD(do_insertgem)
 		}
 	}
 
-	if (percent > prob / insgem_vars.prob_divide) {
+//Polos.insert_wanted_gem
+	
+	argument = one_argument(argument, arg1);
+	
+	if (!*arg1)
+	{
+//-Polos.insert_wanted_gem
+	    if (percent > prob / insgem_vars.prob_divide) {
+		    sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n", gemobj->name,
+			    itemobj->PNames[3]);
+		    send_to_char(buf, ch);
+		    sprintf(buf, "$n испортил$g %s, вплавляя его в %s!\r\n", gemobj->PNames[3], itemobj->PNames[3]);
+		    act(buf, FALSE, ch, 0, 0, TO_ROOM);
+		    extract_obj(gemobj);
+		    if (number(1, 100) <= insgem_vars.dikey_percent) {
+			    sprintf(buf, "...и испортив хорошую вещь!\r\n");
+			    send_to_char(buf, ch);
+			    sprintf(buf, "$n испортил$g %s!\r\n", itemobj->PNames[3]);
+			    act(buf, FALSE, ch, 0, 0, TO_ROOM);
+			    extract_obj(itemobj);
+		    }
+		    return;
+	    }
+//Polos.insert_wanted_gem	    
+	}    
+	else 
+	{
+	    if (GET_SKILL(ch, SKILL_INSERTGEM) < 80)
+	    {
+		sprintf(buf, "Вы должны достинуть мастерства в умении ювелир, чтобы вплавлять желаемые аффекты!\r\n");
+		send_to_char(buf, ch);
+		return;
+
+	    }
+	    if (GET_OBJ_OWNER(itemobj) != GET_UNIQUE(ch)) 
+	    {
+		sprintf(buf, "Вы можете вплавлять желаемые аффекты только в перековку!\r\n");
+		send_to_char(buf, ch);
+		return;
+	    }
+	    
+	    string str(arg1);
+	    if (!iwg.exist(GET_OBJ_VNUM(gemobj), str))
+	    {
+		iwg.show(ch);
+		return;
+	    }
+	    
+	    //успех или фэйл? при 80% скила успех 30% при 100% скила 50% при 200% скила успех 75% 
+	    if (number(1, GET_SKILL(ch, SKILL_INSERTGEM)) <= (GET_SKILL(ch, SKILL_INSERTGEM) - 50))
+	    {
 		sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n", gemobj->name,
-			itemobj->PNames[3]);
+		itemobj->PNames[3]);
 		send_to_char(buf, ch);
 		sprintf(buf, "$n испортил$g %s, вплавляя его в %s!\r\n", gemobj->PNames[3], itemobj->PNames[3]);
 		act(buf, FALSE, ch, 0, 0, TO_ROOM);
 		extract_obj(gemobj);
-		if (number(1, 100) <= insgem_vars.dikey_percent) {
-			sprintf(buf, "...и испортив хорошую вещь!\r\n");
-			send_to_char(buf, ch);
-			sprintf(buf, "$n испортил$g %s!\r\n", itemobj->PNames[3]);
-			act(buf, FALSE, ch, 0, 0, TO_ROOM);
-			extract_obj(itemobj);
-		}
 		return;
-	}
+	    }
+	    
+	}    
+//-Polos.insert_wanted_gem
 
 	sprintf(buf, "Вы вплавили %s в %s!\r\n", gemobj->PNames[3], itemobj->PNames[3]);
 	send_to_char(buf, ch);
@@ -2529,6 +2737,10 @@ ACMD(do_insertgem)
 		GET_OBJ_TIMER(itemobj) -= GET_OBJ_TIMER(itemobj) / 100 * insgem_vars.timer_minus_percent;
 
 	if (GET_OBJ_MATER(gemobj) == 18) {
+//Polos.insert_wanted_gem
+	    if (!*arg1)
+	    {
+//-Polos.insert_wanted_gem
 		if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum)
 			switch (number(1, 6)) {
 			case 1:
@@ -2746,18 +2958,54 @@ ACMD(do_insertgem)
 				set_obj_eff(itemobj, APPLY_CHA, 2);
 				break;
 			}
-
-		/* флаги, определяющие, сколько остается свободных слотов */
-		if (OBJ_FLAGGED(itemobj, ITEM_WITH3SLOTS)) {
-			REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH3SLOTS), ITEM_WITH3SLOTS);
-			SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH2SLOTS), ITEM_WITH2SLOTS);
-		} else if (OBJ_FLAGGED(itemobj, ITEM_WITH2SLOTS)) {
-			REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH2SLOTS), ITEM_WITH2SLOTS);
-			SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH1SLOT), ITEM_WITH1SLOT);
-		} else if (OBJ_FLAGGED(itemobj, ITEM_WITH1SLOT)) {
-			REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH1SLOT), ITEM_WITH1SLOT);
+//Polos.insert_wanted_gem
 		}
+		else
+		{
+		    int tmp_type, tmp_bit, tmp_qty;
+		    string str(arg1);
+		    if (!(tmp_type=iwg.get_type(GET_OBJ_VNUM(gemobj), str))) 
+		    {
+			iwg.show(ch);
+			return;
+		    }
+		    
+		    tmp_bit = iwg.get_bit(GET_OBJ_VNUM(gemobj), str);
+		    tmp_qty = iwg.get_qty(GET_OBJ_VNUM(gemobj), str);
+		    switch(tmp_type)
+		    {
+			case 1: set_obj_eff(itemobj, tmp_bit, tmp_qty);
+				break;
+			
+			case 2: set_obj_aff(itemobj, tmp_bit);
+				break;
+				
+			case 3: SET_BIT(GET_OBJ_EXTRA(itemobj, tmp_bit), tmp_bit);
+				break;
+				
+			default: 
+				 break;    
+		    
+		    };
+		}
+//-Polos.insert_wanted_gem	    	    
+
+	    /* флаги, определяющие, сколько остается свободных слотов */
+	    if (OBJ_FLAGGED(itemobj, ITEM_WITH3SLOTS)) {
+		REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH3SLOTS), ITEM_WITH3SLOTS);
+		    SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH2SLOTS), ITEM_WITH2SLOTS);
+	    } else if (OBJ_FLAGGED(itemobj, ITEM_WITH2SLOTS)) {
+	    	REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH2SLOTS), ITEM_WITH2SLOTS);
+	    	SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH1SLOT), ITEM_WITH1SLOT);
+	    } else if (OBJ_FLAGGED(itemobj, ITEM_WITH1SLOT)) {
+	    	REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH1SLOT), ITEM_WITH1SLOT);
+	    }
+		
+
 
 	}
 	extract_obj(gemobj);
 }
+
+
+

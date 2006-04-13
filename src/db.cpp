@@ -135,6 +135,11 @@ struct portals_list_type *portals_list;	/* Список проталов для townportal */
 int now_entrycount = FALSE;
 extern int reboot_uptime;
 
+
+//Polos.inserd_wanted_gem
+class insert_wanted_gem iwg;
+//-Polos.insert_wanted_gem
+
 /* local functions */
 int check_object_spell_number(OBJ_DATA * obj, int val);
 int check_object_level(OBJ_DATA * obj, int val);
@@ -772,6 +777,11 @@ void boot_db(void)
 	log("Booting zone types and ingredient types for each zone type.");
 	init_zone_types();
 //-MZ.load
+
+//Polos.insert_wanted_gem
+	log("Booting inser_wanted.lst.");
+	iwg.init();
+//Polos.insert_wanted_gem
 
 	boot_world();
 
