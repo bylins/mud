@@ -332,7 +332,7 @@ ASPELL(spell_relocate)
 	}
 	// в случае, если жертва не может зайти в замок (по любой причине)
 	// прыжок в зону ближайшей ренты
-	if (!Clan::MayEnter(victim, to_room, HCE_PORTAL))
+	if (!Clan::MayEnter(ch, to_room, HCE_PORTAL))
 		fnd_room = Clan::CloseRent(to_room);
 	else
 		fnd_room = to_room;

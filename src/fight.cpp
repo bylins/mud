@@ -2489,6 +2489,9 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		/* Есть ли в будующем трупе куны...? */
 //      if (IS_NPC (victim))
 //      local_gold = GET_GOLD (victim);
+//Polos.poison_mob_max_fix
+		if (killer) ch=killer;
+//-Polos.poison_mob_max_fix
 		die(victim, ch);
 		/* Автограбеж */
 //      sprintf (local_corpse, "труп.%s", GET_PAD (victim, 1));
