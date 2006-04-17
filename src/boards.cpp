@@ -817,8 +817,8 @@ void Board::LoginInfo(CHAR_DATA * ch)
 
 	for (BoardListType::const_iterator board = Board::BoardList.begin(); board != Board::BoardList.end(); ++board) {
 		int unread = 0;
-		// доска не видна
-		if (!(*board)->Access(ch))
+		// доска не видна или можно только писать
+		if (!(*board)->Access(ch) || (*board)->Access(ch) == 2)
 			continue;
 
 		for (MessageListType::const_iterator message = (*board)->messages.begin(); message != (*board)->messages.end(); ++message)
