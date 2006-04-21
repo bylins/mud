@@ -1146,7 +1146,11 @@ ACMD(DoClanList)
 	if (!all) {
 		buffer2 << clanFormat % 1 % (*clan)->abbrev % (*clan)->owner % (*clan)->name;
 		for (std::vector < CHAR_DATA * >::const_iterator it = temp_list.begin(); it != temp_list.end(); ++it)
-			buffer2 << memberFormat % (*clan)->ranks[CLAN_MEMBER(*it)->rank_num] % CCPK(*it, C_NRM, *it) % noclan_title(*it) % CCNRM(*it, C_NRM) % CCIRED(*it, C_NRM) % (PLR_FLAGGED(*it, PLR_KILLER) ? "(ДУШЕГУБ)" : "") % CCNRM(*it, C_NRM);
+			buffer2 << memberFormat % (*clan)->ranks[CLAN_MEMBER(*it)->rank_num]
+				% CCPK(ch, C_NRM, *it) % noclan_title(*it)
+				% CCNRM(ch, C_NRM) % CCIRED(ch, C_NRM)
+				% (PLR_FLAGGED(*it, PLR_KILLER) ? "(ДУШЕГУБ)" : "")
+				% CCNRM(ch, C_NRM);
 	}
 	// просто выводим все дружины и всех членов (без параметра 'все' в списке будут только дружины)
 	else {
@@ -1155,7 +1159,11 @@ ACMD(DoClanList)
 			buffer2 << clanFormat % count % (*clan)->abbrev % (*clan)->owner % (*clan)->name;
 			for (std::vector < CHAR_DATA * >::const_iterator it = temp_list.begin(); it != temp_list.end(); ++it)
 				if (CLAN(*it) == *clan)
-					buffer2 << memberFormat % (*clan)->ranks[CLAN_MEMBER(*it)->rank_num] % CCPK(*it, C_NRM, *it) % noclan_title(*it) % CCNRM(*it, C_NRM) % CCIRED(*it, C_NRM) % (PLR_FLAGGED(*it, PLR_KILLER) ? "(ДУШЕГУБ)" : "") % CCNRM(*it, C_NRM);
+					buffer2 << memberFormat % (*clan)->ranks[CLAN_MEMBER(*it)->rank_num]
+						% CCPK(ch, C_NRM, *it) % noclan_title(*it)
+						% CCNRM(ch, C_NRM) % CCIRED(ch, C_NRM)
+						% (PLR_FLAGGED(*it, PLR_KILLER) ? "(ДУШЕГУБ)" : "")
+						% CCNRM(ch, C_NRM);
 		}
 	}
 	buffer2 << "\r\nВсего игроков - " << temp_list.size() << "\r\n";
