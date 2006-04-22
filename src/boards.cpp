@@ -827,9 +827,12 @@ void Board::LoginInfo(CHAR_DATA * ch)
 		if (!(*board)->Access(ch) || (*board)->Access(ch) == 2)
 			continue;
 
-		for (MessageListType::const_iterator message = (*board)->messages.begin(); message != (*board)->messages.end(); ++message)
+		for (MessageListType::reverse_iterator message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message) {
 			if ((*message)->date > (*board)->LastReadDate(ch))
 				++unread;
+			else
+				break;
+		}
 
 		if (unread) {
 			has_message = 1;
