@@ -610,9 +610,15 @@ ACMD(DoBoardList)
 		}
 		if (!cansee)
 			continue;
-		for (MessageListType::const_iterator message = (*board)->messages.begin(); message != (*board)->messages.end(); ++message) {
-			if ((*message)->date > (*board)->LastReadDate(ch))
-				++unread;
+		if ((*board)->Access(ch) == 2)
+			unread = 0;
+		else {
+			for (MessageListType::reverse_iterator message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message) {
+				if ((*message)->date > (*board)->LastReadDate(ch))
+					++unread;
+				else
+					break;
+			}
 		}
 		buffer << boardFormat % num % (*board)->name % unread % (*board)->messages.size() % (*board)->desc % access;
 		++num;
