@@ -4277,7 +4277,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	IGNORE_LIST(ch) = NULL;
 	CREATE(GET_LOGS(ch), int, NLOG);
 
-	// TODO: здест можно указать дату, с которой пойдет отсет новых сообщений,
+	// TODO: здест можно указать дату, с которой пойдет отсчет новых сообщений,
 	// например чтобы не пугать игрока 200+ новостями при первом запуске системы
 	GENERAL_BOARD_DATE(ch) = 1143706650;
 	NEWS_BOARD_DATE(ch) = 1143706650;
@@ -4493,10 +4493,8 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			    GET_KIN (ch) = num;
    			else if (!strcmp(tag, "Karm")) {
 				if (reboot) {
-					do {
-						fbgetline(fl, line);
-					} while (*line != '~');
-					continue;
+					do fbgetline(fl, line); while (*line != '~');
+					break;
 				}
 			    KARMA(ch) = fbgetstring(fl);
 			}
@@ -4508,10 +4506,8 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				GET_LEVEL(ch) = num;
 			else if (!strcmp(tag, "LogL")) {
 				if (reboot) {
-					do {
-						fbgetline(fl, line);
-					} while (*line != '~');
-					continue;
+					do fbgetline(fl, line); while (*line != '~');
+					break;
 				}
 				i = 0;
 				struct logon_data * cur_log = 0;
@@ -6372,8 +6368,8 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 		}
 	}
 
+	// TODO: мобов бы писать в одно поле и пропускать все до конца файла при ребуте
 	save_mkill(ch, saved);
-
 	fclose(saved);
 
 	/* восстанавливаем аффекты */
