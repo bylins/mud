@@ -4119,7 +4119,7 @@ void load_ignores(CHAR_DATA * ch, char *line)
 /* Load a char, TRUE if loaded, FALSE if not */
 // по умолчанию reboot = 0 (1 - не грузятся три бесконечные вещи: карма, история логонов и замакс мобов, в основном мобы тут гадят)
 // все это конечно полумеры, но чтобы нормально сделать - придется глубоко копать и выигрыша уже сильного не даст
-// настоятельно не рекомендую убирать из лоада другие поля - потенциальные грабли в будующем обеспечены. Кродо
+// настоятельно не рекомендую убирать из лоада другие поля - потенциальные грабли в будующем обеспечены. Мож заклы еще, чет их там многовато уже
 int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, i;
@@ -4491,15 +4491,28 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 		case 'K':
 			if (!strcmp (tag, "Kin "))
 			    GET_KIN (ch) = num;
-   			else if (!reboot && !strcmp(tag, "Karm")) 
+   			else if (!strcmp(tag, "Karm")) {
+				if (reboot) {
+					do {
+						fbgetline(fl, line);
+					} while (*line != '~');
+					continue;
+				}
 			    KARMA(ch) = fbgetstring(fl);
+			}
 			break;
 		case 'L':
 			if (!strcmp(tag, "LstL"))
 				LAST_LOGON(ch) = lnum;
 			else if (!strcmp(tag, "Levl"))
 				GET_LEVEL(ch) = num;
-			else if (!reboot && !strcmp(tag, "LogL")) {
+			else if (!strcmp(tag, "LogL")) {
+				if (reboot) {
+					do {
+						fbgetline(fl, line);
+					} while (*line != '~');
+					continue;
+				}
 				i = 0;
 				struct logon_data * cur_log = 0;
 				long  lnum,lnum2;
