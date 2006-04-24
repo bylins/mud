@@ -4117,7 +4117,10 @@ void load_ignores(CHAR_DATA * ch, char *line)
 
 /* new load_char reads ascii pfiles */
 /* Load a char, TRUE if loaded, FALSE if not */
-int load_char_ascii(const char *name, CHAR_DATA * ch)
+// по умолчанию reboot = 0 (1 - не грузятся три бесконечные вещи: карма, история логонов и замакс мобов, в основном мобы тут гадят)
+// все это конечно полумеры, но чтобы нормально сделать - придется глубоко копать и выигрыша уже сильного не даст
+// настоятельно не рекомендую убирать из лоада другие поля - потенциальные грабли в будующем обеспечены. Кродо
+int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, i;
 	long int lnum = 0, lnum3 = 0;
@@ -4488,7 +4491,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 		case 'K':
 			if (!strcmp (tag, "Kin "))
 			    GET_KIN (ch) = num;
-    			else if (!strcmp(tag, "Karm")) 
+   			else if (!reboot && !strcmp(tag, "Karm")) 
 			    KARMA(ch) = fbgetstring(fl);
 			break;
 		case 'L':
@@ -4496,7 +4499,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 				LAST_LOGON(ch) = lnum;
 			else if (!strcmp(tag, "Levl"))
 				GET_LEVEL(ch) = num;
-			else if (!strcmp(tag, "LogL")) {
+			else if (!reboot && !strcmp(tag, "LogL")) {
 				i = 0;
 				struct logon_data * cur_log = 0;
 				long  lnum,lnum2;
@@ -4544,7 +4547,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 					++i;
 				if (line[i])
 					MUTE_REASON(ch) = strcpy((char *) malloc(strlen(line + i) + 1), line + i);
-			} else if (!strcmp(tag, "Mob ")) {
+			} else if (!reboot && !strcmp(tag, "Mob ")) {
 				sscanf(line, "%d %d", &num, &num2);
 				inc_kill_vnum(ch, num, num2);
 			} 
@@ -4822,12 +4825,12 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 }
 
 
-
-int load_char(const char *name, CHAR_DATA * char_element)
+// по умолчанию reboot = 0 (пользуется только при ребуте)
+int load_char(const char *name, CHAR_DATA * char_element, bool reboot)
 {
 	int player_i;
 
-	player_i = load_char_ascii(name, char_element);
+	player_i = load_char_ascii(name, char_element, reboot);
 	if (player_i > -1) {
 		GET_PFILEPOS(char_element) = player_i;
 	}
@@ -5818,7 +5821,8 @@ void entrycount(char *name)
 		CREATE(dummy, CHAR_DATA, 1);
 		clear_char(dummy);
 		deleted = 1;
-		if (load_char(name, dummy) > -1) {
+		// в данном случае у чара не загружены: карма, история логонов, замакс мобов
+		if (load_char(name, dummy, 1) > -1) {
 			/* если чар удален или им долго не входили, то не создаем для него запись */
 			if (!must_be_deleted(dummy)) {
 				deleted = 0;

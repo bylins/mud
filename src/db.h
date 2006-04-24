@@ -174,7 +174,7 @@ char *get_name_by_id(long id);
 char *get_name_by_unique(long id);
 int get_zone_rooms(int, int *, int *);
 
-int load_char(const char *name, CHAR_DATA * char_element);
+int load_char(const char *name, CHAR_DATA * char_element, bool reboot = 0);
 void save_char(CHAR_DATA * ch, room_rnum load_room);
 void init_char(CHAR_DATA * ch);
 CHAR_DATA *create_char(void);
