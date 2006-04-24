@@ -110,10 +110,6 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 extern void NewNameShow(CHAR_DATA * ch);
 extern void NewNameRemove(CHAR_DATA * ch);
 extern void NewNameRemove(const char * name, CHAR_DATA * ch);
-//MZ.tops
-void del_p_max_remort_top(CHAR_DATA * ch);
-void add_p_max_remort_top(CHAR_DATA * ch);
-//-MZ.tops
 
 /* local functions */
 int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg);
@@ -4098,10 +4094,8 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			if (ptnum < 0)
 				return (0);
 
-//MZ.tops
 			if (!IS_SET(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN) && !IS_SET(PLR_FLAGS(vict, PLR_DELETED), PLR_DELETED) && !IS_IMMORTAL(vict))
-				del_p_max_remort_top(vict);
-//-MZ.tops
+				TopPlayer::Remove(vict);
 
 			for (i = 0; i < NUM_PADS; i++)
 				if (!_parse_name(npad[i], npad[i])) {
@@ -4115,10 +4109,8 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			CREATE(GET_NAME(vict), char, strlen(npad[0]) + 1);
 			strcpy(GET_NAME(vict), npad[0]);
 
-//MZ.tops
 			if (!IS_SET(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN) && !IS_SET(PLR_FLAGS(vict, PLR_DELETED), PLR_DELETED) && !IS_IMMORTAL(vict))
-				add_p_max_remort_top(vict);
-//-MZ.tops
+				TopPlayer::Refresh(ch);
 
 			free(player_table[ptnum].name);
 			CREATE(player_table[ptnum].name, char, strlen(npad[0]) + 1);

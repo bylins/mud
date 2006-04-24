@@ -2092,9 +2092,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 	GET_LEVEL(ch) = 1;
 	GET_EXP(ch) = 1;
 
-//MZ.tops
-	upd_p_max_remort_top(ch);
-//-MZ.tops
+	TopPlayer::Refresh(ch);
 
 	if (GET_REMORT(ch) == 0)
 		set_title(ch, NULL);

@@ -41,6 +41,7 @@
 #include "arena.hpp"
 #include "features.hpp"
 #include "boards.h"
+#include "top.h"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -243,7 +244,6 @@ ACMD(do_poofset);
 ACMD(do_pour);
 ACMD(do_skills);
 ACMD(do_statistic);
-ACMD(do_best);
 ACMD(do_spells);
 ACMD(do_remember);
 ACMD(do_learn);
@@ -580,6 +580,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"лечить", POS_STANDING, do_firstaid, 0, 0, -1},
 	{"лить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
 	{"лошадь", POS_STANDING, do_not_here, 1, 0, -1},
+	{"лучшие", POS_DEAD, DoBest, 0, 0, 0},
 
 	{"маскировка", POS_RESTING, do_camouflage, 0, 0, 500},
 	{"метнуть", POS_FIGHTING, do_throw, 0, 0, -1},
@@ -686,6 +687,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"режим", POS_DEAD, do_mode, 0, 0, 0},
 	{"ремонт", POS_RESTING, do_repair, 0, 0, -1},
 	{"рецепты", POS_RESTING, do_recipes, 0, 0, 0},
+	{"рекорды", POS_DEAD, DoBest, 0, 0, 0},
 	{"руны", POS_FIGHTING, do_mixture, 0, SCMD_RUNES, -1},
 
 	{"сбить", POS_FIGHTING, do_bash, 1, 0, -1},
@@ -719,10 +721,6 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"ставка", POS_STANDING, do_not_here, 0, 0, -1},
 	{"статус", POS_DEAD, do_display, 0, 0, 0},
 	{"статистика", POS_DEAD, do_statistic, 0, 0, 0},
-
-	{"лучшие", POS_DEAD, do_best, 0, 0, 0},
-
-	{"рекорды", POS_DEAD, do_best, 0, 0, 0},
 
 	{"стереть", POS_DEAD, do_gen_ps, 0, SCMD_CLEAR, 0},
 	{"стиль", POS_RESTING, do_style, 0, 0, 0},
@@ -781,12 +779,10 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"ban", POS_DEAD, do_ban, LVL_GRGOD, 0, 0},
 	{"bash", POS_FIGHTING, do_bash, 1, 0, -1},
 	{"beep", POS_DEAD, do_beep, LVL_IMMORT, 0},
-//MZ.tops
-	{"best", POS_DEAD, do_best, 0, 0, 0},
-//-MZ.tops
 	{"block", POS_FIGHTING, do_block, 0, 0, -1},
 	{"bug", POS_DEAD, do_gen_write, 0, SCMD_BUG, 0},
 	{"buy", POS_STANDING, do_not_here, 0, 0, -1},
+	{"best", POS_DEAD, DoBest, 0, 0, 0},
 	{"cast", POS_SITTING, do_cast, 1, 0, -1},
 	{"check", POS_STANDING, do_not_here, 1, 0, -1},
 	{"chopoff", POS_FIGHTING, do_chopoff, 0, 0, 500},

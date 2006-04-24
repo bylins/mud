@@ -425,7 +425,6 @@ ACMD(do_reboot)
 		init_portals();
 		priv->reload();
 		load_sheduled_reboot();
-		load_max_remort_top();
 	} else if (!str_cmp(arg, "portals"))
 		init_portals();
 	else if (!str_cmp(arg, "privileges"))
@@ -434,8 +433,6 @@ ACMD(do_reboot)
 		init_im();
 	else if (!str_cmp(arg, "ztypes"))
 		init_zone_types();
-	else if (!str_cmp(arg, "classtops"))
-		load_max_remort_top();
 	else if (!str_cmp(arg, "immlist"))
 		file_to_string_alloc(IMMLIST_FILE, &immlist);
 	else if (!str_cmp(arg, "credits"))
@@ -793,11 +790,6 @@ void boot_db(void)
 
 	log("Generating player index.");
 	build_player_index();
-
-//MZ.tops
-	log("Loading tops.");
-	load_max_remort_top();
-//-MZ.tops
 
 	log("Loading fight messages.");
 	load_messages();
@@ -4780,7 +4772,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch)
 	}
 
 	/* affect_total(ch);  */
-
 	/* initialization for imms */
 	if (GET_LEVEL(ch) >= LVL_IMMORT) {
 		for (i = 1; i <= MAX_SKILLS; i++)
@@ -4949,7 +4940,7 @@ void free_char(CHAR_DATA * ch)
 	struct alias_data *a;
 	struct helper_data_type *temp;
 
-	log("[FREE CHAR] (%s) Start", GET_NAME(ch));
+	log("[FREE CHAR] (%s)", GET_NAME(ch));
 
 	if (!IS_NPC(ch)) {
 		id = get_ptable_by_name(GET_NAME(ch));
@@ -5108,7 +5099,6 @@ void free_char(CHAR_DATA * ch)
 	};
 
 	free(ch);
-	log("FREE_CHAR] Stop");
 }
 
 
@@ -5823,7 +5813,6 @@ void entrycount(char *name)
 	CHAR_DATA *dummy;
 	char filename[MAX_STRING_LENGTH];
 
-	log("Entry count %s", name);
 	if (get_filename(name, filename, PLAYERS_FILE)) {
 
 		CREATE(dummy, CHAR_DATA, 1);
@@ -5856,6 +5845,7 @@ void entrycount(char *name)
 					player_table[top_of_p_table].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
 				}
 				top_idnum = MAX(top_idnum, GET_IDNUM(dummy));
+				TopPlayer::Refresh(dummy, 1);
 				log("Add new player %s", player_table[top_of_p_table].name);
 			}
 			free_char(dummy);

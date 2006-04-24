@@ -1,252 +1,127 @@
-/* ************************************************************************
-*   File: top.cpp                                       Part of Bylins    *
-*  Usage: tops handling funcs                                             *
-*                                                                         *
-*                                                                         *
-*  $Author$                                                          *
-*  $Date$                                           *
-*  $Revision$                                                       *
-************************************************************************ */
+/* ****************************************************************************
+* File: top.cpp                                                Part of Bylins *
+* Usage: Топ игроков пошустрее                                                *
+* (c) 2006 Krodo                                                              *
+******************************************************************************/
+
+#include <functional>
+#include <sstream>
+#include <iomanip>
+#include <boost/bind.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "utils.h"
-#include "db.h"
 #include "interpreter.h"
 #include "comm.h"
-
+#include "screen.h"
 #include "top.h"
 
-extern struct player_index_element *player_table;
-extern int top_of_p_table;
 extern const char *class_name[];
 
-struct max_remort_top_element max_remort_top[NUM_CLASSES][MAX_REMORT_TOP_SIZE];
+TopListType TopPlayer::TopList (NUM_CLASSES);
 
-ACMD(do_best);
-
-// return index by player name if max_remort_top array contains this player name
-// or MAX_REMORT_TOP_SIZE if it doesn't
-int get_ibpn_max_remort_top(CHAR_DATA * ch)
+// отдельное удаление из списка (для ренеймов, делетов и т.п.)
+void TopPlayer::Remove(CHAR_DATA * ch)
 {
-	int i;
-
-	for (i = 0; i < MAX_REMORT_TOP_SIZE; i++)
-		if (*(max_remort_top[(int) GET_CLASS(ch)][i].name) == '\0' || !strcmp(GET_NAME(ch), max_remort_top[(int) GET_CLASS(ch)][i].name))
-			break;
-
-	if (i < MAX_REMORT_TOP_SIZE && *(max_remort_top[(int) GET_CLASS(ch)][i].name) == '\0')
-		i = MAX_REMORT_TOP_SIZE;
-
-	return i;
+	TopPlayer::TopList[static_cast<int>(GET_CLASS(ch))].remove_if(
+		boost::bind(std::equal_to<long>(),
+			boost::bind(&TopPlayer::unique, _1), GET_UNIQUE(ch)));
 }
 
-// delete player from max_remort_top array
-void del_p_max_remort_top(CHAR_DATA * ch)
+// проверяем надо-ли добавлять в топ и добавляем/обновляем при случае. reboot по дефолту 0 (1 для ребута)
+void TopPlayer::Refresh(CHAR_DATA * ch, bool reboot)
 {
-	int i = get_ibpn_max_remort_top(ch);
-
-	if (i == MAX_REMORT_TOP_SIZE)
+	if (IS_NPC(ch) || IS_SET(PLR_FLAGS(ch, PLR_FROZEN), PLR_FROZEN) || IS_SET(PLR_FLAGS(ch, PLR_DELETED), PLR_DELETED) || IS_IMMORTAL(ch))
 		return;
 
-	for (; i + 1 < MAX_REMORT_TOP_SIZE; i++) {
-		strcpy(max_remort_top[(int) GET_CLASS(ch)][i].name, max_remort_top[(int) GET_CLASS(ch)][i+1].name);
-		max_remort_top[(int) GET_CLASS(ch)][i].remort = max_remort_top[(int) GET_CLASS(ch)][i+1].remort;
-		max_remort_top[(int) GET_CLASS(ch)][i].exp = max_remort_top[(int) GET_CLASS(ch)][i+1].exp;
-	}
-	*(max_remort_top[(int) GET_CLASS(ch)][i].name) = '\0';
-	max_remort_top[(int) GET_CLASS(ch)][i].remort = 0;
-	max_remort_top[(int) GET_CLASS(ch)][i].exp = 0;
-}
+	int class_num = static_cast<int>(GET_CLASS(ch)); // а то уж больно плохо смотрится
 
-// find correct index for the player in max_remort_top array
-int find_ind_max_remort_top(CHAR_DATA * ch)
-{
-	int i;
+	if (!reboot)
+		TopPlayer::Remove(ch);
 
-	for (i = MAX_REMORT_TOP_SIZE - 1; i >= 0; i--)
-		if (GET_REMORT(ch) < max_remort_top[(int) GET_CLASS(ch)][i].remort
-		||
-		GET_REMORT(ch) == max_remort_top[(int) GET_CLASS(ch)][i].remort && GET_EXP(ch) < max_remort_top[(int) GET_CLASS(ch)][i].exp)
+	// шерстим список по ремортам и экспе и смотрим куда воткнуться, TODO: обновить у ся буст и воткнуть тут find_if с трехэтажным биндом
+	std::list<TopPlayer>::iterator it_exp;
+	for (it_exp = TopPlayer::TopList[class_num].begin(); it_exp != TopPlayer::TopList[class_num].end(); ++it_exp)
+		if (it_exp->remort < GET_REMORT(ch) || it_exp->remort == GET_REMORT(ch) && it_exp->exp < GET_EXP(ch))
 			break;
 
-	return i + 1;
+	if (!GET_NAME(ch)) return; // у нас все может быть
+	TopPlayer temp_player(GET_UNIQUE(ch), GET_NAME(ch), GET_EXP(ch), GET_REMORT(ch));
+
+	if (it_exp != TopPlayer::TopList[class_num].end())
+		TopPlayer::TopList[class_num].insert(it_exp, temp_player);
+	else
+		TopPlayer::TopList[class_num].push_back(temp_player);
 }
 
-// add player to max_remort_top array
-void add_p_max_remort_top(CHAR_DATA * ch)
+const char * TopPlayer::TopFormat[NUM_CLASSES + 1] =
 {
-	int i = find_ind_max_remort_top(ch);
-
-	if (i == MAX_REMORT_TOP_SIZE)
-		return;
-
-	for (int j = MAX_REMORT_TOP_SIZE - 1; j > i; j--) {
-		strcpy(max_remort_top[(int) GET_CLASS(ch)][j].name, max_remort_top[(int) GET_CLASS(ch)][j-1].name);
-		max_remort_top[(int) GET_CLASS(ch)][j].remort = max_remort_top[(int) GET_CLASS(ch)][j-1].remort;
-		max_remort_top[(int) GET_CLASS(ch)][j].exp = max_remort_top[(int) GET_CLASS(ch)][j-1].exp;
-	}
-	strcpy(max_remort_top[(int) GET_CLASS(ch)][i].name, GET_NAME(ch));
-	max_remort_top[(int) GET_CLASS(ch)][i].remort = GET_REMORT(ch);
-	max_remort_top[(int) GET_CLASS(ch)][i].exp = GET_EXP(ch);
-}
-
-// update player in max_remort_top array
-// only for existing mortals
-// if player has become immortal or has been deleted he won't be shown in top only after reload or reboot
-void upd_p_max_remort_top(CHAR_DATA * ch)
-{
-	if (ch != NULL && !IS_NPC(ch) && !IS_SET(PLR_FLAGS(ch, PLR_FROZEN), PLR_FROZEN) && !IS_SET(PLR_FLAGS(ch, PLR_DELETED), PLR_DELETED) && !IS_IMMORTAL(ch)) {
-		del_p_max_remort_top(ch);
-		add_p_max_remort_top(ch);
-	}
-}
-
-// max_remort_top load with initialization
-void load_max_remort_top(void)
-{
-	int i, j, c;
-	CHAR_DATA *dummy;
-
-	// clear max_remort_top
-	for (i = 0; i < NUM_CLASSES; i++)
-		for (j = 0; j < MAX_REMORT_TOP_SIZE; j++) {
-			*(max_remort_top[i][j].name) = '\0';
-			max_remort_top[i][j].remort = 0;
-			max_remort_top[i][j].exp = 0;
-		}
-
-	// load max_remort_top array to show the best players at the moment
-	for (c = 0; c <= top_of_p_table; c++) {
-		CREATE(dummy, CHAR_DATA, 1);
-		clear_char(dummy);
-		if (load_char(player_table[c].name, dummy) > -1) {
-			upd_p_max_remort_top(dummy);
-			free_char(dummy);
-		} else
-			free(dummy);
-	}
-}
-
-struct top_show_struct top_show_fields[] =
-{
-// class tops
-	{"лекари", CLASS_CLERIC},
-	{"колдуны", CLASS_BATTLEMAGE},
-	{"тати", CLASS_THIEF},
-	{"богатыри", CLASS_WARRIOR},
-	{"наемники", CLASS_ASSASINE},
-	{"дружинники", CLASS_GUARD},
-	{"кудесники", CLASS_CHARMMAGE},
-	{"волшебники", CLASS_DEFENDERMAGE},
-	{"чернокнижники", CLASS_NECROMANCER},
-	{"витязи", CLASS_PALADINE},
-	{"охотники", CLASS_RANGER},
-	{"кузнецы", CLASS_SMITH},
-	{"купцы", CLASS_MERCHANT},
-	{"волхвы", CLASS_DRUID},
-	{"\n", CLASS_UNDEFINED},
-// other tops
-	{"игроки", TOP_ALL},
-	{"дружины", TOP_CLANS},
-	{"\n", CLASS_UNDEFINED}
+	"лекари",
+	"колдуны",
+	"тати",
+	"богатыри",
+	"наемники",
+	"дружинники",
+	"кудесники",
+	"волшебники",
+	"чернокнижники",
+	"витязи",
+	"охотники",
+	"кузнецы",
+	"купцы",
+	"волхвы",
+	"игроки"
 };
 
-ACMD(do_best)
+// команда 'лучшие'
+ACMD(DoBest)
 {
-	int i, j, rem;
-	char *last_word;
-
-	if (!ch->desc)
+	if (IS_NPC(ch))
 		return;
 
-	one_argument(argument, arg);
+	std::string buffer = argument;
+	boost::trim(buffer);
 
-	if (!*arg) {
-		strcpy(buf, "Лучшими могут быть:\r\n");
-		for (j = 0, i = 0; *(top_show_fields[i].cmd) != '\n'; i++)
-			sprintf(buf + strlen(buf), "%-15s%s", top_show_fields[i].cmd, (!(++j % 5) ? "\r\n" : ""));
-		for (i++; *(top_show_fields[i].cmd) != '\n'; i++)
-			sprintf(buf + strlen(buf), "%-15s%s", top_show_fields[i].cmd, (!(++j % 5) ? "\r\n" : ""));
-		if (j % 5)
-			strcat(buf, "\r\n");
-		send_to_char(buf, ch);
-		return;
+	bool find = 0;
+	int class_num = 0;
+	// тут и далее <= для учета 'игроки' после классов
+	for (; class_num <= NUM_CLASSES; ++class_num) {
+		if (CompareParam(buffer, TopPlayer::TopFormat[class_num])) {
+			find = 1;
+			break;
+		}
 	}
 
-	for (i = 0; *(top_show_fields[i].cmd) != '\n'; i++)
-		if (!strncmp(arg, top_show_fields[i].cmd, strlen(arg)))
-			break;
+	if (find) {
+		std::ostringstream out;
+		out << CCWHT(ch, C_NRM) << "Лучшие " << TopPlayer::TopFormat[class_num] << ":" << CCNRM(ch, C_NRM) << "\r\n";
 
-	if (*(top_show_fields[i].cmd) == '\n')
-		for (i++; *(top_show_fields[i].cmd) != '\n'; i++)
-			if (!strncmp(arg, top_show_fields[i].cmd, strlen(arg)))
-				break;
-
-	switch (top_show_fields[i].mode) {
-		case CLASS_CLERIC:
-		case CLASS_BATTLEMAGE:
-		case CLASS_THIEF:
-		case CLASS_WARRIOR:
-		case CLASS_ASSASINE:
-		case CLASS_GUARD:
-		case CLASS_CHARMMAGE:
-		case CLASS_DEFENDERMAGE:
-		case CLASS_NECROMANCER:
-		case CLASS_PALADINE:
-		case CLASS_RANGER:
-		case CLASS_SMITH:
-		case CLASS_MERCHANT:
-		case CLASS_DRUID:
-			CREATE(last_word, char, strlen("перевоплощение") + 1);
-			sprintf(buf, "&cЛучшие %s:&n\r\n", top_show_fields[i].cmd);
-			for (j = 0; j < MAX_REMORT_TOP_SIZE && *(max_remort_top[(int) top_show_fields[i].mode][j].name) != '\0'; j++) {
-				rem = max_remort_top[(int) top_show_fields[i].mode][j].remort;
-				if (!(rem % 10) || rem % 10 >= 5 && rem % 10 <= 9 || !((rem - 11) % 100) || !((rem - 12) % 100) || !((rem - 13) % 100) || !((rem - 14) % 100))
-					strcpy(last_word, "перевоплощений");
-				else if (rem % 10 == 1)
-					strcpy(last_word, "перевоплощение");
-				else
-					strcpy(last_word, "перевоплощения");
-				sprintf(buf + strlen(buf),
-					"\t%-20s %-2d %s\r\n",
-					max_remort_top[(int) top_show_fields[i].mode][j].name, max_remort_top[(int) top_show_fields[i].mode][j].remort, last_word);
-			}
-			send_to_char(buf, ch);
-			free(last_word);
-			break;
-		case TOP_ALL:
-			CREATE(last_word, char, strlen("перевоплощение") + 1);
-			sprintf(buf, "&cЛучшие %s:&n\r\n", top_show_fields[i].cmd);
-			for (i = 0; *(top_show_fields[i].cmd) != '\n'; i++) {
-				if (*(max_remort_top[(int) top_show_fields[i].mode][0].name) != '\0') {
-					rem = max_remort_top[(int) top_show_fields[i].mode][0].remort;
-					if (!(rem % 10) || rem % 10 >= 5 && rem % 10 <= 9 || !((rem - 11) % 100) || !((rem - 12) % 100) || !((rem - 13) % 100) || !((rem - 14) % 100))
-						strcpy(last_word, "перевоплощений");
-					else if (rem % 10 == 1)
-						strcpy(last_word, "перевоплощение");
-					else
-						strcpy(last_word, "перевоплощения");
-					sprintf(buf + strlen(buf),
-						"\t%-20s %-2d %-17s %s\r\n",
-						max_remort_top[(int) top_show_fields[i].mode][0].name,
-						max_remort_top[(int) top_show_fields[i].mode][0].remort,
-						last_word,
-						class_name[(int) top_show_fields[i].mode]);
-				}
-			}
-			page_string(ch->desc, buf, 1);
-			free(last_word);
-			break;
-		case TOP_CLANS:
-			strcpy(buf, "Раздел пока недоступен.\r\n");
-			send_to_char(buf, ch);
-			break;
-		default:
-			strcpy(buf, "Вы можете остаться при своем мнении!\r\n");
-			send_to_char(buf, ch);
-			break;
+		if (class_num < NUM_CLASSES) { // конкретная профа
+			boost::format class_format("\t%-20s %-2d %s\r\n");
+			int i = 0;
+			for (std::list<TopPlayer>::const_iterator it = TopPlayer::TopList[class_num].begin(); it != TopPlayer::TopList[class_num].end() && i < MAX_TOP_CLASS; ++it, ++i)
+				out << class_format % it->name % it->remort % desc_count(it->remort, WHAT_REMORT);
+			send_to_char(ch, out.str().c_str());
+		} else { // все профы
+			int i = 0;
+			boost::format all_format("\t%-20s %-2d %-17s %s\r\n");
+			for (TopListType::const_iterator it = TopPlayer::TopList.begin(); it != TopPlayer::TopList.end(); ++it, ++i)
+				if (!it->empty())
+					out << all_format % it->begin()->name % it->begin()->remort % desc_count(it->begin()->remort, WHAT_REMORT) % class_name[i];
+			send_to_char(ch, out.str().c_str());
+		}
+	} else {
+		std::ostringstream out;
+		out.setf(std::ios_base::left, std::ios_base::adjustfield);
+		out << "Лучшими могут быть:\r\n";
+		for (int i = 0, j = 1; i <= NUM_CLASSES; ++i, ++j)
+			out << std::setw(15) << TopPlayer::TopFormat[i] << (j % 5 ? "" : "\r\n");
+		out << "\r\n";
+		send_to_char(ch, out.str().c_str());
+		return;
 	}
 }

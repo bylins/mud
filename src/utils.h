@@ -1225,7 +1225,7 @@ char *desc_count(int how_many, int of_what);
 #define WHAT_DEGREE	16
 #define WHAT_ROW	17
 #define WHAT_OBJECT	18
-
+#define WHAT_REMORT	19
 
 /* some awaking cases */
 #define AW_HIDE       (1 << 0)

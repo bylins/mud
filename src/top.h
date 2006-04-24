@@ -1,28 +1,44 @@
-/* ************************************************************************
-*   File: top.h                                         Part of Bylins    *
-*  Usage: header file for tops handling                                   *
-*                                                                         *
-*                                                                         *
-*  $Author$                                                          *
-*  $Date$                                           *
-*  $Revision$                                                       *
-************************************************************************ */
+/* ****************************************************************************
+* File: top.h                                                  Part of Bylins *
+* Usage: Топ игроков пошустрее                                                *
+* (c) 2006 Krodo                                                              *
+******************************************************************************/
 
-#define MAX_REMORT_TOP_SIZE		5
+#ifndef _TOP_H_
+#define _TOP_H_
 
-#define TOP_ALL				NUM_CLASSES
-#define TOP_CLANS			(NUM_CLASSES + 1)
+#include <string>
+#include <list>
+#include <vector>
+#include <boost/shared_ptr.hpp>
 
-struct max_remort_top_element {
-	char name[MAX_NAME_LENGTH+1];
-	int remort;
-	long exp;
+// кол-во отображаемых в топе игроков по профессии
+#define MAX_TOP_CLASS 5
+
+class TopPlayer;
+typedef std::vector< std::list<TopPlayer> > TopListType;
+
+class TopPlayer
+{
+	public:
+	TopPlayer(long _unique, const char * _name, long _exp, int _remort)
+		: unique(_unique), name(_name), exp(_exp), remort(_remort) {};
+	~TopPlayer() {};
+
+	static const char * TopFormat[];
+
+	static void Remove(CHAR_DATA * ch);
+	static void Refresh(CHAR_DATA * ch, bool reboot = 0);
+
+	private:
+	long unique;      // уид
+	std::string name; // имя
+	long exp;         // опыта
+	int remort;       // ремортов
+
+	static TopListType TopList; // собсна топ (TODO: с плеер_таблицей склеить бы потом)
+
+	friend ACMD(DoBest);
 };
 
-struct top_show_struct {
-	const char *cmd;
-	const byte mode;
-};
-
-void upd_p_max_remort_top(CHAR_DATA * ch);
-void load_max_remort_top(void);
+#endif

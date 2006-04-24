@@ -746,9 +746,7 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 		CLR_GOD_FLAG(ch, GF_REMORT);
 	}
 
-//MZ.tops
-	upd_p_max_remort_top(ch);
-//-MZ.tops
+	TopPlayer::Refresh(ch);
 	if (CLAN(ch))
 		CLAN(ch)->AddTopExp(ch, gain + clan_exp); // для рейтинга кланов
 }
@@ -805,9 +803,7 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 
 	}
 
-//MZ.tops
-	upd_p_max_remort_top(ch);
-//-MZ.tops
+	TopPlayer::Refresh(ch);
 }
 
 

@@ -1835,9 +1835,7 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 						gain_exp(c, +MAX(1, atoi(subfield + 1)));
 					else if ((value = atoi(subfield)) > 0) {
 						GET_EXP(c) = value;
-//MZ.tops
-						upd_p_max_remort_top(c);
-//-MZ.tops
+						TopPlayer::Refresh(c);
 					}
 				}
 				sprintf(str, "%ld", GET_EXP(c));
