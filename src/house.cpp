@@ -1334,13 +1334,16 @@ ACMD(DoHcontrol)
 		Clan::HcontrolDestroy(ch, buffer);
 	else if (CompareParam(buffer2, "show"))
 		Clan::HconShow(ch);
-	else if (CompareParam(buffer2, "save"))
+	else if (CompareParam(buffer2, "save")) {
 		Clan::ClanSave();
+		Clan::ChestUpdate();
+		Clan::ChestSave();
+	}
 	else
 		send_to_char(HCONTROL_FORMAT, ch);
 }
 
-// создрание дружины (hcontrol build)
+// создание дружины (hcontrol build)
 void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 {
 	// парсим все параметры, чтобы сразу проверить на ввод всех полей
@@ -1454,6 +1457,10 @@ void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 	// воеводе проставим все привилегии
 	for (int i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
 		tempClan->privileges[0].set(i);
+	// залоадим сразу хранилище
+	OBJ_DATA * chest = read_object(CLAN_CHEST, VIRTUAL);
+	if (chest)
+		obj_to_room(chest, real_room(tempClan->chest_room));
 
 	Clan::ClanList.push_back(tempClan);
 	Clan::ClanSave();
@@ -1489,6 +1496,7 @@ void Clan::HcontrolDestroy(CHAR_DATA * ch, std::string & buffer)
 	Clan::ClanList.erase(clan);
 	Clan::ClanSave();
 	Board::ClanInit();
+	// TODO: по идее можно сундук и его содержимое пуржить, но не факт, что это хорошо
 	// уведомляем и чистим инфу игрокам
 	for (ClanMemberList::const_iterator it = members.begin(); it != members.end(); ++it) {
 		if ((d = DescByUID(it->first, 0))) {
@@ -1927,6 +1935,9 @@ void Clan::ChestLoad()
 	if (chest_num < 0)
 		return;
 
+	// TODO: при сильном желании тут можно пробегать все зоны замков или вообще все зоны/предметы и пуржить все chest
+	// предметы и их содержимое, на случай релоада кланов и изменения комнаты с хранилищем (чтобы в маде не пуржить руками)
+
 	// на случай релоада - чистим перед этим все что было в сундуках
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
 		for (chest = world[real_room((*clan)->chest_room)]->contents; chest; chest = chest->next_content) {
@@ -1936,6 +1947,7 @@ void Clan::ChestLoad()
 					obj_from_obj(temp);
 					extract_obj(temp);
 				}
+				extract_obj(chest);
 			}
 		}
 	}
@@ -1951,11 +1963,13 @@ void Clan::ChestLoad()
 			buffer[i] = LOWER(AtoL(buffer[i]));
 		std::string filename = LIB_HOUSE + buffer + "/" + buffer + ".obj";
 
-		for (chest = world[real_room((*clan)->chest_room)]->contents; chest; chest = chest->next_content)
-			if (chest->item_number == chest_num)
-				break;
+		//лоадим сундук. в зонах его лоадить не нужно.
+		chest = read_object(CLAN_CHEST, VIRTUAL);
+		if (chest)
+			obj_to_room(chest, real_room((*clan)->chest_room));
+
 		if (!chest) {
-			log("<Clan> Where chest for '%s' ?! (%s %s %d)", (*clan)->abbrev.c_str(), __FILE__, __func__, __LINE__);
+			log("<Clan> Chest load error '%s'! (%s %s %d)", (*clan)->abbrev.c_str(), __FILE__, __func__, __LINE__);
 			return;
 		}
 		if (!(fl = fopen(filename.c_str(), "r+b")))
@@ -3437,6 +3451,8 @@ ACMD(do_clanstuff)
 	for (;it != CLAN(ch)->clanstuff.end();it++) {
 		vnum = CLAN_STUFF_ZONE*100 + it->num;
 		obj = read_object(vnum, VIRTUAL);
+		if (!obj)
+			continue;
 		rnum = GET_OBJ_RNUM(obj);
 
 		if (rnum == NOTHING)

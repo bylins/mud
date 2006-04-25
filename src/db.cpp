@@ -830,6 +830,14 @@ void boot_db(void)
 		Crash_read_timer(i, FALSE);
 	}
 
+	// последовательность лоада кланов/досок/иммов не менять
+	log("Booting boards");
+	Board::BoardInit();
+	log("Booting clans");
+	Clan::ClanLoad();
+	log("Booting GodList");
+	GodListLoad();
+
 	for (i = 0; i <= top_of_zone_table; i++) {
 		log("Resetting %s (rooms %d-%d).", zone_table[i].name,
 		    (i ? (zone_table[i - 1].top + 1) : 0), zone_table[i].top);
@@ -853,14 +861,6 @@ void boot_db(void)
 
 	log("Booting guilds");
 	init_guilds();
-
-	// последовательность лоада кланов/досок/иммов не менять
-	log("Booting boards");
-	Board::BoardInit();
-	log("Booting clans");
-	Clan::ClanLoad();
-	log("Booting GodList");
-	GodListLoad();
 
 	log("Booting portals for 'town portal' spell");
 	portals_list = NULL;
