@@ -4117,10 +4117,7 @@ void load_ignores(CHAR_DATA * ch, char *line)
 
 /* new load_char reads ascii pfiles */
 /* Load a char, TRUE if loaded, FALSE if not */
-// по умолчанию reboot = 0 (1 - не грузятся: карма, история логонов и замакс мобов
-// настоятельно не рекомендую убирать из лоада другие поля - потенциальные грабли в будующем обеспечены
-// TODO: если эт все на серве вообще сказывается, то как-нить на досуге воткнуть перезапись файла при ребуте
-// и поменять последовательность сейва этих полей. тогда можно их скипать разом и не тратить время на парс
+// TODO: развернутое описание добавлю попожжя
 int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, i;
@@ -4145,11 +4142,94 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 		return (-1);
 	}
 
+///////////////////////////////////////////////////////////////////////////////
+
+	// первыми иним и парсим поля для ребута до поля "Rebt", если reboot на входе = 1, то на этом парс и кончается
+	if (ch->player_specials == NULL)
+		CREATE(ch->player_specials, struct player_special_data, 1);
+	GET_LEVEL(ch) = 1;
+	GET_CLASS(ch) = 1;
+	GET_UNIQUE(ch) = 0;
+	LAST_LOGON(ch) = time(0);
+	GET_IDNUM(ch) = 0;
+	GET_EXP(ch) = 0;
+	GET_REMORT(ch) = 0;
+	asciiflag_conv("", &PLR_FLAGS(ch, 0));
+
+	bool skip_file = 0;
+
+	do {
+		if (!fbgetline(fl, line)) {
+			log("Wrong file ascii %d %s", id, filename);
+			return (-1);
+		}
+
+		tag_argument(line, tag);
+		for (i = 0; !(line[i] == ' ' || line[i] == '\0'); i++) {
+			line1[i] = line[i];
+		}
+		line1[i] = '\0';
+		num = atoi(line1);
+		lnum = atol(line1);
+
+		switch (*tag) {
+		case 'A':
+			if (!strcmp(tag, "Act "))
+				asciiflag_conv(line, &PLR_FLAGS(ch, 0));
+			break;
+		case 'C':
+			if (!strcmp(tag, "Clas"))
+				GET_CLASS(ch) = num;
+			break;
+		case 'E':
+			if (!strcmp(tag, "Exp "))
+				GET_EXP(ch) = lnum;
+			break;
+		case 'I':
+			if (!strcmp(tag, "Id  "))
+				GET_IDNUM(ch) = lnum;
+		case 'L':
+			if (!strcmp(tag, "LstL"))
+				LAST_LOGON(ch) = lnum;
+			else if (!strcmp(tag, "Levl"))
+				GET_LEVEL(ch) = num;
+		case 'N':
+			if (!strcmp(tag, "Name"))
+				GET_NAME(ch) = str_dup(line);
+		case 'R':
+			if (!strcmp(tag, "Rebt"))
+				skip_file = 1;
+			else if (!strcmp(tag, "Rmrt"))
+				GET_REMORT(ch) = num;
+			break;
+		case 'U':
+			if (!strcmp(tag, "UIN "))
+				GET_UNIQUE(ch) = num;
+			break;
+		default:
+			sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
+		}
+	} while (!skip_file);
+
+	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
+
+	//Indexing experience - if his exp is lover than required for his level - set it to required
+	if (GET_EXP(ch) < level_exp(ch, GET_LEVEL(ch)))
+		GET_EXP(ch) = level_exp(ch, GET_LEVEL(ch));
+
+	if (reboot) {
+		fbclose(fl);
+		return id;
+	}
+
+	// если происходит обычный лоад плеера, то читаем файл дальше и иним все остальные поля
+
+///////////////////////////////////////////////////////////////////////////////
+
+
 	/* character init */
 	/* initializations necessary to keep some things straight */
 
-	if (ch->player_specials == NULL)
-		CREATE(ch->player_specials, struct player_special_data, 1);
 	ch->player.short_descr = NULL;
 	ch->player.long_descr = NULL;
 
@@ -4178,7 +4258,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	GET_BANK_GOLD(ch) = 0;
 	ch->player.time.birth = time(0);
 	GET_CHA(ch) = 10;
-	GET_CLASS(ch) = 1;
 	GET_KIN(ch) = 0;
 	GET_CON(ch) = 10;
 	GET_COMMSTATE(ch) = 0;
@@ -4225,9 +4304,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 // End punish init
 
 	GET_DR(ch) = 0;
-	GET_EXP(ch) = 0;
 	GET_GOLD(ch) = 0;
-
 
 	GET_GLORY(ch) = 0;
 	ch->player_specials->saved.GodsLike = 0;
@@ -4238,11 +4315,8 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	GET_HR(ch) = 0;
 	GET_COND(ch, FULL) = 0;
 	GET_HOUSE_UID(ch) = 0;
-	GET_IDNUM(ch) = 0;
 	GET_INT(ch) = 10;
 	GET_INVIS_LEV(ch) = 0;
-	LAST_LOGON(ch) = time(0);
-	GET_LEVEL(ch) = 1;
 	ch->player.time.logon = time(0);
 	GET_MOVE(ch) = 44;
 	GET_MAX_MOVE(ch) = 44;
@@ -4258,7 +4332,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	GET_LOADROOM(ch) = NOWHERE;
 	GET_RELIGION(ch) = 1;
 	GET_RACE(ch) = 1;
-	GET_REMORT(ch) = 0;
 	GET_HOUSE_RANK(ch) = 0;
 	GET_SEX(ch) = 0;
 	GET_STR(ch) = 10;
@@ -4266,9 +4339,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	GET_WEIGHT(ch) = 50;
 	GET_WIMP_LEV(ch) = 0;
 	GET_WIS(ch) = 10;
-	GET_UNIQUE(ch) = 0;
 	asciiflag_conv("", &PRF_FLAGS(ch, 0));
-	asciiflag_conv("", &PLR_FLAGS(ch, 0));
 	asciiflag_conv("", &AFF_FLAGS(ch, 0));
 	ch->Questing.quests = NULL;
 	ch->Questing.count = 0;
@@ -4306,8 +4377,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 		case 'A':
 			if (!strcmp(tag, "Ac  "))
 				GET_AC(ch) = num;
-			else if (!strcmp(tag, "Act "))
-				asciiflag_conv(line, &PLR_FLAGS(ch, 0));
 			else if (!strcmp(tag, "Aff "))
 				asciiflag_conv(line, &AFF_FLAGS(ch, 0));
 			else if (!strcmp(tag, "Affs")) {
@@ -4368,8 +4437,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 		case 'C':
 			if (!strcmp(tag, "Cha "))
 				GET_CHA(ch) = num;
-			else if (!strcmp(tag, "Clas"))
-				GET_CLASS(ch) = num;
 			else if (!strcmp(tag, "Con "))
 				GET_CON(ch) = num;
 			else if (!strcmp(tag, "ComS"))
@@ -4397,9 +4464,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			break;
 
 		case 'E':
-			if (!strcmp(tag, "Exp "))
-				GET_EXP(ch) = lnum;
-			else if (!strcmp(tag, "EMal"))
+			if (!strcmp(tag, "EMal"))
 				strcpy(GET_EMAIL(ch), line);
 //F@N++
 			else if (!strcmp(tag, "ExFl"))
@@ -4478,9 +4543,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			break;
 
 		case 'I':
-			if (!strcmp(tag, "Id  "))
-				GET_IDNUM(ch) = lnum;
-			else if (!strcmp(tag, "Int "))
+			if (!strcmp(tag, "Int "))
 				GET_INT(ch) = num;
 			else if (!strcmp(tag, "Invs"))
 				GET_INVIS_LEV(ch) = num;
@@ -4491,25 +4554,12 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 
 		case 'K':
 			if (!strcmp (tag, "Kin "))
-			    GET_KIN (ch) = num;
-   			else if (!strcmp(tag, "Karm")) {
-				if (reboot) {
-					do fbgetline(fl, line); while (*line != '~');
-					break;
-				}
+			    GET_KIN(ch) = num;
+   			else if (!strcmp(tag, "Karm"))
 			    KARMA(ch) = fbgetstring(fl);
-			}
 			break;
 		case 'L':
-			if (!strcmp(tag, "LstL"))
-				LAST_LOGON(ch) = lnum;
-			else if (!strcmp(tag, "Levl"))
-				GET_LEVEL(ch) = num;
-			else if (!strcmp(tag, "LogL")) {
-				if (reboot) {
-					do fbgetline(fl, line); while (*line != '~');
-					break;
-				}
+			if (!strcmp(tag, "LogL")) {
 				i = 0;
 				struct logon_data * cur_log = 0;
 				long  lnum,lnum2;
@@ -4557,16 +4607,14 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 					++i;
 				if (line[i])
 					MUTE_REASON(ch) = strcpy((char *) malloc(strlen(line + i) + 1), line + i);
-			} else if (!reboot && !strcmp(tag, "Mob ")) {
+			} else if (!strcmp(tag, "Mob ")) {
 				sscanf(line, "%d %d", &num, &num2);
 				inc_kill_vnum(ch, num, num2);
 			} 
 			break;
 
 		case 'N':
-			if (!strcmp(tag, "Name"))
-				GET_NAME(ch) = str_dup(line);
-			else if (!strcmp(tag, "NmI "))
+			if (!strcmp(tag, "NmI "))
 				GET_PAD(ch, 0) = str_dup(line);
 			else if (!strcmp(tag, "NmR "))
 				GET_PAD(ch, 1) = str_dup(line);
@@ -4679,8 +4727,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				GET_RELIGION(ch) = num;
 			else if (!strcmp(tag, "Race"))
 				GET_RACE(ch) = num;
-			else if (!strcmp(tag, "Rmrt"))
-				GET_REMORT(ch) = num;
 			else if (!strcmp(tag, "Rank"))
 				GET_HOUSE_RANK(ch) = num;
 			else if (!strcmp(tag, "Rcps")) {
@@ -4774,11 +4820,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				GET_WIS(ch) = num;
 			break;
 
-		case 'U':
-			if (!strcmp(tag, "UIN "))
-				GET_UNIQUE(ch) = num;
-			break;
-
 		default:
 			sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
 		}
@@ -4825,11 +4866,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	} else
 		GET_HIT(ch) = MIN(GET_HIT(ch), GET_REAL_MAX_HIT(ch));
 	fbclose(fl);
-
-//Indexing experience - if his exp is lover than required for his level
-//set it to required
-	if (GET_EXP(ch) < level_exp(ch, GET_LEVEL(ch)))
-		GET_EXP(ch) = level_exp(ch, GET_LEVEL(ch));
 
 	return (id);
 }
@@ -5789,6 +5825,7 @@ int check_object_level(OBJ_DATA * obj, int val)
 	return (error);
 }
 
+// TODO: камент написать
 int must_be_deleted(CHAR_DATA * cfu)
 {
 	int ci, timeout;
@@ -5831,7 +5868,7 @@ void entrycount(char *name)
 		CREATE(dummy, CHAR_DATA, 1);
 		clear_char(dummy);
 		deleted = 1;
-		// в данном случае у чара не загружены: карма, история логонов, замакс мобов
+		// TODO: камент напишу попожжя
 		if (load_char(name, dummy, 1) > -1) {
 			/* если чар удален или им долго не входили, то не создаем для него запись */
 			if (!must_be_deleted(dummy)) {
@@ -6079,9 +6116,25 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	if ((i >= MAX_AFFECT) && aff && aff->next)
 		log("SYSERR: WARNING: OUT OF STORE ROOM FOR AFFECTED TYPES!!!");
 
-/* запись */
+	// первыми идут поля, необходимые при ребуте мада
 	if (GET_NAME(ch))
 		fprintf(saved, "Name: %s\n", GET_NAME(ch));
+	fprintf(saved, "Levl: %d\n", GET_LEVEL(ch));
+	fprintf(saved, "Clas: %d\n", GET_CLASS(ch));
+	fprintf(saved, "UIN : %d\n", GET_UNIQUE(ch));
+	fprintf(saved, "LstL: %ld\n", LAST_LOGON(ch));
+	fprintf(saved, "Id  : %ld\n", GET_IDNUM(ch));
+	fprintf(saved, "Exp : %ld\n", GET_EXP(ch));
+	if (GET_REMORT(ch) > 0)
+		fprintf(saved, "Rmrt: %d\n", GET_REMORT(ch));
+	// флаги
+	*buf = '\0';
+	tascii(&PLR_FLAGS(ch, 0), 4, buf);
+	fprintf(saved, "Act : %s\n", buf);
+	// это пишем обязательно посленим
+	fprintf(saved, "Rebt: следующие далее поля при перезагрузке не парсятся\n\n");
+	// дальше пишем как хотим и что хотим
+
 	if (GET_PAD(ch, 0))
 		fprintf(saved, "NmI : %s\n", GET_PAD(ch, 0));
 	if (GET_PAD(ch, 0))
@@ -6111,8 +6164,6 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 		fprintf(saved, "PfOt: %s\n", POOFOUT(ch));
 	fprintf(saved, "Sex : %d %s\n", GET_SEX(ch), genders[(int) GET_SEX(ch)]);
 	fprintf (saved, "Kin : %d %s\n", GET_KIN (ch),kin_name[GET_KIN (ch)][(int) GET_SEX (ch)]);
-	fprintf(saved, "Clas: %d %s\n", GET_CLASS(ch), pc_class_types[(int) GET_CLASS (ch)+14*GET_KIN (ch)]);
-	fprintf(saved, "Levl: %d\n", GET_LEVEL(ch));
 	if ((location = real_room(GET_HOME(ch))) != NOWHERE)
 		fprintf(saved, "Home: %d %s\n", GET_HOME(ch), world[(location)]->name);
 	li = ch->player.time.birth;
@@ -6135,11 +6186,6 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	fprintf(saved, "Size: %d\n", GET_SIZE(ch));
 	/* структуры */
 	fprintf(saved, "Alin: %d\n", GET_ALIGNMENT(ch));
-	fprintf(saved, "Id  : %ld\n", GET_IDNUM(ch));
-	fprintf(saved, "UIN : %d\n", GET_UNIQUE(ch));
-	*buf = '\0';
-	tascii(&PLR_FLAGS(ch, 0), 4, buf);
-	fprintf(saved, "Act : %s\n", buf);
 	*buf = '\0';
 	tascii(&AFF_FLAGS(ch, 0), 4, buf);
 	fprintf(saved, "Aff : %s\n", buf);
@@ -6235,7 +6281,6 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	fprintf(saved, "Move: %d/%d\n", GET_MOVE(ch), GET_MAX_MOVE(ch));
 	fprintf(saved, "Gold: %d\n", GET_GOLD(ch));
 	fprintf(saved, "Bank: %ld\n", GET_BANK_GOLD(ch));
-	fprintf(saved, "Exp : %ld\n", GET_EXP(ch));
 	fprintf(saved, "PK  : %ld\n", IS_KILLER(ch));
 
 	fprintf(saved, "Wimp: %d\n", GET_WIMP_LEV(ch));
@@ -6271,8 +6316,6 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	fprintf(saved, "ComS: %d\n", GET_COMMSTATE(ch));
 	fprintf(saved, "Glor: %d\n", GET_GLORY(ch));
 	fprintf(saved, "Olc : %d\n", GET_OLC_ZONE(ch));
-	if (GET_REMORT(ch) > 0)
-		fprintf(saved, "Rmrt: %d\n", GET_REMORT(ch));
 	*buf = '\0';
 	tascii(&PRF_FLAGS(ch, 0), 4, buf);
 	fprintf(saved, "Pref: %s\n", buf);
@@ -6314,11 +6357,7 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 			next_log = next_log->next;
 		}
 		fprintf(saved, "LogL:\n%s~\n",buf);
-// TODO: ╒ ╓╔║═ё ╚╝ё ╞╝Б╝╛
-//		log("Saved: %s",buf);
-//		log("End logon list save.");
 	}
-	fprintf(saved, "LstL: %ld\n", LAST_LOGON(ch));
 	fprintf(saved, "GdFl: %ld\n", ch->player_specials->saved.GodsLike);
 	fprintf(saved, "NamG: %d\n", NAME_GOD(ch));
 	fprintf(saved, "NaID: %ld\n", NAME_ID_GOD(ch));
