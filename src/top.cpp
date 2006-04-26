@@ -33,6 +33,7 @@ void TopPlayer::Remove(CHAR_DATA * ch)
 }
 
 // проверяем надо-ли добавлять в топ и добавляем/обновляем при случае. reboot по дефолту 0 (1 для ребута)
+// TODO: камент написать про ребут
 void TopPlayer::Refresh(CHAR_DATA * ch, bool reboot)
 {
 	if (IS_NPC(ch) || IS_SET(PLR_FLAGS(ch, PLR_FROZEN), PLR_FROZEN) || IS_SET(PLR_FLAGS(ch, PLR_DELETED), PLR_DELETED) || IS_IMMORTAL(ch))
