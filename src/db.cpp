@@ -4117,7 +4117,12 @@ void load_ignores(CHAR_DATA * ch, char *line)
 
 /* new load_char reads ascii pfiles */
 /* Load a char, TRUE if loaded, FALSE if not */
-// TODO: развернутое описание добавлю попожжя
+
+// на счет reboot: используется только при старте мада в вызовах из entrycount
+// при включенном флаге файл читается только до поля Rebt, все остальные поля пропускаются
+// поэтому при каких-то изменениях в entrycount, must_be_deleted и TopPlayer::Refresh следует
+// убедиться, что изменный код работает с действительно проинициализированными полями персонажа
+// на данный момент это: PLR_FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GET_LEVEL, GET_NAME, GET_REMORT, GET_UNIQUE
 int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, i;
@@ -4349,8 +4354,8 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	IGNORE_LIST(ch) = NULL;
 	CREATE(GET_LOGS(ch), int, NLOG);
 
-	// TODO: здест можно указать дату, с которой пойдет отсчет новых сообщений,
-	// например чтобы не пугать игрока 200+ новостями при первом запуске системы
+	// здесь можно указать дату, с которой пойдет отсчет новых сообщений,
+	// например, чтобы не пугать игрока 200+ новостями при первом запуске системы
 	GENERAL_BOARD_DATE(ch) = 1143706650;
 	NEWS_BOARD_DATE(ch) = 1143706650;
 	IDEA_BOARD_DATE(ch) = 1143706650;
@@ -5825,30 +5830,31 @@ int check_object_level(OBJ_DATA * obj, int val)
 	return (error);
 }
 
-// TODO: камент написать
-int must_be_deleted(CHAR_DATA * cfu)
+// данная функция работает с неполностью загруженным персонажем
+// подробности в комментарии к load_char_ascii
+int must_be_deleted(CHAR_DATA * short_ch)
 {
 	int ci, timeout;
 
-	if (IS_SET(PLR_FLAGS(cfu, PLR_NODELETE), PLR_NODELETE))
+	if (IS_SET(PLR_FLAGS(short_ch, PLR_NODELETE), PLR_NODELETE))
 		return (0);
 
-	if (GET_REMORT(cfu))
+	if (GET_REMORT(short_ch))
 		return (0);
 
-	if (IS_SET(PLR_FLAGS(cfu, PLR_DELETED), PLR_DELETED))
+	if (IS_SET(PLR_FLAGS(short_ch, PLR_DELETED), PLR_DELETED))
 		return (1);
 
 	timeout = -1;
 	for (ci = 0; ci == 0 || pclean_criteria[ci].level > pclean_criteria[ci - 1].level; ci++) {
-		if (GET_LEVEL(cfu) <= pclean_criteria[ci].level) {
+		if (GET_LEVEL(short_ch) <= pclean_criteria[ci].level) {
 			timeout = pclean_criteria[ci].days;
 			break;
 		}
 	}
 	if (timeout >= 0) {
 		timeout *= SECS_PER_REAL_DAY;
-		if ((time(0) - LAST_LOGON(cfu)) > timeout) {
+		if ((time(0) - LAST_LOGON(short_ch)) > timeout) {
 			return (1);
 		}
 	}
@@ -5857,21 +5863,23 @@ int must_be_deleted(CHAR_DATA * cfu)
 }
 
 
+// данная функция работает с неполностью загруженным персонажем
+// подробности в комментарии к load_char_ascii
 void entrycount(char *name)
 {
 	int i, deleted;
-	CHAR_DATA *dummy;
+	CHAR_DATA * short_ch;
 	char filename[MAX_STRING_LENGTH];
 
 	if (get_filename(name, filename, PLAYERS_FILE)) {
 
-		CREATE(dummy, CHAR_DATA, 1);
-		clear_char(dummy);
+		CREATE(short_ch, CHAR_DATA, 1);
+		clear_char(short_ch);
 		deleted = 1;
-		// TODO: камент напишу попожжя
-		if (load_char(name, dummy, 1) > -1) {
+		// персонаж загружается неполностью
+		if (load_char(name, short_ch, 1) > -1) {
 			/* если чар удален или им долго не входили, то не создаем для него запись */
-			if (!must_be_deleted(dummy)) {
+			if (!must_be_deleted(short_ch)) {
 				deleted = 0;
 				/* new record */
 				if (player_table)
@@ -5881,27 +5889,27 @@ void entrycount(char *name)
 				top_of_p_file++;
 				top_of_p_table++;
 
-				CREATE(player_table[top_of_p_table].name, char, strlen(GET_NAME(dummy)) + 1);
+				CREATE(player_table[top_of_p_table].name, char, strlen(GET_NAME(short_ch)) + 1);
 				for (i = 0, player_table[top_of_p_table].name[i] = '\0';
-				     (player_table[top_of_p_table].name[i] = LOWER(GET_NAME(dummy)[i])); i++);
-				player_table[top_of_p_table].id = GET_IDNUM(dummy);
-				player_table[top_of_p_table].unique = GET_UNIQUE(dummy);
-				player_table[top_of_p_table].level = (GET_REMORT(dummy) ? 30 : GET_LEVEL(dummy));
+				     (player_table[top_of_p_table].name[i] = LOWER(GET_NAME(short_ch)[i])); i++);
+				player_table[top_of_p_table].id = GET_IDNUM(short_ch);
+				player_table[top_of_p_table].unique = GET_UNIQUE(short_ch);
+				player_table[top_of_p_table].level = (GET_REMORT(short_ch) ? 30 : GET_LEVEL(short_ch));
 				player_table[top_of_p_table].timer = NULL;
-				if (IS_SET(PLR_FLAGS(dummy, PLR_DELETED), PLR_DELETED)) {
+				if (IS_SET(PLR_FLAGS(short_ch, PLR_DELETED), PLR_DELETED)) {
 					player_table[top_of_p_table].last_logon = -1;
 					player_table[top_of_p_table].activity = -1;
 				} else {
-					player_table[top_of_p_table].last_logon = LAST_LOGON(dummy);
+					player_table[top_of_p_table].last_logon = LAST_LOGON(short_ch);
 					player_table[top_of_p_table].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
 				}
-				top_idnum = MAX(top_idnum, GET_IDNUM(dummy));
-				TopPlayer::Refresh(dummy, 1);
+				top_idnum = MAX(top_idnum, GET_IDNUM(short_ch));
+				TopPlayer::Refresh(short_ch, 1);
 				log("Add new player %s", player_table[top_of_p_table].name);
 			}
-			free_char(dummy);
+			free_char(short_ch);
 		} else {
-			free(dummy);
+			free(short_ch);
 		}
 		/* если чар уже удален, то стираем с диска его файл */
 		if (deleted) {
@@ -6116,7 +6124,7 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	if ((i >= MAX_AFFECT) && aff && aff->next)
 		log("SYSERR: WARNING: OUT OF STORE ROOM FOR AFFECTED TYPES!!!");
 
-	// первыми идут поля, необходимые при ребуте мада
+	// первыми идут поля, необходимые при ребуте мада, тут без необходимости трогать ничего не надо
 	if (GET_NAME(ch))
 		fprintf(saved, "Name: %s\n", GET_NAME(ch));
 	fprintf(saved, "Levl: %d\n", GET_LEVEL(ch));
@@ -6131,7 +6139,7 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	*buf = '\0';
 	tascii(&PLR_FLAGS(ch, 0), 4, buf);
 	fprintf(saved, "Act : %s\n", buf);
-	// это пишем обязательно посленим
+	// это пишем обязательно посленим, потому что после него ничего не прочитается
 	fprintf(saved, "Rebt: следующие далее поля при перезагрузке не парсятся\n\n");
 	// дальше пишем как хотим и что хотим
 

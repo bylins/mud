@@ -25,33 +25,37 @@ extern const char *class_name[];
 TopListType TopPlayer::TopList (NUM_CLASSES);
 
 // отдельное удаление из списка (для ренеймов, делетов и т.п.)
-void TopPlayer::Remove(CHAR_DATA * ch)
+// данная функция работает в том числе и с неполностью загруженным персонажем
+// подробности в комментарии к load_char_ascii
+void TopPlayer::Remove(CHAR_DATA * short_ch)
 {
-	TopPlayer::TopList[static_cast<int>(GET_CLASS(ch))].remove_if(
+	TopPlayer::TopList[static_cast<int>(GET_CLASS(short_ch))].remove_if(
 		boost::bind(std::equal_to<long>(),
-			boost::bind(&TopPlayer::unique, _1), GET_UNIQUE(ch)));
+			boost::bind(&TopPlayer::unique, _1), GET_UNIQUE(short_ch)));
 }
 
 // проверяем надо-ли добавлять в топ и добавляем/обновляем при случае. reboot по дефолту 0 (1 для ребута)
-// TODO: камент написать про ребут
-void TopPlayer::Refresh(CHAR_DATA * ch, bool reboot)
+// данная функция работает в том числе и с неполностью загруженным персонажем
+// подробности в комментарии к load_char_ascii
+void TopPlayer::Refresh(CHAR_DATA * short_ch, bool reboot)
 {
-	if (IS_NPC(ch) || IS_SET(PLR_FLAGS(ch, PLR_FROZEN), PLR_FROZEN) || IS_SET(PLR_FLAGS(ch, PLR_DELETED), PLR_DELETED) || IS_IMMORTAL(ch))
+	if (IS_NPC(short_ch) || IS_SET(PLR_FLAGS(short_ch, PLR_FROZEN), PLR_FROZEN)
+	|| IS_SET(PLR_FLAGS(short_ch, PLR_DELETED), PLR_DELETED) || IS_IMMORTAL(short_ch))
 		return;
 
-	int class_num = static_cast<int>(GET_CLASS(ch)); // а то уж больно плохо смотрится
+	int class_num = static_cast<int>(GET_CLASS(short_ch)); // а то уж больно плохо смотрится
 
 	if (!reboot)
-		TopPlayer::Remove(ch);
+		TopPlayer::Remove(short_ch);
 
-	// шерстим список по ремортам и экспе и смотрим куда воткнуться, TODO: обновить у ся буст и воткнуть тут find_if с трехэтажным биндом
+	// шерстим список по ремортам и экспе и смотрим куда воткнуться
 	std::list<TopPlayer>::iterator it_exp;
 	for (it_exp = TopPlayer::TopList[class_num].begin(); it_exp != TopPlayer::TopList[class_num].end(); ++it_exp)
-		if (it_exp->remort < GET_REMORT(ch) || it_exp->remort == GET_REMORT(ch) && it_exp->exp < GET_EXP(ch))
+		if (it_exp->remort < GET_REMORT(short_ch) || it_exp->remort == GET_REMORT(short_ch) && it_exp->exp < GET_EXP(short_ch))
 			break;
 
-	if (!GET_NAME(ch)) return; // у нас все может быть
-	TopPlayer temp_player(GET_UNIQUE(ch), GET_NAME(ch), GET_EXP(ch), GET_REMORT(ch));
+	if (!GET_NAME(short_ch)) return; // у нас все может быть
+	TopPlayer temp_player(GET_UNIQUE(short_ch), GET_NAME(short_ch), GET_EXP(short_ch), GET_REMORT(short_ch));
 
 	if (it_exp != TopPlayer::TopList[class_num].end())
 		TopPlayer::TopList[class_num].insert(it_exp, temp_player);
