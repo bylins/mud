@@ -2372,7 +2372,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					d->character = NULL;
 					return;
 				}
-				load_pkills(d->character);
 				REMOVE_BIT(PLR_FLAGS(d->character, PLR_MAILING), PLR_MAILING);
 				REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
 				REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRYO), PLR_CRYO);
@@ -2418,7 +2417,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					SEND_TO_Q(buf, d);
 					STATE(d) = CON_NAME_CNFRM;
 				} else {	/* undo it just in case they are set */
-					load_pkills(d->character);
 					REMOVE_BIT(PLR_FLAGS(d->character, PLR_MAILING), PLR_MAILING);
 					REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
 					REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRYO), PLR_CRYO);

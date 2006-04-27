@@ -33,8 +33,6 @@ extern int get_buf_line(char **source, char *target);
 extern int get_buf_lines(char **source, char *target);
 extern void tascii(int *pointer, int num_planes, char *ascii);
 extern void asciiflag_conv(char *flag, void *value);
-extern void load_pkills(CHAR_DATA * ch);
-
 
 extern int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
 extern int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
@@ -571,7 +569,6 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 			return true;
 		}
 
-		load_pkills(seller);
 		GET_BANK_GOLD(seller) += GET_EXCHANGE_ITEM_COST(item);
 		GET_BANK_GOLD(ch) -= GET_EXCHANGE_ITEM_COST(item);
 		save_char(seller, GET_LOADROOM(seller));

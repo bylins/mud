@@ -876,10 +876,6 @@ int get_filename(const char *orig_name, char *filename, int mode)
 		prefix = LIB_PLRS;
 		suffix = SUF_PLAYER;
 		break;
-	case PKILLERS_FILE:
-		prefix = LIB_PLRS;
-		suffix = SUF_PKILLER;
-		break;
 	case PQUESTS_FILE:
 		prefix = LIB_PLRS;
 		suffix = SUF_QUESTS;

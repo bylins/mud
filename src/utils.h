@@ -165,7 +165,7 @@ void update_pos(CHAR_DATA * victim);
 #define ALIAS_FILE        2
 #define SCRIPT_VARS_FILE  3
 #define PLAYERS_FILE      4
-#define PKILLERS_FILE     5
+// тут были пк-файлы
 #define PQUESTS_FILE      6
 #define PMKILL_FILE       7
 #define TEXT_CRASH_FILE   8

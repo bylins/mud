@@ -103,7 +103,6 @@ extern int circle_restrict;
 extern int mini_mud;
 extern int no_rent_check;
 extern FILE *player_fl;
-extern FILE *pkiller_fl;
 extern ush_int DFLT_PORT;
 extern const char *DFLT_DIR;
 extern const char *DFLT_IP;

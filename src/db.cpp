@@ -4165,7 +4165,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 
 	do {
 		if (!fbgetline(fl, line)) {
-			log("Wrong file ascii %d %s", id, filename);
+			log("SYSERROR: Wrong file ascii %d %s", id, filename);
 			return (-1);
 		}
 
@@ -4612,9 +4612,15 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 					++i;
 				if (line[i])
 					MUTE_REASON(ch) = strcpy((char *) malloc(strlen(line + i) + 1), line + i);
-			} else if (!strcmp(tag, "Mob ")) {
-				sscanf(line, "%d %d", &num, &num2);
-				inc_kill_vnum(ch, num, num2);
+			} else if (!strcmp(tag, "Mobs")) {
+				do {
+					if (!fbgetline(fl, line))
+						break;
+					if (*line == '~')
+						break;
+					sscanf(line, "%d %d", &num, &num2);
+					inc_kill_vnum(ch, num, num2);
+				} while (true);
 			} 
 			break;
 
@@ -4656,7 +4662,32 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				POOFOUT(ch) = str_dup(line);
 			else if (!strcmp(tag, "Pref"))
 				asciiflag_conv(line, &PRF_FLAGS(ch, 0));
-			else if (!strcmp(tag, "PK  "))
+			else if (!strcmp(tag, "Pkil")) {
+				do {
+					if (!fbgetline(fl, line))
+						break;
+					if (*line == '~')
+						break;
+					sscanf(line, "%ld %d", &lnum, &num);
+
+					if (lnum < 0 || !correct_unique(lnum))
+						continue;
+					struct PK_Memory_type * pk_one = NULL;
+					for (pk_one = ch->pk_list; pk_one; pk_one = pk_one->next)
+						if (pk_one->unique == lnum)
+							break;
+					if (pk_one) {
+						log("SYSERROR: duplicate entry pkillers data for %d %s", id, filename);
+						continue;
+					}
+
+					CREATE(pk_one, struct PK_Memory_type, 1);
+					pk_one->unique = lnum;
+					pk_one->kill_num = num;
+					pk_one->next = ch->pk_list;
+					ch->pk_list = pk_one;
+				} while (true);
+			} else if (!strcmp(tag, "PK  "))
 				IS_KILLER(ch) = lnum;
 			else if (!strcmp(tag, "Prtl"))
 				add_portal_to_char(ch, num);
@@ -5917,9 +5948,6 @@ void entrycount(char *name)
 			remove(filename);
 			// 2) Remove all other files
 
-			get_filename(name, filename, PKILLERS_FILE);
-			remove(filename);
-
 			get_filename(name, filename, ETEXT_FILE);
 			remove(filename);
 
@@ -6072,7 +6100,6 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	}
 
 	log("Save char %s", GET_NAME(ch));
-	save_pkills(ch);
 	save_char_vars(ch);
 
 /* Запись чара в новом формате */
@@ -6417,6 +6444,7 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	}
 
 	save_mkill(ch, saved);
+	save_pkills(ch, saved);
 
 	fclose(saved);
 
@@ -6460,10 +6488,6 @@ void rename_char(CHAR_DATA * ch, char *oname)
 	rename(ofilename, filename);
 
 	save_char(ch, GET_LOADROOM(ch));
-
-	get_filename(oname, ofilename, PKILLERS_FILE);
-	get_filename(GET_NAME(ch), filename, PKILLERS_FILE);
-	rename(ofilename, filename);
 
 	// 2) Rename all other files
 	get_filename(oname, ofilename, CRASH_FILE);

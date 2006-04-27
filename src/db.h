@@ -85,7 +85,6 @@
 #define SUF_MEM		"mem"
 #define SUF_BLACK	"blk"
 #define SUF_PLAYER  "player"
-#define SUF_PKILLER "pkiller"
 #define SUF_QUESTS  "quests"
 #define SUF_PMKILL	"mobkill"
 #if defined(CIRCLE_AMIGA)

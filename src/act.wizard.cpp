@@ -653,13 +653,11 @@ ACMD(do_email)
 			free(victim);
 			return;
 		}
-		load_pkills(victim);
 		strncpy(GET_PASSWD(victim), CRYPT(newpass, GET_NAME(victim)), MAX_PWD_LENGTH);
 		*(GET_PASSWD(victim) + MAX_PWD_LENGTH) = '\0';
 		sprintf(buff,
 			"echo \"Subject: Ваш чар\r\nContent-Type: text/plain; charset=koi8-r\r\n\r\nПроизведена замена пароля\r\nИмя: %s\r\nПароль: %s\"|/usr/sbin/sendmail -F\"Bylins MUD\" %s\r\n",
 			GET_NAME(victim), newpass, GET_EMAIL(victim));
-//      save_pkills(victim);
 		save_char(victim, GET_LOADROOM(victim));
 		system(buff);
 		sprintf(buf, "Выслан пароль %s, чару %s, на e-mail %s.\r\n", newpass,
@@ -802,11 +800,9 @@ ACMD(do_glory)
 			free(vict);
 			return;
 		}
-		load_pkills(vict);
 
 		// Тут ставим или показываем славу 
 		set_glory(ch, vict, mode, atoi((num + 1)));
-
 
 		if (mode != SHOW_GLORY) {
 			sprintf(buf,"Change glory %s by %s", num, GET_NAME(ch));
@@ -1862,7 +1858,6 @@ ACMD(do_stat)
 			CREATE(victim, CHAR_DATA, 1);
 			clear_char(victim);
 			if (load_char(buf2, victim) > -1) {
-				load_pkills(victim);
 				if (GET_LEVEL(victim) > GET_LEVEL(ch) && !GET_COMMSTATE(ch))
 					send_to_char("Извините, Вам это еще рано.\r\n", ch);
 				else
@@ -4378,7 +4373,6 @@ ACMD(do_set)
 					return;
 				}
 			}
-			load_pkills(cbuf);
 			vict = cbuf;
 		} else {
 			free(cbuf);
@@ -4632,7 +4626,6 @@ ACMD(do_name)
 			free(vict);
 			return;
 		}
-		load_pkills(vict);
 		go_name(ch, vict, argument);
 		save_char(vict, GET_LOADROOM(vict));
 		free_char(vict);

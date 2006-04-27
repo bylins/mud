@@ -85,10 +85,7 @@ void pk_list_sprintf(CHAR_DATA * ch, char *buff);
 
 //*************************************************************************
 // Системные функции сохранения/загрузки ПК флагов
-
-void load_pkills(CHAR_DATA * ch);
-void save_pkills(CHAR_DATA * ch);
-void save_pkills(CHAR_DATA * ch);
+void save_pkills(CHAR_DATA * ch, FILE * saved);
 
 //*************************************************************************
 bool has_clan_members_in_group(CHAR_DATA * ch);

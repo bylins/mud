@@ -23,11 +23,6 @@
 #include "screen.h"
 #include "pk.h"
 
-struct pkiller_file_u {
-	int unique;
-	int pkills;
-};
-FILE *pkiller_fl = NULL;
 ACMD(do_revenge);
 
 extern CHAR_DATA *character_list;
@@ -714,77 +709,34 @@ void pk_free_list(CHAR_DATA * ch)
 	}
 }
 
-
-void load_pkills(CHAR_DATA * ch)
+// сохранение списка пк-местей в файл персонажа
+void save_pkills(CHAR_DATA * ch, FILE * saved)
 {
-	FILE *loaded;
-	struct pkiller_file_u pk_data;
-	struct PK_Memory_type *pk_one = NULL;
-	char filename[MAX_STRING_LENGTH];
-
- /**** read pkiller list for char */
-	log("Load pkill %s", GET_NAME(ch));
-	if (get_filename(GET_NAME(ch), filename, PKILLERS_FILE) && (loaded = fopen(filename, "r+b"))) {
-		while (!feof(loaded)) {
-			fread(&pk_data, sizeof(struct pkiller_file_u), 1, loaded);
-			if (!feof(loaded)) {
-				if (pk_data.unique < 0 || !correct_unique(pk_data.unique))
-					continue;
-				for (pk_one = ch->pk_list; pk_one; pk_one = pk_one->next)
-					if (pk_one->unique == pk_data.unique)
-						break;
-				if (pk_one) {
-					log("SYSERROR : duplicate entry pkillers data for %s", GET_NAME(ch));
-					continue;
-				}
-				// log("SYSINFO : load pkill one for %s", GET_NAME(ch));
-				CREATE(pk_one, struct PK_Memory_type, 1);
-				pk_one->unique = pk_data.unique;
-				pk_one->kill_num = pk_data.pkills;
-				pk_one->next = ch->pk_list;
-				ch->pk_list = pk_one;
-			};
-		}
-		fclose(loaded);
-	}
-}
-
-
-void save_pkills(CHAR_DATA * ch)
-{
-	FILE *saved;
 	struct PK_Memory_type *pk, *temp, *tpk;
 	CHAR_DATA *tch = NULL;
-	struct pkiller_file_u pk_data;
-	char filename[MAX_STRING_LENGTH];
 
-  /**** store pkiller list for char */
-	log("Save pkill %s", GET_NAME(ch));
-	if (get_filename(GET_NAME(ch), filename, PKILLERS_FILE) && (saved = fopen(filename, "w+b"))) {
-		for (pk = ch->pk_list; pk && !PLR_FLAGGED(ch, PLR_DELETED);) {
-			if (pk->kill_num > 0 && correct_unique(pk->unique)) {
-				if (pk->revenge_num >= MAX_REVENGE && pk->battle_exp <= time(NULL)) {
-					for (tch = character_list; tch; tch = tch->next)
-						if (!IS_NPC(tch) && GET_UNIQUE(tch) == pk->unique)
-							break;
-					if (--(pk->kill_num) == 0 && tch)
-						act("Вы больше не можете мстить $N2.", FALSE, tch, 0, ch, TO_CHAR);
-				}
-				if (pk->kill_num <= 0) {
-					tpk = pk->next;
-					REMOVE_FROM_LIST(pk, ch->pk_list, next);
-					free(pk);
-					pk = tpk;
-					continue;
-				}
-				pk_data.unique = pk->unique;
-				pk_data.pkills = pk->kill_num;
-				fwrite(&pk_data, sizeof(struct pkiller_file_u), 1, saved);
+	fprintf(saved, "Pkil:\n");
+	for (pk = ch->pk_list; pk && !PLR_FLAGGED(ch, PLR_DELETED);) {
+		if (pk->kill_num > 0 && correct_unique(pk->unique)) {
+			if (pk->revenge_num >= MAX_REVENGE && pk->battle_exp <= time(NULL)) {
+				for (tch = character_list; tch; tch = tch->next)
+					if (!IS_NPC(tch) && GET_UNIQUE(tch) == pk->unique)
+						break;
+				if (--(pk->kill_num) == 0 && tch)
+					act("Вы больше не можете мстить $N2.", FALSE, tch, 0, ch, TO_CHAR);
 			}
-			pk = pk->next;
+			if (pk->kill_num <= 0) {
+				tpk = pk->next;
+				REMOVE_FROM_LIST(pk, ch->pk_list, next);
+				free(pk);
+				pk = tpk;
+				continue;
+			}
+			fprintf(saved, "%ld %d\n", pk->unique, pk->kill_num);
 		}
-		fclose(saved);
+		pk = pk->next;
 	}
+	fprintf(saved, "~\n");
 }
 
 // Проверка может ли ch начать аргессивные действия против victim

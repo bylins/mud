@@ -188,13 +188,12 @@ void save_mkill(CHAR_DATA * ch, FILE * saved)
 
 	if (IS_NPC(ch) || IS_IMMORTAL(ch))
 		return;
-	if (ch->MobKill.vnum) {
+	fprintf(saved, "Mobs:\n");
+	if (ch->MobKill.vnum)
 		for (i = 0; i < ch->MobKill.count; i++)
-			if ((r_num = real_mobile(*(ch->MobKill.vnum + i))) > -1) {
-				fprintf(saved, "Mob : %d %d %s\n", *(ch->MobKill.vnum + i),
-					*(ch->MobKill.howmany + i), mob_proto[r_num].player.short_descr);
-			}
-	}
+			if ((r_num = real_mobile(*(ch->MobKill.vnum + i))) > -1)
+				fprintf(saved, "%d %d\n", *(ch->MobKill.vnum + i), *(ch->MobKill.howmany + i));
+	fprintf(saved, "~\n");
 }
 
 /* сохраняет на диске файл замакса */

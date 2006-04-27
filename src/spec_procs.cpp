@@ -60,8 +60,6 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 int slot_for_char(CHAR_DATA * ch, int i);
-void load_pkills(CHAR_DATA * ch);
-void save_pkills(CHAR_DATA * ch);
 SPECIAL(guild_mono);
 SPECIAL(guild_poly);
 SPECIAL(guild);
@@ -2580,7 +2578,6 @@ SPECIAL(bank)
 				free(vict);
 				return (1);
 			}
-			load_pkills(vict);
 
 			GET_BANK_GOLD(ch) -= amount + (amount * 5) / 100;
 			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
