@@ -3768,7 +3768,7 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 	CHAR_DATA *ch_vict;
 	const char *msg;
 
-	if (ch == NULL)
+	if (!ch || !victim)
 		return 0;
 
 	for (i = 0; areas_messages[i].spell != -1; ++i)
