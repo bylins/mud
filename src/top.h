@@ -1,6 +1,6 @@
 /* ****************************************************************************
 * File: top.h                                                  Part of Bylins *
-* Usage: Топ игроков пошустрее                                                *
+* Usage: Ї╧╨ ╔╟╥╧╦╧╫ ╨╧█╒╙╘╥┼┼                                                *
 * (c) 2006 Krodo                                                              *
 ******************************************************************************/
 
@@ -12,7 +12,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
-// кол-во отображаемых в топе игроков по профессии
+// ╦╧╠-╫╧ ╧╘╧┬╥┴╓┴┼═┘╚ ╫ ╘╧╨┼ ╔╟╥╧╦╧╫ ╨╧ ╨╥╧╞┼╙╙╔╔
 #define MAX_TOP_CLASS 5
 
 class TopPlayer;
@@ -31,12 +31,12 @@ class TopPlayer
 	static void Refresh(CHAR_DATA * ch, bool reboot = 0);
 
 	private:
-	long unique;      // уид
-	std::string name; // имя
-	long exp;         // опыта
-	int remort;       // ремортов
+	long unique;      // ╒╔─
+	std::string name; // ╔═╤
+	long exp;         // ╧╨┘╘┴
+	int remort;       // ╥┼═╧╥╘╧╫
 
-	static TopListType TopList; // собсна топ (TODO: с плеер_таблицей склеить бы потом)
+	static TopListType TopList; // ╙╧┬╙╬┴ ╘╧╨
 
 	friend ACMD(DoBest);
 };
