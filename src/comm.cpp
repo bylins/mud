@@ -441,7 +441,19 @@ int main(int argc, char **argv)
 		log("Done.");
 	} else {
 		log("Running game on port %d.", port);
-		init_game(port);
+
+		// стль и буст юзаются уже немало где, а про их экспешены никто не думает
+		// пока хотя бы стльные ловить и просто логировать факт того, что мы вышли
+		// по эксепшену для удобства отладки и штатного сброса сислога в файл, т.к. в коре будет фиг
+		try {
+			init_game(port);
+		}
+		catch (std::exception &e) {
+			log("STD exception: %s", e.what());
+		}
+		catch (...) {
+			log("Unknown exception :(");
+		}
 	}
 
 	return (0);
