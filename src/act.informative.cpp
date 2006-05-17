@@ -4649,7 +4649,7 @@ ACMD(do_affects)
 		for (aff = ch->affected; aff; aff = aff->next) {
 			*buf2 = '\0';
 			strcpy(sp_name, spell_name(aff->type));
-			(aff->duration+1)/SECS_PER_MUD_HOUR ? sprintf(buf2, "%d %s", (aff->duration+1)/SECS_PER_MUD_HOUR, desc_count((aff->duration+1)/SECS_PER_MUD_HOUR, WHAT_HOUR)) : sprintf(buf2, "менее часа");
+			(aff->duration+1)/SECS_PER_MUD_HOUR ? sprintf(buf2, "%d %s", (aff->duration+1)/SECS_PER_MUD_HOUR + 1, desc_count((aff->duration+1)/SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "менее часа");
 	
 			sprintf(buf, "%s%s%-21s (%s)%s",
 				*sp_name == '!' ? "Состояние  : " : "Заклинание : ",
