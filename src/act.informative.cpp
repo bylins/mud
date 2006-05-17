@@ -4649,9 +4649,12 @@ ACMD(do_affects)
 		for (aff = ch->affected; aff; aff = aff->next) {
 			*buf2 = '\0';
 			strcpy(sp_name, spell_name(aff->type));
-			sprintf(buf, "%s%s%-21s%s ",
+			(aff->duration+1)/SECS_PER_MUD_HOUR ? sprintf(buf2, "%d %s", (aff->duration+1)/SECS_PER_MUD_HOUR, desc_count((aff->duration+1)/SECS_PER_MUD_HOUR, WHAT_HOUR)) : sprintf(buf2, "менее часа");
+	
+			sprintf(buf, "%s%s%-21s (%s)%s",
 				*sp_name == '!' ? "Состояние  : " : "Заклинание : ",
-				CCICYN(ch, C_NRM), sp_name, CCNRM(ch, C_NRM));
+				CCICYN(ch, C_NRM), sp_name, buf2, CCNRM(ch, C_NRM));
+			*buf2 = '\0';
 			if (!IS_IMMORTAL(ch)) {
 				if (aff->next && aff->type == aff->next->type)
 					continue;
