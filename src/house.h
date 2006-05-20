@@ -67,6 +67,8 @@
 // номер зоны с прототипами клан-стафа
 #define CLAN_STUFF_ZONE 18
 
+#define CHEST_IDENT_PAY 110
+
 struct ClanMember {
 	std::string name;   // имя игрока
 	int rank_num;       // номер ранга
@@ -227,7 +229,7 @@ class Clan
 	int ChestTax();
 	void ChestShow(OBJ_DATA * list, CHAR_DATA * ch);
 	int ChestMaxObjects() {return (this->clan_level+1)*500+100;};
-	int ChestMaxWeight() {return (this->clan_level+1)*2000+400;};
+	int ChestMaxWeight() {return (this->clan_level+1)*3500+400;};
 
 	// для сортировки вывода членов клана по рангам, когда оно через поля чара дергается
 	class SortRank

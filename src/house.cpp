@@ -37,6 +37,8 @@ extern const char *wear_bits[];
 extern const char *weapon_class[];
 extern const char *weapon_affects[];
 extern const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
+extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
+extern void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 
 long long clan_level_exp [MAX_CLANLEVEL+1] =
 {
@@ -2846,11 +2848,11 @@ ACMD(DoStoreHouse)
 		send_to_char("Чаво ?\r\n", ch);
 		return;
 	}
-
+        int chest_num = real_object(CLAN_CHEST);
+	OBJ_DATA *temp_obj, *chest;
+		
 	skip_spaces(&argument);
 	if (!*argument) {
-		OBJ_DATA *chest;
-		int chest_num = real_object(CLAN_CHEST);
 		if (chest_num < 0)
 			return;
 		for (chest = world[real_room(CLAN(ch)->chest_room)]->contents; chest; chest = chest->next_content) {
@@ -2862,6 +2864,38 @@ ACMD(DoStoreHouse)
 		}
 	}
 
+	char *stufina = one_argument(argument, arg);
+	skip_spaces(&stufina);
+	
+		
+	if (is_abbrev(arg, "характеристики") || is_abbrev(arg, "identify") || is_abbrev(arg, "опознать")) {
+		if ((GET_BANK_GOLD(ch) < CHEST_IDENT_PAY) && (GET_LEVEL(ch) < LVL_IMPL)) {
+			send_to_char("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
+			return;
+		}
+					
+		for (chest = world[real_room(CLAN(ch)->chest_room)]->contents; chest; chest = chest->next_content) {
+			if (chest->item_number == chest_num) {
+				for (temp_obj = chest->contains; temp_obj; temp_obj = temp_obj->next_content) {
+					if (isname(stufina, temp_obj->name)) {
+						sprintf(buf1, "Характеристики предмета: %s\r\n", stufina);
+						send_to_char(buf1, ch);
+						GET_LEVEL(ch) < LVL_IMPL ? mort_show_obj_values(temp_obj, ch, 200) : imm_show_obj_values(temp_obj, ch);
+						GET_BANK_GOLD(ch) -= CHEST_IDENT_PAY;
+						sprintf(buf1, "\t%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",  CCIGRN(ch, C_NRM), CHEST_IDENT_PAY, desc_count(CHEST_IDENT_PAY, WHAT_MONEYu), CCNRM(ch, C_NRM));
+						send_to_char(buf1, ch);
+						return;
+					}
+				}
+			}
+		}
+		
+		sprintf(buf1, "Ничего похожего на %s в хранилище ненайдено! Будьте внимательнее.\r\n", stufina);
+		send_to_char(buf1, ch);
+		return;
+		
+	}
+ 
 	// мож сэйвить надумается или еще что, вобщем объединим все в структурку
 	ChestFilter filter;
 	filter.type = -1;
@@ -3115,9 +3149,6 @@ ACMD(DoStoreHouse)
 	send_to_char(buffer, ch);
 	set_wait(ch, 1, FALSE);
 
-	int chest_num = real_object(CLAN_CHEST);
-
-	OBJ_DATA *temp_obj, *chest;
 	std::ostringstream out;
 	for (chest = world[real_room(CLAN(ch)->chest_room)]->contents; chest; chest = chest->next_content) {
 		if (chest->item_number == chest_num) {
