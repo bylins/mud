@@ -1306,7 +1306,6 @@ struct obj_flag_data {
 };
 
 
-/* Used in obj_file_elem *DO*NOT*CHANGE* */
 struct obj_affected_type {
 	byte location;		/* Which ability to change (APPLY_XXX) */
 	sbyte modifier;		/* How much it changes by              */
@@ -1350,38 +1349,6 @@ struct obj_data {
 	 max_in_world;		/* max in world             */
 };
 /* ======================================================================= */
-
-
-/* ====================== File Element for Objects ======================= */
-/*                 BEWARE: Changing it will ruin rent files       */
-struct obj_file_elem {
-	obj_vnum item_number;
-
-#if USE_AUTOEQ
-	short int
-	 location;
-#endif
-	int
-	 value[NUM_OBJ_VAL_POSITIONS];
-	FLAG_DATA extra_flags;
-	int
-	 weight;
-	int
-	 timer;
-	int
-	 maxstate;
-	int
-	 curstate;
-	int
-	 owner;
-	int
-	 wear_flags;
-	int
-	 mater;
-	FLAG_DATA bitvector;
-	struct obj_affected_type
-	 affected[MAX_OBJ_AFFECT];
-};
 
 
 /* header block for rent files.  BEWARE: Changing it will ruin rent files  */

@@ -80,8 +80,6 @@ int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int 
 int Crash_report_unrentables(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj);
 void Crash_report_rent(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj,
 		       int *cost, long *nitems, int display, int factor, int equip, int recursive);
-OBJ_DATA *Obj_from_store(struct obj_file_elem object, int *location);
-int Obj_to_store(OBJ_DATA * obj, FILE * fl, int location);
 void update_obj_file(void);
 int Crash_write_rentcode(CHAR_DATA * ch, FILE * fl, struct save_rent_info *rent);
 int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int mode);
@@ -897,76 +895,6 @@ write_one_object (char **data, OBJ_DATA * object, int location)
 }
 */
 
-/*Используется только в house.h, надо туда и перетащить*/
-OBJ_DATA *Obj_from_store(struct obj_file_elem object, int *location)
-{
-	OBJ_DATA *obj;
-	int j;
-
-	*location = 0;
-	if (real_object(object.item_number) >= 0) {
-		obj = read_object(object.item_number, VIRTUAL);
-		*location = object.location;
-		GET_OBJ_VAL(obj, 0) = object.value[0];
-		GET_OBJ_VAL(obj, 1) = object.value[1];
-		GET_OBJ_VAL(obj, 2) = object.value[2];
-		GET_OBJ_VAL(obj, 3) = object.value[3];
-		GET_OBJ_WEIGHT(obj) = object.weight;
-		GET_OBJ_TIMER(obj) = object.timer;
-		obj->obj_flags.Obj_max = object.maxstate;
-		obj->obj_flags.Obj_cur = object.curstate;
-		obj->obj_flags.Obj_owner = object.owner;
-		obj->obj_flags.Obj_mater = object.mater;
-		obj->obj_flags.extra_flags = object.extra_flags;
-		obj->obj_flags.affects = object.bitvector;
-		obj->obj_flags.wear_flags = object.wear_flags;
-
-
-		for (j = 0; j < MAX_OBJ_AFFECT; j++)
-			obj->affected[j] = object.affected[j];
-		if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON) {
-			name_from_drinkcon(obj);
-			if (GET_OBJ_VAL(obj, 1))
-				name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2));
-		}
-
-		return (obj);
-	} else
-		return (NULL);
-}
-
-
-/*Используется только в house.h, надо туда и перетащить*/
-int Obj_to_store(OBJ_DATA * obj, FILE * fl, int location)
-{
-	int j;
-	struct obj_file_elem object;
-
-	object.item_number = GET_OBJ_VNUM(obj);
-	object.location = location;
-	object.value[0] = GET_OBJ_VAL(obj, 0);
-	object.value[1] = GET_OBJ_VAL(obj, 1);
-	object.value[2] = GET_OBJ_VAL(obj, 2);
-	object.value[3] = GET_OBJ_VAL(obj, 3);
-	object.weight = GET_OBJ_WEIGHT(obj);
-	object.timer = GET_OBJ_TIMER(obj);
-	object.maxstate = obj->obj_flags.Obj_max;
-	object.curstate = obj->obj_flags.Obj_cur;
-	object.owner = obj->obj_flags.Obj_owner;
-	object.mater = obj->obj_flags.Obj_mater;
-
-	object.bitvector = obj->obj_flags.affects;
-	object.extra_flags = obj->obj_flags.extra_flags;
-	object.wear_flags = obj->obj_flags.wear_flags;
-	for (j = 0; j < MAX_OBJ_AFFECT; j++)
-		object.affected[j] = obj->affected[j];
-
-	if (fwrite(&object, sizeof(struct obj_file_elem), 1, fl) < 1) {
-		perror("SYSERR: error writing object in Obj_to_store");
-		return (0);
-	}
-	return (1);
-}
 
 int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 {
