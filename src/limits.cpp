@@ -1290,6 +1290,36 @@ void point_update(void)
 			}
 			continue;
 		}
+
+		// контейнеры на земле с флагом !дикей, но не загружаемые в этой комнате, а хз кем брошенные
+		// извращение конечно перебирать на каждый объект команды резета зоны, но в голову ниче интересного
+		// не лезет, да и не так уж и многона самом деле таких предметов будет, условий порядочно
+		// а так привет любителям оставлять книги в клановых сумках или лоадить в замке столы
+		if (j->in_obj
+			&& !j->in_obj->carried_by
+			&& !j->in_obj->worn_by
+			&& OBJ_FLAGGED(j->in_obj, ITEM_NODECAY)
+			&& GET_ROOM_VNUM(IN_ROOM(j->in_obj)) % 100 != 99)
+		{
+			int zone = world[j->in_obj->in_room]->zone;
+			bool find = 0;
+			ClanListType::const_iterator clan = Clan::IsClanRoom(j->in_obj->in_room);
+			if (clan == Clan::ClanList.end()) { // внутри замков даже и смотреть не будем
+				for (int cmd_no = 0; zone_table[zone].cmd[cmd_no].command != 'S'; ++cmd_no) {
+					if (zone_table[zone].cmd[cmd_no].command == 'O'
+						&& zone_table[zone].cmd[cmd_no].arg1 == GET_OBJ_RNUM(j->in_obj)
+						&& zone_table[zone].cmd[cmd_no].arg3 == IN_ROOM(j->in_obj))
+					{
+						find = 1;
+						break;
+					}
+				}
+			}
+
+			if (!find && GET_OBJ_TIMER(j) > 0)
+				GET_OBJ_TIMER(j)--;
+		}
+
 		/* If this is a corpse */
 		if (IS_CORPSE(j)) {	/* timer count down */
 			if (GET_OBJ_TIMER(j) > 0)
