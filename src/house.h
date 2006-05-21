@@ -229,7 +229,7 @@ class Clan
 	int ChestTax();
 	void ChestShow(OBJ_DATA * list, CHAR_DATA * ch);
 	int ChestMaxObjects() {return (this->clan_level+1)*500+100;};
-	int ChestMaxWeight() {return (this->clan_level+1)*3500+400;};
+	int ChestMaxWeight() {return (this->clan_level+1)*5000+500;};
 
 	// для сортировки вывода членов клана по рангам, когда оно через поля чара дергается
 	class SortRank
