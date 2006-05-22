@@ -2128,26 +2128,20 @@ ACMD(do_beep)
 
 void insert_wanted_gem::show(CHAR_DATA *ch)
 {
-    map< int, alias_type >::iterator it;
-    alias_type::iterator alias_it;
-    char buf[MAX_INPUT_LENGTH];
-    OBJ_DATA obj;
-    OBJ_DATA *p_obj = &obj;    
+	map< int, alias_type >::iterator it;
+	alias_type::iterator alias_it;
+	char buf[MAX_INPUT_LENGTH];
     
-    for (it=content.begin();it!=content.end();++it)
-    {
+	for (it=content.begin();it!=content.end();++it) {
+		const OBJ_DATA *p_obj = read_object_mirror(it->first);
+		printf(buf, "#%s\r\n", GET_OBJ_PNAME(p_obj, 0));
+		send_to_char(buf, ch);
 	
-	p_obj = read_object_mirror(it->first, p_obj);
-	sprintf(buf, "#%s\r\n", GET_OBJ_PNAME(p_obj, 0));
-	send_to_char(buf, ch);
-	
-	for(alias_it=it->second.begin();alias_it!=it->second.end();++alias_it)
-	{
-	    sprintf(buf, " %s\r\n", alias_it->first.c_str());
-	    send_to_char(buf, ch);
-	}
+		for(alias_it=it->second.begin();alias_it!=it->second.end();++alias_it) {
+			sprintf(buf, " %s\r\n", alias_it->first.c_str());
+			send_to_char(buf, ch);
+		}
     }
-    
 }
 
 void insert_wanted_gem::init()

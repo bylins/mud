@@ -162,8 +162,7 @@ struct script_memory {
 
 
 /* function prototypes from triggers.cpp (and others) */
-void act_mtrigger(CHAR_DATA * ch, char *str,
-		  CHAR_DATA * actor, CHAR_DATA * victim, OBJ_DATA * object, OBJ_DATA * target, char *arg);
+void act_mtrigger(CHAR_DATA * ch, char *str, CHAR_DATA * actor, CHAR_DATA * victim, const OBJ_DATA * object, const OBJ_DATA * target, char *arg);
 void speech_mtrigger(CHAR_DATA * actor, char *str);
 void speech_wtrigger(CHAR_DATA * actor, char *str);
 void greet_memory_mtrigger(CHAR_DATA * ch);

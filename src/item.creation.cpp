@@ -466,26 +466,20 @@ void mredit_disp_ingr_menu(DESCRIPTOR_DATA * d)
 	string objname, ingrname, tmpstr;
 	char tmpbuf[MAX_INPUT_LENGTH];
 
-	OBJ_DATA *tobj;
-
-	CREATE(tobj, OBJ_DATA, 1);
-
 	int index = OLC_NUM(d);
-
 	trec = OLC_MREC(d);
-
 	get_char_cols(d->character);
 
-	if ((trec->obj_proto != 0)
-	    && (read_object_mirror(trec->obj_proto, tobj) != NULL)) {
+	const OBJ_DATA *tobj = read_object_mirror(trec->obj_proto);
+	if (trec->obj_proto && tobj)
 		objname = tobj->PNames[0];
-	} else
+	else
 		objname = "Нет";
 
-	if ((trec->parts[index].proto != 0)
-	    && (read_object_mirror(trec->parts[index].proto, tobj) != NULL)) {
+	tobj = read_object_mirror(trec->parts[index].proto);
+	if (trec->parts[index].proto && tobj)
 		ingrname = tobj->PNames[0];
-	} else
+	else
 		ingrname = "Нет";
 
 	sprintf(tmpbuf,
@@ -510,8 +504,6 @@ void mredit_disp_ingr_menu(DESCRIPTOR_DATA * d)
 	send_to_char(tmpstr.c_str(), d->character);
 
 	OLC_MODE(d) = MREDIT_INGR_MENU;
-
-	free(tobj);
 }
 
 
@@ -520,20 +512,14 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 {
 	// Рисуем меню ...
 	MakeRecept *trec;
-
 	char tmpbuf[MAX_INPUT_LENGTH];
-	OBJ_DATA *tobj;
-
-	CREATE(tobj, OBJ_DATA, 1);
-
 	string tmpstr, objname, skillname;
 
 	trec = OLC_MREC(d);
-
 	get_char_cols(d->character);
 
-	if ((trec->obj_proto != 0)
-	    && (read_object_mirror(trec->obj_proto, tobj) != NULL))
+	const OBJ_DATA *tobj = read_object_mirror(trec->obj_proto);
+	if (trec->obj_proto && tobj)
 		objname = tobj->PNames[0];
 	else
 		objname = "Нет";
@@ -564,7 +550,8 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 	tmpstr = string(tmpbuf);
 
 	for (int i = 0; i < MAX_PARTS; i++) {
-		if ((trec->parts[i].proto != 0) && (read_object_mirror(trec->parts[i].proto, tobj) != NULL))
+		tobj = read_object_mirror(trec->parts[i].proto);
+		if (trec->parts[i].proto && tobj)
 			objname = tobj->PNames[0];
 		else
 			objname = "Нет";
@@ -584,16 +571,12 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 	send_to_char(tmpstr.c_str(), d->character);
 
 	OLC_MODE(d) = MREDIT_MAIN_MENU;
-
-	free(tobj);
 }
 
 ACMD(do_list_make)
 {
 	string tmpstr, skill_name, obj_name;
-	char *pagebuf;
 	char tmpbuf[MAX_INPUT_LENGTH];
-	OBJ_DATA *obj;
 
 	MakeRecept *trec;
 
@@ -601,7 +584,6 @@ ACMD(do_list_make)
 		send_to_char("Рецепты в этом мире не определены.", ch);
 		return;
 	}
-	CREATE(obj, OBJ_DATA, 1);
 
 	// Выдаем список рецептов всех рецептов как в магазине.
 	tmpstr = "###  Б  Умение  Предмет             Составляющие                         \r\n";
@@ -614,7 +596,8 @@ ACMD(do_list_make)
 
 		trec = make_recepts[i];
 
-		if (read_object_mirror(trec->obj_proto, obj) != NULL)
+		const OBJ_DATA *obj = read_object_mirror(trec->obj_proto);
+		if (obj)
 			obj_name = string(obj->PNames[0]).substr(0, 11);
 
 		while (make_skills[j].num != 0) {
@@ -635,7 +618,8 @@ ACMD(do_list_make)
 		for (int j = 0; j < MAX_PARTS; j++) {
 			if (trec->parts[j].proto != 0) {
 
-				if (read_object_mirror(trec->parts[j].proto, obj) != NULL)
+				obj = read_object_mirror(trec->parts[j].proto);
+				if (obj)
 					obj_name = string(obj->PNames[0]).substr(0, 11);
 				else
 					obj_name = "Нет";
@@ -661,16 +645,9 @@ ACMD(do_list_make)
 		tmpstr += "\r\n";
 
 	}
-	pagebuf = (char *) malloc(tmpstr.size() + 1);
 
-	strcpy(pagebuf, tmpstr.c_str());
-	page_string(ch->desc, pagebuf, 1);
-	free(pagebuf);
-
-	free(obj);
-
+	page_string(ch->desc, tmpstr.c_str(), 1);
 	return;
-
 }
 
 // Создание любого предмета из компонента.
@@ -692,21 +669,13 @@ ACMD(do_make_item)
 	// Сшить одежду
 
 	string tmpstr;
-
 	MakeReceptList *canlist;
-
 	MakeRecept *trec;
-
-	OBJ_DATA *tobj;
-
 	char tmpbuf[MAX_INPUT_LENGTH];
-
 	int i, used_skill;
 
 	used_skill = subcmd;
-
 	argument = one_argument(argument, tmpbuf);
-
 	canlist = new MakeReceptList;
 
 	// Разбираем в зависимости от того что набрали ... список объектов
@@ -754,19 +723,15 @@ ACMD(do_make_item)
 	}
 
 	if (!*tmpbuf) {
-		CREATE(tobj, OBJ_DATA, 1);
-
 		// Выводим тут список предметов которые можем сделать.
 		for (i = 0; i < canlist->size(); i++) {
-			read_object_mirror((*canlist)[i]->obj_proto, tobj);
-
+			const OBJ_DATA *tobj = read_object_mirror((*canlist)[i]->obj_proto);
+			if (!tobj)
+				return;
 			sprintf(tmpbuf, "%d) %s\r\n", i + 1, tobj->PNames[0]);
 			tmpstr += string(tmpbuf);
 		};
 		send_to_char(tmpstr.c_str(), ch);
-
-		free(tobj);
-
 		return;
 	}
 	// Адресуемся по списку либо по номеру, либо по названию с номером.
@@ -789,11 +754,9 @@ ACMD(do_make_item)
 	};
 
 	trec->make(ch);
-
 	free(canlist);
 
 	return;
-
 }
 
 void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
@@ -1530,7 +1493,6 @@ MakeRecept *MakeReceptList::get_by_name(string & rname)
 	string tmpstr;
 	p = recepts.begin();
 
-	OBJ_DATA *tobj;
 
 	int i, j, k;
 
@@ -1551,14 +1513,14 @@ MakeRecept *MakeReceptList::get_by_name(string & rname)
 
 	j = 0;
 
-	CREATE(tobj, OBJ_DATA, 1);
-
 	// cout <<  rname.substr(i+1) << endl;
 
 	rname = rname.substr(i + 1);
 
 	while (p != recepts.end()) {
-		read_object_mirror((*p)->obj_proto, tobj);
+		const OBJ_DATA *tobj = read_object_mirror((*p)->obj_proto);
+		if (!tobj)
+			return 0;
 		tmpstr = string(tobj->name);
 
 //    cout << tmpstr << endl;
@@ -1567,10 +1529,8 @@ MakeRecept *MakeReceptList::get_by_name(string & rname)
 
 		while (int (tmpstr.find(" ")) > 0) {
 			if ((tmpstr.substr(0, tmpstr.find(" "))).find(rname) == 0) {
-				if ((k - 1) == j) {
-					free(tobj);
+				if ((k - 1) == j)
 					return (*p);
-				}
 				j++;
 				break;
 			}
@@ -1582,9 +1542,7 @@ MakeRecept *MakeReceptList::get_by_name(string & rname)
 		p++;
 	}
 
-	free(tobj);
 	return (NULL);
-
 }
 
 MakeReceptList *MakeReceptList::can_make(CHAR_DATA * ch, MakeReceptList * canlist, int use_skill)
@@ -1628,16 +1586,12 @@ MakeRecept::~MakeRecept()
 
 
 
-int
- MakeRecept::can_make(CHAR_DATA * ch)
+int MakeRecept::can_make(CHAR_DATA * ch)
 {
 	int i, spellnum;
 	OBJ_DATA *ingrobj = NULL;
-	OBJ_DATA *tobj;
 	// char tmpbuf[MAX_INPUT_LENGTH];
 	// Сделать проверку на поле locked
-
-
 
 	if (!ch)
 		return (FALSE);
@@ -1651,15 +1605,13 @@ int
 	}
 	// Делаем проверку может ли чар сделать посох такого типа
 	if ((skill == SKILL_MAKE_STAFF)) {
-		CREATE(tobj, OBJ_DATA, 1);
-		// Определяем закл у палки
-		read_object_mirror(obj_proto, tobj);
-
+		const OBJ_DATA *tobj = read_object_mirror(obj_proto);
+		if (!tobj)
+			return 0;
 		spellnum = GET_OBJ_VAL(tobj, 3);
 
 //   if (!((GET_OBJ_TYPE(tobj) == ITEM_WAND )||(GET_OBJ_TYPE(tobj) == ITEM_WAND )))
 
-		free(tobj);
 		// Хотим делать посох проверяем есть ли заряжаемый закл у игрока.
 		if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP | SPELL_KNOW) && !IS_IMMORTAL(ch)) {
 			if (GET_LEVEL (ch) < SpINFO.min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] ||
@@ -1734,16 +1686,10 @@ int MakeRecept::get_ingr_pow(OBJ_DATA * ingrobj)
 // создать предмет по рецепту
 int MakeRecept::make(CHAR_DATA * ch)
 {
-	OBJ_DATA *tobj;
-
 	char tmpbuf[MAX_STRING_LENGTH];	//, tmpbuf2[MAX_STRING_LENGTH];
-
 	OBJ_DATA *ingrs[MAX_PARTS];
-
 	string tmpstr, charwork, roomwork, charfail, roomfail, charsucc, roomsucc, chardam, roomdam, tagging, itemtag;
-
 	int dam = 0;
-
 	bool make_fail;
 
 	// 1. Проверить есть ли скилл у чара
@@ -1762,14 +1708,13 @@ int MakeRecept::make(CHAR_DATA * ch)
 		return (FALSE);
 	}
 
-	CREATE(tobj, OBJ_DATA, 1);
-
-	read_object_mirror(obj_proto, tobj);
+	const OBJ_DATA *tobj = read_object_mirror(obj_proto);
+	if (!tobj)
+		return 0;
 
 	// Проверяем замемлены ли заклы у чара на посох
 	if (!IS_IMMORTAL(ch) && (skill == SKILL_MAKE_STAFF) && (GET_SPELL_MEM(ch, GET_OBJ_VAL(tobj, 3)) == 0)) {
 		act("Вы не готовы к тому чтобы сделать $o3.", FALSE, ch, tobj, 0, TO_CHAR);
-		free(tobj);
 		return (FALSE);
 	}
 	// Прогружаем в массив реальные ингры 
@@ -1788,8 +1733,6 @@ int MakeRecept::make(CHAR_DATA * ch)
 			tmpstr = "Вы побоялись испортить " + string(ingrs[i]->PNames[3]) +
 			    "\r\n и прекратили работу над " + string(tobj->PNames[4]) + ".\r\n";
 			send_to_char(tmpstr.c_str(), ch);
-			free(tobj);
-
 			return (FALSE);
 		};
 
@@ -1799,7 +1742,6 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 			tmpstr = "$o не подходит для изготовления " + string(tobj->PNames[1]) + ".";
 			act(tmpstr.c_str(), FALSE, ch, ingrs[i], 0, TO_CHAR);
-			free(tobj);
 			return (FALSE);
 		}
 
@@ -1815,7 +1757,6 @@ int MakeRecept::make(CHAR_DATA * ch)
 		// Проверяем есть ли тут наковальня или комната кузня.
 		if ((!ROOM_FLAGGED(IN_ROOM(ch), ROOM_SMITH)) && (!IS_IMMORTAL(ch))) {
 			send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
-			free(tobj);
 			return (FALSE);
 		}
 
@@ -2063,7 +2004,6 @@ int MakeRecept::make(CHAR_DATA * ch)
 			// Наносим дамаг.
 			if (GET_LEVEL(ch) >= LVL_IMMORT && dam > 0) {
 				send_to_char("Будучи бессмертным, Вы избежали повреждения...", ch);
-				free(tobj);
 				return (FALSE);
 			}
 			GET_HIT(ch) -= dam;
@@ -2086,15 +2026,14 @@ int MakeRecept::make(CHAR_DATA * ch)
 			}
 		}
 
-		free(tobj);
 		return (FALSE);
 	}
 	// Лоадим предмет игроку 
 
-	tobj = read_object(obj_proto, VIRTUAL);
+	OBJ_DATA *obj = read_object(obj_proto, VIRTUAL);
 
-	act(charsucc.c_str(), FALSE, ch, tobj, 0, TO_CHAR);
-	act(roomsucc.c_str(), FALSE, ch, tobj, 0, TO_ROOM);
+	act(charsucc.c_str(), FALSE, ch, obj, 0, TO_CHAR);
+	act(roomsucc.c_str(), FALSE, ch, obj, 0, TO_ROOM);
 	// 6. Считаем базовые статсы предмета и таймер
 	//  формула для каждого умения отдельная 
 
@@ -2106,21 +2045,21 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// Модифицируем вес предмета и его таймер.
 	// Для маг предметов надо в сторону облегчения.
 
-	i = GET_OBJ_WEIGHT(tobj);
+	i = GET_OBJ_WEIGHT(obj);
 	int sign = -1;
 
-	if ((GET_OBJ_TYPE(tobj) == ITEM_WEAPON) || (GET_OBJ_TYPE(tobj) == ITEM_INGRADIENT))
+	if ((GET_OBJ_TYPE(obj) == ITEM_WEAPON) || (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT))
 		sign = 1;
 
-	GET_OBJ_WEIGHT(tobj) = stat_modify(ch, GET_OBJ_WEIGHT(tobj), 20 * sign);
+	GET_OBJ_WEIGHT(obj) = stat_modify(ch, GET_OBJ_WEIGHT(obj), 20 * sign);
 
-//  sprintf(tmpbuf,"Вес: %d %d\r\n", i, GET_OBJ_WEIGHT(tobj));
+//  sprintf(tmpbuf,"Вес: %d %d\r\n", i, GET_OBJ_WEIGHT(obj));
 //  send_to_char(tmpbuf,ch);
 
-	i = GET_OBJ_TIMER(tobj);
-	GET_OBJ_TIMER(tobj) = stat_modify(ch, GET_OBJ_TIMER(tobj), 1);
+	i = GET_OBJ_TIMER(obj);
+	GET_OBJ_TIMER(obj) = stat_modify(ch, GET_OBJ_TIMER(obj), 1);
 
-//  sprintf(tmpbuf,"Таймер: %d %d\r\n", i, GET_OBJ_TIMER(tobj));
+//  sprintf(tmpbuf,"Таймер: %d %d\r\n", i, GET_OBJ_TIMER(obj));
 //  send_to_char(tmpbuf,ch);
 
 	// Модифицируем уникальные для предметов х-ки.
@@ -2130,11 +2069,11 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 	// Можно посчитать бонусы от времени суток.
 	// Считаем среднюю силу ингров .
-	switch (GET_OBJ_TYPE(tobj)) {
+	switch (GET_OBJ_TYPE(obj)) {
 	case ITEM_LIGHT:
 		// Считаем длительность свечения.
-		if (GET_OBJ_VAL(tobj, 2) != -1)
-			GET_OBJ_VAL(tobj, 2) = stat_modify(ch, GET_OBJ_VAL(tobj, 2), 1);
+		if (GET_OBJ_VAL(obj, 2) != -1)
+			GET_OBJ_VAL(obj, 2) = stat_modify(ch, GET_OBJ_VAL(obj, 2), 1);
 
 		break;
 	case ITEM_WAND:
@@ -2142,20 +2081,20 @@ int MakeRecept::make(CHAR_DATA * ch)
 		// Проверяем может 
 
 		// Считаем уровень закла
-		GET_OBJ_VAL(tobj, 0) = GET_LEVEL(ch);
+		GET_OBJ_VAL(obj, 0) = GET_LEVEL(ch);
 
 		// считаем заряды в палочке ... ставим число зарядов равное 
 		// числу замемленых заклов ... 
 /*      if (!IS_IMMORTAL(ch))
       {
-        GET_OBJ_VAL(tobj,1) = GET_SPELL_MEM(ch,GET_OBJ_VAL(tobj,3));
+        GET_OBJ_VAL(obj,1) = GET_SPELL_MEM(ch,GET_OBJ_VAL(obj,3));
 
       // палочка заряжена под самые ухи.
-        GET_OBJ_VAL(tobj,2) = GET_SPELL_MEM(ch,GET_OBJ_VAL(tobj,3));      
+        GET_OBJ_VAL(obj,2) = GET_SPELL_MEM(ch,GET_OBJ_VAL(obj,3));      
       } else
       {
-   GET_OBJ_VAL(tobj,1) = 10;        
-   GET_OBJ_VAL(tobj,2) = 10;
+   GET_OBJ_VAL(obj,1) = 10;        
+   GET_OBJ_VAL(obj,2) = 10;
       }
 */
 //      affect_join(ch, &af, TRUE, FALSE, FALSE, FALSE);
@@ -2164,33 +2103,33 @@ int MakeRecept::make(CHAR_DATA * ch)
 	case ITEM_WEAPON:
 		// Считаем число xdy 
 		// модифицируем XdY
-		if (GET_OBJ_VAL(tobj, 1) > GET_OBJ_VAL(tobj, 2))
-			GET_OBJ_VAL(tobj, 1) = stat_modify(ch, GET_OBJ_VAL(tobj, 1), 1);
+		if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 2))
+			GET_OBJ_VAL(obj, 1) = stat_modify(ch, GET_OBJ_VAL(obj, 1), 1);
 		else
-			GET_OBJ_VAL(tobj, 2) = stat_modify(ch, GET_OBJ_VAL(tobj, 2) - 1, 1) + 1;
+			GET_OBJ_VAL(obj, 2) = stat_modify(ch, GET_OBJ_VAL(obj, 2) - 1, 1) + 1;
 
 		break;
 	case ITEM_ARMOR:
 		// Считаем + АС
-		GET_OBJ_VAL(tobj, 0) = stat_modify(ch, GET_OBJ_VAL(tobj, 0), 1);
+		GET_OBJ_VAL(obj, 0) = stat_modify(ch, GET_OBJ_VAL(obj, 0), 1);
 
 		// Считаем поглощение.
-		GET_OBJ_VAL(tobj, 1) = stat_modify(ch, GET_OBJ_VAL(tobj, 1), 1);
+		GET_OBJ_VAL(obj, 1) = stat_modify(ch, GET_OBJ_VAL(obj, 1), 1);
 
 		break;
 	case ITEM_POTION:
 		// Считаем уровень итоговый напитка
-		GET_OBJ_VAL(tobj, 0) = stat_modify(ch, GET_OBJ_VAL(tobj, 0), 1);
+		GET_OBJ_VAL(obj, 0) = stat_modify(ch, GET_OBJ_VAL(obj, 0), 1);
 
 		break;
 	case ITEM_CONTAINER:
 		// Считаем объем контейнера.
-		GET_OBJ_VAL(tobj, 0) = stat_modify(ch, GET_OBJ_VAL(tobj, 0), 1);
+		GET_OBJ_VAL(obj, 0) = stat_modify(ch, GET_OBJ_VAL(obj, 0), 1);
 		break;
 
 	case ITEM_DRINKCON:
 		// Считаем объем контейнера.
-		GET_OBJ_VAL(tobj, 0) = stat_modify(ch, GET_OBJ_VAL(tobj, 0), 1);
+		GET_OBJ_VAL(obj, 0) = stat_modify(ch, GET_OBJ_VAL(obj, 0), 1);
 		break;
 
 	case ITEM_INGRADIENT:
@@ -2198,7 +2137,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		break;
 	}
 //  sprintf(tmpbuf,"VAL0 = %d ; VAL1 = %d ; VAL2 = %d ; VAL3 = %d \r\n",
-//     GET_OBJ_VAL(tobj,0),GET_OBJ_VAL(tobj,1),GET_OBJ_VAL(tobj,2),GET_OBJ_VAL(tobj,3));
+//     GET_OBJ_VAL(obj,0),GET_OBJ_VAL(obj,1),GET_OBJ_VAL(obj,2),GET_OBJ_VAL(obj,3));
 
 //  send_to_char(tmpbuf,ch);  
 	// 7. Считаем доп. статсы предмета.
@@ -2217,30 +2156,30 @@ int MakeRecept::make(CHAR_DATA * ch)
 			ingr_pow = 20;
 
 		// переносим аффекты ... c ингров на прототип.
-		add_flags(ch, &tobj->obj_flags.affects, &ingrs[j]->obj_flags.affects, ingr_pow);
+		add_flags(ch, &obj->obj_flags.affects, &ingrs[j]->obj_flags.affects, ingr_pow);
 
 		// перносим эффекты ... с ингров на прототип.
-		add_flags(ch, &tobj->obj_flags.extra_flags, &ingrs[j]->obj_flags.extra_flags, ingr_pow);
+		add_flags(ch, &obj->obj_flags.extra_flags, &ingrs[j]->obj_flags.extra_flags, ingr_pow);
 
-		add_affects(ch, tobj->affected, ingrs[j]->affected, ingr_pow);
+		add_affects(ch, obj->affected, ingrs[j]->affected, ingr_pow);
 	};
 
 /*  send_to_char("Устанавливает аффекты : ", ch);
-  sprintbits(tobj->obj_flags.affects, weapon_affects, tmpbuf, ",");
+  sprintbits(obj->obj_flags.affects, weapon_affects, tmpbuf, ",");
   strcat(tmpbuf, "\r\n");
   send_to_char(tmpbuf, ch);
 
   send_to_char("Дополнительные флаги  : ", ch);
-  sprintbits(tobj->obj_flags.extra_flags, extra_bits, tmpbuf, ",");
+  sprintbits(obj->obj_flags.extra_flags, extra_bits, tmpbuf, ",");
   strcat(tmpbuf, "\r\n");
   send_to_char(tmpbuf, ch);
 
   send_to_char("Аффекты:", ch);
   for (i = 0; i < MAX_OBJ_AFFECT; i++)
-      if (tobj->affected[i].modifier)
-         {sprinttype(tobj->affected[i].location, apply_types, tmpbuf2);
+      if (obj->affected[i].modifier)
+         {sprinttype(obj->affected[i].location, apply_types, tmpbuf2);
           sprintf(tmpbuf, "%s %+d to %s",";",
-         tobj->affected[i].modifier, tmpbuf2);
+         obj->affected[i].modifier, tmpbuf2);
           send_to_char(tmpbuf, ch);
          }
   send_to_char("\r\n",ch);
@@ -2267,36 +2206,36 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// шмотки по лучше (в целом это не так страшно).
 
 
-	if ((obj_index[GET_OBJ_RNUM(tobj)].number + obj_index[GET_OBJ_RNUM(tobj)].stored) >= (31 - created_lev) * 5) {
+	if ((obj_index[GET_OBJ_RNUM(obj)].number + obj_index[GET_OBJ_RNUM(obj)].stored) >= (31 - created_lev) * 5) {
 		tmpstr = "$o вспыхнул синим пламенем и исчез.\r\n";
 		send_to_char(tmpstr.c_str(), ch);
-		act(tmpstr.c_str(), FALSE, ch, tobj, 0, TO_CHAR);
+		act(tmpstr.c_str(), FALSE, ch, obj, 0, TO_CHAR);
 		tmpstr = "$o в руках $n1 вспыхнул синим пламенем и исчез.";
-		act(tmpstr.c_str(), FALSE, ch, tobj, 0, TO_ROOM);
-		extract_obj(tobj);
+		act(tmpstr.c_str(), FALSE, ch, obj, 0, TO_ROOM);
+		extract_obj(obj);
 		return (FALSE);
 	};
 
 	// Ставим метку если все хорошо.
-	if (((GET_OBJ_TYPE(tobj) != ITEM_INGRADIENT) &&
-	     (GET_OBJ_TYPE(tobj) != ITEM_MING)) &&
+	if (((GET_OBJ_TYPE(obj) != ITEM_INGRADIENT) &&
+	     (GET_OBJ_TYPE(obj) != ITEM_MING)) &&
 	    (number(1, 100) - calculate_skill(ch, skill, skill_info[skill].max_percent, 0) < 0)) {
-		act(tagging.c_str(), FALSE, ch, tobj, 0, TO_CHAR);
+		act(tagging.c_str(), FALSE, ch, obj, 0, TO_CHAR);
 		// Прибавляем в экстра описание строчку.
 		EXTRA_DESCR_DATA *new_desc;
-		EXTRA_DESCR_DATA *desc = tobj->ex_description;
+		EXTRA_DESCR_DATA *desc = obj->ex_description;
 
-		char *tagchar = format_act(itemtag.c_str(), ch, tobj, 0);
+		char *tagchar = format_act(itemtag.c_str(), ch, obj, 0);
 
 		if (desc == NULL) {
 			CREATE(desc, EXTRA_DESCR_DATA, 1);
-			tobj->ex_description = desc;
-			desc->keyword = str_dup(tobj->name);
+			obj->ex_description = desc;
+			desc->keyword = str_dup(obj->name);
 			desc->description = str_dup(tagchar);
 			desc->next = NULL;	// На всякий случай :)
 		} else {
 			CREATE(new_desc, EXTRA_DESCR_DATA, 1);
-			tobj->ex_description = new_desc;
+			obj->ex_description = new_desc;
 			new_desc->keyword = str_dup(desc->keyword);
 			new_desc->description = str_dup(desc->description);
 			new_desc->next = NULL;	// На всякий случай :)
@@ -2304,24 +2243,24 @@ int MakeRecept::make(CHAR_DATA * ch)
 			new_desc->description = str_add(new_desc->description, tagchar);
 			// По уму тут надо бы стереть старое описапние если оно не с прототипа 
 
-			tobj->ex_description = new_desc;
+			obj->ex_description = new_desc;
 		}
 
 		free(tagchar);
 	};
 	// Пишем производителя в поле.
-	GET_OBJ_MAKER(tobj) = GET_UNIQUE(ch);
+	GET_OBJ_MAKER(obj) = GET_UNIQUE(ch);
 
 	// 9. Проверяем минимум 2
 
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 		send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
-		obj_to_room(tobj, IN_ROOM(ch));
-	} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch)) {
+		obj_to_room(obj, IN_ROOM(ch));
+	} else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
 		send_to_char("Вы не сможете унести такой вес.\r\n", ch);
-		obj_to_room(tobj, IN_ROOM(ch));
+		obj_to_room(obj, IN_ROOM(ch));
 	} else
-		obj_to_char(tobj, ch);
+		obj_to_char(obj, ch);
 
 	return (TRUE);
 }

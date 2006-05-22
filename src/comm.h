@@ -30,10 +30,8 @@ void send_to_outdoor(const char *messg, int control);
 void send_to_gods(const char *messg);
 void perform_to_all(const char *messg, CHAR_DATA * ch);
 void close_socket(DESCRIPTOR_DATA * d, int derect);
-
-void perform_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *vict_obj, CHAR_DATA * to);
-
-void act(const char *str, int hide_invisible, CHAR_DATA * ch, OBJ_DATA * obj, const void *vict_obj, int type);
+void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, CHAR_DATA * to);
+void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, int type);
 unsigned long get_ip(const char *addr);
 
 #define SUN_CONTROL     (0 << 1)

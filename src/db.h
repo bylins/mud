@@ -191,7 +191,7 @@ void clear_object(OBJ_DATA * obj);
 void free_obj(OBJ_DATA * obj);
 obj_rnum real_object(obj_vnum vnum);
 OBJ_DATA *read_object(obj_vnum nr, int type);
-OBJ_DATA *read_object_mirror(obj_vnum nr, OBJ_DATA * obj);
+const OBJ_DATA* read_object_mirror(obj_vnum nr);
 
 int vnum_object(char *searchname, CHAR_DATA * ch);
 int vnum_flag(char *searchname, CHAR_DATA * ch);

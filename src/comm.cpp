@@ -3128,7 +3128,7 @@ void send_to_room(const char *messg, room_rnum room, int to_awake)
 
 
 /* higher-level communication: the act() function */
-void perform_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *vict_obj, CHAR_DATA * to)
+void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, CHAR_DATA * to)
 {
 	const char *i = NULL;
 	char lbuf[MAX_STRING_LENGTH], *buf;
@@ -3346,7 +3346,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 			(IS_NPC(ch) || !PLR_FLAGGED((ch), PLR_WRITING)))
 #endif
 
-void act(const char *str, int hide_invisible, CHAR_DATA * ch, OBJ_DATA * obj, const void *vict_obj, int type)
+void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, int type)
 {
 	CHAR_DATA *to;
 	int to_sleeping, check_deaf, check_nodeaf, stopcount;

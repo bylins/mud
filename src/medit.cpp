@@ -1347,7 +1347,6 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 	// 2) ... 
 	int i;
 	CHAR_DATA *mob;
-	OBJ_DATA *tobj = new OBJ_DATA;
 	string objname;
 
 	mob = OLC_MOB(d);
@@ -1368,9 +1367,10 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 		while (p != mob->dl_list->end()) {
 			i++;
 
-			if ((*p)->obj_vnum != 0 && (read_object_mirror((*p)->obj_vnum, tobj) != NULL)) {
+			const OBJ_DATA *tobj = read_object_mirror((*p)->obj_vnum);
+			if ((*p)->obj_vnum && tobj)
 				objname = tobj->PNames[0];
-			} else
+			else
 				objname = "Нет";
 
 			sprintf(buf, "%d. %s (%d,%d,%d,%d)\r\n",

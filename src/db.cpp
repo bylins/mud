@@ -3088,19 +3088,17 @@ OBJ_DATA *create_obj(void)
 	return (obj);
 }
 
-/* Делаем копию объекта на случай если нам надо только посмотреть его параметры */
-OBJ_DATA *read_object_mirror(obj_vnum nr, OBJ_DATA * obj)
+// никакая это не копия, строковые и остальные поля с выделением памяти остаются общими
+// мы просто отдаем константный указатель на прототип
+const OBJ_DATA* read_object_mirror(obj_vnum nr)
 {
 	int i;
 	if ((i = real_object(nr)) < 0) {
 		log("Object (V) %d does not exist in database.", nr);
 		return (NULL);
 	};
-	clear_object(obj);
 
-	*obj = obj_proto[i];
-
-	return (obj);
+	return &obj_proto[i];
 	// Мы не регистрируем объект в листе и не даем никаких ID-ов
 }
 

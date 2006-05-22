@@ -545,9 +545,8 @@ void speech_mtrigger(CHAR_DATA * actor, char *str)
 }
 
 
-void
-act_mtrigger(CHAR_DATA * ch, char *str, CHAR_DATA * actor,
-	     CHAR_DATA * victim, OBJ_DATA * object, OBJ_DATA * target, char *arg)
+void act_mtrigger(CHAR_DATA * ch, char *str, CHAR_DATA * actor, CHAR_DATA * victim,
+	const OBJ_DATA * object, const OBJ_DATA * target, char *arg)
 {
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
