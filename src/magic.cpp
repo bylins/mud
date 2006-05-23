@@ -1227,13 +1227,14 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		// каменное проклятие - круг 28 уровень 9 (1)
 		// для всех
 	case SPELL_STUNNING:
+		//понижаем прохождение, уменшаем лаг
 		if (ch == victim ||
 			((number (1, 999)  > GET_AR(victim) * 10) &&
-			!general_savingthrow(victim, SAVING_CRITICAL, CALC_SUCCESS (modi, GET_REAL_WIS(ch)), 0))) { 
+			!general_savingthrow(victim, SAVING_CRITICAL, CALC_SUCCESS (modi, GET_REAL_WIS(ch))-30, 0))) { 
 		    savetype = SAVING_STABILITY;
 		    ndice = GET_REAL_WIS(ch) / 5;
 		    sdice = GET_REAL_WIS(ch);
-		    adice = 5 + (GET_REAL_WIS (ch) - 20) / 6;
+		    adice = 3 + (GET_REAL_WIS (ch) - 20) / 6;
 		    GET_POS (victim) = POS_STUNNED;	
 		    WAIT_STATE (victim, adice * PULSE_VIOLENCE);
 		} else {

@@ -714,7 +714,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
-
+							
 	vict = try_protect(vict, ch, SKILL_BASH);
 
 	percent = number(1, skill_info[SKILL_BASH].max_percent);
@@ -742,6 +742,14 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 		 * first to make sure they don't flee, then we can't bash them!  So now
 		 * we only set them sitting if they didn't flee. -gg 9/21/98
 		 */
+	
+        //не дадим башить мобов в лаге которые спят, оглушены и прочее
+        if (GET_POS(vict) <= POS_STUNNED && GET_WAIT(vict) > 0) {
+	        send_to_char("Ваша жертва итак слишком слаба, надо быть милосерднее.\r\n", ch);
+		set_wait(ch, 1, FALSE);
+                return;
+        }
+                                                               		
 		int dam = str_app[GET_REAL_STR(ch)].todam + GET_REAL_DR(ch) +
 		    MAX(0, GET_SKILL(ch, SKILL_BASH) / 10 - 5) + GET_LEVEL(ch) / 5;
 //      log("[BASH params] = actor = %s, actorlevel = %d, actordex = %d
