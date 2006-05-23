@@ -1410,7 +1410,9 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 		// act("Вы ловко выбили $o3 из рук $N1.",FALSE,ch,wielded,vict,TO_CHAR);
 		act("$n ловко выбил$g $o3 из Ваших рук.", FALSE, ch, wielded, vict, TO_VICT);
 		act("$n ловко выбил$g $o3 из рук $N1.", TRUE, ch, wielded, vict, TO_NOTVICT);
-		set_wait(vict, IS_NPC(vict) ? 1 : 2, FALSE);
+		if (GET_WAIT(vict) <= 0) {
+			set_wait(vict, IS_NPC(vict) ? 1 : 2, FALSE);
+		}
 		prob = 2;
 		if (ROOM_FLAGGED(IN_ROOM(vict), ROOM_ARENA))
 			obj_to_char(wielded, vict);
