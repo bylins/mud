@@ -3075,11 +3075,12 @@ ACMD(DoStoreHouse)
 			break;
 		case 'А':
 			argument = one_argument(++argument, tmpbuf);
-			num = 0;
+			if (filter.affect.size() + filter.affect2.size() >= 2)
+				break;
 			find = 0;
 			for (int flag = 0; flag < 4; ++flag) {
-				for (; *weapon_affects[num] != '\n'; ++num) {
-					if (is_abbrev(tmpbuf, weapon_affects[num]) && filter.affect.size() + filter.affect2.size() < 2) {
+				for (num = 0; *weapon_affects[num] != '\n'; ++num) {
+					if (is_abbrev(tmpbuf, weapon_affects[num])) {
 						filter.affect.push_back(num);
 						find = 1;
 						break;
@@ -3091,13 +3092,14 @@ ACMD(DoStoreHouse)
 			}
 			if (!find) {
 				for (num = 0; *apply_types[num] != '\n'; ++num) {
-					if (is_abbrev(tmpbuf, apply_types[num]) && filter.affect.size() + filter.affect2.size() < 2) {
+					if (is_abbrev(tmpbuf, apply_types[num])) {
 						filter.affect2.push_back(num);
+						find = 1;
 						break;
 					}
 				}
 			}
-			if (filter.affect.empty() && filter.affect2.empty()) {
+			if (!find) {
 				send_to_char("Неверный аффект предмета.\r\n", ch);
 				return;
 			}
@@ -3190,14 +3192,14 @@ ACMD(DoStoreHouse)
 						continue;
 				}
 				if (!filter.affect2.empty()) {
-					for(vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end(); ++it) {
+					for(vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end() && find; ++it) {
 						find = 0;
 						for (int i = 0; i < MAX_OBJ_AFFECT; ++i) {
 							if(temp_obj->affected[i].location == *it) {
 								if (temp_obj->affected[i].modifier > 0)
-									modif << "+ ";
+									modif << "+";
 								else
-									modif << "- ";
+									modif << "-";
 								find = 1;
 								break;
 							}
@@ -3205,7 +3207,8 @@ ACMD(DoStoreHouse)
 					}
 				}
 				if (find) {
-					out << modif.str();
+					if (!modif.str().empty())
+						out << modif.str() << " ";
 					out << show_obj_to_char(temp_obj, ch, 1, 3, 1);
 				}
 			}
