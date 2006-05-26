@@ -427,13 +427,7 @@ void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 			if (!push) {
 				push = i;
 				push_count = 1;
-			} else
-			    if (GET_OBJ_VNUM(i) != GET_OBJ_VNUM(push) ||
-				GET_OBJ_TYPE(i) == ITEM_MING ||
-				(GET_OBJ_TYPE(i) == ITEM_DRINKCON &&
-				 GET_OBJ_VAL(i, 2) != GET_OBJ_VAL(push, 2)) ||
-				(GET_OBJ_TYPE(i) == ITEM_CONTAINER &&
-				 i->contains && !push->contains) || GET_OBJ_VNUM(push) == -1) {
+			} else if (!equal_obj(i, push)) {
 				// если смотрим клан-сундук
 				if (show == 3 && mode == 1) {
 					buffer << show_obj_to_char(push, ch, mode, show, push_count);

@@ -2882,7 +2882,7 @@ ACMD(DoStoreHouse)
 						send_to_char(buf1, ch);
 						GET_LEVEL(ch) < LVL_IMPL ? mort_show_obj_values(temp_obj, ch, 200) : imm_show_obj_values(temp_obj, ch);
 						GET_BANK_GOLD(ch) -= CHEST_IDENT_PAY;
-						sprintf(buf1, "\t%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",  CCIGRN(ch, C_NRM), CHEST_IDENT_PAY, desc_count(CHEST_IDENT_PAY, WHAT_MONEYu), CCNRM(ch, C_NRM));
+						sprintf(buf1, "%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",  CCIGRN(ch, C_NRM), CHEST_IDENT_PAY, desc_count(CHEST_IDENT_PAY, WHAT_MONEYu), CCNRM(ch, C_NRM));
 						send_to_char(buf1, ch);
 						return;
 					}
@@ -3149,7 +3149,7 @@ ACMD(DoStoreHouse)
 	send_to_char(buffer, ch);
 	set_wait(ch, 1, FALSE);
 
-	std::ostringstream out;
+	std::ostringstream out, modif;
 	for (chest = world[real_room(CLAN(ch)->chest_room)]->contents; chest; chest = chest->next_content) {
 		if (chest->item_number == chest_num) {
 			for (temp_obj = chest->contains; temp_obj; temp_obj = temp_obj->next_content) {
@@ -3193,14 +3193,20 @@ ACMD(DoStoreHouse)
 						find = 0;
 						for (int i = 0; i < MAX_OBJ_AFFECT; ++i) {
 							if(temp_obj->affected[i].location == *it) {
+								if (temp_obj->affected[i].modifier > 0)
+									modif << "+ ";
+								else
+									modif << "- ";
 								find = 1;
 								break;
 							}
 						}
 					}
 				}
-				if (find)
+				if (find) {
+					out << modif.str();
 					out << show_obj_to_char(temp_obj, ch, 1, 3, 1);
+				}
 			}
 			break;
 		}

@@ -1178,6 +1178,57 @@ void restore_object(OBJ_DATA * obj, CHAR_DATA * ch)
 }
 
 
+// выяснение стокаются ли предметы
+bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
+{
+	if (GET_OBJ_VNUM(obj_one) != GET_OBJ_VNUM(obj_two)
+		|| (GET_OBJ_TYPE(obj_one) == ITEM_DRINKCON && GET_OBJ_VAL(obj_one, 2) != GET_OBJ_VAL(obj_two, 2))
+		|| (GET_OBJ_TYPE(obj_one) == ITEM_CONTAINER && obj_one->contains && !obj_two->contains)
+		|| GET_OBJ_VNUM(obj_two) == -1
+		|| (GET_OBJ_TYPE(obj_one) == ITEM_MING && strcmp(obj_one->name, obj_two->name)))
+	{
+		return 0;
+	}
+	return 1;
+}
+
+
+// перемещаем стокающиеся предметы вверх контейнера
+// да, надо все контейнеры переделывать на std::list, а то страшно смотреть на написанное
+void move_obj_to_top(OBJ_DATA *obj, OBJ_DATA **list_start)
+{
+	OBJ_DATA *temp = 0, *start = 0, *end = 0, *prev = 0, *last_obj = 0;
+
+	for (temp = *list_start; temp; temp = temp->next_content) {
+		if (!start) {
+			if (equal_obj(temp, obj)) {
+				// предмет уже первый в списке
+				if (temp == *list_start)
+					return;
+				start = temp;
+				continue;
+			}
+			prev = temp;
+		} else {
+			if (!equal_obj(temp, obj)) {
+				end = temp;
+				break;
+			}
+			last_obj = temp; // если предметов оказалось несколько
+		}
+	}
+
+	if (!start || !prev)
+		return;
+
+	if (last_obj)
+		last_obj->next_content = prev;
+	prev->next_content = end; // будет 0 если после перемещаемых ничего не лежало
+	start->next_content = *list_start;
+	*list_start = start;
+}
+
+
 /* give an object to a char   */
 void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 {
@@ -1208,6 +1259,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 		if (!IS_NPC(ch))
 			SET_BIT(GET_OBJ_EXTRA(object, ITEM_TICKTIMER), ITEM_TICKTIMER);
 
+		move_obj_to_top(object, &ch->carrying);
 		object->next_content = ch->carrying;
 		ch->carrying = object;
 		object->carried_by = ch;
@@ -1666,6 +1718,7 @@ void obj_to_room(OBJ_DATA * object, room_rnum room)
 			extract_obj(object);
 	} else {
 		restore_object(object, 0);
+		move_obj_to_top(object, &world[room]->contents);
 		object->next_content = world[room]->contents;
 		world[room]->contents = object;
 		object->in_room = room;
@@ -1795,6 +1848,7 @@ void obj_to_obj(OBJ_DATA * obj, OBJ_DATA * obj_to)
 		return;
 	}
 
+	move_obj_to_top(obj, &obj_to->contains);
 	obj->next_content = obj_to->contains;
 	obj_to->contains = obj;
 	obj->in_obj = obj_to;
