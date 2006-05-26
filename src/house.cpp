@@ -3149,10 +3149,11 @@ ACMD(DoStoreHouse)
 	send_to_char(buffer, ch);
 	set_wait(ch, 1, FALSE);
 
-	std::ostringstream out, modif;
+	std::ostringstream out;
 	for (chest = world[real_room(CLAN(ch)->chest_room)]->contents; chest; chest = chest->next_content) {
 		if (chest->item_number == chest_num) {
 			for (temp_obj = chest->contains; temp_obj; temp_obj = temp_obj->next_content) {
+				std::ostringstream modif;
 				// сверяем имя
 				if (!filter.name.empty() && !CompareParam(filter.name, temp_obj->name))
 					continue;
