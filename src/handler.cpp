@@ -1898,17 +1898,6 @@ void object_list_new_owner(OBJ_DATA * list, CHAR_DATA * ch)
 		list->carried_by = ch;
 	}
 }
-// Отложенная очистка ... для все тех же .удаков
-void waited_free_obj(OBJ_DATA * obj)
-{
-	// Add obj to waited for free obj list
-	// Проверяем а не подсовывают ли нам 0-ой указатель.
-	if (obj) {
-		log("Add OBJ to Cleanup queue");
-		obj->next = obj_freed_list;
-		obj_freed_list = obj;
-	}
-}
 
 /* Extract an object from the world */
 void extract_obj(OBJ_DATA * obj)
@@ -2054,17 +2043,6 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 			if (!j && need_stop)
 				stop_fighting(k, FALSE);
 		}
-	}
-}
-/* Used to prevent access to also freed char data*/
-void waited_free_char(CHAR_DATA *ch)
-{
-	// Add chars to waited for free characters list
-	// Проверяем а не подсовывают ли нам 0-ой указатель.
-	if (ch) {
-		log("Add CHAR to Cleanup queue");
-		ch->next = char_freed_list;
-		char_freed_list = ch;
 	}
 }
 

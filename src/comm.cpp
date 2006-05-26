@@ -1074,32 +1074,6 @@ void game_loop(socket_t mother_desc)
 	}
 }
 
-// Чистим персонажей ожидающих удаления (это-все потому что какие-то 
-// .удаки по всему коду любят юзать указатели на чара после его смерти
-void cleanup_freed()
-{
-	CHAR_DATA *next_ch, *i = char_freed_list;
-	OBJ_DATA *next_obj, *j = obj_freed_list;
-
-	// Чистим чаров
-	while (i)
-	{
-		next_ch = i->next;
-		free_char(i);
-		i = next_ch;
-	}
-	char_freed_list = NULL;
-
-	// Чистим объекты
-	while (j)
-	{
-		next_obj = j->next;
-		free_obj(j);
-		j = next_obj;
-	}
-	obj_freed_list = NULL;
-}
-
 void beat_points_update(int pulse);
 #define FRAC_SAVE TRUE
 
