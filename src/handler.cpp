@@ -1197,6 +1197,10 @@ bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 // да, надо все контейнеры переделывать на std::list, а то страшно смотреть на написанное
 void move_obj_to_top(OBJ_DATA *obj, OBJ_DATA **list_start)
 {
+/* фтопку это все, для какой-то плюшевой операции перемещения вверх по списку
+   как олень пишу функцию на пол экрана в одном цикле шоб бегало и оно еще в итоге и глючит,
+   этот маразм столетней давности уже ничто не спасет, тока время зря терять
+
 	OBJ_DATA *temp = 0, *start = 0, *end = 0, *prev = 0, *last_obj = 0;
 
 	for (temp = *list_start; temp; temp = temp->next_content) {
@@ -1226,6 +1230,7 @@ void move_obj_to_top(OBJ_DATA *obj, OBJ_DATA **list_start)
 	prev->next_content = end; // будет 0 если после перемещаемых ничего не лежало
 	start->next_content = *list_start;
 	*list_start = start;
+*/
 }
 
 
