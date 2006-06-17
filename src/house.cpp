@@ -2844,11 +2844,16 @@ struct ChestFilter {
 // вобщем это копи-паст из биржи + флаги
 ACMD(DoStoreHouse)
 {
-	if (IS_NPC(ch) || !CLAN(ch) || !CLAN(ch)->storehouse) {
+	if (IS_NPC(ch) || !CLAN(ch)) {
 		send_to_char("Чаво ?\r\n", ch);
 		return;
 	}
-        int chest_num = real_object(CLAN_CHEST);
+	if (!CLAN(ch)->storehouse) {
+		send_to_char("Ваш воевода зажал денег и отключил эту возможность! :(\r\n", ch);
+		return;
+	}
+
+	int chest_num = real_object(CLAN_CHEST);
 	OBJ_DATA *temp_obj, *chest;
 		
 	skip_spaces(&argument);
