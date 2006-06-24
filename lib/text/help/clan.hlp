@@ -272,6 +272,7 @@ $COLORw"дружины все"$COLORn - выводит список членов всех дружин
    $COLORW ВС   $COLORn -- $COLORW  [ НЕТ ИНФОРМАЦИИ ]$COLORn
    $COLORR ГД   $COLORn -- $COLORc  http://www.gdclan.org$COLORn
    $COLORW ДЗП  $COLORn -- $COLORW  [ НЕТ ИНФОРМАЦИИ ]$COLORn
+   $COLORR ДМЗ  $COLORn -- $COLORc  http://dmz.clan.su/$COLORn   
    $COLORW ДНЗ  $COLORn -- $COLORW  [ НЕТ ИНФОРМАЦИИ ]$COLORn
    $COLORR ДОВ  $COLORn -- $COLORc  http://lonewolfmaster.narod.ru/$COLORn
    $COLORR ДСС  $COLORn -- $COLORc  http://mud.adsoft.cea.ru$COLORn
@@ -284,13 +285,13 @@ $COLORw"дружины все"$COLORn - выводит список членов всех дружин
    $COLORR РСП  $COLORn -- $COLORc  http://x.scn.ru/$COLORn
    $COLORR СП   $COLORn -- $COLORc  http://spdrug.narod.ru/$COLORn
    $COLORW ТВ   $COLORn -- $COLORW  [ НЕТ ИНФОРМАЦИИ ]$COLORn
-   $COLORW ХРБ  $COLORn -- $COLORW  [ НЕТ ИНФОРМАЦИИ ]$COLORn
 
   Список сайтов распущенных дружин (отсортирован по алфавиту):
 
    $COLORR ДХЛ  $COLORn -- $COLORc  http://ld.mud.ru/$COLORn
    $COLORR НД   $COLORn -- $COLORc  http://nd.mud.ru/$COLORn
-   $COLORR РП   $COLORn -- $COLORc  http://rp.gfns.net/   $COLORn
+   $COLORR РП   $COLORn -- $COLORc  http://rp.gfns.net/$COLORn
+   $COLORW ХРБ  $COLORn -- $COLORW  [ НЕТ ИНФОРМАЦИИ ]$COLORn
 
 См. также:$COLORC ДРУЖИНЫ $COLORn
 #
