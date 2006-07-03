@@ -1805,15 +1805,15 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 		// Отображаем список ip-адресов с которых персонаж входил
 		if (LOGON_LIST(k)) {
 			struct logon_data * cur_log = LOGON_LIST(k);
-			buf2[0] = 0;
-			while (cur_log)
-			{
+			// update: логон-лист может быть капитально большим, поэтому пишем это в свой дин.буфер, а не в buf2
+			// заодно будет постраничный вывод ип, чтобы имма не посылало на йух с **OVERFLOW**
+			std::string out = "Персонаж заходил с IP-адресов:\r\n";
+			while (cur_log) {
 				sprintf(buf1, "%16s     %ld 	%20s \r\n", cur_log->ip, cur_log->count, rustime(localtime(&cur_log->lasttime)));
-				sprintf(buf2, "%s%s", buf2, buf1);
+				out += buf1;
 				cur_log = cur_log->next;
 			}
-			sprintf(buf, "Персонаж заходил с IP-адресов:\r\n%s",buf2);
-			send_to_char(buf, ch);
+			page_string(ch->desc, out.c_str(), 1);
 		}
 		log("End logon list stat");
 	}
