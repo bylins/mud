@@ -101,7 +101,6 @@ extern char *GREETINGS;
 extern const char *circlemud_version;
 extern int circle_restrict;
 extern int mini_mud;
-extern int no_rent_check;
 extern FILE *player_fl;
 extern ush_int DFLT_PORT;
 extern const char *DFLT_DIR;
@@ -224,7 +223,6 @@ void oedit_save_to_disk(int zone_num);
 void medit_save_to_disk(int zone_num);
 void sedit_save_to_disk(int zone_num);
 void zedit_save_to_disk(int zone_num);
-void tics_update();
 void hour_update();
 int real_zone(int number);
 void koi_to_alt(char *str, int len);
@@ -372,16 +370,11 @@ int main(int argc, char **argv)
 			break;
 		case 'm':
 			mini_mud = 1;
-			no_rent_check = 1;
 			puts("Running in minimized mode & with no rent check.");
 			break;
 		case 'c':
 			scheck = 1;
 			puts("Syntax check mode enabled.");
-			break;
-		case 'q':
-			no_rent_check = 1;
-			puts("Quick boot mode -- rent check supressed.");
 			break;
 		case 'r':
 			circle_restrict = 1;
@@ -400,7 +393,6 @@ int main(int argc, char **argv)
 			     "  -h             Print this command line argument help.\n"
 			     "  -m             Start in mini-MUD mode.\n"
 			     "  -o <file>      Write log to <file> instead of stderr.\n"
-			     "  -q             Quick boot (doesn't scan rent for object limits)\n"
 			     "  -r             Restrict MUD -- no new players allowed.\n"
 			     "  -s             Suppress special procedure assignments.\n", argv[0]);
 			exit(0);
@@ -1161,11 +1153,6 @@ inline void heartbeat()
 			circle_shutdown = 2;
 			circle_reboot = 1;
 		}
-	}
-
-	if (pulse % (SECS_PER_MUD_HOUR * PASSES_PER_SEC) == (SECS_PER_MUD_HOUR - 10) * PASSES_PER_SEC) {	//log("Tics update...");
-		tics_update();
-		//log("Stop it...");
 	}
 
 	if (!(pulse % (AUCTION_PULSES * PASSES_PER_SEC))) {	//log("Auction update...");

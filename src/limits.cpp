@@ -928,21 +928,6 @@ int up_obj_where(OBJ_DATA * obj)
 		return OBJ_WHERE(obj);
 }
 
-void tics_update(void)
-{
-	DESCRIPTOR_DATA *i;
-
-	return;
-
-	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING || i->character == NULL)
-			continue;
-		sprintf(buf, "%s10 секунд до тика.%s\r\n", CCIRED(i->character, C_NRM), CCNRM(i->character, C_NRM));
-		SEND_TO_Q(buf, i);
-	}
-}
-
-
 
 void hour_update(void)
 {

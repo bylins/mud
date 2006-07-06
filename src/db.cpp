@@ -93,7 +93,6 @@ long top_idnum = 0;		/* highest idnum in use          */
 
 int no_mail = 0;		/* mail disabled?                */
 int mini_mud = 0;		/* mini-mud mode?                */
-int no_rent_check = 0;		/* skip rent check on boot?      */
 time_t boot_time = 0;		/* time of mud boot              */
 int circle_restrict = 0;	/* level of game restriction     */
 room_rnum r_mortal_start_room;	/* rnum of mortal start room     */

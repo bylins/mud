@@ -49,24 +49,6 @@ int level_exp(CHAR_DATA * ch, int level);
 
 /* GAME PLAY OPTIONS */
 
-/*
- * pk_allowed sets the tone of the entire game.  If pk_allowed is set to
- * NO, then players will not be allowed to kill, summon, charm, or sleep
- * other players, as well as a variety of other "asshole player" protections.
- * However, if you decide you want to have an all-out knock-down drag-out
- * PK Mud, just set pk_allowed to YES - and anything goes.
- */
-int pk_allowed = NO;
-
-/* is playerthieving allowed? */
-int pt_allowed = NO;
-
-/* minimum level a player must be to shout/holler/gossip/auction */
-int level_can_shout = 4;
-
-/* number of movement points it costs to holler */
-int holler_move_cost = 20;
-
 /* exp change limits */
 int max_exp_gain_npc = 100000;	/* max gainable per kill */
 

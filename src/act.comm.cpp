@@ -26,9 +26,6 @@
 #include "auction.h"
 
 /* extern variables */
-extern int level_can_shout;
-extern int holler_move_cost;
-
 extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *character_list;
 extern TIME_INFO_DATA time_info;
@@ -608,7 +605,6 @@ ACMD(do_gen_comm)
 		return;
 	}
 
-	/* level_can_shout defined in config.cpp */
 	if (GET_LEVEL(ch) < com_msgs[subcmd].min_lev) {
 		sprintf(buf1,
 			"Вам стоит достичь хотя бы %d уровня, чтобы Вы могли %s.\r\n",
