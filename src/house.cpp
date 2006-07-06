@@ -3083,8 +3083,9 @@ ACMD(DoStoreHouse)
 			if (filter.affect.size() + filter.affect2.size() >= 2)
 				break;
 			find = 0;
+			num = 0;
 			for (int flag = 0; flag < 4; ++flag) {
-				for (num = 0; *weapon_affects[num] != '\n'; ++num) {
+				for (/* тут ничего не надо */; *weapon_affects[num] != '\n'; ++num) {
 					if (is_abbrev(tmpbuf, weapon_affects[num])) {
 						filter.affect.push_back(num);
 						find = 1;
