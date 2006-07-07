@@ -110,6 +110,16 @@ ACMD(DoBest)
 			int i = 0;
 			for (std::list<TopPlayer>::const_iterator it = TopPlayer::TopList[class_num].begin(); it != TopPlayer::TopList[class_num].end() && i < MAX_TOP_CLASS; ++it, ++i)
 				out << class_format % it->name % it->remort % desc_count(it->remort, WHAT_REMORT);
+
+			// если игрок участвует в данном топе - покажем ему, какой он неудачник
+			int count = 1;
+			std::list<TopPlayer>::iterator find_me = TopPlayer::TopList[class_num].begin();
+			for ( ; find_me != TopPlayer::TopList[class_num].end(); ++find_me, ++count)
+				if (find_me->unique == GET_UNIQUE(ch))
+					break;
+			if (find_me != TopPlayer::TopList[class_num].end())
+				out << "Ваш текущий рейтинг: " << count << "\r\n";
+
 			send_to_char(ch, out.str().c_str());
 		} else { // все профы
 			int i = 0;

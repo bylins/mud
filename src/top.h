@@ -13,7 +13,7 @@
 #include <boost/shared_ptr.hpp>
 
 // кол-во отображаемых в топе игроков по профессии
-#define MAX_TOP_CLASS 5
+#define MAX_TOP_CLASS 10
 
 class TopPlayer;
 typedef std::vector< std::list<TopPlayer> > TopListType;
