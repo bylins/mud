@@ -1625,7 +1625,7 @@ void look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 //       IS_SET(GET_SPELL_TYPE(ch, SPELL_TOWNPORTAL), SPELL_KNOW) &&
 	    GET_SKILL(ch, SKILL_TOWNPORTAL) &&
 	    (port = get_portal(GET_ROOM_VNUM(ch->in_room), NULL)) != NULL && IS_SET(where_bits, FIND_OBJ_ROOM)) {
-		if (GET_LEVEL(ch) < port->level) {
+		if (GET_LEVEL(ch) < MAX(1, port->level - GET_REMORT(ch)/2)) {
 			send_to_char("На камне что-то написано огненными буквами.\r\n", ch);
 			send_to_char("Но вы еще недостаточно искусны, чтобы разобрать слово.\r\n", ch);
 			return;

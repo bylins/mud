@@ -2800,7 +2800,7 @@ void check_portals(CHAR_DATA * ch)
 	/* Пробегаем max_p порталы */
 	for (tmp = GET_PORTALS(ch); tmp;) {
 		port = get_portal(tmp->vnum, NULL);
-		if (!port || (portals >= max_p) || (port->level > GET_LEVEL(ch))) {
+		if (!port || (portals >= max_p) || (MAX(1, port->level - GET_REMORT(ch)/2) > GET_LEVEL(ch))) {
 			if (dlt) {
 				dlt->next = tmp->next;
 			} else {

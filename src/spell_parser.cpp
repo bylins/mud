@@ -3943,7 +3943,7 @@ void mag_assign_spells(void)
 
 //87
 	spello(SPELL_FORBIDDEN, "запечатать комнату", "forbidden",
-	       125, 110, 2, POS_STANDING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MANUAL, 0, STYPE_MIND);
+	       125, 110, 2, POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MANUAL, 0, STYPE_MIND);
 //88
 	spello(SPELL_MASS_SIELENCE, "массовое молчание", "mass sielence", 140, 120, 2,
 		POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 3, STYPE_MIND);

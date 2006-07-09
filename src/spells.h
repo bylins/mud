@@ -345,8 +345,9 @@
 #define TYPE_PICK                    415
 #define TYPE_MAGIC                   420
 /* new attack types can be added here - up to TYPE_SUFFERING */
-#define TYPE_ROOMDEATH				 498
-#define TYPE_SUFFERING		         499
+#define TYPE_ROOMDEATH			498
+#define TYPE_WATERDEATH			497
+#define TYPE_SUFFERING			499
 
 #define SAVING_WILL       0
 #define SAVING_CRITICAL   1

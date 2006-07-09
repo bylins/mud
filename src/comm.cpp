@@ -238,6 +238,7 @@ void Crash_frac_save_all(int frac_part);
 void Crash_frac_rent_time(int frac_part);
 void dt_activity(void);
 unsigned long TxtToIp(const char * text);
+void underwater_check(void);
 //F@N|
 int exchange_database_save(void);
 int exchange_database_savebackup(void);
@@ -1136,6 +1137,7 @@ inline void heartbeat()
 
 	if (!(pulse % (2 * PASSES_PER_SEC))) {	//log("Death trap activity...");
 		dt_activity();
+		underwater_check();
 		//log("Stop it...");
 	}
 

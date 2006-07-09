@@ -846,6 +846,9 @@ void gain_condition(CHAR_DATA * ch, int condition, int value)
 
 void dt_activity(void)
 {
+// Вообще в этом месте нам бы круто было бы иметь список комнат дт, стобы не бегать по всем комнатам мира.
+// Реально инициальизировать этот список при ребуте,  не забывать только отслеживать провалившийся лед ROOM_ICEDEATH
+// и через olc
 	int i;
 	CHAR_DATA *ch, *next;
 	char msg[MAX_STRING_LENGTH];
@@ -865,6 +868,23 @@ void dt_activity(void)
 	}
 }
 
+void underwater_check(void)
+{
+	DESCRIPTOR_DATA *d;
+	for (d = descriptor_list; d; d = d->next)
+	{
+		if (d->character && SECT(d->character->in_room) == SECT_UNDERWATER && !IS_GOD(d->character) && !AFF_FLAGGED(d->character, AFF_WATERBREATH))
+		{
+			sprintf(buf,
+			"Player %s died under water (room %d)", GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
+			if (damage(d->character, d->character, MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), TYPE_WATERDEATH, FALSE) < 0) 
+			{
+				log(buf);
+			}
+		}
+	}
+	
+} 		
 
 void check_idling(CHAR_DATA * ch)
 {

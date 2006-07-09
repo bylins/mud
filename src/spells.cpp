@@ -792,6 +792,7 @@ int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 ASPELL(spell_charm)
 {
 	AFFECT_DATA af;
+	int i;
 
 	if (victim == NULL || ch == NULL)
 		return;
@@ -867,6 +868,11 @@ ASPELL(spell_charm)
 		act("$n покорил$g Ваше сердце настолько, что Вы готовы на все ради н$s.",
 		    FALSE, ch, 0, victim, TO_VICT);
 		if (IS_NPC(victim)) {
+//Eli. Раздеваемся.
+			for (i = 0; i < NUM_WEARS; i++)
+				if (GET_EQ(victim, i))
+					perform_remove(victim, i);
+//Eli закончили раздеваться.
 			REMOVE_BIT(MOB_FLAGS(victim, MOB_AGGRESSIVE), MOB_AGGRESSIVE);
 			REMOVE_BIT(MOB_FLAGS(victim, MOB_SPEC), MOB_SPEC);
 			REMOVE_BIT(PRF_FLAGS(victim, PRF_PUNCTUAL), PRF_PUNCTUAL);
@@ -2044,7 +2050,7 @@ ASPELL(spell_angel)
 		send_to_char("Боги не обратили на вас никакого внимания!\r\n", ch);
 		return;
 	};
-	if (number(1, 101) < 50 && !IS_IMMORTAL(ch)) {
+	if (number(1, 1001) < 500 + 3 * GET_REMORT(ch) && !IS_IMMORTAL(ch)) {
 		send_to_char("Боги только посмеялись над вами!\r\n", ch);
 		return;
 	};

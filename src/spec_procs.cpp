@@ -939,6 +939,7 @@ SPECIAL(guild_poly)
 {
 	int skill_no, command = 0, gcount = 0, info_num = 0, found = FALSE, sfound = FALSE, i, bits;
 	CHAR_DATA *victim = (CHAR_DATA *) me;
+	int found_skill = TRUE, found_feat = TRUE, found_spell = TRUE;
 
 	if (IS_NPC(ch))
 		return (0);
@@ -1084,9 +1085,11 @@ SPECIAL(guild_poly)
 					found = TRUE;
 				}
 			}
-			if (!found)
-				act("$N сказал$G : 'Мне не ведомо такое умение.'", FALSE, ch, 0, victim, TO_CHAR);
-			return (1);
+			if (!found) {
+				found_skill=FALSE;
+//				act("$N сказал$G : 'Мне не ведомо такое умение.'", FALSE, ch, 0, victim, TO_CHAR);
+			}
+			else return (1);
 		}
 
 		if (((skill_no = find_feat_num(argument)) > 0 && skill_no < MAX_FEATS)) {
@@ -1111,9 +1114,11 @@ SPECIAL(guild_poly)
 					found = TRUE;
 				}
 			}
-			if (!found)
-				act("$N сказал$G : 'Мне не ведомо такое умение.'", FALSE, ch, 0, victim, TO_CHAR);
-			return (1);
+			if (!found) {
+				found_feat=FALSE;
+//				act("$N сказал$G : 'Мне не ведомо такое умение.'", FALSE, ch, 0, victim, TO_CHAR);
+			}
+			else return (1);
 		}
 
 		if (((skill_no = find_spell_num(argument)) > 0 && skill_no <= MAX_SPELLS)) {
@@ -1180,10 +1185,11 @@ SPECIAL(guild_poly)
 					found = TRUE;
 				}
 			}
-			if (!found)
-				act("$N сказал$G : 'Я и сам$G не знаю такого заклинания.'",
-				    FALSE, ch, 0, victim, TO_CHAR);
-			return (1);
+			if (!found) {
+				found_spell=FALSE;
+//				act("$N сказал$G : 'Я и сам$G не знаю такого заклинания.'", FALSE, ch, 0, victim, TO_CHAR);
+			}
+			else return (1);
 		}
 
 		act("$N сказал$G Вам : 'Я никогда и никого этому не учил$G.'", FALSE, ch, 0, victim, TO_CHAR);

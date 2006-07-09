@@ -79,8 +79,8 @@ int check_death_trap(CHAR_DATA * ch)
 		     && !IS_GOD(ch) && !AFF_FLAGGED(ch, AFF_FLY))
 		    || (real_sector(IN_ROOM(ch)) == SECT_WATER_NOSWIM && !IS_NPC(ch)
 			&& !IS_GOD(ch) && !has_boat(ch))
-		    || (real_sector(IN_ROOM(ch)) == SECT_UNDERWATER && !IS_NPC(ch)
-			&& !IS_GOD(ch) && !AFF_FLAGGED(ch, AFF_WATERBREATH))) {
+		    /*|| (real_sector(IN_ROOM(ch)) == SECT_UNDERWATER && !IS_NPC(ch) //Тут надо закомментить.
+			&& !IS_GOD(ch) && !AFF_FLAGGED(ch, AFF_WATERBREATH))*/) {
 			OBJ_DATA *corpse;
 			log_death_trap(ch);
 			if (RENTABLE(ch)) {
