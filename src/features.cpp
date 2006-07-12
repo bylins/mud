@@ -455,15 +455,6 @@ void assign_feats(void)
 	feato(DOUBLESHOT_FEAT, "двойной выстрел", NORMAL_FTYPE, TRUE, feat_app);
 //81
 	feato(PORTER_FEAT, "тяжеловоз", NORMAL_FTYPE, TRUE, feat_app);
-//82
-	feato(RUNE_NEWBIE_FEAT, "толкователь рун", NORMAL_FTYPE, TRUE, feat_app);
-//83
-	feato(RUNE_USER_FEAT, "тайные руны", NORMAL_FTYPE, TRUE, feat_app);
-//84
-	feato(RUNE_MASTER_FEAT, "заветные руны", NORMAL_FTYPE, TRUE, feat_app);
-//85
-	feato(RUNE_ULTIMATE_FEAT, "руны богов", NORMAL_FTYPE, TRUE, feat_app);
-
 /*
 //
 	feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);
@@ -636,18 +627,6 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	break;
 	case DOUBLESHOT_FEAT:
 		if (!HAVE_FEAT(ch, BOWS_FOCUS_FEAT) || GET_SKILL(ch, SKILL_BOWS) < 40)
-			return FALSE;
-	break;
-	case RUNE_USER_FEAT:
-		if (!HAVE_FEAT(ch, RUNE_NEWBIE_FEAT))
-			return FALSE;
-	break;
-	case RUNE_MASTER_FEAT:
-		if (!HAVE_FEAT(ch, RUNE_USER_FEAT))
-			return FALSE;
-	break;
-	case RUNE_ULTIMATE_FEAT:
-		if (!HAVE_FEAT(ch, RUNE_MASTER_FEAT))
 			return FALSE;
 	break;
 	}

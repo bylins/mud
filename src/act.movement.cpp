@@ -940,7 +940,7 @@ ACMD(do_hidemove)
 		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
 	}
 	perform_move(ch, dir, 0, TRUE, 0);
-	if (!sneaking || affected_by_spell(ch, SPELL_GLITTERDUST))
+	if (!sneaking)
 		affect_from_char(ch, SPELL_SNEAK);
 }
 
