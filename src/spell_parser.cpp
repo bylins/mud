@@ -1517,6 +1517,21 @@ int slot_for_char(CHAR_DATA * ch, int slot_num)
 	return ((wis_is || (GET_REMORT(ch) > slot_num)) ? MIN(25, wis_is + GET_SLOT(ch, slot_num) + GET_REMORT(ch)) : 0);
 }
 
+inline int spell_create_level (CHAR_DATA * ch, int spellnum)
+{
+
+	int required_level = spell_create[spellnum].runes.min_caster_level;
+	if (can_use_feat(ch, RUNE_ULTIMATE_FEAT))
+		required_level -= 6;
+	else if (can_use_feat(ch, RUNE_MASTER_FEAT))
+		required_level -= 4;
+	else if (can_use_feat(ch, RUNE_USER_FEAT))
+		required_level -= 2;
+	else if (can_use_feat(ch, RUNE_NEWBIE_FEAT))
+		required_level -= 1;
+	return required_level;
+}
+
 
 int mag_manacost(CHAR_DATA * ch, int spellnum)
 {
@@ -1525,8 +1540,7 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 
 	if (IS_IMMORTAL(ch))
 		return 1;
-	if (IS_MANA_CASTER(ch)
-	    && GET_LEVEL(ch) >= spell_create[spellnum].runes.min_caster_level) {
+	if (IS_MANA_CASTER(ch) && GET_LEVEL(ch) >= spell_create_level(ch, spellnum)) {
 		//Зависимости в таблице несколько корявые, поэтому изменение пустим в обратную сторону
 		return (int) (DRUID_MANA_COST_MODIFIER * (float)
 			      mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)] /
@@ -2768,7 +2782,9 @@ ACMD(do_mixture)
 // раньше она делалась в функции расчета стоимости заклинания -- там просто
 // возвращалось 9999, если левел мал. Йожику понятно, что это
 // полная фигня по всем соображениям :).
-		if (GET_LEVEL(ch) < spell_create[spellnum].runes.min_caster_level ) {
+// Теперь в этом месте мы будем проверять может ли волхв скастить этот спел
+
+		if (GET_LEVEL(ch) < spell_create_level(ch, spellnum)) {
 		    	send_to_char("Вы еще слишком малы, чтобы колдовать такое.\r\n", ch);
 			return;
 		}
@@ -4250,6 +4266,13 @@ void mag_assign_spells(void)
 
 //171 
 	spello(SPELL_CLANPRAY, "!клановые чары!", "!clan affect!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0,  STYPE_NEUTRAL);
+//172
+	spello(SPELL_GLITTERDUST, "блестящая пыль", "glitterdust", 120, 100, 3,
+		POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 5, STYPE_EARTH);
+//173
+	spello(SPELL_SCREAM, "вопль", "scream", 100, 85, 3, POS_FIGHTING,
+	       TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+	       MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_AIR);
 
 	/* NON-castable spells should appear below here. */
 

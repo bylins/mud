@@ -719,7 +719,7 @@ void affect_total(CHAR_DATA * ch)
 	}
 
 	check_berserk(ch);
-	if (FIGHTING(ch)) {
+	if (FIGHTING(ch) || affected_by_spell(ch, SPELL_GLITTERDUST)) {
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_HIDE), AFF_HIDE);
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_SNEAK), AFF_SNEAK);
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);

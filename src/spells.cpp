@@ -712,7 +712,8 @@ ASPELL(spell_locate_object)
 				sprintf(buf, "%s находится в %s.\r\n", i->short_description, i->in_obj->PNames[5]);
 		} else if (i->worn_by) {
 			if ((IS_NPC(i->worn_by) && !OBJ_FLAGGED(i, ITEM_NOLOCATE)
-			     && world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone) || !IS_NPC(i->worn_by))
+				&& world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
+				|| (!IS_NPC(i->worn_by) && GET_LEVEL(i->worn_by) < LVL_IMMORT))
 				sprintf(buf, "%s одет%s на %s.\r\n", i->short_description,
 					GET_OBJ_SUF_6(i), PERS(i->worn_by, ch, 3));
 			else
@@ -1908,8 +1909,19 @@ ASPELL(spell_forbidden)
 	}
 	world[IN_ROOM(ch)]->forbidden = 1 + (GET_LEVEL(ch) + 14) / 15;
 	world[IN_ROOM(ch)]->forbidden_percent = GET_REAL_INT(ch) + MAX((GET_REAL_INT(ch) - 30) * 4, 0);
-	act("Вы запечатали магией все входы.", FALSE, ch, 0, 0, TO_CHAR);
-	act("$n запечатал$g магией все входы.", FALSE, ch, 0, 0, TO_ROOM);
+	if (world[IN_ROOM(ch)]->forbidden_percent > 99) {
+		act("Вы запечатали магией все входы.", FALSE, ch, 0, 0, TO_CHAR);
+		act("$n запечатал$g магией все входы.", FALSE, ch, 0, 0, TO_ROOM);
+	}
+	else if (world[IN_ROOM(ch)]->forbidden_percent > 79){
+		act("Вы почти полностью запечатали магией все входы.", FALSE, ch, 0, 0, TO_CHAR);
+		act("$n почти полностью запечатал$g магией все входы.", FALSE, ch, 0, 0, TO_ROOM);
+	}
+	else {
+		act("Вы очень плохо запечатали магией все входы.", FALSE, ch, 0, 0, TO_CHAR);
+		act("$n очень плохо запечатал$g магией все входы.", FALSE, ch, 0, 0, TO_ROOM);
+	}
+
 }
 
 ASPELL(spell_energydrain)
@@ -2050,7 +2062,7 @@ ASPELL(spell_angel)
 		send_to_char("Боги не обратили на вас никакого внимания!\r\n", ch);
 		return;
 	};
-	if (number(1, 1001) < 500 + 3 * GET_REMORT(ch) && !IS_IMMORTAL(ch)) {
+	if (number(1, 1001) < 500 - 3 * GET_REMORT(ch) && !IS_IMMORTAL(ch)) {
 		send_to_char("Боги только посмеялись над вами!\r\n", ch);
 		return;
 	};

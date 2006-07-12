@@ -668,9 +668,9 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		morale -= 3;
 
 // если мораль отрицательная, увеличивается вероятность, что умение не пройдет
-	if ((skill_is = number(0, 99)) >= 95 + (morale >= 0 ? 0 : morale))
+	if ((skill_is = number(0, 99)) >= 95 + morale)
 		percent = 0;
-	else if (skill_is <= MIN (50,morale))
+	else if (skill_is <= MIN (50, morale))
 		percent = skill_info[skill_no].max_percent;
 	else if (vict && general_savingthrow(vict, victim_sav, victim_modi, use))
 		percent = 0;

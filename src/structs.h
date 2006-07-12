@@ -654,6 +654,8 @@ typedef struct trig_data
 #define AFF_BROKEN_CHAINS	(INT_TWO | (1 << 2))
 #define AFF_CLOUD_OF_ARROWS	(INT_TWO | (1 << 3))
 #define AFF_SHADOW_CLOAK	(INT_TWO | (1 << 4))
+#define AFF_GLITTERDUST		(INT_TWO | (1 << 5))
+#define AFF_AFFRIGHT		(INT_TWO | (1 << 6))
 
 
 // shapirus: modes of ignoring

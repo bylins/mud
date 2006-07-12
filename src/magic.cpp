@@ -1364,6 +1364,14 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		adice = (level + GET_REMORT(ch)) * 2;
 		break;
 
+	case SPELL_SCREAM:
+		savetype = SAVING_STABILITY;
+		ndice = 10;
+		sdice = (level + GET_REMORT(ch))/ 5;
+		adice = level + GET_REMORT(ch) * 2;
+		break;
+
+
 	case SPELL_HOLYSTRIKE:
 		if (AFF_FLAGGED(victim, AFF_EVILESS)) {
 			dam = -1;
@@ -1397,7 +1405,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 					koeff /= 2;
 				if (IS_SET(SpINFO.spell_class, STYPE_WATER))
 					koeff *= 2;
-			}
+				}
 			if (NPC_FLAGGED(victim, NPC_AIRCREATURE)) {
 				if (IS_SET(SpINFO.spell_class, STYPE_EARTH))
 					koeff *= 2;
@@ -2131,6 +2139,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_DETECT_INVIS:
+		if (affected_by_spell(victim, SPELL_GLITTERDUST)) {
+			success = FALSE;
+			break;
+		}
 		af[0].duration = pc_duration(victim, 10, level, 1, 0, 0);
 		af[0].bitvector = AFF_DETECT_INVIS;
 		accum_duration = TRUE;
@@ -2166,6 +2178,11 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_INVISIBLE:
 		if (!victim)
 			victim = ch;
+		if (affected_by_spell(victim, SPELL_GLITTERDUST)) {
+			send_to_char(NOEFFECT, ch);
+			success = FALSE;
+			break;
+		}
 
 		af[0].duration = pc_duration(victim, 12, level, 4, 0, 0);
 		af[0].modifier = -40;
@@ -2649,6 +2666,56 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[1].modifier = - (GET_LEVEL(ch) + GET_REMORT(ch) * 3) / 15;
 		to_room = "Тяжелое бурое облако сгустилось над $n4.";
 		to_vict = "Тяжелые тучи сгустились над Вами, и вы почувствовали, что удача покинула Вас.";
+		break;
+
+	case SPELL_GLITTERDUST:
+		savetype = SAVING_REFLEX;
+		if (ch != victim && general_savingthrow(victim, savetype, modi + 50, 0)) {
+			send_to_char(NOEFFECT, ch);
+			success = FALSE;
+			break;
+		}
+
+		if (affected_by_spell(victim, SPELL_INVISIBLE)) {
+			affect_from_char(victim, SPELL_INVISIBLE);
+		}
+		if (affected_by_spell(victim, SPELL_CAMOUFLAGE)) {
+			affect_from_char(victim, SPELL_CAMOUFLAGE);
+		}
+		if (affected_by_spell(victim, SPELL_HIDE)) {
+			affect_from_char(victim, SPELL_HIDE);
+		}
+		af[0].location = APPLY_SAVING_REFLEX;
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+								pc_duration(victim, 4, 0, 0, 0, 0));
+		af[0].modifier = (GET_LEVEL(ch) + GET_REMORT(ch)) / 3;
+		af[0].bitvector = AFF_GLITTERDUST;
+		accum_duration = TRUE;
+		accum_affect = TRUE;
+		to_room = "Облако ярко блестящей пыли накрыло $n3.";
+		to_vict = "Липкая блестящая пыль покрыла Вас с головы до пят.";
+		break;
+
+	case SPELL_SCREAM:
+		savetype = SAVING_STABILITY;
+		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+			send_to_char(NOEFFECT, ch);
+			success = FALSE;
+			break;
+		}
+		af[0].bitvector = AFF_AFFRIGHT;
+		af[0].location = APPLY_SAVING_WILL;
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+								pc_duration(victim, 2, level, 2, 0, 0));
+		af[0].modifier = (2 * GET_LEVEL(ch) + GET_REMORT(ch)) / 4;
+
+		af[1].bitvector = AFF_AFFRIGHT;
+		af[1].location = APPLY_MORALE;
+		af[1].duration = af[0].duration;
+		af[1].modifier = -(GET_LEVEL(ch) + GET_REMORT(ch)) / 6;
+
+		to_room = "$n0 побледнел$g и задрожал$g от страха.";
+		to_vict = "Страх сжал ваше сердце ледяными когтями.";
 		break;
 	}
 
@@ -3556,6 +3623,10 @@ const spl_message masses_messages[] = {
 	 "Вы оглядели комнату устрашающим взглядом, заставив всех содрогнуться.",
 	 "$n0 оглядел$g комнату устрашающим взглядом." /*Added by Niker */ ,
 	 NULL},
+	{SPELL_GLITTERDUST,
+	 "Вы сдегка прищелкнули пальцами, и вокруг сгустилось облако блестящей пыли.",
+	 "$n0 сотворил$g облако блестящей пыли, медленно осевшее на землю.",
+	 NULL},
 	{-1}
 };
 
@@ -3650,6 +3721,11 @@ const spl_message areas_messages[] = {
 	 "$n0 вызвал$g череду раскатов грома, заставивших все вокруг содрогнуться.",
 	 NULL,
 	 7},
+	{SPELL_SCREAM,
+	 "Вы испустили кошмарный вопль, едва не разорвавший Вам горло.",
+	 "$n0 испустил$g кошмарный вопль, отдавшийся в Вашей душе замогильным холодом.",
+	 NULL,
+	 5},
 	{-1}
 };
 // Применение заклинания к комнате
