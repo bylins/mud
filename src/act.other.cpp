@@ -337,6 +337,11 @@ ACMD(do_sneak)
 		return;
 	}
 
+	if (affected_by_spell(ch, SPELL_GLITTERDUST)) {
+		send_to_char("Вы бесшумно крадетесь, отбрасывая тысячи солнечных зайчиков...\r\n", ch);
+		return;
+	}
+
 	affect_from_char(ch, SPELL_SNEAK);
 
 	if (affected_by_spell(ch, SPELL_SNEAK)) {
@@ -376,6 +381,12 @@ ACMD(do_camouflage)
 		send_to_char("Вы замаскировались под статую Юрия Долгорукого.\r\n", ch);
 		return;
 	}
+
+	if (affected_by_spell(ch, SPELL_GLITTERDUST)) {
+		send_to_char("Вы замаскировались под золотую рыбку.\r\n", ch);
+		return;
+	}
+
 
 	if (timed_by_skill(ch, SKILL_CAMOUFLAGE)) {
 		send_to_char("У Вас пока не хватает фантазии. Побудьте немного самим собой.\r\n", ch);
@@ -438,6 +449,10 @@ ACMD(do_hide)
 		return;
 	}
 
+	if (affected_by_spell(ch, SPELL_GLITTERDUST)) {
+		send_to_char("Спрятаться?! Да Вы сверкаете как корчма во время гулянки!.\r\n", ch);
+		return;
+	}
 
 	send_to_char("Хорошо, Вы попытаетесь спрятаться.\r\n", ch);
 	REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILHIDE), EXTRA_FAILHIDE);
