@@ -2028,6 +2028,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 					CCBLU(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
 				lag = 2;
+				dam *= MAX (1, number(1, GET_SKILL(ch, SKILL_STUPOR)/30));
 				WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
 				sprintf(buf,
 					"%sВаше сознание помутилось после удара %s.%s\r\n",
@@ -2048,6 +2049,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 					act("$n своим оглушающим ударом сбил$a $N3 с ног.", TRUE, ch,
 					    0, victim, TO_NOTVICT);
 				lag = 2;
+				dam *= MAX (1, number(1, GET_SKILL(ch, SKILL_STUPOR)/20));
 				WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
 				if (GET_POS(victim) > POS_SITTING && !MOB_FLAGGED(victim, MOB_NOBASH)) {
 					GET_POS(victim) = POS_SITTING;

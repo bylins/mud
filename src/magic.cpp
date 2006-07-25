@@ -2139,10 +2139,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_DETECT_INVIS:
-		if (affected_by_spell(victim, SPELL_GLITTERDUST)) {
-			success = FALSE;
-			break;
-		}
 		af[0].duration = pc_duration(victim, 10, level, 1, 0, 0);
 		af[0].bitvector = AFF_DETECT_INVIS;
 		accum_duration = TRUE;
@@ -2717,6 +2713,52 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "$n0 побледнел$g и задрожал$g от страха.";
 		to_vict = "Страх сжал ваше сердце ледяными когтями.";
 		break;
+		
+	case SPELL_CATS_GRACE:
+		af[0].location = APPLY_DEX;
+		af[0].duration = pc_duration(victim, 4, level, 5, 0, 0);
+		if (ch == victim)
+			af[0].modifier = (level + 5) / 10;
+		else
+			af[0].modifier = (level + 10) / 15;
+		accum_duration = TRUE;
+		accum_affect = TRUE;
+		to_vict = "Ваши движения обрели невиданную ловкость.";
+		to_room = "Движения $n1 обрели невиданную ловкость.";
+		break;
+
+	case SPELL_BULL_BODY:
+		af[0].location = APPLY_CON;
+		af[0].duration = pc_duration(victim, 4, level, 5, 0, 0);
+		if (ch == victim)
+			af[0].modifier = (level + 5) / 10;
+		else
+			af[0].modifier = (level + 10) / 15;
+		accum_duration = TRUE;
+		accum_affect = TRUE;
+		to_vict = "Ваше тело налилось звериной мощью.";
+		to_room = "Плечи $n1 раздались вширь, а тело налилось звериной мощью.";
+		break;
+
+	case SPELL_SNAKE_WISDOM:
+		af[0].location = APPLY_WIS;
+		af[0].duration = pc_duration(victim, 4, level, 5, 0, 0);
+		af[0].modifier = (level + 6) / 15;
+		accum_duration = TRUE;
+		accum_affect = TRUE;
+		to_vict = "Шелест змеиной чешуи коснулся вашего сознания, и вы стали мудрее.";
+		to_room = "$n спокойно и мудро посмотрел$g вокруг.";
+		break;
+
+	case SPELL_GIMMICKRY:
+		af[0].location = APPLY_INT;
+		af[0].duration = pc_duration(victim, 4, level, 5, 0, 0);
+		af[0].modifier = (level + 6) / 15;
+		accum_duration = TRUE;
+		accum_affect = TRUE;
+		to_vict = "Вы почувствовали, что для вашего ума более нет преград.";
+		to_room = "$n хитро прищурил$u и поглядел$g по сторонам.";
+		break;		
 	}
 
 

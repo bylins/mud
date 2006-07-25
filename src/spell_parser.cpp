@@ -4273,6 +4273,18 @@ void mag_assign_spells(void)
 	spello(SPELL_SCREAM, "вопль", "scream", 100, 85, 3, POS_FIGHTING,
 	       TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 	       MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_AIR);
+//174
+	spello(SPELL_CATS_GRACE, "кошачья ловкость", "cats grace", 50, 40, 1,
+		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
+//175
+	spello(SPELL_BULL_BODY, "бычье тело", "bull body", 50, 40, 1,
+		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
+//176
+	spello(SPELL_SNAKE_WISDOM, "мудрость змеи", "snake wisdom", 60, 50, 1,
+		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
+//177
+	spello(SPELL_GIMMICKRY, "хитроумие", "gimmickry", 60, 50, 1,
+		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);	       
 
 	/* NON-castable spells should appear below here. */
 

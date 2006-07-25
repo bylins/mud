@@ -2062,7 +2062,7 @@ ASPELL(spell_angel)
 		send_to_char("Боги не обратили на вас никакого внимания!\r\n", ch);
 		return;
 	};
-	if (number(1, 1001) < 500 - 3 * GET_REMORT(ch) && !IS_IMMORTAL(ch)) {
+	if (number(1, 1001) < 500 - 30 * GET_REMORT(ch) && !IS_IMMORTAL(ch)) {
 		send_to_char("Боги только посмеялись над вами!\r\n", ch);
 		return;
 	};
