@@ -1911,7 +1911,7 @@ void poison_victim(CHAR_DATA * ch, CHAR_DATA * vict, int modifier)
 
 int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_DATA * wielded, int mayflee)
 {
-	int prob, percent = 0, lag = 0, i, mem_dam = dam;
+	int prob, percent = 0, lag = 0, i, k, mem_dam = dam;
 	AFFECT_DATA af;
 
 	if (!victim) {
@@ -2028,7 +2028,10 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 					CCBLU(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
 				lag = 2;
-				dam *= MAX (1, number(1, GET_SKILL(ch, SKILL_STUPOR)/30));
+				k = GET_SKILL(ch, SKILL_STUPOR)/30;
+				if (!IS_NPC(victim))
+				    k = MIN(2, k);
+				dam *= MAX (1, number(1, k));
 				WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
 				sprintf(buf,
 					"%sВаше сознание помутилось после удара %s.%s\r\n",
@@ -2049,7 +2052,10 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 					act("$n своим оглушающим ударом сбил$a $N3 с ног.", TRUE, ch,
 					    0, victim, TO_NOTVICT);
 				lag = 2;
-				dam *= MAX (1, number(1, GET_SKILL(ch, SKILL_STUPOR)/20));
+                                k = GET_SKILL(ch, SKILL_STUPOR)/20;
+                                if (!IS_NPC(victim))
+                                    k = MIN(4, k);
+                                dam *= MAX (1, number(1, k));
 				WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
 				if (GET_POS(victim) > POS_SITTING && !MOB_FLAGGED(victim, MOB_NOBASH)) {
 					GET_POS(victim) = POS_SITTING;
