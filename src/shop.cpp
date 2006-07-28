@@ -395,14 +395,14 @@ int trade_with(OBJ_DATA * item, int shop_nr, int mode)
 				if (GET_OBJ_TYPE(item) == ITEM_DRINKCON &&
 				    (GET_OBJ_VAL(item, 3) != 0 ||
 				     GET_OBJ_RNUM(item) < 0 ||
-				     GET_OBJ_VAL(item, 1) != GET_OBJ_VAL(obj_proto + GET_OBJ_RNUM(item), 1)
-				     || GET_OBJ_VAL(item, 2) != GET_OBJ_VAL(obj_proto + GET_OBJ_RNUM(item), 2)))
+				     GET_OBJ_VAL(item, 1) != GET_OBJ_VAL(obj_proto[GET_OBJ_RNUM(item)], 1)
+				     || GET_OBJ_VAL(item, 2) != GET_OBJ_VAL(obj_proto[GET_OBJ_RNUM(item)], 2)))
 				return (OBJECT_NOTOK);
 			else
 				// Ingradients
 			if (GET_OBJ_TYPE(item) == ITEM_INGRADIENT &&
 				    (GET_OBJ_RNUM(item) < 0 ||
-					     GET_OBJ_VAL(item, 2) < GET_OBJ_VAL(obj_proto + GET_OBJ_RNUM(item), 2)))
+					     GET_OBJ_VAL(item, 2) < GET_OBJ_VAL(obj_proto[GET_OBJ_RNUM(item)], 2)))
 				return (OBJECT_NOTOK);
 			else
 				// Special bits
@@ -460,7 +460,7 @@ int shop_producing(OBJ_DATA * item, int shop_nr)
 		return (FALSE);
 
 	for (counter = 0; SHOP_PRODUCT(shop_nr, counter) != NOTHING; counter++) {
-		prod = &obj_proto[SHOP_PRODUCT(shop_nr, counter)];
+		prod = obj_proto[SHOP_PRODUCT(shop_nr, counter)];
 		if (obj_id == GET_OBJ_VNUM(prod)) {
 			return (TRUE);
 		}
@@ -822,8 +822,8 @@ int sell_price(OBJ_DATA * obj, CHAR_DATA * ch, int shop_nr)
 	else
 		profit = SHOP_SELLPROFIT(shop_nr);
 
-	if (GET_OBJ_TIMER(obj) < GET_OBJ_TIMER(obj_proto + GET_OBJ_RNUM(obj)))	// Если у шмотки все-таки таймер меньше текущего
-		profit = (profit * (GET_OBJ_TIMER(obj)) / GET_OBJ_TIMER(obj_proto + GET_OBJ_RNUM(obj)));
+	if (GET_OBJ_TIMER(obj) < GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(obj)]))	// Если у шмотки все-таки таймер меньше текущего
+		profit = (profit * (GET_OBJ_TIMER(obj)) / GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(obj)]));
 
 	if (GET_OBJ_CUR(obj) < MMAX(1, GET_OBJ_MAX(obj)))
 		return (MMAX(1, (int) (GET_OBJ_COST(obj) * profit * GET_OBJ_CUR(obj) / MMAX(1, GET_OBJ_MAX(obj)))));
@@ -855,7 +855,7 @@ OBJ_DATA *slide_obj(OBJ_DATA * obj, CHAR_DATA * keeper, int shop_nr)
 	if (shop_producing(obj, shop_nr) || trade_with(obj, shop_nr, MODE_TRADE) != OBJECT_OK) {
 		temp = GET_OBJ_RNUM(obj);
 		extract_obj(obj);
-		return (&obj_proto[temp]);
+		return (obj_proto[temp]);
 	}
 	SHOP_SORT(shop_nr)++;
 	loop = keeper->carrying;
@@ -2068,7 +2068,7 @@ void list_detailed_shop(CHAR_DATA * ch, int shop_nr)
 
 	strcpy(buf, "Производит    : ");
 	for (index = 0; SHOP_PRODUCT(shop_nr, index) != NOTHING; index++) {
-		obj = &obj_proto[SHOP_PRODUCT(shop_nr, index)];
+		obj = obj_proto[SHOP_PRODUCT(shop_nr, index)];
 		if (index)
 			strcat(buf, ", ");
 		sprintf(buf1, "%s (#%d)", obj->short_description, obj_index[SHOP_PRODUCT(shop_nr, index)].vnum);

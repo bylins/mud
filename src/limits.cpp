@@ -1378,7 +1378,7 @@ void point_update(void)
 			} else if (GET_OBJ_DESTROY(j) > 0 && !NO_DESTROY(j))
 				GET_OBJ_DESTROY(j)--;
 
-			if ((j->in_room != NOWHERE) && GET_OBJ_TIMER(j) > 0 && !NO_DESTROY(j))
+			if (j && (j->in_room != NOWHERE) && GET_OBJ_TIMER(j) > 0 && !NO_DESTROY(j))
 				GET_OBJ_TIMER(j)--;
 
 			if (j && ((OBJ_FLAGGED(j, ITEM_ZONEDECAY) && GET_OBJ_ZONE(j) != NOWHERE && up_obj_where(j) != NOWHERE && GET_OBJ_ZONE(j) != world[up_obj_where(j)]->zone) || (GET_OBJ_TIMER(j) <= 0 && !NO_TIMER(j)) || (GET_OBJ_DESTROY(j) == 0 && !NO_DESTROY(j)))) {
@@ -1432,7 +1432,10 @@ void point_update(void)
 				} else if (j->in_obj)
 					obj_from_obj(j);
 				extract_obj(j);
-			} else
+			} else {
+				if (!j)
+					continue;
+
 				/* decay poision && other affects */
 				for (count = 0; count < MAX_OBJ_AFFECT; count++)
 					if (j->affected[count].location == APPLY_POISON) {
@@ -1442,6 +1445,7 @@ void point_update(void)
 							j->affected[count].modifier = 0;
 						}
 					}
+			}
 		}
 	}
 	/* Тонущие, падающие, и сыпящиеся обьекты. */

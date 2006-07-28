@@ -835,7 +835,8 @@ void extract_exchange_item(EXCHANGE_ITEM_DATA * item)
 	REMOVE_FROM_LIST(item, exchange_item_list, next);
 	if (item->comment)
 		free(item->comment);
-	extract_obj(item->obj);
+	if (item->obj)
+		extract_obj(item->obj);
 	free(item);
 
 }
@@ -919,7 +920,6 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 
 	if (vnum < 0) {		// Предмет не имеет прототипа
 		GET_EXCHANGE_ITEM(item) = create_obj();
-		GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)) = NOTHING;
 		*error = 14;
 		if (!get_buf_lines(data, buffer))
 			return (item);
@@ -950,6 +950,7 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 	*error = 19;
 	if (!get_buf_line(data, buffer) || sscanf(buffer, " %s %d %d %d", f0, t + 1, t + 2, t + 3) != 4)
 		return (item);
+	GET_OBJ_SKILL(GET_EXCHANGE_ITEM(item)) = 0;
 	asciiflag_conv(f0, &GET_OBJ_SKILL(GET_EXCHANGE_ITEM(item)));
 	GET_OBJ_MAX(GET_EXCHANGE_ITEM(item)) = t[1];
 	GET_OBJ_CUR(GET_EXCHANGE_ITEM(item)) = t[2];
@@ -966,6 +967,9 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 	*error = 21;
 	if (!get_buf_line(data, buffer) || sscanf(buffer, " %s %s %s", f0, f1, f2) != 3)
 		return (item);
+	GET_OBJ_AFFECTS(GET_EXCHANGE_ITEM(item)) = clear_flags;
+	GET_OBJ_ANTI(GET_EXCHANGE_ITEM(item)) = clear_flags;
+	GET_OBJ_NO(GET_EXCHANGE_ITEM(item)) = clear_flags;
 	asciiflag_conv(f0, &GET_OBJ_AFFECTS(GET_EXCHANGE_ITEM(item)));
 	asciiflag_conv(f1, &GET_OBJ_ANTI(GET_EXCHANGE_ITEM(item)));
 	asciiflag_conv(f2, &GET_OBJ_NO(GET_EXCHANGE_ITEM(item)));
@@ -974,14 +978,15 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 	if (!get_buf_line(data, buffer) || sscanf(buffer, " %d %s %s", t, f1, f2) != 3)
 		return (item);
 	GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) = t[0];
-// by dzMUDiST - обнуняем плавленые слоты в прототипе
-	(GET_EXCHANGE_ITEM(item))->obj_flags.extra_flags.flags[1] &= 0x7;
+	GET_EXCHANGE_ITEM(item)->obj_flags.extra_flags = clear_flags;
+	GET_OBJ_WEAR(GET_EXCHANGE_ITEM(item)) = 0;
 	asciiflag_conv(f1, &GET_OBJ_EXTRA(GET_EXCHANGE_ITEM(item), 0));
 	asciiflag_conv(f2, &GET_OBJ_WEAR(GET_EXCHANGE_ITEM(item)));
 
 	*error = 23;
 	if (!get_buf_line(data, buffer) || sscanf(buffer, "%s %d %d %d", f0, t + 1, t + 2, t + 3) != 4)
 		return (item);
+	GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 0) = 0;
 	asciiflag_conv(f0, &GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 0));
 	GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 1) = t[1];
 	GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 2) = t[2];
@@ -1009,12 +1014,14 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 			GET_OBJ_WEIGHT(GET_EXCHANGE_ITEM(item)) = GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 1) + 5;
 	}
 
-	GET_EXCHANGE_ITEM(item)->ex_description = NULL;	// Exlude doubling ex_description !!!
+	GET_EXCHANGE_ITEM(item)->ex_description = NULL;	// Exclude doubling ex_description !!!
 	j = 0;
 
 	for (;;) {
 		if (!get_buf_line(data, buffer)) {
 			*error = 0;
+			if (j < MAX_OBJ_AFFECT)
+				memset(&GET_EXCHANGE_ITEM(item)->affected[j], 0, sizeof(obj_affected_type) * (MAX_OBJ_AFFECT - j));
 			if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == ITEM_MING) {
 				int err = im_assign_power(GET_EXCHANGE_ITEM(item));
 				if (err)
@@ -1041,7 +1048,6 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 			new_descr->next = GET_EXCHANGE_ITEM(item)->ex_description;
 			GET_EXCHANGE_ITEM(item)->ex_description = new_descr;
 			break;
-
 		case 'A':
 			if (j >= MAX_OBJ_AFFECT) {
 				*error = 28;
@@ -1068,7 +1074,6 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 			}
 			break;
 		case 'P':
-			// Вставляем сюда уникальный номер создателя
 			if (!get_buf_line(data, buffer)) {
 				*error = 31;
 				return (item);
@@ -1100,13 +1105,10 @@ void exchange_write_one_object(char **data, EXCHANGE_ITEM_DATA * item)
 	count += sprintf(*data + count, "#%d\n", GET_EXCHANGE_ITEM_LOT(item));
 	count += sprintf(*data + count, "%d\n", GET_EXCHANGE_ITEM_SELLERID(item));
 	count += sprintf(*data + count, "%d\n", GET_EXCHANGE_ITEM_COST(item));
-	if (GET_EXCHANGE_ITEM_COMMENT(item))
-		count += sprintf(*data + count, "%s\n", GET_EXCHANGE_ITEM_COMMENT(item));
-	else
-		count += sprintf(*data + count, "EMPTY\n");
+	count += sprintf(*data + count, "%s\n",
+			 GET_EXCHANGE_ITEM_COMMENT(item) ? GET_EXCHANGE_ITEM_COMMENT(item) : "EMPTY\n");
 
 	count += sprintf(*data + count, "%d\n", GET_OBJ_VNUM(GET_EXCHANGE_ITEM(item)));
-
 
 	if (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(item)) < 0) {	// Предмет не имеет прототипа
 		// Алиасы
@@ -1163,9 +1165,6 @@ void exchange_write_one_object(char **data, EXCHANGE_ITEM_DATA * item)
 
 	if (GET_OBJ_PARENT(GET_EXCHANGE_ITEM(item)))
 		count += sprintf(*data + count, "P\n%d\n", GET_OBJ_PARENT(GET_EXCHANGE_ITEM(item)));
-
-//  *data += count;
-//  **data = '\0';
 }
 
 int exchange_database_load()
@@ -1201,7 +1200,7 @@ int exchange_database_load()
 
 	for (fsize = 0; *data && *data != EX_END_CHAR; fsize++) {
 		if ((item = exchange_read_one_object(&data, &error)) == NULL) {
-			log("SYSERR:  Error %d reading exchange database file. (exchange.cpp)", error);
+			log("SYSERR: Error #%d reading exchange database file. (exchange.cpp)", error);
 			return (0);
 		}
 
@@ -1211,11 +1210,6 @@ int exchange_database_load()
 			continue;
 		}
 
-		if (!GET_EXCHANGE_ITEM(item)) {
-			log("SYSERR: NULL object readed from exchange database.");
-			extract_exchange_item(item);
-			continue;
-		}
 		// Предмет разваливается от старости
 		if (GET_OBJ_TIMER(GET_EXCHANGE_ITEM(item)) <= 0) {
 			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
@@ -1282,9 +1276,9 @@ int exchange_database_reload(bool loadbackup)
 	for (fsize = 0; *data && *data != EX_END_CHAR; fsize++) {
 		if ((item = exchange_read_one_object(&data, &error)) == NULL) {
 			if (loadbackup)
-				log("SYSERR:  Error %d reading exchange database backup file. (exchange.cpp)", error);
+				log("SYSERR: Error #%d reading exchange database backup file. (exchange.cpp)", error);
 			else
-				log("SYSERR:  Error %d reading exchange database file. (exchange.cpp)", error);
+				log("SYSERR: Error #%d reading exchange database file. (exchange.cpp)", error);
 			return (0);
 		}
 
@@ -1293,17 +1287,10 @@ int exchange_database_reload(bool loadbackup)
 				log("SYSERR: Error #%d reading item from exchange database backup.", error);
 			else
 				log("SYSERR: Error #%d reading item from exchange database.", error);
-			return (0);
+			extract_exchange_item(item);
+			continue;
 		}
 
-		if (!GET_EXCHANGE_ITEM(item)) {
-			if (loadbackup)
-				log("SYSERR: NULL object readed from exchange database backup.");
-			else
-				log("SYSERR: NULL object readed from exchange database.");
-			extract_exchange_item(item);
-			return (0);
-		}
 		// Предмет разваливается от старости
 		if (GET_OBJ_TIMER(GET_EXCHANGE_ITEM(item)) <= 0) {
 			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
@@ -1335,7 +1322,7 @@ int exchange_database_save()
 
 
 	if (!(fl = fopen(LIB_MISC EXCHANGE_DATABASE_FILE, "w"))) {
-		sprintf(buf, "[SYSERR] Error on open exhange database file ('%s') - FILE MAY BE LOCKED.",
+		sprintf(buf, "[SYSERR] Error on open exchange database file ('%s') - FILE MAY BE LOCKED.",
 			LIB_MISC EXCHANGE_DATABASE_FILE);
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		return FALSE;
@@ -1347,10 +1334,6 @@ int exchange_database_save()
 	for (j = exchange_item_list; j; j = next_thing) {
 		next_thing = j->next;
 //      log("Exchange: Saving %d", GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)));
-		if (GET_EXCHANGE_ITEM(j) == NULL) {
-			extract_exchange_item(j);
-			continue;
-		}
 		exchange_write_one_object(&buffer, j);
 		fprintf(fl, "%s\n", buffer);
 	}
@@ -1386,10 +1369,6 @@ int exchange_database_savebackup()
 	for (j = exchange_item_list; j; j = next_thing) {
 		next_thing = j->next;
 //      log("Exchange: Saving %d", GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)));
-		if (GET_EXCHANGE_ITEM(j) == NULL) {
-			extract_exchange_item(j);
-			continue;
-		}
 		exchange_write_one_object(&buffer, j);
 		fprintf(fl, "%s\n", buffer);
 	}
@@ -1488,7 +1467,7 @@ int obj_matches_filter(EXCHANGE_ITEM_DATA * j, char *filter_name, char *filter_o
 		return 0;
 	if (*filter_timer) {
 		tm = (GET_OBJ_TIMER(GET_EXCHANGE_ITEM(j)) * 100 /
-		      GET_OBJ_TIMER(obj_proto + GET_OBJ_RNUM(GET_EXCHANGE_ITEM(j))));
+		      GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(GET_EXCHANGE_ITEM(j))]));
 		if ((tm + 1) < *filter_timer)
 			return 0;
 	}
@@ -1556,7 +1535,9 @@ show_type
 		    || ((show_type == 4) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_WEAPON))
 		    || ((show_type == 5) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_BOOK))
 		    || ((show_type == 6) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING) &&
-			(GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT))
+			((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT) ||
+			 (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) >= 200)
+			 && (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) <= 299)))
 		    || ((show_type == 7) && ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_INGRADIENT)
 					     || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_ARMOR)
 					     || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_WEAPON)

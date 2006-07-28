@@ -47,7 +47,7 @@ extern const char *cast_phrase[LAST_USED_SPELL + 1][2];
 #define DRUID_MANA_COST_MODIFIER 0.5
 
 extern CHAR_DATA *character_list;
-extern OBJ_DATA *obj_proto;
+extern vector < OBJ_DATA * >obj_proto;
 extern int what_sky;
 int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract);
 int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
@@ -2196,8 +2196,8 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument)
 
 	if (OBJ_FLAGGED(obj, ITEM_TIMEDLVL)) {
 		level -=
-		    level * (GET_OBJ_TIMER(obj_proto + GET_OBJ_RNUM(obj)) -
-			     GET_OBJ_TIMER(obj)) / GET_OBJ_TIMER(obj_proto + GET_OBJ_RNUM(obj));
+		    level * (GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(obj)]) -
+			     GET_OBJ_TIMER(obj)) / GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(obj)]);
 	}
 
 	switch (GET_OBJ_TYPE(obj)) {

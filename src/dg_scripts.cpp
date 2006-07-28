@@ -263,7 +263,7 @@ char *get_objs_in_world(OBJ_DATA * obj)
 }
 
 /************************************************************
- * return number of obj|mib in world by vnum
+ * return number of obj|mob in world by vnum
  ************************************************************/
 int gcount_char_vnum(long n)
 {

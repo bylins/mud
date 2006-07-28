@@ -28,7 +28,7 @@
  /*
   * External data structures.
   */
-extern OBJ_DATA *obj_proto;
+extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 
 extern zone_rnum top_of_zone_table;
@@ -525,9 +525,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			switch (cleanup_type) {
 			case CLEANUP_ALL:
 				oedit_object_free(OLC_OBJ(d));	// удаляет все содержимое
-				// break; - не нужен
-			case CLEANUP_STRUCTS:
-				free(OLC_OBJ(d));	// удаляет только оболочку
+				delete OLC_OBJ(d);	// удаляет только оболочку
 				break;
 			default:	/* The caller has screwed up. */
 				break;

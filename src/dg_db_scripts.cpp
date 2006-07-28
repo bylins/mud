@@ -375,7 +375,7 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 	}
 }
 
-extern OBJ_DATA *obj_proto;
+extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 
 void assign_triggers(void *i, int type)
@@ -407,7 +407,7 @@ void assign_triggers(void *i, int type)
 		break;
 	case OBJ_TRIGGER:
 		obj = (OBJ_DATA *) i;
-		trg_proto = obj_proto[GET_OBJ_RNUM(obj)].proto_script;
+		trg_proto = obj_proto[GET_OBJ_RNUM(obj)]->proto_script;
 		while (trg_proto) {
 			rnum = real_trigger(trg_proto->vnum);
 			if (rnum == -1) {

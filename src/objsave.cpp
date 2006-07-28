@@ -38,7 +38,7 @@ extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct player_index_element *player_table;
-extern OBJ_DATA *obj_proto;
+extern vector < OBJ_DATA * >obj_proto;
 extern int top_of_p_table;
 extern int rent_file_timeout, crash_file_timeout;
 extern int free_crashrent_period;
@@ -172,11 +172,9 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 
 	// Если без прототипа, создаем новый. Иначе читаем прототип и возвращаем NULL,
 	// если прототип не существует.
-	if (vnum < 0) {
+	if (vnum < 0)
 		object = create_obj();
-		GET_OBJ_RNUM(object) = NOTHING;
-		object->ex_description = NULL;
-	} else {
+	else {
 		object = read_object(vnum, VIRTUAL);
 		if (!object) {
 			*error = 4;
@@ -213,10 +211,16 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 				GET_OBJ_PNAME(object, 5) = str_dup(buffer);
 			} else if (!strcmp(read_line, "Desc")) {
 				*error = 13;
-				GET_OBJ_DESC(object) = str_dup(buffer);
+				if (strcmp(buffer, "NULL"))
+					GET_OBJ_DESC(object) = NULL;
+				else
+					GET_OBJ_DESC(object) = str_dup(buffer);
 			} else if (!strcmp(read_line, "ADsc")) {
 				*error = 14;
-				GET_OBJ_ACT(object) = str_dup(buffer);
+				if (strcmp(buffer, "NULL"))
+					GET_OBJ_ACT(object) = NULL;
+				else
+					GET_OBJ_ACT(object) = str_dup(buffer);
 			} else if (!strcmp(read_line, "Lctn")) {
 				*error = 5;
 				object->worn_on = atoi(buffer);
@@ -246,24 +250,22 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 				GET_OBJ_LEVEL(object) = atoi(buffer);
 			} else if (!strcmp(read_line, "Affs")) {
 				*error = 23;
+				GET_OBJ_AFFECTS(object) = clear_flags;
 				asciiflag_conv(buffer, &GET_OBJ_AFFECTS(object));
 			} else if (!strcmp(read_line, "Anti")) {
 				*error = 24;
+				GET_OBJ_ANTI(object) = clear_flags;
 				asciiflag_conv(buffer, &GET_OBJ_ANTI(object));
 			} else if (!strcmp(read_line, "Nofl")) {
 				*error = 25;
+				GET_OBJ_NO(object) = clear_flags;
 				asciiflag_conv(buffer, &GET_OBJ_NO(object));
 			} else if (!strcmp(read_line, "Extr")) {
 				*error = 26;
-				/* обнуляем старое extra_flags - т.к. asciiflag_conv только добавляет флаги */
-				object->obj_flags.extra_flags.flags[0] = 0;
-				object->obj_flags.extra_flags.flags[1] = 0;
-				object->obj_flags.extra_flags.flags[2] = 0;
-				object->obj_flags.extra_flags.flags[3] = 0;
+				object->obj_flags.extra_flags = clear_flags;
 				asciiflag_conv(buffer, &GET_OBJ_EXTRA(object, 0));
 			} else if (!strcmp(read_line, "Wear")) {
 				*error = 27;
-				/* обнуляем старое wear_flags - т.к. asciiflag_conv только добавляет флаги */
 				GET_OBJ_WEAR(object) = 0;
 				asciiflag_conv(buffer, &GET_OBJ_WEAR(object));
 			} else if (!strcmp(read_line, "Type")) {
@@ -395,7 +397,6 @@ OBJ_DATA *read_one_object(char **data, int *error)
 
 	if (vnum < 0) {		// Предмет не имеет прототипа
 		object = create_obj();
-		GET_OBJ_RNUM(object) = NOTHING;
 		*error = 4;
 		if (!get_buf_lines(data, buffer))
 			return (object);
@@ -427,6 +428,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	*error = 9;
 	if (!get_buf_line(data, buffer) || sscanf(buffer, " %s %d %d %d", f0, t + 1, t + 2, t + 3) != 4)
 		return (object);
+	GET_OBJ_SKILL(object) = 0;
 	asciiflag_conv(f0, &GET_OBJ_SKILL(object));
 	GET_OBJ_MAX(object) = t[1];
 	GET_OBJ_CUR(object) = t[2];
@@ -443,6 +445,9 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	*error = 11;
 	if (!get_buf_line(data, buffer) || sscanf(buffer, " %s %s %s", f0, f1, f2) != 3)
 		return (object);
+	GET_OBJ_AFFECTS(object) = clear_flags;
+	GET_OBJ_ANTI(object) = clear_flags;
+	GET_OBJ_NO(object) = clear_flags;
 	asciiflag_conv(f0, &GET_OBJ_AFFECTS(object));
 	asciiflag_conv(f1, &GET_OBJ_ANTI(object));
 	asciiflag_conv(f2, &GET_OBJ_NO(object));
@@ -451,12 +456,15 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	if (!get_buf_line(data, buffer) || sscanf(buffer, " %d %s %s", t, f1, f2) != 3)
 		return (object);
 	GET_OBJ_TYPE(object) = t[0];
+	object->obj_flags.extra_flags = clear_flags;
+	GET_OBJ_WEAR(object) = 0;
 	asciiflag_conv(f1, &GET_OBJ_EXTRA(object, 0));
 	asciiflag_conv(f2, &GET_OBJ_WEAR(object));
 
 	*error = 13;
 	if (!get_buf_line(data, buffer) || sscanf(buffer, "%s %d %d %d", f0, t + 1, t + 2, t + 3) != 4)
 		return (object);
+	GET_OBJ_VAL(object, 0) = 0;
 	asciiflag_conv(f0, &GET_OBJ_VAL(object, 0));
 	GET_OBJ_VAL(object, 1) = t[1];
 	GET_OBJ_VAL(object, 2) = t[2];
@@ -482,12 +490,14 @@ OBJ_DATA *read_one_object(char **data, int *error)
 			GET_OBJ_WEIGHT(object) = GET_OBJ_VAL(object, 1) + 5;
 	}
 
-	object->ex_description = NULL;	// Exlude doubling ex_description !!!
+	object->ex_description = NULL;	// Exclude doubling ex_description !!!
 	j = 0;
 
 	for (;;) {
 		if (!get_buf_line(data, buffer)) {
 			*error = 0;
+			if (j < MAX_OBJ_AFFECT)
+				memset(&object->affected[j], 0, sizeof(obj_affected_type) * (MAX_OBJ_AFFECT - j));
 			if (GET_OBJ_TYPE(object) == ITEM_MING) {
 				int err = im_assign_power(object);
 				if (err)
@@ -540,7 +550,6 @@ OBJ_DATA *read_one_object(char **data, int *error)
 			}
 			break;
 		case 'P':
-			// Вставляем сюда уникальный номер создателя
 			if (!get_buf_line(data, buffer)) {
 				*error = 21;
 				return (object);
@@ -604,13 +613,11 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 				count += sprintf(*data + count, "Pad%d: %s~\n", i, GET_OBJ_PNAME(object, i));
 		// Описание когда на земле
 		if (str_cmp(GET_OBJ_DESC(object), GET_OBJ_DESC(proto)))
-			count +=
-			    sprintf(*data + count, "Desc: %s~\n", GET_OBJ_DESC(object) ? GET_OBJ_DESC(object) : "");
+			count += sprintf(*data + count, "Desc: %s~\n", GET_OBJ_DESC(object));
 		// Описание при действии
-		if (GET_OBJ_ACT(object) != NULL && GET_OBJ_ACT(proto) != NULL) {
+		if (GET_OBJ_ACT(object) && GET_OBJ_ACT(proto))
 			if (str_cmp(GET_OBJ_ACT(object), GET_OBJ_ACT(proto)))
-				count += sprintf(*data + count, "ADsc: %s~\n", GET_OBJ_ACT(object) ? GET_OBJ_ACT(object) : "");
-		}
+				count += sprintf(*data + count, "ADsc: %s~\n", GET_OBJ_ACT(object));
 		// Тренируемый скилл
 		if (GET_OBJ_SKILL(object) != GET_OBJ_SKILL(proto))
 			count += sprintf(*data + count, "Skil: %d~\n", GET_OBJ_SKILL(object));
@@ -690,20 +697,19 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 		if (GET_OBJ_RENTEQ(object) != GET_OBJ_RENTEQ(proto))
 			count += sprintf(*data + count, "RntQ: %d~\n", GET_OBJ_RENTEQ(object));
 		// Владелец
-		if (GET_OBJ_OWNER(object) && GET_OBJ_OWNER(object) != GET_OBJ_OWNER(proto))
+		if (GET_OBJ_OWNER(object) != GET_OBJ_OWNER(proto))
 			count += sprintf(*data + count, "Ownr: %d~\n", GET_OBJ_OWNER(object));
 		// Создатель
-		if (GET_OBJ_MAKER(object) && GET_OBJ_MAKER(object) != GET_OBJ_MAKER(proto))
+		if (GET_OBJ_MAKER(object) != GET_OBJ_MAKER(proto))
 			count += sprintf(*data + count, "Mker: %d~\n", GET_OBJ_MAKER(object));
 		// Родитель
-		if (GET_OBJ_PARENT(object) && GET_OBJ_PARENT(object) != GET_OBJ_PARENT(proto))
+		if (GET_OBJ_PARENT(object) != GET_OBJ_PARENT(proto))
 			count += sprintf(*data + count, "Prnt: %d~\n", GET_OBJ_PARENT(object));
 
 		// Аффекты
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
-			if (object->affected[j].location
-			    && object->affected[j].location != proto->affected[j].location
-			    && object->affected[j].modifier != proto->affected[j].modifier)
+			if (object->affected[j].location != proto->affected[j].location
+			    || object->affected[j].modifier != proto->affected[j].modifier)
 				count += sprintf(*data + count, "Afc%d: %d %d~\n", j,
 						 object->affected[j].location, object->affected[j].modifier);
 
@@ -718,8 +724,7 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 					 descr->description ? descr->description : "");
 		}
 		extract_obj(proto);
-	} else			// Если у шмотки нет прототипа - придется сохранять ее целиком.
-	{
+	} else {		// Если у шмотки нет прототипа - придется сохранять ее целиком.
 		// Алиасы
 		if (GET_OBJ_ALIAS(object))
 			count += sprintf(*data + count, "Alia: %s~\n", GET_OBJ_ALIAS(object));
@@ -729,11 +734,10 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 				count += sprintf(*data + count, "Pad%d: %s~\n", i, GET_OBJ_PNAME(object, i));
 		// Описание когда на земле
 		if (GET_OBJ_DESC(object))
-			count +=
-			    sprintf(*data + count, "Desc: %s~\n", GET_OBJ_DESC(object) ? GET_OBJ_DESC(object) : "");
+			count += sprintf(*data + count, "Desc: %s~\n", GET_OBJ_DESC(object));
 		// Описание при действии
 		if (GET_OBJ_ACT(object))
-			count += sprintf(*data + count, "ADsc: %s~\n", GET_OBJ_ACT(object) ? GET_OBJ_ACT(object) : "");
+			count += sprintf(*data + count, "ADsc: %s~\n", GET_OBJ_ACT(object));
 		// Тренируемый скилл
 		if (GET_OBJ_SKILL(object))
 			count += sprintf(*data + count, "Skil: %d~\n", GET_OBJ_SKILL(object));
@@ -808,7 +812,7 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 
 		// Аффекты
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
-			if (object->affected[j].location)
+			if (object->affected[j].location && object->affected[j].modifier)
 				count += sprintf(*data + count, "Afc%d: %d %d~\n", j,
 						 object->affected[j].location, object->affected[j].modifier);
 
@@ -1289,7 +1293,7 @@ void Crash_timer_obj(int index, long time)
 				if (rnum >= 0) {
 					obj_index[rnum].stored--;
 					log("[TO] Player %s : item %s deleted - time outted", name,
-					    (obj_proto + rnum)->PNames[0]);
+					    obj_proto[rnum]->PNames[0]);
 				}
 			}
 		} else
@@ -1344,8 +1348,8 @@ void Crash_list_objects(CHAR_DATA * ch, int index)
 		data = SAVEINFO(index)->time[i];
 		if ((rnum = real_object(data.vnum)) > -1) {
 			sprintf(buf + strlen(buf), " [%5d] (%5dau) <%6d> %-20s\r\n",
-				data.vnum, GET_OBJ_RENT(obj_proto + rnum),
-				MAX(-1, data.timer - timer_dec), (obj_proto + rnum)->short_description);
+				data.vnum, GET_OBJ_RENT(obj_proto[rnum]),
+				MAX(-1, data.timer - timer_dec), obj_proto[rnum]->short_description);
 		} else {
 			sprintf(buf + strlen(buf), " [%5d] (?????au) <%2d> %-20s\r\n",
 				data.vnum, MAX(-1, data.timer - timer_dec), "БЕЗ ПРОТОТИПА");

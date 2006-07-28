@@ -32,6 +32,7 @@
 #include "skills.h"
 #include "features.hpp"
 #include "house.h"
+#include "stuff.hpp"
 
 extern CHAR_DATA *mob_proto;
 
@@ -42,7 +43,7 @@ CHAR_DATA *next_combat_list = NULL;
 extern struct message_list fight_messages[MAX_MESSAGES];
 extern OBJ_DATA *object_list;
 extern CHAR_DATA *character_list;
-extern OBJ_DATA *obj_proto;
+extern vector < OBJ_DATA * >obj_proto;
 extern int max_exp_gain_npc;	/* see config.cpp */
 extern int max_npc_corpse_time, max_pc_corpse_time;
 extern const int material_value[];
@@ -483,8 +484,6 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	EXTRA_DESCR_DATA *exdesc;
 
 	corpse = create_obj();
-	corpse->item_number = NOTHING;
-	IN_ROOM(corpse) = NOWHERE;
 	GET_OBJ_SEX(corpse) = SEX_POLY;
 
 	sprintf(buf2, "Останки %s лежат на земле.", GET_PAD(ch, 1));
@@ -510,7 +509,7 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 
 	GET_OBJ_TYPE(corpse) = ITEM_CONTAINER;
 	GET_OBJ_WEAR(corpse) = ITEM_WEAR_TAKE;
-	GET_OBJ_EXTRA(corpse, ITEM_NODONATE) = ITEM_NODONATE;
+	SET_BIT(GET_OBJ_EXTRA(corpse, ITEM_NODONATE), ITEM_NODONATE);
 	GET_OBJ_VAL(corpse, 0) = 0;	/* You can't store stuff in a corpse */
 	GET_OBJ_VAL(corpse, 2) = IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1;
 	GET_OBJ_VAL(corpse, 3) = 1;	/* corpse identifier */
@@ -543,8 +542,6 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 		return NULL;
 
 	corpse = create_obj();
-	corpse->item_number = NOTHING;
-	IN_ROOM(corpse) = NOWHERE;
 	GET_OBJ_SEX(corpse) = SEX_MALE;
 
 	sprintf(buf2, "Труп %s лежит здесь.", GET_PAD(ch, 1));
@@ -570,8 +567,8 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 
 	GET_OBJ_TYPE(corpse) = ITEM_CONTAINER;
 	GET_OBJ_WEAR(corpse) = ITEM_WEAR_TAKE;
-	GET_OBJ_EXTRA(corpse, ITEM_NODONATE) |= ITEM_NODONATE;
-	GET_OBJ_EXTRA(corpse, ITEM_NOSELL) |= ITEM_NOSELL;
+	SET_BIT(GET_OBJ_EXTRA(corpse, ITEM_NODONATE), ITEM_NODONATE);
+	SET_BIT(GET_OBJ_EXTRA(corpse, ITEM_NOSELL), ITEM_NOSELL);
 	GET_OBJ_VAL(corpse, 0) = 0;	/* You can't store stuff in a corpse */
 	GET_OBJ_VAL(corpse, 2) = IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1;
 	GET_OBJ_VAL(corpse, 3) = 1;	/* corpse identifier */
@@ -711,6 +708,21 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 			local_gold = GET_GOLD(ch);
 			corpse = make_corpse(ch);
 
+			obj_load_on_death(corpse, ch);
+
+			if (!IS_NPC(ch)) {
+				FORGET_ALL(ch);
+				for (hitter = character_list; hitter; hitter = hitter->next)
+					if (IS_NPC(hitter) && MEMORY(hitter))
+						forget(hitter, ch);
+				/*
+				   for (hitter = character_list; hitter && IS_NPC(hitter) && MEMORY(hitter); hitter = hitter->next)
+				   forget(hitter, ch);
+				 */
+			} else {
+				dl_load_obj(corpse, ch, NULL, DL_ORDINARY);
+				dl_load_obj(corpse, ch, NULL, DL_PROGRESSION);
+			}
 //send_to_char (buf,killer);
 /* Начало изменений.
    (с) Дмитрий ака dzMUDiST */
@@ -746,19 +758,6 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 /* Конец изменений.
    (с) Дмитрий ака dzMUDiST */
 
-			if (!IS_NPC(ch)) {
-				FORGET_ALL(ch);
-				for (hitter = character_list; hitter; hitter = hitter->next)
-					if (IS_NPC(hitter) && MEMORY(hitter))
-						forget(hitter, ch);
-				/*
-				   for (hitter = character_list; hitter && IS_NPC(hitter) && MEMORY(hitter); hitter = hitter->next)
-				   forget(hitter, ch);
-				 */
-			} else {
-				dl_load_obj(corpse, ch, NULL, DL_ORDINARY);
-				dl_load_obj(corpse, ch, NULL, DL_PROGRESSION);
-			}
 			/* Если убит в бою - то может выйти из игры */
 			if (!IS_NPC(ch)) {
 				RENTABLE(ch) = 0;

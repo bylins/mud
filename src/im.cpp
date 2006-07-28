@@ -38,7 +38,7 @@ char *how_good(CHAR_DATA * ch, int percent);
 
 
 extern CHAR_DATA *mob_proto;
-extern OBJ_DATA *obj_proto;
+extern vector < OBJ_DATA * >obj_proto;
 extern INDEX_DATA *obj_index;
 extern INDEX_DATA *mob_index;
 extern CHAR_DATA *character_list;
@@ -300,7 +300,7 @@ int im_assign_power(OBJ_DATA * obj)
 	onum = real_object(imtypes[rind].proto_vnum);
 	if (onum < 0)
 		return 4;
-	if (GET_OBJ_VAL(&obj_proto[onum], 3) == IM_CLASS_JIV) {
+	if (GET_OBJ_VAL(obj_proto[onum], 3) == IM_CLASS_JIV) {
 		if (GET_OBJ_VAL(obj, IM_INDEX_SLOT) == -1)
 			return 3;
 		rnum = real_mobile(GET_OBJ_VAL(obj, IM_INDEX_SLOT));
@@ -318,22 +318,22 @@ int im_assign_power(OBJ_DATA * obj)
 // Замена описаний
 // Падежи, описание, alias
 	for (j = 0; j < 6; ++j) {
-		ptr = GET_OBJ_PNAME(&obj_proto[GET_OBJ_RNUM(obj)], j);
+		ptr = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], j);
 		if (GET_OBJ_PNAME(obj, j) != ptr)
 			free(GET_OBJ_PNAME(obj, j));
 		GET_OBJ_PNAME(obj, j) = str_dup(replace_alias(ptr, sample, rnum, def_alias[j]));
 	}
-	ptr = GET_OBJ_DESC(&obj_proto[GET_OBJ_RNUM(obj)]);
+	ptr = GET_OBJ_DESC(obj_proto[GET_OBJ_RNUM(obj)]);
 	if (GET_OBJ_DESC(obj) != ptr)
 		free(GET_OBJ_DESC(obj));
 	GET_OBJ_DESC(obj) = str_dup(replace_alias(ptr, sample, rnum, "s"));
 
-	ptr = GET_OBJ_ALIAS(&obj_proto[GET_OBJ_RNUM(obj)]);
+	ptr = GET_OBJ_ALIAS(obj_proto[GET_OBJ_RNUM(obj)]);
 	if (GET_OBJ_ALIAS(obj) != ptr)
 		free(GET_OBJ_ALIAS(obj));
 	GET_OBJ_ALIAS(obj) = str_dup(replace_alias(ptr, sample, rnum, "a"));
 
-	ptr = obj_proto[GET_OBJ_RNUM(obj)].name;
+	ptr = obj_proto[GET_OBJ_RNUM(obj)]->name;
 	if (obj->name != ptr)
 		free(obj->name);
 	obj->name = str_dup(replace_alias(ptr, sample, rnum, "m"));
@@ -1370,18 +1370,18 @@ ACMD(do_cook)
 		return;
 	}
 
-	switch (GET_OBJ_TYPE(obj_proto + tgt)) {
+	switch (GET_OBJ_TYPE(obj_proto[tgt])) {
 	case ITEM_SCROLL:
 	case ITEM_POTION:
-		param[0] = GET_OBJ_VAL(obj_proto + tgt, 0);	// уровень
+		param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);	// уровень
 		param[1] = 1;	// количество
-		param[2] = GET_OBJ_TIMER(obj_proto + tgt);	// таймер
+		param[2] = GET_OBJ_TIMER(obj_proto[tgt]);	// таймер
 		break;
 	case ITEM_WAND:
 	case ITEM_STAFF:
-		param[0] = GET_OBJ_VAL(obj_proto + tgt, 0);	// уровень
-		param[1] = GET_OBJ_VAL(obj_proto + tgt, 1);	// количество
-		param[2] = GET_OBJ_TIMER(obj_proto + tgt);	// таймер
+		param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);	// уровень
+		param[1] = GET_OBJ_VAL(obj_proto[tgt], 1);	// количество
+		param[2] = GET_OBJ_TIMER(obj_proto[tgt]);	// таймер
 		break;
 	default:
 		imlog(NRM, "Прототип имеет неверный тип");

@@ -36,6 +36,7 @@
 #include "diskio.h"
 #include "im.h"
 #include "top.h"
+#include "stuff.hpp"
 #include "ban.hpp"
 #include "privileges.hpp"
 #include "item.creation.hpp"
@@ -78,7 +79,8 @@ mob_rnum top_of_mobt = 0;	/* top of mobile index table     */
 
 OBJ_DATA *object_list = NULL;	/* global linked list of objs    */
 INDEX_DATA *obj_index;		/* index table for object file   */
-OBJ_DATA *obj_proto;		/* prototypes for objs           */
+//OBJ_DATA *obj_proto;		/* prototypes for objs           */
+vector < OBJ_DATA * >obj_proto;
 obj_rnum top_of_objt = 0;	/* top of object index table     */
 
 struct zone_data *zone_table;	/* zone table                    */
@@ -418,6 +420,7 @@ ACMD(do_reboot)
 		init_portals();
 		priv->reload();
 		load_sheduled_reboot();
+		oload_table.init();
 	} else if (!str_cmp(arg, "portals"))
 		init_portals();
 	else if (!str_cmp(arg, "privileges"))
@@ -426,6 +429,8 @@ ACMD(do_reboot)
 		init_im();
 	else if (!str_cmp(arg, "ztypes"))
 		init_zone_types();
+	else if (!str_cmp(arg, "oloadtable"))
+		oload_table.init();
 	else if (!str_cmp(arg, "immlist"))
 		file_to_string_alloc(IMMLIST_FILE, &immlist);
 	else if (!str_cmp(arg, "credits"))
@@ -774,6 +779,9 @@ void boot_db(void)
 //Polos.insert_wanted_gem
 
 	boot_world();
+
+	log("Booting stuff load table.");
+	oload_table.init();
 
 	log("Loading help entries.");
 	index_boot(DB_BOOT_HLP);
@@ -1207,7 +1215,7 @@ void index_boot(int mode)
 		log("   %d mobs, %d bytes in index, %d bytes in prototypes.", rec_count, size[0], size[1]);
 		break;
 	case DB_BOOT_OBJ:
-		CREATE(obj_proto, OBJ_DATA, rec_count);
+		obj_proto.reserve(rec_count);
 		CREATE(obj_index, INDEX_DATA, rec_count);
 		size[0] = sizeof(INDEX_DATA) * rec_count;
 		size[1] = sizeof(OBJ_DATA) * rec_count;
@@ -2103,11 +2111,11 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 	char *ptr;
 	int i, j, k;
 	for (i = 0; i < NUM_PADS; i++) {
-		obj_pad = string(GET_OBJ_PNAME(&obj_proto[GET_OBJ_RNUM(obj)], i));
+		obj_pad = string(GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i));
 		j = obj_pad.find("@p");
 		if (j > 0) {
 			// Родитель найден прописываем его.
-			ptr = GET_OBJ_PNAME(&obj_proto[GET_OBJ_RNUM(obj)], i);
+			ptr = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i);
 			if (GET_OBJ_PNAME(obj, i) != ptr)
 				free(GET_OBJ_PNAME(obj, i));
 
@@ -2118,7 +2126,7 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 			// Если имя в именительном то дублируем запись
 			if (i == 0) {
 				obj->short_description = str_dup(obj_pad.c_str());
-				ptr = obj_proto[GET_OBJ_RNUM(obj)].short_description;
+				ptr = obj_proto[GET_OBJ_RNUM(obj)]->short_description;
 				if (obj->short_description != ptr)
 					free(obj->short_description);
 				obj->short_description = str_dup(obj_pad.c_str());
@@ -2422,55 +2430,50 @@ char *parse_object(FILE * obj_f, int nr)
 	char *tmpptr;
 	char f0[256], f1[256], f2[256];
 	EXTRA_DESCR_DATA *new_descr;
+	OBJ_DATA *tobj;
+
+	NEWCREATE(tobj, OBJ_DATA);
 
 	obj_index[i].vnum = nr;
 	obj_index[i].number = 0;
 	obj_index[i].stored = 0;
 	obj_index[i].func = NULL;
 
-	clear_object(obj_proto + i);
-	obj_proto[i].item_number = i;
+	tobj->item_number = i;
 
   /**** Add some initialization fields */
-	obj_proto[i].obj_flags.Obj_skill = 0;
-	obj_proto[i].obj_flags.Obj_max = 100;
-	obj_proto[i].obj_flags.Obj_cur = 100;
-	obj_proto[i].obj_flags.Obj_mater = 0;
-	obj_proto[i].obj_flags.Obj_sex = 1;
-	obj_proto[i].obj_flags.Obj_timer = SEVEN_DAYS;
-	obj_proto[i].obj_flags.Obj_spell = 0;
-	obj_proto[i].obj_flags.Obj_level = 1;
-	obj_proto[i].obj_flags.affects = clear_flags;
-	obj_proto[i].obj_flags.no_flag = clear_flags;
-	obj_proto[i].obj_flags.anti_flag = clear_flags;
-	obj_proto[i].obj_flags.Obj_destroyer = 60;
-	obj_proto[i].ex_description = NULL;
+	tobj->obj_flags.Obj_max = 100;
+	tobj->obj_flags.Obj_cur = 100;
+	tobj->obj_flags.Obj_sex = 1;
+	tobj->obj_flags.Obj_timer = SEVEN_DAYS;
+	tobj->obj_flags.Obj_level = 1;
+	tobj->obj_flags.Obj_destroyer = 60;
 
 	sprintf(buf2, "object #%d", nr);
 
 	/* *** string data *** */
-	if ((obj_proto[i].name = fread_string(obj_f, buf2)) == NULL) {
+	if ((tobj->name = fread_string(obj_f, buf2)) == NULL) {
 		log("SYSERR: Null obj name or format error at or near %s", buf2);
 		exit(1);
 	}
-	tmpptr = obj_proto[i].short_description = fread_string(obj_f, buf2);
-	*obj_proto[i].short_description = LOWER(*obj_proto[i].short_description);
-	CREATE(obj_proto[i].PNames[0], char, strlen(obj_proto[i].short_description) + 1);
-	strcpy(obj_proto[i].PNames[0], obj_proto[i].short_description);
+	tmpptr = tobj->short_description = fread_string(obj_f, buf2);
+	*tobj->short_description = LOWER(*tobj->short_description);
+	CREATE(tobj->PNames[0], char, strlen(tobj->short_description) + 1);
+	strcpy(tobj->PNames[0], tobj->short_description);
 
 	for (j = 1; j < NUM_PADS; j++) {
-		obj_proto[i].PNames[j] = fread_string(obj_f, buf2);
-		*obj_proto[i].PNames[j] = LOWER(*obj_proto[i].PNames[j]);
+		tobj->PNames[j] = fread_string(obj_f, buf2);
+		*tobj->PNames[j] = LOWER(*tobj->PNames[j]);
 	}
 
 	if (tmpptr && *tmpptr)
 		if (!str_cmp(fname(tmpptr), "a") || !str_cmp(fname(tmpptr), "an") || !str_cmp(fname(tmpptr), "the"))
 			*tmpptr = LOWER(*tmpptr);
 
-	tmpptr = obj_proto[i].description = fread_string(obj_f, buf2);
+	tmpptr = tobj->description = fread_string(obj_f, buf2);
 	if (tmpptr && *tmpptr)
 		CAP(tmpptr);
-	obj_proto[i].action_description = fread_string(obj_f, buf2);
+	tobj->action_description = fread_string(obj_f, buf2);
 
 	if (!get_line(obj_f, line)) {
 		log("SYSERR: Expecting *1th* numeric line of %s, but file ended!", buf2);
@@ -2480,10 +2483,10 @@ char *parse_object(FILE * obj_f, int nr)
 		log("SYSERR: Format error in *1th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	asciiflag_conv(f0, &obj_proto[i].obj_flags.Obj_skill);
-	obj_proto[i].obj_flags.Obj_max = t[1];
-	obj_proto[i].obj_flags.Obj_cur = t[2];
-	obj_proto[i].obj_flags.Obj_mater = t[3];
+	asciiflag_conv(f0, &tobj->obj_flags.Obj_skill);
+	tobj->obj_flags.Obj_max = t[1];
+	tobj->obj_flags.Obj_cur = t[2];
+	tobj->obj_flags.Obj_mater = t[3];
 
 	if (!get_line(obj_f, line)) {
 		log("SYSERR: Expecting *2th* numeric line of %s, but file ended!", buf2);
@@ -2493,10 +2496,10 @@ char *parse_object(FILE * obj_f, int nr)
 		log("SYSERR: Format error in *2th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	obj_proto[i].obj_flags.Obj_sex = t[0];
-	obj_proto[i].obj_flags.Obj_timer = t[1] > 0 ? t[1] : SEVEN_DAYS;
-	obj_proto[i].obj_flags.Obj_spell = t[2];
-	obj_proto[i].obj_flags.Obj_level = t[3];
+	tobj->obj_flags.Obj_sex = t[0];
+	tobj->obj_flags.Obj_timer = t[1] > 0 ? t[1] : SEVEN_DAYS;
+	tobj->obj_flags.Obj_spell = t[2];
+	tobj->obj_flags.Obj_level = t[3];
 
 	if (!get_line(obj_f, line)) {
 		log("SYSERR: Expecting *3th* numeric line of %s, but file ended!", buf2);
@@ -2506,11 +2509,11 @@ char *parse_object(FILE * obj_f, int nr)
 		log("SYSERR: Format error in *3th* numeric line (expecting 3 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	asciiflag_conv(f0, &obj_proto[i].obj_flags.affects);
+	asciiflag_conv(f0, &tobj->obj_flags.affects);
 							 /*** Affects */
-	asciiflag_conv(f1, &obj_proto[i].obj_flags.anti_flag);
+	asciiflag_conv(f1, &tobj->obj_flags.anti_flag);
 							 /*** Miss for ...    */
-	asciiflag_conv(f2, &obj_proto[i].obj_flags.no_flag);
+	asciiflag_conv(f2, &tobj->obj_flags.no_flag);
 							 /*** Deny for ...    */
 
 	if (!get_line(obj_f, line)) {
@@ -2521,10 +2524,10 @@ char *parse_object(FILE * obj_f, int nr)
 		log("SYSERR: Format error in *3th* misc line (expecting 3 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	obj_proto[i].obj_flags.type_flag = t[0];	    /*** What's a object */
-	asciiflag_conv(f1, &obj_proto[i].obj_flags.extra_flags);
+	tobj->obj_flags.type_flag = t[0];	    /*** What's a object */
+	asciiflag_conv(f1, &tobj->obj_flags.extra_flags);
 							    /*** Its effects     */
-	asciiflag_conv(f2, &obj_proto[i].obj_flags.wear_flags);
+	asciiflag_conv(f2, &tobj->obj_flags.wear_flags);
 							   /*** Wear on ...     */
 
 	if (!get_line(obj_f, line)) {
@@ -2535,13 +2538,13 @@ char *parse_object(FILE * obj_f, int nr)
 		log("SYSERR: Format error in *5th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	asciiflag_conv(f0, &obj_proto[i].obj_flags.value);
+	asciiflag_conv(f0, &tobj->obj_flags.value);
 						    /****/
-	obj_proto[i].obj_flags.value[1] = t[1];
+	tobj->obj_flags.value[1] = t[1];
 					  /****/
-	obj_proto[i].obj_flags.value[2] = t[2];
+	tobj->obj_flags.value[2] = t[2];
 					  /****/
-	obj_proto[i].obj_flags.value[3] = t[3];
+	tobj->obj_flags.value[3] = t[3];
 					  /****/
 
 	if (!get_line(obj_f, line)) {
@@ -2552,23 +2555,18 @@ char *parse_object(FILE * obj_f, int nr)
 		log("SYSERR: Format error in *6th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
-	obj_proto[i].obj_flags.weight = t[0];
-	obj_proto[i].obj_flags.cost = t[1];
-	obj_proto[i].obj_flags.cost_per_day_off = t[2];
-	obj_proto[i].obj_flags.cost_per_day_on = t[3];
+	tobj->obj_flags.weight = t[0];
+	tobj->obj_flags.cost = t[1];
+	tobj->obj_flags.cost_per_day_off = t[2];
+	tobj->obj_flags.cost_per_day_on = t[3];
 
 	/* check to make sure that weight of containers exceeds curr. quantity */
-	if (obj_proto[i].obj_flags.type_flag == ITEM_DRINKCON || obj_proto[i].obj_flags.type_flag == ITEM_FOUNTAIN) {
-		if (obj_proto[i].obj_flags.weight < obj_proto[i].obj_flags.value[1])
-			obj_proto[i].obj_flags.weight = obj_proto[i].obj_flags.value[1] + 5;
+	if (tobj->obj_flags.type_flag == ITEM_DRINKCON || tobj->obj_flags.type_flag == ITEM_FOUNTAIN) {
+		if (tobj->obj_flags.weight < tobj->obj_flags.value[1])
+			tobj->obj_flags.weight = tobj->obj_flags.value[1] + 5;
 	}
 
 	/* *** extra descriptions and affect fields *** */
-	for (j = 0; j < MAX_OBJ_AFFECT; j++) {
-		obj_proto[i].affected[j].location = APPLY_NONE;
-		obj_proto[i].affected[j].modifier = 0;
-	}
-
 	strcat(buf2, ", after numeric constants\n" "...expecting 'E', 'A', '$', or next object number");
 	j = 0;
 
@@ -2585,8 +2583,8 @@ char *parse_object(FILE * obj_f, int nr)
 			new_descr->keyword = fread_string(obj_f, buf2);
 			new_descr->description = fread_string(obj_f, buf2);
 			if (new_descr->keyword && new_descr->description) {
-				new_descr->next = obj_proto[i].ex_description;
-				obj_proto[i].ex_description = new_descr;
+				new_descr->next = tobj->ex_description;
+				tobj->ex_description = new_descr;
 			} else {
 				sprintf(buf, "SYSERR: Format error in %s (Corrupt extradesc)", buf2);
 				log(buf);
@@ -2609,20 +2607,21 @@ char *parse_object(FILE * obj_f, int nr)
 				    "...offending line: '%s'", buf2, retval, line);
 				exit(1);
 			}
-			obj_proto[i].affected[j].location = t[0];
-			obj_proto[i].affected[j].modifier = t[1];
+			tobj->affected[j].location = t[0];
+			tobj->affected[j].modifier = t[1];
 			j++;
 			break;
 		case 'T':	/* DG triggers */
-			dg_obj_trigger(line, &obj_proto[i]);
+			dg_obj_trigger(line, tobj);
 			break;
 		case 'M':
-			GET_OBJ_MIW(&obj_proto[i]) = atoi(line + 1);
+			GET_OBJ_MIW(tobj) = atoi(line + 1);
 			break;
 
 		case '$':
 		case '#':
-			check_object(&obj_proto[i]);
+			check_object(tobj);
+			obj_proto.push_back(tobj);
 			top_of_objt = i++;
 			return (line);
 		default:
@@ -2883,8 +2882,8 @@ int vnum_object(char *searchname, CHAR_DATA * ch)
 	int nr, found = 0;
 
 	for (nr = 0; nr <= top_of_objt; nr++) {
-		if (isname(searchname, obj_proto[nr].name)) {
-			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, obj_index[nr].vnum, obj_proto[nr].short_description);
+		if (isname(searchname, obj_proto[nr]->name)) {
+			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, obj_index[nr].vnum, obj_proto[nr]->short_description);
 			send_to_char(buf, ch);
 		}
 	}
@@ -2922,9 +2921,9 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	}
 	if (f)
 		for (nr = 0; nr <= top_of_objt; nr++) {
-			if (obj_proto[nr].obj_flags.extra_flags.flags[plane] & (1 << (plane_offset))) {
+			if (obj_proto[nr]->obj_flags.extra_flags.flags[plane] & (1 << (plane_offset))) {
 				sprintf(buf, "%3d. [%5d] %s :   %s\r\n", ++found,
-					obj_index[nr].vnum, obj_proto[nr].short_description, extra_bits[counter]);
+					obj_index[nr].vnum, obj_proto[nr]->short_description, extra_bits[counter]);
 				text = (char *)realloc(text, strlen(text) + strlen(buf) + 1);
 				text = strcat(text, buf);
 //				send_to_char(buf, ch);
@@ -2941,9 +2940,9 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	if (f)
 		for (nr = 0; nr <= top_of_objt; nr++) {
 			for (plane = 0; plane < MAX_OBJ_AFFECT; plane++)
-				if (obj_proto[nr].affected[plane].location == counter) {
+				if (obj_proto[nr]->affected[plane].location == counter) {
 					sprintf(buf, "%3d. [%5d] %s :   %s\r\n", ++found,
-						obj_index[nr].vnum, obj_proto[nr].short_description,
+						obj_index[nr].vnum, obj_proto[nr]->short_description,
 						apply_types[counter]);
 					text = (char *)realloc(text, strlen(text) + strlen(buf) + 1);
 					text = strcat(text, buf);
@@ -2967,9 +2966,9 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	}
 	if (f)
 		for (nr = 0; nr <= top_of_objt; nr++) {
-			if (obj_proto[nr].obj_flags.affects.flags[plane] & (1 << (plane_offset))) {
+			if (obj_proto[nr]->obj_flags.affects.flags[plane] & (1 << (plane_offset))) {
 				sprintf(buf, "%3d. [%5d] %s :   %s\r\n", ++found,
-					obj_index[nr].vnum, obj_proto[nr].short_description, weapon_affects[counter]);
+					obj_index[nr].vnum, obj_proto[nr]->short_description, weapon_affects[counter]);
 				text = (char *)realloc(text, strlen(text) + strlen(buf) + 1);
 				text = strcat(text, buf);
 //				send_to_char(buf, ch);
@@ -3070,14 +3069,11 @@ OBJ_DATA *create_obj(void)
 {
 	OBJ_DATA *obj;
 
-	CREATE(obj, OBJ_DATA, 1);
-	clear_object(obj);
+	NEWCREATE(obj, OBJ_DATA);
 	obj->next = object_list;
 	object_list = obj;
 	GET_ID(obj) = max_id++;
-	GET_OBJ_ZONE(obj) = NOWHERE;
-	OBJ_GET_LASTROOM(obj) = NOWHERE;
-//  assign_triggers(obj, OBJ_TRIGGER);
+
 	return (obj);
 }
 
@@ -3091,7 +3087,7 @@ const OBJ_DATA* read_object_mirror(obj_vnum nr)
 		return (NULL);
 	};
 
-	return &obj_proto[i];
+	return obj_proto[i];
 	// Мы не регистрируем объект в листе и не даем никаких ID-ов
 }
 
@@ -3113,9 +3109,7 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 	} else
 		i = nr;
 
-	CREATE(obj, OBJ_DATA, 1);
-	clear_object(obj);
-	*obj = obj_proto[i];
+	NEWCREATE(obj, OBJ_DATA(*obj_proto[i]));
 	obj_index[i].number++;
 	i = obj_index[i].zone;
 	if (i != -1 && zone_table[i].under_construction) {
@@ -3127,8 +3121,6 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 	obj->next = object_list;
 	object_list = obj;
 	GET_ID(obj) = max_id++;
-	GET_OBJ_ZONE(obj) = NOWHERE;
-	OBJ_GET_LASTROOM(obj) = NOWHERE;
 	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON) {
 		name_from_drinkcon(obj);
 		if (GET_OBJ_VAL(obj, 1) && GET_OBJ_VAL(obj, 2))
@@ -5213,27 +5205,27 @@ void free_obj(OBJ_DATA * obj)
 				free(thisd);
 			}
 	} else {
-		if (obj->name && obj->name != obj_proto[nr].name)
+		if (obj->name && obj->name != obj_proto[nr]->name)
 			free(obj->name);
 
 		for (i = 0; i < NUM_PADS; i++)
-			if (obj->PNames[i] && obj->PNames[i] != obj_proto[nr].PNames[i])
+			if (obj->PNames[i] && obj->PNames[i] != obj_proto[nr]->PNames[i])
 				free(obj->PNames[i]);
 
-		if (obj->description && obj->description != obj_proto[nr].description)
+		if (obj->description && obj->description != obj_proto[nr]->description)
 			free(obj->description);
 
-		if (obj->short_description && obj->short_description != obj_proto[nr].short_description)
+		if (obj->short_description && obj->short_description != obj_proto[nr]->short_description)
 			free(obj->short_description);
 
-		if (obj->action_description && obj->action_description != obj_proto[nr].action_description)
+		if (obj->action_description && obj->action_description != obj_proto[nr]->action_description)
 			free(obj->action_description);
 
-		if (obj->ex_description && obj->ex_description != obj_proto[nr].ex_description)
+		if (obj->ex_description && obj->ex_description != obj_proto[nr]->ex_description)
 			for (thisd = obj->ex_description; thisd; thisd = next_one) {
 				next_one = thisd->next;
 				i = 0;
-				for (tmp = obj_proto[nr].ex_description; tmp; tmp = tmp_next) {
+				for (tmp = obj_proto[nr]->ex_description; tmp; tmp = tmp_next) {
 					tmp_next = tmp->next;
 					if (tmp == thisd) {
 						i = 1;
@@ -5249,7 +5241,7 @@ void free_obj(OBJ_DATA * obj)
 				free(thisd);
 			}
 	}
-	free(obj);
+	delete obj;
 }
 
 
@@ -5392,20 +5384,6 @@ void clear_char_skills(CHAR_DATA * ch)
 	for (i = 0; i < MAX_SPELLS + 1; i++)
 		ch->real_abils.SplMem[i] = 0;
 }
-
-void clear_object(OBJ_DATA * obj)
-{
-	memset((char *) obj, 0, sizeof(OBJ_DATA));
-
-	obj->item_number = NOTHING;
-	obj->in_room = NOWHERE;
-	obj->worn_on = NOWHERE;
-	GET_OBJ_ZONE(obj) = NOWHERE;
-	OBJ_GET_LASTROOM(obj) = NOWHERE;
-}
-
-
-
 
 /* initialize a new character only if class is set */
 void init_char(CHAR_DATA * ch)

@@ -59,7 +59,7 @@ extern obj_rnum top_of_objt;
 extern int top_of_p_table;
 extern int shutdown_time;
 extern struct player_index_element *player_table;
-extern OBJ_DATA *obj_proto;
+extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 extern room_rnum r_helled_start_room;
 extern room_rnum r_mortal_start_room;
@@ -1356,7 +1356,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j)
 
 		if ((i = real_object(GET_OBJ_VAL(j, 1))) >= 0) {
 			sprintf(buf, "прототип %s%s%s.\r\n",
-				CCICYN(ch, C_NRM), (obj_proto + i)->PNames[0], CCNRM(ch, C_NRM));
+				CCICYN(ch, C_NRM), obj_proto[i]->PNames[0], CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 		break;
@@ -4480,7 +4480,7 @@ ACMD(do_liblist)
 		for (nr = 0; nr <= top_of_objt; nr++) {
 			if (obj_index[nr].vnum >= first && obj_index[nr].vnum <= last) {
 				sprintf(bf, "%s%5d. %45s [%5d]", bf, ++found,
-					obj_proto[nr].short_description, obj_index[nr].vnum);
+					obj_proto[nr]->short_description, obj_index[nr].vnum);
 				if (GET_LEVEL(ch) >= LVL_GRGOD)
 					sprintf(bf, "%s Игра:%d Пост:%d\r\n", bf,
 						obj_index[nr].number, obj_index[nr].stored);

@@ -31,7 +31,7 @@ extern struct zone_data *zone_table;
 extern zone_rnum top_of_zone_table;
 extern CHAR_DATA *mob_proto;
 extern INDEX_DATA *mob_index;
-extern OBJ_DATA *obj_proto;
+extern vector < OBJ_DATA * >obj_proto;
 extern INDEX_DATA *obj_index;
 extern char *equipment_types[];
 extern char *dirs[];
@@ -529,21 +529,21 @@ void zedit_save_to_disk(int zone_num)
 			arg2 = ZCMD.arg2;
 			arg3 = world[ZCMD.arg3]->number;
 			arg4 = ZCMD.arg4;
-			comment = obj_proto[ZCMD.arg1].short_description;
+			comment = obj_proto[ZCMD.arg1]->short_description;
 			break;
 		case 'G':
 			arg1 = obj_index[ZCMD.arg1].vnum;
 			arg2 = ZCMD.arg2;
 			arg3 = -1;
 			arg4 = ZCMD.arg4;
-			comment = obj_proto[ZCMD.arg1].short_description;
+			comment = obj_proto[ZCMD.arg1]->short_description;
 			break;
 		case 'E':
 			arg1 = obj_index[ZCMD.arg1].vnum;
 			arg2 = ZCMD.arg2;
 			arg3 = ZCMD.arg3;
 			arg4 = ZCMD.arg4;
-			comment = obj_proto[ZCMD.arg1].short_description;
+			comment = obj_proto[ZCMD.arg1]->short_description;
 			break;
 		case 'Q':
 			arg1 = mob_index[ZCMD.arg1].vnum;
@@ -556,7 +556,7 @@ void zedit_save_to_disk(int zone_num)
 			arg2 = ZCMD.arg2;
 			arg3 = obj_index[ZCMD.arg3].vnum;
 			arg4 = ZCMD.arg4;
-			comment = obj_proto[ZCMD.arg1].short_description;
+			comment = obj_proto[ZCMD.arg1]->short_description;
 			break;
 		case 'D':
 			arg1 = world[ZCMD.arg1]->number;
@@ -567,7 +567,7 @@ void zedit_save_to_disk(int zone_num)
 		case 'R':
 			arg1 = world[ZCMD.arg1]->number;
 			arg2 = obj_index[ZCMD.arg2].vnum;
-			comment = obj_proto[ZCMD.arg2].short_description;
+			comment = obj_proto[ZCMD.arg2]->short_description;
 			arg3 = -1;
 			break;
 		case 'T':
@@ -617,7 +617,7 @@ void zedit_save_to_disk(int zone_num)
  **************************************************************************/
 
 #define MOB_NAME(vnum) (rnum=real_mobile(vnum))>=0?mob_proto[rnum].player.short_descr:"???"
-#define OBJ_NAME(vnum) (rnum=real_object(vnum))>=0?obj_proto[rnum].short_description:"???"
+#define OBJ_NAME(vnum) (rnum=real_object(vnum))>=0?obj_proto[rnum]->short_description:"???"
 #define ROOM_NAME(vnum) (rnum=real_room(vnum))>=0?world[rnum]->name:"???"
 #define TRIG_NAME(vnum) (rnum=real_trigger(vnum))>=0?trig_index[rnum]->proto->name:"???"
 

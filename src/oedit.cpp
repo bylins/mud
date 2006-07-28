@@ -28,7 +28,7 @@
  * External variable declarations.
  */
 
-extern OBJ_DATA *obj_proto;
+extern vector < OBJ_DATA * >obj_proto;
 extern INDEX_DATA *obj_index;
 extern OBJ_DATA *object_list;
 extern obj_rnum top_of_objt;
@@ -64,7 +64,6 @@ int real_zone(int number);
 /*------------------------------------------------------------------------*/
 void oedit_setup(DESCRIPTOR_DATA * d, int real_num);
 
-void oedit_object_init(OBJ_DATA * obj);
 void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src);
 void oedit_object_free(OBJ_DATA * obj);
 
@@ -92,14 +91,6 @@ void oedit_disp_feats_menu(DESCRIPTOR_DATA * d);
 /*------------------------------------------------------------------------*\
   Utility and exported functions
 \*------------------------------------------------------------------------*/
-
-void oedit_object_init(OBJ_DATA * obj)
-/*++
-   Инициализация объекта
---*/
-{
-	clear_object(obj);
-}
 
 void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src)
 /*++
@@ -161,7 +152,7 @@ void oedit_object_free(OBJ_DATA * obj)
 
 	i = GET_OBJ_RNUM(obj);
 
-	if (i == -1 || obj == &obj_proto[i]) {
+	if (i == -1 || obj == obj_proto[i]) {
 		// Нет прототипа или сам прототип, удалять все подряд
 		if (obj->name)
 			free(obj->name);
@@ -184,19 +175,19 @@ void oedit_object_free(OBJ_DATA * obj)
 		}
 	} else {
 		// Есть прототип, удалять несовпадающее
-		if (obj->name && obj->name != obj_proto[i].name)
+		if (obj->name && obj->name != obj_proto[i]->name)
 			free(obj->name);
-		if (obj->description && obj->description != obj_proto[i].description)
+		if (obj->description && obj->description != obj_proto[i]->description)
 			free(obj->description);
-		if (obj->short_description && obj->short_description != obj_proto[i].short_description)
+		if (obj->short_description && obj->short_description != obj_proto[i]->short_description)
 			free(obj->short_description);
-		if (obj->action_description && obj->action_description != obj_proto[i].action_description)
+		if (obj->action_description && obj->action_description != obj_proto[i]->action_description)
 			free(obj->action_description);
 		for (j = 0; j < NUM_PADS; j++)
 			if (GET_OBJ_PNAME(obj, j)
-			    && GET_OBJ_PNAME(obj, j) != GET_OBJ_PNAME(&obj_proto[i], j))
+			    && GET_OBJ_PNAME(obj, j) != GET_OBJ_PNAME(obj_proto[i], j))
 				free(GET_OBJ_PNAME(obj, j));
-		if (obj->ex_description && obj->ex_description != obj_proto[i].ex_description)
+		if (obj->ex_description && obj->ex_description != obj_proto[i]->ex_description)
 			for (lthis = obj->ex_description; lthis; lthis = next) {
 				next = lthis->next;
 				if (lthis->keyword)
@@ -224,12 +215,9 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 {
 	OBJ_DATA *obj;
 
-	CREATE(obj, OBJ_DATA, 1);
-
-	oedit_object_init(obj);
+	NEWCREATE(obj, OBJ_DATA);
 
 	if (real_num == -1) {
-		GET_OBJ_RNUM(obj) = -1;
 		obj->name = str_dup("новый предмет");
 		obj->description = str_dup("что-то новое лежит здесь");
 		obj->short_description = str_dup("новый предмет");
@@ -241,7 +229,7 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 		obj->PNames[5] = str_dup("говорить о чем");
 		GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
 	} else {
-		oedit_object_copy(obj, &obj_proto[real_num]);
+		oedit_object_copy(obj, obj_proto[real_num]);
 	}
 
 	OLC_OBJ(d) = obj;
@@ -257,7 +245,7 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 void oedit_save_internally(DESCRIPTOR_DATA * d)
 {
 	int i, shop, robj_num, found = FALSE, zone, cmd_no;
-	OBJ_DATA *obj, *new_obj_proto;
+	OBJ_DATA *obj;
 	INDEX_DATA *new_obj_index;
 	DESCRIPTOR_DATA *dsc;
 
@@ -276,15 +264,13 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 				 */
 		log("[OEdit] Save object to mem %d", robj_num);
 
-		new_obj_proto = OLC_OBJ(d);
 		for (obj = object_list; obj; obj = obj->next) {
 			if (obj->item_number == robj_num) {
-				OBJ_DATA tmp;
 				// Итак, нашел объект
 				// Внимание! Таймер объекта, его состояние и т.д. обновятся!
 
 				// Сохраняю текущую игровую информацию
-				tmp = *obj;
+				OBJ_DATA tmp(*obj);
 
 				// Удаляю его строки и т.д.
 				// прототип скрипта не удалится, т.к. его у экземпляра нету
@@ -292,7 +278,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 				oedit_object_free(obj);
 
 				// Нужно скопировать все новое, сохранив определенную информацию
-				*obj = *new_obj_proto;
+				*obj = *OLC_OBJ(d);
 				obj->proto_script = NULL;
 				// Восстанавливаю игровую информацию
 				obj->in_room = tmp.in_room;
@@ -312,13 +298,13 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 
 		// Теперь возьмусь за прототип. 
 		// Уничтожаю старый прототип
-		oedit_object_free(&obj_proto[robj_num]);
+		oedit_object_free(obj_proto[robj_num]);
+		delete obj_proto[robj_num];
 		// Копирую новый прототип в массив
 		// Использовать функцию oedit_object_copy() нельзя,
 		// т.к. будут изменены указатели на данные прототипа
-		obj_proto[robj_num] = *OLC_OBJ(d);
-		// Удаление "оболочки" произойдет в olc_cleanup
-		// Внутренности удалять не нужно, т.к. они перенесены в массив 
+		obj_proto[robj_num] = OLC_OBJ(d);
+		// OLC_OBJ(d) удалять не нужно, т.к. он перенесен в массив 
 		// прототипов
 	} else {		/*
 				 * It's a new object, we must build new tables to contain it.
@@ -326,7 +312,6 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 		log("[OEdit] Save mem new %d(%d/%d)", OLC_NUM(d), (top_of_objt + 2), sizeof(OBJ_DATA));
 
 		CREATE(new_obj_index, INDEX_DATA, top_of_objt + 2);
-		CREATE(new_obj_proto, OBJ_DATA, top_of_objt + 2);
 
 		/*
 		 * Start counting through both tables.
@@ -344,23 +329,19 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 					new_obj_index[i].func = NULL;
 					robj_num = i;
 					GET_OBJ_RNUM(OLC_OBJ(d)) = robj_num;
-					new_obj_proto[i] = *(OLC_OBJ(d));
-					new_obj_proto[i].in_room = NOWHERE;
+					obj_proto.insert(obj_proto.begin() + i, OLC_OBJ(d));
 					new_obj_index[i].zone = real_zone(OLC_NUM(d));
 					--i;
 					continue;
-				} else {	/*
+				} else		/*
 						 * Just copy from old to new, no number change.
 						 */
-					new_obj_proto[i] = obj_proto[i];
 					new_obj_index[i] = obj_index[i];
-				}
 			} else {	/*
 					 * We HAVE already found it, therefore copy to object + 1 
 					 */
 				new_obj_index[i + 1] = obj_index[i];
-				new_obj_proto[i + 1] = obj_proto[i];
-				new_obj_proto[i + 1].item_number = i + 1;
+				obj_proto[i + 1]->item_number = i + 1;
 			}
 		}
 		if (!found) {
@@ -369,18 +350,15 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 			new_obj_index[i].stored = 0;
 			new_obj_index[i].func = NULL;
 			robj_num = i;
-			GET_OBJ_RNUM(OLC_OBJ(d)) = i;
-			new_obj_proto[i] = *(OLC_OBJ(d));
-			new_obj_proto[i].in_room = NOWHERE;
+			GET_OBJ_RNUM(OLC_OBJ(d)) = robj_num;
+			obj_proto.push_back(OLC_OBJ(d));
 			new_obj_index[i].zone = real_zone(OLC_NUM(d));
 		}
 
 		/*
-		 * Free and replace old tables.
+		 * Free and replace old table.
 		 */
-		free(obj_proto);
 		free(obj_index);
-		obj_proto = new_obj_proto;
 		obj_index = new_obj_index;
 		top_of_objt++;
 
@@ -437,7 +415,7 @@ void tascii(int *pointer, int num_planes, char *ascii)
 	int i, c, found;
 
 	for (i = 0, found = FALSE; i < num_planes; i++) {
-		for (c = 0; c < 31; c++)
+		for (c = 0; c < 30; c++)
 			if (*(pointer + i) & (1 << c)) {
 				found = TRUE;
 				sprintf(ascii + strlen(ascii), "%c%d", c < 26 ? c + 'a' : c - 26 + 'A', i);
@@ -466,15 +444,15 @@ void oedit_save_to_disk(int zone_num)
 	 */
 	for (counter = zone_table[zone_num].number * 100; counter <= zone_table[zone_num].top; counter++) {
 		if ((realcounter = real_object(counter)) >= 0) {
-			if ((obj = (obj_proto + realcounter))->action_description) {
+			if ((obj = obj_proto[realcounter])->action_description) {
 				strcpy(buf1, obj->action_description);
 				strip_string(buf1);
 			} else
 				*buf1 = '\0';
 			*buf2 = '\0';
-			tascii(&GET_OBJ_AFF(obj, 0), 4, buf2);
-			tascii(&obj->obj_flags.anti_flag.flags[0], 4, buf2);
-			tascii(&obj->obj_flags.no_flag.flags[0], 4, buf2);
+			tascii((int *) &GET_OBJ_AFFECTS(obj), 4, buf2);
+			tascii((int *) &GET_OBJ_ANTI(obj), 4, buf2);
+			tascii((int *) &GET_OBJ_NO(obj), 4, buf2);
 			sprintf(buf2 + strlen(buf2), "\n%d ", GET_OBJ_TYPE(obj));
 			tascii(&GET_OBJ_EXTRA(obj, 0), 4, buf2);
 			tascii(&GET_OBJ_WEAR(obj), 1, buf2);
@@ -508,8 +486,8 @@ void oedit_save_to_disk(int zone_num)
 				buf1,
 				GET_OBJ_SKILL(obj), GET_OBJ_MAX(obj), GET_OBJ_CUR(obj),
 				GET_OBJ_MATER(obj), GET_OBJ_SEX(obj),
-				GET_OBJ_TIMER(obj), obj->obj_flags.Obj_spell,
-				obj->obj_flags.Obj_level, buf2, GET_OBJ_VAL(obj, 0),
+				GET_OBJ_TIMER(obj), GET_OBJ_SPELL(obj),
+				GET_OBJ_LEVEL(obj), buf2, GET_OBJ_VAL(obj, 0),
 				GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 				GET_OBJ_VAL(obj, 3), GET_OBJ_WEIGHT(obj),
 				GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
@@ -541,7 +519,7 @@ void oedit_save_to_disk(int zone_num)
 			 * Do we have affects? 
 			 */
 			for (counter2 = 0; counter2 < MAX_OBJ_AFFECT; counter2++)
-				if (obj->affected[counter2].modifier)
+				if (obj->affected[counter2].location && obj->affected[counter2].modifier)
 					fprintf(fp, "A\n"
 						"%d %d\n", obj->affected[counter2].location,
 						obj->affected[counter2].modifier);
@@ -801,7 +779,7 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 		break;
 	case ITEM_WEAPON:
 		/*
-		 * This doesn't seem to be used if I remembe right.
+		 * This doesn't seem to be used if I remember right.
 		 */
 		send_to_char("Модификатор попадания : ", d->character);
 		break;

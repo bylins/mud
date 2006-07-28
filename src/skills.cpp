@@ -76,17 +76,17 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 			case SKILL_BACKSTAB + TYPE_HIT:
 				if (!(weap = GET_EQ(ch, WEAR_WIELD))
 				    && (weap_i = real_object(DUMMY_KNIGHT)) >= 0)
-					weap = (obj_proto + weap_i);
+					weap = obj_proto[weap_i];
 				break;
 			case SKILL_THROW + TYPE_HIT:
 				if (!(weap = GET_EQ(ch, WEAR_WIELD))
 				    && (weap_i = real_object(DUMMY_KNIGHT)) >= 0)
-					weap = (obj_proto + weap_i);
+					weap = obj_proto[weap_i];
 				break;
 			case SKILL_BASH + TYPE_HIT:
 				if (!(weap = GET_EQ(ch, WEAR_SHIELD))
 				    && (weap_i = real_object(DUMMY_SHIELD)) >= 0)
-					weap = (obj_proto + weap_i);
+					weap = obj_proto[weap_i];
 				break;
 			case SKILL_KICK + TYPE_HIT:
 				// weap - текст силы удара
@@ -124,7 +124,7 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 				break;
 			default:
 				if (!weap && (weap_i = real_object(DUMMY_WEAPON)) >= 0)
-					weap = (obj_proto + weap_i);
+					weap = obj_proto[weap_i];
 			}
 
 			if (!IS_NPC(vict) && (GET_LEVEL(vict) >= LVL_IMMORT)) {
@@ -658,8 +658,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	morale = cha_app[GET_REAL_CHA(ch)].morale + GET_MORALE(ch);
 	
 	if (vict && percent > skill_info[skill_no].max_percent)
-		victim_modi += percent - skill_info[skill_no].max_percent -
-		(MAX (0, morale - 50) * 2);//maksimum morali +50,  vse chto vyshe idet bonusom k skillu
+		victim_modi += percent - skill_info[skill_no].max_percent
+//		+ (MAX (0, morale - 50) * 2);//maksimum morali +50,  vse chto vyshe idet bonusom k skillu
 
 	if (AFF_FLAGGED(ch, AFF_DEAFNESS))
 		morale -= 20;	// у глухого мораль на 20 меньше

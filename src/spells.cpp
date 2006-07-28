@@ -32,7 +32,8 @@
 
 extern room_rnum r_mortal_start_room;
 
-extern OBJ_DATA *object_list, *obj_proto;
+extern OBJ_DATA *object_list;
+extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *character_list;
 extern INDEX_DATA *obj_index;
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -1262,7 +1263,7 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0) {
 			sprintf(buf, "ÐÒÏÔÏÔÉÐ %s%s%s.\r\n",
-				CCICYN(ch, C_NRM), (obj_proto + i)->PNames[0], CCNRM(ch, C_NRM));
+				CCICYN(ch, C_NRM), obj_proto[i]->PNames[0], CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 		break;
@@ -1522,7 +1523,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0) {
 			sprintf(buf, "ÐÒÏÔÏÔÉÐ %s%s%s.\r\n",
-				CCICYN(ch, C_NRM), (obj_proto + i)->PNames[0], CCNRM(ch, C_NRM));
+				CCICYN(ch, C_NRM), obj_proto[i]->PNames[0], CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 		break;

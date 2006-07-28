@@ -45,7 +45,7 @@ extern char *help;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *character_list;
 extern OBJ_DATA *object_list;
-extern OBJ_DATA *obj_proto;
+extern vector < OBJ_DATA * >obj_proto;
 extern int top_of_socialk;
 extern char *credits;
 extern char *info;
@@ -283,7 +283,7 @@ char *diag_timer_to_char(OBJ_DATA * obj)
 
 	*out_str = 0;
 	if (GET_OBJ_RNUM(obj) != NOTHING) {
-		int tm = (GET_OBJ_TIMER(obj) * 100 / GET_OBJ_TIMER(obj_proto + GET_OBJ_RNUM(obj)));
+		int tm = (GET_OBJ_TIMER(obj) * 100 / GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(obj)]));
 		if (tm < 20)
 			sprintf(out_str, "Состояние: ужасно.\r\n");
 		else if (tm < 40)

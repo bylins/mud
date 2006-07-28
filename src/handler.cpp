@@ -1159,21 +1159,21 @@ void restore_object(OBJ_DATA * obj, CHAR_DATA * ch)
 	if ((i = GET_OBJ_RNUM(obj)) < 0)
 		return;
 	if (GET_OBJ_OWNER(obj) && OBJ_FLAGGED(obj, ITEM_NODONATE) && (!ch || GET_UNIQUE(ch) != GET_OBJ_OWNER(obj))) {
-		GET_OBJ_VAL(obj, 0) = GET_OBJ_VAL(obj_proto + i, 0);
-		GET_OBJ_VAL(obj, 1) = GET_OBJ_VAL(obj_proto + i, 1);
-		GET_OBJ_VAL(obj, 2) = GET_OBJ_VAL(obj_proto + i, 2);
-		GET_OBJ_VAL(obj, 3) = GET_OBJ_VAL(obj_proto + i, 3);
-		GET_OBJ_MATER(obj) = GET_OBJ_MATER(obj_proto + i);
-		GET_OBJ_MAX(obj) = GET_OBJ_MAX(obj_proto + i);
+		GET_OBJ_VAL(obj, 0) = GET_OBJ_VAL(obj_proto[i], 0);
+		GET_OBJ_VAL(obj, 1) = GET_OBJ_VAL(obj_proto[i], 1);
+		GET_OBJ_VAL(obj, 2) = GET_OBJ_VAL(obj_proto[i], 2);
+		GET_OBJ_VAL(obj, 3) = GET_OBJ_VAL(obj_proto[i], 3);
+		GET_OBJ_MATER(obj) = GET_OBJ_MATER(obj_proto[i]);
+		GET_OBJ_MAX(obj) = GET_OBJ_MAX(obj_proto[i]);
 		GET_OBJ_CUR(obj) = 1;
-		GET_OBJ_WEIGHT(obj) = GET_OBJ_WEIGHT(obj_proto + i);
+		GET_OBJ_WEIGHT(obj) = GET_OBJ_WEIGHT(obj_proto[i]);
 		GET_OBJ_TIMER(obj) = 24 * 60;
-		obj->obj_flags.extra_flags = (obj_proto + i)->obj_flags.extra_flags;
-		obj->obj_flags.affects = (obj_proto + i)->obj_flags.affects;
-		GET_OBJ_WEAR(obj) = GET_OBJ_WEAR(obj_proto + i);
+		obj->obj_flags.extra_flags = obj_proto[i]->obj_flags.extra_flags;
+		obj->obj_flags.affects = obj_proto[i]->obj_flags.affects;
+		GET_OBJ_WEAR(obj) = GET_OBJ_WEAR(obj_proto[i]);
 		GET_OBJ_OWNER(obj) = 0;
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
-			obj->affected[j] = (obj_proto + i)->affected[j];
+			obj->affected[j] = obj_proto[i]->affected[j];
 	}
 }
 
@@ -1460,7 +1460,7 @@ void postequip_char(CHAR_DATA * ch, OBJ_DATA * obj)
 				act("Магия $o1 потерпела неудачу и развеялась по воздуху", FALSE, ch, obj, 0, TO_ROOM);
 				act("Магия $o1 потерпела неудачу и развеялась по воздуху", FALSE, ch, obj, 0, TO_CHAR);
 			} else {
-				mag_affects(obj->obj_flags.Obj_level, ch, ch, weapon_affect[j].aff_spell, SAVING_WILL);
+				mag_affects(GET_OBJ_LEVEL(obj), ch, ch, weapon_affect[j].aff_spell, SAVING_WILL);
 			}
 		}
 }
@@ -1540,8 +1540,8 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 					act("Магия $o1 потерпела неудачу и развеялась по воздуху",
 					    FALSE, ch, obj, 0, TO_CHAR);
 				} else {
-// Чтобы использовался уровень чара нужно заменить obj->obj_flags.Obj_level на GET_LEVEL
-//              mag_affects(obj->obj_flags.Obj_level, ch, ch,
+// Чтобы использовался уровень чара нужно заменить GET_OBJ_LEVEL(obj) на GET_LEVEL(ch)
+//              mag_affects(GET_OBJ_LEVEL(obj), ch, ch,
 //                          weapon_affect[j].aff_spell, SAVING_STABILITY);
 					mag_affects(GET_LEVEL(ch), ch, ch, weapon_affect[j].aff_spell, SAVING_WILL);
 				}
@@ -2573,10 +2573,8 @@ OBJ_DATA *create_money(int amount)
 	GET_OBJ_CUR(obj) = 100;
 	GET_OBJ_TIMER(obj) = 24 * 60 * 7;
 	GET_OBJ_WEIGHT(obj) = 1;
-	GET_OBJ_EXTRA(obj, ITEM_NODONATE) |= ITEM_NODONATE;
-	GET_OBJ_EXTRA(obj, ITEM_NOSELL) |= ITEM_NOSELL;
-
-	obj->item_number = NOTHING;
+	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NODONATE), ITEM_NODONATE);
+	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
 
 	return (obj);
 }

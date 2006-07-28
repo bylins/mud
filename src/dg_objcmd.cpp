@@ -249,7 +249,7 @@ OCMD(do_otimer)
 OCMD(do_otransform)
 {
 	char arg[MAX_INPUT_LENGTH];
-	OBJ_DATA *o, tmpobj;
+	OBJ_DATA *o;
 	CHAR_DATA *wearer = NULL;
 	int pos = -1;
 
@@ -273,9 +273,9 @@ OCMD(do_otransform)
 			unequip_char(obj->worn_by, pos);
 		}
 
-		memcpy(&tmpobj, o, sizeof(OBJ_DATA));
-		memcpy(o, obj, sizeof(OBJ_DATA));
-		memcpy(obj, &tmpobj, sizeof(OBJ_DATA));
+		OBJ_DATA tmpobj(*o);
+		*o = *obj;
+		*obj = tmpobj;
 
 // Имею:
 //  obj -> старый указатель, новое наполнение из объекта o

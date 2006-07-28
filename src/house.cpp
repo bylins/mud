@@ -3170,11 +3170,11 @@ ACMD(DoStoreHouse)
 					continue;
 				// таймер
 				if (filter.state >= 0) {
-					if (!GET_OBJ_TIMER(obj_proto + GET_OBJ_RNUM(temp_obj))) {
+					if (!GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(temp_obj)])) {
 						send_to_char("Нулевой таймер прототипа, сообщите Богам!", ch);
 						return;
 					}
-					int tm = (GET_OBJ_TIMER(temp_obj) * 100 / GET_OBJ_TIMER(obj_proto + GET_OBJ_RNUM(temp_obj)));
+					int tm = (GET_OBJ_TIMER(temp_obj) * 100 / GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(temp_obj)]));
 					if ((tm + 1) < filter.state || (tm + 1) > (filter.state + 20))
 						continue;
 				}
@@ -3504,7 +3504,7 @@ ACMD(do_clanstuff)
 
 		if (rnum == NOTHING)
 			continue;
-		if (arg && !strstr(obj_proto[rnum].short_description,arg))
+		if (arg && !strstr(obj_proto[rnum]->short_description,arg))
 			continue;
 
 		sprintf (buf,"%s %s clan%d!",it->name.c_str(),title.c_str(),CLAN(ch)->GetRent());

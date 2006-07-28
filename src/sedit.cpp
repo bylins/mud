@@ -24,7 +24,7 @@
 extern SHOP_DATA *shop_index;
 extern int top_shop;
 extern CHAR_DATA *mob_proto;
-extern OBJ_DATA *obj_proto;
+extern vector < OBJ_DATA * >obj_proto;
 
 extern struct zone_data *zone_table;
 extern INDEX_DATA *mob_index;
@@ -684,7 +684,7 @@ void sedit_products_menu(DESCRIPTOR_DATA * d)
 	for (i = 0; S_PRODUCT(shop, i) != -1; i++) {
 		sprintf(buf, "%2d - [%s%5d%s] - %s%s%s\r\n", i,
 			cyn, obj_index[S_PRODUCT(shop, i)].vnum, nrm,
-			yel, obj_proto[S_PRODUCT(shop, i)].short_description, nrm);
+			yel, obj_proto[S_PRODUCT(shop, i)]->short_description, nrm);
 		send_to_char(buf, d->character);
 	}
 	sprintf(buf, "\r\n"

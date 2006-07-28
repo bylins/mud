@@ -767,28 +767,28 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract)
 
 	for (obj = ch->carrying; obj; obj = obj->next_content) {
 		if (item0 >= 0 && (percent = real_object(item0)) >= 0 &&
-		    GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto + percent, 1) && mag_item_ok(ch, obj, spelltype)) {
+		    GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[percent], 1) && mag_item_ok(ch, obj, spelltype)) {
 			obj0 = obj;
 			item0 = -2;
 			objo = obj0;
 			num++;
 		} else
 		    if (item1 >= 0 && (percent = real_object(item1)) >= 0 &&
-			GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto + percent, 1) && mag_item_ok(ch, obj, spelltype)) {
+			GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[percent], 1) && mag_item_ok(ch, obj, spelltype)) {
 			obj1 = obj;
 			item1 = -2;
 			objo = obj1;
 			num++;
 		} else
 		    if (item2 >= 0 && (percent = real_object(item2)) >= 0 &&
-			GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto + percent, 1) && mag_item_ok(ch, obj, spelltype)) {
+			GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[percent], 1) && mag_item_ok(ch, obj, spelltype)) {
 			obj2 = obj;
 			item2 = -2;
 			objo = obj2;
 			num++;
 		} else
 		    if (item3 >= 0 && (percent = real_object(item3)) >= 0 &&
-			GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto + percent, 1) && mag_item_ok(ch, obj, spelltype)) {
+			GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[percent], 1) && mag_item_ok(ch, obj, spelltype)) {
 			obj3 = obj;
 			item3 = -2;
 			objo = obj3;
@@ -909,22 +909,22 @@ int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrec
 		strcpy(buf, "Вам потребуется :\r\n");
 		if (item0 >= 0) {
 			strcat(buf, CCIRED(ch, C_NRM));
-			strcat(buf, obj_proto[item0].PNames[0]);
+			strcat(buf, obj_proto[item0]->PNames[0]);
 			strcat(buf, "\r\n");
 		}
 		if (item1 >= 0) {
 			strcat(buf, CCIYEL(ch, C_NRM));
-			strcat(buf, obj_proto[item1].PNames[0]);
+			strcat(buf, obj_proto[item1]->PNames[0]);
 			strcat(buf, "\r\n");
 		}
 		if (item2 >= 0) {
 			strcat(buf, CCIGRN(ch, C_NRM));
-			strcat(buf, obj_proto[item2].PNames[0]);
+			strcat(buf, obj_proto[item2]->PNames[0]);
 			strcat(buf, "\r\n");
 		}
 		if (obj_num >= 0 && (spelltype == SPELL_ITEMS || spelltype == SPELL_RUNES)) {
 			strcat(buf, CCIBLU(ch, C_NRM));
-			strcat(buf, obj_proto[obj_num].PNames[0]);
+			strcat(buf, obj_proto[obj_num]->PNames[0]);
 			strcat(buf, "\r\n");
 		}
 
@@ -935,7 +935,7 @@ int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrec
 			strcat(buf, "'.");
 		} else {
 			strcat(buf, "для создания ");
-			strcat(buf, obj_proto[obj_num].PNames[1]);
+			strcat(buf, obj_proto[obj_num]->PNames[1]);
 		}
 		act(buf, FALSE, ch, 0, 0, TO_CHAR);
 	}
@@ -1405,7 +1405,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 					koeff /= 2;
 				if (IS_SET(SpINFO.spell_class, STYPE_WATER))
 					koeff *= 2;
-				}
+			}
 			if (NPC_FLAGGED(victim, NPC_AIRCREATURE)) {
 				if (IS_SET(SpINFO.spell_class, STYPE_EARTH))
 					koeff *= 2;
@@ -3342,7 +3342,6 @@ int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, i
 int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int savetype)
 {
 	const char *to_char = NULL, *to_room = NULL;
-	int i;
 
 	if (obj == NULL)
 		return 0;
@@ -3408,10 +3407,6 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		/* Either already enchanted or not a weapon. */
 		if (GET_OBJ_TYPE(obj) != ITEM_WEAPON || OBJ_FLAGGED(obj, ITEM_MAGIC))
 			break;
-		/* Make sure no other affections. */
-		for (i = 0; i < MAX_OBJ_AFFECT; i++)
-			if (obj->affected[i].location != APPLY_NONE)
-				break;
 
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_MAGIC), ITEM_MAGIC);
 		obj->affected[0].location = APPLY_HITROLL;

@@ -1037,7 +1037,7 @@ ACMD(do_transform_weapon)
 						act("У Вас нет необходимого ингредиента.", FALSE, ch, 0, 0, TO_CHAR);
 					else
 						act("У Вас не хватает $o1 для этого.", FALSE, ch,
-						    obj_proto + rnum, 0, TO_CHAR);
+						    obj_proto[rnum], 0, TO_CHAR);
 					found = FALSE;
 				}
 			if (!found)
@@ -1068,7 +1068,7 @@ ACMD(do_transform_weapon)
 				if ((rnum = real_object(created_item[obj_type].proto[i])) < 0)
 					act("У Вас нет необходимого ингредиента.", FALSE, ch, 0, 0, TO_CHAR);
 				else
-					act("У Вас не хватает $o1 для этого.", FALSE, ch, obj_proto + rnum, 0, TO_CHAR);
+					act("У Вас не хватает $o1 для этого.", FALSE, ch, obj_proto[rnum], 0, TO_CHAR);
 				found = FALSE;
 			}
 		if (!found)

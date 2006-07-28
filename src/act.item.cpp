@@ -30,7 +30,7 @@
 #include "features.hpp"
 
 /* extern variables */
-extern OBJ_DATA *obj_proto;
+extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 extern struct house_control_rec house_control[];
 
@@ -1111,7 +1111,7 @@ void name_from_drinkcon(OBJ_DATA * obj)
 	for (j = 0; *(obj->name + i) && !(a_isspace(*(obj->name + i))); new_name[j] = *(obj->name + i), i++, j++);
 	new_name[j] = '\0';
 	if (*new_name) {
-		if (GET_OBJ_RNUM(obj) < 0 || obj->name != obj_proto[GET_OBJ_RNUM(obj)].name)
+		if (GET_OBJ_RNUM(obj) < 0 || obj->name != obj_proto[GET_OBJ_RNUM(obj)]->name)
 			free(obj->name);
 		obj->name = str_dup(new_name);
 	}
@@ -1122,7 +1122,7 @@ void name_from_drinkcon(OBJ_DATA * obj)
 	     && !(a_isspace(*(obj->short_description + i))); new_name[j] = *(obj->short_description + i), i++, j++);
 	new_name[j] = '\0';
 	if (*new_name) {
-		if (GET_OBJ_RNUM(obj) < 0 || obj->short_description != obj_proto[GET_OBJ_RNUM(obj)].short_description)
+		if (GET_OBJ_RNUM(obj) < 0 || obj->short_description != obj_proto[GET_OBJ_RNUM(obj)]->short_description)
 			free(obj->short_description);
 		obj->short_description = str_dup(new_name);
 	}
@@ -1133,7 +1133,7 @@ void name_from_drinkcon(OBJ_DATA * obj)
 		for (j = 0; !a_isspace(*(obj->PNames[c] + i)); new_name[j] = *(obj->PNames[c] + i), i++, j++);
 		new_name[j] = '\0';
 		if (*new_name) {
-			if (GET_OBJ_RNUM(obj) < 0 || obj->PNames[c] != obj_proto[GET_OBJ_RNUM(obj)].PNames[c])
+			if (GET_OBJ_RNUM(obj) < 0 || obj->PNames[c] != obj_proto[GET_OBJ_RNUM(obj)]->PNames[c])
 				free(obj->PNames[c]);
 			obj->PNames[c] = str_dup(new_name);
 		}
@@ -1148,19 +1148,19 @@ void name_to_drinkcon(OBJ_DATA * obj, int type)
 	char new_name[MAX_INPUT_LENGTH];
 
 	sprintf(new_name, "%s %s", obj->name, drinknames[type]);
-	if (GET_OBJ_RNUM(obj) < 0 || obj->name != obj_proto[GET_OBJ_RNUM(obj)].name)
+	if (GET_OBJ_RNUM(obj) < 0 || obj->name != obj_proto[GET_OBJ_RNUM(obj)]->name)
 		free(obj->name);
 	obj->name = str_dup(new_name);
 
 	sprintf(new_name, "%s c %s", obj->short_description, drinknames[type]);
-	if (GET_OBJ_RNUM(obj) < 0 || obj->short_description != obj_proto[GET_OBJ_RNUM(obj)].short_description)
+	if (GET_OBJ_RNUM(obj) < 0 || obj->short_description != obj_proto[GET_OBJ_RNUM(obj)]->short_description)
 		free(obj->short_description);
 	obj->short_description = str_dup(new_name);
 
 
 	for (c = 0; c < NUM_PADS; c++) {
 		sprintf(new_name, "%s Ó %s", obj->PNames[c], drinknames[type]);
-		if (GET_OBJ_RNUM(obj) < 0 || obj->PNames[c] != obj_proto[GET_OBJ_RNUM(obj)].PNames[c])
+		if (GET_OBJ_RNUM(obj) < 0 || obj->PNames[c] != obj_proto[GET_OBJ_RNUM(obj)]->PNames[c])
 			free(obj->PNames[c]);
 		obj->PNames[c] = str_dup(new_name);
 	}
