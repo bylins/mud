@@ -771,10 +771,10 @@ typedef struct trig_data
 #define ITEM_PEN       21	/* Item is a pen     */
 #define ITEM_BOAT      22	/* Item is a boat    */
 #define ITEM_FOUNTAIN  23	/* Item is a fountain      */
-#define ITEM_BOOK      24	/**** Item is book */
-#define ITEM_INGRADIENT 25	/**** Item is magical ingradient */
+#define ITEM_BOOK      24	/* Item is book */
+#define ITEM_INGRADIENT 25	/* Item is magical ingradient */
 #define ITEM_MING      26	/* Магический ингредиент */
-#define ITEM_MATERIAL	27	/* Материал для крафтовых умений */
+#define ITEM_MATERIAL  27	/* Материал для крафтовых умений */
 
 // +newbook.patch (Alisher)
 /* Типы магических книг */
@@ -1349,6 +1349,34 @@ struct obj_data {
 	char *PNames[6];
 	int
 	 max_in_world;		/* max in world             */
+
+	obj_data() :
+		item_number(NOTHING),
+		in_room(NOWHERE),
+		name(NULL),
+		description(NULL),
+		short_description(NULL),
+		action_description(NULL),
+		ex_description(NULL),
+		carried_by(NULL),
+		worn_by(NULL),
+		worn_on(NOWHERE),
+		in_obj(NULL),
+		contains(NULL),
+		id(0),
+		proto_script(NULL),
+		script(NULL),
+		next_content(NULL),
+		next(NULL),
+		room_was_in(NOWHERE),
+		max_in_world(0)
+	{
+		memset(&obj_flags, 0, sizeof(obj_flag_data));
+		memset(&affected, 0, sizeof(obj_affected_type) * MAX_OBJ_AFFECT);
+
+		for (int i = 0; i < 6; i++)
+			PNames[i] = NULL;
+	}
 };
 /* ======================================================================= */
 

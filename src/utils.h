@@ -17,6 +17,7 @@
 #include <string>
 #include <list>
 #include <map>
+#include <new>
 
 using std::string;
 using std::list;
@@ -262,6 +263,10 @@ extern SPECIAL(postmaster);
 #define RECREATE(result,type,number) do {\
   if (!((result) = (type *) realloc ((result), sizeof(type) * (number))))\
       { perror("SYSERR: realloc failure"); abort(); } } while(0)
+
+#define NEWCREATE(result, constructor) do {\
+   if (!((result) = new(std::nothrow) constructor)) \
+      { perror("SYSERR: new operator failure"); abort(); } } while(0)
 
 /*
  * the source previously used the same code in many places to remove an item
@@ -909,7 +914,7 @@ extern SPECIAL(postmaster);
 #define GET_OBJ_ALIAS(obj)      ((obj)->short_description)
 #define GET_OBJ_PNAME(obj,pad)  ((obj)->PNames[pad])
 #define GET_OBJ_DESC(obj)       ((obj)->description)
-#define GET_OBJ_SPELL(obj)      ((obj)->obj_flags.Obj_skill)
+#define GET_OBJ_SPELL(obj)      ((obj)->obj_flags.Obj_spell)
 #define GET_OBJ_LEVEL(obj)      ((obj)->obj_flags.Obj_level)
 #define GET_OBJ_AFFECTS(obj)    ((obj)->obj_flags.affects)
 #define GET_OBJ_ANTI(obj)       ((obj)->obj_flags.anti_flag)

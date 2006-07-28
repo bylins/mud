@@ -186,8 +186,7 @@ void free_char(CHAR_DATA * ch);
 void clear_char_skills(CHAR_DATA * ch);
 int correct_unique(int unique);
 
-struct obj_data *create_obj(void);
-void clear_object(OBJ_DATA * obj);
+OBJ_DATA *create_obj(void);
 void free_obj(OBJ_DATA * obj);
 obj_rnum real_object(obj_vnum vnum);
 OBJ_DATA *read_object(obj_vnum nr, int type);
@@ -365,7 +364,7 @@ extern CHAR_DATA *character_list;
 extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;
 extern DESCRIPTOR_DATA *descriptor_list;
-extern OBJ_DATA *obj_proto;
+extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 extern const char *MENU;
 extern struct gods_celebrate_apply_type *Mono_apply;
