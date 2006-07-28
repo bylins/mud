@@ -658,8 +658,9 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	morale = cha_app[GET_REAL_CHA(ch)].morale + GET_MORALE(ch);
 	
 	if (vict && percent > skill_info[skill_no].max_percent)
-		victim_modi += percent - skill_info[skill_no].max_percent
-//		+ (MAX (0, morale - 50) * 2);//maksimum morali +50,  vse chto vyshe idet bonusom k skillu
+		victim_modi += percent - skill_info[skill_no].max_percent;
+//		+ (MAX (0, morale - 50) * 2);
+//maksimum morali +50,  vse chto vyshe idet bonusom k skillu
 
 	if (AFF_FLAGGED(ch, AFF_DEAFNESS))
 		morale -= 20;	// у глухого мораль на 20 меньше
