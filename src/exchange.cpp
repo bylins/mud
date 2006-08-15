@@ -171,6 +171,9 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	EXCHANGE_ITEM_DATA *item = NULL;
 	EXCHANGE_ITEM_DATA *j, *next_thing = NULL;
 	int counter;
+	int counter_ming; //количиство ингридиентов
+	int tax;	//налог
+	
 	if (!*arg) {
 		send_to_char(info_message, ch);
 		return false;
@@ -221,17 +224,25 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	if (item_cost <= 0) {
 		item_cost = MAX(1, GET_OBJ_COST(obj));
 	};
-	if ((GET_BANK_GOLD(ch) < EXCHANGE_EXHIBIT_PAY + (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF))
+
+	(GET_OBJ_TYPE(obj) != ITEM_MING)? 				
+		tax = EXCHANGE_EXHIBIT_PAY + (int)(item_cost * EXCHANGE_EXHIBIT_PAY_COEFF):
+		tax = (int)(item_cost * EXCHANGE_EXHIBIT_PAY_COEFF / 2);
+	if ((GET_BANK_GOLD(ch) < tax )
 	    && (GET_LEVEL(ch) < LVL_IMPL)) {
 		send_to_char("У вас не хватит денег на налоги !\r\n", ch);
 		return false;
 	}
-	for (j = exchange_item_list, counter = 0; j && (counter <= EXCHANGE_MAX_EXHIBIT_PER_CHAR); j = next_thing) {
+	for (j = exchange_item_list, counter = 0,counter_ming = 0; 
+				j && (counter + (counter_ming / 20)  <= EXCHANGE_MAX_EXHIBIT_PER_CHAR); 
+				j = next_thing) {
 		next_thing = j->next;
 		if (GET_EXCHANGE_ITEM_SELLERID(j) == GET_IDNUM(ch))
-			counter++;
+			((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING) && 
+			 (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT)) ? counter++:counter_ming++;
 	}
-	if (counter > EXCHANGE_MAX_EXHIBIT_PER_CHAR) {
+		
+	if (counter + (counter_ming / 20)  >= EXCHANGE_MAX_EXHIBIT_PER_CHAR) {
 		send_to_char("Вы уже выставили на базар максимальное количество предметов !\r\n", ch);
 		return false;
 	}
@@ -258,7 +269,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		GET_EXCHANGE_ITEM_LOT(item), obj->PNames[0], item_cost, desc_count(item_cost, WHAT_MONEYa));
 	message_exchange(tmpbuf, ch, item);
 
-	GET_BANK_GOLD(ch) -= EXCHANGE_EXHIBIT_PAY + (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF);
+	GET_BANK_GOLD(ch) -= tax;
 
 	if (EXCHANGE_SAVEONEVERYOPERATION) {
 		exchange_database_save();

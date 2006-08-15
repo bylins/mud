@@ -33,7 +33,7 @@ extern EXCHANGE_ITEM_DATA *exchange_item_list;
 #define EXCHANGE_EXHIBIT_PAY_COEFF 0.05	// Коэффициент оплаты в зависимости от цены товара
 #define EXCHANGE_IDENT_PAY 110	//куны за опознание
 #define EXCHANGE_MIN_CHAR_LEV 8	//минимальный уровень для доступа к базару
-#define EXCHANGE_MAX_EXHIBIT_PER_CHAR 10	//максимальное кол-во выставляемых объектов одним чаром
+#define EXCHANGE_MAX_EXHIBIT_PER_CHAR 20	//максимальное кол-во выставляемых объектов одним чаром
 
 
 #define GET_EXCHANGE_ITEM_LOT(item)  ((item)->lot_id)
