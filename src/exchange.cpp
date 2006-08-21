@@ -1460,7 +1460,13 @@ int obj_matches_filter(EXCHANGE_ITEM_DATA * j, char *filter_name, char *filter_o
 	int tm;
 
 	if (*filter_name && !isname(filter_name, GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0)))
-		return 0;
+		if ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING) &&
+			(GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT))
+				return 0;
+		//Для ингридиентов, дополнительно проверяем имя прототипa
+		else if (!isname(filter_name, GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(GET_EXCHANGE_ITEM(j))], 0)))
+				return 0;
+		
 	if (*filter_owner && !isname(filter_owner, get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j))))
 		return 0;
 	if (*filter_type && !(GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == *filter_type))
