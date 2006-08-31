@@ -109,10 +109,11 @@ obj_rnum ornum_by_info(const std::pair<obj_vnum, obj_load_info>& it)
 void obj_load_on_death(OBJ_DATA * corpse, CHAR_DATA * ch)
 {
 	OBJ_DATA *o;
-
+/*
 	for (oload_class::iterator iter = oload_table.begin(); iter != oload_table.end(); iter++)
 		for (std::map<obj_vnum, obj_load_info>::iterator iter1 = iter->second.begin(); iter1 != iter->second.end(); iter1++)
 			log("%d %d %d %d", iter->first, iter1->first, iter1->second.obj_qty, iter1->second.load_prob);
+*/			
 
 	if (ch == NULL || !IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE) && corpse == NULL)
 		return;
