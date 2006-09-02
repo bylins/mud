@@ -2757,7 +2757,7 @@ inline int do_punctual(CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *wielded)
 
 	if (wielded)
 		wapp = (int)(GET_OBJ_SKILL(wielded) == SKILL_BOWS) ?
-					GET_OBJ_WEIGHT(wielded) * 4 / 5 : GET_OBJ_WEIGHT(wielded);
+					GET_OBJ_WEIGHT(wielded) * 1 / 3 : GET_OBJ_WEIGHT(wielded);
 	else
 		wapp = 0;
 
