@@ -34,6 +34,7 @@
 #include "top.h"
 #include "privileges.hpp"
 #include "ban.hpp"
+#include "description.h"
 
 /*   external vars  */
 extern FILE *player_fl;
@@ -1090,10 +1091,7 @@ void do_stat_room(CHAR_DATA * ch)
 	send_to_char(buf, ch);
 
 	send_to_char("Описание:\r\n", ch);
-	if (rm->description)
-		send_to_char(rm->description, ch);
-	else
-		send_to_char("  Нет.\r\n", ch);
+	send_to_char(RoomDescription::show_desc(rm->description_num), ch);
 
 	if (rm->ex_description) {
 		sprintf(buf, "Доп. описание:%s", CCCYN(ch, C_NRM));

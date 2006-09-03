@@ -18,6 +18,7 @@
 #include "dg_olc.h"
 #include "constants.h"
 #include "im.h"
+#include "description.h"
 
 /* List each room saved, was used for debugging. */
 #if 0
@@ -54,7 +55,6 @@ int planebit(char *str, int *plane, int *bit);
  */
 void redit_setup(DESCRIPTOR_DATA * d, int real_num);
 
-void redit_room_init(ROOM_DATA * room);
 void room_copy(ROOM_DATA * dst, ROOM_DATA * src);
 void room_free(ROOM_DATA * room);
 
@@ -73,17 +73,6 @@ void redit_disp_menu(DESCRIPTOR_DATA * d);
 #define  W_EXIT(room, num) (world[(room)]->dir_option[(num)])
 //***************************************************************************
 
-void redit_room_init(ROOM_DATA * room)
-/*++
-   Инициализация комнаты
---*/
-{
-	return;
-}
-
-
-//***********************************************************************
-
 void redit_setup(DESCRIPTOR_DATA * d, int real_num)
 /*++
    Подготовка данных для редактирования комнаты.
@@ -92,16 +81,16 @@ void redit_setup(DESCRIPTOR_DATA * d, int real_num)
 --*/
 {
 	ROOM_DATA *room;
-
 	CREATE(room, ROOM_DATA, 1);
 	memset(room, 0, sizeof(ROOM_DATA));
 
 	if (real_num == NOWHERE) {
 		room->name = str_dup("Недоделанная комната");
-		room->description =
-		    str_dup("Вы оказались в комнате, наполненной обломками творческих мыслей билдера.\r\n");
+		room->temp_description = str_dup("Вы оказались в комнате, наполненной обломками творческих мыслей билдера.\r\n");
 	} else {
 		room_copy(room, world[real_num]);
+		// temp_description существует только на время редактирования комнаты в олц
+		room->temp_description = str_dup(RoomDescription::show_desc(world[real_num]->description_num).c_str());
 	}
 
 	OLC_ROOM(d) = room;
@@ -126,6 +115,8 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 	vector < ROOM_DATA * >::iterator p;
 
 	room_num = real_room(OLC_ROOM(d)->number);
+	// дальше temp_description уже нигде не участвует, описание берется как обычно через число
+	OLC_ROOM(d)->description_num = RoomDescription::add_desc(OLC_ROOM(d)->temp_description);
 	/*
 	 * Room exists: move contents over then free and replace it.
 	 */
@@ -302,7 +293,7 @@ void redit_save_to_disk(int zone_num)
 			/*
 			 * Remove the '\r\n' sequences from description.
 			 */
-			strcpy(buf1, room->description ? room->description : "Empty");
+			strcpy(buf1, RoomDescription::show_desc(room->description_num).c_str());
 			strip_string(buf1);
 
 			/*
@@ -583,7 +574,7 @@ void redit_disp_menu(DESCRIPTOR_DATA * d)
 		cyn, OLC_NUM(d), nrm,
 		cyn, zone_table[OLC_ZNUM(d)].number, nrm,
 		grn, nrm, yel, room->name,
-		grn, nrm, yel, room->description,
+		grn, nrm, yel, room->temp_description,
 		grn, nrm, cyn, buf1, grn, nrm, cyn, buf2, grn, nrm, cyn, room->dir_option[NORTH]
 		&& room->dir_option[NORTH]->to_room !=
 		NOWHERE ? world[room->dir_option[NORTH]->to_room]->
@@ -668,11 +659,11 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 #endif
 			SEND_TO_Q("Введите описание комнаты: (/s записать /h помощь)\r\n\r\n", d);
 			d->backstr = NULL;
-			if (OLC_ROOM(d)->description) {
-				SEND_TO_Q(OLC_ROOM(d)->description, d);
-				d->backstr = str_dup(OLC_ROOM(d)->description);
+			if (OLC_ROOM(d)->temp_description) {
+				SEND_TO_Q(OLC_ROOM(d)->temp_description, d);
+				d->backstr = str_dup(OLC_ROOM(d)->temp_description);
 			}
-			d->str = &OLC_ROOM(d)->description;
+			d->str = &OLC_ROOM(d)->temp_description;
 			d->max_str = MAX_ROOM_DESC;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;

@@ -1481,12 +1481,12 @@ struct room_property_data
 struct room_data {
 	room_vnum number;	/* Rooms number  (vnum)                */
 	zone_rnum zone;		/* Room zone (for resetting)          */
-	int
-	 sector_type;		/* sector type (move/hide)            */
-	int
-	 sector_state;		/**** External, change by weather     */
+	int sector_type;		/* sector type (move/hide)            */
+	int sector_state;		/**** External, change by weather     */
+
 	char *name;		/* Rooms name 'You are ...'           */
-	char *description;	/* Shown when entered                 */
+	int description_num;    // номер описания в глобальном списке
+	char *temp_description; // для олц, пока редактора не будет нормального
 	EXTRA_DESCR_DATA *ex_description;	/* for examine/look       */
 	EXIT_DATA *dir_option[NUM_OF_DIRS];	/* Directions */
 	FLAG_DATA room_flags;	/* DEATH,DARK ... etc */

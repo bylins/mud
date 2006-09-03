@@ -35,6 +35,7 @@
 #include "features.hpp"
 #include "im.h"
 #include "house.h"
+#include "description.h"
 
 using std::string;
 
@@ -1195,7 +1196,7 @@ int paste_description(char *string, char *tag, int need)
 }
 
 
-void show_extend_room(char *description, CHAR_DATA * ch)
+void show_extend_room(const char * const description, CHAR_DATA * ch)
 {
 	int found = FALSE, i;
 	char string[MAX_STRING_LENGTH], *pos;
@@ -1285,7 +1286,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	if (IS_DARK(IN_ROOM(ch)) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT))
 		send_to_char("Слишком темно...\r\n", ch);
 	else if ((!IS_NPC(ch) && !PRF_FLAGGED(ch, PRF_BRIEF)) || ignore_brief || ROOM_FLAGGED(ch->in_room, ROOM_DEATH)) {
-		show_extend_room(world[ch->in_room]->description, ch);
+		show_extend_room(RoomDescription::show_desc(world[ch->in_room]->description_num).c_str(), ch);
 	}
 
 	/* Отображаем аффекты комнаты */

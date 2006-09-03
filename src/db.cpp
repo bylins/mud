@@ -42,6 +42,7 @@
 #include "item.creation.hpp"
 #include "features.hpp"
 #include "boards.h"
+#include "description.h"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -1431,7 +1432,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	world[room_nr]->number = virtual_nr;
 	if (virt) {
 		world[room_nr]->name = str_dup("Виртуальная комната");
-		world[room_nr]->description = str_dup("Похоже, здесь Вам делать нечего.");
+		world[room_nr]->description_num = RoomDescription::add_desc("Похоже, здесь Вам делать нечего.");
 		world[room_nr]->room_flags.flags[0] = 0;
 		world[room_nr]->room_flags.flags[1] = 0;
 		world[room_nr]->room_flags.flags[2] = 0;
@@ -1442,9 +1443,13 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 		world[room_nr]->name = fread_string(fl, buf2);
 		if(!world[room_nr]->name)
 			world[room_nr]->name = str_dup("");
-		world[room_nr]->description = fread_string(fl, buf2);
-		if (!world[room_nr]->description)
-			world[room_nr]->description = str_dup("");
+
+		// тож временная галиматья
+		char * temp_buf = fread_string(fl, buf2);
+		if (!temp_buf)
+			temp_buf = str_dup("");
+		world[room_nr]->description_num = RoomDescription::add_desc(temp_buf);
+		free(temp_buf);
 
 		if (!get_line(fl, line)) {
 			log("SYSERR: Expecting roomflags/sector type of room #%d but file ended!", virtual_nr);
@@ -6552,7 +6557,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 
 	// Название и описание
 	dst->name = str_dup(src->name ? src->name : "неопределено");
-	dst->description = str_dup(src->description ? src->description : "неопределено\r\n");
+	dst->temp_description = 0; // так надо
 
 	// Выходы и входы
 	for (i = 0; i < NUM_OF_DIRS; ++i) {
@@ -6603,8 +6608,10 @@ void room_free(ROOM_DATA * room)
 	// Название и описание
 	if (room->name)
 		free(room->name);
-	if (room->description)
-		free(room->description);
+	if (room->temp_description) {
+		free(room->temp_description);
+		room->temp_description = 0;
+	}
 
 	// Выходы и входы
 	for (i = 0; i < NUM_OF_DIRS; i++)
@@ -6645,5 +6652,3 @@ void room_free(ROOM_DATA * room)
 	}
 	room->affected = NULL;
 }
-
-
