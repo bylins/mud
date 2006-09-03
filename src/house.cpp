@@ -3433,22 +3433,18 @@ void SetChestMode(CHAR_DATA *ch, std::string &buffer)
 		REMOVE_BIT(PRF_FLAGS(ch, PRF_DECAY_MODE), PRF_DECAY_MODE);
 		REMOVE_BIT(PRF_FLAGS(ch, PRF_TAKE_MODE), PRF_TAKE_MODE);
 		send_to_char("Ладушки.\r\n", ch);
-		save_char(ch, NOWHERE);
 	} else if (CompareParam(buffer, "рассыпание")) {
 		SET_BIT(PRF_FLAGS(ch, PRF_DECAY_MODE), PRF_DECAY_MODE);
 		REMOVE_BIT(PRF_FLAGS(ch, PRF_TAKE_MODE), PRF_TAKE_MODE);
 		send_to_char("Ладушки.\r\n", ch);
-		save_char(ch, NOWHERE);
 	} else if (CompareParam(buffer, "изменение")) {
 		REMOVE_BIT(PRF_FLAGS(ch, PRF_DECAY_MODE), PRF_DECAY_MODE);
 		SET_BIT(PRF_FLAGS(ch, PRF_TAKE_MODE), PRF_TAKE_MODE);
 		send_to_char("Ладушки.\r\n", ch);
-		save_char(ch, NOWHERE);
 	} else if (CompareParam(buffer, "полный")) {
 		SET_BIT(PRF_FLAGS(ch, PRF_DECAY_MODE), PRF_DECAY_MODE);
 		SET_BIT(PRF_FLAGS(ch, PRF_TAKE_MODE), PRF_TAKE_MODE);
 		send_to_char("Ладушки.\r\n", ch);
-		save_char(ch, NOWHERE);
 	} else {
 		send_to_char("Задается режим оповещения об изменениях в хранилище дружины.\r\n"
 			"Формат команды: режим хранилище <нет|рассыпание|изменение|полный>\r\n"
