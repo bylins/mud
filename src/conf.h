@@ -76,7 +76,6 @@
 
 /* Define if you have the <crypt.h> header file.  */
 #define HAVE_CRYPT_H 1
-#undef HAVE_CRYPT_H
 
 /* Define if you have the <errno.h> header file.  */
 #define HAVE_ERRNO_H 1
