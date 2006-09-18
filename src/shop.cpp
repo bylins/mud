@@ -1275,7 +1275,6 @@ void shopping_value_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int
 {
 	char buf[MAX_STRING_LENGTH];
 	char name[MAX_INPUT_LENGTH];
-	int price = 0;
 
 	if (!(is_ok(keeper, ch, shop_nr)))
 		return;
@@ -1296,9 +1295,9 @@ void shopping_value_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int
 		return;
 	}
 
-
+    int price = sell_price(obj, ch, shop_nr);
 	sprintf(buf, "%s! Я, пожалуй, дам тебе за %s %d %s !",
-		GET_NAME(ch), OBJN(obj, ch, 3), (price = sell_price(obj, ch, shop_nr)), desc_count(price, WHAT_MONEYu));
+		GET_NAME(ch), OBJN(obj, ch, 3), price, desc_count(price, WHAT_MONEYu));
 	do_tell(keeper, buf, cmd_tell, 0);
 
 	return;
@@ -1309,7 +1308,6 @@ void shopping_value(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 	char buf[MAX_STRING_LENGTH];
 	OBJ_DATA *obj;
 	char name[MAX_INPUT_LENGTH];
-	int price = 0;
 
 	if (!(is_ok(keeper, ch, shop_nr)))
 		return;
@@ -1329,8 +1327,9 @@ void shopping_value(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 		return;
 	}
 
+    int price = sell_price(obj, ch, shop_nr);
 	sprintf(buf, "%s! Я пожалуй дам тебе за %s %d %s !",
-		GET_NAME(ch), OBJN(obj, ch, 3), (price = sell_price(obj, ch, shop_nr)), desc_count(price, WHAT_MONEYu));
+		GET_NAME(ch), OBJN(obj, ch, 3), price, desc_count(price, WHAT_MONEYu));
 	do_tell(keeper, buf, cmd_tell, 0);
 
 	return;

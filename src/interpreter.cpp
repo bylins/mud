@@ -151,7 +151,7 @@ ACMD(do_bash);
 ACMD(do_beep);
 ACMD(do_cast);
 ACMD(do_cheat);
-ACMD(do_clanstuff); 
+ACMD(do_clanstuff);
 ACMD(do_create);
 ACMD(do_mixture);
 ACMD(do_color);
@@ -375,6 +375,18 @@ ACMD(do_cook);
 ACMD(do_forgive);
 ACMD(do_imlist);
 ACMD(do_townportal);
+ACMD(DoBoard);
+ACMD(DoBoardList);
+ACMD(DoHouse);
+ACMD(DoClanChannel);
+ACMD(DoClanList);
+ACMD(DoShowPolitics);
+ACMD(DoHcontrol);
+ACMD(DoWhoClan);
+ACMD(DoClanPkList);
+ACMD(DoStoreHouse);
+ACMD(do_clanstuff);
+ACMD(DoBest);
 
 /* This is the Master Command List(tm).
 
@@ -1987,7 +1999,7 @@ int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0)
 		if (i == d)
 			continue;
 
-		if (i->character && !IS_IMMORTAL(i->character) 
+		if (i->character && !IS_IMMORTAL(i->character)
 			&& (STATE(i) == CON_PLAYING || STATE(i) == CON_MENU)
 		    && !str_cmp(i->host, d->host)) {
 			switch (CheckProxy(d)) {
@@ -2054,11 +2066,11 @@ void add_logon_record(DESCRIPTOR_DATA * d)
 	{
 		// Ищем есть ли запись в logon-е
 		struct logon_data * cur_log = LOGON_LIST(d->character);
-		struct logon_data * last_log = cur_log;		
+		struct logon_data * last_log = cur_log;
 		bool ipfound = false;
 		while (cur_log)
 		{
-			if (!strcmp(cur_log->ip,d->host)) 
+			if (!strcmp(cur_log->ip,d->host))
 			{
 				// Совпало
 				cur_log->count++;
@@ -2071,14 +2083,14 @@ void add_logon_record(DESCRIPTOR_DATA * d)
 		};
 		if (!ipfound)
 		{
-			last_log->next = new (struct logon_data);	
+			last_log->next = new (struct logon_data);
 			last_log = last_log->next;
 			last_log->ip = str_dup(d->host);
 			last_log->count = 1;
 			last_log->lasttime = time(0);
 			last_log->next = 0;
 		}
-		// 
+		//
 	}
 	log("Exit logon list");
 }
@@ -2825,7 +2837,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-	case CON_COLOR:		
+	case CON_COLOR:
 		if (pre_help (d->character, arg)){
 			SEND_TO_Q (color_menu, d);
 			SEND_TO_Q ("\n\rРежим :", d);
@@ -2917,7 +2929,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			    && !IS_SET(PLR_FLAGS(d->character, PLR_NODELETE), PLR_NODELETE)) {
 				int timeout = -1;
 				for (int ci = 0; GET_LEVEL(d->character) > pclean_criteria[ci].level; ci++) {
-					//if (GET_LEVEL(d->character) == pclean_criteria[ci].level) 
+					//if (GET_LEVEL(d->character) == pclean_criteria[ci].level)
 					timeout = pclean_criteria[ci + 1].days;
 				}
 				if (timeout > 0) {
@@ -3052,7 +3064,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	case CON_NAME2:
 		skip_spaces(&arg);
 
-		if (!_parse_name(arg, tmp_name) && 
+		if (!_parse_name(arg, tmp_name) &&
 		    strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
 		    !strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		    ) {
@@ -3070,7 +3082,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		break;
 	case CON_NAME3:
 		skip_spaces(&arg);
-		if (!_parse_name(arg, tmp_name) && 
+		if (!_parse_name(arg, tmp_name) &&
 		    strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
 		    !strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		    ) {
@@ -3088,7 +3100,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		break;
 	case CON_NAME4:
 		skip_spaces(&arg);
-		if (!_parse_name(arg, tmp_name) && 
+		if (!_parse_name(arg, tmp_name) &&
 		    strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
 		    !strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		    ) {
@@ -3106,7 +3118,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		break;
 	case CON_NAME5:
 		skip_spaces(&arg);
-		if (!_parse_name(arg, tmp_name) && 
+		if (!_parse_name(arg, tmp_name) &&
 		    strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
 		    !strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		    ) {
@@ -3124,7 +3136,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		break;
 	case CON_NAME6:
 		skip_spaces(&arg);
-		if (!_parse_name(arg, tmp_name) && 
+		if (!_parse_name(arg, tmp_name) &&
 		    strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
 		    !strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		    ) {
@@ -3306,7 +3318,7 @@ bool PrivList::enough_cmd_priv(const std::string & char_name, int char_level,
 	if (cmd_info[cmd_number].minimum_level < LVL_IMMORT)
 		if (char_level >= cmd_info[cmd_number].minimum_level)
 			return true;
-	//////////////////////////////////////////////////////////////////////////   
+	//////////////////////////////////////////////////////////////////////////
 	if(!GodListCheck(char_name, unique))
 		return false;
 
@@ -3768,7 +3780,7 @@ std::string ExpFormat(long long exp)
 	std::string out;
 	if (exp < 1000000)
 		return (boost::lexical_cast<std::string>(exp));
-	else if (exp < 1000000000) 
+	else if (exp < 1000000000)
 		return (boost::lexical_cast<std::string>(exp/1000) + " тыс");
 	else if (exp < 1000000000000LL)
 		return (boost::lexical_cast<std::string>(exp/1000000) + " млн");

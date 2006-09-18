@@ -197,9 +197,9 @@ const char *class_menu_step =
 const char *color_menu =
     "\r\n"
     "Выберите режим цвета :\r\n"
-    "  [0]Выкл\r\n" 
-    "  [1]Простой\r\n" 
-    "  [2]Обычный\r\n" 
+    "  [0]Выкл\r\n"
+    "  [1]Простой\r\n"
+    "  [2]Обычный\r\n"
     "  [3]Полный\r\n";
 
 /* The menu for choosing a religion in interpreter.c: */
@@ -209,7 +209,7 @@ const char *religion_menu =
 #define RELIGION_ANY 100
 
 
-/* Соответствие классов и религий. RELIGION_POLY-класс не может быть христианином 
+/* Соответствие классов и религий. RELIGION_POLY-класс не может быть христианином
                                    RELIGION_MONO-класс не может быть язычником  (Кард)
 				   RELIGION_ANY - класс может быть кем угодно */
 const int class_religion[] = { RELIGION_ANY,	/*Лекарь */
@@ -253,7 +253,7 @@ const char *race_menu_step =
    "  [У]йгуры\r\n"
    "  [К]ангары\r\n"
    "  [Х]азары\r\n";
- 
+
 const char *race_types_srep[] = { "половцы",
 	"печенеги",
 	"монголы",
@@ -271,7 +271,7 @@ const char *race_menu_vik =
    "  [Ю]тты\r\n"
    "  [Х]алейги\r\n"
    "  [Н]орвежцы\r\n";
- 
+
 const char *race_types_vik[] = { "свеи",
 	"датчане",
 	"гетты",
@@ -821,10 +821,12 @@ const byte sav_18[50] = {
 
 
 // {CLASS,{PARA,ROD,AFFECT,BREATH,SPELL,BASIC}}
-struct {
+struct std_saving_type {
 	int chclass;
 	const byte *saves[SAVING_COUNT];
-} std_saving[] = {
+};
+
+std_saving_type std_saving[] = {
 	{
 		CLASS_CLERIC, {
 	sav_01, sav_10, sav_08, sav_14}}, {
@@ -873,7 +875,6 @@ struct {
 		-1, {
 	sav_02, sav_12, sav_02, sav_16}}
 };
-
 //****************************************************************************
 //****************************************************************************
 //****************************************************************************
@@ -2162,7 +2163,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 		if (obj)
 			obj_to_char(obj, ch);
 		break;
-		
+
 	case CLASS_CLERIC:
 		obj = read_object(START_CLUB, VIRTUAL);
 		if (obj)
@@ -2221,9 +2222,9 @@ void do_start(CHAR_DATA * ch, int newbie)
 	case KIN_RUSICHI:
 		break;
 	case KIN_VIKINGI:
-		break;		
+		break;
 	case KIN_STEPNYAKI:
-		break;		
+		break;
 	}
 
 	switch (GET_RACE(ch)) {
@@ -2240,28 +2241,28 @@ void do_start(CHAR_DATA * ch, int newbie)
 	case RACE_DREVLANE:
 		break;
 	case RACE_POLOVCI:
-		break;        
-	case RACE_PECHENEGI:      
 		break;
-	case RACE_MONGOLI:        
+	case RACE_PECHENEGI:
 		break;
-	case RACE_YIGURI:        
+	case RACE_MONGOLI:
 		break;
-	case RACE_KANGARI:        
+	case RACE_YIGURI:
 		break;
-	case RACE_XAZARI:         
+	case RACE_KANGARI:
 		break;
-	case RACE_SVEI:         
+	case RACE_XAZARI:
 		break;
-	case RACE_DATCHANE:       
+	case RACE_SVEI:
 		break;
-	case RACE_GETTI:        
+	case RACE_DATCHANE:
 		break;
-	case RACE_UTTI:        
+	case RACE_GETTI:
 		break;
-	case RACE_XALEIGI:        
+	case RACE_UTTI:
 		break;
-	case RACE_NORVEZCI:       
+	case RACE_XALEIGI:
+		break;
+	case RACE_NORVEZCI:
 		break;
 
 	}
@@ -2284,7 +2285,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 	GET_COND(ch, FULL) = 24;
 	GET_COND(ch, DRUNK) = 0;
 
-// Gunner а вот тут дырка после реморта тоже выполняется do_start и 
+// Gunner а вот тут дырка после реморта тоже выполняется do_start и
 // нам не нужно обнулять время в игре ни время последнего логона
 //  ch->player.time.played = 0;
 //  ch->player.time.logon  = time(0);
@@ -2358,9 +2359,9 @@ void o_advance_level(CHAR_DATA * ch)
 		break;
 	}
 
-	for (i = 1; i < MAX_FEATS; i++)	
+	for (i = 1; i < MAX_FEATS; i++)
 		if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && can_get_feat(ch, i))
-			SET_FEAT(ch, i); 
+			SET_FEAT(ch, i);
 
 	add_hp_min = MIN(add_hp_min, add_hp_max);
 	add_hp_min = MAX(1, add_hp_min);
@@ -2572,12 +2573,12 @@ int backstab_mult(int level)
 		return 7;	/* level 21 - 28 */
 	else
 		return 10;
-	
+
 //	Adept: убрал, бо хайлевел мобы со стаба батыров сносили :)
 //	 if (level < LVL_GRGOD)
 //		return 10;	/* all remaining mortal levels */
 //	else
-//		return 20;	/* immortals */ 
+//		return 20;	/* immortals */
 }
 
 
@@ -2648,7 +2649,7 @@ int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj)
 		       && GET_RACE(ch) == RACE_DREVLANE)
 		   || (IS_OBJ_ANTI (obj, ITEM_AN_POLOVCI)
 		       && GET_RACE (ch) == RACE_POLOVCI)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_PECHENEGI) 
+	           || (IS_OBJ_ANTI (obj, ITEM_AN_PECHENEGI)
            	       && GET_RACE (ch) == RACE_PECHENEGI)
 	           || (IS_OBJ_ANTI (obj, ITEM_AN_MONGOLI)
 		       && GET_RACE (ch) == RACE_MONGOLI)
@@ -2660,7 +2661,7 @@ int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj)
 		       && GET_RACE (ch) == RACE_XAZARI)
 	           || (IS_OBJ_ANTI (obj, ITEM_AN_SVEI)
 		       && GET_RACE (ch) == RACE_SVEI)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_DATCHANE) 
+	           || (IS_OBJ_ANTI (obj, ITEM_AN_DATCHANE)
 	               && GET_RACE (ch) == RACE_DATCHANE)
 	           || (IS_OBJ_ANTI (obj, ITEM_AN_GETTI)
 		       && GET_RACE (ch) == RACE_GETTI)
@@ -2672,7 +2673,7 @@ int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj)
 		       && GET_RACE (ch) == RACE_NORVEZCI)
 	           || (IS_OBJ_ANTI (obj, ITEM_AN_RUSICHI)
 		       && GET_KIN (ch) == KIN_RUSICHI)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_STEPNYAKI) 
+	           || (IS_OBJ_ANTI (obj, ITEM_AN_STEPNYAKI)
 	               && GET_KIN (ch) == KIN_STEPNYAKI)
 	           || (IS_OBJ_ANTI (obj, ITEM_AN_VIKINGI)
 		       && GET_KIN (ch) == KIN_VIKINGI))
@@ -2720,7 +2721,7 @@ int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj)
 		&& GET_RACE(ch) == RACE_DREVLANE)
 	    || (IS_OBJ_NO (obj, ITEM_AN_POLOVCI)
 	        && GET_RACE (ch) == RACE_POLOVCI)
-   	    || (IS_OBJ_NO (obj, ITEM_AN_PECHENEGI) 
+   	    || (IS_OBJ_NO (obj, ITEM_AN_PECHENEGI)
 	        && GET_RACE (ch) == RACE_PECHENEGI)
 	    || (IS_OBJ_NO (obj, ITEM_AN_MONGOLI)
 	        && GET_RACE (ch) == RACE_MONGOLI)
@@ -2728,11 +2729,11 @@ int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj)
 	        && GET_RACE (ch) == RACE_YIGURI)
 	    || (IS_OBJ_NO (obj, ITEM_AN_KANGARI)
 	        && GET_RACE (ch) == RACE_KANGARI)
-	    || (IS_OBJ_NO (obj, ITEM_AN_XAZARI)      
+	    || (IS_OBJ_NO (obj, ITEM_AN_XAZARI)
 	        && GET_RACE (ch) == RACE_XAZARI)
 	    || (IS_OBJ_NO (obj, ITEM_AN_SVEI)
 	        && GET_RACE (ch) == RACE_SVEI)
-	    || (IS_OBJ_NO (obj, ITEM_AN_DATCHANE) 
+	    || (IS_OBJ_NO (obj, ITEM_AN_DATCHANE)
 	        && GET_RACE (ch) == RACE_DATCHANE)
 	    || (IS_OBJ_NO (obj, ITEM_AN_GETTI)
 	        && GET_RACE (ch) == RACE_GETTI)
@@ -2744,7 +2745,7 @@ int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj)
 	        && GET_RACE (ch) == RACE_NORVEZCI)
 	    || (IS_OBJ_NO (obj, ITEM_AN_RUSICHI)
 	        && GET_KIN (ch) == KIN_RUSICHI)
-	    || (IS_OBJ_NO (obj, ITEM_AN_STEPNYAKI) 
+	    || (IS_OBJ_NO (obj, ITEM_AN_STEPNYAKI)
 	        && GET_KIN (ch) == KIN_STEPNYAKI)
 	    || (IS_OBJ_NO (obj, ITEM_AN_VIKINGI)
 	        && GET_KIN (ch) == KIN_VIKINGI)
@@ -2796,7 +2797,7 @@ void init_spell_levels(void)
 		if (i[0] < 0 || i[0] >= NUM_KIN){
 			log ("Bad kin type for spell '%s' \"%d\"...", name, sp_num);
 			_exit (1);
-		}	
+		}
 		if (i[1] < 0 || i[1] >= NUM_CLASSES){
 			log ("Bad class type for spell '%s'  \"%d\"...", name, sp_num);
 			_exit (1);
@@ -2906,7 +2907,7 @@ void init_spell_levels(void)
 		}
 		if ((sp_num = find_feat_num(name)) <= 0) {
 			log("Feat '%s' not found...", name);
-			_exit(1);                 
+			_exit(1);
 		}
 		for (j = 0; j < NUM_KIN; j++)
 			if (i[j] < 0 || i[j] > 1){
@@ -2925,8 +2926,8 @@ void init_spell_levels(void)
 			log ("Bad natural classfeat type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
 			_exit (1);
 		}
-		for (j = 0; j < NUM_KIN; j++) 
-			if (i[j] == 1) { 
+		for (j = 0; j < NUM_KIN; j++)
+			if (i[j] == 1) {
 				feat_info[sp_num].classknow[i[3]][j] = TRUE;
 				log ("Classknow feat set '%d' kin '%d' classes %d", sp_num, j, i[3]);
 
@@ -2938,9 +2939,9 @@ void init_spell_levels(void)
 
 				feat_info[sp_num].natural_classfeat[i[3]][j] = i[6];
 				log ("Natural classfeature set '%d' kin '%d' classes %d", sp_num, j, i[3]);
-			}       
+			}
 	}
-	fclose(magic); 
+	fclose(magic);
 /* End of changed */
 
 	if (!(magic = fopen(LIB_MISC "skills.lst", "r"))) {
@@ -2985,7 +2986,7 @@ void init_spell_levels(void)
 		if (i[3]){
 			skill_info[sp_num].min_level[i[1]][i[0]] = i[3];
 			log ("Level set '%d' kin '%d' classes %d value %d", sp_num,i[0], i[1], i[3]);
-		}	
+		}
 		skill_info[sp_num].min_remort[i[1]][i[0]] = i[2];
 		log ("Remort set '%d' kin '%d' classes %d value %d", sp_num,i[0], i[1], i[2]);
 	}
@@ -3014,7 +3015,7 @@ void init_spell_levels(void)
 		}
 		for (l = 0; line3[l] && l < NUM_KIN; l++){
 			if (!strchr ("1xX!", line3[l]))
-				continue;			
+				continue;
 			for (j = 0; line4[j] && j < NUM_CLASSES; j++) {
 				if (!strchr ("1xX!", line4[j]))
 					continue;

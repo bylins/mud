@@ -147,7 +147,7 @@ void pk_update_clanflag(CHAR_DATA * agressor, CHAR_DATA * victim)
 	return;
 }
 
-// victim убил agressor (оба в кланах) 
+// victim убил agressor (оба в кланах)
 // снять клан-флаг у agressor
 void pk_clear_clanflag(CHAR_DATA * agressor, CHAR_DATA * victim)
 {
@@ -407,7 +407,7 @@ int pk_action_type_summon(CHAR_DATA * agressor, CHAR_DATA * victim)
 			pk_decrement_kill(victim, agressor);
 		if (CLAN(agressor) &&	// атакующий должен быть в клане
 				// CLAN(victim)   && // атакуемый может быть и не в клане
-		    // это значит, что его исключили на время 
+		    // это значит, что его исключили на время
 		    // действия клан-флага
 		    pk->clan_exp > time(NULL))
 			return PK_ACTION_REVENGE;	// месть по клан-флагу
@@ -514,7 +514,7 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim)
 			pk_decrement_kill(victim, agressor);
 		if (CLAN(agressor) &&	// атакующий должен быть в клане
 				// CLAN(victim)   && // атакуемый может быть и не в клане
-		    // это значит, что его исключили на время 
+		    // это значит, что его исключили на время
 		    // действия клан-флага
 		    pk->clan_exp > time(NULL))
 			return PK_ACTION_REVENGE;	// месть по клан-флагу
@@ -732,7 +732,7 @@ void save_pkills(CHAR_DATA * ch, FILE * saved)
 				pk = tpk;
 				continue;
 			}
-			fprintf(saved, "%ld %d\n", pk->unique, pk->kill_num);
+			fprintf(saved, "%ld %ld\n", pk->unique, pk->kill_num);
 		}
 		pk = pk->next;
 	}
@@ -797,7 +797,7 @@ int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, char *arg)
 	if (FIGHTING(ch) == opponent || FIGHTING(opponent) == ch)
 		return FALSE;
 
-	// Имя не указано? 
+	// Имя не указано?
 	if (!arg)
 		return TRUE;
 	if (!*arg)

@@ -74,7 +74,7 @@ public:
 	static void BoardInit();
 	static void ClanInit();
 	static void GodInit();
-	static SPECIAL(Board::Special);
+	static SPECIAL(Special);
 	static void LoginInfo(CHAR_DATA * ch);
 
 	friend ACMD(DoBoard);

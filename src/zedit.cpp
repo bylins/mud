@@ -469,7 +469,7 @@ void zedit_save_to_disk(int zone_num)
 	}
 
 	/*
-	 * Print zone header to file  
+	 * Print zone header to file
 	 */
 //MZ.load
 	fprintf(zfile, "#%d\n" "%s~\n" "#%d %d\n" "%d %d %d %d %s %s\n",
@@ -613,13 +613,59 @@ void zedit_save_to_disk(int zone_num)
 
 
 /**************************************************************************
- Menu functions 
+ Menu functions
  **************************************************************************/
 
-#define MOB_NAME(vnum) (rnum=real_mobile(vnum))>=0?mob_proto[rnum].player.short_descr:"???"
-#define OBJ_NAME(vnum) (rnum=real_object(vnum))>=0?obj_proto[rnum]->short_description:"???"
-#define ROOM_NAME(vnum) (rnum=real_room(vnum))>=0?world[rnum]->name:"???"
-#define TRIG_NAME(vnum) (rnum=real_trigger(vnum))>=0?trig_index[rnum]->proto->name:"???"
+/**
+* вспомогательный класс констант для name_by_vnum
+*/
+class NameType {
+	public:
+	enum {MOB_NAME, OBJ_NAME, ROOM_NAME, TRIG_NAME};
+};
+
+/**
+* Замена макросов:
+* #define MOB_NAME(vnum) (rnum=real_mobile(vnum))>=0?mob_proto[rnum].player.short_descr:"???"
+* #define OBJ_NAME(vnum) (rnum=real_object(vnum))>=0?obj_proto[rnum]->short_description:"???"
+* #define ROOM_NAME(vnum) (rnum=real_room(vnum))>=0?world[rnum]->name:"???"
+* #define TRIG_NAME(vnum) (rnum=real_trigger(vnum))>=0?trig_index[rnum]->proto->name:"???"
+* т.к. gcc 4.x на такие конструкции косо смотрит и правильно делает
+* \param vnum - номер (внум) моба/объекта/комнаты/триггера
+* \param type - тип номера (class NameType) чье имя возвращаем
+* \return имя или "???" если такого не существует
+*/
+const char * name_by_vnum(int vnum, int type)
+{
+	int rnum;
+
+	switch (type) {
+	case NameType::MOB_NAME:
+		rnum = real_mobile(vnum);
+		if (rnum >= 0)
+			return mob_proto[rnum].player.short_descr;
+		break;
+	case NameType::OBJ_NAME:
+		rnum = real_object(vnum);
+		if (rnum >= 0)
+			return obj_proto[rnum]->short_description;
+		break;
+	case NameType::ROOM_NAME:
+		rnum = real_room(vnum);
+		if (rnum >= 0)
+			return world[rnum]->name;
+		break;
+	case NameType::TRIG_NAME:
+		rnum = real_trigger(vnum);
+		if (rnum >= 0)
+			return trig_index[rnum]->proto->name;
+		break;
+	default:
+		log("SYSERROR : bad type '%d' (%s %s %d)", type, __FILE__, __func__, __LINE__);
+	}
+
+	return "???";
+}
 
 char *if_flag_msg[] = {
 	"",
@@ -638,7 +684,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 	pzcmd head, item;
 	int room, counter = 0;
 	int hl = 0;		// требуется ли подсветка
-	int rnum;
+	int rnum = 0;
 	int show_all = d->olc->bitmask & OLC_BM_SHOWALLCMD;
 	int start = d->olc->bitmask & ~OLC_BM_SHOWALLCMD, stop;
 	char *str;
@@ -669,44 +715,45 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 		case 'M':
 			sprintf(buf2,
 				"загрузить моба %d [%s] в комнату %d [%s], Max(игра/комната) : %d/%d",
-				item->cmd.arg1, MOB_NAME(item->cmd.arg1),
-				item->cmd.arg3, ROOM_NAME(item->cmd.arg3), item->cmd.arg2, item->cmd.arg4);
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::MOB_NAME),
+				item->cmd.arg3, name_by_vnum(item->cmd.arg3, NameType::ROOM_NAME), item->cmd.arg2, item->cmd.arg4);
 			hl = (item->cmd.arg3 == room);
 			break;
 
 		case 'F':
 			sprintf(buf2,
 				"%d [%s] следует за %d [%s] в комнате %d [%s]",
-				item->cmd.arg3, MOB_NAME(item->cmd.arg3),
-				item->cmd.arg2, MOB_NAME(item->cmd.arg2), item->cmd.arg1, ROOM_NAME(item->cmd.arg1));
+				item->cmd.arg3, name_by_vnum(item->cmd.arg3, NameType::MOB_NAME),
+				item->cmd.arg2, name_by_vnum(item->cmd.arg2, NameType::MOB_NAME),
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::ROOM_NAME));
 			hl = (item->cmd.arg1 == room);
 			break;
 
 		case 'Q':
-			sprintf(buf2, "убрать всех мобов %d [%s]", item->cmd.arg1, MOB_NAME(item->cmd.arg1));
+			sprintf(buf2, "убрать всех мобов %d [%s]", item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::MOB_NAME));
 			hl = 0;
 			break;
 
 		case 'O':
 			sprintf(buf2,
 				"загрузить объект %d [%s] в комнату %d [%s], Max : %d, Load%% %d",
-				item->cmd.arg1, OBJ_NAME(item->cmd.arg1),
-				item->cmd.arg3, ROOM_NAME(item->cmd.arg3), item->cmd.arg2, item->cmd.arg4);
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::OBJ_NAME),
+				item->cmd.arg3, name_by_vnum(item->cmd.arg3, NameType::ROOM_NAME), item->cmd.arg2, item->cmd.arg4);
 			hl = (item->cmd.arg3 == room);
 			break;
 
 		case 'P':
 			sprintf(buf2,
 				"поместить %d [%s] в %d [%s], Max : %d, Load%% %d",
-				item->cmd.arg1, OBJ_NAME(item->cmd.arg1),
-				item->cmd.arg3, OBJ_NAME(item->cmd.arg3), item->cmd.arg2, item->cmd.arg4);
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::OBJ_NAME),
+				item->cmd.arg3, name_by_vnum(item->cmd.arg3, NameType::OBJ_NAME), item->cmd.arg2, item->cmd.arg4);
 			// hl - не изменяется
 			break;
 
 		case 'G':
 			sprintf(buf2,
 				"дать %d [%s], Max : %d, Load%% %d",
-				item->cmd.arg1, OBJ_NAME(item->cmd.arg1), item->cmd.arg2, item->cmd.arg4);
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::OBJ_NAME), item->cmd.arg2, item->cmd.arg4);
 			// hl - не изменяется
 			break;
 
@@ -717,21 +764,22 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 				str = "???";
 			sprintf(buf2,
 				"экипировать %d [%s], %s, Max : %d, Load%% %d",
-				item->cmd.arg1, OBJ_NAME(item->cmd.arg1), str, item->cmd.arg2, item->cmd.arg4);
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::OBJ_NAME), str, item->cmd.arg2, item->cmd.arg4);
 			// hl - не изменяется
 			break;
 
 		case 'R':
 			sprintf(buf2,
 				"удалить %d [%s] из комнаты %d [%s]",
-				item->cmd.arg2, OBJ_NAME(item->cmd.arg2), item->cmd.arg1, ROOM_NAME(item->cmd.arg1));
+				item->cmd.arg2, name_by_vnum(item->cmd.arg2, NameType::OBJ_NAME),
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::ROOM_NAME));
 			hl = (item->cmd.arg1 == room);
 			break;
 
 		case 'D':
 			sprintf(buf2,
 				"для комнаты %d [%s] установить выход %s как %s",
-				item->cmd.arg1, ROOM_NAME(item->cmd.arg1),
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::ROOM_NAME),
 				dirs[item->cmd.arg2],
 				item->cmd.arg3 == 0 ? "открытый" :
 				item->cmd.arg3 == 1 ? "закрытый" :
@@ -741,7 +789,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 			break;
 
 		case 'T':
-			sprintf(buf2, "привязать тригер %d [%s] к ", item->cmd.arg2, TRIG_NAME(item->cmd.arg2));
+			sprintf(buf2, "привязать тригер %d [%s] к ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, NameType::TRIG_NAME));
 			switch (item->cmd.arg1) {
 			case MOB_TRIGGER:
 				strcat(buf2, "мобу");
@@ -751,7 +799,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 				break;
 			case WLD_TRIGGER:
 				sprintf(buf2 + strlen(buf2),
-					"комнате %d [%s]", item->cmd.arg3, ROOM_NAME(item->cmd.arg3));
+					"комнате %d [%s]", item->cmd.arg3, name_by_vnum(item->cmd.arg3, NameType::ROOM_NAME));
 				hl = (item->cmd.arg3 == room);
 				break;
 			default:
@@ -769,7 +817,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 				strcpy(buf2, "для предмета ");
 				break;
 			case WLD_TRIGGER:
-				sprintf(buf2, "для комнаты %d [%s] ", item->cmd.arg2, ROOM_NAME(item->cmd.arg2));
+				sprintf(buf2, "для комнаты %d [%s] ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, NameType::ROOM_NAME));
 				hl = (item->cmd.arg2 == room);
 				break;
 			default:
@@ -919,7 +967,7 @@ void zedit_disp_type_menu(DESCRIPTOR_DATA * d)
 /*-------------------------------------------------------------------*/
 
 /*
- * Print the command type menu and setup response catch. 
+ * Print the command type menu and setup response catch.
  */
 void zedit_disp_comtype(DESCRIPTOR_DATA * d)
 {
@@ -947,12 +995,11 @@ void zedit_disp_comtype(DESCRIPTOR_DATA * d)
 /*-------------------------------------------------------------------*/
 /*
  * Print the appropriate message for the command type for arg1 and set
- * up the input catch clause  
+ * up the input catch clause
  */
 void zedit_disp_arg1(DESCRIPTOR_DATA * d)
 {
 	pzcmd item = SEEK_CMD(d);
-	int rnum;
 
 	send_to_char("\r\n", d->character);
 
@@ -961,7 +1008,7 @@ void zedit_disp_arg1(DESCRIPTOR_DATA * d)
 	case 'Q':
 		sprintf(buf,
 			"Выбор моба\r\n"
-			"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg1, MOB_NAME(item->cmd.arg1));
+			"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::MOB_NAME));
 		break;
 
 	case 'O':
@@ -970,7 +1017,7 @@ void zedit_disp_arg1(DESCRIPTOR_DATA * d)
 	case 'G':
 		sprintf(buf,
 			"Выбор предмета\r\n"
-			"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg1, OBJ_NAME(item->cmd.arg1));
+			"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::OBJ_NAME));
 		break;
 
 	case 'D':
@@ -980,7 +1027,7 @@ void zedit_disp_arg1(DESCRIPTOR_DATA * d)
 			item->cmd.arg1 = OLC_NUM(d);
 		sprintf(buf,
 			"Выбор комнаты\r\n"
-			"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg1, ROOM_NAME(item->cmd.arg1));
+			"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::ROOM_NAME));
 		break;
 
 	case 'T':
@@ -1012,7 +1059,6 @@ void zedit_disp_arg1(DESCRIPTOR_DATA * d)
 void zedit_disp_arg2(DESCRIPTOR_DATA * d)
 {
 	pzcmd item = SEEK_CMD(d);
-	int rnum;
 
 	int i = 0;
 
@@ -1040,19 +1086,19 @@ void zedit_disp_arg2(DESCRIPTOR_DATA * d)
 	case 'R':
 		sprintf(buf,
 			"Выбор предмета\r\n"
-			"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, OBJ_NAME(item->cmd.arg2));
+			"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, NameType::OBJ_NAME));
 		break;
 
 	case 'F':
 		sprintf(buf,
 			"Выбор моба-лидера\r\n"
-			"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg2, MOB_NAME(item->cmd.arg2));
+			"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, NameType::MOB_NAME));
 		break;
 
 	case 'T':
 		sprintf(buf,
 			"Выбор триггера\r\n"
-			"Текущий триггер: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, TRIG_NAME(item->cmd.arg2));
+			"Текущий триггер: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, NameType::TRIG_NAME));
 		break;
 
 	case 'V':
@@ -1060,7 +1106,7 @@ void zedit_disp_arg2(DESCRIPTOR_DATA * d)
 			item->cmd.arg2 = OLC_NUM(d);
 		sprintf(buf,
 			"Выбор комнаты\r\n"
-			"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, ROOM_NAME(item->cmd.arg2));
+			"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, NameType::ROOM_NAME));
 		break;
 
 	case 'Q':
@@ -1087,7 +1133,6 @@ void zedit_disp_arg2(DESCRIPTOR_DATA * d)
 void zedit_disp_arg3(DESCRIPTOR_DATA * d)
 {
 	pzcmd item = SEEK_CMD(d);
-	int rnum;
 
 	int i = 0;
 
@@ -1104,7 +1149,7 @@ void zedit_disp_arg3(DESCRIPTOR_DATA * d)
 	case 'P':
 		sprintf(buf,
 			"Выбор контейнера\r\n"
-			"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg3, OBJ_NAME(item->cmd.arg3));
+			"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg3, name_by_vnum(item->cmd.arg3, NameType::OBJ_NAME));
 		break;
 
 	case 'D':
@@ -1126,7 +1171,7 @@ void zedit_disp_arg3(DESCRIPTOR_DATA * d)
 	case 'F':
 		sprintf(buf,
 			"Выбор моба-последователя\r\n"
-			"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg3, MOB_NAME(item->cmd.arg3));
+			"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg3, name_by_vnum(item->cmd.arg3, NameType::MOB_NAME));
 		break;
 
 	case 'O':
@@ -1136,7 +1181,7 @@ void zedit_disp_arg3(DESCRIPTOR_DATA * d)
 			item->cmd.arg3 = OLC_NUM(d);
 		sprintf(buf,
 			"Выбор комнаты\r\n"
-			"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg3, ROOM_NAME(item->cmd.arg3));
+			"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg3, name_by_vnum(item->cmd.arg3, NameType::ROOM_NAME));
 		break;
 
 
@@ -2000,7 +2045,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 }
 
 /*
- * End of parse_zedit()  
+ * End of parse_zedit()
  */
 
 
@@ -2217,7 +2262,7 @@ void zedit_create_index(int znum, char *type)
 		break;
 	default:
 		/*
-		 * Caller messed up  
+		 * Caller messed up
 		 */
 		return;
 	}
@@ -2237,7 +2282,7 @@ void zedit_create_index(int znum, char *type)
 
 	/*
 	 * Index contents must be in order: search through the old file for the
-	 * right place, insert the new file, then copy the rest over. 
+	 * right place, insert the new file, then copy the rest over.
 	 */
 	sprintf(buf1, "%d.%s", znum, type);
 	while (get_line(oldfile, buf)) {
@@ -2331,7 +2376,7 @@ void remove_cmd_from_list(struct reset_com **list, int pos)
 	struct reset_com *newlist;
 
 	/*
-	 * Count number of commands (not including terminator)  
+	 * Count number of commands (not including terminator)
 	 */
 	count = count_commands(*list);
 
@@ -2370,7 +2415,7 @@ void remove_cmd_from_list(struct reset_com **list, int pos)
 /*-------------------------------------------------------------------*/
 
 /*
- * Error check user input and then add new (blank) command  
+ * Error check user input and then add new (blank) command
  */
 int new_command(DESCRIPTOR_DATA * d, int pos)
 {
@@ -2378,7 +2423,7 @@ int new_command(DESCRIPTOR_DATA * d, int pos)
 	struct reset_com *new_com;
 
 	/*
-	 * Error check to ensure users hasn't given too large an index  
+	 * Error check to ensure users hasn't given too large an index
 	 */
 	while (MYCMD.command != 'S')
 		subcmd++;
@@ -2387,7 +2432,7 @@ int new_command(DESCRIPTOR_DATA * d, int pos)
 		return 0;
 
 	/*
-	 * Ok, let's add a new (blank) command 
+	 * Ok, let's add a new (blank) command
 	 */
 	CREATE(new_com, struct reset_com, 1);
 	new_com->command = 'N';
