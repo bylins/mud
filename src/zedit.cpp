@@ -616,13 +616,9 @@ void zedit_save_to_disk(int zone_num)
  Menu functions
  **************************************************************************/
 
-/**
-* вспомогательный класс констант для name_by_vnum
-*/
-class NameType {
-	public:
-	enum {MOB_NAME, OBJ_NAME, ROOM_NAME, TRIG_NAME};
-};
+namespace {
+
+enum { MOB_NAME, OBJ_NAME, ROOM_NAME, TRIG_NAME };
 
 /**
 * Замена макросов:
@@ -632,7 +628,7 @@ class NameType {
 * #define TRIG_NAME(vnum) (rnum=real_trigger(vnum))>=0?trig_index[rnum]->proto->name:"???"
 * т.к. gcc 4.x на такие конструкции косо смотрит и правильно делает
 * \param vnum - номер (внум) моба/объекта/комнаты/триггера
-* \param type - тип номера (class NameType) чье имя возвращаем
+* \param type - тип номера, чье имя возвращаем
 * \return имя или "???" если такого не существует
 */
 const char * name_by_vnum(int vnum, int type)
@@ -640,22 +636,22 @@ const char * name_by_vnum(int vnum, int type)
 	int rnum;
 
 	switch (type) {
-	case NameType::MOB_NAME:
+	case MOB_NAME:
 		rnum = real_mobile(vnum);
 		if (rnum >= 0)
 			return mob_proto[rnum].player.short_descr;
 		break;
-	case NameType::OBJ_NAME:
+	case OBJ_NAME:
 		rnum = real_object(vnum);
 		if (rnum >= 0)
 			return obj_proto[rnum]->short_description;
 		break;
-	case NameType::ROOM_NAME:
+	case ROOM_NAME:
 		rnum = real_room(vnum);
 		if (rnum >= 0)
 			return world[rnum]->name;
 		break;
-	case NameType::TRIG_NAME:
+	case TRIG_NAME:
 		rnum = real_trigger(vnum);
 		if (rnum >= 0)
 			return trig_index[rnum]->proto->name;
@@ -666,6 +662,8 @@ const char * name_by_vnum(int vnum, int type)
 
 	return "???";
 }
+
+} // no-name namespace
 
 char *if_flag_msg[] = {
 	"",
@@ -715,45 +713,45 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 		case 'M':
 			sprintf(buf2,
 				"загрузить моба %d [%s] в комнату %d [%s], Max(игра/комната) : %d/%d",
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::MOB_NAME),
-				item->cmd.arg3, name_by_vnum(item->cmd.arg3, NameType::ROOM_NAME), item->cmd.arg2, item->cmd.arg4);
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, MOB_NAME),
+				item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME), item->cmd.arg2, item->cmd.arg4);
 			hl = (item->cmd.arg3 == room);
 			break;
 
 		case 'F':
 			sprintf(buf2,
 				"%d [%s] следует за %d [%s] в комнате %d [%s]",
-				item->cmd.arg3, name_by_vnum(item->cmd.arg3, NameType::MOB_NAME),
-				item->cmd.arg2, name_by_vnum(item->cmd.arg2, NameType::MOB_NAME),
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::ROOM_NAME));
+				item->cmd.arg3, name_by_vnum(item->cmd.arg3, MOB_NAME),
+				item->cmd.arg2, name_by_vnum(item->cmd.arg2, MOB_NAME),
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, ROOM_NAME));
 			hl = (item->cmd.arg1 == room);
 			break;
 
 		case 'Q':
-			sprintf(buf2, "убрать всех мобов %d [%s]", item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::MOB_NAME));
+			sprintf(buf2, "убрать всех мобов %d [%s]", item->cmd.arg1, name_by_vnum(item->cmd.arg1, MOB_NAME));
 			hl = 0;
 			break;
 
 		case 'O':
 			sprintf(buf2,
 				"загрузить объект %d [%s] в комнату %d [%s], Max : %d, Load%% %d",
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::OBJ_NAME),
-				item->cmd.arg3, name_by_vnum(item->cmd.arg3, NameType::ROOM_NAME), item->cmd.arg2, item->cmd.arg4);
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME),
+				item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME), item->cmd.arg2, item->cmd.arg4);
 			hl = (item->cmd.arg3 == room);
 			break;
 
 		case 'P':
 			sprintf(buf2,
 				"поместить %d [%s] в %d [%s], Max : %d, Load%% %d",
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::OBJ_NAME),
-				item->cmd.arg3, name_by_vnum(item->cmd.arg3, NameType::OBJ_NAME), item->cmd.arg2, item->cmd.arg4);
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME),
+				item->cmd.arg3, name_by_vnum(item->cmd.arg3, OBJ_NAME), item->cmd.arg2, item->cmd.arg4);
 			// hl - не изменяется
 			break;
 
 		case 'G':
 			sprintf(buf2,
 				"дать %d [%s], Max : %d, Load%% %d",
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::OBJ_NAME), item->cmd.arg2, item->cmd.arg4);
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME), item->cmd.arg2, item->cmd.arg4);
 			// hl - не изменяется
 			break;
 
@@ -764,22 +762,22 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 				str = "???";
 			sprintf(buf2,
 				"экипировать %d [%s], %s, Max : %d, Load%% %d",
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::OBJ_NAME), str, item->cmd.arg2, item->cmd.arg4);
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME), str, item->cmd.arg2, item->cmd.arg4);
 			// hl - не изменяется
 			break;
 
 		case 'R':
 			sprintf(buf2,
 				"удалить %d [%s] из комнаты %d [%s]",
-				item->cmd.arg2, name_by_vnum(item->cmd.arg2, NameType::OBJ_NAME),
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::ROOM_NAME));
+				item->cmd.arg2, name_by_vnum(item->cmd.arg2, OBJ_NAME),
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, ROOM_NAME));
 			hl = (item->cmd.arg1 == room);
 			break;
 
 		case 'D':
 			sprintf(buf2,
 				"для комнаты %d [%s] установить выход %s как %s",
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::ROOM_NAME),
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, ROOM_NAME),
 				dirs[item->cmd.arg2],
 				item->cmd.arg3 == 0 ? "открытый" :
 				item->cmd.arg3 == 1 ? "закрытый" :
@@ -789,7 +787,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 			break;
 
 		case 'T':
-			sprintf(buf2, "привязать тригер %d [%s] к ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, NameType::TRIG_NAME));
+			sprintf(buf2, "привязать тригер %d [%s] к ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, TRIG_NAME));
 			switch (item->cmd.arg1) {
 			case MOB_TRIGGER:
 				strcat(buf2, "мобу");
@@ -799,7 +797,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 				break;
 			case WLD_TRIGGER:
 				sprintf(buf2 + strlen(buf2),
-					"комнате %d [%s]", item->cmd.arg3, name_by_vnum(item->cmd.arg3, NameType::ROOM_NAME));
+					"комнате %d [%s]", item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME));
 				hl = (item->cmd.arg3 == room);
 				break;
 			default:
@@ -817,7 +815,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 				strcpy(buf2, "для предмета ");
 				break;
 			case WLD_TRIGGER:
-				sprintf(buf2, "для комнаты %d [%s] ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, NameType::ROOM_NAME));
+				sprintf(buf2, "для комнаты %d [%s] ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, ROOM_NAME));
 				hl = (item->cmd.arg2 == room);
 				break;
 			default:
@@ -1008,7 +1006,7 @@ void zedit_disp_arg1(DESCRIPTOR_DATA * d)
 	case 'Q':
 		sprintf(buf,
 			"Выбор моба\r\n"
-			"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::MOB_NAME));
+			"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg1, name_by_vnum(item->cmd.arg1, MOB_NAME));
 		break;
 
 	case 'O':
@@ -1017,7 +1015,7 @@ void zedit_disp_arg1(DESCRIPTOR_DATA * d)
 	case 'G':
 		sprintf(buf,
 			"Выбор предмета\r\n"
-			"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::OBJ_NAME));
+			"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME));
 		break;
 
 	case 'D':
@@ -1027,7 +1025,7 @@ void zedit_disp_arg1(DESCRIPTOR_DATA * d)
 			item->cmd.arg1 = OLC_NUM(d);
 		sprintf(buf,
 			"Выбор комнаты\r\n"
-			"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg1, name_by_vnum(item->cmd.arg1, NameType::ROOM_NAME));
+			"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg1, name_by_vnum(item->cmd.arg1, ROOM_NAME));
 		break;
 
 	case 'T':
@@ -1086,19 +1084,19 @@ void zedit_disp_arg2(DESCRIPTOR_DATA * d)
 	case 'R':
 		sprintf(buf,
 			"Выбор предмета\r\n"
-			"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, NameType::OBJ_NAME));
+			"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, OBJ_NAME));
 		break;
 
 	case 'F':
 		sprintf(buf,
 			"Выбор моба-лидера\r\n"
-			"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, NameType::MOB_NAME));
+			"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, MOB_NAME));
 		break;
 
 	case 'T':
 		sprintf(buf,
 			"Выбор триггера\r\n"
-			"Текущий триггер: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, NameType::TRIG_NAME));
+			"Текущий триггер: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, TRIG_NAME));
 		break;
 
 	case 'V':
@@ -1106,7 +1104,7 @@ void zedit_disp_arg2(DESCRIPTOR_DATA * d)
 			item->cmd.arg2 = OLC_NUM(d);
 		sprintf(buf,
 			"Выбор комнаты\r\n"
-			"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, NameType::ROOM_NAME));
+			"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, ROOM_NAME));
 		break;
 
 	case 'Q':
@@ -1149,7 +1147,7 @@ void zedit_disp_arg3(DESCRIPTOR_DATA * d)
 	case 'P':
 		sprintf(buf,
 			"Выбор контейнера\r\n"
-			"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg3, name_by_vnum(item->cmd.arg3, NameType::OBJ_NAME));
+			"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg3, name_by_vnum(item->cmd.arg3, OBJ_NAME));
 		break;
 
 	case 'D':
@@ -1171,7 +1169,7 @@ void zedit_disp_arg3(DESCRIPTOR_DATA * d)
 	case 'F':
 		sprintf(buf,
 			"Выбор моба-последователя\r\n"
-			"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg3, name_by_vnum(item->cmd.arg3, NameType::MOB_NAME));
+			"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg3, name_by_vnum(item->cmd.arg3, MOB_NAME));
 		break;
 
 	case 'O':
@@ -1181,7 +1179,7 @@ void zedit_disp_arg3(DESCRIPTOR_DATA * d)
 			item->cmd.arg3 = OLC_NUM(d);
 		sprintf(buf,
 			"Выбор комнаты\r\n"
-			"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg3, name_by_vnum(item->cmd.arg3, NameType::ROOM_NAME));
+			"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME));
 		break;
 
 
