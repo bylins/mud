@@ -492,7 +492,7 @@ void Clan::ClanSave()
 			<< "TestClan: " << (*clan)->test_clan << "\n"
 		    << "Exp: " << (*clan)->exp << "\n"
 		    << "ExpBuf: " << (*clan)->exp_buf << "\n"
-		    << "StoredExp: " << (*clan)->clan_exp << "\n" 
+		    << "StoredExp: " << (*clan)->clan_exp << "\n"
 		    << "ClanLevel: " << (*clan)->clan_level << "\n"
 		    << "Bank: " << (*clan)->bank << "\n" << "Politics:\n";
 		for (ClanPolitics::const_iterator it = (*clan)->politics.begin(); it != (*clan)->politics.end(); ++it)
@@ -928,7 +928,7 @@ void Clan::GodToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 {
 	boost::trim(text);
 	// на счет скобок я хз, по-моему так нагляднее все же в ифах, где условий штук 5, мож опять индентом пройтись? Ж)
-	if (text.empty()) 
+	if (text.empty())
 	{
 		send_to_char("Что Вы хотите им сообщить?\r\n", ch);
 		return;
@@ -941,7 +941,7 @@ void Clan::GodToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 				&& ch != d->character
 				&& STATE(d) == CON_PLAYING
 				&& CLAN(d->character).get() == this
-				&& !AFF_FLAGGED(d->character, AFF_DEAFNESS)) 
+				&& !AFF_FLAGGED(d->character, AFF_DEAFNESS))
 			{
 				send_to_char(d->character, "%s ВАШЕЙ ДРУЖИНЕ: %s'%s'%s\r\n",
 					GET_NAME(ch), CCIRED(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
@@ -985,7 +985,7 @@ void Clan::GodToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 {
 	boost::trim(text);
-	if (text.empty()) 
+	if (text.empty())
 	{
 		send_to_char("Что Вы хотите сообщить?\r\n", ch);
 		return;
@@ -993,7 +993,7 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 	switch (subcmd) {
 		// своей дружине
 	case SCMD_CHANNEL:
-		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) 
+		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 		{
 			if (d->character && d->character != ch
 				&& STATE(d) == CON_PLAYING
@@ -1010,7 +1010,7 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 		break;
 		// союзникам
 	case SCMD_ACHANNEL:
-		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) 
+		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 		{
 			if (d->character && CLAN(d->character)
 				&& STATE(d) == CON_PLAYING
@@ -1019,10 +1019,10 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 				&& !ignores(d->character, ch, IGNORE_ALLIANCE))
 			{
 				if (CLAN(ch)->CheckPolitics(CLAN(d->character)->GetRent()) == POLITICS_ALLIANCE
-					|| CLAN(ch) == CLAN(d->character)) 
+					|| CLAN(ch) == CLAN(d->character))
 				{
 					// проверка на альянс с обеих сторон, шоб не спамили друг другу на зло
-					if (CLAN(ch) != CLAN(d->character)) 
+					if (CLAN(ch) != CLAN(d->character))
 					{
 						if (CLAN(d->character)->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE)
 							send_to_char(d->character, "%s союзникам: %s'%s'.%s\r\n",
@@ -1811,7 +1811,7 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 {
 	if (IS_NPC(ch) || !CLAN(ch)
 		|| real_room(CLAN(ch)->chest_room) != IN_ROOM(ch)
-		|| !CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_CHEST_PUT]) 
+		|| !CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_CHEST_PUT])
 	{
 		send_to_char("Не имеете таких правов!\r\n", ch);
 		return 0;
@@ -2193,9 +2193,9 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 				return;
 			}
 			// тут парсим циферки уже (меню начинается с 1 + ранг ниже себя)
-			unsigned min_rank = CLAN_MEMBER(d->character)->rank_num;
-			if ((num + min_rank) >= d->clan_olc->clan->ranks.size()) {
-				unsigned i = (num + min_rank) - d->clan_olc->clan->ranks.size();
+			unsigned choise = num + CLAN_MEMBER(d->character)->rank_num;
+			if (choise >= d->clan_olc->clan->ranks.size()) {
+				unsigned i = choise - d->clan_olc->clan->ranks.size();
 				if (i == 0)
 					d->clan_olc->clan->AllMenu(d, i);
 				else if (i == 1)
@@ -2222,13 +2222,14 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 				}
 				return;
 			}
-			if (num < 0 || (num + min_rank) >= d->clan_olc->clan->ranks.size()) {
+
+			if (choise >= d->clan_olc->clan->ranks.size()) {
 				send_to_char("Неверный выбор!\r\n", d->character);
 				d->clan_olc->clan->MainMenu(d);
 				return;
 			}
-			d->clan_olc->rank = num + min_rank;
-			d->clan_olc->clan->PrivilegeMenu(d, num + min_rank);
+			d->clan_olc->rank = choise;
+			d->clan_olc->clan->PrivilegeMenu(d, choise);
 			return;
 		}
 		break;
@@ -2249,7 +2250,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 				d->clan_olc->clan->PrivilegeMenu(d, d->clan_olc->rank);
 				return;
 			}
-			if (num < 0 || num > CLAN_PRIVILEGES_NUM) {
+			if (num > CLAN_PRIVILEGES_NUM) {
 				send_to_char("Неверный выбор!\r\n", d->character);
 				d->clan_olc->clan->PrivilegeMenu(d, d->clan_olc->rank);
 				return;
@@ -2323,7 +2324,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 				d->clan_olc->clan->AllMenu(d, 0);
 				return;
 			}
-			if (num < 0 || num > CLAN_PRIVILEGES_NUM) {
+			if (num > CLAN_PRIVILEGES_NUM) {
 				send_to_char("Неверный выбор!\r\n", d->character);
 				d->clan_olc->clan->AllMenu(d, 0);
 				return;
@@ -2369,7 +2370,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 				d->clan_olc->clan->AllMenu(d, 1);
 				return;
 			}
-			if (num < 0 || num > CLAN_PRIVILEGES_NUM) {
+			if (num > CLAN_PRIVILEGES_NUM) {
 				send_to_char("Неверный выбор!\r\n", d->character);
 				d->clan_olc->clan->AllMenu(d, 1);
 				return;
@@ -2432,7 +2433,7 @@ void Clan::MainMenu(DESCRIPTOR_DATA * d)
 
 void Clan::PrivilegeMenu(DESCRIPTOR_DATA * d, unsigned num)
 {
-	if (num > d->clan_olc->clan->ranks.size() || num < 0) {
+	if (num > d->clan_olc->clan->ranks.size()) {
 		log("Different size clan->ranks and clan->privileges! (%s %s %d)", __FILE__, __func__, __LINE__);
 		if (d->character) {
 			d->clan_olc.reset();
@@ -2855,7 +2856,7 @@ ACMD(DoStoreHouse)
 
 	int chest_num = real_object(CLAN_CHEST);
 	OBJ_DATA *temp_obj, *chest;
-		
+
 	skip_spaces(&argument);
 	if (!*argument) {
 		if (chest_num < 0)
@@ -2871,14 +2872,14 @@ ACMD(DoStoreHouse)
 
 	char *stufina = one_argument(argument, arg);
 	skip_spaces(&stufina);
-	
-		
+
+
 	if (is_abbrev(arg, "характеристики") || is_abbrev(arg, "identify") || is_abbrev(arg, "опознать")) {
 		if ((GET_BANK_GOLD(ch) < CHEST_IDENT_PAY) && (GET_LEVEL(ch) < LVL_IMPL)) {
 			send_to_char("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
 			return;
 		}
-					
+
 		for (chest = world[real_room(CLAN(ch)->chest_room)]->contents; chest; chest = chest->next_content) {
 			if (chest->item_number == chest_num) {
 				for (temp_obj = chest->contains; temp_obj; temp_obj = temp_obj->next_content) {
@@ -2894,13 +2895,13 @@ ACMD(DoStoreHouse)
 				}
 			}
 		}
-		
+
 		sprintf(buf1, "Ничего похожего на %s в хранилище ненайдено! Будьте внимательнее.\r\n", stufina);
 		send_to_char(buf1, ch);
 		return;
-		
+
 	}
- 
+
 	// мож сэйвить надумается или еще что, вобщем объединим все в структурку
 	ChestFilter filter;
 	filter.type = -1;
@@ -3351,7 +3352,7 @@ void Clan::ChestShow(OBJ_DATA * contains, CHAR_DATA * ch)
 
 // +/- клан-экспы
 int Clan::SetClanExp(CHAR_DATA *ch, int add)
-{ 
+{
 	// шоб не читили
 	if (GET_LEVEL(ch) >= LVL_IMMORT)
 		return add;
@@ -3361,7 +3362,7 @@ int Clan::SetClanExp(CHAR_DATA *ch, int add)
 		toclan = add * CLAN_MEMBER(ch)->exp_persent / 100;
 		tochar = add - toclan;
 	} else {
-		toclan = add / 5; 
+		toclan = add / 5;
 		tochar = 0;
 	}
 
@@ -3475,21 +3476,21 @@ ACMD(do_clanstuff)
 	OBJ_DATA *obj;
 	int vnum,rnum;
 	int cnt = 0, gold_total = 0;
-	
+
 	if (!CLAN(ch)) {
 		send_to_char("Сначала вступите в какой-нибудь клан.\r\n", ch);
 		return;
 	}
-	
+
 	if (GET_ROOM_VNUM(IN_ROOM(ch)) != CLAN(ch)->GetRent()) {
 		send_to_char("Получить клановую экипировку вы можете только в центре вашего замка.\r\n", ch);
 		return;
 	}
 
 	std::string title = CLAN(ch)->GetClanTitle();
-	
+
 	half_chop(argument, arg, buf);
-			
+
 	ClanStuffList::iterator it = CLAN(ch)->clanstuff.begin();
 	for (;it != CLAN(ch)->clanstuff.end();it++) {
 		vnum = CLAN_STUFF_ZONE*100 + it->num;
@@ -3507,7 +3508,7 @@ ACMD(do_clanstuff)
 		obj->name              = str_dup(buf);
 		obj->short_description = str_dup( (it->PNames[0] + " " + title).c_str());
 
-		for (int i = 0;i < 6; i++) 
+		for (int i = 0;i < 6; i++)
 			obj->PNames[i] = str_dup( (it->PNames[i] + " " + title).c_str());
 
 		obj->description = str_dup((it->desc).c_str());
@@ -3538,13 +3539,13 @@ ACMD(do_clanstuff)
 
 		obj_to_char(obj, ch);
 		cnt++;
-	
+
 		sprintf(buf, "$n взял$g %s из сундука", obj->PNames[0]);
 		sprintf(buf2, "Вы взяли %s из сундука", obj->PNames[0]);
 		act(buf, FALSE, ch, 0, 0, TO_ROOM);
 		act(buf2, FALSE, ch, 0, 0, TO_CHAR);
 	}
-	
+
 	if (cnt) {
 		sprintf(buf2, "\r\nЭкипировка обошлась вам в %d %s.", gold_total,desc_count(gold_total, WHAT_MONEYu));
 		act("\r\n$n закрыл$g крышку сундука", FALSE, ch, 0, 0, TO_ROOM);
