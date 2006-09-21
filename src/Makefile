@@ -7,9 +7,6 @@ CC = g++
 # Path to cxref utility
 CXREF = cxref
 
-# Any special flags you want to pass to the compiler
-MYFLAGS = -Wall 
-
 #flags for profiling (see hacker.doc for more information)
 PROFILE = 
 
@@ -19,7 +16,10 @@ PROFILE =
 
 BINDIR = ../bin
 
-CFLAGS= -g -O3 -Wall -I/usr/home/mud/mud/src/ -ftemplate-depth-30
+CFLAGS = -g -O3 -Wall -I/usr/home/mud/mud/src/ -ftemplate-depth-30
+
+# use 'make test' for faster compile w/o optimizations and crypt library
+TESTFLAGS = -g -Wall -DNOCRYPT
 
 #LIBS =  -lsocket -lnsl
 LIBS =  -lz -lcrypt -lstdc++
@@ -69,6 +69,9 @@ clean:
 depend:
 	$(CC) -MM $(CXREF_FILES) > .depend
 	@echo "Done building dependencies."
+
+test:
+	$(MAKE) CFLAGS="$(TESTFLAGS)" $(BINDIR)/circle
 
 # Dependencies for the object files (automagically generated with
 # gcc -MM)
