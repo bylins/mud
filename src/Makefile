@@ -16,10 +16,10 @@ PROFILE =
 
 BINDIR = ../bin
 
-CFLAGS = -g -O3 -Wall -I/usr/home/mud/mud/src/ -ftemplate-depth-30
+CFLAGS = -ggdb3 -O3 -Wall -I/usr/home/mud/mud/src/ -ftemplate-depth-30
 
 # use 'make test' for faster compile w/o optimizations and crypt library
-TESTFLAGS = -g -Wall -DNOCRYPT
+TESTFLAGS = -ggdb3 -Wall -DNOCRYPT
 
 #LIBS =  -lsocket -lnsl
 LIBS =  -lz -lcrypt -lstdc++
