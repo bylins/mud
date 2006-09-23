@@ -1199,12 +1199,15 @@ void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 {
 	// AL: пофиксил Ж)
 
-	OBJ_DATA *p, *begin, *start, *end, *before;
+	// begin - первый предмет в исходном списке
+	// end - последний предмет в перемещаемом интервале
+	// before - последний предмет перед началом интервала
+	OBJ_DATA *p, *begin, *end, *before;
 
 	obj->next_content = begin = *list_start;
 	*list_start = obj;
 
-	// похожий предмет уже первый в списке
+	// похожий предмет уже первый в списке или список пустой
 	if (!begin || equal_obj(begin, obj)) return;
 
 	before = p = begin;
@@ -1215,14 +1218,14 @@ void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 	// нет похожих предметов
 	if (!p) return;
 
-	end = start = p;
+	end = p;
 
 	while (p && equal_obj(p, obj))
 		end = p, p = p->next_content;
 
 	end->next_content = begin;
+	obj->next_content = before->next_content;
 	before->next_content = p; // будет 0 если после перемещаемых ничего не лежало
-	obj->next_content = start;
 }
 
 } // no-name namespace
