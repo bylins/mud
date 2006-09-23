@@ -1202,7 +1202,7 @@ void move_obj_to_top(OBJ_DATA *obj, OBJ_DATA **list_start)
 	OBJ_DATA *p, *start, *end, *before, *after;
 
 	// похожий предмет уже первый в списке
-	if (equal_obj(*list_start, obj)) return;
+	if (!(*list_start) || equal_obj(*list_start, obj)) return;
 
 	before = p = *list_start;
 
