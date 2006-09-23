@@ -63,8 +63,11 @@ int get_number(char **name);
 
 /* ******** objects *********** */
 bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two);
+void move_obj_to_top(OBJ_DATA *obj, OBJ_DATA **list_start);
+
 void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch);
 void obj_from_char(OBJ_DATA * object);
+
 void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos);
 OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos);
 int invalid_align(CHAR_DATA * ch, OBJ_DATA * obj);
