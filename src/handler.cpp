@@ -1199,7 +1199,7 @@ void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 {
 	// AL: пофиксил Ж)
 
-	OBJ_DATA *p, *begin, *start, *end, *before, *after;
+	OBJ_DATA *p, *begin, *start, *end, *before;
 
 	obj->next_content = begin = *list_start;
 	*list_start = obj;
@@ -1220,10 +1220,8 @@ void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 	while (p && equal_obj(p, obj))
 		end = p, p = p->next_content;
 
-	after = p;
-
 	end->next_content = begin;
-	before->next_content = after; // будет 0 если после перемещаемых ничего не лежало
+	before->next_content = p; // будет 0 если после перемещаемых ничего не лежало
 	obj->next_content = start;
 }
 
