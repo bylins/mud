@@ -526,19 +526,19 @@ void affect_room_total(ROOM_DATA * room)
 {
 	AFFECT_DATA *af;
 	// А че тут надо делать пересуммирование аффектов от заклов.
-	/* Вобщем все комнаты имеют (вроде как базовую и 
-	   добавочную характеристику) если скажем ввести 
+	/* Вобщем все комнаты имеют (вроде как базовую и
+	   добавочную характеристику) если скажем ввести
 	   возможность устанавливать степень зараженности комнтаы
-	   в OLC , то дополнительное загаживание только будет вносить 
+	   в OLC , то дополнительное загаживание только будет вносить
 	   + но не обнулять это значение. */
 
 	/* обнуляем все добавочные характеристики */
 	memset(&room->add_property, 0 , sizeof(room_property_data));
-	
+
 	/* перенакладываем аффекты  */
 	for (af = room->affected; af; af = af->next)
 		affect_room_modify(room, af->location, af->modifier, af->bitvector, TRUE);
-		
+
 }
 
 /* This updates a character by subtracting everything he is affected by */
@@ -552,7 +552,7 @@ void affect_total(CHAR_DATA * ch)
 	int i, j;
 	FLAG_DATA saved;
 
-	// Init struct 
+	// Init struct
 	saved.flags[0] = 0;
 	saved.flags[1] = 0;
 	saved.flags[2] = 0;
@@ -577,7 +577,7 @@ void affect_total(CHAR_DATA * ch)
 
 	// Apply some GODS affects and modifiers
 	total_gods_affect(ch);
-	
+
 	/* move object modifiers */
 	for (i = 0; i < NUM_WEARS; i++) {
 		if ((obj = GET_EQ(ch, i))) {
@@ -627,7 +627,7 @@ void affect_total(CHAR_DATA * ch)
 
 			 for (i = 0; extra_affect && (extra_affect + i)->affect != -1; i++)
 				affect_modify(ch, APPLY_NONE, 0, (extra_affect + i)->affect,
-					      (extra_affect + i)->set_or_clear); 
+					      (extra_affect + i)->set_or_clear);
 			/* for (i = 0; extra_modifier && (extra_modifier + i)->location != -1; i++)
 				affect_modify(ch, (extra_modifier + i)->location,
 					      (extra_modifier + i)->modifier, 0, TRUE);*/
@@ -1197,42 +1197,62 @@ bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 // да, надо все контейнеры переделывать на std::list, а то страшно смотреть на написанное
 void move_obj_to_top(OBJ_DATA *obj, OBJ_DATA **list_start)
 {
-/* фтопку это все, для какой-то плюшевой операции перемещения вверх по списку
-   как олень пишу функцию на пол экрана в одном цикле шоб бегало и оно еще в итоге и глючит,
-   этот маразм столетней давности уже ничто не спасет, тока время зря терять
-
-	OBJ_DATA *temp = 0, *start = 0, *end = 0, *prev = 0, *last_obj = 0;
-
-	for (temp = *list_start; temp; temp = temp->next_content) {
-		if (!start) {
-			if (equal_obj(temp, obj)) {
-				// предмет уже первый в списке
-				if (temp == *list_start)
-					return;
-				start = temp;
-				continue;
-			}
-			prev = temp;
-		} else {
-			if (!equal_obj(temp, obj)) {
-				end = temp;
-				break;
-			}
-			last_obj = temp; // если предметов оказалось несколько
-		}
-	}
-
-	if (!start || !prev)
-		return;
-
-	if (last_obj)
-		last_obj->next_content = prev;
-	prev->next_content = end; // будет 0 если после перемещаемых ничего не лежало
-	start->next_content = *list_start;
-	*list_start = start;
-*/
+// см insert_obj_and_group
 }
 
+/*
+// выяснение стокаются ли предметы
+bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
+{
+	if (GET_OBJ_VNUM(obj_one) != GET_OBJ_VNUM(obj_two)
+		|| (GET_OBJ_TYPE(obj_one) == ITEM_DRINKCON && GET_OBJ_VAL(obj_one, 2) != GET_OBJ_VAL(obj_two, 2))
+		|| (GET_OBJ_TYPE(obj_one) == ITEM_CONTAINER && (obj_one->contains || obj_two->contains))
+		|| GET_OBJ_VNUM(obj_two) == -1
+		|| (GET_OBJ_TYPE(obj_one) == ITEM_MING && strcmp(obj_one->name, obj_two->name)))
+	{
+		return 0;
+	}
+	return 1;
+}
+
+namespace {
+
+// перемещаем стокающиеся предметы вверх контейнера и сверху кладем obj
+void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
+{
+	// AL: пофиксил Ж)
+
+	// begin - первый предмет в исходном списке
+	// end - последний предмет в перемещаемом интервале
+	// before - последний предмет перед началом интервала
+	OBJ_DATA *p, *begin, *end, *before;
+
+	obj->next_content = begin = *list_start;
+	*list_start = obj;
+
+	// похожий предмет уже первый в списке или список пустой
+	if (!begin || equal_obj(begin, obj)) return;
+
+	before = p = begin;
+
+	while (p && !equal_obj(p, obj))
+		before = p, p = p->next_content;
+
+	// нет похожих предметов
+	if (!p) return;
+
+	end = p;
+
+	while (p && equal_obj(p, obj))
+		end = p, p = p->next_content;
+
+	end->next_content = begin;
+	obj->next_content = before->next_content;
+	before->next_content = p; // будет 0 если после перемещаемых ничего не лежало
+}
+
+} // no-name namespace
+*/
 
 /* give an object to a char   */
 void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
@@ -1253,7 +1273,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 					may_carry = FALSE;
 			}
 		}
-		
+
 		if (!may_carry) {
 			act("Вас обожгло при попытке взять $o3.", FALSE, ch, object, 0, TO_CHAR);
 			act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, object, 0, TO_ROOM);
@@ -2629,8 +2649,8 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** 
 /* Начало изменений.
    (с) Дмитрий ака dzMUDiST ака Кудояр */
 
-// Переписан код, обрабатывающий параметры FIND_OBJ_EQUIP | FIND_OBJ_INV | FIND_OBJ_ROOM 
-// В итоге поиск объекта просиходит в "экипировке - инветаре - комнате" согласно 
+// Переписан код, обрабатывающий параметры FIND_OBJ_EQUIP | FIND_OBJ_INV | FIND_OBJ_ROOM
+// В итоге поиск объекта просиходит в "экипировке - инветаре - комнате" согласно
 // общему количеству имеющихся "созвучных" предметов.
 // Старый код закомментирован и подан в конце изменений.
 
@@ -2746,7 +2766,7 @@ struct portals_list_type *get_portal(int vnum, char *wrd)
 	return i;
 }
 
-/* Добавляет в список чару портал в комнату vnum - с проверкой целостности 
+/* Добавляет в список чару портал в комнату vnum - с проверкой целостности
    и если есть уже такой - то добавляем его 1м в список */
 void add_portal_to_char(CHAR_DATA * ch, int vnum)
 {
@@ -3155,7 +3175,7 @@ int *MemQ_slots(CHAR_DATA * ch)
 		if ((n = GET_SPELL_MEM(ch, i)) == 0)
 			continue;
 		sloti = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
-		if (MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL (ch) 
+		if (MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL (ch)
 		   || MIN_CAST_REM(spell_info[i],ch) > GET_REMORT (ch)){
 			GET_SPELL_MEM(ch, i) = 0;
 			continue;
@@ -3169,7 +3189,7 @@ int *MemQ_slots(CHAR_DATA * ch)
 	}
 
 	for (q = &ch->MemQueue.queue; q[0];) {
-		sloti = spell_info[q[0]->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;			
+		sloti = spell_info[q[0]->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
 		if (sloti >= 0 && sloti <= 10) {
 			--slots[sloti];
 			if (slots[sloti] >= 0 &&
@@ -3245,18 +3265,18 @@ int calculate_resistance_coeff (CHAR_DATA *ch, int resist_type, int effect)
 {
 
 	int result, resistance;
-	
+
         resistance = GET_RESIST(ch, resist_type);
 
 	if (resistance <= 0) {
 		return (int)((1 - resistance/100) * effect);
-	} 
+	}
 	if (IS_NPC(ch) && resistance >= 200) {
 		return (0);
-	} 
+	}
 	if (!IS_NPC(ch)) {
 		resistance = MIN(75, resistance);
-	} 
+	}
 	result = (int)(effect - (resistance + number(0, resistance)) * effect / 200);
 	result = MAX(0, result);
 	return result;
