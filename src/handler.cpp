@@ -1199,12 +1199,17 @@ void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 {
 	// AL: пофиксил Ж)
 
-	OBJ_DATA *p, *start, *end, *before, *after;
+	OBJ_DATA *p, *begin, *start, *end, *before, *after;
+
+	begin = *list_start;
+
+	obj->next_content = *list_start;
+	*list_start = obj;
 
 	// похожий предмет уже первый в списке
-	if (!(*list_start) || equal_obj(*list_start, obj)) return;
+	if (!begin || equal_obj(begin, obj)) return;
 
-	before = p = *list_start;
+	before = p = begin;
 
 	while (p && !equal_obj(p, obj))
 		before = p, p = p->next_content;
@@ -1219,10 +1224,9 @@ void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 
 	after = p;
 
-	end->next_content = *list_start;
+	end->next_content = begin;
 	before->next_content = after; // будет 0 если после перемещаемых ничего не лежало
 	obj->next_content = start;
-	*list_start = obj;
 }
 
 
