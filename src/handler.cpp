@@ -1195,7 +1195,7 @@ bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 
 // перемещаем стокающиеся предметы вверх контейнера
 // да, надо все контейнеры переделывать на std::list, а то страшно смотреть на написанное
-void move_obj_to_top(OBJ_DATA *obj, OBJ_DATA **list_start)
+void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 {
 	// AL: пофиксил Ж)
 
@@ -1221,7 +1221,8 @@ void move_obj_to_top(OBJ_DATA *obj, OBJ_DATA **list_start)
 
 	end->next_content = *list_start;
 	before->next_content = after; // будет 0 если после перемещаемых ничего не лежало
-	*list_start = start;
+	obj->next_content = start;
+	*list_start = obj;
 }
 
 
@@ -1255,9 +1256,8 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 		if (!IS_NPC(ch))
 			SET_BIT(GET_OBJ_EXTRA(object, ITEM_TICKTIMER), ITEM_TICKTIMER);
 
-		move_obj_to_top(object, &ch->carrying);
-		object->next_content = ch->carrying;
-		ch->carrying = object;
+		insert_obj_and_group(object, &ch->carrying);
+
 		object->carried_by = ch;
 		object->in_room = NOWHERE;
 		IS_CARRYING_W(ch) += GET_OBJ_WEIGHT(object);
@@ -1714,9 +1714,7 @@ void obj_to_room(OBJ_DATA * object, room_rnum room)
 			extract_obj(object);
 	} else {
 		restore_object(object, 0);
-		move_obj_to_top(object, &world[room]->contents);
-		object->next_content = world[room]->contents;
-		world[room]->contents = object;
+		insert_obj_and_group(object, &world[room]->contents);
 		object->in_room = room;
 		object->carried_by = NULL;
 		object->worn_by = NULL;
@@ -1844,9 +1842,7 @@ void obj_to_obj(OBJ_DATA * obj, OBJ_DATA * obj_to)
 		return;
 	}
 
-	move_obj_to_top(obj, &obj_to->contains);
-	obj->next_content = obj_to->contains;
-	obj_to->contains = obj;
+	insert_obj_and_group(obj, &obj_to->contains);
 	obj->in_obj = obj_to;
 
 	for (tmp_obj = obj->in_obj; tmp_obj->in_obj; tmp_obj = tmp_obj->in_obj)
