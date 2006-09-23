@@ -526,19 +526,19 @@ void affect_room_total(ROOM_DATA * room)
 {
 	AFFECT_DATA *af;
 	// А че тут надо делать пересуммирование аффектов от заклов.
-	/* Вобщем все комнаты имеют (вроде как базовую и 
-	   добавочную характеристику) если скажем ввести 
+	/* Вобщем все комнаты имеют (вроде как базовую и
+	   добавочную характеристику) если скажем ввести
 	   возможность устанавливать степень зараженности комнтаы
-	   в OLC , то дополнительное загаживание только будет вносить 
+	   в OLC , то дополнительное загаживание только будет вносить
 	   + но не обнулять это значение. */
 
 	/* обнуляем все добавочные характеристики */
 	memset(&room->add_property, 0 , sizeof(room_property_data));
-	
+
 	/* перенакладываем аффекты  */
 	for (af = room->affected; af; af = af->next)
 		affect_room_modify(room, af->location, af->modifier, af->bitvector, TRUE);
-		
+
 }
 
 /* This updates a character by subtracting everything he is affected by */
@@ -552,7 +552,7 @@ void affect_total(CHAR_DATA * ch)
 	int i, j;
 	FLAG_DATA saved;
 
-	// Init struct 
+	// Init struct
 	saved.flags[0] = 0;
 	saved.flags[1] = 0;
 	saved.flags[2] = 0;
@@ -577,7 +577,7 @@ void affect_total(CHAR_DATA * ch)
 
 	// Apply some GODS affects and modifiers
 	total_gods_affect(ch);
-	
+
 	/* move object modifiers */
 	for (i = 0; i < NUM_WEARS; i++) {
 		if ((obj = GET_EQ(ch, i))) {
@@ -627,7 +627,7 @@ void affect_total(CHAR_DATA * ch)
 
 			 for (i = 0; extra_affect && (extra_affect + i)->affect != -1; i++)
 				affect_modify(ch, APPLY_NONE, 0, (extra_affect + i)->affect,
-					      (extra_affect + i)->set_or_clear); 
+					      (extra_affect + i)->set_or_clear);
 			/* for (i = 0; extra_modifier && (extra_modifier + i)->location != -1; i++)
 				affect_modify(ch, (extra_modifier + i)->location,
 					      (extra_modifier + i)->modifier, 0, TRUE);*/
@@ -1192,18 +1192,16 @@ bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 	return 1;
 }
 
+namespace {
 
-// перемещаем стокающиеся предметы вверх контейнера
-// да, надо все контейнеры переделывать на std::list, а то страшно смотреть на написанное
+// перемещаем стокающиеся предметы вверх контейнера и сверху кладем obj
 void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 {
 	// AL: пофиксил Ж)
 
 	OBJ_DATA *p, *begin, *start, *end, *before, *after;
 
-	begin = *list_start;
-
-	obj->next_content = *list_start;
+	obj->next_content = begin = *list_start;
 	*list_start = obj;
 
 	// похожий предмет уже первый в списке
@@ -1229,6 +1227,7 @@ void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 	obj->next_content = start;
 }
 
+} // no-name namespace
 
 /* give an object to a char   */
 void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
@@ -1249,7 +1248,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 					may_carry = FALSE;
 			}
 		}
-		
+
 		if (!may_carry) {
 			act("Вас обожгло при попытке взять $o3.", FALSE, ch, object, 0, TO_CHAR);
 			act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, object, 0, TO_ROOM);
@@ -2620,8 +2619,8 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** 
 /* Начало изменений.
    (с) Дмитрий ака dzMUDiST ака Кудояр */
 
-// Переписан код, обрабатывающий параметры FIND_OBJ_EQUIP | FIND_OBJ_INV | FIND_OBJ_ROOM 
-// В итоге поиск объекта просиходит в "экипировке - инветаре - комнате" согласно 
+// Переписан код, обрабатывающий параметры FIND_OBJ_EQUIP | FIND_OBJ_INV | FIND_OBJ_ROOM
+// В итоге поиск объекта просиходит в "экипировке - инветаре - комнате" согласно
 // общему количеству имеющихся "созвучных" предметов.
 // Старый код закомментирован и подан в конце изменений.
 
@@ -2737,7 +2736,7 @@ struct portals_list_type *get_portal(int vnum, char *wrd)
 	return i;
 }
 
-/* Добавляет в список чару портал в комнату vnum - с проверкой целостности 
+/* Добавляет в список чару портал в комнату vnum - с проверкой целостности
    и если есть уже такой - то добавляем его 1м в список */
 void add_portal_to_char(CHAR_DATA * ch, int vnum)
 {
@@ -3146,7 +3145,7 @@ int *MemQ_slots(CHAR_DATA * ch)
 		if ((n = GET_SPELL_MEM(ch, i)) == 0)
 			continue;
 		sloti = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
-		if (MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL (ch) 
+		if (MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL (ch)
 		   || MIN_CAST_REM(spell_info[i],ch) > GET_REMORT (ch)){
 			GET_SPELL_MEM(ch, i) = 0;
 			continue;
@@ -3160,7 +3159,7 @@ int *MemQ_slots(CHAR_DATA * ch)
 	}
 
 	for (q = &ch->MemQueue.queue; q[0];) {
-		sloti = spell_info[q[0]->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;			
+		sloti = spell_info[q[0]->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
 		if (sloti >= 0 && sloti <= 10) {
 			--slots[sloti];
 			if (slots[sloti] >= 0 &&
@@ -3236,18 +3235,18 @@ int calculate_resistance_coeff (CHAR_DATA *ch, int resist_type, int effect)
 {
 
 	int result, resistance;
-	
+
         resistance = GET_RESIST(ch, resist_type);
 
 	if (resistance <= 0) {
 		return (int)((1 - resistance/100) * effect);
-	} 
+	}
 	if (IS_NPC(ch) && resistance >= 200) {
 		return (0);
-	} 
+	}
 	if (!IS_NPC(ch)) {
 		resistance = MIN(75, resistance);
-	} 
+	}
 	result = (int)(effect - (resistance + number(0, resistance)) * effect / 200);
 	result = MAX(0, result);
 	return result;
