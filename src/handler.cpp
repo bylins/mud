@@ -1197,35 +1197,21 @@ bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 // да, надо все контейнеры переделывать на std::list, а то страшно смотреть на написанное
 void move_obj_to_top(OBJ_DATA *obj, OBJ_DATA **list_start)
 {
-/* фтопку это все, для какой-то плюшевой операции перемещения вверх по списку
-   как олень пишу функцию на пол экрана в одном цикле шоб бегало и оно еще в итоге и глючит,
-   этот маразм столетней давности уже ничто не спасет, тока время зря терять
-
-   AL: Полностью согласен, но как временное решение - пофиксил Ж))
-*/
 	OBJ_DATA *p, *start, *end, *before, *after;
 
 	// похожий предмет уже первый в списке
-	if (equal_obj(*list_start, obj))
-		return;
+	if (equal_obj(*list_start, obj)) return;
 
 	p = *list_start;
 
-	while (p && !equal_obj(p, obj)) {
-		before = p;
-		p = p->next_content;
-	}
+	while (p && !equal_obj(p, obj)) before = p, p = p->next_content;
 
 	// нет похожих предметов
-	if (!p)
-		return;
+	if (!p) return;
 
 	start = p;
 
-	while (p && equal_obj(p, obj)) {
-		end = p;
-		p = p->next_content;
-	}
+	while (p && equal_obj(p, obj)) end = p, p = p->next_content;
 
 	after = p;
 
