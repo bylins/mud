@@ -878,6 +878,12 @@ void sort_keeper_objs(CHAR_DATA * keeper, int shop_nr)
 {
 	OBJ_DATA *list = 0, *temp;
 
+	// TODO: мне очень хочется спать, поэтому такой вот идиотский фикс, завтра буду копать
+	if (!keeper->carrying) {
+		IS_CARRYING_N(keeper) = 0;
+		return;
+	}
+
 	while (SHOP_SORT(shop_nr) < IS_CARRYING_N(keeper)) {
 		temp = keeper->carrying;
 		// log(">>%s[%s]",temp->carried_by ? GET_NAME(temp->carried_by) : "EMPTY",
