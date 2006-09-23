@@ -1201,36 +1201,37 @@ void move_obj_to_top(OBJ_DATA *obj, OBJ_DATA **list_start)
    как олень пишу функцию на пол экрана в одном цикле шоб бегало и оно еще в итоге и глючит,
    этот маразм столетней давности уже ничто не спасет, тока время зря терять
 
-	OBJ_DATA *temp = 0, *start = 0, *end = 0, *prev = 0, *last_obj = 0;
+   AL: Полностью согласен, но как временное решение - пофиксил Ж))
+*/
+	OBJ_DATA *p, *start, *end, *before, *after;
 
-	for (temp = *list_start; temp; temp = temp->next_content) {
-		if (!start) {
-			if (equal_obj(temp, obj)) {
-				// предмет уже первый в списке
-				if (temp == *list_start)
-					return;
-				start = temp;
-				continue;
-			}
-			prev = temp;
-		} else {
-			if (!equal_obj(temp, obj)) {
-				end = temp;
-				break;
-			}
-			last_obj = temp; // если предметов оказалось несколько
-		}
-	}
-
-	if (!start || !prev)
+	// похожий предмет уже первый в списке
+	if (equal_obj(*list_start, obj))
 		return;
 
-	if (last_obj)
-		last_obj->next_content = prev;
-	prev->next_content = end; // будет 0 если после перемещаемых ничего не лежало
-	start->next_content = *list_start;
+	p = *list_start;
+
+	while (p && !equal_obj(p, obj)) {
+		before = p;
+		p = p->next_content;
+	}
+
+	// нет похожих предметов
+	if (!p)
+		return;
+
+	start = p;
+
+	while (p && equal_obj(p, obj)) {
+		end = p;
+		p = p->next_content;
+	}
+
+	after = p;
+
+	end->next_content = *list_start;
+	before->next_content = after; // будет 0 если после перемещаемых ничего не лежало
 	*list_start = start;
-*/
 }
 
 
