@@ -84,7 +84,7 @@ int extra_aggressive(CHAR_DATA * ch, CHAR_DATA * victim)
 
 	if (victim && MOB_FLAGGED (ch, MOB_AGGR_RUSICHI) && !IS_NPC (victim) && GET_KIN (victim) == KIN_RUSICHI)
 		agro = TRUE;
-	
+
 	if (victim && MOB_FLAGGED (ch, MOB_AGGR_VIKINGI) && !IS_NPC (victim) && GET_KIN (victim) == KIN_VIKINGI)
 		agro = TRUE;
 
@@ -192,9 +192,9 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 											   sprintf(buf,"Vic-%s,B-%s,V-%s,L-%s,Lev-%s,H-%s,C-%s,IS-NPC-%s,IS-CLONE-%s",
 											   GET_NAME(vict),
 											   best ? GET_NAME(best) : "None",
-											   victim  ? GET_NAME(victim) : "None",        
+											   victim  ? GET_NAME(victim) : "None",
 											   use_light ? GET_NAME(use_light) : "None",
-											   min_lvl   ? GET_NAME(min_lvl) : "None",             
+											   min_lvl   ? GET_NAME(min_lvl) : "None",
 											   min_hp    ? GET_NAME(min_hp) : "None",
 											   caster    ? GET_NAME(caster) : "None",
 											   IS_NPC(vict)   ? "1" : "0",
@@ -288,8 +288,8 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		    (!caster || GET_CASTER(caster) * GET_REAL_CHA(vict) < GET_CASTER(vict) * GET_REAL_CHA(caster)))
 			caster = vict;
 		/*
-		   sprintf(buf,"%s here !",GET_NAME(vict));        
-		   act(buf,FALSE,ch,0,0,TO_ROOM);          
+		   sprintf(buf,"%s here !",GET_NAME(vict));
+		   act(buf,FALSE,ch,0,0,TO_ROOM);
 		 */
 	}
 
@@ -774,9 +774,14 @@ void mobile_activity(int activity_level, int missed_pulses)
 		      (number(1, 100) <= world[EXIT(ch, door)->to_room]->forbidden_percent))
 		    && (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
 			|| world[EXIT(ch, door)->to_room]->zone == world[ch->in_room]->zone)) {
-			npc_move(ch, door, 1);
-			npc_group(ch);
-			npc_groupbattle(ch);
+			// После хода нпц уже может не быть, т.к. ушел в дт, я не знаю почему
+			// оно не валится на муд.ру, но на цигвине у меня падало стабильно,
+			// т.к. в ch уже местами мусор после фри-чара // Krodo
+			if (npc_move(ch, door, 1)) {
+				npc_group(ch);
+				npc_groupbattle(ch);
+			} else
+				continue;
 		}
 
 		npc_light(ch);
@@ -800,7 +805,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 							cast_spell(ch, vict, 0 , 0, SPELL_RELOCATE, SPELL_RELOCATE);
 							break;
 						}
-/*                       if (IN_ROOM(vict) == IN_ROOM(ch) && 
+/*                       if (IN_ROOM(vict) == IN_ROOM(ch) &&
 		           CAN_SEE(ch,vict)
 			  )
                           {victim      = vict;

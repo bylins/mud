@@ -223,7 +223,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 		if (strlen(buf2) >= MAX_STRING_LENGTH - 60) {
 			strcat(buf2, "**OVERFLOW**\r\n");
 			break;
-		}  
+		}
 		if (HAVE_FEAT(ch, sortpos)) {
 			if (!feat_info[sortpos].name || *feat_info[sortpos].name == '!')
 				continue;
@@ -262,12 +262,12 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 			break;
 			default:
 				sprintf(buf, "      ");
-			} 
+			}
 			sprintf(buf + strlen(buf), "%s%s%s\r\n",
 						can_use_feat(ch, sortpos) ? CCIYEL(vict, C_NRM) : CCNRM(vict, C_NRM),
 						feat_info[sortpos].name, CCNRM(vict, C_NRM));
 			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
-				sprintf(buf2 + strlen(buf2), "    ");				
+				sprintf(buf2 + strlen(buf2), "    ");
 				strcat(buf2, buf);
 				j++;
 			} else {
@@ -296,7 +296,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 	}
 
 	for (i = 0; i < MAX_ACC_FEAT; i++) {
-		if (*names[i] == '\0') 
+		if (*names[i] == '\0')
 			sprintf(names[i], " %s%d%s)       %s[пусто]%s\r\n",
 				CCGRN(vict, C_NRM), i + 1, CCNRM(vict, C_NRM), CCIWHT(vict, C_NRM), CCNRM(vict, C_NRM));
 		if (i >= NUM_LEV_FEAT(ch) && GET_LEVEL(vict) < LVL_IMMORT)
@@ -355,9 +355,9 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict)
 	send_to_char(buf2, vict);
 }
 
-/* Параметр all_spells введен для того чтобы предметные кастеры 
-   смогли посмотреть заклинания которые они могут колдовать 
-   на своем уровне, но на которые у них нет необходимых предметов 
+/* Параметр all_spells введен для того чтобы предметные кастеры
+   смогли посмотреть заклинания которые они могут колдовать
+   на своем уровне, но на которые у них нет необходимых предметов
    при параметре TRUE */
 
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
@@ -376,7 +376,7 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 			continue;
 
 		if ((MIN_CAST_LEV(spell_info[i],ch) > GET_LEVEL (ch)
-		    || MIN_CAST_REM(spell_info[i],ch) > GET_REMORT (ch) 
+		    || MIN_CAST_REM(spell_info[i],ch) > GET_REMORT (ch)
 		    || slot_for_char (ch,spell_info[i].slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)]) <= 0)
 		    && all_spells && !GET_SPELL_TYPE(ch, i))
 			continue;
@@ -396,7 +396,7 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 
 		if (MIN_CAST_REM(spell_info[i],ch) > GET_REMORT (ch) )
 			slot_num = MAX_SLOT - 1;
-		else  	
+		else
 			slot_num = spell_info[i].slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] - 1;
 		max_slot = MAX(slot_num + 1, max_slot);
 		if (IS_MANA_CASTER(ch)) {
@@ -804,7 +804,7 @@ SPECIAL(guild_mono)
 					found = TRUE;
 				}
 
-				if ((skill_no = (guild_mono_info[info_num].learn_info + i)->feat_no) > 0 
+				if ((skill_no = (guild_mono_info[info_num].learn_info + i)->feat_no) > 0
 						 					&& skill_no < MAX_FEATS)
 					if (!HAVE_FEAT(ch, skill_no) && can_get_feat(ch, skill_no))
 						sfound = TRUE;
@@ -825,7 +825,7 @@ SPECIAL(guild_mono)
 				if (skill_no == (guild_mono_info[info_num].learn_info + i)->feat_no) {
 					if (HAVE_FEAT(ch, skill_no))
 						act("$N сказал$g Вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'", FALSE, ch, 0, victim, TO_CHAR);
-					else if (!can_get_feat(ch, skill_no)) { 
+					else if (!can_get_feat(ch, skill_no)) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
 					} else {
 						sprintf(buf, "$N научил$G Вас способности %s\"%s\"\%s",
@@ -1103,7 +1103,7 @@ SPECIAL(guild_poly)
 				if (skill_no == (guild_poly_info[info_num] + i)->feat_no) {
 					if (HAVE_FEAT(ch, skill_no))
 						act("$N сказал$G Вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'", FALSE, ch, 0, victim, TO_CHAR);
-					else if (!can_get_feat(ch, skill_no)) { 
+					else if (!can_get_feat(ch, skill_no)) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
 					} else {
 						sprintf(buf, "$N научил$G Вас способности %s\"%s\"\%s",
@@ -1493,8 +1493,6 @@ int npc_loot(CHAR_DATA * ch)
 
 int npc_move(CHAR_DATA * ch, int dir, int need_specials_check)
 {
-	/* room_rnum was_in;
-	   struct    follow_type *k, *next; */
 	int need_close = FALSE, need_lock = FALSE;
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
 	EXIT_DATA *rdata = NULL;
@@ -1504,7 +1502,7 @@ int npc_move(CHAR_DATA * ch, int dir, int need_specials_check)
 		return (FALSE);
 	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room == NOWHERE)
 		return (FALSE);
-	else if (ch->master && IN_ROOM(ch) == IN_ROOM(ch->master)) 
+	else if (ch->master && IN_ROOM(ch) == IN_ROOM(ch->master))
 		return (FALSE);
 	else if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED)) {
 		if (!EXIT_FLAGGED(EXIT(ch, dir), EX_ISDOOR))
@@ -1527,35 +1525,7 @@ int npc_move(CHAR_DATA * ch, int dir, int need_specials_check)
 	}
 
 	retval = perform_move(ch, dir, 1, FALSE, 0);
-	/*
-	   if (!ch->followers)
-	   retval = do_simple_move(ch, dir, need_specials_check);
-	   else
-	   {was_in = ch->in_room;
-	   if ((retval = do_simple_move(ch, dir, need_specials_check)))
-	   {for (k = ch->followers; k; k = next)
-	   {next = k->next;
-	   if (FIGHTING(k->follower)    ||
-	   GET_MOB_HOLD(k->follower)||
-	   GET_POS(ch) <= POS_STUNNED
-	   )
-	   continue;
-	   if (k->follower->in_room == was_in)
-	   {if (IS_NPC(ch))
-	   {if (GET_POS(k->follower) < POS_FIGHTING)
-	   {act("$n поднял$u на ноги.",FALSE,k->follower,0,0,TO_ROOM);
-	   GET_POS(k->follower) = POS_STANDING;
-	   }
-	   }
-	   else
-	   if (GET_POS(k->follower) < POS_STANDING))
-	   continue;
-	   perform_move(k->follower, dir, 1, FALSE);
-	   }
-	   }
-	   }
-	   }
-	 */
+
 	if (need_close) {
 		if (retval)
 			do_doorcmd(ch, 0, rev_dir[dir], SCMD_CLOSE);
