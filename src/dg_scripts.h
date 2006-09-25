@@ -91,7 +91,7 @@
 
 /*
  * These are slightly off of PULSE_MOBILE so
- * everything isnt happening at the same time
+ * everything isnt happening at the same time 
  */
 #define PULSE_DG_SCRIPT         (13 RL_SEC)
 
@@ -205,8 +205,8 @@ void do_sstat_room(CHAR_DATA * ch);
 void do_sstat_object(CHAR_DATA * ch, OBJ_DATA * j);
 void do_sstat_character(CHAR_DATA * ch, CHAR_DATA * k);
 
-void script_log(const char *msg);
-void trig_log(TRIG_DATA * trig, const char *msg);
+void script_log(char *msg);
+void trig_log(TRIG_DATA * trig, char *msg);
 void dg_read_trigger(FILE * fp, void *i, int type);
 void dg_obj_trigger(char *line, OBJ_DATA * obj);
 void assign_triggers(void *i, int type);
@@ -223,8 +223,8 @@ void do_dg_affect(void *go, struct script_data *sc, TRIG_DATA * trig, int type, 
 
 
 
-void add_var_cntx(struct trig_var_data **var_list, const char *name, const char *value, long id);
-struct trig_var_data* find_var_cntx(struct trig_var_data **var_list, const char *name, long id);
+void add_var_cntx(struct trig_var_data **var_list, char *name, const char *value, long id);
+struct trig_var_data *find_var_cntx(struct trig_var_data **var_list, char *name, long id);
 int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 
 

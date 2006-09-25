@@ -320,8 +320,8 @@ ACMD(do_reply)
 ACMD(do_spec_comm)
 {
 	CHAR_DATA *vict;
-	const char *action_sing, *action_plur, *action_others, *vict1, *vict2;
-	char vict3[MAX_INPUT_LENGTH];
+	const char *action_sing, *action_plur, *action_others;
+	char *vict1, *vict2, vict3[MAX_INPUT_LENGTH];
 
 	if (AFF_FLAGGED(ch, AFF_SIELENCE)) {
 		send_to_char(SIELENCE, ch);
@@ -509,12 +509,12 @@ ACMD(do_page)
   *********************************************************************/
 
 struct communication_type {
-	const char *muted_msg;
-	const char *action;
-	const char *no_channel;
-	const char *color;
-	const char *you_action;
-	const char *hi_action;
+	char *muted_msg;
+	char *action;
+	char *no_channel;
+	char *color;
+	char *you_action;
+	char *hi_action;
 	int min_lev;
 	int move_cost;
 	int noflag;
@@ -1011,7 +1011,7 @@ int ign_find_id(char *name, long *id)
 	return -1;
 }
 
-const char *ign_find_name(long id)
+char *ign_find_name(long id)
 {
 	extern struct player_index_element *player_table;
 	extern int top_of_p_table;

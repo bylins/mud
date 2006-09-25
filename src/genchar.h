@@ -22,7 +22,7 @@
 #define GENCHAR_CONTINUE 1
 #define GENCHAR_EXIT 0
 
-extern const char *genchar_help;
+extern char *genchar_help;
 
 void genchar_disp_menu(CHAR_DATA * ch);
 int genchar_parse(CHAR_DATA * ch, char *arg);

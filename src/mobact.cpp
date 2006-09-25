@@ -560,12 +560,8 @@ void mobile_activity(int activity_level, int missed_pulses)
 				    GET_NAME(ch), GET_MOB_VNUM(ch));
 				REMOVE_BIT(MOB_FLAGS(ch, MOB_SPEC), MOB_SPEC);
 			} else {
-				char* temp = str_dup("");
-				if ((mob_index[GET_MOB_RNUM(ch)].func) (ch, ch, 0, temp)) {
-					free(temp);
+				if ((mob_index[GET_MOB_RNUM(ch)].func) (ch, ch, 0, ""))
 					continue;	// go to next char
-				}
-				free(temp);
 			}
 		}
 		// Extract free horses

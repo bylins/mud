@@ -665,14 +665,14 @@ const char * name_by_vnum(int vnum, int type)
 
 } // no-name namespace
 
-const char *if_flag_msg[] = {
+char *if_flag_msg[] = {
 	"",
 	"в случае успеха ",
 	"не изменяя флаг, ",
 	"в случае успеха, не изменяя флаг, "
 };
 
-const char *if_flag_text(int if_flag)
+char *if_flag_text(int if_flag)
 {
 	return if_flag_msg[if_flag & 3];
 }
@@ -685,7 +685,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 	int rnum = 0;
 	int show_all = d->olc->bitmask & OLC_BM_SHOWALLCMD;
 	int start = d->olc->bitmask & ~OLC_BM_SHOWALLCMD, stop;
-	const char *str;
+	char *str;
 
 	room = OLC_NUM(d);
 	head = (pzcmd) OLC_ZONE(d)->cmd;

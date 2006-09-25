@@ -2,7 +2,7 @@
 *   File: item.creation.hpp                            Part of Bylins    *
 *   Item creation from magic ingidients functions header                 *
 *                                                                        *
-*  $Author$                                                       *
+*  $Author$                                                       * 
 *  $Date$                                          *
 *  $Revision$                                                      *
 **************************************************************************/
@@ -78,8 +78,8 @@ struct ingr_part_type {
 	int min_power;
 };
 struct make_skill_type {
-	const char *name;
-	const char *short_name;
+	char *name;
+	char *short_name;
 	int num;
 };
 
@@ -100,7 +100,7 @@ class MakeReceptList {
 	// загрузить рецепты .
 	int load();
 
-	// сохранить рецепты.
+	// сохранить рецепты. 
 	int save();
 
 	// сделать рецепт по названию его прототипа из листа.

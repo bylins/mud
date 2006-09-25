@@ -3488,6 +3488,7 @@ ACMD(do_clanstuff)
 	}
 
 	std::string title = CLAN(ch)->GetClanTitle();
+
 	half_chop(argument, arg, buf);
 
 	ClanStuffList::iterator it = CLAN(ch)->clanstuff.begin();
@@ -3500,7 +3501,7 @@ ACMD(do_clanstuff)
 
 		if (rnum == NOTHING)
 			continue;
-		if (!strstr(obj_proto[rnum]->short_description, arg))
+		if (arg && !strstr(obj_proto[rnum]->short_description,arg))
 			continue;
 
 		sprintf (buf,"%s %s clan%d!",it->name.c_str(),title.c_str(),CLAN(ch)->GetRent());

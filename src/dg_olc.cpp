@@ -41,7 +41,7 @@ void free_varlist(struct trig_var_data *vd);
 
 void trigedit_disp_menu(DESCRIPTOR_DATA * d);
 void trigedit_save(DESCRIPTOR_DATA * d);
-void trigedit_create_index(int znum, const char *type);
+void trigedit_create_index(int znum, char *type);
 char * indent_trigger(char * cmd , int * level);
 
 #if 0
@@ -51,7 +51,7 @@ void script_copy(void *dst, void *src, int type)
    Копирование скрипта в составе:
       - прототип скрипта (копируются с созданием нового)
       - текущий скрипт (не копируются глобальные переменные и т.д.)
-         в текущем скрипте копируются types, context = 0,
+         в текущем скрипте копируются types, context = 0, 
          и используется trig_data_copy (новые name и arglist)
    При создании новых структур данных старые удаляются
 --*/
@@ -131,7 +131,7 @@ void script_save_to_disk(FILE * fp, void *item, int type)
 
 
 /**************************************************************************
- *  Редактирование ТРИГГЕРОВ
+ *  Редактирование ТРИГГЕРОВ 
  *  trigedit
  **************************************************************************/
 
@@ -192,7 +192,7 @@ void trigedit_setup_existing(DESCRIPTOR_DATA * d, int rtrg_num)
 void trigedit_disp_menu(DESCRIPTOR_DATA * d)
 {
 	TRIG_DATA *trig = OLC_TRIG(d);
-	const char *attach_type;
+	char *attach_type;
 	char trgtypes[256];
 
 	get_char_cols(d->character);
@@ -632,13 +632,13 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 }
 
 
-void trigedit_create_index(int znum, const char *type)
+void trigedit_create_index(int znum, char *type)
 {
 	FILE *newfile, *oldfile;
-	char new_name[32], old_name[32];
+	char new_name[32], old_name[32], *prefix;
 	int num, found = FALSE;
 
-	const char *prefix = TRG_PREFIX;
+	prefix = TRG_PREFIX;
 
 	sprintf(old_name, "%s/index", prefix);
 	sprintf(new_name, "%s/newindex", prefix);

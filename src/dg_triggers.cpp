@@ -38,11 +38,11 @@ extern char *dirs[];
 /* external functions from scripts.cpp */
 extern int script_driver(void *go, TRIG_DATA * trig, int type, int mode);
 char *matching_quote(char *p);
-char *str_str(char *cs, const char *ct);
+char *str_str(char *cs, char *ct);
 
 
 /* mob trigger types */
-const char *trig_types[] = { "Global",
+char *trig_types[] = { "Global",
 	"Random",
 	"Command",
 	"Speech",
@@ -73,7 +73,7 @@ const char *trig_types[] = { "Global",
 
 
 /* obj trigger types */
-const char *otrig_types[] = { "Global",
+char *otrig_types[] = { "Global",
 	"Random",
 	"Command",
 	"UNUSED",
@@ -104,7 +104,7 @@ const char *otrig_types[] = { "Global",
 
 
 /* wld trigger types */
-const char *wtrig_types[] = { "Global",
+char *wtrig_types[] = { "Global",
 	"Random",
 	"Command",
 	"Speech",

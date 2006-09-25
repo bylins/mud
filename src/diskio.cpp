@@ -229,8 +229,7 @@ int fbclose_for_read(FBFILE * fbfl)
 
 int fbclose_for_write(FBFILE * fbfl)
 {
-	const char* arg;
-	char* tname;
+	char *arg, *tname;
 	int len, bytes_written;
 	FILE *fl;
 

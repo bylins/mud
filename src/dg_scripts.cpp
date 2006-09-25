@@ -62,10 +62,10 @@ TRIG_DATA *read_trigger(int nr);
 OBJ_DATA *get_object_in_equip(CHAR_DATA * ch, char *name);
 void extract_trigger(TRIG_DATA * trig);
 int eval_lhs_op_rhs(char *expr, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type);
-const char *skill_percent(CHAR_DATA * ch, char *skill);
+char *skill_percent(CHAR_DATA * ch, char *skill);
 bool feat_owner(CHAR_DATA * ch, char *feat);
-const char *spell_count(CHAR_DATA * ch, char *spell);
-const char *spell_knowledge(CHAR_DATA * ch, char *spell);
+char *spell_count(CHAR_DATA * ch, char *spell);
+char *spell_knowledge(CHAR_DATA * ch, char *spell);
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
 void reset_zone(int znum);
 
@@ -106,7 +106,7 @@ void proto_script_free(struct trig_proto_list *src)
 	}
 }
 
-void script_log(const char *msg)
+void script_log(char *msg)
 {
 	char tmpbuf[MAX_INPUT_LENGTH];
 	char *pos;
@@ -119,11 +119,11 @@ void script_log(const char *msg)
 
 }
 
-/*
+/*  
  *  Logs any errors caused by scripts to the system log.
  *  Will eventually allow on-line view of script errors.
  */
-void trig_log(TRIG_DATA * trig, const char *msg)
+void trig_log(TRIG_DATA * trig, char *msg)
 {
 	char tmpbuf[MAX_INPUT_LENGTH];
 	sprintf(tmpbuf, "(Trigger: %s, VNum: %d) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg);
@@ -150,10 +150,9 @@ TRIG_DATA *trigger_list = NULL;	/* all attached triggers */
 
 /* Return pointer to first occurrence in string ct in */
 /* cs, or NULL if not present.  Case insensitive */
-char *str_str(char* cs, const char* ct)
+char *str_str(char *cs, char *ct)
 {
-	char* s;
-	const char* t;
+	char *s, *t;
 
 	if (!cs || !ct)
 		return NULL;
@@ -249,7 +248,7 @@ OBJ_DATA *get_object_in_equip(CHAR_DATA * ch, char *name)
 /************************************************************
  * return number of object in world
  ************************************************************/
-const char *get_objs_in_world(OBJ_DATA * obj)
+char *get_objs_in_world(OBJ_DATA * obj)
 {
 	int i;
 	static char retval[16];
@@ -358,11 +357,11 @@ int find_obj_vnum(long n)
 }
 
 /* return room with VNUM n */
-// Внимание! Для комнаты UID = ROOM_ID_BASE+VNUM, т.к.
+// Внимание! Для комнаты UID = ROOM_ID_BASE+VNUM, т.к. 
 // RNUM может быть независимо изменен с помощью OLC
 int find_room_vnum(long n)
 {
-//  return (real_room (n) != NOWHERE) ? ROOM_ID_BASE + n : -1;
+//  return (real_room (n) != NOWHERE) ? ROOM_ID_BASE + n : -1;  
 	return (real_room(n) != NOWHERE) ? n : -1;
 }
 
@@ -1067,7 +1066,7 @@ ACMD(do_detach)
 		if (is_abbrev(arg1, "mob")) {
 			if (!(victim = get_char_vis(ch, arg2, FIND_CHAR_WORLD)))
 				send_to_char("No such mobile around.\r\n", ch);
-			else if (!*arg3)
+			else if (!arg3 || !*arg3)
 				send_to_char("You must specify a trigger to remove.\r\n", ch);
 			else
 				trigger = arg3;
@@ -1140,11 +1139,11 @@ void free_var_el(struct trig_var_data *var)
 }
 
 
-void add_var_cntx(struct trig_var_data **var_list, const char *name, const char *value, long id)
+void add_var_cntx(struct trig_var_data **var_list, char *name, const char *value, long id)
 /*++
 	Добавление переменной в список с учетом контекста (СТРОГИЙ поиск).
     При добавлении в список локальных переменных контекст должен быть 0.
-
+    
 	var_list	- указатель на первый элемент списка переменных
     name		- имя переменной
 	value		- значение переменной
@@ -1187,18 +1186,18 @@ void add_var_cntx(struct trig_var_data **var_list, const char *name, const char 
 }
 
 
-struct trig_var_data* find_var_cntx(struct trig_var_data **var_list, const char *name, long id)
+struct trig_var_data *find_var_cntx(struct trig_var_data **var_list, char *name, long id)
 /*++
 	Поиск переменной с учетом контекста (НЕСТРОГИЙ поиск).
 
-	Поиск осуществляется по паре ИМЯ:КОНТЕКСТ.
+	Поиск осуществляется по паре ИМЯ:КОНТЕКСТ. 
 	1. Имя переменной должно совпадать с параметром name
     2. Контекст переменной должен совпадать с параметром id, если
        такой переменной нет, производится попытка найти переменную
        с контекстом 0.
 
 	var_list	- указатель на первый элемент списка переменных
-    name		- имя переменной
+    name		- имя переменной	
 	id			- контекст переменной
 --*/
 {
@@ -1246,7 +1245,7 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id)
 
 
 /* Изменение указанной целочисленной константы */
-long gm_char_field(CHAR_DATA * ch, const char *field, const char *subfield, long val)
+long gm_char_field(CHAR_DATA * ch, char *field, char *subfield, long val)
 {
 	int tmpval;
 	if (*subfield) {
@@ -1288,7 +1287,7 @@ void gm_flag(char *subfield, const char **list, FLAG_DATA & val, char *res)
 	return;
 }
 
-int text_processed(char *field, const char *subfield, struct trig_var_data *vd, char *str)
+int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *str)
 {
 	char *p, *p2;
 	*str = '\0';
@@ -1378,13 +1377,10 @@ int text_processed(char *field, const char *subfield, struct trig_var_data *vd, 
 
 
 /* sets str to be the value of var.field */
-void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, const char *var, char *field, char *subfield, char *str)
+void
+find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
+		 int type, char *var, char *field, char *subfield, char *str)
 {
-	if (!subfield) {
-		log("SYSERROR : subfield == 0 (%s %s %d)", __FILE__, __func__, __LINE__);
-		return;
-	}
-
 	struct trig_var_data *vd = NULL;
 	CHAR_DATA *ch, *c = NULL, *rndm;
 	OBJ_DATA *obj, *o = NULL;
@@ -1393,22 +1389,25 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, co
 	int num = 0, count = 0, value = 0, i;
 	char uid_type = '\0';
 
-	const char *send_cmd[] = { "msend", "osend", "wsend" };
-	const char *echo_cmd[] = { "mecho", "oecho", "wecho" };
-	const char *echoaround_cmd[] = { "mechoaround", "oechoaround", "wechoaround" };
-	const char *door[] = { "mdoor", "odoor", "wdoor" };
-	const char *force[] = { "mforce", "oforce", "wforce" };
-	const char *load[] = { "mload", "oload", "wload" };
-	const char *purge[] = { "mpurge", "opurge", "wpurge" };
-	const char *teleport[] = { "mteleport", "oteleport", "wteleport" };
-	const char *damage[] = { "mdamage", "odamage", "wdamage" };
-	const char *featturn[] = { "mfeatturn", "ofeatturn", "wfeatturn" };
-	const char *skillturn[] = { "mskillturn", "oskillturn", "wskillturn" };
-	const char *skilladd[] = { "mskilladd", "oskilladd", "wskilladd" };
-	const char *spellturn[] = { "mspellturn", "ospellturn", "wspellturn" };
-	const char *spelladd[] = { "mspelladd", "ospelladd", "wspelladd" };
-	const char *spellitem[] = { "mspellitem", "ospellitem", "wspellitem" };
-	const char *portal[] = { "mportal", "oportal", "wportal" };
+	char *send_cmd[] = { "msend", "osend", "wsend" };
+	char *echo_cmd[] = { "mecho", "oecho", "wecho" };
+	char *echoaround_cmd[] = { "mechoaround", "oechoaround", "wechoaround" };
+	char *door[] = { "mdoor", "odoor", "wdoor" };
+	char *force[] = { "mforce", "oforce", "wforce" };
+	char *load[] = { "mload", "oload", "wload" };
+	char *purge[] = { "mpurge", "opurge", "wpurge" };
+	char *teleport[] = { "mteleport", "oteleport", "wteleport" };
+	char *damage[] = { "mdamage", "odamage", "wdamage" };
+	char *featturn[] = { "mfeatturn", "ofeatturn", "wfeatturn" };
+	char *skillturn[] = { "mskillturn", "oskillturn", "wskillturn" };
+	char *skilladd[] = { "mskilladd", "oskilladd", "wskilladd" };
+	char *spellturn[] = { "mspellturn", "ospellturn", "wspellturn" };
+	char *spelladd[] = { "mspelladd", "ospelladd", "wspelladd" };
+	char *spellitem[] = { "mspellitem", "ospellitem", "wspellitem" };
+	char *portal[] = { "mportal", "oportal", "wportal" };
+
+	if (!subfield)
+		subfield = "";	// Чтобы проверок меньше было
 
 	/* X.global() will have a NULL trig */
 	if (trig)
@@ -1697,9 +1696,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, co
 				return;
 			else if (!str_cmp(field, "global")) {	/* get global of something else */
 				if (IS_NPC(c) && c->script) {
-					char* temp = str_dup("");
-					find_replacement(go, c->script, NULL, MOB_TRIGGER, subfield, NULL, temp, str);
-					free(temp);
+					find_replacement(go, c->script, NULL, MOB_TRIGGER, subfield, NULL, NULL, str);
 				}
 			} else if (!str_cmp(field, "iname"))
 				strcpy(str, GET_PAD(c, 0));
@@ -1737,7 +1734,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, co
 				GET_HIT_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_HIT_ADD(c));
 				sprintf(str, "%d", GET_HIT_ADD(c));
 			} else if (!str_cmp(field, "maxhitp")) {
-				// if (!IS_NPC(c))
+				// if (!IS_NPC(c)) 
 				//   GET_MAX_HIT(c) = (sh_int) MAX(1,gm_char_field(c,field,subfield,(long)GET_MAX_HIT(c)));
 				sprintf(str, "%d", GET_MAX_HIT(c));
 			} else if (!str_cmp(field, "hitpreg")) {
@@ -1780,7 +1777,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, co
 				if (!IS_NPC(c))
 					sprintf(str, "%d", GET_REAL_AGE(c));
 			} else if (!str_cmp(field, "hrbase")) {
-				//GET_HR(c) = (int) gm_char_field(c,field,subfield,(long)GET_HR(c));
+				//GET_HR(c) = (int) gm_char_field(c,field,subfield,(long)GET_HR(c));        
 				sprintf(str, "%d", GET_HR(c));
 			} else if (!str_cmp(field, "hradd")) {
 				GET_HR_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_HR(c));
@@ -1788,7 +1785,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, co
 			} else if (!str_cmp(field, "hr")) {
 				sprintf(str, "%d", GET_REAL_HR(c));
 			} else if (!str_cmp(field, "drbase")) {
-				//GET_DR(c) = (int) gm_char_field(c,field,subfield,(long)GET_DR(c));
+				//GET_DR(c) = (int) gm_char_field(c,field,subfield,(long)GET_DR(c));        
 				sprintf(str, "%d", GET_DR(c));
 			} else if (!str_cmp(field, "dradd")) {
 				GET_DR_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_DR(c));
@@ -1796,7 +1793,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, co
 			} else if (!str_cmp(field, "dr")) {
 				sprintf(str, "%d", GET_REAL_DR(c));
 			} else if (!str_cmp(field, "acbase")) {
-				//GET_AC(c) = (int) gm_char_field(c,field,subfield,(long)GET_AC(c));
+				//GET_AC(c) = (int) gm_char_field(c,field,subfield,(long)GET_AC(c));        
 				sprintf(str, "%d", GET_AC(c));
 			} else if (!str_cmp(field, "acadd")) {
 				GET_AC_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_AC(c));
@@ -1886,10 +1883,10 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, co
 			else if (!str_cmp(field, "fighting")) {
 				if (FIGHTING(c))
 					sprintf(str, "%c%ld", UID_CHAR, GET_ID(FIGHTING(c)));
-			} else if (!str_cmp(field, "is_killer")) {	/*if (*subfield)
+			} else if (!str_cmp(field, "is_killer")) {	/*if (*subfield) 
 									   {if (!str_cmp("on", subfield))
 									   SET_BIT(PLR_FLAGS(c, PLR_KILLER), PLR_KILLER);
-									   else
+									   else 
 									   if (!str_cmp("off", subfield))
 									   REMOVE_BIT(PLR_FLAGS(c, PLR_KILLER), PLR_KILLER);
 									   } */
@@ -1897,10 +1894,10 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, co
 					strcpy(str, "1");
 				else
 					strcpy(str, "0");
-			} else if (!str_cmp(field, "is_thief")) {	/*if (*subfield)
+			} else if (!str_cmp(field, "is_thief")) {	/*if (*subfield) 
 									   {if (!str_cmp("on", subfield))
 									   SET_BIT(PLR_FLAGS(c, PLR_THIEF), PLR_THIEF);
-									   else
+									   else 
 									   if (!str_cmp("off", subfield))
 									   REMOVE_BIT(PLR_FLAGS(c, PLR_THIEF), PLR_THIEF);
 									   } */
@@ -2445,7 +2442,7 @@ int is_num(char *num)
 
 
 /* evaluates 'lhs op rhs', and copies to result */
-void eval_op(const char *op, char *lhs, char *rhs, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig)
+void eval_op(char *op, char *lhs, char *rhs, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig)
 {
 	char *p = 0;
 	int n;
@@ -2593,7 +2590,7 @@ int eval_lhs_op_rhs(char *expr, char *result, void *go, SCRIPT_DATA * sc, TRIG_D
 	 * valid operands, in order of priority
 	 * each must also be defined in eval_op()
 	 */
-	static const char *ops[] = {
+	static char *ops[] = {
 		"||",
 		"&&",
 		"==",
@@ -2656,7 +2653,7 @@ int process_foreach(char *cond, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, in
       trig - исполняемый триггер
       type - тип (MOB_TRIGGER,OBJ_TRIGGER,WLD_TRIGGER)
 
-Запись
+Запись 
 foreach i <список>
 работает так:
 
@@ -2716,7 +2713,7 @@ foreach i <список>
 	while (*list && a_isspace(*list))
 		++list;		// пропуск пробелов
 	while (*list && !a_isspace(*list))
-		*p++ = *list++;	// копирование слова
+		*p++ = *list++;	// копирование слова  
 	*p = 0;
 
 	if (!*value)
@@ -2815,7 +2812,7 @@ struct cmdlist_element *find_else_end(TRIG_DATA * trig,
 
 
 /*
-* scans for end of while/foreach/switch-blocks.
+* scans for end of while/foreach/switch-blocks.   
 * returns the line containg 'end', or NULL
 */
 struct cmdlist_element *find_done(TRIG_DATA * trig, struct cmdlist_element *cl)
@@ -3144,7 +3141,7 @@ TRIG_DATA *process_detach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type
 	return retval;
 }
 
-/* script run a trigger for something
+/* script run a trigger for something 
    return TRUE   - trigger find and runned
           FALSE  - trigger not runned
 */
@@ -3867,9 +3864,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 					loops++;
 					GET_TRIG_LOOPS(trig)++;
 					if (loops == 30) {
-						char* temp = str_dup("wait 1");
-						process_wait(go, trig, type, temp, cl);
-						free(temp);
+						process_wait(go, trig, type, "wait 1", cl);
 						depth--;
 						cur_trig = prev_trig;
 						return ret_val;

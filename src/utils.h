@@ -53,8 +53,8 @@ void log_death_trap(CHAR_DATA * ch);
 int number(int from, int to);
 int dice(int number, int size);
 int sprintbit(bitvector_t vektor, const char *names[], char *result);
-int sprintbitwd(bitvector_t vektor, const char *names[], char *result, const char * div);
-void sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div);
+int sprintbitwd(bitvector_t vektor, const char *names[], char *result, char * div);
+void sprintbits(FLAG_DATA flags, const char *names[], char *result, char *div);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE * fl, char *buf);
 int get_filename(const char *orig_name, char *filename, int mode);
@@ -228,6 +228,11 @@ bool GodListCheck(const std::string name, long unique);
 #define IS_BITS(mask, bitno) (IS_SET(mask,(1 << bitno)))
 #define IS_CASTER(ch)        (IS_BITS(MASK_CASTER,GET_CLASS(ch)))
 #define IS_MAGE(ch)          (IS_BITS(MASK_MAGES, GET_CLASS(ch)))
+
+
+extern SPECIAL(receptionist);
+extern SPECIAL(postmaster);
+
 
 #define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_keeper)
 #define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)
@@ -671,7 +676,7 @@ bool GodListCheck(const std::string name, long unique);
 #define GET_PORTALS(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->portals))
 #define GET_LOGS(ch)            CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->logs))
 
-// Punishments structs
+// Punishments structs 
 #define MUTE_REASON(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pmute.reason))
 #define DUMB_REASON(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pdumb.reason))
 #define HELL_REASON(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->phell.reason))
@@ -696,13 +701,13 @@ bool GodListCheck(const std::string name, long unique);
 #define NAME_GODID(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pname.godid))
 #define UNREG_GODID(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->punreg.godid))
 
-#define GCURSE_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pgcurse.duration))
-#define MUTE_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pmute.duration))
-#define DUMB_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pdumb.duration))
-#define FREEZE_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pfreeze.duration))
-#define HELL_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->phell.duration))
-#define NAME_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pname.duration))
-#define UNREG_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->punreg.duration))
+#define GCURSE_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pgcurse.duration)) 
+#define MUTE_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pmute.duration))  
+#define DUMB_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pdumb.duration))  
+#define FREEZE_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pfreeze.duration))  
+#define HELL_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->phell.duration))  
+#define NAME_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->pname.duration))  
+#define UNREG_DURATION(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->punreg.duration))  
 
 #define KARMA(ch) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->Karma))
 #define LOGON_LIST(ch) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->logons))
@@ -735,7 +740,7 @@ bool GodListCheck(const std::string name, long unique);
 #define	NUM_LEV_FEAT(ch) (MIN (MAX_ACC_FEAT, (GET_LEVEL(ch) / LEV_ACC_FEAT) + 1))
 #define FEAT_SLOT(ch, feat) (feat_info[feat].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] / LEV_ACC_FEAT)
 
-// Min cast level getting
+// Min cast level getting 
 #define MIN_CAST_LEV(sp, ch) (MMAX(0,MOD_CAST_LEV(sp,ch)))
 #define MOD_CAST_LEV(sp, ch) (BASE_CAST_LEV(sp, ch) - (MMAX(GET_REMORT(ch) - MIN_CAST_REM(sp,ch),0) / 3))
 #define BASE_CAST_LEV(sp, ch) ((sp).min_level[(int) GET_CLASS (ch)][(int) GET_KIN (ch)])
@@ -1205,7 +1210,7 @@ void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 bool ignores(CHAR_DATA *, CHAR_DATA *, unsigned int);
 
 /* PADS for something ****************************************************/
-const char *desc_count(int how_many, int of_what);
+char *desc_count(int how_many, int of_what);
 #define WHAT_DAY	0
 #define WHAT_HOUR	1
 #define WHAT_YEAR	2

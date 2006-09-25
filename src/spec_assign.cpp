@@ -30,15 +30,26 @@ extern INDEX_DATA *obj_index;
 
 SPECIAL(exchange);
 SPECIAL(dump);
+SPECIAL(pet_shops);
 SPECIAL(postmaster);
+SPECIAL(cityguard);
 SPECIAL(receptionist);
+SPECIAL(cryogenicist);
+SPECIAL(guild_guard);
 SPECIAL(guild_mono);
 SPECIAL(guild_poly);
 SPECIAL(horse_keeper);
+SPECIAL(puff);
+SPECIAL(fido);
+SPECIAL(janitor);
+SPECIAL(mayor);
+SPECIAL(snake);
+SPECIAL(thief);
+SPECIAL(magic_user);
 SPECIAL(bank);
 
 void assign_kings_castle(void);
-char *str_str(char *cs, const char *ct);
+char *str_str(char *cs, char *ct);
 
 /* local functions */
 void assign_mobiles(void);
@@ -99,6 +110,9 @@ void ASSIGNMASTER(mob_vnum mob, SPECIAL(fname), int learn_info)
 /* assign special procedures to mobiles */
 void assign_mobiles(void)
 {
+//  assign_kings_castle();
+
+	ASSIGNMOB(1, puff);
 
 	/* HOTEL */
 //Adept: пока закомментил мешающее - потом надо посмотреть какого оно утт вообще делает.
@@ -174,7 +188,9 @@ void init_spec_procs(void)
 				log("Unknown mobile %d in specials assignment...", i);
 				continue;
 			}
-			if (!str_cmp(line2, "rent"))
+			if (!str_cmp(line2, "puff"))
+				ASSIGNMOB(i, puff);
+			else if (!str_cmp(line2, "rent"))
 				ASSIGNMOB(i, receptionist);
 			else if (!str_cmp(line2, "mail"))
 				ASSIGNMOB(i, postmaster);
