@@ -318,7 +318,7 @@ typedef struct trig_data
 #define RACE_DATCHANE       13
 #define RACE_GETTI          14
 #define RACE_UTTI           15
-#define RACE_XALEIGI        16   
+#define RACE_XALEIGI        16
 #define RACE_NORVEZCI       17
 
 
@@ -335,7 +335,7 @@ typedef struct trig_data
 #define MASK_YIGURI          (1 << RACE_YIGURI)
 #define MASK_KANGARI         (1 << RACE_KANGARI)
 #define MASK_XAZARI          (1 << RACE_XAZARI)
-                                            
+
 #define MASK_SVEI            (1 << RACE_SVEI)
 #define MASK_DATCHANE        (1 << RACE_DATCHANE)
 #define MASK_GETTI           (1 << RACE_GETTI)
@@ -781,7 +781,7 @@ typedef struct trig_data
 #define BOOK_SPELL		0	/* Книга заклинания */
 #define BOOK_SKILL		1	/* Книга умения */
 #define BOOK_UPGRD		2	/* Увеличение умения */
-#define BOOK_RECPT		3	/* Книга рецепта */	
+#define BOOK_RECPT		3	/* Книга рецепта */
 #define BOOK_FEAT			4	/* Книга способности (feats) */
 // -newbook.patch (Alisher)
 
@@ -999,8 +999,8 @@ typedef struct trig_data
 
 /* APPLY - эффекты для комнат */
 #define APPLY_ROOM_NONE        0
-#define APPLY_ROOM_POISON      1 	/* Изменяет в комнате уровень ядности */ 
-#define APPLY_ROOM_FLAME       2 	/* Изменяет в комнате уровень огня (для потомков) */ 
+#define APPLY_ROOM_POISON      1 	/* Изменяет в комнате уровень ядности */
+#define APPLY_ROOM_FLAME       2 	/* Изменяет в комнате уровень огня (для потомков) */
 #define NUM_ROOM_APPLIES       3
 
 #define MAT_NONE               0
@@ -1509,7 +1509,7 @@ struct room_data {
 	FLAG_DATA affected_by; /* флаги которые в отличии от room_flags появляются от аффектов
 				и не могут быть записаны на диск */
 
-	// Всякие характеристики комнаты 
+	// Всякие характеристики комнаты
 	ubyte fires;		/* Time when fires - костерок    */
 	ubyte forbidden;	/* Time when room forbidden for mobs  */
 	int
@@ -1525,7 +1525,7 @@ struct room_data {
 
 	int holes;		/* Дырки для камне - копателей */
 	int *ing_list;		/* загружаемые ингредиенты */
-	
+
 	// Параметры которые грузяться из файла (по крайней мере так планируется)
 	struct room_property_data	base_property;
 	// Добавки к параметрам  которые модифицируются аффектами ...
@@ -1764,7 +1764,7 @@ struct player_special_data_saved {
 	int
 	 Religion;	  /****/
 	int
-	 Kin;		  
+	 Kin;
 	int
 	 Race;		  /****/
 	int
@@ -1896,7 +1896,7 @@ struct player_special_data {
 // Alez logons.
 	struct logon_data * logons; /*Записи о входах чара*/
 
-// Punishments structs 
+// Punishments structs
 	struct punish_data pmute;
 	struct punish_data pdumb;
 	struct punish_data phell;
@@ -1975,10 +1975,10 @@ struct affect_data {
 	 bitvector;		/* Tells which bits to set (AFF_XXX) */
 	long
 	 caster_id; /*Unique caster ID */
-	bool 
+	bool
 	 must_handled; /* Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) */
-	sh_int 
-	 apply_time; /* Указывает сколько аффект висит (пока используется только в комнатах) */	
+	sh_int
+	 apply_time; /* Указывает сколько аффект висит (пока используется только в комнатах) */
 	AFFECT_DATA *next;
 };
 
@@ -2063,7 +2063,7 @@ struct spell_mem_queue_item {
 	struct spell_mem_queue_item *link;
 };
 
-// очередь запоминания заклинаний 
+// очередь запоминания заклинаний
 struct spell_mem_queue {
 	struct spell_mem_queue_item *queue;
 	int
@@ -2156,7 +2156,7 @@ struct char_data {
 	 cast_attack;
 
 	int *ing_list;		//загружаемые в труп ингредиенты
-	load_list *dl_list;	// загружаемые в труп предметы               
+	load_list *dl_list;	// загружаемые в труп предметы
 };
 /* ====================================================================== */
 
@@ -2548,17 +2548,12 @@ struct pray_affect_type {
 #define  DAY_EASTER     -1
 
 struct gods_celebrate_type {
-	int
-	 unique;		// Uniqum ID
-	char *name;		// Celebrate
-	int
-	 from_day;		// Day of month, -1 and less if in range
-	int
-	 from_month;		// Month, -1 and less if relative
-	int
-	 duration;
-	int
-	 religion;		// Religion type
+	int unique;		// Uniqum ID
+	const char *name;		// Celebrate
+	int from_day;		// Day of month, -1 and less if in range
+	int from_month;		// Month, -1 and less if relative
+	int duration;
+	int religion;		// Religion type
 };
 
 #define  GAPPLY_NONE                 0
@@ -2585,8 +2580,8 @@ struct cheat_list_type {
 	struct cheat_list_type *next_name;
 };
 
-/* pclean_criteria_data структура которая определяет через какой время 
-   неактивности будет удален чар 
+/* pclean_criteria_data структура которая определяет через какой время
+   неактивности будет удален чар
 */
 struct pclean_criteria_data {
 	int

@@ -60,7 +60,6 @@ extern room_rnum r_unreg_start_room;
 /* Extern functions */
 ACMD(do_tell);
 SPECIAL(receptionist);
-SPECIAL(cryogenicist);
 int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj);
 int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
@@ -68,7 +67,6 @@ int min_rent_cost(CHAR_DATA * ch);
 void name_from_drinkcon(OBJ_DATA * obj);
 void name_to_drinkcon(OBJ_DATA * obj, int type);
 OBJ_DATA *create_obj(void);
-void asciiflag_conv(char *flag, void *value);
 void tascii(int *pointer, int num_planes, char *ascii);
 int get_ptable_by_name(char *name);
 
@@ -1510,7 +1508,7 @@ int Crash_load(CHAR_DATA * ch)
 		GET_GOLD(ch) -= MAX(cost - GET_BANK_GOLD(ch), 0);
 		GET_BANK_GOLD(ch) = MAX(GET_BANK_GOLD(ch) - cost, 0);
 		//???
-		//save_char(ch, NOWHERE); 
+		//save_char(ch, NOWHERE);
 	}
 
 	/*Чтение описаний объектов в буфер */
@@ -1567,7 +1565,7 @@ int Crash_load(CHAR_DATA * ch)
 				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.",
 					GET_NAME(ch), error);
 				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-				//break; 
+				//break;
 				continue;	//Ann
 			}
 		} else {
@@ -1578,7 +1576,7 @@ int Crash_load(CHAR_DATA * ch)
 				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.",
 					GET_NAME(ch), error);
 				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-				//break; 
+				//break;
 				continue;	//Ann
 			}
 		}
@@ -1809,9 +1807,9 @@ int Crash_calc_charmee_items (CHAR_DATA *ch)
   int num = 0;
   int j = 0;
 
-  if (!ch->followers) 
+  if (!ch->followers)
     return 0;
-  for (k = ch->followers; k && k->follower->master; k = next) 
+  for (k = ch->followers; k && k->follower->master; k = next)
   {
     next = k->next;
     charmee = ch->followers->follower;
@@ -1936,8 +1934,8 @@ This shit is saving all stuff for given ch and its iplayer.
 	Crash_save(iplayer, ch->carrying, 0);
 	Crash_restore_weight(ch->carrying);
 
-  if (ch->followers && 	savetype == RENT_CRASH) 
-    for (k = ch->followers; k && k->follower->master; k = next) 
+  if (ch->followers && 	savetype == RENT_CRASH)
+    for (k = ch->followers; k && k->follower->master; k = next)
     {
       next = k->next;
       charmee = ch->followers->follower;
@@ -2292,18 +2290,10 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 	return (TRUE);
 }
 
-
 SPECIAL(receptionist)
 {
 	return (gen_receptionist(ch, (CHAR_DATA *) me, cmd, argument, RENT_FACTOR));
 }
-
-
-SPECIAL(cryogenicist)
-{
-	return (gen_receptionist(ch, (CHAR_DATA *) me, cmd, argument, CRYO_FACTOR));
-}
-
 
 void Crash_frac_save_all(int frac_part)
 {

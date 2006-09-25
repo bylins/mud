@@ -168,7 +168,7 @@ ACMD(do_email);
 extern const char *deaf_social;
 
 /* Adds karma string to KARMA*/
-void add_karma(CHAR_DATA * ch, char * punish , char * reason)
+void add_karma(CHAR_DATA * ch, const char * punish , const char * reason)
 {
 	if (reason && (reason[0] != '.'))
 	{
@@ -201,26 +201,26 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pmute));
 		break;
 		case SCMD_DUMB:
-			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pdumb));	
+			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pdumb));
 		break;
 		case SCMD_HELL:
-			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->phell));	
+			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->phell));
 		break;
 		case SCMD_NAME:
-			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pname));	
+			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pname));
 		break;
 
 		case SCMD_FREEZE:
-			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pfreeze));	
+			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pfreeze));
 		break;
 
 		case SCMD_UNREGISTER:
-			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->punreg));	
+			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->punreg));
 		break;
 
 
 	}
-	assert(pundata);	
+	assert(pundata);
 	if (GET_LEVEL(ch) < pundata->level)
 	{
 		send_to_char("Да кто ты такой!!? Чтобы оспаривать волю СТАРШИХ БОГОВ !!!\r\n", ch);
@@ -231,19 +231,19 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 	if (times == 0)
 	{
 		// Чара досрочно освобождают от наказания.
-		if (!reason || !*reason) 
+		if (!reason || !*reason)
 		{
 			send_to_char("Укажите причину такой милости.\r\n", ch);
 			return 0;
-		} else 
+		} else
 			skip_spaces(&reason);
-		// 
+		//
 
 		pundata->duration = 0;
 		pundata->level = 0;
 		pundata->godid = 0;
 
-		if (pundata->reason)  
+		if (pundata->reason)
 			free(pundata->reason);
 
 		pundata->reason = 0;
@@ -256,7 +256,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 					return (0);
 				};
 				REMOVE_BIT(PLR_FLAGS(vict, PLR_MUTE), PLR_MUTE);
-	
+
 
 				sprintf(buf, "Mute OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -265,7 +265,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				sprintf(buf, "Mute OFF by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
-				sprintf(buf, "%s%s разрешил$G Вам кричать.%s", 
+				sprintf(buf, "%s%s разрешил$G Вам кричать.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n2 вернулся голос.");
@@ -276,7 +276,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 					return (0);
 				};
 				REMOVE_BIT(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN);
-	
+
 
 				sprintf(buf, "Freeze OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -305,7 +305,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				sprintf(buf, "Dumb OFF by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
 
-				sprintf(buf, "%s%s разрешил$G Вам издавать звуки.%s", 
+				sprintf(buf, "%s%s разрешил$G Вам издавать звуки.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n2 нарушил обет молчания.");
@@ -325,14 +325,14 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 
 				sprintf(buf, "Removed FROM hell by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
-				
+
 				if (IN_ROOM(vict) != NOWHERE)
 				{
 					act("$n выпущен$a из темницы !", FALSE, vict, 0, 0, TO_ROOM);
 
 					if ((result = GET_LOADROOM(vict)) == NOWHERE)
 						result = calc_loadroom(vict);
-			
+
 					result = real_room(result);
 
 					if (result == NOWHERE) {
@@ -371,12 +371,12 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				{
 
 					act("$n выпущен$a из комнаты имени!", FALSE, vict, 0, 0, TO_ROOM);
-		
+
 					if ((result = GET_LOADROOM(vict)) == NOWHERE)
 						result = calc_loadroom(vict);
 
 					result = real_room(result);
-		
+
 					if (result == NOWHERE) {
 						if (GET_LEVEL(vict) >= LVL_IMMORT)
 							result = r_immort_start_room;
@@ -388,14 +388,14 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 					char_to_room(vict, result);
 					look_at_room(vict, result);
 				};
-				sprintf(buf, "%s%s выпустил$G Вас из комнаты имени.%s", 
+				sprintf(buf, "%s%s выпустил$G Вас из комнаты имени.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n выпущен$a из комнаты имени !");
 			break;
 
 			case SCMD_UNREGISTER:
-				// Регистриуем чара 
+				// Регистриуем чара
 				if (PLR_FLAGGED(vict, PLR_REGISTERED)) {
 					send_to_char("Вашей жертва уже зарегистрирована.\r\n", ch);
 					return (0);
@@ -413,12 +413,12 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				{
 
 					act("$n зарегистрирован$a!", FALSE, vict, 0, 0, TO_ROOM);
-		
+
 					if ((result = GET_LOADROOM(vict)) == NOWHERE)
 						result = calc_loadroom(vict);
 
 					result = real_room(result);
-		
+
 					if (result == NOWHERE) {
 						if (GET_LEVEL(vict) >= LVL_IMMORT)
 							result = r_immort_start_room;
@@ -430,7 +430,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 					char_to_room(vict, result);
 					look_at_room(vict, result);
 				};
-				sprintf(buf, "%s%s зарегистрировал$G Вас.%s", 
+				sprintf(buf, "%s%s зарегистрировал$G Вас.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации !");
@@ -442,11 +442,11 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 	} else
 	{
 	 	// Чара наказывают.
-		if (!reason || !*reason) 
+		if (!reason || !*reason)
 		{
 			send_to_char("Укажите причину наказания.\r\n", ch);
 			return 0;
-		} else 
+		} else
 			skip_spaces(&reason);
 
 		pundata->level = GET_LEVEL(ch);
@@ -454,23 +454,23 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 
 		// Добавляем в причину имя имма
 
-		sprintf(buf, "%s : %s", GET_NAME(ch), reason);				
+		sprintf(buf, "%s : %s", GET_NAME(ch), reason);
 		pundata->reason = str_dup(buf);
 
 		switch (punish)
 		{
 			case SCMD_MUTE:
 				SET_BIT(PLR_FLAGS(vict, PLR_MUTE), PLR_MUTE);
-        			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;				
-	
+        			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
+
 				sprintf(buf, "Mute ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 				imm_log(buf);
 
 				sprintf(buf, "Mute ON (%ldh) by %s", times , GET_NAME(ch));
 				add_karma(vict, buf, reason);
-		
-				sprintf(buf, "%s%s запретил$G Вам кричать.%s", 
+
+				sprintf(buf, "%s%s запретил$G Вам кричать.%s",
 					CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n подавился своим криком.");
@@ -480,14 +480,14 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 			case SCMD_FREEZE:
 				SET_BIT(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN);
         			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
-	
+
 				sprintf(buf, "Freeze ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 				imm_log(buf);
 
 				sprintf(buf, "Freeze ON (%ldh) by %s", times , GET_NAME(ch));
 				add_karma(vict, buf, reason);
-		
+
 				sprintf(buf, "%sАдский холод сковал Ваше тело ледяным панцирем.\r\n%s",
 					CCIBLU(vict, C_NRM), CCNRM(vict, C_NRM));
 
@@ -499,7 +499,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 			case SCMD_DUMB:
 
 				SET_BIT(PLR_FLAGS(vict, PLR_DUMB), PLR_DUMB);
-        			pundata->duration = (times > 0) ? time(NULL) + times * 60 : MAX_TIME;					
+        			pundata->duration = (times > 0) ? time(NULL) + times * 60 : MAX_TIME;
 
 				sprintf(buf, "Dumb ON for %s by %s(%ldm).", GET_NAME(vict), GET_NAME(ch), times);
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -507,8 +507,8 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 
 				sprintf(buf, "Dumb ON (%ldm) by %s", times , GET_NAME(ch));
 				add_karma(vict, buf, reason);
-		
-				sprintf(buf, "%s%s запретил$G Вам издавать звуки.%s", 
+
+				sprintf(buf, "%s%s запретил$G Вам издавать звуки.%s",
 					CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 				sprintf(buf2, "$n дал обет молчания.");
@@ -522,7 +522,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				if (IN_ROOM(vict) != NOWHERE)
 				{
 					act("$n водворен$a в темницу !", FALSE, vict, 0, 0, TO_ROOM);
-		
+
 					char_from_room(vict);
 					char_to_room(vict, r_helled_start_room);
 					look_at_room(vict, r_helled_start_room);
@@ -578,7 +578,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				if (IN_ROOM(vict) != NOWHERE)
 				{
 
-					if (vict->desc && !check_dupes_host(vict->desc) && IN_ROOM(vict) != r_unreg_start_room) 
+					if (vict->desc && !check_dupes_host(vict->desc) && IN_ROOM(vict) != r_unreg_start_room)
 					{
 						act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.",
 						    FALSE, vict, 0, 0, TO_ROOM);
@@ -600,15 +600,15 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 				sprintf(buf, "%s%s снял$G с Вас ... регистрацию :).%s",
 					CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 				sprintf(buf2, "$n лишен$a регистрации!");
-				
+
 			break;
-			
+
 		}
 	}
 	if (IN_ROOM(ch) != NOWHERE)
 	{
 		act(buf, FALSE, vict, 0, ch, TO_CHAR);
-		act(buf2, FALSE, vict, 0, ch, TO_ROOM);       		
+		act(buf2, FALSE, vict, 0, ch, TO_ROOM);
 	};
 	return 1;
 }
@@ -751,9 +751,9 @@ void set_glory(CHAR_DATA * ch, CHAR_DATA * vict, int mode, int amount)
 ACMD(do_glory)
 {
 	// Команда простановки славы (оффлайн/онлайн)
-	// Без параметров выводит славу у игрока 
-	// + cлава прибавляет славу 
-	// - cлава убавляет славу 
+	// Без параметров выводит славу у игрока
+	// + cлава прибавляет славу
+	// - cлава убавляет славу
 	CHAR_DATA *vict;
 	char num[MAX_INPUT_LENGTH];
 	int mode = 0;
@@ -776,21 +776,21 @@ ACMD(do_glory)
 	else if (*num == '=')
 		mode = SET_GLORY;
 
-	if (mode != SHOW_GLORY) 
+	if (mode != SHOW_GLORY)
 	{
 		if ((reason == 0) || (*reason == 0))
 	        {
 			send_to_char("Укажите причину изменения славы ?\r\n", ch);
 			return;
 		}
-	} 
+	}
 
 	if ((vict = get_player_vis(ch, arg, FIND_CHAR_WORLD)) != NULL)
 	{
 		set_glory(ch, vict, mode, atoi((num + 1)));
 		if (mode != SHOW_GLORY) {
 			sprintf(buf,"Change glory %s by %s", num, GET_NAME(ch));
-			add_karma(vict,buf,reason);	
+			add_karma(vict,buf,reason);
 		}
 	}
 	else {
@@ -802,12 +802,12 @@ ACMD(do_glory)
 			return;
 		}
 
-		// Тут ставим или показываем славу 
+		// Тут ставим или показываем славу
 		set_glory(ch, vict, mode, atoi((num + 1)));
 
 		if (mode != SHOW_GLORY) {
 			sprintf(buf,"Change glory %s by %s", num, GET_NAME(ch));
-			add_karma(vict,buf,reason);	
+			add_karma(vict,buf,reason);
 		}
 
 		save_char(vict, GET_LOADROOM(vict));
@@ -1510,9 +1510,9 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	else
 		sprintf(buf, "L-Des: %s", (k->player.description ? k->player.description : "<Нет>\r\n"));
 	send_to_char(buf, ch);
-	
+
 	if (IS_NPC (k))
-		send_to_char ("Племя: --", ch);		
+		send_to_char ("Племя: --", ch);
 	else {
 		sprintf (buf, "Племя: %s",pc_kin_types[(int) GET_KIN(k)]);
 		send_to_char (buf, ch);
@@ -1619,7 +1619,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	send_to_char(buf, ch);
 
 	sprinttype(GET_POS(k), position_types, buf2);
-	sprintf(buf, "Положение: %s, Сражается: %s, Экипирован в металл: %s", 
+	sprintf(buf, "Положение: %s, Сражается: %s, Экипирован в металл: %s",
 		buf2, (FIGHTING(k) ? GET_NAME(FIGHTING(k)) : "Нет"), (equip_in_metall(k) ? "Да" : "Нет"));
 
 	if (IS_NPC(k)) {
@@ -1915,7 +1915,7 @@ ACMD(do_shutdown)
 		return;
 	}
 
-	if (buf && *buf && (times = atoi(buf)) > 0) {
+	if (*buf && (times = atoi(buf)) > 0) {
 		shutdown_time = time(NULL) + times;
 	} else if (str_cmp(arg, "schedule"))
 		shutdown_time = time(NULL);
@@ -2443,7 +2443,7 @@ ACMD(do_advance)
 		    GET_NAME(ch), GET_NAME(victim), newlevel, oldlevel);
 		imm_log("%s has advanced %s to level %d (from %d)", GET_NAME(ch), GET_NAME(victim), newlevel, oldlevel);
 	}
-	
+
 	gain_exp_regardless(victim, level_exp(victim, newlevel)
 			    - GET_EXP(victim));
 	save_char(victim, NOWHERE);
@@ -3061,33 +3061,33 @@ ACMD(do_wizutil)
 		case SCMD_SQUELCH:
 			break;
 		case SCMD_MUTE:
-			if (num && *num) times=atol(num);
+			if (*num) times=atol(num);
 			set_punish(ch, vict, SCMD_MUTE, reason, times);
 			break;
 		case SCMD_DUMB:
-			if (num && *num) times=atol(num);
+			if (*num) times=atol(num);
 			set_punish(ch, vict, SCMD_DUMB, reason, times);
 			break;
 		case SCMD_FREEZE:
-			if (num && *num) times=atol(num);
+			if (*num) times=atol(num);
 			set_punish(ch, vict, SCMD_FREEZE, reason, times);
 			break;
 		case SCMD_HELL:
-			if (num && *num) times=atol(num);
+			if (*num) times=atol(num);
 			set_punish(ch, vict, SCMD_HELL, reason, times);
 			break;
 
 		case SCMD_NAME:
-			if (num && *num) times=atol(num);
+			if (*num) times=atol(num);
 			set_punish(ch, vict, SCMD_NAME, reason, times);
 			break;
 
 		case SCMD_REGISTER:
-			set_punish(ch, vict, SCMD_UNREGISTER, reason, 0);			
+			set_punish(ch, vict, SCMD_UNREGISTER, reason, 0);
 			break;
 
 		case SCMD_UNREGISTER:
-			if (num && *num) times=atol(num);
+			if (*num) times=atol(num);
 			set_punish(ch, vict, SCMD_UNREGISTER, reason, times);
 			break;
 
@@ -3263,7 +3263,7 @@ ACMD(do_show)
 		/* tightened up by JE 4/6/93 */
 		if (self)
 			print_zone_to_buf(&bf, world[ch->in_room]->zone);
-		else if (value1 && *value1 && is_number(value) && is_number(value1)) {
+		else if (*value1 && is_number(value) && is_number(value1)) {
 			/* хотят зоны в диапазоне увидеть */
 			int found = 0;
 			int zstart = atoi(value);
@@ -3645,8 +3645,8 @@ struct set_struct		/*
 	{"perslog", LVL_IMPL, PC, BINARY},
 	{"mute", LVL_GOD, PC, MISC},
 	{"dumb", LVL_GOD, PC, MISC},	/* 65 */
-	{"karma", LVL_IMPL, PC, MISC},	
-	{"unreg", LVL_GOD, PC, MISC},	
+	{"karma", LVL_IMPL, PC, MISC},
+	{"unreg", LVL_GOD, PC, MISC},
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -3840,7 +3840,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 	case 26:
 		reason = one_argument(val_arg, num);
-		if (num && *num) times=atol(num);
+		if (*num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_FREEZE, reason, times)) return (0);
 		break;
 	case 27:
@@ -4202,7 +4202,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 
 	case 59:
 		reason = one_argument(val_arg, num);
-		if (num && *num) times=atol(num);
+		if (*num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_HELL, reason, times)) return (0);
 		break;
 	case 60:
@@ -4235,15 +4235,15 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 	case 63:
 		reason = one_argument(val_arg, num);
-		if (num && *num) times=atol(num);
+		if (*num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_MUTE, reason, times)) return (0);
 		break;
 	case 64:
 		reason = one_argument(val_arg, num);
-		if (num && *num) times=atol(num);
+		if (*num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_DUMB, reason, times)) return (0);
 		break;
-	case 65:      
+	case 65:
 		if (GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch)) {
 			send_to_char("Кем вы себя возомнили?\r\n", ch);
 			return 0;
@@ -4252,14 +4252,14 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		if (*num && reason && *reason) {
 			skip_spaces(&reason);
 			sprintf(buf, "%s by %s", num, GET_NAME(ch));
-			if (!strcmp(reason,"clear")) 
+			if (!strcmp(reason,"clear"))
 			{
-				if KARMA(vict) 
+				if KARMA(vict)
 					free(KARMA(vict));
 
 				KARMA(vict) = 0;
 				act("Вы отпустили $N2 все грехи.", FALSE, ch, 0, vict, TO_CHAR);
-				sprintf(buf, "%s", GET_NAME(ch));			
+				sprintf(buf, "%s", GET_NAME(ch));
 				add_karma(vict,"Очистка грехов", buf);
 
 			} else  add_karma(vict,buf,reason);
@@ -4270,7 +4270,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 	case 66:      // Разрегистрация персонажа
 		reason = one_argument(val_arg, num);
-		if (num && *num) times=atol(num);
+		if (*num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_UNREGISTER, reason, times)) return (0);
 		break;
 

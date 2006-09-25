@@ -167,7 +167,7 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch, int skill)
 
 void parry_override(CHAR_DATA * ch)
 {
-	char *message = NULL;
+	const char *message = NULL;
 	if (GET_AF_BATTLE(ch, EAF_BLOCK)) {
 		message = "Вы прекратили прятаться за щит и бросились в бой.";
 		CLR_AF_BATTLE(ch, EAF_BLOCK);
@@ -192,7 +192,7 @@ void parry_override(CHAR_DATA * ch)
 
 int used_attack(CHAR_DATA * ch)
 {
-	char *message = NULL;
+	const char *message = NULL;
 
 	parry_override(ch);
 
@@ -376,7 +376,7 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 		prob = prob * (GET_REAL_DEX(ch) + 50) / 100;
 
 	if (AFF_FLAGGED(ch, AFF_HIDE))
-		prob += 5;	// Add by Alez - Improove in hide stab probability 
+		prob += 5;	// Add by Alez - Improove in hide stab probability
 
  	if (GET_MOB_HOLD(vict))
 		prob = prob * 5 / 4;
@@ -714,7 +714,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
-							
+
 	vict = try_protect(vict, ch, SKILL_BASH);
 
 	percent = number(1, skill_info[SKILL_BASH].max_percent);
@@ -742,21 +742,21 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 		 * first to make sure they don't flee, then we can't bash them!  So now
 		 * we only set them sitting if they didn't flee. -gg 9/21/98
 		 */
-	
+
         //не дадим башить мобов в лаге которые спят, оглушены и прочее
         if (GET_POS(vict) <= POS_STUNNED && GET_WAIT(vict) > 0) {
 	        send_to_char("Ваша жертва итак слишком слаба, надо быть милосерднее.\r\n", ch);
 		set_wait(ch, 1, FALSE);
                 return;
         }
-                                                               		
+
 		int dam = str_app[GET_REAL_STR(ch)].todam + GET_REAL_DR(ch) +
 		    MAX(0, GET_SKILL(ch, SKILL_BASH) / 10 - 5) + GET_LEVEL(ch) / 5;
 //      log("[BASH params] = actor = %s, actorlevel = %d, actordex = %d
 //           target=  %s, targetlevel = %d, targetdex = %d ,skill = %d,
 //           dice = %d, dam = %d", GET_NAME(ch), GET_LEVEL(ch), GET_REAL_DEX(ch),
 //         GET_NAME(vict), GET_LEVEL(vict), GET_REAL_DEX(vict),
-//         percent, prob, dam);         
+//         percent, prob, dam);
 //делаем блокирование баша
 		if (GET_AF_BATTLE(vict, EAF_BLOCK) &&
 		    !AFF_FLAGGED(vict, AFF_STOPFIGHT) &&
@@ -2029,7 +2029,7 @@ ACMD(do_manadrain)
 	skill = GET_SKILL(ch, SKILL_MANADRAIN);
 
 	percent = number(1, skill_info[SKILL_MANADRAIN].max_percent);
-	/* Вероятность успеха - 90% - 5% за каждый уровень жертвы больше уровня чара 
+	/* Вероятность успеха - 90% - 5% за каждый уровень жертвы больше уровня чара
 	   20% мин. */
 	prob = MAX(20, 90 - 5 * MAX(0, GET_LEVEL(vict) - GET_LEVEL(ch)));
 	improove_skill(ch, SKILL_MANADRAIN, percent > prob, vict);
@@ -2119,7 +2119,7 @@ ACMD(do_turn_undead)
 	timed.time = IS_PALADINE(ch) ? 6 : 8;
 	if (can_use_feat(ch, EXORCIST_FEAT))
 		timed.time -= 2;
-	timed_to_char(ch, &timed); 
+	timed_to_char(ch, &timed);
 
 	send_to_char (ch, "Вы свели руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n");
 	act("$n свел$g руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n", FALSE, ch, 0, 0, TO_ROOM);
@@ -2167,13 +2167,13 @@ ACMD(do_turn_undead)
                 if (IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
                         continue;
 		if ((GET_LEVEL(ch_vict) > max_level) ||
-			(dice(1, GET_SAVE(ch_vict, SAVING_STABILITY) - con_app[GET_REAL_CON(ch_vict)].affect_saving) > 
+			(dice(1, GET_SAVE(ch_vict, SAVING_STABILITY) - con_app[GET_REAL_CON(ch_vict)].affect_saving) >
 				dice(1, GET_REAL_WIS(ch)))) {
-			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);				
+			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);
 			damage(ch, ch_vict, 0, SKILL_TURN_UNDEAD + TYPE_HIT, TRUE);
 			//send_to_char (ch, "Ваши потуги оказались напрасными.\r\n");
 			continue;
-		} 
+		}
 		sum -= GET_LEVEL(ch_vict);
 		if (GET_LEVEL(ch) - 8 >= GET_LEVEL(ch_vict)) {
 			dam = MAX (1, GET_HIT (ch_vict) + 11);

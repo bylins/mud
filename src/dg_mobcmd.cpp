@@ -62,7 +62,6 @@ extern int reloc_target;
 extern TRIG_DATA *cur_trig;
 
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
-void asciiflag_conv(char *flag, void *value);
 room_data *get_room(char *name);
 extern void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktype, int mayflee);
 OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name);
@@ -73,11 +72,9 @@ void die_follower(CHAR_DATA * victim);
  */
 
 /* attaches mob's name and vnum to msg and sends it to script_log */
-void mob_log(CHAR_DATA * mob, char *msg)
+void mob_log(CHAR_DATA * mob, const char *msg)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
-
-	void script_log(char *msg);
 
 	sprintf(buf, "(Mob: '%s', VNum: %d): %s", GET_SHORT(mob), GET_MOB_VNUM(mob), msg);
 	script_log(buf);
@@ -183,7 +180,7 @@ ACMD(do_mkill)
 
 /*
  * lets the mobile destroy an object in its inventory
- * it can also destroy a worn object and it can destroy 
+ * it can also destroy a worn object and it can destroy
  * items using all.xxxxx or just plain all of them
  */
 ACMD(do_mjunk)
@@ -361,7 +358,7 @@ ACMD(do_mecho)
 
 /*
  * lets the mobile load an item or mobile.  All items
- * are loaded into inventory, unless it is NO-TAKE. 
+ * are loaded into inventory, unless it is NO-TAKE.
  */
 ACMD(do_mload)
 {
@@ -1012,8 +1009,8 @@ ACMD(do_mtransform)
 // 2. Чтобы уменьшить кол-во мобов ch, нужно экстрактить ch,
 //    но этого делать НЕЛЬЗЯ, т.к. на него очень много ссылок.
 // 3. Вывод - a) обмениваю содержимое m и ch.
-//            b) в ch (бывший m) копирую игровую информацию из m (бывший ch) 
-//            c) удаляю m (на самом деле это данные ch в другой оболочке) 
+//            b) в ch (бывший m) копирую игровую информацию из m (бывший ch)
+//            c) удаляю m (на самом деле это данные ch в другой оболочке)
 
 
 		for (pos = 0; pos < NUM_WEARS; pos++) {
@@ -1032,7 +1029,7 @@ ACMD(do_mtransform)
 		memcpy(ch, &tmpmob, sizeof(CHAR_DATA));	// tmpmob ==> ch
 
 // Имею:
-//  ch -> старый указатель, новое наполнение из моба m 
+//  ch -> старый указатель, новое наполнение из моба m
 //  m -> новый указатель, старое наполнение из моба ch
 //  tmpmob -> врем. переменная, наполнение из оригинального моба m
 

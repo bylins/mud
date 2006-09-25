@@ -70,8 +70,8 @@ typedef RETSIGTYPE sigfunc(int);
 
 struct log_info_tag {
 	FILE *logfile;
-	char *filename;
-	char *name;
+	const char *filename;
+	const char *name;
 };
 typedef struct log_info_tag log_info;
 

@@ -223,7 +223,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		if (sagr == "q") {
-			// Проверяем не производилось ли изменение 
+			// Проверяем не производилось ли изменение
 			if (OLC_VAL(d)) {
 				send_to_char("Вы желаете сохранить изменения в рецепте ?(y/n) : ", d->character);
 				OLC_MODE(d) = MREDIT_CONFIRM_SAVE;
@@ -525,7 +525,7 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 		objname = "Нет";
 
 	int i = 0;
-	// 
+	//
 	skillname = "Нет";
 	while (make_skills[i].num != 0) {
 		if (make_skills[i].num == trec->skill) {
@@ -655,8 +655,8 @@ ACMD(do_make_item)
 {
 	// Тут творим предмет.
 
-	// Если прислали без параметра то выводим список всех рецептов 
-	// доступных для изготовления персонажу из его ингров 
+	// Если прислали без параметра то выводим список всех рецептов
+	// доступных для изготовления персонажу из его ингров
 
 	// Мастерить можно лук, посох , и диковину(аналог артефакта)
 
@@ -763,7 +763,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 {
 	OBJ_DATA *tobj;
 	char txtbuff[100];
-	char *to_char = NULL, *to_room = NULL;
+	const char *to_char = NULL, *to_room = NULL;
 	int prob, percent, ndice, sdice, weight;
 	float average;
 
@@ -813,7 +813,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 		case 11:
 //Polos.smith_craft_timer_up (max 3 weeks)
 			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, MIN(SEVEN_DAYS * 3, SEVEN_DAYS * prob / percent));
-//-Polos.smith_craft_timer_up	
+//-Polos.smith_craft_timer_up
 			GET_OBJ_MATER(tobj) = GET_OBJ_MATER(obj);
 			GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
 			GET_OBJ_CUR(tobj) = GET_OBJ_MAX(tobj);
@@ -1006,7 +1006,7 @@ ACMD(do_transform_weapon)
 	switch (subcmd) {
 	case SKILL_TRANSFORMWEAPON:
 
-		// Проверяем повторно из чего сделан объект 
+		// Проверяем повторно из чего сделан объект
 		// Чтобы не было абъюза с перековкой из угля.
 		if (created_item[obj_type].material_bits &&
 		    !IS_SET(created_item[obj_type].material_bits, (1 << GET_OBJ_MATER(obj)))) {
@@ -1717,7 +1717,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		act("Вы не готовы к тому чтобы сделать $o3.", FALSE, ch, tobj, 0, TO_CHAR);
 		return (FALSE);
 	}
-	// Прогружаем в массив реальные ингры 
+	// Прогружаем в массив реальные ингры
 	// 3. Проверить уровни ингров и чара
 	int ingr_cnt = 0, ingr_lev, i, craft_weight, ingr_pow;
 
@@ -1881,7 +1881,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 	act(charwork.c_str(), FALSE, ch, tobj, 0, TO_CHAR);
 	act(roomwork.c_str(), FALSE, ch, tobj, 0, TO_ROOM);
 
-	// Считаем вероятность испортить отдельный ингридиент 
+	// Считаем вероятность испортить отдельный ингридиент
 	// если уровень чара = уровню ингра то фейл 50%
 	// если уровень чара > уровня ингра на 15 то фейл 0%
 	// уровень чара * 2 - random(30) < 15 - фейл то пропадает весь материал
@@ -1918,7 +1918,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 	int craft_move = MIN_MAKE_MOVE + (created_lev / 2) - 1;
 
-	// Снимаем мувы за умение 
+	// Снимаем мувы за умение
 	if (GET_MOVE(ch) < craft_move) {
 		GET_MOVE(ch) = 0;
 		// Вам не хватило сил доделать.
@@ -1946,8 +1946,8 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// 4. Считаем сколько материала треба.
 	if (!make_fail)
 		for (i = 0; i < ingr_cnt; i++) {
-			// 
-			// нужный материал = мин.материал + 
+			//
+			// нужный материал = мин.материал +
 			// random(100) - skill
 			// если она < 20 то мин.вес + rand(мин.вес/3)
 			// если она < 50 то мин.вес*rand(1,2) + rand(мин.вес/3)
@@ -2028,19 +2028,19 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 		return (FALSE);
 	}
-	// Лоадим предмет игроку 
+	// Лоадим предмет игроку
 
 	OBJ_DATA *obj = read_object(obj_proto, VIRTUAL);
 
 	act(charsucc.c_str(), FALSE, ch, obj, 0, TO_CHAR);
 	act(roomsucc.c_str(), FALSE, ch, obj, 0, TO_ROOM);
 	// 6. Считаем базовые статсы предмета и таймер
-	//  формула для каждого умения отдельная 
+	//  формула для каждого умения отдельная
 
 	// Для числовых х-к:  х-ка+(skill - random(100))/20;
 	// Для флагов ???: random(200) - skill > 0 то флаг переноситься.
 
-	// Т.к. сделать мы можем практически любой предмет. 
+	// Т.к. сделать мы можем практически любой предмет.
 
 	// Модифицируем вес предмета и его таймер.
 	// Для маг предметов надо в сторону облегчения.
@@ -2078,22 +2078,22 @@ int MakeRecept::make(CHAR_DATA * ch)
 		break;
 	case ITEM_WAND:
 	case ITEM_STAFF:
-		// Проверяем может 
+		// Проверяем может
 
 		// Считаем уровень закла
 		GET_OBJ_VAL(obj, 0) = GET_LEVEL(ch);
 
-		// считаем заряды в палочке ... ставим число зарядов равное 
-		// числу замемленых заклов ... 
+		// считаем заряды в палочке ... ставим число зарядов равное
+		// числу замемленых заклов ...
 /*      if (!IS_IMMORTAL(ch))
       {
         GET_OBJ_VAL(obj,1) = GET_SPELL_MEM(ch,GET_OBJ_VAL(obj,3));
 
       // палочка заряжена под самые ухи.
-        GET_OBJ_VAL(obj,2) = GET_SPELL_MEM(ch,GET_OBJ_VAL(obj,3));      
+        GET_OBJ_VAL(obj,2) = GET_SPELL_MEM(ch,GET_OBJ_VAL(obj,3));
       } else
       {
-   GET_OBJ_VAL(obj,1) = 10;        
+   GET_OBJ_VAL(obj,1) = 10;
    GET_OBJ_VAL(obj,2) = 10;
       }
 */
@@ -2101,7 +2101,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 		break;
 	case ITEM_WEAPON:
-		// Считаем число xdy 
+		// Считаем число xdy
 		// модифицируем XdY
 		if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 2))
 			GET_OBJ_VAL(obj, 1) = stat_modify(ch, GET_OBJ_VAL(obj, 1), 1);
@@ -2139,13 +2139,13 @@ int MakeRecept::make(CHAR_DATA * ch)
 //  sprintf(tmpbuf,"VAL0 = %d ; VAL1 = %d ; VAL2 = %d ; VAL3 = %d \r\n",
 //     GET_OBJ_VAL(obj,0),GET_OBJ_VAL(obj,1),GET_OBJ_VAL(obj,2),GET_OBJ_VAL(obj,3));
 
-//  send_to_char(tmpbuf,ch);  
+//  send_to_char(tmpbuf,ch);
 	// 7. Считаем доп. статсы предмета.
-	// х-ка прототипа + 
+	// х-ка прототипа +
 	// если (random(100) - сила ингра ) < 1 то переноситься весь параметр.
 	// если от 1 до 25 то переноситься 1/2
 	// если от 25 до 50 то переноситься 1/3
-	// больше переноситься 0 
+	// больше переноситься 0
 
 	// переносим доп аффекты ...+мудра +ловка и т.п.
 
@@ -2199,7 +2199,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 	}
 
 	// 8. Проверяем мах. инворлд.
-	// Считаем по формуле (31 - ср. уровень предмета) * 5 - 
+	// Считаем по формуле (31 - ср. уровень предмета) * 5 -
 	// овер шмота в мире не 30 лева не больше 5 штук
 	// Т.к. ср. уровень ингров будет определять
 	// число шмоток в мире то шмотки по хуже будут вытеснять
@@ -2241,7 +2241,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 			new_desc->next = NULL;	// На всякий случай :)
 
 			new_desc->description = str_add(new_desc->description, tagchar);
-			// По уму тут надо бы стереть старое описапние если оно не с прототипа 
+			// По уму тут надо бы стереть старое описапние если оно не с прототипа
 
 			obj->ex_description = new_desc;
 		}
@@ -2294,7 +2294,7 @@ int MakeRecept::load_from_str(string & rstr)
 	}
 
 	for (int i = 0; i < MAX_PARTS; i++) {
-		// считали номер прототипа компонента 
+		// считали номер прототипа компонента
 		parts[i].proto = atoi((rstr.substr(0, rstr.find(" "))).c_str());
 		rstr = rstr.substr(rstr.find(" ") + 1);
 
@@ -2395,9 +2395,9 @@ int MakeRecept::add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, FLAG_DATA * add
 		for (int j = 0; j < 32; j++) {
 			tmpprob = number(0, 200) - calculate_skill(ch, skill, skill_info[skill].max_percent, 0);
 			if ((add_flag->flags[i] & (1 << j)) && (tmpprob < 0)) {
-//        cout << "Prob : " << tmpprob << endl;     
+//        cout << "Prob : " << tmpprob << endl;
 				base_flag->flags[i] |= (1 << j);
-//        cout << "Base now : " << base_flag->flags[i] << endl;       
+//        cout << "Base now : " << base_flag->flags[i] << endl;
 			}
 		}
 	}

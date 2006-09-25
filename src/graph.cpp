@@ -121,7 +121,7 @@ void bfs_clear_queue(void)
 }
 
 
-/* 
+/*
  * find_first_step: given a source room and a target room, find the first
  * step on the shortest path from the source to the target.
  *
@@ -162,13 +162,13 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 
 	MARK(src);
 
-	// first, enqueue the first steps, saving which direction we're going. 
+	// first, enqueue the first steps, saving which direction we're going.
 	for (curr_dir = 0; curr_dir < NUM_OF_DIRS; curr_dir++)
 		if (VALID_EDGE(src, curr_dir, edge, through_doors)) {
 			MARK(TOROOM(src, curr_dir));
 			bfs_enqueue(TOROOM(src, curr_dir), curr_dir);
 		}
-	// now, do the classic BFS. 
+	// now, do the classic BFS.
 	while (queue_head) {
 		if (queue_head->room == target) {
 			curr_dir = queue_head->dir;
@@ -251,7 +251,7 @@ ACMD(do_sense)
 	}
 
 	/* We can't track the victim. */
-//  if (AFF_FLAGGED(vict, AFF_NOTRACK)) 
+//  if (AFF_FLAGGED(vict, AFF_NOTRACK))
 //     {send_to_char("Вы не чувствуете его присутствия.\r\n", ch);
 //      return;
 //     }
@@ -447,7 +447,9 @@ void hunt_victim(CHAR_DATA * ch)
 			found = TRUE;
 
 	if (!found) {
-		do_say(ch, "О, Боги!  Моя жертва ускользнула!!", 0, 0);
+		char* temp = str_dup("О, Боги!  Моя жертва ускользнула!!");
+		do_say(ch, temp, 0, 0);
+		free(temp);
 		HUNTING(ch) = NULL;
 		return;
 	}

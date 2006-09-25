@@ -147,7 +147,9 @@ int is_ok_char(CHAR_DATA * keeper, CHAR_DATA * ch, int shop_nr)
 	char buf[200];
 
 	if (!(CAN_SEE(keeper, ch))) {
-		do_say(keeper, MSG_NO_SEE_CHAR, cmd_say, 0);
+		char* temp = str_dup(MSG_NO_SEE_CHAR);
+		do_say(keeper, temp, cmd_say, 0);
+		free(temp);
 		return (FALSE);
 	}
 	if (IS_GOD(ch))
@@ -1064,7 +1066,7 @@ void shopping_change(char *argument, CHAR_DATA * ch, CHAR_DATA * keeper, int sho
 		if (is_number(arg)) {
 			multi = atoi(arg);
 			argument = one_argument(argument, arg);
-			if (!arg || !*arg)
+			if (!*arg)
 				continue;
 			if (multi <= 0)
 				continue;

@@ -897,8 +897,8 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 				close_socket(d, FALSE);	// закрыл соединение
 			else
 				d->has_prompt = 1;	// признак того, что промпт уже выводил
-			// следующий после команды или очередной 
-			// порции вывода                                 
+			// следующий после команды или очередной
+			// порции вывода
 		}
 	}
 
@@ -1149,7 +1149,7 @@ inline void heartbeat()
 	if (!(pulse % (30 * PASSES_PER_SEC))) {
 		make_who2html();
 		if (uptime_minutes >= (reboot_uptime - 30) && shutdown_time == 0) {
-			//reboot after 30 minutes minimum. Auto reboot cannot run earlier.  
+			//reboot after 30 minutes minimum. Auto reboot cannot run earlier.
 			send_to_all("АВТОМАТИЧЕСКАЯ ПЕРЕЗАГРУЗКА ЧЕРЕЗ 30 МИНУТ.\r\n");
 			shutdown_time = time(NULL) + 1800;
 			circle_shutdown = 2;
@@ -1501,7 +1501,7 @@ char *show_state(CHAR_DATA *ch, CHAR_DATA *victim)
 char *show_state(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	int ch_hp = 11;
-	static char *WORD_STATE[12] = { "Смертельно ранен",
+	static const char *WORD_STATE[12] = { "Смертельно ранен",
 		"О.тяжело ранен",
 		"О.тяжело ранен",
 		"Тяжело ранен",
@@ -1529,7 +1529,7 @@ char *show_state(CHAR_DATA * ch, CHAR_DATA * victim)
 char *make_prompt(DESCRIPTOR_DATA * d)
 {
 	static char prompt[MAX_PROMPT_LENGTH + 1];
-	static char *dirs[] = { "С", "В", "Ю", "З", "^", "v" };
+	static const char *dirs[] = { "С", "В", "Ю", "З", "^", "v" };
 
 	int ch_hp, sec_hp;
 	int door;
@@ -2518,7 +2518,7 @@ int process_input(DESCRIPTOR_DATA * t)
 				space_left--;
 			}
 
-			/* Для того чтобы работали все триги в змаде - заменяем все вводимые 'z' 
+			/* Для того чтобы работали все триги в змаде - заменяем все вводимые 'z'
 			   на 'я' */
 			if (STATE(t) == CON_PLAYING || (STATE(t) == CON_EXDESC)) {
 				if (t->keytable == KT_WINZ6 || t->keytable == KT_WINZ) {
@@ -2549,7 +2549,7 @@ int process_input(DESCRIPTOR_DATA * t)
 			// очистка входной очереди
 			int dummy;
 			while (get_from_q(&t->input, buf2, &dummy));
-			// SEND_TO_Q("Входной буфер очищен.\r\n", t); 
+			// SEND_TO_Q("Входной буфер очищен.\r\n", t);
 			tmp[0] = 0;
 		} else if (*tmp == '!' && !(*(tmp + 1)))
 			/* Redo last command. */

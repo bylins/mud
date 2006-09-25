@@ -78,7 +78,7 @@ const char *save_info_msg[5] = { "Rooms", "Objects", "Zone info",
   * Internal data structures.
   */
 struct olc_scmd_data {
-	char *text;
+	const char *text;
 	int con_type;
 };
 
@@ -96,7 +96,7 @@ struct olc_scmd_data olc_scmd_info[6] = {
  /*
   * Exported ACMD do_olc function.
   *
-  * This function is the OLC interface.  It deals with all the 
+  * This function is the OLC interface.  It deals with all the
   * generic OLC stuff, then passes control to the sub-olc sections.
   */
 
@@ -153,7 +153,7 @@ ACMD(do_olc)
 		} else if (subcmd == SCMD_OLC_ZEDIT && (GET_LEVEL(ch) >= LVL_BUILDER || GET_COMMSTATE(ch))) {
 			send_to_char("Создание новых зон отключено.\r\n", ch);
 			return;
-/*          
+/*
           if ((strn_cmp("new", buf1, 3) == 0) && *buf2)
  	         zedit_new_zone(ch, atoi(buf2));
           else
@@ -347,7 +347,7 @@ ACMD(do_olc)
 }
 
  /*------------------------------------------------------------*\
-  Internal utilities 
+  Internal utilities
  \*------------------------------------------------------------*/
 
 void olc_saveinfo(CHAR_DATA * ch)
@@ -367,11 +367,11 @@ void olc_saveinfo(CHAR_DATA * ch)
 
 }
 
-/*  
+/*
  int real_zone(int number)
  {
    int counter;
-printf("number=%d, top=%d\n", number, top_of_zone_table); 
+printf("number=%d, top=%d\n", number, top_of_zone_table);
    for (counter = 0; counter <= top_of_zone_table; counter++) {
 printf("checking index %d, range=%d..%d\n",
 counter,(zone_table[counter].number * 100), zone_table[counter].top);
@@ -379,13 +379,13 @@ counter,(zone_table[counter].number * 100), zone_table[counter].top);
  	(number <= (zone_table[counter].top)))
        return counter;
    }
- 
+
    return -1;
  }
 */
 
  /*------------------------------------------------------------*\
-  Exported utilities 
+  Exported utilities
  \*------------------------------------------------------------*/
 
  /*
@@ -434,7 +434,7 @@ void olc_remove_from_save_list(int zone, byte type)
 
  /*
   * Set the colour string pointers for that which this char will
-  * see at color level NRM.  Changing the entries here will change 
+  * see at color level NRM.  Changing the entries here will change
   * the colour scheme throughout the OLC.
   */
 

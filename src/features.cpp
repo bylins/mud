@@ -59,7 +59,7 @@ class aff_array {
 			} else if  (pos >= 0 && pos < MAX_FEAT_AFFECT) {
 				_pos = pos;
 				return _pos;
-			} 
+			}
 			sprintf(buf, "SYSERR: invalid arg passed to features::aff_aray.pos!");
 			mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
 		}
@@ -70,7 +70,7 @@ class aff_array {
 			affected[_pos].modifier = modifier;
 			_pos++;
 			if (_pos >= MAX_FEAT_AFFECT)
-				_pos = 0;			
+				_pos = 0;
 		}
 
 
@@ -87,7 +87,7 @@ class aff_array {
 			affected[MAX_FEAT_AFFECT];
 	private:
 		int _pos, i;
-}; 
+};
 
 /* Поиск номера способности по имени */
 int find_feat_num(char *name)
@@ -130,7 +130,7 @@ void feato(int feat, const char *name, int type, bool can_up_slot, aff_array app
 	for (i = 0; i < MAX_FEAT_AFFECT; i++) {
 		feat_info[feat].affected[i].location = app.affected[i].location;
 		feat_info[feat].affected[i].modifier = app.affected[i].modifier;
-	} 
+	}
 }
 
 /* Инициализация для unused features */
@@ -153,12 +153,12 @@ void unused_feat(int feat)
 	for (i = 0; i < MAX_FEAT_AFFECT; i++) {
 		feat_info[feat].affected[i].location = APPLY_NONE;
 		feat_info[feat].affected[i].modifier = 0;
-	} 
+	}
 }
 
 /* Инициализация массива структур способностей */
 void assign_feats(void)
-{ 
+{
 	int i;
 	aff_array feat_app;
 	for (i = 0; i < MAX_FEATS; i++) {
@@ -497,9 +497,9 @@ bool can_use_feat(CHAR_DATA *ch, int feat)
 {
 	if (!HAVE_FEAT(ch, feat))
 		return FALSE;
-	if (GET_LEVEL(ch) < feat_info[feat].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])	
+	if (GET_LEVEL(ch) < feat_info[feat].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 		return FALSE;
-	if (GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])	
+	if (GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 		return FALSE;
 
 	switch (feat) {
@@ -547,9 +547,9 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 		return FALSE;
 	}
 	/* Доступность по уровню, классу, реморту. */
-	if (!feat_info[feat].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]	
-		|| GET_LEVEL(ch) < feat_info[feat].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]	
-		|| GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])	
+	if (!feat_info[feat].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
+		|| GET_LEVEL(ch) < feat_info[feat].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
+		|| GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 		return FALSE;
 
 	/* Наличие свободных слотов */
@@ -560,11 +560,11 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	switch (feat) {
 	case PARRY_ARROW_FEAT:
 		if (!GET_SKILL(ch, SKILL_MULTYPARRY) && !GET_SKILL(ch, SKILL_PARRY))
-			return FALSE; 
+			return FALSE;
 	break;
 	case CONNOISEUR_FEAT:
 		if (!GET_SKILL(ch, SKILL_IDENTIFY))
-			return FALSE; 
+			return FALSE;
 	break;
 	case EXORCIST_FEAT:
 		if (!GET_SKILL(ch, SKILL_TURN_UNDEAD))
@@ -593,12 +593,12 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	case SPADES_MASTER_FEAT:
 	case BOWS_MASTER_FEAT:
 		if (!HAVE_FEAT(ch, (ubyte) feat_info[feat].affected[1].location))
-			return FALSE;		
+			return FALSE;
 		for (i = PUNCH_MASTER_FEAT; i <= BOWS_MASTER_FEAT; i++)
 			if (HAVE_FEAT(ch, i))
 				count++;
 		if (count >= 1)
-			return FALSE;		
+			return FALSE;
 	break;
 	case SPIRIT_WARRIOR_FEAT:
                 if (!HAVE_FEAT(ch, GREAT_FORTITUDE_FEAT))
@@ -623,12 +623,12 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	case SPADES_FOCUS_FEAT:
 	case BOWS_FOCUS_FEAT:
 		if (!GET_SKILL(ch, (ubyte) feat_info[feat].affected[0].location))
-			return FALSE;		
+			return FALSE;
 		for (i = PUNCH_FOCUS_FEAT; i <= BOWS_FOCUS_FEAT; i++)
 			if (HAVE_FEAT(ch, i))
 				count++;
 		if (count >= 2)
-			return FALSE;		
+			return FALSE;
 	break;
 	case GREAT_AIMING_ATTACK_FEAT:
 		if (!HAVE_FEAT(ch, AIMING_ATTACK_FEAT))
@@ -694,7 +694,7 @@ int find_feat_slot(CHAR_DATA *ch, int feat)
 			}
 			return (-1);
 		} else
-			return (slot);			
+			return (slot);
 	}
 
 	return (-1);
@@ -707,7 +707,7 @@ int feature_mod(int feat, int location)
 	for (i = 0; i < MAX_FEAT_AFFECT; i++)
 		if (feat_info[feat].affected[i].location == location)
 			return (int) feat_info[feat].affected[i].modifier;
-	return 0;		
+	return 0;
 }
 
 
@@ -739,7 +739,7 @@ void check_berserk(CHAR_DATA * ch)
 		af.modifier = 0;
 		af.location = APPLY_NONE;
 		af.battleflag = 0;
-		
+
 		prob = IS_NPC(ch) ? 400 : (500 - GET_LEVEL(ch) * 5 - GET_REMORT(ch) * 5);
 		if (number(1, 1000) <=  prob) {
 			af.bitvector = AFF_BERSERK;

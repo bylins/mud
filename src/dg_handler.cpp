@@ -87,7 +87,7 @@ void extract_script_mem(struct script_memory *sc)
 }
 
 /* perhaps not the best place for this, but I didn't want a new file */
-char *skill_percent(CHAR_DATA * ch, char *skill)
+const char *skill_percent(CHAR_DATA * ch, char *skill)
 {
 	static char retval[256];
 	im_rskill *rs;
@@ -121,7 +121,7 @@ bool feat_owner(CHAR_DATA * ch, char *feat)
         return 0;
 }
 
-char *spell_count(CHAR_DATA * ch, char *spell)
+const char *spell_count(CHAR_DATA * ch, char *spell)
 {
 	static char retval[256];
 	int spellnum;
@@ -137,7 +137,7 @@ char *spell_count(CHAR_DATA * ch, char *spell)
 	return retval;
 }
 
-char *spell_knowledge(CHAR_DATA * ch, char *spell)
+const char *spell_knowledge(CHAR_DATA * ch, char *spell)
 {
 	static char retval[256];
 	int spellnum;

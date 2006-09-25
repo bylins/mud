@@ -212,7 +212,7 @@ struct reset_com {
 	char *sarg1;		/* string argument                      */
 	char *sarg2;		/* string argument                      */
 
-	/* 
+	/*
 	 *  Commands:              *
 	 *  'M': Read a mobile     *
 	 *  'O': Read an object    *
@@ -221,7 +221,7 @@ struct reset_com {
 	 *  'G': Obj to char       *
 	 *  'E': Obj to char equip *
 	 *  'D': Set state of door *
-	 *  'T': Trigger command   * 
+	 *  'T': Trigger command   *
 	 */
 };
 
@@ -378,5 +378,7 @@ int dl_parse(load_list ** dl_list, char *line);
 int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_TYPE);
 int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch);
 void dl_list_copy(load_list * *pdst, load_list * src);
+
+void asciiflag_conv(const char *flag, void *value);
 
 #endif

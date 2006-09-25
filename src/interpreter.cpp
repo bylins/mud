@@ -1977,7 +1977,7 @@ int pre_help(CHAR_DATA * ch, char *arg)
 
 	half_chop(arg, command, topic);
 
-	if (!command || !*command || strlen(command) < 2 || !topic || !*topic || strlen(topic) < 2)
+	if (!*command || strlen(command) < 2 || !*topic || strlen(topic) < 2)
 		return (0);
 	if (isname(command, "помощь") || isname(command, "help") || isname(command, "справка")) {
 		do_help(ch, topic, 0, 0);
@@ -2837,35 +2837,30 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-	case CON_COLOR:
+	case CON_COLOR: {
 		if (pre_help (d->character, arg)){
 			SEND_TO_Q (color_menu, d);
 			SEND_TO_Q ("\n\rРежим :", d);
 			STATE (d) = CON_COLOR;
 			return;
 		}
-		switch (UPPER (*arg)){
-			case '0':
-				do_color (d->character, "выкл", 0, 0);
-				break;
-			case '1':
-				do_color (d->character, "простой", 0, 0);
-				break;
-			case '2':
-				do_color (d->character, "обычный", 0, 0);
-				break;
-			case '3':
-				do_color (d->character, "полный", 0, 0);
-				break;
-			default:
-				SEND_TO_Q ("Таких режимов нет выберите из присутствующих!", d);
+
+		const char* temp_buf[4] = {"выкл", "простой", "обычный", "полный"};
+		if (*arg >= '0' && *arg <= '3') {
+			char* temp_str = str_dup(temp_buf[*arg - '0']);
+			do_color(d->character, temp_str, 0, 0);
+			free(temp_str);
+		}
+		else {
+			SEND_TO_Q("Таких режимов нет выберите из присутствующих!", d);
 			return;
-			}
+		}
+
 		SEND_TO_Q ("\r\nВведите Ваш E-mail"
 			   "\r\n(ВСЕ ВАШИ ПЕРСОНАЖИ ДОЛЖНЫ ИМЕТЬ ОДИНАКОВЫЙ E-mail): ",d);
 		STATE (d) = CON_GET_EMAIL;
 		break;
-
+	}
 
 	case CON_GET_EMAIL:
 		if (!*arg) {

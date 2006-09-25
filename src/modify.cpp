@@ -257,7 +257,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 	case PARSE_LIST_NORM:
 		/*
 		 * Note: Rv's buf, buf1, buf2, and arg variables are defined to 32k so
-		 * they are probly ok for what to do here. 
+		 * they are probly ok for what to do here.
 		 */
 		*buf = '\0';
 		if (*string != '\0')
@@ -321,7 +321,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 	case PARSE_LIST_NUM:
 		/*
 		 * Note: Rv's buf, buf1, buf2, and arg variables are defined to 32k so
-		 * they are probly ok for what to do here. 
+		 * they are probly ok for what to do here.
 		 */
 		*buf = '\0';
 		if (*string != '\0')
@@ -488,7 +488,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			if ((s = strchr(s, '\n')) != NULL) {	/*
 								 * This means that we are at the END of the line, we want out of
 								 * there, but we want s to point to the beginning of the line
-								 * AFTER the line we want edited 
+								 * AFTER the line we want edited
 								 */
 				s++;
 				/*
@@ -686,7 +686,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			//log("[SA] 2f");
 		}
 		/*
-		 * This fix causes the editor to NULL out empty messages -- M. Scott 
+		 * This fix causes the editor to NULL out empty messages -- M. Scott
 		 * Fixed to fix the fix for empty fixed messages. -- gg
 		 */
 		else if ((d->str) && (*d->str) && (**d->str == '\0')) {	//log("[SA] 3s");
@@ -894,7 +894,7 @@ ACMD(do_featset)
 
 	argument += qend + 1;	/* skip to next parameter */
 	argument = one_argument(argument, buf);
- 
+
 	if (!*buf) {
 		send_to_char("Не указан числовой параметр (0 или 1).\r\n", ch);
 		return;
@@ -1194,7 +1194,9 @@ void page_string(DESCRIPTOR_DATA * d, char *str, int keep_internal)
 	} else
 		paginate_string(str, d);
 
-	show_string(d, "");
+	char* temp = str_dup("");
+	show_string(d, temp);
+	free(temp);
 }
 
 // TODO типа временно для стрингов

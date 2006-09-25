@@ -38,7 +38,6 @@ extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;
 
 extern void half_chop(char *string, char *arg1, char *arg2);
-extern void asciiflag_conv(char *flag, void *value);
 
 int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract);
 int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
@@ -53,13 +52,13 @@ char * indent_trigger(char * cmd , int * level)
 	currlev = nextlev = *level;
 
 	if (!cmd) return cmd;
-		
+
 	ptr = cmd;
 	skip_spaces(&ptr);
 
-	// ptr содержит строку без первых пробелов. 
-	if (!strn_cmp("case ", ptr , 5) || !strn_cmp("if ", ptr , 3) || 
-	    !strn_cmp("while ", ptr , 6) || !strn_cmp("switch ", ptr, 7) || 
+	// ptr содержит строку без первых пробелов.
+	if (!strn_cmp("case ", ptr , 5) || !strn_cmp("if ", ptr , 3) ||
+	    !strn_cmp("while ", ptr , 6) || !strn_cmp("switch ", ptr, 7) ||
 	    !strn_cmp("foreach ", ptr, 8) || !strn_cmp("default", ptr , 7) ) {
 		// Увеличиваем уровень вложения
 		nextlev++;
@@ -67,23 +66,23 @@ char * indent_trigger(char * cmd , int * level)
 	{
 		currlev--;
 	}
-	else if (!strn_cmp("else", ptr, 4) || !strn_cmp("else", ptr, 4) || 
-		!strn_cmp("break", ptr, 5) || !strn_cmp("done", ptr, 4) || 
+	else if (!strn_cmp("else", ptr, 4) || !strn_cmp("else", ptr, 4) ||
+		!strn_cmp("break", ptr, 5) || !strn_cmp("done", ptr, 4) ||
 		!strn_cmp("end", ptr, 3))
 	{
 		nextlev--;
 		currlev--;
 	}
-	
+
 	if (nextlev < 0 ) nextlev = 0;
 	if (currlev < 0 ) currlev = 0;
-	
-	// Вставляем дополнительные пробелы 
+
+	// Вставляем дополнительные пробелы
 
 	tmp = (char *) malloc(currlev*2+1);
 	memset(tmp, 0x20, currlev*2);
 	tmp[currlev*2] = '\0';
-	
+
 	tmp = str_add(tmp, ptr);
 
 	cmd = (char *)realloc(cmd, strlen(tmp)+1);
@@ -131,7 +130,7 @@ void parse_trigger(FILE * trig_f, int nr)
 
 	trig->cmdlist->cmd = str_dup(strtok(s, "\n\r"));
 
-	indlev = 0;	
+	indlev = 0;
 	trig->cmdlist->cmd = indent_trigger(trig->cmdlist->cmd,&indlev);
 
 	cle = trig->cmdlist;
@@ -248,7 +247,7 @@ void trig_data_free(TRIG_DATA * this_data)
 	 * The command list is a memory leak right now!
 	 *
 	 if (cmdlist != trigg->cmdlist || this_data->proto)
-	 for (i = cmdlist; i;) 
+	 for (i = cmdlist; i;)
 	 {j = i;
 	 i = i->next;
 	 free(j->cmd);

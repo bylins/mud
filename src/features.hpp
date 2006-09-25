@@ -2,14 +2,12 @@
 *   File: features.hpp                                 Part of Bylins    *
 *   Features code header                                                 *
 *                                                                        *
-*  $Author$                                                     * 
+*  $Author$                                                     *
 *  $Date$                                          *
 *  $Revision$                                                  *
 **************************************************************************/
 #ifndef __FEATURES_HPP__
 #define __FEATURES_HPP__
-#include <bitset>
-using std::bitset;
 
 #define THAC0_FEAT			0   //DO NOT USED
 #define BERSERK_FEAT			1   //предсмертная ярость
@@ -134,17 +132,15 @@ int find_feat_slot(CHAR_DATA *ch, int feat);
 int feature_mod(int feat, int location);
 void check_berserk(CHAR_DATA * ch);
 
-#endif
-
 struct feat_info_type {
-        int min_remort[NUM_CLASSES][NUM_KIN];
-        int min_level[NUM_CLASSES][NUM_KIN];
+	int min_remort[NUM_CLASSES][NUM_KIN];
+	int min_level[NUM_CLASSES][NUM_KIN];
 	bool classknow[NUM_CLASSES][NUM_KIN];
 	bool natural_classfeat[NUM_CLASSES][NUM_KIN];
-	struct obj_affected_type
-			affected[MAX_FEAT_AFFECT];
-        int type;
+	struct obj_affected_type affected[MAX_FEAT_AFFECT];
+	int type;
 	bool up_slot;
-        const char *name;
-
+	const char *name;
 };
+
+#endif

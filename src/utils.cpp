@@ -31,7 +31,6 @@
 #include "boards.h"
 
 extern DESCRIPTOR_DATA *descriptor_list;
-
 extern CHAR_DATA *mob_proto;
 
 /* local functions */
@@ -44,6 +43,8 @@ int valid_email(const char *address);
 
 /* external functions */
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
+SPECIAL(receptionist);
+SPECIAL(postmaster);
 
 // Файл для вывода
 FILE *logfile = NULL;
@@ -433,8 +434,8 @@ void mudlog(const char *str, int type, int level, int channel, int file)
  * to cast a non-const array as const than to cast a const one as non-const.
  * Doesn't really matter since this function doesn't change the array though.
  */
-char *empty_string = "ничего";
-int sprintbitwd(bitvector_t bitvector, const char *names[], char *result, char *div)
+const char *empty_string = "ничего";
+int sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div)
 {
 	long nr = 0, fail = 0, divider = FALSE;
 
@@ -484,7 +485,7 @@ int sprintbit(bitvector_t bitvector, const char *names[], char *result)
 	return sprintbitwd(bitvector,names,result, ",");
 }
 
-void sprintbits(FLAG_DATA flags, const char *names[], char *result, char *div)
+void sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div)
 {
 	char buffer[MAX_STRING_LENGTH];
 	int i;
@@ -1183,13 +1184,13 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen)
 }
 
 
-char *some_pads[3][20] = {
+const char *some_pads[3][20] = {
 {"дней", "часов", "лет", "очков", "минут", "минут", "кун", "кун", "штук", "штук", "уровней", "верст", "верст", "единиц", "единиц", "секунд", "градусов", "строк", "предметов", "перевоплощений"},
 {"день", "час", "год", "очко", "минута", "минуту", "куна", "куну", "штука", "штуку", "уровень", "верста", "версту", "единица", "единицу", "секунду", "градус", "строка", "предмет", "перевоплощение"},
 {"дня", "часа", "года", "очка", "минуты", "минуты", "куны", "куны", "штуки", "штуки", "уровня", "версты", "версты", "единицы", "единицы", "секунды", "градуса", "строки", "предмета", "перевоплощения"}
 };
 
-char *desc_count(int how_many, int of_what)
+const char *desc_count(int how_many, int of_what)
 {
 	if (how_many < 0)
 		how_many = -how_many;
@@ -1590,7 +1591,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
                  break;
             case 'P':
                  CHECK_NULL(vict_obj, OBJS((const OBJ_DATA *) vict_obj, to));
-                 dg_victim = (CHAR_DATA *) vict_obj;	
+                 dg_victim = (CHAR_DATA *) vict_obj;
                  break;
 */
 			case 't':
@@ -1799,7 +1800,7 @@ int valid_email(const char *address)
 	    return 0;
 
         return 1;
-}	    
+}
 
 
 GodListType GodList; // список иммов

@@ -36,7 +36,6 @@ void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 void die_follower(CHAR_DATA * ch);
 room_data *get_room(char *name);
-void asciiflag_conv(char *flag, void *value);
 int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
 void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktype, int mayflee);
 #define OCMD(name)  \
@@ -44,7 +43,7 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktyp
 
 
 struct obj_command_info {
-	char *command;
+	const char *command;
 	void (*command_pointer) (OBJ_DATA * obj, char *argument, int cmd, int subcmd);
 	int subcmd;
 };
@@ -57,11 +56,9 @@ struct obj_command_info {
 
 
 /* attaches object name and vnum to msg and sends it to script_log */
-void obj_log(OBJ_DATA * obj, char *msg)
+void obj_log(OBJ_DATA * obj, const char *msg)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
-
-	void script_log(char *msg);
 
 	sprintf(buf, "(Obj: '%s', VNum: %d): %s", obj->short_description, GET_OBJ_VNUM(obj), msg);
 	script_log(buf);
@@ -637,7 +634,7 @@ OCMD(do_osetval)
 	int position, new_value;
 
 	two_arguments(argument, arg1, arg2);
-	if (!arg1 || !*arg1 || !arg2 || !*arg2 || !is_number(arg1) || !is_number(arg2)) {
+	if (!*arg1 || !*arg2 || !is_number(arg1) || !is_number(arg2)) {
 		obj_log(obj, "osetval: bad syntax");
 		return;
 	}
