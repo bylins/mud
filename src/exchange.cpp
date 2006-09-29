@@ -24,6 +24,7 @@
 #include "im.h"
 #include "constants.h"
 #include "skills.h"
+#include <stdexcept>
 
 
 extern OBJ_DATA *object_list;
@@ -173,7 +174,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	int counter;
 	int counter_ming; //количиство ингридиентов
 	int tax;	//налог
-	
+
 	if (!*arg) {
 		send_to_char(info_message, ch);
 		return false;
@@ -225,7 +226,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		item_cost = MAX(1, GET_OBJ_COST(obj));
 	};
 
-	(GET_OBJ_TYPE(obj) != ITEM_MING)? 				
+	(GET_OBJ_TYPE(obj) != ITEM_MING)?
 		tax = EXCHANGE_EXHIBIT_PAY + (int)(item_cost * EXCHANGE_EXHIBIT_PAY_COEFF):
 		tax = (int)(item_cost * EXCHANGE_EXHIBIT_PAY_COEFF / 2);
 	if ((GET_BANK_GOLD(ch) < tax )
@@ -233,15 +234,15 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		send_to_char("У вас не хватит денег на налоги !\r\n", ch);
 		return false;
 	}
-	for (j = exchange_item_list, counter = 0,counter_ming = 0; 
-				j && (counter + (counter_ming / 20)  <= EXCHANGE_MAX_EXHIBIT_PER_CHAR); 
+	for (j = exchange_item_list, counter = 0,counter_ming = 0;
+				j && (counter + (counter_ming / 20)  <= EXCHANGE_MAX_EXHIBIT_PER_CHAR);
 				j = next_thing) {
 		next_thing = j->next;
 		if (GET_EXCHANGE_ITEM_SELLERID(j) == GET_IDNUM(ch))
-			((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING) && 
+			((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING) &&
 			 (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT)) ? counter++:counter_ming++;
 	}
-		
+
 	if (counter + (counter_ming / 20)  >= EXCHANGE_MAX_EXHIBIT_PER_CHAR) {
 		send_to_char("Вы уже выставили на базар максимальное количество предметов !\r\n", ch);
 		return false;
@@ -1466,7 +1467,7 @@ int obj_matches_filter(EXCHANGE_ITEM_DATA * j, char *filter_name, char *filter_o
 		//Для ингридиентов, дополнительно проверяем имя прототипa
 		else if (!isname(filter_name, GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(GET_EXCHANGE_ITEM(j))], 0)))
 				return 0;
-		
+
 	if (*filter_owner && !isname(filter_owner, get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j))))
 		return 0;
 	if (*filter_type && !(GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == *filter_type))
@@ -1483,8 +1484,18 @@ int obj_matches_filter(EXCHANGE_ITEM_DATA * j, char *filter_name, char *filter_o
 	    && (GET_OBJ_SKILL(GET_EXCHANGE_ITEM(j)) != *filter_weaponclass))
 		return 0;
 	if (*filter_timer) {
-		tm = (GET_OBJ_TIMER(GET_EXCHANGE_ITEM(j)) * 100 /
-		      GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(GET_EXCHANGE_ITEM(j))]));
+		int temp;
+		// Вобщем чтобы тут не валилось от всяких писем и прочей ваты на базаре,
+		// как оно там оказывается уже разбирайтесь сами, ес-сно надо запрещать
+		// выставлять на базар вещи, не имеющие рнума // Krodo
+		try {
+			temp = GET_OBJ_TIMER(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(j))));
+		}
+		catch (std::out_of_range) {
+			log("SYSERROR: wrong obj_proto in exchange (%s %s %d)", __FILE__, __func__, __LINE__);
+			return 0;
+		}
+		tm = (GET_OBJ_TIMER(GET_EXCHANGE_ITEM(j)) * 100 / temp);
 		if ((tm + 1) < *filter_timer)
 			return 0;
 	}
