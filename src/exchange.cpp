@@ -207,7 +207,8 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		if (OBJ_FLAGGED(obj, ITEM_NORENT)
 		    || OBJ_FLAGGED(obj, ITEM_NOSELL)
 		    || OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
-		    || OBJ_FLAGGED(obj, ITEM_REPOP_DECAY)) {
+			|| OBJ_FLAGGED(obj, ITEM_REPOP_DECAY)
+			|| GET_OBJ_RNUM(obj) < 0) {
 			send_to_char("Этот предмет не предназначен для базара.\r\n", ch);
 			return false;
 		}
@@ -1484,20 +1485,17 @@ int obj_matches_filter(EXCHANGE_ITEM_DATA * j, char *filter_name, char *filter_o
 	    && (GET_OBJ_SKILL(GET_EXCHANGE_ITEM(j)) != *filter_weaponclass))
 		return 0;
 	if (*filter_timer) {
-		int temp;
 		// Вобщем чтобы тут не валилось от всяких писем и прочей ваты на базаре,
-		// как оно там оказывается уже разбирайтесь сами, ес-сно надо запрещать
-		// выставлять на базар вещи, не имеющие рнума // Krodo
+		// сейчас туда нельзя ставить вещи с -1 рнумом, но на всякий оставим // Krodo
 		try {
-			temp = GET_OBJ_TIMER(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(j))));
+			tm = (GET_OBJ_TIMER(GET_EXCHANGE_ITEM(j)) * 100 / GET_OBJ_TIMER(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(j)))));
+			if ((tm + 1) < *filter_timer)
+				return 0;
 		}
 		catch (std::out_of_range) {
 			log("SYSERROR: wrong obj_proto in exchange (%s %s %d)", __FILE__, __func__, __LINE__);
 			return 0;
 		}
-		tm = (GET_OBJ_TIMER(GET_EXCHANGE_ITEM(j)) * 100 / temp);
-		if ((tm + 1) < *filter_timer)
-			return 0;
 	}
 
 
