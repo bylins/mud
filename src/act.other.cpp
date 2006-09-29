@@ -2141,22 +2141,19 @@ ACMD(do_beep)
 
 //Polos.insert_wanted_gem
 
-void insert_wanted_gem::show(CHAR_DATA *ch)
+void insert_wanted_gem::show(CHAR_DATA *ch, int gem_vnum)
 {
 	map< int, alias_type >::iterator it;
 	alias_type::iterator alias_it;
 	char buf[MAX_INPUT_LENGTH];
-    
-	for (it=content.begin();it!=content.end();++it) {
-		const OBJ_DATA *p_obj = read_object_mirror(it->first);
-		printf(buf, "#%s\r\n", GET_OBJ_PNAME(p_obj, 0));
+
+    	it=content.find(gem_vnum);
+	if (it == content.end()) return;
+
+	for(alias_it=it->second.begin();alias_it!=it->second.end();++alias_it) {
+		sprintf(buf, " %s\r\n", alias_it->first.c_str());
 		send_to_char(buf, ch);
-	
-		for(alias_it=it->second.begin();alias_it!=it->second.end();++alias_it) {
-			sprintf(buf, " %s\r\n", alias_it->first.c_str());
-			send_to_char(buf, ch);
-		}
-    }
+	}
 }
 
 void insert_wanted_gem::init()
@@ -2657,7 +2654,6 @@ ACMD(do_insertgem)
 	
 	percent = number(1, skill_info[SKILL_INSERTGEM].max_percent);
 	prob = GET_SKILL(ch, SKILL_INSERTGEM);
-	improove_skill(ch, SKILL_INSERTGEM, 0, 0);
 
 	WAIT_STATE(ch, PULSE_VIOLENCE);
 
@@ -2680,6 +2676,8 @@ ACMD(do_insertgem)
 	if (!*arg3)
 	{
 //-Polos.insert_wanted_gem
+	    improove_skill(ch, SKILL_INSERTGEM, 0, 0);
+
 	    if (percent > prob / insgem_vars.prob_divide) {
 		    sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n", gemobj->name,
 			    itemobj->PNames[3]);
@@ -2717,10 +2715,12 @@ ACMD(do_insertgem)
 	    string str(arg3);
 	    if (!iwg.exist(GET_OBJ_VNUM(gemobj), str))
 	    {
-		iwg.show(ch);
+		iwg.show(ch, GET_OBJ_VNUM(gemobj));
 		return;
 	    }
-	    
+	
+	    improove_skill(ch, SKILL_INSERTGEM, 0, 0);    
+
 	    //успех или фэйл? при 80% скила успех 30% при 100% скила 50% при 200% скила успех 75% 
 	    if (number(1, GET_SKILL(ch, SKILL_INSERTGEM)) <= (GET_SKILL(ch, SKILL_INSERTGEM) - 50))
 	    {
@@ -2974,11 +2974,8 @@ ACMD(do_insertgem)
 		{
 		    int tmp_type, tmp_bit, tmp_qty;
 		    string str(arg3);
-		    if (!(tmp_type=iwg.get_type(GET_OBJ_VNUM(gemobj), str))) 
-		    {
-			iwg.show(ch);
-			return;
-		    }
+		   
+ 		    tmp_type=iwg.get_type(GET_OBJ_VNUM(gemobj), str);
 		    
 		    tmp_bit = iwg.get_bit(GET_OBJ_VNUM(gemobj), str);
 		    tmp_qty = iwg.get_qty(GET_OBJ_VNUM(gemobj), str);

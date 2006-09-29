@@ -2653,7 +2653,7 @@ class insert_wanted_gem
 
 public:
 	void init();
-	void show(CHAR_DATA *ch);
+	void show(CHAR_DATA *ch, int gem_vnum);
 	int get_type(int gem_vnum, string str);
 	int get_bit(int gem_vnum, string str);
 	int get_qty(int gem_vnum, string str);
