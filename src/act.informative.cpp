@@ -1783,7 +1783,7 @@ void look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 		if (can_use_feat(ch, BREW_POTION_FEAT) && GET_OBJ_TYPE(found_obj) == ITEM_MING) {
 			for (j = 0; imtypes[j].id != GET_OBJ_VAL(found_obj, IM_TYPE_SLOT)  && j <= top_imtypes;)
 			     j++;
-			sprintf(buf, "Это ингредиент вида '%s'.\r\n", imtypes[i].name);
+			sprintf(buf, "Это ингредиент вида '%s'.\r\n", imtypes[j].name);
 			send_to_char(buf, ch);
 			int imquality = GET_OBJ_VAL(found_obj, IM_POWER_SLOT);
 			if (GET_LEVEL(ch) >= imquality) {
