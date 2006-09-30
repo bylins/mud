@@ -1,3 +1,4 @@
+// -*- coding: koi8-r -*-
 /**************************************************************************
 *   File: exchange.cpp                                 Part of Bylins     *
 *  Usage: Exchange functions used by the MUD                              *
@@ -24,8 +25,9 @@
 #include "im.h"
 #include "constants.h"
 #include "skills.h"
-#include <stdexcept>
 
+#include <stdexcept>
+#include "modify.h"
 
 extern OBJ_DATA *object_list;
 

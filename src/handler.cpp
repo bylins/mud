@@ -2087,7 +2087,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 			ch->desc->snooping = NULL;
 		}
 		if (ch->desc->snoop_by) {
-			SEND_TO_Q("Ваша жертва теперь недоступна.\r\n", ch->desc->snoop_by);
+			write_to_output("Ваша жертва теперь недоступна.\r\n", ch->desc->snoop_by);
 			ch->desc->snoop_by->snooping = NULL;
 			ch->desc->snoop_by = NULL;
 		}
@@ -2173,7 +2173,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 
 	if (!freed && ch->desc != NULL) {
 		STATE(ch->desc) = CON_MENU;
-		SEND_TO_Q(MENU, ch->desc);
+		write_to_output(MENU, ch->desc);
 		if (!IS_NPC(ch) && RENTABLE(ch) && clear_objs) {
 			ch_w = ch->next;
 			do_entergame(ch->desc);
@@ -2214,7 +2214,7 @@ void extract_mob(CHAR_DATA * ch)
 			ch->desc->snooping = NULL;
 		}
 		if (ch->desc->snoop_by) {
-			SEND_TO_Q("Ваша жертва теперь недоступна.\r\n", ch->desc->snoop_by);
+			write_to_output("Ваша жертва теперь недоступна.\r\n", ch->desc->snoop_by);
 			ch->desc->snoop_by->snooping = NULL;
 			ch->desc->snoop_by = NULL;
 		}

@@ -23,6 +23,7 @@
 #include "handler.h"
 #include "db.h"
 #include "ban.hpp"
+#include "modify.h"
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -1081,7 +1082,7 @@ void BanList::disconnectBannedIp(std::string Ip)
 			if (STATE(d) == CON_DISCONNECT || STATE(d) == CON_CLOSE)
 				return;
 			//send_to_char will crash, it char has not been loaded/created yet.
-			SEND_TO_Q("Your IP has been banned, disconnecting...\r\n", d);
+			write_to_output("Your IP has been banned, disconnecting...\r\n", d);
 			if (STATE(d) == CON_PLAYING)
 				STATE(d) = CON_DISCONNECT;
 			else

@@ -24,6 +24,7 @@
 #include "screen.h"
 #include "dg_scripts.h"
 #include "auction.h"
+#include "modify.h"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;

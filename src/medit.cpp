@@ -1502,10 +1502,10 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'a':
 		case 'A':
 			OLC_MODE(d) = MEDIT_D_DESC;
-			SEND_TO_Q("Введите описание моба: (/s сохранить /h помощь)\r\n\r\n", d);
+			write_to_output("Введите описание моба: (/s сохранить /h помощь)\r\n\r\n", d);
 			d->backstr = NULL;
 			if (OLC_MOB(d)->player.description) {
-				SEND_TO_Q(OLC_MOB(d)->player.description, d);
+				write_to_output(OLC_MOB(d)->player.description, d);
 				d->backstr = str_dup(OLC_MOB(d)->player.description);
 			}
 			d->str = &OLC_MOB(d)->player.description;
@@ -2021,7 +2021,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 				OLC_MODE(d) = MEDIT_MPROG_COMLIST;
 				d->backstr = NULL;
 				if (OLC_MPROG(d)->comlist) {
-					SEND_TO_Q(OLC_MPROG(d)->comlist, d);
+					write_to_output(OLC_MPROG(d)->comlist, d);
 					d->backstr = str_dup(OLC_MPROG(d)->comlist);
 				}
 				d->str = &OLC_MPROG(d)->comlist;

@@ -15,6 +15,9 @@
 #ifndef _STRUCTS_H_
 #define _STRUCTS_H_
 
+
+#include "conf.h"
+#include "sysdep.h"
 #include <list>
 #include <bitset>
 #include <string>
@@ -1202,10 +1205,8 @@ typedef char
  bool;
 #endif
 
-#if !defined(CIRCLE_WINDOWS) || defined(LCC_WIN32)	/* Hm, sysdep.h? */
 typedef char
  byte;
-#endif
 
 typedef int
  room_vnum;			/* A room's vnum type */

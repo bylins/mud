@@ -1426,10 +1426,10 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		case '9':
 			OLC_MODE(d) = OEDIT_ACTDESC;
-			SEND_TO_Q("Введите описание при применении: (/s сохранить /h помощь)\r\n\r\n", d);
+			write_to_output("Введите описание при применении: (/s сохранить /h помощь)\r\n\r\n", d);
 			d->backstr = NULL;
 			if (OLC_OBJ(d)->action_description) {
-				SEND_TO_Q(OLC_OBJ(d)->action_description, d);
+				write_to_output(OLC_OBJ(d)->action_description, d);
 				d->backstr = str_dup(OLC_OBJ(d)->action_description);
 			}
 			d->str = &OLC_OBJ(d)->action_description;
@@ -2054,10 +2054,10 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		case 2:
 			OLC_MODE(d) = OEDIT_EXTRADESC_DESCRIPTION;
-			SEND_TO_Q("Enter the extra description: (/s saves /h for help)\r\n\r\n", d);
+			write_to_output("Enter the extra description: (/s saves /h for help)\r\n\r\n", d);
 			d->backstr = NULL;
 			if (OLC_DESC(d)->description) {
-				SEND_TO_Q(OLC_DESC(d)->description, d);
+				write_to_output(OLC_DESC(d)->description, d);
 				d->backstr = str_dup(OLC_DESC(d)->description);
 			}
 			d->str = &OLC_DESC(d)->description;

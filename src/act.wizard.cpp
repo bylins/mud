@@ -35,6 +35,7 @@
 #include "privileges.hpp"
 #include "ban.hpp"
 #include "description.h"
+#include "modify.h"
 
 /*   external vars  */
 extern FILE *player_fl;

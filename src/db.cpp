@@ -43,6 +43,7 @@
 #include "features.hpp"
 #include "boards.h"
 #include "description.h"
+#include "modify.h"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -55,12 +56,8 @@ PrivList *priv = 0;
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
 **************************************************************************/
-#if defined(CIRCLE_MACINTOSH)
-long beginning_of_time = -1561789232;
-#else
-long beginning_of_time = 650336715;
-#endif
 
+long beginning_of_time = 650336715;
 
 //ROOM_DATA *world = NULL; /* array of rooms                */
 vector < ROOM_DATA * >world;
@@ -2322,11 +2319,7 @@ void parse_mobile(FILE * mob_f, int nr)
 		    "...expecting line of form '# # # {S | E}', but file ended!\n%s", nr, line);
 		exit(1);
 	}
-#ifdef CIRCLE_ACORN		/* Ugh. */
-	if (sscanf(line, "%s %s %d %s", f1, f2, t + 2, &letter) != 4) {
-#else
 	if (sscanf(line, "%s %s %d %c", f1, f2, t + 2, &letter) != 4) {
-#endif
 		log("SYSERR: Format error after string section of mob #%d\n"
 		    "...expecting line of form '# # # {S | E}'\n%s", nr, line);
 		exit(1);
@@ -2797,11 +2790,7 @@ void get_one_line(FILE * fl, char *buf)
 
 void load_help(FILE * fl)
 {
-#if defined(CIRCLE_MACINTOSH)
-	static char key[READ_SIZE + 1], next_key[READ_SIZE + 1], entry[32384];	/* ? */
-#else
 	char key[READ_SIZE + 1], next_key[READ_SIZE + 1], entry[32384];
-#endif
 	char line[READ_SIZE + 1], *scan;
 	struct help_index_element el;
 

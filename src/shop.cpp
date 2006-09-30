@@ -29,6 +29,7 @@
 #include "dg_scripts.h"
 #include "constants.h"
 #include "features.hpp"
+#include "modify.h"
 
 extern TIME_INFO_DATA time_info;
 

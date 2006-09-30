@@ -447,7 +447,6 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	restore_battle_pos(ch);
 	NUL_AF_BATTLE(ch);
 	// sprintf(buf,"[Stop fighting] %s - %s\r\n",GET_NAME(ch),switch_others ? "switching" : "no switching");
-	// send_to_gods(buf);
  /**** switch others *****/
 
 	for (temp = combat_list; temp; temp = temp->next_fighting) {

@@ -26,7 +26,7 @@
 #include "constants.h"
 #include "screen.h"
 #include "features.hpp"
-
+#include "modify.h"
 #include "im.h"
 
 #define		VAR_CHAR	'@'

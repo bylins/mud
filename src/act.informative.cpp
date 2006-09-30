@@ -36,6 +36,7 @@
 #include "im.h"
 #include "house.h"
 #include "description.h"
+#include "modify.h"
 
 using std::string;
 

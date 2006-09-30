@@ -30,6 +30,8 @@
 #include "features.hpp"
 #include "boards.h"
 
+#define LOG_AUTOFLUSH
+
 extern DESCRIPTOR_DATA *descriptor_list;
 
 extern CHAR_DATA *mob_proto;
@@ -977,7 +979,6 @@ void core_dump_real(const char *who, int line)
 	int i;
 	log("SYSERR: Assertion failed at %s:%d!", who, line);
 
-#if defined(CIRCLE_UNIX)
 	/* These would be duplicated otherwise... */
 	fflush(stdout);
 	fflush(stderr);
@@ -990,7 +991,6 @@ void core_dump_real(const char *who, int line)
 	 */
 	if (fork() == 0)
 		abort();
-#endif
 }
 
 void to_koi(char *str, int from)
