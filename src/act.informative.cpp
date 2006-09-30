@@ -61,6 +61,8 @@ extern INDEX_DATA *obj_index;
 extern INDEX_DATA *mob_index;
 extern PrivList *priv;
 extern const char *material_name[];
+extern im_type *imtypes;
+extern int top_imtypes;
 
 /* extern functions */
 long find_class_bitvector(char arg);
@@ -1595,7 +1597,7 @@ char *find_exdesc(char *word, EXTRA_DESCR_DATA * list)
  */
 void look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 {
-	int bits, found = FALSE, fnum, i = 0, cn = 0;
+	int bits, found = FALSE, fnum, i = 0, cn = 0, j;
 	struct portals_list_type *port;
 	CHAR_DATA *found_char = NULL;
 	OBJ_DATA *found_obj = NULL;
@@ -1779,6 +1781,10 @@ void look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 		}
 
 		if (can_use_feat(ch, BREW_POTION_FEAT) && GET_OBJ_TYPE(found_obj) == ITEM_MING) {
+			for (j = 0; imtypes[j].id != GET_OBJ_VAL(found_obj, IM_TYPE_SLOT)  && j <= top_imtypes;)
+			     j++;
+			sprintf(buf, "Это ингредиент вида '%s'.\r\n", imtypes[i].name);
+			send_to_char(buf, ch);
 			int imquality = GET_OBJ_VAL(found_obj, IM_POWER_SLOT);
 			if (GET_LEVEL(ch) >= imquality) {
 				sprintf(buf, "Качество ингредиента ");
