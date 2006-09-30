@@ -1019,12 +1019,12 @@ void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed)
 	struct timed_type *timed_alloc, *skj;
 
 	// Карачун. Правка бага. Если такой фит уже есть в списке, просто меняем таймер.
-   	for (skj = ch->timed; skj; skj = skj->next) {
-	    if (skj->skill==timed->skill) {
-		skj->time=timed->time;
-		return;
-	    }
-   	}
+	for (skj = ch->timed; skj; skj = skj->next) {
+		if (skj->skill==timed->skill) {
+			skj->time=timed->time;
+			return;
+		}
+	}
 
 	CREATE(timed_alloc, struct timed_type, 1);
 
@@ -1064,12 +1064,12 @@ void timed_to_char(CHAR_DATA * ch, struct timed_type *timed)
 	struct timed_type *timed_alloc, *skj;
 
 	// Карачун. Правка бага. Если такой скилл уже есть в списке, просто меняем таймер.
-   	for (skj = ch->timed; skj; skj = skj->next) {
-	    if (skj->skill==timed->skill) {
-		skj->time=timed->time;
-		return;
-	    }
-   	}
+	for (skj = ch->timed; skj; skj = skj->next) {
+		if (skj->skill==timed->skill) {
+			skj->time=timed->time;
+			return;
+		}
+	}
 
 	CREATE(timed_alloc, struct timed_type, 1);
 
