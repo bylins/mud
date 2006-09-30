@@ -97,6 +97,21 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 		send_to_char(victim, "На Вас было совершено нападение, редактирование отменено!\r\n");
 	}
 
+	// Карачун. Правка бага. Если моб в лаге, он не должен бить, но должен запомнить.
+	if (IS_NPC(ch) && GET_WAIT(ch) > 0) {
+   	    if (MOB_FLAGGED(ch, MOB_MEMORY)) {
+                if (!IS_NPC(victim))
+                    remember(ch, victim);
+                else if (AFF_FLAGGED(victim, AFF_CHARM) && victim->master && !IS_NPC(victim->master)) {
+                    if (MOB_FLAGGED(victim, MOB_CLONE))
+                        remember(ch, victim->master);
+                    else if (IN_ROOM(victim->master) == IN_ROOM(ch) && CAN_SEE(ch, victim->master))
+                        remember(ch, victim->master);
+                }
+            }
+	    return (FALSE);
+	}	
+
 	hit(ch, victim, TYPE_UNDEFINED, AFF_FLAGGED(ch, AFF_STOPRIGHT) ? 2 : 1);
 	set_wait(ch, 2, TRUE);
 	return (TRUE);
@@ -700,6 +715,10 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 	if (onhorse(ch))
 		return;
 
+	if (ch==vict) {
+		return;
+	}
+
 	if (!(IS_NPC(ch) ||	// моб
 	      GET_EQ(ch, WEAR_SHIELD) ||	// есть щит
 	      IS_IMMORTAL(ch) ||	// бессмертный
@@ -787,7 +806,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 			}
 		}
 //делаем блокирование баша
-
+                
 		prob = 0;
 		dam = damage(ch, vict, dam, SKILL_BASH + TYPE_HIT, FALSE);
 		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, AFF_SHIELD))) {	/* -1 = dead, 0 = miss */

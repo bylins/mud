@@ -4636,8 +4636,13 @@ void perform_violence(void)
 							    (CAN_SEE(ch, damager) || FIGHTING(ch) == damager)) {
 								if (sk_num == SKILL_BASH) {
 									if (on_horse(damager)) {
-										sk_use = 0;
-										go_bash(ch, get_horse(damager));
+										// Карачун. Правка бага. Лошадь не должна башить себя, если дерется с наездником.
+										if (get_horse(damager)==ch) {
+											horse_drop(ch);
+										} else {
+											sk_use = 0;
+											go_bash(ch, get_horse(damager));
+										}
 									} else
 									    if (GET_POS(damager) >= POS_FIGHTING ||
 										calculate_skill(ch, SKILL_BASH, 200,

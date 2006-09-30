@@ -539,8 +539,6 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 
 			if (AFF_FLAGGED(ch, AFF_HIDE))
 				prob += 5;	// Add by Alez - Improove in hide steal probability 
-			if (CAN_SEE(vict, ch) && AWAKE(vict))
-				improove_skill(ch, SKILL_STEAL, 0, vict);
 			if (!WAITLESS(ch) && AFF_FLAGGED(vict, AFF_SLEEP))
 				prob = 0;
 			if (percent > prob && !success) {
@@ -565,13 +563,13 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 					return;
 				}
 			}
+			if (CAN_SEE(vict, ch) && AWAKE(vict))
+				improove_skill(ch, SKILL_STEAL, 0, vict);
 		}
 	} else {		/* Steal some coins */
 		prob = calculate_skill(ch, SKILL_STEAL, percent, vict);
 		if (AFF_FLAGGED(ch, AFF_HIDE))
 			prob += 5;	// Add by Alez - Improove in hide steal probability 
-		if (CAN_SEE(vict, ch) && AWAKE(vict))
-			improove_skill(ch, SKILL_STEAL, 0, vict);
 		if (!WAITLESS(ch) && AFF_FLAGGED(vict, AFF_SLEEP))
 			prob = 0;
 		if (percent > prob && !success) {
@@ -610,6 +608,8 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 					send_to_char("Вы ничего не сумели украсть...\r\n", ch);
 			}
 		}
+		if (CAN_SEE(vict, ch) && AWAKE(vict))
+			improove_skill(ch, SKILL_STEAL, 0, vict);
 	}
 	if (!WAITLESS(ch) && ohoh)
 		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);

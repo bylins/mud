@@ -1016,7 +1016,15 @@ void affect_join(CHAR_DATA * ch, AFFECT_DATA * af, bool add_dur, bool avg_dur, b
 /* Обработка тикающих способностей - added by Gorrah */
 void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed)
 {
-	struct timed_type *timed_alloc;
+	struct timed_type *timed_alloc, *skj;
+
+	// Карачун. Правка бага. Если такой фит уже есть в списке, просто меняем таймер.
+   	for (skj = ch->timed; skj; skj = skj->next) {
+	    if (skj->skill==timed->skill) {
+		skj->time=timed->time;
+		return;
+	    }
+   	}
 
 	CREATE(timed_alloc, struct timed_type, 1);
 
@@ -1053,7 +1061,15 @@ int timed_by_feat(CHAR_DATA * ch, int feat)
 /* Insert an timed_type in a char_data structure */
 void timed_to_char(CHAR_DATA * ch, struct timed_type *timed)
 {
-	struct timed_type *timed_alloc;
+	struct timed_type *timed_alloc, *skj;
+
+	// Карачун. Правка бага. Если такой скилл уже есть в списке, просто меняем таймер.
+   	for (skj = ch->timed; skj; skj = skj->next) {
+	    if (skj->skill==timed->skill) {
+		skj->time=timed->time;
+		return;
+	    }
+   	}
 
 	CREATE(timed_alloc, struct timed_type, 1);
 
@@ -2285,7 +2301,7 @@ CHAR_DATA *get_player_vis(CHAR_DATA * ch, char *name, int inroom)
 			continue;
 		//if (str_cmp(i->player.name, name))
 		//   continue;
-		if (!CAN_SEE(ch, i))
+		if (!CAN_SEE_CHAR(ch, i))
 			continue;
 		if (!isname(name, i->player.name))
 			continue;

@@ -172,7 +172,11 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 	}
 
 	send_to_char(CCICYN(vict, C_NRM), vict);
-	sprintf(buf, "$n сказал$g Вам : '%s'", arg);
+	if (CAN_SEE_CHAR(vict, ch)) {
+		sprintf(buf, "%s сказал$g Вам : '%s'", GET_NAME(ch), arg);
+	} else {
+		sprintf(buf, "Кто-то сказал Вам : '%s'", arg);
+	}
 	act(buf, FALSE, ch, 0, vict, TO_VICT | TO_SLEEP | CHECK_DEAF);
 	send_to_char(CCNRM(vict, C_NRM), vict);
 	/* Обработка для "вспомнить" */
@@ -180,7 +184,7 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 	if (!IS_NPC(vict) && !IS_NPC(ch)) {
 		ct = time(0);
 		tmp = asctime(localtime(&ct));
-		if (CAN_SEE(vict, ch)) {
+		if (CAN_SEE_CHAR(vict, ch)) {
 			sprintf(buf, "%s[%5.5s]%s %s : '%s'%s", CCNRM(ch, C_NRM), (tmp + 11), CCICYN(ch, C_NRM),
 				GET_NAME(ch), arg, CCNRM(ch, C_NRM));
 		} else {
@@ -197,7 +201,11 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 		send_to_char(OK, ch);
 	else {
 		send_to_char(CCICYN(ch, C_CMP), ch);
-		sprintf(buf, "Вы сказали $N2 : '%s'", arg);
+		if (CAN_SEE_CHAR(ch, vict)) {
+			sprintf(buf, "Вы сказали %s : '%s'", vict->player.PNames[2], arg);
+		} else {
+			sprintf(buf, "Вы сказали кому-то : '%s'", arg);
+		}
 		act(buf, FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		send_to_char(CCNRM(ch, C_CMP), ch);
 	}

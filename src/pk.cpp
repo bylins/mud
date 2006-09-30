@@ -762,7 +762,7 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 	if ((FIGHTING(ch) && FIGHTING(ch) == victim) || (FIGHTING(victim) && FIGHTING(victim) == ch))
 		return (TRUE);
 
-	if (ch != victim && (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL))) {
+	if (ch != victim && !ROOM_FLAGGED(victim->in_room, ROOM_ARENA) && (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL))) {
 		// Один из участников в мирной комнате
 		if (MOB_FLAGGED(victim, MOB_HORDE) || (MOB_FLAGGED(ch, MOB_IGNORPEACE) && !AFF_FLAGGED(ch, AFF_CHARM))) {
 			return TRUE;
