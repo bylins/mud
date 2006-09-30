@@ -1177,30 +1177,6 @@ void restore_object(OBJ_DATA * obj, CHAR_DATA * ch)
 	}
 }
 
-
-// выяснение стокаются ли предметы
-bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
-{
-	if (GET_OBJ_VNUM(obj_one) != GET_OBJ_VNUM(obj_two)
-		|| (GET_OBJ_TYPE(obj_one) == ITEM_DRINKCON && GET_OBJ_VAL(obj_one, 2) != GET_OBJ_VAL(obj_two, 2))
-		|| (GET_OBJ_TYPE(obj_one) == ITEM_CONTAINER && obj_one->contains && !obj_two->contains)
-		|| GET_OBJ_VNUM(obj_two) == -1
-		|| (GET_OBJ_TYPE(obj_one) == ITEM_MING && strcmp(obj_one->name, obj_two->name)))
-	{
-		return 0;
-	}
-	return 1;
-}
-
-
-// перемещаем стокающиеся предметы вверх контейнера
-// да, надо все контейнеры переделывать на std::list, а то страшно смотреть на написанное
-void move_obj_to_top(OBJ_DATA *obj, OBJ_DATA **list_start)
-{
-// см insert_obj_and_group
-}
-
-/*
 // выяснение стокаются ли предметы
 bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 {
@@ -1221,6 +1197,7 @@ namespace {
 void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 {
 	// AL: пофиксил Ж)
+	// Krodo: пофиксили третий раз, не сортируем у мобов в инве Ж)
 
 	// begin - первый предмет в исходном списке
 	// end - последний предмет в перемещаемом интервале
@@ -1252,7 +1229,6 @@ void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 }
 
 } // no-name namespace
-*/
 
 /* give an object to a char   */
 void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
@@ -1281,12 +1257,15 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			return;
 		}
 
-		if (!IS_NPC(ch))
+		if (!IS_NPC(ch)) {
 			SET_BIT(GET_OBJ_EXTRA(object, ITEM_TICKTIMER), ITEM_TICKTIMER);
+			insert_obj_and_group(object, &ch->carrying);
+		} else {
+			// Вот эта муть, чтобы временно обойти завязку магазинов на порядке предметов в инве моба // Krodo
+			object->next_content = ch->carrying;
+			ch->carrying = object;
+		}
 
-		move_obj_to_top(object, &ch->carrying);
-		object->next_content = ch->carrying;
-		ch->carrying = object;
 		object->carried_by = ch;
 		object->in_room = NOWHERE;
 		IS_CARRYING_W(ch) += GET_OBJ_WEIGHT(object);
@@ -1743,9 +1722,7 @@ void obj_to_room(OBJ_DATA * object, room_rnum room)
 			extract_obj(object);
 	} else {
 		restore_object(object, 0);
-		move_obj_to_top(object, &world[room]->contents);
-		object->next_content = world[room]->contents;
-		world[room]->contents = object;
+		insert_obj_and_group(object, &world[room]->contents);
 		object->in_room = room;
 		object->carried_by = NULL;
 		object->worn_by = NULL;
@@ -1873,9 +1850,7 @@ void obj_to_obj(OBJ_DATA * obj, OBJ_DATA * obj_to)
 		return;
 	}
 
-	move_obj_to_top(obj, &obj_to->contains);
-	obj->next_content = obj_to->contains;
-	obj_to->contains = obj;
+	insert_obj_and_group(obj, &obj_to->contains);
 	obj->in_obj = obj_to;
 
 	for (tmp_obj = obj->in_obj; tmp_obj->in_obj; tmp_obj = tmp_obj->in_obj)
