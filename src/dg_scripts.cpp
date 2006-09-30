@@ -23,7 +23,6 @@
 #include "constants.h"
 #include "top.h"
 #include "features.hpp"
-#include "modify.h"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 

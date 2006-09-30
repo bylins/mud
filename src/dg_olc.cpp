@@ -555,7 +555,11 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 	zone = zone_table[OLC_ZNUM(d)].number;
 	top = zone_table[OLC_ZNUM(d)].top;
 
+#ifdef CIRCLE_MAC
+	sprintf(fname, "%s:%i.new", TRG_PREFIX, zone);
+#else
 	sprintf(fname, "%s/%i.new", TRG_PREFIX, zone);
+#endif
 
 	if (!(trig_file = fopen(fname, "w"))) {
 		sprintf(logbuf, "SYSERR: OLC: Can't open trig file \"%s\"", fname);
@@ -614,7 +618,11 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 	fprintf(trig_file, "$~\n");
 	fclose(trig_file);
 
+#ifdef CIRCLE_MAC
+	sprintf(buf, "%s:%d.trg", TRG_PREFIX, zone);
+#else
 	sprintf(buf, "%s/%d.trg", TRG_PREFIX, zone);
+#endif
 
 	remove(buf);
 	rename(fname, buf);

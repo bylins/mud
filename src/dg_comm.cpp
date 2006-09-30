@@ -193,5 +193,5 @@ void send_to_zone(char *messg, int zone_rnum)
 	for (i = descriptor_list; i; i = i->next)
 		if (!i->connected && i->character && AWAKE(i->character) &&
 		    (IN_ROOM(i->character) != NOWHERE) && (world[IN_ROOM(i->character)]->zone == zone_rnum))
-			write_to_output(messg, i);
+			SEND_TO_Q(messg, i);
 }

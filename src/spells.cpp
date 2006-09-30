@@ -29,7 +29,6 @@
 #include "pk.h"
 #include "features.hpp"
 #include "im.h"
-#include "modify.h"
 
 extern room_rnum r_mortal_start_room;
 

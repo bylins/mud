@@ -14,7 +14,6 @@
 #include "house.h"
 #include "screen.h"
 #include "comm.h"
-#include "modify.h"
 
 extern GodListType GodList;
 extern int isname(const char *str, const char *namelist);

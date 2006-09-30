@@ -24,7 +24,7 @@
 #include "olc.h"
 #include "im.h"
 #include "features.hpp"
-#include "modify.h"
+
 #include "item.creation.hpp"
 
 #define SpINFO   spell_info[spellnum]

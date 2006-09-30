@@ -16,13 +16,13 @@ PROFILE =
 
 BINDIR = ../bin
 
-CFLAGS = -Wall -ggdb3 #-O3 #-fmudflap
+CFLAGS = -ggdb3 -O3 -Wall -I/usr/home/mud/mud/src/ -ftemplate-depth-30
 
 # use 'make test' for faster compile w/o optimizations and crypt library
 TESTFLAGS = -ggdb3 -Wall -DNOCRYPT
 
 #LIBS =  -lsocket -lnsl
-LIBS =  -lz -lcrypt #-lstdc++ #-lmudflap
+LIBS =  -lz -lcrypt -lstdc++
 
 OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	act.offensive.o act.other.o act.social.o act.wizard.o alias.o ban.o \

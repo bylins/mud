@@ -957,7 +957,7 @@ void hour_update(void)
 		if (STATE(i) != CON_PLAYING || i->character == NULL || PLR_FLAGGED(i->character, PLR_WRITING))
 			continue;
 		sprintf(buf, "%sМинул час.%s\r\n", CCIRED(i->character, C_NRM), CCNRM(i->character, C_NRM));
-		write_to_output(buf, i);
+		SEND_TO_Q(buf, i);
 	}
 }
 
@@ -1100,6 +1100,7 @@ void point_update(void)
 							    (IS_SET
 							     (spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
 							// sprintf(buf,"Remember spell %s for mob %s.\r\n",spell_info[spellnum].name,GET_NAME(i));
+							// send_to_gods(buf);
 						}
 					}
 			}

@@ -42,6 +42,22 @@
 #define LIB_U       "U-Z"
 #define LIB_Z       "ZZZ"
 
+#if defined(CIRCLE_MACINTOSH)
+#define LIB_WORLD	":world:"
+#define LIB_TEXT	":text:"
+#define LIB_TEXT_HELP	":text:help:"
+#define LIB_MISC	":misc:"
+#define LIB_ETC		":etc:"
+#define ETC_BOARD	":etc:board:"
+#define LIB_PLRTEXT	":plrtext:"
+#define LIB_PLROBJS	":plrobjs:"
+#define LIB_PLRS    ":plrs:"
+#define LIB_PLRALIAS	":plralias:"
+#define LIB_HOUSE	":house:"
+#define LIB_PLRVARS	":plrvars:"
+#define LIB             ":lib:"
+#define SLASH		":"
+#elif defined(CIRCLE_AMIGA) || defined(CIRCLE_UNIX) || defined(CIRCLE_WINDOWS) || defined(CIRCLE_ACORN) || defined(CIRCLE_VMS)
 #define LIB_WORLD	"world/"
 #define LIB_TEXT	"text/"
 #define LIB_TEXT_HELP	"text/help/"
@@ -57,6 +73,9 @@
 #define LIB_PLRVARS	"plrvars/"
 #define LIB             "lib/"
 #define SLASH		"/"
+#else
+#error "Unknown path components."
+#endif
 
 #define SUF_OBJS	"objs"
 #define TEXT_SUF_OBJS	"textobjs"
@@ -68,10 +87,19 @@
 #define SUF_PLAYER  "player"
 #define SUF_QUESTS  "quests"
 #define SUF_PMKILL	"mobkill"
-
+#if defined(CIRCLE_AMIGA)
+#define FASTBOOT_FILE   "/.fastboot"	/* autorun: boot without sleep  */
+#define KILLSCRIPT_FILE "/.killscript"	/* autorun: shut mud down       */
+#define PAUSE_FILE      "/pause"	/* autorun: don't restart mud   */
+#elif defined(CIRCLE_MACINTOSH)
+#define FASTBOOT_FILE	"::.fastboot"	/* autorun: boot without sleep  */
+#define KILLSCRIPT_FILE	"::.killscript"	/* autorun: shut mud down       */
+#define PAUSE_FILE	"::pause"	/* autorun: don't restart mud   */
+#else
 #define FASTBOOT_FILE   "../.fastboot"	/* autorun: boot without sleep  */
 #define KILLSCRIPT_FILE "../.killscript"	/* autorun: shut mud down       */
 #define PAUSE_FILE      "../pause"	/* autorun: don't restart mud   */
+#endif
 
 /* names of various files and directories */
 #define INDEX_FILE	"index"	/* index of world files         */

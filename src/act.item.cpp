@@ -1,4 +1,3 @@
-// -*- coding: koi8-r -*-
 /* ************************************************************************
 *   File: act.item.cpp                                  Part of Bylins    *
 *  Usage: object handling routines -- get/drop and container handling     *

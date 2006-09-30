@@ -1,5 +1,4 @@
-// -*- coding: koi8-r -*-
-/*************************************************************************
+/* ************************************************************************
 *   File: modify.cpp                                      Part of Bylins    *
 *  Usage: Run-time modification of game variables                         *
 *                                                                         *
@@ -14,8 +13,6 @@
 ************************************************************************ */
 
 #include <boost/algorithm/string.hpp>
-
-#include "modify.h"
 
 #include "conf.h"
 #include "sysdep.h"
@@ -147,7 +144,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			"/r 'a' 'b' -  заменить первое вхождение текста <a> в буфере на текст <b>\r\n"
 			"/ra 'a' 'b'-  заменить все вхождения текста <a> в буфере на текст <b>\r\n"
 			"              Формат: /r[a] 'шаблон' 'на_что_меняем'\r\n" "/s         -  сохранить текст\r\n");
-		write_to_output(buf, d);
+		SEND_TO_Q(buf, d);
 		break;
 	case PARSE_FORMAT:
 		while (isalpha(string[j]) && j < 2) {
@@ -165,7 +162,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		}
 		format_text(d->str, flags, d, d->max_str);
 		sprintf(buf, "Текст отформатирован %s\r\n", (indent ? "WITH INDENT." : "."));
-		write_to_output(buf, d);
+		SEND_TO_Q(buf, d);
 		break;
 	case PARSE_REPLACE:
 		while (isalpha(string[j]) && j < 2) {
@@ -180,40 +177,40 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			j++;
 		}
 		if ((s = strtok(string, "'")) == NULL) {
-			write_to_output("Неверный формат.\r\n", d);
+			SEND_TO_Q("Неверный формат.\r\n", d);
 			return;
 		} else if ((s = strtok(NULL, "'")) == NULL) {
-			write_to_output("Шаблон должен быть заключен в апострофы.\r\n", d);
+			SEND_TO_Q("Шаблон должен быть заключен в апострофы.\r\n", d);
 			return;
 		} else if ((t = strtok(NULL, "'")) == NULL) {
-			write_to_output("No replacement string.\r\n", d);
+			SEND_TO_Q("No replacement string.\r\n", d);
 			return;
 		} else if ((t = strtok(NULL, "'")) == NULL) {
-			write_to_output("Замещающая строка должна быть заключена в апострофы.\r\n", d);
+			SEND_TO_Q("Замещающая строка должна быть заключена в апострофы.\r\n", d);
 			return;
 		} else if ((total_len = ((strlen(t) - strlen(s)) + strlen(*d->str))) <= d->max_str) {
 			if ((replaced = replace_str(d->str, s, t, rep_all, d->max_str)) > 0) {
 				sprintf(buf, "Заменено вхождений '%s' на '%s' - %d.\r\n", s, t, replaced);
-				write_to_output(buf, d);
+				SEND_TO_Q(buf, d);
 			} else if (replaced == 0) {
 				sprintf(buf, "Шаблон '%s' не найден.\r\n", s);
-				write_to_output(buf, d);
+				SEND_TO_Q(buf, d);
 			} else
-				write_to_output("ОШИБКА: При попытке замены буфер переполнен - прервано.\r\n", d);
+				SEND_TO_Q("ОШИБКА: При попытке замены буфер переполнен - прервано.\r\n", d);
 		} else
-			write_to_output("Нет свободного места для завершения команды.\r\n", d);
+			SEND_TO_Q("Нет свободного места для завершения команды.\r\n", d);
 		break;
 	case PARSE_DELETE:
 		switch (sscanf(string, " %d - %d ", &line_low, &line_high)) {
 		case 0:
-			write_to_output("Вы должны указать номер строки или диапазон для удаления.\r\n", d);
+			SEND_TO_Q("Вы должны указать номер строки или диапазон для удаления.\r\n", d);
 			return;
 		case 1:
 			line_high = line_low;
 			break;
 		case 2:
 			if (line_high < line_low) {
-				write_to_output("Неверный диапазон.\r\n", d);
+				SEND_TO_Q("Неверный диапазон.\r\n", d);
 				return;
 			}
 			break;
@@ -222,7 +219,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		i = 1;
 		total_len = 1;
 		if ((s = *d->str) == NULL) {
-			write_to_output("Буфер пуст.\r\n", d);
+			SEND_TO_Q("Буфер пуст.\r\n", d);
 			return;
 		} else if (line_low > 0) {
 			while (s && (i < line_low))
@@ -231,7 +228,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 					s++;
 				}
 			if ((i < line_low) || (s == NULL)) {
-				write_to_output("Строка(и) вне диапазона - проигнорировано.\r\n", d);
+				SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
 				return;
 			}
 			t = s;
@@ -251,9 +248,9 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			RECREATE(*d->str, char, strlen(*d->str) + 3);
 
 			sprintf(buf, "%d line%sdeleted.\r\n", total_len, ((total_len != 1) ? "s " : " "));
-			write_to_output(buf, d);
+			SEND_TO_Q(buf, d);
 		} else {
-			write_to_output("Отрицательный или нулевой номер строки для удаления.\r\n", d);
+			SEND_TO_Q("Отрицательный или нулевой номер строки для удаления.\r\n", d);
 			return;
 		}
 		break;
@@ -278,10 +275,10 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		}
 
 		if (line_low < 1) {
-			write_to_output("Начальный номер отрицательный или 0.\r\n", d);
+			SEND_TO_Q("Начальный номер отрицательный или 0.\r\n", d);
 			return;
 		} else if (line_high < line_low) {
-			write_to_output("Неверный диапазон.\r\n", d);
+			SEND_TO_Q("Неверный диапазон.\r\n", d);
 			return;
 		}
 		*buf = '\0';
@@ -296,7 +293,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 				s++;
 			}
 		if ((i < line_low) || (s == NULL)) {
-			write_to_output("Строка(и) вне диапазона - проигнорировано.\r\n", d);
+			SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
 			return;
 		}
 		t = s;
@@ -342,11 +339,11 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		}
 
 		if (line_low < 1) {
-			write_to_output("Номер строки должен быть больше 0.\r\n", d);
+			SEND_TO_Q("Номер строки должен быть больше 0.\r\n", d);
 			return;
 		}
 		if (line_high < line_low) {
-			write_to_output("Неверный диапазон.\r\n", d);
+			SEND_TO_Q("Неверный диапазон.\r\n", d);
 			return;
 		}
 		*buf = '\0';
@@ -359,7 +356,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 				s++;
 			}
 		if ((i < line_low) || (s == NULL)) {
-			write_to_output("Строка(и) вне диапазона - проигнорировано.\r\n", d);
+			SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
 			return;
 		}
 		t = s;
@@ -394,7 +391,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 	case PARSE_INSERT:
 		half_chop(string, buf, buf2);
 		if (*buf == '\0') {
-			write_to_output("Вы должны указать номер строки, после которой вставить текст.\r\n", d);
+			SEND_TO_Q("Вы должны указать номер строки, после которой вставить текст.\r\n", d);
 			return;
 		}
 		line_low = atoi(buf);
@@ -403,7 +400,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		i = 1;
 		*buf = '\0';
 		if ((s = *d->str) == NULL) {
-			write_to_output("Буфер пуст - ничего не вставлено.\r\n", d);
+			SEND_TO_Q("Буфер пуст - ничего не вставлено.\r\n", d);
 			return;
 		}
 		if (line_low > 0) {
@@ -413,14 +410,14 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 					s++;
 				}
 			if ((i < line_low) || (s == NULL)) {
-				write_to_output("Номер строки вне диапазона - прервано.\r\n", d);
+				SEND_TO_Q("Номер строки вне диапазона - прервано.\r\n", d);
 				return;
 			}
 			temp = *s;
 			*s = '\0';
 			if ((strlen(*d->str) + strlen(buf2) + strlen(s + 1) + 3) > d->max_str) {
 				*s = temp;
-				write_to_output("Превышение размеров буфера - прервано.\r\n", d);
+				SEND_TO_Q("Превышение размеров буфера - прервано.\r\n", d);
 				return;
 			}
 			if (*d->str && (**d->str != '\0'))
@@ -432,9 +429,9 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			RECREATE(*d->str, char, strlen(buf) + 3);
 
 			strcpy(*d->str, buf);
-			write_to_output("Строка вставлена.\r\n", d);
+			SEND_TO_Q("Строка вставлена.\r\n", d);
 		} else {
-			write_to_output("Номер строки должен быть больше 0.\r\n", d);
+			SEND_TO_Q("Номер строки должен быть больше 0.\r\n", d);
 			return;
 		}
 		break;
@@ -442,7 +439,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 	case PARSE_EDIT:
 		half_chop(string, buf, buf2);
 		if (*buf == '\0') {
-			write_to_output("Вы должны указать номер строки изменяемого текста.\r\n", d);
+			SEND_TO_Q("Вы должны указать номер строки изменяемого текста.\r\n", d);
 			return;
 		}
 		line_low = atoi(buf);
@@ -451,7 +448,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		i = 1;
 		*buf = '\0';
 		if ((s = *d->str) == NULL) {
-			write_to_output("Буфер пуст - изменения не проведены.\r\n", d);
+			SEND_TO_Q("Буфер пуст - изменения не проведены.\r\n", d);
 			return;
 		}
 		if (line_low > 0) {	/*
@@ -466,7 +463,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			 * Make sure that there was a THAT line in the text.
 			 */
 			if ((i < line_low) || (s == NULL)) {
-				write_to_output("Строка вне диапазона - прервано.\r\n", d);
+				SEND_TO_Q("Строка вне диапазона - прервано.\r\n", d);
 				return;
 			}
 			/*
@@ -503,7 +500,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			 * Check for buffer overflow.
 			 */
 			if (strlen(buf) > d->max_str) {
-				write_to_output("Превышение максимального размера буфера - прервано.\r\n", d);
+				SEND_TO_Q("Превышение максимального размера буфера - прервано.\r\n", d);
 				return;
 			}
 			/*
@@ -511,14 +508,14 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			 */
 			RECREATE(*d->str, char, strlen(buf) + 3);
 			strcpy(*d->str, buf);
-			write_to_output("Строка изменена.\r\n", d);
+			SEND_TO_Q("Строка изменена.\r\n", d);
 		} else {
-			write_to_output("Номер строки должен быть больше 0.\r\n", d);
+			SEND_TO_Q("Номер строки должен быть больше 0.\r\n", d);
 			return;
 		}
 		break;
 	default:
-		write_to_output("Неверная опция.\r\n", d);
+		SEND_TO_Q("Неверная опция.\r\n", d);
 		mudlog("SYSERR: invalid command passed to parse_action", BRF, LVL_IMPL, SYSLOG, TRUE);
 		return;
 	}
@@ -570,9 +567,9 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			if (*(d->str)) {
 				free(*d->str);
 				*(d->str) = NULL;
-				write_to_output("Буфер очищен.\r\n", d);
+				SEND_TO_Q("Буфер очищен.\r\n", d);
 			} else
-				write_to_output("Буфер пуст.\r\n", d);
+				SEND_TO_Q("Буфер пуст.\r\n", d);
 			break;
 		case 'd':
 			parse_action(PARSE_DELETE, actions, d);
@@ -584,13 +581,13 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			if (*(d->str))
 				parse_action(PARSE_FORMAT, actions, d);
 			else
-				write_to_output("Буфер пуст.\r\n", d);
+				SEND_TO_Q("Буфер пуст.\r\n", d);
 			break;
 		case 'i':
 			if (*(d->str))
 				parse_action(PARSE_INSERT, actions, d);
 			else
-				write_to_output("Буфер пуст.\r\n", d);
+				SEND_TO_Q("Буфер пуст.\r\n", d);
 			break;
 		case 'h':
 			parse_action(PARSE_HELP, actions, d);
@@ -599,13 +596,13 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			if (*(d->str))
 				parse_action(PARSE_LIST_NORM, actions, d);
 			else
-				write_to_output("Буфер пуст.\r\n", d);
+				SEND_TO_Q("Буфер пуст.\r\n", d);
 			break;
 		case 'n':
 			if (*(d->str))
 				parse_action(PARSE_LIST_NUM, actions, d);
 			else
-				write_to_output("Буфер пуст.\r\n", d);
+				SEND_TO_Q("Буфер пуст.\r\n", d);
 			break;
 		case 'r':
 			parse_action(PARSE_REPLACE, actions, d);
@@ -615,7 +612,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			*str = '\0';
 			break;
 		default:
-			write_to_output("Интересный выбор. Я о нем подумаю...\r\n", d);
+			SEND_TO_Q("Интересный выбор. Я о нем подумаю...\r\n", d);
 			break;
 		}
 	}
@@ -763,12 +760,12 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 						(*it)->num = count++;
 					d->board->SetLastRead(GET_UNIQUE(d->character));
 					d->board->Save();
-					write_to_output("Спасибо за Ваши излияния души, послание сохранено.\r\n", d);
+					SEND_TO_Q("Спасибо за Ваши излияния души, послание сохранено.\r\n", d);
 				}
 				else
-					write_to_output("Ошибочка вышла...\r\n", d);
+					SEND_TO_Q("Ошибочка вышла...\r\n", d);
 			} else
-				write_to_output("Сообщение прервано.\r\n", d);
+				SEND_TO_Q("Сообщение прервано.\r\n", d);
 
 			d->message.reset();
 			d->board.reset();
@@ -780,10 +777,10 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		} else if (!d->connected && (PLR_FLAGGED(d->character, PLR_MAILING))) {
 			if ((terminator == 1) && *d->str) {	//log("[SA] 4s");
 				store_mail(d->mail_to, GET_IDNUM(d->character), *d->str);
-				write_to_output("Ближайшей оказией я отправлю Ваше письмо адресату!\r\n", d);
+				SEND_TO_Q("Ближайшей оказией я отправлю Ваше письмо адресату!\r\n", d);
 				//log("[SA] 4f");
 			} else
-				write_to_output("Письмо удалено.\r\n", d);
+				SEND_TO_Q("Письмо удалено.\r\n", d);
 			//log("[SA] 5s");
 			d->mail_to = 0;
 			if (*(d->str))
@@ -793,8 +790,8 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			//log("[SA] 5f");
 		} else if (STATE(d) == CON_EXDESC) {	//log("[SA] 7s");
 			if (terminator != 1)
-				write_to_output("Создание описания прервано.\r\n", d);
-			write_to_output(MENU, d);
+				SEND_TO_Q("Создание описания прервано.\r\n", d);
+			SEND_TO_Q(MENU, d);
 			d->connected = CON_MENU;
 			//log("[SA] 7f");
 		} else if (!d->connected && d->character && !IS_NPC(d->character)) {
@@ -812,7 +809,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				else
 					*d->str = NULL;
 				d->backstr = NULL;
-				write_to_output("Сообщение прервано.\r\n", d);
+				SEND_TO_Q("Сообщение прервано.\r\n", d);
 				//log("[SA] 9f");
 			}
 		}

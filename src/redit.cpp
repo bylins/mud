@@ -655,12 +655,12 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case '2':
 			OLC_MODE(d) = REDIT_DESC;
 #if defined(CLEAR_SCREEN)
-			write_to_output("\x1B[H\x1B[J", d);
+			SEND_TO_Q("\x1B[H\x1B[J", d);
 #endif
-			write_to_output("Введите описание комнаты: (/s записать /h помощь)\r\n\r\n", d);
+			SEND_TO_Q("Введите описание комнаты: (/s записать /h помощь)\r\n\r\n", d);
 			d->backstr = NULL;
 			if (OLC_ROOM(d)->temp_description) {
-				write_to_output(OLC_ROOM(d)->temp_description, d);
+				SEND_TO_Q(OLC_ROOM(d)->temp_description, d);
 				d->backstr = str_dup(OLC_ROOM(d)->temp_description);
 			}
 			d->str = &OLC_ROOM(d)->temp_description;
@@ -788,10 +788,10 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_MODE(d) = REDIT_EXIT_DESCRIPTION;
 			send_to_char("Введите описание выхода : ", d->character);
 			return;
-/*			write_to_output("Введите описание выхода: (/s сохранить /h помощь)\r\n\r\n", d);
+/*			SEND_TO_Q("Введите описание выхода: (/s сохранить /h помощь)\r\n\r\n", d);
 			d->backstr = NULL;
 			if (OLC_EXIT(d)->general_description) {
-				write_to_output(OLC_EXIT(d)->general_description, d);
+				SEND_TO_Q(OLC_EXIT(d)->general_description, d);
 				d->backstr = str_dup(OLC_EXIT(d)->general_description);
 			}
 			d->str = &OLC_EXIT(d)->general_description;
@@ -949,10 +949,10 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		case 2:
 			OLC_MODE(d) = REDIT_EXTRADESC_DESCRIPTION;
-			write_to_output("Введите экстраописание: (/s сохранить /h помощь)\r\n\r\n", d);
+			SEND_TO_Q("Введите экстраописание: (/s сохранить /h помощь)\r\n\r\n", d);
 			d->backstr = NULL;
 			if (OLC_DESC(d)->description) {
-				write_to_output(OLC_DESC(d)->description, d);
+				SEND_TO_Q(OLC_DESC(d)->description, d);
 				d->backstr = str_dup(OLC_DESC(d)->description);
 			}
 			d->str = &OLC_DESC(d)->description;
