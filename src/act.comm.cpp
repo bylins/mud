@@ -176,7 +176,7 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 		sprintf(buf, "%s сказал%s Вам : '%s'", GET_NAME(ch), GET_CH_SUF_1(ch), arg);
 	else
 		sprintf(buf, "Кто-то сказал Вам : '%s'", arg);
-	send_to_char(vict, "%s%s%s\r\n", CCICYN(vict, C_NRM), buf, CCNRM(vict, C_NRM));
+	send_to_char(vict, "%s%s%s\r\n", CCICYN(vict, C_NRM), CAP(buf), CCNRM(vict, C_NRM));
 
 	/* Обработка для "вспомнить" */
 	arg[MAX_RAW_INPUT_LENGTH - 35] = 0;

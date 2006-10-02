@@ -1189,7 +1189,7 @@ int exchange_database_load()
 
 	log("Exchange: loading database... (exchange.cpp)");
 
-	if (!(fl = fopen(LIB_MISC EXCHANGE_DATABASE_FILE, "r"))) {
+	if (!(fl = fopen(EXCHANGE_DATABASE_FILE, "r"))) {
 		log("SYSERR: Error opening exchange database. (exchange.cpp)");
 		return (0);
 	}
@@ -1254,13 +1254,13 @@ int exchange_database_reload(bool loadbackup)
 	}
 	if (loadbackup) {
 		log("Exchange: reloading backup of database... (exchange.cpp)");
-		if (!(fl = fopen(LIB_MISC EXCHANGE_DATABASE_BACKUPFILE, "r"))) {
+		if (!(fl = fopen(EXCHANGE_DATABASE_BACKUPFILE, "r"))) {
 			log("SYSERR: Error opening exchange database backup. (exchange.cpp)");
 			return (0);
 		}
 	} else {
 		log("Exchange: reloading database... (exchange.cpp)");
-		if (!(fl = fopen(LIB_MISC EXCHANGE_DATABASE_FILE, "r"))) {
+		if (!(fl = fopen(EXCHANGE_DATABASE_FILE, "r"))) {
 			log("SYSERR: Error opening exchange database. (exchange.cpp)");
 			return (0);
 		}
@@ -1334,9 +1334,8 @@ int exchange_database_save()
 	log("Exchange: Saving exchange database...");
 
 
-	if (!(fl = fopen(LIB_MISC EXCHANGE_DATABASE_FILE, "w"))) {
-		sprintf(buf, "[SYSERR] Error on open exchange database file ('%s') - FILE MAY BE LOCKED.",
-			LIB_MISC EXCHANGE_DATABASE_FILE);
+	if (!(fl = fopen(EXCHANGE_DATABASE_FILE, "w"))) {
+		sprintf(buf, "[SYSERR] Error on open exchange database file ('%s') - FILE MAY BE LOCKED.", EXCHANGE_DATABASE_FILE);
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		return FALSE;
 	}
@@ -1369,9 +1368,8 @@ int exchange_database_savebackup()
 	log("Exchange: Saving backup of exchange database...");
 
 
-	if (!(fl = fopen(LIB_MISC EXCHANGE_DATABASE_BACKUPFILE, "w"))) {
-		sprintf(buf, "[SYSERR] Error on open backup exhange database file ('%s') - FILE MAY BE LOCKED.",
-			LIB_MISC EXCHANGE_DATABASE_BACKUPFILE);
+	if (!(fl = fopen(EXCHANGE_DATABASE_BACKUPFILE, "w"))) {
+		sprintf(buf, "[SYSERR] Error on open backup exhange database file ('%s') - FILE MAY BE LOCKED.", EXCHANGE_DATABASE_BACKUPFILE);
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		return FALSE;
 	}

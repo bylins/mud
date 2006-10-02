@@ -24,8 +24,8 @@ extern EXCHANGE_ITEM_DATA *exchange_item_list;
 #define EXCHANGE_AUTOSAVETIME 300	//Кол-во секунд между автосохранениями Базара (0 для отключения)
 #define EXCHANGE_AUTOSAVEBACKUPTIME 750	//Кол-во секунд между автосохранениями Базара (0 для отключения)
 #define EXCHANGE_SAVEONEVERYOPERATION FALSE	//Сохранять базар после каждой операции
-#define EXCHANGE_DATABASE_FILE "exchange.db"
-#define EXCHANGE_DATABASE_BACKUPFILE "exchange.backup"
+#define EXCHANGE_DATABASE_FILE LIB_PLRSTUFF"exchange.db"
+#define EXCHANGE_DATABASE_BACKUPFILE LIB_PLRSTUFF"exchange.backup"
 #define EX_NEW_ITEM_CHAR '#'
 #define EX_END_CHAR '$'
 #define FILTER_LENGTH 25

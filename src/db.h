@@ -53,7 +53,8 @@
 #define LIB_PLROBJS	":plrobjs:"
 #define LIB_PLRS    ":plrs:"
 #define LIB_PLRALIAS	":plralias:"
-#define LIB_HOUSE	":house:"
+#define LIB_PLRSTUFF ":plrstuff:"
+#define LIB_HOUSE	":plrstuff:house:"
 #define LIB_PLRVARS	":plrvars:"
 #define LIB             ":lib:"
 #define SLASH		":"
@@ -69,7 +70,8 @@
 #define LIB_PLROBJS	"plrobjs/"
 #define LIB_PLRS    "plrs/"
 #define LIB_PLRALIAS	"plralias/"
-#define LIB_HOUSE	"house/"
+#define LIB_PLRSTUFF "plrstuff/"
+#define LIB_HOUSE	 LIB_PLRSTUFF"house/"
 #define LIB_PLRVARS	"plrvars/"
 #define LIB             "lib/"
 #define SLASH		"/"
@@ -212,7 +214,7 @@ struct reset_com {
 	char *sarg1;		/* string argument                      */
 	char *sarg2;		/* string argument                      */
 
-	/* 
+	/*
 	 *  Commands:              *
 	 *  'M': Read a mobile     *
 	 *  'O': Read an object    *
@@ -221,7 +223,7 @@ struct reset_com {
 	 *  'G': Obj to char       *
 	 *  'E': Obj to char equip *
 	 *  'D': Set state of door *
-	 *  'T': Trigger command   * 
+	 *  'T': Trigger command   *
 	 */
 };
 
