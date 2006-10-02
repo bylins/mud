@@ -146,7 +146,6 @@ void assign_objects(void)
 	ASSIGNOBJ(GODCODE_BOARD_OBJ, Board::Special);
 	ASSIGNOBJ(GODPUNISH_BOARD_OBJ, Board::Special);
 	ASSIGNOBJ(GODBUILD_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(330, Clan::ClanChest);
 }
 
 

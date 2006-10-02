@@ -117,7 +117,7 @@ ACMD(do_exits);
 void look_in_direction(CHAR_DATA * ch, int dir, int info_is);
 void look_in_obj(CHAR_DATA * ch, char *arg);
 char *find_exdesc(char *word, EXTRA_DESCR_DATA * list);
-void look_at_target(CHAR_DATA * ch, char *arg, int subcmd);
+bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd);
 void gods_day_now(CHAR_DATA * ch);
 #define EXIT_SHOW_WALL    (1 << 0)
 #define EXIT_SHOW_LOOKING (1 << 1)
@@ -1292,9 +1292,9 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	}
 
 	/* Отображаем аффекты комнаты */
-	if AFF_FLAGGED(ch, AFF_DETECT_MAGIC) 
+	if AFF_FLAGGED(ch, AFF_DETECT_MAGIC)
 		sprintbits(world[ch->in_room]->affected_by, room_aff_invis_bits, buf2, "\n");
-	else 
+	else
 		sprintbits(world[ch->in_room]->affected_by, room_aff_visib_bits, buf2, "\n");
 
 	// подавляем если нет аффектов
@@ -1526,11 +1526,14 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 	if ((obj == NULL) || !bits) {
 		sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg);
 		send_to_char(buf, ch);
-	} else
-	    if ((GET_OBJ_TYPE(obj) != ITEM_DRINKCON) &&
-		(GET_OBJ_TYPE(obj) != ITEM_FOUNTAIN) && (GET_OBJ_TYPE(obj) != ITEM_CONTAINER))
+	} else if ((GET_OBJ_TYPE(obj) != ITEM_DRINKCON)
+	&& (GET_OBJ_TYPE(obj) != ITEM_FOUNTAIN)
+	&& (GET_OBJ_TYPE(obj) != ITEM_CONTAINER))
 		send_to_char("Ничего в нем нет !\r\n", ch);
 	else {
+		if (Clan::ChestShow(obj, ch))
+			return;
+
 		if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER) {
 			if (OBJVAL_FLAGGED(obj, CONT_CLOSED))
 				act("Закрыт$g.", FALSE, ch, obj, 0, TO_CHAR);
@@ -1594,8 +1597,9 @@ char *find_exdesc(char *word, EXTRA_DESCR_DATA * list)
  *
  * Thanks to Angus Mezick <angus@EDGIL.CCMAIL.COMPUSERVE.COM> for the
  * suggested fix to this problem.
+ * \return флаг если смотрим в клан-сундук, чтобы после осмотра не смотреть второй раз по look_in_obj
  */
-void look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
+bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 {
 	int bits, found = FALSE, fnum, i = 0, cn = 0, j;
 	struct portals_list_type *port;
@@ -1606,11 +1610,11 @@ void look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP | FIND_CHAR_ROOM;
 
 	if (!ch->desc)
-		return;
+		return 0;
 
 	if (!*arg) {
 		send_to_char("На что Вы так мечтаете посмотреть ?\r\n", ch);
-		return;
+		return 0;
 	}
 
 	half_chop(arg, whatp, where);
@@ -1631,7 +1635,7 @@ void look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 		if (GET_LEVEL(ch) < MAX(1, port->level - GET_REMORT(ch)/2)) {
 			send_to_char("На камне что-то написано огненными буквами.\r\n", ch);
 			send_to_char("Но вы еще недостаточно искусны, чтобы разобрать слово.\r\n", ch);
-			return;
+			return 0;
 		} else {
 			for (tmp = GET_PORTALS(ch); tmp; tmp = tmp->next) {
 				cn++;
@@ -1639,7 +1643,7 @@ void look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 			if (cn >= MAX_PORTALS(ch)) {
 				send_to_char
 				    ("Все доступные вам камни уже запомнены, удалите и попробуйте еще.\r\n", ch);
-				return;
+				return 0;
 			}
 			send_to_char("На камне огненными буквами напиcано слово '&R", ch);
 			send_to_char(port->wrd, ch);
@@ -1647,7 +1651,7 @@ void look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 			/* теперь добавляем в память чара */
 			add_portal_to_char(ch, GET_ROOM_VNUM(ch->in_room));
 			check_portals(ch);
-			return;
+			return 0;
 		}
 	}
 
@@ -1660,19 +1664,19 @@ void look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 		if (world[to_room]->portal_time && (r == world[to_room]->portal_room)) {
 			send_to_char
 			    ("Яркий свет, идущий с противоположного конца прохода, застилает Вам глаза.\r\n\r\n", ch);
-			return;
+			return 0;
 		}
 		IN_ROOM(ch) = world[IN_ROOM(ch)]->portal_room;
 		look_at_room(ch, 1);
 		IN_ROOM(ch) = r;
-		return;
+		return 0;
 	}
 
 	bits = generic_find(what, where_bits, ch, &found_char, &found_obj);
 	/* Is the target a character? */
 	if (found_char != NULL) {
 		if (subcmd == SCMD_LOOK_HIDE && !check_moves(ch, LOOKHIDE_MOVES))
-			return;
+			return 0;
 		look_at_char(found_char, ch);
 		if (ch != found_char) {
 			if (subcmd == SCMD_LOOK_HIDE && GET_SKILL(ch, SKILL_LOOK_HIDE) > 0) {
@@ -1683,93 +1687,41 @@ void look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 				if (!WAITLESS(ch))
 					WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 				if (found >= fnum && (fnum < 100 || IS_IMMORTAL(ch)) && !IS_IMMORTAL(found_char))
-					return;
+					return 0;
 			}
 			if (CAN_SEE(found_char, ch))
 				act("$n оглядел$g Вас с головы до пят.", TRUE, ch, 0, found_char, TO_VICT);
 			act("$n посмотрел$g на $N3.", TRUE, ch, 0, found_char, TO_NOTVICT);
 		}
-		return;
+		return 0;
 	}
 
 	/* Strip off "number." from 2.foo and friends. */
 	if (!(fnum = get_number(&what))) {
 		send_to_char("Что осматриваем ?\r\n", ch);
-		return;
+		return 0;
 	}
 
 	/* Does the argument match an extra desc in the room? */
 	if ((desc = find_exdesc(what, world[ch->in_room]->ex_description)) != NULL && ++i == fnum) {
 		page_string(ch->desc, desc, FALSE);
-		return;
+		return 0;
 	}
-
-/* Начало изменений.
-   (с) Дмитрий ака dzMUDiST ака Кудояр */
-
-// Закомментированый ниже код IMHO не нужен, т.к. повторяет сделанное функцией
-//    bits = generic_find (what, where_bits, ch, &found_char, &found_obj);
-// и вдобавок изменяет указатель found_obj, что приводит к отображению 
-// описаний не тех предметов.
-
-
-	/* Does the argument match an extra desc in the char's equipment? */
-//  for (j = 0;
-//       j < NUM_WEARS && !found && IS_SET (where_bits, FIND_OBJ_EQUIP); j++)
-//    if (GET_EQ (ch, j) &&
-//      CAN_SEE_OBJ (ch, GET_EQ (ch, j)) &&
-//      (desc = find_exdesc (what, GET_EQ (ch, j)->ex_description)) &&
-//      ++i == fnum)
-//      {
-//      send_to_char (desc, ch);
-//      found_obj = GET_EQ (ch, j);
-//      found = TRUE;
-//      in_eq = TRUE;
-//      }
-
-	/* Does the argument match an extra desc in the char's inventory? */
-//  for (obj = ch->carrying;
-//       obj && !found && IS_SET (where_bits, FIND_OBJ_INV);
-//       obj = obj->next_content)
-//    {
-//      if (CAN_SEE_OBJ (ch, obj) &&
-//        (desc = find_exdesc (what, obj->ex_description)) && ++i == fnum)
-//      {
-//        send_to_char (desc, ch);
-//        found_obj = obj;
-//        found = TRUE;
-//        in_eq = TRUE;
-//      }
-//    }
-
-	/* Does the argument match an extra desc of an object in the room? */
-//  for (obj = world[ch->in_room]->contents;
-//       obj && !found && IS_SET (where_bits, FIND_OBJ_ROOM);
-//       obj = obj->next_content)
-//    if (CAN_SEE_OBJ (ch, obj) &&
-//      (desc = find_exdesc (what, obj->ex_description)) && ++i == fnum)
-//      {
-//      send_to_char (desc, ch);
-//      found_obj = obj;
-//      found = TRUE;
-//      }
-
 
 	/* If an object was found back in generic_find */
 	if (bits && (found_obj != NULL)) {
 
+		if (Clan::ChestShow(found_obj, ch))
+			return 1;
+
 		// Собственно изменение. Вместо проверки "if (!found)" юзается проверка
 		// наличия описания у объекта, найденного функцией "generic_find"
-
 		if (!(desc = find_exdesc(what, found_obj->ex_description)))
 			show_obj_to_char(found_obj, ch, 5, TRUE, 1);	/* Show no-description */
 		else {
 			send_to_char(desc, ch);
 			show_obj_to_char(found_obj, ch, 6, TRUE, 1);	/* Find hum, glow etc */
 		}
-
-/* Конец изменений.
-   (с) Дмитрий ака dzMUDiST ака Кудояр */
 
 		if (GET_CLASS(ch) == CLASS_MERCHANT && GET_LEVEL(ch) >= 20) {
 			send_to_char("Материал : ", ch);
@@ -1832,6 +1784,8 @@ void look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 
 	} else
 		send_to_char("Похоже, этого здесь нет !\r\n", ch);
+
+	return 0;
 }
 
 
@@ -2007,7 +1961,8 @@ ACMD(do_examine)
 
 	skip_hide_on_look(ch);
 
-	look_at_target(ch, argument, subcmd);
+	if (look_at_target(ch, argument, subcmd))
+		return;
 
 	if (isname(arg, "пентаграмма") && world[IN_ROOM(ch)]->portal_time && IS_SET(where_bits, FIND_OBJ_ROOM))
 		return;
@@ -2176,7 +2131,7 @@ ACMD(do_score)
 		" %sВес: %3d(%3d)        %s|"
 		" %sЗащита: %3d%s      |"
 		" %sОгню:      %3d   %s||\r\n",
-		CCNRM(ch, C_NRM), 
+		CCNRM(ch, C_NRM),
 		string(race_name[GET_RACE(ch)][(int)GET_SEX(ch)]).substr(0, 14).c_str(),
 		CCCYN(ch, C_NRM),
 		CCICYN(ch, C_NRM), GET_WEIGHT(ch), GET_REAL_WEIGHT(ch), CCCYN(ch, C_NRM),
@@ -2189,34 +2144,34 @@ ACMD(do_score)
 		" %sРазмер: %3d(%3d)     %s|"
 		" %sПоглощение: %3d%s  |"
 		" %sВоздуху:   %3d   %s||\r\n",
-		CCNRM(ch, C_NRM), 
-		string(religion_name[GET_RELIGION(ch)][(int) GET_SEX(ch)]).substr(0, 13).c_str(), 
+		CCNRM(ch, C_NRM),
+		string(religion_name[GET_RELIGION(ch)][(int) GET_SEX(ch)]).substr(0, 13).c_str(),
 		CCCYN(ch, C_NRM),
 		CCICYN(ch, C_NRM), GET_SIZE(ch), GET_REAL_SIZE(ch), CCCYN(ch, C_NRM),
 		CCIGRN(ch, C_NRM), GET_ABSORBE(ch), CCCYN(ch, C_NRM),
 		CCWHT(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
 	max_dam = GET_REAL_DR(ch) + str_app[GET_REAL_STR (ch)].todam;
-	
+
 	if (IS_WARRIOR(ch)) {
 	        modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)) : 0));
 	        modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)) : 0));
 	        modi = MAX(100, modi);
 	        max_dam += modi * max_dam / 50;
         } else
-	        max_dam += 6 + 2 * GET_LEVEL(ch) / 3;			    	
+	        max_dam += 6 + 2 * GET_LEVEL(ch) / 3;
 
 	weapon = GET_EQ(ch, WEAR_BOTHS);
 	if (weapon) {
 		if (GET_OBJ_TYPE(weapon) == ITEM_WEAPON) {
-                        max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1);		
+                        max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1);
 			skill = GET_OBJ_SKILL(weapon);
 			if (GET_SKILL(ch, skill) == 0) {
                                 hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
                                 max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
-			} else 
+			} else
 				apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
-			
+
 		}
 	} else {
 		weapon = GET_EQ(ch, WEAR_WIELD);
@@ -2229,8 +2184,8 @@ ACMD(do_score)
 			    max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
 			} else
 			    apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
-		    }				
-		} 
+		    }
+		}
 
 		weapon = GET_EQ(ch, WEAR_HOLD);
 		if (weapon) {
@@ -2240,11 +2195,11 @@ ACMD(do_score)
 			if (GET_SKILL(ch, skill) == 0) {
        	                    hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
               	            max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
-			}  else 
-			    apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr); 
-		    }			    
+			}  else
+			    apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
+		    }
 		}
-	} 
+	}
 
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
 		if (weapon && GET_OBJ_WEIGHT(weapon) > 20)
@@ -2297,7 +2252,7 @@ ACMD(do_score)
 
 	resist = MIN(GET_RESIST(ch, MIND_RESISTANCE), 75);
 
-        if (IS_IMMORTAL(ch)) 
+        if (IS_IMMORTAL(ch))
 		sprintf(buf+ strlen(buf), " || %sДСУ: %s1%s             |",
 		CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), CCCYN(ch, C_NRM));
 	else
@@ -2394,12 +2349,12 @@ ACMD(do_score)
 	else
 		sprintf(buf+ strlen(buf), " || %sГолоден: &gнет%s       |", CCNRM(ch, C_NRM), CCCYN(ch, C_NRM));
 
-	if (IS_MANA_CASTER(ch)) 
+	if (IS_MANA_CASTER(ch))
 		sprintf(buf + strlen(buf),
 			" %sМагическая сила:%s     |", CCICYN(ch, C_NRM), CCCYN(ch, C_NRM));
 	else
 		strcat(buf, "                      |");
-	
+
 
 	sprintf(buf+ strlen(buf),
 		" %sСтойкость: %3d   %s|"
@@ -2414,7 +2369,7 @@ ACMD(do_score)
 	else
 		sprintf(buf+ strlen(buf), " || %sЖажда: &gнет%s         |", CCNRM(ch, C_NRM), CCCYN(ch, C_NRM));
 
-	if (IS_MANA_CASTER(ch)) 
+	if (IS_MANA_CASTER(ch))
 		sprintf(buf + strlen(buf),
 			" %s%4d(%4d)           %s|",
 			CCICYN(ch, C_NRM), GET_MANA_STORED(ch), GET_MAX_MANA(ch), CCCYN(ch, C_NRM));
@@ -2434,9 +2389,9 @@ ACMD(do_score)
 		else
 			sprintf(buf+ strlen(buf), " || %sВы пьяны.          %s|", CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 	} else
-		strcat(buf, " ||                    |"); 
+		strcat(buf, " ||                    |");
 
-	if (IS_MANA_CASTER(ch)) 
+	if (IS_MANA_CASTER(ch))
 		sprintf(buf + strlen(buf),
 			" %sВосстан.: %3d сек.   %s|",
 			CCICYN(ch, C_NRM), mana_gain(ch), CCCYN(ch, C_NRM));
@@ -2444,10 +2399,10 @@ ACMD(do_score)
 		strcat(buf, "                      |");
 
 	sprintf(buf+ strlen(buf),
-		" %sУдача:   %4d    %s|"	
+		" %sУдача:   %4d    %s|"
 		" %s %4d            %s||\r\n"
 		" -------------------------------------------------------------------------------------\r\n",
-		CCGRN(ch, C_NRM), GET_MORALE(ch), CCCYN(ch, C_NRM),		
+		CCGRN(ch, C_NRM), GET_MORALE(ch), CCCYN(ch, C_NRM),
 		CCRED(ch, C_NRM), GET_MOVEREG(ch), CCCYN(ch, C_NRM));
 
 	if (has_horse(ch, FALSE)) {
@@ -2465,7 +2420,7 @@ ACMD(do_score)
 			(string(GET_NAME(get_horse(ch))) + string(".")).substr(0, 69).c_str(), CCCYN(ch, C_NRM));
 	}
 
-	if (GET_GLORY(ch))		
+	if (GET_GLORY(ch))
 		sprintf(buf + strlen(buf),
 			" %s|| %sВы заслужили %5d %-61s%s||\r\n",
 			CCCYN(ch, C_NRM), CCWHT(ch, C_NRM), GET_GLORY(ch),
@@ -2485,7 +2440,7 @@ ACMD(do_score)
 	else
 		sprintf(buf + strlen(buf),
 		        " || Вы защищены от призыва.                                                         ||\r\n");
-	
+
 	if (!NAME_GOD(ch) && GET_LEVEL(ch) <= NAME_LEVEL) {
 		sprintf(buf + strlen(buf),
 			" &c|| &RВНИМАНИЕ!&n Ваше имя не одобрил никто из богов!&c                                   ||\r\n");
@@ -2505,11 +2460,11 @@ ACMD(do_score)
 			(string(desc_count(grouping[(int)GET_CLASS(ch)][MIN(14, (int)GET_REMORT(ch))], WHAT_LEVEL))
 			+ string(" без потерь для опыта.")).substr(0, 76).c_str(), CCCYN(ch, C_NRM));
 
-	if (RENTABLE(ch)) 
+	if (RENTABLE(ch))
 		sprintf(buf + strlen(buf),
 			" || %sВ связи с боевыми действиями Вы не можете уйти на постой.                       %s||\r\n",
 			CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
-	else if ((IN_ROOM(ch) != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER)) 
+	else if ((IN_ROOM(ch) != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER))
 		sprintf(buf + strlen(buf),
 			" || %sТут Вы чувствуете себя в безопасности.                                          %s||\r\n",
 			CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
@@ -2580,7 +2535,7 @@ ACMD(do_score)
 			CCCYN(ch, C_NRM));
  	}
 
-	strcat(buf, " ||                                                                                 ||\r\n");	
+	strcat(buf, " ||                                                                                 ||\r\n");
 	strcat(buf, " -------------------------------------------------------------------------------------\r\n");
 	strcat(buf, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
@@ -2593,7 +2548,7 @@ ACMD(do_score)
 		only_title(ch),
 		kin_name[GET_KIN (ch)][(int) GET_SEX (ch)],
 		race_name[GET_RACE(ch)][(int) GET_SEX(ch)],
-		religion_name[GET_RELIGION(ch)][(int) GET_SEX(ch)], 
+		religion_name[GET_RELIGION(ch)][(int) GET_SEX(ch)],
 		class_name[(int) GET_CLASS (ch)+14*GET_KIN (ch)],GET_LEVEL (ch));
 
 	if (!NAME_GOD(ch) && GET_LEVEL(ch) <= NAME_LEVEL) {
@@ -2687,7 +2642,7 @@ ACMD(do_score)
 			"Вы можете вступить в группу с максимальной разницей в %d %s без потерь для опыта.\r\n",
 			grouping[(int)GET_CLASS(ch)][MIN(14, (int)GET_REMORT(ch))],
 			desc_count(grouping[(int)GET_CLASS(ch)][MIN(14, (int)GET_REMORT(ch))], WHAT_LEVEL));
-		
+
 //if (GET_GOD_FLAG(ch, GF_REMORT))
 //   sprintf(buf+strlen(buf),"Вы имеете право на перевоплощение.\r\n");
 	if (GET_GLORY(ch))
@@ -3119,7 +3074,7 @@ ACMD(do_help)
 	int bin_search_bottom  = 0; // нижняя граница бинарного поиска
 	int bin_search_top  = 0; // верхняя граница бинарного оиска
 	int mid  = 0; // середина списка
-		
+
 	int minlen  = 0; // длинна аргумента
 	int strong  = 0; // строгий поиск
 	int topic_num  = 0; // индекс раздела, указываемый в кач-ве аргумента
@@ -3139,8 +3094,8 @@ ACMD(do_help)
 		page_string(ch->desc, help, 0);
 		return;
 	}
-	
-	/*залочка на случай крешей и прочих багов */	
+
+	/*залочка на случай крешей и прочих багов */
 //        send_to_char("Справка временно недоступна.\r\n", ch);
 //        return;
 
@@ -3166,7 +3121,7 @@ ACMD(do_help)
 	/* Обрезаем пробелы */
 	if ((space_pos = strchr(argument, ' ')))
 		*(space_pos)='\0';
-	
+
 	/* если последний символ аргумента '!' -- включаем строгий поиск */
 	if (strlen(argument) > 1 && *(argument + strlen(argument) - 1) == '!') {
 		strong = TRUE;
@@ -3176,7 +3131,7 @@ ACMD(do_help)
 	/* длинна строкового аргумента */
 	minlen = strlen(argument);
 
-	/* бинарный поиск начинается*/	
+	/* бинарный поиск начинается*/
 	for (;;) {
 		mid = (bin_search_bottom + bin_search_top) / 2;
 		if (bin_search_bottom > bin_search_top) {
@@ -3247,7 +3202,7 @@ ACMD(do_help)
 			else
 				bin_search_top = mid - 1;
 		}
-	
+
 	}
 
 }
@@ -3530,7 +3485,7 @@ ACMD(do_who)
 ACMD(do_who_new)
 {
 //  if (!GET_GOD_FLAG(ch,GF_DEMIGOD) && !IS_IMMORTAL(ch))
-//  {    
+//  {
 //    send_to_char("Чаво ? \n",ch);
 //    return;
 //  }
@@ -3711,7 +3666,7 @@ ACMD(do_statistic)
 			pk++;
 		else
 			nopk++;
-	
+
 		if (GET_LEVEL(tch) >= 25)
 			proff[(int)GET_CLASS(tch)][0]++;
 		else
@@ -3880,7 +3835,7 @@ ACMD(do_users)
 				showremorts = 1;
 				strcpy(buf, buf1);
 				break;
-			
+
 			case 's':
 				sorting = 'i';
 				sorting = *(arg + 2);
@@ -4050,7 +4005,7 @@ ACMD(do_users)
 				}
 				strcat(line, line2);
 			}
-//--  
+//--
 		strcat(line, "\r\n");
 		if (STATE(d) != CON_PLAYING) {
 			sprintf(line2, "%s%s%s", CCGRN(ch, C_SPR), line, CCNRM(ch, C_SPR));
@@ -4651,7 +4606,7 @@ ACMD(do_affects)
 			*buf2 = '\0';
 			strcpy(sp_name, spell_name(aff->type));
 			(aff->duration+1)/SECS_PER_MUD_HOUR ? sprintf(buf2, "%d %s", (aff->duration+1)/SECS_PER_MUD_HOUR + 1, desc_count((aff->duration+1)/SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "менее часа");
-	
+
 			sprintf(buf, "%s%s%-21s (%s)%s",
 				*sp_name == '!' ? "Состояние  : " : "Заклинание : ",
 				CCICYN(ch, C_NRM), sp_name, buf2, CCNRM(ch, C_NRM));

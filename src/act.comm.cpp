@@ -183,7 +183,7 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 	if (!IS_NPC(vict) && !IS_NPC(ch)) {
 		ct = time(0);
 		tmp = asctime(localtime(&ct));
-		if (CAN_SEE_CHAR(vict, ch)) {
+		if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch)) {
 			sprintf(buf, "%s[%5.5s]%s %s : '%s'%s", CCNRM(ch, C_NRM), (tmp + 11), CCICYN(ch, C_NRM),
 				GET_NAME(ch), arg, CCNRM(ch, C_NRM));
 		} else {

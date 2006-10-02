@@ -141,12 +141,12 @@ class Clan
 	static void ChestInvoice();
 	static bool BankManage(CHAR_DATA * ch, char *arg);
 	static room_rnum CloseRent(room_rnum to_room);
-	static SPECIAL(ClanChest);
 	static ClanListType::const_iterator IsClanRoom(room_rnum room);
 	static void CheckPkList(CHAR_DATA * ch);
 	static void SyncTopExp();
 	static int GetTotalCharScore(CHAR_DATA * ch);
 	static int GetRankByUID(long);
+	static bool ChestShow(OBJ_DATA * list, CHAR_DATA * ch);
 
 	void Manage(DESCRIPTOR_DATA * d, const char * arg);
 	void AddTopExp(CHAR_DATA * ch, int add_exp);
@@ -154,7 +154,7 @@ class Clan
 	const char * GetAbbrev() { return this->abbrev.c_str(); };
 	int GetRent();
 	int SetClanExp(CHAR_DATA *ch, int add);  //На входе - икспа с моба - на выходе икспа собсно игроку. за вычетом той что идет в клан
-	int GetMemberExpPersent(CHAR_DATA *ch) { if (!CLAN(ch)) return 0; return CLAN_MEMBER(ch)->exp_persent;}; 
+	int GetMemberExpPersent(CHAR_DATA *ch) { if (!CLAN(ch)) return 0; return CLAN_MEMBER(ch)->exp_persent;};
 	int GetClanLevel() { return this->clan_level; };
 	std::string GetClanTitle() { return this->title; };
 	bool CheckPrivilege(int rank, int privilege) { return this->privileges[rank][privilege]; };
@@ -227,7 +227,6 @@ class Clan
 	static void HcontrolDestroy(CHAR_DATA * ch, std::string & buffer);
 	static void ChestLoad();
 	int ChestTax();
-	void ChestShow(OBJ_DATA * list, CHAR_DATA * ch);
 	int ChestMaxObjects() {return (this->clan_level+1)*500+100;};
 	int ChestMaxWeight() {return (this->clan_level+1)*5000+500;};
 

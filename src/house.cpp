@@ -1774,37 +1774,6 @@ ACMD(DoClanPkList)
 	}
 }
 
-// смотрим в сундук (могут все соклановцы)
-SPECIAL(Clan::ClanChest)
-{
-	OBJ_DATA *chest = (OBJ_DATA *) me;
-
-	if (!ch->desc)
-		return 0;
-	if (CMD_IS("смотреть") || CMD_IS("осмотреть") || CMD_IS("look") || CMD_IS("examine")) {
-		std::string buffer = argument, buffer2;
-		GetOneParam(buffer, buffer2);
-		boost::trim_if(buffer, boost::is_any_of(" \'"));
-		// эта мутная запись для всяких 'см в сундук' и подобных написаний в два слова
-		if (buffer2.empty()
-		    || (buffer.empty() && !isname(buffer2.c_str(), chest->name))
-		    || (!buffer.empty() && !isname(buffer.c_str(), chest->name)))
-			return 0;
-
-		// TODO: ну раз мы тут терь не ищем клан, а пользуем указатель на чаре - иммы обламываются неклановые, имхо к лучшему
-		if (CLAN(ch) && real_room(CLAN(ch)->chest_room) == IN_ROOM(ch)) {
-			send_to_char("Хранилище Вашей дружины:\r\n", ch);
-			CLAN(ch)->ChestShow(chest->contains,ch);
-			return 1;
-		} else {
-			// засланым казачкам показываем хер, а не хранилище
-			send_to_char("Не на что тут глазеть, пусто, вот те крест.\r\n", ch);
-			return 1;
-		}
-	}
-	return 0;
-}
-
 // кладем в сундук (при наличии привилегии)
 // если предмет - деньги, то автоматом идут в клан-казну, контейнеры только пустые
 bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
@@ -2863,8 +2832,7 @@ ACMD(DoStoreHouse)
 			return;
 		for (chest = world[real_room(CLAN(ch)->chest_room)]->contents; chest; chest = chest->next_content) {
 			if (chest->item_number == chest_num) {
-				send_to_char("Хранилище Вашей дружины:\r\n", ch);
-				CLAN(ch)->ChestShow(chest->contains,ch);
+				Clan::ChestShow(chest, ch);
 				return;
 			}
 		}
@@ -3343,11 +3311,26 @@ int Clan::ChestTax()
 	return cost * this->chest_discount / 100;
 }
 
-void Clan::ChestShow(OBJ_DATA * contains, CHAR_DATA * ch)
+/*
+* Вместо спешиала теперь просто перехватываем осмотр контейнеров на случай клан-сундука.
+* Смотреть могут ес-сно только соклановцы.
+* \todo Вынести из класса. Да и вообще там чистить давно пора.
+* \param obj - контейнер
+* \param ch - смотрящий
+*/
+bool Clan::ChestShow(OBJ_DATA * obj, CHAR_DATA * ch)
 {
-	int cost = ChestTax();
-	send_to_char(ch, "Всего вещей: %d   Рента в день: %d %s\r\n\r\n", this->chest_objcount,cost,desc_count(cost, WHAT_MONEYa));
-	list_obj_to_char(contains, ch, 1, 3);
+	if (!ch->desc || obj->item_number != real_object(CLAN_CHEST))
+		return 0;
+
+	if (CLAN(ch) && real_room(CLAN(ch)->chest_room) == IN_ROOM(obj)) {
+		send_to_char("Хранилище Вашей дружины:\r\n", ch);
+		int cost = CLAN(ch)->ChestTax();
+		send_to_char(ch, "Всего вещей: %d   Рента в день: %d %s\r\n\r\n", CLAN(ch)->chest_objcount, cost, desc_count(cost, WHAT_MONEYa));
+		list_obj_to_char(obj->contains, ch, 1, 3);
+	} else
+		send_to_char("Не на что тут глазеть, пусто, вот те крест.\r\n", ch); // засланым казачкам показываем хер, а не хранилище
+	return 1;
 }
 
 // +/- клан-экспы
