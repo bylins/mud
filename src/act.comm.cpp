@@ -171,14 +171,13 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 		return;
 	}
 
-	send_to_char(CCICYN(vict, C_NRM), vict);
-	if (CAN_SEE_CHAR(vict, ch)) {
-		sprintf(buf, "%s сказал$g Вам : '%s'", GET_NAME(ch), arg);
-	} else {
+	// TODO: если в act() останется показ иммов, то это и эхо ниже переделать на act()
+	if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch))
+		sprintf(buf, "%s сказал%s Вам : '%s'", GET_NAME(ch), GET_CH_SUF_1(ch), arg);
+	else
 		sprintf(buf, "Кто-то сказал Вам : '%s'", arg);
-	}
-	act(buf, FALSE, ch, 0, vict, TO_VICT | TO_SLEEP | CHECK_DEAF);
-	send_to_char(CCNRM(vict, C_NRM), vict);
+	send_to_char(vict, "%s%s%s\r\n", CCICYN(vict, C_NRM), buf, CCNRM(vict, C_NRM));
+
 	/* Обработка для "вспомнить" */
 	arg[MAX_RAW_INPUT_LENGTH - 35] = 0;
 	if (!IS_NPC(vict) && !IS_NPC(ch)) {
@@ -200,14 +199,11 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT))
 		send_to_char(OK, ch);
 	else {
-		send_to_char(CCICYN(ch, C_CMP), ch);
-		if (CAN_SEE_CHAR(ch, vict)) {
+		if (CAN_SEE_CHAR(ch, vict) || IS_IMMORTAL(vict))
 			sprintf(buf, "Вы сказали %s : '%s'", vict->player.PNames[2], arg);
-		} else {
+		else
 			sprintf(buf, "Вы сказали кому-то : '%s'", arg);
-		}
-		act(buf, FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
-		send_to_char(CCNRM(ch, C_CMP), ch);
+		send_to_char(ch, "%s%s%s\r\n", CCICYN(ch, C_CMP), buf, CCNRM(vict, C_CMP));
 	}
 
 	if (!IS_NPC(vict) && !IS_NPC(ch))
@@ -695,7 +691,6 @@ ACMD(do_gen_comm)
 			act(buf1, FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
 		}
 
-
 		sprintf(buf, "$n %s : '%s'", com_msgs[subcmd].hi_action, argument);
 		// Обработка для "вспомнить крики"
 		switch (time_info.hours % 24) {
@@ -783,7 +778,6 @@ ACMD(do_gen_comm)
 			if (subcmd == SCMD_SHOUT &&
 			    ((world[ch->in_room]->zone != world[i->character->in_room]->zone) || !AWAKE(i->character)))
 				continue;
-
 			if (COLOR_LEV(i->character) >= C_NRM)
 				send_to_char(color_on, i->character);
 			act(buf, FALSE, ch, 0, i->character, TO_VICT | TO_SLEEP | CHECK_DEAF);
@@ -900,10 +894,9 @@ ACMD(do_pray_gods)
 			num_pray = 0;
 	}
 	for (i = descriptor_list; i; i = i->next)
-		if (STATE(i) == CON_PLAYING && (IS_IMMORTAL(i->character)
-						|| IS_CODER(i->character)
-						|| GET_GOD_FLAG(i->character, GF_DEMIGOD))
-						&& GodListCheck(GET_NAME(i->character), GET_UNIQUE(i->character)))
+		if (STATE(i) == CON_PLAYING
+		&& IS_IMMORTAL(i->character)
+		&& GodListCheck(GET_NAME(i->character), GET_UNIQUE(i->character)))
 			if (i->character != ch)
 				act(buf, 0, ch, 0, i->character, TO_VICT | TO_SLEEP);
 }

@@ -897,8 +897,8 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 				close_socket(d, FALSE);	// закрыл соединение
 			else
 				d->has_prompt = 1;	// признак того, что промпт уже выводил
-			// следующий после команды или очередной 
-			// порции вывода                                 
+			// следующий после команды или очередной
+			// порции вывода
 		}
 	}
 
@@ -1149,7 +1149,7 @@ inline void heartbeat()
 	if (!(pulse % (30 * PASSES_PER_SEC))) {
 		make_who2html();
 		if (uptime_minutes >= (reboot_uptime - 30) && shutdown_time == 0) {
-			//reboot after 30 minutes minimum. Auto reboot cannot run earlier.  
+			//reboot after 30 minutes minimum. Auto reboot cannot run earlier.
 			send_to_all("АВТОМАТИЧЕСКАЯ ПЕРЕЗАГРУЗКА ЧЕРЕЗ 30 МИНУТ.\r\n");
 			shutdown_time = time(NULL) + 1800;
 			circle_shutdown = 2;
@@ -2518,7 +2518,7 @@ int process_input(DESCRIPTOR_DATA * t)
 				space_left--;
 			}
 
-			/* Для того чтобы работали все триги в змаде - заменяем все вводимые 'z' 
+			/* Для того чтобы работали все триги в змаде - заменяем все вводимые 'z'
 			   на 'я' */
 			if (STATE(t) == CON_PLAYING || (STATE(t) == CON_EXDESC)) {
 				if (t->keytable == KT_WINZ6 || t->keytable == KT_WINZ) {
@@ -2549,7 +2549,7 @@ int process_input(DESCRIPTOR_DATA * t)
 			// очистка входной очереди
 			int dummy;
 			while (get_from_q(&t->input, buf2, &dummy));
-			// SEND_TO_Q("Входной буфер очищен.\r\n", t); 
+			// SEND_TO_Q("Входной буфер очищен.\r\n", t);
 			tmp[0] = 0;
 		} else if (*tmp == '!' && !(*(tmp + 1)))
 			/* Redo last command. */
@@ -3108,10 +3108,10 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 			switch (*(++orig)) {
 			case 'n':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
-					i = PERS(ch, to, 0);
+					i = IS_IMMORTAL(ch) ? GET_NAME(ch) : PERS(ch, to, 0);
 				else {
 					padis = *(++orig) - '0';
-					i = PERS(ch, to, padis);
+					i = IS_IMMORTAL(ch) ? GET_PAD(ch, padis) : PERS(ch, to, padis);
 				}
 				break;
 			case 'N':
@@ -3201,7 +3201,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 				break;
 
 			case 'a':
-				i = GET_CH_VIS_SUF_6(ch, to);
+				i = IS_IMMORTAL(ch) ? GET_CH_SUF_6(ch) : GET_CH_VIS_SUF_6(ch, to);
 				break;
 			case 'A':
 				if (vict_obj)
@@ -3212,7 +3212,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 				break;
 
 			case 'g':
-				i = GET_CH_VIS_SUF_1(ch, to);
+				i = IS_IMMORTAL(ch) ? GET_CH_SUF_1(ch) : GET_CH_VIS_SUF_1(ch, to);
 				break;
 			case 'G':
 				if (vict_obj)
@@ -3223,7 +3223,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 				break;
 
 			case 'y':
-				i = GET_CH_VIS_SUF_5(ch, to);
+				i = IS_IMMORTAL(ch) ? GET_CH_SUF_5(ch) : GET_CH_VIS_SUF_5(ch, to);
 				break;
 			case 'Y':
 				if (vict_obj)
@@ -3234,7 +3234,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 				break;
 
 			case 'u':
-				i = GET_CH_VIS_SUF_2(ch, to);
+				i = IS_IMMORTAL(ch) ? GET_CH_SUF_2(ch) : GET_CH_VIS_SUF_2(ch, to);
 				break;
 			case 'U':
 				if (vict_obj)
@@ -3245,7 +3245,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 				break;
 
 			case 'w':
-				i = GET_CH_VIS_SUF_3(ch, to);
+				i = IS_IMMORTAL(ch) ? GET_CH_SUF_3(ch) : GET_CH_VIS_SUF_3(ch, to);
 				break;
 			case 'W':
 				if (vict_obj)
@@ -3256,7 +3256,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 				break;
 
 			case 'q':
-				i = GET_CH_VIS_SUF_4(ch, to);
+				i = IS_IMMORTAL(ch) ? GET_CH_SUF_4(ch) : GET_CH_VIS_SUF_4(ch, to);
 				break;
 			case 'Q':
 				if (vict_obj)
