@@ -3358,8 +3358,11 @@ void reset_zone(zone_rnum zone)
 				// 'Q' <flag> <mob_vnum>
 				for (ch = character_list; ch; ch = leader) {
 					leader = ch->next;
-					if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg1) {
-						extract_mob(ch);
+					// Карачун. Поднятые мобы не должны уничтожаться.
+					if (IS_NPC(ch) && !MOB_FLAGGED(ch, MOB_RESURRECTED) && GET_MOB_RNUM(ch) == ZCMD.arg1) {
+						// Карачун. Мобы должны оставлять стафф.
+						extract_char(ch, FALSE);
+						//extract_mob(ch);
 						curr_state = 1;
 					}
 				}

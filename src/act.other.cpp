@@ -2147,9 +2147,10 @@ void insert_wanted_gem::show(CHAR_DATA *ch, int gem_vnum)
 	alias_type::iterator alias_it;
 	char buf[MAX_INPUT_LENGTH];
 
-    	it=content.find(gem_vnum);
+	it=content.find(gem_vnum);
 	if (it == content.end()) return;
 
+	send_to_char("Будучи искусным ювелиром, вы можете выбрать, какого эффекта Вы желаете добиться: \r\n", ch);
 	for(alias_it=it->second.begin();alias_it!=it->second.end();++alias_it) {
 		sprintf(buf, " %s\r\n", alias_it->first.c_str());
 		send_to_char(buf, ch);
@@ -2356,7 +2357,7 @@ ACMD(do_dig)
 		return;
 	}
 
-	if (!check_for_dig(ch)) {
+	if (!check_for_dig(ch) && !IS_IMMORTAL(ch)) {
 		send_to_char("Вам бы лопату взять в руки... Или кирку...\r\n", ch);
 		return;
 	}
@@ -2373,7 +2374,7 @@ ACMD(do_dig)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, AFF_BLIND) && !IS_IMMORTAL(ch)) {
 		send_to_char("Вы слепы и не видите где копать.\r\n", ch);
 		return;
 	}
@@ -2383,7 +2384,7 @@ ACMD(do_dig)
 		return;
 	}
 
-	if (!make_hole(ch))
+	if (!make_hole(ch) && !IS_IMMORTAL(ch))
 		return;
 
 	if (!check_moves(ch, dig_vars.need_moves))

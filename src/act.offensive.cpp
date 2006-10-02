@@ -417,8 +417,15 @@ ACMD(do_backstab)
 		return;
 	}
 
-	if (onhorse(ch))
+	if (onhorse(ch)) {
+		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
 		return;
+	}
+
+	if (GET_POS(ch) < POS_FIGHTING) {
+		send_to_char("Вам стоит встать на ноги.\r\n", ch);
+		return;
+	}
 
 	one_argument(argument, arg);
 

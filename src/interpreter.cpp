@@ -2213,6 +2213,10 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	    && !can_use_feat(d->character, GREAT_AIMING_ATTACK_FEAT))
 		REMOVE_BIT(PRF_FLAGS(d->character, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
 
+	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
+	REMOVE_BIT(AFF_FLAGS(d->character, AFF_GROUP), AFF_GROUP);
+	REMOVE_BIT(AFF_FLAGS(d->character, AFF_HORSE), AFF_HORSE);
+
 	/* изменяем порталы */
 	check_portals(d->character);
 

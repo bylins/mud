@@ -41,7 +41,7 @@ struct create_item_type created_item[] = { {300, 0x7E, 15, 40, {COAL_PROTO, 0, 0
  (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
 {302, 0x7E, 8, 25, {COAL_PROTO, 0, 0}, SKILL_TRANSFORMWEAPON,
  (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
-{303, 0x7E, 5, 12, {COAL_PROTO, 0, 0}, SKILL_TRANSFORMWEAPON,
+{303, 0x7E, 5, 13, {COAL_PROTO, 0, 0}, SKILL_TRANSFORMWEAPON,
  (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
 {304, 0x7E, 10, 35, {COAL_PROTO, 0, 0}, SKILL_TRANSFORMWEAPON,
  (ITEM_WEAR_TAKE | ITEM_WEAR_BOTHS | ITEM_WEAR_WIELD)},
@@ -795,12 +795,13 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 // для 5+ мортов имеем шанс сковать стаф с 3 слотами: базовый 2% и по 0.5% за морт
 // для 2 слотов базовый шанс 5%, 1% за каждый морт
 // для 1 слота базово 20% и 4% за каждый морт
-		if (skill == SKILL_TRANSFORMWEAPON) {
-			if (GET_REMORT(ch) >= 5 && number(1, 100) <= 2 + (GET_REMORT(ch) - 5) / 2)
+// Карачун. Поправлено. Расчет не через морты а через скил.
+		if (skill == SKILL_TRANSFORMWEAPON) {			
+			if (GET_SKILL(ch, skill) >= 105 && number(1, 100) <= 2 + (GET_SKILL(ch, skill) - 105) / 10)
 				SET_BIT(GET_OBJ_EXTRA(tobj, ITEM_WITH3SLOTS), ITEM_WITH3SLOTS);
-			else if (number(1, 100) <= 5 + GET_REMORT(ch))
+			else if (number(1, 100) <= 5 + MAX((GET_SKILL(ch, skill) - 80), 0) / 5)
 				SET_BIT(GET_OBJ_EXTRA(tobj, ITEM_WITH2SLOTS), ITEM_WITH2SLOTS);
-			else if (number(1, 100) <= 20 + GET_REMORT(ch) * 4)
+			else if (number(1, 100) <= 20 + MAX((GET_SKILL(ch, skill) - 80), 0) / 5 * 4)
 				SET_BIT(GET_OBJ_EXTRA(tobj, ITEM_WITH1SLOT), ITEM_WITH1SLOT);
 		}
 
