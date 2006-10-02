@@ -2452,8 +2452,8 @@ ACMD(do_dig)
 	prob = GET_SKILL(ch, SKILL_DIG);
 	old_int = GET_INT(ch);
 	old_wis = GET_WIS(ch);
-	GET_INT(ch) += 13 - MAX(13, GET_REAL_INT(ch));
-	GET_WIS(ch) += 13 - MAX(13, GET_REAL_WIS(ch));
+	GET_INT(ch) += 14 - MAX(14, GET_REAL_INT(ch));
+	GET_WIS(ch) += 14 - MAX(14, GET_REAL_WIS(ch));
 	improove_skill(ch, SKILL_DIG, 0, 0);
 	GET_INT(ch) = old_int;
 	GET_WIS(ch) = old_wis;
