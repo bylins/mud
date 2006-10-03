@@ -545,7 +545,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"заколоть", POS_STANDING, do_backstab, 1, 0, 1},
 	{"забыть", POS_RESTING, do_forget, 0, 0, 0},
 	{"задержать", POS_STANDING, do_not_here, 1, 0, -1},
-	{"заклинания", POS_RESTING, do_spells, 0, 0, 0},
+	{"заклинания", POS_SLEEPING, do_spells, 0, 0, 0},
 	{"закрыть", POS_SITTING, do_gen_door, 0, SCMD_CLOSE, 500},
 	{"заломать", POS_DEAD, do_cheat, LVL_IMPL, 0, 0},
 	{"замести", POS_STANDING, do_hidetrack, 1, 0, -1},
