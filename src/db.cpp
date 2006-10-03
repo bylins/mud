@@ -619,9 +619,9 @@ void init_zone_types(void)
 		{
 			if (zone_types[i].ingr_qty > 0)
 				free(zone_types[i].ingr_types);
-				
-			free(zone_types[i].name);	
-		}		
+
+			free(zone_types[i].name);
+		}
 		free(zone_types[i].name);
 		free(zone_types);
 		zone_types = NULL;
@@ -1424,7 +1424,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 			log("SYSERR: Room %d is outside of any zone.", virtual_nr);
 			exit(1);
 		}
-	// Создаем новую комнату и вычищаем ее содержимое 
+	// Создаем новую комнату и вычищаем ее содержимое
 	world.push_back(new(ROOM_DATA));
 	memset(world[room_nr], 0, sizeof(ROOM_DATA));
 
@@ -1464,7 +1464,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 		asciiflag_conv(flags, &world[room_nr]->room_flags);
 		world[room_nr]->sector_type = t[2];
 	}
-	
+
 	// Обнуляем флаги от аффектов и сами аффекты на комнате.
 	world[room_nr]->affected = NULL;
 	world[room_nr]->affected_by.flags[0] = 0;
@@ -1482,7 +1482,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	world[room_nr]->contents = NULL;
 	world[room_nr]->people = NULL;
 	world[room_nr]->track = NULL;
-	world[room_nr]->light = 0;	// Zero light sources 
+	world[room_nr]->light = 0;	// Zero light sources
 	world[room_nr]->fires = 0;
 	world[room_nr]->gdark = 0;
 	world[room_nr]->glight = 0;
@@ -2025,7 +2025,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 			return;
 		}
 		SET_FEAT(mob_proto + i, t[0]);
-	} 
+	}
 /* End of changes */
 
 	CASE("Skill") {
@@ -2184,7 +2184,7 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 			load = load && last_load;
 			break;
 		}
-		// Блокируем лоад в зависимости от значения смецпараметра 
+		// Блокируем лоад в зависимости от значения смецпараметра
 		if ((*p)->spec_param != DL_LOAD_TYPE)
 			load = false;
 		else
@@ -2731,8 +2731,8 @@ void load_zones(FILE * fl, char *zonename)
 			continue;
 		ptr++;
 		// Новые параметры формата файла:
-		// A номер_зоны -- зона типа A из списка 
-		// B номер_зоны -- зона типа B из списка 
+		// A номер_зоны -- зона типа A из списка
+		// B номер_зоны -- зона типа B из списка
 		if (ZCMD.command == 'A') {
 			sscanf(ptr, " %d", &Z.typeA_list[a_number]);
 			a_number++;
@@ -3000,7 +3000,7 @@ CHAR_DATA *create_char(void)
 	ch->next = character_list;
 	character_list = ch;
 	GET_ID(ch) = max_id++;
-	
+
 	return (ch);
 }
 
@@ -3572,7 +3572,7 @@ void reset_zone(zone_rnum zone)
 				break;
 
 			case 'V':
-				// 'V' <flag> <trigger_type> <room_vnum> <context> <var_name> <var_value> 
+				// 'V' <flag> <trigger_type> <room_vnum> <context> <var_name> <var_value>
 				if (ZCMD.arg1 == MOB_TRIGGER && tmob) {
 					if (!SCRIPT(tmob)) {
 						ZONE_ERROR("Attempt to give variable to scriptless mobile");
@@ -4448,7 +4448,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				GET_COND(ch, DRUNK) = num;
 			else if (!strcmp(tag, "DrSt"))
 				GET_DRUNK_STATE(ch) = num;
-			// Оставлено для совместимости со старым форматом наказаний 
+			// Оставлено для совместимости со старым форматом наказаний
 			else if (!strcmp(tag, "DmbD")) {
 				DUMB_DURATION(ch) = lnum;
 				while (line[i] && a_isspace(line[i]))
@@ -4469,7 +4469,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			break;
 
 		case 'F':
-			// Оставлено для совместимости со старым форматом наказаний 
+			// Оставлено для совместимости со старым форматом наказаний
 			if (!strcmp(tag, "Frez"))
 				GET_FREEZE_LEV(ch) = num;
 			else if (!strcmp(tag, "FrzD")) {
@@ -4483,7 +4483,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 					fbgetline(fl, line);
 					sscanf(line, "%d", &num);
 					if (num > 0 && num < MAX_FEATS)
-						if(feat_info[num].classknow[(int) GET_CLASS(ch)][(int) GET_KIN (ch)]) 
+						if(feat_info[num].classknow[(int) GET_CLASS(ch)][(int) GET_KIN (ch)])
 							SET_FEAT(ch, num);
 				}
 				while (num != 0);
@@ -4525,7 +4525,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				GET_HR(ch) = num;
 			else if (!strcmp(tag, "Hung"))
 				GET_COND(ch, FULL) = num;
-			// Оставлено для совместимости со старым форматом наказаний 
+			// Оставлено для совместимости со старым форматом наказаний
 			else if (!strcmp(tag, "HelD")) {
 				HELL_DURATION(ch) = lnum;
 				while (line[i] && a_isspace(line[i]))
@@ -4565,7 +4565,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 					if ( buf[0] != '~' ) {
 						if (i == 0)
 							cur_log = LOGON_LIST(ch) = new (struct logon_data);
-						else 
+						else
 						{
 							cur_log->next = new (struct logon_data);
 							cur_log = cur_log->next;
@@ -4576,11 +4576,11 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 						cur_log->lasttime = lnum2;
 						cur_log->next = 0;   // Терминатор списка
 						i++;
-					} 
+					}
 					else break;
 				} while (true);
 			}
-// Gunner 
+// Gunner
 			else if (!strcmp(tag, "Logs")) {
 				sscanf(line, "%d %d", &num, &num2);
 				if (num >= 0 && num < NLOG)
@@ -4612,7 +4612,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 					sscanf(line, "%d %d", &num, &num2);
 					inc_kill_vnum(ch, num, num2);
 				} while (true);
-			} 
+			}
 			break;
 
 		case 'N':
@@ -4682,7 +4682,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				IS_KILLER(ch) = lnum;
 			else if (!strcmp(tag, "Prtl"))
 				add_portal_to_char(ch, num);
-			// Loads Here new punishment strings  
+			// Loads Here new punishment strings
 			else if (!strcmp(tag, "PMut"))
 			{
 				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
@@ -4792,7 +4792,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 					fbgetline(fl, line);
 					sscanf(line, "%d %d", &num, &num2);
 					if (num != 0)
-						if(skill_info[num].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] == KNOW_SKILL) 
+						if(skill_info[num].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] == KNOW_SKILL)
 							GET_SKILL(ch, num) = num2;
 				}
 				while (num != 0);
@@ -4874,7 +4874,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			    SPELL_ITEMS | SPELL_KNOW | SPELL_RUNES | SPELL_SCROLL | SPELL_POTION | SPELL_WAND;
 	} else if (!IS_IMMORTAL(ch)) {
 		for (i = 0; i <= MAX_SPELLS; i++) {
-			if (spell_info[i].slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] == MAX_SLOT)			
+			if (spell_info[i].slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] == MAX_SLOT)
 				REMOVE_BIT(GET_SPELL_TYPE(ch, i), SPELL_KNOW);
 // shapirus: изученное не убираем на всякий случай, но из мема выкидываем,
 // если мортов мало
@@ -4965,7 +4965,7 @@ char *fread_string(FILE * fl, char *error)
 		}
 		/* If there is a '~', end the string; else put an "\r\n" over the '\n'. */
 		if ((point = strchr(tmp, '~')) != NULL) {
-			/* Два символа '~' подряд интерпретируются как '~' и 
+			/* Два символа '~' подряд интерпретируются как '~' и
 			   строка продолжается.
 			   Можно не использовать.
 			   Позволяет писать в триггерах что-то типа
@@ -5118,7 +5118,7 @@ void free_char(CHAR_DATA * ch)
 			free(GET_PORTALS(ch));
 			GET_PORTALS(ch) = prt_next;
 		}
-// Cleanup punish reasons 
+// Cleanup punish reasons
 		if (MUTE_REASON(ch))
 			free(MUTE_REASON(ch));
 		if (DUMB_REASON(ch))
@@ -5401,7 +5401,9 @@ void init_char(CHAR_DATA * ch)
 	/* create a player_special structure */
 	if (ch->player_specials == NULL)
 		CREATE(ch->player_specials, struct player_special_data, 1);
-
+#ifdef TEST_BUILD
+	if (top_of_p_table == 0) GET_LEVEL(ch) = LVL_IMPL; // При собирании через make test первый чар в маде становится иммом 34
+#endif
 	start_room = calc_loadroom(ch);
 	set_title(ch, NULL);
 	GET_PORTALS(ch) = NULL;
@@ -5992,7 +5994,7 @@ void flush_player_index(void)
 		//     if (!str_cmp(player_table[c].name, player_table[i].name))
 		//         break;
 		// if (c < i)
-		//    continue;  
+		//    continue;
 
 		sprintf(name, "%s %ld %ld %d %d\n",
 			player_table[i].name,
@@ -6270,7 +6272,7 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	}
 
 	/* Рецепты */
-//    if (GET_LEVEL(ch) < LVL_IMMORT) 
+//    if (GET_LEVEL(ch) < LVL_IMMORT)
 	{
 		im_rskill *rs;
 		im_recipe *r;
@@ -6336,19 +6338,19 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	if (GET_HOUSE_RANK(ch) != 0)
 		fprintf(saved, "Rank: %d\n", GET_HOUSE_RANK(ch));
 
-	if (MUTE_DURATION(ch) > 0) 
+	if (MUTE_DURATION(ch) > 0)
 		fprintf(saved, "PMut: %ld %d %ld %s~\n", MUTE_DURATION(ch), GET_MUTE_LEV(ch), MUTE_GODID(ch), MUTE_REASON(ch));
-	if (NAME_DURATION(ch) > 0) 
+	if (NAME_DURATION(ch) > 0)
 		fprintf(saved, "PNam: %ld %d %ld %s~\n", NAME_DURATION(ch), GET_NAME_LEV(ch), NAME_GODID(ch), NAME_REASON(ch));
-	if (DUMB_DURATION(ch) > 0) 
+	if (DUMB_DURATION(ch) > 0)
 		fprintf(saved, "PDum: %ld %d %ld %s~\n", DUMB_DURATION(ch), GET_DUMB_LEV(ch), DUMB_GODID(ch), DUMB_REASON(ch));
-	if (HELL_DURATION(ch) > 0) 
+	if (HELL_DURATION(ch) > 0)
 		fprintf(saved, "PHel: %ld %d %ld %s~\n", HELL_DURATION(ch), GET_HELL_LEV(ch), HELL_GODID(ch), HELL_REASON(ch));
-	if (GCURSE_DURATION(ch) > 0) 
+	if (GCURSE_DURATION(ch) > 0)
 		fprintf(saved, "PGcs: %ld %d %ld %s~\n", GCURSE_DURATION(ch), GET_GCURSE_LEV(ch), GCURSE_GODID(ch), GCURSE_REASON(ch));
-	if (FREEZE_DURATION(ch) > 0) 
+	if (FREEZE_DURATION(ch) > 0)
 		fprintf(saved, "PFrz: %ld %d %ld %s~\n", FREEZE_DURATION(ch), GET_FREEZE_LEV(ch), FREEZE_GODID(ch), FREEZE_REASON(ch));
-	if (UNREG_DURATION(ch) > 0) 
+	if (UNREG_DURATION(ch) > 0)
 		fprintf(saved, "PUnr: %ld %d %ld %s~\n", UNREG_DURATION(ch), GET_UNREG_LEV(ch), UNREG_GODID(ch), UNREG_REASON(ch));
 
 
@@ -6535,7 +6537,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
       dst - "чистый" указатель на структуру room_data.
       src - исходная комната
    Примечание: Неочищенный указатель dst приведет к утечке памяти.
-               Используйте redit_room_free() для очистки содержимого комнаты 
+               Используйте redit_room_free() для очистки содержимого комнаты
 --*/
 {
 	int i;
@@ -6639,14 +6641,14 @@ void room_free(ROOM_DATA * room)
 
 	// Прототип
 	proto_script_free(room->proto_script);
-	// Скрипт 
+	// Скрипт
 	free_script(SCRIPT(room));
 
 	if (room->ing_list) {
 		free(room->ing_list);
 		room->ing_list = NULL;
 	}
-	
+
 	AFFECT_DATA *af,*next_af;
 	for (af = room->affected; af; af = next_af)
 	{

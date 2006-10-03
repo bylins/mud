@@ -1,6 +1,3 @@
-# CircleMUD 3.0 Makefile.in - Makefile template used by 'configure'
-#
-
 # C compiler to use
 CC = g++
 
@@ -18,8 +15,8 @@ BINDIR = ../bin
 
 CFLAGS = -ggdb3 -O3 -Wall -I/usr/home/mud/mud/src/ -ftemplate-depth-30
 
-# use 'make test' for faster compile w/o optimizations and crypt library
-TESTFLAGS = -ggdb3 -Wall -DNOCRYPT
+# use 'make test' for faster compile w/o optimizations, crypt and 34lvl god for first character
+TESTFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD
 
 #LIBS =  -lsocket -lnsl
 LIBS =  -lz -lcrypt -lstdc++

@@ -1590,7 +1590,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
                  break;
             case 'P':
                  CHECK_NULL(vict_obj, OBJS((const OBJ_DATA *) vict_obj, to));
-                 dg_victim = (CHAR_DATA *) vict_obj;	
+                 dg_victim = (CHAR_DATA *) vict_obj;
                  break;
 */
 			case 't':
@@ -1799,7 +1799,7 @@ int valid_email(const char *address)
 	    return 0;
 
         return 1;
-}	    
+}
 
 
 GodListType GodList; // список иммов
@@ -1857,8 +1857,12 @@ void GodListLoad()
 // дергается, просто ужасно часто и не по делу, тормозить конечно не будет и вообще фик кто заметит,
 // но это все не прально. т.к. копать все вызовы влом - пока пусть дергается только второй вариант,
 // он на вводе команд стоит, имм вне списка ниче из wiz команд сделать не сможет
+// при сборке через make test поиск в этом списке не производится
 bool GodListCheck(CHAR_DATA * ch)
 {
+#ifdef TEST_BUILD
+	return 1;
+#endif
 	for (GodListType::const_iterator it = GodList.begin(); it != GodList.end(); ++it)
 		if ((*it).first == GET_UNIQUE(ch))
 			if (CompareParam((*it).second, GET_NAME(ch), 1))
@@ -1868,6 +1872,9 @@ bool GodListCheck(CHAR_DATA * ch)
 
 bool GodListCheck(const std::string name, long unique)
 {
+#ifdef TEST_BUILD
+	return 1;
+#endif
 	GodListType::const_iterator it = GodList.find(unique);
 	if (it != GodList.end())
 		if ((*it).second == name)
