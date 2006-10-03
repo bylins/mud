@@ -761,10 +761,14 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 					extract_obj(obj);
 					return;
 				}
-				sprintf(buf, "Вы бросили %d %s на землю.", amount, desc_count(amount, WHAT_MONEYu));
-				send_to_char(buf, ch);
-				sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
-				act(buf, TRUE, ch, 0, 0, TO_ROOM);
+				/* Если этот моб трупа не оставит, то не выводить сообщение
+		   		иначе ужасно коряво смотрится в бою и в тригах */
+				if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE)) {
+					sprintf(buf, "Вы бросили %d %s на землю.", amount, desc_count(amount, WHAT_MONEYu));
+					send_to_char(buf, ch);
+					sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
+					act(buf, TRUE, ch, 0, 0, TO_ROOM);
+				}				
 				obj_to_room(obj, ch->in_room);
 			}
 		} else {

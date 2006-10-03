@@ -492,7 +492,7 @@ ACMD(do_order)
 	else if (!(vict = get_char_vis(ch, name, FIND_CHAR_ROOM)) &&
 		 !is_abbrev(name, "followers") && !is_abbrev(name, "все") && !is_abbrev(name, "всем"))
 		send_to_char("Вы не видите такого персонажа.\r\n", ch);
-	else if (ch == vict)
+	else if (ch == vict && !is_abbrev(name, "все") && !is_abbrev(name, "всем"))
 		send_to_char("Вы начали слышать императивные голоса - срочно к психиатру !\r\n", ch);
 	else {
 		if (vict && !IS_NPC(vict) && !IS_GOD(ch)) {

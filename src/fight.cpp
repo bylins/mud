@@ -184,11 +184,14 @@ void appear(CHAR_DATA * ch)
 		affect_from_char(ch, SPELL_INVISIBLE);
 	if (affected_by_spell(ch, SPELL_HIDE))
 		affect_from_char(ch, SPELL_HIDE);
+	if (affected_by_spell(ch, SPELL_SNEAK))
+		affect_from_char(ch, SPELL_SNEAK);
 	if (affected_by_spell(ch, SPELL_CAMOUFLAGE))
 		affect_from_char(ch, SPELL_CAMOUFLAGE);
 
 	REMOVE_BIT(AFF_FLAGS(ch, AFF_INVISIBLE), AFF_INVISIBLE);
 	REMOVE_BIT(AFF_FLAGS(ch, AFF_HIDE), AFF_HIDE);
+	REMOVE_BIT(AFF_FLAGS(ch, AFF_SNEAK), AFF_SNEAK);
 	REMOVE_BIT(AFF_FLAGS(ch, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);
 
 	if (appear_msg) {
@@ -2366,6 +2369,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 	//Battle exp gain for mobs is DISABLED
 	if (ch != victim &&
 	    OK_GAIN_EXP(ch, victim) &&
+		GET_EXP(victim) > 0 &&
 	    !AFF_FLAGGED(victim, AFF_CHARM) && !MOB_FLAGGED(victim, MOB_ANGEL) && !IS_NPC(ch))
 		gain_exp(ch, MAX (1, (GET_LEVEL(victim) * MIN(dam, GET_HIT(victim)) + 4) / 5 * 
 					    MAX (1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));

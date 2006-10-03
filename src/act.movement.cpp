@@ -1077,6 +1077,7 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 {
 	int other_room = 0;
 	EXIT_DATA *back = 0;
+	CHAR_DATA * to;
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
 
 	sprintf(buf, "$n %s ", cmd_door[scmd]);
@@ -1151,11 +1152,12 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 		act(buf, FALSE, ch, obj, obj ? 0 : EXIT(ch, door)->vkeyword, TO_ROOM);
 
 	/* Notify the other room */
-	if ((scmd == SCMD_OPEN || scmd == SCMD_CLOSE) && back) {
-		sprintf(buf, "$N %s %s.", cmd_door[scmd], (back->vkeyword ? fname(back->vkeyword) : "дверь"));
-		if (world[EXIT(ch, door)->to_room]->people) {
-			act(buf, FALSE, world[EXIT(ch, door)->to_room]->people, 0, ch, TO_ROOM);
-			act(buf, FALSE, world[EXIT(ch, door)->to_room]->people, 0, ch, TO_CHAR);
+	if ((scmd == SCMD_OPEN || scmd == SCMD_CLOSE) && back) {		
+		if ((to = world[EXIT(ch, door)->to_room]->people)) {
+			sprintf(buf+strlen(buf)-1, " с той стороны.");
+			for (int stopcount = 0; to && stopcount < 1000; to = to->next_in_room, stopcount++) {
+				perform_act(buf, ch, obj, obj ? 0 : EXIT(ch, door)->vkeyword, to);
+			}		
 		}
 	}
 }

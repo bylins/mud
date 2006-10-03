@@ -76,6 +76,7 @@ void update_object(OBJ_DATA * obj, int use);
 void update_char_objects(CHAR_DATA * ch);
 
 /* external functions */
+void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
 int mag_manacost(CHAR_DATA * ch, int spellnum);
 int slot_for_char(CHAR_DATA * ch, int i);
 int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
@@ -2139,7 +2140,9 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 		obj_to_room(obj, ch->in_room);
 		obj_decay(obj);
 	}
-
+	
+	perform_drop_gold(ch, GET_GOLD(ch), SCMD_DROP, 0);
+	GET_GOLD(ch)=0;
 
 	log("[Extract char] Stop fighting self");
 	if (FIGHTING(ch))

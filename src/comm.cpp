@@ -3358,7 +3358,7 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 	}
 	/* ASSUMPTION: at this point we know type must be TO_NOTVICT or TO_ROOM */
 	/* or TO_ROOM_HIDE */
-
+	
 	if (ch && ch->in_room != NOWHERE)
 		to = world[ch->in_room]->people;
 	else if (obj && obj->in_room != NOWHERE)
