@@ -733,6 +733,8 @@ int stop_follower(CHAR_DATA * ch, int mode)
 			if (MOB_FLAGGED(ch, MOB_CORPSE)) {
 				act("Налетевший ветер развеял $n3, не оставив и следа.", TRUE, ch, 0, 0, TO_ROOM);
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(IN_ROOM(ch));
+				perform_drop_gold(ch, GET_GOLD(ch), SCMD_DROP, 0);
+				GET_GOLD(ch)=0;
 				extract_char(ch, FALSE);
 				return (TRUE);
 			} else if (AFF_FLAGGED(ch, AFF_HELPER))

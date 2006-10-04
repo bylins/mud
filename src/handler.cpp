@@ -2141,11 +2141,6 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 		obj_decay(obj);
 	}
 	
-	//if (IS_NPC(ch)) {
-	//	perform_drop_gold(ch, GET_GOLD(ch), SCMD_DROP, 0);
-	//	GET_GOLD(ch)=0;
-	//}
-
 	log("[Extract char] Stop fighting self");
 	if (FIGHTING(ch))
 		stop_fighting(ch, TRUE);
