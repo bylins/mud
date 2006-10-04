@@ -660,7 +660,12 @@ void mobile_activity(int activity_level, int missed_pulses)
 			continue;
 
 		/* Scavenger (picking up objects) */
-		npc_scavenge(ch);
+		// От одного до трех предметов за раз
+		i = number(1,3);
+		while(i) {
+			npc_scavenge(ch);
+			i--;
+		}
 
 		//Niker: LootCR// Start
 		//Не уверен, что рассмотрены все случаи, когда нужно снимать флаги с моба

@@ -51,6 +51,8 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract)
 SPECIAL(shop_keeper);
 void ASSIGNMASTER(mob_vnum mob, SPECIAL(fname), int learn_info);
 int mag_manacost(CHAR_DATA * ch, int spellnum);
+int has_key(CHAR_DATA * ch, obj_vnum key);
+int ok_pick(CHAR_DATA * ch, obj_vnum keynum, int pickproof, int scmd);
 
 /* local functions */
 void sort_spells(void);
@@ -1399,17 +1401,29 @@ int npc_scavenge(CHAR_DATA * ch)
 	if (IS_SHOPKEEPER(ch))
 		return (FALSE);
 	npc_dropunuse(ch);
-	if (world[ch->in_room]->contents && number(0, GET_REAL_INT(ch)) > 10) {
+	if (world[ch->in_room]->contents && number(0, 25) <= GET_REAL_INT(ch)) {
 		max = 1;
 		best_obj = NULL;
 		cont = NULL;
 		best_cont = NULL;
 		int chest = real_object(CLAN_CHEST); // шоб не брали из клан-хранилищ
 		for (obj = world[ch->in_room]->contents; obj; obj = obj->next_content) {
-			if (GET_OBJ_TYPE(obj) == ITEM_MING  || obj->item_number == chest)
+			if (GET_OBJ_TYPE(obj) == ITEM_MING  || (chest!=-1 && obj->item_number == chest))
 					continue;
 			if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER) {
-				if (IS_CORPSE(obj) || OBJVAL_FLAGGED(obj, CONT_LOCKED))
+				if (IS_CORPSE(obj))
+					continue;
+				// Заперто, открываем, если есть ключ
+				if (OBJVAL_FLAGGED(obj, CONT_LOCKED) &&
+					has_key(ch, GET_OBJ_VAL(obj, 2)))
+					do_doorcmd(ch, obj, 0, SCMD_UNLOCK);
+				// Заперто, взламываем, если умеем
+				if (OBJVAL_FLAGGED(obj, CONT_LOCKED) && 
+					GET_SKILL(ch, SKILL_PICK_LOCK) && 
+					ok_pick(ch, 0, OBJVAL_FLAGGED(obj, CONT_PICKPROOF), SCMD_PICK))
+					do_doorcmd(ch, obj, 0, SCMD_PICK);
+				// Все равно заперто, ну тогда фиг с ним
+				if (OBJVAL_FLAGGED(obj, CONT_LOCKED))
 					continue;
 				if (OBJVAL_FLAGGED(obj, CONT_CLOSED))
 					do_doorcmd(ch, obj, 0, SCMD_OPEN);
@@ -1430,14 +1444,24 @@ int npc_scavenge(CHAR_DATA * ch)
 		}
 		if (best_obj != NULL) {
 			if (best_obj != best_cont) {
-				obj_from_room(best_obj);
-				obj_to_char(best_obj, ch);
 				act("$n поднял$g $o3.", FALSE, ch, best_obj, 0, TO_ROOM);
+				if (GET_OBJ_TYPE(best_obj) == ITEM_MONEY) {
+					GET_GOLD(ch) += GET_OBJ_VAL(best_obj, 0);
+					extract_obj(best_obj);
+				} else {
+					obj_from_room(best_obj);
+					obj_to_char(best_obj, ch);
+				}
 			} else {
-				obj_from_obj(best_obj);
-				obj_to_char(best_obj, ch);
 				sprintf(buf, "$n достал$g $o3 из %s.", cont->PNames[1]);
 				act(buf, FALSE, ch, best_obj, 0, TO_ROOM);
+				if (GET_OBJ_TYPE(best_obj) == ITEM_MONEY) {
+					GET_GOLD(ch) += GET_OBJ_VAL(best_obj, 0);
+					extract_obj(best_obj);
+				} else {
+					obj_from_obj(best_obj);
+					obj_to_char(best_obj, ch);
+				}
 			}
 		}
 	}
@@ -1456,7 +1480,25 @@ int npc_loot(CHAR_DATA * ch)
 	npc_dropunuse(ch);
 	if (world[ch->in_room]->contents && number(0, GET_REAL_INT(ch)) > 10) {
 		for (obj = world[ch->in_room]->contents; obj; obj = obj->next_content)
-			if (CAN_SEE_OBJ(ch, obj) && IS_CORPSE(obj))
+			if (CAN_SEE_OBJ(ch, obj) && IS_CORPSE(obj)) {
+				// Сначала лутим то, что не в контейнерах
+				for (loot_obj = obj->contains; loot_obj; loot_obj = next_loot) {
+					next_loot = loot_obj->next_content;
+					if (GET_OBJ_TYPE(loot_obj) != ITEM_CONTAINER && 
+						CAN_GET_OBJ(ch, loot_obj) && !item_nouse(loot_obj)) {
+						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->PNames[1]);
+						act(buf, FALSE, ch, loot_obj, 0, TO_ROOM);
+						if (GET_OBJ_TYPE(loot_obj) == ITEM_MONEY) {
+							GET_GOLD(ch) += GET_OBJ_VAL(loot_obj, 0);
+							extract_obj(loot_obj);
+						} else {
+							obj_from_obj(loot_obj);
+							obj_to_char(loot_obj, ch);
+							max++;
+						}
+					}					
+				}
+				// Теперь не запертые контейнеры
 				for (loot_obj = obj->contains; loot_obj; loot_obj = next_loot) {
 					next_loot = loot_obj->next_content;
 					if (GET_OBJ_TYPE(loot_obj) == ITEM_CONTAINER) {
@@ -1468,25 +1510,56 @@ int npc_loot(CHAR_DATA * ch)
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj)) {
 								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->PNames[1]);
 								act(buf, FALSE, ch, cobj, 0, TO_ROOM);
-								obj_from_obj(cobj);
-								obj_to_char(cobj, ch);
-								max++;
+								if (GET_OBJ_TYPE(cobj) == ITEM_MONEY) {
+									GET_GOLD(ch) += GET_OBJ_VAL(cobj, 0);
+									extract_obj(cobj);
+								} else {
+									obj_from_obj(cobj);
+									obj_to_char(cobj, ch);
+									max++;
+								}
 							}
 						}
-					} else if (CAN_GET_OBJ(ch, loot_obj) && !item_nouse(loot_obj)) {
-						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->PNames[1]);
-						act(buf, FALSE, ch, loot_obj, 0, TO_ROOM);
-						if (GET_OBJ_TYPE(loot_obj) == ITEM_MONEY) {
-							GET_GOLD(ch) += GET_OBJ_VAL(loot_obj, 0);
-							extract_obj(loot_obj);
-						} else {
-							obj_from_obj(loot_obj);
-							obj_to_char(loot_obj, ch);
-						}
-						max++;
 					}
-
 				}
+				// И наконец, лутим запертые контейнеры если есть ключ или можем взломать
+				for (loot_obj = obj->contains; loot_obj; loot_obj = next_loot) {
+					next_loot = loot_obj->next_content;
+					if (GET_OBJ_TYPE(loot_obj) == ITEM_CONTAINER) {
+						if (IS_CORPSE(loot_obj)
+						    || !OBJVAL_FLAGGED(loot_obj, CONT_LOCKED))
+							continue;
+						// Есть ключ?
+						if (OBJVAL_FLAGGED(obj, CONT_LOCKED) &&
+							has_key(ch, GET_OBJ_VAL(loot_obj, 2)))
+							TOGGLE_BIT(GET_OBJ_VAL(loot_obj, 1), CONT_LOCKED);
+						// ...или взломаем?
+						if (OBJVAL_FLAGGED(obj, CONT_LOCKED) && 
+							GET_SKILL(ch, SKILL_PICK_LOCK) && 
+							ok_pick(ch, 0, OBJVAL_FLAGGED(obj, CONT_PICKPROOF), SCMD_PICK))
+							TOGGLE_BIT(GET_OBJ_VAL(loot_obj, 1), CONT_LOCKED);
+						// Эх, не открыть. Ну ладно.
+						if (OBJVAL_FLAGGED(obj, CONT_LOCKED))
+							continue;
+						TOGGLE_BIT(GET_OBJ_VAL(obj, 1), CONT_CLOSED);
+						for (cobj = loot_obj->contains; cobj; cobj = cnext_obj) {
+							cnext_obj = cobj->next_content;
+							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj)) {
+								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->PNames[1]);
+								act(buf, FALSE, ch, cobj, 0, TO_ROOM);
+								if (GET_OBJ_TYPE(cobj) == ITEM_MONEY) {
+									GET_GOLD(ch) += GET_OBJ_VAL(cobj, 0);
+									extract_obj(cobj);
+								} else {
+									obj_from_obj(cobj);
+									obj_to_char(cobj, ch);
+									max++;
+								}
+							}
+						}
+					}
+				}
+			}
 	}
 	return (max);
 }
