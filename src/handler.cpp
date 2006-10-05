@@ -30,6 +30,7 @@
 #include "auction.h"
 #include "features.hpp"
 #include "house.h"
+#include "exchange.h"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -98,6 +99,8 @@ int get_player_charms(CHAR_DATA * ch, int spellnum);
 int calculate_resistance_coeff (CHAR_DATA *ch, int resist_type, int effect);
 
 extern struct zone_data *zone_table;
+
+extern int global_uid;
 
 char *fname(const char *namelist)
 {
@@ -1250,6 +1253,9 @@ void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 /* give an object to a char   */
 void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 {
+	OBJ_DATA *i;
+	int tuid;
+
 	int may_carry = TRUE;
 	if (object && ch) {
 		restore_object(object, ch);
@@ -1272,6 +1278,23 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, object, 0, TO_ROOM);
 			obj_to_room(object, IN_ROOM(ch));
 			return;
+		}
+		
+		if (!IS_NPC(ch)) {
+			// Контроль уникальности предметов
+			if (GET_OBJ_UID(object) > 0) {
+				tuid = GET_OBJ_UID(object);
+   				for (i = object_list; i; i = i->next) {
+      				if (GET_OBJ_UID(i) == tuid && object!=i && GET_OBJ_VNUM(i) == GET_OBJ_VNUM(object)) {
+						sprintf(buf, "[ATTENTION] Object copy detected. Object %s (%d), holder %s.", 
+								object->PNames[0], GET_OBJ_VNUM(object), GET_NAME(ch));
+						mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+						// Тут, если все будет работать, должно быть удаление одного из предметов         				
+					}
+				}
+			} // Назначаем новый UID
+			else if (GET_OBJ_VNUM(object) > 0 && GET_OBJ_UID(object) == 0)
+				GET_OBJ_UID(object) = ++global_uid;
 		}
 
 		if (!IS_NPC(ch)) {

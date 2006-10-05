@@ -1313,9 +1313,9 @@ struct obj_affected_type {
 	sbyte modifier;		/* How much it changes by              */
 };
 
-
 /* ================== Memory Structure for Objects ================== */
 struct obj_data {
+	int uid;
 	obj_vnum item_number;	/* Where in data-base            */
 	room_rnum in_room;	/* In what room -1 when conta/carr */
 
@@ -1351,6 +1351,7 @@ struct obj_data {
 	 max_in_world;		/* max in world             */
 
 	obj_data() :
+		uid(0),
 		item_number(NOTHING),
 		in_room(NOWHERE),
 		name(NULL),

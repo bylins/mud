@@ -30,6 +30,8 @@
 extern OBJ_DATA *object_list;
 
 //Используемые внешние ф-ии.
+extern void write_one_object(char **data, OBJ_DATA * object, int location);
+extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern int get_buf_line(char **source, char *target);
 extern int get_buf_lines(char **source, char *target);
 extern void tascii(int *pointer, int num_planes, char *ascii);
@@ -71,6 +73,7 @@ int parse_exch_filter(char *buf, char *filter_name, char *filter_owner, int *fil
 		      int *filter_cost, int *filter_timer, int *filter_wereon, int *filter_weaponclass);
 void clear_exchange_lot(EXCHANGE_ITEM_DATA * lot);
 
+int newbase;
 
 EXCHANGE_ITEM_DATA *create_exchange_item(void);
 
@@ -871,6 +874,69 @@ void check_exchange(OBJ_DATA * obj)
 		}
 	}
 }
+
+EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error)
+{
+	char buffer[MAX_STRING_LENGTH];
+	EXCHANGE_ITEM_DATA *item = NULL;
+	char *d;
+
+	*error = 1;
+	// Станем на начало предмета
+	for (; **data != EX_NEW_ITEM_CHAR; (*data)++)
+		if (!**data || **data == EX_END_CHAR)
+			return (item);
+
+	*error = 2;
+
+	// Пропустим #
+	(*data)++;
+
+	// Считаем lot предмета
+	if (!get_buf_line(data, buffer))
+		return (item);
+
+	*error = 3;
+	item = create_exchange_item();
+	if (!(GET_EXCHANGE_ITEM_LOT(item) = atoi(buffer)))
+		return (item);
+
+	*error = 4;
+	// Считаем seler_id предмета
+	if (!get_buf_line(data, buffer))
+		return (item);
+	*error = 5;
+	if (!(GET_EXCHANGE_ITEM_SELLERID(item) = atoi(buffer)))
+		return (item);
+
+	*error = 6;
+	// Считаем цену предмета
+	if (!get_buf_line(data, buffer))
+		return (item);
+	*error = 7;
+	if (!(GET_EXCHANGE_ITEM_COST(item) = atoi(buffer)))
+		return (item);
+
+	*error = 8;
+	// Считаем comment предмета
+	char *str_last_symb = index(*data,'\n');
+	strncpy(buffer,*data,str_last_symb - *data);
+	buffer[str_last_symb - *data] = '\0';
+	*data = str_last_symb;
+
+	if (strcmp(buffer, "EMPTY"))
+		if (!(GET_EXCHANGE_ITEM_COMMENT(item) = str_dup(buffer)))
+			return (item);
+
+	*error = 0;	
+	d = *data;
+	GET_EXCHANGE_ITEM(item) = read_one_object_new(data, error);
+	if (*error)
+		*error = 9;
+
+	return (item);
+}
+
 EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 {
 	char buffer[MAX_STRING_LENGTH], f0[MAX_STRING_LENGTH], f1[MAX_STRING_LENGTH], f2[MAX_STRING_LENGTH];
@@ -1109,6 +1175,21 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 	return (item);
 }
 
+void exchange_write_one_object_new(char **data, EXCHANGE_ITEM_DATA * item)
+{
+	int count = 0;
+	char *d;
+
+	count += sprintf(*data + count, "#%d\n", GET_EXCHANGE_ITEM_LOT(item));
+	count += sprintf(*data + count, "%d\n", GET_EXCHANGE_ITEM_SELLERID(item));
+	count += sprintf(*data + count, "%d\n", GET_EXCHANGE_ITEM_COST(item));
+	count += sprintf(*data + count, "%s\n",
+			 GET_EXCHANGE_ITEM_COMMENT(item) ? GET_EXCHANGE_ITEM_COMMENT(item) : "EMPTY\n");
+	
+	d = *data + count;
+	write_one_object(&d, GET_EXCHANGE_ITEM(item), 0);
+}
+
 void exchange_write_one_object(char **data, EXCHANGE_ITEM_DATA * item)
 {
 	char buf[MAX_STRING_LENGTH];
@@ -1186,6 +1267,7 @@ int exchange_database_load()
 	char *data, *readdata;
 	EXCHANGE_ITEM_DATA *item;
 	int fsize, error;
+	char buffer[MAX_STRING_LENGTH];
 
 	log("Exchange: loading database... (exchange.cpp)");
 
@@ -1210,9 +1292,23 @@ int exchange_database_load()
 	data = readdata;
 	*(data + fsize) = '\0';
 
+	// Новая база или старая?
+	get_buf_line(&data, buffer);
+	if (strstr(buffer,"!NEW!")==NULL) {
+		newbase=FALSE;
+		data = readdata;
+	} else	{
+		newbase=TRUE;
+	}
 
 	for (fsize = 0; *data && *data != EX_END_CHAR; fsize++) {
-		if ((item = exchange_read_one_object(&data, &error)) == NULL) {
+		if (newbase) {
+			item = exchange_read_one_object_new(&data, &error);
+		} else {
+			item = exchange_read_one_object(&data, &error);
+		}
+
+		if (item == NULL) {
 			log("SYSERR: Error #%d reading exchange database file. (exchange.cpp)", error);
 			return (0);
 		}
@@ -1247,6 +1343,7 @@ int exchange_database_reload(bool loadbackup)
 	char *data, *readdata;
 	EXCHANGE_ITEM_DATA *item, *j, *next_thing;
 	int fsize, error;
+	char buffer[MAX_STRING_LENGTH];
 
 	for (j = exchange_item_list; j; j = next_thing) {
 		next_thing = j->next;
@@ -1285,9 +1382,23 @@ int exchange_database_reload(bool loadbackup)
 	data = readdata;
 	*(data + fsize) = '\0';
 
+	// Новая база или старая?
+	get_buf_line(&data, buffer);
+	if (strstr(buffer,"!NEWDB!")==NULL) {
+		newbase=FALSE;
+		data = readdata;
+	} else	{
+		newbase=TRUE;
+	}
 
 	for (fsize = 0; *data && *data != EX_END_CHAR; fsize++) {
-		if ((item = exchange_read_one_object(&data, &error)) == NULL) {
+		if (newbase) {
+			item = exchange_read_one_object_new(&data, &error);
+		} else {
+			item = exchange_read_one_object(&data, &error);
+		}
+
+		if (item == NULL) {
 			if (loadbackup)
 				log("SYSERR: Error #%d reading exchange database backup file. (exchange.cpp)", error);
 			else
@@ -1342,11 +1453,13 @@ int exchange_database_save()
 
 	CREATE(buffer, char, MAX_STRING_LENGTH);
 
+	// Метка нового формата
+	fprintf(fl, "!NEW!\n");
 
 	for (j = exchange_item_list; j; j = next_thing) {
 		next_thing = j->next;
 //      log("Exchange: Saving %d", GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)));
-		exchange_write_one_object(&buffer, j);
+		exchange_write_one_object_new(&buffer, j);
 		fprintf(fl, "%s\n", buffer);
 	}
 	fprintf(fl, "$\n$\n");
@@ -1376,11 +1489,13 @@ int exchange_database_savebackup()
 
 	CREATE(buffer, char, MAX_STRING_LENGTH);
 
+	// Метка нового формата
+	fprintf(fl, "!NEW!\n");
 
 	for (j = exchange_item_list; j; j = next_thing) {
 		next_thing = j->next;
 //      log("Exchange: Saving %d", GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)));
-		exchange_write_one_object(&buffer, j);
+		exchange_write_one_object_new(&buffer, j);
 		fprintf(fl, "%s\n", buffer);
 	}
 	fprintf(fl, "$\n$\n");

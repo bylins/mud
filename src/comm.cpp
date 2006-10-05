@@ -209,6 +209,7 @@ void zlib_free(void *opaque, void *address);
 
 
 /* extern fcnts */
+void SaveGlobalUID(void);
 void boot_world(void);
 void player_affect_update(void);	/* In spells.cpp */
 void room_affect_update(void);		/* In spells.cpp */
@@ -484,13 +485,13 @@ void init_game(ush_int port)
 	game_loop(mother_desc);
 
 	if (circle_shutdown == 2) {
-//F@N|
-		exchange_database_save();	//exchange database save
 		log("Entering Crash_save_all_rent");
 		Crash_save_all_rent();	//save all
 	}
 	//Crash_save_all();
 
+	SaveGlobalUID();
+	exchange_database_save();	//exchange database save
 	Clan::ChestUpdate();
 	Clan::ChestSave();
 	Clan::ClanSave();
@@ -1228,6 +1229,10 @@ inline void heartbeat()
 		exchange_database_savebackup();
 	}
 //F@N--
+
+	if (auto_save && !((pulse + 9) % (60 * PASSES_PER_SEC))) {
+		SaveGlobalUID();
+	}
 
 	if (!FRAC_SAVE && auto_save && !((pulse + 11) % (60 * PASSES_PER_SEC))) {	// 1 minute
 		if (++mins_since_crashsave >= autosave_time) {

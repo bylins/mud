@@ -347,6 +347,9 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 				new_descr->description = str_dup(buffer);
 				new_descr->next = object->ex_description;
 				object->ex_description = new_descr;
+			} else if (!strcmp(read_line, "Ouid")) {
+				*error = 48;
+				GET_OBJ_UID(object) = atoi(buffer);
 			} else {
 				sprintf(buf, "WARNING: \"%s\" is not valid key for character items! [value=\"%s\"]",
 					read_line, buffer);
@@ -597,6 +600,7 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 
 	// vnum
 	count += sprintf(*data + count, "#%d\n", GET_OBJ_VNUM(object));
+
 	// Положение в экипировке (сохраняем только если > 0)
 	if (location)
 		count += sprintf(*data + count, "Lctn: %d~\n", location);
@@ -604,6 +608,8 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 	// Если у шмотки есть прототип то будем сохранять по обрезанной схеме, иначе
 	// придется сохранять все статсы шмотки.
 	if (GET_OBJ_VNUM(object) >= 0 && (proto = read_object(GET_OBJ_VNUM(object), VIRTUAL))) {
+		// Сохраняем UID
+		count += sprintf(*data + count, "Ouid: %d~\n", GET_OBJ_UID(object));
 		// Алиасы
 		if (str_cmp(GET_OBJ_ALIAS(object), GET_OBJ_ALIAS(proto)))
 			count += sprintf(*data + count, "Alia: %s~\n", GET_OBJ_ALIAS(object));

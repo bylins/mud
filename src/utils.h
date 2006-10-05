@@ -910,6 +910,7 @@ extern SPECIAL(postmaster);
 
 
 /* object utils **********************************************************/
+#define GET_OBJ_UID(obj)	((obj)->uid)
 
 #define GET_OBJ_ALIAS(obj)      ((obj)->short_description)
 #define GET_OBJ_PNAME(obj,pad)  ((obj)->PNames[pad])

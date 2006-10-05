@@ -78,6 +78,8 @@ INDEX_DATA *mob_index;		/* index table for mobile file   */
 CHAR_DATA *mob_proto;		/* prototypes for mobs           */
 mob_rnum top_of_mobt = 0;	/* top of mobile index table     */
 
+int global_uid = 0;
+
 OBJ_DATA *object_list = NULL;	/* global linked list of objs    */
 INDEX_DATA *obj_index;		/* index table for object file   */
 //OBJ_DATA *obj_proto;		/* prototypes for objs           */
@@ -137,6 +139,8 @@ class insert_wanted_gem iwg;
 //-Polos.insert_wanted_gem
 
 /* local functions */
+void SaveGlobalUID(void);
+void LoadGlobalUID(void);
 int check_object_spell_number(OBJ_DATA * obj, int val);
 int check_object_level(OBJ_DATA * obj, int val);
 void setup_dir(FILE * fl, int room, int dir);
@@ -885,6 +889,9 @@ void boot_db(void)
 
 	log("Load new_name list");
 	NewNameLoad();
+
+	log("Load global uid counter");
+	LoadGlobalUID();
 
 	log("Boot db -- DONE.");
 }
@@ -3359,7 +3366,7 @@ void reset_zone(zone_rnum zone)
 				for (ch = character_list; ch; ch = leader) {
 					leader = ch->next;
 					// Карачун. Поднятые мобы не должны уничтожаться.
-					if (IS_NPC(ch) && !MOB_FLAGGED(ch, MOB_RESURRECTED) && GET_MOB_RNUM(ch) == ZCMD.arg1) {
+					if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg1 && !MOB_FLAGGED(ch, MOB_RESURRECTED)) {
 						// Карачун. Мобы должны оставлять стафф.
 						extract_char(ch, FALSE);
 						//extract_mob(ch);
@@ -6657,3 +6664,35 @@ void room_free(ROOM_DATA * room)
 	}
 	room->affected = NULL;
 }
+
+void LoadGlobalUID(void)
+{
+	FILE *guid;
+	char buffer[256];
+
+	global_uid = 0;
+
+	if (!(guid = fopen(LIB_MISC "globaluid", "r"))) {
+		log("Can't open global uid file...");
+		return;
+	}
+	get_line(guid, buffer);
+	global_uid = atoi(buffer);
+	fclose(guid);
+	return;
+}
+
+void SaveGlobalUID(void)
+{
+	FILE *guid;
+
+	if (!(guid = fopen(LIB_MISC "globaluid", "w"))) {
+		log("Can't write global uid file...");
+		return;
+	}
+	
+	fprintf(guid, "%d\n", global_uid);
+	fclose(guid);
+	return;
+}
+
