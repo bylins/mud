@@ -1384,7 +1384,7 @@ int exchange_database_reload(bool loadbackup)
 
 	// Новая база или старая?
 	get_buf_line(&data, buffer);
-	if (strstr(buffer,"!NEWDB!")==NULL) {
+	if (strstr(buffer,"!NEW!")==NULL) {
 		newbase=FALSE;
 		data = readdata;
 	} else	{
