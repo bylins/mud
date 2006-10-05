@@ -1254,7 +1254,7 @@ void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 {
 	OBJ_DATA *i;
-	int tuid;
+	unsigned int tuid;
 	int inworld;
 
 	int may_carry = TRUE;
@@ -1283,7 +1283,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 		
 		if (!IS_NPC(ch)) {
 			// Контроль уникальности предметов
-			if (GET_OBJ_UID(object) > 0) {
+			if (GET_OBJ_UID(object) != 0) {
 				tuid = GET_OBJ_UID(object);
 				inworld = 1;
    				for (i = object_list; i; i = i->next) {
@@ -1298,8 +1298,11 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 					// Тут, если все будет работать, должно быть удаление одного из предметов         				
 				}
 			} // Назначаем новый UID
-			else if (GET_OBJ_VNUM(object) > 0 && GET_OBJ_UID(object) == 0)
-				GET_OBJ_UID(object) = ++global_uid;
+			else if (GET_OBJ_VNUM(object) > 0 && GET_OBJ_UID(object) == 0) {
+				global_uid++;
+				global_uid = global_uid==0 ? 1 : global_uid;
+				GET_OBJ_UID(object) = global_uid;
+			}
 		}
 
 		if (!IS_NPC(ch)) {

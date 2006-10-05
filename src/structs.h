@@ -1315,7 +1315,7 @@ struct obj_affected_type {
 
 /* ================== Memory Structure for Objects ================== */
 struct obj_data {
-	int uid;
+	unsigned int uid;
 	obj_vnum item_number;	/* Where in data-base            */
 	room_rnum in_room;	/* In what room -1 when conta/carr */
 
