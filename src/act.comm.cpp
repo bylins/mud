@@ -203,7 +203,7 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 			sprintf(buf, "Вы сказали %s : '%s'", vict->player.PNames[2], arg);
 		else
 			sprintf(buf, "Вы сказали кому-то : '%s'", arg);
-		send_to_char(ch, "%s%s%s\r\n", CCICYN(ch, C_CMP), buf, CCNRM(vict, C_CMP));
+		send_to_char(ch, "%s%s%s\r\n", CCICYN(ch, C_NRM), buf, CCNRM(ch, C_NRM));
 	}
 
 	if (!IS_NPC(vict) && !IS_NPC(ch))
