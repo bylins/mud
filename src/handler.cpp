@@ -1255,6 +1255,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 {
 	OBJ_DATA *i;
 	int tuid;
+	int inworld;
 
 	int may_carry = TRUE;
 	if (object && ch) {
@@ -1284,13 +1285,17 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			// Контроль уникальности предметов
 			if (GET_OBJ_UID(object) > 0) {
 				tuid = GET_OBJ_UID(object);
+				inworld = 1;
    				for (i = object_list; i; i = i->next) {
       				if (GET_OBJ_UID(i) == tuid && object!=i && GET_OBJ_VNUM(i) == GET_OBJ_VNUM(object)) {
-						sprintf(buf, "[ATTENTION] Object copy detected. Object %s (%d), holder %s.", 
-								object->PNames[0], GET_OBJ_VNUM(object), GET_NAME(ch));
-						mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-						// Тут, если все будет работать, должно быть удаление одного из предметов         				
+						inworld++;
 					}
+				}
+				if (inworld>1) {
+					sprintf(buf, "Object copy detected! Object %s (%d), holder %s. In world %d.", 
+							object->PNames[0], GET_OBJ_VNUM(object), GET_NAME(ch), inworld);
+					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+					// Тут, если все будет работать, должно быть удаление одного из предметов         				
 				}
 			} // Назначаем новый UID
 			else if (GET_OBJ_VNUM(object) > 0 && GET_OBJ_UID(object) == 0)
