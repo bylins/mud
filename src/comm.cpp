@@ -82,8 +82,8 @@
 #include "screen.h"
 #include "ban.hpp"
 #include "auction.h"
-//F@N|
 #include "exchange.h"
+#include "deathtrap.hpp"
 
 #ifdef HAVE_ARPA_TELNET_H
 #include <arpa/telnet.h>
@@ -237,7 +237,6 @@ void flush_player_index(void);
 void dupe_player_index(void);
 void Crash_frac_save_all(int frac_part);
 void Crash_frac_rent_time(int frac_part);
-void dt_activity(void);
 unsigned long TxtToIp(const char * text);
 void underwater_check(void);
 //F@N|
@@ -1136,10 +1135,9 @@ inline void heartbeat()
 	}
 	//log("Stop it...");
 
-	if (!(pulse % (2 * PASSES_PER_SEC))) {	//log("Death trap activity...");
-		dt_activity();
+	if (!(pulse % (2 * PASSES_PER_SEC))) {
+		DeathTrap::activity();
 		underwater_check();
-		//log("Stop it...");
 	}
 
 	if (!((pulse + 3) % PULSE_VIOLENCE)) {	//log("Perform violence...");
@@ -3363,7 +3361,7 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 	}
 	/* ASSUMPTION: at this point we know type must be TO_NOTVICT or TO_ROOM */
 	/* or TO_ROOM_HIDE */
-	
+
 	if (ch && ch->in_room != NOWHERE)
 		to = world[ch->in_room]->people;
 	else if (obj && obj->in_room != NOWHERE)

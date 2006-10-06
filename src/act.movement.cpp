@@ -28,6 +28,7 @@
 #include "screen.h"
 #include "pk.h"
 #include "features.hpp"
+#include "deathtrap.hpp"
 
 /* external functs */
 void add_follower(CHAR_DATA * ch, CHAR_DATA * leader);
@@ -125,6 +126,7 @@ int check_death_ice(int room, CHAR_DATA * ch)
 		world[room]->weather.icelevel = 0;
 		world[room]->ices = 2;
 		SET_BIT(ROOM_FLAGS(room, ROOM_ICEDEATH), ROOM_ICEDEATH);
+		DeathTrap::add(world[room]);
 	} else
 		return (FALSE);
 
@@ -433,8 +435,8 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			ch_inroom = real_mountains_paths_sect(ch_inroom);
 			ch_toroom = real_mountains_paths_sect(ch_toroom);
 		}
-	
-		need_movement = (IS_FLY(ch) || on_horse(ch)) ? 1 : 
+
+		need_movement = (IS_FLY(ch) || on_horse(ch)) ? 1 :
 						(movement_loss[ch_inroom] + movement_loss[ch_toroom]) / 2;
 
 		if (IS_IMMORTAL(ch))
@@ -1081,7 +1083,7 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
 
 	sprintf(buf, "$n %s ", cmd_door[scmd]);
-//  if (IS_NPC(ch)) 
+//  if (IS_NPC(ch))
 //     log("MOB DOOR Moving:Моб %s %s дверь в комнате %d",GET_NAME(ch),cmd_door[scmd],GET_ROOM_VNUM(IN_ROOM(ch)));
 	if (!obj && ((other_room = EXIT(ch, door)->to_room) != NOWHERE))
 		if ((back = world[other_room]->dir_option[rev_dir[door]]) != NULL)
@@ -1152,12 +1154,12 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 		act(buf, FALSE, ch, obj, obj ? 0 : EXIT(ch, door)->vkeyword, TO_ROOM);
 
 	/* Notify the other room */
-	if ((scmd == SCMD_OPEN || scmd == SCMD_CLOSE) && back) {		
+	if ((scmd == SCMD_OPEN || scmd == SCMD_CLOSE) && back) {
 		if ((to = world[EXIT(ch, door)->to_room]->people)) {
 			sprintf(buf+strlen(buf)-1, " с той стороны.");
 			for (int stopcount = 0; to && stopcount < 1000; to = to->next_in_room, stopcount++) {
 				perform_act(buf, ch, obj, obj ? 0 : EXIT(ch, door)->vkeyword, to);
-			}		
+			}
 		}
 	}
 }

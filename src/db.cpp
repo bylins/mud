@@ -43,6 +43,7 @@
 #include "features.hpp"
 #include "boards.h"
 #include "description.h"
+#include "deathtrap.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -892,6 +893,9 @@ void boot_db(void)
 
 	log("Load global uid counter");
 	LoadGlobalUID();
+
+	log("Init DeathTrap list.");
+	DeathTrap::load();
 
 	log("Boot db -- DONE.");
 }
@@ -6690,7 +6694,7 @@ void SaveGlobalUID(void)
 		log("Can't write global uid file...");
 		return;
 	}
-	
+
 	fprintf(guid, "%d\n", global_uid);
 	fclose(guid);
 	return;

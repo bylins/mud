@@ -29,6 +29,7 @@
 #include "constants.h"
 #include "exchange.h"
 #include "top.h"
+#include "deathtrap.hpp"
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
@@ -455,7 +456,7 @@ void beat_punish(CHAR_DATA * i)
 			act("$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации !",
 			    FALSE, i, 0, 0, TO_ROOM);
 		};
-		
+
 	}
 
 	if (GET_GOD_FLAG(i, GF_GODSLIKE) && GCURSE_DURATION(i) != 0 && GCURSE_DURATION(i) <= time(NULL)) {
@@ -479,7 +480,7 @@ void beat_punish(CHAR_DATA * i)
 	// Проверяем а там ли мы где должны быть по флагам.
 	if (IN_ROOM(i) == STRANGE_ROOM)
 		restore = GET_WAS_IN(i);
-	else 
+	else
 		restore = IN_ROOM(i);
 
 	if (PLR_FLAGGED(i, PLR_HELLED))
@@ -488,8 +489,8 @@ void beat_punish(CHAR_DATA * i)
 		{
 			if (IN_ROOM(i) == STRANGE_ROOM)
 				GET_WAS_IN(i) = r_helled_start_room;
-			else 	
-			{		
+			else
+			{
 				send_to_char("Чья-то злая воля вернула Вас в темницу.\r\n", i);
 				act("$n возвращен$a в темницу.",
 				    FALSE, i, 0, 0, TO_ROOM);
@@ -506,8 +507,8 @@ void beat_punish(CHAR_DATA * i)
 		{
 			if (IN_ROOM(i) == STRANGE_ROOM)
 				GET_WAS_IN(i) = r_named_start_room;
-			else 	
-			{		
+			else
+			{
 				send_to_char("Чья-то злая воля вернула Вас в комнату имени.\r\n", i);
 				act("$n возвращен$a в комнату имени.",
 				    FALSE, i, 0, 0, TO_ROOM);
@@ -515,9 +516,9 @@ void beat_punish(CHAR_DATA * i)
 				char_to_room(i, r_named_start_room);
 				look_at_room(i, r_named_start_room);
 				GET_WAS_IN(i) = NOWHERE;
-			};	
+			};
 		};
-	} 
+	}
 	else if (!PLR_FLAGGED(i, PLR_REGISTERED))
 	{
 		if ((!RENTABLE(i)) && (restore != r_unreg_start_room) && i->desc
@@ -525,8 +526,8 @@ void beat_punish(CHAR_DATA * i)
 
 			if (IN_ROOM(i) == STRANGE_ROOM)
 				GET_WAS_IN(i) = r_unreg_start_room;
-			else 	
-			{		
+			else
+			{
 				send_to_char("Чья-то злая воля вернула Вас в комнату для незарегистированных игроков.\r\n", i);
 				act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.\r\n",
 				    FALSE, i, 0, 0, TO_ROOM);
@@ -535,10 +536,10 @@ void beat_punish(CHAR_DATA * i)
 				char_to_room(i, r_unreg_start_room);
 				look_at_room(i, r_unreg_start_room);
 				GET_WAS_IN(i) = NOWHERE;
-			};	
+			};
 		}
-	} 
-	
+	}
+
 }
 
 void beat_points_update(int pulse)
@@ -555,7 +556,7 @@ void beat_points_update(int pulse)
 		if (IS_NPC(i))
 			continue;
 
-		if (IN_ROOM(i) == NOWHERE)		
+		if (IN_ROOM(i) == NOWHERE)
 		{
 			log("SYSERR: Pulse character in NOWHERE.");
 			continue;
@@ -844,30 +845,6 @@ void gain_condition(CHAR_DATA * ch, int condition, int value)
 
 }
 
-void dt_activity(void)
-{
-// Вообще в этом месте нам бы круто было бы иметь список комнат дт, стобы не бегать по всем комнатам мира.
-// Реально инициальизировать этот список при ребуте,  не забывать только отслеживать провалившийся лед ROOM_ICEDEATH
-// и через olc
-	int i;
-	CHAR_DATA *ch, *next;
-	char msg[MAX_STRING_LENGTH];
-
-	for (i = FIRST_ROOM; i <= top_of_world; i++) {
-		if (ROOM_FLAGGED(i, ROOM_SLOWDEATH) || ROOM_FLAGGED(i, ROOM_ICEDEATH))
-			for (ch = world[i]->people; ch; ch = next) {
-				next = ch->next_in_room;
-				if (!IS_NPC(ch)) {
-					sprintf(msg, "Player %s died in slow DT (room %d)",
-						GET_NAME(ch), GET_ROOM_VNUM(i));
-					if (damage
-					    (ch, ch, MAX(1, GET_REAL_MAX_HIT(ch) >> 2), TYPE_ROOMDEATH, FALSE) < 0)
-						log(msg);
-				}
-			}
-	}
-}
-
 void underwater_check(void)
 {
 	DESCRIPTOR_DATA *d;
@@ -877,14 +854,14 @@ void underwater_check(void)
 		{
 			sprintf(buf,
 			"Player %s died under water (room %d)", GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
-			if (damage(d->character, d->character, MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), TYPE_WATERDEATH, FALSE) < 0) 
+			if (damage(d->character, d->character, MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), TYPE_WATERDEATH, FALSE) < 0)
 			{
 				log(buf);
 			}
 		}
 	}
-	
-} 		
+
+}
 
 void check_idling(CHAR_DATA * ch)
 {
@@ -1178,8 +1155,10 @@ void point_update(void)
 			}
 		}
 		if (world[count]->ices)
-			if (!--world[count]->ices)
+			if (!--world[count]->ices) {
 				REMOVE_BIT(ROOM_FLAGS(count, ROOM_ICEDEATH), ROOM_ICEDEATH);
+				DeathTrap::remove(world[count]);
+			}
 
 		world[count]->glight = MAX(0, world[count]->glight);
 		world[count]->gdark = MAX(0, world[count]->gdark);

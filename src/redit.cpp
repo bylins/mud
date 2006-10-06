@@ -19,6 +19,7 @@
 #include "constants.h"
 #include "im.h"
 #include "description.h"
+#include "deathtrap.hpp"
 
 /* List each room saved, was used for debugging. */
 #if 0
@@ -136,7 +137,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 		advance(p, FIRST_ROOM);
 		for (i = FIRST_ROOM; i <= top_of_world; i++, p++) {
 			if (!found) {
-				// Is this the place? 
+				// Is this the place?
 				if (world[i]->number > OLC_NUM(d)) {
 					found = TRUE;
 					ROOM_DATA *new_room;
@@ -254,6 +255,12 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 							OLC_ROOM(dsc)->dir_option[j]->to_room++;
 
 	}
+
+	if (ROOM_FLAGGED(room_num, ROOM_SLOWDEATH) || ROOM_FLAGGED(room_num, ROOM_ICEDEATH))
+		DeathTrap::add(world[room_num]);
+	else
+		DeathTrap::remove(world[room_num]);
+
 	// Настало время добавить триггеры
 	SCRIPT(world[room_num]) = NULL;
 	assign_triggers(world[room_num], WLD_TRIGGER);
@@ -322,7 +329,7 @@ void redit_save_to_disk(int zone_num)
 						*buf1 = 0;
 
 					/*
-					 * Figure out door flag. 
+					 * Figure out door flag.
 					 */
 					if (IS_SET(room->dir_option[counter2]->exit_info, EX_ISDOOR)) {
 						if (IS_SET(room->dir_option[counter2]->exit_info, EX_PICKPROOF))
@@ -389,7 +396,7 @@ void redit_save_to_disk(int zone_num)
 
 
 /**************************************************************************
- Menu functions 
+ Menu functions
  **************************************************************************/
 
 /*
@@ -422,7 +429,7 @@ void redit_disp_extradesc_menu(DESCRIPTOR_DATA * d)
 void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 {
 	/*
-	 * if exit doesn't exist, alloc/create it 
+	 * if exit doesn't exist, alloc/create it
 	 */
 	if (!OLC_EXIT(d)) {
 		CREATE(OLC_EXIT(d), EXIT_DATA, 1);
@@ -430,7 +437,7 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 	}
 
 	/*
-	 * Weird door handling! 
+	 * Weird door handling!
 	 */
 	if (IS_SET(OLC_EXIT(d)->exit_info, EX_ISDOOR)) {
 		if (IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF))
@@ -618,7 +625,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			olc_log("%s edit room %d", GET_NAME(d->character), OLC_NUM(d));
 			mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 			/*
-			 * Do NOT free strings! Just the room structure. 
+			 * Do NOT free strings! Just the room structure.
 			 */
 			cleanup_olc(d, CLEANUP_STRUCTS);
 			send_to_char("Room saved to memory.\r\n", d->character);
