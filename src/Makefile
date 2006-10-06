@@ -13,7 +13,7 @@ PROFILE =
 
 BINDIR = ../bin
 
-CFLAGS = -ggdb3 -O3 -Wall -I/usr/home/mud/mud/src/ -ftemplate-depth-30
+CFLAGS = -ggdb3 -O3 -Wall -ftemplate-depth-30
 
 # use 'make test' for faster compile w/o optimizations, crypt and 34lvl god for first character
 TESTFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD

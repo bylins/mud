@@ -21,7 +21,7 @@ void load();
 void add(ROOM_DATA* room);
 // Удаление комнаты из списка слоу-дт
 void remove(ROOM_DATA* room);
-// Проверка активности дт, дергается каждую секунду в хеарбите
+// Проверка активности дт, дергается каждые 2 секунды в хеарбите
 void activity();
 
 } // namespace DeathTrap
