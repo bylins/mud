@@ -68,7 +68,7 @@ int get_unique_lot(void);
 void message_exchange(char *message, CHAR_DATA * ch, EXCHANGE_ITEM_DATA * j);
 int obj_matches_filter(EXCHANGE_ITEM_DATA * j, char *filter_name, char *filter_owner, int *filter_type,
 		       int *filter_cost, int *filter_timer, int *filter_wereon, int *filter_weaponclass);
-void show_lots(char **buf, char *filter, short int show_type, CHAR_DATA * ch);
+void show_lots(char *filter, short int show_type, CHAR_DATA * ch);
 int parse_exch_filter(char *buf, char *filter_name, char *filter_owner, int *filter_type,
 		      int *filter_cost, int *filter_timer, int *filter_wereon, int *filter_weaponclass);
 void clear_exchange_lot(EXCHANGE_ITEM_DATA * lot);
@@ -637,7 +637,6 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 
 int exchange_offers(CHAR_DATA * ch, char *arg)
 {
-	char *buf;
 //влом байты считать. Если кто хочет оптимизировать, посчитайте точно.
 	char filter[MAX_STRING_LENGTH];
 	char multifilter[MAX_STRING_LENGTH];
@@ -749,13 +748,8 @@ show_type
 	else
 		strcpy(multifilter, filter);
 
-
-	buf = NULL;
-	show_lots(&buf, multifilter, show_type, ch);
-	page_string(ch->desc, buf, 1);
-	free(buf);
-
-	return (1);
+	show_lots(multifilter, show_type, ch);
+	return 1;
 }
 
 int exchange_setfilter(CHAR_DATA * ch, char *arg)
@@ -928,7 +922,7 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error)
 		if (!(GET_EXCHANGE_ITEM_COMMENT(item) = str_dup(buffer)))
 			return (item);
 
-	*error = 0;	
+	*error = 0;
 	d = *data;
 	GET_EXCHANGE_ITEM(item) = read_one_object_new(data, error);
 	if (*error)
@@ -1185,7 +1179,7 @@ void exchange_write_one_object_new(char **data, EXCHANGE_ITEM_DATA * item)
 	count += sprintf(*data + count, "%d\n", GET_EXCHANGE_ITEM_COST(item));
 	count += sprintf(*data + count, "%s\n",
 			 GET_EXCHANGE_ITEM_COMMENT(item) ? GET_EXCHANGE_ITEM_COMMENT(item) : "EMPTY\n");
-	
+
 	d = *data + count;
 	write_one_object(&d, GET_EXCHANGE_ITEM(item), 0);
 }
@@ -1616,7 +1610,7 @@ int obj_matches_filter(EXCHANGE_ITEM_DATA * j, char *filter_name, char *filter_o
 }
 
 
-void show_lots(char **buf, char *filter, short int show_type, CHAR_DATA * ch)
+void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 {
 /*
 show_type
@@ -1629,11 +1623,8 @@ show_type
 6 - ингры
 7 - прочее
 */
-
 	char tmpbuf[MAX_INPUT_LENGTH];
-	EXCHANGE_ITEM_DATA *j, *next_thing;
-	bool any_item = FALSE;
-
+	bool any_item = 0;
 
 	char filter_name[FILTER_LENGTH];
 	char filter_owner[FILTER_LENGTH];
@@ -1646,24 +1637,18 @@ show_type
 	memset(filter_name, 0, FILTER_LENGTH);
 	memset(filter_owner, 0, FILTER_LENGTH);
 
-	if (!parse_exch_filter(filter, filter_name, filter_owner, &filter_type, &filter_cost,
-			       &filter_timer, &filter_wereon, &filter_weaponclass)) {
-		*buf = str_add(*buf, "Неверная строка фильтрации !\r\n");
+	if (!parse_exch_filter(filter, filter_name, filter_owner, &filter_type, &filter_cost, &filter_timer,
+	&filter_wereon, &filter_weaponclass)) {
+		send_to_char("Неверная строка фильтрации !\r\n", ch);
 		log("Exchange: Player uses wrong filter '%s'", filter);
 		return;
 	}
 
+	std::string buffer =
+		" Лот     Предмет                                                    Цена \r\n"
+		"-------------------------------------------------------------------------\r\n";
 
-	if (*buf)
-		free(*buf);
-	*buf = NULL;
-
-
-	*buf = str_add(*buf, " Лот     Предмет                                                    Цена \r\n");
-	*buf = str_add(*buf, "-------------------------------------------------------------------------\r\n");
-
-	for (j = exchange_item_list; j; j = next_thing) {
-		next_thing = j->next;
+	for (EXCHANGE_ITEM_DATA* j = exchange_item_list; j; j = j->next) {
 		if ((!obj_matches_filter(j, filter_name, filter_owner, &filter_type,
 					 &filter_cost, &filter_timer, &filter_wereon, &filter_weaponclass))
 		    || ((show_type == 1) && (!isname(GET_NAME(ch), get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j)))))
@@ -1683,18 +1668,17 @@ show_type
 					     || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_BOOK)
 					     || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_MING))))
 			continue;
-
-		sprintf(tmpbuf, "[%4d]", GET_EXCHANGE_ITEM_LOT(j));
-		sprintf(tmpbuf, "%s   %s", tmpbuf, GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
+		sprintf(tmpbuf, "[%4d]   %s", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
 		sprintf(tmpbuf, "%-63s %9d\r\n", tmpbuf, GET_EXCHANGE_ITEM_COST(j));
-		*buf = str_add(*buf, (const char *) &tmpbuf);
-		any_item = TRUE;
+		// Такое вот кино, на выделения для каждой строчки тут уходило до 0.6 секунды при выводе всего базара. стринги рулят -- Krodo
+		buffer += tmpbuf;
+		any_item = 1;
 	}
-	if (!any_item) {
-		free(*buf);
-		*buf = NULL;
-		*buf = str_add(*buf, "Базар пуст !\r\n");
-	}
+
+	if (!any_item)
+		buffer = "Базар пуст !\r\n";
+
+	page_string(ch->desc, buffer, 1);
 }
 
 int parse_exch_filter(char *buf, char *filter_name, char *filter_owner, int *filter_type,
