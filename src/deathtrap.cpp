@@ -18,7 +18,7 @@ std::list<ROOM_DATA*> room_list;
 
 } // namespace DeathTrap
 
-/*
+/**
 * Инициализация списка при загрузке мада
 */
 void DeathTrap::load()
@@ -28,9 +28,9 @@ void DeathTrap::load()
 			room_list.push_back(world[i]);
 }
 
-/*
+/**
 * Добавление новой комнаты с проверкой на присутствие
-* /param room - комната, кот. добавляем
+* \param room - комната, кот. добавляем
 */
 void DeathTrap::add(ROOM_DATA* room)
 {
@@ -39,16 +39,16 @@ void DeathTrap::add(ROOM_DATA* room)
 		room_list.push_back(room);
 }
 
-/*
+/**
 * Удаление комнаты из списка слоу-дт
-* /param room - комната, кот. удаляем
+* \param room - комната, кот. удаляем
 */
 void DeathTrap::remove(ROOM_DATA* room)
 {
 	room_list.remove(room);
 }
 
-/*
+/**
 * Проверка активности дт, дергается каждые 2 секунды в хеарбите.
 * \todo Предполагается, что комната по указателю никуда не делась, следить за этим
 * надо, но только когда рнумы уберем, да и пока она никуда деться штатно и не может.
