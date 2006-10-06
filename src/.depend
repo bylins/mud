@@ -9,7 +9,7 @@ act.item.o: act.item.cpp conf.h sysdep.h structs.h utils.h comm.h \
   house.h magic.h fight.h features.hpp
 act.movement.o: act.movement.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h house.h constants.h \
-  dg_scripts.h screen.h pk.h features.hpp
+  dg_scripts.h screen.h pk.h features.hpp deathtrap.hpp
 act.offensive.o: act.offensive.cpp conf.h sysdep.h structs.h utils.h \
   comm.h interpreter.h handler.h db.h constants.h screen.h spells.h \
   skills.h pk.h features.hpp
@@ -32,7 +32,7 @@ class.o: class.cpp conf.h sysdep.h structs.h comm.h db.h utils.h spells.h \
   im.h
 comm.o: comm.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
   handler.h db.h house.h olc.h dg_scripts.h screen.h ban.hpp diskio.h \
-  auction.h exchange.h
+  auction.h exchange.h deathtrap.hpp
 config.o: config.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
   constants.h
 constants.o: constants.cpp conf.h sysdep.h structs.h spells.h skills.h \
@@ -42,7 +42,8 @@ features.o: features.cpp conf.h sysdep.h structs.h utils.h handler.h \
 db.o: db.cpp conf.h sysdep.h structs.h utils.h db.h comm.h handler.h \
   spells.h mail.h interpreter.h house.h constants.h dg_scripts.h mobmax.h \
   pk.h olc.h diskio.h im.h top.h stuff.hpp double_map.hpp ban.hpp \
-  privileges.hpp item.creation.hpp features.hpp boards.h description.h
+  privileges.hpp item.creation.hpp features.hpp boards.h description.h \
+  deathtrap.hpp
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h comm.h handler.h \
   interpreter.h db.h spells.h screen.h constants.h dg_scripts.h mobmax.h \
   pk.h im.h fight.h skills.h features.hpp house.h stuff.hpp \
@@ -51,7 +52,7 @@ graph.o: graph.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
   constants.h handler.h db.h spells.h skills.h features.hpp
 handler.o: handler.cpp conf.h sysdep.h structs.h constants.h utils.h \
   comm.h db.h handler.h interpreter.h spells.h skills.h screen.h \
-  dg_scripts.h auction.h features.hpp house.h
+  dg_scripts.h auction.h features.hpp house.h exchange.h
 house.o: house.cpp house.h conf.h sysdep.h structs.h utils.h db.h \
   interpreter.h comm.h handler.h pk.h screen.h boards.h skills.h spells.h
 interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
@@ -61,7 +62,7 @@ interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
   boards.h top.h
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h spells.h skills.h \
   comm.h db.h handler.h screen.h interpreter.h constants.h dg_scripts.h \
-  house.h exchange.h top.h
+  house.h exchange.h top.h deathtrap.hpp
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
   skills.h handler.h db.h interpreter.h screen.h constants.h dg_scripts.h \
   pk.h features.hpp magic.h fight.h
@@ -96,7 +97,7 @@ utils.o: utils.cpp conf.h sysdep.h structs.h utils.h db.h comm.h screen.h \
 weather.o: weather.cpp conf.h sysdep.h structs.h spells.h skills.h \
   utils.h comm.h handler.h interpreter.h db.h screen.h constants.h
 redit.o: redit.cpp conf.h sysdep.h structs.h comm.h utils.h db.h olc.h \
-  dg_olc.h dg_scripts.h constants.h im.h description.h
+  dg_olc.h dg_scripts.h constants.h im.h description.h deathtrap.hpp
 oedit.o: oedit.cpp conf.h sysdep.h structs.h comm.h spells.h utils.h db.h \
   shop.h olc.h dg_olc.h dg_scripts.h im.h features.hpp
 zedit.o: zedit.cpp conf.h sysdep.h structs.h comm.h utils.h db.h olc.h \
@@ -163,3 +164,5 @@ stuff.o: stuff.cpp conf.h sysdep.h structs.h comm.h db.h handler.h \
   utils.h dg_scripts.h stuff.hpp double_map.hpp
 description.o: description.cpp conf.h sysdep.h structs.h utils.h \
   description.h
+deathtrap.o: deathtrap.cpp deathtrap.hpp conf.h sysdep.h structs.h \
+  constants.h db.h spells.h utils.h handler.h
