@@ -256,10 +256,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 
 	}
 
-	if (ROOM_FLAGGED(room_num, ROOM_SLOWDEATH) || ROOM_FLAGGED(room_num, ROOM_ICEDEATH))
-		DeathTrap::add(world[room_num]);
-	else
-		DeathTrap::remove(world[room_num]);
+	DeathTrap::load(); // на случай перетасовки комнат в векторе
 
 	// Настало время добавить триггеры
 	SCRIPT(world[room_num]) = NULL;
