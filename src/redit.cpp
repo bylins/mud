@@ -130,6 +130,12 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 		// Теперь просто удалить OLC_ROOM(d) и все будет хорошо
 		room_free(OLC_ROOM(d));
 		// Удаление "оболочки" произойдет в olc_cleanup
+
+		if (ROOM_FLAGGED(room_num, ROOM_SLOWDEATH) || ROOM_FLAGGED(room_num, ROOM_ICEDEATH))
+			DeathTrap::add(world[room_num]);
+		else
+			DeathTrap::remove(world[room_num]);
+
 	} else {
 		/* Room doesn't exist, hafta add it. */
 		// Count through world tables.
@@ -254,9 +260,9 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 						if (OLC_ROOM(dsc)->dir_option[j]->to_room >= room_num)
 							OLC_ROOM(dsc)->dir_option[j]->to_room++;
 
+		// TODO: вот тут и выше по идее можно и за один проход все сделать
+		DeathTrap::load(); // на случай перетасовки комнат в векторе
 	}
-
-	DeathTrap::load(); // на случай перетасовки комнат в векторе
 
 	// Настало время добавить триггеры
 	SCRIPT(world[room_num]) = NULL;
