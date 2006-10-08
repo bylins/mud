@@ -66,8 +66,6 @@ int mag_manacost(CHAR_DATA * ch, int spellnum);
 int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6);
 void Crash_rentsave(CHAR_DATA * ch, int cost);
 int level_exp(CHAR_DATA * ch, int level);
-char *title_male(int chclass, int level);
-char *title_female(int chclass, int level);
 void update_char_objects(CHAR_DATA * ch);	/* handler.cpp */
 // Delete this, if you delete overflow fix in beat_points_update below.
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
@@ -651,31 +649,6 @@ void beat_points_update(int pulse)
 //-MZ.overflow_fix
 	}
 }
-
-
-
-
-
-void set_title(CHAR_DATA * ch, char *title)
-{
-	if (title == NULL) {
-		if (IS_FEMALE(ch))
-			title = title_female(GET_CLASS(ch), GET_LEVEL(ch));
-		else
-			title = title_male(GET_CLASS(ch), GET_LEVEL(ch));
-	}
-
-	if (title && strlen(title) > MAX_TITLE_LENGTH)
-		title[MAX_TITLE_LENGTH] = '\0';
-
-	if (GET_TITLE(ch) != NULL) {
-		free(GET_TITLE(ch));
-		GET_TITLE(ch) = NULL;
-	}
-	if (title && *title)
-		GET_TITLE(ch) = str_dup(title);
-}
-
 
 void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 {

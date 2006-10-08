@@ -84,6 +84,7 @@
 #include "auction.h"
 #include "exchange.h"
 #include "deathtrap.hpp"
+#include "title.hpp"
 
 #ifdef HAVE_ARPA_TELNET_H
 #include <arpa/telnet.h>
@@ -494,6 +495,7 @@ void init_game(ush_int port)
 	Clan::ChestUpdate();
 	Clan::ChestSave();
 	Clan::ClanSave();
+	TitleSystem::save_title_list();
 
 	log("Closing all sockets.");
 	while (descriptor_list)
@@ -1267,31 +1269,14 @@ inline void heartbeat()
 	if (!((pulse + 17) % (5 * 60 * PASSES_PER_SEC))) {	/* 5 minutes *///log("Record usage...");
 		record_usage();
 		ban->reload_proxy_ban(ban->RELOAD_MODE_TMPFILE);
-		//log("Stop it...");
 	}
-	//log ("Real extract char");
 
-// это тоже дергать каждый пульс не нужно
-/*	if (!(pulse % (PASSES_PER_SEC / 2))) {
-		for (k = character_list; k; k = next) {
-			next = k->next;
-			if (IN_ROOM(k) == NOWHERE || MOB_FLAGGED(k, MOB_DELETE)) {
-				//log("[Heartbeat] Remove from list char %s", GET_NAME(k));
-				if (k == character_list)
-					character_list = next;
-				else
-					ch->next = next;
-				k->next = NULL;
-				if (MOB_FLAGGED(k, MOB_FREE)) {
-					//log("[Heartbeat] Free char %s", GET_NAME(k));
-					free_char(k);
-					//log("[Heartbeat] OK free char");
-				}
-			} else
-				ch = k;
-		}
+	// раз в 5 минут вывод + сохранение списков неодобренных
+	// TODO: добить тут с именами
+	if (!((pulse + 18) % (5 * 60 * PASSES_PER_SEC))) {
+		god_work_invoice();
+		TitleSystem::save_title_list();
 	}
-*/
 
 // shapirus: ротация логов. сислог каждые 2 часа, остальные раз в сутки.
 	if (!((pulse + 19) % PULSE_LOGROTATE)) {

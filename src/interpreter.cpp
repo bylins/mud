@@ -42,6 +42,7 @@
 #include "features.hpp"
 #include "boards.h"
 #include "top.h"
+#include "title.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -138,6 +139,7 @@ void add_logon_record(DESCRIPTOR_DATA * d);
 int find_action(char *cmd);
 int do_social(CHAR_DATA * ch, char *argument);
 void skip_wizard(CHAR_DATA * ch, char *string);
+void single_god_invoice(CHAR_DATA* ch);
 
 ACMD(do_advance);
 ACMD(do_alias);
@@ -285,7 +287,6 @@ ACMD(do_throw);
 ACMD(do_teleport);
 ACMD(do_tell);
 ACMD(do_time);
-ACMD(do_title);
 ACMD(do_toggle);
 ACMD(do_track);
 ACMD(do_sense);
@@ -739,7 +740,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"строка", POS_DEAD, do_display, 0, 0, 0},
 	{"счет", POS_DEAD, do_score, 0, 0, 0},
 
-	{"титул", POS_DEAD, do_title, LVL_IMMORT, 0, 0},
+	{"титул", POS_DEAD, TitleSystem::do_title, 0, 0, 0},
 	{"трусость", POS_DEAD, do_wimpy, 0, 0, 0},
 
 	{"убить", POS_FIGHTING, do_kill, 0, 0, -1},
@@ -968,7 +969,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"tell", POS_RESTING, do_tell, 0, 0, -1},
 //	{"thaw", POS_DEAD, do_wizutil, LVL_FREEZE, SCMD_THAW, 0},
 	{"time", POS_DEAD, do_time, 0, 0, 0},
-	{"title", POS_DEAD, do_title, LVL_IMMORT, 0, 0},
+	{"title", POS_DEAD, TitleSystem::do_title, 0, 0, 0},
 	{"touch", POS_FIGHTING, do_touch, 0, 0, -1},
 	{"track", POS_STANDING, do_track, 0, 0, -1},
 //  {"transfer", POS_SLEEPING, do_trans, LVL_GRGOD, 0, 0},
@@ -1550,7 +1551,7 @@ void skip_wizard(CHAR_DATA * ch, char *string)
  * to $$'s to avoid having users be able to crash the system if the
  * inputted string is eventually sent to act().  If you are using user
  * input to produce screen output AND YOU ARE SURE IT WILL NOT BE SENT
- * THROUGH THE act() FUNCTION (i.e., do_gecho, do_title, but NOT do_say),
+ * THROUGH THE act() FUNCTION (i.e., do_gecho, but NOT do_say),
  * you can call delete_doubledollar() to make the output look correct.
  *
  * Modifies the string in-place.
@@ -1820,6 +1821,7 @@ int _parse_name(char *arg, char *name)
 	return (0);
 }
 
+
 #define RECON     1
 #define USURP     2
 #define UNSWITCH  3
@@ -1949,7 +1951,7 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 		sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
 		mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 		if (IS_IMMORTAL(d->character))
-			NewNameShow(d->character);
+			single_god_invoice(d->character);
 		break;
 	case USURP:
 //    toggle_compression(d);
@@ -2250,7 +2252,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		send_to_char("&R\r\nВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!\r\n\r\n&n", d->character);
 	look_at_room(d->character, 0);
 	if (IS_IMMORTAL(d->character))
-		NewNameShow(d->character);
+		single_god_invoice(d->character);
 	d->has_prompt = 0;
 }
 
@@ -2888,11 +2890,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		strncpy(GET_EMAIL(d->character), arg, 127);
 		*(GET_EMAIL(d->character) + 127) = '\0';
 		save_char(d->character, NOWHERE);
-		// оповещение о неодобренных именах
-		// TODO до входа его в игру одобрение/запрет не сработают, если вешать на вход - будет спам иммам при каждом его входе
-		if ((int) NAME_FINE(d->character)) {
-			sprintf(buf, "%s - новый игрок (e-mail: %s).", GET_NAME(d->character), GET_EMAIL(d->character));
-		} else {
+
+		// добавляем в список ждущих одобрения
+		if (!(int)NAME_FINE(d->character)) {
 			sprintf(buf, "%s - новый игрок. Падежи: %s/%s/%s/%s/%s/%s Email: %s Пол: %s. ]\r\n"
 				"[ %s ждет одобрения имени.",
 				GET_NAME(d->character),	GET_PAD(d->character, 0),
@@ -2900,10 +2900,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				GET_PAD(d->character, 3), GET_PAD(d->character, 4),
 				GET_PAD(d->character, 5), GET_EMAIL(d->character),
 				genders[(int)GET_SEX(d->character)], GET_NAME(d->character));
-				// добавляем в список ждущих одобрения
 				NewNameAdd(d->character);
 		}
-		mudlog(buf, DEF, LVL_IMMORT, SYSLOG, TRUE);
 
 		SEND_TO_Q(motd, d);
 		SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
@@ -3790,4 +3788,44 @@ std::string ExpFormat(long long exp)
 		return (boost::lexical_cast<std::string>(exp/1000000) + " млн");
 	else
 		return (boost::lexical_cast<std::string>(exp/1000000000LL) + " млрд");
+}
+
+/**
+* Конвертация входной строки в нижний регистр
+*/
+void lower_convert(std::string& text)
+{
+	for (std::string::iterator it = text.begin(); it != text.end(); ++it)
+		*it = LOWER(*it);
+}
+
+/**
+* Конвертация имени в нижний регистр + первый сивмол в верхний (для единообразного поиска в контейнерах)
+*/
+void name_convert(std::string& text)
+{
+	if (!text.empty()) {
+		lower_convert(text);
+		*text.begin() = UPPER(*text.begin());
+	}
+}
+
+/**
+* Генерация списка неодобренных титуло и имен и вывод их имму
+*/
+void single_god_invoice(CHAR_DATA* ch)
+{
+	if (TitleSystem::show_title_list(ch))
+		send_to_char("\r\n", ch);
+	NewNameShow(ch);
+}
+
+/**
+* Поиск незанятых иммов онлайн для вывода им неодобренных титулов и имен раз в 5 минут
+*/
+void god_work_invoice()
+{
+	for (DESCRIPTOR_DATA* d = descriptor_list; d; d = d->next)
+		if (d->character && IS_IMMORTAL(d->character) && STATE(d) == CON_PLAYING)
+			single_god_invoice(d->character);
 }

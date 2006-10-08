@@ -3311,16 +3311,18 @@ int Clan::ChestTax()
 	return cost * this->chest_discount / 100;
 }
 
-/*
+/**
 * Вместо спешиала теперь просто перехватываем осмотр контейнеров на случай клан-сундука.
 * Смотреть могут ес-сно только соклановцы.
 * \todo Вынести из класса. Да и вообще там чистить давно пора.
 * \param obj - контейнер
 * \param ch - смотрящий
+* \return 0 - это не клан-сундук, 1 - это был он
 */
 bool Clan::ChestShow(OBJ_DATA * obj, CHAR_DATA * ch)
 {
-	if (!ch->desc || obj->item_number != real_object(CLAN_CHEST))
+	int chest_num = real_object(CLAN_CHEST);
+	if (chest_num < 0 || !ch->desc || obj->item_number != chest_num)
 		return 0;
 
 	if (CLAN(ch) && real_room(CLAN(ch)->chest_room) == IN_ROOM(obj)) {

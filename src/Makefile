@@ -16,10 +16,10 @@ BINDIR = ../bin
 CFLAGS = -ggdb3 -O3 -Wall -ftemplate-depth-30
 
 # use 'make test' for faster compile w/o optimizations, crypt and 34lvl god for first character
-TESTFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD
+TESTFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH
 
 #LIBS =  -lsocket -lnsl
-LIBS =  -lz -lcrypt -lstdc++
+LIBS =  -lz -lcrypt
 
 OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	act.offensive.o act.other.o act.social.o act.wizard.o alias.o ban.o \
@@ -32,7 +32,7 @@ OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	dg_misc.o dg_objcmd.o dg_scripts.o dg_triggers.o dg_wldcmd.o dg_olc.o \
 	color.o mobmax.o pk.o genchar.o diskio.o im.o names.o auction.o \
 	item.creation.o arena.o skills.o exchange.o top.o stuff.o description.o \
-	deathtrap.o
+	deathtrap.o title.o
 
 CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	act.offensive.cpp act.other.cpp act.social.cpp act.wizard.cpp alias.cpp ban.cpp \
@@ -45,7 +45,7 @@ CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	dg_misc.cpp dg_objcmd.cpp dg_scripts.cpp dg_triggers.cpp dg_wldcmd.cpp dg_olc.cpp \
 	color.cpp mobmax.cpp pk.cpp genchar.cpp diskio.cpp im.cpp names.cpp \
 	auction.cpp item.creation.cpp arena.cpp skills.cpp exchange.cpp top.cpp stuff.cpp \
-	description.cpp deathtrap.cpp
+	description.cpp deathtrap.cpp title.cpp
 
 default: circle
 

@@ -16,7 +16,6 @@
 
 #include "dirent.h"
 #include "sys/stat.h"
-
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -44,6 +43,7 @@
 #include "boards.h"
 #include "description.h"
 #include "deathtrap.hpp"
+#include "title.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -896,6 +896,9 @@ void boot_db(void)
 
 	log("Init DeathTrap list.");
 	DeathTrap::load();
+
+	log("Load Title list.");
+	TitleSystem::load_title_list();
 
 	log("Boot db -- DONE.");
 }
@@ -5416,7 +5419,6 @@ void init_char(CHAR_DATA * ch)
 	if (top_of_p_table == 0) GET_LEVEL(ch) = LVL_IMPL; // При собирании через make test первый чар в маде становится иммом 34
 #endif
 	start_room = calc_loadroom(ch);
-	set_title(ch, NULL);
 	GET_PORTALS(ch) = NULL;
 	CREATE(GET_LOGS(ch), int, NLOG);
 	ch->player.short_descr = NULL;

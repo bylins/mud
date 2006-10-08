@@ -9,21 +9,21 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include <string>
+#include <map>
+#include <fstream>
+#include <sstream>
+#include <boost/shared_ptr.hpp>
+
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
-
-#include <string>
-#include <map>
-#include <fstream>
-#include <sstream>
-#include <boost/shared_ptr.hpp>
+#include "screen.h"
 
 extern const char *genders[];
 
@@ -37,7 +37,7 @@ int was_agree_name(DESCRIPTOR_DATA * d)
 	int immlev;
 	int i;
 
-//1. Load list 
+//1. Load list
 
 	if (!(fp = fopen(ANAME_FILE, "r"))) {
 		perror("SYSERR: Unable to open '" ANAME_FILE "' for reading");
@@ -82,11 +82,11 @@ int was_disagree_name(DESCRIPTOR_DATA * d)
 		perror("SYSERR: Unable to open '" DNAME_FILE "' for reading");
 		return (1);
 	}
-	//1. Load list 
+	//1. Load list
 	//2. Find name in list ...
 	//3. Compare names ... get next
 	while (get_line(fp, temp)) {
-		// Extract chars and 
+		// Extract chars and
 		sscanf(temp, "%s %s %d", mortname, immname, &immlev);
 		if (!strcmp(mortname, GET_NAME(d->character))) {
 			// Char found all ok;
@@ -113,7 +113,7 @@ void rm_agree_name(CHAR_DATA * d)
 	char mortname[6][MAX_INPUT_LENGTH];
 	int immlev;
 
-	// 1. Find name ... 
+	// 1. Find name ...
 	if (!(fin = fopen(ANAME_FILE, "r"))) {
 		perror("SYSERR: Unable to open '" ANAME_FILE "' for read");
 		return;
@@ -124,7 +124,7 @@ void rm_agree_name(CHAR_DATA * d)
 		return;
 	}
 	while (get_line(fin, temp)) {
-		// Get name ... 
+		// Get name ...
 		sscanf(temp, "%s %s %s %s %s %s %s %d", mortname[0],
 		       mortname[1], mortname[2], mortname[3], mortname[4], mortname[5], immname, &immlev);
 		if (strcmp(mortname[0], GET_NAME(d))) {
@@ -250,16 +250,18 @@ void NewNameLoad()
 // вывод списка неодобренных имму
 void NewNameShow(CHAR_DATA * ch)
 {
-	if (NewNameList.empty())
-		return;
+	if (NewNameList.empty()) return;
+
 	std::ostringstream buffer;
-	buffer << "\r\nСписок игроков, ждущих одобрения имени:\r\n";
-	std::string sex;
+	buffer << "Список игроков, ждущих одобрения имени (имя <игрок> одобрить/запретить):\r\n"
+		<< "Для удаления из списка без одобрения/запрета наберите 'имя удалить <игрок>'\r\n"
+		<< CCWHT(ch, C_NRM);
 	for (NewNameListType::const_iterator it = NewNameList.begin(); it != NewNameList.end(); ++it)
 		buffer << "Имя: " << it->first << " " << it->second->name0 << "/" << it->second->name1
 			<< "/" << it->second->name2 << "/" << it->second->name3 << "/" << it->second->name4
 			<< "/" << it->second->name5 << " Email: " << it->second->email << " Пол: "
 			<< genders[it->second->sex] << "\r\n";
+	buffer << CCNRM(ch, C_NRM);
 	send_to_char(buffer.str(), ch);
 }
 
@@ -283,7 +285,7 @@ void rm_disagree_name(CHAR_DATA * d)
 	char mortname[256];
 	int immlev;
 
-	// 1. Find name ... 
+	// 1. Find name ...
 	if (!(fin = fopen(DNAME_FILE, "r"))) {
 		perror("SYSERR: Unable to open '" DNAME_FILE "' for read");
 		return;
@@ -294,7 +296,7 @@ void rm_disagree_name(CHAR_DATA * d)
 		return;
 	}
 	while (get_line(fin, temp)) {
-		// Get name ... 
+		// Get name ...
 		sscanf(temp, "%s %s %d", mortname, immname, &immlev);
 		if (strcmp(mortname, GET_NAME(d))) {
 			// Name un matches ... do copy ...

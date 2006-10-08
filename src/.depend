@@ -21,7 +21,7 @@ act.social.o: act.social.cpp conf.h sysdep.h structs.h utils.h comm.h \
 act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h house.h screen.h skills.h \
   constants.h olc.h dg_scripts.h mobmax.h pk.h im.h top.h privileges.hpp \
-  ban.hpp diskio.h description.h
+  ban.hpp diskio.h description.h title.hpp
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h interpreter.h db.h
 ban.o: ban.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
   handler.h db.h ban.hpp diskio.h
@@ -32,7 +32,7 @@ class.o: class.cpp conf.h sysdep.h structs.h comm.h db.h utils.h spells.h \
   im.h
 comm.o: comm.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
   handler.h db.h house.h olc.h dg_scripts.h screen.h ban.hpp diskio.h \
-  auction.h exchange.h deathtrap.hpp
+  auction.h exchange.h deathtrap.hpp title.hpp
 config.o: config.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
   constants.h
 constants.o: constants.cpp conf.h sysdep.h structs.h spells.h skills.h \
@@ -43,7 +43,7 @@ db.o: db.cpp conf.h sysdep.h structs.h utils.h db.h comm.h handler.h \
   spells.h mail.h interpreter.h house.h constants.h dg_scripts.h mobmax.h \
   pk.h olc.h diskio.h im.h top.h stuff.hpp double_map.hpp ban.hpp \
   privileges.hpp item.creation.hpp features.hpp boards.h description.h \
-  deathtrap.hpp
+  deathtrap.hpp title.hpp
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h comm.h handler.h \
   interpreter.h db.h spells.h screen.h constants.h dg_scripts.h mobmax.h \
   pk.h im.h fight.h skills.h features.hpp house.h stuff.hpp \
@@ -59,7 +59,7 @@ interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
   interpreter.h constants.h db.h utils.h spells.h skills.h handler.h \
   house.h mail.h screen.h olc.h dg_scripts.h pk.h genchar.h ban.hpp \
   diskio.h privileges.hpp item.creation.hpp arena.hpp features.hpp \
-  boards.h top.h
+  boards.h top.h title.hpp
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h spells.h skills.h \
   comm.h db.h handler.h screen.h interpreter.h constants.h dg_scripts.h \
   house.h exchange.h top.h deathtrap.hpp
@@ -144,7 +144,7 @@ diskio.o: diskio.cpp conf.h sysdep.h diskio.h
 im.o: im.cpp conf.h sysdep.h structs.h utils.h handler.h db.h \
   interpreter.h comm.h constants.h screen.h features.hpp im.h
 names.o: names.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
-  handler.h db.h
+  handler.h db.h screen.h
 auction.o: auction.cpp conf.h sysdep.h structs.h screen.h utils.h comm.h \
   interpreter.h handler.h db.h auction.h constants.h
 item.creation.o: item.creation.cpp conf.h sysdep.h structs.h screen.h \
@@ -166,3 +166,5 @@ description.o: description.cpp conf.h sysdep.h structs.h utils.h \
   description.h
 deathtrap.o: deathtrap.cpp deathtrap.hpp conf.h sysdep.h structs.h \
   constants.h db.h spells.h utils.h handler.h
+title.o: title.cpp title.hpp conf.h sysdep.h structs.h interpreter.h \
+  utils.h comm.h db.h screen.h pk.h

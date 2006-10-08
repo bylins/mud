@@ -67,8 +67,6 @@ extern int top_imtypes;
 /* extern functions */
 long find_class_bitvector(char arg);
 int level_exp(CHAR_DATA * ch, int level);
-char *title_male(int chclass, int level);
-char *title_female(int chclass, int level);
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
 int compute_armor_class(CHAR_DATA * ch);
 char *str_str(char *cs, char *ct);
@@ -4052,12 +4050,7 @@ ACMD(do_gen_ps)
 		send_to_char("\033[H\033[J", ch);
 		break;
 	case SCMD_VERSION:
-		/*
-		   send_to_char(strcat(strcpy(buf, circlemud_version), "\r\n"), ch);
-		   send_to_char(strcat(strcpy(buf, DG_SCRIPT_VERSION), "\r\n"), ch);
-		 */
-		sprintf(buf, "МПМ Былины, версия 0.91 от %s\r\n", __DATE__);
-		send_to_char(buf, ch);
+		send_to_char(ch, "МПМ Былины, версия от %s\r\n", __DATE__);
 		break;
 	case SCMD_WHOAMI:
 		{
@@ -4248,23 +4241,9 @@ ACMD(do_levels)
 	}
 	*buf = '\0';
 
-	for (i = 1; i < LVL_IMMORT; i++) {
+	for (i = 1; i < LVL_IMMORT; i++)
 		sprintf(buf + strlen(buf), "[%2d] %8d-%-8d\r\n", i, level_exp(ch, i), level_exp(ch, i + 1) - 1);
-		/* switch (GET_SEX(ch))
-		   {case SEX_MALE:
-		   case SEX_NEUTRAL:
-		   strcat(buf, title_male(GET_CLASS(ch), i));
-		   break;
-		   case SEX_FEMALE:
-		   strcat(buf, title_female(GET_CLASS(ch), i));
-		   break;
-		   default:
-		   send_to_char("Атас, бесполые в игре.\r\n", ch);
-		   break;
-		   }
-		   strcat(buf, "\r\n");
-		 */
-	}
+
 	sprintf(buf + strlen(buf), "[%2d] %8d          (БЕССМЕРТИЕ)\r\n", LVL_IMMORT, level_exp(ch, LVL_IMMORT));
 	page_string(ch->desc, buf, 1);
 }

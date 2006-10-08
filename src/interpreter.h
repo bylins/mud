@@ -51,6 +51,9 @@ void CreateFileName(std::string &name);
 void ReadEndString(std::ifstream &file);
 void StringReplace(std::string & buffer, char s, std::string d);
 std::string ExpFormat(long long exp);
+void lower_convert(std::string& text);
+void name_convert(std::string& text);
+void god_work_invoice();
 
 char *delete_doubledollar(char *string);
 /** Cоответствие классов и религий (Кард)*/
