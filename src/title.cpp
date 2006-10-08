@@ -1,0 +1,422 @@
+// title.hpp
+// Copyright (c) 2006 Krodo
+// Part of Bylins http://www.mud.ru
+
+#include <boost/algorithm/string.hpp>
+#include <sstream>
+#include "title.hpp"
+#include "utils.h"
+#include "comm.h"
+#include "db.h"
+#include "screen.h"
+#include "pk.h"
+
+namespace TitleSystem {
+
+// для списка титулов, ждущих подтверждения игроками или одобрения иммами
+struct waiting_title
+{
+	std::string title;     // титул
+	std::string pre_title; // предтитул
+	long unique;           // уид игрока (для лоада оффлайн)
+};
+
+const unsigned int MAX_TITLE_LENGTH = 80; // макс.длина строки титула (титул+предтитул)
+const int SET_TITLE_COST = 1000;          // цена за попытку установки титула
+const char* MORTAL_DO_TITLE_FORMAT =
+	"титул - справка о команде и информация по титулу, находящемуся на рассмотрении или ждущего Вашего подтверждения\r\n"
+	"титул установить <текст> - предварительная установка нового титула, требует подтверждения\r\n"
+	"      пример с Васей: 'титул установить попробуй найди' -> Вася, попробуй найди\r\n"
+	"титул установить <текст предтитула!текст титула> - тоже, что и с титулом\r\n"
+	"      пример с Васей: 'титул установить Маленький!попробуй найди' -> Маленький Вася, попробуй найди\r\n"
+	"титул согласен - подтверждение и отправка заявки Богам\r\n"
+	"титул отменить - убрать поданную ранее заявку из списка рассмотрения Богов\r\n"
+	"титул удалить - удалить свой текущий титул и предтитул\r\n";
+const char* GOD_DO_TITLE_FORMAT =
+	"титул - вывод текущих заявок или этой справки в случае их отсутствия\r\n"
+	"титул одобрить/запретить имя - одобрение или отказ в титуле игроку из списка\r\n"
+	"титул установить <текст титула> - установка нового титула\r\n"
+	"титул установить <текст предтитула!текст титула> - установка нового предтитула и титула\r\n"
+	"титул удалить - удалить свой текущий титул и предтитул\r\n";
+const char* TITLE_SEND_FORMAT = "Вы можете бесплатно изменить ее, отправив новую, или отменить командой 'титул отменить'\r\n";
+
+typedef boost::shared_ptr<waiting_title> WaitingTitlePtr;
+typedef std::map<std::string, WaitingTitlePtr> TitleListType;
+TitleListType title_list;
+TitleListType temp_title_list;
+
+bool check_title(const std::string& text, CHAR_DATA* ch);
+bool check_pre_title(std::string text, CHAR_DATA* ch);
+bool check_alphabet(const std::string& text, CHAR_DATA* ch, const std::string& allowed);
+bool is_new_petition(CHAR_DATA* ch);
+void manage_title_list(std::string& name, bool action, CHAR_DATA* ch);
+void set_player_title(CHAR_DATA* ch, const std::string& pre_title, const std::string& title, const char* god);
+const char* print_help_string(CHAR_DATA* ch);
+std::string print_agree_string(CHAR_DATA* ch, bool new_petittion);
+std::string print_title_string(CHAR_DATA* ch, const std::string& pre_title, const std::string& title);
+std::string print_title_string(const std::string& name, const std::string& pre_title, const std::string& title);
+
+} // namespace TitleSystem
+
+/**
+* Команда титул, title. ACMD(do_title), для игроков и для иммов все одной командой.
+*/
+void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+{
+	if (IS_NPC(ch)) return;
+
+	std::string buffer(argument), buffer2;
+	GetOneParam(buffer, buffer2);
+
+	if (buffer2.empty()) {
+		if (IS_IMMORTAL(ch) && !title_list.empty())
+			show_title_list(ch);
+		else {
+			std::stringstream out;
+			TitleListType::iterator it = title_list.find(GET_NAME(ch));
+			if (it != title_list.end()) {
+				out << "Данная заявка находится в рассмотрении у Богов:\r\n"
+					<< print_title_string(ch, it->second->pre_title, it->second->title)
+					<< TITLE_SEND_FORMAT << "\r\n";
+			}
+			it = temp_title_list.find(GET_NAME(ch));
+			if (it != temp_title_list.end()) {
+				out << "Данный титул ждет Вашего подтверждения для отправки заявки Богам:\r\n"
+					<< print_title_string(ch, it->second->pre_title, it->second->title)
+					<< print_agree_string(ch, is_new_petition(ch)) << "\r\n";
+			}
+			out << print_help_string(ch);
+			send_to_char(out.str(), ch);
+		}
+	} else if (IS_IMMORTAL(ch) && CompareParam(buffer2, "одобрить")) {
+		manage_title_list(buffer, 1, ch);
+	} else if (IS_IMMORTAL(ch) && CompareParam(buffer2, "запретить")) {
+		manage_title_list(buffer, 0, ch);
+	} else if (CompareParam(buffer2, "установить")) {
+		boost::trim(buffer);
+		if (buffer.size() > MAX_TITLE_LENGTH) {
+			send_to_char(ch, "Титул должен быть не длиннее %d символов.\r\n", MAX_TITLE_LENGTH);
+			return;
+		}
+
+		std::string pre_title, title;
+		std::string::size_type beg_idx = buffer.find("!");
+		if (beg_idx != std::string::npos) {
+			pre_title = buffer.substr(0, beg_idx);
+			beg_idx = buffer.find_first_not_of("!", beg_idx);
+			if (beg_idx != std::string::npos)
+				title = buffer.substr(beg_idx);
+			boost::trim(title);
+			boost::trim(pre_title);
+			if (!pre_title.empty() && !check_pre_title(pre_title, ch)) return;
+			if (!title.empty() && !check_title(title, ch)) return;
+		} else {
+			if (!check_title(buffer, ch)) return;
+			title = buffer;
+		}
+		if (IS_IMMORTAL(ch)) {
+			set_player_title(ch, pre_title, title, GET_NAME(ch));
+			send_to_char("Титул установлен\r\n", ch);
+			return;
+		}
+		if (title.empty() && pre_title.empty()) {
+			send_to_char("Вы должны ввести непустой титул или предтитул.\r\n", ch);
+			return;
+		}
+
+		bool new_petition = is_new_petition(ch);
+		WaitingTitlePtr temp(new waiting_title);
+		temp->title = title;
+		temp->pre_title = pre_title;
+		temp->unique = GET_UNIQUE(ch);
+		temp_title_list[GET_NAME(ch)] = temp;
+
+		std::stringstream out;
+		out << "Ваш титул будет выглядеть следующим образом:\r\n" << CCPK(ch, C_NRM, ch);
+		out << print_title_string(ch, pre_title, title) << print_agree_string(ch, new_petition);
+		send_to_char(out.str(), ch);
+		return;
+	} else if (!IS_IMMORTAL(ch) && CompareParam(buffer2, "согласен")) {
+		TitleListType::iterator it = temp_title_list.find(GET_NAME(ch));
+		if (it != temp_title_list.end()) {
+			if (GET_BANK_GOLD(ch) < SET_TITLE_COST) {
+				send_to_char("На Вашем счету не хватает денег для оплаты этой услуги.\r\n", ch);
+				return;
+			}
+			GET_BANK_GOLD(ch) -= SET_TITLE_COST;
+			title_list[it->first] = it->second;
+			temp_title_list.erase(it);
+			send_to_char("Ваша заявка отправлена Богам и будет рассмотрена в ближайшее время.\r\n", ch);
+			send_to_char(TITLE_SEND_FORMAT, ch);
+		} else
+			send_to_char("В данный момент нет заявки, на которую требуется Ваше согласие.\r\n", ch);
+	} else if (!IS_IMMORTAL(ch) && CompareParam(buffer2, "отменить")) {
+		TitleListType::iterator it = temp_title_list.find(GET_NAME(ch));
+		if (it != temp_title_list.end()) {
+			temp_title_list.erase(it);
+			send_to_char("Ваша заявка на титул отменена.\r\n", ch);
+		} else
+			send_to_char("В данный момент Вам нечего отменять.\r\n", ch);
+	} else if (CompareParam(buffer2, "удалить", 1)) {
+		if (GET_TITLE(ch)) {
+			free(GET_TITLE(ch));
+			GET_TITLE(ch) = 0;
+		}
+		send_to_char("Ваши титул и предтитул удалены.\r\n", ch);
+	} else
+		send_to_char(print_help_string(ch), ch);
+}
+
+/**
+* Проверка на валидность строки с титулом
+* для игроков 25+ левел или наличие реморта, иммов не касается
+* \return 0 не сканало, 1 сканало
+*/
+bool TitleSystem::check_title(const std::string& text, CHAR_DATA* ch)
+{
+	if (!check_alphabet(text, ch, " ,.-?")) return 0;
+
+	if (GET_LEVEL(ch) < 25 && !GET_REMORT(ch) && !IS_IMMORTAL(ch)) {
+		send_to_char(ch, "Для права на титул Вы должны достигнуть 25го уровня или иметь перевоплощения.\r\n");
+		return 0;
+	}
+
+	return 1;
+}
+
+/**
+* Проверка на валидность строки с предтитулом.
+* для игроков необходимо наличие ремортов для каждого слова (слово - это 4+ букв) в предтитуле,
+* до 3 букв - считаем как предлог. Не более 3 слов и 3 предлогов, иммов не касается.
+* \return 0 не сканало, 1 сканало
+*/
+bool TitleSystem::check_pre_title(std::string text, CHAR_DATA* ch)
+{
+	if (!check_alphabet(text, ch, " .-?")) return 0;
+
+	if (IS_IMMORTAL(ch)) return 1;
+
+	if (!GET_REMORT(ch)) {
+		send_to_char(ch, "Вы должны иметь по крайней мере одно перевоплощение для предтитула.\r\n");
+		return 0;
+	}
+
+	int word = 0, prep = 0;
+	typedef boost::split_iterator<std::string::iterator> split_it;
+	for(split_it it = boost::make_split_iterator(text, boost::first_finder(" ", boost::is_iequal())); it != split_it(); ++it) {
+		if (boost::copy_range<std::string>(*it).size() > 3)
+			++word;
+		else
+			++prep;
+	}
+	if (word > 3 || prep > 3) {
+		send_to_char(ch, "Слишком много слов в предтитуле.\r\n");
+		return 0;
+	}
+	if (word > GET_REMORT(ch)) {
+		send_to_char(ch, "У Вас недостаточно перевоплощений для стольких слов в предтитуле.\r\n");
+		return 0;
+	}
+
+	return 1;
+}
+
+/**
+* Проверка на валидность строки в плане принадлежности к русским символам и символам из строки на входе
+* \param allowed - строка с допустимыми символами помимо русского алфавита (для титула и предтитула разная)
+* \return 0 не сканало, 1 сканало
+*/
+bool TitleSystem::check_alphabet(const std::string& text, CHAR_DATA* ch, const std::string& allowed)
+{
+	int i = 0;
+	std::string::size_type idx;
+	for (std::string::const_iterator it = text.begin(); it != text.end(); ++it, ++i) {
+		unsigned char c = static_cast<char>(*it);
+		idx = allowed.find(*it);
+		if (c < 192 && idx == std::string::npos) {
+			send_to_char(ch, "Недопустимый символ '%c' в позиции %d.\r\n", *it, ++i);
+			return 0;
+		}
+	}
+	return 1;
+}
+
+/**
+* Удаление записи из списка титулов с одобрением/запретом.
+* Оповещение игрока об одобрении, если он онлайн. Запись в файл, если оффлайн.
+* \param action - 0 запрет титула, 1 одобрение
+*/
+void TitleSystem::manage_title_list(std::string& name, bool action, CHAR_DATA* ch)
+{
+	std::string buffer;
+	GetOneParam(name, buffer);
+	name_convert(buffer);
+	TitleListType::iterator it = title_list.find(buffer);
+	if (it != title_list.end()) {
+		if (action) {
+			std::stringstream out;
+			DESCRIPTOR_DATA* d = DescByUID(it->second->unique, 0);
+			if (d) {
+				set_player_title(d->character, it->second->pre_title, it->second->title, GET_NAME(ch));
+				send_to_char(d->character, "Ваш титул был одобрен Богами.\r\n");
+			} else {
+				CHAR_DATA* victim;
+				CREATE(victim, CHAR_DATA, 1);
+				clear_char(victim);
+				if (load_char(it->first.c_str(), victim) < 0) {
+					send_to_char("Персонаж был удален или ошибочка какая-то вышла.\r\n", ch);
+					free(victim);
+					title_list.erase(it);
+					return;
+				}
+				set_player_title(victim, it->second->pre_title, it->second->title, GET_NAME(ch));
+				save_char(victim, GET_LOADROOM(victim));
+				free_char(victim);
+			}
+			send_to_char("Титул одобрен.\r\n", ch);
+		} else {
+			send_to_char("Титул запрещен.\r\n", ch);
+		}
+		title_list.erase(it);
+	} else
+		send_to_char("В списке нет персонажа с таким именем.\r\n", ch);
+}
+
+/**
+* Вывод иммам титулов, ждущих одобрения
+* \return 0 список пустой - ничего не выводили, 1 что-то выводили (чтобы отделить этот блок от имен при выводе иммам)
+*/
+bool TitleSystem::show_title_list(CHAR_DATA* ch)
+{
+	if (title_list.empty()) return 0;
+
+	std::stringstream out;
+	out << "Данные персонажи ждут одобрения титула (титул одобрить/запретить <игрок>):\r\n" << CCWHT(ch, C_NRM);
+	for (TitleListType::const_iterator it = title_list.begin(); it != title_list.end(); ++it)
+		out << print_title_string(it->first, it->second->pre_title, it->second->title);
+	out << CCNRM(ch, C_NRM);
+	send_to_char(out.str(), ch);
+	return 1;
+}
+
+/**
+* Распечатка титула игрока имму для одобрения (без цветовой раскраски)
+*/
+std::string TitleSystem::print_title_string(const std::string& name, const std::string& pre_title, const std::string& title)
+{
+	std::stringstream out;
+	if (!pre_title.empty())
+		out << pre_title << " ";
+	out << name;
+	if (!title.empty())
+		out << ", "<< title;
+	out << "\r\n";
+	return out.str();
+}
+
+/**
+* Распечатка титула игроку, как оно будет видно в игре с учетом цвета пк
+*/
+std::string TitleSystem::print_title_string(CHAR_DATA* ch, const std::string& pre_title, const std::string& title)
+{
+	std::stringstream out;
+	out << CCPK(ch, C_NRM, ch);
+	if (!pre_title.empty())
+		out << pre_title << " ";
+	out << GET_NAME(ch);
+	if (!title.empty())
+		out << ", "<< title;
+	out << CCNRM(ch, C_NRM) << "\r\n";
+	return out.str();
+}
+
+/**
+* Установка поля титула (GET_TITLE(ch)) игроку
+* \param ch - кому ставим
+* \param god - имя одобрившего титул имма
+*/
+void TitleSystem::set_player_title(CHAR_DATA* ch, const std::string& pre_title, const std::string& title, const char* god)
+{
+	std::stringstream out;
+	out << title;
+	if (!pre_title.empty())
+		out << ";" << pre_title;
+	out << "/Одобрен Богом: " << god << "/";
+	if (GET_TITLE(ch))
+		free(GET_TITLE(ch));
+	GET_TITLE(ch) = str_dup(out.str().c_str());
+}
+
+/**
+* Для распечатки разных подсказок имму и игроку
+*/
+const char* TitleSystem::print_help_string(CHAR_DATA* ch)
+{
+	if (IS_IMMORTAL(ch))
+		return GOD_DO_TITLE_FORMAT;
+
+	return MORTAL_DO_TITLE_FORMAT;
+}
+
+/**
+* Сохранение списка титулов на одобрение
+*/
+void TitleSystem::save_title_list()
+{
+	std::ofstream file(LIB_PLRSTUFF"titles");
+	if (!file.is_open()) {
+		log("Error open file: %s! (%s %s %d)", LIB_PLRSTUFF"titles", __FILE__, __func__, __LINE__);
+		return;
+	}
+	for (TitleListType::const_iterator it = title_list.begin(); it != title_list.end(); ++it)
+		file << it->first << " " << it->second->pre_title << " " << it->second->title << " " << it->second->unique << "\n";
+	file.close();
+}
+
+/**
+* Загрузка списка титулов на одобрение
+*/
+void TitleSystem::load_title_list()
+{
+	std::ifstream file(LIB_PLRSTUFF"titles");
+	if (!file.is_open()) {
+		log("Error open file: %s! (%s %s %d)", LIB_PLRSTUFF"titles", __FILE__, __func__, __LINE__);
+		return;
+	}
+	std::string name, pre_title, title;
+	long unique;
+	while (file >> name >> pre_title >> title >> unique) {
+		WaitingTitlePtr temp(new waiting_title);
+		temp->title = title;
+		temp->pre_title = pre_title;
+		temp->unique = unique;
+		title_list[name] = temp;
+	}
+	file.close();
+}
+
+/**
+* Для решения вопроса брать или нет денег за заявку (не берем, если уже была необработанная заявка)
+* \return 0 от данного игрока в обработке уже есть заявка, 1 новая заявка
+*/
+bool TitleSystem::is_new_petition(CHAR_DATA* ch)
+{
+	TitleListType::iterator it = temp_title_list.find(GET_NAME(ch));
+	if (it != temp_title_list.end())
+		return 0;
+	return 1;
+}
+
+/**
+* Для возможности подставить или нет в строку цену за заявку
+* \param new_petition - 0 обновление старой заявки, 1 новая заявка
+*/
+std::string TitleSystem::print_agree_string(CHAR_DATA* ch, bool new_petition)
+{
+	std::stringstream out;
+	out << "Для подтверждения заявки наберите 'титул согласен'";
+	if (new_petition)
+		out << ", стоимость услуги " << SET_TITLE_COST << " кун.";
+	out << "\r\n";
+	return out.str();
+}
