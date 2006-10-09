@@ -255,7 +255,6 @@ void TitleSystem::manage_title_list(std::string& name, bool action, CHAR_DATA* c
 	TitleListType::iterator it = title_list.find(buffer);
 	if (it != title_list.end()) {
 		if (action) {
-			std::stringstream out;
 			DESCRIPTOR_DATA* d = DescByUID(it->second->unique, 0);
 			if (d) {
 				set_player_title(d->character, it->second->pre_title, it->second->title, GET_NAME(ch));
@@ -275,9 +274,8 @@ void TitleSystem::manage_title_list(std::string& name, bool action, CHAR_DATA* c
 				free_char(victim);
 			}
 			send_to_char("Титул одобрен.\r\n", ch);
-		} else {
+		} else
 			send_to_char("Титул запрещен.\r\n", ch);
-		}
 		title_list.erase(it);
 	} else
 		send_to_char("В списке нет персонажа с таким именем.\r\n", ch);
