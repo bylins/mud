@@ -253,7 +253,7 @@ void NewNameShow(CHAR_DATA * ch)
 	if (NewNameList.empty()) return;
 
 	std::ostringstream buffer;
-	buffer << "Список игроков, ждущих одобрения имени (имя <игрок> одобрить/запретить):\r\n"
+	buffer << "\r\nСписок игроков, ждущих одобрения имени (имя <игрок> одобрить/запретить):\r\n"
 		<< "Для удаления из списка без одобрения/запрета наберите 'имя удалить <игрок>'\r\n"
 		<< CCWHT(ch, C_NRM);
 	for (NewNameListType::const_iterator it = NewNameList.begin(); it != NewNameList.end(); ++it)

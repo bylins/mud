@@ -334,7 +334,7 @@ void store_mail(long to, long from, char *message_pointer)
 	 * this is kind of a hack, but if the block size is big enough it won't
 	 * matter anyway.  Hopefully, MUD players won't pour their life stories out
 	 * into the Mud Mail System anyway.
-	 * 
+	 *
 	 * Note that the block_type data field in data blocks is either a number >=0,
 	 * meaning a link to the next block, or LAST_BLOCK flag (-2) meaning the
 	 * last block in the current message.  This works much like DOS' FAT.

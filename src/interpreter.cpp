@@ -140,6 +140,7 @@ int find_action(char *cmd);
 int do_social(CHAR_DATA * ch, char *argument);
 void skip_wizard(CHAR_DATA * ch, char *string);
 void single_god_invoice(CHAR_DATA* ch);
+void login_change_invoice(CHAR_DATA* ch);
 
 ACMD(do_advance);
 ACMD(do_alias);
@@ -1950,8 +1951,7 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 		act("$n восстановил$g связь.", TRUE, d->character, 0, 0, TO_ROOM);
 		sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
 		mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
-		if (IS_IMMORTAL(d->character))
-			single_god_invoice(d->character);
+		login_change_invoice(d->character);
 		break;
 	case USURP:
 //    toggle_compression(d);
@@ -2244,15 +2244,8 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	}
 	sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
 	mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
-
-	// инфа о новых сообщениях
-	Board::LoginInfo(d->character);
-
-	if (has_mail(GET_IDNUM(d->character)))
-		send_to_char("&R\r\nВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!\r\n\r\n&n", d->character);
 	look_at_room(d->character, 0);
-	if (IS_IMMORTAL(d->character))
-		single_god_invoice(d->character);
+	login_change_invoice(d->character);
 	d->has_prompt = 0;
 }
 
@@ -3716,6 +3709,27 @@ DESCRIPTOR_DATA *DescByUID(long unique, bool playing)
 	return (d);
 }
 
+/**
+* Ищем дескриптор игрока (онлайн) по ИД чара (в основном для писем, т.к. вообще уиды на пользовать)
+* \param id - ид, который ищем
+* \param playing - 0 если ищем игрока в любом состоянии, 1 (дефолт) если ищем только незанятых
+*/
+DESCRIPTOR_DATA* get_desc_by_id(long id, bool playing)
+{
+	DESCRIPTOR_DATA *d = 0;
+
+	if (playing) {
+		for (d = descriptor_list; d; d = d->next)
+			if (d->character && STATE(d) == CON_PLAYING && GET_IDNUM(d->character) == id)
+				break;
+	} else {
+		for (d = descriptor_list; d; d = d->next)
+			if (d->character && GET_IDNUM(d->character) == id)
+				break;
+	}
+	return d;
+}
+
 // ищет УИД игрока по его имени, второй необязательный параметр - учитывать или нет БОГОВ
 long GetUniqueByName(const std::string & name, bool god)
 {
@@ -3815,8 +3829,7 @@ void name_convert(std::string& text)
 */
 void single_god_invoice(CHAR_DATA* ch)
 {
-	if (TitleSystem::show_title_list(ch))
-		send_to_char("\r\n", ch);
+	TitleSystem::show_title_list(ch);
 	NewNameShow(ch);
 }
 
@@ -3828,4 +3841,16 @@ void god_work_invoice()
 	for (DESCRIPTOR_DATA* d = descriptor_list; d; d = d->next)
 		if (d->character && IS_IMMORTAL(d->character) && STATE(d) == CON_PLAYING)
 			single_god_invoice(d->character);
+}
+
+/**
+* Вывод оповещений о новых сообщениях на досках, письмах, (неодобренных имен и титулов для иммов) при логине и релогине
+*/
+void login_change_invoice(CHAR_DATA* ch)
+{
+	Board::LoginInfo(ch);
+	if (IS_IMMORTAL(ch))
+		single_god_invoice(ch);
+	if (has_mail(GET_IDNUM(ch)))
+		send_to_char("&R\r\nВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
 }

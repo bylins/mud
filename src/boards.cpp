@@ -391,7 +391,7 @@ ACMD(DoBoard)
 			return;
 		}
 		std::ostringstream body;
-		body << "Это доска, на которой всякие разные личности оставили свои IMHO.\r\n" 
+		body << "Это доска, на которой всякие разные личности оставили свои IMHO.\r\n"
 			<< "Формат: ЧИТАТЬ/ОЧИСТИТЬ <номер сообщения>, ПИСАТЬ <тема сообщения>.\r\n";
 		if ((*board)->messages.empty()) {
 			body << "Никто ниче не накарябал, слава Богам.\r\n";
@@ -819,7 +819,7 @@ void Board::LoginInfo(CHAR_DATA * ch)
 {
 	std::ostringstream buffer, news;
 	bool has_message = 0;
-	buffer << "Вас ожидают сообщения:\r\n";
+	buffer << "\r\nВас ожидают сообщения:\r\n";
 
 	for (BoardListType::const_iterator board = Board::BoardList.begin(); board != Board::BoardList.end(); ++board) {
 		int unread = 0;
@@ -844,7 +844,7 @@ void Board::LoginInfo(CHAR_DATA * ch)
 	}
 
 	if (has_message) {
-		buffer << news.str() << "\r\n";
+		buffer << news.str();
 		send_to_char(buffer.str(), ch);
 	}
 }
