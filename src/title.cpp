@@ -286,7 +286,7 @@ void TitleSystem::manage_title_list(std::string& name, bool action, CHAR_DATA* c
 */
 void TitleSystem::show_title_list(CHAR_DATA* ch)
 {
-	if (title_list.empty()) return 0;
+	if (title_list.empty()) return;
 
 	std::stringstream out;
 	out << "\r\nДанные персонажи ждут одобрения титула (титул одобрить/запретить <игрок>):\r\n" << CCWHT(ch, C_NRM);
@@ -294,7 +294,6 @@ void TitleSystem::show_title_list(CHAR_DATA* ch)
 		out << print_title_string(it->first, it->second->pre_title, it->second->title);
 	out << CCNRM(ch, C_NRM);
 	send_to_char(out.str(), ch);
-	return 1;
 }
 
 /**
