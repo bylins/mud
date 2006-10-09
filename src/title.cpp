@@ -23,6 +23,7 @@ struct waiting_title
 
 const unsigned int MAX_TITLE_LENGTH = 80; // макс.длина строки титула (титул+предтитул)
 const int SET_TITLE_COST = 1000;          // цена за попытку установки титула
+const char* TITLE_FILE = LIB_PLRSTUFF"titles.lst"; // файл сохранения/подгрузки ждущих одобрения титулов
 const char* MORTAL_DO_TITLE_FORMAT =
 	"титул - справка о команде и информация по титулу, находящемуся на рассмотрении или ждущего Вашего подтверждения\r\n"
 	"титул установить <текст> - предварительная установка нового титула, требует подтверждения\r\n"
@@ -363,9 +364,9 @@ const char* TitleSystem::print_help_string(CHAR_DATA* ch)
 */
 void TitleSystem::save_title_list()
 {
-	std::ofstream file(LIB_PLRSTUFF"titles");
+	std::ofstream file(TITLE_FILE);
 	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", LIB_PLRSTUFF"titles", __FILE__, __func__, __LINE__);
+		log("Error open file: %s! (%s %s %d)", TITLE_FILE, __FILE__, __func__, __LINE__);
 		return;
 	}
 	for (TitleListType::const_iterator it = title_list.begin(); it != title_list.end(); ++it)
@@ -380,9 +381,9 @@ void TitleSystem::load_title_list()
 {
 	title_list.clear();
 
-	std::ifstream file(LIB_PLRSTUFF"titles");
+	std::ifstream file(TITLE_FILE);
 	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", LIB_PLRSTUFF"titles", __FILE__, __func__, __LINE__);
+		log("Error open file: %s! (%s %s %d)", TITLE_FILE, __FILE__, __func__, __LINE__);
 		return;
 	}
 	std::string name, pre_title, title;
