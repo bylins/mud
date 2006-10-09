@@ -369,15 +369,17 @@ void TitleSystem::save_title_list()
 		return;
 	}
 	for (TitleListType::const_iterator it = title_list.begin(); it != title_list.end(); ++it)
-		file << it->first << " " << it->second->pre_title << " " << it->second->title << " " << it->second->unique << "\n";
+		file << it->first << " " <<  it->second->unique << "\n" << it->second->pre_title << "\n" << it->second->title << "\n";
 	file.close();
 }
 
 /**
-* Загрузка списка титулов на одобрение
+* Загрузка списка титулов на одобрение, заодно осуществляет релоад через reload title
 */
 void TitleSystem::load_title_list()
 {
+	title_list.clear();
+
 	std::ifstream file(LIB_PLRSTUFF"titles");
 	if (!file.is_open()) {
 		log("Error open file: %s! (%s %s %d)", LIB_PLRSTUFF"titles", __FILE__, __func__, __LINE__);
@@ -385,7 +387,10 @@ void TitleSystem::load_title_list()
 	}
 	std::string name, pre_title, title;
 	long unique;
-	while (file >> name >> pre_title >> title >> unique) {
+	while (file >> name >> unique) {
+		ReadEndString(file);
+		std::getline(file, pre_title);
+		std::getline(file, title);
 		WaitingTitlePtr temp(new waiting_title);
 		temp->title = title;
 		temp->pre_title = pre_title;

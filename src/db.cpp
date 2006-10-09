@@ -472,6 +472,8 @@ ACMD(do_reboot)
 		LoadProxyList();
 	else if (!str_cmp(arg, "boards"))
 		Board::BoardInit();
+	else if (!str_cmp(arg, "titles"))
+		TitleSystem::load_title_list();
 	else {
 		send_to_char("Неверный параметр для перезагрузки файлов.\r\n", ch);
 		return;
