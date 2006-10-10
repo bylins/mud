@@ -6530,6 +6530,7 @@ void delete_char(char *name)
 
 		// выносим из листа неодобренных имен, если есть
 		NewNameRemove(st);
+		Clan::remove_from_clan(GET_UNIQUE(st));
 
 		save_char(st, GET_LOADROOM(st));
 		extract_char(st, FALSE);

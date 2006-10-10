@@ -3548,3 +3548,17 @@ int Clan::GetRent()
 {
 	return this->rent;
 }
+
+/**
+* Удаление чара из клана, клан берется не через поля чара, а ищем по всем кланам
+*/
+void Clan::remove_from_clan(long unique)
+{
+	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
+		ClanMemberList::iterator it = (*clan)->members.find(unique);
+		if (it != (*clan)->members.end()) {
+			(*clan)->members.erase(it);
+			return;
+		}
+	}
+}
