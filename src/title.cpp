@@ -153,6 +153,7 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		TitleListType::iterator it = title_list.find(GET_NAME(ch));
 		if (it != title_list.end()) {
 			title_list.erase(it);
+			GET_BANK_GOLD(ch) += SET_TITLE_COST;
 			send_to_char("Ваша заявка на титул отменена.\r\n", ch);
 		} else
 			send_to_char("В данный момент Вам нечего отменять.\r\n", ch);
