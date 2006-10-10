@@ -813,10 +813,16 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 		case 4:
 		case 11:
 //Polos.smith_craft_timer_up (max 3 weeks)
-			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, MIN(SEVEN_DAYS * 3, SEVEN_DAYS * prob / percent));
+			//GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, MIN(SEVEN_DAYS * 3, SEVEN_DAYS * prob / percent));
 //-Polos.smith_craft_timer_up	
+			// Карачун. Таймер должен зависить от таймера прототипа. 
+			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, GET_OBJ_TIMER(tobj)/100*GET_SKILL(ch, skill)-number(0,GET_OBJ_TIMER(tobj)/100*25));
+			sprintf(buf, "Ваше изделие продержится примерно %d дней\n", GET_OBJ_TIMER(tobj)/24/60);
+			act(buf, FALSE, ch, tobj, 0, TO_CHAR);
 			GET_OBJ_MATER(tobj) = GET_OBJ_MATER(obj);
-			GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
+			//Карачун. Так логичнее.
+			//GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
+			GET_OBJ_MAX(tobj) = MAX(20000, 35000/100*GET_SKILL(ch, skill)-number(0,35000/100*25))/100;
 			GET_OBJ_CUR(tobj) = GET_OBJ_MAX(tobj);
 			percent = number(1, skill_info[skill].max_percent);
 			prob = calculate_skill(ch, skill, skill_info[skill].max_percent, 0);
@@ -870,10 +876,16 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 		case 9:
 		case 10:
 //Polos.smith_craft_timer_up (max 3 weeks)
-			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, MIN(SEVEN_DAYS * 3, SEVEN_DAYS * prob / percent));
+			//GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, MIN(SEVEN_DAYS * 3, SEVEN_DAYS * prob / percent));
 //-Polos.smith_craft_timer_up
+			// Карачун. Таймер должен зависить от таймера прототипа. 
+			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, GET_OBJ_TIMER(tobj)/100*GET_SKILL(ch, skill)-number(0,GET_OBJ_TIMER(tobj)/100*25));
+			sprintf(buf, "Ваше изделие продержится примерно %d дней\n", GET_OBJ_TIMER(tobj)/24/60);
+			act(buf, FALSE, ch, tobj, 0, TO_CHAR);
 			GET_OBJ_MATER(tobj) = GET_OBJ_MATER(obj);
-			GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
+			//Карачун. Так логичнее.
+			//GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
+			GET_OBJ_MAX(tobj) = MAX(20000, 10000/100*GET_SKILL(ch, skill)-number(0,15000/100*25))/100;
 			GET_OBJ_CUR(tobj) = GET_OBJ_MAX(tobj);
 			percent = number(1, skill_info[skill].max_percent);
 			prob = calculate_skill(ch, skill, skill_info[skill].max_percent, 0);
