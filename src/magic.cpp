@@ -200,7 +200,8 @@ void show_spell_off(int aff, CHAR_DATA * ch)
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_WRITING))
 		return;
 
-	send_to_char(spell_wear_off_msg[aff], ch);
+	//send_to_char(spell_wear_off_msg[aff], ch);
+	act(spell_wear_off_msg[aff], FALSE, ch, 0, 0, TO_CHAR);
 	send_to_char("\r\n", ch);
 
 }

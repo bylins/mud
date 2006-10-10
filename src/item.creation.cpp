@@ -816,12 +816,16 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 			//GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, MIN(SEVEN_DAYS * 3, SEVEN_DAYS * prob / percent));
 //-Polos.smith_craft_timer_up	
 			// Карачун. Таймер должен зависить от таймера прототипа. 
+			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
+			// В минимуме один день реала, в максимуме таймер из прототипа
 			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, GET_OBJ_TIMER(tobj)/100*GET_SKILL(ch, skill)-number(0,GET_OBJ_TIMER(tobj)/100*25));
 			sprintf(buf, "Ваше изделие продержится примерно %d дней\n", GET_OBJ_TIMER(tobj)/24/60);
 			act(buf, FALSE, ch, tobj, 0, TO_CHAR);
 			GET_OBJ_MATER(tobj) = GET_OBJ_MATER(obj);
-			//Карачун. Так логичнее.
-			//GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
+			// Карачун. Так логичнее.
+			// было GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
+			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
+			// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
 			GET_OBJ_MAX(tobj) = MAX(20000, 35000/100*GET_SKILL(ch, skill)-number(0,35000/100*25))/100;
 			GET_OBJ_CUR(tobj) = GET_OBJ_MAX(tobj);
 			percent = number(1, skill_info[skill].max_percent);
@@ -879,12 +883,16 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 			//GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, MIN(SEVEN_DAYS * 3, SEVEN_DAYS * prob / percent));
 //-Polos.smith_craft_timer_up
 			// Карачун. Таймер должен зависить от таймера прототипа. 
+			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
+			// В минимуме один день реала, в максимуме таймер из прототипа
 			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, GET_OBJ_TIMER(tobj)/100*GET_SKILL(ch, skill)-number(0,GET_OBJ_TIMER(tobj)/100*25));
 			sprintf(buf, "Ваше изделие продержится примерно %d дней\n", GET_OBJ_TIMER(tobj)/24/60);
 			act(buf, FALSE, ch, tobj, 0, TO_CHAR);
 			GET_OBJ_MATER(tobj) = GET_OBJ_MATER(obj);
-			//Карачун. Так логичнее.
-			//GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
+			// Карачун. Так логичнее.
+			// было GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
+			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
+			// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
 			GET_OBJ_MAX(tobj) = MAX(20000, 10000/100*GET_SKILL(ch, skill)-number(0,15000/100*25))/100;
 			GET_OBJ_CUR(tobj) = GET_OBJ_MAX(tobj);
 			percent = number(1, skill_info[skill].max_percent);
