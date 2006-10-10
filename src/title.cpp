@@ -150,9 +150,9 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		} else
 			send_to_char("В данный момент нет заявки, на которую требуется Ваше согласие.\r\n", ch);
 	} else if (!IS_IMMORTAL(ch) && CompareParam(buffer2, "отменить")) {
-		TitleListType::iterator it = temp_title_list.find(GET_NAME(ch));
-		if (it != temp_title_list.end()) {
-			temp_title_list.erase(it);
+		TitleListType::iterator it = title_list.find(GET_NAME(ch));
+		if (it != title_list.end()) {
+			title_list.erase(it);
 			send_to_char("Ваша заявка на титул отменена.\r\n", ch);
 		} else
 			send_to_char("В данный момент Вам нечего отменять.\r\n", ch);
@@ -173,7 +173,7 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 */
 bool TitleSystem::check_title(const std::string& text, CHAR_DATA* ch)
 {
-	if (!check_alphabet(text, ch, " ,.-?")) return 0;
+	if (!check_alphabet(text, ch, " ,.-?Ёё")) return 0;
 
 	if (GET_LEVEL(ch) < 25 && !GET_REMORT(ch) && !IS_IMMORTAL(ch)) {
 		send_to_char(ch, "Для права на титул Вы должны достигнуть 25го уровня или иметь перевоплощения.\r\n");
@@ -191,7 +191,7 @@ bool TitleSystem::check_title(const std::string& text, CHAR_DATA* ch)
 */
 bool TitleSystem::check_pre_title(std::string text, CHAR_DATA* ch)
 {
-	if (!check_alphabet(text, ch, " .-?")) return 0;
+	if (!check_alphabet(text, ch, " .-?Ёё")) return 0;
 
 	if (IS_IMMORTAL(ch)) return 1;
 
