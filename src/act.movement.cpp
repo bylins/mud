@@ -1765,7 +1765,8 @@ ACMD(do_horsetake)
 			}
 			WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 		} else
-			stop_follower(horse, SF_EMPTY);
+			if (stop_follower(horse, SF_EMPTY))
+				return;
 	}
 
 	act("Вы оседлали $N3.", FALSE, ch, 0, horse, TO_CHAR);
@@ -1812,7 +1813,9 @@ ACMD(do_givehorse)
 		send_to_char("Вам стоит прежде отвязать своего скакуна.\r\n", ch);
 		return;
 	}
-	stop_follower(horse, SF_EMPTY);
+	// Долбанные умертвия при передаче рассыпаются и весело роняют мад на проходе по последователям чара -- Krodo
+	if (stop_follower(horse, SF_EMPTY))
+		return;
 	act("Вы передали своего скакуна $N2.", FALSE, ch, 0, victim, TO_CHAR);
 	act("$n передал$g Вам своего скакуна.", FALSE, ch, 0, victim, TO_VICT);
 	act("$n передал$g своего скакуна $N2.", TRUE, ch, 0, victim, TO_NOTVICT);
@@ -1842,7 +1845,8 @@ ACMD(do_stophorse)
 		send_to_char("Вам стоит прежде отвязать своего скакуна.\r\n", ch);
 		return;
 	}
-	stop_follower(horse, SF_EMPTY);
+	if (stop_follower(horse, SF_EMPTY))
+		return;
 	act("Вы отпустили  $N3.", FALSE, ch, 0, horse, TO_CHAR);
 	act("$n отпустил$g $N3.", FALSE, ch, 0, horse, TO_ROOM);
 	if (GET_MOB_VNUM(horse) == HORSE_VNUM) {

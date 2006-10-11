@@ -150,7 +150,7 @@ void Crash_save_all(void);
 /* prototypes from fight.cpp */
 void set_fighting(CHAR_DATA * ch, CHAR_DATA * victim);
 void stop_fighting(CHAR_DATA * ch, int switch_others);
-int stop_follower(CHAR_DATA * ch, int mode);
+bool stop_follower(CHAR_DATA * ch, int mode);
 void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon);
 void forget(CHAR_DATA * ch, CHAR_DATA * victim);
 void remember(CHAR_DATA * ch, CHAR_DATA * victim);

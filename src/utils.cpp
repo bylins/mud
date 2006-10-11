@@ -661,7 +661,9 @@ void check_horse(CHAR_DATA * ch)
 
 /* Called when stop following persons, or stopping charm */
 /* This will NOT do if a character quits/dies!!          */
-int stop_follower(CHAR_DATA * ch, int mode)
+// При возврате 1 использовать ch нельзя, т.к. прошли через extract_char
+// TODO: по всем вызовам не проходил, может еще где-то коряво вызывается, кроме передачи скакунов -- Krodo
+bool stop_follower(CHAR_DATA * ch, int mode)
 {
 	CHAR_DATA *master;
 	struct follow_type *j, *k;
