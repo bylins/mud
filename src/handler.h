@@ -102,8 +102,8 @@ void set_unquest(CHAR_DATA * ch, int quest);
 
 /* find if character can see */
 CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, char *name);
-CHAR_DATA *get_player_vis(CHAR_DATA * ch, char *name, int inroom);
-CHAR_DATA *get_player_pun(CHAR_DATA * ch, char *name, int inroom);
+CHAR_DATA *get_player_vis(CHAR_DATA * ch, const char *name, int inroom);
+CHAR_DATA *get_player_pun(CHAR_DATA * ch, const char *name, int inroom);
 
 CHAR_DATA *get_char_vis(CHAR_DATA * ch, char *name, int where);
 OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, char *name, OBJ_DATA * list);

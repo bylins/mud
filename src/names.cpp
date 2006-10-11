@@ -14,6 +14,7 @@
 #include <fstream>
 #include <sstream>
 #include <boost/shared_ptr.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "conf.h"
 #include "sysdep.h"
@@ -205,11 +206,9 @@ void NewNameRemove(CHAR_DATA * ch)
 }
 
 // для удаление через команду имма
-void NewNameRemove(const char * name, CHAR_DATA * ch)
+void NewNameRemove(const std::string& name, CHAR_DATA * ch)
 {
-	NewNameListType::iterator it;
-	std::string buffer = name;
-	it = NewNameList.find(buffer);
+	NewNameListType::iterator it = NewNameList.find(name);
 	if (it != NewNameList.end()) {
 		NewNameList.erase(it);
 		send_to_char("Запись удалена.\r\n", ch);
@@ -253,7 +252,7 @@ void NewNameShow(CHAR_DATA * ch)
 	if (NewNameList.empty()) return;
 
 	std::ostringstream buffer;
-	buffer << "\r\nИгроки, ждущие одобрения имени (имя <игрок> одобрить/запретить, имя удалить <игрок>):\r\n" << CCWHT(ch, C_NRM);
+	buffer << "\r\nИгроки, ждущие одобрения имени (имя <игрок> одобрить/запретить/удалить):\r\n" << CCWHT(ch, C_NRM);
 	for (NewNameListType::const_iterator it = NewNameList.begin(); it != NewNameList.end(); ++it)
 		buffer << "Имя: " << it->first << " " << it->second->name0 << "/" << it->second->name1
 			<< "/" << it->second->name2 << "/" << it->second->name3 << "/" << it->second->name4
@@ -353,4 +352,102 @@ void agree_name(CHAR_DATA * d, char *immname, int immlev)
 	NewNameRemove(d);
 	// Add record to agreed if not present ...
 	add_agree_name(d, immname, immlev);
+}
+
+enum { NAME_AGREE, NAME_DISAGREE, NAME_DELETE };
+
+void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
+{
+	if (GET_LEVEL(vict) > GET_LEVEL(ch) && !GET_COMMSTATE(ch)) {
+		send_to_char("А он ведь старше Вас....\r\n", ch);
+		return;
+	}
+
+	/* одобряем или нет */
+	int lev = NAME_GOD(vict);
+	if (lev > 1000)
+		lev = lev - 1000;
+	if (lev > GET_LEVEL(ch) && !GET_COMMSTATE(ch)) {
+		send_to_char("Об этом имени уже позаботился бог старше Вас.\r\n", ch);
+		return;
+	}
+
+	if (lev == GET_LEVEL(ch) && !GET_COMMSTATE(ch))
+		if (NAME_ID_GOD(vict) != GET_IDNUM(ch))
+			send_to_char("Об этом имени уже позаботился другой бог Вашего уровня.\r\n", ch);
+
+	if (action == NAME_AGREE) {
+		NAME_GOD(vict) = GET_LEVEL(ch) + 1000;
+		NAME_ID_GOD(vict) = GET_IDNUM(ch);
+		send_to_char("Имя одобрено!\r\n", ch);
+		send_to_char(vict, "&GВаше имя одобрено Богом %s!!!&n\r\n", GET_NAME(ch));
+		agree_name(vict, GET_NAME(ch), GET_LEVEL(ch));
+	} else {
+		NAME_GOD(vict) = GET_LEVEL(ch);
+		NAME_ID_GOD(vict) = GET_IDNUM(ch);
+		send_to_char("Имя запрещено!\r\n", ch);
+		send_to_char(vict, "&RВаше имя запрещено Богом %s!!!&n\r\n", GET_NAME(ch));
+		disagree_name(vict, GET_NAME(ch), GET_LEVEL(ch));
+	}
+
+}
+
+const char* MORTAL_DO_TITLE_FORMAT = "\r\n"
+	"имя - вывод списка имен, ждущих одобрения, если они есть\r\n"
+	"имя <игрок> одобрить - одобрить имя данного игрока\r\n"
+	"имя <игрок> запретить - запретить имя данного игрока\r\n"
+	"имя <игрок> удалить - удалить данное имя из списка без запрета или одобрения\r\n";
+
+ACMD(do_name)
+{
+	std::string name, command = argument;
+	GetOneParam(command, name);
+
+	if (name.empty()) {
+		if (!NewNameList.empty())
+			NewNameShow(ch);
+		else
+			send_to_char(MORTAL_DO_TITLE_FORMAT, ch);
+		return;
+	}
+
+	boost::trim(command);
+	int	action = -1;
+	if (CompareParam(command, "одобрить"))
+		action = NAME_AGREE;
+	else if (CompareParam(command, "запретить"))
+		action = NAME_DISAGREE;
+	else if (CompareParam(command, "удалить"))
+		action = NAME_DELETE;
+
+	if (action < 0) {
+		send_to_char(MORTAL_DO_TITLE_FORMAT, ch);
+		return;
+	}
+
+	name_convert(name);
+	if (action == NAME_DELETE) {
+		NewNameRemove(name, ch);
+		return;
+	}
+
+	CHAR_DATA* vict;
+	if ((vict = get_player_vis(ch, name.c_str(), FIND_CHAR_WORLD)) != NULL) {
+		if (!(vict = get_player_pun(ch, name.c_str(), FIND_CHAR_WORLD))) {
+			send_to_char("Нет такого игрока.\r\n", ch);
+			return;
+		}
+		go_name(ch, vict, action);
+	} else {
+		CREATE(vict, CHAR_DATA, 1);
+		clear_char(vict);
+		if (load_char(name.c_str(), vict) < 0) {
+			send_to_char("Такого персонажа не существует.\r\n", ch);
+			free(vict);
+			return;
+		}
+		go_name(ch, vict, action);
+		save_char(vict, GET_LOADROOM(vict));
+		free_char(vict);
+	}
 }

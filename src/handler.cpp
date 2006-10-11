@@ -1280,7 +1280,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			obj_to_room(object, IN_ROOM(ch));
 			return;
 		}
-		
+
 		if (!IS_NPC(ch)) {
 			// Контроль уникальности предметов
 			if (GET_OBJ_UID(object) != 0) {
@@ -1292,10 +1292,10 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 					}
 				}
 				if (inworld>1) {
-					sprintf(buf, "Object copy detected! Object %s (UID=%d, VNUM=%d), holder %s. In world %d.", 
+					sprintf(buf, "Object copy detected! Object %s (UID=%d, VNUM=%d), holder %s. In world %d.",
 							object->PNames[0], GET_OBJ_UID(object), GET_OBJ_VNUM(object), GET_NAME(ch), inworld);
 					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-					// Тут, если все будет работать, должно быть удаление одного из предметов         				
+					// Тут, если все будет работать, должно быть удаление одного из предметов
 				}
 			} // Назначаем новый UID
 			else if (GET_OBJ_VNUM(object) > 0 && GET_OBJ_UID(object) == 0) {
@@ -2171,7 +2171,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 		obj_to_room(obj, ch->in_room);
 		obj_decay(obj);
 	}
-	
+
 	log("[Extract char] Stop fighting self");
 	if (FIGHTING(ch))
 		stop_fighting(ch, TRUE);
@@ -2317,7 +2317,7 @@ void extract_mob(CHAR_DATA * ch)
 *********************************************************************** */
 
 
-CHAR_DATA *get_player_vis(CHAR_DATA * ch, char *name, int inroom)
+CHAR_DATA *get_player_vis(CHAR_DATA * ch, const char *name, int inroom)
 {
 	CHAR_DATA *i;
 
@@ -2343,7 +2343,7 @@ CHAR_DATA *get_player_vis(CHAR_DATA * ch, char *name, int inroom)
 }
 
 
-CHAR_DATA *get_player_pun(CHAR_DATA * ch, char *name, int inroom)
+CHAR_DATA *get_player_pun(CHAR_DATA * ch, const char *name, int inroom)
 {
 	CHAR_DATA *i;
 

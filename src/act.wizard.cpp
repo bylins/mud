@@ -111,7 +111,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 extern void NewNameShow(CHAR_DATA * ch);
 extern void NewNameRemove(CHAR_DATA * ch);
-extern void NewNameRemove(const char * name, CHAR_DATA * ch);
+extern void NewNameRemove(const std::string& name, CHAR_DATA * ch);
 
 /* local functions */
 int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg);
@@ -4549,94 +4549,6 @@ ACMD(do_liblist)
 	}
 
 	page_string(ch->desc, bf, 1);
-}
-
-void go_name(CHAR_DATA * ch, CHAR_DATA * vict, char *argum)
-{
-	int lev;
-
-	if (GET_LEVEL(vict) > GET_LEVEL(ch) && !GET_COMMSTATE(ch)) {
-		send_to_char("А он ведь старше Вас....\r\n", ch);
-		return;
-	}
-
-	/* одобряем или нет */
-	lev = NAME_GOD(vict);
-	if (lev > 1000)
-		lev = lev - 1000;
-	if (lev > GET_LEVEL(ch) && !GET_COMMSTATE(ch)) {
-		send_to_char("Об этом имени уже позаботился бог старше Вас.\r\n", ch);
-		return;
-	}
-
-	if (lev == GET_LEVEL(ch) && !GET_COMMSTATE(ch)) {
-		if (NAME_ID_GOD(vict) != GET_IDNUM(ch)) {
-			send_to_char("Об этом имени уже позаботился другой бог Вашего уровня.\r\n", ch);
-		}
-	}
-
-	one_argument(argum, arg);
-	if (is_abbrev(arg, "одобрить")) {
-		NAME_GOD(vict) = GET_LEVEL(ch) + 1000;
-		NAME_ID_GOD(vict) = GET_IDNUM(ch);
-		send_to_char("Имя одобрено!\r\n", ch);
-		sprintf(buf, "&GВаше имя одобрено Богом %s!!!&n\r\n", GET_NAME(ch));
-		send_to_char(buf, vict);
-		agree_name(vict, GET_NAME(ch), GET_LEVEL(ch));
-	} else if (is_abbrev(arg, "запретить")) {
-		NAME_GOD(vict) = GET_LEVEL(ch);
-		NAME_ID_GOD(vict) = GET_IDNUM(ch);
-		send_to_char("Имя запрещено!\r\n", ch);
-		sprintf(buf, "&RВаше имя запрещено Богом %s!!!&n\r\n", GET_NAME(ch));
-		send_to_char(buf, vict);
-		disagree_name(vict, GET_NAME(ch), GET_LEVEL(ch));
-	} else {
-		send_to_char("Можно либо 'одобрить' либо 'запретить'.\r\n", ch);
-	}
-
-}
-
-ACMD(do_name)
-{
-	CHAR_DATA *vict;
-	argument = one_argument(argument, arg);
-
-	if (!*arg) {
-		// вывод списка неодобренных оффлайн
-		NewNameShow(ch);
-		send_to_char("Кого будем одобрять?\r\n", ch);
-		return;
-	}
-	// для удаления из списка нежелательного имени без его одобрения/запрета
-	if (is_abbrev(arg, "remove") || is_abbrev(arg, "удалить")) {
-		skip_spaces(&argument);
-		if (argument) {
-			*argument = UPPER(*argument);
-			NewNameRemove(argument, ch);
-			return;
-		}
-		send_to_char("Укажите имя, которое вы хотите удалить из списка.\r\n", ch);
-		return;
-	}
-
-	if ((vict = get_player_vis(ch, arg, FIND_CHAR_WORLD)) != NULL) {
-		if (!(vict = get_player_pun(ch, arg, FIND_CHAR_WORLD))) {
-			send_to_char("Нет такого игрока.\r\n", ch);
-			return;
-		}
-		go_name(ch, vict, argument);
-	} else {
-		CREATE(vict, CHAR_DATA, 1);
-		clear_char(vict);
-		if (load_char(arg, vict) < 0) {
-			send_to_char("Такого персонажа не существует.\r\n", ch);
-			free(vict);
-			return;
-		}
-		go_name(ch, vict, argument);
-		save_char(vict, GET_LOADROOM(vict));
-		free_char(vict);
-	}
 }
 
 ACMD(do_privileges)
