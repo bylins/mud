@@ -179,7 +179,6 @@ void add_karma(CHAR_DATA * ch, char * punish , char * reason)
 	};
 }
 
-
 int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , long times)
 {
 	struct punish_data * pundata = 0;
@@ -401,13 +400,13 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 					send_to_char("Вашей жертва уже зарегистрирована.\r\n", ch);
 					return (0);
 				};
-				SET_BIT(PLR_FLAGS(vict, PLR_REGISTERED), PLR_REGISTERED);
 
 				sprintf(buf, "%s registered by %s.", GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 				imm_log(buf);
 
 				sprintf(buf, "Registered by %s", GET_NAME(ch));
+				RegisterSystem::add(vict, buf, reason);
 				add_karma(vict, buf, reason);
 
 				if (IN_ROOM(vict) != NOWHERE)
@@ -572,17 +571,12 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 			break;
 
 			case SCMD_UNREGISTER:
-				REMOVE_BIT(PLR_FLAGS(vict, PLR_REGISTERED), PLR_REGISTERED);
+				pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
+				RegisterSystem::remove(vict);
 
-        			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
-
-				if (IN_ROOM(vict) != NOWHERE)
-				{
-
-					if (vict->desc && !check_dupes_host(vict->desc) && IN_ROOM(vict) != r_unreg_start_room)
-					{
-						act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.",
-						    FALSE, vict, 0, 0, TO_ROOM);
+				if (IN_ROOM(vict) != NOWHERE) {
+					if (vict->desc && !check_dupes_host(vict->desc) && IN_ROOM(vict) != r_unreg_start_room) {
+						act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.", FALSE, vict, 0, 0, TO_ROOM);
 						char_from_room(vict);
 						char_to_room(vict, r_unreg_start_room);
 						look_at_room(vict, r_unreg_start_room);
@@ -1459,6 +1453,10 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 		sprintf(buf, "E-mail: %s Unique: %d File: %s\r\n", GET_EMAIL(k), GET_UNIQUE(k), file_name.c_str());
 		send_to_char(buf, ch);
 
+		std::string text = RegisterSystem::show_comment(GET_EMAIL(k));
+		if (!text.empty())
+			send_to_char(ch, "Registered by email from %s\r\n", text.c_str());
+
 		if (GET_REMORT(k)) {
 			sprintf(buf, "Перевоплощений: %d\r\n", GET_REMORT(k));
 			send_to_char(buf, ch);
@@ -1469,12 +1467,12 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 			send_to_char(buf, ch);
 		}
 		if (PLR_FLAGGED(k, PLR_HELLED) && HELL_DURATION(k)) {
-			sprintf(buf, "Находиться в темнице : %ld час [%s].\r\n",
+			sprintf(buf, "Находится в темнице : %ld час [%s].\r\n",
 				(HELL_DURATION(k) - time(NULL)) / 3600, HELL_REASON(k) ? HELL_REASON(k) : "-");
 			send_to_char(buf, ch);
 		}
 		if (PLR_FLAGGED(k, PLR_NAMED) && NAME_DURATION(k)) {
-			sprintf(buf, "Находиться в комнате имени : %ld час.\r\n",
+			sprintf(buf, "Находится в комнате имени : %ld час.\r\n",
 				(NAME_DURATION(k) - time(NULL)) / 3600);
 			send_to_char(buf, ch);
 		}
@@ -4218,6 +4216,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		if (valid_email(val_arg)) {
 			strncpy(GET_EMAIL(vict), val_arg, 127);
 			*(GET_EMAIL(vict) + 127) = '\0';
+			lower_convert(GET_EMAIL(vict));
 		} else {
 			send_to_char("Wrong E-Mail.\r\n", ch);
 			return (0);

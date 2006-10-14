@@ -2238,6 +2238,7 @@ struct descriptor_data {
 	boost::shared_ptr<struct Message> message;  // редактируемое сообщение
 	boost::shared_ptr<struct ClanOLC> clan_olc; // редактирование привилегий клана
 	boost::shared_ptr<struct ClanInvite> clan_invite; // приглашение в дружину
+	bool registered_email; // чтобы не шарить каждую секунду по списку мыл
 };
 
 

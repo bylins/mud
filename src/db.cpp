@@ -474,6 +474,8 @@ ACMD(do_reboot)
 		Board::BoardInit();
 	else if (!str_cmp(arg, "titles"))
 		TitleSystem::load_title_list();
+	else if (!str_cmp(arg, "emails"))
+		RegisterSystem::load();
 	else {
 		send_to_char("Неверный параметр для перезагрузки файлов.\r\n", ch);
 		return;
@@ -901,6 +903,9 @@ void boot_db(void)
 
 	log("Load Title list.");
 	TitleSystem::load_title_list();
+
+	log("Load registered emails list.");
+	RegisterSystem::load();
 
 	log("Boot db -- DONE.");
 }

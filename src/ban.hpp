@@ -138,4 +138,16 @@ class BanList {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+namespace RegisterSystem {
+
+void add(CHAR_DATA* ch, const char* text, const char* reason);
+void remove(CHAR_DATA* ch);
+bool is_registered(CHAR_DATA* ch);
+bool is_registered_email(const std::string& email);
+const std::string show_comment(const std::string& email);
+void load();
+void save();
+
+} // namespace RegisterSystem
+
 #endif

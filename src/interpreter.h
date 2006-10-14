@@ -53,6 +53,7 @@ void ReadEndString(std::ifstream &file);
 void StringReplace(std::string & buffer, char s, std::string d);
 std::string ExpFormat(long long exp);
 void lower_convert(std::string& text);
+void lower_convert(char* text);
 void name_convert(std::string& text);
 void god_work_invoice();
 

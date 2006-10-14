@@ -62,7 +62,7 @@ interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
   boards.h top.h title.hpp
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h spells.h skills.h \
   comm.h db.h handler.h screen.h interpreter.h constants.h dg_scripts.h \
-  house.h exchange.h top.h deathtrap.hpp
+  house.h exchange.h top.h deathtrap.hpp ban.hpp diskio.h
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
   skills.h handler.h db.h interpreter.h screen.h constants.h dg_scripts.h \
   pk.h features.hpp magic.h fight.h

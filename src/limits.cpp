@@ -30,6 +30,7 @@
 #include "exchange.h"
 #include "top.h"
 #include "deathtrap.hpp"
+#include "ban.hpp"
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
@@ -517,7 +518,7 @@ void beat_punish(CHAR_DATA * i)
 			};
 		};
 	}
-	else if (!PLR_FLAGGED(i, PLR_REGISTERED))
+	else if (!RegisterSystem::is_registered(i))
 	{
 		if ((!RENTABLE(i)) && (restore != r_unreg_start_room) && i->desc
 		&& (STATE(i->desc) == CON_PLAYING) && !check_dupes_host(i->desc, 1)) {
@@ -526,7 +527,7 @@ void beat_punish(CHAR_DATA * i)
 				GET_WAS_IN(i) = r_unreg_start_room;
 			else
 			{
-				send_to_char("Чья-то злая воля вернула Вас в комнату для незарегистированных игроков.\r\n", i);
+				send_to_char("Чья-то злая воля вернула Вас в комнату для незарегистрированных игроков.\r\n", i);
 				act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.\r\n",
 				    FALSE, i, 0, 0, TO_ROOM);
 

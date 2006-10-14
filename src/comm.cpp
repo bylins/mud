@@ -496,6 +496,7 @@ void init_game(ush_int port)
 	Clan::ChestSave();
 	Clan::ClanSave();
 	TitleSystem::save_title_list();
+	RegisterSystem::save();
 
 	log("Closing all sockets.");
 	while (descriptor_list)
@@ -1271,11 +1272,12 @@ inline void heartbeat()
 		ban->reload_proxy_ban(ban->RELOAD_MODE_TMPFILE);
 	}
 
-	// раз в 5 минут вывод + сохранение списков неодобренных
+	// раз в 5 минут вывод + сохранение списков неодобренных титулов и зареганных email'ов
 	// TODO: добить тут с именами
 	if (!((pulse + 18) % (5 * 60 * PASSES_PER_SEC))) {
 		god_work_invoice();
 		TitleSystem::save_title_list();
+		RegisterSystem::save();
 	}
 
 // shapirus: ротация логов. сислог каждые 2 часа, остальные раз в сутки.

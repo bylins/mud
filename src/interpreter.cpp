@@ -1993,24 +1993,32 @@ int pre_help(CHAR_DATA * ch, char *arg)
 // и просто еще до иммов не достучались лимит поднять... вобщем сидит тот, кто не успел Ж)
 int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0)
 {
-	DESCRIPTOR_DATA *i;
-	if (!d->character || IS_IMMORTAL(d->character)
-	    || PLR_FLAGGED(d->character, PLR_REGISTERED))
-		return (1);
-	for (i = descriptor_list; i; i = i->next) {
-		if (i == d)
-			continue;
+	if (!d->character || IS_IMMORTAL(d->character))
+		return 1;
 
-		if (i->character && !IS_IMMORTAL(i->character)
-			&& (STATE(i) == CON_PLAYING || STATE(i) == CON_MENU)
-		    && !str_cmp(i->host, d->host)) {
+	// в случае авточекалки нужная проверка уже выполнена до входа в функцию
+	if (!autocheck) {
+		if (RegisterSystem::is_registered(d->character))
+			return 1;
+		if (RegisterSystem::is_registered_email(GET_EMAIL(d->character))) {
+			d->registered_email = 1;
+			return 1;
+		}
+	}
+
+	for (DESCRIPTOR_DATA* i = descriptor_list; i; i = i->next) {
+		if (i != d
+	    && i->ip == d->ip
+		&& i->character
+		&& !IS_IMMORTAL(i->character)
+		&& (STATE(i) == CON_PLAYING || STATE(i) == CON_MENU)) {
 			switch (CheckProxy(d)) {
 			case 0:
-				sprintf(buf, "&RВы вошли с игроком %s с одного IP(%s) !\r\n"
+				send_to_char(d->character,
+					"&RВы вошли с игроком %s с одного IP(%s) !\r\n"
 					"Вам необходимо обратиться к Богам для регистрации.\r\n"
 					"Пока Вы будете помещены в комнату для незарегистрированных игроков.&n\r\n",
 					GET_PAD(i->character, 4), i->host);
-				send_to_char(buf, d->character);
 				sprintf(buf,
 					"! ВХОД С ОДНОГО IP ! незарегистрированного игрока.\r\n"
 					"Вошел - %s, в игре - %s, IP - %s.\r\n"
@@ -2019,8 +2027,7 @@ int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0)
 				mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 				return 0;
 			case 1:
-				if (autocheck)
-					return 1;
+				if (autocheck) return 1;
 				send_to_char("&RС Вашего IP адреса находится максимально допустимое количество игроков.\r\n"
 					"Обратитесь к Богам для увеличения лимита игроков с вашего адреса.&n", d->character);
 				return 0;
@@ -2029,7 +2036,7 @@ int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0)
 			}
 		}
 	}
-	return (1);
+	return 1;
 }
 
 int check_dupes_email(DESCRIPTOR_DATA * d)
@@ -2882,6 +2889,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		init_char(d->character);
 		strncpy(GET_EMAIL(d->character), arg, 127);
 		*(GET_EMAIL(d->character) + 127) = '\0';
+		lower_convert(GET_EMAIL(d->character));
 		save_char(d->character, NOWHERE);
 
 		// добавляем в список ждущих одобрения
@@ -3811,6 +3819,17 @@ void lower_convert(std::string& text)
 {
 	for (std::string::iterator it = text.begin(); it != text.end(); ++it)
 		*it = LOWER(*it);
+}
+
+/**
+* Конвертация входной строки в нижний регистр
+*/
+void lower_convert(char* text)
+{
+	while (*text) {
+		*text = LOWER(*text);
+		text++;
+	}
 }
 
 /**

@@ -1092,3 +1092,130 @@ void BanList::disconnectBannedIp(std::string Ip)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
+
+/**
+* Система автоматической регистрации по ранее зарегистрированному мылу.
+* Флаг регистрации выставляется только на время нахождения в игре и в случае
+* снятия регистрации с персонажа - данное мыло удалется из списка, т.е. при
+* следующих заходах автоматически уже не зарегистрирует никого с тем же мылом,
+* но если они имели свои собсвенные регистрации через команду register, то
+* их эта отмена в принципе не задевает, т.е. на работу статой системы регистраций
+* в данном случае никакого влияния не оказываем и флаг PLR_REGISTERED не трогаем. -- Krodo
+*/
+namespace RegisterSystem {
+
+typedef std::map<std::string, std::string> EmailListType;
+// список зарегистрированных мыл
+EmailListType email_list;
+// файл для соъхранения/лоада
+const char* REGISTERED_EMAIL_FILE = LIB_PLRSTUFF"registered-email.lst";
+// т.к. список потенциально может быть довольно большим, то сейвить бум только в случае изменений в add и remove
+bool need_save = 0;
+
+} // namespace RegisterSystem
+
+/**
+* Добавления мыла в список + проставления флага PLR_REGISTERED, registered_email не выставляется
+*/
+void RegisterSystem::add(CHAR_DATA* ch, const char* text, const char* reason)
+{
+	SET_BIT(PLR_FLAGS(ch, PLR_REGISTERED), PLR_REGISTERED);
+	if (!text || !reason) return;
+	std::stringstream out;
+	out << GET_NAME(ch) << " -> " << text << " [" << reason << "]";
+	EmailListType::const_iterator it = email_list.find(GET_EMAIL(ch));
+	if (it == email_list.end()) {
+		email_list[GET_EMAIL(ch)] = out.str();
+		need_save = 1;
+	}
+}
+
+/**
+* Удаление мыла из списка, снятие флага PLR_REGISTERED и registered_email.
+* В течении секунды персонаж помещается в комнату незареганных игроков, если он не один с данного ип
+*/
+void RegisterSystem::remove(CHAR_DATA* ch)
+{
+	REMOVE_BIT(PLR_FLAGS(ch, PLR_REGISTERED), PLR_REGISTERED);
+	EmailListType::iterator it = email_list.find(GET_EMAIL(ch));
+	if (it != email_list.end()) {
+		email_list.erase(it);
+		if (ch->desc)
+			ch->desc->registered_email = 0;
+		need_save = 1;
+	}
+}
+
+/**
+* Проверка, является ли персонаж зарегистрированным каким-нить образом
+* \return 0 - нет, 1 - да
+*/
+bool RegisterSystem::is_registered(CHAR_DATA* ch)
+{
+	if (PLR_FLAGGED(ch, PLR_REGISTERED) || ch->desc->registered_email)
+		return 1;
+	return 0;
+}
+
+/**
+* Поиск данного мыла в списке зарегистрированных
+* \return 0 - не нашли, 1 - нашли
+*/
+bool RegisterSystem::is_registered_email(const std::string& email)
+{
+	EmailListType::const_iterator it = email_list.find(email);
+	if (it != email_list.end())
+		return 1;
+	return 0;
+}
+
+/**
+* Показ информации по зарегистрированному мылу
+* \return строка информации или пустая строка, если ничего не нашли
+*/
+const std::string RegisterSystem::show_comment(const std::string& email)
+{
+	EmailListType::const_iterator it = email_list.find(email);
+	if (it != email_list.end())
+		return it->second;
+	return "";
+}
+
+/**
+* Загрузка и релоад списка мыл
+*/
+void RegisterSystem::load()
+{
+	email_list.clear();
+
+	std::ifstream file(REGISTERED_EMAIL_FILE);
+	if (!file.is_open()) {
+		log("Error open file: %s! (%s %s %d)", REGISTERED_EMAIL_FILE, __FILE__, __func__, __LINE__);
+		return;
+	}
+	std::string email, comment;
+	while (file >> email) {
+		ReadEndString(file);
+		std::getline(file, comment);
+		email_list[email] = comment;
+	}
+	file.close();
+}
+
+/**
+* Сохранение списка мыл, если оно требуется
+*/
+void RegisterSystem::save()
+{
+	if (!need_save)
+		return;
+	std::ofstream file(REGISTERED_EMAIL_FILE);
+	if (!file.is_open()) {
+		log("Error open file: %s! (%s %s %d)", REGISTERED_EMAIL_FILE, __FILE__, __func__, __LINE__);
+		return;
+	}
+	for (EmailListType::const_iterator it = email_list.begin(); it != email_list.end(); ++it)
+		file << it->first << "\n" << it->second << "\n";
+	file.close();
+	need_save = 0;
+}
