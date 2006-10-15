@@ -1152,7 +1152,7 @@ void RegisterSystem::remove(CHAR_DATA* ch)
 */
 bool RegisterSystem::is_registered(CHAR_DATA* ch)
 {
-	if (PLR_FLAGGED(ch, PLR_REGISTERED) || ch->desc->registered_email)
+	if (PLR_FLAGGED(ch, PLR_REGISTERED) || (ch->desc && ch->desc->registered_email))
 		return 1;
 	return 0;
 }
