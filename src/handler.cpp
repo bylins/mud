@@ -1299,6 +1299,8 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 					// Вставил удаление предметов
 					act("$o0 замигал$Q и Вы увидели медленно проступившие руны 'DUPE'.", FALSE, ch, object, 0, TO_CHAR);
 					GET_OBJ_TIMER(object) = 0;
+   					SET_BIT(GET_OBJ_EXTRA(object, ITEM_NODONATE), ITEM_NODONATE);
+   					SET_BIT(GET_OBJ_EXTRA(object, ITEM_NOSELL), ITEM_NOSELL);
 				}
 			} // Назначаем новый UID
 			else if (GET_OBJ_VNUM(object) > 0 && GET_OBJ_UID(object) == 0) {
