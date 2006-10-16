@@ -1292,15 +1292,13 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 					}
 				}
 				if (inworld>1) {
-					sprintf(buf, "Copy detected! Object %s (UID=%d, VNUM=%d), holder %s. In world %d.",
+					sprintf(buf, "Copy detected and prepared to extract! Object %s (UID=%d, VNUM=%d), holder %s. In world %d.",
 							object->PNames[0], GET_OBJ_UID(object), GET_OBJ_VNUM(object), GET_NAME(ch), inworld);
 					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 					// Тут, если все будет работать, должно быть удаление одного из предметов
 					// Вставил удаление предметов
-					act("Как оказалось, $o3 на самом деле существует, только где-то в другом месте.", FALSE, ch, object, 0, TO_CHAR);
-					extract_obj(object);
-					mudlog("Object extracted", BRF, LVL_IMMORT, SYSLOG, TRUE);
-					return;
+					act("$o0 замигал$Q и Вы увидели медленно проступившие руны 'DUPE'.", FALSE, ch, object, 0, TO_CHAR);
+					GET_OBJ_TIMER(object) = 0;
 				}
 			} // Назначаем новый UID
 			else if (GET_OBJ_VNUM(object) > 0 && GET_OBJ_UID(object) == 0) {
