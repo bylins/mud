@@ -1297,8 +1297,10 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 					// Тут, если все будет работать, должно быть удаление одного из предметов
 					// Вставил удаление предметов
-					mudlog("Object extracted", BRF, LVL_IMMORT, SYSLOG, TRUE);
+					act("Как оказалось, $o3 на самом деле существует, только где-то в другом месте.", FALSE, ch, object, 0, TO_CHAR);
 					extract_obj(object);
+					mudlog("Object extracted", BRF, LVL_IMMORT, SYSLOG, TRUE);
+					return;
 				}
 			} // Назначаем новый UID
 			else if (GET_OBJ_VNUM(object) > 0 && GET_OBJ_UID(object) == 0) {
