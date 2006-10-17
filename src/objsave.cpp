@@ -2054,10 +2054,7 @@ int Crash_report_unrentables(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj)
 	int has_norents = 0;
 
 	if (obj) {
-		if (GET_OBJ_TYPE(obj) == ITEM_MONEY) {
-			GET_GOLD(ch) += GET_OBJ_VAL(obj, 0);
-			extract_obj(obj);
-		} else if (Crash_is_unrentable(obj)) {
+		if (Crash_is_unrentable(obj)) {
 			has_norents = 1;
 			sprintf(buf, "$n сказал$g Вам : \"Я не приму на постой %s.\"", OBJN(obj, ch, 3));
 			act(buf, FALSE, recep, 0, ch, TO_VICT);
