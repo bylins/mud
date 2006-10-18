@@ -1283,29 +1283,35 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 
 		if (!IS_NPC(ch)) {
 			// Контроль уникальности предметов
-			if (GET_OBJ_UID(object) != 0) {
+			if (object && // Объект существует
+				GET_OBJ_UID(object) != 0 && // Есть UID
+				GET_OBJ_TIMER(object)>0) { // Целенький
 				tuid = GET_OBJ_UID(object);
 				inworld = 1;
+				// Объект готов для проверки. Ищем в мире такой же.
    				for (i = object_list; i; i = i->next) {
-      				if (GET_OBJ_UID(i) == tuid && object!=i && GET_OBJ_VNUM(i) == GET_OBJ_VNUM(object)) {
+      				if (GET_OBJ_UID(i) == tuid && // UID совпадает
+						GET_OBJ_TIMER(object)>0 && // Целенький
+						object!=i && // Не оно же
+						GET_OBJ_VNUM(i) == GET_OBJ_VNUM(object)) { // Для верности
 						inworld++;
 					}
 				}
-				if (inworld>1) {
+				if (inworld>1) { // У объекта есть как минимум одна копия
 					sprintf(buf, "Copy detected and prepared to extract! Object %s (UID=%d, VNUM=%d), holder %s. In world %d.",
 							object->PNames[0], GET_OBJ_UID(object), GET_OBJ_VNUM(object), GET_NAME(ch), inworld);
 					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-					// Тут, если все будет работать, должно быть удаление одного из предметов
-					// Вставил удаление предметов
+					// Удаление предмета
 					act("$o0 замигал$Q и Вы увидели медленно проступившие руны 'DUPE'.", FALSE, ch, object, 0, TO_CHAR);
-					GET_OBJ_TIMER(object) = 0;
-   					SET_BIT(GET_OBJ_EXTRA(object, ITEM_NOSELL), ITEM_NOSELL);
+					GET_OBJ_TIMER(object) = 0; // Хана предмету, развалится на тике
+   					SET_BIT(GET_OBJ_EXTRA(object, ITEM_NOSELL), ITEM_NOSELL); // Ибо нефиг
 				}
-			} // Назначаем новый UID
-			else if (GET_OBJ_VNUM(object) > 0 && GET_OBJ_UID(object) == 0) {
-				global_uid++;
-				global_uid = global_uid==0 ? 1 : global_uid;
-				GET_OBJ_UID(object) = global_uid;
+			} // Назначаем UID
+			else if (GET_OBJ_VNUM(object) > 0 && // Объект не виртуальный
+					 GET_OBJ_UID(object) == 0) { // У объекта точно нет уида
+				global_uid++; // Увеличиваем глобальный счетчик уидов
+				global_uid = global_uid==0 ? 1 : global_uid; // Если произошло переполнение инта
+				GET_OBJ_UID(object) = global_uid; // Назначаем уид
 			}
 		}
 
