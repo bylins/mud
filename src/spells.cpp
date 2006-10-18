@@ -29,6 +29,7 @@
 #include "pk.h"
 #include "features.hpp"
 #include "im.h"
+#include "deathtrap.hpp"
 
 extern room_rnum r_mortal_start_room;
 
@@ -322,7 +323,7 @@ ASPELL(spell_relocate)
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
-		
+
 	}
 
 	to_room = IN_ROOM(victim);
@@ -391,7 +392,7 @@ ASPELL(spell_portal)
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
-	} 
+	}
 	if (IS_NPC(victim) && !GET_COMMSTATE(ch)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
@@ -426,7 +427,7 @@ ASPELL(spell_portal)
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(victim, GF_GODSCURSE)
 	    /* раньше было <= PK_ACTION_REVENGE, что вызывало абьюз при пенте на чара на арене,
 	       или пенте кидаемой с арены т.к. в данном случае использовалось PK_ACTION_NO которое меньше PK_ACTION_REVENGE */
-	    || (pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE || 
+	    || (pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
 	        pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT)
 	    || (!IS_NPC(victim) && PRF_FLAGGED(victim, PRF_SUMMONABLE))
 	    || same_group(ch, victim)) {
@@ -600,9 +601,11 @@ ASPELL(spell_townportal)
 		}
 		/* Открываем пентаграмму в комнату rnum */
 		improove_skill(ch, SKILL_TOWNPORTAL, 1, NULL);
-		world[IN_ROOM(ch)]->portal_room = real_room(port->vnum);
-		world[IN_ROOM(ch)]->portal_time = 1;
-		world[IN_ROOM(ch)]->isPortalEntry = FALSE;
+		ROOM_DATA* from_room = world[IN_ROOM(ch)];
+		from_room->portal_room = real_room(port->vnum);
+		from_room->portal_time = 1;
+		from_room->isPortalEntry = FALSE;
+		OneWayPortal::add(world[from_room->portal_room], from_room);
 		act("Лазурная пентаграмма возникла в воздухе.", FALSE, ch, 0, 0, TO_CHAR);
 		act("$n сложил$g руки в молитвенном жесте, испрашивая у Богов врата...", FALSE, ch, 0, 0, TO_ROOM);
 		act("Лазурная пентаграмма возникла в воздухе.", FALSE, ch, 0, 0, TO_ROOM);
@@ -835,7 +838,7 @@ ASPELL(spell_charm)
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else {
 //    /* Проверяем - можем ли мы зачармить моба с уровнем victim */
-//    if (charm_points(ch) < used_charm_points(ch) 
+//    if (charm_points(ch) < used_charm_points(ch)
 //                            + on_charm_points(victim)) {
 //       send_to_char("Вам не под силу управлять такой боевой мощью.\r\n", ch);
 		if (!check_charmee(ch, victim, SPELL_CHARM))
@@ -986,7 +989,7 @@ ACMD(do_findhelpee)
 			sprintf(buf, "$n сказал$g Вам : \" Хорошо, не буду жадничать, скину тебе немного с цены.\"");
 			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 		}
-		if ((!isname(isbank, "банк bank") && cost > GET_GOLD(ch)) || 
+		if ((!isname(isbank, "банк bank") && cost > GET_GOLD(ch)) ||
 		(isname(isbank, "банк bank") && cost > GET_BANK_GOLD(ch))) {
 			sprintf(buf,
 				"$n сказал$g Вам : \" Мои услуги за %d %s стоят %d %s - это тебе не по карману.\"",
@@ -996,7 +999,7 @@ ACMD(do_findhelpee)
 		}
 /*    if (GET_LEVEL(ch) < GET_LEVEL(helpee))
          {sprintf(buf,"$n сказал$g Вам : \" Вы слишком малы для того, чтоб я служил Вам.\"");
-          act(buf,FALSE,helpee,0,ch,TO_VICT|CHECK_DEAF);		
+          act(buf,FALSE,helpee,0,ch,TO_VICT|CHECK_DEAF);
           return;
          }	 */
 		if (helpee->master) {
@@ -1159,7 +1162,7 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		case BOOK_SPELL:
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS) {
 				drndice = GET_OBJ_VAL(obj, 1);
-				if (MIN_CAST_REM(spell_info[GET_OBJ_VAL (obj, 1)],ch) > GET_REMORT(ch) ) 
+				if (MIN_CAST_REM(spell_info[GET_OBJ_VAL (obj, 1)],ch) > GET_REMORT(ch) )
 					drsdice = 34;
 				else
 					drsdice = MIN_CAST_LEV(spell_info[GET_OBJ_VAL (obj, 1)],ch);
@@ -1419,7 +1422,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 		case BOOK_SPELL:
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS) {
 				drndice = GET_OBJ_VAL(obj, 1);
-				if (MIN_CAST_REM(spell_info[GET_OBJ_VAL (obj, 1)],ch) > GET_REMORT(ch) ) 
+				if (MIN_CAST_REM(spell_info[GET_OBJ_VAL (obj, 1)],ch) > GET_REMORT(ch) )
 					drsdice = 34;
 				else
 					drsdice = MIN_CAST_LEV(spell_info[GET_OBJ_VAL (obj, 1)],ch);

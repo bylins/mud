@@ -1516,11 +1516,9 @@ struct room_data {
 	 forbidden_percent;	/* Probability for the mobs to be blocked */
 
 	ubyte ices;		/* Time when ices restore */
-	int
-	 portal_room;
 
+	int portal_room;
 	ubyte portal_time; 	/* Время жисти пентаграммы*/
-
 	bool isPortalEntry;
 
 	int holes;		/* Дырки для камне - копателей */

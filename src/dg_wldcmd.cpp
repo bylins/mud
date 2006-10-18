@@ -11,8 +11,6 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
-
 #include "structs.h"
 #include "screen.h"
 #include "dg_scripts.h"
@@ -24,6 +22,7 @@
 #include "db.h"
 #include "im.h"
 #include "features.hpp"
+#include "deathtrap.hpp"
 
 extern const char *dirs[];
 extern struct zone_data *zone_table;
@@ -835,8 +834,8 @@ WCMD(do_wspellitem)
 	}
 }
 
-/* Команда открывает пентаграмму из текущей комнаты в заданную комнату 
-   синтаксис wportal <номер комнаты> <длительность портала> 
+/* Команда открывает пентаграмму из текущей комнаты в заданную комнату
+   синтаксис wportal <номер комнаты> <длительность портала>
 */
 WCMD(do_wportal)
 {
@@ -860,11 +859,12 @@ WCMD(do_wportal)
 		return;
 	}
 
-	/* Ставим пентаграмму из текущей комнаты в комнату target с 
+	/* Ставим пентаграмму из текущей комнаты в комнату target с
 	   длительностью howlong */
 	curroom = real_room(room->number);
 	world[curroom]->portal_room = target;
 	world[curroom]->portal_time = howlong;
+	OneWayPortal::add(world[target], world[curroom]);
 	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->people, 0, 0, TO_CHAR);
 	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->people, 0, 0, TO_ROOM);
 }

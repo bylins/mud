@@ -1117,6 +1117,7 @@ void point_update(void)
 		if (world[count]->portal_time) {
 			world[count]->portal_time--;
 			if (!world[count]->portal_time) {
+				OneWayPortal::remove(world[count]);
 				act("Пентаграмма медленно растаяла.", FALSE, world[count]->people, 0, 0, TO_ROOM);
 				act("Пентаграмма медленно растаяла.", FALSE, world[count]->people, 0, 0, TO_CHAR);
 			}

@@ -3319,14 +3319,6 @@ void reset_zone(zone_rnum zone)
 	log("[Reset] Start zone %s", zone_table[zone].name);
 	repop_decay(zone);	/* рассыпание обьектов ITEM_REPOP_DECAY */
 
-	// Очищаем все порталы, чтоб не читили-------------------------------
-	for (rnum_start = FIRST_ROOM; rnum_start <= top_of_world; rnum_start++) {
-		if (world[world[rnum_start]->portal_room]->zone == zone)
-			world[rnum_start]->portal_time = 0;
-		if (world[rnum_start]->zone == zone && world[rnum_start]->portal_time)
-			world[rnum_start]->portal_time = 0;
-	}
-
 	//----------------------------------------------------------------------------
 	last_state = 1;		// для первой команды считаем, что все ок
 
@@ -3644,19 +3636,23 @@ void reset_zone(zone_rnum zone)
 	zone_table[zone].used = FALSE;
 
 	if (get_zone_rooms(zone, &rnum_start, &rnum_stop)) {
-		int rnum;
-		/* handle reset_wtrigger's */
-		log("[Reset] Triggers");
-		for (rnum = rnum_start; rnum <= rnum_stop; ++rnum) {
-			reset_wtrigger(world[rnum]);
-		}
-
-		log("[Reset] Ingredients");
-		for (rnum = rnum_start; rnum <= rnum_stop; ++rnum) {
-//MZ.load
-im_reset_room(world[rnum], zone_table[zone].level, zone_table[zone].type);
-//-MZ.load
-
+		ROOM_DATA* room;
+		ROOM_DATA* gate_room;
+		log("[Reset] Triggers, Ingredients, Portals");
+		// все внутренние резеты комнат зоны теперь идут за один цикл
+		// резет порталов теперь тут же и переписан, чтобы не гонять по всем румам, ибо жрал половину времени резета -- Krodo
+		for (int rnum = rnum_start; rnum <= rnum_stop; rnum++) {
+			room = world[rnum];
+			reset_wtrigger(room);
+			im_reset_room(room, zone_table[zone].level, zone_table[zone].type);
+			gate_room = OneWayPortal::get_from_room(room);
+			if (gate_room) { // случай врат
+				gate_room->portal_time = 0;
+				OneWayPortal::remove(room);
+			} else if (room->portal_time > 0) { // случай двусторонней пенты
+				world[room->portal_room]->portal_time = 0;
+				room->portal_time = 0;
+			}
 		}
 	}
 
@@ -3672,9 +3668,9 @@ im_reset_room(world[rnum], zone_table[zone].level, zone_table[zone].type);
 				    zone_table[zone].number, zone_table[rnum_start].number);
 				break;
 			}
-		};
+		}
 	}
-//Если это ведущая зона, то при ее сбросе обнуляем typeB_flag
+	//Если это ведущая зона, то при ее сбросе обнуляем typeB_flag
 	for (rnum_start = zone_table[zone].typeB_count; rnum_start > 0; rnum_start--)
 		zone_table[zone].typeB_flag[rnum_start - 1] = FALSE;
 	log("[Reset] Stop zone %s", zone_table[zone].name);

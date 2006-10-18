@@ -26,4 +26,16 @@ void activity();
 
 } // namespace DeathTrap
 
+/**
+* Список односторонних порталов (по втригеру и вратам), единственная цель - не перебирать все
+* комнаты при резете зоны для удаления всех пент на ее комнаты, ибо занимает много ресурсов.
+*/
+namespace OneWayPortal {
+
+void add(ROOM_DATA* to_room, ROOM_DATA* from_room);
+void remove(ROOM_DATA* to_room);
+ROOM_DATA* get_from_room(ROOM_DATA* to_room);
+
+} // namespace OneWayPortal
+
 #endif // DEATHTRAP_HPP_INCLUDED

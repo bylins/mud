@@ -254,6 +254,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 	}
 
 	// пока мы не удаляем комнаты через олц - проблем нету
+	// а вот в случае удаления надо будет обновлять указатели для списка слоу-дт и врат
 	if (ROOM_FLAGGED(room_num, ROOM_SLOWDEATH) || ROOM_FLAGGED(room_num, ROOM_ICEDEATH))
 		DeathTrap::add(world[room_num]);
 	else
