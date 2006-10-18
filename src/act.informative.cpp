@@ -3266,7 +3266,8 @@ ACMD(do_who)
 				strcpy(buf, buf1);
 				break;
 			case 's':
-				short_list = 1;
+				if (IS_IMMORTAL(ch)
+					short_list = 1;
 				strcpy(buf, buf1);
 				break;
 			case 'l':
