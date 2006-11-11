@@ -3373,8 +3373,10 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 				if (GET_OBJ_VAL(obj, 2) > 0)
 					GET_OBJ_VAL(obj, 2)--;
 			} else if (GET_OBJ_TYPE(obj) == ITEM_ARMOR) {
-				GET_OBJ_VAL(obj, 0)--;
-				GET_OBJ_VAL(obj, 1)--;
+				if (GET_OBJ_VAL(obj, 0) > 0)
+					GET_OBJ_VAL(obj, 0)--;
+				if (GET_OBJ_VAL(obj, 1) > 0)
+					GET_OBJ_VAL(obj, 1)--;
 			}
 			to_char = "$o вспыхнул$G красным светом и тут же погас$Q.";
 		}

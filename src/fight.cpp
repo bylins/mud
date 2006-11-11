@@ -2329,7 +2329,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 					    0, victim, TO_NOTVICT);
 					return (0);
 				}
-				dam -= (dam * MIN(50, decrease) / 100);
+				dam -= (dam * MAX(0, MIN(50, decrease)) / 100);
 			/* умножаем дамаг при крит ударе, если щитов нет и игнор ничего не дает
 			   по призме не умножаем, чтобы не уносило танков с 1 удара */
 			} else if ((GET_LEVEL(victim) >= 5 || !IS_NPC(ch))
