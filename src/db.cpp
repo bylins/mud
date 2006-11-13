@@ -6354,17 +6354,17 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	if (GET_HOUSE_RANK(ch) != 0)
 		fprintf(saved, "Rank: %d\n", GET_HOUSE_RANK(ch));
 
-	if (MUTE_DURATION(ch) > 0)
+	if (MUTE_DURATION(ch) > 0 && PLR_FLAGGED(ch, PLR_MUTE))
 		fprintf(saved, "PMut: %ld %d %ld %s~\n", MUTE_DURATION(ch), GET_MUTE_LEV(ch), MUTE_GODID(ch), MUTE_REASON(ch));
-	if (NAME_DURATION(ch) > 0)
+	if (NAME_DURATION(ch) > 0 && PLR_FLAGGED(ch, PLR_NAMED))
 		fprintf(saved, "PNam: %ld %d %ld %s~\n", NAME_DURATION(ch), GET_NAME_LEV(ch), NAME_GODID(ch), NAME_REASON(ch));
-	if (DUMB_DURATION(ch) > 0)
+	if (DUMB_DURATION(ch) > 0 && PLR_FLAGGED(ch, PLR_DUMB))
 		fprintf(saved, "PDum: %ld %d %ld %s~\n", DUMB_DURATION(ch), GET_DUMB_LEV(ch), DUMB_GODID(ch), DUMB_REASON(ch));
-	if (HELL_DURATION(ch) > 0)
+	if (HELL_DURATION(ch) > 0 && PLR_FLAGGED(ch, PLR_HELLED))
 		fprintf(saved, "PHel: %ld %d %ld %s~\n", HELL_DURATION(ch), GET_HELL_LEV(ch), HELL_GODID(ch), HELL_REASON(ch));
 	if (GCURSE_DURATION(ch) > 0)
 		fprintf(saved, "PGcs: %ld %d %ld %s~\n", GCURSE_DURATION(ch), GET_GCURSE_LEV(ch), GCURSE_GODID(ch), GCURSE_REASON(ch));
-	if (FREEZE_DURATION(ch) > 0)
+	if (FREEZE_DURATION(ch) > 0 && PLR_FLAGGED(ch, PLR_FROZEN))
 		fprintf(saved, "PFrz: %ld %d %ld %s~\n", FREEZE_DURATION(ch), GET_FREEZE_LEV(ch), FREEZE_GODID(ch), FREEZE_REASON(ch));
 	if (UNREG_DURATION(ch) > 0)
 		fprintf(saved, "PUnr: %ld %d %ld %s~\n", UNREG_DURATION(ch), GET_UNREG_LEV(ch), UNREG_GODID(ch), UNREG_REASON(ch));
