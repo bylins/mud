@@ -1264,7 +1264,7 @@ public:
 		int num = (unsigned long)__plane < (unsigned long)INT_ONE   ? 0 :
 			  (unsigned long)__plane < (unsigned long)INT_TWO   ? 1 :
 			  (unsigned long)__plane < (unsigned long)INT_THREE ? 2 : 3;
-		*(flags + num) = 0x3FFFFFFF & __plane;
+		*(flags + num) |= 0x3FFFFFFF & __plane;
 		return *this;
 	}
 };
