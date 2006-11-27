@@ -38,7 +38,7 @@ extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;
 
 extern void half_chop(char *string, char *arg1, char *arg2);
-extern void asciiflag_conv(char *flag, void *value);
+extern void asciiflag_conv(const char *flag, void *value);
 
 int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract);
 int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);

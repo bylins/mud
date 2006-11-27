@@ -36,7 +36,7 @@ void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 void die_follower(CHAR_DATA * ch);
 room_data *get_room(char *name);
-void asciiflag_conv(char *flag, void *value);
+void asciiflag_conv(const char *flag, void *value);
 int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
 void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktype, int mayflee);
 #define OCMD(name)  \

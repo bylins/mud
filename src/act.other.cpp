@@ -1321,8 +1321,6 @@ ACMD(do_use)
 		}
 		if (GET_EQ(ch, WEAR_HOLD))
 			obj_to_char(unequip_char(ch, WEAR_HOLD), ch);
-		act("Вы взяли $o3 в левую руку.", FALSE, ch, mag_item, 0, TO_CHAR);
-		act("$n взял$g $o3 в левую руку.", FALSE, ch, mag_item, 0, TO_ROOM);
 		obj_from_char(mag_item);
 		equip_char(ch, mag_item, WEAR_HOLD);
 	}

@@ -1429,13 +1429,14 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 		// act("Вы не смогли обезоружить $N1 !",FALSE,ch,0,vict,TO_CHAR);
 		prob = 3;
 	} else {
-		wielded = unequip_char(vict, pos);
+		wielded = GET_EQ(vict, pos);
 		sprintf(buf, "%sВы ловко выбили %s из рук %s...%s\r\n",
 			CCIBLU(ch, C_NRM), wielded->PNames[3], GET_PAD(vict, 1), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		// act("Вы ловко выбили $o3 из рук $N1.",FALSE,ch,wielded,vict,TO_CHAR);
 		act("$n ловко выбил$g $o3 из Ваших рук.", FALSE, ch, wielded, vict, TO_VICT);
 		act("$n ловко выбил$g $o3 из рук $N1.", TRUE, ch, wielded, vict, TO_NOTVICT);
+		unequip_char(vict, pos);
 		if (GET_WAIT(vict) <= 0) {
 			set_wait(vict, IS_NPC(vict) ? 1 : 2, FALSE);
 		}

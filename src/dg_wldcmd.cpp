@@ -32,7 +32,7 @@ void die_follower(CHAR_DATA * ch);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void send_to_zone(char *messg, int zone_rnum);
-void asciiflag_conv(char *flag, void *value);
+void asciiflag_conv(const char *flag, void *value);
 CHAR_DATA *get_char_by_room(room_data * room, char *name);
 room_data *get_room(char *name);
 OBJ_DATA *get_obj_by_room(room_data * room, char *name);

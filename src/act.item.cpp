@@ -37,9 +37,6 @@ extern struct house_control_rec house_control[];
 /* from act.informative.cpp */
 char *find_exdesc(char *word, EXTRA_DESCR_DATA * list);
 
-int preequip_char(CHAR_DATA * ch, OBJ_DATA * obj, int where);
-void postequip_char(CHAR_DATA * ch, OBJ_DATA * obj);
-
 /* local functions */
 int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 void get_check_money(CHAR_DATA * ch, OBJ_DATA * obj);
@@ -55,7 +52,6 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont);
 void name_from_drinkcon(OBJ_DATA * obj);
 void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount);
 void name_to_drinkcon(OBJ_DATA * obj, int type);
-void wear_message(CHAR_DATA * ch, OBJ_DATA * obj, int where);
 void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where);
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
 bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont, int mode);
@@ -1860,73 +1856,6 @@ ACMD(do_pour)
 
 
 
-void wear_message(CHAR_DATA * ch, OBJ_DATA * obj, int where)
-{
-	const char *wear_messages[][2] = {
-		{"$n засветил$g $o3 и взял$g во вторую руку.",
-		 "Вы зажгли $o3 и взяли во вторую руку."},
-
-		{"$n0 надел$g $o3 на правый указательный палец.",
-		 "Вы надели $o3 на правый указательный палец."},
-
-		{"$n0 надел$g $o3 на левый указательный палец.",
-		 "Вы надели $o3 на левый указательный палец."},
-
-		{"$n0 надел$g $o3 вокруг шеи.",
-		 "Вы надели $o3 вокруг шеи."},
-
-		{"$n0 надел$g $o3 на грудь.",
-		 "Вы надели $o3 на грудь."},
-
-		{"$n0 надел$g $o3 на туловище.",
-		 "Вы надели $o3 на туловище.",},
-
-		{"$n0 водрузил$g $o3 на голову.",
-		 "Вы водрузили $o3 себе на голову."},
-
-		{"$n0 надел$g $o3 на ноги.",
-		 "Вы надели $o3 на ноги."},
-
-		{"$n0 обул$g $o3.",
-		 "Вы обули $o3."},
-
-		{"$n0 надел$g $o3 на кисти.",
-		 "Вы надели $o3 на кисти."},
-
-		{"$n0 надел$g $o3 на руки.",
-		 "Вы надели $o3 на руки."},
-
-		{"$n0 начал$g использовать $o3 как щит.",
-		 "Вы начали использовать $o3 как щит."},
-
-		{"$n0 облачил$u в $o3.",
-		 "Вы облачились в $o3."},
-
-		{"$n0 надел$g $o3 вокруг пояса.",
-		 "Вы надели $o3 вокруг пояса."},
-
-		{"$n0 надел$g $o3 вокруг правого запястья.",
-		 "Вы надели $o3 вокруг правого запястья."},
-
-		{"$n0 надел$g $o3 вокруг левого запястья.",
-		 "Вы надели $o3 вокруг левого запястья."},
-
-		{"$n0 взял$g в правую руку $o3.",
-		 "Вы вооружились $o4."},
-
-		{"$n0 взял$g $o3 в левую руку.",
-		 "Вы взяли $o3 в левую руку."},
-
-		{"$n0 взял$g $o3 в обе руки.",
-		 "Вы взяли $o3 в обе руки."}
-	};
-
-	act(wear_messages[where][0], TRUE, ch, obj, 0, TO_ROOM);
-	act(wear_messages[where][1], FALSE, ch, obj, 0, TO_CHAR);
-}
-
-
-
 void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 {
 	/*
@@ -1997,10 +1926,7 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		return;
 
 	obj_from_char(obj);
-	if (preequip_char(ch, obj, where) && obj->worn_by == ch) {
-		wear_message(ch, obj, where);
-		postequip_char(ch, obj);
-	}
+	equip_char(ch, obj, where | 0x100);
 }
 
 
@@ -2258,9 +2184,9 @@ void perform_remove(CHAR_DATA * ch, int pos)
 	else {
 		if (!remove_otrigger(obj, ch))
 			return;
-		obj_to_char(unequip_char(ch, pos), ch);
 		act("Вы прекратили использовать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n прекратил$g использовать $o3.", TRUE, ch, obj, 0, TO_ROOM);
+		obj_to_char(unequip_char(ch, pos | 0x40), ch);
 	}
 }
 

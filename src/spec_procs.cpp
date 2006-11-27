@@ -1709,53 +1709,50 @@ void npc_wield(CHAR_DATA * ch)
 			return;
 		if (GET_EQ(ch, WEAR_BOTHS)) {
 			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
-			obj_to_char(unequip_char(ch, WEAR_BOTHS), ch);
+			obj_to_char(unequip_char(ch, WEAR_BOTHS | 0x40), ch);
 		}
 		if (GET_EQ(ch, WEAR_WIELD)) {
 			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_WIELD), 0, TO_ROOM);
-			obj_to_char(unequip_char(ch, WEAR_WIELD), ch);
+			obj_to_char(unequip_char(ch, WEAR_WIELD | 0x40), ch);
 		}
 		if (GET_EQ(ch, WEAR_SHIELD)) {
 			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_SHIELD), 0, TO_ROOM);
-			obj_to_char(unequip_char(ch, WEAR_SHIELD), ch);
+			obj_to_char(unequip_char(ch, WEAR_SHIELD | 0x40), ch);
 		}
 		if (GET_EQ(ch, WEAR_HOLD)) {
 			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_HOLD), 0, TO_ROOM);
-			obj_to_char(unequip_char(ch, WEAR_HOLD), ch);
+			obj_to_char(unequip_char(ch, WEAR_HOLD | 0x40), ch);
 		}
-		act("$n взял$g $o3 в обе руки.", FALSE, ch, both, 0, TO_ROOM);
 		obj_from_char(both);
-		equip_char(ch, both, WEAR_BOTHS);
+		equip_char(ch, both, WEAR_BOTHS | 0x100);
 	} else {
 		if (left && GET_EQ(ch, WEAR_HOLD) != left) {
 			if (GET_EQ(ch, WEAR_BOTHS)) {
 				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
-				obj_to_char(unequip_char(ch, WEAR_BOTHS), ch);
+				obj_to_char(unequip_char(ch, WEAR_BOTHS | 0x40), ch);
 			}
 			if (GET_EQ(ch, WEAR_SHIELD)) {
 				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_SHIELD), 0, TO_ROOM);
-				obj_to_char(unequip_char(ch, WEAR_SHIELD), ch);
+				obj_to_char(unequip_char(ch, WEAR_SHIELD | 0x40), ch);
 			}
 			if (GET_EQ(ch, WEAR_HOLD)) {
 				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_HOLD), 0, TO_ROOM);
-				obj_to_char(unequip_char(ch, WEAR_HOLD), ch);
+				obj_to_char(unequip_char(ch, WEAR_HOLD | 0x40), ch);
 			}
-			act("$n взял$g $o3 в левую руку.", FALSE, ch, left, 0, TO_ROOM);
 			obj_from_char(left);
-			equip_char(ch, left, WEAR_HOLD);
+			equip_char(ch, left, WEAR_HOLD | 0x100);
 		}
 		if (right && GET_EQ(ch, WEAR_WIELD) != right) {
 			if (GET_EQ(ch, WEAR_BOTHS)) {
 				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
-				obj_to_char(unequip_char(ch, WEAR_BOTHS), ch);
+				obj_to_char(unequip_char(ch, WEAR_BOTHS | 0x40), ch);
 			}
 			if (GET_EQ(ch, WEAR_WIELD)) {
 				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_WIELD), 0, TO_ROOM);
-				obj_to_char(unequip_char(ch, WEAR_WIELD), ch);
+				obj_to_char(unequip_char(ch, WEAR_WIELD | 0x40), ch);
 			}
-			act("$n взял$g $o3 в правую руку.", FALSE, ch, right, 0, TO_ROOM);
 			obj_from_char(right);
-			equip_char(ch, right, WEAR_WIELD);
+			equip_char(ch, right, WEAR_WIELD | 0x100);
 		}
 	}
 }
@@ -1815,11 +1812,10 @@ void npc_armor(CHAR_DATA * ch)
 			    GET_OBJ_VAL(GET_EQ(ch, where), 0) + GET_OBJ_VAL(GET_EQ(ch, where), 1) * 3 || has_curse(obj))
 				continue;
 			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, where), 0, TO_ROOM);
-			obj_to_char(unequip_char(ch, where), ch);
+			obj_to_char(unequip_char(ch, where | 0x40), ch);
 		}
-		act("$n одел$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
 		obj_from_char(obj);
-		equip_char(ch, obj, where);
+		equip_char(ch, obj, where | 0x100);
 		break;
 	}
 }
@@ -1836,7 +1832,7 @@ void npc_light(CHAR_DATA * ch)
 
 	if ((obj = GET_EQ(ch, WEAR_LIGHT)) && (GET_OBJ_VAL(obj, 2) == 0 || !IS_DARK(IN_ROOM(ch)))) {
 		act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
-		obj_to_char(unequip_char(ch, WEAR_LIGHT), ch);
+		obj_to_char(unequip_char(ch, WEAR_LIGHT | 0x40), ch);
 	}
 
 	if (!GET_EQ(ch, WEAR_LIGHT) && IS_DARK(IN_ROOM(ch)))
@@ -1850,9 +1846,8 @@ void npc_light(CHAR_DATA * ch)
 				obj_to_room(obj, IN_ROOM(ch));
 				continue;
 			}
-			act("$n начал$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
 			obj_from_char(obj);
-			equip_char(ch, obj, WEAR_LIGHT);
+			equip_char(ch, obj, WEAR_LIGHT | 0x100);
 			return;
 		}
 }

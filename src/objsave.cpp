@@ -68,7 +68,7 @@ int min_rent_cost(CHAR_DATA * ch);
 void name_from_drinkcon(OBJ_DATA * obj);
 void name_to_drinkcon(OBJ_DATA * obj, int type);
 OBJ_DATA *create_obj(void);
-void asciiflag_conv(char *flag, void *value);
+void asciiflag_conv(const char *flag, void *value);
 void tascii(int *pointer, int num_planes, char *ascii);
 int get_ptable_by_name(char *name);
 
@@ -499,8 +499,10 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	for (;;) {
 		if (!get_buf_line(data, buffer)) {
 			*error = 0;
-			if (j < MAX_OBJ_AFFECT)
-				memset(&object->affected[j], 0, sizeof(obj_affected_type) * (MAX_OBJ_AFFECT - j));
+			for (; j < MAX_OBJ_AFFECT; j++) {
+				object->affected[j].location = APPLY_NONE;
+				object->affected[j].modifier = 0;
+			}
 			if (GET_OBJ_TYPE(object) == ITEM_MING) {
 				int err = im_assign_power(object);
 				if (err)

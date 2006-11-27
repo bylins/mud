@@ -15,6 +15,7 @@
 #ifndef _STRUCTS_H_
 #define _STRUCTS_H_
 
+#include <vector>
 #include <list>
 #include <bitset>
 #include <string>
@@ -842,6 +843,7 @@ typedef struct trig_data
 #define ITEM_WITH1SLOT     (INT_ONE | (1 << 3))	/* в предмет можно вплавить 1 камень */
 #define ITEM_WITH2SLOTS    (INT_ONE | (1 << 4))	/* в предмет можно вплавить 2 камня */
 #define ITEM_WITH3SLOTS    (INT_ONE | (1 << 5))	/* в предмет можно вплавить 3 камня (овер) */
+#define ITEM_SETSTUFF      (INT_ONE | (1 << 6)) /* Item is set object */
 
 #define ITEM_NO_MONO       (1 << 0)
 #define ITEM_NO_POLY       (1 << 1)
@@ -1234,6 +1236,8 @@ struct flag_data {
 	 flags[4];
 };
 
+extern const FLAG_DATA clear_flags;
+
 #define INT_ZERRO (0 << 30)
 #define INT_ONE   (1 << 30)
 #define INT_TWO   (2 << 30)
@@ -1242,6 +1246,83 @@ struct flag_data {
                                (unsigned long)flag < (unsigned long)INT_TWO   ? value.flags[1] : \
                                (unsigned long)flag < (unsigned long)INT_THREE ? value.flags[2] : value.flags[3])
 
+class unique_bit_flag_data : public flag_data {
+public:
+	unique_bit_flag_data() : flag_data(clear_flags) {}
+
+	unique_bit_flag_data(const flag_data& __base) : flag_data(__base) {}
+
+	int
+	get_plane(int __plane) const
+	{
+		return *(flags + __plane) | __plane << 30;
+	}
+
+	unique_bit_flag_data&
+	set_plane(int __plane)
+	{
+		int num = (unsigned long)__plane < (unsigned long)INT_ONE   ? 0 :
+			  (unsigned long)__plane < (unsigned long)INT_TWO   ? 1 :
+			  (unsigned long)__plane < (unsigned long)INT_THREE ? 2 : 3;
+		*(flags + num) = 0x3FFFFFFF & __plane;
+		return *this;
+	}
+};
+
+inline int
+flag_data_by_num(const int& num)
+{
+	return num < 0   ? 0 :
+	       num < 30  ? (1 << num) :
+	       num < 60  ? (INT_ONE | (1 << (num - 30))) :
+	       num < 90  ? (INT_TWO | (1 << (num - 60))) :
+	       num < 120 ? (INT_THREE | (1 << (num - 90))) : 0;
+}
+
+inline bool
+operator==(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
+{
+	return *__lop.flags & *__rop.flags || *(__lop.flags + 1) & *(__rop.flags + 1) ||
+	       *(__lop.flags + 2) & *(__rop.flags + 2) || *(__lop.flags + 3) & *(__rop.flags + 3);
+}
+
+inline bool
+operator!=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
+{
+	return !(__lop == __rop);
+}
+
+inline bool
+operator<(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
+{
+	return __lop != __rop &&
+	       (*__lop.flags < *__rop.flags || *(__lop.flags + 1) < *(__rop.flags + 1) ||
+		*(__lop.flags + 2) < *(__rop.flags + 2) || *(__lop.flags + 3) < *(__rop.flags + 3));
+}
+
+inline bool
+operator>(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
+{
+	return __lop != __rop &&
+	       (*__lop.flags > *__rop.flags || *(__lop.flags + 1) > *(__rop.flags + 1) ||
+		*(__lop.flags + 2) > *(__rop.flags + 2) || *(__lop.flags + 3) > *(__rop.flags + 3));
+}
+
+inline bool
+operator<=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
+{
+	return __lop == __rop ||
+	       (*__lop.flags < *__rop.flags || *(__lop.flags + 1) < *(__rop.flags + 1) ||
+		*(__lop.flags + 2) < *(__rop.flags + 2) || *(__lop.flags + 3) < *(__rop.flags + 3));
+}
+
+inline bool
+operator>=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
+{
+	return __lop == __rop ||
+	       (*__lop.flags > *__rop.flags || *(__lop.flags + 1) > *(__rop.flags + 1) ||
+		*(__lop.flags + 2) > *(__rop.flags + 2) || *(__lop.flags + 3) > *(__rop.flags + 3));
+}
 
 /* Extra description: used in objects, mobiles, and rooms */
 struct extra_descr_data {
@@ -1310,7 +1391,107 @@ struct obj_flag_data {
 struct obj_affected_type {
 	byte location;		/* Which ability to change (APPLY_XXX) */
 	sbyte modifier;		/* How much it changes by              */
+	obj_affected_type() : location(APPLY_NONE), modifier(0) {}
+	obj_affected_type(byte __location, sbyte __modifier) : location(__location), modifier(__modifier) {}
 };
+
+class activation {
+	std::string actmsg, deactmsg, room_actmsg, room_deactmsg;
+	flag_data affects;
+	obj_affected_type affected[MAX_OBJ_AFFECT];
+public:
+	activation() : affects(clear_flags) {}
+
+	activation(const std::string& __actmsg, const std::string& __deactmsg,
+		   const std::string& __room_actmsg, const std::string& __room_deactmsg,
+		   const flag_data& __affects, const obj_affected_type* __affected) :
+		   actmsg(__actmsg), deactmsg(__deactmsg), room_actmsg(__room_actmsg), room_deactmsg(__room_deactmsg), affects(__affects)
+	{
+		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+			affected[i] = __affected[i];
+	}
+
+	const std::string&
+	get_actmsg() const { return actmsg; }
+
+	activation&
+	set_actmsg(const std::string& __actmsg) { actmsg = __actmsg; return *this; }
+
+	const std::string&
+	get_deactmsg() const { return deactmsg; }
+
+	activation&
+	set_deactmsg(const std::string& __deactmsg) { deactmsg = __deactmsg; return *this; }
+
+	const std::string&
+	get_room_actmsg() const { return room_actmsg; }
+
+	activation&
+	set_room_actmsg(const std::string& __room_actmsg) { room_actmsg = __room_actmsg; return *this; }
+
+	const std::string&
+	get_room_deactmsg() const { return room_deactmsg; }
+
+	activation&
+	set_room_deactmsg(const std::string& __room_deactmsg) { room_deactmsg = __room_deactmsg; return *this; }
+
+	const flag_data&
+	get_affects() const { return affects; }
+
+	activation&
+	set_affects(const flag_data& __affects) { affects = __affects; return *this; }
+
+	const obj_affected_type*
+	get_affected() const { return affected; }
+
+	activation&
+	set_affected(const obj_affected_type* __affected)
+	{
+		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+			affected[i] = __affected[i];
+		return *this;
+	}
+
+	const obj_affected_type&
+	get_affected_i(int __i) const
+	{
+		return __i < 0              ? affected[0] :
+		       __i < MAX_OBJ_AFFECT ? affected[__i] : affected[MAX_OBJ_AFFECT-1];
+	}
+
+	activation&
+	set_affected_i(int __i, const obj_affected_type& __affected)
+	{
+		if (__i >= 0 && __i < MAX_OBJ_AFFECT)
+			affected[__i] = __affected;
+
+		return *this;
+	}
+};
+
+typedef std::map< unique_bit_flag_data, activation > class_to_act_map;
+
+typedef std::map< unsigned int, class_to_act_map > qty_to_camap_map;
+
+class set_info : public std::map< obj_vnum, qty_to_camap_map > {
+	std::string name;
+public:
+	typedef std::map< obj_vnum, qty_to_camap_map > ovnum_to_qamap_map;
+
+	set_info() {}
+
+	set_info(const ovnum_to_qamap_map& __base, const std::string& __name) : ovnum_to_qamap_map(__base), name(__name) {}
+
+	const std::string&
+	get_name() const { return name; }
+
+	set_info&
+	set_name(const std::string& __name) { name = __name; return *this; }
+};
+
+typedef std::map< int, set_info > id_to_set_info_map;
+
+extern std::vector < OBJ_DATA * >obj_proto;
 
 /* ================== Memory Structure for Objects ================== */
 struct obj_data {
@@ -1349,6 +1530,8 @@ struct obj_data {
 	int
 	 max_in_world;		/* max in world             */
 
+	static id_to_set_info_map set_table;
+
 	obj_data() :
 		uid(0),
 		item_number(NOTHING),
@@ -1372,10 +1555,35 @@ struct obj_data {
 		max_in_world(0)
 	{
 		memset(&obj_flags, 0, sizeof(obj_flag_data));
-		memset(&affected, 0, sizeof(obj_affected_type) * MAX_OBJ_AFFECT);
 
 		for (int i = 0; i < 6; i++)
 			PNames[i] = NULL;
+	}
+
+	static void init_set_table();
+
+	const std::string
+	activate_obj(const activation& __act)
+        {
+		if (item_number >= 0) {
+			obj_flags.affects = __act.get_affects();
+			for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+				affected[i] = __act.get_affected_i(i);
+			return __act.get_actmsg() + "\n" + __act.get_room_actmsg();
+		} else
+			return "\n";
+	}
+
+	const std::string
+	deactivate_obj(const activation& __act)
+	{
+		if (item_number >= 0) {
+			obj_flags.affects = obj_proto[item_number]->obj_flags.affects;
+			for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+				affected[i] = obj_proto[item_number]->affected[i];
+			return __act.get_deactmsg() + "\n" + __act.get_room_deactmsg();
+		} else
+			return "\n";
 	}
 };
 /* ======================================================================= */

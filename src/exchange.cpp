@@ -35,7 +35,7 @@ extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern int get_buf_line(char **source, char *target);
 extern int get_buf_lines(char **source, char *target);
 extern void tascii(int *pointer, int num_planes, char *ascii);
-extern void asciiflag_conv(char *flag, void *value);
+extern void asciiflag_conv(const char *flag, void *value);
 
 extern int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
 extern int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
@@ -1093,8 +1093,10 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 	for (;;) {
 		if (!get_buf_line(data, buffer)) {
 			*error = 0;
-			if (j < MAX_OBJ_AFFECT)
-				memset(&GET_EXCHANGE_ITEM(item)->affected[j], 0, sizeof(obj_affected_type) * (MAX_OBJ_AFFECT - j));
+			for (; j < MAX_OBJ_AFFECT; j++) {
+				GET_EXCHANGE_ITEM(item)->affected[j].location = APPLY_NONE;
+				GET_EXCHANGE_ITEM(item)->affected[j].modifier = 0;
+			}
 			if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == ITEM_MING) {
 				int err = im_assign_power(GET_EXCHANGE_ITEM(item));
 				if (err)

@@ -729,6 +729,7 @@ const char *extra_bits[] = { "светится",
 	"можно вплавить 1 камень",
 	"можно вплавить 2 камня",
 	"можно вплавить 3 камня",
+	"сетовый предмет",
 	"\n",
 	"\n",
 	"\n"
@@ -1658,96 +1659,94 @@ struct class_app_type class_app[NUM_CLASSES] = { {5, 40, 10, 8, 20, (struct extr
 };
 
 struct extra_affects_type SeveraneAffects[] = { {-1, -1} };
-struct obj_affected_type SeverianeModifiers[] = { {APPLY_DAMROLL, 2},
-{-1, -1}
+struct obj_affected_type SeveraneModifiers[] = { obj_affected_type(APPLY_DAMROLL, 2),
+obj_affected_type(-1, -1)
 };
 struct extra_affects_type PolaneAffects[] = { {-1, -1} };
-struct obj_affected_type PolaneModifiers[] = { {APPLY_MOVEREG, 75},
-{APPLY_DEX, 1},
-{-1, -1}
+struct obj_affected_type PolaneModifiers[] = { obj_affected_type(APPLY_MOVEREG, 75),
+obj_affected_type(APPLY_DEX, 1),
+obj_affected_type(-1, -1)
 };
 struct extra_affects_type KrivichiAffects[] = { {-1, -1} };
-struct obj_affected_type KrivichiModifiers[] = { {APPLY_MANAREG, 25},
-{-1, -1}
+struct obj_affected_type KrivichiModifiers[] = { obj_affected_type(APPLY_MANAREG, 25),
+obj_affected_type(-1, -1)
 };
 struct extra_affects_type VatichiAffects[] = { {-1, -1} };
-struct obj_affected_type VatichiModifiers[] = { {APPLY_HITREG, 50},
-{APPLY_CON, 1},
-{-1, -1}
+struct obj_affected_type VatichiModifiers[] = { obj_affected_type(APPLY_HITREG, 50),
+obj_affected_type(APPLY_CON, 1),
+obj_affected_type(-1, -1)
 };
 struct extra_affects_type VelaneAffects[] = { {-1, -1} };
-struct obj_affected_type VelaneModifiers[] = { {APPLY_CAST_SUCCESS, 5},
-{-1, -1}
+struct obj_affected_type VelaneModifiers[] = { obj_affected_type(APPLY_CAST_SUCCESS, 5),
+obj_affected_type(-1, -1)
 };
 struct extra_affects_type DrevlaneAffects[] = { {-1, -1} };
-struct obj_affected_type DrevlaneModifiers[] = { {APPLY_MORALE, 5},
-{-1, -1}
-};
-struct extra_affects_type PolovciAffects[] = { {-1, -1} };
-struct obj_affected_type PolovciModifiers[] = { {APPLY_DAMROLL, 5},
-{APPLY_INT, 1},
-{-1, -1}
+struct obj_affected_type DrevlaneModifiers[] = { obj_affected_type(APPLY_MORALE, 5),
+obj_affected_type(-1, -1)
 };
 
+struct extra_affects_type PolovciAffects[] = { {-1, -1} };
+struct obj_affected_type PolovciModifiers[] = { obj_affected_type(APPLY_DAMROLL, 5),
+obj_affected_type(APPLY_INT, 1),
+obj_affected_type(-1, -1)
+};
 struct extra_affects_type PechenegiAffects[] = { {-1, -1} };
-struct obj_affected_type PechenegiModifiers[] = { {APPLY_MORALE, 5},
-{APPLY_CHA, 1},
-{-1, -1}
+struct obj_affected_type PechenegiModifiers[] = { obj_affected_type(APPLY_MORALE, 5),
+obj_affected_type(APPLY_CHA, 1),
+obj_affected_type(-1, -1)
 };
 struct extra_affects_type XazariAffects[] = { {-1, -1} };
-struct obj_affected_type XazariModifiers[] = { {APPLY_HITROLL, 5},
-{APPLY_WIS, 1},
-{-1, -1}
+struct obj_affected_type XazariModifiers[] = { obj_affected_type(APPLY_HITROLL, 5),
+obj_affected_type(APPLY_WIS, 1),
+obj_affected_type(-1, -1)
 };
 struct extra_affects_type MongoliAffects[] = { {-1, -1} };
-struct obj_affected_type MongoliModifiers[] = { {APPLY_CAST_SUCCESS, 10},
-{APPLY_STR, 1},
-{-1, -1}
+struct obj_affected_type MongoliModifiers[] = { obj_affected_type(APPLY_CAST_SUCCESS, 10),
+obj_affected_type(APPLY_STR, 1),
+obj_affected_type(-1, -1)
 };
 struct extra_affects_type YiguriAffects[] = { {-1, -1} };
-struct obj_affected_type YiguriModifiers[] = { {APPLY_HITREG, 50},
-{APPLY_CON, 1},
-{-1, -1}
+struct obj_affected_type YiguriModifiers[] = { obj_affected_type(APPLY_HITREG, 50),
+obj_affected_type(APPLY_CON, 1),
+obj_affected_type(-1, -1)
 };
 struct extra_affects_type KangariAffects[] = { {-1, -1} };
-struct obj_affected_type KangariModifiers[] = { {APPLY_CAST_SUCCESS, 5},
-{-1, -1}
+struct obj_affected_type KangariModifiers[] = { obj_affected_type(APPLY_CAST_SUCCESS, 5),
+obj_affected_type(-1, -1)
 };
 
 struct extra_affects_type NorvezciAffects[] = { {-1, -1} };
-struct obj_affected_type NorvezciModifiers[] = { {APPLY_DAMROLL, 5},
-{APPLY_INT, 1},
-{-1, -1}
+struct obj_affected_type NorvezciModifiers[] = { obj_affected_type(APPLY_DAMROLL, 5),
+obj_affected_type(APPLY_INT, 1),
+obj_affected_type(-1, -1)
 };
-
 struct extra_affects_type SveiAffects[] = { {-1, -1} };
-struct obj_affected_type SveiModifiers[] = { {APPLY_MORALE, 5},
-{APPLY_CHA, 1},
-{-1, -1}
+struct obj_affected_type SveiModifiers[] = { obj_affected_type(APPLY_MORALE, 5),
+obj_affected_type(APPLY_CHA, 1),
+obj_affected_type(-1, -1)
 };
 struct extra_affects_type GettiAffects[] = { {-1, -1} };
-struct obj_affected_type GettiModifiers[] = { {APPLY_HITROLL, 5},
-{APPLY_WIS, 1},
-{-1, -1}
+struct obj_affected_type GettiModifiers[] = { obj_affected_type(APPLY_HITROLL, 5),
+obj_affected_type(APPLY_WIS, 1),
+obj_affected_type(-1, -1)
 };
 struct extra_affects_type DatchaneAffects[] = { {-1, -1} };
-struct obj_affected_type DatchaneModifiers[] = { {APPLY_CAST_SUCCESS, 5},
-{APPLY_STR, 1},
-{-1, -1}
+struct obj_affected_type DatchaneModifiers[] = { obj_affected_type(APPLY_CAST_SUCCESS, 5),
+obj_affected_type(APPLY_STR, 1),
+obj_affected_type(-1, -1)
 };
-
 struct extra_affects_type UttiAffects[] = { {-1, -1} };
-struct obj_affected_type UttiModifiers[] = { {APPLY_HITREG, 50},
-{APPLY_CON, 1},
-{-1, -1}
+struct obj_affected_type UttiModifiers[] = { obj_affected_type(APPLY_HITREG, 50),
+obj_affected_type(APPLY_CON, 1),
+obj_affected_type(-1, -1)
 };
 struct extra_affects_type XaleigiAffects[] = { {-1, -1} };
-struct obj_affected_type XaleigiModifiers[] = { {APPLY_CAST_SUCCESS, 5},
-{-1, -1}
+struct obj_affected_type XaleigiModifiers[] = { obj_affected_type(APPLY_CAST_SUCCESS, 5),
+obj_affected_type(-1, -1)
 };
 
 struct race_app_type race_app[NUM_RACES] = { {(struct extra_affects_type *) &SeveraneAffects,
-					      (struct obj_affected_type *) &SeverianeModifiers},
+					      (struct obj_affected_type *) &SeveraneModifiers},
 {(struct extra_affects_type *) &PolaneAffects,
  (struct obj_affected_type *) &PolaneModifiers},
 {(struct extra_affects_type *) &KrivichiAffects,

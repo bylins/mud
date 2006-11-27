@@ -62,7 +62,7 @@ extern int reloc_target;
 extern TRIG_DATA *cur_trig;
 
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
-void asciiflag_conv(char *flag, void *value);
+void asciiflag_conv(const char *flag, void *value);
 room_data *get_room(char *name);
 extern void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktype, int mayflee);
 OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name);

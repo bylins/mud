@@ -35,6 +35,18 @@
 #define DL_LOAD_ANYWAY_NC  2
 #define DL_LOAD_IFLAST_NC  3
 
+const int SETSTUFF_SNUM = 0;
+const int SETSTUFF_NAME = 1;
+const int SETSTUFF_VNUM = 2;
+const int SETSTUFF_OQTY = 3;
+const int SETSTUFF_CLSS = 4;
+const int SETSTUFF_AMSG = 5;
+const int SETSTUFF_DMSG = 6;
+const int SETSTUFF_RAMG = 7;
+const int SETSTUFF_RDMG = 8;
+const int SETSTUFF_AFFS = 9;
+const int SETSTUFF_AFCN = 10;
+
 #define LIB_A       "A-E"
 #define LIB_F       "F-J"
 #define LIB_K       "K-O"
@@ -366,13 +378,11 @@ extern CHAR_DATA *character_list;
 extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;
 extern DESCRIPTOR_DATA *descriptor_list;
-extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 extern const char *MENU;
 extern struct gods_celebrate_apply_type *Mono_apply;
 extern struct gods_celebrate_apply_type *Poly_apply;
 extern int supress_godsapply;
-extern const FLAG_DATA clear_flags;
 extern struct portals_list_type *portals_list;
 extern TIME_INFO_DATA time_info;
 

@@ -1844,14 +1844,6 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 	for (i = 0; i < 4; i++)
 		if (af[i].type)
 			affect_join(victim, af + i, TRUE, FALSE, TRUE, FALSE);
-	if (unequip_pos && GET_EQ(victim, unequip_pos)) {
-		obj = unequip_char(victim, unequip_pos);
-		if (!IS_NPC(victim) && ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
-			obj_to_char(obj, victim);
-		else
-			obj_to_room(obj, IN_ROOM(victim));
-		obj_decay(obj);
-	}
 	if (to_char) {
 		sprintf(buf, "%sВаше точное попадание %s.%s", CCIGRN(ch, C_NRM), to_char, CCNRM(ch, C_NRM));
 		act(buf, FALSE, ch, 0, victim, TO_CHAR);
@@ -1861,6 +1853,14 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 	if (to_vict) {
 		sprintf(buf, "%sМеткое попадание $n1 %s.%s", CCIRED(victim, C_NRM), to_vict, CCNRM(victim, C_NRM));
 		act(buf, FALSE, ch, 0, victim, TO_VICT);
+	}
+	if (unequip_pos && GET_EQ(victim, unequip_pos)) {
+		obj = unequip_char(victim, unequip_pos);
+		if (!IS_NPC(victim) && ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
+			obj_to_char(obj, victim);
+		else
+			obj_to_room(obj, IN_ROOM(victim));
+		obj_decay(obj);
 	}
 	if (!IS_NPC(victim)){
 	    dam /= 5;

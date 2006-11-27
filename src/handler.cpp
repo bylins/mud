@@ -1441,102 +1441,194 @@ int invalid_align(CHAR_DATA * ch, OBJ_DATA * obj)
 	return FALSE;
 }
 
-
-int preequip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
+void wear_message(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 {
-	int was_lgt = AFF_FLAGGED(ch, AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
-	    was_hlgt = AFF_FLAGGED(ch, AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
-	    was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, was_lamp = FALSE;
+	const char *wear_messages[][2] = {
+		{"$n засветил$g $o3 и взял$g во вторую руку.",
+		 "Вы зажгли $o3 и взяли во вторую руку."},
 
-	if (pos < 0 || pos >= NUM_WEARS) {
-		log("SYSERR: preequip(%s,%d) in unknown pos...", GET_NAME(ch), pos);
-		// core_dump();
-		return (FALSE);
-	}
+		{"$n0 надел$g $o3 на правый указательный палец.",
+		 "Вы надели $o3 на правый указательный палец."},
 
-	if (GET_EQ(ch, pos)) {
-		log("SYSERR: Char is already equipped: %s, %s", GET_NAME(ch), obj->short_description);
-		return (FALSE);
-	}
-	if (obj->carried_by) {
-		log("SYSERR: EQUIP: %s - Obj is carried_by when equip.", OBJN(obj, ch, 0));
-		return (FALSE);
-	}
-	if (obj->in_room != NOWHERE) {
-		log("SYSERR: EQUIP: %s - Obj is in_room when equip.", OBJN(obj, ch, 0));
-		return (FALSE);
-	}
+		{"$n0 надел$g $o3 на левый указательный палец.",
+		 "Вы надели $o3 на левый указательный палец."},
 
-	if (invalid_anti_class(ch, obj)) {
-		act("Вас обожгло при попытке надеть $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n попытал$u использовать $o3 - и чудом не обгорел$g.", FALSE, ch, obj, 0, TO_ROOM);
-		obj_to_room(obj, IN_ROOM(ch));
-		obj_decay(obj);
-		return (FALSE);
-	}
+		{"$n0 надел$g $o3 вокруг шеи.",
+		 "Вы надели $o3 вокруг шеи."},
 
-	if ((!IS_NPC(ch) && invalid_align(ch, obj)) ||
-	    invalid_no_class(ch, obj) ||
-	    (IS_NPC(ch) && (OBJ_FLAGGED(obj, ITEM_SHARPEN) || OBJ_FLAGGED(obj, ITEM_ARMORED)))) {
-		act("$o0 явно не предназначен$A для Вас.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n попытал$u использовать $o3, но у н$s ничего не получилось.", FALSE, ch, obj, 0, TO_ROOM);
-		obj_to_char(obj, ch);
-		return (FALSE);
-	}
+		{"$n0 надел$g $o3 на грудь.",
+		 "Вы надели $o3 на грудь."},
 
-	if (GET_EQ(ch, WEAR_LIGHT) &&
-	    GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))
-		was_lamp = TRUE;
+		{"$n0 надел$g $o3 на туловище.",
+		 "Вы надели $o3 на туловище.",},
 
-	GET_EQ(ch, pos) = obj;
-	CHECK_AGRO(ch) = TRUE;
-	obj->worn_by = ch;
-	obj->worn_on = pos;
-	obj->next_content = NULL;
+		{"$n0 водрузил$g $o3 на голову.",
+		 "Вы водрузили $o3 себе на голову."},
 
-	if (ch->in_room == NOWHERE)
-		log("SYSERR: ch->in_room = NOWHERE when equipping char %s.", GET_NAME(ch));
+		{"$n0 надел$g $o3 на ноги.",
+		 "Вы надели $o3 на ноги."},
 
-	//log("[PREEQUIP_CHAR(%s)->AFFECT_TOTAL] Start",GET_NAME(ch));
-	affect_total(ch);
-	//log("[PREEQUIP_CHAR(%s)->AFFECT_TOTAL] Stop",GET_NAME(ch));
-	check_light(ch, was_lamp, was_lgt, was_hlgt, was_hdrk, 1);
-	return (TRUE);
+		{"$n0 обул$g $o3.",
+		 "Вы обули $o3."},
+
+		{"$n0 надел$g $o3 на кисти.",
+		 "Вы надели $o3 на кисти."},
+
+		{"$n0 надел$g $o3 на руки.",
+		 "Вы надели $o3 на руки."},
+
+		{"$n0 начал$g использовать $o3 как щит.",
+		 "Вы начали использовать $o3 как щит."},
+
+		{"$n0 облачил$u в $o3.",
+		 "Вы облачились в $o3."},
+
+		{"$n0 надел$g $o3 вокруг пояса.",
+		 "Вы надели $o3 вокруг пояса."},
+
+		{"$n0 надел$g $o3 вокруг правого запястья.",
+		 "Вы надели $o3 вокруг правого запястья."},
+
+		{"$n0 надел$g $o3 вокруг левого запястья.",
+		 "Вы надели $o3 вокруг левого запястья."},
+
+		{"$n0 взял$g в правую руку $o3.",
+		 "Вы вооружились $o4."},
+
+		{"$n0 взял$g $o3 в левую руку.",
+		 "Вы взяли $o3 в левую руку."},
+
+		{"$n0 взял$g $o3 в обе руки.",
+		 "Вы взяли $o3 в обе руки."}
+	};
+
+	act(wear_messages[where][1], FALSE, ch, obj, 0, TO_CHAR);
+	act(wear_messages[where][0], IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM) ? FALSE : TRUE, ch, obj, 0, TO_ROOM);
 }
 
-void postequip_char(CHAR_DATA * ch, OBJ_DATA * obj)
+int flag_data_by_char_class(const CHAR_DATA * ch)
 {
-	int j;
+	if (ch == NULL)
+		return 0;
 
-	if (IN_ROOM(ch) != NOWHERE)
-		for (j = 0; weapon_affect[j].aff_bitvector >= 0; j++) {
-			// То же, но другими словами
-			if (weapon_affect[j].aff_spell == 0 || !IS_OBJ_AFF(obj, weapon_affect[j].aff_pos))
-				continue;
-			if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC)) {
-				act("Магия $o1 потерпела неудачу и развеялась по воздуху", FALSE, ch, obj, 0, TO_ROOM);
-				act("Магия $o1 потерпела неудачу и развеялась по воздуху", FALSE, ch, obj, 0, TO_CHAR);
-			} else {
-				mag_affects(GET_OBJ_LEVEL(obj), ch, ch, weapon_affect[j].aff_spell, SAVING_WILL);
+	return flag_data_by_num(IS_NPC(ch) ? NUM_CLASSES * NUM_KIN : GET_CLASS(ch) + NUM_CLASSES * GET_KIN(ch));
+}
+
+unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
+			    id_to_set_info_map::const_iterator it, int pos, unsigned int set_obj_qty)
+{
+	int show_msg = IS_SET(pos, 0x80), no_cast = IS_SET(pos, 0x40);
+	std::string::size_type delim;
+
+	REMOVE_BIT(pos, (0x80 | 0x40));
+
+	if (pos < NUM_WEARS) {
+		set_info::const_iterator set_obj_info;
+
+		if (GET_EQ(ch, pos) && OBJ_FLAGGED(GET_EQ(ch, pos), ITEM_SETSTUFF) &&
+		    (set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end()) {
+			unsigned int oqty = activate_stuff(ch, obj, it, pos + 1 | (show_msg ? 0x80 : 0) | (no_cast ? 0x40 : 0),
+							   set_obj_qty + 1);
+			qty_to_camap_map::const_iterator qty_info = set_obj_info->second.upper_bound(oqty);
+			qty_to_camap_map::const_iterator old_qty_info = GET_EQ(ch, pos) == obj ?
+								 set_obj_info->second.begin() :
+								 set_obj_info->second.upper_bound(oqty - 1);
+
+			while (qty_info != old_qty_info) {
+				class_to_act_map::const_iterator class_info;
+
+				qty_info--;
+				if ((class_info =
+				     qty_info->second.find(unique_bit_flag_data().set_plane(flag_data_by_char_class(ch)))) !=
+				    qty_info->second.end()) {
+					if (GET_EQ(ch, pos) != obj) {
+						for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+							affect_modify(ch, GET_EQ(ch, pos)->affected[i].location, GET_EQ(ch, pos)->affected[i].modifier,
+								      0, FALSE);
+
+						if (IN_ROOM(ch) != NOWHERE)
+							for (int i = 0; weapon_affect[i].aff_bitvector >= 0; i++) {
+								if (weapon_affect[i].aff_bitvector == 0 ||
+								    !IS_OBJ_AFF(GET_EQ(ch, pos), weapon_affect[i].aff_pos))
+									continue;
+								affect_modify(ch, APPLY_NONE, 0, weapon_affect[i].aff_bitvector, FALSE);
+							}
+					}
+
+					std::string act_msg = GET_EQ(ch, pos)->activate_obj(class_info->second);
+					delim = act_msg.find('\n');
+
+					if (show_msg) {
+						act(act_msg.substr(0, delim).c_str(), FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
+						act(act_msg.erase(0, delim + 1).c_str(),
+						    IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM) ? FALSE : TRUE,
+						    ch, GET_EQ(ch, pos), 0, TO_ROOM);
+					}
+
+					for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+						affect_modify(ch, GET_EQ(ch, pos)->affected[i].location, GET_EQ(ch, pos)->affected[i].modifier, 0, TRUE);
+
+					if (IN_ROOM(ch) != NOWHERE)
+						for (int i = 0; weapon_affect[i].aff_bitvector >= 0; i++) {
+							if (weapon_affect[i].aff_spell == 0 || !IS_OBJ_AFF(GET_EQ(ch, pos), weapon_affect[i].aff_pos))
+								continue;
+							if (!no_cast)
+								if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC)) {
+									act("Магия $o1 потерпела неудачу и развеялась по воздуху",
+									    FALSE, ch, GET_EQ(ch, pos), 0, TO_ROOM);
+									act("Магия $o1 потерпела неудачу и развеялась по воздуху",
+									    FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
+								} else
+									mag_affects(GET_LEVEL(ch), ch, ch, weapon_affect[i].aff_spell,
+										    SAVING_WILL);
+						}
+
+					return oqty;
+				}
 			}
-		}
+
+			if (GET_EQ(ch, pos) == obj) {
+				for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+					affect_modify(ch, obj->affected[i].location, obj->affected[i].modifier, 0, TRUE);
+
+				if (IN_ROOM(ch) != NOWHERE)
+					for (int i = 0; weapon_affect[i].aff_bitvector >= 0; i++) {
+						if (weapon_affect[i].aff_spell == 0 || !IS_OBJ_AFF(obj, weapon_affect[i].aff_pos))
+							continue;
+						if (!no_cast)
+							if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC)) {
+								act("Магия $o1 потерпела неудачу и развеялась по воздуху",
+								    FALSE, ch, obj, 0, TO_ROOM);
+								act("Магия $o1 потерпела неудачу и развеялась по воздуху",
+								    FALSE, ch, obj, 0, TO_CHAR);
+							} else
+								mag_affects(GET_LEVEL(ch), ch, ch, weapon_affect[i].aff_spell,
+									    SAVING_WILL);
+					}
+			}
+
+			return oqty;
+		} else
+			return activate_stuff(ch, obj, it, pos + 1 | (show_msg ? 0x80 : 0) | (no_cast ? 0x40 : 0), set_obj_qty);
+	} else
+		return set_obj_qty;
 }
 
-
-
-
+//  0x40 - no spell casting
+//  0x80 - no total affect update
+// 0x100 - show wear and activation messages
 void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 {
 	int was_lgt = AFF_FLAGGED(ch, AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
 	    was_hlgt = AFF_FLAGGED(ch, AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
 	    was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, was_lamp = FALSE;
-	int j, skip_total = IS_SET(pos, 0x80), no_cast = IS_SET(pos, 0x40);
+	int j, show_msg = IS_SET(pos, 0x100), skip_total = IS_SET(pos, 0x80),
+	    no_cast = IS_SET(pos, 0x40);
 
-	REMOVE_BIT(pos, (0x80 | 0x40));
+	REMOVE_BIT(pos, (0x100 | 0x80 | 0x40));
 
 	if (pos < 0 || pos >= NUM_WEARS) {
 		log("SYSERR: equip_char(%s,%d) in unknown pos...", GET_NAME(ch), pos);
-		// core_dump();
 		return;
 	}
 
@@ -1561,7 +1653,9 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		return;
 	}
 
-	if ((!IS_NPC(ch) && invalid_align(ch, obj)) || invalid_no_class(ch, obj)) {
+	if (!IS_NPC(ch) && invalid_align(ch, obj) ||
+	    invalid_no_class(ch, obj) ||
+	    AFF_FLAGGED(ch, AFF_CHARM) && (OBJ_FLAGGED(obj, ITEM_SHARPEN) || OBJ_FLAGGED(obj, ITEM_ARMORED))) {
 		act("$o3 явно не предназначен$A для Вас.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u одеть $o3, но у н$s ничего не получилось.", FALSE, ch, obj, 0, TO_ROOM);
 		obj_to_char(obj, ch);
@@ -1573,61 +1667,200 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		was_lamp = TRUE;
 
 	GET_EQ(ch, pos) = obj;
-	CHECK_AGRO(ch) = TRUE;
 	obj->worn_by = ch;
 	obj->worn_on = pos;
 	obj->next_content = NULL;
+	CHECK_AGRO(ch) = TRUE;
+
+	if (show_msg)
+		wear_message(ch, obj, pos);
 
 	if (ch->in_room == NOWHERE)
 		log("SYSERR: ch->in_room = NOWHERE when equipping char %s.", GET_NAME(ch));
 
+	id_to_set_info_map::iterator it = obj_data::set_table.begin();
 
-	for (j = 0; j < MAX_OBJ_AFFECT; j++)
-		affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, 0, TRUE);
-
-	if (IN_ROOM(ch) != NOWHERE)
-		for (j = 0; weapon_affect[j].aff_bitvector >= 0; j++) {
-			if (weapon_affect[j].aff_spell == 0 || !IS_OBJ_AFF(obj, weapon_affect[j].aff_pos))
-				continue;
-			if (!no_cast) {
-				log("[EQUIPPING] Casting magic...");
-				if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC)) {
-					act("Магия $o1 потерпела неудачу и развеялась по воздуху",
-					    FALSE, ch, obj, 0, TO_ROOM);
-					act("Магия $o1 потерпела неудачу и развеялась по воздуху",
-					    FALSE, ch, obj, 0, TO_CHAR);
-				} else {
-// Чтобы использовался уровень чара нужно заменить GET_OBJ_LEVEL(obj) на GET_LEVEL(ch)
-//              mag_affects(GET_OBJ_LEVEL(obj), ch, ch,
-//                          weapon_affect[j].aff_spell, SAVING_STABILITY);
-					mag_affects(GET_LEVEL(ch), ch, ch, weapon_affect[j].aff_spell, SAVING_WILL);
-				}
+	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+		for (; it != obj_data::set_table.end(); it++)
+			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
+				activate_stuff(ch, obj, it, 0 | (show_msg ? 0x80 : 0) | (no_cast ? 0x40 : 0), 0);
+				break;
 			}
-		}
 
-	if (!skip_total) {	//log("[EQUIP_CHAR(%s)->AFFECT_TOTAL] Start",GET_NAME(ch));
+	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF) || it == obj_data::set_table.end()) {
+		for (j = 0; j < MAX_OBJ_AFFECT; j++)
+			affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, 0, TRUE);
+
+		if (IN_ROOM(ch) != NOWHERE)
+			for (j = 0; weapon_affect[j].aff_bitvector >= 0; j++) {
+				if (weapon_affect[j].aff_spell == 0 || !IS_OBJ_AFF(obj, weapon_affect[j].aff_pos))
+					continue;
+				if (!no_cast)
+					if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC)) {
+						act("Магия $o1 потерпела неудачу и развеялась по воздуху",
+						    FALSE, ch, obj, 0, TO_ROOM);
+						act("Магия $o1 потерпела неудачу и развеялась по воздуху",
+						    FALSE, ch, obj, 0, TO_CHAR);
+					} else
+						mag_affects(GET_LEVEL(ch), ch, ch, weapon_affect[j].aff_spell, SAVING_WILL);
+			}
+	}
+
+	if (!skip_total) {
 		affect_total(ch);
-		//log("[EQUIP_CHAR(%s)->AFFECT_TOTAL] Stop",GET_NAME(ch));
 		check_light(ch, was_lamp, was_lgt, was_hlgt, was_hdrk, 1);
 	}
 }
 
+unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
+			    id_to_set_info_map::const_iterator it, int pos, unsigned int set_obj_qty)
+{
+	int show_msg = IS_SET(pos, 0x40);
+	std::string::size_type delim;
 
+	REMOVE_BIT(pos, 0x40);
 
+	if (pos < NUM_WEARS) {
+		set_info::const_iterator set_obj_info;
+
+		if (GET_EQ(ch, pos) && OBJ_FLAGGED(GET_EQ(ch, pos), ITEM_SETSTUFF) &&
+		    (set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end()) {
+			unsigned int oqty = deactivate_stuff(ch, obj, it, pos + 1 | (show_msg ? 0x40 : 0),
+							   set_obj_qty + 1);
+			qty_to_camap_map::const_iterator old_qty_info = set_obj_info->second.upper_bound(oqty);
+			qty_to_camap_map::const_iterator qty_info = GET_EQ(ch, pos) == obj ?
+								 set_obj_info->second.begin() :
+								 set_obj_info->second.upper_bound(oqty - 1);
+
+			while (old_qty_info != qty_info) {
+				class_to_act_map::const_iterator class_info;
+
+				old_qty_info--;
+				if ((class_info =
+				     old_qty_info->second.find(unique_bit_flag_data().set_plane(flag_data_by_char_class(ch)))) !=
+				    old_qty_info->second.end()) {
+					while (qty_info != set_obj_info->second.begin()) {
+						class_to_act_map::const_iterator class_info2;
+
+						qty_info--;
+						if ((class_info2 =
+						     qty_info->second.find(unique_bit_flag_data().set_plane(flag_data_by_char_class(ch)))) !=
+						    qty_info->second.end()) {
+							for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+								affect_modify(ch, GET_EQ(ch, pos)->affected[i].location,
+									      GET_EQ(ch, pos)->affected[i].modifier, 0, FALSE);
+
+							if (IN_ROOM(ch) != NOWHERE)
+								for (int i = 0; weapon_affect[i].aff_bitvector >= 0; i++) {
+									if (weapon_affect[i].aff_bitvector == 0 ||
+									    !IS_OBJ_AFF(GET_EQ(ch, pos), weapon_affect[i].aff_pos))
+										continue;
+									affect_modify(ch, APPLY_NONE, 0, weapon_affect[i].aff_bitvector, FALSE);
+								}
+
+							std::string act_msg = GET_EQ(ch, pos)->activate_obj(class_info2->second);
+							delim = act_msg.find('\n');
+
+							if (show_msg) {
+								act(act_msg.substr(0, delim).c_str(), FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
+								act(act_msg.erase(0, delim + 1).c_str(),
+								    IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM) ? FALSE : TRUE,
+								    ch, GET_EQ(ch, pos), 0, TO_ROOM);
+							}
+
+							for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+								affect_modify(ch, GET_EQ(ch, pos)->affected[i].location,
+									      GET_EQ(ch, pos)->affected[i].modifier, 0, TRUE);
+
+							if (IN_ROOM(ch) != NOWHERE)
+								for (int i = 0; weapon_affect[i].aff_bitvector >= 0; i++) {
+									if (weapon_affect[i].aff_bitvector == 0 ||
+									    !IS_OBJ_AFF(GET_EQ(ch, pos), weapon_affect[i].aff_pos))
+										continue;
+									affect_modify(ch, APPLY_NONE, 0, weapon_affect[i].aff_bitvector, TRUE);
+								}
+
+							return oqty;
+						}
+					}
+
+					for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+						affect_modify(ch, GET_EQ(ch, pos)->affected[i].location,
+							      GET_EQ(ch, pos)->affected[i].modifier, 0, FALSE);
+
+					if (IN_ROOM(ch) != NOWHERE)
+						for (int i = 0; weapon_affect[i].aff_bitvector >= 0; i++) {
+							if (weapon_affect[i].aff_bitvector == 0 ||
+							    !IS_OBJ_AFF(GET_EQ(ch, pos), weapon_affect[i].aff_pos))
+								continue;
+							affect_modify(ch, APPLY_NONE, 0, weapon_affect[i].aff_bitvector, FALSE);
+						}
+
+					std::string deact_msg = GET_EQ(ch, pos)->deactivate_obj(class_info->second);
+					delim = deact_msg.find('\n');
+
+					if (show_msg) {
+						act(deact_msg.substr(0, delim).c_str(), FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
+						act(deact_msg.erase(0, delim + 1).c_str(),
+						    IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM) ? FALSE : TRUE,
+						    ch, GET_EQ(ch, pos), 0, TO_ROOM);
+					}
+
+					if (GET_EQ(ch, pos) != obj) {
+						for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+							affect_modify(ch, GET_EQ(ch, pos)->affected[i].location, GET_EQ(ch, pos)->affected[i].modifier,
+								      0, TRUE);
+
+						if (IN_ROOM(ch) != NOWHERE)
+							for (int i = 0; weapon_affect[i].aff_bitvector >= 0; i++) {
+								if (weapon_affect[i].aff_bitvector == 0 ||
+								    !IS_OBJ_AFF(GET_EQ(ch, pos), weapon_affect[i].aff_pos))
+									continue;
+								affect_modify(ch, APPLY_NONE, 0, weapon_affect[i].aff_bitvector, TRUE);
+							}
+					}
+
+					return oqty;
+				}
+			}
+
+			if (GET_EQ(ch, pos) == obj) {
+				for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+					affect_modify(ch, obj->affected[i].location, obj->affected[i].modifier, 0, FALSE);
+
+				if (IN_ROOM(ch) != NOWHERE)
+					for (int i = 0; weapon_affect[i].aff_bitvector >= 0; i++) {
+						if (weapon_affect[i].aff_bitvector == 0 || !IS_OBJ_AFF(obj, weapon_affect[i].aff_pos))
+							continue;
+						affect_modify(ch, APPLY_NONE, 0, weapon_affect[i].aff_bitvector, FALSE);
+					}
+
+				obj->deactivate_obj(activation());
+			}
+
+			return oqty;
+		} else
+			return deactivate_stuff(ch, obj, it, pos + 1 | (show_msg ? 0x40 : 0), set_obj_qty);
+	} else
+		return set_obj_qty;
+}
+
+//  0x40 - show setstuff related messages
+//  0x80 - no total affect update
 OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 {
 	int was_lgt = AFF_FLAGGED(ch, AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
 	    was_hlgt = AFF_FLAGGED(ch, AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
 	    was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, was_lamp = FALSE;
 
-	int j, skip_total = IS_SET(pos, 0x80);
+	int j, skip_total = IS_SET(pos, 0x80), show_msg = IS_SET(pos, 0x40);
+
 	OBJ_DATA *obj;
 
 	REMOVE_BIT(pos, (0x80 | 0x40));
 
-	if ((pos < 0 || pos >= NUM_WEARS) || GET_EQ(ch, pos) == NULL) {
+	if ((pos < 0 || pos >= NUM_WEARS) || (obj = GET_EQ(ch, pos)) == NULL) {
 		log("SYSERR: unequip_char(%s,%d) - unused pos or no equip...", GET_NAME(ch), pos);
-		// core_dump();
 		return (NULL);
 	}
 
@@ -1635,28 +1868,40 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 	    GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))
 		was_lamp = TRUE;
 
-	obj = GET_EQ(ch, pos);
-	obj->worn_by = NULL;
-	obj->next_content = NULL;
-	obj->worn_on = -1;
-	GET_EQ(ch, pos) = NULL;
-
 	if (ch->in_room == NOWHERE)
 		log("SYSERR: ch->in_room = NOWHERE when unequipping char %s.", GET_NAME(ch));
 
-	for (j = 0; j < MAX_OBJ_AFFECT; j++)
-		affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, 0, FALSE);
+	id_to_set_info_map::iterator it = obj_data::set_table.begin();
 
-	if (IN_ROOM(ch) != NOWHERE)
-		for (j = 0; weapon_affect[j].aff_bitvector >= 0; j++) {
-			if (weapon_affect[j].aff_bitvector == 0 || !IS_OBJ_AFF(obj, weapon_affect[j].aff_pos))
-				continue;
-			affect_modify(ch, APPLY_NONE, 0, weapon_affect[j].aff_bitvector, FALSE);
-		}
+	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+		for (; it != obj_data::set_table.end(); it++)
+			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
+				deactivate_stuff(ch, obj, it, 0 | (show_msg ? 0x40 : 0), 0);
+				break;
+			}
 
-	if (!skip_total) {	//log("[UNEQUIP_CHAR->AFFECT_TOTAL] Start");
+	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF) || it == obj_data::set_table.end()) {
+		for (j = 0; j < MAX_OBJ_AFFECT; j++)
+			affect_modify(ch, obj->affected[j].location, obj->affected[j].modifier, 0, FALSE);
+
+		if (IN_ROOM(ch) != NOWHERE)
+			for (j = 0; weapon_affect[j].aff_bitvector >= 0; j++) {
+				if (weapon_affect[j].aff_bitvector == 0 || !IS_OBJ_AFF(obj, weapon_affect[j].aff_pos))
+					continue;
+				affect_modify(ch, APPLY_NONE, 0, weapon_affect[j].aff_bitvector, FALSE);
+			}
+
+		if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+			obj->deactivate_obj(activation());
+	}
+
+	GET_EQ(ch, pos) = NULL;
+	obj->worn_by = NULL;
+	obj->worn_on = NOWHERE;
+	obj->next_content = NULL;
+
+	if (!skip_total) {
 		affect_total(ch);
-		//log("[UNEQUIP_CHAR->AFFECT_TOTAL] Stop");
 		check_light(ch, was_lamp, was_lgt, was_hlgt, was_hdrk, 1);
 	}
 

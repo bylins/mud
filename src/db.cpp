@@ -85,6 +85,7 @@ OBJ_DATA *object_list = NULL;	/* global linked list of objs    */
 INDEX_DATA *obj_index;		/* index table for object file   */
 //OBJ_DATA *obj_proto;		/* prototypes for objs           */
 vector < OBJ_DATA * >obj_proto;
+id_to_set_info_map obj_data::set_table;
 obj_rnum top_of_objt = 0;	/* top of object index table     */
 
 struct zone_data *zone_table;	/* zone table                    */
@@ -169,7 +170,7 @@ void boot_world(void);
 int count_alias_records(FILE * fl);
 int count_hash_records(FILE * fl);
 int count_social_records(FILE * fl, int *messages, int *keywords);
-void asciiflag_conv(char *flag, void *value);
+void asciiflag_conv(const char *flag, void *value);
 void parse_simple_mob(FILE * mob_f, int i, int nr);
 void interpret_espec(const char *keyword, const char *value, int i, int nr);
 void parse_espec(char *buf, int i, int nr);
@@ -427,6 +428,7 @@ ACMD(do_reboot)
 		priv->reload();
 		load_sheduled_reboot();
 		oload_table.init();
+		obj_data::init_set_table();
 	} else if (!str_cmp(arg, "portals"))
 		init_portals();
 	else if (!str_cmp(arg, "privileges"))
@@ -437,6 +439,8 @@ ACMD(do_reboot)
 		init_zone_types();
 	else if (!str_cmp(arg, "oloadtable"))
 		oload_table.init();
+	else if (!str_cmp(arg, "setstuff"))
+		obj_data::init_set_table();
 	else if (!str_cmp(arg, "immlist"))
 		file_to_string_alloc(IMMLIST_FILE, &immlist);
 	else if (!str_cmp(arg, "credits"))
@@ -745,6 +749,425 @@ void init_zone_types(void)
 }
 //-MZ.load
 
+void obj_data::init_set_table()
+{
+	std::string cppstr, tag;
+	int mode = SETSTUFF_SNUM;
+	id_to_set_info_map::iterator snum;
+	set_info::iterator vnum;
+	qty_to_camap_map::iterator oqty;
+	class_to_act_map::iterator clss;
+	int appnum = 0;
+
+	obj_data::set_table.clear();
+
+	std::ifstream fp(LIB_MISC "setstuff.lst");
+
+	if (!fp) {
+		cppstr = "init_set_table:: Unable open input file 'lib/misc/setstuff.lst'";
+		mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
+
+	while (!fp.eof()) {
+		std::istringstream isstream;
+
+		getline(fp, cppstr);
+
+		std::string::size_type i = cppstr.find(';');
+		if (i != std::string::npos)
+			cppstr.erase(i);
+		reverse(cppstr.begin(), cppstr.end());
+		isstream.str(cppstr);
+		cppstr.erase();
+		isstream >> std::skipws >> cppstr;
+		if (!isstream.eof()) {
+			std::string suffix;
+
+			getline(isstream, suffix);
+			cppstr += suffix;
+		}
+		reverse(cppstr.begin(), cppstr.end());
+		isstream.clear();
+
+		isstream.str(cppstr);
+		cppstr.erase();
+		isstream >> std::skipws >> cppstr;
+		if (!isstream.eof()) {
+			std::string suffix;
+
+			getline(isstream, suffix);
+			cppstr += suffix;
+		}
+		isstream.clear();
+
+		if (cppstr.empty())
+			continue;
+
+		if (cppstr[0] == '#') {
+			if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN) {
+				cppstr = "init_set_table:: Wrong position of line '" + cppstr + "'";
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+				continue;
+			}
+
+			cppstr.erase(cppstr.begin());
+
+			if (cppstr.empty() || !isdigit(cppstr[0])) {
+				cppstr = "init_set_table:: Error in line '#" + cppstr + "', expected set id after #";
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+				continue;
+			}
+
+			int tmpsnum;
+
+			isstream.str(cppstr);
+			isstream >> std::noskipws >> tmpsnum;
+
+			if (!isstream.eof()) {
+				cppstr = "init_set_table:: Error in line '#" + cppstr + "', expected only set id after #";
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+				continue;
+			}
+
+			std::pair< id_to_set_info_map::iterator, bool > p = obj_data::set_table.insert(std::make_pair(tmpsnum, set_info()));
+
+			if (!p.second) {
+				cppstr = "init_set_table:: Error in line '#" + cppstr + "', this set already exists";
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+				continue;
+			}
+
+			snum = p.first;
+			mode = SETSTUFF_NAME;
+			continue;
+		}
+
+		if (cppstr.size() < 5 || cppstr[4] != ':') {
+			cppstr = "init_set_table:: Format error in line '" + cppstr + "'";
+			mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+			continue;
+		}
+
+		tag = cppstr.substr(0, 4);
+		cppstr.erase(0, 5);
+		isstream.str(cppstr);
+		cppstr.erase();
+		isstream >> std::skipws >> cppstr;
+		if (!isstream.eof()) {
+			std::string suffix;
+
+			getline(isstream, suffix);
+			cppstr += suffix;
+		}
+		isstream.clear();
+
+		if (cppstr.empty()) {
+			cppstr = "init_set_table:: Empty parameter field in line '" + tag + ":" + cppstr + "'";
+			mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+			continue;
+		}
+
+		switch (tag[0]) {
+		case 'A':
+			if (tag == "Amsg") {
+				if (mode != SETSTUFF_AMSG) {
+					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				clss->second.set_actmsg(cppstr);
+				mode = SETSTUFF_DMSG;
+			} else if (tag == "Affs") {
+				if (mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS) {
+					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				isstream.str(cppstr);
+				cppstr.erase();
+				isstream >> std::skipws >> cppstr;
+				if (!isstream.eof()) {
+					std::string suffix;
+
+					getline(isstream, suffix);
+					cppstr += suffix;
+					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected only object affects";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				flag_data tmpaffs = clear_flags;
+				asciiflag_conv(cppstr.c_str(), &tmpaffs);
+
+				clss->second.set_affects(tmpaffs);
+				appnum = 0;
+				mode = SETSTUFF_AFCN;
+			} else if (tag == "Afcn") {
+				if (mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN) {
+					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				isstream.str(cppstr);
+
+				int tmploc, tmpmodi;
+
+				if (!(isstream >> std::skipws >> tmploc >> std::skipws >> tmpmodi)) {
+					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected apply location and modifier";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				obj_affected_type tmpafcn((byte)tmploc, (sbyte)tmpmodi);
+
+				if (!isstream.eof()) {
+					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected only apply location and modifier";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				if (tmpafcn.location <= APPLY_NONE || tmpafcn.location >= NUM_APPLIES) {
+					cppstr = "init_set_table:: Wrong apply location in line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				if (!tmpafcn.modifier) {
+					cppstr = "init_set_table:: Wrong apply modifier in line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				if (mode == SETSTUFF_AMSG || mode == SETSTUFF_AFFS)
+					appnum = 0;
+
+				if (appnum >= MAX_OBJ_AFFECT) {
+					cppstr = "init_set_table:: Too many applies - line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				} else
+					clss->second.set_affected_i(appnum++, tmpafcn);
+
+				mode = SETSTUFF_AFCN;
+			} else {
+				cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+			}
+			break;
+
+		case 'C':
+			if (tag == "Clss") {
+				if (mode != SETSTUFF_CLSS && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN) {
+					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				unique_bit_flag_data tmpclss;
+
+				if (cppstr == "all")
+					tmpclss.set_plane(0x3FFFFFFF).set_plane(INT_ONE | 0x3FFFFFFF).set_plane(INT_TWO |
+					0x3FFFFFFF).set_plane(INT_THREE | 0x3FFFFFFF);
+				else {
+					isstream.str(cppstr);
+
+					int i = 0;
+
+					while (isstream >> std::skipws >> i)
+						if (i < 0 || i > NUM_CLASSES * NUM_KIN)
+							break;
+						else
+							tmpclss.set_plane(flag_data_by_num(i));
+
+					if (i < 0 || i > NUM_CLASSES * NUM_KIN) {
+						cppstr = "init_set_table:: Wrong class in line '" + tag + ":" + cppstr + "'";
+						mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+						continue;
+					}
+
+					if (!isstream.eof()) {
+						cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected only class ids";
+						mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+						continue;
+					}
+				}
+
+				std::pair< class_to_act_map::iterator, bool > p = oqty->second.insert(std::make_pair(tmpclss, activation()));
+
+				if (!p.second) {
+					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr +
+						 "', each class number can occur only once for each object number";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				clss = p.first;
+				mode = SETSTUFF_AMSG;
+			} else {
+				cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+			}
+			break;
+
+		case 'D':
+			if (tag == "Dmsg") {
+				if (mode != SETSTUFF_DMSG) {
+					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				clss->second.set_deactmsg(cppstr);
+				mode = SETSTUFF_RAMG;
+			} else {
+				cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+			}
+			break;
+
+		case 'N':
+			if (tag == "Name") {
+				if (mode != SETSTUFF_NAME) {
+					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				snum->second.set_name(cppstr);
+				mode = SETSTUFF_VNUM;
+			} else {
+				cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+			}
+			break;
+
+		case 'O':
+			if (tag == "Oqty") {
+				if (mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN) {
+					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				unsigned int tmpoqty = 0;
+				isstream.str(cppstr);
+				isstream >> std::skipws >> tmpoqty;
+
+				if (!isstream.eof()) {
+					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected only object number";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				if (!tmpoqty || tmpoqty > NUM_WEARS) {
+					cppstr = "init_set_table:: Wrong object number in line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				std::pair< qty_to_camap_map::iterator, bool > p = vnum->second.insert(std::make_pair(tmpoqty, class_to_act_map()));
+
+				if (!p.second) {
+					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr +
+						 "', each object number can occur only once for each object";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				oqty = p.first;
+				mode = SETSTUFF_CLSS;
+			} else {
+				cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+			}
+			break;
+
+		case 'R':
+			if (tag == "Ramg") {
+				if (mode != SETSTUFF_RAMG) {
+					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				clss->second.set_room_actmsg(cppstr);
+				mode = SETSTUFF_RDMG;
+			} else if (tag == "Rdmg") {
+				if (mode != SETSTUFF_RDMG) {
+					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				clss->second.set_room_deactmsg(cppstr);
+				mode = SETSTUFF_AFFS;
+			} else {
+				cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+			}
+			break;
+
+		case 'V':
+			if (tag == "Vnum") {
+				if (mode != SETSTUFF_VNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS &&
+				    mode != SETSTUFF_AFCN) {
+					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				obj_vnum tmpvnum = -1;
+				isstream.str(cppstr);
+				isstream >> std::skipws >> tmpvnum;
+
+				if (!isstream.eof()) {
+					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected only object vnum";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				if (real_object(tmpvnum) < 0) {
+					cppstr = "init_set_table:: Wrong object vnum in line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				id_to_set_info_map::iterator it;
+
+				for (it = obj_data::set_table.begin(); it != obj_data::set_table.end(); it++)
+					if (it->second.find(tmpvnum) != it->second.end())
+						break;
+
+				if (it != obj_data::set_table.end()) {
+					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', object can exist only in one set";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				vnum = snum->second.insert(std::make_pair(tmpvnum, qty_to_camap_map())).first;
+				mode = SETSTUFF_OQTY;
+			} else {
+				cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "'";
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+			}
+			break;
+
+		default:
+			cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "'";
+			mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+		}
+	}
+
+	if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN) {
+		cppstr = "init_set_table:: Last set was deleted, because of unexpected end of file";
+		obj_data::set_table.erase(snum);
+		mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+	}
+}
 
 /* body of the booting system */
 void boot_db(void)
@@ -792,6 +1215,9 @@ void boot_db(void)
 
 	log("Booting stuff load table.");
 	oload_table.init();
+
+	log("Booting setstuff table.");
+	obj_data::init_set_table();
 
 	log("Loading help entries.");
 	index_boot(DB_BOOT_HLP);
@@ -1377,11 +1803,11 @@ void discrete_load(FILE * fl, int mode, char *filename)
 	}
 }
 
-void asciiflag_conv(char *flag, void *value)
+void asciiflag_conv(const char *flag, void *value)
 {
 	int *flags = (int *) value;
 	int is_number = 1, block = 0, i;
-	register char *p;
+	register const char *p;
 
 	for (p = flag; *p; p += i + 1) {
 		i = 0;
@@ -6107,7 +6533,7 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	/* снимаем все возможные аффекты  */
 	for (i = 0; i < NUM_WEARS; i++) {
 		if (GET_EQ(ch, i)) {
-			char_eq[i] = unequip_char(ch, i | 0x80 | 0x40);
+			char_eq[i] = unequip_char(ch, i | 0x80);
 #ifndef NO_EXTRANEOUS_TRIGGERS
 			remove_otrigger(char_eq[i], ch);
 #endif

@@ -43,14 +43,7 @@ ACMD(do_lightwalk);
 */
 class aff_array {
 	public:
-		explicit aff_array()
-		{
-			_pos = 0;
-			for (i = 0; i < MAX_FEAT_AFFECT; i++) {
-				affected[i].location = 0;
-				affected[i].modifier = 0;
-			}
-		}
+		explicit aff_array() : _pos(0), i(MAX_FEAT_AFFECT) {}
 
 		int pos(int pos = -1)
 		{
@@ -70,15 +63,14 @@ class aff_array {
 			affected[_pos].modifier = modifier;
 			_pos++;
 			if (_pos >= MAX_FEAT_AFFECT)
-				_pos = 0;			
+				_pos = 0;
 		}
-
 
 		void clear()
 		{
 			_pos = 0;
 			for (i = 0; i < MAX_FEAT_AFFECT; i++) {
-				affected[i].location = 0;
+				affected[i].location = APPLY_NONE;
 				affected[i].modifier = 0;
 			}
 		}
