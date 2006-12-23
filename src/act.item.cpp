@@ -1925,7 +1925,7 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 	if (!wear_otrigger(obj, ch, where))
 		return;
 
-	obj_from_char(obj);
+	//obj_from_char(obj);
 	equip_char(ch, obj, where | 0x100);
 }
 

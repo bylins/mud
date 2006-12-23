@@ -1636,10 +1636,10 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		log("SYSERR: Char is already equipped: %s, %s", GET_NAME(ch), obj->short_description);
 		return;
 	}
-	if (obj->carried_by) {
-		log("SYSERR: EQUIP: %s - Obj is carried_by when equip.", OBJN(obj, ch, 0));
-		return;
-	}
+	//if (obj->carried_by) {
+	//	log("SYSERR: EQUIP: %s - Obj is carried_by when equip.", OBJN(obj, ch, 0));
+	//	return;
+	//}
 	if (obj->in_room != NOWHERE) {
 		log("SYSERR: EQUIP: %s - Obj is in_room when equip.", OBJN(obj, ch, 0));
 		return;
@@ -1658,9 +1658,12 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	    AFF_FLAGGED(ch, AFF_CHARM) && (OBJ_FLAGGED(obj, ITEM_SHARPEN) || OBJ_FLAGGED(obj, ITEM_ARMORED))) {
 		act("$o3 явно не предназначен$A для Вас.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u одеть $o3, но у н$s ничего не получилось.", FALSE, ch, obj, 0, TO_ROOM);
-		obj_to_char(obj, ch);
+		//obj_to_char(obj, ch);
 		return;
 	}
+	
+	if (obj->carried_by)
+		obj_from_char(obj);
 
 	if (GET_EQ(ch, WEAR_LIGHT) &&
 	    GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))

@@ -1723,7 +1723,7 @@ void npc_wield(CHAR_DATA * ch)
 			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_HOLD), 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_HOLD | 0x40), ch);
 		}
-		obj_from_char(both);
+		//obj_from_char(both);
 		equip_char(ch, both, WEAR_BOTHS | 0x100);
 	} else {
 		if (left && GET_EQ(ch, WEAR_HOLD) != left) {
@@ -1739,7 +1739,7 @@ void npc_wield(CHAR_DATA * ch)
 				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_HOLD), 0, TO_ROOM);
 				obj_to_char(unequip_char(ch, WEAR_HOLD | 0x40), ch);
 			}
-			obj_from_char(left);
+			//obj_from_char(left);
 			equip_char(ch, left, WEAR_HOLD | 0x100);
 		}
 		if (right && GET_EQ(ch, WEAR_WIELD) != right) {
@@ -1751,7 +1751,7 @@ void npc_wield(CHAR_DATA * ch)
 				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_WIELD), 0, TO_ROOM);
 				obj_to_char(unequip_char(ch, WEAR_WIELD | 0x40), ch);
 			}
-			obj_from_char(right);
+			//obj_from_char(right);
 			equip_char(ch, right, WEAR_WIELD | 0x100);
 		}
 	}
@@ -1814,7 +1814,7 @@ void npc_armor(CHAR_DATA * ch)
 			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, where), 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, where | 0x40), ch);
 		}
-		obj_from_char(obj);
+		//obj_from_char(obj);
 		equip_char(ch, obj, where | 0x100);
 		break;
 	}
@@ -1846,7 +1846,7 @@ void npc_light(CHAR_DATA * ch)
 				obj_to_room(obj, IN_ROOM(ch));
 				continue;
 			}
-			obj_from_char(obj);
+			//obj_from_char(obj);
 			equip_char(ch, obj, WEAR_LIGHT | 0x100);
 			return;
 		}

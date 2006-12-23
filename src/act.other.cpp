@@ -1321,7 +1321,7 @@ ACMD(do_use)
 		}
 		if (GET_EQ(ch, WEAR_HOLD))
 			obj_to_char(unequip_char(ch, WEAR_HOLD), ch);
-		obj_from_char(mag_item);
+		//obj_from_char(mag_item);
 		equip_char(ch, mag_item, WEAR_HOLD);
 	}
 	mag_objectmagic(ch, mag_item, buf);
