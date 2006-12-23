@@ -1648,6 +1648,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	if (invalid_anti_class(ch, obj)) {
 		act("Вас обожгло при попытке надеть $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u одеть $o3 - и чудом не обгорел$g.", FALSE, ch, obj, 0, TO_ROOM);
+		obj_from_char(obj);
 		obj_to_room(obj, IN_ROOM(ch));
 		obj_decay(obj);
 		return;
