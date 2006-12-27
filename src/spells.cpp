@@ -429,7 +429,7 @@ ASPELL(spell_portal)
 	       или пенте кидаемой с арены т.к. в данном случае использовалось PK_ACTION_NO которое меньше PK_ACTION_REVENGE */
 	    || (pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
 	        pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT)
-	    || (!IS_NPC(victim) && PRF_FLAGGED(victim, PRF_SUMMONABLE))
+	    || ((!IS_NPC(victim) || IS_CHARMICE(ch))&& PRF_FLAGGED(victim, PRF_SUMMONABLE))
 	    || same_group(ch, victim)) {
 		/* Если пента по мести - то считаем постановку пенты попыткой ее реализовать */
 		// после 3ех попыток реализаци (3ех пент) -- месть исчезает
@@ -499,8 +499,8 @@ ASPELL(spell_summon)
 	/* Ограничения для смертных (богов ниже следующее не касается) */
 	if (!IS_IMMORTAL(ch)) {
 
-		/* Если игрок не моб, то: */
-		if (!IS_NPC(ch)) {
+		/* Если игрок не моб или чармис, то: */
+		if (!IS_NPC(ch) || IS_CHARMICE(ch)) {
 			/* Нельзя производить суммон под ЗБ */
 			if (AFF_FLAGGED(ch, AFF_SHIELD)) {
 				send_to_char(SUMMON_FAIL3, ch);	// Про маг. кокон вокруг суммонера
