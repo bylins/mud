@@ -884,6 +884,9 @@ ASPELL(spell_charm)
 // shapirus: !train для чармисов
 			SET_BIT(MOB_FLAGS(victim, MOB_NOTRAIN), MOB_NOTRAIN);
 			SET_SKILL(victim, SKILL_PUNCTUAL, 0);
+			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
+			Crash_crashsave(ch);
+			save_char(ch, NOWHERE);
 		}
 	}
 }
@@ -1032,6 +1035,9 @@ ACMD(do_findhelpee)
 			REMOVE_BIT(MOB_FLAGS(helpee, MOB_SPEC), MOB_SPEC);
 // shapirus: !train для чармисов
 			SET_BIT(MOB_FLAGS(helpee, MOB_NOTRAIN), MOB_NOTRAIN);
+			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
+			Crash_crashsave(ch);
+			save_char(ch, NOWHERE);
 		}
 	}
 }
