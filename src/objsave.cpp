@@ -1518,7 +1518,7 @@ int Crash_load(CHAR_DATA * ch)
 		GET_GOLD(ch) -= MAX(cost - GET_BANK_GOLD(ch), 0);
 		GET_BANK_GOLD(ch) = MAX(GET_BANK_GOLD(ch) - cost, 0);
 		//???
-		//save_char(ch, NOWHERE); 
+		//save_char(ch, NOWHERE);
 	}
 
 	/*Чтение описаний объектов в буфер */
@@ -1575,7 +1575,7 @@ int Crash_load(CHAR_DATA * ch)
 				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.",
 					GET_NAME(ch), error);
 				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-				//break; 
+				//break;
 				continue;	//Ann
 			}
 		} else {
@@ -1586,7 +1586,7 @@ int Crash_load(CHAR_DATA * ch)
 				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.",
 					GET_NAME(ch), error);
 				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-				//break; 
+				//break;
 				continue;	//Ann
 			}
 		}
@@ -1810,26 +1810,21 @@ int Crash_calcitems(OBJ_DATA * obj)
 	return (i);
 }
 
-int Crash_calc_charmee_items (CHAR_DATA *ch)
+int Crash_calc_charmee_items(CHAR_DATA *ch)
 {
-  CHAR_DATA * charmee = NULL;
-  struct follow_type *k, *next;
-  int num = 0;
-  int j = 0;
+	if (!ch->followers) return 0;
 
-  if (!ch->followers) 
-    return 0;
-  for (k = ch->followers; k && k->follower->master; k = next) 
-  {
-    next = k->next;
-    charmee = ch->followers->follower;
-    if (!IS_CHARMICE(charmee))
-      continue;
-    for (j = 0; j < NUM_WEARS; j++)
-      num += Crash_calcitems(GET_EQ(charmee, j));
-    num += Crash_calcitems(charmee->carrying);
-  }
-  return num;
+	int num = 0;
+	if (ch->followers) {
+		for (struct follow_type *k = ch->followers; k; k = k->next) {
+			if (!IS_CHARMICE(k->follower) || !k->follower->master)
+				continue;
+			for (int j = 0; j < NUM_WEARS; j++)
+				num += Crash_calcitems(GET_EQ(k->follower, j));
+			num += Crash_calcitems(k->follower->carrying);
+		}
+	}
+	return num;
 }
 
 #define CRASH_LENGTH   0x40000
@@ -1856,6 +1851,13 @@ void Crash_save(int iplayer, OBJ_DATA * obj, int location)
 	}
 }
 
+void crash_save_and_restore_weight(int iplayer, OBJ_DATA * obj, int location)
+{
+	Crash_save(iplayer, obj, location);
+	Crash_restore_weight(obj);
+}
+
+
 /********************* save_char_objects ********************************/
 int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 {
@@ -1863,8 +1865,6 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 	char fname[MAX_STRING_LENGTH];
 	struct save_rent_info rent;
 	int j, num = 0, iplayer = -1, cost;
-  CHAR_DATA * charmee = NULL;
-  struct follow_type *k, *next;
 
 	if (IS_NPC(ch))
 		return FALSE;
@@ -1886,7 +1886,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 	num += Crash_calcitems(ch->carrying);
 
 	if (savetype == RENT_CRASH)
-		num += Crash_calc_charmee_items (ch);
+		num += Crash_calc_charmee_items(ch);
 
 	if (!num) {
 		Crash_delete_files(iplayer);
@@ -1932,34 +1932,22 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 	Crashbufferpos = Crashbufferdata;
 	*Crashbufferpos = '\0';
 
-  /*
-This shit is saving all stuff for given ch and its iplayer.
-*/
+	for (j = 0; j < NUM_WEARS; j++)
+		if (GET_EQ(ch, j))
+			crash_save_and_restore_weight(iplayer, GET_EQ(ch, j), j + 1);
 
-  for (j = 0; j < NUM_WEARS; j++)
-		if (GET_EQ(ch, j)) {
-			Crash_save(iplayer, GET_EQ(ch, j), j + 1);
-			Crash_restore_weight(GET_EQ(ch, j));
+	crash_save_and_restore_weight(iplayer, ch->carrying, 0);
+
+	if (ch->followers && savetype == RENT_CRASH) {
+		for (struct follow_type *k = ch->followers; k; k = k->next) {
+			if (!IS_CHARMICE(k->follower) || !k->follower->master)
+				continue;
+			for (j = 0; j < NUM_WEARS; j++)
+				if (GET_EQ(k->follower, j))
+					crash_save_and_restore_weight(iplayer, GET_EQ(k->follower, j), 0);
+			crash_save_and_restore_weight(iplayer, k->follower->carrying, 0);
 		}
-	Crash_save(iplayer, ch->carrying, 0);
-	Crash_restore_weight(ch->carrying);
-
-  if (ch->followers && 	savetype == RENT_CRASH) 
-    for (k = ch->followers; k && k->follower->master; k = next) 
-    {
-      next = k->next;
-      charmee = ch->followers->follower;
-      if (!IS_CHARMICE(charmee))
-        continue;
-      for (j = 0; j < NUM_WEARS; j++)
-		    if (GET_EQ(charmee, j)) {
-			    Crash_save(iplayer, GET_EQ(charmee, j), 0);
-			    Crash_restore_weight(GET_EQ(charmee, j));
-		    }
-	    Crash_save(iplayer, charmee->carrying, 0);
-	    Crash_restore_weight(charmee->carrying);
-    }
-
+	}
 
 	if (savetype != RENT_CRASH) {
 		for (j = 0; j < NUM_WEARS; j++)

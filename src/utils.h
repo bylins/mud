@@ -1157,8 +1157,7 @@ extern SPECIAL(postmaster);
 #define IS_NECROMANCER(ch) (!IS_NPC(ch) && \
             ((int) GET_CLASS(ch) == CLASS_NECROMANCER))
 
-#define IS_CHARMICE(ch)    (IS_NPC(ch) && \
-            (AFF_FLAGGED(ch,AFF_HELPER) && AFF_FLAGGED(ch,AFF_CHARM)))
+#define IS_CHARMICE(ch)    (IS_NPC(ch) && (AFF_FLAGGED(ch,AFF_HELPER) || AFF_FLAGGED(ch,AFF_CHARM)))
 
 #define IS_UNDEAD(ch) (IS_NPC(ch) && \
 		(MOB_FLAGGED(ch, MOB_RESURRECTED) || (GET_CLASS(ch) == CLASS_UNDEAD)))
