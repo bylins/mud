@@ -43,6 +43,7 @@
 #include "boards.h"
 #include "top.h"
 #include "title.hpp"
+#include "password.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -2378,9 +2379,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 					return;
 				}
-				if (PLR_FLAGGED(d->character, PLR_DELETED) ||
-				    strncmp(CRYPT(pwd_pwd, GET_PASSWD(d->character)),
-					    GET_PASSWD(d->character), MAX_PWD_LENGTH)) {
+				if (PLR_FLAGGED(d->character, PLR_DELETED) || !Password::compare_password(d->character, pwd_pwd)) {
 					SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 					if (!PLR_FLAGGED(d->character, PLR_DELETED)) {
 						sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
@@ -2541,7 +2540,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		if (!*arg)
 			STATE(d) = CON_CLOSE;
 		else {
-			if (strncmp(CRYPT(arg, GET_PASSWD(d->character)), GET_PASSWD(d->character), MAX_PWD_LENGTH)) {
+			if (!Password::compare_password(d->character, arg)) {
 				sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
 				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 				GET_BAD_PWS(d->character)++;
@@ -2561,14 +2560,13 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 
 	case CON_NEWPASSWD:
 	case CON_CHPWD_GETNEW:
-		if (!*arg || strlen(arg) > MAX_PWD_LENGTH || strlen(arg) < 3 ||
-		    !str_cmp(arg, GET_PC_NAME(d->character))) {
-			SEND_TO_Q("\r\nНеверный пароль.\r\n", d);
+		if (!Password::check_password(d->character, arg)) {
+			sprintf(buf, "\r\n%s\r\n", Password::BAD_PASSWORD);
+			SEND_TO_Q(buf, d);
 			SEND_TO_Q("Пароль : ", d);
 			return;
 		}
-		strncpy(GET_PASSWD(d->character), CRYPT(arg, GET_PC_NAME(d->character)), MAX_PWD_LENGTH);
-		*(GET_PASSWD(d->character) + MAX_PWD_LENGTH) = '\0';
+		Password::set_password(d->character, arg);
 
 		SEND_TO_Q("\r\nПовторите пароль, пожалуйста : ", d);
 		if (STATE(d) == CON_NEWPASSWD)
@@ -2580,7 +2578,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 
 	case CON_CNFPASSWD:
 	case CON_CHPWD_VRFY:
-		if (strncmp(CRYPT(arg, GET_PASSWD(d->character)), GET_PASSWD(d->character), MAX_PWD_LENGTH)) {
+		if (!Password::compare_password(d->character, arg)) {
 			SEND_TO_Q("\r\nПароли не соответствуют... повторим.\r\n", d);
 			SEND_TO_Q("Пароль: ", d);
 			if (STATE(d) == CON_CNFPASSWD)
@@ -3016,7 +3014,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case CON_CHPWD_GETOLD:
-		if (strncmp(CRYPT(arg, GET_PASSWD(d->character)), GET_PASSWD(d->character), MAX_PWD_LENGTH)) {
+		if (!Password::compare_password(d->character, arg)) {
 			echo_on(d);
 			SEND_TO_Q("\r\nНеверный пароль.\r\n", d);
 			SEND_TO_Q(MENU, d);
@@ -3029,7 +3027,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 
 	case CON_DELCNF1:
 		echo_on(d);
-		if (strncmp(CRYPT(arg, GET_PASSWD(d->character)), GET_PASSWD(d->character), MAX_PWD_LENGTH)) {
+		if (!Password::compare_password(d->character, arg)) {
 			SEND_TO_Q("\r\nНеверный пароль.\r\n", d);
 			SEND_TO_Q(MENU, d);
 			STATE(d) = CON_MENU;

@@ -36,6 +36,7 @@
 #include "ban.hpp"
 #include "description.h"
 #include "title.hpp"
+#include "password.hpp"
 
 /*   external vars  */
 extern FILE *player_fl;
@@ -614,7 +615,7 @@ ACMD(do_email)
 {
 	CHAR_DATA *victim;
 	char *name = arg;
-	char newpass[] = "12345678";
+	char newpass[] = "1234567890";
 	char buff[255];
 	int i = 0;
 	one_argument(argument, arg);
@@ -631,8 +632,7 @@ ACMD(do_email)
 	}
 	if ((victim = get_player_vis(ch, name, FIND_CHAR_WORLD))) {
 		send_to_char("[char is online]\r\n", ch);
-		strncpy(GET_PASSWD(victim), CRYPT(newpass, GET_NAME(victim)), MAX_PWD_LENGTH);
-		*(GET_PASSWD(victim) + MAX_PWD_LENGTH) = '\0';
+		Password::set_password(victim, std::string(newpass));
 		sprintf(buff,
 			"echo \"Subject: Ваш чар\r\nContent-Type: text/plain; charset=koi8-r\r\n\r\nПроизведена замена пароля\r\nИмя: %s\r\nПароль: %s\"|/usr/sbin/sendmail -F\"Bylins MUD\" %s\r\n",
 			GET_NAME(victim), newpass, GET_EMAIL(victim));
@@ -649,8 +649,7 @@ ACMD(do_email)
 			free(victim);
 			return;
 		}
-		strncpy(GET_PASSWD(victim), CRYPT(newpass, GET_NAME(victim)), MAX_PWD_LENGTH);
-		*(GET_PASSWD(victim) + MAX_PWD_LENGTH) = '\0';
+		Password::set_password(victim, std::string(newpass));
 		sprintf(buff,
 			"echo \"Subject: Ваш чар\r\nContent-Type: text/plain; charset=koi8-r\r\n\r\nПроизведена замена пароля\r\nИмя: %s\r\nПароль: %s\"|/usr/sbin/sendmail -F\"Bylins MUD\" %s\r\n",
 			GET_NAME(victim), newpass, GET_EMAIL(victim));
@@ -3962,8 +3961,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char("Вы не можете ЭТО изменить.\r\n", ch);
 			return (0);
 		}
-		strncpy(GET_PASSWD(vict), CRYPT(val_arg, GET_NAME(vict)), MAX_PWD_LENGTH);
-		*(GET_PASSWD(vict) + MAX_PWD_LENGTH) = '\0';
+		if (!Password::check_password(vict, val_arg)) {
+			send_to_char(ch, "%s\r\n", Password::BAD_PASSWORD);
+			return 0;
+		}
+		Password::set_password(vict, std::string(val_arg));
 		sprintf(output, "Пароль изменен на '%s'.", val_arg);
 		break;
 	case 45:

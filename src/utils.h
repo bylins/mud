@@ -1273,18 +1273,6 @@ int awaking(CHAR_DATA * ch, int mode);
 #define SEEK_END  2
 #endif
 
-/*
- * NOCRYPT can be defined by an implementor manually in sysdep.h.
- * CIRCLE_CRYPT is a variable that the 'configure' script
- * automatically sets when it determines whether or not the system is
- * capable of encrypting.
- */
-#if defined(NOCRYPT) || !defined(CIRCLE_CRYPT)
-#define CRYPT(a,b) (a)
-#else
-#define CRYPT(a,b) ((char *) crypt((a),(b)))
-#endif
-
 #define SENDOK(ch)   (((ch)->desc || SCRIPT_CHECK((ch), MTRIG_ACT)) && \
                (to_sleeping || AWAKE(ch)) && \
                      !PLR_FLAGGED((ch), PLR_WRITING))

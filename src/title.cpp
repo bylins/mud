@@ -1,4 +1,4 @@
-// title.hpp
+// title.cpp
 // Copyright (c) 2006 Krodo
 // Part of Bylins http://www.mud.ru
 

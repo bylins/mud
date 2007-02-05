@@ -5087,7 +5087,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 
 		case 'P':
 			if (!strcmp(tag, "Pass"))
-				strcpy(GET_PASSWD(ch), line);
+				GET_PASSWD(ch) = str_dup(line);
 			else if (!strcmp(tag, "Plyd"))
 				ch->player.time.played = num;
 			else if (!strcmp(tag, "PfIn"))
@@ -5473,6 +5473,9 @@ void free_char(CHAR_DATA * ch)
 	if (!IS_NPC(ch) || (IS_NPC(ch) && GET_MOB_RNUM(ch) == -1)) {	/* if this is a player, or a non-prototyped non-player, free all */
 		if (GET_NAME(ch))
 			free(GET_NAME(ch));
+
+		if (GET_PASSWD(ch))
+			free(GET_PASSWD(ch));
 
 		for (j = 0; j < NUM_PADS; j++)
 			if (GET_PAD(ch, j))

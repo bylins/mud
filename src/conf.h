@@ -42,12 +42,6 @@
 /* Define if we're compiling CircleMUD under any type of UNIX system.  */
 #define CIRCLE_UNIX 1
 
-/* Define if the system is capable of using crypt() to encrypt.  */
-#define CIRCLE_CRYPT 1
-
-/* Define if we don't have proper support for the system's crypt().  */
-/* #undef HAVE_UNSAFE_CRYPT */
-
 /* Define is the system has struct in_addr.  */
 #define HAVE_STRUCT_IN_ADDR 1
 

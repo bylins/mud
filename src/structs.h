@@ -1151,7 +1151,6 @@ typedef struct trig_data
 #define MAX_MESSAGES      		 600
 #define MAX_NAME_LENGTH       	20
 #define MIN_NAME_LENGTH        	4
-#define MAX_PWD_LENGTH        	10
 #define HOST_LENGTH       		 	30
 #define EXDSCR_LENGTH         	512
 #define MAX_TONGUE         			3
@@ -1171,19 +1170,6 @@ typedef struct trig_data
 /* Количество запомненных предложений для эфира */
 #define MAX_REMEMBER_GOSSIP         15
 
-/*
- * A MAX_PWD_LENGTH of 10 will cause BSD-derived systems with MD5 passwords
- * and GNU libc 2 passwords to be truncated.  On BSD this will enable anyone
- * with a name longer than 5 character to log in with any password.  If you
- * have such a system, it is suggested you change the limit to 20.
- *
- * Please note that this will erase your player files.  If you are not
- * prepared to do so, simply erase these lines but heed the above warning.
- */
-#if defined(HAVE_UNSAFE_CRYPT) && MAX_PWD_LENGTH == 10
-#error You need to increase MAX_PWD_LENGTH to at least 20.
-#error See the comment near these errors for more explanation.
-#endif
 
 /**********************************************************************
 * Structures                                                          *
@@ -1778,8 +1764,7 @@ struct time_data {
 
 /* general player-related info, usually PC's and NPC's */
 struct char_player_data {
-	char
-	 passwd[MAX_PWD_LENGTH + 1];	/* character's password      */
+	char *passwd;	/* character's password      */
 	char *name;		/* PC / NPC s name (kill ...  )         */
 	char *short_descr;	/* for NPC 'actions'                    */
 	char *long_descr;	/* for 'look'               */

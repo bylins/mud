@@ -21,7 +21,7 @@ act.social.o: act.social.cpp conf.h sysdep.h structs.h utils.h comm.h \
 act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h house.h screen.h skills.h \
   constants.h olc.h dg_scripts.h mobmax.h pk.h im.h top.h privileges.hpp \
-  ban.hpp diskio.h description.h title.hpp
+  ban.hpp diskio.h description.h title.hpp password.hpp
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h interpreter.h db.h
 ban.o: ban.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
   handler.h db.h ban.hpp diskio.h
@@ -59,7 +59,7 @@ interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
   interpreter.h constants.h db.h utils.h spells.h skills.h handler.h \
   house.h mail.h screen.h olc.h dg_scripts.h pk.h genchar.h ban.hpp \
   diskio.h privileges.hpp item.creation.hpp arena.hpp features.hpp \
-  boards.h top.h title.hpp
+  boards.h top.h title.hpp password.hpp
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h spells.h skills.h \
   comm.h db.h handler.h screen.h interpreter.h constants.h dg_scripts.h \
   house.h exchange.h top.h deathtrap.hpp ban.hpp diskio.h
@@ -90,7 +90,7 @@ spell_parser.o: spell_parser.cpp conf.h sysdep.h structs.h utils.h \
   constants.h dg_scripts.h pk.h features.hpp im.h
 spells.o: spells.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
   skills.h handler.h db.h constants.h interpreter.h dg_scripts.h screen.h \
-  house.h pk.h features.hpp im.h
+  house.h pk.h features.hpp im.h deathtrap.hpp
 utils.o: utils.cpp conf.h sysdep.h structs.h utils.h db.h comm.h screen.h \
   spells.h handler.h interpreter.h constants.h im.h dg_scripts.h \
   features.hpp boards.h
@@ -131,7 +131,7 @@ dg_triggers.o: dg_triggers.cpp conf.h sysdep.h structs.h dg_scripts.h \
   utils.h comm.h interpreter.h handler.h db.h olc.h
 dg_wldcmd.o: dg_wldcmd.cpp conf.h sysdep.h structs.h screen.h \
   dg_scripts.h utils.h comm.h interpreter.h handler.h spells.h db.h im.h \
-  features.hpp
+  features.hpp deathtrap.hpp
 dg_olc.o: dg_olc.cpp conf.h sysdep.h structs.h utils.h comm.h db.h olc.h \
   dg_olc.h dg_scripts.h dg_event.h
 color.o: color.cpp conf.h sysdep.h
@@ -168,3 +168,5 @@ deathtrap.o: deathtrap.cpp deathtrap.hpp conf.h sysdep.h structs.h \
   constants.h db.h spells.h utils.h handler.h
 title.o: title.cpp title.hpp conf.h sysdep.h structs.h interpreter.h \
   utils.h comm.h db.h screen.h pk.h
+password.o: password.cpp password.hpp conf.h sysdep.h structs.h utils.h \
+  interpreter.h
