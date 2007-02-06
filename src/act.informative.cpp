@@ -668,7 +668,8 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	int sector = SECT_CITY;
 	int n;
 	char aura_txt[200];
-	const char *positions[] = { "лежит здесь, мертвый. ",
+	const char *positions[] = {
+		"лежит здесь, мертвый. ",
 		"лежит здесь, при смерти. ",
 		"лежит здесь, без сознания. ",
 		"лежит здесь, в обмороке. ",
@@ -679,9 +680,25 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		"стоит здесь. "
 	};
 
+	// Здесь и далее при использовании IS_POLY() - патч для отображения позиций мобов типа "они" -- Ковшегуб
+	const char *poly_positions[] = {
+		"лежат здесь, мертвые. ",
+		"лежат здесь, при смерти. ",
+		"лежат здесь, без сознания. ",
+		"лежат здесь, в обмороке. ",
+		"спят здесь. ",
+		"отдыхают здесь. ",
+		"сидят здесь. ",
+		"СРАЖАЮТСЯ! ",
+		"стоят здесь. "
+	};
+
 	if (IS_HORSE(i) && on_horse(i->master)) {
 		if (ch == i->master) {
-			act("$N несет Вас на своей спине.", FALSE, ch, 0, i, TO_CHAR);
+			if(!IS_POLY(i))
+				act("$N несет Вас на своей спине.", FALSE, ch, 0, i, TO_CHAR);
+			else
+				act("$N несут Вас на своей спине.", FALSE, ch, 0, i, TO_CHAR);
 		}
 		return;
 	}
@@ -769,7 +786,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		if (AFF_FLAGGED(i, AFF_CAMOUFLAGE))
 			sprintf(buf + strlen(buf), "(замаскировал%s) ", GET_CH_SUF_2(i));
 		if (AFF_FLAGGED(i, AFF_FLY))
-			strcat(buf, "(летит) ");
+			strcat(buf, IS_POLY(i) ? "(летят) " : "(летит) " );
 		if (AFF_FLAGGED(i, AFF_HORSE))
 			strcat(buf, "(под седлом) ");
 
@@ -783,9 +800,9 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 			strcat(aura_txt, " сверкающим коконом ");
 		}
 		if (AFF_FLAGGED(i, AFF_SANCTUARY))
-			strcat(aura_txt, "...светится ярким сиянием ");
+			strcat(aura_txt, IS_POLY(i) ? "...светятся ярким сиянием " : "...светится ярким сиянием ");
 		else if (AFF_FLAGGED(i, AFF_PRISMATICAURA))
-			strcat(aura_txt, "...переливается всеми цветами ");
+			strcat(aura_txt, IS_POLY(i) ? "...переливаются всеми цветами " : "...переливается всеми цветами ");
 		act(aura_txt, FALSE, i, 0, ch, TO_VICT);
 
 		*aura_txt = '\0';
@@ -917,18 +934,18 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		else if (IS_HORSE(i) && AFF_FLAGGED(i, AFF_TETHERED))
 			sprintf(buf + strlen(buf), "привязан%s здесь. ", GET_CH_SUF_6(i));
 		else if ((sector = real_sector(IN_ROOM(i))) == SECT_FLYING)
-			strcat(buf, "летает здесь. ");
+			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
 		else if (sector == SECT_UNDERWATER)
-			strcat(buf, "плавает здесь. ");
+			strcat(buf, IS_POLY(i) ? "плавают здесь. " : "плавает здесь. ");
 		else if (GET_POS(i) > POS_SLEEPING && AFF_FLAGGED(i, AFF_FLY))
-			strcat(buf, "летает здесь. ");
+			strcat(buf, IS_POLY(i) ? "летают здесь. " : "летает здесь. ");
 		else if (sector == SECT_WATER_SWIM || sector == SECT_WATER_NOSWIM)
-			strcat(buf, "плавает здесь. ");
+			strcat(buf, IS_POLY(i) ? "плавают здесь. " : "плавает здесь. ");
 		else
-			strcat(buf, positions[(int) GET_POS(i)]);
+			strcat(buf, IS_POLY(i) ? poly_positions[(int) GET_POS(i)] : positions[(int) GET_POS(i)]);
 	} else {
 		if (FIGHTING(i)) {
-			strcat(buf, "сражается c ");
+			strcat(buf, IS_POLY(i) ? "сражаются с " : "сражается c ");
 			if (i->in_room != FIGHTING(i)->in_room)
 				strcat(buf, "чьей-то тенью ");
 			else if (FIGHTING(i) == ch)
@@ -939,7 +956,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 			}
 			strcat(buf, "! ");
 		} else		/* NIL fighting pointer */
-			strcat(buf, "колотит по воздуху. ");
+			strcat(buf, IS_POLY(i) ? "колотят по воздуху. " : "колотит по воздуху. ");
 	}
 
 	if (AFF_FLAGGED(ch, AFF_DETECT_MAGIC)
@@ -986,9 +1003,9 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		strcat(aura_txt, " сверкающим коконом ");
 	}
 	if (AFF_FLAGGED(i, AFF_SANCTUARY))
-		strcat(aura_txt, "...светится ярким сиянием ");
+		strcat(aura_txt, IS_POLY(i) ? "...светятся ярким сиянием " : "...светится ярким сиянием ");
 	else if (AFF_FLAGGED(i, AFF_PRISMATICAURA))
-		strcat(aura_txt, "...переливается всеми цветами ");
+		strcat(aura_txt, IS_POLY(i) ? "...переливаются всеми цветами " : "...переливается всеми цветами ");
 	act(aura_txt, FALSE, i, 0, ch, TO_VICT);
 
 	*aura_txt = '\0';

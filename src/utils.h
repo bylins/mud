@@ -517,8 +517,9 @@ extern SPECIAL(postmaster);
 #define GET_SEX(ch)  ((ch)->player.sex)
 
 #define IS_MALE(ch)     (GET_SEX(ch) == SEX_MALE)
-#define IS_FEMALE(ch)      (GET_SEX(ch) == SEX_FEMALE)
-#define IS_NOSEXY(ch)      (GET_SEX(ch) == SEX_NEUTRAL)
+#define IS_FEMALE(ch)   (GET_SEX(ch) == SEX_FEMALE)
+#define IS_NOSEXY(ch)   (GET_SEX(ch) == SEX_NEUTRAL)
+#define IS_POLY(ch)     (GET_SEX(ch) == SEX_POLY)
 
 #define GET_LOWS(ch) ((ch)->player.Lows)
 #define GET_RELIGION(ch) ((ch)->player.Religion)

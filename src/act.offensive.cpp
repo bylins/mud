@@ -509,10 +509,12 @@ ACMD(do_order)
 			act(buf, FALSE, vict, 0, ch, TO_CHAR | CHECK_DEAF);
 			act("$n отдал$g приказ $N2.", FALSE, ch, 0, vict, TO_ROOM | CHECK_DEAF);
 
-			if ((vict->master != ch) || !AFF_FLAGGED(vict, AFF_CHARM)
-			    || AFF_FLAGGED(vict, AFF_DEAFNESS))
-				act("$n безразлично смотрит по сторонам.", FALSE, vict, 0, 0, TO_ROOM);
-			else {
+			if ((vict->master != ch) || !AFF_FLAGGED(vict, AFF_CHARM) || AFF_FLAGGED(vict, AFF_DEAFNESS)) {
+				if(!IS_POLY(vict))
+					act("$n безразлично смотрит по сторонам.", FALSE, vict, 0, 0, TO_ROOM);
+				else
+					act("$n безразлично смотрят по сторонам.", FALSE, vict, 0, 0, TO_ROOM);
+			} else {
 				send_to_char(OK, ch);
 				if (GET_WAIT_STATE(vict) <= 0)
 					command_interpreter(vict, message);
@@ -521,7 +523,6 @@ ACMD(do_order)
 						free(vict->last_comm);
 					vict->last_comm = str_dup(message);
 				}
-
 			}
 		} else {	/* This is order "followers" */
 			org_room = ch->in_room;
