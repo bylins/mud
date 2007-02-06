@@ -90,8 +90,11 @@ bool compare_password(CHAR_DATA *ch, const std::string &pwd)
 */
 bool check_password(const CHAR_DATA *ch, const char *pwd)
 {
+// при вырубленном криптовании на локалке пароль можно ставить любой
+#ifndef NOCRYPT
 	if (!pwd || !str_cmp(pwd, GET_PC_NAME(ch)) || strlen(pwd) > MAX_PWD_LENGTH || strlen(pwd) < MIN_PWD_LENGTH )
 		return 0;
+#endif
 	return 1;
 }
 
