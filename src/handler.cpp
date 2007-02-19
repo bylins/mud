@@ -1291,7 +1291,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 				// Объект готов для проверки. Ищем в мире такой же.
    				for (i = object_list; i; i = i->next) {
       				if (GET_OBJ_UID(i) == tuid && // UID совпадает
-						GET_OBJ_TIMER(object)>0 && // Целенький
+						GET_OBJ_TIMER(i)>0 && // Целенький
 						object!=i && // Не оно же
 						GET_OBJ_VNUM(i) == GET_OBJ_VNUM(object)) { // Для верности
 						inworld++;
@@ -1662,7 +1662,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		//obj_to_char(obj, ch);
 		return;
 	}
-	
+
 	if (obj->carried_by)
 		obj_from_char(obj);
 
