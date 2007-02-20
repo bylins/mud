@@ -12,10 +12,9 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include <vector>
 #include "conf.h"
 #include "sysdep.h"
-
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -33,32 +32,26 @@ ACMD(do_sense);
 extern CHAR_DATA *character_list;
 extern const char *dirs[];
 extern const char *DirsTo[];
-
 extern int track_through_doors;
 extern CHAR_DATA *mob_proto;
 extern struct player_index_element *player_table;
 extern int top_of_p_table;
 int attack_best(CHAR_DATA * ch, CHAR_DATA * vict);
+
 /* local functions */
 void bfs_enqueue(room_rnum room, int dir);
 void bfs_dequeue(void);
 void bfs_clear_queue(void);
-
-
 int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch);
 ACMD(do_track);
-void hunt_victim(CHAR_DATA * ch);
 
 struct bfs_queue_struct {
 	room_rnum room;
 	char dir;
-	struct bfs_queue_struct *next;
 };
 
 #define EDGE_ZONE   1
 #define EDGE_WORLD  2
-
-static struct bfs_queue_struct *queue_head = 0, *queue_tail = 0;
 
 /* Utility macros */
 #define MARK(room)	(SET_BIT(ROOM_FLAGS(room, ROOM_BFS_MARK), ROOM_BFS_MARK))
@@ -85,43 +78,7 @@ int VALID_EDGE(room_rnum x, int y, int edge_range, int through_doors)
 	return 1;
 }
 
-void bfs_enqueue(room_rnum room, int dir)
-{
-	struct bfs_queue_struct *curr;
-
-	CREATE(curr, struct bfs_queue_struct, 1);
-	curr->room = room;
-	curr->dir = dir;
-	curr->next = 0;
-
-	if (queue_tail) {
-		queue_tail->next = curr;
-		queue_tail = curr;
-	} else
-		queue_head = queue_tail = curr;
-}
-
-
-void bfs_dequeue(void)
-{
-	struct bfs_queue_struct *curr;
-
-	curr = queue_head;
-
-	if (!(queue_head = queue_head->next))
-		queue_tail = 0;
-	free(curr);
-}
-
-
-void bfs_clear_queue(void)
-{
-	while (queue_head)
-		bfs_dequeue();
-}
-
-
-/* 
+/*
  * find_first_step: given a source room and a target room, find the first
  * step on the shortest path from the source to the target.
  *
@@ -130,6 +87,7 @@ void bfs_clear_queue(void)
  */
 int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 {
+
 	int curr_dir, edge, through_doors;
 	room_rnum curr_room, rnum_start = FIRST_ROOM, rnum_stop = top_of_world;
 
@@ -162,31 +120,38 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 
 	MARK(src);
 
-	// first, enqueue the first steps, saving which direction we're going. 
+	// переписано на вектор без реального очищения, чтобы не заниматься сотнями аллокаций памяти в секунду зря -- Krodo
+	static std::vector<bfs_queue_struct> bfs_queue;
+	static struct bfs_queue_struct temp_queue;
+
+	// first, enqueue the first steps, saving which direction we're going.
 	for (curr_dir = 0; curr_dir < NUM_OF_DIRS; curr_dir++)
 		if (VALID_EDGE(src, curr_dir, edge, through_doors)) {
 			MARK(TOROOM(src, curr_dir));
-			bfs_enqueue(TOROOM(src, curr_dir), curr_dir);
+			temp_queue.room = TOROOM(src, curr_dir);
+			temp_queue.dir = curr_dir;
+			bfs_queue.push_back(temp_queue);
 		}
-	// now, do the classic BFS. 
-	while (queue_head) {
-		if (queue_head->room == target) {
-			curr_dir = queue_head->dir;
-			bfs_clear_queue();
-			return (curr_dir);
+	// now, do the classic BFS.
+	for (unsigned int i = 0; i < bfs_queue.size(); ++i) {
+		if (bfs_queue[i].room == target) {
+			curr_dir = bfs_queue[i].dir;
+			bfs_queue.clear();
+			return curr_dir;
 		} else {
-			for (curr_dir = 0; curr_dir < NUM_OF_DIRS; curr_dir++)
-				if (VALID_EDGE(queue_head->room, curr_dir, edge, through_doors)) {
-					MARK(TOROOM(queue_head->room, curr_dir));
-					bfs_enqueue(TOROOM(queue_head->room, curr_dir), queue_head->dir);
+			for (curr_dir = 0; curr_dir < NUM_OF_DIRS; curr_dir++) {
+				if (VALID_EDGE(bfs_queue[i].room, curr_dir, edge, through_doors)) {
+					MARK(TOROOM(bfs_queue[i].room, curr_dir));
+					temp_queue.room = TOROOM(bfs_queue[i].room, curr_dir);
+					temp_queue.dir = bfs_queue[i].dir;
+					bfs_queue.push_back(temp_queue);
 				}
-			bfs_dequeue();
+			}
 		}
 	}
-
+	bfs_queue.clear();
 	sprintf(buf, "Mob (mob: %s vnum: %d) can't find path.", GET_NAME(ch), GET_MOB_VNUM(ch));
 	mudlog(buf, NRM, -1, ERRLOG, TRUE);
-
 	return (BFS_NO_PATH);
 }
 
@@ -251,7 +216,7 @@ ACMD(do_sense)
 	}
 
 	/* We can't track the victim. */
-//  if (AFF_FLAGGED(vict, AFF_NOTRACK)) 
+//  if (AFF_FLAGGED(vict, AFF_NOTRACK))
 //     {send_to_char("Вы не чувствуете его присутствия.\r\n", ch);
 //      return;
 //     }
@@ -430,38 +395,6 @@ ACMD(do_track)
 	return;
 }
 
-
-
-void hunt_victim(CHAR_DATA * ch)
-{
-	int dir;
-	byte found;
-	CHAR_DATA *tmp;
-
-	if (!ch || !HUNTING(ch) || FIGHTING(ch))
-		return;
-
-	/* make sure the char still exists */
-	for (found = FALSE, tmp = character_list; tmp && !found; tmp = tmp->next)
-		if (HUNTING(ch) == tmp && IN_ROOM(tmp) != NOWHERE)
-			found = TRUE;
-
-	if (!found) {
-		do_say(ch, "О, Боги!  Моя жертва ускользнула!!", 0, 0);
-		HUNTING(ch) = NULL;
-		return;
-	}
-
-	if ((dir = find_first_step(ch->in_room, HUNTING(ch)->in_room, ch)) < 0) {
-		sprintf(buf, "Какая жалость, %s сбежал%s!", HMHR(HUNTING(ch)), GET_CH_SUF_1(HUNTING(ch)));
-		do_say(ch, buf, 0, 0);
-		HUNTING(ch) = NULL;
-	} else {
-		perform_move(ch, dir, 1, FALSE, 0);
-		if (ch->in_room == HUNTING(ch)->in_room)
-			attack_best(ch, HUNTING(ch));
-	}
-}
 
 ACMD(do_hidetrack)
 {
