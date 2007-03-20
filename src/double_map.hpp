@@ -38,7 +38,11 @@ public:
 	typedef typename _Base::const_reverse_iterator			const_reverse_iterator;
 
 	typedef typename _Base::mapped_type::key_type			key_type2;
+#if _MSC_VER < 1400
+	typedef _Tp2 mapped_type;
+#else
 	typedef typename _Base::mapped_type::mapped_type		mapped_type2;
+#endif
 	typedef typename _Base::mapped_type::value_type			value_type2;
 	typedef typename _Base::mapped_type::key_compare		key_compare2;
 	typedef typename _Base::mapped_type::allocator_type		allocator_type2;

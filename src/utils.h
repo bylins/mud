@@ -1297,12 +1297,12 @@ inline bool a_isprint(unsigned char c)
 
 inline bool a_islower(unsigned char c)
 {
-    return (c>='a' && c<='z') || (c>=192 && c<=223);
+    return (c>='a' && c<='z') || (c>=192 && c<=223) || c == 163;
 }
 
 inline bool a_isupper(unsigned char c)
 {
-    return (c>='A' && c<='Z') || c>=224;
+    return (c>='A' && c<='Z') || c>=224 || c == 179;
 }
 
 inline bool a_isdigit(unsigned char c)
@@ -1312,14 +1312,14 @@ inline bool a_isdigit(unsigned char c)
 
 inline bool a_isalpha(unsigned char c)
 {
-    return (c>='a' && c<='z') || (c>='A' && c<='Z') || c>=192;
+    return (c>='a' && c<='z') || (c>='A' && c<='Z') || c>=192 || c == 163 || c == 179;
 }
 
 inline bool a_isalnum(unsigned char c)
 {
     return (c>='0' && c<='9')
 	|| (c>='a' && c<='z')
-	|| (c>='A' && c<='Z') || c>=192;
+	|| (c>='A' && c<='Z') || c>=192 || c == 163 || c == 179;
 }
 
 inline bool a_isxdigit(unsigned char c)
@@ -1333,6 +1333,7 @@ inline char a_ucc(unsigned char c)
 {
     if (c >= 'a' && c <= 'z') return c - 'a' + 'A';
     if (c >= 192 && c <= 223) return c + 32;
+	if (c == 163) return c + 16;
     return c;
 }
 
@@ -1340,6 +1341,7 @@ inline char a_lcc(unsigned char c)
 {
     if (c >= 'A' && c <= 'Z') return c - 'A' + 'a';
     if (c >= 224) return c - 32;
+	if (c == 179) return c - 16;
     return c;
 }
 
