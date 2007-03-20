@@ -730,7 +730,7 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
    (с) Дмитрий ака dzMUDiST */
 
 // Теперь реализация режимов "автограбеж" и "брать куны" происходит не в damage,
-// а здесь, после создания соответствующего трупа. Кроме того, 
+// а здесь, после создания соответствующего трупа. Кроме того,
 // если убил чармис и хозяин в комнате, то автолут происходит хозяину
 			if ((ch != NULL) && (killer != NULL)) {
 				if (IS_NPC(ch) && !IS_NPC(killer) && PRF_FLAGGED(killer, PRF_AUTOLOOT)
@@ -742,13 +742,13 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 					   && can_loot(killer)) {
 					sprintf(obj, "all.coin");
 					get_from_container(killer, corpse, obj, FIND_OBJ_INV, 1);
-				} else if (IS_NPC(ch) && IS_NPC(killer) && AFF_FLAGGED(killer, AFF_CHARM)
+				} else if (IS_NPC(ch) && IS_NPC(killer) && (AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
 					   && (corpse != NULL) && killer->master
 					   && killer->in_room == killer->master->in_room
 					   && PRF_FLAGGED(killer->master, PRF_AUTOLOOT) && can_loot(killer->master)) {
 					sprintf(obj, "all");
 					get_from_container(killer->master, corpse, obj, FIND_OBJ_INV, 1);
-				} else if (IS_NPC(ch) && IS_NPC(killer) && local_gold && AFF_FLAGGED(killer, AFF_CHARM)
+				} else if (IS_NPC(ch) && IS_NPC(killer) && local_gold && (AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
 					   && (corpse != NULL) && killer->master
 					   && killer->in_room == killer->master->in_room
 					   && PRF_FLAGGED(killer->master, PRF_AUTOMONEY) && can_loot(killer->master)) {
@@ -958,7 +958,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
    ch - обязательно член группы, из чего следует:
             1. Это не NPC
             2. Он находится в группе лидера (или сам лидер)
-   
+
    Просто для PC-последователей эта функция не вызывается
 
 --*/
@@ -1866,7 +1866,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 	    return calculate_resistance_coeff(victim, VITALITY_RESISTANCE +
 							    GET_LEVEL(victim) + GET_REMORT(victim), dam);
 	} else
-	    return calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);	
+	    return calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
 }
 
 void poison_victim(CHAR_DATA * ch, CHAR_DATA * vict, int modifier)
@@ -2221,7 +2221,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 
 // запоминание.
 // чара-обидчика моб помнит всегда, если он его бьет непосредственно.
-// если бьют клоны (проверка на MOB_CLONE), тоже помнит всегда. 
+// если бьют клоны (проверка на MOB_CLONE), тоже помнит всегда.
 // если бьют храны или чармис (все остальные под чармом), то только если
 // моб может видеть их хозяина.
 
@@ -2370,17 +2370,17 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 	    OK_GAIN_EXP(ch, victim) &&
 		GET_EXP(victim) > 0 &&
 	    !AFF_FLAGGED(victim, AFF_CHARM) && !MOB_FLAGGED(victim, MOB_ANGEL) && !IS_NPC(ch))
-		gain_exp(ch, MAX (1, (GET_LEVEL(victim) * MIN(dam, GET_HIT(victim)) + 4) / 5 * 
+		gain_exp(ch, MAX (1, (GET_LEVEL(victim) * MIN(dam, GET_HIT(victim)) + 4) / 5 *
 					    MAX (1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 	// gain_exp(ch, IS_NPC(ch) ? GET_LEVEL(victim) * dam : (GET_LEVEL(victim) * dam + 4) / 5);
 	// log("[DAMAGE] Updating pos...");
-	
+
 	if (attacktype == SPELL_FIRE_SHIELD) {
 		if ((GET_HIT(victim) -= dam) < 1)
 			GET_HIT(victim) = 1;
 	} else
 		GET_HIT(victim) -= dam;
-	
+
 	update_pos(victim);
 
 
@@ -2413,7 +2413,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 
 	// Проверить, что жертва все еще тут. Может уже сбежала по трусости.
 	// Думаю, простой проверки достаточно.
-	// Примечание, если сбежал в FIRESHIELD, 
+	// Примечание, если сбежал в FIRESHIELD,
 	// то обратного повреждения по атакующему не будет
 	if (IN_ROOM(ch) != IN_ROOM(victim))
 		return dam;
@@ -3018,9 +3018,9 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		}
 	}
 //Adept: увеличение шанса попасть при нанесении удара богатырским молотом
-	if (skill == SKILL_STUPOR || skill == SKILL_MIGHTHIT) 
+	if (skill == SKILL_STUPOR || skill == SKILL_MIGHTHIT)
 		calc_thaco -= (int) MAX(0, (GET_SKILL(ch, skill) - 70) / 8);
-	
+
 	//    AWAKE style - decrease hitroll
 	if (GET_AF_BATTLE(ch, EAF_AWAKE) &&
 	    (IS_NPC(ch) || GET_CLASS(ch) != CLASS_ASSASINE) && skill != SKILL_THROW && skill != SKILL_BACKSTAB) {
@@ -3126,7 +3126,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		if (wielded && GET_OBJ_WEIGHT(wielded) > 20)
 			calc_thaco -= str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
 		else
-			calc_thaco -= str_app[GET_REAL_DEX(ch)].tohit;		
+			calc_thaco -= str_app[GET_REAL_DEX(ch)].tohit;
 	else
 		calc_thaco -= str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
 	calc_thaco -= GET_REAL_HR(ch);
@@ -3287,7 +3287,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			dam /= 2;
 		if (GET_SKILL(ch, SKILL_NOPARRYHIT))
 			dam += (int) ((GET_LEVEL(ch) / 3 + GET_REMORT(ch) * 3) *
-				GET_SKILL(ch, SKILL_NOPARRYHIT) / 
+				GET_SKILL(ch, SKILL_NOPARRYHIT) /
 				skill_info[SKILL_NOPARRYHIT].max_percent);
 
 		//dzMUDiST Обработка !исступления! +Gorrah
@@ -3313,16 +3313,16 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			    if ((ubyte) feat_info[i].affected[0].location == skill && can_use_feat(ch, i)) {
 				was_critic += MAX(0, GET_SKILL(ch, skill) -  70);
 				break;
-			    }	
-			if (GET_CLASS(ch) == CLASS_THIEF) 
+			    }
+			if (GET_CLASS(ch) == CLASS_THIEF)
 			    was_critic += GET_SKILL(ch,SKILL_BACKSTAB);
-			if (GET_CLASS(ch) == CLASS_PALADINE) 
+			if (GET_CLASS(ch) == CLASS_PALADINE)
 			    was_critic += (int) (GET_SKILL(ch,SKILL_PUNCTUAL) / 2);
-			if (GET_CLASS(ch) == CLASS_ASSASINE) 
+			if (GET_CLASS(ch) == CLASS_ASSASINE)
 			    was_critic += (int) (GET_SKILL(ch,SKILL_NOPARRYHIT) / 3);
 			if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
 			    was_critic += GET_LEVEL(ch);
-		}    
+		}
 		//critical hit ignore magic_shields and armour
 		if (number(0, 2000) < was_critic)
 			was_critic = TRUE;
@@ -3331,7 +3331,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 
 		if (type == SKILL_BACKSTAB) {
 			dam *= (GET_COMMSTATE(ch) ? 25 : backstab_mult(GET_LEVEL(ch)));
-			/* если критбакстаб, то дамаж равен 95% хитов жертвы 
+			/* если критбакстаб, то дамаж равен 95% хитов жертвы
 			   вероятность критстабба - стабб/20+ловкость-20 (кард) */
 			/*+скр.удар/20 */
 			if (IS_NPC(victim) && (number(1, 100) <
@@ -3342,7 +3342,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 						dex_app[GET_REAL_DEX(ch)].reaction),0))	{
 					dam *= MAX(2, (GET_SKILL(ch,SKILL_BACKSTAB) - 40) / 8);
 					send_to_char("&GПрямо в сердце!&n\r\n", ch);
-				}				 
+				}
 
 //Adept: учитываем резисты от крит. повреждений
 			dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
@@ -3385,7 +3385,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		    CLR_AF_BATTLE (ch, EAF_STUPOR);
 		    CLR_AF_BATTLE (ch, EAF_MIGHTHIT);
 		    }
-			
+
 	/**** обработаем ситуацию ЗАХВАТ */
 			for (vict = world[IN_ROOM(ch)]->people;
 			     vict && dam >= 0 && type != TYPE_NOPARRY &&
@@ -4002,7 +4002,7 @@ CHAR_DATA *find_opp_caster(CHAR_DATA * caster)
 
 	for (vict = world[IN_ROOM(caster)]->people; vict; vict = vict->next_in_room) {
 		if (IS_NPC(vict) &&
-//         !AFF_FLAGGED(vict,AFF_CHARM) && 
+//         !AFF_FLAGGED(vict,AFF_CHARM) &&
 		    !(MOB_FLAGGED(vict, MOB_ANGEL)
 		      && (vict->master && !IS_NPC(vict->master))))
 			continue;
@@ -4302,15 +4302,15 @@ void perform_violence(void)
 					for (vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next_in_room)
 						if (FIGHTING(vict) == ch && vict != ch && vict != k->follower)
 							break;
-					if (vict && GET_SKILL(k->follower, SKILL_RESCUE)) {	//if(GET_MOB_VNUM(k->follower)==108) 
-//       act("TRYING RESC for STOPFIGHT", TRUE, ch, 0, 0, TO_CHAR); 
+					if (vict && GET_SKILL(k->follower, SKILL_RESCUE)) {	//if(GET_MOB_VNUM(k->follower)==108)
+//       act("TRYING RESC for STOPFIGHT", TRUE, ch, 0, 0, TO_CHAR);
 						go_rescue(k->follower, ch, vict);
 					}
 				}
 			}
 			continue;
 		}
-		// Mobs stand up 
+		// Mobs stand up
 		if (IS_NPC(ch) &&
 		    GET_POS(ch) < POS_FIGHTING &&
 		    GET_POS(ch) > POS_STUNNED &&
@@ -4465,8 +4465,8 @@ void perform_violence(void)
 						if (FIGHTING(vict) == ch->master && vict != ch && vict != ch->master)
 							break;
 					if (vict && (GET_SKILL(ch, SKILL_RESCUE)	// бред какой-то || GET_REAL_INT(ch) < number(0,100)
-					    )) {	//if(GET_MOB_VNUM(ch)==108 && ch->master) 
-//                       act("TRYING to RESCUE in FIGHT", TRUE, ch->master, 0, 0, TO_CHAR); 
+					    )) {	//if(GET_MOB_VNUM(ch)==108 && ch->master)
+//                       act("TRYING to RESCUE in FIGHT", TRUE, ch->master, 0, 0, TO_CHAR);
 						go_rescue(ch, ch->master, vict);
 					} else if (vict && GET_SKILL(ch, SKILL_PROTECT))
 						go_protect(ch, ch->master);
@@ -4537,7 +4537,7 @@ void perform_violence(void)
 							if (caster)
 								go_throw(ch, caster);
 						}
-// проверим на всякий случай, является ли моб ангелом, хотя вроде бы этого делать не надо                   
+// проверим на всякий случай, является ли моб ангелом, хотя вроде бы этого делать не надо
 						if (!(MOB_FLAGGED(ch, MOB_ANGEL) && ch->master)
 						    && (sk_num == SKILL_RESCUE || sk_num == SKILL_PROTECT)) {
 							CHAR_DATA *attacker;
@@ -4831,7 +4831,7 @@ void perform_violence(void)
 							if (FIGHTING(vict) == ch && vict != ch && vict != k->follower)
 								break;
 						if (vict && GET_SKILL(k->follower, SKILL_RESCUE)) {
-//                if(GET_MOB_VNUM(k->follower)==108) 
+//                if(GET_MOB_VNUM(k->follower)==108)
 //                  act("TRYING to RESCUE without FIGHTING", TRUE, ch, 0, 0, TO_CHAR);
 							go_rescue(k->follower, ch, vict);
 						}
@@ -4873,7 +4873,7 @@ void perform_violence(void)
 // returns 1 if only ch was outcasted
 // returns 2 if only victim was outcasted
 // returns 4 if both were outcasted
-// returns 0 if none was outcasted  
+// returns 0 if none was outcasted
 int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	CHAR_DATA *cleader, *vleader;
