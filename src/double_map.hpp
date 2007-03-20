@@ -39,7 +39,7 @@ public:
 
 	typedef typename _Base::mapped_type::key_type			key_type2;
 #if defined(_MSC_VER) && (_MSC_VER < 1400)
-	typedef _Tp2 mapped_type;
+	typedef _Tp2 mapped_type2;
 #else
 	typedef typename _Base::mapped_type::mapped_type		mapped_type2;
 #endif
