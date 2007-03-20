@@ -9,7 +9,6 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "comm.h"
 #include "handler.h"
@@ -17,11 +16,9 @@
 #include "interpreter.h"
 #include "utils.h"
 #include "shop.h"
-
 #include "spells.h"
 #include "skills.h"
 #include "screen.h"
-
 #include "dg_scripts.h"
 #include "constants.h"
 #include "im.h"

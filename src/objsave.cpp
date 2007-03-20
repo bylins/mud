@@ -70,7 +70,7 @@ void name_to_drinkcon(OBJ_DATA * obj, int type);
 OBJ_DATA *create_obj(void);
 void asciiflag_conv(const char *flag, void *value);
 void tascii(int *pointer, int num_planes, char *ascii);
-int get_ptable_by_name(char *name);
+long get_ptable_by_name(char *name);
 
 
 /* local functions */
@@ -110,6 +110,8 @@ int get_buf_line(char **source, char *target)
 
 	*target = '\0';
 	for (; **source && **source != DIV_CHAR && **source != END_CHAR; (*source)++) {
+		if (**source == '\r')
+			continue;
 		if (**source == END_LINE) {
 			if (empty || *otarget == COM_CHAR) {
 				target = otarget;
@@ -134,6 +136,8 @@ int get_buf_lines(char **source, char *target)
 	for (; **source && **source != DIV_CHAR && **source != END_CHAR; (*source)++) {
 		if (**source == END_LINES) {
 			(*source)++;
+			if (**source == '\r')
+				(*source)++;
 			if (**source == END_LINE)
 				(*source)++;
 			return (TRUE);
@@ -2006,9 +2010,9 @@ void Crash_idlesave(CHAR_DATA * ch)
 	save_char_objects(ch, RENT_TIMEDOUT, 0);
 }
 
-int Crash_rentsave(CHAR_DATA * ch, int cost)
+void Crash_rentsave(CHAR_DATA * ch, int cost)
 {
-	return save_char_objects(ch, RENT_RENTED, cost);
+	save_char_objects(ch, RENT_RENTED, cost);
 }
 
 int Crash_cryosave(CHAR_DATA * ch, int cost)

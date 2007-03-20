@@ -9,11 +9,13 @@
 
 #ifndef _STUFF_HPP_
 #define _STUFF_HPP_
-#include "double_map.hpp"
 
+#include "conf.h"
 #include <vector>
 #include <fstream>
 #include <sstream>
+
+#include "double_map.hpp"
 
 const int MAX_LOAD_PROB = 1000;
 

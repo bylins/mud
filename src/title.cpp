@@ -2,7 +2,9 @@
 // Copyright (c) 2006 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "conf.h"
 #include <boost/algorithm/string.hpp>
+
 #include <sstream>
 #include "title.hpp"
 #include "utils.h"

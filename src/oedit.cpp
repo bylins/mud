@@ -125,8 +125,8 @@ void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src)
 
 	while (sdd) {
 		CREATE(pddd[0], EXTRA_DESCR_DATA, 1);
-		pddd[0]->keyword = sdd->keyword ? strdup(sdd->keyword) : NULL;
-		pddd[0]->description = sdd->description ? strdup(sdd->description) : NULL;
+		pddd[0]->keyword = sdd->keyword ? str_dup(sdd->keyword) : NULL;
+		pddd[0]->description = sdd->description ? str_dup(sdd->description) : NULL;
 		pddd = &(pddd[0]->next);
 		sdd = sdd->next;
 	}

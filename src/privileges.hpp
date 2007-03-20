@@ -10,7 +10,7 @@
 #ifndef _PRIVILEGES_HPP_
 #define _PRIVILEGES_HPP_
 
-#include <stdio.h>
+#include "conf.h"
 #include <string>
 #include <map>
 #include <set>

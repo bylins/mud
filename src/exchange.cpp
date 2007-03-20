@@ -9,22 +9,20 @@
 ************************************************************************ */
 
 #include "conf.h"
+#include <stdexcept>
+
 #include "sysdep.h"
-
 #include "structs.h"
-
 #include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
 #include "screen.h"
-
 #include "exchange.h"
 #include "im.h"
 #include "constants.h"
 #include "skills.h"
-#include <stdexcept>
 
 
 extern OBJ_DATA *object_list;
@@ -817,7 +815,7 @@ int exchange_setfilter(CHAR_DATA * ch, char *arg)
 
 	if (EXCHANGE_FILTER(ch))
 		free(EXCHANGE_FILTER(ch));
-	EXCHANGE_FILTER(ch) = strdup(filter);
+	EXCHANGE_FILTER(ch) = str_dup(filter);
 
 	return true;
 
@@ -913,7 +911,7 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error)
 
 	*error = 8;
 	// Считаем comment предмета
-	char *str_last_symb = index(*data,'\n');
+	char *str_last_symb = strchr(*data,'\n');
 	strncpy(buffer,*data,str_last_symb - *data);
 	buffer[str_last_symb - *data] = '\0';
 	*data = str_last_symb;
@@ -975,7 +973,7 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 
 	*error = 8;
 	// Считаем comment предмета
-	char *str_last_symb = index(*data,'\n');
+	char *str_last_symb = strchr(*data,'\n');
 	strncpy(buffer,*data,str_last_symb - *data);
 	buffer[str_last_symb - *data] = '\0';
 	*data = str_last_symb;

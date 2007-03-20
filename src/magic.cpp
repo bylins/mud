@@ -14,7 +14,6 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -28,7 +27,6 @@
 #include "dg_scripts.h"
 #include "pk.h"
 #include "features.hpp"
-
 #include "magic.h"
 #include "fight.h"
 

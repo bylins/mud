@@ -504,10 +504,6 @@ int getrlimit(int resource, struct rlimit *rlp);
 int getsockname(socket_t s, struct sockaddr *name, int *namelen);
 #endif
 
-#ifdef NEED_GETTIMEOFDAY_PROTO
-int gettimeofday(struct timeval *tp, void *);
-#endif
-
 #ifdef NEED_HTONL_PROTO
 ulong htonl(u_long hostlong);
 #endif

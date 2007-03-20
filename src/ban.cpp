@@ -7,6 +7,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "conf.h"
 #include <map>
 #include <fstream>
 #include <sstream>
@@ -14,7 +15,6 @@
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"

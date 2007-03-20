@@ -65,7 +65,7 @@ int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
 
 /* Names first */
 
-const char *class_abbrevs[] = { "Ï≈",
+char *class_abbrevs[] = { "Ï≈",
 	"Îœ",
 	"Ù¡",
 	"‚œ",
@@ -82,7 +82,7 @@ const char *class_abbrevs[] = { "Ï≈",
 	"\n"
 };
 
-const char *kin_abbrevs[] = { "Ú’",
+char *kin_abbrevs[] = { "Ú’",
 	"˜…",
 	"Û‘",
 	"\n"

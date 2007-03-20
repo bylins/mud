@@ -14,9 +14,14 @@
 
 #define __ACT_OTHER_C__
 
-#include <sstream>
-
 #include "conf.h"
+#include <sstream>
+#include <fstream>
+#include <string>
+#include <map>
+#include <iterator>
+#include <sys/stat.h>
+
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -35,22 +40,12 @@
 #include "magic.h"
 #include "features.hpp"
 
-
-//Polos.insert_wanted_gem
-
-#include <fstream>
-#include <string>
-#include <map>
-#include <iterator>
-
 using std::ifstream;
 using std::fstream;
 using std::map;
 using std::iterator;
 
-
 extern class insert_wanted_gem iwg;
-//-Polos.insert_wanted_gem
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;

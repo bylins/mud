@@ -4,6 +4,7 @@
 * (c) 2006 Krodo                                                              *
 ******************************************************************************/
 
+#include "conf.h"
 #include <functional>
 #include <sstream>
 #include <iomanip>
@@ -11,7 +12,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 
-#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"

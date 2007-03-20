@@ -9,15 +9,12 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-/*
-*/
-
 #include "conf.h"
-#include "sysdep.h"
-
 #include <sys/stat.h>
 
+#include "sysdep.h"
 #include "diskio.h"
+
 
 int fbgetline(FBFILE * fbfl, char *line)
 {

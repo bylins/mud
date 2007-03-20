@@ -7,13 +7,13 @@
 #ifndef _HOUSE_H_
 #define _HOUSE_H_
 
+#include "conf.h"
 #include <vector>
 #include <map>
 #include <bitset>
 #include <string>
 #include <boost/shared_ptr.hpp>
 
-#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"

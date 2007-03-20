@@ -12,9 +12,9 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "conf.h"
 #include <boost/algorithm/string.hpp>
 
-#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"

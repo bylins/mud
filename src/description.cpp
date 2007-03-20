@@ -2,8 +2,9 @@
 // Copyright (c) 2006 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <stdexcept>
 #include "conf.h"
+#include <stdexcept>
+
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"

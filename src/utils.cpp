@@ -12,9 +12,9 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "conf.h"
 #include <fstream>
 
-#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"

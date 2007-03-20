@@ -68,8 +68,6 @@
  * files that is included is controlled by conf.h for that platform.
  */
 
-#include "sys/types.h"
-#include "sys/socket.h"
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -1852,7 +1850,7 @@ int set_sendbuf(socket_t s)
 	return (0);
 }
 
-int new_descriptor(int s)
+int new_descriptor(socket_t s)
 {
 	socket_t desc;
 	int sockets_connected = 0;

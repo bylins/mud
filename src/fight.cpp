@@ -14,7 +14,6 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -46,7 +45,7 @@ extern CHAR_DATA *character_list;
 extern vector < OBJ_DATA * >obj_proto;
 extern int max_exp_gain_npc;	/* see config.cpp */
 extern int max_npc_corpse_time, max_pc_corpse_time;
-extern const int material_value[];
+extern int material_value[];
 extern int supress_godsapply;
 extern int r_helled_start_room;
 
@@ -75,8 +74,8 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict);
 const char *skill_name(int num);
 void npc_groupbattle(CHAR_DATA * ch);
 int npc_battle_scavenge(CHAR_DATA * ch);
-int npc_wield(CHAR_DATA * ch);
-int npc_armor(CHAR_DATA * ch);
+void npc_wield(CHAR_DATA * ch);
+void npc_armor(CHAR_DATA * ch);
 
 int max_exp_gain_pc(CHAR_DATA * ch);
 int max_exp_loss_pc(CHAR_DATA * ch);

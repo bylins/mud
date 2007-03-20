@@ -53,11 +53,10 @@ const char *spell_name(int num);
 
 /* external functions */
 int ext_search_block(char *arg, const char **list, int exact);
-sh_int find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);
+room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);
 void free_varlist(struct trig_var_data *vd);
 int obj_room(OBJ_DATA * obj);
 int is_empty(int zone_nr);
-sh_int find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);
 TRIG_DATA *read_trigger(int nr);
 OBJ_DATA *get_object_in_equip(CHAR_DATA * ch, char *name);
 void extract_trigger(TRIG_DATA * trig);
@@ -2895,7 +2894,7 @@ void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, struct cmdlis
 	char c;
 
 	extern TIME_INFO_DATA time_info;
-	extern long dg_global_pulse;
+	extern unsigned long dg_global_pulse;
 
 	if (trig->attach_type == MOB_TRIGGER && IS_SET(GET_TRIG_TYPE(trig), MTRIG_DEATH)) {
 		sprintf(buf,
@@ -4132,7 +4131,7 @@ void save_char_vars(CHAR_DATA * ch)
 		return;
 
 	get_filename(GET_NAME(ch), fn, SCRIPT_VARS_FILE);
-	unlink(fn);
+	std::remove(fn);
 
 	/* make sure this char has global variables to save */
 	if (ch->script->global_vars == NULL)

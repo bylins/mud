@@ -36,8 +36,6 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
-
 #include "structs.h"
 #include "dg_scripts.h"
 #include "db.h"
@@ -52,7 +50,7 @@
 #define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, AFF_CHARM))
 
 extern DESCRIPTOR_DATA *descriptor_list;
-extern int find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);
+extern room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);
 extern INDEX_DATA *mob_index;
 
 extern int dg_owner_purged;

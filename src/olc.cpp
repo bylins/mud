@@ -8,8 +8,6 @@
 *  $Revision$                                                       *
 ***************************************************************************/
 
-#define _OASIS_OLC_
-
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -20,9 +18,7 @@
 #include "olc.h"
 #include "dg_olc.h"
 #include "screen.h"
-
 #include "item.creation.hpp"
-
 #include "im.h"
 
  /*
@@ -38,45 +34,37 @@ extern DESCRIPTOR_DATA *descriptor_list;
  /*
   * External functions.
   */
-extern int zedit_setup(DESCRIPTOR_DATA * d, int room_num);
-extern int zedit_save_to_disk(int zone);
-extern int zedit_new_zone(CHAR_DATA * ch, int new_zone);
-extern int medit_setup(DESCRIPTOR_DATA * d, int rmob_num);
-extern int medit_save_to_disk(int zone);
-extern int redit_setup(DESCRIPTOR_DATA * d, int rroom_num);
-extern int redit_save_to_disk(int zone);
-extern int oedit_setup(DESCRIPTOR_DATA * d, int robj_num);
-extern int oedit_save_to_disk(int zone);
-extern int sedit_setup_new(DESCRIPTOR_DATA * d);
-extern int sedit_setup_existing(DESCRIPTOR_DATA * d, int robj_num);
-extern int sedit_save_to_disk(int zone);
-extern int real_shop(int vnum);
-extern int free_shop(SHOP_DATA * shop);
-extern void room_free(ROOM_DATA * room);
-extern void medit_mobile_free(CHAR_DATA * mob);
-extern void oedit_object_free(OBJ_DATA * obj);
-extern void trigedit_setup_new(DESCRIPTOR_DATA * d);
-extern void trigedit_setup_existing(DESCRIPTOR_DATA * d, int rtrg_num);
-extern int real_trigger(int vnum);
-extern void dg_olc_script_free(DESCRIPTOR_DATA * d);
+void zedit_setup(DESCRIPTOR_DATA * d, int room_num);
+void zedit_save_to_disk(int zone);
+int zedit_new_zone(CHAR_DATA * ch, int new_zone);
+void medit_setup(DESCRIPTOR_DATA * d, int rmob_num);
+void medit_save_to_disk(int zone);
+void redit_setup(DESCRIPTOR_DATA * d, int rroom_num);
+void redit_save_to_disk(int zone);
+void oedit_setup(DESCRIPTOR_DATA * d, int robj_num);
+void oedit_save_to_disk(int zone);
+void sedit_setup_new(DESCRIPTOR_DATA * d);
+void sedit_setup_existing(DESCRIPTOR_DATA * d, int robj_num);
+void sedit_save_to_disk(int zone);
+int real_shop(int vnum);
+void free_shop(SHOP_DATA * shop);
+void room_free(ROOM_DATA * room);
+void medit_mobile_free(CHAR_DATA * mob);
+void oedit_object_free(OBJ_DATA * obj);
+void trigedit_setup_new(DESCRIPTOR_DATA * d);
+void trigedit_setup_existing(DESCRIPTOR_DATA * d, int rtrg_num);
+int real_trigger(int vnum);
+void dg_olc_script_free(DESCRIPTOR_DATA * d);
 
-
- /*
-  * Internal function prototypes.
-  */
+// Internal function prototypes.
 int real_zone(int number);
 void olc_saveinfo(CHAR_DATA * ch);
 
- /*
-  * Global string constants.
-  */
-const char *save_info_msg[5] = { "Rooms", "Objects", "Zone info",
-	"Mobiles", "Shops"
-};
+// global data
+const char *save_info_msg[5] = { "Rooms", "Objects", "Zone info", "Mobiles", "Shops" };
+const char *nrm, *grn, *cyn, *yel, *iyel, *ired;
+struct olc_save_info *olc_save_list = NULL;
 
- /*
-  * Internal data structures.
-  */
 struct olc_scmd_data {
 	char *text;
 	int con_type;
@@ -96,7 +84,7 @@ struct olc_scmd_data olc_scmd_info[6] = {
  /*
   * Exported ACMD do_olc function.
   *
-  * This function is the OLC interface.  It deals with all the 
+  * This function is the OLC interface.  It deals with all the
   * generic OLC stuff, then passes control to the sub-olc sections.
   */
 
@@ -153,7 +141,7 @@ ACMD(do_olc)
 		} else if (subcmd == SCMD_OLC_ZEDIT && (GET_LEVEL(ch) >= LVL_BUILDER || GET_COMMSTATE(ch))) {
 			send_to_char("Создание новых зон отключено.\r\n", ch);
 			return;
-/*          
+/*
           if ((strn_cmp("new", buf1, 3) == 0) && *buf2)
  	         zedit_new_zone(ch, atoi(buf2));
           else
@@ -347,7 +335,7 @@ ACMD(do_olc)
 }
 
  /*------------------------------------------------------------*\
-  Internal utilities 
+  Internal utilities
  \*------------------------------------------------------------*/
 
 void olc_saveinfo(CHAR_DATA * ch)
@@ -367,11 +355,11 @@ void olc_saveinfo(CHAR_DATA * ch)
 
 }
 
-/*  
+/*
  int real_zone(int number)
  {
    int counter;
-printf("number=%d, top=%d\n", number, top_of_zone_table); 
+printf("number=%d, top=%d\n", number, top_of_zone_table);
    for (counter = 0; counter <= top_of_zone_table; counter++) {
 printf("checking index %d, range=%d..%d\n",
 counter,(zone_table[counter].number * 100), zone_table[counter].top);
@@ -379,13 +367,13 @@ counter,(zone_table[counter].number * 100), zone_table[counter].top);
  	(number <= (zone_table[counter].top)))
        return counter;
    }
- 
+
    return -1;
  }
 */
 
  /*------------------------------------------------------------*\
-  Exported utilities 
+  Exported utilities
  \*------------------------------------------------------------*/
 
  /*
@@ -433,11 +421,10 @@ void olc_remove_from_save_list(int zone, byte type)
 }
 
  /*
-  * Set the colour string pointers for that which this char will
-  * see at color level NRM.  Changing the entries here will change 
-  * the colour scheme throughout the OLC.
-  */
-
+ * Set the colour string pointers for that which this char will
+ * see at color level NRM.  Changing the entries here will change
+ * the colour scheme throughout the OLC.
+ */
 void get_char_cols(CHAR_DATA * ch)
 {
 	nrm = CCNRM(ch, C_NRM);

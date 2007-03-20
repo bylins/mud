@@ -9,13 +9,11 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "screen.h"
 #include "spells.h"
 #include "skills.h"
 #include "constants.h"
-
 #include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
@@ -24,12 +22,11 @@
 #include "olc.h"
 #include "im.h"
 #include "features.hpp"
-
 #include "item.creation.hpp"
 
 #define SpINFO   spell_info[spellnum]
 
-extern const int material_value[];
+extern int material_value[];
 
 int slot_for_char(CHAR_DATA * ch, int i);
 void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktype, int mayflee);

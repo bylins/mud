@@ -4,6 +4,7 @@
 * (c) 2005 Krodo                                                              *
 ******************************************************************************/
 
+#include "conf.h"
 #include <fstream>
 #include <sstream>
 #include <cmath>
@@ -687,7 +688,7 @@ ACMD(DoHouse)
 	else {
 		// обработка списка доступных команд по званию персонажа
 		buffer = "Доступные Вам привилегии дружины:\r\n";
-		for (int i = 0; i <= CLAN_PRIVILEGES_NUM; ++i)
+		for (int i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
 			if (CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][i])
 				buffer += HOUSE_FORMAT[i];
 		// воевода до кучи может сам сменить у дружины воеводу
@@ -2274,7 +2275,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 		case 'q':
 		case 'Q':
 			// выход в общее меню с изменением всех званий
-			for (int i = 0; i <= CLAN_PRIVILEGES_NUM; ++i) {
+			for (int i = 0; i < CLAN_PRIVILEGES_NUM; ++i) {
 				if (d->clan_olc->all_ranks[i]) {
 					unsigned j = CLAN_MEMBER(d->character)->rank_num + 1;
 					for (; j <= d->clan_olc->clan->ranks.size(); ++j) {
@@ -2320,7 +2321,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 		case 'q':
 		case 'Q':
 			// выход в общее меню с изменением всех званий
-			for (int i = 0; i <= CLAN_PRIVILEGES_NUM; ++i) {
+			for (int i = 0; i < CLAN_PRIVILEGES_NUM; ++i) {
 				if (d->clan_olc->all_ranks[i]) {
 					unsigned j = CLAN_MEMBER(d->character)->rank_num + 1;
 					for (; j <= d->clan_olc->clan->ranks.size(); ++j) {

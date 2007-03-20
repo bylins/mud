@@ -12,12 +12,8 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-
 #include "conf.h"
 #include "sysdep.h"
-
-
-
 #include "structs.h"
 #include "utils.h"
 #include "interpreter.h"
@@ -31,9 +27,7 @@
 #include "dg_scripts.h"
 #include "pk.h"
 #include "features.hpp"
-// +newbook.patch (Alisher)
 #include "im.h"
-// -newbook.patch (Alisher)
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct spell_create_type spell_create[TOP_SPELL_DEFINE + 1];

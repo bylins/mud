@@ -15,9 +15,9 @@
 
 #define __INTERPRETER_C__
 
+#include "conf.h"
 #include <boost/lexical_cast.hpp>
 
-#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "comm.h"
@@ -64,8 +64,8 @@ extern char *motd;
 extern char *rules;
 extern char *background;
 extern const char *MENU;
-extern char *WELC_MESSG;
-extern char *START_MESSG;
+extern const char *WELC_MESSG;
+extern const char *START_MESSG;
 extern CHAR_DATA *character_list;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct player_index_element *player_table;
@@ -2935,12 +2935,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				}
 				if (timeout > 0) {
 					time_t deltime = time(NULL) + timeout * 60 * 60 * 24;
-					struct tm tmptm;
-					localtime_r(&deltime, &tmptm);
-
-					sprintf(buf,
-						"В случае Вашего отсутствия персонаж будет храниться до %s нашей эры :).\r\n",
-						rustime(&tmptm));
+					sprintf(buf, "В случае Вашего отсутствия персонаж будет храниться до %s нашей эры :).\r\n",
+							rustime(localtime(&deltime)));
 					SEND_TO_Q(buf, d);
 				}
 			};

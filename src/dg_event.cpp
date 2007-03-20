@@ -20,9 +20,7 @@
 #include "dg_event.h"
 #include "db.h"
 #include "dg_scripts.h"
-
 #include "comm.h"
-
 
 /*
 ** define statics
@@ -100,7 +98,7 @@ void process_events(void)
 			e = e->next;
 
 			remove_event(del);
-			// На отработку отложенных тригов выделяем всего 50 мсекунд 
+			// На отработку отложенных тригов выделяем всего 50 мсекунд
 			// По исчерпанию лимита откладываем отработку на следующий тик.
 			// Делаем для более равномерного распределения времени процессора.
 			gettimeofday(&stop, NULL);

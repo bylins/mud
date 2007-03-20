@@ -20,7 +20,6 @@
 #include "dg_olc.h"
 #include "constants.h"
 #include "features.hpp"
-
 #include "im.h"
 
 /*

@@ -13,11 +13,9 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "utils.h"
 #include "db.h"
-
 #include "mobmax.h"
 
 #define MAX_MOB_LEVEL 50	/* Максимальный уровень мобов */

@@ -14,9 +14,9 @@
 
 #define __DB_C__
 
-#include "dirent.h"
-#include "sys/stat.h"
 #include "conf.h"
+#include "sys/stat.h"
+
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -217,7 +217,7 @@ int hsort(const void *a, const void *b);
 int csort(const void *a, const void *b);
 void prune_crlf(char *txt);
 void save_char_vars(CHAR_DATA * ch);
-void Crash_read_timer(int index, int temp);
+int Crash_read_timer(int index, int temp);
 void Crash_clear_objects(int index);
 void extract_mob(CHAR_DATA * ch);
 //F@N|
@@ -4514,7 +4514,7 @@ void load_ignores(CHAR_DATA * ch, char *line)
 // найдем последний элемент списка на случай, если функцию
 // хотят вызывать многократно
 	for (ignore_list = IGNORE_LIST(ch); ignore_list && ignore_list->next; ignore_list = ignore_list->next);
-	buf = strdup(line);
+	buf = str_dup(line);
 	for (i = k = 0;;) {
 		if (buf[i] == ' ' || buf[i] == '\t' || buf[i] == 0) {
 			if (buf[i] == 0)
@@ -5014,7 +5014,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 							cur_log = cur_log->next;
 						}
 						// Добавляем в список.
-						cur_log->ip = strdup(buf);
+						cur_log->ip = str_dup(buf);
 						cur_log->count = lnum;
 						cur_log->lasttime = lnum2;
 						cur_log->next = 0;   // Терминатор списка
@@ -7031,8 +7031,8 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 
 	while (sdd) {
 		CREATE(pddd[0], EXTRA_DESCR_DATA, 1);
-		pddd[0]->keyword = sdd->keyword ? strdup(sdd->keyword) : NULL;
-		pddd[0]->description = sdd->description ? strdup(sdd->description) : NULL;
+		pddd[0]->keyword = sdd->keyword ? str_dup(sdd->keyword) : NULL;
+		pddd[0]->description = sdd->description ? str_dup(sdd->description) : NULL;
 		pddd = &(pddd[0]->next);
 		sdd = sdd->next;
 	}

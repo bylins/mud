@@ -5,8 +5,9 @@
 #ifndef PASSWORD_HPP_INCLUDED
 #define PASSWORD_HPP_INCLUDED
 
-#include <string>
 #include "conf.h"
+#include <string>
+
 #include "sysdep.h"
 #include "structs.h"
 

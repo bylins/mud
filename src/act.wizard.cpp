@@ -99,7 +99,7 @@ void roll_real_abils(CHAR_DATA * ch, bool hand = 0);
 int parse_class(char arg);
 extern CHAR_DATA *find_char(long n);
 void rename_char(CHAR_DATA * ch, char *oname);
-int get_ptable_by_name(char *name);
+long get_ptable_by_name(char *name);
 int _parse_name(char *arg, char *name);
 int Valid_Name(char *name);
 int reserved_word(char *name);

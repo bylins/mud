@@ -34,7 +34,7 @@ extern INDEX_DATA *mob_index;
 extern vector < OBJ_DATA * >obj_proto;
 extern INDEX_DATA *obj_index;
 extern char *equipment_types[];
-extern char *dirs[];
+extern const char *dirs[];
 extern INDEX_DATA **trig_index;
 //MZ.load
 extern struct zone_type * zone_types;
@@ -181,8 +181,8 @@ pzcmd zedit_build_cmdlist(DESCRIPTOR_DATA * d)
 			if (item->cmd.arg1 == WLD_TRIGGER) {
 				TRANS_ROOM(arg2);
 			}
-			item->cmd.sarg1 = strdup(item->cmd.sarg1);
-			item->cmd.sarg2 = strdup(item->cmd.sarg2);
+			item->cmd.sarg1 = str_dup(item->cmd.sarg1);
+			item->cmd.sarg2 = str_dup(item->cmd.sarg2);
 			break;
 
 		default:

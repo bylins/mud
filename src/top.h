@@ -7,6 +7,7 @@
 #ifndef _TOP_H_
 #define _TOP_H_
 
+#include "conf.h"
 #include <string>
 #include <list>
 #include <vector>

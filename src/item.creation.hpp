@@ -37,6 +37,7 @@
 #define MAKE_METALL	3
 #define MAKE_CRAFT	4
 
+#include "conf.h"
 #include <string>
 #include <list>
 #include <iostream>

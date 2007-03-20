@@ -2,8 +2,10 @@
 // Copyright (c) 2006 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "conf.h"
 #include <list>
 #include <algorithm>
+
 #include "deathtrap.hpp"
 #include "constants.h"
 #include "db.h"

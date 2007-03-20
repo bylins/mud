@@ -15,13 +15,12 @@
 #ifndef _STRUCTS_H_
 #define _STRUCTS_H_
 
+#include "conf.h"
 #include <vector>
 #include <list>
 #include <bitset>
 #include <string>
 #include <boost/shared_ptr.hpp>
-
-//Polos.inser_wanted_gem
 #include <fstream>
 #include <map>
 #include <iterator>
@@ -1228,9 +1227,7 @@ extern const FLAG_DATA clear_flags;
 #define INT_ONE   (1 << 30)
 #define INT_TWO   (2 << 30)
 #define INT_THREE (3 << 30)
-#define GET_FLAG(value,flag)  ((unsigned long)flag < (unsigned long)INT_ONE   ? value.flags[0] : \
-                               (unsigned long)flag < (unsigned long)INT_TWO   ? value.flags[1] : \
-                               (unsigned long)flag < (unsigned long)INT_THREE ? value.flags[2] : value.flags[3])
+#define GET_FLAG(value,flag) (value.flags[((unsigned long)flag) >> 30])
 
 class unique_bit_flag_data : public flag_data {
 public:

@@ -735,7 +735,7 @@ SPECIAL(guild_mono)
 				if ((skill_no = bits =
 				     (guild_mono_info[info_num].learn_info + i)->skill_no) > 0
 				    && (!GET_SKILL(ch, skill_no) || IS_GRGOD(ch))) {
-					gcount += sprintf(buf + gcount, "- умение %s\"%s\"\%s\r\n",
+					gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
 							  CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 					found = TRUE;
 				}
@@ -744,13 +744,13 @@ SPECIAL(guild_mono)
 				if ((skill_no = (guild_mono_info[info_num].learn_info + i)->spell_no)
 				    && (!((GET_SPELL_TYPE(ch, skill_no) & bits) == bits)
 					|| IS_GRGOD(ch))) {
-					gcount += sprintf(buf + gcount, "- магия %s\"%s\"\%s\r\n",
+					gcount += sprintf(buf + gcount, "- магия %s\"%s\"%s\r\n",
 							  CCCYN(ch, C_NRM), spell_name(skill_no), CCNRM(ch, C_NRM));
 					found = TRUE;
 				}
 				if ((skill_no = (guild_mono_info[info_num].learn_info + i)->feat_no) > 0
 				    && !HAVE_FEAT(ch, skill_no) && can_get_feat(ch, skill_no)) {
-					gcount += sprintf(buf + gcount, "- способность %s\"%s\"\%s\r\n",
+					gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
 							  CCCYN(ch, C_NRM), feat_name(skill_no), CCNRM(ch, C_NRM));
 					found = TRUE;
 				}
@@ -779,7 +779,7 @@ SPECIAL(guild_mono)
 					bits = SPELL_KNOW;
 				if ((skill_no = (guild_mono_info[info_num].learn_info + i)->spell_no)
 				    && !((GET_SPELL_TYPE(ch, skill_no) & bits) == bits)) {
-					gcount += sprintf(buf, "$N научил$G Вас магии %s\"%s\"\%s",
+					gcount += sprintf(buf, "$N научил$G Вас магии %s\"%s\"%s",
 							  CCCYN(ch, C_NRM), spell_name(skill_no), CCNRM(ch, C_NRM));
 					act(buf, FALSE, ch, 0, victim, TO_CHAR);
 					if (IS_SET(bits, SPELL_KNOW))
@@ -830,7 +830,7 @@ SPECIAL(guild_mono)
 					else if (!can_get_feat(ch, skill_no)) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
 					} else {
-						sprintf(buf, "$N научил$G Вас способности %s\"%s\"\%s",
+						sprintf(buf, "$N научил$G Вас способности %s\"%s\"%s",
 							CCCYN(ch, C_NRM), feat_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						SET_FEAT(ch, skill_no);
@@ -851,7 +851,7 @@ SPECIAL(guild_mono)
 					if (GET_SKILL(ch, skill_no))
 						act("$N сказал$g Вам : 'Ничем помочь не могу, ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
 					else {
-						sprintf(buf, "$N научил$G Вас умению %s\"%s\"\%s",
+						sprintf(buf, "$N научил$G Вас умению %s\"%s\"%s",
 							CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						GET_SKILL(ch, skill_no) = 10;
@@ -897,7 +897,7 @@ SPECIAL(guild_mono)
 							strcpy(buf, "Вы уже умеете это.");
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 					} else {
-						sprintf(buf, "$N научил$G Вас магии %s\"%s\"\%s",
+						sprintf(buf, "$N научил$G Вас магии %s\"%s\"%s",
 							CCCYN(ch, C_NRM), spell_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						if (IS_SET(bits, SPELL_KNOW))
@@ -975,7 +975,7 @@ SPECIAL(guild_poly)
 				if ((skill_no = bits =
 				     (guild_poly_info[info_num] + i)->skill_no) > 0
 				    && (!GET_SKILL(ch, skill_no) || IS_GRGOD(ch))) {
-					gcount += sprintf(buf + gcount, "- умение %s\"%s\"\%s\r\n",
+					gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
 							  CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 					found = TRUE;
 				}
@@ -984,14 +984,14 @@ SPECIAL(guild_poly)
 				if ((skill_no = (guild_poly_info[info_num] + i)->spell_no) &&
 				    (!((GET_SPELL_TYPE(ch, skill_no) & bits) == bits)
 				     || IS_GRGOD(ch))) {
-					gcount += sprintf(buf + gcount, "- магия %s\"%s\"\%s\r\n",
+					gcount += sprintf(buf + gcount, "- магия %s\"%s\"%s\r\n",
 							  CCCYN(ch, C_NRM), spell_name(skill_no), CCNRM(ch, C_NRM));
 					found = TRUE;
 				}
 				if ((skill_no = (guild_poly_info[info_num] + i)->feat_no) > 0
 					 					&& skill_no < MAX_FEATS)
 				    if (!HAVE_FEAT(ch, skill_no) && can_get_feat(ch, skill_no)) {
-					gcount += sprintf(buf + gcount, "- способность %s\"%s\"\%s\r\n",
+					gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
 							  CCCYN(ch, C_NRM), feat_name(skill_no), CCNRM(ch, C_NRM));
 					found = TRUE;
 				}
@@ -1030,7 +1030,7 @@ SPECIAL(guild_poly)
 					bits = SPELL_KNOW;
 				if ((skill_no = (guild_poly_info[info_num] + i)->spell_no) &&
 				    !((GET_SPELL_TYPE(ch, skill_no) & bits) == bits)) {
-					gcount += sprintf(buf, "$N научил$G Вас магии %s\"%s\"\%s",
+					gcount += sprintf(buf, "$N научил$G Вас магии %s\"%s\"%s",
 							  CCCYN(ch, C_NRM), spell_name(skill_no), CCNRM(ch, C_NRM));
 					act(buf, FALSE, ch, 0, victim, TO_CHAR);
 
@@ -1079,7 +1079,7 @@ SPECIAL(guild_poly)
 					if (GET_SKILL(ch, skill_no))
 						act("$N сказал$G Вам : 'Ничем помочь не могу, ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
 					else {
-						sprintf(buf, "$N научил$G Вас умению %s\"%s\"\%s",
+						sprintf(buf, "$N научил$G Вас умению %s\"%s\"%s",
 							CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						GET_SKILL(ch, skill_no) = 10;
@@ -1108,7 +1108,7 @@ SPECIAL(guild_poly)
 					else if (!can_get_feat(ch, skill_no)) {
 							act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
 					} else {
-						sprintf(buf, "$N научил$G Вас способности %s\"%s\"\%s",
+						sprintf(buf, "$N научил$G Вас способности %s\"%s\"%s",
 							CCCYN(ch, C_NRM), feat_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						SET_FEAT(ch, skill_no);
@@ -1159,7 +1159,7 @@ SPECIAL(guild_poly)
 							strcpy(buf, "Вы уже умеете это.");
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 					} else {
-						sprintf(buf, "$N научил$G Вас магии %s\"%s\"\%s",
+						sprintf(buf, "$N научил$G Вас магии %s\"%s\"%s",
 							CCCYN(ch, C_NRM), spell_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						if (IS_SET(bits, SPELL_KNOW))
@@ -1418,8 +1418,8 @@ int npc_scavenge(CHAR_DATA * ch)
 					has_key(ch, GET_OBJ_VAL(obj, 2)))
 					do_doorcmd(ch, obj, 0, SCMD_UNLOCK);
 				// Заперто, взламываем, если умеем
-				if (OBJVAL_FLAGGED(obj, CONT_LOCKED) && 
-					GET_SKILL(ch, SKILL_PICK_LOCK) && 
+				if (OBJVAL_FLAGGED(obj, CONT_LOCKED) &&
+					GET_SKILL(ch, SKILL_PICK_LOCK) &&
 					ok_pick(ch, 0, OBJVAL_FLAGGED(obj, CONT_PICKPROOF), SCMD_PICK))
 					do_doorcmd(ch, obj, 0, SCMD_PICK);
 				// Все равно заперто, ну тогда фиг с ним
@@ -1484,7 +1484,7 @@ int npc_loot(CHAR_DATA * ch)
 				// Сначала лутим то, что не в контейнерах
 				for (loot_obj = obj->contains; loot_obj; loot_obj = next_loot) {
 					next_loot = loot_obj->next_content;
-					if (GET_OBJ_TYPE(loot_obj) != ITEM_CONTAINER && 
+					if (GET_OBJ_TYPE(loot_obj) != ITEM_CONTAINER &&
 						CAN_GET_OBJ(ch, loot_obj) && !item_nouse(loot_obj)) {
 						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->PNames[1]);
 						act(buf, FALSE, ch, loot_obj, 0, TO_ROOM);
@@ -1496,7 +1496,7 @@ int npc_loot(CHAR_DATA * ch)
 							obj_to_char(loot_obj, ch);
 							max++;
 						}
-					}					
+					}
 				}
 				// Теперь не запертые контейнеры
 				for (loot_obj = obj->contains; loot_obj; loot_obj = next_loot) {
@@ -1534,8 +1534,8 @@ int npc_loot(CHAR_DATA * ch)
 							has_key(ch, GET_OBJ_VAL(loot_obj, 2)))
 							TOGGLE_BIT(GET_OBJ_VAL(loot_obj, 1), CONT_LOCKED);
 						// ...или взломаем?
-						if (OBJVAL_FLAGGED(obj, CONT_LOCKED) && 
-							GET_SKILL(ch, SKILL_PICK_LOCK) && 
+						if (OBJVAL_FLAGGED(obj, CONT_LOCKED) &&
+							GET_SKILL(ch, SKILL_PICK_LOCK) &&
 							ok_pick(ch, 0, OBJVAL_FLAGGED(obj, CONT_PICKPROOF), SCMD_PICK))
 							TOGGLE_BIT(GET_OBJ_VAL(loot_obj, 1), CONT_LOCKED);
 						// Эх, не открыть. Ну ладно.

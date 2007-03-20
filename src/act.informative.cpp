@@ -12,10 +12,10 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "conf.h"
 #include <string>
 #include <sstream>
 
-#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -1222,49 +1222,41 @@ void show_extend_room(const char * const description, CHAR_DATA * ch)
 		return;
 
 	strcpy(string, description);
-	if ((pos = strchr(description, '<')))
+	if ((pos = strchr(string, '<')))
 		*pos = '\0';
-	strcpy(buf, description);
+	strcpy(buf, string);
 	if (pos)
 		*pos = '<';
 
 	found = found || paste_description(string, TAG_WINTERNIGHT,
-					   (weather_info.season == SEASON_WINTER &&
-					    (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)));
-	found = found
-	    || paste_description(string, TAG_WINTERDAY,
-				 (weather_info.season == SEASON_WINTER
-				  && (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)));
-	found = found
-	    || paste_description(string, TAG_SPRINGNIGHT,
-				 (weather_info.season == SEASON_SPRING
-				  && (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)));
-	found = found
-	    || paste_description(string, TAG_SPRINGDAY,
-				 (weather_info.season == SEASON_SPRING
-				  && (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)));
-	found = found
-	    || paste_description(string, TAG_SUMMERNIGHT,
-				 (weather_info.season == SEASON_SUMMER
-				  && (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)));
-	found = found
-	    || paste_description(string, TAG_SUMMERDAY,
-				 (weather_info.season == SEASON_SUMMER
-				  && (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)));
-	found = found
-	    || paste_description(string, TAG_AUTUMNNIGHT,
-				 (weather_info.season == SEASON_AUTUMN
-				  && (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)));
-	found = found
-	    || paste_description(string, TAG_AUTUMNDAY,
-				 (weather_info.season == SEASON_AUTUMN
-				  && (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)));
-	found = found
-	    || paste_description(string, TAG_NIGHT,
-				 (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK));
-	found = found
-	    || paste_description(string, TAG_DAY,
-				 (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT));
+				(weather_info.season == SEASON_WINTER
+				&& (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)));
+	found = found || paste_description(string, TAG_WINTERDAY,
+				(weather_info.season == SEASON_WINTER
+				&& (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)));
+	found = found || paste_description(string, TAG_SPRINGNIGHT,
+				(weather_info.season == SEASON_SPRING
+				&& (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)));
+	found = found || paste_description(string, TAG_SPRINGDAY,
+				(weather_info.season == SEASON_SPRING
+				&& (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)));
+	found = found || paste_description(string, TAG_SUMMERNIGHT,
+				(weather_info.season == SEASON_SUMMER
+				&& (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)));
+	found = found || paste_description(string, TAG_SUMMERDAY,
+				(weather_info.season == SEASON_SUMMER
+				&& (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)));
+	found = found || paste_description(string, TAG_AUTUMNNIGHT,
+				(weather_info.season == SEASON_AUTUMN
+				&& (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)));
+	found = found || paste_description(string, TAG_AUTUMNDAY,
+				(weather_info.season == SEASON_AUTUMN
+				&& (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)));
+	found = found || paste_description(string, TAG_NIGHT,
+				(weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK));
+	found = found || paste_description(string, TAG_DAY,
+				(weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT));
+
 	for (i = strlen(buf); i > 0 && *(buf + i) == '\n'; i--) {
 		*(buf + i) = '\0';
 		if (i > 0 && *(buf + i) == '\r')
@@ -4081,9 +4073,7 @@ ACMD(do_gen_ps)
 
 			sprintf(buf + strlen(buf), "Ваш e-mail : %s\r\n", GET_EMAIL(ch));
 			time_t birt = ch->player.time.birth;
-			struct tm birthday;
-			localtime_r(&birt, &birthday);
-			sprintf(buf + strlen(buf), "Дата Вашего рождения : %s\r\n", rustime(&birthday));
+			sprintf(buf + strlen(buf), "Дата Вашего рождения : %s\r\n", rustime(localtime(&birt)));
 			sprintf(buf + strlen(buf), "Ваш IP-адрес : %s\r\n", ch->desc ? ch->desc->host : "Unknown");
 //               GET_LASTIP (ch));
 			send_to_char(buf, ch);

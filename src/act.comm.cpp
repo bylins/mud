@@ -645,10 +645,11 @@ ACMD(do_gen_comm)
 #define MAX_UPPERS_SEQ_CHAR 3
 
 	if ((subcmd != SCMD_AUCTION) && (!IS_IMMORTAL(ch)) && (!IS_NPC(ch))) {
-		uint bad_smb_procent = MAX_UPPERS_CHAR_PRC, bad_simb_cnt = 0, bad_seq_cnt = 0, k;
+		unsigned int bad_smb_procent = MAX_UPPERS_CHAR_PRC;
+		int bad_simb_cnt = 0, bad_seq_cnt = 0;
 
 		/* фильтруем верхний регистр */
-		for (k = 0; argument[k] != '\0'; k++) {
+		for (int k = 0; argument[k] != '\0'; k++) {
 			if (a_isupper(argument[k])) {
 				bad_simb_cnt++;
 				bad_seq_cnt++;

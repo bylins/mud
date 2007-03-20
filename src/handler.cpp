@@ -12,9 +12,9 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "conf.h"
 #include <math.h>
 
-#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "constants.h"
@@ -643,7 +643,7 @@ void affect_total(CHAR_DATA * ch)
 			for (i = 0; extra_affect && (extra_affect + i)->affect != -1; i++)
 				affect_modify(ch, APPLY_NONE, 0, (extra_affect + i)->affect,
 					      (extra_affect + i)->set_or_clear);
-			for (i = 0; extra_modifier && (extra_modifier + i)->location != -1; i++)
+			for (i = 0; extra_modifier && (extra_modifier + i)->location != (byte)-1; i++)
 				affect_modify(ch, (extra_modifier + i)->location,
 					      (extra_modifier + i)->modifier, 0, TRUE);
 		}
@@ -3301,7 +3301,7 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (difference <= 0)
 		price = dpr * (1.0 - 0.01 * stat_overlimit);
 	else
-		price = MMIN((dpr * pow(2, difference)), MAXPRICE);
+		price = MMIN((dpr * pow(2.0F, difference)), MAXPRICE);
 
 	if (price <= 0.0 || (difference >= 25 && (int) dpr))
 		price = MAXPRICE;

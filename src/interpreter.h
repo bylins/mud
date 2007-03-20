@@ -15,6 +15,7 @@
 #ifndef _INTERPRETER_H_
 #define _INTERPRETER_H_
 
+#include "conf.h"
 #include <string>
 
 #define ACMD(name)  \

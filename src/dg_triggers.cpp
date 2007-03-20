@@ -15,8 +15,6 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
-
 #include "structs.h"
 #include "dg_scripts.h"
 #include "utils.h"
@@ -28,7 +26,7 @@
 
 extern INDEX_DATA **trig_index;
 
-extern char *dirs[];
+extern const char *dirs[];
 
 #ifndef LVL_BUILDER
 #define LVL_BUILDER LVL_GOD
@@ -42,7 +40,7 @@ char *str_str(char *cs, char *ct);
 
 
 /* mob trigger types */
-char *trig_types[] = { "Global",
+const char *trig_types[] = { "Global",
 	"Random",
 	"Command",
 	"Speech",
@@ -73,7 +71,7 @@ char *trig_types[] = { "Global",
 
 
 /* obj trigger types */
-char *otrig_types[] = { "Global",
+const char *otrig_types[] = { "Global",
 	"Random",
 	"Command",
 	"UNUSED",
@@ -104,7 +102,7 @@ char *otrig_types[] = { "Global",
 
 
 /* wld trigger types */
-char *wtrig_types[] = { "Global",
+const char *wtrig_types[] = { "Global",
 	"Random",
 	"Command",
 	"Speech",

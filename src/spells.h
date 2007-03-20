@@ -68,7 +68,7 @@
 #define NPC_UNAFFECT_NPC_CASTER (1 << 22)
 #define NPC_DUMMY               (1 << 23)
 #define MAG_ROOM	        (1 << 24)
-/* Данный флаг используется для указания где 
+/* Данный флаг используется для указания где
     чар может находиться чтобы аффекты от закла продолжали действовать*/
 #define MAG_CASTER_INROOM       (1 << 25) /* Аффект от этого спелла действует пока кастер в комнате */
 #define MAG_CASTER_INWORLD      (1 << 26) /* висит пока кастер в мире */
@@ -296,9 +296,9 @@
 #define SPELL_MAGICBATTLE               163
 #define SPELL_BERSERK            	164
 #define SPELL_STONEBONES            	165
-#define SPELL_ROOM_LIGHT		166	/* Закл освящения комнаты */ 
-#define SPELL_POISONED_FOG		167	/* Закл отравленного тумана */ 
-#define SPELL_THUNDERSTORM		168	/* Закл отравленного тумана */ 
+#define SPELL_ROOM_LIGHT		166	/* Закл освящения комнаты */
+#define SPELL_POISONED_FOG		167	/* Закл отравленного тумана */
+#define SPELL_THUNDERSTORM		168	/* Закл отравленного тумана */
 #define SPELL_LIGHT_WALK		169
 #define SPELL_FAILURE			170
 #define SPELL_CLANPRAY			171
@@ -533,7 +533,7 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 
 void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument);
 
-int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA *troom, int spellnum, int spellnum);
+int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA *troom, int spellnum, int spell_subst);
 
 /* other prototypes */
 void mspell_remort (char *name ,int spell,int kin ,int chclass, int remort);

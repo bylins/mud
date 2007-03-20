@@ -14,6 +14,7 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
+#include "conf.h"
 #include <string>
 #include <list>
 #include <map>
@@ -341,15 +342,15 @@ extern SPECIAL(postmaster);
 #define OBJ_FLAGGED(obj, flag)       (IS_SET(GET_OBJ_EXTRA(obj,flag), (flag)))
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
 #define IS_FLY(ch)                   (AFF_FLAGGED(ch,AFF_FLY))
-#define SET_EXTRA(ch,skill,vict)   ({(ch)->extra_attack.used_skill = skill; \
-                                     (ch)->extra_attack.victim     = vict;})
+#define SET_EXTRA(ch,skill,vict)   {(ch)->extra_attack.used_skill = skill; \
+                                     (ch)->extra_attack.victim     = vict;}
 #define GET_EXTRA_SKILL(ch)          ((ch)->extra_attack.used_skill)
 #define GET_EXTRA_VICTIM(ch)         ((ch)->extra_attack.victim)
-#define SET_CAST(ch,snum,subst,dch,dobj,droom)   ({(ch)->cast_attack.spellnum  = snum; \
+#define SET_CAST(ch,snum,subst,dch,dobj,droom)   {(ch)->cast_attack.spellnum  = snum; \
 					(ch)->cast_attack.spell_subst  = subst; \
                                        (ch)->cast_attack.tch       = dch; \
                                        (ch)->cast_attack.tobj      = dobj; \
-				       (ch)->cast_attack.troom     = droom;})
+				       (ch)->cast_attack.troom     = droom;}
 #define GET_CAST_SPELL(ch)         ((ch)->cast_attack.spellnum)
 #define GET_CAST_SUBST(ch)         ((ch)->cast_attack.spell_subst)
 #define GET_CAST_CHAR(ch)          ((ch)->cast_attack.tch)
@@ -458,7 +459,7 @@ extern SPECIAL(postmaster);
 #define WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
 #define PUNCTUAL_WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
 #define CLR_MEMORY(ch)  (memset((ch)->Memory,0,MAX_SPELLS+1))
-#define FORGET_ALL(ch) ({MemQ_flush(ch);memset((ch)->real_abils.SplMem,0,MAX_SPELLS+1);})
+#define FORGET_ALL(ch) {MemQ_flush(ch);memset((ch)->real_abils.SplMem,0,MAX_SPELLS+1);}
 #define GET_PASSWD(ch)   ((ch)->player.passwd)
 #define GET_PFILEPOS(ch) ((ch)->pfilepos)
 #define IS_KILLER(ch)    ((ch)->points.pk_counter)
@@ -1232,6 +1233,7 @@ char *desc_count(int how_many, int of_what);
 #define WHAT_OBJECT	18
 #define WHAT_REMORT	19
 
+#undef AW_HIDE // конфликтует с winuser.h
 /* some awaking cases */
 #define AW_HIDE       (1 << 0)
 #define AW_INVIS      (1 << 1)
@@ -1282,84 +1284,63 @@ int awaking(CHAR_DATA * ch, int mode);
 
 #define a_isspace(c) (strchr(" \f\n\r\t\v",(c)) != NULL)
 
-extern inline char a_isascii(char c)
+// Далеко не все из следующих функций используются в коде, но пусть будут (переписано с асма AL'ом)
+inline bool a_isascii(unsigned char c)
 {
-	register char __res;
-      __asm__ __volatile__("movb %0,%%al\n\t" "movb %%al,%b0\n\t" "cmpb $32,%b0\n\t" "jae 1f\n\t" "xorb %%al,%%al\n\t" "1:": "=a"(__res):"0"(c));
-	return __res;
+    return c >= 32;
 }
 
-extern inline char a_isprint(char c)
+inline bool a_isprint(unsigned char c)
 {
-	register char __res;
-      __asm__ __volatile__("movb %0,%%al\n\t" "movb %%al,%b0\n\t" "cmpb $32,%b0\n\t" "jae 1f\n\t" "xorb %%al,%%al\n\t" "1:": "=a"(__res):"0"(c));
-	return __res;
+    return c >= 32;
 }
 
-
-extern inline char a_islower(char c)
+inline bool a_islower(unsigned char c)
 {
-	register char __res;
-
-      __asm__ __volatile__("movb %0,%%al\n\t" "movb %%al,%b0\n\t" "cmpb $97,%b0\n\t" "jb 1f\n\t" "cmpb $122,%b0\n\t" "jbe 2f\n\t" "cmpb $192,%b0\n\t" "jb 1f\n\t" "cmpb $223,%b0\n\t" "jbe 2f\n\t" "1:\txorb %%al,%%al\n\t" "2:": "=a"(__res):"0"(c));
-	return __res;
+    return (c>='a' && c<='z') || (c>=192 && c<=223);
 }
 
-extern inline char a_isupper(char c)
+inline bool a_isupper(unsigned char c)
 {
-	register char __res;
-
-      __asm__ __volatile__("movb %0,%%al\n\t" "movb %%al,%b0\n\t" "cmpb $65,%b0\n\t" "jb 1f\n\t" "cmpb $90,%b0\n\t" "jbe 2f\n\t" "cmpb $224,%b0\n\t" "jb 1f\n\t" "jmp 2f\n\t" "1:\txorb %%al,%%al\n\t" "2:": "=a"(__res):"0"(c));
-	return __res;
+    return (c>='A' && c<='Z') || c>=224;
 }
 
-extern inline char a_isdigit(char c)
+inline bool a_isdigit(unsigned char c)
 {
-	register char __res;
-
-      __asm__ __volatile__("movb %0,%%al\n\t" "movb %%al,%b0\n\t" "cmpb $48,%b0\n\t" "jb 1f\n\t" "cmpb $57,%b0\n\t" "jbe 2f\n\t" "1:\txorb %%al,%%al\n\t" "2:": "=a"(__res):"0"(c));
-	return __res;
+    return c>='0' && c<='9';
 }
 
-extern inline char a_isalpha(char c)
+inline bool a_isalpha(unsigned char c)
 {
-	register char __res;
-
-      __asm__ __volatile__("movb %0,%%al\n\t" "movb %%al,%b0\n\t" "cmpb $65,%b0\n\t" "jb 1f\n\t" "cmpb $90,%b0\n\t" "jbe 2f\n\t" "cmpb $97,%b0\n\t" "jb 1f\n\t" "cmpb $122,%b0\n\t" "jbe 2f\n\t" "cmpb $192,%b0\n\t" "jb 1f\n\t" "jmp 2f\n\t" "1:\txorb %%al,%%al\n\t" "2:": "=a"(__res):"0"(c));
-	return __res;
+    return (c>='a' && c<='z') || (c>='A' && c<='Z') || c>=192;
 }
 
-extern inline char a_isalnum(char c)
+inline bool a_isalnum(unsigned char c)
 {
-	register char __res;
-
-      __asm__ __volatile__("movb %0,%%al\n\t" "movb %%al,%b0\n\t" "cmpb $48,%b0\n\t" "jb 1f\n\t" "cmpb $57,%b0\n\t" "jbe 2f\n\t" "cmpb $65,%b0\n\t" "jb 1f\n\t" "cmpb $90,%b0\n\t" "jbe 2f\n\t" "cmpb $97,%b0\n\t" "jb 1f\n\t" "cmpb $122,%b0\n\t" "jbe 2f\n\t" "cmpb $192,%b0\n\t" "jb 1f\n\t" "jmp 2f\n\t" "1:\txorb %%al,%%al\n\t" "2:": "=a"(__res):"0"(c));
-	return __res;
+    return (c>='0' && c<='9')
+	|| (c>='a' && c<='z')
+	|| (c>='A' && c<='Z') || c>=192;
 }
 
-extern inline char a_isxdigit(char c)
+inline bool a_isxdigit(unsigned char c)
 {
-	register char __res;
-
-      __asm__ __volatile__("movb %0,%%al\n\t" "movb %%al,%b0\n\t" "cmpb $48,%b0\n\t" "jb 1f\n\t" "cmpb $57,%b0\n\t" "jbe 2f\n\t" "cmpb $65,%b0\n\t" "jb 1f\n\t" "cmpb $70,%b0\n\t" "jbe 2f\n\t" "cmpb $97,%b0\n\t" "jb 1f\n\t" "cmpb $102,%b0\n\t" "jbe 2f\n\t" "1:\txorb %%al,%%al\n\t" "2:": "=a"(__res):"0"(c));
-	return __res;
+    return (c>='0' && c<='9')
+	|| (c>='a' && c<='f')
+	|| (c>='A' && c<='F');
 }
 
-
-extern inline char a_ucc(char c)
+inline char a_ucc(unsigned char c)
 {
-	register char __res;
-
-      __asm__ __volatile__("movb %0,%%al\n\t" "movb %%al,%b0\n\t" "cmpb $97,%b0\n\t" "jb 2f\n\t" "cmpb $122,%b0\n\t" "jbe 1f\n\t" "cmpb $192,%b0\n\t" "jb 2f\n\t" "cmpb $223,%b0\n\t" "ja 2f\n\t" "addb $32,%%al\n\t" "jmp 2f\n\t" "1:\taddb $224,%%al\n\t" "2:": "=a"(__res):"0"(c));
-	return __res;
+    if (c >= 'a' && c <= 'z') return c - 'a' + 'A';
+    if (c >= 192 && c <= 223) return c + 32;
+    return c;
 }
 
-extern inline char a_lcc(char c)
+inline char a_lcc(unsigned char c)
 {
-	register char __res;
-
-      __asm__ __volatile__("movb %0,%%al\n\t" "movb %%al,%b0\n\t" "cmpb $65,%b0\n\t" "jb 2f\n\t" "cmpb $90,%b0\n\t" "jbe 1f\n\t" "cmpb $224,%b0\n\t" "jb 2f\n\t" "addb $224,%%al\n\t" "jmp 2f\n\t" "1:\taddb $32,%%al\n\t" "2:": "=a"(__res):"0"(c));
-	return __res;
+    if (c >= 'A' && c <= 'Z') return c - 'A' + 'a';
+    if (c >= 224) return c - 32;
+    return c;
 }
 
 #endif

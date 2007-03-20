@@ -9,6 +9,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "conf.h"
 #include <string>
 #include <map>
 #include <fstream>
@@ -16,7 +17,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"

@@ -7,11 +7,11 @@
 #ifndef _BOARDS_H_
 #define _BOARDS_H_
 
+#include "conf.h"
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
-#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"

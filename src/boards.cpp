@@ -4,6 +4,7 @@
 * (c) 2005 Krodo                                                              *
 ******************************************************************************/
 
+#include "conf.h"
 #include <fstream>
 #include <sstream>
 #include <iomanip>

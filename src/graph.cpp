@@ -12,8 +12,9 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include <vector>
 #include "conf.h"
+#include <vector>
+
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"

@@ -8,7 +8,10 @@
 **************************************************************************/
 #ifndef __FEATURES_HPP__
 #define __FEATURES_HPP__
+
+#include "conf.h"
 #include <bitset>
+
 using std::bitset;
 
 #define THAC0_FEAT			0   //DO NOT USED

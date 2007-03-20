@@ -11,8 +11,6 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
-
 #include "structs.h"
 #include "screen.h"
 #include "dg_scripts.h"
