@@ -150,16 +150,14 @@ const int SETSTUFF_AFCN = 10;
 #define MESS_FILE           LIB_MISC"messages"	/* damage messages              */
 #define SOCMESS_FILE        LIB_MISC"socials"	/* messgs for social acts       */
 #define XNAME_FILE          LIB_MISC"xnames"	/* invalid name substrings      */
-#define ANAME_FILE	    LIB_MISC"agr_name"	/* agree names */
-#define DNAME_FILE	    LIB_MISC"dis_name"	/* disagree names */
-#define NNAME_FILE	    LIB_MISC"new_name"	/* disagree names */
-#define TNNAME_FILE	    LIB_MISC"tnew_name"	/* temp disagree names */
-#define GODLIST_FILE    LIB_MISC"god.lst" // список иммов
+#define ANAME_FILE      LIB_MISC"apr_name" // одобренные имена
+#define DNAME_FILE      LIB_MISC"dis_name" // запрещенные имена
+#define NNAME_FILE      LIB_MISC"new_name" // ждущие одобрения
+#define GODLIST_FILE    LIB_MISC"god.lst"  // список иммов
 
 #define MAIL_FILE	    LIB_ETC"plrmail"	/* for the mudmail system       */
 #define BAN_FILE	    LIB_ETC"badsites"	/* for the siteban system       */
 #define PROXY_BAN_FILE	    LIB_ETC"badproxy"	/* for the siteban system       */
-#define HCONTROL_FILE       LIB_ETC"hcontrol"	/* for the house system  TODO: я в курсе */
 
 #define WHOLIST_FILE        LIB_STAT"wholist.html"	/* for the stat system      */
 

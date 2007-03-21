@@ -1968,8 +1968,6 @@ struct player_special_data_saved {
 	int
 	 unique;
 	int
-	 HouseRank; // TODO: я в курсе
-	int
 	 Remorts;
 	int
 	 NameGod;
@@ -1984,8 +1982,6 @@ struct player_special_data_saved {
 
 	long
 	 GodsLike;
-	long
-	 HouseUID; // TODO: я в курсе
 	time_t
  	 LastLogon; //by kilnik
 	long

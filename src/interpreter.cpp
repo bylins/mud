@@ -2505,12 +2505,10 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			default:
 				break;
 			};
+			SEND_TO_Q("Ваш пол [ М(M)/Ж(F) ] ? ", d);
+			STATE(d) = CON_QSEX;
+			return;
 
-			SEND_TO_Q("Новый персонаж.\r\n", d);
-			sprintf(buf, "Имя Вашего персонажа в родительном падеже [ меч КОГО ? ] ");
-			SEND_TO_Q(buf, d);
-			echo_on(d);
-			STATE(d) = CON_NAME2;
 		} else if (UPPER(*arg) == 'N' || UPPER(*arg) == 'Н') {
 			SEND_TO_Q("Итак, чего изволите ? Учтите, бананов нет :)\r\n" "Имя : ", d);
 			free(d->character->player.name);
@@ -2590,8 +2588,11 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		echo_on(d);
 
 		if (STATE(d) == CON_CNFPASSWD) {
-			SEND_TO_Q("\r\nВаш пол [ М(M)/Ж(F) ] ? ", d);
-			STATE(d) = CON_QSEX;
+			SEND_TO_Q (kin_menu, d);
+			SEND_TO_Q
+			("\r\nВаше Племя (Для более полной информации Вы можете набрать"
+			" \r\nсправка <интересующие племя>): ", d);
+			STATE (d) = CON_QKIN;
 		} else {
 			save_char(d->character, NOWHERE);
 			echo_on(d);
@@ -2621,12 +2622,13 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			SEND_TO_Q("Это может быть и пол, но явно не Ваш :)\r\n" "А какой у ВАС пол ? ", d);
 			return;
 		}
-		SEND_TO_Q (kin_menu, d);
-		SEND_TO_Q
-		("\r\nВаше Племя (Для более полной информации Вы можете набрать"
-		" \r\nсправка <интересующие племя>): ", d);
-		STATE (d) = CON_QKIN;
-		break;
+		SEND_TO_Q("Проверьте правильность склонения имени. В случае ошибки введите свой вариант.\r\n", d);
+		GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 1, tmp_name);
+		sprintf(buf, "Имя в родительном падеже (меч КОГО?) [%s]: ", tmp_name);
+		SEND_TO_Q(buf, d);
+		echo_on(d);
+		STATE(d) = CON_NAME2;
+		return;
 
 	case CON_QKIN:		/* query rass      */
 		if (pre_help (d->character, arg)){
@@ -3060,79 +3062,96 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		break;
 	case CON_NAME2:
 		skip_spaces(&arg);
-
+		if (strlen(arg) == 0)
+			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 1, arg);
 		if (!_parse_name(arg, tmp_name) &&
 		    strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
 		    !strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		    ) {
 			CREATE(GET_PAD(d->character, 1), char, strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 1), CAP(tmp_name));
-			sprintf(buf, "Имя Вашего персонажа в дательном падеже [ отправить КОМУ ? ] ");
+			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, tmp_name);
+			sprintf(buf, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 			echo_on(d);
 			STATE(d) = CON_NAME3;
 		} else {
 			SEND_TO_Q("Некорректно.\r\n", d);
-			sprintf(buf, "Имя Вашего персонажа в родительном падеже [ меч КОГО ? ] ");
+			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 1, tmp_name);
+			sprintf(buf, "Имя в родительном падеже (меч КОГО?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 		};
 		break;
 	case CON_NAME3:
 		skip_spaces(&arg);
+		if (strlen(arg) == 0)
+			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, arg);
 		if (!_parse_name(arg, tmp_name) &&
 		    strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
 		    !strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		    ) {
 			CREATE(GET_PAD(d->character, 2), char, strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 2), CAP(tmp_name));
-			sprintf(buf, "Имя Вашего персонажа в винительном падеже [ ударить КОГО ? ] ");
+			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, tmp_name);
+			sprintf(buf, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 			echo_on(d);
 			STATE(d) = CON_NAME4;
 		} else {
 			SEND_TO_Q("Некорректно.\r\n", d);
-			sprintf(buf, "Имя Вашего персонажа в дательном падеже [ отправить КОМУ ? ] ");
+			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, tmp_name);
+			sprintf(buf, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 		};
 		break;
 	case CON_NAME4:
 		skip_spaces(&arg);
+		if (strlen(arg) == 0)
+			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, arg);
 		if (!_parse_name(arg, tmp_name) &&
 		    strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
 		    !strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		    ) {
 			CREATE(GET_PAD(d->character, 3), char, strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 3), CAP(tmp_name));
-			sprintf(buf, "Имя Вашего персонажа в творительном падеже [ сражаться с КЕМ ? ] ");
+			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, tmp_name);
+			sprintf(buf, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 			echo_on(d);
 			STATE(d) = CON_NAME5;
 		} else {
 			SEND_TO_Q("Некорректно.\n\r", d);
-			sprintf(buf, "Имя Вашего персонажа в винительном падеже [ ударить КОГО ? ] ");
+			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, tmp_name);
+			sprintf(buf, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 		};
 		break;
 	case CON_NAME5:
 		skip_spaces(&arg);
+		if (strlen(arg) == 0)
+			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, arg);
 		if (!_parse_name(arg, tmp_name) &&
 		    strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
 		    !strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		    ) {
 			CREATE(GET_PAD(d->character, 4), char, strlen(tmp_name) + 1);
 			strcpy(GET_PAD(d->character, 4), CAP(tmp_name));
-			sprintf(buf, "Имя Вашего персонажа в предложном падеже [ говорить о КОМ ? ] ");
+			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, tmp_name);
+			sprintf(buf, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 			echo_on(d);
 			STATE(d) = CON_NAME6;
 		} else {
 			SEND_TO_Q("Некорректно.\n\r", d);
-			sprintf(buf, "Имя Вашего персонажа в творительном падеже [ сражаться с КЕМ ? ] ");
+			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, tmp_name);
+			sprintf(buf, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 		};
 		break;
 	case CON_NAME6:
 		skip_spaces(&arg);
+		if (strlen(arg) == 0)
+			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, arg);
 		if (!_parse_name(arg, tmp_name) &&
 		    strlen(tmp_name) >= MIN_NAME_LENGTH && strlen(tmp_name) <= MAX_NAME_LENGTH &&
 		    !strn_cmp(tmp_name, GET_PC_NAME(d->character), MIN(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
@@ -3147,7 +3166,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			STATE(d) = CON_NEWPASSWD;
 		} else {
 			SEND_TO_Q("Некорректно.\n\r", d);
-			sprintf(buf, "Имя Вашего персонажа в предложном падеже [ говорить о КОМ ? ] ");
+			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, tmp_name);
+			sprintf(buf, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
 		};
 		break;

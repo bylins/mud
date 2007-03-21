@@ -36,6 +36,7 @@ int was_agree_name(DESCRIPTOR_DATA * d)
 	char immname[MAX_INPUT_LENGTH];
 	char mortname[6][MAX_INPUT_LENGTH];
 	int immlev;
+	int sex;
 	int i;
 
 //1. Load list
@@ -46,15 +47,16 @@ int was_agree_name(DESCRIPTOR_DATA * d)
 	}
 //2. Find name in list ...
 	while (get_line(fp, temp)) {
-		// Format First name/pad1/pad2/pad3/pad4/pad5/ immname immlev
-		sscanf(temp, "%s %s %s %s %s %s %s %d", mortname[0],
-		       mortname[1], mortname[2], mortname[3], mortname[4], mortname[5], immname, &immlev);
+		// Format First name/pad1/pad2/pad3/pad4/pad5/sex immname immlev
+		sscanf(temp, "%s %s %s %s %s %s %d %s %d", mortname[0],
+		       mortname[1], mortname[2], mortname[3], mortname[4], mortname[5], &sex, immname, &immlev);
 		if (!strcmp(mortname[0], GET_NAME(d->character))) {
 			// We find char ...
 			for (i = 1; i < 6; i++) {
 				GET_PAD(d->character, i) = (char *) malloc(strlen(mortname[i]));
 				strcpy(GET_PAD(d->character, i), mortname[i]);
 			}
+			GET_SEX(d->character) = sex;
 			// Auto-Agree char ...
 			NAME_GOD(d->character) = immlev + 1000;
 			NAME_ID_GOD(d->character) = get_id_by_name(immname);
@@ -62,7 +64,6 @@ int was_agree_name(DESCRIPTOR_DATA * d)
 			SEND_TO_Q(buf, d);
 			sprintf(buf, "AUTOAGREE: %s was agreed by %s", GET_PC_NAME(d->character), immname);
 			log(buf, d);
-
 			fclose(fp);
 			return (0);
 		}
@@ -113,6 +114,7 @@ void rm_agree_name(CHAR_DATA * d)
 	char immname[MAX_INPUT_LENGTH];
 	char mortname[6][MAX_INPUT_LENGTH];
 	int immlev;
+	int sex;
 
 	// 1. Find name ...
 	if (!(fin = fopen(ANAME_FILE, "r"))) {
@@ -126,8 +128,8 @@ void rm_agree_name(CHAR_DATA * d)
 	}
 	while (get_line(fin, temp)) {
 		// Get name ...
-		sscanf(temp, "%s %s %s %s %s %s %s %d", mortname[0],
-		       mortname[1], mortname[2], mortname[3], mortname[4], mortname[5], immname, &immlev);
+		sscanf(temp, "%s %s %s %s %s %s %d %s %d", mortname[0],
+		       mortname[1], mortname[2], mortname[3], mortname[4], mortname[5], &sex, immname, &immlev);
 		if (strcmp(mortname[0], GET_NAME(d))) {
 			// Name un matches ... do copy ...
 			fprintf(fout, "%s\n", temp);
@@ -315,8 +317,8 @@ void add_agree_name(CHAR_DATA * d, char *immname, int immlev)
 		return;
 	}
 	// Pos to the end ...
-	fprintf(fl, "%s %s %s %s %s %s %s %d\r\n", GET_NAME(d),
-		GET_PAD(d, 1), GET_PAD(d, 2), GET_PAD(d, 3), GET_PAD(d, 4), GET_PAD(d, 5), immname, immlev);
+	fprintf(fl, "%s %s %s %s %s %s %d %s %d\r\n", GET_NAME(d),
+		GET_PAD(d, 1), GET_PAD(d, 2), GET_PAD(d, 3), GET_PAD(d, 4), GET_PAD(d, 5), GET_SEX(d), immname, immlev);
 	fclose(fl);
 	return;
 }

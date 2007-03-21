@@ -476,3 +476,109 @@ void roll_real_abils(CHAR_DATA * ch, bool hand)
 		log("SYSERROR : ATTEMPT STORE ABILITIES FOR UNKNOWN CLASS (Player %s)", GET_NAME(ch));
 	};
 }
+
+
+// Функция для склонения имени по падежам.
+// Буквы должны быть заранее переведены в нижний регистр.
+// name - имя в именительном падеже
+// sex - пол (SEX_MALE или SEX_FEMALE)
+// caseNum - номер падежа (0 - 5)
+//  0 - именительный (кто? что?)
+//  1 - родительный (кого? чего?)
+//  2 - дательный (кому? чему?)
+//  3 - винительный (кого? что?)
+//  4 - творительный (кем? чем?)
+//  5 - предложный (о ком? о чем?)
+// result - результат
+void GetCase(char *name, int sex, int caseNum, char *result)
+{
+	int len = strlen(name);
+	name[0] = UPPER(name[0]);
+
+	if (strchr("цкнгшщзхфвпрлджчсмтб", name[len - 1]) != NULL && sex == SEX_MALE)
+	{
+		strcpy(result, name);
+		if (caseNum == 1)
+			strcat(result, "а"); // Ивана
+		else if (caseNum == 2)
+			strcat(result, "у"); // Ивану
+		else if (caseNum == 3)
+			strcat(result, "а"); // Ивана
+		else if (caseNum == 4)
+			strcat(result, "ом"); // Иваном, Ретичем
+		else if (caseNum == 5)
+			strcat(result, "е"); // Иване
+		return;
+	}
+
+	if (name[len - 1] == 'я')
+	{
+		strncpy(result, name, len - 1);
+		result[len - 1] = '\0';
+		if (caseNum == 1)
+			strcat(result, "и"); // Ани, Вани
+		else if (caseNum == 2)
+			strcat(result, "е"); // Ане, Ване
+		else if (caseNum == 3)
+			strcat(result, "ю"); // Аню, Ваню
+		else if (caseNum == 4)
+			strcat(result, "ей"); // Аней, Ваней
+		else if (caseNum == 5)
+			strcat(result, "е"); // Ане, Ване
+		else 
+			strcat(result, "я"); // Аня, Ваня
+		return;
+	}
+
+	if (name[len - 1] == 'й' && sex == SEX_MALE)
+	{
+		strncpy(result, name, len - 1);
+		result[len - 1] = '\0';
+		if (caseNum == 1)
+			strcat(result, "я"); // Дрегвия
+		else if (caseNum == 2)
+			strcat(result, "ю"); // Дрегвию
+		else if (caseNum == 3)
+			strcat(result, "я"); // Дрегвия
+		else if (caseNum == 4)
+			strcat(result, "ем"); // Дрегвием
+		else if (caseNum == 5)
+			strcat(result, "е"); // Дрегвие
+		else 
+			strcat(result, "й"); // Дрегвий
+		return;
+	}
+
+	if (name[len - 1] == 'а')
+	{
+		strncpy(result, name, len - 1);
+		result[len - 1] = '\0';
+		if (caseNum == 1)
+		{
+			if (strchr("шщжч", name[len - 2]) != NULL)
+				strcat(result, "и"); // Маши, Паши
+			else
+				strcat(result, "ы"); // Анны
+		}
+		else if (caseNum == 2)
+			strcat(result, "е"); // Паше, Анне
+		else if (caseNum == 3)
+			strcat(result, "у"); // Пашу, Анну
+		else if (caseNum == 4)
+		{
+			if (strchr("шщч", name[len - 2]) != NULL)
+				strcat(result, "ей"); // Машей, Пашей
+			else
+				strcat(result, "ой"); // Анной, Ханжой
+		}
+		else if (caseNum == 5)
+			strcat(result, "е"); // Паше, Анне
+		else 
+			strcat(result, "а"); // Паша, Анна
+		return;
+	}
+
+	// остальные варианты либо не склоняются, либо редки (например, оканчиваются на ь)
+	strcpy(result, name);
+	return;
+}

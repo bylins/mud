@@ -4753,7 +4753,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	GET_HOME(ch) = 0;
 	GET_HR(ch) = 0;
 	GET_COND(ch, FULL) = 0;
-	GET_HOUSE_UID(ch) = 0;
 	GET_INT(ch) = 10;
 	GET_INVIS_LEV(ch) = 0;
 	ch->player.time.logon = time(0);
@@ -4771,7 +4770,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	GET_LOADROOM(ch) = NOWHERE;
 	GET_RELIGION(ch) = 1;
 	GET_RACE(ch) = 1;
-	GET_HOUSE_RANK(ch) = 0;
 	GET_SEX(ch) = 0;
 	GET_STR(ch) = 10;
 	GET_COND(ch, THIRST) = 0;
@@ -4975,9 +4973,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 					++i;
 				if (line[i])
 					HELL_REASON(ch) = strcpy((char *) malloc(strlen(line + i) + 1), line + i);
-			} else if (!strcmp(tag, "HsID"))
-				GET_HOUSE_UID(ch) = lnum;
-			else if (!strcmp(tag, "Host"))
+			} else if (!strcmp(tag, "Host"))
 				strcpy(GET_LASTIP(ch), line);
 			break;
 
@@ -5197,8 +5193,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				GET_RELIGION(ch) = num;
 			else if (!strcmp(tag, "Race"))
 				GET_RACE(ch) = num;
-			else if (!strcmp(tag, "Rank"))
-				GET_HOUSE_RANK(ch) = num;
 			else if (!strcmp(tag, "Rcps")) {
 				im_rskill *last = NULL;
 				for (;;) {
@@ -6778,10 +6772,6 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	*buf = '\0';
 	tascii(&PRF_FLAGS(ch, 0), 4, buf);
 	fprintf(saved, "Pref: %s\n", buf);
-	if (GET_HOUSE_UID(ch) != 0)
-		fprintf(saved, "HsID: %ld\n", GET_HOUSE_UID(ch));
-	if (GET_HOUSE_RANK(ch) != 0)
-		fprintf(saved, "Rank: %d\n", GET_HOUSE_RANK(ch));
 
 	if (MUTE_DURATION(ch) > 0 && PLR_FLAGGED(ch, PLR_MUTE))
 		fprintf(saved, "PMut: %ld %d %ld %s~\n", MUTE_DURATION(ch), GET_MUTE_LEV(ch), MUTE_GODID(ch), MUTE_REASON(ch));

@@ -486,8 +486,6 @@ extern SPECIAL(postmaster);
 #define SET_GOD_FLAG(ch,flag)  (SET_BIT((ch)->player_specials->saved.GodsLike,flag))
 #define CLR_GOD_FLAG(ch,flag)  (REMOVE_BIT((ch)->player_specials->saved.GodsLike,flag))
 #define GET_UNIQUE(ch)         ((ch)->player_specials->saved.unique)
-#define GET_HOUSE_UID(ch)      ((ch)->player_specials->saved.HouseUID)
-#define GET_HOUSE_RANK(ch)     ((ch)->player_specials->saved.HouseRank)
 #define LAST_LOGON(ch)         ((ch)->player_specials->saved.LastLogon)
 
 #define NAME_GOD(ch)  ((ch)->player_specials->saved.NameGod)
