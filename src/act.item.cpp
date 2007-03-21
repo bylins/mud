@@ -1714,7 +1714,7 @@ ACMD(do_pour)
 	//Переливает из бутылки с зельем в емкость
 	if (GET_OBJ_TYPE(from_obj) == ITEM_POTION)
 		if (GET_OBJ_VNUM(from_obj) == GET_OBJ_SKILL(to_obj) || GET_OBJ_VAL(to_obj, 1) == 0) {
-			sprintf(buf, "Вы занялись переливанием зелья в %s.", OBJN(to_obj, ch, 3));
+			sprintf(buf, "Вы занялись переливанием зелья в %s.\r\n", OBJN(to_obj, ch, 3));
 			send_to_char(buf, ch);
 			if (GET_OBJ_VAL(to_obj, 1) == 0) {
 				/* определение названия зелья по содержащемуся заклинанию */
@@ -2230,8 +2230,26 @@ ACMD(do_remove)
 		}
 	} else {		/* Returns object pointer but we don't need it, just true/false. */
 		if (!get_object_in_equip_vis(ch, arg, ch->equipment, &i)) {
-			sprintf(buf, "Вы не используете '%s'.\r\n", arg);
-			send_to_char(buf, ch);
+			// если предмет не найден, то возможно игрок ввел "левая" или "правая"
+			if (!str_cmp("правая", arg))
+			{
+				if (!GET_EQ(ch, WEAR_WIELD))
+					send_to_char("В правой руке ничего нет.\r\n", ch);
+				else
+					perform_remove(ch, WEAR_WIELD);
+			}
+			else if (!str_cmp("левая", arg))
+			{
+				if (!GET_EQ(ch, WEAR_HOLD))
+					send_to_char("В левой руке ничего нет.\r\n", ch);
+				else
+					perform_remove(ch, WEAR_HOLD);
+			}
+			else
+			{
+				sprintf(buf, "Вы не используете '%s'.\r\n", arg);
+				send_to_char(buf, ch);
+			}
 		} else
 			perform_remove(ch, i);
 	}
