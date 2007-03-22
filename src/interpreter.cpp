@@ -2522,6 +2522,14 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			STATE(d) = CON_CLOSE;
 			return;
 		}
+		if (d->character == NULL) {
+			CREATE(d->character, CHAR_DATA, 1);
+			memset(d->character, 0, sizeof(CHAR_DATA));
+			clear_char(d->character);
+			CREATE(d->character->player_specials, struct player_special_data, 1);
+			memset(d->character->player_specials, 0, sizeof(struct player_special_data));
+			d->character->desc = d;
+		}
 		if (_parse_name(arg, tmp_name) ||
 			strlen(tmp_name) < MIN_NAME_LENGTH ||
 			strlen(tmp_name) > MAX_NAME_LENGTH ||
@@ -2533,20 +2541,17 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		if (player_i > -1) {
 			if (PLR_FLAGGED(d->character, PLR_DELETED)) {
 				free_char(d->character);
-				d->character = NULL;
+				CREATE(d->character, CHAR_DATA, 1);
+				memset(d->character, 0, sizeof(CHAR_DATA));
+				clear_char(d->character);
+				CREATE(d->character->player_specials, struct player_special_data, 1);
+				memset(d->character->player_specials, 0, sizeof(struct player_special_data));
+				d->character->desc = d;
 			}
 			else {
 				SEND_TO_Q("Такой персонаж уже существует. Выберите другое имя : ", d);
 				return;
 			}
-		}
-		if (d->character == NULL) {
-			CREATE(d->character, CHAR_DATA, 1);
-			memset(d->character, 0, sizeof(CHAR_DATA));
-			clear_char(d->character);
-			CREATE(d->character->player_specials, struct player_special_data, 1);
-			memset(d->character->player_specials, 0, sizeof(struct player_special_data));
-			d->character->desc = d;
 		}
 		if (!Valid_Name(tmp_name)) {
 			SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
