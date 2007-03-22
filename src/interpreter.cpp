@@ -93,8 +93,6 @@ extern BanList *ban;
 extern PrivList *priv;
 
 /* external functions */
-void echo_on(DESCRIPTOR_DATA * d);
-void echo_off(DESCRIPTOR_DATA * d);
 void do_start(CHAR_DATA * ch, int newbie);
 int parse_class(char arg);
 int parse_class_vik (char arg);
@@ -2347,19 +2345,16 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 
 
 	case CON_GET_KEYTABLE:
-		{
-			if (strlen(arg) > 0) {
-				arg[0] = arg[strlen(arg) - 1];
-			}
-			if (!*arg || *arg < '0' || *arg >= '0' + KT_LAST) {
-				SEND_TO_Q("\r\nUnknown key table. Retry, please : ", d);
-				return;
-			};
-			d->keytable = (ubyte) * arg - (ubyte) '0';
-			ip_log(d->host);
-			SEND_TO_Q(GREETINGS, d);
-			STATE(d) = CON_GET_NAME;
-		}
+		if (strlen(arg) > 0)
+			arg[0] = arg[strlen(arg) - 1];
+		if (!*arg || *arg < '0' || *arg >= '0' + KT_LAST) {
+			SEND_TO_Q("\r\nUnknown key table. Retry, please : ", d);
+			return;
+		};
+		d->keytable = (ubyte) * arg - (ubyte) '0';
+		ip_log(d->host);
+		SEND_TO_Q(GREETINGS, d);
+		STATE(d) = CON_GET_NAME;
 		break;
 	case CON_GET_NAME:	/* wait for input of name */
 		if (d->character == NULL) {
@@ -2372,6 +2367,12 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		}
 		if (!*arg)
 			STATE(d) = CON_CLOSE;
+		else if (!str_cmp("новый", arg)) {
+			SEND_TO_Q(create_name_rules, d);
+			SEND_TO_Q("Введите имя: ", d);
+			STATE(d) = CON_NEW_CHAR;
+			return;
+		}
 		else {
 			if (sscanf(arg, "%s %s", pwd_name, pwd_pwd) == 2) {
 				if (_parse_name(pwd_name, tmp_name) ||
@@ -2438,7 +2439,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
 					REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRYO), PLR_CRYO);
 					SEND_TO_Q("Персонаж с таким именем уже существует. Введите пароль : ", d);
-					echo_off(d);
 					d->idle_tics = 0;
 					STATE(d) = CON_PASSWORD;
 				}
@@ -2496,7 +2496,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
 					GET_PAD(d->character, 1));
 				SEND_TO_Q(buf, d);
-				echo_off(d);
 				STATE(d) = CON_NEWPASSWD;
 				return;
 			case 1:	// Auto -disagree
@@ -2518,7 +2517,87 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			SEND_TO_Q("Ответьте Yes(Да) or No(Нет) : ", d);
 		}
 		break;
-
+	case CON_NEW_CHAR:
+		if (!*arg) {
+			STATE(d) = CON_CLOSE;
+			return;
+		}
+		if (_parse_name(arg, tmp_name) ||
+			strlen(tmp_name) < MIN_NAME_LENGTH ||
+			strlen(tmp_name) > MAX_NAME_LENGTH ||
+			!Is_Valid_Name(tmp_name) || fill_word(strcpy(buf, tmp_name)) || reserved_word(buf)) {
+			SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+			return;
+		}
+		player_i = load_char(tmp_name, d->character);
+		if (player_i > -1) {
+			if (PLR_FLAGGED(d->character, PLR_DELETED)) {
+				free_char(d->character);
+				d->character = NULL;
+			}
+			else {
+				SEND_TO_Q("Такой персонаж уже существует. Выберите другое имя : ", d);
+				return;
+			}
+		}
+		if (d->character == NULL) {
+			CREATE(d->character, CHAR_DATA, 1);
+			memset(d->character, 0, sizeof(CHAR_DATA));
+			clear_char(d->character);
+			CREATE(d->character->player_specials, struct player_special_data, 1);
+			memset(d->character->player_specials, 0, sizeof(struct player_special_data));
+			d->character->desc = d;
+		}
+		if (!Valid_Name(tmp_name)) {
+			SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
+			return;
+		}
+		if (cmp_ptable_by_name(tmp_name, MIN_NAME_LENGTH + 1) >= 0) {
+			SEND_TO_Q("Первые символы Вашего имени совпадают с уже существующим персонажем.\r\n"
+				"Для исключения разных недоразумений Вам необходимо выбрать другое имя.\r\n"
+				"Имя  : ", d);
+			return;
+		}
+		CREATE(d->character->player.name, char, strlen(tmp_name) + 1);
+		strcpy(d->character->player.name, CAP(tmp_name));
+		CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
+		strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
+		if (ban->is_banned(d->host) >= BanList::BAN_NEW) {
+			sprintf(buf, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
+				GET_PC_NAME(d->character), d->host);
+			mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+			SEND_TO_Q("Извините, создание нового персонажа для Вашего IP !!! ЗАПРЕЩЕНО !!!\r\n", d);
+			STATE(d) = CON_CLOSE;
+			return;
+		}
+		if (circle_restrict) {
+			SEND_TO_Q("Извините, Вы не можете создать новый персонаж в настоящий момент.\r\n", d);
+			sprintf(buf,
+				"Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
+				GET_PC_NAME(d->character), d->host);
+			mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+			STATE(d) = CON_CLOSE;
+			return;
+		}
+		switch (process_auto_agreement(d)) {
+		case 0:	// Auto - agree
+			sprintf(buf,
+				"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
+				GET_PAD(d->character, 1));
+			SEND_TO_Q(buf, d);
+			STATE(d) = CON_NEWPASSWD;
+			return;
+		case 1:	// Auto -disagree
+			free_char(d->character);
+			d->character = NULL;
+			SEND_TO_Q("Выберите другое имя : ", d);
+			return;
+		default:
+			break;
+		};
+		SEND_TO_Q("Ваш пол [ М(M)/Ж(F) ] ? ", d);
+		STATE(d) = CON_QSEX;
+		return;
 	case CON_PASSWORD:	/* get pwd for known player      */
 		/*
 		 * To really prevent duping correctly, the player's record should
@@ -2530,9 +2609,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		 * re-add the code to cut off duplicates when a player quits.  JE 6 Feb 96
 		 */
 
-		echo_on(d);	/* turn echo back on */
-
-		/* New echo_on() eats the return on telnet. Extra space better than none. */
 		SEND_TO_Q("\r\n", d);
 
 		if (!*arg)
@@ -2548,7 +2624,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					STATE(d) = CON_CLOSE;
 				} else {
 					SEND_TO_Q("Неверный пароль.\r\nПароль : ", d);
-					echo_off(d);
 				}
 				return;
 			}
@@ -2585,7 +2660,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				STATE(d) = CON_CHPWD_GETNEW;
 			return;
 		}
-		echo_on(d);
 
 		if (STATE(d) == CON_CNFPASSWD) {
 			SEND_TO_Q (kin_menu, d);
@@ -2595,7 +2669,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			STATE (d) = CON_QKIN;
 		} else {
 			save_char(d->character, NOWHERE);
-			echo_on(d);
 			SEND_TO_Q("\r\nГотово.\r\n", d);
 			SEND_TO_Q(MENU, d);
 			STATE(d) = CON_MENU;
@@ -2626,7 +2699,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 1, tmp_name);
 		sprintf(buf, "Имя в родительном падеже (меч КОГО?) [%s]: ", tmp_name);
 		SEND_TO_Q(buf, d);
-		echo_on(d);
 		STATE(d) = CON_NAME2;
 		return;
 
@@ -2983,7 +3055,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 
 		case '4':
 			SEND_TO_Q("\r\nВведите СТАРЫЙ пароль : ", d);
-			echo_off(d);
 			STATE(d) = CON_CHPWD_GETOLD;
 			break;
 
@@ -2999,7 +3070,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				break;
 			}
 			SEND_TO_Q("\r\nДля подтверждения введите свой пароль : ", d);
-			echo_off(d);
 			STATE(d) = CON_DELCNF1;
 			break;
 
@@ -3013,7 +3083,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 
 	case CON_CHPWD_GETOLD:
 		if (!Password::compare_password(d->character, arg)) {
-			echo_on(d);
 			SEND_TO_Q("\r\nНеверный пароль.\r\n", d);
 			SEND_TO_Q(MENU, d);
 			STATE(d) = CON_MENU;
@@ -3024,7 +3093,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		return;
 
 	case CON_DELCNF1:
-		echo_on(d);
 		if (!Password::compare_password(d->character, arg)) {
 			SEND_TO_Q("\r\nНеверный пароль.\r\n", d);
 			SEND_TO_Q(MENU, d);
@@ -3073,7 +3141,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, tmp_name);
 			sprintf(buf, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
-			echo_on(d);
 			STATE(d) = CON_NAME3;
 		} else {
 			SEND_TO_Q("Некорректно.\r\n", d);
@@ -3095,7 +3162,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, tmp_name);
 			sprintf(buf, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
-			echo_on(d);
 			STATE(d) = CON_NAME4;
 		} else {
 			SEND_TO_Q("Некорректно.\r\n", d);
@@ -3117,7 +3183,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, tmp_name);
 			sprintf(buf, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
-			echo_on(d);
 			STATE(d) = CON_NAME5;
 		} else {
 			SEND_TO_Q("Некорректно.\n\r", d);
@@ -3139,7 +3204,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, tmp_name);
 			sprintf(buf, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
-			echo_on(d);
 			STATE(d) = CON_NAME6;
 		} else {
 			SEND_TO_Q("Некорректно.\n\r", d);
@@ -3162,7 +3226,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
 				GET_PAD(d->character, 1));
 			SEND_TO_Q(buf, d);
-			echo_off(d);
 			STATE(d) = CON_NEWPASSWD;
 		} else {
 			SEND_TO_Q("Некорректно.\n\r", d);

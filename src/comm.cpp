@@ -167,8 +167,6 @@ RETSIGTYPE checkpointing(int sig);
 RETSIGTYPE hupsig(int sig);
 ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left);
 ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length);
-void echo_off(DESCRIPTOR_DATA * d);
-void echo_on(DESCRIPTOR_DATA * d);
 void sanity_check(void);
 void circle_sleep(struct timeval *timeout);
 int get_from_q(struct txt_q *queue, char *dest, int *aliased);
@@ -482,6 +480,7 @@ void init_game(ush_int port)
 
 	game_loop(mother_desc);
 
+	flush_player_index();
 	if (circle_shutdown == 2) {
 		log("Entering Crash_save_all_rent");
 		Crash_save_all_rent();	//save all
@@ -1381,44 +1380,6 @@ void record_usage(void)
 
 }
 
-
-
-/*
- * Turn off echoing (specific to telnet client)
- */
-void echo_off(DESCRIPTOR_DATA * d)
-{
-	char off_string[] = {
-		(char) IAC,
-		(char) WILL,
-		(char) TELOPT_ECHO,
-		(char) 0
-	};
-
-	SEND_TO_Q(off_string, d);
-}
-
-
-/*
- * Turn on echoing (specific to telnet client)
- */
-void echo_on(DESCRIPTOR_DATA * d)
-{
-	char on_string[] = {
-		(char) IAC,
-		(char) WONT,
-		(char) TELOPT_ECHO,
-		(char) IAC,
-		(char) WONT,
-		(char) TELOPT_NAOFFD,
-		(char) IAC,
-		(char) WONT,
-		(char) TELOPT_NAOCRD,
-		(char) 0,
-	};
-
-	SEND_TO_Q(on_string, d);
-}
 
 int posi_value(int real, int max)
 {
@@ -2763,7 +2724,6 @@ void check_idle_passwords(void)
 			d->idle_tics++;
 			continue;
 		} else {
-			echo_on(d);
 			SEND_TO_Q("\r\nTimed out... goodbye.\r\n", d);
 			STATE(d) = CON_CLOSE;
 		}

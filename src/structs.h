@@ -718,6 +718,8 @@ typedef struct trig_data
 #define CON_COLOR        41
 #define CON_WRITEBOARD   42 // написание на доску
 #define CON_CLANEDIT     43 // команда house
+#define CON_NEW_CHAR     44
+
 
 /* Character equipment positions: used as index for char_data.equipment[] */
 /* NOTE: Don't confuse these constants with the ITEM_ bitvectors
