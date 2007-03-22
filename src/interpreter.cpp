@@ -2306,6 +2306,18 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 	STATE(d) = CON_RMOTD;
 }
 
+void CreateChar(DESCRIPTOR_DATA * d)
+{
+	if (d->character != NULL)
+		return;
+	CREATE(d->character, CHAR_DATA, 1);
+	memset(d->character, 0, sizeof(CHAR_DATA));
+	clear_char(d->character);
+	CREATE(d->character->player_specials, struct player_special_data, 1);
+	memset(d->character->player_specials, 0, sizeof(struct player_special_data));
+	d->character->desc = d;
+}
+
 /* deal with newcomers and other non-playing sockets */
 void nanny(DESCRIPTOR_DATA * d, char *arg)
 {
@@ -2357,14 +2369,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		STATE(d) = CON_GET_NAME;
 		break;
 	case CON_GET_NAME:	/* wait for input of name */
-		if (d->character == NULL) {
-			CREATE(d->character, CHAR_DATA, 1);
-			memset(d->character, 0, sizeof(CHAR_DATA));
-			clear_char(d->character);
-			CREATE(d->character->player_specials, struct player_special_data, 1);
-			memset(d->character->player_specials, 0, sizeof(struct player_special_data));
-			d->character->desc = d;
-		}
+		if (d->character == NULL)
+			CreateChar(d);
 		if (!*arg)
 			STATE(d) = CON_CLOSE;
 		else if (!str_cmp("новый", arg)) {
@@ -2420,12 +2426,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						return;
 					}
-					CREATE(d->character, CHAR_DATA, 1);
-					memset(d->character, 0, sizeof(CHAR_DATA));
-					clear_char(d->character);
-					CREATE(d->character->player_specials, struct player_special_data, 1);
-					memset(d->character->player_specials, 0, sizeof(struct player_special_data));
-					d->character->desc = d;
+					CreateChar(d);
 					CREATE(d->character->player.name, char, strlen(tmp_name) + 1);
 					strcpy(d->character->player.name, CAP(tmp_name));
 					CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
@@ -2522,14 +2523,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			STATE(d) = CON_CLOSE;
 			return;
 		}
-		if (d->character == NULL) {
-			CREATE(d->character, CHAR_DATA, 1);
-			memset(d->character, 0, sizeof(CHAR_DATA));
-			clear_char(d->character);
-			CREATE(d->character->player_specials, struct player_special_data, 1);
-			memset(d->character->player_specials, 0, sizeof(struct player_special_data));
-			d->character->desc = d;
-		}
+		if (d->character == NULL)
+			CreateChar(d);
 		if (_parse_name(arg, tmp_name) ||
 			strlen(tmp_name) < MIN_NAME_LENGTH ||
 			strlen(tmp_name) > MAX_NAME_LENGTH ||
@@ -2541,12 +2536,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		if (player_i > -1) {
 			if (PLR_FLAGGED(d->character, PLR_DELETED)) {
 				free_char(d->character);
-				CREATE(d->character, CHAR_DATA, 1);
-				memset(d->character, 0, sizeof(CHAR_DATA));
-				clear_char(d->character);
-				CREATE(d->character->player_specials, struct player_special_data, 1);
-				memset(d->character->player_specials, 0, sizeof(struct player_special_data));
-				d->character->desc = d;
+				CreateChar(d);
 			}
 			else {
 				SEND_TO_Q("Такой персонаж уже существует. Выберите другое имя : ", d);
