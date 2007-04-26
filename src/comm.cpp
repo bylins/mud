@@ -2416,16 +2416,16 @@ int process_input(DESCRIPTOR_DATA * t)
 
 		for (ptr = read_point; (space_left > 1) && (ptr < nl_pos); ptr++) {
 			/* Нафиг точку с запятой - задрали уроды с тригерами (Кард) */
-			if (*ptr == ';' && (STATE(t) == CON_PLAYING || (STATE(t) == CON_EXDESC))) {
+			if (*ptr == ';' && (STATE(t) == CON_PLAYING || STATE(t) == CON_EXDESC || STATE(t) == CON_WRITEBOARD)) {
 				/* Иммам или морталам с GF_DEMIGOD разрешено использовать ";". */
 				if (GET_LEVEL(t->character) < LVL_IMMORT && !GET_GOD_FLAG(t->character, GF_DEMIGOD))
 					*ptr = ',';
 			}
-			if (*ptr == '&' && (STATE(t) == CON_PLAYING || (STATE(t) == CON_EXDESC))) {
+			if (*ptr == '&' && (STATE(t) == CON_PLAYING || STATE(t) == CON_EXDESC || STATE(t) == CON_WRITEBOARD)) {
 				if (GET_LEVEL(t->character) < LVL_IMPL)
 					*ptr = '8';
 			}
-			if (*ptr == '\\' && (STATE(t) == CON_PLAYING || (STATE(t) == CON_EXDESC))) {
+			if (*ptr == '\\' && (STATE(t) == CON_PLAYING || STATE(t) == CON_EXDESC || STATE(t) == CON_WRITEBOARD)) {
 				if (GET_LEVEL(t->character) < LVL_GRGOD)
 					*ptr = '/';
 			}

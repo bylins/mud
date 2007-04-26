@@ -661,7 +661,7 @@ ASPELL(spell_locate_object)
 	if (!obj)
 		return;
 
-	strcpy(name, fname(cast_argument));
+	strcpy(name, cast_argument);
 	j = level;
 
 

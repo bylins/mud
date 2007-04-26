@@ -1351,6 +1351,12 @@ ACMD(do_enter)
 							act("$n появил$u из пентаграммы.", TRUE,
 							    k->follower, 0, 0, TO_ROOM);
 						}
+					if (IS_CHARMICE(k->follower) &&
+						!GET_MOB_HOLD(k->follower) &&
+						GET_POS(k->follower) == POS_STANDING &&
+						IN_ROOM(k->follower) == from_room) {
+							command_interpreter(k->follower, "войти пентаграмма");
+					}
 				}
 				if (ch->desc != NULL)
 					look_at_room(ch, 0);
