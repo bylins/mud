@@ -87,7 +87,7 @@ ACMD(do_say)
 	}
 
 	if (!*argument)
-		send_to_char("Вы задумались :\"Чего бы такого сказать ?\"\r\n", ch);
+		send_to_char("Вы задумались: \"Чего бы такого сказать?\"\r\n", ch);
 	else {
 		sprintf(buf, "$n сказал$g : '%s'", argument);
 //      act (buf, FALSE, ch, 0, 0, TO_ROOM | DG_NO_TRIG | CHECK_DEAF);
