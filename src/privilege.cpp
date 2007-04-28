@@ -279,7 +279,8 @@ bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int
 		return true;
 	if (IS_NPC(ch)) return false;
 #ifdef TEST_BUILD
-	return true;
+	if (IS_IMMORTAL(ch))
+		return true;
 #endif
 	GodListType::const_iterator it = god_list.find(GET_UNIQUE(ch));
 	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), 1)) {
