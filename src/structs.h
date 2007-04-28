@@ -2095,7 +2095,7 @@ struct player_special_data {
 	// TODO: вообще тут надо weak_ptr втыкать, но смотрится очень тупо ща с макросами и в структуре
 	// поэтому пока просто надо не забывать чистить указатели у плееров, чтобы не оставлять клан
 	boost::shared_ptr<class Clan> clan; // собсна клан, если он есть
-	boost::shared_ptr<struct ClanMember> clan_member; // поле мембера в клане
+	boost::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
 
 	long GeneralBoardDate;    // последнее прочтенное на общей доске
 	long NewsBoardDate;       // -//- новости
