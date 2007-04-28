@@ -237,7 +237,7 @@ void load() {
 
 /**
 * Ищет имма в списке по уиду и полному совпадению имени. Вариант с CHAR_DATA на входе убран за ненадобностью.
-* Имм вне списка ниче из wiz команд сделать не сможет, при сборке через make test поиск в этом списке не производится.
+* Имм вне списка ниче из wiz команд не сможет, при сборке через make test или под студией поиск в этом списке не производится.
 * \param name - имя имма, unique - его уид
 * \return 0 - не нашли, 1 - нашли
 */
@@ -269,6 +269,7 @@ void load_god_boards()
 
 /**
 * Проверка на возможность использования команды (для команд с левелом 31+). 34е используют без ограничений.
+* При сборке через make test или под студией поиск в этом списке не производится.
 * \param mode 0 - общие команды, 1 - подкоманды set, 2 - подкоманды show
 * \return 0 - нельзя, 1 - можно
 */
@@ -277,6 +278,9 @@ bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int
 	if (!mode && cmd_info[cmd_number].minimum_level < LVL_IMMORT && GET_LEVEL(ch) >= cmd_info[cmd_number].minimum_level)
 		return true;
 	if (IS_NPC(ch)) return false;
+#ifdef TEST_BUILD
+	return true;
+#endif
 	GodListType::const_iterator it = god_list.find(GET_UNIQUE(ch));
 	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), 1)) {
 		if (GET_LEVEL(ch) == LVL_IMPL) return true;
