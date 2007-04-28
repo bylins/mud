@@ -3244,7 +3244,7 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 				continue;
 		}
 		char timeBuf[17];
-		long tmp_time = get_lastlogon_by_uniquie(it->first);
+		time_t tmp_time = get_lastlogon_by_uniquie(it->first);
 		log("qwer: %ld", tmp_time);
 		if (tmp_time <= 0) tmp_time = time(0);
 		strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y", localtime(&tmp_time));

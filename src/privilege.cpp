@@ -81,7 +81,7 @@ void parse_command_line(const std::string &command, int other_flags = 0); // про
 * поэтому флаги обрабатываем до парса по группам здесь.
 * \param command - имя флага
 */
-void Privilege::parse_flags(const std::string &command)
+void parse_flags(const std::string &command)
 {
 	if (command == "news")
 		tmp_god.flags.set(NEWS_MAKER);
@@ -95,7 +95,7 @@ void Privilege::parse_flags(const std::string &command)
 * Рассовываем команды по группам (общие, set, show), из группы arena команды идут в отдельный список
 * \param command - имя команды, fill_mode - в какой список добавлять, other_flags - для групп вроде арены со своим списком команд
 */
-void Privilege::insert_command(const std::string &command, int fill_mode, int other_flags)
+void insert_command(const std::string &command, int fill_mode, int other_flags)
 {
 	if (other_flags == 1) {
 		// в арену пишется только аналог общего списка, я не знаю зачем на арене set или show
@@ -133,7 +133,7 @@ void Privilege::insert_command(const std::string &command, int fill_mode, int ot
 /**
 * Добавление иммам и демигодам списка команд по умолчанию из групп default и default_demigod.
 */
-void Privilege::insert_default_command(long uid)
+void insert_default_command(long uid)
 {
 	std::map<std::string, std::string>::const_iterator it;
 	if (get_level_by_unique(uid) < LVL_IMMORT)
@@ -149,7 +149,7 @@ void Privilege::insert_default_command(long uid)
 * \param other_flags - по дефолту 0 (добавление идет в основной список команд), 1 - добавление в список arena
 * \param commands - строка со списком команд для парса
 */
-void Privilege::parse_command_line(const std::string &commands, int other_flags)
+void parse_command_line(const std::string &commands, int other_flags)
 {
 	typedef boost::tokenizer< boost::char_separator<char> > tokenizer;
 	boost::char_separator <char>sep(" ", "()");
@@ -191,7 +191,7 @@ void Privilege::parse_command_line(const std::string &commands, int other_flags)
 /**
 * Лоад и релоад файла привилегий (reload privilege) с последующим проставлением блокнотов иммам.
 */
-void Privilege::load() {
+void load() {
 	std::ifstream file(PRIVILEGE_FILE);
 	if (!file.is_open()) {
 		log("Error open file: %s! (%s %s %d)", PRIVILEGE_FILE, __FILE__, __func__, __LINE__);
@@ -241,7 +241,7 @@ void Privilege::load() {
 * \param name - имя имма, unique - его уид
 * \return 0 - не нашли, 1 - нашли
 */
-bool Privilege::god_list_check(const std::string &name, long unique)
+bool god_list_check(const std::string &name, long unique)
 {
 #ifdef TEST_BUILD
 	return 1;
@@ -256,7 +256,7 @@ bool Privilege::god_list_check(const std::string &name, long unique)
 /**
 * Создание и лоад/релоад блокнотов иммам.
 */
-void Privilege::load_god_boards()
+void load_god_boards()
 {
 	Board::clear_god_boards();
 	for (GodListType::const_iterator god = god_list.begin(); god != god_list.end(); ++god) {
@@ -272,7 +272,7 @@ void Privilege::load_god_boards()
 * \param mode 0 - общие команды, 1 - подкоманды set, 2 - подкоманды show
 * \return 0 - нельзя, 1 - можно
 */
-bool Privilege::can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int mode)
+bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int mode)
 {
 	if (!mode && cmd_info[cmd_number].minimum_level < LVL_IMMORT && GET_LEVEL(ch) >= cmd_info[cmd_number].minimum_level)
 		return true;
@@ -309,7 +309,7 @@ bool Privilege::can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_
 * \param flag - список флагов в начале файла, кол-во FLAGS_NUM
 * \return 0 - не нашли, 1 - нашли
 */
-bool Privilege::check_flag(CHAR_DATA *ch, int flag)
+bool check_flag(CHAR_DATA *ch, int flag)
 {
 	if (flag >= FLAGS_NUM || flag < 0) return false;
 	bool result = false;
@@ -327,14 +327,14 @@ bool Privilege::check_flag(CHAR_DATA *ch, int flag)
 * Группа skills без ограничений. Группа arena только призыв и пента и только на клетках арены.
 * У морталов и 34х проверка не производится.
 */
-bool Privilege::check_spells(CHAR_DATA *ch, int spellnum)
+bool check_spells(CHAR_DATA *ch, int spellnum)
 {
 	// флаг use_skills - везде и что угодно
-	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::USE_SKILLS))
+	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;
 	// флаг arena_master - только на арене и только для призыва/пенты
 	if (spellnum == SPELL_PORTAL || spellnum == SPELL_SUMMON)
-		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) && Privilege::check_flag(ch, Privilege::ARENA_MASTER))
+		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) && check_flag(ch, ARENA_MASTER))
 			return true;
 	return false;
 }
@@ -344,9 +344,9 @@ bool Privilege::check_spells(CHAR_DATA *ch, int spellnum)
 * У морталов и 34х проверка не производится.
 * \return 0 - не может использовать скиллы, 1 - может
 */
-bool Privilege::check_skills(CHAR_DATA *ch, int skills)
+bool check_skills(CHAR_DATA *ch, int skills)
 {
-	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::USE_SKILLS))
+	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;
 	return false;
 }
