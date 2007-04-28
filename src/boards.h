@@ -73,7 +73,9 @@ public:
 	void Save();
 	static void BoardInit();
 	static void ClanInit();
-	static void GodInit();
+	static void clear_god_boards();
+	static void init_god_board(long uid, std::string name);
+	static void reload_all();
 	static SPECIAL(Special);
 	static void LoginInfo(CHAR_DATA * ch);
 

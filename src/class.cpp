@@ -2520,17 +2520,16 @@ void decrease_level(CHAR_DATA * ch)
 		REMOVE_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
 
 	for (prob = 0; prob <= MAX_SKILLS; prob++)
-		if (GET_SKILL(ch, prob) && prob != SKILL_SATTACK) {
+		if (get_skill(ch, prob) && prob != SKILL_SATTACK) {
 			max = wis_app[GET_REAL_WIS(ch)].max_learn_l20 * (GET_LEVEL(ch) + 1) / 20;
 			if (max > MAX_EXP_PERCENT)
 				max = MAX_EXP_PERCENT;
-			sval = GET_SKILL(ch, prob) - max - GET_REMORT(ch) * 5;
+			sval = get_skill(ch, prob) - max - GET_REMORT(ch) * 5;
 			if (sval < 0)
 				sval = 0;
-			if ((GET_SKILL(ch, prob) - sval) >
+			if ((get_skill(ch, prob) - sval) >
 			    (wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20))
-				GET_SKILL(ch, prob) =
-				    (wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20) + sval;
+				SET_SKILL(ch, prob, ((wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20) + sval));
 		}
 
 	save_char(ch, NOWHERE);

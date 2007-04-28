@@ -71,8 +71,8 @@ int real_sector(int room);
 char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *vict_obj);
 int roundup(float fl);
 int valid_email(const char *address);
-
 void skip_spaces(char **string);
+int get_skill(CHAR_DATA *ch, int skill);
 
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
 
@@ -202,12 +202,6 @@ void update_pos(CHAR_DATA * victim);
 #define MOON_CYCLE               28
 #define WEEK_CYCLE               7
 #define POLY_WEEK_CYCLE          9
-
-// работа со списком иммов (lib/misc/god.lst)
-typedef std::map<long, string> GodListType;
-void GodListLoad();
-bool GodListCheck(CHAR_DATA * ch);
-bool GodListCheck(const std::string name, long unique);
 
 /* real-life time (remember Real Life?) */
 #define SECS_PER_REAL_MIN  60
@@ -728,7 +722,6 @@ extern SPECIAL(postmaster);
 #define CLAN_BOARD_DATE(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->ClanBoardDate))
 #define CLANNEWS_BOARD_DATE(ch)   CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->ClanNewsBoardDate))
 
-#define GET_SKILL(ch, i)   ((ch)->real_abils.Skills[i])
 #define SET_SKILL(ch, i, pct) ((ch)->real_abils.Skills[i] = pct)
 #define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[i])
 #define GET_SPELL_MEM(ch, i)  ((ch)->real_abils.SplMem[i])

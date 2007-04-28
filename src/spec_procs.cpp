@@ -324,7 +324,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict)
 			strcat(buf2, "**OVERFLOW**\r\n");
 			break;
 		}
-		if (GET_SKILL(ch, sortpos)) {
+		if (get_skill(ch, sortpos)) {
 			if (!skill_info[sortpos].name || *skill_info[sortpos].name == '!')
 				continue;
 			switch (sortpos) {
@@ -346,7 +346,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict)
 				sprintf(buf, "      ");
 			}
 			sprintf(buf + strlen(buf), "%-20s %s\r\n",
-				skill_info[sortpos].name, how_good(ch, GET_SKILL(ch, sortpos)));
+				skill_info[sortpos].name, how_good(ch, get_skill(ch, sortpos)));
 			strcat(buf2, buf);	/* The above, ^ should always be safe to do. */
 			i++;
 		}
@@ -734,7 +734,7 @@ SPECIAL(guild_mono)
 				// log("%d - %d",(guild_mono_info[info_num].learn_info+i)->skill_no, (guild_mono_info[info_num].learn_info+i)->spell_no);
 				if ((skill_no = bits =
 				     (guild_mono_info[info_num].learn_info + i)->skill_no) > 0
-				    && (!GET_SKILL(ch, skill_no) || IS_GRGOD(ch))) {
+				    && (!get_skill(ch, skill_no) || IS_GRGOD(ch))) {
 					gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
 							  CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 					found = TRUE;
@@ -769,10 +769,10 @@ SPECIAL(guild_mono)
 			     (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++) {
 				if ((guild_mono_info[info_num].learn_info + i)->level > GET_LEVEL(ch))
 					continue;
-				if ((skill_no = bits = (guild_mono_info[info_num].learn_info + i)->skill_no) > 0 && !GET_SKILL(ch, skill_no)) {	// sprintf(buf, "$N научил$G Вас умению %s\"%s\"\%s",
+				if ((skill_no = bits = (guild_mono_info[info_num].learn_info + i)->skill_no) > 0 && !get_skill(ch, skill_no)) {	// sprintf(buf, "$N научил$G Вас умению %s\"%s\"\%s",
 					//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 					// act(buf,FALSE,ch,0,victim,TO_CHAR);
-					// GET_SKILL(ch,skill_no) = 10;
+					// get_skill(ch,skill_no) = 10;
 					sfound = TRUE;
 				}
 				if (!(bits = -2 * bits) || bits == SPELL_TEMP)
@@ -790,18 +790,15 @@ SPECIAL(guild_mono)
 						SET_BIT(GET_SPELL_TYPE(ch, skill_no), SPELL_RUNES);
 					if (IS_SET(bits, SPELL_POTION)) {
 						SET_BIT(GET_SPELL_TYPE(ch, skill_no), SPELL_POTION);
-						GET_SKILL(ch, SKILL_CREATE_POTION) =
-						    MAX(10, GET_SKILL(ch, SKILL_CREATE_POTION));
+						SET_SKILL(ch, SKILL_CREATE_POTION, MAX(10, get_skill(ch, SKILL_CREATE_POTION)));
 					}
 					if (IS_SET(bits, SPELL_WAND)) {
 						SET_BIT(GET_SPELL_TYPE(ch, skill_no), SPELL_WAND);
-						GET_SKILL(ch, SKILL_CREATE_WAND) =
-						    MAX(10, GET_SKILL(ch, SKILL_CREATE_WAND));
+						SET_SKILL(ch, SKILL_CREATE_WAND, MAX(10, get_skill(ch, SKILL_CREATE_WAND)));
 					}
 					if (IS_SET(bits, SPELL_SCROLL)) {
 						SET_BIT(GET_SPELL_TYPE(ch, skill_no), SPELL_SCROLL);
-						GET_SKILL(ch, SKILL_CREATE_SCROLL) =
-						    MAX(10, GET_SKILL(ch, SKILL_CREATE_SCROLL));
+						SET_SKILL(ch, SKILL_CREATE_SCROLL, MAX(10, get_skill(ch, SKILL_CREATE_SCROLL)));
 					}
 					found = TRUE;
 				}
@@ -848,13 +845,13 @@ SPECIAL(guild_mono)
 				if ((guild_mono_info[info_num].learn_info + i)->level > GET_LEVEL(ch))
 					continue;
 				if (skill_no == (guild_mono_info[info_num].learn_info + i)->skill_no) {
-					if (GET_SKILL(ch, skill_no))
+					if (get_skill(ch, skill_no))
 						act("$N сказал$g Вам : 'Ничем помочь не могу, ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
 					else {
 						sprintf(buf, "$N научил$G Вас умению %s\"%s\"%s",
 							CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
-						GET_SKILL(ch, skill_no) = 10;
+						SET_SKILL(ch, skill_no, 10);
 					}
 					found = TRUE;
 				}
@@ -908,18 +905,15 @@ SPECIAL(guild_mono)
 							SET_BIT(GET_SPELL_TYPE(ch, skill_no), SPELL_RUNES);
 						if (IS_SET(bits, SPELL_POTION)) {
 							SET_BIT(GET_SPELL_TYPE(ch, skill_no), SPELL_POTION);
-							GET_SKILL(ch, SKILL_CREATE_POTION) =
-							    MAX(10, GET_SKILL(ch, SKILL_CREATE_POTION));
+							SET_SKILL(ch, SKILL_CREATE_POTION, MAX(10, get_skill(ch, SKILL_CREATE_POTION)));
 						}
 						if (IS_SET(bits, SPELL_WAND)) {
 							SET_BIT(GET_SPELL_TYPE(ch, skill_no), SPELL_WAND);
-							GET_SKILL(ch, SKILL_CREATE_WAND) =
-							    MAX(10, GET_SKILL(ch, SKILL_CREATE_WAND));
+							SET_SKILL(ch, SKILL_CREATE_WAND, MAX(10, get_skill(ch, SKILL_CREATE_WAND)));
 						}
 						if (IS_SET(bits, SPELL_SCROLL)) {
 							SET_BIT(GET_SPELL_TYPE(ch, skill_no), SPELL_SCROLL);
-							GET_SKILL(ch, SKILL_CREATE_SCROLL) =
-							    MAX(10, GET_SKILL(ch, SKILL_CREATE_SCROLL));
+							SET_SKILL(ch, SKILL_CREATE_SCROLL, MAX(10, get_skill(ch, SKILL_CREATE_SCROLL)));
 						}
 					}
 					found = TRUE;
@@ -974,7 +968,7 @@ SPECIAL(guild_poly)
 
 				if ((skill_no = bits =
 				     (guild_poly_info[info_num] + i)->skill_no) > 0
-				    && (!GET_SKILL(ch, skill_no) || IS_GRGOD(ch))) {
+				    && (!get_skill(ch, skill_no) || IS_GRGOD(ch))) {
 					gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
 							  CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 					found = TRUE;
@@ -1014,10 +1008,10 @@ SPECIAL(guild_poly)
 				    || !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch)))
 					continue;
 
-				if ((skill_no = bits = (guild_poly_info[info_num] + i)->skill_no) > 0 && !GET_SKILL(ch, skill_no)) {	// sprintf(buf, "$N научил$G Вас умению %s\"%s\"\%s",
+				if ((skill_no = bits = (guild_poly_info[info_num] + i)->skill_no) > 0 && !get_skill(ch, skill_no)) {	// sprintf(buf, "$N научил$G Вас умению %s\"%s\"\%s",
 					//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 					// act(buf,FALSE,ch,0,victim,TO_CHAR);
-					// GET_SKILL(ch,skill_no) = 10;
+					// get_skill(ch,skill_no) = 10;
 					sfound = TRUE;
 				}
 
@@ -1042,18 +1036,15 @@ SPECIAL(guild_poly)
 						SET_BIT(GET_SPELL_TYPE(ch, skill_no), SPELL_RUNES);
 					if (IS_SET(bits, SPELL_POTION)) {
 						SET_BIT(GET_SPELL_TYPE(ch, skill_no), SPELL_POTION);
-						GET_SKILL(ch, SKILL_CREATE_POTION) =
-						    MAX(10, GET_SKILL(ch, SKILL_CREATE_POTION));
+						SET_SKILL(ch, SKILL_CREATE_POTION, MAX(10, get_skill(ch, SKILL_CREATE_POTION)));
 					}
 					if (IS_SET(bits, SPELL_WAND)) {
 						SET_BIT(GET_SPELL_TYPE(ch, skill_no), SPELL_WAND);
-						GET_SKILL(ch, SKILL_CREATE_WAND) =
-						    MAX(10, GET_SKILL(ch, SKILL_CREATE_WAND));
+						SET_SKILL(ch, SKILL_CREATE_WAND, MAX(10, get_skill(ch, SKILL_CREATE_WAND)));
 					}
 					if (IS_SET(bits, SPELL_SCROLL)) {
 						SET_BIT(GET_SPELL_TYPE(ch, skill_no), SPELL_SCROLL);
-						GET_SKILL(ch, SKILL_CREATE_SCROLL) =
-						    MAX(10, GET_SKILL(ch, SKILL_CREATE_SCROLL));
+						SET_SKILL(ch, SKILL_CREATE_SCROLL, MAX(10, get_skill(ch, SKILL_CREATE_SCROLL)));
 					}
 					found = TRUE;
 				}
@@ -1076,13 +1067,13 @@ SPECIAL(guild_poly)
 				    || !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch)))
 					continue;
 				if (skill_no == (guild_poly_info[info_num] + i)->skill_no) {
-					if (GET_SKILL(ch, skill_no))
+					if (get_skill(ch, skill_no))
 						act("$N сказал$G Вам : 'Ничем помочь не могу, ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
 					else {
 						sprintf(buf, "$N научил$G Вас умению %s\"%s\"%s",
 							CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
-						GET_SKILL(ch, skill_no) = 10;
+						SET_SKILL(ch, skill_no, 10);
 					}
 					found = TRUE;
 				}
@@ -1170,18 +1161,15 @@ SPECIAL(guild_poly)
 							SET_BIT(GET_SPELL_TYPE(ch, skill_no), SPELL_RUNES);
 						if (IS_SET(bits, SPELL_POTION)) {
 							SET_BIT(GET_SPELL_TYPE(ch, skill_no), SPELL_POTION);
-							GET_SKILL(ch, SKILL_CREATE_POTION) =
-							    MAX(10, GET_SKILL(ch, SKILL_CREATE_POTION));
+							SET_SKILL(ch, SKILL_CREATE_POTION, MAX(10, get_skill(ch, SKILL_CREATE_POTION)));
 						}
 						if (IS_SET(bits, SPELL_WAND)) {
 							SET_BIT(GET_SPELL_TYPE(ch, skill_no), SPELL_WAND);
-							GET_SKILL(ch, SKILL_CREATE_WAND) =
-							    MAX(10, GET_SKILL(ch, SKILL_CREATE_WAND));
+							SET_SKILL(ch, SKILL_CREATE_WAND, MAX(10, get_skill(ch, SKILL_CREATE_WAND)));
 						}
 						if (IS_SET(bits, SPELL_SCROLL)) {
 							SET_BIT(GET_SPELL_TYPE(ch, skill_no), SPELL_SCROLL);
-							GET_SKILL(ch, SKILL_CREATE_SCROLL) =
-							    MAX(10, GET_SKILL(ch, SKILL_CREATE_SCROLL));
+							SET_SKILL(ch, SKILL_CREATE_SCROLL, MAX(10, get_skill(ch, SKILL_CREATE_SCROLL)));
 						}
 					}
 					found = TRUE;
@@ -1419,7 +1407,7 @@ int npc_scavenge(CHAR_DATA * ch)
 					do_doorcmd(ch, obj, 0, SCMD_UNLOCK);
 				// Заперто, взламываем, если умеем
 				if (OBJVAL_FLAGGED(obj, CONT_LOCKED) &&
-					GET_SKILL(ch, SKILL_PICK_LOCK) &&
+					get_skill(ch, SKILL_PICK_LOCK) &&
 					ok_pick(ch, 0, OBJVAL_FLAGGED(obj, CONT_PICKPROOF), SCMD_PICK))
 					do_doorcmd(ch, obj, 0, SCMD_PICK);
 				// Все равно заперто, ну тогда фиг с ним
@@ -1535,7 +1523,7 @@ int npc_loot(CHAR_DATA * ch)
 							TOGGLE_BIT(GET_OBJ_VAL(loot_obj, 1), CONT_LOCKED);
 						// ...или взломаем?
 						if (OBJVAL_FLAGGED(obj, CONT_LOCKED) &&
-							GET_SKILL(ch, SKILL_PICK_LOCK) &&
+							get_skill(ch, SKILL_PICK_LOCK) &&
 							ok_pick(ch, 0, OBJVAL_FLAGGED(obj, CONT_PICKPROOF), SCMD_PICK))
 							TOGGLE_BIT(GET_OBJ_VAL(loot_obj, 1), CONT_LOCKED);
 						// Эх, не открыть. Ну ладно.

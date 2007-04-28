@@ -28,6 +28,7 @@
 #include "pk.h"
 #include "features.hpp"
 #include "im.h"
+#include "privilege.hpp"
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct spell_create_type spell_create[TOP_SPELL_DEFINE + 1];
@@ -1851,7 +1852,7 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 		if (SpINFO.violent)
 			return FALSE;	// нельзя злые кастовать
 		// если игнорируется цель, то должен быть GROUP или MASS
-		// в противном случае на цель кастовать нельзя   
+		// в противном случае на цель кастовать нельзя
 		return victim == 0 ? TRUE : FALSE;
 	}
 	// остальные комбинации не проверяю
@@ -1904,7 +1905,7 @@ int check_mobile_list(CHAR_DATA * ch)
 void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
 {
 	// Если оказались под своим заклом то не реагируем на него.
-	if (caster == victim) 
+	if (caster == victim)
 		return;
 
 	if (!check_mobile_list(victim) || !SpINFO.violent)
@@ -2016,7 +2017,7 @@ ACMD(do_ident)
 	struct timed_type timed;
 	int k, level = 0;
 
-	if (IS_NPC(ch) || GET_SKILL(ch, SKILL_IDENTIFY) <= 0) {
+	if (IS_NPC(ch) || get_skill(ch, SKILL_IDENTIFY) <= 0) {
 		send_to_char("Вам стоит сначала этому научиться.\r\n", ch);
 		return;
 	}
@@ -2105,7 +2106,7 @@ int find_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OB
 		*troom = world[IN_ROOM(ch)];
 		return TRUE;
 	}
-	/* TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD */		
+	/* TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD */
 	if (IS_SET(SpINFO.targets, TAR_IGNORE))
 		return TRUE;
 	else if (t != NULL && *t) {
@@ -2161,7 +2162,7 @@ int find_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OB
 			return TRUE;
 		}
 	}
-	/* TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD */		
+	/* TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD */
 	sprintf(buf, "На %s Вы хотите ЭТО колдовать ?\r\n",
 		IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
 		? "ЧТО" : "КОГО");
@@ -2371,12 +2372,12 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		return (0);
 	}
 //проверка на алайнмент мобов
-	
+
 	if (tch && ch) {
 		if (IS_MOB(tch) && IS_MOB(ch) && !SAME_ALIGN(ch, tch) && SpINFO.violent == 0)
 			return (0);
 	}
-	if (!troom) 
+	if (!troom)
 	{
 		// Вызвали с пустой комнатой значит будем кастить тут
 		troom = world[IN_ROOM(ch)];
@@ -2419,7 +2420,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 	if ((!tch || IN_ROOM(tch) == NOWHERE) && !tobj && !troom &&
 	    IS_SET(SpINFO.targets,
 		   TAR_CHAR_ROOM | TAR_CHAR_WORLD | TAR_FIGHT_SELF | TAR_FIGHT_VICT
-		   | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_WORLD | TAR_OBJ_EQUIP | TAR_ROOM_THIS 
+		   | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_WORLD | TAR_OBJ_EQUIP | TAR_ROOM_THIS
 	  	   | TAR_ROOM_DIR)) {
 		send_to_char("Цель заклинания не доступна.\r\n", ch);
 		return (0);
@@ -2448,7 +2449,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 	if (AFF_FLAGGED(ch, AFF_PEACEFUL))
 		// Проверяю, что закл имеет одну из допустимых комбинаций параметров
 		// если игнорируется цель, то должен быть GROUP или MASS
-		// в противном случае на цель кастовать нельзя   
+		// в противном случае на цель кастовать нельзя
 	{
 		ignore = IS_SET(SpINFO.targets, TAR_IGNORE) ||
 		    IS_SET(SpINFO.routines, MAG_MASSES) || IS_SET(SpINFO.routines, MAG_GROUPS);
@@ -2490,7 +2491,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 			send_to_char(buf, ch);
 		}
 	}
-	/*Комнату тут в say_spell не обрабатываем - будет сказал "что-то"*/ 
+	/*Комнату тут в say_spell не обрабатываем - будет сказал "что-то"*/
 	say_spell(ch, spellnum, tch, tobj);
 	if (GET_SPELL_MEM(ch, spell_subst) > 0)
 		GET_SPELL_MEM(ch, spell_subst)--;
@@ -2528,7 +2529,7 @@ int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int 
 	case SAVING_NONE:
 		prob = int_app[GET_REAL_WIS(ch)].spell_success + GET_CAST_SUCCESS(ch);
 
-		if ((IS_MAGE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MAGE)) 
+		if ((IS_MAGE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MAGE))
 		    || (IS_CLERIC(ch) && IN_ROOM(ch) != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_CLERIC))
 		    || (IS_PALADINE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PALADINE))
 		    || (IS_MERCHANT(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MERCHANT)))
@@ -2592,7 +2593,10 @@ ACMD(do_cast)
 	spellnum = find_spell_num(s);
 	spell_subst = spellnum;
 
-        log("In do_cast spellnum = %d",spellnum);	
+	if (!Privilege::check_spells(ch, spellnum)) {
+		send_to_char("Не положено...\r\n", ch);
+		return;
+	}
 
 	/* Unknown spell */
 	if (spellnum < 1 || spellnum > MAX_SPELLS) {
@@ -2602,11 +2606,11 @@ ACMD(do_cast)
 
 	/* Caster is lower than spell level */
 	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP | SPELL_KNOW) ||
-		     GET_REMORT(ch) < MIN_CAST_REM(SpINFO,ch)) && 
-		    (GET_LEVEL(ch) < LVL_GRGOD) && (!IS_NPC(ch))) 
+		     GET_REMORT(ch) < MIN_CAST_REM(SpINFO,ch)) &&
+		    (GET_LEVEL(ch) < LVL_GRGOD) && (!IS_NPC(ch)))
 	{
-		if (GET_LEVEL (ch) < MIN_CAST_LEV(SpINFO,ch) 
-		   || GET_REMORT (ch) < MIN_CAST_REM(SpINFO,ch) 
+		if (GET_LEVEL (ch) < MIN_CAST_LEV(SpINFO,ch)
+		   || GET_REMORT (ch) < MIN_CAST_REM(SpINFO,ch)
 		   ||  slot_for_char (ch, SpINFO.slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)]) <= 0){
 			send_to_char("Рано еще Вам бросаться такими словами !\r\n", ch);
 			return;
@@ -2662,7 +2666,7 @@ ACMD(do_cast)
 	/* You throws the dice and you takes your chances.. 101% is total failure */
 	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
 	SET_CAST(ch, 0, 0, NULL, NULL, NULL);
-	
+
 	if (!spell_use_success(ch, tch, SAVING_STABILITY, spellnum)) {
 		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
 			WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -2695,14 +2699,18 @@ ACMD(do_cast)
 
 ACMD(do_mixture)
 {
+	if (IS_NPC(ch))
+		return;
+	if (!Privilege::check_flag(ch, Privilege::USE_SKILLS)) {
+		send_to_char("Не положено...\r\n", ch);
+		return;
+	}
+
 	CHAR_DATA *tch = NULL;
 	OBJ_DATA *tobj = NULL;
 	ROOM_DATA *troom = NULL;
 	char *s, *t;
 	int spellnum, target = 0;
-
-	if (IS_NPC(ch))
-		return;
 
 	/* get: blank, spell name, target name */
 	s = strtok(argument, "'*!");
@@ -2962,8 +2970,8 @@ ACMD(do_learn)
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_SKILL && 
-	    GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && GET_OBJ_VAL(obj, 0) != BOOK_RECPT && 
+	if (GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_SKILL &&
+	    GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && GET_OBJ_VAL(obj, 0) != BOOK_RECPT &&
 	    GET_OBJ_VAL(obj, 0) != BOOK_FEAT) {
 		act("НЕВЕРНЫЙ ТИП КНИГИ - сообщите Богам !", FALSE, ch, obj, 0, TO_CHAR);
 		return;
@@ -2974,7 +2982,7 @@ ACMD(do_learn)
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 2) < 1 && GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && 
+	if (GET_OBJ_VAL(obj, 2) < 1 && GET_OBJ_VAL(obj, 0) != BOOK_UPGRD &&
 	    GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_FEAT &&
 	    GET_OBJ_VAL(obj, 0) != BOOK_RECPT) {
 		send_to_char("НЕКОРРЕКТНЫЙ УРОВЕНЬ - сообщите Богам !\r\n", ch);
@@ -2985,7 +2993,7 @@ ACMD(do_learn)
 		rcpt = im_get_recipe(GET_OBJ_VAL(obj, 1));
 	}
 
-	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL || GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) 
+	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL || GET_OBJ_VAL(obj, 0) == BOOK_UPGRD)
 	     && GET_OBJ_VAL(obj, 1) < 1 && GET_OBJ_VAL(obj, 1) > TOP_SKILL_DEFINE) {
 		send_to_char("СТИЛЬ НЕ ОПРЕДЕЛЕН - сообщите Богам !\r\n", ch);
 		return;
@@ -3003,11 +3011,11 @@ ACMD(do_learn)
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 0) == BOOK_SKILL && 
+	if (GET_OBJ_VAL(obj, 0) == BOOK_SKILL &&
 	    skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] == KNOW_SKILL) {
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = skill_info[spellnum].name;
-	} else if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && GET_SKILL(ch, GET_OBJ_VAL(obj, 1))) {
+	} else if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && get_skill(ch, GET_OBJ_VAL(obj, 1))) {
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = skill_info[spellnum].name;
 	} else if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= LAST_USED_SPELL) {
@@ -3025,8 +3033,8 @@ ACMD(do_learn)
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = feat_info[spellnum].name;
 	}
-	
-	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL && GET_SKILL(ch, spellnum)) ||
+
+	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL && get_skill(ch, spellnum)) ||
 	    (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && GET_SPELL_TYPE(ch, spellnum) & SPELL_KNOW) ||
 	    (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && HAVE_FEAT(ch, spellnum)) ||
 		  (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && rs)) {
@@ -3043,7 +3051,7 @@ ACMD(do_learn)
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && GET_SKILL(ch, spellnum) >= GET_OBJ_VAL(obj, 3)) {
+	if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && get_skill(ch, spellnum) >= GET_OBJ_VAL(obj, 3)) {
 		sprintf(buf, "Изучив %s от корки до корки Вы так и не узнали ничего нового.\r\n",
 			obj->PNames[3]);
 		send_to_char(buf, ch);
@@ -3053,17 +3061,17 @@ ACMD(do_learn)
 		return;
 	}
 
-	if ((GET_OBJ_VAL(obj, 2) > GET_LEVEL(ch) && GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && 
+	if ((GET_OBJ_VAL(obj, 2) > GET_LEVEL(ch) && GET_OBJ_VAL(obj, 0) != BOOK_UPGRD &&
 			  GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_FEAT &&
 			  GET_OBJ_VAL(obj, 0) != BOOK_RECPT) ||
-	    ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL || GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) && 
+	    ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL || GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) &&
 	      skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] != KNOW_SKILL) ||
-	    (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && !GET_SKILL(ch, GET_OBJ_VAL(obj, 1))) ||
-		  (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && 
+	    (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && !get_skill(ch, GET_OBJ_VAL(obj, 1))) ||
+		  (GET_OBJ_VAL(obj, 0) == BOOK_SPELL &&
         (MIN_CAST_LEV(SpINFO,ch) > GET_LEVEL (ch) || MIN_CAST_REM(SpINFO,ch) > GET_REMORT (ch) ||
     	   slot_for_char (ch, SpINFO.slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)]) <= 0)) ||
 		  (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && !can_get_feat(ch, spellnum)) ||
-	    (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && 
+	    (GET_OBJ_VAL(obj, 0) == BOOK_RECPT &&
 	    	(imrecipes[rcpt].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE ||
 	    	 imrecipes[rcpt].level > GET_LEVEL (ch) || imrecipes[rcpt].level == -1 ||
 	    	 imrecipes[rcpt].remort > GET_REMORT (ch) || imrecipes[rcpt].remort == -1))) {
@@ -3113,10 +3121,10 @@ ACMD(do_learn)
 			GET_SPELL_TYPE(ch, spellnum) |= SPELL_KNOW;
 			break;
 		case BOOK_SKILL:
-			GET_SKILL(ch, spellnum) = 1;
+			SET_SKILL(ch, spellnum, 1);
 			break;
 		case BOOK_UPGRD:
-			GET_SKILL(ch, spellnum) = MIN(GET_SKILL(ch, spellnum) + GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 3));
+			SET_SKILL(ch, spellnum, (MIN(get_skill(ch, spellnum) + GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 3))));
 			break;
 		case BOOK_RECPT:
 			CREATE(rs, im_rskill, 1);
@@ -3287,8 +3295,8 @@ ACMD(do_remember)
 		return;
 	}
 	/* Caster is lower than spell level */
-	if (GET_LEVEL (ch) < MIN_CAST_LEV(SpINFO,ch) 
-	   ||  GET_REMORT (ch) < MIN_CAST_REM(SpINFO,ch) 
+	if (GET_LEVEL (ch) < MIN_CAST_LEV(SpINFO,ch)
+	   ||  GET_REMORT (ch) < MIN_CAST_REM(SpINFO,ch)
 	   ||    slot_for_char (ch, SpINFO.slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)]) <= 0){
 		send_to_char("Рано еще Вам бросаться такими словами !\r\n", ch);
 		return;
@@ -3382,10 +3390,10 @@ void mspell_change(char *name, int spell, int kin, int chclass, int class_change
 		return;
 	}
 
-	if (kin < 0 || kin >= NUM_KIN){   
+	if (kin < 0 || kin >= NUM_KIN){
 		log ("SYSERR: assigning '%s' to illegal kin %d/%d.",skill_name (spell), chclass, NUM_KIN );
 		bad = 1;
-	}	
+	}
 
 	if (chclass < 0 || chclass >= NUM_CLASSES) {
 		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_CLASSES - 1);
@@ -3408,10 +3416,10 @@ mspell_remort (char *name, int spell, int kin, int chclass, int remort)
 		log ("SYSERR: attempting assign to illegal spellnum %d/%d", spell,TOP_SPELL_DEFINE);
 		return;
 	}
-	if (kin < 0 || kin >= NUM_KIN){   
+	if (kin < 0 || kin >= NUM_KIN){
 		log ("SYSERR: assigning '%s' to illegal kin %d/%d.",skill_name (spell), chclass, NUM_KIN );
 		bad = 1;
-	}	
+	}
 	if (chclass < 0 || chclass >= NUM_CLASSES){
 		log ("SYSERR: assigning '%s' to illegal class %d/%d.",skill_name (spell), chclass, NUM_CLASSES - 1);
 		bad = 1;
@@ -3427,7 +3435,7 @@ mspell_remort (char *name, int spell, int kin, int chclass, int remort)
 }
 
 
-void mspell_level (char *name, int spell, int kin, int chclass, int level) 
+void mspell_level (char *name, int spell, int kin, int chclass, int level)
 {
 	int bad = 0;
 
@@ -3436,7 +3444,7 @@ void mspell_level (char *name, int spell, int kin, int chclass, int level)
 		return;
 	}
 
-	if (kin < 0 || kin >= NUM_KIN){   
+	if (kin < 0 || kin >= NUM_KIN){
 		log ("SYSERR: assigning '%s' to illegal kin %d/%d.",skill_name (spell), chclass, NUM_KIN );
 		bad = 1;
 	}
@@ -3467,11 +3475,11 @@ void mspell_slot (char *name, int spell, int kin , int chclass, int slot)
 		return;
 	}
 
-	if (kin < 0 || kin >= NUM_KIN){   
+	if (kin < 0 || kin >= NUM_KIN){
 		log ("SYSERR: assigning '%s' to illegal kin %d/%d.",skill_name (spell), chclass, NUM_KIN );
 		bad = 1;
 	}
-	
+
 	if (chclass < 0 || chclass >=  NUM_CLASSES){
 		log("SYSERR: assigning '%s' to illegal class %d/%d.", skill_name(spell), chclass, NUM_CLASSES - 1);
 		bad = 1;
@@ -3497,7 +3505,7 @@ spello(int spl, const char *name, const char *syn,
        int minpos, int targets, int violent, int routines, int danger, int spell_class)
 {
 	int i,j;
-	for (i = 0; i < NUM_CLASSES; i++) 
+	for (i = 0; i < NUM_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++){
 			spell_info[spl].min_remort[i][j] = MAX_REMORT;
 			spell_info[spl].min_level[i][j] = LVL_IMPL;
@@ -3527,7 +3535,7 @@ spello(int spl, const char *name, const char *syn,
 void unused_spell(int spl)
 {
 	int i,j;
-	for (i = 0; i < NUM_CLASSES; i++) 
+	for (i = 0; i < NUM_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++){
 			spell_info[spl].min_remort[i][j] = MAX_REMORT;
 			spell_info[spl].min_level[i][j] = LVL_IMPL + 1;
@@ -4258,7 +4266,7 @@ void mag_assign_spells(void)
 	spello(SPELL_FAILURE, "недоля", "failure", 100, 85, 2, POS_FIGHTING,
 	       TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_AREAS | MAG_AFFECTS | NPC_AFFECT_PC, 5, STYPE_DARK);
 
-//171 
+//171
 	spello(SPELL_CLANPRAY, "!клановые чары!", "!clan affect!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0,  STYPE_NEUTRAL);
 //172
 	spello(SPELL_GLITTERDUST, "блестящая пыль", "glitterdust", 120, 100, 3,
@@ -4278,7 +4286,7 @@ void mag_assign_spells(void)
 		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
 //177
 	spello(SPELL_GIMMICKRY, "хитроумие", "gimmickry", 60, 50, 1,
-		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);	       
+		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
 
 	/* NON-castable spells should appear below here. */
 

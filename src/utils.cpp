@@ -14,7 +14,6 @@
 
 #include "conf.h"
 #include <fstream>
-
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -29,6 +28,7 @@
 #include "dg_scripts.h"
 #include "features.hpp"
 #include "boards.h"
+#include "privilege.hpp"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 
@@ -1806,83 +1806,15 @@ int valid_email(const char *address)
         return 1;
 }
 
-
-GodListType GodList; // список иммов
-
-// лоад/релоад god.lst, ищем уиды, если нужно + втыкаем каждому по доске-блокноту
-// TODO: вообще этот список должен быть совмещен со списком привилегий, ибо дублируется
-// но тут есть момент, что привилегии могут быть добавлены из мада, а в этот список полюбому надо доступ до сервера
-void GodListLoad()
+/**
+* Аналог бывшего макроса GET_SKILL с проверкой на привилегию skills у иммов.
+* Заодно исключает частое тут применение GET_SKILL там, где нужно применять SET_SKILL,
+* сейчас это готовые гетер/сетер для класса.
+*/
+int get_skill(CHAR_DATA *ch, int skill)
 {
-	// на случай релоада
-	GodList.clear();
-
-	// лоадим иммов
-	std::ifstream file(GODLIST_FILE);
-	if (!file.is_open()) {
-		log("Error open file: %s! (%s %s %d)", GODLIST_FILE, __FILE__, __func__, __LINE__);
-		return;
-	}
-	std::string buffer, comment;
-	long unique = 0;
-	while (file >> buffer) {
-		// коментарии сохраняем для перезаписи
-		if (buffer[0] == ';') {
-			std::getline(file, buffer, '\n');
-			comment += ';' + buffer + '\n';
-			continue;
-		}
-		file >> unique;
-		if (!unique)
-			unique = GetUniqueByName(buffer);
-		// если имма сделетили, то пусть заново вписывают при ресторе
-		if (unique < 0)
-			continue;
-		GodList[unique] = buffer;
-	}
-	file.close();
-
-	// сохраняем список на случай нулевых уидов изначально
-	std::ofstream outfile(GODLIST_FILE);
-	if (!outfile.is_open()) {
-		log("Error open file: %s! (%s %s %d)", GODLIST_FILE, __FILE__, __func__, __LINE__);
-		return;
-	}
-	outfile << comment;
-	for (GodListType::const_iterator it = GodList.begin(); it != GodList.end(); ++it)
-		outfile << (*it).second << " " << (*it).first << '\n';
-	outfile.close();
-
-	// генерим блокноты
-	Board::GodInit();
-}
-
-// ищет имма в списке по уиду и полному совпадению имени
-// TODO: первый вариант вообще в IS_IMPL и остальных макросах должен быть, но уж больно оно часто там
-// дергается, просто ужасно часто и не по делу, тормозить конечно не будет и вообще фик кто заметит,
-// но это все не прально. т.к. копать все вызовы влом - пока пусть дергается только второй вариант,
-// он на вводе команд стоит, имм вне списка ниче из wiz команд сделать не сможет
-// при сборке через make test поиск в этом списке не производится
-bool GodListCheck(CHAR_DATA * ch)
-{
-#ifdef TEST_BUILD
-	return 1;
-#endif
-	for (GodListType::const_iterator it = GodList.begin(); it != GodList.end(); ++it)
-		if ((*it).first == GET_UNIQUE(ch))
-			if (CompareParam((*it).second, GET_NAME(ch), 1))
-				return 1;
-	return 0;
-}
-
-bool GodListCheck(const std::string name, long unique)
-{
-#ifdef TEST_BUILD
-	return 1;
-#endif
-	GodListType::const_iterator it = GodList.find(unique);
-	if (it != GodList.end())
-		if ((*it).second == name)
-			return 1;
-	return 0;
+	if (Privilege::check_skills(ch, skill))
+		return (ch)->real_abils.Skills[skill];
+	else
+		return 0;
 }

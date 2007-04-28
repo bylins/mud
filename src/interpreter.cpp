@@ -1,8 +1,6 @@
 /* ************************************************************************
 *   File: interpreter.cpp                               Part of Bylins    *
 *  Usage: parse user commands, search for specials, call ACMD functions   *
-*         also contains privileges implementation code, the header file   *
-*         is privileges.hpp                                               *
 *  All rights reserved.  See license.doc for complete information.        *
 *                                                                         *
 *  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
@@ -17,7 +15,6 @@
 
 #include "conf.h"
 #include <boost/lexical_cast.hpp>
-
 #include "sysdep.h"
 #include "structs.h"
 #include "comm.h"
@@ -36,7 +33,6 @@
 #include "pk.h"
 #include "genchar.h"
 #include "ban.hpp"
-#include "privileges.hpp"
 #include "item.creation.hpp"
 #include "arena.hpp"
 #include "features.hpp"
@@ -44,6 +40,7 @@
 #include "top.h"
 #include "title.hpp"
 #include "password.hpp"
+#include "privilege.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -90,7 +87,6 @@ extern struct cheat_list_type *cheaters_list;
 extern struct set_struct set_fields[];
 extern struct show_struct show_fields[];
 extern BanList *ban;
-extern PrivList *priv;
 
 /* external functions */
 void do_start(CHAR_DATA * ch, int newbie);
@@ -323,7 +319,6 @@ ACMD(do_block);
 ACMD(do_touch);
 ACMD(do_transform_weapon);
 ACMD(do_protect);
-ACMD(do_privileges);
 ACMD(do_dig);
 ACMD(do_insertgem);
 ACMD(do_ignore);
@@ -906,7 +901,6 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"poofout", POS_DEAD, do_poofset, LVL_GOD, SCMD_POOFOUT, 0},
 	{"pour", POS_STANDING, do_pour, 0, SCMD_POUR, -1},
 	{"practice", POS_STANDING, do_not_here, 0, 0, -1},
-	{"privileges", POS_DEAD, do_privileges, LVL_IMPL, 0, 0},
 	{"prompt", POS_DEAD, do_display, 0, 0, 0},
 	{"proxy", POS_DEAD, do_proxy, LVL_GRGOD, 0, 0},
 	{"purge", POS_DEAD, do_purge, LVL_GOD, 0, 0},
@@ -1164,26 +1158,17 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		*(argument + length) = ' ';
 	}
 
-	for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
+	for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 		if (hardcopy) {
 			if (!strcmp(cmd_info[cmd].command, arg))
-//           {if (GET_LEVEL(ch) >= cmd_info[cmd].minimum_level || GET_COMMSTATE(ch))
-			{
-				if (priv->enough_cmd_priv(std::string(GET_NAME(ch)), GET_LEVEL(ch),
-					    std::string(cmd_info[cmd].command), cmd, (IS_NPC(ch) ? 0 : GET_UNIQUE(ch)))
-				    || GET_COMMSTATE(ch))
+				if (Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0) || GET_COMMSTATE(ch))
 					break;
-			}
 		} else {
 			if (!strncmp(cmd_info[cmd].command, arg, length))
-//             {if (GET_LEVEL(ch) >= cmd_info[cmd].minimum_level || GET_COMMSTATE(ch))
-			{
-				if (priv->enough_cmd_priv(std::string(GET_NAME(ch)), GET_LEVEL(ch),
-					    std::string(cmd_info[cmd].command), cmd, (IS_NPC(ch) ? 0 : GET_UNIQUE(ch)))
-				    || GET_COMMSTATE(ch))
+				if (Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0) || GET_COMMSTATE(ch))
 					break;
-			}
 		}
+	}
 
 	if (*cmd_info[cmd].command == '\n') {
 		if (find_action(arg) >= 0)
@@ -2134,8 +2119,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	|| GET_COMMSTATE(d->character)) {
 		for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 			if (!strcmp(cmd_info[cmd].command, "syslog"))
-				if (priv->enough_cmd_priv(std::string(GET_NAME(d->character)),
-						    GET_LEVEL(d->character), std::string(cmd_info[cmd].command), cmd, GET_UNIQUE(d->character))) {
+				if (Privilege::can_do_priv(d->character, std::string(cmd_info[cmd].command), cmd, 0)) {
 					flag = 1;
 					break;
 				}
@@ -2198,11 +2182,11 @@ void do_entergame(DESCRIPTOR_DATA * d)
 
 	/*Чистим стили если не знаем их */
 	if (IS_SET(PRF_FLAGS(d->character, PRF_PUNCTUAL), PRF_PUNCTUAL)
-	    && !GET_SKILL(d->character, SKILL_PUNCTUAL))
+	    && !get_skill(d->character, SKILL_PUNCTUAL))
 		REMOVE_BIT(PRF_FLAGS(d->character, PRF_PUNCTUAL), PRF_PUNCTUAL);
 
 	if (IS_SET(PRF_FLAGS(d->character, PRF_AWAKE), PRF_AWAKE)
-	    && !GET_SKILL(d->character, SKILL_AWAKE))
+	    && !get_skill(d->character, SKILL_AWAKE))
 		REMOVE_BIT(PRF_FLAGS(d->character, PRF_AWAKE), PRF_AWAKE);
 
 	if (IS_SET(PRF_FLAGS(d->character, PRF_POWERATTACK), PRF_POWERATTACK)
@@ -3239,465 +3223,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		STATE(d) = CON_DISCONNECT;	/* Safest to do. */
 		break;
 	}
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// Definitions for privileges.hpp
-//////////////////////////////////////////////////////////////////////////////
-const char *const PrivList::priv_file = "../lib/misc/privilege";
-
-PrivList::PrivList()
-{
-	if (!reload()) {
-		log("ERROR: Unable to create list of privileges on bootup");
-		exit(0);
-	}
-}
-
-bool PrivList::reload()
-{
-	typedef boost::tokenizer < boost::char_separator < char > >tokenizer;
-	FILE *loaded;
-
-	if (!(loaded = fopen(priv_file, "r"))) {
-		perror("SYSERR: Unable to open privileges file for reading.");
-		return false;
-	}
-	std::string str_to_parse;
-	boost::char_separator < char >sep(" ", "()");
-	tokenizer::iterator tok_iter, tmp_tok_iter;
-	tokenizer tokens(str_to_parse, sep);
-	std::set < std::string > tmp_cmd_set;
-	std::set < std::string > tmp_cmd_show_set;
-	std::set < std::string > tmp_cmd_set_set;
-	std::string tmp_string;
-	int fill_mode;
-	Priv_List.clear();
-	Set_Priv_List.clear();
-	Show_Priv_List.clear();
-
-	while (DiskIo::read_line(loaded, str_to_parse, 1)) {
-		fill_mode = 0;
-		tokens.assign(str_to_parse);
-		tok_iter = tokens.begin();
-		if (tok_iter != tokens.end())
-			tmp_string.assign(*tok_iter);
-		else
-			continue;
-		tmp_cmd_set.clear();
-		tmp_cmd_set_set.clear();
-		tmp_cmd_show_set.clear();
-		tmp_tok_iter = tok_iter;
-		for (++tok_iter; tok_iter != tokens.end(); tok_iter++) {
-			if ((*tok_iter) == "(") {
-				if ((*tmp_tok_iter) == "set") {
-					fill_mode = 1;
-					continue;
-				}
-				if ((*tmp_tok_iter) == "show") {
-					fill_mode = 2;
-					continue;
-				}
-			}
-			if ((*tok_iter) == ")") {
-				fill_mode = 0;
-				continue;
-			}
-			switch (fill_mode) {
-			case 0:
-				tmp_cmd_set.insert(*tok_iter);
-				break;
-			case 1:
-				tmp_cmd_set_set.insert(*tok_iter);
-				break;
-			case 2:
-				tmp_cmd_show_set.insert(*tok_iter);
-				break;
-			default:
-				continue;
-			}
-			tmp_tok_iter = tok_iter;
-		}
-		if (!tmp_cmd_set.empty())
-			Priv_List.insert(PrivListType::value_type(tmp_string, tmp_cmd_set));
-		if (!tmp_cmd_show_set.empty())
-			Show_Priv_List.insert(PrivListType::value_type(tmp_string, tmp_cmd_show_set));
-		if (!tmp_cmd_set_set.empty())
-			Set_Priv_List.insert(PrivListType::value_type(tmp_string, tmp_cmd_set_set));
-	}
-	return true;
-}
-
-bool PrivList::save()
-{
-	FILE *loaded;
-	if ((loaded = fopen(priv_file, "w"))) {
-		PrivListType::iterator i, j;	//,k;
-		std::set < std::string >::iterator q, r;
-		for (i = Priv_List.begin(); i != Priv_List.end(); i++) {
-			fprintf(loaded, "%s ", (*i).first.c_str());
-			for (q = (*i).second.begin(); q != (*i).second.end(); q++) {
-				fprintf(loaded, "%s ", (*q).c_str());
-				if ((*q) == std::string("set")) {
-
-					j = Set_Priv_List.find((*i).first);
-					if (j == Set_Priv_List.end())
-						continue;
-					fprintf(loaded, "(");
-					for (r = (*j).second.begin(); r != (*j).second.end(); r++)
-						fprintf(loaded, "%s ", (*r).c_str());
-					fprintf(loaded, ")");
-
-				} else if ((*q) == std::string("show")) {
-					j = Show_Priv_List.find((*i).first);
-					if (j == Show_Priv_List.end())
-						continue;
-					fprintf(loaded, "(");
-					for (r = (*j).second.begin(); r != (*j).second.end(); r++)
-						fprintf(loaded, "%s ", (*r).c_str());
-					fprintf(loaded, ")");
-				}
-			}
-			fprintf(loaded, "\n");
-		}
-		fclose(loaded);
-		return true;
-	}
-	log("SYSERR: Unable to save banfile");
-	return false;
-}
-
-// Список доступных команд для 31+ уровней
-// В show и set ставится в if'e внутри функций, так проще по двум причинам Ж)
-const char *def_privilege[] = { "wizhelp", "wiznet", "register", "имя", "титул", "title", "holylight",
-	"uptime", "date", "set", "rules", "show", "nohassle", ";", "godnews",
-	"\n"
-};
-
-//поиск по списку имм-команд в привилегиях
-int search_privil(const std::string & cmd_name)
-{
-	int i = 0;
-	while (def_privilege[i][0] != '\n') {
-		if (def_privilege[i] == cmd_name)
-			return i;
-		i++;
-	}
-	return -1;
-}
-
-bool PrivList::enough_cmd_priv(const std::string & char_name, int char_level,
-	const std::string & cmd_name, int cmd_number, long unique)
-{
-	//////////////////////////////////////////////////////////////////////////
-	if (cmd_info[cmd_number].minimum_level < LVL_IMMORT)
-		if (char_level >= cmd_info[cmd_number].minimum_level)
-			return true;
-	//////////////////////////////////////////////////////////////////////////
-	if(!GodListCheck(char_name, unique))
-		return false;
-
-	if (char_level == LVL_IMPL)
-		return true;
-
-	if (char_level >= LVL_IMMORT && (search_privil(cmd_name) != -1))
-		return true;
-	PrivListType::iterator i = Priv_List.find(char_name);
-	if (i != Priv_List.end())
-		if ((*i).second.find(cmd_name) != (*i).second.end())
-			return true;
-	return false;
-}
-
-bool PrivList::enough_cmd_set_priv(const std::string & char_name, int char_level, const std::string & set_subcmd, long unique)
-{
-	if(!GodListCheck(char_name, unique))
-		return false;
-
-	if (char_level == LVL_IMPL || (char_level >= LVL_IMMORT && (set_subcmd == "title" || set_subcmd == "name")))
-		return true;
-
-	PrivListType::iterator i = Set_Priv_List.find(char_name);
-	if (i != Set_Priv_List.end())
-		if ((*i).second.find(set_subcmd) != (*i).second.end())
-			return true;
-	return false;
-}
-
-bool PrivList::enough_cmd_show_priv(const std::string & char_name, int char_level, const std::string & show_subcmd, long unique)
-{
-	if(!GodListCheck(char_name, unique))
-		return false;
-
-	if (char_level == LVL_IMPL || (char_level >= LVL_IMMORT
-				       && (show_subcmd == "punishment" || show_subcmd == "stats"
-					   || show_subcmd == "player")))
-		return true;
-
-	PrivListType::iterator i = Show_Priv_List.find(char_name);
-	if (i != Show_Priv_List.end())
-		if ((*i).second.find(show_subcmd) != (*i).second.end())
-			return true;
-	return false;
-}
-
-bool PrivList::add_cmd_priv(const std::string & char_name, const std::string & cmd_name)
-{
-	//search the set_fields for the command
-	bool found = false;
-	int q;
-	for (q = 0; *(cmd_info[q].command) != '\n'; q++)
-		if (!strcmp(cmd_name.c_str(), cmd_info[q].command)) {
-			found = true;
-			break;
-		}
-	if (!found)
-		return false;
-// if(char_level >= LVL_IMPL) return true;
-	if (cmd_info[q].minimum_level < LVL_IMMORT)
-		return true;
-	PrivListType::iterator i = Priv_List.find(char_name);
-	std::set < std::string >::iterator j;
-	if (i != Priv_List.end()) {
-		j = (*i).second.find(cmd_name);
-		if (j != (*i).second.end())
-			return true;
-		(*i).second.insert(cmd_name);
-		if (!save()) {
-			mudlog("Error saving privileges file.\r\n", CMP, LVL_IMMORT, SYSLOG, TRUE);
-			return false;
-		};
-		return true;
-	}
-	std::set < std::string > tmp_set;
-	tmp_set.insert(cmd_name);
-	Priv_List.insert(PrivListType::value_type(char_name, tmp_set));
-	if (!save()) {
-		mudlog("Error saving privileges file.\r\n", CMP, LVL_IMMORT, SYSLOG, TRUE);
-		return false;
-	};
-	return true;
-}
-
-bool PrivList::add_cmd_set_priv(const std::string & char_name, const std::string & set_subcmd)
-{
-	//search the set_fields for the command
-	bool found = false;
-	for (int q = 0; *(set_fields[q].cmd) != '\n'; q++)
-		if (!strcmp(set_subcmd.c_str(), set_fields[q].cmd)) {
-			found = true;
-			break;
-		}
-	if (!found)
-		return false;
-// if(char_level >= LVL_IMPL) return true;
-	PrivListType::iterator i = Set_Priv_List.find(char_name);
-	std::set < std::string >::iterator j;
-	if (i != Set_Priv_List.end()) {
-		j = (*i).second.find(set_subcmd);
-		if (j != (*i).second.end())
-			return true;
-		(*i).second.insert(set_subcmd);
-		if (!save()) {
-			mudlog("Error saving privileges file.\r\n", CMP, LVL_IMMORT, SYSLOG, TRUE);
-			return false;
-		};
-		return true;
-	}
-	std::set < std::string > tmp_set;
-	tmp_set.insert(set_subcmd);
-	Set_Priv_List.insert(PrivListType::value_type(char_name, tmp_set));
-	if (!save()) {
-		mudlog("Error saving privileges file.\r\n", CMP, LVL_IMMORT, SYSLOG, TRUE);
-		return false;
-	};
-	return true;
-}
-
-bool PrivList::add_cmd_show_priv(const std::string & char_name, const std::string & show_subcmd)
-{
-	//search the set_fields for the command
-	bool found = false;
-	for (int q = 0; *(show_fields[q].cmd) != '\n'; q++)
-		if (!strcmp(show_subcmd.c_str(), show_fields[q].cmd)) {
-			found = true;
-			break;
-		}
-	if (!found)
-		return false;
-// if(char_level >= LVL_IMPL) return true;
-	PrivListType::iterator i = Show_Priv_List.find(char_name);
-	std::set < std::string >::iterator j;
-	if (i != Show_Priv_List.end()) {
-		j = (*i).second.find(show_subcmd);
-		if (j != (*i).second.end())
-			return true;
-		(*i).second.insert(show_subcmd);
-		if (!save()) {
-			mudlog("Error saving privileges file.\r\n", CMP, LVL_IMMORT, SYSLOG, TRUE);
-			return false;
-		};
-		return true;
-	}
-	std::set < std::string > tmp_set;
-	tmp_set.insert(show_subcmd);
-	Show_Priv_List.insert(PrivListType::value_type(char_name, tmp_set));
-	if (!save()) {
-		mudlog("Error saving privileges file.\r\n", CMP, LVL_IMMORT, SYSLOG, TRUE);
-		return false;
-	};
-	return true;
-}
-
-void PrivList::PrintPrivList(CHAR_DATA * ch, const std::string & char_name)
-{
-	PrivListType::iterator i = Priv_List.find(char_name), k;
-	if (i != Priv_List.end()) {
-		std::string str;
-		std::set < std::string >::iterator j;
-
-		str = (*i).first + ":" + " ";
-		for (j = (*i).second.begin(); j != (*i).second.end(); j++) {
-			str += (*j);
-			str += " ";
-		}
-		str += "\r\n";
-		send_to_char(str.c_str(), ch);
-// trying to print Set_Priv_List
-		k = Set_Priv_List.find((*i).first);
-		if (k != Set_Priv_List.end()) {
-			str = "     SET: ";
-			for (j = (*k).second.begin(); j != (*k).second.end(); j++) {
-				str += (*j);
-				str += " ";
-			}
-			str += "\r\n";
-			send_to_char(str.c_str(), ch);
-		}
-// trying to print Show_Priv_List
-		k = Show_Priv_List.find((*i).first);
-		if (k != Show_Priv_List.end()) {
-			str = "     SHOW: ";
-			for (j = (*k).second.begin(); j != (*k).second.end(); j++) {
-				str += (*j);
-				str += " ";
-			}
-			str += "\r\n";
-			send_to_char(str.c_str(), ch);
-		}
-		return;
-	}
-	send_to_char(("Привелегированных команд игрока " + char_name + " в списке не обнаружено.\r\n").c_str(), ch);
-}
-
-void PrivList::PrintPrivList(CHAR_DATA * ch)
-{
-	PrivListType::iterator i, k;
-	std::set < std::string >::iterator j;
-	std::string str;
-// printing Priv_List
-	for (i = Priv_List.begin(); i != Priv_List.end(); i++) {
-		str = (*i).first + ":" + " ";
-
-		for (j = (*i).second.begin(); j != (*i).second.end(); j++) {
-			str += (*j);
-			str += " ";
-		}
-		str += "\r\n";
-		send_to_char(str.c_str(), ch);
-// trying to print Set_Priv_List
-		k = Set_Priv_List.find((*i).first);
-		if (k != Set_Priv_List.end()) {
-			str = "     SET: ";
-			for (j = (*k).second.begin(); j != (*k).second.end(); j++) {
-				str += (*j);
-				str += " ";
-			}
-			str += "\r\n";
-			send_to_char(str.c_str(), ch);
-		}
-// trying to print Show_Priv_List
-		k = Show_Priv_List.find((*i).first);
-		if (k != Show_Priv_List.end()) {
-			str = "     SHOW: ";
-			for (j = (*k).second.begin(); j != (*k).second.end(); j++) {
-				str += (*j);
-				str += " ";
-			}
-			str += "\r\n";
-			send_to_char(str.c_str(), ch);
-		}
-	}
-}
-
-
-bool PrivList::rm_cmd_priv(const std::string & char_name, const std::string & cmd_name)
-{
-	PrivListType::iterator i = Priv_List.find(char_name);
-	bool changed = false;
-	if (i != Priv_List.end()) {
-		if (cmd_name == std::string("set")) {
-			if (Set_Priv_List.erase(char_name))
-				changed = true;
-		} else if (cmd_name == std::string("show"))
-			if (Show_Priv_List.erase(char_name))
-				changed = true;
-		if ((*i).second.erase(cmd_name))
-			changed = true;
-		if ((*i).second.empty()) {
-			Priv_List.erase(i);
-			changed = true;
-		}
-		if (changed)
-			if (!save()) {
-				mudlog("Error saving privileges file.\r\n", CMP, LVL_IMMORT, SYSLOG, TRUE);
-				return false;
-			};
-		return true;
-	}
-	return true;
-}
-
-bool PrivList::rm_cmd_set_priv(const std::string & char_name, const std::string & set_subcmd)
-{
-	PrivListType::iterator i = Set_Priv_List.find(char_name);
-	bool changed = false;
-	if (i != Set_Priv_List.end()) {
-		if ((*i).second.erase(set_subcmd))
-			changed = true;
-		if ((*i).second.empty()) {
-			Set_Priv_List.erase(i);
-			changed = true;
-		}
-		if (changed)
-			if (!save()) {
-				mudlog("Error saving privileges file.\r\n", CMP, LVL_IMMORT, SYSLOG, TRUE);
-				return false;
-			};
-		return true;
-	}
-	return true;
-}
-
-bool PrivList::rm_cmd_show_priv(const std::string & char_name, const std::string & show_subcmd)
-{
-	PrivListType::iterator i = Show_Priv_List.find(char_name);
-	bool changed = false;
-	if (i != Show_Priv_List.end()) {
-		if ((*i).second.erase(show_subcmd))
-			changed = true;
-		if ((*i).second.empty()) {
-			Show_Priv_List.erase(i);
-			changed = true;
-		}
-		if (changed)
-			if (!save()) {
-				mudlog("Error saving privileges file.\r\n", CMP, LVL_IMMORT, SYSLOG, TRUE);
-				return false;
-			};
-		return true;
-	}
-	return true;
 }
 
 // берем из первой строки одно слово или подстроку в кавычках, результат удаляется из buffer

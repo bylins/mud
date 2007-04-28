@@ -141,26 +141,26 @@ int extra_aggressive(CHAR_DATA * ch, CHAR_DATA * victim)
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	if (victim) {
-		if (GET_SKILL(ch, SKILL_BACKSTAB) && !FIGHTING(victim)) {
+		if (get_skill(ch, SKILL_BACKSTAB) && !FIGHTING(victim)) {
 			go_backstab(ch, victim);
 			return (TRUE);
 		}
-		if (GET_SKILL(ch, SKILL_MIGHTHIT)) {
+		if (get_skill(ch, SKILL_MIGHTHIT)) {
 			go_mighthit(ch, victim);
 			return (TRUE);
 		}
-		if (GET_SKILL(ch, SKILL_STUPOR)) {
+		if (get_skill(ch, SKILL_STUPOR)) {
 			go_stupor(ch, victim);
 			return (TRUE);
 		}
-		if (GET_SKILL(ch, SKILL_BASH)) {
+		if (get_skill(ch, SKILL_BASH)) {
 			go_bash(ch, victim);
 			return (TRUE);
 		}
-		if (GET_SKILL(ch, SKILL_DISARM)) {
+		if (get_skill(ch, SKILL_DISARM)) {
 			go_disarm(ch, victim);
 		}
-		if (GET_SKILL(ch, SKILL_CHOPOFF)) {
+		if (get_skill(ch, SKILL_CHOPOFF)) {
 			go_chopoff(ch, victim);
 		}
 		if (!FIGHTING(ch))
@@ -403,9 +403,9 @@ int perform_mob_switch(CHAR_DATA * ch)
 	stop_fighting(ch, FALSE);
 	set_fighting(ch, best);
 	set_wait(ch, 2, FALSE);
-	if (GET_SKILL(ch, SKILL_MIGHTHIT))
+	if (get_skill(ch, SKILL_MIGHTHIT))
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
-	else if (GET_SKILL(ch, SKILL_STUPOR))
+	else if (get_skill(ch, SKILL_STUPOR))
 		SET_AF_BATTLE(ch, SKILL_STUPOR);
 	return TRUE;
 }
@@ -755,7 +755,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 			door = npc_walk(ch);
 		}
 
-		if (GET_SKILL(ch, SKILL_TRACK) && GET_POS(ch) > POS_FIGHTING && MEMORY(ch) && door == BFS_ERROR)
+		if (get_skill(ch, SKILL_TRACK) && GET_POS(ch) > POS_FIGHTING && MEMORY(ch) && door == BFS_ERROR)
 			door = npc_track(ch);
 
 		if (door == BFS_ALREADY_THERE) {
@@ -856,7 +856,7 @@ void remember(CHAR_DATA * ch, CHAR_DATA * victim)
 
 	if (!timed_by_skill(victim, SKILL_HIDETRACK)) {
 		timed.skill = SKILL_HIDETRACK;
-		timed.time = GET_SKILL(ch, SKILL_TRACK) ? 6 : 3;
+		timed.time = get_skill(ch, SKILL_TRACK) ? 6 : 3;
 		timed_to_char(victim, &timed);
 	}
 }

@@ -14,7 +14,6 @@
 
 #include "conf.h"
 #include "sysdep.h"
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -24,6 +23,7 @@
 #include "screen.h"
 #include "dg_scripts.h"
 #include "auction.h"
+#include "privilege.hpp"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -894,12 +894,13 @@ ACMD(do_pray_gods)
 		if (num_pray == MAX_REMEMBER_PRAY)
 			num_pray = 0;
 	}
-	for (i = descriptor_list; i; i = i->next)
+	for (i = descriptor_list; i; i = i->next) {
 		if (STATE(i) == CON_PLAYING
-		&& IS_IMMORTAL(i->character)
-		&& GodListCheck(GET_NAME(i->character), GET_UNIQUE(i->character)))
-			if (i->character != ch)
+		&& IS_IMMORTAL(i->character) // в принципе это уже лишнее
+		&& Privilege::god_list_check(GET_NAME(i->character), GET_UNIQUE(i->character))
+		&& i->character != ch)
 				act(buf, 0, ch, 0, i->character, TO_VICT | TO_SLEEP);
+	}
 }
 
 ACMD(do_remember_char)

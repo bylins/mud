@@ -16,7 +16,6 @@
 
 #include "conf.h"
 #include "sys/stat.h"
-
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -37,13 +36,13 @@
 #include "top.h"
 #include "stuff.hpp"
 #include "ban.hpp"
-#include "privileges.hpp"
 #include "item.creation.hpp"
 #include "features.hpp"
 #include "boards.h"
 #include "description.h"
 #include "deathtrap.hpp"
 #include "title.hpp"
+#include "privilege.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -51,7 +50,6 @@
 *  declarations of global containers and objects                          *
 **************************************************************************/
 BanList *ban = 0;		// contains list of banned ip's and proxies + interface
-PrivList *priv = 0;
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -425,14 +423,11 @@ ACMD(do_reboot)
 		init_im();
 		init_zone_types();
 		init_portals();
-		priv->reload();
 		load_sheduled_reboot();
 		oload_table.init();
 		obj_data::init_set_table();
 	} else if (!str_cmp(arg, "portals"))
 		init_portals();
-	else if (!str_cmp(arg, "privileges"))
-		priv->reload();
 	else if (!str_cmp(arg, "imagic"))
 		init_im();
 	else if (!str_cmp(arg, "ztypes"))
@@ -470,16 +465,16 @@ ACMD(do_reboot)
 		load_sheduled_reboot();
 	else if (!str_cmp(arg, "clan"))
 		Clan::ClanLoad();
-	else if (!str_cmp(arg, "godlist"))
-		GodListLoad();
 	else if (!str_cmp(arg, "proxy"))
 		LoadProxyList();
 	else if (!str_cmp(arg, "boards"))
-		Board::BoardInit();
+		Board::reload_all();
 	else if (!str_cmp(arg, "titles"))
 		TitleSystem::load_title_list();
 	else if (!str_cmp(arg, "emails"))
 		RegisterSystem::load();
+	else if (!str_cmp(arg, "privilege"))
+		Privilege::load();
 	else {
 		send_to_char("Неверный параметр для перезагрузки файлов.\r\n", ch);
 		return;
@@ -1259,7 +1254,6 @@ void boot_db(void)
 	log("Reading banned site, proxy, privileges and invalid-name list.");
 	ban = new BanList();
 	Read_Invalid_List();
-	priv = new PrivList();
 
 	log("Booting rented objects info");
 	for (i = 0; i <= top_of_p_table; i++) {
@@ -1272,8 +1266,6 @@ void boot_db(void)
 	Board::BoardInit();
 	log("Booting clans");
 	Clan::ClanLoad();
-	log("Booting GodList");
-	GodListLoad();
 
 	for (i = 0; i <= top_of_zone_table; i++) {
 		log("Resetting %s (rooms %d-%d).", zone_table[i].name,
@@ -1332,6 +1324,9 @@ void boot_db(void)
 
 	log("Load registered emails list.");
 	RegisterSystem::load();
+
+	log("Load privilege and god list.");
+	Privilege::load();
 
 	log("Boot db -- DONE.");
 }
@@ -2862,7 +2857,7 @@ void parse_mobile(FILE * mob_f, int nr)
      }
   if (count) log("SPELLS : %s", buf);
   for(j=1, count=0; j<MAX_SKILLS; j++)
-     {if (GET_SKILL(mob_proto+i,j))
+     {if (get_skill(mob_proto+i,j))
          count += sprintf(buf+count," %d ",j);
      }
   if (count) log("SKILLS : %s", buf);
@@ -4438,6 +4433,15 @@ char *get_name_by_unique(long unique)
 	return (NULL);
 }
 
+int get_level_by_unique(long unique)
+{
+	int level = 0;
+	for (int i = 0; i <= top_of_p_table; ++i)
+		if (player_table[i].unique == unique)
+			level = player_table[i].level;
+	return level;
+}
+
 
 void delete_unique(CHAR_DATA * ch)
 {
@@ -4674,7 +4678,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 
 	ch->real_abils.Feats.reset();
 	for (i = 1; i <= MAX_SKILLS; i++)
-		GET_SKILL(ch, i) = 0;
+		SET_SKILL(ch, i, 0);
 	for (i = 1; i <= MAX_SPELLS; i++)
 		GET_SPELL_TYPE(ch, num) = 0;
 	for (i = 1; i <= MAX_SPELLS; i++)
@@ -5230,7 +5234,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 					sscanf(line, "%d %d", &num, &num2);
 					if (num != 0)
 						if(skill_info[num].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] == KNOW_SKILL)
-							GET_SKILL(ch, num) = num2;
+							SET_SKILL(ch, num, num2);
 				}
 				while (num != 0);
 			} else if (!strcmp(tag, "SkTm")) {
@@ -5293,7 +5297,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	/* initialization for imms */
 	if (GET_LEVEL(ch) >= LVL_IMMORT) {
 		for (i = 1; i <= MAX_SKILLS; i++)
-			GET_SKILL(ch, i) = 100;
+			SET_SKILL(ch, i, 100);
 		GET_COND(ch, FULL) = -1;
 		GET_COND(ch, THIRST) = -1;
 		GET_COND(ch, DRUNK) = -1;
@@ -6675,8 +6679,8 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	if (GET_LEVEL(ch) < LVL_IMMORT) {
 		fprintf(saved, "Skil:\n");
 		for (i = 1; i <= MAX_SKILLS; i++) {
-			if (GET_SKILL(ch, i))
-				fprintf(saved, "%d %d %s\n", i, GET_SKILL(ch, i), skill_info[i].name);
+			if (get_skill(ch, i))
+				fprintf(saved, "%d %d %s\n", i, get_skill(ch, i), skill_info[i].name);
 		}
 		fprintf(saved, "0 0\n");
 	}

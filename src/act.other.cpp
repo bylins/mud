@@ -321,7 +321,7 @@ ACMD(do_sneak)
 	AFFECT_DATA af;
 	ubyte prob, percent;
 
-	if (IS_NPC(ch) || !GET_SKILL(ch, SKILL_SNEAK)) {
+	if (IS_NPC(ch) || !get_skill(ch, SKILL_SNEAK)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -366,7 +366,7 @@ ACMD(do_camouflage)
 	struct timed_type timed;
 	ubyte prob, percent;
 
-	if (IS_NPC(ch) || !GET_SKILL(ch, SKILL_CAMOUFLAGE)) {
+	if (IS_NPC(ch) || !get_skill(ch, SKILL_CAMOUFLAGE)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -422,7 +422,7 @@ ACMD(do_hide)
 	AFFECT_DATA af;
 	ubyte prob, percent;
 
-	if (IS_NPC(ch) || !GET_SKILL(ch, SKILL_HIDE)) {
+	if (IS_NPC(ch) || !get_skill(ch, SKILL_HIDE)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -582,7 +582,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 				return;
 			} else {
 				// Считаем вероятность крит-воровства (воровства всех денег)
-				if ((number(1, 100) - GET_SKILL(ch, SKILL_STEAL) -
+				if ((number(1, 100) - get_skill(ch, SKILL_STEAL) -
 				     GET_DEX(ch) + GET_WIS(vict) + GET_GOLD(vict) / 500) < 0) {
 					act("Тугой кошелек $N1 перекочевал к Вам.", TRUE, ch, 0, vict, TO_CHAR);
 					gold = GET_GOLD(vict);
@@ -618,7 +618,7 @@ ACMD(do_steal)
 	CHAR_DATA *vict;
 	char vict_name[MAX_INPUT_LENGTH], obj_name[MAX_INPUT_LENGTH];
 
-	if (IS_NPC(ch) || !GET_SKILL(ch, SKILL_STEAL)) {
+	if (IS_NPC(ch) || !get_skill(ch, SKILL_STEAL)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -700,7 +700,7 @@ ACMD(do_courage)
 	if (IS_NPC(ch))		/* Cannot use GET_COND() on mobs. */
 		return;
 
-	if (!GET_SKILL(ch, SKILL_COURAGE)) {
+	if (!get_skill(ch, SKILL_COURAGE)) {
 		send_to_char("Вам это не по силам.\r\n", ch);
 		return;
 	}
@@ -1059,7 +1059,7 @@ ACMD(do_group)
 		perform_group(ch, ch);
 		for (found = 0, f = ch->followers; f; f = f->next) {
 			if ((f_number + found) >= MAX_GROUPED_FOLLOWERS +
-			    (int) VPOSI((GET_SKILL(ch, SKILL_LEADERSHIP) - 80) / 5, 0, 4)) {
+			    (int) VPOSI((get_skill(ch, SKILL_LEADERSHIP) - 80) / 5, 0, 4)) {
 				send_to_char("Вы больше никого не можете принять в группу.\r\n", ch);
 				return;
 			}
@@ -1081,7 +1081,7 @@ ACMD(do_group)
 				send_to_char("Только равноправные персонажи могут быть включены в группу.\r\n", vict);
 			};
 			if (f_number >= MAX_GROUPED_FOLLOWERS +
-			    (int) VPOSI((GET_SKILL(ch, SKILL_LEADERSHIP) - 80) / 5, 0, 4)) {
+			    (int) VPOSI((get_skill(ch, SKILL_LEADERSHIP) - 80) / 5, 0, 4)) {
 				send_to_char("Вы больше никого не можете принять в группу.\r\n", ch);
 				return;
 			}
@@ -2322,7 +2322,7 @@ ACMD(do_dig)
 	int vnum;
 	int old_wis, old_int;
 
-	if (IS_NPC(ch) || !GET_SKILL(ch, SKILL_DIG)) {
+	if (IS_NPC(ch) || !get_skill(ch, SKILL_DIG)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -2419,7 +2419,7 @@ ACMD(do_dig)
 	}
 
 	percent = number(1, skill_info[SKILL_DIG].max_percent);
-	prob = GET_SKILL(ch, SKILL_DIG);
+	prob = get_skill(ch, SKILL_DIG);
 	old_int = GET_INT(ch);
 	old_wis = GET_WIS(ch);
 	GET_INT(ch) += 14 - MAX(14, GET_REAL_INT(ch));
@@ -2525,7 +2525,7 @@ ACMD(do_insertgem)
 
 	argument = two_arguments(argument, arg1, arg2);
 
-	if (IS_NPC(ch) || !GET_SKILL(ch, SKILL_INSERTGEM)) {
+	if (IS_NPC(ch) || !get_skill(ch, SKILL_INSERTGEM)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -2624,7 +2624,7 @@ ACMD(do_insertgem)
 	}
 
 	percent = number(1, skill_info[SKILL_INSERTGEM].max_percent);
-	prob = GET_SKILL(ch, SKILL_INSERTGEM);
+	prob = get_skill(ch, SKILL_INSERTGEM);
 
 	WAIT_STATE(ch, PULSE_VIOLENCE);
 
@@ -2669,7 +2669,7 @@ ACMD(do_insertgem)
 	}
 	else
 	{
-	    if (GET_SKILL(ch, SKILL_INSERTGEM) < 80)
+	    if (get_skill(ch, SKILL_INSERTGEM) < 80)
 	    {
 		sprintf(buf, "Вы должны достинуть мастерства в умении ювелир, чтобы вплавлять желаемые аффекты!\r\n");
 		send_to_char(buf, ch);
@@ -2693,7 +2693,7 @@ ACMD(do_insertgem)
 	    improove_skill(ch, SKILL_INSERTGEM, 0, 0);
 
 	    //успех или фэйл? при 80% скила успех 30% при 100% скила 50% при 200% скила успех 75%
-	    if (number(1, GET_SKILL(ch, SKILL_INSERTGEM)) <= (GET_SKILL(ch, SKILL_INSERTGEM) - 50))
+	    if (number(1, get_skill(ch, SKILL_INSERTGEM)) <= (get_skill(ch, SKILL_INSERTGEM) - 50))
 	    {
 		sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n", gemobj->name,
 		itemobj->PNames[3]);

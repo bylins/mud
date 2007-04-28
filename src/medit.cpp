@@ -524,7 +524,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 /*-------------------------------------------------------------------*/
 
 /*
- * Save ALL mobiles for a zone to their .mob file, mobs are all 
+ * Save ALL mobiles for a zone to their .mob file, mobs are all
  * saved in Extended format, regardless of whether they have any
  * extended fields.  Thanks to Sammy for ideas on this bit of code.
  */
@@ -598,7 +598,7 @@ void medit_save_to_disk(int zone_num)
 			tascii(&AFF_FLAGS(mob, 0), 4, buf2);
 
 			fprintf(mob_file,
-				// "%s~\n" 
+				// "%s~\n"
 				"%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%d %ld\n" "%d %d %d\n",
 				// buf1,
 				buf2, GET_ALIGNMENT(mob),
@@ -681,8 +681,8 @@ void medit_save_to_disk(int zone_num)
 					fprintf(mob_file, "Feat: %d\n", c);
 			}
 			for (c = 1; c <= MAX_SKILLS; c++) {
-				if (GET_SKILL(mob, c))
-					fprintf(mob_file, "Skill: %d %d\n", c, GET_SKILL(mob, c));
+				if (get_skill(mob, c))
+					fprintf(mob_file, "Skill: %d %d\n", c, get_skill(mob, c));
 			}
 			for (c = 1; c <= MAX_SPELLS; c++) {
 				for (j = 1; j <= GET_SPELL_MEM(mob, c); j++)
@@ -740,7 +740,7 @@ void medit_save_to_disk(int zone_num)
 }
 
 /**************************************************************************
- Menu functions 
+ Menu functions
  **************************************************************************/
 
 /*
@@ -793,7 +793,7 @@ void medit_disp_add_parameters(DESCRIPTOR_DATA * d)
 		grn, nrm, cyn, GET_ABSORBE((OLC_MOB(d))), nrm,
 		grn, nrm, cyn, GET_AR((OLC_MOB(d))), nrm,
 		grn, nrm, cyn, GET_MR((OLC_MOB(d))), nrm);
-        send_to_char(buf, d->character); 
+        send_to_char(buf, d->character);
 	send_to_char("Введите номер и величину параметра (0 - конец) : ", d->character);
 }
 
@@ -1077,8 +1077,8 @@ void medit_disp_skills(DESCRIPTOR_DATA * d)
 	for (counter = 1; counter <= MAX_SKILLS; counter++) {
 		if (!skill_info[counter].name || *skill_info[counter].name == '!')
 			continue;
-		if (GET_SKILL(OLC_MOB(d), counter))
-			sprintf(buf1, "%s[%3d]%s", cyn, GET_SKILL(OLC_MOB(d), counter), nrm);
+		if (get_skill(OLC_MOB(d), counter))
+			sprintf(buf1, "%s[%3d]%s", cyn, get_skill(OLC_MOB(d), counter), nrm);
 		else
 			strcpy(buf1, "     ");
 		sprintf(buf, "%s%3d%s) %25s%s%s", grn, counter, nrm,
@@ -1339,11 +1339,11 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 /* Display on_death load object list*/
 void disp_dl_list(DESCRIPTOR_DATA * d)
 {
-	// Список загружаемых посмертно объектов: 
-	// - VNUM - Prob - SpecParam - 
+	// Список загружаемых посмертно объектов:
+	// - VNUM - Prob - SpecParam -
 	// (Объекты не определены)
 	// 1) ...
-	// 2) ... 
+	// 2) ...
 	int i;
 	CHAR_DATA *mob;
 	string objname;
@@ -1381,7 +1381,7 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 	} else {
 		send_to_char("Предметы не определены\r\n", d->character);
 	}
-	// Выводим 
+	// Выводим
 	// A) Добавить.
 	// B) Удалить.
 	// C) Изменить.
@@ -2193,12 +2193,12 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 				break;
 			if (number > MAX_SKILLS || !skill_info[number].name || *skill_info[number].name == '!')
 				send_to_char("Неизвестное умение.\r\n", d->character);
-			else if (GET_SKILL(OLC_MOB(d), number))
-				GET_SKILL(OLC_MOB(d), number) = 0;
+			else if (get_skill(OLC_MOB(d), number))
+				SET_SKILL(OLC_MOB(d), number, 0);
 			else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
 				send_to_char("Не указан уровень владения умением.\r\n", d->character);
 			else
-				GET_SKILL(OLC_MOB(d), number) = MIN(200, MAX(0, bit));
+				SET_SKILL(OLC_MOB(d), number, (MIN(200, MAX(0, bit))));
 			medit_disp_skills(d);
 			return;
 
@@ -2363,9 +2363,9 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 /*-------------------------------------------------------------------*/
 
 /*
- * END OF CASE 
+ * END OF CASE
  * If we get here, we have probably changed something, and now want to
- * return to main menu.  Use OLC_VAL as a 'has changed' flag  
+ * return to main menu.  Use OLC_VAL as a 'has changed' flag
  */
 
 		OLC_VAL(d) = 1;

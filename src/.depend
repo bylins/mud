@@ -1,15 +1,16 @@
 act.comm.o: act.comm.cpp conf.h sysdep.h structs.h utils.h comm.h \
-  interpreter.h handler.h db.h screen.h dg_scripts.h auction.h
+  interpreter.h handler.h db.h screen.h dg_scripts.h auction.h \
+  privilege.hpp
 act.informative.o: act.informative.cpp conf.h sysdep.h structs.h utils.h \
   comm.h interpreter.h handler.h db.h spells.h skills.h fight.h screen.h \
-  constants.h pk.h dg_scripts.h privileges.hpp mail.h features.hpp im.h \
-  house.h description.h
+  constants.h pk.h dg_scripts.h mail.h features.hpp im.h house.h \
+  description.h privilege.hpp
 act.item.o: act.item.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h constants.h dg_scripts.h \
   house.h magic.h fight.h features.hpp
 act.movement.o: act.movement.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h house.h constants.h \
-  dg_scripts.h screen.h pk.h features.hpp deathtrap.hpp
+  dg_scripts.h screen.h pk.h features.hpp deathtrap.hpp privilege.hpp
 act.offensive.o: act.offensive.cpp conf.h sysdep.h structs.h utils.h \
   comm.h interpreter.h handler.h db.h constants.h screen.h spells.h \
   skills.h pk.h features.hpp
@@ -20,13 +21,13 @@ act.social.o: act.social.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h
 act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h house.h screen.h skills.h \
-  constants.h olc.h dg_scripts.h mobmax.h pk.h im.h top.h privileges.hpp \
-  ban.hpp diskio.h description.h title.hpp password.hpp
+  constants.h olc.h dg_scripts.h mobmax.h pk.h im.h top.h ban.hpp \
+  diskio.h description.h title.hpp password.hpp privilege.hpp
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h interpreter.h db.h
 ban.o: ban.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
   handler.h db.h ban.hpp diskio.h
-boards.o: boards.cpp boards.h conf.h sysdep.h structs.h utils.h db.h \
-  interpreter.h house.h screen.h comm.h
+boards.o: boards.cpp conf.h house.h sysdep.h structs.h utils.h db.h \
+  interpreter.h screen.h comm.h privilege.hpp boards.h
 class.o: class.cpp conf.h sysdep.h structs.h comm.h db.h utils.h spells.h \
   skills.h interpreter.h handler.h constants.h pk.h top.h features.hpp \
   im.h
@@ -42,8 +43,8 @@ features.o: features.cpp conf.h sysdep.h structs.h utils.h handler.h \
 db.o: db.cpp conf.h sysdep.h structs.h utils.h db.h comm.h handler.h \
   spells.h mail.h interpreter.h house.h constants.h dg_scripts.h mobmax.h \
   pk.h olc.h diskio.h im.h top.h stuff.hpp double_map.hpp ban.hpp \
-  privileges.hpp item.creation.hpp features.hpp boards.h description.h \
-  deathtrap.hpp title.hpp
+  item.creation.hpp features.hpp boards.h description.h deathtrap.hpp \
+  title.hpp privilege.hpp
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h comm.h handler.h \
   interpreter.h db.h spells.h screen.h constants.h dg_scripts.h mobmax.h \
   pk.h im.h fight.h skills.h features.hpp house.h stuff.hpp \
@@ -53,13 +54,13 @@ graph.o: graph.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
 handler.o: handler.cpp conf.h sysdep.h structs.h constants.h utils.h \
   comm.h db.h handler.h interpreter.h spells.h skills.h screen.h \
   dg_scripts.h auction.h features.hpp house.h exchange.h
-house.o: house.cpp house.h conf.h sysdep.h structs.h utils.h db.h \
+house.o: house.cpp conf.h house.h sysdep.h structs.h utils.h db.h \
   interpreter.h comm.h handler.h pk.h screen.h boards.h skills.h spells.h
 interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
   interpreter.h constants.h db.h utils.h spells.h skills.h handler.h \
   house.h mail.h screen.h olc.h dg_scripts.h pk.h genchar.h ban.hpp \
-  diskio.h privileges.hpp item.creation.hpp arena.hpp features.hpp \
-  boards.h top.h title.hpp password.hpp
+  diskio.h item.creation.hpp arena.hpp features.hpp boards.h top.h \
+  title.hpp password.hpp privilege.hpp
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h spells.h skills.h \
   comm.h db.h handler.h screen.h interpreter.h constants.h dg_scripts.h \
   house.h exchange.h top.h deathtrap.hpp ban.hpp diskio.h
@@ -72,7 +73,7 @@ mobact.o: mobact.cpp conf.h sysdep.h structs.h utils.h db.h comm.h \
   interpreter.h handler.h spells.h skills.h constants.h pk.h
 modify.o: modify.cpp conf.h sysdep.h structs.h utils.h interpreter.h \
   handler.h db.h comm.h spells.h mail.h boards.h screen.h olc.h \
-  features.hpp house.h
+  features.hpp house.h privilege.hpp
 objsave.o: objsave.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
   interpreter.h utils.h spells.h screen.h house.h im.h
 olc.o: olc.cpp conf.h sysdep.h structs.h interpreter.h comm.h utils.h \
@@ -87,13 +88,13 @@ spec_procs.o: spec_procs.cpp conf.h sysdep.h structs.h utils.h comm.h \
   constants.h features.hpp house.h
 spell_parser.o: spell_parser.cpp conf.h sysdep.h structs.h utils.h \
   interpreter.h spells.h skills.h handler.h comm.h db.h screen.h \
-  constants.h dg_scripts.h pk.h features.hpp im.h
+  constants.h dg_scripts.h pk.h features.hpp im.h privilege.hpp
 spells.o: spells.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
   skills.h handler.h db.h constants.h interpreter.h dg_scripts.h screen.h \
   house.h pk.h features.hpp im.h deathtrap.hpp
 utils.o: utils.cpp conf.h sysdep.h structs.h utils.h db.h comm.h screen.h \
   spells.h handler.h interpreter.h constants.h im.h dg_scripts.h \
-  features.hpp boards.h
+  features.hpp boards.h privilege.hpp
 weather.o: weather.cpp conf.h sysdep.h structs.h spells.h skills.h \
   utils.h comm.h handler.h interpreter.h db.h screen.h constants.h
 redit.o: redit.cpp conf.h sysdep.h structs.h comm.h utils.h db.h olc.h \
@@ -164,9 +165,11 @@ stuff.o: stuff.cpp conf.h sysdep.h structs.h comm.h db.h handler.h \
   utils.h dg_scripts.h stuff.hpp double_map.hpp
 description.o: description.cpp conf.h sysdep.h structs.h utils.h \
   description.h
-deathtrap.o: deathtrap.cpp deathtrap.hpp conf.h sysdep.h structs.h \
+deathtrap.o: deathtrap.cpp conf.h deathtrap.hpp sysdep.h structs.h \
   constants.h db.h spells.h utils.h handler.h
-title.o: title.cpp title.hpp conf.h sysdep.h structs.h interpreter.h \
+title.o: title.cpp conf.h title.hpp sysdep.h structs.h interpreter.h \
   utils.h comm.h db.h screen.h pk.h
 password.o: password.cpp password.hpp conf.h sysdep.h structs.h utils.h \
   interpreter.h
+privilege.o: privilege.cpp conf.h sysdep.h structs.h utils.h db.h \
+  interpreter.h boards.h spells.h privilege.hpp

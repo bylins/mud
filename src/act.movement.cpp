@@ -29,6 +29,7 @@
 #include "pk.h"
 #include "features.hpp"
 #include "deathtrap.hpp"
+#include "privilege.hpp"
 
 /* external functs */
 void add_follower(CHAR_DATA * ch, CHAR_DATA * leader);
@@ -912,7 +913,7 @@ ACMD(do_hidemove)
 	AFFECT_DATA af;
 
 	skip_spaces(&argument);
-	if (!GET_SKILL(ch, SKILL_SNEAK)) {
+	if (!get_skill(ch, SKILL_SNEAK)) {
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
 	}
@@ -1202,7 +1203,7 @@ ACMD(do_gen_door)
 		return;
 	}
 
-	if (subcmd == SCMD_PICK && !GET_SKILL(ch, SKILL_PICK_LOCK)) {
+	if (subcmd == SCMD_PICK && !get_skill(ch, SKILL_PICK_LOCK)) {
 		send_to_char("Это умение Вам недоступно.\r\n", ch);
 		return;
 	}
@@ -1237,7 +1238,7 @@ ACMD(do_gen_door)
 			send_to_char("Да отперли уже все..\r\n", ch);
 		else if (!(DOOR_IS_UNLOCKED(ch, obj, door)) && IS_SET(flags_door[subcmd], NEED_UNLOCKED))
 			send_to_char("Угу, заперто.\r\n", ch);
-		else if (!has_key(ch, keynum) && !IS_GOD(ch) && ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
+		else if (!has_key(ch, keynum) && !Privilege::check_flag(ch, Privilege::USE_SKILLS) && ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
 			send_to_char("У Вас нет ключа.\r\n", ch);
 		else if (ok_pick(ch, keynum, DOOR_IS_PICKPROOF(ch, obj, door), subcmd))
 			do_doorcmd(ch, obj, door, subcmd);
@@ -1750,7 +1751,7 @@ ACMD(do_horsetake)
 			return;
 		}
 		if (!IS_IMMORTAL(ch)) {
-			if (!GET_SKILL(ch, SKILL_STEAL)) {
+			if (!get_skill(ch, SKILL_STEAL)) {
 				send_to_char("Вы не умеете воровать.\r\n", ch);
 				return;
 			}

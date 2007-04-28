@@ -10,13 +10,13 @@
 #include <iomanip>
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
-
-#include "boards.h"
+#include <boost/lexical_cast.hpp>
 #include "house.h"
 #include "screen.h"
 #include "comm.h"
+#include "privilege.hpp"
+#include "boards.h"
 
-extern GodListType GodList;
 extern int isname(const char *str, const char *namelist);
 
 BoardListType Board::BoardList;
@@ -150,32 +150,42 @@ void Board::ClanInit()
 	}
 }
 
-// лоад/релоад персональных досок
-void Board::GodInit()
+// чистим для релоада
+void Board::clear_god_boards()
 {
-	// чистим для релоада
 	for (BoardListType::iterator board = Board::BoardList.begin(); board != Board::BoardList.end(); ++board) {
 		if ((*board)->type == PERS_BOARD) {
 			Board::BoardList.erase(board);
 			board = Board::BoardList.begin();
 		}
 	}
+}
 
-	for (GodListType::const_iterator god = GodList.begin(); god != GodList.end(); ++god) {
-		// делаем блокнот
-		BoardPtr board(new Board);
-		board->type = PERS_BOARD;
-		board->name = "Блокнот";
-		board->desc = "Ваш раздел для заметок";
-		board->persUnique = god->first;
-		board->persName = god->second;
-		// генерим имя и лоадим по возможности
-		std::string name = god->second;
-		CreateFileName(name);
-		board->file = ETC_BOARD + name + ".board";
-		board->Load();
-		Board::BoardList.push_back(board);
-	}
+// втыкаем блокнот имму
+void Board::init_god_board(long uid, std::string name)
+{
+	BoardPtr board(new Board);
+	board->type = PERS_BOARD;
+	board->name = "Блокнот";
+	board->desc = "Ваш раздел для заметок";
+	board->persUnique = uid;
+	board->persName = name;
+	// генерим имя и лоадим по возможности
+	std::string tmp_name = name;
+	CreateFileName(tmp_name);
+	board->file = ETC_BOARD + tmp_name + ".board";
+	board->Load();
+	Board::BoardList.push_back(board);
+}
+
+/**
+* Релоад всех досок разом.
+*/
+void Board::reload_all()
+{
+	BoardInit();
+	Privilege::load_god_boards();
+	ClanInit();
 }
 
 // подгружаем доску, если она существует
@@ -494,14 +504,27 @@ ACMD(DoBoard)
 		if (!IS_GOD(ch) && (*board)->lastWrite == GET_UNIQUE(ch)
 			&& (*board)->type != CLAN_BOARD
 			&& (*board)->type != CLANNEWS_BOARD
-			&& (*board)->type != PERS_BOARD)
+			&& (*board)->type != PERS_BOARD
+			&& !Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 		{
 			send_to_char("Да Вы ведь только что писали сюда.\r\n", ch);
 			return;
 		}
+
+		// написание новостей от другого имени
+		std::string name = GET_NAME(ch);
+		if ((*board)->type == NEWS_BOARD && Privilege::check_flag(ch, Privilege::NEWS_MAKER)) {
+			GetOneParam(buffer2, buffer);
+			if (buffer.empty()) {
+				send_to_char("Впишите хотя бы имя, от кого будет опубликовано сообщение.\r\n", ch);
+				return;
+			}
+			name = buffer;
+		}
+
 		// генерим мессагу
 		MessagePtr tempMessage(new Message);
-		tempMessage->author = GET_NAME(ch);
+		tempMessage->author = name;
 		tempMessage->unique = GET_UNIQUE(ch);
 		// для досок кроме клановых и персональных пишет левел автора (для возможной очистки кем-то)
 		tempMessage->level = GET_LEVEL(ch);
@@ -510,17 +533,14 @@ ACMD(DoBoard)
 			tempMessage->rank = CLAN_MEMBER(ch)->rank_num;
 		else
 			tempMessage->rank = 0;
+		boost::trim(buffer2);
 		// обрежем для удобочитаемости сабж
 		if (buffer2.length() > 40) {
 			buffer2.erase(40, std::string::npos);
 			send_to_char(ch, "Тема сообщения укорочена до '%s'.\r\n", buffer2.c_str());
 		}
-		// тупо, но я не помню функции, а в лоб чет не сканало Ж)
-		if (subcmd == ERROR_BOARD) {
-			char room[MAX_INPUT_LENGTH];
-			sprintf(room, " Room: [%d]", GET_ROOM_VNUM(ch->in_room));
-			buffer2 += room;
-		}
+		if (subcmd == ERROR_BOARD)
+			buffer2 += " Room: [" + boost::lexical_cast<std::string>(GET_ROOM_VNUM(ch->in_room)) + "]";
 		tempMessage->subject = buffer2;
 		// дату номер и текст пишем уже по факту сохранения
 		ch->desc->message = tempMessage;
@@ -649,8 +669,8 @@ int Board::Access(CHAR_DATA * ch)
 		else
 			return 2;
 	case NEWS_BOARD:
-	// все читают, 34 полный
-		if (IS_IMPL(ch))
+	// все читают, 34 и по привилегии полный
+		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 			return 4;
 		else
 			return 1;

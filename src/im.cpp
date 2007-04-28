@@ -1166,7 +1166,7 @@ void im_improove_recipe(CHAR_DATA * ch, im_rskill * rs, int success)
 	     (diff = wis_app[GET_REAL_WIS(ch)].max_learn_l20 *
 	      GET_LEVEL(ch) / 20 - rs->perc) > 0 && rs->perc < MAX_EXP_PERCENT + GET_REMORT(ch) * 5)) {
 		for (i = 0, n = 0; i <= MAX_SKILLS; ++i)
-			if (GET_SKILL(ch, i))
+			if (get_skill(ch, i))
 				++n;
 		n = (n + 1) >> 1;
 		n += im_get_char_rskill_count(ch);

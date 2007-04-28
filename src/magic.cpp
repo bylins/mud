@@ -118,16 +118,16 @@ int general_savingthrow(CHAR_DATA * ch, int type, int ext_apply, int use)
 	case SAVING_REFLEX:
 		if ((save > 0) && (GET_CLASS(ch) == CLASS_THIEF))
 			save >>= 1;
-		save -= dex_app[GET_REAL_DEX(ch)].reaction;			
+		save -= dex_app[GET_REAL_DEX(ch)].reaction;
 		break;
 	case SAVING_STABILITY:
-		save += con_app[GET_REAL_CON(ch)].affect_saving;	
+		save += con_app[GET_REAL_CON(ch)].affect_saving;
 		break;
 	case SAVING_WILL:
-		save += wis_app[GET_REAL_WIS(ch)].char_savings;	
+		save += wis_app[GET_REAL_WIS(ch)].char_savings;
 		break;
 	case SAVING_CRITICAL:
-		save += con_app[GET_REAL_CON(ch)].critic_saving;	
+		save += con_app[GET_REAL_CON(ch)].critic_saving;
 		break;
 	}
 
@@ -140,8 +140,8 @@ int general_savingthrow(CHAR_DATA * ch, int type, int ext_apply, int use)
 	// Учет осторожного стиля
 	if (PRF_FLAGGED(ch, PRF_AWAKE) && (use != 1)) {
 		if (GET_CLASS(ch) == CLASS_GUARD)
-		  save -=MAX(0,GET_SKILL(ch, SKILL_AWAKE)-80)  /  2;
-		  save -=GET_SKILL(ch, SKILL_AWAKE)  /  2;
+		  save -=MAX(0,get_skill(ch, SKILL_AWAKE)-80)  /  2;
+		  save -=get_skill(ch, SKILL_AWAKE)  /  2;
 	}
 
 	save += GET_SAVE(ch, type);	// одежда
@@ -286,7 +286,7 @@ CHAR_DATA * find_char_in_room(long char_id, ROOM_DATA *room)
 	for (tch = room->people ; tch ; tch = next_ch)
 	{
 		next_ch = tch->next_in_room;
-		if (GET_ID(tch) == char_id) 
+		if (GET_ID(tch) == char_id)
 			return (tch);
 	}
 	return NULL;
@@ -298,7 +298,7 @@ CHAR_DATA * random_char_in_room(ROOM_DATA *room)
 	// посчитаем число перцев  в комнате
 	for (c = room->people; c; c = c->next_in_room)
 		if (!PRF_FLAGGED(c, PRF_NOHASSLE)
-		     && !GET_INVIS_LEV(c)) 
+		     && !GET_INVIS_LEV(c))
 	{
 		count++;
 	}
@@ -306,25 +306,25 @@ CHAR_DATA * random_char_in_room(ROOM_DATA *room)
 	// А теперь узнаем его указатель.
 	for (c = room->people; c; c = c->next_in_room)
 		if (!PRF_FLAGGED(c, PRF_NOHASSLE)
-		     && !GET_INVIS_LEV(c)) 
+		     && !GET_INVIS_LEV(c))
 	{
 		if (index == count)
 		{
 			result = c;
 			break;
 		}
-		
+
 		index++;
 	}
 	return (result);
-	
+
 }
 /* Раз в 2 секунды идет вызов обработчиков аффектов*/
 void pulse_room_affect_handler(room_rnum room, CHAR_DATA * ch, AFFECT_DATA * aff)
 {
 	// Аффект в комнате.
 	// Проверяем на то что нам передали бяку в параметрах.
-	assert(aff);  
+	assert(aff);
 	assert(world[room]);
 
 	// Тут надо понимать что если закл наложит не один аффект а несколько
@@ -336,10 +336,10 @@ void pulse_room_affect_handler(room_rnum room, CHAR_DATA * ch, AFFECT_DATA * aff
 		case SPELL_ROOM_LIGHT:
 //			sprintf(buf2 , "Ярко светит колдовской свет. (%d)\r\n", aff->apply_time);
 //			send_to_room(buf2,room, 0);
-			break;					
+			break;
 
 		case SPELL_POISONED_FOG:
-	                // Обработчик закла 
+	                // Обработчик закла
 			// По сути это каст яда на всех без разбора.
 		//	sprintf(buf2 , "Травим всех тут. (%d : %d)\r\n", aff->apply_time, aff->duration);
 			send_to_room(buf2,room, 0);
@@ -348,7 +348,7 @@ void pulse_room_affect_handler(room_rnum room, CHAR_DATA * ch, AFFECT_DATA * aff
 			        for (tch = world[room]->people; tch ; tch = tch_next)
 				{
 					tch_next = tch->next_in_room;
-					
+
 		       			if (!call_magic(ch, tch, NULL, NULL, SPELL_POISON, GET_LEVEL(ch), CAST_SPELL))
 					{
 						aff->duration = 0;
@@ -356,12 +356,12 @@ void pulse_room_affect_handler(room_rnum room, CHAR_DATA * ch, AFFECT_DATA * aff
 					}
 				}
 			}
-			
-			break;					
+
+			break;
 		case SPELL_THUNDERSTORM:
 			/* Что можно учудить тут :
 				1-2 - Первые два раунда чары только предупреждаются что тут будет гоооорячо.
-				3 - начинает идти дождь 
+				3 - начинает идти дождь
 				4-6 - цепи молний
 				7-8 - 1-но испепеление - убивает нафиг рэндомно одного чара ...
 				9-10 - шаравухи
@@ -372,7 +372,7 @@ void pulse_room_affect_handler(room_rnum room, CHAR_DATA * ch, AFFECT_DATA * aff
 				case 1:
 					what_sky = SKY_CLOUDY;
 					if (!call_magic(ch, NULL, NULL, NULL, SPELL_CONTROL_WEATHER, GET_LEVEL(ch), CAST_SPELL))
-					{	
+					{
 						// Если закл сфейлился то прекращаем новый год )
 						aff->duration = 0;
 						break;
@@ -382,12 +382,12 @@ void pulse_room_affect_handler(room_rnum room, CHAR_DATA * ch, AFFECT_DATA * aff
 				case 2:
 					what_sky = SKY_RAINING;
 					if (!call_magic(ch, NULL, NULL, NULL, SPELL_CONTROL_WEATHER, GET_LEVEL(ch), CAST_SPELL))
-					{	
+					{
 						// Если закл сфейлился то прекращаем новый год )
 						aff->duration = 0;
 						break;
 					}
-				break;	
+				break;
 				case 3:
 					// Хреначим  рэндомно молниями.
 					tch = random_char_in_room(world[room]);
@@ -395,10 +395,10 @@ void pulse_room_affect_handler(room_rnum room, CHAR_DATA * ch, AFFECT_DATA * aff
 					{
 						call_magic(ch, tch, NULL, NULL, SPELL_CHAIN_LIGHTNING, GET_LEVEL(ch), CAST_SPELL);
 					}
-				break;	
+				break;
 				case 5:
-					// Делаем мега молнию - которая мочит чара Ж) 
-					tch = random_char_in_room(world[room]);	
+					// Делаем мега молнию - которая мочит чара Ж)
+					tch = random_char_in_room(world[room]);
 					if (tch)
 					{
 						send_to_char("Удар молнии просто испепелил Вас",tch);
@@ -414,14 +414,14 @@ void pulse_room_affect_handler(room_rnum room, CHAR_DATA * ch, AFFECT_DATA * aff
 					{
 						call_magic(ch, tch, NULL, NULL, SPELL_CHAIN_LIGHTNING, GET_LEVEL(ch), CAST_SPELL);
 					}
-				break;	
+				break;
 
 				case 7:
-					// Успокаиваем погоду. 
-					
+					// Успокаиваем погоду.
+
 					what_sky = SKY_CLOUDLESS;
 					if (!call_magic(ch, NULL, NULL, NULL, SPELL_CONTROL_WEATHER, GET_LEVEL(ch), CAST_SPELL))
-					{	
+					{
 						// Если закл сфейлился то прекращаем новый год )
 						aff->duration = 0;
 						break;
@@ -433,7 +433,7 @@ void pulse_room_affect_handler(room_rnum room, CHAR_DATA * ch, AFFECT_DATA * aff
 			break;
 		default:
 			log("Try handle room affect for spell without handler");
-	}       	
+	}
 }
 
 /* Апдейт аффектов для комнат - надеюсь это мир не прикончит*/
@@ -447,36 +447,36 @@ void room_affect_update(void)
 	{
 		i = world[cnt];
 		assert(i);
-		for (af = i->affected ; af ; af = next)		
+		for (af = i->affected ; af ; af = next)
 		{
 			next = af->next;
 			spellnum = af->type;
 			// Пока проверяем кастер в комнате если нет то снимаем закл
 			// иначе искать его по миру пока слишком долго
-			
-			ch = NULL; 
+
+			ch = NULL;
 			if (IS_SET(SpINFO.routines, MAG_CASTER_INROOM) || IS_SET(SpINFO.routines, MAG_CASTER_INWORLD))
 			{
-			
+
 				ch = find_char_in_room(af->caster_id, i);
 				if ((!ch) && IS_SET(SpINFO.routines, MAG_CASTER_INROOM))
 				{
 	        	        	// Кастер слинял ... или помер - зря.
 					af->duration = 0;
 				}
-				
+
 			}
 			// Чую долгое это будет дело ... но деваться не куда
 			if ((!ch) && IS_SET(SpINFO.routines, MAG_CASTER_INWORLD))
 			{
 				// Ищем чара по миру
 				ch = find_char(af->caster_id);
-				if (!ch) 
+				if (!ch)
 				{
 					// Нету кастера в мире ... Ж(
-					af->duration = 0;					
+					af->duration = 0;
 				}
-			}			
+			}
 
 			if (af->duration >= 1)
 				af->duration--;
@@ -487,7 +487,7 @@ void room_affect_update(void)
 					if (!af->next || (af->next->type != af->type)
 					    || (af->next->duration > 0)) {
 						if (af->type > 0 &&
-						    af->type <= LAST_USED_SPELL && *spell_wear_off_msg[af->type]) 
+						    af->type <= LAST_USED_SPELL && *spell_wear_off_msg[af->type])
 						{
 			                             show_room_spell_off (af->type, cnt);
 						}
@@ -497,7 +497,7 @@ void room_affect_update(void)
 				continue;  // Чтоб не вызвался обработчик
 			}
 
-			// Учитываем что время выдается в пульсах а не в секундах 
+			// Учитываем что время выдается в пульсах а не в секундах
 			// т.е. надо умножать на 2
 
 			af->apply_time++;
@@ -1228,7 +1228,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	case SPELL_STUNNING:
 		if (ch == victim ||
 			((number (1, 999)  > GET_AR(victim) * 10) &&
-			!general_savingthrow(victim, SAVING_CRITICAL, CALC_SUCCESS (modi, GET_REAL_WIS(ch)), 0))) { 
+			!general_savingthrow(victim, SAVING_CRITICAL, CALC_SUCCESS (modi, GET_REAL_WIS(ch)), 0))) {
 		    savetype = SAVING_STABILITY;
 		    ndice = GET_REAL_WIS(ch) / 5;
 		    sdice = GET_REAL_WIS(ch);
@@ -1237,7 +1237,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	                act("Ваше каменное проклятье отшибло сознание у $N1.", FALSE, ch, 0, victim, TO_CHAR);
         	        act("Каменное проклятье $n1 отшибло сознание у $N1.", FALSE, ch, 0, victim, TO_NOTVICT);
                 	act("У вас отшибло сознание, вам очень плохо...", FALSE, ch, 0, victim, TO_VICT);
-			GET_POS (victim) = POS_STUNNED;	
+			GET_POS (victim) = POS_STUNNED;
 			WAIT_STATE (victim, adice * PULSE_VIOLENCE);
 		    }
 		} else {
@@ -1255,12 +1255,12 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		    sdice = MAX(1, GET_REAL_WIS(ch) - 10);
 	//	    adice = MAX(1, 2 + 30 - GET_LEVEL(ch) + (GET_REAL_WIS(ch) - 29)) / 7;
 	//	    Ну явно кривота была. Отбалансил на свой вкус. В 50 мудры на 25м леве лаг на 3 на 30 лаг на 4 а не наоборот
-		    adice = MAX(1, GET_LEVEL(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;	    
+		    adice = MAX(1, GET_LEVEL(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;
 		if (ch == victim ||
 		    (!general_savingthrow (victim, SAVING_CRITICAL, CALC_SUCCESS (modi, GET_REAL_WIS (ch)),0) &&
 		     (number (1, 999)  > GET_AR(victim) * 10) &&
 		     number(0, 1000) <= 500)) {
-		    GET_POS(victim) = POS_INCAP;	
+		    GET_POS(victim) = POS_INCAP;
 		    WAIT_STATE(victim, adice * PULSE_VIOLENCE);
 		}
 		break;
@@ -1454,10 +1454,10 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	if (number (1, 999) <= GET_MR(victim) * 10)
 		dam = 0;
-	
+
 	if (ch == victim)
 		dam = MIN (dam, GET_HIT(victim) + 1);
-			
+
 	for (; count > 0 && rand >= 0; count--) {
 		if (IN_ROOM(ch) != NOWHERE &&
 		    IN_ROOM(victim) != NOWHERE && GET_POS(ch) > POS_STUNNED && GET_POS(victim) > POS_DEAD)
@@ -1532,11 +1532,11 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		//send_to_char("Stop\r\n",victim);
 	}
 	// Magic glass
-	if (ch != victim && SpINFO.violent 
+	if (ch != victim && SpINFO.violent
 		&& ((AFF_FLAGGED(victim, AFF_MAGICGLASS)
 		&& (IN_ROOM(ch) == IN_ROOM(victim)) /*зеркало сработает только если оба в одной комнате*/
 		&& number(1, 100) < (GET_LEVEL(victim) / 3)) || (IS_GOD(victim)
-  	 	&& (IS_NPC(ch) || GET_LEVEL (victim) > GET_LEVEL(ch))))) 
+  	 	&& (IS_NPC(ch) || GET_LEVEL (victim) > GET_LEVEL(ch)))))
 	{
 		act("Магическое зеркало $N1 отразило Вашу магию !", FALSE, ch, 0, victim, TO_CHAR);
 		act("Магическое зеркало $N1 отразило магию $n1 !", FALSE, ch, 0, victim, TO_NOTVICT);
@@ -1579,7 +1579,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			break;
 		}
 		af[0].location = APPLY_STR;
-		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 								pc_duration(victim, 2, level, 4, 6, 0));
 		af[0].modifier = -1;
 		af[0].battleflag = AF_BATTLEDEC;
@@ -1609,7 +1609,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		else
 			af[0].modifier = -2 * ((level / 6 + GET_REMORT(ch) / 2));
 		if (IS_NPC(ch) && level >= (LVL_IMMORT))
-			af[0].modifier += (LVL_IMMORT - level - 1);	//1 str per mob level above 30   
+			af[0].modifier += (LVL_IMMORT - level - 1);	//1 str per mob level above 30
 		af[0].battleflag = AF_BATTLEDEC;
 		accum_duration = TRUE;
 		to_room = "$n стал$g немного слабее.";
@@ -1981,7 +1981,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 		af[0].location = APPLY_MANAREG;
 		af[0].modifier = -50;
-		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 					pc_duration(victim, 0, GET_REAL_WIS(ch) + GET_REAL_INT(ch), 10, 0, 0));
 		af[1].location = APPLY_CAST_SUCCESS;
 		af[1].modifier = -50;
@@ -2012,16 +2012,16 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].modifier = 0;
 		switch (spellnum) {
 		case SPELL_DUSTSTORM:
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 									pc_duration(victim, 3, level, 6, 0, 0));
 			break;
 		case SPELL_SHINEFLASH:
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 									pc_duration(victim, 2, level + 7, 8, 0, 0));
 			break;
 		case SPELL_MASS_BLINDNESS:
 		case SPELL_BLINDNESS:
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 									pc_duration(victim, 2, level, 8, 0, 0));
 			break;
 		case SPELL_POWER_BLINDNESS:
@@ -2044,7 +2044,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			break;
 		}
 
-		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 								pc_duration(victim, 3, 0, 0, 0, 0));
 		af[0].bitvector = AFF_NOFLEE;
 		to_room = "Теперь $n не сможет сбежать из боя !";
@@ -2062,7 +2062,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 		af[0].location = APPLY_HITROLL;
 		af[0].modifier = -2;
-		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 								pc_duration(victim, 3, level, 6, 0, 0));
 		af[0].battleflag = AF_BATTLEDEC;
 		af[0].bitvector = AFF_NOFLEE;
@@ -2085,17 +2085,17 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			break;
 		}
 		af[0].location = APPLY_INITIATIVE;
-		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 								pc_duration(victim, 1, level, 2, 0, 0));
 		af[0].modifier = -5;
 		af[0].bitvector = AFF_CURSE;
 		if (level >= 20) {
 			af[1].location = APPLY_CAST_SUCCESS;
-			af[1].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+			af[1].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 								pc_duration(victim, 1, level, 2, 0, 0));
 			af[1].modifier = -1 * (level / 3 + GET_REMORT(ch));
 			if (IS_NPC(ch) && level >= (LVL_IMMORT))
-				af[1].modifier += (LVL_IMMORT - level - 1);	//1 cast per mob level above 30 
+				af[1].modifier += (LVL_IMMORT - level - 1);	//1 cast per mob level above 30
 			af[1].bitvector = AFF_CURSE;
 		}
 		accum_duration = TRUE;
@@ -2121,7 +2121,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			break;
 		}
 
-		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 								pc_duration(victim, 9, 0, 0, 0, 0));
 		af[0].bitvector = AFF_SLOW;
 		to_room = "Движения $n1 заметно замедлились.";
@@ -2277,7 +2277,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 		if (FIGHTING(victim))
 			stop_fighting(victim, FALSE);
-		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 								pc_duration(victim, 1, level, 6, 1, 6));
 		af[0].bitvector = AFF_SLEEP;
 		af[0].battleflag = AF_BATTLEDEC;
@@ -2370,7 +2370,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			break;
 		}
 
-		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 					spellnum == SPELL_POWER_HOLD ? pc_duration(victim, 2, level + 7, 8, 2, 5)
 									 : pc_duration(victim, 1, level + 9, 10, 1, 3));
 
@@ -2397,11 +2397,11 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		switch (spellnum) {
 		case SPELL_POWER_DEAFNESS:
 		case SPELL_SONICWAVE:
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 								pc_duration(victim, 2, level + 3, 4, 6, 0));
 			break;
 		case SPELL_SHOCK:
-				mag_affects(level, ch, victim, SPELL_BLINDNESS, SAVING_STABILITY); 
+				mag_affects(level, ch, victim, SPELL_BLINDNESS, SAVING_STABILITY);
 		case SPELL_MASS_DEAFNESS:
 		case SPELL_DEAFNESS:
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
@@ -2490,7 +2490,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			break;
 		}
 
-		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 								pc_duration(victim, 3, level, 4, 4, 0));
 		af[0].bitvector = AFF_NOFLEE;
 		to_room = "$n0 теперь прикован$a к $N2.";
@@ -2541,7 +2541,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].type = SPELL_ICESTORM;
 		af[0].location = 0;
 		af[0].modifier = 0;
-		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 								pc_duration(victim, 2, 0, 0, 0, 0));
 		af[0].bitvector = AFF_MAGICSTOPFIGHT;
 		af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
@@ -2644,7 +2644,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "Кости $n1 обрели твердость кремня.";
 		break;
 
-	case 
+	case
 	SPELL_FAILURE:
 		savetype = SAVING_WILL;
 		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
@@ -2653,7 +2653,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			break;
 		}
 		af[0].location = APPLY_MORALE;
-		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 								pc_duration(victim, 2, level, 2, 0, 0));
 		af[0].modifier = -5 - (GET_LEVEL(ch) + GET_REMORT(ch)) / 2;
 		af[1].location = number(1, 6);
@@ -2681,7 +2681,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			affect_from_char(victim, SPELL_HIDE);
 		}
 		af[0].location = APPLY_SAVING_REFLEX;
-		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 								pc_duration(victim, 4, 0, 0, 0, 0));
 		af[0].modifier = (GET_LEVEL(ch) + GET_REMORT(ch)) / 3;
 		af[0].bitvector = AFF_GLITTERDUST;
@@ -2700,7 +2700,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 		af[0].bitvector = AFF_AFFRIGHT;
 		af[0].location = APPLY_SAVING_WILL;
-		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 								pc_duration(victim, 2, level, 2, 0, 0));
 		af[0].modifier = (2 * GET_LEVEL(ch) + GET_REMORT(ch)) / 4;
 
@@ -2712,7 +2712,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "$n0 побледнел$g и задрожал$g от страха.";
 		to_vict = "Страх сжал ваше сердце ледяными когтями.";
 		break;
-		
+
 	case SPELL_CATS_GRACE:
 		af[0].location = APPLY_DEX;
 		af[0].duration = pc_duration(victim, 4, level, 5, 0, 0);
@@ -2757,7 +2757,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_affect = TRUE;
 		to_vict = "Вы почувствовали, что для вашего ума более нет преград.";
 		to_room = "$n хитро прищурил$u и поглядел$g по сторонам.";
-		break;		
+		break;
 	}
 
 
@@ -2780,7 +2780,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	/* Если прошло, и спелл дружествееный - то снять его нафиг чтобы обновить */
 	if (!SpINFO.violent && affected_by_spell(victim, spellnum) && success) {
-//    affect_from_char(victim,spellnum); 
+//    affect_from_char(victim,spellnum);
 		update_spell = TRUE;
 	}
 
@@ -2925,19 +2925,19 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 			else if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 30)
 				mob_num = MOB_BONEDRAGON;
 			else
-				mob_num = MOB_BONESPIRIT;	
-				
+				mob_num = MOB_BONESPIRIT;
+
 			if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 15 && mob_num > MOB_ZOMBIE)
 			        mob_num = MOB_ZOMBIE;
-			else if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 25 && mob_num > MOB_BONEDOG) 
+			else if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 25 && mob_num > MOB_BONEDOG)
 			        mob_num = MOB_BONEDOG;
 			else if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 32 && mob_num > MOB_BONEDRAGON)
-				mob_num = MOB_BONEDRAGON;	
+				mob_num = MOB_BONEDRAGON;
 		}
 		handle_corpse = TRUE;
 		msg = number(1, 9);
 		fmsg = number(2, 6);
-//    pfail        += 10;       
+//    pfail        += 10;
 		break;
 
 	case SPELL_RESSURECTION:
@@ -3053,7 +3053,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	if (keeper) {
 		af.bitvector = AFF_HELPER;
 		affect_to_char(mob, &af);
-		GET_SKILL(mob, SKILL_RESCUE) = 100;
+		SET_SKILL(mob, SKILL_RESCUE, 100);
 // shapirus: проставим флаг клона тут в явном виде, чтобы
 // режим отсева клонов при показе группы работал гарантированно
 // (это была идиотская идея)
@@ -3686,7 +3686,7 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 
 	if (masses_messages[i].spell == -1)
 		return 0;
-	
+
 	if (world[IN_ROOM(ch)] == room)	 // Давим вывод если чар не в той же комнате
 	{
 		if (multi_cast_say(ch)) {
@@ -3770,17 +3770,17 @@ const spl_message areas_messages[] = {
 //---------------------------------------------------------
 int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 {
-	// Специфика заклов на комнаты заключается в том, что 
+	// Специфика заклов на комнаты заключается в том, что
 	// практически все взаимодействие с персонажами осуществляется
 	// не в прямую а косвенно , через аффекты которые на ней присутствуют
-	// поэтому любой каст на комнату это прежде всего вешание 
+	// поэтому любой каст на комнату это прежде всего вешание
 	// на нее какого-то определенного аффекта.
-	
+
 	AFFECT_DATA af[MAX_SPELL_AFFECTS];
 	bool accum_affect = FALSE, accum_duration = FALSE, success = TRUE;
-	/*Данный флажок говорит можно ли обновлять закл 
+	/*Данный флажок говорит можно ли обновлять закл
 	или  оно должно висеть пока не спадет*/
-	bool update_spell = FALSE; 
+	bool update_spell = FALSE;
 	const char *to_char = NULL;
 	const char *to_room = NULL;
 	int i = 0;
@@ -3799,7 +3799,7 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		af[i].must_handled = false;
 		af[i].apply_time = 0;
 	}
-	// Проверки ПК - флагов осуществлятся тогда когда аффекты реально работают	
+	// Проверки ПК - флагов осуществлятся тогда когда аффекты реально работают
 
 	switch (spellnum) {
 		case SPELL_ROOM_LIGHT:
@@ -3808,10 +3808,10 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 			af[0].modifier = 0;
 			// Расчет взят  только ориентировочный
 			af[0].duration = pc_duration(ch, 0, GET_LEVEL(ch) + 5, 6, 0, 0);
-			af[0].caster_id = GET_UNIQUE(ch); 
+			af[0].caster_id = GET_UNIQUE(ch);
 			af[0].bitvector = AFF_ROOM_LIGHT;
-			/* Сохраняем ID кастера т.к. возможно что в живых его 
-			к моменту срабатывания аффекта уже не будет, а ПК-флаги на него вешать 
+			/* Сохраняем ID кастера т.к. возможно что в живых его
+			к моменту срабатывания аффекта уже не будет, а ПК-флаги на него вешать
 			придется*/
 			af[0].must_handled = false;
 			accum_duration = TRUE;
@@ -3821,7 +3821,7 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 			break;
 
 		case SPELL_POISONED_FOG:
-			/* Идея закла - комната заражается и охватывается туманом 
+			/* Идея закла - комната заражается и охватывается туманом
 			   не знаю там какие плюшки с туманом. Но яд травит Ж)
 			*/
 			af[0].type = spellnum;
@@ -3829,10 +3829,10 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 			af[0].modifier = 50;
 			// Расчет взят  только ориентировочный
 			af[0].duration = pc_duration(ch, 0, GET_LEVEL(ch) + 5, 6, 0, 0);
-			af[0].bitvector = AFF_ROOM_FOG; /*Добаляет бит туман*/ 
+			af[0].bitvector = AFF_ROOM_FOG; /*Добаляет бит туман*/
 			af[0].caster_id = GET_ID(ch);
 			af[0].must_handled = true;
-			/* Не имеет смысла разделять на разные аффекты 
+			/* Не имеет смысла разделять на разные аффекты
 			если описание будет одно и время работы одно*/
 			update_spell = FALSE;
 			to_room = "$n испортил воздух и плюнул в суп.";
@@ -3846,13 +3846,13 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 			af[0].caster_id = GET_ID(ch);
 			update_spell = FALSE;
 			to_room = "Вы услышали раскат далекой грозы.";
-			
+
 			break;
 
 	}
 
 	// Проверяем а не висит ли уже аффектов от аналогичных заклов на комнате.
-	if ( (world[IN_ROOM(ch)] == room) && room_affected_by_spell(room, spellnum) && success && (!update_spell)) 
+	if ( (world[IN_ROOM(ch)] == room) && room_affected_by_spell(room, spellnum) && success && (!update_spell))
 	{
 		send_to_char(NOEFFECT, ch);
 		success = FALSE;
@@ -4095,6 +4095,6 @@ int get_resist_type (int spellnum)
 	if (SpINFO.spell_class == STYPE_NEUTRAL) {
 		return VITALITY_RESISTANCE;
 	}
-	log("SYSERR: Unknown spell type in %s", SpINFO.name);	
+	log("SYSERR: Unknown spell type in %s", SpINFO.name);
 	return 0;
 }

@@ -93,7 +93,7 @@ char *skill_percent(CHAR_DATA * ch, char *skill)
 
 	skillnum = find_skill_num(skill);
 	if (skillnum > 0) {
-		sprintf(retval, "%d", GET_SKILL(ch, skillnum));
+		sprintf(retval, "%d", get_skill(ch, skillnum));
 		return retval;
 	}
 

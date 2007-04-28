@@ -14,7 +14,6 @@
 
 #include "conf.h"
 #include <boost/algorithm/string.hpp>
-
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -29,6 +28,7 @@
 #include "olc.h"
 #include "features.hpp"
 #include "house.h"
+#include "privilege.hpp"
 
 void show_string(DESCRIPTOR_DATA * d, char *input);
 
@@ -741,7 +741,8 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 					if (d->board->GetType() != NEWS_BOARD && d->board->GetType() != GODNEWS_BOARD && d->board->messages.size() >= MAX_BOARD_MESSAGES)
 						d->board->messages.erase(d->board->messages.begin());
 					DESCRIPTOR_DATA *f;
-					std::string buffer = "Новое сообщение в разделе '" + d->board->GetName() + "' от " + GET_PAD(d->character, 1) + ", тема: " + d->message->subject + "\r\n";
+					std::string name = Privilege::check_flag(d->character, Privilege::NEWS_MAKER) ? d->message->author : GET_PAD(d->character, 1);
+					std::string buffer = "Новое сообщение в разделе '" + d->board->GetName() + "' от " + name + ", тема: " + d->message->subject + "\r\n";
 					// оповещаем соклановцев
 					if (d->board->GetType() == CLAN_BOARD || d->board->GetType() == CLANNEWS_BOARD) {
 						for (f = descriptor_list; f; f = f->next)

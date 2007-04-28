@@ -611,7 +611,7 @@ ASPELL(spell_townportal)
 		act("Лазурная пентаграмма возникла в воздухе.", FALSE, ch, 0, 0, TO_ROOM);
 		if (!IS_IMMORTAL(ch)) {
 			timed.skill = SKILL_TOWNPORTAL;
-			timed.time = 25 - (GET_SKILL(ch, SKILL_TOWNPORTAL)) / 7 - number(1, 5);
+			timed.time = 25 - (get_skill(ch, SKILL_TOWNPORTAL)) / 7 - number(1, 5);
 			if (timed.time < 1)
 				timed.time = 1;
 			timed_to_char(ch, &timed);
@@ -2160,7 +2160,7 @@ ASPELL(spell_angel)
 	SET_SPELL(mob, SPELL_REMOVE_POISON, 1);
 
 //----------------------------------------------------------------------
-	if (GET_SKILL(mob, SKILL_AWAKE))
+	if (get_skill(mob, SKILL_AWAKE))
 		SET_BIT(PRF_FLAGS(mob, PRF_AWAKE), PRF_AWAKE);
 
 	GET_LIKES(mob) = 100;
@@ -2181,10 +2181,10 @@ ASPELL(spell_angel)
 	modifier = (int) (5 * VPOSI(GET_LEVEL(ch) - 26, 0, 50)
 			  + 5 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
 
-	SET_SKILL(mob, SKILL_RESCUE, GET_SKILL(mob, SKILL_RESCUE) + modifier);
-	SET_SKILL(mob, SKILL_AWAKE, GET_SKILL(mob, SKILL_AWAKE) + modifier);
-	SET_SKILL(mob, SKILL_PUNCH, GET_SKILL(mob, SKILL_PUNCH) + modifier);
-	SET_SKILL(mob, SKILL_BLOCK, GET_SKILL(mob, SKILL_BLOCK) + modifier);
+	SET_SKILL(mob, SKILL_RESCUE, get_skill(mob, SKILL_RESCUE) + modifier);
+	SET_SKILL(mob, SKILL_AWAKE, get_skill(mob, SKILL_AWAKE) + modifier);
+	SET_SKILL(mob, SKILL_PUNCH, get_skill(mob, SKILL_PUNCH) + modifier);
+	SET_SKILL(mob, SKILL_BLOCK, get_skill(mob, SKILL_BLOCK) + modifier);
 
 	modifier = (int) (2 * VPOSI(GET_LEVEL(ch) - 26, 0, 50)
 			  + 1 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
@@ -2223,7 +2223,7 @@ ASPELL(spell_angel)
 
 
 
-//sprintf(buf,"RESCUE= %d",GET_SKILL(mob,SKILL_RESCUE));
+//sprintf(buf,"RESCUE= %d",get_skill(mob,SKILL_RESCUE));
 //send_to_char(buf, ch);
 
 //    GET_CLASS(mob)       = GET_CLASS(ch);

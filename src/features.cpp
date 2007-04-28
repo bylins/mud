@@ -519,7 +519,7 @@ bool can_use_feat(CHAR_DATA *ch, int feat)
 			return FALSE;
 	break;
 	case DOUBLESHOT_FEAT:
-		if (GET_SKILL(ch, SKILL_BOWS) < 40)
+		if (get_skill(ch, SKILL_BOWS) < 40)
 			return FALSE;
 	break;
 	}
@@ -550,27 +550,27 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	/* Специальные требования для изучения */
 	switch (feat) {
 	case PARRY_ARROW_FEAT:
-		if (!GET_SKILL(ch, SKILL_MULTYPARRY) && !GET_SKILL(ch, SKILL_PARRY))
+		if (!get_skill(ch, SKILL_MULTYPARRY) && !get_skill(ch, SKILL_PARRY))
 			return FALSE; 
 	break;
 	case CONNOISEUR_FEAT:
-		if (!GET_SKILL(ch, SKILL_IDENTIFY))
+		if (!get_skill(ch, SKILL_IDENTIFY))
 			return FALSE; 
 	break;
 	case EXORCIST_FEAT:
-		if (!GET_SKILL(ch, SKILL_TURN_UNDEAD))
+		if (!get_skill(ch, SKILL_TURN_UNDEAD))
 			return FALSE;
 	break;
 	case HEALER_FEAT:
-		if (!GET_SKILL(ch, SKILL_AID))
+		if (!get_skill(ch, SKILL_AID))
 			return FALSE;
 	break;
 	case STEALTHY_FEAT:
-		if (!GET_SKILL(ch, SKILL_HIDE) && !GET_SKILL(ch, SKILL_SNEAK) && !GET_SKILL(ch, SKILL_CAMOUFLAGE))
+		if (!get_skill(ch, SKILL_HIDE) && !get_skill(ch, SKILL_SNEAK) && !get_skill(ch, SKILL_CAMOUFLAGE))
 			return FALSE;
 	break;
 	case TRACKER_FEAT:
-		if (!GET_SKILL(ch, SKILL_TRACK) && !GET_SKILL(ch, SKILL_SENSE))
+		if (!get_skill(ch, SKILL_TRACK) && !get_skill(ch, SKILL_SENSE))
 			return FALSE;
 	break;
 	case PUNCH_MASTER_FEAT:
@@ -596,7 +596,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
                         return FALSE;
 	break;
 	case NIMBLE_FINGERS_FEAT:
-		if (!GET_SKILL(ch, SKILL_STEAL) && !GET_SKILL(ch, SKILL_PICK_LOCK))
+		if (!get_skill(ch, SKILL_STEAL) && !get_skill(ch, SKILL_PICK_LOCK))
 			return FALSE;
 	break;
 	case GREAT_POWER_ATTACK_FEAT:
@@ -613,7 +613,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	case PICK_FOCUS_FEAT:
 	case SPADES_FOCUS_FEAT:
 	case BOWS_FOCUS_FEAT:
-		if (!GET_SKILL(ch, (ubyte) feat_info[feat].affected[0].location))
+		if (!get_skill(ch, (ubyte) feat_info[feat].affected[0].location))
 			return FALSE;		
 		for (i = PUNCH_FOCUS_FEAT; i <= BOWS_FOCUS_FEAT; i++)
 			if (HAVE_FEAT(ch, i))
@@ -626,7 +626,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 			return FALSE;
 	break;
 	case DOUBLESHOT_FEAT:
-		if (!HAVE_FEAT(ch, BOWS_FOCUS_FEAT) || GET_SKILL(ch, SKILL_BOWS) < 40)
+		if (!HAVE_FEAT(ch, BOWS_FOCUS_FEAT) || get_skill(ch, SKILL_BOWS) < 40)
 			return FALSE;
 	break;
 	case RUNE_USER_FEAT:

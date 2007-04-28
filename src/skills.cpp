@@ -207,7 +207,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	if (skill_no < 1 || skill_no > MAX_SKILLS) {	// log("ERROR: ATTEMPT USING UNKNOWN SKILL <%d>", skill_no);
 		return 0;
 	}
-	if ((skill_is = GET_SKILL(ch, skill_no)) <= 0) {
+	if ((skill_is = get_skill(ch, skill_no)) <= 0) {
 		return 0;
 	}
 
@@ -247,7 +247,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			if (GET_POS(vict) < POS_FIGHTING && GET_POS(vict) > POS_SLEEPING)
 				victim_modi -= 20;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
-				victim_modi -= (GET_SKILL(vict, SKILL_AWAKE) / 2);
+				victim_modi -= (get_skill(vict, SKILL_AWAKE) / 2);
 			victim_modi -= dex_app[GET_REAL_CON(vict)].reaction;// !!!!!
 		}
 		break;
@@ -287,7 +287,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
 			victim_modi += dex_app[GET_REAL_CON(vict)].reaction;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
-				victim_modi -= (GET_SKILL(vict, SKILL_AWAKE) / 2);
+				victim_modi -= (get_skill(vict, SKILL_AWAKE) / 2);
 		}
 		break;
 	case SKILL_PICK_LOCK:	/*pick lock */
@@ -388,7 +388,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	case SKILL_PARRY:	/*парировать */
 		percent = skill_is + dex_app[GET_REAL_DEX(ch)].reaction;
 		if (GET_AF_BATTLE(ch, EAF_AWAKE))
-			percent += GET_SKILL(ch, SKILL_AWAKE);
+			percent += get_skill(ch, SKILL_AWAKE);
 
 		if (GET_EQ(ch, WEAR_HOLD)
 		    && GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ITEM_WEAPON) {
@@ -405,7 +405,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	case SKILL_BLOCK:	/*закрыться щитом */
 		percent = skill_is + dex_app[GET_REAL_DEX(ch) * 2].reaction;
 		if (GET_AF_BATTLE(ch, EAF_AWAKE))
-			percent += GET_SKILL(ch, SKILL_AWAKE);
+			percent += get_skill(ch, SKILL_AWAKE);
 
 		break;
 
@@ -459,7 +459,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			if (GET_EQ(vict, WEAR_BOTHS))
 				victim_modi -= 10;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
-				victim_modi -= (GET_SKILL(vict, SKILL_AWAKE) / 2);
+				victim_modi -= (get_skill(vict, SKILL_AWAKE) / 2);
 		}
 		break;
 	case SKILL_HEAL:
@@ -529,7 +529,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			if (AWAKE(vict) && AFF_FLAGGED(vict, AFF_AWARNESS))
 				victim_modi -= 30;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
-				victim_modi -= (GET_SKILL(ch, SKILL_AWAKE) / 2);
+				victim_modi -= (get_skill(ch, SKILL_AWAKE) / 2);
 			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
@@ -709,10 +709,10 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 //
 	     (diff =
 	      wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20 -
-	      GET_SKILL(ch, skill_no)) > 0
-	     && GET_SKILL(ch, skill_no) < MAX_EXP_PERCENT + GET_REMORT(ch) * 5)) {
+	      get_skill(ch, skill_no)) > 0
+	     && get_skill(ch, skill_no) < MAX_EXP_PERCENT + GET_REMORT(ch) * 5)) {
 		for (prob = how_many = 0; prob <= MAX_SKILLS; prob++)
-			if (GET_SKILL(ch, prob))
+			if (get_skill(ch, prob))
 				how_many++;
 
 		how_many += (im_get_char_rskill_count(ch) + 1) >> 1;
@@ -731,7 +731,7 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 			prob += (5 * diff);
 		else
 			prob += (10 * diff);
-		prob += number(1, GET_SKILL(ch, skill_no) * 5);
+		prob += number(1, get_skill(ch, skill_no) * 5);
 
 		skill_is = number(1, MAX(1, prob));
 
@@ -753,10 +753,9 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 					CCICYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch,
 										       C_NRM));
 			send_to_char(buf, ch);
-			GET_SKILL(ch, skill_no) += number(1, 2);
+			SET_SKILL(ch, skill_no, (get_skill(ch, skill_no) + number(1, 2)));
 			if (!IS_IMMORTAL(ch))
-				GET_SKILL(ch, skill_no) = MIN(MAX_EXP_PERCENT + GET_REMORT(ch) * 5,
-				GET_SKILL(ch, skill_no));
+				SET_SKILL(ch, skill_no, (MIN(MAX_EXP_PERCENT + GET_REMORT(ch) * 5, get_skill(ch, skill_no))));
 // скилл прокачался, помечаю моба (если он есть)
 			if (victim && IS_NPC(victim))
 				SET_BIT(MOB_FLAGS(victim, MOB_NOTRAIN), MOB_NOTRAIN);
@@ -772,7 +771,7 @@ int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict)
 	percent = calculate_skill(ch, skill_no, max_value, vict);
 	if (!IS_NPC(ch)) {
 		if (skill_no != SKILL_SATTACK &&
-		    GET_SKILL(ch, skill_no) > 0 && (!vict
+		    get_skill(ch, skill_no) > 0 && (!vict
 						    || (IS_NPC(vict)
 							&& !MOB_FLAGGED(vict, MOB_PROTECT)
 							&& !MOB_FLAGGED(vict, MOB_NOTRAIN)
@@ -780,10 +779,10 @@ int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict)
 							&& !IS_HORSE(vict))))
 			improove_skill(ch, skill_no, percent >= max_value, vict);
 	} else if (!IS_CHARMICE(ch))
-	    if (GET_SKILL(ch, skill_no) > 0 &&
+	    if (get_skill(ch, skill_no) > 0 &&
 		GET_REAL_INT(ch) <= number(0, 1000 - 20 * GET_REAL_WIS(ch)) &&
-		GET_SKILL(ch, skill_no) < skill_info[skill_no].max_percent)
-		GET_SKILL(ch, skill_no)++;
+		get_skill(ch, skill_no) < skill_info[skill_no].max_percent)
+		SET_SKILL(ch, skill_no, get_skill(ch, skill_no) + 1);
 
 	return (percent);
 }

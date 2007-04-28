@@ -162,7 +162,7 @@ int calc_leadership(CHAR_DATA * ch)
 	} else
 		leader = ch;
 
-	if (!GET_SKILL(leader, SKILL_LEADERSHIP))
+	if (!get_skill(leader, SKILL_LEADERSHIP))
 		return (FALSE);
 
 	percent = number(1, 101);
@@ -849,15 +849,15 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
 			if (!IS_NPC(killer) &&
 			    AFF_FLAGGED(killer, AFF_GROUP) &&
 			    killer->master &&
-			    GET_SKILL(killer->master, SKILL_LEADERSHIP) > 0 &&
+			    get_skill(killer->master, SKILL_LEADERSHIP) > 0 &&
 			    IN_ROOM(killer) == IN_ROOM(killer->master))
 				improove_skill(killer->master, SKILL_LEADERSHIP, number(0, 1), ch);
 
 		if (!IS_NPC(ch) && killer) {	/* decrease LEADERSHIP */
 			if (IS_NPC(killer) &&
 			    AFF_FLAGGED(ch, AFF_GROUP) && ch->master && IN_ROOM(ch) == IN_ROOM(ch->master)) {
-				if (GET_SKILL(ch->master, SKILL_LEADERSHIP) > 1)
-					GET_SKILL(ch->master, SKILL_LEADERSHIP)--;
+				if (get_skill(ch->master, SKILL_LEADERSHIP) > 1)
+					SET_SKILL(ch->master, SKILL_LEADERSHIP, get_skill(ch->master, SKILL_LEADERSHIP) - 1);
 			}
 		}
 		pk_revenge_action(killer, ch);
@@ -1327,7 +1327,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			return dam;
 		case 5:	// Hit genus, victim bashed, speed/2
 			SET_AF_BATTLE(victim, EAF_SLOW);
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 10);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 10);
 		case 4:	// victim bashed
 			if (GET_POS (victim) > POS_SITTING)
 				GET_POS (victim) = POS_SITTING;
@@ -1336,7 +1336,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			to_vict = "повредило Вам колено";
 			break;
 		case 6:	// foot damaged, speed/2
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL)/ 9);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL)/ 9);
 			to_char = "замедлило движения $N1";
 			to_vict = "сломало Вам лодыжку";
 			SET_AF_BATTLE(victim, EAF_SLOW);
@@ -1346,7 +1346,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			if (GET_EQ(victim, WEAR_LEGS))
 				alt_equip(victim, WEAR_LEGS, 100, 100);
 			else {
-				dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 8);
+				dam *= (get_skill (ch, SKILL_PUNCTUAL) / 8);
 				to_char = "замедлило движения $N1";
 				to_vict = "сломало Вам ногу";
 				af[0].type = SPELL_BATTLE;
@@ -1355,7 +1355,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			}
 			break;
 		case 8:	// femor damaged, no speed
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 7);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 7);
 			to_char = "сильно замедлило движения $N1";
 			to_vict = "сломало Вам бедро";
 			af[0].type = SPELL_BATTLE;
@@ -1364,7 +1364,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 10:	// genus damaged, no speed, -2HR
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 7);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 7);
 			to_char = "сильно замедлило движения $N1";
 			to_vict = "раздробило Вам колено";
 			af[0].type = SPELL_BATTLE;
@@ -1374,7 +1374,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 11:	// femor damaged, no speed, no attack
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 7);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 7);
 			to_char = "вывело $N3 из строя";
 			to_vict = "раздробило Вам бедро";
 			af[0].type = SPELL_BATTLE;
@@ -1387,9 +1387,9 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			break;
 		default:	// femor damaged, no speed, no attack
 			if (dam_critic > 12)
-				dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 5);
+				dam *= (get_skill (ch, SKILL_PUNCTUAL) / 5);
 			else
-				dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 6);
+				dam *= (get_skill (ch, SKILL_PUNCTUAL) / 6);
 			to_char = "вывело $N3 из строя";
 			to_vict = "изуродовало Вам ногу";
 			af[0].type = SPELL_BATTLE;
@@ -1416,7 +1416,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			break;
 
 		case 5:	// abdomin damaged, waits 1, speed/2
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 8);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 8);
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 			to_char = "ранило $N3 в живот";
 			to_vict = "ранило Вас в живот";
@@ -1427,13 +1427,13 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			if (GET_EQ(victim, WEAR_WAIST))
 				alt_equip(victim, WEAR_WAIST, 100, 100);
 			else
-				dam *= (GET_SKILL (ch, SKILL_PUNCTUAL)/ 7);
+				dam *= (get_skill (ch, SKILL_PUNCTUAL)/ 7);
 			to_char = "повредило $N2 живот";
 			to_vict = "повредило Вам живот";
 			break;
 		case 7:
 		case 8:	// abdomin damage, speed/2, HR-2
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 6);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 6);
 			to_char = "ранило $N3 в живот";
 			to_vict = "ранило Вас в живот";
 			af[0].type = SPELL_BATTLE;
@@ -1443,7 +1443,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 9:	// armor damaged, abdomin damaged, speed/2, HR-2
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 5);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 5);
 			alt_equip(victim, WEAR_BODY, 100, 100);
 			to_char = "ранило $N3 в живот";
 			to_vict = "ранило Вас в живот";
@@ -1455,7 +1455,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 10:	// abdomin damaged, no speed, no attack
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 4);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 4);
 			to_char = "повредило $N2 живот";
 			to_vict = "повредило Вам живот";
 			af[0].type = SPELL_BATTLE;
@@ -1467,7 +1467,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 11:	// abdomin damaged, no speed, no attack
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 3);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 3);
 			to_char = "разорвало $N2 живот";
 			to_vict = "разорвало Вам живот";
 			af[0].type = SPELL_BATTLE;
@@ -1479,7 +1479,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		default:	// abdomin damaged, hits = 0
-			dam *= GET_SKILL (ch, SKILL_PUNCTUAL) / 2;
+			dam *= get_skill (ch, SKILL_PUNCTUAL) / 2;
 			to_char = "размозжило $N2 живот";
 			to_vict = "размозжило Вам живот";
 			haemorragia(victim, 60);
@@ -1503,7 +1503,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			to_vict = "повредило Вам грудь";
 			break;
 		case 5:	// chest damaged, waits 1, speed/2
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 6);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 6);
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 			to_char = "повредило $N2 туловище";
 			to_vict = "повредило Вам туловище";
@@ -1513,7 +1513,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			break;
 		case 6:	// shield damaged, chest damaged, speed/2
 			alt_equip(victim, WEAR_SHIELD, 100, 100);
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 6);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 6);
 			to_char = "повредило $N2 туловище";
 			to_vict = "повредило Вам туловище";
 			af[0].type = SPELL_BATTLE;
@@ -1522,7 +1522,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			break;
 		case 7:	// srmor damaged, chest damaged, speed/2, HR-2
 			alt_equip(victim, WEAR_BODY, 100, 100);
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 5);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 5);
 			to_char = "повредило $N2 туловище";
 			to_vict = "повредило Вам туловище";
 			af[0].type = SPELL_BATTLE;
@@ -1532,7 +1532,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 8:	// chest damaged, no speed, no attack
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 5);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 5);
 			to_char = "вывело $N3 из строя";
 			to_vict = "повредило Вам туловище";
 			af[0].type = SPELL_BATTLE;
@@ -1544,7 +1544,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 9:	// chest damaged, speed/2, HR-2
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 4);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 4);
 			to_char = "заставило $N3 ослабить натиск";
 			to_vict = "сломало Вам ребра";
 			af[0].type = SPELL_BATTLE;
@@ -1556,7 +1556,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		case 10:	// chest damaged, no speed, no attack
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 4);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 4);
 			to_char = "вывело $N3 из строя";
 			to_vict = "сломало Вам ребра";
 			af[0].type = SPELL_BATTLE;
@@ -1571,7 +1571,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			af[0].type = SPELL_BATTLE;
 			af[0].bitvector = AFF_STOPFIGHT;
 			af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
-			dam *= GET_SKILL (ch, SKILL_PUNCTUAL) / 2;
+			dam *= get_skill (ch, SKILL_PUNCTUAL) / 2;
 			haemorragia(victim, 50);
 			to_char = "вывело $N3 из строя";
 			to_vict = "разорвало Вам грудь";
@@ -1580,7 +1580,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			af[0].type = SPELL_BATTLE;
 			af[0].bitvector = AFF_STOPFIGHT;
 			af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
-			dam *= GET_SKILL (ch, SKILL_PUNCTUAL);
+			dam *= get_skill (ch, SKILL_PUNCTUAL);
 			haemorragia(victim, 60);
 			to_char = "вывело $N3 из строя";
 			to_vict = "размозжило Вам грудь";
@@ -1634,14 +1634,14 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			else
 				alt_equip(victim, WEAR_HANDS, 100, 100);
 			if (!GET_EQ(victim, WEAR_ARMS) && !GET_EQ(victim, WEAR_HANDS))
-				dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 7);
+				dam *= (get_skill (ch, SKILL_PUNCTUAL) / 7);
 			to_char = "ослабило атаку $N1";
 			to_vict = "повредило Вам руку";
 			break;
 		case 8:	// shield damaged, hands damaged, waits 1
 			alt_equip(victim, WEAR_SHIELD, 100, 100);
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 7);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 7);
 			to_char = "придержало $N3";
 			to_vict = "повредило Вам руку";
 			break;
@@ -1653,7 +1653,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 				unequip_pos = WEAR_WIELD;
 			else if (GET_EQ(victim, WEAR_HOLD))
 				unequip_pos = WEAR_HOLD;
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 6);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 6);
 			to_char = "придержало $N3";
 			to_vict = "повредило Вам руку";
 			break;
@@ -1703,7 +1703,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			af[1].bitvector = AFF_NOFLEE;
 			haemorragia(victim, 30);
 			if (dam_critic >= 13)
-				dam *= GET_SKILL (ch, SKILL_PUNCTUAL) / 5;
+				dam *= get_skill (ch, SKILL_PUNCTUAL) / 5;
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			break;
 		}
@@ -1730,7 +1730,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 				af[0].location = APPLY_HITROLL;
 				af[0].modifier = -2;
 			}
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 4);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 4);
 			to_char = "повредило $N2 голову";
 			to_vict = "повредило Вам голову";
 			break;
@@ -1738,7 +1738,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_HITROLL;
 			af[0].modifier = -2;
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 4);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 4);
 			to_char = "повредило $N2 голову";
 			to_vict = "повредило Вам голову";
 			break;
@@ -1756,7 +1756,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			WAIT_STATE(victim, 4 * PULSE_VIOLENCE);
 			alt_equip(victim, WEAR_HEAD, 100, 100);
 		//dam = GET_HIT(victim);
-			dam *= GET_SKILL (ch, SKILL_PUNCTUAL);
+			dam *= get_skill (ch, SKILL_PUNCTUAL);
 			to_char = "отбило у $N1 сознание";
 			to_vict = "отбило у Вас сознание";
 			haemorragia(victim, 20);
@@ -1766,12 +1766,12 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			af[0].bitvector = AFF_STOPFIGHT;
 			af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
 			haemorragia(victim, 30);
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 3);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 3);
 			to_char = "повергло $N3 в оцепенение";
 			to_vict = "повергло Вас в оцепенение";
 			break;
 		case 10:	// head damaged, -1 INT/WIS/CHA
-			dam *= (GET_SKILL (ch, SKILL_PUNCTUAL) / 2);
+			dam *= (get_skill (ch, SKILL_PUNCTUAL) / 2);
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_INT;
 			af[0].modifier = -1;
@@ -1795,7 +1795,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			to_vict = "сорвало у Вас крышу";
 			break;
 		case 11:	// hits 0, WIS/2, INT/2, CHA/2
-			dam *= GET_SKILL (ch, SKILL_PUNCTUAL);
+			dam *= get_skill (ch, SKILL_PUNCTUAL);
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_INT;
 			af[0].modifier = -GET_INT(victim) / 2;
@@ -1831,7 +1831,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			af[2].modifier = -GET_CHA(victim) / 2;
 			af[2].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 			af[2].battleflag = AF_DEADKEEP;
-			dam *= GET_SKILL (ch, SKILL_PUNCTUAL);
+			dam *= get_skill (ch, SKILL_PUNCTUAL);
 			to_char = "размозжило $N2 голову";
 			to_vict = "размозжило Вам голову";
 			haemorragia(victim, 90);
@@ -2029,7 +2029,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 					CCBLU(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
 				lag = 2;
-				k = GET_SKILL(ch, SKILL_STUPOR)/30;
+				k = get_skill(ch, SKILL_STUPOR)/30;
 				if (!IS_NPC(victim))
 				    k = MIN(2, k);
 				dam *= MAX (1, number(1, k));
@@ -2053,7 +2053,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 					act("$n своим оглушающим ударом сбил$a $N3 с ног.", TRUE, ch,
 					    0, victim, TO_NOTVICT);
 				lag = 2;
-                                k = GET_SKILL(ch, SKILL_STUPOR)/20;
+                                k = get_skill(ch, SKILL_STUPOR)/20;
                                 if (!IS_NPC(victim))
                                     k = MIN(4, k);
                                 dam *= MAX (1, number(1, k));
@@ -2590,8 +2590,8 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 	    GET_OBJ_SKILL(wielded) == SKILL_BOWS &&
 	    GET_EQ(ch, WEAR_BOTHS)) {
 		/* Лук в обеих руках - юзаем доп. или двойной выстрел */
-		if (can_use_feat(ch, DOUBLESHOT_FEAT) && !GET_SKILL(ch, SKILL_ADDSHOT)
-		    && MIN(850, 200 + GET_SKILL(ch, SKILL_BOWS) * 4 + GET_REAL_DEX(ch) * 5) >= number(1, 1000)) {
+		if (can_use_feat(ch, DOUBLESHOT_FEAT) && !get_skill(ch, SKILL_ADDSHOT)
+		    && MIN(850, 200 + get_skill(ch, SKILL_BOWS) * 4 + GET_REAL_DEX(ch) * 5) >= number(1, 1000)) {
 			hit(ch, FIGHTING(ch), type, weapon);
 			prob = 0;
 		} else
@@ -2780,7 +2780,7 @@ inline int do_punctual(CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *wielded)
 			dam_critic = dice (3, 6);
 		else
 			dam_critic = dice (4, 5);
-		skill = 1 + GET_SKILL(ch,SKILL_PUNCTUAL) / 6;
+		skill = 1 + get_skill(ch,SKILL_PUNCTUAL) / 6;
 		dam_critic = MIN (number (4, skill), dam_critic);
 
 	return dam_critic;
@@ -2837,7 +2837,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 	dam = 0;
 
 	/* Обработка SKILL_NOPARRYHIT */
-	if (type == TYPE_UNDEFINED && GET_SKILL(ch, SKILL_NOPARRYHIT)) {
+	if (type == TYPE_UNDEFINED && get_skill(ch, SKILL_NOPARRYHIT)) {
 		if ((train_skill
 		     (ch, SKILL_NOPARRYHIT, skill_info[SKILL_NOPARRYHIT].max_percent,
 		      FIGHTING(ch)) >= number(1, skill_info[SKILL_NOPARRYHIT].max_percent)) || WAITLESS(ch)) {
@@ -2900,7 +2900,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 // shapirus: старый штраф нифига не работает, тем более, что unknown_weapon_fault
 // нигде не определяется. сделан новый на базе инты чара. плюс сделан штраф на дамролл.
 // если скилл есть, то штраф не даем, а применяем бонусы/штрафы по профам
-			if (GET_SKILL(ch, skill) == 0) {
+			if (get_skill(ch, skill) == 0) {
 				calc_thaco += (50 - MIN(50, GET_REAL_INT(ch))) / 3;
 				dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
 			} else {
@@ -2920,7 +2920,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		weapon_pos = 0;
 //      diceroll = number (0, skill_info[skill].max_percent);
 		skill_is = train_skill(ch, skill, skill_info[skill].max_percent, victim);
-//      skill_is = MIN (GET_SKILL (ch, skill), skill_info[skill].max_percent);
+//      skill_is = MIN (get_skill (ch, skill), skill_info[skill].max_percent);
 
 		if (!IS_NPC(ch)) {
 			// кулаками у нас полагается бить только богатырям :)
@@ -3013,20 +3013,20 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		range = number(1, skill_info[SKILL_COURAGE].max_percent + GET_REAL_MAX_HIT(ch) - GET_HIT(ch));
 		prob = train_skill(ch, SKILL_COURAGE, skill_info[SKILL_COURAGE].max_percent, victim);
 		if (prob > range) {
-			dam += ((GET_SKILL(ch, SKILL_COURAGE) + 19) / 20);
-			calc_thaco += ((GET_SKILL(ch, SKILL_COURAGE) + 9) / 20);
+			dam += ((get_skill(ch, SKILL_COURAGE) + 19) / 20);
+			calc_thaco += ((get_skill(ch, SKILL_COURAGE) + 9) / 20);
 		}
 	}
 //Adept: увеличение шанса попасть при нанесении удара богатырским молотом
 	if (skill == SKILL_STUPOR || skill == SKILL_MIGHTHIT)
-		calc_thaco -= (int) MAX(0, (GET_SKILL(ch, skill) - 70) / 8);
+		calc_thaco -= (int) MAX(0, (get_skill(ch, skill) - 70) / 8);
 
 	//    AWAKE style - decrease hitroll
 	if (GET_AF_BATTLE(ch, EAF_AWAKE) &&
 	    (IS_NPC(ch) || GET_CLASS(ch) != CLASS_ASSASINE) && skill != SKILL_THROW && skill != SKILL_BACKSTAB) {
-		calc_thaco += ((GET_SKILL(ch, SKILL_AWAKE) + 9) / 10) + 2;
-		if (GET_SKILL(ch, SKILL_AWAKE) > 50 && !IS_NPC(ch))
-			dam = dam / (GET_SKILL(ch, SKILL_AWAKE) / 50);
+		calc_thaco += ((get_skill(ch, SKILL_AWAKE) + 9) / 10) + 2;
+		if (get_skill(ch, SKILL_AWAKE) > 50 && !IS_NPC(ch))
+			dam = dam / (get_skill(ch, SKILL_AWAKE) / 50);
 	}
 
 	if (!IS_NPC(ch) && skill != SKILL_THROW && skill != SKILL_BACKSTAB) {	// PUNCTUAL style - decrease PC damage
@@ -3055,8 +3055,8 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 				calc_thaco -= ((prob - range) + 19 / 20);
 		}
 		// Skill level increase damage
-		if (GET_SKILL(ch, skill) >= 60)
-			dam += ((GET_SKILL(ch, skill) - 50) / 10);
+		if (get_skill(ch, skill) >= 60)
+			dam += ((get_skill(ch, skill) - 50) / 10);
 	}
 	// not can see (blind, dark, etc)
 	if (!CAN_SEE(ch, victim))
@@ -3096,11 +3096,11 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 
 	// "Dirty" methods for battle
 	if (skill != SKILL_THROW && skill != SKILL_BACKSTAB) {
-		prob = (GET_SKILL(ch, skill) + cha_app[GET_REAL_CHA(ch)].illusive) -
-		    (GET_SKILL(victim, skill) + int_app[GET_REAL_INT(victim)].observation);
+		prob = (get_skill(ch, skill) + cha_app[GET_REAL_CHA(ch)].illusive) -
+		    (get_skill(victim, skill) + int_app[GET_REAL_INT(victim)].observation);
 		if (prob >= 30 && !GET_AF_BATTLE(victim, EAF_AWAKE)
 		    && (IS_NPC(ch) || !GET_AF_BATTLE(ch, EAF_PUNCTUAL))) {
-			calc_thaco -= (GET_SKILL(ch, skill) - GET_SKILL(victim, skill) > 60 ? 2 : 1);
+			calc_thaco -= (get_skill(ch, skill) - get_skill(victim, skill) > 60 ? 2 : 1);
 			if (!IS_NPC(victim))
 				dam += (prob >= 70 ? 3 : (prob >= 50 ? 2 : 1));
 		}
@@ -3135,7 +3135,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		skill_is = calculate_skill(ch, GET_OBJ_SKILL(wielded),
 					   skill_info[GET_OBJ_SKILL(wielded)].max_percent, victim);
 		if (skill == SKILL_BACKSTAB)
-			calc_thaco -= MAX(0, (GET_SKILL(ch,SKILL_SNEAK) + GET_SKILL(ch,SKILL_HIDE)- 100)/30);
+			calc_thaco -= MAX(0, (get_skill(ch,SKILL_SNEAK) + get_skill(ch,SKILL_HIDE)- 100)/30);
 	} else
 // тюнинг оверности делается тут :)
 		calc_thaco += 4;
@@ -3285,9 +3285,9 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			dam *= 2;
 		if (AFF_FLAGGED(victim, AFF_SANCTUARY) && dam >= 2)
 			dam /= 2;
-		if (GET_SKILL(ch, SKILL_NOPARRYHIT))
+		if (get_skill(ch, SKILL_NOPARRYHIT))
 			dam += (int) ((GET_LEVEL(ch) / 3 + GET_REMORT(ch) * 3) *
-				GET_SKILL(ch, SKILL_NOPARRYHIT) /
+				get_skill(ch, SKILL_NOPARRYHIT) /
 				skill_info[SKILL_NOPARRYHIT].max_percent);
 
 		//dzMUDiST Обработка !исступления! +Gorrah
@@ -3307,19 +3307,19 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		/* Маги, волхвы и не-купеческие чармисы не умеют критать */
 		if (!IS_MAGIC_USER(ch) && !IS_DRUID(ch)
 		    || (IS_NPC(ch) && (!AFF_FLAGGED(ch, AFF_CHARM) || AFF_FLAGGED(ch, AFF_HELPER)))) {
-			was_critic = MIN(GET_SKILL(ch, skill), 70);
+			was_critic = MIN(get_skill(ch, skill), 70);
 			/* Gorrah Мастерские фиты по оружию удваивают шанс критического попадания */
 			for (i = PUNCH_MASTER_FEAT; i <= BOWS_MASTER_FEAT; i++)
 			    if ((ubyte) feat_info[i].affected[0].location == skill && can_use_feat(ch, i)) {
-				was_critic += MAX(0, GET_SKILL(ch, skill) -  70);
+				was_critic += MAX(0, get_skill(ch, skill) -  70);
 				break;
 			    }
 			if (GET_CLASS(ch) == CLASS_THIEF)
-			    was_critic += GET_SKILL(ch,SKILL_BACKSTAB);
+			    was_critic += get_skill(ch,SKILL_BACKSTAB);
 			if (GET_CLASS(ch) == CLASS_PALADINE)
-			    was_critic += (int) (GET_SKILL(ch,SKILL_PUNCTUAL) / 2);
+			    was_critic += (int) (get_skill(ch,SKILL_PUNCTUAL) / 2);
 			if (GET_CLASS(ch) == CLASS_ASSASINE)
-			    was_critic += (int) (GET_SKILL(ch,SKILL_NOPARRYHIT) / 3);
+			    was_critic += (int) (get_skill(ch,SKILL_NOPARRYHIT) / 3);
 			if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
 			    was_critic += GET_LEVEL(ch);
 		}
@@ -3335,12 +3335,12 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			   вероятность критстабба - стабб/20+ловкость-20 (кард) */
 			/*+скр.удар/20 */
 			if (IS_NPC(victim) && (number(1, 100) <
-				(GET_SKILL(ch, SKILL_BACKSTAB) / 20 + GET_REAL_DEX(ch) - 20)))
+				(get_skill(ch, SKILL_BACKSTAB) / 20 + GET_REAL_DEX(ch) - 20)))
 	  			if (!general_savingthrow(victim,SAVING_REFLEX,
-					MAX (0, GET_SKILL(ch,SKILL_BACKSTAB) -
+					MAX (0, get_skill(ch,SKILL_BACKSTAB) -
 						skill_info[SKILL_BACKSTAB].max_percent +
 						dex_app[GET_REAL_DEX(ch)].reaction),0))	{
-					dam *= MAX(2, (GET_SKILL(ch,SKILL_BACKSTAB) - 40) / 8);
+					dam *= MAX(2, (get_skill(ch,SKILL_BACKSTAB) - 40) / 8);
 					send_to_char("&GПрямо в сердце!&n\r\n", ch);
 				}
 
@@ -4302,7 +4302,7 @@ void perform_violence(void)
 					for (vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next_in_room)
 						if (FIGHTING(vict) == ch && vict != ch && vict != k->follower)
 							break;
-					if (vict && GET_SKILL(k->follower, SKILL_RESCUE)) {	//if(GET_MOB_VNUM(k->follower)==108)
+					if (vict && get_skill(k->follower, SKILL_RESCUE)) {	//if(GET_MOB_VNUM(k->follower)==108)
 //       act("TRYING RESC for STOPFIGHT", TRUE, ch, 0, 0, TO_CHAR);
 						go_rescue(k->follower, ch, vict);
 					}
@@ -4334,49 +4334,49 @@ void perform_violence(void)
 			// 1) parry
 			do_this = number(0, 100);
 			sk_use = FALSE;
-			if (!sk_use && do_this <= GET_LIKES(ch) && GET_SKILL(ch, SKILL_PARRY)) {
+			if (!sk_use && do_this <= GET_LIKES(ch) && get_skill(ch, SKILL_PARRY)) {
 				SET_AF_BATTLE(ch, EAF_PARRY);
 				sk_use = TRUE;
 			}
 			// 2) blocking
 			do_this = number(0, 100);
-			if (!sk_use && do_this <= GET_LIKES(ch) && GET_SKILL(ch, SKILL_BLOCK)) {
+			if (!sk_use && do_this <= GET_LIKES(ch) && get_skill(ch, SKILL_BLOCK)) {
 				SET_AF_BATTLE(ch, EAF_BLOCK);
 				sk_use = TRUE;
 			}
 			// 3) multyparry
 			do_this = number(0, 100);
-			if (!sk_use && do_this <= GET_LIKES(ch) && GET_SKILL(ch, SKILL_MULTYPARRY)) {
+			if (!sk_use && do_this <= GET_LIKES(ch) && get_skill(ch, SKILL_MULTYPARRY)) {
 				SET_AF_BATTLE(ch, EAF_MULTYPARRY);
 				sk_use = TRUE;
 			}
 
 			// 4) deviate
 			do_this = number(0, 100);
-			if (!sk_use && do_this <= GET_LIKES(ch) && GET_SKILL(ch, SKILL_DEVIATE)) {
+			if (!sk_use && do_this <= GET_LIKES(ch) && get_skill(ch, SKILL_DEVIATE)) {
 				SET_AF_BATTLE(ch, EAF_DEVIATE);
 				sk_use = TRUE;
 			}
 			// 5) stupor
 			do_this = number(0, 100);
-			if (!sk_use && do_this <= GET_LIKES(ch) && GET_SKILL(ch, SKILL_STUPOR)) {
+			if (!sk_use && do_this <= GET_LIKES(ch) && get_skill(ch, SKILL_STUPOR)) {
 				SET_AF_BATTLE(ch, EAF_STUPOR);
 				sk_use = TRUE;
 			}
 			// 6) mighthit
 			do_this = number(0, 100);
-			if (!sk_use && do_this <= GET_LIKES(ch) && GET_SKILL(ch, SKILL_STUPOR)) {
+			if (!sk_use && do_this <= GET_LIKES(ch) && get_skill(ch, SKILL_STUPOR)) {
 				SET_AF_BATTLE(ch, EAF_MIGHTHIT);
 				sk_use = TRUE;
 			}
 			// 7) styles
 			do_this = number(0, 100);
-			if (do_this <= GET_LIKES(ch) && GET_SKILL(ch, SKILL_AWAKE) > number(1, 101))
+			if (do_this <= GET_LIKES(ch) && get_skill(ch, SKILL_AWAKE) > number(1, 101))
 				SET_AF_BATTLE(ch, EAF_AWAKE);
 			else
 				CLR_AF_BATTLE(ch, EAF_AWAKE);
 			do_this = number(0, 100);
-			if (do_this <= GET_LIKES(ch) && GET_SKILL(ch, SKILL_PUNCTUAL) > number(1, 101))
+			if (do_this <= GET_LIKES(ch) && get_skill(ch, SKILL_PUNCTUAL) > number(1, 101))
 				SET_AF_BATTLE(ch, EAF_PUNCTUAL);
 			else
 				CLR_AF_BATTLE(ch, EAF_PUNCTUAL);
@@ -4464,11 +4464,11 @@ void perform_violence(void)
 					for (vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next_in_room)
 						if (FIGHTING(vict) == ch->master && vict != ch && vict != ch->master)
 							break;
-					if (vict && (GET_SKILL(ch, SKILL_RESCUE)	// бред какой-то || GET_REAL_INT(ch) < number(0,100)
+					if (vict && (get_skill(ch, SKILL_RESCUE)	// бред какой-то || GET_REAL_INT(ch) < number(0,100)
 					    )) {	//if(GET_MOB_VNUM(ch)==108 && ch->master)
 //                       act("TRYING to RESCUE in FIGHT", TRUE, ch->master, 0, 0, TO_CHAR);
 						go_rescue(ch, ch->master, vict);
-					} else if (vict && GET_SKILL(ch, SKILL_PROTECT))
+					} else if (vict && get_skill(ch, SKILL_PROTECT))
 						go_protect(ch, ch->master);
 				} else if (!AFF_FLAGGED(ch, AFF_CHARM))
 					for (sk_num = 0, sk_use = GET_REAL_INT(ch)
@@ -4497,7 +4497,7 @@ void perform_violence(void)
 							sk_num = SKILL_CHOPOFF;
 						else
 							sk_num = SKILL_BASH;
-						if (GET_SKILL(ch, sk_num) <= 0)
+						if (get_skill(ch, sk_num) <= 0)
 							sk_num = 0;
 						if (!sk_num)
 							continue;
@@ -4801,7 +4801,7 @@ void perform_violence(void)
 				    GET_AF_BATTLE(ch, EAF_SECOND) &&
 				    !AFF_FLAGGED(ch, AFF_STOPLEFT) &&
 				    (IS_IMMORTAL(ch) ||
-				     GET_GOD_FLAG(ch, GF_GODSLIKE) || GET_SKILL(ch, SKILL_SATTACK) > number(1, 101))) {
+				     GET_GOD_FLAG(ch, GF_GODSLIKE) || get_skill(ch, SKILL_SATTACK) > number(1, 101))) {
 					if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) ||
 					    !GET_AF_BATTLE(ch, EAF_USEDLEFT))
 						exthit(ch, TYPE_UNDEFINED, 2);
@@ -4811,7 +4811,7 @@ void perform_violence(void)
 				if (!GET_EQ(ch, WEAR_HOLD) && !GET_EQ(ch, WEAR_LIGHT) &&
 					    !GET_EQ(ch, WEAR_SHIELD) && !GET_EQ(ch, WEAR_BOTHS) &&
 					    !AFF_FLAGGED(ch, AFF_STOPLEFT) &&
-					    GET_AF_BATTLE(ch, EAF_SECOND) && GET_SKILL(ch, SKILL_SHIT)) {
+					    GET_AF_BATTLE(ch, EAF_SECOND) && get_skill(ch, SKILL_SHIT)) {
 					if (IS_IMMORTAL(ch) || !GET_AF_BATTLE(ch, EAF_USEDLEFT))
 						exthit(ch, TYPE_UNDEFINED, 2);
 					CLR_AF_BATTLE(ch, EAF_SECOND);
@@ -4830,7 +4830,7 @@ void perform_violence(void)
 						for (vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next_in_room)
 							if (FIGHTING(vict) == ch && vict != ch && vict != k->follower)
 								break;
-						if (vict && GET_SKILL(k->follower, SKILL_RESCUE)) {
+						if (vict && get_skill(k->follower, SKILL_RESCUE)) {
 //                if(GET_MOB_VNUM(k->follower)==108)
 //                  act("TRYING to RESCUE without FIGHTING", TRUE, ch, 0, 0, TO_CHAR);
 							go_rescue(k->follower, ch, vict);

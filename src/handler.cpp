@@ -3197,7 +3197,7 @@ float get_damage_per_round(CHAR_DATA * victim)
 			 victim->mob_specials.damnodice *
 			 (victim->mob_specials.damsizedice + 1) / 2.0) *
 	    (1 + victim->mob_specials.ExtraAttack +
-	     2 * GET_SKILL(victim, SKILL_ADDSHOT) / MAX(1, GET_SKILL(victim, SKILL_ADDSHOT)));
+	     2 * get_skill(victim, SKILL_ADDSHOT) / MAX(1, get_skill(victim, SKILL_ADDSHOT)));
 
 //Если дыхание - то дамаг умножается на 1.1
 	if (MOB_FLAGGED(victim, (MOB_FIREBREATH | MOB_GASBREATH | MOB_FROSTBREATH | MOB_ACIDBREATH | MOB_LIGHTBREATH)))

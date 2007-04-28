@@ -32,11 +32,11 @@
 #include "im.h"
 #include "utils.h"
 #include "top.h"
-#include "privileges.hpp"
 #include "ban.hpp"
 #include "description.h"
 #include "title.hpp"
 #include "password.hpp"
+#include "privilege.hpp"
 
 /*   external vars  */
 extern FILE *player_fl;
@@ -82,7 +82,6 @@ extern const char *pc_kin_types[];
 extern void agree_name(CHAR_DATA * d, char *immname, int immlev);
 extern void disagree_name(CHAR_DATA * d, char *immname, int immlev);
 /* privileges class */
-extern PrivList *priv;
 extern int reboot_uptime;
 extern BanList *ban;
 
@@ -3230,11 +3229,7 @@ ACMD(do_show)
 	if (!*argument) {
 		strcpy(buf, "Опции для показа:\r\n");
 		for (j = 0, i = 1; show_fields[i].level; i++)
-//          if (show_fields[i].level <= GET_LEVEL(ch) || GET_COMMSTATE(ch))
-			if (priv->
-			    enough_cmd_show_priv(std::string(GET_NAME(ch)), GET_LEVEL(ch),
-						 std::string(show_fields[i].cmd), GET_UNIQUE(ch))
-			    || GET_COMMSTATE(ch))
+			if (Privilege::can_do_priv(ch, std::string(show_fields[i].cmd), 0, 2) || GET_COMMSTATE(ch))
 				sprintf(buf + strlen(buf), "%-15s%s", show_fields[i].cmd, (!(++j % 5) ? "\r\n" : ""));
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
@@ -3247,8 +3242,7 @@ ACMD(do_show)
 		if (!strncmp(field, show_fields[l].cmd, strlen(field)))
 			break;
 
-	if (!priv->enough_cmd_show_priv(std::string(GET_NAME(ch)), GET_LEVEL(ch), std::string(show_fields[l].cmd), GET_UNIQUE(ch))
-	    && !GET_COMMSTATE(ch)) {
+	if (!Privilege::can_do_priv(ch, std::string(show_fields[l].cmd), 0, 2) && !GET_COMMSTATE(ch)) {
 		send_to_char("Вы не столь могущественны, чтобы узнать это.\r\n", ch);
 		return;
 	}
@@ -3674,8 +3668,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			}
 		}
 	}
-	if (!priv->enough_cmd_set_priv(std::string(GET_NAME(ch)), GET_LEVEL(ch), std::string(set_fields[mode].cmd), GET_UNIQUE(ch))
-	    && !GET_COMMSTATE(ch)) {
+	if (!Privilege::can_do_priv(ch, std::string(set_fields[mode].cmd), 0, 1) && !GET_COMMSTATE(ch)) {
 		send_to_char("Кем Вы себя возомнили ?\r\n", ch);
 		return (0);
 	}
@@ -4308,12 +4301,8 @@ ACMD(do_set)
 	if (!*name) {
 		strcpy(buf, "Возможные поля для изменения:\r\n");
 		for (int i = 0; set_fields[i].level; i++)
-			if (priv->
-			    enough_cmd_set_priv(std::string(GET_NAME(ch)), GET_LEVEL(ch),
-						std::string(set_fields[i].cmd), GET_UNIQUE(ch))
-			    || GET_COMMSTATE(ch))
-				sprintf(buf + strlen(buf), "%-15s%s", set_fields[i].cmd,
-					(!((i + 1) % 5) ? "\r\n" : ""));
+			if (Privilege::can_do_priv(ch, std::string(set_fields[i].cmd), 0, 1) || GET_COMMSTATE(ch))
+				sprintf(buf + strlen(buf), "%-15s%s", set_fields[i].cmd, (!((i + 1) % 5) ? "\r\n" : ""));
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 		return;
@@ -4550,122 +4539,6 @@ ACMD(do_liblist)
 	}
 
 	page_string(ch->desc, bf, 1);
-}
-
-ACMD(do_privileges)
-{
-	int mode = -1;
-	const int MODE_ADD = 1;
-	const int MODE_REMOVE = 2;
-
-	argument = two_arguments(argument, arg, buf);
-
-	if (!*arg) {
-		priv->PrintPrivList(ch);
-		return;
-	}
-
-	argument = any_one_arg(argument, buf1);
-
-	if (!strncmp(arg, "add", strlen(arg)) && *buf && *buf1)
-		mode = MODE_ADD;
-	else if (!strncmp(arg, "remove", strlen(arg)) && *buf && *buf1)
-		mode = MODE_REMOVE;
-	else {
-		arg[0] = UPPER(arg[0]);
-		priv->PrintPrivList(ch, std::string(arg));
-		return;
-	}
-
-	if (!IS_IMPL(ch) || str_cmp(GET_NAME(ch), "Стрибог")) {
-		send_to_char("Для выдачи команд обращайтесь к Стрибогу (:\r\n", ch);
-		return;
-	}
-
-	buf[0] = UPPER(buf[0]);	// Делаем заглавную букву у имени во избежание разночтений
-// Надо бы делать проверку buf на существование имени, но пока не стоит :).
-
-	argument = any_one_arg(argument, buf2);
-
-	switch (mode) {
-	case MODE_ADD:
-		if (!*buf2) {
-			if (!priv->add_cmd_priv(std::string(buf), std::string(buf1))) {
-				send_to_char("Ошибка: попытка добавить несуществующую команду.\r\n", ch);
-				return;
-			}
-			send_to_char(("Command '" + std::string(buf1) + "' added to " +
-				      std::string(buf) + "\r\n").c_str(), ch);
-			imm_log(("Command '" + std::string(buf1) + "' added to " +
-				 std::string(buf) + " by " + std::string(GET_NAME(ch))).c_str());
-			return;
-		}
-		if (!strncmp(buf1, "set", strlen(buf1))) {
-			if (!priv->add_cmd_set_priv(std::string(buf), std::string(buf2))) {
-				send_to_char("Ошибка: попытка добавить несуществующую подкоманду.\r\n", ch);
-				return;
-			}
-			send_to_char(("Set subcommand '" + std::string(buf2) +
-				      "' added to " + std::string(buf) + "\r\n").c_str(), ch);
-			imm_log(("Set subcommand '" + std::string(buf2) + "' added to " +
-				 std::string(buf) + " by " + std::string(GET_NAME(ch))).c_str());
-			return;
-		}
-		if (!strncmp(buf1, "show", strlen(buf1))) {
-			if (!priv->add_cmd_show_priv(std::string(buf), std::string(buf2))) {
-				send_to_char("Ошибка: попытка добавить несуществующую подкоманду.\r\n", ch);
-				return;
-			}
-			send_to_char(("Show subcommand '" + std::string(buf2) +
-				      "' added to " + std::string(buf) + "\r\n").c_str(), ch);
-			imm_log(("Show subcommand '" + std::string(buf2) + "' added to " +
-				 std::string(buf) + " by " + std::string(GET_NAME(ch))).c_str());
-			return;
-		}
-		send_to_char("Ошибка: попытка добавить подкоманду несуществующей команды.\r\n", ch);
-		return;
-		break;
-	case MODE_REMOVE:
-		if (!*buf2) {
-			if (!priv->rm_cmd_priv(std::string(buf), std::string(buf1))) {
-				send_to_char("Ошибка: попытка убрать несуществующую команду.\r\n", ch);
-				return;
-			}
-			send_to_char(("Command '" + std::string(buf1) +
-				      "' removed from " + std::string(buf) + "\r\n").c_str(), ch);
-			imm_log(("Command '" + std::string(buf1) + "' removed from " +
-				 std::string(buf) + " by " + std::string(GET_NAME(ch))).c_str());
-			return;
-		}
-		if (!strncmp(buf1, "set", strlen(buf1))) {
-			if (!priv->rm_cmd_set_priv(std::string(buf), std::string(buf2))) {
-				send_to_char("Ошибка: попытка убрать несуществующую подкоманду.\r\n", ch);
-				return;
-			}
-			send_to_char(("Set subcommand '" + std::string(buf2) +
-				      "' removed from " + std::string(buf) + "\r\n").c_str(), ch);
-			imm_log(("Set subcommand '" + std::string(buf2) +
-				 "' removed from " + std::string(buf) + " by " + std::string(GET_NAME(ch))).c_str());
-			return;
-		}
-		if (!strncmp(buf1, "show", strlen(buf1))) {
-			if (!priv->rm_cmd_show_priv(std::string(buf), std::string(buf2))) {
-				send_to_char("Ошибка: попытка убрать несуществующую подкоманду.\r\n", ch);
-				return;
-			}
-			send_to_char(("Show subcommand '" + std::string(buf2) +
-				      "' removed from " + std::string(buf) + "\r\n").c_str(), ch);
-			imm_log(("Show subcommand '" + std::string(buf2) +
-				 "' removed from " + std::string(buf) + " by " + std::string(GET_NAME(ch))).c_str());
-			return;
-		}
-		send_to_char("Ошибка: попытка убрать подкоманду несуществующей команды.\r\n", ch);
-		return;
-		break;
-	default:
-		send_to_char("Ошибка: неизвестная ошибка.\r\n", ch);
-		return;
-	}
 }
 
 ACMD(do_forcetime)
