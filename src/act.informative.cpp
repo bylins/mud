@@ -473,13 +473,13 @@ void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch)
 	else
 		percent = -1;	/* How could MAX_HIT be < 1?? */
 
-	if (percent >= 100)
-		return;
-
 	strcpy(buf, PERS(i, ch, 0));
 	CAP(buf);
 
-	if (percent >= 90) {
+	if (percent >= 100) {
+		sprintf(buf2, " невредим%s.", GET_CH_SUF_6(i));
+		strcat(buf, buf2);
+	} else if (percent >= 90) {
 		sprintf(buf2, " слегка поцарапан%s.", GET_CH_SUF_6(i));
 		strcat(buf, buf2);
 	} else if (percent >= 75) {

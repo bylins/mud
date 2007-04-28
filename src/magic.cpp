@@ -2216,9 +2216,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_POISON:
 		savetype = SAVING_CRITICAL;
-		if (ch != victim &&
-		    general_savingthrow(victim, savetype, modi + con_app[GET_REAL_CON(victim)].poison_saving, 0)) {
-			if (IN_ROOM(ch) == IN_ROOM(victim)) /* Добалвено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно*/
+		if (ch != victim && (AFF_FLAGGED(victim, AFF_SHIELD) ||
+		    general_savingthrow(victim, savetype, modi + con_app[GET_REAL_CON(victim)].poison_saving, 0))) {
+			if (IN_ROOM(ch) == IN_ROOM(victim)) /* Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно*/
 				send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
