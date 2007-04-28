@@ -274,9 +274,9 @@ void Privilege::load_god_boards()
 */
 bool Privilege::can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int mode)
 {
-	if (IS_NPC(ch)) return false;
 	if (!mode && cmd_info[cmd_number].minimum_level < LVL_IMMORT && GET_LEVEL(ch) >= cmd_info[cmd_number].minimum_level)
 		return true;
+	if (IS_NPC(ch)) return false;
 	GodListType::const_iterator it = god_list.find(GET_UNIQUE(ch));
 	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), 1)) {
 		if (GET_LEVEL(ch) == LVL_IMPL) return true;

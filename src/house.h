@@ -69,7 +69,9 @@
 
 #define CHEST_IDENT_PAY 110
 
-struct ClanMember {
+class ClanMember {
+	public:
+	ClanMember() : rank_num(0), money(0), exp(0), exp_persent(0), clan_exp(0) {};
 	std::string name;   // имя игрока
 	int rank_num;       // номер ранга
 	long long money;    // баланс персонажа по отношению к клановой казне

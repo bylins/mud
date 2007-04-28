@@ -1435,11 +1435,6 @@ void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 	tempClan->owner = owner;
 	ClanMemberPtr tempMember(new ClanMember);
 	tempMember->name = owner;
-	tempMember->rank_num = 0;
-	tempMember->money = 0;
-	tempMember->exp = 0;
-	tempMember->clan_exp = 0;
-	tempMember->exp_persent = 0;
 	tempClan->members[unique] = tempMember;
 	// названия
 	tempClan->abbrev = abbrev;
@@ -2675,10 +2670,6 @@ void Clan::ClanAddMember(CHAR_DATA * ch, int rank)
 	ClanMemberPtr tempMember(new ClanMember);
 	tempMember->name = GET_NAME(ch);
 	tempMember->rank_num = rank;
-	tempMember->money = 0;
-	tempMember->exp = 0;
-	tempMember->exp_persent = 0;
-	tempMember->clan_exp = 0;
 
 	this->members[GET_UNIQUE(ch)] = tempMember;
 	Clan::SetClanData(ch);
@@ -3237,9 +3228,9 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 		out << "Статистика Вашей дружины (поиск по имени '" << buffer2 << "'):\r\n";
 	} else
 		out << "Статистика Вашей дружины (находящиеся онлайн):\r\n";
-	out << CCNRM(ch, C_NRM) << "Имя             Рейтинговых очков  Опыта дружины  Заработано кун  Налог\r\n";
+	out << CCNRM(ch, C_NRM) << "Имя             Рейтинговых очков  Опыта дружины  Заработано кун  Налог Последний вход\r\n";
 
-	std::vector<ClanMemberPtr> temp_list; // для сортировки по экспе
+	std::map<long, std::pair<std::string, ClanMemberPtr> > temp_list; // для сортировки по экспе (exp, last_logon, pointer)
 
 	for (ClanMemberList::const_iterator it = this->members.begin(); it != this->members.end(); ++it) {
 		if (!all && !name) {
@@ -3250,21 +3241,22 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 			if (!CompareParam(buffer2, it->second->name))
 				continue;
 		}
-		temp_list.push_back(it->second);
+		char timeBuf[17];
+		long tmp_time = get_lastlogon_by_uniquie(it->first);
+		log("qwer: %ld", tmp_time);
+		if (tmp_time <= 0) tmp_time = time(0);
+		strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y", localtime(&tmp_time));
+		temp_list[it->second->exp] = std::make_pair(std::string(timeBuf), it->second);
 	}
 
-	std::sort(temp_list.begin(), temp_list.end(),
-		boost::bind(std::greater<long long>(),
-			boost::bind(&ClanMember::exp, _1),
-			boost::bind(&ClanMember::exp, _2)));
-
-	for (std::vector<ClanMemberPtr>::const_iterator it = temp_list.begin(); it != temp_list.end(); ++it) {
+	for (std::map<long, std::pair<std::string, ClanMemberPtr> >::reverse_iterator it = temp_list.rbegin(); it != temp_list.rend(); ++it) {
 		out.setf(std::ios_base::left, std::ios_base::adjustfield);
-		out << std::setw(15) << (*it)->name << " "
-			<< std::setw(18) << (*it)->exp << " "
-			<< std::setw(14) << (*it)->clan_exp << " "
-			<< std::setw(15) << (*it)->money << " "
-			<< std::setw(5) << (*it)->exp_persent << "\r\n";
+		out << std::setw(15) << it->second.second->name << " "
+			<< std::setw(18) << it->second.second->exp << " " // аналог it->first
+			<< std::setw(14) << it->second.second->clan_exp << " "
+			<< std::setw(15) << it->second.second->money << " "
+			<< std::setw(5)  << it->second.second->exp_persent << " "
+			<<std::setw(14)  << it->second.first << "\r\n";
 	}
 	page_string(ch->desc, out.str(), 1);
 }

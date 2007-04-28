@@ -4442,6 +4442,14 @@ int get_level_by_unique(long unique)
 	return level;
 }
 
+long get_lastlogon_by_uniquie(long unique)
+{
+	long time = 0;
+	for (int i = 0; i <= top_of_p_table; ++i)
+		if (player_table[i].unique == unique)
+			time = player_table[i].last_logon;
+	return time;
+}
 
 void delete_unique(CHAR_DATA * ch)
 {
@@ -5463,7 +5471,6 @@ void free_char(CHAR_DATA * ch)
 		id = get_ptable_by_name(GET_NAME(ch));
 		if (id >= 0) {
 			player_table[id].level = (GET_REMORT(ch) ? 30 : GET_LEVEL(ch));
-			player_table[id].last_logon = time(0);
 			player_table[id].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
 		}
 	}
@@ -6887,12 +6894,8 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	}
 	affect_total(ch);
 
-	if ((i = get_ptable_by_name(GET_NAME(ch))) >= 0) {
-		log("[CHAR TO STORE] Change logon time");
-		player_table[i].last_logon = -1;
+	if ((i = get_ptable_by_name(GET_NAME(ch))) >= 0)
 		player_table[i].level = GET_LEVEL(ch);
-	}
-
 }
 
 void rename_char(CHAR_DATA * ch, char *oname)

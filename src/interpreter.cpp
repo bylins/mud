@@ -2216,7 +2216,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	GET_ID(d->character) = GET_IDNUM(d->character);
 	GET_ACTIVITY(d->character) = number(0, PLAYER_SAVE_ACTIVITY - 1);
 	save_char(d->character, NOWHERE);
-	LAST_LOGON(d->character) = time(0);
+	player_table[GET_IDNUM(d->character)].last_logon = LAST_LOGON(d->character) = time(0);
 	add_logon_record(d);
 	act("$n вступил$g в игру.", TRUE, d->character, 0, 0, TO_ROOM);
 	/* with the copyover patch, this next line goes in enter_player_game() */

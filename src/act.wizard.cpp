@@ -1536,8 +1536,8 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 		if (CLAN(k))
 			send_to_char(ch, "Статус дружины: %s\r\n", GET_CLAN_STATUS(k));
 
-		strcpy(buf1, (char *) asctime(localtime(&(k->player.time.birth))));
-		strcpy(buf2, (char *) asctime(localtime(&(k->player.time.logon))));
+		strftime(buf1, sizeof(buf1), "%d-%m-%Y", localtime(&(k->player.time.birth)));
+		strftime(buf2, sizeof(buf1), "%d-%m-%Y", localtime(&(k->player.time.logon)));
 		buf1[10] = buf2[10] = '\0';
 
 		sprintf(buf,
