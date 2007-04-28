@@ -6894,8 +6894,10 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	}
 	affect_total(ch);
 
-	if ((i = get_ptable_by_name(GET_NAME(ch))) >= 0)
+	if ((i = get_ptable_by_name(GET_NAME(ch))) >= 0) {
+		player_table[i].last_logon = LAST_LOGON(ch);
 		player_table[i].level = GET_LEVEL(ch);
+	}
 }
 
 void rename_char(CHAR_DATA * ch, char *oname)
