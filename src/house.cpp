@@ -368,6 +368,8 @@ void Clan::ClanLoad()
 				boost::trim(buffer);
 				std::string authorName = GetNameByUnique(author);
 				std::string victimName = GetNameByUnique(victim, 1);
+				name_convert(authorName);
+				name_convert(victimName);
 				// если автора уже нет - сбросим УИД для верности
 				if (authorName.empty())
 					author = 0;
@@ -1642,8 +1644,8 @@ ACMD(DoClanPkList)
 		ClanPkPtr tempRecord(new ClanPk);
 		tempRecord->author = GET_UNIQUE(ch);
 		tempRecord->authorName = GET_NAME(ch);
-		buffer2[0] = UPPER(buffer2[0]);
 		tempRecord->victimName = buffer2;
+		name_convert(tempRecord->victimName);
 		tempRecord->time = time(0);
 		tempRecord->text = buffer;
 		if (!subcmd)
@@ -2750,10 +2752,10 @@ void Clan::CheckPkList(CHAR_DATA * ch)
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)	{
 		// пкл
 		if ((it = (*clan)->pkList.find(GET_UNIQUE(ch))) != (*clan)->pkList.end())
-			send_to_char(ch, "Находитесь в списке врагов дружины '%s'.\r\n", (*clan)->name.c_str());
+			send_to_char(ch, "Находитесь в списке врагов дружины '%s', добавивший: %s.\r\n", (*clan)->name.c_str(), it->second->authorName.c_str());
 		// дрл
 		if ((it = (*clan)->frList.find(GET_UNIQUE(ch))) != (*clan)->frList.end())
-			send_to_char(ch, "Находитесь в списке друзей дружины '%s'.\r\n", (*clan)->name.c_str());
+			send_to_char(ch, "Находитесь в списке друзей дружины '%s', добавивший: %s.\r\n", (*clan)->name.c_str(), it->second->authorName.c_str());
 	}
 }
 

@@ -4078,18 +4078,14 @@ ACMD(do_gen_ps)
 			if (!NAME_GOD(ch)) {
 				sprintf(buf, "Имя никем не одобрено!\r\n");
 				send_to_char(buf, ch);
-			} else if (NAME_GOD(ch) < 1000) {
-				/* подправлено Переплутом */
-				sprintf(buf1, "%s", get_name_by_id(NAME_ID_GOD(ch)));
-				*buf1 = UPPER(*buf1);
-				sprintf(buf, "&RИмя запрещено богом %s&n\r\n", buf1);
-				send_to_char(buf, ch);
 			} else {
-				/* подправлено Переплутом */
 				sprintf(buf1, "%s", get_name_by_id(NAME_ID_GOD(ch)));
 				*buf1 = UPPER(*buf1);
-				sprintf(buf, "&WИмя одобрено богом %s&n\r\n", buf1);
-				send_to_char(buf, ch);
+				if (NAME_GOD(ch) < 1000)
+					sprintf(buf, "&RИмя запрещено богом %s&n\r\n", buf1);
+				else
+					sprintf(buf, "&WИмя одобрено богом %s&n\r\n", buf1);
+    			send_to_char(buf, ch);
 			}
 			sprintf(buf, "Перевоплощений: %d\r\n", GET_REMORT(ch));
 			send_to_char(buf, ch);
