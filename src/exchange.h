@@ -55,6 +55,4 @@ struct exchange_item_data {
 	EXCHANGE_ITEM_DATA *next;	//для списка объектов базара
 };
 
-CHAR_DATA *get_char_by_id(int id);
-
 #endif

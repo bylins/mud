@@ -109,7 +109,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg);
 void medit_parse(DESCRIPTOR_DATA * d, char *arg);
 void sedit_parse(DESCRIPTOR_DATA * d, char *arg);
 void trigedit_parse(DESCRIPTOR_DATA * d, char *arg);
-void delete_unique(CHAR_DATA * ch);
 void Crash_timer_obj(int index, long timer_dec);
 int find_social(char *name);
 int calc_loadroom(CHAR_DATA * ch);

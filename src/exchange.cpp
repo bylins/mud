@@ -516,6 +516,15 @@ int exchange_identify(CHAR_DATA * ch, char *arg)
 	return true;
 
 }
+
+CHAR_DATA *get_char_by_id(int id)
+{
+	for (CHAR_DATA *i = character_list; i; i = i->next)
+		if (!IS_NPC(i) && GET_IDNUM(i) == id)
+			return (i);
+	return 0;
+}
+
 int exchange_purchase(CHAR_DATA * ch, char *arg)
 {
 	EXCHANGE_ITEM_DATA *item = NULL, *j, *next_thing = NULL;
@@ -1828,30 +1837,4 @@ void clear_exchange_lot(EXCHANGE_ITEM_DATA * lot)
 	if (lot->comment)
 		free(lot->comment);
 	free(lot);
-}
-
-CHAR_DATA *get_char_by_id(int id)
-{
-	CHAR_DATA *i;
-	DESCRIPTOR_DATA *d;
-
-	for (i = character_list; i; i = i->next) {
-		if (IS_NPC(i))
-			continue;
-		if (GET_IDNUM(i) != id)
-			continue;
-		return (i);
-	}
-	for (d = descriptor_list; d; d = d->next) {
-		if (!d->original)
-			log("NULL original");
-		if (!d->character)
-			log(" NULL char");
-		if (d->original && (GET_IDNUM(d->original) == id))
-			return (d->original);
-		if (d->character && (GET_IDNUM(d->character) == id))
-			return (d->character);
-	}
-
-	return (NULL);
 }

@@ -4459,15 +4459,6 @@ long get_lastlogon_by_uniquie(long unique)
 	return time;
 }
 
-void delete_unique(CHAR_DATA * ch)
-{
-	int i;
-
-	if ((i = get_id_by_name(GET_NAME(ch))) >= 0)
-		player_table[i].unique = GET_UNIQUE(ch) = -1;
-
-}
-
 int correct_unique(int unique)
 {
 	int i;
