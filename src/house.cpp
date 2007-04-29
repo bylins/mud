@@ -3245,7 +3245,6 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 		}
 		char timeBuf[17];
 		time_t tmp_time = get_lastlogon_by_uniquie(it->first);
-		log("qwer: %ld", tmp_time);
 		if (tmp_time <= 0) tmp_time = time(0);
 		strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y", localtime(&tmp_time));
 		temp_list[it->second->exp] = std::make_pair(std::string(timeBuf), it->second);
