@@ -2520,10 +2520,12 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		if (player_i > -1) {
 			if (PLR_FLAGGED(d->character, PLR_DELETED)) {
 				free_char(d->character);
+				d->character = 0;
 				CreateChar(d);
-			}
-			else {
+			} else {
 				SEND_TO_Q("Такой персонаж уже существует. Выберите другое имя : ", d);
+				free_char(d->character);
+				d->character = 0;
 				return;
 			}
 		}
