@@ -2701,7 +2701,7 @@ ACMD(do_mixture)
 {
 	if (IS_NPC(ch))
 		return;
-	if (!Privilege::check_flag(ch, Privilege::USE_SKILLS)) {
+	if (IS_IMMORTAL(ch) && !Privilege::check_flag(ch, Privilege::USE_SKILLS)) {
 		send_to_char("Не положено...\r\n", ch);
 		return;
 	}
