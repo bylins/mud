@@ -3257,7 +3257,7 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 			<< std::setw(14) << it->second.second->clan_exp << " "
 			<< std::setw(15) << it->second.second->money << " "
 			<< std::setw(5)  << it->second.second->exp_persent << " "
-			<<std::setw(14)  << it->second.first << "\r\n";
+			<< std::setw(14) << it->second.first << "\r\n";
 	}
 	page_string(ch->desc, out.str(), 1);
 }

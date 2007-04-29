@@ -4397,6 +4397,14 @@ long get_ptable_by_name(char *name)
 	return (-1);
 }
 
+long get_ptable_by_unique(long unique)
+{
+	for (int i = 0; i <= top_of_p_table; i++)
+		if (player_table[i].unique == unique)
+			return i;
+	return 0;
+}
+
 
 long get_id_by_name(char *name)
 {

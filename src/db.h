@@ -185,6 +185,7 @@ char *get_name_by_id(long id);
 char *get_name_by_unique(long id);
 int get_level_by_unique(long unique);
 long get_lastlogon_by_uniquie(long uniquie);
+long get_ptable_by_unique(long unique);
 int get_zone_rooms(int, int *, int *);
 
 int load_char(const char *name, CHAR_DATA * char_element, bool reboot = 0);
