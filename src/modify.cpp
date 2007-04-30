@@ -841,7 +841,7 @@ ACMD(do_featset)
 	CHAR_DATA *vict;
 	char name[MAX_INPUT_LENGTH], buf2[128];
 	char buf[MAX_INPUT_LENGTH], help[MAX_STRING_LENGTH];
-	int skill = -1, feat = -1, value, i, qend;
+	int feat = -1, value, i, qend;
 
 	argument = one_argument(argument, name);
 
@@ -916,10 +916,9 @@ ACMD(do_featset)
 
 
 	sprintf(buf2, "%s changed %s's %s to '%s'.", GET_NAME(ch), GET_NAME(vict),
-		feat_info[skill].name, value ? "enabled" : "disabled");
-	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
-	imm_log("%s changed %s's %s to '%s'.", GET_NAME(ch), GET_NAME(vict),
 		feat_info[feat].name, value ? "enabled" : "disabled");
+	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
+	imm_log(buf2);
 	if (feat >= 0 && feat < MAX_FEATS)
 		if (value)
 			SET_FEAT(vict, feat);
