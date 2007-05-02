@@ -3,7 +3,12 @@
 #include <time.h>
 #include <stdarg.h>
 #include <string.h>
-#include <direct.h>
+
+#ifdef _WIN32
+#	include <direct.h>
+#else
+#	include <sys/stat.h>
+#endif
 
 CLog LuaLog("logs/lua.txt");
 
@@ -20,7 +25,11 @@ CLog::CLog(const char *path)
 			char dir[256];
 			strncpy(dir, path, i);
 			dir[i] = '\0';
+#ifdef _WIN32
 			_mkdir(dir);
+#else
+			mkdir(dir, 0700);
+#endif
 		}
 	}
 	file = fopen(path, "a");
