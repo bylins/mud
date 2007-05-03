@@ -607,12 +607,67 @@ ACMD(do_revenge)
 	CHAR_DATA *tch;
 	struct PK_Memory_type *pk;
 	int found = FALSE;
+	char *temp;
+	char arg2[MAX_INPUT_LENGTH];
+	bool bOnlineOnly;
 
 	if (IS_NPC(ch))
 		return;
 
-	one_argument(argument, arg);
+	*buf = '\0';
+	*arg2 = '\0';
+	two_arguments(argument, arg, arg2);
 
+	// отображать только находящихся онлайн
+	bOnlineOnly = !(is_abbrev(arg2, "все") || is_abbrev(arg2, "all"));
+
+	// "месть мне [все]"
+	// кто может мне отомстить
+	if (is_abbrev(arg, "мне") || is_abbrev(arg, "me"))
+	{
+		if (bOnlineOnly) strcat(buf, "Вам имеют право отомстить (находятся сейчас онлайн):\r\n");
+		else strcat(buf, "Вам имеют право отомстить (полный список):\r\n");
+		for (pk = ch->pk_list; pk; pk = pk->next)
+		{
+			// если местей нет, проверяем на БД
+			if ((pk->kill_num == 0) && !(pk->battle_exp > time(NULL))) continue;
+			temp = get_name_by_unique(pk->unique);
+			if (!temp) continue;
+			temp[0] = UPPER(temp[0]);
+			// если нада исключаем тех, кто находится оффлайн
+			if (bOnlineOnly)
+			{
+				for (tch = character_list; tch; tch = tch->next)
+				{
+					if (IS_NPC(tch)) continue;
+					if (GET_UNIQUE(tch) == pk->unique)
+					{
+						found = TRUE;
+
+						if (pk->battle_exp > time(NULL))
+							sprintf(buf + strlen(buf), "  %-40s <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp);
+						else
+							sprintf(buf + strlen(buf), "  %-40s %3ld %3ld\r\n", temp, pk->kill_num, pk->revenge_num);
+						break;
+					}
+				}
+			}
+			else
+			{
+				found = TRUE;
+
+				if (pk->battle_exp > time(NULL))
+					sprintf(buf + strlen(buf), "  %-40s <БОЕВЫЕ ДЕЙСТВИЯ>\r\n", temp);
+				else
+					sprintf(buf + strlen(buf), "  %-40s %3ld %3ld\r\n", temp, pk->kill_num, pk->revenge_num);
+			}
+		}
+		if (found) send_to_char(buf, ch);
+		else send_to_char("Вам никто не имеет права отомстить.\r\n", ch);
+		return;
+	}
+
+	found = FALSE;
 	*buf = '\0';
 	for (tch = character_list; tch; tch = tch->next) {
 		if (IS_NPC(tch))
@@ -652,6 +707,7 @@ ACMD(do_forgive)
 	CHAR_DATA *tch;
 	struct PK_Memory_type *pk;
 	int found = FALSE;
+	bool bForgive = false;
 
 	if (IS_NPC(ch))
 		return;
@@ -677,9 +733,19 @@ ACMD(do_forgive)
 		if (!isname(GET_NAME(tch), arg))
 			continue;
 
+		// попытка простить самого себя
+		if (ch == tch)
+		{
+			found = false;
+			bForgive = true;
+			break;
+		}
+
 		found = TRUE;
 		for (pk = tch->pk_list; pk; pk = pk->next)
 			if (pk->unique == GET_UNIQUE(ch)) {
+				// может нам нечего прощать?
+				if (pk->kill_num != 0) bForgive = true;
 				pk->kill_num = 0;
 				pk->kill_at = 0;
 				pk->revenge_num = 0;
@@ -689,12 +755,19 @@ ACMD(do_forgive)
 				pk->pentagram_exp = 0;
 				break;
 			}
-		pk_update_revenge(ch, tch, 0, 0);
+		if (bForgive) pk_update_revenge(ch, tch, 0, 0);
 		break;
 	}
 
-	if (found)
+	if (found && bForgive)
+	{
 		act("Вы великодушно простили $N3.", FALSE, ch, 0, tch, TO_CHAR);
+		act("$N великодушно простил$G Вас !", FALSE, tch, 0, ch, TO_CHAR);
+	}
+	else if (found && !bForgive)
+		act("$N не нуждается в Вашем прощении.", FALSE, ch, 0, tch, TO_CHAR);
+	else if (!found && bForgive)
+		send_to_char("Для отпущения грехов Боги рекомендуют воспользоваться церковью.\r\n", ch);
 	else
 		send_to_char("Похоже, этого игрока нет в игре.\r\n", ch);
 }
