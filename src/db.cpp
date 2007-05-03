@@ -15,6 +15,7 @@
 #define __DB_C__
 
 #include "conf.h"
+#include <sstream>
 #include "sys/stat.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -6807,15 +6808,12 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	if (LOGON_LIST(ch) > 0) {
 		log("Saving logon list.");
 		struct logon_data * next_log = LOGON_LIST(ch);
-		buf[0] = 0;
-		while (next_log)
-		{
-			buf1[0] = 0;
-			sprintf(buf1,"%s %ld %ld\n",next_log->ip , next_log->count, next_log->lasttime);
-			sprintf(buf,"%s%s",buf,buf1);
+		std::stringstream buffer;
+		while (next_log) {
+			buffer << next_log->ip << " " << next_log->count << " " << next_log->lasttime << "\n";
 			next_log = next_log->next;
 		}
-		fprintf(saved, "LogL:\n%s~\n",buf);
+		fprintf(saved, "LogL:\n%s~\n", buffer.str().c_str());
 	}
 	fprintf(saved, "GdFl: %ld\n", ch->player_specials->saved.GodsLike);
 	fprintf(saved, "NamG: %d\n", NAME_GOD(ch));
