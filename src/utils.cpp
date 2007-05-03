@@ -220,13 +220,28 @@ int strn_cmp(const char *arg1, const char *arg2, int n)
 	return (0);
 }
 
+/**
+* Чтобы не дублировать создание даты в каждом виде лога.
+*/
+void write_time(FILE *file)
+{
+	char time_buf[20];
+	time_t ct = time(0);
+	strftime(time_buf, sizeof(time_buf), "%d-%m-%C %H:%M:%S", localtime(&ct));
+	fprintf(file, "%s :: ", time_buf);
+}
+
 /* log a death trap hit */
 void log_death_trap(CHAR_DATA * ch)
 {
-	char buf[256];
-
-	sprintf(buf, "%s hit death trap #%d (%s)", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), world[IN_ROOM(ch)]->name);
-	log(buf);
+	const char *filename = "../log/death_trap.log";
+	static FILE *file = fopen(filename, "a");
+	if (!file) {
+		log("SYSERR: can't open %s!", filename);
+		return;
+	}
+	write_time(file);
+	fprintf(file, "%s hit death trap #%d (%s)\n", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), world[IN_ROOM(ch)]->name);
 }
 
 /*
@@ -262,97 +277,74 @@ void log(const char *format, ...)
 
 void olc_log(const char *format, ...)
 {
-	FILE *olclog;
+	const char *filename = "../log/olc.log";
+	static FILE *file = fopen(filename, "a");
 
-	if (!(olclog = fopen("../log/olc.log", "a"))) {
-		log("SYSERR: ../log/olc.log");
+	if (!file) {
+		log("SYSERR: can't open %s!", filename);
 		return;
-	}
+	} else if (!format)
+		format = "SYSERR: olc_log received a NULL format.";
 
+	write_time(file);
 	va_list args;
-	time_t ct = time(0);
-	char *time_s = asctime(localtime(&ct));
-
-	if (format == NULL)
-		format = "SYSERR: olclog() received a NULL format.";
-
-	time_s[strlen(time_s) - 1] = '\0';
-
-	fprintf(olclog, "%-15.15s :: ", time_s + 4);
-
 	va_start(args, format);
-	vfprintf(olclog, format, args);
+	vfprintf(file, format, args);
 	va_end(args);
-
-	fprintf(olclog, "\n");
-	fclose(olclog);
+	fprintf(file, "\n");
 }
 
 void imm_log(const char *format, ...)
 {
-	FILE *immlog;
+	const char *filename = "../log/imm.log";
+	static FILE *file = fopen(filename, "a");
 
-	if (!(immlog = fopen("../log/imm.log", "a"))) {
-		log("SYSERR: ../log/imm.log");
+	if (!file) {
+		log("SYSERR: can't open %s!", filename);
 		return;
-	}
+	} else if (format)
+		format = "SYSERR: imm_log received a NULL format.";
 
+	write_time(file);
 	va_list args;
-	time_t ct = time(0);
-	char *time_s = asctime(localtime(&ct));
-
-	if (format == NULL)
-		format = "SYSERR: immlog() received a NULL format.";
-
-	time_s[strlen(time_s) - 1] = '\0';
-
-	fprintf(immlog, "%-15.15s :: ", time_s + 4);
-
 	va_start(args, format);
-	vfprintf(immlog, format, args);
+	vfprintf(file, format, args);
 	va_end(args);
-
-	fprintf(immlog, "\n");
-	fclose(immlog);
+	fprintf(file, "\n");
 }
 
-void pers_log(char *orig_name, const char *format, ...)
+/**
+* Файл персонального лога терь открывается один раз за каждый вход плеера в игру.
+* Дескриптор открытого файла у плеера же и хранится (закрывает при con_close).
+*/
+void pers_log(CHAR_DATA *ch, const char *format, ...)
 {
-	char name[64], filename[128], *ptr;
-	if (orig_name == NULL || *orig_name == '\0') {
-		log("SYSERR: NULL pointer passed to pers_log(), %p.", orig_name);
+	if (!ch) {
+		log("NULL character resieved! (%s %s %d)", __FILE__, __func__, __LINE__);
 		return;
 	}
+	if (!format)
+		format = "SYSERR: pers_log received a NULL format.";
 
-	strcpy(name, orig_name);
-	for (ptr = name; *ptr; ptr++)
-		*ptr = LOWER(AtoL(*ptr));
-	sprintf(filename, "../log/perslog/%s.log", name);
-
-	FILE *perslog;
-
-	if (!(perslog = fopen(filename, "a"))) {
-		log("SYSERR: error open %s", filename);
-		return;
+	if (!ch->desc->pers_log) {
+		char filename[128], name[64], *ptr;
+		strcpy(name, GET_NAME(ch));
+		for (ptr = name; *ptr; ptr++)
+			*ptr = LOWER(AtoL(*ptr));
+		sprintf(filename, "../log/perslog/%s.log", name);
+		ch->desc->pers_log = fopen(filename, "a");
+		if (!ch->desc->pers_log) {
+			log("SYSERR: error open %s (%s %s %d)", filename, __FILE__, __func__, __LINE__);
+			return;
+		}
 	}
 
+	write_time(ch->desc->pers_log);
 	va_list args;
-	time_t ct = time(0);
-	char *time_s = asctime(localtime(&ct));
-
-	if (format == NULL)
-		format = "SYSERR: perslog() received a NULL format.";
-
-	time_s[strlen(time_s) - 1] = '\0';
-
-	fprintf(perslog, "%-15.15s :: ", time_s + 4);
-
 	va_start(args, format);
-	vfprintf(perslog, format, args);
+	vfprintf(ch->desc->pers_log, format, args);
 	va_end(args);
-
-	fprintf(perslog, "\n");
-	fclose(perslog);
+	fprintf(ch->desc->pers_log, "\n");
 }
 
 

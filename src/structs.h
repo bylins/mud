@@ -2425,6 +2425,7 @@ struct descriptor_data {
 	boost::shared_ptr<struct ClanOLC> clan_olc; // редактирование привилегий клана
 	boost::shared_ptr<struct ClanInvite> clan_invite; // приглашение в дружину
 	bool registered_email; // чтобы не шарить каждую секунду по списку мыл
+	FILE *pers_log; // чтобы не открывать файл на каждую команду чара при персональном логе
 };
 
 

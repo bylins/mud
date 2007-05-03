@@ -46,7 +46,7 @@ int strn_cmp(const char *arg1, const char *arg2, int n);
 void log(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
 void olc_log(const char *format, ...);
 void imm_log(const char *format, ...);
-void pers_log(char *orig_name, const char *format, ...);
+void pers_log(CHAR_DATA *ch, const char *format, ...);
 void ip_log(const char *ip);
 int touch(const char *path);
 void mudlog(const char *str, int type, int level, int channel, int file);

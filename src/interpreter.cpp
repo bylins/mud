@@ -1121,7 +1121,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 	if (!IS_NPC(ch)) {
 		log("<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), argument);
 		if (GET_LEVEL(ch) >= LVL_IMMORT || GET_GOD_FLAG(ch, GF_PERSLOG) || GET_GOD_FLAG(ch, GF_DEMIGOD))
-			pers_log(GET_NAME(ch), "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), argument);
+			pers_log(ch, "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), argument);
 	}
 	/*
 	 * special case to handle one-character, non-alphanumeric commands;

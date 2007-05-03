@@ -30,8 +30,23 @@
 #define __COMM_C__
 
 #include "conf.h"
+#include <sys/stat.h>
 #include "sysdep.h"
 #include "structs.h"
+#include "utils.h"
+#include "comm.h"
+#include "interpreter.h"
+#include "handler.h"
+#include "db.h"
+#include "house.h"
+#include "olc.h"
+#include "dg_scripts.h"
+#include "screen.h"
+#include "ban.hpp"
+#include "auction.h"
+#include "exchange.h"
+#include "deathtrap.hpp"
+#include "title.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -67,22 +82,6 @@
  * Note, most includes for all platforms are in sysdep.h.  The list of
  * files that is included is controlled by conf.h for that platform.
  */
-
-#include "structs.h"
-#include "utils.h"
-#include "comm.h"
-#include "interpreter.h"
-#include "handler.h"
-#include "db.h"
-#include "house.h"
-#include "olc.h"
-#include "dg_scripts.h"
-#include "screen.h"
-#include "ban.hpp"
-#include "auction.h"
-#include "exchange.h"
-#include "deathtrap.hpp"
-#include "title.hpp"
 
 #ifdef HAVE_ARPA_TELNET_H
 #include <arpa/telnet.h>
@@ -2709,6 +2708,8 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	d->clan_olc.reset();
 	d->clan_invite.reset();
 
+	fclose(d->pers_log); // не забываем закрыть персональный лог
+
 	free(d);
 }
 
@@ -3409,6 +3410,10 @@ void setup_logs(void)
 			puts("Using file descriptor for logging.");
 			continue;
 		}
+
+		mkdir("log", 0700);
+		mkdir("log/perslog", 0700);
+
 		if (!open_logfile(logs + i, NULL))	//s_fp
 		{
 			puts("SYSERR: Couldn't open anything to log to, giving up.");
