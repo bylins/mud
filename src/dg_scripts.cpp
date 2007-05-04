@@ -2401,9 +2401,9 @@ void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *lin
 						paren_count--;
 						if (!paren_count) {
 							*local_p = '\0';
-							log("Recoursive VAR_SUBST <%s>", local);
+//							log("Recoursive VAR_SUBST <%s>", local);
 							var_subst(go, sc, trig, type, local, subfield_p);
-							log("Get value  VAR_SUBST <%s>", subfield_p);
+//							log("Get value  VAR_SUBST <%s>", subfield_p);
 							local_p = NULL;
 							subfield_p = subfield + strlen(subfield);
 						}

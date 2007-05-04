@@ -3313,7 +3313,7 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 	else if (obj && obj->in_room != NOWHERE)
 		to = world[obj->in_room]->people;
 	else {
-		log("SYSERR: no valid target to act('%s')!", str);
+		log("No valid target to act('%s')!", str);
 		return;
 	}
 
