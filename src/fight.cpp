@@ -639,21 +639,18 @@ void change_alignment(CHAR_DATA * ch, CHAR_DATA * victim)
 void death_cry(CHAR_DATA * ch)
 {
 	int door;
-
 	act("Кровушка стынет в жилах от предсмертного крика $n1.", FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF);
 
-	for (door = 0; door < NUM_OF_DIRS; door++)
+	for (door = 0; door < NUM_OF_DIRS; door++) {
 		if (CAN_GO(ch, door)) {
-			act("Кровушка стынет в жилах от чьего-то предсмертного крика.",
-			    FALSE,
-			    world[world[IN_ROOM(ch)]->dir_option[door]->to_room]->people, 0, 0, TO_CHAR | CHECK_DEAF);
-			act("Кровушка стынет в жилах от чьего-то предсмертного крика.",
-			    FALSE,
-			    world[world[IN_ROOM(ch)]->dir_option[door]->to_room]->people, 0, 0, TO_ROOM | CHECK_DEAF);
+			if (world[world[IN_ROOM(ch)]->dir_option[door]->to_room]->people) {
+				act("Кровушка стынет в жилах от чьего-то предсмертного крика.", FALSE,
+					world[world[IN_ROOM(ch)]->dir_option[door]->to_room]->people, 0, 0, TO_CHAR | CHECK_DEAF);
+				act("Кровушка стынет в жилах от чьего-то предсмертного крика.", FALSE,
+					world[world[IN_ROOM(ch)]->dir_option[door]->to_room]->people, 0, 0, TO_ROOM | CHECK_DEAF);
+			}
 		}
-//         send_to_room("Кровушка стынет в жилах от чьего-то предсмертного крика.\r\n",
-//                      world[IN_ROOM(ch)]->dir_option[door]->to_room, TRUE
-//                     );
+	}
 }
 
 
