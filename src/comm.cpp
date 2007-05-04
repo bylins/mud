@@ -2707,7 +2707,8 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	d->clan_olc.reset();
 	d->clan_invite.reset();
 
-	fclose(d->pers_log); // не забываем закрыть персональный лог
+	if (d->pers_log)
+		fclose(d->pers_log); // не забываем закрыть персональный лог
 
 	free(d);
 }
