@@ -2401,7 +2401,6 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 			send_to_char("Вам вряд ли это удасться.\r\n", ch);
 			break;
 		}
-		log("illegal position");
 		return (0);
 	}
 	if (AFF_FLAGGED(ch, AFF_CHARM) && (ch->master == tch)) {
