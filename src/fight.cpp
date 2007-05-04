@@ -643,11 +643,10 @@ void death_cry(CHAR_DATA * ch)
 
 	for (door = 0; door < NUM_OF_DIRS; door++) {
 		if (CAN_GO(ch, door)) {
-			if (world[world[IN_ROOM(ch)]->dir_option[door]->to_room]->people) {
-				act("Кровушка стынет в жилах от чьего-то предсмертного крика.", FALSE,
-					world[world[IN_ROOM(ch)]->dir_option[door]->to_room]->people, 0, 0, TO_CHAR | CHECK_DEAF);
-				act("Кровушка стынет в жилах от чьего-то предсмертного крика.", FALSE,
-					world[world[IN_ROOM(ch)]->dir_option[door]->to_room]->people, 0, 0, TO_ROOM | CHECK_DEAF);
+			CHAR_DATA *people = world[world[IN_ROOM(ch)]->dir_option[door]->to_room]->people;
+			if (people) {
+				act("Кровушка стынет в жилах от чьего-то предсмертного крика.", FALSE, people, 0, 0, TO_CHAR | CHECK_DEAF);
+				act("Кровушка стынет в жилах от чьего-то предсмертного крика.", FALSE, people, 0, 0, TO_ROOM | CHECK_DEAF);
 			}
 		}
 	}
