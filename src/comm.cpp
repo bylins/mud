@@ -1099,8 +1099,7 @@ inline void heartbeat()
 		//log("Stop it...");
 	}
 
-	// TODO: вернуть потом 30 * PASSES_PER_SEC
-	if (!((pulse + 2) % (PASSES_PER_SEC))) {	//log("Sanity check...");
+	if (!((pulse + 2) % (60 * PASSES_PER_SEC))) {	//log("Sanity check...");
 		sanity_check();
 		//log("Stop it...");
 	}
