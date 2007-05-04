@@ -2353,6 +2353,27 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 	}
 }
 
+/**
+* Если на мобе шмотки, одетые во время резета зоны, то при резете в случае пуржа моба - они уничтожаются с ним же.
+* Если на мобе шмотки, поднятые и бывшие у игрока (таймер уже тикал), то он их при резете выкинет на землю, как обычно.
+* А то при резетах например той же мавки умудрялись лутить шмот с земли, упавший с нее до того, как она сама поднимет,
+* плюс этот лоад накапливался и можно было заиметь несколько шмоток сразу с нескольких резетов. -- Krodo
+*/
+void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj)
+{
+	if (GET_OBJ_TIMER(obj) == GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(obj)]))
+		extract_obj(obj);
+	else {
+		act("Вы сняли $o3 и выбросили на землю.", FALSE, ch, obj, 0, TO_CHAR);
+		/* Если этот моб трупа не оставит, то не выводить сообщение
+		иначе ужасно коряво смотрится в бою и в тригах */
+		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE))
+			act("$n снял$g $o3 и бросил$g на землю.", FALSE, ch, obj, 0, TO_ROOM);
+		obj_to_room(obj, ch->in_room);
+		obj_decay(obj);
+	}
+}
+
 /* Extract a ch completely from the world, and leave his stuff behind */
 void extract_char(CHAR_DATA * ch, int clear_objs)
 {
@@ -2400,35 +2421,21 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 		}
 	}
 
-
 	/* transfer equipment to room, if any */
 	log("[Extract char] Drop equipment");
-	for (i = 0; i < NUM_WEARS; i++)
+	for (i = 0; i < NUM_WEARS; i++) {
 		if (GET_EQ(ch, i)) {
-			act("Вы сняли $o3 и выбросили на землю.", FALSE, ch, GET_EQ(ch, i), 0, TO_CHAR);
-			/* Если этот моб трупа не оставит, то не выводить сообщение
-			   иначе ужасно коряво смотрится в бою и в тригах */
-			if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE)) {
-				act("$n снял$g $o3 и бросил$g на землю.", FALSE, ch, GET_EQ(ch, i), 0, TO_ROOM);
-			}
 			obj_eq = unequip_char(ch, i);
-			obj_to_room(obj_eq, ch->in_room);
-			obj_decay(obj_eq);
+			drop_obj_on_zreset(ch, obj_eq);
 		}
+	}
 
 	/* transfer objects to room, if any */
 	log("[Extract char] Drop objects");
 	while (ch->carrying) {
 		obj = ch->carrying;
 		obj_from_char(obj);
-		act("Вы выбросили $o3 на землю.", FALSE, ch, obj, 0, TO_CHAR);
-		/* Если этот моб трупа не оставит, то не выводить сообщение
-		   иначе ужасно коряво смотрится в бою и в тригах */
-		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE)) {
-			act("$n бросил$g $o3 на землю.", FALSE, ch, obj, 0, TO_ROOM);
-		}
-		obj_to_room(obj, ch->in_room);
-		obj_decay(obj);
+		drop_obj_on_zreset(ch, obj);
 	}
 
 	log("[Extract char] Stop fighting self");

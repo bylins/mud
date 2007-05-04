@@ -32,7 +32,7 @@ OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	dg_misc.o dg_objcmd.o dg_scripts.o dg_triggers.o dg_wldcmd.o dg_olc.o \
 	color.o mobmax.o pk.o genchar.o diskio.o im.o names.o auction.o \
 	item.creation.o arena.o skills.o exchange.o top.o stuff.o description.o \
-	deathtrap.o title.o password.o privilege.o
+	deathtrap.o title.o password.o privilege.o version.o
 
 CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	act.offensive.cpp act.other.cpp act.social.cpp act.wizard.cpp alias.cpp ban.cpp \
@@ -45,7 +45,7 @@ CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	dg_misc.cpp dg_objcmd.cpp dg_scripts.cpp dg_triggers.cpp dg_wldcmd.cpp dg_olc.cpp \
 	color.cpp mobmax.cpp pk.cpp genchar.cpp diskio.cpp im.cpp names.cpp \
 	auction.cpp item.creation.cpp arena.cpp skills.cpp exchange.cpp top.cpp stuff.cpp \
-	description.cpp deathtrap.cpp title.cpp password.cpp privilege.cpp
+	description.cpp deathtrap.cpp title.cpp password.cpp privilege.cpp version.cpp
 
 default: circle
 
@@ -60,6 +60,7 @@ circle:
 
 $(BINDIR)/circle : $(OBJFILES)
 	$(CC) -o $(BINDIR)/circle $(PROFILE) $(OBJFILES) $(LIBS)
+	rm -f version.o
 	@echo "Done building Bylins."
 
 clean:

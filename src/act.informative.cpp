@@ -61,6 +61,7 @@ extern INDEX_DATA *mob_index;
 extern const char *material_name[];
 extern im_type *imtypes;
 extern int top_imtypes;
+extern void show_code_date(CHAR_DATA *ch);
 
 /* extern functions */
 long find_class_bitvector(char arg);
@@ -4058,7 +4059,7 @@ ACMD(do_gen_ps)
 		send_to_char("\033[H\033[J", ch);
 		break;
 	case SCMD_VERSION:
-		send_to_char(ch, "МПМ Былины, версия от %s\r\n", __DATE__);
+		show_code_date(ch);
 		break;
 	case SCMD_WHOAMI:
 		{
