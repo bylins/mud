@@ -2361,7 +2361,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 */
 void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	if (GET_OBJ_TIMER(obj) == GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(obj)]))
+	if (IS_NPC(ch) && GET_OBJ_TIMER(obj) == GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(obj)]))
 		extract_obj(obj);
 	else {
 		act("Вы сняли $o3 и выбросили на землю.", FALSE, ch, obj, 0, TO_CHAR);
