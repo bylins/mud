@@ -1315,7 +1315,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			}
 		}
 
-		if (!IS_NPC(ch)) {
+		if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master))) {
 			SET_BIT(GET_OBJ_EXTRA(object, ITEM_TICKTIMER), ITEM_TICKTIMER);
 			insert_obj_and_group(object, &ch->carrying);
 		} else {
@@ -1332,13 +1332,6 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 		/* set flag for crash-save system, but not on mobs! */
 		if (!IS_NPC(ch))
 			SET_BIT(PLR_FLAGS(ch, PLR_CRASH), PLR_CRASH);
-
-		// запускаем таймер у плееров, если он полный, чтобы при экстракте мобов не мучаться с чармисами
-		if ((!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
-		&& GET_OBJ_RNUM(object) != NOTHING
-		&& GET_OBJ_TIMER(object) == GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(object)])
-		&& GET_OBJ_TIMER(object) > 0)
-			GET_OBJ_TIMER(object)--;
 
 	} else
 		log("SYSERR: NULL obj (%p) or char (%p) passed to obj_to_char.", object, ch);
@@ -2370,7 +2363,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 */
 void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv)
 {
-	if (GET_OBJ_RNUM(obj) != NOTHING && GET_OBJ_TIMER(obj) == GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(obj)]))
+	if (OBJ_FLAGGED(obj, ITEM_TICKTIMER))
 		extract_obj(obj);
 	else {
 		if (inv)

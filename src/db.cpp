@@ -3626,18 +3626,16 @@ void zone_update(void)
 		}
 	}
 
-
-
 	/* end - one minute has passed */
 	/* dequeue zones (if possible) and reset                    */
 	/* this code is executed every 10 seconds (i.e. PULSE_ZONE) */
 	for (update_u = reset_q.head; update_u; update_u = update_u->next)
-		if (zone_table[update_u->zone_to_reset].reset_mode == 2 || (is_empty(update_u->zone_to_reset)
-									    && zone_table[update_u->zone_to_reset].
-									    reset_mode != 3)
-		    || can_be_reset(update_u->zone_to_reset)) {
+		if (zone_table[update_u->zone_to_reset].reset_mode == 2
+			|| (is_empty(update_u->zone_to_reset) && zone_table[update_u->zone_to_reset].reset_mode != 3)
+			|| can_be_reset(update_u->zone_to_reset))
+		{
 			reset_zone(update_u->zone_to_reset);
-			sprintf(buf, "Auto zone reset: %s", zone_table[update_u->zone_to_reset].name);
+			sprintf(buf, "Auto zone reset: %s (%d)", zone_table[update_u->zone_to_reset].name, zone_table[update_u->zone_to_reset].number);
 			if (zone_table[update_u->zone_to_reset].reset_mode == 3) {
 				for (i = 0; i < zone_table[update_u->zone_to_reset].typeA_count; i++) {
 					//Ищем real_zone по vnum

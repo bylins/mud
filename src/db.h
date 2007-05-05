@@ -153,7 +153,6 @@ const int SETSTUFF_AFCN = 10;
 #define ANAME_FILE      LIB_MISC"apr_name" // одобренные имена
 #define DNAME_FILE      LIB_MISC"dis_name" // запрещенные имена
 #define NNAME_FILE      LIB_MISC"new_name" // ждущие одобрения
-#define GODLIST_FILE    LIB_MISC"god.lst"  // список иммов
 
 #define MAIL_FILE	    LIB_ETC"plrmail"	/* for the mudmail system       */
 #define BAN_FILE	    LIB_ETC"badsites"	/* for the siteban system       */
