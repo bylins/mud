@@ -3968,7 +3968,7 @@ ACMD(do_users)
 		if (STATE(d) == CON_PLAYING && d->original)
 			strcpy(state, "Switched");
 		else
-			strcpy(state, connected_types[STATE(d)]);
+			sprinttype(STATE(d), connected_types, state);
 
 		if (d->character && STATE(d) == CON_PLAYING && !IS_GOD(d->character))
 			sprintf(idletime, "%3d", d->character->char_specials.timer *
