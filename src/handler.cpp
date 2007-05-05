@@ -2363,7 +2363,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 */
 void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv)
 {
-	if (OBJ_FLAGGED(obj, ITEM_TICKTIMER))
+	if (!OBJ_FLAGGED(obj, ITEM_TICKTIMER))
 		extract_obj(obj);
 	else {
 		if (inv)
