@@ -697,7 +697,6 @@ typedef struct trig_data
 #define CON_MEDIT        21	/*. OLC mode - mobile edit     . */
 #define CON_SEDIT        22	/*. OLC mode - shop edit       . */
 #define CON_TRIGEDIT     23	/*. OLC mode - trigger edit    . */
-
 #define CON_NAME2        24
 #define CON_NAME3        25
 #define CON_NAME4        26
@@ -719,7 +718,7 @@ typedef struct trig_data
 #define CON_WRITEBOARD   42 // написание на доску
 #define CON_CLANEDIT     43 // команда house
 #define CON_NEW_CHAR     44
-
+// не забываем отражать новые состояния в connected_types -- Krodo
 
 /* Character equipment positions: used as index for char_data.equipment[] */
 /* NOTE: Don't confuse these constants with the ITEM_ bitvectors
