@@ -302,7 +302,7 @@ void imm_log(const char *format, ...)
 	if (!file) {
 		log("SYSERR: can't open %s!", filename);
 		return;
-	} else if (format)
+	} else if (!format)
 		format = "SYSERR: imm_log received a NULL format.";
 
 	write_time(file);
