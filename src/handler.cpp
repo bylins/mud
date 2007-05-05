@@ -2379,7 +2379,6 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 {
 	char name[MAX_STRING_LENGTH];
 	DESCRIPTOR_DATA *t_desc;
-	OBJ_DATA *obj, *obj_eq;
 	int i, freed = 0;
 	CHAR_DATA *ch_w, *temp;
 
@@ -2425,7 +2424,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 	log("[Extract char] Drop equipment");
 	for (i = 0; i < NUM_WEARS; i++) {
 		if (GET_EQ(ch, i)) {
-			obj_eq = unequip_char(ch, i);
+			OBJ_DATA *obj_eq = unequip_char(ch, i);
 			drop_obj_on_zreset(ch, obj_eq);
 		}
 	}
@@ -2433,7 +2432,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 	/* transfer objects to room, if any */
 	log("[Extract char] Drop objects");
 	while (ch->carrying) {
-		obj = ch->carrying;
+		OBJ_DATA *obj = ch->carrying;
 		obj_from_char(obj);
 		drop_obj_on_zreset(ch, obj);
 	}
