@@ -1332,6 +1332,14 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 		/* set flag for crash-save system, but not on mobs! */
 		if (!IS_NPC(ch))
 			SET_BIT(PLR_FLAGS(ch, PLR_CRASH), PLR_CRASH);
+
+		// запускаем таймер у плееров, если он полный, чтобы при экстракте мобов не мучаться с чармисами
+		if ((!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
+		&& GET_OBJ_RNUM(object) != NOTHING
+		&& GET_OBJ_TIMER(object) == GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(object)])
+		&& GET_OBJ_TIMER(object) > 0)
+			GET_OBJ_TIMER(object)--;
+
 	} else
 		log("SYSERR: NULL obj (%p) or char (%p) passed to obj_to_char.", object, ch);
 }
@@ -2358,17 +2366,25 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 * Если на мобе шмотки, поднятые и бывшие у игрока (таймер уже тикал), то он их при резете выкинет на землю, как обычно.
 * А то при резетах например той же мавки умудрялись лутить шмот с земли, упавший с нее до того, как она сама поднимет,
 * плюс этот лоад накапливался и можно было заиметь несколько шмоток сразу с нескольких резетов. -- Krodo
+* \param inv - 1 сообщение о выкидывании из инвентаря, 0 - о снятии с себя
 */
-void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj)
+void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv)
 {
-	if (IS_NPC(ch) && GET_OBJ_TIMER(obj) == GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(obj)]))
+	if (GET_OBJ_RNUM(obj) != NOTHING && GET_OBJ_TIMER(obj) == GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(obj)]))
 		extract_obj(obj);
 	else {
-		act("Вы сняли $o3 и выбросили на землю.", FALSE, ch, obj, 0, TO_CHAR);
+		if (inv)
+			act("Вы выбросили $o3 на землю.", FALSE, ch, obj, 0, TO_CHAR);
+		else
+			act("Вы сняли $o3 и выбросили на землю.", FALSE, ch, obj, 0, TO_CHAR);
 		/* Если этот моб трупа не оставит, то не выводить сообщение
 		иначе ужасно коряво смотрится в бою и в тригах */
-		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE))
-			act("$n снял$g $o3 и бросил$g на землю.", FALSE, ch, obj, 0, TO_ROOM);
+		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE)) {
+			if (inv)
+				act("$n бросил$g $o3 на землю.", FALSE, ch, obj, 0, TO_ROOM);
+			else
+				act("$n снял$g $o3 и бросил$g на землю.", FALSE, ch, obj, 0, TO_ROOM);
+		}
 		obj_to_room(obj, ch->in_room);
 		obj_decay(obj);
 	}
@@ -2402,10 +2418,6 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 		// exit(1);
 	}
 
-	log("[Extract char] Die followers");
-	if (ch->followers || ch->master)
-		die_follower(ch);
-
 	/* Forget snooping, if applicable */
 	log("[Extract char] Stop snooping");
 	if (ch->desc) {
@@ -2425,7 +2437,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 	for (i = 0; i < NUM_WEARS; i++) {
 		if (GET_EQ(ch, i)) {
 			OBJ_DATA *obj_eq = unequip_char(ch, i);
-			drop_obj_on_zreset(ch, obj_eq);
+			drop_obj_on_zreset(ch, obj_eq, 0);
 		}
 	}
 
@@ -2434,8 +2446,12 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 	while (ch->carrying) {
 		OBJ_DATA *obj = ch->carrying;
 		obj_from_char(obj);
-		drop_obj_on_zreset(ch, obj);
+		drop_obj_on_zreset(ch, obj, 1);
 	}
+
+	log("[Extract char] Die followers");
+	if (ch->followers || ch->master)
+		die_follower(ch);
 
 	log("[Extract char] Stop fighting self");
 	if (FIGHTING(ch))
