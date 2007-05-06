@@ -2360,10 +2360,11 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 * А то при резетах например той же мавки умудрялись лутить шмот с земли, упавший с нее до того, как она сама поднимет,
 * плюс этот лоад накапливался и можно было заиметь несколько шмоток сразу с нескольких резетов. -- Krodo
 * \param inv - 1 сообщение о выкидывании из инвентаря, 0 - о снятии с себя
+* \param zone_reset - 1 - пуржим стаф без включенных таймеров, 0 - не пуржим ничего
 */
-void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv)
+void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 {
-	if (!OBJ_FLAGGED(obj, ITEM_TICKTIMER))
+	if (zone_reset && !OBJ_FLAGGED(obj, ITEM_TICKTIMER))
 		extract_obj(obj);
 	else {
 		if (inv)
@@ -2383,8 +2384,11 @@ void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv)
 	}
 }
 
-/* Extract a ch completely from the world, and leave his stuff behind */
-void extract_char(CHAR_DATA * ch, int clear_objs)
+/**
+* Extract a ch completely from the world, and leave his stuff behind
+* \param zone_reset - 0 обычный пурж когда угодно (по умолчанию), 1 - пурж при резете зоны
+*/
+void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 {
 	char name[MAX_STRING_LENGTH];
 	DESCRIPTOR_DATA *t_desc;
@@ -2430,7 +2434,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 	for (i = 0; i < NUM_WEARS; i++) {
 		if (GET_EQ(ch, i)) {
 			OBJ_DATA *obj_eq = unequip_char(ch, i);
-			drop_obj_on_zreset(ch, obj_eq, 0);
+			drop_obj_on_zreset(ch, obj_eq, 0, zone_reset);
 		}
 	}
 
@@ -2439,7 +2443,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs)
 	while (ch->carrying) {
 		OBJ_DATA *obj = ch->carrying;
 		obj_from_char(obj);
-		drop_obj_on_zreset(ch, obj, 1);
+		drop_obj_on_zreset(ch, obj, 1, zone_reset);
 	}
 
 	log("[Extract char] Die followers");

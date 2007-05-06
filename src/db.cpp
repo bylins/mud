@@ -3794,7 +3794,8 @@ void reset_zone(zone_rnum zone)
 					// Карачун. Поднятые мобы не должны уничтожаться.
 					if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg1 && !MOB_FLAGGED(ch, MOB_RESURRECTED)) {
 						// Карачун. Мобы должны оставлять стафф.
-						extract_char(ch, FALSE);
+						// Тока чужой стаф, а не свой же при резете зоны. -- Krodo
+						extract_char(ch, FALSE, 1);
 						//extract_mob(ch);
 						curr_state = 1;
 					}
