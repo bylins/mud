@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
-
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -21,19 +20,21 @@
 #define MAX_MESSAGE_LENGTH 4096 // максимальный размер сообщения
 #define MAX_BOARD_MESSAGES 200  // максимальное кол-во сообщений на одной доске
 #define MIN_WRITE_LEVEL    6    // мин.левел для поста на общих досках
+
 // типы досок
-#define GENERAL_BOARD    0  // общая
-#define IDEA_BOARD       1  // идеи
-#define ERROR_BOARD      2  // ошибки
-#define NEWS_BOARD       3  // новости
-#define GODNEWS_BOARD    4  // новости (только для иммов)
-#define GODGENERAL_BOARD 5  // общая (только для иммов)
-#define GODBUILD_BOARD   6  // билдеры (только для иммов)
-#define GODCODE_BOARD    7  // кодеры (только для иммов)
-#define GODPUNISH_BOARD  8  // наказания (только для иммов)
-#define PERS_BOARD       9  // персональная (только для иммов)
-#define CLAN_BOARD       10 // клановая
-#define CLANNEWS_BOARD   11 // клановые новости
+extern const int GENERAL_BOARD;
+extern const int NEWS_BOARD;
+extern const int IDEA_BOARD;
+extern const int ERROR_BOARD;
+extern const int GODNEWS_BOARD;
+extern const int GODGENERAL_BOARD;
+extern const int GODBUILD_BOARD;
+extern const int GODCODE_BOARD;
+extern const int GODPUNISH_BOARD;
+extern const int PERS_BOARD;
+extern const int CLAN_BOARD;
+extern const int CLANNEWS_BOARD;
+
 // предметы, на которые вешаем спешиалы для старого способа работы с досками
 #define GODGENERAL_BOARD_OBJ 250
 #define GENERAL_BOARD_OBJ    251
@@ -93,8 +94,6 @@ public:
 	std::string file;         // имя файла для сейва/лоада
 
 	void Load();
-	void SetLastReadDate(CHAR_DATA * ch, long date);
-	long LastReadDate(CHAR_DATA * ch);
 	static void ShowMessage(CHAR_DATA * ch, MessagePtr message);
 };
 

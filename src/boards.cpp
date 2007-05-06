@@ -17,6 +17,20 @@
 #include "privilege.hpp"
 #include "boards.h"
 
+const int GENERAL_BOARD = 0;  // общая
+const int NEWS_BOARD = 1;  // новости
+const int IDEA_BOARD = 2;  // идеи
+const int ERROR_BOARD = 3;  // ошибки
+const int GODNEWS_BOARD = 4;  // новости (только для иммов)
+const int GODGENERAL_BOARD = 5;  // общая (только для иммов)
+const int GODBUILD_BOARD = 6;  // билдеры (только для иммов)
+const int GODCODE_BOARD = 7; // кодеры (только для иммов)
+const int GODPUNISH_BOARD = 8;  // наказания (только для иммов)
+const int PERS_BOARD = 9;  // персональная (только для иммов)
+const int CLAN_BOARD = 10; // клановая
+const int CLANNEWS_BOARD = 11; // клановые новости
+// не забываем выставить BOARD_TOTAL в structs.h, ненавижу сишные массивы :/
+
 extern int isname(const char *str, const char *namelist);
 
 BoardListType Board::BoardList;
@@ -40,6 +54,15 @@ void Board::BoardInit()
 	GeneralBoard->Load();
 	Board::BoardList.push_back(GeneralBoard);
 
+	// новости
+	BoardPtr NewsBoard(new Board);
+	NewsBoard->type = NEWS_BOARD;
+	NewsBoard->name = "Новости";
+	NewsBoard->desc = "Анонсы и новости Былин";
+	NewsBoard->file = ETC_BOARD"news.board";
+	NewsBoard->Load();
+	Board::BoardList.push_back(NewsBoard);
+
 	// идеи
 	BoardPtr IdeaBoard(new Board);
 	IdeaBoard->type = IDEA_BOARD;
@@ -57,15 +80,6 @@ void Board::BoardInit()
 	ErrorBoard->file = ETC_BOARD"error.board";
 	ErrorBoard->Load();
 	Board::BoardList.push_back(ErrorBoard);
-
-	// новости
-	BoardPtr NewsBoard(new Board);
-	NewsBoard->type = NEWS_BOARD;
-	NewsBoard->name = "Новости";
-	NewsBoard->desc = "Анонсы и новости Былин";
-	NewsBoard->file = ETC_BOARD"news.board";
-	NewsBoard->Load();
-	Board::BoardList.push_back(NewsBoard);
 
 	// новости БОГов
 	BoardPtr GodNewsBoard(new Board);
@@ -272,104 +286,6 @@ void Board::ShowMessage(CHAR_DATA * ch, MessagePtr message)
 	page_string(ch->desc, buffer.str(), 1);
 }
 
-// вынимаем дату последнего чтения конкретной доски у персонажа
-long Board::LastReadDate(CHAR_DATA * ch)
-{
-	if (IS_NPC(ch))
-		return 0;
-
-	switch (this->type) {
-	case GENERAL_BOARD:
-		return GENERAL_BOARD_DATE(ch);
-	case IDEA_BOARD:
-		return IDEA_BOARD_DATE(ch);
-	case ERROR_BOARD:
-		return ERROR_BOARD_DATE(ch);
-	case NEWS_BOARD:
-		return NEWS_BOARD_DATE(ch);
-	case GODNEWS_BOARD:
-		return GODNEWS_BOARD_DATE(ch);
-	case GODGENERAL_BOARD:
-		return GODGENERAL_BOARD_DATE(ch);
-	case GODBUILD_BOARD:
-		return GODBUILD_BOARD_DATE(ch);
-	case GODCODE_BOARD:
-		return GODCODE_BOARD_DATE(ch);
-	case GODPUNISH_BOARD:
-		return GODPUNISH_BOARD_DATE(ch);
-	case PERS_BOARD:
-		return PERS_BOARD_DATE(ch);
-	case CLAN_BOARD:
-		return CLAN_BOARD_DATE(ch);
-	case CLANNEWS_BOARD:
-		return CLANNEWS_BOARD_DATE(ch);
-	default:
-		log("Error board type! (%s %s %d)", __FILE__, __func__, __LINE__);
-		return 0;
-	}
-	return 0;
-}
-
-// проставляет последнюю дату чтения конкретной доски
-void Board::SetLastReadDate(CHAR_DATA * ch, long date)
-{
-	if (IS_NPC(ch))
-		return;
-
-	switch (this->type) {
-	case GENERAL_BOARD:
-		if (GENERAL_BOARD_DATE(ch) < date)
-			GENERAL_BOARD_DATE(ch) = date;
-		return;
-	case IDEA_BOARD:
-		if (IDEA_BOARD_DATE(ch) < date)
-			IDEA_BOARD_DATE(ch) = date;
-		return;
-	case ERROR_BOARD:
-		if (ERROR_BOARD_DATE(ch) < date)
-			ERROR_BOARD_DATE(ch) = date;
-		return;
-	case NEWS_BOARD:
-		if (NEWS_BOARD_DATE(ch) < date)
-			NEWS_BOARD_DATE(ch) = date;
-		return;
-	case GODNEWS_BOARD:
-		if (GODNEWS_BOARD_DATE(ch) < date)
-			GODNEWS_BOARD_DATE(ch) = date;
-		return;
-	case GODGENERAL_BOARD:
-		if (GODGENERAL_BOARD_DATE(ch) < date)
-			GODGENERAL_BOARD_DATE(ch) = date;
-		return;
-	case GODBUILD_BOARD:
-		if (GODBUILD_BOARD_DATE(ch) < date)
-			GODBUILD_BOARD_DATE(ch) = date;
-		return;
-	case GODCODE_BOARD:
-		if (GODCODE_BOARD_DATE(ch) < date)
-			GODCODE_BOARD_DATE(ch) = date;
-		return;
-	case GODPUNISH_BOARD:
-		if (GODPUNISH_BOARD_DATE(ch) < date)
-			GODPUNISH_BOARD_DATE(ch) = date;
-		return;
-	case PERS_BOARD:
-		if (PERS_BOARD_DATE(ch) < date)
-			PERS_BOARD_DATE(ch) = date;
-		return;
-	case CLAN_BOARD:
-		if (CLAN_BOARD_DATE(ch) < date)
-			CLAN_BOARD_DATE(ch) = date;
-		return;
-	case CLANNEWS_BOARD:
-		if (CLANNEWS_BOARD_DATE(ch) < date)
-			CLANNEWS_BOARD_DATE(ch) = date;
-		return;
-	default:
-		log("Error board type! (%s %s %d)", __FILE__, __func__, __LINE__);
-		return;
-	}
-}
 
 ACMD(DoBoard)
 {
@@ -391,7 +307,7 @@ ACMD(DoBoard)
 	}
 
 	std::string buffer, buffer2 = argument;
-	long date = (*board)->LastReadDate(ch);
+	long date = GET_BOARD_DATE(ch, (*board)->type);
 	GetOneParam(buffer2, buffer);
 	boost::trim_if(buffer2, boost::is_any_of(" \'"));
 	// первый аргумент в buffer, второй в buffer2
@@ -433,7 +349,7 @@ ACMD(DoBoard)
 		// новости мада в ленточном варианте
 		if (((*board)->type == NEWS_BOARD || (*board)->type == GODNEWS_BOARD) && !PRF_FLAGGED(ch, PRF_NEWS_MODE)) {
 			std::ostringstream body;
-			long date = (*board)->LastReadDate(ch);
+			long date = GET_BOARD_DATE(ch, (*board)->type);
 			char timeBuf[17];
 
 			MessageListType::reverse_iterator message;
@@ -444,14 +360,14 @@ ACMD(DoBoard)
 				body << timeBuf << CCNRM(ch, C_NRM) << "\r\n"
 						<< (*message)->text;
 			}
-			(*board)->SetLastReadDate(ch, time(0));
+			GET_BOARD_DATE(ch, (*board)->type) = time(0);
 			page_string(ch->desc, body.str(), 1);
 			return;
 		}
 		// дрновости в ленточном варианте
 		if ((*board)->type == CLANNEWS_BOARD && !PRF_FLAGGED(ch, PRF_NEWS_MODE)) {
 			std::ostringstream body;
-			long date = (*board)->LastReadDate(ch);
+			long date = GET_BOARD_DATE(ch, (*board)->type);
 
 			MessageListType::reverse_iterator message;
 			for (message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message) {
@@ -459,7 +375,7 @@ ACMD(DoBoard)
 					body << CCWHT(ch, C_NRM); // новые подсветим
 				body << "[" << (*message)->author << "] " << CCNRM(ch, C_NRM) << (*message)->text;
 			}
-			(*board)->SetLastReadDate(ch, time(0));
+			GET_BOARD_DATE(ch, (*board)->type) = time(0);
 			page_string(ch->desc, body.str(), 1);
 			return;
 		}
@@ -467,7 +383,7 @@ ACMD(DoBoard)
 		for (MessageListType::const_iterator message = (*board)->messages.begin(); message != (*board)->messages.end(); ++message) {
 			if ((*message)->date > date) {
 				Board::ShowMessage(ch, *message);
-				(*board)->SetLastReadDate(ch, (*message)->date);
+				GET_BOARD_DATE(ch, (*board)->type) = (*message)->date;
 				return;
 			}
 		}
@@ -492,7 +408,7 @@ ACMD(DoBoard)
 		}
 		num = (*board)->messages.size() - num;
 		Board::ShowMessage(ch, (*board)->messages[num]);
-		(*board)->SetLastReadDate(ch, (*board)->messages[num]->date);
+		GET_BOARD_DATE(ch, (*board)->type) = (*board)->messages[num]->date;
 		return;
 	}
 
@@ -564,7 +480,7 @@ ACMD(DoBoard)
 			return;
 		}
 		num = (*board)->messages.size() - num;
-		(*board)->SetLastReadDate(ch, (*board)->messages[num]->date);
+		GET_BOARD_DATE(ch, (*board)->type) = (*board)->messages[num]->date;
 		// или он может делетить любые мессаги (по левелу/рангу), или только свои
 		if ((*board)->Access(ch) < 4) {
 			if ((*board)->messages[num]->unique != GET_UNIQUE(ch)) {
@@ -635,7 +551,7 @@ ACMD(DoBoardList)
 			unread = 0;
 		else {
 			for (MessageListType::reverse_iterator message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message) {
-				if ((*message)->date > (*board)->LastReadDate(ch))
+				if ((*message)->date > GET_BOARD_DATE(ch, (*board)->type))
 					++unread;
 				else
 					break;
@@ -849,7 +765,7 @@ void Board::LoginInfo(CHAR_DATA * ch)
 			continue;
 
 		for (MessageListType::reverse_iterator message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message) {
-			if ((*message)->date > (*board)->LastReadDate(ch))
+			if ((*message)->date > GET_BOARD_DATE(ch, (*board)->type))
 				++unread;
 			else
 				break;

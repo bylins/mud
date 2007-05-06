@@ -2037,6 +2037,8 @@ struct punish_data {
 	long godid;
 };
 
+#define BOARD_TOTAL 12 // общее кол-во досок
+
 /*
  * Specials needed only by PCs, not NPCs.  Space for this structure is
  * not allocated in memory for NPCs, but it is for PCs and the portion
@@ -2096,18 +2098,7 @@ struct player_special_data {
 	boost::shared_ptr<class Clan> clan; // собсна клан, если он есть
 	boost::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
 
-	long GeneralBoardDate;    // последнее прочтенное на общей доске
-	long NewsBoardDate;       // -//- новости
-	long IdeaBoardDate;       // -//- идеи
-	long ErrorBoardDate;      // -//- ошибки
-	long GodNewsBoardDate;    // -//- новости богов
-	long GodGeneralBoardDate; // -//- общая богов
-	long GodBuildBoardDate;   // -//- билдерская
-	long GodCodeBoardDate;    // -//- кодерская
-	long GodPunishBoardDate;  // -//- наказания
-	long PersBoardDate;       // -//- блокнот
-	long ClanBoardDate;       // -//- клан-доска
-	long ClanNewsBoardDate;   // -//- клан-новости
+	time_t board_date[BOARD_TOTAL]; // даты последних прочтенных мессаг на досках, пока не вектор к сожалению
 };
 
 

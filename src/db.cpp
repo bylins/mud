@@ -4798,18 +4798,8 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 
 	// здесь можно указать дату, с которой пойдет отсчет новых сообщений,
 	// например, чтобы не пугать игрока 200+ новостями при первом запуске системы
-	GENERAL_BOARD_DATE(ch) = 1143706650;
-	NEWS_BOARD_DATE(ch) = 1143706650;
-	IDEA_BOARD_DATE(ch) = 1143706650;
-	ERROR_BOARD_DATE(ch) = 1143706650;
-	GODNEWS_BOARD_DATE(ch) = 1143706650;
-	GODGENERAL_BOARD_DATE(ch) = 1143706650;
-	GODBUILD_BOARD_DATE(ch) = 1143706650;
-	GODCODE_BOARD_DATE(ch) = 1143706650;
-	GODPUNISH_BOARD_DATE(ch) = 1143706650;
-	PERS_BOARD_DATE(ch) = 1143706650;
-	CLAN_BOARD_DATE(ch) = 1143706650;
-	CLANNEWS_BOARD_DATE(ch) = 1143706650;
+	for (int i = 0; i < BOARD_TOTAL; ++i)
+		GET_BOARD_DATE(ch, i) = 1143706650;
 
 	while (fbgetline(fl, line)) {
 		tag_argument(line, tag);
@@ -4853,29 +4843,29 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				GET_BANK_GOLD(ch) = lnum;
 
 			else if (!strcmp(tag, "Br01"))
-				GENERAL_BOARD_DATE(ch) = lnum;
+				GET_BOARD_DATE(ch, GENERAL_BOARD) = lnum;
 			else if (!strcmp(tag, "Br02"))
-				NEWS_BOARD_DATE(ch) = lnum;
+				GET_BOARD_DATE(ch, NEWS_BOARD) = lnum;
 			else if (!strcmp(tag, "Br03"))
-				IDEA_BOARD_DATE(ch) = lnum;
+				GET_BOARD_DATE(ch, IDEA_BOARD) = lnum;
 			else if (!strcmp(tag, "Br04"))
-				ERROR_BOARD_DATE(ch) = lnum;
+				GET_BOARD_DATE(ch, ERROR_BOARD) = lnum;
 			else if (!strcmp(tag, "Br05"))
-				GODNEWS_BOARD_DATE(ch) = lnum;
+				GET_BOARD_DATE(ch, GODNEWS_BOARD) = lnum;
 			else if (!strcmp(tag, "Br06"))
-				GODGENERAL_BOARD_DATE(ch) = lnum;
+				GET_BOARD_DATE(ch, GODGENERAL_BOARD) = lnum;
 			else if (!strcmp(tag, "Br07"))
-				GODBUILD_BOARD_DATE(ch) = lnum;
+				GET_BOARD_DATE(ch, GODBUILD_BOARD) = lnum;
 			else if (!strcmp(tag, "Br08"))
-				GODCODE_BOARD_DATE(ch) = lnum;
+				GET_BOARD_DATE(ch, GODCODE_BOARD) = lnum;
 			else if (!strcmp(tag, "Br09"))
-				GODPUNISH_BOARD_DATE(ch) = lnum;
+				GET_BOARD_DATE(ch, GODPUNISH_BOARD) = lnum;
 			else if (!strcmp(tag, "Br10"))
-				PERS_BOARD_DATE(ch) = lnum;
+				GET_BOARD_DATE(ch, PERS_BOARD) = lnum;
 			else if (!strcmp(tag, "Br11"))
-				CLAN_BOARD_DATE(ch) = lnum;
+				GET_BOARD_DATE(ch, CLAN_BOARD) = lnum;
 			else if (!strcmp(tag, "Br12"))
-				CLANNEWS_BOARD_DATE(ch) = lnum;
+				GET_BOARD_DATE(ch, CLANNEWS_BOARD) = lnum;
 
 			else if (!strcmp(tag, "Brth"))
 				ch->player.time.birth = lnum;
@@ -5935,18 +5925,8 @@ void init_char(CHAR_DATA * ch)
 	STRING_LENGTH(ch) = 80;
 	STRING_WIDTH(ch) = 25;
 	// новому игроку вываливать все новости/мессаги на доске как непроченные не имеет смысла
-	GENERAL_BOARD_DATE(ch) = time(0);
-	NEWS_BOARD_DATE(ch) = time(0);
-	IDEA_BOARD_DATE(ch) = time(0);
-	ERROR_BOARD_DATE(ch) = time(0);
-	GODNEWS_BOARD_DATE(ch) = time(0);
-	GODGENERAL_BOARD_DATE(ch) = time(0);
-	GODBUILD_BOARD_DATE(ch) = time(0);
-	GODCODE_BOARD_DATE(ch) = time(0);
-	GODPUNISH_BOARD_DATE(ch) = time(0);
-	PERS_BOARD_DATE(ch) = time(0);
-	CLAN_BOARD_DATE(ch) = time(0);
-	CLANNEWS_BOARD_DATE(ch) = time(0);
+	for (int i = 0; i < BOARD_TOTAL; ++i)
+		GET_BOARD_DATE(ch, i) = time(0);
 
 	save_char(ch, NOWHERE);
 }
@@ -6752,18 +6732,8 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 
 	fprintf(saved, "Badp: %d\n", GET_BAD_PWS(ch));
 
-	fprintf(saved, "Br01: %ld\n", GENERAL_BOARD_DATE(ch));
-	fprintf(saved, "Br02: %ld\n", NEWS_BOARD_DATE(ch));
-	fprintf(saved, "Br03: %ld\n", IDEA_BOARD_DATE(ch));
-	fprintf(saved, "Br04: %ld\n", ERROR_BOARD_DATE(ch));
-	fprintf(saved, "Br05: %ld\n", GODNEWS_BOARD_DATE(ch));
-	fprintf(saved, "Br06: %ld\n", GODGENERAL_BOARD_DATE(ch));
-	fprintf(saved, "Br07: %ld\n", GODBUILD_BOARD_DATE(ch));
-	fprintf(saved, "Br08: %ld\n", GODCODE_BOARD_DATE(ch));
-	fprintf(saved, "Br09: %ld\n", GODPUNISH_BOARD_DATE(ch));
-	fprintf(saved, "Br10: %ld\n", PERS_BOARD_DATE(ch));
-	fprintf(saved, "Br11: %ld\n", CLAN_BOARD_DATE(ch));
-	fprintf(saved, "Br12: %ld\n", CLANNEWS_BOARD_DATE(ch));
+	for (int i = 0; i < BOARD_TOTAL; ++i)
+		fprintf(saved, "Br%02d: %ld\n", i+1, GET_BOARD_DATE(ch, i));
 
 	if (GET_LEVEL(ch) < LVL_IMMORT)
 		fprintf(saved, "Hung: %d\n", GET_COND(ch, FULL));
