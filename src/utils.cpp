@@ -227,7 +227,7 @@ void write_time(FILE *file)
 {
 	char time_buf[20];
 	time_t ct = time(0);
-	strftime(time_buf, sizeof(time_buf), "%d-%m-%C %H:%M:%S", localtime(&ct));
+	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
 	fprintf(file, "%s :: ", time_buf);
 }
 
