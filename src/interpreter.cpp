@@ -2099,6 +2099,8 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		GET_LEVEL(d->character) = LVL_GOD;
 	if (GET_LEVEL(d->character) > LVL_IMPL)
 		GET_LEVEL(d->character) = 1;
+	if (GET_INVIS_LEV(d->character) > LVL_IMPL)
+		GET_INVIS_LEV(d->character) = 0;
 	if (GET_LEVEL(d->character) < LVL_IMPL) {
 		if (PLR_FLAGGED(d->character, PLR_INVSTART))
 			GET_INVIS_LEV(d->character) = LVL_IMMORT;
@@ -2106,7 +2108,6 @@ void do_entergame(DESCRIPTOR_DATA * d)
 			GET_INVIS_LEV(d->character) = GET_LEVEL(d->character);
 		if (GET_INVIS_LEV(d->character) > 0 && GET_LEVEL(d->character) < LVL_IMMORT)
 			GET_INVIS_LEV(d->character) = 0;
-
 	}
 	if (GET_LEVEL(d->character) > LVL_IMMORT
 	    && GET_LEVEL(d->character) < LVL_BUILDER
@@ -2126,6 +2127,9 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		if (!flag)
 			GET_LOGS(d->character)[0] = 0;
 	}
+
+	if (Privilege::check_flag(d->character, Privilege::KRODER) && GET_LEVEL(d->character) < LVL_IMMORT)
+		GET_INVIS_LEV(d->character) = 35;
 
 	/*
 	 * We have to place the character in a room before equipping them

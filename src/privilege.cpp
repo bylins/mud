@@ -45,8 +45,9 @@ namespace Privilege {
 const int NEWS_MAKER = 0;
 const int USE_SKILLS = 1;
 const int ARENA_MASTER = 2;
+const int KRODER = 3;
 // количество флагов
-const int FLAGS_NUM = 3;
+const int FLAGS_NUM = 4;
 
 typedef std::set<std::string> PrivListType;
 
@@ -89,6 +90,8 @@ void parse_flags(const std::string &command)
 		tmp_god.flags.set(USE_SKILLS);
 	else if (command == "arena")
 		tmp_god.flags.set(ARENA_MASTER);
+	else if (command == "kroder")
+		tmp_god.flags.set(KRODER);
 }
 
 /**

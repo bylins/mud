@@ -23,6 +23,7 @@ bool check_skills(CHAR_DATA *ch, int skills);
 extern const int NEWS_MAKER;
 extern const int USE_SKILLS;
 extern const int ARENA_MASTER;
+extern const int KRODER;
 
 } // namespace Privilege
 
