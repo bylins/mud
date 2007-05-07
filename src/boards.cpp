@@ -286,6 +286,11 @@ void Board::ShowMessage(CHAR_DATA * ch, MessagePtr message)
 	page_string(ch->desc, buffer.str(), 1);
 }
 
+void set_last_read(CHAR_DATA *ch, int type, time_t date)
+{
+	if (GET_BOARD_DATE(ch, type) < date)
+		GET_BOARD_DATE(ch, type) = date;
+}
 
 ACMD(DoBoard)
 {
@@ -360,7 +365,7 @@ ACMD(DoBoard)
 				body << timeBuf << CCNRM(ch, C_NRM) << "\r\n"
 						<< (*message)->text;
 			}
-			GET_BOARD_DATE(ch, (*board)->type) = time(0);
+			set_last_read(ch, (*board)->type, time(0));
 			page_string(ch->desc, body.str(), 1);
 			return;
 		}
@@ -375,7 +380,7 @@ ACMD(DoBoard)
 					body << CCWHT(ch, C_NRM); // новые подсветим
 				body << "[" << (*message)->author << "] " << CCNRM(ch, C_NRM) << (*message)->text;
 			}
-			GET_BOARD_DATE(ch, (*board)->type) = time(0);
+			set_last_read(ch, (*board)->type, time(0));
 			page_string(ch->desc, body.str(), 1);
 			return;
 		}
@@ -383,7 +388,7 @@ ACMD(DoBoard)
 		for (MessageListType::const_iterator message = (*board)->messages.begin(); message != (*board)->messages.end(); ++message) {
 			if ((*message)->date > date) {
 				Board::ShowMessage(ch, *message);
-				GET_BOARD_DATE(ch, (*board)->type) = (*message)->date;
+				set_last_read(ch, (*board)->type, (*message)->date);
 				return;
 			}
 		}
@@ -408,7 +413,7 @@ ACMD(DoBoard)
 		}
 		num = (*board)->messages.size() - num;
 		Board::ShowMessage(ch, (*board)->messages[num]);
-		GET_BOARD_DATE(ch, (*board)->type) = (*board)->messages[num]->date;
+		set_last_read(ch, (*board)->type, (*board)->messages[num]->date);
 		return;
 	}
 
@@ -480,7 +485,7 @@ ACMD(DoBoard)
 			return;
 		}
 		num = (*board)->messages.size() - num;
-		GET_BOARD_DATE(ch, (*board)->type) = (*board)->messages[num]->date;
+		set_last_read(ch, (*board)->type, (*board)->messages[num]->date);
 		// или он может делетить любые мессаги (по левелу/рангу), или только свои
 		if ((*board)->Access(ch) < 4) {
 			if ((*board)->messages[num]->unique != GET_UNIQUE(ch)) {
