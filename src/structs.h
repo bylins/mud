@@ -2037,7 +2037,7 @@ struct punish_data {
 	long godid;
 };
 
-#define BOARD_TOTAL 12 // общее кол-во досок
+#define BOARD_TOTAL 13 // общее кол-во досок
 
 /*
  * Specials needed only by PCs, not NPCs.  Space for this structure is

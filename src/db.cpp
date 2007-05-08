@@ -4867,6 +4867,8 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				GET_BOARD_DATE(ch, CLAN_BOARD) = lnum;
 			else if (!strcmp(tag, "Br12"))
 				GET_BOARD_DATE(ch, CLANNEWS_BOARD) = lnum;
+			else if (!strcmp(tag, "Br13"))
+				GET_BOARD_DATE(ch, NOTICE_BOARD) = lnum;
 
 			else if (!strcmp(tag, "Brth"))
 				ch->player.time.birth = lnum;

@@ -475,6 +475,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"авторы", POS_DEAD, do_gen_ps, 0, SCMD_CREDITS, 0},
 	{"атаковать", POS_FIGHTING, do_hit, 0, SCMD_MURDER, -1},
 	{"аукцион", POS_RESTING, do_gen_comm, 0, SCMD_AUCTION, 100},
+	{"анонсы", POS_DEAD, DoBoard, 1, NOTICE_BOARD, -1},
 
 	{"базар", POS_STANDING, do_not_here, 1, 0, -1},
 	{"баланс", POS_STANDING, do_not_here, 1, 0, 0},

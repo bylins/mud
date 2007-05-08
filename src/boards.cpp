@@ -29,6 +29,7 @@ const int GODPUNISH_BOARD = 8;  // наказания (только для иммов)
 const int PERS_BOARD = 9;  // персональная (только для иммов)
 const int CLAN_BOARD = 10; // клановая
 const int CLANNEWS_BOARD = 11; // клановые новости
+const int NOTICE_BOARD = 12;
 // не забываем выставить BOARD_TOTAL в structs.h, ненавижу сишные массивы :/
 
 extern int isname(const char *str, const char *namelist);
@@ -40,91 +41,32 @@ Board::Board() : type(0), lastWrite(0), clanRent(0), persUnique(0)
 	// тут особо ничего и не надо
 }
 
+void Board::create_board(int type, const std::string &name, const std::string &desc, const std::string &file)
+{
+	BoardPtr tmp_board(new Board);
+	tmp_board->type = type;
+	tmp_board->name = name;
+	tmp_board->desc = desc;
+	tmp_board->file = file;
+	tmp_board->Load();
+	Board::BoardList.push_back(tmp_board);
+}
+
 // создание всех досок, кроме клановых и персональных
 void Board::BoardInit()
 {
 	Board::BoardList.clear();
 
-	// общая доска
-	BoardPtr GeneralBoard(new Board);
-	GeneralBoard->type = GENERAL_BOARD;
-	GeneralBoard->name = "Вече";
-	GeneralBoard->desc = "Базарная площадь";
-	GeneralBoard->file = ETC_BOARD"general.board";
-	GeneralBoard->Load();
-	Board::BoardList.push_back(GeneralBoard);
-
-	// новости
-	BoardPtr NewsBoard(new Board);
-	NewsBoard->type = NEWS_BOARD;
-	NewsBoard->name = "Новости";
-	NewsBoard->desc = "Анонсы и новости Былин";
-	NewsBoard->file = ETC_BOARD"news.board";
-	NewsBoard->Load();
-	Board::BoardList.push_back(NewsBoard);
-
-	// идеи
-	BoardPtr IdeaBoard(new Board);
-	IdeaBoard->type = IDEA_BOARD;
-	IdeaBoard->name = "Идеи";
-	IdeaBoard->desc = "Идеи и их обсуждение";
-	IdeaBoard->file = ETC_BOARD"idea.board";
-	IdeaBoard->Load();
-	Board::BoardList.push_back(IdeaBoard);
-
-	// ошибки
-	BoardPtr ErrorBoard(new Board);
-	ErrorBoard->type = ERROR_BOARD;
-	ErrorBoard->name = "Ошибки";
-	ErrorBoard->desc = "Сообщения об ошибках в мире";
-	ErrorBoard->file = ETC_BOARD"error.board";
-	ErrorBoard->Load();
-	Board::BoardList.push_back(ErrorBoard);
-
-	// новости БОГов
-	BoardPtr GodNewsBoard(new Board);
-	GodNewsBoard->type = GODNEWS_BOARD;
-	GodNewsBoard->name = "GodNews";
-	GodNewsBoard->desc = "Божественные новости";
-	GodNewsBoard->file = ETC_BOARD"god-news.board";
-	GodNewsBoard->Load();
-	Board::BoardList.push_back(GodNewsBoard);
-
-	// общая для БОГов
-	BoardPtr GodGeneralBoard(new Board);
-	GodGeneralBoard->type = GODGENERAL_BOARD;
-	GodGeneralBoard->name = "Божества";
-	GodGeneralBoard->desc = "Божественная базарная площадь";
-	GodGeneralBoard->file = ETC_BOARD"god-general.board";
-	GodGeneralBoard->Load();
-	Board::BoardList.push_back(GodGeneralBoard);
-
-	// для билдеров
-	BoardPtr GodBuildBoard(new Board);
-	GodBuildBoard->type = GODBUILD_BOARD;
-	GodBuildBoard->name = "Билдер";
-	GodBuildBoard->desc = "Заметки билдеров";
-	GodBuildBoard->file = ETC_BOARD"god-build.board";
-	GodBuildBoard->Load();
-	Board::BoardList.push_back(GodBuildBoard);
-
-	// для кодеров
-	BoardPtr GodCodeBoard(new Board);
-	GodCodeBoard->type = GODCODE_BOARD;
-	GodCodeBoard->name = "Кодер";
-	GodCodeBoard->desc = "Заметки кодеров";
-	GodCodeBoard->file = ETC_BOARD"god-code.board";
-	GodCodeBoard->Load();
-	Board::BoardList.push_back(GodCodeBoard);
-
-	// для комментариев наказаний
-	BoardPtr GodPunishBoard(new Board);
-	GodPunishBoard->type = GODPUNISH_BOARD;
-	GodPunishBoard->name = "Наказания";
-	GodPunishBoard->desc = "Комментарии к наказаниям";
-	GodPunishBoard->file = ETC_BOARD"god-punish.board";
-	GodPunishBoard->Load();
-	Board::BoardList.push_back(GodPunishBoard);
+	create_board(GENERAL_BOARD, "Вече", "Базарная площадь", ETC_BOARD"general.board"); // общая доска
+	create_board(NEWS_BOARD, "Новости", "Анонсы и новости Былин", ETC_BOARD"news.board"); // новости
+	create_board(IDEA_BOARD, "Идеи", "Идеи и их обсуждение", ETC_BOARD"idea.board"); // идеи
+	create_board(ERROR_BOARD, "Ошибки", "Сообщения об ошибках в мире", ETC_BOARD"error.board"); // ошибки
+	create_board(GODNEWS_BOARD, "GodNews", "Божественные новости", ETC_BOARD"god-news.board"); // новости БОГов
+	create_board(GODGENERAL_BOARD, "Божества", "Божественная базарная площадь", ETC_BOARD"god-general.board"); // общая для БОГов
+	create_board(GODBUILD_BOARD, "Билдер", "Заметки билдеров", ETC_BOARD"god-build.board"); // для билдеров
+	create_board(GODCODE_BOARD, "Кодер", "Заметки кодеров", ETC_BOARD"god-code.board"); // для кодеров
+	create_board(GODPUNISH_BOARD, "Наказания", "Комментарии к наказаниям", ETC_BOARD"god-punish.board"); // для комментариев наказаний
+	create_board(NOTICE_BOARD, "Анонсы", "Сообщения от администрации", ETC_BOARD"notice.board"); // для сообщений от администрации
 }
 
 // лоад/релоад клановых досок
@@ -651,6 +593,12 @@ int Board::Access(CHAR_DATA * ch)
 			return 1;
 		} else
 			return 0;
+	case NOTICE_BOARD:
+	// 32+ полный, остальные только читают
+		if (IS_GOD(ch))
+			return 4;
+		else
+			return 1;
 	default:
 		log("Error board type! (%s %s %d)", __FILE__, __func__, __LINE__);
 		return 0;

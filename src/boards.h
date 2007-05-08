@@ -34,6 +34,7 @@ extern const int GODPUNISH_BOARD;
 extern const int PERS_BOARD;
 extern const int CLAN_BOARD;
 extern const int CLANNEWS_BOARD;
+extern const int NOTICE_BOARD;
 
 // предметы, на которые вешаем спешиалы для старого способа работы с досками
 #define GODGENERAL_BOARD_OBJ 250
@@ -95,6 +96,7 @@ public:
 
 	void Load();
 	static void ShowMessage(CHAR_DATA * ch, MessagePtr message);
+	static void create_board(int type, const std::string &name, const std::string &desc, const std::string &file);
 };
 
 #endif
