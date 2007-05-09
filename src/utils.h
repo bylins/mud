@@ -74,6 +74,8 @@ int valid_email(const char *address);
 void skip_spaces(char **string);
 int get_skill(CHAR_DATA *ch, int skill);
 
+extern std::list<FILE *> opened_files;
+
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
 
 /* random functions in random.cpp */

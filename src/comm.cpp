@@ -2707,8 +2707,10 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	d->clan_olc.reset();
 	d->clan_invite.reset();
 
-	if (d->pers_log)
+	if (d->pers_log) {
+		opened_files.remove(d->pers_log);
 		fclose(d->pers_log); // не забываем закрыть персональный лог
+	}
 
 	free(d);
 }
@@ -2832,6 +2834,8 @@ RETSIGTYPE crash_handle(int sig)
 
 	for (int i = 0; i < NLOG; ++i)
 		fflush(logs[i].logfile);
+	for (std::list<FILE *>::const_iterator it = opened_files.begin(); it != opened_files.end(); ++it)
+		fflush(*it);
 
 	my_signal(SIGSEGV, SIG_DFL);
 	my_signal(SIGBUS, SIG_DFL);

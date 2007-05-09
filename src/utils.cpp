@@ -220,6 +220,9 @@ int strn_cmp(const char *arg1, const char *arg2, int n)
 	return (0);
 }
 
+// дескрипторы открытых файлов логов для сброса буфера при креше
+std::list<FILE *> opened_files;
+
 /**
 * Чтобы не дублировать создание даты в каждом виде лога.
 */
@@ -235,10 +238,14 @@ void write_time(FILE *file)
 void log_death_trap(CHAR_DATA * ch)
 {
 	const char *filename = "../log/death_trap.log";
-	static FILE *file = fopen(filename, "a");
+	static FILE *file = 0;
 	if (!file) {
-		log("SYSERR: can't open %s!", filename);
-		return;
+		file = fopen(filename, "a");
+		if (!file) {
+			log("SYSERR: can't open %s!", filename);
+			return;
+		}
+		opened_files.push_back(file);
 	}
 	write_time(file);
 	fprintf(file, "%s hit death trap #%d (%s)\n", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), world[IN_ROOM(ch)]->name);
@@ -278,11 +285,14 @@ void log(const char *format, ...)
 void olc_log(const char *format, ...)
 {
 	const char *filename = "../log/olc.log";
-	static FILE *file = fopen(filename, "a");
-
+	static FILE *file = 0;
 	if (!file) {
-		log("SYSERR: can't open %s!", filename);
-		return;
+		file = fopen(filename, "a");
+		if (!file) {
+			log("SYSERR: can't open %s!", filename);
+			return;
+		}
+		opened_files.push_back(file);
 	} else if (!format)
 		format = "SYSERR: olc_log received a NULL format.";
 
@@ -297,11 +307,14 @@ void olc_log(const char *format, ...)
 void imm_log(const char *format, ...)
 {
 	const char *filename = "../log/imm.log";
-	static FILE *file = fopen(filename, "a");
-
+	static FILE *file = 0;
 	if (!file) {
-		log("SYSERR: can't open %s!", filename);
-		return;
+		file = fopen(filename, "a");
+		if (!file) {
+			log("SYSERR: can't open %s!", filename);
+			return;
+		}
+		opened_files.push_back(file);
 	} else if (!format)
 		format = "SYSERR: imm_log received a NULL format.";
 
@@ -337,6 +350,7 @@ void pers_log(CHAR_DATA *ch, const char *format, ...)
 			log("SYSERR: error open %s (%s %s %d)", filename, __FILE__, __func__, __LINE__);
 			return;
 		}
+		opened_files.push_back(ch->desc->pers_log);
 	}
 
 	write_time(ch->desc->pers_log);
