@@ -1230,8 +1230,6 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j)
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
-
-
 	send_to_char("Устанавливает аффекты : ", ch);
 	sprintbits(j->obj_flags.affects, weapon_affects, buf, ",");
 	strcat(buf, "\r\n");
@@ -1258,9 +1256,9 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j)
 	 * NOTE: In order to make it this far, we must already be able to see the
 	 *       character holding the object. Therefore, we do not need CAN_SEE().
 	 */
-	strcat(buf, ", В контенйнере: ");
+	strcat(buf, ", В контейнере: ");
 	strcat(buf, (j->in_obj && IS_GRGOD(ch)) ? j->in_obj->short_description : "Нет");
-	strcat(buf, ", В инвенторе: ");
+	strcat(buf, ", В инвентаре: ");
 	strcat(buf, (j->carried_by && IS_GRGOD(ch)) ? GET_NAME(j->carried_by) : "Нет");
 	strcat(buf, ", Одет: ");
 	strcat(buf, (j->worn_by && IS_GRGOD(ch)) ? GET_NAME(j->worn_by) : "Нет");
