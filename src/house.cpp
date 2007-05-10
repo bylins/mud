@@ -801,9 +801,9 @@ void Clan::HouseAdd(CHAR_DATA * ch, std::string & buffer)
 		send_to_char("Укажите имя персонажа.\r\n", ch);
 		return;
 	}
-	long unique = 0;
 
-	if (!(unique = GetUniqueByName(buffer2))) {
+    long unique = GetUniqueByName(buffer2);
+	if (!unique) {
 		send_to_char("Неизвестный персонаж.\r\n", ch);
 		return;
 	}
@@ -812,6 +812,61 @@ void Clan::HouseAdd(CHAR_DATA * ch, std::string & buffer)
 	if (unique == GET_UNIQUE(ch)) {
 		send_to_char("Сам себя повысил, самому себе вынес благодарность?\r\n", ch);
 		return;
+	}
+
+	// изменение звания у членов дружины
+	// даже если они находятся оффлайн
+	ClanMemberList::iterator it_member = this->members.find(unique);
+	if (it_member != this->members.end())
+	{
+	    if (it_member->second->rank_num <= CLAN_MEMBER(ch)->rank_num)
+	    {
+            send_to_char("Вы можете менять звания только у нижестоящих членов дружины.\r\n", ch);
+            return;
+	    }
+
+        int rank = CLAN_MEMBER(ch)->rank_num;
+        if(!rank) ++rank;
+
+	    GetOneParam(buffer, buffer2);
+        if (buffer2.empty()) {
+            buffer = "Укажите звание персонажа.\r\nДоступные положения: ";
+            for (std::vector<std::string>::const_iterator it = this->ranks.begin() + rank; it != this->ranks.end(); ++it)
+                buffer += "'" + *it + "' ";
+            buffer += "\r\n";
+            send_to_char(buffer, ch);
+            return;
+        }
+
+        int temp_rank = rank;
+        for (std::vector<std::string>::const_iterator it = this->ranks.begin() + rank; it != this->ranks.end(); ++it, ++temp_rank)
+            if (CompareParam(buffer2, *it))
+            {
+                CHAR_DATA *editedChar = NULL;
+                DESCRIPTOR_DATA *d = DescByUID(unique, 0);
+                this->members[unique]->rank_num = temp_rank;
+                if (d)
+                {
+                    editedChar = d->character;
+                    Clan::SetClanData(d->character);
+                    send_to_char(d->character, "Ваше звание изменили, теперь вы %s.\r\n", (*it).c_str());
+                }
+
+                // оповещение соклановцев о изменении звания
+                for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
+                    if (d->character && CLAN(d->character) && CLAN(d->character)->GetRent() == this->GetRent() && editedChar != d->character)
+                        send_to_char(d->character, "%s теперь %s.\r\n", it_member->second->name.c_str(), (*it).c_str());
+                }
+                return;
+            }
+
+        buffer = "Неверное звание, доступные положения:\r\n";
+        for (std::vector<std::string>::const_iterator it = this->ranks.begin() + rank; it != this->ranks.end(); ++it)
+            buffer += "'" + *it + "' ";
+        buffer += "\r\n";
+        send_to_char(buffer, ch);
+
+        return;
 	}
 
 	DESCRIPTOR_DATA *d = DescByUID(unique);
@@ -836,10 +891,6 @@ void Clan::HouseAdd(CHAR_DATA * ch, std::string & buffer)
 		send_to_char("Вы не можете сражаться в одном строю с иноплеменником.\r\n", ch);
 		return;
 	}
-	if (CLAN(d->character) && CLAN(ch) == CLAN(d->character) && CLAN_MEMBER(ch)->rank_num >= CLAN_MEMBER(d->character)->rank_num) {
-		send_to_char("Вы можете менять звания только у нижестоящих членов дружины.\r\n", ch);
-		return;
-	}
 	GetOneParam(buffer, buffer2);
 
 	// чтобы учесть воеводу с 0 рангом во время приписки и не дать ему приписать еще 10 воевод
@@ -858,33 +909,24 @@ void Clan::HouseAdd(CHAR_DATA * ch, std::string & buffer)
 	int temp_rank = rank; // дальше rank тоже мб использован в случае неверного выбора
 	for (std::vector<std::string>::const_iterator it = this->ranks.begin() + rank; it != this->ranks.end(); ++it, ++temp_rank)
 		if (CompareParam(buffer2, *it)) {
-			if (CLAN(d->character) == CLAN(ch)) {
-				// игрок уже приписан к этой дружине, меняем только звание
-				this->members[GET_UNIQUE(d->character)]->rank_num = temp_rank;
-				Clan::SetClanData(d->character);
-				send_to_char(ch, "%s теперь %s.\r\n", GET_NAME(d->character), (*it).c_str());
-				send_to_char(d->character, "Ваше звание изменили, теперь вы %s.\r\n", (*it).c_str());
-				return;
-			} else {
-				// не приписан - втыкаем ему приглашение и курим, пока не согласится
-				boost::shared_ptr<struct ClanInvite> temp_invite (new ClanInvite);
-				temp_invite->clan = CLAN(ch);
-				temp_invite->rank = temp_rank;
-				d->clan_invite = temp_invite;
-				buffer = CCWHT(d->character, C_NRM);
-				buffer += "$N приглашен$G в Вашу дружину, статус - " + *it + ".";
-				buffer += CCNRM(d->character, C_NRM);
-				// оповещаем счастливца
-				act(buffer.c_str(), FALSE, ch, 0, d->character, TO_CHAR);
-				buffer = CCWHT(d->character, C_NRM);
-				buffer += "Вы получили приглашение в дружину '" + this->name + "', статус - " + *it + ".\r\n"
-					+ "Чтобы принять приглашение наберите 'клан согласен', для отказа 'клан отказать'.\r\n"
-					+ "Никто не сможет послать вам новое приглашение до тех пор, пока вы не разберетесь с этим.\r\n";
+            // не приписан - втыкаем ему приглашение и курим, пока не согласится
+            boost::shared_ptr<struct ClanInvite> temp_invite (new ClanInvite);
+            temp_invite->clan = CLAN(ch);
+            temp_invite->rank = temp_rank;
+            d->clan_invite = temp_invite;
+            buffer = CCWHT(d->character, C_NRM);
+            buffer += "$N приглашен$G в Вашу дружину, статус - " + *it + ".";
+            buffer += CCNRM(d->character, C_NRM);
+            // оповещаем счастливца
+            act(buffer.c_str(), FALSE, ch, 0, d->character, TO_CHAR);
+            buffer = CCWHT(d->character, C_NRM);
+            buffer += "Вы получили приглашение в дружину '" + this->name + "', статус - " + *it + ".\r\n"
+                + "Чтобы принять приглашение наберите 'клан согласен', для отказа 'клан отказать'.\r\n"
+                + "Никто не сможет послать вам новое приглашение до тех пор, пока вы не разберетесь с этим.\r\n";
 
-				buffer += CCNRM(d->character, C_NRM);
-				send_to_char(buffer, d->character);
-				return;
-			}
+            buffer += CCNRM(d->character, C_NRM);
+            send_to_char(buffer, d->character);
+            return;
 		}
 	buffer = "Неверное звание, доступные положения:\r\n";
 	for (std::vector<std::string>::const_iterator it = this->ranks.begin() + rank; it != this->ranks.end(); ++it)
