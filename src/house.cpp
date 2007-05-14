@@ -699,7 +699,7 @@ ACMD(DoHouse)
 		buffer += "  клан налог (процент отдаваемого опыта)\r\n";
 		if (CLAN(ch)->storehouse)
 			buffer += "  хранилище <фильтры>\r\n";
-		buffer += "  клан статистика <!опыт/!заработанным/!налог/!последнему>";
+		buffer += "  клан статистика <!опыт/!заработанным/!налог/!последнему/!имя>";
 		if(!CLAN_MEMBER(ch)->rank_num)
 			buffer += " <имя|все|очистить|очистить деньги>\r\n";
 		else
@@ -3245,10 +3245,16 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
         SORT_STAT_BY_CLANEXP,
         SORT_STAT_BY_MONEY,
         SORT_STAT_BY_EXPPERCENT,
-        SORT_STAT_BY_LOGON
+        SORT_STAT_BY_LOGON,
+        SORT_STAT_BY_NAME
     };
     ESortParam sortParameter;
-    long lSortParam;
+    long long lSortParam;
+
+    // т.к. в кои8-р русские буквы не попорядку
+    char *pSortAlph = "яюэьыъщшчцхфутсрпонмлкизжёедгвба";
+    // первая буква имени
+    char pcFirstChar[2];
 
     // для избежания путаницы с именами фильтр начинается со знака "!"
     // формат команды:
@@ -3264,6 +3270,8 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
             sortParameter = SORT_STAT_BY_EXPPERCENT;
         else if ((buffer2[0] == '!')&&(is_abbrev(buffer2.c_str()+1, "последнему")))
             sortParameter = SORT_STAT_BY_LOGON;
+        else if ((buffer2[0] == '!')&&(is_abbrev(buffer2.c_str()+1, "имя")))
+            sortParameter = SORT_STAT_BY_NAME;
 
         // берем следующий параметр
         if (buffer2[0] == '!') GetOneParam(buffer, buffer2);
@@ -3322,6 +3330,9 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
     case SORT_STAT_BY_LOGON:
         out << "последнему заходу в игру";
         break;
+    case SORT_STAT_BY_NAME:
+        out << "первой букве имени";
+        break;
 
     // этого быть не должно
     default:
@@ -3332,7 +3343,7 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 	out << CCNRM(ch, C_NRM) << "Имя             Рейтинговых очков  Опыта дружины  Заработано кун  Налог Последний вход\r\n";
 
     // multimap ибо могут быть совпадения
-	std::multimap<long, std::pair<std::string, ClanMemberPtr> > temp_list;
+	std::multimap<long long, std::pair<std::string, ClanMemberPtr> > temp_list;
 
 	for (ClanMemberList::const_iterator it = this->members.begin(); it != this->members.end(); ++it) {
 		if (!all && !name) {
@@ -3366,6 +3377,13 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
         case SORT_STAT_BY_LOGON:
             lSortParam = get_lastlogon_by_uniquie(it->first);
             break;
+        case SORT_STAT_BY_NAME:
+            pcFirstChar[0] = LOWER(it->second->name[0]);
+            pcFirstChar[1] = '\0';
+            char *pTmp = strpbrk(pSortAlph, pcFirstChar);
+            if (pTmp) lSortParam = pTmp - pSortAlph; // индекс первой буквы в массиве
+            else lSortParam = pcFirstChar[0]; // или не русская буква или я хз
+            break;
 
         // на всякий случай
         default:
@@ -3376,7 +3394,7 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
             std::make_pair(std::string(timeBuf), it->second)));
 	}
 
-	for (std::multimap<long, std::pair<std::string, ClanMemberPtr> >::reverse_iterator it = temp_list.rbegin(); it != temp_list.rend(); ++it) {
+	for (std::multimap<long long, std::pair<std::string, ClanMemberPtr> >::reverse_iterator it = temp_list.rbegin(); it != temp_list.rend(); ++it) {
 		out.setf(std::ios_base::left, std::ios_base::adjustfield);
 		out << std::setw(15) << it->second.second->name << " "
 			<< std::setw(18) << it->second.second->exp << " " // аналог it->first
