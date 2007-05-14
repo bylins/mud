@@ -3377,13 +3377,14 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
         case SORT_STAT_BY_LOGON:
             lSortParam = get_lastlogon_by_uniquie(it->first);
             break;
-        case SORT_STAT_BY_NAME:
+        case SORT_STAT_BY_NAME: {
             pcFirstChar[0] = LOWER(it->second->name[0]);
             pcFirstChar[1] = '\0';
             char *pTmp = strpbrk(pSortAlph, pcFirstChar);
             if (pTmp) lSortParam = pTmp - pSortAlph; // индекс первой буквы в массиве
             else lSortParam = pcFirstChar[0]; // или не русская буква или я хз
             break;
+		}
 
         // на всякий случай
         default:
