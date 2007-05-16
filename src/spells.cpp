@@ -30,6 +30,7 @@
 #include "features.hpp"
 #include "im.h"
 #include "deathtrap.hpp"
+#include "privilege.hpp"
 
 extern room_rnum r_mortal_start_room;
 
@@ -443,6 +444,11 @@ ASPELL(spell_portal)
 		world[fnd_room]->isPortalEntry = FALSE;
 		act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[fnd_room]->people, 0, 0, TO_CHAR);
 		act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[fnd_room]->people, 0, 0, TO_ROOM);
+
+		// если пенту ставит имм с привилегией arena (и находясь на арене), то пента получается односторонняя
+		if (Privilege::check_flag(ch, Privilege::ARENA_MASTER) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
+			return;
+
 		world[to_room]->portal_room = fnd_room;
 		world[to_room]->portal_time = 1;
 		world[to_room]->isPortalEntry = TRUE;
