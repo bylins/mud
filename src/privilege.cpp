@@ -104,8 +104,7 @@ void insert_command(const std::string &command, int fill_mode, int other_flags)
 		// в арену пишется только аналог общего списка, я не знаю зачем на арене set или show
 		if (!fill_mode)
 			tmp_god.arena.insert(command);
-		else
-			return;
+		return;
 	}
 
 	switch (fill_mode) {
@@ -159,17 +158,10 @@ void parse_command_line(const std::string &commands, int other_flags)
 	tokenizer::iterator tok_iter, tmp_tok_iter;
 	tokenizer tokens(commands, sep);
 
-	std::string tmp_string;
 	int fill_mode = 0;
-
 	tokens.assign(commands);
-	tok_iter = tokens.begin();
-	if (tok_iter != tokens.end())
-		tmp_string.assign(*tok_iter);
-	else
-		return;
-	tmp_tok_iter = tok_iter;
-	for (++tok_iter; tok_iter != tokens.end(); tok_iter++) {
+	if (tokens.begin() == tokens.end()) return;
+	for (tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter) {
 		if ((*tok_iter) == "(") {
 			if ((*tmp_tok_iter) == "set") {
 				fill_mode = 1;
@@ -213,7 +205,9 @@ void load() {
 			while (file >> name) {
 				if (name == "</groups>")
 					break;
+				file >> temp; // "="
 				std::getline(file, commands);
+				boost::trim(commands);
 				group_list[name] = commands;
 				continue;
 			}
@@ -224,6 +218,7 @@ void load() {
 					break;
 				file >> uid;
 				std::getline(file, commands);
+				boost::trim(commands);
 				parse_command_line(commands);
 				insert_default_command(uid);
 				name_convert(name);
