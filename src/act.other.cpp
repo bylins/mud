@@ -2865,7 +2865,7 @@ ACMD(do_insertgem)
 				break;
 			}
 		if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum + 6)
-			switch (number(1, 7)) {
+			switch (number(1, 6)) {
 			case 1:
 				set_obj_eff(itemobj, APPLY_DAMROLL, 3);
 				break;
@@ -2888,14 +2888,6 @@ ACMD(do_insertgem)
 			case 6:
 				set_obj_eff(itemobj, APPLY_SAVING_WILL, 10);
 				break;
-			case 7:
-				if (CAN_WEAR(itemobj, ITEM_WEAR_WIELD) ||
-				    CAN_WEAR(itemobj, ITEM_WEAR_HOLD) || CAN_WEAR(itemobj, ITEM_WEAR_BOTHS))
-					SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_NODISARM), ITEM_NODISARM);
-				else
-					set_obj_eff(itemobj, APPLY_HITROLL, 3);
-				break;
-
 			}
 		if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum + 7)
 			switch (number(1, 6)) {
@@ -2908,18 +2900,18 @@ ACMD(do_insertgem)
 			case 3:
 				set_obj_eff(itemobj, APPLY_DEX, 1);
 				break;
-			case 5:
+			case 4:
 				set_obj_eff(itemobj, APPLY_STR, 1);
 				break;
-			case 6:
+			case 5:
 				set_obj_eff(itemobj, APPLY_CON, 1);
 				break;
-			case 7:
+			case 6:
 				set_obj_eff(itemobj, APPLY_CHA, 1);
 				break;
 			}
 		if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum + 8)
-			switch (number(1, 7)) {
+			switch (number(1, 6)) {
 			case 1:
 				set_obj_eff(itemobj, APPLY_INT, 2);
 				break;
@@ -2929,13 +2921,13 @@ ACMD(do_insertgem)
 			case 3:
 				set_obj_eff(itemobj, APPLY_DEX, 2);
 				break;
-			case 5:
+			case 4:
 				set_obj_eff(itemobj, APPLY_STR, 2);
 				break;
-			case 6:
+			case 5:
 				set_obj_eff(itemobj, APPLY_CON, 2);
 				break;
-			case 7:
+			case 6:
 				set_obj_eff(itemobj, APPLY_CHA, 2);
 				break;
 			}
