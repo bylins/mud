@@ -328,7 +328,7 @@ bool check_flag(CHAR_DATA *ch, int flag)
 
 /**
 * Проверка на возможность каста заклинания иммом.
-* Группа skills без ограничений. Группа arena только призыв и пента и только на клетках арены.
+* Группа skills без ограничений. Группа arena только призыв, пента и слово возврата и только на клетках арены.
 * У морталов и 34х проверка не производится.
 */
 bool check_spells(CHAR_DATA *ch, int spellnum)
@@ -337,7 +337,7 @@ bool check_spells(CHAR_DATA *ch, int spellnum)
 	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;
 	// флаг arena_master - только на арене и только для призыва/пенты
-	if (spellnum == SPELL_PORTAL || spellnum == SPELL_SUMMON)
+	if (spellnum == SPELL_PORTAL || spellnum == SPELL_SUMMON || spellnum == SPELL_WORD_OF_RECALL)
 		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) && check_flag(ch, ARENA_MASTER))
 			return true;
 	return false;
