@@ -28,6 +28,7 @@
 #include "magic.h"
 #include "fight.h"
 #include "features.hpp"
+#include "depot.hpp"
 
 /* extern variables */
 extern vector < OBJ_DATA * >obj_proto;
@@ -89,6 +90,13 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 		if (!Clan::PutChest(ch, obj, cont))
 			return 1;
 		return 0;
+	}
+	// персональный сундук
+	int type = Depot::is_depot(ch, cont);
+	if (type) {
+		if (Depot::put_depot(ch, obj, type))
+			return 0;
+		return 2;
 	}
 
 	if (GET_OBJ_WEIGHT(cont) + GET_OBJ_WEIGHT(obj) > GET_OBJ_VAL(cont, 0))
@@ -176,9 +184,9 @@ const int effects[][2] = { {APPLY_MOVEREG, 100},
     {APPLY_C6, 2},
     {APPLY_CAST_SUCCESS, 12},
     {APPLY_RESIST_MIND, 15},
-    {APPLY_C8, 1},	
+    {APPLY_C8, 1},
     {APPLY_C9, 1}
-    }; 
+    };
 
 OBJ_DATA *create_skin(CHAR_DATA *mob,CHAR_DATA *ch)
 {
@@ -186,7 +194,7 @@ OBJ_DATA *create_skin(CHAR_DATA *mob,CHAR_DATA *ch)
 	int definitor, vnum, eff, limit, i, n, k = 0, num, effect, max_eff;
 	bool concidence;
 	const int vnum_skin_prototype = 1660;
-					
+
 
 	vnum = vnum_skin_prototype + MIN((int)(GET_LEVEL(mob) / 5), 9);
 	skin = read_object(vnum, VIRTUAL);
@@ -469,6 +477,12 @@ bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont,
 
 void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int howmany)
 {
+	int type = Depot::is_depot(ch, cont);
+	if (type) {
+		Depot::take_depot(ch, arg, howmany, type);
+		return;
+	}
+
 	OBJ_DATA *obj, *next_obj;
 	int obj_dotmode, found = 0;
 
@@ -764,7 +778,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 					send_to_char(buf, ch);
 					sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
 					act(buf, TRUE, ch, 0, 0, TO_ROOM);
-				}				
+				}
 				obj_to_room(obj, ch->in_room);
 			}
 		} else {
@@ -2708,7 +2722,7 @@ ACMD(do_repair)
 	prob = number(1, skill_info[SKILL_REPAIR].max_percent);
 	percent = train_skill(ch, SKILL_REPAIR, skill_info[SKILL_REPAIR].max_percent, 0);
 	if (prob > percent) {
-//Polos.repair_bug	
+//Polos.repair_bug
 //Потому что 0 уничтожает шмотку полностью даже при скиле 100+ и
 //состоянии шмотки <очень хорошо>
 		if (!percent) percent = get_skill(ch, SKILL_REPAIR)/10;
@@ -2750,7 +2764,7 @@ ACMD(do_makefood)
 
 //	send_to_char("Временно не доступно.\r\n",ch);
 //	return;
-	
+
 	if (!get_skill(ch, SKILL_MAKEFOOD)) {
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;

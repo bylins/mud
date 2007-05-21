@@ -507,7 +507,6 @@ void mobile_activity(int activity_level, int missed_pulses)
 	for (ch = character_list; ch; ch = next_ch) {
 		next_ch = ch->next;
 
-
 		if (!IS_MOB(ch))
 			continue;
 		i = missed_pulses;
@@ -765,18 +764,17 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		if (door == BFS_ERROR)
 			door = number(0, 18);
-
 		/* Mob Movement */
-		if (!MOB_FLAGGED(ch, MOB_SENTINEL) &&
-		    GET_POS(ch) == POS_STANDING &&
-		    (door >= 0 && door < NUM_OF_DIRS) &&
-		    EXIT(ch, door) &&
-		    EXIT(ch, door)->to_room != NOWHERE &&
-		    legal_dir(ch, door, TRUE, FALSE) &&
-		    !(world[EXIT(ch, door)->to_room]->forbidden &&
-		      (number(1, 100) <= world[EXIT(ch, door)->to_room]->forbidden_percent))
+		if (!MOB_FLAGGED(ch, MOB_SENTINEL)
+			&& GET_POS(ch) == POS_STANDING
+			&& (door >= 0 && door < NUM_OF_DIRS)
+			&& EXIT(ch, door)
+			&& EXIT(ch, door)->to_room != NOWHERE
+			&& legal_dir(ch, door, TRUE, FALSE)
+			&& !(world[EXIT(ch, door)->to_room]->forbidden && (number(1, 100) <= world[EXIT(ch, door)->to_room]->forbidden_percent))
 		    && (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
-			|| world[EXIT(ch, door)->to_room]->zone == world[ch->in_room]->zone)) {
+			|| world[EXIT(ch, door)->to_room]->zone == world[ch->in_room]->zone))
+		{
 			// После хода нпц уже может не быть, т.к. ушел в дт, я не знаю почему
 			// оно не валится на муд.ру, но на цигвине у меня падало стабильно,
 			// т.к. в ch уже местами мусор после фри-чара // Krodo

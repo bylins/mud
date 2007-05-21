@@ -40,7 +40,6 @@ CHAR_DATA *combat_list = NULL;	/* head of l-list of fighting chars */
 CHAR_DATA *next_combat_list = NULL;
 
 extern struct message_list fight_messages[MAX_MESSAGES];
-extern OBJ_DATA *object_list;
 extern CHAR_DATA *character_list;
 extern vector < OBJ_DATA * >obj_proto;
 extern int max_exp_gain_npc;	/* see config.cpp */

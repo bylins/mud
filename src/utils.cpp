@@ -903,6 +903,14 @@ int get_filename(const char *orig_name, char *filename, int mode)
 		prefix = LIB_PLRVARS;
 		suffix = SUF_MEM;
 		break;
+	case PERS_DEPOT_FILE:
+		prefix = LIB_DEPOT;
+		suffix = SUF_PERS_DEPOT;
+		break;
+	case SHARE_DEPOT_FILE:
+		prefix = LIB_DEPOT;
+		suffix = SUF_SHARE_DEPOT;
+		break;
 	default:
 		return (0);
 	}

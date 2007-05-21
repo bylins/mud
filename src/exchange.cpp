@@ -24,9 +24,6 @@
 #include "constants.h"
 #include "skills.h"
 
-
-extern OBJ_DATA *object_list;
-
 //Используемые внешние ф-ии.
 extern void write_one_object(char **data, OBJ_DATA * object, int location);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);

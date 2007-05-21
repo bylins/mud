@@ -47,6 +47,7 @@
 #include "exchange.h"
 #include "deathtrap.hpp"
 #include "title.hpp"
+#include "depot.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -1205,9 +1206,10 @@ inline void heartbeat()
 		//log("Stop it...");
 	}
 	//log("Beat points update...");
-	if (!(pulse % PASSES_PER_SEC))
+	if (!(pulse % PASSES_PER_SEC)) {
 		beat_points_update(pulse / PASSES_PER_SEC);
 	//  log("Stop it...");
+	}
 
 	if (FRAC_SAVE && auto_save && !((pulse + 7) % PASSES_PER_SEC)) {	// 1 game secunde
 		//log("Fractional Crash save all...");
@@ -1297,6 +1299,19 @@ inline void heartbeat()
 		}
 	}
 
+	// апдейт таймеров всех списков + пурж чего надо
+	if (!((pulse + 20) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
+		Depot::update_timers();
+	}
+	// сохранение онлайновых списков шмота, подгрузка общих хранилищ
+	if (!((pulse + 21) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
+		Depot::save_online_objs();
+		Depot::load_share_depots();
+	}
+	// сохранение таймер-инфы всех шмоток в общий файл
+	if (!((pulse + 22) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
+		Depot::save_timedata();
+	}
 
 	//log("---------- Stop heartbeat ----------");
 }
@@ -2646,9 +2661,11 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		break;
 	}
 
-	if (d->character) {	/*
-				 * Plug memory leak, from Eric Green.
-				 */
+	if (d->character) {
+		// перекидывание онлайн списков хранилищ в оффлайн
+		Depot::exit_char(d->character);
+
+		// Plug memory leak, from Eric Green.
 		if (!IS_NPC(d->character) && (PLR_FLAGGED(d->character, PLR_MAILING) || STATE(d) == CON_WRITEBOARD) && d->str) {
 			if (*(d->str))
 				free(*(d->str));
@@ -3386,6 +3403,21 @@ extern FILE *logfile;
 /* Prefer the file over the descriptor. */
 void setup_logs(void)
 {
+	mkdir("log", 0700);
+	mkdir("log/perslog", 0700);
+	mkdir("lib/plrstuff", 0700);
+	mkdir("lib/plrstuff/depot", 0700);
+	mkdir("lib/plrstuff/depot/A-E", 0700);
+	mkdir("lib/plrstuff/depot/F-J", 0700);
+	mkdir("lib/plrstuff/depot/K-O", 0700);
+	mkdir("lib/plrstuff/depot/P-T", 0700);
+	mkdir("lib/plrstuff/depot/U-Z", 0700);
+	mkdir("lib/plrstuff/depot/ZZZ", 0700);
+	mkdir("lib/plrstuff/house", 0700);
+	mkdir("lib/etc", 0700);
+	mkdir("lib/etc/board", 0700);
+	mkdir("lib/stat", 0700);
+
 	FILE *s_fp;
 	int i;
 
@@ -3414,9 +3446,6 @@ void setup_logs(void)
 			puts("Using file descriptor for logging.");
 			continue;
 		}
-
-		mkdir("log", 0700);
-		mkdir("log/perslog", 0700);
 
 		if (!open_logfile(logs + i, NULL))	//s_fp
 		{
