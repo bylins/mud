@@ -22,7 +22,7 @@ act.social.o: act.social.cpp conf.h sysdep.h structs.h utils.h comm.h \
 act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h house.h screen.h skills.h \
   constants.h olc.h dg_scripts.h mobmax.h pk.h im.h top.h ban.hpp \
-  diskio.h description.h title.hpp password.hpp privilege.hpp
+  diskio.h description.h title.hpp password.hpp privilege.hpp depot.hpp
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h interpreter.h db.h
 ban.o: ban.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
   handler.h db.h ban.hpp diskio.h
