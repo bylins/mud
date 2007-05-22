@@ -401,7 +401,6 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 		chest_name = "персональное";
 	else
 		chest_name = "общее";
-
 	sprintf(buf, "Вы положили $o3 в %s хранилище.", chest_name.c_str());
 	sprintf(buf1, "$n положил$g $o3 в %s хранилище.", chest_name.c_str());
 	act(buf, FALSE, ch, obj, 0, TO_CHAR);
@@ -582,8 +581,17 @@ void CharNode::remove_item(CHAR_DATA *vict, ObjListType::iterator &obj_it, ObjLi
 	(*obj_it)->next = object_list;
 	object_list = *obj_it;
 	obj_to_char(*obj_it, vict);
-	act("Вы взяли $o3 из хранилища.", FALSE, vict, *obj_it, 0, TO_CHAR);
-	act("$n взял$g $o3 из хранилища.", TRUE, vict, *obj_it, 0, TO_ROOM);
+
+	std::string chest_name;
+	if (type == PERS_CHEST)
+		chest_name = "персонального";
+	else
+		chest_name = "общего";
+	sprintf(buf, "Вы взяли $o3 из %s хранилища.", chest_name.c_str());
+	sprintf(buf1, "$n взял$g $o3 из %s хранилища.", chest_name.c_str());
+	act(buf, FALSE, vict, *obj_it, 0, TO_CHAR);
+	act(buf1, TRUE, vict, *obj_it, 0, TO_ROOM);
+
 	if (type != PERS_CHEST)
 		cost_per_day -= GET_OBJ_RENTEQ(*obj_it);
 	cont.erase(obj_it++);
