@@ -505,7 +505,7 @@ void show_depot(CHAR_DATA * ch, OBJ_DATA * obj, int type)
 					// если хранилище еще не подгрузилось - надо так и сказать, а то будут думать, что не работает
 					if ((std::find(it->second.waiting_allowed_chars.begin(), it->second.waiting_allowed_chars.end(), al_it->first)
 					!= it->second.waiting_allowed_chars.end()) && vict_it->second.share_online.empty())
-						out += "Хранилище будет доступно в течение пары минут.\r\n";
+						out += "Хранилище будет доступно в течение пары минут.\r\n\r\n";
 					else
 						out += "\r\n";
 				}
