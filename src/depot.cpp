@@ -364,11 +364,9 @@ DepotListType::iterator create_depot(long uid, CHAR_DATA *ch = 0)
 	if (it == depot_list.end())
 	{
 		CharNode tmp_node;
-		if (ch)
-		{
-			tmp_node.ch = ch;
-			tmp_node.name = GET_NAME(ch);
-		}
+		// в случае отсутствия чара (пока только при релоаде) ch останется нулевым, а имя возьмется через уид
+		tmp_node.ch = ch;
+		tmp_node.name = GetNameByUnique(uid);
 		depot_list[uid] = tmp_node;
 		it = depot_list.find(uid);
 	}
@@ -1087,7 +1085,11 @@ void CharNode::load_online_objs(int file_type, bool reload)
 	if (offline_list.empty()) return;
 
 	char filename[MAX_STRING_LENGTH];
-	get_filename(name.c_str(), filename, file_type);
+	if (!get_filename(name.c_str(), filename, file_type))
+	{
+		log("Хранилище: не удалось сгенерировать имя файла (name: %s, filename: %s) (%s %s %d).", name.c_str(), filename, __FILE__, __func__, __LINE__);
+		return;
+	}
 
 	FILE *fl = fopen(filename, "r+b");
 	if (!fl) return;
