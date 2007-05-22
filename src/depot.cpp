@@ -364,7 +364,11 @@ DepotListType::iterator create_depot(long uid, CHAR_DATA *ch = 0)
 	if (it == depot_list.end())
 	{
 		CharNode tmp_node;
-		tmp_node.ch = ch;
+		if (ch)
+		{
+			tmp_node.ch = ch;
+			tmp_node.name = GET_NAME(ch);
+		}
 		depot_list[uid] = tmp_node;
 		it = depot_list.find(uid);
 	}
@@ -377,6 +381,11 @@ DepotListType::iterator create_depot(long uid, CHAR_DATA *ch = 0)
 bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 {
 	if (IS_NPC(ch)) return 0;
+	if (IS_IMMORTAL(ch))
+	{
+		send_to_char("И без хранилища обойдешься...\r\n" , ch);
+		return 1;
+	}
 	if (GET_OBJ_TYPE(obj) == ITEM_MONEY)
 	{
 		put_gold_chest(ch, obj);
@@ -387,18 +396,22 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 	DepotListType::iterator it = create_depot(GET_UNIQUE(ch), ch);
 	it->second.add_item(obj, type);
 
-	obj_from_char(obj);
-	check_auction(NULL, obj);
-	OBJ_DATA *temp;
-	REMOVE_FROM_LIST(obj, object_list, next);
-
 	std::string chest_name;
 	if (type == PERS_CHEST)
 		chest_name = "персональное";
 	else
 		chest_name = "общее";
 
-	send_to_char(ch, "Вы положили %s в %s хранилище.\r\n", OBJ_PAD(obj, 3), chest_name.c_str());
+	sprintf(buf, "Вы положили $o3 в %s хранилище.", chest_name.c_str());
+	sprintf(buf1, "$n положил$g $o3 в %s хранилище.", chest_name.c_str());
+	act(buf, FALSE, ch, obj, 0, TO_CHAR);
+	act(buf1, TRUE, ch, obj, 0, TO_ROOM);
+
+	obj_from_char(obj);
+	check_auction(NULL, obj);
+	OBJ_DATA *temp;
+	REMOVE_FROM_LIST(obj, object_list, next);
+
 	return 1;
 }
 
@@ -419,7 +432,7 @@ std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string 
 			boost::bind(&obj_data::name, _2)));
 
 	ObjListType::const_iterator prev_obj_it = cont.begin();
-	int count = 0, cost = 0;
+	int count = 0;
 	bool found = 0;
 	for(ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); )
 	{
@@ -427,7 +440,7 @@ std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string 
 		{
 			found = 1;
 			++count;
-			cost += GET_OBJ_RENTEQ(*obj_it);
+			rent_per_day += GET_OBJ_RENTEQ(*obj_it);
 			prev_obj_it = obj_it;
 			++obj_it;
 			continue;
@@ -435,16 +448,11 @@ std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string 
 
 		out << (*prev_obj_it)->short_description;
 		if (count > 1)
-		{
-			out << " [" << count << "] [" << cost << " (" << GET_OBJ_RENTEQ(*prev_obj_it) << ") " << desc_count(cost, WHAT_MONEYa) << "]\r\n";
-			rent_per_day += cost;
-		}
+			out << " [" << count << "]";
 		else
-		{
-			out << " [" << GET_OBJ_RENTEQ(*prev_obj_it) << " " << desc_count(GET_OBJ_RENTEQ(*prev_obj_it), WHAT_MONEYa) << "]\r\n";
 			rent_per_day += GET_OBJ_RENTEQ(*prev_obj_it);
-		}
-		cost = count = 0;
+		out << " [" << GET_OBJ_RENTEQ(*prev_obj_it) << " " << desc_count(GET_OBJ_RENTEQ(*prev_obj_it), WHAT_MONEYa) << "]\r\n";
+		count = 1;
 		// по идее надо отловить последний предмет
 		prev_obj_it = obj_it++;
 		found = 0;
@@ -459,8 +467,9 @@ std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string 
 	if (found)
 	{
 		out << (*prev_obj_it)->short_description;
-		out << " [" << count << "] [" << cost << " (" << GET_OBJ_RENTEQ(*prev_obj_it) << ") " << desc_count(cost, WHAT_MONEYa) << "]\r\n";
-		rent_per_day += cost;
+		if (count > 1)
+			out << " [" << count << "]";
+		out << " [" << GET_OBJ_RENTEQ(*prev_obj_it) << " " << desc_count(GET_OBJ_RENTEQ(*prev_obj_it), WHAT_MONEYa) << "]\r\n";
 	}
 	std::stringstream head;
 	head << CCWHT(ch, C_NRM) << chest_name << " (всего вещей: " << cont.size()
@@ -475,6 +484,11 @@ std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string 
 void show_depot(CHAR_DATA * ch, OBJ_DATA * obj, int type)
 {
 	if (IS_NPC(ch)) return;
+	if (IS_IMMORTAL(ch))
+	{
+		send_to_char("И без хранилища обойдешься...\r\n" , ch);
+		return;
+	}
 
 	DepotListType::iterator it = create_depot(GET_UNIQUE(ch), ch);
 
@@ -663,6 +677,12 @@ void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany, int type)
 void take_depot(CHAR_DATA *vict, char *arg, int howmany, int type)
 {
 	if (IS_NPC(vict)) return;
+	if (IS_IMMORTAL(vict))
+	{
+		send_to_char("И без хранилища обойдешься...\r\n" , vict);
+		return;
+	}
+
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(vict));
 	if (it == depot_list.end())
 	{
@@ -837,6 +857,11 @@ const char *HELP_FORMAT =
 SPECIAL(Special)
 {
 	if (IS_NPC(ch) || !CMD_IS("хранилище")) return false;
+	if (IS_IMMORTAL(ch))
+	{
+		send_to_char("И без хранилища обойдешься...\r\n" , ch);
+		return true;
+	}
 
 	DepotListType::iterator ch_it = create_depot(GET_UNIQUE(ch), ch);
 
@@ -953,7 +978,11 @@ SPECIAL(Special)
 void write_obj_file(const std::string &name, int file_type, const ObjListType &cont)
 {
 	char filename[MAX_STRING_LENGTH];
-	get_filename(name.c_str(), filename, file_type);
+	if (!get_filename(name.c_str(), filename, file_type))
+	{
+		log("Хранилище: не удалось сгенерировать имя файла (name: %s, filename: %s) (%s %s %d).", name.c_str(), filename, __FILE__, __func__, __LINE__);
+		return;
+	}
 	// при пустом списке просто удаляем файл, чтобы не плодить пустышек в дире
 	if (cont.empty())
 	{
