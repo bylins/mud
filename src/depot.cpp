@@ -414,11 +414,17 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 	return 1;
 }
 
+void print_obj(std::stringstream &out, OBJ_DATA *obj, int count)
+{
+	out << obj->short_description;
+	if (count > 1)
+		out << " [" << count << "]";
+	out << " [" << GET_OBJ_RENTEQ(obj) << " " << desc_count(GET_OBJ_RENTEQ(obj), WHAT_MONEYa) << "]\r\n";
+}
+
 /**
 * Для читаемости show_depot - вывод списка предметов персонажу.
 * Сортировка по алиасам и группировка одинаковых предметов.
-* Это все конечно можно вынести в еще более общие функции, но я не то, что сомневаюсь,
-* а просто уверен, что никто тут никогда уже не возьмется переделывать обж-списки.
 */
 std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string &chest_name)
 {
@@ -430,46 +436,32 @@ std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string 
 			boost::bind(&obj_data::name, _1),
 			boost::bind(&obj_data::name, _2)));
 
-	ObjListType::const_iterator prev_obj_it = cont.begin();
+	ObjListType::const_iterator prev_obj_it = cont.end();
 	int count = 0;
 	bool found = 0;
-	for(ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); )
+	for(ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
 	{
-		if (prev_obj_it != cont.end() && equal_obj(*obj_it, *prev_obj_it))
+		if (prev_obj_it == cont.end())
 		{
-			found = 1;
-			++count;
-			rent_per_day += GET_OBJ_RENTEQ(*obj_it);
 			prev_obj_it = obj_it;
-			++obj_it;
-			continue;
+			count = 1;
 		}
-
-		out << (*prev_obj_it)->short_description;
-		if (count > 1)
-			out << " [" << count << "]";
-		else
-			rent_per_day += GET_OBJ_RENTEQ(*prev_obj_it);
-		out << " [" << GET_OBJ_RENTEQ(*prev_obj_it) << " " << desc_count(GET_OBJ_RENTEQ(*prev_obj_it), WHAT_MONEYa) << "]\r\n";
-		count = 1;
-		// по идее надо отловить последний предмет
-		prev_obj_it = obj_it++;
-		found = 0;
-		if (obj_it != cont.end())
-			continue;
-		else
+		else if (!equal_obj(*obj_it, *prev_obj_it))
 		{
-			found = 1;
-			break;
+			print_obj(out, *prev_obj_it, count);
+			prev_obj_it = obj_it;
+			count = 1;
 		}
+		else
+			count++;
+		rent_per_day += GET_OBJ_RENTEQ(*obj_it);
+		found = true;
 	}
-	if (found)
-	{
-		out << (*prev_obj_it)->short_description;
-		if (count > 1)
-			out << " [" << count << "]";
-		out << " [" << GET_OBJ_RENTEQ(*prev_obj_it) << " " << desc_count(GET_OBJ_RENTEQ(*prev_obj_it), WHAT_MONEYa) << "]\r\n";
-	}
+	if (prev_obj_it != cont.end() && count)
+		print_obj(out, *prev_obj_it, count);
+	if (!found)
+		out << "В данный момент хранилище абсолютно пусто.\r\n";
+
 	std::stringstream head;
 	head << CCWHT(ch, C_NRM) << chest_name << " (всего вещей: " << cont.size()
 		<< ", рента в день: " << rent_per_day << " " << desc_count(rent_per_day, WHAT_MONEYa) << CCNRM(ch, C_NRM) << "\r\n";
@@ -509,13 +501,13 @@ void show_depot(CHAR_DATA * ch, OBJ_DATA * obj, int type)
 				DepotListType::iterator vict_it = depot_list.find(al_it->first);
 				if (vict_it != depot_list.end())
 				{
-					out += print_obj_list(ch, vict_it->second.share_online, al_it->second.name);
 					// если хранилище еще не подгрузилось - надо так и сказать, а то будут думать, что не работает
 					if ((std::find(it->second.waiting_allowed_chars.begin(), it->second.waiting_allowed_chars.end(), al_it->first)
 					!= it->second.waiting_allowed_chars.end()) && vict_it->second.share_online.empty())
 						out += "Хранилище будет доступно в течение пары минут.\r\n";
 					else
-						out += "\r\n";
+						out += print_obj_list(ch, vict_it->second.share_online, al_it->second.name);
+					out += "\r\n";
 				}
 			}
 		}
