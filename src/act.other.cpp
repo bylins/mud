@@ -148,9 +148,11 @@ ACMD(do_quit)
 
 		int depot_cost = Depot::get_cost_per_day(ch);
 		if (depot_cost)
+		{
 			send_to_char(ch, "За вещи в хранилище придется заплатить %ld %s в день.\r\n", depot_cost, desc_count(depot_cost, WHAT_MONEYu));
-		int deadline = ((GET_GOLD(ch) + GET_BANK_GOLD(ch)) / depot_cost);
-		send_to_char(ch, "Твоих денег хватит на %ld %s.\r\n", deadline, desc_count(deadline, WHAT_DAY));
+			int deadline = ((GET_GOLD(ch) + GET_BANK_GOLD(ch)) / depot_cost);
+			send_to_char(ch, "Твоих денег хватит на %ld %s.\r\n", deadline, desc_count(deadline, WHAT_DAY));
+		}
 
 		/*
 		 * kill off all sockets connected to the same player as the one who is
