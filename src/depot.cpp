@@ -19,24 +19,6 @@
 #include "interpreter.h"
 #include "screen.h"
 
-/*
-Вобщем система в целом доделана, но вот уже смотреть на нее в законченном виде
-и наводить красоту и ясность кода желания нет. Тут есть некоторый оверхед в
-плане велосипедов и копи-паста, но изначально мысль была потом переписать под
-это и клан-хранилища и ренту плееров. Я не то, что не тестировал, но даже не
-все участки кода пробовал исполнять. Ж) Поэтому в код это дело заливается 'as is'
-и тестировать/править баги предлагается тому, кому будет не лень...
-
-Описание системы в целом: в мире должны быть предметы 331 и 332 (контейнеры), которые автоматом
-грузятся при старте мада во все комнаты, где есть банкиры. На предметах появляется
-спешиал 'хранилище', который подменяет клановую команду, когда чар в банке.
-Ведется три списка, персональных хранилищ онлайн, общих хранилищ онлайн и шмоток в оффлайне.
-Таймеры постоянно тикают во всех трех списках и деньги тоже снимаются постоянно.
-Это плюс в том плане, что если мад лежит неделю - никто за это платить не будет и шмот не испортится.
-Объединять хранилища через спешиал, там все доступно написано по команде.
-Ограничений на объемы или кол-во человек при объединении - никаких.
-*/
-
 extern SPECIAL(bank);
 extern void write_one_object(char **data, OBJ_DATA * object, int location);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
@@ -373,6 +355,23 @@ void CharNode::load_item(OBJ_DATA*obj, int type)
 }
 
 /**
+* Поиск итератора хранилища или создание нового, чтобы не париться.
+* \param ch - проставляет в зависимости от наличия чара онлайн, иначе будет нулевым.
+*/
+DepotListType::iterator create_depot(long uid, CHAR_DATA *ch = 0)
+{
+	DepotListType::iterator it = depot_list.find(uid);
+	if (it == depot_list.end())
+	{
+		CharNode tmp_node;
+		tmp_node.ch = ch;
+		depot_list[uid] = tmp_node;
+		it = depot_list.find(uid);
+	}
+	return it;
+}
+
+/**
 * Кладем шмотку в хранилище (мобов посылаем лесом), деньги автоматом на счет в банке.
 */
 bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj, int type)
@@ -385,16 +384,8 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 	}
 	if (!can_put_chest(ch, obj)) return 0;
 
-	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
-	if (it != depot_list.end())
-		it->second.add_item(obj, type);
-	else
-	{
-		CharNode tmp_node;
-		tmp_node.ch = ch;
-		tmp_node.add_item(obj, type);
-		depot_list[GET_UNIQUE(ch)] = tmp_node;
-	}
+	DepotListType::iterator it = create_depot(GET_UNIQUE(ch), ch);
+	it->second.add_item(obj, type);
 
 	obj_from_char(obj);
 	check_auction(NULL, obj);
@@ -485,44 +476,38 @@ void show_depot(CHAR_DATA * ch, OBJ_DATA * obj, int type)
 {
 	if (IS_NPC(ch)) return;
 
-	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
-	if (it != depot_list.end())
+	DepotListType::iterator it = create_depot(GET_UNIQUE(ch), ch);
+
+	std::string out;
+	if (type == PERS_CHEST)
+		out = print_obj_list(ch, it->second.pers_online, "Ваше персональное хранилище");
+	else
 	{
-		std::string out;
-		if (type == PERS_CHEST)
+		out = CCWHT(ch, C_NRM);
+		out += "Для работы с общим хранилищем наберите команду 'хранилище'.\r\n";
+		out += CCNRM(ch, C_NRM);
+		out += print_obj_list(ch, it->second.share_online, "Ваше общее хранилище");
+		out += "\r\n";
+		// ищем общие хранилища других персонажей и выводим их тоже
+		for (AllowedCharType::const_iterator al_it = it->second.allowed_chars.begin(); al_it != it->second.allowed_chars.end(); ++al_it)
 		{
-			out = print_obj_list(ch, it->second.pers_online, "Ваше персональное хранилище");
-		}
-		else
-		{
-			out = CCWHT(ch, C_NRM);
-			out += "Для работы с общим хранилищем наберите команду 'хранилище'.\r\n";
-			out += CCNRM(ch, C_NRM);
-			out += print_obj_list(ch, it->second.share_online, "Ваше общее хранилище");
-			out += "\r\n";
-			// ищем общие хранилища других персонажей и выводим их тоже
-			for (AllowedCharType::const_iterator al_it = it->second.allowed_chars.begin(); al_it != it->second.allowed_chars.end(); ++al_it)
+			if (al_it->second.mutual)
 			{
-				if (al_it->second.mutual)
+				DepotListType::iterator vict_it = depot_list.find(al_it->first);
+				if (vict_it != depot_list.end())
 				{
-					DepotListType::iterator vict_it = depot_list.find(al_it->first);
-					if (vict_it != depot_list.end())
-					{
-						out += print_obj_list(ch, vict_it->second.share_online, al_it->second.name);
-						// если хранилище еще не подгрузилось - надо так и сказать, а то будут думать, что не работает
-						if ((std::find(it->second.waiting_allowed_chars.begin(), it->second.waiting_allowed_chars.end(), al_it->first)
-						!= it->second.waiting_allowed_chars.end()) && vict_it->second.share_online.empty())
-							out += "Хранилище будет доступно в течение пары минут.\r\n";
-						else
-							out += "\r\n";
-					}
+					out += print_obj_list(ch, vict_it->second.share_online, al_it->second.name);
+					// если хранилище еще не подгрузилось - надо так и сказать, а то будут думать, что не работает
+					if ((std::find(it->second.waiting_allowed_chars.begin(), it->second.waiting_allowed_chars.end(), al_it->first)
+					!= it->second.waiting_allowed_chars.end()) && vict_it->second.share_online.empty())
+						out += "Хранилище будет доступно в течение пары минут.\r\n";
+					else
+						out += "\r\n";
 				}
 			}
 		}
-		page_string(ch->desc, out.c_str(), 1);
 	}
-	else
-		send_to_char("В данный момент Ваше хранилище абсолютно пусто.\r\n", ch);
+	page_string(ch->desc, out.c_str(), 1);
 }
 
 /**
@@ -844,7 +829,7 @@ const char *HELP_FORMAT =
 	"- за предметы в шкафчике плата снимается постоянно (только за вашу часть предметов).\r\n"
 	"- рента снимается равными долями каждые несколько минут с вашего счета или с денег на руках, если счет пустой.\r\n"
 	"- при пустом счете все предметы в обоих хранилищах уничтожаются (в общем хранилище касается только Ваших вещей).\r\n"
-	"Таймеры и снятие денег происходит только во время работы сервера (на случай долго даунтайма).\r\n";
+	"Обновление таймеров и снятие денег происходит только во время работы сервера (на случай долго даунтайма).\r\n";
 
 /**
 * Команда 'хранилище' при нахождении в банке.
@@ -853,15 +838,7 @@ SPECIAL(Special)
 {
 	if (IS_NPC(ch) || !CMD_IS("хранилище")) return false;
 
-	// в любом случае создаем запись на чара, если ее еще нет
-	DepotListType::iterator ch_it = depot_list.find(GET_UNIQUE(ch));
-	if (ch_it == depot_list.end())
-	{
-		CharNode tmp_node;
-		tmp_node.ch = ch;
-		depot_list[GET_UNIQUE(ch)] = tmp_node;
-		ch_it = depot_list.find(GET_UNIQUE(ch));
-	}
+	DepotListType::iterator ch_it = create_depot(GET_UNIQUE(ch), ch);
 
 	std::string buffer = argument, command;
 	GetOneParam(buffer, command);
@@ -1326,13 +1303,7 @@ void rename_char(long uid)
 */
 void reload_char(long uid)
 {
-	DepotListType::iterator it = depot_list.find(uid);
-	if (it == depot_list.end())
-	{
-		CharNode tmp_node;
-		depot_list[uid] = tmp_node;
-		it = depot_list.find(uid);
-	}
+	DepotListType::iterator it = create_depot(uid);
 	// сначала обнуляем все, что надо
 	it->second.reset();
 	// потом читаем шмот
