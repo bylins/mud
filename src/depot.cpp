@@ -501,13 +501,13 @@ void show_depot(CHAR_DATA * ch, OBJ_DATA * obj, int type)
 				DepotListType::iterator vict_it = depot_list.find(al_it->first);
 				if (vict_it != depot_list.end())
 				{
+					out += print_obj_list(ch, vict_it->second.share_online, al_it->second.name);
 					// если хранилище еще не подгрузилось - надо так и сказать, а то будут думать, что не работает
 					if ((std::find(it->second.waiting_allowed_chars.begin(), it->second.waiting_allowed_chars.end(), al_it->first)
 					!= it->second.waiting_allowed_chars.end()) && vict_it->second.share_online.empty())
 						out += "Хранилище будет доступно в течение пары минут.\r\n";
 					else
-						out += print_obj_list(ch, vict_it->second.share_online, al_it->second.name);
-					out += "\r\n";
+						out += "\r\n";
 				}
 			}
 		}
