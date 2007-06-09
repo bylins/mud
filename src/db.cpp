@@ -4431,7 +4431,7 @@ long get_id_by_name(char *name)
 }
 
 
-char *get_name_by_id(long id)
+const char *get_name_by_id(long id)
 {
 	int i;
 
@@ -4439,7 +4439,7 @@ char *get_name_by_id(long id)
 		if (player_table[i].id == id)
 			return (player_table[i].name);
 
-	return (NULL);
+	return "<null>";
 }
 
 char *get_name_by_unique(long unique)
