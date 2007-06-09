@@ -374,7 +374,6 @@ char *read_delete(long recipient)
 	position_list_type *position_pointer;
 	long mail_address, following_block;
 	char *message, *tmstr, buf[200];
-	char *from, *to;
 	size_t string_size;
 
 	if (recipient < 0) {
@@ -422,8 +421,8 @@ char *read_delete(long recipient)
 	tmstr = asctime(localtime(&header.header_data.mail_time));
 	*(tmstr + strlen(tmstr) - 1) = '\0';
 
-	from = get_name_by_id(header.header_data.from);
-	to = get_name_by_id(recipient);
+	const char *from = get_name_by_id(header.header_data.from);
+	const char *to = get_name_by_id(recipient);
 
 	sprintf(buf, " * * * * Княжеская почта * * * *\r\n"
 		"Дата: %s\r\n"

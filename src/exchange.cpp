@@ -527,7 +527,6 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 	EXCHANGE_ITEM_DATA *item = NULL, *j, *next_thing = NULL;
 	int lot;
 	char tmpbuf[MAX_INPUT_LENGTH];
-	char *seller_name;
 	CHAR_DATA *seller;
 
 
@@ -567,7 +566,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 	seller = get_char_by_id(GET_EXCHANGE_ITEM_SELLERID(item));
 
 	if (seller == NULL) {
-		seller_name = get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(item));
+		const char *seller_name = get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(item));
 		CREATE(seller, CHAR_DATA, 1);
 		clear_char(seller);
 		if ((seller_name == NULL) || (load_char(seller_name, seller) < 0)) {
