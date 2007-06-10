@@ -81,7 +81,7 @@ class CharNode
 	std::bitset<DEPOT_NUM> state;
 
 	ObjListType & get_depot_type(int type);
-	void take_item(CHAR_DATA *ch, char *arg, int howmany, int type);
+	void take_item(CHAR_DATA *vict, char *arg, int howmany, int type);
 	void remove_item(CHAR_DATA *vict, ObjListType::iterator &obj_it, ObjListType &cont, int type);
 	void update_online_item(ObjListType &cont, int type);
 	void removal_period_cost();
@@ -612,7 +612,7 @@ void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany, int type)
 		bool result = obj_from_obj_list(arg, type, vict);
 		if (!result)
 		{
-			send_to_char(ch, "Вы не видите '%s' в хранилище.\r\n", arg);
+			send_to_char(vict, "Вы не видите '%s' в хранилище.\r\n", arg);
 			return;
 		}
 		while (result && --howmany)
@@ -622,7 +622,7 @@ void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany, int type)
 	{
 		if (obj_dotmode == FIND_ALLDOT && !*arg)
 		{
-			send_to_char("Взять что \"все\" ?\r\n", ch);
+			send_to_char("Взять что \"все\" ?\r\n", vict);
 			return;
 		}
 		bool found = 0;
@@ -663,7 +663,7 @@ void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany, int type)
 
 		if (!found)
 		{
-			send_to_char(ch, "Вы не видите ничего похожего на '%s' в хранилище.\r\n", arg);
+			send_to_char(vict, "Вы не видите ничего похожего на '%s' в хранилище.\r\n", arg);
 			return;
 		}
 	}
