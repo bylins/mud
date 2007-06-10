@@ -84,7 +84,6 @@ const int SETSTUFF_AFCN = 10;
 #define LIB_PLRALIAS	"plralias/"
 #define LIB_PLRSTUFF "plrstuff/"
 #define LIB_HOUSE	 LIB_PLRSTUFF"house/"
-#define LIB_DEPOT   LIB_PLRSTUFF"depot/"
 #define LIB_PLRVARS	"plrvars/"
 #define LIB             "lib/"
 #define SLASH		"/"
@@ -102,8 +101,6 @@ const int SETSTUFF_AFCN = 10;
 #define SUF_PLAYER  "player"
 #define SUF_QUESTS  "quests"
 #define SUF_PMKILL	"mobkill"
-#define SUF_PERS_DEPOT "pers"
-#define SUF_SHARE_DEPOT "share"
 #if defined(CIRCLE_AMIGA)
 #define FASTBOOT_FILE   "/.fastboot"	/* autorun: boot without sleep  */
 #define KILLSCRIPT_FILE "/.killscript"	/* autorun: shut mud down       */
@@ -183,7 +180,7 @@ room_rnum real_room(room_vnum vnum);
 char *fread_string(FILE * fl, char *error);
 long get_id_by_name(char *name);
 long cmp_ptable_by_name(char *name, int len);
-const char *get_name_by_id(long id);
+char *get_name_by_id(long id);
 char *get_name_by_unique(long id);
 int get_level_by_unique(long unique);
 long get_lastlogon_by_uniquie(long uniquie);
@@ -379,7 +376,6 @@ extern vector < ROOM_DATA * >world;
 extern OBJ_DATA *object_list;
 extern CHAR_DATA *character_list;
 extern INDEX_DATA *mob_index;
-extern mob_rnum top_of_mobt;
 extern INDEX_DATA *obj_index;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *mob_proto;

@@ -21,7 +21,6 @@
 #include "utils.h"
 #include "house.h"
 #include "boards.h"
-#include "depot.hpp"
 
 extern int dts_are_dumps;
 extern int mini_mud;
@@ -147,9 +146,6 @@ void assign_objects(void)
 	ASSIGNOBJ(GODCODE_BOARD_OBJ, Board::Special);
 	ASSIGNOBJ(GODPUNISH_BOARD_OBJ, Board::Special);
 	ASSIGNOBJ(GODBUILD_BOARD_OBJ, Board::Special);
-	// команда хранилище при нахождении в банке
-	ASSIGNOBJ(Depot::PERS_CHEST_VNUM, Depot::Special);
-	ASSIGNOBJ(Depot::SHARE_CHEST_VNUM, Depot::Special);
 }
 
 

@@ -41,7 +41,6 @@
 #include "title.hpp"
 #include "password.hpp"
 #include "privilege.hpp"
-#include "depot.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -1759,15 +1758,14 @@ int special(CHAR_DATA * ch, int cmd, char *arg)
 				check_hiding_cmd(ch, -1);
 				return (1);
 			}
+
 	/* special in object present? */
-	for (i = world[ch->in_room]->contents; i; i = i->next_content) {
-		if (GET_OBJ_SPEC(i) != NULL) {
+	for (i = world[ch->in_room]->contents; i; i = i->next_content)
+		if (GET_OBJ_SPEC(i) != NULL)
 			if (GET_OBJ_SPEC(i) (ch, i, cmd, arg)) {
 				check_hiding_cmd(ch, -1);
 				return (1);
 			}
-		}
-	}
 
 	return (0);
 }
@@ -2178,10 +2176,6 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	}
 
 	char_to_room(d->character, load_room);
-
-	// сначала синхронизируется бабло с хранилищем
-	Depot::enter_char(d->character);
-	// а потом уже вычитаем за ренту
 	if (GET_LEVEL(d->character) != 0)
 		Crash_load(d->character);
 

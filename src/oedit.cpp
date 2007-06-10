@@ -20,7 +20,7 @@
 #include "dg_olc.h"
 #include "im.h"
 #include "features.hpp"
-#include "depot.hpp"
+
 
 /*------------------------------------------------------------------------*/
 
@@ -238,27 +238,6 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 	OLC_VAL(d) = 0;
 }
 
-/**
-* Пересчет рнумов объектов (больше нигде не меняются).
-*/
-void renumber_obj_rnum(int rnum)
-{
-	for (OBJ_DATA *obj = object_list; obj; obj = obj->next)
-	{
-		if (GET_OBJ_RNUM(obj) >= rnum)
-		{
-			// пересчет персональных хранилищ
-			if (GET_OBJ_RNUM(obj) == Depot::PERS_CHEST_RNUM)
-				Depot::PERS_CHEST_RNUM++;
-			if (GET_OBJ_RNUM(obj) == Depot::SHARE_CHEST_RNUM)
-				Depot::SHARE_CHEST_RNUM++;
-			// FIXME клановые потом тож воткнуть так
-
-			GET_OBJ_RNUM(obj)++;
-		}
-	}
-}
-
 /*------------------------------------------------------------------------*/
 
 #define ZCMD zone_table[zone].cmd[cmd_no]
@@ -270,7 +249,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 	INDEX_DATA *new_obj_index;
 	DESCRIPTOR_DATA *dsc;
 
-//  robj_num = real_object(OLC_NUM(d));
+//  robj_num = real_object(OLC_NUM(d)); 
 	robj_num = GET_OBJ_RNUM(OLC_OBJ(d));
 
 
@@ -295,7 +274,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 
 				// Удаляю его строки и т.д.
 				// прототип скрипта не удалится, т.к. его у экземпляра нету
-				// скрипт не удалится, т.к. его не удаляю
+				// скрипт не удалится, т.к. его не удаляю 
 				oedit_object_free(obj);
 
 				// Нужно скопировать все новое, сохранив определенную информацию
@@ -317,7 +296,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 		// Все существующие в мире объекты обновлены согласно нового прототипа
 		// Строки в этих объектах как ссылки на данные прототипа
 
-		// Теперь возьмусь за прототип.
+		// Теперь возьмусь за прототип. 
 		// Уничтожаю старый прототип
 		oedit_object_free(obj_proto[robj_num]);
 		delete obj_proto[robj_num];
@@ -325,7 +304,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 		// Использовать функцию oedit_object_copy() нельзя,
 		// т.к. будут изменены указатели на данные прототипа
 		obj_proto[robj_num] = OLC_OBJ(d);
-		// OLC_OBJ(d) удалять не нужно, т.к. он перенесен в массив
+		// OLC_OBJ(d) удалять не нужно, т.к. он перенесен в массив 
 		// прототипов
 	} else {		/*
 				 * It's a new object, we must build new tables to contain it.
@@ -359,7 +338,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 						 */
 					new_obj_index[i] = obj_index[i];
 			} else {	/*
-					 * We HAVE already found it, therefore copy to object + 1
+					 * We HAVE already found it, therefore copy to object + 1 
 					 */
 				new_obj_index[i + 1] = obj_index[i];
 				obj_proto[i + 1]->item_number = i + 1;
@@ -388,7 +367,9 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 // ПЕРЕИНДЕКСАЦИЯ по всей программе
 
 		/* Renumber live objects */
-		renumber_obj_rnum(robj_num);
+		for (obj = object_list; obj; obj = obj->next)
+			if (GET_OBJ_RNUM(obj) >= robj_num)
+				GET_OBJ_RNUM(obj)++;
 
 		/* Renumber zone table. */
 		for (zone = 0; zone <= top_of_zone_table; zone++)
@@ -517,7 +498,7 @@ void oedit_save_to_disk(int zone_num)
 				fprintf(fp, "M %d\n", GET_OBJ_MIW(obj));
 			}
 			/*
-			 * Do we have extra descriptions?
+			 * Do we have extra descriptions? 
 			 */
 			if (obj->ex_description) {	/* Yes, save them too. */
 				for (ex_desc = obj->ex_description; ex_desc; ex_desc = ex_desc->next) {	/*
@@ -535,7 +516,7 @@ void oedit_save_to_disk(int zone_num)
 				}
 			}
 			/*
-			 * Do we have affects?
+			 * Do we have affects? 
 			 */
 			for (counter2 = 0; counter2 < MAX_OBJ_AFFECT; counter2++)
 				if (obj->affected[counter2].location && obj->affected[counter2].modifier)
@@ -561,7 +542,7 @@ void oedit_save_to_disk(int zone_num)
 }
 
 /**************************************************************************
- Menu functions
+ Menu functions 
  **************************************************************************/
 
 /*
@@ -786,7 +767,7 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 	switch (GET_OBJ_TYPE(OLC_OBJ(d))) {
 	case ITEM_LIGHT:
 		/*
-		 * values 0 and 1 are unused.. jump to 2
+		 * values 0 and 1 are unused.. jump to 2 
 		 */
 		oedit_disp_val3_menu(d);
 		break;
@@ -1534,7 +1515,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'o':
 		case 'O':
 			/*
-			 * Clear any old values
+			 * Clear any old values  
 			 */
 			GET_OBJ_VAL(OLC_OBJ(d), 0) = 0;
 			GET_OBJ_VAL(OLC_OBJ(d), 1) = 0;
@@ -1586,7 +1567,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		return;
 		/*
-		 * end of OEDIT_MAIN_MENU
+		 * end of OEDIT_MAIN_MENU 
 		 */
 
 	case OLC_SCRIPT_EDIT:
@@ -1824,7 +1805,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case OEDIT_VALUE_1:
 		/*
 		 * Lucky, I don't need to check any of these for out of range values.
-		 * Hmm, I'm not so sure - Rv
+		 * Hmm, I'm not so sure - Rv  
 		 */
 		number = atoi(arg);
 
@@ -1834,7 +1815,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				return;
 		}
 		/*
-		 * proceed to menu 2
+		 * proceed to menu 2 
 		 */
 		GET_OBJ_VAL(OLC_OBJ(d), 0) = number;
 		oedit_disp_val2_menu(d);
@@ -1920,7 +1901,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		GET_OBJ_VAL(OLC_OBJ(d), 1) = number;
 		oedit_disp_val3_menu(d);
 		return;
-
+	
 	case OEDIT_VALUE_3:
 		number = atoi(arg);
 		/*
@@ -2053,7 +2034,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 					free(OLC_DESC(d)->description);
 
 				/*
-				 * Clean up pointers
+				 * Clean up pointers  
 				 */
 				for (tmp_desc = &(OLC_OBJ(d)->ex_description); *tmp_desc;
 				     tmp_desc = &((*tmp_desc)->next)) {
@@ -2115,7 +2096,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	}
 
 	/*
-	 * If we get here, we have changed something.
+	 * If we get here, we have changed something.  
 	 */
 	OLC_VAL(d) = 1;
 	oedit_disp_menu(d);

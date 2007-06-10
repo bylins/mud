@@ -24,7 +24,6 @@
 #include "screen.h"
 #include "house.h"
 #include "im.h"
-#include "depot.hpp"
 
 /* these factors should be unique integers */
 #define RENT_FACTOR 	1
@@ -2034,16 +2033,13 @@ void Crash_rent_deadline(CHAR_DATA * ch, CHAR_DATA * recep, long cost)
 		return;
 	}
 
-	act("$n сказал$g Вам :\r\n", FALSE, recep, 0, ch, TO_VICT);
-	int depot_cost = Depot::get_cost_per_day(ch);
-	if (depot_cost)
-	{
-		send_to_char(ch, "\"За вещи в хранилище придется доплатить %ld %s.\"\r\n", depot_cost, desc_count(depot_cost, WHAT_MONEYu));
-		cost += depot_cost;
-	}
-	send_to_char(ch, "\"Постой обойдется тебе в %ld %s.\"\r\n", cost, desc_count(cost, WHAT_MONEYu));
 	rent_deadline = ((GET_GOLD(ch) + GET_BANK_GOLD(ch)) / cost);
-	send_to_char(ch, "\"Твоих денег хватит на %ld %s.\"\r\n", rent_deadline, desc_count(rent_deadline, WHAT_DAY));
+	sprintf(buf,
+		"$n сказал$g Вам :\r\n"
+		"\"Постой обойдется тебе в %ld %s.\"\r\n"
+		"\"Твоих денег хватит на %ld %s.\"\r\n",
+		cost, desc_count(cost, WHAT_MONEYu), rent_deadline, desc_count(rent_deadline, WHAT_DAY));
+	act(buf, FALSE, recep, 0, ch, TO_VICT);
 }
 
 int Crash_report_unrentables(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj)

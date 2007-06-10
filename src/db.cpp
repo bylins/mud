@@ -44,7 +44,6 @@
 #include "deathtrap.hpp"
 #include "title.hpp"
 #include "privilege.hpp"
-#include "depot.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -477,14 +476,6 @@ ACMD(do_reboot)
 		RegisterSystem::load();
 	else if (!str_cmp(arg, "privilege"))
 		Privilege::load();
-	else if (!str_cmp(arg, "depot")) {
-		one_argument(argument, arg);
-		if (*arg) {
-			long uid = GetUniqueByName(std::string(arg));
-			if (uid > 0) Depot::reload_char(uid);
-		}
-		send_to_char("Формат команды: reload depot <имя чара>.\r\n", ch);
-	}
 	else {
 		send_to_char("Неверный параметр для перезагрузки файлов.\r\n", ch);
 		return;
@@ -1337,9 +1328,6 @@ void boot_db(void)
 
 	log("Load privilege and god list.");
 	Privilege::load();
-
-	log("Init Depot system.");
-	Depot::init_depot();
 
 	log("Boot db -- DONE.");
 }
@@ -4431,7 +4419,7 @@ long get_id_by_name(char *name)
 }
 
 
-const char *get_name_by_id(long id)
+char *get_name_by_id(long id)
 {
 	int i;
 
@@ -4439,7 +4427,7 @@ const char *get_name_by_id(long id)
 		if (player_table[i].id == id)
 			return (player_table[i].name);
 
-	return "<null>";
+	return (NULL);
 }
 
 char *get_name_by_unique(long unique)
@@ -6382,12 +6370,6 @@ void entrycount(char *name)
 			get_filename(name, filename, PQUESTS_FILE);
 			remove(filename);
 
-			// хранилища
-			get_filename(name, filename, PERS_DEPOT_FILE);
-			remove(filename);
-			get_filename(name, filename, SHARE_DEPOT_FILE);
-			remove(filename);
-
 			delete_mkill_file(name);
 		}
 	}
@@ -6930,14 +6912,6 @@ void rename_char(CHAR_DATA * ch, char *oname)
 	get_filename(oname, ofilename, PMKILL_FILE);
 	get_filename(GET_NAME(ch), filename, PMKILL_FILE);
 	rename(ofilename, filename);
-	// хранилища
-	get_filename(oname, ofilename, PERS_DEPOT_FILE);
-	get_filename(GET_NAME(ch), filename, PERS_DEPOT_FILE);
-	rename(ofilename, filename);
-	get_filename(oname, ofilename, SHARE_DEPOT_FILE);
-	get_filename(GET_NAME(ch), filename, SHARE_DEPOT_FILE);
-	rename(ofilename, filename);
-	Depot::rename_char(GET_UNIQUE(ch));
 }
 
 void delete_char(char *name)

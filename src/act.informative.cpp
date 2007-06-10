@@ -35,7 +35,6 @@
 #include "house.h"
 #include "description.h"
 #include "privilege.hpp"
-#include "depot.hpp"
 
 using std::string;
 
@@ -1541,12 +1540,6 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 		if (Clan::ChestShow(obj, ch))
 			return;
 
-		int type = Depot::is_depot(ch, obj);
-		if (type) {
-			Depot::show_depot(ch, obj, type);
-			return;
-		}
-
 		if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER) {
 			if (OBJVAL_FLAGGED(obj, CONT_CLOSED))
 				act("Закрыт$g.", FALSE, ch, obj, 0, TO_CHAR);
@@ -1726,12 +1719,6 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 
 		if (Clan::ChestShow(found_obj, ch))
 			return 1;
-
-		int type = Depot::is_depot(ch, found_obj);
-		if (type) {
-			Depot::show_depot(ch, found_obj, type);
-			return 1;
-		}
 
 		// Собственно изменение. Вместо проверки "if (!found)" юзается проверка
 		// наличия описания у объекта, найденного функцией "generic_find"
