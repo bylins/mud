@@ -329,7 +329,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict)
 				continue;
 			switch (sortpos) {
 			case SKILL_WARCRY:
-				sprintf(buf, "[%3d]", (HOURS_PER_DAY - timed_by_skill(ch, sortpos)) / HOURS_PER_WARCRY);
+				sprintf(buf, "[-%d-] ", (HOURS_PER_DAY - timed_by_skill(ch, sortpos)) / HOURS_PER_WARCRY);
 				break;
 			case SKILL_AID:
 			case SKILL_DRUNKOFF:

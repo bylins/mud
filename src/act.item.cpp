@@ -60,6 +60,7 @@ int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
 void feed_charmice(CHAR_DATA * ch, char *arg);
 int get_player_charms(CHAR_DATA * ch, int spellnum);
 OBJ_DATA *create_skin(CHAR_DATA * mob);
+int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
 
 ACMD(do_split);
 ACMD(do_remove);
@@ -401,6 +402,10 @@ ACMD(do_put)
 
 int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 {
+	char buf[128];
+	if (CLAN(ch))
+		sprintf(buf, "clan%d!", CLAN(ch)->GetRent());
+
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 		act("$p: Вы не могете нести столько вещей.", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
@@ -412,6 +417,11 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 		return (0);
 	} else if (invalid_anti_class(ch, obj)) {
 		act("$p: Эта вещь не предназначена для Вас !", FALSE, ch, obj, 0, TO_CHAR);
+		return (0);
+	} else if (invalid_unique(ch, obj)
+		   || strstr(obj->name, "clan") && (!CLAN(ch) || !strstr(obj->name, buf))) {
+		act("Вас обожгло при попытке взять $o3.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, obj, 0, TO_ROOM);
 		return (0);
 	}
 	return (1);
@@ -444,23 +454,19 @@ void get_check_money(CHAR_DATA * ch, OBJ_DATA * obj)
 // иначе при вз все сун будет спам на каждый предмет, мол низя
 bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont, int mode)
 {
-	if ((mode == FIND_OBJ_INV || mode == FIND_OBJ_ROOM || mode == FIND_OBJ_EQUIP) && can_take_obj(ch, obj)) {
-		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
-			act("$o: Вы не можете нести столько вещей.", FALSE, ch, obj, 0, TO_CHAR);
-		else if (get_otrigger(obj, ch)) {
-			// если берем из клан-сундука
-			if (cont->item_number == real_object(CLAN_CHEST)) {
-				if (!Clan::TakeChest(ch, obj, cont))
-					return 0;
-				return 1;
-			}
-			obj_from_obj(obj);
-			obj_to_char(obj, ch);
-			if (obj->carried_by == ch) {
-				act("Вы взяли $o3 из $O1.", FALSE, ch, obj, cont, TO_CHAR);
-				act("$n взял$g $o3 из $O1.", TRUE, ch, obj, cont, TO_ROOM);
-				get_check_money(ch, obj);
-			}
+	if ((mode == FIND_OBJ_INV || mode == FIND_OBJ_ROOM || mode == FIND_OBJ_EQUIP) && can_take_obj(ch, obj) && get_otrigger(obj, ch)) {
+		// если берем из клан-сундука
+		if (cont->item_number == real_object(CLAN_CHEST)) {
+			if (!Clan::TakeChest(ch, obj, cont))
+				return 0;
+			return 1;
+		}
+		obj_from_obj(obj);
+		obj_to_char(obj, ch);
+		if (obj->carried_by == ch) {
+			act("Вы взяли $o3 из $O1.", FALSE, ch, obj, cont, TO_CHAR);
+			act("$n взял$g $o3 из $O1.", TRUE, ch, obj, cont, TO_ROOM);
+			get_check_money(ch, obj);
 		}
 	}
 	return 1;
