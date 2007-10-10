@@ -328,6 +328,9 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict)
 			if (!skill_info[sortpos].name || *skill_info[sortpos].name == '!')
 				continue;
 			switch (sortpos) {
+			case SKILL_WARCRY:
+				sprintf(buf, "[%3d]", (HOURS_PER_DAY - timed_by_skill(ch, sortpos)) / HOURS_PER_WARCRY);
+				break;
 			case SKILL_AID:
 			case SKILL_DRUNKOFF:
 			case SKILL_IDENTIFY:

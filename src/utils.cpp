@@ -196,6 +196,67 @@ int str_cmp(const char *arg1, const char *arg2)
 
 	return (0);
 }
+int str_cmp(const std::string &arg1, const char *arg2)
+{
+	int chk;
+	std::string::size_type i;
+
+	if (arg2 == NULL) {
+		log("SYSERR: str_cmp() passed a NULL pointer, %p.", arg2);
+		return (0);
+	}
+
+	for (i = 0; i != arg1.length() && *arg2; i++, arg2++)
+		if ((chk = LOWER(arg1[i]) - LOWER(*arg2)) != 0)
+			return (chk);	/* not equal */
+
+	if (i == arg1.length() && !*arg2)
+		return (0);
+
+	if (*arg2)
+		return (LOWER('\0') - LOWER(*arg2));
+	else
+		return (LOWER(arg1[i]) - LOWER('\0'));
+}
+int str_cmp(const char *arg1, const std::string &arg2)
+{
+	int chk;
+	std::string::size_type i;
+
+	if (arg1 == NULL) {
+		log("SYSERR: str_cmp() passed a NULL pointer, %p.", arg1);
+		return (0);
+	}
+
+	for (i = 0; *arg1 && i != arg2.length(); i++, arg1++)
+		if ((chk = LOWER(*arg1) - LOWER(arg2[i])) != 0)
+			return (chk);	/* not equal */
+
+	if (!*arg1 && i == arg2.length())
+		return (0);
+
+	if (*arg1)
+		return (LOWER(*arg1) - LOWER('\0'));
+	else
+		return (LOWER('\0') - LOWER(arg2[i]));
+}
+int str_cmp(const std::string &arg1, const std::string &arg2)
+{
+	int chk;
+	std::string::size_type i;
+
+	for (i = 0; i != arg1.length() && i != arg2.length(); i++)
+		if ((chk = LOWER(arg1[i]) - LOWER(arg2[i])) != 0)
+			return (chk);	/* not equal */
+
+	if (arg1.length() == arg2.length())
+		return (0);
+
+	if (i == arg1.length())
+		return (LOWER('\0') - LOWER(arg2[i]));
+	else
+		return (LOWER(arg1[i]) - LOWER('\0'));
+}
 
 
 /*
@@ -218,6 +279,67 @@ int strn_cmp(const char *arg1, const char *arg2, int n)
 			return (chk);	/* not equal */
 
 	return (0);
+}
+int strn_cmp(const std::string &arg1, const char *arg2, int n)
+{
+	int chk;
+	std::string::size_type i;
+
+	if (arg2 == NULL) {
+		log("SYSERR: strn_cmp() passed a NULL pointer, %p.", arg2);
+		return (0);
+	}
+
+	for (i = 0; i != arg1.length() && *arg2 && (n > 0); i++, arg2++, n--)
+		if ((chk = LOWER(arg1[i]) - LOWER(*arg2)) != 0)
+			return (chk);	/* not equal */
+
+	if (i == arg1.length() && !*arg2 || (n == 0))
+		return (0);
+
+	if (*arg2)
+		return (LOWER('\0') - LOWER(*arg2));
+	else
+		return (LOWER(arg1[i]) - LOWER('\0'));
+}
+int strn_cmp(const char *arg1, const std::string &arg2, int n)
+{
+	int chk;
+	std::string::size_type i;
+
+	if (arg1 == NULL) {
+		log("SYSERR: strn_cmp() passed a NULL pointer, %p.", arg1);
+		return (0);
+	}
+
+	for (i = 0; *arg1 && i != arg2.length() && (n > 0); i++, arg1++, n--)
+		if ((chk = LOWER(*arg1) - LOWER(arg2[i])) != 0)
+			return (chk);	/* not equal */
+
+	if (!*arg1 && i == arg2.length() || (n == 0))
+		return (0);
+
+	if (*arg1)
+		return (LOWER(*arg1) - LOWER('\0'));
+	else
+		return (LOWER('\0') - LOWER(arg2[i]));
+}
+int strn_cmp(const std::string &arg1, const std::string &arg2, int n)
+{
+	int chk;
+	std::string::size_type i;
+
+	for (i = 0; i != arg1.length() && i != arg2.length() && (n > 0); i++, n--)
+		if ((chk = LOWER(arg1[i]) - LOWER(arg2[i])) != 0)
+			return (chk);	/* not equal */
+
+	if (arg1.length() == arg2.length() || (n == 0))
+		return (0);
+
+	if (i == arg1.length())
+		return (LOWER('\0') - LOWER(arg2[i]));
+	else
+		return (LOWER(arg1[i]) - LOWER('\0'));
 }
 
 // дескрипторы открытых файлов логов для сброса буфера при креше

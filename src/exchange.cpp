@@ -62,7 +62,6 @@ int exchange_database_save();
 int exchange_database_savebackup();
 void check_exchange(OBJ_DATA * obj);
 void extract_exchange_item(EXCHANGE_ITEM_DATA * item);
-int get_unique_lot(void);
 void message_exchange(char *message, CHAR_DATA * ch, EXCHANGE_ITEM_DATA * j);
 int obj_matches_filter(EXCHANGE_ITEM_DATA * j, char *filter_name, char *filter_owner, int *filter_type,
 		       int *filter_cost, int *filter_timer, int *filter_wereon, int *filter_weaponclass);
@@ -252,7 +251,6 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 
 	item = create_exchange_item();
 
-	GET_EXCHANGE_ITEM_LOT(item) = get_unique_lot();
 	GET_EXCHANGE_ITEM_SELLERID(item) = GET_IDNUM(ch);
 	GET_EXCHANGE_ITEM_COST(item) = item_cost;
 	skip_spaces(&arg);
@@ -832,15 +830,23 @@ int exchange_setfilter(CHAR_DATA * ch, char *arg)
 
 EXCHANGE_ITEM_DATA *create_exchange_item(void)
 {
-	EXCHANGE_ITEM_DATA *item;
+	EXCHANGE_ITEM_DATA *item, *i, *j;
+	int lot;
+
 	CREATE(item, EXCHANGE_ITEM_DATA, 1);
-	GET_EXCHANGE_ITEM_LOT(item) = -1;
 	GET_EXCHANGE_ITEM_SELLERID(item) = -1;
 	GET_EXCHANGE_ITEM_COST(item) = 0;
 	GET_EXCHANGE_ITEM_COMMENT(item) = NULL;
 	GET_EXCHANGE_ITEM(item) = NULL;
-	item->next = exchange_item_list;
-	exchange_item_list = item;
+	for (i = j = exchange_item_list, lot = 1; j && lot >= GET_EXCHANGE_ITEM_LOT(j); i = j, j = j->next, lot++);
+	if (i == j) {
+		item->next = exchange_item_list;
+		exchange_item_list = item;
+	} else {
+		i->next = item;
+		item->next = j;
+	}
+	GET_EXCHANGE_ITEM_LOT(item) = lot;
 	return (item);
 }
 
@@ -898,7 +904,7 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error)
 
 	*error = 3;
 	item = create_exchange_item();
-	if (!(GET_EXCHANGE_ITEM_LOT(item) = atoi(buffer)))
+	if (!atoi(buffer))
 		return (item);
 
 	*error = 4;
@@ -960,7 +966,7 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 
 	*error = 3;
 	item = create_exchange_item();
-	if (!(GET_EXCHANGE_ITEM_LOT(item) = atoi(buffer)))
+	if (!atoi(buffer))
 		return (item);
 
 	*error = 4;
@@ -1509,24 +1515,6 @@ int exchange_database_savebackup()
 	return TRUE;
 
 }
-int get_unique_lot(void)
-{
-	EXCHANGE_ITEM_DATA *j, *next_thing;
-	int i;
-	bool is_unique = FALSE;
-	for (i = 1; (i > 0); i++) {
-		is_unique = TRUE;
-		for (j = exchange_item_list; is_unique && j; j = next_thing) {
-			next_thing = j->next;
-			is_unique = (GET_EXCHANGE_ITEM_LOT(j) != i);
-		}
-		if (is_unique)
-			return (i);
-	}
-
-
-	return -1;
-}
 
 
 void message_exchange(char *message, CHAR_DATA * ch, EXCHANGE_ITEM_DATA * j)
@@ -1596,8 +1584,7 @@ int obj_matches_filter(EXCHANGE_ITEM_DATA * j, char *filter_name, char *filter_o
 	if (*filter_wereon && (!CAN_WEAR(GET_EXCHANGE_ITEM(j), *filter_wereon)))
 		return 0;
 	if (*filter_weaponclass
-//              && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_WEAPON)
-	    && (GET_OBJ_SKILL(GET_EXCHANGE_ITEM(j)) != *filter_weaponclass))
+            && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_WEAPON || GET_OBJ_SKILL(GET_EXCHANGE_ITEM(j)) != *filter_weaponclass))
 		return 0;
 	if (*filter_timer) {
 		// Вобщем чтобы тут не валилось от всяких писем и прочей ваты на базаре,

@@ -125,7 +125,7 @@ struct alias_data *find_alias(struct alias_data *alias_list, char *str);
 void free_alias(struct alias_data *a);
 void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data *a);
 int perform_alias(DESCRIPTOR_DATA * d, char *orig);
-int reserved_word(char *argument);
+int reserved_word(const char *argument);
 int find_name(const char *name);
 int _parse_name(char *arg, char *name);
 void add_logon_record(DESCRIPTOR_DATA * d);
@@ -147,6 +147,7 @@ ACMD(do_ban);
 ACMD(do_bash);
 ACMD(do_beep);
 ACMD(do_cast);
+ACMD(do_warcry);
 ACMD(do_cheat);
 ACMD(do_clanstuff);
 ACMD(do_create);
@@ -571,6 +572,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"колдовать", POS_SITTING, do_cast, 1, 0, -1},
 	{"казна", POS_RESTING, do_not_here, 1, 0, 0},
 	{"клан", POS_RESTING, DoHouse, 0, 0, 0},
+	{"клич", POS_FIGHTING, do_warcry, 1, 0, -1},
 	{"кодер", POS_DEAD, DoBoard, 1, GODCODE_BOARD, -1},
 	{"команды", POS_DEAD, do_commands, 0, SCMD_COMMANDS, 0},
 	{"коне", POS_SLEEPING, do_quit, 0, 0, 0},
@@ -984,6 +986,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"vnum", POS_DEAD, do_vnum, LVL_GRGOD, 0, 0},
 	{"vstat", POS_DEAD, do_vstat, LVL_GRGOD, 0, 0},
 	{"wake", POS_SLEEPING, do_wake, 0, 0, -1},
+	{"warcry", POS_FIGHTING, do_warcry, 1, 0, -1},
 	{"wear", POS_RESTING, do_wear, 0, 0, 500},
 	{"weather", POS_RESTING, do_weather, 0, 0, 0},
 	{"where", POS_RESTING, do_where, 1, 0, 0},
@@ -1434,13 +1437,29 @@ int perform_alias(DESCRIPTOR_DATA * d, char *orig)
  * it to be returned.  Returns -1 if not found; 0..n otherwise.  Array
  * must be terminated with a '\n' so it knows to stop searching.
  */
-int search_block(char *arg, const char **list, int exact)
+int search_block(const char *arg, const char **list, int exact)
 {
-	register int i, l;
+	register int i, l = strlen(arg);
 
-	/* Make into lower case, and get length of string */
-	for (l = 0; *(arg + l); l++)
-		*(arg + l) = LOWER(*(arg + l));
+	if (exact) {
+		for (i = 0; **(list + i) != '\n'; i++)
+			if (!str_cmp(arg, *(list + i)))
+				return (i);
+	} else {
+		if (!l)
+			l = 1;	/* Avoid "" to match the first available
+				 * string */
+		for (i = 0; **(list + i) != '\n'; i++)
+			if (!strn_cmp(arg, *(list + i), l))
+				return (i);
+	}
+
+	return (-1);
+}
+int search_block(const std::string &arg, const char **list, int exact)
+{
+	register int i;
+	std::string::size_type l = arg.length();
 
 	if (exact) {
 		for (i = 0; **(list + i) != '\n'; i++)
@@ -1564,13 +1583,13 @@ char *delete_doubledollar(char *string)
 }
 
 
-int fill_word(char *argument)
+int fill_word(const char *argument)
 {
 	return (search_block(argument, dir_fill, TRUE) >= 0);
 }
 
 
-int reserved_word(char *argument)
+int reserved_word(const char *argument)
 {
 	return (search_block(argument, reserved, TRUE) >= 0);
 }
@@ -1965,7 +1984,7 @@ int pre_help(CHAR_DATA * ch, char *arg)
 
 	if (!command || !*command || strlen(command) < 2 || !topic || !*topic || strlen(topic) < 2)
 		return (0);
-	if (isname(command, "помощь") || isname(command, "help") || isname(command, "справка")) {
+	if (isname(command, "помощь help справка")) {
 		do_help(ch, topic, 0, 0);
 		return (1);
 	}
@@ -2395,7 +2414,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			    if (_parse_name(arg, tmp_name) ||
 				strlen(tmp_name) < MIN_NAME_LENGTH ||
 				strlen(tmp_name) > MAX_NAME_LENGTH ||
-				!Is_Valid_Name(tmp_name) || fill_word(strcpy(buf, tmp_name)) || reserved_word(buf)) {
+				!Is_Valid_Name(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
 				SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 				return;
 			} else if (!Is_Valid_Dc(tmp_name)) {
@@ -2516,7 +2535,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		if (_parse_name(arg, tmp_name) ||
 			strlen(tmp_name) < MIN_NAME_LENGTH ||
 			strlen(tmp_name) > MAX_NAME_LENGTH ||
-			!Is_Valid_Name(tmp_name) || fill_word(strcpy(buf, tmp_name)) || reserved_word(buf)) {
+			!Is_Valid_Name(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
 			SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 			return;
 		}
@@ -3345,7 +3364,7 @@ DESCRIPTOR_DATA* get_desc_by_id(long id, bool playing)
 long GetUniqueByName(const std::string & name, bool god)
 {
 	for (int i = 0; i <= top_of_p_table; ++i)
-		if (!str_cmp(player_table[i].name, name.c_str())) {
+		if (!str_cmp(player_table[i].name, name)) {
 			if (!god)
 				return player_table[i].unique;
 			else {

@@ -32,7 +32,7 @@ extern const char *item_types[];
 extern const char *apply_types[];
 extern const char *affected_bits[];
 
-int ext_search_block(char *arg, const char **list, int exact);
+int ext_search_block(const char *arg, const char **list, int exact);
 
 #define SpINFO spell_info[spellnum]
 extern const char *what_sky_type[];
@@ -42,14 +42,14 @@ extern const char *what_weapon[];
  * Функция осуществляет поиск цели для DG_CAST
  * Облегченная версия find_cast_target
  */
-int find_dg_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OBJ_DATA ** tobj, ROOM_DATA ** troom)
+int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OBJ_DATA ** tobj, ROOM_DATA ** troom)
 {
 	*tch = NULL;
 	*tobj = NULL;
 	*troom = world[IN_ROOM(ch)];
 
 	if (spellnum == SPELL_CONTROL_WEATHER) {
-		if (!t || (what_sky = search_block(t, what_sky_type, FALSE)) < 0) {
+		if ((what_sky = search_block(t, what_sky_type, FALSE)) < 0) {
 			sprintf(buf2, "dg_cast (Не указан тип погоды)");
 			script_log(buf2);
 			return FALSE;
@@ -57,7 +57,7 @@ int find_dg_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch,
 			what_sky >>= 1;
 	}
 	if (spellnum == SPELL_CREATE_WEAPON) {
-		if (!t || (what_sky = search_block(t, what_weapon, FALSE)) < 0) {
+		if ((what_sky = search_block(t, what_weapon, FALSE)) < 0) {
 			sprintf(buf2, "dg_cast (Не указан тип оружия)");
 			script_log(buf2);
 			return FALSE;
@@ -69,22 +69,19 @@ int find_dg_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch,
 		return TRUE;
 
 	if (IS_SET(SpINFO.targets, TAR_ROOM_THIS))
-	{
-		*troom = world[IN_ROOM(ch)];
 		return TRUE;
-	}
 
-	if (t != NULL && *t) {
+	if (*t) {
 		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM)) {
 			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != NULL) {
-//            if (SpINFO.violent && check_pkill(ch,*tch,t))
+//            if (SpINFO.violent && !check_pkill(ch,*tch,t))
 //                 return FALSE;
 				return TRUE;
 			}
 		}
 		if (IS_SET(SpINFO.targets, TAR_CHAR_WORLD)) {
 			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != NULL) {
-//            if (SpINFO.violent && check_pkill(ch,*tch,t))
+//            if (SpINFO.violent && !check_pkill(ch,*tch,t))
 //                 return FALSE;
 				return TRUE;
 			}
@@ -142,9 +139,9 @@ int find_dg_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch,
 void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
 {
 	CHAR_DATA *caster = NULL;
-	CHAR_DATA *tch = NULL;
-	OBJ_DATA *tobj = NULL;
-	ROOM_DATA *troom = NULL;
+	CHAR_DATA *tch;
+	OBJ_DATA *tobj;
+	ROOM_DATA *troom;
 
 	ROOM_DATA *caster_room = NULL;
 	char *s, *t;
@@ -239,12 +236,12 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 
 
 	/* Find the target */
-	if (t != NULL) {
-		one_argument(strcpy(arg, t), t);
-		skip_spaces(&t);
-	}
+	if (t != NULL)
+		one_argument(t, arg);
+	else
+		*arg = '\0';
 
-	target = find_dg_cast_target(spellnum, t, caster, &tch, &tobj, &troom);
+	target = find_dg_cast_target(spellnum, arg, caster, &tch, &tobj, &troom);
 
 	if (target) {
 		call_magic(caster, tch, tobj, troom, spellnum, GET_LEVEL(caster), CAST_SPELL);

@@ -28,14 +28,15 @@ ACMD(do_move);
 #define IS_MOVE(cmdnum) (cmd_info[cmdnum].command_pointer == do_move)
 
 void command_interpreter(CHAR_DATA * ch, char *argument);
-int search_block(char *arg, const char **list, int exact);
+int search_block(const char *arg, const char **list, int exact);
+int search_block(const std::string &arg, const char **list, int exact);
 char lower(char c);
 char *one_argument(char *argument, char *first_arg);
 char *one_word(char *argument, char *first_arg);
 char *any_one_arg(char *argument, char *first_arg);
 char *two_arguments(char *argument, char *first_arg, char *second_arg);
 char *three_arguments(char *argument, char *first_arg, char *second_arg, char *third_arg);
-int fill_word(char *argument);
+int fill_word(const char *argument);
 void half_chop(char *string, char *arg1, char *arg2);
 void nanny(DESCRIPTOR_DATA * d, char *arg);
 int is_abbrev(const char *arg1, const char *arg2);

@@ -58,8 +58,10 @@ void affect_room_join(ROOM_DATA * room, AFFECT_DATA * af, bool add_dur, bool avg
 char *money_desc(int amount, int padis);
 OBJ_DATA *create_money(int amount);
 int isname(const char *str, const char *namelist);
+int isname(const std::string &str, const char *namelist);
 char *fname(const char *namelist);
 int get_number(char **name);
+int get_number(std::string &name);
 
 /* ******** objects *********** */
 bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two);
@@ -101,14 +103,21 @@ int get_quested(CHAR_DATA * ch, int quest);
 void set_unquest(CHAR_DATA * ch, int quest);
 
 /* find if character can see */
-CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, char *name);
+CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const char *name);
+CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const std::string &name);
 CHAR_DATA *get_player_vis(CHAR_DATA * ch, const char *name, int inroom);
+CHAR_DATA *get_player_vis(CHAR_DATA * ch, const std::string &name, int inroom);
 CHAR_DATA *get_player_pun(CHAR_DATA * ch, const char *name, int inroom);
+CHAR_DATA *get_player_pun(CHAR_DATA * ch, const std::string &name, int inroom);
 
-CHAR_DATA *get_char_vis(CHAR_DATA * ch, char *name, int where);
-OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, char *name, OBJ_DATA * list);
-OBJ_DATA *get_obj_vis(CHAR_DATA * ch, char *name);
-OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, char *arg, OBJ_DATA * equipment[], int *j);
+CHAR_DATA *get_char_vis(CHAR_DATA * ch, const char *name, int where);
+CHAR_DATA *get_char_vis(CHAR_DATA * ch, const std::string &name, int where);
+OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list);
+OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const std::string &name, OBJ_DATA * list);
+OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name);
+OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const std::string &name);
+OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const char *arg, OBJ_DATA * equipment[], int *j);
+OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const std::string &arg, OBJ_DATA * equipment[], int *j);
 
 
 /* find all dots */

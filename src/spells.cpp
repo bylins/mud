@@ -1917,6 +1917,16 @@ ASPELL(spell_fear)
 		go_flee(victim);
 }
 
+ASPELL(spell_wc_of_fear)
+{
+	int modi = con_app[GET_REAL_CON(ch)].hitp * 3;
+	if (ch != victim)
+		pk_agro_action(ch, victim);
+
+	if (!MOB_FLAGGED(victim, MOB_NOFEAR) && !general_savingthrow(victim, SAVING_WILL, modi, 0))
+		go_flee(victim);
+}
+
 ASPELL(spell_forbidden)
 {
 	if (world[IN_ROOM(ch)]->forbidden) {

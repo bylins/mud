@@ -60,7 +60,6 @@ int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
 int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj);
 int level_exp(CHAR_DATA * ch, int level);
 byte extend_saving_throws(int class_num, int type, int level);
-int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
 
 /* Names first */

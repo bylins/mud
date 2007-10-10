@@ -1248,7 +1248,7 @@ ACMD(do_use)
 	OBJ_DATA *mag_item;
 	int do_hold = 0;
 
-	half_chop(argument, arg, buf);
+	two_arguments(argument, arg, buf);
 	if (!*arg) {
 		sprintf(buf2, "Что Вы хотите %s?\r\n", CMD_NAME);
 		send_to_char(buf2, ch);

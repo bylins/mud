@@ -21,7 +21,7 @@
 //   1. Вызов функции may_kill_here()
 //      Имеем ли право атаковать жертву (проверяются ПК флаги, мирки и т.д.)
 //   2. Вызов функции check_pkill()
-//      Определяем потенциальную возможность ПК акта и заставляем
+//      Определяем потенциальную возможность агрессии и заставляем
 //      вводить имя жертвы полностью
 //   3. Вызов функции pk_agro_action() при каждой агрессии
 //   4. Вызов функции pk_thiefs_action() при воровстве
@@ -55,8 +55,12 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim);
 // FALSE - не может
 int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim);
 
-// Определение возможных ПК действий
-int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, char *arg);
+// Определение необходимости вводить имя жертвы полностью
+bool need_full_alias(CHAR_DATA * ch, CHAR_DATA * opponent);
+
+// Определение возможности агродействий
+int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const char *arg);
+int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const std::string &arg);
 
 // agressor проводит действия против victim
 void pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim);

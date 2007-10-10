@@ -42,7 +42,13 @@ char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);
 int str_cmp(const char *arg1, const char *arg2);
+int str_cmp(const std::string &arg1, const char *arg2);
+int str_cmp(const char *arg1, const std::string &arg2);
+int str_cmp(const std::string &arg1, const std::string &arg2);
 int strn_cmp(const char *arg1, const char *arg2, int n);
+int strn_cmp(const std::string &arg1, const char *arg2, int n);
+int strn_cmp(const char *arg1, const std::string &arg2, int n);
+int strn_cmp(const std::string &arg1, const std::string &arg2, int n);
 void log(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
 void olc_log(const char *format, ...);
 void imm_log(const char *format, ...);
@@ -1263,7 +1269,10 @@ int awaking(CHAR_DATA * ch, int mode);
 
 
 
-#define a_isspace(c) (strchr(" \f\n\r\t\v",(c)) != NULL)
+inline bool a_isspace(unsigned char c)
+{
+	return (strchr(" \f\n\r\t\v", c) != NULL);
+}
 
 // Далеко не все из следующих функций используются в коде, но пусть будут (переписано с асма AL'ом)
 inline bool a_isascii(unsigned char c)
@@ -1325,5 +1334,84 @@ inline char a_lcc(unsigned char c)
 	if (c == 179) return c - 16;
     return c;
 }
+
+enum separator_mode {
+	A_ISSPACE,
+	A_ISASCII,
+	A_ISPRINT,
+	A_ISLOWER,
+	A_ISUPPER,
+	A_ISDIGIT,
+	A_ISALPHA,
+	A_ISALNUM,
+	A_ISXDIGIT
+};
+
+class pred_separator
+{
+	bool (*pred)(unsigned char);
+	bool l_not;
+public:
+	explicit
+	pred_separator(separator_mode __mode, bool __l_not = false) : l_not(__l_not)
+	{
+		switch (__mode) {
+		case A_ISSPACE:
+			pred = a_isspace;
+			break;
+		case A_ISASCII:
+			pred = a_isascii;
+			break;
+		case A_ISPRINT:
+			pred = a_isprint;
+			break;
+		case A_ISLOWER:
+			pred = a_islower;
+			break;
+		case A_ISUPPER:
+			pred = a_isupper;
+			break;
+		case A_ISDIGIT:
+			pred = a_isdigit;
+			break;
+		case A_ISALPHA:
+			pred = a_isalpha;
+			break;
+		case A_ISALNUM:
+			pred = a_isalnum;
+			break;
+		case A_ISXDIGIT:
+			pred = a_isxdigit;
+			break;
+		}
+	}
+
+	explicit
+	pred_separator() : pred(a_isspace), l_not(false) {}
+
+	void reset() {}
+
+	bool operator()(std::string::const_iterator& next, std::string::const_iterator end, std::string& tok)
+	{
+		tok = std::string();
+
+		if (l_not)
+			for (; next != end && !pred(*next); ++next) {}
+		else
+			for (; next != end && pred(*next); ++next) {}
+
+		if (next == end)
+			return false;
+
+		if (l_not)
+			for (; next != end && pred(*next); ++next)
+				tok += *next;
+		else
+			for (; next != end && !pred(*next); ++next)
+				tok += *next;
+
+		return true;
+	}
+};
 
 #endif

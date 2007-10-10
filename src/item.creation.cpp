@@ -1102,13 +1102,9 @@ ACMD(do_transform_weapon)
 	}
 }
 
-int ext_search_block(char *arg, const char **list, int exact)
+int ext_search_block(const char *arg, const char **list, int exact)
 {
-	register int i, l, j, o;
-
-	/* Make into lower case, and get length of string */
-	for (l = 0; *(arg + l); l++)
-		*(arg + l) = LOWER(*(arg + l));
+	register int i, l = strlen(arg), j, o;
 
 	if (exact) {
 		for (i = j = 0, o = 1; j != 1 && **(list + i); i++)	// shapirus: попытка в лоб убрать креш

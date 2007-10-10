@@ -52,7 +52,7 @@ extern struct zone_data *zone_table;
 const char *spell_name(int num);
 
 /* external functions */
-int ext_search_block(char *arg, const char **list, int exact);
+int ext_search_block(const char *arg, const char **list, int exact);
 room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);
 void free_varlist(struct trig_var_data *vd);
 int obj_room(OBJ_DATA * obj);
@@ -1927,15 +1927,17 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					strcpy(str, "0");
 			}
 #ifdef RIDING
-			else if (!str_cmp(field, "riding"))
+			else if (!str_cmp(field, "riding")) {
 				if (RIDING(c))
 					sprintf(str, "%c%ld", UID_CHAR, GET_ID(RIDING(c)));
+			}
 #endif
 
 #ifdef RIDDEN_BY
-				else if (!str_cmp(field, "ridden_by"))
+				else if (!str_cmp(field, "ridden_by")) {
 					if (RIDDEN_BY(c))
 						sprintf(str, "%c%ld", UID_CHAR, GET_ID(RIDDEN_BY(c)));
+				}
 #endif
 
 					else if (!str_cmp(field, "vnum"))
@@ -1997,12 +1999,12 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 						}
 					} else if (!str_cmp(field, "skill"))
 						strcpy(str, skill_percent(c, subfield));
-					else if (!str_cmp(field, "feat"))
+					else if (!str_cmp(field, "feat")) {
 						if (feat_owner(c, subfield))
 							strcpy(str, "1");
 						else
 							strcpy(str, "0");
-					else if (!str_cmp(field, "spellcount"))
+					} else if (!str_cmp(field, "spellcount"))
 						strcpy(str, spell_count(c, subfield));
 					else if (!str_cmp(field, "spelltype"))
 						strcpy(str, spell_knowledge(c, subfield));
@@ -2027,7 +2029,7 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 						int pos;
 						if (isdigit(*subfield))
 							pos = atoi(subfield);
-						else
+						else if (*subfield)
 							pos = find_eq_pos(c, NULL, subfield);
 						if (!*subfield || pos < 0 || pos > NUM_WEARS)
 							strcpy(str, "");

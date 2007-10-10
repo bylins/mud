@@ -852,29 +852,34 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 	return (TRUE);
 }
 
-// Определение возможных ПК действий
-// Имя должно ТОЧНО соответствовать одному из алиасов жертвы
-// Проверяется потенциальная возможность ПК,
-// т.е. !NPC жертва или !NPC хозяин жертвы
-// TRUE - возможно ПК действия, FALSE - точно не ПК
-int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, char *arg)
+// Определяет необходимость вводить
+// имя жертвы полностью для начала агродействий
+bool need_full_alias(CHAR_DATA * ch, CHAR_DATA * opponent)
 {
-	char opp_name_part[200] = "\0", opp_name[200] = "\0", *opp_name_remain;
-
 	// Потенциальная жертва приведет к ПК?
 	if (IS_NPC(opponent) && (!opponent->master || IS_NPC(opponent->master)
 				 || opponent->master == ch))
-		return FALSE;
+		return false;
 
 	// Уже воюю?
 	if (FIGHTING(ch) == opponent || FIGHTING(opponent) == ch)
-		return FALSE;
+		return false;
+
+	return true;
+}
+
+// Проверка потенциальной возможности агродействий
+// TRUE - агродействие разрешено, FALSE - агродействие запрещено
+int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const char *arg)
+{
+	char opp_name_part[200] = "\0", opp_name[200] = "\0", *opp_name_remain;
+
+	if (!need_full_alias(ch, opponent))
+		return TRUE;
 
 	// Имя не указано?
-	if (!arg)
-		return TRUE;
 	if (!*arg)
-		return FALSE;
+		return TRUE;
 
 	while (*arg && (*arg == '.' || (*arg >= '0' && *arg <= '9')))
 		++arg;
@@ -883,12 +888,39 @@ int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, char *arg)
 	for (opp_name_remain = opp_name; *opp_name_remain;) {
 		opp_name_remain = one_argument(opp_name_remain, opp_name_part);
 		if (!str_cmp(arg, opp_name_part))
-			return FALSE;
+			return TRUE;
 	}
 
 	// Совпадений не нашел
 	send_to_char("Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n", ch);
-	return TRUE;
+	return FALSE;
+}
+int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const std::string &arg)
+{
+	char opp_name_part[200] = "\0", opp_name[200] = "\0", *opp_name_remain;
+
+	if (!need_full_alias(ch, opponent))
+		return TRUE;
+
+	// Имя не указано?
+	if (!arg.length())
+		return TRUE;
+
+	std::string::const_iterator i;
+	for (i = arg.begin(); i != arg.end() && (*i == '.' || (*i >= '0' && *i <= '9')); i++);
+
+	std::string tmp(i, arg.end());
+
+	strcpy(opp_name, GET_NAME(opponent));
+	for (opp_name_remain = opp_name; *opp_name_remain;) {
+		opp_name_remain = one_argument(opp_name_remain, opp_name_part);
+		if (!str_cmp(tmp, opp_name_part))
+			return TRUE;
+	}
+
+	// Совпадений не нашел
+	send_to_char("Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n", ch);
+	return FALSE;
 }
 
 // Проверяет, есть ли члены любого клан в группе чара и находятся ли они

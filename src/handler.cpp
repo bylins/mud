@@ -152,14 +152,18 @@ int isname(const char *str, const char *namelist)
 	if (!namelist || !*namelist || !str)
 		return (FALSE);
 
+	for (curstr = str; !a_isalnum(*curstr); curstr++) {
+		if (!*curstr)
+			return (once_ok);
+	}
+	laststr = curstr;
 	curname = namelist;
-	curstr = laststr = str;
 	for (;;) {
 		once_ok = FALSE;
 		for (;; curstr++, curname++) {
 			if (!*curstr)
 				return (once_ok);
-			if (curstr != laststr && *curstr == '!')
+			if (*curstr == '!')
 				if (a_isalnum(*curname)) {
 					curstr = laststr;
 					break;
@@ -169,6 +173,57 @@ int isname(const char *str, const char *namelist)
 					if (!*curstr)
 						return (once_ok);
 				}
+				laststr = curstr;
+				break;
+			}
+			if (!*curname)
+				return (FALSE);
+			if (!a_isalnum(*curname)) {
+				curstr = laststr;
+				break;
+			}
+			if (LOWER(*curstr) != LOWER(*curname)) {
+				curstr = laststr;
+				break;
+			} else
+				once_ok = TRUE;
+		}
+		/* skip to next name */
+		for (; a_isalnum(*curname); curname++);
+		for (; !a_isalnum(*curname); curname++) {
+			if (!*curname)
+				return (FALSE);
+		}
+	}
+}
+int isname(const std::string &str, const char *namelist)
+{
+	int once_ok = FALSE;
+	const char *curname;
+	std::string::const_iterator curstr, laststr;
+
+	if (!namelist || !*namelist)
+		return (FALSE);
+
+	for (curstr = str.begin(); curstr != str.end() && !a_isalnum(*curstr); curstr++);
+	if (curstr == str.end())
+		return (once_ok);
+	laststr = curstr;
+	curname = namelist;
+	for (;;) {
+		once_ok = FALSE;
+		for (;; curstr++, curname++) {
+			if (curstr == str.end())
+				return (once_ok);
+			if (*curstr == '!')
+				if (a_isalnum(*curname)) {
+					curstr = laststr;
+					break;
+				}
+			if (!a_isalnum(*curstr)) {
+				for (; curstr != str.end() && !a_isalnum(*curstr); curstr++);
+				if (curstr == str.end())
+					return (once_ok);
 				laststr = curstr;
 				break;
 			}
@@ -1916,23 +1971,31 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 
 int get_number(char **name)
 {
-	int i;
+	int i, res;
 	char *ppos;
-	char number[MAX_INPUT_LENGTH];
-
-	*number = '\0';
 
 	if ((ppos = strchr(*name, '.')) != NULL) {
-		*ppos = '\0';
-		strcpy(number, *name);
-		for (i = 0; *(number + i); i++) {
-			if (!isdigit(*(number + i))) {
-				*ppos = '.';
+		for (i = 0; *name + i != ppos; i++)
+			if (!isdigit(*(*name + i)))
 				return (1);
-			}
-		}
+		*ppos = '\0';
+		res = atoi(*name);
 		strcpy(*name, ppos + 1);
-		return (atoi(number));
+		return (res);
+	}
+	return (1);
+}
+int get_number(std::string &name)
+{
+	std::string::size_type pos = name.find('.');
+
+	if (pos != std::string::npos) {
+		for (std::string::size_type i = 0; i != pos; i++)
+			if (!isdigit(name[i]))
+				return (1);
+		int res = atoi(name.substr(0, pos).c_str());
+		name.erase(0, pos + 1);
+		return (res);
 	}
 	return (1);
 }
@@ -2619,6 +2682,30 @@ CHAR_DATA *get_player_vis(CHAR_DATA * ch, const char *name, int inroom)
 
 	return (NULL);
 }
+CHAR_DATA *get_player_vis(CHAR_DATA * ch, const std::string &name, int inroom)
+{
+	CHAR_DATA *i;
+
+	for (i = character_list; i; i = i->next) {
+		//if (IS_NPC(i) || (!(i->desc) && !RENTABLE(i) && !(inroom & FIND_CHAR_DISCONNECTED)))
+		//   continue;
+		if (IS_NPC(i))
+			continue;
+		if (!HERE(i))
+			continue;
+		if ((inroom & FIND_CHAR_ROOM) && i->in_room != ch->in_room)
+			continue;
+		//if (str_cmp(i->player.name, name))
+		//   continue;
+		if (!CAN_SEE_CHAR(ch, i))
+			continue;
+		if (!isname(name, i->player.name))
+			continue;
+		return (i);
+	}
+
+	return (NULL);
+}
 
 
 CHAR_DATA *get_player_pun(CHAR_DATA * ch, const char *name, int inroom)
@@ -2637,9 +2724,25 @@ CHAR_DATA *get_player_pun(CHAR_DATA * ch, const char *name, int inroom)
 
 	return (NULL);
 }
+CHAR_DATA *get_player_pun(CHAR_DATA * ch, const std::string &name, int inroom)
+{
+	CHAR_DATA *i;
+
+	for (i = character_list; i; i = i->next) {
+		if (IS_NPC(i))
+			continue;
+		if ((inroom & FIND_CHAR_ROOM) && i->in_room != ch->in_room)
+			continue;
+		if (!isname(name, i->player.name))
+			continue;
+		return (i);
+	}
+
+	return (NULL);
+}
 
 
-CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, char *name)
+CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const char *name)
 {
 	CHAR_DATA *i;
 	int j = 0, number;
@@ -2663,9 +2766,31 @@ CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, char *name)
 
 	return (NULL);
 }
+CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const std::string &name)
+{
+	CHAR_DATA *i;
+	int j = 0, number;
+
+	/* JE 7/18/94 :-) :-) */
+	if (!str_cmp(name, "self") || !str_cmp(name, "me") ||
+	    !str_cmp(name, "я") || !str_cmp(name, "меня") || !str_cmp(name, "себя"))
+		return (ch);
+
+	/* 0.<name> means PC with name */
+	std::string tmp(name);
+	if (!(number = get_number(tmp)))
+		return (get_player_vis(ch, tmp, FIND_CHAR_ROOM));
+
+	for (i = world[ch->in_room]->people; i && j <= number; i = i->next_in_room)
+		if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->player.name))
+			if (++j == number)
+				return (i);
+
+	return (NULL);
+}
 
 
-CHAR_DATA *get_char_vis(CHAR_DATA * ch, char *name, int where)
+CHAR_DATA *get_char_vis(CHAR_DATA * ch, const char *name, int where)
 {
 	CHAR_DATA *i;
 	int j = 0, number;
@@ -2691,9 +2816,33 @@ CHAR_DATA *get_char_vis(CHAR_DATA * ch, char *name, int where)
 
 	return (NULL);
 }
+CHAR_DATA *get_char_vis(CHAR_DATA * ch, const std::string &name, int where)
+{
+	CHAR_DATA *i;
+	int j = 0, number;
+
+	/* check the room first */
+	if (where == FIND_CHAR_ROOM)
+		return get_char_room_vis(ch, name);
+	else if (where == FIND_CHAR_WORLD) {
+		if ((i = get_char_room_vis(ch, name)) != NULL)
+			return (i);
+
+		std::string tmp(name);
+		if (!(number = get_number(tmp)))
+			return get_player_vis(ch, tmp, 0);
+
+		for (i = character_list; i && (j <= number); i = i->next)
+			if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->player.name))
+				if (++j == number)
+					return (i);
+	}
+
+	return (NULL);
+}
 
 
-OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, char *name, OBJ_DATA * list)
+OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list)
 {
 	OBJ_DATA *i;
 	int j = 0, number;
@@ -2714,12 +2863,31 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, char *name, OBJ_DATA * list)
 
 	return (NULL);
 }
+OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const std::string &name, OBJ_DATA * list)
+{
+	OBJ_DATA *i;
+	int j = 0, number;
+	std::string tmp(name);
+
+	if (!(number = get_number(tmp)))
+		return (NULL);
+
+	for (i = list; i && (j <= number); i = i->next_content)
+		if (isname(tmp, i->name))
+			if (CAN_SEE_OBJ(ch, i))
+				if (++j == number) {	//* sprintf(buf,"Show obj %d %s %x ", number, i->name, i);
+					//* send_to_char(buf,ch);
+					return (i);
+				}
+
+	return (NULL);
+}
 
 
 
 
 /* search the entire world for an object, and return a pointer  */
-OBJ_DATA *get_obj_vis(CHAR_DATA * ch, char *name)
+OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name)
 {
 	OBJ_DATA *i;
 	int j = 0, number;
@@ -2735,7 +2903,34 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, char *name)
 		return (i);
 
 	strcpy(tmp, name);
-	if ((number = get_number(&tmp)) == 0)
+	if (!(number = get_number(&tmp)))
+		return (NULL);
+
+	/* ok.. no luck yet. scan the entire obj list   */
+	for (i = object_list; i && (j <= number); i = i->next)
+		if (isname(tmp, i->name))
+			if (CAN_SEE_OBJ(ch, i))
+				if (++j == number)
+					return (i);
+
+	return (NULL);
+}
+/* search the entire world for an object, and return a pointer  */
+OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const std::string &name)
+{
+	OBJ_DATA *i;
+	int j = 0, number;
+
+	/* scan items carried */
+	if ((i = get_obj_in_list_vis(ch, name, ch->carrying)) != NULL)
+		return (i);
+
+	/* scan room */
+	if ((i = get_obj_in_list_vis(ch, name, world[ch->in_room]->contents)) != NULL)
+		return (i);
+
+	std::string tmp(name);
+	if (!(number = get_number(tmp)))
 		return (NULL);
 
 	/* ok.. no luck yet. scan the entire obj list   */
@@ -2750,35 +2945,52 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, char *name)
 
 
 
-OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, char *arg, OBJ_DATA * equipment[], int *j)
+OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const char *arg, OBJ_DATA * equipment[], int *j)
 {
 	int l, number;
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
 
 	strcpy(tmp, arg);
-	if ((number = get_number(&tmp)) == 0)
+	if (!(number = get_number(&tmp)))
 		return (NULL);
 
 	for ((*j) = 0, l = 0; (*j) < NUM_WEARS; (*j)++)
 		if (equipment[(*j)])
 			if (CAN_SEE_OBJ(ch, equipment[(*j)]))
-				if (isname(arg, equipment[(*j)]->name))
+				if (isname(tmp, equipment[(*j)]->name))
+					if (++l == number)
+						return (equipment[(*j)]);
+
+	return (NULL);
+}
+OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const std::string &arg, OBJ_DATA * equipment[], int *j)
+{
+	int l, number;
+	std::string tmp(arg);
+
+	if (!(number = get_number(tmp)))
+		return (NULL);
+
+	for ((*j) = 0, l = 0; (*j) < NUM_WEARS; (*j)++)
+		if (equipment[(*j)])
+			if (CAN_SEE_OBJ(ch, equipment[(*j)]))
+				if (isname(tmp, equipment[(*j)]->name))
 					if (++l == number)
 						return (equipment[(*j)]);
 
 	return (NULL);
 }
 
-
-OBJ_DATA *get_obj_in_eq_vis(CHAR_DATA * ch, char *arg)
+/*
+OBJ_DATA *get_obj_in_eq_vis(CHAR_DATA * ch, const char *arg)
 {
 	int l, number, j;
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
 
 	strcpy(tmp, arg);
-	if ((number = get_number(&tmp)) == 0)
+	if (!(number = get_number(&tmp)))
 		return (NULL);
 
 	for (j = 0, l = 0; j < NUM_WEARS; j++)
@@ -2790,7 +3002,24 @@ OBJ_DATA *get_obj_in_eq_vis(CHAR_DATA * ch, char *arg)
 
 	return (NULL);
 }
+OBJ_DATA *get_obj_in_eq_vis(CHAR_DATA * ch, const std::string &arg)
+{
+	int l, number, j;
+	std::string tmp(arg);
 
+	if (!(number = get_number(tmp)))
+		return (NULL);
+
+	for (j = 0, l = 0; j < NUM_WEARS; j++)
+		if (GET_EQ(ch, j))
+			if (CAN_SEE_OBJ(ch, GET_EQ(ch, j)))
+				if (isname(tmp, GET_EQ(ch, j)->name))
+					if (++l == number)
+						return (GET_EQ(ch, j));
+
+	return (NULL);
+}
+*/
 
 char *money_desc(int amount, int padis)
 {
@@ -3561,7 +3790,7 @@ int awake_others(CHAR_DATA * ch)
 
 /* Учет резиста - возвращается эффект от спелл или умения с учетом резиста */
 
-int calculate_resistance_coeff (CHAR_DATA *ch, int resist_type, int effect)
+int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect)
 {
 
 	int result, resistance;
@@ -3569,15 +3798,15 @@ int calculate_resistance_coeff (CHAR_DATA *ch, int resist_type, int effect)
         resistance = GET_RESIST(ch, resist_type);
 
 	if (resistance <= 0) {
-		return (int)((1 - resistance/100) * effect);
+		return effect - resistance * effect / 100;
 	}
 	if (IS_NPC(ch) && resistance >= 200) {
-		return (0);
+		return 0;
 	}
 	if (!IS_NPC(ch)) {
 		resistance = MIN(75, resistance);
 	}
-	result = (int)(effect - (resistance + number(0, resistance)) * effect / 200);
+	result = effect - (resistance + number(0, resistance)) * effect / 200;
 	result = MAX(0, result);
 	return result;
 }

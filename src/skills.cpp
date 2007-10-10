@@ -538,7 +538,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	case SKILL_UPGRADE:
 		percent = skill_is;
-	case SKILL_BERSERK:
+	case SKILL_WARCRY:
 		percent = skill_is;
 		break;
 	case SKILL_COURAGE:

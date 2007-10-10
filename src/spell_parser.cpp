@@ -54,6 +54,7 @@ void spello(int spl, const char *name, const char *syn, int max_mana, int min_ma
 			int minpos, int targets, int violent, int routines, int danger, int remort, int spell_class);
 int mag_manacost(CHAR_DATA * ch, int spellnum);
 ACMD(do_cast);
+ACMD(do_warcry);
 ACMD(do_ident);
 ACMD(do_create);
 ACMD(do_forget);
@@ -1570,6 +1571,48 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 	   SpINFO.mana_min); */
 }
 
+void spell_prefix(int spellnum,
+		  char **say_to_self, char **say_to_other, char **say_to_obj_vis, char **say_to_something, char **damagee_vict, char **helpee_vict)
+{
+	switch (spellnum) {
+	case SPELL_WC_OF_CHALLENGE:
+		*say_to_other = "$n гнусным голосом заорал$g : '%s'.";
+		*damagee_vict = "$n гнусным голосом заорал$g : '%s'.";
+		break;
+	case SPELL_WC_OF_MENACE:
+		*say_to_other = "$n оскалил$u и взревел$g : '%s'.";
+		*damagee_vict = "$n оскалил$u и взревел$g : '%s'.";
+		break;
+	case SPELL_WC_OF_RAGE:
+		*say_to_other = "$n ударил$g себя в грудь и неистово завопил$g : '%s'.";
+		*damagee_vict = "$n ударил$g себя в грудь и неистово завопил$g : '%s'.";
+		break;
+	case SPELL_WC_OF_MADNESS:
+		*say_to_other = "$n устрашающе зыркнул$g и зарычал$g : '%s'.";
+		*damagee_vict = "$n устрашающе зыркнул$g и зарычал$g : '%s'.";
+		break;
+	case SPELL_WC_OF_THUNDER:
+		*say_to_other = "$n воздел$g руки к небу и оглушающе заревел$g : '%s'.";
+		*damagee_vict = "$n воздел$g руки к небу и оглушающе заревел$g : '%s'.";
+		break;
+	case SPELL_WC_OF_FEAR:
+		*say_to_other = "$n состроил$g страшную рожу и крикнул$g : '%s'.";
+		*damagee_vict = "$n состроил$g страшную рожу и крикнул$g : '%s'.";
+		break;
+	case SPELL_WC_OF_BATTLE:
+		*say_to_something = "$n смело выкрикнул$g : '%s'.";
+		break;
+	case SPELL_WC_OF_POWER:
+		*say_to_something = "$n богатырским гласом загремел$g : '%s'.";
+		break;
+	case SPELL_WC_OF_BLESS:
+		*say_to_something = "$n рявкнул$g : '%s'.";
+		break;
+	case SPELL_WC_OF_COURAGE:
+		*say_to_something = "$n надсаживаясь заорал$g : '%s'.";
+		break;
+	}
+}
 
 /* say_spell erodes buf, buf1, buf2 */
 void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
@@ -1607,20 +1650,22 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 		say_to_something = "$n произнес$q : '%s'.";
 		damagee_vict = "$n зыркнул$g на Вас и произнес$q : '%s'.";
 		helpee_vict = "$n подмигнул$g Вам и произнес$q : '%s'.";
+		spell_prefix(spellnum, &say_to_self, &say_to_other, &say_to_obj_vis, &say_to_something, &damagee_vict, &helpee_vict);
 		break;
 	case CLASS_UNDEAD:
 	case CLASS_HUMAN:
 	case CLASS_HERO_WARRIOR:
 	case CLASS_HERO_MAGIC:
+		religion = number(RELIGION_POLY, RELIGION_MONO);
+		if (*cast_phrase[spellnum][religion] != '\n')
+			strcpy(buf, cast_phrase[spellnum][religion]);
 		say_to_self = "$n пробормотал$g : '%s'.";
 		say_to_other = "$n взглянул$g на $N3 и бросил$g : '%s'.";
 		say_to_obj_vis = "$n глянул$g на $o3 и произнес$q : '%s'.";
 		say_to_something = "$n произнес$q : '%s'.";
 		damagee_vict = "$n зыркнул$g на Вас и проревел$g : '%s'.";
 		helpee_vict = "$n улыбнул$u Вам и произнес$q : '%s'.";
-		religion = number(RELIGION_POLY, RELIGION_MONO);
-		if (*cast_phrase[spellnum][religion] != '\n')
-			strcpy(buf, cast_phrase[spellnum][religion]);
+		spell_prefix(spellnum, &say_to_self, &say_to_other, &say_to_obj_vis, &say_to_something, &damagee_vict, &helpee_vict);
 		break;
 
 	default:
@@ -1773,7 +1818,7 @@ int find_spell_num(char *name)
 			return (index);
 		ok = TRUE;
 		/* It won't be changed, but other uses of this function elsewhere may. */
-		temp = any_one_arg((char *) realname, first);
+		temp = any_one_arg(realname, first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok) {
 			if (!is_abbrev(first2, first))
@@ -1788,11 +1833,46 @@ int find_spell_num(char *name)
 	return (-1);
 }
 
+int find_spell_num(const std::string& name)
+{
+	int index, ok;
+	int use_syn = (((ubyte) name[0] <= (ubyte) 'z')
+		   && ((ubyte) name[0] >= (ubyte) 'a'))
+	    || (((ubyte) name[0] <= (ubyte) 'Z') && ((ubyte) name[0] >= (ubyte) 'A'));
+	char first[256], *temp, *realname;
+	typedef boost::tokenizer<pred_separator> tokenizer;
+	pred_separator sep;
+	tokenizer tok(name, sep);
+	tokenizer::iterator tok_iter;
+
+	for (index = 1; index <= TOP_SPELL_DEFINE; index++) {
+		realname = (use_syn) ? (char *) spell_info[index].syn : (char *) spell_info[index].name;
+
+		if (!realname || !*realname)
+			continue;
+		if (CompareParam(name, realname))
+			return (index);
+		ok = TRUE;
+		/* It won't be changed, but other uses of this function elsewhere may. */
+		temp = any_one_arg(realname, first);
+		tok_iter = tok.begin();
+		while (*first && tok_iter != tok.end() && ok) {
+			if (!CompareParam(*tok_iter, first))
+				ok = FALSE;
+			temp = any_one_arg(temp, first);
+			tok_iter++;
+		}
+		if (ok && tok_iter == tok.end())
+			return (index);
+	}
+
+	return (-1);
+}
 
 int may_cast_in_nomagic(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 {
 	// More than 33 level - may cast always
-	if (IS_GRGOD(caster))
+	if (IS_GRGOD(caster) || IS_SET(SpINFO.routines, MAG_WARCRY))
 		return TRUE;
 	if (IS_NPC(caster) && !(AFF_FLAGGED(caster, AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)))
 		return TRUE;
@@ -1968,8 +2048,13 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 	}
 
 	if (!may_cast_here(caster, cvict, spellnum)) {
-		send_to_char("Ваша магия обратилась всего лишь в яркую вспышку !\r\n", caster);
-		act("Яркая вспышка на миг осветила комнату, и тут же погасла.", FALSE, caster, 0, 0, TO_ROOM);
+		if (IS_SET(SpINFO.routines, MAG_WARCRY)) {
+			send_to_char("Ваш громовой глас сотряс воздух, но ничего не произошло !\r\n", caster);
+			act("Вы вздрогнули от неожиданного крика, но ничего не произошло.", FALSE, caster, 0, 0, TO_ROOM);
+		} else {
+			send_to_char("Ваша магия обратилась всего лишь в яркую вспышку !\r\n", caster);
+			act("Яркая вспышка на миг осветила комнату, и тут же погасла.", FALSE, caster, 0, 0, TO_ROOM);
+		}
 		return 0;
 	}
 
@@ -2074,14 +2159,14 @@ const char *what_weapon[] = { "плеть",
 	"\n"
 };
 
-int find_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OBJ_DATA ** tobj, ROOM_DATA ** troom)
+int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OBJ_DATA ** tobj, ROOM_DATA ** troom)
 {
 	*tch = NULL;
 	*tobj = NULL;
 	*troom = world[IN_ROOM(ch)];
 
 	if (spellnum == SPELL_CONTROL_WEATHER) {
-		if (!t || (what_sky = search_block(t, what_sky_type, FALSE)) < 0) {
+		if ((what_sky = search_block(t, what_sky_type, FALSE)) < 0) {
 			send_to_char("Не указан тип погоды.\r\n", ch);
 			return FALSE;
 		} else
@@ -2089,30 +2174,23 @@ int find_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OB
 	}
 
 	if (spellnum == SPELL_CREATE_WEAPON) {
-		if (!t || (what_sky = search_block(t, what_weapon, FALSE)) < 0) {
+		if ((what_sky = search_block(t, what_weapon, FALSE)) < 0) {
 			send_to_char("Не указан тип оружия.\r\n", ch);
 			return FALSE;
 		} else
 			what_sky = 5 + (what_sky >> 1);
 	}
 
-	*cast_argument = '\0';
-
-	if (t)
-		strcat(cast_argument, t);
+	strcpy(cast_argument, t);
 
 	if (IS_SET(SpINFO.targets, TAR_ROOM_THIS))
-	{
-		*troom = world[IN_ROOM(ch)];
 		return TRUE;
-	}
-	/* TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD */
 	if (IS_SET(SpINFO.targets, TAR_IGNORE))
 		return TRUE;
-	else if (t != NULL && *t) {
+	else if (*t) {
 		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM)) {
 			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != NULL) {
-				if (SpINFO.violent && check_pkill(ch, *tch, t))
+				if (SpINFO.violent && !check_pkill(ch, *tch, t))
 					return FALSE;
 				return TRUE;
 			}
@@ -2120,7 +2198,7 @@ int find_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OB
 
 		if (IS_SET(SpINFO.targets, TAR_CHAR_WORLD)) {
 			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != NULL) {
-				if (SpINFO.violent && check_pkill(ch, *tch, t))
+				if (SpINFO.violent && !check_pkill(ch, *tch, t))
 					return FALSE;
 				return TRUE;
 			}
@@ -2163,13 +2241,111 @@ int find_cast_target(int spellnum, char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OB
 		}
 	}
 	/* TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD */
-	sprintf(buf, "На %s Вы хотите ЭТО колдовать ?\r\n",
-		IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
-		? "ЧТО" : "КОГО");
+	if (IS_SET(SpINFO.routines, MAG_WARCRY))
+		sprintf(buf, "И на %s же Вы хотите так громко крикнуть ?\r\n",
+			IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
+			? "ЧТО" : "КОГО");
+	else
+		sprintf(buf, "На %s Вы хотите ЭТО колдовать ?\r\n",
+			IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
+			? "ЧТО" : "КОГО");
 	send_to_char(buf, ch);
 	return FALSE;
 }
 
+int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DATA ** tch, OBJ_DATA ** tobj, ROOM_DATA ** troom)
+{
+	*tch = NULL;
+	*tobj = NULL;
+	*troom = world[IN_ROOM(ch)];
+
+	if (spellnum == SPELL_CONTROL_WEATHER) {
+		if ((what_sky = search_block(t, what_sky_type, FALSE)) < 0) {
+			send_to_char("Не указан тип погоды.\r\n", ch);
+			return FALSE;
+		} else
+			what_sky >>= 1;
+	}
+
+	if (spellnum == SPELL_CREATE_WEAPON) {
+		if ((what_sky = search_block(t, what_weapon, FALSE)) < 0) {
+			send_to_char("Не указан тип оружия.\r\n", ch);
+			return FALSE;
+		} else
+			what_sky = 5 + (what_sky >> 1);
+	}
+
+	cast_argument[t.copy(cast_argument, MAX_INPUT_LENGTH - 1, 0)] = '\0';
+
+	if (IS_SET(SpINFO.targets, TAR_ROOM_THIS))
+		return TRUE;
+	if (IS_SET(SpINFO.targets, TAR_IGNORE))
+		return TRUE;
+	if (t.length()) {
+		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM)) {
+			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != NULL) {
+				if (SpINFO.violent && !check_pkill(ch, *tch, t))
+					return FALSE;
+				return TRUE;
+			}
+		}
+
+		if (IS_SET(SpINFO.targets, TAR_CHAR_WORLD)) {
+			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != NULL) {
+				if (SpINFO.violent && !check_pkill(ch, *tch, t))
+					return FALSE;
+				return TRUE;
+			}
+		}
+
+		if (IS_SET(SpINFO.targets, TAR_OBJ_INV))
+			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != NULL)
+				return TRUE;
+
+		if (IS_SET(SpINFO.targets, TAR_OBJ_EQUIP)) {
+			int i;
+			for (i = 0; i < NUM_WEARS; i++)
+				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->name)) {
+					*tobj = GET_EQ(ch, i);
+					return TRUE;
+				}
+		}
+
+		if (IS_SET(SpINFO.targets, TAR_OBJ_ROOM))
+			if ((*tobj = get_obj_in_list_vis(ch, t, world[IN_ROOM(ch)]->contents)) != NULL)
+				return TRUE;
+
+		if (IS_SET(SpINFO.targets, TAR_OBJ_WORLD))
+			if ((*tobj = get_obj_vis(ch, t)) != NULL)
+				return TRUE;
+	} else {
+		if (IS_SET(SpINFO.targets, TAR_FIGHT_SELF))
+			if (FIGHTING(ch) != NULL) {
+				*tch = ch;
+				return TRUE;
+			}
+		if (IS_SET(SpINFO.targets, TAR_FIGHT_VICT))
+			if (FIGHTING(ch) != NULL) {
+				*tch = FIGHTING(ch);
+				return TRUE;
+			}
+		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM) && !SpINFO.violent) {
+			*tch = ch;
+			return TRUE;
+		}
+	}
+	/* TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD */
+	if (IS_SET(SpINFO.routines, MAG_WARCRY))
+		sprintf(buf, "И на %s же Вы хотите так громко крикнуть ?\r\n",
+			IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
+			? "ЧТО" : "КОГО");
+	else
+		sprintf(buf, "На %s Вы хотите ЭТО колдовать ?\r\n",
+			IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
+			? "ЧТО" : "КОГО");
+	send_to_char(buf, ch);
+	return FALSE;
+}
 
 void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument)
 {
@@ -2179,9 +2355,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument)
 	OBJ_DATA *tobj = NULL;
 	ROOM_DATA *troom = NULL;
 
-	one_argument(argument, arg);
-	*cast_argument = '\0';
-	strcat(cast_argument, arg);
+	one_argument(argument, cast_argument);
 
 	level = GET_OBJ_VAL(obj, 0);
 	if (level == 0 && GET_OBJ_TYPE(obj) == ITEM_STAFF)
@@ -2374,7 +2548,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 //проверка на алайнмент мобов
 
 	if (tch && ch) {
-		if (IS_MOB(tch) && IS_MOB(ch) && !SAME_ALIGN(ch, tch) && SpINFO.violent == 0)
+		if (IS_MOB(tch) && IS_MOB(ch) && !SAME_ALIGN(ch, tch) && !SpINFO.violent)
 			return (0);
 	}
 	if (!troom)
@@ -2561,9 +2735,9 @@ int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int 
  */
 ACMD(do_cast)
 {
-	CHAR_DATA *tch = NULL;
-	OBJ_DATA *tobj = NULL;
-	ROOM_DATA *troom = NULL;
+	CHAR_DATA *tch;
+	OBJ_DATA *tobj;
+	ROOM_DATA *troom;
 
 	char *s, *t;
 	int i, spellnum, spell_subst, target = 0;
@@ -2645,12 +2819,12 @@ ACMD(do_cast)
 
 
 	/* Find the target */
-	if (t != NULL) {
-		one_argument(strcpy(arg, t), t);
-		skip_spaces(&t);
-	}
+	if (t != NULL)
+		one_argument(t, arg);
+	else
+		*arg = '\0';
 
-	target = find_cast_target(spellnum, t, ch, &tch, &tobj, &troom);
+	target = find_cast_target(spellnum, arg, ch, &tch, &tobj, &troom);
 
 	if (target && (tch == ch) && SpINFO.violent) {
 		send_to_char("Лекари не рекомендуют использовать ЭТО на себя !\r\n", ch);
@@ -2696,6 +2870,120 @@ ACMD(do_cast)
 	}
 }
 
+ACMD(do_warcry)
+{
+	int spellnum, cnt;
+
+	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))
+		return;
+
+	if (!get_skill(ch, SKILL_WARCRY)) {
+		send_to_char("Но Вы не знаете как.\r\n", ch);
+		return;
+	}
+
+	if (AFF_FLAGGED(ch, AFF_SIELENCE)) {
+		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
+		return;
+	}
+
+	std::string buffer = argument;
+	typedef boost::tokenizer<pred_separator> tokenizer;
+	pred_separator sep;
+	tokenizer tok(buffer, sep);
+	tokenizer::iterator tok_iter = tok.begin();
+
+	if (tok_iter == tok.end()) {
+		sprintf(buf, "Вам доступны :\r\n");
+		for (cnt = spellnum = 1; spellnum < LAST_USED_SPELL; spellnum++) {
+			const char *realname = SpINFO.name && *SpINFO.name ? SpINFO.name : SpINFO.syn && *SpINFO.syn ? SpINFO.syn : NULL;
+
+			if (realname && IS_SET(SpINFO.routines, MAG_WARCRY) && get_skill(ch, SKILL_WARCRY) >= SpINFO.mana_change)
+				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
+					CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
+					SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), realname, CCNRM(ch, C_NRM));
+		}
+		send_to_char(buf, ch);
+		return;
+	}
+
+	std::string wc_name = *(tok_iter++);
+
+	if (CompareParam(wc_name, "of")) {
+		if (tok_iter == tok.end()) {
+			send_to_char("Какой клич Вы хотите использовать ?\r\n", ch);
+			return;
+		} else
+			wc_name = "warcry of " + *(tok_iter++);
+	} else
+		wc_name = "клич " + wc_name;
+
+	spellnum = find_spell_num(wc_name);
+
+	/* Unknown warcry */
+	if (spellnum < 1 || spellnum > MAX_SPELLS || get_skill(ch, SKILL_WARCRY) < SpINFO.mana_change) {
+		send_to_char("И откуда Вы набрались таких выражений ?\r\n", ch);
+		return;
+	}
+
+	CHAR_DATA *tch;
+	OBJ_DATA *tobj;
+	ROOM_DATA *troom;
+
+	int target = find_cast_target(spellnum, tok_iter == tok.end() ? "" : *tok_iter, ch, &tch, &tobj, &troom);
+
+	if (!target) {
+		send_to_char("Тяжеловато найти цель !\r\n", ch);
+		return;
+	}
+
+	if (tch == ch && SpINFO.violent) {
+		send_to_char("Не накликайте беды !\r\n", ch);
+		return;
+	}
+
+	if (tch && IS_MOB(tch) && IS_MOB(ch) && !SAME_ALIGN(ch, tch) && !SpINFO.violent)
+		return;
+
+	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(SpINFO.targets, TAR_SELF_ONLY)) {
+		send_to_char("Этот клич предназначен только для Вас !\r\n", ch);
+		return;
+	}
+
+	if (tch == ch && IS_SET(SpINFO.targets, TAR_NOT_SELF)) {
+		send_to_char("Да Вы с ума сошли !\r\n", ch);
+		return;
+	}
+
+	struct timed_type timed;
+	timed.skill = SKILL_WARCRY;
+	timed.time = timed_by_skill(ch, SKILL_WARCRY) + HOURS_PER_WARCRY;
+
+	if (timed.time > HOURS_PER_DAY) {
+		send_to_char("Вы охрипли и не можете кричать.\r\n", ch);
+		return;
+	}
+
+	if (GET_MOVE(ch) < SpINFO.mana_max) {
+		send_to_char("У Вас не хватит сил для этого.\r\n", ch);
+		return;
+	}
+
+	sprintf(buf, "Вы выкрикнули %s%s%s.\r\n", SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
+	send_to_char(buf, ch);
+	say_spell(ch, spellnum, tch, tobj);
+
+	if (call_magic(ch, tch, tobj, troom, spellnum, GET_LEVEL(ch), CAST_SPELL) >= 0) {
+		if (!WAITLESS(ch)) {
+			if (!CHECK_WAIT(ch))
+				WAIT_STATE(ch, PULSE_VIOLENCE);
+			timed_to_char(ch, &timed);
+			GET_MOVE(ch) -= SpINFO.mana_max;
+		}
+		train_skill(ch, SKILL_WARCRY, skill_info[SKILL_WARCRY].max_percent, tch);
+	}
+}
+
 ACMD(do_mixture)
 {
 	if (IS_NPC(ch))
@@ -2705,9 +2993,9 @@ ACMD(do_mixture)
 		return;
 	}
 
-	CHAR_DATA *tch = NULL;
-	OBJ_DATA *tobj = NULL;
-	ROOM_DATA *troom = NULL;
+	CHAR_DATA *tch;
+	OBJ_DATA *tobj;
+	ROOM_DATA *troom;
 	char *s, *t;
 	int spellnum, target = 0;
 
@@ -2756,12 +3044,12 @@ ACMD(do_mixture)
 	}
 
 	/* Find the target */
-	if (t != NULL) {
-		one_argument(strcpy(arg, t), t);
-		skip_spaces(&t);
-	}
+	if (t != NULL)
+		one_argument(t, arg);
+	else
+		*arg = '\0';
 
-	target = find_cast_target(spellnum, t, ch, &tch, &tobj, &troom);
+	target = find_cast_target(spellnum, arg, ch, &tch, &tobj, &troom);
 
 	if (target && (tch == ch) && SpINFO.violent) {
 		send_to_char("Лекари не рекомендуют использовать ЭТО на себя !\r\n", ch);
@@ -3356,11 +3644,10 @@ ACMD(do_forget)
 	t = strtok(NULL, "\0");
 	in_mem = 0;
 	if (t != NULL) {
-		one_argument(strcpy(arg, t), t);
-		skip_spaces(&t);
-		in_mem = (strlen(t) != 0) &&
-		    (!strn_cmp("часослов", t, strlen(t)) ||
-		     !strn_cmp("резы", t, strlen(t)) || !strn_cmp("book", t, strlen(t)));
+		one_argument(t, arg);
+		in_mem = (strlen(arg) != 0) &&
+		    (!strn_cmp("часослов", arg, strlen(arg)) ||
+		     !strn_cmp("резы", arg, strlen(arg)) || !strn_cmp("book", arg, strlen(arg)));
 	}
 	if (!in_mem)
 		if (!GET_SPELL_MEM(ch, spellnum)) {
@@ -4286,6 +4573,49 @@ void mag_assign_spells(void)
 //177
 	spello(SPELL_GIMMICKRY, "хитроумие", "gimmickry", 60, 50, 1,
 		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
+// ДЛЯ КЛИЧЕЙ ПОЛЕ mana_change ИСПОЛЬЗУЕТСЯ
+// ДЛЯ УКАЗАНИЯ МИНИМАЛЬНОГО ПРОЦЕНТА СКИЛЛА,
+// С КОТОРОГО ДОСТУПЕН УКАЗАННЫЙ КЛИЧ
+//178
+	spello(SPELL_WC_OF_CHALLENGE, "клич вызова", "warcry of challenge", 10, 10, 1,
+		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		MAG_WARCRY | MAG_AREAS | MAG_DAMAGE | NPC_DAMAGE_PC, 0, STYPE_MIND);
+//179
+	spello(SPELL_WC_OF_MENACE, "клич угрозы", "warcry of menace", 30, 30, 40,
+		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		MAG_WARCRY | MAG_AREAS | MAG_AFFECTS | NPC_AFFECT_PC, 0, STYPE_MIND);
+//180
+	spello(SPELL_WC_OF_RAGE, "клич ярости", "warcry of rage", 30, 30, 50,
+		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		MAG_WARCRY | MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC, 0, STYPE_MIND);
+//181
+	spello(SPELL_WC_OF_MADNESS, "клич безумия", "warcry of madness", 50, 50, 91,
+		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		MAG_WARCRY | MAG_AREAS | MAG_AFFECTS | NPC_AFFECT_PC, 0, STYPE_MIND);
+//182
+	spello(SPELL_WC_OF_THUNDER, "клич грома", "warcry of thunder", 140, 140, 141,
+		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		MAG_WARCRY | MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC, 0, STYPE_MIND);
+//183
+	spello(SPELL_WC_OF_FEAR, "клич устрашения", "warcry of fear", 80, 80, 101,
+		POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		MAG_WARCRY | MAG_AREAS | MAG_MANUAL | NPC_AFFECT_PC, 0, STYPE_MIND);
+//184
+	spello(SPELL_WC_OF_BATTLE, "клич битвы", "warcry of battle", 30, 30, 60,
+		POS_FIGHTING, TAR_IGNORE, FALSE,
+		MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+//185
+	spello(SPELL_WC_OF_POWER, "клич мощи", "warcry of power", 60, 60, 96,
+		POS_FIGHTING, TAR_IGNORE, FALSE,
+		MAG_WARCRY | MAG_GROUPS | MAG_POINTS | MAG_AFFECTS | NPC_DUMMY | NPC_AFFECT_NPC, 0, STYPE_MIND);
+//186
+	spello(SPELL_WC_OF_BLESS, "клич доблести", "warcry of bless", 50, 50, 70,
+		POS_FIGHTING, TAR_IGNORE, FALSE,
+		MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+//187
+	spello(SPELL_WC_OF_COURAGE, "клич отваги", "warcry of courage", 90, 90, 30,
+		POS_FIGHTING, TAR_IGNORE, FALSE,
+		MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
 
 	/* NON-castable spells should appear below here. */
 
@@ -4391,7 +4721,7 @@ void mag_assign_spells(void)
 	skillo(SKILL_TOWNPORTAL, "врата", 100);
 	skillo(SKILL_DIG, "горное дело", 100);
 	skillo(SKILL_INSERTGEM, "ювелир", 100);
-	skillo(SKILL_BERSERK, "исступление", 100);
+	skillo(SKILL_WARCRY, "боевой клич", 100);
 	skillo(SKILL_TURN_UNDEAD, "изгнать нежить", 100);
 
 }

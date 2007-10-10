@@ -283,7 +283,7 @@ ACMD(do_assist)
 		act("Дык $E сражается с ВАМИ !", FALSE, ch, 0, helpee, TO_CHAR);
 	else if (!may_kill_here(ch, opponent))
 		return;
-	else if (check_pkill(ch, opponent, NULL))
+	else if (need_full_alias(ch, opponent))
 		act("Используйте команду 'атаковать' для нападения на $N1.", FALSE, ch, 0, opponent, TO_CHAR);
 	else if (set_hit(ch, opponent)) {
 		act("Вы присоединились к битве, помогая $N2!", FALSE, ch, 0, helpee, TO_CHAR);
@@ -313,7 +313,7 @@ ACMD(do_hit)
 	else if (AFF_FLAGGED(ch, AFF_CHARM) && (ch->master == vict))
 		act("$N слишком дорог для Вас, чтобы бить $S.", FALSE, ch, 0, vict, TO_CHAR);
 	else {
-		if (subcmd != SCMD_MURDER && check_pkill(ch, vict, arg))
+		if (subcmd != SCMD_MURDER && !check_pkill(ch, vict, arg))
 			return;
 		if (FIGHTING(ch)) {
 			if (vict == FIGHTING(ch)) {
@@ -462,7 +462,7 @@ ACMD(do_backstab)
 
 	if (!may_kill_here(ch, vict))
 		return;
-	if (check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, arg))
 		return;
 
 	go_backstab(ch, vict);
@@ -866,7 +866,7 @@ ACMD(do_bash)
 
 	if (!may_kill_here(ch, vict))
 		return;
-	if (check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, arg))
 		return;
 
 	if (IS_IMPL(ch) || !FIGHTING(ch))
@@ -1092,7 +1092,7 @@ ACMD(do_kick)
 
 	if (!may_kill_here(ch, vict))
 		return;
-	if (check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, arg))
 		return;
 
 	if (IS_IMPL(ch) || !FIGHTING(ch))
@@ -1349,7 +1349,7 @@ ACMD(do_touch)
 		return;
 	}
 
-	if (check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, arg))
 		return;
 
 	parry_override(ch);
@@ -1487,7 +1487,7 @@ ACMD(do_disarm)
 
 	if (!may_kill_here(ch, vict))
 		return;
-	if (check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, arg))
 		return;
 
 // shapirus: теперь сдизармить можно все, кроме света
@@ -1606,7 +1606,7 @@ ACMD(do_chopoff)
 
 	if (!may_kill_here(ch, vict))
 		return;
-	if (check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, arg))
 		return;
 
 	if (IS_IMPL(ch) || !FIGHTING(ch))
@@ -1672,7 +1672,7 @@ ACMD(do_stupor)
 //     }
 	if (!may_kill_here(ch, vict))
 		return;
-	if (check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, arg))
 		return;
 
 	parry_override(ch);
@@ -1745,7 +1745,7 @@ ACMD(do_mighthit)
 
 	if (!may_kill_here(ch, vict))
 		return;
-	if (check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, arg))
 		return;
 
 	parry_override(ch);
@@ -1996,7 +1996,7 @@ ACMD(do_throw)
 
 	if (!may_kill_here(ch, vict))
 		return;
-	if (check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, arg))
 		return;
 
 	if (IS_IMPL(ch) || !FIGHTING(ch))

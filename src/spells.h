@@ -11,6 +11,8 @@
 #ifndef _SPELLS_H_
 #define _SPELLS_H_
 
+#include <boost/tokenizer.hpp>
+
 #define DEFAULT_STAFF_LVL	12
 #define DEFAULT_WAND_LVL	12
 #define CAST_UNDEFINED	-1
@@ -58,6 +60,7 @@
 #define MAG_SUMMONS	    	(1 << 8)
 #define MAG_CREATIONS		(1 << 9)
 #define MAG_MANUAL	    	(1 << 10)
+#define MAG_WARCRY		(1 << 11)
 /* А чего это тут дырка Ж) */
 #define NPC_DAMAGE_PC           (1 << 16)
 #define NPC_DAMAGE_PC_MINHP     (1 << 17)
@@ -308,7 +311,17 @@
 #define SPELL_BULL_BODY			175
 #define SPELL_SNAKE_WISDOM		176
 #define SPELL_GIMMICKRY			177
-#define LAST_USED_SPELL			178
+#define SPELL_WC_OF_CHALLENGE		178
+#define SPELL_WC_OF_MENACE		179
+#define SPELL_WC_OF_RAGE		180
+#define SPELL_WC_OF_MADNESS		181
+#define SPELL_WC_OF_THUNDER		182
+#define SPELL_WC_OF_FEAR		183
+#define SPELL_WC_OF_BATTLE		184
+#define SPELL_WC_OF_POWER		185
+#define SPELL_WC_OF_BLESS		186
+#define SPELL_WC_OF_COURAGE		187
+#define LAST_USED_SPELL			188
 
 /*
  *  NON-PLAYER AND OBJECT SPELLS AND SKILLS
@@ -396,7 +409,7 @@ struct spell_info_type {
 	int mana_min;		/* Min amount of mana used by a spell (highest lev) */
 	int mana_max;		/* Max amount of mana used by a spell (lowest lev) */
 	int mana_change;	/* Change in mana used by spell from lev to lev */
-	int min_remort[MAX_REMORT][NUM_KIN];
+	int min_remort[NUM_CLASSES][NUM_KIN];
 	int min_level[NUM_CLASSES][NUM_KIN];
 	int slot_forc[NUM_CLASSES][NUM_KIN];
 	int class_change[NUM_CLASSES][NUM_KIN];
@@ -492,6 +505,7 @@ ASPELL(spell_eviless);
 ASPELL(spell_townportal);
 ASPELL(spell_energydrain);
 ASPELL(spell_fear);
+ASPELL(spell_wc_of_fear);
 ASPELL(spell_sacrifice);
 ASPELL(spell_forbidden);
 ASPELL(spell_identify);
@@ -547,5 +561,7 @@ const char *skill_name(int num);
 const char *spell_name(int num);
 
 #define CALC_SUCCESS(modi,perc)         ((modi)-100+(perc))
+
+const int HOURS_PER_WARCRY = 4;
 
 #endif

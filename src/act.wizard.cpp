@@ -101,7 +101,7 @@ void rename_char(CHAR_DATA * ch, char *oname);
 long get_ptable_by_name(char *name);
 int _parse_name(char *arg, char *name);
 int Valid_Name(char *name);
-int reserved_word(char *name);
+int reserved_word(const char *name);
 int compute_armor_class(CHAR_DATA * ch);
 int calc_loadroom(CHAR_DATA * ch);
 extern bool can_be_reset(zone_rnum zone);

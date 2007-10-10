@@ -32,8 +32,6 @@ const int CLANNEWS_BOARD = 11; // клановые новости
 const int NOTICE_BOARD = 12;
 // не забываем выставить BOARD_TOTAL в structs.h, ненавижу сишные массивы :/
 
-extern int isname(const char *str, const char *namelist);
-
 BoardListType Board::BoardList;
 
 Board::Board() : type(0), lastWrite(0), clanRent(0), persUnique(0)

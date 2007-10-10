@@ -434,8 +434,8 @@ ACMD(do_name)
 	}
 
 	CHAR_DATA* vict;
-	if ((vict = get_player_vis(ch, name.c_str(), FIND_CHAR_WORLD)) != NULL) {
-		if (!(vict = get_player_pun(ch, name.c_str(), FIND_CHAR_WORLD))) {
+	if ((vict = get_player_vis(ch, name, FIND_CHAR_WORLD)) != NULL) {
+		if (!(vict = get_player_pun(ch, name, FIND_CHAR_WORLD))) {
 			send_to_char("Нет такого игрока.\r\n", ch);
 			return;
 		}

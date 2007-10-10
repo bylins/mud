@@ -666,7 +666,7 @@ void init_zone_types(void)
 				}
 				for (i = 4; tmp[i] != '\0'; i++)
 				{
-					if (!isdigit(tmp[i]) && !isspace(tmp[i]))
+					if (!isdigit(tmp[i]) && !a_isspace(tmp[i]))
 					{
 						log("Corrupted file : ztypes.lst");
 						return;
@@ -708,7 +708,7 @@ void init_zone_types(void)
 		if (get_line(zt_file, tmp));
 		for (j = 4; tmp[j] != '\0'; j++)
 		{
-			if (isspace(tmp[j]))
+			if (a_isspace(tmp[j]))
 				continue;
 			zone_types[i].ingr_qty++;
 			for (; tmp[j] != '\0' && isdigit(tmp[j]); j++);
@@ -729,7 +729,7 @@ void init_zone_types(void)
 		if (get_line(zt_file, tmp));
 		for (j = 4, n = 0; tmp[j] != '\0'; j++)
 		{
-			if (isspace(tmp[j]))
+			if (a_isspace(tmp[j]))
 				continue;
 			for (k = 0; tmp[j] != '\0' && isdigit(tmp[j]); j++)
 				itype_num[k++] = tmp[j];

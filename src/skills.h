@@ -95,7 +95,7 @@
 #define SKILL_INSERTGEM     	    177
 
 // Other skills
-#define SKILL_BERSERK     	    178
+#define SKILL_WARCRY     	    178
 #define SKILL_TURN_UNDEAD     	    179
 
 

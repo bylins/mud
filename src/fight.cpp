@@ -2292,7 +2292,8 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 
 		if ((dam > 0 && !was_critic && AFF_FLAGGED(victim, AFF_FIRESHIELD))
 		    && (attacktype != (TYPE_HIT + SKILL_BACKSTAB))
-		    && (attacktype != (TYPE_HIT + SKILL_THROW))) {
+		    && (attacktype != (TYPE_HIT + SKILL_THROW))
+		    && (attacktype <= 0 || attacktype >= LAST_USED_SPELL || !IS_SET(spell_info[attacktype].routines, MAG_WARCRY))) {
 			FS_damage = dam * 20 / 100;
 			dam -= (dam * number(10, 30) / 100);
 		}
@@ -3010,7 +3011,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		prob = train_skill(ch, SKILL_COURAGE, skill_info[SKILL_COURAGE].max_percent, victim);
 		if (prob > range) {
 			dam += ((get_skill(ch, SKILL_COURAGE) + 19) / 20);
-			calc_thaco += ((get_skill(ch, SKILL_COURAGE) + 9) / 20);
+			calc_thaco -= ((get_skill(ch, SKILL_COURAGE) + 9) / 20);
 		}
 	}
 //Adept: увеличение шанса попасть при нанесении удара богатырским молотом
