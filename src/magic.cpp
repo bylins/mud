@@ -3951,7 +3951,7 @@ const spl_message areas_messages[] = {
 	 5},
 	{SPELL_WC_OF_CHALLENGE,
 	 NULL,
-	 "Вы не стерпели насмешки $n1 и бросились на обидчика!",
+	 NULL,
 	 NULL,
 	 0},
 	{SPELL_WC_OF_MENACE,
