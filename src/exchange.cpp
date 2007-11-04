@@ -62,6 +62,7 @@ int exchange_database_save();
 int exchange_database_savebackup();
 void check_exchange(OBJ_DATA * obj);
 void extract_exchange_item(EXCHANGE_ITEM_DATA * item);
+int get_unique_lot(void);
 void message_exchange(char *message, CHAR_DATA * ch, EXCHANGE_ITEM_DATA * j);
 int obj_matches_filter(EXCHANGE_ITEM_DATA * j, char *filter_name, char *filter_owner, int *filter_type,
 		       int *filter_cost, int *filter_timer, int *filter_wereon, int *filter_weaponclass);
@@ -75,6 +76,7 @@ int newbase;
 EXCHANGE_ITEM_DATA *create_exchange_item(void);
 
 EXCHANGE_ITEM_DATA *exchange_item_list = NULL;
+std::vector<bool> lot_usage;
 
 char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 
@@ -166,7 +168,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 {
 
 	char obj_name[MAX_INPUT_LENGTH];
-	int item_cost = 0;
+	int item_cost = 0, lot;
 	OBJ_DATA *obj;
 	char tmpbuf[MAX_INPUT_LENGTH];
 	EXCHANGE_ITEM_DATA *item = NULL;
@@ -225,7 +227,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	}
 	if (item_cost <= 0) {
 		item_cost = MAX(1, GET_OBJ_COST(obj));
-	};
+	}
 
 	(GET_OBJ_TYPE(obj) != ITEM_MING)?
 		tax = EXCHANGE_EXHIBIT_PAY + (int)(item_cost * EXCHANGE_EXHIBIT_PAY_COEFF):
@@ -249,8 +251,14 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		return false;
 	}
 
+	if ((lot = get_unique_lot()) <= 0) {
+		send_to_char("Базар переполнен !\r\n", ch);
+		return false;
+	}
+
 	item = create_exchange_item();
 
+	GET_EXCHANGE_ITEM_LOT(item) = lot;
 	GET_EXCHANGE_ITEM_SELLERID(item) = GET_IDNUM(ch);
 	GET_EXCHANGE_ITEM_COST(item) = item_cost;
 	skip_spaces(&arg);
@@ -571,7 +579,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 		CREATE(seller, CHAR_DATA, 1);
 		clear_char(seller);
 		if ((seller_name == NULL) || (load_char(seller_name, seller) < 0)) {
-			act("Вы приобрели $O3 на базаре даром, так как владельца давно след простыл\r\n",
+			act("Вы приобрели $O3 на базаре даром, так как владельца давно след простыл.\r\n",
 			    FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
 			sprintf(tmpbuf,
 				"Базар : лот %d(%s) передан%s в надежные руки.\r\n", lot,
@@ -830,23 +838,15 @@ int exchange_setfilter(CHAR_DATA * ch, char *arg)
 
 EXCHANGE_ITEM_DATA *create_exchange_item(void)
 {
-	EXCHANGE_ITEM_DATA *item, *i, *j;
-	int lot;
-
+	EXCHANGE_ITEM_DATA *item;
 	CREATE(item, EXCHANGE_ITEM_DATA, 1);
+	GET_EXCHANGE_ITEM_LOT(item) = -1;
 	GET_EXCHANGE_ITEM_SELLERID(item) = -1;
 	GET_EXCHANGE_ITEM_COST(item) = 0;
 	GET_EXCHANGE_ITEM_COMMENT(item) = NULL;
 	GET_EXCHANGE_ITEM(item) = NULL;
-	for (i = j = exchange_item_list, lot = 1; j && lot >= GET_EXCHANGE_ITEM_LOT(j); i = j, j = j->next, lot++);
-	if (i == j) {
-		item->next = exchange_item_list;
-		exchange_item_list = item;
-	} else {
-		i->next = item;
-		item->next = j;
-	}
-	GET_EXCHANGE_ITEM_LOT(item) = lot;
+	item->next = exchange_item_list;
+	exchange_item_list = item;
 	return (item);
 }
 
@@ -855,6 +855,8 @@ void extract_exchange_item(EXCHANGE_ITEM_DATA * item)
 
 	EXCHANGE_ITEM_DATA *temp;
 	REMOVE_FROM_LIST(item, exchange_item_list, next);
+	if (GET_EXCHANGE_ITEM_LOT(item) > 0 && GET_EXCHANGE_ITEM_LOT(item) <= (int) lot_usage.size())
+		lot_usage[GET_EXCHANGE_ITEM_LOT(item) - 1] = false;
 	if (item->comment)
 		free(item->comment);
 	if (item->obj)
@@ -873,6 +875,7 @@ void check_exchange(OBJ_DATA * obj)
 		next_thing = j->next;
 		if (GET_EXCHANGE_ITEM(j) == obj) {
 			REMOVE_FROM_LIST(j, exchange_item_list, next);
+			lot_usage[GET_EXCHANGE_ITEM_LOT(j) - 1] = false;
 			if (j->comment)
 				free(j->comment);
 			free(j);
@@ -904,7 +907,7 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error)
 
 	*error = 3;
 	item = create_exchange_item();
-	if (!atoi(buffer))
+	if ((GET_EXCHANGE_ITEM_LOT(item) = atoi(buffer)) <= 0)
 		return (item);
 
 	*error = 4;
@@ -966,7 +969,7 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 
 	*error = 3;
 	item = create_exchange_item();
-	if (!atoi(buffer))
+	if ((GET_EXCHANGE_ITEM_LOT(item) = atoi(buffer)) <= 0)
 		return (item);
 
 	*error = 4;
@@ -1274,7 +1277,7 @@ int exchange_database_load()
 	FILE *fl;
 	char *data, *readdata;
 	EXCHANGE_ITEM_DATA *item;
-	int fsize, error;
+	int fsize, error, max_lot = 0;
 	char buffer[MAX_STRING_LENGTH];
 
 	log("Exchange: loading database... (exchange.cpp)");
@@ -1335,9 +1338,14 @@ int exchange_database_load()
 			extract_exchange_item(item);
 			continue;
 		}
+		max_lot = MAX(max_lot, GET_EXCHANGE_ITEM_LOT(item));
 	}
 
 	free(readdata);
+
+	lot_usage.resize(max_lot, false);
+	for (item = exchange_item_list; item; item = item->next)
+		lot_usage[GET_EXCHANGE_ITEM_LOT(item) - 1] = true;
 
 	log("Exchange: done loading database.");
 
@@ -1350,7 +1358,7 @@ int exchange_database_reload(bool loadbackup)
 	FILE *fl;
 	char *data, *readdata;
 	EXCHANGE_ITEM_DATA *item, *j, *next_thing;
-	int fsize, error;
+	int fsize, error, max_lot = 0;
 	char buffer[MAX_STRING_LENGTH];
 
 	for (j = exchange_item_list; j; j = next_thing) {
@@ -1431,9 +1439,15 @@ int exchange_database_reload(bool loadbackup)
 			extract_exchange_item(item);
 			continue;
 		}
+		max_lot = MAX(max_lot, GET_EXCHANGE_ITEM_LOT(item));
 	}
 
 	free(readdata);
+
+	lot_usage.resize(max_lot, false);
+	for (item = exchange_item_list; item; item = item->next)
+		lot_usage[GET_EXCHANGE_ITEM_LOT(item) - 1] = true;
+
 	if (loadbackup)
 		log("Exchange: done reloading database backup.");
 	else
@@ -1514,6 +1528,21 @@ int exchange_database_savebackup()
 
 	return TRUE;
 
+}
+int get_unique_lot(void)
+{
+	int i;
+	for (i = 0; i < (int) lot_usage.size(); i++)
+		if (!lot_usage[i]) {
+			lot_usage[i] = true;
+			return i + 1;
+		}
+
+	if (lot_usage.size() < INT_MAX) {
+		lot_usage.push_back(true);
+		return i + 1;
+	} else
+		return -1;
 }
 
 
@@ -1820,6 +1849,7 @@ void clear_exchange_lot(EXCHANGE_ITEM_DATA * lot)
 
 
 	REMOVE_FROM_LIST(lot, exchange_item_list, next);
+	lot_usage[GET_EXCHANGE_ITEM_LOT(lot) - 1] = false;
 	if (lot->comment)
 		free(lot->comment);
 	free(lot);

@@ -19,6 +19,7 @@ typedef struct exchange_item_data
 
 
 extern EXCHANGE_ITEM_DATA *exchange_item_list;
+extern std::vector<bool> lot_usage;
 
 
 #define EXCHANGE_AUTOSAVETIME 300	//Кол-во секунд между автосохранениями Базара (0 для отключения)
