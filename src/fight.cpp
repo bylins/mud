@@ -2367,8 +2367,8 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 	    OK_GAIN_EXP(ch, victim) &&
 		GET_EXP(victim) > 0 &&
 	    !AFF_FLAGGED(victim, AFF_CHARM) && !MOB_FLAGGED(victim, MOB_ANGEL) && !IS_NPC(ch))
-		gain_exp(ch, MAX (1, (GET_LEVEL(victim) * MIN(dam, GET_HIT(victim)) + 4) / 5 *
-					    MAX (1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
+		gain_exp(ch, MAX (1, (GET_LEVEL(victim) * MIN(dam, GET_HIT(victim)) + 4) /
+					    (5 * MAX (1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1))));
 	// gain_exp(ch, IS_NPC(ch) ? GET_LEVEL(victim) * dam : (GET_LEVEL(victim) * dam + 4) / 5);
 	// log("[DAMAGE] Updating pos...");
 
