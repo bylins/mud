@@ -353,9 +353,13 @@ void set_battle_pos(CHAR_DATA * ch)
 			if (IS_NPC(ch)) {
 				act("$n встал$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_FIGHTING;
-			} else if (!IS_NPC(ch) && GET_POS(ch) == POS_SLEEPING) {
+			} else if (GET_POS(ch) == POS_SLEEPING) {
 				act("Вы проснулись и сели.", FALSE, ch, 0, 0, TO_CHAR);
 				act("$n проснул$u и сел$g.", FALSE, ch, 0, 0, TO_ROOM);
+				GET_POS(ch) = POS_SITTING;
+			} else if (GET_POS(ch) == POS_RESTING) {
+				act("Вы прекратили отдых и сели.", FALSE, ch, 0, 0, TO_CHAR);
+				act("$n прекратил$g отдых и сел$g.", FALSE, ch, 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_SITTING;
 			}
 		}
@@ -397,7 +401,7 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 
-	if ((IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOFIGHT)) || (IS_NPC(vict) && MOB_FLAGGED(ch, MOB_NOFIGHT)))
+	if ((IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOFIGHT)) || (IS_NPC(vict) && MOB_FLAGGED(vict, MOB_NOFIGHT)))
 		return;
 
 	// if (AFF_FLAGGED(ch,AFF_STOPFIGHT))
@@ -4307,13 +4311,22 @@ void perform_violence(void)
 			}
 			continue;
 		}
-		// Mobs stand up
-		if (IS_NPC(ch) &&
-		    GET_POS(ch) < POS_FIGHTING &&
+		// Mobs stand up and players sit
+		if (GET_POS(ch) < POS_FIGHTING &&
 		    GET_POS(ch) > POS_STUNNED &&
 		    GET_WAIT(ch) <= 0 && !GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, AFF_SLEEP)) {
-			GET_POS(ch) = POS_FIGHTING;
-			act("$n встал$g на ноги.", TRUE, ch, 0, 0, TO_ROOM);
+			if (IS_NPC(ch)) {
+				act("$n встал$g на ноги.", TRUE, ch, 0, 0, TO_ROOM);
+				GET_POS(ch) = POS_FIGHTING;
+			} else if (GET_POS(ch) == POS_SLEEPING) {
+				act("Вы проснулись и сели.", TRUE, ch, 0, 0, TO_CHAR);
+				act("$n проснул$u и сел$g.", TRUE, ch, 0, 0, TO_ROOM);
+				GET_POS(ch) = POS_SITTING;
+			} else if (GET_POS(ch) == POS_RESTING) {
+				act("Вы прекратили отдых и сели.", TRUE, ch, 0, 0, TO_CHAR);
+				act("$n прекратил$g отдых и сел$g.", TRUE, ch, 0, 0, TO_ROOM);
+				GET_POS(ch) = POS_SITTING;
+			}
 		}
 		// For NPC without lags and charms make it likes
 		if (IS_NPC(ch) && MAY_LIKES(ch)) {	// Get weapon from room

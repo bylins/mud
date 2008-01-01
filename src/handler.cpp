@@ -1704,7 +1704,8 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	if (invalid_anti_class(ch, obj)) {
 		act("Вас обожгло при попытке надеть $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u одеть $o3 - и чудом не обгорел$g.", FALSE, ch, obj, 0, TO_ROOM);
-		obj_from_char(obj);
+		if (obj->carried_by)
+			obj_from_char(obj);
 		obj_to_room(obj, IN_ROOM(ch));
 		obj_decay(obj);
 		return;
@@ -1715,7 +1716,8 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	    AFF_FLAGGED(ch, AFF_CHARM) && (OBJ_FLAGGED(obj, ITEM_SHARPEN) || OBJ_FLAGGED(obj, ITEM_ARMORED))) {
 		act("$o3 явно не предназначен$A для Вас.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u одеть $o3, но у н$s ничего не получилось.", FALSE, ch, obj, 0, TO_ROOM);
-		//obj_to_char(obj, ch);
+		if (!obj->carried_by)
+			obj_to_char(obj, ch);
 		return;
 	}
 

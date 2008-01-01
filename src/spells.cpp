@@ -881,8 +881,13 @@ ASPELL(spell_charm)
 		if (IS_NPC(victim)) {
 //Eli. Раздеваемся.
 			for (i = 0; i < NUM_WEARS; i++)
-				if (GET_EQ(victim, i))
-					perform_remove(victim, i);
+				if (GET_EQ(victim, i)) {
+					if (!remove_otrigger(GET_EQ(victim, i), victim))
+						continue;
+					act("Вы прекратили использовать $o3.", FALSE, victim, GET_EQ(victim, i), 0, TO_CHAR);
+					act("$n прекратил$g использовать $o3.", TRUE, victim, GET_EQ(victim, i), 0, TO_ROOM);
+					obj_to_char(unequip_char(victim, i | 0x40), victim);
+				}
 //Eli закончили раздеваться.
 			REMOVE_BIT(MOB_FLAGS(victim, MOB_AGGRESSIVE), MOB_AGGRESSIVE);
 			REMOVE_BIT(MOB_FLAGS(victim, MOB_SPEC), MOB_SPEC);
@@ -1016,15 +1021,8 @@ ACMD(do_findhelpee)
 				return;
 		}
 		isname(isbank, "банк bank") ? GET_BANK_GOLD(ch) -= cost : GET_GOLD(ch) -= cost;
+
 		affect_from_char(helpee, AFF_CHARM);
-
-		for (i = 0; i < NUM_WEARS; i++)
-			if (GET_EQ(helpee, i))
-				perform_remove(helpee, i);
-
-		sprintf(buf, "$n сказал$g Вам : \"Приказывай, %s !\"",
-			GET_SEX(ch) == IS_FEMALE(ch) ? "хозяйка" : "хозяин");
-		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 		add_follower(helpee, ch);
 		af.type = SPELL_CHARM;
 		af.duration = pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
@@ -1034,13 +1032,24 @@ ACMD(do_findhelpee)
 		af.battleflag = 0;
 		affect_to_char(helpee, &af);
 		SET_BIT(AFF_FLAGS(helpee, AFF_HELPER), AFF_HELPER);
+		sprintf(buf, "$n сказал$g Вам : \"Приказывай, %s !\"",
+			GET_SEX(ch) == IS_FEMALE(ch) ? "хозяйка" : "хозяин");
+		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 		if (IS_NPC(helpee)) {
-			REMOVE_BIT(PRF_FLAGS(helpee, PRF_PUNCTUAL), PRF_PUNCTUAL);
-			SET_SKILL(helpee, SKILL_PUNCTUAL, 0);
+			for (i = 0; i < NUM_WEARS; i++)
+				if (GET_EQ(helpee, i)) {
+					if (!remove_otrigger(GET_EQ(helpee, i), helpee))
+						continue;
+					act("Вы прекратили использовать $o3.", FALSE, helpee, GET_EQ(helpee, i), 0, TO_CHAR);
+					act("$n прекратил$g использовать $o3.", TRUE, helpee, GET_EQ(helpee, i), 0, TO_ROOM);
+					obj_to_char(unequip_char(helpee, i | 0x40), helpee);
+				}
 			REMOVE_BIT(MOB_FLAGS(helpee, MOB_AGGRESSIVE), MOB_AGGRESSIVE);
 			REMOVE_BIT(MOB_FLAGS(helpee, MOB_SPEC), MOB_SPEC);
-// shapirus: !train для чармисов
+			REMOVE_BIT(PRF_FLAGS(helpee, PRF_PUNCTUAL), PRF_PUNCTUAL);
+			// shapirus: !train для чармисов
 			SET_BIT(MOB_FLAGS(helpee, MOB_NOTRAIN), MOB_NOTRAIN);
+			SET_SKILL(helpee, SKILL_PUNCTUAL, 0);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
 			Crash_crashsave(ch);
 			save_char(ch, NOWHERE);
