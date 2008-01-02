@@ -1398,8 +1398,8 @@ void obj_from_char(OBJ_DATA * object)
 {
 	OBJ_DATA *temp;
 
-	if (object == NULL) {
-		log("SYSERR: NULL object passed to obj_from_char.");
+	if (!object || !object->carried_by) {
+		log("SYSERR: NULL object or owner passed to obj_from_char");
 		return;
 	}
 	REMOVE_FROM_LIST(object, object->carried_by->carrying, next_content);

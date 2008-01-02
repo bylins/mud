@@ -179,6 +179,8 @@ void update_pos(CHAR_DATA * victim);
 #define PMKILL_FILE       7
 #define TEXT_CRASH_FILE   8
 #define TIME_CRASH_FILE   9
+#define PERS_DEPOT_FILE  10
+#define SHARE_DEPOT_FILE 11
 
 /* breadth-first searching */
 #define BFS_ERROR        -1

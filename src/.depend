@@ -91,7 +91,7 @@ spell_parser.o: spell_parser.cpp conf.h sysdep.h structs.h utils.h \
   constants.h dg_scripts.h pk.h features.hpp im.h privilege.hpp
 spells.o: spells.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
   skills.h handler.h db.h constants.h interpreter.h dg_scripts.h screen.h \
-  house.h pk.h features.hpp im.h deathtrap.hpp
+  house.h pk.h features.hpp im.h deathtrap.hpp privilege.hpp
 utils.o: utils.cpp conf.h sysdep.h structs.h utils.h db.h comm.h screen.h \
   spells.h handler.h interpreter.h constants.h im.h dg_scripts.h \
   features.hpp boards.h privilege.hpp
@@ -173,3 +173,6 @@ password.o: password.cpp password.hpp conf.h sysdep.h structs.h utils.h \
   interpreter.h
 privilege.o: privilege.cpp conf.h sysdep.h structs.h utils.h db.h \
   interpreter.h boards.h spells.h privilege.hpp
+version.o: version.cpp conf.h sysdep.h structs.h comm.h
+depot.o: depot.cpp depot.hpp conf.h sysdep.h structs.h db.h handler.h \
+  utils.h comm.h auction.h exchange.h interpreter.h screen.h

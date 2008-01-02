@@ -45,7 +45,7 @@ extern std::vector<bool> lot_usage;
 
 
 void extract_exchange_item(EXCHANGE_ITEM_DATA * item);
-
+void check_exchange(OBJ_DATA * obj);
 
 struct exchange_item_data {
 	int lot_id;		//Номер лота

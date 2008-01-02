@@ -37,6 +37,7 @@
 #include "title.hpp"
 #include "password.hpp"
 #include "privilege.hpp"
+#include "depot.hpp"
 
 /*   external vars  */
 extern FILE *player_fl;
@@ -3359,16 +3360,13 @@ ACMD(do_show)
 		sprintf(buf + strlen(buf), "  Предметов - %5d, прообразов предметов - %5d\r\n", k, top_of_objt + 1);
 		sprintf(buf + strlen(buf), "  Комнат - %5d, зон - %5d\r\n", top_of_world + 1, top_of_zone_table + 1);
 		sprintf(buf + strlen(buf), "  Больших буферов - %5d\r\n", buf_largecount);
-		sprintf(buf + strlen(buf),
-			"  Переключенных буферов - %5d, переполненных - %5d\r\n", buf_switches, buf_overflows);
+		sprintf(buf + strlen(buf), "  Переключенных буферов - %5d, переполненных - %5d\r\n", buf_switches, buf_overflows);
 		sprintf(buf + strlen(buf), "  Послано байт - %lu\r\n", number_of_bytes_written);
 		sprintf(buf + strlen(buf), "  Получено байт - %lu\r\n", number_of_bytes_read);
 		sprintf(buf + strlen(buf), "  Максимальный ID - %lu\r\n", max_id);
-
-		sprintf(buf + strlen(buf),
-			"  Активность игроков (cmds/min) - %lu\r\n", (cmd_cnt * 60) / (time(0) - boot_time));
-
+		sprintf(buf + strlen(buf), "  Активность игроков (cmds/min) - %lu\r\n", (cmd_cnt * 60) / (time(0) - boot_time));
 		send_to_char(buf, ch);
+		Depot::show_stats(ch);
 		break;
 	case 5:
 		strcpy(buf, "Пустых выходов\r\n" "--------------\r\n");

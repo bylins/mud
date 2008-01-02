@@ -39,6 +39,7 @@
 #include "fight.h"
 #include "magic.h"
 #include "features.hpp"
+#include "depot.hpp"
 
 using std::ifstream;
 using std::fstream;
@@ -145,6 +146,14 @@ ACMD(do_quit)
 		sprintf(buf, "%s quit the game.", GET_NAME(ch));
 		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 		send_to_char("До свидания, странник... Мы ждем тебя снова !\r\n", ch);
+
+		int depot_cost = Depot::get_total_cost_per_day(ch);
+		if (depot_cost)
+		{
+			send_to_char(ch, "За вещи в хранилище придется заплатить %ld %s в день.\r\n", depot_cost, desc_count(depot_cost, WHAT_MONEYu));
+			int deadline = ((GET_GOLD(ch) + GET_BANK_GOLD(ch)) / depot_cost);
+			send_to_char(ch, "Твоих денег хватит на %ld %s.\r\n", deadline, desc_count(deadline, WHAT_DAY));
+		}
 
 		/*
 		 * kill off all sockets connected to the same player as the one who is
