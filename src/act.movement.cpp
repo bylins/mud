@@ -1435,7 +1435,7 @@ ACMD(do_stand)
 	case POS_RESTING:
 		send_to_char("Вы прекратили отдыхать и встали.\r\n", ch);
 		act("$n прекратил$g отдых и поднял$u.", TRUE, ch, 0, 0, TO_ROOM);
-		GET_POS(ch) = POS_STANDING;
+		GET_POS(ch) = FIGHTING(ch) ? POS_FIGHTING : POS_STANDING;
 		break;
 	case POS_SLEEPING:
 		send_to_char("Пожалуй, сначала стоит проснуться !\r\n", ch);
