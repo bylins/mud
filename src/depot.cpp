@@ -1718,10 +1718,10 @@ void show_stats(CHAR_DATA *ch)
 		offline_count += it->second.offline_list.size();
 	}
 
-	out << "		Всего хранилищ: " << depot_list.size() << "\r\n"
-		<< "		Предметов в персональных хранилищах: " << pers_count << "\r\n"
-		<< "		Предметов в общих хранилищах: " << share_count << "\r\n"
-		<< "		Предметов в оффлайне: " << offline_count << "\r\n";
+	out << "  Всего хранилищ: " << depot_list.size() << "\r\n"
+		<< "  Предметов в персональных хранилищах: " << pers_count << "\r\n"
+		<< "  Предметов в общих хранилищах: " << share_count << "\r\n"
+		<< "  Предметов в оффлайне: " << offline_count << "\r\n";
 	send_to_char(out.str().c_str(), ch);
 }
 
