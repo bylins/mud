@@ -2662,9 +2662,6 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	}
 
 	if (d->character) {
-		// перекидывание онлайн списков хранилищ в оффлайн
-		Depot::exit_char(d->character);
-
 		// Plug memory leak, from Eric Green.
 		if (!IS_NPC(d->character) && (PLR_FLAGGED(d->character, PLR_MAILING) || STATE(d) == CON_WRITEBOARD) && d->str) {
 			if (*(d->str))
@@ -2687,6 +2684,8 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			}
 			d->character->desc = NULL;
 		} else {
+			// перекидывание онлайн списков хранилищ в оффлайн
+			Depot::exit_char(d->character);
 			sprintf(buf, "Losing player: %s.", GET_NAME(d->character) ? GET_NAME(d->character) : "<null>");
 			mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 			free_char(d->character);

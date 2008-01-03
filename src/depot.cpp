@@ -1,4 +1,4 @@
-// $RCSfile$				 $Date$				 $Revision$
+// $RCSfile$     $Date$     $Revision$
 // Copyright (c) 2007 Krodo
 // Part of Bylins http://www.mud.ru
 
