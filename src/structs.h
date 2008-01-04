@@ -187,6 +187,7 @@ typedef struct trig_data
 #define ROOM_NOWEATHER      (INT_ONE | (1 << 3))
 #define ROOM_SLOWDEATH      (INT_ONE | (1 << 4))
 #define ROOM_ICEDEATH       (INT_ONE | (1 << 5))
+#define ROOM_NORELOCATEIN   (INT_ONE | (1 << 6))
 
 #define ROOM_NOITEM         (INT_TWO|(1<<0))	// Передача вещей в комнате запрещена
 #define ROOM_RUSICHI        (INT_TWO|(1<<1))

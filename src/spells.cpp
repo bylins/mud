@@ -350,7 +350,7 @@ ASPELL(spell_relocate)
 	     ROOM_FLAGGED(fnd_room, ROOM_DEATH) ||
 	     ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) ||
 	     ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) ||
-//	     ROOM_FLAGGED(fnd_room, ROOM_NOTELEPORTIN) ||
+	     ROOM_FLAGGED(fnd_room, ROOM_NORELOCATEIN) ||
 	     ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) || (ROOM_FLAGGED(fnd_room, ROOM_GODROOM) && !IS_IMMORTAL(ch)))) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
