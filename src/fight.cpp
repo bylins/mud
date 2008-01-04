@@ -696,7 +696,11 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 			GET_HIT(ch) = 1;
 			GET_POS(ch) = POS_SITTING;
 			char_from_room(ch);
-			if ((to_room = real_room(GET_LOADROOM(ch))) == NOWHERE) {
+			to_room = real_room(GET_LOADROOM(ch));
+			// тут придется ручками тащить чара за ворота, если ему в замке не рады
+			if (!Clan::MayEnter(ch, to_room, HCE_PORTAL))
+				to_room = Clan::CloseRent(to_room);
+			if (to_room == NOWHERE) {
 				SET_BIT(PLR_FLAGS(ch, PLR_HELLED), PLR_HELLED);
 				HELL_DURATION(ch) = time(0) + 6;
 				to_room = r_helled_start_room;

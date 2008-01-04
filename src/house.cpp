@@ -62,7 +62,7 @@ room_rnum Clan::CloseRent(room_rnum to_room)
 {
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
 		if (world[to_room]->zone == world[real_room((*clan)->rent)]->zone)
-			return (to_room = real_room((*clan)->out_rent));
+			return real_room((*clan)->out_rent);
 	return to_room;
 }
 
