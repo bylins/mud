@@ -1579,6 +1579,17 @@ const char *CLAN_PKLIST_FORMAT[] = {
 	"        пклист|дрлист удалить имя|все\r\n"
 };
 
+/**
+* Для клановых пкл/дрл - не показываются чары в состоянии дисконета, все остальные состояния
+* считаются как онлайн. Проверка исключительно на CON_PLAYING - это не совсем верное решение.
+*/
+bool check_online_state(DESCRIPTOR_DATA *d)
+{
+	if (d->character && STATE(d) != CON_DISCONNECT && STATE(d) != CON_CLOSE)
+		return true;
+	return false;
+}
+
 // пкл/дрл
 ACMD(DoClanPkList)
 {
@@ -1600,7 +1611,7 @@ ACMD(DoClanPkList)
 		send_to_char(ch, "%sОтображаются только находящиеся в игре персонажи:%s\r\n\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		// вобщем, наверное, лучше искать по списку онлайновых, чем по списку пк/др листа
 		for (d = descriptor_list; d; d = d->next)
-			if (d->character && STATE(d) == CON_PLAYING && CLAN(d->character) != CLAN(ch)) {
+			if (check_online_state(d) && CLAN(d->character) != CLAN(ch)) {
 				// пкл
 				if (!subcmd)
 					it = CLAN(ch)->pkList.find(GET_UNIQUE(d->character));
@@ -1783,7 +1794,7 @@ ACMD(DoClanPkList)
 			for (ClanPkList::const_iterator it = CLAN(ch)->pkList.begin(); it != CLAN(ch)->pkList.end(); ++it) {
 				if (CompareParam(buffer2, it->second->victimName, 1)) {
 					DESCRIPTOR_DATA *d = DescByUID(it->first, 0);
-					if (d || !online) {
+					if ((d && check_online_state(d)) || !online) {
 						strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
 						out << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
 					}
@@ -1793,7 +1804,7 @@ ACMD(DoClanPkList)
 			for (ClanPkList::const_iterator it = CLAN(ch)->frList.begin(); it != CLAN(ch)->frList.end(); ++it) {
 				if (CompareParam(buffer2, it->second->victimName, 1)) {
 					DESCRIPTOR_DATA *d = DescByUID(it->first, 0);
-					if (d || !online) {
+					if ((d && check_online_state(d)) || !online) {
 						strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
 						out << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
 					}
