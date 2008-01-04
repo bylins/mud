@@ -2199,8 +2199,6 @@ void do_entergame(DESCRIPTOR_DATA * d)
 
 	char_to_room(d->character, load_room);
 
-	// сначала синхронизируется бабло с хранилищем
-	Depot::enter_char(d->character);
 	// а потом уже вычитаем за ренту
 	if (GET_LEVEL(d->character) != 0)
 		Crash_load(d->character);
@@ -2296,11 +2294,13 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 	/* check and make sure no other copies of this player are logged in */
 	if (perform_dupe_check(d)) {
 		Clan::SetClanData(d->character);
+		Depot::enter_char(d->character);
 		return;
 	}
 
 	// тут несколько вариантов как это проставить и все одинаково корявые с учетом релоада, без уверенности не трогать
 	Clan::SetClanData(d->character);
+	Depot::enter_char(d->character);
 
 	log("%s [%s] has connected.", GET_NAME(d->character), d->host);
 

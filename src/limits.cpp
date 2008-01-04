@@ -31,6 +31,7 @@
 #include "top.h"
 #include "deathtrap.hpp"
 #include "ban.hpp"
+#include "depot.hpp"
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
@@ -870,6 +871,8 @@ void check_idling(CHAR_DATA * ch)
 					Crash_rentsave(ch, 0);
 				else
 					Crash_idlesave(ch);
+				// см. камент про depot в close_socket
+				Depot::exit_char(ch);
 				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
 				mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
 				extract_char(ch, FALSE);

@@ -2662,6 +2662,13 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	}
 
 	if (d->character) {
+		// перекидывание онлайн списков хранилищ в оффлайн
+		// вобщем перекидываем при любом дисконекте, соотв-но восстанавливаем в двух местах
+		// на входе чара в игру и на восстановлении связи
+		// второе место, где надо сделать тоже самое - check_idling, потому что сюда от нее
+		// мы уже приходим без чарактера
+		Depot::exit_char(d->character);
+
 		// Plug memory leak, from Eric Green.
 		if (!IS_NPC(d->character) && (PLR_FLAGGED(d->character, PLR_MAILING) || STATE(d) == CON_WRITEBOARD) && d->str) {
 			if (*(d->str))
@@ -2684,8 +2691,6 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			}
 			d->character->desc = NULL;
 		} else {
-			// перекидывание онлайн списков хранилищ в оффлайн
-			Depot::exit_char(d->character);
 			sprintf(buf, "Losing player: %s.", GET_NAME(d->character) ? GET_NAME(d->character) : "<null>");
 			mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 			free_char(d->character);
