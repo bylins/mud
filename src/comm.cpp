@@ -494,6 +494,8 @@ void init_game(ush_int port)
 	Clan::ClanSave();
 	TitleSystem::save_title_list();
 	RegisterSystem::save();
+	Depot::save_all_online_objs();
+	Depot::save_timedata();
 
 	log("Closing all sockets.");
 	while (descriptor_list)

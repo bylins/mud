@@ -1611,7 +1611,7 @@ void exit_char(CHAR_DATA *ch)
 		it->second.online_to_offline(it->second.pers_online, PERS_DEPOT_FILE);
 		// общее хранилище уходит только если в онлайне не осталось никого из доверенных чаров
 		// в любом случае оно сохраняется если не сейчас, то на тике
-		if (!it->second.share_online.empty() && !it->second.any_other_share())
+		if (!it->second.any_other_share())
 			it->second.online_to_offline(it->second.share_online, SHARE_DEPOT_FILE);
 
 		it->second.ch = 0;
