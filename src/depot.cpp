@@ -1644,7 +1644,7 @@ int get_total_cost_per_day(CHAR_DATA *ch)
 }
 
 /**
-* Подгрузка общих хранилищ, ожидающих объединения.
+* Подгрузка общих хранилищ, ожидающих объединения и перевод в оффлайн ненужных.
 */
 void load_share_depots()
 {
@@ -1663,6 +1663,10 @@ void load_share_depots()
 			}
 			it->second.waiting_allowed_chars.clear();
 		}
+
+		// перевод в оффлайн расшаренных хранилищ, оставшихся без надобности...
+		if (!it->second.ch && !it->second.share_online.empty() && !it->second.any_other_share())
+			it->second.online_to_offline(it->second.share_online, SHARE_DEPOT_FILE);
 	}
 	depot_log("load_share_depots: end");
 }
