@@ -633,9 +633,6 @@ ACMD(do_gen_comm)
 		return;
 	}
 
-	if (!check_moves(ch, com_msgs[subcmd].move_cost))
-		return;
-
 	/* set up the color on code */
 	strcpy(color_on, com_msgs[subcmd].color);
 
@@ -674,6 +671,10 @@ ACMD(do_gen_comm)
 		}
 		strcpy(GET_LAST_ALL_TELL(ch), argument);
 	}
+
+	// в этой проверке заодно списываются мувы за крики, поэтому она должна идти последней
+	if (!check_moves(ch, com_msgs[subcmd].move_cost))
+		return;
 
 	/* first, set up strings to be given to the communicator */
 	if (subcmd == SCMD_AUCTION) {
