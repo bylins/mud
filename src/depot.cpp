@@ -1130,8 +1130,8 @@ void update_timers()
 
 const char *HELP_FORMAT =
 	"Формат: хранилище - справка по команде и список имен с указанием статуса подтверждения.\r\n"
-	"								хранилище добавить имя - добавить персонажа в список объединенных хранилищ.\r\n"
-	"								хранилище удалить имя - удалить персонажа из списка объединенных хранилищ.\r\n"
+	"        хранилище добавить имя - добавить персонажа в список объединенных хранилищ.\r\n"
+	"        хранилище удалить имя - удалить персонажа из списка объединенных хранилищ.\r\n"
 	"Работа с хранилищами аналогична любым другим контейнерам, например:\r\n"
 	"осмотреть хранилище, положить меч хранилище, взять меч хранилище, смотреть шкафчик, взять все шкафчик и т.д.\r\n"
 	"Персональное хранилище - Ваше личное хранилище (до 25 предметов).\r\n"
@@ -1546,7 +1546,7 @@ void CharNode::online_to_offline(ObjListType &cont, int file_type)
 		state.reset(PERS_CHEST);
 		depot_log("online_to_offline: pers_depot saved");
 	}
-	if (file_type == SHARE_DEPOT_FILE && state[PERS_CHEST])
+	if (file_type == SHARE_DEPOT_FILE && state[SHARE_CHEST])
 	{
 		write_obj_file(name, file_type, cont);
 		state.reset(SHARE_CHEST);
@@ -1605,11 +1605,15 @@ void exit_char(CHAR_DATA *ch)
 	if (it != depot_list.end())
 	{
 		// персональное хранилище в любом случае уходит в оффлайн
-		if (!it->second.pers_online.empty())
-			it->second.online_to_offline(it->second.pers_online, PERS_DEPOT_FILE);
+		// даже пустое нужно перезаписать, потому что если взяли все с персонального,
+		// сунули в общее и тут же вышли - файл персонального останется и при входе он первым
+		// обработается, шмотки залоадятся опять в персональном, а общее будет без них
+		it->second.online_to_offline(it->second.pers_online, PERS_DEPOT_FILE);
 		// общее хранилище уходит только если в онлайне не осталось никого из доверенных чаров
+		// в любом случае оно сохраняется если не сейчас, то на тике
 		if (!it->second.share_online.empty() && !it->second.any_other_share())
 			it->second.online_to_offline(it->second.share_online, SHARE_DEPOT_FILE);
+
 		it->second.ch = 0;
 		it->second.money = GET_BANK_GOLD(ch) + GET_GOLD(ch);
 		it->second.money_spend = 0;
