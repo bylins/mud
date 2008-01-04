@@ -432,13 +432,19 @@ ACMD(DoBoard)
 				send_to_char("У Вас нет возможности удалить это сообщение.\r\n", ch);
 				return;
 			}
-		} else if ((*board)->type != CLAN_BOARD && (*board)->type != CLANNEWS_BOARD
-			&& (*board)->type != PERS_BOARD && GET_LEVEL(ch) < (*board)->messages[num]->level) {
+		}
+		else if ((*board)->type != CLAN_BOARD
+				&& (*board)->type != CLANNEWS_BOARD
+				&& (*board)->type != PERS_BOARD
+				&& !Privilege::check_flag(ch, Privilege::NEWS_MAKER)
+				&& GET_LEVEL(ch) < (*board)->messages[num]->level)
+		{
 			// для простых досок сверяем левела (для контроля иммов)
 			// клановые ниже, у персональных смысла нет
 			send_to_char("У Вас нет возможности удалить это сообщение.\r\n", ch);
 			return;
-		} else if ((*board)->type == CLAN_BOARD || (*board)->type == CLANNEWS_BOARD) {
+		}
+		else if ((*board)->type == CLAN_BOARD || (*board)->type == CLANNEWS_BOARD) {
 			// у кого привилегия на новости, те могут удалять везде чужие, если ранк автора такой же или ниже
 			if (CLAN_MEMBER(ch)->rank_num > (*board)->messages[num]->rank) {
 				send_to_char("У Вас нет возможности удалить это сообщение.\r\n", ch);
@@ -522,8 +528,8 @@ int Board::Access(CHAR_DATA * ch)
 		else
 			return 3;
 	case ERROR_BOARD:
-	// все пишут с мин.левела, 34 полный
-		if (IS_IMPL(ch))
+	// все пишут с мин.левела, 34 и по привилегии полный
+		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 			return 4;
 		if (GET_LEVEL(ch) < MIN_WRITE_LEVEL && !GET_REMORT(ch))
 			return 0;
@@ -553,8 +559,8 @@ int Board::Access(CHAR_DATA * ch)
 			return 0;
 	case GODBUILD_BOARD:
 	case GODCODE_BOARD:
-	// 33 читают/пишут, 34 полный
-		if (IS_IMPL(ch))
+	// 33 читают/пишут, 34 и по привилегии полный
+		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 			return 4;
 		else if (IS_GRGOD(ch))
 			return 3;
