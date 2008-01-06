@@ -64,7 +64,7 @@ class AllowedChar
 };
 
 typedef std::list<OBJ_DATA *> ObjListType; // имя, шмотка
-typedef std::vector<OfflineNode> TimerListType; // список шмота, находящегося в оффлайне
+typedef std::list<OfflineNode> TimerListType; // список шмота, находящегося в оффлайне
 typedef std::map<long, AllowedChar> AllowedCharType; // уид, инфа чара
 
 class CharNode
@@ -96,7 +96,7 @@ class CharNode
 	void take_item(CHAR_DATA *vict, char *arg, int howmany, int type);
 	void remove_item(CHAR_DATA *vict, ObjListType::iterator &obj_it, ObjListType &cont, int type);
 	void update_online_item(ObjListType &cont, int type);
-	void update_offline_item(TimerListType &cont);
+	void update_offline_item();
 	void removal_period_cost();
 	void load_online_objs(int file_type, bool reload = 0);
 	void add_item(OBJ_DATA *obj, int type);
@@ -1063,10 +1063,10 @@ void CharNode::update_online_item(ObjListType &cont, int type)
 /**
 * Апдейт таймеров в оффлайн списках с расчетом общей ренты.
 */
-void CharNode::update_offline_item(TimerListType &cont)
+void CharNode::update_offline_item()
 {
 	depot_log("update_offline_item: %s", name.c_str());
-	for (TimerListType::iterator obj_it = cont.begin(); obj_it != cont.end(); )
+	for (TimerListType::iterator obj_it = offline_list.begin(); obj_it != offline_list.end(); )
 	{
 		--(obj_it->timer);
 		if (obj_it->timer <= 0)
@@ -1077,7 +1077,7 @@ void CharNode::update_offline_item(TimerListType &cont)
 			if (rnum >= 0)
 			obj_index[rnum].number--;
 			// вычитать ренту из cost_per_day здесь не надо, потому что она уже обнулена
-			cont.erase(obj_it++);
+			offline_list.erase(obj_it++);
 		}
 		else
 		{
@@ -1107,7 +1107,7 @@ void update_timers()
 			node.update_online_item(node.share_online, SHARE_CHEST);
 		// оффлайновый список
 		if (!node.offline_list.empty())
-			node.update_offline_item(node.offline_list);
+			node.update_offline_item();
 
 		// снятие денег и пурж шмота, если денег уже не хватает
 		if (node.get_cost_per_day())
