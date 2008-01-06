@@ -1271,22 +1271,11 @@ void boot_db(void)
 		Crash_read_timer(i, FALSE);
 	}
 
-	// последовательность лоада кланов/досок/иммов не менять
+	// последовательность лоада кланов/досок не менять
 	log("Booting boards");
 	Board::BoardInit();
 	log("Booting clans");
 	Clan::ClanLoad();
-
-	for (i = 0; i <= top_of_zone_table; i++) {
-		log("Resetting %s (rooms %d-%d).", zone_table[i].name,
-		    (i ? (zone_table[i - 1].top + 1) : 0), zone_table[i].top);
-		reset_zone(i);
-	}
-
-	reset_q.head = reset_q.tail = NULL;
-
-	boot_time = time(0);
-	//Конец изменений Ладником
 
 	log("Booting basic values");
 	init_basic_values();
@@ -1341,6 +1330,15 @@ void boot_db(void)
 	log("Init Depot system.");
 	Depot::init_depot();
 
+	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
+	for (i = 0; i <= top_of_zone_table; i++) {
+		log("Resetting %s (rooms %d-%d).", zone_table[i].name,
+		    (i ? (zone_table[i - 1].top + 1) : 0), zone_table[i].top);
+		reset_zone(i);
+	}
+	reset_q.head = reset_q.tail = NULL;
+
+	boot_time = time(0);
 	log("Boot db -- DONE.");
 }
 
