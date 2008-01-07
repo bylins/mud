@@ -219,6 +219,8 @@ class Clan
 	void HouseLeave(CHAR_DATA * ch);
 	int GetClanScore();
 	void HouseStat(CHAR_DATA * ch, std::string & buffer);
+	void remove_member(ClanMemberList::iterator &it);
+
 	// house аля олц
 	void MainMenu(DESCRIPTOR_DATA * d);
 	void PrivilegeMenu(DESCRIPTOR_DATA * d, unsigned num);
@@ -228,6 +230,7 @@ class Clan
 
 	static void HcontrolBuild(CHAR_DATA * ch, std::string & buffer);
 	static void HcontrolDestroy(CHAR_DATA * ch, std::string & buffer);
+	static void hcon_outcast(CHAR_DATA *ch, std::string buffer);
 	static void ChestLoad();
 	int ChestTax();
 	int ChestMaxObjects() {return (this->clan_level+1)*500+100;};

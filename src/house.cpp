@@ -935,6 +935,40 @@ void Clan::HouseAdd(CHAR_DATA * ch, std::string & buffer)
 	send_to_char(buffer, ch);
 }
 
+/**
+* Отписывание персонажа от клана с оповещением всех заинтересованных сторон,
+* выдворением за пределы замка и изменением ренты при необходимости.
+*/
+void Clan::remove_member(ClanMemberList::iterator &it)
+{
+	std::string name = it->second->name;
+	long unique = it->first;
+	this->members.erase(it);
+
+	DESCRIPTOR_DATA *k = DescByUID(unique, 0);
+	if (k && k->character)
+	{
+		Clan::SetClanData(k->character);
+		send_to_char(k->character, "Вас исключили из дружины '%s'!\r\n", this->name.c_str());
+
+		ClanListType::const_iterator clan = Clan::IsClanRoom(IN_ROOM(k->character));
+		if (clan != Clan::ClanList.end())
+		{
+			char_from_room(k->character);
+			act("$n был$g выдворен$a за пределы замка!", TRUE, k->character, 0, 0, TO_ROOM);
+			send_to_char("Вы были выдворены за пределы замка!\r\n", k->character);
+			char_to_room(k->character, real_room((*clan)->out_rent));
+			look_at_room(k->character, real_room((*clan)->out_rent));
+			act("$n свалил$u с небес, выкрикивая какие-то ругательства!", TRUE, k->character, 0, 0, TO_ROOM);
+		}
+	}
+	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
+	{
+		if (d->character && CLAN(d->character) && CLAN(d->character)->GetRent() == this->GetRent())
+			send_to_char(d->character, "%s более не является членом Вашей дружины.\r\n", name.c_str());
+	}
+}
+
 // house изгнать (только званием ниже своего)
 void Clan::HouseRemove(CHAR_DATA * ch, std::string & buffer)
 {
@@ -953,19 +987,55 @@ void Clan::HouseRemove(CHAR_DATA * ch, std::string & buffer)
 		send_to_char("Он и так не приписан к Вашей дружине.\r\n", ch);
 	else if (it->second->rank_num <= CLAN_MEMBER(ch)->rank_num)
 		send_to_char("Вы можете исключить из дружины только персонажа со званием ниже Вашего.\r\n", ch);
-	else {
-		std::string name = it->second->name;
-		this->members.erase(it);
-		DESCRIPTOR_DATA *k = DescByUID(unique, 0);
-		if (k) {
-			Clan::SetClanData(k->character);
-			send_to_char(k->character, "Вас исключили из дружины '%s'.\r\n", this->name.c_str());
-		}
-		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
-			if (d->character && CLAN(d->character) && CLAN(d->character)->GetRent() == this->GetRent())
-				send_to_char(d->character, "%s более не является членом Вашей дружины.\r\n", name.c_str());
+	else
+		remove_member(it);
+}
+
+void Clan::HouseLeave(CHAR_DATA * ch)
+{
+	if(!CLAN_MEMBER(ch)->rank_num) {
+		send_to_char("Если Вы хотите распустить свою дружину, то обращайтесь к Богам.\r\n"
+					"А если Вам просто нечем заняться, то передайте воеводство и идите куда хотите...\r\n", ch);
+		return;
+	}
+
+	ClanMemberList::iterator it = this->members.find(GET_UNIQUE(ch));
+	if (it != this->members.end())
+		remove_member(it);
+}
+
+/**
+* hcontrol outcast имя - отписывание любого персонажа от дружины, кроме воеводы.
+*/
+void Clan::hcon_outcast(CHAR_DATA *ch, std::string buffer)
+{
+	std::string name;
+	GetOneParam(buffer, name);
+	long unique = GetUniqueByName(name);
+
+	if (!unique)
+	{
+		send_to_char("Неизвестный персонаж.\r\n", ch);
+		return;
+	}
+
+	for (ClanListType::iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+	{
+		ClanMemberList::iterator it = (*clan)->members.find(unique);
+		if (it != (*clan)->members.end())
+		{
+			if (!it->second->rank_num)
+			{
+				send_to_char(ch, "Вы не можете исключить воеводу, для удаления дружины существует hcontrol destroy.\r\n");
+				return;
+			}
+			(*clan)->remove_member(it);
+			send_to_char(ch, "%s исключен из дружины '%s'.\r\n", name.c_str(), (*clan)->name.c_str());
+			return;
 		}
 	}
+
+	send_to_char("Он и так не состоит ни в какой дружине.\r\n", ch);
 }
 
 // бог, текст, клан/альянс
@@ -1364,6 +1434,7 @@ const char *HCONTROL_FORMAT =
     "Формат: hcontrol build <rent vnum> <outrent vnum> <guard vnum> <leader name> <abbreviation> <clan title> <clan name>\r\n"
 	"        hcontrol show\r\n"
     "        hcontrol destroy <house vnum>\r\n"
+    "        hcontrol outcast <name>\r\n"
 	"        hcontrol save\r\n";
 
 // божественный hcontrol
@@ -1379,6 +1450,8 @@ ACMD(DoHcontrol)
 		Clan::HcontrolBuild(ch, buffer);
 	else if (CompareParam(buffer2, "destroy") && !buffer.empty())
 		Clan::HcontrolDestroy(ch, buffer);
+	else if (CompareParam(buffer2, "outcast") && !buffer.empty())
+		Clan::hcon_outcast(ch, buffer);
 	else if (CompareParam(buffer2, "show"))
 		Clan::HconShow(ch);
 	else if (CompareParam(buffer2, "save")) {
@@ -2773,27 +2846,6 @@ void Clan::HouseOwner(CHAR_DATA * ch, std::string & buffer)
 			this->ClanAddMember(d->character, 0);
 		this->owner = buffer2;
 		send_to_char(ch, "Поздравляем, Вы передали свои полномочия %s!\r\n", GET_PAD(d->character, 2));
-	}
-}
-
-void Clan::HouseLeave(CHAR_DATA * ch)
-{
-	if(!CLAN_MEMBER(ch)->rank_num) {
-		send_to_char("Если Вы хотите распустить свою дружину, то обращайтесь к Богам.\r\n"
-					"А если Вам просто нечем заняться, то передайте воеводство и идите куда хотите...\r\n", ch);
-		return;
-	}
-
-	ClanMemberList::iterator it = this->members.find(GET_UNIQUE(ch));
-	if (it != this->members.end()) {
-		this->members.erase(it);
-		Clan::SetClanData(ch);
-		send_to_char(ch, "Вы покинули дружину '%s'.\r\n", this->name.c_str());
-		DESCRIPTOR_DATA *d;
-		for (d = descriptor_list; d; d = d->next) {
-			if (d->character && CLAN(d->character) && CLAN(d->character)->GetRent() == this->GetRent())
-				send_to_char(d->character, "%s покинул%s Вашу дружину.\r\n", GET_NAME(ch), GET_CH_SUF_1(ch));
-		}
 	}
 }
 
