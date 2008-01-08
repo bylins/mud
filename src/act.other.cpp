@@ -1516,7 +1516,7 @@ ACMD(do_gen_write)
 	}
 	if (fbuf.st_size >= max_filesize) {
 		send_to_char
-		    ("Да, набросали всего столько, что файл переполнен. Пишите на microkod@kursknet.ru.\r\n", ch);
+		    ("Да, набросали всего столько, что файл переполнен. Напомните об этом богам!\r\n", ch);
 		return;
 	}
 	if (!(fl = fopen(filename, "a"))) {

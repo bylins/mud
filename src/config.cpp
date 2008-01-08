@@ -242,7 +242,7 @@ const char *LOGNAME = NULL;
 int max_playing = 300;
 
 /* maximum size of bug, typo and idea files in bytes (to prevent bombing) */
-int max_filesize = 50000;
+int max_filesize = 500000;
 
 /* maximum number of password attempts before disconnection */
 int max_bad_pws = 3;
