@@ -37,8 +37,9 @@ const int SHARE_CHEST_VNUM = 332;
 // рнумы пересчитываются при необходимости в renumber_obj_rnum
 int PERS_CHEST_RNUM = -1;
 int SHARE_CHEST_RNUM = -1;
-// максимальное кол-во шмоток в персональном хранилище (общее анлим)
+// максимальное кол-во шмоток в персональном|общем хранилищах
 const unsigned int MAX_PERS_SLOTS = 25;
+const unsigned int MAX_SHARE_SLOTS = 1000;
 // расширенное логирование в отдельный файл на время тестов и изменений
 const bool debug_mode = 1;
 
@@ -207,15 +208,10 @@ void CharNode::remove_cost_per_day(OBJ_DATA *obj)
 }
 
 /**
-* Инициализация рнумов сундуков, лоад их в банках.
-* Лоад файла с оффлайн информацией по предметам.
+* Загрузка самих хранилищ в банки делается после инита хранилищ и резета зон, потому как мобов надо.
 */
-void init_depot()
+void load_chests()
 {
-	depot_log("init_depot: start");
-	PERS_CHEST_RNUM = real_object(PERS_CHEST_VNUM);
-	SHARE_CHEST_RNUM = real_object(SHARE_CHEST_VNUM);
-
 	for (CHAR_DATA *ch = character_list; ch; ch = ch->next)
 	{
 		if (ch->nr > 0 && ch->nr <= top_of_mobt && mob_index[ch->nr].func == bank)
@@ -228,6 +224,17 @@ void init_depot()
 			obj_to_room(pers_chest, ch->in_room);
 		}
 	}
+}
+
+/**
+* Инициализация рнумов сундуков, лоад их в банках.
+* Лоад файла с оффлайн информацией по предметам.
+*/
+void init_depot()
+{
+	depot_log("init_depot: start");
+	PERS_CHEST_RNUM = real_object(PERS_CHEST_VNUM);
+	SHARE_CHEST_RNUM = real_object(SHARE_CHEST_VNUM);
 
 	const char *depot_file = LIB_DEPOT"depot.db";
 	std::ifstream file(depot_file);
@@ -526,6 +533,12 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 		send_to_char("В вашем хранилище совсем не осталось места :(.\r\n" , ch);
 		return 0;
 	}
+	else if (type == SHARE_CHEST && it->second.share_online.size() >= MAX_SHARE_SLOTS)
+	{
+		send_to_char("В вашем хранилище совсем не осталось места :(.\r\n" , ch);
+		return 0;
+	}
+
 	if (!GET_BANK_GOLD(ch) && !GET_GOLD(ch))
 	{
 		send_to_char(ch,

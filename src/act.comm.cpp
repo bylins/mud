@@ -172,7 +172,7 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 	}
 
 	// TODO: если в act() останется показ иммов, то это и эхо ниже переделать на act()
-	if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch))
+	if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))
 		sprintf(buf, "%s сказал%s Вам : '%s'", GET_NAME(ch), GET_CH_SUF_1(ch), arg);
 	else
 		sprintf(buf, "Кто-то сказал Вам : '%s'", arg);
@@ -183,7 +183,7 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 	if (!IS_NPC(vict) && !IS_NPC(ch)) {
 		ct = time(0);
 		tmp = asctime(localtime(&ct));
-		if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch)) {
+		if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch) || GET_INVIS_LEV(ch)) {
 			sprintf(buf, "%s[%5.5s]%s %s : '%s'%s", CCNRM(ch, C_NRM), (tmp + 11), CCICYN(ch, C_NRM),
 				GET_NAME(ch), arg, CCNRM(ch, C_NRM));
 		} else {
@@ -199,7 +199,7 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT))
 		send_to_char(OK, ch);
 	else {
-		if (CAN_SEE_CHAR(ch, vict) || IS_IMMORTAL(vict))
+		if (CAN_SEE_CHAR(ch, vict) || IS_IMMORTAL(vict) || GET_INVIS_LEV(vict))
 			sprintf(buf, "Вы сказали %s : '%s'", vict->player.PNames[2], arg);
 		else
 			sprintf(buf, "Вы сказали кому-то : '%s'", arg);

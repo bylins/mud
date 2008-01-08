@@ -16,6 +16,7 @@ extern const int SHARE_CHEST_VNUM;
 extern int PERS_CHEST_RNUM;
 extern int SHARE_CHEST_RNUM;
 
+void load_chests();
 void init_depot();
 void save_all_online_objs();
 void save_timedata();

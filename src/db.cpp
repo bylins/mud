@@ -1338,6 +1338,10 @@ void boot_db(void)
 	}
 	reset_q.head = reset_q.tail = NULL;
 
+	// делается после резета зон, см камент к функции
+	log("Load depot chests.");
+	Depot::load_chests();
+
 	boot_time = time(0);
 	log("Boot db -- DONE.");
 }

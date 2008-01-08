@@ -25,6 +25,7 @@
 * # news - возможность писать новости от любого имени + полный доступ на доски ошибок и кодеров
 * # arena - команды, которые доступны только на арене, без set и show (+ спеллы переход и призвать)
 * # skills - флаг, позволяющий имму пользоваться заклинаниями, умениями, рунами, взламывать двери (34е по дефолту)
+* # fullzedit - возможность открытия/закрытия зон для записи (zed lock/unlock) (34е по дефолту)
 * # остальные группы вписываете сколько хотите
 * # иммы: имя уид (0 не канает, теперь надо сразу писать уид) команды/группы
 * <groups>
@@ -46,8 +47,9 @@ const int NEWS_MAKER = 0;
 const int USE_SKILLS = 1;
 const int ARENA_MASTER = 2;
 const int KRODER = 3;
+const int FULLZEDIT = 4;
 // количество флагов
-const int FLAGS_NUM = 4;
+const int FLAGS_NUM = 5;
 
 typedef std::set<std::string> PrivListType;
 
@@ -92,6 +94,8 @@ void parse_flags(const std::string &command)
 		tmp_god.flags.set(ARENA_MASTER);
 	else if (command == "kroder")
 		tmp_god.flags.set(KRODER);
+	else if (command == "fullzedit")
+		tmp_god.flags.set(FULLZEDIT);
 }
 
 /**

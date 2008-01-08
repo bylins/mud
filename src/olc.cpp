@@ -20,6 +20,7 @@
 #include "screen.h"
 #include "item.creation.hpp"
 #include "im.h"
+#include "privilege.hpp"
 
  /*
   * External data structures.
@@ -171,8 +172,9 @@ ACMD(do_olc)
 				return;
 			}
 	d = ch->desc;
-////////////////////
-	if ((lock || unlock) && !IS_IMPL(ch)) {
+
+	// лок/анлок редактирования зон только 34м и по привилегии
+	if ((lock || unlock) && !IS_IMPL(ch) && !Privilege::check_flag(d->character, Privilege::FULLZEDIT)) {
 		send_to_char("Вы не можете использовать эту команду.\r\n", ch);
 		return;
 	}
