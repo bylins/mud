@@ -140,8 +140,8 @@ int general_savingthrow(CHAR_DATA * ch, int type, int ext_apply, int use)
 	// Учет осторожного стиля
 	if (PRF_FLAGGED(ch, PRF_AWAKE) && (use != 1)) {
 		if (GET_CLASS(ch) == CLASS_GUARD)
-		  save -=MAX(0,get_skill(ch, SKILL_AWAKE)-80)  /  2;
-		  save -=get_skill(ch, SKILL_AWAKE)  /  2;
+			save -= MAX(0,get_skill(ch, SKILL_AWAKE)-80)  /  2;
+		save -= calculate_awake_mod(ch, 0);
 	}
 
 	save += GET_SAVE(ch, type);	// одежда
@@ -2617,7 +2617,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		case SPELL_ICESTORM:
 		case SPELL_EARTHFALL:
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 
+			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 									pc_duration(victim, 2, 0, 0, 0, 0));
 			af[0].bitvector = AFF_MAGICSTOPFIGHT;
 			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;

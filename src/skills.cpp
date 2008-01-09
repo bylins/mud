@@ -247,7 +247,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			if (GET_POS(vict) < POS_FIGHTING && GET_POS(vict) > POS_SLEEPING)
 				victim_modi -= 20;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
-				victim_modi -= (get_skill(vict, SKILL_AWAKE) / 2);
+				victim_modi -= calculate_awake_mod(vict, ch);
 			victim_modi -= dex_app[GET_REAL_CON(vict)].reaction;// !!!!!
 		}
 		break;
@@ -280,14 +280,14 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	case SKILL_KICK:	/*пнуть */
 		victim_sav = SAVING_STABILITY;
-		percent = skill_is + 
+		percent = skill_is +
 			dex_app[GET_REAL_DEX(ch)].reaction +
 			dex_app[GET_REAL_STR(ch)].reaction;
 		if (vict) {
 			victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
 			victim_modi += dex_app[GET_REAL_CON(vict)].reaction;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
-				victim_modi -= (get_skill(vict, SKILL_AWAKE) / 2);
+				victim_modi -= calculate_awake_mod(vict, ch);
 		}
 		break;
 	case SKILL_PICK_LOCK:	/*pick lock */
@@ -459,7 +459,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			if (GET_EQ(vict, WEAR_BOTHS))
 				victim_modi -= 10;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
-				victim_modi -= (get_skill(vict, SKILL_AWAKE) / 2);
+				victim_modi -= calculate_awake_mod(vict, ch);
 		}
 		break;
 	case SKILL_HEAL:
@@ -529,7 +529,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			if (AWAKE(vict) && AFF_FLAGGED(vict, AFF_AWARNESS))
 				victim_modi -= 30;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
-				victim_modi -= (get_skill(ch, SKILL_AWAKE) / 2);
+				victim_modi -= calculate_awake_mod(vict, ch);
 			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
@@ -653,7 +653,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	percent = complex_skill_modifier(ch, skill_no, GAPPLY_SKILL_SUCCESS, percent);
 
 	morale = cha_app[GET_REAL_CHA(ch)].morale + GET_MORALE(ch);
-	
+
 	if (vict && percent > skill_info[skill_no].max_percent)
 		victim_modi += percent - skill_info[skill_no].max_percent;
 //		+ (MAX (0, morale - 50) * 2);
@@ -785,4 +785,29 @@ int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict)
 		SET_SKILL(ch, skill_no, get_skill(ch, skill_no) + 1);
 
 	return (percent);
+}
+
+/**
+* Расчет влияния осторожки у ch против умений vict.
+* В данный момент учитывается случай 'наем против игрока', где осторожка выше 80
+* считается не как скилл/2, а как 40 + (скилл - 80) / 5, в зависимости от мортов
+* это снижение от 3.5 на первом до 39% на тридцатом и дальше в том же духе.
+*/
+int calculate_awake_mod(CHAR_DATA *ch, CHAR_DATA *vict)
+{
+	int result = 0;
+	if (!ch)
+	{
+		log("SYSERROR: zero character in calculate_awake_mod.");
+		return result;
+	}
+	if (IS_NPC(ch) || (vict && IS_NPC(vict)))
+		result = get_skill(ch, SKILL_AWAKE) / 2;
+	else if (GET_CLASS(ch) != CLASS_ASSASINE)
+		result = get_skill(ch, SKILL_AWAKE) / 2;
+	else if (get_skill(ch, SKILL_AWAKE) <= 80)
+		result = get_skill(ch, SKILL_AWAKE) / 2;
+	else
+		result = 40 + (get_skill(ch, SKILL_AWAKE) - 80) / 5;
+	return result;
 }

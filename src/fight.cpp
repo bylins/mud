@@ -3260,6 +3260,28 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		// Change victim, if protector present
 		victim = try_protect(victim, ch, weapon);
 
+		// этот вот изврат - чтобы учесть положения наема, но при этом обойти санку/призму
+		// потому что просто поменяв их тут местами - срежется последовательность модификаторов
+		// формула: левел/3 + реморты*2*(скилл-100), что вобщем-то не очень правильно, т.к. тут
+		// реморт по сути прибавляет два раза, при том, что скилл пассивный
+		int noparryhit = 0;
+		if (get_skill(ch, SKILL_NOPARRYHIT))
+		{
+			noparryhit += (int) ((GET_LEVEL(ch) / 3 + GET_REMORT(ch) * 2) *
+				get_skill(ch, SKILL_NOPARRYHIT) /
+				skill_info[SKILL_NOPARRYHIT].max_percent);
+		}
+
+		//dzMUDiST Обработка !исступления! +Gorrah
+		if (affected_by_spell(ch, SPELL_BERSERK)) {
+			if (AFF_FLAGGED(ch, AFF_BERSERK)) {
+				dam = (dam * MAX (150, 150 + GET_LEVEL(ch) + dice (0, GET_REMORT(ch)) * 2)) / 100;
+				calc_thaco -= (12 * ((GET_REAL_MAX_HIT(ch) / 2) - GET_HIT(ch)) / GET_REAL_MAX_HIT(ch));
+			}
+		}
+
+// изменения дамага со всяких скиллов надо делать выше
+
 		// Include a damage multiplier if victim isn't ready to fight:
 		// Position sitting  1.5 x normal
 		// Position resting  2.0 x normal
@@ -3272,14 +3294,24 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		// values of the POSITION_XXX constants.
 		//
 		if (GET_POS(ch) < POS_FIGHTING)
+		{
 			dam -= (dam * (POS_FIGHTING - GET_POS(ch)) / 4);
+			noparryhit -= (noparryhit * (POS_FIGHTING - GET_POS(ch)) / 4);
+		}
 
-		if (GET_POS(victim) == POS_SITTING &&
-		    (AFF_FLAGGED(victim, AFF_AIRSHIELD) ||
-		     AFF_FLAGGED(victim, AFF_FIRESHIELD) || AFF_FLAGGED(victim, AFF_ICESHIELD))) {
+		if (GET_POS(victim) == POS_SITTING
+			&& (AFF_FLAGGED(victim, AFF_AIRSHIELD)
+			|| AFF_FLAGGED(victim, AFF_FIRESHIELD)
+			|| AFF_FLAGGED(victim, AFF_ICESHIELD)))
+		{
 			// жертва сидит в щите, повреждения не меняются
-		} else if (GET_POS(victim) < POS_FIGHTING)
+			// на скрытый в том числе
+		}
+		else if (GET_POS(victim) < POS_FIGHTING)
+		{
 			dam += (dam * (POS_FIGHTING - GET_POS(victim)) / 3);
+			noparryhit += (noparryhit * (POS_FIGHTING - GET_POS(victim)) / 3);
+		}
 
 		if (GET_MOB_HOLD(victim))
 			dam += (dam >> 1);
@@ -3289,18 +3321,9 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			dam *= 2;
 		if (AFF_FLAGGED(victim, AFF_SANCTUARY) && dam >= 2)
 			dam /= 2;
-		if (get_skill(ch, SKILL_NOPARRYHIT))
-			dam += (int) ((GET_LEVEL(ch) / 3 + GET_REMORT(ch) * 3) *
-				get_skill(ch, SKILL_NOPARRYHIT) /
-				skill_info[SKILL_NOPARRYHIT].max_percent);
 
-		//dzMUDiST Обработка !исступления! +Gorrah
-		if (affected_by_spell(ch, SPELL_BERSERK)) {
-			if (AFF_FLAGGED(ch, AFF_BERSERK)) {
-				dam = (dam * MAX (150, 150 + GET_LEVEL(ch) + dice (0, GET_REMORT(ch)) * 2)) / 100;
-				calc_thaco -= (12 * ((GET_REAL_MAX_HIT(ch) / 2) - GET_HIT(ch)) / GET_REAL_MAX_HIT(ch));
-			}
-		}
+		// прибавляем дамаг со скрытого, в обход санки и призмы
+		dam += noparryhit;
 
 		// at least 1 hp damage min per hit
 		dam = MAX(1, dam);
