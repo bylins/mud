@@ -118,7 +118,7 @@ void script_log(char *msg)
 
 }
 
-/*  
+/*
  *  Logs any errors caused by scripts to the system log.
  *  Will eventually allow on-line view of script errors.
  */
@@ -356,11 +356,11 @@ int find_obj_vnum(long n)
 }
 
 /* return room with VNUM n */
-// Внимание! Для комнаты UID = ROOM_ID_BASE+VNUM, т.к. 
+// Внимание! Для комнаты UID = ROOM_ID_BASE+VNUM, т.к.
 // RNUM может быть независимо изменен с помощью OLC
 int find_room_vnum(long n)
 {
-//  return (real_room (n) != NOWHERE) ? ROOM_ID_BASE + n : -1;  
+//  return (real_room (n) != NOWHERE) ? ROOM_ID_BASE + n : -1;
 	return (real_room(n) != NOWHERE) ? n : -1;
 }
 
@@ -1142,7 +1142,7 @@ void add_var_cntx(struct trig_var_data **var_list, char *name, const char *value
 /*++
 	Добавление переменной в список с учетом контекста (СТРОГИЙ поиск).
     При добавлении в список локальных переменных контекст должен быть 0.
-    
+
 	var_list	- указатель на первый элемент списка переменных
     name		- имя переменной
 	value		- значение переменной
@@ -1189,14 +1189,14 @@ struct trig_var_data *find_var_cntx(struct trig_var_data **var_list, char *name,
 /*++
 	Поиск переменной с учетом контекста (НЕСТРОГИЙ поиск).
 
-	Поиск осуществляется по паре ИМЯ:КОНТЕКСТ. 
+	Поиск осуществляется по паре ИМЯ:КОНТЕКСТ.
 	1. Имя переменной должно совпадать с параметром name
     2. Контекст переменной должен совпадать с параметром id, если
        такой переменной нет, производится попытка найти переменную
        с контекстом 0.
 
 	var_list	- указатель на первый элемент списка переменных
-    name		- имя переменной	
+    name		- имя переменной
 	id			- контекст переменной
 --*/
 {
@@ -1733,7 +1733,7 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				GET_HIT_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_HIT_ADD(c));
 				sprintf(str, "%d", GET_HIT_ADD(c));
 			} else if (!str_cmp(field, "maxhitp")) {
-				// if (!IS_NPC(c)) 
+				// if (!IS_NPC(c))
 				//   GET_MAX_HIT(c) = (sh_int) MAX(1,gm_char_field(c,field,subfield,(long)GET_MAX_HIT(c)));
 				sprintf(str, "%d", GET_MAX_HIT(c));
 			} else if (!str_cmp(field, "hitpreg")) {
@@ -1776,7 +1776,7 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				if (!IS_NPC(c))
 					sprintf(str, "%d", GET_REAL_AGE(c));
 			} else if (!str_cmp(field, "hrbase")) {
-				//GET_HR(c) = (int) gm_char_field(c,field,subfield,(long)GET_HR(c));        
+				//GET_HR(c) = (int) gm_char_field(c,field,subfield,(long)GET_HR(c));
 				sprintf(str, "%d", GET_HR(c));
 			} else if (!str_cmp(field, "hradd")) {
 				GET_HR_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_HR(c));
@@ -1784,7 +1784,7 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			} else if (!str_cmp(field, "hr")) {
 				sprintf(str, "%d", GET_REAL_HR(c));
 			} else if (!str_cmp(field, "drbase")) {
-				//GET_DR(c) = (int) gm_char_field(c,field,subfield,(long)GET_DR(c));        
+				//GET_DR(c) = (int) gm_char_field(c,field,subfield,(long)GET_DR(c));
 				sprintf(str, "%d", GET_DR(c));
 			} else if (!str_cmp(field, "dradd")) {
 				GET_DR_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_DR(c));
@@ -1792,7 +1792,7 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			} else if (!str_cmp(field, "dr")) {
 				sprintf(str, "%d", GET_REAL_DR(c));
 			} else if (!str_cmp(field, "acbase")) {
-				//GET_AC(c) = (int) gm_char_field(c,field,subfield,(long)GET_AC(c));        
+				//GET_AC(c) = (int) gm_char_field(c,field,subfield,(long)GET_AC(c));
 				sprintf(str, "%d", GET_AC(c));
 			} else if (!str_cmp(field, "acadd")) {
 				GET_AC_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_AC(c));
@@ -1882,10 +1882,10 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			else if (!str_cmp(field, "fighting")) {
 				if (FIGHTING(c))
 					sprintf(str, "%c%ld", UID_CHAR, GET_ID(FIGHTING(c)));
-			} else if (!str_cmp(field, "is_killer")) {	/*if (*subfield) 
+			} else if (!str_cmp(field, "is_killer")) {	/*if (*subfield)
 									   {if (!str_cmp("on", subfield))
 									   SET_BIT(PLR_FLAGS(c, PLR_KILLER), PLR_KILLER);
-									   else 
+									   else
 									   if (!str_cmp("off", subfield))
 									   REMOVE_BIT(PLR_FLAGS(c, PLR_KILLER), PLR_KILLER);
 									   } */
@@ -1893,10 +1893,10 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					strcpy(str, "1");
 				else
 					strcpy(str, "0");
-			} else if (!str_cmp(field, "is_thief")) {	/*if (*subfield) 
+			} else if (!str_cmp(field, "is_thief")) {	/*if (*subfield)
 									   {if (!str_cmp("on", subfield))
 									   SET_BIT(PLR_FLAGS(c, PLR_THIEF), PLR_THIEF);
-									   else 
+									   else
 									   if (!str_cmp("off", subfield))
 									   REMOVE_BIT(PLR_FLAGS(c, PLR_THIEF), PLR_THIEF);
 									   } */
@@ -2654,7 +2654,7 @@ int process_foreach(char *cond, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, in
       trig - исполняемый триггер
       type - тип (MOB_TRIGGER,OBJ_TRIGGER,WLD_TRIGGER)
 
-Запись 
+Запись
 foreach i <список>
 работает так:
 
@@ -2714,7 +2714,7 @@ foreach i <список>
 	while (*list && a_isspace(*list))
 		++list;		// пропуск пробелов
 	while (*list && !a_isspace(*list))
-		*p++ = *list++;	// копирование слова  
+		*p++ = *list++;	// копирование слова
 	*p = 0;
 
 	if (!*value)
@@ -2813,7 +2813,7 @@ struct cmdlist_element *find_else_end(TRIG_DATA * trig,
 
 
 /*
-* scans for end of while/foreach/switch-blocks.   
+* scans for end of while/foreach/switch-blocks.
 * returns the line containg 'end', or NULL
 */
 struct cmdlist_element *find_done(TRIG_DATA * trig, struct cmdlist_element *cl)
@@ -3142,7 +3142,7 @@ TRIG_DATA *process_detach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type
 	return retval;
 }
 
-/* script run a trigger for something 
+/* script run a trigger for something
    return TRUE   - trigger find and runned
           FALSE  - trigger not runned
 */

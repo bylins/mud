@@ -2669,7 +2669,7 @@ ACMD(do_score)
 		sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n",
 			GET_GLORY(ch), desc_count(GET_GLORY(ch), WHAT_POINT));
 	playing_time = *real_time_passed((time(0) - ch->player.time.logon) + ch->player.time.played, 0);
-	sprintf(buf + strlen(buf), "Вы играете %d %s %d %s реального времени\r\n",
+	sprintf(buf + strlen(buf), "Вы играете %d %s %d %s реального времени.\r\n",
 		playing_time.day, desc_count(playing_time.day, WHAT_DAY),
 		playing_time.hours, desc_count(playing_time.hours, WHAT_HOUR));
 

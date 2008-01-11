@@ -1714,7 +1714,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	if (!IS_NPC(ch) && invalid_align(ch, obj) ||
 	    invalid_no_class(ch, obj) ||
 	    AFF_FLAGGED(ch, AFF_CHARM) && (OBJ_FLAGGED(obj, ITEM_SHARPEN) || OBJ_FLAGGED(obj, ITEM_ARMORED))) {
-		act("$o3 явно не предназначен$A для Вас.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$o0 явно не предназначен$A для Вас.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u одеть $o3, но у н$s ничего не получилось.", FALSE, ch, obj, 0, TO_ROOM);
 		if (!obj->carried_by)
 			obj_to_char(obj, ch);

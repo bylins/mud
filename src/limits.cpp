@@ -943,7 +943,7 @@ void point_update(void)
 		if (AFF_FLAGGED(i, AFF_SLEEP) && GET_POS(i) > POS_SLEEPING) {
 			GET_POS(i) = POS_SLEEPING;
 			send_to_char("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);
-			act("$n попытал$u очнуться, но снова занул$a и упал$a наземь.", TRUE, i, 0, 0, TO_ROOM);
+			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.", TRUE, i, 0, 0, TO_ROOM);
 		}
 		if (!IS_NPC(i)) {
 			if (average_day_temp() < -20)
