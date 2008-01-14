@@ -3329,6 +3329,11 @@ ACMD(do_show)
 		sprintf(buf + strlen(buf), "Описание игрока:\r\n");
 		sprintf(buf + strlen(buf), "%s\r\n", (vict->player.description ? vict->player.description : "<Нет>"));
 		send_to_char(buf, ch);
+		// Отображаем карму.
+		if (KARMA(vict)) {
+			sprintf(buf, "\r\n&WИнформация по наказаниям и поощрениям:&n\r\n%s", KARMA(vict));
+			send_to_char(buf, ch);
+		}
 		break;
 	case 3:
 		if (!*value) {
