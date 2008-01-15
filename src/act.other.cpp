@@ -652,6 +652,13 @@ ACMD(do_steal)
 		return;
 	}
 
+	if (IS_NPC(vict)
+		&& (MOB_FLAGGED(vict, MOB_NOFIGHT) || AFF_FLAGGED(vict, AFF_SHIELD) || MOB_FLAGGED(vict, MOB_PROTECT))
+		&& !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))) {
+		send_to_char("А ежели поймают? Посодют ведь!\r\nПодумав так, вы отказались от сего намеренья.\r\n", ch);
+		return;
+	}
+
 	go_steal(ch, vict, obj_name);
 }
 
