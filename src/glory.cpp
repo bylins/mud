@@ -33,7 +33,7 @@ typedef std::list<GloryTimePtr> GloryTimeType;
 
 class GloryNode {
 	public:
-	GloryNode() : free_glory(0), spend_glory(0), denial(0), hide(0) {};
+	GloryNode() : free_glory(0), spend_glory(0), denial(0), hide(0), freeze(0) {};
 	GloryNode &operator= (const GloryNode&);
 
 	int free_glory; // свободная слава на руках
@@ -42,6 +42,7 @@ class GloryNode {
 	int denial; // таймер ограничения на перекладывание вложенной славы
 	std::string name; // для топа
 	bool hide; // показывать или нет в топе прославленных
+	bool freeze; // состояние фриза (таймеры не тикают)
 };
 
 typedef boost::shared_ptr<GloryNode> GloryNodePtr;
@@ -105,6 +106,7 @@ GloryNode & GloryNode::operator= (const GloryNode &t)
 	denial = t.denial;
 	name = t.name;
 	hide = t.hide;
+	freeze = t.freeze;
 	timers.clear();
 	for (GloryTimeType::const_iterator tm_it = t.timers.begin(); tm_it != t.timers.end(); ++tm_it)
 	{
@@ -140,17 +142,19 @@ void load_glory()
 			GloryNodePtr temp_node (new GloryNode);
 			long uid = 0;
 			int free_glory = 0, denial = 0;
-			bool hide = 0;
+			bool hide = 0, freeze = 0;
 
-			if (!(file >> uid >> free_glory >> denial >> hide))
+			if (!(file >> uid >> free_glory >> denial >> hide >> freeze))
 			{
-				log("Glory: ошибка чтения uid: %ld, free_glory: %d, denial: %d, hide: %d", uid, free_glory, denial, hide);
+				log("Glory: ошибка чтения uid: %ld, free_glory: %d, denial: %d, hide: %d, freeze: %d",
+					uid, free_glory, denial, hide, freeze);
 				break;
 			}
 			temp_node->free_glory = free_glory;
 			temp_node->denial = denial;
 			temp_node->hide = hide;
-			all_sum += uid + free_glory + denial + hide;
+			temp_node->freeze = freeze;
+			all_sum += uid + free_glory + denial + hide + freeze;
 
 			file >> buffer;
 			if (buffer != "<Glory>")
@@ -271,8 +275,8 @@ void save_glory()
 	long all_sum = 0;
 	for (GloryListType::const_iterator it = glory_list.begin(); it != glory_list.end(); ++it)
 	{
-		file << "<Node>\n" << it->first << " " << it->second->free_glory << " " << it->second->denial << " " << it->second->hide << "\n<Glory>\n";
-		all_sum += it->first + it->second->free_glory + it->second->denial + it->second->hide;
+		file << "<Node>\n" << it->first << " " << it->second->free_glory << " " << it->second->denial << " " << it->second->hide << " " << it->second->freeze << "\n<Glory>\n";
+		all_sum += it->first + it->second->free_glory + it->second->denial + it->second->hide + it->second->freeze;
 		for (GloryTimeType::const_iterator gl_it = it->second->timers.begin(); gl_it != it->second->timers.end(); ++gl_it)
 		{
 			file << (*gl_it)->glory << " " << (*gl_it)->stat << " " << (*gl_it)->timer << "\n";
@@ -916,6 +920,7 @@ void timers_update()
 {
 	for (GloryListType::iterator it = glory_list.begin(); it != glory_list.end(); ++it)
 	{
+		if (it->second->freeze) continue; // во фризе никакие таймеры не тикают
 		bool removed = 0; // флажок для сообщения о пропадании славы (чтобы не спамить на каждый стат)
 		for (GloryTimeType::iterator tm_it = it->second->timers.begin(); tm_it != it->second->timers.end(); )
 		{
@@ -1500,7 +1505,7 @@ void show_glory(CHAR_DATA *ch ,char const * const value)
 }
 
 /**
-* Распеча топа славы. У иммов дополнительно печатается список чаров, не вошедших в топ (hide).
+* Распечатка топа славы. У иммов дополнительно печатается список чаров, не вошедших в топ (hide).
 */
 void print_glory_top(CHAR_DATA *ch)
 {
@@ -1518,7 +1523,7 @@ void print_glory_top(CHAR_DATA *ch)
 
 	for (GloryListType::const_iterator it = glory_list.begin(); it != glory_list.end(); ++it)
 	{
-		if (!it->second->hide)
+		if (!it->second->hide && !it->second->freeze)
 			temp_list[it->second->free_glory + it->second->spend_glory * 1000] = it->second;
 		else if (print_hide)
 			hide << it->second->name << " ";
@@ -1561,6 +1566,28 @@ void hide_char(CHAR_DATA *vict, CHAR_DATA *god, char const * const mode)
 	}
 	else
 		send_to_char(god, "Некорректный параметр %s, hide может быть только on или off.\r\n", mode);
+}
+
+/**
+* Остановка таймеров на вложенной славе.
+*/
+void set_freeze(long uid)
+{
+	GloryListType::iterator it = glory_list.find(uid);
+	if (it != glory_list.end())
+		it->second->freeze = 1;
+	save_glory();
+}
+
+/**
+* Включение таймеров на вложенной славе.
+*/
+void remove_freeze(long uid)
+{
+	GloryListType::iterator it = glory_list.find(uid);
+	if (it != glory_list.end())
+		it->second->freeze = 0;
+	save_glory();
 }
 
 } // namespace Glory

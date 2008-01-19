@@ -32,6 +32,7 @@
 #include "deathtrap.hpp"
 #include "ban.hpp"
 #include "depot.hpp"
+#include "glory.hpp"
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
@@ -475,7 +476,8 @@ void beat_punish(CHAR_DATA * i)
 		GET_FREEZE_LEV(i) = 0;
 		FREEZE_GODID(i) = 0;
 		FREEZE_DURATION(i) = 0;
-			send_to_char("Вы оттаяли.\r\n", i);
+		send_to_char("Вы оттаяли.\r\n", i);
+		Glory::remove_freeze(GET_UNIQUE(i));
 	}
 	// Проверяем а там ли мы где должны быть по флагам.
 	if (IN_ROOM(i) == STRANGE_ROOM)

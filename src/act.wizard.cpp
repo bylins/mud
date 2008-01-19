@@ -278,7 +278,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 					return (0);
 				};
 				REMOVE_BIT(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN);
-
+				Glory::remove_freeze(GET_UNIQUE(vict));
 
 				sprintf(buf, "Freeze OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -481,7 +481,8 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 
 			case SCMD_FREEZE:
 				SET_BIT(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN);
-        			pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
+				Glory::set_freeze(GET_UNIQUE(vict));
+        		pundata->duration = (times > 0) ? time(NULL) + times * 60 * 60 : MAX_TIME;
 
 				sprintf(buf, "Freeze ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);

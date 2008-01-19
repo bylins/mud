@@ -40,8 +40,6 @@ int SHARE_CHEST_RNUM = -1;
 // максимальное кол-во шмоток в персональном|общем хранилищах
 const unsigned int MAX_PERS_SLOTS = 25;
 const unsigned int MAX_SHARE_SLOTS = 1000;
-// расширенное логирование в отдельный файл на время тестов и изменений
-const bool debug_mode = 1;
 
 class OfflineNode
 {
@@ -129,8 +127,6 @@ DepotListType depot_list; // список личных хранилищ
 */
 void depot_log(const char *format, ...)
 {
-	if (!debug_mode) return;
-
 	const char *filename = "../log/depot.log";
 	static FILE *file = 0;
 	if (!file) {
@@ -157,7 +153,7 @@ void depot_log(const char *format, ...)
 int get_object_low_rent(OBJ_DATA *obj)
 {
 	int rent = GET_OBJ_RENT(obj) > GET_OBJ_RENTEQ(obj) ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj);
-	depot_log("get_object_low_rent: %s %i", GET_OBJ_PNAME(obj, 0), rent);
+	// depot_log("get_object_low_rent: %s %i", GET_OBJ_PNAME(obj, 0), rent);
 	return rent;
 }
 
@@ -176,7 +172,7 @@ void CharNode::add_cost_per_day(int amount)
 		cost_per_day = std::numeric_limits<int>::max();
 	else
 		cost_per_day += amount;
-	depot_log("add_cost_per_day: %i, cost_per_day: %i", amount, cost_per_day);
+	// depot_log("add_cost_per_day: %i, cost_per_day: %i", amount, cost_per_day);
 }
 
 /**
@@ -192,11 +188,11 @@ void CharNode::add_cost_per_day(OBJ_DATA *obj)
 */
 void CharNode::remove_cost_per_day(int amount)
 {
-	depot_log("remove_cost_per_day: %i", amount);
+	// depot_log("remove_cost_per_day: %i", amount);
 	cost_per_day -= amount;
 	if (cost_per_day < 0)
 		cost_per_day = 0;
-	depot_log("remove_per_day: %i", cost_per_day);
+	// depot_log("remove_per_day: %i", cost_per_day);
 }
 
 /**
@@ -232,7 +228,7 @@ void load_chests()
 */
 void init_depot()
 {
-	depot_log("init_depot: start");
+	// depot_log("init_depot: start");
 	PERS_CHEST_RNUM = real_object(PERS_CHEST_VNUM);
 	SHARE_CHEST_RNUM = real_object(SHARE_CHEST_VNUM);
 
@@ -366,7 +362,7 @@ void init_depot()
 
 		depot_list[uid] = tmp_node;
 	}
-	depot_log("init_depot: end");
+	// depot_log("init_depot: end");
 }
 
 /**
@@ -388,7 +384,7 @@ int is_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 */
 void put_gold_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	depot_log("put_gold_chest: %s, %s", GET_NAME(ch), GET_OBJ_PNAME(obj, 0));
+	// depot_log("put_gold_chest: %s, %s", GET_NAME(ch), GET_OBJ_PNAME(obj, 0));
 	if (GET_OBJ_TYPE(obj) != ITEM_MONEY) return;
 
 	long gold = GET_OBJ_VAL(obj, 0);
@@ -410,7 +406,7 @@ void put_gold_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 		extract_obj(obj);
 		send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
 	}
-	depot_log("put_gold_chest: end");
+	// depot_log("put_gold_chest: end");
 }
 
 /**
@@ -419,7 +415,7 @@ void put_gold_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 */
 bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	depot_log("can_put_chest: %s, %s", GET_NAME(ch), GET_OBJ_PNAME(obj, 0));
+	// depot_log("can_put_chest: %s, %s", GET_NAME(ch), GET_OBJ_PNAME(obj, 0));
 	if (IS_OBJ_STAT(obj, ITEM_NODROP)
 			|| OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
 			|| GET_OBJ_TYPE(obj) == ITEM_KEY
@@ -445,7 +441,7 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 */
 void CharNode::add_item(OBJ_DATA *obj, int type)
 {
-	depot_log("add_item: %s, %i", GET_OBJ_PNAME(obj, 0), type);
+	// depot_log("add_item: %s, %i", GET_OBJ_PNAME(obj, 0), type);
 	if (type == PERS_CHEST)
 		pers_online.push_front(obj);
 	else
@@ -454,7 +450,7 @@ void CharNode::add_item(OBJ_DATA *obj, int type)
 		add_cost_per_day(obj);
 	}
 	state.set(type);
-	depot_log("add_item: state.set(%i)", type);
+	// depot_log("add_item: state.set(%i)", type);
 }
 
 /**
@@ -464,7 +460,7 @@ void CharNode::add_item(OBJ_DATA *obj, int type)
 */
 void CharNode::load_item(OBJ_DATA*obj, int type)
 {
-	depot_log("load_item: %s, %i", GET_OBJ_PNAME(obj, 0), type);
+	// depot_log("load_item: %s, %i", GET_OBJ_PNAME(obj, 0), type);
 	if (type == PERS_CHEST)
 	{
 		pers_online.push_front(obj);
@@ -473,7 +469,7 @@ void CharNode::load_item(OBJ_DATA*obj, int type)
 	else
 		share_online.push_front(obj);
 	state.set(type);
-	depot_log("load_item: state.set(%i)", type);
+	// depot_log("load_item: state.set(%i)", type);
 }
 
 /**
@@ -482,7 +478,7 @@ void CharNode::load_item(OBJ_DATA*obj, int type)
 */
 DepotListType::iterator create_depot(long uid, CHAR_DATA *ch = 0)
 {
-	depot_log("create_depot: %i, %s", uid, ch ? GET_NAME(ch) : "ch = 0");
+	// depot_log("create_depot: %i, %s", uid, ch ? GET_NAME(ch) : "ch = 0");
 	DepotListType::iterator it = depot_list.find(uid);
 	if (it == depot_list.end())
 	{
@@ -493,9 +489,9 @@ DepotListType::iterator create_depot(long uid, CHAR_DATA *ch = 0)
 		tmp_node.name = GetNameByUnique(uid);
 		depot_list[uid] = tmp_node;
 		it = depot_list.find(uid);
-		depot_log("create_depot: new_node for %s", tmp_node.name.c_str());
+		// depot_log("create_depot: new_node for %s", tmp_node.name.c_str());
 	}
-	depot_log("create_depot: end");
+	// depot_log("create_depot: end");
 	return it;
 }
 
@@ -504,7 +500,7 @@ DepotListType::iterator create_depot(long uid, CHAR_DATA *ch = 0)
 */
 bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 {
-	depot_log("put_depot: %s, %s, %i", GET_NAME(ch), GET_OBJ_PNAME(obj, 0), type);
+	// depot_log("put_depot: %s, %s, %i", GET_NAME(ch), GET_OBJ_PNAME(obj, 0), type);
 	if (IS_NPC(ch)) return 0;
 	if (IS_IMMORTAL(ch))
 	{
@@ -564,7 +560,7 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 	OBJ_DATA *temp;
 	REMOVE_FROM_LIST(obj, object_list, next);
 
-	depot_log("put_depot: done");
+	// depot_log("put_depot: done");
 	return 1;
 }
 
@@ -584,7 +580,7 @@ void print_obj(std::stringstream &out, OBJ_DATA *obj, int count)
 */
 std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string &chest_name, int money)
 {
-	depot_log("print_obj_list: start");
+	// depot_log("print_obj_list: start");
 	int rent_per_day = 0;
 	std::stringstream out;
 
@@ -630,7 +626,7 @@ std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string 
 		head << ", денег на: очень много дней";
 	head << CCNRM(ch, C_NRM) << ")\r\n";
 
-	depot_log("print_obj_list: end");
+	// depot_log("print_obj_list: end");
 	return (head.str() + out.str());
 }
 
@@ -640,7 +636,7 @@ std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string 
 */
 void show_depot(CHAR_DATA * ch, OBJ_DATA * obj, int type)
 {
-	depot_log("show_depot: %s, %s, %i", GET_NAME(ch), GET_OBJ_PNAME(obj, 0), type);
+	// depot_log("show_depot: %s, %s, %i", GET_NAME(ch), GET_OBJ_PNAME(obj, 0), type);
 	if (IS_NPC(ch)) return;
 	if (IS_IMMORTAL(ch))
 	{
@@ -701,7 +697,7 @@ void show_depot(CHAR_DATA * ch, OBJ_DATA * obj, int type)
 		}
 	}
 	page_string(ch->desc, out, 1);
-	depot_log("show_depot: end");
+	// depot_log("show_depot: end");
 }
 
 /**
@@ -710,7 +706,7 @@ void show_depot(CHAR_DATA * ch, OBJ_DATA * obj, int type)
 */
 bool CharNode::obj_from_obj_list(char *name, int type, CHAR_DATA *vict)
 {
-	depot_log("obj_from_obj_list: %s, %i, %s", name ? name : "<none>", type, GET_NAME(vict));
+	// depot_log("obj_from_obj_list: %s, %i, %s", name ? name : "<none>", type, GET_NAME(vict));
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
 	strcpy(tmp, name);
@@ -720,7 +716,7 @@ bool CharNode::obj_from_obj_list(char *name, int type, CHAR_DATA *vict)
 	int j = 0, number;
 	if (!(number = get_number(&tmp)))
 	{
-		depot_log("obj_from_obj_list: fasle");
+		// depot_log("obj_from_obj_list: fasle");
 		return false;
 	}
 
@@ -757,7 +753,7 @@ bool CharNode::obj_from_obj_list(char *name, int type, CHAR_DATA *vict)
 			}
 		}
 	}
-	depot_log("obj_from_obj_list: fasle");
+	// depot_log("obj_from_obj_list: fasle");
 	return false;
 }
 
@@ -767,7 +763,7 @@ bool CharNode::obj_from_obj_list(char *name, int type, CHAR_DATA *vict)
 */
 void CharNode::remove_item(CHAR_DATA *vict, ObjListType::iterator &obj_it, ObjListType &cont, int type)
 {
-	depot_log("remove_item: %s, %s, %i", GET_NAME(vict), GET_OBJ_PNAME(*obj_it, 0), type);
+	// depot_log("remove_item: %s, %s, %i", GET_NAME(vict), GET_OBJ_PNAME(*obj_it, 0), type);
 	(*obj_it)->next = object_list;
 	object_list = *obj_it;
 	obj_to_char(*obj_it, vict);
@@ -786,7 +782,7 @@ void CharNode::remove_item(CHAR_DATA *vict, ObjListType::iterator &obj_it, ObjLi
 		remove_cost_per_day(*obj_it);
 	cont.erase(obj_it++);
 	state.set(type);
-	depot_log("remove_item: state.set(%i)", type);
+	// depot_log("remove_item: state.set(%i)", type);
 }
 
 /**
@@ -794,7 +790,7 @@ void CharNode::remove_item(CHAR_DATA *vict, ObjListType::iterator &obj_it, ObjLi
 */
 ObjListType & CharNode::get_depot_type(int type)
 {
-	depot_log("get_depot_type: %i", type);
+	// depot_log("get_depot_type: %i", type);
 	if (type == PERS_CHEST)
 		return pers_online;
 	else
@@ -806,7 +802,7 @@ ObjListType & CharNode::get_depot_type(int type)
 */
 void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany, int type)
 {
-	depot_log("take_item: %s, %s, %i, %i", GET_NAME(vict), arg ? arg : "<none>", howmany, type);
+	// depot_log("take_item: %s, %s, %i, %i", GET_NAME(vict), arg ? arg : "<none>", howmany, type);
 	ObjListType &cont = get_depot_type(type);
 
 	int obj_dotmode = find_all_dots(arg);
@@ -884,7 +880,7 @@ void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany, int type)
 */
 void take_depot(CHAR_DATA *vict, char *arg, int howmany, int type)
 {
-	depot_log("take_depot: %s, %s, %i, %i", GET_NAME(vict), arg ? arg : "<none>", howmany, type);
+	// depot_log("take_depot: %s, %s, %i, %i", GET_NAME(vict), arg ? arg : "<none>", howmany, type);
 	if (IS_NPC(vict)) return;
 	if (IS_IMMORTAL(vict))
 	{
@@ -909,7 +905,7 @@ void take_depot(CHAR_DATA *vict, char *arg, int howmany, int type)
 		it->second.take_item(vict, arg, howmany, PERS_CHEST);
 	else
 		it->second.take_item(vict, arg, howmany, SHARE_CHEST);
-	depot_log("take_depot: done");
+	// depot_log("take_depot: done");
 }
 
 /**
@@ -917,7 +913,7 @@ void take_depot(CHAR_DATA *vict, char *arg, int howmany, int type)
 */
 void CharNode::reset()
 {
-	depot_log("reset: %s", name.c_str());
+	// depot_log("reset: %s", name.c_str());
 	for (ObjListType::iterator obj_it = pers_online.begin(); obj_it != pers_online.end(); ++obj_it)
 		extract_obj(*obj_it);
 	for (ObjListType::iterator obj_it = share_online.begin(); obj_it != share_online.end(); ++obj_it)
@@ -941,7 +937,7 @@ void CharNode::reset()
 
 	state.reset();
 	state.set(PURGE_CHEST);
-	depot_log("reset: %s done", name.c_str());
+	// depot_log("reset: %s done", name.c_str());
 }
 
 /**
@@ -949,7 +945,7 @@ void CharNode::reset()
 */
 void write_obj_file(const std::string &name, int file_type, const ObjListType &cont)
 {
-	depot_log("write_obj_file: %s, %i", name.c_str(), file_type);
+	// depot_log("write_obj_file: %s, %i", name.c_str(), file_type);
 	char filename[MAX_STRING_LENGTH];
 	if (!get_filename(name.c_str(), filename, file_type))
 	{
@@ -961,7 +957,7 @@ void write_obj_file(const std::string &name, int file_type, const ObjListType &c
 	if (cont.empty())
 	{
 		remove(filename);
-		depot_log("write_obj_file: %s deleted", filename);
+		// depot_log("write_obj_file: %s deleted", filename);
 		return;
 	}
 
@@ -981,7 +977,7 @@ void write_obj_file(const std::string &name, int file_type, const ObjListType &c
 	}
 	file << "\n$\n$\n";
 	file.close();
-	depot_log("write_obj_file: %s done", filename);
+	// depot_log("write_obj_file: %s done", filename);
 }
 
 /**
@@ -990,14 +986,14 @@ void write_obj_file(const std::string &name, int file_type, const ObjListType &c
 */
 void CharNode::removal_period_cost()
 {
-	depot_log("removal_period_cost: %s", name.c_str());
+	// depot_log("removal_period_cost: %s", name.c_str());
 	double i;
 	buffer_cost += (static_cast<double>(cost_per_day) / SECS_PER_MUD_DAY);
 	modf(buffer_cost, &i);
 	if (i)
 	{
 		int diff = static_cast<int> (i);
-		depot_log("removal_period_cost: diff = %i", diff);
+		// depot_log("removal_period_cost: diff = %i", diff);
 		if (ch)
 			GET_BANK_GOLD(ch) -= diff;
 		else
@@ -1028,12 +1024,12 @@ void CharNode::removal_period_cost()
 
 	if (purge)
 	{
-		depot_log("removal_period_cost: purge");
+		// depot_log("removal_period_cost: purge");
 		reset();
 		write_obj_file(name, PERS_DEPOT_FILE, pers_online);
 		write_obj_file(name, SHARE_DEPOT_FILE, share_online);
 	}
-	depot_log("removal_period_cost: %s done", name.c_str());
+	// depot_log("removal_period_cost: %s done", name.c_str());
 }
 
 /**
@@ -1041,7 +1037,7 @@ void CharNode::removal_period_cost()
 */
 void CharNode::update_online_item(ObjListType &cont, int type)
 {
-	depot_log("update_online_item: %s, %i", name.c_str(), type);
+	// depot_log("update_online_item: %s, %i", name.c_str(), type);
 	std::string chest_name;
 	if (type == PERS_CHEST)
 		chest_name = "Персональное";
@@ -1053,7 +1049,7 @@ void CharNode::update_online_item(ObjListType &cont, int type)
 		GET_OBJ_TIMER(*obj_it)--;
 		if (GET_OBJ_TIMER(*obj_it) <= 0)
 		{
-			depot_log("update_online_item: %s destroyed (timer = %i)", GET_OBJ_PNAME(*obj_it, 0), GET_OBJ_TIMER(*obj_it));
+			// depot_log("update_online_item: %s destroyed (timer = %i)", GET_OBJ_PNAME(*obj_it, 0), GET_OBJ_TIMER(*obj_it));
 			if (ch)
 				send_to_char(ch, "[%s хранилище]: %s'%s рассыпал%s в прах'%s\r\n",
 				 chest_name.c_str(), CCIRED(ch, C_NRM), (*obj_it)->short_description,
@@ -1062,7 +1058,7 @@ void CharNode::update_online_item(ObjListType &cont, int type)
 			extract_obj(*obj_it);
 			cont.erase(obj_it++);
 			state.set(type);
-			depot_log("update_online_item: state.set(%i)", type);
+			// depot_log("update_online_item: state.set(%i)", type);
 		}
 		else
 		{
@@ -1070,7 +1066,7 @@ void CharNode::update_online_item(ObjListType &cont, int type)
 			++obj_it;
 		}
 	}
-	depot_log("update_online_item: %s done", name.c_str());
+	// depot_log("update_online_item: %s done", name.c_str());
 }
 
 /**
@@ -1078,13 +1074,13 @@ void CharNode::update_online_item(ObjListType &cont, int type)
 */
 void CharNode::update_offline_item()
 {
-	depot_log("update_offline_item: %s", name.c_str());
+	// depot_log("update_offline_item: %s", name.c_str());
 	for (TimerListType::iterator obj_it = offline_list.begin(); obj_it != offline_list.end(); )
 	{
 		--(obj_it->timer);
 		if (obj_it->timer <= 0)
 		{
-			depot_log("update_offline_item: uid = %li, vnum = %i destroyed (timer = %i)", obj_it->uid, obj_it->vnum, obj_it->timer);
+			// depot_log("update_offline_item: uid = %li, vnum = %i destroyed (timer = %i)", obj_it->uid, obj_it->vnum, obj_it->timer);
 			// шмотка уходит в лоад
 			int rnum = real_object(obj_it->vnum);
 			if (rnum >= 0)
@@ -1098,7 +1094,7 @@ void CharNode::update_offline_item()
 			++obj_it;
 		}
 	}
-	depot_log("update_offline_item: %s done", name.c_str());
+	// depot_log("update_offline_item: %s done", name.c_str());
 }
 
 /**
@@ -1107,7 +1103,7 @@ void CharNode::update_offline_item()
 */
 void update_timers()
 {
-	depot_log("update_timers: start");
+	// depot_log("update_timers: start");
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); )
 	{
 		class CharNode & node = it->second;
@@ -1132,13 +1128,13 @@ void update_timers()
 				&& node.pers_online.empty()
 				&& node.share_online.empty())
 		{
-			depot_log("update_timers: purge empty depot %s", it->second.name.c_str());
+			// depot_log("update_timers: purge empty depot %s", it->second.name.c_str());
 			depot_list.erase(it++);
 		}
 		else
 			++it;
 	}
-	depot_log("update_timers: end");
+	// depot_log("update_timers: end");
 }
 
 const char *HELP_FORMAT =
@@ -1161,7 +1157,7 @@ SPECIAL(Special)
 {
 	if (IS_NPC(ch) || !CMD_IS("хранилище")) return false;
 
-	depot_log("Special: %s", GET_NAME(ch));
+	// depot_log("Special: %s", GET_NAME(ch));
 	if (IS_IMMORTAL(ch))
 	{
 		send_to_char("И без хранилища обойдешься...\r\n" , ch);
@@ -1193,7 +1189,7 @@ SPECIAL(Special)
 				return true;
 			}
 
-			depot_log("Special: %s add %s (uid: %li)", GET_NAME(ch), name.c_str(), uid);
+			// depot_log("Special: %s add %s (uid: %li)", GET_NAME(ch), name.c_str(), uid);
 			// сначала смотрим добавляемого чара на предмет ответной записи
 			// если она есть - то втыкаем ему флаг обоюдной ссылки
 			bool mutual = false;
@@ -1212,7 +1208,7 @@ SPECIAL(Special)
 			send_to_char(ch, "Персонаж добавлен в доверительный список.\r\n");
 			if (mutual)
 			{
-				depot_log("Special: %s add mutual = 1");
+				// depot_log("Special: %s add mutual = 1");
 				ch_it->second.waiting_allowed_chars.push_back(uid);
 				// добавляемому тоже впишем себя в очередь на объединение, чтобы верно выводить
 				// ему статус по команде хранилище
@@ -1222,7 +1218,7 @@ SPECIAL(Special)
 			}
 			else
 			{
-				depot_log("Special: %s add mutual = 0");
+				// depot_log("Special: %s add mutual = 0");
 				send_to_char(ch,
 				 "Ответной записи не найдено, ожидается подтверждение указанного персонажа.\r\n");
 			}
@@ -1259,18 +1255,18 @@ SPECIAL(Special)
 				if (!vict_it->second.any_other_share())
 					vict_it->second.online_to_offline(vict_it->second.share_online, SHARE_DEPOT_FILE);
 			}
-			depot_log("Special: %s remove %s (uid: %li)", GET_NAME(ch), name.c_str(), uid);
+			// depot_log("Special: %s remove %s (uid: %li)", GET_NAME(ch), name.c_str(), uid);
 			send_to_char(ch, "Персонаж удален из Вашего доверительного списка.\r\n");
 		}
 		else
 		{
-			depot_log("Special: %s remove %s fail", GET_NAME(ch), name.c_str());
+			// depot_log("Special: %s remove %s fail", GET_NAME(ch), name.c_str());
 			send_to_char(ch, "Указанный персонаж не найден.\r\n");
 		}
 	}
 	else
 	{
-		depot_log("Special: %s list");
+		// depot_log("Special: %s list");
 		std::string out = "Список персонажей на объединение хранилищ:\r\n";
 		out += CCWHT(ch, C_NRM);
 		for (AllowedCharType::const_iterator al_it = ch_it->second.allowed_chars.begin();
@@ -1298,8 +1294,8 @@ SPECIAL(Special)
 		out += HELP_FORMAT;
 		page_string(ch->desc, out, 1);
 	}
+	// depot_log("Special: %s done");
 	return true;
-	depot_log("Special: %s done");
 }
 
 /**
@@ -1308,20 +1304,20 @@ SPECIAL(Special)
 */
 void CharNode::save_online_objs()
 {
-	depot_log("save_online_objs: %s", name.c_str());
+	// depot_log("save_online_objs: %s", name.c_str());
 	if (state[PERS_CHEST])
 	{
 		write_obj_file(name, PERS_DEPOT_FILE, pers_online);
 		state.reset(PERS_CHEST);
-		depot_log("save_online_objs: %s pers_depot saved (state.reset(%i))", name.c_str(), PERS_CHEST);
+		// depot_log("save_online_objs: %s pers_depot saved (state.reset(%i))", name.c_str(), PERS_CHEST);
 	}
 	if (state[SHARE_CHEST])
 	{
 		write_obj_file(name, SHARE_DEPOT_FILE, share_online);
 		state.reset(SHARE_CHEST);
-		depot_log("save_online_objs: %s share_depot saved (state.reset(%i))", name.c_str(), SHARE_CHEST);
+		// depot_log("save_online_objs: %s share_depot saved (state.reset(%i))", name.c_str(), SHARE_CHEST);
 	}
-	depot_log("save_online_objs: %s done", name.c_str());
+	// depot_log("save_online_objs: %s done", name.c_str());
 }
 
 /**
@@ -1329,10 +1325,10 @@ void CharNode::save_online_objs()
 */
 void save_all_online_objs()
 {
-	depot_log("save_all_online_objs: start");
+	// depot_log("save_all_online_objs: start");
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
 		it->second.save_online_objs();
-	depot_log("save_all_online_objs: end");
+	// depot_log("save_all_online_objs: end");
 }
 
 /**
@@ -1350,7 +1346,7 @@ void write_objlist_timedata(const ObjListType &cont, std::ofstream &file)
 */
 void save_timedata()
 {
-	depot_log("save_timedata: start");
+	// depot_log("save_timedata: start");
 	const char *depot_file = LIB_DEPOT"depot.db";
 	std::ofstream file(depot_file);
 	if (!file.is_open())
@@ -1369,11 +1365,7 @@ void save_timedata()
 			file << it->second.money << " " << it->second.money_spend << " ";
 		file << it->second.buffer_cost << "\n";
 
-		depot_log("save_timedata: %s (uid: %li) pers: %i, share: %i, offline: %i",
-			it->second.name.c_str(), it->first,
-			it->second.pers_online.size(),
-			it->second.share_online.size(),
-			it->second.offline_list.size());
+		// depot_log("save_timedata: %s (uid: %li) pers: %i, share: %i, offline: %i", it->second.name.c_str(), it->first, it->second.pers_online.size(), it->second.share_online.size(), it->second.offline_list.size());
 		// собсна какие списки не пустые - те и пишем, особо не мудрствуя
 		file << "<Objects>\n";
 		write_objlist_timedata(it->second.pers_online, file);
@@ -1395,7 +1387,7 @@ void save_timedata()
 		file << "</Allowed>\n";
 		file << "</Node>\n";
 	}
-	depot_log("save_timedata: end");
+	// depot_log("save_timedata: end");
 }
 
 /**
@@ -1405,7 +1397,7 @@ void save_timedata()
 */
 void CharNode::load_online_objs(int file_type, bool reload)
 {
-	depot_log("load_online_objs: %s, %i, %i", name.c_str(), file_type, reload);
+	// depot_log("load_online_objs: %s, %i, %i", name.c_str(), file_type, reload);
 	if (offline_list.empty()) return;
 
 	char filename[MAX_STRING_LENGTH];
@@ -1480,7 +1472,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 		REMOVE_FROM_LIST(obj, object_list, next);
 	}
 	delete [] databuf;
-	depot_log("load_online_objs: done");
+	// depot_log("load_online_objs: done");
 }
 
 /**
@@ -1489,7 +1481,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 */
 void enter_char(CHAR_DATA *ch)
 {
-	depot_log("enter_char: %s", GET_NAME(ch));
+	// depot_log("enter_char: %s", GET_NAME(ch));
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
 	if (it != depot_list.end())
 	{
@@ -1501,7 +1493,7 @@ void enter_char(CHAR_DATA *ch)
 				CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 			GET_BANK_GOLD(ch) = 0;
 			GET_GOLD(ch) = 0;
-			depot_log("enter_char: %s purge_chest", GET_NAME(ch));
+			// depot_log("enter_char: %s purge_chest", GET_NAME(ch));
 		}
 		// снимаем бабло, если что-то было потрачено на ренту
 		if (it->second.money_spend > 0)
@@ -1544,7 +1536,7 @@ void enter_char(CHAR_DATA *ch)
 		// если хранилище уже было подгружено - это пофигу, просто ничего не произойдет
 		// поэтому его общее хранилище мы тоже не убираем из возможных заявок на подгрузку
 	}
-	depot_log("enter_char: %s done", GET_NAME(ch));
+	// depot_log("enter_char: %s done", GET_NAME(ch));
 }
 
 /**
@@ -1552,23 +1544,23 @@ void enter_char(CHAR_DATA *ch)
 */
 void CharNode::online_to_offline(ObjListType &cont, int file_type)
 {
-	depot_log("online_to_offline: %s, %i", name.c_str(), file_type);
+	// depot_log("online_to_offline: %s, %i", name.c_str(), file_type);
 	if (file_type == PERS_DEPOT_FILE && state[PERS_CHEST])
 	{
 		write_obj_file(name, file_type, cont);
 		state.reset(PERS_CHEST);
-		depot_log("online_to_offline: pers_depot saved");
+		// depot_log("online_to_offline: pers_depot saved");
 	}
 	if (file_type == SHARE_DEPOT_FILE && state[SHARE_CHEST])
 	{
 		write_obj_file(name, file_type, cont);
 		state.reset(SHARE_CHEST);
-		depot_log("online_to_offline: share_depot saved");
+		// depot_log("online_to_offline: share_depot saved");
 	}
 
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
 	{
-		depot_log("online_to_offline: %s (uid = %li)", GET_OBJ_PNAME(*obj_it, 0), GET_OBJ_UID(*obj_it));
+		// depot_log("online_to_offline: %s (uid = %li)", GET_OBJ_PNAME(*obj_it, 0), GET_OBJ_UID(*obj_it));
 		OfflineNode tmp_obj;
 		tmp_obj.vnum = GET_OBJ_VNUM(*obj_it);
 		tmp_obj.timer = GET_OBJ_TIMER(*obj_it);
@@ -1582,7 +1574,7 @@ void CharNode::online_to_offline(ObjListType &cont, int file_type)
 			obj_index[rnum].number++;
 	}
 	cont.clear();
-	depot_log("online_to_offline: %s done", name.c_str());
+	// depot_log("online_to_offline: %s done", name.c_str());
 }
 
 /**
@@ -1590,7 +1582,7 @@ void CharNode::online_to_offline(ObjListType &cont, int file_type)
 */
 bool CharNode::any_other_share()
 {
-	depot_log("any_other_share: %s", name.c_str());
+	// depot_log("any_other_share: %s", name.c_str());
 	for (AllowedCharType::const_iterator al_it = allowed_chars.begin();
 			al_it != allowed_chars.end(); ++al_it)
 	{
@@ -1599,12 +1591,12 @@ bool CharNode::any_other_share()
 			DESCRIPTOR_DATA *d = DescByUID(al_it->first);
 			if (d)
 			{
-				depot_log("any_other_share: %s true (%s)", name.c_str(), GET_NAME(d->character));
+				// depot_log("any_other_share: %s true (%s)", name.c_str(), GET_NAME(d->character));
 				return true;
 			}
 		}
 	}
-	depot_log("any_other_share: %s fasle", name.c_str());
+	// depot_log("any_other_share: %s fasle", name.c_str());
 	return false;
 }
 
@@ -1613,7 +1605,7 @@ bool CharNode::any_other_share()
 */
 void exit_char(CHAR_DATA *ch)
 {
-	depot_log("exit_char: %s", GET_NAME(ch));
+	// depot_log("exit_char: %s", GET_NAME(ch));
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
 	if (it != depot_list.end())
 	{
@@ -1631,7 +1623,7 @@ void exit_char(CHAR_DATA *ch)
 		it->second.money = GET_BANK_GOLD(ch) + GET_GOLD(ch);
 		it->second.money_spend = 0;
 	}
-	depot_log("exit_char: %s done", GET_NAME(ch));
+	// depot_log("exit_char: %s done", GET_NAME(ch));
 }
 
 /**
@@ -1661,7 +1653,7 @@ int get_total_cost_per_day(CHAR_DATA *ch)
 */
 void load_share_depots()
 {
-	depot_log("load_share_depots: start");
+	// depot_log("load_share_depots: start");
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
 	{
 		if (!it->second.waiting_allowed_chars.empty())
@@ -1681,7 +1673,7 @@ void load_share_depots()
 		if (!it->second.ch && !it->second.share_online.empty() && !it->second.any_other_share())
 			it->second.online_to_offline(it->second.share_online, SHARE_DEPOT_FILE);
 	}
-	depot_log("load_share_depots: end");
+	// depot_log("load_share_depots: end");
 }
 
 /**
@@ -1689,7 +1681,7 @@ void load_share_depots()
 */
 void rename_char(long uid)
 {
-	depot_log("rename_char: %li", uid);
+	// depot_log("rename_char: %li", uid);
 	std::string new_name = GetNameByUnique(uid);
 	if (new_name.empty())
 	{
@@ -1705,7 +1697,7 @@ void rename_char(long uid)
 			continue;
 		}
 	}
-	depot_log("rename_char: done");
+	// depot_log("rename_char: done");
 }
 
 /**
@@ -1713,14 +1705,14 @@ void rename_char(long uid)
 */
 void reload_char(long uid)
 {
-	depot_log("reload_char: %li", uid);
+	// depot_log("reload_char: %li", uid);
 	DepotListType::iterator it = create_depot(uid);
 	// сначала обнуляем все, что надо
 	it->second.reset();
 	// потом читаем шмот
 	it->second.load_online_objs(PERS_DEPOT_FILE, 1);
 	it->second.load_online_objs(SHARE_DEPOT_FILE, 1);
-	depot_log("reload_char: %li done", uid);
+	// depot_log("reload_char: %li done", uid);
 }
 
 /**
