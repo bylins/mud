@@ -521,7 +521,7 @@ int Board::Access(CHAR_DATA * ch)
 	case GENERAL_BOARD:
 	case IDEA_BOARD:
 	// все читают, пишут с мин.левела, 32 полный
-		if (IS_GOD(ch))
+		if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 			return 4;
 		if (GET_LEVEL(ch) < MIN_WRITE_LEVEL && !GET_REMORT(ch))
 			return 1;
@@ -543,7 +543,7 @@ int Board::Access(CHAR_DATA * ch)
 			return 1;
 	case GODNEWS_BOARD:
 	// 32 читают, 34 полный
-		if (IS_IMPL(ch))
+		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 			return 4;
 		else if (IS_GOD(ch))
 			return 1;
@@ -551,7 +551,7 @@ int Board::Access(CHAR_DATA * ch)
 			return 0;
 	case GODGENERAL_BOARD:
 	// 32 читают/пишут, 34 полный
-		if (IS_IMPL(ch))
+		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 			return 4;
 		else if (IS_GOD(ch))
 			return 3;

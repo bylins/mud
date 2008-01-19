@@ -843,7 +843,7 @@ void Clan::HouseAdd(CHAR_DATA * ch, std::string & buffer)
             if (CompareParam(buffer2, *it))
             {
                 CHAR_DATA *editedChar = NULL;
-                DESCRIPTOR_DATA *d = DescByUID(unique, 0);
+                DESCRIPTOR_DATA *d = DescByUID(unique);
                 this->members[unique]->rank_num = temp_rank;
                 if (d)
                 {
@@ -945,7 +945,7 @@ void Clan::remove_member(ClanMemberList::iterator &it)
 	long unique = it->first;
 	this->members.erase(it);
 
-	DESCRIPTOR_DATA *k = DescByUID(unique, 0);
+	DESCRIPTOR_DATA *k = DescByUID(unique);
 	if (k && k->character)
 	{
 		Clan::SetClanData(k->character);
@@ -1583,7 +1583,7 @@ void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 
 	// уведомляем счастливых воеводу и имма
 	DESCRIPTOR_DATA *d;
-	if ((d = DescByUID(unique, 0))) {
+	if ((d = DescByUID(unique))) {
 		Clan::SetClanData(d->character);
 		send_to_char(d->character, "Вы стали хозяином нового замка. Добро пожаловать!\r\n");
 	}
@@ -1614,7 +1614,7 @@ void Clan::HcontrolDestroy(CHAR_DATA * ch, std::string & buffer)
 	// TODO: по идее можно сундук и его содержимое пуржить, но не факт, что это хорошо
 	// уведомляем и чистим инфу игрокам
 	for (ClanMemberList::const_iterator it = members.begin(); it != members.end(); ++it) {
-		if ((d = DescByUID(it->first, 0))) {
+		if ((d = DescByUID(it->first))) {
 			Clan::SetClanData(d->character);
 			send_to_char(d->character, "Ваша дружина распущена. Желаем удачи!\r\n");
 		}
@@ -1866,7 +1866,7 @@ ACMD(DoClanPkList)
 		if (!subcmd) {
 			for (ClanPkList::const_iterator it = CLAN(ch)->pkList.begin(); it != CLAN(ch)->pkList.end(); ++it) {
 				if (CompareParam(buffer2, it->second->victimName, 1)) {
-					DESCRIPTOR_DATA *d = DescByUID(it->first, 0);
+					DESCRIPTOR_DATA *d = DescByUID(it->first);
 					if ((d && check_online_state(d)) || !online) {
 						strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
 						out << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
@@ -1876,7 +1876,7 @@ ACMD(DoClanPkList)
 		} else {
 			for (ClanPkList::const_iterator it = CLAN(ch)->frList.begin(); it != CLAN(ch)->frList.end(); ++it) {
 				if (CompareParam(buffer2, it->second->victimName, 1)) {
-					DESCRIPTOR_DATA *d = DescByUID(it->first, 0);
+					DESCRIPTOR_DATA *d = DescByUID(it->first);
 					if ((d && check_online_state(d)) || !online) {
 						strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
 						out << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;

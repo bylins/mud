@@ -48,6 +48,7 @@
 #include "deathtrap.hpp"
 #include "title.hpp"
 #include "depot.hpp"
+#include "glory.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -496,6 +497,8 @@ void init_game(ush_int port)
 	RegisterSystem::save();
 	Depot::save_all_online_objs();
 	Depot::save_timedata();
+	Glory::save_glory();
+	Glory::save_glory_log();
 
 	log("Closing all sockets.");
 	while (descriptor_list)
@@ -1304,6 +1307,7 @@ inline void heartbeat()
 	// апдейт таймеров всех списков + пурж чего надо
 	if (!((pulse + 20) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
 		Depot::update_timers();
+		Glory::timers_update();
 	}
 	// сохранение онлайновых списков шмота, подгрузка общих хранилищ
 	if (!((pulse + 21) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
@@ -2679,7 +2683,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 				free(d->str);
 		}
 
-		if (STATE(d) == CON_WRITEBOARD || STATE(d) == CON_CLANEDIT)
+		if (STATE(d) == CON_WRITEBOARD || STATE(d) == CON_CLANEDIT || STATE(d) == CON_SPEND_GLORY)
 			STATE(d) = CON_PLAYING;
 
 		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT) {
@@ -2729,6 +2733,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	d->message.reset();
 	d->clan_olc.reset();
 	d->clan_invite.reset();
+	d->glory.reset();
 
 	if (d->pers_log) {
 		opened_files.remove(d->pers_log);

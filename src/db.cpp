@@ -45,6 +45,8 @@
 #include "title.hpp"
 #include "privilege.hpp"
 #include "depot.hpp"
+#include "glory.hpp"
+#include "genchar.h"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -1341,6 +1343,10 @@ void boot_db(void)
 	// делается после резета зон, см камент к функции
 	log("Load depot chests.");
 	Depot::load_chests();
+
+	log("Load glory list.");
+	Glory::load_glory();
+	Glory::load_glory_log();
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");
@@ -4816,6 +4822,9 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	for (int i = 0; i < BOARD_TOTAL; ++i)
 		GET_BOARD_DATE(ch, i) = 1143706650;
 
+	for (int i = 0; i < START_STATS_TOTAL; ++i)
+		GET_BOARD_DATE(ch, i) = 0;
+
 	while (fbgetline(fl, line)) {
 		tag_argument(line, tag);
 		for (i = 0; !(line[i] == ' ' || line[i] == '\0'); i++) {
@@ -5283,6 +5292,18 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				STRING_LENGTH(ch) = num;
 			else if (!strcmp(tag, "StrW"))
 				STRING_WIDTH(ch) = num;
+			else if (!strcmp(tag, "St00"))
+				GET_START_STAT(ch, G_STR) = lnum;
+			else if (!strcmp(tag, "St01"))
+				GET_START_STAT(ch, G_DEX) = lnum;
+			else if (!strcmp(tag, "St02"))
+				GET_START_STAT(ch, G_INT) = lnum;
+			else if (!strcmp(tag, "St03"))
+				GET_START_STAT(ch, G_WIS) = lnum;
+			else if (!strcmp(tag, "St04"))
+				GET_START_STAT(ch, G_CON) = lnum;
+			else if (!strcmp(tag, "St05"))
+				GET_START_STAT(ch, G_CHA) = lnum;
 			break;
 
 		case 'T':
@@ -6333,6 +6354,7 @@ void entrycount(char *name)
 		deleted = 1;
 		// персонаж загружается неполностью
 		if (load_char(name, short_ch, 1) > -1) {
+// //		if (load_char(name, short_ch, 0) > -1) {
 			/* если чар удален или им долго не входили, то не создаем для него запись */
 			if (!must_be_deleted(short_ch)) {
 				deleted = 0;
@@ -6361,6 +6383,17 @@ void entrycount(char *name)
 				top_idnum = MAX(top_idnum, GET_IDNUM(short_ch));
 				TopPlayer::Refresh(short_ch, 1);
 				log("Add new player %s", player_table[top_of_p_table].name);
+// //
+/*
+				int have_stats = GET_STR(short_ch) + GET_DEX(short_ch) + GET_INT(short_ch) + GET_WIS(short_ch) + GET_CON(short_ch) + GET_CHA(short_ch);
+				int add_glory = (have_stats - 93 - (GET_REMORT(short_ch) * 6)) * 1000;
+				if (add_glory > 0 && !IS_IMMORTAL(short_ch))
+				{
+					add_glory += GET_GLORY(short_ch);
+					Glory::add_glory(GET_UNIQUE(short_ch), add_glory);
+				}
+*/
+// //
 			}
 			free_char(short_ch);
 		} else {
@@ -6757,6 +6790,9 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 
 	for (int i = 0; i < BOARD_TOTAL; ++i)
 		fprintf(saved, "Br%02d: %ld\n", i+1, GET_BOARD_DATE(ch, i));
+
+	for (int i = 0; i <= START_STATS_TOTAL; ++i)
+		fprintf(saved, "St%02d: %i\n", i, GET_START_STAT(ch, i));
 
 	if (GET_LEVEL(ch) < LVL_IMMORT)
 		fprintf(saved, "Hung: %d\n", GET_COND(ch, FULL));

@@ -36,6 +36,7 @@
 #include "description.h"
 #include "privilege.hpp"
 #include "depot.hpp"
+#include "glory.hpp"
 
 using std::string;
 
@@ -2440,11 +2441,12 @@ ACMD(do_score)
 			(string(GET_NAME(get_horse(ch))) + string(".")).substr(0, 69).c_str(), CCCYN(ch, C_NRM));
 	}
 
-	if (GET_GLORY(ch))
+	int glory = Glory::get_glory(GET_UNIQUE(ch));
+	if (glory)
 		sprintf(buf + strlen(buf),
 			" %s|| %sВы заслужили %5d %-61s%s||\r\n",
-			CCCYN(ch, C_NRM), CCWHT(ch, C_NRM), GET_GLORY(ch),
-			(string(desc_count(GET_GLORY(ch), WHAT_POINT)) + string(" славы.")).substr(0, 61).c_str(),
+			CCCYN(ch, C_NRM), CCWHT(ch, C_NRM), glory,
+			(string(desc_count(glory, WHAT_POINT)) + string(" славы.")).substr(0, 61).c_str(),
 			CCCYN(ch, C_NRM));
 
 	if (CLAN(ch)) {
@@ -2663,11 +2665,10 @@ ACMD(do_score)
 			grouping[(int)GET_CLASS(ch)][MIN(14, (int)GET_REMORT(ch))],
 			desc_count(grouping[(int)GET_CLASS(ch)][MIN(14, (int)GET_REMORT(ch))], WHAT_LEVEL));
 
-//if (GET_GOD_FLAG(ch, GF_REMORT))
-//   sprintf(buf+strlen(buf),"Вы имеете право на перевоплощение.\r\n");
-	if (GET_GLORY(ch))
+	int glory = Glory::get_glory(GET_UNIQUE(ch));
+	if (glory)
 		sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n",
-			GET_GLORY(ch), desc_count(GET_GLORY(ch), WHAT_POINT));
+			glory, desc_count(glory, WHAT_POINT));
 	playing_time = *real_time_passed((time(0) - ch->player.time.logon) + ch->player.time.played, 0);
 	sprintf(buf + strlen(buf), "Вы играете %d %s %d %s реального времени.\r\n",
 		playing_time.day, desc_count(playing_time.day, WHAT_DAY),

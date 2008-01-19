@@ -27,68 +27,43 @@ char *genchar_help =
     "по характеристикам вашего персонажа. Уменьшая характеристику, вы добаляете\r\n"
     "туда один бал, увеличивая - убираете.\r\n"
     "Когда вы добьетесь, чтобы у Вас в этой строке находилось число 0, вы сможете\r\n"
-    "закончить генерацию и войти в игру.\r\n"
-    "ВНИМАНИЕ! Созданный таким образом персонаж будет иметь сумму характеристик\r\n"
-    "на 2 меньше, чем созданный 'вслепую'.\r\n"
-    "\r\n" "Если вы новичок или не желаете выбирать характериститки вручную, то\r\n"
-    "нажмите 'У' и затем 'ENTER'\r\n";
-
-#define G_STR 0
-#define G_DEX 1
-#define G_INT 2
-#define G_WIS 3
-#define G_CON 4
-#define G_CHA 5
+    "закончить генерацию и войти в игру.\r\n";
 
 int max_stats[][6] =
-/*  Str Dex Int Wis Con Cha */
+/* Str Dex Int Wis Con Cha */
 { {14, 13, 24, 25, 15, 10},	/* Лекарь */
-{14, 12, 25, 23, 13, 16},	/* Колдун */
-{19, 25, 12, 12, 17, 16},	/* Вор */
-{25, 11, 15, 15, 25, 10},	/* Богатырь */
-{22, 24, 14, 14, 20, 12},	/* Наемник */
-{23, 17, 14, 14, 22, 12},	/* Дружинник */
-{14, 12, 25, 23, 13, 16},	/* Кудесник */
-{14, 12, 25, 23, 13, 16},	/* Волшебник */
-{15, 13, 25, 23, 14, 13},	/* Чернокнижник */
-{22, 13, 16, 19, 18, 17},	/* Витязь */
-{25, 21, 16, 16, 20, 16},	/* Охотник */
-{25, 17, 13, 15, 17, 16},	/* Кузнец */
-{21, 17, 13, 13, 21, 16},	/* Купец */
-{18, 12, 24, 18, 17, 12}	/* Волхв */
+  {14, 12, 25, 23, 13, 16},	/* Колдун */
+  {19, 25, 12, 12, 17, 16},	/* Вор */
+  {25, 11, 15, 15, 25, 10},	/* Богатырь */
+  {22, 24, 14, 14, 20, 12},	/* Наемник */
+  {23, 17, 14, 14, 22, 12},	/* Дружинник */
+  {14, 12, 25, 23, 13, 16},	/* Кудесник */
+  {14, 12, 25, 23, 13, 16},	/* Волшебник */
+  {15, 13, 25, 23, 15, 12},	/* Чернокнижник */
+  {22, 13, 16, 19, 18, 17},	/* Витязь */
+  {25, 21, 16, 16, 20, 16},	/* Охотник */
+  {25, 17, 13, 15, 17, 16},	/* Кузнец */
+  {21, 17, 13, 13, 21, 16},	/* Купец */
+  {18, 12, 24, 18, 17, 12}	/* Волхв */
 };
 
 int min_stats[][6] =
-/*  Str Dex Int Wis Con Cha */
+/* Str Dex Int Wis Con Cha */
 { {11, 10, 19, 20, 12, 10},	/* Лекарь */
-{10, 9, 20, 18, 10, 13},	/* Колдун */
-{16, 22, 9, 9, 14, 13},		/* Вор */
-{21, 11, 11, 12, 22, 10},	/* Богатырь */
-{17, 19, 11, 11, 15, 12},	/* Наемник */
-{20, 14, 10, 10, 17, 12},	/* Дружинник */
-{10, 9, 20, 18, 10, 13},	/* Кудесник */
-{10, 9, 20, 18, 10, 13},	/* Волшебник */
-{10, 9, 20, 20, 11, 10},	/* Чернокнижник */
-{19, 10, 12, 15, 14, 13},	/* Витязь */
-{19, 15, 11, 11, 17, 11},	/* Охотник */
-{20, 14, 11, 12, 14, 12},	/* Кузнец */
-{18, 14, 10, 10, 18, 13},	/* Купец */
-{15, 10, 19, 15, 13, 12}	/* Волхв */
+  {10,  9, 20, 18, 10, 13},	/* Колдун */
+  {16, 22,  9,  9, 14, 13},	/* Вор */
+  {21,  8, 11, 11, 22, 10},	/* Богатырь */
+  {17, 19, 11, 11, 15, 12},	/* Наемник */
+  {20, 14, 10, 10, 17, 12},	/* Дружинник */
+  {10,  9, 20, 18, 10, 13},	/* Кудесник */
+  {10,  9, 20, 18, 10, 13},	/* Волшебник */
+  { 9,  9, 20, 20, 12, 10},	/* Чернокнижник */
+  {19, 10, 12, 15, 14, 13},	/* Витязь */
+  {19, 15, 11, 11, 17, 11},	/* Охотник */
+  {20, 14, 10, 11, 14, 12},	/* Кузнец */
+  {18, 14, 10, 10, 18, 13},	/* Купец */
+  {15, 10, 19, 15, 13, 12}	/* Волхв */
 };
-
-#define MIN_STR(ch) min_stats[(int) GET_CLASS(ch)][G_STR]
-#define MIN_DEX(ch) min_stats[(int) GET_CLASS(ch)][G_DEX]
-#define MIN_INT(ch) min_stats[(int) GET_CLASS(ch)][G_INT]
-#define MIN_WIS(ch) min_stats[(int) GET_CLASS(ch)][G_WIS]
-#define MIN_CON(ch) min_stats[(int) GET_CLASS(ch)][G_CON]
-#define MIN_CHA(ch) min_stats[(int) GET_CLASS(ch)][G_CHA]
-
-#define MAX_STR(ch) max_stats[(int) GET_CLASS(ch)][G_STR]
-#define MAX_DEX(ch) max_stats[(int) GET_CLASS(ch)][G_DEX]
-#define MAX_INT(ch) max_stats[(int) GET_CLASS(ch)][G_INT]
-#define MAX_WIS(ch) max_stats[(int) GET_CLASS(ch)][G_WIS]
-#define MAX_CON(ch) max_stats[(int) GET_CLASS(ch)][G_CON]
-#define MAX_CHA(ch) max_stats[(int) GET_CLASS(ch)][G_CHA]
 
 void genchar_disp_menu(CHAR_DATA * ch)
 {
@@ -105,9 +80,7 @@ void genchar_disp_menu(CHAR_DATA * ch)
 		"\r\n"
 		"  Можно добавить: %3d \r\n"
 		"\r\n"
-		"  П) Помощь\r\n"
-		"\r\n"
-		"  У) Сгенерировать автоматически.\r\n",
+		"  П) Помощь\r\n",
 		GET_STR(ch), MIN_STR(ch), MAX_STR(ch),
 		GET_DEX(ch), MIN_DEX(ch), MAX_DEX(ch),
 		GET_INT(ch), MIN_INT(ch), MAX_INT(ch),
@@ -118,7 +91,6 @@ void genchar_disp_menu(CHAR_DATA * ch)
 	if (SUM_ALL_STATS == SUM_STATS(ch))
 		send_to_char("  В) Закончить генерацию\r\n", ch);
 	send_to_char(" Ваш выбор: ", ch);
-
 }
 
 int genchar_parse(CHAR_DATA * ch, char *arg)
@@ -180,14 +152,14 @@ int genchar_parse(CHAR_DATA * ch, char *arg)
 	case 'в':
 		if (SUM_STATS(ch) != SUM_ALL_STATS)
 			break;
+		// по случаю успешной генерации сохраняем стартовые статы
+		GET_START_STAT(ch, G_STR) = GET_STR(ch);
+		GET_START_STAT(ch, G_DEX) = GET_DEX(ch);
+		GET_START_STAT(ch, G_INT) = GET_INT(ch);
+		GET_START_STAT(ch, G_WIS) = GET_WIS(ch);
+		GET_START_STAT(ch, G_CON) = GET_CON(ch);
+		GET_START_STAT(ch, G_CHA) = GET_CHA(ch);
 		return GENCHAR_EXIT;
-	case 'Y':
-	case 'y':
-	case 'У':
-	case 'у':
-		roll_real_abils(ch);
-		return GENCHAR_EXIT;
-		break;
 	default:
 		break;
 	}
@@ -199,9 +171,7 @@ int genchar_parse(CHAR_DATA * ch, char *arg)
  * the best 3 out of 4 rolls of a 6-sided die.  Each class then decides
  * which priority will be given for the best to worst stats.
  */
-// hand - для разделения авто/ручного ролла, ну и вообще бы надо все профы проверить на соответствие
-// мин/макс статам авто/ручки, т.к. при первом выводе меню ручной генерации цифры выводятся как по автоматическому ролу
-void roll_real_abils(CHAR_DATA * ch, bool hand)
+void roll_real_abils(CHAR_DATA * ch)
 {
 	int i;
 
@@ -296,19 +266,13 @@ void roll_real_abils(CHAR_DATA * ch, bool hand)
 		ch->real_abils.cha = 10;
 		do {
 			ch->real_abils.str = 20 + number(0, 4);
-			if (hand)
-				ch->real_abils.dex = 11;
-			else
-				ch->real_abils.dex = 8 + number(0, 3);
+			ch->real_abils.dex = 8 + number(0, 3);
 			ch->real_abils.con = 20 + number(0, 3);
 		}		// 55/48 roll 10/7
 		while (ch->real_abils.str + ch->real_abils.con + ch->real_abils.dex != 55);
 		do {
 			ch->real_abils.intel = 11 + number(0, 4);
-			if (hand)
-				ch->real_abils.wis = 12 + number(0, 3);
-			else
-				ch->real_abils.wis = 11 + number(0, 4);
+			ch->real_abils.wis = 11 + number(0, 4);
 		}		// 92/87 roll 8/5
 		while (ch->real_abils.str + ch->real_abils.con + ch->real_abils.dex +
 		       ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);
@@ -478,7 +442,6 @@ void roll_real_abils(CHAR_DATA * ch, bool hand)
 	};
 }
 
-
 // Функция для склонения имени по падежам.
 // Буквы должны быть заранее переведены в нижний регистр.
 // name - имя в именительном падеже
@@ -526,7 +489,7 @@ void GetCase(char *name, int sex, int caseNum, char *result)
 			strcat(result, "ей"); // Аней, Ваней
 		else if (caseNum == 5)
 			strcat(result, "е"); // Ане, Ване
-		else 
+		else
 			strcat(result, "я"); // Аня, Ваня
 		return;
 	}
@@ -545,7 +508,7 @@ void GetCase(char *name, int sex, int caseNum, char *result)
 			strcat(result, "ем"); // Дрегвием
 		else if (caseNum == 5)
 			strcat(result, "е"); // Дрегвие
-		else 
+		else
 			strcat(result, "й"); // Дрегвий
 		return;
 	}
@@ -574,7 +537,7 @@ void GetCase(char *name, int sex, int caseNum, char *result)
 		}
 		else if (caseNum == 5)
 			strcat(result, "е"); // Паше, Анне
-		else 
+		else
 			strcat(result, "а"); // Паша, Анна
 		return;
 	}

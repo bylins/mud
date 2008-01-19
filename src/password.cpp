@@ -98,4 +98,13 @@ bool check_password(const CHAR_DATA *ch, const char *pwd)
 	return 1;
 }
 
+/**
+* Более универсальный аналог compare_password.
+* \return 0 - не сошлось, 1 - сошлось
+*/
+bool compare_password(std::string const &hash, std::string const &pass)
+{
+	return CompareParam(hash.c_str(), CRYPT(pass.c_str(), hash.c_str()), 1);
+}
+
 } // namespace Password

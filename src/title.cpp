@@ -250,7 +250,7 @@ bool TitleSystem::check_alphabet(const std::string& text, CHAR_DATA* ch, const s
 */
 DESCRIPTOR_DATA* TitleSystem::send_result_message(long unique, bool action)
 {
-	DESCRIPTOR_DATA* d = DescByUID(unique, 0);
+	DESCRIPTOR_DATA* d = DescByUID(unique);
 	if (d)
 		send_to_char(d->character, "Ваш титул был %s Богами.\r\n", action ? "одобрен" : "запрещен");
 	return d;

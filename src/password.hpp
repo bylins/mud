@@ -19,7 +19,9 @@ namespace Password {
 
 void set_password(CHAR_DATA *ch, const std::string &pwd);
 bool compare_password(CHAR_DATA *ch, const std::string &pwd);
+bool compare_password(std::string const &hash, std::string const &pass);
 bool check_password(const CHAR_DATA *ch, const char *pwd);
+std::string generate_md5_hash(const std::string &pwd);
 
 extern const unsigned int MIN_PWD_LENGTH;
 extern const unsigned int MAX_PWD_LENGTH;

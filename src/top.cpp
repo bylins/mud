@@ -19,6 +19,7 @@
 #include "comm.h"
 #include "screen.h"
 #include "top.h"
+#include "glory.hpp"
 
 extern const char *class_name[];
 
@@ -130,11 +131,20 @@ ACMD(DoBest)
 			send_to_char(ch, out.str().c_str());
 		}
 	} else {
+		// топ славы
+		if (CompareParam(buffer, "прославленные"))
+		{
+			Glory::print_glory_top(ch);
+			return;
+		}
+
 		std::ostringstream out;
 		out.setf(std::ios_base::left, std::ios_base::adjustfield);
 		out << "Лучшими могут быть:\r\n";
 		for (int i = 0, j = 1; i <= NUM_CLASSES; ++i, ++j)
-			out << std::setw(15) << TopPlayer::TopFormat[i] << (j % 5 ? "" : "\r\n");
+			out << std::setw(15) << TopPlayer::TopFormat[i] << (j % 4 ? "" : "\r\n");
+
+		out << std::setw(15) << "прославленные\r\n";
 		out << "\r\n";
 		send_to_char(ch, out.str().c_str());
 		return;

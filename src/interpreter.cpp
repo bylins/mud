@@ -42,6 +42,7 @@
 #include "password.hpp"
 #include "privilege.hpp"
 #include "depot.hpp"
+#include "glory.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -711,6 +712,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"скользить", POS_STANDING, do_lightwalk, 0, 0, 0},
 	{"следовать", POS_RESTING, do_follow, 0, 0, 500},
 	{"сложить", POS_FIGHTING, do_mixture, 0, SCMD_RUNES, -1},
+	{"слава", POS_STANDING, Glory::do_spend_glory, 0, 0, 0},
 	{"смотреть", POS_RESTING, do_look, 0, SCMD_LOOK, 0},
 	{"смешать", POS_STANDING, do_mixture, 0, SCMD_ITEMS, -1},
 //  { "смастерить",     POS_STANDING, do_transform_weapon, 0, SKILL_CREATEBOW, -1 },
@@ -2316,6 +2318,8 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 		rustime(localtime(&LAST_LOGON(d->character))), GET_LASTIP(d->character));
 	SEND_TO_Q(buf, d);
 
+	if (!Glory::check_stats(d->character)) return;
+
 	SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 	STATE(d) = CON_RMOTD;
 }
@@ -2367,8 +2371,11 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	case CON_CLANEDIT:
 		d->clan_olc->clan->Manage(d, arg);
 		break;
+	case CON_SPEND_GLORY:
+		if (!Glory::parse_spend_glory_menu(d->character, arg))
+			Glory::spend_glory_menu(d->character);
+		break;
 		/*. End of OLC states . */
-
 
 	case CON_GET_KEYTABLE:
 		if (strlen(arg) > 0)
@@ -2867,7 +2874,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		GET_RACE(d->character) = load_result;
-		roll_real_abils(d->character, 1);
+		roll_real_abils(d->character);
 		SEND_TO_Q(genchar_help, d);
 		SEND_TO_Q("\r\n\r\nНажмите любую клавишу.\r\n", d);
 		STATE(d) = CON_ROLL_STATS;
@@ -2887,7 +2894,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			 return;
 		}
 		GET_RACE (d->character) = load_result;
-		roll_real_abils (d->character, 1);
+		roll_real_abils (d->character);
 		SEND_TO_Q (genchar_help, d);
 		SEND_TO_Q ("\r\n\r\nНажмите любую клавишу.\r\n", d);
 		STATE (d) = CON_ROLL_STATS;
@@ -2907,7 +2914,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		GET_RACE (d->character) = load_result;
-		roll_real_abils (d->character, 1);
+		roll_real_abils (d->character);
 		SEND_TO_Q (genchar_help, d);
 		SEND_TO_Q ("\r\n\r\nНажмите любую клавишу.\r\n", d);
 		STATE (d) = CON_ROLL_STATS;
@@ -3249,6 +3256,25 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	case CON_CLOSE:
 		break;
 
+	case CON_RESET_STATS:
+		switch (genchar_parse(d->character, arg))
+		{
+			case GENCHAR_CONTINUE:
+				genchar_disp_menu(d->character);
+				break;
+			default:
+				// после перераспределения и сейва в genchar_parse стартовых статов надо учесть морты и славу
+				Glory::calculate_total_stats(d->character);
+				// статы срезетили и новые выбрали
+				sprintf(buf, "\r\n%sБлагодарим за содрудничество. Ж)%s\r\n",
+					CCIGRN(d->character, C_SPR), CCNRM(d->character, C_SPR));
+				SEND_TO_Q(buf, d);
+
+				SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+				STATE(d) = CON_RMOTD;
+		}
+		break;
+
 	default:
 		log("SYSERR: Nanny: illegal state of con'ness (%d) for '%s'; closing connection.",
 		    STATE(d), d->character ? GET_NAME(d->character) : "<unknown>");
@@ -3329,20 +3355,14 @@ bool CompareParam(const std::string & buffer, const std::string & buffer2, bool 
 		return (0);
 }
 
-// ищет дескриптор игрока(онлайн состояние) по его УИДу, playing по дефолту 1
-DESCRIPTOR_DATA *DescByUID(long unique, bool playing)
+// ищет дескриптор игрока(онлайн состояние) по его УИДу
+DESCRIPTOR_DATA *DescByUID(long unique)
 {
 	DESCRIPTOR_DATA *d = 0;
 
-	if (playing) {
-		for (d = descriptor_list; d; d = d->next)
-			if (d->character && STATE(d) == CON_PLAYING && GET_UNIQUE(d->character) == unique)
-				break;
-	} else {
-		for (d = descriptor_list; d; d = d->next)
-			if (d->character && GET_UNIQUE(d->character) == unique)
-				break;
-	}
+	for (d = descriptor_list; d; d = d->next)
+		if (d->character && GET_UNIQUE(d->character) == unique)
+			break;
 	return (d);
 }
 
@@ -3430,7 +3450,6 @@ void StringReplace(std::string & buffer, char s, std::string d)
 // вывод экспы аля диабла
 std::string ExpFormat(long long exp)
 {
-	std::string out;
 	if (exp < 1000000)
 		return (boost::lexical_cast<std::string>(exp));
 	else if (exp < 1000000000)

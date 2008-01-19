@@ -38,6 +38,8 @@
 #include "password.hpp"
 #include "privilege.hpp"
 #include "depot.hpp"
+#include "glory.hpp"
+#include "genchar.h"
 
 /*   external vars  */
 extern FILE *player_fl;
@@ -95,7 +97,6 @@ void hcontrol_list_houses(CHAR_DATA * ch);
 //void do_start(CHAR_DATA * ch, int newbie);
 void appear(CHAR_DATA * ch);
 void reset_zone(zone_rnum zone);
-void roll_real_abils(CHAR_DATA * ch, bool hand = 0);
 int parse_class(char arg);
 extern CHAR_DATA *find_char(long n);
 void rename_char(CHAR_DATA * ch, char *oname);
@@ -170,7 +171,7 @@ ACMD(do_email);
 extern const char *deaf_social;
 
 /* Adds karma string to KARMA*/
-void add_karma(CHAR_DATA * ch, char * punish , char * reason)
+void add_karma(CHAR_DATA * ch, char const * punish , char * reason)
 {
 	if (reason && (reason[0] != '.'))
 	{
@@ -708,39 +709,42 @@ ACMD(do_echo)
 #define SHOW_GLORY 	0
 #define ADD_GLORY 	1
 #define SUB_GLORY 	2
-#define SET_GLORY 	3
+#define SUB_STATS 	3
+#define SUB_TRANS 	4
+#define SUB_HIDE    5
 
 void set_glory(CHAR_DATA * ch, CHAR_DATA * vict, int mode, int amount)
 {
 	switch (mode) {
 	case ADD_GLORY:
-		GET_GLORY(vict) = GET_GLORY(vict) + MAX(0, amount);
+		Glory::add_glory(GET_UNIQUE(vict), amount);
 		sprintf(buf, "%s добавлено %d у.е. славы (Всего: %d у.е.).\r\n",
-			GET_PAD(vict, 2), amount, GET_GLORY(vict));
+			GET_PAD(vict, 2), amount, Glory::get_glory(GET_UNIQUE(vict)));
+		send_to_char(buf, ch);
 		imm_log("(GC) %s sets +%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 		break;
 
 	case SUB_GLORY:
-		GET_GLORY(vict) = MAX(0, GET_GLORY(vict) - MAX(0, amount));
+		Glory::remove_glory(GET_UNIQUE(vict), amount);
 		sprintf(buf, "У %s вычтено %d у.е. славы (Всего: %d у.е.).\r\n",
-			GET_PAD(vict, 1), amount, GET_GLORY(vict));
+			GET_PAD(vict, 1), amount, Glory::get_glory(GET_UNIQUE(vict)));
+		send_to_char(buf, ch);
 		imm_log("(GC) %s sets -%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 		break;
 
-	case SET_GLORY:
-		GET_GLORY(vict) = MAX(0, amount);
-		sprintf(buf, "%s установлено %d у.е. славы.\r\n", GET_PAD(vict, 2), amount);
-		imm_log("(GC) %s sets =%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
+	case SUB_STATS:
+		break;
+
+	case SUB_TRANS:
+		break;
+
+	case SUB_HIDE:
 		break;
 
 	default:
-		sprintf(buf, "Славы у %s : %d у.е.\r\n", GET_PAD(vict, 1), GET_GLORY(vict));
-
+		Glory::show_glory(vict, ch);
 	}
-
-	send_to_char(buf, ch);
 }
-
 
 ACMD(do_glory)
 {
@@ -750,12 +754,17 @@ ACMD(do_glory)
 	// - cлава убавляет славу
 	CHAR_DATA *vict;
 	char num[MAX_INPUT_LENGTH];
+	char arg1[MAX_INPUT_LENGTH];
 	int mode = 0;
 	char* reason;
 
 	if (!*argument)
 	{
-		send_to_char("Формат команды : \r\n 	glory <имя> +|-|=<Кол-во славы> <причина>\r\n", ch);
+		send_to_char("Формат команды : \r\n"
+		"   glory <имя> +|-<кол-во славы> причина\r\n"
+		"   glory <имя> remove <кол-во статов> причина (снимание уже вложенной чаром славы)\r\n"
+		"   glory <имя> transfer <имя принимаюего славу> причина (переливание славы на другого чара)\r\n"
+		"   glory <имя> hide on|off причина (показывать или нет чара в топе славы)\r\n", ch);
 		return;
 	}
 	reason = two_arguments(argument, arg, num);
@@ -767,8 +776,30 @@ ACMD(do_glory)
 		mode = ADD_GLORY;
 	else if (*num == '-')
 		mode = SUB_GLORY;
-	else if (*num == '=')
-		mode = SET_GLORY;
+	else if (is_abbrev(num, "remove"))
+	{
+		// тут у нас в num получается remove, в arg1 кол-во и в reason причина
+		reason = one_argument(reason, arg1);
+		skip_spaces(&reason);
+		mode = SUB_STATS;
+	}
+	else if (is_abbrev(num, "transfer"))
+	{
+		// а тут в num transfer, в arg1 имя принимающего славу и в reason причина
+		reason = one_argument(reason, arg1);
+		skip_spaces(&reason);
+		mode = SUB_TRANS;
+	}
+	else if (is_abbrev(num, "hide"))
+	{
+		// а тут в num hide, в arg1 on|off и в reason причина
+		reason = any_one_arg(reason, arg1);
+		skip_spaces(&reason);
+		mode = SUB_HIDE;
+	}
+
+	// точки убираем, чтобы карма всегда писалась
+	skip_dots(&reason);
 
 	if (mode != SHOW_GLORY)
 	{
@@ -781,10 +812,31 @@ ACMD(do_glory)
 
 	if ((vict = get_player_vis(ch, arg, FIND_CHAR_WORLD)) != NULL)
 	{
-		set_glory(ch, vict, mode, atoi((num + 1)));
-		if (mode != SHOW_GLORY) {
-			sprintf(buf,"Change glory %s by %s", num, GET_NAME(ch));
+		// изврат канеш, но переделывать старую методу пока влом
+		if (mode == SUB_STATS)
+		{
+			Glory::remove_stats(vict, ch, atoi(arg1));
+			sprintf(buf,"Remove stats %s by %s", arg1, GET_NAME(ch));
 			add_karma(vict,buf,reason);
+			Glory::add_glory_log(mode, 0, std::string(buf), std::string(reason), vict);
+		}
+		else if (mode == SUB_TRANS)
+			Glory::transfer_stats(vict, ch, arg1, reason);
+		else if (mode == SUB_HIDE)
+		{
+			Glory::hide_char(vict, ch, arg1);
+			sprintf(buf,"Hide %s by %s", arg1, GET_NAME(ch));
+			add_karma(vict,buf,reason);
+			Glory::add_glory_log(mode, 0, std::string(buf), std::string(reason), vict);
+		}
+		else
+		{
+			set_glory(ch, vict, mode, atoi((num + 1)));
+			if (mode != SHOW_GLORY) {
+				sprintf(buf,"Change glory %s by %s", num, GET_NAME(ch));
+				add_karma(vict,buf,reason);
+				Glory::add_glory_log(mode, atoi(num + 1), std::string(buf), std::string(reason), vict);
+			}
 		}
 	}
 	else {
@@ -797,11 +849,32 @@ ACMD(do_glory)
 		}
 
 		// Тут ставим или показываем славу
-		set_glory(ch, vict, mode, atoi((num + 1)));
-
-		if (mode != SHOW_GLORY) {
-			sprintf(buf,"Change glory %s by %s", num, GET_NAME(ch));
+		// изврат канеш, но переделывать старую методу пока влом
+		if (mode == SUB_STATS)
+		{
+			Glory::remove_stats(vict, ch, atoi(arg1));
+			sprintf(buf,"Remove stats %s by %s", arg1, GET_NAME(ch));
 			add_karma(vict,buf,reason);
+			Glory::add_glory_log(mode, 0, std::string(buf), std::string(reason), vict);
+		}
+		else if (mode == SUB_TRANS)
+			Glory::transfer_stats(vict, ch, arg1, reason);
+		else if (mode == SUB_HIDE)
+		{
+			Glory::hide_char(vict, ch, arg1);
+			sprintf(buf,"Hide %s by %s", arg1, GET_NAME(ch));
+			add_karma(vict,buf,reason);
+			Glory::add_glory_log(mode, 0, std::string(buf), std::string(reason), vict);
+		}
+		else
+		{
+			set_glory(ch, vict, mode, atoi((num + 1)));
+
+			if (mode != SHOW_GLORY) {
+				sprintf(buf,"Change glory %s by %s", num, GET_NAME(ch));
+				add_karma(vict,buf,reason);
+				Glory::add_glory_log(mode, atoi(num + 1), std::string(buf), std::string(reason), vict);
+			}
 		}
 
 		save_char(vict, GET_LOADROOM(vict));
@@ -1591,7 +1664,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 
 	sprintf(buf,
 		"Glory: [%d], AC: [%d/%d(%d)], Броня: [%d], Hitroll: [%2d/%2d/%d], Damroll: [%2d/%2d/%d]\r\n",
-		GET_GLORY(k), GET_AC(k), GET_REAL_AC(k),
+		Glory::get_glory(GET_UNIQUE(k)), GET_AC(k), GET_REAL_AC(k),
 		compute_armor_class(k), GET_ARMOUR(k), GET_HR(k),
 		GET_REAL_HR(k), GET_REAL_HR(k) + str_app[GET_REAL_STR(k)].tohit,
 		GET_DR(k), GET_REAL_DR(k), GET_REAL_DR(k) + str_app[GET_REAL_STR(k)].todam);
@@ -3214,6 +3287,7 @@ struct show_struct show_fields[] =
 	{"spells", LVL_IMPL},	/* 15 */
 	{"ban", LVL_IMMORT},
 	{"features", LVL_IMPL},
+	{"glory", LVL_IMPL},
 	{"\n", 0}
 };
 
@@ -3372,6 +3446,7 @@ ACMD(do_show)
 		sprintf(buf + strlen(buf), "  Активность игроков (cmds/min) - %lu\r\n", (cmd_cnt * 60) / (time(0) - boot_time));
 		send_to_char(buf, ch);
 		Depot::show_stats(ch);
+		Glory::show_stats(ch);
 		break;
 	case 5:
 		strcpy(buf, "Пустых выходов\r\n" "--------------\r\n");
@@ -3549,6 +3624,9 @@ ACMD(do_show)
 		}
 		list_feats(vict, ch, FALSE);
 		break;
+	case 18:		// show glory
+		Glory::show_glory(ch, value);
+		break;
 	default:
 		send_to_char("Извините, неверная команда.\r\n", ch);
 		break;
@@ -3593,62 +3671,55 @@ struct set_struct		/*
 	{"mana", LVL_GRGOD, BOTH, NUMBER},
 	{"move", LVL_GRGOD, BOTH, NUMBER},
 	{"race", LVL_GRGOD, BOTH, NUMBER},	/* 10 */
-	{"str", LVL_IMPL, BOTH, NUMBER},
 	{"size", LVL_IMPL, BOTH, NUMBER},
-	{"int", LVL_IMPL, BOTH, NUMBER},
-	{"wis", LVL_IMPL, BOTH, NUMBER},
-	{"dex", LVL_IMPL, BOTH, NUMBER},	/* 15 */
-	{"con", LVL_IMPL, BOTH, NUMBER},
-	{"cha", LVL_IMPL, BOTH, NUMBER},
 	{"ac", LVL_GRGOD, BOTH, NUMBER},
 	{"gold", LVL_IMPL, BOTH, NUMBER},
-	{"bank", LVL_IMPL, PC, NUMBER},	/* 20 */
-	{"exp", LVL_IMPL, BOTH, NUMBER},
+	{"bank", LVL_IMPL, PC, NUMBER},
+	{"exp", LVL_IMPL, BOTH, NUMBER}, // 15
 	{"hitroll", LVL_IMPL, BOTH, NUMBER},
 	{"damroll", LVL_IMPL, BOTH, NUMBER},
 	{"invis", LVL_IMPL, PC, NUMBER},
-	{"nohassle", LVL_IMPL, PC, BINARY},	/* 25 */
-	{"frozen", LVL_GRGOD, PC, MISC},
+	{"nohassle", LVL_IMPL, PC, BINARY},
+	{"frozen", LVL_GRGOD, PC, MISC}, // 20
 	{"practices", LVL_GRGOD, PC, NUMBER},
 	{"lessons", LVL_GRGOD, PC, NUMBER},
 	{"drunk", LVL_GRGOD, BOTH, MISC},
-	{"hunger", LVL_GRGOD, BOTH, MISC},	/* 30 */
-	{"thirst", LVL_GRGOD, BOTH, MISC},
+	{"hunger", LVL_GRGOD, BOTH, MISC},
+	{"thirst", LVL_GRGOD, BOTH, MISC}, // 25
 	{"killer", LVL_GOD, PC, BINARY},
 	{"thief", LVL_GOD, PC, BINARY},
 	{"level", LVL_IMPL, BOTH, NUMBER},
-	{"room", LVL_IMPL, BOTH, NUMBER},	/* 35 */
-	{"roomflag", LVL_GRGOD, PC, BINARY},
+	{"room", LVL_IMPL, BOTH, NUMBER},
+	{"roomflag", LVL_GRGOD, PC, BINARY}, // 30
 	{"siteok", LVL_GRGOD, PC, BINARY},
 	{"deleted", LVL_IMPL, PC, BINARY},
 	{"class", LVL_IMPL, BOTH, MISC},
-	{"demigod", LVL_IMPL, PC, BINARY}, /* 40 */
-	{"loadroom", LVL_GRGOD, PC, MISC},
+	{"demigod", LVL_IMPL, PC, BINARY},
+	{"loadroom", LVL_GRGOD, PC, MISC}, // 35
 	{"color", LVL_GOD, PC, BINARY},
 	{"idnum", LVL_IMPL, PC, NUMBER},
-	{"passwd", LVL_IMPL, PC, MISC},	/* 45 */
+	{"passwd", LVL_IMPL, PC, MISC},
 	{"nodelete", LVL_GOD, PC, BINARY},
-	{"sex", LVL_GRGOD, BOTH, MISC},
+	{"sex", LVL_GRGOD, BOTH, MISC}, // 40
 	{"age", LVL_GRGOD, BOTH, NUMBER},
 	{"height", LVL_GOD, BOTH, NUMBER},
-	{"weight", LVL_GOD, BOTH, NUMBER},	/* 50 */
+	{"weight", LVL_GOD, BOTH, NUMBER},
 	{"godslike", LVL_IMPL, BOTH, BINARY},
-	{"godscurse", LVL_IMPL, BOTH, BINARY},
+	{"godscurse", LVL_IMPL, BOTH, BINARY}, // 45
 	{"olc", LVL_IMPL, PC, NUMBER},
 	{"name", LVL_GRGOD, PC, MISC},
-	{"trgquest", LVL_IMPL, PC, MISC},	/* 55 */
+	{"trgquest", LVL_IMPL, PC, MISC},
 	{"mkill", LVL_IMPL, PC, MISC},
-	{"highgod", LVL_IMPL, PC, MISC},
-	{"glory", LVL_IMPL, PC, MISC},
+	{"highgod", LVL_IMPL, PC, MISC}, //50
 	{"remort", LVL_IMPL, PC, BINARY},
-	{"hell", LVL_GOD, PC, MISC},	/* 60 */
+	{"hell", LVL_GOD, PC, MISC},
 	{"email", LVL_GOD, PC, MISC},
 	{"religion", LVL_GOD, PC, MISC},
-	{"perslog", LVL_IMPL, PC, BINARY},
+	{"perslog", LVL_IMPL, PC, BINARY}, // 55
 	{"mute", LVL_GOD, PC, MISC},
-	{"dumb", LVL_GOD, PC, MISC},	/* 65 */
+	{"dumb", LVL_GOD, PC, MISC},
 	{"karma", LVL_IMPL, PC, MISC},
-	{"unreg", LVL_GOD, PC, MISC},
+	{"unreg", LVL_GOD, PC, MISC}, // 59
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -3777,88 +3848,58 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 	case 11:
-		RANGE(3, 35);
-		vict->real_abils.str = value;
-		affect_total(vict);
-		break;
-	case 12:
 		vict->real_abils.size = RANGE(1, 100);
 		affect_total(vict);
 		break;
-	case 13:
-		RANGE(3, 35);
-		vict->real_abils.intel = value;
-		affect_total(vict);
-		break;
-	case 14:
-		RANGE(3, 35);
-		vict->real_abils.wis = value;
-		affect_total(vict);
-		break;
-	case 15:
-		RANGE(3, 35);
-		vict->real_abils.dex = value;
-		affect_total(vict);
-		break;
-	case 16:
-		RANGE(3, 35);
-		vict->real_abils.con = value;
-		affect_total(vict);
-		break;
-	case 17:
-		RANGE(3, 35);
-		vict->real_abils.cha = value;
-		affect_total(vict);
-		break;
-	case 18:
+	case 12:
 		vict->real_abils.armor = RANGE(-100, 100);
 		affect_total(vict);
 		break;
-	case 19:
+	case 13:
 		GET_GOLD(vict) = RANGE(0, 100000000);
 		break;
-	case 20:
+	case 14:
 		GET_BANK_GOLD(vict) = RANGE(0, 100000000);
 		break;
-	case 21:
+	case 15:
 		//vict->points.exp = RANGE(0, 7000000);
 		RANGE(0, level_exp(vict, LVL_IMMORT) - 1);
 		gain_exp_regardless(vict, value - GET_EXP(vict));
 		break;
-	case 22:
+	case 16:
 		vict->real_abils.hitroll = RANGE(-20, 20);
 		affect_total(vict);
 		break;
-	case 23:
+	case 17:
 		vict->real_abils.damroll = RANGE(-20, 20);
 		affect_total(vict);
 		break;
-	case 24:
+	case 18:
 		if (!IS_IMPL(ch) && ch != vict) {
 			send_to_char("Вы не столь Божественны, как Вам кажется!\r\n", ch);
 			return (0);
 		}
 		GET_INVIS_LEV(vict) = RANGE(0, GET_LEVEL(vict));
 		break;
-	case 25:
+	case 19:
 		if (!IS_IMPL(ch) && ch != vict) {
 			send_to_char("Вы не столь Божественны, как Вам кажется!\r\n", ch);
 			return (0);
 		}
 		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_NOHASSLE), PRF_NOHASSLE);
 		break;
-	case 26:
+	case 20:
 		reason = one_argument(val_arg, num);
 		if (num && *num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_FREEZE, reason, times)) return (0);
 		break;
-	case 27:
-	case 28:
+	case 21:
+	case 22:
 		return_code = 0;
 		break;
-	case 29:
-	case 30:
-	case 31:
+	case 23:
+	case 24:
+	case 25:
 		if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
 			GET_COND(vict, (mode - 29)) = (char) -1;	/* warning: magic number here */
 			sprintf(output, "Для %s %s сейчас отключен.", GET_PAD(vict, 1), set_fields[mode].cmd);
@@ -3872,13 +3913,13 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			return (0);
 		}
 		break;
-	case 32:
+	case 26:
 		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_KILLER), PLR_KILLER);
 		break;
-	case 33:
+	case 27:
 		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_THIEF), PLR_THIEF);
 		break;
-	case 34:
+	case 28:
 		if (!GET_COMMSTATE(ch) &&
 		    (value > GET_LEVEL(ch) || value > LVL_IMPL || GET_LEVEL(vict) > GET_LEVEL(ch))) {
 			send_to_char("Вы не можете установить уровень игрока выше собственного.\r\n", ch);
@@ -3887,7 +3928,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		RANGE(0, LVL_IMPL);
 		vict->player.level = (byte) value;
 		break;
-	case 35:
+	case 29:
 		if ((rnum = real_room(value)) == NOWHERE) {
 			send_to_char("Поищите другой МУД. В этом МУДе нет такой комнаты.\r\n", ch);
 			return (0);
@@ -3897,23 +3938,23 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		char_to_room(vict, rnum);
 		check_horse(vict);
 		break;
-	case 36:
+	case 30:
 		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_ROOMFLAGS), PRF_ROOMFLAGS);
 		break;
-	case 37:
+	case 31:
 		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_SITEOK), PLR_SITEOK);
 		break;
-	case 38:
+	case 32:
 		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_DELETED), PLR_DELETED);
 		break;
-	case 39:
+	case 33:
 		if ((i = parse_class(*val_arg)) == CLASS_UNDEFINED) {
 			send_to_char("Нет такого клаcса в этой игре. Найдите себе другую.\r\n", ch);
 			return (0);
 		}
 		GET_CLASS(vict) = i;
 		break;
-	case 40:
+	case 34:
 		/* Флаг для морталов с привилегиями */
 		if (!IS_IMPL(ch)) {
 			send_to_char("Вы не столь Божественны, как Вам кажется!\r\n", ch);
@@ -3925,7 +3966,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			CLR_GOD_FLAG(vict, GF_DEMIGOD);
 		}
 		break;
-	case 41:
+	case 35:
 		if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
 			REMOVE_BIT(PLR_FLAGS(vict, PLR_LOADROOM), PLR_LOADROOM);
 		} else if (is_number(val_arg)) {
@@ -3946,16 +3987,16 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			return (0);
 		}
 		break;
-	case 42:
+	case 36:
 		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_COLOR_1), PRF_COLOR_1);
 		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_COLOR_2), PRF_COLOR_2);
 		break;
-	case 43:
+	case 37:
 		if (!IS_IMPL(ch) || !IS_NPC(vict))
 			return (0);
 		GET_IDNUM(vict) = value;
 		break;
-	case 44:
+	case 38:
 		if (!IS_IMPL(ch) && !GET_COMMSTATE(ch) && ch != vict) {
 			send_to_char("Давайте не будем экспериментировать.\r\n", ch);
 			return (0);
@@ -3971,10 +4012,10 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		Password::set_password(vict, std::string(val_arg));
 		sprintf(output, "Пароль изменен на '%s'.", val_arg);
 		break;
-	case 45:
+	case 39:
 		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_NODELETE), PLR_NODELETE);
 		break;
-	case 46:
+	case 40:
 		if ((i = search_block(val_arg, genders, FALSE)) < 0) {
 			send_to_char
 			    ("Может быть 'мужчина', 'женщина', или 'бесполое'(а вот это я еще не оценил :).\r\n", ch);
@@ -3982,7 +4023,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		GET_SEX(vict) = i;
 		break;
-	case 47:		/* set age */
+	case 41:		/* set age */
 		if (value < 2 || value > 200) {	/* Arbitrary limits. */
 			send_to_char("Поддерживаются возрасты от 2 до 200.\r\n", ch);
 			return (0);
@@ -3995,17 +4036,17 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		vict->player.time.birth = time(0) - ((value - 17) * SECS_PER_MUD_YEAR);
 		break;
 
-	case 48:		/* Blame/Thank Rick Glover. :) */
+	case 42:		/* Blame/Thank Rick Glover. :) */
 		GET_HEIGHT(vict) = value;
 		affect_total(vict);
 		break;
 
-	case 49:
+	case 43:
 		GET_WEIGHT(vict) = value;
 		affect_total(vict);
 		break;
 
-	case 50:
+	case 44:
 		if (on) {
 			SET_GOD_FLAG(vict, GF_GODSLIKE);
 			if (sscanf(val_arg, "%s %d", npad[0], &i) != 0)
@@ -4015,7 +4056,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		} else if (off)
 			CLR_GOD_FLAG(vict, GF_GODSLIKE);
 		break;
-	case 51:
+	case 45:
 		if (on) {
 			SET_GOD_FLAG(vict, GF_GODSCURSE);
 			if (sscanf(val_arg, "%s %d", npad[0], &i) != 0)
@@ -4025,10 +4066,10 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		} else if (off)
 			CLR_GOD_FLAG(vict, GF_GODSCURSE);
 		break;
-	case 52:
+	case 46:
 		GET_OLC_ZONE(vict) = value;
 		break;
-	case 53:
+	case 47:
 		/* изменение имени !!! */
 
 		if ((i =
@@ -4126,7 +4167,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 
-	case 54:
+	case 48:
 
 		if (sscanf(val_arg, "%d %s", &ptnum, npad[0]) != 2) {
 			send_to_char("Формат : set <имя> trgquest <quest_num> <on|off>\r\n", ch);
@@ -4152,7 +4193,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 
-	case 55:
+	case 49:
 
 		if (sscanf(val_arg, "%d %s", &ptnum, npad[0]) != 2) {
 			send_to_char("Формат : set <имя> mkill <mob_vnum> <off|num>\r\n", ch);
@@ -4176,29 +4217,10 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 
-	case 56:
+	case 50:
 		return (0);
 		break;
-	case 57:
-		skip_spaces(&val_arg);
-		if (!val_arg || !*val_arg || ((j = atoi(val_arg)) == 0 && str_cmp("zerro", val_arg))) {
-			sprintf(output, "%s заработал%s %d %s славы.", GET_NAME(vict),
-				GET_CH_SUF_1(vict), GET_GLORY(vict), desc_count(GET_GLORY(vict), WHAT_POINT));
-			return_code = 0;
-		} else {
-			if (*val_arg == '-' || *val_arg == '+')
-				GET_GLORY(vict) = MAX(0, GET_GLORY(vict) + j);
-			else
-				GET_GLORY(vict) = j;
-			sprintf(output,
-				"Количество славы, которое заработал%s %s установлено в %d %s.",
-				GET_CH_SUF_1(vict), GET_NAME(vict), GET_GLORY(vict),
-				desc_count(GET_GLORY(vict), WHAT_POINT));
-			sprintf(buf,"Change glory %s by %s",val_arg,GET_NAME(ch));
-			add_karma(vict,buf,"???");
-		}
-		break;
-	case 58:
+	case 51:
 		if (!GET_COMMSTATE(ch)) {
 			send_to_char("Coder only !\r\n", ch);
 			return (0);
@@ -4212,12 +4234,12 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 
-	case 59:
+	case 52:
 		reason = one_argument(val_arg, num);
 		if (num && *num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_HELL, reason, times)) return (0);
 		break;
-	case 60:
+	case 53:
 		if (valid_email(val_arg)) {
 			strncpy(GET_EMAIL(vict), val_arg, 127);
 			*(GET_EMAIL(vict) + 127) = '\0';
@@ -4227,7 +4249,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			return (0);
 		}
 		break;
-	case 61:
+	case 54:
 		/* Выставляется род для РС */
 		rod = (*val_arg);
 		if (rod != '0' && rod != '1') {
@@ -4238,7 +4260,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			GET_RELIGION(vict) = rod - '0';
 		}
 		break;
-	case 62:
+	case 55:
 		/* Отдельный лог команд персонажа */
 		if (on) {
 			SET_GOD_FLAG(vict, GF_PERSLOG);
@@ -4246,17 +4268,17 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			CLR_GOD_FLAG(vict, GF_PERSLOG);
 		}
 		break;
-	case 63:
+	case 56:
 		reason = one_argument(val_arg, num);
 		if (num && *num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_MUTE, reason, times)) return (0);
 		break;
-	case 64:
+	case 57:
 		reason = one_argument(val_arg, num);
 		if (num && *num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_DUMB, reason, times)) return (0);
 		break;
-	case 65:
+	case 58:
 		if (GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch)) {
 			send_to_char("Кем вы себя возомнили?\r\n", ch);
 			return 0;
@@ -4281,7 +4303,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			return (0);
 		}
 		break;
-	case 66:      // Разрегистрация персонажа
+	case 59:      // Разрегистрация персонажа
 		reason = one_argument(val_arg, num);
 		if (num && *num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_UNREGISTER, reason, times)) return (0);

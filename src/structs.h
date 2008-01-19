@@ -719,6 +719,8 @@ typedef struct trig_data
 #define CON_WRITEBOARD   42 // написание на доску
 #define CON_CLANEDIT     43 // команда house
 #define CON_NEW_CHAR     44
+#define CON_SPEND_GLORY  45 // вливание славы через команду у чара
+#define CON_RESET_STATS  46 // реролл статов при входе в игру
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 /* Character equipment positions: used as index for char_data.equipment[] */
@@ -1964,7 +1966,7 @@ struct player_special_data_saved {
 	int
 	 Prelimit;
 	int
-	 glory;
+	 glory; // FIXME пока не трогать -- Krodo
 	int
 	 olc_zone;
 	int
@@ -2039,6 +2041,7 @@ struct punish_data {
 };
 
 #define BOARD_TOTAL 13 // общее кол-во досок
+#define START_STATS_TOTAL 5 // кол-во сохраняемых стартовых статов в файле
 
 /*
  * Specials needed only by PCs, not NPCs.  Space for this structure is
@@ -2100,6 +2103,7 @@ struct player_special_data {
 	boost::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
 
 	time_t board_date[BOARD_TOTAL]; // даты последних прочтенных мессаг на досках, пока не вектор к сожалению
+	int start_stats[START_STATS_TOTAL]; // сгенеренные при старте чара статы
 };
 
 
@@ -2353,6 +2357,7 @@ struct txt_q {
 	struct txt_block *tail;
 };
 
+namespace Glory { class spend_glory; }
 
 struct descriptor_data {
 	socket_t descriptor;	/* file descriptor for socket    */
@@ -2417,6 +2422,7 @@ struct descriptor_data {
 	boost::shared_ptr<struct ClanInvite> clan_invite; // приглашение в дружину
 	bool registered_email; // чтобы не шарить каждую секунду по списку мыл
 	FILE *pers_log; // чтобы не открывать файл на каждую команду чара при персональном логе
+	boost::shared_ptr<class Glory::spend_glory> glory; // вливание славы
 };
 
 

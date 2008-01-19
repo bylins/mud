@@ -581,6 +581,8 @@ const char *connected_types[] = { "В игре",
 	"Board message edit",
 	"House edit",
 	"Generate new name",
+	"Glory OLC",
+	"Base stats reroll",
 	"\n"
 };
 

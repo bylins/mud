@@ -680,7 +680,7 @@ void show_depot(CHAR_DATA * ch, OBJ_DATA * obj, int type)
 				if (vict_it != depot_list.end())
 				{
 				 // тут надо учесть кол-во денег у чара при том, что он может быть и оффлайн
-				 DESCRIPTOR_DATA *d = DescByUID(al_it->first, 0);
+				 DESCRIPTOR_DATA *d = DescByUID(al_it->first);
 				 int money = d ? (GET_GOLD(d->character) + GET_BANK_GOLD(d->character))
 						: vict_it->second.money;
 				 out += print_obj_list(ch, vict_it->second.share_online,

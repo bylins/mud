@@ -78,6 +78,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 int roundup(float fl);
 int valid_email(const char *address);
 void skip_spaces(char **string);
+void skip_dots(char **string);
 int get_skill(CHAR_DATA *ch, int skill);
 
 extern std::list<FILE *> opened_files;
@@ -719,6 +720,7 @@ extern SPECIAL(postmaster);
 #define CLAN_MEMBER(ch)       CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->clan_member))
 #define GET_CLAN_STATUS(ch)   CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->clanStatus))
 #define GET_BOARD_DATE(ch, i) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->board_date[i]))
+#define GET_START_STAT(ch, i) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->start_stats[i]))
 
 #define SET_SKILL(ch, i, pct) ((ch)->real_abils.Skills[i] = pct)
 #define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[i])
@@ -1221,6 +1223,8 @@ char *desc_count(int how_many, int of_what);
 #define WHAT_ROW	17
 #define WHAT_OBJECT	18
 #define WHAT_REMORT	19
+#define WHAT_WEEK	20
+#define WHAT_MONTH	21
 
 #undef AW_HIDE // конфликтует с winuser.h
 /* some awaking cases */
@@ -1241,6 +1245,7 @@ int awake_invis(CHAR_DATA * ch);
 int awake_camouflage(CHAR_DATA * ch);
 int awake_sneak(CHAR_DATA * ch);
 int awaking(CHAR_DATA * ch, int mode);
+std::string time_format(int timer);
 
 /* OS compatibility ******************************************************/
 

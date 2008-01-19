@@ -14,6 +14,9 @@
 
 #include "conf.h"
 #include <fstream>
+#include <cmath>
+#include <boost/lexical_cast.hpp>
+
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -1324,10 +1327,10 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen)
 }
 
 
-char *some_pads[3][20] = {
-{"дней", "часов", "лет", "очков", "минут", "минут", "кун", "кун", "штук", "штук", "уровней", "верст", "верст", "единиц", "единиц", "секунд", "градусов", "строк", "предметов", "перевоплощений"},
-{"день", "час", "год", "очко", "минута", "минуту", "куна", "куну", "штука", "штуку", "уровень", "верста", "версту", "единица", "единицу", "секунду", "градус", "строка", "предмет", "перевоплощение"},
-{"дня", "часа", "года", "очка", "минуты", "минуты", "куны", "куны", "штуки", "штуки", "уровня", "версты", "версты", "единицы", "единицы", "секунды", "градуса", "строки", "предмета", "перевоплощения"}
+char *some_pads[3][22] = {
+{"дней", "часов", "лет", "очков", "минут", "минут", "кун", "кун", "штук", "штук", "уровней", "верст", "верст", "единиц", "единиц", "секунд", "градусов", "строк", "предметов", "перевоплощений", "недель", "месяцев"},
+{"день", "час", "год", "очко", "минута", "минуту", "куна", "куну", "штука", "штуку", "уровень", "верста", "версту", "единица", "единицу", "секунду", "градус", "строка", "предмет", "перевоплощение", "неделя", "месяц"},
+{"дня", "часа", "года", "очка", "минуты", "минуты", "куны", "куны", "штуки", "штуки", "уровня", "версты", "версты", "единицы", "единицы", "секунды", "градуса", "строки", "предмета", "перевоплощения", "недели", "месяца"}
 };
 
 char *desc_count(int how_many, int of_what)
@@ -1953,4 +1956,69 @@ int get_skill(CHAR_DATA *ch, int skill)
 		return (ch)->real_abils.Skills[skill];
 	else
 		return 0;
+}
+
+/**
+* Вывод времени (минут) в зависимости от их кол-ва с округлением вплоть до месяцев.
+* Для таймеров славы по 'glory имя' и 'слава информация'.
+*/
+std::string time_format(int in_timer)
+{
+	char buffer[256];
+	std::ostringstream out;
+
+	double timer = in_timer;
+	int one = 0, two = 0;
+
+	if (timer < 60)
+		out << timer << " " << desc_count(in_timer, WHAT_MINa);
+	else if (timer < 1440)
+	{
+		sprintf(buffer, "%.1f", timer/60);
+		sscanf(buffer, "%d.%d", &one, &two);
+		out << one;
+		if (two)
+			out << "." << two  << " " << desc_count(two, WHAT_HOUR);
+		else
+			out << " " << desc_count(one, WHAT_HOUR);
+	}
+	else if (timer < 10080)
+	{
+		sprintf(buffer, "%.1f", timer/1440);
+		sscanf(buffer, "%d.%d", &one, &two);
+		out << one;
+		if (two)
+			out << "." << two  << " " << desc_count(two, WHAT_DAY);
+		else
+			out << " " << desc_count(one, WHAT_DAY);
+	}
+	else if (timer < 44640)
+	{
+		sprintf(buffer, "%.1f", timer/10080);
+		sscanf(buffer, "%d.%d", &one, &two);
+		out << one;
+		if (two)
+			out << "." << two  << " " << desc_count(two, WHAT_WEEK);
+		else
+			out << " " << desc_count(one, WHAT_WEEK);
+	}
+	else
+	{
+		sprintf(buffer, "%.1f", timer/44640);
+		sscanf(buffer, "%d.%d", &one, &two);
+		out << one;
+		if (two)
+			out << "." << two  << " " << desc_count(two, WHAT_MONTH);
+		else
+			out << " " << desc_count(one, WHAT_MONTH);
+	}
+	return out.str();
+}
+
+/**
+* Для обрезания точек в карме при сете славы.
+*/
+void skip_dots(char **string)
+{
+	for (; **string && (strchr(" .", **string) != NULL); (*string)++);
 }
