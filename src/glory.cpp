@@ -792,7 +792,7 @@ ACMD(do_spend_glory)
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	if (it == glory_list.end() || IS_IMMORTAL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Вам это не нужно...\r\n", ch);
 		return;
 	}
 
