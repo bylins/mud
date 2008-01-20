@@ -1098,7 +1098,16 @@ bool check_stats(CHAR_DATA *ch)
 			GET_CHA(ch) - GET_REMORT(ch),
 			CCNRM(ch, C_SPR));
 		SEND_TO_Q(buf, ch->desc);
-		roll_real_abils(ch);
+
+		// данную фигню мы делаем для того, чтобы из ролла нельзя было случайно так просто выйти
+		// сразу, не раскидав статы, а то много любителей тригов и просто нажатий не глядя
+		GET_STR(ch) = MIN_STR(ch);
+		GET_DEX(ch) = MIN_DEX(ch);
+		GET_INT(ch) = MIN_INT(ch);
+		GET_WIS(ch) = MIN_WIS(ch);
+		GET_CON(ch) = MIN_CON(ch);
+		GET_CHA(ch) = MIN_CHA(ch);
+
 		sprintf(buf, "\r\n%sВ связи с изменениями в системах стартового ролла и вложения славы\r\n"
 			"- просим вас заново распределить основные параметры персонажа.%s\r\n",
 			CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
