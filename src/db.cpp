@@ -6387,11 +6387,11 @@ void entrycount(char *name)
 /*
 				int have_stats = GET_STR(short_ch) + GET_DEX(short_ch) + GET_INT(short_ch) + GET_WIS(short_ch) + GET_CON(short_ch) + GET_CHA(short_ch);
 				int add_glory = (have_stats - 93 - (GET_REMORT(short_ch) * 6)) * 1000;
+				if (add_glory < 0)
+					add_glory = 0;
+				add_glory += GET_GLORY(short_ch);
 				if (add_glory > 0 && !IS_IMMORTAL(short_ch))
-				{
-					add_glory += GET_GLORY(short_ch);
 					Glory::add_glory(GET_UNIQUE(short_ch), add_glory);
-				}
 */
 // //
 			}
