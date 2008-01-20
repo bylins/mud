@@ -612,7 +612,9 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 		GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 		if (it == glory_list.end()
 			|| ch->desc->glory->check_spend_glory != it->second->spend_glory
-			|| ch->desc->glory->check_free_glory != it->second->free_glory)
+			|| ch->desc->glory->check_free_glory != it->second->free_glory
+			|| ch->desc->glory->olc_node->hide != it->second->hide
+			|| ch->desc->glory->olc_node->freeze != it->second->freeze)
 		{
 			// пустое может получиться например если с него в этот момент трансфернули славу
 			// остальное - за время сидения в олц что-то изменилось, дали славу, просрочились статы и т.п.
