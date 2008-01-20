@@ -1087,6 +1087,17 @@ bool check_stats(CHAR_DATA *ch)
 	// чар со старым роллом статов или после попыток поправить статы в файле
 	if (bad_start_stats(ch))
 	{
+		sprintf(buf, "\r\n%sВаши параметры за вычетом перевоплощений:\r\n"
+			"Сила: %d, Ловкость: %d, Ум: %d, Мудрость: %d, Телосложение: %d, Обаяние: %d %s\r\n",
+			CCIGRN(ch, C_SPR),
+			GET_STR(ch) - GET_REMORT(ch),
+			GET_DEX(ch) - GET_REMORT(ch),
+			GET_INT(ch) - GET_REMORT(ch),
+			GET_WIS(ch) - GET_REMORT(ch),
+			GET_CON(ch) - GET_REMORT(ch),
+			GET_CHA(ch) - GET_REMORT(ch),
+			CCNRM(ch, C_SPR));
+		SEND_TO_Q(buf, ch->desc);
 		roll_real_abils(ch);
 		sprintf(buf, "\r\n%sВ связи с изменениями в системах стартового ролла и вложения славы\r\n"
 			"- просим вас заново распределить основные параметры персонажа.%s\r\n",
