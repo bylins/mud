@@ -14,7 +14,7 @@ namespace Glory {
 
 int get_glory(long uid);
 void add_glory(long uid, int amount);
-void remove_glory(long uid, int amount);
+int remove_glory(long uid, int amount);
 
 ACMD(do_spend_glory);
 bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg);
@@ -26,7 +26,7 @@ void timers_update();
 
 bool check_stats(CHAR_DATA *ch);
 void calculate_total_stats(CHAR_DATA *ch);
-void remove_stats(CHAR_DATA *ch, CHAR_DATA *god, int amount);
+bool remove_stats(CHAR_DATA *ch, CHAR_DATA *god, int amount);
 void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reason);
 void show_glory(CHAR_DATA *ch, CHAR_DATA *god);
 void show_stats(CHAR_DATA *ch);

@@ -328,10 +328,12 @@ void add_glory(long uid, int amount)
 
 /**
 * Удаление славы у чара (свободной), ниже нуля быть не может.
+* \return 0 - ничего не списано, число > 0 - сколько реально списали
 */
-void remove_glory(long uid, int amount)
+int remove_glory(long uid, int amount)
 {
-	if (uid <= 0 || amount <= 0) return;
+	if (uid <= 0 || amount <= 0) return 0;
+	int real_removed = amount;
 
 	GloryListType::iterator it = glory_list.find(uid);
 	if (it != glory_list.end())
@@ -340,13 +342,17 @@ void remove_glory(long uid, int amount)
 		if (it->second->free_glory >= amount)
 			it->second->free_glory -= amount;
 		else
+		{
+			real_removed = it->second->free_glory;
 			it->second->free_glory = 0;
+		}
 		// смысла пустую запись оставлять до ребута нет
 		if (!it->second->free_glory && !it->second->spend_glory)
 			glory_list.erase(it);
 
 		save_glory();
 	}
+	return real_removed;
 }
 
 /**
@@ -1134,24 +1140,25 @@ bool check_stats(CHAR_DATA *ch)
 
 /**
 * Удаление иммом у чара славы, уже вложенной в статы (glory remove).
+* \return 0 - ничего не снято, 1 - снято сколько просили
 */
-void remove_stats(CHAR_DATA *ch, CHAR_DATA *god, int amount)
+bool remove_stats(CHAR_DATA *ch, CHAR_DATA *god, int amount)
 {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	if (it == glory_list.end())
 	{
 		send_to_char(god, "У %s нет вложенной славы.\r\n", GET_PAD(ch, 1));
-		return;
+		return 0;
 	}
 	if (amount > it->second->spend_glory)
 	{
 		send_to_char(god, "У %s нет столько вложенной славы.\r\n", GET_PAD(ch, 1));
-		return;
+		return 0;
 	}
 	if (amount <= 0)
 	{
 		send_to_char(god, "Некорректное количество статов (%d).\r\n", amount);
-		return;
+		return 0;
 	}
 
 	int removed = 0;
@@ -1186,6 +1193,7 @@ void remove_stats(CHAR_DATA *ch, CHAR_DATA *god, int amount)
 	}
 	imm_log("(GC) %s sets -%d stats to %s.", GET_NAME(god), removed, GET_NAME(ch));
 	send_to_char(god, "С %s снято %d %s вложенной ранее славы.\r\n", GET_PAD(ch, 1), removed, desc_count(removed, WHAT_POINT));
+	return 1;
 }
 
 /**

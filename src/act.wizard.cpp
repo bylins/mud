@@ -714,46 +714,12 @@ ACMD(do_echo)
 #define SUB_TRANS 	4
 #define SUB_HIDE    5
 
-void set_glory(CHAR_DATA * ch, CHAR_DATA * vict, int mode, int amount)
-{
-	switch (mode) {
-	case ADD_GLORY:
-		Glory::add_glory(GET_UNIQUE(vict), amount);
-		sprintf(buf, "%s добавлено %d у.е. славы (Всего: %d у.е.).\r\n",
-			GET_PAD(vict, 2), amount, Glory::get_glory(GET_UNIQUE(vict)));
-		send_to_char(buf, ch);
-		imm_log("(GC) %s sets +%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
-		break;
-
-	case SUB_GLORY:
-		Glory::remove_glory(GET_UNIQUE(vict), amount);
-		sprintf(buf, "У %s вычтено %d у.е. славы (Всего: %d у.е.).\r\n",
-			GET_PAD(vict, 1), amount, Glory::get_glory(GET_UNIQUE(vict)));
-		send_to_char(buf, ch);
-		imm_log("(GC) %s sets -%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
-		break;
-
-	case SUB_STATS:
-		break;
-
-	case SUB_TRANS:
-		break;
-
-	case SUB_HIDE:
-		break;
-
-	default:
-		Glory::show_glory(vict, ch);
-	}
-}
-
 ACMD(do_glory)
 {
 	// Команда простановки славы (оффлайн/онлайн)
 	// Без параметров выводит славу у игрока
 	// + cлава прибавляет славу
 	// - cлава убавляет славу
-	CHAR_DATA *vict;
 	char num[MAX_INPUT_LENGTH];
 	char arg1[MAX_INPUT_LENGTH];
 	int mode = 0;
@@ -811,36 +777,10 @@ ACMD(do_glory)
 		}
 	}
 
-	if ((vict = get_player_vis(ch, arg, FIND_CHAR_WORLD)) != NULL)
+	bool loaded = 0;
+	CHAR_DATA *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
+	if (!vict)
 	{
-		// изврат канеш, но переделывать старую методу пока влом
-		if (mode == SUB_STATS)
-		{
-			Glory::remove_stats(vict, ch, atoi(arg1));
-			sprintf(buf,"Remove stats %s by %s", arg1, GET_NAME(ch));
-			add_karma(vict,buf,reason);
-			Glory::add_glory_log(mode, 0, std::string(buf), std::string(reason), vict);
-		}
-		else if (mode == SUB_TRANS)
-			Glory::transfer_stats(vict, ch, arg1, reason);
-		else if (mode == SUB_HIDE)
-		{
-			Glory::hide_char(vict, ch, arg1);
-			sprintf(buf,"Hide %s by %s", arg1, GET_NAME(ch));
-			add_karma(vict,buf,reason);
-			Glory::add_glory_log(mode, 0, std::string(buf), std::string(reason), vict);
-		}
-		else
-		{
-			set_glory(ch, vict, mode, atoi((num + 1)));
-			if (mode != SHOW_GLORY) {
-				sprintf(buf,"Change glory %s by %s", num, GET_NAME(ch));
-				add_karma(vict,buf,reason);
-				Glory::add_glory_log(mode, atoi(num + 1), std::string(buf), std::string(reason), vict);
-			}
-		}
-	}
-	else {
 		CREATE(vict, CHAR_DATA, 1);
 		clear_char(vict);
 		if (load_char(arg, vict) < 0) {
@@ -848,36 +788,71 @@ ACMD(do_glory)
 			free(vict);
 			return;
 		}
+		loaded = 1;
+	}
 
-		// Тут ставим или показываем славу
-		// изврат канеш, но переделывать старую методу пока влом
-		if (mode == SUB_STATS)
+	switch (mode)
+	{
+		case ADD_GLORY:
 		{
-			Glory::remove_stats(vict, ch, atoi(arg1));
-			sprintf(buf,"Remove stats %s by %s", arg1, GET_NAME(ch));
-			add_karma(vict,buf,reason);
-			Glory::add_glory_log(mode, 0, std::string(buf), std::string(reason), vict);
+			int amount = atoi((num + 1));
+			Glory::add_glory(GET_UNIQUE(vict), amount);
+			send_to_char(ch, "%s добавлено %d у.е. славы (Всего: %d у.е.).\r\n",
+				GET_PAD(vict, 2), amount, Glory::get_glory(GET_UNIQUE(vict)));
+			imm_log("(GC) %s sets +%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
+			// запись в карму
+			sprintf(buf, "Change glory %d by %s", amount, GET_NAME(ch));
+			add_karma(vict, buf, reason);
+			Glory::add_glory_log(mode, amount, std::string(buf), std::string(reason), vict);
+			break;
 		}
-		else if (mode == SUB_TRANS)
+		case SUB_GLORY:
+		{
+			int amount = Glory::remove_glory(GET_UNIQUE(vict), atoi((num + 1)));
+			if (amount <= 0)
+			{
+				send_to_char(ch, "У %s нет свободной славы.", GET_PAD(vict, 1));
+				break;
+			}
+			send_to_char(ch, "У %s вычтено %d у.е. славы (Всего: %d у.е.).\r\n",
+				GET_PAD(vict, 1), amount, Glory::get_glory(GET_UNIQUE(vict)));
+			imm_log("(GC) %s sets -%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
+			// запись в карму
+			sprintf(buf, "Change glory %d by %s", amount, GET_NAME(ch));
+			add_karma(vict, buf, reason);
+			Glory::add_glory_log(mode, amount, std::string(buf), std::string(reason), vict);
+			break;
+		}
+		case SUB_STATS:
+		{
+			if (Glory::remove_stats(vict, ch, atoi(arg1)))
+			{
+				sprintf(buf,"Remove stats %s by %s", arg1, GET_NAME(ch));
+				add_karma(vict, buf, reason);
+				Glory::add_glory_log(mode, 0, std::string(buf), std::string(reason), vict);
+			}
+			break;
+		}
+		case SUB_TRANS:
+		{
 			Glory::transfer_stats(vict, ch, arg1, reason);
-		else if (mode == SUB_HIDE)
+			break;
+		}
+		case SUB_HIDE:
 		{
 			Glory::hide_char(vict, ch, arg1);
-			sprintf(buf,"Hide %s by %s", arg1, GET_NAME(ch));
-			add_karma(vict,buf,reason);
+			sprintf(buf, "Hide %s by %s", arg1, GET_NAME(ch));
+			add_karma(vict, buf, reason);
 			Glory::add_glory_log(mode, 0, std::string(buf), std::string(reason), vict);
+			break;
 		}
-		else
-		{
-			set_glory(ch, vict, mode, atoi((num + 1)));
+		default:
+			Glory::show_glory(vict, ch);
+	}
 
-			if (mode != SHOW_GLORY) {
-				sprintf(buf,"Change glory %s by %s", num, GET_NAME(ch));
-				add_karma(vict,buf,reason);
-				Glory::add_glory_log(mode, atoi(num + 1), std::string(buf), std::string(reason), vict);
-			}
-		}
-
+	// если чара грузили из оффлайна - надо чистить
+	if (loaded)
+	{
 		save_char(vict, GET_LOADROOM(vict));
 		free_char(vict);
 	}
