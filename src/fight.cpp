@@ -98,6 +98,7 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim);
 //void solo_gain(CHAR_DATA * ch, CHAR_DATA * victim);
 char *replace_string(const char *str, const char *weapon_singular, const char *weapon_plural);
 void perform_violence(void);
+int armor_class_limit(CHAR_DATA * ch);
 int compute_armor_class(CHAR_DATA * ch);
 int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim);
 void apply_weapon_bonus(int ch_class, int skill, int *damroll, int *hitroll);
@@ -200,6 +201,42 @@ void appear(CHAR_DATA * ch)
 	}
 }
 
+int armor_class_limit(CHAR_DATA * ch)
+{
+	if (IS_CHARMICE(ch)) {
+		return -200;
+	};
+	if (IS_NPC(ch)) {
+		return -300;
+	};
+	switch (GET_CLASS(ch)) {
+	case CLASS_ASSASINE:
+	case CLASS_THIEF:
+	case CLASS_GUARD:
+		return -250;
+		break;
+	case CLASS_MERCHANT:
+	case CLASS_WARRIOR:
+	case CLASS_PALADINE:
+	case CLASS_RANGER:
+	case CLASS_SMITH:
+		return -200;
+		break;
+	case CLASS_CLERIC:
+	case CLASS_DRUID:
+		return -150;
+		break;
+	case CLASS_BATTLEMAGE:
+	case CLASS_DEFENDERMAGE:
+	case CLASS_CHARMMAGE:
+	case CLASS_NECROMANCER:
+		return -100;
+		break;
+	default:
+		return -300;
+	}
+
+}
 
 int compute_armor_class(CHAR_DATA * ch)
 {
@@ -231,7 +268,7 @@ int compute_armor_class(CHAR_DATA * ch)
 		if (GET_EQ(ch, WEAR_BOTHS))
 			armorclass += 10 * MAX(-1, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) / 5 - 6);
 	}
-	return (MAX(-300, armorclass));	/* Теперь нижняя планка -300 (c)dzMUDiST */
+	return (MAX(armor_class_limit(ch), armorclass));
 }
 
 
