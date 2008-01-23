@@ -163,8 +163,11 @@ void assign_feats(void)
 	feato(PARRY_ARROW_FEAT, "отбить стрелу", NORMAL_FTYPE, TRUE, feat_app);
 //3
 	feato(BLIND_FIGHT_FEAT, "слепой бой", NORMAL_FTYPE, TRUE, feat_app);
-//4-*
-	feato(CLEAVE_FEAT, "мгновенная атака", NORMAL_FTYPE, TRUE, feat_app);
+//4
+	feat_app.insert(APPLY_MR, 1);
+	feat_app.insert(APPLY_AR, 1);
+	feato(IMPREGNABLE_FEAT, "непробиваемый", AFFECT_FTYPE, TRUE, feat_app);
+	feat_app.clear();
 //5-*
 	feato(APPROACHING_ATTACK_FEAT, "встречная атака", NORMAL_FTYPE, TRUE, feat_app);
 //6-*
@@ -454,6 +457,10 @@ void assign_feats(void)
 	feato(RUNE_MASTER_FEAT, "заветные руны", NORMAL_FTYPE, TRUE, feat_app);
 //85
 	feato(RUNE_ULTIMATE_FEAT, "руны богов", NORMAL_FTYPE, TRUE, feat_app);
+//86
+	feato(TO_FIT_ITEM_FEAT, "переделать", NORMAL_FTYPE, TRUE, feat_app);
+//87
+	feato(TO_FIT_CLOTHCES_FEAT, "перешить", NORMAL_FTYPE, TRUE, feat_app);
 
 /*
 //
@@ -790,6 +797,113 @@ ACMD(do_lightwalk)
 	        send_to_char("Ваши шаги стали легче перышка.\r\n", ch);
 	}
         affect_to_char(ch, &af);
+}
+
+//подгонка и перешивание
+ACMD(do_fit)
+{
+	OBJ_DATA *obj;
+	CHAR_DATA *vict;
+	char arg1[MAX_INPUT_LENGTH];
+	char arg2[MAX_INPUT_LENGTH];
+
+	/*отключено пока для не-иммов*/
+	if (GET_LEVEL(ch) < LVL_IMMORT) {
+		send_to_char("Вы не можете этого.", ch);
+		return;		
+	};
+
+	//Может ли игрок использовать эту способность?
+	if ((subcmd == SCMD_DO_ADAPT) && !can_use_feat(ch, TO_FIT_ITEM_FEAT)) {
+			send_to_char("Вы не умеете этого.", ch);
+			return;
+	};
+	if ((subcmd == SCMD_MAKE_OVER) && !can_use_feat(ch, TO_FIT_CLOTHCES_FEAT)) {
+			send_to_char("Вы не умеете этого.", ch);
+			return;
+	};
+
+	//Есть у нас предмет, который хотят переделать?
+	argument = one_argument(argument, arg1);
+
+	if (!*arg1) {
+		send_to_char("Что вы хотите переделать?\r\n", ch);
+		return;
+	};
+
+	if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
+		sprintf(buf, "У Вас нет \'%s\'.\r\n", arg1);
+		send_to_char(buf, ch);
+		return;
+	};
+
+	//На кого переделываем?
+	argument = one_argument(argument, arg2);
+	if (!(vict = get_char_vis(ch, arg2, FIND_CHAR_ROOM))) {
+		send_to_char("Под кого вы хотите переделать эту вещь?\r\n Нет такого создания в округе!\r\n", ch);
+		return;
+	};
+
+	//Предмет уже имеет владельца
+	if (GET_OBJ_OWNER(obj) != 0) {
+		send_to_char("У этой вещи уже есть владелец.\r\n", ch);
+		return;
+		
+	};
+
+	//предмет никуда не надевается, соответственно его не надо подгонять
+	//в принципе без этой проверки можно обойтись, но пусть будет ролеплея ради
+	//кроме того тут же сделаем проверку на сетстафф
+	if ((GET_OBJ_WEAR(obj) <= 1) || OBJ_FLAGGED(obj, ITEM_SETSTUFF)) {
+		send_to_char("Этот предмет невозможно переделать.\r\n", ch);
+		return;
+	}
+
+// не подгоняются предметы из
+//(GET_OBJ_MATER(obj) != MAT_CRYSTALL) кристалла
+// (GET_OBJ_MATER(obj) != MAT_FARFOR) керамики
+//(GET_OBJ_MATER(obj) != MAT_ROCK) камня
+// (GET_OBJ_MATER(obj) != MAT_PAPER) бумаги
+//(GET_OBJ_MATER(obj) != MAT_DIAMOND) драгоценного камня
+
+	//Подходит ли материал?
+	switch (subcmd) {
+	case SCMD_DO_ADAPT:
+		if ((GET_OBJ_MATER(obj) != MAT_NONE) &&
+				(GET_OBJ_MATER(obj) != MAT_BULAT) &&
+				(GET_OBJ_MATER(obj) != MAT_BRONZE) &&
+				(GET_OBJ_MATER(obj) != MAT_IRON) &&
+				(GET_OBJ_MATER(obj) != MAT_STEEL) &&
+				(GET_OBJ_MATER(obj) != MAT_SWORDSSTEEL) &&
+				(GET_OBJ_MATER(obj) != MAT_COLOR) &&
+				(GET_OBJ_MATER(obj) != MAT_WOOD) &&
+				(GET_OBJ_MATER(obj) != MAT_SUPERWOOD) &&
+				(GET_OBJ_MATER(obj) != MAT_GLASS)) {
+			sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
+								 GET_OBJ_PNAME(obj,0),GET_OBJ_SUF_6(obj));
+			send_to_char(buf, ch);
+			return;
+		}
+		break;
+	case SCMD_MAKE_OVER:
+		if ((GET_OBJ_MATER(obj) != MAT_BONE) &&
+				(GET_OBJ_MATER(obj) != MAT_MATERIA) &&
+				(GET_OBJ_MATER(obj) != MAT_SKIN) &&
+				(GET_OBJ_MATER(obj) != MAT_ORGANIC)) {
+			sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
+								 GET_OBJ_PNAME(obj,0),GET_OBJ_SUF_6(obj));
+			send_to_char(buf, ch);
+			return;
+		}
+		break;
+	};
+	GET_OBJ_OWNER(obj) = GET_UNIQUE(vict);
+	sprintf(buf,"Вы долго пыхтели и сопели, переделывая работу по десять раз.\r\n");
+	sprintf(buf+strlen(buf),"Вы извели кучу времени и 10000 кун золотом.\r\n");
+	sprintf(buf+strlen(buf),"В конце-концов подогнали %s точно по мерке %s.\r\n", GET_OBJ_PNAME(obj,3), GET_PAD(vict,1));
+
+	send_to_char(buf, ch);
+
 }
 
 /*

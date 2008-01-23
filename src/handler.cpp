@@ -665,6 +665,14 @@ void affect_total(CHAR_DATA * ch)
 				affect_modify(ch, feat_info[i].affected[j].location,
 								feat_info[i].affected[j].modifier, 0, TRUE);
 	}
+
+	/* IMPREGNABLE_FEAT учитывается дважды: выше начисляем единичку за 0 мортов, а теперь по 1 за каждый морт */
+	if (can_use_feat(ch, IMPREGNABLE_FEAT)) {
+		for (j = 0; j < MAX_FEAT_AFFECT; j++)
+			affect_modify(ch, feat_info[IMPREGNABLE_FEAT].affected[j].location,
+				MIN(9,feat_info[IMPREGNABLE_FEAT].affected[j].modifier*GET_REMORT(ch)), 0, TRUE);
+	};
+
 	/* Обработка "выносливости" и "богатырского здоровья */
 	/* Знаю, что кривовато, придумаете, как лучше - делайте */
 	if (!IS_NPC(ch)) {

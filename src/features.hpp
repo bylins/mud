@@ -18,7 +18,7 @@ using std::bitset;
 #define BERSERK_FEAT			1   //предсмертная ярость
 #define PARRY_ARROW_FEAT		2   //отбить стрелу
 #define BLIND_FIGHT_FEAT		3   //слепой бой
-#define CLEAVE_FEAT			4   //мгновенная атака
+#define IMPREGNABLE_FEAT		4   //мгновенная атака
 #define APPROACHING_ATTACK_FEAT		5   //встречная атака
 #define DODGE_FEAT			6   //увертка
 #define TWO_WEAPON_FIGHTING_FEAT	7   //двуручный бой
@@ -100,6 +100,8 @@ using std::bitset;
 #define RUNE_USER_FEAT			83  //тайные руны
 #define RUNE_MASTER_FEAT		84  //заветные руны
 #define RUNE_ULTIMATE_FEAT		85  //руны богов
+#define TO_FIT_ITEM_FEAT		86  //подгонка
+#define TO_FIT_CLOTHCES_FEAT		87  //перешить
 
 /*
 #define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух
