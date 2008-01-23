@@ -2709,7 +2709,7 @@ ACMD(do_insertgem)
 	    improove_skill(ch, SKILL_INSERTGEM, 0, 0);
 
 	    //успех или фэйл? при 80% скила успех 30% при 100% скила 50% при 200% скила успех 75%
-	    if (number(1, get_skill(ch, SKILL_INSERTGEM)) <= (get_skill(ch, SKILL_INSERTGEM) - 50))
+	    if (number(1, get_skill(ch, SKILL_INSERTGEM)) > (get_skill(ch, SKILL_INSERTGEM) - 50))
 	    {
 		sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n", gemobj->name,
 		itemobj->PNames[3]);

@@ -1350,6 +1350,14 @@ void boot_db(void)
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");
+for (int i = 0; i <= 1000; ++i)
+log("test: %d", number(1, 200));
+for (int i = 0; i <= 100; ++i)
+log("test: %d", number(1, 2));
+for (int i = 0; i <= 100; ++i)
+log("test: %d", number(2, 3));
+for (int i = 0; i <= 1000; ++i)
+log("test: %d", number(1, 100));
 }
 
 /* free rooms structures and pointers*/
@@ -6338,7 +6346,6 @@ int must_be_deleted(CHAR_DATA * short_ch)
 	return (0);
 }
 
-
 // данная функция работает с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
 void entrycount(char *name)
@@ -6384,15 +6391,8 @@ void entrycount(char *name)
 				TopPlayer::Refresh(short_ch, 1);
 				log("Add new player %s", player_table[top_of_p_table].name);
 // //
-/*
-				int have_stats = GET_STR(short_ch) + GET_DEX(short_ch) + GET_INT(short_ch) + GET_WIS(short_ch) + GET_CON(short_ch) + GET_CHA(short_ch);
-				int add_glory = (have_stats - 93 - (GET_REMORT(short_ch) * 6)) * 1000;
-				if (add_glory < 0)
-					add_glory = 0;
-				add_glory += GET_GLORY(short_ch);
-				if (add_glory > 0 && !IS_IMMORTAL(short_ch))
-					Glory::add_glory(GET_UNIQUE(short_ch), add_glory);
-*/
+// //				GET_START_STAT(short_ch, G_STR) = 0;
+// //				save_char(short_ch, GET_LOADROOM(short_ch));
 // //
 			}
 			free_char(short_ch);

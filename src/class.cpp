@@ -2281,148 +2281,13 @@ void do_start(CHAR_DATA * ch, int newbie)
 		SET_BIT(PLR_FLAGS(ch, PLR_SITEOK), PLR_SITEOK);
 }
 
-
-
-/*
- * This function controls the change to maxmove, maxmana, and maxhp for
- * each class every time they gain a level.
- */
-void o_advance_level(CHAR_DATA * ch)
-{
-	int add_hp_min, add_hp_max, add_move = 0, i;
-
-	add_hp_min = MIN(GET_REAL_CON(ch), GET_REAL_CON(ch) + con_app[GET_REAL_CON(ch)].hitp);
-	add_hp_max = MAX(GET_REAL_CON(ch), GET_REAL_CON(ch) + con_app[GET_REAL_CON(ch)].hitp);
-
-	switch (GET_CLASS(ch)) {
-	case CLASS_BATTLEMAGE:
-	case CLASS_DEFENDERMAGE:
-	case CLASS_CHARMMAGE:
-	case CLASS_NECROMANCER:
-		// Not more then BORN CON - 1
-		add_hp_min = MIN(add_hp_min, GET_CON(ch) - 3);
-		add_hp_max = MIN(add_hp_max, GET_CON(ch) - 1);
-		add_move = 2;
-		break;
-
-	case CLASS_CLERIC:
-		// Not more then BORN CON + 1
-		add_hp_min = MIN(add_hp_min, GET_CON(ch) - 2);
-		add_hp_max = MIN(add_hp_max, GET_CON(ch) + 2);
-		add_move = number(GET_DEX(ch) / 6 + 1, GET_DEX(ch) / 5 + 1);
-		break;
-
-	case CLASS_DRUID:
-		// Not more then BORN CON + 1
-		add_hp_min = MIN(add_hp_min, GET_CON(ch) - 2);
-		add_hp_max = MIN(add_hp_max, GET_CON(ch) + 1);
-		add_move = 2;
-		break;
-
-	case CLASS_THIEF:
-	case CLASS_ASSASINE:
-	case CLASS_MERCHANT:
-		// Not more then BORN CON + 2
-		add_hp_min = MIN(add_hp_min, GET_CON(ch) - 1);
-		add_hp_max = MIN(add_hp_max, GET_CON(ch) + 2);
-		add_move = number(GET_DEX(ch) / 6 + 1, GET_DEX(ch) / 5 + 1);
-		break;
-
-	case CLASS_WARRIOR:
-		// Not less then BORN CON
-		add_hp_min = MAX(add_hp_min, GET_CON(ch));
-		add_move = number(GET_DEX(ch) / 6 + 1, GET_DEX(ch) / 5 + 1);
-		break;
-
-	case CLASS_GUARD:
-	case CLASS_RANGER:
-	case CLASS_PALADINE:
-	case CLASS_SMITH:
-		// Not more then BORN CON + 5
-		// Not less then BORN CON - 2
-		add_hp_min = MAX(add_hp_min, GET_CON(ch) - 2);
-		add_hp_max = MIN(add_hp_max, GET_CON(ch) + 5);
-		add_move = number(GET_DEX(ch) / 6 + 1, GET_DEX(ch) / 5 + 1);
-		break;
-	}
-
-	for (i = 1; i < MAX_FEATS; i++)
-		if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && can_get_feat(ch, i))
-			SET_FEAT(ch, i);
-
-	add_hp_min = MIN(add_hp_min, add_hp_max);
-	add_hp_min = MAX(1, add_hp_min);
-	add_hp_max = MAX(1, add_hp_max);
-	log("Add hp for %s in range %d..%d", GET_NAME(ch), add_hp_min, add_hp_max);
-	ch->points.max_hit += number(add_hp_min, add_hp_max);
-	ch->points.max_move += MAX(1, add_move);
-
-	if (IS_IMMORTAL(ch)) {
-		for (i = 0; i < 3; i++)
-			GET_COND(ch, i) = (char) -1;
-		SET_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
-	}
-
-	save_char(ch, NOWHERE);
-}
-
-void o_decrease_level(CHAR_DATA * ch)
-{
-	int add_hp, add_move = 0;
-
-	add_hp =
-	    MAX(MAX
-		(GET_REAL_CON(ch),
-		 GET_REAL_CON(ch) + con_app[GET_REAL_CON(ch)].hitp),
-		MAX(GET_CON(ch), GET_CON(ch) + con_app[GET_CON(ch)].hitp));
-
-	switch (GET_CLASS(ch)) {
-	case CLASS_BATTLEMAGE:
-	case CLASS_DEFENDERMAGE:
-	case CLASS_CHARMMAGE:
-	case CLASS_NECROMANCER:
-		add_move = 2;
-		break;
-
-	case CLASS_CLERIC:
-	case CLASS_DRUID:
-		add_move = 2;
-		break;
-
-	case CLASS_THIEF:
-	case CLASS_ASSASINE:
-	case CLASS_MERCHANT:
-		add_move = GET_DEX(ch) / 5 + 1;
-		break;
-
-	case CLASS_WARRIOR:
-	case CLASS_GUARD:
-	case CLASS_PALADINE:
-	case CLASS_RANGER:
-	case CLASS_SMITH:
-		add_move = GET_DEX(ch) / 5 + 1;
-		break;
-	}
-
-	log("Dec hp for %s set ot %d", GET_NAME(ch), add_hp);
-	ch->points.max_hit -= MIN(ch->points.max_hit, MAX(1, add_hp));
-	ch->points.max_move -= MIN(ch->points.max_move, MAX(1, add_move));
-
-	if (!IS_IMMORTAL(ch))
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
-
-	save_char(ch, NOWHERE);
-}
-
 void advance_level(CHAR_DATA * ch)
 {
 	int con, add_hp = 0, add_move = 0, i;
 
 	con = MAX(class_app[(int) GET_CLASS(ch)].min_con, MIN(GET_CON(ch), class_app[(int) GET_CLASS(ch)].max_con));
-	add_hp = class_app[(int) GET_CLASS(ch)].base_con + (con - class_app[(int)
-									    GET_CLASS(ch)].
-							    base_con) *
-	    class_app[(int) GET_CLASS(ch)].koef_con / 100 + number(1, 3);
+	add_hp = class_app[(int) GET_CLASS(ch)].base_con + (con - class_app[(int)GET_CLASS(ch)].base_con) *
+		class_app[(int) GET_CLASS(ch)].koef_con / 100 + number(2, 3);
 
 	switch (GET_CLASS(ch)) {
 	case CLASS_BATTLEMAGE:
@@ -2478,9 +2343,7 @@ void decrease_level(CHAR_DATA * ch)
 	int prob, sval, max;
 
 	con = MAX(class_app[(int) GET_CLASS(ch)].min_con, MIN(GET_CON(ch), class_app[(int) GET_CLASS(ch)].max_con));
-	add_hp = class_app[(int) GET_CLASS(ch)].base_con + (con - class_app[(int)
-									    GET_CLASS(ch)].
-							    base_con) *
+	add_hp = class_app[(int) GET_CLASS(ch)].base_con + (con - class_app[(int)GET_CLASS(ch)].base_con) *
 	    class_app[(int) GET_CLASS(ch)].koef_con / 100 + 3;
 
 	switch (GET_CLASS(ch)) {

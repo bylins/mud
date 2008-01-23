@@ -93,6 +93,8 @@ void skip_spaces(char **string)
 	for (; **string && a_isspace(**string); (*string)++);
 }
 
+NormalRand rnd;
+
 /* creates a random number in interval [from;to] */
 int number(int from, int to)
 {
@@ -101,12 +103,12 @@ int number(int from, int to)
 		int tmp = from;
 		from = to;
 		to = tmp;
-//      log("SYSERR: number() should be called with lowest, then highest. number(%d, %d), not number(%d, %d).", from, to, to, from);
 	}
 
-	return ((circle_random() % (to - from + 1)) + from);
-}
+	return rnd.number(from, to);
 
+//	return ((circle_random() % (to - from + 1)) + from);
+}
 
 /* simulates dice roll */
 int dice(int number, int size)

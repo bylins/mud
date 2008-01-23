@@ -19,6 +19,7 @@
 #include <list>
 #include <map>
 #include <new>
+#include <boost/random.hpp>
 
 using std::string;
 using std::list;
@@ -88,6 +89,19 @@ extern std::list<FILE *> opened_files;
 /* random functions in random.cpp */
 void circle_srandom(unsigned long initial_seed);
 unsigned long circle_random(void);
+
+class NormalRand {
+	public:
+	NormalRand() { rng.seed(static_cast<unsigned> (std::time(0))); };
+	int number(int from, int to)
+	{
+		boost::uniform_int<> dist(from, to);
+		boost::variate_generator<boost::mt19937&, boost::uniform_int<> >  dice(rng, dist);
+		return dice();
+	};
+	boost::mt19937 rng;
+};
+extern NormalRand rnd;
 
 extern const char *ACTNULL;
 
