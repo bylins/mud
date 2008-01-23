@@ -219,6 +219,10 @@ struct alias_data {
 #define SCMD_SOCIALS 1
 #define SCMD_WIZHELP 2
 
+/* do_fit */
+#define SCMD_DO_ADAPT 0
+#define SCMD_MAKE_OVER 1
+
 /*  do helpee */
 #define SCMD_BUYHELPEE  0
 #define SCMD_FREEHELPEE 1

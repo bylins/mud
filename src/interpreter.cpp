@@ -192,6 +192,7 @@ ACMD(do_horseget);
 ACMD(do_horsetake);
 ACMD(do_hidetrack);
 ACMD(do_hidemove);
+ACMD(do_fit);
 ACMD(do_force);
 ACMD(do_forcetime);
 ACMD(do_glory);
@@ -652,6 +653,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"перевоплотитьс", POS_STANDING, do_remort, 0, 0, -1},
 	{"перевоплотиться", POS_STANDING, do_remort, 0, 1, -1},
 	{"перелить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
+	{"перешить", POS_RESTING, do_fit, 0, SCMD_MAKE_OVER, 500},
 	{"пить", POS_RESTING, do_drink, 0, SCMD_DRINK, 400},
 	{"писать", POS_STANDING, do_write, 1, 0, -1},
 	{"пклист", POS_SLEEPING, DoClanPkList, 0, 0, 0},
@@ -660,6 +662,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"подкрасться", POS_STANDING, do_sneak, 1, 0, 500},
 	{"подножка", POS_FIGHTING, do_chopoff, 0, 0, 500},
 	{"подняться", POS_RESTING, do_stand, 0, 0, -1},
+	{"переделать", POS_RESTING, do_fit, 0, SCMD_DO_ADAPT, 500},
 	{"подсмотреть", POS_RESTING, do_look, 0, SCMD_LOOK_HIDE, 0},
 	{"покинуть", POS_STANDING, do_leave, 0, 0, -2},
 	{"положить", POS_RESTING, do_put, 0, 0, 400},
@@ -783,6 +786,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{";", POS_DEAD, do_wiznet, LVL_IMMORT, 0, -1},
 	{"advance", POS_DEAD, do_advance, LVL_IMPL, 0, 0},
 	{"alias", POS_DEAD, do_alias, 0, 0, 0},
+	{"alter", POS_RESTING, do_fit, 0, SCMD_MAKE_OVER, 500},
 	{"ask", POS_RESTING, do_spec_comm, 0, SCMD_ASK, -1},
 	{"assist", POS_FIGHTING, do_assist, 1, 0, -1},
 	{"attack", POS_FIGHTING, do_hit, 0, SCMD_MURDER, -1},
@@ -832,6 +836,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"featset", POS_SLEEPING, do_featset, LVL_IMPL, 0, 0},
 	{"features", POS_SLEEPING, do_features, 0, 0, 0},
 	{"fill", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
+	{"fit", POS_RESTING, do_fit, 0, SCMD_DO_ADAPT, 500},
 	{"flee", POS_FIGHTING, do_flee, 1, 0, -1},
 	{"follow", POS_RESTING, do_follow, 0, 0, -1},
 	{"force", POS_SLEEPING, do_force, LVL_GRGOD, 0, 0},
