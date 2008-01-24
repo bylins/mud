@@ -250,7 +250,7 @@ void roll_real_abils(CHAR_DATA * ch)
 		while (ch->real_abils.str + ch->real_abils.con + ch->real_abils.dex != 57);
 		do {
 			ch->real_abils.wis = 9 + number(0, 3);
-			ch->real_abils.cha = 12 + number(0, 3);
+			ch->real_abils.cha = 13 + number(0, 3);
 			ch->real_abils.intel = 9 + number(0, 3);
 		}		// 92/87 roll 9/5
 		while (ch->real_abils.str + ch->real_abils.con + ch->real_abils.dex +
@@ -288,7 +288,7 @@ void roll_real_abils(CHAR_DATA * ch)
 		do {
 			ch->real_abils.str = 16 + number(0, 5);
 			ch->real_abils.dex = 18 + number(0, 5);
-			ch->real_abils.con = 14 + number(0, 5);
+			ch->real_abils.con = 14 + number(0, 3);
 		}		// 55/48 roll 15/7
 		while (ch->real_abils.str + ch->real_abils.con + ch->real_abils.dex != 55);
 		do {
@@ -321,8 +321,8 @@ void roll_real_abils(CHAR_DATA * ch)
 		       ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);
 		/* ADD SPECIFIC STATS */
 		ch->real_abils.str += 1;
-		ch->real_abils.con += 1;
 		ch->real_abils.dex += 1;
+		ch->real_abils.con += 1;
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
 		GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(140, 170) : number(160, 200);
 		break;
@@ -353,8 +353,8 @@ void roll_real_abils(CHAR_DATA * ch)
 
 		do {
 			ch->real_abils.str = 18 + number(0, 6);
-			ch->real_abils.dex = 14 + number(0, 6);
-			ch->real_abils.con = 16 + number(0, 3);
+			ch->real_abils.dex = 13 + number(0, 6);
+			ch->real_abils.con = 14 + number(0, 4);
 		}		// 53/46 roll 12/7
 		while (ch->real_abils.str + ch->real_abils.con + ch->real_abils.dex != 53);
 		do {
@@ -366,8 +366,7 @@ void roll_real_abils(CHAR_DATA * ch)
 		       ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);
 		/* ADD SPECIFIC STATS */
 		ch->real_abils.str += 1;
-		ch->real_abils.con += 1;
-		ch->real_abils.dex += 1;
+		ch->real_abils.dex += 2;
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
 		GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 180) : number(120, 200);
 		break;
@@ -376,9 +375,9 @@ void roll_real_abils(CHAR_DATA * ch)
 		do {
 			ch->real_abils.str = 18 + number(0, 5);
 			ch->real_abils.dex = 14 + number(0, 3);
-			ch->real_abils.con = 14 + number(0, 3);
+			ch->real_abils.con = 14 + number(0, 6);
 		}		// 53/46 roll 11/7
-		while (ch->real_abils.str + ch->real_abils.dex + ch->real_abils.con != 53);
+		while (ch->real_abils.str + ch->real_abils.dex + ch->real_abils.con != 55);
 		do {
 			ch->real_abils.intel = 10 + number(0, 3);
 			ch->real_abils.wis = 11 + number(0, 4);
@@ -396,14 +395,14 @@ void roll_real_abils(CHAR_DATA * ch)
 	case CLASS_MERCHANT:
 		do {
 			ch->real_abils.str = 18 + number(0, 3);
-			ch->real_abils.con = 16 + number(0, 3);
+			ch->real_abils.con = 12 + number(0, 6);
 			ch->real_abils.dex = 14 + number(0, 3);
 		}		// 55/48 roll 9/7
 		while (ch->real_abils.str + ch->real_abils.con + ch->real_abils.dex != 55);
 		do {
 			ch->real_abils.wis = 10 + number(0, 3);
-			ch->real_abils.cha = 12 + number(0, 3);
-			ch->real_abils.intel = 10 + number(0, 3);
+			ch->real_abils.cha = 12 + number(0, 4);
+			ch->real_abils.intel = 10 + number(0, 4);
 		}		// 92/87 roll 9/5
 		while (ch->real_abils.str + ch->real_abils.con + ch->real_abils.dex +
 		       ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);
@@ -417,7 +416,7 @@ void roll_real_abils(CHAR_DATA * ch)
 	case CLASS_DRUID:
 		ch->real_abils.cha = 12;
 		do {
-			ch->real_abils.con = 13 + number(0, 4);
+			ch->real_abils.con = 12 + number(0, 3);
 			ch->real_abils.wis = 15 + number(0, 3);
 			ch->real_abils.intel = 17 + number(0, 5);
 		}		// 53/45 roll 12/8
