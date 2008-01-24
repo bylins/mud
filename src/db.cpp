@@ -1350,14 +1350,6 @@ void boot_db(void)
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");
-for (int i = 0; i <= 1000; ++i)
-log("test: %d", number(1, 200));
-for (int i = 0; i <= 100; ++i)
-log("test: %d", number(1, 2));
-for (int i = 0; i <= 100; ++i)
-log("test: %d", number(2, 3));
-for (int i = 0; i <= 1000; ++i)
-log("test: %d", number(1, 100));
 }
 
 /* free rooms structures and pointers*/
