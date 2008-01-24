@@ -731,9 +731,6 @@ void affect_total(CHAR_DATA * ch)
 			if ((i = GET_MAX_HIT(ch) + GET_HIT_ADD(ch)) < 1)
 				GET_HIT_ADD(ch) -= (i - 1);
 		}
-		// чтобы при снятии +тела хп уходило
-		if (GET_HIT(ch) > GET_REAL_MAX_HIT(ch))
-			GET_HIT(ch) = GET_REAL_MAX_HIT(ch);
 
 		if (!WAITLESS(ch) && on_horse(ch)) {
 			REMOVE_BIT(AFF_FLAGS(ch, AFF_HIDE), AFF_HIDE);
