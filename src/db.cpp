@@ -6383,9 +6383,6 @@ void entrycount(char *name)
 				TopPlayer::Refresh(short_ch, 1);
 				log("Add new player %s", player_table[top_of_p_table].name);
 // //
-// //				GET_START_STAT(short_ch, G_STR) = 0;
-// //				save_char(short_ch, NOWHERE);
-// //
 			}
 			free_char(short_ch);
 		} else {
