@@ -6353,7 +6353,7 @@ void entrycount(char *name)
 		deleted = 1;
 		// персонаж загружается неполностью
 		if (load_char(name, short_ch, 1) > -1) {
-// //		if (load_char(name, short_ch, 0) > -1) {
+// //		if (load_char(name, short_ch) > -1) {
 			/* если чар удален или им долго не входили, то не создаем для него запись */
 			if (!must_be_deleted(short_ch)) {
 				deleted = 0;
@@ -6384,7 +6384,7 @@ void entrycount(char *name)
 				log("Add new player %s", player_table[top_of_p_table].name);
 // //
 // //				GET_START_STAT(short_ch, G_STR) = 0;
-// //				save_char(short_ch, GET_LOADROOM(short_ch));
+// //				save_char(short_ch, NOWHERE);
 // //
 			}
 			free_char(short_ch);
