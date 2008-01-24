@@ -107,34 +107,51 @@ void sort_spells(void)
 char *how_good(CHAR_DATA * ch, int percent)
 {
 	static char out_str[128];
+
 	if (percent < 0)
 		strcpy(out_str, " !Ошибка! ");
 	else if (percent == 0)
-		sprintf(out_str, " %s(не изучено)%s", CCINRM(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(не изучено)%s", CCNRM(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 10)
-		sprintf(out_str, " %s(ужасно)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(ужасно)%s", CCNRM(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 20)
 		sprintf(out_str, " %s(очень плохо)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 30)
-		sprintf(out_str, " %s(плохо)%s", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(плохо)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 40)
-		sprintf(out_str, " %s(ниже среднего)%s", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(слабо)%s", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 50)
-		sprintf(out_str, " %s(средне)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(ниже среднего)%s", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 60)
-		sprintf(out_str, " %s(выше среднего)%s", CCIYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(средне)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 70)
-		sprintf(out_str, " %s(хорошо)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(выше среднего)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 80)
-		sprintf(out_str, " %s(очень хорошо)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(хорошо)%s", CCIYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 90)
-		sprintf(out_str, " %s(великолепно)%s", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(очень хорошо)%s", CCIYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 100)
-		sprintf(out_str, " %s(совершенно)%s", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(отлично)%s", CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 110)
+		sprintf(out_str, " %s(превосходно)%s", CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+	else if (percent <= 120)
+		sprintf(out_str, " %s(великолепно)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+	else if (percent <= 130)
+		sprintf(out_str, " %s(мастерски)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+	else if (percent <= 140)
 		sprintf(out_str, " %s(идеально)%s", CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+	else if (percent <= 150)
+		sprintf(out_str, " %s(совершенно)%s", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+	else if (percent <= 160)
+		sprintf(out_str, " %s(бесподобно)%s", CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
+	else if (percent <= 170)
+		sprintf(out_str, " %s(возвышенно)%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+	else if (percent <= 180)
+		sprintf(out_str, " %s(заоблачно)%s", CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
+	else if (percent <= 190)
+		sprintf(out_str, " %s(божественно)%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 	else
-		sprintf(out_str, " %s(Божественно)%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(недостижимо)%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 	sprintf(out_str + strlen(out_str), " %d%%", percent);
 	return out_str;
 }
