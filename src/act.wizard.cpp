@@ -801,7 +801,7 @@ ACMD(do_glory)
 				GET_PAD(vict, 2), amount, Glory::get_glory(GET_UNIQUE(vict)));
 			imm_log("(GC) %s sets +%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			// запись в карму
-			sprintf(buf, "Change glory %d by %s", amount, GET_NAME(ch));
+			sprintf(buf, "Change glory +%d by %s", amount, GET_NAME(ch));
 			add_karma(vict, buf, reason);
 			Glory::add_glory_log(mode, amount, std::string(buf), std::string(reason), vict);
 			break;
@@ -818,7 +818,7 @@ ACMD(do_glory)
 				GET_PAD(vict, 1), amount, Glory::get_glory(GET_UNIQUE(vict)));
 			imm_log("(GC) %s sets -%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			// запись в карму
-			sprintf(buf, "Change glory %d by %s", amount, GET_NAME(ch));
+			sprintf(buf, "Change glory -%d by %s", amount, GET_NAME(ch));
 			add_karma(vict, buf, reason);
 			Glory::add_glory_log(mode, amount, std::string(buf), std::string(reason), vict);
 			break;
