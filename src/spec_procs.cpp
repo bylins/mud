@@ -119,27 +119,27 @@ char *how_good(CHAR_DATA * ch, int percent)
 	else if (percent <= 30)
 		sprintf(out_str, " %s(плохо)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 40)
-		sprintf(out_str, " %s(слабо)%s", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(слабо)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 50)
 		sprintf(out_str, " %s(ниже среднего)%s", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 60)
-		sprintf(out_str, " %s(средне)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(средне)%s", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 70)
-		sprintf(out_str, " %s(выше среднего)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(выше среднего)%s", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 80)
-		sprintf(out_str, " %s(хорошо)%s", CCIYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(хорошо)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 90)
-		sprintf(out_str, " %s(очень хорошо)%s", CCIYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(очень хорошо)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 100)
-		sprintf(out_str, " %s(отлично)%s", CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(отлично)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 110)
-		sprintf(out_str, " %s(превосходно)%s", CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(превосходно)%s", CCIYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 120)
-		sprintf(out_str, " %s(великолепно)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(великолепно)%s", CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 130)
-		sprintf(out_str, " %s(мастерски)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(мастерски)%s", CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 140)
-		sprintf(out_str, " %s(идеально)%s", CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(идеально)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 150)
 		sprintf(out_str, " %s(совершенно)%s", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 160)
