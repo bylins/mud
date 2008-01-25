@@ -155,7 +155,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 {
 	char buffer[MAX_STRING_LENGTH];
 	char read_line[MAX_STRING_LENGTH];
-	int t[1];
+	int t[2];
 	int vnum;
 	OBJ_DATA *object = NULL;
 	EXTRA_DESCR_DATA *new_descr;
