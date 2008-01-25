@@ -80,7 +80,7 @@ OBJ_DATA *get_obj(char *name);
 OBJ_DATA *get_obj_num(obj_rnum nr);
 
 int obj_decay(OBJ_DATA * object);
-void obj_to_room(OBJ_DATA * object, room_rnum room);
+bool obj_to_room(OBJ_DATA * object, room_rnum room);
 void obj_from_room(OBJ_DATA * object);
 void obj_to_obj(OBJ_DATA * obj, OBJ_DATA * obj_to);
 void obj_from_obj(OBJ_DATA * obj);

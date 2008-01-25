@@ -3827,7 +3827,6 @@ void reset_zone(zone_rnum zone)
 			case 'O':
 				/* read an object */
 				// 'O' <flag> <obj_vnum> <max_in_world> <room_vnum|-1> <load%|-1>
-				// Примечание: room_vnum = -1 НЕ ЗАДАВАТЬ, БУДЕТ КРЭШ
 				/* Проверка  - сколько всего таких же обьектов надо на эту клетку */
 				for (cmd_tmp = 0, obj_in_room_max = 0; ZCMD_CMD(cmd_tmp).command != 'S'; cmd_tmp++)
 					if ((ZCMD_CMD(cmd_tmp).command == 'O')
@@ -3847,7 +3846,11 @@ void reset_zone(zone_rnum zone)
 					obj = read_object(ZCMD.arg1, REAL);
 					if (ZCMD.arg3 >= 0) {
 						GET_OBJ_ZONE(obj) = world[ZCMD.arg3]->zone;
-						obj_to_room(obj, ZCMD.arg3);
+						if (!obj_to_room(obj, ZCMD.arg3))
+						{
+							extract_obj(obj);
+							break;
+						}
 						load_otrigger(obj);
 					} else {
 						IN_ROOM(obj) = NOWHERE;

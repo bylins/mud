@@ -2093,15 +2093,19 @@ const int room_destroy_timer = 10;
 const int room_nodestroy_timer = -1;
 const int script_destroy_timer = 1; /** !!! Never set less than ONE **/
 
-/* put an object in a room */
-void obj_to_room(OBJ_DATA * object, room_rnum room)
+/**
+* put an object in a room
+* Ахтунг, не надо тут экстрактить шмотку, если очень хочется - проверяйте и правьте 50 вызовов
+* по коду, т.к. нигде оно нифига не проверяется на валидность после этой функции.
+* \return 0 - невалидный объект или комната, 1 - все ок
+*/
+bool obj_to_room(OBJ_DATA * object, room_rnum room)
 {
 	int sect = 0;
 	if (!object || room < FIRST_ROOM || room > top_of_world) {
 		log("SYSERR: Illegal value(s) passed to obj_to_room. (Room #%d/%d, obj %p)",
 		    room, top_of_world, object);
-		if (object)
-			extract_obj(object);
+		return 0;
 	} else {
 		restore_object(object, 0);
 		insert_obj_and_group(object, &world[room]->contents);
@@ -2154,6 +2158,7 @@ void obj_to_room(OBJ_DATA * object, room_rnum room)
 		else
 			GET_OBJ_DESTROY(object) = room_destroy_timer;
 	}
+	return 1;
 }
 
 /* Функция для удаления обьектов после лоада в комнату

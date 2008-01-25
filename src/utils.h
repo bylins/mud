@@ -92,7 +92,7 @@ unsigned long circle_random(void);
 
 class NormalRand {
 	public:
-	NormalRand() { rng.seed(static_cast<unsigned> (std::time(0))); };
+	NormalRand() { rng.seed(static_cast<unsigned> (time(0))); };
 	int number(int from, int to)
 	{
 		boost::uniform_int<> dist(from, to);
