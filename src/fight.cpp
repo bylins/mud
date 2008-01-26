@@ -2057,25 +2057,33 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				prob = MAX(prob, percent * 150 / 100 + 1);
 			if (IS_IMMORTAL(victim))
 				prob = 0;
-			if (prob * 100 / percent < 120 || dam == 0 || MOB_FLAGGED(victim, MOB_NOSTUPOR)) {
-				sprintf(buf,
-					"%sВы попытались оглушить %s, но не смогли.%s\r\n",
+			if (prob * 100 / percent < 100 || dam == 0 || MOB_FLAGGED(victim, MOB_NOSTUPOR)) {
+				sprintf(buf, "%sВы попытались оглушить %s, но не смогли.%s\r\n",
 					CCCYN(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
 				lag = 3;
 				dam = 0;
+			} else if (prob * 100 / percent < 150) {
+				sprintf(buf, "%sВаша мощная атака повергла %s в ступор.%s\r\n",
+					CCBLU(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
+				send_to_char(buf, ch);
+				lag = 2;
+				WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
+				sprintf(buf, "%sВаше сознание помутилось после удара %s.%s\r\n",
+					CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
+				send_to_char(buf, victim);
+				act("$n поверг$q $N3 в ступор.", TRUE, ch, 0, victim, TO_NOTVICT);
 			} else if (prob * 100 / percent < 300) {
 				sprintf(buf, "%sВаша мощная атака оглушила %s.%s\r\n",
-					CCBLU(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
+					CCGRN(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
 				lag = 2;
 				k = get_skill(ch, SKILL_STUPOR)/30;
 				if (!IS_NPC(victim))
 				    k = MIN(2, k);
-				dam *= MAX (1, number(1, k));
+				dam *= MAX (1, number(2, k));
 				WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
-				sprintf(buf,
-					"%sВаше сознание помутилось после удара %s.%s\r\n",
+				sprintf(buf, "%sВаше сознание помутилось после удара %s.%s\r\n",
 					CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
 				send_to_char(buf, victim);
 				act("$n оглушил$a $N3.", TRUE, ch, 0, victim, TO_NOTVICT);
@@ -2093,10 +2101,10 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 					act("$n своим оглушающим ударом сбил$a $N3 с ног.", TRUE, ch,
 					    0, victim, TO_NOTVICT);
 				lag = 2;
-                                k = get_skill(ch, SKILL_STUPOR)/20;
-                                if (!IS_NPC(victim))
-                                    k = MIN(4, k);
-                                dam *= MAX (1, number(1, k));
+				k = get_skill(ch, SKILL_STUPOR)/20;
+				if (!IS_NPC(victim))
+					k = MIN(4, k);
+				dam *= MAX (1, number(2, k));
 				WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
 				if (GET_POS(victim) > POS_SITTING && !MOB_FLAGGED(victim, MOB_NOBASH)) {
 					GET_POS(victim) = POS_SITTING;
@@ -2104,8 +2112,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 						CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
 					send_to_char(buf, victim);
 				} else {
-					sprintf(buf,
-						"%sВаше сознание помутилось после удара %s.%s\r\n",
+					sprintf(buf, "%sВаше сознание помутилось после удара %s.%s\r\n",
 						CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
 					send_to_char(buf, victim);
 				}
@@ -3250,6 +3257,13 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		dam += GET_REAL_DR(ch);
 		dam = dam > 0 ? number(1, (dam * 2)) : dam;
 		dam += str_app[STRENGTH_APPLY_INDEX(ch)].todam;
+
+		// концентрация силы (сила-25)*левел/6, GET_REAL_STR выше 50 не вернет, поэтому от 0 до 25
+		if (can_use_feat(ch, STRENGTH_CONCETRATION_FEAT))
+		{
+			float str_mod = static_cast<float> (GET_LEVEL(ch));
+			dam += static_cast<int> (MAX(0, GET_REAL_STR(ch) - 25)*(str_mod/6));
+		}
 
 		if (GET_EQ(ch, WEAR_BOTHS) && skill != SKILL_BOWS)
 			dam *= 2;

@@ -461,6 +461,8 @@ void assign_feats(void)
 	feato(TO_FIT_ITEM_FEAT, "переделать", NORMAL_FTYPE, TRUE, feat_app);
 //87
 	feato(TO_FIT_CLOTHCES_FEAT, "перешить", NORMAL_FTYPE, TRUE, feat_app);
+//88
+	feato(STRENGTH_CONCETRATION_FEAT, "концентрация силы", AFFECT_FTYPE, TRUE, feat_app);
 
 /*
 //
