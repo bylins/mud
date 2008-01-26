@@ -2081,7 +2081,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				k = get_skill(ch, SKILL_STUPOR)/30;
 				if (!IS_NPC(victim))
 				    k = MIN(2, k);
-				dam *= MAX (1, number(2, k));
+				dam *= MAX (1, number(1, k));
 				WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
 				sprintf(buf, "%sВаше сознание помутилось после удара %s.%s\r\n",
 					CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
@@ -3258,13 +3258,6 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		dam = dam > 0 ? number(1, (dam * 2)) : dam;
 		dam += str_app[STRENGTH_APPLY_INDEX(ch)].todam;
 
-		// концентрация силы (сила-25)*левел/6, GET_REAL_STR выше 50 не вернет, поэтому от 0 до 25
-		if (can_use_feat(ch, STRENGTH_CONCETRATION_FEAT))
-		{
-			float str_mod = static_cast<float> (GET_LEVEL(ch));
-			dam += static_cast<int> (MAX(0, GET_REAL_STR(ch) - 25)*(str_mod/6));
-		}
-
 		if (GET_EQ(ch, WEAR_BOTHS) && skill != SKILL_BOWS)
 			dam *= 2;
 
@@ -3281,6 +3274,15 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 				percent = MIN(percent, percent * GET_OBJ_CUR(wielded) / MAX(1, GET_OBJ_MAX(wielded)));
 			}
 			dam += MAX(1, percent);
+			// концентрация силы ((сила-25)*левел/6)*percent/max_percent, GET_REAL_STR выше 50 не вернет, поэтому от 0 до 25
+			// max_percent - среднее оружия, percent - то, что выпало с кубиков при ударе
+			if (can_use_feat(ch, STRENGTH_CONCETRATION_FEAT))
+			{
+				float weap_dice = (GET_OBJ_VAL(wielded, 1) * GET_OBJ_VAL(wielded, 2))/2;
+				float dice_mod = percent/weap_dice;
+				float str_mod = static_cast<float> (GET_LEVEL(ch));
+				dam += static_cast<int> (MAX(0, GET_REAL_STR(ch) - 25)*(str_mod/6) * dice_mod);
+			}
 		} else {	// If no weapon, add bare hand damage instead
 			if (AFF_FLAGGED(ch, AFF_STONEHAND)) {
 				if (GET_CLASS(ch) == CLASS_WARRIOR)
