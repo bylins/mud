@@ -191,11 +191,11 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 		return 0;
 	}
 
-
-	if (GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch)) {
+	if ((GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch)) || Privilege::check_flag(vict, Privilege::KRODER)) {
 		send_to_char("Кем вы себя возомнили?\r\n", ch);
 		return 0;
 	}
+
 	// Проверяем а может ли чар вообще работать с этим наказанием.
 	switch (punish)
 	{
@@ -219,11 +219,9 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 		case SCMD_UNREGISTER:
 			pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->punreg));
 		break;
-
-
 	}
 	assert(pundata);
-	if (GET_LEVEL(ch) < pundata->level)
+	if (GET_LEVEL(ch) < pundata->level && !Privilege::check_flag(ch, Privilege::KRODER))
 	{
 		send_to_char("Да кто ты такой!!? Чтобы оспаривать волю СТАРШИХ БОГОВ !!!\r\n", ch);
 		return 0;
@@ -258,7 +256,6 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 					return (0);
 				};
 				REMOVE_BIT(PLR_FLAGS(vict, PLR_MUTE), PLR_MUTE);
-
 
 				sprintf(buf, "Mute OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 				mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -2110,8 +2107,9 @@ ACMD(do_snoop)
 			tch = victim->desc->original;
 		else
 			tch = victim;
-
-		if (GET_LEVEL(tch) >= GET_LEVEL(ch) && !GET_COMMSTATE(ch)) {
+		int god_level = Privilege::check_flag(ch, Privilege::KRODER) ? LVL_IMPL : GET_LEVEL(ch);
+		int victim_level = Privilege::check_flag(tch, Privilege::KRODER) ? LVL_IMPL : GET_LEVEL(tch);
+		if (victim_level >= god_level && !GET_COMMSTATE(ch)) {
 			send_to_char("Вы не можете.\r\n", ch);
 			return;
 		}
@@ -3073,7 +3071,7 @@ ACMD(do_wizutil)
 	else if (!(vict = get_player_pun(ch, arg, FIND_CHAR_WORLD)))
 		send_to_char("Нет такого игрока.\r\n", ch);
 	else if (GET_LEVEL(vict) > GET_LEVEL(ch) && !GET_COMMSTATE(ch)
-		 && !GET_GOD_FLAG(ch, GF_DEMIGOD))
+		 && !GET_GOD_FLAG(ch, GF_DEMIGOD) && !Privilege::check_flag(ch, Privilege::KRODER))
 		send_to_char("А он ведь старше Вас....\r\n", ch);
 	else if (GET_LEVEL(vict) >= LVL_IMMORT && GET_GOD_FLAG(ch, GF_DEMIGOD))
 		send_to_char("А он ведь старше Вас....\r\n", ch);

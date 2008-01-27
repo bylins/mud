@@ -544,14 +544,13 @@ void mudlog(const char *str, int type, int level, int channel, int file)
 	for (i = descriptor_list; i; i = i->next) {
 		if (STATE(i) != CON_PLAYING || IS_NPC(i->character))	/* switch */
 			continue;
-		if (GET_LEVEL(i->character) < level)
-			continue;
-		if (PLR_FLAGGED(i->character, PLR_WRITING)
-		    || PLR_FLAGGED(i->character, PLR_FROZEN))
-			continue;
 		if (GET_LOGS(i->character)[channel] < type && type != DEF)
 			continue;
-		if (type == DEF && GET_LEVEL(i->character) < LVL_IMMORT)
+		if (type == DEF && GET_LEVEL(i->character) < LVL_IMMORT && !Privilege::check_flag(i->character, Privilege::KRODER))
+			continue;
+		if (GET_LEVEL(i->character) < level && !Privilege::check_flag(i->character, Privilege::KRODER))
+			continue;
+		if (PLR_FLAGGED(i->character, PLR_WRITING) || PLR_FLAGGED(i->character, PLR_FROZEN))
 			continue;
 
 		send_to_char(CCGRN(i->character, C_NRM), i->character);

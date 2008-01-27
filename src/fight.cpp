@@ -3274,14 +3274,14 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 				percent = MIN(percent, percent * GET_OBJ_CUR(wielded) / MAX(1, GET_OBJ_MAX(wielded)));
 			}
 			dam += MAX(1, percent);
-			// концентрация силы ((сила-25)*левел/7)*percent/max_percent, GET_REAL_STR выше 50 не вернет, поэтому от 0 до 25
-			// max_percent - среднее оружия, percent - то, что выпало с кубиков при ударе
+			// концентрация силы (сила-25)*(среднее/8)*(левел/30)*(рандом(сила-25, 100)/100)
 			if (can_use_feat(ch, STRENGTH_CONCETRATION_FEAT))
 			{
-				float weap_dice = GET_OBJ_VAL(wielded, 1) * GET_OBJ_VAL(wielded, 2);
-				float dice_mod = percent/weap_dice;
-				float str_mod = static_cast<float> (GET_LEVEL(ch));
-				dam += static_cast<int> (MAX(0, GET_REAL_STR(ch) - 25)*(str_mod/7) * dice_mod);
+				int str_mod = MAX(0, GET_REAL_STR(ch) - 25);
+				float rnd_mod = static_cast<float> (number(str_mod, 100)) / 100;
+				float weap_mod = static_cast<float> (GET_OBJ_VAL(wielded, 1) * GET_OBJ_VAL(wielded, 2)) / 14;
+				float level_mod = static_cast<float> (GET_LEVEL(ch)) / 30;
+				dam += static_cast<int> (str_mod * weap_mod * level_mod * rnd_mod);
 			}
 		} else {	// If no weapon, add bare hand damage instead
 			if (AFF_FLAGGED(ch, AFF_STONEHAND)) {

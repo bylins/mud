@@ -2158,9 +2158,6 @@ void do_entergame(DESCRIPTOR_DATA * d)
 			GET_LOGS(d->character)[0] = 0;
 	}
 
-	if (Privilege::check_flag(d->character, Privilege::KRODER) && GET_LEVEL(d->character) < LVL_IMMORT)
-		GET_INVIS_LEV(d->character) = 35;
-
 	/*
 	 * We have to place the character in a room before equipping them
 	 * or equip_char() will gripe about the person in NOWHERE.

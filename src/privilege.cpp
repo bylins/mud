@@ -92,7 +92,7 @@ void parse_flags(const std::string &command)
 		tmp_god.flags.set(USE_SKILLS);
 	else if (command == "arena")
 		tmp_god.flags.set(ARENA_MASTER);
-	else if (command == "kroder")
+	else if (command == "kroder" && tmp_god.name == "Китоша")
 		tmp_god.flags.set(KRODER);
 	else if (command == "fullzedit")
 		tmp_god.flags.set(FULLZEDIT);
@@ -221,12 +221,12 @@ void load() {
 				if (name == "</gods>")
 					break;
 				file >> uid;
+				name_convert(name);
+				tmp_god.name = name;
 				std::getline(file, commands);
 				boost::trim(commands);
 				parse_command_line(commands);
 				insert_default_command(uid);
-				name_convert(name);
-				tmp_god.name = name;
 				god_list[uid] = tmp_god;
 				tmp_god.clear();
 			}
@@ -286,23 +286,26 @@ bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int
 		return true;
 #endif
 	GodListType::const_iterator it = god_list.find(GET_UNIQUE(ch));
-	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), 1)) {
-		if (GET_LEVEL(ch) == LVL_IMPL) return true;
-		switch (mode) {
-		case 0:
-			if (it->second.other.find(cmd_name) != it->second.other.end())
+	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), 1))
+	{
+		if (GET_LEVEL(ch) == LVL_IMPL || Privilege::check_flag(ch, Privilege::KRODER))
+			return true;
+		switch (mode)
+		{
+			case 0:
+				if (it->second.other.find(cmd_name) != it->second.other.end())
+					return true;
+				break;
+			case 1:
+				if (it->second.set.find(cmd_name) != it->second.set.end())
 				return true;
-			break;
-		case 1:
-			if (it->second.set.find(cmd_name) != it->second.set.end())
-				return true;
-			break;
-		case 2:
-			if (it->second.show.find(cmd_name) != it->second.show.end())
-				return true;
-			break;
-		default:
-			break;
+				break;
+			case 2:
+				if (it->second.show.find(cmd_name) != it->second.show.end())
+					return true;
+				break;
+			default:
+				break;
 		}
 		// на арене доступны команды из группы arena_master
 		if (!mode && ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) && it->second.arena.find(cmd_name) != it->second.arena.end())
