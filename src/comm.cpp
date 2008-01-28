@@ -2700,8 +2700,9 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 			free_char(d->character);
 		}
-	} else
-		mudlog("Losing descriptor without char.", LGH, LVL_IMMORT, SYSLOG, TRUE);
+	}
+//	 else
+//		mudlog("Losing descriptor without char.", LGH, LVL_IMMORT, SYSLOG, TRUE);
 
 	/* JE 2/22/95 -- part of my unending quest to make switch stable */
 	if (d->original && d->original->desc)
