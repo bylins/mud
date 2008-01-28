@@ -1964,7 +1964,7 @@ struct player_special_data_saved {
 	int
 	 DrunkState;
 	int
-	 Prelimit;
+	 Prelimit; // FIXME пока не трогать -- Krodo
 	int
 	 glory; // FIXME пока не трогать -- Krodo
 	int
@@ -2763,11 +2763,6 @@ struct gods_celebrate_apply_type {
 	int
 	 modi;
 	struct gods_celebrate_apply_type *next;
-};
-
-struct cheat_list_type {
-	char *name;
-	struct cheat_list_type *next_name;
 };
 
 /* pclean_criteria_data структура которая определяет через какой время

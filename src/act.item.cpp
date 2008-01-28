@@ -1584,15 +1584,11 @@ ACMD(do_eat)
 		return;
 	}
 	if (subcmd == SCMD_EAT || (subcmd == SCMD_TASTE && GET_OBJ_TYPE(food) == ITEM_NOTE)) {
-		if (!GET_COMMSTATE(ch)) {
-			act("Вы съели $o3.", FALSE, ch, food, 0, TO_CHAR);
-			act("$n съел$g $o3.", TRUE, ch, food, 0, TO_ROOM);
-		}
+		act("Вы съели $o3.", FALSE, ch, food, 0, TO_CHAR);
+		act("$n съел$g $o3.", TRUE, ch, food, 0, TO_ROOM);
 	} else {
-		if (!GET_COMMSTATE(ch)) {
-			act("Вы откусили маленький кусочек от $o1.", FALSE, ch, food, 0, TO_CHAR);
-			act("$n попробовал$g $o3 на вкус.", TRUE, ch, food, 0, TO_ROOM);
-		}
+		act("Вы откусили маленький кусочек от $o1.", FALSE, ch, food, 0, TO_CHAR);
+		act("$n попробовал$g $o3 на вкус.", TRUE, ch, food, 0, TO_ROOM);
 	}
 
 	amount = ((subcmd == SCMD_EAT && GET_OBJ_TYPE(food) != ITEM_NOTE)

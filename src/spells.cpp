@@ -235,8 +235,7 @@ ASPELL(spell_teleport)
 //  if (victim == NULL)
 	victim = ch;
 
-	if ((IN_ROOM(victim) == NOWHERE)
-	    || (IS_NPC(victim) && !GET_COMMSTATE(ch))) {
+	if ((IN_ROOM(victim) == NOWHERE) || (IS_NPC(victim))) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -294,8 +293,7 @@ ASPELL(spell_relocate)
 		return;
 
 	/* Если левел жертвы больше чем перемещяющегося - фейл */
-	if ((IS_NPC(victim) && !GET_COMMSTATE(ch)) ||
-		(GET_LEVEL(victim) > GET_LEVEL(ch)) || IS_IMMORTAL(victim)) {
+	if (IS_NPC(victim) || (GET_LEVEL(victim) > GET_LEVEL(ch)) || IS_IMMORTAL(victim)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -382,8 +380,7 @@ ASPELL(spell_portal)
 
 	if (victim == NULL)
 		return;
-	if (GET_LEVEL(victim) > GET_LEVEL(ch) && !GET_COMMSTATE(ch) &&
-	    !PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
+	if (GET_LEVEL(victim) > GET_LEVEL(ch) && !PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -394,7 +391,7 @@ ASPELL(spell_portal)
 			return;
 		}
 	}
-	if (IS_NPC(victim) && !GET_COMMSTATE(ch)) {
+	if (IS_NPC(victim)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -481,7 +478,7 @@ ASPELL(spell_summon)
 	}
 
 	/* Игрок не может присуммонить моба. */
-	if (!GET_COMMSTATE(ch) && !IS_NPC(ch) && IS_NPC(victim)) {
+	if (!IS_NPC(ch) && IS_NPC(victim)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}

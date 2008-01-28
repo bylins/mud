@@ -25,6 +25,7 @@
 #include "handler.h"
 #include "db.h"
 #include "screen.h"
+#include "privilege.hpp"
 
 extern const char *genders[];
 
@@ -360,7 +361,7 @@ enum { NAME_AGREE, NAME_DISAGREE, NAME_DELETE };
 
 void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 {
-	if (GET_LEVEL(vict) > GET_LEVEL(ch) && !GET_COMMSTATE(ch)) {
+	if (GET_LEVEL(vict) > GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)) {
 		send_to_char("А он ведь старше Вас....\r\n", ch);
 		return;
 	}
@@ -369,12 +370,12 @@ void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 	int lev = NAME_GOD(vict);
 	if (lev > 1000)
 		lev = lev - 1000;
-	if (lev > GET_LEVEL(ch) && !GET_COMMSTATE(ch)) {
+	if (lev > GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)) {
 		send_to_char("Об этом имени уже позаботился бог старше Вас.\r\n", ch);
 		return;
 	}
 
-	if (lev == GET_LEVEL(ch) && !GET_COMMSTATE(ch))
+	if (lev == GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
 		if (NAME_ID_GOD(vict) != GET_IDNUM(ch))
 			send_to_char("Об этом имени уже позаботился другой бог Вашего уровня.\r\n", ch);
 

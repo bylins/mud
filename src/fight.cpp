@@ -3410,7 +3410,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			was_critic = FALSE;
 
 		if (type == SKILL_BACKSTAB) {
-			dam *= (GET_COMMSTATE(ch) ? 25 : backstab_mult(GET_LEVEL(ch)));
+			dam *= backstab_mult(GET_LEVEL(ch));
 			/* если критбакстаб, то дамаж равен 95% хитов жертвы
 			   вероятность критстабба - стабб/20+ловкость-20 (кард) */
 			/*+скр.удар/20 */
@@ -3429,10 +3429,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			extdamage(ch, victim, dam, w_type, 0, TRUE);
 			return;
 		} else if (type == SKILL_THROW) {
-			dam *=
-			    (GET_COMMSTATE(ch) ? 10
-			     : (calculate_skill
-				(ch, SKILL_THROW, skill_info[SKILL_THROW].max_percent, victim) + 10) / 10);
+			dam *= (calculate_skill(ch, SKILL_THROW, skill_info[SKILL_THROW].max_percent, victim) + 10) / 10;
 			if (IS_NPC(ch))
 				dam = MIN(300, dam);
 			dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);

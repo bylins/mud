@@ -40,6 +40,7 @@
 #include "magic.h"
 #include "features.hpp"
 #include "depot.hpp"
+#include "privilege.hpp"
 
 using std::ifstream;
 using std::fstream;
@@ -1645,7 +1646,7 @@ ACMD(do_mode)
 		showhelp = TRUE;
 	else if ((i = search_block(arg, gen_tog_type, FALSE)) < 0)
 		showhelp = TRUE;
-	else if (GET_LEVEL(ch) < gen_tog_param[i >> 1].level && !GET_COMMSTATE(ch)) {
+	else if (GET_LEVEL(ch) < gen_tog_param[i >> 1].level && !Privilege::check_flag(ch, Privilege::KRODER)) {
 		send_to_char("Эта команда Вам недоступна.\r\n", ch);
 		showhelp = TRUE;
 	} else
@@ -1654,9 +1655,8 @@ ACMD(do_mode)
 	if (showhelp) {
 		strcpy(buf, "Вы можете установить следующее.\r\n");
 		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++)
-			if (GET_LEVEL(ch) >= gen_tog_param[i].level || GET_COMMSTATE(ch))
-				sprintf(buf + strlen(buf), "%-20s(%s)\r\n", gen_tog_type[i << 1],
-					gen_tog_type[(i << 1) + 1]);
+			if (GET_LEVEL(ch) >= gen_tog_param[i].level || Privilege::check_flag(ch, Privilege::KRODER))
+				sprintf(buf + strlen(buf), "%-20s(%s)\r\n", gen_tog_type[i << 1], gen_tog_type[(i << 1) + 1]);
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}

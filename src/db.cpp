@@ -132,7 +132,6 @@ struct reset_q_type reset_q;	/* queue of zones to be reset    */
 int supress_godsapply = FALSE;
 const FLAG_DATA clear_flags = { {0, 0, 0, 0} };
 
-struct cheat_list_type *cheaters_list;	/* Список разрешенных читеров */
 struct portals_list_type *portals_list;	/* Список проталов для townportal */
 int now_entrycount = FALSE;
 extern int reboot_uptime;
@@ -547,41 +546,6 @@ void init_portals(void)
 
 	}
 	fclose(portal_f);
-}
-
-void init_cheaters(void)
-{
-	FILE *ch_file;
-	char name[300];
-	struct cheat_list_type *curr_ch, *prev_ch;
-	int i;
-
-	cheaters_list = NULL;
-	prev_ch = NULL;
-
-	/* читаем файл */
-	if (!(ch_file = fopen(LIB_MISC "cheaters.lst", "r"))) {
-		log("Can not open cheaters.lst");
-		return;
-	}
-	while (get_line(ch_file, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		/* добавляем имя в список */
-		CREATE(curr_ch, struct cheat_list_type, 1);
-		CREATE(curr_ch->name, char, strlen(name) + 1);
-		for (i = 0, curr_ch->name[i] = '\0'; name[i]; i++)
-			curr_ch->name[i] = LOWER(name[i]);
-		curr_ch->name[i] = '\0';
-		curr_ch->next_name = NULL;
-		if (!cheaters_list)
-			cheaters_list = curr_ch;
-		else
-			prev_ch->next_name = curr_ch;
-
-		prev_ch = curr_ch;
-	}
-	fclose(ch_file);
 }
 
 void boot_world(void)
@@ -1295,9 +1259,6 @@ void boot_db(void)
 	log("Booting portals for 'town portal' spell");
 	portals_list = NULL;
 	init_portals();
-
-	log("Booting allowed cheaters");
-	init_cheaters();
 
 	log("Booting maked items");
 	init_make_items();
@@ -4733,7 +4694,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	GET_CHA(ch) = 10;
 	GET_KIN(ch) = 0;
 	GET_CON(ch) = 10;
-	GET_COMMSTATE(ch) = 0;
 	GET_DEX(ch) = 10;
 	GET_COND(ch, DRUNK) = 0;
 	GET_DRUNK_STATE(ch) = 0;
@@ -4905,8 +4865,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				GET_CHA(ch) = num;
 			else if (!strcmp(tag, "Con "))
 				GET_CON(ch) = num;
-			else if (!strcmp(tag, "ComS"))
-				GET_COMMSTATE(ch) = num;
 			break;
 
 		case 'D':
@@ -6796,7 +6754,6 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	fprintf(saved, "Reli: %d %s\n", GET_RELIGION(ch), religion_name[GET_RELIGION(ch)][(int) GET_SEX(ch)]);
 	fprintf(saved, "Race: %d %s\n", GET_RACE(ch), race_name[GET_RACE(ch)][(int) GET_SEX(ch)]);
 	fprintf(saved, "DrSt: %d\n", GET_DRUNK_STATE(ch));
-	fprintf(saved, "ComS: %d\n", GET_COMMSTATE(ch));
 	fprintf(saved, "Glor: %d\n", GET_GLORY(ch));
 	fprintf(saved, "Olc : %d\n", GET_OLC_ZONE(ch));
 	*buf = '\0';

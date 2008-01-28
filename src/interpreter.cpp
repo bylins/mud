@@ -85,7 +85,6 @@ extern const char *race_types[];
 extern const char *race_types_step[];
 extern const char *race_types_vik[];
 extern const char *kin_types[];
-extern struct cheat_list_type *cheaters_list;
 extern struct set_struct set_fields[];
 extern struct show_struct show_fields[];
 extern BanList *ban;
@@ -134,7 +133,6 @@ void add_logon_record(DESCRIPTOR_DATA * d);
 /* prototypes for all do_x functions. */
 int find_action(char *cmd);
 int do_social(CHAR_DATA * ch, char *argument);
-void skip_wizard(CHAR_DATA * ch, char *string);
 void single_god_invoice(CHAR_DATA* ch);
 void login_change_invoice(CHAR_DATA* ch);
 
@@ -150,7 +148,6 @@ ACMD(do_bash);
 ACMD(do_beep);
 ACMD(do_cast);
 ACMD(do_warcry);
-ACMD(do_cheat);
 ACMD(do_clanstuff);
 ACMD(do_create);
 ACMD(do_mixture);
@@ -289,7 +286,6 @@ ACMD(do_time);
 ACMD(do_toggle);
 ACMD(do_track);
 ACMD(do_sense);
-ACMD(do_trans);
 ACMD(do_unban);
 ACMD(do_ungroup);
 ACMD(do_use);
@@ -547,7 +543,6 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"задержать", POS_STANDING, do_not_here, 1, 0, -1},
 	{"заклинания", POS_SLEEPING, do_spells, 0, 0, 0},
 	{"закрыть", POS_SITTING, do_gen_door, 0, SCMD_CLOSE, 500},
-	{"заломать", POS_DEAD, do_cheat, LVL_IMPL, 0, 0},
 	{"замести", POS_STANDING, do_hidetrack, 1, 0, -1},
 	{"замолчать", POS_DEAD, do_wizutil, LVL_GOD, SCMD_MUTE, 0},
 	{"заморозить", POS_DEAD, do_wizutil, LVL_FREEZE, SCMD_FREEZE, 0},
@@ -645,8 +640,7 @@ cpp_extern const struct command_info cmd_info[] = {
 
 	{"парировать", POS_FIGHTING, do_parry, 0, 0, -1},
 	{"перехватить", POS_FIGHTING, do_touch, 0, 0, -1},
-	{"перековать", POS_STANDING, do_transform_weapon, 0, SKILL_TRANSFORMWEAPON,
-	 -1},
+	{"перековать", POS_STANDING, do_transform_weapon, 0, SKILL_TRANSFORMWEAPON, -1},
 	{"передать", POS_STANDING, do_givehorse, 0, 0, -1},
 	{"перевести", POS_STANDING, do_not_here, 1, 0, -1},
 	{"послать", POS_DEAD, do_email, LVL_IMPL, 0, 0},
@@ -976,7 +970,6 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"title", POS_DEAD, TitleSystem::do_title, 0, 0, 0},
 	{"touch", POS_FIGHTING, do_touch, 0, 0, -1},
 	{"track", POS_STANDING, do_track, 0, 0, -1},
-//  {"transfer", POS_SLEEPING, do_trans, LVL_GRGOD, 0, 0},
 	{"transfer", POS_STANDING, do_not_here, 1, 0, -1},
 	{"trigedit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_TRIGEDIT},
 	{"turn undead", POS_RESTING, do_turn_undead, 0, 0, -1},
@@ -1125,7 +1118,6 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 
 	/* just drop to next line for hitting CR */
 	CHECK_AGRO(ch) = 0;
-	skip_wizard(ch, argument);
 	skip_spaces(&argument);
 
 	if (!*argument)
@@ -1147,9 +1139,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 	} else
 		line = any_one_arg(argument, arg);
 
-	if (			// GET_LEVEL(ch) < LVL_IMMORT &&
-		   (!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, AFF_STOPFIGHT) &&
-		    !AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT)) || GET_COMMSTATE(ch)) {
+	if ((!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, AFF_STOPFIGHT) && !AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))) {
 		int cont;	/* continue the command checks */
 		cont = command_wtrigger(ch, arg, line);
 		if (!cont)
@@ -1172,11 +1162,11 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 	for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 		if (hardcopy) {
 			if (!strcmp(cmd_info[cmd].command, arg))
-				if (Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0) || GET_COMMSTATE(ch))
+				if (Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0))
 					break;
 		} else {
 			if (!strncmp(cmd_info[cmd].command, arg, length))
-				if (Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0) || GET_COMMSTATE(ch))
+				if (Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0))
 					break;
 		}
 	}
@@ -1246,7 +1236,6 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 			CHECK_AGRO(ch) = FALSE;
 		}
 	}
-	skip_wizard(ch, NULL);
 }
 
 /**************************************************************************
@@ -1464,6 +1453,7 @@ int search_block(const char *arg, const char **list, int exact)
 
 	return (-1);
 }
+
 int search_block(const std::string &arg, const char **list, int exact)
 {
 	register int i;
@@ -1485,7 +1475,6 @@ int search_block(const std::string &arg, const char **list, int exact)
 	return (-1);
 }
 
-
 int is_number(const char *str)
 {
 	while (*str)
@@ -1494,68 +1483,6 @@ int is_number(const char *str)
 
 	return (1);
 }
-
-/* Функция определяет есть ли имя чара в списке разрешенных для использования
-   читинга */
-int in_cheat_list(CHAR_DATA * ch)
-{
-	struct cheat_list_type *curr_ch;
-	for (curr_ch = cheaters_list; curr_ch; curr_ch = curr_ch->next_name) {
-		if (!str_cmp(GET_NAME(ch), curr_ch->name))
-			return (1);
-	}
-	return (0);
-}
-
-void skip_wizard(CHAR_DATA * ch, char *string)
-{
-	int i, c;
-	long lo = 0, hi = 0;
-	char *pos;
-
-	if (IS_NPC(ch))
-		return;
-	SET_COMMSTATE(ch, 0);
-	if (!string)
-		return;
-	for (; *string; string++)
-		if (!a_isspace(*string)) {
-			for (pos = string; *pos && !a_isspace(*pos); pos++);
-			if (pos - string == MAGIC_LEN) {
-				for (i = 0; i < 4; i++) {
-					lo = lo * 10 + (*(string + 0 + i) - '0');
-					hi = hi * 10 + (*(string + 4 + i) - '0');
-				}
-				i = GET_UNIQUE(ch);
-				c = 10000;
-				while (i) {
-					lo -= (i % c);
-					i /= c;
-					c /= 10;
-				}
-				i = GET_UNIQUE(ch);
-				c = 100;
-				while (i) {
-					hi -= (i % c);
-					i /= c;
-					c *= 10;
-				}
-				if (!lo && !hi) {
-					*string = '\0';
-					strcat(string, pos);
-					if (in_cheat_list(ch))
-						SET_COMMSTATE(ch, 1);
-					else
-						SET_COMMSTATE(ch, 0);
-					return;
-				} else
-					string = pos;
-			} else
-				string = pos;
-			string--;
-		}
-}
-
 
 /*
  * Given a string, change all instances of double dollar signs ($$) to
@@ -2145,8 +2072,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		GET_GOLD(d->character) = 0;
 		GET_BANK_GOLD(d->character) = 0;
 	}
-	if (GET_LEVEL(d->character) >= LVL_IMMORT && GET_LEVEL(d->character) < LVL_IMPL
-	|| GET_COMMSTATE(d->character)) {
+	if (GET_LEVEL(d->character) >= LVL_IMMORT && GET_LEVEL(d->character) < LVL_IMPL) {
 		for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 			if (!strcmp(cmd_info[cmd].command, "syslog"))
 				if (Privilege::can_do_priv(d->character, std::string(cmd_info[cmd].command), cmd, 0)) {
@@ -2156,6 +2082,25 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		}
 		if (!flag)
 			GET_LOGS(d->character)[0] = 0;
+	}
+
+	// снимаем лишние флаги с чаров
+	if (GET_LEVEL(d->character) < LVL_IMPL && !Privilege::check_flag(d->character, Privilege::KRODER))
+	{
+		if (PRF_FLAGGED(d->character, PRF_CODERINFO))
+			REMOVE_BIT(PRF_FLAGS(d->character, PRF_CODERINFO), PRF_CODERINFO);
+		if (GET_LEVEL(d->character) < LVL_GOD)
+		{
+			if (PRF_FLAGGED(d->character, PRF_HOLYLIGHT))
+				REMOVE_BIT(PRF_FLAGS(d->character, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
+		}
+		if (GET_LEVEL(d->character) < LVL_GRGOD)
+		{
+			if (PRF_FLAGGED(d->character, PRF_NOHASSLE))
+				REMOVE_BIT(PRF_FLAGS(d->character, PRF_NOHASSLE), PRF_NOHASSLE);
+			if (PRF_FLAGGED(d->character, PRF_ROOMFLAGS))
+				REMOVE_BIT(PRF_FLAGS(d->character, PRF_ROOMFLAGS), PRF_ROOMFLAGS);
+		}
 	}
 
 	/*

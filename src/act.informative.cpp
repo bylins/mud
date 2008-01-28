@@ -3263,6 +3263,8 @@ ACMD(do_who)
 	strcpy(buf, argument);
 	name_search[0] = '\0';
 
+	bool kroder = Privilege::check_flag(ch, Privilege::KRODER);
+
 	/* Проверка аргументов команды "кто" */
 	while (*buf) {
 		half_chop(buf, arg, buf1);
@@ -3271,7 +3273,7 @@ ACMD(do_who)
 			high = LVL_IMPL;
 			strcpy(buf, buf1);
 		} else if (a_isdigit(*arg)) {
-			if (IS_GOD(ch))
+			if (IS_GOD(ch) || kroder)
 				sscanf(arg, "%d-%d", &low, &high);
 			strcpy(buf, buf1);
 		} else if (*arg == '-') {
@@ -3279,44 +3281,44 @@ ACMD(do_who)
 			switch (mode) {
 			case 'b':
 			case 'и':
-				if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_DEMIGOD))
+				if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_DEMIGOD) || kroder)
 					showname = 1;
 				strcpy(buf, buf1);
 				break;
 			case 'z':
-				if (IS_GOD(ch))
+				if (IS_GOD(ch) || kroder)
 					localwho = 1;
 				strcpy(buf, buf1);
 				break;
 			case 's':
-				if (IS_IMMORTAL(ch))
+				if (IS_IMMORTAL(ch) || kroder)
 					short_list = 1;
 				strcpy(buf, buf1);
 				break;
 			case 'l':
 				half_chop(buf1, arg, buf);
-				if (IS_GOD(ch))
+				if (IS_GOD(ch) || kroder)
 					sscanf(arg, "%d-%d", &low, &high);
 				break;
 			case 'n':
 				half_chop(buf1, name_search, buf);
 				break;
 			case 'r':
-				if (IS_GOD(ch))
+				if (IS_GOD(ch) || kroder)
 					who_room = 1;
 				strcpy(buf, buf1);
 				break;
 			case 'c':
 
 				half_chop(buf1, arg, buf);
-				if (IS_GOD(ch))
+				if (IS_GOD(ch) || kroder)
 					for (i = 0; i < strlen(arg); i++)
 						showclass |= find_class_bitvector(arg[i]);
 				break;
 			case 'h':
 			case '?':
 			default:
-				if (IS_IMMORTAL(ch))
+				if (IS_IMMORTAL(ch) || kroder)
 					send_to_char(IMM_WHO_FORMAT, ch);
 				else
 					send_to_char(MORT_WHO_FORMAT, ch);
@@ -3352,9 +3354,6 @@ ACMD(do_who)
 			continue;
 		if (!CAN_SEE_CHAR(ch, tch) || GET_LEVEL(tch) < low || GET_LEVEL(tch) > high)
 			continue;
-// Изменено Дажьбогом
-//       if (outlaws && !IS_KILLER(tch))
-//          continue;
 		if (localwho && world[ch->in_room]->zone != world[tch->in_room]->zone)
 			continue;
 		if (who_room && (tch->in_room != ch->in_room))
@@ -3373,7 +3372,7 @@ ACMD(do_who)
 			sprintf(name_who, "%s%s%s", CCPK(ch, C_NRM, tch), GET_NAME(tch), CCNRM(ch, C_NRM));
 
 		if (short_list) {
-			if (IS_IMPL(ch))
+			if (IS_IMPL(ch) || kroder)
 				sprintf(buf, "%s[%2d %s %s] %-30s%s",
 					IS_GOD(tch) ? CCWHT(ch, C_SPR) : "",
 					GET_LEVEL(tch), KIN_ABBR (tch), CLASS_ABBR(tch), name_who, IS_GOD(tch) ? CCNRM(ch, C_SPR) : "");
@@ -3382,7 +3381,7 @@ ACMD(do_who)
 					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
 					name_who, IS_IMMORTAL(tch) ? CCNRM(ch, C_SPR) : "");
 		} else {
-			if (IS_IMPL(ch))
+			if (IS_IMPL(ch) || kroder)
 				sprintf(buf, "%s[%2d %s %s(%3d)] %s%s%s%s",
 					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
 					GET_LEVEL(tch),
@@ -3430,7 +3429,7 @@ ACMD(do_who)
 						GET_PAD(tch, 3), GET_PAD(tch, 4), GET_PAD(tch, 5), GET_EMAIL(tch),
 						genders[(int)GET_SEX(tch)]);
 				}
-			} else if (IS_IMMORTAL(ch) && NAME_BAD(tch)) {
+			} else if ((IS_IMMORTAL(ch) || kroder) && NAME_BAD(tch)) {
 				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", get_name_by_id(NAME_ID_GOD(tch)));
 			}
 			if (IS_IMMORTAL(tch))
@@ -3442,7 +3441,7 @@ ACMD(do_who)
 			imms = str_add(imms, buf);
 			if (!short_list || !(imms_num % 4))
 				imms = str_add(imms, "\r\n");
-		} else if (GET_GOD_FLAG(tch, GF_DEMIGOD) && IS_IMMORTAL(ch)) {
+		} else if (GET_GOD_FLAG(tch, GF_DEMIGOD) && (IS_IMMORTAL(ch) || kroder)) {
 			demigods_num++;
 			demigods = str_add(demigods, buf);
 			if (!short_list || !(demigods_num % 4))
@@ -3959,7 +3958,7 @@ ACMD(do_users)
 				continue;
 			if (showclass && !(showclass & (1 << GET_CLASS(tch))))
 				continue;
-			if (GET_INVIS_LEV(ch) > GET_LEVEL(ch))
+			if (GET_INVIS_LEV(tch) > GET_LEVEL(ch))
 				continue;
 
 			if (d->original)
@@ -3974,7 +3973,7 @@ ACMD(do_users)
 					sprintf(classname, "[%2d %s %s]   ", GET_LEVEL(d->character), KIN_ABBR(d->character), CLASS_ABBR(d->character));
 		} else
 			strcpy(classname, "      -      ");
-		if (GET_LEVEL(ch) < LVL_IMPL)
+		if (GET_LEVEL(ch) < LVL_IMPL && !Privilege::check_flag(ch, Privilege::KRODER))
 			strcpy(classname, "      -      ");
 		timeptr = asctime(localtime(&d->login_time));
 		timeptr += 11;
@@ -4377,7 +4376,7 @@ ACMD(do_toggle)
 	else
 		sprintf(buf2, "%-3d", GET_WIMP_LEV(ch));
 
-	if (GET_LEVEL(ch) >= LVL_IMMORT) {
+	if (GET_LEVEL(ch) >= LVL_IMMORT || Privilege::check_flag(ch, Privilege::KRODER)) {
 		sprintf(buf,
 			" Не выследить  : %-3s     "
 			" Вечный свет   : %-3s     "
@@ -4510,23 +4509,9 @@ ACMD(do_commands)
 {
 	int no, i, cmd_num, num_of;
 	int wizhelp = 0, socials = 0;
-	CHAR_DATA *vict;
+	CHAR_DATA *vict = ch;
 
 	one_argument(argument, arg);
-
-/*  if (*arg)
-     {if (!(vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)) || IS_NPC(vict))
-         {send_to_char("Кто это ?\r\n", ch);
-          return;
-         }
-      if (GET_LEVEL(ch) < GET_LEVEL(vict) && !GET_COMMSTATE(ch))
-         {send_to_char("Вы не можете узнать команды для персонажа выше Вас уровнем.\r\n", ch);
-          return;
-         }
-     }
-  else */
-
-	vict = ch;
 
 	if (subcmd == SCMD_SOCIALS)
 		socials = 1;
@@ -4552,8 +4537,7 @@ ACMD(do_commands)
 		} else {
 			i = cmd_sort_info[cmd_num].sort_pos;
 			if (cmd_info[i].minimum_level >= 0
-				&& (Privilege::can_do_priv(vict, std::string(cmd_info[i].command), i, 0)
-				|| GET_COMMSTATE(vict))
+				&& (Privilege::can_do_priv(vict, std::string(cmd_info[i].command), i, 0))
 				&& (cmd_info[i].minimum_level >= LVL_IMMORT) == wizhelp
 				&& (wizhelp || socials == cmd_sort_info[i].is_social))
 			{

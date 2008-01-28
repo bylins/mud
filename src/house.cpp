@@ -23,6 +23,7 @@
 #include "boards.h"
 #include "skills.h"
 #include "spells.h"
+#include "privilege.hpp"
 
 extern void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 extern void write_one_object(char **data, OBJ_DATA * object, int location);
@@ -588,8 +589,14 @@ ClanListType::const_iterator Clan::IsClanRoom(room_rnum room)
 bool Clan::MayEnter(CHAR_DATA * ch, room_rnum room, bool mode)
 {
 	ClanListType::const_iterator clan = IsClanRoom(room);
-	if (clan == Clan::ClanList.end() || IS_GRGOD(ch) || !ROOM_FLAGGED(room, ROOM_HOUSE) || (*clan)->entranceMode)
+	if (clan == Clan::ClanList.end()
+		|| IS_GRGOD(ch)
+		|| !ROOM_FLAGGED(room, ROOM_HOUSE)
+		|| (*clan)->entranceMode
+		|| Privilege::check_flag(ch, Privilege::KRODER))
+	{
 		return 1;
+	}
 	if (!CLAN(ch))
 		return 0;
 

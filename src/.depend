@@ -13,10 +13,11 @@ act.movement.o: act.movement.cpp conf.h sysdep.h structs.h utils.h comm.h \
   dg_scripts.h screen.h pk.h features.hpp deathtrap.hpp privilege.hpp
 act.offensive.o: act.offensive.cpp conf.h sysdep.h structs.h utils.h \
   comm.h interpreter.h handler.h db.h constants.h screen.h spells.h \
-  skills.h pk.h features.hpp
+  skills.h pk.h features.hpp privilege.hpp
 act.other.o: act.other.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h screen.h house.h \
-  constants.h dg_scripts.h pk.h fight.h magic.h features.hpp depot.hpp
+  constants.h dg_scripts.h pk.h fight.h magic.h features.hpp depot.hpp \
+  privilege.hpp
 act.social.o: act.social.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h
 act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h comm.h \
@@ -64,7 +65,8 @@ interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
   title.hpp password.hpp privilege.hpp depot.hpp glory.hpp
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h spells.h skills.h \
   comm.h db.h handler.h screen.h interpreter.h constants.h dg_scripts.h \
-  house.h exchange.h top.h deathtrap.hpp ban.hpp diskio.h depot.hpp
+  house.h exchange.h top.h deathtrap.hpp ban.hpp diskio.h depot.hpp \
+  glory.hpp
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
   skills.h handler.h db.h interpreter.h screen.h constants.h dg_scripts.h \
   pk.h features.hpp magic.h fight.h
@@ -147,7 +149,7 @@ diskio.o: diskio.cpp conf.h sysdep.h diskio.h
 im.o: im.cpp conf.h sysdep.h structs.h utils.h handler.h db.h \
   interpreter.h comm.h constants.h screen.h features.hpp im.h
 names.o: names.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
-  handler.h db.h screen.h
+  handler.h db.h screen.h privilege.hpp
 auction.o: auction.cpp conf.h sysdep.h structs.h screen.h utils.h comm.h \
   interpreter.h handler.h db.h auction.h constants.h
 item.creation.o: item.creation.cpp conf.h sysdep.h structs.h screen.h \

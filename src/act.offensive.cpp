@@ -26,6 +26,7 @@
 #include "skills.h"
 #include "pk.h"
 #include "features.hpp"
+#include "privilege.hpp"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -358,7 +359,7 @@ ACMD(do_kill)
 			send_to_char("А его нет здесь :P.\r\n", ch);
 		else if (ch == vict)
 			send_to_char("Вы мазохист... :(\r\n", ch);
-		else if (IS_IMPL(vict) && !GET_COMMSTATE(ch))
+		else if (IS_IMPL(vict) || Privilege::check_flag(vict, Privilege::KRODER))
 			send_to_char("А если он Вас чайником долбанет ? Думай, Господи, думай !\r\n", ch);
 		else {
 			act("Вы обратили $N3 в прах! Взглядом! Одним!", FALSE, ch, 0, vict, TO_CHAR);

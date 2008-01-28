@@ -540,15 +540,16 @@ void mudlog(const char *str, int type, int level, int channel, int file)
 		return;
 
 	sprintf(tmpbuf, "[ %s ]\r\n", str);
-
+	bool kroder = 0;
 	for (i = descriptor_list; i; i = i->next) {
 		if (STATE(i) != CON_PLAYING || IS_NPC(i->character))	/* switch */
 			continue;
 		if (GET_LOGS(i->character)[channel] < type && type != DEF)
 			continue;
-		if (type == DEF && GET_LEVEL(i->character) < LVL_IMMORT && !Privilege::check_flag(i->character, Privilege::KRODER))
+		kroder = Privilege::check_flag(i->character, Privilege::KRODER);
+		if (type == DEF && GET_LEVEL(i->character) < LVL_IMMORT && !kroder)
 			continue;
-		if (GET_LEVEL(i->character) < level && !Privilege::check_flag(i->character, Privilege::KRODER))
+		if (GET_LEVEL(i->character) < level && !kroder)
 			continue;
 		if (PLR_FLAGGED(i->character, PLR_WRITING) || PLR_FLAGGED(i->character, PLR_FROZEN))
 			continue;

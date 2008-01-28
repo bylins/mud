@@ -220,7 +220,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		if (sagr == "q") {
-			// Проверяем не производилось ли изменение 
+			// Проверяем не производилось ли изменение
 			if (OLC_VAL(d)) {
 				send_to_char("Вы желаете сохранить изменения в рецепте ?(y/n) : ", d->character);
 				OLC_MODE(d) = MREDIT_CONFIRM_SAVE;
@@ -522,7 +522,7 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 		objname = "Нет";
 
 	int i = 0;
-	// 
+	//
 	skillname = "Нет";
 	while (make_skills[i].num != 0) {
 		if (make_skills[i].num == trec->skill) {
@@ -652,8 +652,8 @@ ACMD(do_make_item)
 {
 	// Тут творим предмет.
 
-	// Если прислали без параметра то выводим список всех рецептов 
-	// доступных для изготовления персонажу из его ингров 
+	// Если прислали без параметра то выводим список всех рецептов
+	// доступных для изготовления персонажу из его ингров
 
 	// Мастерить можно лук, посох , и диковину(аналог артефакта)
 
@@ -793,7 +793,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 // для 2 слотов базовый шанс 5%, 1% за каждый морт
 // для 1 слота базово 20% и 4% за каждый морт
 // Карачун. Поправлено. Расчет не через морты а через скил.
-		if (skill == SKILL_TRANSFORMWEAPON) {			
+		if (skill == SKILL_TRANSFORMWEAPON) {
 			if (get_skill(ch, skill) >= 105 && number(1, 100) <= 2 + (get_skill(ch, skill) - 105) / 10)
 				SET_BIT(GET_OBJ_EXTRA(tobj, ITEM_WITH3SLOTS), ITEM_WITH3SLOTS);
 			else if (number(1, 100) <= 5 + MAX((get_skill(ch, skill) - 80), 0) / 5)
@@ -811,8 +811,8 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 		case 11:
 //Polos.smith_craft_timer_up (max 3 weeks)
 			//GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, MIN(SEVEN_DAYS * 3, SEVEN_DAYS * prob / percent));
-//-Polos.smith_craft_timer_up	
-			// Карачун. Таймер должен зависить от таймера прототипа. 
+//-Polos.smith_craft_timer_up
+			// Карачун. Таймер должен зависить от таймера прототипа.
 			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 			// В минимуме один день реала, в максимуме таймер из прототипа
 			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, GET_OBJ_TIMER(tobj)/100*get_skill(ch, skill)-number(0,GET_OBJ_TIMER(tobj)/100*25));
@@ -879,7 +879,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 //Polos.smith_craft_timer_up (max 3 weeks)
 			//GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, MIN(SEVEN_DAYS * 3, SEVEN_DAYS * prob / percent));
 //-Polos.smith_craft_timer_up
-			// Карачун. Таймер должен зависить от таймера прототипа. 
+			// Карачун. Таймер должен зависить от таймера прототипа.
 			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 			// В минимуме один день реала, в максимуме таймер из прототипа
 			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, GET_OBJ_TIMER(tobj)/100*get_skill(ch, skill)-number(0,GET_OBJ_TIMER(tobj)/100*25));
@@ -1024,7 +1024,7 @@ ACMD(do_transform_weapon)
 	switch (subcmd) {
 	case SKILL_TRANSFORMWEAPON:
 
-		// Проверяем повторно из чего сделан объект 
+		// Проверяем повторно из чего сделан объект
 		// Чтобы не было абъюза с перековкой из угля.
 		if (created_item[obj_type].material_bits &&
 		    !IS_SET(created_item[obj_type].material_bits, (1 << GET_OBJ_MATER(obj)))) {
@@ -1156,191 +1156,6 @@ int ext_search_block(const char *arg, const char **list, int exact)
 	}
 
 	return (0);
-}
-
-ACMD(do_cheat)
-{
-	OBJ_DATA *obj;
-	int add_ac, j, i;
-	char field[MAX_INPUT_LENGTH], subfield[MAX_INPUT_LENGTH];
-
-	argument = one_argument(argument, arg);
-
-	if (!GET_COMMSTATE(ch)) {
-		send_to_char("Чаво ?\r\n", ch);
-		return;
-	}
-
-	if (!*arg) {
-		send_to_char("Чего читим ?\r\n", ch);
-		return;
-	}
-
-	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		sprintf(buf, "У Вас нет \'%s\'.\r\n", arg);
-		send_to_char(buf, ch);
-		return;
-	};
-
-	*field = *subfield = 0;
-	argument = one_argument(argument, field);
-	argument = one_argument(argument, subfield);
-
-	if (!*field) {
-		send_to_char("Не указано поле !\r\n", ch);
-		return;
-	}
-
-	if (!strn_cmp(field, "поле0", 5)) {
-		send_to_char("Поле 0 : ", ch);
-		if (!*subfield || sscanf(subfield, "%d", &i) != 1) {
-			send_to_char("Требуется числовое значение.\r\n", ch);
-			return;
-		}
-		sprintf(buf, "%d Ok !\r\n", i);
-		send_to_char(buf, ch);
-		GET_OBJ_VAL(obj, 0) = i;
-	} else if (!strn_cmp(field, "поле1", 5)) {
-		send_to_char("Поле 1 : ", ch);
-		if (!*subfield || sscanf(subfield, "%d", &i) != 1) {
-			send_to_char("Требуется числовое значение.\r\n", ch);
-			return;
-		}
-		sprintf(buf, "%d Ok !\r\n", i);
-		send_to_char(buf, ch);
-		GET_OBJ_VAL(obj, 1) = i;
-	} else if (!strn_cmp(field, "поле2", 5)) {
-		send_to_char("Поле 2 : ", ch);
-		if (!*subfield || sscanf(subfield, "%d", &i) != 1) {
-			send_to_char("Требуется числовое значение.\r\n", ch);
-			return;
-		}
-		sprintf(buf, "%d Ok !\r\n", i);
-		send_to_char(buf, ch);
-		GET_OBJ_VAL(obj, 2) = i;
-	} else if (!strn_cmp(field, "поле3", 5)) {
-		send_to_char("Поле 3 : ", ch);
-		if (!*subfield || sscanf(subfield, "%d", &i) != 1) {
-			send_to_char("Требуется числовое значение.\r\n", ch);
-			return;
-		}
-		sprintf(buf, "%d Ok !\r\n", i);
-		send_to_char(buf, ch);
-		GET_OBJ_VAL(obj, 3) = i;
-	} else if (!strn_cmp(field, "вес", 3)) {
-		send_to_char("Вес : ", ch);
-		if (!*subfield || sscanf(subfield, "%d", &i) != 1) {
-			send_to_char("Требуется числовое значение.\r\n", ch);
-			return;
-		}
-		sprintf(buf, "%d Ok !\r\n", i);
-		send_to_char(buf, ch);
-		obj_from_char(obj);
-		GET_OBJ_WEIGHT(obj) = i;
-		obj_to_char(obj, ch);
-	} else if (!strn_cmp(field, "таймер", 6)) {
-		send_to_char("Таймер : ", ch);
-		if (!*subfield || sscanf(subfield, "%d", &i) != 1) {
-			send_to_char("Требуется числовое значение.\r\n", ch);
-			return;
-		}
-		sprintf(buf, "%d Ok !\r\n", i);
-		send_to_char(buf, ch);
-		GET_OBJ_TIMER(obj) = i;
-	} else if (!strn_cmp(field, "макс", 4)) {
-		send_to_char("Максимальная прочность : ", ch);
-		if (!*subfield || sscanf(subfield, "%d", &i) != 1) {
-			send_to_char("Требуется числовое значение.\r\n", ch);
-			return;
-		}
-		sprintf(buf, "%d Ok !\r\n", i);
-		send_to_char(buf, ch);
-		GET_OBJ_MAX(obj) = i;
-	} else if (!strn_cmp(field, "проч", 4)) {
-		send_to_char("Прочность : ", ch);
-		if (!*subfield || sscanf(subfield, "%d", &i) != 1) {
-			send_to_char("Требуется числовое значение.\r\n", ch);
-			return;
-		}
-		sprintf(buf, "%d Ok !\r\n", i);
-		send_to_char(buf, ch);
-		GET_OBJ_CUR(obj) = i;
-	} else if (!strn_cmp(field, "матер", 5)) {
-		send_to_char("Материал : ", ch);
-		if (!*subfield || sscanf(subfield, "%d", &i) != 1) {
-			send_to_char("Требуется числовое значение.\r\n", ch);
-			return;
-		}
-		sprintf(buf, "%d Ok !\r\n", i);
-		send_to_char(buf, ch);
-		GET_OBJ_MATER(obj) = i;
-	} else if ((i = ext_search_block(field, extra_bits, FALSE))) {
-		send_to_char("Экстрабит : ", ch);
-		if (!*subfield)
-			TOGGLE_BIT(GET_OBJ_EXTRA(obj, i), i);
-		else if (!str_cmp(subfield, "да") || !str_cmp(subfield, "нет"))
-			SET_BIT(GET_OBJ_EXTRA(obj, i), i);
-		else
-			REMOVE_BIT(GET_OBJ_EXTRA(obj, i), i);
-		sprintf(buf, "%x %s !\r\n", i, IS_SET(GET_OBJ_EXTRA(obj, i), i) ? "On" : "Off");
-		send_to_char(buf, ch);
-	} else if ((i = ext_search_block(field, weapon_affects, FALSE))) {
-		send_to_char("Аффект : ", ch);
-		if (!*subfield)
-			TOGGLE_BIT(GET_OBJ_AFF(obj, i), i);
-		else if (!str_cmp(subfield, "да") || !str_cmp(subfield, "нет"))
-			SET_BIT(GET_OBJ_AFF(obj, i), i);
-		else
-			REMOVE_BIT(GET_OBJ_AFF(obj, i), i);
-		sprintf(buf, "%x %s !\r\n", i, IS_SET(GET_OBJ_AFF(obj, i), i) ? "On" : "Off");
-		send_to_char(buf, ch);
-	} else if ((i = search_block(field, wear_bits, FALSE)) >= 0) {
-		send_to_char("Одеть : ", ch);
-		if (!*subfield)
-			TOGGLE_BIT(GET_OBJ_WEAR(obj), (1 << i));
-		else if (!str_cmp(subfield, "да") || !str_cmp(subfield, "нет"))
-			SET_BIT(GET_OBJ_WEAR(obj), (1 << i));
-		else
-			REMOVE_BIT(GET_OBJ_WEAR(obj), (1 << i));
-		sprintf(buf, "%s %s !\r\n", wear_bits[i], IS_SET(GET_OBJ_WEAR(obj), (1 << i)) ? "On" : "Off");
-		send_to_char(buf, ch);
-	} else if ((i = search_block(field, apply_types, FALSE)) >= 0) {
-		send_to_char("Добавляет : ", ch);
-		if (!*subfield || sscanf(subfield, "%d", &add_ac) != 1) {
-			send_to_char("Требуется числовое значение.\r\n", ch);
-			return;
-		}
-		for (j = 0; j < MAX_OBJ_AFFECT; j++)
-			if (obj->affected[j].location == i || !obj->affected[j].location)
-				break;
-		if (j >= MAX_OBJ_AFFECT) {
-			send_to_char("Нет свободного места !\r\n", ch);
-			return;
-		}
-		if (!add_ac) {
-			i = APPLY_NONE;
-			for (; j + 1 < MAX_OBJ_AFFECT; j++) {
-				obj->affected[j].location = obj->affected[j + 1].location;
-				obj->affected[j].modifier = obj->affected[j + 1].modifier;
-			}
-		}
-		obj->affected[j].location = i;
-		obj->affected[j].modifier = add_ac;
-		sprintf(buf, "%s на %d !\r\n", apply_types[i], add_ac);
-		send_to_char(buf, ch);
-	} else if (!strn_cmp(field, "запись", 6)) {
-		REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_NODONATE), ITEM_NODONATE);
-		GET_OBJ_OWNER(obj) = 0;
-		send_to_char("Изменения сделаны постоянными.\r\n", ch);
-		return;
-	} else {
-		sprintf(buf, "Ничего не заломано(%s) !\r\n", field);
-		send_to_char(buf, ch);
-		return;
-	}
-
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NODONATE), ITEM_NODONATE);
-	GET_OBJ_OWNER(obj) = GET_UNIQUE(ch);
 }
 
 // *****************************
@@ -1731,7 +1546,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		act("Вы не готовы к тому чтобы сделать $o3.", FALSE, ch, tobj, 0, TO_CHAR);
 		return (FALSE);
 	}
-	// Прогружаем в массив реальные ингры 
+	// Прогружаем в массив реальные ингры
 	// 3. Проверить уровни ингров и чара
 	int ingr_cnt = 0, ingr_lev, i, craft_weight, ingr_pow;
 
@@ -1895,7 +1710,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 	act(charwork.c_str(), FALSE, ch, tobj, 0, TO_CHAR);
 	act(roomwork.c_str(), FALSE, ch, tobj, 0, TO_ROOM);
 
-	// Считаем вероятность испортить отдельный ингридиент 
+	// Считаем вероятность испортить отдельный ингридиент
 	// если уровень чара = уровню ингра то фейл 50%
 	// если уровень чара > уровня ингра на 15 то фейл 0%
 	// уровень чара * 2 - random(30) < 15 - фейл то пропадает весь материал
@@ -1932,7 +1747,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 	int craft_move = MIN_MAKE_MOVE + (created_lev / 2) - 1;
 
-	// Снимаем мувы за умение 
+	// Снимаем мувы за умение
 	if (GET_MOVE(ch) < craft_move) {
 		GET_MOVE(ch) = 0;
 		// Вам не хватило сил доделать.
@@ -1960,8 +1775,8 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// 4. Считаем сколько материала треба.
 	if (!make_fail)
 		for (i = 0; i < ingr_cnt; i++) {
-			// 
-			// нужный материал = мин.материал + 
+			//
+			// нужный материал = мин.материал +
 			// random(100) - skill
 			// если она < 20 то мин.вес + rand(мин.вес/3)
 			// если она < 50 то мин.вес*rand(1,2) + rand(мин.вес/3)
@@ -2042,19 +1857,19 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 		return (FALSE);
 	}
-	// Лоадим предмет игроку 
+	// Лоадим предмет игроку
 
 	OBJ_DATA *obj = read_object(obj_proto, VIRTUAL);
 
 	act(charsucc.c_str(), FALSE, ch, obj, 0, TO_CHAR);
 	act(roomsucc.c_str(), FALSE, ch, obj, 0, TO_ROOM);
 	// 6. Считаем базовые статсы предмета и таймер
-	//  формула для каждого умения отдельная 
+	//  формула для каждого умения отдельная
 
 	// Для числовых х-к:  х-ка+(skill - random(100))/20;
 	// Для флагов ???: random(200) - skill > 0 то флаг переноситься.
 
-	// Т.к. сделать мы можем практически любой предмет. 
+	// Т.к. сделать мы можем практически любой предмет.
 
 	// Модифицируем вес предмета и его таймер.
 	// Для маг предметов надо в сторону облегчения.
@@ -2092,22 +1907,22 @@ int MakeRecept::make(CHAR_DATA * ch)
 		break;
 	case ITEM_WAND:
 	case ITEM_STAFF:
-		// Проверяем может 
+		// Проверяем может
 
 		// Считаем уровень закла
 		GET_OBJ_VAL(obj, 0) = GET_LEVEL(ch);
 
-		// считаем заряды в палочке ... ставим число зарядов равное 
-		// числу замемленых заклов ... 
+		// считаем заряды в палочке ... ставим число зарядов равное
+		// числу замемленых заклов ...
 /*      if (!IS_IMMORTAL(ch))
       {
         GET_OBJ_VAL(obj,1) = GET_SPELL_MEM(ch,GET_OBJ_VAL(obj,3));
 
       // палочка заряжена под самые ухи.
-        GET_OBJ_VAL(obj,2) = GET_SPELL_MEM(ch,GET_OBJ_VAL(obj,3));      
+        GET_OBJ_VAL(obj,2) = GET_SPELL_MEM(ch,GET_OBJ_VAL(obj,3));
       } else
       {
-   GET_OBJ_VAL(obj,1) = 10;        
+   GET_OBJ_VAL(obj,1) = 10;
    GET_OBJ_VAL(obj,2) = 10;
       }
 */
@@ -2115,7 +1930,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 		break;
 	case ITEM_WEAPON:
-		// Считаем число xdy 
+		// Считаем число xdy
 		// модифицируем XdY
 		if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 2))
 			GET_OBJ_VAL(obj, 1) = stat_modify(ch, GET_OBJ_VAL(obj, 1), 1);
@@ -2153,13 +1968,13 @@ int MakeRecept::make(CHAR_DATA * ch)
 //  sprintf(tmpbuf,"VAL0 = %d ; VAL1 = %d ; VAL2 = %d ; VAL3 = %d \r\n",
 //     GET_OBJ_VAL(obj,0),GET_OBJ_VAL(obj,1),GET_OBJ_VAL(obj,2),GET_OBJ_VAL(obj,3));
 
-//  send_to_char(tmpbuf,ch);  
+//  send_to_char(tmpbuf,ch);
 	// 7. Считаем доп. статсы предмета.
-	// х-ка прототипа + 
+	// х-ка прототипа +
 	// если (random(100) - сила ингра ) < 1 то переноситься весь параметр.
 	// если от 1 до 25 то переноситься 1/2
 	// если от 25 до 50 то переноситься 1/3
-	// больше переноситься 0 
+	// больше переноситься 0
 
 	// переносим доп аффекты ...+мудра +ловка и т.п.
 
@@ -2213,7 +2028,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 	}
 
 	// 8. Проверяем мах. инворлд.
-	// Считаем по формуле (31 - ср. уровень предмета) * 5 - 
+	// Считаем по формуле (31 - ср. уровень предмета) * 5 -
 	// овер шмота в мире не 30 лева не больше 5 штук
 	// Т.к. ср. уровень ингров будет определять
 	// число шмоток в мире то шмотки по хуже будут вытеснять
@@ -2255,7 +2070,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 			new_desc->next = NULL;	// На всякий случай :)
 
 			new_desc->description = str_add(new_desc->description, tagchar);
-			// По уму тут надо бы стереть старое описапние если оно не с прототипа 
+			// По уму тут надо бы стереть старое описапние если оно не с прототипа
 
 			obj->ex_description = new_desc;
 		}
@@ -2308,7 +2123,7 @@ int MakeRecept::load_from_str(string & rstr)
 	}
 
 	for (int i = 0; i < MAX_PARTS; i++) {
-		// считали номер прототипа компонента 
+		// считали номер прототипа компонента
 		parts[i].proto = atoi((rstr.substr(0, rstr.find(" "))).c_str());
 		rstr = rstr.substr(rstr.find(" ") + 1);
 
@@ -2409,9 +2224,9 @@ int MakeRecept::add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, FLAG_DATA * add
 		for (int j = 0; j < 32; j++) {
 			tmpprob = number(0, 200) - calculate_skill(ch, skill, skill_info[skill].max_percent, 0);
 			if ((add_flag->flags[i] & (1 << j)) && (tmpprob < 0)) {
-//        cout << "Prob : " << tmpprob << endl;     
+//        cout << "Prob : " << tmpprob << endl;
 				base_flag->flags[i] |= (1 << j);
-//        cout << "Base now : " << base_flag->flags[i] << endl;       
+//        cout << "Base now : " << base_flag->flags[i] << endl;
 			}
 		}
 	}

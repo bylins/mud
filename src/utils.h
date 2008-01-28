@@ -234,15 +234,11 @@ void update_pos(CHAR_DATA * victim);
 #define SECS_PER_REAL_DAY  (24*SECS_PER_REAL_HOUR)
 #define SECS_PER_REAL_YEAR (365*SECS_PER_REAL_DAY)
 
-
-#define GET_COMMSTATE(ch)      ((ch)->player_specials->saved.Prelimit)
-#define SET_COMMSTATE(ch,val)  ((ch)->player_specials->saved.Prelimit = (val))
-
-#define IS_IMMORTAL(ch)     (!IS_NPC(ch) && (GET_LEVEL(ch) >= LVL_IMMORT || GET_COMMSTATE(ch)))
-#define IS_GOD(ch)          (!IS_NPC(ch) && (GET_LEVEL(ch) >= LVL_GOD    || GET_COMMSTATE(ch)))
-#define IS_GRGOD(ch)        (!IS_NPC(ch) && (GET_LEVEL(ch) >= LVL_GRGOD  || GET_COMMSTATE(ch)))
-#define IS_IMPL(ch)         (!IS_NPC(ch) && (GET_LEVEL(ch) >= LVL_IMPL   || GET_COMMSTATE(ch)))
-#define IS_HIGHGOD(ch)      (IS_IMPL(ch) && (GET_GOD_FLAG(ch,GF_HIGHGOD) || GET_COMMSTATE(ch)))
+#define IS_IMMORTAL(ch)     (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_IMMORT)
+#define IS_GOD(ch)          (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_GOD)
+#define IS_GRGOD(ch)        (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_GRGOD)
+#define IS_IMPL(ch)         (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_IMPL)
+#define IS_HIGHGOD(ch)      (IS_IMPL(ch) && (GET_GOD_FLAG(ch,GF_HIGHGOD)))
 
 #define IS_BITS(mask, bitno) (IS_SET(mask,(1 << bitno)))
 #define IS_CASTER(ch)        (IS_BITS(MASK_CASTER,GET_CLASS(ch)))
@@ -482,8 +478,7 @@ extern SPECIAL(postmaster);
 #define GET_PASSWD(ch)   ((ch)->player.passwd)
 #define GET_PFILEPOS(ch) ((ch)->pfilepos)
 #define IS_KILLER(ch)    ((ch)->points.pk_counter)
-#define IS_CODER(ch)    (GET_LEVEL(ch) < LVL_IMMORT && \
-                        PRF_FLAGGED(ch,PRF_CODERINFO))
+#define IS_CODER(ch)    (GET_LEVEL(ch) < LVL_IMMORT && PRF_FLAGGED(ch, PRF_CODERINFO))
 #define IS_COLORED(ch)    (pk_count (ch))
 #define GET_LASTTELL(ch)    ((ch)->player_specials->saved.lasttell)
 #define GET_TELL(ch,i)   ((ch)->player_specials->saved.remember)[i]
