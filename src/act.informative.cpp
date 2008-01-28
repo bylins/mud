@@ -2118,7 +2118,7 @@ ACMD(do_score)
 //Обработка команды "счет все", добавил Adept. Ширина таблицы - 85 символов + пробел.
 	if (is_abbrev(argument, "все") || is_abbrev(argument, "all")) {
 
-	if (GET_LEVEL(ch) < 6) {
+	if (GET_LEVEL(ch) < 6 && !GET_REMORT(ch)) {
 		send_to_char(ch, "Вам следует достичь хотя бы шестого уровня, чтобы воспользоваться этой командой!\r\n");
 		return;
 	}
@@ -2602,7 +2602,7 @@ ACMD(do_score)
 			GET_MANA_STORED(ch), GET_MAX_MANA(ch), mana_gain(ch));
 	}
 
-	if (GET_LEVEL(ch) > 4) {
+	if (GET_LEVEL(ch) > 4 || GET_REMORT(ch)) {
 		sprintf(buf + strlen(buf),
 			"%sВаши характеристики :\r\n"
 			"  Сила : %2d(%2d)"
@@ -2631,7 +2631,7 @@ ACMD(do_score)
 			CCIGRN(ch, C_NRM), GET_AC(ch), compute_armor_class(ch),
 			GET_DR(ch), GET_REAL_DR(ch), CCNRM(ch, C_NRM));
 	} else {
-		if (GET_LEVEL(ch) > 4) {
+		if (GET_LEVEL(ch) > 4 || GET_REMORT(ch)) {
 			ac = compute_armor_class(ch) / 10;
 			ac_t = MAX(MIN(ac + 30, 40), 0);
 			sprintf(buf + strlen(buf), "&GВаши боевые качества :\r\n"
