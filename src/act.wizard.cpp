@@ -2523,7 +2523,7 @@ ACMD(do_invis)
 				perform_immort_invis(ch, GET_LEVEL(ch));
 		}
 	} else {
-		level = MAX(atoi(arg), LVL_IMPL);
+		level = MIN(atoi(arg), LVL_IMPL);
 		if (level > GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
 			send_to_char("Вы не можете достичь невидимости выше Вашего уровня.\r\n", ch);
 		else if (GET_LEVEL(ch) < LVL_IMPL && level > LVL_IMMORT)
