@@ -3014,20 +3014,6 @@ ACMD(do_wizutil)
 				GET_DEX(vict), GET_CON(vict), GET_CHA(vict));
 			send_to_char(buf, ch);
 			break;
-		case SCMD_PARDON:
-			if (!PLR_FLAGGED(vict, PLR_THIEF)
-			    && !PLR_FLAGGED(vict, PLR_KILLER)) {
-				send_to_char("Ваша цель не имеет флагов.\r\n", ch);
-				return;
-			}
-			REMOVE_BIT(PLR_FLAGS(vict, PLR_THIEF), PLR_THIEF);
-			REMOVE_BIT(PLR_FLAGS(vict, PLR_KILLER), PLR_KILLER);
-			send_to_char("Прощен.\r\n", ch);
-			send_to_char("Вы прощены богами.\r\n", vict);
-			sprintf(buf, "(GC) %s pardoned by %s", GET_NAME(vict), GET_NAME(ch));
-			mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log("%s pardoned by %s", GET_NAME(vict), GET_NAME(ch));
-			break;
 		case SCMD_NOTITLE:
 			result = PLR_TOG_CHK(vict, PLR_NOTITLE);
 			sprintf(buf, "(GC) Notitle %s for %s by %s.", ONOFF(result), GET_NAME(vict), GET_NAME(ch));
@@ -3581,39 +3567,38 @@ struct set_struct		/*
 	{"drunk", LVL_GRGOD, BOTH, MISC},
 	{"hunger", LVL_GRGOD, BOTH, MISC},
 	{"thirst", LVL_GRGOD, BOTH, MISC},
-	{"killer", LVL_GOD, PC, BINARY}, // 25
-	{"thief", LVL_GOD, PC, BINARY},
+	{"thief", LVL_GOD, PC, BINARY}, // 25
 	{"level", LVL_IMPL, BOTH, NUMBER},
 	{"room", LVL_IMPL, BOTH, NUMBER},
 	{"roomflag", LVL_GRGOD, PC, BINARY},
-	{"siteok", LVL_GRGOD, PC, BINARY}, // 30
-	{"deleted", LVL_IMPL, PC, BINARY},
+	{"siteok", LVL_GRGOD, PC, BINARY},
+	{"deleted", LVL_IMPL, PC, BINARY}, // 30
 	{"class", LVL_IMPL, BOTH, MISC},
 	{"demigod", LVL_IMPL, PC, BINARY},
 	{"loadroom", LVL_GRGOD, PC, MISC},
-	{"color", LVL_GOD, PC, BINARY}, // 35
-	{"idnum", LVL_IMPL, PC, NUMBER},
+	{"color", LVL_GOD, PC, BINARY},
+	{"idnum", LVL_IMPL, PC, NUMBER}, // 35
 	{"passwd", LVL_IMPL, PC, MISC},
 	{"nodelete", LVL_GOD, PC, BINARY},
 	{"sex", LVL_GRGOD, BOTH, MISC},
-	{"age", LVL_GRGOD, BOTH, NUMBER}, // 40
-	{"height", LVL_GOD, BOTH, NUMBER},
+	{"age", LVL_GRGOD, BOTH, NUMBER},
+	{"height", LVL_GOD, BOTH, NUMBER}, // 40
 	{"weight", LVL_GOD, BOTH, NUMBER},
 	{"godslike", LVL_IMPL, BOTH, BINARY},
 	{"godscurse", LVL_IMPL, BOTH, BINARY},
-	{"olc", LVL_IMPL, PC, NUMBER}, // 45
-	{"name", LVL_GRGOD, PC, MISC},
+	{"olc", LVL_IMPL, PC, NUMBER},
+	{"name", LVL_GRGOD, PC, MISC}, // 45
 	{"trgquest", LVL_IMPL, PC, MISC},
 	{"mkill", LVL_IMPL, PC, MISC},
 	{"highgod", LVL_IMPL, PC, MISC},
-	{"hell", LVL_GOD, PC, MISC}, //50
-	{"email", LVL_GOD, PC, MISC},
+	{"hell", LVL_GOD, PC, MISC},
+	{"email", LVL_GOD, PC, MISC}, //50
 	{"religion", LVL_GOD, PC, MISC},
 	{"perslog", LVL_IMPL, PC, BINARY},
 	{"mute", LVL_GOD, PC, MISC},
-	{"dumb", LVL_GOD, PC, MISC}, // 55
+	{"dumb", LVL_GOD, PC, MISC},
 	{"karma", LVL_IMPL, PC, MISC},
-	{"unreg", LVL_GOD, PC, MISC}, // 57
+	{"unreg", LVL_GOD, PC, MISC}, // 56
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -3784,12 +3769,9 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 	case 25:
-		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_KILLER), PLR_KILLER);
-		break;
-	case 26:
 		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_THIEF), PLR_THIEF);
 		break;
-	case 27:
+	case 26:
 		if (!Privilege::check_flag(ch, Privilege::KRODER)
 			&& (value > GET_LEVEL(ch) || value > LVL_IMPL || GET_LEVEL(vict) > GET_LEVEL(ch))) {
 			send_to_char("Вы не можете установить уровень игрока выше собственного.\r\n", ch);
@@ -3798,7 +3780,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		RANGE(0, LVL_IMPL);
 		vict->player.level = (byte) value;
 		break;
-	case 28:
+	case 27:
 		if ((rnum = real_room(value)) == NOWHERE) {
 			send_to_char("Поищите другой МУД. В этом МУДе нет такой комнаты.\r\n", ch);
 			return (0);
@@ -3808,27 +3790,27 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		char_to_room(vict, rnum);
 		check_horse(vict);
 		break;
-	case 29:
+	case 28:
 		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_ROOMFLAGS), PRF_ROOMFLAGS);
 		break;
-	case 30:
+	case 29:
 		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_SITEOK), PLR_SITEOK);
 		break;
-	case 31:
+	case 30:
 		if (IS_IMPL(vict) || Privilege::check_flag(vict, Privilege::KRODER)) {
 			send_to_char("Истинные боги вечны!\r\n", ch);
 			return 0;
 		}
 		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_DELETED), PLR_DELETED);
 		break;
-	case 32:
+	case 31:
 		if ((i = parse_class(*val_arg)) == CLASS_UNDEFINED) {
 			send_to_char("Нет такого клаcса в этой игре. Найдите себе другую.\r\n", ch);
 			return (0);
 		}
 		GET_CLASS(vict) = i;
 		break;
-	case 33:
+	case 32:
 		/* Флаг для морталов с привилегиями */
 		if (!IS_IMPL(ch)) {
 			send_to_char("Вы не столь Божественны, как Вам кажется!\r\n", ch);
@@ -3840,7 +3822,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			CLR_GOD_FLAG(vict, GF_DEMIGOD);
 		}
 		break;
-	case 34:
+	case 33:
 		if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
 			REMOVE_BIT(PLR_FLAGS(vict, PLR_LOADROOM), PLR_LOADROOM);
 		} else if (is_number(val_arg)) {
@@ -3861,16 +3843,16 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			return (0);
 		}
 		break;
-	case 35:
+	case 34:
 		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_COLOR_1), PRF_COLOR_1);
 		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_COLOR_2), PRF_COLOR_2);
 		break;
-	case 36:
+	case 35:
 		if (!IS_IMPL(ch) || !IS_NPC(vict))
 			return (0);
 		GET_IDNUM(vict) = value;
 		break;
-	case 37:
+	case 36:
 		if (!IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER) && ch != vict) {
 			send_to_char("Давайте не будем экспериментировать.\r\n", ch);
 			return (0);
@@ -3886,10 +3868,10 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		Password::set_password(vict, std::string(val_arg));
 		sprintf(output, "Пароль изменен на '%s'.", val_arg);
 		break;
-	case 38:
+	case 37:
 		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_NODELETE), PLR_NODELETE);
 		break;
-	case 39:
+	case 38:
 		if ((i = search_block(val_arg, genders, FALSE)) < 0) {
 			send_to_char
 			    ("Может быть 'мужчина', 'женщина', или 'бесполое'(а вот это я еще не оценил :).\r\n", ch);
@@ -3897,7 +3879,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		GET_SEX(vict) = i;
 		break;
-	case 40:		/* set age */
+	case 39:		/* set age */
 		if (value < 2 || value > 200) {	/* Arbitrary limits. */
 			send_to_char("Поддерживаются возрасты от 2 до 200.\r\n", ch);
 			return (0);
@@ -3910,17 +3892,17 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		vict->player.time.birth = time(0) - ((value - 17) * SECS_PER_MUD_YEAR);
 		break;
 
-	case 41:		/* Blame/Thank Rick Glover. :) */
+	case 40:		/* Blame/Thank Rick Glover. :) */
 		GET_HEIGHT(vict) = value;
 		affect_total(vict);
 		break;
 
-	case 42:
+	case 41:
 		GET_WEIGHT(vict) = value;
 		affect_total(vict);
 		break;
 
-	case 43:
+	case 42:
 		if (on) {
 			SET_GOD_FLAG(vict, GF_GODSLIKE);
 			if (sscanf(val_arg, "%s %d", npad[0], &i) != 0)
@@ -3930,7 +3912,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		} else if (off)
 			CLR_GOD_FLAG(vict, GF_GODSLIKE);
 		break;
-	case 44:
+	case 43:
 		if (on) {
 			SET_GOD_FLAG(vict, GF_GODSCURSE);
 			if (sscanf(val_arg, "%s %d", npad[0], &i) != 0)
@@ -3940,10 +3922,10 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		} else if (off)
 			CLR_GOD_FLAG(vict, GF_GODSCURSE);
 		break;
-	case 45:
+	case 44:
 		GET_OLC_ZONE(vict) = value;
 		break;
-	case 46:
+	case 45:
 		/* изменение имени !!! */
 
 		if ((i =
@@ -4041,7 +4023,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 
-	case 47:
+	case 46:
 
 		if (sscanf(val_arg, "%d %s", &ptnum, npad[0]) != 2) {
 			send_to_char("Формат : set <имя> trgquest <quest_num> <on|off>\r\n", ch);
@@ -4067,7 +4049,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 
-	case 48:
+	case 47:
 
 		if (sscanf(val_arg, "%d %s", &ptnum, npad[0]) != 2) {
 			send_to_char("Формат : set <имя> mkill <mob_vnum> <off|num>\r\n", ch);
@@ -4091,17 +4073,17 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 
-	case 49:
+	case 48:
 		return (0);
 		break;
 
-	case 50:
+	case 49:
 		reason = one_argument(val_arg, num);
 		if (num && *num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_HELL, reason, times)) return (0);
 		break;
 
-	case 51:
+	case 50:
 		if (valid_email(val_arg)) {
 			strncpy(GET_EMAIL(vict), val_arg, 127);
 			*(GET_EMAIL(vict) + 127) = '\0';
@@ -4112,7 +4094,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 
-	case 52:
+	case 51:
 		/* Выставляется род для РС */
 		rod = (*val_arg);
 		if (rod != '0' && rod != '1') {
@@ -4124,7 +4106,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 
-	case 53:
+	case 52:
 		/* Отдельный лог команд персонажа */
 		if (on) {
 			SET_GOD_FLAG(vict, GF_PERSLOG);
@@ -4133,19 +4115,19 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 
-	case 54:
+	case 53:
 		reason = one_argument(val_arg, num);
 		if (num && *num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_MUTE, reason, times)) return (0);
 		break;
 
-	case 55:
+	case 54:
 		reason = one_argument(val_arg, num);
 		if (num && *num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_DUMB, reason, times)) return (0);
 		break;
 
-	case 56:
+	case 55:
 		if (GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch)) {
 			send_to_char("Кем вы себя возомнили?\r\n", ch);
 			return 0;
@@ -4171,7 +4153,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		break;
 
-	case 57:      // Разрегистрация персонажа
+	case 56:      // Разрегистрация персонажа
 		reason = one_argument(val_arg, num);
 		if (num && *num) times=atol(num);
 		if (!set_punish(ch, vict, SCMD_UNREGISTER, reason, times)) return (0);

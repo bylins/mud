@@ -33,7 +33,6 @@ extern DESCRIPTOR_DATA *descriptor_list;
 
 /* extern functions */
 void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer);
-//void   check_killer(CHAR_DATA * ch, CHAR_DATA * vict);
 int compute_armor_class(CHAR_DATA * ch);
 int awake_others(CHAR_DATA * ch);
 void appear(CHAR_DATA * ch);

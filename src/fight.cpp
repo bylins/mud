@@ -87,7 +87,6 @@ int perform_mob_switch(CHAR_DATA * ch);
 void dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int w_type);
 void appear(CHAR_DATA * ch);
 void load_messages(void);
-//void check_killer(CHAR_DATA * ch, CHAR_DATA * vict);
 OBJ_DATA *make_corpse(CHAR_DATA * ch);
 void change_alignment(CHAR_DATA * ch, CHAR_DATA * victim);
 void death_cry(CHAR_DATA * ch);
@@ -357,24 +356,6 @@ void update_pos(CHAR_DATA * victim)
 		horse_drop(victim);
 }
 
-#if 0
-void check_killer(CHAR_DATA * ch, CHAR_DATA * vict)
-{
-	if (PLR_FLAGGED(vict, PLR_KILLER) || PLR_FLAGGED(vict, PLR_THIEF))
-		return;
-	if (PLR_FLAGGED(ch, PLR_KILLER) || IS_NPC(ch) || IS_NPC(vict)
-	    || ch == vict)
-		return;
-
-	/* SET_BIT(PLR_FLAGS(ch), PLR_KILLER);
-
-	   sprintf(buf, "PC Killer bit set on %s for initiating attack on %s at %s.",
-	   GET_NAME(ch), GET_NAME(vict), world[IN_ROOM(vict)]->name);
-	   mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-	 */
-}
-#endif
-
 void set_battle_pos(CHAR_DATA * ch)
 {
 	switch (GET_POS(ch)) {
@@ -463,7 +444,6 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 		else if (PRF_FLAGGED(ch, PRF_AWAKE))
 			SET_AF_BATTLE(ch, EAF_AWAKE);
 	}
-//  check_killer(ch, vict);
 }
 
 /* remove a char from the list of fighting chars */
@@ -2327,8 +2307,6 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		return (0);
 
 	// Сюда при отрицательном уроне не пройдет, и сообщений видно не будет
-
-//  check_killer(ch, victim);
 
 	if (victim != ch) {
 		if (dam && AFF_FLAGGED(victim, AFF_SHIELD)) {

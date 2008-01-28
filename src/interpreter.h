@@ -178,18 +178,16 @@ struct alias_data {
 
 /* do_wizutil */
 #define SCMD_REROLL     0
-#define SCMD_PARDON     1
-#define SCMD_NOTITLE    2
-#define SCMD_SQUELCH    3
-#define SCMD_FREEZE     4
-#define SCMD_THAW       5
-#define SCMD_UNAFFECT   6
-#define SCMD_HELL       7
-#define SCMD_NAME       8
-#define SCMD_REGISTER   9
-#define SCMD_MUTE       10
-#define SCMD_DUMB       11
-#define SCMD_UNREGISTER   12
+#define SCMD_NOTITLE    1
+#define SCMD_SQUELCH    2
+#define SCMD_FREEZE     3
+#define SCMD_UNAFFECT   4
+#define SCMD_HELL       5
+#define SCMD_NAME       6
+#define SCMD_REGISTER   7
+#define SCMD_MUTE       8
+#define SCMD_DUMB       9
+#define SCMD_UNREGISTER 10
 
 /* do_spec_com */
 #define SCMD_WHISPER 0

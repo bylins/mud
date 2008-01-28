@@ -1882,24 +1882,12 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			else if (!str_cmp(field, "fighting")) {
 				if (FIGHTING(c))
 					sprintf(str, "%c%ld", UID_CHAR, GET_ID(FIGHTING(c)));
-			} else if (!str_cmp(field, "is_killer")) {	/*if (*subfield)
-									   {if (!str_cmp("on", subfield))
-									   SET_BIT(PLR_FLAGS(c, PLR_KILLER), PLR_KILLER);
-									   else
-									   if (!str_cmp("off", subfield))
-									   REMOVE_BIT(PLR_FLAGS(c, PLR_KILLER), PLR_KILLER);
-									   } */
+			} else if (!str_cmp(field, "is_killer")) {
 				if (PLR_FLAGGED(c, PLR_KILLER))
 					strcpy(str, "1");
 				else
 					strcpy(str, "0");
-			} else if (!str_cmp(field, "is_thief")) {	/*if (*subfield)
-									   {if (!str_cmp("on", subfield))
-									   SET_BIT(PLR_FLAGS(c, PLR_THIEF), PLR_THIEF);
-									   else
-									   if (!str_cmp("off", subfield))
-									   REMOVE_BIT(PLR_FLAGS(c, PLR_THIEF), PLR_THIEF);
-									   } */
+			} else if (!str_cmp(field, "is_thief")) {
 				if (PLR_FLAGGED(c, PLR_THIEF))
 					strcpy(str, "1");
 				else

@@ -137,7 +137,7 @@ void depot_log(const char *format, ...)
 		}
 		opened_files.push_back(file);
 	} else if (!format)
-		format = "SYSERR: depot_log received a NULL format.";
+		format = "SYSERR: // depot_log received a NULL format.";
 
 	write_time(file);
 	va_list args;
@@ -145,6 +145,7 @@ void depot_log(const char *format, ...)
 	vfprintf(file, format, args);
 	va_end(args);
 	fprintf(file, "\n");
+	fflush(file);
 }
 
 /**
@@ -1062,7 +1063,9 @@ void CharNode::update_online_item(ObjListType &cont, int type)
 		}
 		else
 		{
-			add_cost_per_day(*obj_it);
+			// тут плюсуем толькорасшаренное хранилище, потому что в онлайне персональное халява
+			if (type == SHARE_CHEST)
+				add_cost_per_day(*obj_it);
 			++obj_it;
 		}
 	}
@@ -1565,6 +1568,9 @@ void CharNode::online_to_offline(ObjListType &cont, int file_type)
 		tmp_obj.vnum = GET_OBJ_VNUM(*obj_it);
 		tmp_obj.timer = GET_OBJ_TIMER(*obj_it);
 		tmp_obj.rent_cost = get_object_low_rent(*obj_it);
+		// плюсуем персональное хранилище к общей ренте
+		if (file_type == PERS_DEPOT_FILE)
+			add_cost_per_day(tmp_obj.rent_cost);
 		tmp_obj.uid = GET_OBJ_UID(*obj_it);
 		offline_list.push_back(tmp_obj);
 		extract_obj(*obj_it);
