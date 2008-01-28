@@ -1085,7 +1085,7 @@ void point_update(void)
 				continue;
 		}
 		update_char_objects(i);
-		if (!IS_NPC(i) && GET_LEVEL(i) < idle_max_level)
+		if (!IS_NPC(i) && GET_LEVEL(i) < idle_max_level && !PRF_FLAGGED(i, PRF_CODERINFO))
 			check_idling(i);
 	}
 
