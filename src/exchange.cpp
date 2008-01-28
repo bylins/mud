@@ -114,7 +114,7 @@ SPECIAL(exchange)
 			return 1;
 		}
 */
-		if (GET_LEVEL(ch) < EXCHANGE_MIN_CHAR_LEV) {
+		if (GET_LEVEL(ch) < EXCHANGE_MIN_CHAR_LEV && !GET_REMORT(ch)) {
 			sprintf(buf1,
 				"Вам стоит достичь хотя бы %d уровня, чтобы пользоваться базаром.\r\n",
 				EXCHANGE_MIN_CHAR_LEV);

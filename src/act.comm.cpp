@@ -609,7 +609,7 @@ ACMD(do_gen_comm)
 		return;
 	}
 
-	if (GET_LEVEL(ch) < com_msgs[subcmd].min_lev) {
+	if (GET_LEVEL(ch) < com_msgs[subcmd].min_lev && !GET_REMORT(ch)) {
 		sprintf(buf1,
 			"Вам стоит достичь хотя бы %d уровня, чтобы Вы могли %s.\r\n",
 			com_msgs[subcmd].min_lev, com_msgs[subcmd].action);
