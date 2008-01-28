@@ -26,6 +26,7 @@
 * # arena - команды, которые доступны только на арене, без set и show (+ спеллы переход и призвать)
 * # skills - флаг, позволяющий имму пользоваться заклинаниями, умениями, рунами, взламывать двери (34е по дефолту)
 * # fullzedit - возможность открытия/закрытия зон для записи (zed lock/unlock) (34е по дефолту)
+* # title - одобрение/запрет чужих титулов
 * # остальные группы вписываете сколько хотите
 * # иммы: имя уид (0 не канает, теперь надо сразу писать уид) команды/группы
 * <groups>
@@ -48,8 +49,9 @@ const int USE_SKILLS = 1;
 const int ARENA_MASTER = 2;
 const int KRODER = 3;
 const int FULLZEDIT = 4;
+const int TITLE = 5;
 // количество флагов
-const int FLAGS_NUM = 5;
+const int FLAGS_NUM = 6;
 
 typedef std::set<std::string> PrivListType;
 
@@ -96,6 +98,8 @@ void parse_flags(const std::string &command)
 		tmp_god.flags.set(KRODER);
 	else if (command == "fullzedit")
 		tmp_god.flags.set(FULLZEDIT);
+	else if (command == "title")
+		tmp_god.flags.set(TITLE);
 }
 
 /**

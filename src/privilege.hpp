@@ -25,6 +25,7 @@ extern const int USE_SKILLS;
 extern const int ARENA_MASTER;
 extern const int KRODER;
 extern const int FULLZEDIT;
+extern const int TITLE;
 
 } // namespace Privilege
 

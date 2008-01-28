@@ -12,6 +12,8 @@
 #include "db.h"
 #include "screen.h"
 #include "pk.h"
+#include "privilege.hpp"
+#include "handler.h"
 
 namespace TitleSystem {
 
@@ -35,7 +37,7 @@ const char* MORTAL_DO_TITLE_FORMAT =
 	"титул удалить - удалить свой текущий титул и предтитул (писать полную команду)\r\n";
 const char* GOD_DO_TITLE_FORMAT =
 	"титул - вывод текущих заявок или этой справки в случае их отсутствия\r\n"
-	"титул <игрок> одобрить/запретить - одобрение или отказ в титуле игроку из списка\r\n"
+	"титул <игрок> одобрить|запретить|удалить - одобрение и отказ в титуле игроку из списка, снятие титула с любого игрока\r\n"
 	"титул установить <текст титула> - установка нового титула\r\n"
 	"титул установить <текст предтитула!текст титула> - установка нового предтитула и титула\r\n"
 	"титул удалить - удалить свой текущий титул и предтитул (писать полную команду)\r\n";
@@ -69,6 +71,11 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	if (IS_NPC(ch)) return;
 
+	if (PLR_FLAGGED(ch, PLR_NOTITLE)) {
+		send_to_char("Вам запрещена работа с титулами.\r\n", ch);
+		return;
+	}
+
 	std::string buffer(argument), buffer2;
 	GetOneParam(buffer, buffer2);
 
@@ -79,11 +86,30 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 
 	// какие тока извраты не приходится делать, чтобы соответствовать синтаксису одобрения имен
 	int result = TITLE_NEED_HELP;
-	if (IS_IMMORTAL(ch)) {
+	if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::TITLE)) {
 		boost::trim(buffer);
-		if (IS_IMMORTAL(ch) && CompareParam(buffer, "одобрить"))
+		if (CompareParam(buffer, "удалить"))
+		{
+			boost::trim(buffer2);
+			CHAR_DATA *vict = get_player_pun(ch, buffer2, FIND_CHAR_WORLD);
+			if (!vict) {
+				send_to_char("Нет такого игрока.\r\n", ch);
+				return;
+			}
+			if (GET_LEVEL(vict) >= LVL_IMMORT || Privilege::check_flag(vict, Privilege::KRODER)) {
+				send_to_char("Вы не можете сделать этого.\r\n", ch);
+				return;
+			}
+			if (GET_TITLE(vict)) {
+				free(GET_TITLE(vict));
+				GET_TITLE(vict) = 0;
+			}
+			send_to_char("Титул удален.\r\n", ch);
+			return;
+		}
+		else if (CompareParam(buffer, "одобрить"))
 			result = manage_title_list(buffer2, 1, ch);
-		if (IS_IMMORTAL(ch) && CompareParam(buffer, "запретить"))
+		else if (CompareParam(buffer, "запретить"))
 			result = manage_title_list(buffer2, 0, ch);
 		if (result == TITLE_FIND_CHAR)
 			return;
@@ -111,7 +137,7 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 			if (!check_title(buffer, ch)) return;
 			title = buffer;
 		}
-		if (IS_IMMORTAL(ch)) {
+		if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::TITLE)) {
 			set_player_title(ch, pre_title, title, GET_NAME(ch));
 			send_to_char("Титул установлен\r\n", ch);
 			return;
@@ -132,7 +158,7 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		out << "Ваш титул будет выглядеть следующим образом:\r\n" << CCPK(ch, C_NRM, ch);
 		out << print_title_string(ch, pre_title, title) << print_agree_string(ch, new_petition);
 		send_to_char(out.str(), ch);
-	} else if (!IS_IMMORTAL(ch) && CompareParam(buffer2, "согласен")) {
+	} else if (CompareParam(buffer2, "согласен")) {
 		TitleListType::iterator it = temp_title_list.find(GET_NAME(ch));
 		if (it != temp_title_list.end()) {
 			if (GET_BANK_GOLD(ch) < SET_TITLE_COST) {
@@ -146,7 +172,7 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 			send_to_char(TITLE_SEND_FORMAT, ch);
 		} else
 			send_to_char("В данный момент нет заявки, на которую требуется Ваше согласие.\r\n", ch);
-	} else if (!IS_IMMORTAL(ch) && CompareParam(buffer2, "отменить")) {
+	} else if (CompareParam(buffer2, "отменить")) {
 		TitleListType::iterator it = title_list.find(GET_NAME(ch));
 		if (it != title_list.end()) {
 			title_list.erase(it);
@@ -178,7 +204,7 @@ bool TitleSystem::check_title(const std::string& text, CHAR_DATA* ch)
 {
 	if (!check_alphabet(text, ch, " ,.-?Ёё")) return 0;
 
-	if (GET_LEVEL(ch) < 25 && !GET_REMORT(ch) && !IS_IMMORTAL(ch)) {
+	if (GET_LEVEL(ch) < 25 && !GET_REMORT(ch) && !IS_GOD(ch) && !Privilege::check_flag(ch, Privilege::TITLE) ) {
 		send_to_char(ch, "Для права на титул Вы должны достигнуть 25го уровня или иметь перевоплощения.\r\n");
 		return 0;
 	}
@@ -196,7 +222,7 @@ bool TitleSystem::check_pre_title(std::string text, CHAR_DATA* ch)
 {
 	if (!check_alphabet(text, ch, " .-?Ёё")) return 0;
 
-	if (IS_IMMORTAL(ch)) return 1;
+	if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::TITLE)) return 1;
 
 	if (!GET_REMORT(ch)) {
 		send_to_char(ch, "Вы должны иметь по крайней мере одно перевоплощение для предтитула.\r\n");
@@ -363,7 +389,7 @@ void TitleSystem::set_player_title(CHAR_DATA* ch, const std::string& pre_title, 
 */
 const char* TitleSystem::print_help_string(CHAR_DATA* ch)
 {
-	if (IS_IMMORTAL(ch))
+	if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::TITLE))
 		return GOD_DO_TITLE_FORMAT;
 
 	return MORTAL_DO_TITLE_FORMAT;
@@ -442,7 +468,7 @@ std::string TitleSystem::print_agree_string(CHAR_DATA* ch, bool new_petition)
 */
 void TitleSystem::do_title_empty(CHAR_DATA* ch)
 {
-	if (IS_IMMORTAL(ch) && !title_list.empty())
+	if ((IS_GOD(ch) || Privilege::check_flag(ch, Privilege::TITLE)) && !title_list.empty())
 		show_title_list(ch);
 	else {
 		std::stringstream out;
