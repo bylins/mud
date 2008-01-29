@@ -2667,12 +2667,16 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 	вторая дополнительная атака левей начинает наноситься с 170%+ скилла, но не более чем с 30% вероятности
 	*/
 	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND)) {
-		moves = GET_MAX_MOVE(ch)/(2+percent/15);
-		if (!GET_AF_BATTLE(ch, EAF_IRON_WIND) && (GET_MOVE(ch) > moves))
+		percent = get_skill(ch, SKILL_IRON_WIND);
+		moves = GET_MAX_MOVE(ch)/(2+MAX(15, percent)/15);
+		prob = GET_AF_BATTLE(ch, EAF_IRON_WIND);
+		if (prob && !check_moves(ch, moves)) {
+			CLR_AF_BATTLE(ch, EAF_IRON_WIND);
+		} else if (!prob && (GET_MOVE(ch) > moves)) {
 			SET_AF_BATTLE(ch, EAF_IRON_WIND);
+		};
 	};
 	if (GET_AF_BATTLE(ch, EAF_IRON_WIND)) {
-		percent = get_skill(ch, SKILL_IRON_WIND);
 		if (weapon == RIGHT_WEAPON) {
 			div = 100+MIN(90, MAX(1, percent-80)); 
 			prob = 100;
@@ -2684,11 +2688,7 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 			if (number(1, 100) < div)
 				hit(ch, FIGHTING(ch), type, weapon);	
 			div -= prob;
-		}   ;
-		moves = GET_REAL_MAX_MOVE(ch)/(3+percent/20);
-		if (!check_moves(ch, moves))
-			CLR_AF_BATTLE(ch, EAF_IRON_WIND);
-
+		};
 	};
 
 	hit(ch, FIGHTING(ch), type, weapon);
@@ -3161,7 +3161,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 
 	/* Gorrah: бонус к повреждениям от умения "железный ветер" */
 	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
-		dam += MAX(1, get_skill(ch, SKILL_IRON_WIND)/10);
+		dam += get_skill(ch, SKILL_IRON_WIND)/10;
 
 	// some protects
 	if (AFF_FLAGGED(victim, AFF_PROTECT_EVIL) && IS_EVIL(ch))
@@ -3302,7 +3302,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			}
 			dam += MAX(1, percent);
 			// концентрация силы (сила-25)*(среднее/8)*(левел/30)*(рандом(левел, 100)/100)*(мах(1, морты/5))
-			if (can_use_feat(ch, STRENGTH_CONCETRATION_FEAT))
+			if (can_use_feat(ch, STRENGTH_CONCETRATION_FEAT) && !GET_AF_BATTLE(ch, EAF_IRON_WIND))
 			{
 				int str_mod = MAX(0, GET_REAL_STR(ch) - 25);
 				float rnd_mod = static_cast<float> (number(GET_LEVEL(ch), 100)) / 100;

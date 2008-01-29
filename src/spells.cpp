@@ -173,6 +173,11 @@ ASPELL(spell_recall)
 		return;
 	}
 
+	if ((ch == victim) && IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND)) {
+		send_to_char(SUMMON_FAIL, ch);
+		return;
+	}
+
 	if (victim != ch) {
 		if (WAITLESS(ch) && !WAITLESS(victim))
 			modi += 100;	// always success
