@@ -97,6 +97,7 @@
 // Other skills
 #define SKILL_WARCRY     	    178
 #define SKILL_TURN_UNDEAD     	    179
+#define SKILL_IRON_WIND     	    180
 
 
 /* New skills may be added here up to MAX_SKILLS (200) */

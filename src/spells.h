@@ -95,6 +95,7 @@
 #define EAF_USEDLEFT    (1 << 15)
 #define EAF_MULTYPARRY  (1 << 16)
 #define EAF_SLEEP       (1 << 17)
+#define EAF_IRON_WIND   (1 << 18)
 
 #define TYPE_NOPARRY		    -2
 #define TYPE_UNDEFINED              -1

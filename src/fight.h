@@ -14,6 +14,9 @@
 #ifndef _FIGHT_H_
 #define _FIGHT_H_
 
+#define RIGHT_WEAPON	1
+#define LEFT_WEAPON	2
+
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 int thaco(int ch_class, int level);
 void apply_weapon_bonus(int ch_class, int skill, int *damroll, int *hitroll);

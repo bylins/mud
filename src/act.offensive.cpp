@@ -596,7 +596,7 @@ void go_flee(CHAR_DATA * ch)
 
 	if (GET_MOB_HOLD(ch))
 		return;
-	if (AFF_FLAGGED(ch, AFF_NOFLEE)) {
+	if (AFF_FLAGGED(ch, AFF_NOFLEE) || IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND)) {
 		send_to_char("Невидимые оковы мешают Вам сбежать.\r\n", ch);
 		return;
 	}
@@ -640,7 +640,7 @@ void go_dir_flee(CHAR_DATA * ch, int direction)
 
 	if (GET_MOB_HOLD(ch))
 		return;
-	if (AFF_FLAGGED(ch, AFF_NOFLEE)) {
+	if (AFF_FLAGGED(ch, AFF_NOFLEE) || IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND)) {
 		send_to_char("Невидимые оковы мешают Вам сбежать.\r\n", ch);
 		return;
 	}
@@ -722,6 +722,11 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 	if (AFF_FLAGGED(ch, AFF_STOPFIGHT) || AFF_FLAGGED(ch, AFF_STOPLEFT)
 	    || AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		return;
+	}
+
+	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND)) {
+		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
 
@@ -1630,6 +1635,11 @@ void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim)
 		return;
 	}
 
+	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND)) {
+		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
+		return;
+	}
+
 	if (!FIGHTING(ch)) {
 		SET_AF_BATTLE(ch, EAF_STUPOR);
 		hit(ch, victim, TYPE_NOPARRY, 1);
@@ -1908,6 +1918,11 @@ ACMD(do_stopfight)
 
 	if (GET_POS(ch) < POS_FIGHTING) {
 		send_to_char("Из этого положения отступать невозможно.\r\n", ch);
+		return;
+	}
+
+	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND)) {
+		send_to_char("Вы не желаете отступать, не расправившись со всеми врагами!\r\n", ch);
 		return;
 	}
 
@@ -2225,5 +2240,61 @@ ACMD(do_turn_undead)
 
         free(ch_list);
 }
+
+/* Умение "железный ветер" */
+
+void go_iron_wind(CHAR_DATA * ch)
+{
+	OBJ_DATA *weapon;
+
+	if (!FIGHTING(ch)) {
+		send_to_char("Вы ни с кем не сражаетесь.\r\n", ch);
+		return;
+	}
+	if (AFF_FLAGGED(ch, AFF_STOPFIGHT) || AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT)) {
+		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		return;
+	}
+	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND)) {
+		send_to_char("Вы уже впали в неистовство.\r\n", ch);
+		return;
+	}
+
+ 	(void) train_skill(ch, SKILL_IRON_WIND, skill_info[SKILL_IRON_WIND].max_percent, 0);
+	SET_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
+	SET_AF_BATTLE(ch, EAF_IRON_WIND);
+	send_to_char("Вас обуяло безумие боя, и вы бросились на врага!\r\n", ch);
+	if ((weapon = GET_EQ(ch, WEAR_WIELD)) || (weapon = GET_EQ(ch, WEAR_BOTHS)))
+		strcpy(buf, "$n взревел$g и ринул$u на врага, бешенно размахивая $o4!");
+	else
+		strcpy(buf, "$n бешенно взревел$g и ринул$u на врага!");
+	act(buf, FALSE, ch, weapon, 0, TO_ROOM);
+}
+
+ACMD(do_iron_wind)
+{
+	int moves;
+
+	if (IS_NPC(ch) || !get_skill(ch, SKILL_IRON_WIND)) {
+		send_to_char("Вы не знаете как.\r\n", ch);
+		return;
+	};
+	if (GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT)) {
+		send_to_char("Невозможно! Вы слишкм заняты боем!\r\n", ch);
+		return;
+	};
+	moves = GET_REAL_MAX_MOVE(ch)/(2+(MAX(0, get_skill(ch, SKILL_IRON_WIND)-20)/20));
+	if (GET_MAX_MOVE(ch) < moves * 2) {
+		send_to_char("Вы слишком устали...\r\n", ch);
+		return;
+	}
+	if (!AFF_FLAGGED(ch, AFF_DRUNKED) && !IS_IMMORTAL(ch) && !GET_GOD_FLAG(ch, GF_GODSLIKE)) {
+		send_to_char("Вы слишком здравомыслящи для этого...\r\n", ch);
+		return;
+	};
+
+	go_iron_wind(ch);
+}
+
 /* End of changes */
 

@@ -4723,5 +4723,6 @@ void mag_assign_spells(void)
 	skillo(SKILL_INSERTGEM, "ювелир", 100);
 	skillo(SKILL_WARCRY, "боевой клич", 100);
 	skillo(SKILL_TURN_UNDEAD, "изгнать нежить", 100);
+	skillo(SKILL_IRON_WIND, "железный ветер", 150);
 
 }

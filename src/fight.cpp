@@ -250,6 +250,10 @@ int compute_armor_class(CHAR_DATA * ch)
 			armorclass -= (240 * ((GET_REAL_MAX_HIT(ch) / 2) - GET_HIT(ch)) / GET_REAL_MAX_HIT(ch));
 	}
 
+	/* Gorrah: штраф к КЗ от применения умения "железный ветер" */
+	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+		armorclass += get_skill(ch, SKILL_IRON_WIND)/2;
+
 	armorclass += (size_app[GET_POS_SIZE(ch)].ac * 10);
 
 	armorclass = MIN(100, armorclass);
@@ -443,7 +447,9 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 			SET_AF_BATTLE(ch, EAF_PUNCTUAL);
 		else if (PRF_FLAGGED(ch, PRF_AWAKE))
 			SET_AF_BATTLE(ch, EAF_AWAKE);
-	}
+	};
+
+//  check_killer(ch, vict);
 }
 
 /* remove a char from the list of fighting chars */
@@ -497,7 +503,17 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 				stop_fighting(temp, FALSE);
 		}
 	}
+
 	update_pos(ch);
+
+	/* проверка скилла "железный ветер" - снимаем флаг по окончанию боя */
+	if ((FIGHTING(ch) == NULL) && IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND)) {
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
+		if (GET_POS(ch) > POS_INCAP) {
+			send_to_char("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", ch);
+			act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.", FALSE, ch, 0, 0, TO_ROOM);
+		};
+	};
 }
 
 void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
@@ -2564,7 +2580,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 void exthit(CHAR_DATA * ch, int type, int weapon)
 {
 	OBJ_DATA *wielded = NULL;
-	int percent, prob;
+	int percent, prob, div, moves;
 	CHAR_DATA *tch;
 
 
@@ -2604,17 +2620,17 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 		}
 	}
 
-	if (weapon == 1) {
+	if (weapon == RIGHT_WEAPON) {
 		if (!(wielded = GET_EQ(ch, WEAR_WIELD)))
 			wielded = GET_EQ(ch, WEAR_BOTHS);
-	} else if (weapon == 2)
+	} else if (weapon == LEFT_WEAPON)
 		wielded = GET_EQ(ch, WEAR_HOLD);
 
-	percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
-	int div = 0;
 	if (wielded && !GET_EQ(ch, WEAR_SHIELD) &&
 	    GET_OBJ_SKILL(wielded) == SKILL_BOWS &&
 	    GET_EQ(ch, WEAR_BOTHS)) {
+		percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
+		div = 0;
 		/* Лук в обеих руках - юзаем доп. или двойной выстрел */
 		if (can_use_feat(ch, DOUBLESHOT_FEAT) && !get_skill(ch, SKILL_ADDSHOT)
 		    && MIN(850, 200 + get_skill(ch, SKILL_BOWS) * 4 + GET_REAL_DEX(ch) * 5) >= number(1, 1000)) {
@@ -2642,6 +2658,39 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 		if (prob > percent * div && FIGHTING(ch))
 			hit(ch, FIGHTING(ch), type, weapon);
 	}
+
+	/*
+	собсно работа скилла "железный ветер"
+	первая дополнительная атака правой наносится 100%
+	вторая дополнительная атака правой начинает наноситься с 80%+ скилла, но не более чем с 90% вероятностью
+	первая дополнительная атака левой начинает наноситься сразу, но не более чем с 90% вероятностью
+	вторая дополнительная атака левей начинает наноситься с 170%+ скилла, но не более чем с 30% вероятности
+	*/
+	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND)) {
+		moves = GET_MAX_MOVE(ch)/(2+percent/15);
+		if (!GET_AF_BATTLE(ch, EAF_IRON_WIND) && (GET_MOVE(ch) > moves))
+			SET_AF_BATTLE(ch, EAF_IRON_WIND);
+	};
+	if (GET_AF_BATTLE(ch, EAF_IRON_WIND)) {
+		percent = get_skill(ch, SKILL_IRON_WIND);
+		if (weapon == RIGHT_WEAPON) {
+			div = 100+MIN(90, MAX(1, percent-80)); 
+			prob = 100;
+		} else {
+			div = MIN(90, percent+10); 
+			prob = 90-MIN(30, MAX(0, percent-170));
+		};
+		while (div > 0) {
+			if (number(1, 100) < div)
+				hit(ch, FIGHTING(ch), type, weapon);	
+			div -= prob;
+		}   ;
+		moves = GET_REAL_MAX_MOVE(ch)/(3+percent/20);
+		if (!check_moves(ch, moves))
+			CLR_AF_BATTLE(ch, EAF_IRON_WIND);
+
+	};
+
 	hit(ch, FIGHTING(ch), type, weapon);
 }
 
@@ -3055,13 +3104,9 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			dam = dam / (get_skill(ch, SKILL_AWAKE) / 50);
 	}
 
-	if (!IS_NPC(ch) && skill != SKILL_THROW && skill != SKILL_BACKSTAB) {	// PUNCTUAL style - decrease PC damage
-		if (GET_AF_BATTLE(ch, EAF_PUNCTUAL)) {
-			calc_thaco += 0;
-			dam -= 0;
-		}
+	if (!IS_NPC(ch) && skill != SKILL_THROW && skill != SKILL_BACKSTAB) {
 		// Casters use weather, int and wisdom
-		if (IS_CASTER(ch)) {
+	if (IS_CASTER(ch)) {
 /*	  calc_thaco +=
 	    (10 -
 	     complex_skill_modifier (ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS,
@@ -3113,6 +3158,10 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		calc_thaco -= 4;
 		dam -= 10;
 	}
+
+	/* Gorrah: бонус к повреждениям от умения "железный ветер" */
+	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
+		dam += MAX(1, get_skill(ch, SKILL_IRON_WIND)/10);
 
 	// some protects
 	if (AFF_FLAGGED(victim, AFF_PROTECT_EVIL) && IS_EVIL(ch))
@@ -4759,7 +4808,7 @@ void perform_violence(void)
 
 	       /***** удар основным оружием или рукой */
 				if (!AFF_FLAGGED(ch, AFF_STOPRIGHT))
-					exthit(ch, TYPE_UNDEFINED, 1);
+					exthit(ch, TYPE_UNDEFINED, RIGHT_WEAPON);
 
 	       /***** экстраатаки */
 				for (i = 1; i <= ch->mob_specials.ExtraAttack; i++) {
@@ -4767,7 +4816,7 @@ void perform_violence(void)
 					    AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT) ||
 					    (i == 1 && AFF_FLAGGED(ch, AFF_STOPLEFT)))
 						continue;
-					exthit(ch, TYPE_UNDEFINED, i + 1);
+					exthit(ch, TYPE_UNDEFINED, i + RIGHT_WEAPON);
 				}
 			} else {	/* PLAYERS - only one hit per round */
 
@@ -4852,7 +4901,7 @@ void perform_violence(void)
 					if (!AFF_FLAGGED(ch, AFF_STOPRIGHT) &&
 					    (IS_IMMORTAL(ch) ||
 					     GET_GOD_FLAG(ch, GF_GODSLIKE) || !GET_AF_BATTLE(ch, EAF_USEDRIGHT)))
-						exthit(ch, TYPE_UNDEFINED, 1);
+						exthit(ch, TYPE_UNDEFINED, RIGHT_WEAPON);
 					CLR_AF_BATTLE(ch, EAF_FIRST);
 					SET_AF_BATTLE(ch, EAF_SECOND);
 					if (INITIATIVE(ch) > min_init) {
@@ -4870,7 +4919,7 @@ void perform_violence(void)
 				     GET_GOD_FLAG(ch, GF_GODSLIKE) || get_skill(ch, SKILL_SATTACK) > number(1, 101))) {
 					if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) ||
 					    !GET_AF_BATTLE(ch, EAF_USEDLEFT))
-						exthit(ch, TYPE_UNDEFINED, 2);
+						exthit(ch, TYPE_UNDEFINED, LEFT_WEAPON);
 					CLR_AF_BATTLE(ch, EAF_SECOND);
 				} else
 	       /***** удар второй рукой если она свободна и умение позволяет */
@@ -4879,7 +4928,7 @@ void perform_violence(void)
 					    !AFF_FLAGGED(ch, AFF_STOPLEFT) &&
 					    GET_AF_BATTLE(ch, EAF_SECOND) && get_skill(ch, SKILL_SHIT)) {
 					if (IS_IMMORTAL(ch) || !GET_AF_BATTLE(ch, EAF_USEDLEFT))
-						exthit(ch, TYPE_UNDEFINED, 2);
+						exthit(ch, TYPE_UNDEFINED, LEFT_WEAPON);
 					CLR_AF_BATTLE(ch, EAF_SECOND);
 				}
 

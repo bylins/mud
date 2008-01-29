@@ -323,6 +323,7 @@ ACMD(do_insertgem);
 ACMD(do_ignore);
 ACMD(do_proxy);
 ACMD(do_turn_undead);
+ACMD(do_iron_wind);
 
 
 /* DG Script ACMD's */
@@ -494,6 +495,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"взять", POS_RESTING, do_get, 0, 0, 200},
 	{"взглянуть", POS_RESTING, do_diagnose, 0, 0, 100},
 	{"взломать", POS_STANDING, do_gen_door, 1, SCMD_PICK, -1},
+	{"вихрь", POS_FIGHTING, do_iron_wind, 0, 0, -1},
 	{"вложить", POS_STANDING, do_not_here, 1, 0, -1},
 	{"вернуться", POS_DEAD, do_return, 0, 0, -1},
 	{"войти", POS_STANDING, do_enter, 0, 0, -2},
@@ -989,6 +991,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"wear", POS_RESTING, do_wear, 0, 0, 500},
 	{"weather", POS_RESTING, do_weather, 0, 0, 0},
 	{"where", POS_RESTING, do_where, 1, 0, 0},
+	{"whirl", POS_FIGHTING, do_iron_wind, 0, 0, -1},
 	{"whisper", POS_RESTING, do_spec_comm, 0, SCMD_WHISPER, -1},
 	{"who", POS_RESTING, do_who, 0, 0, 0},
 	{"whob", POS_RESTING, do_who_new, LVL_IMMORT, 0, 0},
@@ -2179,6 +2182,10 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	if (IS_SET(PRF_FLAGS(d->character, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK)
 	    && !can_use_feat(d->character, GREAT_AIMING_ATTACK_FEAT))
 		REMOVE_BIT(PRF_FLAGS(d->character, PRF_GREATAIMINGATTACK), PRF_GREATAIMINGATTACK);
+
+	/* Gorrah: сбрасываем флаг от скилла, если он каким-то чудом засэйвился */
+	if (IS_SET(PRF_FLAGS(d->character, PRF_IRON_WIND), PRF_IRON_WIND))
+		REMOVE_BIT(PRF_FLAGS(d->character, PRF_IRON_WIND), PRF_IRON_WIND);
 
 	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
 	REMOVE_BIT(AFF_FLAGS(d->character, AFF_GROUP), AFF_GROUP);
