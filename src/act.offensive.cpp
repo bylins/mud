@@ -2283,7 +2283,7 @@ ACMD(do_iron_wind)
 		send_to_char("Невозможно! Вы слишкм заняты боем!\r\n", ch);
 		return;
 	};
-	moves = GET_MAX_MOVE(ch)/(2+MAX(15, percent)/15);
+	moves = GET_MAX_MOVE(ch)/(2+MAX(15, get_skill(ch, SKILL_IRON_WIND))/15);
 	if (GET_MAX_MOVE(ch) < moves * 2) {
 		send_to_char("Вы слишком устали...\r\n", ch);
 		return;
