@@ -586,6 +586,7 @@ typedef struct trig_data
 #define PRF_TAKE_MODE   (INT_ONE | 1 << 19) // канал хранилища, положили/взяли
 #define PRF_PKL_MODE    (INT_ONE | 1 << 20) // уведомления о добавлении/убирании в пкл
 #define PRF_POLIT_MODE  (INT_ONE | 1 << 21) // уведомления об изменении политики, своей и чужой
+#define PRF_IRON_WIND   (INT_ONE | 1 << 22) // включен скилл "железный ветер"
 
 /* Affect bits: used in char_data.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
