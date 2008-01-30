@@ -111,9 +111,9 @@ char *how_good(CHAR_DATA * ch, int percent)
 	if (percent < 0)
 		strcpy(out_str, " !Ошибка! ");
 	else if (percent == 0)
-		sprintf(out_str, " %s(не изучено)%s", CCNRM(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(не изучено)%s", CCINRM(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 10)
-		sprintf(out_str, " %s(ужасно)%s", CCNRM(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(ужасно)%s", CCINRM(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 20)
 		sprintf(out_str, " %s(очень плохо)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 30)
@@ -131,11 +131,11 @@ char *how_good(CHAR_DATA * ch, int percent)
 	else if (percent <= 90)
 		sprintf(out_str, " %s(очень хорошо)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 100)
-		sprintf(out_str, " %s(отлично)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(отлично)%s", CCIYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 110)
 		sprintf(out_str, " %s(превосходно)%s", CCIYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 120)
-		sprintf(out_str, " %s(великолепно)%s", CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(великолепно)%s", CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 130)
 		sprintf(out_str, " %s(мастерски)%s", CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 140)
