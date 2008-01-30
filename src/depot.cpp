@@ -1350,7 +1350,7 @@ void write_objlist_timedata(const ObjListType &cont, std::ofstream &file)
 void save_timedata()
 {
 	// depot_log("save_timedata: start");
-	const char *depot_file = LIB_DEPOT"depot.db";
+	const char *depot_file = LIB_DEPOT"depot.backup";
 	std::ofstream file(depot_file);
 	if (!file.is_open())
 	{
@@ -1391,6 +1391,9 @@ void save_timedata()
 		file << "</Node>\n";
 	}
 	// depot_log("save_timedata: end");
+	file.close();
+	std::string buffer("cp "LIB_DEPOT"depot.backup "LIB_DEPOT"depot.db");
+	system(buffer.c_str());
 }
 
 /**

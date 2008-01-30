@@ -603,7 +603,6 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 	EXTRA_DESCR_DATA *descr;
 //  EXTRA_DESCR_DATA *descr2;
 	int count = 0, i, j;
-	OBJ_DATA *proto;	// add by Pereplut
 
 	// vnum
 	count += sprintf(*data + count, "#%d\n", GET_OBJ_VNUM(object));
@@ -614,7 +613,9 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 
 	// Если у шмотки есть прототип то будем сохранять по обрезанной схеме, иначе
 	// придется сохранять все статсы шмотки.
-	if (GET_OBJ_VNUM(object) >= 0 && (proto = read_object(GET_OBJ_VNUM(object), VIRTUAL))) {
+	OBJ_DATA const * const proto = read_object_mirror(GET_OBJ_VNUM(object));
+
+	if (GET_OBJ_VNUM(object) >= 0 && proto) {
 		// Сохраняем UID
 		count += sprintf(*data + count, "Ouid: %d~\n", GET_OBJ_UID(object));
 		// Алиасы
@@ -736,7 +737,6 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 					 descr->keyword ? descr->keyword : "",
 					 descr->description ? descr->description : "");
 		}
-		extract_obj(proto);
 	} else {		// Если у шмотки нет прототипа - придется сохранять ее целиком.
 		// Алиасы
 		if (GET_OBJ_ALIAS(object))
