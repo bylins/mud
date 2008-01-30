@@ -1688,7 +1688,20 @@ show_type
 					     || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_BOOK)
 					     || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_MING))))
 			continue;
-		sprintf(tmpbuf, "[%4d]   %s", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
+
+		// ну идиотизм сидеть статить 5-10 страниц резных
+		if (!strcmp(GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0), "резное запястье"))
+		{
+			sprintbits(GET_EXCHANGE_ITEM(j)->obj_flags.affects, weapon_affects, buf, ",");
+			// небольшое дублирование кода, чтобы зря не гонять по аффектам всех шмоток
+			if (!strcmp(buf, "ничего"))
+				sprintf(tmpbuf, "[%4d]   %s", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
+			else
+				sprintf(tmpbuf, "[%4d]   %s (%s)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0), buf);
+		}
+		else
+			sprintf(tmpbuf, "[%4d]   %s", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
+
 		sprintf(tmpbuf, "%-63s %9d\r\n", tmpbuf, GET_EXCHANGE_ITEM_COST(j));
 		// Такое вот кино, на выделения для каждой строчки тут уходило до 0.6 секунды при выводе всего базара. стринги рулят -- Krodo
 		buffer += tmpbuf;
