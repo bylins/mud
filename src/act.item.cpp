@@ -1213,6 +1213,10 @@ ACMD(do_drink)
 		} else
 			on_ground = 1;
 	}
+	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND)) {
+		send_to_char("Не стоит отвлекаться в бою!\r\n", ch);
+		return;
+	}
 	if ((GET_OBJ_TYPE(temp) != ITEM_DRINKCON) && (GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN)) {
 		send_to_char("Не стоит. Козлят и так много !\r\n", ch);
 		return;
