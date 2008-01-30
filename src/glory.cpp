@@ -264,7 +264,7 @@ void load_glory()
 */
 void save_glory()
 {
-	const char *glory_file = LIB_PLRSTUFF"glory.lst";
+	const char *glory_file = LIB_PLRSTUFF"glory.backup";
 	std::ofstream file(glory_file);
 	if (!file.is_open())
 	{
@@ -287,6 +287,9 @@ void save_glory()
 	file << "<End>\n";
 	file << Password::generate_md5_hash(boost::lexical_cast<std::string>(all_sum)) << "\n";
 	file.close();
+
+	std::string buffer("cp "LIB_PLRSTUFF"glory.backup "LIB_PLRSTUFF"glory.lst");
+	system(buffer.c_str());
 }
 
 /**
@@ -1469,7 +1472,7 @@ void load_glory_log()
 */
 void save_glory_log()
 {
-	const char *glory_file = "../log/glory.log";
+	const char *glory_file = "../log/glory.backup";
 	std::ofstream file(glory_file);
 	if (!file.is_open())
 	{
@@ -1479,6 +1482,10 @@ void save_glory_log()
 
 	for (GloryLogType::const_iterator it = glory_log.begin(); it != glory_log.end(); ++it)
 		file << it->first << " " << it->second->type << " " << it->second->num << " " << it->second->karma << "\n";
+	file.close();
+
+	std::string buffer("cp ""../log/glory.backup ""../log/glory.log");
+	system(buffer.c_str());
 }
 
 /**
