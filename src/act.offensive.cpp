@@ -2243,37 +2243,54 @@ ACMD(do_turn_undead)
 
 /* Умение "железный ветер" */
 
-void go_iron_wind(CHAR_DATA * ch)
+void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	OBJ_DATA *weapon;
 
-	if (!FIGHTING(ch)) {
-		send_to_char("Вы ни с кем не сражаетесь.\r\n", ch);
-		return;
-	}
 	if (AFF_FLAGGED(ch, AFF_STOPFIGHT) || AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		return;
+	}
+	if (GET_POS(ch) < POS_FIGHTING) {
+		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
 	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND)) {
 		send_to_char("Вы уже впали в неистовство.\r\n", ch);
 		return;
 	}
+	if (FIGHTING(ch) && ((FIGHTING(victim) != ch) || (FIGHTING(ch) != victim))) {
+		act("$N не сражается с Вами, не трогайте $S.", FALSE, ch, 0, victim, TO_CHAR);
+		return;
+	}
+
+	parry_override(ch);
 
  	(void) train_skill(ch, SKILL_IRON_WIND, skill_info[SKILL_IRON_WIND].max_percent, 0);
-	SET_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
-	SET_AF_BATTLE(ch, EAF_IRON_WIND);
-	send_to_char("Вас обуяло безумие боя, и вы бросились на врага!\r\n", ch);
+
+	act("Вас обуяло безумие боя, и вы бросились на $N3!\r\n", FALSE, ch, 0, victim, TO_CHAR);
 	if ((weapon = GET_EQ(ch, WEAR_WIELD)) || (weapon = GET_EQ(ch, WEAR_BOTHS)))
-		strcpy(buf, "$n взревел$g и ринул$u на врага, бешенно размахивая $o4!");
+		strcpy(buf, "$n взревел$g и ринул$u на $N3, бешенно размахивая $o4!");
 	else
-		strcpy(buf, "$n бешенно взревел$g и ринул$u на врага!");
-	act(buf, FALSE, ch, weapon, 0, TO_ROOM);
+		strcpy(buf, "$n бешенно взревел$g и ринул$u на $N3!");
+	act(buf, FALSE, ch, weapon, victim, TO_ROOM);
+
+	if (!FIGHTING(ch)) {
+		SET_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
+		SET_AF_BATTLE(ch, EAF_IRON_WIND);
+		hit(ch, victim, TYPE_UNDEFINED, 1);
+		set_wait(ch, 2, TRUE);
+	} else {
+		SET_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
+		SET_AF_BATTLE(ch, EAF_IRON_WIND);
+	}
 }
 
 ACMD(do_iron_wind)
 {
+	CHAR_DATA *vict = NULL;
 	int moves;
+
 
 	if (IS_NPC(ch) || !get_skill(ch, SKILL_IRON_WIND)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
@@ -2293,7 +2310,28 @@ ACMD(do_iron_wind)
 		return;
 	};
 
-	go_iron_wind(ch);
+	one_argument(argument, arg);
+	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
+		if (!*arg && FIGHTING(ch) && IN_ROOM(ch) == IN_ROOM(FIGHTING(ch)))
+			vict = FIGHTING(ch);
+		else {
+			send_to_char("Кого Вам угодно изрубить в капусту?\r\n", ch);
+			return;
+		}
+	}
+	if (vict == ch) {
+		send_to_char("Вы с чувством собственного достоинства мощно пустили ветры... Железные.\r\n", ch);
+		return;
+	}
+
+	if (!may_kill_here(ch, vict))
+		return;
+	if (!check_pkill(ch, vict, arg))
+		return;
+
+	vict = try_protect(vict, ch, SKILL_STUPOR);
+
+	go_iron_wind(ch, vict);
 }
 
 /* End of changes */
