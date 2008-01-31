@@ -2329,7 +2329,7 @@ ACMD(do_iron_wind)
 	if (!check_pkill(ch, vict, arg))
 		return;
 
-	vict = try_protect(vict, ch, SKILL_STUPOR);
+	vict = try_protect(vict, ch, SKILL_IRON_WIND);
 
 	go_iron_wind(ch, vict);
 }
