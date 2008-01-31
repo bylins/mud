@@ -491,12 +491,18 @@ ASPELL(spell_summon)
 		return;
 	}
 
-	/* Богов лучше не суммонить - им это может не понравиться. */
+	/* Богов лучше не суммонить - им это может не понравится. */
 	if (IS_IMMORTAL(victim)) {
 		if (IS_NPC(ch) || (!IS_NPC(ch) && GET_LEVEL(ch) < GET_LEVEL(victim))) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
+	}
+	// и чаров 10 и ниже левела тоже
+	if (!IS_NPC(ch) && GET_LEVEL(victim) <= 10)
+	{
+		send_to_char(SUMMON_FAIL, ch);
+		return;
 	}
 
 	/* Ограничения для смертных (богов ниже следующее не касается) */
