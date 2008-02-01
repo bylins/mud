@@ -1690,7 +1690,7 @@ show_type
 			continue;
 
 		// ну идиотизм сидеть статить 5-10 страниц резных
-		if (!strcmp(GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0), "резное запястье"))
+		if (is_abbrev("резное запястье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0)))
 		{
 			sprintbits(GET_EXCHANGE_ITEM(j)->obj_flags.affects, weapon_affects, buf, ",");
 			// небольшое дублирование кода, чтобы зря не гонять по аффектам всех шмоток
