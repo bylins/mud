@@ -2269,11 +2269,15 @@ void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim)
  	(void) train_skill(ch, SKILL_IRON_WIND, skill_info[SKILL_IRON_WIND].max_percent, 0);
 
 	act("Вас обуяло безумие боя, и вы бросились на $N3!\r\n", FALSE, ch, 0, victim, TO_CHAR);
-	if ((weapon = GET_EQ(ch, WEAR_WIELD)) || (weapon = GET_EQ(ch, WEAR_BOTHS)))
+	if ((weapon = GET_EQ(ch, WEAR_WIELD)) || (weapon = GET_EQ(ch, WEAR_BOTHS))) {
 		strcpy(buf, "$n взревел$g и ринул$u на $N3, бешенно размахивая $o4!");
-	else
+		strcpy(buf2, "$N взревел$G и ринул$U на Вас, бешенно размахивая $o4!");
+	} else {
 		strcpy(buf, "$n бешенно взревел$g и ринул$u на $N3!");
-	act(buf, FALSE, ch, weapon, victim, TO_ROOM);
+		strcpy(buf2, "$N бешенно взревел$G и ринул$U на Вас!");
+	};
+	act(buf, FALSE, ch, weapon, victim, TO_NOTVICT);
+	act(buf2, FALSE, victim, weapon, ch, TO_CHAR);
 
 	if (!FIGHTING(ch)) {
 		SET_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
