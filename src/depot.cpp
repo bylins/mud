@@ -417,12 +417,14 @@ void put_gold_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	// depot_log("can_put_chest: %s, %s", GET_NAME(ch), GET_OBJ_PNAME(obj, 0));
-	if (IS_OBJ_STAT(obj, ITEM_NODROP)
-			|| OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
-			|| GET_OBJ_TYPE(obj) == ITEM_KEY
-			|| IS_OBJ_STAT(obj, ITEM_NORENT)
-			|| GET_OBJ_RENT(obj) < 0
-			|| GET_OBJ_RNUM(obj) <= NOTHING)
+	if (OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
+		|| OBJ_FLAGGED(obj, ITEM_REPOP_DECAY)
+		|| OBJ_FLAGGED(obj, ITEM_NOSELL)
+		|| OBJ_FLAGGED(obj, ITEM_DECAY)
+		|| OBJ_FLAGGED(obj, ITEM_NORENT)
+		|| GET_OBJ_TYPE(obj) == ITEM_KEY
+		|| GET_OBJ_RENT(obj) < 0
+		|| GET_OBJ_RNUM(obj) <= NOTHING)
 	{
 		send_to_char(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", OBJ_PAD(obj, 3));
 		return 0;
