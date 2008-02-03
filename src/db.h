@@ -394,5 +394,6 @@ int dl_parse(load_list ** dl_list, char *line);
 int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_TYPE);
 int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch);
 void dl_list_copy(load_list * *pdst, load_list * src);
+void paste_mobiles();
 
 #endif
