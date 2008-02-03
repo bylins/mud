@@ -2259,7 +2259,7 @@ void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim)
 		send_to_char("Вы уже впали в неистовство.\r\n", ch);
 		return;
 	}
-	if (FIGHTING(ch) && ((FIGHTING(victim) != ch) || (FIGHTING(ch) != victim))) {
+	if (FIGHTING(ch) && (FIGHTING(ch) != victim)) {
 		act("$N не сражается с Вами, не трогайте $S.", FALSE, ch, 0, victim, TO_CHAR);
 		return;
 	}
