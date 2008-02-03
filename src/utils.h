@@ -1195,7 +1195,7 @@ char *only_title(CHAR_DATA * ch);
 char *race_or_title(CHAR_DATA * ch);
 char *race_or_title_enl(CHAR_DATA * ch);
 int pc_duration(CHAR_DATA * ch, int cnst, int level, int level_divisor, int min, int max);
-void paste_mobiles(int zone);
+void paste_mobiles();
 
 /* Modifier functions */
 int god_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value);

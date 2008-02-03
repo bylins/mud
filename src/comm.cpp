@@ -1184,7 +1184,7 @@ inline void heartbeat()
 		weather_and_time(1);
 		//log("Stop it...");
 		//log("Paste mobiles...");
-		paste_mobiles(-1);
+		paste_mobiles();
 		//log("Stop it...");
 	}
 

@@ -3684,6 +3684,205 @@ bool can_be_reset(zone_rnum zone)
 	return TRUE;
 }
 
+void paste_mob(CHAR_DATA *ch, room_rnum room)
+{
+	if (!IS_NPC(ch) || FIGHTING(ch) || GET_POS(ch) < POS_STUNNED)
+		return;
+	if (AFF_FLAGGED(ch, AFF_CHARM) || AFF_FLAGGED(ch, AFF_HORSE) || AFF_FLAGGED(ch, AFF_HOLD))
+		return;
+	if (MOB_FLAGGED(ch, MOB_CORPSE))
+		return;
+	if (room == NOWHERE)
+		return;
+
+	bool time_ok = FALSE;
+	bool month_ok = FALSE;
+	bool need_move = FALSE;
+	bool no_month = TRUE;
+	bool no_time = TRUE;
+
+	if (MOB_FLAGGED(ch, MOB_LIKE_DAY)) {
+		if (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)
+			time_ok = TRUE;
+		need_move = TRUE;
+		no_time = FALSE;
+	}
+	if (MOB_FLAGGED(ch, MOB_LIKE_NIGHT)) {
+		if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)
+			time_ok = TRUE;
+		need_move = TRUE;
+		no_time = FALSE;
+	}
+	if (MOB_FLAGGED(ch, MOB_LIKE_FULLMOON)) {
+		if ((weather_info.sunlight == SUN_SET ||
+		     weather_info.sunlight == SUN_DARK) &&
+		    (weather_info.moon_day >= 12 && weather_info.moon_day <= 15))
+			time_ok = TRUE;
+		need_move = TRUE;
+		no_time = FALSE;
+	}
+	if (MOB_FLAGGED(ch, MOB_LIKE_WINTER)) {
+		if (weather_info.season == SEASON_WINTER)
+			month_ok = TRUE;
+		need_move = TRUE;
+		no_month = FALSE;
+	}
+	if (MOB_FLAGGED(ch, MOB_LIKE_SPRING)) {
+		if (weather_info.season == SEASON_SPRING)
+			month_ok = TRUE;
+		need_move = TRUE;
+		no_month = FALSE;
+	}
+	if (MOB_FLAGGED(ch, MOB_LIKE_SUMMER)) {
+		if (weather_info.season == SEASON_SUMMER)
+			month_ok = TRUE;
+		need_move = TRUE;
+		no_month = FALSE;
+	}
+	if (MOB_FLAGGED(ch, MOB_LIKE_AUTUMN)) {
+		if (weather_info.season == SEASON_AUTUMN)
+			month_ok = TRUE;
+		need_move = TRUE;
+		no_month = FALSE;
+	}
+	if (need_move) {
+		month_ok |= no_month;
+		time_ok |= no_time;
+		if (month_ok && time_ok) {
+			if (world[room]->number != zone_table[world[room]->zone].top)
+				return;
+			if (GET_LASTROOM(ch) == NOWHERE) {
+				extract_mob(ch);
+				return;
+			}
+			char_from_room(ch);
+			char_to_room(ch, real_room(GET_LASTROOM(ch)));
+		} else {
+			if (world[room]->number == zone_table[world[room]->zone].top)
+				return;
+			GET_LASTROOM(ch) = GET_ROOM_VNUM(room);
+			char_from_room(ch);
+			room = real_room(zone_table[world[room]->zone].top);
+			if (room == NOWHERE)
+				room = real_room(GET_LASTROOM(ch));
+			char_to_room(ch, room);
+		}
+	}
+}
+
+void paste_obj(OBJ_DATA *obj, room_rnum room)
+{
+	if (obj->carried_by || obj->worn_by || room == NOWHERE)
+		return;
+
+	bool time_ok = FALSE;
+	bool month_ok = FALSE;
+	bool need_move = FALSE;
+	bool no_time = TRUE;
+	bool no_month = TRUE;
+
+	if (OBJ_FLAGGED(obj, ITEM_DAY)) {
+		if (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)
+			time_ok = TRUE;
+		need_move = TRUE;
+		no_time = FALSE;
+	}
+	if (OBJ_FLAGGED(obj, ITEM_NIGHT)) {
+		if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)
+			time_ok = TRUE;
+		need_move = TRUE;
+		no_time = FALSE;
+	}
+	if (OBJ_FLAGGED(obj, ITEM_FULLMOON)) {
+		if ((weather_info.sunlight == SUN_SET ||
+		     weather_info.sunlight == SUN_DARK) &&
+		    (weather_info.moon_day >= 12 && weather_info.moon_day <= 15))
+			time_ok = TRUE;
+		need_move = TRUE;
+		no_time = FALSE;
+	}
+	if (OBJ_FLAGGED(obj, ITEM_WINTER)) {
+		if (weather_info.season == SEASON_WINTER)
+			month_ok = TRUE;
+		need_move = TRUE;
+		no_month = FALSE;
+	}
+	if (OBJ_FLAGGED(obj, ITEM_SPRING)) {
+		if (weather_info.season == SEASON_SPRING)
+			month_ok = TRUE;
+		need_move = TRUE;
+		no_month = FALSE;
+	}
+	if (OBJ_FLAGGED(obj, ITEM_SUMMER)) {
+		if (weather_info.season == SEASON_SUMMER)
+			month_ok = TRUE;
+		need_move = TRUE;
+		no_month = FALSE;
+	}
+	if (OBJ_FLAGGED(obj, ITEM_AUTUMN)) {
+		if (weather_info.season == SEASON_AUTUMN)
+			month_ok = TRUE;
+		need_move = TRUE;
+		no_month = FALSE;
+	}
+	if (need_move) {
+		month_ok |= no_month;
+		time_ok |= no_time;
+		if (month_ok && time_ok) {
+			if (world[room]->number != zone_table[world[room]->zone].top)
+				return;
+			if (OBJ_GET_LASTROOM(obj) == NOWHERE) {
+				extract_obj(obj);
+				return;
+			}
+			obj_from_room(obj);
+			obj_to_room(obj, real_room(OBJ_GET_LASTROOM(obj)));
+		} else {
+			if (world[room]->number == zone_table[world[room]->zone].top)
+				return;
+			OBJ_GET_LASTROOM(obj) = GET_ROOM_VNUM(room);
+			obj_from_room(obj);
+			room = real_room(zone_table[world[room]->zone].top);
+			if (room == NOWHERE)
+				room = real_room(OBJ_GET_LASTROOM(obj));
+			obj_to_room(obj, room);
+		}
+	}
+}
+
+void paste_mobiles()
+{
+	CHAR_DATA *ch_next;
+	for (CHAR_DATA *ch = character_list; ch; ch = ch_next)
+	{
+		ch_next = ch->next;
+		paste_mob(ch, IN_ROOM(ch));
+	}
+
+	OBJ_DATA *obj_next;
+	for (OBJ_DATA *obj = object_list; obj; obj = obj_next) {
+		obj_next = obj->next;
+		paste_obj(obj, IN_ROOM(obj));
+	}
+}
+
+void paste_on_reset(ROOM_DATA *to_room)
+{
+	CHAR_DATA *ch_next;
+	for (CHAR_DATA *ch = to_room->people; ch != NULL; ch = ch_next)
+	{
+		ch_next = ch->next_in_room;
+		paste_mob(ch, IN_ROOM(ch));
+	}
+
+	OBJ_DATA *obj_next;
+	for (OBJ_DATA *obj = to_room->contents; obj; obj = obj_next)
+	{
+		obj_next = obj->next_content;
+		paste_obj(obj, IN_ROOM(obj));
+	}
+}
+
 void log_zone_error(zone_rnum zone, int cmd_no, const char *message)
 {
 	char buf[256];
@@ -4043,7 +4242,6 @@ void reset_zone(zone_rnum zone)
 	if (get_zone_rooms(zone, &rnum_start, &rnum_stop)) {
 		ROOM_DATA* room;
 		ROOM_DATA* gate_room;
-		log("[Reset] Triggers, Ingredients, Portals");
 		// все внутренние резеты комнат зоны теперь идут за один цикл
 		// резет порталов теперь тут же и переписан, чтобы не гонять по всем румам, ибо жрал половину времени резета -- Krodo
 		for (int rnum = rnum_start; rnum <= rnum_stop; rnum++) {
@@ -4058,19 +4256,17 @@ void reset_zone(zone_rnum zone)
 				world[room->portal_room]->portal_time = 0;
 				room->portal_time = 0;
 			}
+			paste_on_reset(room);
 		}
 	}
 
-	log("[Reset] Paste mobiles");
-	paste_mobiles(zone);
-	log("[Reset] Parsing multireset");
 	for (rnum_start = 0; rnum_start <= top_of_zone_table; rnum_start++) {
 		// проверяем, не содержится ли текущая зона в чьем-либо typeB_list
 		for (curr_state = zone_table[rnum_start].typeB_count; curr_state > 0; curr_state--) {
 			if (zone_table[rnum_start].typeB_list[curr_state - 1] == zone_table[zone].number) {
 				zone_table[rnum_start].typeB_flag[curr_state - 1] = TRUE;
-				log("[Reset] Adding TRUE for zone %d in the array contained by zone %d",
-				    zone_table[zone].number, zone_table[rnum_start].number);
+//				log("[Reset] Adding TRUE for zone %d in the array contained by zone %d",
+//				    zone_table[zone].number, zone_table[rnum_start].number);
 				break;
 			}
 		}
@@ -4079,190 +4275,6 @@ void reset_zone(zone_rnum zone)
 	for (rnum_start = zone_table[zone].typeB_count; rnum_start > 0; rnum_start--)
 		zone_table[zone].typeB_flag[rnum_start - 1] = FALSE;
 	log("[Reset] Stop zone %s", zone_table[zone].name);
-}
-
-
-void paste_mobiles(int zone)
-{
-	CHAR_DATA *ch, *ch_next;
-	OBJ_DATA *obj, *obj_next;
-	int time_ok, month_ok, need_move, no_month, no_time, room = -1;
-
-	for (ch = character_list; ch; ch = ch_next) {
-		ch_next = ch->next;
-		if (!IS_NPC(ch))
-			continue;
-		if (FIGHTING(ch))
-			continue;
-		if (GET_POS(ch) < POS_STUNNED)
-			continue;
-		if (AFF_FLAGGED(ch, AFF_CHARM) || AFF_FLAGGED(ch, AFF_HORSE) || AFF_FLAGGED(ch, AFF_HOLD))
-			continue;
-		if (MOB_FLAGGED(ch, MOB_CORPSE))
-			continue;
-		if ((room = IN_ROOM(ch)) == NOWHERE)
-			continue;
-		if (zone >= 0 && world[room]->zone != zone)
-			continue;
-
-		time_ok = FALSE;
-		month_ok = FALSE;
-		need_move = FALSE;
-		no_month = TRUE;
-		no_time = TRUE;
-
-		if (MOB_FLAGGED(ch, MOB_LIKE_DAY)) {
-			if (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)
-				time_ok = TRUE;
-			need_move = TRUE;
-			no_time = FALSE;
-		}
-		if (MOB_FLAGGED(ch, MOB_LIKE_NIGHT)) {
-			if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)
-				time_ok = TRUE;
-			need_move = TRUE;
-			no_time = FALSE;
-		}
-		if (MOB_FLAGGED(ch, MOB_LIKE_FULLMOON)) {
-			if ((weather_info.sunlight == SUN_SET ||
-			     weather_info.sunlight == SUN_DARK) &&
-			    (weather_info.moon_day >= 12 && weather_info.moon_day <= 15))
-				time_ok = TRUE;
-			need_move = TRUE;
-			no_time = FALSE;
-		}
-		if (MOB_FLAGGED(ch, MOB_LIKE_WINTER)) {
-			if (weather_info.season == SEASON_WINTER)
-				month_ok = TRUE;
-			need_move = TRUE;
-			no_month = FALSE;
-		}
-		if (MOB_FLAGGED(ch, MOB_LIKE_SPRING)) {
-			if (weather_info.season == SEASON_SPRING)
-				month_ok = TRUE;
-			need_move = TRUE;
-			no_month = FALSE;
-		}
-		if (MOB_FLAGGED(ch, MOB_LIKE_SUMMER)) {
-			if (weather_info.season == SEASON_SUMMER)
-				month_ok = TRUE;
-			need_move = TRUE;
-			no_month = FALSE;
-		}
-		if (MOB_FLAGGED(ch, MOB_LIKE_AUTUMN)) {
-			if (weather_info.season == SEASON_AUTUMN)
-				month_ok = TRUE;
-			need_move = TRUE;
-			no_month = FALSE;
-		}
-		if (need_move) {
-			month_ok |= no_month;
-			time_ok |= no_time;
-			if (month_ok && time_ok) {
-				if (world[room]->number != zone_table[world[room]->zone].top)
-					continue;
-				if (GET_LASTROOM(ch) == NOWHERE) {
-					extract_mob(ch);
-					continue;
-				}
-				char_from_room(ch);
-				char_to_room(ch, real_room(GET_LASTROOM(ch)));
-				//log("Put %s at room %d",GET_NAME(ch),world[IN_ROOM(ch)]->number);
-			} else {
-				if (world[room]->number == zone_table[world[room]->zone].top)
-					continue;
-				GET_LASTROOM(ch) = GET_ROOM_VNUM(room);
-				char_from_room(ch);
-				room = real_room(zone_table[world[room]->zone].top);
-				if (room == NOWHERE)
-					room = real_room(GET_LASTROOM(ch));
-				char_to_room(ch, room);
-				//log("Remove %s at room %d",GET_NAME(ch),world[IN_ROOM(ch)]->number);
-			}
-		}
-	}
-
-	for (obj = object_list; obj; obj = obj_next) {
-		obj_next = obj->next;
-		if (obj->carried_by || obj->worn_by || (room = obj->in_room) == NOWHERE)
-			continue;
-		if (zone >= 0 && world[room]->zone != zone)
-			continue;
-		time_ok = FALSE;
-		month_ok = FALSE;
-		need_move = FALSE;
-		no_time = TRUE;
-		no_month = TRUE;
-		if (OBJ_FLAGGED(obj, ITEM_DAY)) {
-			if (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)
-				time_ok = TRUE;
-			need_move = TRUE;
-			no_time = FALSE;
-		}
-		if (OBJ_FLAGGED(obj, ITEM_NIGHT)) {
-			if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)
-				time_ok = TRUE;
-			need_move = TRUE;
-			no_time = FALSE;
-		}
-		if (OBJ_FLAGGED(obj, ITEM_FULLMOON)) {
-			if ((weather_info.sunlight == SUN_SET ||
-			     weather_info.sunlight == SUN_DARK) &&
-			    (weather_info.moon_day >= 12 && weather_info.moon_day <= 15))
-				time_ok = TRUE;
-			need_move = TRUE;
-			no_time = FALSE;
-		}
-		if (OBJ_FLAGGED(obj, ITEM_WINTER)) {
-			if (weather_info.season == SEASON_WINTER)
-				month_ok = TRUE;
-			need_move = TRUE;
-			no_month = FALSE;
-		}
-		if (OBJ_FLAGGED(obj, ITEM_SPRING)) {
-			if (weather_info.season == SEASON_SPRING)
-				month_ok = TRUE;
-			need_move = TRUE;
-			no_month = FALSE;
-		}
-		if (OBJ_FLAGGED(obj, ITEM_SUMMER)) {
-			if (weather_info.season == SEASON_SUMMER)
-				month_ok = TRUE;
-			need_move = TRUE;
-			no_month = FALSE;
-		}
-		if (OBJ_FLAGGED(obj, ITEM_AUTUMN)) {
-			if (weather_info.season == SEASON_AUTUMN)
-				month_ok = TRUE;
-			need_move = TRUE;
-			no_month = FALSE;
-		}
-		if (need_move) {
-			month_ok |= no_month;
-			time_ok |= no_time;
-			if (month_ok && time_ok) {
-				if (world[room]->number != zone_table[world[room]->zone].top)
-					continue;
-				if (OBJ_GET_LASTROOM(obj) == NOWHERE) {
-					extract_obj(obj);
-					continue;
-				}
-				obj_from_room(obj);
-				obj_to_room(obj, real_room(OBJ_GET_LASTROOM(obj)));
-				//log("Put %s at room %d",obj->PNames[0],world[OBJ_GET_LASTROOM(obj)]->number);
-			} else {
-				if (world[room]->number == zone_table[world[room]->zone].top)
-					continue;
-				OBJ_GET_LASTROOM(obj) = GET_ROOM_VNUM(room);
-				obj_from_room(obj);
-				room = real_room(zone_table[world[room]->zone].top);
-				if (room == NOWHERE)
-					room = real_room(OBJ_GET_LASTROOM(obj));
-				obj_to_room(obj, room);
-				//log("Remove %s at room %d",GET_NAME(ch),world[room]->number);
-			}
-		}
-	}
 }
 
 // Ищет RNUM первой и последней комнаты зоны
