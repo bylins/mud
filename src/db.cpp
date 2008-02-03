@@ -3860,7 +3860,8 @@ void paste_mobiles()
 	}
 
 	OBJ_DATA *obj_next;
-	for (OBJ_DATA *obj = object_list; obj; obj = obj_next) {
+	for (OBJ_DATA *obj = object_list; obj; obj = obj_next)
+	{
 		obj_next = obj->next;
 		paste_obj(obj, IN_ROOM(obj));
 	}
