@@ -2059,6 +2059,9 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		GET_LEVEL(d->character) = 1;
 	if (GET_INVIS_LEV(d->character) > LVL_IMPL)
 		GET_INVIS_LEV(d->character) = 0;
+	// отрицательный инвиз не нужен никому
+	if (GET_INVIS_LEV(d->character) < 0)
+		GET_INVIS_LEV(d->character) = 0;
 	if (GET_LEVEL(d->character) < LVL_IMPL) {
 		if (PLR_FLAGGED(d->character, PLR_INVSTART))
 			GET_INVIS_LEV(d->character) = LVL_IMMORT;
