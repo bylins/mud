@@ -109,11 +109,10 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
    Сохранить новую комнату в памяти
 --*/
 {
-	int i, j, room_num, found = 0, zone, cmd_no;
+	int j, room_num, zone, cmd_no;
 	CHAR_DATA *temp_ch;
 	OBJ_DATA *temp_obj;
 	DESCRIPTOR_DATA *dsc;
-	vector < ROOM_DATA * >::iterator p;
 
 	room_num = real_room(OLC_ROOM(d)->number);
 	// дальше temp_description уже нигде не участвует, описание берется как обычно через число
@@ -132,50 +131,39 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 		// Удаление "оболочки" произойдет в olc_cleanup
 
 	} else {
-		/* Room doesn't exist, hafta add it. */
-		// Count through world tables.
-		p = world.begin();
-		advance(p, FIRST_ROOM);
-		for (i = FIRST_ROOM; i <= top_of_world; i++, p++) {
-			if (!found) {
-				// Is this the place?
-				if (world[i]->number > OLC_NUM(d)) {
-					found = TRUE;
-					ROOM_DATA *new_room;
-					new_room = new(ROOM_DATA);
-					memset(new_room, 0, sizeof(ROOM_DATA));
+		// если комнаты не было - добавляем новую
+		std::vector<ROOM_DATA *>::iterator it = world.begin();
+		advance(it, FIRST_ROOM);
+		int i = FIRST_ROOM;
+		for ( ; it != world.end(); ++it, ++i)
+			if ((*it)->number > OLC_NUM(d))
+				break;
 
-					world.insert(p, new_room);
-					room_copy(world[i], OLC_ROOM(d));
+		ROOM_DATA *new_room = new(ROOM_DATA);
+		memset(new_room, 0, sizeof(ROOM_DATA));
+		room_copy(new_room, OLC_ROOM(d));
+		new_room->number = OLC_NUM(d);
+		new_room->zone = OLC_ZNUM(d);
+		new_room->func = NULL;
+		room_num = i; // рнум новой комнаты
 
-					world[i]->number = OLC_NUM(d);
-					world[i]->func = NULL;
-
-					room_num = i;
-					continue;
-				}
-			} else {	/* Already been found. */
-				// People in this room must have their in_rooms moved.
+		if (it != world.end())
+		{
+			world.insert(it, new_room);
+			// если комната потеснила рнумы, то их надо переписать у людей/шмота в этих комнатах
+			for (i = room_num; i <= top_of_world; i++)
+			{
 				for (temp_ch = world[i]->people; temp_ch; temp_ch = temp_ch->next_in_room)
 					if (temp_ch->in_room != NOWHERE)
 						temp_ch->in_room = i;
-				// Move objects too.
 				for (temp_obj = world[i]->contents; temp_obj; temp_obj = temp_obj->next_content)
 					if (temp_obj->in_room != NOWHERE)
 						temp_obj->in_room = i;
-
 			}
 		}
-		if (!found) {	/* Still not found, insert at top of table. */
-			world.push_back(new(ROOM_DATA));
+		else
+			world.push_back(new_room);
 
-			room_copy(world[i], OLC_ROOM(d));
-
-			world[i]->number = OLC_NUM(d);
-			world[i]->func = NULL;
-
-			room_num = i;
-		}
 		// Copy world table over to new one.
 		top_of_world++;
 

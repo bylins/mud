@@ -121,6 +121,7 @@ extern CHAR_DATA *combat_list;
 extern void proc_color(char *inbuf, int color);
 extern void tact_auction(void);
 extern time_t boot_time;
+extern void ObjDebugLog();
 
 /* external global objects and containers */
 extern BanList *ban;
@@ -1051,7 +1052,7 @@ void game_loop(socket_t mother_desc)
 		/* изменили на 4 сек */
 		/* изменили на 1 сек -- слишком уж опасно лагает :) */
 		if (missed_pulses > (1 * PASSES_PER_SEC)) {
-			log("SYSERR: Missed %d seconds worth of pulses.", missed_pulses / PASSES_PER_SEC);
+			log("SYSERR: Missed %d seconds worth of pulses (%d).", missed_pulses / PASSES_PER_SEC, missed_pulses);
 			missed_pulses = 1 * PASSES_PER_SEC;
 		}
 
@@ -1317,6 +1318,9 @@ inline void heartbeat()
 	if (!((pulse + 22) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
 		Depot::save_timedata();
 	}
+
+	if (!((pulse + 23) % (2 * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+		ObjDebugLog();
 
 	//log("---------- Stop heartbeat ----------");
 }

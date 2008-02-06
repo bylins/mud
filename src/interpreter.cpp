@@ -2067,8 +2067,6 @@ void do_entergame(DESCRIPTOR_DATA * d)
 			GET_INVIS_LEV(d->character) = LVL_IMMORT;
 		if (GET_INVIS_LEV(d->character) > GET_LEVEL(d->character))
 			GET_INVIS_LEV(d->character) = GET_LEVEL(d->character);
-		if (GET_INVIS_LEV(d->character) > 0 && GET_LEVEL(d->character) < LVL_IMMORT)
-			GET_INVIS_LEV(d->character) = 0;
 	}
 	if (GET_LEVEL(d->character) > LVL_IMMORT
 	    && GET_LEVEL(d->character) < LVL_BUILDER
@@ -2105,6 +2103,8 @@ void do_entergame(DESCRIPTOR_DATA * d)
 			if (PRF_FLAGGED(d->character, PRF_ROOMFLAGS))
 				REMOVE_BIT(PRF_FLAGS(d->character, PRF_ROOMFLAGS), PRF_ROOMFLAGS);
 		}
+		if (GET_INVIS_LEV(d->character) > 0 && GET_LEVEL(d->character) < LVL_IMMORT)
+			GET_INVIS_LEV(d->character) = 0;
 	}
 
 	/*

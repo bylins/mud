@@ -2024,3 +2024,28 @@ void skip_dots(char **string)
 {
 	for (; **string && (strchr(" .", **string) != NULL); (*string)++);
 }
+
+// FIXME потом убрать
+void ObjDebugLog()
+{
+	const char *filename = "../log/obj.log";
+	static FILE *file = 0;
+	if (!file) {
+		file = fopen(filename, "a");
+		if (!file) {
+			log("SYSERR: can't open %s!", filename);
+			return;
+		}
+		opened_files.push_back(file);
+	}
+
+	write_time(file);
+	fprintf(file, "\n");
+	for (OBJ_DATA *obj = object_list; obj; obj = obj->next)
+	{
+		if (!obj->uid) continue;
+		fprintf(file, "%s\n%s %s %s %s %s %s %s %s\n",
+			obj->description, obj->short_description,
+			obj->name, obj->PNames[0], obj->PNames[1], obj->PNames[2], obj->PNames[3], obj->PNames[4], obj->PNames[5]);
+	}
+}
