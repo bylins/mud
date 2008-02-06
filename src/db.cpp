@@ -4571,8 +4571,8 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	long int lnum = 0, lnum3 = 0;
 	FBFILE *fl;
 	char filename[40];
-	char buf[128], line[MAX_INPUT_LENGTH + 1], tag[6];
-	char line1[MAX_INPUT_LENGTH + 1];
+	char buf[MAX_RAW_INPUT_LENGTH], line[MAX_RAW_INPUT_LENGTH], tag[6];
+	char line1[MAX_RAW_INPUT_LENGTH];
 	AFFECT_DATA af;
 	struct timed_type timed;
 
