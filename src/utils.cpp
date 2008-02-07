@@ -2028,11 +2028,15 @@ void skip_dots(char **string)
 // FIXME потом убрать
 void ObjDebugLog()
 {
-	const char *filename = "../log/obj.log";
 	static FILE *file = 0;
-	if (!file) {
+	if (!file)
+	{
+		char filename[128];
+		time_t cur_time = time(0);
+		strftime(filename, sizeof(filename), "../log/%d-%m-%Y.log", localtime(&cur_time));
 		file = fopen(filename, "a");
-		if (!file) {
+		if (!file)
+		{
 			log("SYSERR: can't open %s!", filename);
 			return;
 		}
