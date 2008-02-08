@@ -3379,14 +3379,15 @@ ACMD(do_show)
 		break;		/* snoop */
 	case 10:		// show linkdrop
 		send_to_char("  Список игроков в состоянии 'link drop'\r\n", ch);
-		sprintf(buf, "%-50s%s %s\r\n", "   Имя", "Комната", "Таймер бездействия (тики)");
+		sprintf(buf, "%-50s%-16s   %s\r\n", "   Имя", "Комната", "Бездействие (тики)");
 		send_to_char(buf, ch);
 		for (i = 0, vict = character_list; vict; vict = vict->next) {
 			if (IS_NPC(vict) || vict->desc != NULL || IN_ROOM(vict) == NOWHERE)
 				continue;
 			++i;
-			sprintf(buf, "%-50s[% 5d] %d\r\n", noclan_title(vict),
-				GET_ROOM_VNUM(IN_ROOM(vict)), vict->char_specials.timer);
+			sprintf(buf, "%-50s[%6d][%6d]   %d\r\n",
+				noclan_title(vict), GET_ROOM_VNUM(IN_ROOM(vict)),
+				GET_ROOM_VNUM(GET_WAS_IN(vict)), vict->char_specials.timer);
 			send_to_char(buf, ch);
 		}
 		sprintf(buf, "Всего - %d\r\n", i);
