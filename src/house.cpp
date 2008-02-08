@@ -1660,13 +1660,16 @@ const char *CLAN_PKLIST_FORMAT[] = {
 };
 
 /**
-* Для клановых пкл/дрл - не показываются чары в состоянии дисконета, все остальные состояния
-* считаются как онлайн. Проверка исключительно на CON_PLAYING - это не совсем верное решение.
+* Для клановых пкл/дрл - не показываются чары в состоянии дисконета, кроме находящихся в бд,
+* т.е. они стоят где-то в мире полюбому, все остальные состояния считаются как онлайн.
 */
-bool check_online_state(DESCRIPTOR_DATA *d)
+bool check_online_state(long uid)
 {
-	if (d->character && STATE(d) != CON_DISCONNECT && STATE(d) != CON_CLOSE)
+	for (CHAR_DATA *tch = character_list; tch; tch = tch->next)
+	{
+		if (IS_NPC(tch) || GET_UNIQUE(tch) != uid || (!tch->desc && !RENTABLE(tch))) continue;
 		return true;
+	}
 	return false;
 }
 
@@ -1682,43 +1685,59 @@ ACMD(DoClanPkList)
 	GetOneParam(buffer, buffer2);
 	std::ostringstream info;
 	char timeBuf[11];
-	DESCRIPTOR_DATA *d;
 
 	boost::format frmt("%s [%s] :: %s\r\n%s\r\n\r\n");
-	// выводим список тех, кто онлайн
-	if (buffer2.empty()) {
-		ClanPkList::const_iterator it;
+	if (buffer2.empty())
+	{
+		// выводим список тех, кто онлайн
 		send_to_char(ch, "%sОтображаются только находящиеся в игре персонажи:%s\r\n\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-		// вобщем, наверное, лучше искать по списку онлайновых, чем по списку пк/др листа
-		for (d = descriptor_list; d; d = d->next)
-			if (check_online_state(d) && CLAN(d->character) != CLAN(ch)) {
-				// пкл
-				if (!subcmd)
-					it = CLAN(ch)->pkList.find(GET_UNIQUE(d->character));
-				// дрл
-				else
-					it = CLAN(ch)->frList.find(GET_UNIQUE(d->character));
-				if (it != CLAN(ch)->pkList.end() && it != CLAN(ch)->frList.end()) {
+		ClanPkList::const_iterator it;
+		// вобщем чтобы словить чаров с бд, находящихся в лд - придется гонять по чарактер-листу
+		for (CHAR_DATA *tch = character_list; tch; tch = tch->next)
+		{
+			if (IS_NPC(tch) || (!tch->desc && !RENTABLE(tch)))
+				continue;
+			// пкл
+			if (!subcmd)
+			{
+				it = CLAN(ch)->pkList.find(GET_UNIQUE(tch));
+				if (it != CLAN(ch)->pkList.end())
+				{
 					strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
 					info << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
 				}
 			}
+			// дрл
+			else
+			{
+				it = CLAN(ch)->frList.find(GET_UNIQUE(tch));
+				if (it != CLAN(ch)->frList.end())
+				{
+					strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
+					info << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
+				}
+			}
+		}
 		if (info.str().empty())
 			info << "Записи в выбранном списке отсутствуют.\r\n";
 		page_string(ch->desc, info.str(), 1);
 
-	} else if (CompareParam(buffer2, "все") || CompareParam(buffer2, "all")) {
+	}
+	else if (CompareParam(buffer2, "все") || CompareParam(buffer2, "all"))
+	{
 		// выводим весь список
 		send_to_char(ch, "%sСписок отображатеся полностью:%s\r\n\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		// пкл
 		if (!subcmd)
-			for (ClanPkList::const_iterator it = CLAN(ch)->pkList.begin(); it != CLAN(ch)->pkList.end(); ++it) {
+			for (ClanPkList::const_iterator it = CLAN(ch)->pkList.begin(); it != CLAN(ch)->pkList.end(); ++it)
+			{
 				strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
 				info << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
 			}
 		// дрл
 		else
-			for (ClanPkList::const_iterator it = CLAN(ch)->frList.begin(); it != CLAN(ch)->frList.end(); ++it) {
+			for (ClanPkList::const_iterator it = CLAN(ch)->frList.begin(); it != CLAN(ch)->frList.end(); ++it)
+			{
 				strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
 				info << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
 			}
@@ -1727,30 +1746,37 @@ ACMD(DoClanPkList)
 
 		page_string(ch->desc, info.str(), 1);
 
-	} else if ((CompareParam(buffer2, "добавить") || CompareParam(buffer2, "add")) && CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_PKLIST]) {
+	}
+	else if ((CompareParam(buffer2, "добавить") || CompareParam(buffer2, "add")) && CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_PKLIST])
+	{
 		// добавляем нового
 		GetOneParam(buffer, buffer2);
-		if (buffer2.empty()) {
+		if (buffer2.empty())
+		{
 			send_to_char("Кого добавить то?\r\n", ch);
 			return;
 		}
 		long unique = GetUniqueByName(buffer2, 1);
 
-		if (!unique) {
+		if (!unique)
+		{
 			send_to_char("Интересующий Вас персонаж не найден.\r\n", ch);
 			return;
 		}
-		if (unique < 0) {
+		if (unique < 0)
+		{
 			send_to_char("Не дело это, Богов добалять куда не надо....\r\n", ch);
 			return;
 		}
 		ClanMemberList::const_iterator it = CLAN(ch)->members.find(unique);
-		if (it != CLAN(ch)->members.end()) {
+		if (it != CLAN(ch)->members.end())
+		{
 			send_to_char("Давайте не будем засорять список всяким бредом?\r\n", ch);
 			return;
 		}
 		boost::trim_if(buffer, boost::is_any_of(" \'"));
-		if (buffer.empty()) {
+		if (buffer.empty())
+		{
 			send_to_char("Потрудитесь прокомментировать, за что Вы его так.\r\n", ch);
 			return;
 		}
@@ -1761,16 +1787,18 @@ ACMD(DoClanPkList)
 			it2 = CLAN(ch)->pkList.find(unique);
 		else
 			it2 = CLAN(ch)->frList.find(unique);
-		if ((!subcmd && it2 != CLAN(ch)->pkList.end()) || (subcmd && it2 != CLAN(ch)->frList.end())) {
+		if ((!subcmd && it2 != CLAN(ch)->pkList.end()) || (subcmd && it2 != CLAN(ch)->frList.end()))
+		{
 			// уид тут саавсем не обязательно, что валидный
 			ClanMemberList::const_iterator rank_it = CLAN(ch)->members.find(it2->second->author);
-			if (rank_it != CLAN(ch)->members.end() && rank_it->second->rank_num < CLAN_MEMBER(ch)->rank_num) {
+			if (rank_it != CLAN(ch)->members.end() && rank_it->second->rank_num < CLAN_MEMBER(ch)->rank_num)
+			{
 				if (!subcmd)
 					send_to_char("Ваша жертва уже добавлена в список врагов старшим по званию.\r\n", ch);
 				else
 					send_to_char("Персонаж уже добавлен в список друзей старшим по званию.\r\n", ch);
 				return;
-   		}
+			}
 		}
 
 		// собственно пишем новую жертву/друга
@@ -1786,7 +1814,8 @@ ACMD(DoClanPkList)
 		else
 			CLAN(ch)->frList[unique] = tempRecord;
 		DESCRIPTOR_DATA *d;
-		if ((d = DescByUID(unique)) && PRF_FLAGGED(d->character, PRF_PKL_MODE)) {
+		if ((d = DescByUID(unique)) && PRF_FLAGGED(d->character, PRF_PKL_MODE))
+		{
 			if (!subcmd)
 				send_to_char(d->character, "%sДружина '%s' добавила Вас в список своих врагов!%s\r\n", CCIRED(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
 			else
@@ -1795,11 +1824,15 @@ ACMD(DoClanPkList)
 		}
 		send_to_char("Ладушки, добавили.\r\n", ch);
 
-	} else if ((CompareParam(buffer2, "удалить") || CompareParam(buffer2, "delete")) && CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_PKLIST]) {
+	}
+	else if ((CompareParam(buffer2, "удалить") || CompareParam(buffer2, "delete")) && CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_PKLIST])
+	{
 		// удаление записи
 		GetOneParam(buffer, buffer2);
-		if (CompareParam(buffer2, "все", 1) || CompareParam(buffer2, "all", 1)) {
-			if (CLAN_MEMBER(ch)->rank_num) {
+		if (CompareParam(buffer2, "все", 1) || CompareParam(buffer2, "all", 1))
+		{
+			if (CLAN_MEMBER(ch)->rank_num)
+			{
 				send_to_char("Полная очистка списка доступна только воеводе.\r\n", ch);
 				return;
 			}
@@ -1814,49 +1847,61 @@ ACMD(DoClanPkList)
 		}
 		long unique = GetUniqueByName(buffer2, 1);
 
-		if (unique <= 0) {
+		if (unique <= 0)
+		{
 			send_to_char("Интересующий Вас персонаж не найден.\r\n", ch);
 			return;
 		}
 		ClanPkList::iterator it;
 		// пкл, раздельно они мне больше нравятся, чем по пять раз subcmd проверять
-		if (!subcmd) {
+		if (!subcmd)
+		{
 			it = CLAN(ch)->pkList.find(unique);
-			if (it != CLAN(ch)->pkList.end()) {
+			if (it != CLAN(ch)->pkList.end())
+			{
 				ClanMemberList::const_iterator pk_rank_it = CLAN(ch)->members.find(it->second->author);
-				if (pk_rank_it != CLAN(ch)->members.end() && pk_rank_it->second->rank_num < CLAN_MEMBER(ch)->rank_num) {
+				if (pk_rank_it != CLAN(ch)->members.end() && pk_rank_it->second->rank_num < CLAN_MEMBER(ch)->rank_num)
+				{
 					send_to_char("Ваша жертва была добавлена старшим по званию.\r\n", ch);
 					return;
-    		}
+				}
 				CLAN(ch)->pkList.erase(it);
 			}
 		// дрл
-		} else {
+		}
+		else
+		{
 			it = CLAN(ch)->frList.find(unique);
-			if (it != CLAN(ch)->frList.end()) {
+			if (it != CLAN(ch)->frList.end())
+			{
 				ClanMemberList::const_iterator fr_rank_it = CLAN(ch)->members.find(it->second->author);
-				if (fr_rank_it != CLAN(ch)->members.end() && fr_rank_it->second->rank_num < CLAN_MEMBER(ch)->rank_num) {
+				if (fr_rank_it != CLAN(ch)->members.end() && fr_rank_it->second->rank_num < CLAN_MEMBER(ch)->rank_num)
+				{
 					send_to_char("Персонаж был добавлен старшим по званию.\r\n", ch);
 					return;
-    		}
+				}
 				CLAN(ch)->frList.erase(it);
 			}
 		}
 
-		if (it != CLAN(ch)->pkList.end() && it != CLAN(ch)->frList.end()) {
+		if (it != CLAN(ch)->pkList.end() && it != CLAN(ch)->frList.end())
+		{
 			send_to_char("Запись удалена.\r\n", ch);
 			DESCRIPTOR_DATA *d;
-			if ((d = DescByUID(unique)) && PRF_FLAGGED(d->character, PRF_PKL_MODE)) {
+			if ((d = DescByUID(unique)) && PRF_FLAGGED(d->character, PRF_PKL_MODE))
+			{
 				if (!subcmd)
 					send_to_char(d->character, "%sДружина '%s' удалила Вас из списка своих врагов!%s\r\n", CCGRN(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
 				else
 					send_to_char(d->character, "%sДружина '%s' удалила Вас из списка своих друзей!%s\r\n", CCIRED(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
 				set_wait(ch, 1, FALSE);
 			}
-   	} else
+		} else
 			send_to_char("Запись не найдена.\r\n", ch);
 
-	} else {
+	}
+	else
+	{
 		boost::trim(buffer);
 		bool online = 1;
 
@@ -1870,21 +1915,28 @@ ACMD(DoClanPkList)
 
 		std::ostringstream out;
 
-		if (!subcmd) {
-			for (ClanPkList::const_iterator it = CLAN(ch)->pkList.begin(); it != CLAN(ch)->pkList.end(); ++it) {
-				if (CompareParam(buffer2, it->second->victimName, 1)) {
-					DESCRIPTOR_DATA *d = DescByUID(it->first);
-					if ((d && check_online_state(d)) || !online) {
+		if (!subcmd)
+		{
+			for (ClanPkList::const_iterator it = CLAN(ch)->pkList.begin(); it != CLAN(ch)->pkList.end(); ++it)
+			{
+				if (CompareParam(buffer2, it->second->victimName, 1))
+				{
+					if (!online || check_online_state(it->first))
+					{
 						strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
 						out << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
 					}
 				}
 			}
-		} else {
-			for (ClanPkList::const_iterator it = CLAN(ch)->frList.begin(); it != CLAN(ch)->frList.end(); ++it) {
-				if (CompareParam(buffer2, it->second->victimName, 1)) {
-					DESCRIPTOR_DATA *d = DescByUID(it->first);
-					if ((d && check_online_state(d)) || !online) {
+		}
+		else
+		{
+			for (ClanPkList::const_iterator it = CLAN(ch)->frList.begin(); it != CLAN(ch)->frList.end(); ++it)
+			{
+				if (CompareParam(buffer2, it->second->victimName, 1))
+				{
+					if (!online || check_online_state(it->first))
+					{
 						strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
 						out << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
 					}
@@ -1893,9 +1945,11 @@ ACMD(DoClanPkList)
 		}
 		if (!out.str().empty())
 			page_string(ch->desc, out.str(), 1);
-		else {
+		else
+		{
 			send_to_char("По Вашему запросу никого не найдено.\r\n", ch);
-			if (CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_PKLIST]) {
+			if (CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_PKLIST])
+			{
 				buffer = CLAN_PKLIST_FORMAT[0];
 				buffer += CLAN_PKLIST_FORMAT[1];
 				send_to_char(buffer, ch);
