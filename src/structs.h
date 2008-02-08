@@ -221,7 +221,10 @@ typedef struct trig_data
 #define SECT_FLYING          8	/* Wheee!         */
 #define SECT_UNDERWATER      9	/* Underwater     */
 #define SECT_SECRET          10
-
+#define SECT_STONEROAD       11
+#define SECT_ROAD            12
+#define SECT_WILDROAD        13
+// надо не забывать менять NUM_ROOM_SECTORS в olc.h
 
 /* Added values for weather changes */
 #define SECT_FIELD_SNOW      20

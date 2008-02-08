@@ -1371,6 +1371,9 @@ int real_sector(int room)
 	case SECT_FLYING:
 	case SECT_UNDERWATER:
 	case SECT_SECRET:
+	case SECT_STONEROAD:
+	case SECT_ROAD:
+	case SECT_WILDROAD:
 		return sector;
 		break;
 	case SECT_FIELD:

@@ -2057,17 +2057,8 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		GET_LEVEL(d->character) = LVL_GOD;
 	if (GET_LEVEL(d->character) > LVL_IMPL)
 		GET_LEVEL(d->character) = 1;
-	if (GET_INVIS_LEV(d->character) > LVL_IMPL)
+	if (GET_INVIS_LEV(d->character) > LVL_IMPL || GET_INVIS_LEV(d->character) < 0)
 		GET_INVIS_LEV(d->character) = 0;
-	// отрицательный инвиз не нужен никому
-	if (GET_INVIS_LEV(d->character) < 0)
-		GET_INVIS_LEV(d->character) = 0;
-	if (GET_LEVEL(d->character) < LVL_IMPL) {
-		if (PLR_FLAGGED(d->character, PLR_INVSTART))
-			GET_INVIS_LEV(d->character) = LVL_IMMORT;
-		if (GET_INVIS_LEV(d->character) > GET_LEVEL(d->character))
-			GET_INVIS_LEV(d->character) = GET_LEVEL(d->character);
-	}
 	if (GET_LEVEL(d->character) > LVL_IMMORT
 	    && GET_LEVEL(d->character) < LVL_BUILDER
 	    && (GET_GOLD(d->character) > 0 || GET_BANK_GOLD(d->character) > 0)) {
@@ -2086,9 +2077,13 @@ void do_entergame(DESCRIPTOR_DATA * d)
 			GET_LOGS(d->character)[0] = 0;
 	}
 
-	// снимаем лишние флаги с чаров
 	if (GET_LEVEL(d->character) < LVL_IMPL && !Privilege::check_flag(d->character, Privilege::KRODER))
 	{
+		if (PLR_FLAGGED(d->character, PLR_INVSTART))
+			GET_INVIS_LEV(d->character) = LVL_IMMORT;
+		if (GET_INVIS_LEV(d->character) > GET_LEVEL(d->character))
+			GET_INVIS_LEV(d->character) = GET_LEVEL(d->character);
+
 		if (PRF_FLAGGED(d->character, PRF_CODERINFO))
 			REMOVE_BIT(PRF_FLAGS(d->character, PRF_CODERINFO), PRF_CODERINFO);
 		if (GET_LEVEL(d->character) < LVL_GOD)
