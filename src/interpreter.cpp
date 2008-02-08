@@ -119,6 +119,7 @@ extern int process_auto_agreement(DESCRIPTOR_DATA * d);
 extern int CheckProxy(DESCRIPTOR_DATA * ch);
 extern void NewNameShow(CHAR_DATA * ch);
 extern void NewNameAdd(CHAR_DATA * ch, bool save = 1);
+extern void check_max_hp(CHAR_DATA *ch);
 
 /* local functions */
 int perform_dupe_check(DESCRIPTOR_DATA * d);
@@ -2101,6 +2102,9 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		if (GET_INVIS_LEV(d->character) > 0 && GET_LEVEL(d->character) < LVL_IMMORT)
 			GET_INVIS_LEV(d->character) = 0;
 	}
+
+	// пересчет максимального хп, если нужно
+	check_max_hp(d->character);
 
 	/*
 	 * We have to place the character in a room before equipping them

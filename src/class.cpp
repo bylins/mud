@@ -2281,13 +2281,22 @@ void do_start(CHAR_DATA * ch, int newbie)
 		SET_BIT(PLR_FLAGS(ch, PLR_SITEOK), PLR_SITEOK);
 }
 
+/**
+* Перерасчет максимальных родных хп персонажа.
+* При входе в игру, левеле/делевеле, добавлении/удалении славы.
+*/
+void check_max_hp(CHAR_DATA *ch)
+{
+	int ch_class = static_cast<int>(GET_CLASS(ch));
+	int con = MAX(class_app[ch_class].min_con, MIN(GET_CON(ch), class_app[ch_class].max_con));
+	double add_hp_per_level = class_app[ch_class].base_con
+		+ (con - class_app[ch_class].base_con) * static_cast<double>(class_app[ch_class].koef_con) / 100 + 3;
+	GET_MAX_HIT(ch) = 10 + static_cast<int>(add_hp_per_level * GET_LEVEL(ch));
+}
+
 void advance_level(CHAR_DATA * ch)
 {
-	int con, add_hp = 0, add_move = 0, i;
-
-	con = MAX(class_app[(int) GET_CLASS(ch)].min_con, MIN(GET_CON(ch), class_app[(int) GET_CLASS(ch)].max_con));
-	add_hp = class_app[(int) GET_CLASS(ch)].base_con + (con - class_app[(int)GET_CLASS(ch)].base_con) *
-		class_app[(int) GET_CLASS(ch)].koef_con / 100 + number(2, 3);
+	int add_move = 0, i;
 
 	switch (GET_CLASS(ch)) {
 	case CLASS_BATTLEMAGE:
@@ -2320,13 +2329,12 @@ void advance_level(CHAR_DATA * ch)
 		break;
 	}
 
-	log("Add hp for %s is %d", GET_NAME(ch), add_hp);
-	ch->points.max_hit += MAX(1, add_hp);
+	check_max_hp(ch);
 	ch->points.max_move += MAX(1, add_move);
 
-        for (i = 1; i < MAX_FEATS; i++)
-                if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && can_get_feat(ch, i))
-	                SET_FEAT(ch, i);
+	for (i = 1; i < MAX_FEATS; i++)
+		if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && can_get_feat(ch, i))
+			SET_FEAT(ch, i);
 
 	if (IS_IMMORTAL(ch)) {
 		for (i = 0; i < 3; i++)
@@ -2339,12 +2347,7 @@ void advance_level(CHAR_DATA * ch)
 
 void decrease_level(CHAR_DATA * ch)
 {
-	int con, add_hp, add_move = 0;
-	int prob, sval, max;
-
-	con = MAX(class_app[(int) GET_CLASS(ch)].min_con, MIN(GET_CON(ch), class_app[(int) GET_CLASS(ch)].max_con));
-	add_hp = class_app[(int) GET_CLASS(ch)].base_con + (con - class_app[(int)GET_CLASS(ch)].base_con) *
-	    class_app[(int) GET_CLASS(ch)].koef_con / 100 + 3;
+	int add_move = 0, prob, sval, max;
 
 	switch (GET_CLASS(ch)) {
 	case CLASS_BATTLEMAGE:
@@ -2374,9 +2377,9 @@ void decrease_level(CHAR_DATA * ch)
 		break;
 	}
 
-	log("Dec hp for %s set ot %d", GET_NAME(ch), add_hp);
-	ch->points.max_hit -= MIN(ch->points.max_hit, MAX(1, add_hp));
+	check_max_hp(ch);
 	ch->points.max_move -= MIN(ch->points.max_move, MAX(1, add_move));
+
 	GET_WIMP_LEV(ch) = MAX(0, MIN(GET_WIMP_LEV(ch), GET_REAL_MAX_HIT(ch) / 2));
 	if (!IS_IMMORTAL(ch))
 		REMOVE_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);

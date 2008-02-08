@@ -17,6 +17,7 @@
 #include "top.h"
 
 extern void add_karma(CHAR_DATA * ch, char const * punish , char * reason);
+extern void check_max_hp(CHAR_DATA *ch);
 
 namespace Glory {
 
@@ -663,6 +664,7 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 
 		ch->desc->glory.reset();
 		STATE(ch->desc) = CON_PLAYING;
+		check_max_hp(ch);
 		send_to_char("Ваши изменения сохранены.\r\n", ch);
 		return 1;
 	}
@@ -1109,7 +1111,6 @@ bool check_stats(CHAR_DATA *ch)
 			"\tТелосложение: изменились коэффициенты профессий и максимальное родное тело (50) в расчетах при\r\n"
 			"\tполучении уровня, поэтому изменены границы стартового телосложения у некоторых профессий,\r\n"
 			"\tв целом это увеличивает кол-во жизней персонажа тем сильнее, чем больше у него было ремортов.\r\n"
-			"\tИзменения будут учитываться только при получении новых уровней (или перевоплощении соотв-но).\r\n"
 			"\r\n",
 			CCIGRN(ch, C_SPR),
 			GET_STR(ch) - GET_REMORT(ch),
@@ -1208,6 +1209,8 @@ bool remove_stats(CHAR_DATA *ch, CHAR_DATA *god, int amount)
 	}
 	imm_log("(GC) %s sets -%d stats to %s.", GET_NAME(god), removed, GET_NAME(ch));
 	send_to_char(god, "С %s снято %d %s вложенной ранее славы.\r\n", GET_PAD(ch, 1), removed, desc_count(removed, WHAT_POINT));
+	// надо пересчитать хп на случай снятия с тела
+	check_max_hp(ch);
 	return 1;
 }
 
