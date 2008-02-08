@@ -3730,14 +3730,14 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		affect_total(vict);
 		break;
 	case 17:
-		if (!IS_IMPL(ch) && ch != vict) {
+		if (!IS_IMPL(ch) && ch != vict && !Privilege::check_flag(ch, Privilege::KRODER)) {
 			send_to_char("Вы не столь Божественны, как Вам кажется!\r\n", ch);
 			return (0);
 		}
 		GET_INVIS_LEV(vict) = RANGE(0, GET_LEVEL(vict));
 		break;
 	case 18:
-		if (!IS_IMPL(ch) && ch != vict) {
+		if (!IS_IMPL(ch) && ch != vict && !Privilege::check_flag(ch, Privilege::KRODER)) {
 			send_to_char("Вы не столь Божественны, как Вам кажется!\r\n", ch);
 			return (0);
 		}
@@ -3812,7 +3812,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 	case 32:
 		/* Флаг для морталов с привилегиями */
-		if (!IS_IMPL(ch)) {
+		if (!IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)) {
 			send_to_char("Вы не столь Божественны, как Вам кажется!\r\n", ch);
 			return 0;
 		}
@@ -3954,7 +3954,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			sprintf(buf, "Произведена замена падежей.\r\n");
 			send_to_char(buf, ch);
 		} else {
-			if (!IS_IMPL(ch)) {
+			if (!IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)) {
 				send_to_char("Для изменения падежей пользуйтесь форматом 'set имя name *падеж1 падеж2 падеж3 падеж4 падеж5 падеж6'.\r\nРенеймы не разрешаются.\r\n", ch);
 				return 0;
 			}
@@ -4128,7 +4128,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 
 	case 55:
-		if (GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch)) {
+		if (GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)) {
 			send_to_char("Кем вы себя возомнили?\r\n", ch);
 			return 0;
 		}
