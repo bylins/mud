@@ -1319,7 +1319,7 @@ inline void heartbeat()
 		Depot::save_timedata();
 	}
 
-	if (!((pulse + 23) % (2 * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	if (!((pulse + 23) % (8 * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 		ObjDebugLog();
 
 	//log("---------- Stop heartbeat ----------");
