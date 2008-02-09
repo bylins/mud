@@ -97,7 +97,7 @@ int calc_anti_savings(CHAR_DATA * ch)
 }
 
 
-int general_savingthrow(CHAR_DATA * ch, int type, int ext_apply, int use)
+int general_savingthrow(CHAR_DATA * ch, int type, int ext_apply)
 {
 	/* NPCs use warrior tables according to some book */
 	int save;
@@ -138,7 +138,7 @@ int general_savingthrow(CHAR_DATA * ch, int type, int ext_apply, int use)
 			save >>= 1;
 	}
 	// Учет осторожного стиля
-	if (PRF_FLAGGED(ch, PRF_AWAKE) && (use != 1)) {
+	if (PRF_FLAGGED(ch, PRF_AWAKE)) {
 		if (GET_CLASS(ch) == CLASS_GUARD)
 			save -= MAX(0,get_skill(ch, SKILL_AWAKE)-80)  /  2;
 		save -= calculate_awake_mod(ch, 0);
@@ -1065,7 +1065,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		adice = (level - 22) * 2;
 		if (GET_POS(victim) > POS_SITTING &&
 		    !WAITLESS(victim) && (number (1, 999)  > GET_AR(victim) * 10) &&
-		    (GET_MOB_HOLD(victim) || !general_savingthrow(victim, SAVING_REFLEX, CALC_SUCCESS(modi, 30), 0))) {
+		    (GET_MOB_HOLD(victim) || !general_savingthrow(victim, SAVING_REFLEX, CALC_SUCCESS(modi, 30)))) {
 			act("$n3 повалило на землю.", FALSE, victim, 0, 0, TO_ROOM);
 			act("Вас повалило на землю.", FALSE, victim, 0, 0, TO_CHAR);
 			GET_POS(victim) = POS_SITTING;
@@ -1081,7 +1081,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		adice = (level - 25) * 3;
 		if (GET_POS(victim) > POS_SITTING &&
 		    !WAITLESS(victim) && (number (1, 999)  > GET_AR(victim) * 10) &&
-		    (GET_MOB_HOLD(victim) || !general_savingthrow(victim, SAVING_STABILITY, CALC_SUCCESS(modi, 60), 0))) {
+		    (GET_MOB_HOLD(victim) || !general_savingthrow(victim, SAVING_STABILITY, CALC_SUCCESS(modi, 60)))) {
 			act("$n3 повалило на землю.", FALSE, victim, 0, 0, TO_ROOM);
 			act("Вас повалило на землю.", FALSE, victim, 0, 0, TO_CHAR);
 			GET_POS(victim) = POS_SITTING;
@@ -1236,7 +1236,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	case SPELL_STUNNING:
 		if (ch == victim ||
 			((number (1, 999)  > GET_AR(victim) * 10) &&
-			!general_savingthrow(victim, SAVING_CRITICAL, CALC_SUCCESS (modi, GET_REAL_WIS(ch)), 0))) {
+			!general_savingthrow(victim, SAVING_CRITICAL, CALC_SUCCESS (modi, GET_REAL_WIS(ch))))) {
 		    savetype = SAVING_STABILITY;
 		    ndice = GET_REAL_WIS(ch) / 5;
 		    sdice = GET_REAL_WIS(ch);
@@ -1265,7 +1265,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	//	    Ну явно кривота была. Отбалансил на свой вкус. В 50 мудры на 25м леве лаг на 3 на 30 лаг на 4 а не наоборот
 		    adice = MAX(1, GET_LEVEL(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;
 		if (ch == victim ||
-		    (!general_savingthrow (victim, SAVING_CRITICAL, CALC_SUCCESS (modi, GET_REAL_WIS (ch)),0) &&
+		    (!general_savingthrow (victim, SAVING_CRITICAL, CALC_SUCCESS (modi, GET_REAL_WIS (ch))) &&
 		     (number (1, 999)  > GET_AR(victim) * 10) &&
 		     number(0, 1000) <= 500)) {
 		    GET_POS(victim) = POS_INCAP;
@@ -1384,7 +1384,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			dam = -1;
 			no_savings = TRUE;
 			// смерть или диспелл :)
-			if (general_savingthrow(victim, SAVING_WILL, modi, 0)) {
+			if (general_savingthrow(victim, SAVING_WILL, modi)) {
 				act("Черное облако вокруг Вас нейтрализовало действие тумана, растворившись в нем.",
 				    FALSE, victim, 0, 0, TO_CHAR);
 				act("Черное облако вокруг $n1 нейтрализовало действие тумана.",
@@ -1413,7 +1413,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		sdice = 5;
 		if (GET_POS(victim) > POS_SITTING &&
 		    !WAITLESS(victim) &&
-		    (GET_MOB_HOLD(victim) || !general_savingthrow(victim, SAVING_STABILITY, con_app[GET_REAL_CON(ch)].hitp * 2, 0))) {
+		    (GET_MOB_HOLD(victim) || !general_savingthrow(victim, SAVING_STABILITY, con_app[GET_REAL_CON(ch)].hitp * 2))) {
 			act("$n3 повалило на землю.", FALSE, victim, 0, 0, TO_ROOM);
 			act("Вас повалило на землю.", FALSE, victim, 0, 0, TO_CHAR);
 			GET_POS(victim) = POS_SITTING;
@@ -1468,7 +1468,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		if (!IS_SET(SpINFO.routines, MAG_WARCRY)) {
 	    		if (AFF_FLAGGED(victim, AFF_SANCTUARY))
 				koeff *= 2;
-			if (ch != victim && general_savingthrow(victim, savetype, modi, 0))
+			if (ch != victim && general_savingthrow(victim, savetype, modi))
 				koeff /= 2;
 			if (AFF_FLAGGED(victim, AFF_PRISMATICAURA))
 				koeff /= 2;
@@ -1613,7 +1613,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	switch (spellnum) {
 	case SPELL_CHILL_TOUCH:
 		savetype = SAVING_STABILITY;
-		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+		if (ch != victim && general_savingthrow(victim, savetype, modi)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -1631,7 +1631,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_ENERGY_DRAIN:
 	case SPELL_WEAKNESS:
 		savetype = SAVING_WILL;
-		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+		if (ch != victim && general_savingthrow(victim, savetype, modi)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -1851,7 +1851,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_CONE_OF_COLD:
-		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+		if (ch != victim && general_savingthrow(victim, savetype, modi)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 		}
@@ -2010,7 +2010,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 */
 
 	case SPELL_MINDLESS:
-		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+		if (ch != victim && general_savingthrow(victim, savetype, modi)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2040,7 +2040,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		if (MOB_FLAGGED(victim, MOB_NOBLIND) ||
 		    WAITLESS(victim) ||
 		    ((ch != victim) &&
-		     !GET_GOD_FLAG(victim, GF_GODSCURSE) && general_savingthrow(victim, savetype, modi, 0))) {
+		     !GET_GOD_FLAG(victim, GF_GODSCURSE) && general_savingthrow(victim, savetype, modi))) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2073,7 +2073,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_MADNESS:
 		savetype = SAVING_WILL;
-		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+		if (ch != victim && general_savingthrow(victim, savetype, modi)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2089,7 +2089,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_WEB:
 		savetype = SAVING_REFLEX;
 		if (AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
-		    || ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+		    || ch != victim && general_savingthrow(victim, savetype, modi)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2114,7 +2114,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_MASS_CURSE:
 	case SPELL_CURSE:
 		savetype = SAVING_WILL;
-		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+		if (ch != victim && general_savingthrow(victim, savetype, modi)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2143,7 +2143,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_SLOW:
 		savetype = SAVING_STABILITY;
 		if (AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
-		    || ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+		    || ch != victim && general_savingthrow(victim, savetype, modi)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2225,7 +2225,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_PLAQUE:
 		savetype = SAVING_STABILITY;
-		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+		if (ch != victim && general_savingthrow(victim, savetype, modi)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2249,7 +2249,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_POISON:
 		savetype = SAVING_CRITICAL;
 		if (ch != victim && (AFF_FLAGGED(victim, AFF_SHIELD) ||
-		    general_savingthrow(victim, savetype, modi + con_app[GET_REAL_CON(victim)].poison_saving, 0))) {
+		    general_savingthrow(victim, savetype, modi + con_app[GET_REAL_CON(victim)].poison_saving))) {
 			if (IN_ROOM(ch) == IN_ROOM(victim)) /* Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно*/
 				send_to_char(NOEFFECT, ch);
 			success = FALSE;
@@ -2301,7 +2301,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_SLEEP:
 		savetype = SAVING_WILL;
 		if (AFF_FLAGGED(victim, AFF_HOLD) || MOB_FLAGGED(victim, MOB_NOSLEEP)
-		    || (ch != victim && general_savingthrow(victim, SAVING_WILL, modi, 0))) {
+		    || (ch != victim && general_savingthrow(victim, SAVING_WILL, modi))) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2396,7 +2396,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_HOLD:
 		if (AFF_FLAGGED(victim, AFF_SLEEP)
 		    || MOB_FLAGGED(victim, MOB_NOHOLD) || AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
-		    || (ch != victim && general_savingthrow(victim, SAVING_WILL, modi, 0))) {
+		    || (ch != victim && general_savingthrow(victim, SAVING_WILL, modi))) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2433,7 +2433,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			break;
 		}
 		if (		/*MOB_FLAGGED(victim, MOB_NODEAFNESS) || */
-			   (ch != victim && general_savingthrow(victim, savetype, modi, 0))) {
+			   (ch != victim && general_savingthrow(victim, savetype, modi))) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2466,7 +2466,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_SIELENCE:
 		savetype = SAVING_WILL;
 		if (MOB_FLAGGED(victim, MOB_NOSIELENCE) ||
-		    (ch != victim && general_savingthrow(victim, savetype, modi, 0))) {
+		    (ch != victim && general_savingthrow(victim, savetype, modi))) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2529,7 +2529,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_NOFLEE:
 		savetype = SAVING_WILL;
 		if (AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
-		    || ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+		    || ch != victim && general_savingthrow(victim, savetype, modi)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2590,7 +2590,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			modi = CALC_SUCCESS(modi, 95);
 			break;
 		}
-		if (WAITLESS(victim) || (!WAITLESS(ch) && general_savingthrow(victim, savetype, modi, 0))) {
+		if (WAITLESS(victim) || (!WAITLESS(ch) && general_savingthrow(victim, savetype, modi))) {
 			success = FALSE;
 			break;
 		}
@@ -2630,7 +2630,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 //Заклинание плач. Далим.
 	case SPELL_CRYING:
-		if (AFF_FLAGGED(victim, AFF_CRYING) || (ch != victim && general_savingthrow(victim, savetype, modi, 0))) {
+		if (AFF_FLAGGED(victim, AFF_CRYING) || (ch != victim && general_savingthrow(victim, savetype, modi))) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2672,7 +2672,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_BURDEN_OF_TIME:
 		if (WAITLESS(victim)
 		    || general_savingthrow(victim, SAVING_REFLEX,
-					   CALC_SUCCESS(modi, (spellnum == SPELL_OBLIVION ? 40 : 90)), 0)) {
+					   CALC_SUCCESS(modi, (spellnum == SPELL_OBLIVION ? 40 : 90)))) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2689,7 +2689,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_PEACEFUL:
 		if (AFF_FLAGGED(victim, AFF_PEACEFUL) || (IS_NPC(victim) && !AFF_FLAGGED(victim, AFF_CHARM)) ||
-		    (ch != victim && general_savingthrow(victim, savetype, modi, 0))) {
+		    (ch != victim && general_savingthrow(victim, savetype, modi))) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2721,7 +2721,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_FAILURE:
 		savetype = SAVING_WILL;
-		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+		if (ch != victim && general_savingthrow(victim, savetype, modi)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2739,7 +2739,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_GLITTERDUST:
 		savetype = SAVING_REFLEX;
-		if (ch != victim && general_savingthrow(victim, savetype, modi + 50, 0)) {
+		if (ch != victim && general_savingthrow(victim, savetype, modi + 50)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2767,7 +2767,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_SCREAM:
 		savetype = SAVING_STABILITY;
-		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+		if (ch != victim && general_savingthrow(victim, savetype, modi)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2836,7 +2836,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_WC_OF_MENACE:
 		savetype = SAVING_WILL;
 		modi = con_app[GET_REAL_CON(ch)].hitp * 2;
-		if (ch != victim && general_savingthrow(victim, savetype, modi, 0)) {
+		if (ch != victim && general_savingthrow(victim, savetype, modi)) {
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -2852,7 +2852,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_WC_OF_MADNESS:
 		savetype = SAVING_STABILITY;
 		modi = con_app[GET_REAL_CON(ch)].hitp * 3;
-		if (ch == victim || !general_savingthrow(victim, savetype, modi, 0)) {
+		if (ch == victim || !general_savingthrow(victim, savetype, modi)) {
 			af[0].location = APPLY_INT;
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 									pc_duration(victim, 2, level + 3, 4, 6, 0));
@@ -2862,7 +2862,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 			savetype = SAVING_STABILITY;
 			modi = con_app[GET_REAL_CON(ch)].hitp * 4;
-			if (ch == victim || !general_savingthrow(victim, savetype, modi, 0)) {
+			if (ch == victim || !general_savingthrow(victim, savetype, modi)) {
 				af[1].location = APPLY_CAST_SUCCESS;
 				af[1].duration = af[0].duration;
 				af[1].modifier = -(dice((2 + level) / 3, 4) + dice(GET_REMORT(ch) / 2, 5));
@@ -2876,7 +2876,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		} else {
 			savetype = SAVING_STABILITY;
 			modi = con_app[GET_REAL_CON(ch)].hitp * 4;
-			if (!general_savingthrow(victim, savetype, modi, 0)) {
+			if (!general_savingthrow(victim, savetype, modi)) {
 				af[0].location = APPLY_CAST_SUCCESS;
 				af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 										pc_duration(victim, 2, level + 3, 4, 6, 0));

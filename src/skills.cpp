@@ -202,7 +202,9 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict)
 {
 	int skill_is, percent = 0, victim_sav = SAVING_REFLEX, victim_modi = 0;
-	int morale, use = 0;
+	int morale;
+	bool pass_mod = 0; // в данный момент для доп.выстрела, чтобы оставить его как скилл,
+	// но не применять к нему левых штрафов и плюсов, плюсуется только от инты немного
 
 	if (skill_no < 1 || skill_no > MAX_SKILLS) {	// log("ERROR: ATTEMPT USING UNKNOWN SKILL <%d>", skill_no);
 		return 0;
@@ -469,10 +471,10 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		percent = skill_is;
 		break;
 	case SKILL_ADDSHOT:
-		percent = skill_is + dex_app[GET_REAL_DEX(ch)].miss_att;
-		use = 1;
+		percent = skill_is;
 		if (equip_in_metall(ch))
 			percent -= 20;
+		pass_mod = 1;
 		break;
 	case SKILL_NOPARRYHIT:
 		percent = skill_is + dex_app[GET_REAL_DEX(ch)].miss_att;
@@ -650,32 +652,32 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	}
 
-	percent = complex_skill_modifier(ch, skill_no, GAPPLY_SKILL_SUCCESS, percent);
+	// не все умения надо модифицировать из-за внешних факторов и морали
+	if (!pass_mod)
+	{
+		percent = complex_skill_modifier(ch, skill_no, GAPPLY_SKILL_SUCCESS, percent);
+		morale = cha_app[GET_REAL_CHA(ch)].morale + GET_MORALE(ch);
 
-	morale = cha_app[GET_REAL_CHA(ch)].morale + GET_MORALE(ch);
+		if (vict && percent > skill_info[skill_no].max_percent)
+			victim_modi += percent - skill_info[skill_no].max_percent;
 
-	if (vict && percent > skill_info[skill_no].max_percent)
-		victim_modi += percent - skill_info[skill_no].max_percent;
-//		+ (MAX (0, morale - 50) * 2);
-//maksimum morali +50,  vse chto vyshe idet bonusom k skillu
+		if (AFF_FLAGGED(ch, AFF_DEAFNESS))
+			morale -= 20;	// у глухого мораль на 20 меньше
+		/* Обработка способности "боевой дух"  */
+		if (vict && can_use_feat(vict, SPIRIT_WARRIOR_FEAT))
+			morale -= 3;
 
-	if (AFF_FLAGGED(ch, AFF_DEAFNESS))
-		morale -= 20;	// у глухого мораль на 20 меньше
-	/* Обработка способности "боевой дух"  */
-	if (vict && can_use_feat(vict, SPIRIT_WARRIOR_FEAT))
-		morale -= 3;
+		// если мораль отрицательная, увеличивается вероятность, что умение не пройдет
+		if ((skill_is = number(0, 99)) >= 95 + morale)
+			percent = 0;
+		else if (skill_is <= MIN (50, morale))
+			percent = skill_info[skill_no].max_percent;
+		else if (vict && general_savingthrow(vict, victim_sav, victim_modi))
+			percent = 0;
+	}
 
-// если мораль отрицательная, увеличивается вероятность, что умение не пройдет
-	if ((skill_is = number(0, 99)) >= 95 + morale)
-		percent = 0;
-	else if (skill_is <= MIN (50, morale))
-		percent = skill_info[skill_no].max_percent;
-	else if (vict && general_savingthrow(vict, victim_sav, victim_modi, use))
-		percent = 0;
-
-	if (IS_IMMORTAL(ch) ||	// бессмертный
-	    GET_GOD_FLAG(ch, GF_GODSLIKE)	// спецфлаг
-	    )
+	// иммские флаги и прокла влияют на все
+	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
 		percent = MAX(percent, skill_info[skill_no].max_percent);
 	else if (GET_GOD_FLAG(ch, GF_GODSCURSE) || (vict && GET_GOD_FLAG(vict, GF_GODSLIKE)))
 		percent = 0;

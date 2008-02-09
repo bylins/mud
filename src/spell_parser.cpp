@@ -4682,7 +4682,7 @@ void mag_assign_spells(void)
 	skillo(SKILL_DISARM, "обезоружить", 100);
 	skillo(SKILL_HEAL, "!heal!", 100);
 	skillo(SKILL_TURN, "turn", 100);
-	skillo(SKILL_ADDSHOT, "дополнительный выстрел", 100);
+	skillo(SKILL_ADDSHOT, "дополнительный выстрел", 200);
 	skillo(SKILL_CAMOUFLAGE, "маскировка", 100);
 	skillo(SKILL_DEVIATE, "уклониться", 100);
 	skillo(SKILL_CHOPOFF, "подножка", 100);

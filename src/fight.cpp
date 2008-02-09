@@ -2128,7 +2128,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 			prob = calculate_skill(ch, SKILL_POISONED, skill_info[SKILL_POISONED].max_percent, victim);
 			if (prob >= percent
 			    && !general_savingthrow(victim, SAVING_CRITICAL,
-						    con_app[GET_REAL_CON(victim)].poison_saving, 0)) {
+						    con_app[GET_REAL_CON(victim)].poison_saving)) {
 				improove_skill(ch, SKILL_POISONED, TRUE, victim);
 				poison_victim(ch, victim, prob - percent);
 				wielded->affected[i].modifier--;
@@ -2142,7 +2142,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 		 !AFF_FLAGGED(ch, AFF_CHARM) &&
 		 GET_WAIT(ch) <= 0 &&
 		 !AFF_FLAGGED(victim, AFF_POISON) && number(0, 100) < GET_LIKES(ch) + GET_LEVEL(ch) - GET_LEVEL(victim)
-		 && !general_savingthrow(victim, SAVING_CRITICAL, con_app[GET_REAL_CON(victim)].poison_saving, 0))
+		 && !general_savingthrow(victim, SAVING_CRITICAL, con_app[GET_REAL_CON(victim)].poison_saving))
 		poison_victim(ch, victim, MAX(1, GET_LEVEL(ch) - GET_LEVEL(victim)) * 10);
 
 	// Если удар парирован, необходимо все равно ввязаться в драку.
@@ -2629,8 +2629,6 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 	if (wielded && !GET_EQ(ch, WEAR_SHIELD) &&
 	    GET_OBJ_SKILL(wielded) == SKILL_BOWS &&
 	    GET_EQ(ch, WEAR_BOTHS)) {
-		percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
-		div = 0;
 		/* Лук в обеих руках - юзаем доп. или двойной выстрел */
 		if (can_use_feat(ch, DOUBLESHOT_FEAT) && !get_skill(ch, SKILL_ADDSHOT)
 		    && MIN(850, 200 + get_skill(ch, SKILL_BOWS) * 4 + GET_REAL_DEX(ch) * 5) >= number(1, 1000)) {
@@ -2639,23 +2637,44 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 		} else
 			prob = train_skill(ch, SKILL_ADDSHOT, skill_info[SKILL_ADDSHOT].max_percent, FIGHTING(ch));
 
-		if (prob >= percent || WAITLESS(ch))
-			hit(ch, FIGHTING(ch), type, weapon);
-		// вероятность 66%
 		percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
-		if (prob * 2 > percent * 3 && FIGHTING(ch))
+		div = 0;
+
+		// ловка роляет только выше 21 (стартовый максимум охота) и до 50
+		float dex_mod = static_cast<float>(MAX(GET_REAL_DEX(ch) - 21, 0)) / 29;
+		// штраф на 4й и 5й выстрелы для чаров ниже 5 мортов, по 20% за морт
+		float remort_mod = static_cast<float>(GET_REMORT(ch)) / 5;
+		if (remort_mod > 1) remort_mod = 1;
+
+		// у чармисов никаких плюшек от 100+ скилла и максимум 2 доп атаки
+		if (IS_CHARMICE(ch))
+		{
+			prob = MIN(100, prob);
+			dex_mod = 0;
+			remort_mod = 0;
+		}
+
+		// выше 100% идет другая формула
+		float add_prob = MAX(prob - 100, 0);
+		// скилл выше 100 добавляет равный ловке процент в максимуме
+		float skill_mod = add_prob / 100;
+		// а для скилла до сотни все остается как было
+		prob = MIN(100, prob);
+
+		// первый доп.выстрел - 100% при скилле >=100, отключается на жопе/стуне и т.п.
+		if ((prob + skill_mod + dex_mod >= percent / 2 && GET_POS(ch) >= POS_FIGHTING) || WAITLESS(ch))
 			hit(ch, FIGHTING(ch), type, weapon);
 
-		// при 5 мортах 40%, при меньше -- меньше
-		percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
-		div = 5 * (6 - MIN(5, GET_REMORT(ch)));
-		if (prob * 2 > percent * div && FIGHTING(ch))
+		// второй доп.выстрел - 90% при максимум скилла и дексы, 66% при 100 скилла, отключается на жопе/стуне и т.п.
+		if (prob * 2 + skill_mod * 35 + dex_mod * 35 > percent * 3 / 2 && FIGHTING(ch) && GET_POS(ch) >= POS_FIGHTING)
 			hit(ch, FIGHTING(ch), type, weapon);
 
-		// при 8 мортах 20%, при меньше -- меньше
-		percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
-		div = 5 * (9 - MIN(8, GET_REMORT(ch)));
-		if (prob > percent * div && FIGHTING(ch))
+		// третий доп.выстрел - 60% при максимум скилла и дексы, 40% при 100 скилла (5+ мортов)
+		if ((prob * 2 + skill_mod * 50 + dex_mod * 50) * remort_mod > percent * 5 / 2 && FIGHTING(ch))
+			hit(ch, FIGHTING(ch), type, weapon);
+
+		// четвертый доп.выстрел - 30% при максимум скилла и дексы, 20% при 100 скилла (5+ мортов)
+		if ((prob + skill_mod * 25 + dex_mod * 25) * remort_mod > percent * 5 / 2 && FIGHTING(ch))
 			hit(ch, FIGHTING(ch), type, weapon);
 	}
 
@@ -2678,15 +2697,15 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 	};
 	if (GET_AF_BATTLE(ch, EAF_IRON_WIND)) {
 		if (weapon == RIGHT_WEAPON) {
-			div = 100+MIN(80, MAX(1, percent-80)); 
+			div = 100+MIN(80, MAX(1, percent-80));
 			prob = 100;
 		} else {
-			div = MIN(80, percent+10); 
+			div = MIN(80, percent+10);
 			prob = 80-MIN(30, MAX(0, percent-170));
 		};
 		while (div > 0) {
 			if (number(1, 100) < div)
-				hit(ch, FIGHTING(ch), type, weapon);	
+				hit(ch, FIGHTING(ch), type, weapon);
 			div -= prob;
 		};
 	};
@@ -3448,7 +3467,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 	  			if (!general_savingthrow(victim,SAVING_REFLEX,
 					MAX (0, get_skill(ch,SKILL_BACKSTAB) -
 						skill_info[SKILL_BACKSTAB].max_percent +
-						dex_app[GET_REAL_DEX(ch)].reaction),0))	{
+						dex_app[GET_REAL_DEX(ch)].reaction)))	{
 					dam *= MAX(2, (get_skill(ch,SKILL_BACKSTAB) - 40) / 8);
 					send_to_char("&GПрямо в сердце!&n\r\n", ch);
 				}

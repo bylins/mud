@@ -2234,7 +2234,7 @@ ACMD(do_turn_undead)
 		train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);
 		damage(ch, ch_vict, dam, SKILL_TURN_UNDEAD + TYPE_HIT, TRUE);
 	        if (!MOB_FLAGGED(ch_vict, MOB_NOFEAR) &&
-				!general_savingthrow(ch_vict, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch), 0))
+				!general_savingthrow(ch_vict, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch)))
 	                go_flee(ch_vict);
         }
 
