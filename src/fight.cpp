@@ -946,17 +946,25 @@ void log_dead_exp()
 }
 void print_dead_exp(CHAR_DATA * ch)
 {
-	int count1 = 0, count2 = 0, count3 = 0;
+	int count1 = 0, count2 = 0, count3 = 0, count4 = 0, count5 = 0, count6 = 0, count7 = 0;
 	for (std::map<int, int>::iterator it = exp_dead.begin(); it != exp_dead.end(); ++it)
 	{
-		if (it->first >= 100000 && it->first < 500000)
+		if (it->first >= 100000 && it->first < 250000)
 			++count1;
-		if (it->first >= 500000 && it->first < 1000000)
+		if (it->first >= 250000 && it->first < 500000)
 			++count2;
-		if (it->first >= 1000000)
+		if (it->first >= 500000 && it->first < 750000)
 			++count3;
+		if (it->first >= 750000 && it->first < 1000000)
+			++count4;
+		if (it->first >= 1000000 && it->first < 3000000)
+			++count5;
+		if (it->first >= 3000000 && it->first < 5000000)
+			++count6;
+		if (it->first >= 5000000)
+			++count7;
 	}
-	send_to_char(ch, "  Debug: %d %d %d\r\n", count1, count2, count3);
+	send_to_char(ch, "  Debug: %d %d %d %d %d %d %d\r\n", count1, count2, count3, count4, count5, count6, count7);
 }
 
 

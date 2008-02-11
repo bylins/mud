@@ -2328,6 +2328,22 @@ void dig_obj(struct char_data *ch, struct obj_data *obj)
 	}
 }
 
+std::map<int, int> dig_log;
+void log_dig_log()
+{
+	log("DigLog:");
+	for (std::map<int, int>::iterator it = dig_log.begin(); it != dig_log.end(); ++it)
+		log("%d : %d", it->first, it->second);
+}
+void print_dig_log(CHAR_DATA * ch)
+{
+	std::ostringstream out;
+	for (std::map<int, int>::iterator it = dig_log.begin(); it != dig_log.end(); ++it)
+		out << it->first << ":" << it->second << " ";
+	send_to_char(ch, "  %s\r\n", out.str().c_str());
+}
+
+
 ACMD(do_dig)
 {
 	struct char_data *mob;
@@ -2486,10 +2502,16 @@ ACMD(do_dig)
 		return;
 	}
 
-
 	vnum = dig_vars.stone1_vnum - 1 + stone_num;
 	obj = read_object(real_object(vnum), REAL);
 	if (obj) {
+
+		std::map<int, int>::iterator it = dig_log.find(vnum);
+		if (it != dig_log.end())
+			it->second += 1;
+		else
+			dig_log[vnum] = 1;
+
 		if (number(1, dig_vars.glass_chance) != 1)
 			GET_OBJ_MATER(obj) = 11;
 		else

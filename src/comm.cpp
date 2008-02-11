@@ -123,6 +123,7 @@ extern void tact_auction(void);
 extern time_t boot_time;
 extern void ObjDebugLog();
 extern void log_dead_exp();
+extern void log_dig_log();
 
 /* external global objects and containers */
 extern BanList *ban;
@@ -1322,6 +1323,7 @@ inline void heartbeat()
 
 	if (!((pulse + 23) % (8 * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		log_dig_log();
 		log_dead_exp();
 		ObjDebugLog();
 	}
