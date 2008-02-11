@@ -57,7 +57,8 @@ handler.o: handler.cpp conf.h sysdep.h structs.h constants.h utils.h \
   comm.h db.h handler.h interpreter.h spells.h skills.h screen.h \
   dg_scripts.h auction.h features.hpp house.h exchange.h
 house.o: house.cpp conf.h house.h sysdep.h structs.h utils.h db.h \
-  interpreter.h comm.h handler.h pk.h screen.h boards.h skills.h spells.h
+  interpreter.h comm.h handler.h pk.h screen.h boards.h skills.h spells.h \
+  privilege.hpp
 interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
   interpreter.h constants.h db.h utils.h spells.h skills.h handler.h \
   house.h mail.h screen.h olc.h dg_scripts.h pk.h genchar.h ban.hpp \
@@ -69,7 +70,7 @@ limits.o: limits.cpp conf.h sysdep.h structs.h utils.h spells.h skills.h \
   glory.hpp
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
   skills.h handler.h db.h interpreter.h screen.h constants.h dg_scripts.h \
-  pk.h features.hpp magic.h fight.h
+  pk.h features.hpp magic.h fight.h deathtrap.hpp
 mail.o: mail.cpp conf.h sysdep.h structs.h utils.h comm.h db.h \
   interpreter.h handler.h mail.h
 mobact.o: mobact.cpp conf.h sysdep.h structs.h utils.h db.h comm.h \
@@ -170,9 +171,10 @@ stuff.o: stuff.cpp conf.h sysdep.h structs.h comm.h db.h handler.h \
 description.o: description.cpp conf.h sysdep.h structs.h utils.h \
   description.h
 deathtrap.o: deathtrap.cpp conf.h deathtrap.hpp sysdep.h structs.h \
-  constants.h db.h spells.h utils.h handler.h
+  constants.h db.h spells.h utils.h handler.h comm.h house.h \
+  interpreter.h
 title.o: title.cpp conf.h title.hpp sysdep.h structs.h interpreter.h \
-  utils.h comm.h db.h screen.h pk.h
+  utils.h comm.h db.h screen.h pk.h privilege.hpp handler.h
 password.o: password.cpp password.hpp conf.h sysdep.h structs.h utils.h \
   interpreter.h
 privilege.o: privilege.cpp conf.h sysdep.h structs.h utils.h db.h \

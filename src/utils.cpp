@@ -361,23 +361,6 @@ void write_time(FILE *file)
 	fprintf(file, "%s :: ", time_buf);
 }
 
-/* log a death trap hit */
-void log_death_trap(CHAR_DATA * ch)
-{
-	const char *filename = "../log/death_trap.log";
-	static FILE *file = 0;
-	if (!file) {
-		file = fopen(filename, "a");
-		if (!file) {
-			log("SYSERR: can't open %s!", filename);
-			return;
-		}
-		opened_files.push_back(file);
-	}
-	write_time(file);
-	fprintf(file, "%s hit death trap #%d (%s)\n", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), world[IN_ROOM(ch)]->name);
-}
-
 /*
  * New variable argument log() function.  Works the same as the old for
  * previously written code but is very nice for new code.

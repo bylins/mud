@@ -50,6 +50,7 @@ int strn_cmp(const char *arg1, const char *arg2, int n);
 int strn_cmp(const std::string &arg1, const char *arg2, int n);
 int strn_cmp(const char *arg1, const std::string &arg2, int n);
 int strn_cmp(const std::string &arg1, const std::string &arg2, int n);
+void write_time(FILE *file);
 void log(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
 void olc_log(const char *format, ...);
 void imm_log(const char *format, ...);
@@ -57,7 +58,6 @@ void pers_log(CHAR_DATA *ch, const char *format, ...);
 void ip_log(const char *ip);
 int touch(const char *path);
 void mudlog(const char *str, int type, int level, int channel, int file);
-void log_death_trap(CHAR_DATA * ch);
 int number(int from, int to);
 int dice(int number, int size);
 int sprintbit(bitvector_t vektor, const char *names[], char *result);
@@ -860,6 +860,9 @@ extern SPECIAL(postmaster);
 #define GET_OBJ_SUF_6(obj) (IS_OBJ_NOSEXY(obj) ? "Ï" :\
                             IS_OBJ_MALE(obj) ? ""  :\
                             IS_OBJ_FEMALE(obj) ? "Á" : "Ù")
+#define GET_OBJ_SUF_7(obj) (IS_OBJ_NOSEXY(obj) ? "Å" :\
+                            IS_OBJ_MALE(obj) ? ""  :\
+                            IS_OBJ_FEMALE(obj) ? "Á" : "É")
 
 
 #define GET_OBJ_VIS_SUF_1(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "Ï" :\

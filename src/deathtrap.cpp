@@ -12,11 +12,23 @@
 #include "spells.h"
 #include "utils.h"
 #include "handler.h"
+#include "comm.h"
+#include "house.h"
+
+extern int has_boat(CHAR_DATA * ch);
+extern void die(CHAR_DATA * ch, CHAR_DATA * killer);
+extern void change_fighting(CHAR_DATA * ch, int need_stop);
+extern void death_cry(CHAR_DATA * ch);
+extern OBJ_DATA *make_corpse(CHAR_DATA * ch);
+extern void reset_affects(CHAR_DATA *ch);
 
 namespace DeathTrap {
 
 // список текущих слоу-дт в маде
 std::list<ROOM_DATA*> room_list;
+
+void log_death_trap(CHAR_DATA * ch);
+void remove_items(CHAR_DATA *ch);
 
 } // namespace DeathTrap
 
@@ -107,4 +119,148 @@ ROOM_DATA* OneWayPortal::get_from_room(ROOM_DATA* to_room)
 	if (it != portal_list.end())
 		return it->second;
 	return 0;
+}
+
+/**
+* Логирование в отдельный файл уходов в дт для интересу и мб статистики.
+*/
+void DeathTrap::log_death_trap(CHAR_DATA * ch)
+{
+	const char *filename = "../log/death_trap.log";
+	static FILE *file = 0;
+	if (!file)
+	{
+		file = fopen(filename, "a");
+		if (!file)
+		{
+			log("SYSERR: can't open %s!", filename);
+			return;
+		}
+		opened_files.push_back(file);
+	}
+	write_time(file);
+	fprintf(file, "%s hit death trap #%d (%s)\n", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), world[IN_ROOM(ch)]->name);
+}
+
+/**
+* Потеря шмота при уходе в дт: рандом от 1 до 3 одетых шмоток, не считая контейнеров.
+*/
+void DeathTrap::remove_items(CHAR_DATA *ch)
+{
+	int num = number(1, 3);
+	int wear = 0;
+	bool purge = false;
+
+	for (int i = 0; i < NUM_WEARS; ++i)
+	{
+		OBJ_DATA *obj = GET_EQ(ch, i);
+		if (obj && GET_OBJ_TYPE(obj) != ITEM_CONTAINER)
+			++wear;
+	}
+
+	send_to_char("\r\n", ch);
+	if (wear > num)
+	{
+		while (num)
+		{
+			int rnd_num = number(0, NUM_WEARS - 1);
+			OBJ_DATA *obj = GET_EQ(ch, rnd_num);
+			if (obj && GET_OBJ_TYPE(obj) != ITEM_CONTAINER)
+			{
+				send_to_char(ch, "Ваш%s %s отдан%s в фонд защиты мобов от неразумных игроков.\r\n",
+					GET_OBJ_SUF_7(obj), obj->short_description, GET_OBJ_SUF_6(obj));
+				obj_from_char(obj);
+				extract_obj(obj);
+				purge = true;
+				--num;
+			}
+		}
+	}
+	else if (wear && wear <= num)
+	{
+		for (int i = 0; i < NUM_WEARS; ++i)
+		{
+			OBJ_DATA *obj = GET_EQ(ch, i);
+			if (obj && GET_OBJ_TYPE(obj) != ITEM_CONTAINER)
+			{
+				send_to_char(ch, "Ваш%s %s отдан%s в фонд защиты мобов от неразумных игроков.\r\n",
+					GET_OBJ_SUF_7(obj), obj->short_description, GET_OBJ_SUF_6(obj));
+				obj_from_char(obj);
+				extract_obj(obj);
+				purge = true;
+			}
+		}
+	}
+
+	if (purge)
+		send_to_char("Согласитесь, это не такая большая плата за бесценный жизненный опыт...\r\n", ch);
+	else
+		send_to_char("Радуйтесь! Ибо ничего ценного потеряно не было...\r\n", ch);
+
+	send_to_char("\r\n", ch);
+}
+
+/**
+* Попадание в обычное дт.
+*/
+int DeathTrap::check_death_trap(CHAR_DATA * ch)
+{
+	if (IN_ROOM(ch) == NOWHERE) return false;
+
+	if ((ROOM_FLAGGED(ch->in_room, ROOM_DEATH) && !IS_IMMORTAL(ch))
+		|| (real_sector(IN_ROOM(ch)) == SECT_FLYING && !IS_NPC(ch)
+			&& !IS_GOD(ch) && !AFF_FLAGGED(ch, AFF_FLY))
+		|| (real_sector(IN_ROOM(ch)) == SECT_WATER_NOSWIM && !IS_NPC(ch)
+			&& !IS_GOD(ch) && !has_boat(ch)))
+	{
+		log_death_trap(ch);
+		// во время боевых действий уход в дт - это смерть по полной программе
+		if (RENTABLE(ch))
+		{
+			die(ch, NULL);
+			GET_HIT(ch) = GET_MOVE(ch) = 0;
+			return true;
+		}
+
+		death_cry(ch);
+		// мобы просто пуржатся со всеми делами
+		if (IS_NPC(ch))
+		{
+			OBJ_DATA *corpse = make_corpse(ch);
+			if (corpse != NULL)
+			{
+				obj_from_room(corpse);	// для того, чтобы удалилость все содержимое
+				extract_obj(corpse);
+			}
+			GET_HIT(ch) = GET_MOVE(ch) = 0;
+			extract_char(ch, TRUE);
+			return true;
+		}
+		// игроки уходят на ренту с потерей части шмоток (см remove_items) и резетом как после рипа
+		change_fighting(ch, true);
+		reset_affects(ch);
+		MemQ_flush(ch);
+		for (int i = 1; i <= MAX_SPELLS; i++)
+			GET_SPELL_MEM(ch, i) = 0;
+		remove_items(ch);
+
+		char_from_room(ch);
+		int to_room = real_room(GET_LOADROOM(ch));
+		// прихожу к выводу, что надо при отписке все таки сразу все это делать
+		if (!Clan::MayEnter(ch, to_room, HCE_PORTAL))
+			to_room = Clan::CloseRent(to_room);
+		if (to_room == NOWHERE)
+		{
+			SET_BIT(PLR_FLAGS(ch, PLR_HELLED), PLR_HELLED);
+			HELL_DURATION(ch) = time(0) + 6;
+			to_room = r_helled_start_room;
+		}
+		char_to_room(ch, to_room);
+		look_at_room(ch, to_room);
+		GET_HIT(ch) = GET_MOVE(ch) = 0;
+		GET_POS(ch) = POS_STUNNED;
+		act("$n упал$g с небес в обморочном состоянии...", FALSE, ch, 0, 0, TO_ROOM);
+		return true;
+	}
+	return false;
 }

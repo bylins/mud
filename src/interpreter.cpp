@@ -560,7 +560,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"зачитать", POS_RESTING, do_use, 0, SCMD_RECITE, 500},
 	{"золото", POS_RESTING, do_gold, 0, 0, 0},
 
-	{"инвентарь", POS_DEAD, do_inventory, 0, 0, 0},
+	{"инвентарь", POS_SLEEPING, do_inventory, 0, 0, 0},
 	{"игнорировать", POS_DEAD, do_ignore, 0, 0, 0},
 	{"идеи", POS_DEAD, DoBoard, 1, IDEA_BOARD, 0},
 	{"идея", POS_DEAD, do_gen_write, 0, SCMD_IDEA, 0},
@@ -870,7 +870,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"info", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
 	{"insert", POS_STANDING, do_insertgem, 0, SKILL_INSERTGEM, -1},
 	{"insult", POS_RESTING, do_insult, 0, 0, -1},
-	{"inventory", POS_DEAD, do_inventory, 0, 0, 0},
+	{"inventory", POS_SLEEPING, do_inventory, 0, 0, 0},
 	{"invis", POS_DEAD, do_invis, LVL_GOD, 0, -1},
 	{"junk", POS_RESTING, do_drop, 0, 0 /*SCMD_JUNK */ , 500},
 	{"kick", POS_FIGHTING, do_kick, 1, 0, -1},

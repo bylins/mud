@@ -71,38 +71,6 @@ const char *DirIs[] = {
 	"\n"
 };
 
-
-/* check some death situation */
-int check_death_trap(CHAR_DATA * ch)
-{
-	if (IN_ROOM(ch) != NOWHERE)
-		if ((ROOM_FLAGGED(ch->in_room, ROOM_DEATH) && !IS_IMMORTAL(ch)) ||
-		    (real_sector(IN_ROOM(ch)) == SECT_FLYING && !IS_NPC(ch)
-		     && !IS_GOD(ch) && !AFF_FLAGGED(ch, AFF_FLY))
-		    || (real_sector(IN_ROOM(ch)) == SECT_WATER_NOSWIM && !IS_NPC(ch)
-			&& !IS_GOD(ch) && !has_boat(ch))
-		    /*|| (real_sector(IN_ROOM(ch)) == SECT_UNDERWATER && !IS_NPC(ch) //Тут надо закомментить.
-			&& !IS_GOD(ch) && !AFF_FLAGGED(ch, AFF_WATERBREATH))*/) {
-			OBJ_DATA *corpse;
-			log_death_trap(ch);
-			if (RENTABLE(ch)) {
-				die(ch, NULL);
-				GET_HIT(ch) = GET_MOVE(ch) = 0;
-				return TRUE;
-			}
-			death_cry(ch);
-			corpse = make_corpse(ch);
-			if (corpse != NULL) {
-				obj_from_room(corpse);	// для того, чтобы удалилость все содержимое
-				extract_obj(corpse);
-			}
-			GET_HIT(ch) = GET_MOVE(ch) = 0;
-			extract_char(ch, TRUE);
-			return (TRUE);
-		}
-	return (FALSE);
-}
-
 /* check ice in room */
 int check_death_ice(int room, CHAR_DATA * ch)
 {
@@ -131,12 +99,6 @@ int check_death_ice(int room, CHAR_DATA * ch)
 	} else
 		return (FALSE);
 
-/* for (vict = world[room]->people; vict; vict = next_vict)
-       {next_vict = vict->next_in_room;
-        if (check_death_trap(vict) && vict == ch)
-            result = TRUE;
-       }
- */
 	return (result);
 }
 
@@ -721,7 +683,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	if (ch->desc != NULL)
 		look_at_room(ch, 0);
 
-	if (check_death_trap(ch)) {
+	if (DeathTrap::check_death_trap(ch)) {
 		if (horse)
 			extract_char(horse, FALSE);
 		return (FALSE);

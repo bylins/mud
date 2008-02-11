@@ -23,6 +23,8 @@ void add(ROOM_DATA* room);
 void remove(ROOM_DATA* room);
 // Проверка активности дт, дергается каждые 2 секунды в хеарбите
 void activity();
+// Обработка обычных дт
+int check_death_trap(CHAR_DATA * ch);
 
 } // namespace DeathTrap
 

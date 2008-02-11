@@ -688,13 +688,27 @@ void death_cry(CHAR_DATA * ch)
 	}
 }
 
-
+/**
+* Снятие аффектов с чара при смерти/уходе в дт.
+*/
+void reset_affects(CHAR_DATA *ch)
+{
+	AFFECT_DATA *af, *naf;
+	supress_godsapply = TRUE;
+	for (af = ch->affected; af; af = naf)
+	{
+		naf = af->next;
+		if (!IS_SET(af->battleflag, AF_DEADKEEP))
+			affect_remove(ch, af);
+	}
+	supress_godsapply = FALSE;
+	affect_total(ch);
+}
 
 void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 {
 	CHAR_DATA *hitter;
 	OBJ_DATA *corpse = NULL;
-	AFFECT_DATA *af, *naf;
 	int to_room;
 	long local_gold = 0;
 	char obj[256];
@@ -707,14 +721,7 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 		if (FIGHTING(hitter) == ch)
 			WAIT_STATE(hitter, 0);
 
-	supress_godsapply = TRUE;
-	for (af = ch->affected; af; af = naf) {
-		naf = af->next;
-		if (!IS_SET(af->battleflag, AF_DEADKEEP))
-			affect_remove(ch, af);
-	}
-	supress_godsapply = FALSE;
-	affect_total(ch);
+	reset_affects(ch);
 
 	if (!killer || death_mtrigger(ch, killer))
 		if (IN_ROOM(ch) != NOWHERE)

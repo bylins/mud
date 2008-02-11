@@ -29,6 +29,7 @@
 #include "features.hpp"
 #include "magic.h"
 #include "fight.h"
+#include "deathtrap.hpp"
 
 extern void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer);
 extern int what_sky;
@@ -267,7 +268,7 @@ void mobile_affect_update(void)
 				timed_feat_from_char(i, timed);
 		}
 
-		if (check_death_trap(i))
+		if (DeathTrap::check_death_trap(i))
 			continue;
 		if (was_charmed) {
 			stop_follower(i, SF_CHARMLOST);

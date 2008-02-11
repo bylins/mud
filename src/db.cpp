@@ -4684,9 +4684,9 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	for (i = 1; i <= MAX_SKILLS; i++)
 		SET_SKILL(ch, i, 0);
 	for (i = 1; i <= MAX_SPELLS; i++)
-		GET_SPELL_TYPE(ch, num) = 0;
+		GET_SPELL_TYPE(ch, i) = 0;
 	for (i = 1; i <= MAX_SPELLS; i++)
-		GET_SPELL_MEM(ch, num) = 0;
+		GET_SPELL_MEM(ch, i) = 0;
 	ch->char_specials.saved.affected_by = clear_flags;
 	POOFIN(ch) = NULL;
 	POOFOUT(ch) = NULL;

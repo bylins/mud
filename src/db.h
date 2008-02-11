@@ -396,4 +396,10 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch);
 void dl_list_copy(load_list * *pdst, load_list * src);
 void paste_mobiles();
 
+extern room_rnum r_helled_start_room;
+extern room_rnum r_mortal_start_room;
+extern room_rnum r_immort_start_room;
+extern room_rnum r_named_start_room;
+extern room_rnum r_unreg_start_room;
+
 #endif
