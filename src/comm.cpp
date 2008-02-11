@@ -122,6 +122,7 @@ extern void proc_color(char *inbuf, int color);
 extern void tact_auction(void);
 extern time_t boot_time;
 extern void ObjDebugLog();
+extern void log_dead_exp();
 
 /* external global objects and containers */
 extern BanList *ban;
@@ -1320,7 +1321,10 @@ inline void heartbeat()
 	}
 
 	if (!((pulse + 23) % (8 * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	{
+		log_dead_exp();
 		ObjDebugLog();
+	}
 
 	//log("---------- Stop heartbeat ----------");
 }
