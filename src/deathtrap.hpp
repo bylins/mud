@@ -25,7 +25,10 @@ void remove(ROOM_DATA* room);
 void activity();
 // Обработка обычных дт
 int check_death_trap(CHAR_DATA * ch);
-
+// Убирание номагик флагов в комнатах слоу-дт
+void check_nomagic_slowdeath(int rnum);
+// Проверка комнаты на принадлежность к медленным дт
+bool DeathTrap::is_slow_dt(int rnum);
 } // namespace DeathTrap
 
 /**

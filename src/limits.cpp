@@ -523,8 +523,13 @@ void beat_punish(CHAR_DATA * i)
 	}
 	else if (!RegisterSystem::is_registered(i))
 	{
-		if ((!RENTABLE(i)) && (restore != r_unreg_start_room) && i->desc
-		&& (STATE(i->desc) == CON_PLAYING) && !check_dupes_host(i->desc, 1)) {
+		if (!RENTABLE(i)
+			&& !DeathTrap::is_slow_dt(IN_ROOM(i))
+			&& restore != r_unreg_start_room
+			&& i->desc
+			&& STATE(i->desc) == CON_PLAYING
+			&& !check_dupes_host(i->desc, 1))
+		{
 
 			if (IN_ROOM(i) == STRANGE_ROOM)
 				GET_WAS_IN(i) = r_unreg_start_room;

@@ -1889,6 +1889,8 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 		world[room_nr]->sector_type = t[2];
 	}
 
+	DeathTrap::check_nomagic_slowdeath(room_nr);
+
 	// Обнуляем флаги от аффектов и сами аффекты на комнате.
 	world[room_nr]->affected = NULL;
 	world[room_nr]->affected_by.flags[0] = 0;
