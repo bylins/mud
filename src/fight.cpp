@@ -2684,14 +2684,13 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 		} else
 			prob = train_skill(ch, SKILL_ADDSHOT, skill_info[SKILL_ADDSHOT].max_percent, FIGHTING(ch));
 
-		percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
-		div = 0;
-
 		// ловка роляет только выше 21 (стартовый максимум охота) и до 50
 		float dex_mod = static_cast<float>(MAX(GET_REAL_DEX(ch) - 21, 0)) / 29;
 		// штраф на 4й и 5й выстрелы для чаров ниже 5 мортов, по 20% за морт
 		float remort_mod = static_cast<float>(GET_REMORT(ch)) / 5;
 		if (remort_mod > 1) remort_mod = 1;
+		// на жопе процентовка снижается на 70% от текущего максимума каждого допа
+		float sit_mod = (GET_POS(ch) >= POS_FIGHTING) ? 1 : 0.7;
 
 		// у чармисов никаких плюшек от 100+ скилла и максимум 2 доп атаки
 		if (IS_CHARMICE(ch))
@@ -2708,20 +2707,21 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 		// а для скилла до сотни все остается как было
 		prob = MIN(100, prob);
 
-		// первый доп.выстрел - 100% при скилле >=100, отключается на жопе/стуне и т.п.
-		if ((prob + skill_mod + dex_mod >= percent / 2 && GET_POS(ch) >= POS_FIGHTING) || WAITLESS(ch))
+		percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
+		// 1й доп - не более 100% при скилее 100+
+		if (prob * sit_mod >= percent / 2)
 			hit(ch, FIGHTING(ch), type, weapon);
 
-		// второй доп.выстрел - 90% при максимум скилла и дексы, 66% при 100 скилла, отключается на жопе/стуне и т.п.
-		if (prob * 2 + skill_mod * 35 + dex_mod * 35 > percent * 3 / 2 && FIGHTING(ch) && GET_POS(ch) >= POS_FIGHTING)
+		// 2й доп - 60% при скилле 100, до 90% при максимуме скилла и дексы
+		if ((prob * 3 + skill_mod * 75 + dex_mod * 75) * sit_mod > percent * 5 / 2 && FIGHTING(ch))
 			hit(ch, FIGHTING(ch), type, weapon);
 
-		// третий доп.выстрел - 60% при максимум скилла и дексы, 40% при 100 скилла (5+ мортов)
-		if ((prob * 2 + skill_mod * 50 + dex_mod * 50) * remort_mod > percent * 5 / 2 && FIGHTING(ch))
+		// 3й доп - 30% при скилле 100, до 60% при максимуме скилла и дексы (при 5+ мортов)
+		if ((prob * 3 + skill_mod * 150 + dex_mod * 150) * remort_mod * sit_mod > percent * 5 && FIGHTING(ch))
 			hit(ch, FIGHTING(ch), type, weapon);
 
-		// четвертый доп.выстрел - 30% при максимум скилла и дексы, 20% при 100 скилла (5+ мортов)
-		if ((prob + skill_mod * 25 + dex_mod * 25) * remort_mod > percent * 5 / 2 && FIGHTING(ch))
+		// 4й доп - 10% при скилле 100, до 30% при максимуме скилла и дексы (при 5+ мортов)
+		if ((prob + skill_mod * 100 + dex_mod * 100) * remort_mod * sit_mod > percent * 5 && FIGHTING(ch))
 			hit(ch, FIGHTING(ch), type, weapon);
 	}
 
