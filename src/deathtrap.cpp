@@ -144,6 +144,7 @@ void DeathTrap::log_death_trap(CHAR_DATA * ch)
 
 /**
 * Потеря шмота при уходе в дт: рандом от 1 до 3 одетых шмоток, не считая контейнеров.
+* Циклы гоняются с 1, чтобы исключить слот под свет, ибо мусорный шмот.
 */
 void DeathTrap::remove_items(CHAR_DATA *ch)
 {
@@ -151,7 +152,7 @@ void DeathTrap::remove_items(CHAR_DATA *ch)
 	int wear = 0;
 	bool purge = false;
 
-	for (int i = 0; i < NUM_WEARS; ++i)
+	for (int i = 1; i < NUM_WEARS; ++i)
 	{
 		OBJ_DATA *obj = GET_EQ(ch, i);
 		if (obj && GET_OBJ_TYPE(obj) != ITEM_CONTAINER)
@@ -163,7 +164,7 @@ void DeathTrap::remove_items(CHAR_DATA *ch)
 	{
 		while (num)
 		{
-			int rnd_num = number(0, NUM_WEARS - 1);
+			int rnd_num = number(1, NUM_WEARS - 1);
 			OBJ_DATA *obj = GET_EQ(ch, rnd_num);
 			if (obj && GET_OBJ_TYPE(obj) != ITEM_CONTAINER)
 			{
@@ -178,7 +179,7 @@ void DeathTrap::remove_items(CHAR_DATA *ch)
 	}
 	else if (wear && wear <= num)
 	{
-		for (int i = 0; i < NUM_WEARS; ++i)
+		for (int i = 1; i < NUM_WEARS; ++i)
 		{
 			OBJ_DATA *obj = GET_EQ(ch, i);
 			if (obj && GET_OBJ_TYPE(obj) != ITEM_CONTAINER)
