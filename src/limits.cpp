@@ -521,32 +521,44 @@ void beat_punish(CHAR_DATA * i)
 			};
 		};
 	}
-	else if (!RegisterSystem::is_registered(i))
+	else if (!RegisterSystem::is_registered(i) && i->desc && STATE(i->desc) == CON_PLAYING)
 	{
-		if (!RENTABLE(i)
+		if (restore != r_unreg_start_room
+			&& !RENTABLE(i)
 			&& !DeathTrap::is_slow_dt(IN_ROOM(i))
-			&& restore != r_unreg_start_room
-			&& i->desc
-			&& STATE(i->desc) == CON_PLAYING
 			&& !check_dupes_host(i->desc, 1))
 		{
-
 			if (IN_ROOM(i) == STRANGE_ROOM)
 				GET_WAS_IN(i) = r_unreg_start_room;
 			else
 			{
-				send_to_char("Чья-то злая воля вернула Вас в комнату для незарегистрированных игроков.\r\n", i);
 				act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.\r\n",
-				    FALSE, i, 0, 0, TO_ROOM);
-
+					FALSE, i, 0, 0, TO_ROOM);
 				char_from_room(i);
 				char_to_room(i, r_unreg_start_room);
 				look_at_room(i, r_unreg_start_room);
 				GET_WAS_IN(i) = NOWHERE;
 			};
 		}
+		else if (restore == r_unreg_start_room && check_dupes_host(i->desc, 1) && !IS_IMMORTAL(i))
+		{
+			send_to_char("Неведомая вытолкнула вас из комнаты для незарегистрированных игроков.\r\n", i);
+			act("$n появил$u в центре комнаты, правда без штампика регистрации...\r\n",
+				FALSE, i, 0, 0, TO_ROOM);
+			restore = GET_WAS_IN(i);
+			if (restore == NOWHERE || restore == r_unreg_start_room)
+			{
+				restore = GET_LOADROOM(i);
+				if (restore == NOWHERE)
+					restore = calc_loadroom(i);
+				restore = real_room(restore);
+			}
+			char_from_room(i);
+			char_to_room(i, restore);
+			look_at_room(i, restore);
+			GET_WAS_IN(i) = NOWHERE;
+		}
 	}
-
 }
 
 void beat_points_update(int pulse)

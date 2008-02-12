@@ -1956,6 +1956,9 @@ int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0)
 		&& (STATE(i) == CON_PLAYING || STATE(i) == CON_MENU)) {
 			switch (CheckProxy(d)) {
 			case 0:
+				// если уже сидим в проксе, то смысла спамить никакого
+				if (IN_ROOM(d->character) == r_unreg_start_room || GET_WAS_IN(d->character) == r_unreg_start_room)
+					return 0;
 				send_to_char(d->character,
 					"&RВы вошли с игроком %s с одного IP(%s) !\r\n"
 					"Вам необходимо обратиться к Богам для регистрации.\r\n"
