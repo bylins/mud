@@ -146,6 +146,7 @@ void DeathTrap::log_death_trap(CHAR_DATA * ch)
 * Потеря шмота при уходе в дт: рандом от 1 до 3 одетых шмоток, не считая контейнеров.
 * Циклы гоняются с 1, чтобы исключить слот под свет, ибо мусорный шмот.
 */
+/*
 void DeathTrap::remove_items(CHAR_DATA *ch)
 {
 	int num = number(1, 3);
@@ -200,10 +201,9 @@ void DeathTrap::remove_items(CHAR_DATA *ch)
 
 	send_to_char("\r\n", ch);
 }
-
-/**
-* Попадание в обычное дт.
 */
+
+/*
 int DeathTrap::check_death_trap(CHAR_DATA * ch)
 {
 	if (IN_ROOM(ch) == NOWHERE) return false;
@@ -264,6 +264,40 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 		return true;
 	}
 	return false;
+}
+*/
+
+/**
+* Попадание в обычное дт.
+*/
+int DeathTrap::check_death_trap(CHAR_DATA * ch)
+{
+	if (IN_ROOM(ch) != NOWHERE)
+		if ((ROOM_FLAGGED(ch->in_room, ROOM_DEATH) && !IS_IMMORTAL(ch)) ||
+		    (real_sector(IN_ROOM(ch)) == SECT_FLYING && !IS_NPC(ch)
+		     && !IS_GOD(ch) && !AFF_FLAGGED(ch, AFF_FLY))
+		    || (real_sector(IN_ROOM(ch)) == SECT_WATER_NOSWIM && !IS_NPC(ch)
+			&& !IS_GOD(ch) && !has_boat(ch))
+		    /*|| (real_sector(IN_ROOM(ch)) == SECT_UNDERWATER && !IS_NPC(ch) //Тут надо закомментить.
+			&& !IS_GOD(ch) && !AFF_FLAGGED(ch, AFF_WATERBREATH))*/) {
+			OBJ_DATA *corpse;
+			DeathTrap::log_death_trap(ch);
+			if (RENTABLE(ch)) {
+				die(ch, NULL);
+				GET_HIT(ch) = GET_MOVE(ch) = 0;
+				return TRUE;
+			}
+			death_cry(ch);
+			corpse = make_corpse(ch);
+			if (corpse != NULL) {
+				obj_from_room(corpse);	// для того, чтобы удалилость все содержимое
+				extract_obj(corpse);
+			}
+			GET_HIT(ch) = GET_MOVE(ch) = 0;
+			extract_char(ch, TRUE);
+			return (TRUE);
+		}
+	return (FALSE);
 }
 
 /**
