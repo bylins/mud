@@ -937,37 +937,6 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 	return (exp);
 }
 
-std::map<int, int> exp_dead;
-void log_dead_exp()
-{
-	log("ExpDead:");
-	for (std::map<int, int>::iterator it = exp_dead.begin(); it != exp_dead.end(); ++it)
-		log("%d : %d", it->first, it->second);
-}
-void print_dead_exp(CHAR_DATA * ch)
-{
-	int count1 = 0, count2 = 0, count3 = 0, count4 = 0, count5 = 0, count6 = 0, count7 = 0;
-	for (std::map<int, int>::iterator it = exp_dead.begin(); it != exp_dead.end(); ++it)
-	{
-		if (it->first >= 100000 && it->first < 250000)
-			++count1;
-		if (it->first >= 250000 && it->first < 500000)
-			++count2;
-		if (it->first >= 500000 && it->first < 750000)
-			++count3;
-		if (it->first >= 750000 && it->first < 1000000)
-			++count4;
-		if (it->first >= 1000000 && it->first < 3000000)
-			++count5;
-		if (it->first >= 3000000 && it->first < 5000000)
-			++count6;
-		if (it->first >= 5000000)
-			++count7;
-	}
-	send_to_char(ch, "  Debug: %d %d %d %d %d %d %d\r\n", count1, count2, count3, count4, count5, count6, count7);
-}
-
-
 /*++
    Функция начисления опыта
       ch - кому опыт начислять
@@ -986,15 +955,6 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 	}
 	// 1. Опыт делится поровну на всех
 	exp = GET_EXP(victim) / MAX(members, 1);
-
-	if (GET_EXP(victim) >= 100000)
-	{
-		std::map<int, int>::iterator it = exp_dead.find(GET_EXP(victim));
-		if (it != exp_dead.end())
-			it->second += 1;
-		else
-			exp_dead[GET_EXP(victim)] = 1;
-	}
 
 	// 2. Учитывается коэффициент (лидерство, разность уровней)
 	//    На мой взгляд его правильней использовать тут а не в конце процедуры,

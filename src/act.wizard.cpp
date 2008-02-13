@@ -109,8 +109,6 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 extern void NewNameShow(CHAR_DATA * ch);
 extern void NewNameRemove(CHAR_DATA * ch);
 extern void NewNameRemove(const std::string& name, CHAR_DATA * ch);
-extern void print_dead_exp(CHAR_DATA * ch);
-extern void print_dig_log(CHAR_DATA * ch);
 
 /* local functions */
 int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg);
@@ -3330,8 +3328,6 @@ ACMD(do_show)
 		send_to_char(buf, ch);
 		Depot::show_stats(ch);
 		Glory::show_stats(ch);
-		print_dead_exp(ch);
-		print_dig_log(ch);
 		break;
 	case 5:
 		strcpy(buf, "Пустых выходов\r\n" "--------------\r\n");
