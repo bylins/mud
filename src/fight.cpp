@@ -2638,51 +2638,55 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 	    GET_EQ(ch, WEAR_BOTHS)) {
 		/* Лук в обеих руках - юзаем доп. или двойной выстрел */
 		if (can_use_feat(ch, DOUBLESHOT_FEAT) && !get_skill(ch, SKILL_ADDSHOT)
-		    && MIN(850, 200 + get_skill(ch, SKILL_BOWS) * 4 + GET_REAL_DEX(ch) * 5) >= number(1, 1000)) {
+		    && MIN(850, 200 + get_skill(ch, SKILL_BOWS) * 4 + GET_REAL_DEX(ch) * 5) >= number(1, 1000))
+		{
 			hit(ch, FIGHTING(ch), type, weapon);
 			prob = 0;
-		} else
+		}
+		else if (get_skill(ch, SKILL_ADDSHOT) > 0)
+		{
 			prob = train_skill(ch, SKILL_ADDSHOT, skill_info[SKILL_ADDSHOT].max_percent, FIGHTING(ch));
 
-		// ловка роляет только выше 21 (стартовый максимум охота) и до 50
-		float dex_mod = static_cast<float>(MAX(GET_REAL_DEX(ch) - 21, 0)) / 29;
-		// штраф на 4й и 5й выстрелы для чаров ниже 5 мортов, по 20% за морт
-		float remort_mod = static_cast<float>(GET_REMORT(ch)) / 5;
-		if (remort_mod > 1) remort_mod = 1;
-		// на жопе процентовка снижается на 70% от текущего максимума каждого допа
-		float sit_mod = (GET_POS(ch) >= POS_FIGHTING) ? 1 : 0.7;
+			// ловка роляет только выше 21 (стартовый максимум охота) и до 50
+			float dex_mod = static_cast<float>(MAX(GET_REAL_DEX(ch) - 21, 0)) / 29;
+			// штраф на 4й и 5й выстрелы для чаров ниже 5 мортов, по 20% за морт
+			float remort_mod = static_cast<float>(GET_REMORT(ch)) / 5;
+			if (remort_mod > 1) remort_mod = 1;
+			// на жопе процентовка снижается на 70% от текущего максимума каждого допа
+			float sit_mod = (GET_POS(ch) >= POS_FIGHTING) ? 1 : 0.7;
 
-		// у чармисов никаких плюшек от 100+ скилла и максимум 2 доп атаки
-		if (IS_CHARMICE(ch))
-		{
+			// у чармисов никаких плюшек от 100+ скилла и максимум 2 доп атаки
+			if (IS_CHARMICE(ch))
+			{
+				prob = MIN(100, prob);
+				dex_mod = 0;
+				remort_mod = 0;
+			}
+
+			// выше 100% идет другая формула
+			float add_prob = MAX(prob - 100, 0);
+			// скилл выше 100 добавляет равный ловке процент в максимуме
+			float skill_mod = add_prob / 100;
+			// а для скилла до сотни все остается как было
 			prob = MIN(100, prob);
-			dex_mod = 0;
-			remort_mod = 0;
+
+			percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
+			// 1й доп - не более 100% при скилее 100+
+			if (prob * sit_mod >= percent / 2)
+				hit(ch, FIGHTING(ch), type, weapon);
+
+			// 2й доп - 60% при скилле 100, до 90% при максимуме скилла и дексы
+			if ((prob * 3 + skill_mod * 75 + dex_mod * 75) * sit_mod > percent * 5 / 2 && FIGHTING(ch))
+				hit(ch, FIGHTING(ch), type, weapon);
+
+			// 3й доп - 30% при скилле 100, до 60% при максимуме скилла и дексы (при 5+ мортов)
+			if ((prob * 3 + skill_mod * 150 + dex_mod * 150) * remort_mod * sit_mod > percent * 5 && FIGHTING(ch))
+				hit(ch, FIGHTING(ch), type, weapon);
+
+			// 4й доп - 10% при скилле 100, до 30% при максимуме скилла и дексы (при 5+ мортов)
+			if ((prob + skill_mod * 100 + dex_mod * 100) * remort_mod * sit_mod > percent * 5 && FIGHTING(ch))
+				hit(ch, FIGHTING(ch), type, weapon);
 		}
-
-		// выше 100% идет другая формула
-		float add_prob = MAX(prob - 100, 0);
-		// скилл выше 100 добавляет равный ловке процент в максимуме
-		float skill_mod = add_prob / 100;
-		// а для скилла до сотни все остается как было
-		prob = MIN(100, prob);
-
-		percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
-		// 1й доп - не более 100% при скилее 100+
-		if (prob * sit_mod >= percent / 2)
-			hit(ch, FIGHTING(ch), type, weapon);
-
-		// 2й доп - 60% при скилле 100, до 90% при максимуме скилла и дексы
-		if ((prob * 3 + skill_mod * 75 + dex_mod * 75) * sit_mod > percent * 5 / 2 && FIGHTING(ch))
-			hit(ch, FIGHTING(ch), type, weapon);
-
-		// 3й доп - 30% при скилле 100, до 60% при максимуме скилла и дексы (при 5+ мортов)
-		if ((prob * 3 + skill_mod * 150 + dex_mod * 150) * remort_mod * sit_mod > percent * 5 && FIGHTING(ch))
-			hit(ch, FIGHTING(ch), type, weapon);
-
-		// 4й доп - 10% при скилле 100, до 30% при максимуме скилла и дексы (при 5+ мортов)
-		if ((prob + skill_mod * 100 + dex_mod * 100) * remort_mod * sit_mod > percent * 5 && FIGHTING(ch))
-			hit(ch, FIGHTING(ch), type, weapon);
 	}
 
 	/*
