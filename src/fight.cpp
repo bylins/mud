@@ -2702,14 +2702,17 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 			if (prob * sit_mod >= percent / 2)
 				hit(ch, FIGHTING(ch), type, weapon);
 
-			// 2й доп - 60% при скилле 100, до 90% при максимуме скилла и дексы
-			if ((prob * 3 + skill_mod * 75 + dex_mod * 75) * sit_mod > percent * 5 / 2 && FIGHTING(ch))
+			percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
+			// 2й доп - 60% при скилле 100, до 100% при максимуме скилла и дексы
+			if ((prob * 3 + skill_mod * 100 + dex_mod * 100) * sit_mod > percent * 5 / 2 && FIGHTING(ch))
 				hit(ch, FIGHTING(ch), type, weapon);
 
-			// 3й доп - 30% при скилле 100, до 60% при максимуме скилла и дексы (при 5+ мортов)
-			if ((prob * 3 + skill_mod * 150 + dex_mod * 150) * remort_mod * sit_mod > percent * 5 && FIGHTING(ch))
+			percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
+			// 3й доп - 30% при скилле 100, до 70% при максимуме скилла и дексы (при 5+ мортов)
+			if ((prob * 3 + skill_mod * 200 + dex_mod * 200) * remort_mod * sit_mod > percent * 5 && FIGHTING(ch))
 				hit(ch, FIGHTING(ch), type, weapon);
 
+			percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
 			// 4й доп - 10% при скилле 100, до 30% при максимуме скилла и дексы (при 5+ мортов)
 			if ((prob + skill_mod * 100 + dex_mod * 100) * remort_mod * sit_mod > percent * 5 && FIGHTING(ch))
 				hit(ch, FIGHTING(ch), type, weapon);
