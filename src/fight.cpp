@@ -1953,6 +1953,31 @@ void poison_victim(CHAR_DATA * ch, CHAR_DATA * vict, int modifier)
 	act("$n отравил$g Вас.", FALSE, ch, 0, vict, TO_VICT);
 }
 
+/**
+* Расчет прибавки дамаги с концентрации силы.
+* (сила-25)*(среднее/8)*(левел/30)*(рандом(левел, 100)/100)*(мах(1, морты/5))
+* Т.е. сила выше 25ти, левел, среднее оружия, штрафы до 5го морта и рандом от левела до 100.
+* Способность не плюсуется при железном ветре и оглушении.
+*/
+int calculate_strconc_damage(CHAR_DATA * ch, OBJ_DATA * wielded)
+{
+	if (!can_use_feat(ch, STRENGTH_CONCETRATION_FEAT)
+		|| GET_AF_BATTLE(ch, EAF_IRON_WIND)
+		|| GET_AF_BATTLE(ch, EAF_STUPOR))
+	{
+		return 0;
+	}
+
+	int str_mod = MAX(0, GET_REAL_STR(ch) - 25);
+	float rnd_mod = static_cast<float> (number(GET_LEVEL(ch), 100)) / 100;
+	float weap_mod = static_cast<float> (GET_OBJ_VAL(wielded, 1) * GET_OBJ_VAL(wielded, 2)) / 12;
+	float level_mod = static_cast<float> (GET_LEVEL(ch)) / 30;
+	float remort_mod = static_cast<float> (GET_REMORT(ch)) / 5;
+	if (remort_mod > 1) remort_mod = 1;
+
+	return (static_cast<int> (str_mod * weap_mod * level_mod * rnd_mod * remort_mod));
+}
+
 int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_DATA * wielded, int mayflee)
 {
 	int prob, percent = 0, lag = 0, i, k, mem_dam = dam;
@@ -2046,14 +2071,16 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 		}
 	}
 	// STUPOR
-	else if (GET_AF_BATTLE(ch, EAF_STUPOR) && GET_WAIT(ch) <= 0) {
+	else if (GET_AF_BATTLE(ch, EAF_STUPOR) && GET_WAIT(ch) <= 0)
+	{
 		CLR_AF_BATTLE(ch, EAF_STUPOR);
 		if (IS_NPC(ch) ||
 		    IS_IMMORTAL(ch) ||
 		    (wielded &&
 		     GET_OBJ_WEIGHT(wielded) > 18 &&
 		     GET_OBJ_SKILL(wielded) != SKILL_BOWS &&
-		     !GET_AF_BATTLE(ch, EAF_PARRY) && !GET_AF_BATTLE(ch, EAF_MULTYPARRY))) {
+		     !GET_AF_BATTLE(ch, EAF_PARRY) && !GET_AF_BATTLE(ch, EAF_MULTYPARRY)))
+		{
 			percent = number(1, skill_info[SKILL_STUPOR].max_percent);
 			prob = train_skill(ch, SKILL_STUPOR, skill_info[SKILL_STUPOR].max_percent, victim);
 			if (GET_MOB_HOLD(victim))
@@ -3331,17 +3358,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 				percent = MIN(percent, percent * GET_OBJ_CUR(wielded) / MAX(1, GET_OBJ_MAX(wielded)));
 			}
 			dam += MAX(1, percent);
-			// концентрация силы (сила-25)*(среднее/8)*(левел/30)*(рандом(левел, 100)/100)*(мах(1, морты/5))
-			if (can_use_feat(ch, STRENGTH_CONCETRATION_FEAT) && !GET_AF_BATTLE(ch, EAF_IRON_WIND))
-			{
-				int str_mod = MAX(0, GET_REAL_STR(ch) - 25);
-				float rnd_mod = static_cast<float> (number(GET_LEVEL(ch), 100)) / 100;
-				float weap_mod = static_cast<float> (GET_OBJ_VAL(wielded, 1) * GET_OBJ_VAL(wielded, 2)) / 12;
-				float level_mod = static_cast<float> (GET_LEVEL(ch)) / 30;
-				float remort_mod = static_cast<float> (GET_REMORT(ch)) / 5;
-				if (remort_mod > 1) remort_mod = 1;
-				dam += static_cast<int> (str_mod * weap_mod * level_mod * rnd_mod * remort_mod);
-			}
+			dam += calculate_strconc_damage(ch, wielded);
 		} else {	// If no weapon, add bare hand damage instead
 			if (AFF_FLAGGED(ch, AFF_STONEHAND)) {
 				if (GET_CLASS(ch) == CLASS_WARRIOR)
