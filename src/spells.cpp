@@ -618,10 +618,14 @@ ASPELL(spell_townportal)
 		act("Лазурная пентаграмма возникла в воздухе.", FALSE, ch, 0, 0, TO_CHAR);
 		act("$n сложил$g руки в молитвенном жесте, испрашивая у Богов врата...", FALSE, ch, 0, 0, TO_ROOM);
 		act("Лазурная пентаграмма возникла в воздухе.", FALSE, ch, 0, 0, TO_ROOM);
-		if (!IS_IMMORTAL(ch)) {
+		if (!IS_IMMORTAL(ch))
+		{
 			timed.skill = SKILL_TOWNPORTAL;
-			timed.time = 25 - (get_skill(ch, SKILL_TOWNPORTAL)) / 7 - number(1, 5);
-			if (timed.time < 1)
+			// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
+			int modif = get_skill(ch, SKILL_TOWNPORTAL) / 7 + number(1, 5);
+			if (modif <= 25)
+				timed.time = 25 - modif;
+			else
 				timed.time = 1;
 			timed_to_char(ch, &timed);
 		}
