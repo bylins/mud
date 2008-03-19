@@ -199,7 +199,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 											   MOB_FLAGGED(vict, MOB_CLONE)   ? "1" : "0");
 											   act(buf,FALSE,ch,0,0,TO_ROOM); */
 
-		if ((IS_NPC(vict) && !IS_SET(extmode, CHECK_OPPONENT)) ||
+		if ((IS_NPC(vict) && !IS_SET(extmode, CHECK_OPPONENT) && !IS_CHARMICE(vict)) ||
 		    PRF_FLAGGED(vict, PRF_NOHASSLE) ||
 		    !MAY_SEE(ch, vict) ||
 		    (IS_SET(extmode, CHECK_OPPONENT) && ch != FIGHTING(vict)) || !may_kill_here(ch, vict))
