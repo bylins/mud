@@ -1189,7 +1189,9 @@ ACMD(do_gen_door)
 
 	if ((obj) || (door >= 0)) {
 		keynum = DOOR_KEY(ch, obj, door);
-		if (!(DOOR_IS_OPENABLE(ch, obj, door)))
+		if ((subcmd == SCMD_CLOSE || subcmd == SCMD_LOCK) && RENTABLE(ch))
+			send_to_char("Ведите себя достойно во время боевых действий!\r\n", ch);
+		else if (!(DOOR_IS_OPENABLE(ch, obj, door)))
 			act("Вы никогда не сможете $F это !", FALSE, ch, 0, a_cmd_door[subcmd], TO_CHAR);
 		else if (!DOOR_IS_OPEN(ch, obj, door)
 			 && IS_SET(flags_door[subcmd], NEED_OPEN))
