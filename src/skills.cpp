@@ -45,13 +45,15 @@ static const char *kick_type[] =
 	"׃ֹּ״־ֿ ",		// 21..25
 	"ֿÞֵ־״ ׃ֹּ״־ֿ ",	// 26..30
 	"ÞֵׂÚ׳ÙÞֱÊ־ֿ ׃ֹּ״־ֿ ",	// 31..35
-	"צוףפןכן ",		// 36..43
-	"גןלרמן ",		// 44..58
-	"ן‏ומר גןלרמן ",	// 59..72
-	"‏עותקש‏בךמן גןלרמן ",	// 73..86
-	"מוקשמןףיםן גןלרמן ",	// 87..100
-	"ץצבףמן ",		// 101..150
-	"ףםועפולרמן "		// > 150
+	"גןלרמן ",		// 36..60
+	"ן‏ומר גןלרמן ",	// 61..100
+	"‏עותקש‏בךמן גןלרמן ",	// 101..140
+	"מוקשמןףיםן גןלרמן ",	// 141..180
+	"ףפעבûמן ",	// 181..220
+	"ץצבףמן ",	// 221..260
+	"תקועףכי ",	// 261..300
+	"ץגיךףפקוממן ",	// 301..340
+	"ףםועפולרמן "		// 341+
 };
 
 int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
@@ -101,20 +103,24 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 					weap = (OBJ_DATA *) kick_type[5];
 				else if (dam <= 35)
 					weap = (OBJ_DATA *) kick_type[5];
-				else if (dam <= 44)
+				else if (dam <= 60)
 					weap = (OBJ_DATA *) kick_type[6];
-				else if (dam <= 58)
-					weap = (OBJ_DATA *) kick_type[7];
-				else if (dam <= 72)
-					weap = (OBJ_DATA *) kick_type[8];
-				else if (dam <= 86)
-					weap = (OBJ_DATA *) kick_type[9];
 				else if (dam <= 100)
+					weap = (OBJ_DATA *) kick_type[7];
+				else if (dam <= 140)
+					weap = (OBJ_DATA *) kick_type[8];
+				else if (dam <= 180)
+					weap = (OBJ_DATA *) kick_type[9];
+				else if (dam <= 220)
 					weap = (OBJ_DATA *) kick_type[10];
-				else if (dam <= 150)
+				else if (dam <= 260)
 					weap = (OBJ_DATA *) kick_type[11];
-				else
+				else if (dam <= 300)
 					weap = (OBJ_DATA *) kick_type[12];
+				else if (dam <= 340)
+					weap = (OBJ_DATA *) kick_type[13];
+				else
+					weap = (OBJ_DATA *) kick_type[14];
 				break;
 			case TYPE_HIT:
 				weap = NULL;
