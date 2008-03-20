@@ -2433,23 +2433,45 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 			dam -= (dam * number(30, 50) / 100);
 		}
 
-		if (dam && (IS_WEAPON(attacktype)
-			    || attacktype == (SKILL_KICK + TYPE_HIT))) {
+		if (dam && (IS_WEAPON(attacktype) || attacktype == (SKILL_KICK + TYPE_HIT)))
+		{
 			alt_equip(victim, NOWHERE, dam, 50);
-			if (!was_critic) {
-				int decrease = MIN(25, (GET_ABSORBE(victim) + 1) / 2) + GET_ARMOUR(victim);
-				if (decrease >= number(dam, dam * 50)) {
-					act("Ваши доспехи полностью поглотили удар $n1.", FALSE,
-					    ch, 0, victim, TO_VICT);
-					act("Доспехи $N1 полностью поглотили Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
-					act("Доспехи $N1 полностью поглотили удар $n1.", TRUE, ch,
-					    0, victim, TO_NOTVICT);
-					return (0);
+			if (!was_critic)
+			{
+				if (GET_CLASS(victim) == CLASS_GUARD && IS_SET(PRF_FLAGS(victim, PRF_AWAKE), PRF_AWAKE))
+				{
+					// у дружа в осторожке поглощение роляет до 99
+					int decrease = MIN(50, (GET_ABSORBE(victim) + 1) / 2) + GET_ARMOUR(victim);
+					// шанс полностью поглотить удар 4%
+					if (decrease >= number(dam, dam * 25))
+					{
+						act("Ваши доспехи полностью поглотили удар $n1.", FALSE, ch, 0, victim, TO_VICT);
+						act("Доспехи $N1 полностью поглотили Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
+						act("Доспехи $N1 полностью поглотили удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT);
+						return 0;
+					}
+					// броня + поглощение роляет до 75% снижения дамаги
+					dam -= (dam * MAX(0, MIN(75, decrease)) / 100);
 				}
-				dam -= (dam * MAX(0, MIN(50, decrease)) / 100);
+				else
+				{
+					// у всех остальных поглощение роляет до 49
+					int decrease = MIN(25, (GET_ABSORBE(victim) + 1) / 2) + GET_ARMOUR(victim);
+					// шанс полностью поглотить удар 2%
+					if (decrease >= number(dam, dam * 50))
+					{
+						act("Ваши доспехи полностью поглотили удар $n1.", FALSE, ch, 0, victim, TO_VICT);
+						act("Доспехи $N1 полностью поглотили Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
+						act("Доспехи $N1 полностью поглотили удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT);
+						return 0;
+					}
+					// броня + поглощение роляет до 50% снижения дамаги
+					dam -= (dam * MAX(0, MIN(50, decrease)) / 100);
+				}
 			/* умножаем дамаг при крит ударе, если щитов нет и игнор ничего не дает
 			   по призме не умножаем, чтобы не уносило танков с 1 удара */
-			} else if ((GET_LEVEL(victim) >= 5 || !IS_NPC(ch))
+			}
+			else if ((GET_LEVEL(victim) >= 5 || !IS_NPC(ch))
 				   && !AFF_FLAGGED(victim, AFF_PRISMATICAURA) && !AFF_FLAGGED(victim, AFF_FIRESHIELD)
 				   && !AFF_FLAGGED(victim, AFF_ICESHIELD) && !AFF_FLAGGED(victim, AFF_AIRSHIELD))
 					dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2));
