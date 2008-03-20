@@ -1252,9 +1252,9 @@ void dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int w_type)
 	else if (dam <= 300)
 		msgnum = 14;
 	else if (dam <= 340)
-		msgnum = 14;
-	else
 		msgnum = 15;
+	else
+		msgnum = 16;
 
 	/* damage message to onlookers */
 
