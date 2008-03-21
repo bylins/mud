@@ -4193,7 +4193,7 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 	int num = 0, found = 0;
 
 	if (!*arg) {
-		if (GET_LEVEL(ch) < LVL_IMPL)
+		if (GET_LEVEL(ch) < LVL_IMPL && !Privilege::check_flag(ch, Privilege::KRODER))
 			send_to_char("çÄÅ ëôï ËÏÎËÒÅÔÎÏ?", ch);
 		else {
 			send_to_char("éçòïëé\r\n------\r\n", ch);
@@ -4222,7 +4222,7 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 					GET_ROOM_VNUM(IN_ROOM(i)), world[IN_ROOM(i)]->name);
 				send_to_char(buf, ch);
 			}
-		if (GET_LEVEL(ch) > LVL_GOD) {
+		if (GET_LEVEL(ch) > LVL_GOD || Privilege::check_flag(ch, Privilege::KRODER)) {
 			for (num = 0, k = object_list; k; k = k->next)
 				if (CAN_SEE_OBJ(ch, k) && isname(arg, k->name)) {
 					found = 1;
@@ -4240,7 +4240,7 @@ ACMD(do_where)
 {
 	one_argument(argument, arg);
 
-	if (IS_GRGOD(ch))
+	if (IS_GRGOD(ch) || Privilege::check_flag(ch, Privilege::KRODER))
 		perform_immort_where(ch, arg);
 	else
 		perform_mortal_where(ch, arg);

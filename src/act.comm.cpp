@@ -895,12 +895,15 @@ ACMD(do_pray_gods)
 		if (num_pray == MAX_REMEMBER_PRAY)
 			num_pray = 0;
 	}
-	for (i = descriptor_list; i; i = i->next) {
+	for (i = descriptor_list; i; i = i->next)
+	{
 		if (STATE(i) == CON_PLAYING
-		&& IS_IMMORTAL(i->character)
-		&& Privilege::god_list_check(GET_NAME(i->character), GET_UNIQUE(i->character))
-		&& i->character != ch)
-				act(buf, 0, ch, 0, i->character, TO_VICT | TO_SLEEP);
+			&& (IS_IMMORTAL(i->character) || PRF_FLAGGED(i->character, PRF_CODERINFO))
+//			&& Privilege::god_list_check(GET_NAME(i->character), GET_UNIQUE(i->character))
+			&& i->character != ch)
+		{
+			act(buf, 0, ch, 0, i->character, TO_VICT | TO_SLEEP);
+		}
 	}
 }
 
@@ -937,9 +940,9 @@ ACMD(do_remember_char)
 
 	argument = one_argument(argument, arg);
 
-// Выдает взывания к богам
+	// Выдает взывания к богам
 	if (is_abbrev(arg, "воззвать")) {
-		if (!IS_IMMORTAL(ch))
+		if (!IS_IMMORTAL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
 			return;
 		for (i = 0; i < MAX_REMEMBER_PRAY; i++) {
 			j = num_pray + i;

@@ -2820,6 +2820,8 @@ ACMD(do_wiznet)
 		return;
 	}
 
+	if (Privilege::check_flag(ch, Privilege::KRODER)) return;
+
 	/* Опускаем level для gf_demigod */
 	if (GET_GOD_FLAG(ch, GF_DEMIGOD))
 		level = LVL_IMMORT;
@@ -2834,7 +2836,7 @@ ACMD(do_wiznet)
 		if (is_number(buf1)) {
 			half_chop(argument + 1, buf1, argument);
 			level = MAX(atoi(buf1), LVL_IMMORT);
-			if (level > GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)) {
+			if (level > GET_LEVEL(ch)) {
 				send_to_char("Вы не можете изрекать выше Вашего уровня.\r\n", ch);
 				return;
 			}
@@ -2908,11 +2910,9 @@ ACMD(do_wiznet)
 	for (d = descriptor_list; d; d = d->next) {
 		if ((STATE(d) == CON_PLAYING) &&	/* персонаж должен быть в игре */
 		    ((GET_LEVEL(d->character) >= level) ||	/* уровень равным или выше level */
-		     (GET_LEVEL(d->character) < LVL_IMMORT &&	/* флаг 'кодер' позволяет видеть мессаги любого уровня */
-		      PRF_FLAGGED(d->character, PRF_CODERINFO)) || (GET_LEVEL(d->character) < LVL_IMMORT &&	/* игроки с флагом 'gd_demigod' могут видеть теллы в имм канал, */
-								    GET_GOD_FLAG(d->character, GF_DEMIGOD) &&	/* за исключением случая когда level > LVL_IMMORT               */
-								    level <= LVL_IMMORT)
-
+				(GET_LEVEL(d->character) < LVL_IMMORT &&	/* игроки с флагом 'gd_demigod' могут видеть теллы в имм канал, */
+				GET_GOD_FLAG(d->character, GF_DEMIGOD) &&	/* за исключением случая когда level > LVL_IMMORT               */
+				level <= LVL_IMMORT)
 		    ) && (!PRF_FLAGGED(d->character, PRF_NOWIZ)) &&	/* игрок с режимом NOWIZ не видит имм канала */
 		    (!PLR_FLAGGED(d->character, PLR_WRITING)) &&	/* пишущий не видит имм канала               */
 		    (!PLR_FLAGGED(d->character, PLR_MAILING)) &&	/* отправляющий письмо не видит имм канала   */
