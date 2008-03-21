@@ -516,6 +516,9 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 		return 0;
 	}
 
+send_to_char("Хранилища находятся в процессе освобождения от предметов с целью дальнейшего их отключения.\r\n" , ch);
+return 0;
+
 	if (GET_OBJ_TYPE(obj) == ITEM_MONEY)
 	{
 		put_gold_chest(ch, obj);
