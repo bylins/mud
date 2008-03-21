@@ -39,20 +39,18 @@ extern struct message_list fight_messages[MAX_MESSAGES];
 static const char *kick_type[] =
 // силы пинка. полностью соответствуют наносимым поврждениям обычного удара
 {
-	"легонько ",		//  5..10
-	"слегка ",		// 11..15
-	"",			// 16..20
-	"сильно ",		// 21..25
-	"очень сильно ",	// 26..30
-	"чрезвычайно сильно ",	// 31..35
-	"БОЛЬНО ",		// 36..60
-	"ОЧЕНЬ БОЛЬНО ",	// 61..100
-	"ЧРЕЗВЫЧАЙНО БОЛЬНО ",	// 101..140
-	"НЕВЫНОСИМО БОЛЬНО ",	// 141..180
-	"СТРАШНО ",	// 181..220
-	"УЖАСНО ",	// 221..260
-	"ЗВЕРСКИ ",	// 261..300
-	"УБИЙСТВЕННО ",	// 301..340
+	"легонько ",		//  1..10
+	"слегка ",		// 11..20
+	"",			// 21..40
+	"сильно ",		// 41..50
+	"очень сильно ",	// 51..60
+	"чрезвычайно сильно ",	// 61..70
+	"БОЛЬНО ",		// 71..115
+	"ОЧЕНЬ БОЛЬНО ",	// 116..160
+	"ЧРЕЗВЫЧАЙНО БОЛЬНО ",	// 161..205
+	"НЕВЫНОСИМО БОЛЬНО ",	// 206..250
+	"УЖАСНО ",	// 251..295
+	"УБИЙСТВЕННО ",	// 296..340
 	"СМЕРТЕЛЬНО "		// 341+
 };
 
@@ -89,38 +87,32 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 				break;
 			case SKILL_KICK + TYPE_HIT:
 				// weap - текст силы удара
-				if (dam <= 5)
+				if (dam <= 10)
 					weap = (OBJ_DATA *) kick_type[0];
-				else if (dam <= 10)
-					weap = (OBJ_DATA *) kick_type[1];
-				else if (dam <= 15)
-					weap = (OBJ_DATA *) kick_type[2];
 				else if (dam <= 20)
+					weap = (OBJ_DATA *) kick_type[1];
+				else if (dam <= 40)
+					weap = (OBJ_DATA *) kick_type[2];
+				else if (dam <= 50)
 					weap = (OBJ_DATA *) kick_type[3];
-				else if (dam <= 25)
-					weap = (OBJ_DATA *) kick_type[4];
-				else if (dam <= 30)
-					weap = (OBJ_DATA *) kick_type[5];
-				else if (dam <= 35)
-					weap = (OBJ_DATA *) kick_type[5];
 				else if (dam <= 60)
+					weap = (OBJ_DATA *) kick_type[4];
+				else if (dam <= 70)
+					weap = (OBJ_DATA *) kick_type[5];
+				else if (dam <= 115)
 					weap = (OBJ_DATA *) kick_type[6];
-				else if (dam <= 100)
+				else if (dam <= 160)
 					weap = (OBJ_DATA *) kick_type[7];
-				else if (dam <= 140)
+				else if (dam <= 205)
 					weap = (OBJ_DATA *) kick_type[8];
-				else if (dam <= 180)
+				else if (dam <= 250)
 					weap = (OBJ_DATA *) kick_type[9];
-				else if (dam <= 220)
+				else if (dam <= 295)
 					weap = (OBJ_DATA *) kick_type[10];
-				else if (dam <= 260)
-					weap = (OBJ_DATA *) kick_type[11];
-				else if (dam <= 300)
-					weap = (OBJ_DATA *) kick_type[12];
 				else if (dam <= 340)
-					weap = (OBJ_DATA *) kick_type[13];
+					weap = (OBJ_DATA *) kick_type[11];
 				else
-					weap = (OBJ_DATA *) kick_type[14];
+					weap = (OBJ_DATA *) kick_type[12];
 				break;
 			case TYPE_HIT:
 				weap = NULL;
