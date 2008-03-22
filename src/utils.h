@@ -1094,6 +1094,9 @@ extern SPECIAL(postmaster);
 #define OK_HELD(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
                           str_app[STRENGTH_APPLY_INDEX(ch)].hold_w)
 
+#define OK_SHIELD(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
+                          (2 * str_app[STRENGTH_APPLY_INDEX(ch)].hold_w))
+
 #define GET_PAD_PERS(pad) ((pad) == 5 ? "ком-то" :\
                            (pad) == 4 ? "кем-то" :\
                            (pad) == 3 ? "кого-то" :\

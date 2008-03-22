@@ -1933,6 +1933,11 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		send_to_char("У Вас заняты руки.\r\n", ch);
 		return;
 	}
+	/* нельзя надеть щит, если недостаточно силы */
+	if (!IS_IMMORTAL(ch) && (where == WEAR_SHIELD) && !OK_SHIELD(ch, obj)) {
+		act("Вам слишком тяжело нести $o3 на левой руке.", FALSE, ch, obj, 0, TO_CHAR);
+		return;
+	}
 
 	if ((where == WEAR_FINGER_R) || (where == WEAR_NECK_1) || (where == WEAR_WRIST_R))
 		if (GET_EQ(ch, where))

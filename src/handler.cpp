@@ -762,6 +762,13 @@ void affect_total(CHAR_DATA * ch)
 		obj_to_char(unequip_char(ch, WEAR_HOLD), ch);
 		return;
 	}
+	if (!IS_NPC(ch) && (obj = GET_EQ(ch, WEAR_SHIELD)) && !IS_IMMORTAL(ch)
+	    && !OK_SHIELD(ch, obj)) {
+		act("Вам слишком тяжело держать $o3 на левой руке!", FALSE, ch, obj, 0, TO_CHAR);
+		act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+		obj_to_char(unequip_char(ch, WEAR_SHIELD), ch);
+		return;
+	}
 
 	/* calculate DAMAGE value */
 	GET_DAMAGE(ch) = (str_app[STRENGTH_APPLY_INDEX(ch)].todam + GET_REAL_DR(ch)) * 2;
