@@ -2008,6 +2008,22 @@ int calculate_strconc_damage(CHAR_DATA * ch, OBJ_DATA * wielded)
 	return (static_cast<int> (str_mod * weap_mod * level_mod * rnd_mod * remort_mod));
 }
 
+/**
+* Расчет прибавки дамаги со скрытого стиля.
+* (левел/3 + реморты) * скилл/125 * среднее/9.(3)
+* тупость канеш это все, но пока трогать не хочется,
+* поэтому ограничился зависимостью от пушек и примерно той же итоговой кривой
+*/
+int calculate_noparryhit_dmg(CHAR_DATA * ch, OBJ_DATA * wielded)
+{
+	if (!get_skill(ch, SKILL_NOPARRYHIT)) return 0;
+
+	float weap_mod = static_cast<float> (GET_OBJ_VAL(wielded, 1) * GET_OBJ_VAL(wielded, 2)) / 14;
+	float level_mod = static_cast<float> (GET_LEVEL(ch)) / 3;
+	float skill_mod = static_cast<float> (get_skill(ch, SKILL_NOPARRYHIT)) / 125;
+	return (static_cast<int> (((level_mod + GET_REMORT(ch)) * skill_mod) * weap_mod));
+}
+
 int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_DATA * wielded, int mayflee)
 {
 	int prob, percent = 0, lag = 0, i, k, mem_dam = dam;
@@ -3409,6 +3425,10 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			dam += dice(ch->mob_specials.damnodice, ch->mob_specials.damsizedice);
 		}
 
+		// этот вот изврат - чтобы учесть положения наема, но при этом обойти санку/призму
+		// потому что просто поменяв их тут местами - срежется последовательность модификаторов
+		int noparryhit = 0;
+
 		if (wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON) {	// Add weapon-based damage if a weapon is being wielded
 			percent = dice(GET_OBJ_VAL(wielded, 1), GET_OBJ_VAL(wielded, 2));
 			if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM)
@@ -3419,6 +3439,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			}
 			dam += MAX(1, percent);
 			dam += calculate_strconc_damage(ch, wielded);
+			noparryhit += calculate_noparryhit_dmg(ch, wielded);
 		} else {	// If no weapon, add bare hand damage instead
 			if (AFF_FLAGGED(ch, AFF_STONEHAND)) {
 				if (GET_CLASS(ch) == CLASS_WARRIOR)
@@ -3448,18 +3469,6 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 
 		// Change victim, if protector present
 		victim = try_protect(victim, ch, weapon);
-
-		// этот вот изврат - чтобы учесть положения наема, но при этом обойти санку/призму
-		// потому что просто поменяв их тут местами - срежется последовательность модификаторов
-		// формула: левел/3 + реморты*2*(скилл-100), что вобщем-то не очень правильно, т.к. тут
-		// реморт по сути прибавляет два раза, при том, что скилл пассивный
-		int noparryhit = 0;
-		if (get_skill(ch, SKILL_NOPARRYHIT))
-		{
-			noparryhit += (int) ((GET_LEVEL(ch) / 3 + GET_REMORT(ch) * 2) *
-				get_skill(ch, SKILL_NOPARRYHIT) /
-				skill_info[SKILL_NOPARRYHIT].max_percent);
-		}
 
 		//dzMUDiST Обработка !исступления! +Gorrah
 		if (affected_by_spell(ch, SPELL_BERSERK)) {
