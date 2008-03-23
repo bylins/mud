@@ -1294,6 +1294,10 @@ ACMD(do_use)
 	}
 	switch (subcmd) {
 	case SCMD_QUAFF:
+		if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND)) {
+			send_to_char("Не стоит отвлекаться в бою!\r\n", ch);
+			return;
+		}
 		if (GET_OBJ_TYPE(mag_item) != ITEM_POTION) {
 			send_to_char("Осушить Вы можете только напиток (ну, Богам еще пЫво по вкусу ;)\r\n", ch);
 			return;
