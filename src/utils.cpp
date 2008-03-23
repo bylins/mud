@@ -1455,7 +1455,7 @@ char *title_noname(struct char_data *ch)
 	static char clan[MAX_STRING_LENGTH];
 	char *pos, *pos1;
 
-	if (CLAN(ch) && !IS_IMMORTAL(ch))
+	if (CLAN(ch) && !IS_IMMORTAL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		sprintf(clan, " (%s)", GET_CLAN_STATUS(ch));
 	else
 		clan[0] = 0;
@@ -1490,7 +1490,7 @@ char *only_title(CHAR_DATA * ch)
 	static char clan[MAX_STRING_LENGTH];
 	char *pos, *pos1;
 
-	if (CLAN(ch) && !IS_IMMORTAL(ch))
+	if (CLAN(ch) && !IS_IMMORTAL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		sprintf(clan, " (%s)", GET_CLAN_STATUS(ch));
 	else
 		clan[0] = 0;
@@ -1539,7 +1539,7 @@ char *race_or_title(CHAR_DATA * ch)
 	static char clan[MAX_STRING_LENGTH];
 	char *pos, *pos1;
 
-	if (CLAN(ch) && !IS_IMMORTAL(ch))
+	if (CLAN(ch) && !IS_IMMORTAL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		sprintf(clan, " (%s)", GET_CLAN_STATUS(ch));
 	else
 		clan[0] = 0;

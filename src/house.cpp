@@ -881,6 +881,11 @@ void Clan::HouseAdd(CHAR_DATA * ch, std::string & buffer)
 		send_to_char("Этого персонажа нет в игре!\r\n", ch);
 		return;
 	}
+	if (PRF_FLAGGED(d->character, PRF_CODERINFO))
+	{
+		send_to_char("Вы не можете приписать этого игрока.\r\n", ch);
+		return;
+	}
 	if (CLAN(d->character) && CLAN(ch) != CLAN(d->character)) {
 		send_to_char("Вы не можете приписать члена другой дружины.\r\n", ch);
 		return;
@@ -1255,9 +1260,18 @@ ACMD(DoClanList)
 	// строится список членов дружины или всех дружин (по флагу all)
 	DESCRIPTOR_DATA *d;
 	for (d = descriptor_list; d; d = d->next)
-		if (d->character && STATE(d) == CON_PLAYING && CLAN(d->character) && CAN_SEE_CHAR(ch, d->character) && !IS_IMMORTAL(d->character))
-			if (all || CLAN(d->character) == *clan)
-				temp_list.push_back(d->character);
+	{
+		if (d->character
+			&& STATE(d) == CON_PLAYING
+			&& CLAN(d->character)
+			&& CAN_SEE_CHAR(ch, d->character)
+			&& !IS_IMMORTAL(d->character)
+			&& !PRF_FLAGGED(d->character, PRF_CODERINFO)
+			&& (all || CLAN(d->character) == *clan))
+		{
+			temp_list.push_back(d->character);
+		}
+	}
 
 	// до кучи сортировка по рангам
 	std::sort(temp_list.begin(), temp_list.end(), Clan::SortRank());
