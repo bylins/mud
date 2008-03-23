@@ -358,7 +358,11 @@ ACMD(DoBoard)
 	}
 
 	if (CompareParam(buffer, "писать") || CompareParam(buffer, "write")) {
-		if ((*board)->Access(ch) < 2 || PLR_FLAGGED(ch, PLR_HELLED) || PLR_FLAGGED(ch, PLR_NAMED)) {
+		if ((*board)->Access(ch) < 2
+			|| PLR_FLAGGED(ch, PLR_HELLED)
+			|| PLR_FLAGGED(ch, PLR_NAMED)
+			|| PLR_FLAGGED(ch, PLR_DUMB))
+		{
 			send_to_char("У Вас нет возможности писать в этот раздел.\r\n", ch);
 			return;
 		}
