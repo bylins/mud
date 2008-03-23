@@ -2620,14 +2620,19 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 				// Просто NPC или PC сам по себе
 				perform_group_gain(killer, victim, 1, 100);
 		}
-		// в сислог иммам идут только смерти в пк (без арен)
-		if (!IS_NPC(victim)
-			&& (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
-			&& (RENTABLE(victim) && !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)))
+		// в сислог иммам идут только смерти в пк (без арен), в файл пишутся все смерти чаров
+		if (!IS_NPC(victim))
 		{
 			sprintf(buf2, "%s killed by %s at %s", GET_NAME(victim),
 				GET_NAME(ch), IN_ROOM(victim) != NOWHERE ? world[IN_ROOM(victim)]->name : "NOWHERE");
-			mudlog(buf2, BRF, LVL_IMPL, SYSLOG, TRUE);
+
+			if ((!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
+				&& (RENTABLE(victim) && !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)))
+			{
+				mudlog(buf2, BRF, LVL_IMPL, SYSLOG, 0);
+			}
+			log(buf2);
+
 			if (IS_NPC(ch) &&
 			    (AFF_FLAGGED(ch, AFF_CHARM) || IS_HORSE(ch)) && ch->master && !IS_NPC(ch->master))
 			{
