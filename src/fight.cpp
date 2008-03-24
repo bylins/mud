@@ -1985,7 +1985,7 @@ void poison_victim(CHAR_DATA * ch, CHAR_DATA * vict, int modifier)
 
 /**
 * Расчет прибавки дамаги с концентрации силы.
-* (сила-25)*(среднее/9.(3))*(левел/30)*(рандом(левел, 100)/100)*(мах(1, морты/5))
+* (сила-25)*(среднее/8)*(левел/30)*(рандом(левел, 100)/100)*(мах(1, морты/5))
 * Т.е. сила выше 25ти, левел, среднее оружия, штрафы до 5го морта и рандом от левела до 100.
 * Способность не плюсуется при железном ветре и оглушении.
 */
@@ -2000,7 +2000,7 @@ int calculate_strconc_damage(CHAR_DATA * ch, OBJ_DATA * wielded)
 
 	int str_mod = MAX(0, GET_REAL_STR(ch) - 25);
 	float rnd_mod = static_cast<float> (number(GET_LEVEL(ch), 100)) / 100;
-	float weap_mod = static_cast<float> (GET_OBJ_VAL(wielded, 1) * GET_OBJ_VAL(wielded, 2)) / 14;
+	float weap_mod = static_cast<float> (((GET_OBJ_VAL(wielded, 2) + 1) / 2.0) * GET_OBJ_VAL(wielded, 1)) / 8;
 	float level_mod = static_cast<float> (GET_LEVEL(ch)) / 30;
 	float remort_mod = static_cast<float> (GET_REMORT(ch)) / 5;
 	if (remort_mod > 1) remort_mod = 1;
@@ -2010,7 +2010,7 @@ int calculate_strconc_damage(CHAR_DATA * ch, OBJ_DATA * wielded)
 
 /**
 * Расчет прибавки дамаги со скрытого стиля.
-* (левел/3 + реморты) * скилл/125 * среднее/9.(3)
+* (левел/3 + реморты) * скилл/125 * среднее/9
 * тупость канеш это все, но пока трогать не хочется,
 * поэтому ограничился зависимостью от пушек и примерно той же итоговой кривой
 */
@@ -2018,7 +2018,7 @@ int calculate_noparryhit_dmg(CHAR_DATA * ch, OBJ_DATA * wielded)
 {
 	if (!get_skill(ch, SKILL_NOPARRYHIT)) return 0;
 
-	float weap_mod = static_cast<float> (GET_OBJ_VAL(wielded, 1) * GET_OBJ_VAL(wielded, 2)) / 14;
+	float weap_mod = static_cast<float> (((GET_OBJ_VAL(wielded, 2) + 1) / 2.0) * GET_OBJ_VAL(wielded, 1)) / 9;
 	float level_mod = static_cast<float> (GET_LEVEL(ch)) / 3;
 	float skill_mod = static_cast<float> (get_skill(ch, SKILL_NOPARRYHIT)) / 125;
 	return (static_cast<int> (((level_mod + GET_REMORT(ch)) * skill_mod) * weap_mod));
