@@ -3450,6 +3450,8 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			dam += MAX(1, percent);
 			dam += calculate_strconc_damage(ch, wielded);
 			noparryhit += calculate_noparryhit_dmg(ch, wielded);
+			if (type == SKILL_BACKSTAB)
+				noparryhit = noparryhit * 10 / 15;
 		} else {	// If no weapon, add bare hand damage instead
 			if (AFF_FLAGGED(ch, AFF_STONEHAND)) {
 				if (GET_CLASS(ch) == CLASS_WARRIOR)
