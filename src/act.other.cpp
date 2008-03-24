@@ -1320,6 +1320,42 @@ ACMD(do_use)
 			send_to_char("Применять можно только магические предметы !\r\n", ch);
 			return;
 		}
+		// палочки с чармами/оживлялками юзают только кастеры и дружи до 25 левева
+		if (GET_OBJ_VAL(mag_item, 3) == SPELL_CHARM
+			|| GET_OBJ_VAL(mag_item, 3) == SPELL_ANIMATE_DEAD
+			|| GET_OBJ_VAL(mag_item, 3) == SPELL_RESSURECTION)
+		{
+			if (GET_LEVEL(ch) >= 25)
+			{
+				send_to_char("Вы слишком сильны для применения этого предмета!\r\n", ch);
+				return;
+			}
+			switch (GET_CLASS(ch))
+			{
+				case CLASS_BATTLEMAGE:
+				case CLASS_DEFENDERMAGE:
+				case CLASS_CHARMMAGE:
+				case CLASS_NECROMANCER:
+				case CLASS_CLERIC:
+				case CLASS_DRUID:
+					break;
+				case CLASS_THIEF:
+				case CLASS_ASSASINE:
+				case CLASS_MERCHANT:
+				case CLASS_WARRIOR:
+					send_to_char("Да, штука явно магическая! Но совершенно непонятно как ей пользоваться. :(\r\n", ch);
+					return;
+				case CLASS_GUARD:
+					break;
+				case CLASS_RANGER:
+				case CLASS_PALADINE:
+				case CLASS_SMITH:
+					send_to_char("Да, штука явно магическая! Но совершенно непонятно как ей пользоваться. :(\r\n", ch);
+					return;
+				default:
+					return;
+			}
+		}
 		break;
 	}
 	if (do_hold && GET_EQ(ch, WEAR_HOLD) != mag_item) {
