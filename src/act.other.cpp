@@ -1330,30 +1330,15 @@ ACMD(do_use)
 				send_to_char("Вы слишком сильны для применения этого предмета!\r\n", ch);
 				return;
 			}
-			switch (GET_CLASS(ch))
+			if (GET_CLASS(ch) == CLASS_THIEF
+				|| GET_CLASS(ch) == CLASS_ASSASINE
+				|| GET_CLASS(ch) == CLASS_WARRIOR
+				|| GET_CLASS(ch) == CLASS_RANGER
+				|| GET_CLASS(ch) == CLASS_PALADINE
+				|| GET_CLASS(ch) == CLASS_SMITH)
 			{
-				case CLASS_BATTLEMAGE:
-				case CLASS_DEFENDERMAGE:
-				case CLASS_CHARMMAGE:
-				case CLASS_NECROMANCER:
-				case CLASS_CLERIC:
-				case CLASS_DRUID:
-					break;
-				case CLASS_THIEF:
-				case CLASS_ASSASINE:
-				case CLASS_MERCHANT:
-				case CLASS_WARRIOR:
-					send_to_char("Да, штука явно магическая! Но совершенно непонятно как ей пользоваться. :(\r\n", ch);
-					return;
-				case CLASS_GUARD:
-					break;
-				case CLASS_RANGER:
-				case CLASS_PALADINE:
-				case CLASS_SMITH:
-					send_to_char("Да, штука явно магическая! Но совершенно непонятно как ей пользоваться. :(\r\n", ch);
-					return;
-				default:
-					return;
+				send_to_char("Да, штука явно магическая! Но совершенно непонятно как ей пользоваться. :(\r\n", ch);
+				return;
 			}
 		}
 		break;
