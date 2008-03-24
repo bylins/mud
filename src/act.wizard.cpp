@@ -442,7 +442,7 @@ int set_punish (CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , l
 		} else
 			skip_spaces(&reason);
 
-		pundata->level = GET_LEVEL(ch);
+		pundata->level = Privilege::check_flag(ch, Privilege::KRODER) ? LVL_IMPL : GET_LEVEL(ch);
 		pundata->godid = GET_UNIQUE(ch);
 
 		// Добавляем в причину имя имма
