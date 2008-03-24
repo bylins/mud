@@ -1332,6 +1332,7 @@ ACMD(do_use)
 			}
 			if (GET_CLASS(ch) == CLASS_THIEF
 				|| GET_CLASS(ch) == CLASS_ASSASINE
+				|| GET_CLASS(ch) == CLASS_MERCHANT
 				|| GET_CLASS(ch) == CLASS_WARRIOR
 				|| GET_CLASS(ch) == CLASS_RANGER
 				|| GET_CLASS(ch) == CLASS_PALADINE
