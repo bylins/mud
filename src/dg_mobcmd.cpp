@@ -181,7 +181,7 @@ ACMD(do_mkill)
 
 /*
  * lets the mobile destroy an object in its inventory
- * it can also destroy a worn object and it can destroy 
+ * it can also destroy a worn object and it can destroy
  * items using all.xxxxx or just plain all of them
  */
 ACMD(do_mjunk)
@@ -359,7 +359,7 @@ ACMD(do_mecho)
 
 /*
  * lets the mobile load an item or mobile.  All items
- * are loaded into inventory, unless it is NO-TAKE. 
+ * are loaded into inventory, unless it is NO-TAKE.
  */
 ACMD(do_mload)
 {
@@ -398,6 +398,7 @@ ACMD(do_mload)
 			mob_log(ch, "mload: bad object vnum");
 			return;
 		}
+		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
 		GET_OBJ_ZONE(object) = world[IN_ROOM(ch)]->zone;
 		if (CAN_WEAR(object, ITEM_WEAR_TAKE)) {
 			obj_to_char(object, ch);
@@ -1010,8 +1011,8 @@ ACMD(do_mtransform)
 // 2. Чтобы уменьшить кол-во мобов ch, нужно экстрактить ch,
 //    но этого делать НЕЛЬЗЯ, т.к. на него очень много ссылок.
 // 3. Вывод - a) обмениваю содержимое m и ch.
-//            b) в ch (бывший m) копирую игровую информацию из m (бывший ch) 
-//            c) удаляю m (на самом деле это данные ch в другой оболочке) 
+//            b) в ch (бывший m) копирую игровую информацию из m (бывший ch)
+//            c) удаляю m (на самом деле это данные ch в другой оболочке)
 
 
 		for (pos = 0; pos < NUM_WEARS; pos++) {
@@ -1030,7 +1031,7 @@ ACMD(do_mtransform)
 		memcpy(ch, &tmpmob, sizeof(CHAR_DATA));	// tmpmob ==> ch
 
 // Имею:
-//  ch -> старый указатель, новое наполнение из моба m 
+//  ch -> старый указатель, новое наполнение из моба m
 //  m -> новый указатель, старое наполнение из моба ch
 //  tmpmob -> врем. переменная, наполнение из оригинального моба m
 

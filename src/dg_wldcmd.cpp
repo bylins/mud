@@ -494,6 +494,7 @@ WCMD(do_wload)
 			wld_log(room, "wload: bad object vnum");
 			return;
 		}
+		log("Load obj #%d by %s (wload)", number, room->name);
 		GET_OBJ_ZONE(object) = world[real_room(room->number)]->zone;
 		obj_to_room(object, real_room(room->number));
 		load_otrigger(object);
