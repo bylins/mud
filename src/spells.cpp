@@ -623,10 +623,7 @@ ASPELL(spell_townportal)
 			timed.skill = SKILL_TOWNPORTAL;
 			// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
 			int modif = get_skill(ch, SKILL_TOWNPORTAL) / 7 + number(1, 5);
-			if (modif <= 25)
-				timed.time = 25 - modif;
-			else
-				timed.time = 1;
+			timed.time = MAX(1, 25 - modif);
 			timed_to_char(ch, &timed);
 		}
 		return;
