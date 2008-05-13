@@ -623,6 +623,9 @@ void hitprcnt_mtrigger(CHAR_DATA * ch)
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
+	if (!ch)
+		return;
+
 	if (!SCRIPT_CHECK(ch, MTRIG_HITPRCNT) || !FIGHTING(ch) || AFF_FLAGGED(ch, AFF_CHARM))
 		return;
 

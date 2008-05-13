@@ -101,6 +101,7 @@ int armor_class_limit(CHAR_DATA * ch);
 int compute_armor_class(CHAR_DATA * ch);
 int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim);
 void apply_weapon_bonus(int ch_class, int skill, int *damroll, int *hitroll);
+void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
 
 /* Weapon attack texts */
 struct attack_hit_type attack_hit_text[] = {
@@ -752,7 +753,10 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 
 			local_gold = GET_GOLD(ch);
 			corpse = make_corpse(ch);
-
+			if (MOB_FLAGGED(ch, MOB_CORPSE)) {
+				perform_drop_gold(ch, local_gold, SCMD_DROP, 0);
+				GET_GOLD(ch)=0;
+			}
 			obj_load_on_death(corpse, ch);
 
 			if (!IS_NPC(ch)) {
@@ -3009,6 +3013,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 {
 	OBJ_DATA *wielded = NULL;
 	CHAR_DATA *vict;
+	int made_dam=0;
 //  int victim_old_ac;
 	int i, w_type = 0, victim_ac, calc_thaco, dam, diceroll, prob, range, skill =
 	    0, weapon_pos = WEAR_WIELD, percent, is_shit = (weapon == 2) ? 1 : 0, modi = 0, skill_is = 0;
@@ -3873,15 +3878,15 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 					}
 				}
 			};
-
-			extdamage(ch, victim, dam, w_type, wielded, TRUE);
+			made_dam=extdamage(ch, victim, dam, w_type, wielded, TRUE);
 			was_critic = FALSE;
 			dam_critic = 0;
 		}
 	}
 
 	/* check if the victim has a hitprcnt trigger */
-	hitprcnt_mtrigger(victim);
+	if (made_dam!=-1)// victim is not dead after hit
+		hitprcnt_mtrigger(victim);
 
 	/* Вписываем всех в группе кто с автопомощью у атакующего */
 //  if (AFF_FLAGGED (ch, AFF_GROUP))

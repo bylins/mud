@@ -3214,6 +3214,11 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	GET_EXP(mob) = 0;
 	IS_CARRYING_W(mob) = 0;
 	IS_CARRYING_N(mob) = 0;
+//Polud при оживлении и поднятии трупа лоадились куны из прототипа
+	GET_GOLD(mob)=0;
+	GET_GOLD_NoDs(mob) = 0;
+	GET_GOLD_SiDs(mob) = 0;
+//-Polud
 	af.type = SPELL_CHARM;
 	if (weather_info.moon_day < 14)
 		af.duration = pc_duration(mob, GET_REAL_WIS(ch) + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
@@ -3322,13 +3327,15 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 
 	// А надо ли это вообще делать???
 	if (handle_corpse) {
-		for (tobj = obj->contains; tobj; tobj = next_obj) {
+		for (tobj = obj->contains; tobj; ) {
 			next_obj = tobj->next_content;
 			obj_from_obj(tobj);
 			obj_to_char(tobj, mob);
+			tobj = next_obj;
 		}
 		extract_obj(obj);
 	}
+
 
 	return 1;
 }
