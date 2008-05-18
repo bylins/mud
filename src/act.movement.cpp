@@ -431,7 +431,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		if (on_horse(ch)
 		    && !legal_dir(get_horse(ch), dir, need_specials_check, FALSE)) {
 			if (show_msg) {
-				act("Ваш$G $N отказывается туда идти, и вам пришлось соскочить.",
+				act("$Z $N отказывается туда идти, и Вам пришлось соскочить.",
 				    FALSE, ch, 0, get_horse(ch), TO_CHAR);
 				act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM);
 				REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
@@ -445,7 +445,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 					send_to_char("Слишком мало места.\r\n", ch);
 				return (FALSE);
 			} else if (show_msg) {
-				act("Ваш$G $N заупрямил$U, и вам пришлось соскочить.",
+				act("$Z $N заупрямил$U, и Вам пришлось соскочить.",
 				    FALSE, ch, 0, get_horse(ch), TO_CHAR);
 				act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM);
 				REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
@@ -454,14 +454,14 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 
 		if (on_horse(ch) && GET_HORSESTATE(get_horse(ch)) <= 0) {
 			if (show_msg)
-				act("Ваш$G $N загнан$G настолько, что не может нести Вас на себе.",
+				act("$Z $N загнан$G настолько, что не может нести Вас на себе.",
 				    FALSE, ch, 0, get_horse(ch), TO_CHAR);
 			return (FALSE);
 		}
 
 		if (on_horse(ch) && (AFF_FLAGGED(get_horse(ch), AFF_HOLD) || AFF_FLAGGED(get_horse(ch), AFF_SLEEP))) {
 			if (show_msg)
-				act("Ваш$G $N не в состоянии нести Вас на себе.\r\n", FALSE, ch, 0, get_horse(ch),
+				act("$Z $N не в состоянии нести Вас на себе.\r\n", FALSE, ch, 0, get_horse(ch),
 				    TO_CHAR);
 			return (FALSE);
 		}
@@ -1231,7 +1231,7 @@ ACMD(do_enter)
 				door = world[IN_ROOM(ch)]->portal_room;
 				/* не пускать игрока на холженном коне */
 				if (on_horse(ch) && GET_MOB_HOLD(get_horse(ch))) {
-					act("Ваш$G $N не в состоянии нести Вас на себе.\r\n",
+					act("$Z $N не в состоянии нести Вас на себе.\r\n",
 					    FALSE, ch, 0, get_horse(ch), TO_CHAR);
 					return;
 				}
@@ -1248,7 +1248,7 @@ ACMD(do_enter)
 				}
 				//проверка на флаг нельзя_верхом
 				if (ROOM_FLAGGED(door, ROOM_NOHORSE) && on_horse(ch)) {
-					act("Ваш$G $N отказывается туда идти, и вам пришлось соскочить.",
+					act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 					    FALSE, ch, 0, get_horse(ch), TO_CHAR);
 					act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM);
 					REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
@@ -1260,7 +1260,7 @@ ACMD(do_enter)
 						send_to_char("Слишком мало места.\r\n", ch);
 						return;
 					} else {
-						act("Ваш$G $N заупрямил$U, и вам пришлось соскочить.",
+						act("$Z $N заупрямил$U, и вам пришлось соскочить.",
 						    FALSE, ch, 0, get_horse(ch), TO_CHAR);
 						act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM);
 						REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);

@@ -981,11 +981,12 @@ extern SPECIAL(postmaster);
 #define HSHR(ch) (GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
 #define HSSH(ch) (GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
 #define HMHR(ch) (GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
+#define HYOU(ch) (GET_SEX(ch) ? (IS_MALE(ch) ? "Ваш": (IS_FEMALE(ch) ? "Ваша" : (IS_NOSEXY(ch) ? "Ваше": "Ваши"))) :"Ваш")
 
 #define OSHR(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "его": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ее" : "их")) :"его")
 #define OSSH(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "он": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "она" : "они")) :"оно")
 #define OMHR(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "ему": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "ей" : "им")) :"ему")
-
+#define OYOU(ch) (GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch)==SEX_MALE ? "Ваш": (GET_OBJ_SEX(ch) == SEX_FEMALE ? "Ваша" : "Ваши")) :"Ваше")
 
 
 /* Various macros building up to CAN_SEE */

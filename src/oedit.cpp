@@ -1838,6 +1838,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		 * proceed to menu 2
 		 */
 		GET_OBJ_VAL(OLC_OBJ(d), 0) = number;
+		OLC_VAL(d) = 1;
 		oedit_disp_val2_menu(d);
 		return;
 
@@ -1919,6 +1920,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			}
 		}
 		GET_OBJ_VAL(OLC_OBJ(d), 1) = number;
+		OLC_VAL(d) = 1;
 		oedit_disp_val3_menu(d);
 		return;
 
@@ -1955,6 +1957,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			max_val = 999999;
 		}
 		GET_OBJ_VAL(OLC_OBJ(d), 2) = MAX(min_val, MIN(number, max_val));
+		OLC_VAL(d) = 1;
 		oedit_disp_val4_menu(d);
 		return;
 

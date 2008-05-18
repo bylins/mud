@@ -75,6 +75,7 @@ int apply_ac(CHAR_DATA * ch, int eq_pos);
 int apply_armour(CHAR_DATA * ch, int eq_pos);
 void update_object(OBJ_DATA * obj, int use);
 void update_char_objects(CHAR_DATA * ch);
+bool is_wear_light(CHAR_DATA *ch);
 
 /* external functions */
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
@@ -295,6 +296,15 @@ int get_quested(CHAR_DATA * ch, int quest)
 }
 
 
+bool is_wear_light(CHAR_DATA *ch)
+{	
+	bool wear_light = FALSE;
+	for (int wear_pos=0; wear_pos<NUM_WEARS; wear_pos++)
+	if (GET_EQ(ch, wear_pos)&&GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2))
+		wear_light = TRUE;
+	return wear_light;	
+}
+
 void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef)
 {
 	int light_equip = FALSE;
@@ -306,13 +316,9 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 	//   {sprintf(buf,"%d %d %d (%d)\r\n",world[IN_ROOM(ch)]->light,world[IN_ROOM(ch)]->glight,world[IN_ROOM(ch)]->gdark,koef);
 	//    send_to_char(buf,ch);
 	//   }
-	if (GET_EQ(ch, WEAR_LIGHT)) {
-		if (GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT) {
-			if (GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2)) {	//send_to_char("Light OK!\r\n",ch);
-				light_equip = TRUE;
-			}
-		}
-	}
+	//Polud светить должно не только то что одето для освещения, а любой источник света
+	light_equip = is_wear_light(ch);
+	//-Polud
 	// In equipment
 	if (light_equip) {
 		if (was_equip == LIGHT_NO)
@@ -1693,7 +1699,8 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 {
 	int was_lgt = AFF_FLAGGED(ch, AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
 	    was_hlgt = AFF_FLAGGED(ch, AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
-	    was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, was_lamp = FALSE;
+	    was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, 
+		was_lamp = FALSE;
 	int j, show_msg = IS_SET(pos, 0x100), skip_total = IS_SET(pos, 0x80),
 	    no_cast = IS_SET(pos, 0x40);
 
@@ -1740,9 +1747,12 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	if (obj->carried_by)
 		obj_from_char(obj);
 
-	if (GET_EQ(ch, WEAR_LIGHT) &&
-	    GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))
-		was_lamp = TRUE;
+	//if (GET_EQ(ch, WEAR_LIGHT) &&
+	//  GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))
+	//  was_lamp = TRUE;
+	//Polud светить должно не только то что одето для освещения, а любой источник света
+	was_lamp = is_wear_light(ch);
+	//-Polud
 
 	GET_EQ(ch, pos) = obj;
 	obj->worn_by = ch;
@@ -1942,9 +1952,13 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 		return (NULL);
 	}
 
-	if (GET_EQ(ch, WEAR_LIGHT) &&
-	    GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))
-		was_lamp = TRUE;
+//	if (GET_EQ(ch, WEAR_LIGHT) &&
+//	    GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))
+//		was_lamp = TRUE;
+	//Polud светить должно не только то что одето для освещения, а любой источник света
+	was_lamp = is_wear_light(ch);
+	//-Polud
+
 
 	if (ch->in_room == NOWHERE)
 		log("SYSERR: ch->in_room = NOWHERE when unequipping char %s.", GET_NAME(ch));
@@ -2375,29 +2389,31 @@ void update_object(OBJ_DATA * obj, int use)
 void update_char_objects(CHAR_DATA * ch)
 {
 	int i;
-
-	if (GET_EQ(ch, WEAR_LIGHT) != NULL) {
-		if (GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT) {
-			if (GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2) > 0) {
-				i = --GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2);
-				if (i == 1) {
-					act("Ваш$G $o замерцал$G и начал$G угасать.\r\n",
-					    FALSE, ch, GET_EQ(ch, WEAR_LIGHT), 0, TO_CHAR);
-					act("$o $n1 замерцал$G и начал$G угасать.",
-					    FALSE, ch, GET_EQ(ch, WEAR_LIGHT), 0, TO_ROOM);
-				} else if (i == 0) {
-					act("Ваш$G $o погас$Q.\r\n", FALSE, ch, GET_EQ(ch, WEAR_LIGHT), 0, TO_CHAR);
-					act("$o $n1 погас$Q.", FALSE, ch, GET_EQ(ch, WEAR_LIGHT), 0, TO_ROOM);
-					if (IN_ROOM(ch) != NOWHERE) {
-						if (world[IN_ROOM(ch)]->light > 0)
-							world[IN_ROOM(ch)]->light -= 1;
+//Polud раз уж светит любой источник света, то и гаснуть тоже должны все
+	for (int wear_pos=0; wear_pos < NUM_WEARS; wear_pos++)
+		if (GET_EQ(ch, wear_pos) != NULL) {
+			if (GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == ITEM_LIGHT) {
+				if (GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2) > 0) {
+					i = --GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2);
+					if (i == 1) {
+						act("$z $o замерцал$G и начал$G угасать.\r\n",
+							FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_CHAR);
+						act("$o $n1 замерцал$G и начал$G угасать.",
+							FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_ROOM);
+					} else if (i == 0) {
+						act("$z $o погас$Q.\r\n", FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_CHAR);
+						act("$o $n1 погас$Q.", FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_ROOM);
+						if (IN_ROOM(ch) != NOWHERE) {
+							if (world[IN_ROOM(ch)]->light > 0)
+								world[IN_ROOM(ch)]->light -= 1;
+						}
+						if (OBJ_FLAGGED(GET_EQ(ch, wear_pos), ITEM_DECAY))
+							extract_obj(GET_EQ(ch, wear_pos));
 					}
-					if (OBJ_FLAGGED(GET_EQ(ch, WEAR_LIGHT), ITEM_DECAY))
-						extract_obj(GET_EQ(ch, WEAR_LIGHT));
 				}
 			}
 		}
-	}
+	//-Polud
 
 	for (i = 0; i < NUM_WEARS; i++)
 		if (GET_EQ(ch, i))

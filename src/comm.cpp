@@ -3246,7 +3246,20 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 					CHECK_NULL(obj, GET_OBJ_VIS_SUF_4(obj, to));
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
-
+//Polud Добавил склонение местоимения Ваш(е,а,и)
+			case 'z':
+				if (obj)
+					i = OYOU(obj);
+				else
+					CHECK_NULL(obj, OYOU(obj));
+				break;
+			case 'Z':
+				if (vict_obj)
+					i = HYOU((const CHAR_DATA *)vict_obj);
+				else
+					CHECK_NULL(vict_obj, HYOU((const CHAR_DATA *)vict_obj))
+				break;
+//-Polud
 			default:
 				log("SYSERR: Illegal $-code to act(): %c", *orig);
 				log("SYSERR: %s", orig);
