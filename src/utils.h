@@ -1003,7 +1003,10 @@ extern SPECIAL(postmaster);
            GET_WAIT(sub) <= 0                     && \
            !FIGHTING(sub)                         && \
            GET_POS(sub) >= POS_RESTING)
-
+// Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
+//пока здесь только чарм, как и было раньше
+#define CAN_START_MTRIG(ch) (!AFF_FLAGGED((ch),AFF_CHARM))
+//-Polud
 #define LIGHT_OK(sub)   (!AFF_FLAGGED(sub, AFF_BLIND) && \
    (IS_LIGHT((sub)->in_room) || AFF_FLAGGED((sub), AFF_INFRAVISION)))
 

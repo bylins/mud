@@ -239,7 +239,7 @@ void bribe_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, int amount)
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
-	if (!SCRIPT_CHECK(ch, MTRIG_BRIBE) || AFF_FLAGGED(ch, AFF_CHARM))
+	if (!SCRIPT_CHECK(ch, MTRIG_BRIBE) || !CAN_START_MTRIG(ch))
 		return;
 
 	for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next) {
@@ -265,7 +265,7 @@ void greet_memory_mtrigger(CHAR_DATA * actor)
 		return;
 
 	for (ch = world[IN_ROOM(actor)]->people; ch; ch = ch->next_in_room) {
-		if (!SCRIPT_MEM(ch) || !AWAKE(ch) || FIGHTING(ch) || (ch == actor) || AFF_FLAGGED(ch, AFF_CHARM))
+		if (!SCRIPT_MEM(ch) || !AWAKE(ch) || FIGHTING(ch) || (ch == actor) || !CAN_START_MTRIG(ch))
 			continue;
 
 		/* find memory line with command only */
@@ -322,7 +322,7 @@ int greet_mtrigger(CHAR_DATA * actor, int dir)
 		if (!SCRIPT_CHECK
 		    (ch,
 		     MTRIG_GREET | MTRIG_GREET_ALL | MTRIG_GREET_PC | MTRIG_GREET_PC_ALL) || !AWAKE(ch) || FIGHTING(ch)
-		    || (ch == actor) || AFF_FLAGGED(ch, AFF_CHARM))
+		    || (ch == actor) || !CAN_START_MTRIG(ch))
 			continue;
 
 		for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next) {
@@ -355,7 +355,7 @@ void entry_memory_mtrigger(CHAR_DATA * ch)
 	struct script_memory *mem;
 	char buf[MAX_INPUT_LENGTH];
 
-	if (!SCRIPT_MEM(ch) || AFF_FLAGGED(ch, AFF_CHARM))
+	if (!SCRIPT_MEM(ch) || !CAN_START_MTRIG(ch))
 		return;
 
 
@@ -402,7 +402,7 @@ void income_mtrigger(CHAR_DATA * ch, int dir)
 	CHAR_DATA *i, *actor = NULL;
 
 	if ((!SCRIPT_CHECK(ch, MTRIG_INCOME)
-	     && !SCRIPT_CHECK(ch, MTRIG_INCOME_PC)) || AFF_FLAGGED(ch, AFF_CHARM))
+	     && !SCRIPT_CHECK(ch, MTRIG_INCOME_PC)) || !CAN_START_MTRIG(ch))
 		return;
 
 	for (i = world[IN_ROOM(ch)]->people; i; i = i->next_in_room)
@@ -431,7 +431,7 @@ int entry_mtrigger(CHAR_DATA * ch)
 {
 	TRIG_DATA *t;
 
-	if (!SCRIPT_CHECK(ch, MTRIG_ENTRY) || AFF_FLAGGED(ch, AFF_CHARM))
+	if (!SCRIPT_CHECK(ch, MTRIG_ENTRY) || !CAN_START_MTRIG(ch))
 		return 1;
 
 	for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next) {
@@ -478,7 +478,7 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 	for (ch = world[IN_ROOM(actor)]->people; ch; ch = ch_next) {
 		ch_next = ch->next_in_room;
 
-		if (SCRIPT_CHECK(ch, MTRIG_COMMAND) && !AFF_FLAGGED(ch, AFF_CHARM) && (actor != ch)) {
+		if (SCRIPT_CHECK(ch, MTRIG_COMMAND) && CAN_START_MTRIG(ch) && (actor != ch)) {
 			for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next) {
 				if (!TRIGGER_CHECK(t, MTRIG_COMMAND))
 					continue;
@@ -517,7 +517,7 @@ void speech_mtrigger(CHAR_DATA * actor, char *str)
 		ch_next = ch->next_in_room;
 
 		if (SCRIPT_CHECK(ch, MTRIG_SPEECH) && AWAKE(ch) &&
-		    !AFF_FLAGGED(ch, AFF_DEAFNESS) && !AFF_FLAGGED(ch, AFF_CHARM) && (actor != ch))
+		    !AFF_FLAGGED(ch, AFF_DEAFNESS) && CAN_START_MTRIG(ch) && (actor != ch))
 			for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next) {
 				if (!TRIGGER_CHECK(t, MTRIG_SPEECH))
 					continue;
@@ -549,7 +549,7 @@ void act_mtrigger(CHAR_DATA * ch, char *str, CHAR_DATA * actor, CHAR_DATA * vict
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
-	if (SCRIPT_CHECK(ch, MTRIG_ACT) && !AFF_FLAGGED(ch, AFF_CHARM) && (actor != ch))
+	if (SCRIPT_CHECK(ch, MTRIG_ACT) && CAN_START_MTRIG(ch) && (actor != ch))
 		for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next) {
 			if (!TRIGGER_CHECK(t, MTRIG_ACT))
 				continue;
@@ -588,7 +588,7 @@ void fight_mtrigger(CHAR_DATA * ch)
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
-	if (!SCRIPT_CHECK(ch, MTRIG_FIGHT) || !FIGHTING(ch) || AFF_FLAGGED(ch, AFF_CHARM))
+	if (!SCRIPT_CHECK(ch, MTRIG_FIGHT) || !FIGHTING(ch) || !CAN_START_MTRIG(ch))
 		return;
 
 	for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next) {
@@ -605,7 +605,7 @@ int damage_mtrigger(CHAR_DATA * damager, CHAR_DATA * victim)
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
-	if (!SCRIPT_CHECK(victim, MTRIG_DAMAGE) || AFF_FLAGGED(victim, AFF_CHARM))
+	if (!SCRIPT_CHECK(victim, MTRIG_DAMAGE) || !CAN_START_MTRIG(damager))
 		return 0;
 
 	for (t = TRIGGERS(SCRIPT(victim)); t; t = t->next) {
@@ -623,10 +623,9 @@ void hitprcnt_mtrigger(CHAR_DATA * ch)
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
-	if (!ch)
-		return;
+	if (!ch) return;
 
-	if (!SCRIPT_CHECK(ch, MTRIG_HITPRCNT) || !FIGHTING(ch) || AFF_FLAGGED(ch, AFF_CHARM))
+	if (!SCRIPT_CHECK(ch, MTRIG_HITPRCNT) || !FIGHTING(ch) || !CAN_START_MTRIG(ch))
 		return;
 
 	for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next) {
@@ -645,7 +644,7 @@ int receive_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, OBJ_DATA * obj)
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
-	if (!SCRIPT_CHECK(ch, MTRIG_RECEIVE) || AFF_FLAGGED(ch, AFF_CHARM))
+	if (!SCRIPT_CHECK(ch, MTRIG_RECEIVE) || !CAN_START_MTRIG(ch))
 		return 1;
 
 	for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next) {

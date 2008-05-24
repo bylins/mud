@@ -861,7 +861,9 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			else {
 				if (master &&
 				    !IS_SET(mode, SF_MASTERDIE) &&
-				    IN_ROOM(ch) == IN_ROOM(master) && CAN_SEE(ch, master) && !FIGHTING(ch)) {
+				    IN_ROOM(ch) == IN_ROOM(master) && 
+					CAN_SEE(ch, master) && !FIGHTING(ch) && 
+					!ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL)) { //Polud - ну не надо агрить в мирках, незачем это
 					if (number(1, GET_REAL_INT(ch) * 2) > GET_REAL_CHA(master)) {
 						act("$n посчитал$g, что Вы заслуживаете смерти !",
 						    FALSE, ch, 0, master, TO_VICT | CHECK_DEAF);

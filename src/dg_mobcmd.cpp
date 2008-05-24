@@ -209,7 +209,7 @@ ACMD(do_mjunk)
 	if (!str_cmp(arg, "all") || !str_cmp(arg, "все"))
 		junk_all = 1;
 
-	if ((find_all_dots(arg) != FIND_INDIV) && !junk_all) {
+	if ((find_all_dots(arg) == FIND_INDIV) && !junk_all) {
 		if ((obj = get_object_in_equip_vis(ch, arg, ch->equipment, &pos)) != NULL) {
 			unequip_char(ch, pos);
 			extract_obj(obj);
@@ -567,6 +567,7 @@ ACMD(do_mteleport)
 {
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int target;
+	room_rnum from_room;
 	CHAR_DATA *vict, *next_ch, *horse, *charmee, *ncharmee;
 
 	if (!MOB_OR_IMPL(ch)) {
@@ -591,7 +592,7 @@ ACMD(do_mteleport)
 		mob_log(ch, "mteleport target is an invalid room");
 	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все")) {
 		if (target == IN_ROOM(ch)) {
-			mob_log(ch, "mteleport all target is itself");
+			mob_log(ch, "mteleport all: target is itself");
 			return;
 		}
 
@@ -601,26 +602,26 @@ ACMD(do_mteleport)
 			    && !(IS_HORSE(vict) || AFF_FLAGGED(vict, AFF_CHARM)
 				 || MOB_FLAGGED(ch, MOB_ANGEL)))
 				continue;
-			if (on_horse(vict) || has_horse(vict, TRUE))
+/*			if (on_horse(vict) || has_horse(vict, TRUE))
 				horse = get_horse(vict);
 			else
 				horse = NULL;
-
+*/
 			if (IN_ROOM(vict) == NOWHERE) {
 				mob_log(ch, "mteleport transports from NOWHERE");
 				return;
 			}
-
+			
 			char_from_room(vict);
 			char_to_room(vict, target);
-			if (!str_cmp(argument, "horse") && horse) {
+/*			if (!str_cmp(argument, "horse") && horse) {
 				if (horse == next_ch)
 					next_ch = horse->next_in_room;
 				char_from_room(horse);
 				char_to_room(horse, target);
 			}
 			check_horse(vict);
-			look_at_room(vict, TRUE);
+*/			look_at_room(vict, TRUE);
 		}
 	} else {
 		if (*arg1 == UID_CHAR) {
@@ -647,12 +648,26 @@ ACMD(do_mteleport)
 			horse = get_horse(vict);
 		else
 			horse = NULL;
+		from_room = vict->in_room;
+		
 		char_from_room(vict);
 		char_to_room(vict, target);
 		if (!str_cmp(argument, "horse") && horse) {
 			char_from_room(horse);
 			char_to_room(horse, target);
 		}
+//Polud реализуем режим followers. за аргументом телепорта перемешаются все последователи-NPC  
+		if (!str_cmp(argument, "followers") && vict->followers)
+		{
+			follow_type *ft;
+			for (ft = vict->followers; ft; ft=ft->next)
+				if (IN_ROOM(ft->follower) == from_room && IS_NPC(ft->follower))
+				{
+					char_from_room(ft->follower);
+					char_to_room(ft->follower, target);
+				}
+		}
+//-Polud
 		check_horse(vict);
 		look_at_room(vict, TRUE);
 	}
