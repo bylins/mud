@@ -2824,6 +2824,7 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 		};
 	};
 	if (GET_AF_BATTLE(ch, EAF_IRON_WIND)) {
+		(void) train_skill(ch, SKILL_IRON_WIND, skill_info[SKILL_IRON_WIND].max_percent, FIGHTING(ch));
 		if (weapon == RIGHT_WEAPON) {
 			div = 100+MIN(80, MAX(1, percent-80));
 			prob = 100;
