@@ -15,6 +15,8 @@
 #include "conf.h"
 #include <string>
 #include <sstream>
+#include <boost/lexical_cast.hpp>
+
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -2495,9 +2497,16 @@ ACMD(do_score)
 			+ string(" без потерь для опыта.")).substr(0, 76).c_str(), CCCYN(ch, C_NRM));
 
 	if (RENTABLE(ch))
+	{
+		time_t rent_time = RENTABLE(ch) - time(0);
+		int minutes = rent_time > 60 ? rent_time / 60 : 0;
 		sprintf(buf + strlen(buf),
-			" || %sВ связи с боевыми действиями Вы не можете уйти на постой.                       %s||\r\n",
-			CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
+			" || %sВ связи с боевыми действиями Вы не можете уйти на постой еще %-18s%s ||\r\n",
+			CCIRED(ch, C_NRM),
+			minutes ? (boost::lexical_cast<std::string>(minutes) + string(" ") + string(desc_count(minutes, WHAT_MINu)) + string(".")).substr(0, 18).c_str()
+					: (boost::lexical_cast<std::string>(rent_time) + string(" ") + string(desc_count(rent_time, WHAT_SEC)) + string(".")).substr(0, 18).c_str(),
+			CCCYN(ch, C_NRM));
+	}
 	else if ((IN_ROOM(ch) != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER))
 		sprintf(buf + strlen(buf),
 			" || %sТут Вы чувствуете себя в безопасности.                                          %s||\r\n",
