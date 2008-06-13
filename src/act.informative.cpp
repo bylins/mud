@@ -617,7 +617,6 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 
 	}
 
-
 	if (IS_HORSE(i) && i->master == ch) {
 		strcpy(buf, "\r\nЭто Ваш скакун. Он ");
 		if (GET_HORSESTATE(i) <= 0)
