@@ -602,8 +602,21 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 	} else
 		act("\r\nНичего необычного в $n5 Вы не заметили.", FALSE, i, 0, ch, TO_VICT);
 
-	if (AFF_FLAGGED(i, AFF_CHARM) && i->master == ch && low_charm(i))
-		act("$n скоро перестанет следовать за Вами.", FALSE, i, 0, ch, TO_VICT);
+	if (AFF_FLAGGED(i, AFF_CHARM) && i->master == ch) {
+		if (low_charm(i))
+			act("$n скоро перестанет следовать за Вами.", FALSE, i, 0, ch, TO_VICT);
+		else {
+			AFFECT_DATA *aff;
+			for (aff = i->affected; aff; aff = aff->next)
+				if (aff->type == SPELL_CHARM) {
+					sprintf(buf, IS_POLY(i) ? "$n будут слушаться Вас еще %d %s." : "$n будет слушаться Вас еще %d %s.", aff->duration / 2, desc_count(aff->duration / 2, 1));
+					act(buf, FALSE, i, 0, ch, TO_VICT);
+					break;
+				}
+		}
+
+	}
+
 
 	if (IS_HORSE(i) && i->master == ch) {
 		strcpy(buf, "\r\nЭто Ваш скакун. Он ");
