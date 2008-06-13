@@ -1302,8 +1302,8 @@ void boot_db(void)
 	reset_q.head = reset_q.tail = NULL;
 
 	// делается после резета зон, см камент к функции
-	log("Load depot chests.");
-	Depot::load_chests();
+//	log("Load depot chests.");
+//	Depot::load_chests();
 
 	log("Load glory list.");
 	Glory::load_glory();

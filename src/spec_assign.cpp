@@ -148,8 +148,8 @@ void assign_objects(void)
 	ASSIGNOBJ(GODPUNISH_BOARD_OBJ, Board::Special);
 	ASSIGNOBJ(GODBUILD_BOARD_OBJ, Board::Special);
 	// команда хранилище при нахождении в банке
-	ASSIGNOBJ(Depot::PERS_CHEST_VNUM, Depot::Special);
-	ASSIGNOBJ(Depot::SHARE_CHEST_VNUM, Depot::Special);
+//	ASSIGNOBJ(Depot::PERS_CHEST_VNUM, Depot::Special);
+//	ASSIGNOBJ(Depot::SHARE_CHEST_VNUM, Depot::Special);
 }
 
 

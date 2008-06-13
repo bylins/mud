@@ -3927,27 +3927,29 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 					cur_trig = prev_trig;
 					return ret_val;
 				}
-			} else if (!strn_cmp(cmd, "version", 7)){
+			} else if (!strn_cmp(cmd, "version", 7))
 				mudlog(DG_SCRIPT_VERSION, BRF, LVL_BUILDER, SYSLOG, TRUE);
+			else {
 //Polud Вывел обработку mpurge и mjunk из command_interpreter.
 //Если будет глючить пурж - в первую очередь смотреть СЮДА
 //TODO: написать mob_command_interpreter и убрать в него обработку всех mob-команд.
-			} else if (!strn_cmp(cmd, "mpurge", 6)){
-				do_mpurge((CHAR_DATA *) go, cmd+6, 0, 0);
-			} else if (!strn_cmp(cmd, "mjunk", 5))
-				do_mjunk((CHAR_DATA *) go, cmd+5, 0, 0);
-//-Polud
-			else {
-				switch (type) {
-				case MOB_TRIGGER:
-					command_interpreter((CHAR_DATA *) go, cmd);
-					break;
-				case OBJ_TRIGGER:
-					obj_command_interpreter((OBJ_DATA *) go, cmd);
-					break;
-				case WLD_TRIGGER:
-					wld_command_interpreter((ROOM_DATA *) go, cmd);
-					break;
+// перевоткнуто временно сюда, ибо падает потом на free_varlist, если пуржим себя и должны выйти по dg_owner_purged -- Krodo
+				if (!strn_cmp(cmd, "mpurge", 6))
+					do_mpurge((CHAR_DATA *) go, cmd+6, 0, 0);
+				else if (!strn_cmp(cmd, "mjunk", 5))
+					do_mjunk((CHAR_DATA *) go, cmd+5, 0, 0);
+				else {
+					switch (type) {
+					case MOB_TRIGGER:
+						command_interpreter((CHAR_DATA *) go, cmd);
+						break;
+					case OBJ_TRIGGER:
+						obj_command_interpreter((OBJ_DATA *) go, cmd);
+						break;
+					case WLD_TRIGGER:
+						wld_command_interpreter((ROOM_DATA *) go, cmd);
+						break;
+					}
 				}
 				if (dg_owner_purged) {
 					depth--;
