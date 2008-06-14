@@ -1207,8 +1207,6 @@ void go_parry(CHAR_DATA * ch)
 
 ACMD(do_parry)
 {
-	OBJ_DATA *primary = GET_EQ(ch, WEAR_WIELD), *offhand = GET_EQ(ch, WEAR_HOLD);
-
 	if (IS_NPC(ch) || !get_skill(ch, SKILL_PARRY)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
@@ -1217,14 +1215,33 @@ ACMD(do_parry)
 		send_to_char("Но Вы ни с кем не сражаетесь ?\r\n", ch);
 		return;
 	}
-	if (!(IS_NPC(ch) ||	// моб
-	      (primary && GET_OBJ_TYPE(primary) == ITEM_WEAPON && offhand && GET_OBJ_TYPE(offhand) == ITEM_WEAPON) ||	// два оружия
-	      IS_IMMORTAL(ch) ||	// бессмертный
-	      GET_GOD_FLAG(ch, GF_GODSLIKE)	// спецфлаг
-	    )) {
-		send_to_char("Вы не можете отклонить атаку безоружным.\r\n", ch);
-		return;
+
+	if (!IS_IMMORTAL(ch) && !GET_GOD_FLAG(ch, GF_GODSLIKE))
+	{
+		if (GET_EQ(ch, WEAR_BOTHS))
+		{
+			send_to_char("Вы не можете отклонить атаку двуручным оружием.\r\n", ch);
+			return;
+		}
+
+		bool prim = 0, offh = 0;
+		if (GET_EQ(ch, WEAR_WIELD) && GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == ITEM_WEAPON)
+			prim = 1;
+		if (GET_EQ(ch, WEAR_HOLD) && GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ITEM_WEAPON)
+			offh = 1;
+
+		if (!prim && !offh)
+		{
+			send_to_char("Вы не можете отклонить атаку безоружным.\r\n", ch);
+			return;
+		}
+		else if (!prim || !offh)
+		{
+			send_to_char("Вы можете отклонить атаку только с двумя оружиями в руках.\r\n", ch);
+			return;
+		}
 	}
+
 	if (GET_AF_BATTLE(ch, EAF_STUPOR)) {
 		send_to_char("Невозможно ! Вы стараетесь оглушить противника.\r\n", ch);
 		return;

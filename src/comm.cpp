@@ -2992,7 +2992,7 @@ void send_to_char(CHAR_DATA * ch, const char *messg, ...)
 		SEND_TO_Q(tmpbuf, ch->desc);
 }
 
-//   ¢®â â¥ ¥é¥ ®¤­  ¥¤¨è­ †)
+// Á ×ÏÔ ÔÅ ÅÝÅ ÏÄÎÁ ÅÄÉÛÎ ö)
 void send_to_char(const std::string & buffer, CHAR_DATA * ch)
 {
 	if (ch->desc && !buffer.empty())
