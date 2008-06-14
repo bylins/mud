@@ -28,7 +28,7 @@
 #include "magic.h"
 #include "fight.h"
 #include "features.hpp"
-#include "depot.hpp"
+// #include "depot.hpp"
 
 /* extern variables */
 extern vector < OBJ_DATA * >obj_proto;
@@ -92,7 +92,7 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 			return 1;
 		return 0;
 	}
-
+/*
     // персональный сундук
 	int type = Depot::is_depot(ch, cont);
 	if (type) {
@@ -100,7 +100,7 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 			return 1;
 		return 0;
 	}
-
+*/
 	if (GET_OBJ_WEIGHT(cont) + GET_OBJ_WEIGHT(obj) > GET_OBJ_VAL(cont, 0))
 		act("$O : $o не помещается туда.", FALSE, ch, obj, cont, TO_CHAR);
 	else if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER)
@@ -483,12 +483,13 @@ bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont,
 
 void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int howmany)
 {
+/*
 	int type = Depot::is_depot(ch, cont);
 	if (type) {
 		Depot::take_depot(ch, arg, howmany, type);
 		return;
 	}
-
+*/
 	OBJ_DATA *obj, *next_obj;
 	int obj_dotmode, found = 0;
 

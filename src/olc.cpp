@@ -317,12 +317,7 @@ ACMD(do_olc)
 		if ((real_num = real_object(number)) >= 0)
 			oedit_setup(d, real_num);
 		else
-		{
-			send_to_char("Создание новых предметов временно отключено.\r\n", ch);
-			free(d->olc);
-			return;
-//			oedit_setup(d, -1);
-		}
+			oedit_setup(d, -1);
 		STATE(d) = CON_OEDIT;
 		break;
 	case SCMD_OLC_SEDIT:

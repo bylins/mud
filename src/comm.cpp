@@ -47,7 +47,7 @@
 #include "exchange.h"
 #include "deathtrap.hpp"
 #include "title.hpp"
-#include "depot.hpp"
+// #include "depot.hpp"
 #include "glory.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
@@ -495,8 +495,8 @@ void init_game(ush_int port)
 	Clan::ClanSave();
 	TitleSystem::save_title_list();
 	RegisterSystem::save();
-	Depot::save_all_online_objs();
-	Depot::save_timedata();
+//	Depot::save_all_online_objs();
+//	Depot::save_timedata();
 	Glory::save_glory();
 	Glory::save_glory_log();
 
@@ -1305,9 +1305,10 @@ inline void heartbeat()
 
 	// апдейт таймеров всех списков + пурж чего надо
 	if (!((pulse + 20) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
-		Depot::update_timers();
+//		Depot::update_timers();
 		Glory::timers_update();
 	}
+/*
 	// сохранение онлайновых списков шмота, подгрузка общих хранилищ
 	if (!((pulse + 21) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
 		Depot::save_all_online_objs();
@@ -1317,6 +1318,7 @@ inline void heartbeat()
 	if (!((pulse + 22) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
 		Depot::save_timedata();
 	}
+*/
 	//log("---------- Stop heartbeat ----------");
 }
 
@@ -2671,7 +2673,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		// на входе чара в игру и на восстановлении связи
 		// второе место, где надо сделать тоже самое - check_idling, потому что сюда от нее
 		// мы уже приходим без чарактера
-		Depot::exit_char(d->character);
+//		Depot::exit_char(d->character);
 
 		// Plug memory leak, from Eric Green.
 		if (!IS_NPC(d->character) && (PLR_FLAGGED(d->character, PLR_MAILING) || STATE(d) == CON_WRITEBOARD) && d->str) {

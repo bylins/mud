@@ -20,7 +20,7 @@
 #include "dg_olc.h"
 #include "im.h"
 #include "features.hpp"
-#include "depot.hpp"
+// #include "depot.hpp"
 
 /*------------------------------------------------------------------------*/
 
@@ -247,13 +247,14 @@ void renumber_obj_rnum(int rnum)
 	{
 		if (GET_OBJ_RNUM(obj) >= rnum)
 		{
+/*
 			// пересчет персональных хранилищ
 			if (GET_OBJ_RNUM(obj) == Depot::PERS_CHEST_RNUM)
 				Depot::PERS_CHEST_RNUM++;
 			if (GET_OBJ_RNUM(obj) == Depot::SHARE_CHEST_RNUM)
 				Depot::SHARE_CHEST_RNUM++;
 			// FIXME клановые потом тож воткнуть так
-
+*/
 			GET_OBJ_RNUM(obj)++;
 		}
 	}

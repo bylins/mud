@@ -37,7 +37,7 @@
 #include "house.h"
 #include "description.h"
 #include "privilege.hpp"
-#include "depot.hpp"
+// #include "depot.hpp"
 #include "glory.hpp"
 
 using std::string;
@@ -284,10 +284,16 @@ char *diag_weapon_to_char(OBJ_DATA * obj, int show_wear)
 char *diag_timer_to_char(OBJ_DATA * obj)
 {
 	static char out_str[MAX_STRING_LENGTH];
-
 	*out_str = 0;
-	if (GET_OBJ_RNUM(obj) != NOTHING) {
-		int tm = (GET_OBJ_TIMER(obj) * 100 / GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(obj)]));
+	if (GET_OBJ_RNUM(obj) != NOTHING)
+	{
+		int prot_timer = GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(obj)]);
+		if (!prot_timer)
+		{
+			sprintf(out_str, "Состояние: прототип предмета имеет нулевой таймер!\r\n");
+			return (out_str);
+		}
+		int tm = (GET_OBJ_TIMER(obj) * 100 / prot_timer);
 		if (tm < 20)
 			sprintf(out_str, "Состояние: ужасно.\r\n");
 		else if (tm < 40)
@@ -1555,13 +1561,13 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 	else {
 		if (Clan::ChestShow(obj, ch))
 			return;
-
+/*
 		int type = Depot::is_depot(ch, obj);
 		if (type) {
 			Depot::show_depot(ch, obj, type);
 			return;
         }
-
+*/
 
 		if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER) {
 			if (OBJVAL_FLAGGED(obj, CONT_CLOSED))
@@ -1742,13 +1748,13 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 
 		if (Clan::ChestShow(found_obj, ch))
 			return 1;
-
+/*
 		int type = Depot::is_depot(ch, found_obj);
 		if (type) {
 			Depot::show_depot(ch, found_obj, type);
 			return 1;
 		}
-
+*/
 		// Собственно изменение. Вместо проверки "if (!found)" юзается проверка
 		// наличия описания у объекта, найденного функцией "generic_find"
 		if (!(desc = find_exdesc(what, found_obj->ex_description)))

@@ -37,7 +37,7 @@
 #include "title.hpp"
 #include "password.hpp"
 #include "privilege.hpp"
-#include "depot.hpp"
+// #include "depot.hpp"
 #include "glory.hpp"
 #include "genchar.h"
 
@@ -3326,7 +3326,7 @@ ACMD(do_show)
 		sprintf(buf + strlen(buf), "  Максимальный ID - %lu\r\n", max_id);
 		sprintf(buf + strlen(buf), "  Активность игроков (cmds/min) - %lu\r\n", (cmd_cnt * 60) / (time(0) - boot_time));
 		send_to_char(buf, ch);
-		Depot::show_stats(ch);
+//		Depot::show_stats(ch);
 		Glory::show_stats(ch);
 		break;
 	case 5:

@@ -39,7 +39,7 @@
 #include "fight.h"
 #include "magic.h"
 #include "features.hpp"
-#include "depot.hpp"
+// #include "depot.hpp"
 #include "privilege.hpp"
 
 using std::ifstream;
@@ -147,7 +147,7 @@ ACMD(do_quit)
 		sprintf(buf, "%s quit the game.", GET_NAME(ch));
 		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 		send_to_char("До свидания, странник... Мы ждем тебя снова !\r\n", ch);
-
+/*
 		int depot_cost = Depot::get_total_cost_per_day(ch);
 		if (depot_cost)
 		{
@@ -155,7 +155,7 @@ ACMD(do_quit)
 			int deadline = ((GET_GOLD(ch) + GET_BANK_GOLD(ch)) / depot_cost);
 			send_to_char(ch, "Твоих денег хватит на %ld %s.\r\n", deadline, desc_count(deadline, WHAT_DAY));
 		}
-
+*/
 		/*
 		 * kill off all sockets connected to the same player as the one who is
 		 * trying to quit.  Helps to maintain sanity as well as prevent duping.
