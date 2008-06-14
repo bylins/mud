@@ -123,7 +123,7 @@ void obj_load_on_death(OBJ_DATA * corpse, CHAR_DATA * ch)
 		return;
 
 	std::vector<obj_rnum> v(p->second.size());
-	transform(p->second.begin(), p->second.end(), v.begin(), ornum_by_info);
+	std::transform(p->second.begin(), p->second.end(), v.begin(), ornum_by_info);
 
 	for (size_t i = 0; i < v.size(); i++)
 		if (v[i] >= 0) {
