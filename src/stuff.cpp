@@ -112,7 +112,7 @@ void obj_load_on_death(OBJ_DATA * corpse, CHAR_DATA * ch)
 	for (oload_class::iterator iter = oload_table.begin(); iter != oload_table.end(); iter++)
 		for (std::map<obj_vnum, obj_load_info>::iterator iter1 = iter->second.begin(); iter1 != iter->second.end(); iter1++)
 			log("%d %d %d %d", iter->first, iter1->first, iter1->second.obj_qty, iter1->second.load_prob);
-*/			
+*/
 
 	if (ch == NULL || !IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE) && corpse == NULL)
 		return;
@@ -128,6 +128,7 @@ void obj_load_on_death(OBJ_DATA * corpse, CHAR_DATA * ch)
 	for (size_t i = 0; i < v.size(); i++)
 		if (v[i] >= 0) {
 			o = read_object(v[i], REAL);
+			log("Load obj #%d by %s in room #%d (setload)", GET_OBJ_VNUM(o), GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
 			if (MOB_FLAGGED(ch, MOB_CORPSE)) {
 				obj_to_room(o, IN_ROOM(ch));
 			} else
