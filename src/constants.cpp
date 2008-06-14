@@ -41,7 +41,7 @@ int START_ARUNE = 695;
 int START_FRUNE = 694;
 
 /*Experience multiplication coefficients*/
-float exp_coefficients[] = {
+double exp_coefficients[] = {
 	1.0,			//0 remorts
 	1.0 / 0.9,		//1 remort
 	1.0 / 0.8,		//2 remorts

@@ -37,7 +37,7 @@
 
 extern int siteok_everyone;
 extern struct spell_create_type spell_create[];
-extern float exp_coefficients[];
+extern double exp_coefficients[];
 
 struct skillvariables_dig dig_vars;
 struct skillvariables_insgem insgem_vars;

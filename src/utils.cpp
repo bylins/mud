@@ -861,8 +861,8 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			else {
 				if (master &&
 				    !IS_SET(mode, SF_MASTERDIE) &&
-				    IN_ROOM(ch) == IN_ROOM(master) && 
-					CAN_SEE(ch, master) && !FIGHTING(ch) && 
+				    IN_ROOM(ch) == IN_ROOM(master) &&
+					CAN_SEE(ch, master) && !FIGHTING(ch) &&
 					!ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL)) { //Polud - ну не надо агрить в мирках, незачем это
 					if (number(1, GET_REAL_INT(ch) * 2) > GET_REAL_CHA(master)) {
 						act("$n посчитал$g, что Вы заслуживаете смерти !",
@@ -1105,14 +1105,13 @@ int num_pc_in_room(ROOM_DATA * room)
  */
 void core_dump_real(const char *who, int line)
 {
-	int i;
 	log("SYSERR: Assertion failed at %s:%d!", who, line);
 
 #if defined(CIRCLE_UNIX)
 	/* These would be duplicated otherwise... */
 	fflush(stdout);
 	fflush(stderr);
-	for (i = 0; i < NLOG; ++i)
+	for (int i = 0; i < NLOG; ++i)
 		fflush(logs[i].logfile);
 
 	/*

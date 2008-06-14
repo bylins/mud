@@ -1023,7 +1023,7 @@ bool bad_start_stats(CHAR_DATA *ch)
 * Считаем реальные статы с учетом мортов и влитой славы.
 * \return 0 - все ок, любое другое число - все плохо
 */
-bool bad_real_stats(CHAR_DATA *ch, int check)
+int bad_real_stats(CHAR_DATA *ch, int check)
 {
 	check -= SUM_ALL_STATS; // стартовые статы у всех по 95
 	check -= 6 * GET_REMORT(ch); // реморты

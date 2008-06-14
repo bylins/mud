@@ -680,7 +680,8 @@ void init_zone_types(void)
 			if (name[j] == '_')
 				name[j] = ' ';
 		zone_types[i].name = str_dup(name);
-		if (get_line(zt_file, tmp));
+//		if (get_line(zt_file, tmp)); не уверен что тут хотел автор -- Krodo
+		get_line(zt_file, tmp);
 		for (j = 4; tmp[j] != '\0'; j++)
 		{
 			if (a_isspace(tmp[j]))
@@ -701,7 +702,8 @@ void init_zone_types(void)
 	i = 0;
 	while (get_line(zt_file, tmp))
 	{
-		if (get_line(zt_file, tmp));
+//		if (get_line(zt_file, tmp)); аналогично тому, что выше
+		get_line(zt_file, tmp);
 		for (j = 4, n = 0; tmp[j] != '\0'; j++)
 		{
 			if (a_isspace(tmp[j]))

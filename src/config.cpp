@@ -137,13 +137,13 @@ int rent_file_timeout = 30;
 /* The period of free rent after crash or forced-rent in hours*/
 int free_crashrent_period = 2;
 
-/* Система автоудаления 
+/* Система автоудаления
    В этой структуре хранится информация которая определяет какаие игроки
    автоудалятся при перезагрузке мада. Уровни должны следовать в
    возрастающем порядке с невозможно малым уровнем в конце массива.
    Уровень -1 определяет удаленных угроков - т.е. через сколько времени
    они физически попуржатся.
-   Если количество дней равно -1, то не удалять никогда  
+   Если количество дней равно -1, то не удалять никогда
 */
 struct pclean_criteria_data pclean_criteria[] = {
 /*     УРОВЕНЬ           ДНИ   */
@@ -261,7 +261,7 @@ int max_bad_pws = 3;
 int siteok_everyone = TRUE;
 
 /*
- * Some nameservers are very slow and cause the game to lag terribly every 
+ * Some nameservers are very slow and cause the game to lag terribly every
  * time someone logs in.  The lag is caused by the gethostbyaddr() function
  * which is responsible for resolving numeric IP addresses to alphabetic names.
  * Sometimes, nameservers can be so slow that the incredible lag caused by
@@ -304,7 +304,7 @@ const char *START_MESSG =
 /****************************************************************************/
 /****************************************************************************/
 
-extern float exp_coefficients[];
+extern double exp_coefficients[];
 int max_exp_gain_pc(CHAR_DATA * ch)
 {
 	float exp_modifier;
@@ -350,37 +350,37 @@ int calc_loadroom(CHAR_DATA * ch)
 	        case RACE_POLOVCI:
 			return 4056;
 			break;
-		case RACE_PECHENEGI:      
+		case RACE_PECHENEGI:
 			return 4056;
 			break;
 		case RACE_MONGOLI:
 			return 4056;
 			break;
-		case RACE_YIGURI: 
+		case RACE_YIGURI:
 			return 4056;
 			break;
 		case RACE_KANGARI:
 			return 4056;
 			break;
-		case RACE_XAZARI: 
+		case RACE_XAZARI:
 			return 4056;
 			break;
-		case RACE_SVEI: 
+		case RACE_SVEI:
 			return 4056;
 			break;
-		case RACE_DATCHANE: 
+		case RACE_DATCHANE:
 			return 4056;
 			break;
-		case RACE_GETTI: 
+		case RACE_GETTI:
 			return 4056;
 			break;
-		case RACE_UTTI: 
+		case RACE_UTTI:
 			return 4056;
 			break;
-		case RACE_XALEIGI: 
+		case RACE_XALEIGI:
 			return 4056;
 			break;
-		case RACE_NORVEZCI: 
+		case RACE_NORVEZCI:
 			return 4056;
 			break;
 		}
