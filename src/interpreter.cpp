@@ -192,6 +192,7 @@ ACMD(do_hidetrack);
 ACMD(do_hidemove);
 ACMD(do_fit);
 ACMD(do_force);
+ACMD(do_extinguish);
 ACMD(do_forcetime);
 ACMD(do_glory);
 ACMD(do_gecho);
@@ -555,6 +556,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"заснуть", POS_SLEEPING, do_sleep, 0, 0, -1},
 	{"заставка", POS_DEAD, do_gen_ps, 0, SCMD_MOTD, 0},
 	{"заставить", POS_SLEEPING, do_force, LVL_GRGOD, 0, 0},
+	{"затоптать", POS_STANDING, do_extinguish, 0, 0, 0},
 	{"заточить", POS_RESTING, do_upgrade, 0, 0, 500},
 	{"заучить", POS_RESTING, do_remember, 0, 0, 0},
 	{"зачитать", POS_RESTING, do_use, 0, SCMD_RECITE, 500},

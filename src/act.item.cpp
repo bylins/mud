@@ -2526,6 +2526,18 @@ ACMD(do_fire)
 	}
 }
 
+ACMD(do_extinguish)
+{
+    if (world[IN_ROOM(ch)]->fires) {
+        world[IN_ROOM(ch)]->fires = 0;
+		send_to_char("Вы затоптали костер.\r\n", ch);
+		act("$n затоптал$g костер.", FALSE, ch, 0, 0, TO_ROOM);
+	}
+	else {
+	    send_to_char("А тут топтать и нечего :)\r\n", ch);
+	}
+}
+
 #define MAX_REMOVE  12
 const int RemoveSpell[MAX_REMOVE] = { SPELL_SLEEP, SPELL_POISON, SPELL_WEAKNESS, SPELL_CURSE, SPELL_PLAQUE,
 	SPELL_SIELENCE, SPELL_BLINDNESS, SPELL_HAEMORRAGIA, SPELL_HOLD, SPELL_PEACEFUL, SPELL_CONE_OF_COLD,

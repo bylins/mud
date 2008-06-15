@@ -4313,7 +4313,7 @@ ACMD(do_consider)
 		send_to_char("Оценивайте игроков сами - тут я не советчик.\r\n", ch);
 		return;
 	}
-	diff = (GET_LEVEL(victim) - GET_LEVEL(ch));
+	diff = (GET_LEVEL(victim) - GET_LEVEL(ch) - GET_REMORT(ch));
 
 	if (diff <= -10)
 		send_to_char("Ути-пути, моя рыбонька.\r\n", ch);
