@@ -33,6 +33,7 @@
 #include "ban.hpp"
 // #include "depot.hpp"
 #include "glory.hpp"
+#include "features.hpp"
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
@@ -174,10 +175,11 @@ int mana_gain(CHAR_DATA * ch)
 	if (!IS_MANA_CASTER(ch) &&
 	    (AFF_FLAGGED(ch, AFF_HOLD) ||
 	     AFF_FLAGGED(ch, AFF_BLIND) ||
-	     AFF_FLAGGED(ch, AFF_SLEEP) || (IN_ROOM(ch) != NOWHERE && IS_DARK(IN_ROOM(ch))))) {
+	     AFF_FLAGGED(ch, AFF_SLEEP) ||
+	    ((IN_ROOM(ch) != NOWHERE) && IS_DARK(IN_ROOM(ch)) && !can_use_feat(ch, DARK_READING_FEAT)))) {
 		stopmem = TRUE;
 		percent = 0;
-	}
+	} 
 	if (!IS_NPC(ch)) {
 		if (GET_COND(ch, FULL) == 0)
 			percent -= 50;

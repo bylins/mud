@@ -462,7 +462,9 @@ void assign_feats(void)
 //87
 	feato(TO_FIT_CLOTHCES_FEAT, "перешить", NORMAL_FTYPE, TRUE, feat_app);
 //88
-	feato(STRENGTH_CONCETRATION_FEAT, "концентрация силы", AFFECT_FTYPE, TRUE, feat_app);
+	feato(STRENGTH_CONCETRATION_FEAT, "концентрация силы", NORMAL_FTYPE, TRUE, feat_app);
+//89
+	feato(DARK_READING_FEAT, "кошачий глаз", NORMAL_FTYPE, TRUE, feat_app);
 
 /*
 //

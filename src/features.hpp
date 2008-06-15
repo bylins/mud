@@ -102,7 +102,8 @@ using std::bitset;
 #define RUNE_ULTIMATE_FEAT		85  //руны богов
 #define TO_FIT_ITEM_FEAT		86  //подгонка
 #define TO_FIT_CLOTHCES_FEAT		87  //перешить
-#define STRENGTH_CONCETRATION_FEAT 88 // концентрация силы
+#define STRENGTH_CONCETRATION_FEAT	88 // концентрация силы
+#define DARK_READING_FEAT		89 // концентрация силы
 
 /*
 #define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух
