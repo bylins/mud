@@ -37,7 +37,7 @@
 #include "house.h"
 #include "description.h"
 #include "privilege.hpp"
-// #include "depot.hpp"
+#include "depot.hpp"
 #include "glory.hpp"
 
 using std::string;
@@ -1561,13 +1561,12 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 	else {
 		if (Clan::ChestShow(obj, ch))
 			return;
-/*
-		int type = Depot::is_depot(ch, obj);
-		if (type) {
-			Depot::show_depot(ch, obj, type);
+
+		if (Depot::is_depot(obj))
+		{
+			Depot::show_depot(ch, obj);
 			return;
         }
-*/
 
 		if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER) {
 			if (OBJVAL_FLAGGED(obj, CONT_CLOSED))
@@ -1748,13 +1747,13 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 
 		if (Clan::ChestShow(found_obj, ch))
 			return 1;
-/*
-		int type = Depot::is_depot(ch, found_obj);
-		if (type) {
-			Depot::show_depot(ch, found_obj, type);
+
+		if (Depot::is_depot(found_obj))
+		{
+			Depot::show_depot(ch, found_obj);
 			return 1;
 		}
-*/
+
 		// Собственно изменение. Вместо проверки "if (!found)" юзается проверка
 		// наличия описания у объекта, найденного функцией "generic_find"
 		if (!(desc = find_exdesc(what, found_obj->ex_description)))

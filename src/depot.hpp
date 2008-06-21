@@ -12,30 +12,26 @@
 namespace Depot {
 
 extern const int PERS_CHEST_VNUM;
-extern const int SHARE_CHEST_VNUM;
 extern int PERS_CHEST_RNUM;
-extern int SHARE_CHEST_RNUM;
 
-void load_chests();
 void init_depot();
-void save_all_online_objs();
+void load_chests();
 void save_timedata();
+void save_all_online_objs();
 void update_timers();
-void load_share_depots();
+
+bool is_depot(OBJ_DATA *obj);
+void show_depot(CHAR_DATA * ch, OBJ_DATA * obj);
+bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj);
+void take_depot(CHAR_DATA *ch, char *arg, int howmany);
+void renumber_obj_rnum(int rnum);
+
+int get_total_cost_per_day(CHAR_DATA *ch);
+void show_stats(CHAR_DATA *ch);
 
 void enter_char(CHAR_DATA *ch);
 void exit_char(CHAR_DATA *ch);
-
-int is_depot(CHAR_DATA *ch, OBJ_DATA *obj);
-bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj, int type);
-void show_depot(CHAR_DATA * ch, OBJ_DATA * obj, int type);
-void take_depot(CHAR_DATA *ch, char *arg, int howmany, int type);
-
-SPECIAL(Special);
-int get_total_cost_per_day(CHAR_DATA *ch);
-void rename_char(long uid);
-void reload_char(long uid);
-void show_stats(CHAR_DATA *ch);
+void reload_char(long uid, CHAR_DATA *ch);
 
 } // namespace Depot
 

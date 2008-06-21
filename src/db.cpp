@@ -44,7 +44,7 @@
 #include "deathtrap.hpp"
 #include "title.hpp"
 #include "privilege.hpp"
-// #include "depot.hpp"
+#include "depot.hpp"
 #include "glory.hpp"
 #include "genchar.h"
 
@@ -478,17 +478,21 @@ ACMD(do_reboot)
 		RegisterSystem::load();
 	else if (!str_cmp(arg, "privilege"))
 		Privilege::load();
-/*
-	// пока не доделано и совершенно не работает
-	else if (!str_cmp(arg, "depot")) {
-		one_argument(argument, arg);
-		if (*arg) {
-			long uid = GetUniqueByName(std::string(arg));
-			if (uid > 0) Depot::reload_char(uid);
+	else if (!str_cmp(arg, "depot"))
+	{
+		argument = one_argument(argument, arg);
+		skip_spaces(&argument);
+		if (*argument)
+		{
+			long uid = GetUniqueByName(std::string(argument));
+			if (uid > 0)
+				Depot::reload_char(uid, ch);
+			else
+				send_to_char("Формат команды: reload depot <имя чара>.\r\n", ch);
 		}
-		send_to_char("Формат команды: reload depot <имя чара>.\r\n", ch);
+		else
+			send_to_char("Формат команды: reload depot <имя чара>.\r\n", ch);
 	}
-*/
 	else {
 		send_to_char("Неверный параметр для перезагрузки файлов.\r\n", ch);
 		return;
@@ -1294,10 +1298,11 @@ void boot_db(void)
 
 	log("Load privilege and god list.");
 	Privilege::load();
-/*
+
+	// должен идти до резета зон
 	log("Init Depot system.");
 	Depot::init_depot();
-*/
+
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
 	for (i = 0; i <= top_of_zone_table; i++) {
 		log("Resetting %s (rooms %d-%d).", zone_table[i].name,
@@ -1305,11 +1310,11 @@ void boot_db(void)
 		reset_zone(i);
 	}
 	reset_q.head = reset_q.tail = NULL;
-/*
+
 	// делается после резета зон, см камент к функции
 	log("Load depot chests.");
 	Depot::load_chests();
-*/
+
 	log("Load glory list.");
 	Glory::load_glory();
 	Glory::load_glory_log();
@@ -6939,16 +6944,11 @@ void rename_char(CHAR_DATA * ch, char *oname)
 	get_filename(oname, ofilename, PMKILL_FILE);
 	get_filename(GET_NAME(ch), filename, PMKILL_FILE);
 	rename(ofilename, filename);
-/*
+
 	// хранилища
 	get_filename(oname, ofilename, PERS_DEPOT_FILE);
 	get_filename(GET_NAME(ch), filename, PERS_DEPOT_FILE);
 	rename(ofilename, filename);
-	get_filename(oname, ofilename, SHARE_DEPOT_FILE);
-	get_filename(GET_NAME(ch), filename, SHARE_DEPOT_FILE);
-    rename(ofilename, filename);
-	Depot::rename_char(GET_UNIQUE(ch));
-*/
 }
 
 void delete_char(char *name)

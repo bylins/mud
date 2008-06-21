@@ -24,7 +24,7 @@
 #include "screen.h"
 #include "house.h"
 #include "im.h"
-// #include "depot.hpp"
+#include "depot.hpp"
 
 /* these factors should be unique integers */
 #define RENT_FACTOR 	1
@@ -2035,14 +2035,14 @@ void Crash_rent_deadline(CHAR_DATA * ch, CHAR_DATA * recep, long cost)
 	}
 
 	act("$n сказал$g Вам :\r\n", FALSE, recep, 0, ch, TO_VICT);
-/*
+
 	int depot_cost = Depot::get_total_cost_per_day(ch);
 	if (depot_cost)
 	{
 		send_to_char(ch, "\"За вещи в хранилище придется доплатить %ld %s.\"\r\n", depot_cost, desc_count(depot_cost, WHAT_MONEYu));
 		cost += depot_cost;
 	}
-*/
+
 	send_to_char(ch, "\"Постой обойдется тебе в %ld %s.\"\r\n", cost, desc_count(cost, WHAT_MONEYu));
  	rent_deadline = ((GET_GOLD(ch) + GET_BANK_GOLD(ch)) / cost);
 	send_to_char(ch, "\"Твоих денег хватит на %ld %s.\"\r\n", rent_deadline, desc_count(rent_deadline, WHAT_DAY));
@@ -2289,6 +2289,7 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 		if (save_room != r_helled_start_room &&
 		    save_room != r_named_start_room && save_room != r_unreg_start_room)
 			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
+		Depot::exit_char(ch);
 		extract_char(ch, FALSE);
 //		save_char(ch, save_room);
 	} else {

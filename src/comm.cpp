@@ -47,7 +47,7 @@
 #include "exchange.h"
 #include "deathtrap.hpp"
 #include "title.hpp"
-// #include "depot.hpp"
+#include "depot.hpp"
 #include "glory.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
@@ -495,8 +495,8 @@ void init_game(ush_int port)
 	Clan::ClanSave();
 	TitleSystem::save_title_list();
 	RegisterSystem::save();
-//	Depot::save_all_online_objs();
-//	Depot::save_timedata();
+	Depot::save_all_online_objs();
+	Depot::save_timedata();
 	Glory::save_glory();
 	Glory::save_glory_log();
 
@@ -1305,20 +1305,18 @@ inline void heartbeat()
 
 	// ÁĞÄÅÊÔ ÔÁÊÍÅÒÏ× ×ÓÅÈ ÓĞÉÓËÏ× + ĞÕÒÖ ŞÅÇÏ ÎÁÄÏ
 	if (!((pulse + 20) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
-//		Depot::update_timers();
+		Depot::update_timers();
 		Glory::timers_update();
 	}
-/*
-	// ÓÏÈÒÁÎÅÎÉÅ ÏÎÌÁÊÎÏ×ÙÈ ÓĞÉÓËÏ× ÛÍÏÔÁ, ĞÏÄÇÒÕÚËÁ ÏÂİÉÈ ÈÒÁÎÉÌÉİ
+	// ÓÏÈÒÁÎÅÎÉÅ ÏÎÌÁÊÎÏ×ÙÈ ÓĞÉÓËÏ× ÛÍÏÔÁ
 	if (!((pulse + 21) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
 		Depot::save_all_online_objs();
-		Depot::load_share_depots();
 	}
 	// ÓÏÈÒÁÎÅÎÉÅ ÔÁÊÍÅÒ-ÉÎÆÙ ×ÓÅÈ ÛÍÏÔÏË × ÏÂİÉÊ ÆÁÊÌ
 	if (!((pulse + 22) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
 		Depot::save_timedata();
 	}
-*/
+
 	//log("---------- Stop heartbeat ----------");
 }
 
@@ -2668,13 +2666,6 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	}
 
 	if (d->character) {
-		// ĞÅÒÅËÉÄÙ×ÁÎÉÅ ÏÎÌÁÊÎ ÓĞÉÓËÏ× ÈÒÁÎÉÌÉİ × ÏÆÆÌÁÊÎ
-		// ×ÏÂİÅÍ ĞÅÒÅËÉÄÙ×ÁÅÍ ĞÒÉ ÌÀÂÏÍ ÄÉÓËÏÎÅËÔÅ, ÓÏÏÔ×-ÎÏ ×ÏÓÓÔÁÎÁ×ÌÉ×ÁÅÍ × Ä×ÕÈ ÍÅÓÔÁÈ
-		// ÎÁ ×ÈÏÄÅ ŞÁÒÁ × ÉÇÒÕ É ÎÁ ×ÏÓÓÔÁÎÏ×ÌÅÎÉÉ Ó×ÑÚÉ
-		// ×ÔÏÒÏÅ ÍÅÓÔÏ, ÇÄÅ ÎÁÄÏ ÓÄÅÌÁÔØ ÔÏÖÅ ÓÁÍÏÅ - check_idling, ĞÏÔÏÍÕ ŞÔÏ ÓÀÄÁ ÏÔ ÎÅÅ
-		// ÍÙ ÕÖÅ ĞÒÉÈÏÄÉÍ ÂÅÚ ŞÁÒÁËÔÅÒÁ
-//		Depot::exit_char(d->character);
-
 		// Plug memory leak, from Eric Green.
 		if (!IS_NPC(d->character) && (PLR_FLAGGED(d->character, PLR_MAILING) || STATE(d) == CON_WRITEBOARD) && d->str) {
 			if (*(d->str))

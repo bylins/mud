@@ -41,7 +41,7 @@
 #include "title.hpp"
 #include "password.hpp"
 #include "privilege.hpp"
-// #include "depot.hpp"
+#include "depot.hpp"
 #include "glory.hpp"
 
 extern room_rnum r_mortal_start_room;
@@ -2159,6 +2159,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	// а потом уже вычитаем за ренту
 	if (GET_LEVEL(d->character) != 0)
 		Crash_load(d->character);
+	Depot::enter_char(d->character);
 
 	/* сбрасываем телы для команды "вспомнить" */
 	for (i = 0; i < MAX_REMEMBER_TELLS; i++)
@@ -2255,13 +2256,11 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 	/* check and make sure no other copies of this player are logged in */
 	if (perform_dupe_check(d)) {
 		Clan::SetClanData(d->character);
-//		Depot::enter_char(d->character);
 		return;
 	}
 
 	// тут несколько вариантов как это проставить и все одинаково корявые с учетом релоада, без уверенности не трогать
 	Clan::SetClanData(d->character);
-//	Depot::enter_char(d->character);
 
 	log("%s [%s] has connected.", GET_NAME(d->character), d->host);
 
