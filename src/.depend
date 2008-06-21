@@ -67,7 +67,7 @@ interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h spells.h skills.h \
   comm.h db.h handler.h screen.h interpreter.h constants.h dg_scripts.h \
   house.h exchange.h top.h deathtrap.hpp ban.hpp diskio.h depot.hpp \
-  glory.hpp
+  glory.hpp features.hpp
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
   skills.h handler.h db.h interpreter.h screen.h constants.h dg_scripts.h \
   pk.h features.hpp magic.h fight.h deathtrap.hpp
@@ -87,7 +87,7 @@ random.o: random.cpp
 shop.o: shop.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
   interpreter.h utils.h shop.h dg_scripts.h constants.h features.hpp
 spec_assign.o: spec_assign.cpp conf.h sysdep.h structs.h db.h constants.h \
-  interpreter.h utils.h house.h boards.h depot.hpp
+  interpreter.h utils.h house.h boards.h
 spec_procs.o: spec_procs.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h screen.h dg_scripts.h \
   constants.h features.hpp house.h
