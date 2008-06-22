@@ -28,9 +28,9 @@
 /* external structs */
 extern CHAR_DATA *character_list;
 extern INDEX_DATA *mob_index;
-
 extern int no_specials;
 extern TIME_INFO_DATA time_info;
+extern SPECIAL(guild_poly);
 
 ACMD(do_get);
 void go_bash(CHAR_DATA * ch, CHAR_DATA * vict);
@@ -496,6 +496,23 @@ void do_aggressive_mob(CHAR_DATA * ch, int check_sneak)
 	}
 }
 
+/**
+* Проверка на наличие в комнате мобов-учитилей (чтобы по двое не толпились).
+* Смотрится только guild_poly, т.к. другие я так понял не используются в маде.
+* Входящий в комнату - ch.
+* \return true - можно войти, false - нельзя
+*/
+bool allow_master_enter(ROOM_DATA *room, CHAR_DATA *ch)
+{
+	if (!IS_NPC(ch) || GET_MOB_SPEC(ch) != guild_poly)
+		return true;
+
+	for (CHAR_DATA *vict = room->people; vict; vict = vict->next_in_room)
+		if (IS_NPC(vict) && GET_MOB_SPEC(vict) == guild_poly)
+			return false;
+	return true;
+}
+
 void mobile_activity(int activity_level, int missed_pulses)
 {
 	CHAR_DATA *ch, *next_ch, *vict, *first, *victim;
@@ -777,7 +794,8 @@ void mobile_activity(int activity_level, int missed_pulses)
 			&& legal_dir(ch, door, TRUE, FALSE)
 			&& !(world[EXIT(ch, door)->to_room]->forbidden && (number(1, 100) <= world[EXIT(ch, door)->to_room]->forbidden_percent))
 		    && (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
-			|| world[EXIT(ch, door)->to_room]->zone == world[ch->in_room]->zone))
+			|| world[EXIT(ch, door)->to_room]->zone == world[ch->in_room]->zone)
+			&& allow_master_enter(world[EXIT(ch, door)->to_room], ch))
 		{
 			// После хода нпц уже может не быть, т.к. ушел в дт, я не знаю почему
 			// оно не валится на муд.ру, но на цигвине у меня падало стабильно,
