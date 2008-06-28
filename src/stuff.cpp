@@ -95,14 +95,16 @@ oload_class oload_table;
 obj_rnum ornum_by_info(const std::pair<obj_vnum, obj_load_info>& it)
 {
 	obj_rnum i;
-
-	return	number(1, MAX_LOAD_PROB) <= it.second.load_prob ?
-		    (it.first >= 0 && (i = real_object(it.first)) >= 0 ?
+	obj_rnum resutl_obj = number(1, MAX_LOAD_PROB) <= it.second.load_prob ?
+		(it.first >= 0 && (i = real_object(it.first)) >= 0 ?
 			(obj_index[i].stored + obj_index[i].number < it.second.obj_qty ?
-			    i :
-			    NOTHING) :
+				i :
+				NOTHING) :
 			NOTHING) :
-		    NOTHING;
+		NOTHING;
+	if (resutl_obj != NOTHING)
+		log("Current load_prob: %d/%d, obj #%d (setload)", it.second.load_prob, MAX_LOAD_PROB, it.first);
+	return resutl_obj;
 }
 
 void obj_load_on_death(OBJ_DATA * corpse, CHAR_DATA * ch)
