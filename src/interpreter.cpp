@@ -2160,6 +2160,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	if (GET_LEVEL(d->character) != 0)
 		Crash_load(d->character);
 	Depot::enter_char(d->character);
+	Glory::check_freeze(d->character);
 
 	/* сбрасываем телы для команды "вспомнить" */
 	for (i = 0; i < MAX_REMEMBER_TELLS; i++)

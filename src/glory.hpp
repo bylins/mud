@@ -40,6 +40,7 @@ void hide_char(CHAR_DATA *vict, CHAR_DATA *god, char const * const mode);
 
 void set_freeze(long uid);
 void remove_freeze(long uid);
+void check_freeze(CHAR_DATA *ch);
 
 } // namespace Glory
 

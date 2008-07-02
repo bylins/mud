@@ -1312,9 +1312,11 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	glory_list[vict_uid] = temp_node;
 	// и берем новый итератор
 	vict_it = glory_list.find(vict_uid);
-
 	// тут перекинутся все поля, только имя нужно вставить свое
 	*(vict_it->second) = *(it->second);
+	// у передающего мог стоять фриз славы, поэтому тут не помешает перепроверить и воткнуть нужное
+	// тут есть вариант, когда нас не спасет даже проверка при входе в игру
+	vict_it->second->freeze = PLR_FLAGGED(vict, PLR_FROZEN) ? true : false;
 	name_convert(name);
 	vict_it->second->name = name;
 	vict_it->second->free_glory += free_glory; // если была свободная слава на принимающем - плюсуем
@@ -1640,6 +1642,16 @@ void remove_freeze(long uid)
 	if (it != glory_list.end())
 		it->second->freeze = 0;
 	save_glory();
+}
+
+/**
+* Во избежание разного рода недоразумений с фризом таймеров - проверяем эту тему при входе в игру.
+*/
+void check_freeze(CHAR_DATA *ch)
+{
+	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
+	if (it != glory_list.end())
+		it->second->freeze = PLR_FLAGGED(ch, PLR_FROZEN) ? true : false;
 }
 
 } // namespace Glory
