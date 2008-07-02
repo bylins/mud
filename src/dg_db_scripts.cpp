@@ -466,24 +466,25 @@ void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff)
 
 void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff)
 {
-	if (get_skill(ch, skillnum)) {
-		if (skilldiff)
-			return;
-		else {
-			sprintf(buf, "Вас лишили умения '%s'.\r\n", skill_name(skillnum));
-			send_to_char(buf, ch);
-			SET_SKILL(ch, skillnum, 0);
-		}
-	} else {
-		if (skilldiff) {
-			sprintf(buf, "Вы изучили умение '%s'.\r\n", skill_name(skillnum));
-			send_to_char(buf, ch);
-		if (skill_info[skillnum].classknow[(int) GET_KIN(ch)][(int) GET_CLASS(ch)] == KNOW_SKILL)
-			if ( GET_LEVEL(ch) >= skill_info[skillnum].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
-			|| GET_REMORT(ch) >= skill_info[skillnum].min_remort[(int) GET_CLASS(ch) ][(int) GET_KIN(ch)]){
-				SET_SKILL(ch, skillnum, 5);
-			}
-		};
+	const int ch_kin = static_cast<int>(GET_KIN(ch));
+	const int ch_class = static_cast<int>(GET_CLASS(ch));
+
+	if (get_skill(ch, skillnum))
+	{
+		if (skilldiff) return;
+
+		SET_SKILL(ch, skillnum, 0);
+		send_to_char(ch, "Вас лишили умения '%s'.\r\n", skill_name(skillnum));
+		log("Remove %s from %s (trigskillturn)", skill_name(skillnum), GET_NAME(ch));
+	}
+	else if (skilldiff
+		&& skill_info[skillnum].classknow[ch_kin][ch_class] == KNOW_SKILL
+		&& GET_LEVEL(ch) >= skill_info[skillnum].min_level[ch_class][ch_kin]
+		&& GET_REMORT(ch) >= skill_info[skillnum].min_remort[ch_class][ch_kin])
+	{
+		SET_SKILL(ch, skillnum, 5);
+		send_to_char(ch, "Вы изучили умение '%s'.\r\n", skill_name(skillnum));
+		log("Add %s to %s (trigskillturn)", skill_name(skillnum), GET_NAME(ch));
 	}
 }
 
@@ -491,38 +492,42 @@ void trg_skilladd(CHAR_DATA * ch, int skillnum, int skilldiff)
 {
 	int skill = get_skill(ch, skillnum);
 	SET_SKILL(ch, skillnum, (MAX(1, MIN(get_skill(ch, skillnum) + skilldiff, 200))));
-	if (skill > get_skill(ch, skillnum)) {
-		sprintf(buf, "Ваше умение '%s' понизилось.\r\n", skill_name(skillnum));
-		send_to_char(buf, ch);
-	} else if (skill < get_skill(ch, skillnum)) {
-		sprintf(buf, "Вы повысили свое умение '%s'.\r\n", skill_name(skillnum));
-		send_to_char(buf, ch);
-	} else {
-		sprintf(buf, "Ваше умение осталось неизменным '%s '.\r\n", skill_name(skillnum));
-		send_to_char(buf, ch);
+
+	if (skill > get_skill(ch, skillnum))
+	{
+		send_to_char(ch, "Ваше умение '%s' понизилось.\r\n", skill_name(skillnum));
+		log("Decrease %s from %s (trigskilladd)", skill_name(skillnum), GET_NAME(ch));
+	}
+	else if (skill < get_skill(ch, skillnum))
+	{
+		send_to_char(ch, "Вы повысили свое умение '%s'.\r\n", skill_name(skillnum));
+		log("Raise %s to %s (trigskilladd)", skill_name(skillnum), GET_NAME(ch));
+	}
+	else
+	{
+		send_to_char(ch, "Ваше умение осталось неизменным '%s '.\r\n", skill_name(skillnum));
+		log("Unchanged %s on %s (trigskilladd)", skill_name(skillnum), GET_NAME(ch));
 	}
 }
 
 void trg_spellturn(CHAR_DATA * ch, int spellnum, int spelldiff)
 {
 	int spell = GET_SPELL_TYPE(ch, spellnum);
+	if (spell & SPELL_KNOW)
+	{
+		if (spelldiff) return;
 
-	if (spell & SPELL_KNOW) {
-		if (spelldiff)
-			return;
-		else {
-			sprintf(buf, "Вы начисто забыли заклинание '%s'.\r\n", spell_name(spellnum));
-			send_to_char(buf, ch);
-			REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW);
-			if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP))
-				GET_SPELL_MEM(ch, spellnum) = 0;
-		}
-	} else {
-		if (spelldiff) {
-			sprintf(buf, "Вы постигли заклинание '%s'.\r\n", spell_name(spellnum));
-			send_to_char(buf, ch);
-			SET_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW);
-		};
+		REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW);
+		if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP))
+			GET_SPELL_MEM(ch, spellnum) = 0;
+		send_to_char(ch, "Вы начисто забыли заклинание '%s'.\r\n", spell_name(spellnum));
+		log("Remove %s from %s (trigspell)", spell_name(spellnum), GET_NAME(ch));
+	}
+	else if (spelldiff)
+	{
+		SET_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW);
+		send_to_char(ch, "Вы постигли заклинание '%s'.\r\n", spell_name(spellnum));
+		log("Add %s to %s (trigspell)", spell_name(spellnum), GET_NAME(ch));
 	}
 }
 
@@ -531,19 +536,22 @@ void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff)
 	int spell = GET_SPELL_MEM(ch, spellnum);
 	GET_SPELL_MEM(ch, spellnum) = MAX(0, MIN(spell + spelldiff, 50));
 
-	if (spell > GET_SPELL_MEM(ch, spellnum)) {
-		if (GET_SPELL_MEM(ch, spellnum)) {
+	if (spell > GET_SPELL_MEM(ch, spellnum))
+	{
+		if (GET_SPELL_MEM(ch, spellnum))
 			sprintf(buf, "Вы забыли часть заклинаний '%s'.\r\n", spell_name(spellnum));
-		} else {
+		else
+		{
 			sprintf(buf, "Вы забыли все заклинания '%s'.\r\n", spell_name(spellnum));
 			REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
 		}
 		send_to_char(buf, ch);
-	} else if (spell < GET_SPELL_MEM(ch, spellnum)) {
+	}
+	else if (spell < GET_SPELL_MEM(ch, spellnum))
+	{
 		if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
 			SET_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
-		sprintf(buf, "Вы выучили несколько заклинаний '%s'.\r\n", spell_name(spellnum));
-		send_to_char(buf, ch);
+		send_to_char(ch, "Вы выучили несколько заклинаний '%s'.\r\n", spell_name(spellnum));
 	}
 }
 
