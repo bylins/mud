@@ -460,7 +460,6 @@ void init_game(ush_int port)
 	/* We don't want to restart if we crash before we get up. */
 	touch(KILLSCRIPT_FILE);
 	touch("../.crash");
-	circle_srandom(time(0));
 
 	log("Finding player limit.");
 	max_players = get_max_players();

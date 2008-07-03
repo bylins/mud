@@ -2,11 +2,11 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "conf.h"
 #include <sstream>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
-
 #include "glory.hpp"
 #include "utils.h"
 #include "db.h"

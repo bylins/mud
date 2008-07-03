@@ -39,6 +39,7 @@
 #include "privilege.hpp"
 #include "depot.hpp"
 #include "glory.hpp"
+#include "random.hpp"
 
 using std::string;
 

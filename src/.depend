@@ -4,7 +4,7 @@ act.comm.o: act.comm.cpp conf.h sysdep.h structs.h utils.h comm.h \
 act.informative.o: act.informative.cpp conf.h sysdep.h structs.h utils.h \
   comm.h interpreter.h handler.h db.h spells.h skills.h fight.h screen.h \
   constants.h pk.h dg_scripts.h mail.h features.hpp im.h house.h \
-  description.h privilege.hpp depot.hpp glory.hpp
+  description.h privilege.hpp depot.hpp glory.hpp random.hpp
 act.item.o: act.item.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h constants.h dg_scripts.h \
   house.h magic.h fight.h features.hpp depot.hpp
@@ -13,11 +13,11 @@ act.movement.o: act.movement.cpp conf.h sysdep.h structs.h utils.h comm.h \
   dg_scripts.h screen.h pk.h features.hpp deathtrap.hpp privilege.hpp
 act.offensive.o: act.offensive.cpp conf.h sysdep.h structs.h utils.h \
   comm.h interpreter.h handler.h db.h constants.h screen.h spells.h \
-  skills.h pk.h features.hpp privilege.hpp
+  skills.h pk.h features.hpp privilege.hpp random.hpp
 act.other.o: act.other.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h screen.h house.h \
   constants.h dg_scripts.h pk.h fight.h magic.h features.hpp depot.hpp \
-  privilege.hpp
+  privilege.hpp random.hpp
 act.social.o: act.social.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h
 act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h comm.h \
@@ -46,13 +46,13 @@ db.o: db.cpp conf.h sysdep.h structs.h utils.h db.h comm.h handler.h \
   spells.h mail.h interpreter.h house.h constants.h dg_scripts.h mobmax.h \
   pk.h olc.h diskio.h im.h top.h stuff.hpp double_map.hpp ban.hpp \
   item.creation.hpp features.hpp boards.h description.h deathtrap.hpp \
-  title.hpp privilege.hpp depot.hpp glory.hpp genchar.h
+  title.hpp privilege.hpp depot.hpp glory.hpp genchar.h random.hpp
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h comm.h handler.h \
   interpreter.h db.h spells.h screen.h constants.h dg_scripts.h mobmax.h \
   pk.h im.h fight.h skills.h features.hpp house.h stuff.hpp \
-  double_map.hpp
+  double_map.hpp random.hpp
 graph.o: graph.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
-  constants.h handler.h db.h spells.h skills.h features.hpp
+  constants.h handler.h db.h spells.h skills.h features.hpp random.hpp
 handler.o: handler.cpp conf.h sysdep.h structs.h constants.h utils.h \
   comm.h db.h handler.h interpreter.h spells.h skills.h screen.h \
   dg_scripts.h auction.h features.hpp house.h exchange.h
@@ -70,11 +70,11 @@ limits.o: limits.cpp conf.h sysdep.h structs.h utils.h spells.h skills.h \
   glory.hpp features.hpp
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
   skills.h handler.h db.h interpreter.h screen.h constants.h dg_scripts.h \
-  pk.h features.hpp magic.h fight.h deathtrap.hpp
+  pk.h features.hpp magic.h fight.h deathtrap.hpp random.hpp
 mail.o: mail.cpp conf.h sysdep.h structs.h utils.h comm.h db.h \
   interpreter.h handler.h mail.h
 mobact.o: mobact.cpp conf.h sysdep.h structs.h utils.h db.h comm.h \
-  interpreter.h handler.h spells.h skills.h constants.h pk.h
+  interpreter.h handler.h spells.h skills.h constants.h pk.h random.hpp
 modify.o: modify.cpp conf.h sysdep.h structs.h utils.h interpreter.h \
   handler.h db.h comm.h spells.h mail.h boards.h screen.h olc.h \
   features.hpp house.h privilege.hpp
@@ -83,7 +83,7 @@ objsave.o: objsave.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
 olc.o: olc.cpp conf.h sysdep.h structs.h interpreter.h comm.h utils.h \
   db.h olc.h dg_olc.h dg_scripts.h screen.h item.creation.hpp im.h \
   privilege.hpp
-random.o: random.cpp
+random.o: random.cpp random.hpp conf.h
 shop.o: shop.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
   interpreter.h utils.h shop.h dg_scripts.h constants.h features.hpp
 spec_assign.o: spec_assign.cpp conf.h sysdep.h structs.h db.h constants.h \
@@ -101,7 +101,8 @@ utils.o: utils.cpp conf.h sysdep.h structs.h utils.h db.h comm.h screen.h \
   spells.h handler.h interpreter.h constants.h im.h dg_scripts.h \
   features.hpp boards.h privilege.hpp
 weather.o: weather.cpp conf.h sysdep.h structs.h spells.h skills.h \
-  utils.h comm.h handler.h interpreter.h db.h screen.h constants.h
+  utils.h comm.h handler.h interpreter.h db.h screen.h constants.h \
+  random.hpp
 redit.o: redit.cpp conf.h sysdep.h structs.h comm.h utils.h db.h olc.h \
   dg_olc.h dg_scripts.h constants.h im.h description.h deathtrap.hpp
 oedit.o: oedit.cpp conf.h sysdep.h structs.h comm.h spells.h utils.h db.h \
@@ -160,7 +161,7 @@ arena.o: arena.cpp conf.h sysdep.h structs.h screen.h utils.h comm.h \
   interpreter.h handler.h db.h arena.hpp
 skills.o: skills.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
   interpreter.h utils.h shop.h spells.h skills.h screen.h dg_scripts.h \
-  constants.h im.h features.hpp
+  constants.h im.h features.hpp random.hpp
 exchange.o: exchange.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h screen.h exchange.h im.h constants.h \
   skills.h

@@ -24,6 +24,7 @@
 #include "db.h"
 #include "screen.h"
 #include "constants.h"
+#include "random.hpp"
 
 extern TIME_INFO_DATA time_info;
 
@@ -1008,7 +1009,7 @@ int weather_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value)
 					modi += (modi * number(10, 25) / 100);
 			}
 			break;
-			// Молнийные спеллы - облачно или дождливо            
+			// Молнийные спеллы - облачно или дождливо
 		case SPELL_CALL_LIGHTNING:
 		case SPELL_LIGHTNING_BOLT:
 		case SPELL_CHAIN_LIGHTNING:

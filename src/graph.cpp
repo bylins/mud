@@ -26,6 +26,7 @@
 #include "spells.h"
 #include "skills.h"
 #include "features.hpp"
+#include "random.hpp"
 
 /* Externals */
 ACMD(do_say);

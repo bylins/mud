@@ -93,38 +93,6 @@ void skip_spaces(char **string)
 	for (; **string && a_isspace(**string); (*string)++);
 }
 
-NormalRand rnd;
-
-/* creates a random number in interval [from;to] */
-int number(int from, int to)
-{
-	/* error checking in case people call number() incorrectly */
-	if (from > to) {
-		int tmp = from;
-		from = to;
-		to = tmp;
-	}
-
-	return rnd.number(from, to);
-
-//	return ((circle_random() % (to - from + 1)) + from);
-}
-
-/* simulates dice roll */
-int dice(int number, int size)
-{
-	int sum = 0;
-
-	if (size <= 0 || number <= 0)
-		return (0);
-
-	while (number-- > 0)
-		sum += ((circle_random() % size) + 1);
-
-	return (sum);
-}
-
-
 int MIN(int a, int b)
 {
 	return (a < b ? a : b);

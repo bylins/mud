@@ -47,6 +47,7 @@
 #include "depot.hpp"
 #include "glory.hpp"
 #include "genchar.h"
+#include "random.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 

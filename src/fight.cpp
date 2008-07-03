@@ -32,6 +32,7 @@
 #include "features.hpp"
 #include "house.h"
 #include "stuff.hpp"
+#include "random.hpp"
 
 extern CHAR_DATA *mob_proto;
 

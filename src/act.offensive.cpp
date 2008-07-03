@@ -27,6 +27,7 @@
 #include "pk.h"
 #include "features.hpp"
 #include "privilege.hpp"
+#include "random.hpp"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;

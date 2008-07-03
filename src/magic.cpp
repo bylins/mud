@@ -30,6 +30,7 @@
 #include "magic.h"
 #include "fight.h"
 #include "deathtrap.hpp"
+#include "random.hpp"
 
 extern void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer);
 extern int what_sky;

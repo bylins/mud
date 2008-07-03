@@ -19,7 +19,6 @@
 #include <list>
 #include <map>
 #include <new>
-#include <boost/random.hpp>
 
 using std::string;
 using std::list;
@@ -85,23 +84,6 @@ int get_skill(CHAR_DATA *ch, int skill);
 extern std::list<FILE *> opened_files;
 
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
-
-/* random functions in random.cpp */
-void circle_srandom(unsigned long initial_seed);
-unsigned long circle_random(void);
-
-class NormalRand {
-	public:
-	NormalRand() { rng.seed(static_cast<unsigned> (time(0))); };
-	int number(int from, int to)
-	{
-		boost::uniform_int<> dist(from, to);
-		boost::variate_generator<boost::mt19937&, boost::uniform_int<> >  dice(rng, dist);
-		return dice();
-	};
-	boost::mt19937 rng;
-};
-extern NormalRand rnd;
 
 extern const char *ACTNULL;
 

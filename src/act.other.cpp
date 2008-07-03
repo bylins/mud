@@ -41,6 +41,7 @@
 #include "features.hpp"
 #include "depot.hpp"
 #include "privilege.hpp"
+#include "random.hpp"
 
 using std::ifstream;
 using std::fstream;

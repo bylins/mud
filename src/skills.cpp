@@ -23,6 +23,7 @@
 #include "constants.h"
 #include "im.h"
 #include "features.hpp"
+#include "random.hpp"
 
 /*
  * message for doing damage with a spell or skill

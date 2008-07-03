@@ -24,6 +24,7 @@
 #include "skills.h"
 #include "constants.h"
 #include "pk.h"
+#include "random.hpp"
 
 /* external structs */
 extern CHAR_DATA *character_list;
