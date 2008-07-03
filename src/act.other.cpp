@@ -137,6 +137,8 @@ ACMD(do_quit)
 		die(ch, NULL);
 	} else if (AFF_FLAGGED(ch, AFF_SLEEP)) {
 		return;
+	} else if (*argument) {
+		send_to_char("Если вы хотите выйти из игры с потерей всех вещей, то просто наберите 'конец'.\r\n", ch);
 	} else {
 //		int loadroom = ch->in_room;
 		if (RENTABLE(ch)) {
