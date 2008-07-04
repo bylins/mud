@@ -2548,7 +2548,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		drop_obj_on_zreset(ch, obj, 1, zone_reset);
 	}
 
-	if (!ch->master && ch->followers && AFF_FLAGGED(ch, AFF_GROUP))
+	if (!IS_NPC(ch) && !ch->master && ch->followers && AFF_FLAGGED(ch, AFF_GROUP))
 	{
 		log("[Extract char] Change group leader");
 		change_leader(ch, true);

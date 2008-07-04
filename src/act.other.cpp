@@ -837,7 +837,7 @@ bool is_group_member(CHAR_DATA *ch, CHAR_DATA *vict)
 */
 void change_leader(CHAR_DATA *ch, bool dead)
 {
-	if (ch->master || !ch->followers)
+	if (IS_NPC(ch) || ch->master || !ch->followers)
 		return;
 
 	CHAR_DATA *leader = 0;
