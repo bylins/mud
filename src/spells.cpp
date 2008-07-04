@@ -48,7 +48,6 @@ extern char cast_argument[MAX_INPUT_LENGTH];
 
 void clearMemory(CHAR_DATA * ch);
 void weight_change_object(OBJ_DATA * obj, int weight);
-void add_follower(CHAR_DATA * ch, CHAR_DATA * leader);
 void name_to_drinkcon(OBJ_DATA * obj, int type);
 void name_from_drinkcon(OBJ_DATA * obj);
 int compute_armor_class(CHAR_DATA * ch);

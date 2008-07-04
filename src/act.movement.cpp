@@ -32,7 +32,6 @@
 #include "privilege.hpp"
 
 /* external functs */
-void add_follower(CHAR_DATA * ch, CHAR_DATA * leader);
 int special(CHAR_DATA * ch, int cmd, char *arg);
 void death_cry(CHAR_DATA * ch);
 OBJ_DATA *make_corpse(CHAR_DATA * ch);

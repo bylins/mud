@@ -100,8 +100,8 @@ int get_player_charms(CHAR_DATA * ch, int spellnum);
 int calculate_resistance_coeff (CHAR_DATA *ch, int resist_type, int effect);
 
 extern struct zone_data *zone_table;
-
 extern int global_uid;
+extern void change_leader(CHAR_DATA *ch, bool dead);
 
 char *fname(const char *namelist)
 {
@@ -297,12 +297,12 @@ int get_quested(CHAR_DATA * ch, int quest)
 
 
 bool is_wear_light(CHAR_DATA *ch)
-{	
+{
 	bool wear_light = FALSE;
 	for (int wear_pos=0; wear_pos<NUM_WEARS; wear_pos++)
 	if (GET_EQ(ch, wear_pos)&&GET_OBJ_TYPE(GET_EQ(ch, wear_pos)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2))
 		wear_light = TRUE;
-	return wear_light;	
+	return wear_light;
 }
 
 void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef)
@@ -1699,7 +1699,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 {
 	int was_lgt = AFF_FLAGGED(ch, AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
 	    was_hlgt = AFF_FLAGGED(ch, AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
-	    was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, 
+	    was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO,
 		was_lamp = FALSE;
 	int j, show_msg = IS_SET(pos, 0x100), skip_total = IS_SET(pos, 0x80),
 	    no_cast = IS_SET(pos, 0x40);
@@ -2546,6 +2546,12 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		OBJ_DATA *obj = ch->carrying;
 		obj_from_char(obj);
 		drop_obj_on_zreset(ch, obj, 1, zone_reset);
+	}
+
+	if (!ch->master && ch->followers && AFF_FLAGGED(ch, AFF_GROUP))
+	{
+		log("[Extract char] Change group leader");
+		change_leader(ch, true);
 	}
 
 	log("[Extract char] Die followers");

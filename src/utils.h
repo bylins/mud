@@ -80,6 +80,7 @@ int valid_email(const char *address);
 void skip_spaces(char **string);
 void skip_dots(char **string);
 int get_skill(CHAR_DATA *ch, int skill);
+void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence = 0);
 
 extern std::list<FILE *> opened_files;
 
@@ -108,6 +109,7 @@ extern const char *ACTNULL;
 #define SF_FOLLOWERDIE (1 << 1)
 #define SF_MASTERDIE   (1 << 2)
 #define SF_CHARMLOST   (1 << 3)
+#define SF_SILENCE     (1 << 4)
 
 #define EXP_IMPL 2000000000
 #define MAX_AUCTION_LOT            3

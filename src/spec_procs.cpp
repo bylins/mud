@@ -39,7 +39,6 @@ extern struct spell_create_type spell_create[];
 extern int guild_info[][3];
 
 /* extern functions */
-void add_follower(CHAR_DATA * ch, CHAR_DATA * leader);
 ACMD(do_drop);
 ACMD(do_gen_door);
 ACMD(do_say);

@@ -2269,6 +2269,8 @@ ACMD(do_purge)
 					vict->desc = NULL;
 				}
 			}
+			// TODO: честно говоря дублирование куска из экстракта не ясно
+			// смену лидера пока сюду не сую, над вникнуть будет...
 			if (vict->followers || vict->master)
 				die_follower(vict);
 			extract_char(vict, FALSE);

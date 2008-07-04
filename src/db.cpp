@@ -225,7 +225,6 @@ void extract_mob(CHAR_DATA * ch);
 //F@N|
 int exchange_database_load(void);
 
-void add_follower(CHAR_DATA * ch, CHAR_DATA * leader);
 void load_socials(FILE * fl);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 void name_from_drinkcon(OBJ_DATA * obj);

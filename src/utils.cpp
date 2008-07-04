@@ -41,7 +41,6 @@ extern CHAR_DATA *mob_proto;
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
 void die_follower(CHAR_DATA * ch);
-void add_follower(CHAR_DATA * ch, CHAR_DATA * leader);
 void prune_crlf(char *txt);
 int valid_email(const char *address);
 
@@ -747,6 +746,7 @@ void check_horse(CHAR_DATA * ch)
 /* This will NOT do if a character quits/dies!!          */
 // При возврате 1 использовать ch нельзя, т.к. прошли через extract_char
 // TODO: по всем вызовам не проходил, может еще где-то коряво вызывается, кроме передачи скакунов -- Krodo
+// при персонаже на входе - пуржить не должно полюбому, если начнет, как минимум в change_leader будут глюки
 bool stop_follower(CHAR_DATA * ch, int mode)
 {
 	CHAR_DATA *master;
@@ -762,8 +762,12 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 		return (FALSE);
 	}
 
-	act("Вы прекратили следовать за $N4.", FALSE, ch, 0, ch->master, TO_CHAR);
-	act("$n прекратил$g следовать за $N4.", TRUE, ch, 0, ch->master, TO_NOTVICT);
+	// для смены лидера без лишнего спама
+	if (!IS_SET(mode, SF_SILENCE))
+	{
+		act("Вы прекратили следовать за $N4.", FALSE, ch, 0, ch->master, TO_CHAR);
+		act("$n прекратил$g следовать за $N4.", TRUE, ch, 0, ch->master, TO_NOTVICT);
+	}
 
 	//log("[Stop follower] Stop horse");
 	if (get_horse(ch->master) == ch && on_horse(ch->master))
@@ -878,9 +882,11 @@ void die_follower(CHAR_DATA * ch)
 
 
 
-/* Do NOT call this before having checked if a circle of followers */
-/* will arise. CH will follow leader                               */
-void add_follower(CHAR_DATA * ch, CHAR_DATA * leader)
+/** Do NOT call this before having checked if a circle of followers
+* will arise. CH will follow leader
+* \param silence - для смены лидера группы без лишнего спама (по дефолту 0)
+*/
+void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence)
 {
 	struct follow_type *k;
 
@@ -902,7 +908,7 @@ void add_follower(CHAR_DATA * ch, CHAR_DATA * leader)
 	k->next = leader->followers;
 	leader->followers = k;
 
-	if (!IS_HORSE(ch)) {
+	if (!IS_HORSE(ch) && !silence) {
 		act("Вы начали следовать за $N4.", FALSE, ch, 0, leader, TO_CHAR);
 		//if (CAN_SEE(leader, ch))
 		act("$n начал$g следовать за Вами.", TRUE, ch, 0, leader, TO_VICT);
