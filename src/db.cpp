@@ -4806,11 +4806,11 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	IGNORE_LIST(ch) = NULL;
 	CREATE(GET_LOGS(ch), int, NLOG);
 
+	GET_BOARD(ch) = new (struct board_data);
 	// здесь можно указать дату, с которой пойдет отсчет новых сообщений,
 	// например, чтобы не пугать игрока 200+ новостями при первом запуске системы
 	for (int i = 0; i < BOARD_TOTAL; ++i)
 		GET_BOARD_DATE(ch, i) = 1143706650;
-
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 		GET_BOARD_DATE(ch, i) = 0;
 
@@ -4881,6 +4881,8 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				GET_BOARD_DATE(ch, CLANNEWS_BOARD) = lnum;
 			else if (!strcmp(tag, "Br13"))
 				GET_BOARD_DATE(ch, NOTICE_BOARD) = lnum;
+			else if (!strcmp(tag, "Br14"))
+				GET_BOARD_DATE(ch, MISPRINT_BOARD) = lnum;
 
 			else if (!strcmp(tag, "Brth"))
 				ch->player.time.birth = lnum;
@@ -5632,6 +5634,10 @@ void free_char(CHAR_DATA * ch)
 		}
 		LOGON_LIST(ch) = NULL;
 
+		if (GET_BOARD(ch))
+			delete GET_BOARD(ch);
+		GET_BOARD(ch) = 0;
+
 		free(ch->player_specials);
 		ch->player_specials = NULL;	// чтобы словить ACCESS VIOLATION !!!
 		if (IS_NPC(ch))
@@ -5949,6 +5955,8 @@ void init_char(CHAR_DATA * ch)
 	REMOVE_BIT(PRF_FLAGS(ch, PRF_SUMMONABLE), PRF_SUMMONABLE);
 	STRING_LENGTH(ch) = 80;
 	STRING_WIDTH(ch) = 25;
+
+	GET_BOARD(ch) = new (struct board_data);
 	// новому игроку вываливать все новости/мессаги на доске как непроченные не имеет смысла
 	for (int i = 0; i < BOARD_TOTAL; ++i)
 		GET_BOARD_DATE(ch, i) = time(0);
@@ -6766,8 +6774,9 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 
 	fprintf(saved, "Badp: %d\n", GET_BAD_PWS(ch));
 
-	for (int i = 0; i < BOARD_TOTAL; ++i)
-		fprintf(saved, "Br%02d: %ld\n", i+1, GET_BOARD_DATE(ch, i));
+	if (GET_BOARD(ch))
+		for (int i = 0; i < BOARD_TOTAL; ++i)
+			fprintf(saved, "Br%02d: %ld\n", i+1, GET_BOARD_DATE(ch, i));
 
 	for (int i = 0; i <= START_STATS_TOTAL; ++i)
 		fprintf(saved, "St%02d: %i\n", i, GET_START_STAT(ch, i));

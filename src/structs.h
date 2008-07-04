@@ -2044,7 +2044,6 @@ struct punish_data {
 	long godid;
 };
 
-#define BOARD_TOTAL 13 // общее кол-во досок
 #define START_STATS_TOTAL 5 // кол-во сохраняемых стартовых статов в файле
 
 /*
@@ -2106,7 +2105,7 @@ struct player_special_data {
 	boost::shared_ptr<class Clan> clan; // собсна клан, если он есть
 	boost::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
 
-	time_t board_date[BOARD_TOTAL]; // даты последних прочтенных мессаг на досках, пока не вектор к сожалению
+	struct board_data *board; // последние прочитанные мессаги на досках
 	int start_stats[START_STATS_TOTAL]; // сгенеренные при старте чара статы
 };
 

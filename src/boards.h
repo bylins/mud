@@ -17,9 +17,9 @@
 #include "db.h"
 #include "interpreter.h"
 
-#define MAX_MESSAGE_LENGTH 4096 // максимальный размер сообщения
-#define MAX_BOARD_MESSAGES 200  // максимальное кол-во сообщений на одной доске
-#define MIN_WRITE_LEVEL    6    // мин.левел для поста на общих досках
+extern const int MAX_MESSAGE_LENGTH;
+extern const int MIN_WRITE_LEVEL;
+extern const unsigned int MAX_BOARD_MESSAGES;
 
 // типы досок
 extern const int GENERAL_BOARD;
@@ -35,6 +35,8 @@ extern const int PERS_BOARD;
 extern const int CLAN_BOARD;
 extern const int CLANNEWS_BOARD;
 extern const int NOTICE_BOARD;
+extern const int MISPRINT_BOARD;
+const int BOARD_TOTAL = 14;
 
 // предметы, на которые вешаем спешиалы для старого способа работы с досками
 #define GODGENERAL_BOARD_OBJ 250
@@ -47,6 +49,11 @@ typedef boost::shared_ptr<Board> BoardPtr;
 typedef std::vector<BoardPtr> BoardListType;
 typedef boost::shared_ptr<struct Message> MessagePtr;
 typedef std::vector<MessagePtr> MessageListType;
+
+// даты последних прочтенных мессаг на досках
+struct board_data {
+	time_t board_date[BOARD_TOTAL];
+};
 
 // отдельное сообщение
 struct Message {
@@ -80,9 +87,11 @@ public:
 	static void reload_all();
 	static SPECIAL(Special);
 	static void LoginInfo(CHAR_DATA * ch);
+	bool can_write(CHAR_DATA *ch);
 
 	friend ACMD(DoBoard);
 	friend ACMD(DoBoardList);
+	friend ACMD(report_on_board);
 
 	private:
 	int type;                 // тип доски

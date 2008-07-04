@@ -30,7 +30,17 @@ const int PERS_BOARD = 9;  // персональная (только для иммов)
 const int CLAN_BOARD = 10; // клановая
 const int CLANNEWS_BOARD = 11; // клановые новости
 const int NOTICE_BOARD = 12;
-// не забываем выставить BOARD_TOTAL в structs.h, ненавижу сишные массивы :/
+const int MISPRINT_BOARD = 13;
+// не забываем выставить BOARD_TOTAL в boards.h
+
+// максимальный размер сообщения
+const int MAX_MESSAGE_LENGTH = 4096;
+// мин.левел для поста на общих досках
+const int MIN_WRITE_LEVEL = 6;
+// максимальное кол-во сообщений на одной доске
+const unsigned int MAX_BOARD_MESSAGES = 200;
+// максимальное кол-во сообщений в опечатках/ошибках
+const unsigned int MAX_REPORT_MESSAGES = 999;
 
 BoardListType Board::BoardList;
 
@@ -55,16 +65,17 @@ void Board::BoardInit()
 {
 	Board::BoardList.clear();
 
-	create_board(GENERAL_BOARD, "Вече", "Базарная площадь", ETC_BOARD"general.board"); // общая доска
-	create_board(NEWS_BOARD, "Новости", "Анонсы и новости Былин", ETC_BOARD"news.board"); // новости
-	create_board(IDEA_BOARD, "Идеи", "Идеи и их обсуждение", ETC_BOARD"idea.board"); // идеи
-	create_board(ERROR_BOARD, "Ошибки", "Сообщения об ошибках в мире", ETC_BOARD"error.board"); // ошибки
-	create_board(GODNEWS_BOARD, "GodNews", "Божественные новости", ETC_BOARD"god-news.board"); // новости БОГов
-	create_board(GODGENERAL_BOARD, "Божества", "Божественная базарная площадь", ETC_BOARD"god-general.board"); // общая для БОГов
-	create_board(GODBUILD_BOARD, "Билдер", "Заметки билдеров", ETC_BOARD"god-build.board"); // для билдеров
-	create_board(GODCODE_BOARD, "Кодер", "Заметки кодеров", ETC_BOARD"god-code.board"); // для кодеров
-	create_board(GODPUNISH_BOARD, "Наказания", "Комментарии к наказаниям", ETC_BOARD"god-punish.board"); // для комментариев наказаний
-	create_board(NOTICE_BOARD, "Анонсы", "Сообщения от администрации", ETC_BOARD"notice.board"); // для сообщений от администрации
+	create_board(GENERAL_BOARD, "Вече", "Базарная площадь", ETC_BOARD"general.board");
+	create_board(NEWS_BOARD, "Новости", "Анонсы и новости Былин", ETC_BOARD"news.board");
+	create_board(IDEA_BOARD, "Идеи", "Идеи и их обсуждение", ETC_BOARD"idea.board");
+	create_board(ERROR_BOARD, "Ошибки", "Сообщения об ошибках в мире", ETC_BOARD"error.board");
+	create_board(GODNEWS_BOARD, "GodNews", "Божественные новости", ETC_BOARD"god-news.board");
+	create_board(GODGENERAL_BOARD, "Божества", "Божественная базарная площадь", ETC_BOARD"god-general.board");
+	create_board(GODBUILD_BOARD, "Билдер", "Заметки билдеров", ETC_BOARD"god-build.board");
+	create_board(GODCODE_BOARD, "Кодер", "Заметки кодеров", ETC_BOARD"god-code.board");
+	create_board(GODPUNISH_BOARD, "Наказания", "Комментарии к наказаниям", ETC_BOARD"god-punish.board");
+	create_board(NOTICE_BOARD, "Анонсы", "Сообщения от администрации", ETC_BOARD"notice.board");
+	create_board(MISPRINT_BOARD, "Опечатки", "Опечатки в игровых локациях", ETC_BOARD"misprint.board");
 }
 
 // лоад/релоад клановых досок
@@ -232,6 +243,19 @@ void set_last_read(CHAR_DATA *ch, int type, time_t date)
 		GET_BOARD_DATE(ch, type) = date;
 }
 
+bool Board::can_write(CHAR_DATA *ch)
+{
+	if (this->Access(ch) < 2
+		|| PLR_FLAGGED(ch, PLR_HELLED)
+		|| PLR_FLAGGED(ch, PLR_NAMED)
+		|| PLR_FLAGGED(ch, PLR_DUMB))
+	{
+		send_to_char("У Вас нет возможности писать в этот раздел.\r\n", ch);
+		return false;
+	}
+	return true;
+}
+
 ACMD(DoBoard)
 {
 	if (!ch->desc)
@@ -358,14 +382,8 @@ ACMD(DoBoard)
 	}
 
 	if (CompareParam(buffer, "писать") || CompareParam(buffer, "write")) {
-		if ((*board)->Access(ch) < 2
-			|| PLR_FLAGGED(ch, PLR_HELLED)
-			|| PLR_FLAGGED(ch, PLR_NAMED)
-			|| PLR_FLAGGED(ch, PLR_DUMB))
-		{
-			send_to_char("У Вас нет возможности писать в этот раздел.\r\n", ch);
+		if (!(*board)->can_write(ch))
 			return;
-		}
 		if (!IS_GOD(ch) && (*board)->lastWrite == GET_UNIQUE(ch)
 			&& (*board)->type != CLAN_BOARD
 			&& (*board)->type != CLANNEWS_BOARD
@@ -491,7 +509,8 @@ ACMD(DoBoardList)
 			access = "чтение";
 			break;
 		case 2:
-			access = "запись";
+//			access = "запись";
+			cansee = 0;
 			break;
 		case 3:
 			access = "полный";
@@ -607,6 +626,14 @@ int Board::Access(CHAR_DATA * ch)
 			return 4;
 		else
 			return 1;
+	case MISPRINT_BOARD:
+	// по привилегии (группа olc) и 34 полный, остальным только запись с мин левела/морта
+		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::MISPRINT) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
+			return 4;
+		else if (GET_LEVEL(ch) < MIN_WRITE_LEVEL && !GET_REMORT(ch))
+			return 0;
+		else
+			return 2;
 	default:
 		log("Error board type! (%s %s %d)", __FILE__, __func__, __LINE__);
 		return 0;
@@ -721,8 +748,8 @@ void Board::LoginInfo(CHAR_DATA * ch)
 
 	for (BoardListType::const_iterator board = Board::BoardList.begin(); board != Board::BoardList.end(); ++board) {
 		int unread = 0;
-		// доска не видна или можно только писать
-		if (!(*board)->Access(ch) || (*board)->Access(ch) == 2)
+		// доска не видна или можно только писать, опечатки тож не спамим
+		if (!(*board)->Access(ch) || (*board)->Access(ch) == 2 || (*board)->type == MISPRINT_BOARD)
 			continue;
 
 		for (MessageListType::reverse_iterator message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message) {
@@ -745,4 +772,52 @@ void Board::LoginInfo(CHAR_DATA * ch)
 		buffer << news.str();
 		send_to_char(buffer.str(), ch);
 	}
+}
+
+ACMD(report_on_board)
+{
+	if (IS_NPC(ch)) return;
+	skip_spaces(&argument);
+	delete_doubledollar(argument);
+
+	if (!*argument)
+	{
+		send_to_char("Пустое сообщение пропущено.\r\n", ch);
+		return;
+	}
+
+	BoardListType::const_iterator board;
+	for (board = Board::BoardList.begin(); board != Board::BoardList.end(); ++board)
+		if ((*board)->type == subcmd)
+			break;
+	if (board == Board::BoardList.end())
+	{
+	    send_to_char("Доска тупо не найдена... :/\r\n", ch);
+		return;
+	}
+	if (!(*board)->can_write(ch))
+		return;
+	if ((*board)->messages.size() >= MAX_REPORT_MESSAGES)
+	{
+	    send_to_char("Да, набросали всего столько, что файл переполнен. Напомните об этом богам!\r\n", ch);
+		return;
+	}
+	// генерим мессагу (TODO: копипаст с написания на доску, надо бы вынести)
+	MessagePtr temp_message(new Message);
+	temp_message->author = GET_NAME(ch) ? GET_NAME(ch) : "неизвестен";
+	temp_message->unique = GET_UNIQUE(ch);
+	// для досок кроме клановых и персональных пишет левел автора (для возможной очистки кем-то)
+	temp_message->level = GET_LEVEL(ch);
+	temp_message->rank = 0;
+	temp_message->subject = " Room: [" + boost::lexical_cast<std::string>(GET_ROOM_VNUM(ch->in_room)) + "]";
+	temp_message->text = argument;
+	temp_message->date = time(0);
+	(*board)->messages.push_back(temp_message);
+	int count = 0;
+	for (MessageListType::reverse_iterator it = (*board)->messages.rbegin(); it != (*board)->messages.rend(); ++it)
+		(*it)->num = count++;
+	(*board)->Save();
+	// оповещать иммов онлайн о новой мессаге на доске по-моему смысла не особо,
+	// да и при входе в игру тоже, ну если понадобится - можно будет режимом воткнуть
+	send_to_char("Записали. Заранее благодарны.\r\n" "                        Боги.\r\n", ch);
 }
