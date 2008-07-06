@@ -3366,6 +3366,7 @@ ACMD(do_who)
 	sprintf(buf, "%sИгроки%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 	morts = str_add(morts, buf);
 
+	int all = 0;
 
 	for (tch = character_list; tch; tch = tch->next) {
 		if (IS_NPC(tch))
@@ -3373,6 +3374,9 @@ ACMD(do_who)
 
 		if (!HERE(tch))
 			continue;
+
+		if (!*argument && GET_LEVEL(tch) < LVL_IMMORT)
+			++all;
 
 		if (*name_search &&
 		    !(isname(name_search, GET_NAME(tch)) ||
@@ -3507,8 +3511,7 @@ ACMD(do_who)
 			buffer = str_add(buffer, morts);
 	}
 
-	buffer = str_add(buffer, "\r\nВсего видимых:");
-
+	buffer = str_add(buffer, "\r\nВсего:");
 	if (imms_num) {
 		sprintf(buf, " бессмертных %d", imms_num);
 		buffer = str_add(buffer, buf);
@@ -3517,7 +3520,11 @@ ACMD(do_who)
 		sprintf(buf, " привилегированных %d", demigods_num);
 		buffer = str_add(buffer, buf);
 	}
-	if (morts_num) {
+	if (all && morts_num) {
+		sprintf(buf, " смертных %d (видимых %d)", all, morts_num);
+		buffer = str_add(buffer, buf);
+	}
+	else if (morts_num) {
 		sprintf(buf, " смертных %d", morts_num);
 		buffer = str_add(buffer, buf);
 	}
