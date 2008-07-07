@@ -1736,10 +1736,10 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case OEDIT_MIWVALUE:
-		if ((number = atoi(arg)) >= 0 && number < 1000)
+		if ((number = atoi(arg)) >= -1 && number <= 10000)
 			GET_OBJ_MIW(OLC_OBJ(d)) = number;
 		else {
-			send_to_char("Максимальное число предметов в мире (0-1000) : ", d->character);
+			send_to_char("Максимальное число предметов в мире (0-10000 или -1) : ", d->character);
 			return;
 		}
 		break;

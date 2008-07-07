@@ -1344,6 +1344,12 @@ ACMD(do_use)
 		send_to_char(buf2, ch);
 		return;
 	}
+
+	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND)) {
+		send_to_char("Вы в бою, и Вам сейчас не до этих магических выкрутас!\r\n", ch);
+		return;
+	}
+
 	mag_item = GET_EQ(ch, WEAR_HOLD);
 
 	if (!mag_item || !isname(arg, mag_item->name)) {
@@ -2411,7 +2417,7 @@ void dig_obj(struct char_data *ch, struct obj_data *obj)
 	char textbuf[300];
 
 	if (GET_OBJ_MIW(obj) >=
-	    obj_index[GET_OBJ_RNUM(obj)].stored + obj_index[GET_OBJ_RNUM(obj)].number || GET_OBJ_MIW(obj) == 0) {
+	    obj_index[GET_OBJ_RNUM(obj)].stored + obj_index[GET_OBJ_RNUM(obj)].number || GET_OBJ_MIW(obj) == -1) {
 		sprintf(textbuf, "Вы нашли %s!\r\n", obj->PNames[3]);
 		send_to_char(textbuf, ch);
 		sprintf(textbuf, "$n выкопал$g %s!\r\n", obj->PNames[3]);

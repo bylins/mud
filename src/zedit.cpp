@@ -734,24 +734,24 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 
 		case 'O':
 			sprintf(buf2,
-				"загрузить объект %d [%s] в комнату %d [%s], Max : %d, Load%% %d",
+				"загрузить объект %d [%s] в комнату %d [%s], Load%% %d",
 				item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME),
-				item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME), item->cmd.arg2, item->cmd.arg4);
+				item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME), item->cmd.arg4);
 			hl = (item->cmd.arg3 == room);
 			break;
 
 		case 'P':
 			sprintf(buf2,
-				"поместить %d [%s] в %d [%s], Max : %d, Load%% %d",
+				"поместить %d [%s] в %d [%s], Load%% %d",
 				item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME),
-				item->cmd.arg3, name_by_vnum(item->cmd.arg3, OBJ_NAME), item->cmd.arg2, item->cmd.arg4);
+				item->cmd.arg3, name_by_vnum(item->cmd.arg3, OBJ_NAME), item->cmd.arg4);
 			// hl - не изменяется
 			break;
 
 		case 'G':
 			sprintf(buf2,
-				"дать %d [%s], Max : %d, Load%% %d",
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME), item->cmd.arg2, item->cmd.arg4);
+				"дать %d [%s], Load%% %d",
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME), item->cmd.arg4);
 			// hl - не изменяется
 			break;
 
@@ -761,8 +761,8 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 			if (*str == '\n')
 				str = "???";
 			sprintf(buf2,
-				"экипировать %d [%s], %s, Max : %d, Load%% %d",
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME), str, item->cmd.arg2, item->cmd.arg4);
+				"экипировать %d [%s], %s, Load%% %d",
+				item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME), str, item->cmd.arg4);
 			// hl - не изменяется
 			break;
 
@@ -1614,7 +1614,13 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'P':
 		case 'E':
 		case 'G':
-			CHECK_OBJ(d, pos) zedit_disp_arg2(d);
+//			CHECK_OBJ(d, pos) zedit_disp_arg2(d);
+//Gorrah: Поскольку у нас теперь max in world хранится в объекте, то редактировать его тут не нужно.
+			CHECK_OBJ(d, pos);
+			if (item->cmd.command == 'G')
+				zedit_disp_arg4(d);
+			else
+				zedit_disp_arg3(d);
 			break;
 
 		case 'F':

@@ -2634,8 +2634,8 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 			} else {
 				// Проверяем мах_ин_ворлд и вероятность загрузки, если это необходимо для такого DL_LOAD_TYPE
-				if (GET_OBJ_MIW(tobj) >=
-				    obj_index[GET_OBJ_RNUM(tobj)].stored + obj_index[GET_OBJ_RNUM(tobj)].number)
+				if (GET_OBJ_MIW(tobj) >= obj_index[GET_OBJ_RNUM(tobj)].stored + 
+					obj_index[GET_OBJ_RNUM(tobj)].number || GET_OBJ_MIW(tobj) == -1)
 					miw = true;
 				else
 					miw = false;
@@ -4013,8 +4013,9 @@ void reset_zone(zone_rnum zone)
 						if (ZCMD.arg1 == GET_OBJ_RNUM(obj_room))
 							obj_in_room++;
 				/* Теперь грузим обьект если надо */
-				if (obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
-				    ZCMD.arg2 && (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4)
+				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored < 
+				    GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1) &&
+				    (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4)
 				    && (obj_in_room < obj_in_room_max)) {
 					obj = read_object(ZCMD.arg1, REAL);
 					if (ZCMD.arg3 >= 0) {
@@ -4043,8 +4044,9 @@ void reset_zone(zone_rnum zone)
 			case 'P':
 				/* object to object */
 				// 'P' <flag> <obj_vnum> <max_in_world> <target_vnum> <load%|-1>
-				if (obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
-				    ZCMD.arg2 && (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4)) {
+				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
+				    GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1)
+				    && (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4)) {
 					if (!(obj_to = get_obj_num(ZCMD.arg3))) {
 						ZONE_ERROR("target obj not found, command omited");
 //                 ZCMD.command = '*';
@@ -4080,8 +4082,9 @@ void reset_zone(zone_rnum zone)
 					// ZCMD.command = '*';
 					break;
 				}
-				if (obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
-				    ZCMD.arg2 && (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4)) {
+				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
+				    GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1)
+				    && (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4)) {
 					obj = read_object(ZCMD.arg1, REAL);
 					obj_to_char(obj, mob);
 					GET_OBJ_ZONE(obj) = world[IN_ROOM(mob)]->zone;
@@ -4101,8 +4104,9 @@ void reset_zone(zone_rnum zone)
 					// ZCMD.command = '*';
 					break;
 				}
-				if (obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
-				    ZCMD.arg2 && (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4)) {
+				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
+				    GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1)
+				    && (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4)) {
 					if (ZCMD.arg3 < 0 || ZCMD.arg3 >= NUM_WEARS) {
 						ZONE_ERROR("invalid equipment pos number");
 					} else {
