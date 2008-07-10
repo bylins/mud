@@ -2390,7 +2390,7 @@ ACMD(do_score)
 			" %sМаг. сила: %4d(%4d) %s|",
 			CCICYN(ch, C_NRM), GET_MANA_STORED(ch), GET_MAX_MANA(ch), CCCYN(ch, C_NRM));
 	else
-		strcat(buf, "                      |");
+		strcat(buf, "                       |");
 
 
 	sprintf(buf+ strlen(buf),
@@ -2415,7 +2415,7 @@ ACMD(do_score)
 			" %sВосстан.:    %3d сек. %s|",
 			CCICYN(ch, C_NRM), mana_gain(ch), CCCYN(ch, C_NRM));
 	else
-		strcat(buf, "                      |");
+		strcat(buf, "                       |");
 
 
 	sprintf(buf+ strlen(buf),
