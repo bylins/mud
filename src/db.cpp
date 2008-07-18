@@ -48,6 +48,7 @@
 #include "glory.hpp"
 #include "genchar.h"
 #include "random.hpp"
+#include "file_crc.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -1207,6 +1208,10 @@ void boot_db(void)
 
 	log("Generating player index.");
 	build_player_index();
+
+	// хэши читать после генерации плеер-таблицы
+	log("Loading file crc system.");
+	FileCRC::load();
 
 	log("Loading fight messages.");
 	load_messages();
@@ -2634,7 +2639,7 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 			} else {
 				// Проверяем мах_ин_ворлд и вероятность загрузки, если это необходимо для такого DL_LOAD_TYPE
-				if (GET_OBJ_MIW(tobj) >= obj_index[GET_OBJ_RNUM(tobj)].stored + 
+				if (GET_OBJ_MIW(tobj) >= obj_index[GET_OBJ_RNUM(tobj)].stored +
 					obj_index[GET_OBJ_RNUM(tobj)].number || GET_OBJ_MIW(tobj) == -1)
 					miw = true;
 				else
@@ -4013,7 +4018,7 @@ void reset_zone(zone_rnum zone)
 						if (ZCMD.arg1 == GET_OBJ_RNUM(obj_room))
 							obj_in_room++;
 				/* Теперь грузим обьект если надо */
-				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored < 
+				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
 				    GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1) &&
 				    (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4)
 				    && (obj_in_room < obj_in_room_max)) {
@@ -4699,8 +4704,15 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	ch->real_abils.Feats.reset();
 	for (i = 1; i <= MAX_SKILLS; i++)
 		SET_SKILL(ch, i, 0);
-	for (i = 1; i <= MAX_SPELLS; i++)
-		GET_SPELL_TYPE(ch, i) = 0;
+
+	// волхвам сетим все спеллы на рунах, остальные инит нулями
+	if (GET_CLASS(ch) != CLASS_DRUID)
+		for (i = 1; i <= MAX_SPELLS; i++)
+			GET_SPELL_TYPE(ch, i) = 0;
+	else
+		for (i = 1; i <= MAX_SPELLS; i++)
+			GET_SPELL_TYPE(ch, i) = SPELL_RUNES;
+
 	for (i = 1; i <= MAX_SPELLS; i++)
 		GET_SPELL_MEM(ch, i) = 0;
 	ch->char_specials.saved.affected_by = clear_flags;
@@ -5359,7 +5371,12 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 		GET_MOVE(ch) = GET_REAL_MAX_MOVE(ch);
 	} else
 		GET_HIT(ch) = MIN(GET_HIT(ch), GET_REAL_MAX_HIT(ch));
+
 	fbclose(fl);
+	// здесь мы закладываемся на то, что при ребуте это все сейчас пропускается и это нормально,
+	// иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
+	// и в любом случае при ребуте это все пересчитывать не нужно
+	FileCRC::check_crc(filename, FileCRC::PLAYER, GET_UNIQUE(ch));
 
 	return (id);
 }
@@ -6719,18 +6736,19 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	if (GET_LEVEL(ch) < LVL_IMMORT) {
 		fprintf(saved, "SkTm:\n");
 		for (skj = ch->timed; skj; skj = skj->next) {
-			fprintf(saved, "%d %d %s\n", skj->skill, skj->time, skill_info[skj->skill].name);
+			fprintf(saved, "%d %d\n", skj->skill, skj->time);
 		}
 		fprintf(saved, "0 0\n");
 	}
 
 	/* спелы */
-	if (GET_LEVEL(ch) < LVL_IMPL) {
+	// волхвам всеравно известны тупо все спеллы, смысла их писать не вижу
+	if (GET_LEVEL(ch) < LVL_IMMORT && GET_CLASS(ch) != CLASS_DRUID)
+	{
 		fprintf(saved, "Spel:\n");
-		for (i = 1; i <= MAX_SPELLS; i++) {
+		for (i = 1; i <= MAX_SPELLS; i++)
 			if (GET_SPELL_TYPE(ch, i))
 				fprintf(saved, "%d %d %s\n", i, GET_SPELL_TYPE(ch, i), spell_info[i].name);
-		}
 		fprintf(saved, "0 0\n");
 	}
 
@@ -6739,7 +6757,7 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 		fprintf(saved, "SpMe:\n");
 		for (i = 1; i <= MAX_SPELLS; i++) {
 			if (GET_SPELL_MEM(ch, i))
-				fprintf(saved, "%d %d %s\n", i, GET_SPELL_MEM(ch, i), spell_info[i].name);
+				fprintf(saved, "%d %d\n", i, GET_SPELL_MEM(ch, i));
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -6885,6 +6903,7 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	save_pkills(ch, saved);
 
 	fclose(saved);
+	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UNIQUE(ch));
 
 	/* восстанавливаем аффекты */
 	/* add spell and eq affections back in now */

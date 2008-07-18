@@ -49,6 +49,7 @@
 #include "title.hpp"
 #include "depot.hpp"
 #include "glory.hpp"
+#include "file_crc.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -502,6 +503,8 @@ void init_game(ush_int port)
 	log("Closing all sockets.");
 	while (descriptor_list)
 		close_socket(descriptor_list, TRUE);
+	// должно идти после дисконекта плееров
+	FileCRC::save(true);
 
 	CLOSE_SOCKET(mother_desc);
 	if (circle_reboot != 2 && olc_save_list) {	/* Don't save zones. */
@@ -1315,6 +1318,9 @@ inline void heartbeat()
 	if (!((pulse + 22) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
 		Depot::save_timedata();
 	}
+	// сохранение файла чексумм, если в нем были изменения
+	if (!((pulse + 23) % (PASSES_PER_SEC)))
+		FileCRC::save();
 
 	//log("---------- Stop heartbeat ----------");
 }

@@ -45,6 +45,8 @@ const int BOARD_TOTAL = 14;
 #define GODPUNISH_BOARD_OBJ  257
 #define GODBUILD_BOARD_OBJ   259
 
+ACMD(report_on_board);
+
 typedef boost::shared_ptr<Board> BoardPtr;
 typedef std::vector<BoardPtr> BoardListType;
 typedef boost::shared_ptr<struct Message> MessagePtr;

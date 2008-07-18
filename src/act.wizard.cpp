@@ -40,6 +40,7 @@
 #include "depot.hpp"
 #include "glory.hpp"
 #include "genchar.h"
+#include "file_crc.hpp"
 
 /*   external vars  */
 extern FILE *player_fl;
@@ -3171,6 +3172,7 @@ struct show_struct show_fields[] =
 	{"ban", LVL_IMMORT},
 	{"features", LVL_IMPL},
 	{"glory", LVL_IMPL},
+	{"crc", LVL_IMMORT},
 	{"\n", 0}
 };
 
@@ -3506,6 +3508,9 @@ ACMD(do_show)
 		break;
 	case 18:		// show glory
 		Glory::show_glory(ch, value);
+		break;
+	case 19:		// show crc
+		FileCRC::show(ch);
 		break;
 	default:
 		send_to_char("Извините, неверная команда.\r\n", ch);
