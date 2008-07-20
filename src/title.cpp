@@ -161,11 +161,11 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	} else if (CompareParam(buffer2, "согласен")) {
 		TitleListType::iterator it = temp_title_list.find(GET_NAME(ch));
 		if (it != temp_title_list.end()) {
-			if (GET_BANK_GOLD(ch) < SET_TITLE_COST) {
+			if (get_bank_gold(ch) < SET_TITLE_COST) {
 				send_to_char("На Вашем счету не хватает денег для оплаты этой услуги.\r\n", ch);
 				return;
 			}
-			GET_BANK_GOLD(ch) -= SET_TITLE_COST;
+			add_bank_gold(ch, -(SET_TITLE_COST));
 			title_list[it->first] = it->second;
 			temp_title_list.erase(it);
 			send_to_char("Ваша заявка отправлена Богам и будет рассмотрена в ближайшее время.\r\n", ch);
@@ -176,7 +176,7 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		TitleListType::iterator it = title_list.find(GET_NAME(ch));
 		if (it != title_list.end()) {
 			title_list.erase(it);
-			GET_BANK_GOLD(ch) += SET_TITLE_COST;
+			add_bank_gold(ch, SET_TITLE_COST);
 			send_to_char("Ваша заявка на титул отменена.\r\n", ch);
 		} else
 			send_to_char("В данный момент Вам нечего отменять.\r\n", ch);

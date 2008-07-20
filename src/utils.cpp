@@ -824,8 +824,8 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			if (MOB_FLAGGED(ch, MOB_CORPSE)) {
 				act("Налетевший ветер развеял $n3, не оставив и следа.", TRUE, ch, 0, 0, TO_ROOM);
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(IN_ROOM(ch));
-				perform_drop_gold(ch, GET_GOLD(ch), SCMD_DROP, 0);
-				GET_GOLD(ch)=0;
+				perform_drop_gold(ch, get_gold(ch), SCMD_DROP, 0);
+				set_gold(ch, 0);
 				extract_char(ch, FALSE);
 				return (TRUE);
 			} else if (AFF_FLAGGED(ch, AFF_HELPER))
@@ -1003,7 +1003,12 @@ int get_filename(const char *orig_name, char *filename, int mode)
 
 	strcpy(name, orig_name);
 	for (ptr = name; *ptr; ptr++)
-		*ptr = LOWER(AtoL(*ptr));
+	{
+		if (*ptr == 'Ё' || *ptr == 'ё')
+			*ptr = '9';
+		else
+			*ptr = LOWER(AtoL(*ptr));
+	}
 
 	switch (LOWER(*name)) {
 	case 'a':
@@ -1929,9 +1934,105 @@ int valid_email(const char *address)
 int get_skill(CHAR_DATA *ch, int skill)
 {
 	if (Privilege::check_skills(ch, skill))
-		return (ch)->real_abils.Skills[skill];
+		return ch->real_abils.Skills[skill];
 	else
 		return 0;
+}
+
+/**
+* Гетер голды на руках.
+*/
+int get_gold(CHAR_DATA *ch)
+{
+	return ch->points.gold;
+}
+
+/**
+* Аналог GET_GOLD не поделенный на add/remove, т.к. везде логика завязана
+* на то, что голда знаковый тип, менять надо более основательно.
+* Изменения кун у чаров логиурем.
+*/
+void add_gold(CHAR_DATA *ch, int gold)
+{
+	if (!gold) return;
+
+	if (!IS_NPC(ch))
+	{
+		if (gold > 0)
+			log("Gold: %s add %d", GET_NAME(ch), gold);
+		else
+			log("Gold: %s remove %d", GET_NAME(ch), -gold);
+	}
+
+	ch->points.gold += gold;
+}
+
+/**
+* Сет кун на руках, чаров логируем, если надо.
+* \param need_log - логировать или нет, по дефолту 1, т.е. логируем
+* В основнм сеты остались только при обнулении бабла и ините полей,
+* т.е. всяких фишек и сетом отрицательных значений быть не должно,
+* все расчеты и выкрутасы идут через add_gold.
+*/
+void set_gold(CHAR_DATA *ch, int gold, bool need_log)
+{
+	if (gold < 0 || gold > 100000000 || ch->points.gold == gold) return;
+
+	if (need_log && !IS_NPC(ch))
+	{
+		int change = gold - ch->points.gold;
+		if (change > 0)
+			log("Gold: %s add %d", GET_NAME(ch), change);
+		else
+			log("Gold: %s remove %d", GET_NAME(ch), -change);
+	}
+
+	ch->points.gold = gold;
+}
+
+/**
+* См get_gold.
+*/
+long get_bank_gold(CHAR_DATA *ch)
+{
+	return ch->points.bank_gold;
+}
+
+/**
+* См add_gold.
+*/
+void add_bank_gold(CHAR_DATA *ch, long gold)
+{
+	if (!gold) return;
+
+	if (!IS_NPC(ch))
+	{
+		if (gold > 0)
+			log("Gold: %s add %ld", GET_NAME(ch), gold);
+		else
+			log("Gold: %s remove %ld", GET_NAME(ch), -gold);
+	}
+
+	ch->points.bank_gold += gold;
+}
+
+/**
+* См set_gold.
+*/
+void set_bank_gold(CHAR_DATA *ch, long gold, bool need_log)
+{
+	if (gold < 0 || gold > 100000000 || ch->points.bank_gold == gold) return;
+
+	if (need_log && !IS_NPC(ch))
+	{
+		long change = gold - ch->points.bank_gold;
+		if (change > 0)
+			log("Gold: %s add %ld", GET_NAME(ch), change);
+		else
+			log("Gold: %s remove %ld", GET_NAME(ch), -change);
+	}
+
+	ch->points.bank_gold = gold;
 }
 
 /**

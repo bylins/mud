@@ -272,7 +272,7 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 */
 int DeathTrap::check_death_trap(CHAR_DATA * ch)
 {
-	if (IN_ROOM(ch) != NOWHERE)
+	if (IN_ROOM(ch) != NOWHERE && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		if ((ROOM_FLAGGED(ch->in_room, ROOM_DEATH) && !IS_IMMORTAL(ch)) ||
 		    (real_sector(IN_ROOM(ch)) == SECT_FLYING && !IS_NPC(ch)
 		     && !IS_GOD(ch) && !AFF_FLAGGED(ch, AFF_FLY))

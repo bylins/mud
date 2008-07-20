@@ -82,6 +82,13 @@ void skip_dots(char **string);
 int get_skill(CHAR_DATA *ch, int skill);
 void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence = 0);
 
+int get_gold(CHAR_DATA *ch);
+void add_gold(CHAR_DATA *ch, int gold);
+void set_gold(CHAR_DATA *ch, int gold, bool need_log = 1);
+long get_bank_gold(CHAR_DATA *ch);
+void add_bank_gold(CHAR_DATA *ch, long gold);
+void set_bank_gold(CHAR_DATA *ch, long gold, bool need_log = 1);
+
 extern std::list<FILE *> opened_files;
 
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
@@ -571,7 +578,6 @@ extern SPECIAL(postmaster);
 #define GET_REAL_MAX_MOVE(ch) (GET_MAX_MOVE(ch) + GET_MOVE_ADD(ch))
 #define GET_GOLD(ch)       ((ch)->points.gold)
 #define GET_BANK_GOLD(ch)     ((ch)->points.bank_gold)
-
 
 #define GET_MANAREG(ch)   ((ch)->add_abils.manareg)
 #define GET_HITREG(ch)    ((ch)->add_abils.hitreg)

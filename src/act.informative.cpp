@@ -2024,12 +2024,12 @@ ACMD(do_examine)
 ACMD(do_gold)
 {
 	int count = 0;
-	if (GET_GOLD(ch) == 0)
+	if (get_gold(ch) == 0)
 		send_to_char("Вы разорены !\r\n", ch);
-	else if (GET_GOLD(ch) == 1)
+	else if (get_gold(ch) == 1)
 		send_to_char("У Вас есть всего лишь одна куна.\r\n", ch);
 	else {
-		count += sprintf(buf, "У Вас есть %d %s.\r\n", GET_GOLD(ch), desc_count(GET_GOLD(ch), WHAT_MONEYa));
+		count += sprintf(buf, "У Вас есть %d %s.\r\n", get_gold(ch), desc_count(get_gold(ch), WHAT_MONEYa));
 		send_to_char(buf, ch);
 	}
 }
@@ -2309,7 +2309,7 @@ ACMD(do_score)
 		" || %sДенег: %s%-8d    %s|"
 		" %sОбаяние:       %2d(%2d) %s|-------------------|"
 		" %sИммунитет: %3d %s||\r\n",
-		CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_GOLD(ch), CCCYN(ch, C_NRM),
+		CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), get_gold(ch), CCCYN(ch, C_NRM),
 		CCICYN(ch, C_NRM), GET_CHA(ch), GET_REAL_CHA(ch), CCCYN(ch, C_NRM),
 		CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
@@ -2317,7 +2317,7 @@ ACMD(do_score)
 	        " || %sНа счету: %s%-8ld %s|"
 		" %sЖизнь:     %4d(%4d) %s|"
 		" %sВоля:         %3d %s|----------------||\r\n",
-		CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_BANK_GOLD(ch), CCCYN(ch, C_NRM),
+		CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), get_bank_gold(ch), CCCYN(ch, C_NRM),
 		CCICYN(ch, C_NRM), GET_HIT(ch), GET_REAL_MAX_HIT(ch), CCCYN(ch, C_NRM),
 		CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_WILL) - wis_app[GET_REAL_WIS(ch)].char_savings, CCCYN(ch, C_NRM)
 		);
@@ -2660,14 +2660,12 @@ ACMD(do_score)
 			CCIGRN(ch, C_NRM), GET_AC(ch), compute_armor_class(ch),
 			GET_DR(ch), GET_REAL_DR(ch), CCNRM(ch, C_NRM));
 	} else {
-		if (GET_LEVEL(ch) > 4 || GET_REMORT(ch)) {
-			ac = compute_armor_class(ch) / 10;
-			ac_t = MAX(MIN(ac + 30, 40), 0);
-			sprintf(buf + strlen(buf), "&GВаши боевые качества :\r\n"
-				"  Защита  (AC)     : %4d - %s&G\r\n"
-				"  Броня/Поглощение : %4d/%d&n\r\n",
-				ac, ac_text[ac_t], GET_ARMOUR(ch), GET_ABSORBE(ch));
-		}
+		ac = compute_armor_class(ch) / 10;
+		ac_t = MAX(MIN(ac + 30, 40), 0);
+		sprintf(buf + strlen(buf), "&GВаши боевые качества :\r\n"
+			"  Защита  (AC)     : %4d - %s&G\r\n"
+			"  Броня/Поглощение : %4d/%d&n\r\n",
+			ac, ac_text[ac_t], GET_ARMOUR(ch), GET_ABSORBE(ch));
 	}
 /*  if (charm_points(ch) > 0) {
      sprintf(buf + strlen(buf),  " Пунктов лояльности: %4d\r\n",
@@ -2676,10 +2674,10 @@ ACMD(do_score)
              charm_points(ch) - used_charm_points(ch));
   } */
 	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, у Вас на руках %d %s",
-		GET_EXP(ch), desc_count(GET_EXP(ch), WHAT_POINT), GET_GOLD(ch), desc_count(GET_GOLD(ch), WHAT_MONEYa));
-	if (GET_BANK_GOLD(ch) > 0)
+		GET_EXP(ch), desc_count(GET_EXP(ch), WHAT_POINT), get_gold(ch), desc_count(get_gold(ch), WHAT_MONEYa));
+	if (get_bank_gold(ch) > 0)
 		sprintf(buf + strlen(buf), "(и еще %ld %s припрятано в лежне).\r\n",
-			GET_BANK_GOLD(ch), desc_count(GET_BANK_GOLD(ch), WHAT_MONEYa));
+			get_bank_gold(ch), desc_count(get_bank_gold(ch), WHAT_MONEYa));
 	else
 		strcat(buf, ".\r\n");
 

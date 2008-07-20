@@ -605,7 +605,7 @@ void medit_save_to_disk(int zone_num)
 				GET_LEVEL(mob), 20 - GET_HR(mob), GET_AC(mob) / 10,
 				GET_MEM_TOTAL(mob), GET_MEM_COMPLETED(mob), GET_HIT(mob),
 				GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
-				GET_GOLD_SiDs(mob), GET_GOLD(mob), GET_EXP(mob),
+				GET_GOLD_SiDs(mob), get_gold(mob), GET_EXP(mob),
 				GET_POS(mob), GET_DEFAULT_POS(mob), GET_SEX(mob));
 
 			/*
@@ -1260,7 +1260,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		grn, nrm, cyn, GET_HIT(mob), nrm,
 		grn, nrm, cyn, GET_AC(mob), nrm,
 		grn, nrm, cyn, GET_EXP(mob), nrm,
-		grn, nrm, cyn, GET_GOLD(mob), nrm,
+		grn, nrm, cyn, get_gold(mob), nrm,
 		grn, nrm, cyn, GET_GOLD_NoDs(mob), nrm, grn, nrm, cyn, GET_GOLD_SiDs(mob), nrm);
 	send_to_char(buf, d->character);
 
@@ -2112,7 +2112,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 
 	case MEDIT_GOLD:
-			GET_GOLD(OLC_MOB(d)) = MAX(0, atoi(arg));
+			set_gold(OLC_MOB(d), MAX(0, atoi(arg)));
 			break;
 
 	case MEDIT_GOLD_DICE:

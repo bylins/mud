@@ -638,12 +638,12 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 
 
 	/* transfer gold */
-	if (GET_GOLD(ch) > 0) {	/* following 'if' clause added to fix gold duplication loophole */
+	if (get_gold(ch) > 0) {	/* following 'if' clause added to fix gold duplication loophole */
 		if (IS_NPC(ch) || (!IS_NPC(ch) && ch->desc)) {
-			money = create_money(GET_GOLD(ch));
+			money = create_money(get_gold(ch));
 			obj_to_obj(money, corpse);
 		}
-		GET_GOLD(ch) = 0;
+		set_gold(ch, 0);
 	}
 
 	ch->carrying = NULL;
@@ -752,11 +752,11 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 			act("$n со стонами упал$g с небес...", FALSE, ch, 0, 0, TO_ROOM);
 		} else {
 
-			local_gold = GET_GOLD(ch);
+			local_gold = get_gold(ch);
 			corpse = make_corpse(ch);
 			if (MOB_FLAGGED(ch, MOB_CORPSE)) {
 				perform_drop_gold(ch, local_gold, SCMD_DROP, 0);
-				GET_GOLD(ch)=0;
+				set_gold(ch, 0);
 			}
 			obj_load_on_death(corpse, ch);
 
@@ -2650,7 +2650,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		}
 		/* Есть ли в будующем трупе куны...? */
 //      if (IS_NPC (victim))
-//      local_gold = GET_GOLD (victim);
+//      local_gold = get_gold(victim);
 //Polos.poison_mob_max_fix
 		if (killer) ch=killer;
 //-Polos.poison_mob_max_fix

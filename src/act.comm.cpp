@@ -166,7 +166,11 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 
 // shapirus: не позволим телять, если жертва не видит и включила
 // соответствующий режим; имморталы могут телять всегда
-	if (GET_LEVEL(ch) < LVL_IMMORT && !CAN_SEE(vict, ch) && PRF_FLAGGED(vict, PRF_NOINVISTELL)) {
+	if (PRF_FLAGGED(vict, PRF_NOINVISTELL)
+		&& !CAN_SEE(vict, ch)
+		&& GET_LEVEL(ch) < LVL_IMMORT
+		&& !PRF_FLAGGED(ch, PRF_CODERINFO))
+	{
 		act("$N не любит разговаривать с теми, кого не видит.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		return;
 	}

@@ -1142,7 +1142,7 @@ void do_stat_room(CHAR_DATA * ch)
 		}
 	}
 	/* check the room for a script */
-	if (GET_LEVEL(ch) >= LVL_BUILDER)
+	if (GET_LEVEL(ch) >= LVL_BUILDER || PRF_FLAGGED(ch, PRF_CODERINFO))
 		do_sstat_room(ch);
 }
 
@@ -1155,6 +1155,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j)
 	OBJ_DATA *j2;
 	EXTRA_DESCR_DATA *desc;
 	long int li;
+	bool is_grgod = IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO) ? true : false;
 
 	vnum = GET_OBJ_VNUM(j);
 	rnum = GET_OBJ_RNUM(j);
@@ -1230,7 +1231,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j)
 	send_to_char(buf, ch);
 
 	strcpy(buf, "Находится : ");
-	if ((j->in_room == NOWHERE) || !IS_GRGOD(ch))
+	if ((j->in_room == NOWHERE) || !is_grgod)
 		strcat(buf, "нигде");
 	else {
 		sprintf(buf2, "%d", GET_ROOM_VNUM(IN_ROOM(j)));
@@ -1241,11 +1242,11 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j)
 	 *       character holding the object. Therefore, we do not need CAN_SEE().
 	 */
 	strcat(buf, ", В контейнере: ");
-	strcat(buf, (j->in_obj && IS_GRGOD(ch)) ? j->in_obj->short_description : "Нет");
+	strcat(buf, (j->in_obj && is_grgod) ? j->in_obj->short_description : "Нет");
 	strcat(buf, ", В инвентаре: ");
-	strcat(buf, (j->carried_by && IS_GRGOD(ch)) ? GET_NAME(j->carried_by) : "Нет");
+	strcat(buf, (j->carried_by && is_grgod) ? GET_NAME(j->carried_by) : "Нет");
 	strcat(buf, ", Одет: ");
-	strcat(buf, (j->worn_by && IS_GRGOD(ch)) ? GET_NAME(j->worn_by) : "Нет");
+	strcat(buf, (j->worn_by && is_grgod) ? GET_NAME(j->worn_by) : "Нет");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
@@ -1376,7 +1377,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j)
 		send_to_char(" Нет", ch);
 
 	send_to_char("\r\n", ch);
-	if (GET_LEVEL(ch) >= LVL_BUILDER) {
+	if (is_grgod) {
 		sprintf(buf, "Сейчас в мире : %d. На постое : %d\r\n",
 			rnum >= 0 ? obj_index[rnum].number : -1, rnum >= 0 ? obj_index[rnum].stored : -1);
 		send_to_char(buf, ch);
@@ -1393,13 +1394,15 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	struct follow_type *fol;
 	AFFECT_DATA *aff;
 
-	sprinttype(GET_SEX(k), genders, buf);
+	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
+	int k_room = -1;
+	if (god_level == LVL_IMPL || (god_level == LVL_GRGOD && !IS_NPC(k)))
+		k_room = GET_ROOM_VNUM(IN_ROOM(k));
 
+	sprinttype(GET_SEX(k), genders, buf);
 	sprintf(buf2, " %s '%s' IDNum: [%ld] В комнате [%d] Текущий ID:[%ld]\r\n",
 		(!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
-		GET_NAME(k), GET_IDNUM(k), IS_IMPL(ch) ? GET_ROOM_VNUM(IN_ROOM(k))
-		: ((IS_GRGOD(ch)
-		    && IS_NPC(k)) ? GET_ROOM_VNUM(IN_ROOM(k)) : -1), GET_ID(k));
+		GET_NAME(k), GET_IDNUM(k), k_room, GET_ID(k));
 	send_to_char(strcat(buf, buf2), ch);
 	if (IS_MOB(k)) {
 		sprintf(buf, "Синонимы: %s, VNum: [%5d], RNum: [%5d]\r\n",
@@ -1569,7 +1572,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	send_to_char(buf, ch);
 
 	sprintf(buf, "Денег: [%9d], В банке: [%9ld] (Всего: %ld)\r\n",
-		GET_GOLD(k), GET_BANK_GOLD(k), GET_GOLD(k) + GET_BANK_GOLD(k));
+		get_gold(k), get_bank_gold(k), get_gold(k) + get_bank_gold(k));
 	send_to_char(buf, ch);
 
 	sprintf(buf,
@@ -1658,7 +1661,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 		send_to_char(buf, ch);
 	}
 
-	if (IS_GRGOD(ch)) {
+	if (god_level >= LVL_GRGOD) {
 		sprintf(buf, "Ведущий: %s, Ведомые:", ((k->master) ? GET_NAME(k->master) : "<нет>"));
 
 		for (fol = k->followers; fol; fol = fol->next) {
@@ -1704,7 +1707,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	}
 
 	/* check mobiles for a script */
-	if (IS_NPC(k) && GET_LEVEL(ch) >= LVL_BUILDER) {
+	if (IS_NPC(k) && god_level >= LVL_BUILDER) {
 		do_sstat_character(ch, k);
 		if (MEMORY(k)) {
 			struct memory_rec_struct *memchar;
@@ -1855,7 +1858,7 @@ ACMD(do_stat)
 				send_to_char("Нет такого предмета в игре.\r\n", ch);
 		}
 	} else {
-		if (GET_LEVEL(ch) >= LVL_BUILDER) {
+		if (GET_LEVEL(ch) >= LVL_BUILDER || PRF_FLAGGED(ch, PRF_CODERINFO)) {
 			if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)) != NULL)
 				do_stat_object(ch, object);
 			else if ((object = get_obj_in_list_vis(ch, buf1, ch->carrying)) != NULL)
@@ -3714,10 +3717,10 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		affect_total(vict);
 		break;
 	case 12:
-		GET_GOLD(vict) = RANGE(0, 100000000);
+		set_gold(vict, RANGE(0, 100000000));
 		break;
 	case 13:
-		GET_BANK_GOLD(vict) = RANGE(0, 100000000);
+		set_bank_gold(vict, RANGE(0, 100000000));
 		break;
 	case 14:
 		//vict->points.exp = RANGE(0, 7000000);
@@ -4363,7 +4366,7 @@ ACMD(do_liblist)
 			if (obj_index[nr].vnum >= first && obj_index[nr].vnum <= last) {
 				sprintf(bf, "%s%5d. %45s [%5d]", bf, ++found,
 					obj_proto[nr]->short_description, obj_index[nr].vnum);
-				if (GET_LEVEL(ch) >= LVL_GRGOD)
+				if (GET_LEVEL(ch) >= LVL_GRGOD || PRF_FLAGGED(ch, PRF_CODERINFO))
 					sprintf(bf, "%s Игра:%d Пост:%d\r\n", bf,
 						obj_index[nr].number, obj_index[nr].stored);
 				else

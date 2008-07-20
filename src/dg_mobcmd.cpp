@@ -611,7 +611,7 @@ ACMD(do_mteleport)
 				mob_log(ch, "mteleport transports from NOWHERE");
 				return;
 			}
-			
+
 			char_from_room(vict);
 			char_to_room(vict, target);
 /*			if (!str_cmp(argument, "horse") && horse) {
@@ -649,14 +649,14 @@ ACMD(do_mteleport)
 		else
 			horse = NULL;
 		from_room = vict->in_room;
-		
+
 		char_from_room(vict);
 		char_to_room(vict, target);
 		if (!str_cmp(argument, "horse") && horse) {
 			char_from_room(horse);
 			char_to_room(horse, target);
 		}
-//Polud реализуем режим followers. за аргументом телепорта перемешаются все последователи-NPC  
+//Polud реализуем режим followers. за аргументом телепорта перемешаются все последователи-NPC
 		if (!str_cmp(argument, "followers") && vict->followers)
 		{
 			follow_type *ft;
@@ -816,9 +816,10 @@ ACMD(do_mgold)
 		return;
 	}
 
-	if ((GET_GOLD(victim) += atoi(amount)) < 0) {
+	add_gold(victim, atoi(amount));
+	if (get_gold(victim) < 0) {
 		mob_log(ch, "mgold subtracting more gold than character has");
-		GET_GOLD(victim) = 0;
+		set_gold(victim, 0);
 	}
 }
 
@@ -1078,7 +1079,7 @@ ACMD(do_mtransform)
 			GET_MAX_HIT(ch) = GET_MAX_HIT(m);
 			GET_EXP(ch) = GET_EXP(m);
 		}
-		GET_GOLD(ch) = GET_GOLD(m);
+		set_gold(ch, get_gold(m));
 		GET_POS(ch) = GET_POS(m);
 		IS_CARRYING_W(ch) = IS_CARRYING_W(m);
 		IS_CARRYING_W(m) = IS_CARRYING_W(&tmpmob);

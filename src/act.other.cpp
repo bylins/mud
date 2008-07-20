@@ -155,7 +155,7 @@ ACMD(do_quit)
 		if (depot_cost)
 		{
 			send_to_char(ch, "За вещи в хранилище придется заплатить %ld %s в день.\r\n", depot_cost, desc_count(depot_cost, WHAT_MONEYu));
-			int deadline = ((GET_GOLD(ch) + GET_BANK_GOLD(ch)) / depot_cost);
+			int deadline = ((get_gold(ch) + get_bank_gold(ch)) / depot_cost);
 			send_to_char(ch, "Твоих денег хватит на %ld %s.\r\n", deadline, desc_count(deadline, WHAT_DAY));
 		}
 		Depot::exit_char(ch);
@@ -591,21 +591,21 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 			act("Вы обнаружили руку $n1 в своем кармане.", FALSE, ch, 0, vict, TO_VICT);
 			act("$n пытал$u спионерить деньги у $N1.", TRUE, ch, 0, vict, TO_NOTVICT);
 		} else {	/* Steal some gold coins */
-			if (!GET_GOLD(vict)) {
+			if (!get_gold(vict)) {
 				act("$E богат$A, как амбарная мышь :)", FALSE, ch, 0, vict, TO_CHAR);
 				return;
 			} else {
 				// Считаем вероятность крит-воровства (воровства всех денег)
 				if ((number(1, 100) - get_skill(ch, SKILL_STEAL) -
-				     GET_DEX(ch) + GET_WIS(vict) + GET_GOLD(vict) / 500) < 0) {
+				     GET_DEX(ch) + GET_WIS(vict) + get_gold(vict) / 500) < 0) {
 					act("Тугой кошелек $N1 перекочевал к Вам.", TRUE, ch, 0, vict, TO_CHAR);
-					gold = GET_GOLD(vict);
+					gold = get_gold(vict);
 				} else
-					gold = (int) ((GET_GOLD(vict) * number(1, 75)) / 100);
+					gold = (int) ((get_gold(vict) * number(1, 75)) / 100);
 
 				if (gold > 0) {
-					GET_GOLD(ch) += gold;
-					GET_GOLD(vict) -= gold;
+					add_gold(ch, gold);
+					add_gold(vict, gold);
 					if (gold > 1) {
 						sprintf(buf, "УР-Р-Р-А!  Вы таки сперли %d %s.\r\n",
 							gold, desc_count(gold, WHAT_MONEYu));
@@ -1278,7 +1278,7 @@ ACMD(do_split)
 			send_to_char("И как Вы это планируете сделать ?\r\n", ch);
 			return;
 		}
-		if (amount > GET_GOLD(ch)) {
+		if (amount > get_gold(ch)) {
 			send_to_char("И где бы взять Вам столько денег ?.\r\n", ch);
 			return;
 		}
@@ -1303,18 +1303,18 @@ ACMD(do_split)
 			return;
 		}
 
-		GET_GOLD(ch) -= share * (num - 1);
+		add_gold(ch, -(share * (num - 1)));
 
 		sprintf(buf, "%s разделил%s %d %s; Вам досталось %d.\r\n",
 			GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, WHAT_MONEYu), share);
 		if (AFF_FLAGGED(k, AFF_GROUP) && IN_ROOM(k) == IN_ROOM(ch) && !IS_NPC(k) && k != ch) {
-			GET_GOLD(k) += share;
+			add_gold(k, share);
 			send_to_char(buf, k);
 		}
 		for (f = k->followers; f; f = f->next) {
 			if (AFF_FLAGGED(f->follower, AFF_GROUP) &&
 			    !IS_NPC(f->follower) && IN_ROOM(f->follower) == IN_ROOM(ch) && f->follower != ch) {
-				GET_GOLD(f->follower) += share;
+				add_gold(f->follower, share);
 				send_to_char(buf, f->follower);
 			}
 		}
@@ -2100,7 +2100,7 @@ ACMD(do_pray)
 			return;
 		}
 	} else if (subcmd == SCMD_PRAY) {
-		if (GET_GOLD(ch) < 10) {
+		if (get_gold(ch) < 10) {
 			send_to_char("У Вас не хватит денег на свечку.\r\n", ch);
 			return;
 		}
@@ -2133,7 +2133,7 @@ ACMD(do_pray)
 		act(buf, FALSE, ch, 0, 0, TO_ROOM);
 		sprintf(buf, "Вы затеплили свечку и вознесли молитву %s.", pray_whom[metter]);
 		act(buf, FALSE, ch, 0, 0, TO_CHAR);
-		GET_GOLD(ch) -= 10;
+		add_gold(ch, -10);
 	} else if (subcmd == SCMD_DONATE && obj) {
 		sprintf(buf, "$n принес$q $o3 в жертву %s.", pray_whom[metter]);
 		act(buf, FALSE, ch, obj, 0, TO_ROOM);
@@ -2493,7 +2493,7 @@ ACMD(do_dig)
 	if (number(1, dig_vars.treasure_chance) == 1)	// копнули клад
 	{
 		int gold = number(40000, 60000);
-		GET_GOLD(ch) += gold;
+		add_gold(ch, gold);
 		send_to_char("Вы нашли клад!\r\n", ch);
 		act("$n выкопал$g клад!", FALSE, ch, 0, 0, TO_ROOM);
 		sprintf(textbuf, "Вы насчитали %i монет.\r\n", gold);

@@ -1484,7 +1484,7 @@ int Crash_load(CHAR_DATA * ch)
 		send_to_char(buf, ch);
 		sprintf(buf, "%s entering game, free crashrent.", GET_NAME(ch));
 		mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-	} else if (cost > GET_GOLD(ch) + GET_BANK_GOLD(ch)) {
+	} else if (cost > get_gold(ch) + get_bank_gold(ch)) {
 		sprintf(buf, "%sВы находились на постое %1.2f дней.\n\r"
 			"%s"
 			"Вам предъявили счет на %d %s за постой (%d %s в день).\r\n"
@@ -1497,12 +1497,13 @@ int Crash_load(CHAR_DATA * ch)
 			: "", cost, desc_count(cost, WHAT_MONEYu),
 			SAVEINFO(index)->rent.net_cost_per_diem,
 			desc_count(SAVEINFO(index)->rent.net_cost_per_diem,
-				   WHAT_MONEYa), GET_GOLD(ch) + GET_BANK_GOLD(ch),
-			desc_count(GET_GOLD(ch) + GET_BANK_GOLD(ch), WHAT_MONEYa), CCNRM(ch, C_NRM));
+				   WHAT_MONEYa), get_gold(ch) + get_bank_gold(ch),
+			desc_count(get_gold(ch) + get_bank_gold(ch), WHAT_MONEYa), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		sprintf(buf, "%s: rented equipment lost (no $).", GET_NAME(ch));
 		mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-		GET_GOLD(ch) = GET_BANK_GOLD(ch) = 0;
+		set_bank_gold(ch, 0);
+		set_gold(ch, 0);
 		Crash_clear_objects(index);
 		return (2);
 	} else {
@@ -1520,8 +1521,8 @@ int Crash_load(CHAR_DATA * ch)
 				desc_count(SAVEINFO(index)->rent.net_cost_per_diem, WHAT_MONEYa), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
-		GET_GOLD(ch) -= MAX(cost - GET_BANK_GOLD(ch), 0);
-		GET_BANK_GOLD(ch) = MAX(GET_BANK_GOLD(ch) - cost, 0);
+		add_gold(ch, -(MAX(cost - get_bank_gold(ch), 0)));
+		set_bank_gold(ch, MAX(get_bank_gold(ch) - cost, 0));
 		//???
 		//save_char(ch, NOWHERE);
 	}
@@ -1920,12 +1921,12 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 	//CRYO-rent надо дорабатывать либо выкидывать нафиг
 	if (savetype == RENT_CRYO) {
 		rent.net_cost_per_diem = 0;
-		GET_GOLD(ch) = MAX(0, GET_GOLD(ch) - cost);
+		set_gold(ch, MAX(0, get_gold(ch) - cost));
 	}
 	if (savetype == RENT_RENTED)
 		rent.net_cost_per_diem = rentcost;
-	rent.gold = GET_GOLD(ch);
-	rent.account = GET_BANK_GOLD(ch);
+	rent.gold = get_gold(ch);
+	rent.account = get_bank_gold(ch);
 
 	Crash_create_timer(iplayer, num);
 	SAVEINFO(iplayer)->rent = rent;
@@ -2044,7 +2045,7 @@ void Crash_rent_deadline(CHAR_DATA * ch, CHAR_DATA * recep, long cost)
 	}
 
 	send_to_char(ch, "\"Постой обойдется тебе в %ld %s.\"\r\n", cost, desc_count(cost, WHAT_MONEYu));
- 	rent_deadline = ((GET_GOLD(ch) + GET_BANK_GOLD(ch)) / cost);
+ 	rent_deadline = ((get_gold(ch) + get_bank_gold(ch)) / cost);
 	send_to_char(ch, "\"Твоих денег хватит на %ld %s.\"\r\n", rent_deadline, desc_count(rent_deadline, WHAT_DAY));
 }
 
@@ -2174,7 +2175,7 @@ int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int 
 		sprintf(buf, "$n сказал$g Вам : \"В сумме это составит %d %s %s.\"",
 			*totalcost, desc_count(*totalcost, WHAT_MONEYu), (factor == RENT_FACTOR ? "в день " : ""));
 		act(buf, FALSE, receptionist, 0, ch, TO_VICT);
-		if (MAX(0, *totalcost / divide) > GET_GOLD(ch) + GET_BANK_GOLD(ch)) {
+		if (MAX(0, *totalcost / divide) > get_gold(ch) + get_bank_gold(ch)) {
 			act("\"...которых у тебя отродясь не было.\"", FALSE, receptionist, 0, ch, TO_VICT);
 			return (FALSE);
 		};
@@ -2255,7 +2256,7 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 					cost, desc_count(cost, WHAT_MONEYu));
 			act(buf, FALSE, recep, 0, ch, TO_VICT);
 
-			if (cost > GET_GOLD(ch) + GET_BANK_GOLD(ch)) {
+			if (cost > get_gold(ch) + get_bank_gold(ch)) {
 				act("$n сказал$g Вам : '..но такой голытьбе, как ты, это не по карману.'",
 				    FALSE, recep, 0, ch, TO_VICT);
 				return (TRUE);
@@ -2268,7 +2269,7 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 			act("$n запер$q Ваши вещи в сундук и повел$g в тесную каморку.", FALSE, recep, 0, ch, TO_VICT);
 			Crash_rentsave(ch, cost);
 			sprintf(buf, "%s has rented (%d/day, %ld tot.)",
-				GET_NAME(ch), cost, GET_GOLD(ch) + GET_BANK_GOLD(ch));
+				GET_NAME(ch), cost, get_gold(ch) + get_bank_gold(ch));
 		} else {	/* cryo */
 			act("$n запер$q Ваши вещи в сундук и повел$g в тесную каморку.\r\n"
 			    "Белый призрак появился в комнате, обдав Вас холодом...\r\n"

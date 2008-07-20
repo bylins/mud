@@ -1822,11 +1822,11 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			} else if (!str_cmp(field, "religion"))
 				sprintf(str, "%d", GET_RELIGION(c));
 			else if (!str_cmp(field, "gold")) {
-				GET_GOLD(c) = (int) MAX(0, gm_char_field(c, field, subfield, (long) GET_GOLD(c)));
-				sprintf(str, "%d", GET_GOLD(c));
+				set_gold(c, (int) MAX(0, gm_char_field(c, field, subfield, (long) get_gold(c))));
+				sprintf(str, "%d", get_gold(c));
 			} else if (!str_cmp(field, "bank")) {
-				GET_BANK_GOLD(c) = MAX(0, gm_char_field(c, field, subfield, GET_BANK_GOLD(c)));
-				sprintf(str, "%ld", GET_BANK_GOLD(c));
+				set_bank_gold(c, MAX(0, gm_char_field(c, field, subfield, get_bank_gold(c))));
+				sprintf(str, "%ld", get_bank_gold(c));
 			} else if (!str_cmp(field, "exp")) {
 				if (*subfield) {
 					if (*subfield == '-')

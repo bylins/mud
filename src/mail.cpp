@@ -497,7 +497,7 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 	int cost;
 	char buf[256], **write;
 
-	IS_IMMORTAL(ch) ? cost = 0 : cost = STAMP_PRICE;
+	IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO) ? cost = 0 : cost = STAMP_PRICE;
 
 	if (GET_LEVEL(ch) < MIN_MAIL_LEVEL) {
 		sprintf(buf,
@@ -512,7 +512,7 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 		act("$n сказал$g Вам, 'Вы не указали адресата!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
-	if (GET_GOLD(ch) < cost) {
+	if (get_gold(ch) < cost) {
 		sprintf(buf, "$n сказал$g Вам, 'Письмо стоит %d %s.'\r\n"
 			"$n сказал$g Вам, '...которых у Вас просто-напросто нет.'",
 			STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYu));
@@ -534,7 +534,7 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 			STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYa));
 
 	act(buf, FALSE, mailman, 0, ch, TO_VICT);
-	GET_GOLD(ch) -= cost;
+	add_gold(ch, -cost);
 	SET_BIT(PLR_FLAGS(ch, PLR_MAILING), PLR_MAILING);	/* string_write() sets writing. */
 
 	/* Start writing! */

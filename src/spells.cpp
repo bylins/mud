@@ -1006,8 +1006,8 @@ ACMD(do_findhelpee)
 			sprintf(buf, "$n сказал$g Вам : \" Хорошо, не буду жадничать, скину тебе немного с цены.\"");
 			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 		}
-		if ((!isname(isbank, "банк bank") && cost > GET_GOLD(ch)) ||
-		(isname(isbank, "банк bank") && cost > GET_BANK_GOLD(ch))) {
+		if ((!isname(isbank, "банк bank") && cost > get_gold(ch)) ||
+		(isname(isbank, "банк bank") && cost > get_bank_gold(ch))) {
 			sprintf(buf,
 				"$n сказал$g Вам : \" Мои услуги за %d %s стоят %d %s - это тебе не по карману.\"",
 				times, desc_count(times, WHAT_HOUR), cost, desc_count(cost, WHAT_MONEYu));
@@ -1023,7 +1023,10 @@ ACMD(do_findhelpee)
 			if (stop_follower(helpee, SF_MASTERDIE))
 				return;
 		}
-		isname(isbank, "банк bank") ? GET_BANK_GOLD(ch) -= cost : GET_GOLD(ch) -= cost;
+		if (isname(isbank, "банк bank"))
+			add_bank_gold(ch, -cost);
+		else
+			add_gold(ch, -cost);
 
 		affect_from_char(helpee, AFF_CHARM);
 		add_follower(helpee, ch);
@@ -2169,7 +2172,7 @@ ASPELL(spell_angel)
 
 	GET_MAX_HIT(mob) = 600;
 	GET_HIT(mob) = 600;
-	GET_GOLD(mob) = 0;
+	set_gold(mob, 0);
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
 

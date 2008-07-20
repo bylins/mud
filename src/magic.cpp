@@ -3215,7 +3215,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	IS_CARRYING_W(mob) = 0;
 	IS_CARRYING_N(mob) = 0;
 //Polud при оживлении и поднятии трупа лоадились куны из прототипа
-	GET_GOLD(mob)=0;
+	set_gold(mob, 0);
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
 //-Polud
@@ -3278,7 +3278,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		GET_HIT(mob) = GET_MAX_HIT(ch);
 		mob->mob_specials.damnodice = 0;
 		mob->mob_specials.damsizedice = 0;
-		GET_GOLD(mob) = 0;
+		set_gold(mob, 0);
 		GET_GOLD_NoDs(mob) = 0;
 		GET_GOLD_SiDs(mob) = 0;
 		GET_EXP(mob) = 0;

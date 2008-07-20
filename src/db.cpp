@@ -2242,7 +2242,7 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 		exit(1);
 	}
 
-	GET_GOLD(mob_proto + i) = t[2];
+	set_gold(mob_proto + i, t[2], 0);
 	GET_GOLD_NoDs(mob_proto + i) = t[0];
 	GET_GOLD_SiDs(mob_proto + i) = t[1];
 	GET_EXP(mob_proto + i) = t[3];
@@ -3489,7 +3489,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 		GET_ACTIVITY(mob) = number(0, mob->mob_specials.speed);
 	EXTRACT_TIMER(mob) = 0;
 	mob->points.move = mob->points.max_move;
-	GET_GOLD(mob) += dice(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob));
+	add_gold(mob, dice(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
 
 	mob->player.time.birth = time(0);
 	mob->player.time.played = 0;
@@ -4730,7 +4730,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	GET_AC(ch) = 10;
 	GET_ALIGNMENT(ch) = 0;
 	GET_BAD_PWS(ch) = 0;
-	GET_BANK_GOLD(ch) = 0;
 	ch->player.time.birth = time(0);
 	GET_CHA(ch) = 10;
 	GET_KIN(ch) = 0;
@@ -4778,7 +4777,9 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 // End punish init
 
 	GET_DR(ch) = 0;
-	GET_GOLD(ch) = 0;
+
+	set_gold(ch, 0, 0);
+	set_bank_gold(ch, 0, 0);
 
 	GET_GLORY(ch) = 0;
 	ch->player_specials->saved.GodsLike = 0;
@@ -4868,7 +4869,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			if (!strcmp(tag, "Badp"))
 				GET_BAD_PWS(ch) = num;
 			else if (!strcmp(tag, "Bank"))
-				GET_BANK_GOLD(ch) = lnum;
+				set_bank_gold(ch, lnum, 0);
 
 			else if (!strcmp(tag, "Br01"))
 				GET_BOARD_DATE(ch, GENERAL_BOARD) = lnum;
@@ -4974,7 +4975,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 
 		case 'G':
 			if (!strcmp(tag, "Gold"))
-				GET_GOLD(ch) = num;
+				set_gold(ch, num, 0);
 			else if (!strcmp(tag, "GodD"))
 				GCURSE_DURATION(ch) = lnum;
 			else if (!strcmp(tag, "Glor"))
@@ -6082,7 +6083,6 @@ ACMD(do_remort)
 	GET_MEM_TOTAL(ch) = GET_MEM_COMPLETED(ch) = 0;
 	GET_LEVEL(ch) = 0;
 	GET_WIMP_LEV(ch) = 0;
-	//GET_GOLD(ch)      = GET_BANK_GOLD(ch) = 0;
 	GET_AC(ch) = 100;
 	GET_LOADROOM(ch) = calc_loadroom(ch);
 	SET_BIT(PLR_FLAGS(ch, PLR_LOADROOM), PLR_LOADROOM);
@@ -6784,8 +6784,8 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	fprintf(saved, "Hit : %d/%d\n", GET_HIT(ch), GET_MAX_HIT(ch));
 	fprintf(saved, "Mana: %d/%d\n", GET_MEM_COMPLETED(ch), GET_MEM_TOTAL(ch));
 	fprintf(saved, "Move: %d/%d\n", GET_MOVE(ch), GET_MAX_MOVE(ch));
-	fprintf(saved, "Gold: %d\n", GET_GOLD(ch));
-	fprintf(saved, "Bank: %ld\n", GET_BANK_GOLD(ch));
+	fprintf(saved, "Gold: %d\n", get_gold(ch));
+	fprintf(saved, "Bank: %ld\n", get_bank_gold(ch));
 	fprintf(saved, "PK  : %ld\n", IS_KILLER(ch));
 
 	fprintf(saved, "Wimp: %d\n", GET_WIMP_LEV(ch));

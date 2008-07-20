@@ -322,7 +322,7 @@ ACMD(do_put)
 			send_to_char("Следует указать чиста конкретную сумму.\r\n", ch);
 			return;
 		}
-		if (GET_GOLD(ch) < howmany) {
+		if (get_gold(ch) < howmany) {
 			send_to_char("Нет у Вас такой суммы.\r\n", ch);
 			return;
 		}
@@ -360,12 +360,12 @@ ACMD(do_put)
 					if (!obj)
 						return;
 					obj_to_char(obj, ch);
-					GET_GOLD(ch) -= howmany;
+					add_gold(ch, -howmany);
 					// если положить не удалось - возвращаем все взад
 					if (perform_put(ch, obj, cont)) {
 						obj_from_char(obj);
 						extract_obj(obj);
-						GET_GOLD(ch) += howmany;
+						add_gold(ch, howmany);
 						return;
 					}
 				} else if (!(obj = get_obj_in_list_vis(ch, theobj, ch->carrying))) {
@@ -447,7 +447,7 @@ void get_check_money(CHAR_DATA * ch, OBJ_DATA * obj)
 	obj_from_char(obj);
 	extract_obj(obj);
 
-	GET_GOLD(ch) += value;
+	add_gold(ch, value);
 
 	sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_MONEYu));
 	send_to_char(buf, ch);
@@ -755,7 +755,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 	OBJ_DATA *obj;
 	if (amount <= 0)
 		send_to_char("Да, похоже Вы слишком переиграли сегодня.\r\n", ch);
-	else if (GET_GOLD(ch) < amount)
+	else if (get_gold(ch) < amount)
 		send_to_char("У Вас нет такой суммы !\r\n", ch);
 	else {
 		if (mode != SCMD_JUNK) {
@@ -793,7 +793,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 			sprintf(buf, "Вы пожертвовали Богам %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
 			send_to_char(buf, ch);
 		}
-		GET_GOLD(ch) -= amount;
+		add_gold(ch, -amount);
 	}
 }
 
@@ -958,7 +958,6 @@ ACMD(do_drop)
 	if (amount && (subcmd == SCMD_JUNK)) {
 		send_to_char("Боги не обратили внимания на этот хлам.\r\n", ch);
 		act("$n принес$q жертву. Но Боги были глухи к н$m !", TRUE, ch, 0, 0, TO_ROOM);
-		/* GET_GOLD(ch) += amount; */
 	}
 
 }
@@ -1017,7 +1016,7 @@ void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 		send_to_char("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (GET_GOLD(ch) < amount && (IS_NPC(ch) || !IS_IMPL(ch))) {
+	if (get_gold(ch) < amount && (IS_NPC(ch) || !IS_IMPL(ch))) {
 		send_to_char("И откуда Вы их взять собираетесь ?\r\n", ch);
 		return;
 	}
@@ -1031,8 +1030,8 @@ void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 	sprintf(buf, "$n дал$g %s $N2.", money_desc(amount, 3));
 	act(buf, TRUE, ch, 0, vict, TO_NOTVICT);
 	if (IS_NPC(ch) || !IS_IMPL(ch))
-		GET_GOLD(ch) -= amount;
-	GET_GOLD(vict) += amount;
+		add_gold(ch, -amount);
+	add_gold(vict, amount);
 	bribe_mtrigger(vict, ch, amount);
 }
 

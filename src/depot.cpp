@@ -126,13 +126,13 @@ void remove_char_entry(long uid, CharNode &node)
 		if (load_char(node.name.c_str(), victim) > -1 && GET_UNIQUE(victim) == uid)
 		{
 			int total_pay = node.money_spend + static_cast<int>(node.buffer_cost);
-			GET_BANK_GOLD(victim) -= total_pay;
-			if (GET_BANK_GOLD(victim) < 0)
+			add_bank_gold(victim, -total_pay);
+			if (get_bank_gold(victim) < 0)
 			{
-				GET_GOLD(victim) += GET_BANK_GOLD(victim);
-				GET_BANK_GOLD(victim) = 0;
-				if (GET_GOLD(victim) < 0)
-					GET_GOLD(victim) = 0;
+				add_gold(victim, get_bank_gold(victim));
+				set_bank_gold(victim, 0);
+				if (get_gold(victim) < 0)
+					set_gold(victim, 0);
 			}
 			save_char(victim, GET_LOADROOM(victim));
 			free_char(victim);
@@ -328,7 +328,7 @@ void save_timedata()
 		file << "<Node>\n" << it->first << " ";
 		// чар онлайн - пишем бабло с его счета, иначе берем из оффлайновых полей инфу
 		if (it->second.ch)
-			file << GET_BANK_GOLD(it->second.ch) + GET_GOLD(it->second.ch) << " 0 ";
+			file << get_bank_gold(it->second.ch) + get_gold(it->second.ch) << " 0 ";
 		else
 			file << it->second.money << " " << it->second.money_spend << " ";
 		file << it->second.buffer_cost << "\n";
@@ -670,7 +670,7 @@ void show_depot(CHAR_DATA * ch, OBJ_DATA * obj)
 	}
 
 	std::string out;
-	out = print_obj_list(ch, it->second.pers_online, "Ваше персональное хранилище:\r\n", (GET_GOLD(ch) + GET_BANK_GOLD(ch)));
+	out = print_obj_list(ch, it->second.pers_online, "Ваше персональное хранилище:\r\n", (get_gold(ch) + get_bank_gold(ch)));
 	page_string(ch->desc, out, 1);
 }
 
@@ -683,12 +683,12 @@ void put_gold_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 	if (GET_OBJ_TYPE(obj) != ITEM_MONEY) return;
 
 	long gold = GET_OBJ_VAL(obj, 0);
-	if ((GET_BANK_GOLD(ch) + gold) < 0)
+	if ((get_bank_gold(ch) + gold) < 0)
 	{
-		long over = std::numeric_limits<long>::max() - GET_BANK_GOLD(ch);
-		GET_BANK_GOLD(ch) += over;
+		long over = std::numeric_limits<long>::max() - get_bank_gold(ch);
+		add_bank_gold(ch, over);
 		gold -= over;
-		GET_GOLD(ch) += gold;
+		add_gold(ch, gold);
 		obj_from_char(obj);
 		extract_obj(obj);
 		send_to_char(ch, "Вы удалось вложить только %ld %s.\r\n",
@@ -696,7 +696,7 @@ void put_gold_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 	}
 	else
 	{
-		GET_BANK_GOLD(ch) += gold;
+		add_bank_gold(ch, gold);
 		obj_from_char(obj);
 		extract_obj(obj);
 		send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
@@ -769,7 +769,7 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 		send_to_char("В вашем хранилище совсем не осталось места :(.\r\n" , ch);
 		return 0;
 	}
-	if (!GET_BANK_GOLD(ch) && !GET_GOLD(ch))
+	if (!get_bank_gold(ch) && !get_gold(ch))
 	{
 		send_to_char(ch,
 			"У Вас ведь совсем нет денег, чем Вы собираетесь расплачиваться за хранение вещей?\r\n",
@@ -1045,17 +1045,17 @@ void enter_char(CHAR_DATA *ch)
 		// снимаем бабло, если что-то было потрачено на ренту
 		if (it->second.money_spend > 0)
 		{
-			GET_BANK_GOLD(ch) -= it->second.money_spend;
-			if (GET_BANK_GOLD(ch) < 0)
+			add_bank_gold(ch, -(it->second.money_spend));
+			if (get_bank_gold(ch) < 0)
 			{
-				GET_GOLD(ch) += GET_BANK_GOLD(ch);
-				GET_BANK_GOLD(ch) = 0;
+				add_gold(ch, get_bank_gold(ch));
+				set_bank_gold(ch, 0);
 				// есть вариант, что денег не хватит, потому что помимо хранилищ еще капает за
 				// одежду и инвентарь, а учитывать еще и их при расчетах уже как-то мутно
 				// поэтому мы просто готовы, если что, все технично спуржить при входе
-				if (GET_GOLD(ch) < 0)
+				if (get_gold(ch) < 0)
 				{
-					GET_GOLD(ch) = 0;
+					set_gold(ch, 0);
 					it->second.reset();
 					// файл убьется позже при ребуте на пустом хране,
 					// даже если не будет никаких перезаписей по ходу игры
@@ -1125,7 +1125,7 @@ void exit_char(CHAR_DATA *ch)
 
 		it->second.online_to_offline(it->second.pers_online);
 		it->second.ch = 0;
-		it->second.money = GET_BANK_GOLD(ch) + GET_GOLD(ch);
+		it->second.money = get_bank_gold(ch) + get_gold(ch);
 		it->second.money_spend = 0;
 	}
 }

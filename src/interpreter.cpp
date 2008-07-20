@@ -1750,8 +1750,26 @@ int find_name(const char *name)
 	return (-1);
 }
 
-
 int _parse_name(char *arg, char *name)
+{
+	int i;
+
+	/* skip whitespaces */
+	for (i = 0; (*name = (i ? LOWER(*arg) : UPPER(*arg))); arg++, i++, name++)
+		if (*arg == 'ё' || *arg == 'Ё' || !a_isalpha(*arg) || *arg > 0)
+			return (1);
+
+	if (!i)
+		return (1);
+
+	return (0);
+}
+
+/**
+* Вобщем это пока дублер старого _parse_name для уже созданных ранее чаров,
+* чтобы их в игру вообще пускало, а новых с Ё/ё соответственно брило.
+*/
+int parse_exist_name(char *arg, char *name)
 {
 	int i;
 
@@ -1765,7 +1783,6 @@ int _parse_name(char *arg, char *name)
 
 	return (0);
 }
-
 
 #define RECON     1
 #define USURP     2
@@ -2067,9 +2084,9 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		GET_INVIS_LEV(d->character) = 0;
 	if (GET_LEVEL(d->character) > LVL_IMMORT
 	    && GET_LEVEL(d->character) < LVL_BUILDER
-	    && (GET_GOLD(d->character) > 0 || GET_BANK_GOLD(d->character) > 0)) {
-		GET_GOLD(d->character) = 0;
-		GET_BANK_GOLD(d->character) = 0;
+	    && (get_gold(d->character) > 0 || get_bank_gold(d->character) > 0)) {
+		set_gold(d->character, 0);
+		set_bank_gold(d->character, 0);
 	}
 	if (GET_LEVEL(d->character) >= LVL_IMMORT && GET_LEVEL(d->character) < LVL_IMPL) {
 		for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
@@ -2361,7 +2378,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else {
 			if (sscanf(arg, "%s %s", pwd_name, pwd_pwd) == 2) {
-				if (_parse_name(pwd_name, tmp_name) ||
+				if (parse_exist_name(pwd_name, tmp_name) ||
 				    (player_i = load_char(tmp_name, d->character)) < 0) {
 					SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 					return;
@@ -2384,7 +2401,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				DoAfterPassword(d);
 				return;
 			} else
-			    if (_parse_name(arg, tmp_name) ||
+			    if (parse_exist_name(arg, tmp_name) ||
 				strlen(tmp_name) < MIN_NAME_LENGTH ||
 				strlen(tmp_name) > MAX_NAME_LENGTH ||
 				!Is_Valid_Name(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name)) {
@@ -2402,7 +2419,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					free_char(d->character);
 					d->character = 0;
 					/* Check for multiple creations... */
-					if (!Valid_Name(tmp_name)) {
+					if (!Valid_Name(tmp_name) || _parse_name(tmp_name, tmp_name)) {
 						SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						return;
 					}
@@ -2427,7 +2444,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 
 
 				/* Check for multiple creations of a character. */
-				if (!Valid_Name(tmp_name)) {
+				if (!Valid_Name(tmp_name) || _parse_name(tmp_name, tmp_name)) {
 					SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 					return;
 				}

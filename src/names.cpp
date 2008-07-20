@@ -361,7 +361,9 @@ enum { NAME_AGREE, NAME_DISAGREE, NAME_DELETE };
 
 void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 {
-	if (GET_LEVEL(vict) > GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)) {
+	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
+
+	if (GET_LEVEL(vict) > god_level) {
 		send_to_char("А он ведь старше Вас....\r\n", ch);
 		return;
 	}
@@ -370,27 +372,27 @@ void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 	int lev = NAME_GOD(vict);
 	if (lev > 1000)
 		lev = lev - 1000;
-	if (lev > GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)) {
+	if (lev > god_level) {
 		send_to_char("Об этом имени уже позаботился бог старше Вас.\r\n", ch);
 		return;
 	}
 
-	if (lev == GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
+	if (lev == god_level)
 		if (NAME_ID_GOD(vict) != GET_IDNUM(ch))
 			send_to_char("Об этом имени уже позаботился другой бог Вашего уровня.\r\n", ch);
 
 	if (action == NAME_AGREE) {
-		NAME_GOD(vict) = GET_LEVEL(ch) + 1000;
+		NAME_GOD(vict) = god_level + 1000;
 		NAME_ID_GOD(vict) = GET_IDNUM(ch);
 		send_to_char("Имя одобрено!\r\n", ch);
 		send_to_char(vict, "&GВаше имя одобрено Богом %s!!!&n\r\n", GET_NAME(ch));
-		agree_name(vict, GET_NAME(ch), GET_LEVEL(ch));
+		agree_name(vict, GET_NAME(ch), god_level);
 	} else {
-		NAME_GOD(vict) = GET_LEVEL(ch);
+		NAME_GOD(vict) = god_level;
 		NAME_ID_GOD(vict) = GET_IDNUM(ch);
 		send_to_char("Имя запрещено!\r\n", ch);
 		send_to_char(vict, "&RВаше имя запрещено Богом %s!!!&n\r\n", GET_NAME(ch));
-		disagree_name(vict, GET_NAME(ch), GET_LEVEL(ch));
+		disagree_name(vict, GET_NAME(ch), god_level);
 	}
 
 }

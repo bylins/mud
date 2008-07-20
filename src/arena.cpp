@@ -10,7 +10,7 @@
 //1. Регистрация участников арены (добавить,удалить) - IMMORTALS
 //2. Сделать ставку на участника арены - MORTALS
 //3. Канал арена - трансляция сообщений от иммов в канал.
-//4. Открытие арены 
+//4. Открытие арены
 //5. Флаг слышать арену или нет. (реж арена)
 
 #include "conf.h"
@@ -47,16 +47,16 @@ const char *arenamng_cmd[] = {
 /* Отображает состояние арены и ставки */
 ACMD(do_arena)
 {
-	// Выдает справку по состоянию арены и игрока 
+	// Выдает справку по состоянию арены и игрока
 	// Количество поставленных денег
 	// Текущий и итоговый выйгрыш.
-	// Общий призовой фонд. 
+	// Общий призовой фонд.
 }
 
 /* Вызывается управляющим иммом */
 ACMD(do_mngarena)
 {
-	// Подкоманды : 
+	// Подкоманды :
 	// добавить - добавляем участника арены (если соревнуются группы то лидера)
 	// удалить - удаляем участника арены
 	// выйграл - присуждаем победу тому или иному участнику
@@ -86,7 +86,7 @@ ACMD(do_mngarena)
 	mode >>= 1;
 	switch (mode) {
 	case ARENA_CMD_ADD:
-		// Добавляем участника ... формат имя участника 
+		// Добавляем участника ... формат имя участника
 		if (!tour_arena.is_open())
 			send_to_char(ch, "Необходима сначало открыть арену.\r\n");
 		else if (!tour_arena.is_locked())
@@ -289,7 +289,7 @@ int Arena::show(CHAR_DATA * ch)
 	return (TRUE);
 }
 
-// Добавление в список         
+// Добавление в список
 int Arena::add(CHAR_DATA * ch, ARENA_DATA * new_arr)
 {
 	arena_slots.push_back(new_arr);
@@ -298,7 +298,7 @@ int Arena::add(CHAR_DATA * ch, ARENA_DATA * new_arr)
 	return (TRUE);
 }
 
-// Удаление с арены         
+// Удаление с арены
 int Arena::del(CHAR_DATA * ch, ARENA_DATA * rem_arr)
 {
 	if (rem_arr == NULL)
@@ -317,7 +317,7 @@ int Arena::del(CHAR_DATA * ch, ARENA_DATA * rem_arr)
 
 int Arena::win(CHAR_DATA * ch, ARENA_DATA * arenaman)
 {
-	// Персонаж выйграл ... ??? 
+	// Персонаж выйграл ... ???
 	sprintf(buf, "Арена : Участник (%s) выйграл.", arenaman->name);
 	message_arena(buf, ch);
 
@@ -414,19 +414,20 @@ int Arena::is_locked()
 
 int Arena::make_bet(CHAR_DATA * ch, int slot, int bet)
 {
-	// Делаем ставку на указанного игрока... 
+	// Делаем ставку на указанного игрока...
 	ARENA_DATA *tad;
 	// Удалять и создавать после 1-ой ставки участников низя.
 
 	if ((tad = tour_arena.get_slot(slot)) == NULL)
 		return (FALSE);
 
+	if (bet > get_bank_gold(ch) + get_gold(ch))
+		return false;
 	// Снимаем деньги с банки.
-	GET_BANK_GOLD(ch) -= bet;
-
-	if ((GET_BANK_GOLD(ch) -= bet) < 0) {
-		GET_GOLD(ch) += GET_BANK_GOLD(ch);
-		GET_BANK_GOLD(ch) = 0;
+	add_bank_gold(ch, -bet);
+	if (get_bank_gold(ch) < 0) {
+		add_gold(ch, get_bank_gold(ch));
+		set_bank_gold(ch, 0);
 	}
 	// Устанавливаем параметры ставки
 	GET_BET(ch) = bet;
@@ -458,7 +459,7 @@ SPECIAL(betmaker)
 				return (TRUE);
 			}
 
-			if (value > GET_GOLD(ch) + GET_BANK_GOLD(ch)) {
+			if (value > get_gold(ch) + get_bank_gold(ch)) {
 				send_to_char("У Вас нет такой суммы.\r\n", ch);
 				return (TRUE);
 			}
@@ -471,7 +472,7 @@ SPECIAL(betmaker)
 				return (TRUE);
 			}
 		} else {
-			// Отсылаем арена закрыта 
+			// Отсылаем арена закрыта
 			send_to_char(ch, "Ставки сейчас не принимаются.\r\n");
 		}
 		return (TRUE);
