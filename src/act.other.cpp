@@ -605,7 +605,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 
 				if (gold > 0) {
 					add_gold(ch, gold);
-					add_gold(vict, gold);
+					add_gold(vict, -gold);
 					if (gold > 1) {
 						sprintf(buf, "УР-Р-Р-А!  Вы таки сперли %d %s.\r\n",
 							gold, desc_count(gold, WHAT_MONEYu));
