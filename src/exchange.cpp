@@ -23,6 +23,7 @@
 #include "im.h"
 #include "constants.h"
 #include "skills.h"
+#include "char.hpp"
 
 //Используемые внешние ф-ии.
 extern void write_one_object(char **data, OBJ_DATA * object, int location);
@@ -572,8 +573,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 
 	if (seller == NULL) {
 		const char *seller_name = get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(item));
-		CREATE(seller, CHAR_DATA, 1);
-		clear_char(seller);
+		seller = new CHAR_DATA; // TODO: переделать на стек
 		if ((seller_name == NULL) || (load_char(seller_name, seller) < 0)) {
 			act("Вы приобрели $O3 на базаре даром, так как владельца давно след простыл.\r\n",
 			    FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
@@ -589,14 +589,14 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 				save_char(ch, NOWHERE);
 			}
 
-			free(seller);
+			delete seller;
 			return true;
 		}
 
 		add_bank_gold(seller, GET_EXCHANGE_ITEM_COST(item));
 		add_bank_gold(ch, -(GET_EXCHANGE_ITEM_COST(item)));
 		save_char(seller, GET_LOADROOM(seller));
-		free_char(seller);
+		delete seller;
 		act("Вы купили $O3 на базаре.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
 		sprintf(tmpbuf,
 			"Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,

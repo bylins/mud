@@ -23,6 +23,7 @@
 #include "handler.h"
 #include "db.h"
 #include "olc.h"
+#include "char.hpp"
 
 extern INDEX_DATA **trig_index;
 

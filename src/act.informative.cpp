@@ -40,6 +40,7 @@
 #include "depot.hpp"
 #include "glory.hpp"
 #include "random.hpp"
+#include "char.hpp"
 
 using std::string;
 
@@ -659,7 +660,7 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 			}
 	}
 
-	if (ch != i && (get_skill(ch, SKILL_LOOK_HIDE) || IS_IMMORTAL(ch))) {
+	if (ch != i && (ch->get_skill(SKILL_LOOK_HIDE) || IS_IMMORTAL(ch))) {
 		found = FALSE;
 		act("\r\nВы попытались заглянуть в $s ношу:", FALSE, i, 0, ch, TO_VICT);
 		for (tmp_obj = i->carrying; tmp_obj; tmp_obj = tmp_obj->next_content) {
@@ -1392,7 +1393,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 
 	send_to_char(CCIYEL(ch, C_NRM), ch);
 //  if (IS_SET(GET_SPELL_TYPE(ch, SPELL_TOWNPORTAL),SPELL_KNOW))
-	if (get_skill(ch, SKILL_TOWNPORTAL))
+	if (ch->get_skill(SKILL_TOWNPORTAL))
 		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room)))
 			send_to_char("Рунный камень с изображением пентаграммы немного выступает из земли.\r\n", ch);
 	list_obj_to_char(world[ch->in_room]->contents, ch, 0, FALSE);
@@ -1665,7 +1666,7 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 	/* для townportal */
 	if (isname(whatp, "камень") &&
 //       IS_SET(GET_SPELL_TYPE(ch, SPELL_TOWNPORTAL), SPELL_KNOW) &&
-	    get_skill(ch, SKILL_TOWNPORTAL) &&
+	    ch->get_skill(SKILL_TOWNPORTAL) &&
 	    (port = get_portal(GET_ROOM_VNUM(ch->in_room), NULL)) != NULL && IS_SET(where_bits, FIND_OBJ_ROOM)) {
 		if (GET_LEVEL(ch) < MAX(1, port->level - GET_REMORT(ch)/2)) {
 			send_to_char("На камне что-то написано огненными буквами.\r\n", ch);
@@ -1714,7 +1715,7 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 			return 0;
 		look_at_char(found_char, ch);
 		if (ch != found_char) {
-			if (subcmd == SCMD_LOOK_HIDE && get_skill(ch, SKILL_LOOK_HIDE) > 0) {
+			if (subcmd == SCMD_LOOK_HIDE && ch->get_skill(SKILL_LOOK_HIDE) > 0) {
 				fnum = number(1, skill_info[SKILL_LOOK_HIDE].max_percent);
 				found =
 				    train_skill(ch, SKILL_LOOK_HIDE,
@@ -1807,7 +1808,7 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 		     CAN_WEAR(found_obj, ITEM_WEAR_WIELD) ||
 		     CAN_WEAR(found_obj, ITEM_WEAR_HOLD) ||
 		     CAN_WEAR(found_obj, ITEM_WEAR_BOTHS)) &&
-		    (GET_CLASS(ch) == CLASS_SMITH && get_skill(ch, SKILL_INSERTGEM) >= 60)) {
+		    (GET_CLASS(ch) == CLASS_SMITH && ch->get_skill(SKILL_INSERTGEM) >= 60)) {
 			send_to_char("Слоты : ", ch);
 			send_to_char(CCCYN(ch, C_NRM), ch);
 			if (OBJ_FLAGGED(found_obj, ITEM_WITH3SLOTS))
@@ -1834,7 +1835,7 @@ void skip_hide_on_look(CHAR_DATA * ch)
 {
 
 	if (AFF_FLAGGED(ch, AFF_HIDE) &&
-	    ((!get_skill(ch, SKILL_LOOK_HIDE) ||
+	    ((!ch->get_skill(SKILL_LOOK_HIDE) ||
 	      ((number(1, 100) -
 		calculate_skill(ch, SKILL_LOOK_HIDE,
 				skill_info[SKILL_LOOK_HIDE].max_percent, 0) - 2 * (GET_WIS(ch) - 9)) > 0)))) {
@@ -1928,7 +1929,7 @@ ACMD(do_looking)
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
 	else if (AFF_FLAGGED(ch, AFF_BLIND))
 		send_to_char("Вы ослеплены !\r\n", ch);
-	else if (get_skill(ch, SKILL_LOOKING)) {
+	else if (ch->get_skill(SKILL_LOOKING)) {
 		if (check_moves(ch, LOOKING_MOVES)) {
 			send_to_char("Вы напрягли зрение и начали присматриваться по сторонам.\r\n", ch);
 			for (i = 0; i < NUM_OF_DIRS; i++)
@@ -1956,7 +1957,7 @@ ACMD(do_hearing)
 		send_to_char("Вам начали слышаться голоса предков, зовущие Вас к себе.\r\n", ch);
 	if (GET_POS(ch) == POS_SLEEPING)
 		send_to_char("Морфей медленно задумчиво провел рукой по струнам и заиграл колыбельную.\r\n", ch);
-	else if (get_skill(ch, SKILL_HEARING)) {
+	else if (ch->get_skill(SKILL_HEARING)) {
 		if (check_moves(ch, HEARING_MOVES)) {
 			send_to_char("Вы начали сосредоточенно прислушиваться.\r\n", ch);
 			for (i = 0; i < NUM_OF_DIRS; i++)
@@ -2009,7 +2010,7 @@ ACMD(do_examine)
 		return;
 
 	if (isname(arg, "камень") &&
-	    get_skill(ch, SKILL_TOWNPORTAL) &&
+	    ch->get_skill(SKILL_TOWNPORTAL) &&
 	    (get_portal(GET_ROOM_VNUM(ch->in_room), NULL)) != NULL && IS_SET(where_bits, FIND_OBJ_ROOM))
 		return;
 
@@ -2202,7 +2203,7 @@ ACMD(do_score)
 		if (GET_OBJ_TYPE(weapon) == ITEM_WEAPON) {
                         max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1);
 			skill = GET_OBJ_SKILL(weapon);
-			if (get_skill(ch, skill) == 0) {
+			if (ch->get_skill(skill) == 0) {
                                 hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
                                 max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
 			} else
@@ -2215,7 +2216,7 @@ ACMD(do_score)
                     if (GET_OBJ_TYPE(weapon) == ITEM_WEAPON) {
 			max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
 			skill = GET_OBJ_SKILL(weapon);
-			if (get_skill(ch, skill) == 0) {
+			if (ch->get_skill(skill) == 0) {
 			    hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
 			    max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
 			} else
@@ -2228,7 +2229,7 @@ ACMD(do_score)
                     if (GET_OBJ_TYPE(weapon) == ITEM_WEAPON) {
 			max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
 			skill = GET_OBJ_SKILL(weapon);
-			if (get_skill(ch, skill) == 0) {
+			if (ch->get_skill(skill) == 0) {
        	                    hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
               	            max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
 			}  else

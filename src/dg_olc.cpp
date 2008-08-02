@@ -23,6 +23,7 @@
 #include "olc.h"
 #include "dg_olc.h"
 #include "dg_event.h"
+#include "char.hpp"
 
 /* declare externally defined globals */
 extern INDEX_DATA **trig_index;

@@ -23,6 +23,7 @@
 #include "im.h"
 #include "features.hpp"
 #include "item.creation.hpp"
+#include "char.hpp"
 
 #define SpINFO   spell_info[spellnum]
 
@@ -794,11 +795,11 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 // для 1 слота базово 20% и 4% за каждый морт
 // Карачун. Поправлено. Расчет не через морты а через скил.
 		if (skill == SKILL_TRANSFORMWEAPON) {
-			if (get_skill(ch, skill) >= 105 && number(1, 100) <= 2 + (get_skill(ch, skill) - 105) / 10)
+			if (ch->get_skill(skill) >= 105 && number(1, 100) <= 2 + (ch->get_skill(skill) - 105) / 10)
 				SET_BIT(GET_OBJ_EXTRA(tobj, ITEM_WITH3SLOTS), ITEM_WITH3SLOTS);
-			else if (number(1, 100) <= 5 + MAX((get_skill(ch, skill) - 80), 0) / 5)
+			else if (number(1, 100) <= 5 + MAX((ch->get_skill(skill) - 80), 0) / 5)
 				SET_BIT(GET_OBJ_EXTRA(tobj, ITEM_WITH2SLOTS), ITEM_WITH2SLOTS);
-			else if (number(1, 100) <= 20 + MAX((get_skill(ch, skill) - 80), 0) / 5 * 4)
+			else if (number(1, 100) <= 20 + MAX((ch->get_skill(skill) - 80), 0) / 5 * 4)
 				SET_BIT(GET_OBJ_EXTRA(tobj, ITEM_WITH1SLOT), ITEM_WITH1SLOT);
 		}
 
@@ -815,7 +816,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 			// Карачун. Таймер должен зависить от таймера прототипа.
 			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 			// В минимуме один день реала, в максимуме таймер из прототипа
-			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, GET_OBJ_TIMER(tobj)/100*get_skill(ch, skill)-number(0,GET_OBJ_TIMER(tobj)/100*25));
+			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, GET_OBJ_TIMER(tobj)/100*ch->get_skill(skill)-number(0,GET_OBJ_TIMER(tobj)/100*25));
 			sprintf(buf, "Ваше изделие продержится примерно %d дней\n", GET_OBJ_TIMER(tobj)/24/60);
 			act(buf, FALSE, ch, tobj, 0, TO_CHAR);
 			GET_OBJ_MATER(tobj) = GET_OBJ_MATER(obj);
@@ -823,7 +824,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 			// было GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
 			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 			// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
-			GET_OBJ_MAX(tobj) = MAX(20000, 35000/100*get_skill(ch, skill)-number(0,35000/100*25))/100;
+			GET_OBJ_MAX(tobj) = MAX(20000, 35000/100*ch->get_skill(skill)-number(0,35000/100*25))/100;
 			GET_OBJ_CUR(tobj) = GET_OBJ_MAX(tobj);
 			percent = number(1, skill_info[skill].max_percent);
 			prob = calculate_skill(ch, skill, skill_info[skill].max_percent, 0);
@@ -882,7 +883,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 			// Карачун. Таймер должен зависить от таймера прототипа.
 			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 			// В минимуме один день реала, в максимуме таймер из прототипа
-			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, GET_OBJ_TIMER(tobj)/100*get_skill(ch, skill)-number(0,GET_OBJ_TIMER(tobj)/100*25));
+			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, GET_OBJ_TIMER(tobj)/100*ch->get_skill(skill)-number(0,GET_OBJ_TIMER(tobj)/100*25));
 			sprintf(buf, "Ваше изделие продержится примерно %d дней\n", GET_OBJ_TIMER(tobj)/24/60);
 			act(buf, FALSE, ch, tobj, 0, TO_CHAR);
 			GET_OBJ_MATER(tobj) = GET_OBJ_MATER(obj);
@@ -890,7 +891,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 			// было GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
 			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 			// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
-			GET_OBJ_MAX(tobj) = MAX(20000, 10000/100*get_skill(ch, skill)-number(0,15000/100*25))/100;
+			GET_OBJ_MAX(tobj) = MAX(20000, 10000/100*ch->get_skill(skill)-number(0,15000/100*25))/100;
 			GET_OBJ_CUR(tobj) = GET_OBJ_MAX(tobj);
 			percent = number(1, skill_info[skill].max_percent);
 			prob = calculate_skill(ch, skill, skill_info[skill].max_percent, 0);
@@ -935,7 +936,7 @@ ACMD(do_transform_weapon)
 	OBJ_DATA *obj = NULL, *coal, *proto[MAX_PROTO];
 	int obj_type, i, found, rnum;
 
-	if (IS_NPC(ch) || !get_skill(ch, subcmd)) {
+	if (IS_NPC(ch) || !ch->get_skill(subcmd)) {
 		send_to_char("Вас этому никто не научил.\r\n", ch);
 		return;
 	}
@@ -1429,7 +1430,7 @@ int MakeRecept::can_make(CHAR_DATA * ch)
 		return (FALSE);
 
 	// Сделать проверку наличия скилла у игрока.
-	if (IS_NPC(ch) || !get_skill(ch, skill)) {
+	if (IS_NPC(ch) || !ch->get_skill(skill)) {
 		return (FALSE);
 	}
 	// Делаем проверку может ли чар сделать посох такого типа
@@ -1522,7 +1523,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 	bool make_fail;
 
 	// 1. Проверить есть ли скилл у чара
-	if (IS_NPC(ch) || !get_skill(ch, skill)) {
+	if (IS_NPC(ch) || !ch->get_skill(skill)) {
 		send_to_char("Странно что Вам вообще пришло в голову cделать это.\r\n", ch);
 		return (FALSE);
 	}

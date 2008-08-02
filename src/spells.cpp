@@ -31,6 +31,7 @@
 #include "im.h"
 #include "deathtrap.hpp"
 #include "privilege.hpp"
+#include "char.hpp"
 
 extern room_rnum r_mortal_start_room;
 
@@ -621,7 +622,7 @@ ASPELL(spell_townportal)
 		{
 			timed.skill = SKILL_TOWNPORTAL;
 			// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
-			int modif = get_skill(ch, SKILL_TOWNPORTAL) / 7 + number(1, 5);
+			int modif = ch->get_skill(SKILL_TOWNPORTAL) / 7 + number(1, 5);
 			timed.time = MAX(1, 25 - modif);
 			timed_to_char(ch, &timed);
 		}
@@ -897,7 +898,7 @@ ASPELL(spell_charm)
 			REMOVE_BIT(PRF_FLAGS(victim, PRF_PUNCTUAL), PRF_PUNCTUAL);
 // shapirus: !train для чармисов
 			SET_BIT(MOB_FLAGS(victim, MOB_NOTRAIN), MOB_NOTRAIN);
-			SET_SKILL(victim, SKILL_PUNCTUAL, 0);
+			victim->set_skill(SKILL_PUNCTUAL, 0);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
 			Crash_crashsave(ch);
 			save_char(ch, NOWHERE);
@@ -1055,7 +1056,7 @@ ACMD(do_findhelpee)
 			REMOVE_BIT(PRF_FLAGS(helpee, PRF_PUNCTUAL), PRF_PUNCTUAL);
 			// shapirus: !train для чармисов
 			SET_BIT(MOB_FLAGS(helpee, MOB_NOTRAIN), MOB_NOTRAIN);
-			SET_SKILL(helpee, SKILL_PUNCTUAL, 0);
+			helpee->set_skill(SKILL_PUNCTUAL, 0);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
 			Crash_crashsave(ch);
 			save_char(ch, NOWHERE);
@@ -2180,10 +2181,10 @@ ASPELL(spell_angel)
 	GET_DEFAULT_POS(mob) = POS_STANDING;
 
 //----------------------------------------------------------------------
-	SET_SKILL(mob, SKILL_RESCUE, 65);
-	SET_SKILL(mob, SKILL_AWAKE, 50);
-	SET_SKILL(mob, SKILL_PUNCH, 50);
-	SET_SKILL(mob, SKILL_BLOCK, 50);
+	mob->set_skill(SKILL_RESCUE, 65);
+	mob->set_skill(SKILL_AWAKE, 50);
+	mob->set_skill(SKILL_PUNCH, 50);
+	mob->set_skill(SKILL_BLOCK, 50);
 
 	SET_SPELL(mob, SPELL_CURE_BLIND, 1);
 	SET_SPELL(mob, SPELL_CURE_CRITIC, 3);
@@ -2191,7 +2192,7 @@ ASPELL(spell_angel)
 	SET_SPELL(mob, SPELL_REMOVE_POISON, 1);
 
 //----------------------------------------------------------------------
-	if (get_skill(mob, SKILL_AWAKE))
+	if (mob->get_skill(SKILL_AWAKE))
 		SET_BIT(PRF_FLAGS(mob, PRF_AWAKE), PRF_AWAKE);
 
 	GET_LIKES(mob) = 100;
@@ -2212,10 +2213,10 @@ ASPELL(spell_angel)
 	modifier = (int) (5 * VPOSI(GET_LEVEL(ch) - 26, 0, 50)
 			  + 5 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
 
-	SET_SKILL(mob, SKILL_RESCUE, get_skill(mob, SKILL_RESCUE) + modifier);
-	SET_SKILL(mob, SKILL_AWAKE, get_skill(mob, SKILL_AWAKE) + modifier);
-	SET_SKILL(mob, SKILL_PUNCH, get_skill(mob, SKILL_PUNCH) + modifier);
-	SET_SKILL(mob, SKILL_BLOCK, get_skill(mob, SKILL_BLOCK) + modifier);
+	mob->set_skill(SKILL_RESCUE, mob->get_skill(SKILL_RESCUE) + modifier);
+	mob->set_skill(SKILL_AWAKE, mob->get_skill(SKILL_AWAKE) + modifier);
+	mob->set_skill(SKILL_PUNCH, mob->get_skill(SKILL_PUNCH) + modifier);
+	mob->set_skill(SKILL_BLOCK, mob->get_skill(SKILL_BLOCK) + modifier);
 
 	modifier = (int) (2 * VPOSI(GET_LEVEL(ch) - 26, 0, 50)
 			  + 1 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));

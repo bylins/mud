@@ -19,6 +19,7 @@
 #include "exchange.h"
 #include "interpreter.h"
 #include "screen.h"
+#include "char.hpp"
 
 extern SPECIAL(bank);
 extern void write_one_object(char **data, OBJ_DATA * object, int location);
@@ -120,9 +121,8 @@ void remove_char_entry(long uid, CharNode &node)
 	// если чар был что-то должен, надо попытаться с него это снять
 	if (node.money_spend || node.buffer_cost)
 	{
-		CHAR_DATA *victim;
-		CREATE(victim, CHAR_DATA, 1);
-		clear_char(victim);
+		CHAR_DATA t_victim;
+		CHAR_DATA *victim = &t_victim;
 		if (load_char(node.name.c_str(), victim) > -1 && GET_UNIQUE(victim) == uid)
 		{
 			int total_pay = node.money_spend + static_cast<int>(node.buffer_cost);
@@ -134,11 +134,8 @@ void remove_char_entry(long uid, CharNode &node)
 				if (get_gold(victim) < 0)
 					set_gold(victim, 0);
 			}
-			save_char(victim, GET_LOADROOM(victim));
-			free_char(victim);
+			save_char(victim, NOWHERE);
 		}
-		else
-			free(victim);
 	}
 	node.reset();
 	remove_pers_file(node.name);
@@ -203,11 +200,11 @@ void init_depot()
 					tmp_obj.timer, tmp_obj.rent_cost, tmp_obj.uid, tmp_obj.vnum);
 				break;
 			}
-			// проверяем существование прототипа предмета
+			// проверяем существование прототипа предмета и суем его в маск в мире на постое
 			int rnum = real_object(tmp_obj.vnum);
 			if (rnum >= 0)
 			{
-				obj_index[rnum].number++;
+				obj_index[rnum].stored++;
 				tmp_node.add_cost_per_day(tmp_obj.rent_cost);
 				tmp_node.offline_list.push_back(tmp_obj);
 			}
@@ -491,7 +488,7 @@ void CharNode::update_offline_item()
 			// шмотка уходит в лоад
 			int rnum = real_object(obj_it->vnum);
 			if (rnum >= 0)
-			obj_index[rnum].number--;
+			obj_index[rnum].stored--;
 			// вычитать ренту из cost_per_day здесь не надо, потому что она уже обнулена
 			offline_list.erase(obj_it++);
 		}
@@ -518,7 +515,7 @@ void CharNode::reset()
 	{
 		int rnum = real_object(obj->vnum);
 		if (rnum >= 0)
-			obj_index[rnum].number--;
+			obj_index[rnum].stored--;
 	}
 	offline_list.clear();
 
@@ -1008,22 +1005,23 @@ void CharNode::load_online_objs(int file_type, bool reload)
 				boost::bind(std::equal_to<long>(),
 				 boost::bind(&OfflineNode::uid, _1), GET_OBJ_UID(obj)));
 			if (obj_it != offline_list.end() && obj_it->vnum == GET_OBJ_VNUM(obj))
+			{
 				GET_OBJ_TIMER(obj) = obj_it->timer;
+				// надо уменьшать макс в мире на постое, макс в мире шмотки в игре
+				// увеличивается в read_one_object_new через read_object
+				int rnum = real_object(GET_OBJ_VNUM(obj));
+				if (rnum >= 0)
+					obj_index[rnum].stored--;
+			}
 			else
 			{
 				extract_obj(obj);
 				continue;
 			}
 		}
-		else
-		{
-			// при релоаде нам нужно записать шмотку в макс в мире, потому как ее не было
-			// в оффлайн листе и в онлайн лист она попадает из ниоткуда
-			int rnum = real_object(GET_OBJ_VNUM(obj));
-			if (rnum >= 0)
-				obj_index[rnum].number++;
-		}
-		// при релоаде мы ничего не сверяем, а лоадим все, что есть
+		// при релоаде мы ничего не сверяем, а лоадим все, что есть,
+		// макс в мире и так увеличивается при чтении шмотки, а на постое ее и не было
+
 		pers_online.push_front(obj);
 		// убираем ее из глобального листа, в который она добавилась еще на стадии чтения из файла
 		OBJ_DATA *temp;
@@ -1092,10 +1090,10 @@ void CharNode::online_to_offline(ObjListType &cont)
 		extract_obj(*obj_it);
 		// плюсуем персональное хранилище к общей ренте
 		add_cost_per_day(tmp_obj.rent_cost);
-		// из макс.в мире он никуда не уходит
+		// из макс.в мире в игре она уходит в ренту
 		int rnum = real_object(tmp_obj.vnum);
 		if (rnum >= 0)
-			obj_index[rnum].number++;
+			obj_index[rnum].stored++;
 	}
 	cont.clear();
 }
@@ -1152,13 +1150,12 @@ void reload_char(long uid, CHAR_DATA *ch)
 	else
 	{
 		// чар соответственно оффлайн
-		CREATE(t_vict, CHAR_DATA, 1);
-		clear_char(t_vict);
+		t_vict = new CHAR_DATA; // TODO: переделать на стек
 		if (load_char(it->second.name.c_str(), t_vict) < 0)
 		{
 			// вообще эт нереальная ситуация после проверки в do_reboot
 			send_to_char(ch, "Некорректное имя персонажа (%s).\r\n", it->second.name.c_str());
-			free(t_vict);
+			delete t_vict;
 			t_vict = 0;
 		}
 		vict = t_vict;
@@ -1171,7 +1168,7 @@ void reload_char(long uid, CHAR_DATA *ch)
 		// если чара грузили с оффлайна
 		if (!d) exit_char(vict);
 	}
-	if (t_vict) free_char(t_vict);
+	if (t_vict) delete t_vict;
 
 	sprintf(buf, "Depot: %s reload items for %s.", GET_NAME(ch), it->second.name.c_str());
 	mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);

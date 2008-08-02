@@ -21,19 +21,13 @@
 #include "constants.h"
 #include "features.hpp"
 #include "im.h"
+#include "char.hpp"
 
 /*
  * Set this to 1 for debugging logs in medit_save_internally.
  */
 #if 0
 #define DEBUG
-#endif
-
-/*
- * Set this to 1 as a last resort to save mobiles.
- */
-#if 0
-#define I_CRASH
 #endif
 
 /*-------------------------------------------------------------------*/
@@ -116,8 +110,6 @@ void medit_mobile_init(CHAR_DATA * mob)
 --*/
 {
 	int i;
-
-	clear_char(mob);
 
 	GET_HIT(mob) = GET_MEM_TOTAL(mob) = 1;
 	GET_MANA_STORED(mob) = GET_MAX_MOVE(mob) = 100;
@@ -281,9 +273,7 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
       real_num - RNUM исходного моба, новый -1
 --*/
 {
-	CHAR_DATA *mob;
-
-	CREATE(mob, CHAR_DATA, 1);
+	CHAR_DATA *mob = new CHAR_DATA;
 
 	medit_mobile_init(mob);
 
@@ -393,7 +383,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 		fprintf(stderr, "top_of_mobt: %d, new top_of_mobt: %d\n", top_of_mobt, top_of_mobt + 1);
 #endif
 
-		CREATE(new_proto, CHAR_DATA, top_of_mobt + 2);
+		new_proto = new CHAR_DATA[top_of_mobt + 2];
 		CREATE(new_index, INDEX_DATA, top_of_mobt + 2);
 
 		for (rmob_num = 0; rmob_num <= top_of_mobt; rmob_num++) {
@@ -444,10 +434,10 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 #if defined(DEBUG)
 		fprintf(stderr, "Attempted free.\n");
 #endif
-#if !defined(I_CRASH)
+
+		delete[] mob_proto;
 		free(mob_index);
-		free(mob_proto);
-#endif
+
 		mob_index = new_index;
 		mob_proto = new_proto;
 		top_of_mobt++;
@@ -681,8 +671,8 @@ void medit_save_to_disk(int zone_num)
 					fprintf(mob_file, "Feat: %d\n", c);
 			}
 			for (c = 1; c <= MAX_SKILLS; c++) {
-				if (get_skill(mob, c))
-					fprintf(mob_file, "Skill: %d %d\n", c, get_skill(mob, c));
+				if (mob->get_skill(c))
+					fprintf(mob_file, "Skill: %d %d\n", c, mob->get_skill(c));
 			}
 			for (c = 1; c <= MAX_SPELLS; c++) {
 				for (j = 1; j <= GET_SPELL_MEM(mob, c); j++)
@@ -1077,8 +1067,8 @@ void medit_disp_skills(DESCRIPTOR_DATA * d)
 	for (counter = 1; counter <= MAX_SKILLS; counter++) {
 		if (!skill_info[counter].name || *skill_info[counter].name == '!')
 			continue;
-		if (get_skill(OLC_MOB(d), counter))
-			sprintf(buf1, "%s[%3d]%s", cyn, get_skill(OLC_MOB(d), counter), nrm);
+		if (OLC_MOB(d)->get_skill(counter))
+			sprintf(buf1, "%s[%3d]%s", cyn, OLC_MOB(d)->get_skill(counter), nrm);
 		else
 			strcpy(buf1, "     ");
 		sprintf(buf, "%s%3d%s) %25s%s%s", grn, counter, nrm,
@@ -2193,12 +2183,12 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 				break;
 			if (number > MAX_SKILLS || !skill_info[number].name || *skill_info[number].name == '!')
 				send_to_char("Неизвестное умение.\r\n", d->character);
-			else if (get_skill(OLC_MOB(d), number))
-				SET_SKILL(OLC_MOB(d), number, 0);
+			else if (OLC_MOB(d)->get_skill(number))
+				OLC_MOB(d)->set_skill(number, 0);
 			else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
 				send_to_char("Не указан уровень владения умением.\r\n", d->character);
 			else
-				SET_SKILL(OLC_MOB(d), number, (MIN(200, MAX(0, bit))));
+				OLC_MOB(d)->set_skill(number, (MIN(200, MAX(0, bit))));
 			medit_disp_skills(d);
 			return;
 

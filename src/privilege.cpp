@@ -13,6 +13,7 @@
 #include "boards.h"
 #include "spells.h"
 #include "privilege.hpp"
+#include "char.hpp"
 
 /**
 * Система привилегий иммов и демигодов, совмещенная с бывшим god.lst.

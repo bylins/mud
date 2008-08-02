@@ -16,6 +16,7 @@
 #include "comm.h"
 #include "privilege.hpp"
 #include "boards.h"
+#include "char.hpp"
 
 const int GENERAL_BOARD = 0;  // общая
 const int NEWS_BOARD = 1;  // новости

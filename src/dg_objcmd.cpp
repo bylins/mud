@@ -22,7 +22,7 @@
 #include "spells.h"
 #include "im.h"
 #include "features.hpp"
-
+#include "char.hpp"
 
 extern INDEX_DATA *obj_index;
 extern const char *dirs[];

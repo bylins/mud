@@ -20,6 +20,7 @@
 #include "interpreter.h"	/* alias_data definition for structs.h */
 #include "utils.h"
 #include "constants.h"
+#include "char.hpp"
 
 #define YES	    1
 #define FALSE	0

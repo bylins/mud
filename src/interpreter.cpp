@@ -34,7 +34,6 @@
 #include "genchar.h"
 #include "ban.hpp"
 #include "item.creation.hpp"
-#include "arena.hpp"
 #include "features.hpp"
 #include "boards.h"
 #include "top.h"
@@ -43,6 +42,7 @@
 #include "privilege.hpp"
 #include "depot.hpp"
 #include "glory.hpp"
+#include "char.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -885,7 +885,6 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"look", POS_RESTING, do_look, 0, SCMD_LOOK, 200},
 	{"lock", POS_SITTING, do_gen_door, 0, SCMD_LOCK, 500},
 	{"mail", POS_STANDING, do_not_here, 1, 0, -1},
-	{"mngarena", POS_DEAD, do_mngarena, LVL_IMMORT, 0, 0},
 	{"mode", POS_DEAD, do_mode, 0, 0, 0},
 	{"mshout", POS_RESTING, do_mobshout, 0, 0, -1},
 	{"motd", POS_DEAD, do_gen_ps, 0, SCMD_MOTD, 0},
@@ -1895,7 +1894,7 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 
 	/* Okay, we've found a target.  Connect d to target. */
 
-	free_char(d->character);	/* get rid of the old char */
+	delete d->character;	/* get rid of the old char */
 	d->character = target;
 	d->character->desc = d;
 	d->original = NULL;
@@ -2186,11 +2185,11 @@ void do_entergame(DESCRIPTOR_DATA * d)
 
 	/*Чистим стили если не знаем их */
 	if (IS_SET(PRF_FLAGS(d->character, PRF_PUNCTUAL), PRF_PUNCTUAL)
-	    && !get_skill(d->character, SKILL_PUNCTUAL))
+	    && !d->character->get_skill(SKILL_PUNCTUAL))
 		REMOVE_BIT(PRF_FLAGS(d->character, PRF_PUNCTUAL), PRF_PUNCTUAL);
 
 	if (IS_SET(PRF_FLAGS(d->character, PRF_AWAKE), PRF_AWAKE)
-	    && !get_skill(d->character, SKILL_AWAKE))
+	    && !d->character->get_skill(SKILL_AWAKE))
 		REMOVE_BIT(PRF_FLAGS(d->character, PRF_AWAKE), PRF_AWAKE);
 
 	if (IS_SET(PRF_FLAGS(d->character, PRF_POWERATTACK), PRF_POWERATTACK)
@@ -2302,11 +2301,9 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 
 void CreateChar(DESCRIPTOR_DATA * d)
 {
-	if (d->character != NULL)
-		return;
-	CREATE(d->character, CHAR_DATA, 1);
-	memset(d->character, 0, sizeof(CHAR_DATA));
-	clear_char(d->character);
+	if (d->character != NULL) return;
+
+	d->character = new CHAR_DATA;
 	CREATE(d->character->player_specials, struct player_special_data, 1);
 	memset(d->character->player_specials, 0, sizeof(struct player_special_data));
 	d->character->desc = d;
@@ -2389,7 +2386,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 						sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
 						mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 					}
-					free_char(d->character);
+					delete d->character;
 					d->character = NULL;
 					return;
 				}
@@ -2416,7 +2413,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			if ((player_i = load_char(tmp_name, d->character)) > -1) {
 				GET_PFILEPOS(d->character) = player_i;
 				if (PLR_FLAGGED(d->character, PLR_DELETED)) {	/* We get a false positive from the original deleted character. */
-					free_char(d->character);
+					delete d->character;
 					d->character = 0;
 					/* Check for multiple creations... */
 					if (!Valid_Name(tmp_name) || _parse_name(tmp_name, tmp_name)) {
@@ -2532,12 +2529,12 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		player_i = load_char(tmp_name, d->character);
 		if (player_i > -1) {
 			if (PLR_FLAGGED(d->character, PLR_DELETED)) {
-				free_char(d->character);
+				delete d->character;
 				d->character = 0;
 				CreateChar(d);
 			} else {
 				SEND_TO_Q("Такой персонаж уже существует. Выберите другое имя : ", d);
-				free_char(d->character);
+				delete d->character;
 				d->character = 0;
 				return;
 			}
@@ -2582,7 +2579,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			STATE(d) = CON_NEWPASSWD;
 			return;
 		case 1:	// Auto -disagree
-			free_char(d->character);
+			delete d->character;
 			d->character = NULL;
 			SEND_TO_Q("Выберите другое имя : ", d);
 			return;

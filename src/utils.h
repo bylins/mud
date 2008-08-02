@@ -37,7 +37,7 @@ extern char AltToLat[];
 
 /* public functions in utils.cpp */
 CHAR_DATA *find_char(long n);
-char *title_noname(struct char_data *ch);
+char *title_noname(CHAR_DATA *ch);
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);
@@ -79,7 +79,6 @@ int roundup(float fl);
 int valid_email(const char *address);
 void skip_spaces(char **string);
 void skip_dots(char **string);
-int get_skill(CHAR_DATA *ch, int skill);
 void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence = 0);
 
 int get_gold(CHAR_DATA *ch);
@@ -722,7 +721,6 @@ extern SPECIAL(postmaster);
 #define GET_BOARD_DATE(ch, i) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->board->board_date[i]))
 #define GET_START_STAT(ch, i) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->start_stats[i]))
 
-#define SET_SKILL(ch, i, pct) ((ch)->real_abils.Skills[i] = pct)
 #define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[i])
 #define GET_SPELL_MEM(ch, i)  ((ch)->real_abils.SplMem[i])
 #define SET_SPELL(ch, i, pct) ((ch)->real_abils.SplMem[i] = pct)

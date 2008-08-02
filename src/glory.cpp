@@ -15,6 +15,7 @@
 #include "genchar.h"
 #include "screen.h"
 #include "top.h"
+#include "char.hpp"
 
 extern void add_karma(CHAR_DATA * ch, char const * punish , char * reason);
 extern void check_max_hp(CHAR_DATA *ch);
@@ -1211,6 +1212,7 @@ bool remove_stats(CHAR_DATA *ch, CHAR_DATA *god, int amount)
 	send_to_char(god, "С %s снято %d %s вложенной ранее славы.\r\n", GET_PAD(ch, 1), removed, desc_count(removed, WHAT_POINT));
 	// надо пересчитать хп на случай снятия с тела
 	check_max_hp(ch);
+	save_glory();
 	return 1;
 }
 
@@ -1266,12 +1268,11 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	else
 	{
 		// принимающий оффлайн
-		CREATE(t_vict, CHAR_DATA, 1);
-		clear_char(t_vict);
+		t_vict = new CHAR_DATA; // TODO: переделать на стек
 		if (load_char(name.c_str(), t_vict) < 0)
 		{
 			send_to_char(god, "Некорректное имя персонажа (%s), принимающего славу.\r\n", name.c_str());
-			free(t_vict);
+			delete t_vict;
 			return;
 		}
 		vict = t_vict;
@@ -1281,13 +1282,13 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	if (IS_IMMORTAL(vict))
 	{
 		send_to_char(god, "Трансфер славы на бессмертного - это глупо.\r\n");
-		if (t_vict) free_char(t_vict);
+		if (t_vict) delete t_vict;
 		return;
 	}
 	if (str_cmp(GET_EMAIL(ch), GET_EMAIL(vict)))
 	{
 		send_to_char(god, "Персонажи имеют разные email адреса.\r\n");
-		if (t_vict) free_char(t_vict);
+		if (t_vict) delete t_vict;
 		return;
 	}
 
@@ -1378,7 +1379,7 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	out << ".\r\n";
 	send_to_char(out.str(), god);
 	save_glory();
-	if (t_vict) free_char(t_vict);
+	if (t_vict) delete t_vict;
 }
 
 /**

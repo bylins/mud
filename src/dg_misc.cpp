@@ -21,6 +21,7 @@
 #include "db.h"
 #include "screen.h"
 #include "spells.h"
+#include "char.hpp"
 
 /* copied from spell_parser.c: */
 #define SINFO spell_info[spellnum]

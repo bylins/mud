@@ -26,6 +26,7 @@
 #include "db.h"
 #include "screen.h"
 #include "privilege.hpp"
+#include "char.hpp"
 
 extern const char *genders[];
 
@@ -225,24 +226,22 @@ void NewNameRemove(const std::string& name, CHAR_DATA * ch)
 void NewNameLoad()
 {
 	std::ifstream file(NNAME_FILE);
-	if (!file.is_open()) {
+	if (!file.is_open())
+	{
 		log("Error open file: %s! (%s %s %d)", NNAME_FILE, __FILE__, __func__, __LINE__);
 		return;
 	}
 
-	CHAR_DATA *tch;
 	std::string buffer;
-	while(file >> buffer) {
+	while(file >> buffer)
+	{
 		// сразу проверяем не сделетился ли уже персонаж
-		CREATE(tch, CHAR_DATA, 1);
-		clear_char(tch);
-		if (load_char(buffer.c_str(), tch) < 0) {
-			free(tch);
+		CHAR_DATA t_tch;
+		CHAR_DATA *tch = &t_tch;
+		if (load_char(buffer.c_str(), tch) < 0)
 			continue;
-		}
 		// не сделетился...
 		NewNameAdd(tch, 0);
-		free_char(tch);
 	}
 
 	file.close();
@@ -444,15 +443,14 @@ ACMD(do_name)
 		}
 		go_name(ch, vict, action);
 	} else {
-		CREATE(vict, CHAR_DATA, 1);
-		clear_char(vict);
+		vict = new CHAR_DATA; // TODO: переделать на стек
 		if (load_char(name.c_str(), vict) < 0) {
 			send_to_char("Такого персонажа не существует.\r\n", ch);
-			free(vict);
+			delete vict;
 			return;
 		}
 		go_name(ch, vict, action);
 		save_char(vict, GET_LOADROOM(vict));
-		free_char(vict);
+		delete vict;
 	}
 }

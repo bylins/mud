@@ -21,6 +21,7 @@
 #include "item.creation.hpp"
 #include "im.h"
 #include "privilege.hpp"
+#include "char.hpp"
 
  /*
   * External data structures.
@@ -503,7 +504,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 				medit_mobile_free(OLC_MOB(d));	// удаляет все содержимое
 				// break; - не нужен
 			case CLEANUP_STRUCTS:
-				free(OLC_MOB(d));	// удаляет только оболочку
+				delete OLC_MOB(d);	// удаляет только оболочку
 				break;
 			default:	/* The caller has screwed up. */
 				break;

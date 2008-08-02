@@ -12,6 +12,7 @@
 #include "db.h"
 #include "olc.h"
 #include "dg_scripts.h"
+#include "char.hpp"
 
 /*
  * Turn on zedit debugging.  Please mail log results to greerga@van.ml.org

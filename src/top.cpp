@@ -20,6 +20,7 @@
 #include "screen.h"
 #include "top.h"
 #include "glory.hpp"
+#include "char.hpp"
 
 extern const char *class_name[];
 

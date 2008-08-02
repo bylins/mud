@@ -46,6 +46,7 @@
 #include "spells.h"
 #include "im.h"
 #include "features.hpp"
+#include "char.hpp"
 
 #define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, AFF_CHARM))
 
@@ -987,7 +988,7 @@ ACMD(do_mforget)
 ACMD(do_mtransform)
 {
 	char arg[MAX_INPUT_LENGTH];
-	CHAR_DATA *m, tmpmob;
+	CHAR_DATA *m;
 	OBJ_DATA *obj[NUM_WEARS];
 	int keep_hp = 1;	/* new mob keeps the old mob's hp/max hp/exp */
 	int pos;
@@ -1042,10 +1043,14 @@ ACMD(do_mtransform)
 		char_to_room(m, IN_ROOM(ch));
 
 // Обмен содержимым
+		CHAR_DATA tmpmob(*m);
+		*m = *ch;
+		*ch = tmpmob;
+/*
 		memcpy(&tmpmob, m, sizeof(CHAR_DATA));	// m  ==> tmpmob
 		memcpy(m, ch, sizeof(CHAR_DATA));	// ch ==> m
 		memcpy(ch, &tmpmob, sizeof(CHAR_DATA));	// tmpmob ==> ch
-
+*/
 // Имею:
 //  ch -> старый указатель, новое наполнение из моба m
 //  m -> новый указатель, старое наполнение из моба ch

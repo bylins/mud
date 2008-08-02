@@ -27,6 +27,7 @@
 #include "skills.h"
 #include "features.hpp"
 #include "random.hpp"
+#include "char.hpp"
 
 /* Externals */
 ACMD(do_say);
@@ -192,7 +193,7 @@ ACMD(do_sense)
 	int dir;
 
 	/* The character must have the track skill. */
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_SENSE)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_SENSE)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -287,7 +288,7 @@ ACMD(do_track)
 	char name[MAX_INPUT_LENGTH];
 
 	/* The character must have the track skill. */
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_TRACK)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_TRACK)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -403,7 +404,7 @@ ACMD(do_hidetrack)
 	struct track_data *track[NUM_OF_DIRS + 1], *temp;
 	int percent, prob, i, croom, found = FALSE, dir, rdir;
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_HIDETRACK)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_HIDETRACK)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}

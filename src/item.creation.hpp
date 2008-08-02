@@ -2,7 +2,7 @@
 *   File: item.creation.hpp                            Part of Bylins    *
 *   Item creation from magic ingidients functions header                 *
 *                                                                        *
-*  $Author$                                                       * 
+*  $Author$                                                       *
 *  $Date$                                          *
 *  $Revision$                                                      *
 **************************************************************************/
@@ -101,7 +101,7 @@ class MakeReceptList {
 	// загрузить рецепты .
 	int load();
 
-	// сохранить рецепты. 
+	// сохранить рецепты.
 	int save();
 
 	// сделать рецепт по названию его прототипа из листа.
@@ -152,9 +152,9 @@ class MakeRecept {
 	~MakeRecept();
 
 	// определяем может ли в принципе из компонентов находящихся в инвентаре
-	int can_make(struct char_data *ch);
+	int can_make(CHAR_DATA *ch);
 	// создать предмет по рецепту
-	int make(struct char_data *ch);
+	int make(CHAR_DATA *ch);
 	// вытащить рецепт из строки.
 	int load_from_str(string & rstr);
 	// сохранить рецепт в строку.

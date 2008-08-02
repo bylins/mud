@@ -95,9 +95,9 @@ class BanList {
 	time_t getBanDate(std::string Ip);
 	bool add_ban(std::string BannedIp, std::string BanReason, std::string BannerName, int UnbanDate, int BanType);
 	bool add_proxy_ban(std::string BannedIp, std::string BannerName);
-	bool unban(std::string Ip, struct char_data *ch);
-	bool unban_ip(std::string Ip, struct char_data *ch);
-	bool unban_proxy(std::string ProxyIp, struct char_data *ch);
+	bool unban(std::string Ip, CHAR_DATA *ch);
+	bool unban_ip(std::string Ip, CHAR_DATA *ch);
+	bool unban_proxy(std::string ProxyIp, CHAR_DATA *ch);
 	int
 	 is_banned(std::string Ip);
 	bool reload_ban();
@@ -118,11 +118,11 @@ class BanList {
 	 disconnectBannedIp(std::string Ip);
 //////////////////////////////////////////////////////////////////////////////
 	void
-	 ShowBannedIp(int sort_mode, struct char_data *ch);
+	 ShowBannedIp(int sort_mode, CHAR_DATA *ch);
 	void
-	 ShowBannedProxy(int sort_mode, struct char_data *ch);
+	 ShowBannedProxy(int sort_mode, CHAR_DATA *ch);
 	void
-	 ShowBannedIpByMask(int sort_mode, CHAR_DATA * ch, const char *mask);
+	 ShowBannedIpByMask(int sort_mode, CHAR_DATA *ch, const char *mask);
 //////////////////////////////////////////////////////////////////////////////
       private:
 	std::list < BanNodePtr > Ban_List;

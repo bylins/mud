@@ -21,6 +21,7 @@
 #include "handler.h"
 #include "db.h"
 #include "spells.h"
+#include "char.hpp"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;

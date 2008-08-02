@@ -25,6 +25,7 @@
 #include "dg_event.h"
 #include "im.h"
 #include "features.hpp"
+#include "char.hpp"
 
 extern INDEX_DATA **trig_index;
 extern TRIG_DATA *trigger_list;
@@ -93,7 +94,7 @@ char *skill_percent(CHAR_DATA * ch, char *skill)
 
 	skillnum = find_skill_num(skill);
 	if (skillnum > 0) {
-		sprintf(retval, "%d", get_skill(ch, skillnum));
+		sprintf(retval, "%d", ch->get_skill(skillnum));
 		return retval;
 	}
 

@@ -14,6 +14,7 @@
 #include "handler.h"
 #include "comm.h"
 #include "house.h"
+#include "char.hpp"
 
 extern int has_boat(CHAR_DATA * ch);
 extern void die(CHAR_DATA * ch, CHAR_DATA * killer);

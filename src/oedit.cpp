@@ -21,6 +21,7 @@
 #include "im.h"
 #include "features.hpp"
 #include "depot.hpp"
+#include "char.hpp"
 
 /*------------------------------------------------------------------------*/
 

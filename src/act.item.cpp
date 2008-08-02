@@ -29,6 +29,7 @@
 #include "fight.h"
 #include "features.hpp"
 #include "depot.hpp"
+#include "char.hpp"
 
 /* extern variables */
 extern vector < OBJ_DATA * >obj_proto;
@@ -1509,7 +1510,7 @@ ACMD(do_drunkoff)
 		af[2].location = APPLY_AC;
 		af[2].bitvector = AFF_ABSTINENT;
 		af[2].battleflag = 0;
-		switch (number(0, get_skill(ch, SKILL_DRUNKOFF) / 20)) {
+		switch (number(0, ch->get_skill(SKILL_DRUNKOFF) / 20)) {
 		case 0:
 		case 1:
 			af[0].modifier = -2;
@@ -2285,7 +2286,7 @@ ACMD(do_upgrade)
 	OBJ_DATA *obj;
 	int weight, add_hr, add_dr, prob, percent, i;
 
-	if (!get_skill(ch, SKILL_UPGRADE)) {
+	if (!ch->get_skill(SKILL_UPGRADE)) {
 		send_to_char("Вы не умеете этого.", ch);
 		return;
 	}
@@ -2381,7 +2382,7 @@ ACMD(do_armored)
 	OBJ_DATA *obj;
 	int add_ac, add_armor, prob, percent, i, k_mul = 1, k_div = 1;
 
-	if (!get_skill(ch, SKILL_ARMORED)) {
+	if (!ch->get_skill(SKILL_ARMORED)) {
 		send_to_char("Вы не умеете этого.", ch);
 		return;
 	}
@@ -2477,7 +2478,7 @@ ACMD(do_armored)
 ACMD(do_fire)
 {
 	int percent, prob;
-	if (!get_skill(ch, SKILL_FIRE)) {
+	if (!ch->get_skill(SKILL_FIRE)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -2548,7 +2549,7 @@ ACMD(do_firstaid)
 	struct timed_type timed;
 	CHAR_DATA *vict;
 
-	if (!get_skill(ch, SKILL_AID)) {
+	if (!ch->get_skill(SKILL_AID)) {
 		send_to_char("Вам следует этому научиться.\r\n", ch);
 		return;
 	}
@@ -2652,7 +2653,7 @@ ACMD(do_poisoned)
 	struct timed_type timed;
 	int i, apply_pos = MAX_OBJ_AFFECT;
 
-	if (!get_skill(ch, SKILL_POISONED)) {
+	if (!ch->get_skill(SKILL_POISONED)) {
 		send_to_char("Вы не умеете этого.", ch);
 		return;
 	}
@@ -2709,7 +2710,7 @@ ACMD(do_repair)
 	OBJ_DATA *obj;
 	int prob, percent = 0, decay;
 
-	if (!get_skill(ch, SKILL_REPAIR)) {
+	if (!ch->get_skill(SKILL_REPAIR)) {
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
 	}
@@ -2747,7 +2748,7 @@ ACMD(do_repair)
 //Polos.repair_bug
 //Потому что 0 уничтожает шмотку полностью даже при скиле 100+ и
 //состоянии шмотки <очень хорошо>
-		if (!percent) percent = get_skill(ch, SKILL_REPAIR)/10;
+		if (!percent) percent = ch->get_skill(SKILL_REPAIR)/10;
 //-Polos.repair_bug
 		GET_OBJ_CUR(obj) = MAX(0, GET_OBJ_CUR(obj) * percent / prob);
 		if (obj->obj_flags.Obj_cur) {
@@ -2787,7 +2788,7 @@ ACMD(do_makefood)
 //	send_to_char("Временно не доступно.\r\n",ch);
 //	return;
 
-	if (!get_skill(ch, SKILL_MAKEFOOD)) {
+	if (!ch->get_skill(SKILL_MAKEFOOD)) {
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
 	}
@@ -2830,7 +2831,7 @@ ACMD(do_makefood)
 		act("Вы умело освежевали $o3.", FALSE, ch, obj, 0, TO_CHAR);
 
 		dl_load_obj(obj, mob, ch, DL_SKIN);
-		if (number(1, get_skill(ch, SKILL_MAKEFOOD)) + number(1, GET_REAL_DEX(ch)) >= prob) {
+		if (number(1, ch->get_skill(SKILL_MAKEFOOD)) + number(1, GET_REAL_DEX(ch)) >= prob) {
 		    skin = create_skin(mob, ch);
 		    if (skin != NULL) {
 			if (obj->carried_by == ch)

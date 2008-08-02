@@ -5,6 +5,7 @@
 #include "password.hpp"
 #include "utils.h"
 #include "interpreter.h"
+#include "char.hpp"
 
 // для ручного отключения крипования (на локалке лучше собирайте через make test и не парьтесь)
 //#define NOCRYPT

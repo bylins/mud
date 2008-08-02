@@ -29,6 +29,7 @@
 #include "features.hpp"
 #include "im.h"
 #include "privilege.hpp"
+#include "char.hpp"
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct spell_create_type spell_create[TOP_SPELL_DEFINE + 1];
@@ -2102,7 +2103,7 @@ ACMD(do_ident)
 	struct timed_type timed;
 	int k, level = 0;
 
-	if (IS_NPC(ch) || get_skill(ch, SKILL_IDENTIFY) <= 0) {
+	if (IS_NPC(ch) || ch->get_skill(SKILL_IDENTIFY) <= 0) {
 		send_to_char("Вам стоит сначала этому научиться.\r\n", ch);
 		return;
 	}
@@ -2877,7 +2878,7 @@ ACMD(do_warcry)
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))
 		return;
 
-	if (!get_skill(ch, SKILL_WARCRY)) {
+	if (!ch->get_skill(SKILL_WARCRY)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -2898,7 +2899,7 @@ ACMD(do_warcry)
 		for (cnt = spellnum = 1; spellnum < LAST_USED_SPELL; spellnum++) {
 			const char *realname = SpINFO.name && *SpINFO.name ? SpINFO.name : SpINFO.syn && *SpINFO.syn ? SpINFO.syn : NULL;
 
-			if (realname && IS_SET(SpINFO.routines, MAG_WARCRY) && get_skill(ch, SKILL_WARCRY) >= SpINFO.mana_change)
+			if (realname && IS_SET(SpINFO.routines, MAG_WARCRY) && ch->get_skill(SKILL_WARCRY) >= SpINFO.mana_change)
 				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
 					CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
 					SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), realname, CCNRM(ch, C_NRM));
@@ -2921,7 +2922,7 @@ ACMD(do_warcry)
 	spellnum = find_spell_num(wc_name);
 
 	/* Unknown warcry */
-	if (spellnum < 1 || spellnum > MAX_SPELLS || get_skill(ch, SKILL_WARCRY) < SpINFO.mana_change) {
+	if (spellnum < 1 || spellnum > MAX_SPELLS || ch->get_skill(SKILL_WARCRY) < SpINFO.mana_change) {
 		send_to_char("И откуда Вы набрались таких выражений ?\r\n", ch);
 		return;
 	}
@@ -3302,7 +3303,7 @@ ACMD(do_learn)
 	    skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] == KNOW_SKILL) {
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = skill_info[spellnum].name;
-	} else if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && get_skill(ch, GET_OBJ_VAL(obj, 1))) {
+	} else if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && ch->get_skill(GET_OBJ_VAL(obj, 1))) {
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = skill_info[spellnum].name;
 	} else if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= LAST_USED_SPELL) {
@@ -3321,7 +3322,7 @@ ACMD(do_learn)
 		spellname = feat_info[spellnum].name;
 	}
 
-	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL && get_skill(ch, spellnum)) ||
+	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL && ch->get_skill(spellnum)) ||
 	    (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && GET_SPELL_TYPE(ch, spellnum) & SPELL_KNOW) ||
 	    (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && HAVE_FEAT(ch, spellnum)) ||
 		  (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && rs)) {
@@ -3338,7 +3339,7 @@ ACMD(do_learn)
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && get_skill(ch, spellnum) >= GET_OBJ_VAL(obj, 3)) {
+	if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && ch->get_skill(spellnum) >= GET_OBJ_VAL(obj, 3)) {
 		sprintf(buf, "Изучив %s от корки до корки Вы так и не узнали ничего нового.\r\n",
 			obj->PNames[3]);
 		send_to_char(buf, ch);
@@ -3353,7 +3354,7 @@ ACMD(do_learn)
 			  GET_OBJ_VAL(obj, 0) != BOOK_RECPT) ||
 	    ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL || GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) &&
 	      skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] != KNOW_SKILL) ||
-	    (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && !get_skill(ch, GET_OBJ_VAL(obj, 1))) ||
+	    (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && !ch->get_skill(GET_OBJ_VAL(obj, 1))) ||
 		  (GET_OBJ_VAL(obj, 0) == BOOK_SPELL &&
         (MIN_CAST_LEV(SpINFO,ch) > GET_LEVEL (ch) || MIN_CAST_REM(SpINFO,ch) > GET_REMORT (ch) ||
     	   slot_for_char (ch, SpINFO.slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)]) <= 0)) ||
@@ -3408,10 +3409,10 @@ ACMD(do_learn)
 			GET_SPELL_TYPE(ch, spellnum) |= SPELL_KNOW;
 			break;
 		case BOOK_SKILL:
-			SET_SKILL(ch, spellnum, 1);
+			ch->set_skill(spellnum, 1);
 			break;
 		case BOOK_UPGRD:
-			SET_SKILL(ch, spellnum, (MIN(get_skill(ch, spellnum) + GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 3))));
+			ch->set_skill(spellnum, (MIN(ch->get_skill(spellnum) + GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 3))));
 			break;
 		case BOOK_RECPT:
 			CREATE(rs, im_rskill, 1);

@@ -31,6 +31,7 @@
 #include "fight.h"
 #include "deathtrap.hpp"
 #include "random.hpp"
+#include "char.hpp"
 
 extern void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer);
 extern int what_sky;
@@ -141,7 +142,7 @@ int general_savingthrow(CHAR_DATA * ch, int type, int ext_apply)
 	// Учет осторожного стиля
 	if (PRF_FLAGGED(ch, PRF_AWAKE)) {
 		if (GET_CLASS(ch) == CLASS_GUARD)
-			save -= MAX(0,get_skill(ch, SKILL_AWAKE)-80)  /  2;
+			save -= MAX(0,ch->get_skill(SKILL_AWAKE)-80)  /  2;
 		save -= calculate_awake_mod(ch, 0);
 	}
 
@@ -2906,16 +2907,16 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_WC_OF_POWER:
 		af[0].location = APPLY_HIT;
-		af[0].modifier = MIN(SCHAR_MAX, (4 * GET_CON(ch) + get_skill(ch, SKILL_WARCRY)) / 2);
-		af[0].duration = pc_duration(victim, 1, get_skill(ch, SKILL_WARCRY), 30, 0, 0);
+		af[0].modifier = MIN(SCHAR_MAX, (4 * GET_CON(ch) + ch->get_skill(SKILL_WARCRY)) / 2);
+		af[0].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 30, 0, 0);
 		to_vict = NULL;
 		to_room = NULL;
 		break;
 
 	case SPELL_WC_OF_BLESS:
 		af[0].location = APPLY_SAVING_STABILITY;
-		af[0].modifier = -(4 * GET_CON(ch) + get_skill(ch, SKILL_WARCRY)) / 24;
-		af[0].duration = pc_duration(victim, 1, get_skill(ch, SKILL_WARCRY), 30, 0, 0);
+		af[0].modifier = -(4 * GET_CON(ch) + ch->get_skill(SKILL_WARCRY)) / 24;
+		af[0].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 30, 0, 0);
 		af[1].location = APPLY_SAVING_WILL;
 		af[1].modifier = af[0].modifier;
 		af[1].duration = af[0].duration;
@@ -2925,10 +2926,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_WC_OF_COURAGE:
 		af[0].location = APPLY_HITROLL;
-		af[0].modifier = (44 + get_skill(ch, SKILL_WARCRY)) / 45;
-		af[0].duration = pc_duration(victim, 1, get_skill(ch, SKILL_WARCRY), 60, 0, 0);
+		af[0].modifier = (44 + ch->get_skill(SKILL_WARCRY)) / 45;
+		af[0].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 60, 0, 0);
 		af[1].location = APPLY_DAMROLL;
-		af[1].modifier = (29 + get_skill(ch, SKILL_WARCRY)) / 30;
+		af[1].modifier = (29 + ch->get_skill(SKILL_WARCRY)) / 30;
 		af[1].duration = af[0].duration;
 		to_vict = NULL;
 		to_room = NULL;
@@ -3233,7 +3234,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	if (keeper) {
 		af.bitvector = AFF_HELPER;
 		affect_to_char(mob, &af);
-		SET_SKILL(mob, SKILL_RESCUE, 100);
+		mob->set_skill(SKILL_RESCUE, 100);
 // shapirus: проставим флаг клона тут в явном виде, чтобы
 // режим отсева клонов при показе группы работал гарантированно
 // (это была идиотская идея)
@@ -3319,7 +3320,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		modifier = VPOSI((int)get_effective_cha(ch, SPELL_SUMMON_FIREKEEPER) - 20, 0, 30);
 		GET_SDD(mob) = 3 + modifier/6;
 		GET_MAX_HIT(mob) = GET_HIT(mob) = MIN(450, 200 + dice(14, 5 + modifier));
-		SET_SKILL(mob, SKILL_AWAKE, 50 + modifier * 2);
+		mob->set_skill(SKILL_AWAKE, 50 + modifier * 2);
 		SET_BIT(PRF_FLAGS(mob, PRF_AWAKE), PRF_AWAKE);
 	}
 // shapirus: !train для мобов, созданных магией, тоже сделаем
@@ -3390,7 +3391,7 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		}
 		break;
 	case SPELL_WC_OF_POWER:
-		hit = (4 * GET_CON(ch) + get_skill(ch, SKILL_WARCRY)) / 2;
+		hit = (4 * GET_CON(ch) + ch->get_skill(SKILL_WARCRY)) / 2;
 		send_to_char("По Вашему телу начала струиться живительная сила.\r\n", victim);
 		break;
 	}

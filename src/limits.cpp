@@ -34,6 +34,7 @@
 #include "depot.hpp"
 #include "glory.hpp"
 #include "features.hpp"
+#include "char.hpp"
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 

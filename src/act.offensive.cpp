@@ -28,6 +28,7 @@
 #include "features.hpp"
 #include "privilege.hpp"
 #include "random.hpp"
+#include "char.hpp"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -418,7 +419,7 @@ ACMD(do_backstab)
 {
 	CHAR_DATA *vict;
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_BACKSTAB)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_BACKSTAB)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -789,7 +790,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
         }
 
 		int dam = str_app[GET_REAL_STR(ch)].todam + GET_REAL_DR(ch) +
-		    MAX(0, get_skill(ch, SKILL_BASH) / 10 - 5) + GET_LEVEL(ch) / 5;
+		    MAX(0, ch->get_skill(SKILL_BASH) / 10 - 5) + GET_LEVEL(ch) / 5;
 //      log("[BASH params] = actor = %s, actorlevel = %d, actordex = %d
 //           target=  %s, targetlevel = %d, targetdex = %d ,skill = %d,
 //           dice = %d, dam = %d", GET_NAME(ch), GET_LEVEL(ch), GET_REAL_DEX(ch),
@@ -853,7 +854,7 @@ ACMD(do_bash)
 
 	one_argument(argument, arg);
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_BASH)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_BASH)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -944,7 +945,7 @@ ACMD(do_rescue)
 {
 	CHAR_DATA *vict, *tmp_ch;
 
-	if (!get_skill(ch, SKILL_RESCUE)) {
+	if (!ch->get_skill(SKILL_RESCUE)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -1027,7 +1028,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 		// 30 - 200%
 //      if ( !IS_NPC(ch) ){
 		if (!IS_NPC(ch) || (IS_NPC(ch) && GET_EQ(ch, WEAR_FEET))) {
-			int modi = MAX(0, (get_skill(ch, SKILL_KICK) + 4) / 5);
+			int modi = MAX(0, (ch->get_skill(SKILL_KICK) + 4) / 5);
 			dam += number(0, modi * 2);
 			modi = 5 * (10 + (GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0));
 			dam = modi * dam / 100;
@@ -1079,7 +1080,7 @@ ACMD(do_kick)
 {
 	CHAR_DATA *vict = NULL;
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_KICK)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_KICK)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -1127,7 +1128,7 @@ void go_block(CHAR_DATA * ch)
 
 ACMD(do_block)
 {
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_BLOCK)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_BLOCK)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -1167,7 +1168,7 @@ ACMD(do_multyparry)
 {
 	OBJ_DATA *primary = GET_EQ(ch, WEAR_WIELD), *offhand = GET_EQ(ch, WEAR_HOLD);
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_MULTYPARRY)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_MULTYPARRY)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -1208,7 +1209,7 @@ void go_parry(CHAR_DATA * ch)
 
 ACMD(do_parry)
 {
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_PARRY)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_PARRY)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -1269,7 +1270,7 @@ ACMD(do_protect)
 
 	one_argument(argument, arg);
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_PROTECT)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_PROTECT)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -1338,7 +1339,7 @@ ACMD(do_touch)
 
 	one_argument(argument, arg);
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_TOUCH)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_TOUCH)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -1400,7 +1401,7 @@ void go_deviate(CHAR_DATA * ch)
 
 ACMD(do_deviate)
 {
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_DEVIATE)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_DEVIATE)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -1493,7 +1494,7 @@ ACMD(do_disarm)
 
 	one_argument(argument, arg);
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_DISARM)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_DISARM)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -1551,7 +1552,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	/* Апгрейд трипа: coded by Делан */
 	if ((GET_POS(vict) < POS_FIGHTING)) {
-		if (number(1, 100) < get_skill(ch, SKILL_CHOPOFF)) {
+		if (number(1, 100) < ch->get_skill(SKILL_CHOPOFF)) {
 			send_to_char("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
 			set_wait(ch, 1, FALSE);
 			return;
@@ -1610,7 +1611,7 @@ ACMD(do_chopoff)
 
 	one_argument(argument, arg);
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_CHOPOFF)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_CHOPOFF)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -1681,7 +1682,7 @@ ACMD(do_stupor)
 
 	one_argument(argument, arg);
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_STUPOR)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_STUPOR)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -1746,7 +1747,7 @@ ACMD(do_mighthit)
 
 	one_argument(argument, arg);
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_MIGHTHIT)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_MIGHTHIT)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -1827,7 +1828,7 @@ ACMD(do_style)
 		return;
 	}
 	tp >>= 1;
-	if ((tp == 1 && !get_skill(ch, SKILL_PUNCTUAL)) || (tp == 2 && !get_skill(ch, SKILL_AWAKE))) {
+	if ((tp == 1 && !ch->get_skill(SKILL_PUNCTUAL)) || (tp == 2 && !ch->get_skill(SKILL_AWAKE))) {
 		send_to_char("Вам неизвестен такой стиль боя.\r\n", ch);
 		return;
 	}
@@ -2013,7 +2014,7 @@ ACMD(do_throw)
 
 	one_argument(argument, arg);
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_THROW)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_THROW)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -2053,7 +2054,7 @@ ACMD(do_manadrain)
 
 	one_argument(argument, arg);
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_MANADRAIN)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_MANADRAIN)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -2092,7 +2093,7 @@ ACMD(do_manadrain)
 		return;
 	}
 
-	skill = get_skill(ch, SKILL_MANADRAIN);
+	skill = ch->get_skill(SKILL_MANADRAIN);
 
 	percent = number(1, skill_info[SKILL_MANADRAIN].max_percent);
 	/* Вероятность успеха - 90% - 5% за каждый уровень жертвы больше уровня чара
@@ -2127,7 +2128,7 @@ ACMD(do_townportal)
 	char arg2[MAX_INPUT_LENGTH];
 	int vnum = 0;
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_TOWNPORTAL)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_TOWNPORTAL)) {
 		send_to_char("Прежде изучите секрет постановки врат.\r\n", ch);
 		return;
 	}
@@ -2171,7 +2172,7 @@ ACMD(do_turn_undead)
 	if (IS_NPC(ch))		/* Cannot use on mobs. */
 		return;
 
-	if (!get_skill(ch, SKILL_TURN_UNDEAD)) {
+	if (!ch->get_skill(SKILL_TURN_UNDEAD)) {
 		send_to_char("Вам это не по силам.\r\n", ch);
 		return;
 	}
@@ -2210,7 +2211,7 @@ ACMD(do_turn_undead)
         ch_list_size = i;
 
 	if (i > 0)
-		percent = get_skill(ch, SKILL_TURN_UNDEAD);
+		percent = ch->get_skill(SKILL_TURN_UNDEAD);
 	else {
 	        free(ch_list);
 		return;
@@ -2314,7 +2315,7 @@ ACMD(do_iron_wind)
 	int moves;
 
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_IRON_WIND)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_IRON_WIND)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	};
@@ -2322,7 +2323,7 @@ ACMD(do_iron_wind)
 		send_to_char("Невозможно! Вы слишкм заняты боем!\r\n", ch);
 		return;
 	};
-	moves = GET_MAX_MOVE(ch)/(2+MAX(15, get_skill(ch, SKILL_IRON_WIND))/15);
+	moves = GET_MAX_MOVE(ch)/(2+MAX(15, ch->get_skill(SKILL_IRON_WIND))/15);
 	if (GET_MAX_MOVE(ch) < moves * 2) {
 		send_to_char("Вы слишком устали...\r\n", ch);
 		return;

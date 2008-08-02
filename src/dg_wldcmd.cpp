@@ -23,6 +23,7 @@
 #include "im.h"
 #include "features.hpp"
 #include "deathtrap.hpp"
+#include "char.hpp"
 
 extern const char *dirs[];
 extern struct zone_data *zone_table;

@@ -42,6 +42,7 @@
 #include "depot.hpp"
 #include "privilege.hpp"
 #include "random.hpp"
+#include "char.hpp"
 
 using std::ifstream;
 using std::fstream;
@@ -335,7 +336,7 @@ ACMD(do_sneak)
 	AFFECT_DATA af;
 	ubyte prob, percent;
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_SNEAK)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_SNEAK)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -380,7 +381,7 @@ ACMD(do_camouflage)
 	struct timed_type timed;
 	ubyte prob, percent;
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_CAMOUFLAGE)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_CAMOUFLAGE)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -436,7 +437,7 @@ ACMD(do_hide)
 	AFFECT_DATA af;
 	ubyte prob, percent;
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_HIDE)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_HIDE)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -596,7 +597,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 				return;
 			} else {
 				// Считаем вероятность крит-воровства (воровства всех денег)
-				if ((number(1, 100) - get_skill(ch, SKILL_STEAL) -
+				if ((number(1, 100) - ch->get_skill(SKILL_STEAL) -
 				     GET_DEX(ch) + GET_WIS(vict) + get_gold(vict) / 500) < 0) {
 					act("Тугой кошелек $N1 перекочевал к Вам.", TRUE, ch, 0, vict, TO_CHAR);
 					gold = get_gold(vict);
@@ -632,7 +633,7 @@ ACMD(do_steal)
 	CHAR_DATA *vict;
 	char vict_name[MAX_INPUT_LENGTH], obj_name[MAX_INPUT_LENGTH];
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_STEAL)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_STEAL)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -721,7 +722,7 @@ ACMD(do_courage)
 	if (IS_NPC(ch))		/* Cannot use GET_COND() on mobs. */
 		return;
 
-	if (!get_skill(ch, SKILL_COURAGE)) {
+	if (!ch->get_skill(SKILL_COURAGE)) {
 		send_to_char("Вам это не по силам.\r\n", ch);
 		return;
 	}
@@ -819,7 +820,7 @@ ACMD(do_courage)
 
 int max_group_size(CHAR_DATA *ch)
 {
-	return MAX_GROUPED_FOLLOWERS + (int) VPOSI((get_skill(ch, SKILL_LEADERSHIP) - 80) / 5, 0, 4);
+	return MAX_GROUPED_FOLLOWERS + (int) VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 80) / 5, 0, 4);
 }
 
 bool is_group_member(CHAR_DATA *ch, CHAR_DATA *vict)
@@ -848,7 +849,7 @@ void change_leader(CHAR_DATA *ch, bool dead)
 			continue;
 		if (!leader)
 			leader = l->follower;
-		else if (get_skill(l->follower, SKILL_LEADERSHIP) > get_skill(leader, SKILL_LEADERSHIP))
+		else if (l->follower->get_skill(SKILL_LEADERSHIP) > leader->get_skill(SKILL_LEADERSHIP))
 			leader = l->follower;
 	}
 	if (!leader) return;
@@ -2188,7 +2189,7 @@ ACMD(do_recall)
 	}
 }
 
-void perform_beep(struct char_data *ch, struct char_data *vict)
+void perform_beep(CHAR_DATA *ch, CHAR_DATA *vict)
 {
 	send_to_char(CCRED(vict, C_NRM), vict);
 	sprintf(buf, "\007\007 $n вызывает Вас !");
@@ -2207,7 +2208,7 @@ void perform_beep(struct char_data *ch, struct char_data *vict)
 
 ACMD(do_beep)
 {
-	struct char_data *vict = NULL;
+	CHAR_DATA *vict = NULL;
 
 	one_argument(argument, buf);
 
@@ -2367,7 +2368,7 @@ int insert_wanted_gem::exist(int gem_vnum, string str)
 //-Polos.insert_wanted_gem
 
 
-int make_hole(struct char_data *ch)
+int make_hole(CHAR_DATA *ch)
 {
 	if (roundup(world[ch->in_room]->holes / HOLES_TIME) >= dig_vars.hole_max_deep) {
 		send_to_char("Тут и так все перекопано.\r\n", ch);
@@ -2378,7 +2379,7 @@ int make_hole(struct char_data *ch)
 	return 1;
 }
 
-void break_inst(struct char_data *ch)
+void break_inst(CHAR_DATA *ch)
 {
 	int i;
 	char buf[300];
@@ -2400,7 +2401,7 @@ void break_inst(struct char_data *ch)
 
 }
 
-int check_for_dig(struct char_data *ch)
+int check_for_dig(CHAR_DATA *ch)
 {
 	int i;
 
@@ -2412,7 +2413,7 @@ int check_for_dig(struct char_data *ch)
 	return 0;
 }
 
-void dig_obj(struct char_data *ch, struct obj_data *obj)
+void dig_obj(CHAR_DATA *ch, struct obj_data *obj)
 {
 	char textbuf[300];
 
@@ -2435,7 +2436,7 @@ void dig_obj(struct char_data *ch, struct obj_data *obj)
 
 ACMD(do_dig)
 {
-	struct char_data *mob;
+	CHAR_DATA *mob;
 	struct obj_data *obj;
 	char textbuf[300];
 	int percent, prob;
@@ -2443,7 +2444,7 @@ ACMD(do_dig)
 	int vnum;
 	int old_wis, old_int;
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_DIG)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_DIG)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -2540,7 +2541,7 @@ ACMD(do_dig)
 	}
 
 	percent = number(1, skill_info[SKILL_DIG].max_percent);
-	prob = get_skill(ch, SKILL_DIG);
+	prob = ch->get_skill(SKILL_DIG);
 	old_int = GET_INT(ch);
 	old_wis = GET_WIS(ch);
 	GET_INT(ch) += 14 - MAX(14, GET_REAL_INT(ch));
@@ -2645,7 +2646,7 @@ ACMD(do_insertgem)
 
 	argument = two_arguments(argument, arg1, arg2);
 
-	if (IS_NPC(ch) || !get_skill(ch, SKILL_INSERTGEM)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_INSERTGEM)) {
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
@@ -2744,7 +2745,7 @@ ACMD(do_insertgem)
 	}
 
 	percent = number(1, skill_info[SKILL_INSERTGEM].max_percent);
-	prob = get_skill(ch, SKILL_INSERTGEM);
+	prob = ch->get_skill(SKILL_INSERTGEM);
 
 	WAIT_STATE(ch, PULSE_VIOLENCE);
 
@@ -2789,7 +2790,7 @@ ACMD(do_insertgem)
 	}
 	else
 	{
-	    if (get_skill(ch, SKILL_INSERTGEM) < 80)
+	    if (ch->get_skill(SKILL_INSERTGEM) < 80)
 	    {
 		sprintf(buf, "Вы должны достинуть мастерства в умении ювелир, чтобы вплавлять желаемые аффекты!\r\n");
 		send_to_char(buf, ch);
@@ -2813,7 +2814,7 @@ ACMD(do_insertgem)
 	    improove_skill(ch, SKILL_INSERTGEM, 0, 0);
 
 	    //успех или фэйл? при 80% скила успех 30% при 100% скила 50% при 200% скила успех 75%
-	    if (number(1, get_skill(ch, SKILL_INSERTGEM)) > (get_skill(ch, SKILL_INSERTGEM) - 50))
+	    if (number(1, ch->get_skill(SKILL_INSERTGEM)) > (ch->get_skill(SKILL_INSERTGEM) - 50))
 	    {
 		sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n", gemobj->name,
 		itemobj->PNames[3]);

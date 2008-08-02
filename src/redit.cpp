@@ -20,6 +20,7 @@
 #include "im.h"
 #include "description.h"
 #include "deathtrap.hpp"
+#include "char.hpp"
 
 /* List each room saved, was used for debugging. */
 #if 0

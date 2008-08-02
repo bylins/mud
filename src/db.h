@@ -193,13 +193,10 @@ int get_zone_rooms(int, int *, int *);
 int load_char(const char *name, CHAR_DATA * char_element, bool reboot = 0);
 void save_char(CHAR_DATA * ch, room_rnum load_room);
 void init_char(CHAR_DATA * ch);
-CHAR_DATA *create_char(void);
 CHAR_DATA *read_mobile(mob_vnum nr, int type);
 mob_rnum real_mobile(mob_vnum vnum);
 int vnum_mobile(char *searchname, CHAR_DATA * ch);
-void clear_char(CHAR_DATA * ch);
 void reset_char(CHAR_DATA * ch);
-void free_char(CHAR_DATA * ch);
 void clear_char_skills(CHAR_DATA * ch);
 int correct_unique(int unique);
 
@@ -401,5 +398,9 @@ extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
 extern room_rnum r_named_start_room;
 extern room_rnum r_unreg_start_room;
+
+long get_ptable_by_name(char *name);
+void free_alias(struct alias_data *a);
+extern struct player_index_element *player_table;
 
 #endif

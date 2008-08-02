@@ -25,6 +25,7 @@
 #include "house.h"
 #include "im.h"
 #include "depot.hpp"
+#include "char.hpp"
 
 /* these factors should be unique integers */
 #define RENT_FACTOR 	1

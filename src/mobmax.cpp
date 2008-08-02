@@ -17,6 +17,7 @@
 #include "utils.h"
 #include "db.h"
 #include "mobmax.h"
+#include "char.hpp"
 
 #define MAX_MOB_LEVEL 50	/* Максимальный уровень мобов */
 #define MIN_MOB_IN_MOBKILL 2	/* Минимальное количество мобов одного уровня */

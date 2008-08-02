@@ -19,6 +19,7 @@
 #include "utils.h"
 #include "interpreter.h"
 #include "db.h"
+#include "char.hpp"
 
 void write_aliases(CHAR_DATA * ch);
 void read_aliases(CHAR_DATA * ch);

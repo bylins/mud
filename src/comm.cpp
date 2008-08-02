@@ -50,6 +50,7 @@
 #include "depot.hpp"
 #include "glory.hpp"
 #include "file_crc.hpp"
+#include "char.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -2695,7 +2696,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		} else {
 			sprintf(buf, "Losing player: %s.", GET_NAME(d->character) ? GET_NAME(d->character) : "<null>");
 			mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
-			free_char(d->character);
+			delete d->character;
 		}
 	}
 //	 else

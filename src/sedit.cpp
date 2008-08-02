@@ -15,6 +15,7 @@
 #include "db.h"
 #include "shop.h"
 #include "olc.h"
+#include "char.hpp"
 
 /*-------------------------------------------------------------------*/
 

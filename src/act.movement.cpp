@@ -30,6 +30,7 @@
 #include "features.hpp"
 #include "deathtrap.hpp"
 #include "privilege.hpp"
+#include "char.hpp"
 
 /* external functs */
 int special(CHAR_DATA * ch, int cmd, char *arg);
@@ -874,7 +875,7 @@ ACMD(do_hidemove)
 	AFFECT_DATA af;
 
 	skip_spaces(&argument);
-	if (!get_skill(ch, SKILL_SNEAK)) {
+	if (!ch->get_skill(SKILL_SNEAK)) {
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
 	}
@@ -1164,7 +1165,7 @@ ACMD(do_gen_door)
 		return;
 	}
 
-	if (subcmd == SCMD_PICK && !get_skill(ch, SKILL_PICK_LOCK)) {
+	if (subcmd == SCMD_PICK && !ch->get_skill(SKILL_PICK_LOCK)) {
 		send_to_char("Это умение Вам недоступно.\r\n", ch);
 		return;
 	}
@@ -1714,7 +1715,7 @@ ACMD(do_horsetake)
 			return;
 		}
 		if (!IS_IMMORTAL(ch)) {
-			if (!get_skill(ch, SKILL_STEAL)) {
+			if (!ch->get_skill(SKILL_STEAL)) {
 				send_to_char("Вы не умеете воровать.\r\n", ch);
 				return;
 			}

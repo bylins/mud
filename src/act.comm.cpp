@@ -24,6 +24,7 @@
 #include "dg_scripts.h"
 #include "auction.h"
 #include "privilege.hpp"
+#include "char.hpp"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;

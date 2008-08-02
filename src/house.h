@@ -157,7 +157,7 @@ class Clan
 	const char * GetAbbrev() { return this->abbrev.c_str(); };
 	int GetRent();
 	int SetClanExp(CHAR_DATA *ch, int add);  //На входе - икспа с моба - на выходе икспа собсно игроку. за вычетом той что идет в клан
-	int GetMemberExpPersent(CHAR_DATA *ch) { if (!CLAN(ch)) return 0; return CLAN_MEMBER(ch)->exp_persent;};
+	int GetMemberExpPersent(CHAR_DATA *ch);
 	int GetClanLevel() { return this->clan_level; };
 	std::string GetClanTitle() { return this->title; };
 	bool CheckPrivilege(int rank, int privilege) { return this->privileges[rank][privilege]; };

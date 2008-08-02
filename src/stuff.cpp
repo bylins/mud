@@ -16,6 +16,7 @@
 #include "utils.h"
 #include "dg_scripts.h"
 #include "stuff.hpp"
+#include "char.hpp"
 
 void oload_class::init()
 {

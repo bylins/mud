@@ -16,7 +16,7 @@
 #include "comm.h"
 #include "handler.h"
 #include "db.h"
-
+#include "char.hpp"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 
@@ -140,7 +140,7 @@ void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets)
 		case '^':
 		case '}':
 		case '*':
-			/* get CHAR_DATA, move to next token */
+			/* get CHAR_DATA and move to next token */
 			type[i] = *p;
 			*s = '\0';
 			p = any_one_name(++p, name);

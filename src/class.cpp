@@ -34,6 +34,7 @@
 #include "top.h"
 #include "features.hpp"
 #include "im.h"
+#include "char.hpp"
 
 extern int siteok_everyone;
 extern struct spell_create_type spell_create[];
@@ -2106,7 +2107,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 	obj = read_object(START_LIGHT, VIRTUAL);
 	if (obj)
 		obj_to_char(obj, ch);
-	SET_SKILL(ch, SKILL_DRUNKOFF, 10);
+	ch->set_skill(SKILL_DRUNKOFF, 10);
 
 	switch (calc_loadroom(ch)) {
 	case 4056:
@@ -2133,7 +2134,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 		obj = read_object(START_KNIFE, VIRTUAL);
 		if (obj)
 			equip_char(ch, obj, WEAR_WIELD);
-		SET_SKILL(ch, SKILL_SATTACK, 10);
+		ch->set_skill(SKILL_SATTACK, 10);
 		break;
 
 	case CLASS_DRUID:
@@ -2155,7 +2156,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 		obj = read_object(START_CLUB, VIRTUAL);
 		if (obj)
 			equip_char(ch, obj, WEAR_WIELD);
-		SET_SKILL(ch, SKILL_SATTACK, 50);
+		ch->set_skill(SKILL_SATTACK, 50);
 		break;
 
 	case CLASS_THIEF:
@@ -2164,7 +2165,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 		obj = read_object(START_KNIFE, VIRTUAL);
 		if (obj)
 			equip_char(ch, obj, WEAR_WIELD);
-		SET_SKILL(ch, SKILL_SATTACK, 75);
+		ch->set_skill(SKILL_SATTACK, 75);
 		break;
 
 	case CLASS_WARRIOR:
@@ -2174,8 +2175,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 		obj = read_object(START_ARMOR, VIRTUAL);
 		if (obj)
 			equip_char(ch, obj, WEAR_BODY);
-		SET_SKILL(ch, SKILL_SATTACK, 95);
-		SET_SKILL(ch, SKILL_HORSE, 10);
+		ch->set_skill(SKILL_SATTACK, 95);
+		ch->set_skill(SKILL_HORSE, 10);
 		break;
 
 	case CLASS_GUARD:
@@ -2187,9 +2188,9 @@ void do_start(CHAR_DATA * ch, int newbie)
 		obj = read_object(START_ARMOR, VIRTUAL);
 		if (obj)
 			equip_char(ch, obj, WEAR_BODY);
-		SET_SKILL(ch, SKILL_SATTACK, 95);
+		ch->set_skill(SKILL_SATTACK, 95);
 		if (GET_CLASS(ch) != CLASS_SMITH)
-			SET_SKILL(ch, SKILL_HORSE, 10);
+			ch->set_skill(SKILL_HORSE, 10);
 		break;
 
 	case CLASS_RANGER:
@@ -2199,8 +2200,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 		obj = read_object(START_ARMOR, VIRTUAL);
 		if (obj)
 			equip_char(ch, obj, WEAR_BODY);
-		SET_SKILL(ch, SKILL_SATTACK, 95);
-		SET_SKILL(ch, SKILL_HORSE, 10);
+		ch->set_skill(SKILL_SATTACK, 95);
+		ch->set_skill(SKILL_HORSE, 10);
 		break;
 
 	}
@@ -2385,16 +2386,16 @@ void decrease_level(CHAR_DATA * ch)
 		REMOVE_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
 
 	for (prob = 0; prob <= MAX_SKILLS; prob++)
-		if (get_skill(ch, prob) && prob != SKILL_SATTACK) {
+		if (ch->get_skill(prob) && prob != SKILL_SATTACK) {
 			max = wis_app[GET_REAL_WIS(ch)].max_learn_l20 * (GET_LEVEL(ch) + 1) / 20;
 			if (max > MAX_EXP_PERCENT)
 				max = MAX_EXP_PERCENT;
-			sval = get_skill(ch, prob) - max - GET_REMORT(ch) * 5;
+			sval = ch->get_skill(prob) - max - GET_REMORT(ch) * 5;
 			if (sval < 0)
 				sval = 0;
-			if ((get_skill(ch, prob) - sval) >
+			if ((ch->get_skill(prob) - sval) >
 			    (wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20))
-				SET_SKILL(ch, prob, ((wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20) + sval));
+				ch->set_skill(prob, ((wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20) + sval));
 		}
 
 	save_char(ch, NOWHERE);

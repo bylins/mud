@@ -14,6 +14,7 @@
 #include "pk.h"
 #include "privilege.hpp"
 #include "handler.h"
+#include "char.hpp"
 
 namespace TitleSystem {
 
@@ -291,27 +292,31 @@ bool TitleSystem::manage_title_list(std::string& name, bool action, CHAR_DATA* c
 {
 	name_convert(name);
 	TitleListType::iterator it = title_list.find(name);
-	if (it != title_list.end()) {
-		if (action) {
+	if (it != title_list.end())
+	{
+		if (action)
+		{
 			DESCRIPTOR_DATA* d = send_result_message(it->second->unique, action);
 			if (d)
 				set_player_title(d->character, it->second->pre_title, it->second->title, GET_NAME(ch));
-			else {
-				CHAR_DATA* victim;
-				CREATE(victim, CHAR_DATA, 1);
-				clear_char(victim);
-				if (load_char(it->first.c_str(), victim) < 0) {
+			else
+			{
+				CHAR_DATA *victim = new CHAR_DATA; // TODO: переделать на стек
+				if (load_char(it->first.c_str(), victim) < 0)
+				{
 					send_to_char("Персонаж был удален или ошибочка какая-то вышла.\r\n", ch);
-					free(victim);
+					delete victim;
 					title_list.erase(it);
 					return TITLE_FIND_CHAR;
 				}
 				set_player_title(victim, it->second->pre_title, it->second->title, GET_NAME(ch));
-				save_char(victim, GET_LOADROOM(victim));
-				free_char(victim);
+				save_char(victim, NOWHERE);
+				delete victim;
 			}
 			send_to_char("Титул одобрен.\r\n", ch);
-		} else {
+		}
+		else
+		{
 			send_result_message(it->second->unique, action);
 			send_to_char("Титул запрещен.\r\n", ch);
 		}

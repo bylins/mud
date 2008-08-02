@@ -41,6 +41,7 @@
 #include "glory.hpp"
 #include "genchar.h"
 #include "file_crc.hpp"
+#include "char.hpp"
 
 /*   external vars  */
 extern FILE *player_fl;
@@ -635,12 +636,11 @@ ACMD(do_email)
 			GET_NAME(victim), GET_EMAIL(victim));
 		send_to_char(buf, ch);
 	} else {
-		CREATE(victim, CHAR_DATA, 1);
-		clear_char(victim);
+		CHAR_DATA t_victim;
+		CHAR_DATA *victim = &t_victim;
 		send_to_char("[char is offline]\r\n", ch);
 		if (load_char(name, victim) < 0) {
 			send_to_char("Такого персонажа не существует.\r\n", ch);
-			free(victim);
 			return;
 		}
 		Password::set_password(victim, std::string(newpass));
@@ -652,7 +652,6 @@ ACMD(do_email)
 		sprintf(buf, "Выслан пароль %s, чару %s, на e-mail %s.\r\n", newpass,
 			GET_NAME(victim), GET_EMAIL(victim));
 		send_to_char(buf, ch);
-		free_char(victim);
 	}
 }
 
@@ -769,18 +768,15 @@ ACMD(do_glory)
 		}
 	}
 
-	bool loaded = 0;
 	CHAR_DATA *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
+	CHAR_DATA t_vict; // TODO: надо выносить во вторую функцию, чтобы зря не создавать
 	if (!vict)
 	{
-		CREATE(vict, CHAR_DATA, 1);
-		clear_char(vict);
+		vict = &t_vict;
 		if (load_char(arg, vict) < 0) {
 			send_to_char("Такого персонажа не существует.\r\n", ch);
-			free(vict);
 			return;
 		}
-		loaded = 1;
 	}
 
 	switch (mode)
@@ -842,12 +838,7 @@ ACMD(do_glory)
 			Glory::show_glory(vict, ch);
 	}
 
-	// если чара грузили из оффлайна - надо чистить
-	if (loaded)
-	{
-		save_char(vict, GET_LOADROOM(vict));
-		free_char(vict);
-	}
+	save_char(vict, NOWHERE);
 }
 
 ACMD(do_send)
@@ -1835,18 +1826,15 @@ ACMD(do_stat)
 		if (!*buf2) {
 			send_to_char("Состояние какого игрока(из файла) ?\r\n", ch);
 		} else {
-			CREATE(victim, CHAR_DATA, 1);
-			clear_char(victim);
+			CHAR_DATA t_victim;
+			CHAR_DATA *victim = &t_victim;
 			if (load_char(buf2, victim) > -1) {
 				if (GET_LEVEL(victim) > GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
 					send_to_char("Извините, Вам это еще рано.\r\n", ch);
 				else
 					do_stat_character(ch, victim);
-				extract_char(victim, FALSE);
-			} else {
+			} else
 				send_to_char("Такого игрока нет ВООБЩЕ.\r\n", ch);
-				free(victim);
-			}
 		}
 	} else if (is_abbrev(buf1, "object") && GET_LEVEL(ch) >= LVL_BUILDER) {
 		if (!*buf2)
@@ -2231,7 +2219,6 @@ ACMD(do_vstat)
 		char_to_room(mob, 1);
 		do_stat_character(ch, mob);
 		extract_char(mob, FALSE);
-		// free_char(mob);
 	} else if (is_abbrev(buf, "obj")) {
 		if ((r_num = real_object(number)) < 0) {
 			send_to_char("Этот предмет явно перенесли в РМУД.\r\n", ch);
@@ -2712,27 +2699,26 @@ ACMD(do_date)
 	send_to_char(buf, ch);
 }
 
-
-
 ACMD(do_last)
 {
-	CHAR_DATA *chdata;
-
 	one_argument(argument, arg);
-	if (!*arg) {
+	if (!*arg)
+	{
 		send_to_char("Кого Вы хотите найти ?\r\n", ch);
 		return;
 	}
-	CREATE(chdata, CHAR_DATA, 1);
-	clear_char(chdata);
-	if (load_char(arg, chdata) < 0) {
+
+	CHAR_DATA t_chdata;
+	CHAR_DATA *chdata = &t_chdata;
+	if (load_char(arg, chdata) < 0)
+	{
 		send_to_char("Нет такого игрока.\r\n", ch);
-		free(chdata);
 		return;
 	}
-	if (GET_LEVEL(chdata) > GET_LEVEL(ch) && !IS_IMPL(ch)) {
+	if (GET_LEVEL(chdata) > GET_LEVEL(ch) && !IS_IMPL(ch))
 		send_to_char("Вы не столь уж и божественны для этого.\r\n", ch);
-	} else {
+	else
+	{
 		sprintf(buf, "[%5ld] [%2d %s %s] %-12s : %-18s : %-20s\r\n",
 			GET_IDNUM(chdata), (int) GET_LEVEL(chdata),
 			kin_abbrevs[(int) GET_KIN (chdata)],
@@ -2740,9 +2726,7 @@ ACMD(do_last)
 			GET_LASTIP(chdata)[0] ? GET_LASTIP(chdata) : "Unknown", ctime(&LAST_LOGON(chdata)));
 		send_to_char(buf, ch);
 	}
-	free_char(chdata);
 }
-
 
 ACMD(do_force)
 {
@@ -4243,25 +4227,26 @@ ACMD(do_set)
 			}
 		}
 	} else if (is_file) {	/* try to load the player off disk */
-		CREATE(cbuf, CHAR_DATA, 1);
-		clear_char(cbuf);
+		cbuf = new CHAR_DATA; // TODO: переделать на стек
 		if ((player_i = load_char(name, cbuf)) > -1) {
 			/* Запрет на злоупотребление командой SET на бессмертных */
 			if (!GET_GOD_FLAG(ch, GF_DEMIGOD)) {
 				if (GET_LEVEL(ch) <= GET_LEVEL(cbuf) && !Privilege::check_flag(ch, Privilege::KRODER)) {
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
+					delete cbuf;
 					return;
 				}
 			} else {
 				if (GET_LEVEL(cbuf) >= LVL_IMMORT) {
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
+					delete cbuf;
 					return;
 				}
 			}
 			vict = cbuf;
 		} else {
-			free(cbuf);
 			send_to_char("Нет такого игрока.\r\n", ch);
+			delete cbuf;
 			return;
 		}
 	}
@@ -4293,7 +4278,7 @@ ACMD(do_set)
 
 	/* free the memory if we allocated it earlier */
 	if (is_file)
-		free_char(cbuf);
+		delete cbuf;
 
 	log("(GC) %s try to set: %s", GET_NAME(ch), argument);
 	imm_log("%s try to set: %s", GET_NAME(ch), argument);

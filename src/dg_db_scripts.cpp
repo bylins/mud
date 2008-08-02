@@ -26,6 +26,7 @@
 #include "skills.h"
 #include "im.h"
 #include "features.hpp"
+#include "char.hpp"
 
 void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg);
 void trig_data_free(TRIG_DATA * this_data);
@@ -469,11 +470,11 @@ void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff)
 	const int ch_kin = static_cast<int>(GET_KIN(ch));
 	const int ch_class = static_cast<int>(GET_CLASS(ch));
 
-	if (get_skill(ch, skillnum))
+	if (ch->get_skill(skillnum))
 	{
 		if (skilldiff) return;
 
-		SET_SKILL(ch, skillnum, 0);
+		ch->set_skill(skillnum, 0);
 		send_to_char(ch, "Вас лишили умения '%s'.\r\n", skill_name(skillnum));
 		log("Remove %s from %s (trigskillturn)", skill_name(skillnum), GET_NAME(ch));
 	}
@@ -482,7 +483,7 @@ void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff)
 		&& GET_LEVEL(ch) >= skill_info[skillnum].min_level[ch_class][ch_kin]
 		&& GET_REMORT(ch) >= skill_info[skillnum].min_remort[ch_class][ch_kin])
 	{
-		SET_SKILL(ch, skillnum, 5);
+		ch->set_skill(skillnum, 5);
 		send_to_char(ch, "Вы изучили умение '%s'.\r\n", skill_name(skillnum));
 		log("Add %s to %s (trigskillturn)", skill_name(skillnum), GET_NAME(ch));
 	}
@@ -490,15 +491,15 @@ void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff)
 
 void trg_skilladd(CHAR_DATA * ch, int skillnum, int skilldiff)
 {
-	int skill = get_skill(ch, skillnum);
-	SET_SKILL(ch, skillnum, (MAX(1, MIN(get_skill(ch, skillnum) + skilldiff, 200))));
+	int skill = ch->get_skill(skillnum);
+	ch->set_skill(skillnum, (MAX(1, MIN(ch->get_skill(skillnum) + skilldiff, 200))));
 
-	if (skill > get_skill(ch, skillnum))
+	if (skill > ch->get_skill(skillnum))
 	{
 		send_to_char(ch, "Ваше умение '%s' понизилось.\r\n", skill_name(skillnum));
 		log("Decrease %s from %s (trigskilladd)", skill_name(skillnum), GET_NAME(ch));
 	}
-	else if (skill < get_skill(ch, skillnum))
+	else if (skill < ch->get_skill(skillnum))
 	{
 		send_to_char(ch, "Вы повысили свое умение '%s'.\r\n", skill_name(skillnum));
 		log("Raise %s to %s (trigskilladd)", skill_name(skillnum), GET_NAME(ch));
@@ -586,18 +587,18 @@ void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell)
 		SET_BIT(GET_SPELL_TYPE(ch, spellnum), spell);
 		switch (spell) {
 		case SPELL_SCROLL:
-			if (!get_skill(ch, SKILL_CREATE_SCROLL))
-				SET_SKILL(ch, SKILL_CREATE_SCROLL, 5);
+			if (!ch->get_skill(SKILL_CREATE_SCROLL))
+				ch->set_skill(SKILL_CREATE_SCROLL, 5);
 			strcpy(type, "создания свитка");
 			break;
 		case SPELL_POTION:
-			if (!get_skill(ch, SKILL_CREATE_POTION))
-				SET_SKILL(ch, SKILL_CREATE_POTION, 5);
+			if (!ch->get_skill(SKILL_CREATE_POTION))
+				ch->set_skill(SKILL_CREATE_POTION, 5);
 			strcpy(type, "приготовления напитка");
 			break;
 		case SPELL_WAND:
-			if (!get_skill(ch, SKILL_CREATE_WAND))
-				SET_SKILL(ch, SKILL_CREATE_WAND, 5);
+			if (!ch->get_skill(SKILL_CREATE_WAND))
+				ch->set_skill(SKILL_CREATE_WAND, 5);
 			strcpy(type, "изготовления посоха");
 			break;
 		case SPELL_ITEMS:

@@ -24,6 +24,7 @@
 #include "skills.h"
 #include "spells.h"
 #include "privilege.hpp"
+#include "char.hpp"
 
 extern void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 extern void write_one_object(char **data, OBJ_DATA * object, int location);
@@ -3839,4 +3840,9 @@ void Clan::remove_from_clan(long unique)
 			return;
 		}
 	}
+}
+
+int Clan::GetMemberExpPersent(CHAR_DATA *ch)
+{
+	return CLAN(ch) ? CLAN_MEMBER(ch)->exp_persent : 0;
 }

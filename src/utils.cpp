@@ -32,6 +32,7 @@
 #include "features.hpp"
 #include "boards.h"
 #include "privilege.hpp"
+#include "char.hpp"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 
@@ -1429,7 +1430,7 @@ char *noclan_title(CHAR_DATA * ch)
 	return title;
 }
 
-char *title_noname(struct char_data *ch)
+char *title_noname(CHAR_DATA *ch)
 {
 	static char title[MAX_STRING_LENGTH];
 	static char clan[MAX_STRING_LENGTH];
@@ -1924,19 +1925,6 @@ int valid_email(const char *address)
 	    return 0;
 
         return 1;
-}
-
-/**
-* Аналог бывшего макроса GET_SKILL с проверкой на привилегию skills у иммов.
-* Заодно исключает частое тут применение GET_SKILL там, где нужно применять SET_SKILL,
-* сейчас это готовые гетер/сетер для класса.
-*/
-int get_skill(CHAR_DATA *ch, int skill)
-{
-	if (Privilege::check_skills(ch, skill))
-		return ch->real_abils.Skills[skill];
-	else
-		return 0;
 }
 
 /**

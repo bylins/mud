@@ -31,6 +31,7 @@
 #include "features.hpp"
 #include "house.h"
 #include "exchange.h"
+#include "char.hpp"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -2600,7 +2601,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		}
 
 		SET_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
-		free_char(ch);
+		delete ch;
 		freed = 1;
 	}
 
@@ -2616,7 +2617,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	} else {		/* if a player gets purged from within the game */
 		if (!freed) {
 			SET_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
-			free_char(ch);
+			delete ch;
 		}
 	}
 	log("[Extract char] Stop function for char %s", name);
@@ -2691,7 +2692,7 @@ void extract_mob(CHAR_DATA * ch)
 	}
 
 	SET_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
-	free_char(ch);
+	delete ch;
 }
 
 
@@ -3490,7 +3491,7 @@ float get_damage_per_round(CHAR_DATA * victim)
 			 victim->mob_specials.damnodice *
 			 (victim->mob_specials.damsizedice + 1) / 2.0) *
 	    (1 + victim->mob_specials.ExtraAttack +
-	     2 * get_skill(victim, SKILL_ADDSHOT) / MAX(1, get_skill(victim, SKILL_ADDSHOT)));
+	     2 * victim->get_skill(SKILL_ADDSHOT) / MAX(1, victim->get_skill(SKILL_ADDSHOT)));
 
 //Если дыхание - то дамаг умножается на 1.1
 	if (MOB_FLAGGED(victim, (MOB_FIREBREATH | MOB_GASBREATH | MOB_FROSTBREATH | MOB_ACIDBREATH | MOB_LIGHTBREATH)))

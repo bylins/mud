@@ -49,6 +49,7 @@
 #include "genchar.h"
 #include "random.hpp"
 #include "file_crc.hpp"
+#include "char.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -1326,6 +1327,26 @@ void boot_db(void)
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");
+
+struct test_char_ability_data {
+	ubyte Skills[MAX_SKILLS + 1];	/* array of skills plus skill 0     */
+	ubyte SplKnw[MAX_SPELLS + 1];	/* array of SPELL_KNOW_TYPE         */
+	ubyte SplMem[MAX_SPELLS + 1];	/* array of MEMed SPELLS            */
+	bitset<MAX_FEATS> Feats;
+	sbyte str;
+	sbyte intel;
+	sbyte wis;
+	sbyte dex;
+	sbyte con;
+	sbyte cha;
+	sbyte size;
+	sbyte hitroll;
+	sbyte damroll;
+	sbyte armor;
+};
+log("test1: %d", sizeof(test_char_ability_data));
+log("test1: %d", sizeof(char_ability_data));
+
 }
 
 /* free rooms structures and pointers*/
@@ -1648,7 +1669,7 @@ void index_boot(int mode)
 		log("   %d rooms, %d bytes.", rec_count, size[0]);
 		break;
 	case DB_BOOT_MOB:
-		CREATE(mob_proto, CHAR_DATA, rec_count);
+		mob_proto = new CHAR_DATA[rec_count]; // TODO: переваять на вектор (+в medit)
 		CREATE(mob_index, INDEX_DATA, rec_count);
 		size[0] = sizeof(INDEX_DATA) * rec_count;
 		size[1] = sizeof(CHAR_DATA) * rec_count;
@@ -2479,7 +2500,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 			return;
 		}
 		t[1] = MIN(200, MAX(0, t[1]));
-		SET_SKILL(mob_proto + i, t[0], t[1]);
+		(mob_proto + i)->set_skill(t[0], t[1]);
 	}
 
 	CASE("Spell") {
@@ -2730,7 +2751,6 @@ void parse_mobile(FILE * mob_f, int nr)
 	mob_index[i].number = 0;
 	mob_index[i].func = NULL;
 
-	clear_char(mob_proto + i);
 	/*
 	 * Mobiles should NEVER use anything in the 'player_specials' structure.
 	 * The only reason we have every mob in the game share this copy of the
@@ -2856,7 +2876,7 @@ void parse_mobile(FILE * mob_f, int nr)
      }
   if (count) log("SPELLS : %s", buf);
   for(j=1, count=0; j<MAX_SKILLS; j++)
-     {if (get_skill(mob_proto+i,j))
+     {if ((mob_proto+i)->get_skill(j))
          count += sprintf(buf+count," %d ",j);
      }
   if (count) log("SKILLS : %s", buf);
@@ -3430,28 +3450,11 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	return (found);
 }
 
-
-/* create a character, and add it to the char list */
-CHAR_DATA *create_char(void)
-{
-	CHAR_DATA *ch;
-
-	CREATE(ch, CHAR_DATA, 1);
-	clear_char(ch);
-	ch->next = character_list;
-	character_list = ch;
-	GET_ID(ch) = max_id++;
-
-	return (ch);
-}
-
-
 /* create a new mobile from a prototype */
 CHAR_DATA *read_mobile(mob_vnum nr, int type)
 {				/* and mob_rnum */
 	int is_corpse = 0;
 	mob_rnum i;
-	CHAR_DATA *mob;
 
 	if (nr < 0) {
 		is_corpse = 1;
@@ -3466,8 +3469,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	} else
 		i = nr;
 
-	CREATE(mob, CHAR_DATA, 1);
-	clear_char(mob);
+	CHAR_DATA *mob = new CHAR_DATA;
 	*mob = mob_proto[i];
 	mob->proto_script = NULL;
 	mob->next = character_list;
@@ -4702,8 +4704,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	ch->player.long_descr = NULL;
 
 	ch->real_abils.Feats.reset();
-	for (i = 1; i <= MAX_SKILLS; i++)
-		SET_SKILL(ch, i, 0);
 
 	// волхвам сетим все спеллы на рунах, остальные инит нулями
 	if (GET_CLASS(ch) != CLASS_DRUID)
@@ -4920,14 +4920,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				GET_COND(ch, DRUNK) = num;
 			else if (!strcmp(tag, "DrSt"))
 				GET_DRUNK_STATE(ch) = num;
-			// Оставлено для совместимости со старым форматом наказаний
-			else if (!strcmp(tag, "DmbD")) {
-				DUMB_DURATION(ch) = lnum;
-				while (line[i] && a_isspace(line[i]))
-					++i;
-				if (line[i])
-					DUMB_REASON(ch) = strcpy((char *) malloc(strlen(line + i) + 1), line + i);
-			} else if (!strcmp(tag, "Drol"))
+			else if (!strcmp(tag, "Drol"))
 				GET_DR(ch) = num;
 			break;
 
@@ -4944,13 +4937,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			// Оставлено для совместимости со старым форматом наказаний
 			if (!strcmp(tag, "Frez"))
 				GET_FREEZE_LEV(ch) = num;
-			else if (!strcmp(tag, "FrzD")) {
-				FREEZE_DURATION(ch) = lnum;
-				while (line[i] && a_isspace(line[i]))
-					++i;
-				if (line[i])
-					FREEZE_REASON(ch) = strcpy((char *) malloc(strlen(line + i) + 1), line + i);
-			} else if (!strcmp(tag, "Feat")) {
+			else if (!strcmp(tag, "Feat")) {
 				do {
 					fbgetline(fl, line);
 					sscanf(line, "%d", &num);
@@ -4997,14 +4984,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				GET_HR(ch) = num;
 			else if (!strcmp(tag, "Hung"))
 				GET_COND(ch, FULL) = num;
-			// Оставлено для совместимости со старым форматом наказаний
-			else if (!strcmp(tag, "HelD")) {
-				HELL_DURATION(ch) = lnum;
-				while (line[i] && a_isspace(line[i]))
-					++i;
-				if (line[i])
-					HELL_REASON(ch) = strcpy((char *) malloc(strlen(line + i) + 1), line + i);
-			} else if (!strcmp(tag, "Host"))
+			else if (!strcmp(tag, "Host"))
 				strcpy(GET_LASTIP(ch), line);
 			break;
 
@@ -5067,12 +5047,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				sscanf(line, "%d/%d", &num, &num2);
 				GET_MOVE(ch) = num;
 				GET_MAX_MOVE(ch) = num2;
-			} else if (!strcmp(tag, "MutD")) {
-				MUTE_DURATION(ch) = lnum;
-				while (line[i] && a_isspace(line[i]))
-					++i;
-				if (line[i])
-					MUTE_REASON(ch) = strcpy((char *) malloc(strlen(line + i) + 1), line + i);
 			} else if (!strcmp(tag, "Mobs")) {
 				do {
 					if (!fbgetline(fl, line))
@@ -5261,7 +5235,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 					sscanf(line, "%d %d", &num, &num2);
 					if (num != 0)
 						if(skill_info[num].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] == KNOW_SKILL)
-							SET_SKILL(ch, num, num2);
+							ch->set_skill(num, num2);
 				}
 				while (num != 0);
 			} else if (!strcmp(tag, "SkTm")) {
@@ -5336,7 +5310,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	/* initialization for imms */
 	if (GET_LEVEL(ch) >= LVL_IMMORT) {
 		for (i = 1; i <= MAX_SKILLS; i++)
-			SET_SKILL(ch, i, 100);
+			ch->set_skill(i, 100);
 		GET_COND(ch, FULL) = -1;
 		GET_COND(ch, THIRST) = -1;
 		GET_COND(ch, DRUNK) = -1;
@@ -5492,184 +5466,6 @@ char *fread_string(FILE * fl, char *error)
 		rslt = NULL;
 	return (rslt);
 }
-
-
-/* release memory allocated for a char struct */
-void free_char(CHAR_DATA * ch)
-{
-	int i, j, id = -1;
-	struct alias_data *a;
-	struct helper_data_type *temp;
-
-	log("[FREE CHAR] (%s)", GET_NAME(ch));
-
-	if (!IS_NPC(ch)) {
-		id = get_ptable_by_name(GET_NAME(ch));
-		if (id >= 0) {
-			player_table[id].level = (GET_REMORT(ch) ? 30 : GET_LEVEL(ch));
-			player_table[id].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
-		}
-	}
-
-	if (!IS_NPC(ch) || (IS_NPC(ch) && GET_MOB_RNUM(ch) == -1)) {	/* if this is a player, or a non-prototyped non-player, free all */
-		if (GET_NAME(ch))
-			free(GET_NAME(ch));
-
-		if (GET_PASSWD(ch))
-			free(GET_PASSWD(ch));
-
-		for (j = 0; j < NUM_PADS; j++)
-			if (GET_PAD(ch, j))
-				free(GET_PAD(ch, j));
-
-		if (ch->player.title)
-			free(ch->player.title);
-
-		if (ch->player.short_descr)
-			free(ch->player.short_descr);
-
-		if (ch->player.long_descr)
-			free(ch->player.long_descr);
-
-		if (ch->player.description)
-			free(ch->player.description);
-
-		if (IS_NPC(ch) && ch->mob_specials.Questor)
-			free(ch->mob_specials.Questor);
-
-		if (ch->Questing.quests)
-			free(ch->Questing.quests);
-
-		free_mkill(ch);
-
-		pk_free_list(ch);
-
-		while (ch->helpers)
-			REMOVE_FROM_LIST(ch->helpers, ch->helpers, next_helper);
-	} else if ((i = GET_MOB_RNUM(ch)) >= 0) {	/* otherwise, free strings only if the string is not pointing at proto */
-		if (ch->player.name && ch->player.name != mob_proto[i].player.name)
-			free(ch->player.name);
-
-		for (j = 0; j < NUM_PADS; j++)
-			if (GET_PAD(ch, j)
-			    && (ch->player.PNames[j] != mob_proto[i].player.PNames[j]))
-				free(ch->player.PNames[j]);
-
-		if (ch->player.title && ch->player.title != mob_proto[i].player.title)
-			free(ch->player.title);
-
-		if (ch->player.short_descr && ch->player.short_descr != mob_proto[i].player.short_descr)
-			free(ch->player.short_descr);
-
-		if (ch->player.long_descr && ch->player.long_descr != mob_proto[i].player.long_descr)
-			free(ch->player.long_descr);
-
-		if (ch->player.description && ch->player.description != mob_proto[i].player.description)
-			free(ch->player.description);
-
-		if (ch->mob_specials.Questor && ch->mob_specials.Questor != mob_proto[i].mob_specials.Questor)
-			free(ch->mob_specials.Questor);
-	}
-
-	supress_godsapply = TRUE;
-	while (ch->affected)
-		affect_remove(ch, ch->affected);
-	supress_godsapply = FALSE;
-
-	while (ch->timed)
-		timed_from_char(ch, ch->timed);
-
-	if (ch->desc)
-		ch->desc->character = NULL;
-
-	if (ch->player_specials != NULL && ch->player_specials != &dummy_mob) {
-		while ((a = GET_ALIASES(ch)) != NULL) {
-			GET_ALIASES(ch) = (GET_ALIASES(ch))->next;
-			free_alias(a);
-		}
-		if (ch->player_specials->poofin)
-			free(ch->player_specials->poofin);
-		if (ch->player_specials->poofout)
-			free(ch->player_specials->poofout);
-		/* рецепты */
-		while (GET_RSKILL(ch) != NULL) {
-			im_rskill *r;
-			r = GET_RSKILL(ch)->link;
-			free(GET_RSKILL(ch));
-			GET_RSKILL(ch) = r;
-		}
-		/* порталы */
-		while (GET_PORTALS(ch) != NULL) {
-			struct char_portal_type *prt_next;
-			prt_next = GET_PORTALS(ch)->next;
-			free(GET_PORTALS(ch));
-			GET_PORTALS(ch) = prt_next;
-		}
-// Cleanup punish reasons
-		if (MUTE_REASON(ch))
-			free(MUTE_REASON(ch));
-		if (DUMB_REASON(ch))
-			free(DUMB_REASON(ch));
-		if (HELL_REASON(ch))
-			free(HELL_REASON(ch));
-		if (FREEZE_REASON(ch))
-			free(FREEZE_REASON(ch));
-		if (NAME_REASON(ch))
-			free(NAME_REASON(ch));
-// End reasons cleanup
-
-		if (KARMA(ch))
-			free(KARMA(ch));
-
-		if (GET_LAST_ALL_TELL(ch))
-			free(GET_LAST_ALL_TELL(ch));
-		free(GET_LOGS(ch));
-// shapirus: подчистим за криворукуми кодерами memory leak,
-// вызванный неосвобождением фильтра базара...
-		if (EXCHANGE_FILTER(ch))
-			free(EXCHANGE_FILTER(ch));
-		EXCHANGE_FILTER(ch) = NULL;	// на всякий случай
-// ...а заодно и игнор лист *смущ :)
-		while (IGNORE_LIST(ch)) {
-			struct ignore_data *ign_next;
-			ign_next = IGNORE_LIST(ch)->next;
-			free(IGNORE_LIST(ch));
-			IGNORE_LIST(ch) = ign_next;
-		}
-		IGNORE_LIST(ch) = NULL;
-
-		// пока без деструктора чистим сами
-		CLAN(ch).reset();
-		CLAN_MEMBER(ch).reset();
-		if (GET_CLAN_STATUS(ch))
-			free(GET_CLAN_STATUS(ch));
-
-		// Чистим лист логонов
-		while (LOGON_LIST(ch)) {
-			struct logon_data *log_next;
-			log_next = LOGON_LIST(ch)->next;
-//			free(LOGON_LIST(ch));
-                        free(ch->player_specials->logons->ip);
-                        delete LOGON_LIST(ch);
-			LOGON_LIST(ch) = log_next;
-		}
-		LOGON_LIST(ch) = NULL;
-
-		if (GET_BOARD(ch))
-			delete GET_BOARD(ch);
-		GET_BOARD(ch) = 0;
-
-		free(ch->player_specials);
-		ch->player_specials = NULL;	// чтобы словить ACCESS VIOLATION !!!
-		if (IS_NPC(ch))
-			log("SYSERR: Mob %s (#%d) had player_specials allocated!", GET_NAME(ch), GET_MOB_VNUM(ch));
-	};
-
-	free(ch);
-}
-
-
-
 
 /* release memory allocated for an obj struct */
 void free_obj(OBJ_DATA * obj)
@@ -5853,35 +5649,15 @@ void reset_char(CHAR_DATA * ch)
 	GET_LAST_TELL(ch) = NOBODY;
 }
 
-
-
-/* clear ALL the working variables of a char; do NOT free any space alloc'ed */
-void clear_char(CHAR_DATA * ch)
-{
-	memset((char *) ch, 0, sizeof(CHAR_DATA));
-	ch->in_room = NOWHERE;
-	GET_PFILEPOS(ch) = -1;
-	GET_MOB_RNUM(ch) = NOBODY;
-	GET_WAS_IN(ch) = NOWHERE;
-	GET_POS(ch) = POS_STANDING;
-	GET_CASTER(ch) = 0;
-	GET_DAMAGE(ch) = 0;
-	MemQ_flush(ch);
-	ch->Poisoner = 0;
-	ch->mob_specials.default_pos = POS_STANDING;
-}
-
-
 void clear_char_skills(CHAR_DATA * ch)
 {
 	int i;
 	ch->real_abils.Feats.reset();
-	for (i = 0; i < MAX_SKILLS + 1; i++)
-		ch->real_abils.Skills[i] = 0;
 	for (i = 0; i < MAX_SPELLS + 1; i++)
 		ch->real_abils.SplKnw[i] = 0;
 	for (i = 0; i < MAX_SPELLS + 1; i++)
 		ch->real_abils.SplMem[i] = 0;
+	ch->skills.clear();
 }
 
 /* initialize a new character only if class is set */
@@ -5932,12 +5708,10 @@ void init_char(CHAR_DATA * ch)
 		log("SYSERR: init_char: Character '%s' not found in player table.", GET_NAME(ch));
 	}
 
-	for (i = 1; i <= MAX_SKILLS; i++) {
-		if (GET_LEVEL(ch) < LVL_GRGOD)
-			SET_SKILL(ch, i, 0);
-		else
-			SET_SKILL(ch, i, 100);
-	}
+	if (GET_LEVEL(ch) >= LVL_IMPL)
+		for (i = 1; i <= MAX_SKILLS; i++)
+			ch->set_skill(i, 100);
+
 	for (i = 1; i <= MAX_SPELLS; i++) {
 		if (GET_LEVEL(ch) < LVL_GRGOD)
 			GET_SPELL_TYPE(ch, i) = 0;
@@ -6067,8 +5841,9 @@ ACMD(do_remort)
 
 	while (ch->timed)
 		timed_from_char(ch, ch->timed);
-	for (i = 1; i <= MAX_SKILLS; i++)
-		SET_SKILL(ch, i, 0);
+
+	ch->skills.clear();
+
 	for (i = 1; i <= MAX_SPELLS; i++) {
 		GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
 		GET_SPELL_MEM(ch, i) = 0;
@@ -6360,19 +6135,19 @@ int must_be_deleted(CHAR_DATA * short_ch)
 void entrycount(char *name)
 {
 	int i, deleted;
-	CHAR_DATA * short_ch;
 	char filename[MAX_STRING_LENGTH];
 
-	if (get_filename(name, filename, PLAYERS_FILE)) {
-
-		CREATE(short_ch, CHAR_DATA, 1);
-		clear_char(short_ch);
+	if (get_filename(name, filename, PLAYERS_FILE))
+	{
+		CHAR_DATA t_short_ch;
+		CHAR_DATA *short_ch = &t_short_ch;
 		deleted = 1;
 		// персонаж загружается неполностью
-		if (load_char(name, short_ch, 1) > -1) {
-// //		if (load_char(name, short_ch) > -1) {
+		if (load_char(name, short_ch, 1) > -1)
+		{
 			/* если чар удален или им долго не входили, то не создаем для него запись */
-			if (!must_be_deleted(short_ch)) {
+			if (!must_be_deleted(short_ch))
+			{
 				deleted = 0;
 				/* new record */
 				if (player_table)
@@ -6389,24 +6164,23 @@ void entrycount(char *name)
 				player_table[top_of_p_table].unique = GET_UNIQUE(short_ch);
 				player_table[top_of_p_table].level = (GET_REMORT(short_ch) ? 30 : GET_LEVEL(short_ch));
 				player_table[top_of_p_table].timer = NULL;
-				if (IS_SET(PLR_FLAGS(short_ch, PLR_DELETED), PLR_DELETED)) {
+				if (IS_SET(PLR_FLAGS(short_ch, PLR_DELETED), PLR_DELETED))
+				{
 					player_table[top_of_p_table].last_logon = -1;
 					player_table[top_of_p_table].activity = -1;
-				} else {
+				} else
+				{
 					player_table[top_of_p_table].last_logon = LAST_LOGON(short_ch);
 					player_table[top_of_p_table].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
 				}
 				top_idnum = MAX(top_idnum, GET_IDNUM(short_ch));
 				TopPlayer::Refresh(short_ch, 1);
 				log("Add new player %s", player_table[top_of_p_table].name);
-// //
 			}
-			free_char(short_ch);
-		} else {
-			free(short_ch);
 		}
 		/* если чар уже удален, то стираем с диска его файл */
-		if (deleted) {
+		if (deleted)
+		{
 			log("Player %s already deleted - kill player file", name);
 			remove(filename);
 			// 2) Remove all other files
@@ -6726,8 +6500,8 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	if (GET_LEVEL(ch) < LVL_IMMORT) {
 		fprintf(saved, "Skil:\n");
 		for (i = 1; i <= MAX_SKILLS; i++) {
-			if (get_skill(ch, i))
-				fprintf(saved, "%d %d %s\n", i, get_skill(ch, i), skill_info[i].name);
+			if (ch->get_skill(i))
+				fprintf(saved, "%d %d %s\n", i, ch->get_skill(i), skill_info[i].name);
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -6983,31 +6757,28 @@ void rename_char(CHAR_DATA * ch, char *oname)
 	rename(ofilename, filename);
 }
 
+/*
+* Добровольное удаление персонажа через игровое меню.
+*/
 void delete_char(char *name)
 {
-	CHAR_DATA *st;
-	int id;
+	CHAR_DATA t_st;
+	CHAR_DATA *st = &t_st;
+	int id = load_char(name, st);
 
-	CREATE(st, CHAR_DATA, 1);
-	clear_char(st);
-	if ((id = load_char(name, st)) >= 0) {
-		// 1) Mark char as deleted
+	if (id >= 0)
+	{
 		SET_BIT(PLR_FLAGS(st, PLR_DELETED), PLR_DELETED);
-
-		// выносим из листа неодобренных имен, если есть
 		NewNameRemove(st);
 		Clan::remove_from_clan(GET_UNIQUE(st));
-
-		save_char(st, GET_LOADROOM(st));
-		extract_char(st, FALSE);
+		save_char(st, NOWHERE);
 
 		Crash_clear_objects(id);
 		player_table[id].unique = -1;
 		player_table[id].level = -1;
 		player_table[id].last_logon = -1;
 		player_table[id].activity = -1;
-	} else
-		free(st);
+	}
 }
 
 void room_copy(ROOM_DATA * dst, ROOM_DATA * src)

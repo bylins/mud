@@ -22,6 +22,7 @@
 #include "interpreter.h"
 #include "screen.h"
 #include "pk.h"
+#include "char.hpp"
 
 ACMD(do_revenge);
 

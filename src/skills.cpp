@@ -24,6 +24,7 @@
 #include "im.h"
 #include "features.hpp"
 #include "random.hpp"
+#include "char.hpp"
 
 /*
  * message for doing damage with a spell or skill
@@ -208,7 +209,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	if (skill_no < 1 || skill_no > MAX_SKILLS) {	// log("ERROR: ATTEMPT USING UNKNOWN SKILL <%d>", skill_no);
 		return 0;
 	}
-	if ((skill_is = get_skill(ch, skill_no)) <= 0) {
+	if ((skill_is = ch->get_skill(skill_no)) <= 0) {
 		return 0;
 	}
 
@@ -389,7 +390,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	case SKILL_PARRY:	/*парировать */
 		percent = skill_is + dex_app[GET_REAL_DEX(ch)].reaction;
 		if (GET_AF_BATTLE(ch, EAF_AWAKE))
-			percent += get_skill(ch, SKILL_AWAKE);
+			percent += ch->get_skill(SKILL_AWAKE);
 
 		if (GET_EQ(ch, WEAR_HOLD)
 		    && GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ITEM_WEAPON) {
@@ -406,7 +407,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	case SKILL_BLOCK:	/*закрыться щитом */
 		percent = skill_is + dex_app[GET_REAL_DEX(ch) * 2].reaction;
 		if (GET_AF_BATTLE(ch, EAF_AWAKE))
-			percent += get_skill(ch, SKILL_AWAKE);
+			percent += ch->get_skill(SKILL_AWAKE);
 
 		break;
 
@@ -710,10 +711,10 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 //
 	     (diff =
 	      wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20 -
-	      get_skill(ch, skill_no)) > 0
-	     && get_skill(ch, skill_no) < MAX_EXP_PERCENT + GET_REMORT(ch) * 5)) {
+	      ch->get_skill(skill_no)) > 0
+	     && ch->get_skill(skill_no) < MAX_EXP_PERCENT + GET_REMORT(ch) * 5)) {
 		for (prob = how_many = 0; prob <= MAX_SKILLS; prob++)
-			if (get_skill(ch, prob))
+			if (ch->get_skill(prob))
 				how_many++;
 
 		how_many += (im_get_char_rskill_count(ch) + 1) >> 1;
@@ -732,7 +733,7 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 			prob += (5 * diff);
 		else
 			prob += (10 * diff);
-		prob += number(1, get_skill(ch, skill_no) * 5);
+		prob += number(1, ch->get_skill(skill_no) * 5);
 
 		skill_is = number(1, MAX(1, prob));
 
@@ -754,9 +755,9 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 					CCICYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch,
 										       C_NRM));
 			send_to_char(buf, ch);
-			SET_SKILL(ch, skill_no, (get_skill(ch, skill_no) + number(1, 2)));
+			ch->set_skill(skill_no, (ch->get_skill(skill_no) + number(1, 2)));
 			if (!IS_IMMORTAL(ch))
-				SET_SKILL(ch, skill_no, (MIN(MAX_EXP_PERCENT + GET_REMORT(ch) * 5, get_skill(ch, skill_no))));
+				ch->set_skill(skill_no, (MIN(MAX_EXP_PERCENT + GET_REMORT(ch) * 5, ch->get_skill(skill_no))));
 // скилл прокачался, помечаю моба (если он есть)
 			if (victim && IS_NPC(victim))
 				SET_BIT(MOB_FLAGS(victim, MOB_NOTRAIN), MOB_NOTRAIN);
@@ -772,7 +773,7 @@ int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict)
 	percent = calculate_skill(ch, skill_no, max_value, vict);
 	if (!IS_NPC(ch)) {
 		if (skill_no != SKILL_SATTACK &&
-		    get_skill(ch, skill_no) > 0 && (!vict
+		    ch->get_skill(skill_no) > 0 && (!vict
 						    || (IS_NPC(vict)
 							&& !MOB_FLAGGED(vict, MOB_PROTECT)
 							&& !MOB_FLAGGED(vict, MOB_NOTRAIN)
@@ -780,10 +781,10 @@ int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict)
 							&& !IS_HORSE(vict))))
 			improove_skill(ch, skill_no, percent >= max_value, vict);
 	} else if (!IS_CHARMICE(ch))
-	    if (get_skill(ch, skill_no) > 0 &&
+	    if (ch->get_skill(skill_no) > 0 &&
 		GET_REAL_INT(ch) <= number(0, 1000 - 20 * GET_REAL_WIS(ch)) &&
-		get_skill(ch, skill_no) < skill_info[skill_no].max_percent)
-		SET_SKILL(ch, skill_no, get_skill(ch, skill_no) + 1);
+		ch->get_skill(skill_no) < skill_info[skill_no].max_percent)
+		ch->set_skill(skill_no, ch->get_skill(skill_no) + 1);
 
 	return (percent);
 }
@@ -803,12 +804,12 @@ int calculate_awake_mod(CHAR_DATA *ch, CHAR_DATA *vict)
 		return result;
 	}
 	if (IS_NPC(ch) || (vict && IS_NPC(vict)))
-		result = get_skill(ch, SKILL_AWAKE) / 2;
+		result = ch->get_skill(SKILL_AWAKE) / 2;
 	else if (GET_CLASS(ch) != CLASS_ASSASINE)
-		result = get_skill(ch, SKILL_AWAKE) / 2;
-	else if (get_skill(ch, SKILL_AWAKE) <= 80)
-		result = get_skill(ch, SKILL_AWAKE) / 2;
+		result = ch->get_skill(SKILL_AWAKE) / 2;
+	else if (ch->get_skill(SKILL_AWAKE) <= 80)
+		result = ch->get_skill(SKILL_AWAKE) / 2;
 	else
-		result = 40 + (get_skill(ch, SKILL_AWAKE) - 80) / 5;
+		result = 40 + (ch->get_skill(SKILL_AWAKE) - 80) / 5;
 	return result;
 }
