@@ -1724,7 +1724,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case OEDIT_CURVALUE:
-		GET_OBJ_CUR(OLC_OBJ(d)) = atoi(arg);
+		GET_OBJ_CUR(OLC_OBJ(d)) = MIN(GET_OBJ_MAX(OLC_OBJ(d)), atoi(arg));
 		break;
 
 	case OEDIT_SEXVALUE:

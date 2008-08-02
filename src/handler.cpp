@@ -1506,7 +1506,9 @@ int apply_armour(CHAR_DATA * ch, int eq_pos)
 	if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
 		factor *= MOB_ARMOUR_MULT;
 
-	return (factor * GET_OBJ_VAL(obj, 1) * GET_OBJ_CUR(obj) / MAX(1, GET_OBJ_MAX(obj)));
+	// чтобы не плюсовать левую броню на стафе с текущей прочностью выше максимальной
+	int cur_dur = MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj));
+	return (factor * GET_OBJ_VAL(obj, 1) * cur_dur / MAX(1, GET_OBJ_MAX(obj)));
 }
 
 int invalid_align(CHAR_DATA * ch, OBJ_DATA * obj)

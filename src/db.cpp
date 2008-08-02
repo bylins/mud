@@ -2951,7 +2951,7 @@ char *parse_object(FILE * obj_f, int nr)
 	}
 	asciiflag_conv(f0, &tobj->obj_flags.Obj_skill);
 	tobj->obj_flags.Obj_max = t[1];
-	tobj->obj_flags.Obj_cur = t[2];
+	tobj->obj_flags.Obj_cur = MIN(t[1], t[2]);
 	tobj->obj_flags.Obj_mater = t[3];
 
 	if (!get_line(obj_f, line)) {
