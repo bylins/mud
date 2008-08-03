@@ -43,6 +43,10 @@ extern const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode,
 extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 
+// vnum кланового сундука
+static const int CLAN_CHEST_VNUM = 330;
+static int CLAN_CHEST_RNUM = -1;
+
 long long clan_level_exp [MAX_CLANLEVEL+1] =
 {
 	0LL,
@@ -85,7 +89,8 @@ bool Clan::InEnemyZone(CHAR_DATA * ch)
 
 Clan::Clan()
 	: guard(0), builtOn(time(0)), bankBuffer(0), entranceMode(0), bank(2000), exp(0), clan_exp(0),
-	exp_buf(0), clan_level(0), rent(0), out_rent(0), chest_room(0), storehouse(1), exp_info(1), test_clan(0)
+	exp_buf(0), clan_level(0), rent(0), out_rent(0), chest_room(0), storehouse(1), exp_info(1),
+	test_clan(0), chest_objcount(0), chest_discount(0), chest_weight(0)
 {
 
 }
@@ -98,6 +103,7 @@ Clan::~Clan()
 // лоад/релоад индекса и файлов кланов
 void Clan::ClanLoad()
 {
+	init_chest_rnum();
 	// на случай релоада
 	Clan::ClanList.clear();
 
@@ -1595,7 +1601,7 @@ void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 	for (int i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
 		tempClan->privileges[0].set(i);
 	// залоадим сразу хранилище
-	OBJ_DATA * chest = read_object(CLAN_CHEST, VIRTUAL);
+	OBJ_DATA * chest = read_object(CLAN_CHEST_VNUM, VIRTUAL);
 	if (chest)
 		obj_to_room(chest, real_room(tempClan->chest_room));
 
@@ -2066,9 +2072,6 @@ bool Clan::TakeChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 void Clan::ChestSave()
 {
 	OBJ_DATA *chest, *temp;
-	int chest_num = real_object(CLAN_CHEST);
-	if (chest_num < 0)
-		return;
 
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
 		std::string buffer = (*clan)->abbrev;
@@ -2076,7 +2079,7 @@ void Clan::ChestSave()
 			buffer[i] = LOWER(AtoL(buffer[i]));
 		std::string filename = LIB_HOUSE + buffer + "/" + buffer + ".obj";
 		for (chest = world[real_room((*clan)->chest_room)]->contents; chest; chest = chest->next_content)
-			if (chest->item_number == chest_num) {
+			if (Clan::is_clan_chest(chest)) {
 				std::string buffer2;
 				for (temp = chest->contains; temp; temp = temp->next_content) {
 					char databuf[MAX_STRING_LENGTH];
@@ -2103,9 +2106,6 @@ void Clan::ChestSave()
 void Clan::ChestLoad()
 {
 	OBJ_DATA *obj, *chest, *temp, *obj_next;
-	int chest_num = real_object(CLAN_CHEST);
-	if (chest_num < 0)
-		return;
 
 	// TODO: при сильном желании тут можно пробегать все зоны замков или вообще все зоны/предметы и пуржить все chest
 	// предметы и их содержимое, на случай релоада кланов и изменения комнаты с хранилищем (чтобы в маде не пуржить руками)
@@ -2113,7 +2113,7 @@ void Clan::ChestLoad()
 	// на случай релоада - чистим перед этим все что было в сундуках
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
 		for (chest = world[real_room((*clan)->chest_room)]->contents; chest; chest = chest->next_content) {
-			if (chest->item_number == chest_num) {
+			if (Clan::is_clan_chest(chest)) {
 				for (temp = chest->contains; temp; temp = obj_next) {
 					obj_next = temp->next_content;
 					obj_from_obj(temp);
@@ -2136,7 +2136,7 @@ void Clan::ChestLoad()
 		std::string filename = LIB_HOUSE + buffer + "/" + buffer + ".obj";
 
 		//лоадим сундук. в зонах его лоадить не нужно.
-		chest = read_object(CLAN_CHEST, VIRTUAL);
+		chest = read_object(CLAN_CHEST_VNUM, VIRTUAL);
 		if (chest)
 			obj_to_room(chest, real_room((*clan)->chest_room));
 
@@ -2199,18 +2199,15 @@ void Clan::ChestUpdate()
 		// TODO: а тут придется опять искать, ибо выше сундук уже похерен, надо фиксить
 		if ((*clan)->bank < 0) {
 			(*clan)->bank = 0;
-			int chest_num = real_object(CLAN_CHEST);
 			OBJ_DATA *temp, *chest, *obj_next;
-			if (chest_num >= 0) {
-				for (chest = world[real_room((*clan)->chest_room)]->contents; chest; chest = chest->next_content) {
-					if (chest->item_number == chest_num) {
-						for (temp = chest->contains; temp; temp = obj_next) {
-							obj_next = temp->next_content;
-							obj_from_obj(temp);
-							extract_obj(temp);
-						}
-						break;
+			for (chest = world[real_room((*clan)->chest_room)]->contents; chest; chest = chest->next_content) {
+				if (Clan::is_clan_chest(chest)) {
+					for (temp = chest->contains; temp; temp = obj_next) {
+						obj_next = temp->next_content;
+						obj_from_obj(temp);
+						extract_obj(temp);
 					}
+					break;
 				}
 			}
 		}
@@ -2999,15 +2996,12 @@ ACMD(DoStoreHouse)
 		return;
 	}
 
-	int chest_num = real_object(CLAN_CHEST);
 	OBJ_DATA *temp_obj, *chest;
 
 	skip_spaces(&argument);
 	if (!*argument) {
-		if (chest_num < 0)
-			return;
 		for (chest = world[real_room(CLAN(ch)->chest_room)]->contents; chest; chest = chest->next_content) {
-			if (chest->item_number == chest_num) {
+			if (Clan::is_clan_chest(chest)) {
 				Clan::ChestShow(chest, ch);
 				return;
 			}
@@ -3025,7 +3019,7 @@ ACMD(DoStoreHouse)
 		}
 
 		for (chest = world[real_room(CLAN(ch)->chest_room)]->contents; chest; chest = chest->next_content) {
-			if (chest->item_number == chest_num) {
+			if (Clan::is_clan_chest(chest)) {
 				for (temp_obj = chest->contains; temp_obj; temp_obj = temp_obj->next_content) {
 					if (isname(stufina, temp_obj->name)) {
 						sprintf(buf1, "Характеристики предмета: %s\r\n", stufina);
@@ -3304,7 +3298,7 @@ ACMD(DoStoreHouse)
 
 	std::ostringstream out;
 	for (chest = world[real_room(CLAN(ch)->chest_room)]->contents; chest; chest = chest->next_content) {
-		if (chest->item_number == chest_num) {
+		if (Clan::is_clan_chest(chest)) {
 			for (temp_obj = chest->contains; temp_obj; temp_obj = temp_obj->next_content) {
 				std::ostringstream modif;
 				// сверяем имя
@@ -3568,21 +3562,18 @@ void Clan::ChestInvoice()
 
 int Clan::ChestTax()
 {
-	int chest_num = real_object(CLAN_CHEST);
 	OBJ_DATA *temp,*chest;
 	int cost = 0;
 	int count = 0;
-	if (chest_num >= 0) {
-		for (chest = world[real_room(this->chest_room)]->contents; chest; chest = chest->next_content) {
-			if (chest->item_number == chest_num) {
-				// перебираем шмот
-				for (temp = chest->contains; temp; temp = temp->next_content) {
-					cost += GET_OBJ_RENTEQ(temp);
-					++count;
-				}
-				this->chest_weight = GET_OBJ_WEIGHT(chest);
-				break;
+	for (chest = world[real_room(this->chest_room)]->contents; chest; chest = chest->next_content) {
+		if (Clan::is_clan_chest(chest)) {
+			// перебираем шмот
+			for (temp = chest->contains; temp; temp = temp->next_content) {
+				cost += GET_OBJ_RENTEQ(temp);
+				++count;
 			}
+			this->chest_weight = GET_OBJ_WEIGHT(chest);
+			break;
 		}
 	}
 	this->chest_objcount = count;
@@ -3600,8 +3591,7 @@ int Clan::ChestTax()
 */
 bool Clan::ChestShow(OBJ_DATA * obj, CHAR_DATA * ch)
 {
-	int chest_num = real_object(CLAN_CHEST);
-	if (chest_num < 0 || !ch->desc || obj->item_number != chest_num)
+	if (!ch->desc || !Clan::is_clan_chest(obj))
 		return 0;
 
 	if (CLAN(ch) && real_room(CLAN(ch)->chest_room) == IN_ROOM(obj)) {
@@ -3845,4 +3835,19 @@ void Clan::remove_from_clan(long unique)
 int Clan::GetMemberExpPersent(CHAR_DATA *ch)
 {
 	return CLAN(ch) ? CLAN_MEMBER(ch)->exp_persent : 0;
+}
+
+/**
+*
+*/
+void Clan::init_chest_rnum()
+{
+	CLAN_CHEST_RNUM = real_object(CLAN_CHEST_VNUM);
+}
+
+bool Clan::is_clan_chest(OBJ_DATA *obj)
+{
+	if (CLAN_CHEST_RNUM < 0 || obj->item_number != CLAN_CHEST_RNUM)
+		return false;
+	return true;
 }

@@ -48,8 +48,6 @@
 #define CLAN_ADDALL_MENU    3
 #define CLAN_DELALL_MENU    4
 
-// vnum кланового сундука
-#define CLAN_CHEST 330
 // период снятия за ренту (минут)
 #define CHEST_UPDATE_PERIOD 10
 // период оповещения о скорой кончине денег (минут)
@@ -162,6 +160,9 @@ class Clan
 	std::string GetClanTitle() { return this->title; };
 	bool CheckPrivilege(int rank, int privilege) { return this->privileges[rank][privilege]; };
 
+	static void init_chest_rnum();
+	static bool is_clan_chest(OBJ_DATA *obj);
+
 	friend ACMD(DoHouse);
 	friend ACMD(DoClanChannel);
 	friend ACMD(DoClanList);
@@ -200,11 +201,11 @@ class Clan
 	bool storehouse;    // опция выборки из хранилища по параметрам шмота
 	bool exp_info;      // показывать или нет набранную экспу
 	bool test_clan;     // тестовый клан (привет рсп)
+	// вообще, если появится еще пара-тройка опций, то надо будет это в битсет засунуть
 	//no save
 	int chest_objcount;
 	int chest_discount;
 	int chest_weight;
-	// вообще, если появится еще пара-тройка опций, то надо будет это в битсет засунуть
 
 	void ClanUpgrade();
 	int CheckPolitics(int victim);

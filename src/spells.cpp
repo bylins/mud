@@ -673,7 +673,6 @@ ASPELL(spell_locate_object)
 
 	strcpy(name, cast_argument);
 	j = level;
-	int chest_num = real_object(CLAN_CHEST);
 
 	for (i = object_list; i && (j > 0); i = i->next) {
 		if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
@@ -706,7 +705,7 @@ ASPELL(spell_locate_object)
 			else
 				continue;
 		} else if (i->in_obj) {
-			if (i->in_obj->item_number == chest_num) {
+			if (Clan::is_clan_chest(i->in_obj)) {
 				ClanListType::const_iterator clan = Clan::IsClanRoom(i->in_obj->in_room);
 				if (clan != Clan::ClanList.end())
 					sprintf(buf, "%s находится в хранилище дружины '%s'.\r\n", i->PNames[0], (*clan)->GetAbbrev());

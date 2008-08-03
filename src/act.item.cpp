@@ -88,7 +88,7 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 		return 2;
 
 	// если кладем в клановый сундук
-	if (cont->item_number == real_object(CLAN_CHEST)) {
+	if (Clan::is_clan_chest(cont)) {
 		if (!Clan::PutChest(ch, obj, cont))
 			return 1;
 		return 0;
@@ -465,7 +465,7 @@ bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont,
 {
 	if ((mode == FIND_OBJ_INV || mode == FIND_OBJ_ROOM || mode == FIND_OBJ_EQUIP) && can_take_obj(ch, obj) && get_otrigger(obj, ch)) {
 		// если берем из клан-сундука
-		if (cont->item_number == real_object(CLAN_CHEST)) {
+		if (Clan::is_clan_chest(cont)) {
 			if (!Clan::TakeChest(ch, obj, cont))
 				return 0;
 			return 1;

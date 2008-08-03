@@ -22,6 +22,7 @@
 #include "features.hpp"
 #include "depot.hpp"
 #include "char.hpp"
+#include "house.h"
 
 /*------------------------------------------------------------------------*/
 
@@ -251,11 +252,11 @@ void renumber_obj_rnum(int rnum)
 			// пересчет персональных хранилищ
 			if (GET_OBJ_RNUM(obj) == Depot::PERS_CHEST_RNUM)
 				Depot::PERS_CHEST_RNUM++;
-			// FIXME клановые потом тож воткнуть так
 			GET_OBJ_RNUM(obj)++;
 		}
 	}
 	Depot::renumber_obj_rnum(rnum);
+	Clan::init_chest_rnum();
 }
 
 /*------------------------------------------------------------------------*/

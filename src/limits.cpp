@@ -1247,12 +1247,11 @@ void point_update(void)
 
 
 	/* objects */
-	int chest = real_object(CLAN_CHEST);
 
 	for (j = object_list; j; j = next_thing) {
 		next_thing = j->next;	/* Next in object list */
 		// смотрим клан-сундуки
-		if (chest >= 0 && j->in_obj && j->in_obj->item_number == chest) {
+		if (j->in_obj && Clan::is_clan_chest(j->in_obj)) {
 			if (GET_OBJ_TIMER(j) > 0)
 				GET_OBJ_TIMER(j)--;
 

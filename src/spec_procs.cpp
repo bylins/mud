@@ -1414,9 +1414,8 @@ int npc_scavenge(CHAR_DATA * ch)
 		best_obj = NULL;
 		cont = NULL;
 		best_cont = NULL;
-		int chest = real_object(CLAN_CHEST); // шоб не брали из клан-хранилищ
 		for (obj = world[ch->in_room]->contents; obj; obj = obj->next_content) {
-			if (GET_OBJ_TYPE(obj) == ITEM_MING  || (chest!=-1 && obj->item_number == chest))
+			if (GET_OBJ_TYPE(obj) == ITEM_MING  || Clan::is_clan_chest(obj))
 					continue;
 			if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER) {
 				if (IS_CORPSE(obj))
