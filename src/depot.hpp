@@ -33,6 +33,8 @@ void enter_char(CHAR_DATA *ch);
 void exit_char(CHAR_DATA *ch);
 void reload_char(long uid, CHAR_DATA *ch);
 
+int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name);
+
 } // namespace Depot
 
 #endif // DEPOT_HPP_INCLUDED

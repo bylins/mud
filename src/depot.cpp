@@ -1175,4 +1175,31 @@ void reload_char(long uid, CHAR_DATA *ch)
 	imm_log(buf);
 }
 
+/**
+* Учет локейт в персональных хранилищах.
+* \param count - оставшееся кол-во возможных показываемых шмоток после прохода по основному обж-списку.
+*/
+int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
+{
+	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
+	{
+		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end(); ++obj_it)
+		{
+			if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
+				continue;
+			if (!isname(name.c_str(), (*obj_it)->name) || OBJ_FLAGGED((*obj_it), ITEM_NOLOCATE))
+				continue;
+
+			sprintf(buf, "%s находится у кого-то в персональном хранилище.\r\n", (*obj_it)->short_description);
+			CAP(buf);
+			send_to_char(buf, ch);
+
+			if (--count <= 0)
+				return count;
+		}
+	}
+	return count;
+}
+
+
 } // namespace Depot
