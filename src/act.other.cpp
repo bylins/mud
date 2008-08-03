@@ -1723,6 +1723,7 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 	"хранилище", "chest",
 	"пклист", "pklist",
 	"политика", "politics",
+	"пкформат", "pkformat",
 	"\n"
 };
 
@@ -1772,7 +1773,8 @@ struct gen_tog_param_type {
 	0, SCMD_BOARD_MODE}, {
 	0, SCMD_CHEST_MODE}, {
 	0, SCMD_PKL_MODE}, {
-	0, SCMD_POLIT_MODE}
+	0, SCMD_POLIT_MODE} , {
+	0, SCMD_PKFORMAT_MODE}
 };
 
 ACMD(do_mode)
@@ -1917,7 +1919,9 @@ ACMD(do_gen_tog)
 		{"Вы игнорируете уведомления о добавлении или очистке вас из листов дружин.\r\n",
 		"Вы получаете уведомления о добавлении или очистке вас из листов дружин.\r\n"},
 		{"Вы игнорируете уведомления об изменениях политики вашей и к вашей дружине.\r\n",
-		"Вы получаете уведомления об изменениях политики вашей и к вашей дружине.\r\n"}
+		"Вы получаете уведомления об изменениях политики вашей и к вашей дружине.\r\n"},
+		{"Формат показа пкл/дрл установлен как 'полный'.\r\n",
+		"Формат показа пкл/дрл установлен как 'краткий'.\r\n"}
 	};
 
 
@@ -2053,6 +2057,9 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_POLIT_MODE:
 		result = PRF_TOG_CHK(ch, PRF_POLIT_MODE);
+		break;
+	case SCMD_PKFORMAT_MODE:
+		result = PRF_TOG_CHK(ch, PRF_PKFORMAT_MODE);
 		break;
 
 	default:

@@ -1695,6 +1695,23 @@ bool check_online_state(long uid)
 	return false;
 }
 
+/**
+* Распечатка пкл/дрл с учетом режима 'пкфортмат'.
+*/
+void print_pkl(CHAR_DATA *ch, std::ostringstream &stream, ClanPkList::const_iterator &it)
+{
+	static char timeBuf[11];
+	static boost::format frmt("%s [%s] :: %s\r\n%s\r\n\r\n");
+
+	if (PRF_FLAGGED(ch, PRF_PKFORMAT_MODE))
+		stream << it->second->victimName << " : " << it->second->text << "\n";
+	else
+	{
+		strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
+		stream << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
+	}
+}
+
 // пкл/дрл
 ACMD(DoClanPkList)
 {
@@ -1706,7 +1723,6 @@ ACMD(DoClanPkList)
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
 	std::ostringstream info;
-	char timeBuf[11];
 
 	boost::format frmt("%s [%s] :: %s\r\n%s\r\n\r\n");
 	if (buffer2.empty())
@@ -1724,20 +1740,14 @@ ACMD(DoClanPkList)
 			{
 				it = CLAN(ch)->pkList.find(GET_UNIQUE(tch));
 				if (it != CLAN(ch)->pkList.end())
-				{
-					strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
-					info << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
-				}
+					print_pkl(ch, info, it);
 			}
 			// дрл
 			else
 			{
 				it = CLAN(ch)->frList.find(GET_UNIQUE(tch));
 				if (it != CLAN(ch)->frList.end())
-				{
-					strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
-					info << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
-				}
+					print_pkl(ch, info, it);
 			}
 		}
 		if (info.str().empty())
@@ -1752,17 +1762,12 @@ ACMD(DoClanPkList)
 		// пкл
 		if (!subcmd)
 			for (ClanPkList::const_iterator it = CLAN(ch)->pkList.begin(); it != CLAN(ch)->pkList.end(); ++it)
-			{
-				strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
-				info << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
-			}
+					print_pkl(ch, info, it);
 		// дрл
 		else
 			for (ClanPkList::const_iterator it = CLAN(ch)->frList.begin(); it != CLAN(ch)->frList.end(); ++it)
-			{
-				strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
-				info << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
-			}
+					print_pkl(ch, info, it);
+
 		if (info.str().empty())
 			info << "Записи в выбранном списке отсутствуют.\r\n";
 
@@ -1944,10 +1949,7 @@ ACMD(DoClanPkList)
 				if (CompareParam(buffer2, it->second->victimName, 1))
 				{
 					if (!online || check_online_state(it->first))
-					{
-						strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
-						out << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
-					}
+						print_pkl(ch, info, it);
 				}
 			}
 		}
@@ -1958,10 +1960,7 @@ ACMD(DoClanPkList)
 				if (CompareParam(buffer2, it->second->victimName, 1))
 				{
 					if (!online || check_online_state(it->first))
-					{
-						strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&(it->second->time)));
-						out << frmt % timeBuf % it->second->authorName % it->second->victimName % it->second->text;
-					}
+						print_pkl(ch, info, it);
 				}
 			}
 		}
