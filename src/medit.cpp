@@ -378,11 +378,14 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 #define ZCMD zone_table[zone].cmd[cmd_no]
 
 /*
- * Save new/edited mob to memory.
- * Здесь сейчас нельзя просто копировать через указатель поля из моба, т.к. при выходе
- * они будут чиститься через деструктор, поэтому пока только через medit_mobile_copy
- * TODO: ес-сно это муть все
- */
+* Save new/edited mob to memory.
+*
+* Здесь сейчас нельзя просто копировать через указатель поля из моба, т.к. при выходе
+* они будут чиститься через деструктор, поэтому пока только через medit_mobile_copy
+* add: прямое копирование без переаллокаций при добавлении нового моба работает
+* только потому, что в деструкторе сейчас не очищаются аллокации прототипов.
+* TODO: ес-сно это муть все
+*/
 void medit_save_internally(DESCRIPTOR_DATA * d)
 {
 	int rmob_num, found = 0, new_mob_num = 0, zone, cmd_no, shop, j;

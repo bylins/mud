@@ -673,7 +673,7 @@ ASPELL(spell_locate_object)
 
 	strcpy(name, cast_argument);
 	j = level;
-
+	int chest_num = real_object(CLAN_CHEST);
 
 	for (i = object_list; i && (j > 0); i = i->next) {
 		if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
@@ -706,24 +706,25 @@ ASPELL(spell_locate_object)
 			else
 				continue;
 		} else if (i->in_obj) {
-			if (i->in_obj->carried_by)
-				if (IS_NPC(i->in_obj->carried_by) && (OBJ_FLAGGED(i, ITEM_NOLOCATE) || world[IN_ROOM(i->in_obj->carried_by)]->zone != world[IN_ROOM(ch)]->zone))
-					continue;
-			if (IN_ROOM(i->in_obj) != NOWHERE && IN_ROOM(i->in_obj))
-				if (world[IN_ROOM(i->in_obj)]->zone != world[IN_ROOM(ch)]->zone || OBJ_FLAGGED(i, ITEM_NOLOCATE))
-					continue;
-			if (i->in_obj->worn_by)
-				if (IS_NPC(i->in_obj->worn_by)
-				    && (OBJ_FLAGGED(i, ITEM_NOLOCATE)
-					|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
-					continue;
-			int chest_num = real_object(CLAN_CHEST);
-			if (chest_num >= 0 && i->in_obj->item_number == chest_num) {
+			if (i->in_obj->item_number == chest_num) {
 				ClanListType::const_iterator clan = Clan::IsClanRoom(i->in_obj->in_room);
 				if (clan != Clan::ClanList.end())
 					sprintf(buf, "%s находится в хранилище дружины '%s'.\r\n", i->PNames[0], (*clan)->GetAbbrev());
-			} else
-				sprintf(buf, "%s находится в %s.\r\n", i->short_description, i->in_obj->PNames[5]);
+			} else {
+				if (i->in_obj->carried_by)
+					if (IS_NPC(i->in_obj->carried_by) && (OBJ_FLAGGED(i, ITEM_NOLOCATE) || world[IN_ROOM(i->in_obj->carried_by)]->zone != world[IN_ROOM(ch)]->zone))
+						continue;
+				if (IN_ROOM(i->in_obj) != NOWHERE && IN_ROOM(i->in_obj))
+					if (world[IN_ROOM(i->in_obj)]->zone != world[IN_ROOM(ch)]->zone || OBJ_FLAGGED(i, ITEM_NOLOCATE))
+						continue;
+				if (i->in_obj->worn_by)
+					if (IS_NPC(i->in_obj->worn_by)
+						&& (OBJ_FLAGGED(i, ITEM_NOLOCATE)
+						|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
+						continue;
+				else
+					sprintf(buf, "%s находится в %s.\r\n", i->short_description, i->in_obj->PNames[5]);
+			}
 		} else if (i->worn_by) {
 			if ((IS_NPC(i->worn_by) && !OBJ_FLAGGED(i, ITEM_NOLOCATE)
 				&& world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
