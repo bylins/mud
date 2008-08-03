@@ -834,26 +834,40 @@ bool is_group_member(CHAR_DATA *ch, CHAR_DATA *vict)
 /**
 * Смена лидера группы на персонажа с макс лидеркой.
 * Сам лидер при этом остается в группе, если он живой.
-* \param dead - смерть лидера, чтобы не гонять его туда-сюда
+* \param vict - новый лидер, если смена происходит по команде 'гр лидер имя',
+* старый лидер соответственно группится обратно, если нулевой, то считаем, что
+* произошла смерть старого лидера и новый выбирается по наибольшей лидерке.
 */
-void change_leader(CHAR_DATA *ch, bool dead)
+void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 {
 	if (IS_NPC(ch) || ch->master || !ch->followers)
 		return;
 
-	CHAR_DATA *leader = 0;
-	// ищем согрупника с максимальным скиллом лидерки
-	for (struct follow_type *l = ch->followers; l; l = l->next)
+	CHAR_DATA *leader = vict;
+	if (!leader)
 	{
-		if (!is_group_member(ch, l->follower))
-			continue;
-		if (!leader)
-			leader = l->follower;
-		else if (l->follower->get_skill(SKILL_LEADERSHIP) > leader->get_skill(SKILL_LEADERSHIP))
-			leader = l->follower;
+		// лидер умер, ищем согрупника с максимальным скиллом лидерки
+		for (struct follow_type *l = ch->followers; l; l = l->next)
+		{
+			if (!is_group_member(ch, l->follower))
+				continue;
+			if (!leader)
+				leader = l->follower;
+			else if (l->follower->get_skill(SKILL_LEADERSHIP) > leader->get_skill(SKILL_LEADERSHIP))
+				leader = l->follower;
+		}
 	}
 	if (!leader) return;
-	// для реследования используем старндартные функции
+
+	// бывшего лидера первым закидываем обратно в группу, если он живой
+	if (vict)
+	{
+		// флаг группы надо снять, иначе при регрупе не будет писаться о старом лидере
+		REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
+		add_follower(ch, leader, true);
+	}
+	// для реследования используем стандартные функции
+	std::vector<CHAR_DATA *> temp_list;
 	for (struct follow_type *n = 0, *l = ch->followers; l; l = n)
 	{
 		n = l->next;
@@ -861,16 +875,19 @@ void change_leader(CHAR_DATA *ch, bool dead)
 			continue;
 		else
 		{
-			CHAR_DATA *vict = l->follower;
-			if (vict->master && stop_follower(vict, SF_SILENCE))
+			CHAR_DATA *temp_vict = l->follower;
+			if (temp_vict->master && stop_follower(temp_vict, SF_SILENCE))
 				continue;
-			if (vict != leader)
-				add_follower(vict, leader, true);
+			if (temp_vict != leader)
+				temp_list.push_back(temp_vict);
 		}
 	}
-	// бывшего лидера закидываем обратно в группу, если он живой
-	if (!dead)
-		add_follower(ch, leader, true);
+	// вся эта фигня только для того, чтобы при реследовании пройтись по списку в обратном
+	// направлении и сохранить относительный порядок следования в группе
+	if (!temp_list.empty())
+		for (std::vector<CHAR_DATA *>::reverse_iterator it = temp_list.rbegin(); it != temp_list.rend(); ++it)
+			add_follower(*it, leader, true);
+
 	if (!leader->followers)
 		return;
 
@@ -1123,7 +1140,7 @@ ACMD(do_group)
 	struct follow_type *f;
 	int found, f_number;
 
-	one_argument(argument, buf);
+	argument = one_argument(argument, buf);
 
 	if (!*buf) {
 		print_group(ch);
@@ -1148,10 +1165,14 @@ ACMD(do_group)
 	for (f_number = 0, f = ch->followers; f; f = f->next)
 		if (AFF_FLAGGED(f->follower, AFF_GROUP))
 			f_number++;
-	if (!str_cmp(buf, "all") || !str_cmp(buf, "все")) {
+
+	if (!str_cmp(buf, "all") || !str_cmp(buf, "все"))
+	{
 		perform_group(ch, ch);
-		for (found = 0, f = ch->followers; f; f = f->next) {
-			if ((f_number + found) >= max_group_size(ch)) {
+		for (found = 0, f = ch->followers; f; f = f->next)
+		{
+			if ((f_number + found) >= max_group_size(ch))
+			{
 				send_to_char("Вы больше никого не можете принять в группу.\r\n", ch);
 				return;
 			}
@@ -1159,6 +1180,22 @@ ACMD(do_group)
 		}
 		if (!found)
 			send_to_char("Все, кто за Вами следуют, уже включены в Вашу группу.\r\n", ch);
+		return;
+	}
+	else if (!str_cmp(buf, "leader") || !str_cmp(buf, "лидер"))
+	{
+		vict = get_char_vis(ch, argument, FIND_CHAR_ROOM);
+		if (vict == ch)
+		{
+			send_to_char("Вы и так лидер группы...", ch);
+			return;
+		}
+		else if (!vict || !AFF_FLAGGED(vict, AFF_GROUP) || vict->master != ch)
+		{
+			send_to_char(ch, "%s не является членом вашей группы", GET_NAME(vict));
+			return;
+		}
+		change_leader(ch, vict);
 		return;
 	}
 

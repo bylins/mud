@@ -102,7 +102,7 @@ int calculate_resistance_coeff (CHAR_DATA *ch, int resist_type, int effect);
 
 extern struct zone_data *zone_table;
 extern int global_uid;
-extern void change_leader(CHAR_DATA *ch, bool dead);
+extern void change_leader(CHAR_DATA *ch, CHAR_DATA *vict);
 
 char *fname(const char *namelist)
 {
@@ -2554,7 +2554,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	if (!IS_NPC(ch) && !ch->master && ch->followers && AFF_FLAGGED(ch, AFF_GROUP))
 	{
 		log("[Extract char] Change group leader");
-		change_leader(ch, true);
+		change_leader(ch, false);
 	}
 
 	log("[Extract char] Die followers");
