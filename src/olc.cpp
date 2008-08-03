@@ -484,7 +484,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 		if (OLC_SCRIPT(d)) {
 			dg_olc_script_free(d);
 		}
-		// Освобоить комнату
+		// Освободить комнату
 		if (OLC_ROOM(d)) {
 			switch (cleanup_type) {
 			case CLEANUP_ALL:
@@ -502,8 +502,6 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			switch (cleanup_type) {
 			case CLEANUP_ALL:
 				medit_mobile_free(OLC_MOB(d));	// удаляет все содержимое
-				// break; - не нужен
-			case CLEANUP_STRUCTS:
 				delete OLC_MOB(d);	// удаляет только оболочку
 				break;
 			default:	/* The caller has screwed up. */

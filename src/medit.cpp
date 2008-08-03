@@ -200,9 +200,14 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 
 void medit_mobile_free(CHAR_DATA * mob)
 /*++
-   Функция полностью освобождает память, занимаемую данными моба.
-   ВНИМАНИЕ. Память самой структуры char_data не освобождается.
+	Функция полностью освобождает память, занимаемую данными моба.
+	ВНИМАНИЕ. Память самой структуры char_data не освобождается.
              Необходимо дополнительно использовать free()
+
+	add: вобщем если втыкаете здесь free, то надо обнулять указатель,
+	иначе потом при выходе из олц в деструкторе будет повторная попытка
+	очистить эту память и соответственно все плохо
+	TODO: вообще канеш переделывать все это надо теперь
 --*/
 {
 	struct helper_data_type *temp;
@@ -216,34 +221,69 @@ void medit_mobile_free(CHAR_DATA * mob)
 	if (i == -1 || mob == &mob_proto[i]) {
 		// Нет прототипа или сам прототип, удалять все подряд
 		if (GET_ALIAS(mob))
+		{
 			free(GET_ALIAS(mob));
+			GET_ALIAS(mob) = 0;
+		}
 		if (GET_SDESC(mob))
+		{
 			free(GET_SDESC(mob));
+			GET_SDESC(mob) = 0;
+		}
 		if (GET_LDESC(mob))
+		{
 			free(GET_LDESC(mob));
+			GET_LDESC(mob) = 0;
+		}
 		if (GET_DDESC(mob))
+		{
 			free(GET_DDESC(mob));
+			GET_DDESC(mob) = 0;
+		}
 		for (j = 0; j < NUM_PADS; j++)
 			if (GET_PAD(mob, j))
+			{
 				free(GET_PAD(mob, j));
+				GET_PAD(mob, j) = 0;
+			}
 		if (mob->mob_specials.Questor)
+		{
 			free(mob->mob_specials.Questor);
+			mob->mob_specials.Questor = 0;
+		}
 	} else {
 		// Есть прототип, удалять несовпадающее
 		if (GET_ALIAS(mob) && GET_ALIAS(mob) != GET_ALIAS(&mob_proto[i]))
+		{
 			free(GET_ALIAS(mob));
+			GET_ALIAS(mob) = 0;
+		}
 		if (GET_SDESC(mob) && GET_SDESC(mob) != GET_SDESC(&mob_proto[i]))
+		{
 			free(GET_SDESC(mob));
+			GET_SDESC(mob) = 0;
+		}
 		if (GET_LDESC(mob) && GET_LDESC(mob) != GET_LDESC(&mob_proto[i]))
+		{
 			free(GET_LDESC(mob));
+			GET_LDESC(mob) = 0;
+		}
 		if (GET_DDESC(mob) && GET_DDESC(mob) != GET_DDESC(&mob_proto[i]))
+		{
 			free(GET_DDESC(mob));
+			GET_DDESC(mob) = 0;
+		}
 		for (j = 0; j < NUM_PADS; j++)
-			if (GET_PAD(mob, j)
-			    && GET_PAD(mob, j) != GET_PAD(&mob_proto[i], j))
+			if (GET_PAD(mob, j) && GET_PAD(mob, j) != GET_PAD(&mob_proto[i], j))
+			{
 				free(GET_PAD(mob, j));
+				GET_PAD(mob, j) = 0;
+			}
 		if (mob->mob_specials.Questor && mob->mob_specials.Questor != mob_proto[i].mob_specials.Questor)
+		{
 			free(mob->mob_specials.Questor);
+			mob->mob_specials.Questor = 0;
+		}
 	}
 
 	while (mob->helpers)
@@ -339,6 +379,9 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 
 /*
  * Save new/edited mob to memory.
+ * Здесь сейчас нельзя просто копировать через указатель поля из моба, т.к. при выходе
+ * они будут чиститься через деструктор, поэтому пока только через medit_mobile_copy
+ * TODO: ес-сно это муть все
  */
 void medit_save_internally(DESCRIPTOR_DATA * d)
 {
@@ -398,7 +441,8 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 					new_index[rmob_num].func = NULL;
 					new_mob_num = rmob_num;
 					GET_MOB_RNUM(OLC_MOB(d)) = rmob_num;
-					new_proto[rmob_num] = *(OLC_MOB(d));
+					medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d));
+//					new_proto[rmob_num] = *(OLC_MOB(d));
 					new_index[rmob_num].zone = real_zone(OLC_NUM(d));
 					--rmob_num;
 					continue;
@@ -426,7 +470,8 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 			new_index[rmob_num].func = NULL;
 			new_mob_num = rmob_num;
 			GET_MOB_RNUM(OLC_MOB(d)) = rmob_num;
-			new_proto[rmob_num] = *(OLC_MOB(d));
+			medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d));
+//			new_proto[rmob_num] = *(OLC_MOB(d));
 			new_index[rmob_num].zone = real_zone(OLC_NUM(d));
 		}
 
