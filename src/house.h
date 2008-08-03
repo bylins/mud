@@ -162,6 +162,7 @@ class Clan
 
 	static void init_chest_rnum();
 	static bool is_clan_chest(OBJ_DATA *obj);
+	static void clan_invoice(CHAR_DATA *ch, bool enter);
 
 	friend ACMD(DoHouse);
 	friend ACMD(DoClanChannel);

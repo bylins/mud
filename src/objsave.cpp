@@ -2292,6 +2292,7 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 		    save_room != r_named_start_room && save_room != r_unreg_start_room)
 			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
 		Depot::exit_char(ch);
+		Clan::clan_invoice(ch, false);
 		extract_char(ch, FALSE);
 //		save_char(ch, save_room);
 	} else {

@@ -2774,7 +2774,7 @@ ACMD(do_score)
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	} else if ((IN_ROOM(ch) != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER)) {
-		sprintf(buf, "%sТут Вы чувствуете себя в безопасности.%s\r\n", CCIGRN(ch, C_NRM), CCINRM(ch, C_NRM));
+		sprintf(buf, "%sТут Вы чувствуете себя в безопасности.%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	}
 
@@ -4450,7 +4450,8 @@ ACMD(do_toggle)
 		" Автограбеж    : %-3s     " " Без двойников : %-3s     " " Арена         : %-3s \r\n"
 		" Базар         : %-3s     " " Ширина экрана : %-3d     " " Высота экрана : %-3d \r\n"
 		" Новости (вид) : %-5s   "   " Доски         : %-3s     " " Хранилище     : %-10s\r\n"
-		" Пклист        : %-3s     " " Политика      : %-3s     " " Пкформат      : %-10s\r\n",
+		" Пклист        : %-3s     " " Политика      : %-3s     " " Пкформат      : %-10s\r\n"
+		" Соклановцы    : %-3s\r\n",
 		ONOFF(PRF_FLAGGED(ch, PRF_DISPHP)),
 		ONOFF(!PRF_FLAGGED(ch, PRF_NOTELL)),
 		ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)), ONOFF(PRF_FLAGGED(ch, PRF_DISPMOVE)),
@@ -4489,7 +4490,8 @@ ACMD(do_toggle)
 		GetChestMode(ch).c_str(),
 		ONOFF(PRF_FLAGGED(ch, PRF_PKL_MODE)),
 		ONOFF(PRF_FLAGGED(ch, PRF_POLIT_MODE)),
-		PRF_FLAGGED(ch, PRF_PKFORMAT_MODE) ? "краткий" : "полный" );
+		PRF_FLAGGED(ch, PRF_PKFORMAT_MODE) ? "краткий" : "полный",
+		ONOFF(PRF_FLAGGED(ch, PRF_WORKMATE_MODE)));
 
 	send_to_char(buf, ch);
 }

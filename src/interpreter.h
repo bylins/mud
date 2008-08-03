@@ -175,7 +175,8 @@ struct alias_data {
 #define SCMD_CHEST_MODE  38
 #define SCMD_PKL_MODE    39
 #define SCMD_POLIT_MODE  40
-#define SCMD_PKFORMAT_MODE  41
+#define SCMD_PKFORMAT_MODE 41
+#define SCMD_WORKMATE_MODE 42
 
 /* do_wizutil */
 #define SCMD_REROLL     0

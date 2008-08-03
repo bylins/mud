@@ -2178,6 +2178,8 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	Depot::enter_char(d->character);
 	Glory::check_freeze(d->character);
 
+	Clan::clan_invoice(d->character, true);
+
 	/* сбрасываем телы для команды "вспомнить" */
 	for (i = 0; i < MAX_REMEMBER_TELLS; i++)
 		GET_TELL(d->character, i)[0] = '\0';

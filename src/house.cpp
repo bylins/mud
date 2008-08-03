@@ -3850,3 +3850,35 @@ bool Clan::is_clan_chest(OBJ_DATA *obj)
 		return false;
 	return true;
 }
+
+/**
+* Оповещение соклановцев о входе/выходе друг друга.
+* \param enter 1 - вход чара, 0 - выход.
+*/
+void Clan::clan_invoice(CHAR_DATA *ch, bool enter)
+{
+	if (IS_NPC(ch) || !CLAN(ch))
+		return;
+
+	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
+	{
+		if (d->character && d->character != ch
+			&& STATE(d) == CON_PLAYING
+			&& CLAN(d->character) == CLAN(ch)
+			&& PRF_FLAGGED(d->character, PRF_WORKMATE_MODE))
+		{
+			if (enter)
+			{
+				send_to_char(d->character, "%sДружинни%s %s вош%s в мир.%s\r\n",
+					CCINRM(d->character, C_NRM),IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
+					GET_CH_SUF_5(ch), CCNRM(d->character, C_NRM));
+			}
+			else
+			{
+				send_to_char(d->character, "%sДружинни%s %s покинул%s мир.%s\r\n",
+					CCINRM(d->character, C_NRM), IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
+					GET_CH_SUF_1(ch), CCNRM(d->character, C_NRM));
+			}
+		}
+	}
+}

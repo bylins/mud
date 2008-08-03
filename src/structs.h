@@ -578,6 +578,7 @@ typedef struct trig_data TRIG_DATA;
 #define PRF_POLIT_MODE  (INT_ONE | 1 << 21) // уведомления об изменении политики, своей и чужой
 #define PRF_IRON_WIND   (INT_ONE | 1 << 22) // включен скилл "железный ветер"
 #define PRF_PKFORMAT_MODE (INT_ONE | 1 << 23) // формат пкл/дрл
+#define PRF_WORKMATE_MODE (INT_ONE | 1 << 24) // показ входов/выходов соклановцев
 
 /* Affect bits: used in char_data.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */

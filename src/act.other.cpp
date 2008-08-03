@@ -160,6 +160,7 @@ ACMD(do_quit)
 			send_to_char(ch, "Твоих денег хватит на %ld %s.\r\n", deadline, desc_count(deadline, WHAT_DAY));
 		}
 		Depot::exit_char(ch);
+		Clan::clan_invoice(ch, false);
 
 		/*
 		 * kill off all sockets connected to the same player as the one who is
@@ -1724,6 +1725,7 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 	"пклист", "pklist",
 	"политика", "politics",
 	"пкформат", "pkformat",
+	"соклановцы", "workmate",
 	"\n"
 };
 
@@ -1774,7 +1776,8 @@ struct gen_tog_param_type {
 	0, SCMD_CHEST_MODE}, {
 	0, SCMD_PKL_MODE}, {
 	0, SCMD_POLIT_MODE} , {
-	0, SCMD_PKFORMAT_MODE}
+	0, SCMD_PKFORMAT_MODE}, {
+	0, SCMD_WORKMATE_MODE}
 };
 
 ACMD(do_mode)
@@ -1921,7 +1924,9 @@ ACMD(do_gen_tog)
 		{"Вы игнорируете уведомления об изменениях политики вашей и к вашей дружине.\r\n",
 		"Вы получаете уведомления об изменениях политики вашей и к вашей дружине.\r\n"},
 		{"Формат показа пкл/дрл установлен как 'полный'.\r\n",
-		"Формат показа пкл/дрл установлен как 'краткий'.\r\n"}
+		"Формат показа пкл/дрл установлен как 'краткий'.\r\n"},
+		{"Вам не будут показываться входы и выходы из игры ваших соклановцев.\r\n",
+		"Вы видите входы и выходы из игры выших соклановцев.\r\n"}
 	};
 
 
@@ -2060,6 +2065,9 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_PKFORMAT_MODE:
 		result = PRF_TOG_CHK(ch, PRF_PKFORMAT_MODE);
+		break;
+	case SCMD_WORKMATE_MODE:
+		result = PRF_TOG_CHK(ch, PRF_WORKMATE_MODE);
 		break;
 
 	default:
