@@ -1949,7 +1949,7 @@ ACMD(DoClanPkList)
 				if (CompareParam(buffer2, it->second->victimName, 1))
 				{
 					if (!online || check_online_state(it->first))
-						print_pkl(ch, info, it);
+						print_pkl(ch, out, it);
 				}
 			}
 		}
@@ -1960,7 +1960,7 @@ ACMD(DoClanPkList)
 				if (CompareParam(buffer2, it->second->victimName, 1))
 				{
 					if (!online || check_online_state(it->first))
-						print_pkl(ch, info, it);
+						print_pkl(ch, out, it);
 				}
 			}
 		}
