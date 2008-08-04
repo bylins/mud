@@ -710,6 +710,8 @@ ASPELL(spell_locate_object)
 				ClanListType::const_iterator clan = Clan::IsClanRoom(i->in_obj->in_room);
 				if (clan != Clan::ClanList.end())
 					sprintf(buf, "%s находится в хранилище дружины '%s'.\r\n", i->short_description, (*clan)->GetAbbrev());
+				else
+					continue;
 			} else {
 				if (i->in_obj->carried_by)
 					if (IS_NPC(i->in_obj->carried_by) && (OBJ_FLAGGED(i, ITEM_NOLOCATE) || world[IN_ROOM(i->in_obj->carried_by)]->zone != world[IN_ROOM(ch)]->zone))
@@ -722,8 +724,7 @@ ASPELL(spell_locate_object)
 						&& (OBJ_FLAGGED(i, ITEM_NOLOCATE)
 						|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
 						continue;
-				else
-					sprintf(buf, "%s находится в %s.\r\n", i->short_description, i->in_obj->PNames[5]);
+				sprintf(buf, "%s находится в %s.\r\n", i->short_description, i->in_obj->PNames[5]);
 			}
 		} else if (i->worn_by) {
 			if ((IS_NPC(i->worn_by) && !OBJ_FLAGGED(i, ITEM_NOLOCATE)

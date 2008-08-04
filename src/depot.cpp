@@ -1201,5 +1201,4 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 	return count;
 }
 
-
 } // namespace Depot

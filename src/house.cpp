@@ -863,13 +863,19 @@ void Clan::HouseAdd(CHAR_DATA * ch, std::string & buffer)
                 {
                     editedChar = d->character;
                     Clan::SetClanData(d->character);
-                    send_to_char(d->character, "Ваше звание изменили, теперь вы %s.\r\n", (*it).c_str());
+                    send_to_char(d->character, "%sВаше звание изменили, теперь вы %s.%s\r\n",
+						CCWHT(d->character, C_NRM),
+						(*it).c_str(),
+						CCNRM(d->character, C_NRM));
                 }
 
                 // оповещение соклановцев о изменении звания
                 for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next) {
                     if (d->character && CLAN(d->character) && CLAN(d->character)->GetRent() == this->GetRent() && editedChar != d->character)
-                        send_to_char(d->character, "%s теперь %s.\r\n", it_member->second->name.c_str(), (*it).c_str());
+                        send_to_char(d->character, "%s%s теперь %s.%s\r\n",
+							CCWHT(d->character, C_NRM),
+							it_member->second->name.c_str(), (*it).c_str(),
+							CCNRM(d->character, C_NRM));
                 }
                 return;
             }
