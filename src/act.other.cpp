@@ -1191,7 +1191,12 @@ ACMD(do_group)
 			send_to_char("Вы и так лидер группы...", ch);
 			return;
 		}
-		else if (!vict || !AFF_FLAGGED(vict, AFF_GROUP) || vict->master != ch)
+		else if (!vict)
+		{
+			send_to_char("Нет такого персонажа.", ch);
+			return;
+		}
+		else if (!AFF_FLAGGED(vict, AFF_GROUP) || vict->master != ch)
 		{
 			send_to_char(ch, "%s не является членом вашей группы", GET_NAME(vict));
 			return;
