@@ -1185,7 +1185,7 @@ ACMD(do_group)
 	}
 	else if (!str_cmp(buf, "leader") || !str_cmp(buf, "лидер"))
 	{
-		vict = get_char_vis(ch, argument, FIND_CHAR_ROOM);
+		vict = get_char_vis(ch, argument, FIND_CHAR_WORLD);
 		if (vict == ch)
 		{
 			send_to_char("Вы и так лидер группы...\r\n", ch);
