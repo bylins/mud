@@ -1188,17 +1188,17 @@ ACMD(do_group)
 		vict = get_char_vis(ch, argument, FIND_CHAR_ROOM);
 		if (vict == ch)
 		{
-			send_to_char("Вы и так лидер группы...", ch);
+			send_to_char("Вы и так лидер группы...\r\n", ch);
 			return;
 		}
 		else if (!vict)
 		{
-			send_to_char("Нет такого персонажа.", ch);
+			send_to_char("Нет такого персонажа.\r\n", ch);
 			return;
 		}
 		else if (!AFF_FLAGGED(vict, AFF_GROUP) || vict->master != ch)
 		{
-			send_to_char(ch, "%s не является членом вашей группы", GET_NAME(vict));
+			send_to_char(ch, "%s не является членом вашей группы.\r\n", GET_NAME(vict));
 			return;
 		}
 		change_leader(ch, vict);
