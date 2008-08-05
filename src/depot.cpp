@@ -103,6 +103,32 @@ typedef std::map<long, CharNode> DepotListType; // уид чара, инфа
 DepotListType depot_list; // список личных хранилищ
 
 /**
+* Капитально расширенная версия сислога для хранилищ.
+*/
+void depot_log(const char *format, ...)
+{
+	const char *filename = "../log/depot.log";
+	static FILE *file = 0;
+	if (!file) {
+		file = fopen(filename, "a");
+		if (!file) {
+			log("SYSERR: can't open %s!", filename);
+			return;
+		}
+		opened_files.push_back(file);
+	} else if (!format)
+		format = "SYSERR: // depot_log received a NULL format.";
+
+	write_time(file);
+	va_list args;
+	va_start(args, format);
+	vfprintf(file, format, args);
+	va_end(args);
+	fprintf(file, "\n");
+	fflush(file);
+}
+
+/**
 * Удаление файла персонального хранилища (шмотки отдельного чара).
 */
 void remove_pers_file(std::string name)

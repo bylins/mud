@@ -5,6 +5,7 @@
 #include "conf.h"
 #include <boost/random.hpp>
 #include "random.hpp"
+#include "sysdep.h"
 
 namespace Random {
 
