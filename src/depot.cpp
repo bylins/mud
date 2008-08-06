@@ -144,6 +144,7 @@ void remove_pers_file(std::string name)
 */
 void remove_char_entry(long uid, CharNode &node)
 {
+	depot_log("remove_char_entry: %ld", uid);
 	// если чар был что-то должен, надо попытаться с него это снять
 	if (node.money_spend || node.buffer_cost)
 	{
@@ -172,6 +173,8 @@ void remove_char_entry(long uid, CharNode &node)
 */
 void init_depot()
 {
+	depot_log("init_depot start");
+
 	PERS_CHEST_RNUM = real_object(PERS_CHEST_VNUM);
 
 	const char *depot_file = LIB_DEPOT"depot.db";
@@ -271,6 +274,14 @@ void init_depot()
 		name_convert(tmp_node.name);
 		depot_list[uid] = tmp_node;
 	}
+
+	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
+	{
+		depot_log("char: %ld", it->first);
+		for (TimerListType::iterator obj_it = it->second.offline_list.begin(); obj_it != it->second.offline_list.end(); ++obj_it)
+			depot_log("%d %d %d %d", obj_it->vnum, obj_it->uid, obj_it->timer, obj_it->rent_cost);
+	}
+	depot_log("init_depot end");
 }
 
 /**
@@ -377,6 +388,7 @@ void save_timedata()
 */
 void write_obj_file(const std::string &name, int file_type, const ObjListType &cont)
 {
+	depot_log("write_obj_file: %s", name.c_str());
 	char filename[MAX_STRING_LENGTH];
 	if (!get_filename(name.c_str(), filename, file_type))
 	{
@@ -387,6 +399,7 @@ void write_obj_file(const std::string &name, int file_type, const ObjListType &c
 	// при пустом списке просто удаляем файл, чтобы не плодить пустышек в дире
 	if (cont.empty())
 	{
+		depot_log("empty cont");
 		remove(filename);
 		return;
 	}
@@ -400,6 +413,7 @@ void write_obj_file(const std::string &name, int file_type, const ObjListType &c
 	file << "* Items file\n";
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
 	{
+		depot_log("save: %s %d %d", (*obj_it)->short_description, GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
 		char databuf[MAX_STRING_LENGTH];
 		char *data = databuf;
 		write_one_object(&data, *obj_it, 0);
@@ -445,6 +459,7 @@ void CharNode::update_online_item()
 					CCIRED(ch, C_NRM), (*obj_it)->short_description,
 					GET_OBJ_SUF_2((*obj_it)), CCNRM(ch, C_NRM));
 			// вычитать ренту из cost_per_day здесь не надо, потому что она уже обнулена
+			depot_log("zero timer, online extract: %s %d %d", (*obj_it)->short_description, GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
 			extract_obj(*obj_it);
 			pers_online.erase(obj_it++);
 			need_save = true;
@@ -491,6 +506,7 @@ void update_timers()
 		// снятие денег и пурж шмота, если денег уже не хватает
 		if (node.get_cost_per_day() && node.removal_period_cost())
 		{
+			depot_log("update_timers: no money %ld %s", it->first, node.name.c_str());
 			log("Хранилище: UID %ld (%s) - запись удалена из-за нехватки денег на ренту.",
 				it->first, node.name.c_str());
 			remove_char_entry(it->first, it->second);
@@ -511,6 +527,7 @@ void CharNode::update_offline_item()
 		--(obj_it->timer);
 		if (obj_it->timer <= 0)
 		{
+			depot_log("update_offline_item %s: zero timer %d %d", name.c_str(), obj_it->vnum, obj_it->uid);
 			// шмотка уходит в лоад
 			int rnum = real_object(obj_it->vnum);
 			if (rnum >= 0)
@@ -533,12 +550,16 @@ void CharNode::update_offline_item()
 void CharNode::reset()
 {
 	for (ObjListType::iterator obj_it = pers_online.begin(); obj_it != pers_online.end(); ++obj_it)
+	{
+		depot_log("reset %s: online extract %s %d %d", name.c_str(), (*obj_it)->short_description, GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
 		extract_obj(*obj_it);
+	}
 	pers_online.clear();
 
 	// тут нужно ручками перекинуть удаляемый шмот в лоад и потом уже грохнуть все разом
 	for (TimerListType::iterator obj = offline_list.begin(); obj != offline_list.end(); ++obj)
 	{
+		depot_log("reset_%s: offline erase %d %d", name.c_str(), obj->vnum, obj->uid);
 		int rnum = real_object(obj->vnum);
 		if (rnum >= 0)
 			obj_index[rnum].stored--;
@@ -800,6 +821,7 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 		return 0;
 	}
 
+	depot_log("put_depot %s %ld: %s %d %d", GET_NAME(ch), GET_UNIQUE(ch), obj->short_description, GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
 	it->second.pers_online.push_front(obj);
 	it->second.need_save = true;
 
@@ -847,6 +869,7 @@ void take_depot(CHAR_DATA *vict, char *arg, int howmany)
 */
 void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, CHAR_DATA *vict)
 {
+	depot_log("remove_item %s: %s %d %d", name.c_str(), (*obj_it)->short_description, GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
 	(*obj_it)->next = object_list;
 	object_list = *obj_it;
 	obj_to_char(*obj_it, vict);
@@ -979,7 +1002,12 @@ void show_stats(CHAR_DATA *ch)
 */
 void CharNode::load_online_objs(int file_type, bool reload)
 {
-	if (!reload && offline_list.empty()) return;
+	depot_log("load_online_objs %s start", name.c_str());
+	if (!reload && offline_list.empty())
+	{
+		depot_log("empty offline_list and !reload");
+		return;
+	}
 
 	char filename[MAX_STRING_LENGTH];
 	if (!get_filename(name.c_str(), filename, file_type))
@@ -1011,6 +1039,8 @@ void CharNode::load_online_objs(int file_type, bool reload)
 	}
 	fclose(fl);
 
+	depot_log("file ok");
+
 	char *data = databuf;
 	*(data + fsize) = '\0';
 	int error = 0;
@@ -1020,6 +1050,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 	{
 		if (!(obj = read_one_object_new(&data, &error)))
 		{
+			depot_log("reading object error %d", error);
 			if (error)
 				log("Хранилище: ошибка чтения предмета (%s, error: %d).", filename, error);
 			continue;
@@ -1032,6 +1063,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 				 boost::bind(&OfflineNode::uid, _1), GET_OBJ_UID(obj)));
 			if (obj_it != offline_list.end() && obj_it->vnum == GET_OBJ_VNUM(obj))
 			{
+				depot_log("load object %s %d %d", obj->short_description, GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
 				GET_OBJ_TIMER(obj) = obj_it->timer;
 				// надо уменьшать макс в мире на постое, макс в мире шмотки в игре
 				// увеличивается в read_one_object_new через read_object
@@ -1041,6 +1073,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 			}
 			else
 			{
+				depot_log("extract object %s %d %d", obj->short_description, GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
 				extract_obj(obj);
 				continue;
 			}
@@ -1079,6 +1112,7 @@ void enter_char(CHAR_DATA *ch)
 				// поэтому мы просто готовы, если что, все технично спуржить при входе
 				if (get_gold(ch) < 0)
 				{
+					depot_log("no money %s %ld: reset depot", GET_NAME(ch), GET_UNIQUE(ch));
 					set_gold(ch, 0);
 					it->second.reset();
 					// файл убьется позже при ребуте на пустом хране,
@@ -1107,6 +1141,7 @@ void CharNode::online_to_offline(ObjListType &cont)
 {
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
 	{
+		depot_log("online_to_offline %s: %s %d %d", name.c_str(), (*obj_it)->short_description, GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
 		OfflineNode tmp_obj;
 		tmp_obj.vnum = GET_OBJ_VNUM(*obj_it);
 		tmp_obj.timer = GET_OBJ_TIMER(*obj_it);
@@ -1129,6 +1164,7 @@ void CharNode::online_to_offline(ObjListType &cont)
 */
 void renumber_obj_rnum(int rnum)
 {
+	depot_log("renumber_obj_rnum");
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end(); ++obj_it)
 			if (GET_OBJ_RNUM(*obj_it) >= rnum)
