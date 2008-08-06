@@ -875,7 +875,7 @@ void BanList::ShowBannedIp(int sort_mode, CHAR_DATA * ch)
 		timestr = asctime(localtime(&((*i)->BanDate)));
 		*(timestr + 10) = 0;
 		strcpy(to_unban, timestr);
-		sprintf(buff, "%ldh", ((*i)->UnbanDate - time(NULL)) / 3600);
+		sprintf(buff, "%ldh", static_cast<long int>((*i)->UnbanDate - time(NULL)) / 3600);
 		sprintf(buf, format, (*i)->BannedIp.c_str(), ban_types[(*i)->BanType],
 			to_unban, (*i)->BannerName.c_str(), buff);
 		listbuf = str_add(listbuf, buf);
@@ -913,7 +913,7 @@ void BanList::ShowBannedIpByMask(int sort_mode, CHAR_DATA * ch, const char *mask
 			timestr = asctime(localtime(&((*i)->BanDate)));
 			*(timestr + 10) = 0;
 			strcpy(to_unban, timestr);
-			sprintf(buff, "%ldh", ((*i)->UnbanDate - time(NULL)) / 3600);
+			sprintf(buff, "%ldh", static_cast<long int>((*i)->UnbanDate - time(NULL)) / 3600);
 			sprintf(buf, format, (*i)->BannedIp.c_str(), ban_types[(*i)->BanType],
 				to_unban, (*i)->BannerName.c_str(), buff);
 			listbuf = str_add(listbuf, buf);
