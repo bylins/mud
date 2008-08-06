@@ -1881,11 +1881,11 @@ struct player_special_data {
 	void *last_olc_targ;	/* olc control         */
 	int
 	 last_olc_mode;		/* olc control         */
-	int
+	time_t
 	 may_rent;		/* PK control                       */
 	int
 	 agressor;		/* Agression room(it is also a flag) */
-	int
+	time_t
 	 agro_time;		/* Last agression time (it is also a flag) */
 	int
 	 bet;			/* bet amount */
