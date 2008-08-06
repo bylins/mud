@@ -104,6 +104,8 @@ const int SETSTUFF_AFCN = 10;
 #define SUF_PMKILL	"mobkill"
 #define SUF_PERS_DEPOT "pers"
 #define SUF_SHARE_DEPOT "share"
+#define SUF_PURGE_DEPOT "purge"
+
 #if defined(CIRCLE_AMIGA)
 #define FASTBOOT_FILE   "/.fastboot"	/* autorun: boot without sleep  */
 #define KILLSCRIPT_FILE "/.killscript"	/* autorun: shut mud down       */

@@ -83,7 +83,7 @@ class CharNode
 
 	void save_online_objs();
 	void update_online_item();
-	void update_offline_item();
+	void update_offline_item(long uid);
 	void reset();
 	bool removal_period_cost();
 
@@ -127,6 +127,257 @@ void depot_log(const char *format, ...)
 	fprintf(file, "\n");
 	fflush(file);
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// список плееров, у которых было че-нить спуржено пока они были оффлайн.
+// хранится просто уид игрока и при надобности лоадится его файл со строками о пурже.
+// дата первой записи пишется для того, чтобы не плодить мертвых файлов (держим только за месяц).
+typedef std::map<long/*уид игрока*/, time_t /*время первой записи в файле*/> PurgedListType;
+PurgedListType purged_list;
+
+bool need_save_purged_list = false;
+
+/**
+*
+*/
+void save_purged_list()
+{
+	if (!need_save_purged_list) return;
+
+	const char *filename = LIB_DEPOT"purge.db";
+	std::ofstream file(filename);
+	if (!file.is_open())
+	{
+		log("Хранилище: error open file: %s! (%s %s %d)", filename, __FILE__, __func__, __LINE__);
+		return;
+	}
+	for (PurgedListType::const_iterator it = purged_list.begin(); it != purged_list.end(); ++it)
+		file << it->first << " " << it->second << "\n";
+
+	need_save_purged_list = false;
+}
+
+/**
+*
+*/
+void load_purge_list()
+{
+	const char *filename = LIB_DEPOT"purge.db";
+	std::ifstream file(filename);
+	if (!file.is_open())
+	{
+		log("Хранилище: error open file: %s! (%s %s %d)", filename, __FILE__, __func__, __LINE__);
+		return;
+	}
+
+	long uid;
+	time_t date;
+
+	while(file >> uid >> date)
+		purged_list[uid] = date;
+}
+
+/**
+*
+*/
+std::string generate_purged_filename(long uid)
+{
+	std::string name = GetNameByUnique(uid);
+	if (name.empty())
+		return "";
+
+	char filename[MAX_STRING_LENGTH];
+	if (!get_filename(name.c_str(), filename, PURGE_DEPOT_FILE))
+		return "";
+
+	return filename ? filename : "";
+}
+
+std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
+{
+	std::ostringstream out;
+	out << "Ошибка при удалении предмета: vnum " << obj_vnum << ", uid " << obj_uid << "\r\n";
+
+	std::string name = GetNameByUnique(uid);
+	if (name.empty())
+		return out.str();
+
+	CHAR_DATA t_ch;
+	CHAR_DATA *ch = &t_ch;
+	if (load_char(name.c_str(), ch) < 0)
+		return out.str();
+
+	char filename[MAX_STRING_LENGTH];
+	if (!get_filename(name.c_str(), filename, PERS_DEPOT_FILE))
+	{
+		log("Хранилище: не удалось сгенерировать имя файла (name: %s, filename: %s) (%s %s %d).",
+			name.c_str(), filename, __FILE__, __func__, __LINE__);
+		return out.str();
+	}
+
+	FILE *fl = fopen(filename, "r+b");
+	if (!fl) return out.str();
+
+	fseek(fl, 0L, SEEK_END);
+	int fsize = ftell(fl);
+	if (!fsize)
+	{
+		fclose(fl);
+		log("Хранилище: пустой файл предметов (%s).", filename);
+		return out.str();
+	}
+	char *databuf = new char [fsize + 1];
+
+	fseek(fl, 0L, SEEK_SET);
+	if (!fread(databuf, fsize, 1, fl) || ferror(fl) || !databuf)
+	{
+		fclose(fl);
+		log("Хранилище: ошибка чтения файла предметов (%s).", filename);
+		return out.str();
+	}
+	fclose(fl);
+
+	char *data = databuf;
+	*(data + fsize) = '\0';
+	int error = 0;
+	OBJ_DATA *obj;
+
+	for (fsize = 0; *data && *data != '$'; fsize++)
+	{
+		if (!(obj = read_one_object_new(&data, &error)))
+		{
+			if (error)
+				log("Хранилище: ошибка чтения предмета (%s, error: %d).", filename, error);
+			continue;
+		}
+		if (GET_OBJ_UID(obj) == obj_uid && GET_OBJ_VNUM(obj) == obj_vnum)
+		{
+			std::ostringstream text;
+			text << "[Персональное хранилище]: " << CCIRED(ch, C_NRM) << "'"
+				<< obj->short_description << " рассыпал" << GET_OBJ_SUF_2(obj)
+				<<  "в прах'" << CCNRM(ch, C_NRM) << "\r\n";
+			extract_obj(obj);
+			return text.str();
+		}
+		extract_obj(obj);
+	}
+	delete [] databuf;
+	return out.str();
+}
+
+/**
+*
+*/
+void add_purged_message(long uid, int obj_vnum, unsigned int obj_uid)
+{
+	std::string name = generate_purged_filename(uid);
+	if (name.empty())
+	{
+		log("Хранилище: add_purge_message пустое имя файла %ld.", uid);
+		return;
+	}
+
+	if (purged_list.find(uid) == purged_list.end())
+	{
+		purged_list[uid] = time(0);
+		need_save_purged_list = true;
+	}
+
+	std::ofstream file(name.c_str(), std::ios_base::app);
+	if (!file.is_open())
+	{
+		log("Хранилище: error open file: %s! (%s %s %d)", name.c_str(), __FILE__, __func__, __LINE__);
+		return;
+	}
+	file << generate_purged_text(uid, obj_vnum, obj_uid);
+}
+
+/**
+*
+*/
+void delete_purged_entry(long uid)
+{
+	PurgedListType::iterator it = purged_list.find(uid);
+	if (it != purged_list.end())
+	{
+		std::string name = generate_purged_filename(uid);
+		if (name.empty())
+		{
+			log("Хранилище: delete_purge_entry пустое имя файла %ld.", uid);
+			return;
+		}
+		remove(name.c_str());
+		purged_list.erase(it);
+		need_save_purged_list = true;
+	}
+}
+
+/**
+*
+*/
+void show_purged_message(CHAR_DATA *ch)
+{
+	PurgedListType::iterator it = purged_list.find(GET_UNIQUE(ch));
+	if (it != purged_list.end())
+	{
+		// имя у нас канеш и так есть, но че зря код дублировать
+		std::string name = generate_purged_filename(GET_UNIQUE(ch));
+		if (name.empty())
+		{
+			log("Хранилище: show_purged_message пустое имя файла %d.", GET_UNIQUE(ch));
+			return;
+		}
+		std::ifstream file(name.c_str(), std::ios::binary);
+		if (!file.is_open())
+		{
+			log("Хранилище: error open file: %s! (%s %s %d)", name.c_str(), __FILE__, __func__, __LINE__);
+			return;
+		}
+		std::ostringstream out;
+		out << "\r\n" << file.rdbuf();
+		send_to_char(out.str(), ch);
+		remove(name.c_str());
+		purged_list.erase(it);
+		need_save_purged_list = true;
+	}
+}
+
+/**
+*
+*/
+void clear_old_purged_entry()
+{
+	time_t today = time(0);
+	for (PurgedListType::iterator it = purged_list.begin(); it != purged_list.end(); /* пусто */)
+	{
+		time_t diff = today - it->second;
+		// месяц в секундах
+		if (diff >= 60 * 60 * 24 * 31)
+		{
+			std::string name = generate_purged_filename(it->first);
+			if (!name.empty())
+				remove(name.c_str());
+			purged_list.erase(it++);
+			need_save_purged_list = true;
+		}
+		else
+			++it;
+	}
+}
+
+/**
+*
+*/
+void init_purged_list()
+{
+	load_purge_list();
+	clear_old_purged_entry();
+	need_save_purged_list = true;
+	save_purged_list();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
 * Удаление файла персонального хранилища (шмотки отдельного чара).
@@ -175,6 +426,7 @@ void init_depot()
 {
 	depot_log("init_depot start");
 
+	init_purged_list();
 	PERS_CHEST_RNUM = real_object(PERS_CHEST_VNUM);
 
 	const char *depot_file = LIB_DEPOT"depot.db";
@@ -455,9 +707,19 @@ void CharNode::update_online_item()
 		if (GET_OBJ_TIMER(*obj_it) <= 0)
 		{
 			if (ch)
-				send_to_char(ch, "[Персональное хранилище]: %s'%s рассыпал%s в прах'%s\r\n",
-					CCIRED(ch, C_NRM), (*obj_it)->short_description,
-					GET_OBJ_SUF_2((*obj_it)), CCNRM(ch, C_NRM));
+			{
+				// если чар в лд или еще чего - лучше записать и выдать это ему при след
+				// входе в игру, чтобы уж точно увидел
+				if (ch->desc && STATE(ch->desc) == CON_PLAYING)
+				{
+					send_to_char(ch, "[Персональное хранилище]: %s'%s рассыпал%s в прах'%s\r\n",
+						CCIRED(ch, C_NRM), (*obj_it)->short_description,
+						GET_OBJ_SUF_2((*obj_it)), CCNRM(ch, C_NRM));
+				}
+				else
+					add_purged_message(GET_UNIQUE(ch), GET_OBJ_VNUM(*obj_it), GET_OBJ_UID(*obj_it));
+			}
+
 			// вычитать ренту из cost_per_day здесь не надо, потому что она уже обнулена
 			depot_log("zero timer, online extract: %s %d %d", (*obj_it)->short_description, GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
 			extract_obj(*obj_it);
@@ -467,6 +729,7 @@ void CharNode::update_online_item()
 		else
 			++obj_it;
 	}
+	save_purged_list();
 }
 
 /**
@@ -502,7 +765,7 @@ void update_timers()
 		if (node.ch)
 			node.update_online_item();
 		else
-			node.update_offline_item();
+			node.update_offline_item(it->first);
 		// снятие денег и пурж шмота, если денег уже не хватает
 		if (node.get_cost_per_day() && node.removal_period_cost())
 		{
@@ -520,7 +783,7 @@ void update_timers()
 /**
 * Апдейт таймеров в оффлайн списках с расчетом общей ренты.
 */
-void CharNode::update_offline_item()
+void CharNode::update_offline_item(long uid)
 {
 	for (TimerListType::iterator obj_it = offline_list.begin(); obj_it != offline_list.end(); )
 	{
@@ -528,6 +791,7 @@ void CharNode::update_offline_item()
 		if (obj_it->timer <= 0)
 		{
 			depot_log("update_offline_item %s: zero timer %d %d", name.c_str(), obj_it->vnum, obj_it->uid);
+			add_purged_message(uid, obj_it->vnum, obj_it->uid);
 			// шмотка уходит в лоад
 			int rnum = real_object(obj_it->vnum);
 			if (rnum >= 0)
@@ -541,6 +805,7 @@ void CharNode::update_offline_item()
 			++obj_it;
 		}
 	}
+	save_purged_list();
 }
 
 /**
@@ -1099,6 +1364,7 @@ void enter_char(CHAR_DATA *ch)
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
 	if (it != depot_list.end())
 	{
+		bool purged = false;
 		// снимаем бабло, если что-то было потрачено на ренту
 		if (it->second.money_spend > 0)
 		{
@@ -1115,6 +1381,7 @@ void enter_char(CHAR_DATA *ch)
 					depot_log("no money %s %ld: reset depot", GET_NAME(ch), GET_UNIQUE(ch));
 					set_gold(ch, 0);
 					it->second.reset();
+					purged = true;
 					// файл убьется позже при ребуте на пустом хране,
 					// даже если не будет никаких перезаписей по ходу игры
 				}
@@ -1123,6 +1390,9 @@ void enter_char(CHAR_DATA *ch)
 			send_to_char(ch, "%sХранилище: за время Вашего отсутствия удержано %d %s.%s\r\n\r\n",
 				CCWHT(ch, C_NRM), it->second.money_spend, desc_count(it->second.money_spend,
 				WHAT_MONEYa), CCNRM(ch, C_NRM));
+			if (purged)
+				send_to_char(ch, "%sХранилище: у вас нехватило денег на постой.%s\r\n\r\n",
+					CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		}
 		// грузим хранилище, сохранять его тут вроде как смысла нет
 		it->second.load_online_objs(PERS_DEPOT_FILE);

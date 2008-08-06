@@ -6202,6 +6202,8 @@ void entrycount(char *name)
 			remove(filename);
 			get_filename(name, filename, SHARE_DEPOT_FILE);
 			remove(filename);
+			get_filename(name, filename, PURGE_DEPOT_FILE);
+			remove(filename);
 
 			delete_mkill_file(name);
 		}
@@ -6754,6 +6756,10 @@ void rename_char(CHAR_DATA * ch, char *oname)
 	// хранилища
 	get_filename(oname, ofilename, PERS_DEPOT_FILE);
 	get_filename(GET_NAME(ch), filename, PERS_DEPOT_FILE);
+	rename(ofilename, filename);
+
+	get_filename(oname, ofilename, PURGE_DEPOT_FILE);
+	get_filename(GET_NAME(ch), filename, PURGE_DEPOT_FILE);
 	rename(ofilename, filename);
 }
 

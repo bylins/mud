@@ -34,6 +34,7 @@ void exit_char(CHAR_DATA *ch);
 void reload_char(long uid, CHAR_DATA *ch);
 
 int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name);
+void show_purged_message(CHAR_DATA *ch);
 
 } // namespace Depot
 

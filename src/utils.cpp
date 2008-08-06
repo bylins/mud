@@ -998,6 +998,10 @@ int get_filename(const char *orig_name, char *filename, int mode)
 		prefix = LIB_DEPOT;
 		suffix = SUF_SHARE_DEPOT;
 		break;
+	case PURGE_DEPOT_FILE:
+		prefix = LIB_DEPOT;
+		suffix = SUF_PURGE_DEPOT;
+		break;
 	default:
 		return (0);
 	}
