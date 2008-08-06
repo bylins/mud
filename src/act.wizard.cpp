@@ -1758,11 +1758,11 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 		}
 
 		if (RENTABLE(k)) {
-			sprintf(buf, "Не может уйти на постой %ld\r\n", RENTABLE(k) - time(0));
+			sprintf(buf, "Не может уйти на постой %ld\r\n", static_cast<long int>(RENTABLE(k) - time(0)));
 			send_to_char(buf, ch);
 		}
 		if (AGRO(k)) {
-			sprintf(buf, "Агрессор %ld\r\n", AGRO(k) - time(NULL));
+			sprintf(buf, "Агрессор %ld\r\n", static_cast<long int>(AGRO(k) - time(NULL)));
 			send_to_char(buf, ch);
 		}
 		pk_list_sprintf(k, buf);
