@@ -256,7 +256,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 			std::ostringstream text;
 			text << "[Персональное хранилище]: " << CCIRED(ch, C_NRM) << "'"
 				<< obj->short_description << " рассыпал" << GET_OBJ_SUF_2(obj)
-				<<  "в прах'" << CCNRM(ch, C_NRM) << "\r\n";
+				<<  " в прах'" << CCNRM(ch, C_NRM) << "\r\n";
 			extract_obj(obj);
 			return text.str();
 		}
