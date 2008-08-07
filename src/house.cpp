@@ -3555,9 +3555,8 @@ void Clan::ChestInvoice()
 		if (!cost)
 			continue; // чем черт не шутит
 		else {
-			bool flag = (*clan)->bank / cost;
 			// опаньки
-			if (!flag)
+			if ((*clan)->bank < cost)
 				for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 					if (d->character && STATE(d) == CON_PLAYING && !AFF_FLAGGED(d->character, AFF_DEAFNESS) && CLAN(d->character) && CLAN(d->character) == *clan)
 						send_to_char(d->character, "[Хранилище]: %s'Напоминаю, что средств в казне дружины хватит менее, чем на сутки!'%s\r\n", CCIRED(d->character, C_NRM), CCNRM(d->character, C_NRM));

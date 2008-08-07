@@ -255,8 +255,6 @@ struct in_addr {
 #if defined(CIRCLE_WINDOWS)	/* Definitions for Win32 */
 # if !defined(__BORLANDC__) && !defined(LCC_WIN32)	/* MSVC */
 #  define chdir _chdir
-#  pragma warning(disable:4761)	/* Integral size mismatch. */
-#  pragma warning(disable:4244)	/* Possible loss of data. */
 # endif
 # if defined(__BORLANDC__)	/* Silence warnings we don't care about. */
 #  pragma warn -par		/* to turn off >parameter< 'ident' is never used. */

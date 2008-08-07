@@ -15,12 +15,17 @@
 #ifndef _CONF_H_
 #define _CONF_H_
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 	#pragma comment(lib, "wsock32.lib")
 	#define _CRT_SECURE_NO_DEPRECATE
 	#define _SCL_SECURE_NO_DEPRECATE
+	#define _CRT_SECURE_NO_WARNINGS
 	#pragma warning(disable: 4996)
+	#pragma warning(disable:4761)	/* Integral size mismatch. */
+	#pragma warning(disable:4244)	/* Possible loss of data. */
+#endif // _MSC_VER
 
+#ifdef _WIN32
 	#define CIRCLE_WINDOWS
 	#define NOCRYPT 1
 	#define TEST_BUILD 1
