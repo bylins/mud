@@ -191,7 +191,7 @@ std::string generate_purged_filename(long uid)
 	if (!get_filename(name.c_str(), filename, PURGE_DEPOT_FILE))
 		return "";
 
-	return filename ? filename : "";
+	return filename;
 }
 
 std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
