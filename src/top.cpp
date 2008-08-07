@@ -53,7 +53,7 @@ void TopPlayer::Refresh(CHAR_DATA * short_ch, bool reboot)
 	// шерстим список по ремортам и экспе и смотрим куда воткнуться
 	std::list<TopPlayer>::iterator it_exp;
 	for (it_exp = TopPlayer::TopList[class_num].begin(); it_exp != TopPlayer::TopList[class_num].end(); ++it_exp)
-		if (it_exp->remort < GET_REMORT(short_ch) || it_exp->remort == GET_REMORT(short_ch) && it_exp->exp < GET_EXP(short_ch))
+		if (it_exp->remort < GET_REMORT(short_ch) || (it_exp->remort == GET_REMORT(short_ch) && it_exp->exp < GET_EXP(short_ch)))
 			break;
 
 	if (!GET_NAME(short_ch)) return; // у нас все может быть
