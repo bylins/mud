@@ -2177,6 +2177,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		Crash_load(d->character);
 	Depot::enter_char(d->character);
 	Glory::check_freeze(d->character);
+	Clan::clan_invoice(d->character, true);
 
 	/* сбрасываем телы для команды "вспомнить" */
 	for (i = 0; i < MAX_REMEMBER_TELLS; i++)
@@ -3493,6 +3494,5 @@ void login_change_invoice(CHAR_DATA* ch)
 		single_god_invoice(ch);
 	if (has_mail(GET_IDNUM(ch)))
 		send_to_char("&R\r\nВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
-	Clan::clan_invoice(ch, true);
 	Depot::show_purged_message(ch);
 }
