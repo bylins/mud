@@ -13,6 +13,9 @@
 ************************************************************************ */
 
 #include "conf.h"
+#include <sstream>
+#include <list>
+#include <string>
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -912,6 +915,89 @@ ACMD(do_pray_gods)
 	}
 }
 
+static const int min_offtop_level = 6;
+static const unsigned int max_remember_offtop = 15;
+static std::list<std::string> remember_offtop;
+
+/**
+*
+*/
+ACMD(do_offtop)
+{
+	if (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_IMMORT)
+	{
+		send_to_char("Чаво ?\r\n", ch);
+		return;
+	}
+
+	if (PLR_FLAGGED(ch, PLR_DUMB))
+	{
+		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
+		return;
+	}
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
+	{
+		send_to_char("Стены заглушили Ваши слова.\r\n", ch);
+		return;
+	}
+	if (GET_LEVEL(ch) < min_offtop_level && !GET_REMORT(ch))
+	{
+		send_to_char(ch, "Вам стоит достичь хотя бы %d уровня, чтобы Вы могли оффтопить.\r\n", min_offtop_level);
+		return;
+	}
+	if (PRF_FLAGGED(ch, PRF_OFFTOP_MODE))
+	{
+		send_to_char("Вы вне видимости канала.\r\n", ch);
+		return;
+	}
+
+	skip_spaces(&argument);
+	if (!*argument)
+	{
+		send_to_char(ch, "Раз нечего сказать, то лучше уж помолчать.");
+		return;
+	}
+	lower_convert(argument);
+
+	if (GET_LAST_ALL_TELL(ch) && !strcmp(GET_LAST_ALL_TELL(ch), argument))
+	{
+		send_to_char("Но Вы же недавно говорили тоже самое!?!\r\n", ch);
+		return;
+	}
+
+	if (!GET_LAST_ALL_TELL(ch))
+		CREATE(GET_LAST_ALL_TELL(ch), char, strlen(argument) + 1);
+	else
+		RECREATE(GET_LAST_ALL_TELL(ch), char, strlen(argument) + 1);
+
+	strcpy(GET_LAST_ALL_TELL(ch), argument);
+
+	std::stringstream text;
+	text << CCCYN(ch, C_NRM) << "[оффтоп] " << GET_NAME(ch) << " : '" << argument << "'" << CCNRM(ch, C_NRM) << "\r\n";
+
+	for (DESCRIPTOR_DATA *i = descriptor_list; i; i = i->next)
+	{
+		if (STATE(i) == CON_PLAYING
+			&& i->character
+			&& GET_LEVEL(i->character) < LVL_IMMORT
+			&& !PRF_FLAGGED(i->character, PRF_OFFTOP_MODE))
+		{
+			if (ignores(i->character, ch, IGNORE_OFFTOP))
+				continue;
+			send_to_char(text.str(), i->character);
+		}
+	}
+
+	char timeBuf[9];
+	time_t tmp_time = time(0);
+	strftime(timeBuf, sizeof(timeBuf), "[%H:%M] ", localtime(&tmp_time));
+	std::string remember = timeBuf + text.str();
+
+	if (remember_offtop.size() >= max_remember_offtop)
+		remember_offtop.erase(remember_offtop.begin());
+	remember_offtop.push_back(remember);
+}
+
 ACMD(do_remember_char)
 {
 	int i, j = 0, k = 0;
@@ -945,15 +1031,18 @@ ACMD(do_remember_char)
 
 	argument = one_argument(argument, arg);
 
-	// Выдает взывания к богам
-	if (is_abbrev(arg, "воззвать")) {
+	if (GET_LEVEL(ch) >= LVL_IMMORT && is_abbrev(arg, "воззвать"))
+	{
+		// Выдает взывания к богам
 		if (!IS_IMMORTAL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
 			return;
-		for (i = 0; i < MAX_REMEMBER_PRAY; i++) {
+		for (i = 0; i < MAX_REMEMBER_PRAY; i++)
+		{
 			j = num_pray + i;
 			if (j >= MAX_REMEMBER_PRAY)
 				j = j - MAX_REMEMBER_PRAY;
-			if (remember_pray[j][0] != '\0') {
+			if (remember_pray[j][0] != '\0')
+			{
 				if (k == 0)
 					send_to_char("&C", ch);
 				k = 1;
@@ -962,20 +1051,21 @@ ACMD(do_remember_char)
 			}
 		}
 
-		if (!k) {
+		if (!k)
 			send_to_char("Никто не взывал Богам.\r\n", ch);
-		} else {
+		else
 			send_to_char("&n", ch);
-		}
-		return;
 	}
-// Выдает крики в эфир
-	if (is_abbrev(arg, "болтать") || is_abbrev(arg, "орать")) {
-		for (i = 0; i < MAX_REMEMBER_GOSSIP; i++) {
+	else if (is_abbrev(arg, "болтать"))
+	{
+		// Выдает крики в эфир
+		for (i = 0; i < MAX_REMEMBER_GOSSIP; i++)
+		{
 			j = num_gossip + i;
 			if (j >= MAX_REMEMBER_GOSSIP)
 				j = j - MAX_REMEMBER_GOSSIP;
-			if (remember_gossip[j][0] != '\0') {
+			if (remember_gossip[j][0] != '\0')
+			{
 				if (k == 0)
 					send_to_char("Последние крики в эфир:\r\n", ch);
 				k = 1;
@@ -984,17 +1074,30 @@ ACMD(do_remember_char)
 			}
 		}
 
-		if (!k) {
+		if (!k)
 			send_to_char("Никто не кричал в эфир.\r\n", ch);
-		} else {
+		else
 			send_to_char("&n", ch);
-		}
-		return;
 	}
-	if (IS_IMMORTAL(ch))
-		send_to_char("Формат команды: вспомнить [без параметров|болтать(орать)|воззвать]\r\n", ch);
+	else if (GET_LEVEL(ch) < LVL_IMMORT && is_abbrev(arg, "оффтоп"))
+	{
+		// выдает канал оффтопа
+		if (remember_offtop.empty())
+			send_to_char("Никто пока не оффтопил.\r\n", ch);
+		else
+		{
+			send_to_char("Последние крики в канале оффтоп:\r\n", ch);
+			for (std::list<std::string>::const_iterator it = remember_offtop.begin(); it != remember_offtop.end(); ++it)
+				send_to_char(*it, ch);
+		}
+	}
 	else
-		send_to_char("Формат команды: вспомнить [без параметров|болтать(орать)]\r\n", ch);
+	{
+		if (IS_IMMORTAL(ch))
+			send_to_char("Формат команды: вспомнить [без параметров|болтать|воззвать]\r\n", ch);
+		else
+			send_to_char("Формат команды: вспомнить [без параметров|болтать|оффтоп]\r\n", ch);
+	}
 }
 
 // shapirus
@@ -1061,6 +1164,8 @@ char *text_ignore_modes(unsigned long mode, char *buf)
 		strcat(buf, " дружина");
 	if (IS_SET(mode, IGNORE_ALLIANCE))
 		strcat(buf, " союзники");
+	if (IS_SET(mode, IGNORE_OFFTOP))
+		strcat(buf, " оффтопик");
 	return buf;
 }
 
@@ -1132,6 +1237,8 @@ ACMD(do_ignore)
 		flag = IGNORE_CLAN;
 	else if (is_abbrev(arg2, "союзники"))
 		flag = IGNORE_ALLIANCE;
+	else if (is_abbrev(arg2, "оффтоп"))
+		flag = IGNORE_OFFTOP;
 	else {
 		ignore_usage(ch);
 		return;
@@ -1187,6 +1294,7 @@ ACMD(do_ignore)
 			SET_BIT(mode, IGNORE_GROUP);
 			SET_BIT(mode, IGNORE_CLAN);
 			SET_BIT(mode, IGNORE_ALLIANCE);
+			SET_BIT(mode, IGNORE_OFFTOP);
 		} else {
 			SET_BIT(mode, flag);
 		}

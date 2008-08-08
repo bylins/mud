@@ -1731,6 +1731,7 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 	"политика", "politics",
 	"пкформат", "pkformat",
 	"соклановцы", "workmate",
+	"оффтоп", "offtop",
 	"\n"
 };
 
@@ -1782,7 +1783,8 @@ struct gen_tog_param_type {
 	0, SCMD_PKL_MODE}, {
 	0, SCMD_POLIT_MODE} , {
 	0, SCMD_PKFORMAT_MODE}, {
-	0, SCMD_WORKMATE_MODE}
+	0, SCMD_WORKMATE_MODE}, {
+	0, SCMD_OFFTOP_MODE}
 };
 
 ACMD(do_mode)
@@ -1931,7 +1933,9 @@ ACMD(do_gen_tog)
 		{"Формат показа пкл/дрл установлен как 'полный'.\r\n",
 		"Формат показа пкл/дрл установлен как 'краткий'.\r\n"},
 		{"Вам не будут показываться входы и выходы из игры ваших соклановцев.\r\n",
-		"Вы видите входы и выходы из игры ваших соклановцев.\r\n"}
+		"Вы видите входы и выходы из игры ваших соклановцев.\r\n"},
+		{"Вы будете слышать болтовню в канале оффтоп.\r\n",
+		"Вы отключены от канала оффтоп.\r\n"}
 	};
 
 
@@ -2073,6 +2077,9 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_WORKMATE_MODE:
 		result = PRF_TOG_CHK(ch, PRF_WORKMATE_MODE);
+		break;
+	case SCMD_OFFTOP_MODE:
+		result = PRF_TOG_CHK(ch, PRF_OFFTOP_MODE);
 		break;
 
 	default:

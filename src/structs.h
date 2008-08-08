@@ -579,6 +579,7 @@ typedef struct trig_data TRIG_DATA;
 #define PRF_IRON_WIND   (INT_ONE | 1 << 22) // включен скилл "железный ветер"
 #define PRF_PKFORMAT_MODE (INT_ONE | 1 << 23) // формат пкл/дрл
 #define PRF_WORKMATE_MODE (INT_ONE | 1 << 24) // показ входов/выходов соклановцев
+#define PRF_OFFTOP_MODE (INT_ONE | 1 << 25) // вкл/выкл канала оффтопа
 
 /* Affect bits: used in char_data.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
@@ -664,6 +665,7 @@ typedef struct trig_data TRIG_DATA;
 #define IGNORE_WHISPER	(1 << 8)
 #define IGNORE_ASK	(1 << 9)
 #define IGNORE_EMOTE	(1 << 10)
+#define IGNORE_OFFTOP	(1 << 11)
 
 /* Modes of connectedness: used by descriptor_data.state */
 /*ОБЕЗАТЕЛЬНО ДОБАВИТЬ В connected_types[]!!!!*/

@@ -385,6 +385,7 @@ ACMD(DoClanPkList);
 ACMD(DoStoreHouse);
 ACMD(do_clanstuff);
 ACMD(DoBest);
+ACMD(do_offtop);
 
 /* This is the Master Command List(tm).
 
@@ -638,6 +639,7 @@ cpp_extern const struct command_info cmd_info[] = {
 	{"отринуть", POS_RESTING, do_antigods, 1, 0, -1},
 	{"отступить", POS_FIGHTING, do_stopfight, 1, 0, -1},
 	{"отправить", POS_STANDING, do_not_here, 1, 0, -1},
+	{"оффтоп", POS_DEAD, do_offtop, 0, 0, -1},
 	{"оценить", POS_STANDING, do_not_here, 0, 0, 500},
 	{"очки", POS_DEAD, do_score, 0, 0, 0},
 	{"очистить", POS_DEAD, do_not_here, 0, SCMD_CLEAR, -1},

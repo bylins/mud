@@ -165,8 +165,8 @@ struct alias_data {
 #define SCMD_AUTOMONEY  28
 #define SCMD_NOARENA    29
 #define SCMD_NOEXCHANGE 30
-#define SCMD_NOCLONES		31
-#define SCMD_NOINVISTELL	32
+#define SCMD_NOCLONES	31
+#define SCMD_NOINVISTELL 32
 #define SCMD_LENGTH      33
 #define SCMD_WIDTH       34
 #define SCMD_SCREEN      35
@@ -177,6 +177,7 @@ struct alias_data {
 #define SCMD_POLIT_MODE  40
 #define SCMD_PKFORMAT_MODE 41
 #define SCMD_WORKMATE_MODE 42
+#define SCMD_OFFTOP_MODE   43
 
 /* do_wizutil */
 #define SCMD_REROLL     0
