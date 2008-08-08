@@ -973,7 +973,7 @@ ACMD(do_offtop)
 	strcpy(GET_LAST_ALL_TELL(ch), argument);
 
 	std::stringstream text;
-	text << CCCYN(ch, C_NRM) << "[ÏÆÆÔÏÐ] " << GET_NAME(ch) << " : '" << argument << "'" << CCNRM(ch, C_NRM) << "\r\n";
+	text << "[ÏÆÆÔÏÐ] " << GET_NAME(ch) << " : '" << argument << "'" << "\r\n";
 
 	for (DESCRIPTOR_DATA *i = descriptor_list; i; i = i->next)
 	{
@@ -984,7 +984,7 @@ ACMD(do_offtop)
 		{
 			if (ignores(i->character, ch, IGNORE_OFFTOP))
 				continue;
-			send_to_char(text.str(), i->character);
+			send_to_char(i->character, "%s%s%s", CCCYN(i->character, C_NRM), text.str().c_str(), CCNRM(i->character, C_NRM));
 		}
 	}
 
