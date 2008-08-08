@@ -30,6 +30,14 @@
 
 extern const char *genders[];
 
+static const char *god_text = "Богом";
+static const char *player_text = "привилегированным игроком";
+
+const char * print_god_or_player(int level)
+{
+	return level < LVL_IMMORT ? player_text : god_text;
+}
+
 // Check if name agree (name must be parsed)
 int was_agree_name(DESCRIPTOR_DATA * d)
 {
@@ -62,7 +70,7 @@ int was_agree_name(DESCRIPTOR_DATA * d)
 			// Auto-Agree char ...
 			NAME_GOD(d->character) = immlev + 1000;
 			NAME_ID_GOD(d->character) = get_id_by_name(immname);
-			sprintf(buf, "\r\nВаше имя одобрено Богом %s!!!\r\n", immname);
+			sprintf(buf, "\r\nВаше имя одобрено %s %s!\r\n", print_god_or_player(immlev), immname);
 			SEND_TO_Q(buf, d);
 			sprintf(buf, "AUTOAGREE: %s was agreed by %s", GET_PC_NAME(d->character), immname);
 			log(buf, d);
@@ -95,7 +103,7 @@ int was_disagree_name(DESCRIPTOR_DATA * d)
 		if (!strcmp(mortname, GET_NAME(d->character))) {
 			// Char found all ok;
 
-			sprintf(buf, "\r\nВаше имя запрещено Богом %s!!!\r\n", immname);
+			sprintf(buf, "\r\nВаше имя запрещено %s %s!\r\n", print_god_or_player(immlev), immname);
 			SEND_TO_Q(buf, d);
 			sprintf(buf, "AUTOAGREE: %s was disagreed by %s", GET_PC_NAME(d->character), immname);
 			log(buf, d);
@@ -384,13 +392,13 @@ void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 		NAME_GOD(vict) = god_level + 1000;
 		NAME_ID_GOD(vict) = GET_IDNUM(ch);
 		send_to_char("Имя одобрено!\r\n", ch);
-		send_to_char(vict, "&GВаше имя одобрено Богом %s!!!&n\r\n", GET_NAME(ch));
+		send_to_char(vict, "&GВаше имя одобрено %s %s!&n\r\n", print_god_or_player(god_level), GET_NAME(ch));
 		agree_name(vict, GET_NAME(ch), god_level);
 	} else {
 		NAME_GOD(vict) = god_level;
 		NAME_ID_GOD(vict) = GET_IDNUM(ch);
 		send_to_char("Имя запрещено!\r\n", ch);
-		send_to_char(vict, "&RВаше имя запрещено Богом %s!!!&n\r\n", GET_NAME(ch));
+		send_to_char(vict, "&RВаше имя запрещено %s %s!&n\r\n", print_god_or_player(god_level), GET_NAME(ch));
 		disagree_name(vict, GET_NAME(ch), god_level);
 	}
 

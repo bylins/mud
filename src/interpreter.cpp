@@ -3480,7 +3480,7 @@ void single_god_invoice(CHAR_DATA* ch)
 void god_work_invoice()
 {
 	for (DESCRIPTOR_DATA* d = descriptor_list; d; d = d->next)
-		if (d->character && (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, PRF_CODERINFO)) && STATE(d) == CON_PLAYING)
+		if (d->character && IS_IMMORTAL(d->character) && STATE(d) == CON_PLAYING)
 			single_god_invoice(d->character);
 }
 
@@ -3490,7 +3490,7 @@ void god_work_invoice()
 void login_change_invoice(CHAR_DATA* ch)
 {
 	Board::LoginInfo(ch);
-	if (IS_IMMORTAL(ch) || Privilege::check_flag(ch, Privilege::KRODER))
+	if (IS_IMMORTAL(ch))
 		single_god_invoice(ch);
 	if (has_mail(GET_IDNUM(ch)))
 		send_to_char("&R\r\nВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);

@@ -83,6 +83,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode);
 char *diag_timer_to_char(OBJ_DATA * obj);
+const char * print_god_or_player(int level);
 
 ACMD(do_affects);
 ACMD(do_look);
@@ -4129,12 +4130,13 @@ ACMD(do_gen_ps)
 				sprintf(buf, "Имя никем не одобрено!\r\n");
 				send_to_char(buf, ch);
 			} else {
+				int god_level = NAME_GOD(ch) > 1000 ? NAME_GOD(ch) - 1000 : NAME_GOD(ch);
 				sprintf(buf1, "%s", get_name_by_id(NAME_ID_GOD(ch)));
 				*buf1 = UPPER(*buf1);
 				if (NAME_GOD(ch) < 1000)
-					sprintf(buf, "&RИмя запрещено богом %s&n\r\n", buf1);
+					sprintf(buf, "&RИмя запрещено %s %s&n\r\n", print_god_or_player(god_level), buf1);
 				else
-					sprintf(buf, "&WИмя одобрено богом %s&n\r\n", buf1);
+					sprintf(buf, "&WИмя одобрено %s %s&n\r\n", print_god_or_player(god_level), buf1);
     			send_to_char(buf, ch);
 			}
 			sprintf(buf, "Перевоплощений: %d\r\n", GET_REMORT(ch));
