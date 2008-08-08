@@ -920,7 +920,7 @@ static const unsigned int max_remember_offtop = 15;
 static std::list<std::string> remember_offtop;
 
 /**
-*
+* Канал оффтоп. Не виден иммам, всегда видно кто говорит, вкл/выкл режим оффтоп.
 */
 ACMD(do_offtop)
 {
@@ -996,6 +996,8 @@ ACMD(do_offtop)
 	if (remember_offtop.size() >= max_remember_offtop)
 		remember_offtop.erase(remember_offtop.begin());
 	remember_offtop.push_back(remember);
+
+	set_wait(ch, 1, FALSE);
 }
 
 ACMD(do_remember_char)
