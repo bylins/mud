@@ -4494,7 +4494,7 @@ ACMD(do_toggle)
 		ONOFF(PRF_FLAGGED(ch, PRF_POLIT_MODE)),
 		PRF_FLAGGED(ch, PRF_PKFORMAT_MODE) ? "краткий" : "полный",
 		ONOFF(PRF_FLAGGED(ch, PRF_WORKMATE_MODE)),
-		ONOFF(!PRF_FLAGGED(ch, PRF_OFFTOP_MODE)));
+		ONOFF(PRF_FLAGGED(ch, PRF_OFFTOP_MODE)));
 
 	send_to_char(buf, ch);
 }

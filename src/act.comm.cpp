@@ -945,7 +945,7 @@ ACMD(do_offtop)
 		send_to_char(ch, "Вам стоит достичь хотя бы %d уровня, чтобы Вы могли оффтопить.\r\n", min_offtop_level);
 		return;
 	}
-	if (PRF_FLAGGED(ch, PRF_OFFTOP_MODE))
+	if (!PRF_FLAGGED(ch, PRF_OFFTOP_MODE))
 	{
 		send_to_char("Вы вне видимости канала.\r\n", ch);
 		return;
@@ -980,7 +980,7 @@ ACMD(do_offtop)
 		if (STATE(i) == CON_PLAYING
 			&& i->character
 			&& GET_LEVEL(i->character) < LVL_IMMORT
-			&& !PRF_FLAGGED(i->character, PRF_OFFTOP_MODE))
+			&& PRF_FLAGGED(i->character, PRF_OFFTOP_MODE))
 		{
 			if (ignores(i->character, ch, IGNORE_OFFTOP))
 				continue;
