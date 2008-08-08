@@ -164,7 +164,7 @@ ASPELL(spell_recall)
 	room_rnum rnum_start, rnum_stop;
 	int modi = 0;
 
-	if (!victim || IS_NPC(victim) || IN_ROOM(ch) != IN_ROOM(victim)) {
+	if (!victim || IS_NPC(victim) || IN_ROOM(ch) != IN_ROOM(victim) || GET_LEVEL(victim) >= LVL_IMMORT) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
