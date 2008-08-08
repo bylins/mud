@@ -1090,7 +1090,7 @@ ACMD(do_remember_char)
 		{
 			send_to_char("Последние крики в канале оффтоп:\r\n", ch);
 			for (std::list<std::string>::const_iterator it = remember_offtop.begin(); it != remember_offtop.end(); ++it)
-				send_to_char(*it, ch);
+				send_to_char(ch, "%s%s%s", CCCYN(ch, C_NRM), (*it).c_str(), CCNRM(ch, C_NRM));
 		}
 	}
 	else
