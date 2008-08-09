@@ -41,85 +41,94 @@ ACMD(do_lightwalk);
    методы доступа к значениям, выдачу нужного поля и копирующий конструктор
    Только тогда придется править обращения к структурам feat_info по коду
 */
-class aff_array {
-	public:
-		explicit aff_array() : _pos(0), i(MAX_FEAT_AFFECT) {}
+class aff_array
+{
+public:
+	explicit aff_array() : _pos(0), i(MAX_FEAT_AFFECT) {}
 
-		int pos(int pos = -1)
+	int pos(int pos = -1)
+	{
+		if (pos == -1)
 		{
-			if (pos == -1) {
-				return _pos;
-			} else if  (pos >= 0 && pos < MAX_FEAT_AFFECT) {
-				_pos = pos;
-				return _pos;
-			}
-			sprintf(buf, "SYSERR: invalid arg passed to features::aff_aray.pos!");
-			mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
+			return _pos;
 		}
-
-		void insert(byte location, sbyte modifier)
+		else if (pos >= 0 && pos < MAX_FEAT_AFFECT)
 		{
-			affected[_pos].location = location;
-			affected[_pos].modifier = modifier;
-			_pos++;
-			if (_pos >= MAX_FEAT_AFFECT)
-				_pos = 0;
+			_pos = pos;
+			return _pos;
 		}
+		sprintf(buf, "SYSERR: invalid arg passed to features::aff_aray.pos!");
+		mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
+	}
 
-		void clear()
-		{
+	void insert(byte location, sbyte modifier)
+	{
+		affected[_pos].location = location;
+		affected[_pos].modifier = modifier;
+		_pos++;
+		if (_pos >= MAX_FEAT_AFFECT)
 			_pos = 0;
-			for (i = 0; i < MAX_FEAT_AFFECT; i++) {
-				affected[i].location = APPLY_NONE;
-				affected[i].modifier = 0;
-			}
-		}
+	}
 
-		struct obj_affected_type
-			affected[MAX_FEAT_AFFECT];
-	private:
-		int _pos, i;
+	void clear()
+	{
+		_pos = 0;
+		for (i = 0; i < MAX_FEAT_AFFECT; i++)
+		{
+			affected[i].location = APPLY_NONE;
+			affected[i].modifier = 0;
+		}
+	}
+
+	struct obj_affected_type
+				affected[MAX_FEAT_AFFECT];
+private:
+	int _pos, i;
 };
 
 /* Поиск номера способности по имени */
 int find_feat_num(char *name)
 {
-        int index, ok;
-        char *temp, *temp2;
-        char first[256], first2[256];
-        for (index = 1; index < MAX_FEATS; index++) {
-                if (is_abbrev(name, feat_info[index].name))
-                        return (index);
-                ok = TRUE;
-                /* It won't be changed, but other uses of this function elsewhere may. */
-                temp = any_one_arg((char *) feat_info[index].name, first);
-                temp2 = any_one_arg(name, first2);
-                while (*first && *first2 && ok) {
-                        if (!is_abbrev(first2, first))
-                                ok = FALSE;
-                        temp = any_one_arg(temp, first);
-                        temp2 = any_one_arg(temp2, first2);
-                }
+	int index, ok;
+	char *temp, *temp2;
+	char first[256], first2[256];
+	for (index = 1; index < MAX_FEATS; index++)
+	{
+		if (is_abbrev(name, feat_info[index].name))
+			return (index);
+		ok = TRUE;
+		/* It won't be changed, but other uses of this function elsewhere may. */
+		temp = any_one_arg((char *) feat_info[index].name, first);
+		temp2 = any_one_arg(name, first2);
+		while (*first && *first2 && ok)
+		{
+			if (!is_abbrev(first2, first))
+				ok = FALSE;
+			temp = any_one_arg(temp, first);
+			temp2 = any_one_arg(temp2, first2);
+		}
 
-                if (ok && !*first2)
-                        return (index);
-        }
-        return (-1);
+		if (ok && !*first2)
+			return (index);
+	}
+	return (-1);
 }
 
 /* Инициализация способности заданными значениями */
 void feato(int feat, const char *name, int type, bool can_up_slot, aff_array app)
 {
-	int i,j;
+	int i, j;
 	for (i = 0; i < NUM_CLASSES; i++)
-		for (j=0; j < NUM_KIN; j++) {
+		for (j = 0; j < NUM_KIN; j++)
+		{
 			feat_info[feat].min_remort[i][j] = 0;
 			feat_info[feat].min_level[i][j] = 0;
 		}
 	feat_info[feat].name = name;
 	feat_info[feat].type = type;
 	feat_info[feat].up_slot = can_up_slot;
-	for (i = 0; i < MAX_FEAT_AFFECT; i++) {
+	for (i = 0; i < MAX_FEAT_AFFECT; i++)
+	{
 		feat_info[feat].affected[i].location = app.affected[i].location;
 		feat_info[feat].affected[i].modifier = app.affected[i].modifier;
 	}
@@ -128,21 +137,23 @@ void feato(int feat, const char *name, int type, bool can_up_slot, aff_array app
 /* Инициализация для unused features */
 void unused_feat(int feat)
 {
-        int i,j;
+	int i, j;
 
-        for (i = 0; i < NUM_CLASSES; i++)
-                for (j=0; j <NUM_KIN; j++){
-                        feat_info[feat].min_remort[i][j] = MAX_REMORT;
-                        feat_info[feat].min_level[i][j] = LVL_IMPL + 1;
+	for (i = 0; i < NUM_CLASSES; i++)
+		for (j = 0; j < NUM_KIN; j++)
+		{
+			feat_info[feat].min_remort[i][j] = MAX_REMORT;
+			feat_info[feat].min_level[i][j] = LVL_IMPL + 1;
 			feat_info[feat].natural_classfeat[i][j] = FALSE;
 			feat_info[feat].classknow[i][j] = FALSE;
-                }
+		}
 
-        feat_info[feat].name = unused_spellname;
+	feat_info[feat].name = unused_spellname;
 	feat_info[feat].type = UNUSED_FTYPE;
 	feat_info[feat].up_slot = FALSE;
 
-	for (i = 0; i < MAX_FEAT_AFFECT; i++) {
+	for (i = 0; i < MAX_FEAT_AFFECT; i++)
+	{
 		feat_info[feat].affected[i].location = APPLY_NONE;
 		feat_info[feat].affected[i].modifier = 0;
 	}
@@ -153,7 +164,8 @@ void assign_feats(void)
 {
 	int i;
 	aff_array feat_app;
-	for (i = 0; i < MAX_FEATS; i++) {
+	for (i = 0; i < MAX_FEATS; i++)
+	{
 		unused_feat(i);
 	}
 
@@ -467,32 +479,32 @@ void assign_feats(void)
 //89
 	feato(DARK_READING_FEAT, "кошачий глаз", NORMAL_FTYPE, TRUE, feat_app);
 
-/*
-//
-	feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);
-	feat_app.clear();
-//
-	feato(FIRE_MAGIC_FOCUS_FEAT, "любимая_магия: огонь", SKILL_MOD_FTYPE, TRUE, feat_app);
-	feat_app.clear();
-//
-	feato(WATER_MAGIC_FOCUS_FEAT, "любимая_магия: вода", SKILL_MOD_FTYPE, TRUE, feat_app);
-	feat_app.clear();
-//
-	feato(EARTH_MAGIC_FOCUS_FEAT, "любимая_магия: земля", SKILL_MOD_FTYPE, TRUE, feat_app);
-	feat_app.clear();
-//
-	feato(LIGHT_MAGIC_FOCUS_FEAT, "любимая_магия: свет", SKILL_MOD_FTYPE, TRUE, feat_app);
-	feat_app.clear();
-//
-	feato(DARK_MAGIC_FOCUS_FEAT, "любимая_магия: тьма", SKILL_MOD_FTYPE, TRUE, feat_app);
-	feat_app.clear();
-//
-	feato(MIND_MAGIC_FOCUS_FEAT, "любимая_магия: разум", SKILL_MOD_FTYPE, TRUE, feat_app);
-	feat_app.clear();
-//
-	feato(LIFE_MAGIC_FOCUS_FEAT, "любимая_магия: жизнь", SKILL_MOD_FTYPE, TRUE, feat_app);
-	feat_app.clear();
-*/
+	/*
+	//
+		feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);
+		feat_app.clear();
+	//
+		feato(FIRE_MAGIC_FOCUS_FEAT, "любимая_магия: огонь", SKILL_MOD_FTYPE, TRUE, feat_app);
+		feat_app.clear();
+	//
+		feato(WATER_MAGIC_FOCUS_FEAT, "любимая_магия: вода", SKILL_MOD_FTYPE, TRUE, feat_app);
+		feat_app.clear();
+	//
+		feato(EARTH_MAGIC_FOCUS_FEAT, "любимая_магия: земля", SKILL_MOD_FTYPE, TRUE, feat_app);
+		feat_app.clear();
+	//
+		feato(LIGHT_MAGIC_FOCUS_FEAT, "любимая_магия: свет", SKILL_MOD_FTYPE, TRUE, feat_app);
+		feat_app.clear();
+	//
+		feato(DARK_MAGIC_FOCUS_FEAT, "любимая_магия: тьма", SKILL_MOD_FTYPE, TRUE, feat_app);
+		feat_app.clear();
+	//
+		feato(MIND_MAGIC_FOCUS_FEAT, "любимая_магия: разум", SKILL_MOD_FTYPE, TRUE, feat_app);
+		feat_app.clear();
+	//
+		feato(LIFE_MAGIC_FOCUS_FEAT, "любимая_магия: жизнь", SKILL_MOD_FTYPE, TRUE, feat_app);
+		feat_app.clear();
+	*/
 }
 
 /* Может ли персонаж использовать способность? Проверка по уровню, ремортам, параметрам персонажа, требованиям. */
@@ -505,35 +517,36 @@ bool can_use_feat(CHAR_DATA *ch, int feat)
 	if (GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 		return FALSE;
 
-	switch (feat) {
+	switch (feat)
+	{
 	case WEAPON_FINESSE_FEAT:
 		if (GET_REAL_DEX(ch) < STRENGTH_APPLY_INDEX(ch) || GET_REAL_DEX(ch) < 18)
 			return FALSE;
-	break;
+		break;
 	case PARRY_ARROW_FEAT:
 		if (GET_REAL_DEX(ch) < 16)
 			return FALSE;
-	break;
+		break;
 	case POWER_ATTACK_FEAT:
 		if (GET_REAL_STR(ch) < 20)
 			return FALSE;
-	break;
+		break;
 	case GREAT_POWER_ATTACK_FEAT:
 		if (GET_REAL_STR(ch) < 22)
 			return FALSE;
-	break;
+		break;
 	case AIMING_ATTACK_FEAT:
 		if (GET_REAL_DEX(ch) < 16)
 			return FALSE;
-	break;
+		break;
 	case GREAT_AIMING_ATTACK_FEAT:
 		if (GET_REAL_DEX(ch) < 18)
 			return FALSE;
-	break;
+		break;
 	case DOUBLESHOT_FEAT:
 		if (ch->get_skill(SKILL_BOWS) < 40)
 			return FALSE;
-	break;
+		break;
 	}
 
 	return TRUE;
@@ -544,15 +557,16 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 {
 	int i, count = 0;
 
-	if (feat <= 0 || feat >= MAX_FEATS) {
+	if (feat <= 0 || feat >= MAX_FEATS)
+	{
 		sprintf(buf, "Неверный номер способности (%d) передан в features::can_get_feat!", feat);
 		mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
 		return FALSE;
 	}
 	/* Доступность по уровню, классу, реморту. */
 	if (!feat_info[feat].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
-		|| GET_LEVEL(ch) < feat_info[feat].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
-		|| GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+			|| GET_LEVEL(ch) < feat_info[feat].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
+			|| GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 		return FALSE;
 
 	/* Наличие свободных слотов */
@@ -560,31 +574,32 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 		return FALSE;
 
 	/* Специальные требования для изучения */
-	switch (feat) {
+	switch (feat)
+	{
 	case PARRY_ARROW_FEAT:
 		if (!ch->get_skill(SKILL_MULTYPARRY) && !ch->get_skill(SKILL_PARRY))
 			return FALSE;
-	break;
+		break;
 	case CONNOISEUR_FEAT:
 		if (!ch->get_skill(SKILL_IDENTIFY))
 			return FALSE;
-	break;
+		break;
 	case EXORCIST_FEAT:
 		if (!ch->get_skill(SKILL_TURN_UNDEAD))
 			return FALSE;
-	break;
+		break;
 	case HEALER_FEAT:
 		if (!ch->get_skill(SKILL_AID))
 			return FALSE;
-	break;
+		break;
 	case STEALTHY_FEAT:
 		if (!ch->get_skill(SKILL_HIDE) && !ch->get_skill(SKILL_SNEAK) && !ch->get_skill(SKILL_CAMOUFLAGE))
 			return FALSE;
-	break;
+		break;
 	case TRACKER_FEAT:
 		if (!ch->get_skill(SKILL_TRACK) && !ch->get_skill(SKILL_SENSE))
 			return FALSE;
-	break;
+		break;
 	case PUNCH_MASTER_FEAT:
 	case CLUBS_MASTER_FEAT:
 	case AXES_MASTER_FEAT:
@@ -602,19 +617,19 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 				count++;
 		if (count >= 1)
 			return FALSE;
-	break;
+		break;
 	case SPIRIT_WARRIOR_FEAT:
-                if (!HAVE_FEAT(ch, GREAT_FORTITUDE_FEAT))
-                        return FALSE;
-	break;
+		if (!HAVE_FEAT(ch, GREAT_FORTITUDE_FEAT))
+			return FALSE;
+		break;
 	case NIMBLE_FINGERS_FEAT:
 		if (!ch->get_skill(SKILL_STEAL) && !ch->get_skill(SKILL_PICK_LOCK))
 			return FALSE;
-	break;
+		break;
 	case GREAT_POWER_ATTACK_FEAT:
 		if (!HAVE_FEAT(ch, POWER_ATTACK_FEAT))
 			return FALSE;
-	break;
+		break;
 	case PUNCH_FOCUS_FEAT:
 	case CLUB_FOCUS_FEAT:
 	case AXES_FOCUS_FEAT:
@@ -632,27 +647,27 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 				count++;
 		if (count >= 2)
 			return FALSE;
-	break;
+		break;
 	case GREAT_AIMING_ATTACK_FEAT:
 		if (!HAVE_FEAT(ch, AIMING_ATTACK_FEAT))
 			return FALSE;
-	break;
+		break;
 	case DOUBLESHOT_FEAT:
 		if (!HAVE_FEAT(ch, BOWS_FOCUS_FEAT) || ch->get_skill(SKILL_BOWS) < 40)
 			return FALSE;
-	break;
+		break;
 	case RUNE_USER_FEAT:
 		if (!HAVE_FEAT(ch, RUNE_NEWBIE_FEAT))
 			return FALSE;
-	break;
+		break;
 	case RUNE_MASTER_FEAT:
 		if (!HAVE_FEAT(ch, RUNE_USER_FEAT))
 			return FALSE;
-	break;
+		break;
 	case RUNE_ULTIMATE_FEAT:
 		if (!HAVE_FEAT(ch, RUNE_MASTER_FEAT))
 			return FALSE;
-	break;
+		break;
 	}
 
 	return TRUE;
@@ -673,30 +688,37 @@ int find_feat_slot(CHAR_DATA *ch, int feat)
 		return (0);
 
 	slot = FEAT_SLOT(ch, feat);
-	for (i = 1; i < MAX_FEATS; i++) {
+	for (i = 1; i < MAX_FEATS; i++)
+	{
 		if (!HAVE_FEAT(ch, i) || feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 			continue;
 
 		fslot = FEAT_SLOT(ch, i);
-		for (; fslot < MAX_ACC_FEAT; fslot++) {
-			if (!sockets.test(fslot)) {
+		for (; fslot < MAX_ACC_FEAT; fslot++)
+		{
+			if (!sockets.test(fslot))
+			{
 				sockets.set(fslot);
 				break;
 			}
 		}
 	}
 
-	if (abs(static_cast<int> (sockets.count())) >= NUM_LEV_FEAT(ch))
+	if (abs(static_cast<int>(sockets.count())) >= NUM_LEV_FEAT(ch))
 		return (-1);
 
-	for (; slot < MAX_ACC_FEAT && slot < NUM_LEV_FEAT(ch);) {
-		if (sockets.test(slot)) {
-			if (feat_info[feat].up_slot) {
+	for (; slot < MAX_ACC_FEAT && slot < NUM_LEV_FEAT(ch);)
+	{
+		if (sockets.test(slot))
+		{
+			if (feat_info[feat].up_slot)
+			{
 				slot++;
 				continue;
 			}
 			return (-1);
-		} else
+		}
+		else
 			return (slot);
 	}
 
@@ -721,14 +743,16 @@ void check_berserk(CHAR_DATA * ch)
 	int prob;
 
 	if (affected_by_spell(ch, SPELL_BERSERK) &&
-		    (GET_HIT(ch) > GET_REAL_MAX_HIT(ch) / 2)) {
-			affect_from_char(ch, SPELL_BERSERK);
-			send_to_char("Предсмертное исступление оставило Вас.\r\n", ch);
+			(GET_HIT(ch) > GET_REAL_MAX_HIT(ch) / 2))
+	{
+		affect_from_char(ch, SPELL_BERSERK);
+		send_to_char("Предсмертное исступление оставило Вас.\r\n", ch);
 	}
 //!IS_NPC(ch) &&
 	if (can_use_feat(ch, BERSERK_FEAT) && FIGHTING(ch) &&
-	    !timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, AFF_BERSERK) &&
-	    (GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4)) {
+			!timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, AFF_BERSERK) &&
+			(GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4))
+	{
 
 //		if (!IS_NPC(ch)) {
 //Gorrah: вроде бы у мобов скиллы тикают так же, так что глюков быть не должно
@@ -744,40 +768,47 @@ void check_berserk(CHAR_DATA * ch)
 		af.battleflag = 0;
 
 		prob = IS_NPC(ch) ? 400 : (500 - GET_LEVEL(ch) * 5 - GET_REMORT(ch) * 5);
-		if (number(1, 1000) <=  prob) {
+		if (number(1, 1000) <=  prob)
+		{
 			af.bitvector = AFF_BERSERK;
 			act("Вас обуяла предсмертная ярость!", FALSE, ch, 0, 0, TO_CHAR);
 			act("$n0 исступленно взвыл$g и бросил$u на противника!", FALSE, ch, 0, 0, TO_ROOM);
-		} else {
+		}
+		else
+		{
 			af.bitvector = 0;
 			act("Вы истошно завопили, пытаясь напугать противника. Без толку.", FALSE, ch, 0, 0, TO_CHAR);
 			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", FALSE, ch, 0, 0, TO_ROOM);
 		}
-			affect_join(ch, &af, TRUE, FALSE, TRUE, FALSE);
+		affect_join(ch, &af, TRUE, FALSE, TRUE, FALSE);
 	}
 }
 
 /* Легкая поступь */
 ACMD(do_lightwalk)
 {
-        AFFECT_DATA af;
+	AFFECT_DATA af;
 	struct timed_type timed;
 
-        if (IS_NPC(ch) || !can_use_feat(ch, LIGHT_WALK_FEAT)) {
-                send_to_char("Вы не можете этого.\r\n", ch);
-                return;
-        }
+	if (IS_NPC(ch) || !can_use_feat(ch, LIGHT_WALK_FEAT))
+	{
+		send_to_char("Вы не можете этого.\r\n", ch);
+		return;
+	}
 
-        if (on_horse(ch)) {
-                act("Позаботьтесь сперва о мягких тапочках для $N3...", FALSE, ch, 0, get_horse(ch), TO_CHAR);
-                return;
-        }
+	if (on_horse(ch))
+	{
+		act("Позаботьтесь сперва о мягких тапочках для $N3...", FALSE, ch, 0, get_horse(ch), TO_CHAR);
+		return;
+	}
 
-	if (affected_by_spell(ch, SPELL_LIGHT_WALK)) {
+	if (affected_by_spell(ch, SPELL_LIGHT_WALK))
+	{
 		send_to_char("Вы уже двигаетесь легким шагом.\r\n", ch);
 		return;
 	}
-	if (timed_by_feat(ch, LIGHT_WALK_FEAT)) {
+	if (timed_by_feat(ch, LIGHT_WALK_FEAT))
+	{
 		send_to_char("Вы слишком утомлены для этого.\r\n", ch);
 		return;
 	}
@@ -794,14 +825,17 @@ ACMD(do_lightwalk)
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
-        if (number (1, 1000) > number(1, GET_REAL_DEX(ch) * 20)) {
-                af.bitvector = 0;
-	        send_to_char("Вам не хватает ловкости...\r\n", ch);
-        } else {
-                af.bitvector = AFF_LIGHT_WALK;
-	        send_to_char("Ваши шаги стали легче перышка.\r\n", ch);
+	if (number(1, 1000) > number(1, GET_REAL_DEX(ch) * 20))
+	{
+		af.bitvector = 0;
+		send_to_char("Вам не хватает ловкости...\r\n", ch);
 	}
-        affect_to_char(ch, &af);
+	else
+	{
+		af.bitvector = AFF_LIGHT_WALK;
+		send_to_char("Ваши шаги стали легче перышка.\r\n", ch);
+	}
+	affect_to_char(ch, &af);
 }
 
 //подгонка и перешивание
@@ -813,30 +847,35 @@ ACMD(do_fit)
 	char arg2[MAX_INPUT_LENGTH];
 
 	/*отключено пока для не-иммов*/
-	if (GET_LEVEL(ch) < LVL_IMMORT) {
+	if (GET_LEVEL(ch) < LVL_IMMORT)
+	{
 		send_to_char("Вы не можете этого.", ch);
 		return;
 	};
 
 	//Может ли игрок использовать эту способность?
-	if ((subcmd == SCMD_DO_ADAPT) && !can_use_feat(ch, TO_FIT_ITEM_FEAT)) {
-			send_to_char("Вы не умеете этого.", ch);
-			return;
+	if ((subcmd == SCMD_DO_ADAPT) && !can_use_feat(ch, TO_FIT_ITEM_FEAT))
+	{
+		send_to_char("Вы не умеете этого.", ch);
+		return;
 	};
-	if ((subcmd == SCMD_MAKE_OVER) && !can_use_feat(ch, TO_FIT_CLOTHCES_FEAT)) {
-			send_to_char("Вы не умеете этого.", ch);
-			return;
+	if ((subcmd == SCMD_MAKE_OVER) && !can_use_feat(ch, TO_FIT_CLOTHCES_FEAT))
+	{
+		send_to_char("Вы не умеете этого.", ch);
+		return;
 	};
 
 	//Есть у нас предмет, который хотят переделать?
 	argument = one_argument(argument, arg1);
 
-	if (!*arg1) {
+	if (!*arg1)
+	{
 		send_to_char("Что вы хотите переделать?\r\n", ch);
 		return;
 	};
 
-	if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
+	if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)))
+	{
 		sprintf(buf, "У Вас нет \'%s\'.\r\n", arg1);
 		send_to_char(buf, ch);
 		return;
@@ -844,13 +883,15 @@ ACMD(do_fit)
 
 	//На кого переделываем?
 	argument = one_argument(argument, arg2);
-	if (!(vict = get_char_vis(ch, arg2, FIND_CHAR_ROOM))) {
+	if (!(vict = get_char_vis(ch, arg2, FIND_CHAR_ROOM)))
+	{
 		send_to_char("Под кого вы хотите переделать эту вещь?\r\n Нет такого создания в округе!\r\n", ch);
 		return;
 	};
 
 	//Предмет уже имеет владельца
-	if (GET_OBJ_OWNER(obj) != 0) {
+	if (GET_OBJ_OWNER(obj) != 0)
+	{
 		send_to_char("У этой вещи уже есть владелец.\r\n", ch);
 		return;
 
@@ -859,7 +900,8 @@ ACMD(do_fit)
 	//предмет никуда не надевается, соответственно его не надо подгонять
 	//в принципе без этой проверки можно обойтись, но пусть будет ролеплея ради
 	//кроме того тут же сделаем проверку на сетстафф
-	if ((GET_OBJ_WEAR(obj) <= 1) || OBJ_FLAGGED(obj, ITEM_SETSTUFF)) {
+	if ((GET_OBJ_WEAR(obj) <= 1) || OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	{
 		send_to_char("Этот предмет невозможно переделать.\r\n", ch);
 		return;
 	}
@@ -872,7 +914,8 @@ ACMD(do_fit)
 //(GET_OBJ_MATER(obj) != MAT_DIAMOND) драгоценного камня
 
 	//Подходит ли материал?
-	switch (subcmd) {
+	switch (subcmd)
+	{
 	case SCMD_DO_ADAPT:
 		if ((GET_OBJ_MATER(obj) != MAT_NONE) &&
 				(GET_OBJ_MATER(obj) != MAT_BULAT) &&
@@ -883,9 +926,10 @@ ACMD(do_fit)
 				(GET_OBJ_MATER(obj) != MAT_COLOR) &&
 				(GET_OBJ_MATER(obj) != MAT_WOOD) &&
 				(GET_OBJ_MATER(obj) != MAT_SUPERWOOD) &&
-				(GET_OBJ_MATER(obj) != MAT_GLASS)) {
+				(GET_OBJ_MATER(obj) != MAT_GLASS))
+		{
 			sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-								 GET_OBJ_PNAME(obj,0),GET_OBJ_SUF_6(obj));
+					GET_OBJ_PNAME(obj, 0), GET_OBJ_SUF_6(obj));
 			send_to_char(buf, ch);
 			return;
 		}
@@ -894,18 +938,19 @@ ACMD(do_fit)
 		if ((GET_OBJ_MATER(obj) != MAT_BONE) &&
 				(GET_OBJ_MATER(obj) != MAT_MATERIA) &&
 				(GET_OBJ_MATER(obj) != MAT_SKIN) &&
-				(GET_OBJ_MATER(obj) != MAT_ORGANIC)) {
+				(GET_OBJ_MATER(obj) != MAT_ORGANIC))
+		{
 			sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
-								 GET_OBJ_PNAME(obj,0),GET_OBJ_SUF_6(obj));
+					GET_OBJ_PNAME(obj, 0), GET_OBJ_SUF_6(obj));
 			send_to_char(buf, ch);
 			return;
 		}
 		break;
 	};
 	GET_OBJ_OWNER(obj) = GET_UNIQUE(vict);
-	sprintf(buf,"Вы долго пыхтели и сопели, переделывая работу по десять раз.\r\n");
-	sprintf(buf+strlen(buf),"Вы извели кучу времени и 10000 кун золотом.\r\n");
-	sprintf(buf+strlen(buf),"В конце-концов подогнали %s точно по мерке %s.\r\n", GET_OBJ_PNAME(obj,3), GET_PAD(vict,1));
+	sprintf(buf, "Вы долго пыхтели и сопели, переделывая работу по десять раз.\r\n");
+	sprintf(buf + strlen(buf), "Вы извели кучу времени и 10000 кун золотом.\r\n");
+	sprintf(buf + strlen(buf), "В конце-концов подогнали %s точно по мерке %s.\r\n", GET_OBJ_PNAME(obj, 3), GET_PAD(vict, 1));
 
 	send_to_char(buf, ch);
 

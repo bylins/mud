@@ -43,14 +43,18 @@ struct event_info *add_event(int time, EVENT(*func), void *info)
 	/* sort the event into the list in next-to-fire order */
 	if (event_list == NULL)
 		event_list = this_data;
-	else if (this_data->time_remaining <= event_list->time_remaining) {
+	else if (this_data->time_remaining <= event_list->time_remaining)
+	{
 		this_data->next = event_list;
 		event_list = this_data;
-	} else {
+	}
+	else
+	{
 		prev = event_list;
 		curr = prev->next;
 
-		while (curr && (curr->time_remaining > this_data->time_remaining)) {
+		while (curr && (curr->time_remaining > this_data->time_remaining))
+		{
 			prev = curr;
 			curr = curr->next;
 		}
@@ -66,9 +70,12 @@ void remove_event(struct event_info *event)
 {
 	struct event_info *curr;
 
-	if (event_list == event) {
+	if (event_list == event)
+	{
 		event_list = event->next;
-	} else {
+	}
+	else
+	{
 		curr = event_list;
 		while (curr && (curr->next != event))
 			curr = curr->next;
@@ -89,9 +96,11 @@ void process_events(void)
 
 	gettimeofday(&start, NULL);
 
-	while (e) {
-		if (--(e->time_remaining) == 0) {
-			trig_vnum = GET_TRIG_VNUM(((struct wait_event_data *) (e->info))->trigger);
+	while (e)
+	{
+		if (--(e->time_remaining) == 0)
+		{
+			trig_vnum = GET_TRIG_VNUM(((struct wait_event_data *)(e->info))->trigger);
 			e->func(e->info);
 
 			del = e;
@@ -103,16 +112,18 @@ void process_events(void)
 			// Делаем для более равномерного распределения времени процессора.
 			gettimeofday(&stop, NULL);
 			if (((stop.tv_sec - start.tv_sec) > 0) ||
-			    (((stop.tv_usec - start.tv_usec) / 1000) > MAX_EVENT_TIME)) {
+					(((stop.tv_usec - start.tv_usec) / 1000) > MAX_EVENT_TIME))
+			{
 				// Выводим номер триггера который переполнил время работы.
 				sprintf(buf,
-					"SCRIPT TIMER (TrigVNum: %d) : превышен лимит времени обработки отложенных триггеров.",
-					trig_vnum);
+						"SCRIPT TIMER (TrigVNum: %d) : превышен лимит времени обработки отложенных триггеров.",
+						trig_vnum);
 				mudlog(buf, BRF, -1, ERRLOG, TRUE);
 
 				break;
 			}
-		} else
+		}
+		else
 			e = e->next;
 	}
 }

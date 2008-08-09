@@ -23,11 +23,11 @@
 */
 class RoomDescription
 {
-	public:
+public:
 	static int add_desc(const std::string &text);
 	static const std::string show_desc(int desc_num);
 
-	private:
+private:
 	RoomDescription();
 	~RoomDescription();
 	// отсюда дергаем описания при работе мада

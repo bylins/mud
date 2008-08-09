@@ -194,7 +194,8 @@ extern void abort(), exit();
 #if defined(__COMM_C__) || defined(CIRCLE_UTIL)
 
 #ifndef HAVE_STRUCT_IN_ADDR
-struct in_addr {
+struct in_addr
+{
 	unsigned long int s_addr;	/* for inet_addr, etc. */
 }
 #endif
@@ -423,7 +424,7 @@ void perror(const char *s);
 #endif
 
 #ifdef NEED_QSORT_PROTO
-void qsort(void *base, size_t nel, size_t width, int (*compar) (const void *, const void *));
+void qsort(void *base, size_t nel, size_t width, int (*compar)(const void *, const void *));
 #endif
 
 #ifdef NEED_REWIND_PROTO

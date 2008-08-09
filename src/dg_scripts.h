@@ -91,14 +91,15 @@
 
 /*
  * These are slightly off of PULSE_MOBILE so
- * everything isnt happening at the same time 
+ * everything isnt happening at the same time
  */
 #define PULSE_DG_SCRIPT         (13 RL_SEC)
 
 
 #define MAX_SCRIPT_DEPTH        512	/* maximum depth triggers can
-					   recurse into each other */
-struct wait_event_data {
+recurse into each other */
+struct wait_event_data
+{
 	trig_data *trigger;
 	void *go;
 	int type;
@@ -106,13 +107,15 @@ struct wait_event_data {
 
 
 /* one line of the trigger */
-struct cmdlist_element {
+struct cmdlist_element
+{
 	char *cmd;		/* one line of a trigger */
 	struct cmdlist_element *original;
 	struct cmdlist_element *next;
 };
 
-struct trig_var_data {
+struct trig_var_data
+{
 	char *name;		/* name of variable  */
 	char *value;		/* value of variable */
 	long context;		/* 0: global context */
@@ -121,7 +124,8 @@ struct trig_var_data {
 };
 
 /* structure for triggers */
-struct trig_data {
+struct trig_data
+{
 	sh_int nr;		/* trigger's rnum                  */
 	byte attach_type;	/* mob/obj/wld intentions          */
 	byte data_type;		/* type of game_data for trig      */
@@ -143,7 +147,8 @@ struct trig_data {
 
 
 /* a complete script (composed of several triggers) */
-struct script_data {
+struct script_data
+{
 	long types;		/* bitvector of trigger types */
 	TRIG_DATA *trig_list;	/* list of triggers           */
 	struct trig_var_data *global_vars;	/* list of global variables   */
@@ -154,7 +159,8 @@ struct script_data {
 };
 
 /* used for actor memory triggers */
-struct script_memory {
+struct script_memory
+{
 	long id;		/* id of who to remember */
 	char *cmd;		/* command, or NULL for generic */
 	struct script_memory *next;

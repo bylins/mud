@@ -37,7 +37,7 @@ char *any_one_name(char *argument, char *first_arg)
 	 */
 	for (arg = first_arg; *argument && !a_isspace(*argument)	/*&&
 									   (!ispunct(*argument) || *argument == '#' || *argument == '-') */ ;
-	     arg++, argument++)
+			arg++, argument++)
 		*arg = LOWER(*argument);
 	*arg = '\0';
 
@@ -52,9 +52,11 @@ void sub_write_to_char(CHAR_DATA * ch, char *tokens[], void *otokens[], char typ
 
 	strcpy(sb, "");
 
-	for (i = 0; tokens[i + 1]; i++) {
+	for (i = 0; tokens[i + 1]; i++)
+	{
 		strcat(sb, tokens[i]);
-		switch (type[i]) {
+		switch (type[i])
+		{
 		case '~':
 			if (!otokens[i])
 				strcat(sb, "Кто-то");
@@ -69,7 +71,8 @@ void sub_write_to_char(CHAR_DATA * ch, char *tokens[], void *otokens[], char typ
 				strcat(sb, "чей-то");
 			else if ((CHAR_DATA *) otokens[i] == ch)
 				strcat(sb, "Ваш");
-			else {
+			else
+			{
 				strcat(sb, PERS((CHAR_DATA *) otokens[i], ch, 1));
 			}
 			break;
@@ -133,8 +136,10 @@ void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets)
 
 	tokens[0] = str;
 
-	for (i = 0, p = arg, s = str; *p;) {
-		switch (*p) {
+	for (i = 0, p = arg, s = str; *p;)
+	{
+		switch (*p)
+		{
 		case '~':
 		case '@':
 		case '^':
@@ -154,9 +159,9 @@ void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets)
 			*s = '\0';
 			p = any_one_name(++p, name);
 			otokens[i] = find_invis ? (obj = get_obj(name)) :
-			    ((obj = get_obj_in_list_vis(ch, name, world[IN_ROOM(ch)]->contents)) ? obj :
-					(obj = get_object_in_equip_vis(ch, name, ch->equipment, &tmp)) ? obj :
-						(obj = get_obj_in_list_vis(ch, name, ch->carrying)));
+						 ((obj = get_obj_in_list_vis(ch, name, world[IN_ROOM(ch)]->contents)) ? obj :
+						  (obj = get_object_in_equip_vis(ch, name, ch->equipment, &tmp)) ? obj :
+						  (obj = get_obj_in_list_vis(ch, name, ch->carrying)));
 			otokens[i] = obj;
 			tokens[++i] = ++s;
 			break;
@@ -192,6 +197,6 @@ void send_to_zone(char *messg, int zone_rnum)
 
 	for (i = descriptor_list; i; i = i->next)
 		if (!i->connected && i->character && AWAKE(i->character) &&
-		    (IN_ROOM(i->character) != NOWHERE) && (world[IN_ROOM(i->character)]->zone == zone_rnum))
+				(IN_ROOM(i->character) != NOWHERE) && (world[IN_ROOM(i->character)]->zone == zone_rnum))
 			SEND_TO_Q(messg, i);
 }

@@ -143,15 +143,16 @@ void check_berserk(CHAR_DATA * ch);
 
 #endif
 
-struct feat_info_type {
-        int min_remort[NUM_CLASSES][NUM_KIN];
-        int min_level[NUM_CLASSES][NUM_KIN];
+struct feat_info_type
+{
+	int min_remort[NUM_CLASSES][NUM_KIN];
+	int min_level[NUM_CLASSES][NUM_KIN];
 	bool classknow[NUM_CLASSES][NUM_KIN];
 	bool natural_classfeat[NUM_CLASSES][NUM_KIN];
 	struct obj_affected_type
-			affected[MAX_FEAT_AFFECT];
-        int type;
+				affected[MAX_FEAT_AFFECT];
+	int type;
 	bool up_slot;
-        const char *name;
+	const char *name;
 
 };

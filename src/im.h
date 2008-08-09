@@ -22,13 +22,15 @@
 
 #define		IM_NPARAM			3
 
-struct _im_tlist_tag {
+struct _im_tlist_tag
+{
 	long size;		// Количество битов
 	long *types;		// Битовая маска
 };
 typedef struct _im_tlist_tag im_tlist;
 
-struct _im_memb_tag {
+struct _im_memb_tag
+{
 	int power;		// сила ингредиента
 	int sex;		// род описателя (0-сред,1-муж,2-жен,3-мн.ч)
 	char **aliases;		// массив пар алиасов
@@ -37,11 +39,12 @@ struct _im_memb_tag {
 typedef struct _im_memb_tag im_memb;
 
 // Описание примитивного типа ингредиента
-struct _im_type_tag {
+struct _im_type_tag
+{
 	int id;			// номер из im.lst
 	char *name;		// название типа ингредиента
 	int proto_vnum;		// vnum объекта-прототипа
-	im_tlist tlst;		// список ID типов/метатипов, которым 
+	im_tlist tlst;		// список ID типов/метатипов, которым
 	// принадлежит данный тип
 	im_memb *head;		// список описателей видов
 	// не используется для ингредиентов класса живь
@@ -53,7 +56,8 @@ typedef struct _im_type_tag im_type;
 // Поле members в описании метатипа не используется
 
 // Описание дополнительного компонента
-struct _im_addon_tag {
+struct _im_addon_tag
+{
 	int id;			// тип ингредиента, индекс массива
 	int k0, k1, k2;		// распределение энергии
 	OBJ_DATA *obj;		// подставляемый объект
@@ -70,7 +74,8 @@ typedef struct _im_addon_tag im_addon;
 // -newbook.patch (Alisher)
 
 // Описание рецепта
-struct _im_recipe_tag {
+struct _im_recipe_tag
+{
 	int id;			// номер из im.lst
 	char *name;		// название рецепта
 	int k_improove;		// сложность прокачки
@@ -91,7 +96,8 @@ struct _im_recipe_tag {
 typedef struct _im_recipe_tag im_recipe;
 
 // Описание рецепта-умения
-struct _im_rskill_tag {
+struct _im_rskill_tag
+{
 	int rid;		// индекс в главном массиве рецептов
 	int perc;		// уровень владения умением
 	struct _im_rskill_tag *link;	// указатель на следующее умение в цепочке

@@ -49,7 +49,7 @@ char * indent_trigger(char * cmd , int * level)
 	char * ptr, * tmp;
 	if (level < 0) level = 0;
 
-	int currlev,nextlev;
+	int currlev, nextlev;
 	currlev = nextlev = *level;
 
 	if (!cmd) return cmd;
@@ -59,39 +59,41 @@ char * indent_trigger(char * cmd , int * level)
 
 	// ptr содержит строку без первых пробелов.
 	if (!strn_cmp("case ", ptr , 5) || !strn_cmp("if ", ptr , 3) ||
-	    !strn_cmp("while ", ptr , 6) || !strn_cmp("switch ", ptr, 7) ||
-	    !strn_cmp("foreach ", ptr, 8) || !strn_cmp("default", ptr , 7) ) {
+			!strn_cmp("while ", ptr , 6) || !strn_cmp("switch ", ptr, 7) ||
+			!strn_cmp("foreach ", ptr, 8) || !strn_cmp("default", ptr , 7))
+	{
 		// Увеличиваем уровень вложения
 		nextlev++;
-	} if (!strn_cmp("elseif ", ptr, 7) || !strn_cmp("else", ptr, 4))
+	}
+	if (!strn_cmp("elseif ", ptr, 7) || !strn_cmp("else", ptr, 4))
 	{
 		currlev--;
 	}
 	else if (!strn_cmp("else", ptr, 4) || !strn_cmp("else", ptr, 4) ||
-		!strn_cmp("break", ptr, 5) || !strn_cmp("done", ptr, 4) ||
-		!strn_cmp("end", ptr, 3))
+			 !strn_cmp("break", ptr, 5) || !strn_cmp("done", ptr, 4) ||
+			 !strn_cmp("end", ptr, 3))
 	{
 		nextlev--;
 		currlev--;
 	}
 
-	if (nextlev < 0 ) nextlev = 0;
-	if (currlev < 0 ) currlev = 0;
+	if (nextlev < 0) nextlev = 0;
+	if (currlev < 0) currlev = 0;
 
 	// Вставляем дополнительные пробелы
 
-	tmp = (char *) malloc(currlev*2+1);
+	tmp = (char *) malloc(currlev * 2 + 1);
 	memset(tmp, 0x20, currlev*2);
 	tmp[currlev*2] = '\0';
 
 	tmp = str_add(tmp, ptr);
 
-	cmd = (char *)realloc(cmd, strlen(tmp)+1);
+	cmd = (char *)realloc(cmd, strlen(tmp) + 1);
 	cmd = strcpy(cmd, tmp);
 
-	free (tmp);
+	free(tmp);
 
-        *level = nextlev;
+	*level = nextlev;
 	return cmd;
 }
 
@@ -132,17 +134,18 @@ void parse_trigger(FILE * trig_f, int nr)
 	trig->cmdlist->cmd = str_dup(strtok(s, "\n\r"));
 
 	indlev = 0;
-	trig->cmdlist->cmd = indent_trigger(trig->cmdlist->cmd,&indlev);
+	trig->cmdlist->cmd = indent_trigger(trig->cmdlist->cmd, &indlev);
 
 	cle = trig->cmdlist;
 
-	while ((s = strtok(NULL, "\n\r"))) {
+	while ((s = strtok(NULL, "\n\r")))
+	{
 		CREATE(cle->next, struct cmdlist_element, 1);
 		cle = cle->next;
 		cle->cmd = str_dup(s);
-		cle->cmd = indent_trigger(cle->cmd,&indlev);
+		cle->cmd = indent_trigger(cle->cmd, &indlev);
 	}
-	if (indlev > 0) log("Positive indent-level on trigger #%d end.",nr);
+	if (indlev > 0) log("Positive indent-level on trigger #%d end.", nr);
 
 	free(cmds);
 
@@ -178,7 +181,8 @@ void free_varlist(struct trig_var_data *vd)
 {
 	struct trig_var_data *i, *j;
 
-	for (i = vd; i;) {
+	for (i = vd; i;)
+	{
 		j = i;
 		i = i->next;
 		if (j->name)
@@ -240,7 +244,7 @@ void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg)
 
 void trig_data_free(TRIG_DATA * this_data)
 {
-/*    struct cmdlist_element *i, *j;*/
+	/*    struct cmdlist_element *i, *j;*/
 
 	free(this_data->name);
 
@@ -261,7 +265,8 @@ void trig_data_free(TRIG_DATA * this_data)
 
 	free_varlist(this_data->var_list);
 
-	if (this_data->wait_event) {
+	if (this_data->wait_event)
+	{
 		// Не нужно забывать эмулировать callback вызов trig_wait_event
 		// а именно выполнить освобождение структуры info
 		free(this_data->wait_event->info);
@@ -284,19 +289,22 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 	get_line(fp, line);
 	count = sscanf(line, "%s %d", junk, &vnum);
 
-	if (count != 2) {	/* should do a better job of making this message */
+	if (count != 2)  	/* should do a better job of making this message */
+	{
 		log("SYSERR: Error assigning trigger!");
 		return;
 	}
 
 	rnum = real_trigger(vnum);
-	if (rnum < 0) {
+	if (rnum < 0)
+	{
 		sprintf(line, "SYSERR: Trigger vnum #%d asked for but non-existant!", vnum);
 		log(line);
 		return;
 	}
 
-	switch (type) {
+	switch (type)
+	{
 	case MOB_TRIGGER:
 		CREATE(new_trg, struct trig_proto_list, 1);
 		new_trg->vnum = vnum;
@@ -304,9 +312,12 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 
 		mob = (CHAR_DATA *) proto;
 		trg_proto = mob->proto_script;
-		if (!trg_proto) {
+		if (!trg_proto)
+		{
 			mob->proto_script = trg_proto = new_trg;
-		} else {
+		}
+		else
+		{
 			while (trg_proto->next)
 				trg_proto = trg_proto->next;
 			trg_proto->next = new_trg;
@@ -318,19 +329,25 @@ void dg_read_trigger(FILE * fp, void *proto, int type)
 		new_trg->next = NULL;
 		room = (room_data *) proto;
 		trg_proto = room->proto_script;
-		if (!trg_proto) {
+		if (!trg_proto)
+		{
 			room->proto_script = trg_proto = new_trg;
-		} else {
+		}
+		else
+		{
 			while (trg_proto->next)
 				trg_proto = trg_proto->next;
 			trg_proto->next = new_trg;
 		}
 
-		if (rnum >= 0) {
+		if (rnum >= 0)
+		{
 			if (!(room->script))
 				CREATE(room->script, SCRIPT_DATA, 1);
 			add_trigger(SCRIPT(room), read_trigger(rnum), -1);
-		} else {
+		}
+		else
+		{
 			sprintf(line, "SYSERR: non-existant trigger #%d assigned to room #%d", vnum, room->number);
 			log(line);
 		}
@@ -349,13 +366,15 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 
 	count = sscanf(line, "%s %d", junk, &vnum);
 
-	if (count != 2) {	/* should do a better job of making this message */
+	if (count != 2)  	/* should do a better job of making this message */
+	{
 		log("SYSERR: Error assigning trigger!");
 		return;
 	}
 
 	rnum = real_trigger(vnum);
-	if (rnum < 0) {
+	if (rnum < 0)
+	{
 		sprintf(line, "SYSERR: Trigger vnum #%d asked for but non-existant!", vnum);
 		log(line);
 		return;
@@ -366,9 +385,12 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 	new_trg->next = NULL;
 
 	trg_proto = obj->proto_script;
-	if (!trg_proto) {
+	if (!trg_proto)
+	{
 		obj->proto_script = trg_proto = new_trg;
-	} else {
+	}
+	else
+	{
 		while (trg_proto->next)
 			trg_proto = trg_proto->next;
 		trg_proto->next = new_trg;
@@ -387,17 +409,22 @@ void assign_triggers(void *i, int type)
 	char buf[256];
 	struct trig_proto_list *trg_proto;
 
-	switch (type) {
+	switch (type)
+	{
 	case MOB_TRIGGER:
 		mob = (CHAR_DATA *) i;
 		trg_proto = mob_proto[GET_MOB_RNUM(mob)].proto_script;
-		while (trg_proto) {
+		while (trg_proto)
+		{
 			rnum = real_trigger(trg_proto->vnum);
-			if (rnum == -1) {
+			if (rnum == -1)
+			{
 				sprintf(buf, "SYSERR: trigger #%d non-existant, for mob #%d",
-					trg_proto->vnum, mob_index[mob->nr].vnum);
+						trg_proto->vnum, mob_index[mob->nr].vnum);
 				log(buf);
-			} else {
+			}
+			else
+			{
 				if (!SCRIPT(mob))
 					CREATE(SCRIPT(mob), SCRIPT_DATA, 1);
 				add_trigger(SCRIPT(mob), read_trigger(rnum), -1);
@@ -408,13 +435,17 @@ void assign_triggers(void *i, int type)
 	case OBJ_TRIGGER:
 		obj = (OBJ_DATA *) i;
 		trg_proto = obj_proto[GET_OBJ_RNUM(obj)]->proto_script;
-		while (trg_proto) {
+		while (trg_proto)
+		{
 			rnum = real_trigger(trg_proto->vnum);
-			if (rnum == -1) {
+			if (rnum == -1)
+			{
 				sprintf(buf, "SYSERR: trigger #%d non-existant, for obj #%d",
-					trg_proto->vnum, obj_index[obj->item_number].vnum);
+						trg_proto->vnum, obj_index[obj->item_number].vnum);
 				log(buf);
-			} else {
+			}
+			else
+			{
 				if (!SCRIPT(obj))
 					CREATE(SCRIPT(obj), SCRIPT_DATA, 1);
 				add_trigger(SCRIPT(obj), read_trigger(rnum), -1);
@@ -425,13 +456,17 @@ void assign_triggers(void *i, int type)
 	case WLD_TRIGGER:
 		room = (ROOM_DATA *) i;
 		trg_proto = room->proto_script;
-		while (trg_proto) {
+		while (trg_proto)
+		{
 			rnum = real_trigger(trg_proto->vnum);
-			if (rnum == -1) {
+			if (rnum == -1)
+			{
 				sprintf(buf, "SYSERR: trigger #%d non-existant, for room #%d",
-					trg_proto->vnum, room->number);
+						trg_proto->vnum, room->number);
 				log(buf);
-			} else {
+			}
+			else
+			{
 				if (!SCRIPT(room))
 					CREATE(SCRIPT(room), SCRIPT_DATA, 1);
 				add_trigger(SCRIPT(room), read_trigger(rnum), -1);
@@ -447,20 +482,25 @@ void assign_triggers(void *i, int type)
 
 void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff)
 {
-	if (HAVE_FEAT(ch, featnum)) {
+	if (HAVE_FEAT(ch, featnum))
+	{
 		if (featdiff)
 			return;
-		else {
+		else
+		{
 			sprintf(buf, "Вы утратили способность '%s'.\r\n", feat_info[featnum].name);
 			send_to_char(buf, ch);
 			UNSET_FEAT(ch, featnum);
 		}
-	} else {
-		if (featdiff) {
+	}
+	else
+	{
+		if (featdiff)
+		{
 			sprintf(buf, "Вы обрели способность '%s'.\r\n", feat_info[featnum].name);
 			send_to_char(buf, ch);
-		if (feat_info[featnum].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
-			SET_FEAT(ch, featnum);
+			if (feat_info[featnum].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+				SET_FEAT(ch, featnum);
 		};
 	}
 }
@@ -479,9 +519,9 @@ void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff)
 		log("Remove %s from %s (trigskillturn)", skill_name(skillnum), GET_NAME(ch));
 	}
 	else if (skilldiff
-		&& skill_info[skillnum].classknow[ch_kin][ch_class] == KNOW_SKILL
-		&& GET_LEVEL(ch) >= skill_info[skillnum].min_level[ch_class][ch_kin]
-		&& GET_REMORT(ch) >= skill_info[skillnum].min_remort[ch_class][ch_kin])
+			 && skill_info[skillnum].classknow[ch_kin][ch_class] == KNOW_SKILL
+			 && GET_LEVEL(ch) >= skill_info[skillnum].min_level[ch_class][ch_kin]
+			 && GET_REMORT(ch) >= skill_info[skillnum].min_remort[ch_class][ch_kin])
 	{
 		ch->set_skill(skillnum, 5);
 		send_to_char(ch, "Вы изучили умение '%s'.\r\n", skill_name(skillnum));
@@ -561,11 +601,13 @@ void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell)
 	char type[MAX_STRING_LENGTH];
 
 	if ((spelldiff && IS_SET(GET_SPELL_TYPE(ch, spellnum), spell)) ||
-	    (!spelldiff && !IS_SET(GET_SPELL_TYPE(ch, spellnum), spell)))
+			(!spelldiff && !IS_SET(GET_SPELL_TYPE(ch, spellnum), spell)))
 		return;
-	if (!spelldiff) {
+	if (!spelldiff)
+	{
 		REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), spell);
-		switch (spell) {
+		switch (spell)
+		{
 		case SPELL_SCROLL:
 			strcpy(type, "создания свитка");
 			break;
@@ -583,9 +625,12 @@ void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell)
 			break;
 		};
 		sprintf(buf, "Вы утратили умение %s '%s'", type, spell_name(spellnum));
-	} else {
+	}
+	else
+	{
 		SET_BIT(GET_SPELL_TYPE(ch, spellnum), spell);
-		switch (spell) {
+		switch (spell)
+		{
 		case SPELL_SCROLL:
 			if (!ch->get_skill(SKILL_CREATE_SCROLL))
 				ch->set_skill(SKILL_CREATE_SCROLL, 5);

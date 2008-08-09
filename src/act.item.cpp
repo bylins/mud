@@ -88,13 +88,14 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 		return 2;
 
 	// если кладем в клановый сундук
-	if (Clan::is_clan_chest(cont)) {
+	if (Clan::is_clan_chest(cont))
+	{
 		if (!Clan::PutChest(ch, obj, cont))
 			return 1;
 		return 0;
 	}
 
-    // персональный сундук
+	// персональный сундук
 	if (Depot::is_depot(cont))
 	{
 		if (!Depot::put_depot(ch, obj))
@@ -109,16 +110,20 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 	else if (IS_OBJ_STAT(obj, ITEM_NODROP))
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj, cont, TO_CHAR);
 	else if (OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
-		 || GET_OBJ_TYPE(obj) == ITEM_KEY)
+			 || GET_OBJ_TYPE(obj) == ITEM_KEY)
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj, cont, TO_CHAR);
-	else {
+	else
+	{
 		obj_from_char(obj);
 		// чтобы там по 1 куне гор не было, чару тож возвращается на счет, а не в инвентарь кучкой
-		if (GET_OBJ_TYPE(obj) == ITEM_MONEY) {
+		if (GET_OBJ_TYPE(obj) == ITEM_MONEY)
+		{
 			OBJ_DATA *temp, *obj_next;
-			for (temp = cont->contains; temp; temp = obj_next) {
+			for (temp = cont->contains; temp; temp = obj_next)
+			{
 				obj_next = temp->next_content;
-				if (GET_OBJ_TYPE(temp) == ITEM_MONEY) {
+				if (GET_OBJ_TYPE(temp) == ITEM_MONEY)
+				{
 					// тут можно просто в поле прибавить, но там описание для кун разное от кол-ва
 					int money = GET_OBJ_VAL(temp, 0);
 					money += GET_OBJ_VAL(obj, 0);
@@ -138,11 +143,13 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 		act("$n положил$g $o3 в $O3.", TRUE, ch, obj, cont, TO_ROOM);
 
 		/* Yes, I realize this is strange until we have auto-equip on rent. -gg */
-		if (IS_OBJ_STAT(obj, ITEM_NODROP) && !IS_OBJ_STAT(cont, ITEM_NODROP)) {
+		if (IS_OBJ_STAT(obj, ITEM_NODROP) && !IS_OBJ_STAT(cont, ITEM_NODROP))
+		{
 			SET_BIT(GET_OBJ_EXTRA(cont, ITEM_NODROP), ITEM_NODROP);
 			act("Вы почувствовали что-то странное, когда положили $o3 в $O3.",
-			    FALSE, ch, obj, cont, TO_CHAR);
-		} else
+				FALSE, ch, obj, cont, TO_CHAR);
+		}
+		else
 			act("Вы положили $o3 в $O3.", FALSE, ch, obj, cont, TO_CHAR);
 		return 0;
 	}
@@ -150,50 +157,50 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 }
 
 const int effects[][2] = { {APPLY_MOVEREG, 100},
-    {APPLY_HITROLL, 2},
-    {APPLY_DAMROLL, 2},
-    {APPLY_MANAREG, 30},
-    {APPLY_MOVE, 100},
-    {APPLY_C1, 4},
-    {APPLY_C2, 4},
-    {APPLY_CHAR_WEIGHT, 10},
-    {APPLY_HITREG, 76},
-    {APPLY_SAVING_CRITICAL, -20},
-    {APPLY_SAVING_STABILITY, -20},
-    {APPLY_RESIST_FIRE, 20},
-    {APPLY_RESIST_AIR, 20},
-    {APPLY_C4, 3},
-    {APPLY_SAVING_WILL, -20},
-    {APPLY_HIT, 80},
-    {APPLY_C3, 3},
-    {APPLY_HITROLL, 4},
-    {APPLY_DAMROLL, 4},
-    {APPLY_SIZE, 15},
-    {APPLY_STR, 3},
-    {APPLY_DEX, 3},
-    {APPLY_INT, 3},
-    {APPLY_WIS, 3},
-    {APPLY_CON, 3},
-    {APPLY_CHA, 3},
-    {APPLY_SAVING_REFLEX, -20},
-    {APPLY_INITIATIVE, 12},
-    {APPLY_ABSORBE, 25},
-    {APPLY_RESIST_WATER, 20},
-    {APPLY_RESIST_EARTH, 20},
-    {APPLY_RESIST_VITALITY, 15},
-    {APPLY_RESIST_IMMUNITY, 25},
-    {APPLY_C5, 2},
-    {APPLY_MORALE, 12},
-    {APPLY_C6, 2},
-    {APPLY_CAST_SUCCESS, 12},
-    {APPLY_RESIST_MIND, 15},
-    {APPLY_C8, 1},
-    {APPLY_C9, 1}
-    };
+	{APPLY_HITROLL, 2},
+	{APPLY_DAMROLL, 2},
+	{APPLY_MANAREG, 30},
+	{APPLY_MOVE, 100},
+	{APPLY_C1, 4},
+	{APPLY_C2, 4},
+	{APPLY_CHAR_WEIGHT, 10},
+	{APPLY_HITREG, 76},
+	{APPLY_SAVING_CRITICAL, -20},
+	{APPLY_SAVING_STABILITY, -20},
+	{APPLY_RESIST_FIRE, 20},
+	{APPLY_RESIST_AIR, 20},
+	{APPLY_C4, 3},
+	{APPLY_SAVING_WILL, -20},
+	{APPLY_HIT, 80},
+	{APPLY_C3, 3},
+	{APPLY_HITROLL, 4},
+	{APPLY_DAMROLL, 4},
+	{APPLY_SIZE, 15},
+	{APPLY_STR, 3},
+	{APPLY_DEX, 3},
+	{APPLY_INT, 3},
+	{APPLY_WIS, 3},
+	{APPLY_CON, 3},
+	{APPLY_CHA, 3},
+	{APPLY_SAVING_REFLEX, -20},
+	{APPLY_INITIATIVE, 12},
+	{APPLY_ABSORBE, 25},
+	{APPLY_RESIST_WATER, 20},
+	{APPLY_RESIST_EARTH, 20},
+	{APPLY_RESIST_VITALITY, 15},
+	{APPLY_RESIST_IMMUNITY, 25},
+	{APPLY_C5, 2},
+	{APPLY_MORALE, 12},
+	{APPLY_C6, 2},
+	{APPLY_CAST_SUCCESS, 12},
+	{APPLY_RESIST_MIND, 15},
+	{APPLY_C8, 1},
+	{APPLY_C9, 1}
+};
 
-OBJ_DATA *create_skin(CHAR_DATA *mob,CHAR_DATA *ch)
+OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 {
-        OBJ_DATA *skin;
+	OBJ_DATA *skin;
 	int definitor, vnum, eff, limit, i, n, k = 0, num, effect, max_eff;
 	bool concidence;
 	const int vnum_skin_prototype = 1660;
@@ -201,70 +208,83 @@ OBJ_DATA *create_skin(CHAR_DATA *mob,CHAR_DATA *ch)
 
 	vnum = vnum_skin_prototype + MIN((int)(GET_LEVEL(mob) / 5), 9);
 	skin = read_object(vnum, VIRTUAL);
-	if (skin == NULL) {
+	if (skin == NULL)
+	{
 		mudlog("Неверно задан номер прототипа для освежевания в act.item.cpp::create_skin!",
-										NRM, LVL_GRGOD, ERRLOG, TRUE);
+			   NRM, LVL_GRGOD, ERRLOG, TRUE);
 		return NULL;
 	}
 
 	definitor = (int)((GET_STR(mob) + GET_DEX(mob) + GET_CON(mob) + GET_WIS(mob) + GET_INT(mob)) / 5);
 	GET_OBJ_PARENT(skin) = GET_MOB_VNUM(mob);
 	trans_obj_name(skin, mob);
-	if (0 <= definitor && definitor <= 15) {
+	if (0 <= definitor && definitor <= 15)
+	{
 		limit = 5;
 		eff = number(0, 1);
 		max_eff = 9;
 		//aff = 0;
 		GET_OBJ_VAL(skin, 0) = number(1, 3);
 		GET_OBJ_VAL(skin, 1) = number(0, 2);
-	} else if (16 <= definitor && definitor <= 25) {
-			limit = 7;
-			eff = number(0, 2);
-			max_eff = 12;
-			//aff = number(0, 1);
-			GET_OBJ_VAL(skin, 0) = number(2, 5);
-			GET_OBJ_VAL(skin, 1) = number(2, 5);
-		} else if (26 <= definitor && definitor <= 35) {
-				limit = 8;
-				eff = number(0, 3);
-				max_eff = 25;
-				//aff = number(0, 1);
-			GET_OBJ_VAL(skin, 0) = number(4, 7);
-			GET_OBJ_VAL(skin, 1) = number(4, 6);
-			} else if (36 <= definitor && definitor <= 45) {
-					limit = 10;
-					eff = number(0, 4);
-					max_eff = 30;
-					//aff = number(0, 2);
-					GET_OBJ_VAL(skin, 0) = number(6, 9);
-					GET_OBJ_VAL(skin, 1) = number(5, 7);
-				} else {
-					limit = 10;
-					eff = number(0, 6);
-					max_eff = 39;
-					//aff = number(0, 3);
-					GET_OBJ_VAL(skin, 0) = number(6, 10);
-					GET_OBJ_VAL(skin, 1) = number(5, 8);
-				}
+	}
+	else if (16 <= definitor && definitor <= 25)
+	{
+		limit = 7;
+		eff = number(0, 2);
+		max_eff = 12;
+		//aff = number(0, 1);
+		GET_OBJ_VAL(skin, 0) = number(2, 5);
+		GET_OBJ_VAL(skin, 1) = number(2, 5);
+	}
+	else if (26 <= definitor && definitor <= 35)
+	{
+		limit = 8;
+		eff = number(0, 3);
+		max_eff = 25;
+		//aff = number(0, 1);
+		GET_OBJ_VAL(skin, 0) = number(4, 7);
+		GET_OBJ_VAL(skin, 1) = number(4, 6);
+	}
+	else if (36 <= definitor && definitor <= 45)
+	{
+		limit = 10;
+		eff = number(0, 4);
+		max_eff = 30;
+		//aff = number(0, 2);
+		GET_OBJ_VAL(skin, 0) = number(6, 9);
+		GET_OBJ_VAL(skin, 1) = number(5, 7);
+	}
+	else
+	{
+		limit = 10;
+		eff = number(0, 6);
+		max_eff = 39;
+		//aff = number(0, 3);
+		GET_OBJ_VAL(skin, 0) = number(6, 10);
+		GET_OBJ_VAL(skin, 1) = number(5, 8);
+	}
 
-    for (i = 1; i <= eff; i++) {
-	    if (number(0, 1000) <= 200)
+	for (i = 1; i <= eff; i++)
+	{
+		if (number(0, 1000) <= 200)
 			continue;
-	    concidence = TRUE;
-	    while (concidence) {
-		num = number(0, max_eff);
-		concidence = FALSE;
-		for (n = 0; n <= k && i > 1; n++) {
-		    if (effects[num][0] == (skin)->affected[n].location)
-		        concidence = TRUE;
+		concidence = TRUE;
+		while (concidence)
+		{
+			num = number(0, max_eff);
+			concidence = FALSE;
+			for (n = 0; n <= k && i > 1; n++)
+			{
+				if (effects[num][0] == (skin)->affected[n].location)
+					concidence = TRUE;
+			}
 		}
-	    }
-	    (skin)->affected[k].location = effects[num][0];
-	    effect = number(1, (int)(effects[num][1] * limit / 10));
-	    if (number(0, 1000) <= 150)
-		effect *= -1;
-	    (skin)->affected[k].modifier = effect;
-	    k++;
+		(skin)->affected[k].location = effects[num][0];
+		effect = number(1, (int)(effects[num][1] * limit / 10));
+		if (number(0, 1000) <= 150)
+			effect *= -1;
+		(skin)->affected[k].modifier = effect;
+		k++;
 	}
 	GET_OBJ_COST(skin) = GET_LEVEL(mob) * number(2, MAX(3, 3 * k));
 	GET_OBJ_VAL(skin, 2) = (int)(1 + (GET_WEIGHT(mob) + GET_SIZE(mob)) / 20);
@@ -298,12 +318,15 @@ ACMD(do_put)
 	argument = two_arguments(argument, arg1, arg2);
 	argument = two_arguments(argument, arg3, arg4);
 
-	if (is_number(arg1)) {
+	if (is_number(arg1))
+	{
 		howmany = atoi(arg1);
 		theobj = arg2;
 		thecont = arg3;
 		theplace = arg4;
-	} else {
+	}
+	else
+	{
 		theobj = arg1;
 		thecont = arg2;
 		theplace = arg3;
@@ -317,18 +340,22 @@ ACMD(do_put)
 		where_bits = FIND_OBJ_EQUIP;
 
 
-	if (theobj && (!strn_cmp("coin", theobj, 4) || !strn_cmp("кун", theobj, 3))) {
+	if (theobj && (!strn_cmp("coin", theobj, 4) || !strn_cmp("кун", theobj, 3)))
+	{
 		money_mode = TRUE;
-		if (howmany <= 0) {
+		if (howmany <= 0)
+		{
 			send_to_char("Следует указать чиста конкретную сумму.\r\n", ch);
 			return;
 		}
-		if (get_gold(ch) < howmany) {
+		if (get_gold(ch) < howmany)
+		{
 			send_to_char("Нет у Вас такой суммы.\r\n", ch);
 			return;
 		}
 		obj_dotmode = FIND_INDIV;
-	} else
+	}
+	else
 		obj_dotmode = find_all_dots(theobj);
 
 	cont_dotmode = find_all_dots(thecont);
@@ -337,24 +364,33 @@ ACMD(do_put)
 		send_to_char("Положить что и куда ?\r\n", ch);
 	else if (cont_dotmode != FIND_INDIV)
 		send_to_char("Вы можете положить вещь только в один контейнер.\r\n", ch);
-	else if (!*thecont) {
+	else if (!*thecont)
+	{
 		sprintf(buf, "Куда Вы хотите положить '%s' ?\r\n", theobj);
 		send_to_char(buf, ch);
-	} else {
+	}
+	else
+	{
 		generic_find(thecont, where_bits, ch, &tmp_char, &cont);
-		if (!cont) {
+		if (!cont)
+		{
 			sprintf(buf, "Вы не видите здесь '%s'.\r\n", thecont);
 			send_to_char(buf, ch);
-		} else if (GET_OBJ_TYPE(cont) != ITEM_CONTAINER)
+		}
+		else if (GET_OBJ_TYPE(cont) != ITEM_CONTAINER)
 			act("В $o3 нельзя ничего положить.", FALSE, ch, cont, 0, TO_CHAR);
 		else if (OBJVAL_FLAGGED(cont, CONT_CLOSED))
 			act("$o3 закрыт$A !", FALSE, ch, cont, 0, TO_CHAR);
-		else {
-			if (obj_dotmode == FIND_INDIV) {	/* put <obj> <container> */
-				if (money_mode) {
-					if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM)) {
+		else
+		{
+			if (obj_dotmode == FIND_INDIV)  	/* put <obj> <container> */
+			{
+				if (money_mode)
+				{
+					if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM))
+					{
 						act("Неведомая сила помешала Вам сделать это!!", FALSE,
-						    ch, 0, 0, TO_CHAR);
+							ch, 0, 0, TO_CHAR);
 						return;
 					}
 					obj = create_money(howmany);
@@ -363,42 +399,54 @@ ACMD(do_put)
 					obj_to_char(obj, ch);
 					add_gold(ch, -howmany);
 					// если положить не удалось - возвращаем все взад
-					if (perform_put(ch, obj, cont)) {
+					if (perform_put(ch, obj, cont))
+					{
 						obj_from_char(obj);
 						extract_obj(obj);
 						add_gold(ch, howmany);
 						return;
 					}
-				} else if (!(obj = get_obj_in_list_vis(ch, theobj, ch->carrying))) {
+				}
+				else if (!(obj = get_obj_in_list_vis(ch, theobj, ch->carrying)))
+				{
 					sprintf(buf, "У Вас нет '%s'.\r\n", theobj);
 					send_to_char(buf, ch);
-				} else if (obj == cont)
+				}
+				else if (obj == cont)
 					send_to_char("Вам будет трудно запихнуть вещь саму в себя.\r\n", ch);
-				else {
+				else
+				{
 					OBJ_DATA *next_obj;
-					while (obj && howmany--) {
+					while (obj && howmany--)
+					{
 						next_obj = obj->next_content;
 						if (perform_put(ch, obj, cont) == 1)
 							return;
 						obj = get_obj_in_list_vis(ch, theobj, next_obj);
 					}
 				}
-			} else {
-				for (obj = ch->carrying; obj; obj = next_obj) {
+			}
+			else
+			{
+				for (obj = ch->carrying; obj; obj = next_obj)
+				{
 					next_obj = obj->next_content;
 					if (obj != cont && CAN_SEE_OBJ(ch, obj) &&
-					    (obj_dotmode == FIND_ALL || isname(theobj, obj->name))) {
+							(obj_dotmode == FIND_ALL || isname(theobj, obj->name)))
+					{
 						found = 1;
 						if (perform_put(ch, obj, cont) == 1)
 							return;
 					}
 				}
-				if (!found) {
+				if (!found)
+				{
 					if (obj_dotmode == FIND_ALL)
 						send_to_char
-						    ("Чтобы положить что-то ненужное нужно купить что-то ненужное.\r\n",
-						     ch);
-					else {
+						("Чтобы положить что-то ненужное нужно купить что-то ненужное.\r\n",
+						 ch);
+					else
+					{
 						sprintf(buf, "Вы не видите ничего похожего на '%s'.\r\n", theobj);
 						send_to_char(buf, ch);
 					}
@@ -415,20 +463,29 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	char buf[128];
 	if (CLAN(ch))
 		sprintf(buf, "clan%d!", CLAN(ch)->GetRent());
-	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
+	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
+	{
 		act("$p: Вы не могете нести столько вещей.", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
-	} else if ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) > CAN_CARRY_W(ch)) {
+	}
+	else if ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) > CAN_CARRY_W(ch))
+	{
 		act("$p: Вы не в состоянии нести еще и $S.", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
-	} else if (!(CAN_WEAR(obj, ITEM_WEAR_TAKE))) {
+	}
+	else if (!(CAN_WEAR(obj, ITEM_WEAR_TAKE)))
+	{
 		act("$p: Вы не можете взять $S.", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
-	} else if (invalid_anti_class(ch, obj)) {
+	}
+	else if (invalid_anti_class(ch, obj))
+	{
 		act("$p: Эта вещь не предназначена для Вас !", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
-	} else if (invalid_unique(ch, obj)
-		   || strstr(obj->name, "clan") && (!CLAN(ch) || !strstr(obj->name, buf))) {
+	}
+	else if (invalid_unique(ch, obj)
+			 || strstr(obj->name, "clan") && (!CLAN(ch) || !strstr(obj->name, buf)))
+	{
 		act("Вас обожгло при попытке взять $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, obj, 0, TO_ROOM);
 		return (0);
@@ -452,7 +509,8 @@ void get_check_money(CHAR_DATA * ch, OBJ_DATA * obj)
 
 	sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_MONEYu));
 	send_to_char(buf, ch);
-	if (IS_AFFECTED(ch, AFF_GROUP) && PRF_FLAGGED(ch, PRF_AUTOSPLIT)) {
+	if (IS_AFFECTED(ch, AFF_GROUP) && PRF_FLAGGED(ch, PRF_AUTOSPLIT))
+	{
 		sprintf(local_buf, "%ld", (long) value);
 		do_split(ch, local_buf, 0, 0);
 	}
@@ -463,16 +521,19 @@ void get_check_money(CHAR_DATA * ch, OBJ_DATA * obj)
 // иначе при вз все сун будет спам на каждый предмет, мол низя
 bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont, int mode)
 {
-	if ((mode == FIND_OBJ_INV || mode == FIND_OBJ_ROOM || mode == FIND_OBJ_EQUIP) && can_take_obj(ch, obj) && get_otrigger(obj, ch)) {
+	if ((mode == FIND_OBJ_INV || mode == FIND_OBJ_ROOM || mode == FIND_OBJ_EQUIP) && can_take_obj(ch, obj) && get_otrigger(obj, ch))
+	{
 		// если берем из клан-сундука
-		if (Clan::is_clan_chest(cont)) {
+		if (Clan::is_clan_chest(cont))
+		{
 			if (!Clan::TakeChest(ch, obj, cont))
 				return 0;
 			return 1;
 		}
 		obj_from_obj(obj);
 		obj_to_char(obj, ch);
-		if (obj->carried_by == ch) {
+		if (obj->carried_by == ch)
+		{
 			act("Вы взяли $o3 из $O1.", FALSE, ch, obj, cont, TO_CHAR);
 			act("$n взял$g $o3 из $O1.", TRUE, ch, obj, cont, TO_ROOM);
 			get_check_money(ch, obj);
@@ -496,36 +557,48 @@ void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, in
 	obj_dotmode = find_all_dots(arg);
 	if (OBJVAL_FLAGGED(cont, CONT_CLOSED))
 		act("$o закрыт$A.", FALSE, ch, cont, 0, TO_CHAR);
-	else if (obj_dotmode == FIND_INDIV) {
-		if (!(obj = get_obj_in_list_vis(ch, arg, cont->contains))) {
+	else if (obj_dotmode == FIND_INDIV)
+	{
+		if (!(obj = get_obj_in_list_vis(ch, arg, cont->contains)))
+		{
 			sprintf(buf, "Вы не видите '%s' в $o5.", arg);
 			act(buf, FALSE, ch, cont, 0, TO_CHAR);
-		} else {
+		}
+		else
+		{
 			OBJ_DATA *obj_next;
-			while (obj && howmany--) {
+			while (obj && howmany--)
+			{
 				obj_next = obj->next_content;
 				if (!perform_get_from_container(ch, obj, cont, mode))
 					return;
 				obj = get_obj_in_list_vis(ch, arg, obj_next);
 			}
 		}
-	} else {
-		if (obj_dotmode == FIND_ALLDOT && !*arg) {
+	}
+	else
+	{
+		if (obj_dotmode == FIND_ALLDOT && !*arg)
+		{
 			send_to_char("Взять что \"все\" ?\r\n", ch);
 			return;
 		}
-		for (obj = cont->contains; obj; obj = next_obj) {
+		for (obj = cont->contains; obj; obj = next_obj)
+		{
 			next_obj = obj->next_content;
-			if (CAN_SEE_OBJ(ch, obj) && (obj_dotmode == FIND_ALL || isname(arg, obj->name))) {
+			if (CAN_SEE_OBJ(ch, obj) && (obj_dotmode == FIND_ALL || isname(arg, obj->name)))
+			{
 				found = 1;
 				if (!perform_get_from_container(ch, obj, cont, mode))
 					return;
 			}
 		}
-		if (!found) {
+		if (!found)
+		{
 			if (obj_dotmode == FIND_ALL)
 				act("$o пуст$A.", FALSE, ch, cont, 0, TO_CHAR);
-			else {
+			else
+			{
 				sprintf(buf, "Вы не видите ничего похожего на '%s' в $o5.", arg);
 				act(buf, FALSE, ch, cont, 0, TO_CHAR);
 			}
@@ -536,10 +609,12 @@ void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, in
 
 int perform_get_from_room(CHAR_DATA * ch, OBJ_DATA * obj)
 {
-	if (can_take_obj(ch, obj) && get_otrigger(obj, ch)) {
+	if (can_take_obj(ch, obj) && get_otrigger(obj, ch))
+	{
 		obj_from_room(obj);
 		obj_to_char(obj, ch);
-		if (obj->carried_by == ch) {
+		if (obj->carried_by == ch)
+		{
 			act("Вы взяли $o3.", FALSE, ch, obj, 0, TO_CHAR);
 			act("$n взял$g $o3.", TRUE, ch, obj, 0, TO_ROOM);
 			get_check_money(ch, obj);
@@ -556,41 +631,54 @@ void get_from_room(CHAR_DATA * ch, char *arg, int howmany)
 	int dotmode, found = 0;
 
 	/* Are they trying to take something in a room extra description? */
-	if (find_exdesc(arg, world[IN_ROOM(ch)]->ex_description) != NULL) {
+	if (find_exdesc(arg, world[IN_ROOM(ch)]->ex_description) != NULL)
+	{
 		send_to_char("Вы не можете это взять.\r\n", ch);
 		return;
 	}
 
 	dotmode = find_all_dots(arg);
 
-	if (dotmode == FIND_INDIV) {
-		if (!(obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents))) {
+	if (dotmode == FIND_INDIV)
+	{
+		if (!(obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents)))
+		{
 			sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg);
 			send_to_char(buf, ch);
-		} else {
+		}
+		else
+		{
 			OBJ_DATA *obj_next;
-			while (obj && howmany--) {
+			while (obj && howmany--)
+			{
 				obj_next = obj->next_content;
 				perform_get_from_room(ch, obj);
 				obj = get_obj_in_list_vis(ch, arg, obj_next);
 			}
 		}
-	} else {
-		if (dotmode == FIND_ALLDOT && !*arg) {
+	}
+	else
+	{
+		if (dotmode == FIND_ALLDOT && !*arg)
+		{
 			send_to_char("Взять что \"все\" ?\r\n", ch);
 			return;
 		}
-		for (obj = world[ch->in_room]->contents; obj; obj = next_obj) {
+		for (obj = world[ch->in_room]->contents; obj; obj = next_obj)
+		{
 			next_obj = obj->next_content;
-			if (CAN_SEE_OBJ(ch, obj) && (dotmode == FIND_ALL || isname(arg, obj->name))) {
+			if (CAN_SEE_OBJ(ch, obj) && (dotmode == FIND_ALL || isname(arg, obj->name)))
+			{
 				found = 1;
 				perform_get_from_room(ch, obj);
 			}
 		}
-		if (!found) {
+		if (!found)
+		{
 			if (dotmode == FIND_ALL)
 				send_to_char("Похоже, здесь ничего нет.\r\n", ch);
-			else {
+			else
+			{
 				sprintf(buf, "Вы не нашли здесь '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 			}
@@ -613,39 +701,49 @@ ACMD(do_mark)
 		send_to_char("Что Вы хотите маркировать ?\r\n", ch);
 	else if (!*arg2 || !is_number(arg2))
 		send_to_char("Не указан или неверный маркер.\r\n", ch);
-	else {
+	else
+	{
 		cont_dotmode = find_all_dots(arg1);
-		if (cont_dotmode == FIND_INDIV) {
+		if (cont_dotmode == FIND_INDIV)
+		{
 			mode = generic_find(arg1, FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP, ch, &tmp_char, &cont);
-			if (!cont) {
+			if (!cont)
+			{
 				sprintf(buf, "У Вас нет '%s'.\r\n", arg1);
 				send_to_char(buf, ch);
 				return;
 			}
 			cont->obj_flags.Obj_owner = atoi(arg2);
 			act("Вы пометили $o3.", FALSE, ch, cont, 0, TO_CHAR);
-		} else {
-			if (cont_dotmode == FIND_ALLDOT && !*arg1) {
+		}
+		else
+		{
+			if (cont_dotmode == FIND_ALLDOT && !*arg1)
+			{
 				send_to_char("Пометить что \"все\" ?\r\n", ch);
 				return;
 			}
 			for (cont = ch->carrying; cont; cont = cont->next_content)
-				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(arg1, cont->name))) {
+				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(arg1, cont->name)))
+				{
 					cont->obj_flags.Obj_owner = atoi(arg2);
 					act("Вы пометили $o3.", FALSE, ch, cont, 0, TO_CHAR);
 					found = TRUE;
 				}
 			for (cont = world[ch->in_room]->contents; cont; cont = cont->next_content)
 				if (CAN_SEE_OBJ(ch, cont)
-				    && (cont_dotmode == FIND_ALL || isname(arg2, cont->name))) {
+						&& (cont_dotmode == FIND_ALL || isname(arg2, cont->name)))
+				{
 					cont->obj_flags.Obj_owner = atoi(arg2);
 					act("Вы пометили $o3.", FALSE, ch, cont, 0, TO_CHAR);
 					found = TRUE;
 				}
-			if (!found) {
+			if (!found)
+			{
 				if (cont_dotmode == FIND_ALL)
 					send_to_char("Вы не смогли найти ничего для маркировки.\r\n", ch);
-				else {
+				else
+				{
 					sprintf(buf, "Вы что-то не видите здесь '%s'.\r\n", arg1);
 					send_to_char(buf, ch);
 				}
@@ -680,15 +778,19 @@ ACMD(do_get)
 	else if (is_number(arg1) && (!*arg3 || isname(arg3, "земля комната ground room")))
 		get_from_room(ch, arg2, atoi(arg1));
 	else if ((!*arg3 && isname(arg2, "инвентарь экипировка inventory equipment")) ||
-		 (is_number(arg1) && !*arg4 && isname(arg3, "инвентарь экипировка inventory equipment")))
+			 (is_number(arg1) && !*arg4 && isname(arg3, "инвентарь экипировка inventory equipment")))
 		send_to_char("Вы уже подобрали этот предмет !\r\n", ch);
-	else {
-		if (is_number(arg1)) {
+	else
+	{
+		if (is_number(arg1))
+		{
 			amount = atoi(arg1);
 			theobj = arg2;
 			thecont = arg3;
 			theplace = arg4;
-		} else {
+		}
+		else
+		{
 			theobj = arg1;
 			thecont = arg2;
 			theplace = arg3;
@@ -703,45 +805,61 @@ ACMD(do_get)
 			where_bits = FIND_OBJ_EQUIP;
 
 		cont_dotmode = find_all_dots(thecont);
-		if (cont_dotmode == FIND_INDIV) {
+		if (cont_dotmode == FIND_INDIV)
+		{
 			mode = generic_find(thecont, where_bits, ch, &tmp_char, &cont);
-			if (!cont) {
+			if (!cont)
+			{
 				sprintf(buf, "Вы не видите '%s'.\r\n", arg2);
 				send_to_char(buf, ch);
-			} else if (GET_OBJ_TYPE(cont) != ITEM_CONTAINER)
+			}
+			else if (GET_OBJ_TYPE(cont) != ITEM_CONTAINER)
 				act("$o - не контейнер.", FALSE, ch, cont, 0, TO_CHAR);
 			else
 				get_from_container(ch, cont, theobj, mode, amount);
-		} else {
-			if (cont_dotmode == FIND_ALLDOT && !*thecont) {
+		}
+		else
+		{
+			if (cont_dotmode == FIND_ALLDOT && !*thecont)
+			{
 				send_to_char("Взять из чего \"всего\" ?\r\n", ch);
 				return;
 			}
 			for (cont = ch->carrying; cont && IS_SET(where_bits, FIND_OBJ_INV); cont = cont->next_content)
-				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(thecont, cont->name))) {
-					if (GET_OBJ_TYPE(cont) == ITEM_CONTAINER) {
+				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(thecont, cont->name)))
+				{
+					if (GET_OBJ_TYPE(cont) == ITEM_CONTAINER)
+					{
 						found = 1;
 						get_from_container(ch, cont, theobj, FIND_OBJ_INV, amount);
-					} else if (cont_dotmode == FIND_ALLDOT) {
+					}
+					else if (cont_dotmode == FIND_ALLDOT)
+					{
 						found = 1;
 						act("$o - не контейнер.", FALSE, ch, cont, 0, TO_CHAR);
 					}
 				}
 			for (cont = world[ch->in_room]->contents;
-			     cont && IS_SET(where_bits, FIND_OBJ_ROOM); cont = cont->next_content)
-				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(thecont, cont->name))) {
-					if (GET_OBJ_TYPE(cont) == ITEM_CONTAINER) {
+					cont && IS_SET(where_bits, FIND_OBJ_ROOM); cont = cont->next_content)
+				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(thecont, cont->name)))
+				{
+					if (GET_OBJ_TYPE(cont) == ITEM_CONTAINER)
+					{
 						get_from_container(ch, cont, theobj, FIND_OBJ_ROOM, amount);
 						found = 1;
-					} else if (cont_dotmode == FIND_ALLDOT) {
+					}
+					else if (cont_dotmode == FIND_ALLDOT)
+					{
 						act("$o - не контейнер.", FALSE, ch, cont, 0, TO_CHAR);
 						found = 1;
 					}
 				}
-			if (!found) {
+			if (!found)
+			{
 				if (cont_dotmode == FIND_ALL)
 					send_to_char("Вы не смогли найти ни одного контейнера.\r\n", ch);
-				else {
+				else
+				{
 					sprintf(buf, "Вы что-то не видите здесь '%s'.\r\n", thecont);
 					send_to_char(buf, ch);
 				}
@@ -758,29 +876,37 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 		send_to_char("Да, похоже Вы слишком переиграли сегодня.\r\n", ch);
 	else if (get_gold(ch) < amount)
 		send_to_char("У Вас нет такой суммы !\r\n", ch);
-	else {
-		if (mode != SCMD_JUNK) {
+	else
+	{
+		if (mode != SCMD_JUNK)
+		{
 			WAIT_STATE(ch, PULSE_VIOLENCE);	/* to prevent coin-bombing */
-			if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM)) {
+			if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM))
+			{
 				act("Неведомая сила помешала Вам сделать это!!", FALSE, ch, 0, 0, TO_CHAR);
 				return;
 			}
 			obj = create_money(amount);
-			if (mode == SCMD_DONATE) {
+			if (mode == SCMD_DONATE)
+			{
 				sprintf(buf, "Вы выбросили %d %s на ветер.\r\n", amount,
-					desc_count(amount, WHAT_MONEYu));
+						desc_count(amount, WHAT_MONEYu));
 				send_to_char(buf, ch);
 				act("$n выбросил$g деньги... На ветер :(", FALSE, ch, 0, 0, TO_ROOM);
 				obj_to_room(obj, RDR);
 				act("$o исчез$Q в клубах дыма !", 0, 0, obj, 0, TO_ROOM);
-			} else {
-				if (!drop_wtrigger(obj, ch)) {
+			}
+			else
+			{
+				if (!drop_wtrigger(obj, ch))
+				{
 					extract_obj(obj);
 					return;
 				}
 				/* Если этот моб трупа не оставит, то не выводить сообщение
-		   		иначе ужасно коряво смотрится в бою и в тригах */
-				if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE)) {
+				   иначе ужасно коряво смотрится в бою и в тригах */
+				if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE))
+				{
 					sprintf(buf, "Вы бросили %d %s на землю.", amount, desc_count(amount, WHAT_MONEYu));
 					send_to_char(buf, ch);
 					sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
@@ -788,7 +914,9 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 				}
 				obj_to_room(obj, ch->in_room);
 			}
-		} else {
+		}
+		else
+		{
 			sprintf(buf, "$n пожертвовал$g %s... В подарок Богам !", money_desc(amount, 3));
 			act(buf, FALSE, ch, 0, 0, TO_ROOM);
 			sprintf(buf, "Вы пожертвовали Богам %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
@@ -802,7 +930,8 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 #define VANISH(mode) ((mode == SCMD_DONATE || mode == SCMD_JUNK) ? \
             "  It vanishes in a puff of smoke!" : "")
 
-const char *drop_op[3][3] = {
+const char *drop_op[3][3] =
+{
 	{"выбросить", "выбросили", "выбросил"},
 	{"пожертвовать", "пожертвовали", "пожертвовал"},
 	{"бросить", "бросили", "бросил"}
@@ -814,7 +943,8 @@ int perform_drop(CHAR_DATA * ch, OBJ_DATA * obj, byte mode, const int sname, roo
 		return 0;
 	if ((mode == SCMD_DROP) && !drop_wtrigger(obj, ch))
 		return 0;
-	if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
+	if (IS_OBJ_STAT(obj, ITEM_NODROP))
+	{
 		sprintf(buf, "Вы не можете %s $o3!", drop_op[sname][0]);
 		act(buf, FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
@@ -828,7 +958,8 @@ int perform_drop(CHAR_DATA * ch, OBJ_DATA * obj, byte mode, const int sname, roo
 	if ((mode == SCMD_DONATE) && IS_OBJ_STAT(obj, ITEM_NODONATE))
 		mode = SCMD_JUNK;
 
-	switch (mode) {
+	switch (mode)
+	{
 	case SCMD_DROP:
 		obj_to_room(obj, ch->in_room);
 		obj_decay(obj);
@@ -860,7 +991,8 @@ ACMD(do_drop)
 	int dotmode, amount = 0, multi;
 	int sname;
 
-	switch (subcmd) {
+	switch (subcmd)
+	{
 	case SCMD_JUNK:
 		sname = 0;
 		mode = SCMD_JUNK;
@@ -868,7 +1000,8 @@ ACMD(do_drop)
 	case SCMD_DONATE:
 		sname = 1;
 		mode = SCMD_DONATE;
-		switch (number(0, 2)) {
+		switch (number(0, 2))
+		{
 		case 0:
 			mode = SCMD_JUNK;
 			break;
@@ -877,7 +1010,8 @@ ACMD(do_drop)
 			// тут было donation_room_1
 			break;
 		}
-		if (RDR == NOWHERE) {
+		if (RDR == NOWHERE)
+		{
 			send_to_char("Вы не можете этого здесь сделать.\r\n", ch);
 			return;
 		}
@@ -889,74 +1023,98 @@ ACMD(do_drop)
 
 	argument = one_argument(argument, arg);
 
-	if (!*arg) {
+	if (!*arg)
+	{
 		sprintf(buf, "Что Вы хотите %s?\r\n", drop_op[sname][0]);
 		send_to_char(buf, ch);
 		return;
-	} else if (is_number(arg)) {
+	}
+	else if (is_number(arg))
+	{
 		multi = atoi(arg);
 		one_argument(argument, arg);
 		if (!str_cmp("coins", arg) || !str_cmp("coin", arg) || !str_cmp("кун", arg) || !str_cmp("денег", arg))
 			perform_drop_gold(ch, multi, mode, RDR);
 		else if (multi <= 0)
 			send_to_char("Не имеет смысла.\r\n", ch);
-		else if (!*arg) {
+		else if (!*arg)
+		{
 			sprintf(buf, "%s %d чего ?\r\n", drop_op[sname][0], multi);
 			send_to_char(buf, ch);
-		} else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
+		}
+		else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
+		{
 			sprintf(buf, "У Вас нет ничего похожего на %s.\r\n", arg);
 			send_to_char(buf, ch);
-		} else {
-			do {
+		}
+		else
+		{
+			do
+			{
 				next_obj = get_obj_in_list_vis(ch, arg, obj->next_content);
 				amount += perform_drop(ch, obj, mode, sname, RDR);
 				obj = next_obj;
 			}
 			while (obj && --multi);
 		}
-	} else {
+	}
+	else
+	{
 		dotmode = find_all_dots(arg);
 		/* Can't junk or donate all */
-		if ((dotmode == FIND_ALL) && (subcmd == SCMD_JUNK || subcmd == SCMD_DONATE)) {
+		if ((dotmode == FIND_ALL) && (subcmd == SCMD_JUNK || subcmd == SCMD_DONATE))
+		{
 			if (subcmd == SCMD_JUNK)
 				send_to_char("Вас с нетерпением ждут. У психиатра :)\r\n", ch);
 			else
 				send_to_char("Такую жертву я принять не могу !\r\n", ch);
 			return;
 		}
-		if (dotmode == FIND_ALL) {
+		if (dotmode == FIND_ALL)
+		{
 			if (!ch->carrying)
 				send_to_char("А у Вас ничего и нет.\r\n", ch);
 			else
-				for (obj = ch->carrying; obj; obj = next_obj) {
+				for (obj = ch->carrying; obj; obj = next_obj)
+				{
 					next_obj = obj->next_content;
 					amount += perform_drop(ch, obj, mode, sname, RDR);
 				}
-		} else if (dotmode == FIND_ALLDOT) {
-			if (!*arg) {
+		}
+		else if (dotmode == FIND_ALLDOT)
+		{
+			if (!*arg)
+			{
 				sprintf(buf, "%s \"все\" какого типа предметов ?\r\n", drop_op[sname][0]);
 				send_to_char(buf, ch);
 				return;
 			}
-			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
+			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
+			{
 				sprintf(buf, "У Вас нет ничего похожего на '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 			}
-			while (obj) {
+			while (obj)
+			{
 				next_obj = get_obj_in_list_vis(ch, arg, obj->next_content);
 				amount += perform_drop(ch, obj, mode, sname, RDR);
 				obj = next_obj;
 			}
-		} else {
-			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
+		}
+		else
+		{
+			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
+			{
 				sprintf(buf, "У Вас нет '%s'.\r\n", arg);
 				send_to_char(buf, ch);
-			} else
+			}
+			else
 				amount += perform_drop(ch, obj, mode, sname, RDR);
 		}
 	}
 
-	if (amount && (subcmd == SCMD_JUNK)) {
+	if (amount && (subcmd == SCMD_JUNK))
+	{
 		send_to_char("Боги не обратили внимания на этот хлам.\r\n", ch);
 		act("$n принес$q жертву. Но Боги были глухи к н$m !", TRUE, ch, 0, 0, TO_ROOM);
 	}
@@ -966,19 +1124,23 @@ ACMD(do_drop)
 
 void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj)
 {
-	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM) && !IS_GOD(ch)) {
+	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM) && !IS_GOD(ch))
+	{
 		act("Неведомая сила помешала Вам сделать это!!", FALSE, ch, 0, 0, TO_CHAR);
 		return;
 	}
-	if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
+	if (IS_OBJ_STAT(obj, ITEM_NODROP))
+	{
 		act("Вы не можете передать $o3!!", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
-	if (IS_CARRYING_N(vict) >= CAN_CARRY_N(vict)) {
+	if (IS_CARRYING_N(vict) >= CAN_CARRY_N(vict))
+	{
 		act("У $N1 заняты руки.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
-	if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(vict) > CAN_CARRY_W(vict)) {
+	if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(vict) > CAN_CARRY_W(vict))
+	{
 		act("$E не может нести такой вес.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
@@ -997,31 +1159,40 @@ CHAR_DATA *give_find_vict(CHAR_DATA * ch, char *arg)
 {
 	CHAR_DATA *vict;
 
-	if (!*arg) {
+	if (!*arg)
+	{
 		send_to_char("Кому ?\r\n", ch);
 		return (NULL);
-	} else if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
+	}
+	else if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
+	{
 		send_to_char(NOPERSON, ch);
 		return (NULL);
-	} else if (vict == ch) {
+	}
+	else if (vict == ch)
+	{
 		send_to_char("Вы переложили ЭТО из одного кармана в другой.\r\n", ch);
 		return (NULL);
-	} else
+	}
+	else
 		return (vict);
 }
 
 
 void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 {
-	if (amount <= 0) {
+	if (amount <= 0)
+	{
 		send_to_char("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (get_gold(ch) < amount && (IS_NPC(ch) || !IS_IMPL(ch))) {
+	if (get_gold(ch) < amount && (IS_NPC(ch) || !IS_IMPL(ch)))
+	{
 		send_to_char("И откуда Вы их взять собираетесь ?\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM) && !IS_GOD(ch)) {
+	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM) && !IS_GOD(ch))
+	{
 		act("Неведомая сила помешала Вам сделать это!!", FALSE, ch, 0, 0, TO_CHAR);
 		return;
 	}
@@ -1047,49 +1218,69 @@ ACMD(do_give)
 
 	if (!*arg)
 		send_to_char("Дать что и кому ?\r\n", ch);
-	else if (is_number(arg)) {
+	else if (is_number(arg))
+	{
 		amount = atoi(arg);
 		argument = one_argument(argument, arg);
-		if (!strn_cmp("coin", arg, 4) || !strn_cmp("кун", arg, 5) || !str_cmp("денег", arg)) {
+		if (!strn_cmp("coin", arg, 4) || !strn_cmp("кун", arg, 5) || !str_cmp("денег", arg))
+		{
 			one_argument(argument, arg);
 			if ((vict = give_find_vict(ch, arg)) != NULL)
 				perform_give_gold(ch, vict, amount);
 			return;
-		} else if (!*arg) {	/* Give multiple code. */
+		}
+		else if (!*arg)  	/* Give multiple code. */
+		{
 			sprintf(buf, "Чего %d Вы хотите дать ?\r\n", amount);
 			send_to_char(buf, ch);
-		} else if (!(vict = give_find_vict(ch, argument))) {
+		}
+		else if (!(vict = give_find_vict(ch, argument)))
+		{
 			return;
-		} else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
+		}
+		else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
+		{
 			sprintf(buf, "У Вас нет '%s'.\r\n", arg);
 			send_to_char(buf, ch);
-		} else {
-			while (obj && amount--) {
+		}
+		else
+		{
+			while (obj && amount--)
+			{
 				next_obj = get_obj_in_list_vis(ch, arg, obj->next_content);
 				perform_give(ch, vict, obj);
 				obj = next_obj;
 			}
 		}
-	} else {
+	}
+	else
+	{
 		one_argument(argument, buf1);
 		if (!(vict = give_find_vict(ch, buf1)))
 			return;
 		dotmode = find_all_dots(arg);
-		if (dotmode == FIND_INDIV) {
-			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
+		if (dotmode == FIND_INDIV)
+		{
+			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
+			{
 				sprintf(buf, "У Вас нет '%s'.\r\n", arg);
 				send_to_char(buf, ch);
-			} else
+			}
+			else
 				perform_give(ch, vict, obj);
-		} else {
-			if (dotmode == FIND_ALLDOT && !*arg) {
+		}
+		else
+		{
+			if (dotmode == FIND_ALLDOT && !*arg)
+			{
 				send_to_char("Дать \"все\" какого типа предметов ?\r\n", ch);
 				return;
 			}
 			if (!ch->carrying)
 				send_to_char("У Вас ведь ничего нет.\r\n", ch);
 			else
-				for (obj = ch->carrying; obj; obj = next_obj) {
+				for (obj = ch->carrying; obj; obj = next_obj)
+				{
 					next_obj = obj->next_content;
 					if (CAN_SEE_OBJ(ch, obj) && ((dotmode == FIND_ALL || isname(arg, obj->name))))
 						perform_give(ch, vict, obj);
@@ -1105,17 +1296,24 @@ void weight_change_object(OBJ_DATA * obj, int weight)
 	OBJ_DATA *tmp_obj;
 	CHAR_DATA *tmp_ch;
 
-	if (obj->in_room != NOWHERE) {
-		GET_OBJ_WEIGHT(obj) = MAX(1, GET_OBJ_WEIGHT(obj)+weight);
-	} else if ((tmp_ch = obj->carried_by)) {
+	if (obj->in_room != NOWHERE)
+	{
+		GET_OBJ_WEIGHT(obj) = MAX(1, GET_OBJ_WEIGHT(obj) + weight);
+	}
+	else if ((tmp_ch = obj->carried_by))
+	{
 		obj_from_char(obj);
-		GET_OBJ_WEIGHT(obj) = MAX(1, GET_OBJ_WEIGHT(obj)+weight);
+		GET_OBJ_WEIGHT(obj) = MAX(1, GET_OBJ_WEIGHT(obj) + weight);
 		obj_to_char(obj, tmp_ch);
-	} else if ((tmp_obj = obj->in_obj)) {
+	}
+	else if ((tmp_obj = obj->in_obj))
+	{
 		obj_from_obj(obj);
-		GET_OBJ_WEIGHT(obj) = MAX(1, GET_OBJ_WEIGHT(obj)+weight);
+		GET_OBJ_WEIGHT(obj) = MAX(1, GET_OBJ_WEIGHT(obj) + weight);
 		obj_to_obj(obj, tmp_obj);
-	} else {
+	}
+	else
+	{
 		log("SYSERR: Unknown attempt to subtract weight from an object.");
 	}
 }
@@ -1130,29 +1328,33 @@ void name_from_drinkcon(OBJ_DATA * obj)
 	for (i = 0; *(obj->name + i) && a_isspace(*(obj->name + i)); i++);
 	for (j = 0; *(obj->name + i) && !(a_isspace(*(obj->name + i))); new_name[j] = *(obj->name + i), i++, j++);
 	new_name[j] = '\0';
-	if (*new_name) {
+	if (*new_name)
+	{
 		if (GET_OBJ_RNUM(obj) < 0 || obj->name != obj_proto[GET_OBJ_RNUM(obj)]->name)
 			free(obj->name);
 		obj->name = str_dup(new_name);
 	}
 
 	for (i = 0; *(obj->short_description + i)
-	     && a_isspace(*(obj->short_description + i)); i++);
+			&& a_isspace(*(obj->short_description + i)); i++);
 	for (j = 0; *(obj->short_description + i)
-	     && !(a_isspace(*(obj->short_description + i))); new_name[j] = *(obj->short_description + i), i++, j++);
+			&& !(a_isspace(*(obj->short_description + i))); new_name[j] = *(obj->short_description + i), i++, j++);
 	new_name[j] = '\0';
-	if (*new_name) {
+	if (*new_name)
+	{
 		if (GET_OBJ_RNUM(obj) < 0 || obj->short_description != obj_proto[GET_OBJ_RNUM(obj)]->short_description)
 			free(obj->short_description);
 		obj->short_description = str_dup(new_name);
 	}
 
 
-	for (c = 0; c < NUM_PADS; c++) {
+	for (c = 0; c < NUM_PADS; c++)
+	{
 		for (i = 0; a_isspace(*(obj->PNames[c] + i)); i++);
 		for (j = 0; !a_isspace(*(obj->PNames[c] + i)); new_name[j] = *(obj->PNames[c] + i), i++, j++);
 		new_name[j] = '\0';
-		if (*new_name) {
+		if (*new_name)
+		{
 			if (GET_OBJ_RNUM(obj) < 0 || obj->PNames[c] != obj_proto[GET_OBJ_RNUM(obj)]->PNames[c])
 				free(obj->PNames[c]);
 			obj->PNames[c] = str_dup(new_name);
@@ -1178,7 +1380,8 @@ void name_to_drinkcon(OBJ_DATA * obj, int type)
 	obj->short_description = str_dup(new_name);
 
 
-	for (c = 0; c < NUM_PADS; c++) {
+	for (c = 0; c < NUM_PADS; c++)
+	{
 		sprintf(new_name, "%s с %s", obj->PNames[c], drinknames[type]);
 		if (GET_OBJ_RNUM(obj) < 0 || obj->PNames[c] != obj_proto[GET_OBJ_RNUM(obj)]->PNames[c])
 			free(obj->PNames[c]);
@@ -1201,52 +1404,65 @@ ACMD(do_drink)
 	if (IS_NPC(ch))		/* Cannot use GET_COND() on mobs. */
 		return;
 
-	if (!*arg) {
+	if (!*arg)
+	{
 		send_to_char("Пить из чего ?\r\n", ch);
 		return;
 	}
 
-	if (!(temp = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		if (!(temp = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents))) {
+	if (!(temp = get_obj_in_list_vis(ch, arg, ch->carrying)))
+	{
+		if (!(temp = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents)))
+		{
 			send_to_char("Вы не смогли это найти!\r\n", ch);
 			return;
-		} else
+		}
+		else
 			on_ground = 1;
 	}
-	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND)) {
+	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	{
 		send_to_char("Не стоит отвлекаться в бою!\r\n", ch);
 		return;
 	}
-	if ((GET_OBJ_TYPE(temp) != ITEM_DRINKCON) && (GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN)) {
+	if ((GET_OBJ_TYPE(temp) != ITEM_DRINKCON) && (GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN))
+	{
 		send_to_char("Не стоит. Козлят и так много !\r\n", ch);
 		return;
 	}
-	if (on_ground && (GET_OBJ_TYPE(temp) == ITEM_DRINKCON)) {
+	if (on_ground && (GET_OBJ_TYPE(temp) == ITEM_DRINKCON))
+	{
 		send_to_char("Прежде это стоит поднять.\r\n", ch);
 		return;
 	}
 
-	if (!GET_OBJ_VAL(temp, 1)) {
+	if (!GET_OBJ_VAL(temp, 1))
+	{
 		send_to_char("Пусто.\r\n", ch);
 		return;
 	}
 	// Added by Adept - обкаст если в фонтане или емкости зелье
-	if (GET_OBJ_VAL(temp, 2) >= LIQ_POTION) {
+	if (GET_OBJ_VAL(temp, 2) >= LIQ_POTION)
+	{
 		act("$n выпил$g зелья из $o1.", TRUE, ch, temp, 0, TO_ROOM);
 		sprintf(buf, "Вы выпили зелья из %s.\r\n", OBJN(temp, ch, 1));
 		send_to_char(buf, ch);
 		obj_potion = read_object(GET_OBJ_SKILL(temp), VIRTUAL);
-		if (obj_potion == NULL) {
+		if (obj_potion == NULL)
+		{
 			sprintf(buf,
-				"ERROR: Попытка зачитывания заклинания из несуществующего зелья в предмете (VNUM:%d).",
-				GET_OBJ_VNUM(temp));
+					"ERROR: Попытка зачитывания заклинания из несуществующего зелья в предмете (VNUM:%d).",
+					GET_OBJ_VNUM(temp));
 			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 			return;
 		}
-		if (GET_OBJ_TYPE(obj_potion) != ITEM_POTION) {
+		if (GET_OBJ_TYPE(obj_potion) != ITEM_POTION)
+		{
 			sprintf(buf, "ERROR: Неверный vnum зелья в объекте (VNUM:%d).", GET_OBJ_VNUM(temp));
 			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
-		} else {
+		}
+		else
+		{
 			//Если внум верный и такое зелье есть - кастим из него спеллы и уничтожаем
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 			level = GET_OBJ_VAL(obj_potion, 0);
@@ -1254,7 +1470,8 @@ ACMD(do_drink)
 				if (call_magic(ch, ch, NULL, world[IN_ROOM(ch)], GET_OBJ_VAL(obj_potion, i), level, CAST_POTION) <= 0)
 					break;
 			//Если все зелье выпито - обнуляем внум зелья-прототипа
-			if (--GET_OBJ_VAL(temp, 1) <= 0 && GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN) {
+			if (--GET_OBJ_VAL(temp, 1) <= 0 && GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN)
+			{
 				name_from_drinkcon(temp);
 				GET_OBJ_SKILL(temp) = 0;
 			}
@@ -1262,39 +1479,50 @@ ACMD(do_drink)
 		}
 		extract_obj(obj_potion);
 		return;
-	} else if (FIGHTING(ch)) {
+	}
+	else if (FIGHTING(ch))
+	{
 		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
 	}
 	//Конец изменений Adept'ом
 
-	if ((GET_COND(ch, DRUNK) > CHAR_DRUNKED) && (GET_COND(ch, THIRST) > 0)) {	// The pig is drunk
+	if ((GET_COND(ch, DRUNK) > CHAR_DRUNKED) && (GET_COND(ch, THIRST) > 0))  	// The pig is drunk
+	{
 		send_to_char("Вы не смогли сделать и глотка.\r\n", ch);
 		act("$n попытал$u выпить еще, но не смог$q сделать и глотка.", TRUE, ch, 0, 0, TO_ROOM);
 		return;
 	}
 
-	if (subcmd == SCMD_DRINK) {
+	if (subcmd == SCMD_DRINK)
+	{
 		if (drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] > 0)
 			amount = (25 - GET_COND(ch, THIRST)) / drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK];
 		else
 			amount = number(3, 10);
-	} else {
+	}
+	else
+	{
 		amount = 1;
 	}
 
 	amount = MIN(amount, GET_OBJ_VAL(temp, 1));
 	amount = MIN(amount, 24 - GET_COND(ch, THIRST));
 
-	if (amount <= 0) {
+	if (amount <= 0)
+	{
 		send_to_char("В Вас больше не лезет.\r\n", ch);
 		return;
-	} else if (subcmd == SCMD_DRINK) {
+	}
+	else if (subcmd == SCMD_DRINK)
+	{
 		sprintf(buf, "$n выпил$g %s из $o1.", drinks[GET_OBJ_VAL(temp, 2)]);
 		act(buf, TRUE, ch, temp, 0, TO_ROOM);
 		sprintf(buf, "Вы выпили %s из %s.\r\n", drinks[GET_OBJ_VAL(temp, 2)], OBJN(temp, ch, 1));
 		send_to_char(buf, ch);
-	} else {
+	}
+	else
+	{
 		act("$n отхлебнул$g из $o1.", TRUE, ch, temp, 0, TO_ROOM);
 		sprintf(buf, "Вы узнали вкус %s.\r\n", drinks[GET_OBJ_VAL(temp, 2)]);
 		send_to_char(buf, ch);
@@ -1305,11 +1533,11 @@ ACMD(do_drink)
 
 	if (GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN)
 		weight_change_object(temp, -weight);	/* Subtract amount */
-	gain_condition(ch, DRUNK, (int) ((int) drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] * amount) / 4);
+	gain_condition(ch, DRUNK, (int)((int) drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] * amount) / 4);
 
-	gain_condition(ch, FULL, (int) ((int) drink_aff[GET_OBJ_VAL(temp, 2)][FULL] * amount) / 4);
+	gain_condition(ch, FULL, (int)((int) drink_aff[GET_OBJ_VAL(temp, 2)][FULL] * amount) / 4);
 
-	gain_condition(ch, THIRST, (int) ((int) drink_aff[GET_OBJ_VAL(temp, 2)][THIRST] * amount) / 4);
+	gain_condition(ch, THIRST, (int)((int) drink_aff[GET_OBJ_VAL(temp, 2)][THIRST] * amount) / 4);
 
 	if (GET_COND(ch, THIRST) > 20)
 		send_to_char("Вы не чувствуете жажды.\r\n", ch);
@@ -1317,18 +1545,23 @@ ACMD(do_drink)
 	if (GET_COND(ch, FULL) > 20)
 		send_to_char("Вы чувствуете приятную тяжесть в желудке.\r\n", ch);
 
-	if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED) {
-		if (GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED) {
+	if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED)
+	{
+		if (GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED)
+		{
 			send_to_char("Напилися Вы пьяны, не дойти Вам до дому....\r\n", ch);
 			duration = 2;
-		} else {
+		}
+		else
+		{
 			send_to_char("Приятное тепло разлилось по Вашему телу.\r\n", ch);
 			duration = 2 + MAX(0, GET_COND(ch, DRUNK) - CHAR_DRUNKED);
 		}
 		GET_DRUNK_STATE(ch) = MAX(GET_DRUNK_STATE(ch), GET_COND(ch, DRUNK));
-		if (!AFF_FLAGGED(ch, AFF_DRUNKED) && !AFF_FLAGGED(ch, AFF_ABSTINENT)) {
+		if (!AFF_FLAGGED(ch, AFF_DRUNKED) && !AFF_FLAGGED(ch, AFF_ABSTINENT))
+		{
 			send_to_char("Винные пары ударили Вам в голову.\r\n", ch);
-	  /***** Decrease AC ******/
+			/***** Decrease AC ******/
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -20;
@@ -1336,7 +1569,7 @@ ACMD(do_drink)
 			af.bitvector = AFF_DRUNKED;
 			af.battleflag = 0;
 			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
-	  /***** Decrease HR ******/
+			/***** Decrease HR ******/
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
 			af.modifier = -2;
@@ -1344,7 +1577,7 @@ ACMD(do_drink)
 			af.bitvector = AFF_DRUNKED;
 			af.battleflag = 0;
 			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
-	  /***** Increase DR ******/
+			/***** Increase DR ******/
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
 			af.modifier = (GET_LEVEL(ch) + 4) / 5;
@@ -1355,7 +1588,8 @@ ACMD(do_drink)
 		}
 	}
 
-	if (GET_OBJ_VAL(temp, 3) && !IS_GOD(ch)) {	/* The shit was poisoned ! */
+	if (GET_OBJ_VAL(temp, 3) && !IS_GOD(ch))  	/* The shit was poisoned ! */
+	{
 		send_to_char("Что-то вкус какой-то странный !\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", TRUE, ch, 0, 0, TO_ROOM);
 
@@ -1378,7 +1612,8 @@ ACMD(do_drink)
 	/* empty the container, and no longer poison. 999 - whole fountain */
 	if (GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN || GET_OBJ_VAL(temp, 1) != 999)
 		GET_OBJ_VAL(temp, 1) -= amount;
-	if (!GET_OBJ_VAL(temp, 1)) {	/* The last bit */
+	if (!GET_OBJ_VAL(temp, 1))  	/* The last bit */
+	{
 		GET_OBJ_VAL(temp, 2) = 0;
 		GET_OBJ_VAL(temp, 3) = 0;
 		name_from_drinkcon(temp);
@@ -1399,61 +1634,75 @@ ACMD(do_drunkoff)
 	if (IS_NPC(ch))		/* Cannot use GET_COND() on mobs. */
 		return;
 
-	if (FIGHTING(ch)) {
+	if (FIGHTING(ch))
+	{
 		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_DRUNKED)) {
+	if (AFF_FLAGGED(ch, AFF_DRUNKED))
+	{
 		send_to_char("Вы хотите испортить себе весь кураж ?\r\n" "Это не есть по русски !\r\n", ch);
 		return;
 	}
 
-	if (!AFF_FLAGGED(ch, AFF_ABSTINENT) && GET_COND(ch, DRUNK) < CHAR_DRUNKED) {
+	if (!AFF_FLAGGED(ch, AFF_ABSTINENT) && GET_COND(ch, DRUNK) < CHAR_DRUNKED)
+	{
 		send_to_char("Не стоит делать этого на трезвую голову.\r\n", ch);
 		return;
 	}
 
-	if (timed_by_skill(ch, SKILL_DRUNKOFF)) {
+	if (timed_by_skill(ch, SKILL_DRUNKOFF))
+	{
 		send_to_char("Вы не в состоянии так часто похмеляться.\r\n"
-			     "Попросите Богов закодировать Вас.\r\n", ch);
+					 "Попросите Богов закодировать Вас.\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
 
-	if (!*arg) {
+	if (!*arg)
+	{
 		for (obj = ch->carrying; obj; obj = obj->next_content)
 			if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON)
 				break;
-		if (!obj) {
+		if (!obj)
+		{
 			send_to_char("У Вас нет подходящего напитка для похмелья.\r\n", ch);
 			return;
 		}
-	} else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-		if (!(obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents))) {
+	}
+	else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
+	{
+		if (!(obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents)))
+		{
 			send_to_char("Вы не смогли это найти!\r\n", ch);
 			return;
-		} else
+		}
+		else
 			on_ground = 1;
 	}
 
-	if ((GET_OBJ_TYPE(obj) != ITEM_DRINKCON) && (GET_OBJ_TYPE(obj) != ITEM_FOUNTAIN)) {
+	if ((GET_OBJ_TYPE(obj) != ITEM_DRINKCON) && (GET_OBJ_TYPE(obj) != ITEM_FOUNTAIN))
+	{
 		send_to_char("Этим Вы вряд-ли сможете похмелиться.\r\n", ch);
 		return;
 	}
 
-	if (on_ground && (GET_OBJ_TYPE(obj) == ITEM_DRINKCON)) {
+	if (on_ground && (GET_OBJ_TYPE(obj) == ITEM_DRINKCON))
+	{
 		send_to_char("Прежде это стоит поднять.\r\n", ch);
 		return;
 	}
 
-	if (!GET_OBJ_VAL(obj, 1)) {
+	if (!GET_OBJ_VAL(obj, 1))
+	{
 		send_to_char("Пусто.\r\n", ch);
 		return;
 	}
 
-	switch (GET_OBJ_VAL(obj, 2)) {
+	switch (GET_OBJ_VAL(obj, 2))
+	{
 	case LIQ_BEER:
 	case LIQ_WINE:
 	case LIQ_ALE:
@@ -1480,15 +1729,17 @@ ACMD(do_drunkoff)
 	weight = MIN(amount, GET_OBJ_WEIGHT(obj));
 	weight_change_object(obj, -weight);	/* Subtract amount */
 	GET_OBJ_VAL(obj, 1) -= amount;
-	if (!GET_OBJ_VAL(obj, 1)) {	/* The last bit */
+	if (!GET_OBJ_VAL(obj, 1))  	/* The last bit */
+	{
 		GET_OBJ_VAL(obj, 2) = 0;
 		GET_OBJ_VAL(obj, 3) = 0;
 		name_from_drinkcon(obj);
 	}
 
-	if (percent > prob) {
+	if (percent > prob)
+	{
 		sprintf(buf,
-			"Вы отхлебнули %s из $o1, но Ваша голова стала еще тяжелее...", drinks[GET_OBJ_VAL(obj, 2)]);
+				"Вы отхлебнули %s из $o1, но Ваша голова стала еще тяжелее...", drinks[GET_OBJ_VAL(obj, 2)]);
 		act(buf, FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попробовал$g похмелиться, но это не пошло $m на пользу.", FALSE, ch, 0, 0, TO_ROOM);
 		duration = MAX(1, amount / 3);
@@ -1510,7 +1761,8 @@ ACMD(do_drunkoff)
 		af[2].location = APPLY_AC;
 		af[2].bitvector = AFF_ABSTINENT;
 		af[2].battleflag = 0;
-		switch (number(0, ch->get_skill(SKILL_DRUNKOFF) / 20)) {
+		switch (number(0, ch->get_skill(SKILL_DRUNKOFF) / 20))
+		{
 		case 0:
 		case 1:
 			af[0].modifier = -2;
@@ -1523,10 +1775,12 @@ ACMD(do_drunkoff)
 		for (prob = 0; prob < 3; prob++)
 			affect_join(ch, &af[prob], TRUE, FALSE, TRUE, FALSE);
 		gain_condition(ch, DRUNK, amount);
-	} else {
+	}
+	else
+	{
 		sprintf(buf,
-			"Вы отхлебнули %s из $o1 и почувствовали приятную легкость во всем теле...",
-			drinks[GET_OBJ_VAL(obj, 2)]);
+				"Вы отхлебнули %s из $o1 и почувствовали приятную легкость во всем теле...",
+				drinks[GET_OBJ_VAL(obj, 2)]);
 		act(buf, FALSE, ch, obj, 0, TO_CHAR);
 		act("$n похмелил$u и расцвел$g прям на глазах.", FALSE, ch, 0, 0, TO_ROOM);
 		affect_from_char(ch, SPELL_ABSTINENT);
@@ -1545,14 +1799,17 @@ ACMD(do_eat)
 
 	one_argument(argument, arg);
 
-	if (subcmd == SCMD_DEVOUR) {
+	if (subcmd == SCMD_DEVOUR)
+	{
 		// changed by Pereplut
-		if (MOB_FLAGGED(ch, MOB_RESURRECTED) && GET_CLASS(ch->master) == CLASS_NECROMANCER) {
+		if (MOB_FLAGGED(ch, MOB_RESURRECTED) && GET_CLASS(ch->master) == CLASS_NECROMANCER)
+		{
 			feed_charmice(ch, arg);
 			return;
 		}
 	}
-	if (!IS_NPC(ch) && subcmd == SCMD_DEVOUR) {
+	if (!IS_NPC(ch) && subcmd == SCMD_DEVOUR)
+	{
 		send_to_char("Вы же не зверь какой, пожирать трупы!\r\n", ch);
 		return;
 	}
@@ -1560,49 +1817,59 @@ ACMD(do_eat)
 	if (IS_NPC(ch))		/* Cannot use GET_COND() on mobs. */
 		return;
 
-	if (!*arg) {
+	if (!*arg)
+	{
 		send_to_char("Чем Вы собрались закусить ?\r\n", ch);
 		return;
 	}
-	if (FIGHTING(ch)) {
+	if (FIGHTING(ch))
+	{
 		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
 	}
 
-	if (!(food = get_obj_in_list_vis(ch, arg, ch->carrying))) {
+	if (!(food = get_obj_in_list_vis(ch, arg, ch->carrying)))
+	{
 		sprintf(buf, "У Вас нет '%s'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	}
-	if (subcmd == SCMD_TASTE && ((GET_OBJ_TYPE(food) == ITEM_DRINKCON) || (GET_OBJ_TYPE(food) == ITEM_FOUNTAIN))) {
+	if (subcmd == SCMD_TASTE && ((GET_OBJ_TYPE(food) == ITEM_DRINKCON) || (GET_OBJ_TYPE(food) == ITEM_FOUNTAIN)))
+	{
 		do_drink(ch, argument, 0, SCMD_SIP);
 		return;
 	}
-	if (GET_OBJ_TYPE(food) != ITEM_FOOD && GET_OBJ_TYPE(food) != ITEM_NOTE && !IS_GOD(ch)) {
+	if (GET_OBJ_TYPE(food) != ITEM_FOOD && GET_OBJ_TYPE(food) != ITEM_NOTE && !IS_GOD(ch))
+	{
 		send_to_char("Это несъедобно !\r\n", ch);
 		return;
 	}
-	if (GET_COND(ch, FULL) > 20 && GET_OBJ_TYPE(food) != ITEM_NOTE) {	/* Stomach full */
+	if (GET_COND(ch, FULL) > 20 && GET_OBJ_TYPE(food) != ITEM_NOTE)  	/* Stomach full */
+	{
 		send_to_char("Вы слишком сыты для этого !\r\n", ch);
 		return;
 	}
-	if (subcmd == SCMD_EAT || (subcmd == SCMD_TASTE && GET_OBJ_TYPE(food) == ITEM_NOTE)) {
+	if (subcmd == SCMD_EAT || (subcmd == SCMD_TASTE && GET_OBJ_TYPE(food) == ITEM_NOTE))
+	{
 		act("Вы съели $o3.", FALSE, ch, food, 0, TO_CHAR);
 		act("$n съел$g $o3.", TRUE, ch, food, 0, TO_ROOM);
-	} else {
+	}
+	else
+	{
 		act("Вы откусили маленький кусочек от $o1.", FALSE, ch, food, 0, TO_CHAR);
 		act("$n попробовал$g $o3 на вкус.", TRUE, ch, food, 0, TO_ROOM);
 	}
 
 	amount = ((subcmd == SCMD_EAT && GET_OBJ_TYPE(food) != ITEM_NOTE)
-		  ? GET_OBJ_VAL(food, 0) : 1);
+			  ? GET_OBJ_VAL(food, 0) : 1);
 
 	gain_condition(ch, FULL, amount);
 
 	if (GET_COND(ch, FULL) > 20)
 		send_to_char("Вы наелись.\r\n", ch);
 
-	if (GET_OBJ_VAL(food, 3) && !IS_IMMORTAL(ch)) {	/* The shit was poisoned ! */
+	if (GET_OBJ_VAL(food, 3) && !IS_IMMORTAL(ch))  	/* The shit was poisoned ! */
+	{
 		send_to_char("Однако, какой странный вкус !\r\n", ch);
 		act("$n закашлял$u и начал$g отплевываться.", FALSE, ch, 0, 0, TO_ROOM);
 
@@ -1624,8 +1891,10 @@ ACMD(do_eat)
 	}
 	if (subcmd == SCMD_EAT || (subcmd == SCMD_TASTE && GET_OBJ_TYPE(food) == ITEM_NOTE))
 		extract_obj(food);
-	else {
-		if (!(--GET_OBJ_VAL(food, 0))) {
+	else
+	{
+		if (!(--GET_OBJ_VAL(food, 0)))
+		{
 			send_to_char("Вы доели все !\r\n", ch);
 			extract_obj(food);
 		}
@@ -1642,57 +1911,72 @@ ACMD(do_pour)
 
 	two_arguments(argument, arg1, arg2);
 
-	if (subcmd == SCMD_POUR) {
-		if (!*arg1) {	/* No arguments */
+	if (subcmd == SCMD_POUR)
+	{
+		if (!*arg1)  	/* No arguments */
+		{
 			send_to_char("Откуда переливаем ?\r\n", ch);
 			return;
 		}
-		if (!(from_obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
+		if (!(from_obj = get_obj_in_list_vis(ch, arg1, ch->carrying)))
+		{
 			send_to_char("У Вас нет этого !\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(from_obj) != ITEM_DRINKCON && GET_OBJ_TYPE(from_obj) != ITEM_POTION) {
+		if (GET_OBJ_TYPE(from_obj) != ITEM_DRINKCON && GET_OBJ_TYPE(from_obj) != ITEM_POTION)
+		{
 			send_to_char("Вы не можете из этого переливать !\r\n", ch);
 			return;
 		}
 	}
-	if (subcmd == SCMD_FILL) {
-		if (!*arg1) {	/* no arguments */
+	if (subcmd == SCMD_FILL)
+	{
+		if (!*arg1)  	/* no arguments */
+		{
 			send_to_char("Что и из чего Вы хотели бы наполнить ?\r\n", ch);
 			return;
 		}
-		if (!(to_obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
+		if (!(to_obj = get_obj_in_list_vis(ch, arg1, ch->carrying)))
+		{
 			send_to_char("У Вас этого нет !\r\n", ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(to_obj) != ITEM_DRINKCON) {
+		if (GET_OBJ_TYPE(to_obj) != ITEM_DRINKCON)
+		{
 			act("Вы не можете наполнить $o3!", FALSE, ch, to_obj, 0, TO_CHAR);
 			return;
 		}
-		if (!*arg2) {	/* no 2nd argument */
+		if (!*arg2)  	/* no 2nd argument */
+		{
 			act("Из чего Вы планируете наполнить $o3?", FALSE, ch, to_obj, 0, TO_CHAR);
 			return;
 		}
-		if (!(from_obj = get_obj_in_list_vis(ch, arg2, world[ch->in_room]->contents))) {
+		if (!(from_obj = get_obj_in_list_vis(ch, arg2, world[ch->in_room]->contents)))
+		{
 			sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg2);
 			send_to_char(buf, ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(from_obj) != ITEM_FOUNTAIN) {
+		if (GET_OBJ_TYPE(from_obj) != ITEM_FOUNTAIN)
+		{
 			act("Вы не сможете ничего наполнить из $o1.", FALSE, ch, from_obj, 0, TO_CHAR);
 			return;
 		}
 	}
-	if (GET_OBJ_VAL(from_obj, 1) == 0) {
+	if (GET_OBJ_VAL(from_obj, 1) == 0)
+	{
 		act("Пусто.", FALSE, ch, from_obj, 0, TO_CHAR);
 		return;
 	}
-	if (subcmd == SCMD_POUR) {	/* pour */
-		if (!*arg2) {
+	if (subcmd == SCMD_POUR)  	/* pour */
+	{
+		if (!*arg2)
+		{
 			send_to_char("Куда Вы хотите лить ?  На землю или во что-то ?\r\n", ch);
 			return;
 		}
-		if (!str_cmp(arg2, "out") || !str_cmp(arg2, "земля")) {
+		if (!str_cmp(arg2, "out") || !str_cmp(arg2, "земля"))
+		{
 			act("$n опустошил$g $o3.", TRUE, ch, from_obj, 0, TO_ROOM);
 			act("Вы опустошили $o3.", FALSE, ch, from_obj, 0, TO_CHAR);
 
@@ -1706,26 +1990,31 @@ ACMD(do_pour)
 
 			return;
 		}
-		if (!(to_obj = get_obj_in_list_vis(ch, arg2, ch->carrying))) {
+		if (!(to_obj = get_obj_in_list_vis(ch, arg2, ch->carrying)))
+		{
 			send_to_char("Вы не можете этого найти !\r\n", ch);
 			return;
 		}
-		if ((GET_OBJ_TYPE(to_obj) != ITEM_DRINKCON) && (GET_OBJ_TYPE(to_obj) != ITEM_FOUNTAIN)) {
+		if ((GET_OBJ_TYPE(to_obj) != ITEM_DRINKCON) && (GET_OBJ_TYPE(to_obj) != ITEM_FOUNTAIN))
+		{
 			send_to_char("Вы не сможете в это налить.\r\n", ch);
 			return;
 		}
 	}
-	if (to_obj == from_obj) {
+	if (to_obj == from_obj)
+	{
 		send_to_char("Более тупого действа Вы придумать, конечно, не могли.\r\n", ch);
 		return;
 	}
 
 	if (GET_OBJ_VAL(to_obj, 1) != 0 &&
-	    GET_OBJ_TYPE(from_obj) != ITEM_POTION && GET_OBJ_VAL(to_obj, 2) != GET_OBJ_VAL(from_obj, 2)) {
+			GET_OBJ_TYPE(from_obj) != ITEM_POTION && GET_OBJ_VAL(to_obj, 2) != GET_OBJ_VAL(from_obj, 2))
+	{
 		send_to_char("Вы станете неплохим Химиком, но не в нашей игре.\r\n", ch);
 		return;
 	}
-	if (GET_OBJ_VAL(to_obj, 1) >= GET_OBJ_VAL(to_obj, 0)) {
+	if (GET_OBJ_VAL(to_obj, 1) >= GET_OBJ_VAL(to_obj, 0))
+	{
 		send_to_char("Там нет места.\r\n", ch);
 		return;
 	}
@@ -1733,12 +2022,15 @@ ACMD(do_pour)
 
 	//Переливает из бутылки с зельем в емкость
 	if (GET_OBJ_TYPE(from_obj) == ITEM_POTION)
-		if (GET_OBJ_VNUM(from_obj) == GET_OBJ_SKILL(to_obj) || GET_OBJ_VAL(to_obj, 1) == 0) {
+		if (GET_OBJ_VNUM(from_obj) == GET_OBJ_SKILL(to_obj) || GET_OBJ_VAL(to_obj, 1) == 0)
+		{
 			sprintf(buf, "Вы занялись переливанием зелья в %s.\r\n", OBJN(to_obj, ch, 3));
 			send_to_char(buf, ch);
-			if (GET_OBJ_VAL(to_obj, 1) == 0) {
+			if (GET_OBJ_VAL(to_obj, 1) == 0)
+			{
 				/* определение названия зелья по содержащемуся заклинанию */
-				switch (GET_OBJ_VAL(from_obj, 1)) {
+				switch (GET_OBJ_VAL(from_obj, 1))
+				{
 					/* восстановление (красное) */
 				case SPELL_REFRESH:
 				case SPELL_GROUP_REFRESH:
@@ -1815,28 +2107,33 @@ ACMD(do_pour)
 			GET_OBJ_VAL(to_obj, 1)++;
 			extract_obj(from_obj);
 			return;
-		} else {
+		}
+		else
+		{
 			send_to_char("Смешивать разные зелья?! Да вы, батенька, гурман!\r\n", ch);
 			return;
 		}
 	//Переливает из емкости или колодца с зельем куда-то
 	if ((GET_OBJ_TYPE(from_obj) == ITEM_DRINKCON ||
-	     GET_OBJ_TYPE(from_obj) == ITEM_FOUNTAIN) &&
-	    GET_OBJ_VAL(from_obj, 2) >= LIQ_POTION && GET_OBJ_VAL(from_obj, 2) <= LIQ_POTION_FUCHSIA)
+			GET_OBJ_TYPE(from_obj) == ITEM_FOUNTAIN) &&
+			GET_OBJ_VAL(from_obj, 2) >= LIQ_POTION && GET_OBJ_VAL(from_obj, 2) <= LIQ_POTION_FUCHSIA)
 		if ((GET_OBJ_SKILL(from_obj) == GET_OBJ_SKILL(to_obj)) || GET_OBJ_VAL(to_obj, 1) == 0)
 			GET_OBJ_SKILL(to_obj) = GET_OBJ_SKILL(from_obj);
-		else {
+		else
+		{
 			send_to_char("Смешивать разные зелья?! Да вы, батенька, гурман!\r\n", ch);
 			return;
 		}
 //Конец изменений Adept'ом
 
-	if (subcmd == SCMD_POUR) {
+	if (subcmd == SCMD_POUR)
+	{
 		sprintf(buf, "Вы занялись переливанием %s в %s.",
-			drinks[GET_OBJ_VAL(from_obj, 2)], OBJN(to_obj, ch, 3));
+				drinks[GET_OBJ_VAL(from_obj, 2)], OBJN(to_obj, ch, 3));
 		send_to_char(buf, ch);
 	}
-	if (subcmd == SCMD_FILL) {
+	if (subcmd == SCMD_FILL)
+	{
 		act("Вы наполнили $o3 из $O1.", FALSE, ch, to_obj, from_obj, TO_CHAR);
 		act("$n наполнил$g $o3 из $O1.", TRUE, ch, to_obj, from_obj, TO_ROOM);
 	}
@@ -1859,7 +2156,8 @@ ACMD(do_pour)
 	/* Then the poison boogie */
 	GET_OBJ_VAL(to_obj, 3) = (GET_OBJ_VAL(to_obj, 3) || GET_OBJ_VAL(from_obj, 3));
 
-	if (GET_OBJ_VAL(from_obj, 1) <= 0) {	/* There was too little */
+	if (GET_OBJ_VAL(from_obj, 1) <= 0)  	/* There was too little */
+	{
 		GET_OBJ_VAL(to_obj, 1) += GET_OBJ_VAL(from_obj, 1);
 		amount += GET_OBJ_VAL(from_obj, 1);
 		GET_OBJ_VAL(from_obj, 1) = 0;
@@ -1885,56 +2183,59 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 	 */
 
 	int wear_bitvectors[] = { ITEM_WEAR_TAKE, ITEM_WEAR_FINGER, ITEM_WEAR_FINGER, ITEM_WEAR_NECK,
-		ITEM_WEAR_NECK, ITEM_WEAR_BODY, ITEM_WEAR_HEAD, ITEM_WEAR_LEGS,
-		ITEM_WEAR_FEET, ITEM_WEAR_HANDS, ITEM_WEAR_ARMS, ITEM_WEAR_SHIELD,
-		ITEM_WEAR_ABOUT, ITEM_WEAR_WAIST, ITEM_WEAR_WRIST, ITEM_WEAR_WRIST,
-		ITEM_WEAR_WIELD, ITEM_WEAR_TAKE, ITEM_WEAR_BOTHS
-	};
+							  ITEM_WEAR_NECK, ITEM_WEAR_BODY, ITEM_WEAR_HEAD, ITEM_WEAR_LEGS,
+							  ITEM_WEAR_FEET, ITEM_WEAR_HANDS, ITEM_WEAR_ARMS, ITEM_WEAR_SHIELD,
+							  ITEM_WEAR_ABOUT, ITEM_WEAR_WAIST, ITEM_WEAR_WRIST, ITEM_WEAR_WRIST,
+							  ITEM_WEAR_WIELD, ITEM_WEAR_TAKE, ITEM_WEAR_BOTHS
+							};
 
 	const char *already_wearing[] = { "Вы уже используете свет.\r\n",
-		"YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
-		"У Вас уже что-то надето на пальцах.\r\n",
-		"YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
-		"У Вас уже что-то надето на шею.\r\n",
-		"У Вас уже что-то надето на туловище.\r\n",
-		"У Вас уже что-то надето на голову.\r\n",
-		"У Вас уже что-то надето на ноги.\r\n",
-		"У Вас уже что-то надето на ступни.\r\n",
-		"У Вас уже что-то надето на кисти.\r\n",
-		"У Вас уже что-то надето на руки.\r\n",
-		"Вы уже используете щит.\r\n",
-		"Вы уже облачены во что-то.\r\n",
-		"У Вас уже что-то надето на пояс.\r\n",
-		"YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
-		"У Вас уже что-то надето на запястья.\r\n",
-		"Вы уже что-то держите в правой руке.\r\n",
-		"Вы уже что-то держите в левой руке.\r\n",
-		"Вы уже держите оружие в обеих руках.\r\n"
-	};
+									  "YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
+									  "У Вас уже что-то надето на пальцах.\r\n",
+									  "YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
+									  "У Вас уже что-то надето на шею.\r\n",
+									  "У Вас уже что-то надето на туловище.\r\n",
+									  "У Вас уже что-то надето на голову.\r\n",
+									  "У Вас уже что-то надето на ноги.\r\n",
+									  "У Вас уже что-то надето на ступни.\r\n",
+									  "У Вас уже что-то надето на кисти.\r\n",
+									  "У Вас уже что-то надето на руки.\r\n",
+									  "Вы уже используете щит.\r\n",
+									  "Вы уже облачены во что-то.\r\n",
+									  "У Вас уже что-то надето на пояс.\r\n",
+									  "YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
+									  "У Вас уже что-то надето на запястья.\r\n",
+									  "Вы уже что-то держите в правой руке.\r\n",
+									  "Вы уже что-то держите в левой руке.\r\n",
+									  "Вы уже держите оружие в обеих руках.\r\n"
+									};
 
 	/* first, make sure that the wear position is valid. */
-	if (!CAN_WEAR(obj, wear_bitvectors[where])) {
+	if (!CAN_WEAR(obj, wear_bitvectors[where]))
+	{
 		act("Вы не можете одеть $o3 на эту часть тела.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
 	/* for neck, finger, and wrist, try pos 2 if pos 1 is already full */
-	if (			/* не может держать если есть свет или двуручник */
-		   (where == WEAR_HOLD && (GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_LIGHT)
-					   || GET_EQ(ch, WEAR_SHIELD))) ||
-		   /* не может вооружиться если есть двуручник */
-		   (where == WEAR_WIELD && GET_EQ(ch, WEAR_BOTHS)) ||
-		   /* не может держать щит если что-то держит или двуручник */
-		   (where == WEAR_SHIELD && (GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_BOTHS))) ||
-		   /* не может двуручник если есть щит, свет, вооружен или держит */
-		   (where == WEAR_BOTHS && (GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_LIGHT)
-					    || GET_EQ(ch, WEAR_SHIELD) || GET_EQ(ch, WEAR_WIELD))) ||
-		   /* не может держать свет если двуручник или держит */
-		   (where == WEAR_LIGHT && (GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_BOTHS)))) {
+	if (   /* не может держать если есть свет или двуручник */
+		(where == WEAR_HOLD && (GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_LIGHT)
+								|| GET_EQ(ch, WEAR_SHIELD))) ||
+		/* не может вооружиться если есть двуручник */
+		(where == WEAR_WIELD && GET_EQ(ch, WEAR_BOTHS)) ||
+		/* не может держать щит если что-то держит или двуручник */
+		(where == WEAR_SHIELD && (GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_BOTHS))) ||
+		/* не может двуручник если есть щит, свет, вооружен или держит */
+		(where == WEAR_BOTHS && (GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_LIGHT)
+								 || GET_EQ(ch, WEAR_SHIELD) || GET_EQ(ch, WEAR_WIELD))) ||
+		/* не может держать свет если двуручник или держит */
+		(where == WEAR_LIGHT && (GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_BOTHS))))
+	{
 		send_to_char("У Вас заняты руки.\r\n", ch);
 		return;
 	}
 	/* нельзя надеть щит, если недостаточно силы */
-	if (!IS_IMMORTAL(ch) && (where == WEAR_SHIELD) && !OK_SHIELD(ch, obj)) {
+	if (!IS_IMMORTAL(ch) && (where == WEAR_SHIELD) && !OK_SHIELD(ch, obj))
+	{
 		act("Вам слишком тяжело нести $o3 на левой руке.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
@@ -1943,7 +2244,8 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		if (GET_EQ(ch, where))
 			where++;
 
-	if (GET_EQ(ch, where)) {
+	if (GET_EQ(ch, where))
+	{
 		send_to_char(already_wearing[where], ch);
 		return;
 	}
@@ -1961,7 +2263,8 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg)
 	int where = -1;
 
 	/* \r to prevent explicit wearing. Don't use \n, it's end-of-array marker. */
-	const char *keywords[] = {
+	const char *keywords[] =
+	{
 		"\r!RESERVED!",
 		"палецправый",
 		"палецлевый",
@@ -1983,7 +2286,8 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg)
 		"\n"
 	};
 
-	if (!arg || !*arg) {
+	if (!arg || !*arg)
+	{
 		if (CAN_WEAR(obj, ITEM_WEAR_FINGER))
 			where = WEAR_FINGER_R;
 		if (CAN_WEAR(obj, ITEM_WEAR_NECK))
@@ -2008,8 +2312,11 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg)
 			where = WEAR_WAIST;
 		if (CAN_WEAR(obj, ITEM_WEAR_WRIST))
 			where = WEAR_WRIST_R;
-	} else {
-		if (((where = search_block(arg, keywords, FALSE)) < 0) || (*arg == '!')) {
+	}
+	else
+	{
+		if (((where = search_block(arg, keywords, FALSE)) < 0) || (*arg == '!'))
+		{
 			sprintf(buf, "'%s'?  Странная анатомия у этих русских !\r\n", arg);
 			send_to_char(buf, ch);
 			return -1;
@@ -2033,37 +2340,48 @@ ACMD(do_wear)
 	if (IS_NPC(ch) && (!NPC_FLAGGED(ch, NPC_ARMORING) || MOB_FLAGGED(ch, MOB_RESURRECTED)))
 		return;
 
-	if (!*arg1) {
+	if (!*arg1)
+	{
 		send_to_char("Что Вы собрались одеть ?\r\n", ch);
 		return;
 	}
 	dotmode = find_all_dots(arg1);
 
-	if (*arg2 && (dotmode != FIND_INDIV)) {
+	if (*arg2 && (dotmode != FIND_INDIV))
+	{
 		send_to_char("И на какую часть тела Вы желаете это одеть !\r\n", ch);
 		return;
 	}
-	if (dotmode == FIND_ALL) {
-		for (obj = ch->carrying; obj && !GET_MOB_HOLD(ch) && GET_POS(ch) > POS_SLEEPING; obj = next_obj) {
+	if (dotmode == FIND_ALL)
+	{
+		for (obj = ch->carrying; obj && !GET_MOB_HOLD(ch) && GET_POS(ch) > POS_SLEEPING; obj = next_obj)
+		{
 			next_obj = obj->next_content;
 			if (CAN_SEE_OBJ(ch, obj)
-			    && (where = find_eq_pos(ch, obj, 0)) >= 0) {
+					&& (where = find_eq_pos(ch, obj, 0)) >= 0)
+			{
 				items_worn++;
 				perform_wear(ch, obj, where);
 			}
 		}
 		if (!items_worn)
 			send_to_char("Увы, но одеть Вам нечего.\r\n", ch);
-	} else if (dotmode == FIND_ALLDOT) {
-		if (!*arg1) {
+	}
+	else if (dotmode == FIND_ALLDOT)
+	{
+		if (!*arg1)
+		{
 			send_to_char("Надеть \"все\" чего ?\r\n", ch);
 			return;
 		}
-		if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
+		if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)))
+		{
 			sprintf(buf, "У Вас нет ничего похожего на '%s'.\r\n", arg1);
 			send_to_char(buf, ch);
-		} else
-			while (obj && !GET_MOB_HOLD(ch) && GET_POS(ch) > POS_SLEEPING) {
+		}
+		else
+			while (obj && !GET_MOB_HOLD(ch) && GET_POS(ch) > POS_SLEEPING)
+			{
 				next_obj = get_obj_in_list_vis(ch, arg1, obj->next_content);
 				if ((where = find_eq_pos(ch, obj, 0)) >= 0)
 					perform_wear(ch, obj, where);
@@ -2071,11 +2389,16 @@ ACMD(do_wear)
 					act("Вы не можете одеть $o3.", FALSE, ch, obj, 0, TO_CHAR);
 				obj = next_obj;
 			}
-	} else {
-		if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
+	}
+	else
+	{
+		if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)))
+		{
 			sprintf(buf, "У Вас нет ничего похожего на '%s'.\r\n", arg1);
 			send_to_char(buf, ch);
-		} else {
+		}
+		else
+		{
 			if ((where = find_eq_pos(ch, obj, arg2)) >= 0)
 				perform_wear(ch, obj, where);
 			else if (!*arg2)
@@ -2096,22 +2419,28 @@ ACMD(do_wield)
 
 	if (!*arg)
 		send_to_char("Вооружиться чем ?\r\n", ch);
-	else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
+	else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
+	{
 		sprintf(buf, "Вы не видите ничего похожего на \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
-	} else {
+	}
+	else
+	{
 		if (!CAN_WEAR(obj, ITEM_WEAR_WIELD)
-		    && !CAN_WEAR(obj, ITEM_WEAR_BOTHS))
+				&& !CAN_WEAR(obj, ITEM_WEAR_BOTHS))
 			send_to_char("Вы не можете вооружиться этим.\r\n", ch);
 		else if (GET_OBJ_TYPE(obj) != ITEM_WEAPON)
 			send_to_char("Это не оружие.\r\n", ch);
 		else if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM) && MOB_FLAGGED(ch, MOB_CORPSE))
 			send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
-		else {
+		else
+		{
 			one_argument(argument, arg);
-			if (!str_cmp(arg, "обе") && CAN_WEAR(obj, ITEM_WEAR_BOTHS)) {
+			if (!str_cmp(arg, "обе") && CAN_WEAR(obj, ITEM_WEAR_BOTHS))
+			{
 				// иногда бывает надо
-				if (!IS_IMMORTAL(ch) && !OK_BOTH(ch, obj)) {
+				if (!IS_IMMORTAL(ch) && !OK_BOTH(ch, obj))
+				{
 					act("Вам слишком тяжело держать $o3 двумя руками.", FALSE, ch, obj, 0, TO_CHAR);
 					return;
 				};
@@ -2122,14 +2451,16 @@ ACMD(do_wield)
 				wear = WEAR_WIELD;
 			else
 				wear = WEAR_BOTHS;
-			if (wear == WEAR_WIELD && !IS_IMMORTAL(ch) && !OK_WIELD(ch, obj)) {
+			if (wear == WEAR_WIELD && !IS_IMMORTAL(ch) && !OK_WIELD(ch, obj))
+			{
 				act("Вам слишком тяжело держать $o3 в правой руке.", FALSE, ch, obj, 0, TO_CHAR);
 				if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
 					wear = WEAR_BOTHS;
 				else
 					return;
 			}
-			if (wear == WEAR_BOTHS && !IS_IMMORTAL(ch) && !OK_BOTH(ch, obj)) {
+			if (wear == WEAR_BOTHS && !IS_IMMORTAL(ch) && !OK_BOTH(ch, obj))
+			{
 				act("Вам слишком тяжело держать $o3 двумя руками.", FALSE, ch, obj, 0, TO_CHAR);
 				return;
 			};
@@ -2149,40 +2480,53 @@ ACMD(do_grab)
 
 	if (!*arg)
 		send_to_char("Вы заорали : 'Держи его !!! Хватай его !!!'\r\n", ch);
-	else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
+	else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
+	{
 		sprintf(buf, "У Вас нет ничего похожего на '%s'.\r\n", arg);
 		send_to_char(buf, ch);
-	} else {
+	}
+	else
+	{
 		if (GET_OBJ_TYPE(obj) == ITEM_LIGHT)
 			perform_wear(ch, obj, WEAR_LIGHT);
-		else {
+		else
+		{
 			if (!CAN_WEAR(obj, ITEM_WEAR_HOLD) &&
-			    GET_OBJ_TYPE(obj) != ITEM_WAND &&
-			    GET_OBJ_TYPE(obj) != ITEM_STAFF &&
-			    GET_OBJ_TYPE(obj) != ITEM_SCROLL && GET_OBJ_TYPE(obj) != ITEM_POTION) {
+					GET_OBJ_TYPE(obj) != ITEM_WAND &&
+					GET_OBJ_TYPE(obj) != ITEM_STAFF &&
+					GET_OBJ_TYPE(obj) != ITEM_SCROLL && GET_OBJ_TYPE(obj) != ITEM_POTION)
+			{
 				send_to_char("Вы не можете это держать.\r\n", ch);
 				return;
 			}
-			if (GET_OBJ_TYPE(obj) == ITEM_WEAPON) {
-				if (GET_OBJ_SKILL(obj) == SKILL_BOTHHANDS || GET_OBJ_SKILL(obj) == SKILL_BOWS) {
+			if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+			{
+				if (GET_OBJ_SKILL(obj) == SKILL_BOTHHANDS || GET_OBJ_SKILL(obj) == SKILL_BOWS)
+				{
 					send_to_char("Данный тип оружия держать невозможно.", ch);
 					return;
 				}
 			}
-			if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM) && MOB_FLAGGED(ch, MOB_CORPSE)) {
+			if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM) && MOB_FLAGGED(ch, MOB_CORPSE))
+			{
 				send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
 				return;
 			}
-			if (!IS_IMMORTAL(ch) && !OK_HELD(ch, obj)) {
+			if (!IS_IMMORTAL(ch) && !OK_HELD(ch, obj))
+			{
 				act("Вам слишком тяжело держать $o3 в левой руке.", FALSE, ch, obj, 0, TO_CHAR);
-				if (CAN_WEAR(obj, ITEM_WEAR_BOTHS)) {
-					if (!OK_BOTH(ch, obj)) {
+				if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
+				{
+					if (!OK_BOTH(ch, obj))
+					{
 						act("Вам слишком тяжело держать $o3 двумя руками.",
-						    FALSE, ch, obj, 0, TO_CHAR);
+							FALSE, ch, obj, 0, TO_CHAR);
 						return;
-					} else
+					}
+					else
 						where = WEAR_BOTHS;
-				} else
+				}
+				else
 					return;
 			}
 			perform_wear(ch, obj, where);
@@ -2204,15 +2548,16 @@ void perform_remove(CHAR_DATA * ch, int pos)
 		   act("Вы не можете снять $o3!", FALSE, ch, obj, 0, TO_CHAR);
 		   else
 		 */
-	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
-		act("$p: Вы не можете нести столько вещей!", FALSE, ch, obj, 0, TO_CHAR);
-	else {
-		if (!remove_otrigger(obj, ch))
-			return;
-		act("Вы прекратили использовать $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n прекратил$g использовать $o3.", TRUE, ch, obj, 0, TO_ROOM);
-		obj_to_char(unequip_char(ch, pos | 0x40), ch);
-	}
+		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
+			act("$p: Вы не можете нести столько вещей!", FALSE, ch, obj, 0, TO_CHAR);
+		else
+		{
+			if (!remove_otrigger(obj, ch))
+				return;
+			act("Вы прекратили использовать $o3.", FALSE, ch, obj, 0, TO_CHAR);
+			act("$n прекратил$g использовать $o3.", TRUE, ch, obj, 0, TO_ROOM);
+			obj_to_char(unequip_char(ch, pos | 0x40), ch);
+		}
 }
 
 
@@ -2223,38 +2568,49 @@ ACMD(do_remove)
 
 	one_argument(argument, arg);
 
-	if (!*arg) {
+	if (!*arg)
+	{
 		send_to_char("Снять что ?\r\n", ch);
 		return;
 	}
 	dotmode = find_all_dots(arg);
 
-	if (dotmode == FIND_ALL) {
+	if (dotmode == FIND_ALL)
+	{
 		found = 0;
 		for (i = 0; i < NUM_WEARS; i++)
-			if (GET_EQ(ch, i)) {
+			if (GET_EQ(ch, i))
+			{
 				perform_remove(ch, i);
 				found = 1;
 			}
 		if (!found)
 			send_to_char("На Вас не одето предметов этого типа.\r\n", ch);
-	} else if (dotmode == FIND_ALLDOT) {
+	}
+	else if (dotmode == FIND_ALLDOT)
+	{
 		if (!*arg)
 			send_to_char("Снять все вещи какого типа ?\r\n", ch);
-		else {
+		else
+		{
 			found = 0;
 			for (i = 0; i < NUM_WEARS; i++)
-				if (GET_EQ(ch, i) && CAN_SEE_OBJ(ch, GET_EQ(ch, i)) && isname(arg, GET_EQ(ch, i)->name)) {
+				if (GET_EQ(ch, i) && CAN_SEE_OBJ(ch, GET_EQ(ch, i)) && isname(arg, GET_EQ(ch, i)->name))
+				{
 					perform_remove(ch, i);
 					found = 1;
 				}
-			if (!found) {
+			if (!found)
+			{
 				sprintf(buf, "Вы не используете ни одного '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 			}
 		}
-	} else {		/* Returns object pointer but we don't need it, just true/false. */
-		if (!get_object_in_equip_vis(ch, arg, ch->equipment, &i)) {
+	}
+	else  		/* Returns object pointer but we don't need it, just true/false. */
+	{
+		if (!get_object_in_equip_vis(ch, arg, ch->equipment, &i))
+		{
 			// если предмет не найден, то возможно игрок ввел "левая" или "правая"
 			if (!str_cmp("правая", arg))
 			{
@@ -2275,7 +2631,8 @@ ACMD(do_remove)
 				sprintf(buf, "Вы не используете '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 			}
-		} else
+		}
+		else
 			perform_remove(ch, i);
 	}
 }
@@ -2286,7 +2643,8 @@ ACMD(do_upgrade)
 	OBJ_DATA *obj;
 	int weight, add_hr, add_dr, prob, percent, i;
 
-	if (!ch->get_skill(SKILL_UPGRADE)) {
+	if (!ch->get_skill(SKILL_UPGRADE))
+	{
 		send_to_char("Вы не умеете этого.", ch);
 		return;
 	}
@@ -2296,36 +2654,42 @@ ACMD(do_upgrade)
 	if (!*arg)
 		send_to_char("Что вы хотите заточить ?\r\n", ch);
 
-	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
+	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
+	{
 		sprintf(buf, "У Вас нет \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	};
 
-	if (GET_OBJ_TYPE(obj) != ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) != ITEM_WEAPON)
+	{
 		send_to_char("Вы можете заточить только оружие.\r\n", ch);
 		return;
 	}
 
-	if (GET_OBJ_SKILL(obj) == SKILL_BOWS) {
+	if (GET_OBJ_SKILL(obj) == SKILL_BOWS)
+	{
 		send_to_char("Невозможно заточить этот тип оружия.\r\n", ch);
 		return;
 	}
 
-	if (OBJ_FLAGGED(obj, ITEM_MAGIC) || OBJ_FLAGGED(obj, ITEM_SHARPEN)) {
+	if (OBJ_FLAGGED(obj, ITEM_MAGIC) || OBJ_FLAGGED(obj, ITEM_SHARPEN))
+	{
 		send_to_char("Вы не можете заточить этот предмет.\r\n", ch);
 		return;
 	}
 
 	/* Make sure no other affections. */
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
-		if (obj->affected[i].location != APPLY_NONE) {
+		if (obj->affected[i].location != APPLY_NONE)
+		{
 			send_to_char("Этот предмет не может быть заточен.\r\n", ch);
 			return;
 		}
 
 
-	switch (obj->obj_flags.Obj_mater) {
+	switch (obj->obj_flags.Obj_mater)
+	{
 	case MAT_BRONZE:
 	case MAT_BULAT:
 	case MAT_IRON:
@@ -2346,7 +2710,7 @@ ACMD(do_upgrade)
 	case MAT_SKIN:
 		act("Вы взялись проклепывать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n взял$u проклепывать $o3.", FALSE, ch, obj, 0, TO_ROOM);
-		weight = +1;
+		weight = + 1;
 		break;
 	default:
 		sprintf(buf, "К сожалению, %s сделан из неподходящего материала.\r\n", OBJN(obj, ch, 0));
@@ -2360,7 +2724,8 @@ ACMD(do_upgrade)
 
 	add_hr = IS_IMMORTAL(ch) ? 10 : number(1, (GET_LEVEL(ch) + 5) / 6);
 	add_dr = IS_IMMORTAL(ch) ? 5 : number(1, (GET_LEVEL(ch) + 5) / 6);
-	if (percent > prob || GET_GOD_FLAG(ch, GF_GODSCURSE)) {
+	if (percent > prob || GET_GOD_FLAG(ch, GF_GODSCURSE))
+	{
 		act("Но только загубили $S.", FALSE, ch, obj, 0, TO_CHAR);
 		add_hr = -add_hr;
 		add_dr = -add_dr;
@@ -2382,7 +2747,8 @@ ACMD(do_armored)
 	OBJ_DATA *obj;
 	int add_ac, add_armor, prob, percent, i, k_mul = 1, k_div = 1;
 
-	if (!ch->get_skill(SKILL_ARMORED)) {
+	if (!ch->get_skill(SKILL_ARMORED))
+	{
 		send_to_char("Вы не умеете этого.", ch);
 		return;
 	}
@@ -2392,44 +2758,56 @@ ACMD(do_armored)
 	if (!*arg)
 		send_to_char("Что вы хотите укрепить ?\r\n", ch);
 
-	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
+	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
+	{
 		sprintf(buf, "У Вас нет \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	};
 
-	if (GET_OBJ_TYPE(obj) != ITEM_ARMOR) {
+	if (GET_OBJ_TYPE(obj) != ITEM_ARMOR)
+	{
 		send_to_char("Вы можете укрепить только доспех.\r\n", ch);
 		return;
 	}
 
-	if (OBJ_FLAGGED(obj, ITEM_MAGIC) || OBJ_FLAGGED(obj, ITEM_ARMORED)) {
+	if (OBJ_FLAGGED(obj, ITEM_MAGIC) || OBJ_FLAGGED(obj, ITEM_ARMORED))
+	{
 		send_to_char("Вы не можете укрепить этот предмет.\r\n", ch);
 		return;
 	}
 
 	/* Make sure no other affections. */
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
-		if (obj->affected[i].location != APPLY_NONE) {
+		if (obj->affected[i].location != APPLY_NONE)
+		{
 			send_to_char("Этот предмет не может быть укреплен.\r\n", ch);
 			return;
 		}
 
-	if (OBJWEAR_FLAGGED(obj, (ITEM_WEAR_BODY | ITEM_WEAR_ABOUT))) {
+	if (OBJWEAR_FLAGGED(obj, (ITEM_WEAR_BODY | ITEM_WEAR_ABOUT)))
+	{
 		k_mul = 1;
 		k_div = 1;
-	} else if (OBJWEAR_FLAGGED(obj, (ITEM_WEAR_SHIELD | ITEM_WEAR_HEAD | ITEM_WEAR_ARMS | ITEM_WEAR_LEGS))) {
+	}
+	else if (OBJWEAR_FLAGGED(obj, (ITEM_WEAR_SHIELD | ITEM_WEAR_HEAD | ITEM_WEAR_ARMS | ITEM_WEAR_LEGS)))
+	{
 		k_mul = 2;
 		k_div = 3;
-	} else if (OBJWEAR_FLAGGED(obj, (ITEM_WEAR_HANDS | ITEM_WEAR_FEET))) {
+	}
+	else if (OBJWEAR_FLAGGED(obj, (ITEM_WEAR_HANDS | ITEM_WEAR_FEET)))
+	{
 		k_mul = 1;
 		k_div = 2;
-	} else {
+	}
+	else
+	{
 		act("$o3 невозможно укрепить.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
 
-	switch (obj->obj_flags.Obj_mater) {
+	switch (obj->obj_flags.Obj_mater)
+	{
 	case MAT_IRON:
 	case MAT_STEEL:
 		act("Вы принялись закалять $o3.", FALSE, ch, obj, 0, TO_CHAR);
@@ -2457,11 +2835,14 @@ ACMD(do_armored)
 	add_ac = IS_IMMORTAL(ch) ? -20 : -number(1, (GET_LEVEL(ch) + 4) / 5);
 	add_armor = IS_IMMORTAL(ch) ? 5 : number(1, (GET_LEVEL(ch) + 4) / 5);
 
-	if (percent > prob || GET_GOD_FLAG(ch, GF_GODSCURSE)) {
+	if (percent > prob || GET_GOD_FLAG(ch, GF_GODSCURSE))
+	{
 		act("Но только испортили $S.", FALSE, ch, obj, 0, TO_CHAR);
 		add_ac = -add_ac;
 		add_armor = -add_armor;
-	} else {
+	}
+	else
+	{
 		add_ac = MIN(-1, add_ac * k_mul / k_div);
 		add_armor = MAX(1, add_armor * k_mul / k_div);
 	};
@@ -2478,33 +2859,38 @@ ACMD(do_armored)
 ACMD(do_fire)
 {
 	int percent, prob;
-	if (!ch->get_skill(SKILL_FIRE)) {
+	if (!ch->get_skill(SKILL_FIRE))
+	{
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
 
-	if (on_horse(ch)) {
+	if (on_horse(ch))
+	{
 		send_to_char("Верхом это будет затруднительно.\r\n", ch);
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, AFF_BLIND))
+	{
 		send_to_char("Вы ничего не видите !\r\n", ch);
 		return;
 	}
 
 
-	if (world[IN_ROOM(ch)]->fires) {
+	if (world[IN_ROOM(ch)]->fires)
+	{
 		send_to_char("Здесь уже горит огонь.\r\n", ch);
 		return;
 	}
 
 	if (SECT(IN_ROOM(ch)) == SECT_INSIDE ||
-	    SECT(IN_ROOM(ch)) == SECT_CITY ||
-	    SECT(IN_ROOM(ch)) == SECT_WATER_SWIM ||
-	    SECT(IN_ROOM(ch)) == SECT_WATER_NOSWIM ||
-	    SECT(IN_ROOM(ch)) == SECT_FLYING ||
-	    SECT(IN_ROOM(ch)) == SECT_UNDERWATER || SECT(IN_ROOM(ch)) == SECT_SECRET) {
+			SECT(IN_ROOM(ch)) == SECT_CITY ||
+			SECT(IN_ROOM(ch)) == SECT_WATER_SWIM ||
+			SECT(IN_ROOM(ch)) == SECT_WATER_NOSWIM ||
+			SECT(IN_ROOM(ch)) == SECT_FLYING ||
+			SECT(IN_ROOM(ch)) == SECT_UNDERWATER || SECT(IN_ROOM(ch)) == SECT_SECRET)
+	{
 		send_to_char("В этой комнате нельзя разжечь костер.\r\n", ch);
 		return;
 	}
@@ -2514,10 +2900,13 @@ ACMD(do_fire)
 
 	percent = number(1, skill_info[SKILL_FIRE].max_percent);
 	prob = calculate_skill(ch, SKILL_FIRE, skill_info[SKILL_FIRE].max_percent, 0);
-	if (percent > prob) {
+	if (percent > prob)
+	{
 		send_to_char("Вы попытались разжечь костер, но у Вас ничего не вышло.\r\n", ch);
 		return;
-	} else {
+	}
+	else
+	{
 		world[IN_ROOM(ch)]->fires = MAX(0, (prob - percent) / 5) + 1;
 		send_to_char("Вы набрали хворосту и разожгли огонь.\n\r", ch);
 		act("$n развел$g огонь.", FALSE, ch, 0, 0, TO_ROOM);
@@ -2527,21 +2916,23 @@ ACMD(do_fire)
 
 ACMD(do_extinguish)
 {
-    if (world[IN_ROOM(ch)]->fires) {
-        world[IN_ROOM(ch)]->fires = 0;
+	if (world[IN_ROOM(ch)]->fires)
+	{
+		world[IN_ROOM(ch)]->fires = 0;
 		send_to_char("Вы затоптали костер.\r\n", ch);
 		act("$n затоптал$g костер.", FALSE, ch, 0, 0, TO_ROOM);
 	}
-	else {
-	    send_to_char("А тут топтать и нечего :)\r\n", ch);
+	else
+	{
+		send_to_char("А тут топтать и нечего :)\r\n", ch);
 	}
 }
 
 #define MAX_REMOVE  12
 const int RemoveSpell[MAX_REMOVE] = { SPELL_SLEEP, SPELL_POISON, SPELL_WEAKNESS, SPELL_CURSE, SPELL_PLAQUE,
-	SPELL_SIELENCE, SPELL_BLINDNESS, SPELL_HAEMORRAGIA, SPELL_HOLD, SPELL_PEACEFUL, SPELL_CONE_OF_COLD,
-	SPELL_DEAFNESS
-};
+									  SPELL_SIELENCE, SPELL_BLINDNESS, SPELL_HAEMORRAGIA, SPELL_HOLD, SPELL_PEACEFUL, SPELL_CONE_OF_COLD,
+									  SPELL_DEAFNESS
+									};
 
 ACMD(do_firstaid)
 {
@@ -2549,11 +2940,13 @@ ACMD(do_firstaid)
 	struct timed_type timed;
 	CHAR_DATA *vict;
 
-	if (!ch->get_skill(SKILL_AID)) {
+	if (!ch->get_skill(SKILL_AID))
+	{
 		send_to_char("Вам следует этому научиться.\r\n", ch);
 		return;
 	}
-	if (!IS_GOD(ch) && timed_by_skill(ch, SKILL_AID)) {
+	if (!IS_GOD(ch) && timed_by_skill(ch, SKILL_AID))
+	{
 		send_to_char("Так много лечить нельзя - больных не останется.\r\n", ch);
 		return;
 	}
@@ -2562,12 +2955,14 @@ ACMD(do_firstaid)
 
 	if (!*arg)
 		vict = ch;
-	else if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
+	else if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
+	{
 		send_to_char("Кого Вы хотите подлечить ?\r\n", ch);
 		return;
 	};
 
-	if (FIGHTING(vict)) {
+	if (FIGHTING(vict))
+	{
 		act("$N сражается, $M не до Ваших телячьих нежностей.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
@@ -2584,9 +2979,11 @@ ACMD(do_firstaid)
 
 	if ((GET_REAL_MAX_HIT(vict) > 0 && (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31)
 			|| (GET_REAL_MAX_HIT(vict) <= 0 && GET_HIT(vict) < GET_REAL_MAX_HIT(vict))
-			|| (GET_HIT(vict) < GET_REAL_MAX_HIT(vict) && can_use_feat(ch, HEALER_FEAT))) {
+			|| (GET_HIT(vict) < GET_REAL_MAX_HIT(vict) && can_use_feat(ch, HEALER_FEAT)))
+	{
 		need = TRUE;
-		if (success) {
+		if (success)
+		{
 			int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
 			int add = MIN(dif, (dif * (prob - percent) / 100) + 1);
 			GET_HIT(vict) += add;
@@ -2596,9 +2993,11 @@ ACMD(do_firstaid)
 	count = MIN(MAX_REMOVE, MAX_REMOVE * prob / 100);
 
 	for (percent = 0, prob = need; !need && percent < MAX_REMOVE && RemoveSpell[percent]; percent++)
-		if (affected_by_spell(vict, RemoveSpell[percent])) {
+		if (affected_by_spell(vict, RemoveSpell[percent]))
+		{
 			need = TRUE;
-			if (percent < count) {
+			if (percent < count)
+			{
 				spellnum = RemoveSpell[percent];
 				prob = TRUE;
 			}
@@ -2609,37 +3008,47 @@ ACMD(do_firstaid)
 		act("$N в лечении не нуждается.", FALSE, ch, 0, vict, TO_CHAR);
 	else if (!prob)
 		act("У Вас не хватит умения вылечить $N3.", FALSE, ch, 0, vict, TO_CHAR);
-	else {			//improove_skill(ch, SKILL_AID, TRUE, 0);
+	else  			//improove_skill(ch, SKILL_AID, TRUE, 0);
+	{
 		timed.skill = SKILL_AID;
 		timed.time = IS_IMMORTAL(ch) ? 2 : IS_PALADINE(ch) ? 4 : IS_CLERIC(ch) ? 2 : 6;
 		timed_to_char(ch, &timed);
-		if (vict != ch) {
+		if (vict != ch)
+		{
 			improove_skill(ch, SKILL_AID, success, 0);
-			if (success) {
+			if (success)
+			{
 				act("Вы оказали первую помощь $N2.", FALSE, ch, 0, vict, TO_CHAR);
 				act("$N оказал$G Вам первую помощь.", FALSE, vict, 0, ch, TO_CHAR);
 				act("$n оказал$g первую помощь $N2.", TRUE, ch, 0, vict, TO_NOTVICT);
 				if (spellnum)
 					affect_from_char(vict, spellnum);
-			} else {
-				act("Вы безрезультатно попытались оказать первую помощь $N2.",
-				    FALSE, ch, 0, vict, TO_CHAR);
-				act("$N безрезультатно попытал$U оказать Вам первую помощь.",
-				    FALSE, vict, 0, ch, TO_CHAR);
-				act("$n безрезультатно попытал$u оказать первую помощь $N2.",
-				    TRUE, ch, 0, vict, TO_NOTVICT);
 			}
-		} else {
-			if (success) {
+			else
+			{
+				act("Вы безрезультатно попытались оказать первую помощь $N2.",
+					FALSE, ch, 0, vict, TO_CHAR);
+				act("$N безрезультатно попытал$U оказать Вам первую помощь.",
+					FALSE, vict, 0, ch, TO_CHAR);
+				act("$n безрезультатно попытал$u оказать первую помощь $N2.",
+					TRUE, ch, 0, vict, TO_NOTVICT);
+			}
+		}
+		else
+		{
+			if (success)
+			{
 				act("Вы оказали себе первую помощь.", FALSE, ch, 0, 0, TO_CHAR);
 				act("$n оказал$g себе первую помощь.", FALSE, ch, 0, 0, TO_ROOM);
 				if (spellnum)
 					affect_from_char(vict, spellnum);
-			} else {
+			}
+			else
+			{
 				act("Вы безрезультатно попытались оказать себе первую помощь.",
-				    FALSE, ch, 0, vict, TO_CHAR);
+					FALSE, ch, 0, vict, TO_CHAR);
 				act("$n безрезультатно попытал$u оказать себе первую помощь.",
-				    FALSE, ch, 0, vict, TO_ROOM);
+					FALSE, ch, 0, vict, TO_ROOM);
 			}
 		}
 	}
@@ -2653,43 +3062,51 @@ ACMD(do_poisoned)
 	struct timed_type timed;
 	int i, apply_pos = MAX_OBJ_AFFECT;
 
-	if (!ch->get_skill(SKILL_POISONED)) {
+	if (!ch->get_skill(SKILL_POISONED))
+	{
 		send_to_char("Вы не умеете этого.", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
 
-	if (!*arg) {
+	if (!*arg)
+	{
 		send_to_char("Что вы хотите отравить ?\r\n", ch);
 		return;
 	}
 
-	if (!IS_IMMORTAL(ch) && timed_by_skill(ch, SKILL_POISONED)) {
+	if (!IS_IMMORTAL(ch) && timed_by_skill(ch, SKILL_POISONED))
+	{
 		send_to_char("Вы рискуете отравиться сами, подождите немного.\r\n", ch);
 		return;
 	}
 
-	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
+	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
+	{
 		sprintf(buf, "У Вас нет \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	};
 
-	if (GET_OBJ_TYPE(obj) != ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) != ITEM_WEAPON)
+	{
 		send_to_char("Вы можете нанести яд только на оружие.\r\n", ch);
 		return;
 	}
 
 	/* Make sure no other affections. */
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
-		if (obj->affected[i].location == APPLY_POISON) {
+		if (obj->affected[i].location == APPLY_POISON)
+		{
 			send_to_char("На этот предмет уже нанесен яд.\r\n", ch);
 			return;
-		} else if (obj->affected[i].location == APPLY_NONE && apply_pos == MAX_OBJ_AFFECT)
+		}
+		else if (obj->affected[i].location == APPLY_NONE && apply_pos == MAX_OBJ_AFFECT)
 			apply_pos = i;
 
-	if (apply_pos >= MAX_OBJ_AFFECT) {
+	if (apply_pos >= MAX_OBJ_AFFECT)
+	{
 		send_to_char("Вы не можете нанести яд на этот предмет.\r\n", ch);
 		return;
 	}
@@ -2710,48 +3127,56 @@ ACMD(do_repair)
 	OBJ_DATA *obj;
 	int prob, percent = 0, decay;
 
-	if (!ch->get_skill(SKILL_REPAIR)) {
+	if (!ch->get_skill(SKILL_REPAIR))
+	{
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
 
-	if (FIGHTING(ch)) {
+	if (FIGHTING(ch))
+	{
 		send_to_char("Вы не можете сделать это в бою !\r\n", ch);
 		return;
 	}
 
-	if (!*arg) {
+	if (!*arg)
+	{
 		send_to_char("Что Вы хотите ремонтировать ?\r\n", ch);
 		return;
 	}
 
-	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
+	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
+	{
 		sprintf(buf, "У Вас нет \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	};
 
-	if (GET_OBJ_MAX(obj) <= GET_OBJ_CUR(obj)) {
+	if (GET_OBJ_MAX(obj) <= GET_OBJ_CUR(obj))
+	{
 		act("$o в ремонте не нуждается.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
-	if ((GET_OBJ_TYPE(obj) != ITEM_WEAPON) && GET_OBJ_TYPE(obj) != ITEM_ARMOR) {
+	if ((GET_OBJ_TYPE(obj) != ITEM_WEAPON) && GET_OBJ_TYPE(obj) != ITEM_ARMOR)
+	{
 		send_to_char("Вы можете отремонтировать только оружие или броню.\r\n", ch);
 		return;
 	}
 
 	prob = number(1, skill_info[SKILL_REPAIR].max_percent);
 	percent = train_skill(ch, SKILL_REPAIR, skill_info[SKILL_REPAIR].max_percent, 0);
-	if (prob > percent) {
+	if (prob > percent)
+	{
 //Polos.repair_bug
 //Потому что 0 уничтожает шмотку полностью даже при скиле 100+ и
 //состоянии шмотки <очень хорошо>
-		if (!percent) percent = ch->get_skill(SKILL_REPAIR)/10;
+		if (!percent) percent = ch->get_skill(SKILL_REPAIR) / 10;
 //-Polos.repair_bug
 		GET_OBJ_CUR(obj) = MAX(0, GET_OBJ_CUR(obj) * percent / prob);
-		if (obj->obj_flags.Obj_cur) {
+		if (obj->obj_flags.Obj_cur)
+		{
 			act("Вы попытались починить $o3, но сломали $S еще больше.", FALSE, ch, obj, 0, TO_CHAR);
 			act("$n попытал$u починить $o3, но сломал$g $S еще больше.", FALSE, ch, obj, 0, TO_ROOM);
 			decay = (GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj)) / 5;
@@ -2760,14 +3185,19 @@ ACMD(do_repair)
 				GET_OBJ_MAX(obj) -= decay;
 			else
 				GET_OBJ_MAX(obj) = 1;
-		} else {
+		}
+		else
+		{
 			act("Вы окончательно доломали $o3.", FALSE, ch, obj, 0, TO_CHAR);
 			act("$n окончательно доломал$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
 			extract_obj(obj);
 		}
-	} else {
+	}
+	else
+	{
 		// Карачун. В кузне ремонтируем без ухудшения
-		if (!IS_IMMORTAL(ch) && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_SMITH)) {
+		if (!IS_IMMORTAL(ch) && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_SMITH))
+		{
 			GET_OBJ_MAX(obj) -= MAX(1, (GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj)) / 20);
 		}
 		GET_OBJ_CUR(obj) = MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1);
@@ -2788,56 +3218,66 @@ ACMD(do_makefood)
 //	send_to_char("Временно не доступно.\r\n",ch);
 //	return;
 
-	if (!ch->get_skill(SKILL_MAKEFOOD)) {
+	if (!ch->get_skill(SKILL_MAKEFOOD))
+	{
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
-	if (!*arg) {
+	if (!*arg)
+	{
 		send_to_char("Что Вы хотите освежевать ?\r\n", ch);
 		return;
 	}
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)) &&
-	    !(obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents))) {
+			!(obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents)))
+	{
 		sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	}
 
-	if (!IS_CORPSE(obj) || (mobn = GET_OBJ_VAL(obj, 2)) < 0) {
+	if (!IS_CORPSE(obj) || (mobn = GET_OBJ_VAL(obj, 2)) < 0)
+	{
 		act("Вы не сможете освежевать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
 	mob = (mob_proto + real_mobile(mobn));
 	if (!IS_IMMORTAL(ch) &&
-	    (!(GET_CLASS(mob) == CLASS_ANIMAL) ||
-	    !(GET_CLASS(mob) == CLASS_BASIC_NPC) && (wgt = GET_WEIGHT(mob)) < 11)) {
+			(!(GET_CLASS(mob) == CLASS_ANIMAL) ||
+			 !(GET_CLASS(mob) == CLASS_BASIC_NPC) && (wgt = GET_WEIGHT(mob)) < 11))
+	{
 		send_to_char("Этот труп невозможно освежевать.", ch);
 		return;
 	}
 	prob = number(1, skill_info[SKILL_MAKEFOOD].max_percent);
 	percent =
-	    train_skill(ch, SKILL_MAKEFOOD, skill_info[SKILL_MAKEFOOD].max_percent,
-			mob) + number(1, GET_REAL_DEX(ch)) + number(1, GET_REAL_STR(ch));
-	if (prob > percent || !(tobj = read_object(meet_vnum[number(0, 3)], VIRTUAL))) {
+		train_skill(ch, SKILL_MAKEFOOD, skill_info[SKILL_MAKEFOOD].max_percent,
+					mob) + number(1, GET_REAL_DEX(ch)) + number(1, GET_REAL_STR(ch));
+	if (prob > percent || !(tobj = read_object(meet_vnum[number(0, 3)], VIRTUAL)))
+	{
 		act("Вы не сумели освежевать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u освежевать $o3, но неудачно.", FALSE, ch, obj, 0, TO_ROOM);
-	} else {
+	}
+	else
+	{
 		//sprintf (buf, "$n умело вырезал$g %s из $o1.", tobj->PNames[3]);
 		act("$n умело освежевал$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
 		//sprintf (buf, "Вы умело вырезали %s из $o1.", tobj->PNames[3]);
 		act("Вы умело освежевали $o3.", FALSE, ch, obj, 0, TO_CHAR);
 
 		dl_load_obj(obj, mob, ch, DL_SKIN);
-		if (number(1, ch->get_skill(SKILL_MAKEFOOD)) + number(1, GET_REAL_DEX(ch)) >= prob) {
-		    skin = create_skin(mob, ch);
-		    if (skin != NULL) {
-			if (obj->carried_by == ch)
-			    can_carry_obj(ch, skin);
-			else
-			    obj_to_room(skin, IN_ROOM(ch));
+		if (number(1, ch->get_skill(SKILL_MAKEFOOD)) + number(1, GET_REAL_DEX(ch)) >= prob)
+		{
+			skin = create_skin(mob, ch);
+			if (skin != NULL)
+			{
+				if (obj->carried_by == ch)
+					can_carry_obj(ch, skin);
+				else
+					obj_to_room(skin, IN_ROOM(ch));
 			}
 		}
 		if (obj->carried_by == ch)
@@ -2848,7 +3288,8 @@ ACMD(do_makefood)
 //  obj_decay(tobj);
 	}
 //Зачем-то труп выкидывался в комнату перед уничтожением.
-	if (obj->carried_by) {
+	if (obj->carried_by)
+	{
 		obj_from_char(obj);
 		obj_to_room(obj, IN_ROOM(ch));
 	}
@@ -2872,14 +3313,17 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	if (!obj || !IS_CORPSE(obj) || !ch->master)
 		return;
 
-	for (k = ch->master->followers; k; k = k->next) {
+	for (k = ch->master->followers; k; k = k->next)
+	{
 		if (AFF_FLAGGED(k->follower, AFF_CHARM)
-		    && k->follower->master == ch->master) {
+				&& k->follower->master == ch->master)
+		{
 			reformed_hp_summ += get_reformed_charmice_hp(ch->master, k->follower, SPELL_ANIMATE_DEAD);
 		}
 	}
 
-	if (reformed_hp_summ >= get_player_charms(ch->master, SPELL_ANIMATE_DEAD)) {
+	if (reformed_hp_summ >= get_player_charms(ch->master, SPELL_ANIMATE_DEAD))
+	{
 //    imm_log("reformed_hp_summ : %i, get_player_charms %i",reformed_hp_summ, get_player_charms(ch->master, SPELL_ANIMATE_DEAD) );
 		send_to_char("Вы не можете управлять столькими последователями.\r\n", ch->master);
 		extract_char(ch, FALSE);
@@ -2891,11 +3335,13 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	max_heal_hp = 3 * mob_level;
 	chance_to_eat = (100 - 2 * mob_level) / 2;
 	//Added by Ann
-	if (affected_by_spell(ch->master, SPELL_FASCINATION)) {
+	if (affected_by_spell(ch->master, SPELL_FASCINATION))
+	{
 		chance_to_eat -= 30;
 	}
 	//end Ann
-	if (number(1, 100) < chance_to_eat) {
+	if (number(1, 100) < chance_to_eat)
+	{
 		act("$N подавил$U и начал$G сильно кашлять.", TRUE, ch, NULL, ch, TO_ROOM);
 
 		GET_HIT(ch) -= 3 * mob_level;
@@ -2911,14 +3357,14 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	}
 	if (weather_info.moon_day < 14)
 		max_charm_duration =
-		    pc_duration(ch, GET_REAL_WIS(ch->master) - 6 + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
+			pc_duration(ch, GET_REAL_WIS(ch->master) - 6 + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
 	else
 		max_charm_duration =
-		    pc_duration(ch,
-				GET_REAL_WIS(ch->master) - 6 + number(0, 14 - weather_info.moon_day % 14), 0, 0, 0, 0);
+			pc_duration(ch,
+						GET_REAL_WIS(ch->master) - 6 + number(0, 14 - weather_info.moon_day % 14), 0, 0, 0, 0);
 
 	af.type = SPELL_CHARM;
-	af.duration = MIN(max_charm_duration, (int) (mob_level * max_charm_duration / 30));
+	af.duration = MIN(max_charm_duration, (int)(mob_level * max_charm_duration / 30));
 	af.modifier = 0;
 	af.location = 0;
 	af.bitvector = AFF_CHARM;
@@ -2930,11 +3376,13 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	act("Похоже, лакомство пришлось по вкусу.", TRUE, ch, NULL, ch->master, TO_VICT);
 	act("От омерзительного зрелища Вас едва не вывернуло.", TRUE, ch, NULL, ch->master, TO_NOTVICT);
 
-	if (GET_HIT(ch) < GET_MAX_HIT(ch)) {
+	if (GET_HIT(ch) < GET_MAX_HIT(ch))
+	{
 		GET_HIT(ch) = MIN(GET_HIT(ch) + MIN(max_heal_hp, GET_MAX_HIT(ch)), GET_MAX_HIT(ch));
 	}
 
-	if (GET_HIT(ch) >= GET_MAX_HIT(ch)) {
+	if (GET_HIT(ch) >= GET_MAX_HIT(ch))
+	{
 		act("$n сыто рыгнул$g и благодарно посмотрел$g на Вас.", TRUE, ch, NULL, ch->master, TO_VICT);
 		act("$n сыто рыгнул$g и благодарно посмотрел$g на $N3.", TRUE, ch, NULL, ch->master, TO_NOTVICT);
 	}

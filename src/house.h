@@ -67,8 +67,9 @@
 
 #define CHEST_IDENT_PAY 110
 
-class ClanMember {
-	public:
+class ClanMember
+{
+public:
 	ClanMember() : rank_num(0), money(0), exp(0), exp_persent(0), clan_exp(0) {};
 	std::string name;   // имя игрока
 	int rank_num;       // номер ранга
@@ -78,7 +79,8 @@ class ClanMember {
 	long long clan_exp; // набранная клан-экспа
 };
 
-struct ClanPk {
+struct ClanPk
+{
 	long author;            // уид автора
 	std::string victimName;	// имя жертвы
 	std::string authorName;	// имя автора
@@ -86,7 +88,8 @@ struct ClanPk {
 	std::string text;       // комментарий
 };
 
-struct ClanStuffName {
+struct ClanStuffName
+{
 	int num;
 	std::string name;
 	std::string desc;
@@ -106,7 +109,8 @@ typedef std::vector<std::bitset<CLAN_PRIVILEGES_NUM> > ClanPrivileges;
 typedef std::map<int, int> ClanPolitics;
 typedef std::vector<ClanStuffName> ClanStuffList;
 
-struct ClanOLC {
+struct ClanOLC
+{
 	int mode;                  // для контроля состояния олц
 	ClanPtr clan;              // клан, который правим
 	ClanPrivileges privileges; // свой список привилегий на случай не сохранения при выходе
@@ -114,7 +118,8 @@ struct ClanOLC {
 	std::bitset<CLAN_PRIVILEGES_NUM> all_ranks; // буфер для удаления/добавления всем рангам
 };
 
-struct ClanInvite {
+struct ClanInvite
+{
 	ClanPtr clan; // приглашающий клан
 	int rank;     // номер приписываемого ранга
 };
@@ -122,7 +127,7 @@ struct ClanInvite {
 
 class Clan
 {
-	public:
+public:
 	Clan();
 	~Clan();
 
@@ -152,13 +157,25 @@ class Clan
 	void Manage(DESCRIPTOR_DATA * d, const char * arg);
 	void AddTopExp(CHAR_DATA * ch, int add_exp);
 
-	const char * GetAbbrev() { return this->abbrev.c_str(); };
+	const char * GetAbbrev()
+	{
+		return this->abbrev.c_str();
+	};
 	int GetRent();
 	int SetClanExp(CHAR_DATA *ch, int add);  //На входе - икспа с моба - на выходе икспа собсно игроку. за вычетом той что идет в клан
 	int GetMemberExpPersent(CHAR_DATA *ch);
-	int GetClanLevel() { return this->clan_level; };
-	std::string GetClanTitle() { return this->title; };
-	bool CheckPrivilege(int rank, int privilege) { return this->privileges[rank][privilege]; };
+	int GetClanLevel()
+	{
+		return this->clan_level;
+	};
+	std::string GetClanTitle()
+	{
+		return this->title;
+	};
+	bool CheckPrivilege(int rank, int privilege)
+	{
+		return this->privileges[rank][privilege];
+	};
 
 	static void init_chest_rnum();
 	static bool is_clan_chest(OBJ_DATA *obj);
@@ -174,7 +191,7 @@ class Clan
 	friend ACMD(DoStoreHouse);
 	friend ACMD(do_clanstuff);
 
-	private:
+private:
 	std::string abbrev; // аббревиатура клана, ОДНО слово
 	std::string name;   // длинное имя клана
 	std::string title;  // что будет видно в титуле членов клана (лучше род.падеж, если это не аббревиатура)
@@ -235,14 +252,20 @@ class Clan
 	static void hcon_outcast(CHAR_DATA *ch, std::string buffer);
 	static void ChestLoad();
 	int ChestTax();
-	int ChestMaxObjects() {return (this->clan_level+1)*500+100;};
-	int ChestMaxWeight() {return (this->clan_level+1)*5000+500;};
+	int ChestMaxObjects()
+	{
+		return (this->clan_level + 1)*500 + 100;
+	};
+	int ChestMaxWeight()
+	{
+		return (this->clan_level + 1)*5000 + 500;
+	};
 
 	// для сортировки вывода членов клана по рангам, когда оно через поля чара дергается
 	class SortRank
 	{
-		public:
-		bool operator() (const CHAR_DATA * ch1, const CHAR_DATA * ch2);
+	public:
+		bool operator()(const CHAR_DATA * ch1, const CHAR_DATA * ch2);
 	};
 };
 

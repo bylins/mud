@@ -53,12 +53,14 @@ typedef boost::shared_ptr<struct Message> MessagePtr;
 typedef std::vector<MessagePtr> MessageListType;
 
 // даты последних прочтенных мессаг на досках
-struct board_data {
+struct board_data
+{
 	time_t board_date[BOARD_TOTAL];
 };
 
 // отдельное сообщение
-struct Message {
+struct Message
+{
 	int num;             // номер на доске
 	std::string author;  // имя автора
 	long unique;         // уид автора
@@ -70,17 +72,30 @@ struct Message {
 };
 
 // доски... наследование нафик
-class Board {
+class Board
+{
 public:
 	static BoardListType BoardList; // список досок
 	MessageListType messages; // список сообщений
 
 	Board();
 	int Access(CHAR_DATA * ch);
-	int GetType() { return this->type; };
-	int GetClanRent() { return this->clanRent; };
-	std::string & GetName() { return this->name; };
-	void SetLastRead(long unique) { this->lastWrite = unique; };
+	int GetType()
+	{
+		return this->type;
+	};
+	int GetClanRent()
+	{
+		return this->clanRent;
+	};
+	std::string & GetName()
+	{
+		return this->name;
+	};
+	void SetLastRead(long unique)
+	{
+		this->lastWrite = unique;
+	};
 	void Save();
 	static void BoardInit();
 	static void ClanInit();
@@ -95,7 +110,7 @@ public:
 	friend ACMD(DoBoardList);
 	friend ACMD(report_on_board);
 
-	private:
+private:
 	int type;                 // тип доски
 	std::string name;         // имя доски
 	std::string desc;         // описание доски

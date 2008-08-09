@@ -26,7 +26,7 @@ int awake_others(CHAR_DATA * ch);
 void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef);
 
 /* Resistance calculate */
-int calculate_resistance_coeff (CHAR_DATA *ch, int resist_type, int effect);
+int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect);
 
 /* handling the affected-structures */
 void affect_total(CHAR_DATA * ch);

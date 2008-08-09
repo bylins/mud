@@ -1,6 +1,6 @@
 /* ************************************************************************
 *  File: alias.cpp				A utility to Bylins 	  *
-* Usage: writing/reading player's aliases.				  * 
+* Usage: writing/reading player's aliases.				  *
 *									  *
 * Code done by Jeremy Hess and Chad Thompson				  *
 * Modifed by George Greer for inclusion into CircleMUD bpl15.		  *
@@ -37,20 +37,22 @@ void write_aliases(CHAR_DATA * ch)
 	if (GET_ALIASES(ch) == NULL)
 		return;
 
-	if ((file = fopen(fn, "w")) == NULL) {
+	if ((file = fopen(fn, "w")) == NULL)
+	{
 		log("SYSERR: Couldn't save aliases for %s in '%s'.", GET_NAME(ch), fn);
 		perror("SYSERR: write_aliases");
 		return;
 	}
 
-	for (temp = GET_ALIASES(ch); temp; temp = temp->next) {
+	for (temp = GET_ALIASES(ch); temp; temp = temp->next)
+	{
 		int aliaslen = strlen(temp->alias);
 		int repllen = strlen(temp->replacement) - 1;
 
 		fprintf(file, "%d\n%s\n"	/* Alias */
-			"%d\n%s\n"	/* Replacement */
-			"%d\n",	/* Type */
-			aliaslen, temp->alias, repllen, temp->replacement + 1, temp->type);
+				"%d\n%s\n"	/* Replacement */
+				"%d\n",	/* Type */
+				aliaslen, temp->alias, repllen, temp->replacement + 1, temp->type);
 	}
 
 	fclose(file);
@@ -66,8 +68,10 @@ void read_aliases(CHAR_DATA * ch)
 	log("Read alias %s", GET_NAME(ch));
 	get_filename(GET_NAME(ch), xbuf, ALIAS_FILE);
 
-	if ((file = fopen(xbuf, "r")) == NULL) {
-		if (errno != ENOENT) {
+	if ((file = fopen(xbuf, "r")) == NULL)
+	{
+		if (errno != ENOENT)
+		{
 			log("SYSERR: Couldn't open alias file '%s' for %s.", xbuf, GET_NAME(ch));
 			perror("SYSERR: read_aliases");
 		}
@@ -77,7 +81,8 @@ void read_aliases(CHAR_DATA * ch)
 	CREATE(GET_ALIASES(ch), struct alias_data, 1);
 	t2 = GET_ALIASES(ch);
 
-	for (;;) {		/* Read the aliased command. */
+	for (;;)  		/* Read the aliased command. */
+	{
 		fscanf(file, "%d\n", &length);
 		fgets(xbuf, length + 1, file);
 		t2->alias = str_dup(xbuf);

@@ -68,11 +68,12 @@ extern const int class_religion[];
 #define argument_interpreter(a, b, c) two_arguments(a, b, c)
 
 
-struct command_info {
+struct command_info
+{
 	const char *command;
 	byte minimum_position;
 	void (*command_pointer)
-	 (CHAR_DATA * ch, char *argument, int cmd, int subcmd);
+	(CHAR_DATA * ch, char *argument, int cmd, int subcmd);
 	sh_int minimum_level;
 	int subcmd;
 	int unhide_percent;
@@ -91,7 +92,8 @@ extern const struct command_info cmd_info[];
  * because a Windows 95 compiler gives a warning about it having similiar
  * named member.
  */
-struct alias_data {
+struct alias_data
+{
 	char *alias;
 	char *replacement;
 	int type;

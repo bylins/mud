@@ -290,8 +290,10 @@ void go_boot_socials(void)
 {
 	int i;
 
-	if (soc_mess_list) {
-		for (i = 0; i <= top_of_socialm; i++) {
+	if (soc_mess_list)
+	{
+		for (i = 0; i <= top_of_socialm; i++)
+		{
 			if (soc_mess_list[i].char_no_arg)
 				free(soc_mess_list[i].char_no_arg);
 			if (soc_mess_list[i].others_no_arg)
@@ -307,7 +309,8 @@ void go_boot_socials(void)
 		}
 		free(soc_mess_list);
 	}
-	if (soc_keys_list) {
+	if (soc_keys_list)
+	{
 		for (i = 0; i <= top_of_socialk; i++)
 			if (soc_keys_list[i].keyword)
 				free(soc_keys_list[i].keyword);
@@ -323,8 +326,10 @@ void go_boot_socials(void)
 void go_boot_xhelp(void)
 {
 	int i;
-	if (help_table) {
-		for (i = 0; i <= top_of_helpt; i++) {
+	if (help_table)
+	{
+		for (i = 0; i <= top_of_helpt; i++)
+		{
 			if (help_table[i].keyword)
 				free(help_table[i].keyword);
 			if (help_table[i].entry && !help_table[i].duplicate)
@@ -346,23 +351,29 @@ void load_sheduled_reboot()
 	time_t currTime;
 
 	sch = fopen(LIB_MISC "schedule", "r");
-	if (!sch) {
+	if (!sch)
+	{
 		log("Error opening schedule");
 		return;
 	}
 	time(&currTime);
-	for (int i = 0; i < 7; i++) {
-		if (fgets(str, 10, sch) == NULL) {
+	for (int i = 0; i < 7; i++)
+	{
+		if (fgets(str, 10, sch) == NULL)
+		{
 			break;
 		}
 		numofreaded = sscanf(str, "%i %i:%i", &day, &hour, &minutes);
-		if (numofreaded < 1) {
+		if (numofreaded < 1)
+		{
 			continue;
 		}
-		if (day != i) {
+		if (day != i)
+		{
 			break;
 		}
-		if (numofreaded == 1) {
+		if (numofreaded == 1)
+		{
 			offsets[i] = 24 * 60;
 			continue;
 		}
@@ -374,24 +385,29 @@ void load_sheduled_reboot()
 
 	//set reboot_uptime equal to current uptime and align to the start of the day
 	reboot_uptime = timeOffset / 60 - localtime(&currTime)->tm_min - 60 * (localtime(&currTime)->tm_hour);
-	for (int i = localtime(&boot_time)->tm_wday; i < 7; i++) {
+	for (int i = localtime(&boot_time)->tm_wday; i < 7; i++)
+	{
 		//7 empty days was cycled - break with default uptime
-		if (reboot_uptime - 1440 * 7 >= 0) {
+		if (reboot_uptime - 1440 * 7 >= 0)
+		{
 			reboot_uptime = DEFAULT_REBOOT_UPTIME;	//2 days reboot bu default if no schedule
 			break;
 		}
 		//if we get non-1-full-day offset, but server will reboot to early (36 hour is minimum)
 		//we are going to find another scheduled day
-		if (offsets[i] < 24 * 60 && (reboot_uptime + offsets[i]) < UPTIME_THRESHOLD * 60) {
+		if (offsets[i] < 24 * 60 && (reboot_uptime + offsets[i]) < UPTIME_THRESHOLD * 60)
+		{
 			reboot_uptime += 24 * 60;
 		}
 		//we've found next point of reboot! :) break cycle
-		if (offsets[i] < 24 * 60 && (reboot_uptime + offsets[i]) > UPTIME_THRESHOLD * 60) {
+		if (offsets[i] < 24 * 60 && (reboot_uptime + offsets[i]) > UPTIME_THRESHOLD * 60)
+		{
 			reboot_uptime += offsets[i];
 			break;
 		}
 		//empty day - add 24 hour and go next
-		if (offsets[i] == 24 * 60) {
+		if (offsets[i] == 24 * 60)
+		{
 			reboot_uptime += offsets[i];
 		}
 		// jump to 1st day of the week
@@ -411,7 +427,8 @@ ACMD(do_reboot)
 {
 	one_argument(argument, arg);
 
-	if (!str_cmp(arg, "all") || *arg == '*') {
+	if (!str_cmp(arg, "all") || *arg == '*')
+	{
 		if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 			prune_crlf(GREETINGS);
 		file_to_string_alloc(IMMLIST_FILE, &immlist);
@@ -431,7 +448,8 @@ ACMD(do_reboot)
 		load_sheduled_reboot();
 		oload_table.init();
 		obj_data::init_set_table();
-	} else if (!str_cmp(arg, "portals"))
+	}
+	else if (!str_cmp(arg, "portals"))
 		init_portals();
 	else if (!str_cmp(arg, "imagic"))
 		init_im();
@@ -459,10 +477,12 @@ ACMD(do_reboot)
 		file_to_string_alloc(HANDBOOK_FILE, &handbook);
 	else if (!str_cmp(arg, "background"))
 		file_to_string_alloc(BACKGROUND_FILE, &background);
-	else if (!str_cmp(arg, "greetings")) {
+	else if (!str_cmp(arg, "greetings"))
+	{
 		if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 			prune_crlf(GREETINGS);
-	} else if (!str_cmp(arg, "xhelp"))
+	}
+	else if (!str_cmp(arg, "xhelp"))
 		go_boot_xhelp();
 	else if (!str_cmp(arg, "socials"))
 		go_boot_socials();
@@ -495,7 +515,8 @@ ACMD(do_reboot)
 		else
 			send_to_char("Формат команды: reload depot <имя чара>.\r\n", ch);
 	}
-	else {
+	else
+	{
 		send_to_char("Неверный параметр для перезагрузки файлов.\r\n", ch);
 		return;
 	}
@@ -511,7 +532,8 @@ void init_portals(void)
 	struct portals_list_type *curr, *prev;
 
 	/* Сначала освобождаем все порталы */
-	for (curr = portals_list; curr; curr = prev) {
+	for (curr = portals_list; curr; curr = prev)
+	{
 		prev = curr->next_portal;
 		free(curr->wrd);
 		free(curr);
@@ -521,16 +543,19 @@ void init_portals(void)
 	prev = NULL;
 
 	/* читаем файл */
-	if (!(portal_f = fopen(LIB_MISC "portals.lst", "r"))) {
+	if (!(portal_f = fopen(LIB_MISC "portals.lst", "r")))
+	{
 		log("Can not open portals.lst");
 		return;
 	}
 
-	while (get_line(portal_f, nm)) {
+	while (get_line(portal_f, nm))
+	{
 		if (!nm[0] || nm[0] == ';')
 			continue;
 		sscanf(nm, "%d %d %s", &rnm, &level, nm2);
-		if (real_room(rnm) == NOWHERE || nm2[0] == '\0') {
+		if (real_room(rnm) == NOWHERE || nm2[0] == '\0')
+		{
 			log("Invalid portal entry detected");
 			continue;
 		}
@@ -592,7 +617,8 @@ void boot_world(void)
 	log("Renumbering Mob_zone.");
 	renum_mob_zone();
 
-	if (!no_specials) {
+	if (!no_specials)
+	{
 		log("Loading shops.");
 		index_boot(DB_BOOT_SHP);
 	}
@@ -745,13 +771,15 @@ void obj_data::init_set_table()
 
 	std::ifstream fp(LIB_MISC "setstuff.lst");
 
-	if (!fp) {
+	if (!fp)
+	{
 		cppstr = "init_set_table:: Unable open input file 'lib/misc/setstuff.lst'";
 		mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
 
-	while (!fp.eof()) {
+	while (!fp.eof())
+	{
 		std::istringstream isstream;
 
 		getline(fp, cppstr);
@@ -763,7 +791,8 @@ void obj_data::init_set_table()
 		isstream.str(cppstr);
 		cppstr.erase();
 		isstream >> std::skipws >> cppstr;
-		if (!isstream.eof()) {
+		if (!isstream.eof())
+		{
 			std::string suffix;
 
 			getline(isstream, suffix);
@@ -775,7 +804,8 @@ void obj_data::init_set_table()
 		isstream.str(cppstr);
 		cppstr.erase();
 		isstream >> std::skipws >> cppstr;
-		if (!isstream.eof()) {
+		if (!isstream.eof())
+		{
 			std::string suffix;
 
 			getline(isstream, suffix);
@@ -786,8 +816,10 @@ void obj_data::init_set_table()
 		if (cppstr.empty())
 			continue;
 
-		if (cppstr[0] == '#') {
-			if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN) {
+		if (cppstr[0] == '#')
+		{
+			if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN)
+			{
 				cppstr = "init_set_table:: Wrong position of line '" + cppstr + "'";
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 				continue;
@@ -795,7 +827,8 @@ void obj_data::init_set_table()
 
 			cppstr.erase(cppstr.begin());
 
-			if (cppstr.empty() || !isdigit(cppstr[0])) {
+			if (cppstr.empty() || !isdigit(cppstr[0]))
+			{
 				cppstr = "init_set_table:: Error in line '#" + cppstr + "', expected set id after #";
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 				continue;
@@ -806,7 +839,8 @@ void obj_data::init_set_table()
 			isstream.str(cppstr);
 			isstream >> std::noskipws >> tmpsnum;
 
-			if (!isstream.eof()) {
+			if (!isstream.eof())
+			{
 				cppstr = "init_set_table:: Error in line '#" + cppstr + "', expected only set id after #";
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 				continue;
@@ -814,7 +848,8 @@ void obj_data::init_set_table()
 
 			std::pair< id_to_set_info_map::iterator, bool > p = obj_data::set_table.insert(std::make_pair(tmpsnum, set_info()));
 
-			if (!p.second) {
+			if (!p.second)
+			{
 				cppstr = "init_set_table:: Error in line '#" + cppstr + "', this set already exists";
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 				continue;
@@ -825,7 +860,8 @@ void obj_data::init_set_table()
 			continue;
 		}
 
-		if (cppstr.size() < 5 || cppstr[4] != ':') {
+		if (cppstr.size() < 5 || cppstr[4] != ':')
+		{
 			cppstr = "init_set_table:: Format error in line '" + cppstr + "'";
 			mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 			continue;
@@ -836,7 +872,8 @@ void obj_data::init_set_table()
 		isstream.str(cppstr);
 		cppstr.erase();
 		isstream >> std::skipws >> cppstr;
-		if (!isstream.eof()) {
+		if (!isstream.eof())
+		{
 			std::string suffix;
 
 			getline(isstream, suffix);
@@ -844,16 +881,20 @@ void obj_data::init_set_table()
 		}
 		isstream.clear();
 
-		if (cppstr.empty()) {
+		if (cppstr.empty())
+		{
 			cppstr = "init_set_table:: Empty parameter field in line '" + tag + ":" + cppstr + "'";
 			mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 			continue;
 		}
 
-		switch (tag[0]) {
+		switch (tag[0])
+		{
 		case 'A':
-			if (tag == "Amsg") {
-				if (mode != SETSTUFF_AMSG) {
+			if (tag == "Amsg")
+			{
+				if (mode != SETSTUFF_AMSG)
+				{
 					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
@@ -861,8 +902,11 @@ void obj_data::init_set_table()
 
 				clss->second.set_actmsg(cppstr);
 				mode = SETSTUFF_DMSG;
-			} else if (tag == "Affs") {
-				if (mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS) {
+			}
+			else if (tag == "Affs")
+			{
+				if (mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS)
+				{
 					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
@@ -871,7 +915,8 @@ void obj_data::init_set_table()
 				isstream.str(cppstr);
 				cppstr.erase();
 				isstream >> std::skipws >> cppstr;
-				if (!isstream.eof()) {
+				if (!isstream.eof())
+				{
 					std::string suffix;
 
 					getline(isstream, suffix);
@@ -887,8 +932,11 @@ void obj_data::init_set_table()
 				clss->second.set_affects(tmpaffs);
 				appnum = 0;
 				mode = SETSTUFF_AFCN;
-			} else if (tag == "Afcn") {
-				if (mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN) {
+			}
+			else if (tag == "Afcn")
+			{
+				if (mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN)
+				{
 					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
@@ -898,7 +946,8 @@ void obj_data::init_set_table()
 
 				int tmploc, tmpmodi;
 
-				if (!(isstream >> std::skipws >> tmploc >> std::skipws >> tmpmodi)) {
+				if (!(isstream >> std::skipws >> tmploc >> std::skipws >> tmpmodi))
+				{
 					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected apply location and modifier";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
@@ -906,19 +955,22 @@ void obj_data::init_set_table()
 
 				obj_affected_type tmpafcn((byte)tmploc, (sbyte)tmpmodi);
 
-				if (!isstream.eof()) {
+				if (!isstream.eof())
+				{
 					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected only apply location and modifier";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
 				}
 
-				if (tmpafcn.location <= APPLY_NONE || tmpafcn.location >= NUM_APPLIES) {
+				if (tmpafcn.location <= APPLY_NONE || tmpafcn.location >= NUM_APPLIES)
+				{
 					cppstr = "init_set_table:: Wrong apply location in line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
 				}
 
-				if (!tmpafcn.modifier) {
+				if (!tmpafcn.modifier)
+				{
 					cppstr = "init_set_table:: Wrong apply modifier in line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
@@ -927,23 +979,29 @@ void obj_data::init_set_table()
 				if (mode == SETSTUFF_AMSG || mode == SETSTUFF_AFFS)
 					appnum = 0;
 
-				if (appnum >= MAX_OBJ_AFFECT) {
+				if (appnum >= MAX_OBJ_AFFECT)
+				{
 					cppstr = "init_set_table:: Too many applies - line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
-				} else
+				}
+				else
 					clss->second.set_affected_i(appnum++, tmpafcn);
 
 				mode = SETSTUFF_AFCN;
-			} else {
+			}
+			else
+			{
 				cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
 			break;
 
 		case 'C':
-			if (tag == "Clss") {
-				if (mode != SETSTUFF_CLSS && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN) {
+			if (tag == "Clss")
+			{
+				if (mode != SETSTUFF_CLSS && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN)
+				{
 					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
@@ -953,8 +1011,9 @@ void obj_data::init_set_table()
 
 				if (cppstr == "all")
 					tmpclss.set_plane(0x3FFFFFFF).set_plane(INT_ONE | 0x3FFFFFFF).set_plane(INT_TWO |
-					0x3FFFFFFF).set_plane(INT_THREE | 0x3FFFFFFF);
-				else {
+							0x3FFFFFFF).set_plane(INT_THREE | 0x3FFFFFFF);
+				else
+				{
 					isstream.str(cppstr);
 
 					int i = 0;
@@ -965,13 +1024,15 @@ void obj_data::init_set_table()
 						else
 							tmpclss.set_plane(flag_data_by_num(i));
 
-					if (i < 0 || i > NUM_CLASSES * NUM_KIN) {
+					if (i < 0 || i > NUM_CLASSES * NUM_KIN)
+					{
 						cppstr = "init_set_table:: Wrong class in line '" + tag + ":" + cppstr + "'";
 						mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 						continue;
 					}
 
-					if (!isstream.eof()) {
+					if (!isstream.eof())
+					{
 						cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected only class ids";
 						mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 						continue;
@@ -980,24 +1041,29 @@ void obj_data::init_set_table()
 
 				std::pair< class_to_act_map::iterator, bool > p = oqty->second.insert(std::make_pair(tmpclss, activation()));
 
-				if (!p.second) {
+				if (!p.second)
+				{
 					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr +
-						 "', each class number can occur only once for each object number";
+							 "', each class number can occur only once for each object number";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
 				}
 
 				clss = p.first;
 				mode = SETSTUFF_AMSG;
-			} else {
+			}
+			else
+			{
 				cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
 			break;
 
 		case 'D':
-			if (tag == "Dmsg") {
-				if (mode != SETSTUFF_DMSG) {
+			if (tag == "Dmsg")
+			{
+				if (mode != SETSTUFF_DMSG)
+				{
 					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
@@ -1005,15 +1071,19 @@ void obj_data::init_set_table()
 
 				clss->second.set_deactmsg(cppstr);
 				mode = SETSTUFF_RAMG;
-			} else {
+			}
+			else
+			{
 				cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
 			break;
 
 		case 'N':
-			if (tag == "Name") {
-				if (mode != SETSTUFF_NAME) {
+			if (tag == "Name")
+			{
+				if (mode != SETSTUFF_NAME)
+				{
 					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
@@ -1021,15 +1091,19 @@ void obj_data::init_set_table()
 
 				snum->second.set_name(cppstr);
 				mode = SETSTUFF_VNUM;
-			} else {
+			}
+			else
+			{
 				cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
 			break;
 
 		case 'O':
-			if (tag == "Oqty") {
-				if (mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN) {
+			if (tag == "Oqty")
+			{
+				if (mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN)
+				{
 					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
@@ -1039,13 +1113,15 @@ void obj_data::init_set_table()
 				isstream.str(cppstr);
 				isstream >> std::skipws >> tmpoqty;
 
-				if (!isstream.eof()) {
+				if (!isstream.eof())
+				{
 					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected only object number";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
 				}
 
-				if (!tmpoqty || tmpoqty > NUM_WEARS) {
+				if (!tmpoqty || tmpoqty > NUM_WEARS)
+				{
 					cppstr = "init_set_table:: Wrong object number in line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
@@ -1053,24 +1129,29 @@ void obj_data::init_set_table()
 
 				std::pair< qty_to_camap_map::iterator, bool > p = vnum->second.insert(std::make_pair(tmpoqty, class_to_act_map()));
 
-				if (!p.second) {
+				if (!p.second)
+				{
 					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr +
-						 "', each object number can occur only once for each object";
+							 "', each object number can occur only once for each object";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
 				}
 
 				oqty = p.first;
 				mode = SETSTUFF_CLSS;
-			} else {
+			}
+			else
+			{
 				cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
 			break;
 
 		case 'R':
-			if (tag == "Ramg") {
-				if (mode != SETSTUFF_RAMG) {
+			if (tag == "Ramg")
+			{
+				if (mode != SETSTUFF_RAMG)
+				{
 					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
@@ -1078,8 +1159,11 @@ void obj_data::init_set_table()
 
 				clss->second.set_room_actmsg(cppstr);
 				mode = SETSTUFF_RDMG;
-			} else if (tag == "Rdmg") {
-				if (mode != SETSTUFF_RDMG) {
+			}
+			else if (tag == "Rdmg")
+			{
+				if (mode != SETSTUFF_RDMG)
+				{
 					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
@@ -1087,16 +1171,20 @@ void obj_data::init_set_table()
 
 				clss->second.set_room_deactmsg(cppstr);
 				mode = SETSTUFF_AFFS;
-			} else {
+			}
+			else
+			{
 				cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
 			break;
 
 		case 'V':
-			if (tag == "Vnum") {
+			if (tag == "Vnum")
+			{
 				if (mode != SETSTUFF_VNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS &&
-				    mode != SETSTUFF_AFCN) {
+						mode != SETSTUFF_AFCN)
+				{
 					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
@@ -1106,13 +1194,15 @@ void obj_data::init_set_table()
 				isstream.str(cppstr);
 				isstream >> std::skipws >> tmpvnum;
 
-				if (!isstream.eof()) {
+				if (!isstream.eof())
+				{
 					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected only object vnum";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
 				}
 
-				if (real_object(tmpvnum) < 0) {
+				if (real_object(tmpvnum) < 0)
+				{
 					cppstr = "init_set_table:: Wrong object vnum in line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
@@ -1124,7 +1214,8 @@ void obj_data::init_set_table()
 					if (it->second.find(tmpvnum) != it->second.end())
 						break;
 
-				if (it != obj_data::set_table.end()) {
+				if (it != obj_data::set_table.end())
+				{
 					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', object can exist only in one set";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 					continue;
@@ -1132,7 +1223,9 @@ void obj_data::init_set_table()
 
 				vnum = snum->second.insert(std::make_pair(tmpvnum, qty_to_camap_map())).first;
 				mode = SETSTUFF_OQTY;
-			} else {
+			}
+			else
+			{
 				cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "'";
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
@@ -1144,7 +1237,8 @@ void obj_data::init_set_table()
 		}
 	}
 
-	if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN) {
+	if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN)
+	{
 		cppstr = "init_set_table:: Last set was deleted, because of unexpected end of file";
 		obj_data::set_table.erase(snum);
 		mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
@@ -1219,7 +1313,8 @@ void boot_db(void)
 
 	log("Assigning function pointers:");
 
-	if (!no_specials) {
+	if (!no_specials)
+	{
 		log("   Mobiles.");
 		assign_mobiles();
 		log("   Shopkeepers.");
@@ -1238,7 +1333,8 @@ void boot_db(void)
 	sort_spells();
 
 	log("Booting mail system.");
-	if (!scan_file()) {
+	if (!scan_file())
+	{
 		log("    Mail boot failed -- Mail system disabled");
 		no_mail = 1;
 	}
@@ -1247,7 +1343,8 @@ void boot_db(void)
 	Read_Invalid_List();
 
 	log("Booting rented objects info");
-	for (i = 0; i <= top_of_p_table; i++) {
+	for (i = 0; i <= top_of_p_table; i++)
+	{
 		(player_table + i)->timer = NULL;
 		Crash_read_timer(i, FALSE);
 	}
@@ -1310,9 +1407,10 @@ void boot_db(void)
 	Depot::init_depot();
 
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
-	for (i = 0; i <= top_of_zone_table; i++) {
+	for (i = 0; i <= top_of_zone_table; i++)
+	{
 		log("Resetting %s (rooms %d-%d).", zone_table[i].name,
-		    (i ? (zone_table[i - 1].top + 1) : 0), zone_table[i].top);
+			(i ? (zone_table[i - 1].top + 1) : 0), zone_table[i].top);
 		reset_zone(i);
 	}
 	reset_q.head = reset_q.tail = NULL;
@@ -1328,24 +1426,25 @@ void boot_db(void)
 	boot_time = time(0);
 	log("Boot db -- DONE.");
 
-struct test_char_ability_data {
-	ubyte Skills[MAX_SKILLS + 1];	/* array of skills plus skill 0     */
-	ubyte SplKnw[MAX_SPELLS + 1];	/* array of SPELL_KNOW_TYPE         */
-	ubyte SplMem[MAX_SPELLS + 1];	/* array of MEMed SPELLS            */
-	bitset<MAX_FEATS> Feats;
-	sbyte str;
-	sbyte intel;
-	sbyte wis;
-	sbyte dex;
-	sbyte con;
-	sbyte cha;
-	sbyte size;
-	sbyte hitroll;
-	sbyte damroll;
-	sbyte armor;
-};
-log("test1: %d", sizeof(test_char_ability_data));
-log("test1: %d", sizeof(char_ability_data));
+	struct test_char_ability_data
+	{
+		ubyte Skills[MAX_SKILLS + 1];	/* array of skills plus skill 0     */
+		ubyte SplKnw[MAX_SPELLS + 1];	/* array of SPELL_KNOW_TYPE         */
+		ubyte SplMem[MAX_SPELLS + 1];	/* array of MEMed SPELLS            */
+		bitset<MAX_FEATS> Feats;
+		sbyte str;
+		sbyte intel;
+		sbyte wis;
+		sbyte dex;
+		sbyte con;
+		sbyte cha;
+		sbyte size;
+		sbyte hitroll;
+		sbyte damroll;
+		sbyte armor;
+	};
+	log("test1: %d", sizeof(test_char_ability_data));
+	log("test1: %d", sizeof(char_ability_data));
 
 }
 
@@ -1354,7 +1453,8 @@ void free_rooms()
 {
 	vector < ROOM_DATA * >::iterator p = world.begin();
 
-	while (p != world.end()) {
+	while (p != world.end())
+	{
 		room_free(*p);
 		free(*p);
 		p++;
@@ -1380,11 +1480,11 @@ void reset_time(void)
 	time_info = *mud_time_passed(time(0), beginning_of_time);
 	// Calculate moon day
 	weather_info.moon_day =
-	    ((time_info.year * MONTHS_PER_YEAR + time_info.month) * DAYS_PER_MONTH + time_info.day) % MOON_CYCLE;
+		((time_info.year * MONTHS_PER_YEAR + time_info.month) * DAYS_PER_MONTH + time_info.day) % MOON_CYCLE;
 	weather_info.week_day_mono =
-	    ((time_info.year * MONTHS_PER_YEAR + time_info.month) * DAYS_PER_MONTH + time_info.day) % WEEK_CYCLE;
+		((time_info.year * MONTHS_PER_YEAR + time_info.month) * DAYS_PER_MONTH + time_info.day) % WEEK_CYCLE;
 	weather_info.week_day_poly =
-	    ((time_info.year * MONTHS_PER_YEAR + time_info.month) * DAYS_PER_MONTH + time_info.day) % POLY_WEEK_CYCLE;
+		((time_info.year * MONTHS_PER_YEAR + time_info.month) * DAYS_PER_MONTH + time_info.day) % POLY_WEEK_CYCLE;
 	// Calculate Easter
 	calc_easter();
 	calc_god_celebrate();
@@ -1403,7 +1503,7 @@ void reset_time(void)
 	log("   Current Gametime: %dH %dD %dM %dY.", time_info.hours, time_info.day, time_info.month, time_info.year);
 
 	weather_info.temperature = (year_temp[time_info.month].med * 4 +
-				    number(year_temp[time_info.month].min, year_temp[time_info.month].max)) / 5;
+								number(year_temp[time_info.month].min, year_temp[time_info.month].max)) / 5;
 	weather_info.pressure = 960;
 	if ((time_info.month >= MONTH_MAY) && (time_info.month <= MONTH_NOVEMBER))
 		weather_info.pressure += dice(1, 50);
@@ -1428,19 +1528,22 @@ void reset_time(void)
 
 	if (weather_info.pressure <= 980)
 		weather_info.sky = SKY_LIGHTNING;
-	else if (weather_info.pressure <= 1000) {
+	else if (weather_info.pressure <= 1000)
+	{
 		weather_info.sky = SKY_RAINING;
 		if (time_info.month >= MONTH_APRIL && time_info.month <= MONTH_OCTOBER)
 			create_rainsnow(&weather_info.weather_type, WEATHER_LIGHTRAIN, 40, 40, 20);
 		else if (time_info.month >= MONTH_DECEMBER || time_info.month <= MONTH_FEBRUARY)
 			create_rainsnow(&weather_info.weather_type, WEATHER_LIGHTSNOW, 50, 40, 10);
-		else if (time_info.month == MONTH_NOVEMBER || time_info.month == MONTH_MART) {
+		else if (time_info.month == MONTH_NOVEMBER || time_info.month == MONTH_MART)
+		{
 			if (weather_info.temperature >= 3)
 				create_rainsnow(&weather_info.weather_type, WEATHER_LIGHTRAIN, 70, 30, 0);
 			else
 				create_rainsnow(&weather_info.weather_type, WEATHER_LIGHTSNOW, 80, 20, 0);
 		}
-	} else if (weather_info.pressure <= 1020)
+	}
+	else if (weather_info.pressure <= 1020)
 		weather_info.sky = SKY_CLOUDY;
 	else
 		weather_info.sky = SKY_CLOUDLESS;
@@ -1469,8 +1572,10 @@ int count_alias_records(FILE * fl)
 	/* get the first keyword line */
 	get_one_line(fl, key);
 
-	while (*key != '$') {	/* skip the text */
-		do {
+	while (*key != '$')  	/* skip the text */
+	{
+		do
+		{
 			get_one_line(fl, line);
 			if (feof(fl))
 				goto ackeof;
@@ -1479,7 +1584,8 @@ int count_alias_records(FILE * fl)
 
 		/* now count keywords */
 		scan = key;
-		do {
+		do
+		{
 			scan = one_word(scan, next_key);
 			if (*next_key)
 				++total_keywords;
@@ -1496,7 +1602,7 @@ int count_alias_records(FILE * fl)
 	return (total_keywords);
 
 	/* No, they are not evil. -gg 6/24/98 */
-      ackeof:
+ackeof:
 	log("SYSERR: Unexpected end of help file.");
 	exit(1);		/* Some day we hope to handle these things better... */
 }
@@ -1522,8 +1628,10 @@ int count_social_records(FILE * fl, int *messages, int *keywords)
 	/* get the first keyword line */
 	get_one_line(fl, key);
 
-	while (*key != '$') {	/* skip the text */
-		do {
+	while (*key != '$')  	/* skip the text */
+	{
+		do
+		{
 			get_one_line(fl, line);
 			if (feof(fl))
 				goto ackeof;
@@ -1533,7 +1641,8 @@ int count_social_records(FILE * fl, int *messages, int *keywords)
 		/* now count keywords */
 		scan = key;
 		++(*messages);
-		do {
+		do
+		{
 			scan = one_word(scan, next_key);
 			if (*next_key)
 				++(*keywords);
@@ -1550,7 +1659,7 @@ int count_social_records(FILE * fl, int *messages, int *keywords)
 	return (TRUE);
 
 	/* No, they are not evil. -gg 6/24/98 */
-      ackeof:
+ackeof:
 	log("SYSERR: Unexpected end of help file.");
 	exit(1);		/* Some day we hope to handle these things better... */
 }
@@ -1570,7 +1679,8 @@ void index_boot(int mode)
 	log("Index booting %d", mode);
 
 
-	switch (mode) {
+	switch (mode)
+	{
 	case DB_BOOT_TRG:
 		prefix = TRG_PREFIX;
 		break;
@@ -1608,34 +1718,42 @@ void index_boot(int mode)
 
 	sprintf(buf2, "%s%s", prefix, index_filename);
 
-	if (!(index = fopen(buf2, "r"))) {
+	if (!(index = fopen(buf2, "r")))
+	{
 		log("SYSERR: opening index file '%s': %s", buf2, strerror(errno));
 		exit(1);
 	}
 
 	/* first, count the number of records in the file so we can malloc */
 	fscanf(index, "%s\n", buf1);
-	while (*buf1 != '$') {
+	while (*buf1 != '$')
+	{
 		sprintf(buf2, "%s%s", prefix, buf1);
-		if (!(db_file = fopen(buf2, "r"))) {
+		if (!(db_file = fopen(buf2, "r")))
+		{
 			log("SYSERR: File '%s' listed in '%s/%s': %s", buf2, prefix, index_filename, strerror(errno));
 			fscanf(index, "%s\n", buf1);
 			continue;
-		} else {
+		}
+		else
+		{
 			if (mode == DB_BOOT_ZON)
 				rec_count++;
 			else if (mode == DB_BOOT_SOCIAL)
 				rec_count += count_social_records(db_file, &top_of_socialm, &top_of_socialk);
 			else if (mode == DB_BOOT_HLP)
 				rec_count += count_alias_records(db_file);
-			else if (mode == DB_BOOT_WLD) {
+			else if (mode == DB_BOOT_WLD)
+			{
 				counter = count_hash_records(db_file);
-				if (counter >= 99) {
+				if (counter >= 99)
+				{
 					log("SYSERR: File '%s' list more than 98 room", buf2);
 					exit(1);
 				}
 				rec_count += (counter + 1);
-			} else
+			}
+			else
 				rec_count += count_hash_records(db_file);
 		}
 		fclose(db_file);
@@ -1643,7 +1761,8 @@ void index_boot(int mode)
 	}
 
 	/* Exit if 0 records, unless this is shops */
-	if (!rec_count) {
+	if (!rec_count)
+	{
 		if (mode == DB_BOOT_SHP)
 			return;
 		log("SYSERR: boot error - 0 records counted in %s/%s.", prefix, index_filename);
@@ -1656,7 +1775,8 @@ void index_boot(int mode)
 	/*
 	 * NOTE: "bytes" does _not_ include strings or other later malloc'd things.
 	 */
-	switch (mode) {
+	switch (mode)
+	{
 	case DB_BOOT_TRG:
 		CREATE(trig_index, INDEX_DATA *, rec_count);
 		break;
@@ -1698,18 +1818,21 @@ void index_boot(int mode)
 		size[0] = sizeof(struct social_messg) * (top_of_socialm + 1);
 		size[1] = sizeof(struct social_keyword) * (top_of_socialk + 1);
 		log("   %d entries(%d keywords), %d(%d) bytes.", top_of_socialm + 1,
-		    top_of_socialk + 1, size[0], size[1]);
+			top_of_socialk + 1, size[0], size[1]);
 	}
 
 	rewind(index);
 	fscanf(index, "%s\n", buf1);
-	while (*buf1 != '$') {
+	while (*buf1 != '$')
+	{
 		sprintf(buf2, "%s%s", prefix, buf1);
-		if (!(db_file = fopen(buf2, "r"))) {
+		if (!(db_file = fopen(buf2, "r")))
+		{
 			log("SYSERR: %s: %s", buf2, strerror(errno));
 			exit(1);
 		}
-		switch (mode) {
+		switch (mode)
+		{
 		case DB_BOOT_TRG:
 		case DB_BOOT_WLD:
 		case DB_BOOT_OBJ:
@@ -1742,12 +1865,14 @@ void index_boot(int mode)
 	// Create virtual room for zone
 
 	// sort the help index
-	if (mode == DB_BOOT_HLP) {
+	if (mode == DB_BOOT_HLP)
+	{
 		qsort(help_table, top_of_helpt, sizeof(struct help_index_element), hsort);
 		top_of_helpt--;
 	}
 	// sort the social index
-	if (mode == DB_BOOT_SOCIAL) {
+	if (mode == DB_BOOT_SOCIAL)
+	{
 		qsort(soc_keys_list, top_of_socialk + 1, sizeof(struct social_keyword), csort);
 	}
 }
@@ -1762,19 +1887,24 @@ void discrete_load(FILE * fl, int mode, char *filename)
 	/* modes positions correspond to DB_BOOT_xxx in db.h */
 
 
-	for (;;) {		/*
+	for (;;)
+	{		/*
 				 * we have to do special processing with the obj files because they have
 				 * no end-of-record marker :(
 				 */
 		if (mode != DB_BOOT_OBJ || nr < 0)
-			if (!get_line(fl, line)) {
-				if (nr == -1) {
+			if (!get_line(fl, line))
+			{
+				if (nr == -1)
+				{
 					log("SYSERR: %s file %s is empty!", modes[mode], filename);
-				} else {
+				}
+				else
+				{
 					log("SYSERR: Format error in %s after %s #%d\n"
-					    "...expecting a new %s, but file ended!\n"
-					    "(maybe the file is not terminated with '$'?)", filename,
-					    modes[mode], nr, modes[mode]);
+						"...expecting a new %s, but file ended!\n"
+						"(maybe the file is not terminated with '$'?)", filename,
+						modes[mode], nr, modes[mode]);
 				}
 				exit(1);
 			}
@@ -1785,16 +1915,19 @@ void discrete_load(FILE * fl, int mode, char *filename)
 		if (strcmp(line, "#ADAMANT") == 0)
 			continue;
 
-		if (*line == '#') {
+		if (*line == '#')
+		{
 			last = nr;
-			if (sscanf(line, "#%d", &nr) != 1) {
+			if (sscanf(line, "#%d", &nr) != 1)
+			{
 				log("SYSERR: Format error after %s #%d", modes[mode], last);
 				exit(1);
 			}
 			if (nr >= MAX_PROTO_NUMBER)
 				return;
 			else
-				switch (mode) {
+				switch (mode)
+				{
 				case DB_BOOT_TRG:
 					parse_trigger(fl, nr);
 					break;
@@ -1808,7 +1941,9 @@ void discrete_load(FILE * fl, int mode, char *filename)
 					strcpy(line, parse_object(fl, nr));
 					break;
 				}
-		} else {
+		}
+		else
+		{
 			log("SYSERR: Format error in %s file %s near %s #%d", modes[mode], filename, modes[mode], nr);
 			log("SYSERR: ... offending line: '%s'", line);
 			exit(1);
@@ -1822,20 +1957,28 @@ void asciiflag_conv(const char *flag, void *value)
 	int is_number = 1, block = 0, i;
 	register const char *p;
 
-	for (p = flag; *p; p += i + 1) {
+	for (p = flag; *p; p += i + 1)
+	{
 		i = 0;
-		if (islower(*p)) {
-			if (*(p + 1) >= '0' && *(p + 1) <= '9') {
-				block = (int) *(p + 1) - '0';
+		if (islower(*p))
+		{
+			if (*(p + 1) >= '0' && *(p + 1) <= '9')
+			{
+				block = (int) * (p + 1) - '0';
 				i = 1;
-			} else
+			}
+			else
 				block = 0;
 			*(flags + block) |= (0x3FFFFFFF & (1 << (*p - 'a')));
-		} else if (isupper(*p)) {
-			if (*(p + 1) >= '0' && *(p + 1) <= '9') {
-				block = (int) *(p + 1) - '0';
+		}
+		else if (isupper(*p))
+		{
+			if (*(p + 1) >= '0' && *(p + 1) <= '9')
+			{
+				block = (int) * (p + 1) - '0';
 				i = 1;
-			} else
+			}
+			else
 				block = 0;
 			*(flags + block) |= (0x3FFFFFFF & (1 << (26 + (*p - 'A'))));
 		}
@@ -1843,7 +1986,8 @@ void asciiflag_conv(const char *flag, void *value)
 			is_number = 0;
 	}
 
-	if (is_number) {
+	if (is_number)
+	{
 		is_number = atol(flag);
 		block = is_number < INT_ONE ? 0 : is_number < INT_TWO ? 1 : is_number < INT_THREE ? 2 : 3;
 		*(flags + block) = is_number & 0x3FFFFFFF;
@@ -1853,7 +1997,8 @@ void asciiflag_conv(const char *flag, void *value)
 char fread_letter(FILE * fp)
 {
 	char c;
-	do {
+	do
+	{
 		c = getc(fp);
 	}
 	while (isspace(c));
@@ -1869,18 +2014,21 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	EXTRA_DESCR_DATA *new_descr;
 	char letter;
 
-	if (virt) {
+	if (virt)
+	{
 		virtual_nr = zone_table[zone].top;
 	}
 
 	sprintf(buf2, "room #%d%s", virtual_nr, virt ? "(virt)" : "");
 
-	if (virtual_nr <= (zone ? zone_table[zone - 1].top : -1)) {
+	if (virtual_nr <= (zone ? zone_table[zone - 1].top : -1))
+	{
 		log("SYSERR: Room #%d is below zone %d.", virtual_nr, zone);
 		exit(1);
 	}
 	while (virtual_nr > zone_table[zone].top)
-		if (++zone > top_of_zone_table) {
+		if (++zone > top_of_zone_table)
+		{
 			log("SYSERR: Room %d is outside of any zone.", virtual_nr);
 			exit(1);
 		}
@@ -1890,7 +2038,8 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 
 	world[room_nr]->zone = zone;
 	world[room_nr]->number = virtual_nr;
-	if (virt) {
+	if (virt)
+	{
 		world[room_nr]->name = str_dup("Виртуальная комната");
 		world[room_nr]->description_num = RoomDescription::add_desc("Похоже, здесь Вам делать нечего.");
 		world[room_nr]->room_flags.flags[0] = 0;
@@ -1898,10 +2047,12 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 		world[room_nr]->room_flags.flags[2] = 0;
 		world[room_nr]->room_flags.flags[3] = 0;
 		world[room_nr]->sector_type = SECT_SECRET;
-	} else {
+	}
+	else
+	{
 		// не ставьте тут конструкцию ? : , т.к. gcc >=4.х вызывает в ней fread_string два раза
 		world[room_nr]->name = fread_string(fl, buf2);
-		if(!world[room_nr]->name)
+		if (!world[room_nr]->name)
 			world[room_nr]->name = str_dup("");
 
 		// тож временная галиматья
@@ -1911,12 +2062,14 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 		world[room_nr]->description_num = RoomDescription::add_desc(temp_buf);
 		free(temp_buf);
 
-		if (!get_line(fl, line)) {
+		if (!get_line(fl, line))
+		{
 			log("SYSERR: Expecting roomflags/sector type of room #%d but file ended!", virtual_nr);
 			exit(1);
 		}
 
-		if (sscanf(line, " %d %s %d ", t, flags, t + 2) != 3) {
+		if (sscanf(line, " %d %s %d ", t, flags, t + 2) != 3)
+		{
 			log("SYSERR: Format error in roomflags/sector type of room #%d", virtual_nr);
 			exit(1);
 		}
@@ -1934,10 +2087,10 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	world[room_nr]->affected_by.flags[2] = 0;
 	world[room_nr]->affected_by.flags[3] = 0;
 	// Обнуляем базовые параметры (пока нет их загрузки)
-	memset(&world[room_nr]->base_property,0,sizeof(room_property_data));
+	memset(&world[room_nr]->base_property, 0, sizeof(room_property_data));
 
 	// Обнуляем добавочные параметры комнаты
-	memset(&world[room_nr]->add_property,0,sizeof(room_property_data));
+	memset(&world[room_nr]->add_property, 0, sizeof(room_property_data));
 
 
 	world[room_nr]->func = NULL;
@@ -1956,19 +2109,23 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 		world[room_nr]->dir_option[i] = NULL;
 
 	world[room_nr]->ex_description = NULL;
-	if (virt) {
+	if (virt)
+	{
 		top_of_world = room_nr++;
 		return;
 	}
 
 	sprintf(buf, "SYSERR: Format error in room #%d (expecting D/E/S)", virtual_nr);
 
-	for (;;) {
-		if (!get_line(fl, line)) {
+	for (;;)
+	{
+		if (!get_line(fl, line))
+		{
 			log(buf);
 			exit(1);
 		}
-		switch (*line) {
+		switch (*line)
+		{
 		case 'D':
 			setup_dir(fl, room_nr, atoi(line + 1));
 			break;
@@ -1978,10 +2135,13 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 			new_descr->description = NULL;
 			new_descr->keyword = fread_string(fl, buf2);
 			new_descr->description = fread_string(fl, buf2);
-			if (new_descr->keyword && new_descr->description) {
+			if (new_descr->keyword && new_descr->description)
+			{
 				new_descr->next = world[room_nr]->ex_description;
 				world[room_nr]->ex_description = new_descr;
-			} else {
+			}
+			else
+			{
 				sprintf(buf, "SYSERR: Format error in room #%d (Corrupt extradesc)", virtual_nr);
 				log(buf);
 				free(new_descr);
@@ -1990,10 +2150,12 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 		case 'S':	/* end of room */
 			/* DG triggers -- script is defined after the end of the room 'T' */
 			/* Ингредиентная магия -- 'I' */
-			do {
+			do
+			{
 				letter = fread_letter(fl);
 				ungetc(letter, fl);
-				switch (letter) {
+				switch (letter)
+				{
 				case 'I':
 					get_line(fl, line);
 					im_parse(&(world[room_nr]->ing_list), line + 1);
@@ -2031,24 +2193,30 @@ void setup_dir(FILE * fl, int room, int dir)
 
 	// парс строки алиаса двери на имя;вининельный падеж, если он есть
 	char *alias = fread_string(fl, buf2);
-	if (alias && *alias) {
+	if (alias && *alias)
+	{
 		std::string buffer(alias);
 		std::string::size_type i = buffer.find('|');
-		if (i != std::string::npos) {
-			world[room]->dir_option[dir]->keyword = str_dup(buffer.substr(0,i).c_str());
+		if (i != std::string::npos)
+		{
+			world[room]->dir_option[dir]->keyword = str_dup(buffer.substr(0, i).c_str());
 			world[room]->dir_option[dir]->vkeyword = str_dup(buffer.substr(++i).c_str());
-		} else {
+		}
+		else
+		{
 			world[room]->dir_option[dir]->keyword = str_dup(buffer.c_str());
 			world[room]->dir_option[dir]->vkeyword = str_dup(buffer.c_str());
 		}
 	}
 	free(alias);
 
-	if (!get_line(fl, line)) {
+	if (!get_line(fl, line))
+	{
 		log("SYSERR: Format error, %s", buf2);
 		exit(1);
 	}
-	if (sscanf(line, " %d %d %d ", t, t + 1, t + 2) != 3) {
+	if (sscanf(line, " %d %d %d ", t, t + 1, t + 2) != 3)
+	{
 		log("SYSERR: Format error, %s", buf2);
 		exit(1);
 	}
@@ -2070,31 +2238,37 @@ void setup_dir(FILE * fl, int room, int dir)
 /* make sure the start rooms exist & resolve their vnums to rnums */
 void check_start_rooms(void)
 {
-	if ((r_mortal_start_room = real_room(mortal_start_room)) == NOWHERE) {
+	if ((r_mortal_start_room = real_room(mortal_start_room)) == NOWHERE)
+	{
 		log("SYSERR:  Mortal start room does not exist.  Change in config.c. %d", mortal_start_room);
 		exit(1);
 	}
-	if ((r_immort_start_room = real_room(immort_start_room)) == NOWHERE) {
+	if ((r_immort_start_room = real_room(immort_start_room)) == NOWHERE)
+	{
 		if (!mini_mud)
 			log("SYSERR:  Warning: Immort start room does not exist.  Change in config.c.");
 		r_immort_start_room = r_mortal_start_room;
 	}
-	if ((r_frozen_start_room = real_room(frozen_start_room)) == NOWHERE) {
+	if ((r_frozen_start_room = real_room(frozen_start_room)) == NOWHERE)
+	{
 		if (!mini_mud)
 			log("SYSERR:  Warning: Frozen start room does not exist.  Change in config.c.");
 		r_frozen_start_room = r_mortal_start_room;
 	}
-	if ((r_helled_start_room = real_room(helled_start_room)) == NOWHERE) {
+	if ((r_helled_start_room = real_room(helled_start_room)) == NOWHERE)
+	{
 		if (!mini_mud)
 			log("SYSERR:  Warning: Hell start room does not exist.  Change in config.c.");
 		r_helled_start_room = r_mortal_start_room;
 	}
-	if ((r_named_start_room = real_room(named_start_room)) == NOWHERE) {
+	if ((r_named_start_room = real_room(named_start_room)) == NOWHERE)
+	{
 		if (!mini_mud)
 			log("SYSERR:  Warning: NAME start room does not exist.  Change in config.c.");
 		r_named_start_room = r_mortal_start_room;
 	}
-	if ((r_unreg_start_room = real_room(unreg_start_room)) == NOWHERE) {
+	if ((r_unreg_start_room = real_room(unreg_start_room)) == NOWHERE)
+	{
 		if (!mini_mud)
 			log("SYSERR:  Warning: UNREG start room does not exist.  Change in config.c.");
 		r_unreg_start_room = r_mortal_start_room;
@@ -2112,14 +2286,15 @@ void renum_world(void)
 			if (world[room]->dir_option[door])
 				if (world[room]->dir_option[door]->to_room != NOWHERE)
 					world[room]->dir_option[door]->to_room =
-					    real_room(world[room]->dir_option[door]->to_room);
+						real_room(world[room]->dir_option[door]->to_room);
 }
 
 // Установка принадлежности к зоне в прототипах
 void renum_obj_zone(void)
 {
 	int i;
-	for (i = 0; i <= top_of_objt; ++i) {
+	for (i = 0; i <= top_of_objt; ++i)
+	{
 		obj_index[i].zone = real_zone(obj_index[i].vnum);
 	}
 }
@@ -2128,7 +2303,8 @@ void renum_obj_zone(void)
 void renum_mob_zone(void)
 {
 	int i;
-	for (i = 0; i <= top_of_mobt; ++i) {
+	for (i = 0; i <= top_of_mobt; ++i)
+	{
 		mob_index[i].zone = real_zone(mob_index[i].vnum);
 	}
 }
@@ -2143,12 +2319,14 @@ void renum_single_table(int zone)
 	int cmd_no, a, b, c, olda, oldb, oldc;
 	char buf[128];
 
-	for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++) {
+	for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
+	{
 		a = b = c = 0;
 		olda = ZCMD.arg1;
 		oldb = ZCMD.arg2;
 		oldc = ZCMD.arg3;
-		switch (ZCMD.command) {
+		switch (ZCMD.command)
+		{
 		case 'M':
 			a = ZCMD.arg1 = real_mobile(ZCMD.arg1);
 			c = ZCMD.arg3 = real_room(ZCMD.arg3);
@@ -2195,8 +2373,10 @@ void renum_single_table(int zone)
 				b = ZCMD.arg2 = real_room(ZCMD.arg2);
 			break;
 		}
-		if (a < 0 || b < 0 || c < 0) {
-			if (!mini_mud) {
+		if (a < 0 || b < 0 || c < 0)
+		{
+			if (!mini_mud)
+			{
 				sprintf(buf, "Invalid vnum %d, cmd disabled", (a < 0) ? olda : ((b < 0) ? oldb : oldc));
 				log_zone_error(zone, cmd_no, buf);
 			}
@@ -2226,12 +2406,14 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 	mob_proto[i].real_abils.con = 11;
 	mob_proto[i].real_abils.cha = 11;
 
-	if (!get_line(mob_f, line)) {
+	if (!get_line(mob_f, line))
+	{
 		log("SYSERR: Format error in mob #%d, file ended after S flag!", nr);
 		exit(1);
 	}
 	if (sscanf(line, " %d %d %d %dd%d+%d %dd%d+%d ",
-		   t, t + 1, t + 2, t + 3, t + 4, t + 5, t + 6, t + 7, t + 8) != 9) {
+			   t, t + 1, t + 2, t + 3, t + 4, t + 5, t + 6, t + 7, t + 8) != 9)
+	{
 		log("SYSERR: Format error in mob #%d, 1th line\n" "...expecting line of form '# # # #d#+# #d#+#'", nr);
 		exit(1);
 	}
@@ -2253,12 +2435,14 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 	mob_proto[i].mob_specials.damsizedice = t[7];
 	mob_proto[i].real_abils.damroll = t[8];
 
-	if (!get_line(mob_f, line)) {
+	if (!get_line(mob_f, line))
+	{
 		log("SYSERR: Format error in mob #%d, 2th line\n"
-		    "...expecting line of form '#d#+# #', but file ended!", nr);
+			"...expecting line of form '#d#+# #', but file ended!", nr);
 		exit(1);
 	}
-	if (sscanf(line, " %dd%d+%d %d", t, t + 1, t + 2, t + 3) != 4) {
+	if (sscanf(line, " %dd%d+%d %d", t, t + 1, t + 2, t + 3) != 4)
+	{
 		log("SYSERR: Format error in mob #%d, 2th line\n" "...expecting line of form '#d#+# #'", nr);
 		exit(1);
 	}
@@ -2268,13 +2452,15 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 	GET_GOLD_SiDs(mob_proto + i) = t[1];
 	GET_EXP(mob_proto + i) = t[3];
 
-	if (!get_line(mob_f, line)) {
+	if (!get_line(mob_f, line))
+	{
 		log("SYSERR: Format error in 3th line of mob #%d\n"
-		    "...expecting line of form '# # #', but file ended!", nr);
+			"...expecting line of form '# # #', but file ended!", nr);
 		exit(1);
 	}
 
-	switch (sscanf(line, " %d %d %d %d", t, t + 1, t + 2, t + 3)) {
+	switch (sscanf(line, " %d %d %d %d", t, t + 1, t + 2, t + 3))
+	{
 	case 3:
 		mob_proto[i].mob_specials.speed = -1;
 		break;
@@ -2322,17 +2508,21 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 	num_arg = atoi(value);
 
 //Added by Adept
-	CASE("Resistances") {
-		if (sscanf(value, "%d %d %d %d %d %d %d", t, t + 1, t + 2, t + 3, t + 4, t + 5, t + 6) != 7) {
+	CASE("Resistances")
+	{
+		if (sscanf(value, "%d %d %d %d %d %d %d", t, t + 1, t + 2, t + 3, t + 4, t + 5, t + 6) != 7)
+		{
 			log("SYSERROR : Excepted format <# # # # # # #> for RESISTANCES in MOB #%d", i);
 			return;
 		}
 		for (k = 0; k < MAX_NUMBER_RESISTANCE; k++)
-				GET_RESIST(mob_proto + i, k) = MIN(300, MAX(-1000, t[k]));
+			GET_RESIST(mob_proto + i, k) = MIN(300, MAX(-1000, t[k]));
 	}
 
-	CASE("Saves") {
-		if (sscanf(value, "%d %d %d %d", t, t + 1, t + 2, t + 3) != 4) {
+	CASE("Saves")
+	{
+		if (sscanf(value, "%d %d %d %d", t, t + 1, t + 2, t + 3) != 4)
+		{
 			log("SYSERROR : Excepted format <# # # #> for SAVES in MOB #%d", i);
 			return;
 		}
@@ -2340,162 +2530,196 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 			GET_SAVE(mob_proto + i, k) = MIN(200, MAX(-200, t[k]));
 	}
 
-	CASE("HPReg") {
+	CASE("HPReg")
+	{
 		RANGE(-200, 200);
 		mob_proto[i].add_abils.hitreg = num_arg;
 	}
 
-	CASE("Armour") {
+	CASE("Armour")
+	{
 		RANGE(0, 100);
 		mob_proto[i].add_abils.armour = num_arg;
 	}
 
-	CASE("PlusMem") {
+	CASE("PlusMem")
+	{
 		RANGE(-200, 200);
 		mob_proto[i].add_abils.manareg = num_arg;
 	}
 
-	CASE("CastSuccess") {
+	CASE("CastSuccess")
+	{
 		RANGE(-200, 200);
 		mob_proto[i].add_abils.cast_success = num_arg;
 	}
 
-	CASE("Success") {
+	CASE("Success")
+	{
 		RANGE(-200, 200);
 		mob_proto[i].add_abils.morale_add = num_arg;
 	}
 
-	CASE("Initiative") {
+	CASE("Initiative")
+	{
 		RANGE(-200, 200);
 		mob_proto[i].add_abils.initiative_add = num_arg;
 	}
 
-	CASE("Absorbe") {
+	CASE("Absorbe")
+	{
 		RANGE(-200, 200);
 		mob_proto[i].add_abils.absorb = num_arg;
 	}
-	CASE("AResist") {
+	CASE("AResist")
+	{
 		RANGE(0, 100);
 		mob_proto[i].add_abils.aresist = num_arg;
 	}
-	CASE("MResist") {
+	CASE("MResist")
+	{
 		RANGE(0, 100);
 		mob_proto[i].add_abils.mresist = num_arg;
 	}
 //End of changed
-	CASE("BareHandAttack") {
+	CASE("BareHandAttack")
+	{
 		RANGE(0, 99);
 		mob_proto[i].mob_specials.attack_type = num_arg;
 	}
 
-	CASE("Destination") {
-		if (mob_proto[i].mob_specials.dest_count < MAX_DEST) {
+	CASE("Destination")
+	{
+		if (mob_proto[i].mob_specials.dest_count < MAX_DEST)
+		{
 			mob_proto[i].mob_specials.dest[mob_proto[i].mob_specials.dest_count] = num_arg;
 			mob_proto[i].mob_specials.dest_count++;
 		}
 	}
 
-	CASE("Str") {
+	CASE("Str")
+	{
 		RANGE(3, 50);
 		mob_proto[i].real_abils.str = num_arg;
 	}
 
-	CASE("StrAdd") {
+	CASE("StrAdd")
+	{
 		RANGE(0, 100);
 		mob_proto[i].add_abils.str_add = num_arg;
 	}
 
-	CASE("Int") {
+	CASE("Int")
+	{
 		RANGE(3, 50);
 		mob_proto[i].real_abils.intel = num_arg;
 	}
 
-	CASE("Wis") {
+	CASE("Wis")
+	{
 		RANGE(3, 50);
 		mob_proto[i].real_abils.wis = num_arg;
 	}
 
-	CASE("Dex") {
+	CASE("Dex")
+	{
 		RANGE(3, 50);
 		mob_proto[i].real_abils.dex = num_arg;
 	}
 
-	CASE("Con") {
+	CASE("Con")
+	{
 		RANGE(3, 50);
 		mob_proto[i].real_abils.con = num_arg;
 	}
 
-	CASE("Cha") {
+	CASE("Cha")
+	{
 		RANGE(3, 50);
 		mob_proto[i].real_abils.cha = num_arg;
 	}
 
-	CASE("Size") {
+	CASE("Size")
+	{
 		RANGE(0, 100);
 		mob_proto[i].real_abils.size = num_arg;
 	}
-  /**** Extended for Adamant */
-	CASE("LikeWork") {
+	/**** Extended for Adamant */
+	CASE("LikeWork")
+	{
 		RANGE(0, 200);
 		mob_proto[i].mob_specials.LikeWork = num_arg;
 	}
 
-	CASE("MaxFactor") {
+	CASE("MaxFactor")
+	{
 		RANGE(0, 255);
 		mob_proto[i].mob_specials.MaxFactor = num_arg;
 	}
 
-	CASE("ExtraAttack") {
+	CASE("ExtraAttack")
+	{
 		RANGE(0, 255);
 		mob_proto[i].mob_specials.ExtraAttack = num_arg;
 	}
 
-	CASE("Class") {
+	CASE("Class")
+	{
 		RANGE(100, 116);
 		mob_proto[i].player.chclass = num_arg;
 	}
 
 
-	CASE("Height") {
+	CASE("Height")
+	{
 		RANGE(0, 200);
 		mob_proto[i].player.height = num_arg;
 	}
 
-	CASE("Weight") {
+	CASE("Weight")
+	{
 		RANGE(0, 200);
 		mob_proto[i].player.weight = num_arg;
 	}
 
-	CASE("Race") {
+	CASE("Race")
+	{
 		RANGE(0, 20);
 		mob_proto[i].player.Race = num_arg;
 	}
 
-	CASE("Special_Bitvector") {
+	CASE("Special_Bitvector")
+	{
 		asciiflag_conv((char *) value, &mob_proto[i].mob_specials.npc_flags);
-  /**** Empty now */
+		/**** Empty now */
 	}
 
-/* Gorrah */
-	CASE("Feat") {
-		if (sscanf(value, "%d", t) != 1) {
+	/* Gorrah */
+	CASE("Feat")
+	{
+		if (sscanf(value, "%d", t) != 1)
+		{
 			log("SYSERROR : Excepted format <#> for FEAT in MOB #%d", i);
 			return;
 		}
-		if (t[0] >= MAX_FEATS || t[0] <= 0) {
+		if (t[0] >= MAX_FEATS || t[0] <= 0)
+		{
 			log("SYSERROR : Unknown feat No %d for MOB #%d", t[0], i);
 			return;
 		}
 		SET_FEAT(mob_proto + i, t[0]);
 	}
-/* End of changes */
+	/* End of changes */
 
-	CASE("Skill") {
-		if (sscanf(value, "%d %d", t, t + 1) != 2) {
+	CASE("Skill")
+	{
+		if (sscanf(value, "%d %d", t, t + 1) != 2)
+		{
 			log("SYSERROR : Excepted format <# #> for SKILL in MOB #%d", i);
 			return;
 		}
-		if (t[0] > MAX_SKILLS || t[0] < 1) {
+		if (t[0] > MAX_SKILLS || t[0] < 1)
+		{
 			log("SYSERROR : Unknown skill No %d for MOB #%d", t[0], i);
 			return;
 		}
@@ -2503,12 +2727,15 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 		(mob_proto + i)->set_skill(t[0], t[1]);
 	}
 
-	CASE("Spell") {
-		if (sscanf(value, "%d", t + 0) != 1) {
+	CASE("Spell")
+	{
+		if (sscanf(value, "%d", t + 0) != 1)
+		{
 			log("SYSERROR : Excepted format <#> for SPELL in MOB #%d", i);
 			return;
 		}
-		if (t[0] > MAX_SPELLS || t[0] < 1) {
+		if (t[0] > MAX_SPELLS || t[0] < 1)
+		{
 			log("SYSERROR : Unknown spell No %d for MOB #%d", t[0], i);
 			return;
 		}
@@ -2517,14 +2744,16 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 		log("Set spell %d to %d(%s)", t[0], GET_SPELL_MEM(mob_proto + i, t[0]), GET_NAME(mob_proto + i));
 	}
 
-	CASE("Helper") {
+	CASE("Helper")
+	{
 		CREATE(helper, struct helper_data_type, 1);
 		helper->mob_vnum = num_arg;
 		helper->next_helper = GET_HELPER(mob_proto + i);
 		GET_HELPER(mob_proto + i) = helper;
 	}
 
-	if (!matched) {
+	if (!matched)
+	{
 		log("SYSERR: Warning: unrecognized espec keyword %s in mob #%d", keyword, nr);
 	}
 }
@@ -2536,14 +2765,16 @@ void parse_espec(char *buf, int i, int nr)
 {
 	char *ptr;
 
-	if ((ptr = strchr(buf, ':')) != NULL) {
+	if ((ptr = strchr(buf, ':')) != NULL)
+	{
 		*(ptr++) = '\0';
 		while (a_isspace(*ptr))
 			ptr++;
 #if 0				/* Need to evaluate interpret_espec()'s NULL handling. */
 	}
 #else
-	} else
+	}
+	else
 		ptr = "";
 #endif
 	interpret_espec(buf, ptr, i, nr);
@@ -2556,13 +2787,16 @@ void parse_enhanced_mob(FILE * mob_f, int i, int nr)
 
 	parse_simple_mob(mob_f, i, nr);
 
-	while (get_line(mob_f, line)) {
+	while (get_line(mob_f, line))
+	{
 		if (!strcmp(line, "E"))	/* end of the enhanced section */
 			return;
-		else if (*line == '#') {	/* we've hit the next mob, maybe? */
+		else if (*line == '#')  	/* we've hit the next mob, maybe? */
+		{
 			log("SYSERR: Unterminated E section in mob #%d", nr);
 			exit(1);
-		} else
+		}
+		else
 			parse_espec(line, i, nr);
 	}
 
@@ -2577,10 +2811,12 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 	string obj_pad;
 	char *ptr;
 	int i, j, k;
-	for (i = 0; i < NUM_PADS; i++) {
+	for (i = 0; i < NUM_PADS; i++)
+	{
 		obj_pad = string(GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i));
 		j = obj_pad.find("@p");
-		if (j > 0) {
+		if (j > 0)
+		{
 			// Родитель найден прописываем его.
 			ptr = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i);
 			if (GET_OBJ_PNAME(obj, i) != ptr)
@@ -2591,7 +2827,8 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 
 			GET_OBJ_PNAME(obj, i) = str_dup(obj_pad.c_str());
 			// Если имя в именительном то дублируем запись
-			if (i == 0) {
+			if (i == 0)
+			{
 				obj->short_description = str_dup(obj_pad.c_str());
 				ptr = obj_proto[GET_OBJ_RNUM(obj)]->short_description;
 				if (obj->short_description != ptr)
@@ -2606,13 +2843,17 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 void dl_list_copy(load_list * *pdst, load_list * src)
 {
 	load_list::iterator p;
-	if (src == NULL) {
+	if (src == NULL)
+	{
 		*pdst = NULL;
 		return;
-	} else {
+	}
+	else
+	{
 		*pdst = new load_list;
 		p = src->begin();
-		while (p != src->end()) {
+		while (p != src->end())
+		{
 			(*pdst)->push_back(*p);
 			p++;
 		}
@@ -2634,8 +2875,10 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 
 	p = mob_proto[GET_MOB_RNUM(ch)].dl_list->begin();
 
-	while (p != mob_proto[GET_MOB_RNUM(ch)].dl_list->end()) {
-		switch ((*p)->load_type) {
+	while (p != mob_proto[GET_MOB_RNUM(ch)].dl_list->end())
+	{
+		switch ((*p)->load_type)
+		{
 		case DL_LOAD_ANYWAY:
 			last_load = load;
 		case DL_LOAD_ANYWAY_NC:
@@ -2651,21 +2894,26 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 			load = false;
 		else
 			load = true;
-		if (load) {
+		if (load)
+		{
 			tobj = read_object((*p)->obj_vnum, VIRTUAL);
-			if (tobj == NULL) {
+			if (tobj == NULL)
+			{
 				sprintf(buf,
-					"Попытка загрузки в труп (VNUM:%d) несуществующего объекта (VNUM:%d).",
-					GET_MOB_VNUM(ch), (*p)->obj_vnum);
+						"Попытка загрузки в труп (VNUM:%d) несуществующего объекта (VNUM:%d).",
+						GET_MOB_VNUM(ch), (*p)->obj_vnum);
 				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
-			} else {
+			}
+			else
+			{
 				// Проверяем мах_ин_ворлд и вероятность загрузки, если это необходимо для такого DL_LOAD_TYPE
 				if (GET_OBJ_MIW(tobj) >= obj_index[GET_OBJ_RNUM(tobj)].stored +
-					obj_index[GET_OBJ_RNUM(tobj)].number || GET_OBJ_MIW(tobj) == -1)
+						obj_index[GET_OBJ_RNUM(tobj)].number || GET_OBJ_MIW(tobj) == -1)
 					miw = true;
 				else
 					miw = false;
-				switch (DL_LOAD_TYPE) {
+				switch (DL_LOAD_TYPE)
+				{
 				case DL_ORDINARY:	/*Обычная загрузка - без выкрутасов */
 					if (miw && (number(1, 100) <= (*p)->load_prob))
 						load = true;
@@ -2687,20 +2935,26 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 						load = false;
 					break;
 				}
-				if (load) {
+				if (load)
+				{
 					GET_OBJ_PARENT(tobj) = GET_MOB_VNUM(ch);
 					trans_obj_name(tobj, ch);
 					// Добавлена проверка на отсутствие трупа
-					if (MOB_FLAGGED(ch, MOB_CORPSE)) {
+					if (MOB_FLAGGED(ch, MOB_CORPSE))
+					{
 						act("На земле остал$U лежать $o.", FALSE, ch, tobj, 0, TO_ROOM);
 						obj_to_room(tobj, IN_ROOM(ch));
-					} else {
+					}
+					else
+					{
 						if ((DL_LOAD_TYPE == DL_SKIN) && (corpse->carried_by == chr))
 							can_carry_obj(chr, tobj);
 						else
 							obj_to_obj(tobj, corpse);
 					}
-				} else {
+				}
+				else
+				{
 					extract_obj(tobj);
 					load = false;
 				}
@@ -2719,13 +2973,15 @@ int dl_parse(load_list ** dl_list, char *line)
 	int vnum, prob, type, spec;
 	struct load_data *new_item;
 
-	if (sscanf(line, "%d %d %d %d", &vnum, &prob, &type, &spec) != 4) {
+	if (sscanf(line, "%d %d %d %d", &vnum, &prob, &type, &spec) != 4)
+	{
 		// Ошибка чтения.
 		log("SYSERR: Parse death load list (bad param count).");
 		return FALSE;
 	};
 	// проверяем существование прототипа в мире (предметы уже должны быть загружены)
-	if (*dl_list == NULL) {
+	if (*dl_list == NULL)
+	{
 		// Создаем новый список.
 		*dl_list = new load_list;
 	}
@@ -2758,7 +3014,7 @@ void parse_mobile(FILE * mob_f, int nr)
 	 */
 	mob_proto[i].player_specials = &dummy_mob;
 	sprintf(buf2, "mob vnum %d", nr);
-  /***** String data *****/
+	/***** String data *****/
 	mob_proto[i].player.name = fread_string(mob_f, buf2);	/* aliases */
 	tmpptr = mob_proto[i].player.short_descr = fread_string(mob_f, buf2);
 	/* real name */
@@ -2778,25 +3034,29 @@ void parse_mobile(FILE * mob_f, int nr)
 	// mob_proto[i].mob_specials.Questor = fread_string(mob_f, buf2);
 
 	/* *** Numeric data *** */
-	if (!get_line(mob_f, line)) {
+	if (!get_line(mob_f, line))
+	{
 		log("SYSERR: Format error after string section of mob #%d\n"
-		    "...expecting line of form '# # # {S | E}', but file ended!\n%s", nr, line);
+			"...expecting line of form '# # # {S | E}', but file ended!\n%s", nr, line);
 		exit(1);
 	}
 #ifdef CIRCLE_ACORN		/* Ugh. */
-	if (sscanf(line, "%s %s %d %s", f1, f2, t + 2, &letter) != 4) {
+	if (sscanf(line, "%s %s %d %s", f1, f2, t + 2, &letter) != 4)
+	{
 #else
-	if (sscanf(line, "%s %s %d %c", f1, f2, t + 2, &letter) != 4) {
+	if (sscanf(line, "%s %s %d %c", f1, f2, t + 2, &letter) != 4)
+	{
 #endif
 		log("SYSERR: Format error after string section of mob #%d\n"
-		    "...expecting line of form '# # # {S | E}'\n%s", nr, line);
+			"...expecting line of form '# # # {S | E}'\n%s", nr, line);
 		exit(1);
 	}
 	asciiflag_conv(f1, &MOB_FLAGS(mob_proto + i, 0));
 	SET_BIT(MOB_FLAGS(mob_proto + i, MOB_ISNPC), MOB_ISNPC);
 	asciiflag_conv(f2, &AFF_FLAGS(mob_proto + i, 0));
 	GET_ALIGNMENT(mob_proto + i) = t[2];
-	switch (UPPER(letter)) {
+	switch (UPPER(letter))
+	{
 	case 'S':		/* Simple monsters */
 		parse_simple_mob(mob_f, i, nr);
 		break;
@@ -2814,10 +3074,12 @@ void parse_mobile(FILE * mob_f, int nr)
 	/* Ингредиентная магия -- 'I' */
 	/* Объекты загружаемые по-смертно -- 'D' */
 
-	do {
+	do
+	{
 		letter = fread_letter(mob_f);
 		ungetc(letter, mob_f);
-		switch (letter) {
+		switch (letter)
+		{
 		case 'I':
 			get_line(mob_f, line);
 			im_parse(&mob_proto[i].ing_list, line + 1);
@@ -2842,45 +3104,45 @@ void parse_mobile(FILE * mob_f, int nr)
 	mob_proto[i].nr = i;
 	mob_proto[i].desc = NULL;
 
-  /**** See reading mob
-  log("%s/%s/%s/%s/%s/%s",GET_PAD(mob_proto+i,0),GET_PAD(mob_proto+i,1),
-                          GET_PAD(mob_proto+i,2),GET_PAD(mob_proto+i,3),
-                          GET_PAD(mob_proto+i,4),GET_PAD(mob_proto+i,5));
+	/**** See reading mob
+	log("%s/%s/%s/%s/%s/%s",GET_PAD(mob_proto+i,0),GET_PAD(mob_proto+i,1),
+	                        GET_PAD(mob_proto+i,2),GET_PAD(mob_proto+i,3),
+	                        GET_PAD(mob_proto+i,4),GET_PAD(mob_proto+i,5));
 
-  log("Str: %d, Dex: %d, Con: %d, Int: %d, Wis: %d, Cha: %d, Size: %d",
-      GET_STR(mob_proto+i),GET_DEX(mob_proto+i),GET_CON(mob_proto+i),
-      GET_INT(mob_proto+i),GET_WIS(mob_proto+i),GET_CHA(mob_proto+i),
-      GET_SIZE(mob_proto+i));
+	log("Str: %d, Dex: %d, Con: %d, Int: %d, Wis: %d, Cha: %d, Size: %d",
+	    GET_STR(mob_proto+i),GET_DEX(mob_proto+i),GET_CON(mob_proto+i),
+	    GET_INT(mob_proto+i),GET_WIS(mob_proto+i),GET_CHA(mob_proto+i),
+	    GET_SIZE(mob_proto+i));
 
-  log("Weight: %d, Height: %d, Damage: %dD%d",
-       GET_WEIGHT(mob_proto+i),
-       GET_HEIGHT(mob_proto+i),
-       mob_proto[i].mob_specials.damnodice,
-       mob_proto[i].mob_specials.damsizedice);
+	log("Weight: %d, Height: %d, Damage: %dD%d",
+	     GET_WEIGHT(mob_proto+i),
+	     GET_HEIGHT(mob_proto+i),
+	     mob_proto[i].mob_specials.damnodice,
+	     mob_proto[i].mob_specials.damsizedice);
 
-  log("Level: %d, HR: %d, DR: %d, AC: %d",
-      GET_LEVEL(mob_proto + i),
-      mob_proto[i].real_abils.damroll,
-      mob_proto[i].real_abils.hitroll,
-      mob_proto[i].real_abils.armor);
+	log("Level: %d, HR: %d, DR: %d, AC: %d",
+	    GET_LEVEL(mob_proto + i),
+	    mob_proto[i].real_abils.damroll,
+	    mob_proto[i].real_abils.hitroll,
+	    mob_proto[i].real_abils.armor);
 
-  log("MaxHit: %d, Hit: %dD%d+%d, Mv: %d",
-      mob_proto[i].points.max_hit,
-      mob_proto[i].ManaMemNeeded,
-      mob_proto[i].ManaMemStored,
-      mob_proto[i].points.hit,
-      mob_proto[i].points.move);
-  for(j=1, count=0; j<MAX_SPELLS; j++)
-     {if (GET_SPELL_MEM(mob_proto+i,j))
-         count += sprintf(buf+count," %d ",j);
-     }
-  if (count) log("SPELLS : %s", buf);
-  for(j=1, count=0; j<MAX_SKILLS; j++)
-     {if ((mob_proto+i)->get_skill(j))
-         count += sprintf(buf+count," %d ",j);
-     }
-  if (count) log("SKILLS : %s", buf);
-  */
+	log("MaxHit: %d, Hit: %dD%d+%d, Mv: %d",
+	    mob_proto[i].points.max_hit,
+	    mob_proto[i].ManaMemNeeded,
+	    mob_proto[i].ManaMemStored,
+	    mob_proto[i].points.hit,
+	    mob_proto[i].points.move);
+	for(j=1, count=0; j<MAX_SPELLS; j++)
+	   {if (GET_SPELL_MEM(mob_proto+i,j))
+	       count += sprintf(buf+count," %d ",j);
+	   }
+	if (count) log("SPELLS : %s", buf);
+	for(j=1, count=0; j<MAX_SKILLS; j++)
+	   {if ((mob_proto+i)->get_skill(j))
+	       count += sprintf(buf+count," %d ",j);
+	   }
+	if (count) log("SKILLS : %s", buf);
+	*/
 
 	top_of_mobt = i++;
 }
@@ -2907,7 +3169,7 @@ char *parse_object(FILE * obj_f, int nr)
 
 	tobj->item_number = i;
 
-  /**** Add some initialization fields */
+	/**** Add some initialization fields */
 	tobj->obj_flags.Obj_max = 100;
 	tobj->obj_flags.Obj_cur = 100;
 	tobj->obj_flags.Obj_sex = 1;
@@ -2918,7 +3180,8 @@ char *parse_object(FILE * obj_f, int nr)
 	sprintf(buf2, "object #%d", nr);
 
 	/* *** string data *** */
-	if ((tobj->name = fread_string(obj_f, buf2)) == NULL) {
+	if ((tobj->name = fread_string(obj_f, buf2)) == NULL)
+	{
 		log("SYSERR: Null obj name or format error at or near %s", buf2);
 		exit(1);
 	}
@@ -2927,7 +3190,8 @@ char *parse_object(FILE * obj_f, int nr)
 	CREATE(tobj->PNames[0], char, strlen(tobj->short_description) + 1);
 	strcpy(tobj->PNames[0], tobj->short_description);
 
-	for (j = 1; j < NUM_PADS; j++) {
+	for (j = 1; j < NUM_PADS; j++)
+	{
 		tobj->PNames[j] = fread_string(obj_f, buf2);
 		*tobj->PNames[j] = LOWER(*tobj->PNames[j]);
 	}
@@ -2941,11 +3205,13 @@ char *parse_object(FILE * obj_f, int nr)
 		CAP(tmpptr);
 	tobj->action_description = fread_string(obj_f, buf2);
 
-	if (!get_line(obj_f, line)) {
+	if (!get_line(obj_f, line))
+	{
 		log("SYSERR: Expecting *1th* numeric line of %s, but file ended!", buf2);
 		exit(1);
 	}
-	if ((retval = sscanf(line, " %s %d %d %d", f0, t + 1, t + 2, t + 3)) != 4) {
+	if ((retval = sscanf(line, " %s %d %d %d", f0, t + 1, t + 2, t + 3)) != 4)
+	{
 		log("SYSERR: Format error in *1th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
@@ -2954,11 +3220,13 @@ char *parse_object(FILE * obj_f, int nr)
 	tobj->obj_flags.Obj_cur = MIN(t[1], t[2]);
 	tobj->obj_flags.Obj_mater = t[3];
 
-	if (!get_line(obj_f, line)) {
+	if (!get_line(obj_f, line))
+	{
 		log("SYSERR: Expecting *2th* numeric line of %s, but file ended!", buf2);
 		exit(1);
 	}
-	if ((retval = sscanf(line, " %d %d %d %d", t, t + 1, t + 2, t + 3)) != 4) {
+	if ((retval = sscanf(line, " %d %d %d %d", t, t + 1, t + 2, t + 3)) != 4)
+	{
 		log("SYSERR: Format error in *2th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
@@ -2967,57 +3235,65 @@ char *parse_object(FILE * obj_f, int nr)
 	tobj->obj_flags.Obj_spell = t[2];
 	tobj->obj_flags.Obj_level = t[3];
 
-	if (!get_line(obj_f, line)) {
+	if (!get_line(obj_f, line))
+	{
 		log("SYSERR: Expecting *3th* numeric line of %s, but file ended!", buf2);
 		exit(1);
 	}
-	if ((retval = sscanf(line, " %s %s %s", f0, f1, f2)) != 3) {
+	if ((retval = sscanf(line, " %s %s %s", f0, f1, f2)) != 3)
+	{
 		log("SYSERR: Format error in *3th* numeric line (expecting 3 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
 	asciiflag_conv(f0, &tobj->obj_flags.affects);
-							 /*** Affects */
+	/*** Affects */
 	asciiflag_conv(f1, &tobj->obj_flags.anti_flag);
-							 /*** Miss for ...    */
+	/*** Miss for ...    */
 	asciiflag_conv(f2, &tobj->obj_flags.no_flag);
-							 /*** Deny for ...    */
+	/*** Deny for ...    */
 
-	if (!get_line(obj_f, line)) {
+	if (!get_line(obj_f, line))
+	{
 		log("SYSERR: Expecting *3th* numeric line of %s, but file ended!", buf2);
 		exit(1);
 	}
-	if ((retval = sscanf(line, " %d %s %s", t, f1, f2)) != 3) {
+	if ((retval = sscanf(line, " %d %s %s", t, f1, f2)) != 3)
+	{
 		log("SYSERR: Format error in *3th* misc line (expecting 3 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
 	tobj->obj_flags.type_flag = t[0];	    /*** What's a object */
 	asciiflag_conv(f1, &tobj->obj_flags.extra_flags);
-							    /*** Its effects     */
+	/*** Its effects     */
 	asciiflag_conv(f2, &tobj->obj_flags.wear_flags);
-							   /*** Wear on ...     */
+	/*** Wear on ...     */
 
-	if (!get_line(obj_f, line)) {
+	if (!get_line(obj_f, line))
+	{
 		log("SYSERR: Expecting *5th* numeric line of %s, but file ended!", buf2);
 		exit(1);
 	}
-	if ((retval = sscanf(line, "%s %d %d %d", f0, t + 1, t + 2, t + 3)) != 4) {
+	if ((retval = sscanf(line, "%s %d %d %d", f0, t + 1, t + 2, t + 3)) != 4)
+	{
 		log("SYSERR: Format error in *5th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
 	asciiflag_conv(f0, &tobj->obj_flags.value);
-						    /****/
+	/****/
 	tobj->obj_flags.value[1] = t[1];
-					  /****/
+	/****/
 	tobj->obj_flags.value[2] = t[2];
-					  /****/
+	/****/
 	tobj->obj_flags.value[3] = t[3];
-					  /****/
+	/****/
 
-	if (!get_line(obj_f, line)) {
+	if (!get_line(obj_f, line))
+	{
 		log("SYSERR: Expecting *6th* numeric line of %s, but file ended!", buf2);
 		exit(1);
 	}
-	if ((retval = sscanf(line, "%d %d %d %d", t, t + 1, t + 2, t + 3)) != 4) {
+	if ((retval = sscanf(line, "%d %d %d %d", t, t + 1, t + 2, t + 3)) != 4)
+	{
 		log("SYSERR: Format error in *6th* numeric line (expecting 4 args, got %d), %s", retval, buf2);
 		exit(1);
 	}
@@ -3027,7 +3303,8 @@ char *parse_object(FILE * obj_f, int nr)
 	tobj->obj_flags.cost_per_day_on = t[3];
 
 	/* check to make sure that weight of containers exceeds curr. quantity */
-	if (tobj->obj_flags.type_flag == ITEM_DRINKCON || tobj->obj_flags.type_flag == ITEM_FOUNTAIN) {
+	if (tobj->obj_flags.type_flag == ITEM_DRINKCON || tobj->obj_flags.type_flag == ITEM_FOUNTAIN)
+	{
 		if (tobj->obj_flags.weight < tobj->obj_flags.value[1])
 			tobj->obj_flags.weight = tobj->obj_flags.value[1] + 5;
 	}
@@ -3036,41 +3313,50 @@ char *parse_object(FILE * obj_f, int nr)
 	strcat(buf2, ", after numeric constants\n" "...expecting 'E', 'A', '$', or next object number");
 	j = 0;
 
-	for (;;) {
-		if (!get_line(obj_f, line)) {
+	for (;;)
+	{
+		if (!get_line(obj_f, line))
+		{
 			log("SYSERR: Format error in %s", buf2);
 			exit(1);
 		}
-		switch (*line) {
+		switch (*line)
+		{
 		case 'E':
 			CREATE(new_descr, EXTRA_DESCR_DATA, 1);
 			new_descr->keyword = NULL;
 			new_descr->description = NULL;
 			new_descr->keyword = fread_string(obj_f, buf2);
 			new_descr->description = fread_string(obj_f, buf2);
-			if (new_descr->keyword && new_descr->description) {
+			if (new_descr->keyword && new_descr->description)
+			{
 				new_descr->next = tobj->ex_description;
 				tobj->ex_description = new_descr;
-			} else {
+			}
+			else
+			{
 				sprintf(buf, "SYSERR: Format error in %s (Corrupt extradesc)", buf2);
 				log(buf);
 				free(new_descr);
 			}
 			break;
 		case 'A':
-			if (j >= MAX_OBJ_AFFECT) {
+			if (j >= MAX_OBJ_AFFECT)
+			{
 				log("SYSERR: Too many A fields (%d max), %s", MAX_OBJ_AFFECT, buf2);
 				exit(1);
 			}
-			if (!get_line(obj_f, line)) {
+			if (!get_line(obj_f, line))
+			{
 				log("SYSERR: Format error in 'A' field, %s\n"
-				    "...expecting 2 numeric constants but file ended!", buf2);
+					"...expecting 2 numeric constants but file ended!", buf2);
 				exit(1);
 			}
-			if ((retval = sscanf(line, " %d %d ", t, t + 1)) != 2) {
+			if ((retval = sscanf(line, " %d %d ", t, t + 1)) != 2)
+			{
 				log("SYSERR: Format error in 'A' field, %s\n"
-				    "...expecting 2 numeric arguments, got %d\n"
-				    "...offending line: '%s'", buf2, retval, line);
+					"...expecting 2 numeric arguments, got %d\n"
+					"...offending line: '%s'", buf2, retval, line);
 				exit(1);
 			}
 			tobj->affected[j].location = t[0];
@@ -3119,7 +3405,8 @@ void load_zones(FILE * fl, char *zonename)
 	Z.activity = 0;
 	strcpy(zname, zonename);
 
-	while (get_line(fl, buf)) {
+	while (get_line(fl, buf))
+	{
 		ptr = buf;
 		skip_spaces(&ptr);
 		if (*ptr == 'A')
@@ -3131,7 +3418,8 @@ void load_zones(FILE * fl, char *zonename)
 	rewind(fl);
 	if (Z.typeA_count)
 		CREATE(Z.typeA_list, int, Z.typeA_count);
-	if (Z.typeB_count) {
+	if (Z.typeB_count)
+	{
 		CREATE(Z.typeB_list, int, Z.typeB_count);
 		CREATE(Z.typeB_flag, bool, Z.typeB_count);
 		// сбрасываем все флаги
@@ -3139,15 +3427,18 @@ void load_zones(FILE * fl, char *zonename)
 			Z.typeB_flag[b_number - 1] = FALSE;
 	}
 
-	if (num_of_cmds == 0) {
+	if (num_of_cmds == 0)
+	{
 		log("SYSERR: %s is empty!", zname);
 		exit(1);
-	} else
+	}
+	else
 		CREATE(Z.cmd, struct reset_com, num_of_cmds);
 
 	line_num += get_line(fl, buf);
 
-	if (sscanf(buf, "#%d", &Z.number) != 1) {
+	if (sscanf(buf, "#%d", &Z.number) != 1)
+	{
 		log("SYSERR: Format error in %s, line %d", zname, line_num);
 		exit(1);
 	}
@@ -3168,9 +3459,11 @@ void load_zones(FILE * fl, char *zonename)
 //-MZ.load
 	*t1 = 0;
 	*t2 = 0;
-	if (sscanf(buf, " %d %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, (int *)&Z.reset_idle, t1, t2) < 4) {
+	if (sscanf(buf, " %d %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, (int *)&Z.reset_idle, t1, t2) < 4)
+	{
 		// если нет четырех констант, то, возможно, это старый формат -- попробуем прочитать три
-		if (sscanf(buf, " %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, t1, t2) < 3) {
+		if (sscanf(buf, " %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, t1, t2) < 3)
+		{
 			log("SYSERR: Format error in 3-constant line of %s", zname);
 			exit(1);
 		}
@@ -3179,8 +3472,10 @@ void load_zones(FILE * fl, char *zonename)
 	Z.locked = !str_cmp(t2, "locked");
 	cmd_no = 0;
 
-	for (;;) {
-		if ((tmp = get_line(fl, buf)) == 0) {
+	for (;;)
+	{
+		if ((tmp = get_line(fl, buf)) == 0)
+		{
 			log("SYSERR: Format error in %s - premature end of file", zname);
 			exit(1);
 		}
@@ -3194,46 +3489,58 @@ void load_zones(FILE * fl, char *zonename)
 		// Новые параметры формата файла:
 		// A номер_зоны -- зона типа A из списка
 		// B номер_зоны -- зона типа B из списка
-		if (ZCMD.command == 'A') {
+		if (ZCMD.command == 'A')
+		{
 			sscanf(ptr, " %d", &Z.typeA_list[a_number]);
 			a_number++;
 			continue;
 		}
-		if (ZCMD.command == 'B') {
+		if (ZCMD.command == 'B')
+		{
 			sscanf(ptr, " %d", &Z.typeB_list[b_number]);
 			b_number++;
 			continue;
 		}
 
-		if (ZCMD.command == 'S' || ZCMD.command == '$') {
+		if (ZCMD.command == 'S' || ZCMD.command == '$')
+		{
 			ZCMD.command = 'S';
 			break;
 		}
 		error = 0;
 		ZCMD.arg4 = -1;
-		if (strchr("MOEGPDTVQF", ZCMD.command) == NULL) {	/* a 3-arg command */
+		if (strchr("MOEGPDTVQF", ZCMD.command) == NULL)  	/* a 3-arg command */
+		{
 			if (sscanf(ptr, " %d %d %d ", &tmp, &ZCMD.arg1, &ZCMD.arg2) != 3)
 				error = 1;
-		} else if (ZCMD.command == 'V') {	/* a string-arg command */
+		}
+		else if (ZCMD.command == 'V')  	/* a string-arg command */
+		{
 			if (sscanf(ptr, " %d %d %d %d %s %s", &tmp, &ZCMD.arg1, &ZCMD.arg2, &ZCMD.arg3, t1, t2) != 6)
 				error = 1;
-			else {
+			else
+			{
 				ZCMD.sarg1 = str_dup(t1);
 				ZCMD.sarg2 = str_dup(t2);
 			}
-		} else if (ZCMD.command == 'Q') {	/* a number command */
+		}
+		else if (ZCMD.command == 'Q')  	/* a number command */
+		{
 			if (sscanf(ptr, " %d %d", &tmp, &ZCMD.arg1) != 2)
 				error = 1;
 			else
 				tmp = 0;
-		} else {
+		}
+		else
+		{
 			if (sscanf(ptr, " %d %d %d %d %d", &tmp, &ZCMD.arg1, &ZCMD.arg2, &ZCMD.arg3, &ZCMD.arg4) < 4)
 				error = 1;
 		}
 
 		ZCMD.if_flag = tmp;
 
-		if (error) {
+		if (error)
+		{
 			log("SYSERR: Format error in %s, line %d: '%s'", zname, line_num, buf);
 			exit(1);
 		}
@@ -3248,7 +3555,8 @@ void load_zones(FILE * fl, char *zonename)
 
 void get_one_line(FILE * fl, char *buf)
 {
-	if (fgets(buf, READ_SIZE, fl) == NULL) {
+	if (fgets(buf, READ_SIZE, fl) == NULL)
+	{
 		log("SYSERR: error reading help file: not terminated with $?");
 		exit(1);
 	}
@@ -3268,10 +3576,12 @@ void load_help(FILE * fl)
 
 	/* get the first keyword line */
 	get_one_line(fl, key);
-	while (*key != '$') {	/* read in the corresponding help entry */
+	while (*key != '$')  	/* read in the corresponding help entry */
+	{
 		strcpy(entry, strcat(key, "\r\n"));
 		get_one_line(fl, line);
-		while (*line != '#') {
+		while (*line != '#')
+		{
 			strcat(entry, strcat(line, "\r\n"));
 			get_one_line(fl, line);
 		}
@@ -3286,7 +3596,8 @@ void load_help(FILE * fl)
 		el.duplicate = 0;
 		el.entry = str_dup(entry);
 		scan = one_word(key, next_key);
-		while (*next_key) {
+		while (*next_key)
+		{
 			el.keyword = str_dup(next_key);
 			help_table[top_of_helpt++] = el;
 			el.duplicate++;
@@ -3331,10 +3642,12 @@ int vnum_mobile(char *searchname, CHAR_DATA * ch)
 {
 	int nr, found = 0;
 
-	for (nr = 0; nr <= top_of_mobt; nr++) {
-		if (isname(searchname, mob_proto[nr].player.name)) {
+	for (nr = 0; nr <= top_of_mobt; nr++)
+	{
+		if (isname(searchname, mob_proto[nr].player.name))
+		{
 			sprintf(buf, "%3d. [%5d] %s\r\n", ++found,
-				mob_index[nr].vnum, mob_proto[nr].player.short_descr);
+					mob_index[nr].vnum, mob_proto[nr].player.short_descr);
 			send_to_char(buf, ch);
 		}
 	}
@@ -3347,8 +3660,10 @@ int vnum_object(char *searchname, CHAR_DATA * ch)
 {
 	int nr, found = 0;
 
-	for (nr = 0; nr <= top_of_objt; nr++) {
-		if (isname(searchname, obj_proto[nr]->name)) {
+	for (nr = 0; nr <= top_of_objt; nr++)
+	{
+		if (isname(searchname, obj_proto[nr]->name))
+		{
 			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, obj_index[nr].vnum, obj_proto[nr]->short_description);
 			send_to_char(buf, ch);
 		}
@@ -3373,23 +3688,28 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 
 	text = (char *)calloc(1, 1);
 
-	for (counter = 0, plane = 0, plane_offset = 0; plane < NUM_PLANES; counter++) {
-		if (*extra_bits[counter] == '\n') {
+	for (counter = 0, plane = 0, plane_offset = 0; plane < NUM_PLANES; counter++)
+	{
+		if (*extra_bits[counter] == '\n')
+		{
 			plane++;
 			plane_offset = 0;
 			continue;
 		};
-		if (is_abbrev(searchname, extra_bits[counter])) {
+		if (is_abbrev(searchname, extra_bits[counter]))
+		{
 			f = TRUE;
 			break;
 		}
 		plane_offset++;
 	}
 	if (f)
-		for (nr = 0; nr <= top_of_objt; nr++) {
-			if (obj_proto[nr]->obj_flags.extra_flags.flags[plane] & (1 << (plane_offset))) {
+		for (nr = 0; nr <= top_of_objt; nr++)
+		{
+			if (obj_proto[nr]->obj_flags.extra_flags.flags[plane] & (1 << (plane_offset)))
+			{
 				sprintf(buf, "%3d. [%5d] %s :   %s\r\n", ++found,
-					obj_index[nr].vnum, obj_proto[nr]->short_description, extra_bits[counter]);
+						obj_index[nr].vnum, obj_proto[nr]->short_description, extra_bits[counter]);
 				text = (char *)realloc(text, strlen(text) + strlen(buf) + 1);
 				text = strcat(text, buf);
 //				send_to_char(buf, ch);
@@ -3397,19 +3717,23 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 		};
 	f = FALSE;
 // ---------------------
-	for (counter = 0; *apply_types[counter] != '\n'; counter++) {
-		if (is_abbrev(searchname, apply_types[counter])) {
+	for (counter = 0; *apply_types[counter] != '\n'; counter++)
+	{
+		if (is_abbrev(searchname, apply_types[counter]))
+		{
 			f = TRUE;
 			break;
 		}
 	}
 	if (f)
-		for (nr = 0; nr <= top_of_objt; nr++) {
+		for (nr = 0; nr <= top_of_objt; nr++)
+		{
 			for (plane = 0; plane < MAX_OBJ_AFFECT; plane++)
-				if (obj_proto[nr]->affected[plane].location == counter) {
+				if (obj_proto[nr]->affected[plane].location == counter)
+				{
 					sprintf(buf, "%3d. [%5d] %s :   %s\r\n", ++found,
-						obj_index[nr].vnum, obj_proto[nr]->short_description,
-						apply_types[counter]);
+							obj_index[nr].vnum, obj_proto[nr]->short_description,
+							apply_types[counter]);
 					text = (char *)realloc(text, strlen(text) + strlen(buf) + 1);
 					text = strcat(text, buf);
 //					send_to_char(buf, ch);
@@ -3418,23 +3742,28 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 		};
 	f = FALSE;
 // ---------------------
-	for (counter = 0, plane = 0, plane_offset = 0; plane < NUM_PLANES; counter++) {
-		if (*weapon_affects[counter] == '\n') {
+	for (counter = 0, plane = 0, plane_offset = 0; plane < NUM_PLANES; counter++)
+	{
+		if (*weapon_affects[counter] == '\n')
+		{
 			plane++;
 			plane_offset = 0;
 			continue;
 		};
-		if (is_abbrev(searchname, weapon_affects[counter])) {
+		if (is_abbrev(searchname, weapon_affects[counter]))
+		{
 			f = TRUE;
 			break;
 		}
 		plane_offset++;
 	}
 	if (f)
-		for (nr = 0; nr <= top_of_objt; nr++) {
-			if (obj_proto[nr]->obj_flags.affects.flags[plane] & (1 << (plane_offset))) {
+		for (nr = 0; nr <= top_of_objt; nr++)
+		{
+			if (obj_proto[nr]->obj_flags.affects.flags[plane] & (1 << (plane_offset)))
+			{
 				sprintf(buf, "%3d. [%5d] %s :   %s\r\n", ++found,
-					obj_index[nr].vnum, obj_proto[nr]->short_description, weapon_affects[counter]);
+						obj_index[nr].vnum, obj_proto[nr]->short_description, weapon_affects[counter]);
 				text = (char *)realloc(text, strlen(text) + strlen(buf) + 1);
 				text = strcat(text, buf);
 //				send_to_char(buf, ch);
@@ -3456,17 +3785,21 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	int is_corpse = 0;
 	mob_rnum i;
 
-	if (nr < 0) {
+	if (nr < 0)
+	{
 		is_corpse = 1;
 		nr = -nr;
 	}
 
-	if (type == VIRTUAL) {
-		if ((i = real_mobile(nr)) < 0) {
+	if (type == VIRTUAL)
+	{
+		if ((i = real_mobile(nr)) < 0)
+		{
 			log("WARNING: Mobile vnum %d does not exist in database.", nr);
 			return (NULL);
 		}
-	} else
+	}
+	else
 		i = nr;
 
 	CHAR_DATA *mob = new CHAR_DATA;
@@ -3475,9 +3808,11 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	mob->next = character_list;
 	character_list = mob;
 
-	if (!mob->points.max_hit) {
+	if (!mob->points.max_hit)
+	{
 		mob->points.max_hit = dice(GET_MEM_TOTAL(mob), GET_MEM_COMPLETED(mob)) + mob->points.hit;
-	} else
+	}
+	else
 		mob->points.max_hit = number(mob->points.hit, GET_MEM_TOTAL(mob));
 
 	mob->points.hit = mob->points.max_hit;
@@ -3503,7 +3838,8 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 		assign_triggers(mob, MOB_TRIGGER);
 
 	i = mob_index[i].zone;
-	if (i != -1 && zone_table[i].under_construction) {
+	if (i != -1 && zone_table[i].under_construction)
+	{
 		// mobile принадлежит тестовой зоне
 		SET_BIT(MOB_FLAGS(mob, MOB_NOSUMMON), MOB_NOSUMMON);
 	}
@@ -3530,7 +3866,8 @@ OBJ_DATA *create_obj(void)
 const OBJ_DATA* read_object_mirror(obj_vnum nr)
 {
 	int i;
-	if ((i = real_object(nr)) < 0) {
+	if ((i = real_object(nr)) < 0)
+	{
 		log("Object (V) %d does not exist in database.", nr);
 		return (NULL);
 	};
@@ -3545,22 +3882,27 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 	OBJ_DATA *obj;
 	obj_rnum i;
 
-	if (nr < 0) {
+	if (nr < 0)
+	{
 		log("SYSERR: Trying to create obj with negative (%d) num!", nr);
 		return (NULL);
 	}
-	if (type == VIRTUAL) {
-		if ((i = real_object(nr)) < 0) {
+	if (type == VIRTUAL)
+	{
+		if ((i = real_object(nr)) < 0)
+		{
 			log("Object (V) %d does not exist in database.", nr);
 			return (NULL);
 		}
-	} else
+	}
+	else
 		i = nr;
 
 	NEWCREATE(obj, OBJ_DATA(*obj_proto[i]));
 	obj_index[i].number++;
 	i = obj_index[i].zone;
-	if (i != -1 && zone_table[i].under_construction) {
+	if (i != -1 && zone_table[i].under_construction)
+	{
 		// модификация объектов тестовой зоны
 		GET_OBJ_TIMER(obj) = TEST_OBJECT_TIMER;
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOLOCATE), ITEM_NOLOCATE);
@@ -3569,7 +3911,8 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 	obj->next = object_list;
 	object_list = obj;
 	GET_ID(obj) = max_id++;
-	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON) {
+	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON)
+	{
 		name_from_drinkcon(obj);
 		if (GET_OBJ_VAL(obj, 1) && GET_OBJ_VAL(obj, 2))
 			name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2));
@@ -3592,7 +3935,8 @@ void zone_update(void)
 	char buf[1024];
 
 	/* jelson 10/22/92 */
-	if (((++timer * PULSE_ZONE) / PASSES_PER_SEC) >= 60) {	/* one minute has passed */
+	if (((++timer * PULSE_ZONE) / PASSES_PER_SEC) >= 60)  	/* one minute has passed */
+	{
 		/*
 		 * NOT accurate unless PULSE_ZONE is a multiple of PASSES_PER_SEC or a
 		 * factor of 60
@@ -3601,14 +3945,16 @@ void zone_update(void)
 		timer = 0;
 
 		/* since one minute has passed, increment zone ages */
-		for (i = 0; i <= top_of_zone_table; i++) {
+		for (i = 0; i <= top_of_zone_table; i++)
+		{
 			if (zone_table[i].age < zone_table[i].lifespan && zone_table[i].reset_mode &&
-			    (zone_table[i].reset_idle || zone_table[i].used))
+					(zone_table[i].reset_idle || zone_table[i].used))
 				(zone_table[i].age)++;
 
 			if (zone_table[i].age >= zone_table[i].lifespan &&
-			    zone_table[i].age < ZO_DEAD && zone_table[i].reset_mode &&
-			    (zone_table[i].reset_idle || zone_table[i].used)) {	/* enqueue zone */
+					zone_table[i].age < ZO_DEAD && zone_table[i].reset_mode &&
+					(zone_table[i].reset_idle || zone_table[i].used))  	/* enqueue zone */
+			{
 
 				CREATE(update_u, struct reset_q_element, 1);
 				update_u->zone_to_reset = i;
@@ -3616,7 +3962,8 @@ void zone_update(void)
 
 				if (!reset_q.head)
 					reset_q.head = reset_q.tail = update_u;
-				else {
+				else
+				{
 					reset_q.tail->next = update_u;
 					reset_q.tail = update_u;
 				}
@@ -3631,20 +3978,24 @@ void zone_update(void)
 	/* this code is executed every 10 seconds (i.e. PULSE_ZONE) */
 	for (update_u = reset_q.head; update_u; update_u = update_u->next)
 		if (zone_table[update_u->zone_to_reset].reset_mode == 2
-			|| (is_empty(update_u->zone_to_reset) && zone_table[update_u->zone_to_reset].reset_mode != 3)
-			|| can_be_reset(update_u->zone_to_reset))
+				|| (is_empty(update_u->zone_to_reset) && zone_table[update_u->zone_to_reset].reset_mode != 3)
+				|| can_be_reset(update_u->zone_to_reset))
 		{
 			reset_zone(update_u->zone_to_reset);
 			sprintf(buf, "Auto zone reset: %s (%d)", zone_table[update_u->zone_to_reset].name, zone_table[update_u->zone_to_reset].number);
-			if (zone_table[update_u->zone_to_reset].reset_mode == 3) {
-				for (i = 0; i < zone_table[update_u->zone_to_reset].typeA_count; i++) {
+			if (zone_table[update_u->zone_to_reset].reset_mode == 3)
+			{
+				for (i = 0; i < zone_table[update_u->zone_to_reset].typeA_count; i++)
+				{
 					//Ищем real_zone по vnum
-					for (j = 0; j <= top_of_zone_table; j++) {
+					for (j = 0; j <= top_of_zone_table; j++)
+					{
 						if (zone_table[j].number ==
-						    zone_table[update_u->zone_to_reset].typeA_list[i]) {
+								zone_table[update_u->zone_to_reset].typeA_list[i])
+						{
 							reset_zone(j);
 							sprintf(buf, "%s]\r\n[Multireset: also resetting %s",
-								buf, zone_table[j].name);
+									buf, zone_table[j].name);
 							break;
 						}
 					}
@@ -3654,7 +4005,8 @@ void zone_update(void)
 			/* dequeue */
 			if (update_u == reset_q.head)
 				reset_q.head = reset_q.head->next;
-			else {
+			else
+			{
 				for (temp = reset_q.head; temp->next != update_u; temp = temp->next);
 
 				if (!update_u->next)
@@ -3679,10 +4031,13 @@ bool can_be_reset(zone_rnum zone)
 	if (!is_empty(zone))
 		return FALSE;
 // проверяем список B
-	for (i = 0; i < zone_table[zone].typeB_count; i++) {
+	for (i = 0; i < zone_table[zone].typeB_count; i++)
+	{
 		//Ищем real_zone по vnum
-		for (j = 0; j <= top_of_zone_table; j++) {
-			if (zone_table[j].number == zone_table[zone].typeB_list[i]) {
+		for (j = 0; j <= top_of_zone_table; j++)
+		{
+			if (zone_table[j].number == zone_table[zone].typeB_list[i])
+			{
 				if (!zone_table[zone].typeB_flag[i] || !is_empty(j))
 					return FALSE;
 				break;
@@ -3690,10 +4045,13 @@ bool can_be_reset(zone_rnum zone)
 		}
 	}
 // проверяем список A
-	for (i = 0; i < zone_table[zone].typeA_count; i++) {
+	for (i = 0; i < zone_table[zone].typeA_count; i++)
+	{
 		//Ищем real_zone по vnum
-		for (j = 0; j <= top_of_zone_table; j++) {
-			if (zone_table[j].number == zone_table[zone].typeA_list[i]) {
+		for (j = 0; j <= top_of_zone_table; j++)
+		{
+			if (zone_table[j].number == zone_table[zone].typeA_list[i])
+			{
 				if (!is_empty(j))
 					return FALSE;
 				break;
@@ -3720,63 +4078,75 @@ void paste_mob(CHAR_DATA *ch, room_rnum room)
 	bool no_month = TRUE;
 	bool no_time = TRUE;
 
-	if (MOB_FLAGGED(ch, MOB_LIKE_DAY)) {
+	if (MOB_FLAGGED(ch, MOB_LIKE_DAY))
+	{
 		if (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)
 			time_ok = TRUE;
 		need_move = TRUE;
 		no_time = FALSE;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_NIGHT)) {
+	if (MOB_FLAGGED(ch, MOB_LIKE_NIGHT))
+	{
 		if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)
 			time_ok = TRUE;
 		need_move = TRUE;
 		no_time = FALSE;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_FULLMOON)) {
+	if (MOB_FLAGGED(ch, MOB_LIKE_FULLMOON))
+	{
 		if ((weather_info.sunlight == SUN_SET ||
-		     weather_info.sunlight == SUN_DARK) &&
-		    (weather_info.moon_day >= 12 && weather_info.moon_day <= 15))
+				weather_info.sunlight == SUN_DARK) &&
+				(weather_info.moon_day >= 12 && weather_info.moon_day <= 15))
 			time_ok = TRUE;
 		need_move = TRUE;
 		no_time = FALSE;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_WINTER)) {
+	if (MOB_FLAGGED(ch, MOB_LIKE_WINTER))
+	{
 		if (weather_info.season == SEASON_WINTER)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_SPRING)) {
+	if (MOB_FLAGGED(ch, MOB_LIKE_SPRING))
+	{
 		if (weather_info.season == SEASON_SPRING)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_SUMMER)) {
+	if (MOB_FLAGGED(ch, MOB_LIKE_SUMMER))
+	{
 		if (weather_info.season == SEASON_SUMMER)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (MOB_FLAGGED(ch, MOB_LIKE_AUTUMN)) {
+	if (MOB_FLAGGED(ch, MOB_LIKE_AUTUMN))
+	{
 		if (weather_info.season == SEASON_AUTUMN)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (need_move) {
+	if (need_move)
+	{
 		month_ok |= no_month;
 		time_ok |= no_time;
-		if (month_ok && time_ok) {
+		if (month_ok && time_ok)
+		{
 			if (world[room]->number != zone_table[world[room]->zone].top)
 				return;
-			if (GET_LASTROOM(ch) == NOWHERE) {
+			if (GET_LASTROOM(ch) == NOWHERE)
+			{
 				extract_mob(ch);
 				return;
 			}
 			char_from_room(ch);
 			char_to_room(ch, real_room(GET_LASTROOM(ch)));
-		} else {
+		}
+		else
+		{
 			if (world[room]->number == zone_table[world[room]->zone].top)
 				return;
 			GET_LASTROOM(ch) = GET_ROOM_VNUM(room);
@@ -3800,63 +4170,75 @@ void paste_obj(OBJ_DATA *obj, room_rnum room)
 	bool no_time = TRUE;
 	bool no_month = TRUE;
 
-	if (OBJ_FLAGGED(obj, ITEM_DAY)) {
+	if (OBJ_FLAGGED(obj, ITEM_DAY))
+	{
 		if (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT)
 			time_ok = TRUE;
 		need_move = TRUE;
 		no_time = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_NIGHT)) {
+	if (OBJ_FLAGGED(obj, ITEM_NIGHT))
+	{
 		if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)
 			time_ok = TRUE;
 		need_move = TRUE;
 		no_time = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_FULLMOON)) {
+	if (OBJ_FLAGGED(obj, ITEM_FULLMOON))
+	{
 		if ((weather_info.sunlight == SUN_SET ||
-		     weather_info.sunlight == SUN_DARK) &&
-		    (weather_info.moon_day >= 12 && weather_info.moon_day <= 15))
+				weather_info.sunlight == SUN_DARK) &&
+				(weather_info.moon_day >= 12 && weather_info.moon_day <= 15))
 			time_ok = TRUE;
 		need_move = TRUE;
 		no_time = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_WINTER)) {
+	if (OBJ_FLAGGED(obj, ITEM_WINTER))
+	{
 		if (weather_info.season == SEASON_WINTER)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_SPRING)) {
+	if (OBJ_FLAGGED(obj, ITEM_SPRING))
+	{
 		if (weather_info.season == SEASON_SPRING)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_SUMMER)) {
+	if (OBJ_FLAGGED(obj, ITEM_SUMMER))
+	{
 		if (weather_info.season == SEASON_SUMMER)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (OBJ_FLAGGED(obj, ITEM_AUTUMN)) {
+	if (OBJ_FLAGGED(obj, ITEM_AUTUMN))
+	{
 		if (weather_info.season == SEASON_AUTUMN)
 			month_ok = TRUE;
 		need_move = TRUE;
 		no_month = FALSE;
 	}
-	if (need_move) {
+	if (need_move)
+	{
 		month_ok |= no_month;
 		time_ok |= no_time;
-		if (month_ok && time_ok) {
+		if (month_ok && time_ok)
+		{
 			if (world[room]->number != zone_table[world[room]->zone].top)
 				return;
-			if (OBJ_GET_LASTROOM(obj) == NOWHERE) {
+			if (OBJ_GET_LASTROOM(obj) == NOWHERE)
+			{
 				extract_obj(obj);
 				return;
 			}
 			obj_from_room(obj);
 			obj_to_room(obj, real_room(OBJ_GET_LASTROOM(obj)));
-		} else {
+		}
+		else
+		{
 			if (world[room]->number == zone_table[world[room]->zone].top)
 				return;
 			OBJ_GET_LASTROOM(obj) = GET_ROOM_VNUM(room);
@@ -3911,7 +4293,7 @@ void log_zone_error(zone_rnum zone, int cmd_no, const char *message)
 	mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
 
 	sprintf(buf, "SYSERR: ...offending cmd: '%c' cmd in zone #%d, line %d",
-		ZCMD.command, zone_table[zone].number, ZCMD.line);
+			ZCMD.command, zone_table[zone].number, ZCMD.line);
 	mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
 }
 
@@ -3942,22 +4324,27 @@ void reset_zone(zone_rnum zone)
 	//----------------------------------------------------------------------------
 	last_state = 1;		// для первой команды считаем, что все ок
 
-	for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++) {
-		if (ZCMD.command == '*') {
+	for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
+	{
+		if (ZCMD.command == '*')
+		{
 			// комментарий - ни на что не влияет
 			continue;
 		}
 
 		curr_state = 0;	// по умолчанию - неудачно
-		if (!(ZCMD.if_flag & CHECK_SUCCESS) || last_state) {
+		if (!(ZCMD.if_flag & CHECK_SUCCESS) || last_state)
+		{
 			// Выполняем команду, если предыдущая успешна или не нужно проверять
-			switch (ZCMD.command) {
+			switch (ZCMD.command)
+			{
 			case 'M':
 				/* read a mobile */
 				// 'M' <flag> <mob_vnum> <max_in_world> <room_vnum> <max_in_room|-1>
 				mob = NULL;	//Добавлено Ладником
 				if (mob_index[ZCMD.arg1].number < ZCMD.arg2 &&
-				    (ZCMD.arg4 < 0 || mobs_in_room(ZCMD.arg1, ZCMD.arg3) < ZCMD.arg4)) {
+						(ZCMD.arg4 < 0 || mobs_in_room(ZCMD.arg1, ZCMD.arg3) < ZCMD.arg4))
+				{
 					mob = read_mobile(ZCMD.arg1, REAL);
 					char_to_room(mob, ZCMD.arg3);
 					load_mtrigger(mob);
@@ -3971,13 +4358,15 @@ void reset_zone(zone_rnum zone)
 				/* Follow mobiles */
 				// 'F' <flag> <room_vnum> <leader_vnum> <mob_vnum>
 				leader = NULL;
-				if (ZCMD.arg1 >= FIRST_ROOM && ZCMD.arg1 <= top_of_world) {
+				if (ZCMD.arg1 >= FIRST_ROOM && ZCMD.arg1 <= top_of_world)
+				{
 					for (ch = world[ZCMD.arg1]->people; ch && !leader; ch = ch->next_in_room)
 						if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg2)
 							leader = ch;
 					for (ch = world[ZCMD.arg1]->people; ch && leader; ch = ch->next_in_room)
 						if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg3
-						    && leader != ch && ch->master != leader) {
+								&& leader != ch && ch->master != leader)
+						{
 							if (ch->master)
 								stop_follower(ch, SF_EMPTY);
 							add_follower(ch, leader);
@@ -3989,10 +4378,12 @@ void reset_zone(zone_rnum zone)
 			case 'Q':
 				/* delete all mobiles */
 				// 'Q' <flag> <mob_vnum>
-				for (ch = character_list; ch; ch = leader) {
+				for (ch = character_list; ch; ch = leader)
+				{
 					leader = ch->next;
 					// Карачун. Поднятые мобы не должны уничтожаться.
-					if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg1 && !MOB_FLAGGED(ch, MOB_RESURRECTED)) {
+					if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg1 && !MOB_FLAGGED(ch, MOB_RESURRECTED))
+					{
 						// Карачун. Мобы должны оставлять стафф.
 						// Тока чужой стаф, а не свой же при резете зоны. -- Krodo
 						extract_char(ch, FALSE, 1);
@@ -4010,22 +4401,24 @@ void reset_zone(zone_rnum zone)
 				/* Проверка  - сколько всего таких же обьектов надо на эту клетку */
 				for (cmd_tmp = 0, obj_in_room_max = 0; ZCMD_CMD(cmd_tmp).command != 'S'; cmd_tmp++)
 					if ((ZCMD_CMD(cmd_tmp).command == 'O')
-					    && (ZCMD.arg1 == ZCMD_CMD(cmd_tmp).arg1)
-					    && (ZCMD.arg3 == ZCMD_CMD(cmd_tmp).arg3))
+							&& (ZCMD.arg1 == ZCMD_CMD(cmd_tmp).arg1)
+							&& (ZCMD.arg3 == ZCMD_CMD(cmd_tmp).arg3))
 						obj_in_room_max++;
 				/* Теперь считаем склько их на текущей клетке */
 				if (ZCMD.arg3 >= 0)
 					for (obj_room = world[ZCMD.arg3]->contents, obj_in_room = 0;
-					     obj_room; obj_room = obj_room->next_content)
+							obj_room; obj_room = obj_room->next_content)
 						if (ZCMD.arg1 == GET_OBJ_RNUM(obj_room))
 							obj_in_room++;
 				/* Теперь грузим обьект если надо */
 				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
-				    GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1) &&
-				    (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4)
-				    && (obj_in_room < obj_in_room_max)) {
+						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1) &&
+						(ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4)
+						&& (obj_in_room < obj_in_room_max))
+				{
 					obj = read_object(ZCMD.arg1, REAL);
-					if (ZCMD.arg3 >= 0) {
+					if (ZCMD.arg3 >= 0)
+					{
 						GET_OBJ_ZONE(obj) = world[ZCMD.arg3]->zone;
 						if (!obj_to_room(obj, ZCMD.arg3))
 						{
@@ -4033,15 +4426,18 @@ void reset_zone(zone_rnum zone)
 							break;
 						}
 						load_otrigger(obj);
-					} else {
+					}
+					else
+					{
 						IN_ROOM(obj) = NOWHERE;
 					}
 					tobj = obj;
 					curr_state = 1;
-					if (!OBJ_FLAGGED(obj, ITEM_NODECAY)) {
+					if (!OBJ_FLAGGED(obj, ITEM_NODECAY))
+					{
 						sprintf(buf,
-							"&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : %s (VNUM=%d)",
-							GET_OBJ_PNAME(obj, 0), GET_OBJ_VNUM(obj));
+								"&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : %s (VNUM=%d)",
+								GET_OBJ_PNAME(obj, 0), GET_OBJ_VNUM(obj));
 						mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 					}
 				}
@@ -4052,14 +4448,17 @@ void reset_zone(zone_rnum zone)
 				/* object to object */
 				// 'P' <flag> <obj_vnum> <max_in_world> <target_vnum> <load%|-1>
 				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
-				    GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1)
-				    && (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4)) {
-					if (!(obj_to = get_obj_num(ZCMD.arg3))) {
+						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1)
+						&& (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4))
+				{
+					if (!(obj_to = get_obj_num(ZCMD.arg3)))
+					{
 						ZONE_ERROR("target obj not found, command omited");
 //                 ZCMD.command = '*';
 						break;
 					}
-					if (GET_OBJ_TYPE(obj_to) != ITEM_CONTAINER) {
+					if (GET_OBJ_TYPE(obj_to) != ITEM_CONTAINER)
+					{
 						ZONE_ERROR("attempt put obj to non container, omited");
 						ZCMD.command = '*';
 						break;
@@ -4090,8 +4489,9 @@ void reset_zone(zone_rnum zone)
 					break;
 				}
 				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
-				    GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1)
-				    && (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4)) {
+						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1)
+						&& (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4))
+				{
 					obj = read_object(ZCMD.arg1, REAL);
 					obj_to_char(obj, mob);
 					GET_OBJ_ZONE(obj) = world[IN_ROOM(mob)]->zone;
@@ -4106,30 +4506,40 @@ void reset_zone(zone_rnum zone)
 				/* object to equipment list */
 				// 'E' <flag> <obj_vnum> <max_in_world> <wear_pos> <load%|-1>
 				//Изменено Ладником
-				if (!mob) {
+				if (!mob)
+				{
 					//ZONE_ERROR("trying to equip non-existant mob, command disabled");
 					// ZCMD.command = '*';
 					break;
 				}
 				if ((obj_index[ZCMD.arg1].number + obj_index[ZCMD.arg1].stored <
-				    GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1)
-				    && (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4)) {
-					if (ZCMD.arg3 < 0 || ZCMD.arg3 >= NUM_WEARS) {
+						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1)
+						&& (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4))
+				{
+					if (ZCMD.arg3 < 0 || ZCMD.arg3 >= NUM_WEARS)
+					{
 						ZONE_ERROR("invalid equipment pos number");
-					} else {
+					}
+					else
+					{
 						obj = read_object(ZCMD.arg1, REAL);
 						GET_OBJ_ZONE(obj) = world[IN_ROOM(mob)]->zone;
 						IN_ROOM(obj) = IN_ROOM(mob);
 						load_otrigger(obj);
-						if (wear_otrigger(obj, mob, ZCMD.arg3)) {
+						if (wear_otrigger(obj, mob, ZCMD.arg3))
+						{
 							IN_ROOM(obj) = NOWHERE;
 							equip_char(mob, obj, ZCMD.arg3);
-						} else
+						}
+						else
 							obj_to_char(obj, mob);
-						if (!(obj->carried_by == mob) && !(obj->worn_by == mob)) {
+						if (!(obj->carried_by == mob) && !(obj->worn_by == mob))
+						{
 							extract_obj(obj);
 							tobj = NULL;
-						} else {
+						}
+						else
+						{
 							tobj = obj;
 							curr_state = 1;
 						}
@@ -4141,7 +4551,8 @@ void reset_zone(zone_rnum zone)
 			case 'R':
 				/* rem obj from room */
 				// 'R' <flag> <room_vnum> <obj_vnum>
-				if ((obj = get_obj_in_list_num(ZCMD.arg2, world[ZCMD.arg1]->contents)) != NULL) {
+				if ((obj = get_obj_in_list_num(ZCMD.arg2, world[ZCMD.arg1]->contents)) != NULL)
+				{
 					obj_from_room(obj);
 					extract_obj(obj);
 					curr_state = 1;
@@ -4154,21 +4565,25 @@ void reset_zone(zone_rnum zone)
 				/* set state of door */
 				// 'D' <flag> <room_vnum> <door_pos> <door_state>
 				if (ZCMD.arg2 < 0 || ZCMD.arg2 >= NUM_OF_DIRS ||
-				    (world[ZCMD.arg1]->dir_option[ZCMD.arg2] == NULL)) {
+						(world[ZCMD.arg1]->dir_option[ZCMD.arg2] == NULL))
+				{
 					ZONE_ERROR("door does not exist, command disabled");
 					ZCMD.command = '*';
-				} else {
-					switch (ZCMD.arg3) {
+				}
+				else
+				{
+					switch (ZCMD.arg3)
+					{
 					case 0:
 						REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->
-							   exit_info, EX_LOCKED);
+								   exit_info, EX_LOCKED);
 						REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->
-							   exit_info, EX_CLOSED);
+								   exit_info, EX_CLOSED);
 						break;
 					case 1:
 						SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EX_CLOSED);
 						REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->
-							   exit_info, EX_LOCKED);
+								   exit_info, EX_LOCKED);
 						break;
 					case 2:
 						SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EX_LOCKED);
@@ -4179,7 +4594,7 @@ void reset_zone(zone_rnum zone)
 						break;
 					case 4:
 						REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->
-							   exit_info, EX_HIDDEN);
+								   exit_info, EX_HIDDEN);
 						break;
 					}
 					curr_state = 1;
@@ -4191,22 +4606,28 @@ void reset_zone(zone_rnum zone)
 			case 'T':
 				/* trigger command; details to be filled in later */
 				// 'T' <flag> <trigger_type> <trigger_vnum> <room_vnum, для WLD_TRIGGER>
-				if (ZCMD.arg1 == MOB_TRIGGER && tmob) {
+				if (ZCMD.arg1 == MOB_TRIGGER && tmob)
+				{
 					if (!SCRIPT(tmob))
 						CREATE(SCRIPT(tmob), SCRIPT_DATA, 1);
 					add_trigger(SCRIPT(tmob), read_trigger(real_trigger(ZCMD.arg2)), -1);
 					curr_state = 1;
-				} else if (ZCMD.arg1 == OBJ_TRIGGER && tobj) {
+				}
+				else if (ZCMD.arg1 == OBJ_TRIGGER && tobj)
+				{
 					if (!SCRIPT(tobj))
 						CREATE(SCRIPT(tobj), SCRIPT_DATA, 1);
 					add_trigger(SCRIPT(tobj), read_trigger(real_trigger(ZCMD.arg2)), -1);
 					curr_state = 1;
-				} else if (ZCMD.arg1 == WLD_TRIGGER) {
-					if (ZCMD.arg3 != NOWHERE) {
+				}
+				else if (ZCMD.arg1 == WLD_TRIGGER)
+				{
+					if (ZCMD.arg3 != NOWHERE)
+					{
 						if (!(world[ZCMD.arg3]->script))
 							CREATE(world[ZCMD.arg3]->script, SCRIPT_DATA, 1);
 						add_trigger(world[ZCMD.arg3]->script,
-							    read_trigger(real_trigger(ZCMD.arg2)), -1);
+									read_trigger(real_trigger(ZCMD.arg2)), -1);
 						curr_state = 1;
 					}
 				}
@@ -4214,32 +4635,49 @@ void reset_zone(zone_rnum zone)
 
 			case 'V':
 				// 'V' <flag> <trigger_type> <room_vnum> <context> <var_name> <var_value>
-				if (ZCMD.arg1 == MOB_TRIGGER && tmob) {
-					if (!SCRIPT(tmob)) {
+				if (ZCMD.arg1 == MOB_TRIGGER && tmob)
+				{
+					if (!SCRIPT(tmob))
+					{
 						ZONE_ERROR("Attempt to give variable to scriptless mobile");
-					} else {
+					}
+					else
+					{
 						add_var_cntx(&(SCRIPT(tmob)->global_vars), ZCMD.sarg1,
-							     ZCMD.sarg2, ZCMD.arg3);
+									 ZCMD.sarg2, ZCMD.arg3);
 						curr_state = 1;
 					}
-				} else if (ZCMD.arg1 == OBJ_TRIGGER && tobj) {
-					if (!SCRIPT(tobj)) {
+				}
+				else if (ZCMD.arg1 == OBJ_TRIGGER && tobj)
+				{
+					if (!SCRIPT(tobj))
+					{
 						ZONE_ERROR("Attempt to give variable to scriptless object");
-					} else {
+					}
+					else
+					{
 						add_var_cntx(&(SCRIPT(tobj)->global_vars), ZCMD.sarg1,
-							     ZCMD.sarg2, ZCMD.arg3);
+									 ZCMD.sarg2, ZCMD.arg3);
 						curr_state = 1;
 					}
-				} else if (ZCMD.arg1 == WLD_TRIGGER) {
-					if (ZCMD.arg2 < FIRST_ROOM || ZCMD.arg2 > top_of_world) {
+				}
+				else if (ZCMD.arg1 == WLD_TRIGGER)
+				{
+					if (ZCMD.arg2 < FIRST_ROOM || ZCMD.arg2 > top_of_world)
+					{
 						ZONE_ERROR("Invalid room number in variable assignment");
-					} else {
-						if (!(world[ZCMD.arg2]->script)) {
+					}
+					else
+					{
+						if (!(world[ZCMD.arg2]->script))
+						{
 							ZONE_ERROR("Attempt to give variable to scriptless object");
-						} else {
+						}
+						else
+						{
 							add_var_cntx(&
-								     (world[ZCMD.arg2]->script->
-								      global_vars), ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
+										 (world[ZCMD.arg2]->script->
+										  global_vars), ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
 							curr_state = 1;
 						}
 					}
@@ -4253,7 +4691,8 @@ void reset_zone(zone_rnum zone)
 			}
 		}
 		/* if ( (ZCMD.if_flag&CHECK_SUCCESS) && !last_state ) */
-		if (!(ZCMD.if_flag & FLAG_PERSIST)) {
+		if (!(ZCMD.if_flag & FLAG_PERSIST))
+		{
 			// команда изменяет флаг
 			last_state = curr_state;
 		}
@@ -4263,20 +4702,25 @@ void reset_zone(zone_rnum zone)
 	zone_table[zone].age = 0;
 	zone_table[zone].used = FALSE;
 
-	if (get_zone_rooms(zone, &rnum_start, &rnum_stop)) {
+	if (get_zone_rooms(zone, &rnum_start, &rnum_stop))
+	{
 		ROOM_DATA* room;
 		ROOM_DATA* gate_room;
 		// все внутренние резеты комнат зоны теперь идут за один цикл
 		// резет порталов теперь тут же и переписан, чтобы не гонять по всем румам, ибо жрал половину времени резета -- Krodo
-		for (int rnum = rnum_start; rnum <= rnum_stop; rnum++) {
+		for (int rnum = rnum_start; rnum <= rnum_stop; rnum++)
+		{
 			room = world[rnum];
 			reset_wtrigger(room);
 			im_reset_room(room, zone_table[zone].level, zone_table[zone].type);
 			gate_room = OneWayPortal::get_from_room(room);
-			if (gate_room) { // случай врат
+			if (gate_room)   // случай врат
+			{
 				gate_room->portal_time = 0;
 				OneWayPortal::remove(room);
-			} else if (room->portal_time > 0) { // случай двусторонней пенты
+			}
+			else if (room->portal_time > 0)   // случай двусторонней пенты
+			{
 				world[room->portal_room]->portal_time = 0;
 				room->portal_time = 0;
 			}
@@ -4284,10 +4728,13 @@ void reset_zone(zone_rnum zone)
 		}
 	}
 
-	for (rnum_start = 0; rnum_start <= top_of_zone_table; rnum_start++) {
+	for (rnum_start = 0; rnum_start <= top_of_zone_table; rnum_start++)
+	{
 		// проверяем, не содержится ли текущая зона в чьем-либо typeB_list
-		for (curr_state = zone_table[rnum_start].typeB_count; curr_state > 0; curr_state--) {
-			if (zone_table[rnum_start].typeB_list[curr_state - 1] == zone_table[zone].number) {
+		for (curr_state = zone_table[rnum_start].typeB_count; curr_state > 0; curr_state--)
+		{
+			if (zone_table[rnum_start].typeB_list[curr_state - 1] == zone_table[zone].number)
+			{
 				zone_table[rnum_start].typeB_flag[curr_state - 1] = TRUE;
 //				log("[Reset] Adding TRUE for zone %d in the array contained by zone %d",
 //				    zone_table[zone].number, zone_table[rnum_start].number);
@@ -4312,10 +4759,12 @@ int get_zone_rooms(int zone_nr, int *start, int *stop)
 		return 0;
 	*stop = rnum;
 	rnum = NOWHERE;
-	while (zone_nr) {
+	while (zone_nr)
+	{
 		first_room_vnum = zone_table[--zone_nr].top;
 		rnum = real_room(first_room_vnum);
-		if (rnum != NOWHERE) {
+		if (rnum != NOWHERE)
+		{
 			++rnum;
 			break;
 		}
@@ -4334,7 +4783,8 @@ int is_empty(zone_rnum zone_nr)
 	int rnum_start, rnum_stop;
 	CHAR_DATA *c;
 
-	for (i = descriptor_list; i; i = i->next) {
+	for (i = descriptor_list; i; i = i->next)
+	{
 		if (STATE(i) != CON_PLAYING)
 			continue;
 		if (IN_ROOM(i->character) == NOWHERE)
@@ -4351,7 +4801,8 @@ int is_empty(zone_rnum zone_nr)
 	if (!get_zone_rooms(zone_nr, &rnum_start, &rnum_stop))
 		return 1;	// в зоне нет комнат :)
 
-	for (; rnum_start <= rnum_stop; rnum_start++) {
+	for (; rnum_start <= rnum_stop; rnum_start++)
+	{
 // num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
 		for (c = world[rnum_start]->people; c; c = c->next_in_room)
 			if (!IS_NPC(c) && (GET_LEVEL(c) < LVL_IMMORT))
@@ -4359,7 +4810,8 @@ int is_empty(zone_rnum zone_nr)
 	}
 
 // теперь проверю всех товарищей в void комнате STRANGE_ROOM
-	for (c = world[STRANGE_ROOM]->people; c; c = c->next_in_room) {
+	for (c = world[STRANGE_ROOM]->people; c; c = c->next_in_room)
+	{
 		int was = GET_WAS_IN(c);
 		if (was == NOWHERE)
 			continue;
@@ -4494,7 +4946,8 @@ int create_unique(void)
 {
 	int unique;
 
-	do {
+	do
+	{
 		unique = (number(0, 64) << 24) + (number(0, 255) << 16) + (number(0, 255) << 8) + (number(0, 255));
 	}
 	while (correct_unique(unique));
@@ -4510,10 +4963,13 @@ struct ignore_data *parse_ignore(char *buf)
 
 //log("parsing ignore item '%s'", buf);
 
-	if (sscanf(buf, "[%ld]%ld", &result->mode, &result->id) < 2) {
+	if (sscanf(buf, "[%ld]%ld", &result->mode, &result->id) < 2)
+	{
 		free(result);
 		return NULL;
-	} else {
+	}
+	else
+	{
 		result->next = NULL;
 		return result;
 	}
@@ -4546,23 +5002,31 @@ void load_ignores(CHAR_DATA * ch, char *line)
 // хотят вызывать многократно
 	for (ignore_list = IGNORE_LIST(ch); ignore_list && ignore_list->next; ignore_list = ignore_list->next);
 	buf = str_dup(line);
-	for (i = k = 0;;) {
-		if (buf[i] == ' ' || buf[i] == '\t' || buf[i] == 0) {
+	for (i = k = 0;;)
+	{
+		if (buf[i] == ' ' || buf[i] == '\t' || buf[i] == 0)
+		{
 			if (buf[i] == 0)
 				done = 1;
 			buf[i] = 0;
 			cur_ign = parse_ignore(&(buf[k]));
-			if (cur_ign) {
-				if (!ignore_list) {
+			if (cur_ign)
+			{
+				if (!ignore_list)
+				{
 					IGNORE_LIST(ch) = cur_ign;
-				} else {
+				}
+				else
+				{
 					ignore_list->next = cur_ign;
 				}
 				ignore_list = cur_ign;
 				// удаленных игроков из листа нафиг
 				if (!ign_plr_exists(ignore_list->id))
 					ignore_list->id = 0;
-			} else {
+			}
+			else
+			{
 				log("WARNING: could not parse ignore list " "of %s: invalid format", GET_NAME(ch));
 				return;
 			}
@@ -4571,7 +5035,9 @@ void load_ignores(CHAR_DATA * ch, char *line)
 			i = k;
 			if (done || buf[k] == 0)
 				break;
-		} else {
+		}
+		else
+		{
 			i++;
 		}
 	}
@@ -4602,12 +5068,16 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 
 	*filename = '\0';
 	log("Load ascii char %s", name);
-	if (now_entrycount) {
+	if (now_entrycount)
+	{
 		id = 1;
-	} else {
+	}
+	else
+	{
 		id = find_name(name);
 	}
-	if (!(id >= 0 && get_filename(name, filename, PLAYERS_FILE) && (fl = fbopen(filename, FB_READ)))) {
+	if (!(id >= 0 && get_filename(name, filename, PLAYERS_FILE) && (fl = fbopen(filename, FB_READ))))
+	{
 		log("Cann't load ascii %d %s", id, filename);
 		return (-1);
 	}
@@ -4628,21 +5098,25 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 
 	bool skip_file = 0;
 
-	do {
-		if (!fbgetline(fl, line)) {
+	do
+	{
+		if (!fbgetline(fl, line))
+		{
 			log("SYSERROR: Wrong file ascii %d %s", id, filename);
 			return (-1);
 		}
 
 		tag_argument(line, tag);
-		for (i = 0; !(line[i] == ' ' || line[i] == '\0'); i++) {
+		for (i = 0; !(line[i] == ' ' || line[i] == '\0'); i++)
+		{
 			line1[i] = line[i];
 		}
 		line1[i] = '\0';
 		num = atoi(line1);
 		lnum = atol(line1);
 
-		switch (*tag) {
+		switch (*tag)
+		{
 		case 'A':
 			if (!strcmp(tag, "Act "))
 				asciiflag_conv(line, &PLR_FLAGS(ch, 0));
@@ -4679,7 +5153,8 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 		default:
 			sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
 		}
-	} while (!skip_file);
+	}
+	while (!skip_file);
 
 	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
 
@@ -4687,7 +5162,8 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	if (GET_EXP(ch) < level_exp(ch, GET_LEVEL(ch)))
 		GET_EXP(ch) = level_exp(ch, GET_LEVEL(ch));
 
-	if (reboot) {
+	if (reboot)
+	{
 		fbclose(fl);
 		return id;
 	}
@@ -4822,7 +5298,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	IGNORE_LIST(ch) = NULL;
 	CREATE(GET_LOGS(ch), int, NLOG);
 
-	GET_BOARD(ch) = new (struct board_data);
+	GET_BOARD(ch) = new(struct board_data);
 	// здесь можно указать дату, с которой пойдет отсчет новых сообщений,
 	// например, чтобы не пугать игрока 200+ новостями при первом запуске системы
 	for (int i = 0; i < BOARD_TOTAL; ++i)
@@ -4830,27 +5306,33 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 		GET_BOARD_DATE(ch, i) = 0;
 
-	while (fbgetline(fl, line)) {
+	while (fbgetline(fl, line))
+	{
 		tag_argument(line, tag);
-		for (i = 0; !(line[i] == ' ' || line[i] == '\0'); i++) {
+		for (i = 0; !(line[i] == ' ' || line[i] == '\0'); i++)
+		{
 			line1[i] = line[i];
 		}
 		line1[i] = '\0';
 		num = atoi(line1);
 		lnum = atol(line1);
 
-		switch (*tag) {
+		switch (*tag)
+		{
 		case 'A':
 			if (!strcmp(tag, "Ac  "))
 				GET_AC(ch) = num;
 			else if (!strcmp(tag, "Aff "))
 				asciiflag_conv(line, &AFF_FLAGS(ch, 0));
-			else if (!strcmp(tag, "Affs")) {
+			else if (!strcmp(tag, "Affs"))
+			{
 				i = 0;
-				do {
+				do
+				{
 					fbgetline(fl, line);
 					sscanf(line, "%d %d %d %d %d", &num, &num2, &num3, &num4, &num5);
-					if (num > 0) {
+					if (num > 0)
+					{
 						af.type = num;
 						af.duration = num2;
 						af.modifier = num3;
@@ -4861,7 +5343,8 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 					}
 				}
 				while (num != 0);
-			} else if (!strcmp(tag, "Alin"))
+			}
+			else if (!strcmp(tag, "Alin"))
 				GET_ALIGNMENT(ch) = num;
 			break;
 
@@ -4912,9 +5395,11 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			break;
 
 		case 'D':
-			if (!strcmp(tag, "Desc")) {
+			if (!strcmp(tag, "Desc"))
+			{
 				ch->player.description = fbgetstring(fl);
-			} else if (!strcmp(tag, "Dex "))
+			}
+			else if (!strcmp(tag, "Dex "))
 				GET_DEX(ch) = num;
 			else if (!strcmp(tag, "Drnk"))
 				GET_COND(ch, DRUNK) = num;
@@ -4937,20 +5422,26 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			// Оставлено для совместимости со старым форматом наказаний
 			if (!strcmp(tag, "Frez"))
 				GET_FREEZE_LEV(ch) = num;
-			else if (!strcmp(tag, "Feat")) {
-				do {
+			else if (!strcmp(tag, "Feat"))
+			{
+				do
+				{
 					fbgetline(fl, line);
 					sscanf(line, "%d", &num);
 					if (num > 0 && num < MAX_FEATS)
-						if(feat_info[num].classknow[(int) GET_CLASS(ch)][(int) GET_KIN (ch)])
+						if (feat_info[num].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 							SET_FEAT(ch, num);
 				}
 				while (num != 0);
-			} else if (!strcmp(tag, "FtTm")) {
-				do {
+			}
+			else if (!strcmp(tag, "FtTm"))
+			{
+				do
+				{
 					fbgetline(fl, line);
 					sscanf(line, "%d %d", &num, &num2);
-					if (num != 0) {
+					if (num != 0)
+					{
 						timed.skill = num;
 						timed.time = num2;
 						timed_feat_to_char(ch, &timed);
@@ -4972,11 +5463,13 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			break;
 
 		case 'H':
-			if (!strcmp(tag, "Hit ")) {
+			if (!strcmp(tag, "Hit "))
+			{
 				sscanf(line, "%d/%d", &num, &num2);
 				GET_HIT(ch) = num;
 				GET_MAX_HIT(ch) = num2;
-			} else if (!strcmp(tag, "Hite"))
+			}
+			else if (!strcmp(tag, "Hite"))
 				GET_HEIGHT(ch) = num;
 			else if (!strcmp(tag, "Home"))
 				GET_HOME(ch) = num;
@@ -4999,25 +5492,28 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			break;
 
 		case 'K':
-			if (!strcmp (tag, "Kin "))
-			    GET_KIN(ch) = num;
-   			else if (!strcmp(tag, "Karm"))
-			    KARMA(ch) = fbgetstring(fl);
+			if (!strcmp(tag, "Kin "))
+				GET_KIN(ch) = num;
+			else if (!strcmp(tag, "Karm"))
+				KARMA(ch) = fbgetstring(fl);
 			break;
 		case 'L':
-			if (!strcmp(tag, "LogL")) {
+			if (!strcmp(tag, "LogL"))
+			{
 				i = 0;
 				struct logon_data * cur_log = 0;
-				long  lnum,lnum2;
-				do {
+				long  lnum, lnum2;
+				do
+				{
 					fbgetline(fl, line);
 					sscanf(line, "%s %ld %ld", &buf[0], &lnum, &lnum2);
-					if ( buf[0] != '~' ) {
+					if (buf[0] != '~')
+					{
 						if (i == 0)
-							cur_log = LOGON_LIST(ch) = new (struct logon_data);
+							cur_log = LOGON_LIST(ch) = new(struct logon_data);
 						else
 						{
-							cur_log->next = new (struct logon_data);
+							cur_log->next = new(struct logon_data);
 							cur_log = cur_log->next;
 						}
 						// Добавляем в список.
@@ -5028,10 +5524,12 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 						i++;
 					}
 					else break;
-				} while (true);
+				}
+				while (true);
 			}
 // Gunner
-			else if (!strcmp(tag, "Logs")) {
+			else if (!strcmp(tag, "Logs"))
+			{
 				sscanf(line, "%d %d", &num, &num2);
 				if (num >= 0 && num < NLOG)
 					GET_LOGS(ch)[num] = num2;
@@ -5039,23 +5537,30 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			break;
 
 		case 'M':
-			if (!strcmp(tag, "Mana")) {
+			if (!strcmp(tag, "Mana"))
+			{
 				sscanf(line, "%d/%d", &num, &num2);
 				GET_MEM_COMPLETED(ch) = num;
 				GET_MEM_TOTAL(ch) = num2;
-			} else if (!strcmp(tag, "Move")) {
+			}
+			else if (!strcmp(tag, "Move"))
+			{
 				sscanf(line, "%d/%d", &num, &num2);
 				GET_MOVE(ch) = num;
 				GET_MAX_MOVE(ch) = num2;
-			} else if (!strcmp(tag, "Mobs")) {
-				do {
+			}
+			else if (!strcmp(tag, "Mobs"))
+			{
+				do
+				{
 					if (!fbgetline(fl, line))
 						break;
 					if (*line == '~')
 						break;
 					sscanf(line, "%d %d", &num, &num2);
 					inc_kill_vnum(ch, num, num2);
-				} while (true);
+				}
+				while (true);
 			}
 			break;
 
@@ -5097,8 +5602,10 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				POOFOUT(ch) = str_dup(line);
 			else if (!strcmp(tag, "Pref"))
 				asciiflag_conv(line, &PRF_FLAGS(ch, 0));
-			else if (!strcmp(tag, "Pkil")) {
-				do {
+			else if (!strcmp(tag, "Pkil"))
+			{
+				do
+				{
 					if (!fbgetline(fl, line))
 						break;
 					if (*line == '~')
@@ -5111,7 +5618,8 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 					for (pk_one = ch->pk_list; pk_one; pk_one = pk_one->next)
 						if (pk_one->unique == lnum)
 							break;
-					if (pk_one) {
+					if (pk_one)
+					{
 						log("SYSERROR: duplicate entry pkillers data for %d %s", id, filename);
 						continue;
 					}
@@ -5121,8 +5629,10 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 					pk_one->kill_num = num;
 					pk_one->next = ch->pk_list;
 					ch->pk_list = pk_one;
-				} while (true);
-			} else if (!strcmp(tag, "PK  "))
+				}
+				while (true);
+			}
+			else if (!strcmp(tag, "PK  "))
 				IS_KILLER(ch) = lnum;
 			else if (!strcmp(tag, "Prtl"))
 				add_portal_to_char(ch, num);
@@ -5130,58 +5640,58 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			else if (!strcmp(tag, "PMut"))
 			{
 				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-				MUTE_DURATION(ch)=lnum;
-				GET_MUTE_LEV(ch)= num2;
-				MUTE_GODID(ch)=lnum3;
-				MUTE_REASON(ch)=str_dup(buf);
+				MUTE_DURATION(ch) = lnum;
+				GET_MUTE_LEV(ch) = num2;
+				MUTE_GODID(ch) = lnum3;
+				MUTE_REASON(ch) = str_dup(buf);
 			}
 			else if (!strcmp(tag, "PHel"))
 			{
 				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-				HELL_DURATION(ch)=lnum;
-				GET_HELL_LEV(ch)= num2;
-				HELL_GODID(ch)=lnum3;
-				HELL_REASON(ch)=str_dup(buf);
+				HELL_DURATION(ch) = lnum;
+				GET_HELL_LEV(ch) = num2;
+				HELL_GODID(ch) = lnum3;
+				HELL_REASON(ch) = str_dup(buf);
 			}
 			else if (!strcmp(tag, "PDum"))
 			{
 				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-				DUMB_DURATION(ch)=lnum;
-				GET_DUMB_LEV(ch)= num2;
-				DUMB_GODID(ch)=lnum3;
-				DUMB_REASON(ch)=str_dup(buf);
+				DUMB_DURATION(ch) = lnum;
+				GET_DUMB_LEV(ch) = num2;
+				DUMB_GODID(ch) = lnum3;
+				DUMB_REASON(ch) = str_dup(buf);
 			}
 			else if (!strcmp(tag, "PNam"))
 			{
 				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-				NAME_DURATION(ch)=lnum;
-				GET_NAME_LEV(ch)= num2;
-				NAME_GODID(ch)=lnum3;
-				NAME_REASON(ch)=str_dup(buf);
+				NAME_DURATION(ch) = lnum;
+				GET_NAME_LEV(ch) = num2;
+				NAME_GODID(ch) = lnum3;
+				NAME_REASON(ch) = str_dup(buf);
 			}
 			else if (!strcmp(tag, "PFrz"))
 			{
 				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-				FREEZE_DURATION(ch)=lnum;
-				GET_FREEZE_LEV(ch)= num2;
-				FREEZE_GODID(ch)=lnum3;
-				FREEZE_REASON(ch)=str_dup(buf);
+				FREEZE_DURATION(ch) = lnum;
+				GET_FREEZE_LEV(ch) = num2;
+				FREEZE_GODID(ch) = lnum3;
+				FREEZE_REASON(ch) = str_dup(buf);
 			}
 			else if (!strcmp(tag, "PGcs"))
 			{
 				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-				GCURSE_DURATION(ch)=lnum;
-				GET_GCURSE_LEV(ch)= num2;
-				GCURSE_GODID(ch)=lnum3;
-				GCURSE_REASON(ch)=str_dup(buf);
+				GCURSE_DURATION(ch) = lnum;
+				GET_GCURSE_LEV(ch) = num2;
+				GCURSE_GODID(ch) = lnum3;
+				GCURSE_REASON(ch) = str_dup(buf);
 			}
 			else if (!strcmp(tag, "PUnr"))
 			{
 				sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-				UNREG_DURATION(ch)=lnum;
-				GET_UNREG_LEV(ch)= num2;
-				UNREG_GODID(ch)=lnum3;
-				UNREG_REASON(ch)=str_dup(buf);
+				UNREG_DURATION(ch) = lnum;
+				GET_UNREG_LEV(ch) = num2;
+				UNREG_GODID(ch) = lnum3;
+				UNREG_REASON(ch) = str_dup(buf);
 			}
 
 			break;
@@ -5198,9 +5708,11 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				GET_RELIGION(ch) = num;
 			else if (!strcmp(tag, "Race"))
 				GET_RACE(ch) = num;
-			else if (!strcmp(tag, "Rcps")) {
+			else if (!strcmp(tag, "Rcps"))
+			{
 				im_rskill *last = NULL;
-				for (;;) {
+				for (;;)
+				{
 					im_rskill *rs;
 					fbgetline(fl, line);
 					sscanf(line, "%d %d", &num, &num2);
@@ -5229,43 +5741,56 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				GET_SIZE(ch) = num;
 			else if (!strcmp(tag, "Sex "))
 				GET_SEX(ch) = num;
-			else if (!strcmp(tag, "Skil")) {
-				do {
+			else if (!strcmp(tag, "Skil"))
+			{
+				do
+				{
 					fbgetline(fl, line);
 					sscanf(line, "%d %d", &num, &num2);
 					if (num != 0)
-						if(skill_info[num].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] == KNOW_SKILL)
+						if (skill_info[num].classknow[(int) GET_KIN(ch)][(int) GET_CLASS(ch)] == KNOW_SKILL)
 							ch->set_skill(num, num2);
 				}
 				while (num != 0);
-			} else if (!strcmp(tag, "SkTm")) {
-				do {
+			}
+			else if (!strcmp(tag, "SkTm"))
+			{
+				do
+				{
 					fbgetline(fl, line);
 					sscanf(line, "%d %d", &num, &num2);
-					if (num != 0) {
+					if (num != 0)
+					{
 						timed.skill = num;
 						timed.time = num2;
 						timed_to_char(ch, &timed);
 					}
 				}
 				while (num != 0);
-			} else if (!strcmp(tag, "Spel")) {
-				do {
+			}
+			else if (!strcmp(tag, "Spel"))
+			{
+				do
+				{
 					fbgetline(fl, line);
 					sscanf(line, "%d %d", &num, &num2);
 					if (num != 0 && spell_info[num].name)
 						GET_SPELL_TYPE(ch, num) = num2;
 				}
 				while (num != 0);
-			} else if (!strcmp(tag, "SpMe")) {
-				do {
+			}
+			else if (!strcmp(tag, "SpMe"))
+			{
+				do
+				{
 					fbgetline(fl, line);
 					sscanf(line, "%d %d", &num, &num2);
 					if (num != 0)
 						GET_SPELL_MEM(ch, num) = num2;
 				}
 				while (num != 0);
-			} else if (!strcmp(tag, "Str "))
+			}
+			else if (!strcmp(tag, "Str "))
 				GET_STR(ch) = num;
 			else if (!strcmp(tag, "StrL"))
 				STRING_LENGTH(ch) = num;
@@ -5308,7 +5833,8 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 
 	/* affect_total(ch);  */
 	/* initialization for imms */
-	if (GET_LEVEL(ch) >= LVL_IMMORT) {
+	if (GET_LEVEL(ch) >= LVL_IMMORT)
+	{
 		for (i = 1; i <= MAX_SKILLS; i++)
 			ch->set_skill(i, 100);
 		GET_COND(ch, FULL) = -1;
@@ -5322,17 +5848,21 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 		if (can_get_feat(ch, i) && feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 			SET_FEAT(ch, i);
 
-	if (IS_GRGOD(ch)) {
+	if (IS_GRGOD(ch))
+	{
 		for (i = 0; i <= MAX_SPELLS; i++)
 			GET_SPELL_TYPE(ch, i) = GET_SPELL_TYPE(ch, i) |
-			    SPELL_ITEMS | SPELL_KNOW | SPELL_RUNES | SPELL_SCROLL | SPELL_POTION | SPELL_WAND;
-	} else if (!IS_IMMORTAL(ch)) {
-		for (i = 0; i <= MAX_SPELLS; i++) {
-			if (spell_info[i].slot_forc[(int) GET_CLASS (ch)][(int) GET_KIN (ch)] == MAX_SLOT)
+									SPELL_ITEMS | SPELL_KNOW | SPELL_RUNES | SPELL_SCROLL | SPELL_POTION | SPELL_WAND;
+	}
+	else if (!IS_IMMORTAL(ch))
+	{
+		for (i = 0; i <= MAX_SPELLS; i++)
+		{
+			if (spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == MAX_SLOT)
 				REMOVE_BIT(GET_SPELL_TYPE(ch, i), SPELL_KNOW);
 // shapirus: изученное не убираем на всякий случай, но из мема выкидываем,
 // если мортов мало
-			if (GET_REMORT(ch) < MIN_CAST_REM(spell_info[i],ch))
+			if (GET_REMORT(ch) < MIN_CAST_REM(spell_info[i], ch))
 				GET_SPELL_MEM(ch, i) = 0;
 		}
 	}
@@ -5341,10 +5871,12 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	 * If you're not poisioned and you've been away for more than an hour of
 	 * real time, we'll set your HMV back to full
 	 */
-	if (!AFF_FLAGGED(ch, AFF_POISON) && (((long) (time(0) - LAST_LOGON(ch))) >= SECS_PER_REAL_HOUR)) {
+	if (!AFF_FLAGGED(ch, AFF_POISON) && (((long)(time(0) - LAST_LOGON(ch))) >= SECS_PER_REAL_HOUR))
+	{
 		GET_HIT(ch) = GET_REAL_MAX_HIT(ch);
 		GET_MOVE(ch) = GET_REAL_MAX_MOVE(ch);
-	} else
+	}
+	else
 		GET_HIT(ch) = MIN(GET_HIT(ch), GET_REAL_MAX_HIT(ch));
 
 	fbclose(fl);
@@ -5363,7 +5895,8 @@ int load_char(const char *name, CHAR_DATA * char_element, bool reboot)
 	int player_i;
 
 	player_i = load_char_ascii(name, char_element, reboot);
-	if (player_i > -1) {
+	if (player_i > -1)
+	{
 		GET_PFILEPOS(char_element) = player_i;
 	}
 	return (player_i);
@@ -5379,11 +5912,14 @@ int create_entry(char *name)
 {
 	int i, pos, found = TRUE;
 
-	if (top_of_p_table == -1) {	/* no table */
+	if (top_of_p_table == -1)  	/* no table */
+	{
 		CREATE(player_table, struct player_index_element, 1);
 		pos = top_of_p_table = 0;
 		found = FALSE;
-	} else if ((pos = get_ptable_by_name(name)) == -1) {	/* new name */
+	}
+	else if ((pos = get_ptable_by_name(name)) == -1)  	/* new name */
+	{
 		i = ++top_of_p_table + 1;
 		RECREATE(player_table, struct player_index_element, i);
 		pos = top_of_p_table;
@@ -5417,13 +5953,16 @@ char *fread_string(FILE * fl, char *error)
 
 	*buf = '\0';
 
-	do {
-		if (!fgets(tmp, 512, fl)) {
+	do
+	{
+		if (!fgets(tmp, 512, fl))
+		{
 			log("SYSERR: fread_string: format error at or near %s", error);
 			exit(1);
 		}
 		/* If there is a '~', end the string; else put an "\r\n" over the '\n'. */
-		if ((point = strchr(tmp, '~')) != NULL) {
+		if ((point = strchr(tmp, '~')) != NULL)
+		{
 			/* Два символа '~' подряд интерпретируются как '~' и
 			   строка продолжается.
 			   Можно не использовать.
@@ -5432,13 +5971,18 @@ char *fread_string(FILE * fl, char *error)
 			   Чтобы такая строва правильно загрузилась, в trg файле следует указать два символа '~'
 			   wat 26000 wechoaround %actor% ~~%actor.name% появил%actor.u% тут в клубах дыма.
 			 */
-			if (point[1] != '~') {
+			if (point[1] != '~')
+			{
 				*point = '\0';
 				done = 1;
-			} else {
+			}
+			else
+			{
 				memmove(point, point + 1, strlen(point));
 			}
-		} else {
+		}
+		else
+		{
 			point = tmp + strlen(tmp) - 1;
 			*(point++) = '\r';
 			*(point++) = '\n';
@@ -5447,11 +5991,14 @@ char *fread_string(FILE * fl, char *error)
 
 		templength = strlen(tmp);
 
-		if (length + templength >= MAX_STRING_LENGTH) {
+		if (length + templength >= MAX_STRING_LENGTH)
+		{
 			log("SYSERR: fread_string: string too large (db.c)");
 			log(error);
 			exit(1);
-		} else {
+		}
+		else
+		{
 			strcat(buf + length, tmp);
 			length += templength;
 		}
@@ -5459,10 +6006,12 @@ char *fread_string(FILE * fl, char *error)
 	while (!done);
 
 	/* allocate space for the new string and copy it */
-	if (strlen(buf) > 0) {
+	if (strlen(buf) > 0)
+	{
 		CREATE(rslt, char, length + 1);
 		strcpy(rslt, buf);
-	} else
+	}
+	else
 		rslt = NULL;
 	return (rslt);
 }
@@ -5473,7 +6022,8 @@ void free_obj(OBJ_DATA * obj)
 	int nr, i;
 	EXTRA_DESCR_DATA *thisd, *next_one, *tmp, *tmp_next;
 
-	if ((nr = GET_OBJ_RNUM(obj)) == -1) {
+	if ((nr = GET_OBJ_RNUM(obj)) == -1)
+	{
 		if (obj->name)
 			free(obj->name);
 
@@ -5491,7 +6041,8 @@ void free_obj(OBJ_DATA * obj)
 			free(obj->action_description);
 
 		if (obj->ex_description)
-			for (thisd = obj->ex_description; thisd; thisd = next_one) {
+			for (thisd = obj->ex_description; thisd; thisd = next_one)
+			{
 				next_one = thisd->next;
 				if (thisd->keyword)
 					free(thisd->keyword);
@@ -5499,7 +6050,9 @@ void free_obj(OBJ_DATA * obj)
 					free(thisd->description);
 				free(thisd);
 			}
-	} else {
+	}
+	else
+	{
 		if (obj->name && obj->name != obj_proto[nr]->name)
 			free(obj->name);
 
@@ -5517,12 +6070,15 @@ void free_obj(OBJ_DATA * obj)
 			free(obj->action_description);
 
 		if (obj->ex_description && obj->ex_description != obj_proto[nr]->ex_description)
-			for (thisd = obj->ex_description; thisd; thisd = next_one) {
+			for (thisd = obj->ex_description; thisd; thisd = next_one)
+			{
 				next_one = thisd->next;
 				i = 0;
-				for (tmp = obj_proto[nr]->ex_description; tmp; tmp = tmp_next) {
+				for (tmp = obj_proto[nr]->ex_description; tmp; tmp = tmp_next)
+				{
 					tmp_next = tmp->next;
-					if (tmp == thisd) {
+					if (tmp == thisd)
+					{
 						i = 1;
 						break;
 					}
@@ -5583,17 +6139,21 @@ int file_to_string(const char *name, char *buf)
 
 	*buf = '\0';
 
-	if (!(fl = fopen(name, "r"))) {
+	if (!(fl = fopen(name, "r")))
+	{
 		log("SYSERR: reading %s: %s", name, strerror(errno));
 		return (-1);
 	}
-	do {
+	do
+	{
 		fgets(tmp, READ_SIZE, fl);
 		tmp[strlen(tmp) - 1] = '\0';	/* take off the trailing \n */
 		strcat(tmp, "\r\n");
 
-		if (!feof(fl)) {
-			if (strlen(buf) + strlen(tmp) + 1 > MAX_EXTEND_LENGTH) {
+		if (!feof(fl))
+		{
+			if (strlen(buf) + strlen(tmp) + 1 > MAX_EXTEND_LENGTH)
+			{
 				log("SYSERR: %s: string too big (%d max)", name, MAX_STRING_LENGTH);
 				*buf = '\0';
 				return (-1);
@@ -5640,7 +6200,8 @@ void reset_char(CHAR_DATA * ch)
 		GET_HIT(ch) = 1;
 	if (GET_MOVE(ch) <= 0)
 		GET_MOVE(ch) = 1;
-	if (!IS_MANA_CASTER(ch)) {
+	if (!IS_MANA_CASTER(ch))
+	{
 		MemQ_init(ch);
 	}
 
@@ -5686,10 +6247,13 @@ void init_char(CHAR_DATA * ch)
 		GET_TALK(ch, i) = 0;
 
 	/* make favors for sex */
-	if (ch->player.sex == SEX_MALE) {
+	if (ch->player.sex == SEX_MALE)
+	{
 		ch->player.weight = number(120, 180);
 		ch->player.height = number(160, 200);
-	} else {
+	}
+	else
+	{
 		ch->player.weight = number(100, 160);
 		ch->player.height = number(150, 180);
 	}
@@ -5699,12 +6263,15 @@ void init_char(CHAR_DATA * ch)
 	ch->points.move = GET_MAX_MOVE(ch);
 	ch->real_abils.armor = 100;
 
-	if ((i = get_ptable_by_name(GET_NAME(ch))) != -1) {
+	if ((i = get_ptable_by_name(GET_NAME(ch))) != -1)
+	{
 		player_table[i].id = GET_IDNUM(ch) = ++top_idnum;
 		player_table[i].unique = GET_UNIQUE(ch) = create_unique();
 		player_table[i].level = 0;
 		player_table[i].last_logon = -1;
-	} else {
+	}
+	else
+	{
 		log("SYSERR: init_char: Character '%s' not found in player table.", GET_NAME(ch));
 	}
 
@@ -5712,7 +6279,8 @@ void init_char(CHAR_DATA * ch)
 		for (i = 1; i <= MAX_SKILLS; i++)
 			ch->set_skill(i, 100);
 
-	for (i = 1; i <= MAX_SPELLS; i++) {
+	for (i = 1; i <= MAX_SPELLS; i++)
+	{
 		if (GET_LEVEL(ch) < LVL_GRGOD)
 			GET_SPELL_TYPE(ch, i) = 0;
 		else
@@ -5725,7 +6293,8 @@ void init_char(CHAR_DATA * ch)
 	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
 		GET_RESIST(ch, i) = 0;
 
-	if (GET_LEVEL(ch) == LVL_IMPL) {
+	if (GET_LEVEL(ch) == LVL_IMPL)
+	{
 		ch->real_abils.intel = 25;
 		ch->real_abils.wis = 25;
 		ch->real_abils.dex = 25;
@@ -5735,7 +6304,8 @@ void init_char(CHAR_DATA * ch)
 	}
 	ch->real_abils.size = 50;
 
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < 3; i++)
+	{
 		GET_COND(ch, i) = (GET_LEVEL(ch) == LVL_IMPL ? -1 : i == DRUNK ? 0 : 24);
 	}
 	GET_LASTIP(ch)[0] = 0;
@@ -5751,7 +6321,7 @@ void init_char(CHAR_DATA * ch)
 	STRING_LENGTH(ch) = 80;
 	STRING_WIDTH(ch) = 25;
 
-	GET_BOARD(ch) = new (struct board_data);
+	GET_BOARD(ch) = new(struct board_data);
 	// новому игроку вываливать все новости/мессаги на доске как непроченные не имеет смысла
 	for (int i = 0; i < BOARD_TOTAL; ++i)
 		GET_BOARD_DATE(ch, i) = time(0);
@@ -5760,7 +6330,7 @@ void init_char(CHAR_DATA * ch)
 }
 
 const char *remort_msg =
-    "  Если Вы так настойчивы в желании начать все заново -\r\n" "наберите <перевоплотиться> полностью.\r\n";
+	"  Если Вы так настойчивы в желании начать все заново -\r\n" "наберите <перевоплотиться> полностью.\r\n";
 
 ACMD(do_remort)
 {
@@ -5770,20 +6340,24 @@ ACMD(do_remort)
 	const char *remort_msg2 = "$n вспыхнул$g ослепительным пламенем и пропал$g!\r\n";
 
 
-	if (IS_NPC(ch) || IS_IMMORTAL(ch)) {
+	if (IS_NPC(ch) || IS_IMMORTAL(ch))
+	{
 		send_to_char("Вам это, похоже, совсем ни к чему.\r\n", ch);
 		return;
 	}
 //  if (!GET_GOD_FLAG(ch, GF_REMORT))
-	if (GET_EXP(ch) < level_exp(ch, LVL_IMMORT) - 1) {
+	if (GET_EXP(ch) < level_exp(ch, LVL_IMMORT) - 1)
+	{
 		send_to_char("ЧАВО ???\r\n", ch);
 		return;
 	}
-	if (RENTABLE(ch)) {
+	if (RENTABLE(ch))
+	{
 		send_to_char("Вы не можете перевоплотиться в связи с боевыми действиями.\r\n", ch);
 		return;
 	}
-	if (!subcmd) {
+	if (!subcmd)
+	{
 		send_to_char(remort_msg, ch);
 		return;
 	}
@@ -5814,7 +6388,8 @@ ACMD(do_remort)
 	free_mkill(ch);
 	delete_mkill_file(GET_NAME(ch));
 
-	if (ch->Questing.quests) {
+	if (ch->Questing.quests)
+	{
 		free(ch->Questing.quests);
 		ch->Questing.quests = 0;
 	}
@@ -5827,13 +6402,13 @@ ACMD(do_remort)
 		affect_remove(ch, ch->affected);
 	supress_godsapply = FALSE;
 
-/*  for (i = 0; i < NUM_WEARS; i++)
-      if (GET_EQ(ch,i))
-         extract_obj(unequip_char(ch,i));
-  for (obj = ch->carrying; obj; obj = nobj)
-      {nobj = obj->next_content;
-       extract_obj(obj);
-      }*/
+	/*  for (i = 0; i < NUM_WEARS; i++)
+	      if (GET_EQ(ch,i))
+	         extract_obj(unequip_char(ch,i));
+	  for (obj = ch->carrying; obj; obj = nobj)
+	      {nobj = obj->next_content;
+	       extract_obj(obj);
+	      }*/
 // Снимаем весь стафф
 	for (i = 0; i < NUM_WEARS; i++)
 		if (GET_EQ(ch, i))
@@ -5844,7 +6419,8 @@ ACMD(do_remort)
 
 	ch->skills.clear();
 
-	for (i = 1; i <= MAX_SPELLS; i++) {
+	for (i = 1; i <= MAX_SPELLS; i++)
+	{
 		GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
 		GET_SPELL_MEM(ch, i) = 0;
 	}
@@ -5879,12 +6455,14 @@ ACMD(do_remort)
 		load_room = r_named_start_room;
 	else if (PLR_FLAGGED(ch, PLR_FROZEN))
 		load_room = r_frozen_start_room;
-	else {
+	else
+	{
 		if ((load_room = GET_LOADROOM(ch)) == NOWHERE)
 			load_room = calc_loadroom(ch);
 		load_room = real_room(load_room);
 	}
-	if (load_room == NOWHERE) {
+	if (load_room == NOWHERE)
+	{
 		if (GET_LEVEL(ch) >= LVL_IMMORT)
 			load_room = r_immort_start_room;
 		else
@@ -5907,7 +6485,8 @@ room_rnum real_room(room_vnum vnum)
 	bot = 1;		// 0 - room is NOWHERE
 	top = top_of_world;
 	/* perform binary search on world-table */
-	for (;;) {
+	for (;;)
+	{
 		mid = (bot + top) / 2;
 
 		if (world[mid]->number == vnum)
@@ -5932,7 +6511,8 @@ mob_rnum real_mobile(mob_vnum vnum)
 	top = top_of_mobt;
 
 	/* perform binary search on mob-table */
-	for (;;) {
+	for (;;)
+	{
 		mid = (bot + top) / 2;
 
 		if ((mob_index + mid)->vnum == vnum)
@@ -5957,7 +6537,8 @@ obj_rnum real_object(obj_vnum vnum)
 	top = top_of_objt;
 
 	/* perform binary search on obj-table */
-	for (;;) {
+	for (;;)
+	{
 		mid = (bot + top) / 2;
 
 		if ((obj_index + mid)->vnum == vnum)
@@ -5982,11 +6563,11 @@ int check_object(OBJ_DATA * obj)
 
 	if (GET_OBJ_WEIGHT(obj) < 0 && (error = TRUE))
 		log("SYSERR: Object #%d (%s) has negative weight (%d).",
-		    GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_WEIGHT(obj));
+			GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_WEIGHT(obj));
 
 	if (GET_OBJ_RENT(obj) < 0 && (error = TRUE))
 		log("SYSERR: Object #%d (%s) has negative cost/day (%d).",
-		    GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_RENT(obj));
+			GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_RENT(obj));
 
 	sprintbit(GET_OBJ_WEAR(obj), wear_bits, buf);
 	if (strstr(buf, "UNDEFINED") && (error = TRUE))
@@ -6001,7 +6582,8 @@ int check_object(OBJ_DATA * obj)
 	if (strstr(buf, "UNDEFINED") && (error = TRUE))
 		log("SYSERR: Object #%d (%s) has unknown affection flags.", GET_OBJ_VNUM(obj), obj->short_description);
 
-	switch (GET_OBJ_TYPE(obj)) {
+	switch (GET_OBJ_TYPE(obj))
+	{
 	case ITEM_DRINKCON:
 //  { char onealias[MAX_INPUT_LENGTH], *space = strchr(obj->name, ' ');
 //
@@ -6018,7 +6600,7 @@ int check_object(OBJ_DATA * obj)
 	case ITEM_FOUNTAIN:
 		if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0) && (error = TRUE))
 			log("SYSERR: Object #%d (%s) contains (%d) more than maximum (%d).",
-			    GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 0));
+				GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 0));
 		break;
 	case ITEM_SCROLL:
 	case ITEM_POTION:
@@ -6036,7 +6618,7 @@ int check_object(OBJ_DATA * obj)
 		error |= check_object_spell_number(obj, 3);
 		if (GET_OBJ_VAL(obj, 2) > GET_OBJ_VAL(obj, 1) && (error = TRUE))
 			log("SYSERR: Object #%d (%s) has more charges (%d) than maximum (%d).",
-			    GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 1));
+				GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 1));
 		break;
 	}
 
@@ -6061,7 +6643,7 @@ int check_object_spell_number(OBJ_DATA * obj, int val)
 		error = TRUE;
 	if (error)
 		log("SYSERR: Object #%d (%s) has out of range spell #%d.",
-		    GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, val));
+			GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, val));
 
 	/*
 	 * This bug has been fixed, but if you don't like the special behavior...
@@ -6069,9 +6651,9 @@ int check_object_spell_number(OBJ_DATA * obj, int val)
 #if 0
 	if (GET_OBJ_TYPE(obj) == ITEM_STAFF && HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, val), MAG_AREAS | MAG_MASSES))
 		log("... '%s' (#%d) uses %s spell '%s'.",
-		    obj->short_description, GET_OBJ_VNUM(obj),
-		    HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, val),
-				      MAG_AREAS) ? "area" : "mass", spell_name(GET_OBJ_VAL(obj, val)));
+			obj->short_description, GET_OBJ_VNUM(obj),
+			HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, val),
+							  MAG_AREAS) ? "area" : "mass", spell_name(GET_OBJ_VAL(obj, val)));
 #endif
 
 	if (scheck)		/* Spell names don't exist in syntax check mode. */
@@ -6081,9 +6663,9 @@ int check_object_spell_number(OBJ_DATA * obj, int val)
 	spellname = spell_name(GET_OBJ_VAL(obj, val));
 
 	if ((spellname == unused_spellname || !str_cmp("UNDEFINED", spellname))
-	    && (error = TRUE))
+			&& (error = TRUE))
 		log("SYSERR: Object #%d (%s) uses '%s' spell #%d.", GET_OBJ_VNUM(obj),
-		    obj->short_description, spellname, GET_OBJ_VAL(obj, val));
+			obj->short_description, spellname, GET_OBJ_VAL(obj, val));
 	return (error);
 }
 
@@ -6092,9 +6674,9 @@ int check_object_level(OBJ_DATA * obj, int val)
 	int error = FALSE;
 
 	if ((GET_OBJ_VAL(obj, val) < 0 || GET_OBJ_VAL(obj, val) > LVL_IMPL)
-	    && (error = TRUE))
+			&& (error = TRUE))
 		log("SYSERR: Object #%d (%s) has out of range level #%d.",
-		    GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, val));
+			GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, val));
 	return (error);
 }
 
@@ -6114,15 +6696,19 @@ int must_be_deleted(CHAR_DATA * short_ch)
 		return (1);
 
 	timeout = -1;
-	for (ci = 0; ci == 0 || pclean_criteria[ci].level > pclean_criteria[ci - 1].level; ci++) {
-		if (GET_LEVEL(short_ch) <= pclean_criteria[ci].level) {
+	for (ci = 0; ci == 0 || pclean_criteria[ci].level > pclean_criteria[ci - 1].level; ci++)
+	{
+		if (GET_LEVEL(short_ch) <= pclean_criteria[ci].level)
+		{
 			timeout = pclean_criteria[ci].days;
 			break;
 		}
 	}
-	if (timeout >= 0) {
+	if (timeout >= 0)
+	{
 		timeout *= SECS_PER_REAL_DAY;
-		if ((time(0) - LAST_LOGON(short_ch)) > timeout) {
+		if ((time(0) - LAST_LOGON(short_ch)) > timeout)
+		{
 			return (1);
 		}
 	}
@@ -6159,7 +6745,7 @@ void entrycount(char *name)
 
 				CREATE(player_table[top_of_p_table].name, char, strlen(GET_NAME(short_ch)) + 1);
 				for (i = 0, player_table[top_of_p_table].name[i] = '\0';
-				     (player_table[top_of_p_table].name[i] = LOWER(GET_NAME(short_ch)[i])); i++);
+						(player_table[top_of_p_table].name[i] = LOWER(GET_NAME(short_ch)[i])); i++);
 				player_table[top_of_p_table].id = GET_IDNUM(short_ch);
 				player_table[top_of_p_table].unique = GET_UNIQUE(short_ch);
 				player_table[top_of_p_table].level = (GET_REMORT(short_ch) ? 30 : GET_LEVEL(short_ch));
@@ -6168,7 +6754,8 @@ void entrycount(char *name)
 				{
 					player_table[top_of_p_table].last_logon = -1;
 					player_table[top_of_p_table].activity = -1;
-				} else
+				}
+				else
 				{
 					player_table[top_of_p_table].last_logon = LAST_LOGON(short_ch);
 					player_table[top_of_p_table].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
@@ -6219,13 +6806,15 @@ void new_build_player_index(void)
 
 	player_table = NULL;
 	top_of_p_file = top_of_p_table = -1;
-	if (!(players = fopen(LIB_PLRS "players.lst", "r"))) {
+	if (!(players = fopen(LIB_PLRS "players.lst", "r")))
+	{
 		log("Players list empty...");
 		return;
 	}
 
 	now_entrycount = TRUE;
-	while (get_line(players, name)) {
+	while (get_line(players, name))
+	{
 		if (!*name || *name == ';')
 			continue;
 		if (sscanf(name, "%s ", playername) == 0)
@@ -6247,11 +6836,13 @@ void flush_player_index(void)
 	char name[MAX_STRING_LENGTH];
 	int i;
 
-	if (!(players = fopen(LIB_PLRS "players.lst", "w+"))) {
+	if (!(players = fopen(LIB_PLRS "players.lst", "w+")))
+	{
 		log("Cann't save players list...");
 		return;
 	}
-	for (i = 0; i <= top_of_p_table; i++) {
+	for (i = 0; i <= top_of_p_table; i++)
+	{
 		if (!player_table[i].name || !*player_table[i].name)
 			continue;
 
@@ -6263,8 +6854,8 @@ void flush_player_index(void)
 		//    continue;
 
 		sprintf(name, "%s %ld %ld %d %d\n",
-			player_table[i].name,
-			player_table[i].id, player_table[i].unique, player_table[i].level, player_table[i].last_logon);
+				player_table[i].name,
+				player_table[i].id, player_table[i].unique, player_table[i].level, player_table[i].last_logon);
 		fputs(name, players);
 	}
 	fclose(players);
@@ -6279,11 +6870,13 @@ void dupe_player_index(void)
 
 	sprintf(name, LIB_PLRS "players.dup");
 
-	if (!(players = fopen(name, "w+"))) {
+	if (!(players = fopen(name, "w+")))
+	{
 		log("Cann't save players list...");
 		return;
 	}
-	for (i = 0; i <= top_of_p_table; i++) {
+	for (i = 0; i <= top_of_p_table; i++)
+	{
 		if (!player_table[i].name || !*player_table[i].name)
 			continue;
 
@@ -6295,8 +6888,8 @@ void dupe_player_index(void)
 			continue;
 
 		sprintf(name, "%s %ld %ld %d %d\n",
-			player_table[i].name,
-			player_table[i].id, player_table[i].unique, player_table[i].level, player_table[i].last_logon);
+				player_table[i].name,
+				player_table[i].id, player_table[i].unique, player_table[i].level, player_table[i].last_logon);
 		fputs(name, players);
 	}
 	fclose(players);
@@ -6313,7 +6906,8 @@ void kill_ems(char *str)
 	ptr1 = str;
 	ptr2 = str;
 
-	while (*ptr1) {
+	while (*ptr1)
+	{
 		if ((*(ptr2++) = *(ptr1++)) == '\r')
 			if (*ptr1 == '\r')
 				ptr1++;
@@ -6337,8 +6931,10 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 		if (IS_NPC(ch) || GET_PFILEPOS(ch) < 0)
 			return;
 
-	if (!PLR_FLAGGED(ch, PLR_LOADROOM)) {
-		if (load_room > NOWHERE) {
+	if (!PLR_FLAGGED(ch, PLR_LOADROOM))
+	{
+		if (load_room > NOWHERE)
+		{
 			GET_LOADROOM(ch) = GET_ROOM_VNUM(load_room);
 			log("Player %s save at room %d", GET_NAME(ch), GET_ROOM_VNUM(load_room));
 		}
@@ -6347,34 +6943,43 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	log("Save char %s", GET_NAME(ch));
 	save_char_vars(ch);
 
-/* Запись чара в новом формате */
+	/* Запись чара в новом формате */
 	get_filename(GET_NAME(ch), filename, PLAYERS_FILE);
-	if (!(saved = fopen(filename, "w"))) {
+	if (!(saved = fopen(filename, "w")))
+	{
 		perror("Unable open charfile");
 		return;
 	}
-/* подготовка */
+	/* подготовка */
 	/* снимаем все возможные аффекты  */
-	for (i = 0; i < NUM_WEARS; i++) {
-		if (GET_EQ(ch, i)) {
+	for (i = 0; i < NUM_WEARS; i++)
+	{
+		if (GET_EQ(ch, i))
+		{
 			char_eq[i] = unequip_char(ch, i | 0x80);
 #ifndef NO_EXTRANEOUS_TRIGGERS
 			remove_otrigger(char_eq[i], ch);
 #endif
-		} else
+		}
+		else
 			char_eq[i] = NULL;
 	}
 
-	for (aff = ch->affected, i = 0; i < MAX_AFFECT; i++) {
-		if (aff) {
+	for (aff = ch->affected, i = 0; i < MAX_AFFECT; i++)
+	{
+		if (aff)
+		{
 			if (aff->type == SPELL_ARMAGEDDON || aff->type < 1 || aff->type > LAST_USED_SPELL)
 				i--;
-			else {
+			else
+			{
 				tmp_aff[i] = *aff;
 				tmp_aff[i].next = 0;
 			}
 			aff = aff->next;
-		} else {
+		}
+		else
+		{
 			tmp_aff[i].type = 0;	/* Zero signifies not used */
 			tmp_aff[i].duration = 0;
 			tmp_aff[i].modifier = 0;
@@ -6433,7 +7038,8 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 		fprintf(saved, "EMal: %s\n", GET_EMAIL(ch));
 	if (GET_TITLE(ch))
 		fprintf(saved, "Titl: %s\n", GET_TITLE(ch));
-	if (ch->player.description && *ch->player.description) {
+	if (ch->player.description && *ch->player.description)
+	{
 		strcpy(buf, ch->player.description);
 		kill_ems(buf);
 		fprintf(saved, "Desc:\n%s~\n", buf);
@@ -6443,7 +7049,7 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	if (POOFOUT(ch))
 		fprintf(saved, "PfOt: %s\n", POOFOUT(ch));
 	fprintf(saved, "Sex : %d %s\n", GET_SEX(ch), genders[(int) GET_SEX(ch)]);
-	fprintf (saved, "Kin : %d %s\n", GET_KIN (ch),kin_name[GET_KIN (ch)][(int) GET_SEX (ch)]);
+	fprintf(saved, "Kin : %d %s\n", GET_KIN(ch), kin_name[GET_KIN(ch)][(int) GET_SEX(ch)]);
 	if ((location = real_room(GET_HOME(ch))) != NOWHERE)
 		fprintf(saved, "Home: %d %s\n", GET_HOME(ch), world[(location)]->name);
 	li = ch->player.time.birth;
@@ -6480,9 +7086,11 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	fprintf(saved, "Cha : %d\n", GET_CHA(ch));
 
 	/* способности - added by Gorrah */
-	if (GET_LEVEL(ch) < LVL_IMMORT) {
+	if (GET_LEVEL(ch) < LVL_IMMORT)
+	{
 		fprintf(saved, "Feat:\n");
-		for (i = 1; i < MAX_FEATS; i++) {
+		for (i = 1; i < MAX_FEATS; i++)
+		{
 			if (HAVE_FEAT(ch, i))
 				fprintf(saved, "%d %s\n", i, feat_info[i].name);
 		}
@@ -6490,18 +7098,22 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	}
 
 	/* Задержки на cпособности */
-	if (GET_LEVEL(ch) < LVL_IMMORT) {
+	if (GET_LEVEL(ch) < LVL_IMMORT)
+	{
 		fprintf(saved, "FtTm:\n");
-		for (skj = ch->timed_feat; skj; skj = skj->next) {
+		for (skj = ch->timed_feat; skj; skj = skj->next)
+		{
 			fprintf(saved, "%d %d %s\n", skj->skill, skj->time, feat_info[skj->skill].name);
 		}
 		fprintf(saved, "0 0\n");
 	}
 
 	/* скилы */
-	if (GET_LEVEL(ch) < LVL_IMMORT) {
+	if (GET_LEVEL(ch) < LVL_IMMORT)
+	{
 		fprintf(saved, "Skil:\n");
-		for (i = 1; i <= MAX_SKILLS; i++) {
+		for (i = 1; i <= MAX_SKILLS; i++)
+		{
 			if (ch->get_skill(i))
 				fprintf(saved, "%d %d %s\n", i, ch->get_skill(i), skill_info[i].name);
 		}
@@ -6509,9 +7121,11 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	}
 
 	/* Задержки на скилы */
-	if (GET_LEVEL(ch) < LVL_IMMORT) {
+	if (GET_LEVEL(ch) < LVL_IMMORT)
+	{
 		fprintf(saved, "SkTm:\n");
-		for (skj = ch->timed; skj; skj = skj->next) {
+		for (skj = ch->timed; skj; skj = skj->next)
+		{
 			fprintf(saved, "%d %d\n", skj->skill, skj->time);
 		}
 		fprintf(saved, "0 0\n");
@@ -6529,9 +7143,11 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	}
 
 	/* Замемленые спелы */
-	if (GET_LEVEL(ch) < LVL_IMMORT) {
+	if (GET_LEVEL(ch) < LVL_IMMORT)
+	{
 		fprintf(saved, "SpMe:\n");
-		for (i = 1; i <= MAX_SPELLS; i++) {
+		for (i = 1; i <= MAX_SPELLS; i++)
+		{
 			if (GET_SPELL_MEM(ch, i))
 				fprintf(saved, "%d %d\n", i, GET_SPELL_MEM(ch, i));
 		}
@@ -6544,7 +7160,8 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 		im_rskill *rs;
 		im_recipe *r;
 		fprintf(saved, "Rcps:\n");
-		for (rs = GET_RSKILL(ch); rs; rs = rs->link) {
+		for (rs = GET_RSKILL(ch); rs; rs = rs->link)
+		{
 			if (rs->perc <= 0)
 				continue;
 			r = &imrecipes[rs->rid];
@@ -6573,7 +7190,7 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 
 	if (GET_BOARD(ch))
 		for (int i = 0; i < BOARD_TOTAL; ++i)
-			fprintf(saved, "Br%02d: %ld\n", i+1, GET_BOARD_DATE(ch, i));
+			fprintf(saved, "Br%02d: %ld\n", i + 1, GET_BOARD_DATE(ch, i));
 
 	for (int i = 0; i <= START_STATS_TOTAL; ++i)
 		fprintf(saved, "St%02d: %i\n", i, GET_START_STAT(ch, i));
@@ -6610,16 +7227,19 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 		fprintf(saved, "PUnr: %ld %d %ld %s~\n", UNREG_DURATION(ch), GET_UNREG_LEV(ch), UNREG_GODID(ch), UNREG_REASON(ch));
 
 
-	if (KARMA(ch) > 0) {
+	if (KARMA(ch) > 0)
+	{
 		strcpy(buf, KARMA(ch));
 		kill_ems(buf);
 		fprintf(saved, "Karm:\n%s~\n", buf);
 	}
-	if (LOGON_LIST(ch) > 0) {
+	if (LOGON_LIST(ch) > 0)
+	{
 		log("Saving logon list.");
 		struct logon_data * next_log = LOGON_LIST(ch);
 		std::stringstream buffer;
-		while (next_log) {
+		while (next_log)
+		{
 			buffer << next_log->ip << " " << next_log->count << " " << next_log->lasttime << "\n";
 			next_log = next_log->next;
 		}
@@ -6636,8 +7256,10 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	// shapirus: игнор лист
 	{
 		struct ignore_data *cur = IGNORE_LIST(ch);
-		if (cur) {
-			for (; cur; cur = cur->next) {
+		if (cur)
+		{
+			for (; cur; cur = cur->next)
+			{
 				if (!cur->id)
 					continue;
 				fprintf(saved, "Ignr: [%ld]%ld\n", cur->mode, cur->id);
@@ -6646,31 +7268,38 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	}
 
 	/* affected_type */
-	if (tmp_aff[0].type > 0) {
+	if (tmp_aff[0].type > 0)
+	{
 		fprintf(saved, "Affs:\n");
-		for (i = 0; i < MAX_AFFECT; i++) {
+		for (i = 0; i < MAX_AFFECT; i++)
+		{
 			aff = &tmp_aff[i];
 			if (aff->type)
 				fprintf(saved, "%d %d %d %d %d %s\n", aff->type, aff->duration,
-					aff->modifier, aff->location, (int) aff->bitvector, spell_name(aff->type));
+						aff->modifier, aff->location, (int) aff->bitvector, spell_name(aff->type));
 		}
 		fprintf(saved, "0 0 0 0 0\n");
 	}
 
 	/* порталы */
-	for (prt = GET_PORTALS(ch); prt; prt = prt->next) {
+	for (prt = GET_PORTALS(ch); prt; prt = prt->next)
+	{
 		fprintf(saved, "Prtl: %d\n", prt->vnum);
 	}
-	for (i = 0; i < NLOG; ++i) {
-		if (!GET_LOGS(ch)) {
+	for (i = 0; i < NLOG; ++i)
+	{
+		if (!GET_LOGS(ch))
+		{
 			log("SYSERR: Saving NULL logs for char %s", GET_NAME(ch));
 			break;
 		}
 		fprintf(saved, "Logs: %d %d\n", i, GET_LOGS(ch)[i]);
 	}
 	/* Квесты */
-	if (ch->Questing.quests) {
-		for (i = 0; i < ch->Questing.count; i++) {
+	if (ch->Questing.quests)
+	{
+		for (i = 0; i < ch->Questing.count; i++)
+		{
 			fprintf(saved, "Qst : %d\n", *(ch->Questing.quests + i));
 		}
 	}
@@ -6683,13 +7312,16 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 
 	/* восстанавливаем аффекты */
 	/* add spell and eq affections back in now */
-	for (i = 0; i < MAX_AFFECT; i++) {
+	for (i = 0; i < MAX_AFFECT; i++)
+	{
 		if (tmp_aff[i].type)
 			affect_to_char(ch, &tmp_aff[i]);
 	}
 
-	for (i = 0; i < NUM_WEARS; i++) {
-		if (char_eq[i]) {
+	for (i = 0; i < NUM_WEARS; i++)
+	{
+		if (char_eq[i])
+		{
 #ifndef NO_EXTRANEOUS_TRIGGERS
 			if (wear_otrigger(char_eq[i], ch, i))
 #endif
@@ -6702,7 +7334,8 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	}
 	affect_total(ch);
 
-	if ((i = get_ptable_by_name(GET_NAME(ch))) >= 0) {
+	if ((i = get_ptable_by_name(GET_NAME(ch))) >= 0)
+	{
 		player_table[i].last_logon = LAST_LOGON(ch);
 		player_table[i].level = GET_LEVEL(ch);
 	}
@@ -6824,15 +7457,17 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 	dst->temp_description = 0; // так надо
 
 	// Выходы и входы
-	for (i = 0; i < NUM_OF_DIRS; ++i) {
+	for (i = 0; i < NUM_OF_DIRS; ++i)
+	{
 		EXIT_DATA *rdd;
-		if ((rdd = src->dir_option[i]) != NULL) {
+		if ((rdd = src->dir_option[i]) != NULL)
+		{
 			CREATE(dst->dir_option[i], EXIT_DATA, 1);
 			// Копируем числа
 			*dst->dir_option[i] = *rdd;
 			// Выделяем память
 			dst->dir_option[i]->general_description =
-			    (rdd->general_description ? str_dup(rdd->general_description) : NULL);
+				(rdd->general_description ? str_dup(rdd->general_description) : NULL);
 			dst->dir_option[i]->keyword = (rdd->keyword ? str_dup(rdd->keyword) : NULL);
 			dst->dir_option[i]->vkeyword = (rdd->vkeyword ? str_dup(rdd->vkeyword) : NULL);
 		}
@@ -6842,7 +7477,8 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 	pddd = &dst->ex_description;
 	sdd = src->ex_description;
 
-	while (sdd) {
+	while (sdd)
+	{
 		CREATE(pddd[0], EXTRA_DESCR_DATA, 1);
 		pddd[0]->keyword = sdd->keyword ? str_dup(sdd->keyword) : NULL;
 		pddd[0]->description = sdd->description ? str_dup(sdd->description) : NULL;
@@ -6872,14 +7508,16 @@ void room_free(ROOM_DATA * room)
 	// Название и описание
 	if (room->name)
 		free(room->name);
-	if (room->temp_description) {
+	if (room->temp_description)
+	{
 		free(room->temp_description);
 		room->temp_description = 0;
 	}
 
 	// Выходы и входы
 	for (i = 0; i < NUM_OF_DIRS; i++)
-		if (room->dir_option[i]) {
+		if (room->dir_option[i])
+		{
 			if (room->dir_option[i]->general_description)
 				free(room->dir_option[i]->general_description);
 			if (room->dir_option[i]->keyword)
@@ -6889,7 +7527,8 @@ void room_free(ROOM_DATA * room)
 			free(room->dir_option[i]);
 		}
 	// Дополнительные описания
-	for (lthis = room->ex_description; lthis; lthis = next) {
+	for (lthis = room->ex_description; lthis; lthis = next)
+	{
 		next = lthis->next;
 		if (lthis->keyword)
 			free(lthis->keyword);
@@ -6903,12 +7542,13 @@ void room_free(ROOM_DATA * room)
 	// Скрипт
 	free_script(SCRIPT(room));
 
-	if (room->ing_list) {
+	if (room->ing_list)
+	{
 		free(room->ing_list);
 		room->ing_list = NULL;
 	}
 
-	AFFECT_DATA *af,*next_af;
+	AFFECT_DATA *af, *next_af;
 	for (af = room->affected; af; af = next_af)
 	{
 		next_af = af->next;
@@ -6924,7 +7564,8 @@ void LoadGlobalUID(void)
 
 	global_uid = 0;
 
-	if (!(guid = fopen(LIB_MISC "globaluid", "r"))) {
+	if (!(guid = fopen(LIB_MISC "globaluid", "r")))
+	{
 		log("Can't open global uid file...");
 		return;
 	}
@@ -6938,7 +7579,8 @@ void SaveGlobalUID(void)
 {
 	FILE *guid;
 
-	if (!(guid = fopen(LIB_MISC "globaluid", "w"))) {
+	if (!(guid = fopen(LIB_MISC "globaluid", "w")))
+	{
 		log("Can't write global uid file...");
 		return;
 	}

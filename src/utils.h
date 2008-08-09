@@ -50,7 +50,7 @@ int strn_cmp(const std::string &arg1, const char *arg2, int n);
 int strn_cmp(const char *arg1, const std::string &arg2, int n);
 int strn_cmp(const std::string &arg1, const std::string &arg2, int n);
 void write_time(FILE *file);
-void log(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
+void log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void olc_log(const char *format, ...);
 void imm_log(const char *format, ...);
 void pers_log(CHAR_DATA *ch, const char *format, ...);
@@ -451,7 +451,7 @@ extern SPECIAL(postmaster);
 #define GET_TITLE(ch)   ((ch)->player.title)
 #define GET_LEVEL(ch)   ((ch)->player.level)
 #define GET_MAX_MANA(ch)      MIN(9998,mana[(int) GET_REAL_WIS(ch)]+GET_REMORT(ch)*500)
- /*#define GET_MANA_COST(ch,spellnum)      (mana_cost_cs[(int)GET_LEVEL(ch)][spell_create[spellnum].runes.krug-1]) */
+/*#define GET_MANA_COST(ch,spellnum)      (mana_cost_cs[(int)GET_LEVEL(ch)][spell_create[spellnum].runes.krug-1]) */
 #define GET_MANA_COST(ch,spellnum)      mag_manacost(ch,spellnum)
 #define GET_MANA_STORED(ch)   ((ch)->MemQueue.stored)
 #define GET_MEM_COMPLETED(ch) ((ch)->MemQueue.stored)
@@ -1292,65 +1292,66 @@ inline bool a_isspace(unsigned char c)
 // Далеко не все из следующих функций используются в коде, но пусть будут (переписано с асма AL'ом)
 inline bool a_isascii(unsigned char c)
 {
-    return c >= 32;
+	return c >= 32;
 }
 
 inline bool a_isprint(unsigned char c)
 {
-    return c >= 32;
+	return c >= 32;
 }
 
 inline bool a_islower(unsigned char c)
 {
-    return (c>='a' && c<='z') || (c>=192 && c<=223) || c == 163;
+	return (c >= 'a' && c <= 'z') || (c >= 192 && c <= 223) || c == 163;
 }
 
 inline bool a_isupper(unsigned char c)
 {
-    return (c>='A' && c<='Z') || c>=224 || c == 179;
+	return (c >= 'A' && c <= 'Z') || c >= 224 || c == 179;
 }
 
 inline bool a_isdigit(unsigned char c)
 {
-    return c>='0' && c<='9';
+	return c >= '0' && c <= '9';
 }
 
 inline bool a_isalpha(unsigned char c)
 {
-    return (c>='a' && c<='z') || (c>='A' && c<='Z') || c>=192 || c == 163 || c == 179;
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c >= 192 || c == 163 || c == 179;
 }
 
 inline bool a_isalnum(unsigned char c)
 {
-    return (c>='0' && c<='9')
-	|| (c>='a' && c<='z')
-	|| (c>='A' && c<='Z') || c>=192 || c == 163 || c == 179;
+	return (c >= '0' && c <= '9')
+		   || (c >= 'a' && c <= 'z')
+		   || (c >= 'A' && c <= 'Z') || c >= 192 || c == 163 || c == 179;
 }
 
 inline bool a_isxdigit(unsigned char c)
 {
-    return (c>='0' && c<='9')
-	|| (c>='a' && c<='f')
-	|| (c>='A' && c<='F');
+	return (c >= '0' && c <= '9')
+		   || (c >= 'a' && c <= 'f')
+		   || (c >= 'A' && c <= 'F');
 }
 
 inline char a_ucc(unsigned char c)
 {
-    if (c >= 'a' && c <= 'z') return c - 'a' + 'A';
-    if (c >= 192 && c <= 223) return c + 32;
+	if (c >= 'a' && c <= 'z') return c - 'a' + 'A';
+	if (c >= 192 && c <= 223) return c + 32;
 	if (c == 163) return c + 16;
-    return c;
+	return c;
 }
 
 inline char a_lcc(unsigned char c)
 {
-    if (c >= 'A' && c <= 'Z') return c - 'A' + 'a';
-    if (c >= 224) return c - 32;
+	if (c >= 'A' && c <= 'Z') return c - 'A' + 'a';
+	if (c >= 224) return c - 32;
 	if (c == 179) return c - 16;
-    return c;
+	return c;
 }
 
-enum separator_mode {
+enum separator_mode
+{
 	A_ISSPACE,
 	A_ISASCII,
 	A_ISPRINT,
@@ -1370,7 +1371,8 @@ public:
 	explicit
 	pred_separator(separator_mode __mode, bool __l_not = false) : l_not(__l_not)
 	{
-		switch (__mode) {
+		switch (__mode)
+		{
 		case A_ISSPACE:
 			pred = a_isspace;
 			break;

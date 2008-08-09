@@ -45,7 +45,8 @@ void extract_trigger(TRIG_DATA * trig)
 {
 	TRIG_DATA *temp;
 
-	if (GET_TRIG_WAIT(trig)) {
+	if (GET_TRIG_WAIT(trig))
+	{
 		// см. объяснения в вызове trig_data_free()
 		free(GET_TRIG_WAIT(trig)->info);
 		remove_event(GET_TRIG_WAIT(trig));
@@ -65,7 +66,8 @@ void extract_script(SCRIPT_DATA * sc)
 {
 	TRIG_DATA *trig, *next_trig;
 
-	for (trig = TRIGGERS(sc); trig; trig = next_trig) {
+	for (trig = TRIGGERS(sc); trig; trig = next_trig)
+	{
 		next_trig = trig->next;
 		extract_trigger(trig);
 	}
@@ -76,7 +78,8 @@ void extract_script(SCRIPT_DATA * sc)
 void extract_script_mem(struct script_memory *sc)
 {
 	struct script_memory *next;
-	while (sc) {
+	while (sc)
+	{
 		next = sc->next;
 		if (sc->cmd)
 			free(sc->cmd);
@@ -93,13 +96,15 @@ char *skill_percent(CHAR_DATA * ch, char *skill)
 	int skillnum, rid;
 
 	skillnum = find_skill_num(skill);
-	if (skillnum > 0) {
+	if (skillnum > 0)
+	{
 		sprintf(retval, "%d", ch->get_skill(skillnum));
 		return retval;
 	}
 
 	rid = im_get_recipe_by_name(skill);
-	if (rid >= 0) {
+	if (rid >= 0)
+	{
 		rs = im_get_char_rskill(ch, rid);
 		if (!rs)
 			return "0";
@@ -111,13 +116,13 @@ char *skill_percent(CHAR_DATA * ch, char *skill)
 
 bool feat_owner(CHAR_DATA * ch, char *feat)
 {
-        int featnum;
+	int featnum;
 
-        featnum = find_feat_num(feat);
-        if (featnum > 0)
+	featnum = find_feat_num(feat);
+	if (featnum > 0)
 		if (HAVE_FEAT(ch, featnum))
 			return 1;
-        return 0;
+	return 0;
 }
 
 char *spell_count(CHAR_DATA * ch, char *spell)

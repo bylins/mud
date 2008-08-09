@@ -86,10 +86,13 @@ void redit_setup(DESCRIPTOR_DATA * d, int real_num)
 	CREATE(room, ROOM_DATA, 1);
 	memset(room, 0, sizeof(ROOM_DATA));
 
-	if (real_num == NOWHERE) {
+	if (real_num == NOWHERE)
+	{
 		room->name = str_dup("Недоделанная комната");
 		room->temp_description = str_dup("Вы оказались в комнате, наполненной обломками творческих мыслей билдера.\r\n");
-	} else {
+	}
+	else
+	{
 		room_copy(room, world[real_num]);
 		// temp_description существует только на время редактирования комнаты в олц
 		room->temp_description = str_dup(RoomDescription::show_desc(world[real_num]->description_num).c_str());
@@ -121,7 +124,8 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 	/*
 	 * Room exists: move contents over then free and replace it.
 	 */
-	if (room_num != NOWHERE) {
+	if (room_num != NOWHERE)
+	{
 		log("[REdit] Save room to mem %d", room_num);
 		// Удаляю устаревшие данные
 		room_free(world[room_num]);
@@ -131,12 +135,14 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 		room_free(OLC_ROOM(d));
 		// Удаление "оболочки" произойдет в olc_cleanup
 
-	} else {
+	}
+	else
+	{
 		// если комнаты не было - добавляем новую
 		std::vector<ROOM_DATA *>::iterator it = world.begin();
 		advance(it, FIRST_ROOM);
 		int i = FIRST_ROOM;
-		for ( ; it != world.end(); ++it, ++i)
+		for (; it != world.end(); ++it, ++i)
 			if ((*it)->number > OLC_NUM(d))
 				break;
 
@@ -173,7 +179,8 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 		// Update zone table.
 		for (zone = 0; zone <= top_of_zone_table; zone++)
 			for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
-				switch (ZCMD.command) {
+				switch (ZCMD.command)
+				{
 				case 'M':
 				case 'O':
 					if (ZCMD.arg3 >= room_num)
@@ -216,13 +223,15 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 
 
 		// поля in_room для объектов и персонажей уже изменены
-		for (temp_ch = character_list; temp_ch; temp_ch = temp_ch->next) {
+		for (temp_ch = character_list; temp_ch; temp_ch = temp_ch->next)
+		{
 			if (temp_ch->was_in_room >= room_num)
 				temp_ch->was_in_room++;
 		}
 
 		// Порталы, выходы
-		for (i = FIRST_ROOM; i < top_of_world + 1; i++) {
+		for (i = FIRST_ROOM; i < top_of_world + 1; i++)
+		{
 			if (world[i]->portal_room >= room_num)
 				world[i]->portal_room++;
 			for (j = 0; j < NUM_OF_DIRS; j++)
@@ -265,18 +274,22 @@ void redit_save_to_disk(int zone_num)
 	ROOM_DATA *room;
 	EXTRA_DESCR_DATA *ex_desc;
 
-	if (zone_num < 0 || zone_num > top_of_zone_table) {
+	if (zone_num < 0 || zone_num > top_of_zone_table)
+	{
 		log("SYSERR: redit_save_to_disk: Invalid real zone passed!");
 		return;
 	}
 
 	sprintf(buf, "%s/%d.new", WLD_PREFIX, zone_table[zone_num].number);
-	if (!(fp = fopen(buf, "w+"))) {
+	if (!(fp = fopen(buf, "w+")))
+	{
 		mudlog("SYSERR: OLC: Cannot open room file!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		return;
 	}
-	for (counter = zone_table[zone_num].number * 100; counter < zone_table[zone_num].top; counter++) {
-		if ((realcounter = real_room(counter)) != NOWHERE) {
+	for (counter = zone_table[zone_num].number * 100; counter < zone_table[zone_num].top; counter++)
+	{
+		if ((realcounter = real_room(counter)) != NOWHERE)
+		{
 			if (counter % 100 == 99)
 				continue;
 			room = world[realcounter];
@@ -298,34 +311,40 @@ void redit_save_to_disk(int zone_num)
 			*buf2 = '\0';
 			tascii(&room->room_flags.flags[0], 4, buf2);
 			fprintf(fp, "#%d\n%s~\n%s~\n%d %s %d\n", counter,
-				room->name ? room->name : "неопределено", buf1,
-				zone_table[room->zone].number, buf2, room->sector_type);
+					room->name ? room->name : "неопределено", buf1,
+					zone_table[room->zone].number, buf2, room->sector_type);
 
 			/*
 			 * Handle exits.
 			 */
-			for (counter2 = 0; counter2 < NUM_OF_DIRS; counter2++) {
-				if (room->dir_option[counter2]) {
+			for (counter2 = 0; counter2 < NUM_OF_DIRS; counter2++)
+			{
+				if (room->dir_option[counter2])
+				{
 					int temp_door_flag;
 
 					/*
 					 * Again, strip out the garbage.
 					 */
-					if (room->dir_option[counter2]->general_description) {
+					if (room->dir_option[counter2]->general_description)
+					{
 						strcpy(buf1, room->dir_option[counter2]->general_description);
 						strip_string(buf1);
-					} else
+					}
+					else
 						*buf1 = 0;
 
 					/*
 					 * Figure out door flag.
 					 */
-					if (IS_SET(room->dir_option[counter2]->exit_info, EX_ISDOOR)) {
+					if (IS_SET(room->dir_option[counter2]->exit_info, EX_ISDOOR))
+					{
 						if (IS_SET(room->dir_option[counter2]->exit_info, EX_PICKPROOF))
 							temp_door_flag = 2;
 						else
 							temp_door_flag = 1;
-					} else
+					}
+					else
 						temp_door_flag = 0;
 					if (IS_SET(room->dir_option[counter2]->exit_info, EX_HIDDEN))
 						temp_door_flag |= 4;
@@ -336,7 +355,8 @@ void redit_save_to_disk(int zone_num)
 					if (room->dir_option[counter2]->keyword)
 						strcpy(buf2, room->dir_option[counter2]->keyword);
 					// алиас в винительном падеже пишется сюда же через ;
-					if (room->dir_option[counter2]->vkeyword) {
+					if (room->dir_option[counter2]->vkeyword)
+					{
 						strcpy(buf2 + strlen(buf2), "|");
 						strcpy(buf2 + strlen(buf2), room->dir_option[counter2]->vkeyword);
 					}
@@ -347,17 +367,19 @@ void redit_save_to_disk(int zone_num)
 					 * Ok, now wrote output to file.
 					 */
 					fprintf(fp, "D%d\n%s~\n%s~\n%d %d %d\n",
-						counter2, buf1, buf2,
-						temp_door_flag, room->dir_option[counter2]->key,
-						room->dir_option[counter2]->to_room != NOWHERE ?
-						world[room->dir_option[counter2]->to_room]->number : NOWHERE);
+							counter2, buf1, buf2,
+							temp_door_flag, room->dir_option[counter2]->key,
+							room->dir_option[counter2]->to_room != NOWHERE ?
+							world[room->dir_option[counter2]->to_room]->number : NOWHERE);
 				}
 			}
 			/*
 			 * Home straight, just deal with extra descriptions.
 			 */
-			if (room->ex_description) {
-				for (ex_desc = room->ex_description; ex_desc; ex_desc = ex_desc->next) {
+			if (room->ex_description)
+			{
+				for (ex_desc = room->ex_description; ex_desc; ex_desc = ex_desc->next)
+				{
 					strcpy(buf1, ex_desc->description);
 					strip_string(buf1);
 					fprintf(fp, "E\n%s~\n%s~\n", ex_desc->keyword, buf1);
@@ -397,14 +419,14 @@ void redit_disp_extradesc_menu(DESCRIPTOR_DATA * d)
 
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
-		"[H[J"
+			"[H[J"
 #endif
-		"%s1%s) Ключ: %s%s\r\n"
-		"%s2%s) Описание:\r\n%s%s\r\n"
-		"%s3%s) Следующее описание: ",
-		grn, nrm, yel,
-		extra_desc->keyword ? extra_desc->keyword : "<NONE>", grn, nrm,
-		yel, extra_desc->description ? extra_desc->description : "<NONE>", grn, nrm);
+			"%s1%s) Ключ: %s%s\r\n"
+			"%s2%s) Описание:\r\n%s%s\r\n"
+			"%s3%s) Следующее описание: ",
+			grn, nrm, yel,
+			extra_desc->keyword ? extra_desc->keyword : "<NONE>", grn, nrm,
+			yel, extra_desc->description ? extra_desc->description : "<NONE>", grn, nrm);
 
 	strcat(buf, !extra_desc->next ? "<NOT SET>\r\n" : "Set.\r\n");
 	strcat(buf, "Enter choice (0 to quit) : ");
@@ -420,7 +442,8 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 	/*
 	 * if exit doesn't exist, alloc/create it
 	 */
-	if (!OLC_EXIT(d)) {
+	if (!OLC_EXIT(d))
+	{
 		CREATE(OLC_EXIT(d), EXIT_DATA, 1);
 		OLC_EXIT(d)->to_room = NOWHERE;
 	}
@@ -428,12 +451,14 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 	/*
 	 * Weird door handling!
 	 */
-	if (IS_SET(OLC_EXIT(d)->exit_info, EX_ISDOOR)) {
+	if (IS_SET(OLC_EXIT(d)->exit_info, EX_ISDOOR))
+	{
 		if (IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF))
 			strcpy(buf2, "Невзламываемый");
 		else
 			strcpy(buf2, "Дверь");
-	} else
+	}
+	else
 		strcpy(buf2, "Нет двери");
 	if (IS_SET(OLC_EXIT(d)->exit_info, EX_HIDDEN))
 		strcat(buf2, ", выход скрыт");
@@ -441,24 +466,24 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 	get_char_cols(d->character);
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
-		"[H[J"
+			"[H[J"
 #endif
-		"%s1%s) Ведет в        : %s%d\r\n"
-		"%s2%s) Описание       :-\r\n%s%s\r\n"
-		"%s3%s) Синонимы двери : %s%s (%s)\r\n"
-		"%s4%s) Номер ключа    : %s%d\r\n"
-		"%s5%s) Флаги двери    : %s%s\r\n"
-		"%s6%s) Очистить выход.\r\n"
-		"Ваш выбор (0 - конец) : ",
-		grn, nrm, cyn,
-		OLC_EXIT(d)->to_room !=
-		NOWHERE ? world[OLC_EXIT(d)->to_room]->number : NOWHERE, grn, nrm,
-		yel,
-		OLC_EXIT(d)->general_description ? OLC_EXIT(d)->
-		general_description : "<NONE>", grn, nrm, yel,
-		OLC_EXIT(d)->keyword ? OLC_EXIT(d)->keyword : "<NONE>",
-		OLC_EXIT(d)->vkeyword ? OLC_EXIT(d)->vkeyword : "<NONE>", grn, nrm,
-		cyn, OLC_EXIT(d)->key, grn, nrm, cyn, buf2, grn, nrm);
+			"%s1%s) Ведет в        : %s%d\r\n"
+			"%s2%s) Описание       :-\r\n%s%s\r\n"
+			"%s3%s) Синонимы двери : %s%s (%s)\r\n"
+			"%s4%s) Номер ключа    : %s%d\r\n"
+			"%s5%s) Флаги двери    : %s%s\r\n"
+			"%s6%s) Очистить выход.\r\n"
+			"Ваш выбор (0 - конец) : ",
+			grn, nrm, cyn,
+			OLC_EXIT(d)->to_room !=
+			NOWHERE ? world[OLC_EXIT(d)->to_room]->number : NOWHERE, grn, nrm,
+			yel,
+			OLC_EXIT(d)->general_description ? OLC_EXIT(d)->
+			general_description : "<NONE>", grn, nrm, yel,
+			OLC_EXIT(d)->keyword ? OLC_EXIT(d)->keyword : "<NONE>",
+			OLC_EXIT(d)->vkeyword ? OLC_EXIT(d)->vkeyword : "<NONE>", grn, nrm,
+			cyn, OLC_EXIT(d)->key, grn, nrm, cyn, buf2, grn, nrm);
 
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = REDIT_EXIT_MENU;
@@ -471,16 +496,16 @@ void redit_disp_exit_flag_menu(DESCRIPTOR_DATA * d)
 {
 	get_char_cols(d->character);
 	sprintf(buf,
-		"%s1%s) [%c]Нет двери\r\n"
-		"%s2%s) [%c]Закрываемая\r\n"
-		"%s3%s) [%c]Невзламываемая\r\n"
-		"%s4%s) [%c]Скрытая\r\n"
-		"Ваш выбор (0 - выход): ",
-		grn, nrm, !IS_SET(OLC_EXIT(d)->exit_info,
-				  EX_ISDOOR | EX_PICKPROOF) ? 'x' : ' ', grn, nrm,
-		IS_SET(OLC_EXIT(d)->exit_info, EX_ISDOOR) ? 'x' : ' ', grn, nrm,
-		IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF) ? 'x' : ' ', grn,
-		nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_HIDDEN) ? 'x' : ' ');
+			"%s1%s) [%c]Нет двери\r\n"
+			"%s2%s) [%c]Закрываемая\r\n"
+			"%s3%s) [%c]Невзламываемая\r\n"
+			"%s4%s) [%c]Скрытая\r\n"
+			"Ваш выбор (0 - выход): ",
+			grn, nrm, !IS_SET(OLC_EXIT(d)->exit_info,
+							  EX_ISDOOR | EX_PICKPROOF) ? 'x' : ' ', grn, nrm,
+			IS_SET(OLC_EXIT(d)->exit_info, EX_ISDOOR) ? 'x' : ' ', grn, nrm,
+			IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF) ? 'x' : ' ', grn,
+			nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_HIDDEN) ? 'x' : ' ');
 	send_to_char(buf, d->character);
 }
 
@@ -496,18 +521,21 @@ void redit_disp_flag_menu(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++) {
-		if (*room_bits[counter] == '\n') {
+	for (counter = 0, c = 'a' - 1; plane < NUM_PLANES; counter++)
+	{
+		if (*room_bits[counter] == '\n')
+		{
 			plane++;
 			c = 'a' - 1;
 			continue;
-		} else if (c == 'z')
+		}
+		else if (c == 'z')
 			c = 'A';
 		else
 			c++;
 
 		sprintf(buf, "%s%c%d%s) %-20.20s %s", grn, c, plane, nrm,
-			room_bits[counter], !(++columns % 2) ? "\r\n" : "");
+				room_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	sprintbits(OLC_ROOM(d)->room_flags, room_bits, buf1, ",");
@@ -526,9 +554,10 @@ void redit_disp_sector_menu(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 0; counter < NUM_ROOM_SECTORS; counter++) {
+	for (counter = 0; counter < NUM_ROOM_SECTORS; counter++)
+	{
 		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, counter, nrm,
-			sector_types[counter], !(++columns % 2) ? "\r\n" : "");
+				sector_types[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	send_to_char("\r\nТип поверхности в комнате : ", d->character);
@@ -549,46 +578,46 @@ void redit_disp_menu(DESCRIPTOR_DATA * d)
 	sprinttype(room->sector_type, sector_types, buf2);
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
-		"[H[J"
+			"[H[J"
 #endif
-		"-- Комната : [%s%d%s]  	Зона: [%s%d%s]\r\n"
-		"%s1%s) Название    : %s%s\r\n"
-		"%s2%s) Описание    :\r\n%s%s"
-		"%s3%s) Флаги       : %s%s\r\n"
-		"%s4%s) Поверхность : %s%s\r\n"
-		"%s5%s) На севере   : %s%d\r\n"
-		"%s6%s) На востоке  : %s%d\r\n"
-		"%s7%s) На юге      : %s%d\r\n"
-		"%s8%s) На западе   : %s%d\r\n"
-		"%s9%s) Вверху      : %s%d\r\n"
-		"%sA%s) Внизу       : %s%d\r\n"
-		"%sB%s) Меню экстраописаний\r\n"
-		"%sН%s) Ингредиенты : %s%s\r\n"
-		"%sS%s) Скрипты     : %s%s\r\n"
-		"%sQ%s) Quit\r\n"
-		"Ваш выбор : ",
-		cyn, OLC_NUM(d), nrm,
-		cyn, zone_table[OLC_ZNUM(d)].number, nrm,
-		grn, nrm, yel, room->name,
-		grn, nrm, yel, room->temp_description,
-		grn, nrm, cyn, buf1, grn, nrm, cyn, buf2, grn, nrm, cyn, room->dir_option[NORTH]
-		&& room->dir_option[NORTH]->to_room !=
-		NOWHERE ? world[room->dir_option[NORTH]->to_room]->
-		number : NOWHERE, grn, nrm, cyn, room->dir_option[EAST]
-		&& room->dir_option[EAST]->to_room !=
-		NOWHERE ? world[room->dir_option[EAST]->to_room]->
-		number : NOWHERE, grn, nrm, cyn, room->dir_option[SOUTH]
-		&& room->dir_option[SOUTH]->to_room !=
-		NOWHERE ? world[room->dir_option[SOUTH]->to_room]->
-		number : NOWHERE, grn, nrm, cyn, room->dir_option[WEST]
-		&& room->dir_option[WEST]->to_room !=
-		NOWHERE ? world[room->dir_option[WEST]->to_room]->number : NOWHERE, grn, nrm, cyn, room->dir_option[UP]
-		&& room->dir_option[UP]->to_room !=
-		NOWHERE ? world[room->dir_option[UP]->to_room]->number : NOWHERE, grn, nrm, cyn, room->dir_option[DOWN]
-		&& room->dir_option[DOWN]->to_room !=
-		NOWHERE ? world[room->dir_option[DOWN]->to_room]->
-		number : NOWHERE, grn, nrm, grn, nrm, cyn,
-		room->ing_list ? "Есть" : "Нет", grn, nrm, cyn, room->proto_script ? "Set." : "Not Set.", grn, nrm);
+			"-- Комната : [%s%d%s]  	Зона: [%s%d%s]\r\n"
+			"%s1%s) Название    : %s%s\r\n"
+			"%s2%s) Описание    :\r\n%s%s"
+			"%s3%s) Флаги       : %s%s\r\n"
+			"%s4%s) Поверхность : %s%s\r\n"
+			"%s5%s) На севере   : %s%d\r\n"
+			"%s6%s) На востоке  : %s%d\r\n"
+			"%s7%s) На юге      : %s%d\r\n"
+			"%s8%s) На западе   : %s%d\r\n"
+			"%s9%s) Вверху      : %s%d\r\n"
+			"%sA%s) Внизу       : %s%d\r\n"
+			"%sB%s) Меню экстраописаний\r\n"
+			"%sН%s) Ингредиенты : %s%s\r\n"
+			"%sS%s) Скрипты     : %s%s\r\n"
+			"%sQ%s) Quit\r\n"
+			"Ваш выбор : ",
+			cyn, OLC_NUM(d), nrm,
+			cyn, zone_table[OLC_ZNUM(d)].number, nrm,
+			grn, nrm, yel, room->name,
+			grn, nrm, yel, room->temp_description,
+			grn, nrm, cyn, buf1, grn, nrm, cyn, buf2, grn, nrm, cyn, room->dir_option[NORTH]
+			&& room->dir_option[NORTH]->to_room !=
+			NOWHERE ? world[room->dir_option[NORTH]->to_room]->
+			number : NOWHERE, grn, nrm, cyn, room->dir_option[EAST]
+			&& room->dir_option[EAST]->to_room !=
+			NOWHERE ? world[room->dir_option[EAST]->to_room]->
+			number : NOWHERE, grn, nrm, cyn, room->dir_option[SOUTH]
+			&& room->dir_option[SOUTH]->to_room !=
+			NOWHERE ? world[room->dir_option[SOUTH]->to_room]->
+			number : NOWHERE, grn, nrm, cyn, room->dir_option[WEST]
+			&& room->dir_option[WEST]->to_room !=
+			NOWHERE ? world[room->dir_option[WEST]->to_room]->number : NOWHERE, grn, nrm, cyn, room->dir_option[UP]
+			&& room->dir_option[UP]->to_room !=
+			NOWHERE ? world[room->dir_option[UP]->to_room]->number : NOWHERE, grn, nrm, cyn, room->dir_option[DOWN]
+			&& room->dir_option[DOWN]->to_room !=
+			NOWHERE ? world[room->dir_option[DOWN]->to_room]->
+			number : NOWHERE, grn, nrm, grn, nrm, cyn,
+			room->ing_list ? "Есть" : "Нет", grn, nrm, cyn, room->proto_script ? "Set." : "Not Set.", grn, nrm);
 	send_to_char(buf, d->character);
 
 	OLC_MODE(d) = REDIT_MAIN_MENU;
@@ -602,9 +631,11 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 {
 	int number, plane, bit;
 
-	switch (OLC_MODE(d)) {
+	switch (OLC_MODE(d))
+	{
 	case REDIT_CONFIRM_SAVESTRING:
-		switch (*arg) {
+		switch (*arg)
+		{
 		case 'y':
 		case 'Y':
 		case 'д':
@@ -635,13 +666,16 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		return;
 
 	case REDIT_MAIN_MENU:
-		switch (*arg) {
+		switch (*arg)
+		{
 		case 'q':
 		case 'Q':
-			if (OLC_VAL(d)) {	/* Something has been modified. */
+			if (OLC_VAL(d))  	/* Something has been modified. */
+			{
 				send_to_char("Вы желаете сохранить комнату в памяти ? : ", d->character);
 				OLC_MODE(d) = REDIT_CONFIRM_SAVESTRING;
-			} else
+			}
+			else
 				cleanup_olc(d, CLEANUP_ALL);
 			return;
 		case '1':
@@ -655,7 +689,8 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 #endif
 			SEND_TO_Q("Введите описание комнаты: (/s записать /h помощь)\r\n\r\n", d);
 			d->backstr = NULL;
-			if (OLC_ROOM(d)->temp_description) {
+			if (OLC_ROOM(d)->temp_description)
+			{
 				SEND_TO_Q(OLC_ROOM(d)->temp_description, d);
 				d->backstr = str_dup(OLC_ROOM(d)->temp_description);
 			}
@@ -700,7 +735,8 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			/*
 			 * If the extra description doesn't exist.
 			 */
-			if (!OLC_ROOM(d)->ex_description) {
+			if (!OLC_ROOM(d)->ex_description)
+			{
 				CREATE(OLC_ROOM(d)->ex_description, EXTRA_DESCR_DATA, 1);
 				OLC_ROOM(d)->ex_description->next = NULL;
 			}
@@ -749,12 +785,15 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 	case REDIT_FLAGS:
 		number = planebit(arg, &plane, &bit);
-		if (number < 0) {
+		if (number < 0)
+		{
 			send_to_char("Неверный выбор !\r\n", d->character);
 			redit_disp_flag_menu(d);
-		} else if (number == 0)
+		}
+		else if (number == 0)
 			break;
-		else {		/*
+		else
+		{		/*
 				 * Toggle the bit.
 				 */
 			TOGGLE_BIT(OLC_ROOM(d)->room_flags.flags[plane], (1 << bit));
@@ -764,16 +803,19 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 	case REDIT_SECTOR:
 		number = atoi(arg);
-		if (number < 0 || number >= NUM_ROOM_SECTORS) {
+		if (number < 0 || number >= NUM_ROOM_SECTORS)
+		{
 			send_to_char("Неверный выбор!", d->character);
 			redit_disp_sector_menu(d);
 			return;
-		} else
+		}
+		else
 			OLC_ROOM(d)->sector_type = number;
 		break;
 
 	case REDIT_EXIT_MENU:
-		switch (*arg) {
+		switch (*arg)
+		{
 		case '0':
 			break;
 		case '1':
@@ -784,16 +826,16 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_MODE(d) = REDIT_EXIT_DESCRIPTION;
 			send_to_char("Введите описание выхода : ", d->character);
 			return;
-/*			SEND_TO_Q("Введите описание выхода: (/s сохранить /h помощь)\r\n\r\n", d);
-			d->backstr = NULL;
-			if (OLC_EXIT(d)->general_description) {
-				SEND_TO_Q(OLC_EXIT(d)->general_description, d);
-				d->backstr = str_dup(OLC_EXIT(d)->general_description);
-			}
-			d->str = &OLC_EXIT(d)->general_description;
-			d->max_str = MAX_EXIT_DESC;
-			d->mail_to = 0;
-*/
+			/*			SEND_TO_Q("Введите описание выхода: (/s сохранить /h помощь)\r\n\r\n", d);
+						d->backstr = NULL;
+						if (OLC_EXIT(d)->general_description) {
+							SEND_TO_Q(OLC_EXIT(d)->general_description, d);
+							d->backstr = str_dup(OLC_EXIT(d)->general_description);
+						}
+						d->str = &OLC_EXIT(d)->general_description;
+						d->max_str = MAX_EXIT_DESC;
+						d->mail_to = 0;
+			*/
 		case '3':
 			OLC_MODE(d) = REDIT_EXIT_KEYWORD;
 			send_to_char("Введите ключевое слово : ", d->character);
@@ -828,7 +870,8 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 	case REDIT_EXIT_NUMBER:
 		if ((number = atoi(arg)) != NOWHERE)
-			if ((number = real_room(number)) == NOWHERE) {
+			if ((number = real_room(number)) == NOWHERE)
+			{
 				send_to_char("Нет такой комнаты - повторите ввод : ", d->character);
 				return;
 			}
@@ -847,27 +890,33 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		/*
 		 * We should NEVER get here, hopefully.
 		 */
-/*
-		mudlog("SYSERR: Reached REDIT_EXIT_DESC case in parse_redit", BRF, LVL_BUILDER, SYSLOG, TRUE);
-		break;
-*/
+		/*
+				mudlog("SYSERR: Reached REDIT_EXIT_DESC case in parse_redit", BRF, LVL_BUILDER, SYSLOG, TRUE);
+				break;
+		*/
 	case REDIT_EXIT_KEYWORD:
 		if (OLC_EXIT(d)->keyword)
 			free(OLC_EXIT(d)->keyword);
 		if (OLC_EXIT(d)->vkeyword)
 			free(OLC_EXIT(d)->vkeyword);
 
-		if (arg && *arg) {
+		if (arg && *arg)
+		{
 			std::string buffer(arg);
 			std::string::size_type i = buffer.find('|');
-			if (i != std::string::npos) {
-				OLC_EXIT(d)->keyword = str_dup(buffer.substr(0,i).c_str());
+			if (i != std::string::npos)
+			{
+				OLC_EXIT(d)->keyword = str_dup(buffer.substr(0, i).c_str());
 				OLC_EXIT(d)->vkeyword = str_dup(buffer.substr(++i).c_str());
-			} else {
+			}
+			else
+			{
 				OLC_EXIT(d)->keyword = str_dup(buffer.c_str());
 				OLC_EXIT(d)->vkeyword = str_dup(buffer.c_str());
 			}
-		} else {
+		}
+		else
+		{
 			OLC_EXIT(d)->keyword = NULL;
 			OLC_EXIT(d)->vkeyword = NULL;
 		}
@@ -881,26 +930,33 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 	case REDIT_EXIT_DOORFLAGS:
 		number = atoi(arg);
-		if ((number < 0) || (number > 4)) {
+		if ((number < 0) || (number > 4))
+		{
 			send_to_char("Неверный выбор!\r\n", d->character);
 			redit_disp_exit_flag_menu(d);
-		} else if (number == 0)
+		}
+		else if (number == 0)
 			redit_disp_exit_menu(d);
-		else {		/*
+		else
+		{		/*
 				 * Doors are a bit idiotic, don't you think? :) I agree.
 				 */
 			if (number == 1)
 				REMOVE_BIT(OLC_EXIT(d)->exit_info, 3);
-			else if (number == 2) {
+			else if (number == 2)
+			{
 				REMOVE_BIT(OLC_EXIT(d)->exit_info, EX_PICKPROOF);
 				TOGGLE_BIT(OLC_EXIT(d)->exit_info, EX_ISDOOR);
-			} else if (number == 3) {
+			}
+			else if (number == 3)
+			{
 				TOGGLE_BIT(OLC_EXIT(d)->exit_info, EX_PICKPROOF);
 				if (IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF))
 					SET_BIT(OLC_EXIT(d)->exit_info, EX_ISDOOR);
 				else
 					REMOVE_BIT(OLC_EXIT(d)->exit_info, EX_ISDOOR);
-			} else
+			}
+			else
 				TOGGLE_BIT(OLC_EXIT(d)->exit_info, EX_HIDDEN);
 			redit_disp_exit_flag_menu(d);
 		}
@@ -912,33 +968,36 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		return;
 
 	case REDIT_EXTRADESC_MENU:
-		switch ((number = atoi(arg))) {
+		switch ((number = atoi(arg)))
+		{
 		case 0:
-			{	/*
-				 * If something got left out, delete the extra description
-				 * when backing out to the menu.
+		{	/*
+			 * If something got left out, delete the extra description
+			 * when backing out to the menu.
+			 */
+			if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description)
+			{
+				EXTRA_DESCR_DATA **tmp_desc;
+
+				if (OLC_DESC(d)->keyword)
+					free(OLC_DESC(d)->keyword);
+				if (OLC_DESC(d)->description)
+					free(OLC_DESC(d)->description);
+
+				/*
+				 * Clean up pointers.
 				 */
-				if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description) {
-					EXTRA_DESCR_DATA **tmp_desc;
-
-					if (OLC_DESC(d)->keyword)
-						free(OLC_DESC(d)->keyword);
-					if (OLC_DESC(d)->description)
-						free(OLC_DESC(d)->description);
-
-					/*
-					 * Clean up pointers.
-					 */
-					for (tmp_desc = &(OLC_ROOM(d)->ex_description); *tmp_desc;
-					     tmp_desc = &((*tmp_desc)->next))
-						if (*tmp_desc == OLC_DESC(d)) {
-							*tmp_desc = NULL;
-							break;
-						}
-					free(OLC_DESC(d));
-				}
+				for (tmp_desc = &(OLC_ROOM(d)->ex_description); *tmp_desc;
+						tmp_desc = &((*tmp_desc)->next))
+					if (*tmp_desc == OLC_DESC(d))
+					{
+						*tmp_desc = NULL;
+						break;
+					}
+				free(OLC_DESC(d));
 			}
-			break;
+		}
+		break;
 		case 1:
 			OLC_MODE(d) = REDIT_EXTRADESC_KEY;
 			send_to_char("Введите ключевые слова, разделенные пробелами : ", d->character);
@@ -947,7 +1006,8 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_MODE(d) = REDIT_EXTRADESC_DESCRIPTION;
 			SEND_TO_Q("Введите экстраописание: (/s сохранить /h помощь)\r\n\r\n", d);
 			d->backstr = NULL;
-			if (OLC_DESC(d)->description) {
+			if (OLC_DESC(d)->description)
+			{
 				SEND_TO_Q(OLC_DESC(d)->description, d);
 				d->backstr = str_dup(OLC_DESC(d)->description);
 			}
@@ -957,17 +1017,21 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 
 		case 3:
-			if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description) {
+			if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description)
+			{
 				send_to_char
-				    ("Вы не можете редактировать следующее экстраописание, не завершив текущее.\r\n",
-				     d->character);
+				("Вы не можете редактировать следующее экстраописание, не завершив текущее.\r\n",
+				 d->character);
 				redit_disp_extradesc_menu(d);
-			} else {
+			}
+			else
+			{
 				EXTRA_DESCR_DATA *new_extra;
 
 				if (OLC_DESC(d)->next)
 					OLC_DESC(d) = OLC_DESC(d)->next;
-				else {	/*
+				else
+				{	/*
 					 * Make new extra description and attach at end.
 					 */
 					CREATE(new_extra, EXTRA_DESCR_DATA, 1);
@@ -980,7 +1044,8 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 	case REDIT_ING:
-		if (!xparse_ing(d, &OLC_ROOM(d)->ing_list, arg)) {
+		if (!xparse_ing(d, &OLC_ROOM(d)->ing_list, arg))
+		{
 			redit_disp_menu(d);
 			return;
 		}

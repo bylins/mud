@@ -9,7 +9,8 @@
 #include "sysdep.h"
 #include "structs.h"
 
-namespace Depot {
+namespace Depot
+{
 
 extern const int PERS_CHEST_VNUM;
 extern int PERS_CHEST_RNUM;

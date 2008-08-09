@@ -13,7 +13,8 @@
 /**
 * Система титулов: команда титул, ведение списка на одобрение, сохранение, лоад.
 */
-namespace TitleSystem {
+namespace TitleSystem
+{
 
 void do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void show_title_list(CHAR_DATA* ch);

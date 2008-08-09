@@ -110,7 +110,7 @@ void sedit_modify_string(char **str, char *lnew);
 SPECIAL(shop_keeper);
 
 /*-------------------------------------------------------------------*\
-  utility functions 
+  utility functions
 \*-------------------------------------------------------------------*/
 
 void sedit_setup_new(DESCRIPTOR_DATA * d)
@@ -245,7 +245,8 @@ void copy_list(int **tlist, int *flist)
 	 * Copy entries over.
 	 */
 	i = 0;
-	do {
+	do
+	{
 		(*tlist)[i] = flist[i];
 	}
 	while (++i < num_items);
@@ -254,7 +255,7 @@ void copy_list(int **tlist, int *flist)
 /*-------------------------------------------------------------------*/
 
 /*
- * Copy a -1 terminated (in the type field) shop_buy_data 
+ * Copy a -1 terminated (in the type field) shop_buy_data
  * array list.
  */
 void copy_type_list(struct shop_buy_data **tlist, struct shop_buy_data *flist)
@@ -282,7 +283,8 @@ void copy_type_list(struct shop_buy_data **tlist, struct shop_buy_data *flist)
 	 */
 
 	i = 0;
-	do {
+	do
+	{
 		(*tlist)[i].type = flist[i].type;
 
 		if (BUY_WORD(flist[i]))
@@ -410,31 +412,38 @@ void sedit_remove_from_int_list(int **list, int num)
  */
 void free_shop_strings(SHOP_DATA * shop)
 {
-	if (S_NOITEM1(shop)) {
+	if (S_NOITEM1(shop))
+	{
 		free(S_NOITEM1(shop));
 		S_NOITEM1(shop) = NULL;
 	}
-	if (S_NOITEM2(shop)) {
+	if (S_NOITEM2(shop))
+	{
 		free(S_NOITEM2(shop));
 		S_NOITEM2(shop) = NULL;
 	}
-	if (S_NOCASH1(shop)) {
+	if (S_NOCASH1(shop))
+	{
 		free(S_NOCASH1(shop));
 		S_NOCASH1(shop) = NULL;
 	}
-	if (S_NOCASH2(shop)) {
+	if (S_NOCASH2(shop))
+	{
 		free(S_NOCASH2(shop));
 		S_NOCASH2(shop) = NULL;
 	}
-	if (S_NOBUY(shop)) {
+	if (S_NOBUY(shop))
+	{
 		free(S_NOBUY(shop));
 		S_NOBUY(shop) = NULL;
 	}
-	if (S_BUY(shop)) {
+	if (S_BUY(shop))
+	{
 		free(S_BUY(shop));
 		S_BUY(shop) = NULL;
 	}
-	if (S_SELL(shop)) {
+	if (S_SELL(shop))
+	{
 		free(S_SELL(shop));
 		S_SELL(shop) = NULL;
 	}
@@ -496,11 +505,13 @@ void sedit_modify_string(char **str, char *lnew)
 	/*
 	 * Check the '%s' is present, if not, add it.
 	 */
-	if (*lnew != '%') {
+	if (*lnew != '%')
+	{
 		strcpy(buf, "%s ");
 		strcat(buf, lnew);
 		pointer = buf;
-	} else
+	}
+	else
 		pointer = lnew;
 
 	if (*str)
@@ -520,24 +531,33 @@ void sedit_save_internally(DESCRIPTOR_DATA * d)
 	shop = OLC_SHOP(d);
 	S_NUM(shop) = OLC_NUM(d);
 
-	if (rshop > -1) {	/* The shop already exists, just update it. */
+	if (rshop > -1)  	/* The shop already exists, just update it. */
+	{
 		copy_shop((shop_index + rshop), shop);
-	} else {		/* Doesn't exist - have to insert it. */
+	}
+	else  		/* Doesn't exist - have to insert it. */
+	{
 		CREATE(new_index, SHOP_DATA, top_shop + 1);
 
-		for (rshop = 0; rshop < top_shop; rshop++) {
-			if (!found) {	/* Is this the place? */
-				if (SHOP_NUM(rshop) > OLC_NUM(d)) {	/* Yep, stick it in here. */
+		for (rshop = 0; rshop < top_shop; rshop++)
+		{
+			if (!found)  	/* Is this the place? */
+			{
+				if (SHOP_NUM(rshop) > OLC_NUM(d))  	/* Yep, stick it in here. */
+				{
 					found = 1;
 					copy_shop(&(new_index[rshop]), shop);
 					/*
 					 * Move the entry that used to go here up a place.
 					 */
 					new_index[rshop + 1] = shop_index[rshop];
-				} else
+				}
+				else
 					/* This isn't the place, copy over info. */
 					new_index[rshop] = shop_index[rshop];
-			} else {	/* Shop's already inserted, copy rest over. */
+			}
+			else  	/* Shop's already inserted, copy rest over. */
+			{
 				new_index[rshop + 1] = shop_index[rshop];
 			}
 		}
@@ -567,10 +587,13 @@ void sedit_save_to_disk(int zone_num)
 	top = zone_table[zone_num].top;
 
 	sprintf(fname, "%s/%d.new", SHP_PREFIX, zone);
-	if (!(shop_file = fopen(fname, "w"))) {
+	if (!(shop_file = fopen(fname, "w")))
+	{
 		mudlog("SYSERR: OLC: Cannot open shop file!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		return;
-	} else if (fprintf(shop_file, "CircleMUD v3.0 Shop File~\n") < 0) {
+	}
+	else if (fprintf(shop_file, "CircleMUD v3.0 Shop File~\n") < 0)
+	{
 		mudlog("SYSERR: OLC: Cannot write to shop file!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		fclose(shop_file);
 		return;
@@ -578,11 +601,13 @@ void sedit_save_to_disk(int zone_num)
 	/*
 	 * Search database for shops in this zone.
 	 */
-	for (i = zone * 100; i <= top; i++) {
-		if ((rshop = real_shop(i)) != -1) {
+	for (i = zone * 100; i <= top; i++)
+	{
+		if ((rshop = real_shop(i)) != -1)
+		{
 			shop = shop_index + rshop;
 			fprintf(shop_file, "#%d%s~\n", i, (S_CHANGELISTS(shop)
-							   && S_CHANGETYPE(shop, 0) != -1) ? " E" : "");
+											   && S_CHANGETYPE(shop, 0) != -1) ? " E" : "");
 			/*
 			 * Save the products.
 			 */
@@ -604,19 +629,22 @@ void sedit_save_to_disk(int zone_num)
 			 * Save the buy types and namelists.
 			 */
 			j = -1;
-			do {
+			do
+			{
 				j++;
 				fprintf(shop_file, "%d%s\n", S_BUYTYPE(shop, j),
-					S_BUYWORD(shop, j) ? S_BUYWORD(shop, j) : "");
+						S_BUYWORD(shop, j) ? S_BUYWORD(shop, j) : "");
 			}
 			while (S_BUYTYPE(shop, j) != -1);
 
-			if (S_CHANGELISTS(shop) && S_CHANGETYPE(shop, 0) != -1) {
+			if (S_CHANGELISTS(shop) && S_CHANGETYPE(shop, 0) != -1)
+			{
 				j = -1;
-				do {
+				do
+				{
 					j++;
 					fprintf(shop_file, "%d%s\n", S_CHANGETYPE(shop, j),
-						S_CHANGEWORD(shop, j) ? S_CHANGEWORD(shop, j) : "");
+							S_CHANGEWORD(shop, j) ? S_CHANGEWORD(shop, j) : "");
 				}
 				while (S_CHANGETYPE(shop, j) != -1);
 			}
@@ -625,33 +653,34 @@ void sedit_save_to_disk(int zone_num)
 			 * Added some small'n'silly defaults as sanity checks.
 			 */
 			fprintf(shop_file,
-				"%s~\n%s~\n%s~\n%s~\n%s~\n%s~\n%s~\n"
-				"%d\n%ld\n%d\n%d\n",
-				S_NOITEM1(shop) ? S_NOITEM1(shop) : "%s Кхм ?!",
-				S_NOITEM2(shop) ? S_NOITEM2(shop) : "%s Кхм ?!",
-				S_NOBUY(shop) ? S_NOBUY(shop) : "%s Кхм?!",
-				S_NOCASH1(shop) ? S_NOCASH1(shop) : "%s Кхм?!",
-				S_NOCASH2(shop) ? S_NOCASH2(shop) : "%s Кхм?!",
-				S_BUY(shop) ? S_BUY(shop) : "%s Кхм?! %d ?",
-				S_SELL(shop) ? S_SELL(shop) : "%s Кхм?! %d?",
-				S_BROKE_TEMPER(shop),
-				S_BITVECTOR(shop), mob_index[S_KEEPER(shop)].vnum, S_NOTRADE(shop));
+					"%s~\n%s~\n%s~\n%s~\n%s~\n%s~\n%s~\n"
+					"%d\n%ld\n%d\n%d\n",
+					S_NOITEM1(shop) ? S_NOITEM1(shop) : "%s Кхм ?!",
+					S_NOITEM2(shop) ? S_NOITEM2(shop) : "%s Кхм ?!",
+					S_NOBUY(shop) ? S_NOBUY(shop) : "%s Кхм?!",
+					S_NOCASH1(shop) ? S_NOCASH1(shop) : "%s Кхм?!",
+					S_NOCASH2(shop) ? S_NOCASH2(shop) : "%s Кхм?!",
+					S_BUY(shop) ? S_BUY(shop) : "%s Кхм?! %d ?",
+					S_SELL(shop) ? S_SELL(shop) : "%s Кхм?! %d?",
+					S_BROKE_TEMPER(shop),
+					S_BITVECTOR(shop), mob_index[S_KEEPER(shop)].vnum, S_NOTRADE(shop));
 
 			/*
 			 * Save the rooms.
 			 */
 			j = -1;
-			do {
+			do
+			{
 				j++;
 				fprintf(shop_file, "%d\n", S_ROOM(shop, j));
 			}
 			while (S_ROOM(shop, j) != -1);
 
 			/*
-			 * Save open/closing times 
+			 * Save open/closing times
 			 */
 			fprintf(shop_file, "%d\n%d\n%d\n%d\n", S_OPEN1(shop),
-				S_CLOSE1(shop), S_OPEN2(shop), S_CLOSE2(shop));
+					S_CLOSE1(shop), S_OPEN2(shop), S_CLOSE2(shop));
 		}
 	}
 	fprintf(shop_file, "$\n$~\n");
@@ -667,7 +696,7 @@ void sedit_save_to_disk(int zone_num)
 }
 
 /**************************************************************************
- Menu functions 
+ Menu functions
  **************************************************************************/
 
 void sedit_products_menu(DESCRIPTOR_DATA * d)
@@ -682,15 +711,16 @@ void sedit_products_menu(DESCRIPTOR_DATA * d)
 	send_to_char("[H[J", d->character);
 #endif
 	send_to_char("##     VNUM     Производит\r\n", d->character);
-	for (i = 0; S_PRODUCT(shop, i) != -1; i++) {
+	for (i = 0; S_PRODUCT(shop, i) != -1; i++)
+	{
 		sprintf(buf, "%2d - [%s%5d%s] - %s%s%s\r\n", i,
-			cyn, obj_index[S_PRODUCT(shop, i)].vnum, nrm,
-			yel, obj_proto[S_PRODUCT(shop, i)]->short_description, nrm);
+				cyn, obj_index[S_PRODUCT(shop, i)].vnum, nrm,
+				yel, obj_proto[S_PRODUCT(shop, i)]->short_description, nrm);
 		send_to_char(buf, d->character);
 	}
 	sprintf(buf, "\r\n"
-		"%sA%s) Добавить предмет.\r\n"
-		"%sD%s) Убрать предмет.\r\n" "%sQ%s) Выход\r\n" "Ваш выбор : ", grn, nrm, grn, nrm, grn, nrm);
+			"%sA%s) Добавить предмет.\r\n"
+			"%sD%s) Убрать предмет.\r\n" "%sQ%s) Выход\r\n" "Ваш выбор : ", grn, nrm, grn, nrm, grn, nrm);
 	send_to_char(buf, d->character);
 
 	OLC_MODE(d) = SEDIT_PRODUCTS_MENU;
@@ -709,15 +739,16 @@ void sedit_compact_rooms_menu(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (i = 0; S_ROOM(shop, i) != -1; i++) {
+	for (i = 0; S_ROOM(shop, i) != -1; i++)
+	{
 		sprintf(buf, "%2d - [%s%5d%s]  | %s", i, cyn, S_ROOM(shop, i), nrm, !(++count % 5) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	sprintf(buf, "\r\n"
-		"%sA%s) Добавить комнату.\r\n"
-		"%sD%s) Удалить комнату.\r\n"
-		"%sL%s) Описание комнаты.\r\n"
-		"%sQ%s) Выход\r\n" "Ваш выбор : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm);
+			"%sA%s) Добавить комнату.\r\n"
+			"%sD%s) Удалить комнату.\r\n"
+			"%sL%s) Описание комнаты.\r\n"
+			"%sQ%s) Выход\r\n" "Ваш выбор : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm);
 	send_to_char(buf, d->character);
 
 	OLC_MODE(d) = SEDIT_ROOMS_MENU;
@@ -737,16 +768,17 @@ void sedit_rooms_menu(DESCRIPTOR_DATA * d)
 	send_to_char("[H[J", d->character);
 #endif
 	send_to_char("##     VNUM     Комната\r\n\r\n", d->character);
-	for (i = 0; S_ROOM(shop, i) != -1; i++) {
+	for (i = 0; S_ROOM(shop, i) != -1; i++)
+	{
 		sprintf(buf, "%2d - [%s%5d%s] - %s%s%s\r\n", i, cyn, S_ROOM(shop, i),
-			nrm, yel, world[real_room(S_ROOM(shop, i))]->name, nrm);
+				nrm, yel, world[real_room(S_ROOM(shop, i))]->name, nrm);
 		send_to_char(buf, d->character);
 	}
 	sprintf(buf, "\r\n"
-		"%sA%s) Добавить новую комнату.\r\n"
-		"%sD%s) Удалить комнату.\r\n"
-		"%sC%s) Компактное описание.\r\n"
-		"%sQ%s) Выход\r\n" "Ваш выбор : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm);
+			"%sA%s) Добавить новую комнату.\r\n"
+			"%sD%s) Удалить комнату.\r\n"
+			"%sC%s) Компактное описание.\r\n"
+			"%sQ%s) Выход\r\n" "Ваш выбор : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm);
 	send_to_char(buf, d->character);
 
 	OLC_MODE(d) = SEDIT_ROOMS_MENU;
@@ -766,15 +798,16 @@ void sedit_namelist_menu(DESCRIPTOR_DATA * d)
 	send_to_char("[H[J", d->character);
 #endif
 	send_to_char("## (ПОКУПКА)     Тип   Параметры\r\n\r\n", d->character);
-	for (i = 0; S_BUYTYPE(shop, i) != -1; i++) {
+	for (i = 0; S_BUYTYPE(shop, i) != -1; i++)
+	{
 		sprintf(buf, "%2d - %s%15s%s - %s%s%s\r\n", i, cyn,
-			item_types[S_BUYTYPE(shop, i)], nrm, yel,
-			S_BUYWORD(shop, i) ? S_BUYWORD(shop, i) : "<None>", nrm);
+				item_types[S_BUYTYPE(shop, i)], nrm, yel,
+				S_BUYWORD(shop, i) ? S_BUYWORD(shop, i) : "<None>", nrm);
 		send_to_char(buf, d->character);
 	}
 	sprintf(buf, "\r\n"
-		"%sA%s) Новый товар.\r\n"
-		"%sD%s) Удалить товар.\r\n" "%sQ%s) Выход\r\n" "Ваш выбор : ", grn, nrm, grn, nrm, grn, nrm);
+			"%sA%s) Новый товар.\r\n"
+			"%sD%s) Удалить товар.\r\n" "%sQ%s) Выход\r\n" "Ваш выбор : ", grn, nrm, grn, nrm, grn, nrm);
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = SEDIT_NAMELIST_MENU;
 }
@@ -793,15 +826,16 @@ void sedit_changelist_menu(DESCRIPTOR_DATA * d)
 	send_to_char("[H[J", d->character);
 #endif
 	send_to_char("## (ОБМЕН)     Тип   Параметры\r\n\r\n", d->character);
-	for (i = 0; S_CHANGETYPE(shop, i) != -1; i++) {
+	for (i = 0; S_CHANGETYPE(shop, i) != -1; i++)
+	{
 		sprintf(buf, "%2d - %s%15s%s - %s%s%s\r\n", i, cyn,
-			item_types[S_CHANGETYPE(shop, i)], nrm, yel,
-			S_CHANGEWORD(shop, i) ? S_CHANGEWORD(shop, i) : "<None>", nrm);
+				item_types[S_CHANGETYPE(shop, i)], nrm, yel,
+				S_CHANGEWORD(shop, i) ? S_CHANGEWORD(shop, i) : "<None>", nrm);
 		send_to_char(buf, d->character);
 	}
 	sprintf(buf, "\r\n"
-		"%sA%s) Новый товар.\r\n"
-		"%sD%s) Удалить товар.\r\n" "%sQ%s) Выход\r\n" "Ваш выбор : ", grn, nrm, grn, nrm, grn, nrm);
+			"%sA%s) Новый товар.\r\n"
+			"%sD%s) Удалить товар.\r\n" "%sQ%s) Выход\r\n" "Ваш выбор : ", grn, nrm, grn, nrm, grn, nrm);
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = SEDIT_CHANGELIST_MENU;
 }
@@ -817,7 +851,8 @@ void sedit_shop_flags_menu(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (i = 0; i < NUM_SHOP_FLAGS; i++) {
+	for (i = 0; i < NUM_SHOP_FLAGS; i++)
+	{
 		sprintf(buf, "%s%2d%s) %-20.20s   %s", grn, i + 1, nrm, shop_bits[i], !(++count % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
@@ -837,7 +872,8 @@ void sedit_no_trade_menu(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (i = 0; i < NUM_TRADERS; i++) {
+	for (i = 0; i < NUM_TRADERS; i++)
+	{
 		sprintf(buf, "%s%2d%s) %-20.20s   %s", grn, i + 1, nrm, trade_letters[i], !(++count % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
@@ -860,9 +896,10 @@ void sedit_types_menu(DESCRIPTOR_DATA * d, int mode)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (i = 0; i < NUM_ITEM_TYPES; i++) {
+	for (i = 0; i < NUM_ITEM_TYPES; i++)
+	{
 		sprintf(buf, "%s%2d%s) %s%-20s%s  %s", grn, i, nrm, cyn, item_types[i],
-			nrm, !(++count % 3) ? "\r\n" : "");
+				nrm, !(++count % 3) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	sprintf(buf, "\r\n%sВаш выбор : ", nrm);
@@ -886,50 +923,50 @@ void sedit_disp_menu(DESCRIPTOR_DATA * d)
 	sprintbit(S_BITVECTOR(shop), shop_bits, buf2);
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
-		"[H[J"
+			"[H[J"
 #endif
-		"-- Магазин : [%s%d%s]\r\n"
-		"%s0%s) Продавец : [%s%d%s] %s%s\r\n"
-		"%s1%s) Открывается 1 : %s%4d%s          %s2%s) Закрывается 1     : %s%4d\r\n"
-		"%s3%s) Открывается 2 : %s%4d%s          %s4%s) Закрывается 2     : %s%4d\r\n"
-		"%s5%s) Коэф. покупки : %s%1.2f%s        %s6%s) Коэф.продажи      : %s%1.2f\r\n"
-		"%s7%s) Нет у продавца  : %s%s\r\n"
-		"%s8%s) Нет у покупателя: %s%s\r\n"
-		"%s9%s) Нет денег у продавца: %s%s\r\n"
-		"%sA%s) Нет денег у покупателя: %s%s\r\n"
-		"%sB%s) Не покупает    : %s%s\r\n"
-		"%sC%s) Купил          : %s%s\r\n"
-		"%sD%s) Продал         : %s%s\r\n"
-		"%sE%s) Не торгует     : %s%s\r\n"
-		"%sF%s) Флаги магазина : %s%s\r\n"
-		"%sR%s) Меню комнат\r\n"
-		"%sP%s) Меню продукции\r\n"
-		"%sT%s) Меню типов для покупки\r\n"
-		"%sX%s) Меню типов для обмена\r\n"
-		"%sY%s) Коэф.обмена    : %s%1.2f\r\n"
-		"%sQ%s) Выход\r\n"
-		"Ваш выбор : ",
-		cyn, OLC_NUM(d), nrm,
-		grn, nrm, cyn, S_KEEPER(shop) == -1 ?
-		-1 : mob_index[S_KEEPER(shop)].vnum, nrm,
-		yel, S_KEEPER(shop) == -1 ?
-		"None" : mob_proto[S_KEEPER(shop)].player.short_descr,
-		grn, nrm, cyn, S_OPEN1(shop), nrm,
-		grn, nrm, cyn, S_CLOSE1(shop),
-		grn, nrm, cyn, S_OPEN2(shop), nrm,
-		grn, nrm, cyn, S_CLOSE2(shop),
-		grn, nrm, cyn, S_BUYPROFIT(shop), nrm,
-		grn, nrm, cyn, S_SELLPROFIT(shop),
-		grn, nrm, yel, S_NOITEM1(shop),
-		grn, nrm, yel, S_NOITEM2(shop),
-		grn, nrm, yel, S_NOCASH1(shop),
-		grn, nrm, yel, S_NOCASH2(shop),
-		grn, nrm, yel, S_NOBUY(shop),
-		grn, nrm, yel, S_BUY(shop),
-		grn, nrm, yel, S_SELL(shop),
-		grn, nrm, cyn, buf1,
-		grn, nrm, cyn, buf2,
-		grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, cyn, S_CHANGEPROFIT(shop), grn, nrm);
+			"-- Магазин : [%s%d%s]\r\n"
+			"%s0%s) Продавец : [%s%d%s] %s%s\r\n"
+			"%s1%s) Открывается 1 : %s%4d%s          %s2%s) Закрывается 1     : %s%4d\r\n"
+			"%s3%s) Открывается 2 : %s%4d%s          %s4%s) Закрывается 2     : %s%4d\r\n"
+			"%s5%s) Коэф. покупки : %s%1.2f%s        %s6%s) Коэф.продажи      : %s%1.2f\r\n"
+			"%s7%s) Нет у продавца  : %s%s\r\n"
+			"%s8%s) Нет у покупателя: %s%s\r\n"
+			"%s9%s) Нет денег у продавца: %s%s\r\n"
+			"%sA%s) Нет денег у покупателя: %s%s\r\n"
+			"%sB%s) Не покупает    : %s%s\r\n"
+			"%sC%s) Купил          : %s%s\r\n"
+			"%sD%s) Продал         : %s%s\r\n"
+			"%sE%s) Не торгует     : %s%s\r\n"
+			"%sF%s) Флаги магазина : %s%s\r\n"
+			"%sR%s) Меню комнат\r\n"
+			"%sP%s) Меню продукции\r\n"
+			"%sT%s) Меню типов для покупки\r\n"
+			"%sX%s) Меню типов для обмена\r\n"
+			"%sY%s) Коэф.обмена    : %s%1.2f\r\n"
+			"%sQ%s) Выход\r\n"
+			"Ваш выбор : ",
+			cyn, OLC_NUM(d), nrm,
+			grn, nrm, cyn, S_KEEPER(shop) == -1 ?
+			-1 : mob_index[S_KEEPER(shop)].vnum, nrm,
+			yel, S_KEEPER(shop) == -1 ?
+			"None" : mob_proto[S_KEEPER(shop)].player.short_descr,
+			grn, nrm, cyn, S_OPEN1(shop), nrm,
+			grn, nrm, cyn, S_CLOSE1(shop),
+			grn, nrm, cyn, S_OPEN2(shop), nrm,
+			grn, nrm, cyn, S_CLOSE2(shop),
+			grn, nrm, cyn, S_BUYPROFIT(shop), nrm,
+			grn, nrm, cyn, S_SELLPROFIT(shop),
+			grn, nrm, yel, S_NOITEM1(shop),
+			grn, nrm, yel, S_NOITEM2(shop),
+			grn, nrm, yel, S_NOCASH1(shop),
+			grn, nrm, yel, S_NOCASH2(shop),
+			grn, nrm, yel, S_NOBUY(shop),
+			grn, nrm, yel, S_BUY(shop),
+			grn, nrm, yel, S_SELL(shop),
+			grn, nrm, cyn, buf1,
+			grn, nrm, cyn, buf2,
+			grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, cyn, S_CHANGEPROFIT(shop), grn, nrm);
 	send_to_char(buf, d->character);
 
 	OLC_MODE(d) = SEDIT_MAIN_MENU;
@@ -943,16 +980,20 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 {
 	int i;
 
-	if (OLC_MODE(d) > SEDIT_NUMERICAL_RESPONSE) {
-		if (!isdigit(arg[0]) && ((*arg == '-') && (!isdigit(arg[1])))) {
+	if (OLC_MODE(d) > SEDIT_NUMERICAL_RESPONSE)
+	{
+		if (!isdigit(arg[0]) && ((*arg == '-') && (!isdigit(arg[1]))))
+		{
 			send_to_char("Field must be numerical, try again : ", d->character);
 			return;
 		}
 	}
-	switch (OLC_MODE(d)) {
-/*-------------------------------------------------------------------*/
+	switch (OLC_MODE(d))
+	{
+		/*-------------------------------------------------------------------*/
 	case SEDIT_CONFIRM_SAVESTRING:
-		switch (*arg) {
+		switch (*arg)
+		{
 		case 'y':
 		case 'Y':
 		case 'д':
@@ -976,16 +1017,19 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case SEDIT_MAIN_MENU:
 		i = 0;
-		switch (*arg) {
+		switch (*arg)
+		{
 		case 'q':
 		case 'Q':
-			if (OLC_VAL(d)) {	/* Anything been changed? */
+			if (OLC_VAL(d))  	/* Anything been changed? */
+			{
 				send_to_char("Вы желаете сохранить изменения магазина ? (y/n) : ", d->character);
 				OLC_MODE(d) = SEDIT_CONFIRM_SAVESTRING;
-			} else
+			}
+			else
 				cleanup_olc(d, CLEANUP_ALL);
 			return;
 		case '0':
@@ -1082,15 +1126,17 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 
-		if (i != 0) {
+		if (i != 0)
+		{
 			send_to_char(i == 1 ? "\r\nВведите новое значение : " :
-				     (i == -1 ? "\r\nВведите новый текст :\r\n] " : "Опаньки...\r\n"), d->character);
+						 (i == -1 ? "\r\nВведите новый текст :\r\n] " : "Опаньки...\r\n"), d->character);
 			return;
 		}
 		break;
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case SEDIT_NAMELIST_MENU:
-		switch (*arg) {
+		switch (*arg)
+		{
 		case 'a':
 		case 'A':
 			sedit_types_menu(d, SEDIT_BUYTYPE_MENU);
@@ -1105,9 +1151,10 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		}
 		break;
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case SEDIT_CHANGELIST_MENU:
-		switch (*arg) {
+		switch (*arg)
+		{
 		case 'a':
 		case 'A':
 			sedit_types_menu(d, SEDIT_CHANGETYPE_MENU);
@@ -1122,9 +1169,10 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		}
 		break;
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case SEDIT_PRODUCTS_MENU:
-		switch (*arg) {
+		switch (*arg)
+		{
 		case 'a':
 		case 'A':
 			send_to_char("\r\nВведите виртуальный номер предмета : ", d->character);
@@ -1140,9 +1188,10 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		}
 		break;
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case SEDIT_ROOMS_MENU:
-		switch (*arg) {
+		switch (*arg)
+		{
 		case 'a':
 		case 'A':
 			send_to_char("\r\nВведите новый виртуальный номер комнаты : ", d->character);
@@ -1166,7 +1215,7 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		}
 		break;
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 		/*
 		 * String edits.
 		 */
@@ -1192,34 +1241,36 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		sedit_modify_string(&S_SELL(OLC_SHOP(d)), arg);
 		break;
 	case SEDIT_NAMELIST:
-		{
-			struct shop_buy_data new_entry;
+	{
+		struct shop_buy_data new_entry;
 
-			BUY_TYPE(new_entry) = OLC_VAL(d);
-			BUY_WORD(new_entry) = (arg && *arg) ? str_dup(arg) : NULL;
-			sedit_add_to_type_list(&(S_NAMELISTS(OLC_SHOP(d))), &new_entry);
-		}
-		sedit_namelist_menu(d);
-		return;
+		BUY_TYPE(new_entry) = OLC_VAL(d);
+		BUY_WORD(new_entry) = (arg && *arg) ? str_dup(arg) : NULL;
+		sedit_add_to_type_list(&(S_NAMELISTS(OLC_SHOP(d))), &new_entry);
+	}
+	sedit_namelist_menu(d);
+	return;
 	case SEDIT_CHANGELIST:
-		{
-			struct shop_buy_data new_entry;
+	{
+		struct shop_buy_data new_entry;
 
-			BUY_TYPE(new_entry) = OLC_VAL(d);
-			BUY_WORD(new_entry) = (arg && *arg) ? str_dup(arg) : NULL;
-			sedit_add_to_type_list(&(S_CHANGELISTS(OLC_SHOP(d))), &new_entry);
-		}
-		sedit_changelist_menu(d);
-		return;
+		BUY_TYPE(new_entry) = OLC_VAL(d);
+		BUY_WORD(new_entry) = (arg && *arg) ? str_dup(arg) : NULL;
+		sedit_add_to_type_list(&(S_CHANGELISTS(OLC_SHOP(d))), &new_entry);
+	}
+	sedit_changelist_menu(d);
+	return;
 
-/*-------------------------------------------------------------------*/
-		/*
-		 * Numerical responses.
-		 */
+	/*-------------------------------------------------------------------*/
+	/*
+	 * Numerical responses.
+	 */
 	case SEDIT_KEEPER:
 		i = atoi(arg);
-		if ((i = atoi(arg)) != -1) {
-			if ((i = real_mobile(i)) < 0) {
+		if ((i = atoi(arg)) != -1)
+		{
+			if ((i = real_mobile(i)) < 0)
+			{
 				send_to_char("Нет такого моба. Повторите ввод : ", d->character);
 				return;
 			}
@@ -1275,8 +1326,10 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		return;
 
 	case SEDIT_NEW_PRODUCT:
-		if ((i = atoi(arg)) != -1) {
-			if ((i = real_object(i)) == -1) {
+		if ((i = atoi(arg)) != -1)
+		{
+			if ((i = real_object(i)) == -1)
+			{
 				send_to_char("Этот предмет не существует. Повторите ввод : ", d->character);
 				return;
 			}
@@ -1290,8 +1343,10 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		sedit_products_menu(d);
 		return;
 	case SEDIT_NEW_ROOM:
-		if ((i = atoi(arg)) != -1) {
-			if ((i = real_room(i)) == NOWHERE) {
+		if ((i = atoi(arg)) != -1)
+		{
+			if ((i = real_room(i)) == NOWHERE)
+			{
 				send_to_char("Эта комната не существует. Повторите ввод : ", d->character);
 				return;
 			}
@@ -1305,21 +1360,23 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		sedit_rooms_menu(d);
 		return;
 	case SEDIT_SHOP_FLAGS:
-		if ((i = MAX(0, MIN(NUM_SHOP_FLAGS, atoi(arg)))) > 0) {
+		if ((i = MAX(0, MIN(NUM_SHOP_FLAGS, atoi(arg)))) > 0)
+		{
 			TOGGLE_BIT(S_BITVECTOR(OLC_SHOP(d)), 1 << (i - 1));
 			sedit_shop_flags_menu(d);
 			return;
 		}
 		break;
 	case SEDIT_NOTRADE:
-		if ((i = MAX(0, MIN(NUM_TRADERS, atoi(arg)))) > 0) {
+		if ((i = MAX(0, MIN(NUM_TRADERS, atoi(arg)))) > 0)
+		{
 			TOGGLE_BIT(S_NOTRADE(OLC_SHOP(d)), 1 << (i - 1));
 			sedit_no_trade_menu(d);
 			return;
 		}
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	default:
 		/*
 		 * We should never get here.
@@ -1330,13 +1387,13 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 	}
 
-/*-------------------------------------------------------------------*/
+	/*-------------------------------------------------------------------*/
 
-/*
- * END OF CASE 
- * If we get here, we have probably changed something, and now want to
- * return to main menu.  Use OLC_VAL as a 'has changed' flag.
- */
+	/*
+	 * END OF CASE
+	 * If we get here, we have probably changed something, and now want to
+	 * return to main menu.  Use OLC_VAL as a 'has changed' flag.
+	 */
 	OLC_VAL(d) = 1;
 	sedit_disp_menu(d);
 }

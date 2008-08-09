@@ -9,7 +9,8 @@
 #include "sysdep.h"
 #include "structs.h"
 
-namespace FileCRC {
+namespace FileCRC
+{
 
 enum { PLAYER, TEXTOBJS, TIMEOBJS, UPDATE_PLAYER };
 

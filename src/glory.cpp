@@ -20,11 +20,13 @@
 extern void add_karma(CHAR_DATA * ch, char const * punish , char * reason);
 extern void check_max_hp(CHAR_DATA *ch);
 
-namespace Glory {
+namespace Glory
+{
 
 // таймеры вложенной славы
-struct glory_time {
-	glory_time() : glory(0), timer (0), stat(0) {};
+struct glory_time
+{
+	glory_time() : glory(0), timer(0), stat(0) {};
 	int glory; // кол-во славы
 	int timer; // сколько тиков осталось
 	int stat; // в какой стат вложена (номер G_STR ... G_CHA)
@@ -33,8 +35,9 @@ struct glory_time {
 typedef boost::shared_ptr<struct glory_time> GloryTimePtr;
 typedef std::list<GloryTimePtr> GloryTimeType;
 
-class GloryNode {
-	public:
+class GloryNode
+{
+public:
 	GloryNode() : free_glory(0), spend_glory(0), denial(0), hide(0), freeze(0) {};
 	GloryNode &operator= (const GloryNode&);
 
@@ -50,11 +53,12 @@ class GloryNode {
 typedef boost::shared_ptr<GloryNode> GloryNodePtr;
 typedef std::map<long, GloryNodePtr> GloryListType; // first - уид
 
-class spend_glory {
-	public:
+class spend_glory
+{
+public:
 	spend_glory() : olc_str(0), olc_dex(0), olc_int(0), olc_wis(0), olc_con(0),
-		olc_cha(0), olc_add_str(0), olc_add_dex(0), olc_add_int(0), olc_add_wis(0),
-		olc_add_con(0), olc_add_cha(0), olc_add_spend_glory(0) {};
+			olc_cha(0), olc_add_str(0), olc_add_dex(0), olc_add_int(0), olc_add_wis(0),
+			olc_add_con(0), olc_add_cha(0), olc_add_spend_glory(0) {};
 
 	int olc_str; // статы
 	int olc_dex;
@@ -81,8 +85,9 @@ class spend_glory {
 
 enum { ADD_GLORY = 1, REMOVE_GLORY, REMOVE_STAT, TRANSFER_GLORY, HIDE_GLORY };
 
-class GloryLog {
-	public:
+class GloryLog
+{
+public:
 	GloryLog() : type(0), num(0) {};
 	int type; // тип записи (1 - плюс слава, 2 - минус слава, 3 - убирание стата, 4 - трансфер, 5 - hide)
 	int num; // кол-во славы при +- славы
@@ -112,7 +117,7 @@ GloryNode & GloryNode::operator= (const GloryNode &t)
 	timers.clear();
 	for (GloryTimeType::const_iterator tm_it = t.timers.begin(); tm_it != t.timers.end(); ++tm_it)
 	{
-		GloryTimePtr temp_timer (new glory_time);
+		GloryTimePtr temp_timer(new glory_time);
 		temp_timer->stat = (*tm_it)->stat;
 		temp_timer->glory = (*tm_it)->glory;
 		temp_timer->timer = (*tm_it)->timer;
@@ -141,7 +146,7 @@ void load_glory()
 	{
 		if (buffer == "<Node>")
 		{
-			GloryNodePtr temp_node (new GloryNode);
+			GloryNodePtr temp_node(new GloryNode);
 			long uid = 0;
 			int free_glory = 0, denial = 0;
 			bool hide = 0, freeze = 0;
@@ -176,7 +181,7 @@ void load_glory()
 				{
 					glory = boost::lexical_cast<int>(buffer);
 				}
-				catch(boost::bad_lexical_cast &)
+				catch (boost::bad_lexical_cast &)
 				{
 					log("Glory: ошибка чтения glory (%s)", buffer.c_str());
 					break;
@@ -189,7 +194,7 @@ void load_glory()
 					break;
 				}
 
-				GloryTimePtr temp_glory_timers (new glory_time);
+				GloryTimePtr temp_glory_timers(new glory_time);
 				temp_glory_timers->glory = glory;
 				temp_glory_timers->timer = timer;
 				temp_glory_timers->stat = stat;
@@ -320,7 +325,7 @@ void add_glory(long uid, int amount)
 	}
 	else
 	{
-		GloryNodePtr temp_node (new GloryNode);
+		GloryNodePtr temp_node(new GloryNode);
 		temp_node->free_glory = amount;
 		glory_list[uid] = temp_node;
 	}
@@ -328,7 +333,7 @@ void add_glory(long uid, int amount)
 	DESCRIPTOR_DATA *d = DescByUID(uid);
 	if (d)
 		send_to_char(d->character, "Вы заслужили %d %s славы.\r\n",
-			amount, desc_count(amount, WHAT_POINT));
+					 amount, desc_count(amount, WHAT_POINT));
 }
 
 /**
@@ -380,33 +385,33 @@ bool parse_denial_check(CHAR_DATA *ch, int stat)
 		bool stop = 0;
 		switch (stat)
 		{
-			case G_STR:
-				if (GET_STR(ch) == ch->desc->glory->olc_str)
-					stop = 1;
-				break;
-			case G_DEX:
-				if (GET_DEX(ch) == ch->desc->glory->olc_dex)
-					stop = 1;
-				break;
-			case G_INT:
-				if (GET_INT(ch) == ch->desc->glory->olc_int)
-					stop = 1;
-				break;
-			case G_WIS:
-				if (GET_WIS(ch) == ch->desc->glory->olc_wis)
-					stop = 1;
-				break;
-			case G_CON:
-				if (GET_CON(ch) == ch->desc->glory->olc_con)
-					stop = 1;
-				break;
-			case G_CHA:
-				if (GET_CHA(ch) == ch->desc->glory->olc_cha)
-					stop = 1;
-				break;
-			default:
-				log("Glory: невалидный номер стат: %d (uid: %d, name: %s)", stat, GET_UNIQUE(ch), GET_NAME(ch));
+		case G_STR:
+			if (GET_STR(ch) == ch->desc->glory->olc_str)
 				stop = 1;
+			break;
+		case G_DEX:
+			if (GET_DEX(ch) == ch->desc->glory->olc_dex)
+				stop = 1;
+			break;
+		case G_INT:
+			if (GET_INT(ch) == ch->desc->glory->olc_int)
+				stop = 1;
+			break;
+		case G_WIS:
+			if (GET_WIS(ch) == ch->desc->glory->olc_wis)
+				stop = 1;
+			break;
+		case G_CON:
+			if (GET_CON(ch) == ch->desc->glory->olc_con)
+				stop = 1;
+			break;
+		case G_CHA:
+			if (GET_CHA(ch) == ch->desc->glory->olc_cha)
+				stop = 1;
+			break;
+		default:
+			log("Glory: невалидный номер стат: %d (uid: %d, name: %s)", stat, GET_UNIQUE(ch), GET_NAME(ch));
+			stop = 1;
 		}
 		if (stop)
 		{
@@ -483,7 +488,7 @@ void parse_add_stat(CHAR_DATA *ch, int stat)
 		}
 	}
 	// если стат не найден - делаем новую запись
-	GloryTimePtr temp_timer (new glory_time);
+	GloryTimePtr temp_timer(new glory_time);
 	temp_timer->stat = stat;
 	temp_timer->glory = 1;
 	// вставляем в начало списка, чтобы при вычитании удалять первыми вложенные в текущей сессии статы
@@ -495,7 +500,8 @@ void parse_add_stat(CHAR_DATA *ch, int stat)
 */
 bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 {
-	switch (*arg) {
+	switch (*arg)
+	{
 	case 'А':
 	case 'а':
 		if (ch->desc->glory->olc_add_str >= 1)
@@ -610,22 +616,22 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 		// проверка, чтобы не записывать зря, а только при изменения
 		// и чтобы нельзя было из стата славу вытащить
 		if ((ch->desc->glory->olc_str == GET_STR(ch)
-			&& ch->desc->glory->olc_dex == GET_DEX(ch)
-			&& ch->desc->glory->olc_int == GET_INT(ch)
-			&& ch->desc->glory->olc_wis == GET_WIS(ch)
-			&& ch->desc->glory->olc_con == GET_CON(ch)
-			&& ch->desc->glory->olc_cha == GET_CHA(ch))
-			|| ch->desc->glory->olc_add_spend_glory < ch->desc->glory->olc_node->spend_glory)
+				&& ch->desc->glory->olc_dex == GET_DEX(ch)
+				&& ch->desc->glory->olc_int == GET_INT(ch)
+				&& ch->desc->glory->olc_wis == GET_WIS(ch)
+				&& ch->desc->glory->olc_con == GET_CON(ch)
+				&& ch->desc->glory->olc_cha == GET_CHA(ch))
+				|| ch->desc->glory->olc_add_spend_glory < ch->desc->glory->olc_node->spend_glory)
 		{
 			return 0;
 		}
 
 		GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 		if (it == glory_list.end()
-			|| ch->desc->glory->check_spend_glory != it->second->spend_glory
-			|| ch->desc->glory->check_free_glory != it->second->free_glory
-			|| ch->desc->glory->olc_node->hide != it->second->hide
-			|| ch->desc->glory->olc_node->freeze != it->second->freeze)
+				|| ch->desc->glory->check_spend_glory != it->second->spend_glory
+				|| ch->desc->glory->check_free_glory != it->second->free_glory
+				|| ch->desc->glory->olc_node->hide != it->second->hide
+				|| ch->desc->glory->olc_node->freeze != it->second->freeze)
 		{
 			// пустое может получиться например если с него в этот момент трансфернули славу
 			// остальное - за время сидения в олц что-то изменилось, дали славу, просрочились статы и т.п.
@@ -637,11 +643,11 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 
 		// включаем таймер, если было переливание статов
 		if (GET_STR(ch) < ch->desc->glory->olc_str
-			|| GET_DEX(ch) < ch->desc->glory->olc_dex
-			|| GET_INT(ch) < ch->desc->glory->olc_int
-			|| GET_WIS(ch) < ch->desc->glory->olc_wis
-			|| GET_CON(ch) < ch->desc->glory->olc_con
-			|| GET_CHA(ch) < ch->desc->glory->olc_cha)
+				|| GET_DEX(ch) < ch->desc->glory->olc_dex
+				|| GET_INT(ch) < ch->desc->glory->olc_int
+				|| GET_WIS(ch) < ch->desc->glory->olc_wis
+				|| GET_CON(ch) < ch->desc->glory->olc_con
+				|| GET_CHA(ch) < ch->desc->glory->olc_cha)
 		{
 			ch->desc->glory->olc_node->denial = DISPLACE_TIMER;
 		}
@@ -688,57 +694,57 @@ void spend_glory_menu(CHAR_DATA *ch)
 {
 	std::ostringstream out;
 	out << "\r\n              -      +\r\n"
-		<< "  Сила     : ("
-		<< CCIGRN(ch, C_SPR) << "А" << CCNRM(ch, C_SPR)
-		<< ") " << ch->desc->glory->olc_str << " ("
-		<< CCIGRN(ch, C_SPR) << "З" << CCNRM(ch, C_SPR)
-		<< ")";
+	<< "  Сила     : ("
+	<< CCIGRN(ch, C_SPR) << "А" << CCNRM(ch, C_SPR)
+	<< ") " << ch->desc->glory->olc_str << " ("
+	<< CCIGRN(ch, C_SPR) << "З" << CCNRM(ch, C_SPR)
+	<< ")";
 	if (ch->desc->glory->olc_add_str)
 		out << "    (" << (ch->desc->glory->olc_add_str > 0 ? "+" : "") << ch->desc->glory->olc_add_str << ")";
 	out << "\r\n"
-		<< "  Ловкость : ("
-		<< CCIGRN(ch, C_SPR) << "Б" << CCNRM(ch, C_SPR)
-		<<") " << ch->desc->glory->olc_dex << " ("
-		<< CCIGRN(ch, C_SPR) << "И" << CCNRM(ch, C_SPR)
-		<<")";
+	<< "  Ловкость : ("
+	<< CCIGRN(ch, C_SPR) << "Б" << CCNRM(ch, C_SPR)
+	<< ") " << ch->desc->glory->olc_dex << " ("
+	<< CCIGRN(ch, C_SPR) << "И" << CCNRM(ch, C_SPR)
+	<< ")";
 	if (ch->desc->glory->olc_add_dex)
 		out << "    (" << (ch->desc->glory->olc_add_dex > 0 ? "+" : "") << ch->desc->glory->olc_add_dex << ")";
 	out << "\r\n"
-		<< "  Ум       : ("
-		<< CCIGRN(ch, C_SPR) << "Г" << CCNRM(ch, C_SPR)
-		<< ") " << ch->desc->glory->olc_int << " ("
-		<< CCIGRN(ch, C_SPR) << "К" << CCNRM(ch, C_SPR)
-		<< ")";
+	<< "  Ум       : ("
+	<< CCIGRN(ch, C_SPR) << "Г" << CCNRM(ch, C_SPR)
+	<< ") " << ch->desc->glory->olc_int << " ("
+	<< CCIGRN(ch, C_SPR) << "К" << CCNRM(ch, C_SPR)
+	<< ")";
 	if (ch->desc->glory->olc_add_int)
 		out << "    (" << (ch->desc->glory->olc_add_int > 0 ? "+" : "") << ch->desc->glory->olc_add_int << ")";
 	out << "\r\n"
-		<< "  Мудрость : ("
-		<< CCIGRN(ch, C_SPR) << "Д" << CCNRM(ch, C_SPR)
-		<< ") " << ch->desc->glory->olc_wis << " ("
-		<< CCIGRN(ch, C_SPR) << "Л" << CCNRM(ch, C_SPR)
-		<< ")";
+	<< "  Мудрость : ("
+	<< CCIGRN(ch, C_SPR) << "Д" << CCNRM(ch, C_SPR)
+	<< ") " << ch->desc->glory->olc_wis << " ("
+	<< CCIGRN(ch, C_SPR) << "Л" << CCNRM(ch, C_SPR)
+	<< ")";
 	if (ch->desc->glory->olc_add_wis)
 		out << "    (" << (ch->desc->glory->olc_add_wis > 0 ? "+" : "") << ch->desc->glory->olc_add_wis << ")";
 	out << "\r\n"
-		<< "  Здоровье : ("
-		<< CCIGRN(ch, C_SPR) << "Е" << CCNRM(ch, C_SPR)
-		<< ") " << ch->desc->glory->olc_con << " ("
-		<< CCIGRN(ch, C_SPR) << "М" << CCNRM(ch, C_SPR)
-		<< ")";
+	<< "  Здоровье : ("
+	<< CCIGRN(ch, C_SPR) << "Е" << CCNRM(ch, C_SPR)
+	<< ") " << ch->desc->glory->olc_con << " ("
+	<< CCIGRN(ch, C_SPR) << "М" << CCNRM(ch, C_SPR)
+	<< ")";
 	if (ch->desc->glory->olc_add_con)
 		out << "    (" << (ch->desc->glory->olc_add_con > 0 ? "+" : "") << ch->desc->glory->olc_add_con << ")";
 	out << "\r\n"
-		<< "  Обаяние  : ("
-		<< CCIGRN(ch, C_SPR) << "Ж" << CCNRM(ch, C_SPR)
-		<< ") " << ch->desc->glory->olc_cha << " ("
-		<< CCIGRN(ch, C_SPR) << "Н" << CCNRM(ch, C_SPR)
-		<< ")";
+	<< "  Обаяние  : ("
+	<< CCIGRN(ch, C_SPR) << "Ж" << CCNRM(ch, C_SPR)
+	<< ") " << ch->desc->glory->olc_cha << " ("
+	<< CCIGRN(ch, C_SPR) << "Н" << CCNRM(ch, C_SPR)
+	<< ")";
 	if (ch->desc->glory->olc_add_cha)
 		out << "    (" << (ch->desc->glory->olc_add_cha > 0 ? "+" : "") << ch->desc->glory->olc_add_cha << ")";
 	out << "\r\n\r\n"
-		<< "  Можно добавить: "
-		<< MIN((MAX_STATS_BY_GLORY - ch->desc->glory->olc_add_spend_glory), ch->desc->glory->olc_node->free_glory / 1000)
-		<< "\r\n\r\n";
+	<< "  Можно добавить: "
+	<< MIN((MAX_STATS_BY_GLORY - ch->desc->glory->olc_add_spend_glory), ch->desc->glory->olc_node->free_glory / 1000)
+	<< "\r\n\r\n";
 
 	int diff = ch->desc->glory->olc_node->spend_glory - ch->desc->glory->olc_add_spend_glory;
 	if (diff > 0)
@@ -746,22 +752,22 @@ void spend_glory_menu(CHAR_DATA *ch)
 		out << "  Вы должны распределить вложенные ранее " << diff << " " << desc_count(diff, WHAT_POINT) << "\r\n";
 	}
 	else if (ch->desc->glory->olc_add_spend_glory > ch->desc->glory->olc_node->spend_glory
-		|| ch->desc->glory->olc_str != GET_STR(ch)
-		|| ch->desc->glory->olc_dex != GET_DEX(ch)
-		|| ch->desc->glory->olc_int != GET_INT(ch)
-		|| ch->desc->glory->olc_wis != GET_WIS(ch)
-		|| ch->desc->glory->olc_con != GET_CON(ch)
-		|| ch->desc->glory->olc_cha != GET_CHA(ch))
+			 || ch->desc->glory->olc_str != GET_STR(ch)
+			 || ch->desc->glory->olc_dex != GET_DEX(ch)
+			 || ch->desc->glory->olc_int != GET_INT(ch)
+			 || ch->desc->glory->olc_wis != GET_WIS(ch)
+			 || ch->desc->glory->olc_con != GET_CON(ch)
+			 || ch->desc->glory->olc_cha != GET_CHA(ch))
 	{
 		out << "  "
-			<< CCIGRN(ch, C_SPR) << "В" << CCNRM(ch, C_SPR)
-			<< ") Сохранить результаты\r\n";
+		<< CCIGRN(ch, C_SPR) << "В" << CCNRM(ch, C_SPR)
+		<< ") Сохранить результаты\r\n";
 	}
 
 	out << "  "
-		<< CCIGRN(ch, C_SPR) << "Х" << CCNRM(ch, C_SPR)
-		<< ") Выйти без сохранения\r\n"
-		<< " Ваш выбор: ";
+	<< CCIGRN(ch, C_SPR) << "Х" << CCNRM(ch, C_SPR)
+	<< ") Выйти без сохранения\r\n"
+	<< " Ваш выбор: ";
 	send_to_char(out.str(), ch);
 }
 
@@ -775,26 +781,26 @@ void print_glory(CHAR_DATA *ch, GloryListType::iterator &it)
 	{
 		switch ((*tm_it)->stat)
 		{
-			case G_STR:
-				out << "Сила : +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
-				break;
-			case G_DEX:
-				out << "Подв : +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
-				break;
-			case G_INT:
-				out << "Ум   : +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
-				break;
-			case G_WIS:
-				out << "Мудр : +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
-				break;
-			case G_CON:
-				out << "Тело : +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
-				break;
-			case G_CHA:
-				out << "Обаян: +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
-				break;
-			default:
-				log("Glory: некорректный номер стата %d (uid: %ld)", (*tm_it)->stat, it->first);
+		case G_STR:
+			out << "Сила : +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
+			break;
+		case G_DEX:
+			out << "Подв : +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
+			break;
+		case G_INT:
+			out << "Ум   : +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
+			break;
+		case G_WIS:
+			out << "Мудр : +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
+			break;
+		case G_CON:
+			out << "Тело : +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
+			break;
+		case G_CHA:
+			out << "Обаян: +" << (*tm_it)->glory << " (" << time_format((*tm_it)->timer) << ")\r\n";
+			break;
+		default:
+			log("Glory: некорректный номер стата %d (uid: %ld)", (*tm_it)->stat, it->first);
 		}
 	}
 	out << "Свободных очков: " << it->second->free_glory << "\r\n";
@@ -843,7 +849,7 @@ ACMD(do_spend_glory)
 		return;
 	}
 
-	boost::shared_ptr<class spend_glory> temp_glory (new spend_glory);
+	boost::shared_ptr<class spend_glory> temp_glory(new spend_glory);
 	temp_glory->olc_str = GET_STR(ch);
 	temp_glory->olc_dex = GET_DEX(ch);
 	temp_glory->olc_int = GET_INT(ch);
@@ -853,7 +859,7 @@ ACMD(do_spend_glory)
 
 	// я не помню уже, как там этот шаред-птр ведет себя при дефолтном копировании
 	// а т.к. внутри есть список таймеров на них - скопирую вручную и пофигу на все
-	GloryNodePtr olc_node (new GloryNode);
+	GloryNodePtr olc_node(new GloryNode);
 	*olc_node = *(it->second);
 	temp_glory->olc_node = olc_node;
 	temp_glory->olc_add_spend_glory = it->second->spend_glory;
@@ -865,26 +871,26 @@ ACMD(do_spend_glory)
 	{
 		switch ((*tm_it)->stat)
 		{
-			case G_STR:
-				temp_glory->olc_add_str += (*tm_it)->glory;
-				break;
-			case G_DEX:
-				temp_glory->olc_add_dex += (*tm_it)->glory;
-				break;
-			case G_INT:
-				temp_glory->olc_add_int += (*tm_it)->glory;
-				break;
-			case G_WIS:
-				temp_glory->olc_add_wis += (*tm_it)->glory;
-				break;
-			case G_CON:
-				temp_glory->olc_add_con += (*tm_it)->glory;
-				break;
-			case G_CHA:
-				temp_glory->olc_add_cha += (*tm_it)->glory;
-				break;
-			default:
-				log("Glory: некорректный номер стата %d (uid: %ld)", (*tm_it)->stat, it->first);
+		case G_STR:
+			temp_glory->olc_add_str += (*tm_it)->glory;
+			break;
+		case G_DEX:
+			temp_glory->olc_add_dex += (*tm_it)->glory;
+			break;
+		case G_INT:
+			temp_glory->olc_add_int += (*tm_it)->glory;
+			break;
+		case G_WIS:
+			temp_glory->olc_add_wis += (*tm_it)->glory;
+			break;
+		case G_CON:
+			temp_glory->olc_add_con += (*tm_it)->glory;
+			break;
+		case G_CHA:
+			temp_glory->olc_add_cha += (*tm_it)->glory;
+			break;
+		default:
+			log("Glory: некорректный номер стата %d (uid: %ld)", (*tm_it)->stat, it->first);
 		}
 	}
 
@@ -903,26 +909,26 @@ void remove_stat_online(long uid, int stat, int glory)
 	{
 		switch (stat)
 		{
-			case G_STR:
-				GET_STR(d->character) -= glory;
-				break;
-			case G_DEX:
-				GET_DEX(d->character) -= glory;
-				break;
-			case G_INT:
-				GET_INT(d->character) -= glory;
-				break;
-			case G_WIS:
-				GET_WIS(d->character) -= glory;
-				break;
-			case G_CON:
-				GET_CON(d->character) -= glory;
-				break;
-			case G_CHA:
-				GET_CHA(d->character) -= glory;
-				break;
-			default:
-				log("Glory: некорректный номер стата %d (uid: %ld)", stat, uid);
+		case G_STR:
+			GET_STR(d->character) -= glory;
+			break;
+		case G_DEX:
+			GET_DEX(d->character) -= glory;
+			break;
+		case G_INT:
+			GET_INT(d->character) -= glory;
+			break;
+		case G_WIS:
+			GET_WIS(d->character) -= glory;
+			break;
+		case G_CON:
+			GET_CON(d->character) -= glory;
+			break;
+		case G_CHA:
+			GET_CHA(d->character) -= glory;
+			break;
+		default:
+			log("Glory: некорректный номер стата %d (uid: %ld)", stat, uid);
 		}
 	}
 }
@@ -936,7 +942,7 @@ void timers_update()
 	{
 		if (it->second->freeze) continue; // во фризе никакие таймеры не тикают
 		bool removed = 0; // флажок для сообщения о пропадании славы (чтобы не спамить на каждый стат)
-		for (GloryTimeType::iterator tm_it = it->second->timers.begin(); tm_it != it->second->timers.end(); )
+		for (GloryTimeType::iterator tm_it = it->second->timers.begin(); tm_it != it->second->timers.end();)
 		{
 			if ((*tm_it)->timer > 0)
 				(*tm_it)->timer -= 1;
@@ -996,24 +1002,24 @@ void timers_update()
 bool bad_start_stats(CHAR_DATA *ch)
 {
 	int total_stats = GET_START_STAT(ch, G_STR)
-		+ GET_START_STAT(ch, G_DEX)
-		+ GET_START_STAT(ch, G_INT)
-		+ GET_START_STAT(ch, G_WIS)
-		+ GET_START_STAT(ch, G_CON)
-		+ GET_START_STAT(ch, G_CHA);
+					  + GET_START_STAT(ch, G_DEX)
+					  + GET_START_STAT(ch, G_INT)
+					  + GET_START_STAT(ch, G_WIS)
+					  + GET_START_STAT(ch, G_CON)
+					  + GET_START_STAT(ch, G_CHA);
 	if (GET_START_STAT(ch, G_STR) > MAX_STR(ch)
-		|| GET_START_STAT(ch, G_STR) < MIN_STR(ch)
-		|| GET_START_STAT(ch, G_DEX) > MAX_DEX(ch)
-		|| GET_START_STAT(ch, G_DEX) < MIN_DEX(ch)
-		|| GET_START_STAT(ch, G_INT) > MAX_INT(ch)
-		|| GET_START_STAT(ch, G_INT) < MIN_INT(ch)
-		|| GET_START_STAT(ch, G_WIS) > MAX_WIS(ch)
-		|| GET_START_STAT(ch, G_WIS) < MIN_WIS(ch)
-		|| GET_START_STAT(ch, G_CON) > MAX_CON(ch)
-		|| GET_START_STAT(ch, G_CON) < MIN_CON(ch)
-		|| GET_START_STAT(ch, G_CHA) > MAX_CHA(ch)
-		|| GET_START_STAT(ch, G_CHA) < MIN_CHA(ch)
-		|| total_stats != SUM_ALL_STATS)
+			|| GET_START_STAT(ch, G_STR) < MIN_STR(ch)
+			|| GET_START_STAT(ch, G_DEX) > MAX_DEX(ch)
+			|| GET_START_STAT(ch, G_DEX) < MIN_DEX(ch)
+			|| GET_START_STAT(ch, G_INT) > MAX_INT(ch)
+			|| GET_START_STAT(ch, G_INT) < MIN_INT(ch)
+			|| GET_START_STAT(ch, G_WIS) > MAX_WIS(ch)
+			|| GET_START_STAT(ch, G_WIS) < MIN_WIS(ch)
+			|| GET_START_STAT(ch, G_CON) > MAX_CON(ch)
+			|| GET_START_STAT(ch, G_CON) < MIN_CON(ch)
+			|| GET_START_STAT(ch, G_CHA) > MAX_CHA(ch)
+			|| GET_START_STAT(ch, G_CHA) < MIN_CHA(ch)
+			|| total_stats != SUM_ALL_STATS)
 	{
 		return 1;
 	}
@@ -1056,30 +1062,30 @@ void calculate_total_stats(CHAR_DATA *ch)
 
 	for (GloryTimeType::iterator tm_it = it->second->timers.begin(); tm_it != it->second->timers.end(); ++tm_it)
 	{
-		if((*tm_it)->timer > 0)
+		if ((*tm_it)->timer > 0)
 		{
 			switch ((*tm_it)->stat)
 			{
-				case G_STR:
-					GET_STR(ch) += (*tm_it)->glory;
-					break;
-				case G_DEX:
-					GET_DEX(ch) += (*tm_it)->glory;
-					break;
-				case G_INT:
-					GET_INT(ch) += (*tm_it)->glory;
-					break;
-				case G_WIS:
-					GET_WIS(ch) += (*tm_it)->glory;
-					break;
-				case G_CON:
-					GET_CON(ch) += (*tm_it)->glory;
-					break;
-				case G_CHA:
-					GET_CHA(ch) += (*tm_it)->glory;
-					break;
-				default:
-					log("Glory: некорректный номер стата %d (uid: %ld)", (*tm_it)->stat, it->first);
+			case G_STR:
+				GET_STR(ch) += (*tm_it)->glory;
+				break;
+			case G_DEX:
+				GET_DEX(ch) += (*tm_it)->glory;
+				break;
+			case G_INT:
+				GET_INT(ch) += (*tm_it)->glory;
+				break;
+			case G_WIS:
+				GET_WIS(ch) += (*tm_it)->glory;
+				break;
+			case G_CON:
+				GET_CON(ch) += (*tm_it)->glory;
+				break;
+			case G_CHA:
+				GET_CHA(ch) += (*tm_it)->glory;
+				break;
+			default:
+				log("Glory: некорректный номер стата %d (uid: %ld)", (*tm_it)->stat, it->first);
 			}
 		}
 	}
@@ -1100,27 +1106,27 @@ bool check_stats(CHAR_DATA *ch)
 	if (bad_start_stats(ch))
 	{
 		sprintf(buf, "\r\n%sВаши параметры за вычетом перевоплощений:\r\n"
-			"Сила: %d, Ловкость: %d, Ум: %d, Мудрость: %d, Телосложение: %d, Обаяние: %d\r\n"
-			"Если вы долго отсутствовали в игре, то изменения, касающиеся стартовых параметров были следующие:%s\r\n"
-			"\r\n"
-			"\tДобавлено ограничение на максимальный класс защиты:\r\n"
-			"\tВоры, наемники и дружинники - -250\r\n"
-			"\tКупцы, богатыри, витязи, охотники, кузнецы - -200\r\n"
-			"\tЛекари, волхвы - -150\r\n"
-			"\tКудесники, чернокнижники, колдуны, волшебники - -100\r\n"
-			"\r\n"
-			"\tТелосложение: изменились коэффициенты профессий и максимальное родное тело (50) в расчетах при\r\n"
-			"\tполучении уровня, поэтому изменены границы стартового телосложения у некоторых профессий,\r\n"
-			"\tв целом это увеличивает кол-во жизней персонажа тем сильнее, чем больше у него было ремортов.\r\n"
-			"\r\n",
-			CCIGRN(ch, C_SPR),
-			GET_STR(ch) - GET_REMORT(ch),
-			GET_DEX(ch) - GET_REMORT(ch),
-			GET_INT(ch) - GET_REMORT(ch),
-			GET_WIS(ch) - GET_REMORT(ch),
-			GET_CON(ch) - GET_REMORT(ch),
-			GET_CHA(ch) - GET_REMORT(ch),
-			CCNRM(ch, C_SPR));
+				"Сила: %d, Ловкость: %d, Ум: %d, Мудрость: %d, Телосложение: %d, Обаяние: %d\r\n"
+				"Если вы долго отсутствовали в игре, то изменения, касающиеся стартовых параметров были следующие:%s\r\n"
+				"\r\n"
+				"\tДобавлено ограничение на максимальный класс защиты:\r\n"
+				"\tВоры, наемники и дружинники - -250\r\n"
+				"\tКупцы, богатыри, витязи, охотники, кузнецы - -200\r\n"
+				"\tЛекари, волхвы - -150\r\n"
+				"\tКудесники, чернокнижники, колдуны, волшебники - -100\r\n"
+				"\r\n"
+				"\tТелосложение: изменились коэффициенты профессий и максимальное родное тело (50) в расчетах при\r\n"
+				"\tполучении уровня, поэтому изменены границы стартового телосложения у некоторых профессий,\r\n"
+				"\tв целом это увеличивает кол-во жизней персонажа тем сильнее, чем больше у него было ремортов.\r\n"
+				"\r\n",
+				CCIGRN(ch, C_SPR),
+				GET_STR(ch) - GET_REMORT(ch),
+				GET_DEX(ch) - GET_REMORT(ch),
+				GET_INT(ch) - GET_REMORT(ch),
+				GET_WIS(ch) - GET_REMORT(ch),
+				GET_CON(ch) - GET_REMORT(ch),
+				GET_CHA(ch) - GET_REMORT(ch),
+				CCNRM(ch, C_SPR));
 		SEND_TO_Q(buf, ch->desc);
 
 		// данную фигню мы делаем для того, чтобы из ролла нельзя было случайно так просто выйти
@@ -1133,7 +1139,7 @@ bool check_stats(CHAR_DATA *ch)
 		GET_CHA(ch) = MIN_CHA(ch);
 
 		sprintf(buf, "%sПросим вас заново распределить основные параметры персонажа.%s\r\n",
-			CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
+				CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
 		SEND_TO_Q(buf, ch->desc);
 		SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", ch->desc);
 		STATE(ch->desc) = CON_RESET_STATS;
@@ -1180,7 +1186,7 @@ bool remove_stats(CHAR_DATA *ch, CHAR_DATA *god, int amount)
 
 	int removed = 0;
 	// собсна не заморачиваясь просто режем первые попавшиеся статы
-	for (GloryTimeType::iterator tm_it = it->second->timers.begin(); tm_it != it->second->timers.end(); )
+	for (GloryTimeType::iterator tm_it = it->second->timers.begin(); tm_it != it->second->timers.end();)
 	{
 		if (amount > 0)
 		{
@@ -1256,7 +1262,8 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	}
 
 	long vict_uid = GetUniqueByName(name);
-	if (!vict_uid) {
+	if (!vict_uid)
+	{
 		send_to_char(god, "Некорректное имя персонажа (%s), принимающего славу.\r\n", name.c_str());
 		return;
 	}
@@ -1309,7 +1316,7 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	}
 
 	// создаем новую запись...
-	GloryNodePtr temp_node (new GloryNode);
+	GloryNodePtr temp_node(new GloryNode);
 	glory_list[vict_uid] = temp_node;
 	// и берем новый итератор
 	vict_it = glory_list.find(vict_uid);
@@ -1324,12 +1331,12 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 
 	std::ostringstream out;
 	out << "Transfer "
-		<< vict_it->second->spend_glory << " stats and "
-		<< vict_it->second->free_glory - free_glory << " glory from "
-		<< GET_NAME(ch) << " to " << name << " by " << GET_NAME(god);
+	<< vict_it->second->spend_glory << " stats and "
+	<< vict_it->second->free_glory - free_glory << " glory from "
+	<< GET_NAME(ch) << " to " << name << " by " << GET_NAME(god);
 	// в лог, обоим чарам в карму, имму в конце
 	imm_log(out.str().c_str());
-	add_karma(ch,out.str().c_str(),reason);
+	add_karma(ch, out.str().c_str(), reason);
 	Glory::add_glory_log(TRANSFER_GLORY, 0, out.str(), std::string(reason), vict);
 
 	// если принимающий чар онлайн - сетим сразу ему статы
@@ -1337,30 +1344,30 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	{
 		for (GloryTimeType::iterator tm_it = vict_it->second->timers.begin(); tm_it != vict_it->second->timers.end(); ++tm_it)
 		{
-			if((*tm_it)->timer > 0)
+			if ((*tm_it)->timer > 0)
 			{
 				switch ((*tm_it)->stat)
 				{
-					case G_STR:
-						GET_STR(d_vict->character) += (*tm_it)->glory;
-						break;
-					case G_DEX:
-						GET_DEX(d_vict->character) += (*tm_it)->glory;
-						break;
-					case G_INT:
-						GET_INT(d_vict->character) += (*tm_it)->glory;
-						break;
-					case G_WIS:
-						GET_WIS(d_vict->character) += (*tm_it)->glory;
-						break;
-					case G_CON:
-						GET_CON(d_vict->character) += (*tm_it)->glory;
-						break;
-					case G_CHA:
-						GET_CHA(d_vict->character) += (*tm_it)->glory;
-						break;
-					default:
-						log("Glory: некорректный номер стата %d (uid: %ld)", (*tm_it)->stat, it->first);
+				case G_STR:
+					GET_STR(d_vict->character) += (*tm_it)->glory;
+					break;
+				case G_DEX:
+					GET_DEX(d_vict->character) += (*tm_it)->glory;
+					break;
+				case G_INT:
+					GET_INT(d_vict->character) += (*tm_it)->glory;
+					break;
+				case G_WIS:
+					GET_WIS(d_vict->character) += (*tm_it)->glory;
+					break;
+				case G_CON:
+					GET_CON(d_vict->character) += (*tm_it)->glory;
+					break;
+				case G_CHA:
+					GET_CHA(d_vict->character) += (*tm_it)->glory;
+					break;
+				default:
+					log("Glory: некорректный номер стата %d (uid: %ld)", (*tm_it)->stat, it->first);
 				}
 			}
 		}
@@ -1436,7 +1443,7 @@ void load_glory_log()
 		{
 			time = boost::lexical_cast<int>(buffer2);
 		}
-		catch(boost::bad_lexical_cast &)
+		catch (boost::bad_lexical_cast &)
 		{
 			log("GloryLog: ошибка чтения time, buffer2: %s", buffer2.c_str());
 			return;
@@ -1447,7 +1454,7 @@ void load_glory_log()
 		{
 			type = boost::lexical_cast<int>(buffer2);
 		}
-		catch(boost::bad_lexical_cast &)
+		catch (boost::bad_lexical_cast &)
 		{
 			log("GloryLog: ошибка чтения type, buffer2: %s", buffer2.c_str());
 			return;
@@ -1458,14 +1465,14 @@ void load_glory_log()
 		{
 			num = boost::lexical_cast<int>(buffer2);
 		}
-		catch(boost::bad_lexical_cast &)
+		catch (boost::bad_lexical_cast &)
 		{
 			log("GloryLog: ошибка чтения num, buffer2: %s", buffer2.c_str());
 			return;
 		}
 
 		boost::trim(buffer);
-		GloryLogPtr temp_node (new GloryLog);
+		GloryLogPtr temp_node(new GloryLog);
 		temp_node->type = type;
 		temp_node->num = num;
 		temp_node->karma = buffer;
@@ -1501,7 +1508,7 @@ void add_glory_log(int type, int num, std::string punish, std::string reason, CH
 {
 	if (!vict || !GET_NAME(vict)) return;
 
-	GloryLogPtr temp_node (new GloryLog);
+	GloryLogPtr temp_node(new GloryLog);
 	temp_node->type = type;
 	temp_node->num = num;
 	std::stringstream out;
@@ -1515,7 +1522,7 @@ void add_glory_log(int type, int num, std::string punish, std::string reason, CH
 * Показ лога славы (show glory), отсортированного по убыванию даты, с возможностью фильтрациии.
 * Фильтры: show glory число|transfer|remove|hide
 */
-void show_glory(CHAR_DATA *ch ,char const * const value)
+void show_glory(CHAR_DATA *ch , char const * const value)
 {
 	if (glory_log.empty())
 	{
@@ -1540,7 +1547,7 @@ void show_glory(CHAR_DATA *ch ,char const * const value)
 		{
 			num = boost::lexical_cast<int>(buffer);
 		}
-		catch(boost::bad_lexical_cast &)
+		catch (boost::bad_lexical_cast &)
 		{
 			type = 0;
 			num = 0;

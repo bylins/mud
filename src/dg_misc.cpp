@@ -39,7 +39,7 @@ int ext_search_block(const char *arg, const char **list, int exact);
 extern const char *what_sky_type[];
 extern int what_sky;
 extern const char *what_weapon[];
-/* 
+/*
  * Функция осуществляет поиск цели для DG_CAST
  * Облегченная версия find_cast_target
  */
@@ -49,20 +49,26 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 	*tobj = NULL;
 	*troom = world[IN_ROOM(ch)];
 
-	if (spellnum == SPELL_CONTROL_WEATHER) {
-		if ((what_sky = search_block(t, what_sky_type, FALSE)) < 0) {
+	if (spellnum == SPELL_CONTROL_WEATHER)
+	{
+		if ((what_sky = search_block(t, what_sky_type, FALSE)) < 0)
+		{
 			sprintf(buf2, "dg_cast (Не указан тип погоды)");
 			script_log(buf2);
 			return FALSE;
-		} else
+		}
+		else
 			what_sky >>= 1;
 	}
-	if (spellnum == SPELL_CREATE_WEAPON) {
-		if ((what_sky = search_block(t, what_weapon, FALSE)) < 0) {
+	if (spellnum == SPELL_CREATE_WEAPON)
+	{
+		if ((what_sky = search_block(t, what_weapon, FALSE)) < 0)
+		{
 			sprintf(buf2, "dg_cast (Не указан тип оружия)");
 			script_log(buf2);
 			return FALSE;
-		} else
+		}
+		else
 			what_sky = 5 + (what_sky >> 1);
 	}
 
@@ -72,16 +78,21 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 	if (IS_SET(SpINFO.targets, TAR_ROOM_THIS))
 		return TRUE;
 
-	if (*t) {
-		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM)) {
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != NULL) {
+	if (*t)
+	{
+		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM))
+		{
+			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != NULL)
+			{
 //            if (SpINFO.violent && !check_pkill(ch,*tch,t))
 //                 return FALSE;
 				return TRUE;
 			}
 		}
-		if (IS_SET(SpINFO.targets, TAR_CHAR_WORLD)) {
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != NULL) {
+		if (IS_SET(SpINFO.targets, TAR_CHAR_WORLD))
+		{
+			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != NULL)
+			{
 //            if (SpINFO.violent && !check_pkill(ch,*tch,t))
 //                 return FALSE;
 				return TRUE;
@@ -92,10 +103,12 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != NULL)
 				return TRUE;
 
-		if (IS_SET(SpINFO.targets, TAR_OBJ_EQUIP)) {
+		if (IS_SET(SpINFO.targets, TAR_OBJ_EQUIP))
+		{
 			int i;
 			for (i = 0; i < NUM_WEARS; i++)
-				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->name)) {
+				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->name))
+				{
 					*tobj = GET_EQ(ch, i);
 					return TRUE;
 				}
@@ -108,18 +121,23 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 		if (IS_SET(SpINFO.targets, TAR_OBJ_WORLD))
 			if ((*tobj = get_obj_vis(ch, t)) != NULL)
 				return TRUE;
-	} else {
+	}
+	else
+	{
 		if (IS_SET(SpINFO.targets, TAR_FIGHT_SELF))
-			if (FIGHTING(ch) != NULL) {
+			if (FIGHTING(ch) != NULL)
+			{
 				*tch = ch;
 				return TRUE;
 			}
 		if (IS_SET(SpINFO.targets, TAR_FIGHT_VICT))
-			if (FIGHTING(ch) != NULL) {
+			if (FIGHTING(ch) != NULL)
+			{
 				*tch = FIGHTING(ch);
 				return TRUE;
 			}
-		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM) && !SpINFO.violent) {
+		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM) && !SpINFO.violent)
+		{
 			*tch = ch;
 			return TRUE;
 		}
@@ -150,7 +168,8 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 
 
 	/* need to get the caster or the room of the temporary caster */
-	switch (type) {
+	switch (type)
+	{
 	case MOB_TRIGGER:
 		caster = (CHAR_DATA *) go;
 		break;
@@ -159,7 +178,8 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 		break;
 	case OBJ_TRIGGER:
 		caster_room = dg_room_of_obj((OBJ_DATA *) go);
-		if (!caster_room) {
+		if (!caster_room)
+		{
 			trig_log(trig, "dg_do_cast: unknown room for object-caster!");
 			return;
 		}
@@ -171,13 +191,15 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 
 	/* get: blank, spell name, target name */
 	s = strtok(cmd, "'");
-	if (s == NULL) {
+	if (s == NULL)
+	{
 		sprintf(buf2, "dg_cast: needs spell name.");
 		trig_log(trig, buf2);
 		return;
 	}
 	s = strtok(NULL, "'");
-	if (s == NULL) {
+	if (s == NULL)
+	{
 		sprintf(buf2, "dg_cast: needs spell name in `'s.");
 		trig_log(trig, buf2);
 		return;
@@ -186,27 +208,32 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 
 	/* spellnum = search_block(s, spells, 0); */
 	spellnum = find_spell_num(s);
-	if ((spellnum < 1) || (spellnum > MAX_SPELLS)) {
+	if ((spellnum < 1) || (spellnum > MAX_SPELLS))
+	{
 		sprintf(buf2, "dg_cast: invalid spell name (%s)", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
 
-	if (IS_SET(SINFO.routines, MAG_GROUPS)) {
+	if (IS_SET(SINFO.routines, MAG_GROUPS))
+	{
 		sprintf(buf2, "dg_cast: group spells not permitted (%s)", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
 
-	if (!caster) {
+	if (!caster)
+	{
 		caster = read_mobile(DG_CASTER_PROXY, VIRTUAL);
-		if (!caster) {
+		if (!caster)
+		{
 			trig_log(trig, "dg_cast: Cannot load the caster mob!");
 			return;
 		}
 		/* set the caster's name to that of the object, or the gods.... */
 		/* take select pieces from char_to_room(); */
-		if (type == OBJ_TRIGGER) {
+		if (type == OBJ_TRIGGER)
+		{
 			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->PNames[1]);
 			caster->player.short_descr = str_dup(buf);
 			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->PNames[1]);
@@ -221,7 +248,9 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 			GET_PAD(caster, 4) = str_dup(buf);
 			sprintf(buf, "духе %s", ((OBJ_DATA *) go)->PNames[1]);
 			GET_PAD(caster, 5) = str_dup(buf);
-		} else if (type == WLD_TRIGGER) {
+		}
+		else if (type == WLD_TRIGGER)
+		{
 			caster->player.short_descr = str_dup("Боги");
 			GET_PAD(caster, 0) = str_dup("Боги");
 			GET_PAD(caster, 1) = str_dup("Богов");
@@ -244,9 +273,12 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 
 	target = find_dg_cast_target(spellnum, arg, caster, &tch, &tobj, &troom);
 
-	if (target) {
+	if (target)
+	{
 		call_magic(caster, tch, tobj, troom, spellnum, GET_LEVEL(caster), CAST_SPELL);
-	} else {
+	}
+	else
+	{
 		sprintf(buf2, "dg_cast: target not found (%s)", cmd);
 		trig_log(trig, buf2);
 	}
@@ -259,7 +291,7 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 /* variety or APPLY_x type. APPLY_x's have an integer value for them  */
 /* while AFF_x's have boolean values. In any case, the duration MUST  */
 /* be non-zero.                                                       */
-/* usage:  apply <target> <property> <spell> <value> <duration> 
+/* usage:  apply <target> <property> <spell> <value> <duration>
    if duration < 1 - function removes affect */
 #define APPLY_TYPE	1
 #define AFFECT_TYPE	2
@@ -284,7 +316,8 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 	half_chop(cmd, duration_p, battle_p);
 
 	/* make sure all parameters are present */
-	if (!*charname || !*property || !*value_p || !*duration_p) {
+	if (!*charname || !*property || !*value_p || !*duration_p)
+	{
 		sprintf(buf2, "dg_affect usage: <target> <property> <spell> <value> <duration>");
 		trig_log(trig, buf2);
 		return;
@@ -301,7 +334,8 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 	value = atoi(value_p);
 	duration = atoi(duration_p);
 	battle = atoi(battle_p);
-	if (duration < 0) {
+	if (duration < 0)
+	{
 		sprintf(buf2, "dg_affect: need positive duration!");
 		trig_log(trig, buf2);
 		return;
@@ -310,13 +344,15 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 	/* find the property -- first search apply_types */
 	if ((index = search_block(property, apply_types, FALSE)) != -1)
 		type = APPLY_TYPE;
-	else {
+	else
+	{
 		/* search affect_types now */
 		if ((index = ext_search_block(property, affected_bits, FALSE)) != 0)
 			type = AFFECT_TYPE;
 	}
 
-	if (!type) {		/* property not found */
+	if (!type)  		/* property not found */
+	{
 		sprintf(buf2, "dg_affect: unknown property '%s'!", property);
 		trig_log(trig, buf2);
 		return;
@@ -326,7 +362,8 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 	index_s = find_spell_num(spell);
 
 	/* spell not found */
-	if (index_s <= 0) {
+	if (index_s <= 0)
+	{
 		sprintf(buf2, "dg_affect: unknown spell '%s'!", spell);
 		trig_log(trig, buf2);
 		return;
@@ -335,27 +372,34 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 
 	/* locate the target */
 	ch = get_char(charname);
-	if (!ch) {
+	if (!ch)
+	{
 		sprintf(buf2, "dg_affect: cannot locate target!");
 		trig_log(trig, buf2);
 		return;
 	}
 
-	if (duration > 0) {
+	if (duration > 0)
+	{
 		/* add the affect */
 		af.type = index_s;
 		af.duration = duration;
 		af.modifier = value;
 		af.battleflag = battle;
-		if (type == AFFECT_TYPE) {
+		if (type == AFFECT_TYPE)
+		{
 			af.location = APPLY_NONE;
 			af.bitvector = index;
-		} else {
+		}
+		else
+		{
 			af.location = index;
 			af.bitvector = 0;
 		}
 		affect_to_char(ch, &af);
-	} else {
+	}
+	else
+	{
 		/* remove affect */
 		affect_from_char(ch, index_s);
 		trig_log(trig, "dg_affect: affect removed from char");

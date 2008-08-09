@@ -27,7 +27,8 @@ extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 extern void write_one_object(char **data, OBJ_DATA * object, int location);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 
-namespace Depot {
+namespace Depot
+{
 
 // внум персонального сундука
 const int PERS_CHEST_VNUM = 331;
@@ -41,7 +42,7 @@ const unsigned int MAX_PERS_SLOTS = 25;
 */
 class OfflineNode
 {
-	public:
+public:
 	OfflineNode() : vnum(0), timer(0), rent_cost(0), uid(0) {};
 	int vnum; // внум
 	int timer; // таймер
@@ -54,7 +55,7 @@ typedef std::list<OfflineNode> TimerListType; // список шмота, находящегося в оф
 
 class CharNode
 {
-	public:
+public:
 	CharNode() : ch(0), money(0), money_spend(0), buffer_cost(0), need_save(0), cost_per_day(0) {};
 
 // онлайн
@@ -93,8 +94,14 @@ class CharNode
 	void load_online_objs(int file_type, bool reload = 0);
 	void online_to_offline(ObjListType &cont);
 
-	int get_cost_per_day() { return cost_per_day; };
-	void reset_cost_per_day() { cost_per_day = 0; } ;
+	int get_cost_per_day()
+	{
+		return cost_per_day;
+	};
+	void reset_cost_per_day()
+	{
+		cost_per_day = 0;
+	} ;
 	void add_cost_per_day(OBJ_DATA *obj);
 	void add_cost_per_day(int amount);
 };
@@ -109,14 +116,17 @@ void depot_log(const char *format, ...)
 {
 	const char *filename = "../log/depot.log";
 	static FILE *file = 0;
-	if (!file) {
+	if (!file)
+	{
 		file = fopen(filename, "a");
-		if (!file) {
+		if (!file)
+		{
 			log("SYSERR: can't open %s!", filename);
 			return;
 		}
 		opened_files.push_back(file);
-	} else if (!format)
+	}
+	else if (!format)
 		format = "SYSERR: // depot_log received a NULL format.";
 
 	write_time(file);
@@ -133,7 +143,7 @@ void depot_log(const char *format, ...)
 // список плееров, у которых было че-нить спуржено пока они были оффлайн.
 // хранится просто уид игрока и при надобности лоадится его файл со строками о пурже.
 // дата первой записи пишется для того, чтобы не плодить мертвых файлов (держим только за месяц).
-typedef std::map<long/*уид игрока*/, time_t /*время первой записи в файле*/> PurgedListType;
+typedef std::map < long/*уид игрока*/, time_t /*время первой записи в файле*/ > PurgedListType;
 PurgedListType purged_list;
 
 bool need_save_purged_list = false;
@@ -174,7 +184,7 @@ void load_purge_list()
 	long uid;
 	time_t date;
 
-	while(file >> uid >> date)
+	while (file >> uid >> date)
 		purged_list[uid] = date;
 }
 
@@ -255,8 +265,8 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 		{
 			std::ostringstream text;
 			text << "[Персональное хранилище]: " << CCIRED(ch, C_NRM) << "'"
-				<< obj->short_description << " рассыпал" << GET_OBJ_SUF_2(obj)
-				<<  " в прах'" << CCNRM(ch, C_NRM) << "\r\n";
+			<< obj->short_description << " рассыпал" << GET_OBJ_SUF_2(obj)
+			<<  " в прах'" << CCNRM(ch, C_NRM) << "\r\n";
 			extract_obj(obj);
 			return text.str();
 		}
@@ -451,7 +461,7 @@ void init_depot()
 		if (!(file >> uid >> tmp_node.money >> tmp_node.money_spend >> tmp_node.buffer_cost))
 		{
 			log("Хранилище: ошибка чтения uid(%ld), money(%ld), money_spend(%ld), buffer_cost(%f).",
-			uid, tmp_node.money, tmp_node.money_spend, tmp_node.buffer_cost);
+				uid, tmp_node.money, tmp_node.money_spend, tmp_node.buffer_cost);
 			break;
 		}
 		// чтение предметов
@@ -470,7 +480,7 @@ void init_depot()
 			{
 				tmp_obj.vnum = boost::lexical_cast<int>(buffer);
 			}
-			catch(boost::bad_lexical_cast &)
+			catch (boost::bad_lexical_cast &)
 			{
 				log("Хранилище: ошибка чтения vnum (%s)", buffer.c_str());
 				break;
@@ -593,7 +603,7 @@ void write_objlist_timedata(const ObjListType &cont, std::ofstream &file)
 {
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
 		file << GET_OBJ_VNUM(*obj_it) << " " << GET_OBJ_TIMER(*obj_it) << " "
-			<< get_object_low_rent(*obj_it) << " " << GET_OBJ_UID(*obj_it) << "\n";
+		<< get_object_low_rent(*obj_it) << " " << GET_OBJ_UID(*obj_it) << "\n";
 }
 
 /**
@@ -626,7 +636,7 @@ void save_timedata()
 				obj_it != it->second.offline_list.end(); ++obj_it)
 		{
 			file << obj_it->vnum << " " << obj_it->timer << " " << obj_it->rent_cost
-				<< " " << obj_it->uid << "\n";
+			<< " " << obj_it->uid << "\n";
 		}
 		file << "</Objects>\n</Node>\n";
 	}
@@ -701,7 +711,7 @@ void save_all_online_objs()
 */
 void CharNode::update_online_item()
 {
-	for (ObjListType::iterator obj_it = pers_online.begin(); obj_it != pers_online.end(); )
+	for (ObjListType::iterator obj_it = pers_online.begin(); obj_it != pers_online.end();)
 	{
 		GET_OBJ_TIMER(*obj_it)--;
 		if (GET_OBJ_TIMER(*obj_it) <= 0)
@@ -713,8 +723,8 @@ void CharNode::update_online_item()
 				if (ch->desc && STATE(ch->desc) == CON_PLAYING)
 				{
 					send_to_char(ch, "[Персональное хранилище]: %s'%s рассыпал%s в прах'%s\r\n",
-						CCIRED(ch, C_NRM), (*obj_it)->short_description,
-						GET_OBJ_SUF_2((*obj_it)), CCNRM(ch, C_NRM));
+								 CCIRED(ch, C_NRM), (*obj_it)->short_description,
+								 GET_OBJ_SUF_2((*obj_it)), CCNRM(ch, C_NRM));
 				}
 				else
 					add_purged_message(GET_UNIQUE(ch), GET_OBJ_VNUM(*obj_it), GET_OBJ_UID(*obj_it));
@@ -743,7 +753,7 @@ bool CharNode::removal_period_cost()
 	modf(buffer_cost, &i);
 	if (i)
 	{
-		int diff = static_cast<int> (i);
+		int diff = static_cast<int>(i);
 		money -= diff;
 		money_spend += diff;
 		buffer_cost -= i;
@@ -756,7 +766,7 @@ bool CharNode::removal_period_cost()
 */
 void update_timers()
 {
-	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); )
+	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end();)
 	{
 		class CharNode & node = it->second;
 		// обнуляем ренту и пересчитываем ее по ходу обновления оффлайн таймеров
@@ -785,7 +795,7 @@ void update_timers()
 */
 void CharNode::update_offline_item(long uid)
 {
-	for (TimerListType::iterator obj_it = offline_list.begin(); obj_it != offline_list.end(); )
+	for (TimerListType::iterator obj_it = offline_list.begin(); obj_it != offline_list.end();)
 	{
 		--(obj_it->timer);
 		if (obj_it->timer <= 0)
@@ -795,7 +805,7 @@ void CharNode::update_offline_item(long uid)
 			// шмотка уходит в лоад
 			int rnum = real_object(obj_it->vnum);
 			if (rnum >= 0)
-			obj_index[rnum].stored--;
+				obj_index[rnum].stored--;
 			// вычитать ренту из cost_per_day здесь не надо, потому что она уже обнулена
 			offline_list.erase(obj_it++);
 		}
@@ -858,7 +868,7 @@ void print_obj(std::stringstream &out, OBJ_DATA *obj, int count)
 	if (count > 1)
 		out << " [" << count << "]";
 	out << " [" << get_object_low_rent(obj) << " "
-		<< desc_count(get_object_low_rent(obj), WHAT_MONEYa) << "]\r\n";
+	<< desc_count(get_object_low_rent(obj), WHAT_MONEYa) << "]\r\n";
 }
 
 /**
@@ -884,13 +894,13 @@ std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string 
 
 	cont.sort(
 		boost::bind(std::less<char *>(),
-			boost::bind(&obj_data::name, _1),
-			boost::bind(&obj_data::name, _2)));
+					boost::bind(&obj_data::name, _1),
+					boost::bind(&obj_data::name, _2)));
 
 	ObjListType::const_iterator prev_obj_it = cont.end();
 	int count = 0;
 	bool found = 0;
-	for(ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
+	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
 	{
 		if (prev_obj_it == cont.end())
 		{
@@ -916,9 +926,9 @@ std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string 
 	std::stringstream head;
 	int expired = rent_per_day ? (money / rent_per_day) : 0;
 	head << CCWHT(ch, C_NRM) << chest_name
-		<< "Вещей: " << cont.size()
-		<< ", свободно мест: " << get_max_pers_slots(ch) - cont.size()
-		<< ", рента в день: " << rent_per_day << " " << desc_count(rent_per_day, WHAT_MONEYa);
+	<< "Вещей: " << cont.size()
+	<< ", свободно мест: " << get_max_pers_slots(ch) - cont.size()
+	<< ", рента в день: " << rent_per_day << " " << desc_count(rent_per_day, WHAT_MONEYa);
 	if (rent_per_day)
 		head << ", денег на " << expired << " " << desc_count(expired, WHAT_DAY);
 	else
@@ -966,7 +976,7 @@ void show_depot(CHAR_DATA * ch, OBJ_DATA * obj)
 	if (RENTABLE(ch))
 	{
 		send_to_char(ch, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
-			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+					 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		return;
 	}
 
@@ -1001,7 +1011,7 @@ void put_gold_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 		obj_from_char(obj);
 		extract_obj(obj);
 		send_to_char(ch, "Вы удалось вложить только %ld %s.\r\n",
-			over, desc_count(over, WHAT_MONEYu));
+					 over, desc_count(over, WHAT_MONEYu));
 	}
 	else
 	{
@@ -1020,13 +1030,13 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	// depot_log("can_put_chest: %s, %s", GET_NAME(ch), GET_OBJ_PNAME(obj, 0));
 	if (OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
-		|| OBJ_FLAGGED(obj, ITEM_REPOP_DECAY)
-		|| OBJ_FLAGGED(obj, ITEM_NOSELL)
-		|| OBJ_FLAGGED(obj, ITEM_DECAY)
-		|| OBJ_FLAGGED(obj, ITEM_NORENT)
-		|| GET_OBJ_TYPE(obj) == ITEM_KEY
-		|| GET_OBJ_RENT(obj) < 0
-		|| GET_OBJ_RNUM(obj) <= NOTHING)
+			|| OBJ_FLAGGED(obj, ITEM_REPOP_DECAY)
+			|| OBJ_FLAGGED(obj, ITEM_NOSELL)
+			|| OBJ_FLAGGED(obj, ITEM_DECAY)
+			|| OBJ_FLAGGED(obj, ITEM_NORENT)
+			|| GET_OBJ_TYPE(obj) == ITEM_KEY
+			|| GET_OBJ_RENT(obj) < 0
+			|| GET_OBJ_RNUM(obj) <= NOTHING)
 	{
 		send_to_char(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", OBJ_PAD(obj, 3));
 		return 0;
@@ -1053,7 +1063,7 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 	if (RENTABLE(ch))
 	{
 		send_to_char(ch, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
-			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+					 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		return 0;
 	}
 
@@ -1081,8 +1091,8 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 	if (!get_bank_gold(ch) && !get_gold(ch))
 	{
 		send_to_char(ch,
-			"У Вас ведь совсем нет денег, чем Вы собираетесь расплачиваться за хранение вещей?\r\n",
-			OBJ_PAD(obj, 5));
+					 "У Вас ведь совсем нет денег, чем Вы собираетесь расплачиваться за хранение вещей?\r\n",
+					 OBJ_PAD(obj, 5));
 		return 0;
 	}
 
@@ -1115,7 +1125,7 @@ void take_depot(CHAR_DATA *vict, char *arg, int howmany)
 	if (RENTABLE(vict))
 	{
 		send_to_char(vict, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
-			CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
+					 CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
 		return;
 	}
 
@@ -1196,7 +1206,7 @@ void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany)
 			return;
 		}
 		bool found = 0;
-		for (ObjListType::iterator obj_list_it = cont.begin(); obj_list_it != cont.end(); )
+		for (ObjListType::iterator obj_list_it = cont.begin(); obj_list_it != cont.end();)
 		{
 			if (obj_dotmode == FIND_ALL || isname(arg, (*obj_list_it)->name))
 			{
@@ -1229,7 +1239,7 @@ int get_total_cost_per_day(CHAR_DATA *ch)
 		int cost = 0;
 		if (!it->second.pers_online.empty())
 			for (ObjListType::const_iterator obj_it = it->second.pers_online.begin();
-				 obj_it != it->second.pers_online.end(); ++obj_it)
+					obj_it != it->second.pers_online.end(); ++obj_it)
 			{
 				cost += get_object_low_rent(*obj_it);
 			}
@@ -1255,8 +1265,8 @@ void show_stats(CHAR_DATA *ch)
 	}
 
 	out << "  Хранилищ: " << depot_list.size() << ", "
-		<< "в персональных: " << pers_count << ", "
-		<< "в оффлайне: " << offline_count << "\r\n";
+	<< "в персональных: " << pers_count << ", "
+	<< "в оффлайне: " << offline_count << "\r\n";
 	send_to_char(out.str().c_str(), ch);
 }
 
@@ -1324,8 +1334,8 @@ void CharNode::load_online_objs(int file_type, bool reload)
 		{
 			// собсна сверимся со списком таймеров и проставим изменившиеся данные
 			TimerListType::iterator obj_it = std::find_if(offline_list.begin(), offline_list.end(),
-				boost::bind(std::equal_to<long>(),
-				 boost::bind(&OfflineNode::uid, _1), GET_OBJ_UID(obj)));
+											 boost::bind(std::equal_to<long>(),
+														 boost::bind(&OfflineNode::uid, _1), GET_OBJ_UID(obj)));
 			if (obj_it != offline_list.end() && obj_it->vnum == GET_OBJ_VNUM(obj))
 			{
 				depot_log("load object %s %d %d", obj->short_description, GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
@@ -1388,11 +1398,11 @@ void enter_char(CHAR_DATA *ch)
 			}
 
 			send_to_char(ch, "%sХранилище: за время Вашего отсутствия удержано %d %s.%s\r\n\r\n",
-				CCWHT(ch, C_NRM), it->second.money_spend, desc_count(it->second.money_spend,
-				WHAT_MONEYa), CCNRM(ch, C_NRM));
+						 CCWHT(ch, C_NRM), it->second.money_spend, desc_count(it->second.money_spend,
+								 WHAT_MONEYa), CCNRM(ch, C_NRM));
 			if (purged)
 				send_to_char(ch, "%sХранилище: у вас нехватило денег на постой.%s\r\n\r\n",
-					CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+							 CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		}
 		// грузим хранилище, сохранять его тут вроде как смысла нет
 		it->second.load_online_objs(PERS_DEPOT_FILE);

@@ -52,22 +52,28 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
 // Файл для вывода
 FILE *logfile = NULL;
 
-char AltToKoi[] = {
+char AltToKoi[] =
+{
 	"АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмноп░▒▓│┤╡+++╣║╗╝+╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨++╙╘╒++╪┘┌█▄▌▐▀рстуфхцчшщъыьэюяЁё╫╜╢╓╤╕╥╖·√??■ "
 };
-char KoiToAlt[] = {
+char KoiToAlt[] =
+{
 	"дЁз©юыц╢баеъэшщч╟╠╡+Ч+Ш+++Ъ+++З+м╨уЯУиВЫ╩тсх╬С╪фгл╣ПТ╧ЖЬкопйьРн+Н═║Ф╓╔ДёЕ╗╘╙╚╛╜╝╞ОЮАБЦ╕╒ЛК╖ХМИГЙ·─│√└┘■┐∙┬┴┼▀▄█▌▐÷░▒▓⌠├┌°⌡┤≤²≥≈ "
 };
-char WinToKoi[] = {
+char WinToKoi[] =
+{
 	"++++++++++++++++++++++++++++++++ ++++╫++Ё©╢++++╥°+╤╕╜++·ё+╓++++╖АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя"
 };
-char KoiToWin[] = {
+char KoiToWin[] =
+{
 	"++++++++++++++++++++++++++═+╟+╥++++╦╨+Ё©+++++╢+++++╗╙+╡╞+++++╔+╘ЧЮАЖДЕТЦУХИЙКЛМНОЪПЯРСФБЭШГЬЩЫВЗчюаждетцухийклмноъпярсфбэшгьщывз"
 };
-char KoiToWin2[] = {
+char KoiToWin2[] =
+{
 	"++++++++++++++++++++++++++═+╟+╥++++╦╨+Ё©+++++╢+++++╗╙+╡╞+++++╔+╘ЧЮАЖДЕТЦУХИЙКЛМНОzПЯРСФБЭШГЬЩЫВЗчюаждетцухийклмноъпярсфбэшгьщывз"
 };
-char AltToLat[] = {
+char AltToLat[] =
+{
 	"─│┌┐└┘├┤┬┴┼▀▄█▌▐░▒▓⌠■∙√≈≤≥ ⌡°²·÷═║╒ё╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡Ё╢╣╤╥╦╧╨╩╪╫╬©0abcdefghijklmnopqrstY1v23z456780ABCDEFGHIJKLMNOPQRSTY1V23Z45678"
 };
 
@@ -114,10 +120,13 @@ char * CAP(char *txt)
 /* Create and append to dinamyc length string - Alez */
 char *str_add(char *dst, const char *src)
 {
-	if (dst == NULL) {
+	if (dst == NULL)
+	{
 		dst = (char *) malloc(strlen(src) + 1);
 		strcpy(dst, src);
-	} else {
+	}
+	else
+	{
 		dst = (char *) realloc(dst, strlen(dst) + strlen(src) + 1);
 		strcat(dst, src);
 	};
@@ -128,7 +137,8 @@ char *str_add(char *dst, const char *src)
 char *str_dup(const char *source)
 {
 	char *new_z = NULL;
-	if (source) {
+	if (source)
+	{
 		CREATE(new_z, char, strlen(source) + 1);
 		return (strcpy(new_z, source));
 	}
@@ -158,7 +168,8 @@ int str_cmp(const char *arg1, const char *arg2)
 {
 	int chk, i;
 
-	if (arg1 == NULL || arg2 == NULL) {
+	if (arg1 == NULL || arg2 == NULL)
+	{
 		log("SYSERR: str_cmp() passed a NULL pointer, %p or %p.", arg1, arg2);
 		return (0);
 	}
@@ -174,7 +185,8 @@ int str_cmp(const std::string &arg1, const char *arg2)
 	int chk;
 	std::string::size_type i;
 
-	if (arg2 == NULL) {
+	if (arg2 == NULL)
+	{
 		log("SYSERR: str_cmp() passed a NULL pointer, %p.", arg2);
 		return (0);
 	}
@@ -196,7 +208,8 @@ int str_cmp(const char *arg1, const std::string &arg2)
 	int chk;
 	std::string::size_type i;
 
-	if (arg1 == NULL) {
+	if (arg1 == NULL)
+	{
 		log("SYSERR: str_cmp() passed a NULL pointer, %p.", arg1);
 		return (0);
 	}
@@ -242,7 +255,8 @@ int strn_cmp(const char *arg1, const char *arg2, int n)
 {
 	int chk, i;
 
-	if (arg1 == NULL || arg2 == NULL) {
+	if (arg1 == NULL || arg2 == NULL)
+	{
 		log("SYSERR: strn_cmp() passed a NULL pointer, %p or %p.", arg1, arg2);
 		return (0);
 	}
@@ -258,7 +272,8 @@ int strn_cmp(const std::string &arg1, const char *arg2, int n)
 	int chk;
 	std::string::size_type i;
 
-	if (arg2 == NULL) {
+	if (arg2 == NULL)
+	{
 		log("SYSERR: strn_cmp() passed a NULL pointer, %p.", arg2);
 		return (0);
 	}
@@ -280,7 +295,8 @@ int strn_cmp(const char *arg1, const std::string &arg2, int n)
 	int chk;
 	std::string::size_type i;
 
-	if (arg1 == NULL) {
+	if (arg1 == NULL)
+	{
 		log("SYSERR: strn_cmp() passed a NULL pointer, %p.", arg1);
 		return (0);
 	}
@@ -364,14 +380,17 @@ void olc_log(const char *format, ...)
 {
 	const char *filename = "../log/olc.log";
 	static FILE *file = 0;
-	if (!file) {
+	if (!file)
+	{
 		file = fopen(filename, "a");
-		if (!file) {
+		if (!file)
+		{
 			log("SYSERR: can't open %s!", filename);
 			return;
 		}
 		opened_files.push_back(file);
-	} else if (!format)
+	}
+	else if (!format)
 		format = "SYSERR: olc_log received a NULL format.";
 
 	write_time(file);
@@ -386,14 +405,17 @@ void imm_log(const char *format, ...)
 {
 	const char *filename = "../log/imm.log";
 	static FILE *file = 0;
-	if (!file) {
+	if (!file)
+	{
 		file = fopen(filename, "a");
-		if (!file) {
+		if (!file)
+		{
 			log("SYSERR: can't open %s!", filename);
 			return;
 		}
 		opened_files.push_back(file);
-	} else if (!format)
+	}
+	else if (!format)
 		format = "SYSERR: imm_log received a NULL format.";
 
 	write_time(file);
@@ -410,21 +432,24 @@ void imm_log(const char *format, ...)
 */
 void pers_log(CHAR_DATA *ch, const char *format, ...)
 {
-	if (!ch) {
+	if (!ch)
+	{
 		log("NULL character resieved! (%s %s %d)", __FILE__, __func__, __LINE__);
 		return;
 	}
 	if (!format)
 		format = "SYSERR: pers_log received a NULL format.";
 
-	if (!ch->desc->pers_log) {
+	if (!ch->desc->pers_log)
+	{
 		char filename[128], name[64], *ptr;
 		strcpy(name, GET_NAME(ch));
 		for (ptr = name; *ptr; ptr++)
 			*ptr = LOWER(AtoL(*ptr));
 		sprintf(filename, "../log/perslog/%s.log", name);
 		ch->desc->pers_log = fopen(filename, "a");
-		if (!ch->desc->pers_log) {
+		if (!ch->desc->pers_log)
+		{
 			log("SYSERR: error open %s (%s %s %d)", filename, __FILE__, __func__, __LINE__);
 			return;
 		}
@@ -444,7 +469,8 @@ void ip_log(const char *ip)
 {
 	FILE *iplog;
 
-	if (!(iplog = fopen("../log/ip.log", "a"))) {
+	if (!(iplog = fopen("../log/ip.log", "a")))
+	{
 		log("SYSERR: ../log/ip.log");
 		return;
 	}
@@ -458,10 +484,13 @@ int touch(const char *path)
 {
 	FILE *fl;
 
-	if (!(fl = fopen(path, "a"))) {
+	if (!(fl = fopen(path, "a")))
+	{
 		log("SYSERR: %s: %s", path, strerror(errno));
 		return (-1);
-	} else {
+	}
+	else
+	{
 		fclose(fl);
 		return (0);
 	}
@@ -482,7 +511,8 @@ void mudlog(const char *str, int type, int level, int channel, int file)
 		return;		/* eh, oh well. */
 	if (channel < 0 || channel >= NLOG)
 		return;
-	if (file) {
+	if (file)
+	{
 		logfile = logs[channel].logfile;
 		log(str);
 		logfile = logs[SYSLOG].logfile;
@@ -492,7 +522,8 @@ void mudlog(const char *str, int type, int level, int channel, int file)
 
 	sprintf(tmpbuf, "[ %s ]\r\n", str);
 	bool kroder = 0;
-	for (i = descriptor_list; i; i = i->next) {
+	for (i = descriptor_list; i; i = i->next)
+	{
 		if (STATE(i) != CON_PLAYING || IS_NPC(i->character))	/* switch */
 			continue;
 		if (GET_LOGS(i->character)[channel] < type && type != DEF)
@@ -533,20 +564,26 @@ int sprintbitwd(bitvector_t bitvector, const char *names[], char *result, char *
 	else
 		fail = 3;
 	bitvector &= 0x3FFFFFFF;
-	while (fail) {
+	while (fail)
+	{
 		if (*names[nr] == '\n')
 			fail--;
 		nr++;
 	}
 
 
-	for (; bitvector; bitvector >>= 1) {
-		if (IS_SET(bitvector, 1)) {
-			if (*names[nr] != '\n') {
+	for (; bitvector; bitvector >>= 1)
+	{
+		if (IS_SET(bitvector, 1))
+		{
+			if (*names[nr] != '\n')
+			{
 				strcat(result, names[nr]);
 				strcat(result, div);
 				divider = TRUE;
-			} else {
+			}
+			else
+			{
 				strcat(result, "UNDEF");
 				strcat(result, div);
 				divider = TRUE;
@@ -556,17 +593,19 @@ int sprintbitwd(bitvector_t bitvector, const char *names[], char *result, char *
 			nr++;
 	}
 
-	if (!*result) {
+	if (!*result)
+	{
 		strcat(result, empty_string);
 		return FALSE;
-	} else if (divider)
+	}
+	else if (divider)
 		*(result + strlen(result) - 1) = '\0';
 	return TRUE;
 }
 
 int sprintbit(bitvector_t bitvector, const char *names[], char *result)
 {
-	return sprintbitwd(bitvector,names,result, ",");
+	return sprintbitwd(bitvector, names, result, ",");
 }
 
 void sprintbits(FLAG_DATA flags, const char *names[], char *result, char *div)
@@ -574,8 +613,10 @@ void sprintbits(FLAG_DATA flags, const char *names[], char *result, char *div)
 	char buffer[MAX_STRING_LENGTH];
 	int i;
 	*result = '\0';
-	for (i = 0; i < 4; i++) {
-		if (sprintbitwd(flags.flags[i] | (i << 30), names, buffer, div)) {
+	for (i = 0; i < 4; i++)
+	{
+		if (sprintbitwd(flags.flags[i] | (i << 30), names, buffer, div))
+		{
 			if (strlen(result))
 				strcat(result, div);
 			strcat(result, buffer);
@@ -591,7 +632,8 @@ void sprinttype(int type, const char *names[], char *result)
 {
 	int nr = 0;
 
-	while (type && *names[nr] != '\n') {
+	while (type && *names[nr] != '\n')
+	{
 		type--;
 		nr++;
 	}
@@ -609,7 +651,7 @@ TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1)
 	long secs;
 	static TIME_INFO_DATA now;
 
-	secs = (long) (t2 - t1);
+	secs = (long)(t2 - t1);
 
 	now.hours = (secs / SECS_PER_REAL_HOUR) % 24;	/* 0..23 hours */
 	secs -= SECS_PER_REAL_HOUR * now.hours;
@@ -631,7 +673,7 @@ TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1)
 	long secs;
 	static TIME_INFO_DATA now;
 
-	secs = (long) (t2 - t1);
+	secs = (long)(t2 - t1);
 
 	now.hours = (secs / (SECS_PER_MUD_HOUR * TIME_KOEFF)) % HOURS_PER_DAY;	/* 0..23 hours */
 	secs -= SECS_PER_MUD_HOUR * TIME_KOEFF * now.hours;
@@ -667,8 +709,10 @@ bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	CHAR_DATA *k;
 
-	for (k = victim; k; k = k->master) {
-		if (k->master == k) {
+	for (k = victim; k; k = k->master)
+	{
+		if (k->master == k)
+		{
 			k->master = NULL;
 			return (FALSE);
 		}
@@ -703,9 +747,10 @@ int has_horse(CHAR_DATA * ch, int same_room)
 	if (IS_NPC(ch))
 		return (FALSE);
 
-	for (f = ch->followers; f; f = f->next) {
+	for (f = ch->followers; f; f = f->next)
+	{
 		if (IS_NPC(f->follower) && AFF_FLAGGED(f->follower, AFF_HORSE) &&
-		    (!same_room || IN_ROOM(ch) == IN_ROOM(f->follower)))
+				(!same_room || IN_ROOM(ch) == IN_ROOM(f->follower)))
 			return (TRUE);
 	}
 	return (FALSE);
@@ -718,7 +763,8 @@ CHAR_DATA *get_horse(CHAR_DATA * ch)
 	if (IS_NPC(ch))
 		return (NULL);
 
-	for (f = ch->followers; f; f = f->next) {
+	for (f = ch->followers; f; f = f->next)
+	{
 		if (IS_NPC(f->follower) && AFF_FLAGGED(f->follower, AFF_HORSE))
 			return (f->follower);
 	}
@@ -727,7 +773,8 @@ CHAR_DATA *get_horse(CHAR_DATA * ch)
 
 void horse_drop(CHAR_DATA * ch)
 {
-	if (ch->master) {
+	if (ch->master)
+	{
 		act("$N сбросил$G Вас со своей спины.", FALSE, ch->master, 0, ch, TO_CHAR);
 		REMOVE_BIT(AFF_FLAGS(ch->master, AFF_HORSE), AFF_HORSE);
 		WAIT_STATE(ch->master, 3 * PULSE_VIOLENCE);
@@ -757,7 +804,8 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	//log("[Stop follower] Start function(%s->%s)",ch ? GET_NAME(ch) : "none",
 	//      ch->master ? GET_NAME(ch->master) : "none");
 
-	if (!ch->master) {
+	if (!ch->master)
+	{
 		log("SYSERR: stop_follower(%s) without master", GET_NAME(ch));
 		// core_dump();
 		return (FALSE);
@@ -779,17 +827,21 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	//log("[Stop follower] Remove from followers list");
 	if (!ch->master->followers)
 		log("[Stop follower] SYSERR: Followers absent for %s (master %s).", GET_NAME(ch), GET_NAME(ch->master));
-	else if (ch->master->followers->follower == ch) {	/* Head of follower-list? */
+	else if (ch->master->followers->follower == ch)  	/* Head of follower-list? */
+	{
 		k = ch->master->followers;
 		if (!(ch->master->followers = k->next) && !ch->master->master)
 			REMOVE_BIT(AFF_FLAGS(ch->master, AFF_GROUP), AFF_GROUP);
 		free(k);
-	} else {		/* locate follower who is not head of list */
+	}
+	else  		/* locate follower who is not head of list */
+	{
 		for (k = ch->master->followers; k->next && k->next->follower != ch; k = k->next);
 		if (!k->next)
 			log("[Stop follower] SYSERR: Undefined %s in %s followers list.",
-			    GET_NAME(ch), GET_NAME(ch->master));
-		else {
+				GET_NAME(ch), GET_NAME(ch->master));
+		else
+		{
 			j = k->next;
 			k->next = j->next;
 			free(j);
@@ -803,7 +855,8 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
 
 	//log("[Stop follower] Free charmee");
-	if (AFF_FLAGGED(ch, AFF_CHARM) || AFF_FLAGGED(ch, AFF_HELPER) || IS_SET(mode, SF_CHARMLOST)) {
+	if (AFF_FLAGGED(ch, AFF_CHARM) || AFF_FLAGGED(ch, AFF_HELPER) || IS_SET(mode, SF_CHARMLOST))
+	{
 		if (affected_by_spell(ch, SPELL_CHARM))
 			affect_from_char(ch, SPELL_CHARM);
 		EXTRACT_TIMER(ch) = 5;
@@ -821,38 +874,46 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 		   }
 		 */
 		//log("[Stop follower] Charmee MOB reaction");
-		if (IS_NPC(ch)) {
-			if (MOB_FLAGGED(ch, MOB_CORPSE)) {
+		if (IS_NPC(ch))
+		{
+			if (MOB_FLAGGED(ch, MOB_CORPSE))
+			{
 				act("Налетевший ветер развеял $n3, не оставив и следа.", TRUE, ch, 0, 0, TO_ROOM);
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(IN_ROOM(ch));
 				perform_drop_gold(ch, get_gold(ch), SCMD_DROP, 0);
 				set_gold(ch, 0);
 				extract_char(ch, FALSE);
 				return (TRUE);
-			} else if (AFF_FLAGGED(ch, AFF_HELPER))
+			}
+			else if (AFF_FLAGGED(ch, AFF_HELPER))
 				REMOVE_BIT(AFF_FLAGS(ch, AFF_HELPER), AFF_HELPER);
-			else {
+			else
+			{
 				if (master &&
-				    !IS_SET(mode, SF_MASTERDIE) &&
-				    IN_ROOM(ch) == IN_ROOM(master) &&
-					CAN_SEE(ch, master) && !FIGHTING(ch) &&
-					!ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL)) { //Polud - ну не надо агрить в мирках, незачем это
-					if (number(1, GET_REAL_INT(ch) * 2) > GET_REAL_CHA(master)) {
+						!IS_SET(mode, SF_MASTERDIE) &&
+						IN_ROOM(ch) == IN_ROOM(master) &&
+						CAN_SEE(ch, master) && !FIGHTING(ch) &&
+						!ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL))   //Polud - ну не надо агрить в мирках, незачем это
+				{
+					if (number(1, GET_REAL_INT(ch) * 2) > GET_REAL_CHA(master))
+					{
 						act("$n посчитал$g, что Вы заслуживаете смерти !",
-						    FALSE, ch, 0, master, TO_VICT | CHECK_DEAF);
+							FALSE, ch, 0, master, TO_VICT | CHECK_DEAF);
 						act("$n заорал$g : \"Ты долго водил$G меня за нос, но дальше так не пойдет !\"" "              \"Теперь только твоя смерть может искупить твой обман !!!\"", TRUE, ch, 0, master, TO_NOTVICT | CHECK_DEAF);
 						set_fighting(ch, master);
 					}
-				} else
-				    if (master &&
-					!IS_SET(mode, SF_MASTERDIE) &&
-					CAN_SEE(ch, master) && MOB_FLAGGED(ch, MOB_MEMORY))
-					remember(ch, master);
+				}
+				else
+					if (master &&
+							!IS_SET(mode, SF_MASTERDIE) &&
+							CAN_SEE(ch, master) && MOB_FLAGGED(ch, MOB_MEMORY))
+						remember(ch, master);
 			}
 		}
 	}
 	//log("[Stop follower] Restore mob flags");
-	if (IS_NPC(ch) && (i = GET_MOB_RNUM(ch)) >= 0) {
+	if (IS_NPC(ch) && (i = GET_MOB_RNUM(ch)) >= 0)
+	{
 		MOB_FLAGS(ch, INT_ZERRO) = MOB_FLAGS(mob_proto + i, INT_ZERRO);
 		MOB_FLAGS(ch, INT_ONE) = MOB_FLAGS(mob_proto + i, INT_ONE);
 		MOB_FLAGS(ch, INT_TWO) = MOB_FLAGS(mob_proto + i, INT_TWO);
@@ -875,7 +936,8 @@ void die_follower(CHAR_DATA * ch)
 	if (on_horse(ch))
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
 
-	for (k = ch->followers; k; k = j) {
+	for (k = ch->followers; k; k = j)
+	{
 		j = k->next;
 		stop_follower(k->follower, SF_MASTERDIE);
 	}
@@ -891,9 +953,10 @@ void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence)
 {
 	struct follow_type *k;
 
-	if (ch->master) {
+	if (ch->master)
+	{
 		log("SYSERR: add_follower(%s->%s) when master existing(%s)...",
-		    GET_NAME(ch), leader ? GET_NAME(leader) : "", GET_NAME(ch->master));
+			GET_NAME(ch), leader ? GET_NAME(leader) : "", GET_NAME(ch->master));
 		// core_dump();
 		return;
 	}
@@ -909,7 +972,8 @@ void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence)
 	k->next = leader->followers;
 	leader->followers = k;
 
-	if (!IS_HORSE(ch) && !silence) {
+	if (!IS_HORSE(ch) && !silence)
+	{
 		act("Вы начали следовать за $N4.", FALSE, ch, 0, leader, TO_CHAR);
 		//if (CAN_SEE(leader, ch))
 		act("$n начал$g следовать за Вами.", TRUE, ch, 0, leader, TO_VICT);
@@ -929,7 +993,8 @@ int get_line(FILE * fl, char *buf)
 	char temp[256];
 	int lines = 0;
 
-	do {
+	do
+	{
 		fgets(temp, 256, fl);
 		if (feof(fl))
 			return (0);
@@ -948,12 +1013,14 @@ int get_filename(const char *orig_name, char *filename, int mode)
 	const char *prefix, *middle, *suffix;
 	char name[64], *ptr;
 
-	if (orig_name == NULL || *orig_name == '\0' || filename == NULL) {
+	if (orig_name == NULL || *orig_name == '\0' || filename == NULL)
+	{
 		log("SYSERR: NULL pointer or empty string passed to get_filename(), %p or %p.", orig_name, filename);
 		return (0);
 	}
 
-	switch (mode) {
+	switch (mode)
+	{
 	case CRASH_FILE:
 		prefix = LIB_PLROBJS;
 		suffix = SUF_OBJS;
@@ -1015,7 +1082,8 @@ int get_filename(const char *orig_name, char *filename, int mode)
 			*ptr = LOWER(AtoL(*ptr));
 	}
 
-	switch (LOWER(*name)) {
+	switch (LOWER(*name))
+	{
 	case 'a':
 	case 'b':
 	case 'c':
@@ -1109,7 +1177,8 @@ void core_dump_real(const char *who, int line)
 
 void to_koi(char *str, int from)
 {
-	switch (from) {
+	switch (from)
+	{
 	case KT_ALT:
 		for (; *str; *str = AtoK(*str), str++);
 		break;
@@ -1122,7 +1191,8 @@ void to_koi(char *str, int from)
 
 void from_koi(char *str, int from)
 {
-	switch (from) {
+	switch (from)
+	{
 	case KT_ALT:
 		for (; *str; *str = KtoA(*str), str++);
 		break;
@@ -1160,8 +1230,8 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 	char *flow, *jetsam, temp;
 	int len, i;
 
-	if ((signed) ((strlen(*string) - strlen(pattern)) + strlen(replacement))
-	    > max_size)
+	if ((signed)((strlen(*string) - strlen(pattern)) + strlen(replacement))
+			> max_size)
 		return -1;
 
 	CREATE(replace_buffer, char, max_size);
@@ -1169,12 +1239,15 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 	jetsam = *string;
 	flow = *string;
 	*replace_buffer = '\0';
-	if (rep_all) {
-		while ((flow = (char *) strstr(flow, pattern)) != NULL) {
+	if (rep_all)
+	{
+		while ((flow = (char *) strstr(flow, pattern)) != NULL)
+		{
 			i++;
 			temp = *flow;
 			*flow = '\0';
-			if ((signed) (strlen(replace_buffer) + strlen(jetsam) + strlen(replacement)) > max_size) {
+			if ((signed)(strlen(replace_buffer) + strlen(jetsam) + strlen(replacement)) > max_size)
+			{
 				i = -1;
 				break;
 			}
@@ -1185,11 +1258,14 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 			jetsam = flow;
 		}
 		strcat(replace_buffer, jetsam);
-	} else {
-		if ((flow = (char *) strstr(*string, pattern)) != NULL) {
+	}
+	else
+	{
+		if ((flow = (char *) strstr(*string, pattern)) != NULL)
+		{
 			i++;
 			flow += strlen(pattern);
-			len = ((char *) flow - (char *) *string) - strlen(pattern);
+			len = ((char *) flow - (char *) * string) - strlen(pattern);
 
 			strncpy(replace_buffer, *string, len);
 			strcat(replace_buffer, replacement);
@@ -1198,7 +1274,8 @@ int replace_str(char **string, char *pattern, char *replacement, int rep_all, in
 	}
 	if (i == 0)
 		return 0;
-	if (i > 0) {
+	if (i > 0)
+	{
 		RECREATE(*string, char, strlen(replace_buffer) + 3);
 		strcpy(*string, replace_buffer);
 	}
@@ -1220,36 +1297,43 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen)
 	if (!flow)
 		return;
 
-	if (IS_SET(mode, FORMAT_INDENT)) {
+	if (IS_SET(mode, FORMAT_INDENT))
+	{
 		strcpy(formated, "   ");
 		total_chars = 3;
-	} else {
+	}
+	else
+	{
 		*formated = '\0';
 		total_chars = 0;
 	}
 
-	while (*flow != '\0') {
+	while (*flow != '\0')
+	{
 		while ((*flow == '\n') ||
-		       (*flow == '\r') || (*flow == '\f') || (*flow == '\t') || (*flow == '\v') || (*flow == ' '))
+				(*flow == '\r') || (*flow == '\f') || (*flow == '\t') || (*flow == '\v') || (*flow == ' '))
 			flow++;
 
-		if (*flow != '\0') {
+		if (*flow != '\0')
+		{
 			start = flow++;
 			while ((*flow != '\0') &&
-			       (*flow != '\n') &&
-			       (*flow != '\r') &&
-			       (*flow != '\f') &&
-			       (*flow != '\t') &&
-			       (*flow != '\v') && (*flow != ' ') && (*flow != '.') && (*flow != '?') && (*flow != '!'))
+					(*flow != '\n') &&
+					(*flow != '\r') &&
+					(*flow != '\f') &&
+					(*flow != '\t') &&
+					(*flow != '\v') && (*flow != ' ') && (*flow != '.') && (*flow != '?') && (*flow != '!'))
 				flow++;
 
-			if (cap_next_next) {
+			if (cap_next_next)
+			{
 				cap_next_next = FALSE;
 				cap_next = TRUE;
 			}
 
 			/* this is so that if we stopped on a sentance .. we move off the sentance delim. */
-			while ((*flow == '.') || (*flow == '!') || (*flow == '?')) {
+			while ((*flow == '.') || (*flow == '!') || (*flow == '?'))
+			{
 				cap_next_next = TRUE;
 				flow++;
 			}
@@ -1257,17 +1341,22 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen)
 			temp = *flow;
 			*flow = '\0';
 
-			if ((total_chars + strlen(start) + 1) > 79) {
+			if ((total_chars + strlen(start) + 1) > 79)
+			{
 				strcat(formated, "\r\n");
 				total_chars = 0;
 			}
 
-			if (!cap_next) {
-				if (total_chars > 0) {
+			if (!cap_next)
+			{
+				if (total_chars > 0)
+				{
 					strcat(formated, " ");
 					total_chars++;
 				}
-			} else {
+			}
+			else
+			{
 				cap_next = FALSE;
 				*start = UPPER(*start);
 			}
@@ -1278,11 +1367,15 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen)
 			*flow = temp;
 		}
 
-		if (cap_next_next) {
-			if ((total_chars + 3) > 79) {
+		if (cap_next_next)
+		{
+			if ((total_chars + 3) > 79)
+			{
 				strcat(formated, "\r\n");
 				total_chars = 0;
-			} else {
+			}
+			else
+			{
 				strcat(formated, " ");
 				total_chars += 2;
 			}
@@ -1297,10 +1390,11 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen)
 }
 
 
-char *some_pads[3][22] = {
-{"дней", "часов", "лет", "очков", "минут", "минут", "кун", "кун", "штук", "штук", "уровней", "верст", "верст", "единиц", "единиц", "секунд", "градусов", "строк", "предметов", "перевоплощений", "недель", "месяцев"},
-{"день", "час", "год", "очко", "минута", "минуту", "куна", "куну", "штука", "штуку", "уровень", "верста", "версту", "единица", "единицу", "секунду", "градус", "строка", "предмет", "перевоплощение", "неделя", "месяц"},
-{"дня", "часа", "года", "очка", "минуты", "минуты", "куны", "куны", "штуки", "штуки", "уровня", "версты", "версты", "единицы", "единицы", "секунды", "градуса", "строки", "предмета", "перевоплощения", "недели", "месяца"}
+char *some_pads[3][22] =
+{
+	{"дней", "часов", "лет", "очков", "минут", "минут", "кун", "кун", "штук", "штук", "уровней", "верст", "верст", "единиц", "единиц", "секунд", "градусов", "строк", "предметов", "перевоплощений", "недель", "месяцев"},
+	{"день", "час", "год", "очко", "минута", "минуту", "куна", "куну", "штука", "штуку", "уровень", "верста", "версту", "единица", "единицу", "секунду", "градус", "строка", "предмет", "перевоплощение", "неделя", "месяц"},
+	{"дня", "часа", "года", "очка", "минуты", "минуты", "куны", "куны", "штуки", "штуки", "уровня", "версты", "версты", "единицы", "единицы", "секунды", "градуса", "строки", "предмета", "перевоплощения", "недели", "месяца"}
 };
 
 char *desc_count(int how_many, int of_what)
@@ -1319,7 +1413,8 @@ int check_moves(CHAR_DATA * ch, int how_moves)
 {
 	if (IS_IMMORTAL(ch) || IS_NPC(ch))
 		return (TRUE);
-	if (GET_MOVE(ch) < how_moves) {
+	if (GET_MOVE(ch) < how_moves)
+	{
 		send_to_char("Вы слишком устали.\r\n", ch);
 		return (FALSE);
 	}
@@ -1333,7 +1428,8 @@ int real_sector(int room)
 
 	if (ROOM_FLAGGED(room, ROOM_NOWEATHER))
 		return sector;
-	switch (sector) {
+	switch (sector)
+	{
 	case SECT_INSIDE:
 	case SECT_CITY:
 	case SECT_FLYING:
@@ -1398,31 +1494,39 @@ char *noclan_title(CHAR_DATA * ch)
 
 	if (!GET_TITLE(ch) || !*GET_TITLE(ch))
 		sprintf(title, "%s %s", race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)], GET_NAME(ch));
-	else {
+	else
+	{
 		if ((pos1 = strchr(GET_TITLE(ch), '/')))
-			*(pos1++) = '\0';
-		if ((pos = strchr(GET_TITLE(ch), ';'))) {
+			* (pos1++) = '\0';
+		if ((pos = strchr(GET_TITLE(ch), ';')))
+		{
 			*(pos++) = '\0';
 			if ((!GET_TITLE(ch) || !*GET_TITLE(ch)) && GET_REMORT(ch) == 0 && !IS_IMMORTAL(ch))
 				sprintf(title, "%s %s", race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)], GET_NAME(ch));
-			else {
-				if (GET_REMORT(ch) == 0 && !IS_IMMORTAL(ch)) {
+			else
+			{
+				if (GET_REMORT(ch) == 0 && !IS_IMMORTAL(ch))
+				{
 					if (GET_LEVEL(ch) < MIN_TITLE_LEV)
 						sprintf(title, "%s %s",
-							race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)], GET_NAME(ch));
+								race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)], GET_NAME(ch));
 					else
 						sprintf(title, "%s%s%s", GET_NAME(ch), *GET_TITLE(ch) ? ", " : " ",
-							GET_TITLE(ch));
-				} else {
+								GET_TITLE(ch));
+				}
+				else
+				{
 					if (GET_LEVEL(ch) < MIN_TITLE_LEV)
 						sprintf(title, "%s %s", pos, GET_NAME(ch));
 					else
 						sprintf(title, "%s %s%s%s", pos, GET_NAME(ch),
-							*GET_TITLE(ch) ? ", " : "", GET_TITLE(ch));
+								*GET_TITLE(ch) ? ", " : "", GET_TITLE(ch));
 				}
 			}
 			*(--pos) = ';';
-		} else {
+		}
+		else
+		{
 			if (GET_LEVEL(ch) < MIN_TITLE_LEV)
 				sprintf(title, "%s %s", race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)], GET_NAME(ch));
 			else if (GET_LEVEL(ch) >= MIN_TITLE_LEV)
@@ -1447,16 +1551,20 @@ char *title_noname(CHAR_DATA *ch)
 
 	if (!GET_TITLE(ch) || !*GET_TITLE(ch))
 		sprintf(title, "%s%s", GET_NAME(ch), clan);
-	else {
+	else
+	{
 		if ((pos1 = strchr(GET_TITLE(ch), '/')))
-			*(pos1++) = '\0';
+			* (pos1++) = '\0';
 
-		if ((pos = strchr(GET_TITLE(ch), ';'))) {
+		if ((pos = strchr(GET_TITLE(ch), ';')))
+		{
 			*(pos++) = '\0';
 			sprintf(title, "%s;%s%s", pos, GET_TITLE(ch), clan);
 
 			*(--pos) = ';';
-		} else {
+		}
+		else
+		{
 			sprintf(title, "%s%s", GET_TITLE(ch), clan);
 		}
 		if (pos1)
@@ -1482,35 +1590,43 @@ char *only_title(CHAR_DATA * ch)
 
 	if (!GET_TITLE(ch) || !*GET_TITLE(ch))
 		sprintf(title, "%s%s", GET_NAME(ch), clan);
-	else {
+	else
+	{
 		if ((pos1 = strchr(GET_TITLE(ch), '/')))
-			*(pos1++) = '\0';
-		if ((pos = strchr(GET_TITLE(ch), ';'))) {
+			* (pos1++) = '\0';
+		if ((pos = strchr(GET_TITLE(ch), ';')))
+		{
 			*(pos++) = '\0';
 			if ((!GET_TITLE(ch) || !*GET_TITLE(ch)) && GET_REMORT(ch) == 0 && !IS_IMMORTAL(ch))
 				sprintf(title, "%s%s", GET_NAME(ch), clan);
-			else {
-				if (GET_REMORT(ch) == 0 && !IS_IMMORTAL(ch)) {
+			else
+			{
+				if (GET_REMORT(ch) == 0 && !IS_IMMORTAL(ch))
+				{
 					if (GET_LEVEL(ch) < MIN_TITLE_LEV)
 						sprintf(title, "%s%s", GET_NAME(ch), clan);
 					else
 						sprintf(title, "%s%s%s%s", GET_NAME(ch), *GET_TITLE(ch) ? ", " : " ",
-							GET_TITLE(ch), clan);
-				} else {
+								GET_TITLE(ch), clan);
+				}
+				else
+				{
 					if (GET_LEVEL(ch) < MIN_TITLE_LEV)
 						sprintf(title, "%s %s%s", pos, GET_NAME(ch), clan);
 					else
 						sprintf(title, "%s %s%s%s%s", pos, GET_NAME(ch),
-							*GET_TITLE(ch) ? ", " : "", GET_TITLE(ch), clan);
+								*GET_TITLE(ch) ? ", " : "", GET_TITLE(ch), clan);
 				}
 			}
 			*(--pos) = ';';
-		} else {
+		}
+		else
+		{
 			if (GET_LEVEL(ch) < MIN_TITLE_LEV)
 				sprintf(title, "%s%s", GET_NAME(ch), clan);
 			else if (GET_LEVEL(ch) >= MIN_TITLE_LEV)
 				sprintf(title, "%s%s%s%s", GET_NAME(ch), *GET_TITLE(ch) ? ", " : " ", GET_TITLE(ch),
-					clan);
+						clan);
 		}
 		if (pos1)
 			*(--pos1) = '/';
@@ -1531,39 +1647,47 @@ char *race_or_title(CHAR_DATA * ch)
 
 	if (!GET_TITLE(ch) || !*GET_TITLE(ch))
 		sprintf(title, "%s %s%s", race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)], GET_NAME(ch), clan);
-	else {
+	else
+	{
 		if ((pos1 = strchr(GET_TITLE(ch), '/')))
-			*(pos1++) = '\0';
-		if ((pos = strchr(GET_TITLE(ch), ';'))) {
+			* (pos1++) = '\0';
+		if ((pos = strchr(GET_TITLE(ch), ';')))
+		{
 			*(pos++) = '\0';
 			if ((!GET_TITLE(ch) || !*GET_TITLE(ch)) && GET_REMORT(ch) == 0 && !IS_IMMORTAL(ch))
 				sprintf(title, "%s %s%s", race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)],
-					GET_NAME(ch), clan);
-			else {
-				if (GET_REMORT(ch) == 0 && !IS_IMMORTAL(ch)) {
+						GET_NAME(ch), clan);
+			else
+			{
+				if (GET_REMORT(ch) == 0 && !IS_IMMORTAL(ch))
+				{
 					if (GET_LEVEL(ch) < MIN_TITLE_LEV)
 						sprintf(title, "%s %s%s",
-							race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)], GET_NAME(ch),
-							clan);
+								race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)], GET_NAME(ch),
+								clan);
 					else
 						sprintf(title, "%s%s%s%s", GET_NAME(ch), *GET_TITLE(ch) ? ", " : " ",
-							GET_TITLE(ch), clan);
-				} else {
+								GET_TITLE(ch), clan);
+				}
+				else
+				{
 					if (GET_LEVEL(ch) < MIN_TITLE_LEV)
 						sprintf(title, "%s %s%s", pos, GET_NAME(ch), clan);
 					else
 						sprintf(title, "%s %s%s%s%s", pos, GET_NAME(ch),
-							*GET_TITLE(ch) ? ", " : "", GET_TITLE(ch), clan);
+								*GET_TITLE(ch) ? ", " : "", GET_TITLE(ch), clan);
 				}
 			}
 			*(--pos) = ';';
-		} else {
+		}
+		else
+		{
 			if (GET_LEVEL(ch) < MIN_TITLE_LEV)
 				sprintf(title, "%s %s%s", race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)],
-					GET_NAME(ch), clan);
+						GET_NAME(ch), clan);
 			else if (GET_LEVEL(ch) >= MIN_TITLE_LEV)
 				sprintf(title, "%s%s%s%s", GET_NAME(ch), *GET_TITLE(ch) ? ", " : " ", GET_TITLE(ch),
-					clan);
+						clan);
 		}
 		if (pos1)
 			*(--pos1) = '/';
@@ -1629,21 +1753,28 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 	buf = (char *) malloc(MAX_STRING_LENGTH);
 	lbuf = buf;
 
-	for (stopbyte = 0; stopbyte < MAX_STRING_LENGTH; stopbyte++) {
-		if (*orig == '$') {
-			switch (*(++orig)) {
+	for (stopbyte = 0; stopbyte < MAX_STRING_LENGTH; stopbyte++)
+	{
+		if (*orig == '$')
+		{
+			switch (*(++orig))
+			{
 			case 'n':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
 					i = GET_PAD(ch, 0);
-				else {
+				else
+				{
 					padis = *(++orig) - '0';
 					i = GET_PAD(ch, padis);
 				}
 				break;
 			case 'N':
-				if (*(orig + 1) < '0' || *(orig + 1) > '5') {
+				if (*(orig + 1) < '0' || *(orig + 1) > '5')
+				{
 					CHECK_NULL(vict_obj, GET_PAD((const CHAR_DATA *) vict_obj, 0));
-				} else {
+				}
+				else
+				{
 					padis = *(++orig) - '0';
 					CHECK_NULL(vict_obj, GET_PAD((const CHAR_DATA *) vict_obj, padis));
 				}
@@ -1684,32 +1815,38 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 				break;
 
 			case 'o':
-				if (*(orig + 1) < '0' || *(orig + 1) > '5') {
+				if (*(orig + 1) < '0' || *(orig + 1) > '5')
+				{
 					CHECK_NULL(obj, OBJ_PAD(obj, 0));
-				} else {
+				}
+				else
+				{
 					padis = *(++orig) - '0';
 					CHECK_NULL(obj, OBJ_PAD(obj, padis > 5 ? 0 : padis));
 				}
 				break;
 			case 'O':
-				if (*(orig + 1) < '0' || *(orig + 1) > '5') {
+				if (*(orig + 1) < '0' || *(orig + 1) > '5')
+				{
 					CHECK_NULL(vict_obj, OBJ_PAD((const OBJ_DATA *) vict_obj, 0));
-				} else {
+				}
+				else
+				{
 					padis = *(++orig) - '0';
 					CHECK_NULL(vict_obj,
-						   OBJ_PAD((const OBJ_DATA *) vict_obj, padis > 5 ? 0 : padis));
+							   OBJ_PAD((const OBJ_DATA *) vict_obj, padis > 5 ? 0 : padis));
 				}
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
-/*            case 'p':
-                 CHECK_NULL(obj, OBJS(obj, to));
-                 break;
-            case 'P':
-                 CHECK_NULL(vict_obj, OBJS((const OBJ_DATA *) vict_obj, to));
-                 dg_victim = (CHAR_DATA *) vict_obj;
-                 break;
-*/
+				/*            case 'p':
+				                 CHECK_NULL(obj, OBJS(obj, to));
+				                 break;
+				            case 'P':
+				                 CHECK_NULL(vict_obj, OBJS((const OBJ_DATA *) vict_obj, to));
+				                 dg_victim = (CHAR_DATA *) vict_obj;
+				                 break;
+				*/
 			case 't':
 				CHECK_NULL(obj, (const char *) obj);
 				break;
@@ -1814,16 +1951,23 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 			while ((*buf = *(i++)))
 				buf++;
 			orig++;
-		} else if (*orig == '\\') {
-			if (*(orig + 1) == 'r') {
+		}
+		else if (*orig == '\\')
+		{
+			if (*(orig + 1) == 'r')
+			{
 				*(buf++) = '\r';
 				orig += 2;
-			} else if (*(orig + 1) == 'n') {
+			}
+			else if (*(orig + 1) == 'n')
+			{
 				*(buf++) = '\n';
 				orig += 2;
-			} else
+			}
+			else
 				*(buf++) = *(orig++);
-		} else if (!(*(buf++) = *(orig++)))
+		}
+		else if (!(*(buf++) = *(orig++)))
 			break;
 	}
 
@@ -1835,15 +1979,16 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 
 char *rustime(const struct tm *timeptr)
 {
-	static char mon_name[12][10] = {
+	static char mon_name[12][10] =
+	{
 		"Января\0", "Февраля\0", "Марта\0", "Апреля\0", "Мая\0", "Июня\0",
 		"Июля\0", "Августа\0", "Сентября\0", "Октября\0", "Ноября\0", "Декабря\0"
 	};
 	static char result[100];
 
 	sprintf(result, "%.2d:%.2d:%.2d %2d %s %d года",
-		timeptr->tm_hour,
-		timeptr->tm_min, timeptr->tm_sec, timeptr->tm_mday, mon_name[timeptr->tm_mon], 1900 + timeptr->tm_year);
+			timeptr->tm_hour,
+			timeptr->tm_min, timeptr->tm_sec, timeptr->tm_mday, mon_name[timeptr->tm_mon], 1900 + timeptr->tm_year);
 	return result;
 }
 
@@ -1860,17 +2005,22 @@ int roundup(float fl)
 
 void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 {
-	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
+	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
+	{
 		send_to_char("Вы не можете нести столько предметов.", ch);
 		obj_to_room(obj, IN_ROOM(ch));
 		obj_decay(obj);
-	} else {
-		if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(ch) > CAN_CARRY_W(ch)) {
+	}
+	else
+	{
+		if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(ch) > CAN_CARRY_W(ch))
+		{
 			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->PNames[3]);
 			send_to_char(buf, ch);
 			obj_to_room(obj, IN_ROOM(ch));
 			// obj_decay(obj);
-		} else
+		}
+		else
 			obj_to_char(obj, ch);
 	}
 }
@@ -1890,7 +2040,8 @@ bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 		return ignores(who, whom->master, flag);
 
 	ign_id = GET_IDNUM(whom);
-	for (; ignore; ignore = ignore->next) {
+	for (; ignore; ignore = ignore->next)
+	{
 		if ((ignore->id == ign_id || ignore->id == -1) && IS_SET(ignore->mode, flag))
 			return TRUE;
 	}
@@ -1900,35 +2051,36 @@ bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 //Gorrah
 int valid_email(const char *address)
 {
-        int i, size, count = 0;
+	int i, size, count = 0;
 	static string special_symbols("\r\n ()<>,;:\\\"[]|/&'`$");
-        string addr = address;
+	string addr = address;
 	string::size_type dog_pos = 0, pos = 0;
 
-        /* Наличие запрещенных символов или кириллицы */
+	/* Наличие запрещенных символов или кириллицы */
 	if (addr.find_first_of(special_symbols) != string::npos)
 		return 0;
-        size = 	addr.size();
+	size = 	addr.size();
 	for (i = 0; i < size; i++)
 		if (addr[i] <= ' ' || addr[i] >= 127)
-		    return 0;
+			return 0;
 	/* Собака должна быть только одна и на второй и далее позиции */
-	while ((pos = addr.find_first_of('@', pos)) != string::npos) {
-	    dog_pos = pos;
-	    ++count;
-	    ++pos;
+	while ((pos = addr.find_first_of('@', pos)) != string::npos)
+	{
+		dog_pos = pos;
+		++count;
+		++pos;
 	}
 	if (count != 1 || dog_pos == 0)
-	    return 0;
+		return 0;
 	/* Проверяем правильность синтаксиса домена */
 	/* В доменной части должно быть как минимум 4 символа, считая собаку */
 	if (size - dog_pos <= 3)
-	    return 0;
+		return 0;
 	/* Точка отсутствует, расположена сразу после собаки, или на последнем месте */
 	if (addr[dog_pos + 1] == '.' || addr[size - 1] == '.' || addr.find('.', dog_pos) == string::npos)
-	    return 0;
+		return 0;
 
-        return 1;
+	return 1;
 }
 
 /**
@@ -2043,7 +2195,7 @@ std::string time_format(int in_timer)
 		out << timer << " " << desc_count(in_timer, WHAT_MINa);
 	else if (timer < 1440)
 	{
-		sprintf(buffer, "%.1f", timer/60);
+		sprintf(buffer, "%.1f", timer / 60);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
@@ -2053,7 +2205,7 @@ std::string time_format(int in_timer)
 	}
 	else if (timer < 10080)
 	{
-		sprintf(buffer, "%.1f", timer/1440);
+		sprintf(buffer, "%.1f", timer / 1440);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
@@ -2063,7 +2215,7 @@ std::string time_format(int in_timer)
 	}
 	else if (timer < 44640)
 	{
-		sprintf(buffer, "%.1f", timer/10080);
+		sprintf(buffer, "%.1f", timer / 10080);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
@@ -2073,7 +2225,7 @@ std::string time_format(int in_timer)
 	}
 	else
 	{
-		sprintf(buffer, "%.1f", timer/44640);
+		sprintf(buffer, "%.1f", timer / 44640);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)

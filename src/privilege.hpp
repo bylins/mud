@@ -10,7 +10,8 @@
 #include <bitset>
 #include <map>
 
-namespace Privilege {
+namespace Privilege
+{
 
 void load();
 bool god_list_check(const std::string &name, long unique);

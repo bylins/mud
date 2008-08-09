@@ -33,11 +33,13 @@
 #include <stdio.h>
 #include <string>
 
-namespace DiskIo {
+namespace DiskIo
+{
 //using namespace std;
-	bool read_line(FILE * fl, std::string & line, bool cut_cr_lf);
+bool read_line(FILE * fl, std::string & line, bool cut_cr_lf);
 
-} typedef struct {
+} typedef struct
+{
 	char *buf;		/* start of buffer                      */
 	char *ptr;		/* current location pointer             */
 	int size;		/* size in bytes of buffer              */

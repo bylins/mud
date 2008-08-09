@@ -13,7 +13,8 @@
 
 typedef struct auction_data AUCTION_DATA;
 
-struct auction_data {
+struct auction_data
+{
 	int item_id;
 	OBJ_DATA *item;
 	int seller_unique;

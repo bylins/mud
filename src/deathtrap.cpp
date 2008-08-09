@@ -23,7 +23,8 @@ extern void death_cry(CHAR_DATA * ch);
 extern OBJ_DATA *make_corpse(CHAR_DATA * ch);
 extern void reset_affects(CHAR_DATA *ch);
 
-namespace DeathTrap {
+namespace DeathTrap
+{
 
 // список текущих слоу-дт в маде
 std::list<ROOM_DATA*> room_list;
@@ -73,15 +74,17 @@ void DeathTrap::activity()
 {
 	CHAR_DATA *ch, *next;
 
-	for(std::list<ROOM_DATA*>::const_iterator it = room_list.begin(); it != room_list.end(); ++it)
-		for (ch = (*it)->people; ch; ch = next) {
+	for (std::list<ROOM_DATA*>::const_iterator it = room_list.begin(); it != room_list.end(); ++it)
+		for (ch = (*it)->people; ch; ch = next)
+		{
 			next = ch->next_in_room;
 			if (!IS_NPC(ch) && (damage(ch, ch, MAX(1, GET_REAL_MAX_HIT(ch) >> 2), TYPE_ROOMDEATH, FALSE) < 0))
 				log("Player %s died in slow DT (room %d)", GET_NAME(ch), (*it)->number);
 		}
 }
 
-namespace OneWayPortal {
+namespace OneWayPortal
+{
 
 // список односторонних порталов <куда указывает, откуда поставлен>
 std::map<ROOM_DATA*, ROOM_DATA*> portal_list;
@@ -275,22 +278,25 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 {
 	if (IN_ROOM(ch) != NOWHERE && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		if ((ROOM_FLAGGED(ch->in_room, ROOM_DEATH) && !IS_IMMORTAL(ch)) ||
-		    (real_sector(IN_ROOM(ch)) == SECT_FLYING && !IS_NPC(ch)
-		     && !IS_GOD(ch) && !AFF_FLAGGED(ch, AFF_FLY))
-		    || (real_sector(IN_ROOM(ch)) == SECT_WATER_NOSWIM && !IS_NPC(ch)
-			&& !IS_GOD(ch) && !has_boat(ch))
-		    /*|| (real_sector(IN_ROOM(ch)) == SECT_UNDERWATER && !IS_NPC(ch) //Тут надо закомментить.
-			&& !IS_GOD(ch) && !AFF_FLAGGED(ch, AFF_WATERBREATH))*/) {
+				(real_sector(IN_ROOM(ch)) == SECT_FLYING && !IS_NPC(ch)
+				 && !IS_GOD(ch) && !AFF_FLAGGED(ch, AFF_FLY))
+				|| (real_sector(IN_ROOM(ch)) == SECT_WATER_NOSWIM && !IS_NPC(ch)
+					&& !IS_GOD(ch) && !has_boat(ch))
+				/*|| (real_sector(IN_ROOM(ch)) == SECT_UNDERWATER && !IS_NPC(ch) //Тут надо закомментить.
+				&& !IS_GOD(ch) && !AFF_FLAGGED(ch, AFF_WATERBREATH))*/)
+		{
 			OBJ_DATA *corpse;
 			DeathTrap::log_death_trap(ch);
-			if (RENTABLE(ch)) {
+			if (RENTABLE(ch))
+			{
 				die(ch, NULL);
 				GET_HIT(ch) = GET_MOVE(ch) = 0;
 				return TRUE;
 			}
 			death_cry(ch);
 			corpse = make_corpse(ch);
-			if (corpse != NULL) {
+			if (corpse != NULL)
+			{
 				obj_from_room(corpse);	// для того, чтобы удалилость все содержимое
 				extract_obj(corpse);
 			}

@@ -15,7 +15,7 @@ SPECIAL(exchange);
 
 
 typedef struct exchange_item_data
- EXCHANGE_ITEM_DATA;
+			EXCHANGE_ITEM_DATA;
 
 
 extern EXCHANGE_ITEM_DATA *exchange_item_list;
@@ -47,7 +47,8 @@ extern std::vector<bool> lot_usage;
 void extract_exchange_item(EXCHANGE_ITEM_DATA * item);
 void check_exchange(OBJ_DATA * obj);
 
-struct exchange_item_data {
+struct exchange_item_data
+{
 	int lot_id;		//Номер лота
 	int seller_id;		//Номер продавца
 	int obj_cost;		//цена лота

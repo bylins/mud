@@ -45,10 +45,11 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktyp
 extern int reloc_target;
 extern TRIG_DATA *cur_trig;
 
-struct wld_command_info {
+struct wld_command_info
+{
 	char *command;
 	void (*command_pointer)
-	 (room_data * room, char *argument, int cmd, int subcmd);
+	(room_data * room, char *argument, int cmd, int subcmd);
 	int subcmd;
 };
 
@@ -98,12 +99,14 @@ WCMD(do_wasound)
 
 	skip_spaces(&argument);
 
-	if (!*argument) {
+	if (!*argument)
+	{
 		wld_log(room, "wasound called with no argument");
 		return;
 	}
 
-	for (door = 0; door < NUM_OF_DIRS; door++) {
+	for (door = 0; door < NUM_OF_DIRS; door++)
+	{
 		EXIT_DATA *exit;
 
 		if ((exit = room->dir_option[door]) && (exit->to_room != NOWHERE) && room != world[exit->to_room])
@@ -130,30 +133,35 @@ WCMD(do_wsend)
 
 	msg = any_one_arg(argument, buf);
 
-	if (!*buf) {
+	if (!*buf)
+	{
 		wld_log(room, "wsend called with no args");
 		return;
 	}
 
 	skip_spaces(&msg);
 
-	if (!*msg) {
+	if (!*msg)
+	{
 		wld_log(room, "wsend called without a message");
 		return;
 	}
 
-	if ((ch = get_char_by_room(room, buf))) {
-		if (reloc_target != -1 && reloc_target != IN_ROOM(ch)) {
+	if ((ch = get_char_by_room(room, buf)))
+	{
+		if (reloc_target != -1 && reloc_target != IN_ROOM(ch))
+		{
 			sprintf(buf,
-				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
-				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
+					"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
+					GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
 			mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 		}
 		if (subcmd == SCMD_WSEND)
 			sub_write(msg, ch, TRUE, TO_CHAR);
 		else if (subcmd == SCMD_WECHOAROUND)
 			sub_write(msg, ch, TRUE, TO_ROOM);
-	} else
+	}
+	else
 		wld_log(room, "no target found for wsend");
 }
 
@@ -180,7 +188,8 @@ WCMD(do_wzoneecho)
 		wld_log(room, "wzoneecho called with too few args");
 	else if ((zone = real_zone(atoi(zone_name))) < 0)
 		wld_log(room, "wzoneecho called for nonexistant zone");
-	else {
+	else
+	{
 		sprintf(buf, "%s\r\n", msg);
 		send_to_zone(buf, zone);
 	}
@@ -196,35 +205,39 @@ WCMD(do_wdoor)
 	int dir, fd, to_room;
 
 	const char *door_field[] = { "purge",
-		"description",
-		"flags",
-		"key",
-		"name",
-		"room",
-		"\n"
-	};
+								 "description",
+								 "flags",
+								 "key",
+								 "name",
+								 "room",
+								 "\n"
+							   };
 
 
 	argument = two_arguments(argument, target, direction);
 	value = one_argument(argument, field);
 	skip_spaces(&value);
 
-	if (!*target || !*direction || !*field) {
+	if (!*target || !*direction || !*field)
+	{
 		wld_log(room, "wdoor called with too few args");
 		return;
 	}
 
-	if ((rm = get_room(target)) == NULL) {
+	if ((rm = get_room(target)) == NULL)
+	{
 		wld_log(room, "wdoor: invalid target");
 		return;
 	}
 
-	if ((dir = search_block(direction, dirs, FALSE)) == -1) {
+	if ((dir = search_block(direction, dirs, FALSE)) == -1)
+	{
 		wld_log(room, "wdoor: invalid direction");
 		return;
 	}
 
-	if ((fd = search_block(field, door_field, FALSE)) == -1) {
+	if ((fd = search_block(field, door_field, FALSE)) == -1)
+	{
 		wld_log(room, "wdoor: invalid field");
 		return;
 	}
@@ -232,8 +245,10 @@ WCMD(do_wdoor)
 	exit = rm->dir_option[dir];
 
 	/* purge exit */
-	if (fd == 0) {
-		if (exit) {
+	if (fd == 0)
+	{
+		if (exit)
+		{
 			if (exit->general_description)
 				free(exit->general_description);
 			if (exit->keyword)
@@ -243,8 +258,11 @@ WCMD(do_wdoor)
 			free(exit);
 			rm->dir_option[dir] = NULL;
 		}
-	} else {
-		if (!exit) {
+	}
+	else
+	{
+		if (!exit)
+		{
 			CREATE(exit, EXIT_DATA, 1);
 			rm->dir_option[dir] = exit;
 		}
@@ -252,7 +270,8 @@ WCMD(do_wdoor)
 		std::string buffer;
 		std::string::size_type i;
 
-		switch (fd) {
+		switch (fd)
+		{
 		case 1:	/* description */
 			if (exit->general_description)
 				free(exit->general_description);
@@ -273,10 +292,13 @@ WCMD(do_wdoor)
 				free(exit->vkeyword);
 			buffer = value;
 			i = buffer.find('|');
-			if (i != std::string::npos) {
-				exit->keyword = str_dup(buffer.substr(0,i).c_str());
+			if (i != std::string::npos)
+			{
+				exit->keyword = str_dup(buffer.substr(0, i).c_str());
 				exit->vkeyword = str_dup(buffer.substr(++i).c_str());
-			} else {
+			}
+			else
+			{
 				exit->keyword = str_dup(buffer.c_str());
 				exit->vkeyword = str_dup(buffer.c_str());
 			}
@@ -303,7 +325,8 @@ WCMD(do_wteleport)
 	argument = two_arguments(argument, arg1, arg2);
 	skip_spaces(&argument);
 
-	if (!*arg1 || !*arg2) {
+	if (!*arg1 || !*arg2)
+	{
 		wld_log(room, "wteleport called with too few args");
 		return;
 	}
@@ -313,16 +336,19 @@ WCMD(do_wteleport)
 
 	if (target == NOWHERE)
 		wld_log(room, "wteleport target is an invalid room");
-	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все")) {
-		if (nr == room->number) {
+	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все"))
+	{
+		if (nr == room->number)
+		{
 			wld_log(room, "wteleport all target is itself");
 			return;
 		}
-		for (ch = room->people; ch; ch = next_ch) {
+		for (ch = room->people; ch; ch = next_ch)
+		{
 			next_ch = ch->next_in_room;
 			if (IS_NPC(ch)
-			    && !(IS_HORSE(ch) || AFF_FLAGGED(ch, AFF_CHARM)
-				 || MOB_FLAGGED(ch, MOB_ANGEL)))
+					&& !(IS_HORSE(ch) || AFF_FLAGGED(ch, AFF_CHARM)
+						 || MOB_FLAGGED(ch, MOB_ANGEL)))
 				continue;
 			if (on_horse(ch) || has_horse(ch, TRUE))
 				horse = get_horse(ch);
@@ -330,7 +356,8 @@ WCMD(do_wteleport)
 				horse = NULL;
 			char_from_room(ch);
 			char_to_room(ch, target);
-			if (!str_cmp(argument, "horse") && horse) {
+			if (!str_cmp(argument, "horse") && horse)
+			{
 				if (horse == next_ch)
 					next_ch = horse->next_in_room;
 				char_from_room(horse);
@@ -339,30 +366,37 @@ WCMD(do_wteleport)
 			check_horse(ch);
 			look_at_room(ch, TRUE);
 		}
-	} else {
-		if ((ch = get_char_by_room(room, arg1))) {
+	}
+	else
+	{
+		if ((ch = get_char_by_room(room, arg1)))
+		{
 			if (on_horse(ch) || has_horse(ch, TRUE))
 				horse = get_horse(ch);
 			else
 				horse = NULL;
-			for (charmee = world[IN_ROOM(ch)]->people; charmee; charmee = ncharmee) {
+			for (charmee = world[IN_ROOM(ch)]->people; charmee; charmee = ncharmee)
+			{
 				ncharmee = charmee->next_in_room;
 				if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, AFF_CHARM)
-							|| MOB_FLAGGED(charmee, MOB_ANGEL))
-				    && charmee->master == ch) {
+										|| MOB_FLAGGED(charmee, MOB_ANGEL))
+						&& charmee->master == ch)
+				{
 					char_from_room(charmee);
 					char_to_room(charmee, target);
 				}
 			}
 			char_from_room(ch);
 			char_to_room(ch, target);
-			if (!str_cmp(argument, "horse") && horse) {
+			if (!str_cmp(argument, "horse") && horse)
+			{
 				char_from_room(horse);
 				char_to_room(horse, target);
 			}
 			check_horse(ch);
 			look_at_room(ch, TRUE);
-		} else
+		}
+		else
 			wld_log(room, "wteleport: no target found");
 	}
 }
@@ -375,24 +409,33 @@ WCMD(do_wforce)
 
 	line = one_argument(argument, arg1);
 
-	if (!*arg1 || !*line) {
+	if (!*arg1 || !*line)
+	{
 		wld_log(room, "wforce called with too few args");
 		return;
 	}
 
-	if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все")) {
-		for (ch = room->people; ch; ch = next_ch) {
+	if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все"))
+	{
+		for (ch = room->people; ch; ch = next_ch)
+		{
 			next_ch = ch->next_in_room;
-			if (GET_LEVEL(ch) < LVL_IMMORT) {
+			if (GET_LEVEL(ch) < LVL_IMMORT)
+			{
 				command_interpreter(ch, line);
 			}
 		}
-	} else {
-		if ((ch = get_char_by_room(room, arg1))) {
-			if (GET_LEVEL(ch) < LVL_IMMORT) {
+	}
+	else
+	{
+		if ((ch = get_char_by_room(room, arg1)))
+		{
+			if (GET_LEVEL(ch) < LVL_IMMORT)
+			{
 				command_interpreter(ch, line);
 			}
-		} else
+		}
+		else
 			wld_log(room, "wforce: no target found");
 	}
 }
@@ -406,14 +449,16 @@ WCMD(do_wexp)
 
 	two_arguments(argument, name, amount);
 
-	if (!*name || !*amount) {
+	if (!*name || !*amount)
+	{
 		wld_log(room, "wexp: too few arguments");
 		return;
 	}
 
 	if ((ch = get_char_by_room(room, name)))
 		gain_exp(ch, atoi(amount));
-	else {
+	else
+	{
 		wld_log(room, "wexp: target not found");
 		return;
 	}
@@ -430,17 +475,21 @@ WCMD(do_wpurge)
 
 	one_argument(argument, arg);
 
-	if (!*arg) {
-		for (ch = room->people; ch; ch = next_ch) {
+	if (!*arg)
+	{
+		for (ch = room->people; ch; ch = next_ch)
+		{
 			next_ch = ch->next_in_room;
-			if (IS_NPC(ch)) {
+			if (IS_NPC(ch))
+			{
 				if (ch->followers || ch->master)
 					die_follower(ch);
 				extract_char(ch, FALSE);
 			}
 		}
 
-		for (obj = room->contents; obj; obj = next_obj) {
+		for (obj = room->contents; obj; obj = next_obj)
+		{
 			next_obj = obj->next_content;
 			extract_obj(obj);
 		}
@@ -448,15 +497,19 @@ WCMD(do_wpurge)
 		return;
 	}
 
-	if (!(ch = get_char_by_room(room, arg))) {
-		if ((obj = get_obj_by_room(room, arg))) {
+	if (!(ch = get_char_by_room(room, arg)))
+	{
+		if ((obj = get_obj_by_room(room, arg)))
+		{
 			extract_obj(obj);
-		} else
+		}
+		else
 			wld_log(room, "wpurge: bad argument");
 		return;
 	}
 
-	if (!IS_NPC(ch)) {
+	if (!IS_NPC(ch))
+	{
 		wld_log(room, "wpurge: purging a PC");
 		return;
 	}
@@ -478,20 +531,26 @@ WCMD(do_wload)
 
 	two_arguments(argument, arg1, arg2);
 
-	if (!*arg1 || !*arg2 || !is_number(arg2) || ((number = atoi(arg2)) < 0)) {
+	if (!*arg1 || !*arg2 || !is_number(arg2) || ((number = atoi(arg2)) < 0))
+	{
 		wld_log(room, "wload: bad syntax");
 		return;
 	}
 
-	if (is_abbrev(arg1, "mob")) {
-		if ((mob = read_mobile(number, VIRTUAL)) == NULL) {
+	if (is_abbrev(arg1, "mob"))
+	{
+		if ((mob = read_mobile(number, VIRTUAL)) == NULL)
+		{
 			wld_log(room, "wload: bad mob vnum");
 			return;
 		}
 		char_to_room(mob, real_room(room->number));
 		load_mtrigger(mob);
-	} else if (is_abbrev(arg1, "obj")) {
-		if ((object = read_object(number, VIRTUAL)) == NULL) {
+	}
+	else if (is_abbrev(arg1, "obj"))
+	{
+		if ((object = read_object(number, VIRTUAL)) == NULL)
+		{
 			wld_log(room, "wload: bad object vnum");
 			return;
 		}
@@ -499,7 +558,8 @@ WCMD(do_wload)
 		GET_OBJ_ZONE(object) = world[real_room(room->number)]->zone;
 		obj_to_room(object, real_room(room->number));
 		load_otrigger(object);
-	} else
+	}
+	else
 		wld_log(room, "wload: bad type");
 }
 
@@ -519,35 +579,42 @@ WCMD(do_wdamage)
 
 	two_arguments(argument, name, amount);
 
-	if (!*name || !*amount || !isdigit(*amount)) {
+	if (!*name || !*amount || !isdigit(*amount))
+	{
 		wld_log(room, "wdamage: bad syntax");
 		return;
 	}
 
 	dam = atoi(amount);
 
-	if ((ch = get_char_by_room(room, name))) {
-		if (GET_LEVEL(ch) >= LVL_IMMORT && dam > 0) {
+	if ((ch = get_char_by_room(room, name)))
+	{
+		if (GET_LEVEL(ch) >= LVL_IMMORT && dam > 0)
+		{
 			send_to_char("Будучи бессмертным, Вы избежали повреждения...", ch);
 			return;
 		}
 		GET_HIT(ch) -= dam;
-		if (dam < 0) {
+		if (dam < 0)
+		{
 			send_to_char("Вам почувствовали себя лучше.\r\n", ch);
 			return;
 		}
 
 		update_pos(ch);
 		char_dam_message(dam, ch, ch, TYPE_UNDEFINED, 0);
-		if (GET_POS(ch) == POS_DEAD) {
-			if (!IS_NPC(ch)) {
+		if (GET_POS(ch) == POS_DEAD)
+		{
+			if (!IS_NPC(ch))
+			{
 				sprintf(buf2, "%s killed by a trap at %s", GET_NAME(ch),
-					IN_ROOM(ch) == NOWHERE ? "NOWHERE" : world[IN_ROOM(ch)]->name);
+						IN_ROOM(ch) == NOWHERE ? "NOWHERE" : world[IN_ROOM(ch)]->name);
 				mudlog(buf2, BRF, LVL_BUILDER, SYSLOG, TRUE);
 			}
 			die(ch, NULL);
 		}
-	} else
+	}
+	else
 		wld_log(room, "wdamage: target not found");
 }
 
@@ -561,13 +628,15 @@ WCMD(do_wat)
 
 	half_chop(argument, location, arg2);
 
-	if (!*location || !*arg2 || !isdigit(*location)) {
+	if (!*location || !*arg2 || !isdigit(*location))
+	{
 		wld_log(room, "wat: bad syntax");
 		return;
 	}
 	vnum = atoi(location);
 	rnum = real_room(vnum);
-	if (NOWHERE == rnum) {
+	if (NOWHERE == rnum)
+	{
 		wld_log(room, "wat: location not found");
 		return;
 	}
@@ -586,19 +655,21 @@ WCMD(do_wfeatturn)
 
 	one_argument(two_arguments(argument, name, featname), amount);
 
-	if (!*name || !*featname || !*amount) {
+	if (!*name || !*featname || !*amount)
+	{
 		wld_log(room, "wfeatturn: too few arguments");
 		return;
 	}
 
 	while ((pos = strchr(featname, '.')))
-		*pos = ' ';
+		* pos = ' ';
 	while ((pos = strchr(featname, '_')))
-		*pos = ' ';
+		* pos = ' ';
 
 	if ((featnum = find_feat_num(featname)) > 0 && featnum <= MAX_SKILLS)
 		isFeat = 1;
-	else {
+	else
+	{
 		wld_log(room, "wfeatturn: feature not found");
 		return;
 	}
@@ -607,12 +678,14 @@ WCMD(do_wfeatturn)
 		featdiff = 1;
 	else if (!str_cmp(amount, "clear"))
 		featdiff = 0;
-	else {
+	else
+	{
 		wld_log(room, "wfeatturn: unknown set variable");
 		return;
 	}
 
-	if (!(ch = get_char_by_room(room, name))) {
+	if (!(ch = get_char_by_room(room, name)))
+	{
 		wld_log(room, "wfeatturn: target not found");
 		return;
 	}
@@ -630,19 +703,21 @@ WCMD(do_wskillturn)
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
-	if (!*name || !*skillname || !*amount) {
+	if (!*name || !*skillname || !*amount)
+	{
 		wld_log(room, "wskillturn: too few arguments");
 		return;
 	}
 
 	while ((pos = strchr(skillname, '.')))
-		*pos = ' ';
+		* pos = ' ';
 	while ((pos = strchr(skillname, '_')))
-		*pos = ' ';
+		* pos = ' ';
 
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILLS)
 		isSkill = 1;
-	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0) {
+	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0)
+	{
 		wld_log(room, "wskillturn: skill/recipe not found");
 		return;
 	}
@@ -651,12 +726,14 @@ WCMD(do_wskillturn)
 		skilldiff = 1;
 	else if (!str_cmp(amount, "clear"))
 		skilldiff = 0;
-	else {
+	else
+	{
 		wld_log(room, "wskillturn: unknown set variable");
 		return;
 	}
 
-	if (!(ch = get_char_by_room(room, name))) {
+	if (!(ch = get_char_by_room(room, name)))
+	{
 		wld_log(room, "wskillturn: target not found");
 		return;
 	}
@@ -677,26 +754,29 @@ WCMD(do_wskilladd)
 
 	one_argument(two_arguments(argument, name, skillname), amount);
 
-	if (!*name || !*skillname || !*amount) {
+	if (!*name || !*skillname || !*amount)
+	{
 		wld_log(room, "wskilladd: too few arguments");
 		return;
 	}
 
 	while ((pos = strchr(skillname, '.')))
-		*pos = ' ';
+		* pos = ' ';
 	while ((pos = strchr(skillname, '_')))
-		*pos = ' ';
+		* pos = ' ';
 
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILLS)
 		isSkill = 1;
-	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0) {
+	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0)
+	{
 		wld_log(room, "wskilladd: skill/recipe not found");
 		return;
 	}
 
 	skilldiff = atoi(amount);
 
-	if ((ch = get_char_by_room(room, name))) {
+	if ((ch = get_char_by_room(room, name)))
+	{
 		wld_log(room, "wskilladd: target not found");
 		return;
 	}
@@ -721,15 +801,17 @@ WCMD(do_wspellturn)
 	two_arguments(argument, spellname, amount);
 
 
-	if (!*name || !*spellname || !*amount) {
+	if (!*name || !*spellname || !*amount)
+	{
 		wld_log(room, "wspellturn: too few arguments");
 		return;
 	}
 
 	if ((pos = strchr(spellname, '.')))
-		*pos = ' ';
+		* pos = ' ';
 
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS) {
+	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	{
 		wld_log(room, "wspellturn: spell not found");
 		return;
 	}
@@ -738,14 +820,18 @@ WCMD(do_wspellturn)
 		spelldiff = 1;
 	else if (!str_cmp(amount, "clear"))
 		spelldiff = 0;
-	else {
+	else
+	{
 		wld_log(room, "wspellturn: unknown set variable");
 		return;
 	}
 
-	if ((ch = get_char_by_room(room, name))) {
+	if ((ch = get_char_by_room(room, name)))
+	{
 		trg_spellturn(ch, spellnum, spelldiff);
-	} else {
+	}
+	else
+	{
 		wld_log(room, "wspellturn: target not found");
 		return;
 	}
@@ -760,24 +846,29 @@ WCMD(do_wspelladd)
 
 	one_argument(two_arguments(argument, name, spellname), amount);
 
-	if (!*name || !*spellname || !*amount) {
+	if (!*name || !*spellname || !*amount)
+	{
 		wld_log(room, "wspelladd: too few arguments");
 		return;
 	}
 
 	if ((pos = strchr(spellname, '.')))
-		*pos = ' ';
+		* pos = ' ';
 
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS) {
+	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	{
 		wld_log(room, "wspelladd: spell not found");
 		return;
 	}
 
 	spelldiff = atoi(amount);
 
-	if ((ch = get_char_by_room(room, name))) {
+	if ((ch = get_char_by_room(room, name)))
+	{
 		trg_spelladd(ch, spellnum, spelldiff);
-	} else {
+	}
+	else
+	{
 		wld_log(room, "wspelladd: target not found");
 		return;
 	}
@@ -791,15 +882,17 @@ WCMD(do_wspellitem)
 
 	two_arguments(two_arguments(argument, name, spellname), type, turn);
 
-	if (!*name || !*spellname || !*type || !*turn) {
+	if (!*name || !*spellname || !*type || !*turn)
+	{
 		wld_log(room, "wspellitem: too few arguments");
 		return;
 	}
 
 	if ((pos = strchr(spellname, '.')))
-		*pos = ' ';
+		* pos = ' ';
 
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS) {
+	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	{
 		wld_log(room, "wspellitem: spell not found");
 		return;
 	}
@@ -814,7 +907,8 @@ WCMD(do_wspellitem)
 		spell = SPELL_ITEMS;
 	else if (!str_cmp(type, "runes"))
 		spell = SPELL_RUNES;
-	else {
+	else
+	{
 		wld_log(room, "wspellitem: type spell not found");
 		return;
 	}
@@ -823,14 +917,18 @@ WCMD(do_wspellitem)
 		spelldiff = 1;
 	else if (!str_cmp(turn, "clear"))
 		spelldiff = 0;
-	else {
+	else
+	{
 		wld_log(room, "wspellitem: unknown set variable");
 		return;
 	}
 
-	if ((ch = get_char_by_room(room, name))) {
+	if ((ch = get_char_by_room(room, name)))
+	{
 		trg_spellitem(ch, spellnum, spelldiff, spell);
-	} else {
+	}
+	else
+	{
 		wld_log(room, "wspellitem: target not found");
 		return;
 	}
@@ -847,7 +945,8 @@ WCMD(do_wportal)
 	argument = two_arguments(argument, arg1, arg2);
 	skip_spaces(&argument);
 
-	if (!*arg1 || !*arg2) {
+	if (!*arg1 || !*arg2)
+	{
 		wld_log(room, "wportal: called with too few args");
 		return;
 	}
@@ -856,7 +955,8 @@ WCMD(do_wportal)
 	nr = atoi(arg1);
 	target = real_room(nr);
 
-	if (target == NOWHERE) {
+	if (target == NOWHERE)
+	{
 		wld_log(room, "wportal: target is an invalid room");
 		return;
 	}
@@ -871,7 +971,8 @@ WCMD(do_wportal)
 	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->people, 0, 0, TO_ROOM);
 }
 
-const struct wld_command_info wld_cmd_info[] = {
+const struct wld_command_info wld_cmd_info[] =
+{
 	{"RESERVED", 0, 0},	/* this must be first -- for specprocs */
 
 	{"wasound", do_wasound, 0},
@@ -920,10 +1021,12 @@ void wld_command_interpreter(room_data * room, char *argument)
 		if (!strncmp(wld_cmd_info[cmd].command, arg, length))
 			break;
 
-	if (*wld_cmd_info[cmd].command == '\n') {
+	if (*wld_cmd_info[cmd].command == '\n')
+	{
 		sprintf(buf2, "Unknown world cmd: '%s'", argument);
 		wld_log(room, buf2);
-	} else
+	}
+	else
 		((*wld_cmd_info[cmd].command_pointer)
-		 (room, line, cmd, wld_cmd_info[cmd].subcmd));
+				(room, line, cmd, wld_cmd_info[cmd].subcmd));
 }

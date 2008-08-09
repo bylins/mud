@@ -43,7 +43,8 @@
 * </gods>
 * Формат файла временный, zone.ru там грозится своим форматом на lua, а xml в очередной раз решено не воротить, хотя и хотелось...
 */
-namespace Privilege {
+namespace Privilege
+{
 
 const int NEWS_MAKER = 0;
 const int USE_SKILLS = 1;
@@ -58,8 +59,9 @@ const int FLAGS_NUM = 7;
 
 typedef std::set<std::string> PrivListType;
 
-class GodListNode {
-	public:
+class GodListNode
+{
+public:
 	std::string name; // имя
 	PrivListType set; // доступные подкоманды set
 	PrivListType show; // доступные подкоманды show
@@ -113,14 +115,16 @@ void parse_flags(const std::string &command)
 */
 void insert_command(const std::string &command, int fill_mode, int other_flags)
 {
-	if (other_flags == 1) {
+	if (other_flags == 1)
+	{
 		// в арену пишется только аналог общего списка, я не знаю зачем на арене set или show
 		if (!fill_mode)
 			tmp_god.arena.insert(command);
 		return;
 	}
 
-	switch (fill_mode) {
+	switch (fill_mode)
+	{
 	case 0:
 		tmp_god.other.insert(command);
 		break;
@@ -130,9 +134,11 @@ void insert_command(const std::string &command, int fill_mode, int other_flags)
 	case 2:
 		tmp_god.show.insert(command);
 		break;
-	case 3: {
+	case 3:
+	{
 		std::map<std::string, std::string>::const_iterator it = group_list.find(command);
-		if (it != group_list.end()) {
+		if (it != group_list.end())
+		{
 			if (command == "arena")
 				parse_command_line(it->second, 1);
 			else
@@ -174,19 +180,28 @@ void parse_command_line(const std::string &commands, int other_flags)
 	int fill_mode = 0;
 	tokens.assign(commands);
 	if (tokens.begin() == tokens.end()) return;
-	for (tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter) {
-		if ((*tok_iter) == "(") {
-			if ((*tmp_tok_iter) == "set") {
+	for (tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
+	{
+		if ((*tok_iter) == "(")
+		{
+			if ((*tmp_tok_iter) == "set")
+			{
 				fill_mode = 1;
 				continue;
-			} else if ((*tmp_tok_iter) == "show") {
+			}
+			else if ((*tmp_tok_iter) == "show")
+			{
 				fill_mode = 2;
 				continue;
-			} else if ((*tmp_tok_iter) == "groups") {
+			}
+			else if ((*tmp_tok_iter) == "groups")
+			{
 				fill_mode = 3;
 				continue;
 			}
-		} else if ((*tok_iter) == ")") {
+		}
+		else if ((*tok_iter) == ")")
+		{
 			fill_mode = 0;
 			continue;
 		}
@@ -199,9 +214,11 @@ void parse_command_line(const std::string &commands, int other_flags)
 /**
 * Лоад и релоад файла привилегий (reload privilege) с последующим проставлением блокнотов иммам.
 */
-void load() {
+void load()
+{
 	std::ifstream file(PRIVILEGE_FILE);
-	if (!file.is_open()) {
+	if (!file.is_open())
+	{
 		log("Error open file: %s! (%s %s %d)", PRIVILEGE_FILE, __FILE__, __func__, __LINE__);
 		return;
 	}
@@ -210,12 +227,17 @@ void load() {
 	std::string name, commands, temp;
 	long uid;
 
-	while (file >> name) {
-		if (name == "#") {
+	while (file >> name)
+	{
+		if (name == "#")
+		{
 			ReadEndString(file);
 			continue;
-		} else if (name == "<groups>") {
-			while (file >> name) {
+		}
+		else if (name == "<groups>")
+		{
+			while (file >> name)
+			{
 				if (name == "</groups>")
 					break;
 				file >> temp; // "="
@@ -225,8 +247,11 @@ void load() {
 				continue;
 			}
 			continue;
-		} else if (name == "<gods>") {
-			while (file >> name) {
+		}
+		else if (name == "<gods>")
+		{
+			while (file >> name)
+			{
 				if (name == "</gods>")
 					break;
 				file >> uid;
@@ -271,7 +296,8 @@ bool god_list_check(const std::string &name, long unique)
 void load_god_boards()
 {
 	Board::clear_god_boards();
-	for (GodListType::const_iterator god = god_list.begin(); god != god_list.end(); ++god) {
+	for (GodListType::const_iterator god = god_list.begin(); god != god_list.end(); ++god)
+	{
 		int level = get_level_by_unique(god->first);
 		if (level < LVL_IMMORT) continue;
 		// если это имм - делаем блокнот
@@ -301,20 +327,20 @@ bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int
 			return true;
 		switch (mode)
 		{
-			case 0:
-				if (it->second.other.find(cmd_name) != it->second.other.end())
-					return true;
-				break;
-			case 1:
-				if (it->second.set.find(cmd_name) != it->second.set.end())
+		case 0:
+			if (it->second.other.find(cmd_name) != it->second.other.end())
 				return true;
-				break;
-			case 2:
-				if (it->second.show.find(cmd_name) != it->second.show.end())
-					return true;
-				break;
-			default:
-				break;
+			break;
+		case 1:
+			if (it->second.set.find(cmd_name) != it->second.set.end())
+				return true;
+			break;
+		case 2:
+			if (it->second.show.find(cmd_name) != it->second.show.end())
+				return true;
+			break;
+		default:
+			break;
 		}
 		// на арене доступны команды из группы arena_master
 		if (!mode && ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) && it->second.arena.find(cmd_name) != it->second.arena.end())

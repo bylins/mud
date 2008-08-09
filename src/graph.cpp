@@ -48,7 +48,8 @@ void bfs_clear_queue(void);
 int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch);
 ACMD(do_track);
 
-struct bfs_queue_struct {
+struct bfs_queue_struct
+{
 	room_rnum room;
 	char dir;
 };
@@ -94,7 +95,8 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 	int curr_dir, edge, through_doors;
 	room_rnum curr_room, rnum_start = FIRST_ROOM, rnum_stop = top_of_world;
 
-	if (src < FIRST_ROOM || src > top_of_world || target < FIRST_ROOM || target > top_of_world) {
+	if (src < FIRST_ROOM || src > top_of_world || target < FIRST_ROOM || target > top_of_world)
+	{
 		log("SYSERR: Illegal value %d or %d passed to find_first_step. (%s)", src, target, __FILE__);
 		return (BFS_ERROR);
 	}
@@ -103,7 +105,8 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 		return (BFS_ALREADY_THERE);
 
 	// clear marks first, some OLC systems will save the mark.
-	if (IS_NPC(ch)) {
+	if (IS_NPC(ch))
+	{
 		// Запрещаем искать мобам  в другой зоне ...
 		if (world[src]->zone != world[target]->zone)
 			return (BFS_ERROR);
@@ -112,7 +115,9 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 		// Запрещаем мобам искать через двери ...
 		through_doors = FALSE;
 		edge = EDGE_ZONE;
-	} else {
+	}
+	else
+	{
 		// Игроки полноценно ищут в мире.
 		through_doors = TRUE;
 		edge = EDGE_WORLD;
@@ -129,21 +134,28 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 
 	// first, enqueue the first steps, saving which direction we're going.
 	for (curr_dir = 0; curr_dir < NUM_OF_DIRS; curr_dir++)
-		if (VALID_EDGE(src, curr_dir, edge, through_doors)) {
+		if (VALID_EDGE(src, curr_dir, edge, through_doors))
+		{
 			MARK(TOROOM(src, curr_dir));
 			temp_queue.room = TOROOM(src, curr_dir);
 			temp_queue.dir = curr_dir;
 			bfs_queue.push_back(temp_queue);
 		}
 	// now, do the classic BFS.
-	for (unsigned int i = 0; i < bfs_queue.size(); ++i) {
-		if (bfs_queue[i].room == target) {
+	for (unsigned int i = 0; i < bfs_queue.size(); ++i)
+	{
+		if (bfs_queue[i].room == target)
+		{
 			curr_dir = bfs_queue[i].dir;
 			bfs_queue.clear();
 			return curr_dir;
-		} else {
-			for (curr_dir = 0; curr_dir < NUM_OF_DIRS; curr_dir++) {
-				if (VALID_EDGE(bfs_queue[i].room, curr_dir, edge, through_doors)) {
+		}
+		else
+		{
+			for (curr_dir = 0; curr_dir < NUM_OF_DIRS; curr_dir++)
+			{
+				if (VALID_EDGE(bfs_queue[i].room, curr_dir, edge, through_doors))
+				{
 					MARK(TOROOM(bfs_queue[i].room, curr_dir));
 					temp_queue.room = TOROOM(bfs_queue[i].room, curr_dir);
 					temp_queue.dir = bfs_queue[i].dir;
@@ -166,17 +178,20 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no)
 {
 	int percent, dir;
 
-	if (AFF_FLAGGED(victim, AFF_NOTRACK) && (skill_no != SKILL_SENSE)) {
+	if (AFF_FLAGGED(victim, AFF_NOTRACK) && (skill_no != SKILL_SENSE))
+	{
 		return BFS_ERROR;
 	}
 
 	/* 101 is a complete failure, no matter what the proficiency. */
 	percent = number(0, skill_info[skill_no].max_percent);
 
-	if (percent > calculate_skill(ch, skill_no, skill_info[skill_no].max_percent, victim)) {
+	if (percent > calculate_skill(ch, skill_no, skill_info[skill_no].max_percent, victim))
+	{
 		int tries = 10;
 		/* Find a random direction. :) */
-		do {
+		do
+		{
 			dir = number(0, NUM_OF_DIRS - 1);
 		}
 		while (!CAN_GO(ch, dir) && --tries);
@@ -193,12 +208,14 @@ ACMD(do_sense)
 	int dir;
 
 	/* The character must have the track skill. */
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_SENSE)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_SENSE))
+	{
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, AFF_BLIND))
+	{
 		send_to_char("Вы слепы как крот.\r\n", ch);
 		return;
 	}
@@ -208,12 +225,14 @@ ACMD(do_sense)
 
 	one_argument(argument, arg);
 
-	if (!*arg) {
+	if (!*arg)
+	{
 		send_to_char("Кого Вы хотите найти ?\r\n", ch);
 		return;
 	}
 	/* The person can't see the victim. */
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_WORLD))) {
+	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)))
+	{
 		send_to_char("Ваши чувства молчат.\r\n", ch);
 		return;
 	}
@@ -226,7 +245,8 @@ ACMD(do_sense)
 
 	dir = go_track(ch, vict, SKILL_SENSE);
 
-	switch (dir) {
+	switch (dir)
+	{
 	case BFS_ERROR:
 		strcpy(buf, "Хммм.. Ваше чувство подвело Вас.");
 		break;
@@ -245,13 +265,13 @@ ACMD(do_sense)
 }
 
 const char *track_when[] = { "совсем свежие",
-	"свежие",
-	"менее полудневной давности",
-	"примерно полудневной давности",
-	"почти дневной давности",
-	"примерно дневной давности",
-	"совсем старые"
-};
+							 "свежие",
+							 "менее полудневной давности",
+							 "примерно полудневной давности",
+							 "почти дневной давности",
+							 "примерно дневной давности",
+							 "совсем старые"
+						   };
 
 #define CALC_TRACK(ch,vict) (calculate_skill(ch,SKILL_TRACK,skill_info[SKILL_TRACK].max_percent,0))
 
@@ -259,7 +279,8 @@ int age_track(CHAR_DATA * ch, int time, int calc_track)
 {
 	int when = 0;
 
-	if (calc_track >= number(1, 50)) {
+	if (calc_track >= number(1, 50))
+	{
 		if (time & 0x03)	/* 2 */
 			when = 0;
 		else if (time & 0x1F)	/* 5 */
@@ -274,7 +295,8 @@ int age_track(CHAR_DATA * ch, int time, int calc_track)
 			when = 5;
 		else
 			when = 6;
-	} else
+	}
+	else
 		when = number(0, 6);
 	return (when);
 }
@@ -288,12 +310,14 @@ ACMD(do_track)
 	char name[MAX_INPUT_LENGTH];
 
 	/* The character must have the track skill. */
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_TRACK)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_TRACK))
+	{
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, AFF_BLIND))
+	{
 		send_to_char("Вы слепы как крот.\r\n", ch);
 		return;
 	}
@@ -306,27 +330,33 @@ ACMD(do_track)
 	one_argument(argument, arg);
 
 	/* No argument - show all */
-	if (!*arg) {
-		for (track = world[IN_ROOM(ch)]->track; track; track = track->next) {
+	if (!*arg)
+	{
+		for (track = world[IN_ROOM(ch)]->track; track; track = track->next)
+		{
 			*name = '\0';
 			if (IS_SET(track->track_info, TRACK_NPC))
 				strcpy(name, GET_NAME(mob_proto + track->who));
 			else
-				for (c = 0; c <= top_of_p_table; c++) {
-					if (player_table[c].id == track->who) {
+				for (c = 0; c <= top_of_p_table; c++)
+				{
+					if (player_table[c].id == track->who)
+					{
 						strcpy(name, player_table[c].name);
 						break;
 					}
 				}
 
-			if (*name && calc_track > number(1, 40)) {
+			if (*name && calc_track > number(1, 40))
+			{
 				CAP(name);
-				for (track_t = i = 0; i < NUM_OF_DIRS; i++) {
+				for (track_t = i = 0; i < NUM_OF_DIRS; i++)
+				{
 					track_t |= track->time_outgone[i];
 					track_t |= track->time_income[i];
 				}
 				sprintf(buf, "%s : следы %s.\r\n", name,
-					track_when[age_track(ch, track_t, calc_track)]);
+						track_when[age_track(ch, track_t, calc_track)]);
 				send_to_char(buf, ch);
 				found = TRUE;
 			}
@@ -336,19 +366,22 @@ ACMD(do_track)
 		return;
 	}
 
-	if ((vict = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
+	if ((vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
+	{
 		act("Вы же в одной комнате с $N4!", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
 
 	/* found victim */
-	for (track = world[IN_ROOM(ch)]->track; track; track = track->next) {
+	for (track = world[IN_ROOM(ch)]->track; track; track = track->next)
+	{
 		*name = '\0';
 		if (IS_SET(track->track_info, TRACK_NPC))
 			strcpy(name, GET_NAME(mob_proto + track->who));
 		else
 			for (c = 0; c <= top_of_p_table; c++)
-				if (player_table[c].id == track->who) {
+				if (player_table[c].id == track->who)
+				{
 					strcpy(name, player_table[c].name);
 					break;
 				}
@@ -358,7 +391,8 @@ ACMD(do_track)
 			*name = '\0';
 	}
 
-	if (calc_track < number(1, 40) || !*name || ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK)) {
+	if (calc_track < number(1, 40) || !*name || ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK))
+	{
 		send_to_char("Вы не видите похожих следов.\r\n", ch);
 		return;
 	}
@@ -367,31 +401,35 @@ ACMD(do_track)
 	CAP(name);
 	sprintf(buf, "%s:\r\n", name);
 
-	for (c = 0; c < NUM_OF_DIRS; c++) {
+	for (c = 0; c < NUM_OF_DIRS; c++)
+	{
 		if ((track && track->time_income[c]
-		     && calc_track >= number(0, skill_info[SKILL_TRACK].max_percent))
-		    || (!track && calc_track < number(0, skill_info[SKILL_TRACK].max_percent))) {
+				&& calc_track >= number(0, skill_info[SKILL_TRACK].max_percent))
+				|| (!track && calc_track < number(0, skill_info[SKILL_TRACK].max_percent)))
+		{
 			found = TRUE;
 			sprintf(buf + strlen(buf), "- %s следы ведут %s\r\n",
-				track_when[age_track
-					   (ch,
-					    track ? track->
-					    time_income[c] : (1 << number(0, 25)), calc_track)], DirsFrom[Reverse[c]]);
+					track_when[age_track
+							   (ch,
+								track ? track->
+								time_income[c] : (1 << number(0, 25)), calc_track)], DirsFrom[Reverse[c]]);
 		}
 		if ((track && track->time_outgone[c]
-		     && calc_track >= number(0, skill_info[SKILL_TRACK].max_percent))
-		    || (!track && calc_track < number(0, skill_info[SKILL_TRACK].max_percent))) {
+				&& calc_track >= number(0, skill_info[SKILL_TRACK].max_percent))
+				|| (!track && calc_track < number(0, skill_info[SKILL_TRACK].max_percent)))
+		{
 			found = TRUE;
 			SET_BIT(ch->track_dirs, 1 << c);
 			sprintf(buf + strlen(buf), "- %s следы ведут %s\r\n",
-				track_when[age_track
-					   (ch,
-					    track ? track->
-					    time_outgone[c] : (1 << number(0, 25)), calc_track)], DirsTo[c]);
+					track_when[age_track
+							   (ch,
+								track ? track->
+								time_outgone[c] : (1 << number(0, 25)), calc_track)], DirsTo[c]);
 		}
 	}
 
-	if (!found) {
+	if (!found)
+	{
 		sprintf(buf, "След неожиданно оборвался.\r\n");
 	}
 	send_to_char(buf, ch);
@@ -404,23 +442,27 @@ ACMD(do_hidetrack)
 	struct track_data *track[NUM_OF_DIRS + 1], *temp;
 	int percent, prob, i, croom, found = FALSE, dir, rdir;
 
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_HIDETRACK)) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_HIDETRACK))
+	{
 		send_to_char("Но Вы не знаете как.\r\n", ch);
 		return;
 	}
 
 	croom = IN_ROOM(ch);
 
-	for (dir = 0; dir < NUM_OF_DIRS; dir++) {
+	for (dir = 0; dir < NUM_OF_DIRS; dir++)
+	{
 		track[dir] = NULL;
 		rdir = Reverse[dir];
 		if (EXITDATA(croom, dir) &&
-		    EXITDATA(EXITDATA(croom, dir)->to_room, rdir) &&
-		    EXITDATA(EXITDATA(croom, dir)->to_room, rdir)->to_room == croom) {
+				EXITDATA(EXITDATA(croom, dir)->to_room, rdir) &&
+				EXITDATA(EXITDATA(croom, dir)->to_room, rdir)->to_room == croom)
+		{
 			for (temp = world[EXITDATA(croom, dir)->to_room]->track; temp; temp = temp->next)
 				if (!IS_SET(temp->track_info, TRACK_NPC)
-				    && GET_IDNUM(ch) == temp->who && !IS_SET(temp->track_info, TRACK_HIDE)
-				    && IS_SET(temp->time_outgone[rdir], 3)) {
+						&& GET_IDNUM(ch) == temp->who && !IS_SET(temp->track_info, TRACK_HIDE)
+						&& IS_SET(temp->time_outgone[rdir], 3))
+				{
 					found = TRUE;
 					track[dir] = temp;
 					break;
@@ -431,13 +473,15 @@ ACMD(do_hidetrack)
 	track[NUM_OF_DIRS] = NULL;
 	for (temp = world[IN_ROOM(ch)]->track; temp; temp = temp->next)
 		if (!IS_SET(temp->track_info, TRACK_NPC) &&
-		    GET_IDNUM(ch) == temp->who && !IS_SET(temp->track_info, TRACK_HIDE)) {
+				GET_IDNUM(ch) == temp->who && !IS_SET(temp->track_info, TRACK_HIDE))
+		{
 			found = TRUE;
 			track[NUM_OF_DIRS] = temp;
 			break;
 		}
 
-	if (!found) {
+	if (!found)
+	{
 		send_to_char("Вы не видите своих следов.\r\n", ch);
 		return;
 	}
@@ -445,21 +489,26 @@ ACMD(do_hidetrack)
 		return;
 	percent = number(1, skill_info[SKILL_HIDETRACK].max_percent);
 	prob = calculate_skill(ch, SKILL_HIDETRACK, skill_info[SKILL_HIDETRACK].max_percent, 0);
-	if (percent > prob) {
+	if (percent > prob)
+	{
 		send_to_char("Вы безуспешно попытались замести свои следы.\r\n", ch);
 		if (!number(0, 25 - timed_by_skill(ch, SKILL_HIDETRACK) ? 0 : 15))
 			improove_skill(ch, SKILL_HIDETRACK, FALSE, 0);
-	} else {
+	}
+	else
+	{
 		send_to_char("Вы успешно замели свои следы.\r\n", ch);
 		if (!number(0, 25 - timed_by_skill(ch, SKILL_HIDETRACK) ? 0 : 15))
 			improove_skill(ch, SKILL_HIDETRACK, TRUE, 0);
 		prob -= percent;
 		for (i = 0; i <= NUM_OF_DIRS; i++)
-			if (track[i]) {
+			if (track[i])
+			{
 				if (i < NUM_OF_DIRS)
 					track[i]->time_outgone[Reverse[i]] <<= MIN(31, prob);
 				else
-					for (rdir = 0; rdir < NUM_OF_DIRS; rdir++) {
+					for (rdir = 0; rdir < NUM_OF_DIRS; rdir++)
+					{
 						track[i]->time_income[rdir] <<= MIN(31, prob);
 						track[i]->time_outgone[rdir] <<= MIN(31, prob);
 					}

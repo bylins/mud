@@ -50,12 +50,14 @@ int find_action(char *cmd)
 	if (top < 0 || !len)
 		return (-1);
 
-	for (;;) {
+	for (;;)
+	{
 		mid = (bot + top) / 2;
 
 		if (bot > top)
 			return (-1);
-		if (!(chk = strn_cmp(cmd, soc_keys_list[mid].keyword, len))) {
+		if (!(chk = strn_cmp(cmd, soc_keys_list[mid].keyword, len)))
+		{
 			while (mid > 0 && !strn_cmp(cmd, soc_keys_list[mid - 1].keyword, len))
 				mid--;
 			return (soc_keys_list[mid].social_message);
@@ -81,7 +83,8 @@ int do_social(CHAR_DATA * ch, char *argument)
 	if (!argument || !*argument)
 		return (FALSE);
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
+	{
 		send_to_char("Боги наказали Вас и Вы не можете выражать эмоции!\r\n", ch);
 		return (FALSE);
 	}
@@ -92,7 +95,8 @@ int do_social(CHAR_DATA * ch, char *argument)
 		return (FALSE);
 
 	action = &soc_mess_list[act_nr];
-	if (GET_POS(ch) < action->ch_min_pos || GET_POS(ch) > action->ch_max_pos) {
+	if (GET_POS(ch) < action->ch_min_pos || GET_POS(ch) > action->ch_max_pos)
+	{
 		send_to_char("Вам крайне неудобно это сделать.\r\n", ch);
 		return (TRUE);
 	}
@@ -102,10 +106,12 @@ int do_social(CHAR_DATA * ch, char *argument)
 	else
 		*buf = '\0';
 
-	if (!*buf) {
+	if (!*buf)
+	{
 		send_to_char(action->char_no_arg, ch);
 		send_to_char("\r\n", ch);
-		for (to = world[ch->in_room]->people; to; to = to->next_in_room) {
+		for (to = world[ch->in_room]->people; to; to = to->next_in_room)
+		{
 			if (to == ch || ignores(to, ch, IGNORE_EMOTE))
 				continue;
 			act(action->others_no_arg, FALSE, ch, 0, to, TO_VICT | CHECK_DEAF);
@@ -113,23 +119,30 @@ int do_social(CHAR_DATA * ch, char *argument)
 		}
 		return (TRUE);
 	}
-	if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM))) {
+	if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)))
+	{
 		send_to_char(action->not_found ? action->not_found :
-			     "Поищите кого-нибудь более доступного для этих целей.\r\n", ch);
+					 "Поищите кого-нибудь более доступного для этих целей.\r\n", ch);
 		send_to_char("\r\n", ch);
-	} else if (vict == ch) {
+	}
+	else if (vict == ch)
+	{
 		send_to_char(action->char_no_arg, ch);
 		send_to_char("\r\n", ch);
-		for (to = world[ch->in_room]->people; to; to = to->next_in_room) {
+		for (to = world[ch->in_room]->people; to; to = to->next_in_room)
+		{
 			if (to == ch || ignores(to, ch, IGNORE_EMOTE))
 				continue;
 			act(action->others_no_arg, FALSE, ch, 0, to, TO_VICT | CHECK_DEAF);
 			act(deaf_social, FALSE, ch, 0, to, TO_VICT | CHECK_NODEAF);
 		}
-	} else {
+	}
+	else
+	{
 		if (GET_POS(vict) < action->vict_min_pos || GET_POS(vict) > action->vict_max_pos)
 			act("$N2 сейчас, похоже, не до Вас.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
-		else {
+		else
+		{
 			act(action->char_found, 0, ch, 0, vict, TO_CHAR | TO_SLEEP);
 // здесь зарылся баг, связанный с тем, что я не знаю,
 // как без грязных хаков сделать так, чтобы
@@ -155,27 +168,35 @@ ACMD(do_insult)
 
 	one_argument(argument, arg);
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
+	{
 		send_to_char("Боги наказали Вас и Вы не можете выражать эмоции!\r\n", ch);
 		return;
 	}
-	if (*arg) {
+	if (*arg)
+	{
 		if (!(victim = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 			send_to_char("&KА он Вас и не услышит :(&n\r\n", ch);
-		else {
-			if (victim != ch) {
+		else
+		{
+			if (victim != ch)
+			{
 				sprintf(buf, "&KВы оскорбили %s.&n\r\n", GET_PAD(victim, 1));
 				send_to_char(buf, ch);
 
-				switch (number(0, 2)) {
+				switch (number(0, 2))
+				{
 				case 0:
-					if (IS_MALE(ch)) {
+					if (IS_MALE(ch))
+					{
 						if (IS_MALE(victim))
 							act("&K$n высмеял$g Вашу манеру держать меч !&n",
-							    FALSE, ch, 0, victim, TO_VICT);
+								FALSE, ch, 0, victim, TO_VICT);
 						else
 							act("&K$n заявил$g, что удел любой женщины - дети, кухня и церковь.&n", FALSE, ch, 0, victim, TO_VICT);
-					} else {	/* Ch == Woman */
+					}
+					else  	/* Ch == Woman */
+					{
 						if (IS_MALE(victim))
 							act("&K$n заявил$g Вам, что у н$s больше... (что $e имел$g в виду ?)&n", FALSE, ch, 0, victim, TO_VICT);
 						else
@@ -184,21 +205,24 @@ ACMD(do_insult)
 					break;
 				case 1:
 					act("&K$n1 чем-то не удовлетворила Ваша мама!&n", FALSE,
-					    ch, 0, victim, TO_VICT);
+						ch, 0, victim, TO_VICT);
 					break;
 				default:
 					act("&K$n предложил$g Вам посетить ближайший хутор !\r\n"
-					    "$e заявил$g, что там обитают на редкость крупные бабочки.&n",
-					    FALSE, ch, 0, victim, TO_VICT);
+						"$e заявил$g, что там обитают на редкость крупные бабочки.&n",
+						FALSE, ch, 0, victim, TO_VICT);
 					break;
 				}	/* end switch */
 
 				act("&K$n оскорбил$g $N1. СМЕРТЕЛЬНО.&n", TRUE, ch, 0, victim, TO_NOTVICT);
-			} else {	/* ch == victim */
+			}
+			else  	/* ch == victim */
+			{
 				send_to_char("&KВы почувствовали себя оскорбленным.&n\r\n", ch);
 			}
 		}
-	} else
+	}
+	else
 		send_to_char("&KВы уверены, что стоит оскорблять такими словами всех ?&n\r\n", ch);
 }
 
@@ -207,7 +231,8 @@ char *str_dup_bl(const char *source)
 	char line[MAX_INPUT_LENGTH];
 
 	line[0] = 0;
-	if (source[0]) {
+	if (source[0])
+	{
 		strcat(line, "&K");
 		strcat(line, source);
 		strcat(line, "&n");
@@ -223,10 +248,12 @@ void load_socials(FILE * fl)
 
 	/* get the first keyword line */
 	get_one_line(fl, line);
-	while (*line != '$') {
+	while (*line != '$')
+	{
 		message++;
 		scan = one_word(line, next_key);
-		while (*next_key) {
+		while (*next_key)
+		{
 			key++;
 			log("Social %d '%s' - message %d", key, next_key, message);
 			soc_keys_list[key].keyword = str_dup(next_key);
@@ -236,15 +263,19 @@ void load_socials(FILE * fl)
 
 		what = 0;
 		get_one_line(fl, line);
-		while (*line != '#') {
+		while (*line != '#')
+		{
 			scan = line;
 			skip_spaces(&scan);
-			if (scan && *scan && *scan != ';') {
-				switch (what) {
+			if (scan && *scan && *scan != ';')
+			{
+				switch (what)
+				{
 				case 0:
 					if (sscanf
-					    (scan, " %d %d %d %d \n", &c_min_pos, &c_max_pos,
-					     &v_min_pos, &v_max_pos) < 4) {
+							(scan, " %d %d %d %d \n", &c_min_pos, &c_max_pos,
+							 &v_min_pos, &v_max_pos) < 4)
+					{
 						log("SYSERR: format error in %d social file near social '%s' #d #d #d #d\n", message, line);
 						exit(1);
 					}
@@ -287,7 +318,8 @@ char *fread_action(FILE * fl, int nr)
 	char buf[MAX_STRING_LENGTH];
 
 	fgets(buf, MAX_STRING_LENGTH, fl);
-	if (feof(fl)) {
+	if (feof(fl))
+	{
 		log("SYSERR: fread_action: unexpected EOF near action #%d", nr);
 		exit(1);
 	}

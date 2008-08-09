@@ -16,10 +16,12 @@
 #include "interpreter.h"
 #include "comm.h"
 
-namespace FileCRC {
+namespace FileCRC
+{
 
-class PlayerCRC {
-	public:
+class PlayerCRC
+{
+public:
 	std::string name; // имя игрока
 	boost::uint32_t player; // crc .player
 	// TODO: обж, таймеры, отдельно мб кланы
@@ -67,12 +69,12 @@ boost::uint32_t calculate_str_crc(const std::string &text)
 */
 boost::uint32_t calculate_file_crc(const char *name)
 {
-    std::ifstream in(name, std::ios::binary);
-    std::ostringstream t_out;
-    t_out << in.rdbuf();
-    std::string out;
-    t_out.str().swap(out);
-    return calculate_str_crc(out);
+	std::ifstream in(name, std::ios::binary);
+	std::ostringstream t_out;
+	t_out << in.rdbuf();
+	std::string out;
+	t_out.str().swap(out);
+	return calculate_str_crc(out);
 }
 
 /**
@@ -113,7 +115,7 @@ void load()
 		{
 			tmp_crc->player = boost::lexical_cast<boost::uint32_t>(buffer);
 		}
-		catch(boost::bad_lexical_cast &)
+		catch (boost::bad_lexical_cast &)
 		{
 			add_message("FileCrc: ошибка чтения crc (%s), uid: %ld", buffer.c_str(), uid);
 			break;
@@ -129,7 +131,7 @@ void load()
 		{
 			prev_crc = boost::lexical_cast<boost::uint32_t>(buffer);
 		}
-		catch(boost::bad_lexical_cast &)
+		catch (boost::bad_lexical_cast &)
 		{
 			add_message("SYSERROR: ошибка чтения total crc (%s)", buffer.c_str());
 			return;
@@ -194,28 +196,28 @@ void check_crc(const char *filename, int mode, long uid)
 	{
 		switch (mode)
 		{
-			case PLAYER:
+		case PLAYER:
+		{
+			const boost::uint32_t crc = calculate_file_crc(filename);
+			if (it->second->player != crc)
 			{
-				const boost::uint32_t crc = calculate_file_crc(filename);
-				if (it->second->player != crc)
-				{
-					char time_buf[20];
-					time_t ct = time(0);
-					strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
-					add_message("%s Несовпадение контрольной суммы player файла: %s", time_buf, it->second->name.c_str());
-				}
-				break;
+				char time_buf[20];
+				time_t ct = time(0);
+				strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
+				add_message("%s Несовпадение контрольной суммы player файла: %s", time_buf, it->second->name.c_str());
 			}
-			case TEXTOBJS:
-			case TIMEOBJS:
-			case UPDATE_PLAYER:
-				it->second->player = calculate_file_crc(filename);
-				it->second->name = GetNameByUnique(uid);
-				break;
-			default:
-				add_message("SYSERROR: мы не должны были сюда попасть, uid: %ld, mode: %d, func: %s",
-					uid, mode, __func__);
-			 return;
+			break;
+		}
+		case TEXTOBJS:
+		case TIMEOBJS:
+		case UPDATE_PLAYER:
+			it->second->player = calculate_file_crc(filename);
+			it->second->name = GetNameByUnique(uid);
+			break;
+		default:
+			add_message("SYSERROR: мы не должны были сюда попасть, uid: %ld, mode: %d, func: %s",
+						uid, mode, __func__);
+			return;
 		}
 	}
 	else if (mode == PLAYER || mode == UPDATE_PLAYER)

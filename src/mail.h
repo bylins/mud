@@ -67,7 +67,8 @@ char *read_delete(long recipient);
  * header block when booting mail system.
  */
 
-struct header_data_type {
+struct header_data_type
+{
 	long next_block;	/* if header block, link to next block  */
 	long from;		/* idnum of the mail's sender           */
 	long to;		/* idnum of mail's recipient            */
@@ -84,13 +85,15 @@ struct header_data_type {
 /* note that an extra space is allowed in all string fields for the
    terminating null character.  */
 
-struct header_block_type_d {
+struct header_block_type_d
+{
 	long block_type;	/* is this a header or data block?      */
 	struct header_data_type header_data;	/* other header data            */
 	char txt[HEADER_BLOCK_DATASIZE + 1];	/* actual text plus 1 for null    */
 };
 
-struct data_block_type_d {
+struct data_block_type_d
+{
 	long block_type;	/* -1 if header block, -2 if last data block
 				   in mail, otherwise a link to the next */
 	char txt[DATA_BLOCK_DATASIZE + 1];	/* actual text plus 1 for null      */
@@ -99,14 +102,16 @@ struct data_block_type_d {
 typedef struct header_block_type_d header_block_type;
 typedef struct data_block_type_d data_block_type;
 
-struct position_list_type_d {
+struct position_list_type_d
+{
 	long position;
 	struct position_list_type_d *next;
 };
 
 typedef struct position_list_type_d position_list_type;
 
-struct mail_index_type_d {
+struct mail_index_type_d
+{
 	long recipient;		/* who is this mail for?        */
 	position_list_type *list_start;	/* list of mail positions       */
 	struct mail_index_type_d *next;	/* link to next one             */

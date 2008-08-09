@@ -10,7 +10,8 @@
 #include "structs.h"
 #include "interpreter.h"
 
-namespace Glory {
+namespace Glory
+{
 
 int get_glory(long uid);
 void add_glory(long uid, int amount);
@@ -34,7 +35,7 @@ void show_stats(CHAR_DATA *ch);
 void load_glory_log();
 void save_glory_log();
 void add_glory_log(int type, int num, std::string punish, std::string reason, CHAR_DATA *vict);
-void show_glory(CHAR_DATA *ch ,char const * const value);
+void show_glory(CHAR_DATA *ch , char const * const value);
 void print_glory_top(CHAR_DATA *ch);
 void hide_char(CHAR_DATA *vict, CHAR_DATA *god, char const * const mode);
 

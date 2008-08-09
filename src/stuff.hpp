@@ -19,7 +19,8 @@
 
 const int MAX_LOAD_PROB = 1000;
 
-struct obj_load_info {
+struct obj_load_info
+{
 	int obj_qty;
 	int load_prob;
 	obj_load_info() : obj_qty(0), load_prob(0) {}
@@ -28,7 +29,8 @@ struct obj_load_info {
 
 typedef double_map<obj_vnum, mob_vnum, obj_load_info> oload_map;
 
-class oload_class : public oload_map {
+class oload_class : public oload_map
+{
 public:
 	void init();
 };

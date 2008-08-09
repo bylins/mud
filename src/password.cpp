@@ -11,12 +11,13 @@
 //#define NOCRYPT
 // в случае сборки без криптования просто пишем пароль в открытом виде
 #if defined(NOCRYPT)
-	#define CRYPT(a,b) (a)
+#define CRYPT(a,b) (a)
 #else
-	#define CRYPT(a,b) ((char *) crypt((a),(b)))
+#define CRYPT(a,b) ((char *) crypt((a),(b)))
 #endif
 
-namespace Password {
+namespace Password
+{
 
 const char *BAD_PASSWORD = "Пароль должен быть от 10 до 50 символов и не должен быть именем персонажа.";
 const unsigned int MIN_PWD_LENGTH = 10;
@@ -31,7 +32,8 @@ std::string generate_md5_hash(const std::string &pwd)
 	key[0] = '$';
 	key[1] = '1';
 	key[2] = '$';
-	for (int i = 3; i < 12; i ++) {
+	for (int i = 3; i < 12; i ++)
+	{
 		int c = number(0, 63);
 		if (c < 26)
 			key[i] = c + 'a';
@@ -75,9 +77,11 @@ bool compare_password(CHAR_DATA *ch, const std::string &pwd)
 	bool result = 0;
 	if (get_password_type(ch))
 		result = CompareParam(ch->player.passwd, CRYPT(pwd.c_str(), GET_PASSWD(ch)), 1);
-	else {
+	else
+	{
 		// если пароль des сошелся - конвертим сразу в md5 (10 - бывший MAX_PWD_LENGTH)
-		if (!strncmp(CRYPT(pwd.c_str(), GET_PASSWD(ch)), GET_PASSWD(ch), 10)) {
+		if (!strncmp(CRYPT(pwd.c_str(), GET_PASSWD(ch)), GET_PASSWD(ch), 10))
+		{
 			set_password(ch, pwd);
 			result = 1;
 		}
@@ -93,7 +97,7 @@ bool check_password(const CHAR_DATA *ch, const char *pwd)
 {
 // при вырубленном криптовании на локалке пароль можно ставить любой
 #ifndef NOCRYPT
-	if (!pwd || !str_cmp(pwd, GET_PC_NAME(ch)) || strlen(pwd) > MAX_PWD_LENGTH || strlen(pwd) < MIN_PWD_LENGTH )
+	if (!pwd || !str_cmp(pwd, GET_PC_NAME(ch)) || strlen(pwd) > MAX_PWD_LENGTH || strlen(pwd) < MIN_PWD_LENGTH)
 		return 0;
 #endif
 	return 1;

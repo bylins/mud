@@ -51,7 +51,7 @@ static int num_pray = 0;
 #define SUFFIX ("'&n")
 #endif
 static char remember_gossip[MAX_REMEMBER_GOSSIP]
-	    [(REMEMBER_TIME_LENGTH - 1) + PREFIX_LENGTH + MAX_INPUT_LENGTH + SUFFIX_LENGTH];
+[(REMEMBER_TIME_LENGTH - 1) + PREFIX_LENGTH + MAX_INPUT_LENGTH + SUFFIX_LENGTH];
 //-MZ.gossip_fix
 static int num_gossip = 0;
 
@@ -80,31 +80,36 @@ ACMD(do_say)
 	skip_spaces(&argument);
 	CHAR_DATA *to;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE)) {
+	if (AFF_FLAGGED(ch, AFF_SIELENCE))
+	{
 		send_to_char(SIELENCE, ch);
 		return;
 	}
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
+	{
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
 
 	if (!*argument)
 		send_to_char("Вы задумались: \"Чего бы такого сказать?\"\r\n", ch);
-	else {
+	else
+	{
 		sprintf(buf, "$n сказал$g : '%s'", argument);
 //      act (buf, FALSE, ch, 0, 0, TO_ROOM | DG_NO_TRIG | CHECK_DEAF);
 // shapirus; для возможности игнорирования теллов в клетку
 // пришлось изменить act в клетку на проход по клетке
-		for (to = world[ch->in_room]->people; to; to = to->next_in_room) {
+		for (to = world[ch->in_room]->people; to; to = to->next_in_room)
+		{
 			if (ch == to || ignores(to, ch, IGNORE_SAY))
 				continue;
 			act(buf, FALSE, ch, 0, to, TO_VICT | DG_NO_TRIG | CHECK_DEAF);
 		}
 		if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(OK, ch);
-		else {
+		else
+		{
 			delete_doubledollar(argument);
 			sprintf(buf, "Вы сказали : '%s'\r\n", argument);
 			send_to_char(buf, ch);
@@ -120,25 +125,29 @@ ACMD(do_gsay)
 	CHAR_DATA *k;
 	struct follow_type *f;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE)) {
+	if (AFF_FLAGGED(ch, AFF_SIELENCE))
+	{
 		send_to_char(SIELENCE, ch);
 		return;
 	}
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
+	{
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
 
 	skip_spaces(&argument);
 
-	if (!AFF_FLAGGED(ch, AFF_GROUP)) {
+	if (!AFF_FLAGGED(ch, AFF_GROUP))
+	{
 		send_to_char("Вы не являетесь членом группы !\r\n", ch);
 		return;
 	}
 	if (!*argument)
 		send_to_char("О чем Вы хотите сообщить своей группе ?\r\n", ch);
-	else {
+	else
+	{
 		if (ch->master)
 			k = ch->master;
 		else
@@ -150,12 +159,13 @@ ACMD(do_gsay)
 			act(buf, FALSE, ch, 0, k, TO_VICT | TO_SLEEP | CHECK_DEAF);
 		for (f = k->followers; f; f = f->next)
 			if (AFF_FLAGGED(f->follower, AFF_GROUP) && (f->follower != ch) &&
-			    !ignores(f->follower, ch, IGNORE_GROUP))
+					!ignores(f->follower, ch, IGNORE_GROUP))
 				act(buf, FALSE, ch, 0, f->follower, TO_VICT | TO_SLEEP | CHECK_DEAF);
 
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(OK, ch);
-		else {
+		else
+		{
 			sprintf(buf, "Вы сообщили группе : '%s'\r\n", argument);
 			send_to_char(buf, ch);
 		}
@@ -171,9 +181,9 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 // shapirus: не позволим телять, если жертва не видит и включила
 // соответствующий режим; имморталы могут телять всегда
 	if (PRF_FLAGGED(vict, PRF_NOINVISTELL)
-		&& !CAN_SEE(vict, ch)
-		&& GET_LEVEL(ch) < LVL_IMMORT
-		&& !PRF_FLAGGED(ch, PRF_CODERINFO))
+			&& !CAN_SEE(vict, ch)
+			&& GET_LEVEL(ch) < LVL_IMMORT
+			&& !PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
 		act("$N не любит разговаривать с теми, кого не видит.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		return;
@@ -188,15 +198,19 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 
 	/* Обработка для "вспомнить" */
 	arg[MAX_RAW_INPUT_LENGTH - 35] = 0;
-	if (!IS_NPC(vict) && !IS_NPC(ch)) {
+	if (!IS_NPC(vict) && !IS_NPC(ch))
+	{
 		ct = time(0);
 		tmp = asctime(localtime(&ct));
-		if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch) || GET_INVIS_LEV(ch)) {
+		if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))
+		{
 			sprintf(buf, "%s[%5.5s]%s %s : '%s'%s", CCNRM(ch, C_NRM), (tmp + 11), CCICYN(ch, C_NRM),
-				GET_NAME(ch), arg, CCNRM(ch, C_NRM));
-		} else {
+					GET_NAME(ch), arg, CCNRM(ch, C_NRM));
+		}
+		else
+		{
 			sprintf(buf, "%s[%5.5s]%s Кто-то : '%s'%s", CCNRM(ch, C_NRM), (tmp + 11), CCICYN(ch, C_NRM),
-				arg, CCNRM(ch, C_NRM));
+					arg, CCNRM(ch, C_NRM));
 		}
 		strcpy(GET_TELL(vict, GET_LASTTELL(vict)), buf);
 		GET_LASTTELL(vict)++;
@@ -206,7 +220,8 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 
 	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT))
 		send_to_char(OK, ch);
-	else {
+	else
+	{
 		if (CAN_SEE_CHAR(ch, vict) || IS_IMMORTAL(vict) || GET_INVIS_LEV(vict))
 			sprintf(buf, "Вы сказали %s : '%s'", vict->player.PNames[2], arg);
 		else
@@ -220,16 +235,23 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 
 int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict)
 {
-	if (ch == vict) {
+	if (ch == vict)
+	{
 		send_to_char("Вы начали потихоньку разговаривать с самим собой.\r\n", ch);
 		return (FALSE);
-	} else if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
+	}
+	else if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
+	{
 		send_to_char("Вам запрещено обращаться к другим игрокам.\r\n", ch);
 		return (FALSE);
-	} else if (!IS_NPC(vict) && !vict->desc) {	/* linkless */
+	}
+	else if (!IS_NPC(vict) && !vict->desc)  	/* linkless */
+	{
 		act("$N потерял$G связь в этот момент.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		return (FALSE);
-	} else if (PLR_FLAGGED(vict, PLR_WRITING)) {
+	}
+	else if (PLR_FLAGGED(vict, PLR_WRITING))
+	{
 		act("$N пишет сообщение - повторите попозже.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		return (FALSE);
 	}
@@ -240,8 +262,8 @@ int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict)
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
 		send_to_char("Стены заглушили Ваши слова.\r\n", ch);
 	else if ((!IS_NPC(vict) &&
-		  (PRF_FLAGGED(vict, PRF_NOTELL) || ignores(vict, ch, IGNORE_TELL))) ||
-		 ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF))
+			  (PRF_FLAGGED(vict, PRF_NOTELL) || ignores(vict, ch, IGNORE_TELL))) ||
+			 ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF))
 		act("$N не сможет Вас услышать.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	else if (GET_POS(vict) < POS_RESTING || AFF_FLAGGED(vict, AFF_DEAFNESS))
 		act("$N Вас не услышит.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
@@ -262,20 +284,26 @@ ACMD(do_tell)
 	if (AFF_FLAGGED(ch, AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE)) {
+	if (AFF_FLAGGED(ch, AFF_SIELENCE))
+	{
 		send_to_char(SIELENCE, ch);
 		return;
 	}
 
 	half_chop(argument, buf, buf2);
 
-	if (!*buf || !*buf2) {
+	if (!*buf || !*buf2)
+	{
 		send_to_char("Что и кому Вы хотите сказать?\r\n", ch);
-	} else if (!(vict = get_player_vis(ch, buf, FIND_CHAR_WORLD))) {
+	}
+	else if (!(vict = get_player_vis(ch, buf, FIND_CHAR_WORLD)))
+	{
 		send_to_char(NOPERSON, ch);
-	} else if (IS_NPC(vict))
+	}
+	else if (IS_NPC(vict))
 		send_to_char(NOPERSON, ch);
-	else if (is_tell_ok(ch, vict)) {
+	else if (is_tell_ok(ch, vict))
+	{
 		if (PRF_FLAGGED(ch, PRF_NOTELL))
 			send_to_char("Ответить Вам не смогут!\r\n", ch);
 		perform_tell(ch, vict, buf2);
@@ -290,12 +318,14 @@ ACMD(do_reply)
 	if (IS_NPC(ch))
 		return;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE)) {
+	if (AFF_FLAGGED(ch, AFF_SIELENCE))
+	{
 		send_to_char(SIELENCE, ch);
 		return;
 	}
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
+	{
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
@@ -306,7 +336,8 @@ ACMD(do_reply)
 		send_to_char("Вам некому ответить !\r\n", ch);
 	else if (!*argument)
 		send_to_char("Что Вы собираетесь ответить?\r\n", ch);
-	else {			/*
+	else
+	{			/*
 				 * Make sure the person you're replying to is still playing by searching
 				 * for them.  Note, now last tell is stored as player IDnum instead of
 				 * a pointer, which is much better because it's safer, plus will still
@@ -335,23 +366,28 @@ ACMD(do_spec_comm)
 	const char *action_sing, *action_plur, *action_others, *vict1, *vict2;
 	char vict3[MAX_INPUT_LENGTH];
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE)) {
+	if (AFF_FLAGGED(ch, AFF_SIELENCE))
+	{
 		send_to_char(SIELENCE, ch);
 		return;
 	}
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
+	{
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
 
-	if (subcmd == SCMD_WHISPER) {
+	if (subcmd == SCMD_WHISPER)
+	{
 		action_sing = "шепнуть";
 		vict1 = "кому";
 		vict2 = "Вам";
 		action_plur = "прошептал";
 		action_others = "$n что-то прошептал$g $N2.";
-	} else {
+	}
+	else
+	{
 		action_sing = "спросить";
 		vict1 = "у кого";
 		vict2 = "у Вас";
@@ -361,17 +397,22 @@ ACMD(do_spec_comm)
 
 	half_chop(argument, buf, buf2);
 
-	if (!*buf || !*buf2) {
+	if (!*buf || !*buf2)
+	{
 		sprintf(buf, "Что Вы хотите %s.. и %s?\r\n", action_sing, vict1);
 		send_to_char(buf, ch);
-	} else if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)))
+	}
+	else if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)))
 		send_to_char(NOPERSON, ch);
 	else if (vict == ch)
 		send_to_char("От Ваших уст до ушей - всего одна ладонь...\r\n", ch);
-	else if (ignores(vict, ch, subcmd == SCMD_WHISPER ? IGNORE_WHISPER : IGNORE_ASK)) {
+	else if (ignores(vict, ch, subcmd == SCMD_WHISPER ? IGNORE_WHISPER : IGNORE_ASK))
+	{
 		sprintf(buf, "%s не желает Вас слышать.\r\n", GET_NAME(vict));
 		send_to_char(buf, ch);
-	} else {
+	}
+	else
+	{
 		if (subcmd == SCMD_WHISPER)
 			sprintf(vict3, "%s", GET_PAD(vict, 2));
 		else
@@ -382,7 +423,8 @@ ACMD(do_spec_comm)
 
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(OK, ch);
-		else {
+		else
+		{
 			sprintf(buf, "Вы %sи %s : '%s'\r\n", action_plur, vict3, buf2);
 			send_to_char(buf, ch);
 		}
@@ -408,41 +450,53 @@ ACMD(do_write)
 	if (!ch->desc)
 		return;
 
-	if (!*papername) {	/* nothing was delivered */
+	if (!*papername)  	/* nothing was delivered */
+	{
 		send_to_char("Написать?  Чем?  И на чем?\r\n", ch);
 		return;
 	}
-	if (*penname) {		/* there were two arguments */
-		if (!(paper = get_obj_in_list_vis(ch, papername, ch->carrying))) {
+	if (*penname)  		/* there were two arguments */
+	{
+		if (!(paper = get_obj_in_list_vis(ch, papername, ch->carrying)))
+		{
 			sprintf(buf, "У Вас нет %s.\r\n", papername);
 			send_to_char(buf, ch);
 			return;
 		}
-		if (!(pen = get_obj_in_list_vis(ch, penname, ch->carrying))) {
+		if (!(pen = get_obj_in_list_vis(ch, penname, ch->carrying)))
+		{
 			sprintf(buf, "У Вас нет %s.\r\n", penname);
 			send_to_char(buf, ch);
 			return;
 		}
-	} else {		/* there was one arg.. let's see what we can find */
-		if (!(paper = get_obj_in_list_vis(ch, papername, ch->carrying))) {
+	}
+	else  		/* there was one arg.. let's see what we can find */
+	{
+		if (!(paper = get_obj_in_list_vis(ch, papername, ch->carrying)))
+		{
 			sprintf(buf, "Вы не видите %s в инвентаре.\r\n", papername);
 			send_to_char(buf, ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(paper) == ITEM_PEN) {	/* oops, a pen.. */
+		if (GET_OBJ_TYPE(paper) == ITEM_PEN)  	/* oops, a pen.. */
+		{
 			pen = paper;
 			paper = NULL;
-		} else if (GET_OBJ_TYPE(paper) != ITEM_NOTE) {
+		}
+		else if (GET_OBJ_TYPE(paper) != ITEM_NOTE)
+		{
 			send_to_char("Вы не можете на ЭТОМ писать.\r\n", ch);
 			return;
 		}
 		/* One object was found.. now for the other one. */
-		if (!GET_EQ(ch, WEAR_HOLD)) {
+		if (!GET_EQ(ch, WEAR_HOLD))
+		{
 			sprintf(buf, "Вы нечем писать!\r\n");
 			send_to_char(buf, ch);
 			return;
 		}
-		if (!CAN_SEE_OBJ(ch, GET_EQ(ch, WEAR_HOLD))) {
+		if (!CAN_SEE_OBJ(ch, GET_EQ(ch, WEAR_HOLD)))
+		{
 			send_to_char("Вы держите что-то невидимое!  Жаль, но писать этим трудно!!\r\n", ch);
 			return;
 		}
@@ -460,7 +514,8 @@ ACMD(do_write)
 		act("Вы не можете писать на $o5.", FALSE, ch, paper, 0, TO_CHAR);
 	else if (paper->action_description)
 		send_to_char("Там уже что-то записано.\r\n", ch);
-	else {			/* we can write - hooray! */
+	else  			/* we can write - hooray! */
+	{
 		/* this is the PERFECT code example of how to set up:
 		 * a) the text editor with a message already loaed
 		 * b) the abort buffer if the player aborts the message
@@ -468,7 +523,8 @@ ACMD(do_write)
 		ch->desc->backstr = NULL;
 		send_to_char("Можете писать.  (/s СОХРАНИТЬ ЗАПИСЬ  /h ПОМОЩЬ)\r\n", ch);
 		/* ok, here we check for a message ALREADY on the paper */
-		if (paper->action_description) {	/* we str_dup the original text to the descriptors->backstr */
+		if (paper->action_description)  	/* we str_dup the original text to the descriptors->backstr */
+		{
 			ch->desc->backstr = str_dup(paper->action_description);
 			/* send to the player what was on the paper (cause this is already */
 			/* loaded into the editor) */
@@ -493,24 +549,30 @@ ACMD(do_page)
 		send_to_char("Создания-не-персонажи этого не могут.. ступайте.\r\n", ch);
 	else if (!*arg)
 		send_to_char("Whom do you wish to page?\r\n", ch);
-	else {
+	else
+	{
 		sprintf(buf, "\007\007*$n* %s", buf2);
-		if (!str_cmp(arg, "all") || !str_cmp(arg, "все")) {
-			if (IS_GRGOD(ch)) {
+		if (!str_cmp(arg, "all") || !str_cmp(arg, "все"))
+		{
+			if (IS_GRGOD(ch))
+			{
 				for (d = descriptor_list; d; d = d->next)
 					if (STATE(d) == CON_PLAYING && d->character)
 						act(buf, FALSE, ch, 0, d->character, TO_VICT);
-			} else
+			}
+			else
 				send_to_char("Это доступно только БОГАМ !\r\n", ch);
 			return;
 		}
-		if ((vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)) != NULL) {
+		if ((vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)) != NULL)
+		{
 			act(buf, FALSE, ch, 0, vict, TO_VICT);
 			if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 				send_to_char(OK, ch);
 			else
 				act(buf, FALSE, ch, 0, vict, TO_CHAR);
-		} else
+		}
+		else
 			send_to_char("Такой игрок отсутствует !\r\n", ch);
 	}
 }
@@ -520,7 +582,8 @@ ACMD(do_page)
  * generalized communication func, originally by Fred C. Merkel (Torg) *
   *********************************************************************/
 
-struct communication_type {
+struct communication_type
+{
 	const char *muted_msg;
 	const char *action;
 	const char *no_channel;
@@ -551,16 +614,17 @@ ACMD(do_gen_comm)
 	 *           mov cost.
 	 */
 
-	struct communication_type com_msgs[] = {
+	struct communication_type com_msgs[] =
+	{
 		{"Вы не можете орать.\r\n",	/* holler */
-		 "орать",
-		 "Вы вне видимости канала.",
-		 KIYEL,
-		 "заорали",
-		 "заорал$g",
-		 4,
-		 25,
-		 PRF_NOHOLLER},
+			"орать",
+			"Вы вне видимости канала.",
+			KIYEL,
+			"заорали",
+			"заорал$g",
+			4,
+			25,
+			PRF_NOHOLLER},
 
 		{"Вам запрещено кричать.\r\n",	/* shout */
 		 "кричать",
@@ -598,35 +662,41 @@ ACMD(do_gen_comm)
 	if (AFF_FLAGGED(ch, AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE)) {
+	if (AFF_FLAGGED(ch, AFF_SIELENCE))
+	{
 		send_to_char(SIELENCE, ch);
 		return;
 	}
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
+	{
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
 
-	if (PLR_FLAGGED(ch, PLR_MUTE) && subcmd != SCMD_AUCTION) {
+	if (PLR_FLAGGED(ch, PLR_MUTE) && subcmd != SCMD_AUCTION)
+	{
 		send_to_char(com_msgs[subcmd].muted_msg, ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)) {
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
+	{
 		send_to_char("Стены заглушили Ваши слова.\r\n", ch);
 		return;
 	}
 
-	if (GET_LEVEL(ch) < com_msgs[subcmd].min_lev && !GET_REMORT(ch)) {
+	if (GET_LEVEL(ch) < com_msgs[subcmd].min_lev && !GET_REMORT(ch))
+	{
 		sprintf(buf1,
-			"Вам стоит достичь хотя бы %d уровня, чтобы Вы могли %s.\r\n",
-			com_msgs[subcmd].min_lev, com_msgs[subcmd].action);
+				"Вам стоит достичь хотя бы %d уровня, чтобы Вы могли %s.\r\n",
+				com_msgs[subcmd].min_lev, com_msgs[subcmd].action);
 		send_to_char(buf1, ch);
 		return;
 	}
 
 	/* make sure the char is on the channel */
-	if (PRF_FLAGGED(ch, com_msgs[subcmd].noflag)) {
+	if (PRF_FLAGGED(ch, com_msgs[subcmd].noflag))
+	{
 		send_to_char(com_msgs[subcmd].no_channel, ch);
 		return;
 	}
@@ -635,7 +705,8 @@ ACMD(do_gen_comm)
 	skip_spaces(&argument);
 
 	/* make sure that there is something there to say! */
-	if (!*argument && subcmd != SCMD_AUCTION) {
+	if (!*argument && subcmd != SCMD_AUCTION)
+	{
 		sprintf(buf1, "ЛЕГКО ! Но, Ярило Вас побери, ЧТО %s ???\r\n", com_msgs[subcmd].action);
 		send_to_char(buf1, ch);
 		return;
@@ -649,31 +720,39 @@ ACMD(do_gen_comm)
 #define MAX_UPPERS_CHAR_PRC 30
 #define MAX_UPPERS_SEQ_CHAR 3
 
-	if ((subcmd != SCMD_AUCTION) && (!IS_IMMORTAL(ch)) && (!IS_NPC(ch))) {
+	if ((subcmd != SCMD_AUCTION) && (!IS_IMMORTAL(ch)) && (!IS_NPC(ch)))
+	{
 		unsigned int bad_smb_procent = MAX_UPPERS_CHAR_PRC;
 		int bad_simb_cnt = 0, bad_seq_cnt = 0;
 
 		/* фильтруем верхний регистр */
-		for (int k = 0; argument[k] != '\0'; k++) {
-			if (a_isupper(argument[k])) {
+		for (int k = 0; argument[k] != '\0'; k++)
+		{
+			if (a_isupper(argument[k]))
+			{
 				bad_simb_cnt++;
 				bad_seq_cnt++;
-			} else
+			}
+			else
 				bad_seq_cnt = 0;
 
 			if ((bad_seq_cnt > 1) &&
-			    (((bad_simb_cnt * 100 / strlen(argument)) > bad_smb_procent) ||
-			     (bad_seq_cnt > MAX_UPPERS_SEQ_CHAR)))
+					(((bad_simb_cnt * 100 / strlen(argument)) > bad_smb_procent) ||
+					 (bad_seq_cnt > MAX_UPPERS_SEQ_CHAR)))
 				argument[k] = a_lcc(argument[k]);
 		}
 		/* фильтруем одинаковые сообщения в эфире */
-		if (GET_LAST_ALL_TELL(ch) == NULL) {
+		if (GET_LAST_ALL_TELL(ch) == NULL)
+		{
 			GET_LAST_ALL_TELL(ch) = (char *) malloc(strlen(argument) + 1);
-		} else {
+		}
+		else
+		{
 			GET_LAST_ALL_TELL(ch) = (char *) realloc(GET_LAST_ALL_TELL(ch), strlen(argument) + 1);
 		}
 
-		if (!strcmp(GET_LAST_ALL_TELL(ch), argument)) {
+		if (!strcmp(GET_LAST_ALL_TELL(ch), argument))
+		{
 			send_to_char("Но Вы же недавно говорили тоже самое!?!\r\n", ch);
 			return;
 		}
@@ -685,17 +764,21 @@ ACMD(do_gen_comm)
 		return;
 
 	/* first, set up strings to be given to the communicator */
-	if (subcmd == SCMD_AUCTION) {
+	if (subcmd == SCMD_AUCTION)
+	{
 		*buf = '\0';
 		auction_drive(ch, argument);
 		return;
-	} else {
+	}
+	else
+	{
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(OK, ch);
-		else {
+		else
+		{
 			if (COLOR_LEV(ch) >= C_CMP)
 				sprintf(buf1, "%sВы %s : '%s'%s", color_on,
-					com_msgs[subcmd].you_action, argument, KNRM);
+						com_msgs[subcmd].you_action, argument, KNRM);
 			else
 				sprintf(buf1, "Вы %s : '%s'", com_msgs[subcmd].you_action, argument);
 			act(buf1, FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
@@ -703,7 +786,8 @@ ACMD(do_gen_comm)
 
 		sprintf(buf, "$n %s : '%s'", com_msgs[subcmd].hi_action, argument);
 		// Обработка для "вспомнить крики"
-		switch (time_info.hours % 24) {
+		switch (time_info.hours % 24)
+		{
 		case 0:
 			sprintf(remember_time, "[полночь]");
 			break;
@@ -745,7 +829,8 @@ ACMD(do_gen_comm)
 			sprintf(remember_time, "[%d часов вечера]", time_info.hours - 12);
 			break;
 		}
-		if (subcmd == SCMD_HOLLER) {
+		if (subcmd == SCMD_HOLLER)
+		{
 //MZ.gossip_fix
 			sprintf(remember_gossip[num_gossip], "%s%s%s%s", remember_time, HOLLER_PREFIX, argument, SUFFIX);
 //-MZ.gossip_fix
@@ -753,7 +838,8 @@ ACMD(do_gen_comm)
 			if (num_gossip == MAX_REMEMBER_GOSSIP)
 				num_gossip = 0;
 		}
-		if (subcmd == SCMD_GOSSIP) {
+		if (subcmd == SCMD_GOSSIP)
+		{
 //MZ.gossip_fix
 			sprintf(remember_gossip[num_gossip], "%s%s%s%s", remember_time, GOSSIP_PREFIX, argument, SUFFIX);
 //-MZ.gossip_fix
@@ -763,7 +849,8 @@ ACMD(do_gen_comm)
 		}
 	}
 
-	switch (subcmd) {
+	switch (subcmd)
+	{
 	case SCMD_SHOUT:
 		ign_flag = IGNORE_SHOUT;
 		break;
@@ -778,15 +865,17 @@ ACMD(do_gen_comm)
 	}
 
 	/* now send all the strings out */
-	for (i = descriptor_list; i; i = i->next) {
+	for (i = descriptor_list; i; i = i->next)
+	{
 		if (STATE(i) == CON_PLAYING && i != ch->desc && i->character &&
-		    !PRF_FLAGGED(i->character, com_msgs[subcmd].noflag) &&
-		    !PLR_FLAGGED(i->character, PLR_WRITING) &&
-		    !ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) && GET_POS(i->character) > POS_SLEEPING) {
+				!PRF_FLAGGED(i->character, com_msgs[subcmd].noflag) &&
+				!PLR_FLAGGED(i->character, PLR_WRITING) &&
+				!ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) && GET_POS(i->character) > POS_SLEEPING)
+		{
 			if (ignores(i->character, ch, ign_flag))
 				continue;
 			if (subcmd == SCMD_SHOUT &&
-			    ((world[ch->in_room]->zone != world[i->character->in_room]->zone) || !AWAKE(i->character)))
+					((world[ch->in_room]->zone != world[i->character->in_room]->zone) || !AWAKE(i->character)))
 				continue;
 			if (COLOR_LEV(i->character) >= C_NRM)
 				send_to_char(color_on, i->character);
@@ -810,9 +899,11 @@ ACMD(do_mobshout)
 	sprintf(buf, "$n заорал$g : '%s'", argument);
 
 	/* now send all the strings out */
-	for (i = descriptor_list; i; i = i->next) {
+	for (i = descriptor_list; i; i = i->next)
+	{
 		if (STATE(i) == CON_PLAYING && i->character &&
-		    !PLR_FLAGGED(i->character, PLR_WRITING) && GET_POS(i->character) > POS_SLEEPING) {
+				!PLR_FLAGGED(i->character, PLR_WRITING) && GET_POS(i->character) > POS_SLEEPING)
+		{
 			if (COLOR_LEV(i->character) >= C_NRM)
 				send_to_char(KIYEL, i->character);
 			act(buf, FALSE, ch, 0, i->character, TO_VICT | TO_SLEEP | CHECK_DEAF);
@@ -832,71 +923,83 @@ ACMD(do_pray_gods)
 
 	skip_spaces(&argument);
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
+	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
+	{
 		send_to_char("Вам запрещено обращаться к Богам, вероятно Вы их замучали...\r\n", ch);
 		return;
 	}
 
-	if (IS_IMMORTAL(ch)) {
+	if (IS_IMMORTAL(ch))
+	{
 		/* Выделяем чара кому отвечают иммы */
 		argument = one_argument(argument, arg1);
 		skip_spaces(&argument);
-		if (!*arg1) {
+		if (!*arg1)
+		{
 			send_to_char("Какому смертному Вы собираетесь ответить?\r\n", ch);
 			return;
 		}
 		victim = get_player_vis(ch, arg1, FIND_CHAR_WORLD);
-		if (victim == NULL) {
+		if (victim == NULL)
+		{
 			send_to_char("Такого нет в игре!\r\n", ch);
 			return;
 		}
 	}
 
-	if (!*argument) {
+	if (!*argument)
+	{
 		sprintf(buf, "С чем вы хотите обратиться к Богам?\r\n");
 		send_to_char(buf, ch);
 		return;
 	}
 	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 		send_to_char(OK, ch);
-	else {
+	else
+	{
 		if (IS_NPC(ch))
 			return;
-		if (IS_IMMORTAL(ch)) {
+		if (IS_IMMORTAL(ch))
+		{
 			sprintf(buf, "&RВы одарили СЛОВОМ %s : '%s'&n", GET_PAD(victim, 3), argument);
-		} else {
+		}
+		else
+		{
 			sprintf(buf, "&RВы воззвали к Богам с сообщением : '%s'&n", argument);
 			set_wait(ch, 3, FALSE);
 		}
 		act(buf, FALSE, ch, 0, argument, TO_CHAR);
 	}
 
-	if (IS_IMMORTAL(ch)) {
+	if (IS_IMMORTAL(ch))
+	{
 		sprintf(buf, "&R%s ответил%s Вам : '%s'&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), argument);
 		send_to_char(buf, victim);
 		sprintf(buf, "&R%s ответил%s на воззвание %s : '%s'&n", GET_NAME(ch),
-			GET_CH_SUF_1(ch), GET_PAD(victim, 1), argument);
+				GET_CH_SUF_1(ch), GET_PAD(victim, 1), argument);
 // Обработка для "вспомнить взывания"
 		ct = time(0);
 		tmp = asctime(localtime(&ct));
 //MZ.pray_fix
 		snprintf(remember_pray[num_pray], MAX_INPUT_LENGTH - SUFFIX_LENGTH,
-			"&w[%5.5s] &R%s ответил%s %s : '%s", (tmp + 11),
-			GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 2), argument);
+				 "&w[%5.5s] &R%s ответил%s %s : '%s", (tmp + 11),
+				 GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 2), argument);
 		sprintf(remember_pray[num_pray] + strlen(remember_pray[num_pray]), "%s", SUFFIX);
 //-MZ.pray_fix
 		num_pray++;
 		if (num_pray == MAX_REMEMBER_PRAY)
 			num_pray = 0;
-	} else {
+	}
+	else
+	{
 		sprintf(buf, "&R$n воззвал$g к богам с сообщением : '%s'&n", argument);
 // Обработка для "вспомнить взывания"
 		ct = time(0);
 		tmp = asctime(localtime(&ct));
 //MZ.pray_fix
 		snprintf(remember_pray[num_pray], MAX_INPUT_LENGTH - SUFFIX_LENGTH,
-			"&w[%5.5s] &R%s воззвал%s к богам : '%s", (tmp + 11),
-			GET_NAME(ch), GET_CH_SUF_1(ch), argument);
+				 "&w[%5.5s] &R%s воззвал%s к богам : '%s", (tmp + 11),
+				 GET_NAME(ch), GET_CH_SUF_1(ch), argument);
 		sprintf(remember_pray[num_pray] + strlen(remember_pray[num_pray]), "%s", SUFFIX);
 //-MZ.pray_fix
 		num_pray++;
@@ -906,9 +1009,9 @@ ACMD(do_pray_gods)
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) == CON_PLAYING
-			&& IS_IMMORTAL(i->character)
+				&& IS_IMMORTAL(i->character)
 //			&& Privilege::god_list_check(GET_NAME(i->character), GET_UNIQUE(i->character))
-			&& i->character != ch)
+				&& i->character != ch)
 		{
 			act(buf, 0, ch, 0, i->character, TO_VICT | TO_SLEEP);
 		}
@@ -979,9 +1082,9 @@ ACMD(do_offtop)
 	{
 		// переплут как любитель почитывать логи за ночь очень хотел этот канал...
 		if (STATE(i) == CON_PLAYING
-			&& i->character
-			&& (GET_LEVEL(i->character) < LVL_IMMORT || !strcmp(GET_NAME(i->character), "Переплут"))
-			&& PRF_FLAGGED(i->character, PRF_OFFTOP_MODE))
+				&& i->character
+				&& (GET_LEVEL(i->character) < LVL_IMMORT || !strcmp(GET_NAME(i->character), "Переплут"))
+				&& PRF_FLAGGED(i->character, PRF_OFFTOP_MODE))
 		{
 			if (ignores(i->character, ch, IGNORE_OFFTOP))
 				continue;
@@ -1010,12 +1113,15 @@ ACMD(do_remember_char)
 		return;
 
 // Если без аргумента - выдает личные теллы
-	if (!*argument) {
-		for (i = 0; i < MAX_REMEMBER_TELLS; i++) {
+	if (!*argument)
+	{
+		for (i = 0; i < MAX_REMEMBER_TELLS; i++)
+		{
 			j = GET_LASTTELL(ch) + i;
 			if (j >= MAX_REMEMBER_TELLS)
 				j = j - MAX_REMEMBER_TELLS;
-			if (GET_TELL(ch, j)[0] != '\0') {
+			if (GET_TELL(ch, j)[0] != '\0')
+			{
 				if (k == 0)
 					send_to_char("&C", ch);
 				k = 1;
@@ -1024,9 +1130,12 @@ ACMD(do_remember_char)
 			}
 		}
 
-		if (!k) {
+		if (!k)
+		{
 			send_to_char("Вам нечего вспомнить.\r\n", ch);
-		} else {
+		}
+		else
+		{
 			send_to_char("&n", ch);
 		}
 		return;
@@ -1107,9 +1216,9 @@ ACMD(do_remember_char)
 void ignore_usage(CHAR_DATA * ch)
 {
 	send_to_char("Формат команды: игнорировать <имя|все> <режим|все> <добавить|убрать>\r\n"
-		     "Доступные режимы:\r\n"
-		     "  сказать говорить шептать спросить эмоция кричать\r\n"
-		     "  болтать орать группа дружина союзники\r\n", ch);
+				 "Доступные режимы:\r\n"
+				 "  сказать говорить шептать спросить эмоция кричать\r\n"
+				 "  болтать орать группа дружина союзники\r\n", ch);
 }
 
 int ign_find_id(char *name, long *id)
@@ -1118,8 +1227,10 @@ int ign_find_id(char *name, long *id)
 	extern int top_of_p_table;
 	int i;
 
-	for (i = 0; i <= top_of_p_table; i++) {
-		if (!strcmp(name, player_table[i].name)) {
+	for (i = 0; i <= top_of_p_table; i++)
+	{
+		if (!strcmp(name, player_table[i].name))
+		{
 			if (player_table[i].level >= LVL_IMMORT)
 				return 0;
 			*id = player_table[i].id;
@@ -1187,20 +1298,26 @@ ACMD(do_ignore)
 	argument = one_argument(argument, arg3);
 
 // криво попросили -- выведем справку
-	if (arg1[0] && (!arg2[0] || !arg3[0])) {
+	if (arg1[0] && (!arg2[0] || !arg3[0]))
+	{
 		ignore_usage(ch);
 		return;
 	}
 // при вызове без параметров выведем весь список
-	if (!arg1[0] && !arg2[0] && !arg3[0]) {
+	if (!arg1[0] && !arg2[0] && !arg3[0])
+	{
 		sprintf(buf, "%sВы игнорируете следующих персонажей:%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
-		for (ignore = IGNORE_LIST(ch); ignore; ignore = ignore->next) {
+		for (ignore = IGNORE_LIST(ch); ignore; ignore = ignore->next)
+		{
 			if (!ignore->id)
 				continue;
-			if (ignore->id == -1) {
+			if (ignore->id == -1)
+			{
 				strcpy(name, "Все");
-			} else {
+			}
+			else
+			{
 				strcpy(name, ign_find_name(ignore->id));
 				name[0] = UPPER(name[0]);
 			}
@@ -1242,18 +1359,23 @@ ACMD(do_ignore)
 		flag = IGNORE_ALLIANCE;
 	else if (is_abbrev(arg2, "оффтоп"))
 		flag = IGNORE_OFFTOP;
-	else {
+	else
+	{
 		ignore_usage(ch);
 		return;
 	}
 
 // имени "все" соответствует id -1
-	if (is_abbrev(arg1, "все")) {
+	if (is_abbrev(arg1, "все"))
+	{
 		vict_id = -1;
-	} else {
+	}
+	else
+	{
 		// убедимся, что добавляемый чар на данный момент существует
 		// и он не имм, а заодно получим его id
-		switch (ign_find_id(arg1, &vict_id)) {
+		switch (ign_find_id(arg1, &vict_id))
+		{
 		case 0:
 			send_to_char("Нельзя игнорировать Богов, это плохо кончится.\r\n", ch);
 			return;
@@ -1264,16 +1386,19 @@ ACMD(do_ignore)
 	}
 
 // ищем жертву в списке
-	for (ignore = IGNORE_LIST(ch); ignore; ignore = ignore->next) {
+	for (ignore = IGNORE_LIST(ch); ignore; ignore = ignore->next)
+	{
 		if (ignore->id == vict_id)
 			break;
 		if (!ignore->next)
 			break;
 	}
 
-	if (is_abbrev(arg3, "добавить")) {
+	if (is_abbrev(arg3, "добавить"))
+	{
 // создаем новый элемент списка в хвосте, если не нашли
-		if (!ignore || ignore->id != vict_id) {
+		if (!ignore || ignore->id != vict_id)
+		{
 			CREATE(cur, struct ignore_data, 1);
 			cur->next = NULL;
 			if (!ignore)	// создаем вообще новый список, если еще нет
@@ -1285,7 +1410,8 @@ ACMD(do_ignore)
 			ignore->mode = 0;
 		}
 		mode = ignore->mode;
-		if (all) {
+		if (all)
+		{
 			SET_BIT(mode, IGNORE_TELL);
 			SET_BIT(mode, IGNORE_SAY);
 			SET_BIT(mode, IGNORE_WHISPER);
@@ -1298,56 +1424,78 @@ ACMD(do_ignore)
 			SET_BIT(mode, IGNORE_CLAN);
 			SET_BIT(mode, IGNORE_ALLIANCE);
 			SET_BIT(mode, IGNORE_OFFTOP);
-		} else {
+		}
+		else
+		{
 			SET_BIT(mode, flag);
 		}
 		ignore->mode = mode;
-	} else if (is_abbrev(arg3, "убрать")) {
-		if (!ignore || ignore->id != vict_id) {
-			if (vict_id == -1) {
+	}
+	else if (is_abbrev(arg3, "убрать"))
+	{
+		if (!ignore || ignore->id != vict_id)
+		{
+			if (vict_id == -1)
+			{
 				send_to_char("Вы и так не игнорируете всех сразу.\r\n", ch);
-			} else {
+			}
+			else
+			{
 				strcpy(name, ign_find_name(vict_id));
 				name[0] = UPPER(name[0]);
 				sprintf(buf,
-					"Вы и так не игнорируете "
-					"персонажа %s%s%s.\r\n", CCWHT(ch, C_NRM), name, CCNRM(ch, C_NRM));
+						"Вы и так не игнорируете "
+						"персонажа %s%s%s.\r\n", CCWHT(ch, C_NRM), name, CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
 			}
 			return;
 		}
 		mode = ignore->mode;
-		if (all) {
+		if (all)
+		{
 			mode = 0;
-		} else {
+		}
+		else
+		{
 			REMOVE_BIT(mode, flag);
 		}
 		ignore->mode = mode;
 		if (!mode)
 			ignore->id = 0;
-	} else {
+	}
+	else
+	{
 		ignore_usage(ch);
 		return;
 	}
-	if (mode) {
-		if (ignore->id == -1) {
+	if (mode)
+	{
+		if (ignore->id == -1)
+		{
 			sprintf(buf, "Для всех сразу Вы игнорируете:%s.\r\n", text_ignore_modes(ignore->mode, buf1));
 			send_to_char(buf, ch);
-		} else {
+		}
+		else
+		{
 			strcpy(name, ign_find_name(ignore->id));
 			name[0] = UPPER(name[0]);
 			sprintf(buf, "Для персонажа %s%s%s Вы игнорируете:%s.\r\n",
-				CCWHT(ch, C_NRM), name, CCNRM(ch, C_NRM), text_ignore_modes(ignore->mode, buf1));
+					CCWHT(ch, C_NRM), name, CCNRM(ch, C_NRM), text_ignore_modes(ignore->mode, buf1));
 			send_to_char(buf, ch);
 		}
-	} else {
-		if (vict_id == -1) {
+	}
+	else
+	{
+		if (vict_id == -1)
+		{
 			send_to_char("Вы больше не игнорируете всех сразу.\r\n", ch);
-		} else {
+		}
+		else
+		{
 			strcpy(name, ign_find_name(vict_id));
 			name[0] = UPPER(name[0]);
 			sprintf(buf, "Вы больше не игнорируете персонажа %s%s%s.\r\n",
-				CCWHT(ch, C_NRM), name, CCNRM(ch, C_NRM));
+					CCWHT(ch, C_NRM), name, CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 	}

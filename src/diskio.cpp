@@ -33,7 +33,8 @@ int fbgetline(FBFILE * fbfl, char *line)
 
 	if (r > fbfl->buf + fbfl->size)
 		return FALSE;
-	else {
+	else
+	{
 		fbfl->ptr = r;
 		return TRUE;
 	}
@@ -48,8 +49,10 @@ int find_string_size(char *str)
 	if (!str || !*str || *str == '~')
 		return 0;
 
-	for (i = 1, p = str; *p; i++) {
-		switch (*p) {
+	for (i = 1, p = str; *p; i++)
+	{
+		switch (*p)
+		{
 		case '\r':
 			i++;
 			if (*(++p) == '\n')
@@ -57,15 +60,17 @@ int find_string_size(char *str)
 			break;
 		case '\n':
 			i++;
-			if (*(++p) == '\r') {
+			if (*(++p) == '\r')
+			{
 				*(p - 1) = '\r';
 				*(p++) = '\n';
-			} else
+			}
+			else
 				p++;
 			break;
 		case '~':
 			if (*(p - 1) == '\r' || *(p - 1) == '\n' ||
-			    *(p + 1) == '\r' || *(p + 1) == '\n' || *(p + 1) == '\0')
+					*(p + 1) == '\r' || *(p + 1) == '\n' || *(p + 1) == '\0')
 				return i;
 			else
 				p++;
@@ -94,8 +99,10 @@ char *fbgetstring(FBFILE * fl)
 	r = fl->ptr;
 	w = str;
 
-	for (; *r; r++, w++) {
-		switch (*r) {
+	for (; *r; r++, w++)
+	{
+		switch (*r)
+		{
 		case '\r':
 			*(w++) = '\r';
 			*w = '\n';
@@ -108,12 +115,14 @@ char *fbgetstring(FBFILE * fl)
 			break;
 		case '~':
 			if (*(r - 1) == '\r' || *(r - 1) == '\n' ||
-			    *(r + 1) == '\r' || *(r + 1) == '\n' || *(r + 1) == '\0') {
+					*(r + 1) == '\r' || *(r + 1) == '\n' || *(r + 1) == '\0')
+			{
 				*w = '\0';
 				for (r++; *r == '\r' || *r == '\n'; r++);
 				fl->ptr = r;
 				return str;
-			} else
+			}
+			else
 				*w = *r;
 			break;
 		case '\0':
@@ -139,24 +148,28 @@ FBFILE *fbopen_for_read(char *fname)
 	if (!(fbfl = (FBFILE *) malloc(sizeof(FBFILE))))
 		return NULL;
 
-	if (!(fl = fopen(fname, "r"))) {
+	if (!(fl = fopen(fname, "r")))
+	{
 		free(fbfl);
 		return NULL;
 	}
 
 	err = fstat(fileno(fl), &sb);
-	if (err < 0 || sb.st_size <= 0) {
+	if (err < 0 || sb.st_size <= 0)
+	{
 		free(fbfl);
 		fclose(fl);
 		return NULL;
 	}
 
 	fbfl->size = sb.st_size;
-	if (!(fbfl->buf = (char *) malloc(fbfl->size+1))) {
+	if (!(fbfl->buf = (char *) malloc(fbfl->size + 1)))
+	{
 		free(fbfl);
 		return NULL;
 	}
-	if (!(fbfl->name = (char *) malloc(strlen(fname) + 1))) {
+	if (!(fbfl->name = (char *) malloc(strlen(fname) + 1)))
+	{
 		free(fbfl->buf);
 		free(fbfl);
 		return NULL;
@@ -178,11 +191,13 @@ FBFILE *fbopen_for_write(char *fname, int mode)
 	if (!(fbfl = (FBFILE *) malloc(sizeof(FBFILE))))
 		return NULL;
 
-	if (!(fbfl->buf = (char *) malloc(FB_STARTSIZE))) {
+	if (!(fbfl->buf = (char *) malloc(FB_STARTSIZE)))
+	{
 		free(fbfl);
 		return NULL;
 	}
-	if (!(fbfl->name = (char *) malloc(strlen(fname) + 1))) {
+	if (!(fbfl->name = (char *) malloc(strlen(fname) + 1)))
+	{
 		free(fbfl->buf);
 		free(fbfl);
 		return NULL;
@@ -246,12 +261,14 @@ int fbclose_for_write(FBFILE * fbfl)
 		return 0;
 	sprintf(tname, "%s.tmp", fbfl->name);
 
-	if (!(fl = fopen(tname, arg))) {
+	if (!(fl = fopen(tname, arg)))
+	{
 		free(tname);
 		return 0;
 	}
 
-	if ((bytes_written = fwrite(fbfl->buf, sizeof(char), len, fl)) < len) {
+	if ((bytes_written = fwrite(fbfl->buf, sizeof(char), len, fl)) < len)
+	{
 		fclose(fl);
 		remove(tname);
 		free(tname);
@@ -288,7 +305,8 @@ int fbprintf(FBFILE * fbfl, const char *format, ...)
 	int bytes_written = 0, length = 0;
 	va_list args;
 
-	if (fbfl->ptr - fbfl->buf > (FB_STARTSIZE * 3) / 4) {
+	if (fbfl->ptr - fbfl->buf > (FB_STARTSIZE * 3) / 4)
+	{
 		length = fbfl->ptr - fbfl->buf;
 		if (!(fbfl->buf = (char *) realloc(fbfl->buf, fbfl->size + FB_STARTSIZE)))
 			return 0;
@@ -343,36 +361,41 @@ int fbcat(char *fromfilename, FBFILE * tofile)
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace DiskIo {
-	using namespace std;
+namespace DiskIo
+{
+using namespace std;
 
 
-	const int read_line_blocksize = 1024;
+const int read_line_blocksize = 1024;
 
-	bool read_line(FILE * fl, string & line, bool cut_cr_lf) {
-		char buf[read_line_blocksize];
+bool read_line(FILE * fl, string & line, bool cut_cr_lf)
+{
+	char buf[read_line_blocksize];
 
-		 line.erase();
-		bool is_first = true;
-		while (fgets(buf, sizeof buf, fl)) {
-			is_first = false;
-			line.append(buf);
-			string::size_type sz = line.size();
-			if (sz > 0 && line[sz - 1] != '\n')
-				continue;
-			break;
-		} if (is_first)
-			 return false;
-
-		if (cut_cr_lf) {
-			string::size_type at = line.find_last_not_of("\r\n");
-			if (at == string::npos)
-				line.erase();
-			else
-				line.erase(at + 1);
-		}
-		return true;
+	line.erase();
+	bool is_first = true;
+	while (fgets(buf, sizeof buf, fl))
+	{
+		is_first = false;
+		line.append(buf);
+		string::size_type sz = line.size();
+		if (sz > 0 && line[sz - 1] != '\n')
+			continue;
+		break;
 	}
+	if (is_first)
+		return false;
+
+	if (cut_cr_lf)
+	{
+		string::size_type at = line.find_last_not_of("\r\n");
+		if (at == string::npos)
+			line.erase();
+		else
+			line.erase(at + 1);
+	}
+	return true;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

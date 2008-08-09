@@ -68,7 +68,8 @@ typedef RETSIGTYPE sigfunc(int);
 // файлы логов и их количество
 #define		NLOG	3
 
-struct log_info_tag {
+struct log_info_tag
+{
 	FILE *logfile;
 	char *filename;
 	char *name;

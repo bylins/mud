@@ -121,14 +121,16 @@ pzcmd zedit_build_cmdlist(DESCRIPTOR_DATA * d)
 	head->next = head->prev = head;
 	head->cmd.command = 'S';
 
-	for (subcmd = 0; ZCMD.command != 'S'; ++subcmd) {
+	for (subcmd = 0; ZCMD.command != 'S'; ++subcmd)
+	{
 		if (ZCMD.command == '*')
 			continue;
 
 		CREATE(item, struct t_zcmd, 1);
 		item->cmd = ZCMD;	// копирование команды
 
-		switch (ZCMD.command) {
+		switch (ZCMD.command)
+		{
 		case 'M':
 			TRANS_MOB(arg1);
 			TRANS_ROOM(arg3);
@@ -173,13 +175,15 @@ pzcmd zedit_build_cmdlist(DESCRIPTOR_DATA * d)
 
 		case 'T':
 			// arg2 не преобразовываю, хотя может надо :)
-			if (item->cmd.arg1 == WLD_TRIGGER) {
+			if (item->cmd.arg1 == WLD_TRIGGER)
+			{
 				TRANS_ROOM(arg3);
 			}
 			break;
 
 		case 'V':
-			if (item->cmd.arg1 == WLD_TRIGGER) {
+			if (item->cmd.arg1 == WLD_TRIGGER)
+			{
 				TRANS_ROOM(arg2);
 			}
 			item->cmd.sarg1 = str_dup(item->cmd.sarg1);
@@ -203,7 +207,8 @@ pzcmd zedit_build_cmdlist(DESCRIPTOR_DATA * d)
 
 void zedit_free_command(pzcmd item)
 {
-	if (item->cmd.command == 'V') {
+	if (item->cmd.command == 'V')
+	{
 		free(item->cmd.sarg1);
 		free(item->cmd.sarg2);
 	}
@@ -302,8 +307,10 @@ void zedit_scroll_list(DESCRIPTOR_DATA * d, char *arg)
 	pos = d->olc->bitmask & ~OLC_BM_SHOWALLCMD;
 	head = (pzcmd) OLC_ZONE(d)->cmd;
 	last = zedit_count_cmdlist(head);
-	while (1) {
-		switch (*arg++) {
+	while (1)
+	{
+		switch (*arg++)
+		{
 		case '1':
 			pos = last;
 			continue;
@@ -393,8 +400,10 @@ void zedit_save_internally(DESCRIPTOR_DATA * d)
 	pzcmd head, item;
 
 	/* Удалить старую таблицу команд */
-	for (subcmd = 0; ZCMD.command != 'S'; ++subcmd) {
-		if (ZCMD.command == 'V') {
+	for (subcmd = 0; ZCMD.command != 'S'; ++subcmd)
+	{
+		if (ZCMD.command == 'V')
+		{
 			free(ZCMD.sarg1);
 			free(ZCMD.sarg2);
 		}
@@ -406,14 +415,16 @@ void zedit_save_internally(DESCRIPTOR_DATA * d)
 	CREATE(zone_table[OLC_ZNUM(d)].cmd, struct reset_com, count);
 	/* Перенос команд обратно с трансляцией в RNUM */
 
-	for (subcmd = 0, item = head->next; item != head; item = item->next, ++subcmd) {
+	for (subcmd = 0, item = head->next; item != head; item = item->next, ++subcmd)
+	{
 		ZCMD = item->cmd;	// копирование команды
 	}
 	ZCMD.command = 'S';
 	renum_single_table(OLC_ZNUM(d));
 
 	/* Finally, if zone headers have been changed, copy over */
-	if (OLC_ZONE(d)->number) {
+	if (OLC_ZONE(d)->number)
+	{
 		free(zone_table[OLC_ZNUM(d)].name);
 		zone_table[OLC_ZNUM(d)].name = str_dup(OLC_ZONE(d)->name);
 //MZ.load
@@ -463,7 +474,8 @@ void zedit_save_to_disk(int zone_num)
 	FILE *zfile;
 
 	sprintf(fname, "%s/%d.new", ZON_PREFIX, zone_table[zone_num].number);
-	if (!(zfile = fopen(fname, "w"))) {
+	if (!(zfile = fopen(fname, "w")))
+	{
 		sprintf(buf, "SYSERR: OLC: zedit_save_to_disk:  Can't write zone %d.", zone_table[zone_num].number);
 		mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 		return;
@@ -475,33 +487,33 @@ void zedit_save_to_disk(int zone_num)
 //MZ.load
 	fprintf(zfile, "#%d\n" "%s~\n" "#%d %d\n" "%d %d %d %d %s %s\n",
 //-MZ.load
-	zone_table[zone_num].number, (zone_table[zone_num].name && *zone_table[zone_num].name)
-		? zone_table[zone_num].name : "неопределено",
+			zone_table[zone_num].number, (zone_table[zone_num].name && *zone_table[zone_num].name)
+			? zone_table[zone_num].name : "неопределено",
 //MZ.load
-		zone_table[zone_num].level,
-		zone_table[zone_num].type,
+			zone_table[zone_num].level,
+			zone_table[zone_num].type,
 //-MZ.load
-		zone_table[zone_num].top,
-		zone_table[zone_num].lifespan,
-		zone_table[zone_num].reset_mode,
-		zone_table[zone_num].reset_idle,
-		zone_table[zone_num].under_construction ? "test" : "*", zone_table[zone_num].locked ? "locked" : "");
+			zone_table[zone_num].top,
+			zone_table[zone_num].lifespan,
+			zone_table[zone_num].reset_mode,
+			zone_table[zone_num].reset_idle,
+			zone_table[zone_num].under_construction ? "test" : "*", zone_table[zone_num].locked ? "locked" : "");
 
 #if defined(ZEDIT_HELP_IN_FILE)
 	fprintf(zfile, "* Field #1    Field #3   Field #4  Field #5   Field #6\n"
-		"* A (zone type A) Zone-Vnum\n"
-		"* B (zone type B) Zone-Vnum\n"
-		"* M (Mobile)  Mob-Vnum   Wld-Max   Room-Vnum  Room-Max\n"
-		"* F (Follow)  Room-Vnum  LMob-Vnum FMob->Vnum\n"
-		"* O (Object)  Obj-Vnum   Wld-Max   Room-Vnum Load-Perc\n"
-		"* G (Give)    Obj-Vnum   Wld-Max   Unused Load-Perc\n"
-		"* E (Equip)   Obj-Vnum   Wld-Max   EQ-Position Load-Perc\n"
-		"* P (Put)     Obj-Vnum   Wld-Max   Target-Obj-Vnum Load-Perc\n"
-		"* D (Door)    Room-Vnum  Door-Dir  Door-State\n"
-		"* R (Remove)  Room-Vnum  Obj-Vnum  Unused\n"
-		"* Q (Purge)   Mob-Vnum   Unused    Unused\n"
-		"* T (Trigger) Trig-Type  Trig-Vnum Room-Vnum(if need)\n"
-		"* V (Variable)Trig-Type  Room-Vnum Context  Varname Value\n");
+			"* A (zone type A) Zone-Vnum\n"
+			"* B (zone type B) Zone-Vnum\n"
+			"* M (Mobile)  Mob-Vnum   Wld-Max   Room-Vnum  Room-Max\n"
+			"* F (Follow)  Room-Vnum  LMob-Vnum FMob->Vnum\n"
+			"* O (Object)  Obj-Vnum   Wld-Max   Room-Vnum Load-Perc\n"
+			"* G (Give)    Obj-Vnum   Wld-Max   Unused Load-Perc\n"
+			"* E (Equip)   Obj-Vnum   Wld-Max   EQ-Position Load-Perc\n"
+			"* P (Put)     Obj-Vnum   Wld-Max   Target-Obj-Vnum Load-Perc\n"
+			"* D (Door)    Room-Vnum  Door-Dir  Door-State\n"
+			"* R (Remove)  Room-Vnum  Obj-Vnum  Unused\n"
+			"* Q (Purge)   Mob-Vnum   Unused    Unused\n"
+			"* T (Trigger) Trig-Type  Trig-Vnum Room-Vnum(if need)\n"
+			"* V (Variable)Trig-Type  Room-Vnum Context  Varname Value\n");
 #endif
 
 	for (i = 0; i < zone_table[zone_num].typeA_count; i++)
@@ -509,9 +521,11 @@ void zedit_save_to_disk(int zone_num)
 	for (i = 0; i < zone_table[zone_num].typeB_count; i++)
 		fprintf(zfile, "B %d\n", zone_table[zone_num].typeB_list[i]);
 
-	for (subcmd = 0; ZCMD.command != 'S'; subcmd++) {
+	for (subcmd = 0; ZCMD.command != 'S'; subcmd++)
+	{
 		arg1 = arg2 = arg3 = arg4 = -1;
-		switch (ZCMD.command) {
+		switch (ZCMD.command)
+		{
 		case 'M':
 			arg1 = mob_index[ZCMD.arg1].vnum;
 			arg2 = ZCMD.arg2;
@@ -574,7 +588,8 @@ void zedit_save_to_disk(int zone_num)
 		case 'T':
 			arg1 = ZCMD.arg1;	/* trigger type */
 			arg2 = ZCMD.arg2;
-			if (arg1 == WLD_TRIGGER) {
+			if (arg1 == WLD_TRIGGER)
+			{
 				arg3 = world[ZCMD.arg3]->number;
 				comment = world[ZCMD.arg3]->name;
 			}
@@ -595,10 +610,10 @@ void zedit_save_to_disk(int zone_num)
 		}
 		if (ZCMD.command != 'V')
 			fprintf(zfile, "%c %d %d %d %d %d\t(%s)\n",
-				ZCMD.command, ZCMD.if_flag, arg1, arg2, arg3, arg4, comment);
+					ZCMD.command, ZCMD.if_flag, arg1, arg2, arg3, arg4, comment);
 		else
 			fprintf(zfile, "%c %d %d %d %d %s %s\n",
-				ZCMD.command, ZCMD.if_flag, arg1, arg2, arg3, ZCMD.sarg1, ZCMD.sarg2);
+					ZCMD.command, ZCMD.if_flag, arg1, arg2, arg3, ZCMD.sarg1, ZCMD.sarg2);
 	}
 	fprintf(zfile, "S\n$\n");
 	fclose(zfile);
@@ -617,7 +632,8 @@ void zedit_save_to_disk(int zone_num)
  Menu functions
  **************************************************************************/
 
-namespace {
+namespace
+{
 
 enum { MOB_NAME, OBJ_NAME, ROOM_NAME, TRIG_NAME };
 
@@ -636,7 +652,8 @@ const char * name_by_vnum(int vnum, int type)
 {
 	int rnum;
 
-	switch (type) {
+	switch (type)
+	{
 	case MOB_NAME:
 		rnum = real_mobile(vnum);
 		if (rnum >= 0)
@@ -666,7 +683,8 @@ const char * name_by_vnum(int vnum, int type)
 
 } // no-name namespace
 
-char *if_flag_msg[] = {
+char *if_flag_msg[] =
+{
 	"",
 	"в случае успеха ",
 	"не изменяя флаг, ",
@@ -695,7 +713,8 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 	stop = zedit_count_cmdlist(head);	// количество элементов
 	sprintf(buf1, "[Command list (0:%d)]\r\n", stop - 1);
 	strcat(buf, buf1);
-	if (show_all) {
+	if (show_all)
+	{
 		if (start > stop - CMD_PAGE_SIZE)
 			start = stop - CMD_PAGE_SIZE;
 		if (start < 0)
@@ -707,24 +726,26 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 
 	// Вывод всех команд зоны
 	// Подсветка команд, относящихся к данной комнате
-	for (item = head->next; item != head; item = item->next, ++counter) {
+	for (item = head->next; item != head; item = item->next, ++counter)
+	{
 		// Разбор аргументов, выяснение подсветки
 		// if_flag и подсветка с номером - ниже
-		switch (item->cmd.command) {
+		switch (item->cmd.command)
+		{
 		case 'M':
 			sprintf(buf2,
-				"загрузить моба %d [%s] в комнату %d [%s], Max(игра/комната) : %d/%d",
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, MOB_NAME),
-				item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME), item->cmd.arg2, item->cmd.arg4);
+					"загрузить моба %d [%s] в комнату %d [%s], Max(игра/комната) : %d/%d",
+					item->cmd.arg1, name_by_vnum(item->cmd.arg1, MOB_NAME),
+					item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME), item->cmd.arg2, item->cmd.arg4);
 			hl = (item->cmd.arg3 == room);
 			break;
 
 		case 'F':
 			sprintf(buf2,
-				"%d [%s] следует за %d [%s] в комнате %d [%s]",
-				item->cmd.arg3, name_by_vnum(item->cmd.arg3, MOB_NAME),
-				item->cmd.arg2, name_by_vnum(item->cmd.arg2, MOB_NAME),
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, ROOM_NAME));
+					"%d [%s] следует за %d [%s] в комнате %d [%s]",
+					item->cmd.arg3, name_by_vnum(item->cmd.arg3, MOB_NAME),
+					item->cmd.arg2, name_by_vnum(item->cmd.arg2, MOB_NAME),
+					item->cmd.arg1, name_by_vnum(item->cmd.arg1, ROOM_NAME));
 			hl = (item->cmd.arg1 == room);
 			break;
 
@@ -735,24 +756,24 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 
 		case 'O':
 			sprintf(buf2,
-				"загрузить объект %d [%s] в комнату %d [%s], Load%% %d",
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME),
-				item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME), item->cmd.arg4);
+					"загрузить объект %d [%s] в комнату %d [%s], Load%% %d",
+					item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME),
+					item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME), item->cmd.arg4);
 			hl = (item->cmd.arg3 == room);
 			break;
 
 		case 'P':
 			sprintf(buf2,
-				"поместить %d [%s] в %d [%s], Load%% %d",
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME),
-				item->cmd.arg3, name_by_vnum(item->cmd.arg3, OBJ_NAME), item->cmd.arg4);
+					"поместить %d [%s] в %d [%s], Load%% %d",
+					item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME),
+					item->cmd.arg3, name_by_vnum(item->cmd.arg3, OBJ_NAME), item->cmd.arg4);
 			// hl - не изменяется
 			break;
 
 		case 'G':
 			sprintf(buf2,
-				"дать %d [%s], Load%% %d",
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME), item->cmd.arg4);
+					"дать %d [%s], Load%% %d",
+					item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME), item->cmd.arg4);
 			// hl - не изменяется
 			break;
 
@@ -762,34 +783,35 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 			if (*str == '\n')
 				str = "???";
 			sprintf(buf2,
-				"экипировать %d [%s], %s, Load%% %d",
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME), str, item->cmd.arg4);
+					"экипировать %d [%s], %s, Load%% %d",
+					item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME), str, item->cmd.arg4);
 			// hl - не изменяется
 			break;
 
 		case 'R':
 			sprintf(buf2,
-				"удалить %d [%s] из комнаты %d [%s]",
-				item->cmd.arg2, name_by_vnum(item->cmd.arg2, OBJ_NAME),
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, ROOM_NAME));
+					"удалить %d [%s] из комнаты %d [%s]",
+					item->cmd.arg2, name_by_vnum(item->cmd.arg2, OBJ_NAME),
+					item->cmd.arg1, name_by_vnum(item->cmd.arg1, ROOM_NAME));
 			hl = (item->cmd.arg1 == room);
 			break;
 
 		case 'D':
 			sprintf(buf2,
-				"для комнаты %d [%s] установить выход %s как %s",
-				item->cmd.arg1, name_by_vnum(item->cmd.arg1, ROOM_NAME),
-				dirs[item->cmd.arg2],
-				item->cmd.arg3 == 0 ? "открытый" :
-				item->cmd.arg3 == 1 ? "закрытый" :
-				item->cmd.arg3 == 2 ? "запертый" :
-				item->cmd.arg3 == 3 ? "скрытый" : item->cmd.arg3 == 4 ? "явный" : "неизвестно что");
+					"для комнаты %d [%s] установить выход %s как %s",
+					item->cmd.arg1, name_by_vnum(item->cmd.arg1, ROOM_NAME),
+					dirs[item->cmd.arg2],
+					item->cmd.arg3 == 0 ? "открытый" :
+					item->cmd.arg3 == 1 ? "закрытый" :
+					item->cmd.arg3 == 2 ? "запертый" :
+					item->cmd.arg3 == 3 ? "скрытый" : item->cmd.arg3 == 4 ? "явный" : "неизвестно что");
 			hl = (item->cmd.arg1 == room);
 			break;
 
 		case 'T':
 			sprintf(buf2, "привязать тригер %d [%s] к ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, TRIG_NAME));
-			switch (item->cmd.arg1) {
+			switch (item->cmd.arg1)
+			{
 			case MOB_TRIGGER:
 				strcat(buf2, "мобу");
 				break;
@@ -798,7 +820,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 				break;
 			case WLD_TRIGGER:
 				sprintf(buf2 + strlen(buf2),
-					"комнате %d [%s]", item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME));
+						"комнате %d [%s]", item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME));
 				hl = (item->cmd.arg3 == room);
 				break;
 			default:
@@ -808,7 +830,8 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 			break;
 
 		case 'V':
-			switch (item->cmd.arg1) {
+			switch (item->cmd.arg1)
+			{
 			case MOB_TRIGGER:
 				strcpy(buf2, "для моба ");
 				break;
@@ -824,8 +847,8 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 				break;
 			}
 			sprintf(buf2 + strlen(buf2),
-				"установить глобальную переменную %s:%d = %s",
-				item->cmd.sarg1, item->cmd.arg3, item->cmd.sarg2);
+					"установить глобальную переменную %s:%d = %s",
+					item->cmd.sarg1, item->cmd.arg3, item->cmd.sarg2);
 			break;
 
 		default:
@@ -835,15 +858,17 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 		}
 
 		/* Build the display buffer for this command */
-		if ((show_all && start <= counter && stop > counter) || (!show_all && hl)) {
+		if ((show_all && start <= counter && stop > counter) || (!show_all && hl))
+		{
 			sprintf(buf1, "%s%d - %s%s%s\r\n", nrm, counter, hl ? iyel : yel,
-				if_flag_text(item->cmd.if_flag), buf2);
+					if_flag_text(item->cmd.if_flag), buf2);
 			strcat(buf, buf1);
 		}
 	}
 
 	// Последняя команда
-	if (!show_all || (start <= counter && stop > counter)) {
+	if (!show_all || (start <= counter && stop > counter))
+	{
 		sprintf(buf1, "%s%d - <END>\r\n", nrm, counter);
 		strcat(buf, buf1);
 	}
@@ -872,70 +897,74 @@ void zedit_disp_menu(DESCRIPTOR_DATA * d)
 	/* Menu header */
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
-		"[H[J"
+			"[H[J"
 #endif
-		"Room number: %s%d%s		Room zone: %s%d\r\n"
-		"%sZ%s) Имя зоны    : %s%s\r\n"
+			"Room number: %s%d%s		Room zone: %s%d\r\n"
+			"%sZ%s) Имя зоны    : %s%s\r\n"
 //MZ.load
-		"%sS%s) Уровень зоны: %s%d\r\n"
-		"%sY%s) Тип зоны    : %s%s\r\n"
+			"%sS%s) Уровень зоны: %s%d\r\n"
+			"%sY%s) Тип зоны    : %s%s\r\n"
 //-MZ.load
 
-		"%sL%s) Время жизни : %s%d minutes\r\n"
-		"%sP%s) Макс.комната: %s%d\r\n"
-		"%sR%s) Тип очистки : %s%s\r\n"
-		"%sI%s) Оч. неисп.  : %s%s%s\r\n",
-		cyn, OLC_NUM(d), nrm, cyn, zone_table[OLC_ZNUM(d)].number,
-		grn, nrm, yel, OLC_ZONE(d)->name ? OLC_ZONE(d)->name : "<NONE!>",
+			"%sL%s) Время жизни : %s%d minutes\r\n"
+			"%sP%s) Макс.комната: %s%d\r\n"
+			"%sR%s) Тип очистки : %s%s\r\n"
+			"%sI%s) Оч. неисп.  : %s%s%s\r\n",
+			cyn, OLC_NUM(d), nrm, cyn, zone_table[OLC_ZNUM(d)].number,
+			grn, nrm, yel, OLC_ZONE(d)->name ? OLC_ZONE(d)->name : "<NONE!>",
 //MZ.load
-		grn, nrm, yel, OLC_ZONE(d)->level,
-		grn, nrm, yel, zone_types[OLC_ZONE(d)->type].name,
+			grn, nrm, yel, OLC_ZONE(d)->level,
+			grn, nrm, yel, zone_types[OLC_ZONE(d)->type].name,
 //-MZ.load
 
-		grn, nrm, yel, OLC_ZONE(d)->lifespan,
-		grn, nrm, yel, OLC_ZONE(d)->top,
-		grn, nrm, yel,
-		 OLC_ZONE(d)->
-		 reset_mode ? ((OLC_ZONE(d)->reset_mode == 1) ?
-			      "Если в зоне нет игроков."
-			      : ((OLC_ZONE(d)->reset_mode == 3) ?
-				 "Общая очистка." : "Обычная очистка.")) : "Никогда не очищается",
-		grn, nrm, yel, OLC_ZONE(d)->reset_idle ? "Да" : "Нет", nrm);
+			grn, nrm, yel, OLC_ZONE(d)->lifespan,
+			grn, nrm, yel, OLC_ZONE(d)->top,
+			grn, nrm, yel,
+			OLC_ZONE(d)->
+			reset_mode ? ((OLC_ZONE(d)->reset_mode == 1) ?
+						  "Если в зоне нет игроков."
+						  : ((OLC_ZONE(d)->reset_mode == 3) ?
+							 "Общая очистка." : "Обычная очистка.")) : "Никогда не очищается",
+					grn, nrm, yel, OLC_ZONE(d)->reset_idle ? "Да" : "Нет", nrm);
 
-	if (OLC_ZONE(d)->reset_mode == 3) {
+	if (OLC_ZONE(d)->reset_mode == 3)
+{
 		sprintf(buf, "%s%sA%s) Зоны первого типа       : %s%s%s\r\n"
-			"%sB%s) Зоны второго типа       : %s%s%s\r\n", buf,
-			grn, nrm, ired, type1_zones, nrm, grn, nrm, grn, type2_zones, nrm);
+				"%sB%s) Зоны второго типа       : %s%s%s\r\n", buf,
+				grn, nrm, ired, type1_zones, nrm, grn, nrm, grn, type2_zones, nrm);
 	}
 	sprintf(buf, "%s%sT%s) Режим       : %s%s%s\r\n", buf,
-		grn, nrm, yel, OLC_ZONE(d)->under_construction ? buf1 : "подключена", nrm);
+			grn, nrm, yel, OLC_ZONE(d)->under_construction ? buf1 : "подключена", nrm);
 
 	/* Print the commands into display buffer. */
 	zedit_disp_commands(d, buf);
 
 	/* Finish off menu */
-	if (d->olc->bitmask & OLC_BM_SHOWALLCMD) {
+	if (d->olc->bitmask & OLC_BM_SHOWALLCMD)
+	{
 		// Режим отображения всех команд
 		sprintf(buf1,
-			"%sF%s) Фильтр - ВСЕ КОМАНДЫ   %s8%s) Вверх\r\n"
-			"%sN%s) Добавить команду       %s2%s) Вниз\r\n"
-			"%sE%s) Редактировать команду  %s9%s) Страница вверх\r\n"
-			"%sM%s) Перенести команду      %s3%s) Страница вниз\r\n"
-			"%sD%s) Удалить команду        %s7%s) В начало списка\r\n"
-			"%sX%s) Выход                  %s1%s) В конец списка\r\n"
-			"Ваш выбор : ",
-			grn, nrm, grn, nrm,
-			grn, nrm, grn, nrm,
-			grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm);
-	} else {
+				"%sF%s) Фильтр - ВСЕ КОМАНДЫ   %s8%s) Вверх\r\n"
+				"%sN%s) Добавить команду       %s2%s) Вниз\r\n"
+				"%sE%s) Редактировать команду  %s9%s) Страница вверх\r\n"
+				"%sM%s) Перенести команду      %s3%s) Страница вниз\r\n"
+				"%sD%s) Удалить команду        %s7%s) В начало списка\r\n"
+				"%sX%s) Выход                  %s1%s) В конец списка\r\n"
+				"Ваш выбор : ",
+				grn, nrm, grn, nrm,
+				grn, nrm, grn, nrm,
+				grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm);
+	}
+	else
+	{
 		// Режим отображения команд комнаты
 		sprintf(buf1,
-			"%sF%s) Фильтр - КОМАНДЫ КОМНАТЫ\r\n"
-			"%sN%s) Добавить команду\r\n"
-			"%sE%s) Редактировать команду\r\n"
-			"%sM%s) Перенести команду\r\n"
-			"%sD%s) Удалить команду\r\n"
-			"%sX%s) Выход\r\n" "Ваш выбор : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm);
+				"%sF%s) Фильтр - КОМАНДЫ КОМНАТЫ\r\n"
+				"%sN%s) Добавить команду\r\n"
+				"%sE%s) Редактировать команду\r\n"
+				"%sM%s) Перенести команду\r\n"
+				"%sD%s) Удалить команду\r\n"
+				"%sX%s) Выход\r\n" "Ваш выбор : ", grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm);
 	}
 
 	strcat(buf, buf1);
@@ -954,9 +983,10 @@ void zedit_disp_type_menu(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 0; *zone_types[counter].name != '\n'; counter++) {
+	for (counter = 0; *zone_types[counter].name != '\n'; counter++)
+	{
 		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, counter, nrm,
-			zone_types[counter].name, !(++columns % 2) ? "\r\n" : "");
+				zone_types[counter].name, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
 	send_to_char("\r\nВыберите тип зоны : ", d->character);
@@ -975,18 +1005,18 @@ void zedit_disp_comtype(DESCRIPTOR_DATA * d)
 	send_to_char("\r\n", d->character);
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
-		"[H[J"
+			"[H[J"
 #endif
-		"%sM%s) Загрузить моба в комнату        %sO%s) Загрузить предмет в комнату\r\n"
-		"%sE%s) Экипировать моба                %sG%s) Дать предмет мобу\r\n"
-		"%sP%s) Поместить предмет в контейнер   %sD%s) Установить выход\r\n"
-		"%sR%s) Удалить предмет из комнаты      %sQ%s) Удалить всех мобов данного типа\r\n"
-		"%sF%s) Создать цепочку последователей\r\n"
-		"%sT%s) Назначить тригер                %sV%s) Установить глобальную переменную\r\n"
-		"Редактируемая команда : %c\r\n"
-		"Укажите тип команды   : ",
-		grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm,
-		grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, item->cmd.command);
+			"%sM%s) Загрузить моба в комнату        %sO%s) Загрузить предмет в комнату\r\n"
+			"%sE%s) Экипировать моба                %sG%s) Дать предмет мобу\r\n"
+			"%sP%s) Поместить предмет в контейнер   %sD%s) Установить выход\r\n"
+			"%sR%s) Удалить предмет из комнаты      %sQ%s) Удалить всех мобов данного типа\r\n"
+			"%sF%s) Создать цепочку последователей\r\n"
+			"%sT%s) Назначить тригер                %sV%s) Установить глобальную переменную\r\n"
+			"Редактируемая команда : %c\r\n"
+			"Укажите тип команды   : ",
+			grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm,
+			grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, item->cmd.command);
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = ZEDIT_COMMAND_TYPE;
 }
@@ -1002,12 +1032,13 @@ void zedit_disp_arg1(DESCRIPTOR_DATA * d)
 
 	send_to_char("\r\n", d->character);
 
-	switch (item->cmd.command) {
+	switch (item->cmd.command)
+	{
 	case 'M':
 	case 'Q':
 		sprintf(buf,
-			"Выбор моба\r\n"
-			"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg1, name_by_vnum(item->cmd.arg1, MOB_NAME));
+				"Выбор моба\r\n"
+				"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg1, name_by_vnum(item->cmd.arg1, MOB_NAME));
 		break;
 
 	case 'O':
@@ -1015,8 +1046,8 @@ void zedit_disp_arg1(DESCRIPTOR_DATA * d)
 	case 'P':
 	case 'G':
 		sprintf(buf,
-			"Выбор предмета\r\n"
-			"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME));
+				"Выбор предмета\r\n"
+				"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME));
 		break;
 
 	case 'D':
@@ -1025,16 +1056,16 @@ void zedit_disp_arg1(DESCRIPTOR_DATA * d)
 		if (item->cmd.arg1 == -1)
 			item->cmd.arg1 = OLC_NUM(d);
 		sprintf(buf,
-			"Выбор комнаты\r\n"
-			"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg1, name_by_vnum(item->cmd.arg1, ROOM_NAME));
+				"Выбор комнаты\r\n"
+				"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg1, name_by_vnum(item->cmd.arg1, ROOM_NAME));
 		break;
 
 	case 'T':
 	case 'V':
 		sprintf(buf,
-			"Выбор типа триггера\r\n"
-			"  0 - моб\r\n"
-			"  1 - предмет\r\n" "  2 - комната\r\n" "Текущий тип: %d\r\n" "Введите тип: ", item->cmd.arg1);
+				"Выбор типа триггера\r\n"
+				"  0 - моб\r\n"
+				"  1 - предмет\r\n" "  2 - комната\r\n" "Текущий тип: %d\r\n" "Введите тип: ", item->cmd.arg1);
 		break;
 
 	default:
@@ -1063,15 +1094,16 @@ void zedit_disp_arg2(DESCRIPTOR_DATA * d)
 
 	send_to_char("\r\n", d->character);
 
-	switch (item->cmd.command) {
+	switch (item->cmd.command)
+	{
 	case 'M':
 	case 'O':
 	case 'E':
 	case 'P':
 	case 'G':
 		sprintf(buf,
-			"Максимальное количество в мире\r\n"
-			"Текущее значение: %d\r\n" "Введите значение: ", item->cmd.arg2);
+				"Максимальное количество в мире\r\n"
+				"Текущее значение: %d\r\n" "Введите значение: ", item->cmd.arg2);
 		break;
 
 	case 'D':
@@ -1079,33 +1111,33 @@ void zedit_disp_arg2(DESCRIPTOR_DATA * d)
 		for (i = 0; *dirs[i] != '\n'; ++i)
 			sprintf(buf + strlen(buf), "   %d - %s\r\n", i, dirs[i]);
 		sprintf(buf + strlen(buf),
-			"Текущее направление выхода: %d\r\n" "Введите направление выхода: ", item->cmd.arg2);
+				"Текущее направление выхода: %d\r\n" "Введите направление выхода: ", item->cmd.arg2);
 		break;
 
 	case 'R':
 		sprintf(buf,
-			"Выбор предмета\r\n"
-			"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, OBJ_NAME));
+				"Выбор предмета\r\n"
+				"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, OBJ_NAME));
 		break;
 
 	case 'F':
 		sprintf(buf,
-			"Выбор моба-лидера\r\n"
-			"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, MOB_NAME));
+				"Выбор моба-лидера\r\n"
+				"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, MOB_NAME));
 		break;
 
 	case 'T':
 		sprintf(buf,
-			"Выбор триггера\r\n"
-			"Текущий триггер: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, TRIG_NAME));
+				"Выбор триггера\r\n"
+				"Текущий триггер: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, TRIG_NAME));
 		break;
 
 	case 'V':
 		if (item->cmd.arg2 == -1)
 			item->cmd.arg2 = OLC_NUM(d);
 		sprintf(buf,
-			"Выбор комнаты\r\n"
-			"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, ROOM_NAME));
+				"Выбор комнаты\r\n"
+				"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg2, name_by_vnum(item->cmd.arg2, ROOM_NAME));
 		break;
 
 	case 'Q':
@@ -1137,7 +1169,8 @@ void zedit_disp_arg3(DESCRIPTOR_DATA * d)
 
 	send_to_char("\r\n", d->character);
 
-	switch (item->cmd.command) {
+	switch (item->cmd.command)
+	{
 	case 'E':
 		sprintf(buf, "Выбор позиции\r\n");
 		for (i = 0; *equipment_types[i] != '\n'; ++i)
@@ -1147,30 +1180,30 @@ void zedit_disp_arg3(DESCRIPTOR_DATA * d)
 
 	case 'P':
 		sprintf(buf,
-			"Выбор контейнера\r\n"
-			"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg3, name_by_vnum(item->cmd.arg3, OBJ_NAME));
+				"Выбор контейнера\r\n"
+				"Текущий предмет: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg3, name_by_vnum(item->cmd.arg3, OBJ_NAME));
 		break;
 
 	case 'D':
 		sprintf(buf,
-			"Выбор состояния двери\r\n"
-			"  0 - Дверь открыта\r\n"
-			"  1 - Дверь закрыта\r\n"
-			"  2 - Дверь заперта\r\n"
-			"  3 - Выход скрыт\r\n"
-			"  4 - Выход явный\r\n" "Текущее состояние: %d\r\n" "Введите состояние: ", item->cmd.arg3);
+				"Выбор состояния двери\r\n"
+				"  0 - Дверь открыта\r\n"
+				"  1 - Дверь закрыта\r\n"
+				"  2 - Дверь заперта\r\n"
+				"  3 - Выход скрыт\r\n"
+				"  4 - Выход явный\r\n" "Текущее состояние: %d\r\n" "Введите состояние: ", item->cmd.arg3);
 		break;
 
 	case 'V':
 		sprintf(buf,
-			"Выбор контекста переменной\r\n"
-			"Текущий контекст: %d\r\n" "Введите контекст: ", item->cmd.arg3);
+				"Выбор контекста переменной\r\n"
+				"Текущий контекст: %d\r\n" "Введите контекст: ", item->cmd.arg3);
 		break;
 
 	case 'F':
 		sprintf(buf,
-			"Выбор моба-последователя\r\n"
-			"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg3, name_by_vnum(item->cmd.arg3, MOB_NAME));
+				"Выбор моба-последователя\r\n"
+				"Текущий моб  : %d [%s]\r\n" "Введите номер: ", item->cmd.arg3, name_by_vnum(item->cmd.arg3, MOB_NAME));
 		break;
 
 	case 'O':
@@ -1179,8 +1212,8 @@ void zedit_disp_arg3(DESCRIPTOR_DATA * d)
 		if (item->cmd.arg3 == -1)
 			item->cmd.arg3 = OLC_NUM(d);
 		sprintf(buf,
-			"Выбор комнаты\r\n"
-			"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME));
+				"Выбор комнаты\r\n"
+				"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME));
 		break;
 
 
@@ -1207,11 +1240,12 @@ void zedit_disp_arg4(DESCRIPTOR_DATA * d)
 
 	send_to_char("\r\n", d->character);
 
-	switch (item->cmd.command) {
+	switch (item->cmd.command)
+	{
 	case 'M':
 		sprintf(buf,
-			"Максимальное количество в комнате\r\n"
-			"Текущее значение: %d\r\n" "Введите значение: ", item->cmd.arg4);
+				"Максимальное количество в комнате\r\n"
+				"Текущее значение: %d\r\n" "Введите значение: ", item->cmd.arg4);
 		break;
 
 	case 'O':
@@ -1219,8 +1253,8 @@ void zedit_disp_arg4(DESCRIPTOR_DATA * d)
 	case 'P':
 	case 'G':
 		sprintf(buf,
-			"Вероятность загрузки (-1 = 100%%)\r\n"
-			"Текущее значение: %d\r\n" "Введите значение: ", item->cmd.arg4);
+				"Вероятность загрузки (-1 = 100%%)\r\n"
+				"Текущее значение: %d\r\n" "Введите значение: ", item->cmd.arg4);
 		break;
 
 	case 'Q':
@@ -1250,11 +1284,12 @@ void zedit_disp_sarg1(DESCRIPTOR_DATA * d)
 
 	send_to_char("\r\n", d->character);
 
-	switch (item->cmd.command) {
+	switch (item->cmd.command)
+	{
 	case 'V':
 		sprintf(buf,
-			"Выбор имени глобальной переменной\r\n"
-			"Текущее имя: %s\r\n" "Введите имя: ", item->cmd.sarg1 ? item->cmd.sarg1 : "<NULL>");
+				"Выбор имени глобальной переменной\r\n"
+				"Текущее имя: %s\r\n" "Введите имя: ", item->cmd.sarg1 ? item->cmd.sarg1 : "<NULL>");
 		break;
 
 	case 'M':
@@ -1287,11 +1322,12 @@ void zedit_disp_sarg2(DESCRIPTOR_DATA * d)
 
 	send_to_char("\r\n", d->character);
 
-	switch (item->cmd.command) {
+	switch (item->cmd.command)
+	{
 	case 'V':
 		sprintf(buf,
-			"Выбор значения глобальной переменной\r\n"
-			"Текущее значение: %s\r\n" "Введите значение: ", item->cmd.sarg2 ? item->cmd.sarg2 : "<NULL>");
+				"Выбор значения глобальной переменной\r\n"
+				"Текущее значение: %s\r\n" "Введите значение: ", item->cmd.sarg2 ? item->cmd.sarg2 : "<NULL>");
 		break;
 
 	case 'M':
@@ -1335,10 +1371,12 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	int pos, i, j;
 	int *temp = NULL;
 
-	switch (OLC_MODE(d)) {
-/*-------------------------------------------------------------------*/
+	switch (OLC_MODE(d))
+	{
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_CONFIRM_SAVESTRING:
-		switch (*arg) {
+		switch (*arg)
+		{
 		case 'y':
 		case 'Y':
 		case 'д':
@@ -1366,15 +1404,19 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 		/* End of ZEDIT_CONFIRM_SAVESTRING */
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_MAIN_MENU:
-		switch (*arg) {
+		switch (*arg)
+		{
 		case 'x':
 		case 'X':
-			if (OLC_ZONE(d)->age || OLC_ZONE(d)->number) {
+			if (OLC_ZONE(d)->age || OLC_ZONE(d)->number)
+			{
 				send_to_char("Вы желаете сохранить изменения зоны в памяти ? (y/n) : ", d->character);
 				OLC_MODE(d) = ZEDIT_CONFIRM_SAVESTRING;
-			} else {
+			}
+			else
+			{
 				send_to_char("Не было изменений.\r\n", d->character);
 				cleanup_olc(d, CLEANUP_ALL);
 			}
@@ -1461,9 +1503,10 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			 */
 			if (GET_LEVEL(d->character) < LVL_IMPL)
 				zedit_disp_menu(d);
-			else {
+			else
+			{
 				send_to_char("Введите новую старшую комнату зоны.\r\n"
-					     "Помните, она всегда должны быть равна НомерЗоны*100+99 : ", d->character);
+							 "Помните, она всегда должны быть равна НомерЗоны*100+99 : ", d->character);
 				OLC_MODE(d) = ZEDIT_ZONE_TOP;
 			}
 			break;
@@ -1489,10 +1532,10 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			 * Edit zone reset mode.
 			 */
 			send_to_char("\r\n"
-				     "0) Никогда не очищать\r\n"
-				     "1) Очищать, если в зоне нет игроков\r\n"
-				     "2) Обычная очистка\r\n"
-				     "3) Общая очистка\r\n" "Выберите тип очистки зоны : ", d->character);
+						 "0) Никогда не очищать\r\n"
+						 "1) Очищать, если в зоне нет игроков\r\n"
+						 "2) Обычная очистка\r\n"
+						 "3) Общая очистка\r\n" "Выберите тип очистки зоны : ", d->character);
 			OLC_MODE(d) = ZEDIT_ZONE_RESET;
 			break;
 		case 'a':
@@ -1518,19 +1561,19 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 		/* End of ZEDIT_MAIN_MENU */
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_MOVE_ENTRY:
-		{
-			/* Получить два параметра: исходная строка и целевая строка */
-			int src, dst;
-			if (sscanf(arg, "%d %d", &src, &dst) == 2)
-				if (move_command(d, src, dst))
-					OLC_ZONE(d)->age = 1;
-		}
-		zedit_disp_menu(d);
-		break;
+	{
+		/* Получить два параметра: исходная строка и целевая строка */
+		int src, dst;
+		if (sscanf(arg, "%d %d", &src, &dst) == 2)
+			if (move_command(d, src, dst))
+				OLC_ZONE(d)->age = 1;
+	}
+	zedit_disp_menu(d);
+	break;
 
-/*-------------------------------------------------------------------*/
+	/*-------------------------------------------------------------------*/
 	case ZEDIT_DELETE_ENTRY:
 		/* Get the line number and delete the line. */
 		if (is_number(arg))
@@ -1539,50 +1582,55 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		zedit_disp_menu(d);
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_NEW_ENTRY:
 		/* Get the line number and insert the new line. */
-		if (!is_number(arg) || !new_command(d, atoi(arg))) {
+		if (!is_number(arg) || !new_command(d, atoi(arg)))
+		{
 			zedit_disp_menu(d);
 			break;
 		}
 		// тут break не нужен, иду редактировать
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_CHANGE_ENTRY:
 		/* Parse the input for which line to edit, and goto next quiz. */
-		if (is_number(arg) && start_change_command(d, atoi(arg))) {
+		if (is_number(arg) && start_change_command(d, atoi(arg)))
+		{
 			zedit_disp_comtype(d);
 			OLC_ZONE(d)->age = 1;
-		} else
+		}
+		else
 			zedit_disp_menu(d);
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_COMMAND_TYPE:
 		/* Parse the input for which type of command this is, and goto next quiz. */
 		item = SEEK_CMD(d);
 		item->cmd.command = toupper(*arg);
 		if (!item->cmd.command || (strchr("MFQOPEDGRTV", item->cmd.command) == NULL))
 			send_to_char("Неверный выбор, повторите : ", d->character);
-		else {
+		else
+		{
 			sprintf(buf,
-				"Режимы исполнения команды:\r\n"
-				"  0 - выполняется всегда\r\n"
-				"  1 - выполняется только в случае успешного выполнения предыдущей\r\n"
-				"  2 - выполняется всегда, не изменяет признак успешного выполнения\r\n"
-				"  3 - выполняется только в случае успешного выполнения предыдущей, не изменяет признак успешного выполнения\r\n"
-				"Текущий режим  : %d\r\n" "Выберите режим : ", item->cmd.if_flag);
+					"Режимы исполнения команды:\r\n"
+					"  0 - выполняется всегда\r\n"
+					"  1 - выполняется только в случае успешного выполнения предыдущей\r\n"
+					"  2 - выполняется всегда, не изменяет признак успешного выполнения\r\n"
+					"  3 - выполняется только в случае успешного выполнения предыдущей, не изменяет признак успешного выполнения\r\n"
+					"Текущий режим  : %d\r\n" "Выберите режим : ", item->cmd.if_flag);
 			send_to_char(buf, d->character);
 			OLC_MODE(d) = ZEDIT_IF_FLAG;
 		}
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_IF_FLAG:
 		/* Parse the input for the if flag, and goto next quiz. */
 		item = SEEK_CMD(d);
-		switch (*arg) {
+		switch (*arg)
+		{
 		case '0':
 		case '1':
 		case '2':
@@ -1596,13 +1644,14 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		zedit_disp_arg1(d);
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_ARG1:
 		/* Parse the input for arg1, and goto next quiz. */
 		CHECK_NUM(d, arg) item = SEEK_CMD(d);
 		pos = atoi(arg);
 		item->cmd.arg1 = pos;
-		switch (item->cmd.command) {
+		switch (item->cmd.command)
+		{
 		case 'M':
 		case 'Q':
 			CHECK_MOB(d, pos) if (item->cmd.command == 'M')
@@ -1632,7 +1681,8 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		case 'T':
 		case 'V':
-			if (pos != 0 && pos != 1 && pos != 2) {
+			if (pos != 0 && pos != 1 && pos != 2)
+			{
 				send_to_char("Неверный тип триггера, повторите : ", d->character);
 				return;
 			}
@@ -1653,19 +1703,21 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_ARG2:
 		/* Parse the input for arg2, and goto next quiz. */
 		CHECK_NUM(d, arg) item = SEEK_CMD(d);
 		pos = atoi(arg);
 		item->cmd.arg2 = pos;
-		switch (item->cmd.command) {
+		switch (item->cmd.command)
+		{
 		case 'M':
 		case 'O':
 		case 'P':
 		case 'E':
 		case 'G':
-			if (pos < 0) {
+			if (pos < 0)
+			{
 				send_to_char("Параметр должен быть неотрицательным, повторите : ", d->character);
 				return;
 			}
@@ -1690,7 +1742,8 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		case 'D':
 			for (i = 0; *dirs[i] != '\n' && i != pos; ++i);
-			if (*dirs[i] == '\n') {
+			if (*dirs[i] == '\n')
+			{
 				send_to_char("Неверное направление, повторите : ", d->character);
 				return;
 			}
@@ -1716,13 +1769,14 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_ARG3:
 		/* Parse the input for arg3, and go back to main menu. */
 		CHECK_NUM(d, arg) item = SEEK_CMD(d);
 		pos = atoi(arg);
 		item->cmd.arg3 = pos;
-		switch (item->cmd.command) {
+		switch (item->cmd.command)
+		{
 		case 'M':
 		case 'O':
 		case 'T':
@@ -1742,7 +1796,8 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		case 'E':
 			for (i = 0; *equipment_types[i] != '\n' && i != pos; ++i);
-			if (*equipment_types[i] == '\n') {
+			if (*equipment_types[i] == '\n')
+			{
 				send_to_char("Неверная позиция, повторите : ", d->character);
 				return;
 			}
@@ -1754,7 +1809,8 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 
 		case 'D':
-			if (pos != 0 && pos != 1 && pos != 2 && pos != 3 && pos != 4) {
+			if (pos != 0 && pos != 1 && pos != 2 && pos != 3 && pos != 4)
+			{
 				send_to_char("Неверное состояние выхода, повторите : ", d->character);
 				return;
 			}
@@ -1775,13 +1831,14 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 
 	case ZEDIT_ARG4:
 		CHECK_NUM(d, arg) item = SEEK_CMD(d);
 		pos = atoi(arg);
 		item->cmd.arg4 = pos;
-		switch (item->cmd.command) {
+		switch (item->cmd.command)
+		{
 		case 'M':
 			if (pos < 0)
 				item->cmd.arg4 = -1;
@@ -1816,7 +1873,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_SARG1:
 		item = SEEK_CMD(d);
 		if (item->cmd.sarg1)
@@ -1827,7 +1884,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		zedit_disp_sarg2(d);
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_SARG2:
 		item = SEEK_CMD(d);
 		if (item->cmd.sarg2)
@@ -1838,7 +1895,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		zedit_disp_menu(d);
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_ZONE_NAME:
 		/*
 		 * Add new name and return to main menu.
@@ -1852,7 +1909,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		zedit_disp_menu(d);
 		break;
 //MZ.load
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_ZONE_LEVEL:
 		/*
 		 * Parse and add new level and return to main menu.
@@ -1860,14 +1917,15 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		pos = atoi(arg);
 		if (!is_number(arg) || (pos < MIN_ZONE_LEVEL) || (pos > MAX_ZONE_LEVEL))
 			send_to_char(d->character, "Повторите ввод (%d-%d) : ", MIN_ZONE_LEVEL, MAX_ZONE_LEVEL);
-		else {
+		else
+		{
 			OLC_ZONE(d)->level = pos;
 			OLC_ZONE(d)->number = 1;
 			zedit_disp_menu(d);
 		}
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_ZONE_TYPE:
 		/*
 		 * Parse and add new zone type and return to main menu.
@@ -1892,7 +1950,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 //-MZ.load
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_ZONE_RESET:
 		/*
 		 * Parse and add new reset_mode and return to main menu.
@@ -1900,14 +1958,15 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		pos = atoi(arg);
 		if (!is_number(arg) || (pos < 0) || (pos > 3))
 			send_to_char("Повторите ввод (0-3) : ", d->character);
-		else {
+		else
+		{
 			OLC_ZONE(d)->reset_mode = pos;
 			OLC_ZONE(d)->number = 1;
 			zedit_disp_menu(d);
 		}
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_ZONE_LIFE:
 		/*
 		 * Parse and add new lifespan and return to main menu.
@@ -1915,21 +1974,25 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		pos = atoi(arg);
 		if (!is_number(arg) || (pos < 0) || (pos > 240))
 			send_to_char("Повторите ввод (0-240) : ", d->character);
-		else {
+		else
+		{
 			OLC_ZONE(d)->lifespan = pos;
 			OLC_ZONE(d)->number = 1;
 			zedit_disp_menu(d);
 		}
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_RESET_IDLE:
 		/*
 		 * Parse and add new reset_idle and return to main menu.
 		 */
-		if (!arg[0] || !strchr("YyNnДдНн", arg[0])) {
+		if (!arg[0] || !strchr("YyNnДдНн", arg[0]))
+		{
 			send_to_char("Повторите ввод (y или n) : ", d->character);
-		} else {
+		}
+		else
+		{
 			if (strchr("YyДд", arg[0]))
 				OLC_ZONE(d)->reset_idle = 1;
 			else
@@ -1939,7 +2002,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_TYPE_A_LIST:
 		/*
 		 * Add or delete new zone in the type A zones list.
@@ -1947,8 +2010,10 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		pos = atoi(arg);
 		if (!is_number(arg) || (pos < 1) || (pos > 999))
 			send_to_char("Повторите ввод (1-999) : ", d->character);
-		else {
-			for (i = 0; i < OLC_ZONE(d)->typeA_count; i++) {
+		else
+		{
+			for (i = 0; i < OLC_ZONE(d)->typeA_count; i++)
+			{
 				if (OLC_ZONE(d)->typeA_list[i] == pos)	// нашли совпадающий -- убираем элемент
 				{
 					if (OLC_ZONE(d)->typeA_count > 1)
@@ -1968,7 +2033,8 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 					temp[j] = OLC_ZONE(d)->typeA_list[j];
 				temp[j] = pos;
 				OLC_ZONE(d)->typeA_count++;
-			} else
+			}
+			else
 				--OLC_ZONE(d)->typeA_count;
 
 			free(OLC_ZONE(d)->typeA_list);
@@ -1981,7 +2047,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_TYPE_B_LIST:
 		/*
 		 * Add or delete new zone in the type A zones list.
@@ -1989,8 +2055,10 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		pos = atoi(arg);
 		if (!is_number(arg) || (pos < 1) || (pos > 999))
 			send_to_char("Повторите ввод (1-999) : ", d->character);
-		else {
-			for (i = 0; i < OLC_ZONE(d)->typeB_count; i++) {
+		else
+		{
+			for (i = 0; i < OLC_ZONE(d)->typeB_count; i++)
+			{
 				if (OLC_ZONE(d)->typeB_list[i] == pos)	// нашли совпадающий -- убираем элемент
 				{
 					if (OLC_ZONE(d)->typeB_count > 1)
@@ -2010,7 +2078,8 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 					temp[j] = OLC_ZONE(d)->typeB_list[j];
 				temp[j] = pos;
 				OLC_ZONE(d)->typeB_count++;
-			} else
+			}
+			else
 				--OLC_ZONE(d)->typeB_count;
 
 			free(OLC_ZONE(d)->typeB_list);
@@ -2023,7 +2092,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	case ZEDIT_ZONE_TOP:
 		/*
 		 * Parse and add new top room in zone and return to main menu.
@@ -2032,12 +2101,12 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_ZONE(d)->top = MAX(OLC_ZNUM(d) * 100, MIN(99900, atoi(arg)));
 		else
 			OLC_ZONE(d)->top =
-			    MAX(OLC_ZNUM(d) * 100, MIN(zone_table[OLC_ZNUM(d) + 1].number * 100, atoi(arg)));
+				MAX(OLC_ZNUM(d) * 100, MIN(zone_table[OLC_ZNUM(d) + 1].number * 100, atoi(arg)));
 		OLC_ZONE(d)->top = (OLC_ZONE(d)->top / 100) * 100 + 99;
 		zedit_disp_menu(d);
 		break;
 
-/*-------------------------------------------------------------------*/
+		/*-------------------------------------------------------------------*/
 	default:
 		/*
 		 * We should never get here, but just in case...
@@ -2069,10 +2138,13 @@ void zedit_new_zone(CHAR_DATA * ch, int vzone_num)
 	struct zone_data *new_table;
 	int i, room;
 
-	if (vzone_num < 0) {
+	if (vzone_num < 0)
+	{
 		send_to_char("Отрицательный зоны не поддерживаются.\r\n", ch);
 		return;
-	} else if (vzone_num > 999) {
+	}
+	else if (vzone_num > 999)
+	{
 		send_to_char("Максимально поддерживается 999 зон.\r\n", ch);
 		return;
 	}
@@ -2082,7 +2154,8 @@ void zedit_new_zone(CHAR_DATA * ch, int vzone_num)
 	 */
 	room = vzone_num * 100;
 	for (i = 0; i <= top_of_zone_table; i++)
-		if ((zone_table[i].number * 100 <= room) && (zone_table[i].top >= room)) {
+		if ((zone_table[i].number * 100 <= room) && (zone_table[i].top >= room))
+		{
 			send_to_char("Аналогичная зона уже существует.\r\n", ch);
 			return;
 		}
@@ -2091,7 +2164,8 @@ void zedit_new_zone(CHAR_DATA * ch, int vzone_num)
 	 * Create the zone file.
 	 */
 	sprintf(buf, "%s/%d.zon", ZON_PREFIX, vzone_num);
-	if (!(fp = fopen(buf, "w"))) {
+	if (!(fp = fopen(buf, "w")))
+	{
 		mudlog("SYSERR: OLC: Can't write new zone file", BRF, LVL_IMPL, SYSLOG, TRUE);
 		send_to_char("Ошибка создания файла зоны.\r\n", ch);
 		return;
@@ -2103,7 +2177,8 @@ void zedit_new_zone(CHAR_DATA * ch, int vzone_num)
 	 * Create the room file.
 	 */
 	sprintf(buf, "%s/%d.wld", WLD_PREFIX, vzone_num);
-	if (!(fp = fopen(buf, "w"))) {
+	if (!(fp = fopen(buf, "w")))
+	{
 		mudlog("SYSERR: OLC: Can't write new world file", BRF, LVL_IMPL, SYSLOG, TRUE);
 		send_to_char("Не могу создать файл карты новой зоны.\r\n", ch);
 		return;
@@ -2115,7 +2190,8 @@ void zedit_new_zone(CHAR_DATA * ch, int vzone_num)
 	 * Create the mobile file.
 	 */
 	sprintf(buf, "%s/%d.mob", MOB_PREFIX, vzone_num);
-	if (!(fp = fopen(buf, "w"))) {
+	if (!(fp = fopen(buf, "w")))
+	{
 		mudlog("SYSERR: OLC: Can't write new mob file", BRF, LVL_IMPL, SYSLOG, TRUE);
 		send_to_char("Не могу создать файл мобов новой зоны.\r\n", ch);
 		return;
@@ -2127,7 +2203,8 @@ void zedit_new_zone(CHAR_DATA * ch, int vzone_num)
 	 * Create the object file.
 	 */
 	sprintf(buf, "%s/%d.obj", OBJ_PREFIX, vzone_num);
-	if (!(fp = fopen(buf, "w"))) {
+	if (!(fp = fopen(buf, "w")))
+	{
 		mudlog("SYSERR: OLC: Can't write new obj file", BRF, LVL_IMPL, SYSLOG, TRUE);
 		send_to_char("Не могу создать файл предметов новой зоны.\r\n", ch);
 		return;
@@ -2139,7 +2216,8 @@ void zedit_new_zone(CHAR_DATA * ch, int vzone_num)
 	 * Create the shop file.
 	 */
 	sprintf(buf, "%s/%d.shp", SHP_PREFIX, vzone_num);
-	if (!(fp = fopen(buf, "w"))) {
+	if (!(fp = fopen(buf, "w")))
+	{
 		mudlog("SYSERR: OLC: Can't write new shop file", BRF, LVL_IMPL, SYSLOG, TRUE);
 		send_to_char("Не могу создать файл магазинов новой зоны.\r\n", ch);
 		return;
@@ -2151,7 +2229,8 @@ void zedit_new_zone(CHAR_DATA * ch, int vzone_num)
 	 * Create the trigger file.
 	 */
 	sprintf(buf, "%s/%d.trg", TRG_PREFIX, vzone_num);
-	if (!(fp = fopen(buf, "w"))) {
+	if (!(fp = fopen(buf, "w")))
+	{
 		mudlog("SYSERR: OLC: Can't write new trigger file", BRF, LVL_IMPL, SYSLOG, TRUE);
 		send_to_char("Не могу создать файл тригеров новой зоны.\r\n", ch);
 		return;
@@ -2182,14 +2261,16 @@ void zedit_new_zone(CHAR_DATA * ch, int vzone_num)
 	CREATE(new_table, struct zone_data, top_of_zone_table + 2);
 	new_table[top_of_zone_table + 1].number = 99900;
 
-	if (vzone_num > zone_table[top_of_zone_table].number) {	/*
+	if (vzone_num > zone_table[top_of_zone_table].number)
+	{	/*
 								 * We're adding to the end of the zone table, copy all of the current
 								 * top_of_zone_table + 1 items over and set write point to before the
 								 * the last record for the for() loop below.
 								 */
 		memcpy(new_table, zone_table, (sizeof(struct zone_data) * (top_of_zone_table + 1)));
 		i = top_of_zone_table + 1;
-	} else
+	}
+	else
 		/*
 		 * Copy over all the zones that are before this zone.
 		 */
@@ -2246,7 +2327,8 @@ void zedit_create_index(int znum, char *type)
 	char new_name[32], old_name[32], *prefix;
 	int num, found = FALSE;
 
-	switch (*type) {
+	switch (*type)
+	{
 	case 'z':
 		prefix = ZON_PREFIX;
 		break;
@@ -2275,11 +2357,14 @@ void zedit_create_index(int znum, char *type)
 	sprintf(old_name, "%s/index", prefix);
 	sprintf(new_name, "%s/newindex", prefix);
 
-	if (!(oldfile = fopen(old_name, "r"))) {
+	if (!(oldfile = fopen(old_name, "r")))
+	{
 		sprintf(buf, "SYSERR: OLC: Failed to open %s", buf);
 		mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
 		return;
-	} else if (!(newfile = fopen(new_name, "w"))) {
+	}
+	else if (!(newfile = fopen(new_name, "w")))
+	{
 		sprintf(buf, "SYSERR: OLC: Failed to open %s", buf);
 		mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
 		return;
@@ -2290,13 +2375,18 @@ void zedit_create_index(int znum, char *type)
 	 * right place, insert the new file, then copy the rest over.
 	 */
 	sprintf(buf1, "%d.%s", znum, type);
-	while (get_line(oldfile, buf)) {
-		if (*buf == '$') {
+	while (get_line(oldfile, buf))
+	{
+		if (*buf == '$')
+		{
 			fprintf(newfile, "%s\n$\n", (!found ? buf1 : ""));
 			break;
-		} else if (!found) {
+		}
+		else if (!found)
+		{
 			sscanf(buf, "%d", &num);
-			if (num > znum) {
+			if (num > znum)
+			{
 				found = TRUE;
 				fprintf(newfile, "%s\n", buf1);
 			}
@@ -2352,11 +2442,12 @@ void add_cmd_to_list(struct reset_com **list, struct reset_com *newcmd, int pos)
 	/*
 	 * Even tighter loop to copy the old list and insert a new command.
 	 */
-	for (i = 0, l = 0; i <= count; i++) {
+	for (i = 0, l = 0; i <= count; i++)
+	{
 		newlist[i] = ((i == pos) ? *newcmd : (*list)[l++]);
 #if defined(DEBUG)
 		sprintf(buf, "add_cmd_to_list: added %c %d %d %d %d",
-			newlist[i].command, newlist[i].arg1, newlist[i].arg2, newlist[i].arg3, newlist[i].line);
+				newlist[i].command, newlist[i].arg1, newlist[i].arg2, newlist[i].arg3, newlist[i].line);
 		log(buf);
 #endif
 	}
@@ -2394,18 +2485,20 @@ void remove_cmd_from_list(struct reset_com **list, int pos)
 	/*
 	 * Even tighter loop to copy old list and skip unwanted command.
 	 */
-	for (i = 0, l = 0; i < count; i++) {
-		if (i != pos) {
+	for (i = 0, l = 0; i < count; i++)
+	{
+		if (i != pos)
+		{
 #if defined(DEBUG)
 			sprintf(buf, "remove_cmd_from_list: kept %c %d %d %d %d",
-				(*list)[i].command, (*list)[i].arg1, (*list)[i].arg2, (*list)[i].arg3, (*list)[i].line);
+					(*list)[i].command, (*list)[i].arg1, (*list)[i].arg2, (*list)[i].arg3, (*list)[i].line);
 #endif
 			newlist[l++] = (*list)[i];
 		}
 #if defined(DEBUG)
 		else
 			sprintf(buf, "remove_cmd_from_list: deleted %c %d %d %d %d",
-				(*list)[i].command, (*list)[i].arg1, (*list)[i].arg2, (*list)[i].arg3, (*list)[i].line);
+					(*list)[i].command, (*list)[i].arg1, (*list)[i].arg2, (*list)[i].arg3, (*list)[i].line);
 		log(buf);
 #endif
 	}

@@ -31,9 +31,10 @@
 /*
 ** define event related structures
 */
-struct event_info {
+struct event_info
+{
 	int time_remaining;
-	 EVENT(*func);
+	EVENT(*func);
 	void *info;
 	struct event_info *next;
 };

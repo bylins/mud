@@ -7,14 +7,19 @@
 #include "random.hpp"
 #include "sysdep.h"
 
-namespace Random {
+namespace Random
+{
 
-class NormalRand {
-	public:
-	NormalRand() { rng.seed(static_cast<unsigned> (time(0))); };
+class NormalRand
+{
+public:
+	NormalRand()
+	{
+		rng.seed(static_cast<unsigned>(time(0)));
+	};
 	int number(int from, int to);
 
-	private:
+private:
 	boost::mt19937 rng;
 };
 
@@ -36,7 +41,8 @@ int NormalRand::number(int from, int to)
 */
 int number(int from, int to)
 {
-	if (from > to) {
+	if (from > to)
+	{
 		int tmp = from;
 		from = to;
 		to = tmp;

@@ -61,30 +61,33 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 	int i, j, nr, weap_i;
 	struct message_type *msg;
 	OBJ_DATA *weap = GET_EQ(ch, WEAR_WIELD) ? GET_EQ(ch, WEAR_WIELD) : GET_EQ(ch,
-										  WEAR_BOTHS);
+					 WEAR_BOTHS);
 
 	// log("[SKILL MESSAGE] Message for skill %d",attacktype);
-	for (i = 0; i < MAX_MESSAGES; i++) {
-		if (fight_messages[i].a_type == attacktype) {
+	for (i = 0; i < MAX_MESSAGES; i++)
+	{
+		if (fight_messages[i].a_type == attacktype)
+		{
 			nr = dice(1, fight_messages[i].number_of_attacks);
 			// log("[SKILL MESSAGE] %d(%d)",fight_messages[i].number_of_attacks,nr);
 			for (j = 1, msg = fight_messages[i].msg; (j < nr) && msg; j++)
 				msg = msg->next;
 
-			switch (attacktype) {
+			switch (attacktype)
+			{
 			case SKILL_BACKSTAB + TYPE_HIT:
 				if (!(weap = GET_EQ(ch, WEAR_WIELD))
-				    && (weap_i = real_object(DUMMY_KNIGHT)) >= 0)
+						&& (weap_i = real_object(DUMMY_KNIGHT)) >= 0)
 					weap = obj_proto[weap_i];
 				break;
 			case SKILL_THROW + TYPE_HIT:
 				if (!(weap = GET_EQ(ch, WEAR_WIELD))
-				    && (weap_i = real_object(DUMMY_KNIGHT)) >= 0)
+						&& (weap_i = real_object(DUMMY_KNIGHT)) >= 0)
 					weap = obj_proto[weap_i];
 				break;
 			case SKILL_BASH + TYPE_HIT:
 				if (!(weap = GET_EQ(ch, WEAR_SHIELD))
-				    && (weap_i = real_object(DUMMY_SHIELD)) >= 0)
+						&& (weap_i = real_object(DUMMY_SHIELD)) >= 0)
 					weap = obj_proto[weap_i];
 				break;
 			case SKILL_KICK + TYPE_HIT:
@@ -124,8 +127,10 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 					weap = obj_proto[weap_i];
 			}
 
-			if (!IS_NPC(vict) && (GET_LEVEL(vict) >= LVL_IMMORT)) {
-				switch (attacktype) {
+			if (!IS_NPC(vict) && (GET_LEVEL(vict) >= LVL_IMMORT))
+			{
+				switch (attacktype)
+				{
 				case SKILL_BACKSTAB + TYPE_HIT:
 				case SKILL_THROW + TYPE_HIT:
 				case SKILL_BASH + TYPE_HIT:
@@ -137,39 +142,47 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 					break;
 				}
 				act(msg->god_msg.attacker_msg, FALSE, ch, weap, vict,
-				    TO_CHAR);
+					TO_CHAR);
 				send_to_char(CCNRM(ch, C_CMP), ch);
 
 				act(msg->god_msg.victim_msg, FALSE, ch, weap, vict, TO_VICT);
 				act(msg->god_msg.room_msg, FALSE, ch, weap, vict,
-				    TO_NOTVICT);
-			} else if (dam != 0) {
-				if (GET_POS(vict) == POS_DEAD) {
+					TO_NOTVICT);
+			}
+			else if (dam != 0)
+			{
+				if (GET_POS(vict) == POS_DEAD)
+				{
 					send_to_char(CCIYEL(ch, C_CMP), ch);
 					act(msg->die_msg.attacker_msg, FALSE, ch, weap, vict,
-					    TO_CHAR);
+						TO_CHAR);
 					send_to_char(CCNRM(ch, C_CMP), ch);
 
 					send_to_char(CCIRED(vict, C_CMP), vict);
 					act(msg->die_msg.victim_msg, FALSE, ch, weap, vict,
-					    TO_VICT | TO_SLEEP);
+						TO_VICT | TO_SLEEP);
 					send_to_char(CCNRM(vict, C_CMP), vict);
 					act(msg->die_msg.room_msg, FALSE, ch, weap, vict,
-					    TO_NOTVICT);
-				} else {
+						TO_NOTVICT);
+				}
+				else
+				{
 					send_to_char(CCIYEL(ch, C_CMP), ch);
 					act(msg->hit_msg.attacker_msg, FALSE, ch, weap, vict,
-					    TO_CHAR);
+						TO_CHAR);
 					send_to_char(CCNRM(ch, C_CMP), ch);
 					send_to_char(CCIRED(vict, C_CMP), vict);
 					act(msg->hit_msg.victim_msg, FALSE, ch, weap, vict,
-					    TO_VICT | TO_SLEEP);
+						TO_VICT | TO_SLEEP);
 					send_to_char(CCNRM(vict, C_CMP), vict);
 					act(msg->hit_msg.room_msg, FALSE, ch, weap, vict,
-					    TO_NOTVICT);
+						TO_NOTVICT);
 				}
-			} else if (ch != vict) {	/* Dam == 0 */
-				switch (attacktype) {
+			}
+			else if (ch != vict)  	/* Dam == 0 */
+			{
+				switch (attacktype)
+				{
 				case SKILL_BACKSTAB + TYPE_HIT:
 				case SKILL_THROW + TYPE_HIT:
 				case SKILL_BASH + TYPE_HIT:
@@ -181,16 +194,16 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 					break;
 				}
 				act(msg->miss_msg.attacker_msg, FALSE, ch, weap, vict,
-				    TO_CHAR);
+					TO_CHAR);
 				send_to_char(CCNRM(ch, C_CMP), ch);
 
 				send_to_char(CCRED(vict, C_CMP), vict);
 				act(msg->miss_msg.victim_msg, FALSE, ch, weap, vict,
-				    TO_VICT | TO_SLEEP);
+					TO_VICT | TO_SLEEP);
 				send_to_char(CCNRM(vict, C_CMP), vict);
 
 				act(msg->miss_msg.room_msg, FALSE, ch, weap, vict,
-				    TO_NOTVICT);
+					TO_NOTVICT);
 			}
 			return (1);
 		}
@@ -206,15 +219,18 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	bool pass_mod = 0; // в данный момент для доп.выстрела, чтобы оставить его как скилл,
 	// но не применять к нему левых штрафов и плюсов, плюсуется только от инты немного
 
-	if (skill_no < 1 || skill_no > MAX_SKILLS) {	// log("ERROR: ATTEMPT USING UNKNOWN SKILL <%d>", skill_no);
+	if (skill_no < 1 || skill_no > MAX_SKILLS)  	// log("ERROR: ATTEMPT USING UNKNOWN SKILL <%d>", skill_no);
+	{
 		return 0;
 	}
-	if ((skill_is = ch->get_skill(skill_no)) <= 0) {
+	if ((skill_is = ch->get_skill(skill_no)) <= 0)
+	{
 		return 0;
 	}
 
 	skill_is += int_app[GET_REAL_INT(ch)].to_skilluse;
-	switch (skill_no) {
+	switch (skill_no)
+	{
 	case SKILL_HIDETRACK:
 		percent = skill_is + (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 		break;
@@ -224,7 +240,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		if (awake_others(ch))
 			percent -= 50;
 
-		if (vict) {
+		if (vict)
+		{
 			if (!CAN_SEE(vict, ch))
 				percent += 25;
 			if (GET_POS(vict) < POS_FIGHTING)
@@ -238,13 +255,14 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	case SKILL_BASH:	/*сбить */
 		victim_sav = SAVING_REFLEX;
 		percent = skill_is +
-		    size_app[GET_POS_SIZE(ch)].interpolate +
-		    dex_app[GET_REAL_DEX(ch)].reaction +
-		    dex_app[GET_REAL_STR(ch)].reaction +
-		    (GET_EQ(ch, WEAR_SHIELD) ?
-		     weapon_app[MIN(50, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].
-		     bashing : 0);
-		if (vict) {
+				  size_app[GET_POS_SIZE(ch)].interpolate +
+				  dex_app[GET_REAL_DEX(ch)].reaction +
+				  dex_app[GET_REAL_STR(ch)].reaction +
+				  (GET_EQ(ch, WEAR_SHIELD) ?
+				   weapon_app[MIN(50, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].
+				   bashing : 0);
+		if (vict)
+		{
 			victim_modi -= size_app[GET_POS_SIZE(vict)].interpolate;
 			if (GET_POS(vict) < POS_FIGHTING && GET_POS(vict) > POS_SLEEPING)
 				victim_modi -= 20;
@@ -255,8 +273,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	case SKILL_HIDE:	/*спрятаться */
 		percent =
-		    skill_is + dex_app_skill[GET_REAL_DEX(ch)].hide - size_app[GET_POS_SIZE(ch)].ac
-									+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
+			skill_is + dex_app_skill[GET_REAL_DEX(ch)].hide - size_app[GET_POS_SIZE(ch)].ac
+			+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 
 		if (awake_others(ch))
 			percent -= 50;
@@ -271,11 +289,12 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		else if (SECT(IN_ROOM(ch)) == SECT_FOREST)
 			percent -= 20;
 		else if (SECT(IN_ROOM(ch)) == SECT_HILLS
-			 || SECT(IN_ROOM(ch)) == SECT_MOUNTAIN) percent -= 10;
+				 || SECT(IN_ROOM(ch)) == SECT_MOUNTAIN) percent -= 10;
 		if (equip_in_metall(ch))
 			percent -= 50;
 
-		if (vict) {
+		if (vict)
+		{
 			if (AWAKE(vict))
 				victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
@@ -283,9 +302,10 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	case SKILL_KICK:	/*пнуть */
 		victim_sav = SAVING_STABILITY;
 		percent = skill_is +
-			dex_app[GET_REAL_DEX(ch)].reaction +
-			dex_app[GET_REAL_STR(ch)].reaction;
-		if (vict) {
+				  dex_app[GET_REAL_DEX(ch)].reaction +
+				  dex_app[GET_REAL_STR(ch)].reaction;
+		if (vict)
+		{
 			victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
 			victim_modi += dex_app[GET_REAL_CON(vict)].reaction;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
@@ -294,7 +314,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	case SKILL_PICK_LOCK:	/*pick lock */
 		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].p_locks
-				+ (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
+				  + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 		break;
 	case SKILL_PUNCH:	/*punch */
 		percent = skill_is;
@@ -305,7 +325,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	case SKILL_SNEAK:	/*sneak */
 		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].sneak
-						+ (can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0);
+				  + (can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0);
 
 		if (awake_others(ch))
 			percent -= 50;
@@ -317,17 +337,19 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		if (equip_in_metall(ch))
 			percent -= 50;
 
-		if (vict) {
+		if (vict)
+		{
 			if (!CAN_SEE(vict, ch))
 				victim_modi += 25;
-			if (AWAKE(vict)) {
+			if (AWAKE(vict))
+			{
 				victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 			}
 		}
 		break;
 	case SKILL_STEAL:	/*steal */
 		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].p_pocket
-				+ (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
+				  + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 
 		if (awake_others(ch))
 			percent -= 50;
@@ -335,10 +357,12 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		if (IS_DARK(IN_ROOM(ch)))
 			percent += 20;
 
-		if (vict) {
+		if (vict)
+		{
 			if (!CAN_SEE(vict, ch))
 				victim_modi += 25;
-			if (AWAKE(vict)) {
+			if (AWAKE(vict))
+			{
 				victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 				if (AFF_FLAGGED(vict, AFF_AWARNESS))
 					victim_modi -= 30;
@@ -347,43 +371,45 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	case SKILL_TRACK:	/*выследить */
 		percent = skill_is + int_app[GET_REAL_INT(ch)].observation
-				+ (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
+				  + (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
 
 		if (SECT(IN_ROOM(ch)) == SECT_FOREST || SECT(IN_ROOM(ch)) == SECT_FIELD)
 			percent += 10;
 
 		percent =
-		    complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
+			complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
 
 		if (SECT(IN_ROOM(ch)) == SECT_WATER_SWIM ||
-		    SECT(IN_ROOM(ch)) == SECT_WATER_NOSWIM ||
-		    SECT(IN_ROOM(ch)) == SECT_FLYING ||
-		    SECT(IN_ROOM(ch)) == SECT_UNDERWATER ||
-		    SECT(IN_ROOM(ch)) == SECT_SECRET
-		    || ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK)) percent = 0;
+				SECT(IN_ROOM(ch)) == SECT_WATER_NOSWIM ||
+				SECT(IN_ROOM(ch)) == SECT_FLYING ||
+				SECT(IN_ROOM(ch)) == SECT_UNDERWATER ||
+				SECT(IN_ROOM(ch)) == SECT_SECRET
+				|| ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK)) percent = 0;
 
 
-		if (vict) {
+		if (vict)
+		{
 			victim_modi += con_app[GET_REAL_CON(vict)].hitp;
 			if (AFF_FLAGGED(vict, AFF_NOTRACK)
-			    || ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK)) victim_modi = -100;
+					|| ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK)) victim_modi = -100;
 		}
 		break;
 
 	case SKILL_SENSE:
 		percent = skill_is + int_app[GET_REAL_INT(ch)].observation
-				+ (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
+				  + (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
 
 		percent =
-		    complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
+			complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
 
 		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK))
 			percent = 0;
 
-		if (vict) {
+		if (vict)
+		{
 			victim_modi += con_app[GET_REAL_CON(vict)].hitp;
 			if (AFF_FLAGGED(vict, AFF_NOTRACK)
-			    || ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK)) victim_modi = -100;
+					|| ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK)) victim_modi = -100;
 		}
 		break;
 	case SKILL_MULTYPARRY:
@@ -393,13 +419,14 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			percent += ch->get_skill(SKILL_AWAKE);
 
 		if (GET_EQ(ch, WEAR_HOLD)
-		    && GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ITEM_WEAPON) {
+				&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == ITEM_WEAPON)
+		{
 			percent +=
-			    weapon_app[MAX
-				       (0,
-					MIN(50,
-					    GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))))].
-			    parrying;
+				weapon_app[MAX
+						   (0,
+							MIN(50,
+								GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))))].
+				parrying;
 		}
 		victim_modi = 100;
 		break;
@@ -413,10 +440,11 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 
 	case SKILL_TOUCH:	/*захватить противника */
 		percent =
-		    skill_is + dex_app[GET_REAL_DEX(ch)].reaction +
-		    size_app[GET_POS_SIZE(vict)].interpolate;
+			skill_is + dex_app[GET_REAL_DEX(ch)].reaction +
+			size_app[GET_POS_SIZE(vict)].interpolate;
 
-		if (vict) {
+		if (vict)
+		{
 			victim_modi -= dex_app[GET_REAL_DEX(vict)].reaction;
 			victim_modi -= size_app[GET_POS_SIZE(vict)].interpolate;
 		}
@@ -424,8 +452,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 
 	case SKILL_PROTECT:	/*прикрыть грудью */
 		percent =
-		    skill_is + dex_app[GET_REAL_DEX(ch)].reaction +
-		    size_app[GET_POS_SIZE(ch)].interpolate;
+			skill_is + dex_app[GET_REAL_DEX(ch)].reaction +
+			size_app[GET_POS_SIZE(ch)].interpolate;
 
 		victim_modi = 100;
 		break;
@@ -455,8 +483,9 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	case SKILL_DISARM:
 		victim_sav = SAVING_REFLEX;
 		percent = skill_is + dex_app[GET_REAL_DEX(ch)].reaction +
-			dex_app[GET_REAL_STR(ch)].reaction;
-		if (vict) {
+				  dex_app[GET_REAL_STR(ch)].reaction;
+		if (vict)
+		{
 			victim_modi -= dex_app[GET_REAL_STR(vict)].reaction;
 			if (GET_EQ(vict, WEAR_BOTHS))
 				victim_modi -= 10;
@@ -481,7 +510,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	case SKILL_CAMOUFLAGE:
 		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].hide - size_app[GET_POS_SIZE(ch)].ac
-									+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
+				  + (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 
 		if (awake_others(ch))
 			percent -= 100;
@@ -494,36 +523,39 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		else if (SECT(IN_ROOM(ch)) == SECT_FOREST)
 			percent += 10;
 		else if (SECT(IN_ROOM(ch)) == SECT_HILLS
-			 || SECT(IN_ROOM(ch)) == SECT_MOUNTAIN) percent += 5;
+				 || SECT(IN_ROOM(ch)) == SECT_MOUNTAIN) percent += 5;
 		if (equip_in_metall(ch))
 			percent -= 30;
 
-		if (vict) {
+		if (vict)
+		{
 			if (AWAKE(vict))
 				victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
 	case SKILL_DEVIATE:
 		percent =
-		    skill_is - size_app[GET_POS_SIZE(ch)].ac +
-		    dex_app[GET_REAL_DEX(ch)].reaction;
+			skill_is - size_app[GET_POS_SIZE(ch)].ac +
+			dex_app[GET_REAL_DEX(ch)].reaction;
 
 		if (equip_in_metall(ch))
 			percent -= 40;
 
-		if (vict) {
+		if (vict)
+		{
 			victim_modi -= dex_app[GET_REAL_DEX(vict)].miss_att;
 		}
 		break;
 	case SKILL_CHOPOFF:
 		victim_sav = SAVING_REFLEX;
 		percent = skill_is +
-			dex_app[GET_REAL_DEX(ch)].reaction + size_app[GET_POS_SIZE(ch)].ac;
+				  dex_app[GET_REAL_DEX(ch)].reaction + size_app[GET_POS_SIZE(ch)].ac;
 
 		if (equip_in_metall(ch))
 			percent -= 10;
 
-		if (vict) {
+		if (vict)
+		{
 			if (!CAN_SEE(vict, ch))
 				percent += 10;
 			if (GET_POS(vict) < POS_SITTING)
@@ -552,24 +584,26 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	case SKILL_MIGHTHIT:
 		victim_sav = SAVING_STABILITY;
 		percent =
-		    skill_is + size_app[GET_POS_SIZE(ch)].shocking +
-		    str_app[GET_REAL_STR (ch)].todam;
+			skill_is + size_app[GET_POS_SIZE(ch)].shocking +
+			str_app[GET_REAL_STR(ch)].todam;
 
-		if (vict) {
+		if (vict)
+		{
 			victim_modi -= size_app[GET_POS_SIZE(vict)].shocking;
 		}
 		break;
 	case SKILL_STUPOR:
 		victim_sav = SAVING_STABILITY;
-		percent = skill_is + str_app[GET_REAL_STR (ch)].todam * 2;
+		percent = skill_is + str_app[GET_REAL_STR(ch)].todam * 2;
 		if (GET_EQ(ch, WEAR_WIELD))
 			percent +=
-			    weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
+				weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
 		else if (GET_EQ(ch, WEAR_BOTHS))
 			percent +=
-			    weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))].shocking;
+				weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))].shocking;
 
-		if (vict) {
+		if (vict)
+		{
 			victim_modi += con_app[GET_REAL_CON(vict)].critic_saving;
 		}
 		break;
@@ -584,30 +618,32 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		percent = skill_is + int_app[GET_REAL_INT(ch)].observation;
 		if (GET_EQ(ch, WEAR_WIELD))
 			percent += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 18
-			    + MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 25
-			    + MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 30;
+					   + MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 25
+					   + MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 30;
 		if (GET_EQ(ch, WEAR_HOLD))
 			percent += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 18
-			    + MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 25
-			    + MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 30;
+					   + MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 25
+					   + MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 30;
 		if (GET_EQ(ch, WEAR_BOTHS))
 			percent += MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))) - 25
-			    + MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))) - 30;
-		if (vict) {
+					   + MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))) - 30;
+		if (vict)
+		{
 			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
 	case SKILL_AWAKE:
 		percent = skill_is + int_app[GET_REAL_INT(ch)].observation;
 
-		if (vict) {
+		if (vict)
+		{
 			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
 
 	case SKILL_IDENTIFY:
 		percent = skill_is + int_app[GET_REAL_INT(ch)].observation
-							+ (can_use_feat(ch, CONNOISEUR_FEAT) ? 20 : 0);
+				  + (can_use_feat(ch, CONNOISEUR_FEAT) ? 20 : 0);
 		break;
 
 	case SKILL_CREATE_POTION:
@@ -617,7 +653,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	case SKILL_LOOK_HIDE:
 		percent = skill_is + cha_app[GET_REAL_CHA(ch)].illusive;
-		if (vict) {
+		if (vict)
+		{
 			if (!CAN_SEE(vict, ch))
 				percent += 50;
 			else if (AWAKE(vict))
@@ -629,7 +666,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	case SKILL_DRUNKOFF:
 		percent = skill_is - con_app[GET_REAL_CON(ch)].hitp
-							+ (can_use_feat(ch, DRUNKARD_FEAT) ? 20 : 0);
+				  + (can_use_feat(ch, DRUNKARD_FEAT) ? 20 : 0);
 		break;
 	case SKILL_AID:
 		percent = skill_is + (can_use_feat(ch, HEALER_FEAT) ? 10 : 0);
@@ -645,7 +682,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	case SKILL_TURN_UNDEAD:
 		percent = skill_is + int_app[GET_REAL_INT(ch)].to_skilluse
-							+ (can_use_feat(ch, EXORCIST_FEAT) ? 20 : 0);
+				  + (can_use_feat(ch, EXORCIST_FEAT) ? 20 : 0);
 		break;
 	default:
 		percent = skill_is;
@@ -670,7 +707,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		// если мораль отрицательная, увеличивается вероятность, что умение не пройдет
 		if ((skill_is = number(0, 99)) >= 95 + morale)
 			percent = 0;
-		else if (skill_is <= MIN (50, morale))
+		else if (skill_is <= MIN(50, morale))
 			percent = skill_info[skill_no].max_percent;
 		else if (vict && general_savingthrow(vict, victim_sav, victim_modi))
 			percent = 0;
@@ -700,19 +737,20 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 		return;
 
 	if (IS_IMMORTAL(ch) ||
-	    ((!victim ||
-	      OK_GAIN_EXP(ch, victim)) && IN_ROOM(ch) != NOWHERE
-	     && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) &&
+			((!victim ||
+			  OK_GAIN_EXP(ch, victim)) && IN_ROOM(ch) != NOWHERE
+			 && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) &&
 // Стрибог
-	     !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) &&
+			 !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) &&
 //Свентовит
-	     !ROOM_FLAGGED(IN_ROOM(ch), ROOM_HOUSE)
-	     && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ATRIUM) &&
+			 !ROOM_FLAGGED(IN_ROOM(ch), ROOM_HOUSE)
+			 && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ATRIUM) &&
 //
-	     (diff =
-	      wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20 -
-	      ch->get_skill(skill_no)) > 0
-	     && ch->get_skill(skill_no) < MAX_EXP_PERCENT + GET_REMORT(ch) * 5)) {
+			 (diff =
+				  wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20 -
+				  ch->get_skill(skill_no)) > 0
+			 && ch->get_skill(skill_no) < MAX_EXP_PERCENT + GET_REMORT(ch) * 5))
+	{
 		for (prob = how_many = 0; prob <= MAX_SKILLS; prob++)
 			if (ch->get_skill(prob))
 				how_many++;
@@ -725,7 +763,7 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 		div = int_app[GET_REAL_INT(ch)].improove /* + diff */ ;
 
 		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < NUM_CLASSES)
-		        div += (skill_info[skill_no].k_improove[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] / 100);
+			div += (skill_info[skill_no].k_improove[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] / 100);
 
 		prob /= (MAX(1, div));
 
@@ -742,18 +780,19 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 //            GET_NAME(ch), skill_no, skill_is, div, prob);
 
 		if (
-		    (victim
-		     && skill_is <= GET_REAL_INT(ch) * GET_LEVEL(victim) / GET_LEVEL(ch))
-		    || (!victim && skill_is <= GET_REAL_INT(ch))) {
+			(victim
+			 && skill_is <= GET_REAL_INT(ch) * GET_LEVEL(victim) / GET_LEVEL(ch))
+			|| (!victim && skill_is <= GET_REAL_INT(ch)))
+		{
 			if (success)
 				sprintf(buf, "%sВы повысили уровень умения \"%s\".%s\r\n",
-					CCICYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch,
-										       C_NRM));
+						CCICYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch,
+								C_NRM));
 			else
 				sprintf(buf,
-					"%sПоняв свои ошибки, Вы повысили уровень умения \"%s\".%s\r\n",
-					CCICYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch,
-										       C_NRM));
+						"%sПоняв свои ошибки, Вы повысили уровень умения \"%s\".%s\r\n",
+						CCICYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch,
+								C_NRM));
 			send_to_char(buf, ch);
 			ch->set_skill(skill_no, (ch->get_skill(skill_no) + number(1, 2)));
 			if (!IS_IMMORTAL(ch))
@@ -771,20 +810,22 @@ int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict)
 	int percent = 0;
 
 	percent = calculate_skill(ch, skill_no, max_value, vict);
-	if (!IS_NPC(ch)) {
+	if (!IS_NPC(ch))
+	{
 		if (skill_no != SKILL_SATTACK &&
-		    ch->get_skill(skill_no) > 0 && (!vict
-						    || (IS_NPC(vict)
-							&& !MOB_FLAGGED(vict, MOB_PROTECT)
-							&& !MOB_FLAGGED(vict, MOB_NOTRAIN)
-							&& !AFF_FLAGGED(vict, AFF_CHARM)
-							&& !IS_HORSE(vict))))
+				ch->get_skill(skill_no) > 0 && (!vict
+												|| (IS_NPC(vict)
+													&& !MOB_FLAGGED(vict, MOB_PROTECT)
+													&& !MOB_FLAGGED(vict, MOB_NOTRAIN)
+													&& !AFF_FLAGGED(vict, AFF_CHARM)
+													&& !IS_HORSE(vict))))
 			improove_skill(ch, skill_no, percent >= max_value, vict);
-	} else if (!IS_CHARMICE(ch))
-	    if (ch->get_skill(skill_no) > 0 &&
-		GET_REAL_INT(ch) <= number(0, 1000 - 20 * GET_REAL_WIS(ch)) &&
-		ch->get_skill(skill_no) < skill_info[skill_no].max_percent)
-		ch->set_skill(skill_no, ch->get_skill(skill_no) + 1);
+	}
+	else if (!IS_CHARMICE(ch))
+		if (ch->get_skill(skill_no) > 0 &&
+				GET_REAL_INT(ch) <= number(0, 1000 - 20 * GET_REAL_WIS(ch)) &&
+				ch->get_skill(skill_no) < skill_info[skill_no].max_percent)
+			ch->set_skill(skill_no, ch->get_skill(skill_no) + 1);
 
 	return (percent);
 }

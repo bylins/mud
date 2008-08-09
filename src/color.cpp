@@ -52,15 +52,15 @@
 
 #define CUDL  "\x1B[4m"		/* Underline ANSI code */
 #define CFSH  "\x1B[5m"		/* Flashing ANSI code.  Change to #define CFSH "" if
-				 * you want to disable flashing colour codes
-				 */
+* you want to disable flashing colour codes
+*/
 #define CRVS  "\x1B[7m"		/* Reverse video ANSI code */
 
 const char *COLOURLIST[] = { CNRM, CRED, CGRN, CYEL, CBLU, CMAG, CCYN, CWHT,
-	BRED, BGRN, BYEL, BBLU, BMAG, BCYN, BWHT,
-	BKRED, BKGRN, BKYEL, BKBLU, BKMAG, BKCYN, BKWHT,
-	CAMP, CSLH, BKBLK, CBLK, CFSH, CRVS, CUDL, BBLK
-};
+							 BRED, BGRN, BYEL, BBLU, BMAG, BCYN, BWHT,
+							 BKRED, BKGRN, BKYEL, BKBLU, BKMAG, BKCYN, BKWHT,
+							 CAMP, CSLH, BKBLK, CBLK, CFSH, CRVS, CUDL, BBLK
+						   };
 
 #define MAX_COLORS 30
 
@@ -71,7 +71,8 @@ int isnum(char s)
 
 int is_colour(char code)
 {
-	switch (code) {
+	switch (code)
+	{
 		/* Normal colours */
 	case 'k':
 		return 25;
@@ -188,15 +189,21 @@ void proc_color(char *inbuf, int colour)
 	if (inbuf[0] == '\0')
 		return;
 
-	while (inbuf[j] != '\0') {
+	while (inbuf[j] != '\0')
+	{
 		if ((inbuf[j] == '\\') && (inbuf[j + 1] == 'c')
-		    && isnum(inbuf[j + 2]) && isnum(inbuf[j + 3])) {
+				&& isnum(inbuf[j + 2]) && isnum(inbuf[j + 3]))
+		{
 			c = (inbuf[j + 2] - '0') * 10 + inbuf[j + 3] - '0';
 			j += 4;
-		} else if ((inbuf[j] == '&') && !(is_colour(inbuf[j + 1]) == -1)) {
+		}
+		else if ((inbuf[j] == '&') && !(is_colour(inbuf[j + 1]) == -1))
+		{
 			c = is_colour(inbuf[j + 1]);
 			j += 2;
-		} else {
+		}
+		else
+		{
 			out_buf[p] = inbuf[j];
 			j++;
 			p++;
@@ -206,7 +213,8 @@ void proc_color(char *inbuf, int colour)
 			c = 0;
 		max = strlen(COLOURLIST[c]);
 		if (colour || max == 1)
-			for (k = 0; k < max; k++) {
+			for (k = 0; k < max; k++)
+			{
 				out_buf[p] = COLOURLIST[c][k];
 				p++;
 			}

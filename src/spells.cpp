@@ -79,16 +79,21 @@ ASPELL(spell_create_water)
 		return;
 	/* level = MAX(MIN(level, LVL_IMPL), 1);       - not used */
 
-	if (obj && GET_OBJ_TYPE(obj) == ITEM_DRINKCON) {
-		if ((GET_OBJ_VAL(obj, 2) != LIQ_WATER) && (GET_OBJ_VAL(obj, 1) != 0)) {
+	if (obj && GET_OBJ_TYPE(obj) == ITEM_DRINKCON)
+	{
+		if ((GET_OBJ_VAL(obj, 2) != LIQ_WATER) && (GET_OBJ_VAL(obj, 1) != 0))
+		{
 			send_to_char("Прекратите, ради бога, химичить.\r\n", ch);
 			return;
 			name_from_drinkcon(obj);
 			GET_OBJ_VAL(obj, 2) = LIQ_BLOOD;
 			name_to_drinkcon(obj, LIQ_BLOOD);
-		} else {
+		}
+		else
+		{
 			water = MAX(GET_OBJ_VAL(obj, 0) - GET_OBJ_VAL(obj, 1), 0);
-			if (water > 0) {
+			if (water > 0)
+			{
 				if (GET_OBJ_VAL(obj, 1) >= 0)
 					name_from_drinkcon(obj);
 				GET_OBJ_VAL(obj, 2) = LIQ_WATER;
@@ -99,7 +104,8 @@ ASPELL(spell_create_water)
 			}
 		}
 	}
-	if (victim && !IS_NPC(victim)) {
+	if (victim && !IS_NPC(victim))
+	{
 		gain_condition(victim, THIRST, 25);
 		send_to_char("Вы полностью утолили жажду.\r\n", victim);
 		if (victim != ch)
@@ -119,9 +125,9 @@ ASPELL(spell_create_water)
  Поиск комнаты для перемещающего заклинания
 */
 int get_teleport_target_room(CHAR_DATA * ch,	// ch - кого перемещают
-			     int rnum_start,	// rnum_start - первая комната диапазона
-			     int rnum_stop	// rnum_stop - последняя комната диапазона
-    )
+							 int rnum_start,	// rnum_start - первая комната диапазона
+							 int rnum_stop	// rnum_stop - последняя комната диапазона
+							)
 {
 	int *r_array;
 	int n, i, j;
@@ -136,19 +142,20 @@ int get_teleport_target_room(CHAR_DATA * ch,	// ch - кого перемещают
 	for (i = 0; i < n; ++i)
 		r_array[i] = rnum_start + i;
 
-	for (; n; --n) {
+	for (; n; --n)
+	{
 		j = number(0, n - 1);
 		fnd_room = r_array[j];
 		r_array[j] = r_array[n - 1];
 
 		if (SECT(fnd_room) != SECT_SECRET &&
-		    !ROOM_FLAGGED(fnd_room, ROOM_DEATH) &&
-		    !ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) &&
-		    !ROOM_FLAGGED(fnd_room, ROOM_NOTELEPORTIN) &&
-		    !ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) &&
-		    !ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) &&
-		    (!ROOM_FLAGGED(fnd_room, ROOM_GODROOM) || IS_IMMORTAL(ch)) &&
-		    Clan::MayEnter(ch, fnd_room, HCE_PORTAL))
+				!ROOM_FLAGGED(fnd_room, ROOM_DEATH) &&
+				!ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) &&
+				!ROOM_FLAGGED(fnd_room, ROOM_NOTELEPORTIN) &&
+				!ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) &&
+				!ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) &&
+				(!ROOM_FLAGGED(fnd_room, ROOM_GODROOM) || IS_IMMORTAL(ch)) &&
+				Clan::MayEnter(ch, fnd_room, HCE_PORTAL))
 			break;
 	}
 
@@ -164,17 +171,20 @@ ASPELL(spell_recall)
 	room_rnum rnum_start, rnum_stop;
 	int modi = 0;
 
-	if (!victim || IS_NPC(victim) || IN_ROOM(ch) != IN_ROOM(victim) || GET_LEVEL(victim) >= LVL_IMMORT) {
+	if (!victim || IS_NPC(victim) || IN_ROOM(ch) != IN_ROOM(victim) || GET_LEVEL(victim) >= LVL_IMMORT)
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	if (!IS_GOD(ch) && ROOM_FLAGGED(IN_ROOM(victim), ROOM_NOTELEPORTOUT)) {
+	if (!IS_GOD(ch) && ROOM_FLAGGED(IN_ROOM(victim), ROOM_NOTELEPORTOUT))
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	if (victim != ch) {
+	if (victim != ch)
+	{
 		if (WAITLESS(ch) && !WAITLESS(victim))
 			modi += 100;	// always success
 		else if (same_group(ch, victim))
@@ -182,7 +192,8 @@ ASPELL(spell_recall)
 		else if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
 			modi = -100;	// always fail
 
-		if (modi == -100 || general_savingthrow(victim, SAVING_WILL, modi)) {
+		if (modi == -100 || general_savingthrow(victim, SAVING_WILL, modi))
+		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
@@ -191,25 +202,29 @@ ASPELL(spell_recall)
 	if ((to_room = real_room(GET_LOADROOM(victim))) == NOWHERE)
 		to_room = real_room(calc_loadroom(victim));
 
-	if (to_room == NOWHERE) {
+	if (to_room == NOWHERE)
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
 	(void) get_zone_rooms(world[to_room]->zone, &rnum_start, &rnum_stop);
 	fnd_room = get_teleport_target_room(victim, rnum_start, rnum_stop);
-	if (fnd_room == NOWHERE) {
+	if (fnd_room == NOWHERE)
+	{
 		to_room = Clan::CloseRent(to_room);
 		(void) get_zone_rooms(world[to_room]->zone, &rnum_start, &rnum_stop);
 		fnd_room = get_teleport_target_room(victim, rnum_start, rnum_stop);
 	}
 
-	if (fnd_room == NOWHERE) {
+	if (fnd_room == NOWHERE)
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	if (FIGHTING(victim) && (victim != ch)) {
+	if (FIGHTING(victim) && (victim != ch))
+	{
 		pk_agro_action(ch, FIGHTING(victim));
 	}
 
@@ -236,40 +251,47 @@ ASPELL(spell_teleport)
 //  if (victim == NULL)
 	victim = ch;
 
-	if ((IN_ROOM(victim) == NOWHERE) || (IS_NPC(victim))) {
+	if ((IN_ROOM(victim) == NOWHERE) || (IS_NPC(victim)))
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	if (victim != ch) {
+	if (victim != ch)
+	{
 		if (same_group(ch, victim))
 			modi += 25;
-		if (general_savingthrow(victim, SAVING_WILL, modi)) {
+		if (general_savingthrow(victim, SAVING_WILL, modi))
+		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 	}
 
-	if (!IS_GOD(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT)) {
+	if (!IS_GOD(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT))
+	{
 		send_to_char("Перемещение невозможно.\r\n", ch);
 		return;
 	}
 
 	to_room = IN_ROOM(victim);
 
-	if (to_room == NOWHERE) {
+	if (to_room == NOWHERE)
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
 	(void) get_zone_rooms(world[to_room]->zone, &rnum_start, &rnum_stop);
 	fnd_room = get_teleport_target_room(victim, rnum_start, rnum_stop);
-	if (fnd_room == NOWHERE) {
+	if (fnd_room == NOWHERE)
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	if (FIGHTING(victim) && (victim != ch)) {
+	if (FIGHTING(victim) && (victim != ch))
+	{
 		pk_agro_action(ch, FIGHTING(victim));
 	}
 
@@ -294,32 +316,38 @@ ASPELL(spell_relocate)
 		return;
 
 	/* Если левел жертвы больше чем перемещяющегося - фейл */
-	if (IS_NPC(victim) || (GET_LEVEL(victim) > GET_LEVEL(ch)) || IS_IMMORTAL(victim)) {
+	if (IS_NPC(victim) || (GET_LEVEL(victim) > GET_LEVEL(ch)) || IS_IMMORTAL(victim))
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
 	/* Для иммов обязательные для перемещения условия не существенны */
-	if (!IS_GOD(ch)) {
+	if (!IS_GOD(ch))
+	{
 		/* Нельзя перемещаться из клетки ROOM_NOTELEPORTOUT */
-		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT)) {
+		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT))
+		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 		/* Перемещаться можно только с отключенным "режимом призыв" */
-		if (PRF_FLAGGED(ch, PRF_SUMMONABLE)) {
+		if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
+		{
 			send_to_char("При применении заклинания требуется отключить \"режим призыв\"!\r\n", ch);
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 		/* Перемещаться нельзя состоя в группе (т.к. пента на согрупника и суммон идут без режима) */
-		if (AFF_FLAGGED(ch, AFF_GROUP)) {
+		if (AFF_FLAGGED(ch, AFF_GROUP))
+		{
 			send_to_char("При применении заклинания нельзя состоять в группе!\r\n", ch);
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 		/* Во избежания абьюза с заследованием а потом погрупливанием после перемещения и юзанием переместившегося как маяка */
-		if (ch->master) {
+		if (ch->master)
+		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
@@ -328,7 +356,8 @@ ASPELL(spell_relocate)
 
 	to_room = IN_ROOM(victim);
 
-	if (to_room == NOWHERE) {
+	if (to_room == NOWHERE)
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -339,18 +368,20 @@ ASPELL(spell_relocate)
 	else
 		fnd_room = to_room;
 
-	if (fnd_room != to_room && !IS_GOD(ch)) {
+	if (fnd_room != to_room && !IS_GOD(ch))
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
 	if (!IS_GOD(ch) &&
-	    (SECT(fnd_room) == SECT_SECRET ||
-	     ROOM_FLAGGED(fnd_room, ROOM_DEATH) ||
-	     ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) ||
-	     ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) ||
-	     ROOM_FLAGGED(fnd_room, ROOM_NORELOCATEIN) ||
-	     ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) || (ROOM_FLAGGED(fnd_room, ROOM_GODROOM) && !IS_IMMORTAL(ch)))) {
+			(SECT(fnd_room) == SECT_SECRET ||
+			 ROOM_FLAGGED(fnd_room, ROOM_DEATH) ||
+			 ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) ||
+			 ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) ||
+			 ROOM_FLAGGED(fnd_room, ROOM_NORELOCATEIN) ||
+			 ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) || (ROOM_FLAGGED(fnd_room, ROOM_GODROOM) && !IS_IMMORTAL(ch))))
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -363,9 +394,12 @@ ASPELL(spell_relocate)
 	act("$n медленно появил$u откуда-то.", TRUE, ch, 0, 0, TO_ROOM);
 	look_at_room(ch, 0);
 	/* Прыжок на чара в БД удваивает лаг */
-	if (RENTABLE(victim)) {
+	if (RENTABLE(victim))
+	{
 		WAIT_STATE(ch, 4 * PULSE_VIOLENCE);
-	} else {
+	}
+	else
+	{
 		WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 	}
 	entry_memory_mtrigger(ch);
@@ -381,59 +415,69 @@ ASPELL(spell_portal)
 
 	if (victim == NULL)
 		return;
-	if (GET_LEVEL(victim) > GET_LEVEL(ch) && !PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
+	if (GET_LEVEL(victim) > GET_LEVEL(ch) && !PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim))
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
-	if (!IS_GOD(ch)) {
-		if ((!IS_NPC(victim) && GET_LEVEL(victim) <= 10) || IS_IMMORTAL(victim)) {
+	if (!IS_GOD(ch))
+	{
+		if ((!IS_NPC(victim) && GET_LEVEL(victim) <= 10) || IS_IMMORTAL(victim))
+		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 	}
-	if (IS_NPC(victim)) {
+	if (IS_NPC(victim))
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
 	fnd_room = IN_ROOM(victim);
-	if (fnd_room == NOWHERE) {
+	if (fnd_room == NOWHERE)
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 	// обработка NOTELEPORTIN и NOTELEPORTOUT теперь происходит при входе в портал
-	if (!IS_GOD(ch) && (	//ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT)||
-				   //ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTIN)||
-				   SECT(fnd_room) == SECT_SECRET || ROOM_FLAGGED(fnd_room, ROOM_DEATH) || ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) || ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) || ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) || ROOM_FLAGGED(fnd_room, ROOM_GODROOM)	//||
-				   //ROOM_FLAGGED(fnd_room, ROOM_NOTELEPORTOUT) ||
-				   //ROOM_FLAGGED(fnd_room, ROOM_NOTELEPORTIN)
-	    )) {
+	if (!IS_GOD(ch) && ( //ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT)||
+				//ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTIN)||
+				SECT(fnd_room) == SECT_SECRET || ROOM_FLAGGED(fnd_room, ROOM_DEATH) || ROOM_FLAGGED(fnd_room, ROOM_SLOWDEATH) || ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) || ROOM_FLAGGED(fnd_room, ROOM_TUNNEL) || ROOM_FLAGGED(fnd_room, ROOM_GODROOM)	//||
+				//ROOM_FLAGGED(fnd_room, ROOM_NOTELEPORTOUT) ||
+				//ROOM_FLAGGED(fnd_room, ROOM_NOTELEPORTIN)
+			))
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
 	/* чтобы пента не превратилась во врата (односторонний портал) - не даем ставить двойные пенты */
-	if (world[fnd_room]->portal_time) {
+	if (world[fnd_room]->portal_time)
+	{
 		send_to_char("Неведомая сила не дает вам поставить портал в это место!\r\n", ch);
 		return;
 	}
-	if (world[IN_ROOM(ch)]->portal_time) {
+	if (world[IN_ROOM(ch)]->portal_time)
+	{
 		send_to_char("Неведомая сила не дает вам поставить портал в это место!\r\n", ch);
 		return;
 	}
 
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(victim, GF_GODSCURSE)
-	    /* раньше было <= PK_ACTION_REVENGE, что вызывало абьюз при пенте на чара на арене,
-	       или пенте кидаемой с арены т.к. в данном случае использовалось PK_ACTION_NO которое меньше PK_ACTION_REVENGE */
-	    || (pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
-	        pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT)
-	    || ((!IS_NPC(victim) || IS_CHARMICE(ch))&& PRF_FLAGGED(victim, PRF_SUMMONABLE))
-	    || same_group(ch, victim)) {
+			/* раньше было <= PK_ACTION_REVENGE, что вызывало абьюз при пенте на чара на арене,
+			   или пенте кидаемой с арены т.к. в данном случае использовалось PK_ACTION_NO которое меньше PK_ACTION_REVENGE */
+			|| (pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
+				pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT)
+			|| ((!IS_NPC(victim) || IS_CHARMICE(ch)) && PRF_FLAGGED(victim, PRF_SUMMONABLE))
+			|| same_group(ch, victim))
+	{
 		/* Если пента по мести - то считаем постановку пенты попыткой ее реализовать */
 		// после 3ех попыток реализаци (3ех пент) -- месть исчезает
 		if (pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
-		    pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT) {
+				pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT)
+		{
 			pk_increment_revenge(ch, victim);
 		}
 		to_room = IN_ROOM(ch);
@@ -467,19 +511,22 @@ ASPELL(spell_summon)
 	vic_room = IN_ROOM(victim);
 
 	/* Нельзя суммонить находясь в NOWHERE или если цель в NOWHERE. */
-	if (ch_room == NOWHERE || vic_room == NOWHERE) {
+	if (ch_room == NOWHERE || vic_room == NOWHERE)
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
 	/* Жертву в лаге нельзя суммонить. */
-	if (GET_WAIT(victim) > 0) {
+	if (GET_WAIT(victim) > 0)
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
 	/* Игрок не может присуммонить моба. */
-	if (!IS_NPC(ch) && IS_NPC(victim)) {
+	if (!IS_NPC(ch) && IS_NPC(victim))
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
@@ -487,14 +534,17 @@ ASPELL(spell_summon)
 	/* Моб не может призвать моба */
 	// Насчет этого я не особо уверен что такое может случиться (разве что суммон запоминающим мобом чармиса),
 	// но в старом коде суммона данная строчка присутствовала в одном из условий.
-	if (IS_NPC(ch) && IS_NPC(victim)) {
+	if (IS_NPC(ch) && IS_NPC(victim))
+	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
 	/* Богов лучше не суммонить - им это может не понравится. */
-	if (IS_IMMORTAL(victim)) {
-		if (IS_NPC(ch) || (!IS_NPC(ch) && GET_LEVEL(ch) < GET_LEVEL(victim))) {
+	if (IS_IMMORTAL(victim))
+	{
+		if (IS_NPC(ch) || (!IS_NPC(ch) && GET_LEVEL(ch) < GET_LEVEL(victim)))
+		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
@@ -507,27 +557,33 @@ ASPELL(spell_summon)
 	}
 
 	/* Ограничения для смертных (богов ниже следующее не касается) */
-	if (!IS_IMMORTAL(ch)) {
+	if (!IS_IMMORTAL(ch))
+	{
 
 		/* Если игрок не моб или чармис, то: */
-		if (!IS_NPC(ch) || IS_CHARMICE(ch)) {
+		if (!IS_NPC(ch) || IS_CHARMICE(ch))
+		{
 			/* Нельзя производить суммон под ЗБ */
-			if (AFF_FLAGGED(ch, AFF_SHIELD)) {
+			if (AFF_FLAGGED(ch, AFF_SHIELD))
+			{
 				send_to_char(SUMMON_FAIL3, ch);	// Про маг. кокон вокруг суммонера
 				return;
 			}
 			/* Нельзя призвать жертву в БД */
-			if (RENTABLE(victim)) {
+			if (RENTABLE(victim))
+			{
 				send_to_char(SUMMON_FAIL, ch);
 				return;
 			}
 			/* Нельзя призвать жертву в бою  */
-			if (FIGHTING(victim)) {
+			if (FIGHTING(victim))
+			{
 				send_to_char(SUMMON_FAIL4, ch);	// Цель в бою
 				return;
 			}
 			/* Нельзя призвать жертву без режима (если не в группе) */
-			if (!PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
+			if (!PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim))
+			{
 				send_to_char(SUMMON_FAIL2, ch);	// Устойчива
 				return;
 			}
@@ -536,31 +592,32 @@ ASPELL(spell_summon)
 		/* Проверка мест где нельзя суммонить и откуда нельзя суммонить. */
 		// Где нельзя суммонить:
 		if (ROOM_FLAGGED(ch_room, ROOM_NOSUMMON) ||	// суммонер в комнате с флагом !призвать
-		    ROOM_FLAGGED(ch_room, ROOM_DEATH) ||	// суммонер в ДТ
-		    ROOM_FLAGGED(ch_room, ROOM_SLOWDEATH) ||	// суммонер в медленном ДТ
-		    ROOM_FLAGGED(ch_room, ROOM_TUNNEL) ||	// суммонер в ван-руме
-		    ROOM_FLAGGED(ch_room, ROOM_PEACEFUL) ||	// суммонер в мирной комнате
-		    ROOM_FLAGGED(ch_room, ROOM_GODROOM) ||	// суммонер в комнате для бессмертных
-		    ROOM_FLAGGED(ch_room, ROOM_ARENA) ||	// суммонер на арене
-		    !Clan::MayEnter(victim, ch_room, HCE_PORTAL) ||	// суммонер стоит во внутренней части клан-замка
-		    SECT(IN_ROOM(ch)) == SECT_SECRET)	// суммонер стоит в клетке с типом "секретый"
+				ROOM_FLAGGED(ch_room, ROOM_DEATH) ||	// суммонер в ДТ
+				ROOM_FLAGGED(ch_room, ROOM_SLOWDEATH) ||	// суммонер в медленном ДТ
+				ROOM_FLAGGED(ch_room, ROOM_TUNNEL) ||	// суммонер в ван-руме
+				ROOM_FLAGGED(ch_room, ROOM_PEACEFUL) ||	// суммонер в мирной комнате
+				ROOM_FLAGGED(ch_room, ROOM_GODROOM) ||	// суммонер в комнате для бессмертных
+				ROOM_FLAGGED(ch_room, ROOM_ARENA) ||	// суммонер на арене
+				!Clan::MayEnter(victim, ch_room, HCE_PORTAL) ||	// суммонер стоит во внутренней части клан-замка
+				SECT(IN_ROOM(ch)) == SECT_SECRET)	// суммонер стоит в клетке с типом "секретый"
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 		// Жертву нельзя призвать если она в:
 		if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON) ||	// жертва в комнате с флагом !призвать
-		    ROOM_FLAGGED(vic_room, ROOM_TUNNEL) ||	// жертва стоит в ван-руме
-		    ROOM_FLAGGED(vic_room, ROOM_GODROOM) ||	// жертва в комнате для бессмертных
-		    ROOM_FLAGGED(vic_room, ROOM_ARENA) ||	// жертва на арене
-		    !Clan::MayEnter(ch, vic_room, HCE_PORTAL))	// жертва во внутренних покоях клан-замка
+				ROOM_FLAGGED(vic_room, ROOM_TUNNEL) ||	// жертва стоит в ван-руме
+				ROOM_FLAGGED(vic_room, ROOM_GODROOM) ||	// жертва в комнате для бессмертных
+				ROOM_FLAGGED(vic_room, ROOM_ARENA) ||	// жертва на арене
+				!Clan::MayEnter(ch, vic_room, HCE_PORTAL))	// жертва во внутренних покоях клан-замка
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 
 		/* Фейл заклинания суммон */
-		if (number(1, 100) < 30) {
+		if (number(1, 100) < 30)
+		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
@@ -590,21 +647,25 @@ ASPELL(spell_townportal)
 	struct portals_list_type *port;
 
 	port = get_portal(-1, cast_argument);
-	if (port && has_char_portal(ch, port->vnum)) {
+	if (port && has_char_portal(ch, port->vnum))
+	{
 
 		// Проверяем скилл тут, чтобы можно было смотреть список и удалять без -!-
-		if (timed_by_skill(ch, SKILL_TOWNPORTAL)) {
+		if (timed_by_skill(ch, SKILL_TOWNPORTAL))
+		{
 			send_to_char("У Вас недостаточно сил для постановки врат.\r\n", ch);
 			return;
 		}
 
 		/* Если мы открываем врата из комнаты с камнем, то они не работают */
-		if (find_portal_by_vnum(GET_ROOM_VNUM(IN_ROOM(ch)))) {
+		if (find_portal_by_vnum(GET_ROOM_VNUM(IN_ROOM(ch))))
+		{
 			send_to_char("Камень рядом с Вами мешает Вашей магии.\r\n", ch);
 			return;
 		}
 		// Чтоб не кастили в NOMAGIC
-		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC) && !IS_GRGOD(ch)) {
+		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC) && !IS_GRGOD(ch))
+		{
 			send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", ch);
 			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", FALSE, ch, 0, 0, TO_ROOM);
 			return;
@@ -632,13 +693,16 @@ ASPELL(spell_townportal)
 
 	/* выдаем список мест */
 	gcount = sprintf(buf2 + gcount, "Вам доступны следующие врата:\r\n");
-	for (tmp = GET_PORTALS(ch); tmp; tmp = tmp->next) {
+	for (tmp = GET_PORTALS(ch); tmp; tmp = tmp->next)
+	{
 		nm = find_portal_by_vnum(tmp->vnum);
-		if (nm) {
+		if (nm)
+		{
 			gcount += sprintf(buf2 + gcount, "%11s", nm);
 			cn++;
 			ispr++;
-			if (cn == 3) {
+			if (cn == 3)
+			{
 				gcount += sprintf(buf2 + gcount, "\r\n");
 				cn = 0;
 			}
@@ -646,9 +710,12 @@ ASPELL(spell_townportal)
 	}
 	if (cn)
 		gcount += sprintf(buf2 + gcount, "\r\n");
-	if (!ispr) {
+	if (!ispr)
+	{
 		gcount += sprintf(buf2 + gcount, "     В настоящий момент вам неизвестны порталы.\r\n");
-	} else {
+	}
+	else
+	{
 		gcount += sprintf(buf2 + gcount, "     Сейчас в памяти - %d.\r\n", ispr);
 	}
 	gcount += sprintf(buf2 + gcount, "     Максимально     - %d.\r\n", MAX_PORTALS(ch));
@@ -675,7 +742,8 @@ ASPELL(spell_locate_object)
 	strcpy(name, cast_argument);
 	j = level;
 
-	for (i = object_list; i && (j > 0); i = i->next) {
+	for (i = object_list; i && (j > 0); i = i->next)
+	{
 		if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
 			continue;
 
@@ -690,29 +758,37 @@ ASPELL(spell_locate_object)
 
 		if (i->carried_by)
 			if (SECT(IN_ROOM(i->carried_by)) == SECT_SECRET ||
-			    (OBJ_FLAGGED(i, ITEM_NOLOCATE) && IS_NPC(i->carried_by)) ||
-				IS_IMMORTAL(i->carried_by))
-					continue;
+					(OBJ_FLAGGED(i, ITEM_NOLOCATE) && IS_NPC(i->carried_by)) ||
+					IS_IMMORTAL(i->carried_by))
+				continue;
 
-		if (i->carried_by) {
+		if (i->carried_by)
+		{
 			if (world[IN_ROOM(i->carried_by)]->zone == world[IN_ROOM(ch)]->zone || !IS_NPC(i->carried_by))
 				sprintf(buf, "%s находится у %s в инвентаре.\r\n",
-					i->short_description, PERS(i->carried_by, ch, 1));
+						i->short_description, PERS(i->carried_by, ch, 1));
 			else
 				continue;
-		} else if (IN_ROOM(i) != NOWHERE && IN_ROOM(i)) {
+		}
+		else if (IN_ROOM(i) != NOWHERE && IN_ROOM(i))
+		{
 			if (world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone && !OBJ_FLAGGED(i, ITEM_NOLOCATE))
 				sprintf(buf, "%s находится в %s.\r\n", i->short_description, world[IN_ROOM(i)]->name);
 			else
 				continue;
-		} else if (i->in_obj) {
-			if (Clan::is_clan_chest(i->in_obj)) {
+		}
+		else if (i->in_obj)
+		{
+			if (Clan::is_clan_chest(i->in_obj))
+			{
 				ClanListType::const_iterator clan = Clan::IsClanRoom(i->in_obj->in_room);
 				if (clan != Clan::ClanList.end())
 					sprintf(buf, "%s находится в хранилище дружины '%s'.\r\n", i->short_description, (*clan)->GetAbbrev());
 				else
 					continue;
-			} else {
+			}
+			else
+			{
 				if (i->in_obj->carried_by)
 					if (IS_NPC(i->in_obj->carried_by) && (OBJ_FLAGGED(i, ITEM_NOLOCATE) || world[IN_ROOM(i->in_obj->carried_by)]->zone != world[IN_ROOM(ch)]->zone))
 						continue;
@@ -721,20 +797,23 @@ ASPELL(spell_locate_object)
 						continue;
 				if (i->in_obj->worn_by)
 					if (IS_NPC(i->in_obj->worn_by)
-						&& (OBJ_FLAGGED(i, ITEM_NOLOCATE)
-						|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
+							&& (OBJ_FLAGGED(i, ITEM_NOLOCATE)
+								|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
 						continue;
 				sprintf(buf, "%s находится в %s.\r\n", i->short_description, i->in_obj->PNames[5]);
 			}
-		} else if (i->worn_by) {
+		}
+		else if (i->worn_by)
+		{
 			if ((IS_NPC(i->worn_by) && !OBJ_FLAGGED(i, ITEM_NOLOCATE)
-				&& world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
-				|| (!IS_NPC(i->worn_by) && GET_LEVEL(i->worn_by) < LVL_IMMORT))
+					&& world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
+					|| (!IS_NPC(i->worn_by) && GET_LEVEL(i->worn_by) < LVL_IMMORT))
 				sprintf(buf, "%s одет%s на %s.\r\n", i->short_description,
-					GET_OBJ_SUF_6(i), PERS(i->worn_by, ch, 3));
+						GET_OBJ_SUF_6(i), PERS(i->worn_by, ch, 3));
 			else
 				continue;
-		} else
+		}
+		else
 			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i, ch, 1));
 
 		CAP(buf);
@@ -761,8 +840,10 @@ int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 	int cha_summ = 0, reformed_hp_summ = 0;
 	bool undead_in_group = FALSE, living_in_group = FALSE;
 
-	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->follower, AFF_CHARM) && k->follower->master == ch) {
+	for (k = ch->followers; k; k = k->next)
+	{
+		if (AFF_FLAGGED(k->follower, AFF_CHARM) && k->follower->master == ch)
+		{
 			cha_summ++;
 			//hp_summ += GET_REAL_MAX_HIT(k->follower);
 			reformed_hp_summ += get_reformed_charmice_hp(ch, k->follower, spellnum);
@@ -774,27 +855,32 @@ int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 		}
 	}
 
-	if (undead_in_group && living_in_group) {
+	if (undead_in_group && living_in_group)
+	{
 		mudlog("SYSERR: Undead and living in group simultaniously", NRM, LVL_GOD, ERRLOG, TRUE);
 		return (FALSE);
 	}
 
-	if (spellnum == SPELL_CHARM && undead_in_group) {
+	if (spellnum == SPELL_CHARM && undead_in_group)
+	{
 		send_to_char("Ваша жертва боится Ваших последователей.\r\n", ch);
 		return (FALSE);
 	}
 
-	if (spellnum != SPELL_CHARM && living_in_group) {
+	if (spellnum != SPELL_CHARM && living_in_group)
+	{
 		send_to_char("Ваш последователь мешает Вам произнести это заклинание.\r\n", ch);
 		return (FALSE);
 	}
 
-	if (spellnum == SPELL_CLONE && cha_summ >= MAX(1, (GET_LEVEL(ch) + 4) / 5 - 2)) {
+	if (spellnum == SPELL_CLONE && cha_summ >= MAX(1, (GET_LEVEL(ch) + 4) / 5 - 2))
+	{
 		send_to_char("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (FALSE);
 	}
 
-	if (spellnum != SPELL_CLONE && cha_summ >= (GET_LEVEL(ch) + 9) / 10) {
+	if (spellnum != SPELL_CLONE && cha_summ >= (GET_LEVEL(ch) + 9) / 10)
+	{
 		send_to_char("Вы не сможете управлять столькими последователями.\r\n", ch);
 		return (FALSE);
 	}
@@ -802,7 +888,8 @@ int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 	if (spellnum != SPELL_CLONE &&
 //    !WAITLESS(ch) &&
 //    hp_summ + GET_REAL_MAX_HIT(victim) >= cha_app[GET_REAL_CHA(ch)].charms )
-	    reformed_hp_summ + get_reformed_charmice_hp(ch, victim, spellnum) >= get_player_charms(ch, spellnum)) {
+			reformed_hp_summ + get_reformed_charmice_hp(ch, victim, spellnum) >= get_player_charms(ch, spellnum))
+	{
 		send_to_char("Вам не под силу управлять такой боевой мощью.\r\n", ch);
 		return (FALSE);
 	}
@@ -819,10 +906,12 @@ ASPELL(spell_charm)
 
 	if (victim == ch)
 		send_to_char("Вы просто очарованы своим внешним видом !\r\n", ch);
-	else if (!IS_NPC(victim)) {
+	else if (!IS_NPC(victim))
+	{
 		send_to_char("Вы не можете очаровать реального игрока !\r\n", ch);
 		pk_agro_action(ch, victim);
-	} else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, AFF_SANCTUARY) || MOB_FLAGGED(victim, MOB_PROTECT)))
+	}
+	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, AFF_SANCTUARY) || MOB_FLAGGED(victim, MOB_PROTECT)))
 		send_to_char("Ваша жертва освящена Богами !\r\n", ch);
 // shapirus: нельзя почармить моба под ЗБ
 	else if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(victim, AFF_SHIELD) || MOB_FLAGGED(victim, MOB_PROTECT)))
@@ -832,16 +921,16 @@ ASPELL(spell_charm)
 	else if (AFF_FLAGGED(ch, AFF_CHARM))
 		send_to_char("Вы сами очарованы кем-то и не можете иметь последователей.\r\n", ch);
 	else if (AFF_FLAGGED(victim, AFF_CHARM)
-		 || MOB_FLAGGED(victim, MOB_AGGRESSIVE)
-		 || MOB_FLAGGED(victim, MOB_AGGRMONO)
-		 || MOB_FLAGGED(victim, MOB_AGGRPOLY)
-		 || MOB_FLAGGED(victim, MOB_AGGR_DAY)
-		 || MOB_FLAGGED(victim, MOB_AGGR_NIGHT)
-		 || MOB_FLAGGED(victim, MOB_AGGR_FULLMOON)
-		 || MOB_FLAGGED(victim, MOB_AGGR_WINTER)
-		 || MOB_FLAGGED(victim, MOB_AGGR_SPRING)
-		 || MOB_FLAGGED(victim, MOB_AGGR_SUMMER)
-		 || MOB_FLAGGED(victim, MOB_AGGR_AUTUMN))
+			 || MOB_FLAGGED(victim, MOB_AGGRESSIVE)
+			 || MOB_FLAGGED(victim, MOB_AGGRMONO)
+			 || MOB_FLAGGED(victim, MOB_AGGRPOLY)
+			 || MOB_FLAGGED(victim, MOB_AGGR_DAY)
+			 || MOB_FLAGGED(victim, MOB_AGGR_NIGHT)
+			 || MOB_FLAGGED(victim, MOB_AGGR_FULLMOON)
+			 || MOB_FLAGGED(victim, MOB_AGGR_WINTER)
+			 || MOB_FLAGGED(victim, MOB_AGGR_SPRING)
+			 || MOB_FLAGGED(victim, MOB_AGGR_SUMMER)
+			 || MOB_FLAGGED(victim, MOB_AGGR_AUTUMN))
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else if (IS_HORSE(victim))
 		send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
@@ -851,7 +940,8 @@ ASPELL(spell_charm)
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
 	else if (!IS_IMMORTAL(ch) && general_savingthrow(victim, SAVING_WILL, (GET_REAL_CHA(ch) - 10) * 3))
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
-	else {
+	else
+	{
 //    /* Проверяем - можем ли мы зачармить моба с уровнем victim */
 //    if (charm_points(ch) < used_charm_points(ch)
 //                            + on_charm_points(victim)) {
@@ -860,7 +950,8 @@ ASPELL(spell_charm)
 			return;
 //    }
 		/* Левая проверка */
-		if (victim->master) {
+		if (victim->master)
+		{
 			if (stop_follower(victim, SF_MASTERDIE))
 				return;
 		}
@@ -886,11 +977,13 @@ ASPELL(spell_charm)
 		if (GET_HELPER(victim))
 			GET_HELPER(victim) = NULL;
 		act("$n покорил$g Ваше сердце настолько, что Вы готовы на все ради н$s.",
-		    FALSE, ch, 0, victim, TO_VICT);
-		if (IS_NPC(victim)) {
+			FALSE, ch, 0, victim, TO_VICT);
+		if (IS_NPC(victim))
+		{
 //Eli. Раздеваемся.
 			for (i = 0; i < NUM_WEARS; i++)
-				if (GET_EQ(victim, i)) {
+				if (GET_EQ(victim, i))
+				{
 					if (!remove_otrigger(GET_EQ(victim, i), victim))
 						continue;
 					act("Вы прекратили использовать $o3.", FALSE, victim, GET_EQ(victim, i), 0, TO_CHAR);
@@ -919,33 +1012,39 @@ ACMD(do_findhelpee)
 	int cost, times, i;
 	char isbank[MAX_INPUT_LENGTH];
 
-	if (IS_NPC(ch) || (!WAITLESS(ch) && GET_CLASS(ch) != CLASS_MERCHANT)) {
+	if (IS_NPC(ch) || (!WAITLESS(ch) && GET_CLASS(ch) != CLASS_MERCHANT))
+	{
 		send_to_char("Вам недоступно это !\r\n", ch);
 		return;
 	}
 
-	if (subcmd == SCMD_FREEHELPEE) {
+	if (subcmd == SCMD_FREEHELPEE)
+	{
 		for (k = ch->followers; k; k = k->next)
 			if (AFF_FLAGGED(k->follower, AFF_HELPER) && AFF_FLAGGED(k->follower, AFF_CHARM))
 				break;
-		if (k) {
+		if (k)
+		{
 			if (IN_ROOM(ch) != IN_ROOM(k->follower))
 				act("Вам следует встретиться с $N4 для этого.", FALSE, ch, 0, k->follower, TO_CHAR);
 			else if (GET_POS(k->follower) < POS_STANDING)
 				act("$N2 сейчас, похоже, не до Вас.", FALSE, ch, 0, k->follower, TO_CHAR);
-			else {
+			else
+			{
 				act("Вы рассчитали $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
 				affect_from_char(k->follower, SPELL_CHARM);
 				stop_follower(k->follower, SF_CHARMLOST);
 			}
-		} else
+		}
+		else
 			act("У Вас нет наемников !", FALSE, ch, 0, 0, TO_CHAR);
 		return;
 	}
 
 	argument = one_argument(argument, arg);
 
-	if (!*arg) {
+	if (!*arg)
+	{
 		for (k = ch->followers; k; k = k->next)
 			if (AFF_FLAGGED(k->follower, AFF_HELPER) && AFF_FLAGGED(k->follower, AFF_CHARM))
 				break;
@@ -956,14 +1055,16 @@ ACMD(do_findhelpee)
 		return;
 	}
 
-	if (!(helpee = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
+	if (!(helpee = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
+	{
 		send_to_char("Вы не видите никого похожего.\r\n", ch);
 		return;
 	}
 	for (k = ch->followers; k; k = k->next)
 		if (AFF_FLAGGED(k->follower, AFF_HELPER) && AFF_FLAGGED(k->follower, AFF_CHARM))
 			break;
-	if (k) {
+	if (k)
+	{
 		act("Вы уже наняли $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
 		return;
 	}
@@ -974,104 +1075,113 @@ ACMD(do_findhelpee)
 		send_to_char("Вы не можете нанять реального игрока !\r\n", ch);
 	else
 //if (!WAITLESS(ch) && !NPC_FLAGGED(helpee, NPC_HELPED))
-	if (!NPC_FLAGGED(helpee, NPC_HELPED))
-		act("$N не нанимается !", FALSE, ch, 0, helpee, TO_CHAR);
-	else if (AFF_FLAGGED(helpee, AFF_CHARM))
-		act("$N под чьим-то контролем.", FALSE, ch, 0, helpee, TO_CHAR);
-	else if (AFF_FLAGGED(helpee, AFF_DEAFNESS))
-		act("$N не слышит Вас.", FALSE, ch, 0, helpee, TO_CHAR);
-	else if (IS_HORSE(helpee))
-		send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
-	else if (FIGHTING(helpee) || GET_POS(helpee) < POS_RESTING)
-		act("$M сейчас, похоже, не до Вас.", FALSE, ch, 0, helpee, TO_CHAR);
-	else if (circle_follow(helpee, ch))
-		send_to_char("Следование по кругу запрещено.\r\n", ch);
-	else {
-		two_arguments(argument, arg, isbank);
-		if (!arg)
-			times = 0;
-		else if ((times = atoi(arg)) < 0) {
-			act("Уточните время, на которое Вы хотите нанять $N3.", FALSE, ch, 0, helpee, TO_CHAR);
-			return;
-		}
-		if (!times) {	//cost = GET_LEVEL(helpee) * TIME_KOEFF;
-			cost = calc_hire_price(ch, helpee);
-			sprintf(buf,
-				"$n сказал$g Вам : \"Один час моих услуг стоит %d %s\".\r\n",
-				cost, desc_count(cost, WHAT_MONEYu));
-			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
-			return;
-		}
-		//cost =  (WAITLESS(ch) ? 0 : 1) * GET_LEVEL(helpee) * TIME_KOEFF * times;
-		i = calc_hire_price(ch, helpee);
-		cost = (WAITLESS(ch) ? 0 : 1) * i * times;
-// проверка на overflow - не совсем корректно, но в принципе годится
-		sprintf(buf1, "%d", i);
-		if (cost < 0 || (strlen(buf1) + strlen(arg)) > 9) {
-			cost = 100000000;
-			sprintf(buf, "$n сказал$g Вам : \" Хорошо, не буду жадничать, скину тебе немного с цены.\"");
-			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
-		}
-		if ((!isname(isbank, "банк bank") && cost > get_gold(ch)) ||
-		(isname(isbank, "банк bank") && cost > get_bank_gold(ch))) {
-			sprintf(buf,
-				"$n сказал$g Вам : \" Мои услуги за %d %s стоят %d %s - это тебе не по карману.\"",
-				times, desc_count(times, WHAT_HOUR), cost, desc_count(cost, WHAT_MONEYu));
-			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
-			return;
-		}
-/*    if (GET_LEVEL(ch) < GET_LEVEL(helpee))
-         {sprintf(buf,"$n сказал$g Вам : \" Вы слишком малы для того, чтоб я служил Вам.\"");
-          act(buf,FALSE,helpee,0,ch,TO_VICT|CHECK_DEAF);
-          return;
-         }	 */
-		if (helpee->master) {
-			if (stop_follower(helpee, SF_MASTERDIE))
-				return;
-		}
-		if (isname(isbank, "банк bank"))
-			add_bank_gold(ch, -cost);
+		if (!NPC_FLAGGED(helpee, NPC_HELPED))
+			act("$N не нанимается !", FALSE, ch, 0, helpee, TO_CHAR);
+		else if (AFF_FLAGGED(helpee, AFF_CHARM))
+			act("$N под чьим-то контролем.", FALSE, ch, 0, helpee, TO_CHAR);
+		else if (AFF_FLAGGED(helpee, AFF_DEAFNESS))
+			act("$N не слышит Вас.", FALSE, ch, 0, helpee, TO_CHAR);
+		else if (IS_HORSE(helpee))
+			send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
+		else if (FIGHTING(helpee) || GET_POS(helpee) < POS_RESTING)
+			act("$M сейчас, похоже, не до Вас.", FALSE, ch, 0, helpee, TO_CHAR);
+		else if (circle_follow(helpee, ch))
+			send_to_char("Следование по кругу запрещено.\r\n", ch);
 		else
-			add_gold(ch, -cost);
+		{
+			two_arguments(argument, arg, isbank);
+			if (!arg)
+				times = 0;
+			else if ((times = atoi(arg)) < 0)
+			{
+				act("Уточните время, на которое Вы хотите нанять $N3.", FALSE, ch, 0, helpee, TO_CHAR);
+				return;
+			}
+			if (!times)  	//cost = GET_LEVEL(helpee) * TIME_KOEFF;
+			{
+				cost = calc_hire_price(ch, helpee);
+				sprintf(buf,
+						"$n сказал$g Вам : \"Один час моих услуг стоит %d %s\".\r\n",
+						cost, desc_count(cost, WHAT_MONEYu));
+				act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+				return;
+			}
+			//cost =  (WAITLESS(ch) ? 0 : 1) * GET_LEVEL(helpee) * TIME_KOEFF * times;
+			i = calc_hire_price(ch, helpee);
+			cost = (WAITLESS(ch) ? 0 : 1) * i * times;
+// проверка на overflow - не совсем корректно, но в принципе годится
+			sprintf(buf1, "%d", i);
+			if (cost < 0 || (strlen(buf1) + strlen(arg)) > 9)
+			{
+				cost = 100000000;
+				sprintf(buf, "$n сказал$g Вам : \" Хорошо, не буду жадничать, скину тебе немного с цены.\"");
+				act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+			}
+			if ((!isname(isbank, "банк bank") && cost > get_gold(ch)) ||
+					(isname(isbank, "банк bank") && cost > get_bank_gold(ch)))
+			{
+				sprintf(buf,
+						"$n сказал$g Вам : \" Мои услуги за %d %s стоят %d %s - это тебе не по карману.\"",
+						times, desc_count(times, WHAT_HOUR), cost, desc_count(cost, WHAT_MONEYu));
+				act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+				return;
+			}
+			/*    if (GET_LEVEL(ch) < GET_LEVEL(helpee))
+			         {sprintf(buf,"$n сказал$g Вам : \" Вы слишком малы для того, чтоб я служил Вам.\"");
+			          act(buf,FALSE,helpee,0,ch,TO_VICT|CHECK_DEAF);
+			          return;
+			         }	 */
+			if (helpee->master)
+			{
+				if (stop_follower(helpee, SF_MASTERDIE))
+					return;
+			}
+			if (isname(isbank, "банк bank"))
+				add_bank_gold(ch, -cost);
+			else
+				add_gold(ch, -cost);
 
-		affect_from_char(helpee, AFF_CHARM);
-		add_follower(helpee, ch);
-		af.type = SPELL_CHARM;
-		af.duration = pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
-		af.modifier = 0;
-		af.location = 0;
-		af.bitvector = AFF_CHARM;
-		af.battleflag = 0;
-		affect_to_char(helpee, &af);
-		SET_BIT(AFF_FLAGS(helpee, AFF_HELPER), AFF_HELPER);
-		sprintf(buf, "$n сказал$g Вам : \"Приказывай, %s !\"",
-			GET_SEX(ch) == IS_FEMALE(ch) ? "хозяйка" : "хозяин");
-		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
-		if (IS_NPC(helpee)) {
-			for (i = 0; i < NUM_WEARS; i++)
-				if (GET_EQ(helpee, i)) {
-					if (!remove_otrigger(GET_EQ(helpee, i), helpee))
-						continue;
-					act("Вы прекратили использовать $o3.", FALSE, helpee, GET_EQ(helpee, i), 0, TO_CHAR);
-					act("$n прекратил$g использовать $o3.", TRUE, helpee, GET_EQ(helpee, i), 0, TO_ROOM);
-					obj_to_char(unequip_char(helpee, i | 0x40), helpee);
-				}
-			REMOVE_BIT(MOB_FLAGS(helpee, MOB_AGGRESSIVE), MOB_AGGRESSIVE);
-			REMOVE_BIT(MOB_FLAGS(helpee, MOB_SPEC), MOB_SPEC);
-			REMOVE_BIT(PRF_FLAGS(helpee, PRF_PUNCTUAL), PRF_PUNCTUAL);
-			// shapirus: !train для чармисов
-			SET_BIT(MOB_FLAGS(helpee, MOB_NOTRAIN), MOB_NOTRAIN);
-			helpee->set_skill(SKILL_PUNCTUAL, 0);
-			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
-			Crash_crashsave(ch);
-			save_char(ch, NOWHERE);
+			affect_from_char(helpee, AFF_CHARM);
+			add_follower(helpee, ch);
+			af.type = SPELL_CHARM;
+			af.duration = pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
+			af.modifier = 0;
+			af.location = 0;
+			af.bitvector = AFF_CHARM;
+			af.battleflag = 0;
+			affect_to_char(helpee, &af);
+			SET_BIT(AFF_FLAGS(helpee, AFF_HELPER), AFF_HELPER);
+			sprintf(buf, "$n сказал$g Вам : \"Приказывай, %s !\"",
+					GET_SEX(ch) == IS_FEMALE(ch) ? "хозяйка" : "хозяин");
+			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+			if (IS_NPC(helpee))
+			{
+				for (i = 0; i < NUM_WEARS; i++)
+					if (GET_EQ(helpee, i))
+					{
+						if (!remove_otrigger(GET_EQ(helpee, i), helpee))
+							continue;
+						act("Вы прекратили использовать $o3.", FALSE, helpee, GET_EQ(helpee, i), 0, TO_CHAR);
+						act("$n прекратил$g использовать $o3.", TRUE, helpee, GET_EQ(helpee, i), 0, TO_ROOM);
+						obj_to_char(unequip_char(helpee, i | 0x40), helpee);
+					}
+				REMOVE_BIT(MOB_FLAGS(helpee, MOB_AGGRESSIVE), MOB_AGGRESSIVE);
+				REMOVE_BIT(MOB_FLAGS(helpee, MOB_SPEC), MOB_SPEC);
+				REMOVE_BIT(PRF_FLAGS(helpee, PRF_PUNCTUAL), PRF_PUNCTUAL);
+				// shapirus: !train для чармисов
+				SET_BIT(MOB_FLAGS(helpee, MOB_NOTRAIN), MOB_NOTRAIN);
+				helpee->set_skill(SKILL_PUNCTUAL, 0);
+				// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
+				Crash_crashsave(ch);
+				save_char(ch, NOWHERE);
+			}
 		}
-	}
 }
 
 void show_weapon(CHAR_DATA * ch, OBJ_DATA * obj)
 {
-	if (GET_OBJ_TYPE(obj) == ITEM_WEAPON) {
+	if (GET_OBJ_TYPE(obj) == ITEM_WEAPON)
+	{
 		*buf = '\0';
 		if (CAN_WEAR(obj, ITEM_WEAR_WIELD))
 			sprintf(buf, "Можно взять %s в правую руку.\r\n", OBJN(obj, ch, 3));
@@ -1107,7 +1217,7 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	//show_weapon(ch, obj);
 
 	sprintf(buf, "Вес: %d, Цена: %d, Рента: %d(%d)\r\n",
-		GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
+			GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
 	send_to_char(buf, ch);
 
 	if (fullness < 30)
@@ -1153,7 +1263,8 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	if (fullness < 75)
 		return;
 
-	switch (GET_OBJ_TYPE(obj)) {
+	switch (GET_OBJ_TYPE(obj))
+	{
 	case ITEM_SCROLL:
 	case ITEM_POTION:
 		sprintf(buf, "Содержит заклинания: ");
@@ -1191,14 +1302,16 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		break;
 	case ITEM_BOOK:
 // +newbook.patch (Alisher)
-	switch (GET_OBJ_VAL(obj, 0)) {
+		switch (GET_OBJ_VAL(obj, 0))
+		{
 		case BOOK_SPELL:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS) {
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS)
+			{
 				drndice = GET_OBJ_VAL(obj, 1);
-				if (MIN_CAST_REM(spell_info[GET_OBJ_VAL (obj, 1)],ch) > GET_REMORT(ch) )
+				if (MIN_CAST_REM(spell_info[GET_OBJ_VAL(obj, 1)], ch) > GET_REMORT(ch))
 					drsdice = 34;
 				else
-					drsdice = MIN_CAST_LEV(spell_info[GET_OBJ_VAL (obj, 1)],ch);
+					drsdice = MIN_CAST_LEV(spell_info[GET_OBJ_VAL(obj, 1)], ch);
 				sprintf(buf, "содержит заклинание        : \"%s\"\r\n", spell_info[drndice].name);
 				send_to_char(buf, ch);
 				sprintf(buf, "уровень изучения (для Вас) : %d\r\n", drsdice);
@@ -1206,11 +1319,15 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			}
 			break;
 		case BOOK_SKILL:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < TOP_SKILL_DEFINE) {
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < TOP_SKILL_DEFINE)
+			{
 				drndice = GET_OBJ_VAL(obj, 1);
-				if (skill_info[drndice].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] == KNOW_SKILL) {
+				if (skill_info[drndice].classknow[(int) GET_KIN(ch)][(int) GET_CLASS(ch)] == KNOW_SKILL)
+				{
 					drsdice = GET_OBJ_VAL(obj, 2);
-				} else {
+				}
+				else
+				{
 					drsdice = LVL_IMPL;
 				}
 				sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", skill_info[drndice].name);
@@ -1220,7 +1337,8 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			}
 			break;
 		case BOOK_UPGRD:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < TOP_SKILL_DEFINE) {
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < TOP_SKILL_DEFINE)
+			{
 				drndice = GET_OBJ_VAL(obj, 1);
 				sprintf(buf, "повышает умение \"%s\"\r\n", skill_info[drndice].name);
 				send_to_char(buf, ch);
@@ -1228,32 +1346,42 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			break;
 		case BOOK_RECPT:
 			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
-			if (drndice >= 0) {
+			if (drndice >= 0)
+			{
 				drsdice = imrecipes[drndice].level;
 				count = imrecipes[drndice].remort;
 				if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)
 					drsdice = LVL_IMPL;
 				sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
 				send_to_char(buf, ch);
-				if (drsdice == -1 || count == -1) {
+				if (drsdice == -1 || count == -1)
+				{
 					send_to_char(CCIRED(ch, C_NRM), ch);
 					send_to_char("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
 					send_to_char(CCNRM(ch, C_NRM), ch);
-				} else if (drsdice == LVL_IMPL) {
+				}
+				else if (drsdice == LVL_IMPL)
+				{
 					sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", drsdice);
 					send_to_char(buf, ch);
-				} else {
+				}
+				else
+				{
 					sprintf(buf, "уровень изучения (количество ремортов) : %d (%d)\r\n", drsdice, count);
 					send_to_char(buf, ch);
 				}
 			}
 			break;
 		case BOOK_FEAT:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_FEATS) {
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_FEATS)
+			{
 				drndice = GET_OBJ_VAL(obj, 1);
-				if (can_get_feat(ch, drndice)) {
+				if (can_get_feat(ch, drndice))
+				{
 					drsdice = feat_info[drndice].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
-				} else {
+				}
+				else
+				{
 					drsdice = LVL_IMPL;
 				}
 				sprintf(buf, "содержит секрет способности : \"%s\"\r\n", feat_info[drndice].name);
@@ -1263,12 +1391,12 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			}
 			break;
 		default:
-				send_to_char(CCIRED(ch, C_NRM), ch);
-				send_to_char("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
-				send_to_char(CCNRM(ch, C_NRM), ch);
-				break;
-	}
-	break;
+			send_to_char(CCIRED(ch, C_NRM), ch);
+			send_to_char("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
+			send_to_char(CCNRM(ch, C_NRM), ch);
+			break;
+		}
+		break;
 // -newbook.patch (Alisher)
 	case ITEM_INGRADIENT:
 
@@ -1276,30 +1404,35 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		sprintf(buf, "%s\r\n", buf2);
 		send_to_char(buf, ch);
 
-		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)) {
+		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES))
+		{
 			sprintf(buf, "можно применить %d раз\r\n", GET_OBJ_VAL(obj, 2));
 			send_to_char(buf, ch);
 		}
 
-		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LAG)) {
+		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LAG))
+		{
 			sprintf(buf, "можно применить 1 раз в %d сек", (i = GET_OBJ_VAL(obj, 0) & 0xFF));
 			if (GET_OBJ_VAL(obj, 3) == 0 || GET_OBJ_VAL(obj, 3) + i < time(NULL))
 				strcat(buf, "(можно применять).\r\n");
-			else {
+			else
+			{
 				li = GET_OBJ_VAL(obj, 3) + i - time(NULL);
 				sprintf(buf + strlen(buf), "(осталось %ld сек).\r\n", li);
 			}
 			send_to_char(buf, ch);
 		}
 
-		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LEVEL)) {
+		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LEVEL))
+		{
 			sprintf(buf, "можно применить c %d уровня.\r\n", (GET_OBJ_VAL(obj, 0) >> 8) & 0x1F);
 			send_to_char(buf, ch);
 		}
 
-		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0) {
+		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0)
+		{
 			sprintf(buf, "прототип %s%s%s.\r\n",
-				CCICYN(ch, C_NRM), obj_proto[i]->PNames[0], CCNRM(ch, C_NRM));
+					CCICYN(ch, C_NRM), obj_proto[i]->PNames[0], CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 		break;
@@ -1322,22 +1455,27 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	found = FALSE;
 	count = MAX_OBJ_AFFECT;
-	for (i = 0; i < count; i++) {
+	for (i = 0; i < count; i++)
+	{
 		drndice = obj->affected[i].location;
 		drsdice = obj->affected[i].modifier;
-		if ((drndice != APPLY_NONE) && (drsdice != 0)) {
-			if (!found) {
+		if ((drndice != APPLY_NONE) && (drsdice != 0))
+		{
+			if (!found)
+			{
 				send_to_char("Дополнительные свойства :\r\n", ch);
 				found = TRUE;
 			}
 			sprinttype(drndice, apply_types, buf2);
 			negative = 0;
 			for (j = 0; *apply_negative[j] != '\n'; j++)
-				if (!str_cmp(buf2, apply_negative[j])) {
+				if (!str_cmp(buf2, apply_negative[j]))
+				{
 					negative = TRUE;
 					break;
 				}
-			switch (negative) {
+			switch (negative)
+			{
 			case FALSE:
 				if (obj->affected[i].modifier < 0)
 					negative = TRUE;
@@ -1348,9 +1486,9 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				break;
 			}
 			sprintf(buf, "   %s%s%s%s%s%d%s\r\n",
-				CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
-				CCCYN(ch, C_NRM),
-				negative ? " ухудшает на " : " улучшает на ", abs(drsdice), CCNRM(ch, C_NRM));
+					CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
+					CCCYN(ch, C_NRM),
+					negative ? " ухудшает на " : " улучшает на ", abs(drsdice), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 	}
@@ -1413,10 +1551,11 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	sprintf(buf, "Вес: %d, Цена: %d, Рента: %d(%d)\r\n",
-		GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
+			GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
 	send_to_char(buf, ch);
 
-	switch (GET_OBJ_TYPE(obj)) {
+	switch (GET_OBJ_TYPE(obj))
+	{
 	case ITEM_SCROLL:
 	case ITEM_POTION:
 		sprintf(buf, "Содержит заклинания: ");
@@ -1440,7 +1579,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	case ITEM_WEAPON:
 		sprintf(buf, "Наносимые повреждения '%dD%d'", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 		sprintf(buf + strlen(buf), " среднее %.1f.\r\n",
-			(((GET_OBJ_VAL(obj, 2) + 1) / 2.0) * GET_OBJ_VAL(obj, 1)));
+				(((GET_OBJ_VAL(obj, 2) + 1) / 2.0) * GET_OBJ_VAL(obj, 1)));
 		send_to_char(buf, ch);
 		break;
 	case ITEM_ARMOR:
@@ -1451,14 +1590,16 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 		break;
 	case ITEM_BOOK:
 // +newbook.patch (Alisher)
-	switch (GET_OBJ_VAL(obj, 0)) {
+		switch (GET_OBJ_VAL(obj, 0))
+		{
 		case BOOK_SPELL:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS) {
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS)
+			{
 				drndice = GET_OBJ_VAL(obj, 1);
-				if (MIN_CAST_REM(spell_info[GET_OBJ_VAL (obj, 1)],ch) > GET_REMORT(ch) )
+				if (MIN_CAST_REM(spell_info[GET_OBJ_VAL(obj, 1)], ch) > GET_REMORT(ch))
 					drsdice = 34;
 				else
-					drsdice = MIN_CAST_LEV(spell_info[GET_OBJ_VAL (obj, 1)],ch);
+					drsdice = MIN_CAST_LEV(spell_info[GET_OBJ_VAL(obj, 1)], ch);
 				sprintf(buf, "содержит заклинание        : \"%s\"\r\n", spell_info[drndice].name);
 				send_to_char(buf, ch);
 				sprintf(buf, "уровень изучения (для Вас) : %d\r\n", drsdice);
@@ -1466,11 +1607,15 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			}
 			break;
 		case BOOK_SKILL:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < TOP_SKILL_DEFINE) {
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < TOP_SKILL_DEFINE)
+			{
 				drndice = GET_OBJ_VAL(obj, 1);
-				if (skill_info[drndice].classknow[(int) GET_KIN (ch) ][(int) GET_CLASS(ch)] == KNOW_SKILL) {
+				if (skill_info[drndice].classknow[(int) GET_KIN(ch)][(int) GET_CLASS(ch)] == KNOW_SKILL)
+				{
 					drsdice = GET_OBJ_VAL(obj, 2);
-				} else {
+				}
+				else
+				{
 					drsdice = LVL_IMPL;
 				}
 				sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", skill_info[drndice].name);
@@ -1480,7 +1625,8 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			}
 			break;
 		case BOOK_UPGRD:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < TOP_SKILL_DEFINE) {
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < TOP_SKILL_DEFINE)
+			{
 				drndice = GET_OBJ_VAL(obj, 1);
 				sprintf(buf, "повышает умение \"%s\"\r\n", skill_info[drndice].name);
 				send_to_char(buf, ch);
@@ -1488,32 +1634,42 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			break;
 		case BOOK_RECPT:
 			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
-			if (drndice >= 0) {
+			if (drndice >= 0)
+			{
 				drsdice = imrecipes[drndice].level;
 				i = imrecipes[drndice].remort;
 				if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)
 					drsdice = LVL_IMPL;
 				sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
 				send_to_char(buf, ch);
-				if (drsdice == -1 || i == -1) {
+				if (drsdice == -1 || i == -1)
+				{
 					send_to_char(CCIRED(ch, C_NRM), ch);
 					send_to_char("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
 					send_to_char(CCNRM(ch, C_NRM), ch);
-				} else if (drsdice == LVL_IMPL) {
+				}
+				else if (drsdice == LVL_IMPL)
+				{
 					sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", drsdice);
 					send_to_char(buf, ch);
-				} else {
+				}
+				else
+				{
 					sprintf(buf, "уровень изучения (количество ремортов) : %d (%d)\r\n", drsdice, i);
 					send_to_char(buf, ch);
 				}
 			}
 			break;
 		case BOOK_FEAT:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_FEATS) {
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_FEATS)
+			{
 				drndice = GET_OBJ_VAL(obj, 1);
-				if (can_get_feat(ch, drndice)) {
+				if (can_get_feat(ch, drndice))
+				{
 					drsdice = feat_info[drndice].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
-				} else {
+				}
+				else
+				{
 					drsdice = LVL_IMPL;
 				}
 				sprintf(buf, "содержит секрет способности : \"%s\"\r\n", feat_info[drndice].name);
@@ -1523,12 +1679,12 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			}
 			break;
 		default:
-				send_to_char(CCIRED(ch, C_NRM), ch);
-				send_to_char("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
-				send_to_char(CCNRM(ch, C_NRM), ch);
-				break;
-	}
-	break;
+			send_to_char(CCIRED(ch, C_NRM), ch);
+			send_to_char("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
+			send_to_char(CCNRM(ch, C_NRM), ch);
+			break;
+		}
+		break;
 // -newbook.patch (Alisher)
 	case ITEM_INGRADIENT:
 
@@ -1536,30 +1692,35 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 		sprintf(buf, "%s\r\n", buf2);
 		send_to_char(buf, ch);
 
-		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)) {
+		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES))
+		{
 			sprintf(buf, "можно применить %d раз\r\n", GET_OBJ_VAL(obj, 2));
 			send_to_char(buf, ch);
 		}
 
-		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LAG)) {
+		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LAG))
+		{
 			sprintf(buf, "можно применить 1 раз в %d сек", (i = GET_OBJ_VAL(obj, 0) & 0xFF));
 			if (GET_OBJ_VAL(obj, 3) == 0 || GET_OBJ_VAL(obj, 3) + i < time(NULL))
 				strcat(buf, "(можно применять).\r\n");
-			else {
+			else
+			{
 				li = GET_OBJ_VAL(obj, 3) + i - time(NULL);
 				sprintf(buf + strlen(buf), "(осталось %ld сек).\r\n", li);
 			}
 			send_to_char(buf, ch);
 		}
 
-		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LEVEL)) {
+		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LEVEL))
+		{
 			sprintf(buf, "можно применить c %d уровня.\r\n", (GET_OBJ_VAL(obj, 0) >> 8) & 0x1F);
 			send_to_char(buf, ch);
 		}
 
-		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0) {
+		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0)
+		{
 			sprintf(buf, "прототип %s%s%s.\r\n",
-				CCICYN(ch, C_NRM), obj_proto[i]->PNames[0], CCNRM(ch, C_NRM));
+					CCICYN(ch, C_NRM), obj_proto[i]->PNames[0], CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 		break;
@@ -1570,21 +1731,27 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	}
 
 	found = FALSE;
-	for (i = 0; i < MAX_OBJ_AFFECT; i++) {
-		if ((obj->affected[i].location != APPLY_NONE) && (obj->affected[i].modifier != 0)) {
-			if (!found) {
+	for (i = 0; i < MAX_OBJ_AFFECT; i++)
+	{
+		if ((obj->affected[i].location != APPLY_NONE) && (obj->affected[i].modifier != 0))
+		{
+			if (!found)
+			{
 				send_to_char("Дополнительные свойства :\r\n", ch);
 				found = TRUE;
 			}
 			sprinttype(obj->affected[i].location, apply_types, buf2);
 			negative = FALSE;
-			for (j = 0; *apply_negative[j] != '\n'; j++) {
-				if (!str_cmp(buf2, apply_negative[j])) {
+			for (j = 0; *apply_negative[j] != '\n'; j++)
+			{
+				if (!str_cmp(buf2, apply_negative[j]))
+				{
 					negative = TRUE;
 					break;
 				}
 			}
-			switch (negative) {
+			switch (negative)
+			{
 			case FALSE:
 				if (obj->affected[i].modifier < 0)
 					negative = TRUE;
@@ -1595,10 +1762,10 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 				break;
 			}
 			sprintf(buf, "   %s%s%s%s%s%d%s\r\n",
-				CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
-				CCCYN(ch, C_NRM),
-				negative ? " ухудшает на " : " улучшает на ",
-				abs(obj->affected[i].modifier), CCNRM(ch, C_NRM));
+					CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
+					CCCYN(ch, C_NRM),
+					negative ? " ухудшает на " : " улучшает на ",
+					abs(obj->affected[i].modifier), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 	}
@@ -1613,18 +1780,20 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 
 	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
 	send_to_char(buf, ch);
-	if (!IS_NPC(victim) && victim == ch) {
+	if (!IS_NPC(victim) && victim == ch)
+	{
 		sprintf(buf, "Написание : %s/%s/%s/%s/%s/%s\r\n",
-			GET_PAD(victim, 0), GET_PAD(victim, 1), GET_PAD(victim, 2),
-			GET_PAD(victim, 3), GET_PAD(victim, 4), GET_PAD(victim, 5));
+				GET_PAD(victim, 0), GET_PAD(victim, 1), GET_PAD(victim, 2),
+				GET_PAD(victim, 3), GET_PAD(victim, 4), GET_PAD(victim, 5));
 		send_to_char(buf, ch);
 	}
 
-	if (!IS_NPC(victim) && victim == ch) {
+	if (!IS_NPC(victim) && victim == ch)
+	{
 		sprintf(buf,
-			"Возраст %s  : %d лет, %d месяцев, %d дней и %d часов.\r\n",
-			GET_PAD(victim, 1), age(victim)->year, age(victim)->month,
-			age(victim)->day, age(victim)->hours);
+				"Возраст %s  : %d лет, %d месяцев, %d дней и %d часов.\r\n",
+				GET_PAD(victim, 1), age(victim)->year, age(victim)->month,
+				age(victim)->day, age(victim)->hours);
 		send_to_char(buf, ch);
 	}
 	if (fullness < 20 && ch != victim)
@@ -1634,7 +1803,7 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 	val1 = GET_WEIGHT(victim);
 	val2 = GET_SIZE(victim);
 	sprintf(buf, /*"Рост %d , */ " Вес %d, Размер %d\r\n", /*val0, */ val1,
-		val2);
+			val2);
 	send_to_char(buf, ch);
 	if (fullness < 60 && ch != victim)
 		return;
@@ -1645,8 +1814,8 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 	sprintf(buf, "Уровень : %d, может выдержать повреждений : %d(%d)\r\n", val0, val1, val2);
 	send_to_char(buf, ch);
 
-	val0 = MIN (GET_AR(victim), 100);
-	val1 = MIN (GET_MR(victim), 100);
+	val0 = MIN(GET_AR(victim), 100);
+	val1 = MIN(GET_MR(victim), 100);
 	sprintf(buf, "Защита от чар : %d, Защита от магических повреждений : %d\r\n", val0, val1);
 	send_to_char(buf, ch);
 	if (fullness < 90 && ch != victim)
@@ -1674,9 +1843,12 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 	if (fullness < 120 || (ch != victim && !IS_NPC(victim)))
 		return;
 
-	for (aff = victim->affected, found = FALSE; aff; aff = aff->next) {
-		if (aff->location != APPLY_NONE && aff->modifier != 0) {
-			if (!found) {
+	for (aff = victim->affected, found = FALSE; aff; aff = aff->next)
+	{
+		if (aff->location != APPLY_NONE && aff->modifier != 0)
+		{
+			if (!found)
+			{
 				send_to_char("Дополнительные свойства :\r\n", ch);
 				found = TRUE;
 				send_to_char(CCIRED(ch, C_NRM), ch);
@@ -1704,61 +1876,65 @@ void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
 	send_to_char(buf, ch);
 	sprintf(buf, "Написание : %s/%s/%s/%s/%s/%s\r\n",
-		GET_PAD(victim, 0), GET_PAD(victim, 1), GET_PAD(victim, 2),
-		GET_PAD(victim, 3), GET_PAD(victim, 4), GET_PAD(victim, 5));
+			GET_PAD(victim, 0), GET_PAD(victim, 1), GET_PAD(victim, 2),
+			GET_PAD(victim, 3), GET_PAD(victim, 4), GET_PAD(victim, 5));
 	send_to_char(buf, ch);
 
-	if (!IS_NPC(victim)) {
+	if (!IS_NPC(victim))
+	{
 		sprintf(buf,
-			"Возраст %s  : %d лет, %d месяцев, %d дней и %d часов.\r\n",
-			GET_PAD(victim, 1), age(victim)->year, age(victim)->month,
-			age(victim)->day, age(victim)->hours);
+				"Возраст %s  : %d лет, %d месяцев, %d дней и %d часов.\r\n",
+				GET_PAD(victim, 1), age(victim)->year, age(victim)->month,
+				age(victim)->day, age(victim)->hours);
 		send_to_char(buf, ch);
 	}
 
 	sprintf(buf, "Рост %d(%s%d%s), Вес %d(%s%d%s), Размер %d(%s%d%s)\r\n",
-		GET_HEIGHT(victim),
-		CCIRED(ch, C_NRM), GET_REAL_HEIGHT(victim), CCNRM(ch, C_NRM),
-		GET_WEIGHT(victim),
-		CCIRED(ch, C_NRM), GET_REAL_WEIGHT(victim), CCNRM(ch, C_NRM),
-		GET_SIZE(victim), CCIRED(ch, C_NRM), GET_REAL_SIZE(victim), CCNRM(ch, C_NRM));
+			GET_HEIGHT(victim),
+			CCIRED(ch, C_NRM), GET_REAL_HEIGHT(victim), CCNRM(ch, C_NRM),
+			GET_WEIGHT(victim),
+			CCIRED(ch, C_NRM), GET_REAL_WEIGHT(victim), CCNRM(ch, C_NRM),
+			GET_SIZE(victim), CCIRED(ch, C_NRM), GET_REAL_SIZE(victim), CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
 	sprintf(buf,
-		"Уровень : %d, может выдержать повреждений : %d(%d,%s%d%s)\r\n",
-		GET_LEVEL(victim), GET_HIT(victim), GET_MAX_HIT(victim),
-		CCIRED(ch, C_NRM), GET_REAL_MAX_HIT(victim), CCNRM(ch, C_NRM));
+			"Уровень : %d, может выдержать повреждений : %d(%d,%s%d%s)\r\n",
+			GET_LEVEL(victim), GET_HIT(victim), GET_MAX_HIT(victim),
+			CCIRED(ch, C_NRM), GET_REAL_MAX_HIT(victim), CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
 	sprintf(buf,
-		"Защита от чар : %d, Защита от магических повреждений : %d\r\n",
-		MIN (GET_AR(victim), 100), MIN (GET_MR(victim), 100));
+			"Защита от чар : %d, Защита от магических повреждений : %d\r\n",
+			MIN(GET_AR(victim), 100), MIN(GET_MR(victim), 100));
 	send_to_char(buf, ch);
 
 	sprintf(buf,
-		"Защита : %d(%s%d%s), Атака : %d(%s%d%s), Повреждения : %d(%s%d%s)\r\n",
-		GET_AC(victim), CCIRED(ch, C_NRM), compute_armor_class(victim),
-		CCNRM(ch, C_NRM), GET_HR(victim), CCIRED(ch, C_NRM),
-		GET_REAL_HR(victim), CCNRM(ch, C_NRM), GET_DR(victim),
-		CCIRED(ch, C_NRM), GET_REAL_DR(victim), CCNRM(ch, C_NRM));
+			"Защита : %d(%s%d%s), Атака : %d(%s%d%s), Повреждения : %d(%s%d%s)\r\n",
+			GET_AC(victim), CCIRED(ch, C_NRM), compute_armor_class(victim),
+			CCNRM(ch, C_NRM), GET_HR(victim), CCIRED(ch, C_NRM),
+			GET_REAL_HR(victim), CCNRM(ch, C_NRM), GET_DR(victim),
+			CCIRED(ch, C_NRM), GET_REAL_DR(victim), CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
 	sprintf(buf, "Сила: %d, Ум: %d, Муд: %d, Ловк: %d, Тел: %d, Обаян: %d\r\n",
-		GET_STR(victim), GET_INT(victim), GET_WIS(victim), GET_DEX(victim), GET_CON(victim), GET_CHA(victim));
+			GET_STR(victim), GET_INT(victim), GET_WIS(victim), GET_DEX(victim), GET_CON(victim), GET_CHA(victim));
 	send_to_char(buf, ch);
 	sprintf(buf,
-		"Сила: %s%d%s, Ум: %s%d%s, Муд: %s%d%s, Ловк: %s%d%s, Тел: %s%d%s, Обаян: %s%d%s\r\n",
-		CCIRED(ch, C_NRM), GET_REAL_STR(victim), CCNRM(ch, C_NRM),
-		CCIRED(ch, C_NRM), GET_REAL_INT(victim), CCNRM(ch, C_NRM),
-		CCIRED(ch, C_NRM), GET_REAL_WIS(victim), CCNRM(ch, C_NRM),
-		CCIRED(ch, C_NRM), GET_REAL_DEX(victim), CCNRM(ch, C_NRM),
-		CCIRED(ch, C_NRM), GET_REAL_CON(victim), CCNRM(ch, C_NRM),
-		CCIRED(ch, C_NRM), GET_REAL_CHA(victim), CCNRM(ch, C_NRM));
+			"Сила: %s%d%s, Ум: %s%d%s, Муд: %s%d%s, Ловк: %s%d%s, Тел: %s%d%s, Обаян: %s%d%s\r\n",
+			CCIRED(ch, C_NRM), GET_REAL_STR(victim), CCNRM(ch, C_NRM),
+			CCIRED(ch, C_NRM), GET_REAL_INT(victim), CCNRM(ch, C_NRM),
+			CCIRED(ch, C_NRM), GET_REAL_WIS(victim), CCNRM(ch, C_NRM),
+			CCIRED(ch, C_NRM), GET_REAL_DEX(victim), CCNRM(ch, C_NRM),
+			CCIRED(ch, C_NRM), GET_REAL_CON(victim), CCNRM(ch, C_NRM),
+			CCIRED(ch, C_NRM), GET_REAL_CHA(victim), CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
-	for (aff = victim->affected, found = FALSE; aff; aff = aff->next) {
-		if (aff->location != APPLY_NONE && aff->modifier != 0) {
-			if (!found) {
+	for (aff = victim->affected, found = FALSE; aff; aff = aff->next)
+	{
+		if (aff->location != APPLY_NONE && aff->modifier != 0)
+		{
+			if (!found)
+			{
 				send_to_char("Дополнительные свойства :\r\n", ch);
 				found = TRUE;
 				send_to_char(CCIRED(ch, C_NRM), ch);
@@ -1779,7 +1955,7 @@ void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 	else if (victim->master)
 		sprintf(buf + strlen(buf), "Следует за %s.\r\n", GET_PAD(victim->master, 4));
 	sprintf(buf + strlen(buf),
-		"Уровень повреждений %d, уровень заклинаний %d.\r\n", GET_DAMAGE(victim), GET_CASTER(victim));
+			"Уровень повреждений %d, уровень заклинаний %d.\r\n", GET_DAMAGE(victim), GET_CASTER(victim));
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 }
@@ -1791,17 +1967,19 @@ ASPELL(skill_identify)
 			imm_show_obj_values(obj, ch);
 		else
 			mort_show_obj_values(obj, ch,
-					     train_skill(ch, SKILL_IDENTIFY,
-							 skill_info[SKILL_IDENTIFY].max_percent, 0));
-	else if (victim) {
+								 train_skill(ch, SKILL_IDENTIFY,
+											 skill_info[SKILL_IDENTIFY].max_percent, 0));
+	else if (victim)
+	{
 		if (IS_IMMORTAL(ch))
 			imm_show_char_values(victim, ch);
-		else if (GET_LEVEL(victim) < 3) {
+		else if (GET_LEVEL(victim) < 3)
+		{
 			send_to_char("Вы можете опознать только персонажа, достигнувшего третьего уровня.\r\n", ch);
 			return;
 		}
 		mort_show_char_values(victim, ch,
-				      train_skill(ch, SKILL_IDENTIFY, skill_info[SKILL_IDENTIFY].max_percent, victim));
+							  train_skill(ch, SKILL_IDENTIFY, skill_info[SKILL_IDENTIFY].max_percent, victim));
 	}
 }
 
@@ -1809,12 +1987,15 @@ ASPELL(spell_identify)
 {
 	if (obj)
 		mort_show_obj_values(obj, ch, 100);
-	else if (victim) {
-		if (victim != ch) {
+	else if (victim)
+	{
+		if (victim != ch)
+		{
 			send_to_char("С помощью магии нельзя опознать другое существо.\r\n", ch);
 			return;
 		}
-		if (GET_LEVEL(victim) < 3) {
+		if (GET_LEVEL(victim) < 3)
+		{
 			send_to_char("Вы можете опознать себя только достигнув третьего уровня.\r\n", ch);
 			return;
 		}
@@ -1873,7 +2054,8 @@ ASPELL(spell_control_weather)
 	if (what_sky > SKY_LIGHTNING)
 		what_sky = SKY_LIGHTNING;
 
-	switch (what_sky) {
+	switch (what_sky)
+	{
 	case SKY_CLOUDLESS:
 		sky_info = "Небо покрылось облаками.";
 		break;
@@ -1881,17 +2063,25 @@ ASPELL(spell_control_weather)
 		sky_info = "Небо покрылось тяжелыми тучами.";
 		break;
 	case SKY_RAINING:
-		if (time_info.month >= MONTH_MAY && time_info.month <= MONTH_OCTOBER) {
+		if (time_info.month >= MONTH_MAY && time_info.month <= MONTH_OCTOBER)
+		{
 			sky_info = "Начался проливной дождь.";
 			create_rainsnow(&sky_type, WEATHER_LIGHTRAIN, 0, 50, 50);
-		} else if (time_info.month >= MONTH_DECEMBER || time_info.month <= MONTH_FEBRUARY) {
+		}
+		else if (time_info.month >= MONTH_DECEMBER || time_info.month <= MONTH_FEBRUARY)
+		{
 			sky_info = "Повалил снег.";
 			create_rainsnow(&sky_type, WEATHER_LIGHTSNOW, 0, 50, 50);
-		} else if (time_info.month == MONTH_MART || time_info.month == MONTH_NOVEMBER) {
-			if (weather_info.temperature > 2) {
+		}
+		else if (time_info.month == MONTH_MART || time_info.month == MONTH_NOVEMBER)
+		{
+			if (weather_info.temperature > 2)
+			{
 				sky_info = "Начался проливной дождь.";
 				create_rainsnow(&sky_type, WEATHER_LIGHTRAIN, 0, 50, 50);
-			} else {
+			}
+			else
+			{
 				sky_info = "Повалил снег.";
 				create_rainsnow(&sky_type, WEATHER_LIGHTSNOW, 0, 50, 50);
 			}
@@ -1904,15 +2094,18 @@ ASPELL(spell_control_weather)
 		break;
 	}
 
-	if (sky_info) {
+	if (sky_info)
+	{
 		duration = MAX(GET_LEVEL(ch) / 8, 2);
 		zone = world[IN_ROOM(ch)]->zone;
 		for (i = FIRST_ROOM; i <= top_of_world; i++)
-			if (world[i]->zone == zone && SECT(i) != SECT_INSIDE && SECT(i) != SECT_CITY) {
+			if (world[i]->zone == zone && SECT(i) != SECT_INSIDE && SECT(i) != SECT_CITY)
+			{
 				world[i]->weather.sky = what_sky;
 				world[i]->weather.weather_type = sky_type;
 				world[i]->weather.duration = duration;
-				if (world[i]->people) {
+				if (world[i]->people)
+				{
 					act(sky_info, FALSE, world[i]->people, 0, 0, TO_ROOM);
 					act(sky_info, FALSE, world[i]->people, 0, 0, TO_CHAR);
 				}
@@ -1923,7 +2116,8 @@ ASPELL(spell_control_weather)
 ASPELL(spell_fear)
 {
 	int modi = 0;
-	if (ch != victim) {
+	if (ch != victim)
+	{
 		modi = calc_anti_savings(ch);
 		pk_agro_action(ch, victim);
 	}
@@ -1950,21 +2144,25 @@ ASPELL(spell_wc_of_fear)
 
 ASPELL(spell_forbidden)
 {
-	if (world[IN_ROOM(ch)]->forbidden) {
+	if (world[IN_ROOM(ch)]->forbidden)
+	{
 		send_to_char(NOEFFECT, ch);
 		return;
 	}
 	world[IN_ROOM(ch)]->forbidden = 1 + (GET_LEVEL(ch) + 14) / 15;
 	world[IN_ROOM(ch)]->forbidden_percent = GET_REAL_INT(ch) + MAX((GET_REAL_INT(ch) - 30) * 4, 0);
-	if (world[IN_ROOM(ch)]->forbidden_percent > 99) {
+	if (world[IN_ROOM(ch)]->forbidden_percent > 99)
+	{
 		act("Вы запечатали магией все входы.", FALSE, ch, 0, 0, TO_CHAR);
 		act("$n запечатал$g магией все входы.", FALSE, ch, 0, 0, TO_ROOM);
 	}
-	else if (world[IN_ROOM(ch)]->forbidden_percent > 79){
+	else if (world[IN_ROOM(ch)]->forbidden_percent > 79)
+	{
 		act("Вы почти полностью запечатали магией все входы.", FALSE, ch, 0, 0, TO_CHAR);
 		act("$n почти полностью запечатал$g магией все входы.", FALSE, ch, 0, 0, TO_ROOM);
 	}
-	else {
+	else
+	{
 		act("Вы очень плохо запечатали магией все входы.", FALSE, ch, 0, 0, TO_CHAR);
 		act("$n очень плохо запечатал$g магией все входы.", FALSE, ch, 0, 0, TO_ROOM);
 	}
@@ -1976,7 +2174,8 @@ ASPELL(spell_energydrain)
 	// истощить энергию - круг 28 уровень 9 (1)
 	// для всех
 	int modi = 0;
-	if (ch != victim) {
+	if (ch != victim)
+	{
 		modi = calc_anti_savings(ch);
 		pk_agro_action(ch, victim);
 	}
@@ -1985,12 +2184,14 @@ ASPELL(spell_energydrain)
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
 		modi = modi - 50;
 
-	if (ch == victim || !general_savingthrow(victim, SAVING_WILL, CALC_SUCCESS(modi, 33))) {
+	if (ch == victim || !general_savingthrow(victim, SAVING_WILL, CALC_SUCCESS(modi, 33)))
+	{
 		int i;
 		for (i = 0; i <= MAX_SPELLS; GET_SPELL_MEM(victim, i++) = 0);
 		GET_CASTER(victim) = 0;
 		send_to_char("Внезапно Вы осознали, что у Вас напрочь отшибло память.\r\n", victim);
-	} else
+	}
+	else
 		send_to_char(NOEFFECT, ch);
 }
 
@@ -1999,7 +2200,7 @@ void do_sacrifice(CHAR_DATA * ch, int dam)
 {
 //MZ.overflow_fix
 	GET_HIT(ch) = MAX(GET_HIT(ch), MIN(GET_HIT(ch) + MAX(1, dam), GET_REAL_MAX_HIT(ch)
-									+ GET_REAL_MAX_HIT(ch) * GET_LEVEL(ch) / 10));
+									   + GET_REAL_MAX_HIT(ch) * GET_LEVEL(ch) / 10));
 //-MZ.overflow_fix
 	update_pos(ch);
 }
@@ -2012,7 +2213,8 @@ ASPELL(spell_sacrifice)
 	// Высосать жизнь - некроманы - уровень 18 круг 6й (5)
 	// *** мин 54 макс 66 (330)
 
-	if (WAITLESS(victim) || victim == ch) {
+	if (WAITLESS(victim) || victim == ch)
+	{
 		send_to_char(NOEFFECT, ch);
 		return;
 	}
@@ -2030,8 +2232,8 @@ ASPELL(spell_sacrifice)
 	if (!IS_NPC(ch))
 		for (f = ch->followers; f; f = f->next)
 			if (IS_NPC(f->follower) &&
-			    AFF_FLAGGED(f->follower, AFF_CHARM) &&
-			    MOB_FLAGGED(f->follower, MOB_CORPSE) && IN_ROOM(ch) == IN_ROOM(f->follower))
+					AFF_FLAGGED(f->follower, AFF_CHARM) &&
+					MOB_FLAGGED(f->follower, MOB_CORPSE) && IN_ROOM(ch) == IN_ROOM(f->follower))
 				do_sacrifice(f->follower, dam);
 
 }
@@ -2041,8 +2243,10 @@ ASPELL(spell_eviless)
 	CHAR_DATA *tch;
 
 	for (tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
-		if (IS_NPC(tch) && tch->master == ch && MOB_FLAGGED(tch, MOB_CORPSE)) {
-			if (mag_affects(GET_LEVEL(ch), ch, tch, SPELL_EVILESS, SAVING_STABILITY)) {
+		if (IS_NPC(tch) && tch->master == ch && MOB_FLAGGED(tch, MOB_CORPSE))
+		{
+			if (mag_affects(GET_LEVEL(ch), ch, tch, SPELL_EVILESS, SAVING_STABILITY))
+			{
 				GET_HIT(tch) = MAX(GET_HIT(tch), GET_REAL_MAX_HIT(tch));
 			}
 		}
@@ -2059,14 +2263,18 @@ ASPELL(spell_holystrike)
 	act(msg1, FALSE, ch, 0, 0, TO_CHAR);
 	act(msg1, FALSE, ch, 0, 0, TO_ROOM);
 
-	for (tch = world[IN_ROOM(ch)]->people; tch; tch = nxt) {
+	for (tch = world[IN_ROOM(ch)]->people; tch; tch = nxt)
+	{
 		nxt = tch->next_in_room;
 //    if ( SAME_GROUP( ch, tch ) ) continue;
-		if (IS_NPC(tch)) {
+		if (IS_NPC(tch))
+		{
 			if (!MOB_FLAGGED(tch, MOB_CORPSE)
-			    && GET_CLASS(tch) != CLASS_UNDEAD)
+					&& GET_CLASS(tch) != CLASS_UNDEAD)
 				continue;
-		} else {
+		}
+		else
+		{
 			if (GET_CLASS(tch) != CLASS_NECROMANCER)
 				continue;
 		}
@@ -2077,8 +2285,10 @@ ASPELL(spell_holystrike)
 	act(msg2, FALSE, ch, 0, 0, TO_CHAR);
 	act(msg2, FALSE, ch, 0, 0, TO_ROOM);
 
-	do {
-		for (o = world[IN_ROOM(ch)]->contents; o; o = o->next_content) {
+	do
+	{
+		for (o = world[IN_ROOM(ch)]->contents; o; o = o->next_content)
+		{
 			if (!IS_CORPSE(o))
 				continue;
 			extract_obj(o);
@@ -2097,23 +2307,28 @@ ASPELL(spell_angel)
 	CHAR_DATA *mob = NULL;
 	AFFECT_DATA af;
 	struct follow_type *k, *k_next;
-	for (k = ch->followers; k; k = k_next) {
+	for (k = ch->followers; k; k = k_next)
+	{
 		k_next = k->next;
-		if (MOB_FLAGGED(k->follower, MOB_ANGEL)) {	//send_to_char("Боги не обратили на вас никакого внимания!\r\n", ch);
+		if (MOB_FLAGGED(k->follower, MOB_ANGEL))  	//send_to_char("Боги не обратили на вас никакого внимания!\r\n", ch);
+		{
 			//return;
 			//пуржим старого ангела
 			stop_follower(k->follower, SF_CHARMLOST);
 		}
 	}
-	if (get_effective_cha(ch, SPELL_ANGEL) < 16 && !IS_IMMORTAL(ch)) {
+	if (get_effective_cha(ch, SPELL_ANGEL) < 16 && !IS_IMMORTAL(ch))
+	{
 		send_to_char("Боги не обратили на вас никакого внимания!\r\n", ch);
 		return;
 	};
-	if (number(1, 1001) < 500 - 30 * GET_REMORT(ch) && !IS_IMMORTAL(ch)) {
+	if (number(1, 1001) < 500 - 30 * GET_REMORT(ch) && !IS_IMMORTAL(ch))
+	{
 		send_to_char("Боги только посмеялись над вами!\r\n", ch);
 		return;
 	};
-	if (!(mob = read_mobile(-mob_num, VIRTUAL))) {
+	if (!(mob = read_mobile(-mob_num, VIRTUAL)))
+	{
 		send_to_char("Вы точно не помните, как создать данного монстра.\r\n", ch);
 		return;
 	}
@@ -2121,14 +2336,15 @@ ASPELL(spell_angel)
 	clear_char_skills(mob);
 	af.type = SPELL_CHARM;
 	af.duration =
-	    pc_duration(mob, 5 + (int) VPOSI((get_effective_cha(ch, SPELL_ANGEL) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
+		pc_duration(mob, 5 + (int) VPOSI((get_effective_cha(ch, SPELL_ANGEL) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = 0;
 	af.bitvector = AFF_HELPER;
 	af.battleflag = 0;
 	affect_to_char(mob, &af);
 
-	if (IS_FEMALE(ch)) {
+	if (IS_FEMALE(ch))
+	{
 		GET_SEX(mob) = SEX_MALE;
 		mob->player.name = str_dup("Небесный защитник");
 		GET_PAD(mob, 0) = str_dup("Небесный защитник");
@@ -2140,7 +2356,9 @@ ASPELL(spell_angel)
 		mob->player.short_descr = str_dup("Небесный защитник");
 		mob->player.long_descr = str_dup("Небесный защитник летает тут.\r\n");
 		mob->player.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
-	} else {
+	}
+	else
+	{
 		GET_SEX(mob) = SEX_FEMALE;
 		mob->player.name = str_dup("Небесная защитница");
 		GET_PAD(mob, 0) = str_dup("Небесная защитница");
@@ -2215,39 +2433,40 @@ ASPELL(spell_angel)
 // добавляем зависимости от уровня и от обаяния
 // level
 
-	modifier = (int) (5 * VPOSI(GET_LEVEL(ch) - 26, 0, 50)
-			  + 5 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
+	modifier = (int)(5 * VPOSI(GET_LEVEL(ch) - 26, 0, 50)
+					 + 5 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
 
 	mob->set_skill(SKILL_RESCUE, mob->get_skill(SKILL_RESCUE) + modifier);
 	mob->set_skill(SKILL_AWAKE, mob->get_skill(SKILL_AWAKE) + modifier);
 	mob->set_skill(SKILL_PUNCH, mob->get_skill(SKILL_PUNCH) + modifier);
 	mob->set_skill(SKILL_BLOCK, mob->get_skill(SKILL_BLOCK) + modifier);
 
-	modifier = (int) (2 * VPOSI(GET_LEVEL(ch) - 26, 0, 50)
-			  + 1 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
+	modifier = (int)(2 * VPOSI(GET_LEVEL(ch) - 26, 0, 50)
+					 + 1 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
 	GET_HR(mob) += modifier;
 
 	modifier = VPOSI(GET_LEVEL(ch) - 26, 0, 50);
 	GET_CON(mob) += modifier;
 
-	modifier = (int) (20 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
+	modifier = (int)(20 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
 	GET_MAX_HIT(mob) += modifier;
 	GET_HIT(mob) += modifier;
 
-	modifier = (int) (3 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
+	modifier = (int)(3 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
 	GET_AC(mob) -= modifier;
 
-	modifier = 1 * VPOSI((int) ((get_effective_cha(ch, SPELL_ANGEL) - 16) / 2), 0, 50);
+	modifier = 1 * VPOSI((int)((get_effective_cha(ch, SPELL_ANGEL) - 16) / 2), 0, 50);
 	GET_STR(mob) += modifier;
 	GET_DEX(mob) += modifier;
 
-	modifier = VPOSI((int) ((get_effective_cha(ch, SPELL_ANGEL) - 22) / 4), 0, 50);
+	modifier = VPOSI((int)((get_effective_cha(ch, SPELL_ANGEL) - 22) / 4), 0, 50);
 	SET_SPELL(mob, SPELL_HEAL, GET_SPELL_MEM(mob, SPELL_HEAL) + modifier);
 
 	if (get_effective_cha(ch, SPELL_ANGEL) >= 26)
 		mob->mob_specials.ExtraAttack += 1;
 
-	if (get_effective_cha(ch, SPELL_ANGEL) >= 24) {
+	if (get_effective_cha(ch, SPELL_ANGEL) >= 24)
+	{
 		mob->mob_specials.damnodice += 1;
 		mob->mob_specials.damsizedice += 1;
 	}
@@ -2267,10 +2486,13 @@ ASPELL(spell_angel)
 
 	char_to_room(mob, IN_ROOM(ch));
 
-	if (IS_FEMALE(mob)) {
+	if (IS_FEMALE(mob))
+	{
 //   act("Небесная защитница шагнула к вам из сгустка света!", FALSE, ch, 0, 0, TO_CHAR);
 		act("Небесная защитница появилась в яркой вспышке света!", TRUE, mob, 0, 0, TO_ROOM);
-	} else {
+	}
+	else
+	{
 //   act("Небесный защитник шагнул к вам из сгустка света!", FALSE, ch, 0, 0, TO_CHAR);
 		act("Небесный защитник появился в яркой вспышке света!", TRUE, mob, 0, 0, TO_ROOM);
 	}

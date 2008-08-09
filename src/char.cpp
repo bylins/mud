@@ -14,42 +14,42 @@
 #include "privilege.hpp"
 
 Character::Character()
-	: pfilepos (-1),
-	nr(NOBODY),
-	in_room(0),
-	was_in_room(NOWHERE),
-	wait(0),
-	punctual_wait(0),
-	last_comm(0),
-	player_specials(0),
-	affected(0),
-	timed(0),
-	timed_feat(0),
-	carrying(0),
-	desc(0),
-	id(0),
-	proto_script(0),
-	script(0),
-	memory(0),
-	next_in_room(0),
-	next(0),
-	next_fighting(0),
-	followers(0),
-	master(0),
-	CasterLevel(0),
-	DamageLevel(0),
-	pk_list(0),
-	helpers(0),
-	track_dirs(0),
-	CheckAggressive(0),
-	ExtractTimer(0),
-	Initiative(0),
-	BattleCounter(0),
-	Protecting(0),
-	Touching(0),
-	Poisoner(0),
-	ing_list(0),
-	dl_list(0)
+		: pfilepos(-1),
+		nr(NOBODY),
+		in_room(0),
+		was_in_room(NOWHERE),
+		wait(0),
+		punctual_wait(0),
+		last_comm(0),
+		player_specials(0),
+		affected(0),
+		timed(0),
+		timed_feat(0),
+		carrying(0),
+		desc(0),
+		id(0),
+		proto_script(0),
+		script(0),
+		memory(0),
+		next_in_room(0),
+		next(0),
+		next_fighting(0),
+		followers(0),
+		master(0),
+		CasterLevel(0),
+		DamageLevel(0),
+		pk_list(0),
+		helpers(0),
+		track_dirs(0),
+		CheckAggressive(0),
+		ExtractTimer(0),
+		Initiative(0),
+		BattleCounter(0),
+		Protecting(0),
+		Touching(0),
+		Poisoner(0),
+		ing_list(0),
+		dl_list(0)
 {
 	memset(&player, 0, sizeof(char_player_data));
 	memset(&add_abils, 0, sizeof(char_played_ability_data));
@@ -136,7 +136,7 @@ Character::~Character()
 
 		for (j = 0; j < NUM_PADS; j++)
 			if (GET_PAD(this, j)
-			    && (this->player.PNames[j] != mob_proto[i].player.PNames[j]))
+					&& (this->player.PNames[j] != mob_proto[i].player.PNames[j]))
 				free(this->player.PNames[j]);
 
 		if (this->player.title && this->player.title != mob_proto[i].player.title)

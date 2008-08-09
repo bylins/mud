@@ -13,11 +13,12 @@
 #include "conf.h"
 #include <map>
 
-template <typename _Key2, typename _Key1, typename _Tp2,
-	  typename _Compare2 = std::less<_Key2>, typename _Compare1 = std::less<_Key1>,
-	  typename _Alloc2 = std::allocator<std::pair<const _Key2, _Tp2> >,
-	  typename _Alloc1 = std::allocator<std::pair<const _Key1, std::map<_Key2, _Tp2, _Compare2, _Alloc2> > > >
-class double_map : public std::map<_Key1, std::map<_Key2, _Tp2, _Compare2, _Alloc2>, _Compare1, _Alloc1> {
+template < typename _Key2, typename _Key1, typename _Tp2,
+typename _Compare2 = std::less<_Key2>, typename _Compare1 = std::less<_Key1>,
+typename _Alloc2 = std::allocator<std::pair<const _Key2, _Tp2> >,
+typename _Alloc1 = std::allocator<std::pair<const _Key1, std::map<_Key2, _Tp2, _Compare2, _Alloc2> > > >
+class double_map : public std::map<_Key1, std::map<_Key2, _Tp2, _Compare2, _Alloc2>, _Compare1, _Alloc1>
+{
 public:
 	typedef std::map<_Key1, std::map<_Key2, _Tp2, _Compare2, _Alloc2>, _Compare1, _Alloc1> _Base;
 
@@ -78,9 +79,10 @@ public:
 	{
 		iterator __i = lower_bound(__k1);
 		// __i->first is greater than or equivalent to __k1.
-		if (__i != end() && !key_comp()(__k1, (*__i).first)) {
+		if (__i != end() && !key_comp()(__k1, (*__i).first))
+		{
 			(*__i).second.erase(__k2);
-        		if ((*__i).second.empty())
+			if ((*__i).second.empty())
 				erase(__i);
 		}
 	}

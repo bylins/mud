@@ -21,9 +21,9 @@ typedef std::vector< std::list<TopPlayer> > TopListType;
 
 class TopPlayer
 {
-	public:
+public:
 	TopPlayer(long _unique, const char * _name, long _exp, int _remort)
-		: unique(_unique), name(_name), exp(_exp), remort(_remort) {};
+			: unique(_unique), name(_name), exp(_exp), remort(_remort) {};
 	~TopPlayer() {};
 
 	static const char * TopFormat[];
@@ -31,7 +31,7 @@ class TopPlayer
 	static void Remove(CHAR_DATA * ch);
 	static void Refresh(CHAR_DATA * ch, bool reboot = 0);
 
-	private:
+private:
 	long unique;      // уид
 	std::string name; // имя
 	long exp;         // опыта

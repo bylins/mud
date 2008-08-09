@@ -10,14 +10,16 @@
 #include "structs.h"
 
 /* These data contain information about a players time data */
-struct time_data {
+struct time_data
+{
 	time_t birth;		/* This represents the characters age                */
 	time_t logon;		/* Time of the last logon (used to calculate played) */
 	int played;		/* This is the total accumulated time played in secs */
 };
 
 /* general player-related info, usually PC's and NPC's */
-struct char_player_data {
+struct char_player_data
+{
 	char *passwd;	/* character's password      */
 	char *name;		/* PC / NPC s name (kill ...  )         */
 	char *short_descr;	/* for NPC 'actions'                    */
@@ -41,7 +43,8 @@ struct char_player_data {
 };
 
 /* Char's additional abilities. Used only while work */
-struct char_played_ability_data {
+struct char_played_ability_data
+{
 	int str_add;
 	int intel_add;
 	int wis_add;
@@ -75,7 +78,8 @@ struct char_played_ability_data {
 };
 
 /* Char's abilities. */
-struct char_ability_data {
+struct char_ability_data
+{
 	ubyte SplKnw[MAX_SPELLS + 1];	/* array of SPELL_KNOW_TYPE         */
 	ubyte SplMem[MAX_SPELLS + 1];	/* array of MEMed SPELLS            */
 	bitset<MAX_FEATS> Feats;
@@ -92,7 +96,8 @@ struct char_ability_data {
 };
 
 /* Char's points. */
-struct char_point_data {
+struct char_point_data
+{
 	sh_int hit;
 	sh_int max_hit;		/* Max hit for PC/NPC                      */
 	sh_int move;
@@ -111,7 +116,8 @@ struct char_point_data {
  * playerfile.  If you want to add to the playerfile, use the spares
  * in player_special_data.
  */
-struct char_special_data_saved {
+struct char_special_data_saved
+{
 	int alignment;		/* +-1000 for alignments                */
 	long idnum;			/* player's idnum; -1 for mobiles   */
 	FLAG_DATA act;		/* act flag for NPC's; player flag for PC's */
@@ -121,7 +127,8 @@ struct char_special_data_saved {
 };
 
 /* Special playing constants shared by PCs and NPCs which aren't in pfile */
-struct char_special_data {
+struct char_special_data
+{
 	CHAR_DATA *fighting;	/* Opponent */
 	CHAR_DATA *hunting;	/* Char hunted by this char */
 
@@ -135,7 +142,8 @@ struct char_special_data {
 };
 
 /* Specials used by NPCs, not PCs */
-struct mob_special_data {
+struct mob_special_data
+{
 	byte last_direction;	/* The last direction the monster went     */
 	int attack_type;		/* The Attack Type Bitvector for NPC's     */
 	byte default_pos;	/* Default position for NPC                */
@@ -160,31 +168,36 @@ struct mob_special_data {
 };
 
 // очередь запоминания заклинаний
-struct spell_mem_queue {
+struct spell_mem_queue
+{
 	struct spell_mem_queue_item *queue;
 	int stored;		// накоплено манны
 	int total;			// полное время мема всей очереди
 };
 
 /* Structure used for questing */
-struct quest_data {
+struct quest_data
+{
 	int count;
 	int *quests;
 };
 
-struct mob_kill_data {
+struct mob_kill_data
+{
 	int count;
 	int *howmany;
 	int *vnum;
 };
 
 /* Structure used for extra_attack - bash, kick, diasrm, chopoff, etc */
-struct extra_attack_type {
+struct extra_attack_type
+{
 	int used_skill;
 	CHAR_DATA *victim;
 };
 
-struct cast_attack_type {
+struct cast_attack_type
+{
 	int spellnum;
 	int spell_subst;
 	CHAR_DATA *tch;
@@ -192,13 +205,14 @@ struct cast_attack_type {
 	ROOM_DATA *troom;
 };
 
-typedef std::map<int/* номер скилла */, int/* значение скилла */> CharSkillsType;
+typedef std::map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
 
 /**
 * Общий класс для игроков/мобов.
 */
-class Character {
-	public:
+class Character
+{
+public:
 // новое
 	Character();
 	~Character();

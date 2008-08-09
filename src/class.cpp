@@ -66,136 +66,136 @@ int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
 /* Names first */
 
 char *class_abbrevs[] = { "Ле",
-	"Ко",
-	"Та",
-	"Бо",
-	"На",
-	"Др",
-	"Ку",
-	"Во",
-	"Че",
-	"Ви",
-	"Ох",
-	"Кз",
-	"Кп",
-	"Вл",
-	"\n"
-};
+						  "Ко",
+						  "Та",
+						  "Бо",
+						  "На",
+						  "Др",
+						  "Ку",
+						  "Во",
+						  "Че",
+						  "Ви",
+						  "Ох",
+						  "Кз",
+						  "Кп",
+						  "Вл",
+						  "\n"
+						};
 
 char *kin_abbrevs[] = { "Ру",
-	"Ви",
-	"Ст",
-	"\n"
-};
+						"Ви",
+						"Ст",
+						"\n"
+					  };
 
 
 const char *pc_class_types[] = { "Лекарь",
-	"Колдун",
-	"Тать",
-	"Богатырь",
-	"Наемник",
-	"Дружинник",
-	"Кудесник",
-	"Волшебник",
-	"Чернокнижник",
-	"Витязь",
-	"Охотник",
-	"Кузнец",
-	"Купец",
-	"Волхв",
-	"Жрец",
-	"Нойда",
-	"Тиуве",
-	"Берсерк",
-	"Наемник",
-	"Хирдман",
-	"Заарин",
-	"Босоркун",
-	"Равк",
-	"Кампе",
-	"Лучник",
-	"Аргун",
-	"Кепмен",
-	"Скальд",
-	"Знахарь",
-	"Бакша",
-	"Карак",
-	"Батыр",
-	"Тургауд",
-	"Нуке",
-	"Капнобатай",
-	"Акшаман",
-	"Карашаман",
-	"Чериг",
-	"Шикорхо",
-	"Дархан",
-	"Сатучы",
-	"Сеид",
-	"\n"
-};
+								 "Колдун",
+								 "Тать",
+								 "Богатырь",
+								 "Наемник",
+								 "Дружинник",
+								 "Кудесник",
+								 "Волшебник",
+								 "Чернокнижник",
+								 "Витязь",
+								 "Охотник",
+								 "Кузнец",
+								 "Купец",
+								 "Волхв",
+								 "Жрец",
+								 "Нойда",
+								 "Тиуве",
+								 "Берсерк",
+								 "Наемник",
+								 "Хирдман",
+								 "Заарин",
+								 "Босоркун",
+								 "Равк",
+								 "Кампе",
+								 "Лучник",
+								 "Аргун",
+								 "Кепмен",
+								 "Скальд",
+								 "Знахарь",
+								 "Бакша",
+								 "Карак",
+								 "Батыр",
+								 "Тургауд",
+								 "Нуке",
+								 "Капнобатай",
+								 "Акшаман",
+								 "Карашаман",
+								 "Чериг",
+								 "Шикорхо",
+								 "Дархан",
+								 "Сатучы",
+								 "Сеид",
+								 "\n"
+							   };
 
 
 /* The menu for choosing a class in interpreter.c: */
 const char *class_menu =
-    "\r\n"
-    "Выберите профессию :\r\n"
-    "  [Л]екарь\r\n"
-    "  [К]олдун\r\n"
-    "  [Т]ать\r\n"
-    "  [Б]огатырь\r\n"
-    "  [Н]аемник\r\n"
-    "  [Д]ружинник\r\n"
-    "  К[у]десник\r\n"
-    "  [В]олшебник\r\n"
-    "  [Ч]ернокнижник\r\n" "  В[и]тязь\r\n" "  [О]хотник\r\n" "  Ку[з]нец\r\n" "  Ку[п]ец\r\n" "  Вол[x]в\r\n";
+	"\r\n"
+	"Выберите профессию :\r\n"
+	"  [Л]екарь\r\n"
+	"  [К]олдун\r\n"
+	"  [Т]ать\r\n"
+	"  [Б]огатырь\r\n"
+	"  [Н]аемник\r\n"
+	"  [Д]ружинник\r\n"
+	"  К[у]десник\r\n"
+	"  [В]олшебник\r\n"
+	"  [Ч]ернокнижник\r\n" "  В[и]тязь\r\n" "  [О]хотник\r\n" "  Ку[з]нец\r\n" "  Ку[п]ец\r\n" "  Вол[x]в\r\n";
 
 const char *class_menu_vik =
-    "\r\n"
-    "Выберите профессию :\r\n"
-    "  [Ж]рец\r\n"
-    "  [Н]ойда\r\n"
-    "  [Т]иуве\r\n"
-    "  [Б]ерсерк\r\n"
-    "  Н[а]емник\r\n"
-    "  [Х]ирдман\r\n"
-    "  [З]аарин\r\n"
-    "  Б[о]соркун\r\n"
-    "  [Р]авк\r\n"
-    "  [К]ампе\r\n"
-    "  [Л]учник\r\n"
-    "  Ар[г]ун\r\n"
-    "  Ке[п]мен\r\n"
-    "  [С]кальд\r\n";
+	"\r\n"
+	"Выберите профессию :\r\n"
+	"  [Ж]рец\r\n"
+	"  [Н]ойда\r\n"
+	"  [Т]иуве\r\n"
+	"  [Б]ерсерк\r\n"
+	"  Н[а]емник\r\n"
+	"  [Х]ирдман\r\n"
+	"  [З]аарин\r\n"
+	"  Б[о]соркун\r\n"
+	"  [Р]авк\r\n"
+	"  [К]ампе\r\n"
+	"  [Л]учник\r\n"
+	"  Ар[г]ун\r\n"
+	"  Ке[п]мен\r\n"
+	"  [С]кальд\r\n";
 
 const char *class_menu_step =
-    "\r\n"
-    "Выберите профессию :\r\n"
-    "  [З]нахарь\r\n"
-    "  [Б]акша\r\n"
-    "  [К]арак\r\n"
-    "  Б[а]тыр\r\n"
-    "  [Т]ургауд\r\n"
-    "  [Н]уке\r\n"
-    "  Ка[п]нобатай\r\n"
-    "  Ак[ш]аман\r\n"
-    "  Ка[р]ашаман\r\n"
-    "  [Ч]ериг\r\n"
-    "  Шик[о]рхо\r\n"
-    "  [Д]архан\r\n"
-    "  [С]атучы\r\n"
-    "  Се[и]д\r\n";
+	"\r\n"
+	"Выберите профессию :\r\n"
+	"  [З]нахарь\r\n"
+	"  [Б]акша\r\n"
+	"  [К]арак\r\n"
+	"  Б[а]тыр\r\n"
+	"  [Т]ургауд\r\n"
+	"  [Н]уке\r\n"
+	"  Ка[п]нобатай\r\n"
+	"  Ак[ш]аман\r\n"
+	"  Ка[р]ашаман\r\n"
+	"  [Ч]ериг\r\n"
+	"  Шик[о]рхо\r\n"
+	"  [Д]архан\r\n"
+	"  [С]атучы\r\n"
+	"  Се[и]д\r\n";
 
 const char *color_menu =
-    "\r\n"
-    "Выберите режим цвета :\r\n"
-    "  [0]Выкл\r\n"
-    "  [1]Простой\r\n"
-    "  [2]Обычный\r\n"
-    "  [3]Полный\r\n";
+	"\r\n"
+	"Выберите режим цвета :\r\n"
+	"  [0]Выкл\r\n"
+	"  [1]Простой\r\n"
+	"  [2]Обычный\r\n"
+	"  [3]Полный\r\n";
 
 /* The menu for choosing a religion in interpreter.c: */
 const char *religion_menu =
-    "\r\n" "Какой религии Вы отдаете предпочтение :\r\n" "  Я[з]ычество\r\n" "  [Х]ристианство\r\n";
+	"\r\n" "Какой религии Вы отдаете предпочтение :\r\n" "  Я[з]ычество\r\n" "  [Х]ристианство\r\n";
 
 #define RELIGION_ANY 100
 
@@ -204,87 +204,87 @@ const char *religion_menu =
                                    RELIGION_MONO-класс не может быть язычником  (Кард)
 				   RELIGION_ANY - класс может быть кем угодно */
 const int class_religion[] = { RELIGION_ANY,	/*Лекарь */
-	RELIGION_POLY,		/*Колдун */
-	RELIGION_ANY,		/*Тать */
-	RELIGION_POLY,		/*Богатырь */
-	RELIGION_MONO,		/*Наемник */
-	RELIGION_ANY,		/*Дружинник */
-	RELIGION_ANY,		/*Кудесник */
-	RELIGION_MONO,		/*Волшебник */
-	RELIGION_POLY,		/*Чернокнижник */
-	RELIGION_MONO,		/*Витязь */
-	RELIGION_ANY,		/*Охотник */
-	RELIGION_ANY,		/*Кузнец */
-	RELIGION_ANY,		/*Купец */
-	RELIGION_POLY		/*Волхв */
-};
+							   RELIGION_POLY,		/*Колдун */
+							   RELIGION_ANY,		/*Тать */
+							   RELIGION_POLY,		/*Богатырь */
+							   RELIGION_MONO,		/*Наемник */
+							   RELIGION_ANY,		/*Дружинник */
+							   RELIGION_ANY,		/*Кудесник */
+							   RELIGION_MONO,		/*Волшебник */
+							   RELIGION_POLY,		/*Чернокнижник */
+							   RELIGION_MONO,		/*Витязь */
+							   RELIGION_ANY,		/*Охотник */
+							   RELIGION_ANY,		/*Кузнец */
+							   RELIGION_ANY,		/*Купец */
+							   RELIGION_POLY		/*Волхв */
+							 };
 
 /*****/
 
 /* The menu for choosing a race in interpreter.c: */
 const char *race_menu =
-    "\r\n"
-    "Какой РОД Вам ближе всего по духу :\r\n"
-    "  [С]еверяне\r\n" "  [П]оляне\r\n" "  [К]ривичи\r\n" "  [В]ятичи\r\n" "  В[е]лыняне\r\n" "  [Д]ревляне\r\n";
+	"\r\n"
+	"Какой РОД Вам ближе всего по духу :\r\n"
+	"  [С]еверяне\r\n" "  [П]оляне\r\n" "  [К]ривичи\r\n" "  [В]ятичи\r\n" "  В[е]лыняне\r\n" "  [Д]ревляне\r\n";
 
 const char *race_types[] = { "северяне",
-	"поляне",
-	"кривичи",
-	"вятичи",
-	"велыняне",
-	"древляне"
-};
+							 "поляне",
+							 "кривичи",
+							 "вятичи",
+							 "велыняне",
+							 "древляне"
+						   };
 
 const char *race_menu_step =
-   "\r\n"
-   "Какой РОД Вам ближе всего по духу :\r\n"
-   "  [П]оловцы\r\n"
-   "  П[е]ченеги\r\n"
-   "  [М]онголы\r\n"
-   "  [У]йгуры\r\n"
-   "  [К]ангары\r\n"
-   "  [Х]азары\r\n";
+	"\r\n"
+	"Какой РОД Вам ближе всего по духу :\r\n"
+	"  [П]оловцы\r\n"
+	"  П[е]ченеги\r\n"
+	"  [М]онголы\r\n"
+	"  [У]йгуры\r\n"
+	"  [К]ангары\r\n"
+	"  [Х]азары\r\n";
 
 const char *race_types_srep[] = { "половцы",
-	"печенеги",
-	"монголы",
-	"уйгуры",
-	"кангары",
-	"хазары"
-};
+								  "печенеги",
+								  "монголы",
+								  "уйгуры",
+								  "кангары",
+								  "хазары"
+								};
 
 const char *race_menu_vik =
-   "\r\n"
-   "Какой РОД Вам ближе всего по духу :\r\n"
-   "  [С]веи\r\n"
-   "  [Д]атчане\r\n"
-   "  [Г]етты\r\n"
-   "  [Ю]тты\r\n"
-   "  [Х]алейги\r\n"
-   "  [Н]орвежцы\r\n";
+	"\r\n"
+	"Какой РОД Вам ближе всего по духу :\r\n"
+	"  [С]веи\r\n"
+	"  [Д]атчане\r\n"
+	"  [Г]етты\r\n"
+	"  [Ю]тты\r\n"
+	"  [Х]алейги\r\n"
+	"  [Н]орвежцы\r\n";
 
 const char *race_types_vik[] = { "свеи",
-	"датчане",
-	"гетты",
-	"ютты",
-	"халейги",
-	"норвежцы"
-};
+								 "датчане",
+								 "гетты",
+								 "ютты",
+								 "халейги",
+								 "норвежцы"
+							   };
 
 
 /**/
 const char *kin_menu =
-   "\r\n"
-   "Какие племена вам ближе по духу :\r\n"
-   "  [Р]усичи\r\n"
-   "  [C]тепняки (находится в стадии тестирования)\r\n"
-   "  [В]икинги (находится в стадии тестирования)\r\n";
+	"\r\n"
+	"Какие племена вам ближе по духу :\r\n"
+	"  [Р]усичи\r\n"
+	"  [C]тепняки (находится в стадии тестирования)\r\n"
+	"  [В]икинги (находится в стадии тестирования)\r\n";
 
 const char *pc_kin_types[] = { "Русичи",
-	"Викинги",
-	"Степняки",
-	"\n"
-};
+							   "Викинги",
+							   "Степняки",
+							   "\n"
+							 };
 
 
 /*
@@ -296,7 +296,8 @@ int parse_class(char arg)
 {
 	arg = LOWER(arg);
 
-	switch (arg) {
+	switch (arg)
+	{
 	case 'л':
 		return CLASS_CLERIC;
 	case 'к':
@@ -331,11 +332,12 @@ int parse_class(char arg)
 }
 
 int
-parse_class_vik (char arg)
+parse_class_vik(char arg)
 {
-	arg = LOWER (arg);
+	arg = LOWER(arg);
 
-	switch (arg){
+	switch (arg)
+	{
 	case 'ж':
 		return CLASS_CLERIC;
 	case 'н':
@@ -371,11 +373,12 @@ parse_class_vik (char arg)
 
 
 int
-parse_class_step (char arg)
+parse_class_step(char arg)
 {
-	arg = LOWER (arg);
+	arg = LOWER(arg);
 
-	switch (arg){
+	switch (arg)
+	{
 	case 'з':
 		return CLASS_CLERIC;
 	case 'б':
@@ -414,7 +417,8 @@ int parse_race(char arg)
 {
 	arg = LOWER(arg);
 
-	switch (arg) {
+	switch (arg)
+	{
 	case 'с':
 		return RACE_SEVERANE;
 	case 'п':
@@ -433,11 +437,12 @@ int parse_race(char arg)
 }
 
 int
-parse_race_step (char arg)
+parse_race_step(char arg)
 {
-	arg = LOWER (arg);
+	arg = LOWER(arg);
 
-	switch (arg){
+	switch (arg)
+	{
 	case 'п':
 		return RACE_POLOVCI;
 	case 'е':
@@ -456,11 +461,12 @@ parse_race_step (char arg)
 }
 
 int
-parse_race_vik (char arg)
+parse_race_vik(char arg)
 {
-	arg = LOWER (arg);
+	arg = LOWER(arg);
 
-	switch (arg){
+	switch (arg)
+	{
 	case 'с':
 		return RACE_SVEI;
 	case 'д':
@@ -479,17 +485,18 @@ parse_race_vik (char arg)
 }
 
 int
-parse_kin (char arg)
+parse_kin(char arg)
 {
-	arg = LOWER (arg);
+	arg = LOWER(arg);
 
-	switch (arg){
+	switch (arg)
+	{
 	case 'р':
 		return KIN_RUSICHI;
-/*	case 'Ё':
-		return KIN_STEPNYAKI;
-	case '@':
-		return KIN_VIKINGI;*//*Отключим пока*/
+		/*	case 'Ё':
+				return KIN_STEPNYAKI;
+			case '@':
+				return KIN_VIKINGI;*//*Отключим пока*/
 	default:
 		return KIN_UNDEFINED;
 	}
@@ -506,7 +513,8 @@ long find_class_bitvector(char arg)
 {
 	arg = LOWER(arg);
 
-	switch (arg) {
+	switch (arg)
+	{
 	case 'л':
 		return (1 << CLASS_CLERIC);
 	case 'к':
@@ -541,11 +549,12 @@ long find_class_bitvector(char arg)
 }
 
 long
-find_class_bitvector_vik (char arg)
+find_class_bitvector_vik(char arg)
 {
-	arg = LOWER (arg);
+	arg = LOWER(arg);
 
-	switch (arg){
+	switch (arg)
+	{
 	case 'ж':
 		return (1 << CLASS_CLERIC);
 	case 'н':
@@ -582,11 +591,12 @@ find_class_bitvector_vik (char arg)
 
 
 long
-find_class_bitvector_step (char arg)
+find_class_bitvector_step(char arg)
 {
-	arg = LOWER (arg);
+	arg = LOWER(arg);
 
-	switch (arg){
+	switch (arg)
+	{
 	case 'з':
 		return (1 << CLASS_CLERIC);
 	case 'б':
@@ -653,10 +663,11 @@ find_class_bitvector_step (char arg)
 /* #define MIN_PER_PRAC		2  min percent gain in skill per practice */
 /* #define PRAC_TYPE		3  should it say 'spell' or 'skill'?	*/
 
-int prac_params[4][NUM_CLASSES] = {	/* MAG        CLE             THE             WAR */
+int prac_params[4][NUM_CLASSES] =  	/* MAG        CLE             THE             WAR */
+{
 	{95, 95, 85, 80},	/* learned level */
 	{100, 100, 12, 12},	/* max per prac */
-	{25, 25, 0, 0,},	/* min per pac */
+	{25, 25, 0, 0, },	/* min per pac */
 	{SPELL, SPELL, SKILL, SKILL}	/* prac name */
 };
 
@@ -672,137 +683,155 @@ int prac_params[4][NUM_CLASSES] = {	/* MAG        CLE             THE           
  * "recycle" the existing mobs that are used in other guilds for your new
  * guild, then you don't have to change that file, only here.
  */
-int guild_info[][3] = {
+int guild_info[][3] =
+{
 
-/* Midgaard */
+	/* Midgaard */
 	{CLASS_BATTLEMAGE, 3017, SCMD_SOUTH},
 	{CLASS_CLERIC, 3004, SCMD_NORTH},
 	{CLASS_THIEF, 3027, SCMD_EAST},
 	{CLASS_WARRIOR, 3021, SCMD_EAST},
 
-/* Brass Dragon */
-	{-999 /* all */ , 5065, SCMD_WEST},
+	/* Brass Dragon */
+	{ -999 /* all */ , 5065, SCMD_WEST},
 
-/* this must go last -- add new guards above! */
-	{-1, -1, -1}
+	/* this must go last -- add new guards above! */
+	{ -1, -1, -1}
 };
 
 
 // Таблицы бызовых спасбросков
 
-const byte sav_01[50] = {
+const byte sav_01[50] =
+{
 	90, 90, 90, 90, 90, 89, 89, 88, 88, 87,	// 00-09
 	86, 85, 84, 83, 81, 79, 78, 75, 73, 71,	// 10-19
 	68, 65, 62, 59, 56, 52, 48, 44, 40, 35,	// 20-29
 	30, 0, 0, 0, 0, 0, 0, 0, 0, 0,	// 30-39
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0	// 40-49
 };
-const byte sav_02[50] = {
+const byte sav_02[50] =
+{
 	90, 90, 90, 90, 90, 89, 89, 88, 87, 87,	// 00-09
 	86, 84, 83, 81, 80, 78, 75, 73, 70, 68,	// 10-19
 	65, 61, 58, 54, 50, 46, 41, 36, 31, 26,	// 20-29
 	20, 15, 10, 9, 8, 7, 6, 5, 4, 3,	// 30-39
 	2, 1, 0, 0, 0, 0, 0, 0, 0, 0	// 40-49
 };
-const byte sav_03[50] = {
+const byte sav_03[50] =
+{
 	90, 90, 90, 90, 90, 89, 89, 88, 88, 87,	// 00-09
 	86, 85, 83, 82, 80, 79, 76, 74, 72, 69,	// 10-19
 	66, 63, 60, 57, 53, 49, 45, 40, 35, 30,	// 20-29
 	25, 0, 0, 0, 0, 0, 0, 0, 0, 0,	// 30-39
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0	// 40-49
 };
-const byte sav_04[50] = {
+const byte sav_04[50] =
+{
 	90, 90, 90, 90, 90, 90, 89, 89, 89, 88,	// 00-09
 	87, 87, 86, 85, 84, 83, 82, 80, 79, 77,	// 10-19
 	75, 74, 72, 69, 67, 65, 62, 59, 56, 53,	// 20-29
 	50, 45, 40, 35, 30, 25, 20, 15, 10, 5,	// 30-39
 	4, 3, 2, 1, 0, 0, 0, 0, 0, 0	// 40-49
 };
-const byte sav_05[50] = {
+const byte sav_05[50] =
+{
 	90, 90, 90, 90, 90, 89, 89, 89, 88, 87,	// 00-09
 	86, 86, 84, 83, 82, 80, 79, 77, 75, 72,	// 10-19
 	70, 67, 65, 62, 59, 55, 52, 48, 44, 39,	// 20-29
 	35, 0, 0, 0, 0, 0, 0, 0, 0, 0,	// 30-39
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0	// 40-49
 };
-const byte sav_06[50] = {
+const byte sav_06[50] =
+{
 	90, 90, 90, 90, 90, 90, 89, 89, 88, 88,	// 00-09
 	87, 86, 85, 84, 82, 80, 78, 76, 74, 72,	// 10-19
 	70, 67, 64, 61, 58, 55, 52, 49, 46, 43,	// 20-29
 	40, 45, 41, 37, 33, 25, 20, 15, 10, 5,	// 30-39
 	4, 3, 2, 1, 0, 0, 0, 0, 0, 0	// 40-49
 };
-const byte sav_08[50] = {
+const byte sav_08[50] =
+{
 	90, 90, 90, 90, 90, 89, 89, 89, 88, 88,	// 00-09
 	87, 86, 85, 84, 83, 81, 80, 78, 76, 74,	// 10-19
 	72, 70, 67, 64, 61, 58, 55, 52, 48, 44,	// 20-29
 	40, 0, 0, 0, 0, 0, 0, 0, 0, 0,	// 30-39
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0	// 40-49
 };
-const byte sav_09[50] = {
+const byte sav_09[50] =
+{
 	90, 75, 73, 71, 69, 67, 65, 63, 61, 60,	// 00-09
 	59, 57, 55, 53, 51, 50, 49, 47, 45, 43,	// 10-19
 	41, 40, 39, 37, 35, 33, 31, 29, 27, 25,	// 20-29
 	23, 0, 0, 0, 0, 0, 0, 0, 0, 0,	// 30-39
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0	// 40-49
 };
-const byte sav_10[50] = {
+const byte sav_10[50] =
+{
 	90, 80, 79, 78, 76, 75, 73, 70, 67, 65,	// 00-09
 	64, 63, 61, 60, 59, 57, 56, 55, 54, 53,	// 10-19
 	52, 51, 50, 48, 45, 44, 42, 40, 39, 38,	// 20-29
 	37, 0, 0, 0, 0, 0, 0, 0, 0, 0,	// 30-39
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0	// 40-49
 };
-const byte sav_11[50] = {
+const byte sav_11[50] =
+{
 	90, 80, 79, 78, 77, 76, 75, 74, 73, 72,	// 00-09
 	71, 70, 69, 68, 67, 66, 65, 64, 63, 62,	// 10-19
 	61, 60, 59, 58, 57, 56, 55, 54, 53, 52,	// 20-29
 	51, 0, 0, 0, 0, 0, 0, 0, 0, 0,	// 30-39
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0	// 40-49
 };
-const byte sav_12[50] = {
+const byte sav_12[50] =
+{
 	90, 85, 83, 82, 80, 75, 70, 65, 63, 62,	// 00-09
 	60, 55, 50, 45, 43, 42, 40, 37, 33, 30,	// 10-19
 	29, 28, 26, 25, 24, 23, 21, 20, 19, 18,	// 20-29
 	17, 16, 15, 14, 13, 12, 11, 10, 9, 8,	// 30-39
 	7, 6, 5, 4, 3, 2, 1, 0, 0, 0	// 40-49
 };
-const byte sav_13[50] = {
+const byte sav_13[50] =
+{
 	90, 83, 81, 79, 77, 75, 72, 68, 65, 63,	// 00-09
 	61, 58, 56, 53, 50, 47, 45, 43, 42, 41,	// 10-19
 	40, 38, 37, 36, 34, 33, 32, 31, 30, 29,	// 20-29
 	27, 26, 25, 24, 23, 22, 21, 20, 18, 16,	// 30-39
 	12, 10, 8, 6, 4, 2, 1, 0, 0, 0	// 40-49
 };
-const byte sav_14[50] = {
+const byte sav_14[50] =
+{
 	100, 100, 100, 100, 100, 100, 100, 100, 100, 100,	// 00-09
 	100, 100, 100, 100, 100, 100, 100, 100, 100, 100,	// 10-19
 	100, 100, 100, 100, 100, 100, 100, 100, 100, 100,	// 20-29
 	100, 70, 70, 70, 70, 70, 70, 70, 70, 70,	// 30-39
 	70, 70, 70, 70, 70, 70, 70, 70, 70, 70	// 40-49
 };
-const byte sav_15[50] = {
+const byte sav_15[50] =
+{
 	100, 99, 98, 97, 96, 95, 94, 93, 92, 91,	// 00-09
 	90, 89, 88, 87, 86, 85, 84, 83, 82, 81,	// 10-19
 	80, 79, 78, 77, 76, 75, 74, 73, 72, 71,	// 20-29
 	70, 50, 50, 50, 50, 50, 50, 50, 50, 50,	// 30-39
 	50, 50, 50, 50, 50, 50, 50, 50, 50, 50	// 40-49
 };
-const byte sav_16[50] = {
+const byte sav_16[50] =
+{
 	100, 99, 97, 96, 95, 94, 92, 91, 89, 88,	// 00-09
 	86, 85, 84, 83, 81, 80, 79, 77, 76, 75,	// 10-19
 	74, 72, 71, 70, 68, 65, 64, 63, 62, 61,	// 20-29
 	60, 58, 57, 56, 54, 52, 51, 49, 47, 46,	// 30-39
 	45, 43, 42, 41, 39, 37, 35, 34, 32, 31	// 40-49
 };
-const byte sav_17[50] = {
+const byte sav_17[50] =
+{
 	100, 99, 97, 96, 95, 94, 92, 91, 89, 88,	// 00-09
 	86, 84, 82, 80, 78, 76, 74, 72, 70, 68,	// 10-19
 	64, 62, 60, 58, 56, 54, 52, 50, 49, 47,	// 20-29
 	45, 0, 0, 0, 0, 0, 0, 0, 0, 0,	// 30-39
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0	// 40-49
 };
-const byte sav_18[50] = {
+const byte sav_18[50] =
+{
 	100, 100, 100, 100, 100, 99, 99, 99, 99, 99,	// 00-09
 	98, 98, 98, 98, 98, 97, 97, 97, 97, 97,	// 10-19
 	96, 96, 96, 96, 96, 95, 95, 95, 95, 95,	// 20-29
@@ -812,59 +841,61 @@ const byte sav_18[50] = {
 
 
 // {CLASS,{PARA,ROD,AFFECT,BREATH,SPELL,BASIC}}
-struct std_saving_type {
+struct std_saving_type
+{
 	int chclass;
 	const byte *saves[SAVING_COUNT];
 };
 
-std_saving_type std_saving[] = {
+std_saving_type std_saving[] =
+{
 	{
 		CLASS_CLERIC, {
-	sav_01, sav_10, sav_08, sav_14}}, {
+			sav_01, sav_10, sav_08, sav_14}}, {
 		CLASS_BATTLEMAGE, {
-	sav_01, sav_09, sav_02, sav_14}}, {
+			sav_01, sav_09, sav_02, sav_14}}, {
 		CLASS_CHARMMAGE, {
-	sav_02, sav_09, sav_02, sav_14}}, {
+			sav_02, sav_09, sav_02, sav_14}}, {
 		CLASS_DEFENDERMAGE, {
-	sav_01, sav_09, sav_01, sav_14}}, {
+			sav_01, sav_09, sav_01, sav_14}}, {
 		CLASS_NECROMANCER, {
-	sav_01, sav_09, sav_01, sav_14}}, {
+			sav_01, sav_09, sav_01, sav_14}}, {
 		CLASS_DRUID, {
-	sav_03, sav_10, sav_03, sav_14}}, {
+			sav_03, sav_10, sav_03, sav_14}}, {
 		CLASS_THIEF, {
-	sav_08, sav_11, sav_08, sav_15}}, {
+			sav_08, sav_11, sav_08, sav_15}}, {
 		CLASS_ASSASINE, {
-	sav_08, sav_11, sav_08, sav_15}}, {
+			sav_08, sav_11, sav_08, sav_15}}, {
 		CLASS_MERCHANT, {
-	sav_08, sav_11, sav_08, sav_15}}, {
+			sav_08, sav_11, sav_08, sav_15}}, {
 		CLASS_WARRIOR, {
-	sav_04, sav_12, sav_04, sav_16}}, {
+			sav_04, sav_12, sav_04, sav_16}}, {
 		CLASS_GUARD, {
-	sav_04, sav_12, sav_04, sav_16}}, {
+			sav_04, sav_12, sav_04, sav_16}}, {
 		CLASS_SMITH, {
-	sav_04, sav_12, sav_04, sav_16}}, {
+			sav_04, sav_12, sav_04, sav_16}}, {
 		CLASS_PALADINE, {
-	sav_05, sav_12, sav_05, sav_17}}, {
+			sav_05, sav_12, sav_05, sav_17}}, {
 		CLASS_RANGER, {
-	sav_05, sav_12, sav_05, sav_17}}, {
+			sav_05, sav_12, sav_05, sav_17}}, {
 		CLASS_MOB, {
-	sav_06, sav_13, sav_06, sav_18}}, {
+			sav_06, sav_13, sav_06, sav_18}}, {
 		CLASS_BASIC_NPC, {
-	sav_06, sav_13, sav_06, sav_18}}, {
+			sav_06, sav_13, sav_06, sav_18}}, {
 		CLASS_UNDEAD, {
-	sav_06, sav_13, sav_06, sav_18}}, {
+			sav_06, sav_13, sav_06, sav_18}}, {
 		CLASS_HUMAN, {
-	sav_06, sav_13, sav_06, sav_18}}, {
+			sav_06, sav_13, sav_06, sav_18}}, {
 		CLASS_ANIMAL, {
-	sav_06, sav_13, sav_06, sav_18}}, {
+			sav_06, sav_13, sav_06, sav_18}}, {
 		CLASS_HERO_WARRIOR, {
-	sav_06, sav_13, sav_06, sav_18}}, {
+			sav_06, sav_13, sav_06, sav_18}}, {
 		CLASS_HERO_MAGIC, {
-	sav_06, sav_13, sav_06, sav_18}}, {
+			sav_06, sav_13, sav_06, sav_18}}, {
 		CLASS_NPC_BATLEMAGE, {
-	sav_06, sav_13, sav_06, sav_18}}, {
+			sav_06, sav_13, sav_06, sav_18}}, {
 		-1, {
-	sav_02, sav_12, sav_02, sav_16}}
+			sav_02, sav_12, sav_02, sav_16}}
 };
 //****************************************************************************
 //****************************************************************************
@@ -894,12 +925,14 @@ byte extend_saving_throws(int class_num, int type, int level)
 /* THAC0 for classes and levels.  (To Hit Armor Class 0) */
 int thaco(int class_num, int level)
 {
-	switch (class_num) {
+	switch (class_num)
+	{
 	case CLASS_BATTLEMAGE:
 	case CLASS_DEFENDERMAGE:
 	case CLASS_CHARMMAGE:
 	case CLASS_NECROMANCER:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 100;
 		case 1:
@@ -975,7 +1008,8 @@ int thaco(int class_num, int level)
 		}
 	case CLASS_CLERIC:
 	case CLASS_DRUID:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 100;
 		case 1:
@@ -1052,7 +1086,8 @@ int thaco(int class_num, int level)
 	case CLASS_ASSASINE:
 	case CLASS_THIEF:
 	case CLASS_MERCHANT:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 100;
 		case 1:
@@ -1128,7 +1163,8 @@ int thaco(int class_num, int level)
 		}
 	case CLASS_WARRIOR:
 	case CLASS_GUARD:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 100;
 		case 1:
@@ -1205,7 +1241,8 @@ int thaco(int class_num, int level)
 	case CLASS_PALADINE:
 	case CLASS_RANGER:
 	case CLASS_SMITH:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 100;
 		case 1:
@@ -1293,12 +1330,14 @@ int thaco(int class_num, int level)
 /* AC0 for classes and levels. */
 int extra_aco(int class_num, int level)
 {
-	switch (class_num) {
+	switch (class_num)
+	{
 	case CLASS_BATTLEMAGE:
 	case CLASS_DEFENDERMAGE:
 	case CLASS_CHARMMAGE:
 	case CLASS_NECROMANCER:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 0;
 		case 1:
@@ -1374,7 +1413,8 @@ int extra_aco(int class_num, int level)
 		}
 	case CLASS_CLERIC:
 	case CLASS_DRUID:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 0;
 		case 1:
@@ -1451,7 +1491,8 @@ int extra_aco(int class_num, int level)
 	case CLASS_ASSASINE:
 	case CLASS_THIEF:
 	case CLASS_MERCHANT:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 0;
 		case 1:
@@ -1527,7 +1568,8 @@ int extra_aco(int class_num, int level)
 		}
 	case CLASS_WARRIOR:
 	case CLASS_GUARD:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 0;
 		case 1:
@@ -1604,7 +1646,8 @@ int extra_aco(int class_num, int level)
 	case CLASS_PALADINE:
 	case CLASS_RANGER:
 	case CLASS_SMITH:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 0;
 		case 1:
@@ -1686,12 +1729,14 @@ int extra_aco(int class_num, int level)
 /* DAMROLL for classes and levels. */
 int extra_damroll(int class_num, int level)
 {
-	switch (class_num) {
+	switch (class_num)
+	{
 	case CLASS_BATTLEMAGE:
 	case CLASS_DEFENDERMAGE:
 	case CLASS_CHARMMAGE:
 	case CLASS_NECROMANCER:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 0;
 		case 1:
@@ -1767,7 +1812,8 @@ int extra_damroll(int class_num, int level)
 		}
 	case CLASS_CLERIC:
 	case CLASS_DRUID:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 0;
 		case 1:
@@ -1844,7 +1890,8 @@ int extra_damroll(int class_num, int level)
 	case CLASS_ASSASINE:
 	case CLASS_THIEF:
 	case CLASS_MERCHANT:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 0;
 		case 1:
@@ -1920,7 +1967,8 @@ int extra_damroll(int class_num, int level)
 		}
 	case CLASS_WARRIOR:
 	case CLASS_GUARD:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 0;
 		case 1:
@@ -1997,7 +2045,8 @@ int extra_damroll(int class_num, int level)
 	case CLASS_PALADINE:
 	case CLASS_RANGER:
 	case CLASS_SMITH:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 0;
 		case 1:
@@ -2109,7 +2158,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 		obj_to_char(obj, ch);
 	ch->set_skill(SKILL_DRUNKOFF, 10);
 
-	switch (calc_loadroom(ch)) {
+	switch (calc_loadroom(ch))
+	{
 	case 4056:
 		obj = read_object(4004, VIRTUAL);
 		break;
@@ -2126,7 +2176,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 	if (obj)
 		obj_to_char(obj, ch);
 
-	switch (GET_CLASS(ch)) {
+	switch (GET_CLASS(ch))
+	{
 	case CLASS_BATTLEMAGE:
 	case CLASS_DEFENDERMAGE:
 	case CLASS_CHARMMAGE:
@@ -2206,7 +2257,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 
 	}
 
-	switch (GET_KIN(ch)) {
+	switch (GET_KIN(ch))
+	{
 	case KIN_RUSICHI:
 		break;
 	case KIN_VIKINGI:
@@ -2215,7 +2267,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 		break;
 	}
 
-	switch (GET_RACE(ch)) {
+	switch (GET_RACE(ch))
+	{
 	case RACE_SEVERANE:
 		break;
 	case RACE_POLANE:
@@ -2255,7 +2308,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 
 	}
 
-	switch (GET_RELIGION(ch)) {
+	switch (GET_RELIGION(ch))
+	{
 	case RELIGION_POLY:
 		break;
 	case RELIGION_MONO:
@@ -2291,7 +2345,7 @@ void check_max_hp(CHAR_DATA *ch)
 	int ch_class = static_cast<int>(GET_CLASS(ch));
 	int con = MAX(class_app[ch_class].min_con, MIN(GET_CON(ch), class_app[ch_class].max_con));
 	double add_hp_per_level = class_app[ch_class].base_con
-		+ (con - class_app[ch_class].base_con) * static_cast<double>(class_app[ch_class].koef_con) / 100 + 3;
+							  + (con - class_app[ch_class].base_con) * static_cast<double>(class_app[ch_class].koef_con) / 100 + 3;
 	GET_MAX_HIT(ch) = 10 + static_cast<int>(add_hp_per_level * GET_LEVEL(ch));
 }
 
@@ -2299,7 +2353,8 @@ void advance_level(CHAR_DATA * ch)
 {
 	int add_move = 0, i;
 
-	switch (GET_CLASS(ch)) {
+	switch (GET_CLASS(ch))
+	{
 	case CLASS_BATTLEMAGE:
 	case CLASS_DEFENDERMAGE:
 	case CLASS_CHARMMAGE:
@@ -2337,9 +2392,10 @@ void advance_level(CHAR_DATA * ch)
 		if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && can_get_feat(ch, i))
 			SET_FEAT(ch, i);
 
-	if (IS_IMMORTAL(ch)) {
+	if (IS_IMMORTAL(ch))
+	{
 		for (i = 0; i < 3; i++)
-			GET_COND(ch, i) = (char) -1;
+			GET_COND(ch, i) = (char) - 1;
 		SET_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
 	}
 
@@ -2350,7 +2406,8 @@ void decrease_level(CHAR_DATA * ch)
 {
 	int add_move = 0, prob, sval, max;
 
-	switch (GET_CLASS(ch)) {
+	switch (GET_CLASS(ch))
+	{
 	case CLASS_BATTLEMAGE:
 	case CLASS_DEFENDERMAGE:
 	case CLASS_CHARMMAGE:
@@ -2386,7 +2443,8 @@ void decrease_level(CHAR_DATA * ch)
 		REMOVE_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
 
 	for (prob = 0; prob <= MAX_SKILLS; prob++)
-		if (ch->get_skill(prob) && prob != SKILL_SATTACK) {
+		if (ch->get_skill(prob) && prob != SKILL_SATTACK)
+		{
 			max = wis_app[GET_REAL_WIS(ch)].max_learn_l20 * (GET_LEVEL(ch) + 1) / 20;
 			if (max > MAX_EXP_PERCENT)
 				max = MAX_EXP_PERCENT;
@@ -2394,7 +2452,7 @@ void decrease_level(CHAR_DATA * ch)
 			if (sval < 0)
 				sval = 0;
 			if ((ch->get_skill(prob) - sval) >
-			    (wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20))
+					(wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20))
 				ch->set_skill(prob, ((wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20) + sval));
 		}
 
@@ -2448,9 +2506,9 @@ int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj)
 			if (invalid_unique(ch, object))
 				return (TRUE);
 	if (!ch ||
-	    !obj ||
-	    (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) ||
-	    IS_IMMORTAL(ch) || obj->obj_flags.Obj_owner == 0 || obj->obj_flags.Obj_owner == GET_UNIQUE(ch))
+			!obj ||
+			(IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) ||
+			IS_IMMORTAL(ch) || obj->obj_flags.Obj_owner == 0 || obj->obj_flags.Obj_owner == GET_UNIQUE(ch))
 		return (FALSE);
 	return (TRUE);
 }
@@ -2467,69 +2525,69 @@ int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj)
 	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch))
 		return (FALSE);
 
-	if (			// (IS_OBJ_ANTI(obj, ITEM_ANTI_MONO)     && GET_RELIGION(ch) == RELIGION_MONO) ||
-		   // (IS_OBJ_ANTI(obj, ITEM_ANTI_POLY)     && GET_RELIGION(ch) == RELIGION_POLY) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_BATTLEMAGE) && IS_BATTLEMAGE(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_CHARMMAGE) && IS_CHARMMAGE(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_DEFENDERMAGE) && IS_DEFENDERMAGE(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_NECROMANCER) && IS_NECROMANCER(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_MALE) && IS_MALE(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_FEMALE) && IS_FEMALE(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_CLERIC) && IS_CLERIC(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_WARRIOR) && IS_WARRIOR(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_GUARD) && IS_GUARD(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_THIEF) && IS_THIEF(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_ASSASINE) && IS_ASSASINE(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_PALADINE) && IS_PALADINE(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_RANGER) && IS_RANGER(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_SMITH) && IS_SMITH(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_MERCHANT) && IS_MERCHANT(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_DRUID) && IS_DRUID(ch)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
-		   (IS_OBJ_ANTI(obj, ITEM_AN_KILLERONLY)
-		    && !PLR_FLAGGED(ch, PLR_KILLER))
-		   || (IS_OBJ_ANTI(obj, ITEM_AN_COLORED) && IS_COLORED(ch))
-		   || (IS_OBJ_ANTI(obj, ITEM_AN_SEVERANE)
-		       && GET_RACE(ch) == RACE_SEVERANE)
-		   || (IS_OBJ_ANTI(obj, ITEM_AN_POLANE) && GET_RACE(ch) == RACE_POLANE)
-		   || (IS_OBJ_ANTI(obj, ITEM_AN_KRIVICHI)
-		       && GET_RACE(ch) == RACE_KRIVICHI)
-		   || (IS_OBJ_ANTI(obj, ITEM_AN_VATICHI)
-		       && GET_RACE(ch) == RACE_VATICHI)
-		   || (IS_OBJ_ANTI(obj, ITEM_AN_VELANE) && GET_RACE(ch) == RACE_VELANE)
-		   || (IS_OBJ_ANTI(obj, ITEM_AN_DREVLANE)
-		       && GET_RACE(ch) == RACE_DREVLANE)
-		   || (IS_OBJ_ANTI (obj, ITEM_AN_POLOVCI)
-		       && GET_RACE (ch) == RACE_POLOVCI)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_PECHENEGI)
-           	       && GET_RACE (ch) == RACE_PECHENEGI)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_MONGOLI)
-		       && GET_RACE (ch) == RACE_MONGOLI)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_YIGURI)
-  	               && GET_RACE (ch) == RACE_YIGURI)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_KANGARI)
-	               && GET_RACE (ch) == RACE_KANGARI)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_XAZARI)
-		       && GET_RACE (ch) == RACE_XAZARI)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_SVEI)
-		       && GET_RACE (ch) == RACE_SVEI)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_DATCHANE)
-	               && GET_RACE (ch) == RACE_DATCHANE)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_GETTI)
-		       && GET_RACE (ch) == RACE_GETTI)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_UTTI)
-		       && GET_RACE (ch) == RACE_UTTI)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_XALEIGI)
-		       && GET_RACE (ch) == RACE_XALEIGI)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_NORVEZCI)
-		       && GET_RACE (ch) == RACE_NORVEZCI)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_RUSICHI)
-		       && GET_KIN (ch) == KIN_RUSICHI)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_STEPNYAKI)
-	               && GET_KIN (ch) == KIN_STEPNYAKI)
-	           || (IS_OBJ_ANTI (obj, ITEM_AN_VIKINGI)
-		       && GET_KIN (ch) == KIN_VIKINGI))
+	if (   // (IS_OBJ_ANTI(obj, ITEM_ANTI_MONO)     && GET_RELIGION(ch) == RELIGION_MONO) ||
+		// (IS_OBJ_ANTI(obj, ITEM_ANTI_POLY)     && GET_RELIGION(ch) == RELIGION_POLY) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_BATTLEMAGE) && IS_BATTLEMAGE(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_CHARMMAGE) && IS_CHARMMAGE(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_DEFENDERMAGE) && IS_DEFENDERMAGE(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_NECROMANCER) && IS_NECROMANCER(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_MALE) && IS_MALE(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_FEMALE) && IS_FEMALE(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_CLERIC) && IS_CLERIC(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_WARRIOR) && IS_WARRIOR(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_GUARD) && IS_GUARD(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_THIEF) && IS_THIEF(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_ASSASINE) && IS_ASSASINE(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_PALADINE) && IS_PALADINE(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_RANGER) && IS_RANGER(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_SMITH) && IS_SMITH(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_MERCHANT) && IS_MERCHANT(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_DRUID) && IS_DRUID(ch)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_KILLERONLY)
+		 && !PLR_FLAGGED(ch, PLR_KILLER))
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_COLORED) && IS_COLORED(ch))
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_SEVERANE)
+			&& GET_RACE(ch) == RACE_SEVERANE)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_POLANE) && GET_RACE(ch) == RACE_POLANE)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_KRIVICHI)
+			&& GET_RACE(ch) == RACE_KRIVICHI)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_VATICHI)
+			&& GET_RACE(ch) == RACE_VATICHI)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_VELANE) && GET_RACE(ch) == RACE_VELANE)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_DREVLANE)
+			&& GET_RACE(ch) == RACE_DREVLANE)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_POLOVCI)
+			&& GET_RACE(ch) == RACE_POLOVCI)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_PECHENEGI)
+			&& GET_RACE(ch) == RACE_PECHENEGI)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_MONGOLI)
+			&& GET_RACE(ch) == RACE_MONGOLI)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_YIGURI)
+			&& GET_RACE(ch) == RACE_YIGURI)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_KANGARI)
+			&& GET_RACE(ch) == RACE_KANGARI)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_XAZARI)
+			&& GET_RACE(ch) == RACE_XAZARI)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_SVEI)
+			&& GET_RACE(ch) == RACE_SVEI)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_DATCHANE)
+			&& GET_RACE(ch) == RACE_DATCHANE)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_GETTI)
+			&& GET_RACE(ch) == RACE_GETTI)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_UTTI)
+			&& GET_RACE(ch) == RACE_UTTI)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_XALEIGI)
+			&& GET_RACE(ch) == RACE_XALEIGI)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_NORVEZCI)
+			&& GET_RACE(ch) == RACE_NORVEZCI)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_RUSICHI)
+			&& GET_KIN(ch) == KIN_RUSICHI)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_STEPNYAKI)
+			&& GET_KIN(ch) == KIN_STEPNYAKI)
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_VIKINGI)
+			&& GET_KIN(ch) == KIN_VIKINGI))
 		return (TRUE);
 	return (FALSE);
 }
@@ -2542,68 +2600,68 @@ int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj)
 		return (FALSE);
 
 	if ((IS_OBJ_NO(obj, ITEM_NO_MONO) && GET_RELIGION(ch) == RELIGION_MONO) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_POLY) && GET_RELIGION(ch) == RELIGION_POLY) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_MAGIC_USER) && IS_MAGIC_USER(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_BATTLEMAGE) && IS_BATTLEMAGE(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_CHARMMAGE) && IS_CHARMMAGE(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_DEFENDERMAGE) && IS_DEFENDERMAGE(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_NECROMANCER) && IS_NECROMANCER(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_MALE) && IS_MALE(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_FEMALE) && IS_FEMALE(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_CLERIC) && IS_CLERIC(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_WARRIOR) && IS_WARRIOR(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_GUARD) && IS_GUARD(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_THIEF) && IS_THIEF(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_ASSASINE) && IS_ASSASINE(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_PALADINE) && IS_PALADINE(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_RANGER) && IS_RANGER(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_SMITH) && IS_SMITH(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_MERCHANT) && IS_MERCHANT(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_DRUID) && IS_DRUID(ch)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
-	    (IS_OBJ_NO(obj, ITEM_NO_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER))
-	    || (IS_OBJ_NO(obj, ITEM_NO_COLORED) && IS_COLORED(ch))
-	    || (IS_OBJ_NO(obj, ITEM_NO_SEVERANE)
-		&& GET_RACE(ch) == RACE_SEVERANE)
-	    || (IS_OBJ_NO(obj, ITEM_NO_POLANE) && GET_RACE(ch) == RACE_POLANE)
-	    || (IS_OBJ_NO(obj, ITEM_NO_KRIVICHI)
-		&& GET_RACE(ch) == RACE_KRIVICHI)
-	    || (IS_OBJ_NO(obj, ITEM_NO_VATICHI) && GET_RACE(ch) == RACE_VATICHI)
-	    || (IS_OBJ_NO(obj, ITEM_NO_VELANE) && GET_RACE(ch) == RACE_VELANE)
-	    || (IS_OBJ_NO(obj, ITEM_NO_DREVLANE)
-		&& GET_RACE(ch) == RACE_DREVLANE)
-	    || (IS_OBJ_NO (obj, ITEM_AN_POLOVCI)
-	        && GET_RACE (ch) == RACE_POLOVCI)
-   	    || (IS_OBJ_NO (obj, ITEM_AN_PECHENEGI)
-	        && GET_RACE (ch) == RACE_PECHENEGI)
-	    || (IS_OBJ_NO (obj, ITEM_AN_MONGOLI)
-	        && GET_RACE (ch) == RACE_MONGOLI)
-	    || (IS_OBJ_NO (obj, ITEM_AN_YIGURI)
-	        && GET_RACE (ch) == RACE_YIGURI)
-	    || (IS_OBJ_NO (obj, ITEM_AN_KANGARI)
-	        && GET_RACE (ch) == RACE_KANGARI)
-	    || (IS_OBJ_NO (obj, ITEM_AN_XAZARI)
-	        && GET_RACE (ch) == RACE_XAZARI)
-	    || (IS_OBJ_NO (obj, ITEM_AN_SVEI)
-	        && GET_RACE (ch) == RACE_SVEI)
-	    || (IS_OBJ_NO (obj, ITEM_AN_DATCHANE)
-	        && GET_RACE (ch) == RACE_DATCHANE)
-	    || (IS_OBJ_NO (obj, ITEM_AN_GETTI)
-	        && GET_RACE (ch) == RACE_GETTI)
-	    || (IS_OBJ_NO (obj, ITEM_AN_UTTI)
-	        && GET_RACE (ch) == RACE_UTTI)
-	    || (IS_OBJ_NO (obj, ITEM_AN_XALEIGI)
-	        && GET_RACE (ch) == RACE_XALEIGI)
-	    || (IS_OBJ_NO (obj, ITEM_AN_NORVEZCI)
-	        && GET_RACE (ch) == RACE_NORVEZCI)
-	    || (IS_OBJ_NO (obj, ITEM_AN_RUSICHI)
-	        && GET_KIN (ch) == KIN_RUSICHI)
-	    || (IS_OBJ_NO (obj, ITEM_AN_STEPNYAKI)
-	        && GET_KIN (ch) == KIN_STEPNYAKI)
-	    || (IS_OBJ_NO (obj, ITEM_AN_VIKINGI)
-	        && GET_KIN (ch) == KIN_VIKINGI)
-	    || ((OBJ_FLAGGED(obj, ITEM_ARMORED) || OBJ_FLAGGED(obj, ITEM_SHARPEN))
-		&& !IS_SMITH(ch)))
+			(IS_OBJ_NO(obj, ITEM_NO_POLY) && GET_RELIGION(ch) == RELIGION_POLY) ||
+			(IS_OBJ_NO(obj, ITEM_NO_MAGIC_USER) && IS_MAGIC_USER(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_BATTLEMAGE) && IS_BATTLEMAGE(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_CHARMMAGE) && IS_CHARMMAGE(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_DEFENDERMAGE) && IS_DEFENDERMAGE(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_NECROMANCER) && IS_NECROMANCER(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_MALE) && IS_MALE(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_FEMALE) && IS_FEMALE(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_CLERIC) && IS_CLERIC(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_WARRIOR) && IS_WARRIOR(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_GUARD) && IS_GUARD(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_THIEF) && IS_THIEF(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_ASSASINE) && IS_ASSASINE(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_PALADINE) && IS_PALADINE(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_RANGER) && IS_RANGER(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_SMITH) && IS_SMITH(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_MERCHANT) && IS_MERCHANT(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_DRUID) && IS_DRUID(ch)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
+			(IS_OBJ_NO(obj, ITEM_NO_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER))
+			|| (IS_OBJ_NO(obj, ITEM_NO_COLORED) && IS_COLORED(ch))
+			|| (IS_OBJ_NO(obj, ITEM_NO_SEVERANE)
+				&& GET_RACE(ch) == RACE_SEVERANE)
+			|| (IS_OBJ_NO(obj, ITEM_NO_POLANE) && GET_RACE(ch) == RACE_POLANE)
+			|| (IS_OBJ_NO(obj, ITEM_NO_KRIVICHI)
+				&& GET_RACE(ch) == RACE_KRIVICHI)
+			|| (IS_OBJ_NO(obj, ITEM_NO_VATICHI) && GET_RACE(ch) == RACE_VATICHI)
+			|| (IS_OBJ_NO(obj, ITEM_NO_VELANE) && GET_RACE(ch) == RACE_VELANE)
+			|| (IS_OBJ_NO(obj, ITEM_NO_DREVLANE)
+				&& GET_RACE(ch) == RACE_DREVLANE)
+			|| (IS_OBJ_NO(obj, ITEM_AN_POLOVCI)
+				&& GET_RACE(ch) == RACE_POLOVCI)
+			|| (IS_OBJ_NO(obj, ITEM_AN_PECHENEGI)
+				&& GET_RACE(ch) == RACE_PECHENEGI)
+			|| (IS_OBJ_NO(obj, ITEM_AN_MONGOLI)
+				&& GET_RACE(ch) == RACE_MONGOLI)
+			|| (IS_OBJ_NO(obj, ITEM_AN_YIGURI)
+				&& GET_RACE(ch) == RACE_YIGURI)
+			|| (IS_OBJ_NO(obj, ITEM_AN_KANGARI)
+				&& GET_RACE(ch) == RACE_KANGARI)
+			|| (IS_OBJ_NO(obj, ITEM_AN_XAZARI)
+				&& GET_RACE(ch) == RACE_XAZARI)
+			|| (IS_OBJ_NO(obj, ITEM_AN_SVEI)
+				&& GET_RACE(ch) == RACE_SVEI)
+			|| (IS_OBJ_NO(obj, ITEM_AN_DATCHANE)
+				&& GET_RACE(ch) == RACE_DATCHANE)
+			|| (IS_OBJ_NO(obj, ITEM_AN_GETTI)
+				&& GET_RACE(ch) == RACE_GETTI)
+			|| (IS_OBJ_NO(obj, ITEM_AN_UTTI)
+				&& GET_RACE(ch) == RACE_UTTI)
+			|| (IS_OBJ_NO(obj, ITEM_AN_XALEIGI)
+				&& GET_RACE(ch) == RACE_XALEIGI)
+			|| (IS_OBJ_NO(obj, ITEM_AN_NORVEZCI)
+				&& GET_RACE(ch) == RACE_NORVEZCI)
+			|| (IS_OBJ_NO(obj, ITEM_AN_RUSICHI)
+				&& GET_KIN(ch) == KIN_RUSICHI)
+			|| (IS_OBJ_NO(obj, ITEM_AN_STEPNYAKI)
+				&& GET_KIN(ch) == KIN_STEPNYAKI)
+			|| (IS_OBJ_NO(obj, ITEM_AN_VIKINGI)
+				&& GET_KIN(ch) == KIN_VIKINGI)
+			|| ((OBJ_FLAGGED(obj, ITEM_ARMORED) || OBJ_FLAGGED(obj, ITEM_SHARPEN))
+				&& !IS_SMITH(ch)))
 		return (TRUE);
 	return (FALSE);
 }
@@ -2621,61 +2679,72 @@ void init_spell_levels(void)
 	FILE *magic;
 	char line1[256], line2[256], line3[256], line4[256], name[256];
 	int i[15], c, j, sp_num, l;
-	if (!(magic = fopen(LIB_MISC "magic.lst", "r"))) {
+	if (!(magic = fopen(LIB_MISC "magic.lst", "r")))
+	{
 		log("Cann't open magic list file...");
 		_exit(1);
 	}
-	while (get_line(magic, name)) {
+	while (get_line(magic, name))
+	{
 		if (!name[0] || name[0] == ';')
 			continue;
-		if (sscanf(name, "%s %s %d %d %d %d %d %d", line1, line2, i, i + 1, i + 2, i + 3, i + 4, i+5 ) != 8) {
+		if (sscanf(name, "%s %s %d %d %d %d %d %d", line1, line2, i, i + 1, i + 2, i + 3, i + 4, i + 5) != 8)
+		{
 			log("Bad format for magic string !\r\n"
-			    "Format : <spell name (%%s %%s)> <kin (%%d)> <classes (%%d)> <remort (%%d)> <slot (%%d)> <level (%%d)>");
+				"Format : <spell name (%%s %%s)> <kin (%%d)> <classes (%%d)> <remort (%%d)> <slot (%%d)> <level (%%d)>");
 			_exit(1);
 		}
 
 		name[0] = '\0';
 		strcat(name, line1);
-		if (*line2 != '*') {
+		if (*line2 != '*')
+		{
 			*(name + strlen(name) + 1) = '\0';
 			*(name + strlen(name) + 0) = ' ';
 			strcat(name, line2);
 		}
 
-		if ((sp_num = find_spell_num(name)) < 0) {
+		if ((sp_num = find_spell_num(name)) < 0)
+		{
 			log("Spell '%s' not found...", name);
 			_exit(1);
 		}
 
-		if (i[0] < 0 || i[0] >= NUM_KIN){
-			log ("Bad kin type for spell '%s' \"%d\"...", name, sp_num);
-			_exit (1);
+		if (i[0] < 0 || i[0] >= NUM_KIN)
+		{
+			log("Bad kin type for spell '%s' \"%d\"...", name, sp_num);
+			_exit(1);
 		}
-		if (i[1] < 0 || i[1] >= NUM_CLASSES){
-			log ("Bad class type for spell '%s'  \"%d\"...", name, sp_num);
-			_exit (1);
+		if (i[1] < 0 || i[1] >= NUM_CLASSES)
+		{
+			log("Bad class type for spell '%s'  \"%d\"...", name, sp_num);
+			_exit(1);
 		}
-		if (i[2] < 0 || i[2] >= MAX_REMORT){
-			log ("Bad remort type for spell '%s'  \"%d\"...", name, sp_num);
-			_exit (1);
+		if (i[2] < 0 || i[2] >= MAX_REMORT)
+		{
+			log("Bad remort type for spell '%s'  \"%d\"...", name, sp_num);
+			_exit(1);
 		}
-		mspell_remort (name,sp_num, i[0], i[1], i[2]);
-		mspell_level (name,sp_num, i[0] ,i[1], i[4]);
-		mspell_slot (name,sp_num, i[0], i[1], i[3]);
-		mspell_change(name,sp_num, i[0], i[1], i[5]);
+		mspell_remort(name, sp_num, i[0], i[1], i[2]);
+		mspell_level(name, sp_num, i[0] , i[1], i[4]);
+		mspell_slot(name, sp_num, i[0], i[1], i[3]);
+		mspell_change(name, sp_num, i[0], i[1], i[5]);
 
 	}
 	fclose(magic);
-	if (!(magic = fopen(LIB_MISC "items.lst", "r"))) {
+	if (!(magic = fopen(LIB_MISC "items.lst", "r")))
+	{
 		log("Cann't open items list file...");
 		_exit(1);
 	}
-	while (get_line(magic, name)) {
+	while (get_line(magic, name))
+	{
 		if (!name[0] || name[0] == ';')
 			continue;
-		if (sscanf(name, "%s %s %s %d %d %d %d %d", line1, line2, line3, i, i + 1, i + 2, i + 3, i + 4) != 8) {
+		if (sscanf(name, "%s %s %s %d %d %d %d %d", line1, line2, line3, i, i + 1, i + 2, i + 3, i + 4) != 8)
+		{
 			log("Bad format for magic string !\r\n"
-			    "Format : <spell name (%%s %%s)> <type (%%s)> <items_vnum (%%d %%d %%d %%d)>");
+				"Format : <spell name (%%s %%s)> <type (%%s)> <items_vnum (%%d %%d %%d %%d)>");
 			_exit(1);
 		}
 
@@ -2686,206 +2755,247 @@ void init_spell_levels(void)
 
 		name[0] = '\0';
 		strcat(name, line1);
-		if (*line2 != '*') {
+		if (*line2 != '*')
+		{
 			*(name + strlen(name) + 1) = '\0';
 			*(name + strlen(name) + 0) = ' ';
 			strcat(name, line2);
 		}
-		if ((sp_num = find_spell_num(name)) < 0) {
+		if ((sp_num = find_spell_num(name)) < 0)
+		{
 			log("Spell '%s' not found...", name);
 			_exit(1);
 		}
 		c = strlen(line3);
-		if (!strn_cmp(line3, "potion", c)) {
+		if (!strn_cmp(line3, "potion", c))
+		{
 			spell_create[sp_num].potion.items[0] = i[0];
 			spell_create[sp_num].potion.items[1] = i[1];
 			spell_create[sp_num].potion.items[2] = i[2];
 			spell_create[sp_num].potion.rnumber = i[3];
 			spell_create[sp_num].potion.min_caster_level = i[4];
 			log("CREATE potion FOR MAGIC '%s'", spell_name(sp_num));
-		} else if (!strn_cmp(line3, "wand", c)) {
+		}
+		else if (!strn_cmp(line3, "wand", c))
+		{
 			spell_create[sp_num].wand.items[0] = i[0];
 			spell_create[sp_num].wand.items[1] = i[1];
 			spell_create[sp_num].wand.items[2] = i[2];
 			spell_create[sp_num].wand.rnumber = i[3];
 			spell_create[sp_num].wand.min_caster_level = i[4];
 			log("CREATE wand FOR MAGIC '%s'", spell_name(sp_num));
-		} else if (!strn_cmp(line3, "scroll", c)) {
+		}
+		else if (!strn_cmp(line3, "scroll", c))
+		{
 			spell_create[sp_num].scroll.items[0] = i[0];
 			spell_create[sp_num].scroll.items[1] = i[1];
 			spell_create[sp_num].scroll.items[2] = i[2];
 			spell_create[sp_num].scroll.rnumber = i[3];
 			spell_create[sp_num].scroll.min_caster_level = i[4];
 			log("CREATE scroll FOR MAGIC '%s'", spell_name(sp_num));
-		} else if (!strn_cmp(line3, "items", c)) {
+		}
+		else if (!strn_cmp(line3, "items", c))
+		{
 			spell_create[sp_num].items.items[0] = i[0];
 			spell_create[sp_num].items.items[1] = i[1];
 			spell_create[sp_num].items.items[2] = i[2];
 			spell_create[sp_num].items.rnumber = i[3];
 			spell_create[sp_num].items.min_caster_level = i[4];
 			log("CREATE items FOR MAGIC '%s'", spell_name(sp_num));
-		} else if (!strn_cmp(line3, "runes", c)) {
+		}
+		else if (!strn_cmp(line3, "runes", c))
+		{
 			spell_create[sp_num].runes.items[0] = i[0];
 			spell_create[sp_num].runes.items[1] = i[1];
 			spell_create[sp_num].runes.items[2] = i[2];
 			spell_create[sp_num].runes.rnumber = i[3];
 			spell_create[sp_num].runes.min_caster_level = i[4];
 			log("CREATE runes FOR MAGIC '%s'", spell_name(sp_num));
-		} else {
+		}
+		else
+		{
 			log("Unknown items option : %s", line3);
 			_exit(1);
 		}
 	}
 	fclose(magic);
 
-/* Load features variables - added by Gorrah */
-	if (!(magic = fopen(LIB_MISC "features.lst", "r"))) {
+	/* Load features variables - added by Gorrah */
+	if (!(magic = fopen(LIB_MISC "features.lst", "r")))
+	{
 		log("Cann't open features list file...");
 		_exit(1);
 	}
-	while (get_line(magic, name)) {
+	while (get_line(magic, name))
+	{
 		if (!name[0] || name[0] == ';')
 			continue;
-		if (sscanf (name, "%s %s %d %d %d %d %d %d %d",	line1, line2, i, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6) != 9) {
+		if (sscanf(name, "%s %s %d %d %d %d %d %d %d",	line1, line2, i, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6) != 9)
+		{
 			log("Bad format for feature string !\r\n"
-			 	 "Format : <feature name (%%s %%s)>  <kin (%%d %%d %%d)> <class (%%d)> <remort (%%d)> <level (%%d)> <naturalfeat (%%d)>!");
+				"Format : <feature name (%%s %%s)>  <kin (%%d %%d %%d)> <class (%%d)> <remort (%%d)> <level (%%d)> <naturalfeat (%%d)>!");
 			_exit(1);
 		}
 		name[0] = '\0';
 		strcat(name, line1);
-		if (*line2 != '*') {
+		if (*line2 != '*')
+		{
 			*(name + strlen(name) + 1) = '\0';
 			*(name + strlen(name) + 0) = ' ';
 			strcat(name, line2);
 		}
-		if ((sp_num = find_feat_num(name)) <= 0) {
+		if ((sp_num = find_feat_num(name)) <= 0)
+		{
 			log("Feat '%s' not found...", name);
 			_exit(1);
 		}
 		for (j = 0; j < NUM_KIN; j++)
-			if (i[j] < 0 || i[j] > 1){
-				log ("Bad race feat know type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
-				_exit (1);
+			if (i[j] < 0 || i[j] > 1)
+			{
+				log("Bad race feat know type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
+				_exit(1);
 			}
-		if (i[3] < 0 || i[3] >= NUM_CLASSES) {
+		if (i[3] < 0 || i[3] >= NUM_CLASSES)
+		{
 			log("Bad class type for feat \"%s\"...", feat_info[sp_num].name);
 			_exit(1);
 		}
-		if (i[4] < 0 || i[4] >= MAX_REMORT){
-			log ("Bad remort type for feat \"%s\"...", feat_info[sp_num].name);
-			_exit (1);
+		if (i[4] < 0 || i[4] >= MAX_REMORT)
+		{
+			log("Bad remort type for feat \"%s\"...", feat_info[sp_num].name);
+			_exit(1);
 		}
-		if (i[6] < 0 || i[6] > 1){
-			log ("Bad natural classfeat type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
-			_exit (1);
+		if (i[6] < 0 || i[6] > 1)
+		{
+			log("Bad natural classfeat type for feat \"%s\"... 0 or 1 expected", feat_info[sp_num].name);
+			_exit(1);
 		}
 		for (j = 0; j < NUM_KIN; j++)
-			if (i[j] == 1) {
+			if (i[j] == 1)
+			{
 				feat_info[sp_num].classknow[i[3]][j] = TRUE;
-				log ("Classknow feat set '%d' kin '%d' classes %d", sp_num, j, i[3]);
+				log("Classknow feat set '%d' kin '%d' classes %d", sp_num, j, i[3]);
 
 				feat_info[sp_num].min_remort[i[3]][j] = i[4];
-				log ("Remort feat set '%d' kin '%d' classes %d value %d", sp_num, j, i[3], i[4]);
+				log("Remort feat set '%d' kin '%d' classes %d value %d", sp_num, j, i[3], i[4]);
 
 				feat_info[sp_num].min_level[i[3]][j] = i[5];
-				log ("Level feat set '%d' kin '%d' classes %d value %d", sp_num, j, i[3], i[5]);
+				log("Level feat set '%d' kin '%d' classes %d value %d", sp_num, j, i[3], i[5]);
 
 				feat_info[sp_num].natural_classfeat[i[3]][j] = i[6] ? true : false;
-				log ("Natural classfeature set '%d' kin '%d' classes %d", sp_num, j, i[3]);
+				log("Natural classfeature set '%d' kin '%d' classes %d", sp_num, j, i[3]);
 			}
 	}
 	fclose(magic);
-/* End of changed */
+	/* End of changed */
 
-	if (!(magic = fopen(LIB_MISC "skills.lst", "r"))) {
+	if (!(magic = fopen(LIB_MISC "skills.lst", "r")))
+	{
 		log("Cann't open skills list file...");
 		_exit(1);
 	}
-	while (get_line(magic, name)) {
+	while (get_line(magic, name))
+	{
 		if (!name[0] || name[0] == ';')
 			continue;
-		if (sscanf (name, "%s %s %d %d %d %d %d", line1, line2, i, i + 1,i + 2, i +3, i +4 ) != 7){
+		if (sscanf(name, "%s %s %d %d %d %d %d", line1, line2, i, i + 1, i + 2, i + 3, i + 4) != 7)
+		{
 			log("Bad format for skill string !\r\n"
-			    "Format : <skill name (%%s %%s)>  <kin (%%d)> <class (%%d)> <remort (%%d)> <improove (%%d)> !");
+				"Format : <skill name (%%s %%s)>  <kin (%%d)> <class (%%d)> <remort (%%d)> <improove (%%d)> !");
 			_exit(1);
 		}
 		name[0] = '\0';
 		strcat(name, line1);
-		if (*line2 != '*') {
+		if (*line2 != '*')
+		{
 			*(name + strlen(name) + 1) = '\0';
 			*(name + strlen(name) + 0) = ' ';
 			strcat(name, line2);
 		}
-		if ((sp_num = find_skill_num(name)) < 0) {
+		if ((sp_num = find_skill_num(name)) < 0)
+		{
 			log("Skill '%s' not found...", name);
 			_exit(1);
 		}
-		if (i[0] < 0 || i[0] >= NUM_KIN){
-			log ("Bad kin type for skill \"%s\"...", skill_info[sp_num].name);
-			_exit (1);
+		if (i[0] < 0 || i[0] >= NUM_KIN)
+		{
+			log("Bad kin type for skill \"%s\"...", skill_info[sp_num].name);
+			_exit(1);
 		}
-		if (i[1] < 0 || i[1] >= NUM_CLASSES) {
+		if (i[1] < 0 || i[1] >= NUM_CLASSES)
+		{
 			log("Bad class type for skill \"%s\"...", skill_info[sp_num].name);
 			_exit(1);
 		}
-		if (i[2] < 0 || i[2] >= MAX_REMORT){
-			log ("Bad remort type for skill \"%s\"...", skill_info[sp_num].name);
-			_exit (1);
+		if (i[2] < 0 || i[2] >= MAX_REMORT)
+		{
+			log("Bad remort type for skill \"%s\"...", skill_info[sp_num].name);
+			_exit(1);
 		}
-		if (i[4]){
-			skill_info[sp_num].k_improove[i[1]][i[0]] = MAX (1, i[4]);
-			log ("Improove set '%d' kin '%d' classes %d value %d", sp_num,i[0], i[1], i[4]);
+		if (i[4])
+		{
+			skill_info[sp_num].k_improove[i[1]][i[0]] = MAX(1, i[4]);
+			log("Improove set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[4]);
 		}
-		if (i[3]){
+		if (i[3])
+		{
 			skill_info[sp_num].min_level[i[1]][i[0]] = i[3];
-			log ("Level set '%d' kin '%d' classes %d value %d", sp_num,i[0], i[1], i[3]);
+			log("Level set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[3]);
 		}
 		skill_info[sp_num].min_remort[i[1]][i[0]] = i[2];
-		log ("Remort set '%d' kin '%d' classes %d value %d", sp_num,i[0], i[1], i[2]);
+		log("Remort set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[2]);
 	}
 	fclose(magic);
-	if (!(magic = fopen(LIB_MISC "classskill.lst", "r"))) {
+	if (!(magic = fopen(LIB_MISC "classskill.lst", "r")))
+	{
 		log("Cann't open classskill list file...");
 		_exit(1);
 	}
-	while (get_line(magic, name)) {
+	while (get_line(magic, name))
+	{
 		if (!name[0] || name[0] == ';')
 			continue;
-		if (sscanf (name, "%s %s %s %s", line1, line2, line3, line4) != 4) {
+		if (sscanf(name, "%s %s %s %s", line1, line2, line3, line4) != 4)
+		{
 			log("Bad format for skill string !\r\n" "Format : <skill name (%%s %%s)> <kin (%%s)> <skills (%%s)> !");
 			_exit(1);
 		}
 		name[0] = '\0';
 		strcat(name, line1);
-		if (*line2 != '*') {
+		if (*line2 != '*')
+		{
 			*(name + strlen(name) + 1) = '\0';
 			*(name + strlen(name) + 0) = ' ';
 			strcat(name, line2);
 		}
-		if ((sp_num = find_skill_num(name)) < 0) {
+		if ((sp_num = find_skill_num(name)) < 0)
+		{
 			log("Skill '%s' not found...", name);
 			_exit(1);
 		}
-		for (l = 0; line3[l] && l < NUM_KIN; l++){
-			if (!strchr ("1xX!", line3[l]))
+		for (l = 0; line3[l] && l < NUM_KIN; l++)
+		{
+			if (!strchr("1xX!", line3[l]))
 				continue;
-			for (j = 0; line4[j] && j < NUM_CLASSES; j++) {
-				if (!strchr ("1xX!", line4[j]))
+			for (j = 0; line4[j] && j < NUM_CLASSES; j++)
+			{
+				if (!strchr("1xX!", line4[j]))
 					continue;
 				skill_info[sp_num].classknow[l][j] = KNOW_SKILL;
-				log ("Set skill '%s' kin %d classes %d is Know",skill_info[sp_num].name, l, j);
+				log("Set skill '%s' kin %d classes %d is Know", skill_info[sp_num].name, l, j);
 			}
 		}
 	}
 	fclose(magic);
-	if (!(magic = fopen(LIB_MISC "skillvariables.lst", "r"))) {
+	if (!(magic = fopen(LIB_MISC "skillvariables.lst", "r")))
+	{
 		log("Cann't open skillvariables list file...");
 		_exit(1);
 	}
 
-  /*** Загружаем переменные скилов из файла ***/
+	/*** Загружаем переменные скилов из файла ***/
 
-  /** ГОРНОЕ ДЕЛО **/
+	/** ГОРНОЕ ДЕЛО **/
 	// Предварительно ставим значения по дефолту
 
 	dig_vars.hole_max_deep = DIG_DFLT_HOLE_MAX_DEEP;
@@ -2916,7 +3026,7 @@ void init_spell_levels(void)
 	dig_vars.mob_vnum_end = DIG_DFLT_MOB_VNUM_END;
 	dig_vars.pandora_vnum = DIG_DFLT_PANDORA_VNUM;
 
-  /** ЮВЕЛИР **/
+	/** ЮВЕЛИР **/
 	// Предварительно ставим значения по дефолту
 
 	insgem_vars.lag = INSGEM_DFLT_LAG;
@@ -2928,7 +3038,8 @@ void init_spell_levels(void)
 
 
 
-	while (get_line(magic, name)) {
+	while (get_line(magic, name))
+	{
 		if (!name[0] || name[0] == ';')
 			continue;
 
@@ -2971,40 +3082,40 @@ void init_spell_levels(void)
 	}
 	fclose(magic);
 
-/* Remove to init_im::im.cpp - Gorrah
-// +newbook.patch (Alisher)
-	if (!(magic = fopen(LIB_MISC "classrecipe.lst", "r"))) {
-		log("Cann't open classrecipe list file...");
-		_exit(1);
-	}
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf(name, "%d %s %s", i, line1, line2) != 3) {
-			log("Bad format for magic string !\r\n"
-			    "Format : <recipe number (%%d)> <races (%%s)> <classes (%%d)>");
+	/* Remove to init_im::im.cpp - Gorrah
+	// +newbook.patch (Alisher)
+		if (!(magic = fopen(LIB_MISC "classrecipe.lst", "r"))) {
+			log("Cann't open classrecipe list file...");
 			_exit(1);
 		}
-
-		rcpt = im_get_recipe(i[0]);
-
-		if (rcpt < 0) {
-			log("Invalid recipe (%d)", i[0]);
-			_exit(1);
-		}
-
-// line1 - ограничения для рас еще не реализованы
-
-		for (j = 0; line2[j] && j < NUM_CLASSES; j++) {
-			if (!strchr("1xX!", line2[j]))
+		while (get_line(magic, name)) {
+			if (!name[0] || name[0] == ';')
 				continue;
-			imrecipes[rcpt].classknow[j] = KNOW_RECIPE;
-			log("Set recipe (%d '%s') classes %d is Know", i[0], imrecipes[rcpt].name, j);
+			if (sscanf(name, "%d %s %s", i, line1, line2) != 3) {
+				log("Bad format for magic string !\r\n"
+				    "Format : <recipe number (%%d)> <races (%%s)> <classes (%%d)>");
+				_exit(1);
+			}
+
+			rcpt = im_get_recipe(i[0]);
+
+			if (rcpt < 0) {
+				log("Invalid recipe (%d)", i[0]);
+				_exit(1);
+			}
+
+	// line1 - ограничения для рас еще не реализованы
+
+			for (j = 0; line2[j] && j < NUM_CLASSES; j++) {
+				if (!strchr("1xX!", line2[j]))
+					continue;
+				imrecipes[rcpt].classknow[j] = KNOW_RECIPE;
+				log("Set recipe (%d '%s') classes %d is Know", i[0], imrecipes[rcpt].name, j);
+			}
 		}
-	}
-	fclose(magic);
-// -newbook.patch (Alisher)
-*/
+		fclose(magic);
+	// -newbook.patch (Alisher)
+	*/
 	return;
 }
 
@@ -3014,11 +3125,13 @@ void init_basic_values(void)
 	FILE *magic;
 	char line[256], name[MAX_INPUT_LENGTH];
 	int i[10], c, j, mode = 0, *pointer;
-	if (!(magic = fopen(LIB_MISC "basic.lst", "r"))) {
+	if (!(magic = fopen(LIB_MISC "basic.lst", "r")))
+	{
 		log("Cann't open basic values list file...");
 		return;
 	}
-	while (get_line(magic, name)) {
+	while (get_line(magic, name))
+	{
 		if (!name[0] || name[0] == ';')
 			continue;
 		i[0] = i[1] = i[2] = i[3] = i[4] = i[5] = 100000;
@@ -3042,42 +3155,46 @@ void init_basic_values(void)
 			mode = 8;
 		else if (!str_cmp(line, "weapon"))
 			mode = 9;
-		else if ((c = atoi(line)) > 0 && c <= 50 && mode > 0 && mode < 10) {
-			switch (mode) {
+		else if ((c = atoi(line)) > 0 && c <= 50 && mode > 0 && mode < 10)
+		{
+			switch (mode)
+			{
 			case 1:
-				pointer = (int *) &(str_app[c].tohit);
+				pointer = (int *) & (str_app[c].tohit);
 				break;
 			case 2:
-				pointer = (int *) &(dex_app[c].reaction);
+				pointer = (int *) & (dex_app[c].reaction);
 				break;
 			case 3:
-				pointer = (int *) &(dex_app_skill[c].p_pocket);
+				pointer = (int *) & (dex_app_skill[c].p_pocket);
 				break;
 			case 4:
-				pointer = (int *) &(con_app[c].hitp);
+				pointer = (int *) & (con_app[c].hitp);
 				break;
 			case 5:
-				pointer = (int *) &(wis_app[c].spell_additional);
+				pointer = (int *) & (wis_app[c].spell_additional);
 				break;
 			case 6:
-				pointer = (int *) &(int_app[c].spell_aknowlege);
+				pointer = (int *) & (int_app[c].spell_aknowlege);
 				break;
 			case 7:
-				pointer = (int *) &(cha_app[c].leadership);
+				pointer = (int *) & (cha_app[c].leadership);
 				break;
 			case 8:
-				pointer = (int *) &(size_app[c].ac);
+				pointer = (int *) & (size_app[c].ac);
 				break;
 			case 9:
-				pointer = (int *) &(weapon_app[c].shocking);
+				pointer = (int *) & (weapon_app[c].shocking);
 				break;
 			default:
 				pointer = NULL;
 			}
-			if (pointer) {	//log("Mode %d - %d = %d %d %d %d %d %d",mode,c,
+			if (pointer)  	//log("Mode %d - %d = %d %d %d %d %d %d",mode,c,
+			{
 				//    *i, *(i+1), *(i+2), *(i+3), *(i+4), *(i+5));
 				for (j = 0; j < 6; j++)
-					if (i[j] != 100000) {	//log("[%d] %d <-> %d",j,*(pointer+j),*(i+j));
+					if (i[j] != 100000)  	//log("[%d] %d <-> %d",j,*(pointer+j),*(i+j));
+					{
 						*(pointer + j) = *(i + j);
 					}
 				//getchar();
@@ -3099,52 +3216,62 @@ int init_grouping(void)
 		for (tmp = 0; tmp < 14; tmp++)
 			grouping[tmp][i] = -1;
 
-	if (!(f = fopen(LIB_MISC "grouping", "r"))) {
+	if (!(f = fopen(LIB_MISC "grouping", "r")))
+	{
 		log("Невозможно открыть файл %s", LIB_MISC "grouping");
 		return 1;
 	}
 
-	while (get_line(f, buf)) {
+	while (get_line(f, buf))
+	{
 		if (!buf[0] || buf[0] == ';' || buf[0] == '\n')
 			continue;
 		i = 0;
 		pos = 0;
-		while (sscanf(&buf[pos], "%d", &tmp) == 1) {
-			if (i >= 15) {
+		while (sscanf(&buf[pos], "%d", &tmp) == 1)
+		{
+			if (i >= 15)
+			{
 				i = 16;
 				break;
 			}
 			while (buf[pos] == ' ' || buf[pos] == '\t')
 				pos++;
-			if (i == 0) {
+			if (i == 0)
+			{
 				remorts = tmp;
-				if (grouping[0][remorts] != -1) {
+				if (grouping[0][remorts] != -1)
+				{
 					log("Ошибка при чтении файла %s: дублирование параметров для %d ремортов",
 						LIB_MISC "grouping", remorts);
 					return 2;
 				}
-				if (remorts > 14 || remorts < 0) {
+				if (remorts > 14 || remorts < 0)
+				{
 					log("Ошибка при чтении файла %s: неверное значение количества ремортов: %d, "
-					     "должно быть в промежутке от 0 до 14",
+						"должно быть в промежутке от 0 до 14",
 						LIB_MISC "grouping", remorts);
 					return 3;
 				}
-			} else
+			}
+			else
 				grouping[i - 1][remorts] = tmp;
 			i++;
 			while (buf[pos] != ' ' && buf[pos] != '\t' && buf[pos] != 0)
 				pos++;
 		}
-		if (i != 15) {
+		if (i != 15)
+		{
 			log("Ошибка при чтении файла %s: неверный формат строки '%s', должно быть 15 "
-			     "целых чисел, прочитали %d", LIB_MISC "grouping", buf, i);
+				"целых чисел, прочитали %d", LIB_MISC "grouping", buf, i);
 			return 4;
 		}
 		rows_assigned++;
 	}
-	if (rows_assigned != 15) {
+	if (rows_assigned != 15)
+	{
 		log("Ошибка при чтении файла %s: необходимо 15 строк от 0 до 14 "
-		    "ремортов, прочитано строк: %d.", LIB_MISC "grouping", rows_assigned);
+			"ремортов, прочитано строк: %d.", LIB_MISC "grouping", rows_assigned);
 		return 5;
 	}
 	fclose(f);
@@ -3159,7 +3286,8 @@ int init_grouping(void)
 /* Function to return the exp required for each class/level */
 int level_exp(CHAR_DATA * ch, int level)
 {
-	if (level > LVL_IMPL || level < 0) {
+	if (level > LVL_IMPL || level < 0)
+	{
 		log("SYSERR: Requesting exp for invalid level %d!", level);
 		return 0;
 	}
@@ -3168,7 +3296,8 @@ int level_exp(CHAR_DATA * ch, int level)
 	 * Gods have exp close to EXP_MAX.  This statement should never have to
 	 * changed, regardless of how many mortal or immortal levels exist.
 	 */
-	if (level > LVL_IMMORT) {
+	if (level > LVL_IMMORT)
+	{
 		return EXP_IMPL - ((LVL_IMPL - level) * 1000);
 	}
 
@@ -3179,13 +3308,15 @@ int level_exp(CHAR_DATA * ch, int level)
 	else
 		exp_modifier = exp_coefficients[MAX_EXP_COEFFICIENTS_USED];
 
-	switch (GET_CLASS(ch)) {
+	switch (GET_CLASS(ch))
+	{
 
 	case CLASS_BATTLEMAGE:
 	case CLASS_DEFENDERMAGE:
 	case CLASS_CHARMMAGE:
 	case CLASS_NECROMANCER:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 0;
 		case 1:
@@ -3256,7 +3387,8 @@ int level_exp(CHAR_DATA * ch, int level)
 
 	case CLASS_CLERIC:
 	case CLASS_DRUID:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 0;
 		case 1:
@@ -3326,7 +3458,8 @@ int level_exp(CHAR_DATA * ch, int level)
 		break;
 
 	case CLASS_THIEF:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 0;
 		case 1:
@@ -3397,7 +3530,8 @@ int level_exp(CHAR_DATA * ch, int level)
 
 	case CLASS_ASSASINE:
 	case CLASS_MERCHANT:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 0;
 		case 1:
@@ -3471,7 +3605,8 @@ int level_exp(CHAR_DATA * ch, int level)
 	case CLASS_PALADINE:
 	case CLASS_RANGER:
 	case CLASS_SMITH:
-		switch (level) {
+		switch (level)
+		{
 		case 0:
 			return 0;
 		case 1:

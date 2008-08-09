@@ -28,7 +28,8 @@
 //   5. Вызов функции pk_revenge_action() в случае убийства
 
 // Структуры для сохранения ПК информаци
-struct PK_Memory_type {
+struct PK_Memory_type
+{
 	long unique;		// unique игрока
 	long kill_num;		// количество флагов носителя структуры на unique
 	long kill_at;		// время получения последнего флага (для spamm)
@@ -46,7 +47,7 @@ struct PK_Memory_type {
 #define		PK_ACTION_KILL		8	// нападение
 #define		PK_ACTION_PENTAGRAM_REVENGE		16	// Pent restiction override
 
-// agressor действует против victim 
+// agressor действует против victim
 // Результат - тип действий (см. выше)
 int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim);
 

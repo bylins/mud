@@ -23,7 +23,8 @@ int RoomDescription::add_desc(const std::string &text)
 	std::map<std::string, int>::const_iterator it = _reboot_map.find(text);
 	if (it != _reboot_map.end())
 		return it->second;
-	else {
+	else
+	{
 		_desc_list.push_back(text);
 		_reboot_map[text] = _desc_list.size();
 		return _desc_list.size();
@@ -37,10 +38,12 @@ int RoomDescription::add_desc(const std::string &text)
 */
 const std::string RoomDescription::show_desc(int desc_num)
 {
-	try {
+	try
+	{
 		return _desc_list.at(--desc_num);
 	}
-	catch (std::out_of_range) {
+	catch (std::out_of_range)
+	{
 		log("SYSERROR : bad room description num '%d' (%s %s %d)", desc_num, __FILE__, __func__, __LINE__);
 		return "";
 	}

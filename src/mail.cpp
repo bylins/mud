@@ -110,7 +110,8 @@ mail_index_type *find_char_in_index(long searchee)
 {
 	mail_index_type *tmp;
 
-	if (searchee < 0) {
+	if (searchee < 0)
+	{
 		log("SYSERR: Mail system -- non fatal error #1 (searchee == %ld).", searchee);
 		return (NULL);
 	}
@@ -132,12 +133,14 @@ void write_to_file(void *buf, int size, long filepos)
 {
 	FILE *mail_file;
 
-	if (filepos % BLOCK_SIZE) {
+	if (filepos % BLOCK_SIZE)
+	{
 		log("SYSERR: Mail system -- fatal error #2!!! (invalid file position %ld)", filepos);
 		no_mail = TRUE;
 		return;
 	}
-	if (!(mail_file = fopen(MAIL_FILE, "r+b"))) {
+	if (!(mail_file = fopen(MAIL_FILE, "r+b")))
+	{
 		log("SYSERR: Unable to open mail file '%s'.", MAIL_FILE);
 		no_mail = TRUE;
 		return;
@@ -165,12 +168,14 @@ void read_from_file(void *buf, int size, long filepos)
 {
 	FILE *mail_file;
 
-	if (filepos % BLOCK_SIZE) {
+	if (filepos % BLOCK_SIZE)
+	{
 		log("SYSERR: Mail system -- fatal error #3!!! (invalid filepos read %ld)", filepos);
 		no_mail = TRUE;
 		return;
 	}
-	if (!(mail_file = fopen(MAIL_FILE, "r+b"))) {
+	if (!(mail_file = fopen(MAIL_FILE, "r+b")))
+	{
 		log("SYSERR: Unable to open mail file '%s'.", MAIL_FILE);
 		no_mail = TRUE;
 		return;
@@ -188,11 +193,13 @@ void index_mail(long id_to_index, long pos)
 	mail_index_type *new_index;
 	position_list_type *new_position;
 
-	if (id_to_index < 0) {
+	if (id_to_index < 0)
+	{
 		log("SYSERR: Mail system -- non-fatal error #4. (id_to_index == %ld)", id_to_index);
 		return;
 	}
-	if (!(new_index = find_char_in_index(id_to_index))) {	/* name not already in index.. add it */
+	if (!(new_index = find_char_in_index(id_to_index)))  	/* name not already in index.. add it */
+	{
 		CREATE(new_index, mail_index_type, 1);
 		new_index->recipient = id_to_index;
 		new_index->list_start = NULL;
@@ -222,16 +229,20 @@ int scan_file(void)
 	header_block_type next_block;
 	int total_messages = 0, block_num = 0;
 
-	if (!(mail_file = fopen(MAIL_FILE, "r"))) {
+	if (!(mail_file = fopen(MAIL_FILE, "r")))
+	{
 		log("   Mail file non-existant... creating new file.");
 		touch(MAIL_FILE);
 		return (1);
 	}
-	while (fread(&next_block, sizeof(header_block_type), 1, mail_file)) {
-		if (next_block.block_type == HEADER_BLOCK) {
+	while (fread(&next_block, sizeof(header_block_type), 1, mail_file))
+	{
+		if (next_block.block_type == HEADER_BLOCK)
+		{
 			index_mail(next_block.header_data.to, block_num * BLOCK_SIZE);
 			total_messages++;
-		} else if (next_block.block_type == DELETED_BLOCK)
+		}
+		else if (next_block.block_type == DELETED_BLOCK)
 			push_free_list(block_num * BLOCK_SIZE);
 		block_num++;
 	}
@@ -239,7 +250,8 @@ int scan_file(void)
 	file_end_pos = ftell(mail_file);
 	fclose(mail_file);
 	log("   %ld bytes read.", file_end_pos);
-	if (file_end_pos % BLOCK_SIZE) {
+	if (file_end_pos % BLOCK_SIZE)
+	{
 		log("SYSERR: Error booting mail system -- Mail file corrupt!");
 		log("SYSERR: Mail disabled!");
 		return (0);
@@ -280,13 +292,15 @@ void store_mail(long to, long from, char *message_pointer)
 	char *msg_txt = message_pointer;
 	int bytes_written, total_length = strlen(message_pointer);
 
-	if ((sizeof(header_block_type) != sizeof(data_block_type)) || (sizeof(header_block_type) != BLOCK_SIZE)) {
+	if ((sizeof(header_block_type) != sizeof(data_block_type)) || (sizeof(header_block_type) != BLOCK_SIZE))
+	{
 		log("SYSERR: store_mail...");
 		//core_dump();
 		return;
 	}
 
-	if (from < 0 || to < 0 || !*message_pointer) {
+	if (from < 0 || to < 0 || !*message_pointer)
+	{
 		log("SYSERR: Mail system -- non-fatal error #5. (from == %ld, to == %ld)", from, to);
 		return;
 	}
@@ -339,7 +353,8 @@ void store_mail(long to, long from, char *message_pointer)
 	 * meaning a link to the next block, or LAST_BLOCK flag (-2) meaning the
 	 * last block in the current message.  This works much like DOS' FAT.
 	 */
-	while (bytes_written < total_length) {
+	while (bytes_written < total_length)
+	{
 		last_address = target_address;
 		target_address = pop_free_list();
 
@@ -377,32 +392,41 @@ char *read_delete(long recipient)
 	char *message, *tmstr, buf[200];
 	size_t string_size;
 
-	if (recipient < 0) {
+	if (recipient < 0)
+	{
 		log("SYSERR: Mail system -- non-fatal error #6. (recipient: %ld)", recipient);
 		return (NULL);
 	}
-	if (!(mail_pointer = find_char_in_index(recipient))) {
+	if (!(mail_pointer = find_char_in_index(recipient)))
+	{
 		log("SYSERR: Mail system -- post office spec_proc error?  Error #7. (invalid character in index)");
 		return (NULL);
 	}
-	if (!(position_pointer = mail_pointer->list_start)) {
+	if (!(position_pointer = mail_pointer->list_start))
+	{
 		log("SYSERR: Mail system -- non-fatal error #8. (invalid position pointer %p)", position_pointer);
 		return (NULL);
 	}
-	if (!(position_pointer->next)) {	/* just 1 entry in list. */
+	if (!(position_pointer->next))  	/* just 1 entry in list. */
+	{
 		mail_address = position_pointer->position;
 		free(position_pointer);
 
 		/* now free up the actual name entry */
-		if (mail_index == mail_pointer) {	/* name is 1st in list */
+		if (mail_index == mail_pointer)  	/* name is 1st in list */
+		{
 			mail_index = mail_pointer->next;
 			free(mail_pointer);
-		} else {	/* find entry before the one we're going to del */
+		}
+		else  	/* find entry before the one we're going to del */
+		{
 			for (prev_mail = mail_index; prev_mail->next != mail_pointer; prev_mail = prev_mail->next);
 			prev_mail->next = mail_pointer->next;
 			free(mail_pointer);
 		}
-	} else {		/* move to next-to-last record */
+	}
+	else  		/* move to next-to-last record */
+	{
 		while (position_pointer->next->next)
 			position_pointer = position_pointer->next;
 		mail_address = position_pointer->next->position;
@@ -413,7 +437,8 @@ char *read_delete(long recipient)
 	/* ok, now lets do some readin'! */
 	read_from_file(&header, BLOCK_SIZE, mail_address);
 
-	if (header.block_type != HEADER_BLOCK) {
+	if (header.block_type != HEADER_BLOCK)
+	{
 		log("SYSERR: Oh dear. (Header block %ld != %d)", header.block_type, HEADER_BLOCK);
 		no_mail = TRUE;
 		log("SYSERR: Mail system disabled!  -- Error #9. (Invalid header block.)");
@@ -426,8 +451,8 @@ char *read_delete(long recipient)
 	const char *to = get_name_by_id(recipient);
 
 	sprintf(buf, " * * * * Княжеская почта * * * *\r\n"
-		"Дата: %s\r\n"
-		"Кому: %s\r\n" "  От: %s\r\n\r\n", tmstr, to ? to : "Получатель", from ? from : "Неизвестно");
+			"Дата: %s\r\n"
+			"Кому: %s\r\n" "  От: %s\r\n\r\n", tmstr, to ? to : "Получатель", from ? from : "Неизвестно");
 
 	string_size = (sizeof(char) * (strlen(buf) + strlen(header.txt) + 1));
 	CREATE(message, char, string_size);
@@ -441,7 +466,8 @@ char *read_delete(long recipient)
 	write_to_file(&header, BLOCK_SIZE, mail_address);
 	push_free_list(mail_address);
 
-	while (following_block != LAST_BLOCK) {
+	while (following_block != LAST_BLOCK)
+	{
 		read_from_file(&data, BLOCK_SIZE, following_block);
 
 		string_size = (sizeof(char) * (strlen(message) + strlen(data.txt) + 1));
@@ -470,24 +496,31 @@ SPECIAL(postmaster)
 		return (0);	/* so mobs don't get caught here */
 
 	if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive") ||
-	      CMD_IS("почта") || CMD_IS("получить") || CMD_IS("отправить")))
+			CMD_IS("почта") || CMD_IS("получить") || CMD_IS("отправить")))
 		return (0);
 
-	if (no_mail) {
+	if (no_mail)
+	{
 		send_to_char("Извините, почтальон в запое.\r\n", ch);
 		return (0);
 	}
 
-	if (CMD_IS("mail") || CMD_IS("отправить")) {
+	if (CMD_IS("mail") || CMD_IS("отправить"))
+	{
 		postmaster_send_mail(ch, (CHAR_DATA *) me, cmd, argument);
 		return (1);
-	} else if (CMD_IS("check") || CMD_IS("почта")) {
+	}
+	else if (CMD_IS("check") || CMD_IS("почта"))
+	{
 		postmaster_check_mail(ch, (CHAR_DATA *) me, cmd, argument);
 		return (1);
-	} else if (CMD_IS("receive") || CMD_IS("получить")) {
+	}
+	else if (CMD_IS("receive") || CMD_IS("получить"))
+	{
 		postmaster_receive_mail(ch, (CHAR_DATA *) me, cmd, argument);
 		return (1);
-	} else
+	}
+	else
 		return (0);
 }
 
@@ -500,39 +533,43 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 
 	IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO) ? cost = 0 : cost = STAMP_PRICE;
 
-	if (GET_LEVEL(ch) < MIN_MAIL_LEVEL) {
+	if (GET_LEVEL(ch) < MIN_MAIL_LEVEL)
+	{
 		sprintf(buf,
-			"$n сказал$g Вам, 'Извините, Вы должны достигнуть %d уровня, чтобы отправить письмо!'",
-			MIN_MAIL_LEVEL);
+				"$n сказал$g Вам, 'Извините, Вы должны достигнуть %d уровня, чтобы отправить письмо!'",
+				MIN_MAIL_LEVEL);
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
 	one_argument(arg, buf);
 
-	if (!*buf) {		/* you'll get no argument from me! */
+	if (!*buf)  		/* you'll get no argument from me! */
+	{
 		act("$n сказал$g Вам, 'Вы не указали адресата!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
-	if (get_gold(ch) < cost) {
+	if (get_gold(ch) < cost)
+	{
 		sprintf(buf, "$n сказал$g Вам, 'Письмо стоит %d %s.'\r\n"
-			"$n сказал$g Вам, '...которых у Вас просто-напросто нет.'",
-			STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYu));
+				"$n сказал$g Вам, '...которых у Вас просто-напросто нет.'",
+				STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYu));
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
-	if ((recipient = get_id_by_name(buf)) < 0) {
+	if ((recipient = get_id_by_name(buf)) < 0)
+	{
 		act("$n сказал$g Вам, 'Извините, но такого игрока нет в игре!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
 	act("$n начал$g писать письмо.", TRUE, ch, 0, 0, TO_ROOM);
 	if (cost == 0)
 		sprintf(buf, "$n сказал$g Вам, 'Со своих - почтовый сбор не берем.'\r\n"
-			"$n сказал$g Вам, 'Можете писать, (/s saves /h for help)'");
+				"$n сказал$g Вам, 'Можете писать, (/s saves /h for help)'");
 	else
 		sprintf(buf,
-			"$n сказал$g Вам, 'Отлично, с Вас %d %s почтового сбора.'\r\n"
-			"$n сказал$g Вам, 'Можете писать, (/s saves /h for help)'",
-			STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYa));
+				"$n сказал$g Вам, 'Отлично, с Вас %d %s почтового сбора.'\r\n"
+				"$n сказал$g Вам, 'Можете писать, (/s saves /h for help)'",
+				STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYa));
 
 	act(buf, FALSE, mailman, 0, ch, TO_VICT);
 	add_gold(ch, -cost);
@@ -561,12 +598,14 @@ void postmaster_receive_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char 
 	char buf[256];
 	OBJ_DATA *obj;
 
-	if (!has_mail(GET_IDNUM(ch))) {
+	if (!has_mail(GET_IDNUM(ch)))
+	{
 		sprintf(buf, "$n удивленно сказал$g Вам : 'Но для Вас нет писем !?'");
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
-	while (has_mail(GET_IDNUM(ch))) {
+	while (has_mail(GET_IDNUM(ch)))
+	{
 		obj = create_obj();
 		obj->name = str_dup("mail paper letter письмо почта бумага");
 		obj->short_description = str_dup("письмо");
@@ -588,7 +627,7 @@ void postmaster_receive_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char 
 
 		if (obj->action_description == NULL)
 			obj->action_description =
-			    str_dup("Почтовая система сломана - сообщите Богам.  Ошибка #11.\r\n");
+				str_dup("Почтовая система сломана - сообщите Богам.  Ошибка #11.\r\n");
 
 		obj_to_char(obj, ch);
 

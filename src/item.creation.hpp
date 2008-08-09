@@ -63,7 +63,8 @@ ACMD(do_make_item);
 
 void init_make_items();
 // Старая структура мы ее используем в перековке.
-struct create_item_type {
+struct create_item_type
+{
 	int obj_vnum;
 	int material_bits;
 	int min_weight;
@@ -73,12 +74,14 @@ struct create_item_type {
 	int wear;
 };
 // Новая структура мы ее используем при создании вещей из ингридиентов
-struct ingr_part_type {
+struct ingr_part_type
+{
 	int proto;
 	int min_weight;
 	int min_power;
 };
-struct make_skill_type {
+struct make_skill_type
+{
 	char *name;
 	char *short_name;
 	int num;
@@ -86,10 +89,11 @@ struct make_skill_type {
 
 class MakeRecept;
 
-class MakeReceptList {
+class MakeReceptList
+{
 	list < MakeRecept * >recepts;
 
-      public:
+public:
 	// Создание деструктор загрузка рецептов.
 	MakeReceptList();
 
@@ -112,7 +116,7 @@ class MakeReceptList {
 	// число элементов рецептов
 	int size();
 
-	MakeRecept *operator[] (int i);
+	MakeRecept *operator[](int i);
 
 	// освобождение списка рецептов.
 	void clear();
@@ -126,7 +130,8 @@ class MakeReceptList {
 	void sort();
 };
 
-class MakeRecept {
+class MakeRecept
+{
 	int stat_modify(CHAR_DATA * ch, int value, float devider);
 
 	int add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, FLAG_DATA * add_flag, int delta);
@@ -137,7 +142,7 @@ class MakeRecept {
 
 	int get_ingr_pow(struct obj_data *ingrobj);
 
-      public:
+public:
 
 	bool locked;
 

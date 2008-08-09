@@ -78,7 +78,8 @@ void olc_remove_from_save_list(int zone, byte type);
  * OLC structures.
  */
 
-typedef struct t_zcmd {
+typedef struct t_zcmd
+{
 	struct t_zcmd *next;	// следующий элемент кольцевого буфера
 	struct t_zcmd *prev;	// предыдущий элемент кольцевого буфера
 	struct reset_com cmd;	// команда
@@ -89,7 +90,8 @@ void zedit_delete_cmdlist(pzcmd head);
 
 class MakeRecept;
 
-struct olc_data {
+struct olc_data
+{
 	int mode;
 	int zone_num;
 	int number;
@@ -117,7 +119,8 @@ struct olc_data {
 	char *storage;		/* for holding commands etc.. */
 };
 
-struct olc_save_info {
+struct olc_save_info
+{
 	int zone;
 	char type;
 	struct olc_save_info *next;

@@ -1175,49 +1175,50 @@ typedef struct trig_data TRIG_DATA;
 
 
 typedef signed char
- sbyte;
+sbyte;
 typedef unsigned char
- ubyte;
+ubyte;
 typedef short int
- sh_int;
+sh_int;
 typedef short int
- ush_int;
+ush_int;
 #if !defined(__cplusplus)	/* Anyone know a portable method? */
 typedef char
- bool;
+bool;
 #endif
 
 #if !defined(CIRCLE_WINDOWS) || defined(LCC_WIN32)	/* Hm, sysdep.h? */
 typedef char
- byte;
+byte;
 #endif
 
 typedef int
- room_vnum;			/* A room's vnum type */
+room_vnum;			/* A room's vnum type */
 typedef int
- obj_vnum;			/* An object's vnum type */
+obj_vnum;			/* An object's vnum type */
 typedef int
- mob_vnum;			/* A mob's vnum type */
+mob_vnum;			/* A mob's vnum type */
 typedef int
- zone_vnum;			/* A virtual zone number.  */
+zone_vnum;			/* A virtual zone number.  */
 
 typedef int
- room_rnum;			/* A room's real (internal) number type */
+room_rnum;			/* A room's real (internal) number type */
 typedef int
- obj_rnum;			/* An object's real (internal) num type */
+obj_rnum;			/* An object's real (internal) num type */
 typedef int
- mob_rnum;			/* A mobile's real (internal) num type */
+mob_rnum;			/* A mobile's real (internal) num type */
 typedef int
- zone_rnum;			/* A zone's real (array index) number. */
+zone_rnum;			/* A zone's real (array index) number. */
 
 
 /************* WARNING **********************************************/
 /* This structure describe new bitvector structure                  */
 typedef long int
- bitvector_t;
-struct flag_data {
+bitvector_t;
+struct flag_data
+{
 	int
-	 flags[4];
+	flags[4];
 };
 
 extern const FLAG_DATA clear_flags;
@@ -1228,7 +1229,8 @@ extern const FLAG_DATA clear_flags;
 #define INT_THREE (3 << 30)
 #define GET_FLAG(value,flag) (value.flags[((unsigned long)flag) >> 30])
 
-class unique_bit_flag_data : public flag_data {
+class unique_bit_flag_data : public flag_data
+{
 public:
 	unique_bit_flag_data() : flag_data(clear_flags) {}
 
@@ -1244,8 +1246,8 @@ public:
 	set_plane(int __plane)
 	{
 		int num = (unsigned long)__plane < (unsigned long)INT_ONE   ? 0 :
-			  (unsigned long)__plane < (unsigned long)INT_TWO   ? 1 :
-			  (unsigned long)__plane < (unsigned long)INT_THREE ? 2 : 3;
+				  (unsigned long)__plane < (unsigned long)INT_TWO   ? 1 :
+				  (unsigned long)__plane < (unsigned long)INT_THREE ? 2 : 3;
 		*(flags + num) |= 0x3FFFFFFF & __plane;
 		return *this;
 	}
@@ -1255,17 +1257,17 @@ inline int
 flag_data_by_num(const int& num)
 {
 	return num < 0   ? 0 :
-	       num < 30  ? (1 << num) :
-	       num < 60  ? (INT_ONE | (1 << (num - 30))) :
-	       num < 90  ? (INT_TWO | (1 << (num - 60))) :
-	       num < 120 ? (INT_THREE | (1 << (num - 90))) : 0;
+		   num < 30  ? (1 << num) :
+		   num < 60  ? (INT_ONE | (1 << (num - 30))) :
+		   num < 90  ? (INT_TWO | (1 << (num - 60))) :
+		   num < 120 ? (INT_THREE | (1 << (num - 90))) : 0;
 }
 
 inline bool
 operator==(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
 {
 	return *__lop.flags & *__rop.flags || *(__lop.flags + 1) & *(__rop.flags + 1) ||
-	       *(__lop.flags + 2) & *(__rop.flags + 2) || *(__lop.flags + 3) & *(__rop.flags + 3);
+		   *(__lop.flags + 2) & *(__rop.flags + 2) || *(__lop.flags + 3) & *(__rop.flags + 3);
 }
 
 inline bool
@@ -1278,36 +1280,37 @@ inline bool
 operator<(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
 {
 	return __lop != __rop &&
-	       (*__lop.flags < *__rop.flags || *(__lop.flags + 1) < *(__rop.flags + 1) ||
-		*(__lop.flags + 2) < *(__rop.flags + 2) || *(__lop.flags + 3) < *(__rop.flags + 3));
+		   (*__lop.flags < *__rop.flags || *(__lop.flags + 1) < *(__rop.flags + 1) ||
+			*(__lop.flags + 2) < *(__rop.flags + 2) || *(__lop.flags + 3) < *(__rop.flags + 3));
 }
 
 inline bool
 operator>(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
 {
 	return __lop != __rop &&
-	       (*__lop.flags > *__rop.flags || *(__lop.flags + 1) > *(__rop.flags + 1) ||
-		*(__lop.flags + 2) > *(__rop.flags + 2) || *(__lop.flags + 3) > *(__rop.flags + 3));
+		   (*__lop.flags > *__rop.flags || *(__lop.flags + 1) > *(__rop.flags + 1) ||
+			*(__lop.flags + 2) > *(__rop.flags + 2) || *(__lop.flags + 3) > *(__rop.flags + 3));
 }
 
 inline bool
 operator<=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
 {
 	return __lop == __rop ||
-	       (*__lop.flags < *__rop.flags || *(__lop.flags + 1) < *(__rop.flags + 1) ||
-		*(__lop.flags + 2) < *(__rop.flags + 2) || *(__lop.flags + 3) < *(__rop.flags + 3));
+		   (*__lop.flags < *__rop.flags || *(__lop.flags + 1) < *(__rop.flags + 1) ||
+			*(__lop.flags + 2) < *(__rop.flags + 2) || *(__lop.flags + 3) < *(__rop.flags + 3));
 }
 
 inline bool
 operator>=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
 {
 	return __lop == __rop ||
-	       (*__lop.flags > *__rop.flags || *(__lop.flags + 1) > *(__rop.flags + 1) ||
-		*(__lop.flags + 2) > *(__rop.flags + 2) || *(__lop.flags + 3) > *(__rop.flags + 3));
+		   (*__lop.flags > *__rop.flags || *(__lop.flags + 1) > *(__rop.flags + 1) ||
+			*(__lop.flags + 2) > *(__rop.flags + 2) || *(__lop.flags + 3) > *(__rop.flags + 3));
 }
 
 /* Extra description: used in objects, mobiles, and rooms */
-struct extra_descr_data {
+struct extra_descr_data
+{
 	char *keyword;		/* Keyword in look/examine          */
 	char *description;	/* What to see                      */
 	EXTRA_DESCR_DATA *next;	/* Next in list                     */
@@ -1321,63 +1324,66 @@ struct extra_descr_data {
 /* object flags; used in obj_data */
 #define NUM_OBJ_VAL_POSITIONS 4
 
-struct obj_flag_data {
+struct obj_flag_data
+{
 	int
-	 value[NUM_OBJ_VAL_POSITIONS];
+	value[NUM_OBJ_VAL_POSITIONS];
 	byte type_flag;		/* Type of item               */
 	int
-	 wear_flags;		/* Where you can wear it     */
+	wear_flags;		/* Where you can wear it     */
 	FLAG_DATA extra_flags;	/* If it hums, glows, etc.      */
 	int
-	 weight;		/* Weigt what else              */
+	weight;		/* Weigt what else              */
 	int
-	 cost;			/* Value when sold (gp.)        */
+	cost;			/* Value when sold (gp.)        */
 	int
-	 cost_per_day_on;	/* Rent to keep pr. real day if wear       */
+	cost_per_day_on;	/* Rent to keep pr. real day if wear       */
 	int
-	 cost_per_day_off;	/* Rent to keep pr. real day if in inv     */
+	cost_per_day_off;	/* Rent to keep pr. real day if in inv     */
 	int
-	 Obj_timer;		/* Timer for object             */
+	Obj_timer;		/* Timer for object             */
 	FLAG_DATA bitvector;	/* To set chars bits            */
 
 	FLAG_DATA affects;
 	FLAG_DATA anti_flag;
 	FLAG_DATA no_flag;
 	int
-	 Obj_sex;
+	Obj_sex;
 	int
-	 Obj_spell;
+	Obj_spell;
 	int
-	 Obj_level;
+	Obj_level;
 	int
-	 Obj_skill;
+	Obj_skill;
 	int
-	 Obj_max;
+	Obj_max;
 	int
-	 Obj_cur;
+	Obj_cur;
 	int
-	 Obj_mater;
+	Obj_mater;
 	int
-	 Obj_owner;
+	Obj_owner;
 	int
-	 Obj_destroyer;
+	Obj_destroyer;
 	int
-	 Obj_zone;
+	Obj_zone;
 	int
-	 Obj_maker;		/* Unique number for object crafters */
+	Obj_maker;		/* Unique number for object crafters */
 	int
-	 Obj_parent;		/* Vnum for object parent */
+	Obj_parent;		/* Vnum for object parent */
 };
 
 
-struct obj_affected_type {
+struct obj_affected_type
+{
 	byte location;		/* Which ability to change (APPLY_XXX) */
 	sbyte modifier;		/* How much it changes by              */
 	obj_affected_type() : location(APPLY_NONE), modifier(0) {}
 	obj_affected_type(byte __location, sbyte __modifier) : location(__location), modifier(__modifier) {}
 };
 
-class activation {
+class activation
+{
 	std::string actmsg, deactmsg, room_actmsg, room_deactmsg;
 	flag_data affects;
 	obj_affected_type affected[MAX_OBJ_AFFECT];
@@ -1385,46 +1391,84 @@ public:
 	activation() : affects(clear_flags) {}
 
 	activation(const std::string& __actmsg, const std::string& __deactmsg,
-		   const std::string& __room_actmsg, const std::string& __room_deactmsg,
-		   const flag_data& __affects, const obj_affected_type* __affected) :
-		   actmsg(__actmsg), deactmsg(__deactmsg), room_actmsg(__room_actmsg), room_deactmsg(__room_deactmsg), affects(__affects)
+			   const std::string& __room_actmsg, const std::string& __room_deactmsg,
+			   const flag_data& __affects, const obj_affected_type* __affected) :
+			actmsg(__actmsg), deactmsg(__deactmsg), room_actmsg(__room_actmsg), room_deactmsg(__room_deactmsg), affects(__affects)
 	{
 		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 			affected[i] = __affected[i];
 	}
 
 	const std::string&
-	get_actmsg() const { return actmsg; }
+	get_actmsg() const
+	{
+		return actmsg;
+	}
 
 	activation&
-	set_actmsg(const std::string& __actmsg) { actmsg = __actmsg; return *this; }
+	set_actmsg(const std::string& __actmsg)
+	{
+		actmsg = __actmsg;
+		return *this;
+	}
 
 	const std::string&
-	get_deactmsg() const { return deactmsg; }
+	get_deactmsg() const
+	{
+		return deactmsg;
+	}
 
 	activation&
-	set_deactmsg(const std::string& __deactmsg) { deactmsg = __deactmsg; return *this; }
+	set_deactmsg(const std::string& __deactmsg)
+	{
+		deactmsg = __deactmsg;
+		return *this;
+	}
 
 	const std::string&
-	get_room_actmsg() const { return room_actmsg; }
+	get_room_actmsg() const
+	{
+		return room_actmsg;
+	}
 
 	activation&
-	set_room_actmsg(const std::string& __room_actmsg) { room_actmsg = __room_actmsg; return *this; }
+	set_room_actmsg(const std::string& __room_actmsg)
+	{
+		room_actmsg = __room_actmsg;
+		return *this;
+	}
 
 	const std::string&
-	get_room_deactmsg() const { return room_deactmsg; }
+	get_room_deactmsg() const
+	{
+		return room_deactmsg;
+	}
 
 	activation&
-	set_room_deactmsg(const std::string& __room_deactmsg) { room_deactmsg = __room_deactmsg; return *this; }
+	set_room_deactmsg(const std::string& __room_deactmsg)
+	{
+		room_deactmsg = __room_deactmsg;
+		return *this;
+	}
 
 	const flag_data&
-	get_affects() const { return affects; }
+	get_affects() const
+	{
+		return affects;
+	}
 
 	activation&
-	set_affects(const flag_data& __affects) { affects = __affects; return *this; }
+	set_affects(const flag_data& __affects)
+	{
+		affects = __affects;
+		return *this;
+	}
 
 	const obj_affected_type*
-	get_affected() const { return affected; }
+	get_affected() const
+	{
+		return affected;
+	}
 
 	activation&
 	set_affected(const obj_affected_type* __affected)
@@ -1438,7 +1482,7 @@ public:
 	get_affected_i(int __i) const
 	{
 		return __i < 0              ? affected[0] :
-		       __i < MAX_OBJ_AFFECT ? affected[__i] : affected[MAX_OBJ_AFFECT-1];
+			   __i < MAX_OBJ_AFFECT ? affected[__i] : affected[MAX_OBJ_AFFECT-1];
 	}
 
 	activation&
@@ -1455,7 +1499,8 @@ typedef std::map< unique_bit_flag_data, activation > class_to_act_map;
 
 typedef std::map< unsigned int, class_to_act_map > qty_to_camap_map;
 
-class set_info : public std::map< obj_vnum, qty_to_camap_map > {
+class set_info : public std::map< obj_vnum, qty_to_camap_map >
+{
 	std::string name;
 public:
 	typedef std::map< obj_vnum, qty_to_camap_map > ovnum_to_qamap_map;
@@ -1465,10 +1510,17 @@ public:
 	set_info(const ovnum_to_qamap_map& __base, const std::string& __name) : ovnum_to_qamap_map(__base), name(__name) {}
 
 	const std::string&
-	get_name() const { return name; }
+	get_name() const
+	{
+		return name;
+	}
 
 	set_info&
-	set_name(const std::string& __name) { name = __name; return *this; }
+	set_name(const std::string& __name)
+	{
+		name = __name;
+		return *this;
+	}
 };
 
 typedef std::map< int, set_info > id_to_set_info_map;
@@ -1476,15 +1528,16 @@ typedef std::map< int, set_info > id_to_set_info_map;
 extern std::vector < OBJ_DATA * >obj_proto;
 
 /* ================== Memory Structure for Objects ================== */
-struct obj_data {
+struct obj_data
+{
 	unsigned int uid;
 	obj_vnum item_number;	/* Where in data-base            */
 	room_rnum in_room;	/* In what room -1 when conta/carr */
 
 	struct obj_flag_data
-	 obj_flags;		/* Object information       */
+				obj_flags;		/* Object information       */
 	struct obj_affected_type
-	 affected[MAX_OBJ_AFFECT];	/* affects */
+				affected[MAX_OBJ_AFFECT];	/* affects */
 
 	char *name;		/* Title of object :get etc.        */
 	char *description;	/* When in room                     */
@@ -1494,47 +1547,47 @@ struct obj_data {
 	CHAR_DATA *carried_by;	/* Carried by :NULL in room/conta   */
 	CHAR_DATA *worn_by;	/* Worn by?              */
 	short int
-	 worn_on;		/* Worn where?          */
+	worn_on;		/* Worn where?          */
 
 	OBJ_DATA *in_obj;	/* In what object NULL when none    */
 	OBJ_DATA *contains;	/* Contains objects                 */
 
 	long
-	 id;			/* used by DG triggers              */
+	id;			/* used by DG triggers              */
 	struct trig_proto_list *proto_script;	/* list of default triggers  */
 	struct script_data *script;	/* script info for the object       */
 
 	OBJ_DATA *next_content;	/* For 'contains' lists             */
 	OBJ_DATA *next;		/* For the object list              */
 	int
-	 room_was_in;
+	room_was_in;
 	char *PNames[6];
 	int
-	 max_in_world;		/* max in world             */
+	max_in_world;		/* max in world             */
 
 	static id_to_set_info_map set_table;
 
 	obj_data() :
-		uid(0),
-		item_number(NOTHING),
-		in_room(NOWHERE),
-		name(NULL),
-		description(NULL),
-		short_description(NULL),
-		action_description(NULL),
-		ex_description(NULL),
-		carried_by(NULL),
-		worn_by(NULL),
-		worn_on(NOWHERE),
-		in_obj(NULL),
-		contains(NULL),
-		id(0),
-		proto_script(NULL),
-		script(NULL),
-		next_content(NULL),
-		next(NULL),
-		room_was_in(NOWHERE),
-		max_in_world(0)
+			uid(0),
+			item_number(NOTHING),
+			in_room(NOWHERE),
+			name(NULL),
+			description(NULL),
+			short_description(NULL),
+			action_description(NULL),
+			ex_description(NULL),
+			carried_by(NULL),
+			worn_by(NULL),
+			worn_on(NOWHERE),
+			in_obj(NULL),
+			contains(NULL),
+			id(0),
+			proto_script(NULL),
+			script(NULL),
+			next_content(NULL),
+			next(NULL),
+			room_was_in(NOWHERE),
+			max_in_world(0)
 	{
 		memset(&obj_flags, 0, sizeof(obj_flag_data));
 
@@ -1546,25 +1599,29 @@ struct obj_data {
 
 	const std::string
 	activate_obj(const activation& __act)
-        {
-		if (item_number >= 0) {
+	{
+		if (item_number >= 0)
+		{
 			obj_flags.affects = __act.get_affects();
 			for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 				affected[i] = __act.get_affected_i(i);
 			return __act.get_actmsg() + "\n" + __act.get_room_actmsg();
-		} else
+		}
+		else
 			return "\n";
 	}
 
 	const std::string
 	deactivate_obj(const activation& __act)
 	{
-		if (item_number >= 0) {
+		if (item_number >= 0)
+		{
 			obj_flags.affects = obj_proto[item_number]->obj_flags.affects;
 			for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 				affected[i] = obj_proto[item_number]->affected[i];
 			return __act.get_deactmsg() + "\n" + __act.get_room_deactmsg();
-		} else
+		}
+		else
 			return "\n";
 	}
 };
@@ -1572,49 +1629,52 @@ struct obj_data {
 
 
 /* header block for rent files.  BEWARE: Changing it will ruin rent files  */
-struct save_rent_info {
+struct save_rent_info
+{
 	int
-	 time;
+	time;
 	int
-	 rentcode;
+	rentcode;
 	int
-	 net_cost_per_diem;
+	net_cost_per_diem;
 	int
-	 gold;
+	gold;
 	int
-	 account;
+	account;
 	int
-	 nitems;
+	nitems;
 	int
-	 oitems;
+	oitems;
 	int
-	 spare1;
+	spare1;
 	int
-	 spare2;
+	spare2;
 	int
-	 spare3;
+	spare3;
 	int
-	 spare4;
+	spare4;
 	int
-	 spare5;
+	spare5;
 	int
-	 spare6;
+	spare6;
 	int
-	 spare7;
+	spare7;
 };
 
-struct save_time_info {
+struct save_time_info
+{
 	int
-	 vnum;
+	vnum;
 	int
-	 timer;
+	timer;
 };
 
-struct save_info {
+struct save_info
+{
 	struct save_rent_info
-	 rent;
+				rent;
 	struct save_time_info
-	 time[2];
+				time[2];
 };
 
 /* ======================================================================= */
@@ -1623,7 +1683,8 @@ struct save_info {
 /* room-related structures ************************************************/
 
 
-struct exit_data {
+struct exit_data
+{
 	char *general_description;	/* When look DIR.         */
 
 	char *keyword;		/* for open/close       */
@@ -1634,31 +1695,33 @@ struct exit_data {
 	room_rnum to_room;	/* Where direction leads (NOWHERE) */
 };
 
-struct track_data {
+struct track_data
+{
 	int
-	 track_info;		/* bitvector */
+	track_info;		/* bitvector */
 	int
-	 who;			/* real_number for NPC, IDNUM for PC */
+	who;			/* real_number for NPC, IDNUM for PC */
 	int
-	 time_income[6];	/* time bitvector */
+	time_income[6];	/* time bitvector */
 	int
-	 time_outgone[6];
+	time_outgone[6];
 	struct track_data *next;
 };
 
-struct weather_control {
+struct weather_control
+{
 	int
-	 rainlevel;
+	rainlevel;
 	int
-	 snowlevel;
+	snowlevel;
 	int
-	 icelevel;
+	icelevel;
 	int
-	 sky;
+	sky;
 	int
-	 weather_type;
+	weather_type;
 	int
-	 duration;
+	duration;
 };
 /* Структура хранит разннобразные характеристики комнат */
 struct room_property_data
@@ -1668,7 +1731,8 @@ struct room_property_data
 
 
 /* ================== Memory Structure for room ======================= */
-struct room_data {
+struct room_data
+{
 	room_vnum number;	/* Rooms number  (vnum)                */
 	zone_rnum zone;		/* Room zone (for resetting)          */
 	int sector_type;		/* sector type (move/hide)            */
@@ -1685,7 +1749,7 @@ struct room_data {
 	byte glight;		/* Number of lightness person     */
 	byte gdark;		/* Number of darkness  person     */
 	struct weather_control
-	 weather;		/* Weather state for room */
+				weather;		/* Weather state for room */
 	SPECIAL(*func);
 
 	struct trig_proto_list *proto_script;	/* list of default triggers  */
@@ -1703,7 +1767,7 @@ struct room_data {
 	ubyte fires;		/* Time when fires - костерок    */
 	ubyte forbidden;	/* Time when room forbidden for mobs  */
 	int
-	 forbidden_percent;	/* Probability for the mobs to be blocked */
+	forbidden_percent;	/* Probability for the mobs to be blocked */
 
 	ubyte ices;		/* Time when ices restore */
 
@@ -1728,23 +1792,25 @@ struct room_data {
 
 
 /* memory structure for characters */
-struct memory_rec_struct {
+struct memory_rec_struct
+{
 	long
-	 id;
+	id;
 	long
-	 time;
+	time;
 	struct memory_rec_struct *next;
 };
 
 typedef struct memory_rec_struct
- memory_rec;
+			memory_rec;
 
 
 /* This structure is purely intended to be an easy way to transfer */
 /* and return information about time (real or mudwise).            */
-struct time_info_data {
+struct time_info_data
+{
 	int
-	 hours, day, month;
+	hours, day, month;
 	sh_int year;
 };
 
@@ -1756,106 +1822,110 @@ struct time_info_data {
  * in your new code.  They will automatically be transferred from the
  * playerfile into memory when players log in.
  */
-struct player_special_data_saved {
+struct player_special_data_saved
+{
 	byte PADDING0;		/* used to be spells_to_learn      */
 	bool talks[MAX_TONGUE];	/* PC s Tongues 0 for NPC     */
 	int
-	 wimp_level;		/* Below this # of hit points, flee!  */
+	wimp_level;		/* Below this # of hit points, flee!  */
 	int
-	 invis_level;		/* level of invisibility      */
+	invis_level;		/* level of invisibility      */
 	room_vnum load_room;	/* Which room to place char in      */
 	FLAG_DATA pref;		/* preference flags for PC's.    */
 	int
-	 bad_pws;		/* number of bad password attemps   */
+	bad_pws;		/* number of bad password attemps   */
 	int
-	 conditions[3];		/* Drunk, full, thirsty        */
+	conditions[3];		/* Drunk, full, thirsty        */
 
 	/* spares below for future expansion.  You can change the names from
 	   'sparen' to something meaningful, but don't change the order.  */
 
 	int
-	 Side;		  /****/
+	Side;		  /****/
 	int
-	 Religion;	  /****/
+	Religion;	  /****/
 	int
-	 Kin;
+	Kin;
 	int
-	 Race;		  /****/
+	Race;		  /****/
 	int
-	 Lows;		  /****/
+	Lows;		  /****/
 	int
-	 DrunkState;
+	DrunkState;
 	int
-	 Prelimit; // FIXME пока не трогать -- Krodo
+	Prelimit; // FIXME пока не трогать -- Krodo
 	int
-	 glory; // FIXME пока не трогать -- Krodo
+	glory; // FIXME пока не трогать -- Krodo
 	int
-	 olc_zone;
+	olc_zone;
 	int
-	 unique;
+	unique;
 	int
-	 Remorts;
+	Remorts;
 	int
-	 NameGod;
+	NameGod;
 	int
-	 spare12;
+	spare12;
 	int
-	 spare13;
+	spare13;
 	int
-	 spare14;
+	spare14;
 	int
-	 spare15;
+	spare15;
 
 	long
-	 GodsLike;
+	GodsLike;
 	time_t
- 	 LastLogon; //by kilnik
+	LastLogon; //by kilnik
 	long
-	 NameIDGod;
+	NameIDGod;
 	long
-	 spare0A;
+	spare0A;
 	long
-	 spare0B;
+	spare0B;
 	long
-	 spare0C;
+	spare0C;
 	long
-	 spare0D;
+	spare0D;
 	long
-	 spare0E;
+	spare0E;
 	long
-	 spare0F;
+	spare0F;
 
 	char
-	 EMail[128];
+	EMail[128];
 	char
-	 LastIP[128];
+	LastIP[128];
 
 	char
-	 remember[MAX_REMEMBER_TELLS][MAX_RAW_INPUT_LENGTH];
+	remember[MAX_REMEMBER_TELLS][MAX_RAW_INPUT_LENGTH];
 	int
-	 lasttell;
+	lasttell;
 
 	int stringLength;
 	int stringWidth;
 };
 
 // shapirus
-struct ignore_data {
+struct ignore_data
+{
 	long
-	 id;
+	id;
 	unsigned long
-	 mode;
+	mode;
 	struct ignore_data *next;
 };
 // Alez
-struct logon_data {
+struct logon_data
+{
 	char * ip;
 	long count;
 	time_t lasttime; //by kilnik
 	logon_data * next;
 };
 
-struct punish_data {
+struct punish_data
+{
 	long duration;
 	char * reason;
 	int  level;
@@ -1871,28 +1941,29 @@ struct punish_data {
  * be changed freely; beware, though, that changing the contents of
  * player_special_data_saved will corrupt the playerfile.
  */
-struct player_special_data {
+struct player_special_data
+{
 	struct player_special_data_saved
-	 saved;
+				saved;
 
 	char *poofin;		/* Description on arrival of a god. */
 	char *poofout;		/* Description upon a god's exit.   */
 	struct alias_data *aliases;	/* Character's aliases    */
 	long
-	 last_tell;		/* idnum of last tell from      */
+	last_tell;		/* idnum of last tell from      */
 	void *last_olc_targ;	/* olc control         */
 	int
-	 last_olc_mode;		/* olc control         */
+	last_olc_mode;		/* olc control         */
 	time_t
-	 may_rent;		/* PK control                       */
+	may_rent;		/* PK control                       */
 	int
-	 agressor;		/* Agression room(it is also a flag) */
+	agressor;		/* Agression room(it is also a flag) */
 	time_t
-	 agro_time;		/* Last agression time (it is also a flag) */
+	agro_time;		/* Last agression time (it is also a flag) */
 	int
-	 bet;			/* bet amount */
+	bet;			/* bet amount */
 	int
-	 bet_slot;		/* bet slot number */
+	bet_slot;		/* bet slot number */
 	struct _im_rskill_tag *rskill;	/* Известные рецепты */
 	struct char_portal_type *portals;	/* порталы теперь живут тут */
 	int *logs;		// уровни подробности каналов log
@@ -1928,25 +1999,27 @@ struct player_special_data {
 };
 
 /* An affect structure. */
-struct affect_data {
+struct affect_data
+{
 	sh_int type;		/* The type of spell that caused this      */
 	sh_int duration;	/* For how long its effects will last      */
 	sbyte modifier;		/* This is added to apropriate ability     */
 	byte location;		/* Tells which ability to change(APPLY_XXX) */
 	long
-	 battleflag;	   /**** SUCH AS HOLD,SIELENCE etc **/
+	battleflag;	   /**** SUCH AS HOLD,SIELENCE etc **/
 	long
-	 bitvector;		/* Tells which bits to set (AFF_XXX) */
+	bitvector;		/* Tells which bits to set (AFF_XXX) */
 	long
-	 caster_id; /*Unique caster ID */
+	caster_id; /*Unique caster ID */
 	bool
-	 must_handled; /* Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) */
+	must_handled; /* Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) */
 	sh_int
-	 apply_time; /* Указывает сколько аффект висит (пока используется только в комнатах) */
+	apply_time; /* Указывает сколько аффект висит (пока используется только в комнатах) */
 	AFFECT_DATA *next;
 };
 
-struct timed_type {
+struct timed_type
+{
 	ubyte skill;		/* Number of used skill/spell */
 	ubyte time;		/* Time for next using        */
 	struct timed_type *next;
@@ -1954,108 +2027,119 @@ struct timed_type {
 
 
 /* Structure used for chars following other chars */
-struct follow_type {
+struct follow_type
+{
 	CHAR_DATA *follower;
 	struct follow_type *next;
 };
 
 /* Structure used for tracking a mob */
-struct track_info {
+struct track_info
+{
 	int
-	 trk_info;
+	trk_info;
 	int
-	 who;
+	who;
 	int
-	 dirs;
+	dirs;
 };
 
 /* Structure used for helpers */
-struct helper_data_type {
+struct helper_data_type
+{
 	int
-	 mob_vnum;
+	mob_vnum;
 	struct helper_data_type *next_helper;
 };
 
 /* Structure used for on_dead object loading */
-struct load_data {
+struct load_data
+{
 	int
-	 obj_vnum;
+	obj_vnum;
 	int
-	 load_prob;
+	load_prob;
 	int
-	 load_type;
+	load_type;
 	int
-	 spec_param;
+	spec_param;
 };
 
 typedef
- list < struct load_data *>load_list;
+list < struct load_data *>load_list;
 
-struct spell_mem_queue_item {
+struct spell_mem_queue_item
+{
 	int
-	 spellnum;
+	spellnum;
 	struct spell_mem_queue_item *link;
 };
 
 /* descriptor-related structures ******************************************/
 
-struct txt_block {
+struct txt_block
+{
 	char *text;
 	int
-	 aliased;
+	aliased;
 	struct txt_block *next;
 };
 
 
-struct txt_q {
+struct txt_q
+{
 	struct txt_block *head;
 	struct txt_block *tail;
 };
 
-namespace Glory { class spend_glory; }
+namespace Glory
+{
+class spend_glory;
+}
 
-struct descriptor_data {
+struct descriptor_data
+{
 	socket_t descriptor;	/* file descriptor for socket    */
 	char
-	 host[HOST_LENGTH + 1];	/* hostname          */
+	host[HOST_LENGTH + 1];	/* hostname          */
 	byte bad_pws;		/* number of bad pw attemps this login */
 	byte idle_tics;		/* tics idle at password prompt     */
 	int
-	 connected;		/* mode of 'connectedness'    */
+	connected;		/* mode of 'connectedness'    */
 	int
-	 desc_num;		/* unique num assigned to desc      */
+	desc_num;		/* unique num assigned to desc      */
 	time_t input_time;
 	time_t login_time;	/* when the person connected     */
 	char *showstr_head;	/* for keeping track of an internal str   */
 	char **showstr_vector;	/* for paging through texts      */
 	int
-	 showstr_count;		/* number of pages to page through  */
+	showstr_count;		/* number of pages to page through  */
 	int
-	 showstr_page;		/* which page are we currently showing?   */
+	showstr_page;		/* which page are we currently showing?   */
 	char **str;		/* for the modify-str system     */
 	size_t max_str;		/*      -        */
 	char *backstr;		/* added for handling abort buffers */
 	long
-	 mail_to;		/* name for mail system       */
+	mail_to;		/* name for mail system       */
 	int
-	 has_prompt;		/* is the user at a prompt?             */
+	has_prompt;		/* is the user at a prompt?             */
 	char
-	 inbuf[MAX_RAW_INPUT_LENGTH];	/* buffer for raw input    */
+	inbuf[MAX_RAW_INPUT_LENGTH];	/* buffer for raw input    */
 	char
-	 last_input[MAX_INPUT_LENGTH];	/* the last input       */
+	last_input[MAX_INPUT_LENGTH];	/* the last input       */
 	char
-	 small_outbuf[SMALL_BUFSIZE];	/* standard output buffer      */
+	small_outbuf[SMALL_BUFSIZE];	/* standard output buffer      */
 	char *output;		/* ptr to the current output buffer */
 	char **history;		/* History of commands, for ! mostly.  */
 	int
-	 history_pos;		/* Circular array position.      */
+	history_pos;		/* Circular array position.      */
 	int
-	 bufptr;		/* ptr to end of current output     */
+	bufptr;		/* ptr to end of current output     */
 	int
-	 bufspace;		/* space left in the output buffer  */
+	bufspace;		/* space left in the output buffer  */
 	struct txt_block *large_outbuf;	/* ptr to large buffer, if we need it */
 	struct txt_q
-	 input;			/* q of unprocessed input     */
+				input;			/* q of unprocessed input     */
 	CHAR_DATA *character;	/* linked to char       */
 	CHAR_DATA *original;	/* original char if switched     */
 	DESCRIPTOR_DATA *snooping;	/* Who is this char snooping  */
@@ -2064,11 +2148,11 @@ struct descriptor_data {
 	struct olc_data *olc;	/*. OLC info - defined in olc.h   . */
 	ubyte keytable;
 	int
-	 options;		/* descriptor flags       */
+	options;		/* descriptor flags       */
 #if defined(HAVE_ZLIB)
 	z_stream *deflate;	/* compression engine        */
 	int
-	 mccp_version;
+	mccp_version;
 #endif
 	unsigned long ip;	// ип адрес в виде числа для внутреннего пользования
 	boost::shared_ptr<class Board> board;       // редактируемая доска
@@ -2084,36 +2168,40 @@ struct descriptor_data {
 /* other miscellaneous structures ***************************************/
 
 
-struct msg_type {
+struct msg_type
+{
 	char *attacker_msg;	/* message to attacker */
 	char *victim_msg;	/* message to victim   */
 	char *room_msg;		/* message to room     */
 };
 
 
-struct message_type {
+struct message_type
+{
 	struct msg_type
-	 die_msg;		/* messages when death        */
+				die_msg;		/* messages when death        */
 	struct msg_type
-	 miss_msg;		/* messages when miss         */
+				miss_msg;		/* messages when miss         */
 	struct msg_type
-	 hit_msg;		/* messages when hit       */
+				hit_msg;		/* messages when hit       */
 	struct msg_type
-	 god_msg;		/* messages when hit on god      */
+				god_msg;		/* messages when hit on god      */
 	struct message_type *next;	/* to next messages of this kind.   */
 };
 
 
-struct message_list {
+struct message_list
+{
 	int
-	 a_type;		/* Attack type          */
+	a_type;		/* Attack type          */
 	int
-	 number_of_attacks;	/* How many attack messages to chose from. */
+	number_of_attacks;	/* How many attack messages to chose from. */
 	struct message_type *msg;	/* List of messages.       */
 };
 
 //MZ.load
-struct zone_type {
+struct zone_type
+{
 	char *name;			/* type name */
 	int ingr_qty;		/* quantity of ingredient types */
 	int *ingr_types;	/* types of ingredients, which are loaded in zones of this type */
@@ -2121,234 +2209,252 @@ struct zone_type {
 //-MZ.load
 
 
-struct dex_skill_type {
+struct dex_skill_type
+{
 	int
-	 p_pocket;
+	p_pocket;
 	int
-	 p_locks;
+	p_locks;
 	int
-	 traps;
+	traps;
 	int
-	 sneak;
+	sneak;
 	int
-	 hide;
+	hide;
 };
 
 
-struct dex_app_type {
+struct dex_app_type
+{
 	int
-	 reaction;
+	reaction;
 	int
-	 miss_att;
+	miss_att;
 	int
-	 defensive;
+	defensive;
 };
 
 
-struct str_app_type {
+struct str_app_type
+{
 	int
-	 tohit;			/* To Hit (THAC0) Bonus/Penalty        */
+	tohit;			/* To Hit (THAC0) Bonus/Penalty        */
 	int
-	 todam;			/* Damage Bonus/Penalty                */
+	todam;			/* Damage Bonus/Penalty                */
 	int
-	 carry_w;		/* Maximum weight that can be carrried */
+	carry_w;		/* Maximum weight that can be carrried */
 	int
-	 wield_w;		/* Maximum weight that can be wielded  */
+	wield_w;		/* Maximum weight that can be wielded  */
 	int
-	 hold_w;		/* MAXIMUM WEIGHT THAT CAN BE HELDED   */
+	hold_w;		/* MAXIMUM WEIGHT THAT CAN BE HELDED   */
 };
 
 
-struct wis_app_type {
+struct wis_app_type
+{
 	int
-	 spell_additional;	/* bitvector */
+	spell_additional;	/* bitvector */
 	int
-	 max_learn_l20;		/* MAX SKILL on LEVEL 20        */
+	max_learn_l20;		/* MAX SKILL on LEVEL 20        */
 	int
-	 spell_success;		/* spell using success          */
+	spell_success;		/* spell using success          */
 	int
-	 char_savings;		/* saving spells (damage)       */
+	char_savings;		/* saving spells (damage)       */
 	int
-	 max_skills;
+	max_skills;
 };
 
 
-struct int_app_type {
+struct int_app_type
+{
 	int
-	 spell_aknowlege;	/* chance to know spell               */
+	spell_aknowlege;	/* chance to know spell               */
 	int
-	 to_skilluse;		/* ADD CHANSE FOR USING SKILL         */
+	to_skilluse;		/* ADD CHANSE FOR USING SKILL         */
 	int
-	 mana_per_tic;
+	mana_per_tic;
 	int
-	 spell_success;		/*  max count of spell on 1s level    */
+	spell_success;		/*  max count of spell on 1s level    */
 	int
-	 improove;		/* chance to improove skill           */
+	improove;		/* chance to improove skill           */
 	int
-	 observation;		/* chance to use SKILL_AWAKE/CRITICAL */
+	observation;		/* chance to use SKILL_AWAKE/CRITICAL */
 };
 
-struct con_app_type {
+struct con_app_type
+{
 	int
-	 hitp;
+	hitp;
 	int
-	 ressurection;
+	ressurection;
 	int
-	 affect_saving;		/* saving spells (affects)  */
+	affect_saving;		/* saving spells (affects)  */
 	int
-	 poison_saving;
+	poison_saving;
 	int
-	 critic_saving;
+	critic_saving;
 };
 
-struct cha_app_type {
+struct cha_app_type
+{
 	int
-	 leadership;
+	leadership;
 	int
-	 charms;
+	charms;
 	int
-	 morale;
+	morale;
 	int
-	 illusive;
+	illusive;
 	int
-	 dam_to_hit_rate;
+	dam_to_hit_rate;
 };
 
-struct size_app_type {
+struct size_app_type
+{
 	int
-	 ac;			/* ADD VALUE FOR AC           */
+	ac;			/* ADD VALUE FOR AC           */
 	int
-	 interpolate;		/* ADD VALUE FOR SOME SKILLS  */
+	interpolate;		/* ADD VALUE FOR SOME SKILLS  */
 	int
-	 initiative;
+	initiative;
 	int
-	 shocking;
+	shocking;
 };
 
-struct weapon_app_type {
+struct weapon_app_type
+{
 	int
-	 shocking;
+	shocking;
 	int
-	 bashing;
+	bashing;
 	int
-	 parrying;
+	parrying;
 };
 
-struct extra_affects_type {
+struct extra_affects_type
+{
 	int
-	 affect;
+	affect;
 	int
-	 set_or_clear;
+	set_or_clear;
 };
 
-struct class_app_type {
+struct class_app_type
+{
 	int
-	 unknown_weapon_fault;
+	unknown_weapon_fault;
 	int
-	 koef_con;
+	koef_con;
 	int
-	 base_con;
+	base_con;
 	int
-	 min_con;
+	min_con;
 	int
-	 max_con;
+	max_con;
 
 	struct extra_affects_type *extra_affects;
 //	struct obj_affected_type *extra_modifiers;
 };
 
-struct race_app_type {
+struct race_app_type
+{
 	struct extra_affects_type *extra_affects;
 	struct obj_affected_type *extra_modifiers;
 };
 
-struct weather_data {
+struct weather_data
+{
 	int
-	 hours_go;		/* Time life from reboot */
+	hours_go;		/* Time life from reboot */
 
 	int
-	 pressure;		/* How is the pressure ( Mb )            */
+	pressure;		/* How is the pressure ( Mb )            */
 	int
-	 press_last_day;	/* Average pressure last day             */
+	press_last_day;	/* Average pressure last day             */
 	int
-	 press_last_week;	/* Average pressure last week            */
+	press_last_week;	/* Average pressure last week            */
 
 	int
-	 temperature;		/* How is the temperature (C)            */
+	temperature;		/* How is the temperature (C)            */
 	int
-	 temp_last_day;		/* Average temperature last day          */
+	temp_last_day;		/* Average temperature last day          */
 	int
-	 temp_last_week;	/* Average temperature last week         */
+	temp_last_week;	/* Average temperature last week         */
 
 	int
-	 rainlevel;		/* Level of water from rains             */
+	rainlevel;		/* Level of water from rains             */
 	int
-	 snowlevel;		/* Level of snow                         */
+	snowlevel;		/* Level of snow                         */
 	int
-	 icelevel;		/* Level of ice                          */
+	icelevel;		/* Level of ice                          */
 
 	int
-	 weather_type;		/* bitvector - some values for month     */
+	weather_type;		/* bitvector - some values for month     */
 
 	int
-	 change;		/* How fast and what way does it change. */
+	change;		/* How fast and what way does it change. */
 	int
-	 sky;			/* How is the sky.   */
+	sky;			/* How is the sky.   */
 	int
-	 sunlight;		/* And how much sun. */
+	sunlight;		/* And how much sun. */
 	int
-	 moon_day;		/* And how much moon */
+	moon_day;		/* And how much moon */
 	int
-	 season;
+	season;
 	int
-	 week_day_mono;
+	week_day_mono;
 	int
-	 week_day_poly;
+	week_day_poly;
 };
 
-struct weapon_affect_types {
+struct weapon_affect_types
+{
 	int
-	 aff_pos;
+	aff_pos;
 	int
-	 aff_bitvector;
+	aff_bitvector;
 	int
-	 aff_spell;
+	aff_spell;
 };
 
-struct title_type {
+struct title_type
+{
 	char *title_m;
 	char *title_f;
 	int
-	 exp;
+	exp;
 };
 
 
 /* element in monster and object index-tables   */
-struct index_data {
+struct index_data
+{
 	int
-	 vnum;			/* virtual number of this mob/obj       */
+	vnum;			/* virtual number of this mob/obj       */
 	int
-	 number;		/* number of existing units of this mob/obj */
+	number;		/* number of existing units of this mob/obj */
 	int
-	 stored;		/* number of things in rent file            */
+	stored;		/* number of things in rent file            */
 	SPECIAL(*func);
 
 	char *farg;		/* string argument for special function     */
 	struct trig_data *proto;	/* for triggers... the trigger     */
 	int
-	 zone;			/* mob/obj zone rnum */
+	zone;			/* mob/obj zone rnum */
 };
 
 /* linked list for mob/object prototype trigger lists */
-struct trig_proto_list {
+struct trig_proto_list
+{
 	int
-	 vnum;			/* vnum of the trigger   */
+	vnum;			/* vnum of the trigger   */
 	struct trig_proto_list *next;	/* next trigger          */
 };
 
-struct social_messg {		/* No argument was supplied */
+struct social_messg  		/* No argument was supplied */
+{
 	int
-	 ch_min_pos, ch_max_pos, vict_min_pos, vict_max_pos;
+	ch_min_pos, ch_max_pos, vict_min_pos, vict_max_pos;
 	char *char_no_arg;
 	char *others_no_arg;
 
@@ -2363,42 +2469,45 @@ struct social_messg {		/* No argument was supplied */
 
 
 
-struct social_keyword {
+struct social_keyword
+{
 	char *keyword;
 	int
-	 social_message;
+	social_message;
 };
 
 extern struct social_messg *soc_mess_list;
 extern struct social_keyword *soc_keys_list;
 
-struct pray_affect_type {
+struct pray_affect_type
+{
 	int
-	 metter;
+	metter;
 	int
-	 location;
+	location;
 	int
-	 modifier;
+	modifier;
 	long
-	 bitvector;
+	bitvector;
 	int
-	 battleflag;
+	battleflag;
 };
 
 #define  DAY_EASTER     -1
 
-struct gods_celebrate_type {
+struct gods_celebrate_type
+{
 	int
-	 unique;		// Uniqum ID
+	unique;		// Uniqum ID
 	char *name;		// Celebrate
 	int
-	 from_day;		// Day of month, -1 and less if in range
+	from_day;		// Day of month, -1 and less if in range
 	int
-	 from_month;		// Month, -1 and less if relative
+	from_month;		// Month, -1 and less if relative
 	int
-	 duration;
+	duration;
 	int
-	 religion;		// Religion type
+	religion;		// Religion type
 };
 
 #define  GAPPLY_NONE                 0
@@ -2408,60 +2517,66 @@ struct gods_celebrate_type {
 #define         GAPPLY_MODIFIER             4
 #define         GAPPLY_AFFECT               5
 
-struct gods_celebrate_apply_type {
+struct gods_celebrate_apply_type
+{
 	int
-	 unique;
+	unique;
 	int
-	 gapply_type;
+	gapply_type;
 	int
-	 what;
+	what;
 	int
-	 modi;
+	modi;
 	struct gods_celebrate_apply_type *next;
 };
 
 /* pclean_criteria_data структура которая определяет через какой время
    неактивности будет удален чар
 */
-struct pclean_criteria_data {
+struct pclean_criteria_data
+{
 	int
-	 level;			/* max уровень для этого временного лимита */
+	level;			/* max уровень для этого временного лимита */
 	int
-	 days;			/* временной лимит в днях        */
+	days;			/* временной лимит в днях        */
 };
 
 /* Структрура для описания проталов для спела townportal */
-struct portals_list_type {
+struct portals_list_type
+{
 	char *wrd;		/* кодовое слово */
 	int
-	 vnum;			/* vnum комнаты для портала (раньше был rnum, но зачем тут rnum?) */
+	vnum;			/* vnum комнаты для портала (раньше был rnum, но зачем тут rnum?) */
 	int
-	 level;			/* минимальный уровень для запоминания портала */
+	level;			/* минимальный уровень для запоминания портала */
 	struct portals_list_type *next_portal;
 };
 
-struct char_portal_type {
+struct char_portal_type
+{
 	int
-	 vnum;			/* vnum комнаты для портала */
+	vnum;			/* vnum комнаты для портала */
 	struct char_portal_type *next;
 };
 
 /* Структуры для act.wizard.cpp */
 
-struct show_struct {
+struct show_struct
+{
 	const char *cmd;
 	const char
-	 level;
+	level;
 };
 
-struct set_struct {
+struct set_struct
+{
 	const char *cmd;
 	const char
-	 level;
+	level;
 	const char
-	 pcnpc;
+	pcnpc;
 	const char
-	 type;
+	type;
 };
 
 extern int grouping[14][15];
@@ -2473,9 +2588,9 @@ extern int grouping[14][15];
 
 struct int3
 {
-    int type;
-    int bit;
-    int qty;
+	int type;
+	int bit;
+	int qty;
 };
 
 

@@ -52,7 +52,8 @@ char *next_page(char *str, CHAR_DATA * ch);
 int count_pages(char *str, CHAR_DATA * ch);
 void paginate_string(char *str, DESCRIPTOR_DATA * d);
 
-const char *string_fields[] = {
+const char *string_fields[] =
+{
 	"name",
 	"short",
 	"long",
@@ -64,7 +65,8 @@ const char *string_fields[] = {
 
 
 /* maximum length for text field x+1 */
-int length[] = {
+int length[] =
+{
 	15,
 	60,
 	256,
@@ -93,7 +95,7 @@ void smash_tilde(char *str)
 	 * his tildes thank you very much.), -gg 2/20/98
 	 */
 	while ((str = strchr(str, '~')) != NULL)
-		*str = ' ';
+		* str = ' ';
 }
 
 /*
@@ -128,30 +130,34 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 	int i, line_low, line_high;
 	char *s, *t, temp;
 	//log("[PA] Start %d(%s)", command, string);
-	switch (command) {
+	switch (command)
+	{
 	case PARSE_HELP:
 		sprintf(buf,
-			"Формат команд редактора: /<letter>\r\n\r\n"
-			"/a         -  прекратить редактирование\r\n"
-			"/c         -  очистить буфер\r\n"
-			"/d#,       -  удалить строку #\r\n"
-			"/e# <text> -  заменить строку # на текст <text>\r\n"
-			"/f         -  форматировать текст\r\n"
-			"/fi        -  indented formatting of text\r\n"
-			"/h         -  отобразить список команд (помощь)\r\n"
-			"/i# <text> -  вставить <text> после строки #\r\n"
-			"/l         -  пролистать буфер\r\n"
-			"/n         -  пролистать буфер с номерами строк\r\n"
-			"/r 'a' 'b' -  заменить первое вхождение текста <a> в буфере на текст <b>\r\n"
-			"/ra 'a' 'b'-  заменить все вхождения текста <a> в буфере на текст <b>\r\n"
-			"              Формат: /r[a] 'шаблон' 'на_что_меняем'\r\n" "/s         -  сохранить текст\r\n");
+				"Формат команд редактора: /<letter>\r\n\r\n"
+				"/a         -  прекратить редактирование\r\n"
+				"/c         -  очистить буфер\r\n"
+				"/d#,       -  удалить строку #\r\n"
+				"/e# <text> -  заменить строку # на текст <text>\r\n"
+				"/f         -  форматировать текст\r\n"
+				"/fi        -  indented formatting of text\r\n"
+				"/h         -  отобразить список команд (помощь)\r\n"
+				"/i# <text> -  вставить <text> после строки #\r\n"
+				"/l         -  пролистать буфер\r\n"
+				"/n         -  пролистать буфер с номерами строк\r\n"
+				"/r 'a' 'b' -  заменить первое вхождение текста <a> в буфере на текст <b>\r\n"
+				"/ra 'a' 'b'-  заменить все вхождения текста <a> в буфере на текст <b>\r\n"
+				"              Формат: /r[a] 'шаблон' 'на_что_меняем'\r\n" "/s         -  сохранить текст\r\n");
 		SEND_TO_Q(buf, d);
 		break;
 	case PARSE_FORMAT:
-		while (isalpha(string[j]) && j < 2) {
-			switch (string[j]) {
+		while (isalpha(string[j]) && j < 2)
+		{
+			switch (string[j])
+			{
 			case 'i':
-				if (!indent) {
+				if (!indent)
+				{
 					indent = TRUE;
 					flags += FORMAT_INDENT;
 				}
@@ -166,8 +172,10 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		SEND_TO_Q(buf, d);
 		break;
 	case PARSE_REPLACE:
-		while (isalpha(string[j]) && j < 2) {
-			switch (string[j]) {
+		while (isalpha(string[j]) && j < 2)
+		{
+			switch (string[j])
+			{
 			case 'a':
 				if (!indent)
 					rep_all = 1;
@@ -177,32 +185,47 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			}
 			j++;
 		}
-		if ((s = strtok(string, "'")) == NULL) {
+		if ((s = strtok(string, "'")) == NULL)
+		{
 			SEND_TO_Q("Неверный формат.\r\n", d);
 			return;
-		} else if ((s = strtok(NULL, "'")) == NULL) {
+		}
+		else if ((s = strtok(NULL, "'")) == NULL)
+		{
 			SEND_TO_Q("Шаблон должен быть заключен в апострофы.\r\n", d);
 			return;
-		} else if ((t = strtok(NULL, "'")) == NULL) {
+		}
+		else if ((t = strtok(NULL, "'")) == NULL)
+		{
 			SEND_TO_Q("No replacement string.\r\n", d);
 			return;
-		} else if ((t = strtok(NULL, "'")) == NULL) {
+		}
+		else if ((t = strtok(NULL, "'")) == NULL)
+		{
 			SEND_TO_Q("Замещающая строка должна быть заключена в апострофы.\r\n", d);
 			return;
-		} else if ((total_len = ((strlen(t) - strlen(s)) + strlen(*d->str))) <= d->max_str) {
-			if ((replaced = replace_str(d->str, s, t, rep_all, d->max_str)) > 0) {
+		}
+		else if ((total_len = ((strlen(t) - strlen(s)) + strlen(*d->str))) <= d->max_str)
+		{
+			if ((replaced = replace_str(d->str, s, t, rep_all, d->max_str)) > 0)
+			{
 				sprintf(buf, "Заменено вхождений '%s' на '%s' - %d.\r\n", s, t, replaced);
 				SEND_TO_Q(buf, d);
-			} else if (replaced == 0) {
+			}
+			else if (replaced == 0)
+			{
 				sprintf(buf, "Шаблон '%s' не найден.\r\n", s);
 				SEND_TO_Q(buf, d);
-			} else
+			}
+			else
 				SEND_TO_Q("ОШИБКА: При попытке замены буфер переполнен - прервано.\r\n", d);
-		} else
+		}
+		else
 			SEND_TO_Q("Нет свободного места для завершения команды.\r\n", d);
 		break;
 	case PARSE_DELETE:
-		switch (sscanf(string, " %d - %d ", &line_low, &line_high)) {
+		switch (sscanf(string, " %d - %d ", &line_low, &line_high))
+		{
 		case 0:
 			SEND_TO_Q("Вы должны указать номер строки или диапазон для удаления.\r\n", d);
 			return;
@@ -210,7 +233,8 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			line_high = line_low;
 			break;
 		case 2:
-			if (line_high < line_low) {
+			if (line_high < line_low)
+			{
 				SEND_TO_Q("Неверный диапазон.\r\n", d);
 				return;
 			}
@@ -219,38 +243,48 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 
 		i = 1;
 		total_len = 1;
-		if ((s = *d->str) == NULL) {
+		if ((s = *d->str) == NULL)
+		{
 			SEND_TO_Q("Буфер пуст.\r\n", d);
 			return;
-		} else if (line_low > 0) {
+		}
+		else if (line_low > 0)
+		{
 			while (s && (i < line_low))
-				if ((s = strchr(s, '\n')) != NULL) {
+				if ((s = strchr(s, '\n')) != NULL)
+				{
 					i++;
 					s++;
 				}
-			if ((i < line_low) || (s == NULL)) {
+			if ((i < line_low) || (s == NULL))
+			{
 				SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
 				return;
 			}
 			t = s;
 			while (s && (i < line_high))
-				if ((s = strchr(s, '\n')) != NULL) {
+				if ((s = strchr(s, '\n')) != NULL)
+				{
 					i++;
 					total_len++;
 					s++;
 				}
-			if ((s) && ((s = strchr(s, '\n')) != NULL)) {
+			if ((s) && ((s = strchr(s, '\n')) != NULL))
+			{
 				s++;
 				while (*s != '\0')
 					*(t++) = *(s++);
-			} else
+			}
+			else
 				total_len--;
 			*t = '\0';
 			RECREATE(*d->str, char, strlen(*d->str) + 3);
 
 			sprintf(buf, "%d line%sdeleted.\r\n", total_len, ((total_len != 1) ? "s " : " "));
 			SEND_TO_Q(buf, d);
-		} else {
+		}
+		else
+		{
 			SEND_TO_Q("Отрицательный или нулевой номер строки для удаления.\r\n", d);
 			return;
 		}
@@ -262,7 +296,8 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		 */
 		*buf = '\0';
 		if (*string != '\0')
-			switch (sscanf(string, " %d - %d ", &line_low, &line_high)) {
+			switch (sscanf(string, " %d - %d ", &line_low, &line_high))
+			{
 			case 0:
 				line_low = 1;
 				line_high = 999999;
@@ -270,15 +305,20 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			case 1:
 				line_high = line_low;
 				break;
-		} else {
+			}
+		else
+		{
 			line_low = 1;
 			line_high = 999999;
 		}
 
-		if (line_low < 1) {
+		if (line_low < 1)
+		{
 			SEND_TO_Q("Начальный номер отрицательный или 0.\r\n", d);
 			return;
-		} else if (line_high < line_low) {
+		}
+		else if (line_high < line_low)
+		{
 			SEND_TO_Q("Неверный диапазон.\r\n", d);
 			return;
 		}
@@ -289,27 +329,32 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		total_len = 0;
 		s = *d->str;
 		while (s && (i < line_low))
-			if ((s = strchr(s, '\n')) != NULL) {
+			if ((s = strchr(s, '\n')) != NULL)
+			{
 				i++;
 				s++;
 			}
-		if ((i < line_low) || (s == NULL)) {
+		if ((i < line_low) || (s == NULL))
+		{
 			SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
 			return;
 		}
 		t = s;
 		while (s && (i <= line_high))
-			if ((s = strchr(s, '\n')) != NULL) {
+			if ((s = strchr(s, '\n')) != NULL)
+			{
 				i++;
 				total_len++;
 				s++;
 			}
-		if (s) {
+		if (s)
+		{
 			temp = *s;
 			*s = '\0';
 			strcat(buf, t);
 			*s = temp;
-		} else
+		}
+		else
 			strcat(buf, t);
 		/*
 		 * This is kind of annoying...but some people like it.
@@ -326,7 +371,8 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		 */
 		*buf = '\0';
 		if (*string != '\0')
-			switch (sscanf(string, " %d - %d ", &line_low, &line_high)) {
+			switch (sscanf(string, " %d - %d ", &line_low, &line_high))
+			{
 			case 0:
 				line_low = 1;
 				line_high = 999999;
@@ -334,16 +380,20 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			case 1:
 				line_high = line_low;
 				break;
-		} else {
+			}
+		else
+		{
 			line_low = 1;
 			line_high = 999999;
 		}
 
-		if (line_low < 1) {
+		if (line_low < 1)
+		{
 			SEND_TO_Q("Номер строки должен быть больше 0.\r\n", d);
 			return;
 		}
-		if (line_high < line_low) {
+		if (line_high < line_low)
+		{
 			SEND_TO_Q("Неверный диапазон.\r\n", d);
 			return;
 		}
@@ -352,17 +402,20 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		total_len = 0;
 		s = *d->str;
 		while (s && (i < line_low))
-			if ((s = strchr(s, '\n')) != NULL) {
+			if ((s = strchr(s, '\n')) != NULL)
+			{
 				i++;
 				s++;
 			}
-		if ((i < line_low) || (s == NULL)) {
+		if ((i < line_low) || (s == NULL))
+		{
 			SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
 			return;
 		}
 		t = s;
 		while (s && (i <= line_high))
-			if ((s = strchr(s, '\n')) != NULL) {
+			if ((s = strchr(s, '\n')) != NULL)
+			{
 				i++;
 				total_len++;
 				s++;
@@ -373,12 +426,14 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 				*s = temp;
 				t = s;
 			}
-		if (s && t) {
+		if (s && t)
+		{
 			temp = *s;
 			*s = '\0';
 			strcat(buf, t);
 			*s = temp;
-		} else if (t)
+		}
+		else if (t)
 			strcat(buf, t);
 		/*
 		 * This is kind of annoying .. seeing as the lines are numbered.
@@ -391,7 +446,8 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 
 	case PARSE_INSERT:
 		half_chop(string, buf, buf2);
-		if (*buf == '\0') {
+		if (*buf == '\0')
+		{
 			SEND_TO_Q("Вы должны указать номер строки, после которой вставить текст.\r\n", d);
 			return;
 		}
@@ -400,23 +456,28 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 
 		i = 1;
 		*buf = '\0';
-		if ((s = *d->str) == NULL) {
+		if ((s = *d->str) == NULL)
+		{
 			SEND_TO_Q("Буфер пуст - ничего не вставлено.\r\n", d);
 			return;
 		}
-		if (line_low > 0) {
+		if (line_low > 0)
+		{
 			while (s && (i < line_low))
-				if ((s = strchr(s, '\n')) != NULL) {
+				if ((s = strchr(s, '\n')) != NULL)
+				{
 					i++;
 					s++;
 				}
-			if ((i < line_low) || (s == NULL)) {
+			if ((i < line_low) || (s == NULL))
+			{
 				SEND_TO_Q("Номер строки вне диапазона - прервано.\r\n", d);
 				return;
 			}
 			temp = *s;
 			*s = '\0';
-			if ((strlen(*d->str) + strlen(buf2) + strlen(s + 1) + 3) > d->max_str) {
+			if ((strlen(*d->str) + strlen(buf2) + strlen(s + 1) + 3) > d->max_str)
+			{
 				*s = temp;
 				SEND_TO_Q("Превышение размеров буфера - прервано.\r\n", d);
 				return;
@@ -431,7 +492,9 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 
 			strcpy(*d->str, buf);
 			SEND_TO_Q("Строка вставлена.\r\n", d);
-		} else {
+		}
+		else
+		{
 			SEND_TO_Q("Номер строки должен быть больше 0.\r\n", d);
 			return;
 		}
@@ -439,7 +502,8 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 
 	case PARSE_EDIT:
 		half_chop(string, buf, buf2);
-		if (*buf == '\0') {
+		if (*buf == '\0')
+		{
 			SEND_TO_Q("Вы должны указать номер строки изменяемого текста.\r\n", d);
 			return;
 		}
@@ -448,22 +512,26 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 
 		i = 1;
 		*buf = '\0';
-		if ((s = *d->str) == NULL) {
+		if ((s = *d->str) == NULL)
+		{
 			SEND_TO_Q("Буфер пуст - изменения не проведены.\r\n", d);
 			return;
 		}
-		if (line_low > 0) {	/*
+		if (line_low > 0)
+		{	/*
 					 * Loop through the text counting \\n characters until we get to the line/
 					 */
 			while (s && (i < line_low))
-				if ((s = strchr(s, '\n')) != NULL) {
+				if ((s = strchr(s, '\n')) != NULL)
+				{
 					i++;
 					s++;
 				}
 			/*
 			 * Make sure that there was a THAT line in the text.
 			 */
-			if ((i < line_low) || (s == NULL)) {
+			if ((i < line_low) || (s == NULL))
+			{
 				SEND_TO_Q("Строка вне диапазона - прервано.\r\n", d);
 				return;
 			}
@@ -471,7 +539,8 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			 * If s is the same as *d->str that means I'm at the beginning of the
 			 * message text and I don't need to put that into the changed buffer.
 			 */
-			if (s != *d->str) {	/*
+			if (s != *d->str)
+			{	/*
 						 * First things first .. we get this part into the buffer.
 						 */
 				temp = *s;
@@ -486,7 +555,8 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			 * Put the new 'good' line into place.
 			 */
 			strcat(buf, buf2);
-			if ((s = strchr(s, '\n')) != NULL) {	/*
+			if ((s = strchr(s, '\n')) != NULL)
+			{	/*
 								 * This means that we are at the END of the line, we want out of
 								 * there, but we want s to point to the beginning of the line
 								 * AFTER the line we want edited
@@ -500,7 +570,8 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			/*
 			 * Check for buffer overflow.
 			 */
-			if (strlen(buf) > d->max_str) {
+			if (strlen(buf) > d->max_str)
+			{
 				SEND_TO_Q("Превышение максимального размера буфера - прервано.\r\n", d);
 				return;
 			}
@@ -510,7 +581,9 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			RECREATE(*d->str, char, strlen(buf) + 3);
 			strcpy(*d->str, buf);
 			SEND_TO_Q("Строка изменена.\r\n", d);
-		} else {
+		}
+		else
+		{
 			SEND_TO_Q("Номер строки должен быть больше 0.\r\n", d);
 			return;
 		}
@@ -543,7 +616,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 #if 0
 	/* Removed old handling of '@' character, put #if 1 to re-enable it. */
 	if ((terminator = (*str == '@')))
-		*str = '\0';
+		* str = '\0';
 #endif
 
 	//log("[SA] Start<%s>", str);
@@ -552,24 +625,29 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 	if (!d->str)
 		return;
 
-	if ((action = (*str == '/'))) {
-		while (str[i] != '\0') {
+	if ((action = (*str == '/')))
+	{
+		while (str[i] != '\0')
+		{
 			actions[j] = str[i];
 			i++;
 			j++;
 		}
 		actions[j] = '\0';
 		*str = '\0';
-		switch (str[1]) {
+		switch (str[1])
+		{
 		case 'a':
 			terminator = 2;	/* Working on an abort message, */
 			break;
 		case 'c':
-			if (*(d->str)) {
+			if (*(d->str))
+			{
 				free(*d->str);
 				*(d->str) = NULL;
 				SEND_TO_Q("Буфер очищен.\r\n", d);
-			} else
+			}
+			else
 				SEND_TO_Q("Буфер пуст.\r\n", d);
 			break;
 		case 'd':
@@ -618,8 +696,10 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		}
 	}
 
-	if (!(*d->str)) {	//log("[SA] No str s");
-		if (strlen(str) + 3 > d->max_str) {	/* \r\n\0 */
+	if (!(*d->str))  	//log("[SA] No str s");
+	{
+		if (strlen(str) + 3 > d->max_str)  	/* \r\n\0 */
+		{
 			send_to_char("Слишком длинная строка - усечена.\r\n", d->character);
 			strcpy(&str[d->max_str - 3], "\r\n");
 			CREATE(*d->str, char, d->max_str);
@@ -627,25 +707,33 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 
 			/* Changed this to NOT abort out.. just give warning. */
 			/* terminator = 1;                                    */
-		} else {
+		}
+		else
+		{
 			CREATE(*d->str, char, strlen(str) + 3);
 			strcpy(*d->str, str);
 		}
 		//log("[SA] No str f");
-	} else {		//log("[SA] 1s");
-		if (strlen(str) + strlen(*d->str) + 3 > d->max_str) {	/* \r\n\0 */
+	}
+	else  		//log("[SA] 1s");
+	{
+		if (strlen(str) + strlen(*d->str) + 3 > d->max_str)  	/* \r\n\0 */
+		{
 			//log("[SA] 1.1");
 			send_to_char("Слишком длинное послание. Последняя строка пригнорирована.\r\n", d->character);
 			action = TRUE;
 			/* terminator = 1; */
-		} else {	//log("[SA] 1.2");
+		}
+		else  	//log("[SA] 1.2");
+		{
 			RECREATE(*d->str, char, strlen(*d->str) + strlen(str) + 3);	/* \r\n\0 */
 			strcat(*d->str, str);
 		}
 		//log("[SA] 1f");
 	}
 
-	if (terminator) {	/*
+	if (terminator)
+	{	/*
 				 * OLC Edits
 				 */
 		extern void oedit_disp_menu(DESCRIPTOR_DATA * d);
@@ -660,8 +748,10 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 #if defined(OASIS_MPROG)
 		extern void medit_change_mprog(DESCRIPTOR_DATA * d);
 
-		if (STATE(d) == CON_MEDIT) {
-			switch (OLC_MODE(d)) {
+		if (STATE(d) == CON_MEDIT)
+		{
+			switch (OLC_MODE(d))
+			{
 			case MEDIT_D_DESC:
 				medit_disp_menu(d);
 				break;
@@ -675,12 +765,15 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		/*
 		 * Here we check for the abort option and reset the pointers.
 		 */
-		if ((terminator == 2) && ((STATE(d) == CON_REDIT) || (STATE(d) == CON_MEDIT) || (STATE(d) == CON_OEDIT) || (STATE(d) == CON_TRIGEDIT) || (STATE(d) == CON_EXDESC))) {	//log("[SA] 2s");
+		if ((terminator == 2) && ((STATE(d) == CON_REDIT) || (STATE(d) == CON_MEDIT) || (STATE(d) == CON_OEDIT) || (STATE(d) == CON_TRIGEDIT) || (STATE(d) == CON_EXDESC)))  	//log("[SA] 2s");
+		{
 			if (*(d->str))
 				free(*d->str);
-			if (d->backstr) {
+			if (d->backstr)
+			{
 				*d->str = d->backstr;
-			} else
+			}
+			else
 				*d->str = NULL;
 			d->backstr = NULL;
 			d->str = NULL;
@@ -690,7 +783,8 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		 * This fix causes the editor to NULL out empty messages -- M. Scott
 		 * Fixed to fix the fix for empty fixed messages. -- gg
 		 */
-		else if ((d->str) && (*d->str) && (**d->str == '\0')) {	//log("[SA] 3s");
+		else if ((d->str) && (*d->str) && (**d->str == '\0'))  	//log("[SA] 3s");
+		{
 			free(*d->str);
 			*d->str = str_dup("\r\n");
 			//log("[SA] 3f");
@@ -702,8 +796,10 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		if (STATE(d) == CON_TRIGEDIT)
 			trigedit_disp_menu(d);
 
-		if (STATE(d) == CON_OEDIT) {
-			switch (OLC_MODE(d)) {
+		if (STATE(d) == CON_OEDIT)
+		{
+			switch (OLC_MODE(d))
+			{
 			case OEDIT_ACTDESC:
 				oedit_disp_menu(d);
 				break;
@@ -711,8 +807,11 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				oedit_disp_extradesc_menu(d);
 				break;
 			}
-		} else if (STATE(d) == CON_REDIT) {
-			switch (OLC_MODE(d)) {
+		}
+		else if (STATE(d) == CON_REDIT)
+		{
+			switch (OLC_MODE(d))
+			{
 			case REDIT_DESC:
 				redit_disp_menu(d);
 				break;
@@ -723,13 +822,17 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				redit_disp_extradesc_menu(d);
 				break;
 			}
-		// добавление сообщения на доску
-		} else if (STATE(d) == CON_WRITEBOARD) {
-			if (terminator == 1 && *d->str) {
+			// добавление сообщения на доску
+		}
+		else if (STATE(d) == CON_WRITEBOARD)
+		{
+			if (terminator == 1 && *d->str)
+			{
 				d->message->date = time(0);
 				d->message->text = *(d->str);
 				// для новостных отступов ну и вообще мож все так сейвить, посмотрим
-				if (d->board->GetType() == NEWS_BOARD || d->board->GetType() == GODNEWS_BOARD) {
+				if (d->board->GetType() == NEWS_BOARD || d->board->GetType() == GODNEWS_BOARD)
+				{
 					StringReplace(d->message->text, '\n', "\n   ");
 					// вообще надо это в той функции все учесть, но пока влом
 					boost::trim(d->message->text);
@@ -737,7 +840,8 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 					d->message->text += '\n';
 				}
 				// чтобы реагировать на добавление/удаление клановых/персональных досок во время написания
-				if(d->board) {
+				if (d->board)
+				{
 					// в случае полной доски делетим первую месагу
 					if (d->board->GetType() != NEWS_BOARD && d->board->GetType() != GODNEWS_BOARD && d->board->messages.size() >= MAX_BOARD_MESSAGES)
 						d->board->messages.erase(d->board->messages.begin());
@@ -745,12 +849,15 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 					std::string name = Privilege::check_flag(d->character, Privilege::NEWS_MAKER) ? d->message->author : GET_PAD(d->character, 1);
 					std::string buffer = "Новое сообщение в разделе '" + d->board->GetName() + "' от " + name + ", тема: " + d->message->subject + "\r\n";
 					// оповещаем соклановцев
-					if (d->board->GetType() == CLAN_BOARD || d->board->GetType() == CLANNEWS_BOARD) {
+					if (d->board->GetType() == CLAN_BOARD || d->board->GetType() == CLANNEWS_BOARD)
+					{
 						for (f = descriptor_list; f; f = f->next)
 							if (f->character && STATE(f) == CON_PLAYING && CLAN(f->character) && CLAN(f->character)->GetRent() == d->board->GetClanRent() && PRF_FLAGGED(f->character, PRF_BOARD_MODE))
 								send_to_char(buffer.c_str(), f->character);
-					// оповещаем весь мад кто с правами чтения
-					} else if (d->board->GetType() != PERS_BOARD) {
+						// оповещаем весь мад кто с правами чтения
+					}
+					else if (d->board->GetType() != PERS_BOARD)
+					{
 						for (f = descriptor_list; f; f = f->next)
 							if (f->character && STATE(f) == CON_PLAYING && (d->board->Access(f->character) != 2) && (d->board->Access(f->character) != 0) && PRF_FLAGGED(f->character, PRF_BOARD_MODE))
 								send_to_char(buffer.c_str(), f->character);
@@ -766,7 +873,8 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				}
 				else
 					SEND_TO_Q("Ошибочка вышла...\r\n", d);
-			} else
+			}
+			else
 				SEND_TO_Q("Сообщение прервано.\r\n", d);
 
 			d->message.reset();
@@ -776,15 +884,19 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			if (d->str)
 				free(d->str);
 			d->connected = CON_PLAYING;
-		} else if (!d->connected && (PLR_FLAGGED(d->character, PLR_MAILING))) {
-			if ((terminator == 1) && *d->str) {	//log("[SA] 4s");
+		}
+		else if (!d->connected && (PLR_FLAGGED(d->character, PLR_MAILING)))
+		{
+			if ((terminator == 1) && *d->str)  	//log("[SA] 4s");
+			{
 				store_mail(d->mail_to, GET_IDNUM(d->character), *d->str);
 				SEND_TO_Q("Ближайшей оказией я отправлю Ваше письмо адресату!\r\n", d);
 				DESCRIPTOR_DATA* i = get_desc_by_id(d->mail_to);
 				if (i)
 					send_to_char(i->character, "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
-						CCWHT(i->character, C_NRM), CCNRM(i->character, C_NRM));
-			} else
+								 CCWHT(i->character, C_NRM), CCNRM(i->character, C_NRM));
+			}
+			else
 				SEND_TO_Q("Письмо удалено.\r\n", d);
 			//log("[SA] 5s");
 			d->mail_to = 0;
@@ -793,20 +905,28 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			if (d->str)
 				free(d->str);
 			//log("[SA] 5f");
-		} else if (STATE(d) == CON_EXDESC) {	//log("[SA] 7s");
+		}
+		else if (STATE(d) == CON_EXDESC)  	//log("[SA] 7s");
+		{
 			if (terminator != 1)
 				SEND_TO_Q("Создание описания прервано.\r\n", d);
 			SEND_TO_Q(MENU, d);
 			d->connected = CON_MENU;
 			//log("[SA] 7f");
-		} else if (!d->connected && d->character && !IS_NPC(d->character)) {
-			if (terminator == 1) {	//log("[SA] 8s");
-				if (*(d->str) && strlen(*d->str) == 0) {
+		}
+		else if (!d->connected && d->character && !IS_NPC(d->character))
+		{
+			if (terminator == 1)  	//log("[SA] 8s");
+			{
+				if (*(d->str) && strlen(*d->str) == 0)
+				{
 					free(*d->str);
 					*d->str = NULL;
 				}
 				//log("[SA] 8f");
-			} else {	//log("[SA] 9s");
+			}
+			else  	//log("[SA] 9s");
+			{
 				if (*(d->str))
 					free(*d->str);
 				if (d->backstr)
@@ -819,7 +939,8 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			}
 		}
 		//log("[SA] 10s");
-		if (d->character && !IS_NPC(d->character)) {
+		if (d->character && !IS_NPC(d->character))
+		{
 			REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
 			REMOVE_BIT(PLR_FLAGS(d->character, PLR_MAILING), PLR_MAILING);
 		}
@@ -828,7 +949,8 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		d->backstr = NULL;
 		d->str = NULL;
 		//log("[SA] 10f");
-	} else if (!action)
+	}
+	else if (!action)
 		strcat(*d->str, "\r\n");
 	//log("[SA] Stop");
 }
@@ -846,14 +968,17 @@ ACMD(do_featset)
 
 	argument = one_argument(argument, name);
 
-	if (!*name) {		/* no arguments. print an informative text */
+	if (!*name)  		/* no arguments. print an informative text */
+	{
 		send_to_char("Формат: featset <игрок> '<способность>' <значение>\r\n", ch);
 		strcpy(help, "Возможные способности:\r\n");
-		for (qend = 0, i = 0; i < MAX_FEATS; i++) {
+		for (qend = 0, i = 0; i < MAX_FEATS; i++)
+		{
 			if (feat_info[i].type == UNUSED_FTYPE)	/* This is valid. */
 				continue;
 			sprintf(help + strlen(help), "%30s", feat_info[i].name);
-			if (qend++ % 3 == 2) {
+			if (qend++ % 3 == 2)
+			{
 				strcat(help, "\r\n");
 				send_to_char(help, ch);
 				*help = '\0';
@@ -865,18 +990,21 @@ ACMD(do_featset)
 		return;
 	}
 
-	if (!(vict = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	if (!(vict = get_char_vis(ch, name, FIND_CHAR_WORLD)))
+	{
 		send_to_char(NOPERSON, ch);
 		return;
 	}
 	skip_spaces(&argument);
 
 	/* If there is no chars in argument */
-	if (!*argument) {
+	if (!*argument)
+	{
 		send_to_char("Пропущено название способности.\r\n", ch);
 		return;
 	}
-	if (*argument != '\'') {
+	if (*argument != '\'')
+	{
 		send_to_char("Название способности надо заключить в символы : ''\r\n", ch);
 		return;
 	}
@@ -885,14 +1013,16 @@ ACMD(do_featset)
 	for (qend = 1; argument[qend] && argument[qend] != '\''; qend++)
 		argument[qend] = LOWER(argument[qend]);
 
-	if (argument[qend] != '\'') {
+	if (argument[qend] != '\'')
+	{
 		send_to_char("Название способности должно быть заключено в символы : ''\r\n", ch);
 		return;
 	}
 	strcpy(help, (argument + 1));
 	help[qend - 1] = '\0';
 
-	if ((feat = find_feat_num(help)) <= 0) {
+	if ((feat = find_feat_num(help)) <= 0)
+	{
 		send_to_char("Неизвестная способность.\r\n", ch);
 		return;
 	}
@@ -900,24 +1030,27 @@ ACMD(do_featset)
 	argument += qend + 1;	/* skip to next parameter */
 	argument = one_argument(argument, buf);
 
-	if (!*buf) {
+	if (!*buf)
+	{
 		send_to_char("Не указан числовой параметр (0 или 1).\r\n", ch);
 		return;
 	}
 	value = atoi(buf);
-	if (value < 0 || value > 1) {
+	if (value < 0 || value > 1)
+	{
 		send_to_char("Допустимые значения: 0 (снять), 1 (установить).\r\n", ch);
 		return;
 	}
 
-	if (IS_NPC(vict)) {
+	if (IS_NPC(vict))
+	{
 		send_to_char("Вы не можете добавить способность NPC, используйте OLC.\r\n", ch);
 		return;
 	}
 
 
 	sprintf(buf2, "%s changed %s's %s to '%s'.", GET_NAME(ch), GET_NAME(vict),
-		feat_info[feat].name, value ? "enabled" : "disabled");
+			feat_info[feat].name, value ? "enabled" : "disabled");
 	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
 	imm_log(buf2);
 	if (feat >= 0 && feat < MAX_FEATS)
@@ -926,7 +1059,7 @@ ACMD(do_featset)
 		else
 			UNSET_FEAT(vict, feat);
 	sprintf(buf2, "Вы изменили для %s '%s' на '%s'.\r\n", GET_PAD(vict, 1),
-		feat_info[feat].name, value ? "доступно" : "недоступно");
+			feat_info[feat].name, value ? "доступно" : "недоступно");
 	if (!can_get_feat(vict, feat) && value == 1)
 		send_to_char("Эта способность не доступна данному персонажу и будет удалена при повторном входе в игру.\r\n", ch);
 	send_to_char(buf2, ch);
@@ -948,14 +1081,17 @@ ACMD(do_skillset)
 	/*
 	 * No arguments. print an informative text.
 	 */
-	if (!*name) {		/* no arguments. print an informative text */
+	if (!*name)  		/* no arguments. print an informative text */
+	{
 		send_to_char("Формат: skillset <игрок> '<умение/заклинание>' <значение>\r\n", ch);
 		strcpy(help, "Возможные умения:\r\n");
-		for (qend = 0, i = 0; i <= TOP_SPELL_DEFINE; i++) {
+		for (qend = 0, i = 0; i <= TOP_SPELL_DEFINE; i++)
+		{
 			if (spell_info[i].name == unused_spellname)	/* This is valid. */
 				continue;
 			sprintf(help + strlen(help), "%18s", spell_info[i].name);
-			if (qend++ % 4 == 3) {
+			if (qend++ % 4 == 3)
+			{
 				strcat(help, "\r\n");
 				send_to_char(help, ch);
 				*help = '\0';
@@ -967,18 +1103,21 @@ ACMD(do_skillset)
 		return;
 	}
 
-	if (!(vict = get_char_vis(ch, name, FIND_CHAR_WORLD))) {
+	if (!(vict = get_char_vis(ch, name, FIND_CHAR_WORLD)))
+	{
 		send_to_char(NOPERSON, ch);
 		return;
 	}
 	skip_spaces(&argument);
 
 	/* If there is no chars in argument */
-	if (!*argument) {
+	if (!*argument)
+	{
 		send_to_char("Пропущено название умения.\r\n", ch);
 		return;
 	}
-	if (*argument != '\'') {
+	if (*argument != '\'')
+	{
 		send_to_char("Умение надо заключить в символы : ''\r\n", ch);
 		return;
 	}
@@ -987,7 +1126,8 @@ ACMD(do_skillset)
 	for (qend = 1; argument[qend] && argument[qend] != '\''; qend++)
 		argument[qend] = LOWER(argument[qend]);
 
-	if (argument[qend] != '\'') {
+	if (argument[qend] != '\'')
+	{
 		send_to_char("Умение должно быть заключено в символы : ''\r\n", ch);
 		return;
 	}
@@ -997,27 +1137,32 @@ ACMD(do_skillset)
 	if ((skill = find_skill_num(help)) < 0)
 		spell = find_spell_num(help);
 
-	if (skill < 0 && spell < 0) {
+	if (skill < 0 && spell < 0)
+	{
 		send_to_char("Неизвестное умение/заклинание.\r\n", ch);
 		return;
 	}
 	argument += qend + 1;	/* skip to next parameter */
 	argument = one_argument(argument, buf);
 
-	if (!*buf) {
+	if (!*buf)
+	{
 		send_to_char("Пропущен уровень умения.\r\n", ch);
 		return;
 	}
 	value = atoi(buf);
-	if (value < 0) {
+	if (value < 0)
+	{
 		send_to_char("Минимальное значение умения 0.\r\n", ch);
 		return;
 	}
-	if (value > 200) {
+	if (value > 200)
+	{
 		send_to_char("Максимальное значение умения 200.\r\n", ch);
 		return;
 	}
-	if (IS_NPC(vict)) {
+	if (IS_NPC(vict))
+	{
 		send_to_char("Вы не можете добавить умение для мобов.\r\n", ch);
 		return;
 	}
@@ -1027,16 +1172,16 @@ ACMD(do_skillset)
 	 * checked for the -1 above so we are safe here.
 	 */
 	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
-		spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
+			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
 	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
 	imm_log("%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
-		spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
+			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
 	if (spell >= 0 && spell <= MAX_SPELLS)
 		GET_SPELL_TYPE(vict, spell) = value;
 	else if (skill >= 0 && skill <= MAX_SKILLS)
 		vict->set_skill(skill, value);
 	sprintf(buf2, "Вы изменили для %s '%s' на %d.\r\n", GET_PAD(vict, 1),
-		spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
+			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
 	send_to_char(buf2, ch);
 }
 
@@ -1057,7 +1202,8 @@ char *next_page(char *str, CHAR_DATA * ch)
 	int col = 1, line = 1, spec_code = FALSE;
 	const char *color;
 
-	for (;; str++) {	/* If end of string, return NULL. */
+	for (;; str++)  	/* If end of string, return NULL. */
+	{
 		if (*str == '\0')
 			return (NULL);
 
@@ -1066,11 +1212,13 @@ char *next_page(char *str, CHAR_DATA * ch)
 			return (str);
 
 		/* Check for the begining of an ANSI color code block. */
-		else if (*str == '$' && !strncmp(str + 1, "COLOR", 5)) {
+		else if (*str == '$' && !strncmp(str + 1, "COLOR", 5))
+		{
 			if (!ch)
 				color = KNRM;
 			else
-				switch (*(str + 6)) {
+				switch (*(str + 6))
+				{
 				case 'N':
 					color = clr((ch), (C_NRM)) ? KIDRK : KNRM;
 					break;
@@ -1124,7 +1272,8 @@ char *next_page(char *str, CHAR_DATA * ch)
 				}
 			strncpy(str, color, strlen(color));
 			str += (strlen(color) - 1);
-		} else if (*str == '\x1B' && !spec_code)
+		}
+		else if (*str == '\x1B' && !spec_code)
 			spec_code = TRUE;
 
 		/* Check for the end of an ANSI color code block. */
@@ -1132,7 +1281,8 @@ char *next_page(char *str, CHAR_DATA * ch)
 			spec_code = FALSE;
 
 		/* Check for everything else. */
-		else if (!spec_code) {	/* Carriage return puts us in column one. */
+		else if (!spec_code)  	/* Carriage return puts us in column one. */
+		{
 			if (*str == '\r')
 				col = 1;
 			/* Newline puts us on the next line. */
@@ -1142,7 +1292,8 @@ char *next_page(char *str, CHAR_DATA * ch)
 			/* We need to check here and see if we are over the page width,
 			 * and if so, compensate by going to the begining of the next line.
 			 */
-			else if (STRING_LENGTH(ch) && col++ > STRING_LENGTH(ch)) {
+			else if (STRING_LENGTH(ch) && col++ > STRING_LENGTH(ch))
+			{
 				col = 1;
 				line++;
 			}
@@ -1185,17 +1336,20 @@ void page_string(DESCRIPTOR_DATA * d, char *str, int keep_internal)
 	if (!d)
 		return;
 
-	if (!str || !*str) {
+	if (!str || !*str)
+	{
 		send_to_char("", d->character);
 		return;
 	}
 	d->showstr_count = count_pages(str, d->character);
 	CREATE(d->showstr_vector, char *, d->showstr_count);
 
-	if (keep_internal) {
+	if (keep_internal)
+	{
 		d->showstr_head = str_dup(str);
 		paginate_string(d->showstr_head, d);
-	} else
+	}
+	else
 		paginate_string(str, d);
 
 	show_string(d, "");
@@ -1219,10 +1373,12 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 	any_one_arg(input, buf);
 
 	/* Q is for quit. :) */
-	if (LOWER(*buf) == 'q' || LOWER(*buf) == 'к') {
+	if (LOWER(*buf) == 'q' || LOWER(*buf) == 'к')
+	{
 		free(d->showstr_vector);
 		d->showstr_count = 0;
-		if (d->showstr_head) {
+		if (d->showstr_head)
+		{
 			free(d->showstr_head);
 			d->showstr_head = NULL;
 		}
@@ -1246,24 +1402,28 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 	else if (isdigit(*buf))
 		d->showstr_page = MAX(0, MIN(atoi(buf) - 1, d->showstr_count - 1));
 
-	else if (*buf) {
+	else if (*buf)
+	{
 		send_to_char("Листать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы.\r\n", d->character);
 		return;
 	}
 	/* If we're displaying the last page, just send it to the character, and
 	 * then free up the space we used.
 	 */
-	if (d->showstr_page + 1 >= d->showstr_count) {
+	if (d->showstr_page + 1 >= d->showstr_count)
+	{
 		send_to_char(d->showstr_vector[d->showstr_page], d->character);
 		free(d->showstr_vector);
 		d->showstr_count = 0;
-		if (d->showstr_head) {
+		if (d->showstr_head)
+		{
 			free(d->showstr_head);
 			d->showstr_head = NULL;
 		}
 	}
 	/* Or if we have more to show.... */
-	else {
+	else
+	{
 		diff = d->showstr_vector[d->showstr_page + 1] - d->showstr_vector[d->showstr_page];
 		if (diff >= MAX_STRING_LENGTH)
 			diff = MAX_STRING_LENGTH - 1;

@@ -15,7 +15,8 @@
 #ifndef _SHOP_H_
 #define _SHOP_H_
 
-struct shop_buy_data {
+struct shop_buy_data
+{
 	int type;
 	char *keywords;
 };
@@ -24,7 +25,8 @@ struct shop_buy_data {
 #define BUY_WORD(i)		((i).keywords)
 
 
-struct shop_data {
+struct shop_data
+{
 	room_vnum vnum;		/* Virtual number of this shop         */
 	obj_vnum *producing;	/* Which item to produce (virtual)      */
 	float profit_buy;	/* Factor to multiply cost with         */
@@ -48,7 +50,7 @@ struct shop_data {
 	int close1, close2;	/* When does the shop close?      */
 	int bankAccount;	/* Store all gold over 15000 (disabled) */
 	int lastsort;		/* How many items are sorted in inven?      */
-	 SPECIAL(*func);	/* Secondary spec_proc for shopkeeper       */
+	SPECIAL(*func);	/* Secondary spec_proc for shopkeeper       */
 };
 
 #define MODE_TRADE        0
@@ -100,7 +102,8 @@ struct shop_data {
 #define TRADE_NODRUID		(1 << 13)
 
 
-struct stack_data {
+struct stack_data
+{
 	int data[100];
 	int len;
 };

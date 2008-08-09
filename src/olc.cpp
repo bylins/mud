@@ -23,9 +23,9 @@
 #include "privilege.hpp"
 #include "char.hpp"
 
- /*
-  * External data structures.
-  */
+/*
+ * External data structures.
+ */
 extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 
@@ -33,9 +33,9 @@ extern zone_rnum top_of_zone_table;
 extern struct zone_data *zone_table;
 extern DESCRIPTOR_DATA *descriptor_list;
 
- /*
-  * External functions.
-  */
+/*
+ * External functions.
+ */
 void zedit_setup(DESCRIPTOR_DATA * d, int room_num);
 void zedit_save_to_disk(int zone);
 int zedit_new_zone(CHAR_DATA * ch, int new_zone);
@@ -67,12 +67,14 @@ const char *save_info_msg[5] = { "Rooms", "Objects", "Zone info", "Mobiles", "Sh
 const char *nrm, *grn, *cyn, *yel, *iyel, *ired;
 struct olc_save_info *olc_save_list = NULL;
 
-struct olc_scmd_data {
+struct olc_scmd_data
+{
 	char *text;
 	int con_type;
 };
 
-struct olc_scmd_data olc_scmd_info[6] = {
+struct olc_scmd_data olc_scmd_info[6] =
+{
 	{"room", CON_REDIT},
 	{"object", CON_OEDIT},
 	{"room", CON_ZEDIT},
@@ -81,14 +83,14 @@ struct olc_scmd_data olc_scmd_info[6] = {
 	{"trigger", CON_TRIGEDIT}
 };
 
- /*------------------------------------------------------------*/
+/*------------------------------------------------------------*/
 
- /*
-  * Exported ACMD do_olc function.
-  *
-  * This function is the OLC interface.  It deals with all the
-  * generic OLC stuff, then passes control to the sub-olc sections.
-  */
+/*
+ * Exported ACMD do_olc function.
+ *
+ * This function is the OLC interface.  It deals with all the
+ * generic OLC stuff, then passes control to the sub-olc sections.
+ */
 
 ACMD(do_olc)
 {
@@ -102,7 +104,8 @@ ACMD(do_olc)
 	if (IS_NPC(ch))
 		return;
 
-	if (subcmd == SCMD_OLC_SAVEINFO) {
+	if (subcmd == SCMD_OLC_SAVEINFO)
+	{
 		olc_saveinfo(ch);
 		return;
 	}
@@ -111,8 +114,10 @@ ACMD(do_olc)
 	 * Parse any arguments.
 	 */
 	two_arguments(argument, buf1, buf2);
-	if (!*buf1) {		/* No argument given. */
-		switch (subcmd) {
+	if (!*buf1)  		/* No argument given. */
+	{
+		switch (subcmd)
+		{
 		case SCMD_OLC_ZEDIT:
 		case SCMD_OLC_REDIT:
 			number = world[IN_ROOM(ch)]->number;
@@ -125,32 +130,45 @@ ACMD(do_olc)
 			send_to_char(buf, ch);
 			return;
 		}
-	} else if (!a_isdigit(*buf1)) {
+	}
+	else if (!a_isdigit(*buf1))
+	{
 		if (strn_cmp("save", buf1, 4) == 0
-		    || (lock = !strn_cmp("lock", buf1, 4)) == TRUE || (unlock = !strn_cmp("unlock", buf1, 6)) == TRUE) {
-			if (!*buf2) {
-				if (GET_OLC_ZONE(ch)) {
+				|| (lock = !strn_cmp("lock", buf1, 4)) == TRUE || (unlock = !strn_cmp("unlock", buf1, 6)) == TRUE)
+		{
+			if (!*buf2)
+			{
+				if (GET_OLC_ZONE(ch))
+				{
 					save = 1;
 					number = (GET_OLC_ZONE(ch) * 100);
-				} else {
+				}
+				else
+				{
 					send_to_char("И какую зону писать ?\r\n", ch);
 					return;
 				}
-			} else {
+			}
+			else
+			{
 				save = 1;
 				number = atoi(buf2) * 100;
 			}
-		} else if (subcmd == SCMD_OLC_ZEDIT && (GET_LEVEL(ch) >= LVL_BUILDER || Privilege::check_flag(ch, Privilege::KRODER))) {
+		}
+		else if (subcmd == SCMD_OLC_ZEDIT && (GET_LEVEL(ch) >= LVL_BUILDER || Privilege::check_flag(ch, Privilege::KRODER)))
+		{
 			send_to_char("Создание новых зон отключено.\r\n", ch);
 			return;
-/*
-          if ((strn_cmp("new", buf1, 3) == 0) && *buf2)
- 	         zedit_new_zone(ch, atoi(buf2));
-          else
- 	         send_to_char("Укажите номер новой зоны.\r\n", ch);
-          return;
-*/
-		} else {
+			/*
+			          if ((strn_cmp("new", buf1, 3) == 0) && *buf2)
+			 	         zedit_new_zone(ch, atoi(buf2));
+			          else
+			 	         send_to_char("Укажите номер новой зоны.\r\n", ch);
+			          return;
+			*/
+		}
+		else
+		{
 			send_to_char("Уточните, что Вы хотите делать!\r\n", ch);
 			return;
 		}
@@ -166,16 +184,18 @@ ACMD(do_olc)
 	 */
 	for (d = descriptor_list; d; d = d->next)
 		if (d->connected == olc_scmd_info[subcmd].con_type)
-			if (d->olc && OLC_NUM(d) == number) {
+			if (d->olc && OLC_NUM(d) == number)
+			{
 				sprintf(buf, "%s в настоящий момент редактируется %s.\r\n",
-					olc_scmd_info[subcmd].text, GET_PAD(d->character, 4));
+						olc_scmd_info[subcmd].text, GET_PAD(d->character, 4));
 				send_to_char(buf, ch);
 				return;
 			}
 	d = ch->desc;
 
 	// лок/анлок редактирования зон только 34м и по привилегии
-	if ((lock || unlock) && !IS_IMPL(ch) && !Privilege::check_flag(d->character, Privilege::FULLZEDIT)) {
+	if ((lock || unlock) && !IS_IMPL(ch) && !Privilege::check_flag(d->character, Privilege::FULLZEDIT))
+	{
 		send_to_char("Вы не можете использовать эту команду.\r\n", ch);
 		return;
 	}
@@ -188,12 +208,14 @@ ACMD(do_olc)
 	/*
 	 * Find the zone.
 	 */
-	if ((OLC_ZNUM(d) = real_zone(number)) == -1) {
+	if ((OLC_ZNUM(d) = real_zone(number)) == -1)
+	{
 		send_to_char("Звыняйтэ, такойи зоны нэмае.\r\n", ch);
 		free(d->olc);
 		return;
 	}
-	if (lock) {
+	if (lock)
+	{
 		zone_table[OLC_ZNUM(d)].locked = TRUE;
 		send_to_char("Защищаю зону от записи.\r\n", ch);
 		sprintf(buf, "(GC) %s has locked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].number);
@@ -204,7 +226,8 @@ ACMD(do_olc)
 		return;
 	}
 
-	if (unlock) {
+	if (unlock)
+	{
 		zone_table[OLC_ZNUM(d)].locked = FALSE;
 		send_to_char("Снимаю защиту от записи.\r\n", ch);
 		sprintf(buf, "(GC) %s has unlocked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].number);
@@ -215,7 +238,8 @@ ACMD(do_olc)
 		return;
 	}
 	// Check if zone is protected from editing
-	if (zone_table[OLC_ZNUM(d)].locked) {
+	if (zone_table[OLC_ZNUM(d)].locked)
+	{
 		send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 		free(d->olc);
 		return;
@@ -224,14 +248,17 @@ ACMD(do_olc)
 	/*
 	 * Everyone but IMPLs can only edit zones they have been assigned.
 	 */
-	if (GET_OLC_ZONE(ch) && (zone_table[OLC_ZNUM(d)].number != GET_OLC_ZONE(ch))) {
+	if (GET_OLC_ZONE(ch) && (zone_table[OLC_ZNUM(d)].number != GET_OLC_ZONE(ch)))
+	{
 		send_to_char("Вам запрещен доступ к сией зоне.\r\n", ch);
 		free(d->olc);
 		return;
 	}
-	if (save) {
+	if (save)
+	{
 		const char *type = NULL;
-		switch (subcmd) {
+		switch (subcmd)
+		{
 		case SCMD_OLC_REDIT:
 			type = "room";
 			break;
@@ -248,7 +275,8 @@ ACMD(do_olc)
 			type = "object";
 			break;
 		}
-		if (!type) {
+		if (!type)
+		{
 			send_to_char("Родной(ая,ое), объясни по людски - что записать.\r\n", ch);
 			return;
 		}
@@ -258,7 +286,8 @@ ACMD(do_olc)
 		olc_log("%s save %s in Z%d", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].number);
 		mudlog(buf, LGH, MAX(LVL_BUILDER, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 
-		switch (subcmd) {
+		switch (subcmd)
+		{
 		case SCMD_OLC_REDIT:
 			redit_save_to_disk(OLC_ZNUM(d));
 			break;
@@ -283,7 +312,8 @@ ACMD(do_olc)
 	/*
 	 * Steal player's descriptor start up subcommands.
 	 */
-	switch (subcmd) {
+	switch (subcmd)
+	{
 	case SCMD_OLC_TRIGEDIT:
 		if ((real_num = real_trigger(number)) >= 0)
 			trigedit_setup_existing(d, real_num);
@@ -299,7 +329,8 @@ ACMD(do_olc)
 		STATE(d) = CON_REDIT;
 		break;
 	case SCMD_OLC_ZEDIT:
-		if ((real_num = real_room(number)) == NOWHERE) {
+		if ((real_num = real_room(number)) == NOWHERE)
+		{
 			send_to_char("Желательно создать комнату прежде, чем начинаете ее редактировать.\r\n", ch);
 			free(d->olc);
 			return;
@@ -324,7 +355,8 @@ ACMD(do_olc)
 	case SCMD_OLC_SEDIT:
 		if ((real_num = real_shop(number)) >= 0)
 			sedit_setup_existing(d, real_num);
-		else {		//send_to_char("Отключено.\r\n",ch);
+		else  		//send_to_char("Отключено.\r\n",ch);
+		{
 			//free(d->olc);
 			//return;
 			sedit_setup_new(d);
@@ -333,13 +365,13 @@ ACMD(do_olc)
 		break;
 	}
 	act("$n по локоть запустил$g руки в глубины Мира и начал$g что-то со скрежетом там поворачивать.",
-	    TRUE, d->character, 0, 0, TO_ROOM);
+		TRUE, d->character, 0, 0, TO_ROOM);
 	SET_BIT(PLR_FLAGS(ch, PLR_WRITING), PLR_WRITING);
 }
 
- /*------------------------------------------------------------*\
-  Internal utilities
- \*------------------------------------------------------------*/
+/*------------------------------------------------------------*\
+ Internal utilities
+\*------------------------------------------------------------*/
 
 void olc_saveinfo(CHAR_DATA * ch)
 {
@@ -350,7 +382,8 @@ void olc_saveinfo(CHAR_DATA * ch)
 	else
 		send_to_char("The database is up to date.\r\n", ch);
 
-	for (entry = olc_save_list; entry; entry = entry->next) {
+	for (entry = olc_save_list; entry; entry = entry->next)
+	{
 		sprintf(buf, " - %s for zone %d.\r\n", save_info_msg[(int) entry->type], entry->zone);
 		send_to_char(buf, ch);
 
@@ -375,13 +408,13 @@ counter,(zone_table[counter].number * 100), zone_table[counter].top);
  }
 */
 
- /*------------------------------------------------------------*\
-  Exported utilities
- \*------------------------------------------------------------*/
+/*------------------------------------------------------------*\
+ Exported utilities
+\*------------------------------------------------------------*/
 
- /*
-  * Add an entry to the 'to be saved' list.
-  */
+/*
+ * Add an entry to the 'to be saved' list.
+ */
 
 void olc_add_to_save_list(int zone, byte type)
 {
@@ -404,9 +437,9 @@ void olc_add_to_save_list(int zone, byte type)
 
 
 
- /*
-  * Remove an entry from the 'to be saved' list.
-  */
+/*
+ * Remove an entry from the 'to be saved' list.
+ */
 
 void olc_remove_from_save_list(int zone, byte type)
 {
@@ -414,7 +447,8 @@ void olc_remove_from_save_list(int zone, byte type)
 	struct olc_save_info *temp;
 
 	for (entry = &olc_save_list; *entry; entry = &(*entry)->next)
-		if (((*entry)->zone == zone) && ((*entry)->type == type)) {
+		if (((*entry)->zone == zone) && ((*entry)->type == type))
+		{
 			temp = *entry;
 			*entry = temp->next;
 			free(temp);
@@ -423,11 +457,11 @@ void olc_remove_from_save_list(int zone, byte type)
 
 }
 
- /*
- * Set the colour string pointers for that which this char will
- * see at color level NRM.  Changing the entries here will change
- * the colour scheme throughout the OLC.
- */
+/*
+* Set the colour string pointers for that which this char will
+* see at color level NRM.  Changing the entries here will change
+* the colour scheme throughout the OLC.
+*/
 void get_char_cols(CHAR_DATA * ch)
 {
 	nrm = CCNRM(ch, C_NRM);
@@ -438,11 +472,11 @@ void get_char_cols(CHAR_DATA * ch)
 	ired = CCIRED(ch, C_NRM);
 }
 
- /*
-  * This procedure removes the '\r\n' from a string so that it may be
-  * saved to a file.  Use it only on buffers, not on the original
-  * strings.
-  */
+/*
+ * This procedure removes the '\r\n' from a string so that it may be
+ * saved to a file.  Use it only on buffers, not on the original
+ * strings.
+ */
 void strip_string(char *buffer)
 {
 	register char *ptr, *str;
@@ -450,7 +484,8 @@ void strip_string(char *buffer)
 	ptr = buffer;
 	str = ptr;
 
-	while ((*str = *ptr)) {
+	while ((*str = *ptr))
+	{
 		str++;
 		ptr++;
 		if (*ptr == '\r')
@@ -458,18 +493,20 @@ void strip_string(char *buffer)
 	}
 }
 
- /*
-  * This procdure frees up the strings and/or the structures
-  * attatched to a descriptor, sets all flags back to how they
-  * should be.
-  */
+/*
+ * This procdure frees up the strings and/or the structures
+ * attatched to a descriptor, sets all flags back to how they
+ * should be.
+ */
 
 void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 {
-	if (d->olc) {
+	if (d->olc)
+	{
 
 		// Освободить редактируемый триггер
-		if (OLC_TRIG(d)) {
+		if (OLC_TRIG(d))
+		{
 			if (OLC_TRIG(d)->name)
 				free(OLC_TRIG(d)->name);
 			if (OLC_TRIG(d)->arglist)
@@ -477,16 +514,20 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			free(OLC_TRIG(d));
 		}
 		// Освободить массив данных (похоже, только для триггеров)
-		if (OLC_STORAGE(d)) {
+		if (OLC_STORAGE(d))
+		{
 			free(OLC_STORAGE(d));
 		}
 		// Освободить прототип
-		if (OLC_SCRIPT(d)) {
+		if (OLC_SCRIPT(d))
+		{
 			dg_olc_script_free(d);
 		}
 		// Освободить комнату
-		if (OLC_ROOM(d)) {
-			switch (cleanup_type) {
+		if (OLC_ROOM(d))
+		{
+			switch (cleanup_type)
+			{
 			case CLEANUP_ALL:
 				room_free(OLC_ROOM(d));	// удаляет все содержимое
 				// break; - не нужен
@@ -498,8 +539,10 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			}
 		}
 		// Освободить mob
-		if (OLC_MOB(d)) {
-			switch (cleanup_type) {
+		if (OLC_MOB(d))
+		{
+			switch (cleanup_type)
+			{
 			case CLEANUP_ALL:
 				medit_mobile_free(OLC_MOB(d));	// удаляет все содержимое
 				delete OLC_MOB(d);	// удаляет только оболочку
@@ -509,8 +552,10 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			}
 		}
 		// Освободить объект
-		if (OLC_OBJ(d)) {
-			switch (cleanup_type) {
+		if (OLC_OBJ(d))
+		{
+			switch (cleanup_type)
+			{
 			case CLEANUP_ALL:
 				oedit_object_free(OLC_OBJ(d));	// удаляет все содержимое
 				delete OLC_OBJ(d);	// удаляет только оболочку
@@ -521,7 +566,8 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 		}
 
 		// Освободить зону
-		if (OLC_ZONE(d)) {
+		if (OLC_ZONE(d))
+		{
 			free(OLC_ZONE(d)->name);
 			zedit_delete_cmdlist((pzcmd) OLC_ZONE(d)->cmd);
 			free(OLC_ZONE(d));
@@ -530,11 +576,13 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 		/*
 		 * Check for a shop.
 		 */
-		if (OLC_SHOP(d)) {
+		if (OLC_SHOP(d))
+		{
 			/*
 			 * free_shop doesn't perform sanity checks, we must be careful here.
 			 */
-			switch (cleanup_type) {
+			switch (cleanup_type)
+			{
 			case CLEANUP_ALL:
 				free_shop(OLC_SHOP(d));
 				break;
@@ -549,11 +597,12 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 		/*
 		 * Restore descriptor playing status.
 		 */
-		if (d->character) {
+		if (d->character)
+		{
 			REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
 			STATE(d) = CON_PLAYING;
 			act("$n закончил$g работу и удовлетворенно посмотрел$g в развороченные недра Мироздания.",
-			    TRUE, d->character, 0, 0, TO_ROOM);
+				TRUE, d->character, 0, 0, TO_ROOM);
 		}
 		free(d->olc);
 
@@ -567,29 +616,34 @@ void xedit_disp_ing(DESCRIPTOR_DATA * d, int *ping)
 	int i = 0;
 
 	send_to_char("Ингредиенты:\r\n", d->character);
-	for (; im_ing_dump(ping, str + 5); ping += 2) {
+	for (; im_ing_dump(ping, str + 5); ping += 2)
+	{
 		sprintf(str, "% 4d", i++);
 		str[4] = ' ';
 		send_to_char(str, d->character);
 		send_to_char("\r\n", d->character);
 	}
 	send_to_char("у <номер> - [у]далить ингредиент\r\n"
-		     "у *       - [у]далить все ингредиенты\r\n"
-		     "д <ингр>  - [д]обавить ингредиенты\r\n" "в         - [в]ыход\r\n" "Команда> ", d->character);
+				 "у *       - [у]далить все ингредиенты\r\n"
+				 "д <ингр>  - [д]обавить ингредиенты\r\n" "в         - [в]ыход\r\n" "Команда> ", d->character);
 }
 
 int xparse_ing(DESCRIPTOR_DATA * d, int **pping, char *arg)
 {
-	switch (*arg) {
+	switch (*arg)
+	{
 	case 'у':
 	case 'У':
 		++arg;
 		skip_spaces(&arg);
-		if (arg[0] == '*') {
+		if (arg[0] == '*')
+		{
 			if (*pping)
 				free(*pping);
 			*pping = NULL;
-		} else if (isdigit(arg[0])) {
+		}
+		else if (isdigit(arg[0]))
+		{
 			im_extract_ing(pping, atoi(arg));
 		}
 		break;

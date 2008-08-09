@@ -15,7 +15,8 @@
 * Вобщем вынес всю работу с паролями в один файл + прикрутил md5, хотя толку с него сейчас тоже уже не особо много.
 * Зато если вдруг надумается подключить какую-нить либу с ядреным алгоритмом - все уже под это дело готово.
 */
-namespace Password {
+namespace Password
+{
 
 void set_password(CHAR_DATA *ch, const std::string &pwd);
 bool compare_password(CHAR_DATA *ch, const std::string &pwd);

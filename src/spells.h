@@ -405,7 +405,8 @@
 #define TAR_ROOM_WORLD	(1 << 13) /* Цель какая-то комната в мире*/
 #define MAX_SLOT        13
 
-struct spell_info_type {
+struct spell_info_type
+{
 	byte min_position;	/* Position for caster   */
 	int mana_min;		/* Min amount of mana used by a spell (highest lev) */
 	int mana_max;		/* Max amount of mana used by a spell (lowest lev) */
@@ -425,7 +426,8 @@ struct spell_info_type {
 
 #define KNOW_SKILL  1
 
-struct skill_info_type {
+struct skill_info_type
+{
 	byte min_position;	/* Position for caster */
 	int min_remort[NUM_CLASSES][NUM_KIN];
 	int min_level[NUM_CLASSES][NUM_KIN];
@@ -435,13 +437,15 @@ struct skill_info_type {
 	const char *name;
 };
 
-struct spell_create_item {
+struct spell_create_item
+{
 	int items[3];
 	int rnumber;
 	int min_caster_level;	// Понятно из названия :)
 };
 
-struct spell_create_type {
+struct spell_create_type
+{
 	struct spell_create_item wand;
 	struct spell_create_item scroll;
 	struct spell_create_item potion;
@@ -475,7 +479,8 @@ struct spell_create_type {
 
 /* Attacktypes with grammar */
 
-struct attack_hit_type {
+struct attack_hit_type
+{
 	const char *singular;
 	const char *plural;
 };
@@ -551,9 +556,9 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument);
 int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA *troom, int spellnum, int spell_subst);
 
 /* other prototypes */
-void mspell_remort (char *name ,int spell,int kin ,int chclass, int remort);
-void mspell_level (char *name ,int spell,int kin ,int chclass, int level);
-void mspell_slot (char *name ,int spell, int kin ,int chclass, int slot);
+void mspell_remort(char *name , int spell, int kin , int chclass, int remort);
+void mspell_level(char *name , int spell, int kin , int chclass, int level);
+void mspell_slot(char *name , int spell, int kin , int chclass, int slot);
 void mspell_change(char *name, int spell, int kin, int chclass, int modifier);
 int general_savingthrow(CHAR_DATA * ch, int type, int ext_apply);
 void init_spell_levels(void);

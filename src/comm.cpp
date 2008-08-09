@@ -55,9 +55,9 @@
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
 # define SIGALRM 14
-  /* GUSI headers */
+/* GUSI headers */
 # include <sys/ioctl.h>
-  /* Codewarrior dependant */
+/* Codewarrior dependant */
 # include <SIOUX.h>
 # include <console.h>
 #endif
@@ -155,7 +155,8 @@ unsigned long int number_of_bytes_written = 0;
 
 int reboot_uptime = DEFAULT_REBOOT_UPTIME;	// uptime until reboot in minutes
 
-log_info logs[NLOG] = {
+log_info logs[NLOG] =
+{
 	{NULL, "syslog", "СИСТЕМНЫЙ"},
 	{NULL, "log/errlog.txt", "ОШИБКИ МИРА"},
 	{NULL, "log/imlog.txt", "ИНГРЕДИЕНТНАЯ МАГИЯ"}
@@ -277,8 +278,8 @@ int mccp_end(DESCRIPTOR_DATA * t, int ver);
 #define TELOPT_COMPRESS        85
 #define TELOPT_COMPRESS2       86
 const char compress_will[] = { IAC, WILL, TELOPT_COMPRESS2,
-	IAC, WILL, TELOPT_COMPRESS, '\0'
-};
+							   IAC, WILL, TELOPT_COMPRESS, '\0'
+							 };
 const char compress_start_v1[] = { IAC, SB, TELOPT_COMPRESS, WILL, SE, '\0' };
 const char compress_start_v2[] = { IAC, SB, TELOPT_COMPRESS2, IAC, SE, '\0' };
 
@@ -304,10 +305,10 @@ void gettimeofday(struct timeval *t, struct timezone *dummy)
 	DWORD millisec = GetTickCount();
 #elif defined(CIRCLE_MACINTOSH)
 	unsigned long int millisec;
-	millisec = (int) ((float) TickCount() * 1000.0 / 60.0);
+	millisec = (int)((float) TickCount() * 1000.0 / 60.0);
 #endif
 
-	t->tv_sec = (int) (millisec / 1000);
+	t->tv_sec = (int)(millisec / 1000);
 	t->tv_usec = (millisec % 1000) * 1000;
 }
 
@@ -347,14 +348,17 @@ int main(int argc, char **argv)
 	port = DFLT_PORT;
 	dir = DFLT_DIR;
 
-	while ((pos < argc) && (*(argv[pos]) == '-')) {
-		switch (*(argv[pos] + 1)) {
+	while ((pos < argc) && (*(argv[pos]) == '-'))
+	{
+		switch (*(argv[pos] + 1))
+		{
 		case 'o':
 			if (*(argv[pos] + 2))
 				LOGNAME = argv[pos] + 2;
 			else if (++pos < argc)
 				LOGNAME = argv[pos];
-			else {
+			else
+			{
 				puts("SYSERR: File name to log to expected after option -o.");
 				exit(1);
 			}
@@ -364,7 +368,8 @@ int main(int argc, char **argv)
 				dir = argv[pos] + 2;
 			else if (++pos < argc)
 				dir = argv[pos];
-			else {
+			else
+			{
 				puts("SYSERR: Directory arg expected after option -d.");
 				exit(1);
 			}
@@ -388,14 +393,14 @@ int main(int argc, char **argv)
 		case 'h':
 			/* From: Anil Mahajan <amahajan@proxicom.com> */
 			printf
-			    ("Usage: %s [-c] [-m] [-q] [-r] [-s] [-d pathname] [port #]\n"
-			     "  -c             Enable syntax check mode.\n"
-			     "  -d <directory> Specify library directory (defaults to 'lib').\n"
-			     "  -h             Print this command line argument help.\n"
-			     "  -m             Start in mini-MUD mode.\n"
-			     "  -o <file>      Write log to <file> instead of stderr.\n"
-			     "  -r             Restrict MUD -- no new players allowed.\n"
-			     "  -s             Suppress special procedure assignments.\n", argv[0]);
+			("Usage: %s [-c] [-m] [-q] [-r] [-s] [-d pathname] [port #]\n"
+			 "  -c             Enable syntax check mode.\n"
+			 "  -d <directory> Specify library directory (defaults to 'lib').\n"
+			 "  -h             Print this command line argument help.\n"
+			 "  -m             Start in mini-MUD mode.\n"
+			 "  -o <file>      Write log to <file> instead of stderr.\n"
+			 "  -r             Restrict MUD -- no new players allowed.\n"
+			 "  -s             Suppress special procedure assignments.\n", argv[0]);
 			exit(0);
 		default:
 			printf("SYSERR: Unknown option -%c in argument string.\n", *(argv[pos] + 1));
@@ -404,11 +409,15 @@ int main(int argc, char **argv)
 		pos++;
 	}
 
-	if (pos < argc) {
-		if (!isdigit(*argv[pos])) {
+	if (pos < argc)
+	{
+		if (!isdigit(*argv[pos]))
+		{
 			printf("Usage: %s [-c] [-m] [-q] [-r] [-s] [-d pathname] [port #]\n", argv[0]);
 			exit(1);
-		} else if ((port = atoi(argv[pos])) <= 1024) {
+		}
+		else if ((port = atoi(argv[pos])) <= 1024)
+		{
 			printf("SYSERR: Illegal port number %d.\n", port);
 			exit(1);
 		}
@@ -423,28 +432,35 @@ int main(int argc, char **argv)
 	 */
 	log(circlemud_version);
 	log(DG_SCRIPT_VERSION);
-	if (chdir(dir) < 0) {
+	if (chdir(dir) < 0)
+	{
 		perror("SYSERR: Fatal error changing to data directory");
 		exit(1);
 	}
 	log("Using %s as data directory.", dir);
 
-	if (scheck) {
+	if (scheck)
+	{
 		boot_world();
 		log("Done.");
-	} else {
+	}
+	else
+	{
 		log("Running game on port %d.", port);
 
 		// стль и буст юзаются уже немало где, а про их экспешены никто не думает
 		// пока хотя бы стльные ловить и просто логировать факт того, что мы вышли
 		// по эксепшену для удобства отладки и штатного сброса сислога в файл, т.к. в коре будет фиг
-		try {
+		try
+		{
 			init_game(port);
 		}
-		catch (std::exception &e) {
+		catch (std::exception &e)
+		{
 			log("STD exception: %s", e.what());
 		}
-		catch (...) {
+		catch (...)
+		{
 			log("Unknown exception :(");
 		}
 	}
@@ -483,7 +499,8 @@ void init_game(ush_int port)
 	game_loop(mother_desc);
 
 	flush_player_index();
-	if (circle_shutdown == 2) {
+	if (circle_shutdown == 2)
+	{
 		log("Entering Crash_save_all_rent");
 		Crash_save_all_rent();	//save all
 	}
@@ -508,26 +525,36 @@ void init_game(ush_int port)
 	FileCRC::save(true);
 
 	CLOSE_SOCKET(mother_desc);
-	if (circle_reboot != 2 && olc_save_list) {	/* Don't save zones. */
+	if (circle_reboot != 2 && olc_save_list)  	/* Don't save zones. */
+	{
 		struct olc_save_info *entry, *next_entry;
 		int rznum;
 
-		for (entry = olc_save_list; entry; entry = next_entry) {
+		for (entry = olc_save_list; entry; entry = next_entry)
+		{
 			next_entry = entry->next;
-			if (entry->type < 0 || entry->type > 4) {
+			if (entry->type < 0 || entry->type > 4)
+			{
 				sprintf(buf, "OLC: Illegal save type %d!", entry->type);
 				log(buf);
-			} else if ((rznum = real_zone(entry->zone * 100)) == -1) {
+			}
+			else if ((rznum = real_zone(entry->zone * 100)) == -1)
+			{
 				sprintf(buf, "OLC: Illegal save zone %d!", entry->zone);
 				log(buf);
-			} else if (rznum < 0 || rznum > top_of_zone_table) {
+			}
+			else if (rznum < 0 || rznum > top_of_zone_table)
+			{
 				sprintf(buf, "OLC: Invalid real zone number %d!", rznum);
 				log(buf);
-			} else {
+			}
+			else
+			{
 				sprintf(buf, "OLC: Reboot saving %s for zone %d.",
-					save_info_msg[(int) entry->type], zone_table[rznum].number);
+						save_info_msg[(int) entry->type], zone_table[rznum].number);
 				log(buf);
-				switch (entry->type) {
+				switch (entry->type)
+				{
 				case OLC_SAVE_ROOM:
 					redit_save_to_disk(rznum);
 					break;
@@ -551,7 +578,8 @@ void init_game(ush_int port)
 		}
 	}
 	free_db();
-	if (circle_reboot) {
+	if (circle_reboot)
+	{
 		log("Rebooting.");
 		exit(52);	/* what's so great about HHGTTG, anyhow? */
 	}
@@ -577,16 +605,19 @@ socket_t init_socket(ush_int port)
 
 		wVersionRequested = MAKEWORD(1, 1);
 
-		if (WSAStartup(wVersionRequested, &wsaData) != 0) {
+		if (WSAStartup(wVersionRequested, &wsaData) != 0)
+		{
 			log("SYSERR: WinSock not available!");
 			exit(1);
 		}
-		if ((wsaData.iMaxSockets - 4) < max_players) {
+		if ((wsaData.iMaxSockets - 4) < max_players)
+		{
 			max_players = wsaData.iMaxSockets - 4;
 		}
 		log("Max players set to %d", max_players);
 
-		if ((s = socket(PF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) {
+		if ((s = socket(PF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+		{
 			log("SYSERR: Error opening network connection: Winsock error #%d", WSAGetLastError());
 			exit(1);
 		}
@@ -603,7 +634,8 @@ socket_t init_socket(ush_int port)
 	 * number anyway, so the point is (hopefully) moot.
 	 */
 
-	if ((s = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+	if ((s = socket(PF_INET, SOCK_STREAM, 0)) < 0)
+	{
 		perror("SYSERR: Error creating socket");
 		exit(1);
 	}
@@ -611,7 +643,8 @@ socket_t init_socket(ush_int port)
 
 #if defined(SO_REUSEADDR) && !defined(CIRCLE_MACINTOSH)
 	opt = 1;
-	if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *) &opt, sizeof(opt)) < 0) {
+	if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *) &opt, sizeof(opt)) < 0)
+	{
 		perror("SYSERR: setsockopt REUSEADDR");
 		exit(1);
 	}
@@ -619,11 +652,11 @@ socket_t init_socket(ush_int port)
 
 	set_sendbuf(s);
 
-/*
- * The GUSI sockets library is derived from BSD, so it defines
- * SO_LINGER, even though setsockopt() is unimplimented.
- *	(from Dean Takemori <dean@UHHEPH.PHYS.HAWAII.EDU>)
- */
+	/*
+	 * The GUSI sockets library is derived from BSD, so it defines
+	 * SO_LINGER, even though setsockopt() is unimplimented.
+	 *	(from Dean Takemori <dean@UHHEPH.PHYS.HAWAII.EDU>)
+	 */
 #if defined(SO_LINGER) && !defined(CIRCLE_MACINTOSH)
 	{
 		struct linger ld;
@@ -642,7 +675,8 @@ socket_t init_socket(ush_int port)
 	sa.sin_port = htons(port);
 	sa.sin_addr = *(get_bind_addr());
 
-	if (bind(s, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
+	if (bind(s, (struct sockaddr *) &sa, sizeof(sa)) < 0)
+	{
 		perror("SYSERR: bind");
 		CLOSE_SOCKET(s);
 		exit(1);
@@ -662,24 +696,26 @@ int get_max_players(void)
 	int max_descs = 0;
 	const char *method;
 
-/*
- * First, we'll try using getrlimit/setrlimit.  This will probably work
- * on most systems.  HAS_RLIMIT is defined in sysdep.h.
- */
+	/*
+	 * First, we'll try using getrlimit/setrlimit.  This will probably work
+	 * on most systems.  HAS_RLIMIT is defined in sysdep.h.
+	 */
 #ifdef HAS_RLIMIT
 	{
 		struct rlimit limit;
 
 		/* find the limit of file descs */
 		method = "rlimit";
-		if (getrlimit(RLIMIT_NOFILE, &limit) < 0) {
+		if (getrlimit(RLIMIT_NOFILE, &limit) < 0)
+		{
 			perror("SYSERR: calling getrlimit");
 			exit(1);
 		}
 
 		/* set the current to the maximum */
 		limit.rlim_cur = limit.rlim_max;
-		if (setrlimit(RLIMIT_NOFILE, &limit) < 0) {
+		if (setrlimit(RLIMIT_NOFILE, &limit) < 0)
+		{
 			perror("SYSERR: calling setrlimit");
 			exit(1);
 		}
@@ -708,10 +744,12 @@ int get_max_players(void)
 	 */
 	method = "POSIX sysconf";
 	errno = 0;
-	if ((max_descs = sysconf(_SC_OPEN_MAX)) < 0) {
+	if ((max_descs = sysconf(_SC_OPEN_MAX)) < 0)
+	{
 		if (errno == 0)
 			max_descs = max_playing + NUM_RESERVED_DESCS;
-		else {
+		else
+		{
 			perror("SYSERR: Error calling sysconf");
 			exit(1);
 		}
@@ -725,7 +763,8 @@ int get_max_players(void)
 	/* now calculate max _players_ based on max descs */
 	max_descs = MIN(max_playing, max_descs - NUM_RESERVED_DESCS);
 
-	if (max_descs <= 0) {
+	if (max_descs <= 0)
+	{
 		log("SYSERR: Non-positive max player limit!  (Set at %d using %s).", max_descs, method);
 		exit(1);
 	}
@@ -747,11 +786,15 @@ int shutting_down(void)
 		return (FALSE);
 	wait = shutdown_time - time(NULL);
 
-	if (wait == 10 || wait == 30 || wait == 60 || wait == 120 || wait % 300 == 0) {
-		if (circle_reboot) {
+	if (wait == 10 || wait == 30 || wait == 60 || wait == 120 || wait % 300 == 0)
+	{
+		if (circle_reboot)
+		{
 			remove("../.crash");
 			sprintf(buf, "ПЕРЕЗАГРУЗКА через ");
-		} else {
+		}
+		else
+		{
 			remove("../.crash");
 			sprintf(buf, "ОСТАНОВКА через ");
 		}
@@ -772,9 +815,12 @@ inline void rotate(log_info * li, long pos, struct tm *time)
 	char cwd[4096];
 	int rc;
 
-	if (pos != ftell(li->logfile)) {
+	if (pos != ftell(li->logfile))
+	{
 		log("[ROTATE] Rotating %s", li->filename);
-	} else {
+	}
+	else
+	{
 		log("[ROTATE] No need to rotate %s, it's unchanged", li->filename);
 		return;
 	}
@@ -783,18 +829,20 @@ inline void rotate(log_info * li, long pos, struct tm *time)
 	fclose(li->logfile);
 
 	snprintf(newpath, 256, "%s.%d-%.2d-%.2d_%.2d-%.2d",
-		 li->filename, time->tm_year + 1900, time->tm_mon + 1, time->tm_mday, time->tm_hour, time->tm_min);
+			 li->filename, time->tm_year + 1900, time->tm_mon + 1, time->tm_mday, time->tm_hour, time->tm_min);
 
 	getcwd(cwd, 4096);
 	chdir(src_path);
 	rc = rename(li->filename, newpath);
 
-	if (rc != 0) {
+	if (rc != 0)
+	{
 		fprintf(stderr, "SYSERR: Log rotation has caused an error: '%s', exiting.\n", strerror(errno));
 		exit(1);
 	}
 
-	if (!open_logfile(li, NULL)) {
+	if (!open_logfile(li, NULL))
+	{
 		fprintf(stderr, "SYSERR: Couldn't open %s, giving up.\n", li->filename);
 		exit(1);
 	}
@@ -802,7 +850,7 @@ inline void rotate(log_info * li, long pos, struct tm *time)
 }
 
 inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_set null_set,
-			socket_t mother_desc, int maxdesc)
+					   socket_t mother_desc, int maxdesc)
 {
 	DESCRIPTOR_DATA *d, *next_d;
 	char comm[MAX_INPUT_LENGTH];
@@ -810,7 +858,8 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 
 	/* Poll (without blocking) for new input, output, and exceptions */
 	if (select(maxdesc + 1, &input_set, &output_set, &exc_set, &null_time)
-	    < 0) {
+			< 0)
+	{
 		perror("SYSERR: Select poll");
 		return;
 	}
@@ -819,9 +868,11 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		new_descriptor(mother_desc);
 
 	/* Kick out the freaky folks in the exception set and marked for close */
-	for (d = descriptor_list; d; d = next_d) {
+	for (d = descriptor_list; d; d = next_d)
+	{
 		next_d = d->next;
-		if (FD_ISSET(d->descriptor, &exc_set)) {
+		if (FD_ISSET(d->descriptor, &exc_set))
+		{
 			FD_CLR(d->descriptor, &input_set);
 			FD_CLR(d->descriptor, &output_set);
 			close_socket(d, TRUE);
@@ -829,7 +880,8 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 	}
 
 	/* Process descriptors with input pending */
-	for (d = descriptor_list; d; d = next_d) {
+	for (d = descriptor_list; d; d = next_d)
+	{
 		next_d = d->next;
 		if (FD_ISSET(d->descriptor, &input_set))
 			if (process_input(d) < 0)
@@ -837,7 +889,8 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 	}
 
 	/* Process commands we just read from process_input */
-	for (d = descriptor_list; d; d = next_d) {
+	for (d = descriptor_list; d; d = next_d)
+	{
 		next_d = d->next;
 
 		/*
@@ -846,32 +899,36 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		 * state then 1 is subtracted. Therefore we don't go less
 		 * than 0 ever and don't require an 'if' bracket. -gg 2/27/99
 		 */
-		if (d->character) {
+		if (d->character)
+		{
 			GET_WAIT_STATE(d->character) -= (GET_WAIT_STATE(d->character) > 0 ? 1 : 0);
 			GET_PUNCTUAL_WAIT_STATE(d->character) -=
-			    (GET_PUNCTUAL_WAIT_STATE(d->character) > 0 ? 1 : 0);
+				(GET_PUNCTUAL_WAIT_STATE(d->character) > 0 ? 1 : 0);
 			if (WAITLESS(d->character)
-			    || GET_WAIT_STATE(d->character) < 0)
+					|| GET_WAIT_STATE(d->character) < 0)
 				GET_WAIT_STATE(d->character) = 0;
 			if (WAITLESS(d->character)
-			    || GET_PUNCTUAL_WAIT_STATE(d->character) < 0)
+					|| GET_PUNCTUAL_WAIT_STATE(d->character) < 0)
 				GET_PUNCTUAL_WAIT_STATE(d->character) = 0;
 			if (GET_WAIT_STATE(d->character))
 				continue;
 		}
 		// Шоб в меню долго не сидели !
-		if (!get_from_q(&d->input, comm, &aliased)) {
+		if (!get_from_q(&d->input, comm, &aliased))
+		{
 			if (STATE(d) != CON_PLAYING &&
-			    STATE(d) != CON_DISCONNECT &&
-			    time(NULL) - d->input_time > 300 && d->character && !IS_GOD(d->character))
+					STATE(d) != CON_DISCONNECT &&
+					time(NULL) - d->input_time > 300 && d->character && !IS_GOD(d->character))
 				close_socket(d, TRUE);
 			continue;
 		}
 
 		d->input_time = time(NULL);
-		if (d->character) {	/* Reset the idle timer & pull char back from void if necessary */
+		if (d->character)  	/* Reset the idle timer & pull char back from void if necessary */
+		{
 			d->character->char_specials.timer = 0;
-			if (STATE(d) == CON_PLAYING && GET_WAS_IN(d->character) != NOWHERE) {
+			if (STATE(d) == CON_PLAYING && GET_WAS_IN(d->character) != NOWHERE)
+			{
 				if (d->character->in_room != NOWHERE)
 					char_from_room(d->character);
 				char_to_room(d->character, GET_WAS_IN(d->character));
@@ -887,7 +944,8 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 			string_add(d, comm);
 		else if (STATE(d) != CON_PLAYING)	/* In menus, etc. */
 			nanny(d, comm);
-		else {	/* else: we're playing normally. */
+		else  	/* else: we're playing normally. */
+		{
 			if (aliased)	/* To prevent recursive aliases. */
 				d->has_prompt = 1;	/* To get newline before next cmd output. */
 			else if (perform_alias(d, comm))	/* Run it through aliasing system */
@@ -897,9 +955,11 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		}
 	}
 
-	for (d = descriptor_list; d; d = next_d) {
+	for (d = descriptor_list; d; d = next_d)
+	{
 		next_d = d->next;
-		if ((!d->has_prompt || *(d->output)) && FD_ISSET(d->descriptor, &output_set)) {
+		if ((!d->has_prompt || *(d->output)) && FD_ISSET(d->descriptor, &output_set))
+		{
 			if (process_output(d) < 0)
 				close_socket(d, FALSE);	// закрыл соединение
 			else
@@ -911,9 +971,11 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 
 #if 0
 	/* Send queued output out to the operating system (ultimately to user). */
-	for (d = descriptor_list; d; d = next_d) {
+	for (d = descriptor_list; d; d = next_d)
+	{
 		next_d = d->next;
-		if (*(d->output) && FD_ISSET(d->descriptor, &output_set)) {	/* Output for this player is ready */
+		if (*(d->output) && FD_ISSET(d->descriptor, &output_set))  	/* Output for this player is ready */
+		{
 			if (process_output(d) < 0)
 				close_socket(d, FALSE);
 			else
@@ -922,9 +984,11 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 	}
 
 	/* Print prompts for other descriptors who had no other output */
-	for (d = descriptor_list; d; d = d->next) {
-		if (!d->has_prompt) {	//sprintf(buf,"\r\n%s",make_prompt(d));
-		//from_koi(buf, d->keytable);
+	for (d = descriptor_list; d; d = d->next)
+	{
+		if (!d->has_prompt)  	//sprintf(buf,"\r\n%s",make_prompt(d));
+		{
+			//from_koi(buf, d->keytable);
 			SEND_TO_Q(make_prompt(d), d);
 			SEND_TO_Q(end_line, d);
 			d->has_prompt = 2;
@@ -933,7 +997,8 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 #endif
 
 	/* Kick out folks in the CON_CLOSE or CON_DISCONNECT state */
-	for (d = descriptor_list; d; d = next_d) {
+	for (d = descriptor_list; d; d = next_d)
+	{
 		next_d = d->next;
 		if (STATE(d) == CON_CLOSE || STATE(d) == CON_DISCONNECT)
 			close_socket(d, FALSE);
@@ -967,18 +1032,22 @@ void game_loop(socket_t mother_desc)
 	gettimeofday(&last_time, (struct timezone *) 0);
 
 	/* The Main Loop.  The Big Cheese.  The Top Dog.  The Head Honcho.  The.. */
-	while (!shutting_down()) {	/* Sleep if we don't have any connections */
-		if (descriptor_list == NULL) {
+	while (!shutting_down())  	/* Sleep if we don't have any connections */
+	{
+		if (descriptor_list == NULL)
+		{
 			log("No connections.  Going to sleep.");
 			make_who2html();
 			FD_ZERO(&input_set);
 			FD_SET(mother_desc, &input_set);
-			if (select(mother_desc + 1, &input_set, (fd_set *) 0, (fd_set *) 0, NULL) < 0) {
+			if (select(mother_desc + 1, &input_set, (fd_set *) 0, (fd_set *) 0, NULL) < 0)
+			{
 				if (errno == EINTR)
 					log("Waking up to process signal.");
 				else
 					perror("SYSERR: Select coma");
-			} else
+			}
+			else
 				log("New connection.  Waking up.");
 			gettimeofday(&last_time, (struct timezone *) 0);
 		}
@@ -989,7 +1058,8 @@ void game_loop(socket_t mother_desc)
 		FD_SET(mother_desc, &input_set);
 
 		maxdesc = mother_desc;
-		for (d = descriptor_list; d; d = d->next) {
+		for (d = descriptor_list; d; d = d->next)
+		{
 #ifndef CIRCLE_WINDOWS
 			if (d->descriptor > maxdesc)
 				maxdesc = d->descriptor;
@@ -1013,9 +1083,12 @@ void game_loop(socket_t mother_desc)
 		 * If we were asleep for more than one pass, count missed pulses and sleep
 		 * until we're resynchronized with the next upcoming pulse.
 		 */
-		if (process_time.tv_sec == 0 && process_time.tv_usec < OPT_USEC) {
+		if (process_time.tv_sec == 0 && process_time.tv_usec < OPT_USEC)
+		{
 			missed_pulses = 0;
-		} else {
+		}
+		else
+		{
 			missed_pulses = process_time.tv_sec * PASSES_PER_SEC;
 			missed_pulses += process_time.tv_usec / OPT_USEC;
 			process_time.tv_sec = 0;
@@ -1031,7 +1104,8 @@ void game_loop(socket_t mother_desc)
 		timediff(&timeout, &last_time, &now);
 
 		/* Go to sleep */
-		do {
+		do
+		{
 			circle_sleep(&timeout);
 			gettimeofday(&now, (struct timezone *) 0);
 			timediff(&timeout, &last_time, &now);
@@ -1045,7 +1119,8 @@ void game_loop(socket_t mother_desc)
 		 */
 		missed_pulses++;
 
-		if (missed_pulses <= 0) {
+		if (missed_pulses <= 0)
+		{
 			log("SYSERR: **BAD** MISSED_PULSES NONPOSITIVE (%d), TIME GOING BACKWARDS!!", missed_pulses);
 			missed_pulses = 1;
 		}
@@ -1053,13 +1128,15 @@ void game_loop(socket_t mother_desc)
 		/* If we missed more than 30 seconds worth of pulses, just do 30 secs */
 		/* изменили на 4 сек */
 		/* изменили на 1 сек -- слишком уж опасно лагает :) */
-		if (missed_pulses > (1 * PASSES_PER_SEC)) {
+		if (missed_pulses > (1 * PASSES_PER_SEC))
+		{
 			log("SYSERR: Missed %d seconds worth of pulses (%d).", missed_pulses / PASSES_PER_SEC, missed_pulses);
 			missed_pulses = 1 * PASSES_PER_SEC;
 		}
 
 		/* Now execute the heartbeat functions */
-		while (missed_pulses--) {
+		while (missed_pulses--)
+		{
 			process_io(input_set, output_set, exc_set, null_set, mother_desc, maxdesc);
 			heartbeat();
 		}
@@ -1102,24 +1179,27 @@ inline void heartbeat()
 	process_events();
 	//log("Stop it...");
 
-	if (!((pulse + 1) % PULSE_DG_SCRIPT)) {	//log("Triggers check...");
+	if (!((pulse + 1) % PULSE_DG_SCRIPT))  	//log("Triggers check...");
+	{
 		script_trigger_check();
 		//log("Stop it...");
 	}
 
-	if (!((pulse + 2) % (60 * PASSES_PER_SEC))) {	//log("Sanity check...");
+	if (!((pulse + 2) % (60 * PASSES_PER_SEC)))  	//log("Sanity check...");
+	{
 		sanity_check();
 		//log("Stop it...");
 	}
 
-  /*** Remove after hour update
-  if (!(pulse % PULSE_ZONE))
-     {//log("Zone update...");
-      zone_update();
-     }
-   ****************************/
+	/*** Remove after hour update
+	if (!(pulse % PULSE_ZONE))
+	   {//log("Zone update...");
+	    zone_update();
+	   }
+	 ****************************/
 
-	if (!(pulse % (40 * PASSES_PER_SEC))) {	/* 40 seconds *///log("Check idle password...");
+	if (!(pulse % (40 * PASSES_PER_SEC)))
+	{	/* 40 seconds *///log("Check idle password...");
 		check_idle_passwords();
 		//log("Stop it...");
 	}
@@ -1142,19 +1222,23 @@ inline void heartbeat()
 	}
 	//log("Stop it...");
 
-	if (!(pulse % (2 * PASSES_PER_SEC))) {
+	if (!(pulse % (2 * PASSES_PER_SEC)))
+	{
 		DeathTrap::activity();
 		underwater_check();
 	}
 
-	if (!((pulse + 3) % PULSE_VIOLENCE)) {	//log("Perform violence...");
+	if (!((pulse + 3) % PULSE_VIOLENCE))  	//log("Perform violence...");
+	{
 		perform_violence();
 		//log("Stop it...");
 	}
 
-	if (!(pulse % (30 * PASSES_PER_SEC))) {
+	if (!(pulse % (30 * PASSES_PER_SEC)))
+	{
 		make_who2html();
-		if (uptime_minutes >= (reboot_uptime - 30) && shutdown_time == 0) {
+		if (uptime_minutes >= (reboot_uptime - 30) && shutdown_time == 0)
+		{
 			//reboot after 30 minutes minimum. Auto reboot cannot run earlier.
 			send_to_all("АВТОМАТИЧЕСКАЯ ПЕРЕЗАГРУЗКА ЧЕРЕЗ 30 МИНУТ.\r\n");
 			shutdown_time = time(NULL) + 1800;
@@ -1163,24 +1247,28 @@ inline void heartbeat()
 		}
 	}
 
-	if (!(pulse % (AUCTION_PULSES * PASSES_PER_SEC))) {	//log("Auction update...");
+	if (!(pulse % (AUCTION_PULSES * PASSES_PER_SEC)))  	//log("Auction update...");
+	{
 		tact_auction();
 		//log("Stop it...");
 	}
 
-	if (!(pulse % (SECS_PER_ROOM_AFFECT * PASSES_PER_SEC))) {	//log ("Player affect update...");
+	if (!(pulse % (SECS_PER_ROOM_AFFECT * PASSES_PER_SEC)))  	//log ("Player affect update...");
+	{
 		room_affect_update();
 		//log("Stop it...");
 	}
 
-	if (!(pulse % (SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC))) {	//log ("Player affect update...");
+	if (!(pulse % (SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC)))  	//log ("Player affect update...");
+	{
 		player_affect_update();
 		//log("Stop it...");
 	}
 
 
 
-	if (!(pulse % (TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {	//log("Hour msg update...");
+	if (!(pulse % (TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))  	//log("Hour msg update...");
+	{
 		hour_update();
 		//log("Stop it...");
 		//log("Weather and time...");
@@ -1191,13 +1279,15 @@ inline void heartbeat()
 		//log("Stop it...");
 	}
 
-	if (!((pulse + 5) % PULSE_ZONE)) {	//log("Zone update...");
+	if (!((pulse + 5) % PULSE_ZONE))  	//log("Zone update...");
+	{
 		zone_update();
 		//log("Stop it...");
 	}
 
 
-	if (!(pulse % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {	//log("Affect update...");
+	if (!(pulse % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))  	//log("Affect update...");
+	{
 		mobile_affect_update();
 		//log("Stop it...");
 		//log("Point update...");
@@ -1208,17 +1298,20 @@ inline void heartbeat()
 		//log("Stop it...");
 	}
 
-	if (pulse == 720) {	//log("Dupe player index...");
+	if (pulse == 720)  	//log("Dupe player index...");
+	{
 		dupe_player_index();
 		//log("Stop it...");
 	}
 	//log("Beat points update...");
-	if (!(pulse % PASSES_PER_SEC)) {
+	if (!(pulse % PASSES_PER_SEC))
+	{
 		beat_points_update(pulse / PASSES_PER_SEC);
-        //  log("Stop it...");
+		//  log("Stop it...");
 	}
 
-	if (FRAC_SAVE && auto_save && !((pulse + 7) % PASSES_PER_SEC)) {	// 1 game secunde
+	if (FRAC_SAVE && auto_save && !((pulse + 7) % PASSES_PER_SEC))  	// 1 game secunde
+	{
 		//log("Fractional Crash save all...");
 		Crash_frac_save_all((pulse / PASSES_PER_SEC) % PLAYER_SAVE_ACTIVITY);
 		//log("Stop it...");
@@ -1227,21 +1320,26 @@ inline void heartbeat()
 		//log("Stop it...");
 	}
 //F@N++
-	if (EXCHANGE_AUTOSAVETIME && auto_save && !((pulse + 9) % (EXCHANGE_AUTOSAVETIME * PASSES_PER_SEC))) {
+	if (EXCHANGE_AUTOSAVETIME && auto_save && !((pulse + 9) % (EXCHANGE_AUTOSAVETIME * PASSES_PER_SEC)))
+	{
 		exchange_database_save();
 	}
 
-	if (EXCHANGE_AUTOSAVEBACKUPTIME && !((pulse + 9) % (EXCHANGE_AUTOSAVEBACKUPTIME * PASSES_PER_SEC))) {
+	if (EXCHANGE_AUTOSAVEBACKUPTIME && !((pulse + 9) % (EXCHANGE_AUTOSAVEBACKUPTIME * PASSES_PER_SEC)))
+	{
 		exchange_database_savebackup();
 	}
 //F@N--
 
-	if (auto_save && !((pulse + 9) % (60 * PASSES_PER_SEC))) {
+	if (auto_save && !((pulse + 9) % (60 * PASSES_PER_SEC)))
+	{
 		SaveGlobalUID();
 	}
 
-	if (!FRAC_SAVE && auto_save && !((pulse + 11) % (60 * PASSES_PER_SEC))) {	// 1 minute
-		if (++mins_since_crashsave >= autosave_time) {
+	if (!FRAC_SAVE && auto_save && !((pulse + 11) % (60 * PASSES_PER_SEC)))  	// 1 minute
+	{
+		if (++mins_since_crashsave >= autosave_time)
+		{
 			mins_since_crashsave = 0;
 			//log("Crash save all...");
 			Crash_save_all();
@@ -1249,7 +1347,8 @@ inline void heartbeat()
 			check_at = time(NULL);
 			if (last_rent_check > check_at)
 				last_rent_check = check_at;
-			if (((check_at - last_rent_check) / 60)) {	//log("Crash rent time...");
+			if (((check_at - last_rent_check) / 60))  	//log("Crash rent time...");
+			{
 				save_start = time(NULL);
 				Crash_rent_time((check_at - last_rent_check) / 60);
 				//log("Saving rent timer time = %ld(s)",time(NULL) - save_start);
@@ -1260,7 +1359,8 @@ inline void heartbeat()
 	}
 
 	// снятие денег за шмот в клановых сундуках. сейв кланов, сундуков
-	if (!((pulse + 14) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC))) {
+	if (!((pulse + 14) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
+	{
 		Clan::ChestUpdate();
 		Clan::ChestSave();
 		Clan::ClanSave();
@@ -1272,34 +1372,39 @@ inline void heartbeat()
 	if (!((pulse + 16) % (60 * CLAN_TOP_REFRESH_PERIOD * PASSES_PER_SEC)))
 		Clan::SyncTopExp();
 
-	if (!((pulse + 17) % (5 * 60 * PASSES_PER_SEC))) {	/* 5 minutes *///log("Record usage...");
+	if (!((pulse + 17) % (5 * 60 * PASSES_PER_SEC)))
+	{	/* 5 minutes *///log("Record usage...");
 		record_usage();
 		ban->reload_proxy_ban(ban->RELOAD_MODE_TMPFILE);
 	}
 
 	// раз в 5 минут вывод + сохранение списков неодобренных титулов и зареганных email'ов
 	// TODO: добить тут с именами
-	if (!((pulse + 18) % (5 * 60 * PASSES_PER_SEC))) {
+	if (!((pulse + 18) % (5 * 60 * PASSES_PER_SEC)))
+	{
 		god_work_invoice();
 		TitleSystem::save_title_list();
 		RegisterSystem::save();
 	}
 
 // shapirus: ротация логов. сислог каждые 2 часа, остальные раз в сутки.
-	if (!((pulse + 19) % PULSE_LOGROTATE)) {
+	if (!((pulse + 19) % PULSE_LOGROTATE))
+	{
 		time_t r_now = time(NULL);
 		syslog_n = localtime(&r_now);
 
 // инициализируем
-		if (lr_firstrun) {
+		if (lr_firstrun)
+		{
 			memcpy(&syslog_o, syslog_n, sizeof(struct tm));
 			lr_firstrun = 0;
 		}
 // проверка необходимости ротации и ротация
 		if ((syslog_n->tm_year != syslog_o.tm_year ||
-		     syslog_n->tm_mon != syslog_o.tm_mon ||
-		     syslog_n->tm_mday != syslog_o.tm_mday ||
-		     syslog_n->tm_hour != syslog_o.tm_hour) && syslog_n->tm_hour % 5 == 0) {
+				syslog_n->tm_mon != syslog_o.tm_mon ||
+				syslog_n->tm_mday != syslog_o.tm_mday ||
+				syslog_n->tm_hour != syslog_o.tm_hour) && syslog_n->tm_hour % 5 == 0)
+		{
 			rotate(&logs[0], syslog_pos, syslog_n);
 			syslog_pos = ftell(logs[0].logfile);
 			memcpy(&syslog_o, syslog_n, sizeof(struct tm));
@@ -1307,16 +1412,19 @@ inline void heartbeat()
 	}
 
 	// апдейт таймеров всех списков + пурж чего надо
-	if (!((pulse + 20) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
+	if (!((pulse + 20) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	{
 		Depot::update_timers();
 		Glory::timers_update();
 	}
 	// сохранение онлайновых списков шмота
-	if (!((pulse + 21) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
+	if (!((pulse + 21) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	{
 		Depot::save_all_online_objs();
 	}
 	// сохранение таймер-инфы всех шмоток в общий файл
-	if (!((pulse + 22) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
+	if (!((pulse + 22) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	{
 		Depot::save_timedata();
 	}
 	// сохранение файла чексумм, если в нем были изменения
@@ -1345,19 +1453,25 @@ void timediff(struct timeval *rslt, struct timeval *a, struct timeval *b)
 {
 	if (a->tv_sec < b->tv_sec)
 		*rslt = null_time;
-	else if (a->tv_sec == b->tv_sec) {
+	else if (a->tv_sec == b->tv_sec)
+	{
 		if (a->tv_usec < b->tv_usec)
 			*rslt = null_time;
-		else {
+		else
+		{
 			rslt->tv_sec = 0;
 			rslt->tv_usec = a->tv_usec - b->tv_usec;
 		}
-	} else {		/* a->tv_sec > b->tv_sec */
+	}
+	else  		/* a->tv_sec > b->tv_sec */
+	{
 		rslt->tv_sec = a->tv_sec - b->tv_sec;
-		if (a->tv_usec < b->tv_usec) {
+		if (a->tv_usec < b->tv_usec)
+		{
 			rslt->tv_usec = a->tv_usec + 1000000 - b->tv_usec;
 			rslt->tv_sec--;
-		} else
+		}
+		else
 			rslt->tv_usec = a->tv_usec - b->tv_usec;
 	}
 }
@@ -1372,7 +1486,8 @@ void timeadd(struct timeval *rslt, struct timeval *a, struct timeval *b)
 	rslt->tv_sec = a->tv_sec + b->tv_sec;
 	rslt->tv_usec = a->tv_usec + b->tv_usec;
 
-	while (rslt->tv_usec >= 1000000) {
+	while (rslt->tv_usec >= 1000000)
+	{
 		rslt->tv_usec -= 1000000;
 		rslt->tv_sec++;
 	}
@@ -1384,7 +1499,8 @@ void record_usage(void)
 	int sockets_connected = 0, sockets_playing = 0;
 	DESCRIPTOR_DATA *d;
 
-	for (d = descriptor_list; d; d = d->next) {
+	for (d = descriptor_list; d; d = d->next)
+	{
 		sockets_connected++;
 		if (STATE(d) == CON_PLAYING)
 			sockets_playing++;
@@ -1398,7 +1514,7 @@ void record_usage(void)
 
 		getrusage(RUSAGE_SELF, &ru);
 		log("rusage: user time: %ld sec, system time: %ld sec, max res size: %ld",
-		    ru.ru_utime.tv_sec, ru.ru_stime.tv_sec, ru.ru_maxrss);
+			ru.ru_utime.tv_sec, ru.ru_stime.tv_sec, ru.ru_maxrss);
 	}
 #endif
 
@@ -1418,7 +1534,8 @@ int posi_value(int real, int max)
 char *color_value(CHAR_DATA * ch, int real, int max)
 {
 	static char color[256];
-	switch (posi_value(real, max)) {
+	switch (posi_value(real, max))
+	{
 	case -1:
 	case 0:
 	case 1:
@@ -1475,23 +1592,23 @@ char *show_state(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	int ch_hp = 11;
 	static char *WORD_STATE[12] = { "Смертельно ранен",
-		"О.тяжело ранен",
-		"О.тяжело ранен",
-		"Тяжело ранен",
-		"Тяжело ранен",
-		"Ранен",
-		"Ранен",
-		"Ранен",
-		"Легко ранен",
-		"Легко ранен",
-		"Слегка ранен",
-		"Невредим"
-	};
+									"О.тяжело ранен",
+									"О.тяжело ранен",
+									"Тяжело ранен",
+									"Тяжело ранен",
+									"Ранен",
+									"Ранен",
+									"Ранен",
+									"Легко ранен",
+									"Легко ранен",
+									"Слегка ранен",
+									"Невредим"
+								  };
 
 	ch_hp = posi_value(GET_HIT(victim), GET_REAL_MAX_HIT(victim)) + 1;
 	sprintf(buf, "%s[%s:%s%s]%s ",
-		color_value(ch, GET_HIT(victim), GET_REAL_MAX_HIT(victim)),
-		PERS(victim, ch, 0), WORD_STATE[ch_hp], GET_CH_SUF_6(victim), CCNRM(ch, C_NRM));
+			color_value(ch, GET_HIT(victim), GET_REAL_MAX_HIT(victim)),
+			PERS(victim, ch, 0), WORD_STATE[ch_hp], GET_CH_SUF_6(victim), CCNRM(ch, C_NRM));
 	return buf;
 }
 
@@ -1513,7 +1630,8 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		sprintf(prompt, "\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы (%d/%d).", d->showstr_page, d->showstr_count);
 	else if (d->str)
 		strcpy(prompt, "] ");
-	else if (STATE(d) == CON_PLAYING && !IS_NPC(d->character)) {
+	else if (STATE(d) == CON_PLAYING && !IS_NPC(d->character))
+	{
 		int count = 0;
 		*prompt = '\0';
 
@@ -1522,60 +1640,70 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 			count += sprintf(prompt + count, "i%d ", GET_INVIS_LEV(d->character));
 
 		// Hits state
-		if (PRF_FLAGGED(d->character, PRF_DISPHP)) {
+		if (PRF_FLAGGED(d->character, PRF_DISPHP))
+		{
 			count +=
-			    sprintf(prompt + count, "%s",
-				    color_value(d->character, GET_HIT(d->character), GET_REAL_MAX_HIT(d->character)));
+				sprintf(prompt + count, "%s",
+						color_value(d->character, GET_HIT(d->character), GET_REAL_MAX_HIT(d->character)));
 			count += sprintf(prompt + count, "%dH%s ", GET_HIT(d->character), CCNRM(d->character, C_NRM));
 		}
 		// Moves state
-		if (PRF_FLAGGED(d->character, PRF_DISPMOVE)) {
+		if (PRF_FLAGGED(d->character, PRF_DISPMOVE))
+		{
 			count +=
-			    sprintf(prompt + count, "%s",
-				    color_value(d->character, GET_MOVE(d->character), GET_REAL_MAX_MOVE(d->character)));
+				sprintf(prompt + count, "%s",
+						color_value(d->character, GET_MOVE(d->character), GET_REAL_MAX_MOVE(d->character)));
 			count += sprintf(prompt + count, "%dM%s ", GET_MOVE(d->character), CCNRM(d->character, C_NRM));
 		}
 		// Mana state
 		if (PRF_FLAGGED(d->character, PRF_DISPMANA)
-		    && IS_MANA_CASTER(d->character)) {
+				&& IS_MANA_CASTER(d->character))
+		{
 			perc = (100 * GET_MANA_STORED(d->character)) / GET_MAX_MANA(d->character);
 			count +=
-			    sprintf(prompt + count, "%s%dз%s ",
-				    CCMANA(d->character, C_NRM, perc),
-				    GET_MANA_STORED(d->character), CCNRM(d->character, C_NRM));
+				sprintf(prompt + count, "%s%dз%s ",
+						CCMANA(d->character, C_NRM, perc),
+						GET_MANA_STORED(d->character), CCNRM(d->character, C_NRM));
 		}
 		// Expirience
 		// if (PRF_FLAGGED(d->character, PRF_DISPEXP))
 		//    count += sprintf(prompt + count, "%ldx ", GET_EXP(d->character));
-		if (PRF_FLAGGED(d->character, PRF_DISPEXP)) {
+		if (PRF_FLAGGED(d->character, PRF_DISPEXP))
+		{
 			if (IS_IMMORTAL(d->character))
 				count += sprintf(prompt + count, "??? ");
 			else
 				count += sprintf(prompt + count, "%ldо ",
-						 level_exp(d->character,
-							   GET_LEVEL(d->character) + 1) - GET_EXP(d->character));
+								 level_exp(d->character,
+										   GET_LEVEL(d->character) + 1) - GET_EXP(d->character));
 		}
 		// Mem Info
 		if (PRF_FLAGGED(d->character, PRF_DISPMANA)
-		    && !IS_MANA_CASTER(d->character)) {
-			if (!MEMQUEUE_EMPTY(d->character)) {
+				&& !IS_MANA_CASTER(d->character))
+		{
+			if (!MEMQUEUE_EMPTY(d->character))
+			{
 				door = mana_gain(d->character);
-				if (door) {
+				if (door)
+				{
 					sec_hp =
-					    MAX(0, 1 + GET_MEM_TOTAL(d->character) - GET_MEM_COMPLETED(d->character));
+						MAX(0, 1 + GET_MEM_TOTAL(d->character) - GET_MEM_COMPLETED(d->character));
 					sec_hp = sec_hp * 60 / door;
 					ch_hp = sec_hp / 60;
 					sec_hp %= 60;
 					count += sprintf(prompt + count, "Зауч:%d:%02d ", ch_hp, sec_hp);
-				} else
+				}
+				else
 					count += sprintf(prompt + count, "Зауч:- ");
-			} else
+			}
+			else
 				count += sprintf(prompt + count, "Зауч:0 ");
 		}
 
 
 		if (!FIGHTING(d->character)
-		    || IN_ROOM(d->character) != IN_ROOM(FIGHTING(d->character))) {	/* SHOW NON COMBAT INFO */
+				|| IN_ROOM(d->character) != IN_ROOM(FIGHTING(d->character)))  	/* SHOW NON COMBAT INFO */
+		{
 
 			if (PRF_FLAGGED(d->character, PRF_DISPLEVEL))
 				count += sprintf(prompt + count, "%dL ", GET_LEVEL(d->character));
@@ -1583,33 +1711,38 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 			if (PRF_FLAGGED(d->character, PRF_DISPGOLD))
 				count += sprintf(prompt + count, "%dG ", get_gold(d->character));
 
-			if (PRF_FLAGGED(d->character, PRF_DISPEXITS)) {
+			if (PRF_FLAGGED(d->character, PRF_DISPEXITS))
+			{
 				count += sprintf(prompt + count, "Вых:");
 				if (!AFF_FLAGGED(d->character, AFF_BLIND))
-					for (door = 0; door < NUM_OF_DIRS; door++) {
+					for (door = 0; door < NUM_OF_DIRS; door++)
+					{
 						if (EXIT(d->character, door) &&
-						    EXIT(d->character, door)->to_room != NOWHERE &&
-						    !EXIT_FLAGGED(EXIT(d->character, door), EX_HIDDEN))
+								EXIT(d->character, door)->to_room != NOWHERE &&
+								!EXIT_FLAGGED(EXIT(d->character, door), EX_HIDDEN))
 							count +=
-							    EXIT_FLAGGED(EXIT(d->character, door),
-									 EX_CLOSED) ? sprintf(prompt + count,
-											      "(%s)",
-											      dirs[door]) :
-							    sprintf(prompt + count, "%s", dirs[door]);
+								EXIT_FLAGGED(EXIT(d->character, door),
+											 EX_CLOSED) ? sprintf(prompt + count,
+																  "(%s)",
+																  dirs[door]) :
+								sprintf(prompt + count, "%s", dirs[door]);
 					}
 			}
-		} else {
+		}
+		else
+		{
 			if (PRF_FLAGGED(d->character, PRF_DISPFIGHT))
 				count += sprintf(prompt + count, "%s", show_state(d->character, d->character));
 			if (FIGHTING(FIGHTING(d->character))
-			    && FIGHTING(FIGHTING(d->character)) != d->character)
+					&& FIGHTING(FIGHTING(d->character)) != d->character)
 				count +=
-				    sprintf(prompt + count, "%s",
-					    show_state(d->character, FIGHTING(FIGHTING(d->character))));
+					sprintf(prompt + count, "%s",
+							show_state(d->character, FIGHTING(FIGHTING(d->character))));
 			count += sprintf(prompt + count, "%s", show_state(d->character, FIGHTING(d->character)));
 		};
 		strcat(prompt, "> ");
-	} else if (STATE(d) == CON_PLAYING && IS_NPC(d->character))
+	}
+	else if (STATE(d) == CON_PLAYING && IS_NPC(d->character))
 		sprintf(prompt, "{%s}-> ", GET_NAME(d->character));
 	else
 		*prompt = '\0';
@@ -1627,10 +1760,13 @@ void write_to_q(const char *txt, struct txt_q *queue, int aliased)
 	newt->aliased = aliased;
 
 	/* queue empty? */
-	if (!queue->head) {
+	if (!queue->head)
+	{
 		newt->next = NULL;
 		queue->head = queue->tail = newt;
-	} else {
+	}
+	else
+	{
 		queue->tail->next = newt;
 		queue->tail = newt;
 		newt->next = NULL;
@@ -1665,7 +1801,8 @@ void flush_queues(DESCRIPTOR_DATA * d)
 {
 	int dummy;
 
-	if (d->large_outbuf) {
+	if (d->large_outbuf)
+	{
 		d->large_outbuf->next = bufpool;
 		bufpool = d->large_outbuf;
 	}
@@ -1681,14 +1818,16 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 	if (t->bufptr < 0)
 		return;
 
-	if ((ubyte) * txt == 255) {
+	if ((ubyte) * txt == 255)
+	{
 		return;
 	}
 
 	size = strlen(txt);
 
 	/* if we have enough space, just write to buffer and that's it! */
-	if (t->bufspace >= size) {
+	if (t->bufspace >= size)
+	{
 		strcpy(t->output + t->bufptr, txt);
 		t->bufspace -= size;
 		t->bufptr += size;
@@ -1698,7 +1837,8 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 	 * If the text is too big to fit into even a large buffer, chuck the
 	 * new text and switch to the overflow state.
 	 */
-	if (size + t->bufptr > LARGE_BUFSIZE - 1) {
+	if (size + t->bufptr > LARGE_BUFSIZE - 1)
+	{
 		t->bufptr = -1;
 		buf_overflows++;
 		return;
@@ -1706,10 +1846,13 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 	buf_switches++;
 
 	/* if the pool has a buffer in it, grab it */
-	if (bufpool != NULL) {
+	if (bufpool != NULL)
+	{
 		t->large_outbuf = bufpool;
 		bufpool = bufpool->next;
-	} else {		/* else create a new one */
+	}
+	else  		/* else create a new one */
+	{
 		CREATE(t->large_outbuf, struct txt_block, 1);
 		CREATE(t->large_outbuf->text, char, LARGE_BUFSIZE);
 		buf_largecount++;
@@ -1748,11 +1891,15 @@ struct in_addr *get_bind_addr()
 	memset((char *) &bind_addr, 0, sizeof(bind_addr));
 
 	/* If DLFT_IP is unspecified, use INADDR_ANY */
-	if (DFLT_IP == NULL) {
+	if (DFLT_IP == NULL)
+	{
 		bind_addr.s_addr = htonl(INADDR_ANY);
-	} else {
+	}
+	else
+	{
 		/* If the parsing fails, use INADDR_ANY */
-		if (!parse_ip(DFLT_IP, &bind_addr)) {
+		if (!parse_ip(DFLT_IP, &bind_addr))
+		{
 			log("SYSERR: DFLT_IP of %s appears to be an invalid IP address", DFLT_IP);
 			bind_addr.s_addr = htonl(INADDR_ANY);
 		}
@@ -1785,9 +1932,12 @@ int parse_ip(const char *addr, struct in_addr *inaddr)
 {
 	long ip;
 
-	if ((ip = inet_addr(addr)) == -1) {
+	if ((ip = inet_addr(addr)) == -1)
+	{
 		return (0);
-	} else {
+	}
+	else
+	{
 		inaddr->s_addr = (unsigned long) ip;
 		return (1);
 	}
@@ -1799,7 +1949,7 @@ int parse_ip(const char *addr, struct in_addr *inaddr)
 int parse_ip(const char *addr, struct in_addr *inaddr)
 {
 	log("SYSERR: warning: you're trying to set DFLT_IP but your system has no\n"
-	    "functions to parse IP addresses (how bizarre!)");
+		"functions to parse IP addresses (how bizarre!)");
 	return (0);
 }
 
@@ -1819,12 +1969,14 @@ int set_sendbuf(socket_t s)
 #if defined(SO_SNDBUF) && !defined(CIRCLE_MACINTOSH)
 	int opt = MAX_SOCK_BUF;
 
-	if (setsockopt(s, SOL_SOCKET, SO_SNDBUF, (char *) &opt, sizeof(opt)) < 0) {
+	if (setsockopt(s, SOL_SOCKET, SO_SNDBUF, (char *) &opt, sizeof(opt)) < 0)
+	{
 		perror("SYSERR: setsockopt SNDBUF");
 		return (-1);
 	}
 #if 0
-	if (setsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *) &opt, sizeof(opt)) < 0) {
+	if (setsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *) &opt, sizeof(opt)) < 0)
+	{
 		perror("SYSERR: setsockopt RCVBUF");
 		return (-1);
 	}
@@ -1847,7 +1999,8 @@ int new_descriptor(socket_t s)
 
 	/* accept the new connection */
 	i = sizeof(peer);
-	if ((desc = accept(s, (struct sockaddr *) &peer, &i)) == INVALID_SOCKET) {
+	if ((desc = accept(s, (struct sockaddr *) & peer, &i)) == INVALID_SOCKET)
+	{
 		perror("SYSERR: accept");
 		return (-1);
 	}
@@ -1855,7 +2008,8 @@ int new_descriptor(socket_t s)
 	nonblock(desc);
 
 	/* set the send buffer size */
-	if (set_sendbuf(desc) < 0) {
+	if (set_sendbuf(desc) < 0)
+	{
 		CLOSE_SOCKET(desc);
 		return (0);
 	}
@@ -1864,7 +2018,8 @@ int new_descriptor(socket_t s)
 	for (newd = descriptor_list; newd; newd = newd->next)
 		sockets_connected++;
 
-	if (sockets_connected >= max_players) {
+	if (sockets_connected >= max_players)
+	{
 		SEND_TO_SOCKET("Sorry, RUS MUD is full right now... please try again later!\r\n", desc);
 		CLOSE_SOCKET(desc);
 		return (0);
@@ -1874,14 +2029,17 @@ int new_descriptor(socket_t s)
 	memset((char *) newd, 0, sizeof(DESCRIPTOR_DATA));
 
 	/* find the sitename */
-	if (nameserver_is_slow || !(from = gethostbyaddr((char *) &peer.sin_addr, sizeof(peer.sin_addr), AF_INET))) {	/* resolution failed */
+	if (nameserver_is_slow || !(from = gethostbyaddr((char *) & peer.sin_addr, sizeof(peer.sin_addr), AF_INET)))  	/* resolution failed */
+	{
 		if (!nameserver_is_slow)
 			perror("SYSERR: gethostbyaddr");
 
 		/* find the numeric site address */
 		strncpy(newd->host, (char *) inet_ntoa(peer.sin_addr), HOST_LENGTH);
 		*(newd->host + HOST_LENGTH) = '\0';
-	} else {
+	}
+	else
+	{
 		strncpy(newd->host, from->h_name, HOST_LENGTH);
 		*(newd->host + HOST_LENGTH) = '\0';
 	}
@@ -1899,10 +2057,11 @@ int new_descriptor(socket_t s)
 	sprintf(buf2, "New connection from [%s]", newd->host);
 	mudlog(buf2, CMP, LVL_GOD, SYSLOG, FALSE);
 #endif
-	if (ban->is_banned(newd->host) == BanList::BAN_ALL) {
+	if (ban->is_banned(newd->host) == BanList::BAN_ALL)
+	{
 		time_t bantime = ban->getBanDate(newd->host);
 		sprintf(buf, "Sorry, your IP is banned till %s",
-			bantime == -1 ? "Infinite duration\r\n" : asctime(localtime(&bantime)));
+				bantime == -1 ? "Infinite duration\r\n" : asctime(localtime(&bantime)));
 		write_to_descriptor(desc, buf, strlen(buf));
 		CLOSE_SOCKET(desc);
 		// sprintf(buf2, "Connection attempt denied from [%s]", newd->host);
@@ -1939,10 +2098,10 @@ int new_descriptor(socket_t s)
 	descriptor_list = newd;
 
 	SEND_TO_Q("Using keytable\r\n"
-		  "  0) Koi-8\r\n"
-		  "  1) Alt\r\n"
-		  "  2) Windows(JMC,MMC)\r\n"
-		  "  3) Windows(zMUD)\r\n" "  4) Windows(zMUD ver. 6+)\r\n" "Select one : ", newd);
+			  "  0) Koi-8\r\n"
+			  "  1) Alt\r\n"
+			  "  2) Windows(JMC,MMC)\r\n"
+			  "  3) Windows(zMUD)\r\n" "  4) Windows(zMUD ver. 6+)\r\n" "Select one : ", newd);
 
 #if defined(HAVE_ZLIB)
 //  write_to_descriptor(newd->descriptor, will_sig, strlen(will_sig));
@@ -1965,7 +2124,8 @@ int process_output(DESCRIPTOR_DATA * t)
 
 	// Отправляю данные снуперам
 	/* handle snooping: prepend "% " and send to snooper */
-	if (t->output && t->snoop_by) {
+	if (t->output && t->snoop_by)
+	{
 		SEND_TO_Q("% ", t->snoop_by);
 		SEND_TO_Q(t->output, t->snoop_by);
 		SEND_TO_Q("%%", t->snoop_by);
@@ -2002,14 +2162,15 @@ int process_output(DESCRIPTOR_DATA * t)
 	for (c = 0; *(pi + c); c++)
 		*(pi + c) = (*(pi + c) == '_') ? ' ' : *(pi + c);
 
-	switch (t->keytable) {
+	switch (t->keytable)
+	{
 	case KT_ALT:
 		for (; *pi; *po = KtoA(*pi), pi++, po++);
 		break;
 	case KT_WIN:
 		for (; *pi; *po = KtoW(*pi), pi++, po++)
 			if (*pi == 'я')
-				*(po++) = 255;
+				* (po++) = 255;
 		break;
 	case KT_WINZ:
 		for (; *pi; *po = KtoW2(*pi), pi++, po++);
@@ -2022,7 +2183,8 @@ int process_output(DESCRIPTOR_DATA * t)
 		break;
 	}
 	*po = '\0';
-	for (c = 0; o[c]; c++) {
+	for (c = 0; o[c]; c++)
+	{
 		i[c] = o[c];
 	}
 	i[c] = 0;
@@ -2039,15 +2201,17 @@ int process_output(DESCRIPTOR_DATA * t)
 	 * This huge #ifdef could be a function of its own, if desired. -gg 2/27/99
 	 */
 #if defined(HAVE_ZLIB)
-	if (t->deflate) {	/* Complex case, compression, write it out. */
+	if (t->deflate)  	/* Complex case, compression, write it out. */
+	{
 		/* Keep compiler happy, and MUD, just in case we don't write anything. */
 		result = 1;
 
 		/* First we set up our input data. */
 		t->deflate->avail_in = strlen(i + offset);
-		t->deflate->next_in = (Bytef *) (i + offset);
+		t->deflate->next_in = (Bytef *)(i + offset);
 
-		do {
+		do
+		{
 			int df, prevsize = SMALL_BUFSIZE - t->deflate->avail_out;
 
 			/* If there is input or the output has reset from being previously full, run compression again. */
@@ -2057,11 +2221,12 @@ int process_output(DESCRIPTOR_DATA * t)
 
 			/* There should always be something new to write out. */
 			result =
-			    write_to_descriptor(t->descriptor, t->small_outbuf + prevsize,
-						SMALL_BUFSIZE - t->deflate->avail_out - prevsize);
+				write_to_descriptor(t->descriptor, t->small_outbuf + prevsize,
+									SMALL_BUFSIZE - t->deflate->avail_out - prevsize);
 
 			/* Wrap the buffer when we've run out of buffer space for the output. */
-			if (t->deflate->avail_out == 0) {
+			if (t->deflate->avail_out == 0)
+			{
 				t->deflate->avail_out = SMALL_BUFSIZE;
 				t->deflate->next_out = (Bytef *) t->small_outbuf;
 			}
@@ -2073,7 +2238,8 @@ int process_output(DESCRIPTOR_DATA * t)
 			/* Need to loop while we still have input or when the output buffer was previously full. */
 		}
 		while (t->deflate->avail_out == SMALL_BUFSIZE || t->deflate->avail_in);
-	} else
+	}
+	else
 #endif
 		result = write_to_descriptor(t->descriptor, i + offset, strlen(i + offset));
 
@@ -2083,7 +2249,8 @@ int process_output(DESCRIPTOR_DATA * t)
 	 * if we were using a large buffer, put the large buffer on the buffer pool
 	 * and switch back to the small one
 	 */
-	if (t->large_outbuf) {
+	if (t->large_outbuf)
+	{
 		t->large_outbuf->next = bufpool;
 		bufpool = t->large_outbuf;
 		t->large_outbuf = NULL;
@@ -2137,13 +2304,15 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 
 	result = send(desc, txt, length, 0);
 
-	if (result > 0) {
+	if (result > 0)
+	{
 		/* Write was sucessful */
 		number_of_bytes_written += result;
 		return (result);
 	}
 
-	if (result == 0) {
+	if (result == 0)
+	{
 		/* This should never happen! */
 		log("SYSERR: Huh??  write() returned 0???  Please report this!");
 		return (-1);
@@ -2172,13 +2341,15 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 
 	result = write(desc, txt, length);
 
-	if (result > 0) {
+	if (result > 0)
+	{
 		/* Write was successful. */
 		number_of_bytes_written += result;
 		return (result);
 	}
 
-	if (result == 0) {
+	if (result == 0)
+	{
 		/* This should never happen! */
 		log("SYSERR: Huh??  write() returned 0???  Please report this!");
 		return (-1);
@@ -2228,19 +2399,24 @@ int write_to_descriptor(socket_t desc, const char *txt, size_t total)
 {
 	ssize_t bytes_written, total_written = 0;
 
-	if (total == 0) {
+	if (total == 0)
+	{
 		log("write_to_descriptor: write nothing?!");
 		return 0;
 	}
 
-	while (total > 0) {
+	while (total > 0)
+	{
 		bytes_written = perform_socket_write(desc, txt, total);
 
-		if (bytes_written < 0) {
+		if (bytes_written < 0)
+		{
 			/* Fatal error.  Disconnect the player. */
 			perror("SYSERR: write_to_descriptor");
 			return (0);
-		} else if (bytes_written == 0) {
+		}
+		else if (bytes_written == 0)
+		{
 			/*
 			 * Temporary failure -- socket buffer full.  For now we'll just
 			 * cut off the player, but eventually we'll stuff the unsent
@@ -2249,7 +2425,9 @@ int write_to_descriptor(socket_t desc, const char *txt, size_t total)
 			 */
 			log("WARNING: write_to_descriptor: socket write would block.");
 			return (-total_written);
-		} else {
+		}
+		else
+		{
 			txt += bytes_written;
 			total -= bytes_written;
 			total_written += bytes_written;
@@ -2277,13 +2455,15 @@ ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left)
 #endif
 
 	/* Read was successful. */
-	if (ret > 0) {
+	if (ret > 0)
+	{
 		number_of_bytes_read += ret;
 		return (ret);
 	}
 
 	/* read() returned 0, meaning we got an EOF. */
-	if (ret == 0) {
+	if (ret == 0)
+	{
 		log("WARNING: EOF on socket read (connection broken by peer)");
 		return (-1);
 	}
@@ -2344,17 +2524,21 @@ int process_input(DESCRIPTOR_DATA * t)
 	read_point = t->inbuf + buf_length;
 	space_left = MAX_RAW_INPUT_LENGTH - buf_length - 1;
 
-	do {
-		if (space_left <= 0) {
+	do
+	{
+		if (space_left <= 0)
+		{
 			log("WARNING: process_input: about to close connection: input overflow");
 			return (-1);
 		}
 
 		bytes_read = perform_socket_read(t->descriptor, read_point, space_left);
 
-		if (bytes_read < 0) {	/* Error, disconnect them. */
+		if (bytes_read < 0)  	/* Error, disconnect them. */
+		{
 			return (-1);
-		} else if (bytes_read == 0)	/* Just blocking, no problems. */
+		}
+		else if (bytes_read == 0)	/* Just blocking, no problems. */
 			return (0);
 
 		/* at this point, we know we got some data from the read */
@@ -2363,16 +2547,20 @@ int process_input(DESCRIPTOR_DATA * t)
 
 #if defined(HAVE_ZLIB)
 		/* Search for an "Interpret As Command" marker. */
-		for (ptr = read_point; *ptr; ptr++) {
+		for (ptr = read_point; *ptr; ptr++)
+		{
 			if (ptr[0] != (char) IAC)
 				continue;
-			if (ptr[1] == (char) IAC) {
+			if (ptr[1] == (char) IAC)
+			{
 				// последовательность IAC IAC
 				// следует заменить просто на один IAC, но
 				// для раскладок KT_WIN/KT_WINZ6 это произойдет ниже.
 				// Почему так сделано - не знаю, но заменять не буду.
 				++ptr;
-			} else if (ptr[1] == (char) DO) {
+			}
+			else if (ptr[1] == (char) DO)
+			{
 				if (ptr[2] == (char) TELOPT_COMPRESS)
 					mccp_start(t, 1);
 				else if (ptr[2] == (char) TELOPT_COMPRESS2)
@@ -2382,7 +2570,9 @@ int process_input(DESCRIPTOR_DATA * t)
 				memmove(ptr, ptr + 3, bytes_read - (ptr - read_point) - 3 + 1);
 				bytes_read -= 3;
 				--ptr;
-			} else if (ptr[1] == (char) DONT) {
+			}
+			else if (ptr[1] == (char) DONT)
+			{
 				if (ptr[2] == (char) TELOPT_COMPRESS)
 					mccp_end(t, 1);
 				else if (ptr[2] == (char) TELOPT_COMPRESS2)
@@ -2397,7 +2587,8 @@ int process_input(DESCRIPTOR_DATA * t)
 #endif
 
 		/* search for a newline in the data we just read */
-		for (ptr = read_point, nl_pos = NULL; *ptr && !nl_pos;) {
+		for (ptr = read_point, nl_pos = NULL; *ptr && !nl_pos;)
+		{
 			if (ISNEWL(*ptr))
 				nl_pos = ptr;
 			ptr++;
@@ -2406,16 +2597,16 @@ int process_input(DESCRIPTOR_DATA * t)
 		read_point += bytes_read;
 		space_left -= bytes_read;
 
-/*
- * on some systems such as AIX, POSIX-standard nonblocking I/O is broken,
- * causing the MUD to hang when it encounters input not terminated by a
- * newline.  This was causing hangs at the Password: prompt, for example.
- * I attempt to compensate by always returning after the _first_ read, instead
- * of looping forever until a read returns -1.  This simulates non-blocking
- * I/O because the result is we never call read unless we know from select()
- * that data is ready (process_input is only called if select indicates that
- * this descriptor is in the read set).  JE 2/23/95.
- */
+		/*
+		 * on some systems such as AIX, POSIX-standard nonblocking I/O is broken,
+		 * causing the MUD to hang when it encounters input not terminated by a
+		 * newline.  This was causing hangs at the Password: prompt, for example.
+		 * I attempt to compensate by always returning after the _first_ read, instead
+		 * of looping forever until a read returns -1.  This simulates non-blocking
+		 * I/O because the result is we never call read unless we know from select()
+		 * that data is ready (process_input is only called if select indicates that
+		 * this descriptor is in the read set).  JE 2/23/95.
+		 */
 #if !defined(POSIX_NONBLOCK_BROKEN)
 	}
 	while (nl_pos == NULL);
@@ -2434,42 +2625,58 @@ int process_input(DESCRIPTOR_DATA * t)
 
 	read_point = t->inbuf;
 
-	while (nl_pos != NULL) {
+	while (nl_pos != NULL)
+	{
 		write_point = tmp;
 		space_left = MAX_INPUT_LENGTH - 1;
 
-		for (ptr = read_point; (space_left > 1) && (ptr < nl_pos); ptr++) {
+		for (ptr = read_point; (space_left > 1) && (ptr < nl_pos); ptr++)
+		{
 			/* Нафиг точку с запятой - задрали уроды с тригерами (Кард) */
-			if (*ptr == ';' && (STATE(t) == CON_PLAYING || STATE(t) == CON_EXDESC || STATE(t) == CON_WRITEBOARD)) {
+			if (*ptr == ';' && (STATE(t) == CON_PLAYING || STATE(t) == CON_EXDESC || STATE(t) == CON_WRITEBOARD))
+			{
 				/* Иммам или морталам с GF_DEMIGOD разрешено использовать ";". */
 				if (GET_LEVEL(t->character) < LVL_IMMORT && !GET_GOD_FLAG(t->character, GF_DEMIGOD))
 					*ptr = ',';
 			}
-			if (*ptr == '&' && (STATE(t) == CON_PLAYING || STATE(t) == CON_EXDESC || STATE(t) == CON_WRITEBOARD)) {
+			if (*ptr == '&' && (STATE(t) == CON_PLAYING || STATE(t) == CON_EXDESC || STATE(t) == CON_WRITEBOARD))
+			{
 				if (GET_LEVEL(t->character) < LVL_IMPL)
 					*ptr = '8';
 			}
-			if (*ptr == '\\' && (STATE(t) == CON_PLAYING || STATE(t) == CON_EXDESC || STATE(t) == CON_WRITEBOARD)) {
+			if (*ptr == '\\' && (STATE(t) == CON_PLAYING || STATE(t) == CON_EXDESC || STATE(t) == CON_WRITEBOARD))
+			{
 				if (GET_LEVEL(t->character) < LVL_GRGOD)
 					*ptr = '/';
 			}
-	     /*****/
-			if (*ptr == '\b' || *ptr == 127) {	/* handle backspacing or delete key */
-				if (write_point > tmp) {
-					if (*(--write_point) == '$') {
+			/*****/
+			if (*ptr == '\b' || *ptr == 127)  	/* handle backspacing or delete key */
+			{
+				if (write_point > tmp)
+				{
+					if (*(--write_point) == '$')
+					{
 						write_point--;
 						space_left += 2;
-					} else
+					}
+					else
 						space_left++;
 				}
-			} else if (isascii(*ptr) && isprint(*ptr)) {
-				if ((*(write_point++) = *ptr) == '$') {	/* copy one character */
+			}
+			else if (isascii(*ptr) && isprint(*ptr))
+			{
+				if ((*(write_point++) = *ptr) == '$')  	/* copy one character */
+				{
 					*(write_point++) = '$';	/* if it's a $, double it */
 					space_left -= 2;
-				} else
+				}
+				else
 					space_left--;
-			} else if ((ubyte) * ptr > 127) {
-				switch (t->keytable) {
+			}
+			else if ((ubyte) * ptr > 127)
+			{
+				switch (t->keytable)
+				{
 				default:
 					t->keytable = 0;
 				case 0:
@@ -2493,9 +2700,12 @@ int process_input(DESCRIPTOR_DATA * t)
 
 			/* Для того чтобы работали все триги в змаде - заменяем все вводимые 'z'
 			   на 'я' */
-			if (STATE(t) == CON_PLAYING || (STATE(t) == CON_EXDESC)) {
-				if (t->keytable == KT_WINZ6 || t->keytable == KT_WINZ) {
-					if (*(write_point - 1) == 'z') {
+			if (STATE(t) == CON_PLAYING || (STATE(t) == CON_EXDESC))
+			{
+				if (t->keytable == KT_WINZ6 || t->keytable == KT_WINZ)
+				{
+					if (*(write_point - 1) == 'z')
+					{
 						*(write_point - 1) = 'я';
 					}
 				}
@@ -2505,36 +2715,43 @@ int process_input(DESCRIPTOR_DATA * t)
 
 		*write_point = '\0';
 
-		if ((space_left <= 0) && (ptr < nl_pos)) {
+		if ((space_left <= 0) && (ptr < nl_pos))
+		{
 			char buffer[MAX_INPUT_LENGTH + 64];
 
 			sprintf(buffer, "Line too long.  Truncated to:\r\n%s\r\n", tmp);
 			SEND_TO_Q(buffer, t);
 		}
-		if (t->snoop_by) {
+		if (t->snoop_by)
+		{
 			SEND_TO_Q("% ", t->snoop_by);
 			SEND_TO_Q(tmp, t->snoop_by);
 			SEND_TO_Q("\r\n", t->snoop_by);
 		}
 		failed_subst = 0;
 
-		if ((tmp[0] == '~') && (tmp[1] == 0)) {
+		if ((tmp[0] == '~') && (tmp[1] == 0))
+		{
 			// очистка входной очереди
 			int dummy;
 			while (get_from_q(&t->input, buf2, &dummy));
 			// SEND_TO_Q("Входной буфер очищен.\r\n", t);
 			tmp[0] = 0;
-		} else if (*tmp == '!' && !(*(tmp + 1)))
+		}
+		else if (*tmp == '!' && !(*(tmp + 1)))
 			/* Redo last command. */
 			strcpy(tmp, t->last_input);
-		else if (*tmp == '!' && *(tmp + 1)) {
+		else if (*tmp == '!' && *(tmp + 1))
+		{
 			char *commandln = (tmp + 1);
 			int starting_pos = t->history_pos,
-			    cnt = (t->history_pos == 0 ? HISTORY_SIZE - 1 : t->history_pos - 1);
+							   cnt = (t->history_pos == 0 ? HISTORY_SIZE - 1 : t->history_pos - 1);
 
 			skip_spaces(&commandln);
-			for (; cnt != starting_pos; cnt--) {
-				if (t->history[cnt] && is_abbrev(commandln, t->history[cnt])) {
+			for (; cnt != starting_pos; cnt--)
+			{
+				if (t->history[cnt] && is_abbrev(commandln, t->history[cnt]))
+				{
 					strcpy(tmp, t->history[cnt]);
 					strcpy(t->last_input, tmp);
 					SEND_TO_Q(tmp, t);
@@ -2544,10 +2761,14 @@ int process_input(DESCRIPTOR_DATA * t)
 				if (cnt == 0)	/* At top, loop to bottom. */
 					cnt = HISTORY_SIZE;
 			}
-		} else if (*tmp == '^') {
+		}
+		else if (*tmp == '^')
+		{
 			if (!(failed_subst = perform_subst(t, t->last_input, tmp)))
 				strcpy(t->last_input, tmp);
-		} else {
+		}
+		else
+		{
 			strcpy(t->last_input, tmp);
 			if (t->history[t->history_pos])
 				free(t->history[t->history_pos]);	/* Clear the old line. */
@@ -2598,7 +2819,8 @@ int perform_subst(DESCRIPTOR_DATA * t, char *orig, char *subst)
 	first = subst + 1;
 
 	/* now find the second '^' */
-	if (!(second = strchr(first, '^'))) {
+	if (!(second = strchr(first, '^')))
+	{
 		SEND_TO_Q("Invalid substitution.\r\n", t);
 		return (1);
 	}
@@ -2607,7 +2829,8 @@ int perform_subst(DESCRIPTOR_DATA * t, char *orig, char *subst)
 	*(second++) = '\0';
 
 	/* now, see if the contents of the first string appear in the original */
-	if (!(strpos = strstr(orig, first))) {
+	if (!(strpos = strstr(orig, first)))
+	{
 		SEND_TO_Q("Invalid substitution.\r\n", t);
 		return (1);
 	}
@@ -2638,10 +2861,11 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 {
 	DESCRIPTOR_DATA *temp;
 
-/*  if (!direct && d->character && RENTABLE(d->character))
-     return; */
+	/*  if (!direct && d->character && RENTABLE(d->character))
+	     return; */
 	// Нельзя делать лд при wait_state
-	if (d->character && !direct) {
+	if (d->character && !direct)
+	{
 		if (CHECK_WAIT(d->character))
 			return;
 	}
@@ -2654,12 +2878,14 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	if (d->snooping)
 		d->snooping->snoop_by = NULL;
 
-	if (d->snoop_by) {
+	if (d->snoop_by)
+	{
 		SEND_TO_Q("Ваш подопечный выключил компьютер.\r\n", d->snoop_by);
 		d->snoop_by->snooping = NULL;
 	}
 	/*. Kill any OLC stuff . */
-	switch (d->connected) {
+	switch (d->connected)
+	{
 	case CON_OEDIT:
 	case CON_REDIT:
 	case CON_ZEDIT:
@@ -2671,9 +2897,11 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		break;
 	}
 
-	if (d->character) {
+	if (d->character)
+	{
 		// Plug memory leak, from Eric Green.
-		if (!IS_NPC(d->character) && (PLR_FLAGGED(d->character, PLR_MAILING) || STATE(d) == CON_WRITEBOARD) && d->str) {
+		if (!IS_NPC(d->character) && (PLR_FLAGGED(d->character, PLR_MAILING) || STATE(d) == CON_WRITEBOARD) && d->str)
+		{
 			if (*(d->str))
 				free(*(d->str));
 			if (d->str != NULL)
@@ -2683,9 +2911,11 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		if (STATE(d) == CON_WRITEBOARD || STATE(d) == CON_CLANEDIT || STATE(d) == CON_SPEND_GLORY)
 			STATE(d) = CON_PLAYING;
 
-		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT) {
+		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT)
+		{
 			act("$n потерял$g связь.", TRUE, d->character, 0, 0, TO_ROOM);
-			if (!IS_NPC(d->character)) {
+			if (!IS_NPC(d->character))
+			{
 				save_char(d->character, NOWHERE);
 				check_light(d->character, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, -1);
 				Crash_ldsave(d->character);
@@ -2693,7 +2923,9 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 				mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 			}
 			d->character->desc = NULL;
-		} else {
+		}
+		else
+		{
 			sprintf(buf, "Losing player: %s.", GET_NAME(d->character) ? GET_NAME(d->character) : "<null>");
 			mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 			delete d->character;
@@ -2707,7 +2939,8 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		d->original->desc = NULL;
 
 	/* Clear the command history. */
-	if (d->history) {
+	if (d->history)
+	{
 		int cnt;
 		for (cnt = 0; cnt < HISTORY_SIZE; cnt++)
 			if (d->history[cnt])
@@ -2720,7 +2953,8 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	if (d->showstr_count)
 		free(d->showstr_vector);
 #if defined(HAVE_ZLIB)
-	if (d->deflate) {
+	if (d->deflate)
+	{
 		deflateEnd(d->deflate);
 		free(d->deflate);
 	}
@@ -2733,7 +2967,8 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	d->clan_invite.reset();
 	d->glory.reset();
 
-	if (d->pers_log) {
+	if (d->pers_log)
+	{
 		opened_files.remove(d->pers_log);
 		fclose(d->pers_log); // не забываем закрыть персональный лог
 	}
@@ -2746,14 +2981,18 @@ void check_idle_passwords(void)
 {
 	DESCRIPTOR_DATA *d, *next_d;
 
-	for (d = descriptor_list; d; d = next_d) {
+	for (d = descriptor_list; d; d = next_d)
+	{
 		next_d = d->next;
 		if (STATE(d) != CON_PASSWORD && STATE(d) != CON_GET_NAME && STATE(d) != CON_GET_KEYTABLE)
 			continue;
-		if (!d->idle_tics) {
+		if (!d->idle_tics)
+		{
 			d->idle_tics++;
 			continue;
-		} else {
+		}
+		else
+		{
 			SEND_TO_Q("\r\nTimed out... goodbye.\r\n", d);
 			STATE(d) = CON_CLOSE;
 		}
@@ -2800,7 +3039,8 @@ void nonblock(socket_t s)
 {
 	int val = 1;
 
-	if (ioctl(s, FIONBIO, &val) < 0) {
+	if (ioctl(s, FIONBIO, &val) < 0)
+	{
 		perror("SYSERR: Fatal error executing nonblock (comm.c)");
 		exit(1);
 	}
@@ -2818,7 +3058,8 @@ void nonblock(socket_t s)
 
 	flags = fcntl(s, F_GETFL, 0);
 	flags |= O_NONBLOCK;
-	if (fcntl(s, F_SETFL, flags) < 0) {
+	if (fcntl(s, F_SETFL, flags) < 0)
+	{
 		perror("SYSERR: Fatal error executing nonblock (comm.c)");
 		exit(1);
 	}
@@ -2870,10 +3111,12 @@ RETSIGTYPE crash_handle(int sig)
 
 RETSIGTYPE checkpointing(int sig)
 {
-	if (!tics) {
+	if (!tics)
+	{
 		log("SYSERR: CHECKPOINT shutdown: tics not updated. (Infinite loop suspected)");
 		abort();
-	} else
+	}
+	else
 		tics = 0;
 }
 
@@ -2967,7 +3210,7 @@ void send_stat_char(CHAR_DATA * ch)
 {
 	char fline[256];
 	sprintf(fline, "%d[%d]HP %d[%d]Mv %dG %dL ",
-		GET_HIT(ch), GET_REAL_MAX_HIT(ch), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), get_gold(ch), GET_LEVEL(ch));
+			GET_HIT(ch), GET_REAL_MAX_HIT(ch), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), get_gold(ch), GET_LEVEL(ch));
 	SEND_TO_Q(fline, ch->desc);
 }
 
@@ -3020,21 +3263,22 @@ void send_to_outdoor(const char *messg, int control)
 	if (!messg || !*messg)
 		return;
 
-	for (i = descriptor_list; i; i = i->next) {
+	for (i = descriptor_list; i; i = i->next)
+	{
 		if (STATE(i) != CON_PLAYING || i->character == NULL)
 			continue;
 		if (!AWAKE(i->character) || !OUTSIDE(i->character))
 			continue;
 		room = IN_ROOM(i->character);
 		if (!control ||
-		    (IS_SET(control, SUN_CONTROL) &&
-		     room != NOWHERE &&
-		     SECT(room) != SECT_UNDERWATER &&
-		     !AFF_FLAGGED(i->character, AFF_BLIND)) ||
-		    (IS_SET(control, WEATHER_CONTROL) &&
-		     room != NOWHERE &&
-		     SECT(room) != SECT_UNDERWATER &&
-		     !ROOM_FLAGGED(room, ROOM_NOWEATHER) && world[IN_ROOM(i->character)]->weather.duration <= 0))
+				(IS_SET(control, SUN_CONTROL) &&
+				 room != NOWHERE &&
+				 SECT(room) != SECT_UNDERWATER &&
+				 !AFF_FLAGGED(i->character, AFF_BLIND)) ||
+				(IS_SET(control, WEATHER_CONTROL) &&
+				 room != NOWHERE &&
+				 SECT(room) != SECT_UNDERWATER &&
+				 !ROOM_FLAGGED(room, ROOM_NOWEATHER) && world[IN_ROOM(i->character)]->weather.duration <= 0))
 			SEND_TO_Q(messg, i);
 	}
 }
@@ -3047,7 +3291,8 @@ void send_to_gods(const char *messg)
 	if (!messg || !*messg)
 		return;
 
-	for (i = descriptor_list; i; i = i->next) {
+	for (i = descriptor_list; i; i = i->next)
+	{
 		if (STATE(i) != CON_PLAYING || i->character == NULL)
 			continue;
 		if (!IS_GOD(i->character))
@@ -3083,21 +3328,28 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 
 	buf = lbuf;
 
-	for (stopbyte = 0; stopbyte < MAX_STRING_LENGTH; stopbyte++) {
-		if (*orig == '$') {
-			switch (*(++orig)) {
+	for (stopbyte = 0; stopbyte < MAX_STRING_LENGTH; stopbyte++)
+	{
+		if (*orig == '$')
+		{
+			switch (*(++orig))
+			{
 			case 'n':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
 					i = (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch)) ? GET_NAME(ch) : PERS(ch, to, 0);
-				else {
+				else
+				{
 					padis = *(++orig) - '0';
 					i = (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch)) ? GET_PAD(ch, padis) : PERS(ch, to, padis);
 				}
 				break;
 			case 'N':
-				if (*(orig + 1) < '0' || *(orig + 1) > '5') {
+				if (*(orig + 1) < '0' || *(orig + 1) > '5')
+				{
 					CHECK_NULL(vict_obj, PERS((const CHAR_DATA *) vict_obj, to, 0));
-				} else {
+				}
+				else
+				{
 					padis = *(++orig) - '0';
 					CHECK_NULL(vict_obj, PERS((const CHAR_DATA *) vict_obj, to, padis));
 				}
@@ -3138,20 +3390,26 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 				break;
 
 			case 'o':
-				if (*(orig + 1) < '0' || *(orig + 1) > '5') {
+				if (*(orig + 1) < '0' || *(orig + 1) > '5')
+				{
 					CHECK_NULL(obj, OBJN(obj, to, 0));
-				} else {
+				}
+				else
+				{
 					padis = *(++orig) - '0';
 					CHECK_NULL(obj, OBJN(obj, to, padis > 5 ? 0 : padis));
 				}
 				break;
 			case 'O':
-				if (*(orig + 1) < '0' || *(orig + 1) > '5') {
+				if (*(orig + 1) < '0' || *(orig + 1) > '5')
+				{
 					CHECK_NULL(vict_obj, OBJN((const OBJ_DATA *) vict_obj, to, 0));
-				} else {
+				}
+				else
+				{
 					padis = *(++orig) - '0';
 					CHECK_NULL(vict_obj,
-						   OBJN((const OBJ_DATA *) vict_obj, to, padis > 5 ? 0 : padis));
+							   OBJN((const OBJ_DATA *) vict_obj, to, padis > 5 ? 0 : padis));
 				}
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
@@ -3257,7 +3515,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 					i = HYOU((const CHAR_DATA *)vict_obj);
 				else
 					CHECK_NULL(vict_obj, HYOU((const CHAR_DATA *)vict_obj))
-				break;
+					break;
 //-Polud
 			default:
 				log("SYSERR: Illegal $-code to act(): %c", *orig);
@@ -3268,16 +3526,23 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 			while ((*buf = *(i++)))
 				buf++;
 			orig++;
-		} else if (*orig == '\\') {
-			if (*(orig + 1) == 'r') {
+		}
+		else if (*orig == '\\')
+		{
+			if (*(orig + 1) == 'r')
+			{
 				*(buf++) = '\r';
 				orig += 2;
-			} else if (*(orig + 1) == 'n') {
+			}
+			else if (*(orig + 1) == 'n')
+			{
 				*(buf++) = '\n';
 				orig += 2;
-			} else
+			}
+			else
 				*(buf++) = *(orig++);
-		} else if (!(*(buf++) = *(orig++)))
+		}
+		else if (!(*(buf++) = *(orig++)))
 			break;
 	}
 
@@ -3285,7 +3550,8 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 	*(++buf) = '\n';
 	*(++buf) = '\0';
 
-	if (to->desc) {
+	if (to->desc)
+	{
 		/* Делаем первый символ большим, учитывая &X */
 		if (lbuf[0] == '&')
 			CAP(lbuf + 2);
@@ -3332,20 +3598,22 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 	if ((check_nodeaf = (type & CHECK_NODEAF)))
 		type &= ~CHECK_NODEAF;
 
-	if (type == TO_CHAR) {
+	if (type == TO_CHAR)
+	{
 		if (ch &&
-		    SENDOK(ch) &&
-		    IN_ROOM(ch) != NOWHERE &&
-		    (!check_deaf || !AFF_FLAGGED(ch, AFF_DEAFNESS)) && (!check_nodeaf || AFF_FLAGGED(ch, AFF_DEAFNESS)))
+				SENDOK(ch) &&
+				IN_ROOM(ch) != NOWHERE &&
+				(!check_deaf || !AFF_FLAGGED(ch, AFF_DEAFNESS)) && (!check_nodeaf || AFF_FLAGGED(ch, AFF_DEAFNESS)))
 			perform_act(str, ch, obj, vict_obj, ch);
 		return;
 	}
 
-	if (type == TO_VICT) {
+	if (type == TO_VICT)
+	{
 		if ((to = (CHAR_DATA *) vict_obj) != NULL &&
-		    SENDOK(to) &&
-		    IN_ROOM(to) != NOWHERE &&
-		    (!check_deaf || !AFF_FLAGGED(to, AFF_DEAFNESS)) && (!check_nodeaf || AFF_FLAGGED(to, AFF_DEAFNESS)))
+				SENDOK(to) &&
+				IN_ROOM(to) != NOWHERE &&
+				(!check_deaf || !AFF_FLAGGED(to, AFF_DEAFNESS)) && (!check_nodeaf || AFF_FLAGGED(to, AFF_DEAFNESS)))
 			perform_act(str, ch, obj, vict_obj, to);
 		return;
 	}
@@ -3356,12 +3624,14 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 		to = world[ch->in_room]->people;
 	else if (obj && obj->in_room != NOWHERE)
 		to = world[obj->in_room]->people;
-	else {
+	else
+	{
 		log("No valid target to act('%s')!", str);
 		return;
 	}
 
-	for (stopcount = 0; to && stopcount < 1000; to = to->next_in_room, stopcount++) {
+	for (stopcount = 0; to && stopcount < 1000; to = to->next_in_room, stopcount++)
+	{
 		if (!SENDOK(to) || (to == ch))
 			continue;
 		if (hide_invisible && ch && !CAN_SEE(to, ch))
@@ -3369,8 +3639,8 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 		if ((type != TO_ROOM && type != TO_ROOM_HIDE) && to == vict_obj)
 			continue;
 //надо отдельно PRF_DEAF
-/*       if (!IS_NPC(to) && check_deaf && PRF_FLAGGED(to, PRF_NOTELL))
-          continue; */
+		/*       if (!IS_NPC(to) && check_deaf && PRF_FLAGGED(to, PRF_NOTELL))
+		          continue; */
 		if (check_deaf && AFF_FLAGGED(to, AFF_DEAFNESS))
 			continue;
 		if (check_nodeaf && !AFF_FLAGGED(to, AFF_DEAFNESS))
@@ -3408,7 +3678,8 @@ void sanity_check(void)
 	 * useful before we go down. -gg
 	 * However, lets fix the problem so we don't spam the logs. -gg 11/24/98
 	 */
-	if (!ok) {
+	if (!ok)
+	{
 		log("SYSERR: *** Buffer overflow! ***\n" "buf: %s\nbuf1: %s\nbuf2: %s\narg: %s", buf, buf1, buf2, arg);
 
 		plant_magic(buf);
@@ -3443,17 +3714,21 @@ void setup_logs(void)
 	FILE *s_fp;
 	int i;
 
-	for (i = 0; i < NLOG; ++i) {
+	for (i = 0; i < NLOG; ++i)
+	{
 
 #if defined(__MWERKS__) || defined(__GNUC__)
 		s_fp = stderr;
 #else
-		if ((s_fp = fdopen(STDERR_FILENO, "w")) == NULL) {
+		if ((s_fp = fdopen(STDERR_FILENO, "w")) == NULL)
+		{
 			puts("SYSERR: Error opening stderr, trying stdout.");
 
-			if ((s_fp = fdopen(STDOUT_FILENO, "w")) == NULL) {
+			if ((s_fp = fdopen(STDOUT_FILENO, "w")) == NULL)
+			{
 				puts("SYSERR: Error opening stdout, trying a file.");
-				if (logs[i].filename == NULL || *logs[i].filename == '\0') {
+				if (logs[i].filename == NULL || *logs[i].filename == '\0')
+				{
 					puts("SYSERR: No filename specified.");
 					exit(1);
 				}
@@ -3463,7 +3738,8 @@ void setup_logs(void)
 
 		getcwd(src_path, 4096);
 
-		if (!logs[i].filename || *logs[i].filename == '\0') {
+		if (!logs[i].filename || *logs[i].filename == '\0')
+		{
 			logs[i].logfile = s_fp;
 			puts("Using file descriptor for logging.");
 			continue;
@@ -3485,7 +3761,8 @@ int open_logfile(log_info * li, FILE * stderr_fp)
 	else
 		li->logfile = fopen(li->filename, "w");
 
-	if (li->logfile) {
+	if (li->logfile)
+	{
 		printf("Using log file '%s'%s.\n", li->filename, stderr_fp ? " with redirection" : "");
 		return (TRUE);
 	}
@@ -3508,8 +3785,10 @@ inline void circle_sleep(struct timeval *timeout)
 
 inline void circle_sleep(struct timeval *timeout)
 {
-	if (select(0, (fd_set *) 0, (fd_set *) 0, (fd_set *) 0, timeout) < 0) {
-		if (errno != EINTR) {
+	if (select(0, (fd_set *) 0, (fd_set *) 0, (fd_set *) 0, timeout) < 0)
+	{
+		if (errno != EINTR)
+		{
 			perror("SYSERR: Select sleep");
 			exit(1);
 		}
@@ -3555,7 +3834,8 @@ int mccp_start(DESCRIPTOR_DATA * t, int ver)
 	t->deflate->avail_in = 0;
 
 	/* Initialize. */
-	if ((derr = deflateInit(t->deflate, Z_DEFAULT_COMPRESSION)) != 0) {
+	if ((derr = deflateInit(t->deflate, Z_DEFAULT_COMPRESSION)) != 0)
+	{
 		log("SYSERR: deflateEnd returned %d.", derr);
 		free(t->deflate);
 		t->deflate = NULL;
@@ -3590,9 +3870,10 @@ int mccp_end(DESCRIPTOR_DATA * t, int ver)
 
 	log("SYSERR: about to deflate Z_FINISH.");
 
-	if ((derr = deflate(t->deflate, Z_FINISH)) != Z_STREAM_END) {
+	if ((derr = deflate(t->deflate, Z_FINISH)) != Z_STREAM_END)
+	{
 		log("SYSERR: deflate returned %d upon Z_FINISH. (in: %d, out: %d)",
-		    derr, t->deflate->avail_in, t->deflate->avail_out);
+			derr, t->deflate->avail_in, t->deflate->avail_out);
 		return 0;
 	}
 
@@ -3603,7 +3884,7 @@ int mccp_end(DESCRIPTOR_DATA * t, int ver)
 
 	if ((derr = deflateEnd(t->deflate)) != Z_OK)
 		log("SYSERR: deflateEnd returned %d. (in: %d, out: %d)", derr,
-		    t->deflate->avail_in, t->deflate->avail_out);
+			t->deflate->avail_in, t->deflate->avail_out);
 
 	free(t->deflate);
 	t->deflate = NULL;
@@ -3617,9 +3898,12 @@ int toggle_compression(DESCRIPTOR_DATA * t)
 #if defined(HAVE_ZLIB)
 	if (t->mccp_version == 0)
 		return 0;
-	if (t->deflate == NULL) {
+	if (t->deflate == NULL)
+	{
 		return mccp_start(t, t->mccp_version) ? 1 : 0;
-	} else {
+	}
+	else
+	{
 		return mccp_end(t, t->mccp_version) ? 0 : 1;
 	}
 #endif

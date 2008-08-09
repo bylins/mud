@@ -83,14 +83,17 @@ void Board::BoardInit()
 void Board::ClanInit()
 {
 	// чистим для релоада
-	for (BoardListType::iterator board = Board::BoardList.begin(); board != Board::BoardList.end(); ++board) {
-		if ((*board)->type == CLAN_BOARD || (*board)->type == CLANNEWS_BOARD) {
+	for (BoardListType::iterator board = Board::BoardList.begin(); board != Board::BoardList.end(); ++board)
+	{
+		if ((*board)->type == CLAN_BOARD || (*board)->type == CLANNEWS_BOARD)
+		{
 			Board::BoardList.erase(board);
 			board = Board::BoardList.begin();
 		}
 	}
 
-	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
+	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+	{
 		std::string name = (*clan)->GetAbbrev();
 		CreateFileName(name);
 		// делаем клановую доску
@@ -119,8 +122,10 @@ void Board::ClanInit()
 // чистим для релоада
 void Board::clear_god_boards()
 {
-	for (BoardListType::iterator board = Board::BoardList.begin(); board != Board::BoardList.end(); ++board) {
-		if ((*board)->type == PERS_BOARD) {
+	for (BoardListType::iterator board = Board::BoardList.begin(); board != Board::BoardList.end(); ++board)
+	{
+		if ((*board)->type == PERS_BOARD)
+		{
 			Board::BoardList.erase(board);
 			board = Board::BoardList.begin();
 		}
@@ -158,14 +163,17 @@ void Board::reload_all()
 void Board::Load()
 {
 	std::ifstream file((this->file).c_str());
-	if (!file.is_open()) {
+	if (!file.is_open())
+	{
 		this->Save();
 		return;
 	}
 
 	std::string buffer;
-	while (file >> buffer) {
-		if (buffer == "Message:") {
+	while (file >> buffer)
+	{
+		if (buffer == "Message:")
+		{
 			MessagePtr message(new Message);
 			file >> message->num;
 			file >> message->author;
@@ -182,7 +190,8 @@ void Board::Load()
 			if (message->author.empty() || !message->unique || !message->level || !message->date)
 				continue;
 			this->messages.push_back(message);
-		} else if (buffer == "Type:")
+		}
+		else if (buffer == "Type:")
 			file >> this->type;
 		else if (buffer == "Clan:")
 			file >> this->clanRent;
@@ -200,24 +209,26 @@ void Board::Load()
 void Board::Save()
 {
 	std::ofstream file((this->file).c_str());
-	if (!file.is_open()) {
+	if (!file.is_open())
+	{
 		log("Error open file: %s! (%s %s %d)", (this->file).c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
 
 	file << "Type: " << this->type << " "
-		<< "Clan: " << this->clanRent << " "
-		<< "PersUID: " << this->persUnique << " "
-		<< "PersName: " << (this->persName.empty() ? "none" : this->persName) << "\n";
-	for (MessageListType::const_iterator message = this->messages.begin(); message != this->messages.end(); ++message) {
+	<< "Clan: " << this->clanRent << " "
+	<< "PersUID: " << this->persUnique << " "
+	<< "PersName: " << (this->persName.empty() ? "none" : this->persName) << "\n";
+	for (MessageListType::const_iterator message = this->messages.begin(); message != this->messages.end(); ++message)
+	{
 		file << "Message: " << (*message)->num << "\n"
-			<< (*message)->author << " "
-			<< (*message)->unique << " "
-			<< (*message)->level << " "
-			<< (*message)->date << " "
-			<< (*message)->rank << "\n"
-			<< (*message)->subject << "~\n"
-			<< (*message)->text << "~\n";
+		<< (*message)->author << " "
+		<< (*message)->unique << " "
+		<< (*message)->level << " "
+		<< (*message)->date << " "
+		<< (*message)->rank << "\n"
+		<< (*message)->subject << "~\n"
+		<< (*message)->text << "~\n";
 	}
 	file.close();
 }
@@ -230,10 +241,10 @@ void Board::ShowMessage(CHAR_DATA * ch, MessagePtr message)
 	strftime(timeBuf, sizeof(timeBuf), "%H:%M %d-%m-%Y", localtime(&message->date));
 
 	buffer << "[" << message->num + 1 << "] "
-		<< timeBuf << " "
-		<< "(" << message->author << ") :: "
-		<< message->subject << "\r\n\r\n"
-		<< message->text << "\r\n";
+	<< timeBuf << " "
+	<< "(" << message->author << ") :: "
+	<< message->subject << "\r\n\r\n"
+	<< message->text << "\r\n";
 
 	page_string(ch->desc, buffer.str(), 1);
 }
@@ -247,9 +258,9 @@ void set_last_read(CHAR_DATA *ch, int type, time_t date)
 bool Board::can_write(CHAR_DATA *ch)
 {
 	if (this->Access(ch) < 2
-		|| PLR_FLAGGED(ch, PLR_HELLED)
-		|| PLR_FLAGGED(ch, PLR_NAMED)
-		|| PLR_FLAGGED(ch, PLR_DUMB))
+			|| PLR_FLAGGED(ch, PLR_HELLED)
+			|| PLR_FLAGGED(ch, PLR_NAMED)
+			|| PLR_FLAGGED(ch, PLR_DUMB))
 	{
 		send_to_char("У Вас нет возможности писать в этот раздел.\r\n", ch);
 		return false;
@@ -261,7 +272,8 @@ ACMD(DoBoard)
 {
 	if (!ch->desc)
 		return;
-	if (AFF_FLAGGED(ch, AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, AFF_BLIND))
+	{
 		send_to_char("Вы ослеплены!\r\n", ch);
 		return;
 	}
@@ -271,7 +283,8 @@ ACMD(DoBoard)
 	for (board = Board::BoardList.begin(); board != Board::BoardList.end(); ++board)
 		if ((*board)->type == subcmd && (*board)->Access(ch))
 			break;
-	if (board == Board::BoardList.end()) {
+	if (board == Board::BoardList.end())
+	{
 		send_to_char("Чаво ?\r\n", ch);
 		return;
 	}
@@ -282,65 +295,76 @@ ACMD(DoBoard)
 	boost::trim_if(buffer2, boost::is_any_of(" \'"));
 	// первый аргумент в buffer, второй в buffer2
 
-	if (CompareParam(buffer, "список") || CompareParam(buffer, "list")) {
-		if ((*board)->Access(ch) == 2) {
+	if (CompareParam(buffer, "список") || CompareParam(buffer, "list"))
+	{
+		if ((*board)->Access(ch) == 2)
+		{
 			send_to_char("У Вас нет возможности читать этот раздел.\r\n", ch);
 			return;
 		}
 		std::ostringstream body;
 		body << "Это доска, на которой всякие разные личности оставили свои IMHO.\r\n"
-			<< "Формат: ЧИТАТЬ/ОЧИСТИТЬ <номер сообщения>, ПИСАТЬ <тема сообщения>.\r\n";
-		if ((*board)->messages.empty()) {
+		<< "Формат: ЧИТАТЬ/ОЧИСТИТЬ <номер сообщения>, ПИСАТЬ <тема сообщения>.\r\n";
+		if ((*board)->messages.empty())
+		{
 			body << "Никто ниче не накарябал, слава Богам.\r\n";
 			send_to_char(body.str(), ch);
 			return;
-		} else
+		}
+		else
 			body << "Всего сообщений: " << (*board)->messages.size() << "\r\n";
 		char timeBuf[17];
-		for (MessageListType::reverse_iterator message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message) {
+		for (MessageListType::reverse_iterator message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message)
+		{
 			if ((*message)->date > date)
 				body << CCWHT(ch, C_NRM); // для выделения новых мессаг светло-белым
 
 			strftime(timeBuf, sizeof(timeBuf), "%H:%M %d-%m-%Y", localtime(&(*message)->date));
-			body << "[" << (*message)->num + 1 << "] "<< timeBuf << " "
-				<< "(" << (*message)->author << ") :: "
-				<< (*message)->subject << "\r\n" <<  CCNRM(ch, C_NRM);
+			body << "[" << (*message)->num + 1 << "] " << timeBuf << " "
+			<< "(" << (*message)->author << ") :: "
+			<< (*message)->subject << "\r\n" <<  CCNRM(ch, C_NRM);
 		}
 		page_string(ch->desc, body.str(), 1);
 		return;
 	}
 
 	// при пустой команде или 'читать' без цифры - показываем первое непрочитанное сообщение, если такое есть
-	if (buffer.empty() || ((CompareParam(buffer, "читать") || CompareParam(buffer, "read")) && buffer2.empty())) {
-		if ((*board)->Access(ch) == 2) {
+	if (buffer.empty() || ((CompareParam(buffer, "читать") || CompareParam(buffer, "read")) && buffer2.empty()))
+	{
+		if ((*board)->Access(ch) == 2)
+		{
 			send_to_char("У Вас нет возможности читать этот раздел.\r\n", ch);
 			return;
 		}
 		// новости мада в ленточном варианте
-		if (((*board)->type == NEWS_BOARD || (*board)->type == GODNEWS_BOARD) && !PRF_FLAGGED(ch, PRF_NEWS_MODE)) {
+		if (((*board)->type == NEWS_BOARD || (*board)->type == GODNEWS_BOARD) && !PRF_FLAGGED(ch, PRF_NEWS_MODE))
+		{
 			std::ostringstream body;
 			long date = GET_BOARD_DATE(ch, (*board)->type);
 			char timeBuf[17];
 
 			MessageListType::reverse_iterator message;
-			for (message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message) {
+			for (message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message)
+			{
 				strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y", localtime(&(*message)->date));
 				if ((*message)->date > date)
 					body << CCWHT(ch, C_NRM); // новые подсветим
 				body << timeBuf << CCNRM(ch, C_NRM) << "\r\n"
-						<< (*message)->text;
+				<< (*message)->text;
 			}
 			set_last_read(ch, (*board)->type, time(0));
 			page_string(ch->desc, body.str(), 1);
 			return;
 		}
 		// дрновости в ленточном варианте
-		if ((*board)->type == CLANNEWS_BOARD && !PRF_FLAGGED(ch, PRF_NEWS_MODE)) {
+		if ((*board)->type == CLANNEWS_BOARD && !PRF_FLAGGED(ch, PRF_NEWS_MODE))
+		{
 			std::ostringstream body;
 			long date = GET_BOARD_DATE(ch, (*board)->type);
 
 			MessageListType::reverse_iterator message;
-			for (message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message) {
+			for (message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message)
+			{
 				if ((*message)->date > date)
 					body << CCWHT(ch, C_NRM); // новые подсветим
 				body << "[" << (*message)->author << "] " << CCNRM(ch, C_NRM) << (*message)->text;
@@ -350,8 +374,10 @@ ACMD(DoBoard)
 			return;
 		}
 
-		for (MessageListType::const_iterator message = (*board)->messages.begin(); message != (*board)->messages.end(); ++message) {
-			if ((*message)->date > date) {
+		for (MessageListType::const_iterator message = (*board)->messages.begin(); message != (*board)->messages.end(); ++message)
+		{
+			if ((*message)->date > date)
+			{
 				Board::ShowMessage(ch, *message);
 				set_last_read(ch, (*board)->type, (*message)->date);
 				return;
@@ -363,8 +389,10 @@ ACMD(DoBoard)
 
 	unsigned num = 0;
 	// если после команды стоит цифра или 'читать цифра' - пытаемся показать эту мессагу, два сравнения - чтобы не загребать 'писать число...' как чтение
-	if (is_number(buffer.c_str()) || ((CompareParam(buffer, "читать") || CompareParam(buffer, "read")) && is_number(buffer2.c_str()))) {
-		if ((*board)->Access(ch) == 2) {
+	if (is_number(buffer.c_str()) || ((CompareParam(buffer, "читать") || CompareParam(buffer, "read")) && is_number(buffer2.c_str())))
+	{
+		if ((*board)->Access(ch) == 2)
+		{
 			send_to_char("У Вас нет возможности читать этот раздел.\r\n", ch);
 			return;
 		}
@@ -372,7 +400,8 @@ ACMD(DoBoard)
 			num = atoi(buffer2.c_str());
 		else
 			num = atoi(buffer.c_str());
-		if (num <= 0 || num > (*board)->messages.size()) {
+		if (num <= 0 || num > (*board)->messages.size())
+		{
 			send_to_char("Это сообщение может Вам только присниться.\r\n", ch);
 			return;
 		}
@@ -382,14 +411,15 @@ ACMD(DoBoard)
 		return;
 	}
 
-	if (CompareParam(buffer, "писать") || CompareParam(buffer, "write")) {
+	if (CompareParam(buffer, "писать") || CompareParam(buffer, "write"))
+	{
 		if (!(*board)->can_write(ch))
 			return;
 		if (!IS_GOD(ch) && (*board)->lastWrite == GET_UNIQUE(ch)
-			&& (*board)->type != CLAN_BOARD
-			&& (*board)->type != CLANNEWS_BOARD
-			&& (*board)->type != PERS_BOARD
-			&& !Privilege::check_flag(ch, Privilege::NEWS_MAKER))
+				&& (*board)->type != CLAN_BOARD
+				&& (*board)->type != CLANNEWS_BOARD
+				&& (*board)->type != PERS_BOARD
+				&& !Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 		{
 			send_to_char("Да Вы ведь только что писали сюда.\r\n", ch);
 			return;
@@ -397,9 +427,11 @@ ACMD(DoBoard)
 
 		// написание новостей от другого имени
 		std::string name = GET_NAME(ch);
-		if ((*board)->type == NEWS_BOARD && Privilege::check_flag(ch, Privilege::NEWS_MAKER)) {
+		if ((*board)->type == NEWS_BOARD && Privilege::check_flag(ch, Privilege::NEWS_MAKER))
+		{
 			GetOneParam(buffer2, buffer);
-			if (buffer.empty()) {
+			if (buffer.empty())
+			{
 				send_to_char("Впишите хотя бы имя, от кого будет опубликовано сообщение.\r\n", ch);
 				return;
 			}
@@ -419,7 +451,8 @@ ACMD(DoBoard)
 			tempMessage->rank = 0;
 		boost::trim(buffer2);
 		// обрежем для удобочитаемости сабж
-		if (buffer2.length() > 40) {
+		if (buffer2.length() > 40)
+		{
 			buffer2.erase(40, std::string::npos);
 			send_to_char(ch, "Тема сообщения укорочена до '%s'.\r\n", buffer2.c_str());
 		}
@@ -437,39 +470,46 @@ ACMD(DoBoard)
 		string_write(ch->desc, text, MAX_MESSAGE_LENGTH, 0, NULL);
 	}
 
-	if (CompareParam(buffer, "очистить") || CompareParam(buffer, "remove")) {
-		if(!is_number(buffer2.c_str())) {
+	if (CompareParam(buffer, "очистить") || CompareParam(buffer, "remove"))
+	{
+		if (!is_number(buffer2.c_str()))
+		{
 			send_to_char("Укажите корректный номер сообщения.\r\n", ch);
 			return;
 		}
 		num = atoi(buffer2.c_str());
-		if (num <= 0 || num > (*board)->messages.size()) {
+		if (num <= 0 || num > (*board)->messages.size())
+		{
 			send_to_char("Это сообщение может Вам только присниться.\r\n", ch);
 			return;
 		}
 		num = (*board)->messages.size() - num;
 		set_last_read(ch, (*board)->type, (*board)->messages[num]->date);
 		// или он может делетить любые мессаги (по левелу/рангу), или только свои
-		if ((*board)->Access(ch) < 4) {
-			if ((*board)->messages[num]->unique != GET_UNIQUE(ch)) {
+		if ((*board)->Access(ch) < 4)
+		{
+			if ((*board)->messages[num]->unique != GET_UNIQUE(ch))
+			{
 				send_to_char("У Вас нет возможности удалить это сообщение.\r\n", ch);
 				return;
 			}
 		}
 		else if ((*board)->type != CLAN_BOARD
-				&& (*board)->type != CLANNEWS_BOARD
-				&& (*board)->type != PERS_BOARD
-				&& !Privilege::check_flag(ch, Privilege::NEWS_MAKER)
-				&& GET_LEVEL(ch) < (*board)->messages[num]->level)
+				 && (*board)->type != CLANNEWS_BOARD
+				 && (*board)->type != PERS_BOARD
+				 && !Privilege::check_flag(ch, Privilege::NEWS_MAKER)
+				 && GET_LEVEL(ch) < (*board)->messages[num]->level)
 		{
 			// для простых досок сверяем левела (для контроля иммов)
 			// клановые ниже, у персональных смысла нет
 			send_to_char("У Вас нет возможности удалить это сообщение.\r\n", ch);
 			return;
 		}
-		else if ((*board)->type == CLAN_BOARD || (*board)->type == CLANNEWS_BOARD) {
+		else if ((*board)->type == CLAN_BOARD || (*board)->type == CLANNEWS_BOARD)
+		{
 			// у кого привилегия на новости, те могут удалять везде чужие, если ранк автора такой же или ниже
-			if (CLAN_MEMBER(ch)->rank_num > (*board)->messages[num]->rank) {
+			if (CLAN_MEMBER(ch)->rank_num > (*board)->messages[num]->rank)
+			{
 				send_to_char("У Вас нет возможности удалить это сообщение.\r\n", ch);
 				return;
 			}
@@ -494,15 +534,17 @@ ACMD(DoBoardList)
 
 	std::ostringstream buffer;
 	buffer << " Ном         Имя  Новых|Всего                        Описание  Доступ\r\n"
-		   << " ===  ==========  ===========  ==============================  ======\r\n";
+	<< " ===  ==========  ===========  ==============================  ======\r\n";
 	boost::format boardFormat(" %2d)  %10s  [%3d|%3d]    %30s  %6s\r\n");
 
 	int num = 1;
 	std::string access;
-	for (BoardListType::const_iterator board = Board::BoardList.begin(); board != Board::BoardList.end(); ++board) {
+	for (BoardListType::const_iterator board = Board::BoardList.begin(); board != Board::BoardList.end(); ++board)
+	{
 		int unread = 0;
 		int cansee = 1;
-		switch ((*board)->Access(ch)) {
+		switch ((*board)->Access(ch))
+		{
 		case 0:
 			cansee = 0;
 			break;
@@ -524,8 +566,10 @@ ACMD(DoBoardList)
 			continue;
 		if ((*board)->Access(ch) == 2)
 			unread = 0;
-		else {
-			for (MessageListType::reverse_iterator message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message) {
+		else
+		{
+			for (MessageListType::reverse_iterator message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message)
+			{
 				if ((*message)->date > GET_BOARD_DATE(ch, (*board)->type))
 					++unread;
 				else
@@ -541,10 +585,11 @@ ACMD(DoBoardList)
 // 0 - нет доступа, 1 - чтение, 2 - запись, 3 - запись/чтение, 4 - полный(с удалением чужих)
 int Board::Access(CHAR_DATA * ch)
 {
-	switch (this->type) {
+	switch (this->type)
+	{
 	case GENERAL_BOARD:
 	case IDEA_BOARD:
-	// все читают, пишут с мин.левела, 32 и по привилегии полный
+		// все читают, пишут с мин.левела, 32 и по привилегии полный
 		if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 			return 4;
 		if (GET_LEVEL(ch) < MIN_WRITE_LEVEL && !GET_REMORT(ch))
@@ -552,7 +597,7 @@ int Board::Access(CHAR_DATA * ch)
 		else
 			return 3;
 	case ERROR_BOARD:
-	// все пишут с мин.левела, 34 и по привилегии полный
+		// все пишут с мин.левела, 34 и по привилегии полный
 		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 			return 4;
 		if (GET_LEVEL(ch) < MIN_WRITE_LEVEL && !GET_REMORT(ch))
@@ -560,13 +605,13 @@ int Board::Access(CHAR_DATA * ch)
 		else
 			return 2;
 	case NEWS_BOARD:
-	// все читают, 34 и по привилегии полный
+		// все читают, 34 и по привилегии полный
 		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 			return 4;
 		else
 			return 1;
 	case GODNEWS_BOARD:
-	// 32 читают, 34 и по привилегии полный
+		// 32 читают, 34 и по привилегии полный
 		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 			return 4;
 		else if (IS_GOD(ch))
@@ -574,7 +619,7 @@ int Board::Access(CHAR_DATA * ch)
 		else
 			return 0;
 	case GODGENERAL_BOARD:
-	// 32 читают/пишут, 34 полный
+		// 32 читают/пишут, 34 полный
 		if (IS_IMPL(ch))
 			return 4;
 		else if (IS_GOD(ch))
@@ -583,7 +628,7 @@ int Board::Access(CHAR_DATA * ch)
 			return 0;
 	case GODBUILD_BOARD:
 	case GODCODE_BOARD:
-	// 33 читают/пишут, 34 и по привилегии полный
+		// 33 читают/пишут, 34 и по привилегии полный
 		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 			return 4;
 		else if (IS_GRGOD(ch))
@@ -591,7 +636,7 @@ int Board::Access(CHAR_DATA * ch)
 		else
 			return 0;
 	case GODPUNISH_BOARD:
-	// 32 читают/пишут, 34 полный
+		// 32 читают/пишут, 34 полный
 		if (IS_IMPL(ch))
 			return 4;
 		else if (IS_GOD(ch))
@@ -604,31 +649,35 @@ int Board::Access(CHAR_DATA * ch)
 		else
 			return 0;
 	case CLAN_BOARD:
-	// от клан-новостей отличается тем, что писать могут все звания
-		if (CLAN(ch) && CLAN(ch)->GetRent() == this->clanRent) {
+		// от клан-новостей отличается тем, что писать могут все звания
+		if (CLAN(ch) && CLAN(ch)->GetRent() == this->clanRent)
+		{
 			// воевода
 			if (CLAN(ch)->CheckPrivilege(CLAN_MEMBER(ch)->rank_num, MAY_CLAN_NEWS))
 				return 4;
 			else
 				return 3;
-		} else
+		}
+		else
 			return 0;
 	case CLANNEWS_BOARD:
-	// неклановые не видят, клановые могут читать все, писать могут по привилегии, воевода может стирать чужие
-		if (CLAN(ch) && CLAN(ch)->GetRent() == this->clanRent) {
+		// неклановые не видят, клановые могут читать все, писать могут по привилегии, воевода может стирать чужие
+		if (CLAN(ch) && CLAN(ch)->GetRent() == this->clanRent)
+		{
 			if (CLAN(ch)->CheckPrivilege(CLAN_MEMBER(ch)->rank_num, MAY_CLAN_NEWS))
 				return 4;
 			return 1;
-		} else
+		}
+		else
 			return 0;
 	case NOTICE_BOARD:
-	// 32+ и по привилегии полный, остальные только читают
+		// 32+ и по привилегии полный, остальные только читают
 		if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 			return 4;
 		else
 			return 1;
 	case MISPRINT_BOARD:
-	// по привилегии (группа olc) и 34 полный, остальным только запись с мин левела/морта
+		// по привилегии (группа olc) и 34 полный, остальным только запись с мин левела/морта
 		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::MISPRINT) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 			return 4;
 		else if (GET_LEVEL(ch) < MIN_WRITE_LEVEL && !GET_REMORT(ch))
@@ -653,7 +702,8 @@ SPECIAL(Board::Special)
 	GetOneParam(buffer, buffer2);
 	boost::trim_if(buffer, boost::is_any_of(" \'"));
 	if (CMD_IS("смотреть") || CMD_IS("осмотреть") || CMD_IS("look") || CMD_IS("examine")
-			|| ((CMD_IS("читать") || CMD_IS("read")) && (CompareParam(buffer2, "доска")) || CompareParam(buffer2, "board"))) {
+			|| ((CMD_IS("читать") || CMD_IS("read")) && (CompareParam(buffer2, "доска")) || CompareParam(buffer2, "board")))
+	{
 		// эта мутная запись для всяких 'см на доску' и подобных написаний в два слова
 		if (buffer2.empty()
 				|| (buffer.empty() && !CompareParam(buffer2, "доска") && !CompareParam(buffer2, "board"))
@@ -661,35 +711,40 @@ SPECIAL(Board::Special)
 			return 0;
 
 		// общая доска
-		if (board->item_number == real_object(GENERAL_BOARD_OBJ)) {
+		if (board->item_number == real_object(GENERAL_BOARD_OBJ))
+		{
 			char *temp_arg = str_dup("список");
 			DoBoard(ch, temp_arg, 0, GENERAL_BOARD);
 			free(temp_arg);
 			return 1;
 		}
 		// общая имм-доска
-		if (board->item_number == real_object(GODGENERAL_BOARD_OBJ)) {
+		if (board->item_number == real_object(GODGENERAL_BOARD_OBJ))
+		{
 			char *temp_arg = str_dup("список");
 			DoBoard(ch, temp_arg, 0, GODGENERAL_BOARD);
 			free(temp_arg);
 			return 1;
 		}
 		// доска наказаний
-		if (board->item_number == real_object(GODPUNISH_BOARD_OBJ)) {
+		if (board->item_number == real_object(GODPUNISH_BOARD_OBJ))
+		{
 			char *temp_arg = str_dup("список");
 			DoBoard(ch, temp_arg, 0, GODPUNISH_BOARD);
 			free(temp_arg);
 			return 1;
 		}
 		// доска билдеров
-		if (board->item_number == real_object(GODBUILD_BOARD_OBJ)) {
+		if (board->item_number == real_object(GODBUILD_BOARD_OBJ))
+		{
 			char *temp_arg = str_dup("список");
 			DoBoard(ch, temp_arg, 0, GODBUILD_BOARD);
 			free(temp_arg);
 			return 1;
 		}
 		// доска кодеров
-		if (board->item_number == real_object(GODCODE_BOARD_OBJ)) {
+		if (board->item_number == real_object(GODCODE_BOARD_OBJ))
+		{
 			char *temp_arg = str_dup("список");
 			DoBoard(ch, temp_arg, 0, GODCODE_BOARD);
 			free(temp_arg);
@@ -705,32 +760,38 @@ SPECIAL(Board::Special)
 
 	// вывод сообщения написать сообщение очистить сообщение
 	if (((CMD_IS("читать") || CMD_IS("read")) && !buffer2.empty() && isdigit(buffer2[0]))
-		|| CMD_IS("писать") || CMD_IS("write") || CMD_IS("очистить") || CMD_IS("remove")) {
+			|| CMD_IS("писать") || CMD_IS("write") || CMD_IS("очистить") || CMD_IS("remove"))
+	{
 
 		// общая доска
 		char *temp_arg = str_dup(cmd_info[cmd].command);
 		temp_arg = str_add(temp_arg, argument);
-		if (board->item_number == real_object(GENERAL_BOARD_OBJ)) {
+		if (board->item_number == real_object(GENERAL_BOARD_OBJ))
+		{
 			DoBoard(ch, temp_arg, 0, GENERAL_BOARD);
 			free(temp_arg);
 			return 1;
 		}
-		if (board->item_number == real_object(GODGENERAL_BOARD_OBJ)) {
+		if (board->item_number == real_object(GODGENERAL_BOARD_OBJ))
+		{
 			DoBoard(ch, temp_arg, 0, GODGENERAL_BOARD);
 			free(temp_arg);
 			return 1;
 		}
-		if (board->item_number == real_object(GODPUNISH_BOARD_OBJ)) {
+		if (board->item_number == real_object(GODPUNISH_BOARD_OBJ))
+		{
 			DoBoard(ch, temp_arg, 0, GODPUNISH_BOARD);
 			free(temp_arg);
 			return 1;
 		}
-		if (board->item_number == real_object(GODBUILD_BOARD_OBJ)) {
+		if (board->item_number == real_object(GODBUILD_BOARD_OBJ))
+		{
 			DoBoard(ch, temp_arg, 0, GODBUILD_BOARD);
 			free(temp_arg);
 			return 1;
 		}
-		if (board->item_number == real_object(GODCODE_BOARD_OBJ)) {
+		if (board->item_number == real_object(GODCODE_BOARD_OBJ))
+		{
 			DoBoard(ch, temp_arg, 0, GODCODE_BOARD);
 			free(temp_arg);
 			return 1;
@@ -747,20 +808,23 @@ void Board::LoginInfo(CHAR_DATA * ch)
 	bool has_message = 0;
 	buffer << "\r\nВас ожидают сообщения:\r\n";
 
-	for (BoardListType::const_iterator board = Board::BoardList.begin(); board != Board::BoardList.end(); ++board) {
+	for (BoardListType::const_iterator board = Board::BoardList.begin(); board != Board::BoardList.end(); ++board)
+	{
 		int unread = 0;
 		// доска не видна или можно только писать, опечатки тож не спамим
 		if (!(*board)->Access(ch) || (*board)->Access(ch) == 2 || (*board)->type == MISPRINT_BOARD)
 			continue;
 
-		for (MessageListType::reverse_iterator message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message) {
+		for (MessageListType::reverse_iterator message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message)
+		{
 			if ((*message)->date > GET_BOARD_DATE(ch, (*board)->type))
 				++unread;
 			else
 				break;
 		}
 
-		if (unread) {
+		if (unread)
+		{
 			has_message = 1;
 			if ((*board)->type == NEWS_BOARD || (*board)->type == GODNEWS_BOARD || (*board)->type == CLANNEWS_BOARD)
 				news << std::setw(4) << unread << " в разделе '" << (*board)->desc << "' " << CCWHT(ch, C_NRM) << "(" << (*board)->name << ")" << CCNRM(ch, C_NRM) << ".\r\n";
@@ -769,7 +833,8 @@ void Board::LoginInfo(CHAR_DATA * ch)
 		}
 	}
 
-	if (has_message) {
+	if (has_message)
+	{
 		buffer << news.str();
 		send_to_char(buffer.str(), ch);
 	}
@@ -793,14 +858,14 @@ ACMD(report_on_board)
 			break;
 	if (board == Board::BoardList.end())
 	{
-	    send_to_char("Доска тупо не найдена... :/\r\n", ch);
+		send_to_char("Доска тупо не найдена... :/\r\n", ch);
 		return;
 	}
 	if (!(*board)->can_write(ch))
 		return;
 	if ((*board)->messages.size() >= MAX_REPORT_MESSAGES)
 	{
-	    send_to_char("Да, набросали всего столько, что файл переполнен. Напомните об этом богам!\r\n", ch);
+		send_to_char("Да, набросали всего столько, что файл переполнен. Напомните об этом богам!\r\n", ch);
 		return;
 	}
 	// генерим мессагу (TODO: копипаст с написания на доску, надо бы вынести)

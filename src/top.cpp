@@ -24,7 +24,7 @@
 
 extern const char *class_name[];
 
-TopListType TopPlayer::TopList (NUM_CLASSES);
+TopListType TopPlayer::TopList(NUM_CLASSES);
 
 // отдельное удаление из списка (для ренеймов, делетов и т.п.)
 // данная функция работает в том числе и с неполностью загруженным персонажем
@@ -33,7 +33,7 @@ void TopPlayer::Remove(CHAR_DATA * short_ch)
 {
 	TopPlayer::TopList[static_cast<int>(GET_CLASS(short_ch))].remove_if(
 		boost::bind(std::equal_to<long>(),
-			boost::bind(&TopPlayer::unique, _1), GET_UNIQUE(short_ch)));
+					boost::bind(&TopPlayer::unique, _1), GET_UNIQUE(short_ch)));
 }
 
 // проверяем надо-ли добавлять в топ и добавляем/обновляем при случае. reboot по дефолту 0 (1 для ребута)
@@ -42,7 +42,7 @@ void TopPlayer::Remove(CHAR_DATA * short_ch)
 void TopPlayer::Refresh(CHAR_DATA * short_ch, bool reboot)
 {
 	if (IS_NPC(short_ch) || IS_SET(PLR_FLAGS(short_ch, PLR_FROZEN), PLR_FROZEN)
-	|| IS_SET(PLR_FLAGS(short_ch, PLR_DELETED), PLR_DELETED) || IS_IMMORTAL(short_ch))
+			|| IS_SET(PLR_FLAGS(short_ch, PLR_DELETED), PLR_DELETED) || IS_IMMORTAL(short_ch))
 		return;
 
 	int class_num = static_cast<int>(GET_CLASS(short_ch)); // а то уж больно плохо смотрится
@@ -96,18 +96,22 @@ ACMD(DoBest)
 	bool find = 0;
 	int class_num = 0;
 	// тут и далее <= для учета 'игроки' после классов
-	for (; class_num <= NUM_CLASSES; ++class_num) {
-		if (CompareParam(buffer, TopPlayer::TopFormat[class_num])) {
+	for (; class_num <= NUM_CLASSES; ++class_num)
+	{
+		if (CompareParam(buffer, TopPlayer::TopFormat[class_num]))
+		{
 			find = 1;
 			break;
 		}
 	}
 
-	if (find) {
+	if (find)
+	{
 		std::ostringstream out;
 		out << CCWHT(ch, C_NRM) << "Лучшие " << TopPlayer::TopFormat[class_num] << ":" << CCNRM(ch, C_NRM) << "\r\n";
 
-		if (class_num < NUM_CLASSES) { // конкретная профа
+		if (class_num < NUM_CLASSES)   // конкретная профа
+		{
 			boost::format class_format("\t%-20s %-2d %s\r\n");
 			int i = 0;
 			for (std::list<TopPlayer>::const_iterator it = TopPlayer::TopList[class_num].begin(); it != TopPlayer::TopList[class_num].end() && i < MAX_TOP_CLASS; ++it, ++i)
@@ -116,14 +120,16 @@ ACMD(DoBest)
 			// если игрок участвует в данном топе - покажем ему, какой он неудачник
 			int count = 1;
 			std::list<TopPlayer>::iterator find_me = TopPlayer::TopList[class_num].begin();
-			for ( ; find_me != TopPlayer::TopList[class_num].end(); ++find_me, ++count)
+			for (; find_me != TopPlayer::TopList[class_num].end(); ++find_me, ++count)
 				if (find_me->unique == GET_UNIQUE(ch))
 					break;
 			if (find_me != TopPlayer::TopList[class_num].end())
 				out << "Ваш текущий рейтинг: " << count << "\r\n";
 
 			send_to_char(ch, out.str().c_str());
-		} else { // все профы
+		}
+		else   // все профы
+		{
 			int i = 0;
 			boost::format all_format("\t%-20s %-2d %-17s %s\r\n");
 			for (TopListType::const_iterator it = TopPlayer::TopList.begin(); it != TopPlayer::TopList.end(); ++it, ++i)
@@ -131,7 +137,9 @@ ACMD(DoBest)
 					out << all_format % it->begin()->name % it->begin()->remort % desc_count(it->begin()->remort, WHAT_REMORT) % class_name[i];
 			send_to_char(ch, out.str().c_str());
 		}
-	} else {
+	}
+	else
+	{
 		// топ славы
 		if (CompareParam(buffer, "прославленные"))
 		{

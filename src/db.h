@@ -216,7 +216,8 @@ int vnum_flag(char *searchname, CHAR_DATA * ch);
 #define OBJ_NO_CALC   (1 << 1)
 
 /* structure for the reset commands */
-struct reset_com {
+struct reset_com
+{
 	char command;		/* current command                      */
 
 	int if_flag;		/* 4 modes of command execution         */
@@ -244,7 +245,8 @@ struct reset_com {
 
 
 /* zone definition structure. for the 'zone-table'   */
-struct zone_data {
+struct zone_data
+{
 	char *name;		/* name of this zone                  */
 //MZ.load
 	int level;	/* level of this zone (is used in ingredient loading)	*/
@@ -281,7 +283,8 @@ struct zone_data {
 
 
 /* for queueing zones for update   */
-struct reset_q_element {
+struct reset_q_element
+{
 	zone_rnum zone_to_reset;	/* ref to zone_data */
 	struct reset_q_element *next;
 };
@@ -289,7 +292,8 @@ struct reset_q_element {
 
 
 /* structure for the update queue     */
-struct reset_q_type {
+struct reset_q_type
+{
 	struct reset_q_element *head;
 	struct reset_q_element *tail;
 };
@@ -298,7 +302,8 @@ struct reset_q_type {
 #define PLAYER_SAVE_ACTIVITY 300
 #define MAX_SAVED_ITEMS      500
 
-struct player_index_element {
+struct player_index_element
+{
 	char *name;
 	long id;
 	long unique;
@@ -309,7 +314,8 @@ struct player_index_element {
 };
 
 
-struct help_index_element {
+struct help_index_element
+{
 	char *keyword;
 	char *entry;
 	int duplicate;
@@ -335,7 +341,8 @@ struct help_index_element {
 #define MONTH_DECEMBER		11
 #define DAYS_PER_WEEK		7
 
-struct month_temperature_type {
+struct month_temperature_type
+{
 	int min;
 	int max;
 	int med;

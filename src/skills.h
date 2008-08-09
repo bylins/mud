@@ -139,7 +139,8 @@ int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict);
 #define DIG_DFLT_MOB_VNUM_END		103
 #define DIG_DFLT_PANDORA_VNUM		919
 
-struct skillvariables_dig {
+struct skillvariables_dig
+{
 	int hole_max_deep;
 	int instr_crash_chance;
 	int treasure_chance;
@@ -178,7 +179,8 @@ struct skillvariables_dig {
 #define INSGEM_DFLT_TIMER_PLUS_PERCENT	10
 #define INSGEM_DFLT_TIMER_MINUS_PERCENT	10
 
-struct skillvariables_insgem {
+struct skillvariables_insgem
+{
 	int lag;
 	int minus_for_affect;
 	int prob_divide;

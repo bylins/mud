@@ -95,10 +95,12 @@ void ASSIGNMASTER(mob_vnum mob, SPECIAL(fname), int learn_info)
 {
 	mob_rnum rnum;
 
-	if ((rnum = real_mobile(mob)) >= 0) {
+	if ((rnum = real_mobile(mob)) >= 0)
+	{
 		mob_index[rnum].func = fname;
 		mob_index[rnum].stored = learn_info;
-	} else if (!mini_mud)
+	}
+	else if (!mini_mud)
 		log("SYSERR: Attempt to assign spec to non-existant mob #%d", mob);
 }
 
@@ -169,21 +171,26 @@ void init_spec_procs(void)
 	char line1[256], line2[256], name[256];
 	int i;
 
-	if (!(magic = fopen(LIB_MISC "specials.lst", "r"))) {
+	if (!(magic = fopen(LIB_MISC "specials.lst", "r")))
+	{
 		log("Cann't open specials list file...");
 		return;
 	}
-	while (get_line(magic, name)) {
+	while (get_line(magic, name))
+	{
 		if (!name[0] || name[0] == ';')
 			continue;
-		if (sscanf(name, "%s %d %s", line1, &i, line2) != 3) {
+		if (sscanf(name, "%s %d %s", line1, &i, line2) != 3)
+		{
 			log("Bad format for special string !\r\n"
-			    "Format : <who/what (%%s)> <vnum (%%d)> <type (%%s)>");
+				"Format : <who/what (%%s)> <vnum (%%d)> <type (%%s)>");
 			_exit(1);
 		}
 		log("<%s>-%d-[%s]", line1, i, line2);
-		if (!str_cmp(line1, "mob")) {
-			if (real_mobile(i) < 0) {
+		if (!str_cmp(line1, "mob"))
+		{
+			if (real_mobile(i) < 0)
+			{
 				log("Unknown mobile %d in specials assignment...", i);
 				continue;
 			}
@@ -203,13 +210,20 @@ void init_spec_procs(void)
 //--F@N
 			else
 				log("Unknown mobile %d assignment type - %s...", i, line2);
-		} else if (!str_cmp(line1, "obj")) {
-			if (real_object(i) < 0) {
+		}
+		else if (!str_cmp(line1, "obj"))
+		{
+			if (real_object(i) < 0)
+			{
 				log("Unknown object %d in specials assignment...", i);
 				continue;
 			}
-		} else if (!str_cmp(line1, "room")) {
-		} else {
+		}
+		else if (!str_cmp(line1, "room"))
+		{
+		}
+		else
+		{
 			log("Error in specials file !\r\n" "May be : mob, obj or room...");
 			_exit(1);
 		}
