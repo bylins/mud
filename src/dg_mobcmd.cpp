@@ -1854,6 +1854,9 @@ ACMD(do_mdamage)
 
 	if ((victim = get_char(name)))
 	{
+		if (world[IN_ROOM(victim)]->zone != world[IN_ROOM(ch)]->zone)
+			return;
+
 		if (GET_LEVEL(victim) >= LVL_IMMORT && dam > 0)
 		{
 			send_to_char

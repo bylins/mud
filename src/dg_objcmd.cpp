@@ -561,6 +561,9 @@ OCMD(do_odamage)
 
 	if ((ch = get_char_by_obj(obj, name)))
 	{
+		if (world[IN_ROOM(ch)]->zone != world[IN_ROOM(obj)]->zone)
+			return;
+
 		if (GET_LEVEL(ch) >= LVL_IMMORT)
 		{
 			send_to_char

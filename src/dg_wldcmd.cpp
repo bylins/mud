@@ -589,6 +589,9 @@ WCMD(do_wdamage)
 
 	if ((ch = get_char_by_room(room, name)))
 	{
+		if (world[IN_ROOM(ch)]->zone != room->zone)
+			return;
+
 		if (GET_LEVEL(ch) >= LVL_IMMORT && dam > 0)
 		{
 			send_to_char("Будучи бессмертным, Вы избежали повреждения...", ch);
