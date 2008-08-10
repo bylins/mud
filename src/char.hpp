@@ -212,17 +212,20 @@ typedef std::map < int/* номер скилла */, int/* значение скилла */ > CharSkillsT
 */
 class Character
 {
-public:
 // новое
+public:
 	Character();
 	~Character();
-// поля
-	CharSkillsType skills; // список изученных скиллов
-// методы
+
 	int get_skill(int skill_num);
 	void set_skill(int skill_num, int percent);
+	void clear_skills();
+
+private:
+	CharSkillsType skills; // список изученных скиллов
 
 // старое
+public:
 	int pfilepos;		/* playerfile pos                */
 	mob_rnum nr;		/* Mob's rnum                   */
 	room_rnum in_room;	/* Location (real room number)   */
@@ -291,6 +294,5 @@ public:
 	int *ing_list;		//загружаемые в труп ингредиенты
 	load_list *dl_list;	// загружаемые в труп предметы
 };
-/* ====================================================================== */
 
 #endif // CHAR_HPP_INCLUDED

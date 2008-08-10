@@ -6218,7 +6218,7 @@ void clear_char_skills(CHAR_DATA * ch)
 		ch->real_abils.SplKnw[i] = 0;
 	for (i = 0; i < MAX_SPELLS + 1; i++)
 		ch->real_abils.SplMem[i] = 0;
-	ch->skills.clear();
+	ch->clear_skills();
 }
 
 /* initialize a new character only if class is set */
@@ -6417,7 +6417,7 @@ ACMD(do_remort)
 	while (ch->timed)
 		timed_from_char(ch, ch->timed);
 
-	ch->skills.clear();
+	ch->clear_skills();
 
 	for (i = 1; i <= MAX_SPELLS; i++)
 	{

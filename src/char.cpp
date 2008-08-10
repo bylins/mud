@@ -282,3 +282,11 @@ void Character::set_skill(int skill_num, int percent)
 	else if (percent)
 		skills[skill_num] = percent;
 }
+
+/**
+*
+*/
+void Character::clear_skills()
+{
+	skills.clear();
+}
