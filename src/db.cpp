@@ -1425,27 +1425,6 @@ void boot_db(void)
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");
-
-	struct test_char_ability_data
-	{
-		ubyte Skills[MAX_SKILLS + 1];	/* array of skills plus skill 0     */
-		ubyte SplKnw[MAX_SPELLS + 1];	/* array of SPELL_KNOW_TYPE         */
-		ubyte SplMem[MAX_SPELLS + 1];	/* array of MEMed SPELLS            */
-		bitset<MAX_FEATS> Feats;
-		sbyte str;
-		sbyte intel;
-		sbyte wis;
-		sbyte dex;
-		sbyte con;
-		sbyte cha;
-		sbyte size;
-		sbyte hitroll;
-		sbyte damroll;
-		sbyte armor;
-	};
-	log("test1: %d", sizeof(test_char_ability_data));
-	log("test1: %d", sizeof(char_ability_data));
-
 }
 
 /* free rooms structures and pointers*/
