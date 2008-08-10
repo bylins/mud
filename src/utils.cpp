@@ -549,8 +549,9 @@ void mudlog(const char *str, int type, int level, int channel, int file)
  * to cast a non-const array as const than to cast a const one as non-const.
  * Doesn't really matter since this function doesn't change the array though.
  */
-char *empty_string = "ничего";
-int sprintbitwd(bitvector_t bitvector, const char *names[], char *result, char *div)
+const char *empty_string = "ничего";
+
+int sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div)
 {
 	long nr = 0, fail = 0, divider = FALSE;
 
@@ -608,7 +609,7 @@ int sprintbit(bitvector_t bitvector, const char *names[], char *result)
 	return sprintbitwd(bitvector, names, result, ",");
 }
 
-void sprintbits(FLAG_DATA flags, const char *names[], char *result, char *div)
+void sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div)
 {
 	char buffer[MAX_STRING_LENGTH];
 	int i;
@@ -2243,3 +2244,36 @@ void skip_dots(char **string)
 {
 	for (; **string && (strchr(" .", **string) != NULL); (*string)++);
 }
+
+/* Return pointer to first occurrence in string ct in */
+/* cs, or NULL if not present.  Case insensitive */
+char *str_str(char *cs, const char *ct)
+{
+	char *s;
+	const char *t;
+
+	if (!cs || !ct)
+		return NULL;
+
+	while (*cs)
+	{
+		t = ct;
+
+		while (*cs && (LOWER(*cs) != LOWER(*t)))
+			cs++;
+
+		s = cs;
+
+		while (*t && *cs && (LOWER(*cs) == LOWER(*t)))
+		{
+			t++;
+			cs++;
+		}
+
+		if (!*t)
+			return s;
+
+	}
+	return NULL;
+}
+

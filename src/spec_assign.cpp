@@ -49,7 +49,6 @@ SPECIAL(magic_user);
 SPECIAL(bank);
 
 void assign_kings_castle(void);
-char *str_str(char *cs, char *ct);
 
 /* local functions */
 void assign_mobiles(void);

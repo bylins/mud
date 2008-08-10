@@ -60,8 +60,8 @@ void mudlog(const char *str, int type, int level, int channel, int file);
 int number(int from, int to);
 int dice(int number, int size);
 int sprintbit(bitvector_t vektor, const char *names[], char *result);
-int sprintbitwd(bitvector_t vektor, const char *names[], char *result, char * div);
-void sprintbits(FLAG_DATA flags, const char *names[], char *result, char *div);
+int sprintbitwd(bitvector_t vektor, const char *names[], char *result, const char *div);
+void sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE * fl, char *buf);
 int get_filename(const char *orig_name, char *filename, int mode);
@@ -80,6 +80,7 @@ int valid_email(const char *address);
 void skip_spaces(char **string);
 void skip_dots(char **string);
 void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence = 0);
+char * str_str(char *cs, const char *ct);
 
 int get_gold(CHAR_DATA *ch);
 void add_gold(CHAR_DATA *ch, int gold);

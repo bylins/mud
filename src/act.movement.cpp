@@ -33,7 +33,6 @@
 #include "char.hpp"
 
 /* external functs */
-int special(CHAR_DATA * ch, int cmd, char *arg);
 void death_cry(CHAR_DATA * ch);
 OBJ_DATA *make_corpse(CHAR_DATA * ch);
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);

@@ -153,38 +153,6 @@ TRIG_DATA *cur_trig = NULL;
 
 TRIG_DATA *trigger_list = NULL;	/* all attached triggers */
 
-/* Return pointer to first occurrence in string ct in */
-/* cs, or NULL if not present.  Case insensitive */
-char *str_str(char *cs, char *ct)
-{
-	char *s, *t;
-
-	if (!cs || !ct)
-		return NULL;
-
-	while (*cs)
-	{
-		t = ct;
-
-		while (*cs && (LOWER(*cs) != LOWER(*t)))
-			cs++;
-
-		s = cs;
-
-		while (*t && *cs && (LOWER(*cs) == LOWER(*t)))
-		{
-			t++;
-			cs++;
-		}
-
-		if (!*t)
-			return s;
-
-	}
-	return NULL;
-}
-
-
 int trgvar_in_room(int vnum)
 {
 	int rnum = real_room(vnum);

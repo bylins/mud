@@ -74,7 +74,6 @@ long find_class_bitvector(char arg);
 int level_exp(CHAR_DATA * ch, int level);
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
 int compute_armor_class(CHAR_DATA * ch);
-char *str_str(char *cs, char *ct);
 int low_charm(CHAR_DATA * ch);
 int pk_count(CHAR_DATA * ch);
 /* local functions */
@@ -1380,7 +1379,7 @@ const char *Fires[MAX_FIRES] = { "тлеет небольшая кучка угольков",
 #define TAG_AUTUMNNIGHT "<autumnnight>"
 #define TAG_AUTUMNDAY   "<autumnday>"
 
-int paste_description(char *string, char *tag, int need)
+int paste_description(char *string, const char *tag, int need)
 {
 	char *pos;
 	if (!*string || !*tag)
@@ -1692,10 +1691,9 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 				fight_count++;
 				continue;
 			}
-			if ((probe >= percent ||
-					((!AFF_FLAGGED(tch, AFF_SNEAK) ||
-					  !AFF_FLAGGED(tch, AFF_HIDE)) &&
-					 (probe > percent * 2)) && (percent < 100 || IS_IMMORTAL(ch)) && !fight_count))
+			if ((probe >= percent || ((!AFF_FLAGGED(tch, AFF_SNEAK) || !AFF_FLAGGED(tch, AFF_HIDE)) && (probe > percent * 2)))
+					&& (percent < 100 || IS_IMMORTAL(ch))
+					&& !fight_count)
 			{
 				if (IS_NPC(tch))
 				{

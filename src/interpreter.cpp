@@ -98,7 +98,6 @@ int parse_race(char arg);
 int parse_race_step(char arg);
 int parse_race_vik(char arg);
 int parse_kin(char arg);
-int special(CHAR_DATA * ch, int cmd, char *arg);
 int Valid_Name(char *newname);
 int Is_Valid_Name(char *newname);
 int Is_Valid_Dc(char *newname);

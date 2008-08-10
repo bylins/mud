@@ -483,8 +483,7 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 		act("$p: Эта вещь не предназначена для Вас !", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
 	}
-	else if (invalid_unique(ch, obj)
-			 || strstr(obj->name, "clan") && (!CLAN(ch) || !strstr(obj->name, buf)))
+	else if (invalid_unique(ch, obj) || (strstr(obj->name, "clan") && (!CLAN(ch) || !strstr(obj->name, buf))))
 	{
 		act("Вас обожгло при попытке взять $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, obj, 0, TO_ROOM);
@@ -2022,6 +2021,7 @@ ACMD(do_pour)
 
 	//Переливает из бутылки с зельем в емкость
 	if (GET_OBJ_TYPE(from_obj) == ITEM_POTION)
+	{
 		if (GET_OBJ_VNUM(from_obj) == GET_OBJ_SKILL(to_obj) || GET_OBJ_VAL(to_obj, 1) == 0)
 		{
 			sprintf(buf, "Вы занялись переливанием зелья в %s.\r\n", OBJN(to_obj, ch, 3));
@@ -2113,10 +2113,12 @@ ACMD(do_pour)
 			send_to_char("Смешивать разные зелья?! Да вы, батенька, гурман!\r\n", ch);
 			return;
 		}
+	}
 	//Переливает из емкости или колодца с зельем куда-то
 	if ((GET_OBJ_TYPE(from_obj) == ITEM_DRINKCON ||
 			GET_OBJ_TYPE(from_obj) == ITEM_FOUNTAIN) &&
 			GET_OBJ_VAL(from_obj, 2) >= LIQ_POTION && GET_OBJ_VAL(from_obj, 2) <= LIQ_POTION_FUCHSIA)
+	{
 		if ((GET_OBJ_SKILL(from_obj) == GET_OBJ_SKILL(to_obj)) || GET_OBJ_VAL(to_obj, 1) == 0)
 			GET_OBJ_SKILL(to_obj) = GET_OBJ_SKILL(from_obj);
 		else
@@ -2124,6 +2126,7 @@ ACMD(do_pour)
 			send_to_char("Смешивать разные зелья?! Да вы, батенька, гурман!\r\n", ch);
 			return;
 		}
+	}
 //Конец изменений Adept'ом
 
 	if (subcmd == SCMD_POUR)
@@ -3245,9 +3248,9 @@ ACMD(do_makefood)
 		return;
 	}
 	mob = (mob_proto + real_mobile(mobn));
-	if (!IS_IMMORTAL(ch) &&
-			(!(GET_CLASS(mob) == CLASS_ANIMAL) ||
-			 !(GET_CLASS(mob) == CLASS_BASIC_NPC) && (wgt = GET_WEIGHT(mob)) < 11))
+	if (!IS_IMMORTAL(ch)
+			&& ((GET_CLASS(mob) != CLASS_ANIMAL || GET_CLASS(mob) != CLASS_BASIC_NPC)
+				&& (wgt = GET_WEIGHT(mob)) < 11))
 	{
 		send_to_char("Этот труп невозможно освежевать.", ch);
 		return;

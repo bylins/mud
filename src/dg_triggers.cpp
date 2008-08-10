@@ -37,7 +37,6 @@ extern const char *dirs[];
 /* external functions from scripts.cpp */
 extern int script_driver(void *go, TRIG_DATA * trig, int type, int mode);
 char *matching_quote(char *p);
-char *str_str(char *cs, char *ct);
 
 
 /* mob trigger types */

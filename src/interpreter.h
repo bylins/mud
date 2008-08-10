@@ -58,6 +58,7 @@ void lower_convert(std::string& text);
 void lower_convert(char* text);
 void name_convert(std::string& text);
 void god_work_invoice();
+int special(CHAR_DATA * ch, int cmd, char *arg);
 
 char *delete_doubledollar(char *string);
 /** Cоответствие классов и религий (Кард)*/
