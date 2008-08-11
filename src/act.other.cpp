@@ -946,13 +946,6 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 	}
 	if (!leader) return;
 
-	// бывшего лидера первым закидываем обратно в группу, если он живой
-	if (vict)
-	{
-		// флаг группы надо снять, иначе при регрупе не будет писаться о старом лидере
-		REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
-		add_follower(ch, leader, true);
-	}
 	// для реследования используем стандартные функции
 	std::vector<CHAR_DATA *> temp_list;
 	for (struct follow_type *n = 0, *l = ch->followers; l; l = n)
@@ -969,6 +962,7 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 				temp_list.push_back(temp_vict);
 		}
 	}
+
 	// вся эта фигня только для того, чтобы при реследовании пройтись по списку в обратном
 	// направлении и сохранить относительный порядок следования в группе
 	if (!temp_list.empty())
@@ -977,6 +971,14 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 
 	if (!leader->followers)
 		return;
+
+	// бывшего лидера последним закидываем обратно в группу, если он живой
+	if (vict)
+	{
+		// флаг группы надо снять, иначе при регрупе не будет писаться о старом лидере
+		REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
+		add_follower(ch, leader, true);
+	}
 
 	perform_group(leader, leader);
 	int followers = 0;
