@@ -20,6 +20,7 @@
 #include "genchar.h"
 #include "spells.h"
 #include "char.hpp"
+#include "db.h"
 
 char *genchar_help =
 	"\r\n Сейчас Вы должны выбрать себе характеристики. В зависимости от того, как\r\n"

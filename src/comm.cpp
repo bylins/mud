@@ -3336,11 +3336,11 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 			{
 			case 'n':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
-					i = (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch)) ? GET_NAME(ch) : PERS(ch, to, 0);
+					i = (!IS_NPC(ch) && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_NAME(ch) : PERS(ch, to, 0);
 				else
 				{
 					padis = *(++orig) - '0';
-					i = (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch)) ? GET_PAD(ch, padis) : PERS(ch, to, padis);
+					i = (!IS_NPC(ch) && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_PAD(ch, padis) : PERS(ch, to, padis);
 				}
 				break;
 			case 'N':

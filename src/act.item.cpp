@@ -460,9 +460,9 @@ ACMD(do_put)
 
 int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 {
-	char buf[128];
-	if (CLAN(ch))
+	if (!IS_NPC(ch) && CLAN(ch))
 		sprintf(buf, "clan%d!", CLAN(ch)->GetRent());
+
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 	{
 		act("$p: Вы не могете нести столько вещей.", FALSE, ch, obj, 0, TO_CHAR);
@@ -483,7 +483,7 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 		act("$p: Эта вещь не предназначена для Вас !", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
 	}
-	else if (invalid_unique(ch, obj) || (strstr(obj->name, "clan") && (!CLAN(ch) || !strstr(obj->name, buf))))
+	else if (invalid_unique(ch, obj) || (strstr(obj->name, "clan") && (IS_NPC(ch) || !CLAN(ch) || !strstr(obj->name, buf))))
 	{
 		act("Вас обожгло при попытке взять $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, obj, 0, TO_ROOM);

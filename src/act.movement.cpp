@@ -343,7 +343,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		return (FALSE);
 
 	/* не пускать в ванрумы после пк */
-	if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_TUNNEL) && RENTABLE(ch) && !IS_NPC(ch))
+	if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_TUNNEL) && !IS_NPC(ch) && RENTABLE(ch))
 	{
 		if (show_msg)
 			send_to_char("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
@@ -585,7 +585,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		return (FALSE);
 
 	/* Mortally drunked - it is loss direction */
-	if (GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED && !on_horse(ch) &&
+	if (!IS_NPC(ch) && GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED && !on_horse(ch) &&
 			GET_COND(ch, DRUNK) >= number(CHAR_DRUNKED, 50))
 		for (i = 0; i < NUM_OF_DIRS && ndir < 0; i++)
 		{
@@ -1323,7 +1323,7 @@ ACMD(do_gen_door)
 	if ((obj) || (door >= 0))
 	{
 		keynum = DOOR_KEY(ch, obj, door);
-		if ((subcmd == SCMD_CLOSE || subcmd == SCMD_LOCK) && RENTABLE(ch))
+		if ((subcmd == SCMD_CLOSE || subcmd == SCMD_LOCK) && !IS_NPC(ch) && RENTABLE(ch))
 			send_to_char("Ведите себя достойно во время боевых действий!\r\n", ch);
 		else if (!(DOOR_IS_OPENABLE(ch, obj, door)))
 			act("Вы никогда не сможете $F это !", FALSE, ch, 0, a_cmd_door[subcmd], TO_CHAR);

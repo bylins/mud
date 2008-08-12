@@ -2186,7 +2186,7 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			else if (!str_cmp(field, "rentable"))
 			{
-				if (RENTABLE(c))
+				if (!IS_NPC(c) && RENTABLE(c))
 					strcpy(str, "0");
 				else
 					strcpy(str, "1");
