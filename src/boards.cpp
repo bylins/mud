@@ -701,8 +701,8 @@ SPECIAL(Board::Special)
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
 	boost::trim_if(buffer, boost::is_any_of(" \'"));
-	if (CMD_IS("смотреть") || CMD_IS("осмотреть") || CMD_IS("look") || CMD_IS("examine")
-			|| ((CMD_IS("читать") || CMD_IS("read")) && (CompareParam(buffer2, "доска")) || CompareParam(buffer2, "board")))
+	if ((CMD_IS("смотреть") || CMD_IS("осмотреть") || CMD_IS("look") || CMD_IS("examine")
+			|| CMD_IS("читать") || CMD_IS("read")) && (CompareParam(buffer2, "доска") || CompareParam(buffer2, "board")))
 	{
 		// эта мутная запись для всяких 'см на доску' и подобных написаний в два слова
 		if (buffer2.empty()

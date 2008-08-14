@@ -1591,19 +1591,19 @@ char *show_state(CHAR_DATA *ch, CHAR_DATA *victim)
 char *show_state(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	int ch_hp = 11;
-	static char *WORD_STATE[12] = { "Смертельно ранен",
-									"О.тяжело ранен",
-									"О.тяжело ранен",
-									"Тяжело ранен",
-									"Тяжело ранен",
-									"Ранен",
-									"Ранен",
-									"Ранен",
-									"Легко ранен",
-									"Легко ранен",
-									"Слегка ранен",
-									"Невредим"
-								  };
+	static const char *WORD_STATE[12] = { "Смертельно ранен",
+										  "О.тяжело ранен",
+										  "О.тяжело ранен",
+										  "Тяжело ранен",
+										  "Тяжело ранен",
+										  "Ранен",
+										  "Ранен",
+										  "Ранен",
+										  "Легко ранен",
+										  "Легко ранен",
+										  "Слегка ранен",
+										  "Невредим"
+										};
 
 	ch_hp = posi_value(GET_HIT(victim), GET_REAL_MAX_HIT(victim)) + 1;
 	sprintf(buf, "%s[%s:%s%s]%s ",
@@ -1612,14 +1612,10 @@ char *show_state(CHAR_DATA * ch, CHAR_DATA * victim)
 	return buf;
 }
 
-
-
-
-
 char *make_prompt(DESCRIPTOR_DATA * d)
 {
 	static char prompt[MAX_PROMPT_LENGTH + 1];
-	static char *dirs[] = { "С", "В", "Ю", "З", "^", "v" };
+	static const char *dirs[] = { "С", "В", "Ю", "З", "^", "v" };
 
 	int ch_hp, sec_hp;
 	int door;

@@ -2051,7 +2051,7 @@ ACMD(do_shutdown)
 		return;
 	}
 
-	if (buf && *buf && (times = atoi(buf)) > 0)
+	if (*buf && (times = atoi(buf)) > 0)
 	{
 		shutdown_time = time(NULL) + times;
 	}
@@ -3310,24 +3310,24 @@ ACMD(do_wizutil)
 		case SCMD_SQUELCH:
 			break;
 		case SCMD_MUTE:
-			if (num && *num) times = atol(num);
+			if (*num) times = atol(num);
 			set_punish(ch, vict, SCMD_MUTE, reason, times);
 			break;
 		case SCMD_DUMB:
-			if (num && *num) times = atol(num);
+			if (*num) times = atol(num);
 			set_punish(ch, vict, SCMD_DUMB, reason, times);
 			break;
 		case SCMD_FREEZE:
-			if (num && *num) times = atol(num);
+			if (*num) times = atol(num);
 			set_punish(ch, vict, SCMD_FREEZE, reason, times);
 			break;
 		case SCMD_HELL:
-			if (num && *num) times = atol(num);
+			if (*num) times = atol(num);
 			set_punish(ch, vict, SCMD_HELL, reason, times);
 			break;
 
 		case SCMD_NAME:
-			if (num && *num) times = atol(num);
+			if (*num) times = atol(num);
 			set_punish(ch, vict, SCMD_NAME, reason, times);
 			break;
 
@@ -3336,7 +3336,7 @@ ACMD(do_wizutil)
 			break;
 
 		case SCMD_UNREGISTER:
-			if (num && *num) times = atol(num);
+			if (*num) times = atol(num);
 			set_punish(ch, vict, SCMD_UNREGISTER, reason, times);
 			break;
 
@@ -3371,23 +3371,19 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone)
 {
 	char tmpstr[255];
 	sprintf(tmpstr,
-//MZ.load
 			"%3d %-30.30s Level: %2d; Type: %-10.10s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
-			"    Top: %5d %s%s; ResetIdle: %s; Used: %s; Activity: %.2Lf\r\n",
-//-MZ.load
+			"    Top: %5d %s%s; ResetIdle: %s; Used: %s; Activity: %.2f\r\n",
 			zone_table[zone].number, zone_table[zone].name,
-//MZ.load
 			zone_table[zone].level, zone_types[zone_table[zone].type].name,
-//-MZ.load
 			zone_table[zone].age, zone_table[zone].lifespan,
 			zone_table[zone].reset_mode,
-			(zone_table[zone].reset_mode ==
-			 3) ? (can_be_reset(zone) ? 1 : 0) : (is_empty(zone) ? 1 : 0),
+			(zone_table[zone].reset_mode == 3) ? (can_be_reset(zone) ? 1 : 0) : (is_empty(zone) ? 1 : 0),
 					zone_table[zone].top,
-					zone_table[zone].under_construction ? "TEST" : "", zone_table[zone].locked ? " LOCKED" : "",
+					zone_table[zone].under_construction ? "TEST" : "",
+					zone_table[zone].locked ? " LOCKED" : "",
 					zone_table[zone].reset_idle ? "Y" : "N",
 					zone_table[zone].used ? "Y" : "N",
-					(long double)zone_table[zone].activity / 1000);
+					(double)zone_table[zone].activity / 1000);
 	*bufptr = str_add(*bufptr, tmpstr);
 }
 
@@ -3523,7 +3519,7 @@ ACMD(do_show)
 		/* tightened up by JE 4/6/93 */
 		if (self)
 			print_zone_to_buf(&bf, world[ch->in_room]->zone);
-		else if (value1 && *value1 && is_number(value) && is_number(value1))
+		else if (*value1 && is_number(value) && is_number(value1))
 		{
 			/* хотят зоны в диапазоне увидеть */
 			int found = 0;
@@ -4109,7 +4105,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 	case 19:
 		reason = one_argument(val_arg, num);
-		if (num && *num) times = atol(num);
+		if (*num) times = atol(num);
 		if (!set_punish(ch, vict, SCMD_FREEZE, reason, times)) return (0);
 		break;
 	case 20:
@@ -4500,7 +4496,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 
 	case 49:
 		reason = one_argument(val_arg, num);
-		if (num && *num) times = atol(num);
+		if (*num) times = atol(num);
 		if (!set_punish(ch, vict, SCMD_HELL, reason, times)) return (0);
 		break;
 
@@ -4547,13 +4543,13 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 
 	case 53:
 		reason = one_argument(val_arg, num);
-		if (num && *num) times = atol(num);
+		if (*num) times = atol(num);
 		if (!set_punish(ch, vict, SCMD_MUTE, reason, times)) return (0);
 		break;
 
 	case 54:
 		reason = one_argument(val_arg, num);
-		if (num && *num) times = atol(num);
+		if (*num) times = atol(num);
 		if (!set_punish(ch, vict, SCMD_DUMB, reason, times)) return (0);
 		break;
 
@@ -4590,7 +4586,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 
 	case 56:      // Разрегистрация персонажа
 		reason = one_argument(val_arg, num);
-		if (num && *num) times = atol(num);
+		if (*num) times = atol(num);
 		if (!set_punish(ch, vict, SCMD_UNREGISTER, reason, times)) return (0);
 		break;
 

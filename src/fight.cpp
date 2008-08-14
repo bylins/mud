@@ -1470,7 +1470,7 @@ void haemorragia(CHAR_DATA * ch, int percent)
 
 int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 {
-	char *to_char = NULL, *to_vict = NULL;
+	const char *to_char = NULL, *to_vict = NULL;
 	AFFECT_DATA af[4];
 	OBJ_DATA *obj;
 	int i, unequip_pos = 0;
@@ -4059,8 +4059,8 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		dam_critic = 0;
 		was_critic = 0;
 		/* Маги, волхвы и не-купеческие чармисы не умеют критать */
-		if (!IS_MAGIC_USER(ch) && !IS_DRUID(ch)
-				|| (IS_NPC(ch) && (!AFF_FLAGGED(ch, AFF_CHARM) || AFF_FLAGGED(ch, AFF_HELPER))))
+		if ((!IS_NPC(ch) && !IS_MAGIC_USER(ch) && !IS_DRUID(ch))
+				|| (IS_NPC(ch) && (!AFF_FLAGGED(ch, AFF_CHARM) && !AFF_FLAGGED(ch, AFF_HELPER))))
 		{
 			was_critic = MIN(ch->get_skill(skill), 70);
 			/* Gorrah Мастерские фиты по оружию удваивают шанс критического попадания */

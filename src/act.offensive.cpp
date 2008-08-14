@@ -206,7 +206,7 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch, int skill)
 
 void parry_override(CHAR_DATA * ch)
 {
-	char *message = NULL;
+	const char *message = NULL;
 	if (GET_AF_BATTLE(ch, EAF_BLOCK))
 	{
 		message = "Вы прекратили прятаться за щит и бросились в бой.";
@@ -235,7 +235,7 @@ void parry_override(CHAR_DATA * ch)
 
 int used_attack(CHAR_DATA * ch)
 {
-	char *message = NULL;
+	const char *message = NULL;
 
 	parry_override(ch);
 

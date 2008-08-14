@@ -65,28 +65,28 @@ int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
 
 /* Names first */
 
-char *class_abbrevs[] = { "Ле",
-						  "Ко",
-						  "Та",
-						  "Бо",
-						  "На",
-						  "Др",
-						  "Ку",
-						  "Во",
-						  "Че",
-						  "Ви",
-						  "Ох",
-						  "Кз",
-						  "Кп",
-						  "Вл",
-						  "\n"
-						};
+const char *class_abbrevs[] = { "Ле",
+							   "Ко",
+							   "Та",
+							   "Бо",
+							   "На",
+							   "Др",
+							   "Ку",
+							   "Во",
+							   "Че",
+							   "Ви",
+							   "Ох",
+							   "Кз",
+							   "Кп",
+							   "Вл",
+							   "\n"
+							 };
 
-char *kin_abbrevs[] = { "Ру",
-						"Ви",
-						"Ст",
-						"\n"
-					  };
+const char *kin_abbrevs[] = { "Ру",
+							  "Ви",
+							  "Ст",
+							  "\n"
+							};
 
 
 const char *pc_class_types[] = { "Лекарь",

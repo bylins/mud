@@ -77,9 +77,9 @@ int dts_are_dumps = YES;
 int load_into_inventory = YES;
 
 /* "okay" etc. */
-char *OK = "Ладушки.\r\n";
-char *NOPERSON = "Нет такого создания в этом мире.\r\n";
-char *NOEFFECT = "Ваши потуги оказались напрасными.\r\n";
+const char *OK = "Ладушки.\r\n";
+const char *NOPERSON = "Нет такого создания в этом мире.\r\n";
+const char *NOEFFECT = "Ваши потуги оказались напрасными.\r\n";
 
 /*
  * You can define or not define TRACK_THOUGH_DOORS, depending on whether

@@ -2497,17 +2497,12 @@ struct pray_affect_type
 
 struct gods_celebrate_type
 {
-	int
-	unique;		// Uniqum ID
-	char *name;		// Celebrate
-	int
-	from_day;		// Day of month, -1 and less if in range
-	int
-	from_month;		// Month, -1 and less if relative
-	int
-	duration;
-	int
-	religion;		// Religion type
+	int unique;	// Uniqum ID
+	const char *name; // Celebrate
+	int from_day; // Day of month, -1 and less if in range
+	int from_month; // Month, -1 and less if relative
+	int duration;
+	int religion; // Religion type
 };
 
 #define  GAPPLY_NONE                 0

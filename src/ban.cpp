@@ -186,7 +186,7 @@ int Is_Valid_Name(char *newname)
 	int i;
 	char tempname[MAX_INPUT_LENGTH];
 
-	if (!invalid_list || num_invalid < 1)
+	if (!*invalid_list || num_invalid < 1)
 		return (1);
 
 	/* change to lowercase */
