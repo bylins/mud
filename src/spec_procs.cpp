@@ -2611,29 +2611,10 @@ SPECIAL(guild_guard)
 }
 
 
-
+// TODO: повырезать все это
 SPECIAL(puff)
 {
-	if (cmd)
-		return (0);
-
-	switch (number(0, 60))
-	{
-	case 0:
-		do_say(ch, "My god!  It's full of stars!", 0, 0);
-		return (1);
-	case 1:
-		do_say(ch, "How'd all those fish get up here?", 0, 0);
-		return (1);
-	case 2:
-		do_say(ch, "I'm a very female dragon.", 0, 0);
-		return (1);
-	case 3:
-		do_say(ch, "I've got a peaceful, easy feeling.", 0, 0);
-		return (1);
-	default:
-		return (0);
-	}
+	return 0;
 }
 
 

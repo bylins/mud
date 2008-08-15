@@ -825,7 +825,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 {
 	OBJ_DATA *tobj;
 	char txtbuff[100];
-	char *to_char = NULL, *to_room = NULL;
+	const char *to_char = NULL, *to_room = NULL;
 	int prob, percent, ndice, sdice, weight;
 	float average;
 

@@ -1737,7 +1737,7 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 		if (GET_EQ(ch, pos) && OBJ_FLAGGED(GET_EQ(ch, pos), ITEM_SETSTUFF) &&
 				(set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end())
 		{
-			unsigned int oqty = activate_stuff(ch, obj, it, pos + 1 | (show_msg ? 0x80 : 0) | (no_cast ? 0x40 : 0),
+			unsigned int oqty = activate_stuff(ch, obj, it, (pos + 1) | (show_msg ? 0x80 : 0) | (no_cast ? 0x40 : 0),
 											   set_obj_qty + 1);
 			qty_to_camap_map::const_iterator qty_info = set_obj_info->second.upper_bound(oqty);
 			qty_to_camap_map::const_iterator old_qty_info = GET_EQ(ch, pos) == obj ?
@@ -1789,6 +1789,7 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 							if (weapon_affect[i].aff_spell == 0 || !IS_OBJ_AFF(GET_EQ(ch, pos), weapon_affect[i].aff_pos))
 								continue;
 							if (!no_cast)
+							{
 								if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC))
 								{
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху",
@@ -1799,6 +1800,7 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 								else
 									mag_affects(GET_LEVEL(ch), ch, ch, weapon_affect[i].aff_spell,
 												SAVING_WILL);
+							}
 						}
 
 					return oqty;
@@ -1816,6 +1818,7 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 						if (weapon_affect[i].aff_spell == 0 || !IS_OBJ_AFF(obj, weapon_affect[i].aff_pos))
 							continue;
 						if (!no_cast)
+						{
 							if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC))
 							{
 								act("Магия $o1 потерпела неудачу и развеялась по воздуху",
@@ -1826,13 +1829,14 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 							else
 								mag_affects(GET_LEVEL(ch), ch, ch, weapon_affect[i].aff_spell,
 											SAVING_WILL);
+						}
 					}
 			}
 
 			return oqty;
 		}
 		else
-			return activate_stuff(ch, obj, it, pos + 1 | (show_msg ? 0x80 : 0) | (no_cast ? 0x40 : 0), set_obj_qty);
+			return activate_stuff(ch, obj, it, (pos + 1) | (show_msg ? 0x80 : 0) | (no_cast ? 0x40 : 0), set_obj_qty);
 	}
 	else
 		return set_obj_qty;
@@ -1884,9 +1888,8 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		return;
 	}
 
-	if (!IS_NPC(ch) && invalid_align(ch, obj) ||
-			invalid_no_class(ch, obj) ||
-			AFF_FLAGGED(ch, AFF_CHARM) && (OBJ_FLAGGED(obj, ITEM_SHARPEN) || OBJ_FLAGGED(obj, ITEM_ARMORED)))
+	if ((!IS_NPC(ch) && invalid_align(ch, obj)) || invalid_no_class(ch, obj)
+			|| (AFF_FLAGGED(ch, AFF_CHARM) && (OBJ_FLAGGED(obj, ITEM_SHARPEN) || OBJ_FLAGGED(obj, ITEM_ARMORED))))
 	{
 		act("$o0 явно не предназначен$A для Вас.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u одеть $o3, но у н$s ничего не получилось.", FALSE, ch, obj, 0, TO_ROOM);
@@ -1938,6 +1941,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 				if (weapon_affect[j].aff_spell == 0 || !IS_OBJ_AFF(obj, weapon_affect[j].aff_pos))
 					continue;
 				if (!no_cast)
+				{
 					if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC))
 					{
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху",
@@ -1947,6 +1951,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 					}
 					else
 						mag_affects(GET_LEVEL(ch), ch, ch, weapon_affect[j].aff_spell, SAVING_WILL);
+				}
 			}
 	}
 
@@ -1972,7 +1977,7 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 		if (GET_EQ(ch, pos) && OBJ_FLAGGED(GET_EQ(ch, pos), ITEM_SETSTUFF) &&
 				(set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end())
 		{
-			unsigned int oqty = deactivate_stuff(ch, obj, it, pos + 1 | (show_msg ? 0x40 : 0),
+			unsigned int oqty = deactivate_stuff(ch, obj, it, (pos + 1) | (show_msg ? 0x40 : 0),
 												 set_obj_qty + 1);
 			qty_to_camap_map::const_iterator old_qty_info = set_obj_info->second.upper_bound(oqty);
 			qty_to_camap_map::const_iterator qty_info = GET_EQ(ch, pos) == obj ?
@@ -2101,7 +2106,7 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 			return oqty;
 		}
 		else
-			return deactivate_stuff(ch, obj, it, pos + 1 | (show_msg ? 0x40 : 0), set_obj_qty);
+			return deactivate_stuff(ch, obj, it, (pos + 1) | (show_msg ? 0x40 : 0), set_obj_qty);
 	}
 	else
 		return set_obj_qty;

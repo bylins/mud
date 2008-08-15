@@ -1054,10 +1054,12 @@ ACMD(do_featset)
 	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
 	imm_log(buf2);
 	if (feat >= 0 && feat < MAX_FEATS)
+	{
 		if (value)
 			SET_FEAT(vict, feat);
 		else
 			UNSET_FEAT(vict, feat);
+	}
 	sprintf(buf2, "Вы изменили для %s '%s' на '%s'.\r\n", GET_PAD(vict, 1),
 			feat_info[feat].name, value ? "доступно" : "недоступно");
 	if (!can_get_feat(vict, feat) && value == 1)

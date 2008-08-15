@@ -72,11 +72,9 @@ void die_follower(CHAR_DATA * victim);
  */
 
 /* attaches mob's name and vnum to msg and sends it to script_log */
-void mob_log(CHAR_DATA * mob, char *msg)
+void mob_log(CHAR_DATA * mob, const char *msg)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
-
-	void script_log(char *msg);
 
 	sprintf(buf, "(Mob: '%s', VNum: %d): %s", GET_SHORT(mob), GET_MOB_VNUM(mob), msg);
 	script_log(buf);

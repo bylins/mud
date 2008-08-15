@@ -1142,7 +1142,7 @@ void shopping_change(char *argument, CHAR_DATA * ch, CHAR_DATA * keeper, int sho
 		{
 			multi = atoi(arg);
 			argument = one_argument(argument, arg);
-			if (!arg || !*arg)
+			if (!*arg)
 				continue;
 			if (multi <= 0)
 				continue;

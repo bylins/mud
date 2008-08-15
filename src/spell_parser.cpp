@@ -1580,8 +1580,9 @@ int mag_manacost(CHAR_DATA * ch, int spellnum)
 	   SpINFO.mana_min); */
 }
 
-void spell_prefix(int spellnum,
-				  char **say_to_self, char **say_to_other, char **say_to_obj_vis, char **say_to_something, char **damagee_vict, char **helpee_vict)
+void spell_prefix(int spellnum, const char **say_to_self, const char **say_to_other,
+				  const char **say_to_obj_vis, const char **say_to_something, const char **damagee_vict,
+				  const char **helpee_vict)
 {
 	switch (spellnum)
 	{
@@ -1628,8 +1629,8 @@ void spell_prefix(int spellnum,
 void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 {
 	char lbuf[256];
-	char *say_to_self, *say_to_other, *say_to_obj_vis, *say_to_something, *helpee_vict, *damagee_vict;
-	const char *format;
+	const char *say_to_self, *say_to_other, *say_to_obj_vis, *say_to_something,
+	*helpee_vict, *damagee_vict, *format;
 	CHAR_DATA *i;
 	int j = 0, ofs = 0, religion;
 
@@ -2928,6 +2929,7 @@ ACMD(do_cast)
 
 	/* Caster havn't slot  */
 	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch))
+	{
 		if (can_use_feat(ch, SPELL_SUBSTITUTE_FEAT)
 				&& (spellnum == SPELL_CURE_LIGHT || spellnum == SPELL_CURE_SERIOUS
 					|| spellnum == SPELL_CURE_CRITIC || spellnum == SPELL_HEAL))
@@ -2954,7 +2956,7 @@ ACMD(do_cast)
 			send_to_char("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
 			return;
 		}
-
+	}
 
 	/* Find the target */
 	if (t != NULL)
@@ -3304,7 +3306,7 @@ ACMD(do_create)
 	/* get: blank, spell name, target name */
 	argument = one_argument(argument, arg);
 
-	if (!arg || !*arg)
+	if (!*arg)
 	{
 		if (subcmd == SCMD_RECIPE)
 			send_to_char("Состав ЧЕГО Вы хотите узнать ?\r\n", ch);
@@ -3442,7 +3444,7 @@ ACMD(do_learn)
 	/* get: blank, spell name, target name */
 	one_argument(argument, arg);
 
-	if (!arg || !*arg)
+	if (!*arg)
 	{
 		send_to_char("Вы принялись внимательно изучать свои ногти. Да, пора бы и подстричь.\r\n", ch);
 		act("$n удивленно уставил$u на свои ногти. Подстриг бы их кто-нибудь $m.", FALSE, ch, 0, 0, TO_ROOM);
@@ -3865,7 +3867,7 @@ ACMD(do_forget)
 	// проверка на аргумент рецепт|отвар
 	one_argument(argument, arg);
 
-	if (!arg || !*arg)
+	if (!*arg)
 	{
 		send_to_char("Что вы хотите забыть ?\r\n", ch);
 		return;

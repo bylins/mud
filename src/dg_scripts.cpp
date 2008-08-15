@@ -62,10 +62,10 @@ TRIG_DATA *read_trigger(int nr);
 OBJ_DATA *get_object_in_equip(CHAR_DATA * ch, char *name);
 void extract_trigger(TRIG_DATA * trig);
 int eval_lhs_op_rhs(char *expr, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type);
-char *skill_percent(CHAR_DATA * ch, char *skill);
+const char * skill_percent(CHAR_DATA * ch, char *skill);
 bool feat_owner(CHAR_DATA * ch, char *feat);
-char *spell_count(CHAR_DATA * ch, char *spell);
-char *spell_knowledge(CHAR_DATA * ch, char *spell);
+const char * spell_count(CHAR_DATA * ch, char *spell);
+const char * spell_knowledge(CHAR_DATA * ch, char *spell);
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
 void reset_zone(int znum);
 
@@ -111,7 +111,7 @@ void proto_script_free(struct trig_proto_list *src)
 	}
 }
 
-void script_log(char *msg)
+void script_log(const char *msg)
 {
 	char tmpbuf[MAX_INPUT_LENGTH];
 	char *pos;
@@ -128,7 +128,7 @@ void script_log(char *msg)
  *  Logs any errors caused by scripts to the system log.
  *  Will eventually allow on-line view of script errors.
  */
-void trig_log(TRIG_DATA * trig, char *msg)
+void trig_log(TRIG_DATA * trig, const char *msg)
 {
 	char tmpbuf[MAX_INPUT_LENGTH];
 	sprintf(tmpbuf, "(Trigger: %s, VNum: %d) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg);
@@ -230,7 +230,7 @@ OBJ_DATA *get_object_in_equip(CHAR_DATA * ch, char *name)
 /************************************************************
  * return number of object in world
  ************************************************************/
-char *get_objs_in_world(OBJ_DATA * obj)
+const char * get_objs_in_world(OBJ_DATA * obj)
 {
 	int i;
 	static char retval[16];
@@ -1152,7 +1152,7 @@ ACMD(do_detach)
 		{
 			if (!(victim = get_char_vis(ch, arg2, FIND_CHAR_WORLD)))
 				send_to_char("No such mobile around.\r\n", ch);
-			else if (!arg3 || !*arg3)
+			else if (!*arg3)
 				send_to_char("You must specify a trigger to remove.\r\n", ch);
 			else
 				trigger = arg3;
@@ -1242,7 +1242,7 @@ void free_var_el(struct trig_var_data *var)
 }
 
 
-void add_var_cntx(struct trig_var_data **var_list, char *name, const char *value, long id)
+void add_var_cntx(struct trig_var_data **var_list, const char *name, const char *value, long id)
 /*++
 	Добавление переменной в список с учетом контекста (СТРОГИЙ поиск).
     При добавлении в список локальных переменных контекст должен быть 0.
@@ -1512,9 +1512,8 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 
 
 /* sets str to be the value of var.field */
-void
-find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
-				 int type, char *var, char *field, char *subfield, char *str)
+void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
+					  int type, char *var, char *field, char *subfield, char *str)
 {
 	struct trig_var_data *vd = NULL;
 	CHAR_DATA *ch, *c = NULL, *rndm;
@@ -1524,22 +1523,22 @@ find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 	int num = 0, count = 0, value = 0, i;
 	char uid_type = '\0';
 
-	char *send_cmd[] = { "msend", "osend", "wsend" };
-	char *echo_cmd[] = { "mecho", "oecho", "wecho" };
-	char *echoaround_cmd[] = { "mechoaround", "oechoaround", "wechoaround" };
-	char *door[] = { "mdoor", "odoor", "wdoor" };
-	char *force[] = { "mforce", "oforce", "wforce" };
-	char *load[] = { "mload", "oload", "wload" };
-	char *purge[] = { "mpurge", "opurge", "wpurge" };
-	char *teleport[] = { "mteleport", "oteleport", "wteleport" };
-	char *damage[] = { "mdamage", "odamage", "wdamage" };
-	char *featturn[] = { "mfeatturn", "ofeatturn", "wfeatturn" };
-	char *skillturn[] = { "mskillturn", "oskillturn", "wskillturn" };
-	char *skilladd[] = { "mskilladd", "oskilladd", "wskilladd" };
-	char *spellturn[] = { "mspellturn", "ospellturn", "wspellturn" };
-	char *spelladd[] = { "mspelladd", "ospelladd", "wspelladd" };
-	char *spellitem[] = { "mspellitem", "ospellitem", "wspellitem" };
-	char *portal[] = { "mportal", "oportal", "wportal" };
+	const char *send_cmd[] = { "msend", "osend", "wsend" };
+	const char *echo_cmd[] = { "mecho", "oecho", "wecho" };
+	const char *echoaround_cmd[] = { "mechoaround", "oechoaround", "wechoaround" };
+	const char *door[] = { "mdoor", "odoor", "wdoor" };
+	const char *force[] = { "mforce", "oforce", "wforce" };
+	const char *load[] = { "mload", "oload", "wload" };
+	const char *purge[] = { "mpurge", "opurge", "wpurge" };
+	const char *teleport[] = { "mteleport", "oteleport", "wteleport" };
+	const char *damage[] = { "mdamage", "odamage", "wdamage" };
+	const char *featturn[] = { "mfeatturn", "ofeatturn", "wfeatturn" };
+	const char *skillturn[] = { "mskillturn", "oskillturn", "wskillturn" };
+	const char *skilladd[] = { "mskilladd", "oskilladd", "wskilladd" };
+	const char *spellturn[] = { "mspellturn", "ospellturn", "wspellturn" };
+	const char *spelladd[] = { "mspelladd", "ospelladd", "wspelladd" };
+	const char *spellitem[] = { "mspellitem", "ospellitem", "wspellitem" };
+	const char *portal[] = { "mportal", "oportal", "wportal" };
 
 	if (!subfield)
 		subfield = "";	// Чтобы проверок меньше было
@@ -2854,7 +2853,7 @@ int is_num(char *num)
 
 
 /* evaluates 'lhs op rhs', and copies to result */
-void eval_op(char *op, char *lhs, char *rhs, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig)
+void eval_op(const char *op, char *lhs, char *rhs, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig)
 {
 	char *p = 0;
 	int n;
@@ -3023,7 +3022,7 @@ int eval_lhs_op_rhs(char *expr, char *result, void *go, SCRIPT_DATA * sc, TRIG_D
 	 * valid operands, in order of priority
 	 * each must also be defined in eval_op()
 	 */
-	static char *ops[] =
+	static const char *ops[] =
 	{
 		"||",
 		"&&",

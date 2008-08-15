@@ -683,7 +683,7 @@ const char * name_by_vnum(int vnum, int type)
 
 } // no-name namespace
 
-char *if_flag_msg[] =
+const char *if_flag_msg[] =
 {
 	"",
 	"в случае успеха ",
@@ -691,7 +691,7 @@ char *if_flag_msg[] =
 	"в случае успеха, не изменяя флаг, "
 };
 
-char *if_flag_text(int if_flag)
+const char * if_flag_text(int if_flag)
 {
 	return if_flag_msg[if_flag & 3];
 }
@@ -704,7 +704,6 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 	int rnum = 0;
 	int show_all = d->olc->bitmask & OLC_BM_SHOWALLCMD;
 	int start = d->olc->bitmask & ~OLC_BM_SHOWALLCMD, stop;
-	char *str;
 
 	room = OLC_NUM(d);
 	head = (pzcmd) OLC_ZONE(d)->cmd;
@@ -778,8 +777,9 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 			break;
 
 		case 'E':
+		{
 			for (rnum = 0; *equipment_types[rnum] != '\n' && rnum != item->cmd.arg3; ++rnum);
-			str = equipment_types[rnum];
+			const char *str = equipment_types[rnum];
 			if (*str == '\n')
 				str = "???";
 			sprintf(buf2,
@@ -787,7 +787,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 					item->cmd.arg1, name_by_vnum(item->cmd.arg1, OBJ_NAME), str, item->cmd.arg4);
 			// hl - не изменяется
 			break;
-
+		}
 		case 'R':
 			sprintf(buf2,
 					"удалить %d [%s] из комнаты %d [%s]",

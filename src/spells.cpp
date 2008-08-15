@@ -1090,7 +1090,7 @@ ACMD(do_findhelpee)
 		else
 		{
 			two_arguments(argument, arg, isbank);
-			if (!arg)
+			if (!*arg)
 				times = 0;
 			else if ((times = atoi(arg)) < 0)
 			{
@@ -2048,7 +2048,7 @@ ASPELL(spell_detect_poison)
 
 ASPELL(spell_control_weather)
 {
-	char *sky_info = NULL;
+	const char *sky_info = 0;
 	int i, duration, zone, sky_type = 0;
 
 	if (what_sky > SKY_LIGHTNING)

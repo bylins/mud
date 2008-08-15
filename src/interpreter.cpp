@@ -2026,7 +2026,7 @@ int pre_help(CHAR_DATA * ch, char *arg)
 
 	half_chop(arg, command, topic);
 
-	if (!command || !*command || strlen(command) < 2 || !topic || !*topic || strlen(topic) < 2)
+	if (!*command || strlen(command) < 2 || !*topic || strlen(topic) < 2)
 		return (0);
 	if (isname(command, "помощь help справка"))
 	{

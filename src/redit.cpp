@@ -972,9 +972,9 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 		case 0:
 		{	/*
-			 * If something got left out, delete the extra description
-			 * when backing out to the menu.
-			 */
+		 * If something got left out, delete the extra description
+		 * when backing out to the menu.
+		 */
 			if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description)
 			{
 				EXTRA_DESCR_DATA **tmp_desc;

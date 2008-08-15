@@ -47,7 +47,7 @@ extern TRIG_DATA *cur_trig;
 
 struct wld_command_info
 {
-	char *command;
+	const char *command;
 	void (*command_pointer)
 	(room_data * room, char *argument, int cmd, int subcmd);
 	int subcmd;
@@ -61,11 +61,9 @@ struct wld_command_info
 
 
 /* attaches room vnum to msg and sends it to script_log */
-void wld_log(room_data * room, char *msg)
+void wld_log(room_data * room, const char *msg)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
-
-	void script_log(char *msg);
 
 	sprintf(buf, "(Room: %d): %s", room->number, msg);
 	script_log(buf);

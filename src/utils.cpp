@@ -282,7 +282,7 @@ int strn_cmp(const std::string &arg1, const char *arg2, int n)
 		if ((chk = LOWER(arg1[i]) - LOWER(*arg2)) != 0)
 			return (chk);	/* not equal */
 
-	if (i == arg1.length() && !*arg2 || (n == 0))
+	if (i == arg1.length() && (!*arg2 || n == 0))
 		return (0);
 
 	if (*arg2)
@@ -305,7 +305,7 @@ int strn_cmp(const char *arg1, const std::string &arg2, int n)
 		if ((chk = LOWER(*arg1) - LOWER(arg2[i])) != 0)
 			return (chk);	/* not equal */
 
-	if (!*arg1 && i == arg2.length() || (n == 0))
+	if (!*arg1 && (i == arg2.length() || n == 0))
 		return (0);
 
 	if (*arg1)
@@ -1391,14 +1391,14 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen)
 }
 
 
-char *some_pads[3][22] =
+const char *some_pads[3][22] =
 {
 	{"дней", "часов", "лет", "очков", "минут", "минут", "кун", "кун", "штук", "штук", "уровней", "верст", "верст", "единиц", "единиц", "секунд", "градусов", "строк", "предметов", "перевоплощений", "недель", "месяцев"},
 	{"день", "час", "год", "очко", "минута", "минуту", "куна", "куну", "штука", "штуку", "уровень", "верста", "версту", "единица", "единицу", "секунду", "градус", "строка", "предмет", "перевоплощение", "неделя", "месяц"},
 	{"дня", "часа", "года", "очка", "минуты", "минуты", "куны", "куны", "штуки", "штуки", "уровня", "версты", "версты", "единицы", "единицы", "секунды", "градуса", "строки", "предмета", "перевоплощения", "недели", "месяца"}
 };
 
-char *desc_count(int how_many, int of_what)
+const char * desc_count(int how_many, int of_what)
 {
 	if (how_many < 0)
 		how_many = -how_many;

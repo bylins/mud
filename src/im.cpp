@@ -200,7 +200,7 @@ int im_calc_power(void)
 */
 
 // Поиск алиаса
-char *get_im_alias(im_memb * s, char *name)
+char * get_im_alias(im_memb * s, const char *name)
 {
 	char **al;
 	for (al = s->aliases; al[0]; al += 2)
@@ -210,7 +210,7 @@ char *get_im_alias(im_memb * s, char *name)
 }
 
 // Функция заменяет alias в названиях ингредиентов
-char *replace_alias(char *ptr, im_memb * sample, int rnum, char *std)
+char * replace_alias(char *ptr, im_memb * sample, int rnum, const char *std)
 {
 	char *dst, *al;
 	char aname[16];
@@ -280,7 +280,7 @@ int im_type_rnum(int vnum)
 	return rind;
 }
 
-char *def_alias[] = { "n0", "n1", "n2", "n3", "n4", "n5" };
+const char *def_alias[] = { "n0", "n1", "n2", "n3", "n4", "n5" };
 
 // Указание силы ингредиента
 int im_assign_power(OBJ_DATA * obj)

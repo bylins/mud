@@ -82,8 +82,8 @@ struct ingr_part_type
 };
 struct make_skill_type
 {
-	char *name;
-	char *short_name;
+	const char *name;
+	const char *short_name;
 	int num;
 };
 

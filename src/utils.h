@@ -1211,7 +1211,7 @@ void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 bool ignores(CHAR_DATA *, CHAR_DATA *, unsigned int);
 
 /* PADS for something ****************************************************/
-char *desc_count(int how_many, int of_what);
+const char * desc_count(int how_many, int of_what);
 #define WHAT_DAY	0
 #define WHAT_HOUR	1
 #define WHAT_YEAR	2

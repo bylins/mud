@@ -2264,7 +2264,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_WEB:
 		savetype = SAVING_REFLEX;
 		if (AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
-				|| ch != victim && general_savingthrow(victim, savetype, modi))
+				|| (ch != victim && general_savingthrow(victim, savetype, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
@@ -2321,7 +2321,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_SLOW:
 		savetype = SAVING_STABILITY;
 		if (AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
-				|| ch != victim && general_savingthrow(victim, savetype, modi))
+				|| (ch != victim && general_savingthrow(victim, savetype, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
@@ -2729,7 +2729,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_NOFLEE:
 		savetype = SAVING_WILL;
 		if (AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
-				|| ch != victim && general_savingthrow(victim, savetype, modi))
+				|| (ch != victim && general_savingthrow(victim, savetype, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
@@ -2809,8 +2809,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			to_room = "$n0 оглох$q !";
 			to_vict = "Вы оглохли.";
 
-			if (IS_NPC(victim) && AFF_FLAGGED(victim, af[0].bitvector) ||
-					(ch != victim) && affected_by_spell(victim, SPELL_DEAFNESS))
+			if ((IS_NPC(victim) && AFF_FLAGGED(victim, af[0].bitvector)) ||
+					(ch != victim && affected_by_spell(victim, SPELL_DEAFNESS)))
 			{
 				if (IN_ROOM(ch) == IN_ROOM(victim))
 					send_to_char(NOEFFECT, ch);
@@ -3429,10 +3429,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		extract_char(mob, FALSE);
 		return 0;
 	}
-	if ((GET_MOB_SPEC(mob) != NULL) && (GET_LEVEL(ch) < 31) ||
-			// shapirus: нельзя оживить моба !чарм
-			// Adept: поменял на !оживить
-			(MOB_FLAGGED(mob, MOB_NORESURRECTION) && !IS_IMMORTAL(ch)))
+	if (!IS_IMMORTAL(ch) && (GET_MOB_SPEC(mob) || MOB_FLAGGED(mob, MOB_NORESURRECTION)))
 	{
 		send_to_char("Вы не можете обрести власть над этим созданием!\r\n", ch);
 		extract_char(mob, FALSE);

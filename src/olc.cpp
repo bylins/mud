@@ -69,7 +69,7 @@ struct olc_save_info *olc_save_list = NULL;
 
 struct olc_scmd_data
 {
-	char *text;
+	const char *text;
 	int con_type;
 };
 

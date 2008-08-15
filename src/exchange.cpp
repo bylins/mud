@@ -195,20 +195,16 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 
 	arg = one_argument(arg, obj_name);
 	arg = one_argument(arg, arg2);
-	if (!obj_name)
-	{
-		send_to_char("Формат: базар выставить предмет цена комментарий\r\n", ch);
-		return false;
-	}
-	if (!sscanf(arg2, "%d", &item_cost))
-		item_cost = 0;
-
 
 	if (!*obj_name)
 	{
 		send_to_char("Не указан предмет.\r\n", ch);
 		return false;
 	}
+
+	if (!sscanf(arg2, "%d", &item_cost))
+		item_cost = 0;
+
 	if (!(obj = get_obj_in_list_vis(ch, obj_name, ch->carrying)))
 	{
 		send_to_char("У Вас этого нет.\r\n", ch);
@@ -1759,22 +1755,26 @@ int obj_matches_filter(EXCHANGE_ITEM_DATA * j, char *filter_name, char *filter_o
 	int tm;
 
 	if (*filter_name && !isname(filter_name, GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0)))
+	{
 		if ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING) &&
 				(GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT))
 			return 0;
+	}
 	//Для ингридиентов, дополнительно проверяем имя прототипa
-		else if (!isname(filter_name, GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(GET_EXCHANGE_ITEM(j))], 0)))
-			return 0;
+	else if (!isname(filter_name, GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(GET_EXCHANGE_ITEM(j))], 0)))
+		return 0;
 
 	if (*filter_owner && !isname(filter_owner, get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j))))
 		return 0;
 	if (*filter_type && !(GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == *filter_type))
 		return 0;
 	if (*filter_cost)
+	{
 		if ((*filter_cost > 0) && (GET_EXCHANGE_ITEM_COST(j) - *filter_cost < 0))
 			return 0;
 		else if ((*filter_cost < 0) && (GET_EXCHANGE_ITEM_COST(j) + *filter_cost > 0))
 			return 0;
+	}
 	if (*filter_wereon && (!CAN_WEAR(GET_EXCHANGE_ITEM(j), *filter_wereon)))
 		return 0;
 	if (*filter_weaponclass
@@ -1852,10 +1852,9 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 				|| ((show_type == 3) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR))
 				|| ((show_type == 4) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_WEAPON))
 				|| ((show_type == 5) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_BOOK))
-				|| ((show_type == 6) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING) &&
-					((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT) ||
-					 (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) >= 200)
-					 && (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) <= 299)))
+				|| ((show_type == 6) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING)
+					&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT)
+						|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) >= 200 && GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) <= 299)))
 				|| ((show_type == 7) && ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_INGRADIENT)
 										 || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_ARMOR)
 										 || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_WEAPON)

@@ -127,7 +127,7 @@ void obj_load_on_death(OBJ_DATA * corpse, CHAR_DATA * ch)
 				log("%d %d %d %d", iter->first, iter1->first, iter1->second.obj_qty, iter1->second.load_prob);
 	*/
 
-	if (ch == NULL || !IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE) && corpse == NULL)
+	if (ch == NULL || !IS_NPC(ch) || (!MOB_FLAGGED(ch, MOB_CORPSE) && corpse == NULL))
 		return;
 
 	oload_class::const_iterator p = oload_table.find(GET_MOB_VNUM(ch));

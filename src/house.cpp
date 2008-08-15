@@ -1343,7 +1343,7 @@ ACMD(DoClanChannel)
 			return;
 		}
 		// ограничения на клан-канал не канают на любое звание, если это БОГ
-		if (!IS_IMMORTAL(ch) && !(CLAN(ch))->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_CHANNEL] || PLR_FLAGGED(ch, PLR_DUMB))
+		if (!IS_IMMORTAL(ch) && (!(CLAN(ch))->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_CHANNEL] || PLR_FLAGGED(ch, PLR_DUMB)))
 		{
 			send_to_char("Вы не можете пользоваться каналом дружины.\r\n", ch);
 			return;
@@ -3752,7 +3752,7 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 	long long lSortParam;
 
 	// т.к. в кои8-р русские буквы не попорядку
-	char *pSortAlph = "яюэьыъщшчцхфутсрпонмлкизжёедгвба";
+	const char *pSortAlph = "яюэьыъщшчцхфутсрпонмлкизжёедгвба";
 	// первая буква имени
 	char pcFirstChar[2];
 
@@ -4164,7 +4164,7 @@ ACMD(do_clanstuff)
 
 		if (rnum == NOTHING)
 			continue;
-		if (arg && !strstr(obj_proto[rnum]->short_description, arg))
+		if (*arg && !strstr(obj_proto[rnum]->short_description, arg))
 			continue;
 
 		sprintf(buf, "%s %s clan%d!", it->name.c_str(), title.c_str(), CLAN(ch)->GetRent());

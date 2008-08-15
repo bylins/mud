@@ -41,7 +41,7 @@ void free_varlist(struct trig_var_data *vd);
 
 void trigedit_disp_menu(DESCRIPTOR_DATA * d);
 void trigedit_save(DESCRIPTOR_DATA * d);
-void trigedit_create_index(int znum, char *type);
+void trigedit_create_index(int znum, const char *type);
 char * indent_trigger(char * cmd , int * level);
 
 #if 0
@@ -197,7 +197,7 @@ void trigedit_setup_existing(DESCRIPTOR_DATA * d, int rtrg_num)
 void trigedit_disp_menu(DESCRIPTOR_DATA * d)
 {
 	TRIG_DATA *trig = OLC_TRIG(d);
-	char *attach_type;
+	const char *attach_type;
 	char trgtypes[256];
 
 	get_char_cols(d->character);
@@ -678,13 +678,13 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 }
 
 
-void trigedit_create_index(int znum, char *type)
+void trigedit_create_index(int znum, const char *type)
 {
 	FILE *newfile, *oldfile;
-	char new_name[32], old_name[32], *prefix;
+	char new_name[32], old_name[32];
 	int num, found = FALSE;
 
-	prefix = TRG_PREFIX;
+	const char *prefix = TRG_PREFIX;
 
 	sprintf(old_name, "%s/index", prefix);
 	sprintf(new_name, "%s/newindex", prefix);

@@ -42,7 +42,7 @@
 #define MAX_CON(ch) max_stats[(int) GET_CLASS(ch)][G_CON]
 #define MAX_CHA(ch) max_stats[(int) GET_CLASS(ch)][G_CHA]
 
-extern char *genchar_help;
+extern const char *genchar_help;
 
 void genchar_disp_menu(CHAR_DATA * ch);
 int genchar_parse(CHAR_DATA * ch, char *arg);
