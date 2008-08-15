@@ -1852,9 +1852,10 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 				|| ((show_type == 3) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR))
 				|| ((show_type == 4) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_WEAPON))
 				|| ((show_type == 5) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_BOOK))
-				|| ((show_type == 6) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING)
-					&& ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT)
-						|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) >= 200 && GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) <= 299)))
+				|| ((show_type == 6) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_MING) &&
+					((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT) ||
+					 (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) >= 200)
+					 && (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) <= 299)))
 				|| ((show_type == 7) && ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_INGRADIENT)
 										 || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_ARMOR)
 										 || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_WEAPON)
