@@ -620,8 +620,6 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 	return 1;
 }
 
-
-
 ACMD(do_email)
 {
 	CHAR_DATA *victim;
@@ -651,7 +649,7 @@ ACMD(do_email)
 		sprintf(buff,
 				"echo \"Subject: Ваш чар\r\nContent-Type: text/plain; charset=koi8-r\r\n\r\nПроизведена замена пароля\r\nИмя: %s\r\nПароль: %s\"|/usr/sbin/sendmail -F\"Bylins MUD\" %s\r\n",
 				GET_NAME(victim), newpass, GET_EMAIL(victim));
-		system(buff);
+//		system(buff);
 		sprintf(buf, "Выслан пароль %s, чару %s, на e-mail %s.\r\n", newpass,
 				GET_NAME(victim), GET_EMAIL(victim));
 		send_to_char(buf, ch);
@@ -671,14 +669,12 @@ ACMD(do_email)
 				"echo \"Subject: Ваш чар\r\nContent-Type: text/plain; charset=koi8-r\r\n\r\nПроизведена замена пароля\r\nИмя: %s\r\nПароль: %s\"|/usr/sbin/sendmail -F\"Bylins MUD\" %s\r\n",
 				GET_NAME(victim), newpass, GET_EMAIL(victim));
 		save_char(victim, GET_LOADROOM(victim));
-		system(buff);
+//		system(buff);
 		sprintf(buf, "Выслан пароль %s, чару %s, на e-mail %s.\r\n", newpass,
 				GET_NAME(victim), GET_EMAIL(victim));
 		send_to_char(buf, ch);
 	}
 }
-
-//
 
 ACMD(do_echo)
 {
