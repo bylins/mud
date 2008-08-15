@@ -2347,7 +2347,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			else if (!str_cmp(field, "eq"))
 			{
-				int pos;
+				int pos = -1;
 				if (isdigit(*subfield))
 					pos = atoi(subfield);
 				else if (*subfield)
