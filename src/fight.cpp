@@ -2135,18 +2135,18 @@ int calculate_strconc_damage(CHAR_DATA * ch, OBJ_DATA * wielded)
 
 /**
 * Расчет прибавки дамаги со скрытого стиля.
-* (левел/3 + реморты) * скилл/125 * среднее/9
-* тупость канеш это все, но пока трогать не хочется,
-* поэтому ограничился зависимостью от пушек и примерно той же итоговой кривой
+* (скилл/5 + реморты*3) * (среднее/(10 + среднее/2)) * (левел/30)
 */
 int calculate_noparryhit_dmg(CHAR_DATA * ch, OBJ_DATA * wielded)
 {
 	if (!ch->get_skill(SKILL_NOPARRYHIT)) return 0;
 
-	float weap_mod = static_cast<float>(((GET_OBJ_VAL(wielded, 2) + 1) / 2.0) * GET_OBJ_VAL(wielded, 1)) / 9;
-	float level_mod = static_cast<float>(GET_LEVEL(ch)) / 3;
-	float skill_mod = static_cast<float>(ch->get_skill(SKILL_NOPARRYHIT)) / 125;
-	return (static_cast<int>(((level_mod + GET_REMORT(ch)) * skill_mod) * weap_mod));
+	float weap_dmg = (((GET_OBJ_VAL(wielded, 2) + 1) / 2.0) * GET_OBJ_VAL(wielded, 1));
+	float weap_mod = weap_dmg / (10 + weap_dmg / 2);
+	float level_mod = static_cast<float>(GET_LEVEL(ch)) / 30;
+	float skill_mod = static_cast<float>(ch->get_skill(SKILL_NOPARRYHIT)) / 5;
+
+	return static_cast<int>((skill_mod + GET_REMORT(ch) * 3) * weap_mod * level_mod);
 }
 
 int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_DATA * wielded, int mayflee)
@@ -2345,7 +2345,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 			percent = number(1, skill_info[SKILL_POISONED].max_percent);
 			prob = calculate_skill(ch, SKILL_POISONED, skill_info[SKILL_POISONED].max_percent, victim);
 			if (prob >= percent
-					&& !general_savingthrow(victim, SAVING_CRITICAL,
+					&& !general_savingthrow(ch, victim, SAVING_CRITICAL,
 											con_app[GET_REAL_CON(victim)].poison_saving))
 			{
 				improove_skill(ch, SKILL_POISONED, TRUE, victim);
@@ -2361,7 +2361,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 			 !AFF_FLAGGED(ch, AFF_CHARM) &&
 			 GET_WAIT(ch) <= 0 &&
 			 !AFF_FLAGGED(victim, AFF_POISON) && number(0, 100) < GET_LIKES(ch) + GET_LEVEL(ch) - GET_LEVEL(victim)
-			 && !general_savingthrow(victim, SAVING_CRITICAL, con_app[GET_REAL_CON(victim)].poison_saving))
+			 && !general_savingthrow(ch, victim, SAVING_CRITICAL, con_app[GET_REAL_CON(victim)].poison_saving))
 		poison_victim(ch, victim, MAX(1, GET_LEVEL(ch) - GET_LEVEL(victim)) * 10);
 
 	// Если удар парирован, необходимо все равно ввязаться в драку.
@@ -4093,7 +4093,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			/*+скр.удар/20 */
 			if (IS_NPC(victim) && (number(1, 100) <
 								   (ch->get_skill(SKILL_BACKSTAB) / 20 + GET_REAL_DEX(ch) - 20)))
-				if (!general_savingthrow(victim, SAVING_REFLEX,
+				if (!general_savingthrow(ch, victim, SAVING_REFLEX,
 										 MAX(0, ch->get_skill(SKILL_BACKSTAB) -
 											 skill_info[SKILL_BACKSTAB].max_percent +
 											 dex_app[GET_REAL_DEX(ch)].reaction)))

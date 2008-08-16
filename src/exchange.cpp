@@ -1891,7 +1891,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 int parse_exch_filter(char *buf, char *filter_name, char *filter_owner, int *filter_type,
 					  int *filter_cost, int *filter_timer, int *filter_wereon, int *filter_weaponclass)
 {
-	char sign;
+	char sign[FILTER_LENGTH];
 	char tmpbuf[FILTER_LENGTH];
 
 	while (*buf && (*buf != '\r') && (*buf != '\n'))
@@ -1938,9 +1938,9 @@ int parse_exch_filter(char *buf, char *filter_name, char *filter_owner, int *fil
 			break;
 		case 'ã':
 			buf = one_argument(++buf, tmpbuf);
-			if (sscanf(tmpbuf, "%d%[-+]", filter_cost, &sign) != 2)
+			if (sscanf(tmpbuf, "%d%[-+]", filter_cost, sign) != 2)
 				return 0;
-			if (sign == '-')
+			if (*sign == '-')
 				*filter_cost = -(*filter_cost);
 			break;
 		case 'ó':

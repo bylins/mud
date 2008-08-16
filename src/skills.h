@@ -189,6 +189,6 @@ struct skillvariables_insgem
 	int timer_minus_percent;
 };
 
-int calculate_awake_mod(CHAR_DATA *ch, CHAR_DATA *vict);
+int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim);
 
 #endif

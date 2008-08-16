@@ -192,7 +192,7 @@ ASPELL(spell_recall)
 		else if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
 			modi = -100;	// always fail
 
-		if (modi == -100 || general_savingthrow(victim, SAVING_WILL, modi))
+		if (modi == -100 || general_savingthrow(ch, victim, SAVING_WILL, modi))
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -261,7 +261,7 @@ ASPELL(spell_teleport)
 	{
 		if (same_group(ch, victim))
 			modi += 25;
-		if (general_savingthrow(victim, SAVING_WILL, modi))
+		if (general_savingthrow(ch, victim, SAVING_WILL, modi))
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -938,7 +938,7 @@ ASPELL(spell_charm)
 		act("$M сейчас, похоже, не до Вас.", FALSE, ch, 0, victim, TO_CHAR);
 	else if (circle_follow(victim, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
-	else if (!IS_IMMORTAL(ch) && general_savingthrow(victim, SAVING_WILL, (GET_REAL_CHA(ch) - 10) * 3))
+	else if (!IS_IMMORTAL(ch) && general_savingthrow(ch, victim, SAVING_WILL, (GET_REAL_CHA(ch) - 10) * 3))
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else
 	{
@@ -2128,7 +2128,7 @@ ASPELL(spell_fear)
 	if (AFF_FLAGGED(victim, AFF_BLESS))
 		modi -= 25;
 
-	if (!MOB_FLAGGED(victim, MOB_NOFEAR) && !general_savingthrow(victim, SAVING_WILL, modi))
+	if (!MOB_FLAGGED(victim, MOB_NOFEAR) && !general_savingthrow(ch, victim, SAVING_WILL, modi))
 		go_flee(victim);
 }
 
@@ -2138,7 +2138,7 @@ ASPELL(spell_wc_of_fear)
 	if (ch != victim)
 		pk_agro_action(ch, victim);
 
-	if (!MOB_FLAGGED(victim, MOB_NOFEAR) && !general_savingthrow(victim, SAVING_WILL, modi))
+	if (!MOB_FLAGGED(victim, MOB_NOFEAR) && !general_savingthrow(ch, victim, SAVING_WILL, modi))
 		go_flee(victim);
 }
 
@@ -2184,7 +2184,7 @@ ASPELL(spell_energydrain)
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
 		modi = modi - 50;
 
-	if (ch == victim || !general_savingthrow(victim, SAVING_WILL, CALC_SUCCESS(modi, 33)))
+	if (ch == victim || !general_savingthrow(ch, victim, SAVING_WILL, CALC_SUCCESS(modi, 33)))
 	{
 		int i;
 		for (i = 0; i <= MAX_SPELLS; GET_SPELL_MEM(victim, i++) = 0);
