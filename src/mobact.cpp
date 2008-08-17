@@ -629,8 +629,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 			}
 			else
 			{
-				char *text = '\0';
-				if ((mob_index[GET_MOB_RNUM(ch)].func)(ch, ch, 0, text))
+				if ((mob_index[GET_MOB_RNUM(ch)].func)(ch, ch, 0, '\0'))
 					continue;	// go to next char
 			}
 		}

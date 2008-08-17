@@ -336,8 +336,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 	int need_movement = 0, ch_inroom, ch_toroom;
 	CHAR_DATA *tch;
 
-	char *text = '\0';
-	if (need_specials_check && special(ch, dir + 1, text))
+	if (need_specials_check && special(ch, dir + 1, '\0'))
 		return (FALSE);
 
 	if (!CAN_GO(ch, dir))
