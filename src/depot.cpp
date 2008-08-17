@@ -394,6 +394,8 @@ void init_purged_list()
 */
 void remove_pers_file(std::string name)
 {
+	if (name.empty()) return;
+
 	char filename[MAX_STRING_LENGTH];
 	if (get_filename(name.c_str(), filename, PERS_DEPOT_FILE))
 		remove(filename);
