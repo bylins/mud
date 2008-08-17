@@ -23,7 +23,7 @@ void save_all_online_objs();
 void update_timers();
 
 bool is_depot(OBJ_DATA *obj);
-void show_depot(CHAR_DATA * ch, OBJ_DATA * obj);
+void show_depot(CHAR_DATA *ch);
 bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj);
 void take_depot(CHAR_DATA *ch, char *arg, int howmany);
 void renumber_obj_rnum(int rnum);

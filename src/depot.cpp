@@ -966,9 +966,10 @@ DepotListType::iterator create_depot(long uid, CHAR_DATA *ch = 0)
 /**
 * Выводим персональное хранилище вместо просмотра контейнера.
 */
-void show_depot(CHAR_DATA * ch, OBJ_DATA * obj)
+void show_depot(CHAR_DATA *ch)
 {
 	if (IS_NPC(ch)) return;
+
 	if (IS_IMMORTAL(ch))
 	{
 		send_to_char("И без хранилища обойдешься...\r\n" , ch);

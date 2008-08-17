@@ -1779,7 +1779,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 
 		if (Depot::is_depot(obj))
 		{
-			Depot::show_depot(ch, obj);
+			Depot::show_depot(ch);
 			return;
 		}
 
@@ -1989,7 +1989,7 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 
 		if (Depot::is_depot(found_obj))
 		{
-			Depot::show_depot(ch, found_obj);
+			Depot::show_depot(ch);
 			return 1;
 		}
 
