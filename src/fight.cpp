@@ -146,16 +146,16 @@ void go_autoassist(CHAR_DATA * ch)
 				(IN_ROOM(k->follower) == IN_ROOM(ch)) && !FIGHTING(k->follower) &&
 				(GET_POS(k->follower) == POS_STANDING) && !CHECK_WAIT(k->follower))
 		{
-			snprintf(buf2, MAX_STRING_LENGTH, "");
-			do_assist(k->follower, buf2, 0, 0);
+			char *text = '\0';
+			do_assist(k->follower, text, 0, 0);
 		}
 	}
 	if (PRF_FLAGGED(ch_lider, PRF_AUTOASSIST) &&
 			(IN_ROOM(ch_lider) == IN_ROOM(ch)) && !FIGHTING(ch_lider) &&
 			(GET_POS(ch_lider) == POS_STANDING) && !CHECK_WAIT(ch_lider))
 	{
-		snprintf(buf2, MAX_STRING_LENGTH, "");
-		do_assist(ch_lider, buf2, 0, 0);
+		char *text = '\0';
+		do_assist(ch_lider, text, 0, 0);
 	}
 }
 
