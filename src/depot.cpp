@@ -409,7 +409,7 @@ void remove_char_entry(long uid, CharNode &node)
 {
 	depot_log("remove_char_entry: %ld", uid);
 	// если чар был что-то должен, надо попытаться с него это снять
-	if (node.money_spend || node.buffer_cost)
+	if (!name.empty() && (node.money_spend || node.buffer_cost))
 	{
 		CHAR_DATA t_victim;
 		CHAR_DATA *victim = &t_victim;
