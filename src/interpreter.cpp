@@ -1667,6 +1667,12 @@ char *one_word(char *argument, char *first_arg)
 /* same as one_argument except that it doesn't ignore fill words */
 char *any_one_arg(char *argument, char *first_arg)
 {
+	if (!argument)
+	{
+		log("SYSERR: any_one_arg() passed a NULL pointer.");
+		return 0;
+	}
+
 	skip_spaces(&argument);
 
 	while (*argument && !a_isspace(*argument))
