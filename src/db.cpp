@@ -6986,7 +6986,7 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	fprintf(saved, "Levl: %d\n", GET_LEVEL(ch));
 	fprintf(saved, "Clas: %d\n", GET_CLASS(ch));
 	fprintf(saved, "UIN : %d\n", GET_UNIQUE(ch));
-	fprintf(saved, "LstL: %ld\n", LAST_LOGON(ch));
+	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(ch)));
 	fprintf(saved, "Id  : %ld\n", GET_IDNUM(ch));
 	fprintf(saved, "Exp : %ld\n", GET_EXP(ch));
 	if (GET_REMORT(ch) > 0)
@@ -7032,7 +7032,7 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	if ((location = real_room(GET_HOME(ch))) != NOWHERE)
 		fprintf(saved, "Home: %d %s\n", GET_HOME(ch), world[(location)]->name);
 	li = ch->player.time.birth;
-	fprintf(saved, "Brth: %ld %s\n", li, ctime(&li));
+	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
 	// Gunner
 	// time.logon ãáâ=---LÇ- -= -å-Ç ƒ£à-L-- - áƒáâÇ-ã = time(0) -= âÇLãéƒL ---Ç-â
 	//-àÇ-ï - áÇLã-Ç=å á -=ç=L= ƒ£àë
@@ -7040,7 +7040,7 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 	fprintf(saved, "Plyd: %d\n", tmp);
 	// Gunner end
 	li = ch->player.time.logon;
-	fprintf(saved, "Last: %ld %s\n", li, ctime(&li));
+	fprintf(saved, "Last: %ld %s\n", static_cast<long int>(li), ctime(&li));
 	if (ch->desc)
 		strcpy(buf, ch->desc->host);
 	else
@@ -7169,7 +7169,7 @@ void save_char(CHAR_DATA * ch, room_rnum load_room)
 
 	if (GET_BOARD(ch))
 		for (int i = 0; i < BOARD_TOTAL; ++i)
-			fprintf(saved, "Br%02d: %ld\n", i + 1, GET_BOARD_DATE(ch, i));
+			fprintf(saved, "Br%02d: %ld\n", i + 1, static_cast<long int>(GET_BOARD_DATE(ch, i)));
 
 	for (int i = 0; i <= START_STATS_TOTAL; ++i)
 		fprintf(saved, "St%02d: %i\n", i, GET_START_STAT(ch, i));

@@ -910,7 +910,8 @@ bool BanList::save_ip(void)
 		{
 			fprintf(loaded, "%s %s %ld %s %ld %s\n",
 					ban_types[(*i)->BanType], (*i)->BannedIp.c_str(),
-					(*i)->BanDate, (*i)->BannerName.c_str(), (*i)->UnbanDate, (*i)->BanReason.c_str());
+					static_cast<long int>((*i)->BanDate), (*i)->BannerName.c_str(),
+					static_cast<long int>((*i)->UnbanDate), (*i)->BanReason.c_str());
 		}
 		fclose(loaded);
 		return true;

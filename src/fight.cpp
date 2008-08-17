@@ -2932,7 +2932,7 @@ void addshot_damage(CHAR_DATA * ch, int type, int weapon)
 void exthit(CHAR_DATA * ch, int type, int weapon)
 {
 	OBJ_DATA *wielded = NULL;
-	int percent, prob, div, moves;
+	int percent = 0, prob = 0, div = 0, moves = 0;
 	CHAR_DATA *tch;
 
 
