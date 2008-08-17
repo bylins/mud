@@ -747,7 +747,7 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 			if (str_cmp(GET_OBJ_PNAME(object, i), GET_OBJ_PNAME(proto, i)))
 				count += sprintf(*data + count, "Pad%d: %s~\n", i, GET_OBJ_PNAME(object, i));
 		// Описание когда на земле
-		if (str_cmp(GET_OBJ_DESC(object), GET_OBJ_DESC(proto)))
+		if (GET_OBJ_DESC(proto) && str_cmp(GET_OBJ_DESC(object), GET_OBJ_DESC(proto)))
 			count += sprintf(*data + count, "Desc: %s~\n", GET_OBJ_DESC(object));
 		// Описание при действии
 		if (GET_OBJ_ACT(object) && GET_OBJ_ACT(proto))
