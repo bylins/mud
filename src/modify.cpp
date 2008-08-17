@@ -1354,7 +1354,8 @@ void page_string(DESCRIPTOR_DATA * d, char *str, int keep_internal)
 	else
 		paginate_string(str, d);
 
-	show_string(d, "");
+	snprintf(buf2, MAX_STRING_LENGTH, "");
+	show_string(d, buf2);
 }
 
 // TODO типа временно для стрингов

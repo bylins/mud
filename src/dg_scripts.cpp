@@ -1540,8 +1540,9 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 	const char *spellitem[] = { "mspellitem", "ospellitem", "wspellitem" };
 	const char *portal[] = { "mportal", "oportal", "wportal" };
 
+	snprintf(buf2, MAX_STRING_LENGTH, "");
 	if (!subfield)
-		subfield = "";	// Чтобы проверок меньше было
+		subfield = buf2;	// Чтобы проверок меньше было
 
 	/* X.global() will have a NULL trig */
 	if (trig)
@@ -4458,7 +4459,8 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 					GET_TRIG_LOOPS(trig)++;
 					if (loops == 30)
 					{
-						process_wait(go, trig, type, "wait 1", cl);
+						snprintf(buf2, MAX_STRING_LENGTH, "wait 1");
+						process_wait(go, trig, type, buf2, cl);
 						depth--;
 						cur_trig = prev_trig;
 						return ret_val;

@@ -336,7 +336,8 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 	int need_movement = 0, ch_inroom, ch_toroom;
 	CHAR_DATA *tch;
 
-	if (need_specials_check && special(ch, dir + 1, ""))
+	snprintf(buf2, MAX_STRING_LENGTH, "");
+	if (need_specials_check && special(ch, dir + 1, buf2))
 		return (FALSE);
 
 	if (!CAN_GO(ch, dir))
@@ -1470,7 +1471,8 @@ ACMD(do_enter)
 							GET_POS(k->follower) == POS_STANDING &&
 							IN_ROOM(k->follower) == from_room)
 					{
-						command_interpreter(k->follower, "войти пентаграмма");
+						snprintf(buf2, MAX_STRING_LENGTH, "войти пентаграмма");
+						command_interpreter(k->follower, buf2);
 					}
 				}
 				if (ch->desc != NULL)

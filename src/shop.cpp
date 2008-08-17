@@ -151,7 +151,8 @@ int is_ok_char(CHAR_DATA * keeper, CHAR_DATA * ch, int shop_nr)
 
 	if (!(CAN_SEE(keeper, ch)))
 	{
-		do_say(keeper, MSG_NO_SEE_CHAR, cmd_say, 0);
+		snprintf(buf2, MAX_STRING_LENGTH, MSG_NO_SEE_CHAR);
+		do_say(keeper, buf2, cmd_say, 0);
 		return (FALSE);
 	}
 	if (IS_GOD(ch))

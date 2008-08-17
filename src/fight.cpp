@@ -145,12 +145,18 @@ void go_autoassist(CHAR_DATA * ch)
 		if (PRF_FLAGGED(k->follower, PRF_AUTOASSIST) &&
 				(IN_ROOM(k->follower) == IN_ROOM(ch)) && !FIGHTING(k->follower) &&
 				(GET_POS(k->follower) == POS_STANDING) && !CHECK_WAIT(k->follower))
-			do_assist(k->follower, "", 0, 0);
+		{
+			snprintf(buf2, MAX_STRING_LENGTH, "");
+			do_assist(k->follower, buf2, 0, 0);
+		}
 	}
 	if (PRF_FLAGGED(ch_lider, PRF_AUTOASSIST) &&
 			(IN_ROOM(ch_lider) == IN_ROOM(ch)) && !FIGHTING(ch_lider) &&
 			(GET_POS(ch_lider) == POS_STANDING) && !CHECK_WAIT(ch_lider))
-		do_assist(ch_lider, "", 0, 0);
+	{
+		snprintf(buf2, MAX_STRING_LENGTH, "");
+		do_assist(ch_lider, buf2, 0, 0);
+	}
 }
 
 int calc_leadership(CHAR_DATA * ch)

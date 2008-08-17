@@ -2740,25 +2740,23 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 #undef CASE
 #undef RANGE
 
-void parse_espec(char *buf, int i, int nr)
+void parse_espec(char *buffer, int i, int nr)
 {
 	char *ptr;
 
-	if ((ptr = strchr(buf, ':')) != NULL)
+	if ((ptr = strchr(buffer, ':')) != NULL)
 	{
 		*(ptr++) = '\0';
 		while (a_isspace(*ptr))
 			ptr++;
-#if 0				/* Need to evaluate interpret_espec()'s NULL handling. */
-	}
-#else
+
+		snprintf(buf2, MAX_STRING_LENGTH, ptr);
 	}
 	else
-		ptr = "";
-#endif
-	interpret_espec(buf, ptr, i, nr);
-}
+		snprintf(buf2, MAX_STRING_LENGTH, "");
 
+	interpret_espec(buffer, buf2, i, nr);
+}
 
 void parse_enhanced_mob(FILE * mob_f, int i, int nr)
 {

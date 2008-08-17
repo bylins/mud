@@ -3106,21 +3106,22 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		switch (UPPER(*arg))
 		{
 		case '0':
-			do_color(d->character, "выкл", 0, 0);
+			snprintf(buf2, MAX_STRING_LENGTH, "выкл");
 			break;
 		case '1':
-			do_color(d->character, "простой", 0, 0);
+			snprintf(buf2, MAX_STRING_LENGTH, "простой");
 			break;
 		case '2':
-			do_color(d->character, "обычный", 0, 0);
+			snprintf(buf2, MAX_STRING_LENGTH, "обычный");
 			break;
 		case '3':
-			do_color(d->character, "полный", 0, 0);
+			snprintf(buf2, MAX_STRING_LENGTH, "полный");
 			break;
 		default:
 			SEND_TO_Q("Таких режимов нет выберите из присутствующих!", d);
 			return;
 		}
+		do_color(d->character, buf2, 0, 0);
 		SEND_TO_Q("\r\nВведите Ваш E-mail"
 				  "\r\n(ВСЕ ВАШИ ПЕРСОНАЖИ ДОЛЖНЫ ИМЕТЬ ОДИНАКОВЫЙ E-mail): ", d);
 		STATE(d) = CON_GET_EMAIL;
