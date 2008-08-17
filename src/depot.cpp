@@ -2,7 +2,6 @@
 // Copyright (c) 2007 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "depot.hpp"
 #include <map>
 #include <list>
 #include <sstream>
@@ -10,7 +9,7 @@
 #include <bitset>
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
-
+#include "depot.hpp"
 #include "db.h"
 #include "handler.h"
 #include "utils.h"

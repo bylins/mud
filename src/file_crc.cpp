@@ -2,7 +2,6 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "conf.h"
 #include <fstream>
 #include <string>
 #include <sstream>
@@ -10,6 +9,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/crc.hpp>
 #include <boost/cstdint.hpp>
+#include "conf.h"
 #include "file_crc.hpp"
 #include "db.h"
 #include "utils.h"

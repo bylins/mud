@@ -5,6 +5,8 @@
 #ifndef CHAR_HPP_INCLUDED
 #define CHAR_HPP_INCLUDED
 
+#include <bitset>
+#include <map>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"

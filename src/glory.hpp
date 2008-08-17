@@ -5,6 +5,7 @@
 #ifndef GLORY_HPP_INCLUDED
 #define GLORY_HPP_INCLUDED
 
+#include <string>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
