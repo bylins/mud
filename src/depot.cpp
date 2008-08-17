@@ -392,7 +392,7 @@ void init_purged_list()
 /**
 * Удаление файла персонального хранилища (шмотки отдельного чара).
 */
-void remove_pers_file(std::string name)
+void remove_pers_file(const std::string &name)
 {
 	if (name.empty()) return;
 
