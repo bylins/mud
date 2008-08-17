@@ -1796,7 +1796,7 @@ const char *spell_name(int num)
 int find_skill_num(char *name)
 {
 	int index, ok;
-	char *temp, *temp2;
+	char const *temp, *temp2;
 	char first[256], first2[256];
 	for (index = 1; index <= TOP_SKILL_DEFINE; index++)
 	{
@@ -1805,7 +1805,7 @@ int find_skill_num(char *name)
 
 		ok = TRUE;
 		/* It won't be changed, but other uses of this function elsewhere may. */
-		temp = any_one_arg((char *) skill_info[index].name, first);
+		temp = any_one_arg(skill_info[index].name, first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok)
 		{
@@ -1825,8 +1825,8 @@ int find_spell_num(char *name)
 {
 	int index, ok;
 	int use_syn = 0;
-	char *temp, *temp2;
-	char first[256], first2[256], *realname;
+	char const *temp, *temp2, *realname;
+	char first[256], first2[256];
 
 	use_syn = (((ubyte) * name <= (ubyte) 'z')
 			   && ((ubyte) * name >= (ubyte) 'a'))
@@ -1834,7 +1834,7 @@ int find_spell_num(char *name)
 
 	for (index = 1; index <= TOP_SPELL_DEFINE; index++)
 	{
-		realname = (use_syn) ? (char *) spell_info[index].syn : (char *) spell_info[index].name;
+		realname = (use_syn) ? spell_info[index].syn : spell_info[index].name;
 
 		if (!realname || !*realname)
 			continue;
@@ -1864,7 +1864,8 @@ int find_spell_num(const std::string& name)
 	int use_syn = (((ubyte) name[0] <= (ubyte) 'z')
 				   && ((ubyte) name[0] >= (ubyte) 'a'))
 				  || (((ubyte) name[0] <= (ubyte) 'Z') && ((ubyte) name[0] >= (ubyte) 'A'));
-	char first[256], *temp, *realname;
+	char first[256];
+	char const *temp, *realname;
 	typedef boost::tokenizer<pred_separator> tokenizer;
 	pred_separator sep;
 	tokenizer tok(name, sep);
@@ -1872,7 +1873,7 @@ int find_spell_num(const std::string& name)
 
 	for (index = 1; index <= TOP_SPELL_DEFINE; index++)
 	{
-		realname = (use_syn) ? (char *) spell_info[index].syn : (char *) spell_info[index].name;
+		realname = (use_syn) ? spell_info[index].syn : spell_info[index].name;
 
 		if (!realname || !*realname)
 			continue;

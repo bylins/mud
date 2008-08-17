@@ -99,6 +99,12 @@ void skip_spaces(char **string)
 	for (; **string && a_isspace(**string); (*string)++);
 }
 
+// тоже самое для константных строк (не получилось чет в одну впихнуть)
+void skip_spaces(char const **string)
+{
+	for (; **string && a_isspace(**string); (*string)++);
+}
+
 int MIN(int a, int b)
 {
 	return (a < b ? a : b);

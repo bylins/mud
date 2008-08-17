@@ -1663,7 +1663,6 @@ char *one_word(char *argument, char *first_arg)
 	return (argument);
 }
 
-
 /* same as one_argument except that it doesn't ignore fill words */
 char *any_one_arg(char *argument, char *first_arg)
 {
@@ -1672,7 +1671,6 @@ char *any_one_arg(char *argument, char *first_arg)
 		log("SYSERR: any_one_arg() passed a NULL pointer.");
 		return 0;
 	}
-
 	skip_spaces(&argument);
 
 	while (*argument && !a_isspace(*argument))
@@ -1684,6 +1682,27 @@ char *any_one_arg(char *argument, char *first_arg)
 	*first_arg = '\0';
 
 	return (argument);
+}
+
+// константная версия того же самого (потому что надо возвращать такой же указатель)
+char const * any_one_arg(char const *argument, char *first_arg)
+{
+	if (!argument)
+	{
+		log("SYSERR: any_one_arg(const) passed a NULL pointer.");
+		return 0;
+	}
+	skip_spaces(&argument);
+
+	while (*argument && !a_isspace(*argument))
+	{
+		*(first_arg++) = LOWER(*argument);
+		argument++;
+	}
+
+	*first_arg = '\0';
+
+	return argument;
 }
 
 

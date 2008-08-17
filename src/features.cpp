@@ -90,7 +90,7 @@ private:
 int find_feat_num(char *name)
 {
 	int index, ok;
-	char *temp, *temp2;
+	char const *temp, *temp2;
 	char first[256], first2[256];
 	for (index = 1; index < MAX_FEATS; index++)
 	{
@@ -98,7 +98,7 @@ int find_feat_num(char *name)
 			return (index);
 		ok = TRUE;
 		/* It won't be changed, but other uses of this function elsewhere may. */
-		temp = any_one_arg((char *) feat_info[index].name, first);
+		temp = any_one_arg(feat_info[index].name, first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok)
 		{

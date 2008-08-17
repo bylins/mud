@@ -740,7 +740,7 @@ ACMD(do_glory)
 	char num[MAX_INPUT_LENGTH];
 	char arg1[MAX_INPUT_LENGTH];
 	int mode = 0;
-	char* reason;
+	char *reason;
 
 	if (!*argument)
 	{
