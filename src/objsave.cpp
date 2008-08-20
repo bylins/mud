@@ -2314,20 +2314,52 @@ int Crash_report_unrentables(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj)
 	return (has_norents);
 }
 
-
-
-void
-Crash_report_rent(CHAR_DATA * ch, CHAR_DATA * recep,
-				  OBJ_DATA * obj, int *cost, long *nitems, int display, int factor, int equip, int recursive)
+// added by WorM (Видолюб)
+//процедура для вывода стоимости ренты одной и той же шмотки(count кол-ва)
+void Crash_report_rent_item(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj, int count,
+							int factor, int equip, int recursive)
 {
 	static char buf[256];
-	char bf[80];
+	char bf[80], bf2[7];
+
+	if (obj)
+	{
+		if (CAN_WEAR_ANY(obj))
+		{
+			if (equip)
+				sprintf(bf, " (%d если снять)", GET_OBJ_RENT(obj) * factor * count);
+			else
+				sprintf(bf, " (%d если надеть)", GET_OBJ_RENTEQ(obj) * factor * count);
+		}
+		else
+			*bf = '\0';
+		if (count > 1)
+			sprintf(bf2, " [%d]", count);
+		sprintf(buf, "%s - %d %s%s за %s%s %s",
+				recursive ? "" : CCWHT(ch, C_SPR),
+				(equip ? GET_OBJ_RENTEQ(obj) * count : GET_OBJ_RENT(obj)) *
+				factor * count,
+				desc_count((equip ? GET_OBJ_RENTEQ(obj) * count :
+							GET_OBJ_RENT(obj)) * factor * count,
+						   WHAT_MONEYa), bf, OBJN(obj, ch, 3),
+				count > 1 ? bf2 : "",
+				recursive ? "" : CCNRM(ch, C_SPR));
+		act(buf, FALSE, recep, 0, ch, TO_VICT);
+	}
+}
+// end by WorM
+
+void Crash_report_rent(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj, int *cost,
+					   long *nitems, int display, int factor, int equip, int recursive)
+{
+	OBJ_DATA *i, *push = NULL;
+	int push_count = 0;
 
 	if (obj)
 	{
 		if (!Crash_is_unrentable(obj))
 		{
-			(*nitems)++;
+			/*(*nitems)++;
 			*cost += MAX(0, ((equip ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj)) * factor));
 			if (display)
 			{
@@ -2357,13 +2389,58 @@ Crash_report_rent(CHAR_DATA * ch, CHAR_DATA * recep,
 								   WHAT_MONEYa), bf, OBJN(obj, ch, 3),
 						recursive ? "" : CCNRM(ch, C_SPR));
 				act(buf, FALSE, recep, 0, ch, TO_VICT);
+			}*/
+			// added by WorM (Видолюб)
+			//группирует вывод при ренте на подобии:
+			// - 2700 кун (900 если надеть) за красный пузырек [9]
+			for (i = obj; i; i = i->next_content)
+			{
+				(*nitems)++;
+				*cost += MAX(0, ((equip ? GET_OBJ_RENTEQ(i) : GET_OBJ_RENT(i)) * factor));
+				if (display)
+				{
+					if (*nitems == 1)
+					{
+						if (!recursive)
+							act("$n сказал$g Вам : \"Одет$W спать будешь? Хм.. Ну смотри, тогда дешевле возьму\"", FALSE, recep, 0, ch, TO_VICT);
+						else
+							act("$n сказал$g Вам : \"Это я в чулане запру:\"", FALSE,
+								recep, 0, ch, TO_VICT);
+					}
+					if (!push)
+					{
+						push = i;
+						push_count = 1;
+					}
+					else if (!equal_obj(i, push))
+					{
+						Crash_report_rent_item(ch, recep, push, push_count, factor, equip, recursive);
+						if (recursive)
+						{
+							Crash_report_rent(ch, recep, push->contains, cost, nitems, display, factor, FALSE, TRUE);
+						}
+						push = i;
+						push_count = 1;
+					}
+					else
+						push_count++;
+				}
 			}
+			if (push)
+			{
+				Crash_report_rent_item(ch, recep, push, push_count, factor, equip, recursive);
+				if (recursive)
+				{
+					Crash_report_rent(ch, recep, push->contains, cost, nitems, display, factor, FALSE, TRUE);
+				}
+			}
+			// end by WorM
 		}
-		if (recursive)
+		/*if (recursive)
 		{
 			Crash_report_rent(ch, recep, obj->contains, cost, nitems, display, factor, FALSE, TRUE);
-			Crash_report_rent(ch, recep, obj->next_content, cost, nitems, display, factor, FALSE, TRUE);
-		}
+			//Crash_report_rent(ch, recep, obj->next_content, cost, nitems, display, factor, FALSE, TRUE);
+		}*/
 	}
 }
 
