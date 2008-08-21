@@ -58,7 +58,7 @@ bool is_new_petition(CHAR_DATA* ch);
 bool manage_title_list(std::string& name, bool action, CHAR_DATA* ch);
 void set_player_title(CHAR_DATA* ch, const std::string& pre_title, const std::string& title, const char* god);
 const char* print_help_string(CHAR_DATA* ch);
-std::string print_agree_string(CHAR_DATA* ch, bool new_petittion);
+std::string print_agree_string(bool new_petittion);
 std::string print_title_string(CHAR_DATA* ch, const std::string& pre_title, const std::string& title);
 std::string print_title_string(const std::string& name, const std::string& pre_title, const std::string& title);
 void do_title_empty(CHAR_DATA* ch);
@@ -171,7 +171,7 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 
 		std::stringstream out;
 		out << "Ваш титул будет выглядеть следующим образом:\r\n" << CCPK(ch, C_NRM, ch);
-		out << print_title_string(ch, pre_title, title) << print_agree_string(ch, new_petition);
+		out << print_title_string(ch, pre_title, title) << print_agree_string(new_petition);
 		send_to_char(out.str(), ch);
 	}
 	else if (CompareParam(buffer2, "согласен"))
@@ -496,7 +496,7 @@ bool TitleSystem::is_new_petition(CHAR_DATA* ch)
 * Для возможности подставить или нет в строку цену за заявку
 * \param new_petition - 0 обновление старой заявки, 1 новая заявка
 */
-std::string TitleSystem::print_agree_string(CHAR_DATA* ch, bool new_petition)
+std::string TitleSystem::print_agree_string(bool new_petition)
 {
 	std::stringstream out;
 	out << "Для подтверждения заявки наберите 'титул согласен'";
@@ -528,7 +528,7 @@ void TitleSystem::do_title_empty(CHAR_DATA* ch)
 		{
 			out << "Данный титул ждет Вашего подтверждения для отправки заявки Богам:\r\n"
 			<< print_title_string(ch, it->second->pre_title, it->second->title)
-			<< print_agree_string(ch, is_new_petition(ch)) << "\r\n";
+			<< print_agree_string(is_new_petition(ch)) << "\r\n";
 		}
 		out << print_help_string(ch);
 		send_to_char(out.str(), ch);
