@@ -55,8 +55,6 @@ int has_key(CHAR_DATA * ch, obj_vnum key);
 int ok_pick(CHAR_DATA * ch, obj_vnum keynum, int pickproof, int scmd);
 
 /* local functions */
-void sort_spells(void);
-int compare_spells(const void *x, const void *y);
 char *how_good(CHAR_DATA * ch, int percent);
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict);
@@ -82,27 +80,6 @@ SPECIAL(bank);
 /* ********************************************************************
 *  Special procedures for mobiles                                     *
 ******************************************************************** */
-
-int spell_sort_info[MAX_SKILLS + 1];
-
-
-int compare_spells(const void *x, const void *y)
-{
-	int a = *(const int *) x, b = *(const int *) y;
-
-	return strcmp(spell_info[a].name, spell_info[b].name);
-}
-
-void sort_spells(void)
-{
-	int a;
-
-	/* initialize array, avoiding reserved. */
-	for (a = 1; a <= MAX_SKILLS; a++)
-		spell_sort_info[a] = a;
-
-	qsort(&spell_sort_info[1], MAX_SKILLS, sizeof(int), compare_spells);
-}
 
 char *how_good(CHAR_DATA * ch, int percent)
 {
@@ -354,7 +331,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	strcpy(buf2, buf);
 
-	for (sortpos = 1; sortpos <= MAX_SKILLS; sortpos++)
+	for (sortpos = 1; sortpos <= MAX_SKILL_NUM; sortpos++)
 	{
 		if (strlen(buf2) >= MAX_STRING_LENGTH - 60)
 		{
@@ -2933,7 +2910,7 @@ SPECIAL(bank)
 					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 			add_bank_gold(vict, amount);
-			vict->save_char();
+			save_char(vict);
 			delete vict;
 			return (1);
 		}

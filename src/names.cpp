@@ -492,7 +492,7 @@ ACMD(do_name)
 			return;
 		}
 		go_name(ch, vict, action);
-		vict->save_char();
+		save_char(vict);
 		delete vict;
 	}
 }

@@ -2300,7 +2300,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					else
 					{
 						GET_LOADROOM(c) = pos;
-						c->save_char();
+						save_char(c);
 						sprintf(str, "%d", real_room(pos));
 					}
 				}

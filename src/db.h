@@ -193,7 +193,8 @@ long get_ptable_by_unique(long unique);
 int get_zone_rooms(int, int *, int *);
 
 int load_char(const char *name, CHAR_DATA * char_element, bool reboot = 0);
-void init_char(CHAR_DATA * ch);
+void save_char(CHAR_DATA *ch);
+void init_char(CHAR_DATA *ch);
 CHAR_DATA *read_mobile(mob_vnum nr, int type);
 mob_rnum real_mobile(mob_vnum vnum);
 int vnum_mobile(char *searchname, CHAR_DATA * ch);
@@ -411,6 +412,6 @@ long get_ptable_by_name(char *name);
 void free_alias(struct alias_data *a);
 extern struct player_index_element *player_table;
 
-extern int now_entrycount;
+void set_god_skills(CHAR_DATA *ch);
 
 #endif

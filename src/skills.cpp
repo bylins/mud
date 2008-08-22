@@ -728,7 +728,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 
 void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victim)
 {
-	int skill_is, diff = 0, how_many = 0, prob, div;
+	int skill_is, diff = 0, prob, div;
 
 	if (IS_NPC(ch))
 		return;
@@ -751,10 +751,7 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 				  ch->get_skill(skill_no)) > 0
 			 && ch->get_skill(skill_no) < MAX_EXP_PERCENT + GET_REMORT(ch) * 5))
 	{
-		for (prob = how_many = 0; prob <= MAX_SKILLS; prob++)
-			if (ch->get_skill(prob))
-				how_many++;
-
+		int how_many = ch->get_skills_count();
 		how_many += (im_get_char_rskill_count(ch) + 1) >> 1;
 
 		/* Success - multy by 2 */

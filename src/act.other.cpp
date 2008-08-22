@@ -220,7 +220,7 @@ ACMD(do_save)
 	}
 
 	write_aliases(ch);
-	ch->save_char();
+	save_char(ch);
 	Crash_crashsave(ch);
 }
 
@@ -2011,13 +2011,13 @@ void SetScreen(CHAR_DATA * ch, char *argument, int flag)
 	{
 		STRING_LENGTH(ch) = size;
 		send_to_char("Ладушки.\r\n", ch);
-		ch->save_char();
+		save_char(ch);
 	}
 	else if (flag == 1)
 	{
 		STRING_WIDTH(ch) = size;
 		send_to_char("Ладушки.\r\n", ch);
-		ch->save_char();
+		save_char(ch);
 	}
 	else
 	{

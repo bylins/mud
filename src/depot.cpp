@@ -423,7 +423,7 @@ void remove_char_entry(long uid, CharNode &node)
 				if (get_gold(victim) < 0)
 					set_gold(victim, 0);
 			}
-			victim->save_char();
+			save_char(victim);
 		}
 	}
 	node.reset();

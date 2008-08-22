@@ -756,7 +756,7 @@ void medit_save_to_disk(int zone_num)
 				if (HAVE_FEAT(mob, c))
 					fprintf(mob_file, "Feat: %d\n", c);
 			}
-			for (c = 1; c <= MAX_SKILLS; c++)
+			for (c = 1; c <= MAX_SKILL_NUM; c++)
 			{
 				if (mob->get_skill(c))
 					fprintf(mob_file, "Skill: %d %d\n", c, mob->get_skill(c));
@@ -1167,7 +1167,7 @@ void medit_disp_skills(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 1; counter <= MAX_SKILLS; counter++)
+	for (counter = 1; counter <= MAX_SKILL_NUM; counter++)
 	{
 		if (!skill_info[counter].name || *skill_info[counter].name == '!')
 			continue;

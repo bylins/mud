@@ -96,7 +96,7 @@
 #define SKILL_WARCRY                178
 #define SKILL_TURN_UNDEAD           179
 #define SKILL_IRON_WIND             180
-// указываем максимальный номер скилла (в основном просто для проверок при старте мада нужен)
+// не забываем указывать максимальный номер скилла
 #define MAX_SKILL_NUM               180
 
 int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype);

@@ -1719,7 +1719,7 @@ int Crash_load(CHAR_DATA * ch)
 		add_gold(ch, -(MAX(cost - get_bank_gold(ch), 0)));
 		set_bank_gold(ch, MAX(get_bank_gold(ch) - cost, 0));
 		//???
-		//ch->save_char();
+		//save_char(ch);
 	}
 
 	/*Чтение описаний объектов в буфер */
@@ -2676,7 +2676,7 @@ void Crash_frac_save_all(int frac_part)
 		if ((STATE(d) == CON_PLAYING) && !IS_NPC(d->character) && GET_ACTIVITY(d->character) == frac_part)
 		{
 			Crash_crashsave(d->character);
-			d->character->save_char();
+			save_char(d->character);
 			REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRASH), PLR_CRASH);
 		}
 	}
@@ -2692,7 +2692,7 @@ void Crash_save_all(void)
 			if (PLR_FLAGGED(d->character, PLR_CRASH))
 			{
 				Crash_crashsave(d->character);
-				d->character->save_char();
+				save_char(d->character);
 				REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRASH), PLR_CRASH);
 			}
 		}

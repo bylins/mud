@@ -154,7 +154,7 @@ void pk_update_clanflag(CHAR_DATA * agressor, CHAR_DATA * victim)
 	}
 	pk->clan_exp = time(NULL) + CLAN_REVENGE * 60;
 
-	agressor->save_char();
+	save_char(agressor);
 
 	return;
 }
@@ -258,7 +258,7 @@ void pk_increment_kill(CHAR_DATA * agressor, CHAR_DATA * victim, int rent, bool 
 // shapirus: прописываем время получения флага агрессора
 	AGRO(agressor) = MAX(AGRO(agressor), time(NULL) + KILLER_UNRENTABLE * 60);
 
-	agressor->save_char();
+	save_char(agressor);
 
 	pk_update_revenge(agressor, victim, BATTLE_DURATION, rent ? KILLER_UNRENTABLE : 0);
 	pk_update_revenge(victim, agressor, BATTLE_DURATION, rent ? REVENGE_UNRENTABLE : 0);

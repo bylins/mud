@@ -999,7 +999,7 @@ ASPELL(spell_charm)
 			victim->set_skill(SKILL_PUNCTUAL, 0);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
 			Crash_crashsave(ch);
-			ch->save_char();
+			save_char(ch);
 		}
 	}
 }
@@ -1173,7 +1173,7 @@ ACMD(do_findhelpee)
 				helpee->set_skill(SKILL_PUNCTUAL, 0);
 				// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
 				Crash_crashsave(ch);
-				ch->save_char();
+				save_char(ch);
 			}
 		}
 }

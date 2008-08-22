@@ -668,7 +668,7 @@ ACMD(do_email)
 		sprintf(buff,
 				"echo \"Subject: Ваш чар\r\nContent-Type: text/plain; charset=koi8-r\r\n\r\nПроизведена замена пароля\r\nИмя: %s\r\nПароль: %s\"|/usr/sbin/sendmail -F\"Bylins MUD\" %s\r\n",
 				GET_NAME(victim), newpass, GET_EMAIL(victim));
-		victim->save_char();
+		save_char(victim);
 //		system(buff);
 		sprintf(buf, "Выслан пароль %s, чару %s, на e-mail %s.\r\n", newpass,
 				GET_NAME(victim), GET_EMAIL(victim));
@@ -865,7 +865,7 @@ ACMD(do_glory)
 		Glory::show_glory(vict, ch);
 	}
 
-	vict->save_char();
+	save_char(vict);
 }
 
 ACMD(do_send)
@@ -2643,7 +2643,7 @@ ACMD(do_advance)
 
 	gain_exp_regardless(victim, level_exp(victim, newlevel)
 						- GET_EXP(victim));
-	victim->save_char();
+	save_char(victim);
 }
 
 
@@ -3355,7 +3355,7 @@ ACMD(do_wizutil)
 			log("SYSERR: Unknown subcmd %d passed to do_wizutil (%s)", subcmd, __FILE__);
 			break;
 		}
-		vict->save_char();
+		save_char(vict);
 	}
 }
 
@@ -4733,11 +4733,11 @@ ACMD(do_set)
 		{
 			if (!is_file && !IS_NPC(vict))
 			{
-				vict->save_char();
+				save_char(vict);
 			}
 			if (is_file)
 			{
-				vict->save_char();
+				save_char(vict);
 				send_to_char("Файл сохранен.\r\n", ch);
 			}
 		}

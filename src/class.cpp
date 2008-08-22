@@ -2399,7 +2399,7 @@ void advance_level(CHAR_DATA * ch)
 		SET_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
 	}
 
-	ch->save_char();
+	save_char(ch);
 }
 
 void decrease_level(CHAR_DATA * ch)
@@ -2444,7 +2444,7 @@ void decrease_level(CHAR_DATA * ch)
 
 	ch->check_max_skills();
 
-	ch->save_char();
+	save_char(ch);
 }
 
 
