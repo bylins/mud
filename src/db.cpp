@@ -50,6 +50,7 @@
 #include "random.hpp"
 #include "file_crc.hpp"
 #include "char.hpp"
+#include "skills.h"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -192,7 +193,6 @@ void new_build_player_index(void);
 void renum_obj_zone(void);
 void renum_mob_zone(void);
 int get_zone_rooms(int, int *, int *);
-void save_char(CHAR_DATA * ch, room_rnum load_room);
 void init_guilds(void);
 void init_basic_values(void);
 int init_grouping(void);
@@ -220,7 +220,6 @@ int find_name(const char *name);
 int hsort(const void *a, const void *b);
 int csort(const void *a, const void *b);
 void prune_crlf(char *txt);
-void save_char_vars(CHAR_DATA * ch);
 int Crash_read_timer(int index, int temp);
 void Crash_clear_objects(int index);
 void extract_mob(CHAR_DATA * ch);
@@ -2697,7 +2696,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 			log("SYSERROR : Excepted format <# #> for SKILL in MOB #%d", i);
 			return;
 		}
-		if (t[0] > MAX_SKILLS || t[0] < 1)
+		if (t[0] > MAX_SKILL_NUM || t[0] < 1)
 		{
 			log("SYSERROR : Unknown skill No %d for MOB #%d", t[0], i);
 			return;
@@ -3081,46 +3080,6 @@ void parse_mobile(FILE * mob_f, int nr)
 
 	mob_proto[i].nr = i;
 	mob_proto[i].desc = NULL;
-
-	/**** See reading mob
-	log("%s/%s/%s/%s/%s/%s",GET_PAD(mob_proto+i,0),GET_PAD(mob_proto+i,1),
-	                        GET_PAD(mob_proto+i,2),GET_PAD(mob_proto+i,3),
-	                        GET_PAD(mob_proto+i,4),GET_PAD(mob_proto+i,5));
-
-	log("Str: %d, Dex: %d, Con: %d, Int: %d, Wis: %d, Cha: %d, Size: %d",
-	    GET_STR(mob_proto+i),GET_DEX(mob_proto+i),GET_CON(mob_proto+i),
-	    GET_INT(mob_proto+i),GET_WIS(mob_proto+i),GET_CHA(mob_proto+i),
-	    GET_SIZE(mob_proto+i));
-
-	log("Weight: %d, Height: %d, Damage: %dD%d",
-	     GET_WEIGHT(mob_proto+i),
-	     GET_HEIGHT(mob_proto+i),
-	     mob_proto[i].mob_specials.damnodice,
-	     mob_proto[i].mob_specials.damsizedice);
-
-	log("Level: %d, HR: %d, DR: %d, AC: %d",
-	    GET_LEVEL(mob_proto + i),
-	    mob_proto[i].real_abils.damroll,
-	    mob_proto[i].real_abils.hitroll,
-	    mob_proto[i].real_abils.armor);
-
-	log("MaxHit: %d, Hit: %dD%d+%d, Mv: %d",
-	    mob_proto[i].points.max_hit,
-	    mob_proto[i].ManaMemNeeded,
-	    mob_proto[i].ManaMemStored,
-	    mob_proto[i].points.hit,
-	    mob_proto[i].points.move);
-	for(j=1, count=0; j<MAX_SPELLS; j++)
-	   {if (GET_SPELL_MEM(mob_proto+i,j))
-	       count += sprintf(buf+count," %d ",j);
-	   }
-	if (count) log("SPELLS : %s", buf);
-	for(j=1, count=0; j<MAX_SKILLS; j++)
-	   {if ((mob_proto+i)->get_skill(j))
-	       count += sprintf(buf+count," %d ",j);
-	   }
-	if (count) log("SKILLS : %s", buf);
-	*/
 
 	top_of_mobt = i++;
 }
@@ -5809,12 +5768,10 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 		}
 	}
 
-	/* affect_total(ch);  */
 	/* initialization for imms */
 	if (GET_LEVEL(ch) >= LVL_IMMORT)
 	{
-		for (i = 1; i <= MAX_SKILLS; i++)
-			ch->set_skill(i, 100);
+		set_god_skills(ch);
 		GET_COND(ch, FULL) = -1;
 		GET_COND(ch, THIRST) = -1;
 		GET_COND(ch, DRUNK) = -1;
@@ -6253,9 +6210,8 @@ void init_char(CHAR_DATA * ch)
 		log("SYSERR: init_char: Character '%s' not found in player table.", GET_NAME(ch));
 	}
 
-	if (GET_LEVEL(ch) >= LVL_IMPL)
-		for (i = 1; i <= MAX_SKILLS; i++)
-			ch->set_skill(i, 100);
+	if (GET_LEVEL(ch) == LVL_IMPL)
+		set_god_skills(ch);
 
 	for (i = 1; i <= MAX_SPELLS; i++)
 	{
@@ -6288,7 +6244,6 @@ void init_char(CHAR_DATA * ch)
 	}
 	GET_LASTIP(ch)[0] = 0;
 	GET_LOADROOM(ch) = start_room;
-	SET_BIT(PLR_FLAGS(ch, PLR_LOADROOM), PLR_LOADROOM);
 	SET_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
 	SET_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
 	SET_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
@@ -6304,7 +6259,7 @@ void init_char(CHAR_DATA * ch)
 	for (int i = 0; i < BOARD_TOTAL; ++i)
 		GET_BOARD_DATE(ch, i) = time(0);
 
-	save_char(ch, NOWHERE);
+	ch->save_char();
 }
 
 const char *remort_msg =
@@ -6414,7 +6369,6 @@ ACMD(do_remort)
 	GET_WIMP_LEV(ch) = 0;
 	GET_AC(ch) = 100;
 	GET_LOADROOM(ch) = calc_loadroom(ch);
-	SET_BIT(PLR_FLAGS(ch, PLR_LOADROOM), PLR_LOADROOM);
 	REMOVE_BIT(PRF_FLAGS(ch, PRF_SUMMONABLE), PRF_SUMMONABLE);
 	REMOVE_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE);
 	REMOVE_BIT(PRF_FLAGS(ch, PRF_PUNCTUAL), PRF_PUNCTUAL);
@@ -6426,7 +6380,7 @@ ACMD(do_remort)
 	check_portals(ch);
 
 	do_start(ch, FALSE);
-	save_char(ch, NOWHERE);
+	ch->save_char();
 	if (PLR_FLAGGED(ch, PLR_HELLED))
 		load_room = r_helled_start_room;
 	else if (PLR_FLAGGED(ch, PLR_NAMED))
@@ -6874,451 +6828,6 @@ void dupe_player_index(void)
 	log("Продублировано индексов %d (считано при загрузке %d)", i, top_of_p_file + 1);
 }
 
-
-/* remove ^M's from file output */
-void kill_ems(char *str)
-{
-	char *ptr1, *ptr2, *tmp;
-
-	tmp = str;
-	ptr1 = str;
-	ptr2 = str;
-
-	while (*ptr1)
-	{
-		if ((*(ptr2++) = *(ptr1++)) == '\r')
-			if (*ptr1 == '\r')
-				ptr1++;
-	}
-	*ptr2 = '\0';
-}
-
-void save_char(CHAR_DATA * ch, room_rnum load_room)
-{
-	FILE *saved;
-	char filename[MAX_STRING_LENGTH];
-	room_rnum location;
-	int i;
-	time_t li;
-	AFFECT_DATA *aff, tmp_aff[MAX_AFFECT];
-	OBJ_DATA *char_eq[NUM_WEARS];
-	struct timed_type *skj;
-	struct char_portal_type *prt;
-	int tmp = time(0) - ch->player.time.logon;
-	if (!now_entrycount)
-		if (IS_NPC(ch) || GET_PFILEPOS(ch) < 0)
-			return;
-
-	if (!PLR_FLAGGED(ch, PLR_LOADROOM))
-	{
-		if (load_room > NOWHERE)
-		{
-			GET_LOADROOM(ch) = GET_ROOM_VNUM(load_room);
-			log("Player %s save at room %d", GET_NAME(ch), GET_ROOM_VNUM(load_room));
-		}
-	}
-
-	log("Save char %s", GET_NAME(ch));
-	save_char_vars(ch);
-
-	/* Запись чара в новом формате */
-	get_filename(GET_NAME(ch), filename, PLAYERS_FILE);
-	if (!(saved = fopen(filename, "w")))
-	{
-		perror("Unable open charfile");
-		return;
-	}
-	/* подготовка */
-	/* снимаем все возможные аффекты  */
-	for (i = 0; i < NUM_WEARS; i++)
-	{
-		if (GET_EQ(ch, i))
-		{
-			char_eq[i] = unequip_char(ch, i | 0x80);
-#ifndef NO_EXTRANEOUS_TRIGGERS
-			remove_otrigger(char_eq[i], ch);
-#endif
-		}
-		else
-			char_eq[i] = NULL;
-	}
-
-	for (aff = ch->affected, i = 0; i < MAX_AFFECT; i++)
-	{
-		if (aff)
-		{
-			if (aff->type == SPELL_ARMAGEDDON || aff->type < 1 || aff->type > LAST_USED_SPELL)
-				i--;
-			else
-			{
-				tmp_aff[i] = *aff;
-				tmp_aff[i].next = 0;
-			}
-			aff = aff->next;
-		}
-		else
-		{
-			tmp_aff[i].type = 0;	/* Zero signifies not used */
-			tmp_aff[i].duration = 0;
-			tmp_aff[i].modifier = 0;
-			tmp_aff[i].location = 0;
-			tmp_aff[i].bitvector = 0;
-			tmp_aff[i].next = 0;
-		}
-	}
-
-	/*
-	 * remove the affections so that the raw values are stored; otherwise the
-	 * effects are doubled when the char logs back in.
-	 */
-	supress_godsapply = TRUE;
-	while (ch->affected)
-		affect_remove(ch, ch->affected);
-	supress_godsapply = FALSE;
-
-	if ((i >= MAX_AFFECT) && aff && aff->next)
-		log("SYSERR: WARNING: OUT OF STORE ROOM FOR AFFECTED TYPES!!!");
-
-	// первыми идут поля, необходимые при ребуте мада, тут без необходимости трогать ничего не надо
-	if (GET_NAME(ch))
-		fprintf(saved, "Name: %s\n", GET_NAME(ch));
-	fprintf(saved, "Levl: %d\n", GET_LEVEL(ch));
-	fprintf(saved, "Clas: %d\n", GET_CLASS(ch));
-	fprintf(saved, "UIN : %d\n", GET_UNIQUE(ch));
-	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(ch)));
-	fprintf(saved, "Id  : %ld\n", GET_IDNUM(ch));
-	fprintf(saved, "Exp : %ld\n", GET_EXP(ch));
-	if (GET_REMORT(ch) > 0)
-		fprintf(saved, "Rmrt: %d\n", GET_REMORT(ch));
-	// флаги
-	*buf = '\0';
-	tascii(&PLR_FLAGS(ch, 0), 4, buf);
-	fprintf(saved, "Act : %s\n", buf);
-	// это пишем обязательно посленим, потому что после него ничего не прочитается
-	fprintf(saved, "Rebt: следующие далее поля при перезагрузке не парсятся\n\n");
-	// дальше пишем как хотим и что хотим
-
-	if (GET_PAD(ch, 0))
-		fprintf(saved, "NmI : %s\n", GET_PAD(ch, 0));
-	if (GET_PAD(ch, 0))
-		fprintf(saved, "NmR : %s\n", GET_PAD(ch, 1));
-	if (GET_PAD(ch, 0))
-		fprintf(saved, "NmD : %s\n", GET_PAD(ch, 2));
-	if (GET_PAD(ch, 0))
-		fprintf(saved, "NmV : %s\n", GET_PAD(ch, 3));
-	if (GET_PAD(ch, 0))
-		fprintf(saved, "NmT : %s\n", GET_PAD(ch, 4));
-	if (GET_PAD(ch, 0))
-		fprintf(saved, "NmP : %s\n", GET_PAD(ch, 5));
-	if (GET_PASSWD(ch))
-		fprintf(saved, "Pass: %s\n", GET_PASSWD(ch));
-	if (GET_EMAIL(ch))
-		fprintf(saved, "EMal: %s\n", GET_EMAIL(ch));
-	if (GET_TITLE(ch))
-		fprintf(saved, "Titl: %s\n", GET_TITLE(ch));
-	if (ch->player.description && *ch->player.description)
-	{
-		strcpy(buf, ch->player.description);
-		kill_ems(buf);
-		fprintf(saved, "Desc:\n%s~\n", buf);
-	}
-	if (POOFIN(ch))
-		fprintf(saved, "PfIn: %s\n", POOFIN(ch));
-	if (POOFOUT(ch))
-		fprintf(saved, "PfOt: %s\n", POOFOUT(ch));
-	fprintf(saved, "Sex : %d %s\n", GET_SEX(ch), genders[(int) GET_SEX(ch)]);
-	fprintf(saved, "Kin : %d %s\n", GET_KIN(ch), kin_name[GET_KIN(ch)][(int) GET_SEX(ch)]);
-	if ((location = real_room(GET_HOME(ch))) != NOWHERE)
-		fprintf(saved, "Home: %d %s\n", GET_HOME(ch), world[(location)]->name);
-	li = ch->player.time.birth;
-	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
-	// Gunner
-	// time.logon ЦАБ=---Lг- -= -Е-г ┐ёЮ-L-- - А┐АБг-Ц = time(0) -= БгLЦИ┐L ---г-Б
-	//-Юг-О - АгLЦ-г=Е А -=Г=L= ┐ёЮК
-	tmp += ch->player.time.played;
-	fprintf(saved, "Plyd: %d\n", tmp);
-	// Gunner end
-	li = ch->player.time.logon;
-	fprintf(saved, "Last: %ld %s\n", static_cast<long int>(li), ctime(&li));
-	if (ch->desc)
-		strcpy(buf, ch->desc->host);
-	else
-		strcpy(buf, "Unknown");
-	fprintf(saved, "Host: %s\n", buf);
-	fprintf(saved, "Hite: %d\n", GET_HEIGHT(ch));
-	fprintf(saved, "Wate: %d\n", GET_WEIGHT(ch));
-	fprintf(saved, "Size: %d\n", GET_SIZE(ch));
-	/* структуры */
-	fprintf(saved, "Alin: %d\n", GET_ALIGNMENT(ch));
-	*buf = '\0';
-	tascii(&AFF_FLAGS(ch, 0), 4, buf);
-	fprintf(saved, "Aff : %s\n", buf);
-
-	/* дальше не по порядку */
-	/* статсы */
-	fprintf(saved, "Str : %d\n", GET_STR(ch));
-	fprintf(saved, "Int : %d\n", GET_INT(ch));
-	fprintf(saved, "Wis : %d\n", GET_WIS(ch));
-	fprintf(saved, "Dex : %d\n", GET_DEX(ch));
-	fprintf(saved, "Con : %d\n", GET_CON(ch));
-	fprintf(saved, "Cha : %d\n", GET_CHA(ch));
-
-	/* способности - added by Gorrah */
-	if (GET_LEVEL(ch) < LVL_IMMORT)
-	{
-		fprintf(saved, "Feat:\n");
-		for (i = 1; i < MAX_FEATS; i++)
-		{
-			if (HAVE_FEAT(ch, i))
-				fprintf(saved, "%d %s\n", i, feat_info[i].name);
-		}
-		fprintf(saved, "0 0\n");
-	}
-
-	/* Задержки на cпособности */
-	if (GET_LEVEL(ch) < LVL_IMMORT)
-	{
-		fprintf(saved, "FtTm:\n");
-		for (skj = ch->timed_feat; skj; skj = skj->next)
-		{
-			fprintf(saved, "%d %d %s\n", skj->skill, skj->time, feat_info[skj->skill].name);
-		}
-		fprintf(saved, "0 0\n");
-	}
-
-	/* скилы */
-	if (GET_LEVEL(ch) < LVL_IMMORT)
-	{
-		fprintf(saved, "Skil:\n");
-		for (i = 1; i <= MAX_SKILLS; i++)
-		{
-			if (ch->get_skill(i))
-				fprintf(saved, "%d %d %s\n", i, ch->get_skill(i), skill_info[i].name);
-		}
-		fprintf(saved, "0 0\n");
-	}
-
-	/* Задержки на скилы */
-	if (GET_LEVEL(ch) < LVL_IMMORT)
-	{
-		fprintf(saved, "SkTm:\n");
-		for (skj = ch->timed; skj; skj = skj->next)
-		{
-			fprintf(saved, "%d %d\n", skj->skill, skj->time);
-		}
-		fprintf(saved, "0 0\n");
-	}
-
-	/* спелы */
-	// волхвам всеравно известны тупо все спеллы, смысла их писать не вижу
-	if (GET_LEVEL(ch) < LVL_IMMORT && GET_CLASS(ch) != CLASS_DRUID)
-	{
-		fprintf(saved, "Spel:\n");
-		for (i = 1; i <= MAX_SPELLS; i++)
-			if (GET_SPELL_TYPE(ch, i))
-				fprintf(saved, "%d %d %s\n", i, GET_SPELL_TYPE(ch, i), spell_info[i].name);
-		fprintf(saved, "0 0\n");
-	}
-
-	/* Замемленые спелы */
-	if (GET_LEVEL(ch) < LVL_IMMORT)
-	{
-		fprintf(saved, "SpMe:\n");
-		for (i = 1; i <= MAX_SPELLS; i++)
-		{
-			if (GET_SPELL_MEM(ch, i))
-				fprintf(saved, "%d %d\n", i, GET_SPELL_MEM(ch, i));
-		}
-		fprintf(saved, "0 0\n");
-	}
-
-	/* Рецепты */
-//    if (GET_LEVEL(ch) < LVL_IMMORT)
-	{
-		im_rskill *rs;
-		im_recipe *r;
-		fprintf(saved, "Rcps:\n");
-		for (rs = GET_RSKILL(ch); rs; rs = rs->link)
-		{
-			if (rs->perc <= 0)
-				continue;
-			r = &imrecipes[rs->rid];
-			fprintf(saved, "%d %d %s\n", r->id, rs->perc, r->name);
-		}
-		fprintf(saved, "-1 -1\n");
-	}
-
-	fprintf(saved, "Hrol: %d\n", GET_HR(ch));
-	fprintf(saved, "Drol: %d\n", GET_DR(ch));
-	fprintf(saved, "Ac  : %d\n", GET_AC(ch));
-
-	fprintf(saved, "Hit : %d/%d\n", GET_HIT(ch), GET_MAX_HIT(ch));
-	fprintf(saved, "Mana: %d/%d\n", GET_MEM_COMPLETED(ch), GET_MEM_TOTAL(ch));
-	fprintf(saved, "Move: %d/%d\n", GET_MOVE(ch), GET_MAX_MOVE(ch));
-	fprintf(saved, "Gold: %d\n", get_gold(ch));
-	fprintf(saved, "Bank: %ld\n", get_bank_gold(ch));
-	fprintf(saved, "PK  : %ld\n", IS_KILLER(ch));
-
-	fprintf(saved, "Wimp: %d\n", GET_WIMP_LEV(ch));
-	fprintf(saved, "Frez: %d\n", GET_FREEZE_LEV(ch));
-	fprintf(saved, "Invs: %d\n", GET_INVIS_LEV(ch));
-	fprintf(saved, "Room: %d\n", GET_LOADROOM(ch));
-
-	fprintf(saved, "Badp: %d\n", GET_BAD_PWS(ch));
-
-	if (GET_BOARD(ch))
-		for (int i = 0; i < BOARD_TOTAL; ++i)
-			fprintf(saved, "Br%02d: %ld\n", i + 1, static_cast<long int>(GET_BOARD_DATE(ch, i)));
-
-	for (int i = 0; i <= START_STATS_TOTAL; ++i)
-		fprintf(saved, "St%02d: %i\n", i, GET_START_STAT(ch, i));
-
-	if (GET_LEVEL(ch) < LVL_IMMORT)
-		fprintf(saved, "Hung: %d\n", GET_COND(ch, FULL));
-	if (GET_LEVEL(ch) < LVL_IMMORT)
-		fprintf(saved, "Thir: %d\n", GET_COND(ch, THIRST));
-	if (GET_LEVEL(ch) < LVL_IMMORT)
-		fprintf(saved, "Drnk: %d\n", GET_COND(ch, DRUNK));
-
-	fprintf(saved, "Reli: %d %s\n", GET_RELIGION(ch), religion_name[GET_RELIGION(ch)][(int) GET_SEX(ch)]);
-	fprintf(saved, "Race: %d %s\n", GET_RACE(ch), race_name[GET_RACE(ch)][(int) GET_SEX(ch)]);
-	fprintf(saved, "DrSt: %d\n", GET_DRUNK_STATE(ch));
-	fprintf(saved, "Glor: %d\n", GET_GLORY(ch));
-	fprintf(saved, "Olc : %d\n", GET_OLC_ZONE(ch));
-	*buf = '\0';
-	tascii(&PRF_FLAGS(ch, 0), 4, buf);
-	fprintf(saved, "Pref: %s\n", buf);
-
-	if (MUTE_DURATION(ch) > 0 && PLR_FLAGGED(ch, PLR_MUTE))
-		fprintf(saved, "PMut: %ld %d %ld %s~\n", MUTE_DURATION(ch), GET_MUTE_LEV(ch), MUTE_GODID(ch), MUTE_REASON(ch));
-	if (NAME_DURATION(ch) > 0 && PLR_FLAGGED(ch, PLR_NAMED))
-		fprintf(saved, "PNam: %ld %d %ld %s~\n", NAME_DURATION(ch), GET_NAME_LEV(ch), NAME_GODID(ch), NAME_REASON(ch));
-	if (DUMB_DURATION(ch) > 0 && PLR_FLAGGED(ch, PLR_DUMB))
-		fprintf(saved, "PDum: %ld %d %ld %s~\n", DUMB_DURATION(ch), GET_DUMB_LEV(ch), DUMB_GODID(ch), DUMB_REASON(ch));
-	if (HELL_DURATION(ch) > 0 && PLR_FLAGGED(ch, PLR_HELLED))
-		fprintf(saved, "PHel: %ld %d %ld %s~\n", HELL_DURATION(ch), GET_HELL_LEV(ch), HELL_GODID(ch), HELL_REASON(ch));
-	if (GCURSE_DURATION(ch) > 0)
-		fprintf(saved, "PGcs: %ld %d %ld %s~\n", GCURSE_DURATION(ch), GET_GCURSE_LEV(ch), GCURSE_GODID(ch), GCURSE_REASON(ch));
-	if (FREEZE_DURATION(ch) > 0 && PLR_FLAGGED(ch, PLR_FROZEN))
-		fprintf(saved, "PFrz: %ld %d %ld %s~\n", FREEZE_DURATION(ch), GET_FREEZE_LEV(ch), FREEZE_GODID(ch), FREEZE_REASON(ch));
-	if (UNREG_DURATION(ch) > 0)
-		fprintf(saved, "PUnr: %ld %d %ld %s~\n", UNREG_DURATION(ch), GET_UNREG_LEV(ch), UNREG_GODID(ch), UNREG_REASON(ch));
-
-
-	if (KARMA(ch) > 0)
-	{
-		strcpy(buf, KARMA(ch));
-		kill_ems(buf);
-		fprintf(saved, "Karm:\n%s~\n", buf);
-	}
-	if (LOGON_LIST(ch) > 0)
-	{
-		log("Saving logon list.");
-		struct logon_data * next_log = LOGON_LIST(ch);
-		std::stringstream buffer;
-		while (next_log)
-		{
-			buffer << next_log->ip << " " << next_log->count << " " << next_log->lasttime << "\n";
-			next_log = next_log->next;
-		}
-		fprintf(saved, "LogL:\n%s~\n", buffer.str().c_str());
-	}
-	fprintf(saved, "GdFl: %ld\n", ch->player_specials->saved.GodsLike);
-	fprintf(saved, "NamG: %d\n", NAME_GOD(ch));
-	fprintf(saved, "NaID: %ld\n", NAME_ID_GOD(ch));
-	fprintf(saved, "StrL: %d\n", STRING_LENGTH(ch));
-	fprintf(saved, "StrW: %d\n", STRING_WIDTH(ch));
-	if (EXCHANGE_FILTER(ch))
-		fprintf(saved, "ExFl: %s\n", EXCHANGE_FILTER(ch));
-
-	// shapirus: игнор лист
-	{
-		struct ignore_data *cur = IGNORE_LIST(ch);
-		if (cur)
-		{
-			for (; cur; cur = cur->next)
-			{
-				if (!cur->id)
-					continue;
-				fprintf(saved, "Ignr: [%ld]%ld\n", cur->mode, cur->id);
-			}
-		}
-	}
-
-	/* affected_type */
-	if (tmp_aff[0].type > 0)
-	{
-		fprintf(saved, "Affs:\n");
-		for (i = 0; i < MAX_AFFECT; i++)
-		{
-			aff = &tmp_aff[i];
-			if (aff->type)
-				fprintf(saved, "%d %d %d %d %d %s\n", aff->type, aff->duration,
-						aff->modifier, aff->location, (int) aff->bitvector, spell_name(aff->type));
-		}
-		fprintf(saved, "0 0 0 0 0\n");
-	}
-
-	/* порталы */
-	for (prt = GET_PORTALS(ch); prt; prt = prt->next)
-	{
-		fprintf(saved, "Prtl: %d\n", prt->vnum);
-	}
-	for (i = 0; i < NLOG; ++i)
-	{
-		if (!GET_LOGS(ch))
-		{
-			log("SYSERR: Saving NULL logs for char %s", GET_NAME(ch));
-			break;
-		}
-		fprintf(saved, "Logs: %d %d\n", i, GET_LOGS(ch)[i]);
-	}
-	/* Квесты */
-	if (ch->Questing.quests)
-	{
-		for (i = 0; i < ch->Questing.count; i++)
-		{
-			fprintf(saved, "Qst : %d\n", *(ch->Questing.quests + i));
-		}
-	}
-
-	save_mkill(ch, saved);
-	save_pkills(ch, saved);
-
-	fclose(saved);
-	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UNIQUE(ch));
-
-	/* восстанавливаем аффекты */
-	/* add spell and eq affections back in now */
-	for (i = 0; i < MAX_AFFECT; i++)
-	{
-		if (tmp_aff[i].type)
-			affect_to_char(ch, &tmp_aff[i]);
-	}
-
-	for (i = 0; i < NUM_WEARS; i++)
-	{
-		if (char_eq[i])
-		{
-#ifndef NO_EXTRANEOUS_TRIGGERS
-			if (wear_otrigger(char_eq[i], ch, i))
-#endif
-				equip_char(ch, char_eq[i], i | 0x80 | 0x40);
-#ifndef NO_EXTRANEOUS_TRIGGERS
-			else
-				obj_to_char(char_eq[i], ch);
-#endif
-		}
-	}
-	affect_total(ch);
-
-	if ((i = get_ptable_by_name(GET_NAME(ch))) >= 0)
-	{
-		player_table[i].last_logon = LAST_LOGON(ch);
-		player_table[i].level = GET_LEVEL(ch);
-	}
-}
-
 void rename_char(CHAR_DATA * ch, char *oname)
 {
 	char filename[MAX_INPUT_LENGTH], ofilename[MAX_INPUT_LENGTH];
@@ -7329,7 +6838,7 @@ void rename_char(CHAR_DATA * ch, char *oname)
 	get_filename(GET_NAME(ch), filename, PLAYERS_FILE);
 	rename(ofilename, filename);
 
-	save_char(ch, GET_LOADROOM(ch));
+	ch->save_char();
 
 	// 2) Rename all other files
 	get_filename(oname, ofilename, CRASH_FILE);
@@ -7388,7 +6897,7 @@ void delete_char(char *name)
 		SET_BIT(PLR_FLAGS(st, PLR_DELETED), PLR_DELETED);
 		NewNameRemove(st);
 		Clan::remove_from_clan(GET_UNIQUE(st));
-		save_char(st, NOWHERE);
+		st->save_char();
 
 		Crash_clear_objects(id);
 		player_table[id].unique = -1;

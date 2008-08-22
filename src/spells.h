@@ -341,7 +341,6 @@
 #define SPELL_QUEST		     357	/* Spell for dg_affect using */
 
 #define TOP_SPELL_DEFINE	     399
-#define TOP_SKILL_DEFINE             200
 /* NEW NPC/OBJECT SPELLS can be inserted here up to 299 */
 
 

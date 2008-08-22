@@ -23,6 +23,7 @@
 #include "im.h"
 #include "features.hpp"
 #include "char.hpp"
+#include "skills.h"
 
 extern INDEX_DATA *obj_index;
 extern const char *dirs[];
@@ -795,7 +796,7 @@ OCMD(do_oskillturn)
 	while ((pos = strchr(skillname, '_')))
 		* pos = ' ';
 
-	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILLS)
+	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 		isSkill = 1;
 	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0)
 	{
@@ -846,7 +847,7 @@ OCMD(do_oskilladd)
 	while ((pos = strchr(skillname, '_')))
 		* pos = ' ';
 
-	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILLS)
+	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 		isSkill = 1;
 	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0)
 	{

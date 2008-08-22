@@ -30,6 +30,7 @@
 #include "house.h"
 #include "privilege.hpp"
 #include "char.hpp"
+#include "skills.h"
 
 void show_string(DESCRIPTOR_DATA * d, char *input);
 
@@ -1180,7 +1181,7 @@ ACMD(do_skillset)
 			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
 	if (spell >= 0 && spell <= MAX_SPELLS)
 		GET_SPELL_TYPE(vict, spell) = value;
-	else if (skill >= 0 && skill <= MAX_SKILLS)
+	else if (skill >= 0 && skill <= MAX_SKILL_NUM)
 		vict->set_skill(skill, value);
 	sprintf(buf2, "Вы изменили для %s '%s' на %d.\r\n", GET_PAD(vict, 1),
 			spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);

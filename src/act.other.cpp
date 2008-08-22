@@ -190,11 +190,6 @@ ACMD(do_quit)
 			Crash_rentsave(ch, 0);
 		extract_char(ch, FALSE);
 
-		/* If someone is quitting in their house, let them load back here */
-// убрано во избежание крешей. все равно концом рентятся пусть на ренте,
-// а не где попало.
-//		if (ROOM_FLAGGED(loadroom, ROOM_HOUSE))
-//			save_char(ch, loadroom);
 	}
 }
 
@@ -225,7 +220,7 @@ ACMD(do_save)
 	}
 
 	write_aliases(ch);
-	save_char(ch, NOWHERE);
+	ch->save_char();
 	Crash_crashsave(ch);
 }
 
@@ -2016,13 +2011,13 @@ void SetScreen(CHAR_DATA * ch, char *argument, int flag)
 	{
 		STRING_LENGTH(ch) = size;
 		send_to_char("Ладушки.\r\n", ch);
-		save_char(ch, NOWHERE);
+		ch->save_char();
 	}
 	else if (flag == 1)
 	{
 		STRING_WIDTH(ch) = size;
 		send_to_char("Ладушки.\r\n", ch);
-		save_char(ch, NOWHERE);
+		ch->save_char();
 	}
 	else
 	{

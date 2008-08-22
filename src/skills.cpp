@@ -219,7 +219,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	bool pass_mod = 0; // в данный момент для доп.выстрела, чтобы оставить его как скилл,
 	// но не применять к нему левых штрафов и плюсов, плюсуется только от инты немного
 
-	if (skill_no < 1 || skill_no > MAX_SKILLS)  	// log("ERROR: ATTEMPT USING UNKNOWN SKILL <%d>", skill_no);
+	if (skill_no < 1 || skill_no > MAX_SKILL_NUM)  	// log("ERROR: ATTEMPT USING UNKNOWN SKILL <%d>", skill_no);
 	{
 		return 0;
 	}

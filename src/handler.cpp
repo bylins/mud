@@ -2813,7 +2813,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	{
 		log("[Extract char] All save for PC");
 		check_auction(ch, NULL);
-		save_char(ch, NOWHERE);
+		ch->save_char();
 		//удаляются рент-файлы, если только персонаж не ушел в ренту
 		Crash_delete_crashfile(ch);
 //      if (clear_objs)

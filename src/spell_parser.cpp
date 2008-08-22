@@ -33,7 +33,7 @@
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct spell_create_type spell_create[TOP_SPELL_DEFINE + 1];
-struct skill_info_type skill_info[TOP_SKILL_DEFINE + 1];
+struct skill_info_type skill_info[MAX_SKILL_NUM + 1];
 char cast_argument[MAX_STRING_LENGTH];
 extern const char *cast_phrase[LAST_USED_SPELL + 1][2];
 
@@ -1798,7 +1798,7 @@ int find_skill_num(char *name)
 	int index, ok;
 	char const *temp, *temp2;
 	char first[256], first2[256];
-	for (index = 1; index <= TOP_SKILL_DEFINE; index++)
+	for (index = 1; index <= MAX_SKILL_NUM; index++)
 	{
 		if (is_abbrev(name, skill_info[index].name))
 			return (index);
@@ -3493,7 +3493,7 @@ ACMD(do_learn)
 	}
 
 	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL || GET_OBJ_VAL(obj, 0) == BOOK_UPGRD)
-			&& GET_OBJ_VAL(obj, 1) < 1 && GET_OBJ_VAL(obj, 1) > TOP_SKILL_DEFINE)
+			&& GET_OBJ_VAL(obj, 1) < 1 && GET_OBJ_VAL(obj, 1) > MAX_SKILL_NUM)
 	{
 		send_to_char("ףפילר מו ןנעוהולומ - ÓÏÏÂÝÉÔÅ גÏÇÁÍ !\r\n", ch);
 		return;
@@ -4239,7 +4239,7 @@ void mag_assign_spells(void)
 	{
 		unused_spell(i);
 	}
-	for (i = 0; i <= TOP_SKILL_DEFINE; i++)
+	for (i = 0; i <= MAX_SKILL_NUM; i++)
 	{
 		unused_skill(i);
 	}

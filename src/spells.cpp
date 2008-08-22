@@ -999,7 +999,7 @@ ASPELL(spell_charm)
 			victim->set_skill(SKILL_PUNCTUAL, 0);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
 			Crash_crashsave(ch);
-			save_char(ch, NOWHERE);
+			ch->save_char();
 		}
 	}
 }
@@ -1173,7 +1173,7 @@ ACMD(do_findhelpee)
 				helpee->set_skill(SKILL_PUNCTUAL, 0);
 				// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
 				Crash_crashsave(ch);
-				save_char(ch, NOWHERE);
+				ch->save_char();
 			}
 		}
 }
@@ -1319,7 +1319,7 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			}
 			break;
 		case BOOK_SKILL:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < TOP_SKILL_DEFINE)
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SKILL_NUM)
 			{
 				drndice = GET_OBJ_VAL(obj, 1);
 				if (skill_info[drndice].classknow[(int) GET_KIN(ch)][(int) GET_CLASS(ch)] == KNOW_SKILL)
@@ -1337,7 +1337,7 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			}
 			break;
 		case BOOK_UPGRD:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < TOP_SKILL_DEFINE)
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SKILL_NUM)
 			{
 				drndice = GET_OBJ_VAL(obj, 1);
 				sprintf(buf, "повышает умение \"%s\"\r\n", skill_info[drndice].name);
@@ -1607,7 +1607,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			}
 			break;
 		case BOOK_SKILL:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < TOP_SKILL_DEFINE)
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SKILL_NUM)
 			{
 				drndice = GET_OBJ_VAL(obj, 1);
 				if (skill_info[drndice].classknow[(int) GET_KIN(ch)][(int) GET_CLASS(ch)] == KNOW_SKILL)
@@ -1625,7 +1625,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			}
 			break;
 		case BOOK_UPGRD:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < TOP_SKILL_DEFINE)
+			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SKILL_NUM)
 			{
 				drndice = GET_OBJ_VAL(obj, 1);
 				sprintf(buf, "повышает умение \"%s\"\r\n", skill_info[drndice].name);

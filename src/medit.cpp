@@ -22,6 +22,7 @@
 #include "features.hpp"
 #include "im.h"
 #include "char.hpp"
+#include "skills.h"
 
 /*
  * Set this to 1 for debugging logs in medit_save_internally.
@@ -2338,7 +2339,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			number = atoi(arg);
 			if (number == 0)
 				break;
-			if (number > MAX_SKILLS || !skill_info[number].name || *skill_info[number].name == '!')
+			if (number > MAX_SKILL_NUM || !skill_info[number].name || *skill_info[number].name == '!')
 				send_to_char("Неизвестное умение.\r\n", d->character);
 			else if (OLC_MOB(d)->get_skill(number))
 				OLC_MOB(d)->set_skill(number, 0);

@@ -24,6 +24,7 @@
 #include "features.hpp"
 #include "deathtrap.hpp"
 #include "char.hpp"
+#include "skills.h"
 
 extern const char *dirs[];
 extern struct zone_data *zone_table;
@@ -667,7 +668,7 @@ WCMD(do_wfeatturn)
 	while ((pos = strchr(featname, '_')))
 		* pos = ' ';
 
-	if ((featnum = find_feat_num(featname)) > 0 && featnum <= MAX_SKILLS)
+	if ((featnum = find_feat_num(featname)) > 0 && featnum <= MAX_FEATS)
 		isFeat = 1;
 	else
 	{
@@ -715,7 +716,7 @@ WCMD(do_wskillturn)
 	while ((pos = strchr(skillname, '_')))
 		* pos = ' ';
 
-	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILLS)
+	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 		isSkill = 1;
 	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0)
 	{
@@ -766,7 +767,7 @@ WCMD(do_wskilladd)
 	while ((pos = strchr(skillname, '_')))
 		* pos = ' ';
 
-	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILLS)
+	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 		isSkill = 1;
 	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0)
 	{

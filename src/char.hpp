@@ -219,9 +219,12 @@ public:
 	Character();
 	~Character();
 
+	void save_char();
+
 	int get_skill(int skill_num);
 	void set_skill(int skill_num, int percent);
 	void clear_skills();
+	void check_max_skills();
 
 private:
 	CharSkillsType skills; // список изученных скиллов
@@ -296,5 +299,7 @@ public:
 	int *ing_list;		//загружаемые в труп ингредиенты
 	load_list *dl_list;	// загружаемые в труп предметы
 };
+
+void set_god_skills(CHAR_DATA *ch);
 
 #endif // CHAR_HPP_INCLUDED

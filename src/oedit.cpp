@@ -23,6 +23,7 @@
 #include "depot.hpp"
 #include "char.hpp"
 #include "house.h"
+#include "skills.h"
 
 /*------------------------------------------------------------------------*/
 
@@ -2001,7 +2002,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 					oedit_disp_menu(d);
 					return;
 				}
-				if (number > MAX_SKILLS || !skill_info[number].name || *skill_info[number].name == '!')
+				if (number > MAX_SKILL_NUM|| !skill_info[number].name || *skill_info[number].name == '!')
 				{
 					send_to_char("Неизвестное умение, повторите.\r\n", d->character);
 					oedit_disp_val2_menu(d);

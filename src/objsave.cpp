@@ -1719,7 +1719,7 @@ int Crash_load(CHAR_DATA * ch)
 		add_gold(ch, -(MAX(cost - get_bank_gold(ch), 0)));
 		set_bank_gold(ch, MAX(get_bank_gold(ch) - cost, 0));
 		//???
-		//save_char(ch, NOWHERE);
+		//ch->save_char();
 	}
 
 	/*Чтение описаний объектов в буфер */
@@ -2645,7 +2645,6 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 		Depot::exit_char(ch);
 		Clan::clan_invoice(ch, false);
 		extract_char(ch, FALSE);
-//		save_char(ch, save_room);
 	}
 	else
 	{
@@ -2677,7 +2676,7 @@ void Crash_frac_save_all(int frac_part)
 		if ((STATE(d) == CON_PLAYING) && !IS_NPC(d->character) && GET_ACTIVITY(d->character) == frac_part)
 		{
 			Crash_crashsave(d->character);
-			save_char(d->character, NOWHERE);
+			d->character->save_char();
 			REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRASH), PLR_CRASH);
 		}
 	}
@@ -2693,7 +2692,7 @@ void Crash_save_all(void)
 			if (PLR_FLAGGED(d->character, PLR_CRASH))
 			{
 				Crash_crashsave(d->character);
-				save_char(d->character, NOWHERE);
+				d->character->save_char();
 				REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRASH), PLR_CRASH);
 			}
 		}

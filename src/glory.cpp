@@ -1374,7 +1374,7 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	}
 
 	add_karma(vict, out.str().c_str(), reason);
-	save_char(vict, NOWHERE);
+	vict->save_char();
 
 	// удаляем запись чара, с которого перекидывали
 	glory_list.erase(it);

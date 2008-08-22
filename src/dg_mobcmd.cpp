@@ -47,6 +47,7 @@
 #include "im.h"
 #include "features.hpp"
 #include "char.hpp"
+#include "skills.h"
 
 #define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, AFF_CHARM))
 
@@ -1484,7 +1485,7 @@ ACMD(do_mskillturn)
 	while ((pos = strchr(skillname, '_')))
 		* pos = ' ';
 
-	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILLS)
+	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 		isSkill = 1;
 	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0)
 	{
@@ -1565,7 +1566,7 @@ ACMD(do_mskilladd)
 	while ((pos = strchr(skillname, '_')))
 		* pos = ' ';
 
-	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILLS)
+	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 		isSkill = 1;
 	else if ((skillnum = im_get_recipe_by_name(skillname)) < 0)
 	{
@@ -1636,7 +1637,7 @@ ACMD(do_mspellturn)
 	if ((pos = strchr(skillname, '.')))
 		* pos = ' ';
 
-	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SKILLS)
+	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SKILL_NUM)
 	{
 		mob_log(ch, "mspellturn: spell not found");
 		return;
@@ -1709,7 +1710,7 @@ ACMD(do_mspelladd)
 	if ((pos = strchr(skillname, '.')))
 		* pos = ' ';
 
-	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SKILLS)
+	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SKILL_NUM)
 	{
 		mob_log(ch, "mspelladd: skill not found");
 		return;

@@ -2270,3 +2270,20 @@ char *str_str(char *cs, const char *ct)
 	return NULL;
 }
 
+/* remove ^M's from file output */
+void kill_ems(char *str)
+{
+	char *ptr1, *ptr2, *tmp;
+
+	tmp = str;
+	ptr1 = str;
+	ptr2 = str;
+
+	while (*ptr1)
+	{
+		if ((*(ptr2++) = *(ptr1++)) == '\r')
+			if (*ptr1 == '\r')
+				ptr1++;
+	}
+	*ptr2 = '\0';
+}

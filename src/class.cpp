@@ -2399,12 +2399,12 @@ void advance_level(CHAR_DATA * ch)
 		SET_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
 	}
 
-	save_char(ch, NOWHERE);
+	ch->save_char();
 }
 
 void decrease_level(CHAR_DATA * ch)
 {
-	int add_move = 0, prob, sval, max;
+	int add_move = 0;
 
 	switch (GET_CLASS(ch))
 	{
@@ -2442,21 +2442,9 @@ void decrease_level(CHAR_DATA * ch)
 	if (!IS_IMMORTAL(ch))
 		REMOVE_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
 
-	for (prob = 0; prob <= MAX_SKILLS; prob++)
-		if (ch->get_skill(prob) && prob != SKILL_SATTACK)
-		{
-			max = wis_app[GET_REAL_WIS(ch)].max_learn_l20 * (GET_LEVEL(ch) + 1) / 20;
-			if (max > MAX_EXP_PERCENT)
-				max = MAX_EXP_PERCENT;
-			sval = ch->get_skill(prob) - max - GET_REMORT(ch) * 5;
-			if (sval < 0)
-				sval = 0;
-			if ((ch->get_skill(prob) - sval) >
-					(wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20))
-				ch->set_skill(prob, ((wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20) + sval));
-		}
+	ch->check_max_skills();
 
-	save_char(ch, NOWHERE);
+	ch->save_char();
 }
 
 

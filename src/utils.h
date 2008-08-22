@@ -80,6 +80,7 @@ int valid_email(const char *address);
 void skip_dots(char **string);
 void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence = 0);
 char * str_str(char *cs, const char *ct);
+void kill_ems(char *str);
 
 int get_gold(CHAR_DATA *ch);
 void add_gold(CHAR_DATA *ch, int gold);

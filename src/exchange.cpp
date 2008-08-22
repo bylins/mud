@@ -302,7 +302,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	{
 		exchange_database_save();
 		Crash_crashsave(ch);
-		save_char(ch, NOWHERE);
+		ch->save_char();
 	}
 	return (true);
 }
@@ -437,7 +437,7 @@ int exchange_withdraw(CHAR_DATA * ch, char *arg)
 	{
 		exchange_database_save();
 		Crash_crashsave(ch);
-		save_char(ch, NOWHERE);
+		ch->save_char();
 	}
 
 	return true;
@@ -649,7 +649,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 			{
 				exchange_database_save();
 				Crash_crashsave(ch);
-				save_char(ch, NOWHERE);
+				ch->save_char();
 			}
 
 			delete seller;
@@ -658,7 +658,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 
 		add_bank_gold(seller, GET_EXCHANGE_ITEM_COST(item));
 		add_bank_gold(ch, -(GET_EXCHANGE_ITEM_COST(item)));
-		save_char(seller, GET_LOADROOM(seller));
+		seller->save_char();
 		delete seller;
 		act("Вы купили $O3 на базаре.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
 		sprintf(tmpbuf,
@@ -672,7 +672,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 		{
 			exchange_database_save();
 			Crash_crashsave(ch);
-			save_char(ch, NOWHERE);
+			ch->save_char();
 		}
 
 		return true;
@@ -700,9 +700,9 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 		{
 			exchange_database_save();
 			Crash_crashsave(ch);
-			save_char(ch, NOWHERE);
+			ch->save_char();
 			Crash_crashsave(seller);
-			save_char(seller, NOWHERE);
+			seller->save_char();
 		}
 
 		return true;

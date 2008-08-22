@@ -402,7 +402,7 @@ typedef struct trig_data TRIG_DATA;
 #define PLR_MUTE      (1 << 8)	/* Player not allowed to shout/goss/auct  */
 #define PLR_NOTITLE      (1 << 9)	/* Player not allowed to set title  */
 #define PLR_DELETED      (1 << 10)	/* Player deleted - space reusable  */
-#define PLR_LOADROOM (1 << 11)	/* Player uses nonstandard loadroom  */
+#define PLR_LOADROOM (1 << 11)	/* Player uses nonstandard loadroom  (не используется) */
 // свободно
 #define PLR_NODELETE (1 << 13)	/* Player shouldn't be deleted */
 #define PLR_INVSTART (1 << 14)	/* Player should enter game wizinvis */
@@ -1141,32 +1141,31 @@ typedef struct trig_data TRIG_DATA;
 /* Max amount of output that can be buffered */
 #define LARGE_BUFSIZE            (MAX_SOCK_BUF - GARBAGE_SPACE - MAX_PROMPT_LENGTH)
 
-#define HISTORY_SIZE					5	/* Keep last 5 commands. */
+#define HISTORY_SIZE          5	/* Keep last 5 commands. */
 #define MAX_STRING_LENGTH     16384
 #define MAX_EXTEND_LENGTH     0xFFFF
 #define MAX_INPUT_LENGTH      256	/* Max length per *line* of input */
-#define MAX_RAW_INPUT_LENGTH   512	/* Max size of *raw* input */
-#define MAX_MESSAGES      		 600
-#define MAX_NAME_LENGTH       	20
-#define MIN_NAME_LENGTH        	4
-#define HOST_LENGTH       		 	30
-#define EXDSCR_LENGTH         	512
-#define MAX_TONGUE         			3
-#define MAX_SKILLS         			200
-#define MAX_SPELLS            	350
-#define MAX_AFFECT         			32
-#define MAX_OBJ_AFFECT        	6
-#define MAX_TIMED_SKILLS      	16
-#define MAX_FEATS		128 /* Максимальное количество фитов */
-#define MAX_TIMED_FEATS		16 /* Макс. количество фитов с таймером */
-#define MAX_HITS 32000 /* Максимальное количество хитов и дамага */
+#define MAX_RAW_INPUT_LENGTH  512	/* Max size of *raw* input */
+#define MAX_MESSAGES          600
+#define MAX_NAME_LENGTH       20
+#define MIN_NAME_LENGTH       4
+#define HOST_LENGTH           30
+#define EXDSCR_LENGTH         512
+#define MAX_TONGUE            3
+#define MAX_SKILLS            200
+#define MAX_SPELLS            350
+#define MAX_AFFECT            32
+#define MAX_OBJ_AFFECT        6
+#define MAX_TIMED_SKILLS      16
+#define MAX_FEATS             128 /* Максимальное количество фитов */
+#define MAX_TIMED_FEATS       16 /* Макс. количество фитов с таймером */
+#define MAX_HITS              32000 /* Максимальное количество хитов и дамага */
 /* Количество запомненных предложений для команды "вспомнить" */
-#define MAX_REMEMBER_TELLS          15
-
+#define MAX_REMEMBER_TELLS    15
 /* Количество запомненных предложений для воззваний */
-#define MAX_REMEMBER_PRAY           20
+#define MAX_REMEMBER_PRAY     20
 /* Количество запомненных предложений для эфира */
-#define MAX_REMEMBER_GOSSIP         15
+#define MAX_REMEMBER_GOSSIP   15
 
 
 /**********************************************************************

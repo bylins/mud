@@ -15,7 +15,7 @@
 #ifndef _SKILLS_H_
 #define _SKILLS_H_
 
-/* PLAYER SKILLS - Numbered from 1 to MAX_SKILLS */
+/* PLAYER SKILLS - Numbered from 1 to MAX_SKILL_NUM */
 #define SKILL_THAC0                 0	/* Internal */
 #define SKILL_PROTECT               1 /**** Protect grouppers    */
 #define SKILL_TOUCH                 2 /**** Touch attacker       */
@@ -44,7 +44,7 @@
 #define SKILL_AID                   31
 #define SKILL_FIRE                  32
 #define SKILL_CREATEBOW             33
-
+// и че тут?
 #define SKILL_THROW                 130
 #define SKILL_BACKSTAB              131	/* Reserved Skill[] DO NOT CHANGE */
 #define SKILL_BASH                  132	/* Reserved Skill[] DO NOT CHANGE */
@@ -82,25 +82,22 @@
 #define SKILL_MANADRAIN             166
 #define SKILL_NOPARRYHIT            167
 #define SKILL_TOWNPORTAL            168
-
 // Crafting skills
-#define SKILL_MAKE_STAFF	    169
-#define SKILL_MAKE_BOW		    170
-#define SKILL_MAKE_WEAPON	    171
-#define SKILL_MAKE_ARMOR	    172
-#define SKILL_MAKE_JEWEL	    173
-#define SKILL_MAKE_WEAR 	    174
-#define SKILL_MAKE_POTION     	    175
-#define SKILL_DIG	     	    176
-#define SKILL_INSERTGEM     	    177
-
+#define SKILL_MAKE_STAFF            169
+#define SKILL_MAKE_BOW              170
+#define SKILL_MAKE_WEAPON           171
+#define SKILL_MAKE_ARMOR            172
+#define SKILL_MAKE_JEWEL            173
+#define SKILL_MAKE_WEAR             174
+#define SKILL_MAKE_POTION           175
+#define SKILL_DIG                   176
+#define SKILL_INSERTGEM             177
 // Other skills
-#define SKILL_WARCRY     	    178
-#define SKILL_TURN_UNDEAD     	    179
-#define SKILL_IRON_WIND     	    180
-
-
-/* New skills may be added here up to MAX_SKILLS (200) */
+#define SKILL_WARCRY                178
+#define SKILL_TURN_UNDEAD           179
+#define SKILL_IRON_WIND             180
+// указываем максимальный номер скилла (в основном просто для проверок при старте мада нужен)
+#define MAX_SKILL_NUM               180
 
 int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype);
 

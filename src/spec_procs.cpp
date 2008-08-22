@@ -684,7 +684,7 @@ void init_guilds(void)
 					* pos = ' ';
 				spellnum = find_spell_num(line);
 			}
-			if ((skillnum = atoi(line1)) == 0 || skillnum > MAX_SKILLS)
+			if ((skillnum = atoi(line1)) == 0 || skillnum > MAX_SKILL_NUM)
 			{
 				if ((pos = strchr(line1, '.')))
 					* pos = ' ';
@@ -752,7 +752,7 @@ void init_guilds(void)
 					* pos = ' ';
 				spellnum = find_spell_num(line4);
 			}
-			if ((skillnum = atoi(line5)) == 0 || skillnum > MAX_SKILLS)
+			if ((skillnum = atoi(line5)) == 0 || skillnum > MAX_SKILL_NUM)
 			{
 				if ((pos = strchr(line5, '.')))
 					* pos = ' ';
@@ -959,7 +959,7 @@ SPECIAL(guild_mono)
 			return (1);
 		}
 
-		if (((skill_no = find_skill_num(argument)) > 0 && skill_no <= MAX_SKILLS))
+		if (((skill_no = find_skill_num(argument)) > 0 && skill_no <= MAX_SKILL_NUM))
 		{
 			for (i = 0, found = FALSE; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++)
 			{
@@ -1207,7 +1207,7 @@ SPECIAL(guild_poly)
 			return (1);
 		}
 
-		if (((skill_no = find_skill_num(argument)) > 0 && skill_no <= MAX_SKILLS))
+		if (((skill_no = find_skill_num(argument)) > 0 && skill_no <= MAX_SKILL_NUM))
 		{
 			for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++)
 			{
@@ -2933,7 +2933,7 @@ SPECIAL(bank)
 					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 			add_bank_gold(vict, amount);
-			save_char(vict, GET_LOADROOM(vict));
+			vict->save_char();
 			delete vict;
 			return (1);
 		}
