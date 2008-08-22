@@ -1590,138 +1590,6 @@ int reserved_word(const char *argument)
 	return (search_block(argument, reserved, TRUE) >= 0);
 }
 
-
-/*
- * copy the first non-fill-word, space-delimited argument of 'argument'
- * to 'first_arg'; return a pointer to the remainder of the string.
- */
-char *one_argument(char *argument, char *first_arg)
-{
-	char *begin = first_arg;
-
-	if (!argument)
-	{
-		log("SYSERR: one_argument received a NULL pointer!");
-		*first_arg = '\0';
-		return (NULL);
-	}
-
-	do
-	{
-		skip_spaces(&argument);
-
-		first_arg = begin;
-		while (*argument && !a_isspace(*argument))
-		{
-			*(first_arg++) = LOWER(*argument);
-			argument++;
-		}
-
-		*first_arg = '\0';
-	}
-	while (fill_word(begin));
-
-	return (argument);
-}
-
-
-/*
- * one_word is like one_argument, except that words in quotes ("") are
- * considered one word.
- */
-char *one_word(char *argument, char *first_arg)
-{
-	char *begin = first_arg;
-
-	do
-	{
-		skip_spaces(&argument);
-		first_arg = begin;
-
-		if (*argument == '\"')
-		{
-			argument++;
-			while (*argument && *argument != '\"')
-			{
-				*(first_arg++) = LOWER(*argument);
-				argument++;
-			}
-			argument++;
-		}
-		else
-		{
-			while (*argument && !a_isspace(*argument))
-			{
-				*(first_arg++) = LOWER(*argument);
-				argument++;
-			}
-		}
-		*first_arg = '\0';
-	}
-	while (fill_word(begin));
-
-	return (argument);
-}
-
-/* same as one_argument except that it doesn't ignore fill words */
-char *any_one_arg(char *argument, char *first_arg)
-{
-	if (!argument)
-	{
-		log("SYSERR: any_one_arg() passed a NULL pointer.");
-		return 0;
-	}
-	skip_spaces(&argument);
-
-	while (*argument && !a_isspace(*argument))
-	{
-		*(first_arg++) = LOWER(*argument);
-		argument++;
-	}
-
-	*first_arg = '\0';
-
-	return (argument);
-}
-
-// константная версия того же самого (потому что надо возвращать такой же указатель)
-char const * any_one_arg(char const *argument, char *first_arg)
-{
-	if (!argument)
-	{
-		log("SYSERR: any_one_arg(const) passed a NULL pointer.");
-		return 0;
-	}
-	skip_spaces(&argument);
-
-	while (*argument && !a_isspace(*argument))
-	{
-		*(first_arg++) = LOWER(*argument);
-		argument++;
-	}
-
-	*first_arg = '\0';
-
-	return argument;
-}
-
-
-/*
- * Same as one_argument except that it takes two args and returns the rest;
- * ignores fill words
- */
-char *two_arguments(char *argument, char *first_arg, char *second_arg)
-{
-	return (one_argument(one_argument(argument, first_arg), second_arg));	/* :-) */
-}
-
-char *three_arguments(char *argument, char *first_arg, char *second_arg, char *third_arg)
-{
-	return (one_argument(one_argument(one_argument(argument, first_arg), second_arg), third_arg));	/* :-) */
-}
-
-
-
 /*
  * determine if a given string is an abbreviation of another
  * (now works symmetrically -- JE 7/25/94)
@@ -1745,19 +1613,15 @@ int is_abbrev(const char *arg1, const char *arg2)
 		return (0);
 }
 
-
-
 /* return first space-delimited token in arg1; remainder of string in arg2 */
-void half_chop(char *string, char *arg1, char *arg2)
+void half_chop(char const *string, char *arg1, char *arg2)
 {
-	char *temp;
+	char const *temp;
 
 	temp = any_one_arg(string, arg1);
 	skip_spaces(&temp);
 	strcpy(arg2, temp);
 }
-
-
 
 /* Used in specprocs, mostly.  (Exactly) matches "command" to cmd number */
 int find_command(const char *command)

@@ -77,8 +77,6 @@ int real_sector(int room);
 char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *vict_obj);
 int roundup(float fl);
 int valid_email(const char *address);
-void skip_spaces(char **string);
-void skip_spaces(char const **string);
 void skip_dots(char **string);
 void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence = 0);
 char * str_str(char *cs, const char *ct);
@@ -1433,4 +1431,9 @@ public:
 	}
 };
 
-#endif
+template<class T> void skip_spaces(T string)
+{
+	for (; **string && a_isspace(**string); (*string)++);
+}
+
+#endif // _UTILS_H_

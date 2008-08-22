@@ -27,6 +27,7 @@
 #include "im.h"
 #include "features.hpp"
 #include "char.hpp"
+#include "interpreter.h"
 
 void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg);
 void trig_data_free(TRIG_DATA * this_data);
@@ -37,7 +38,6 @@ extern int top_of_trigt;
 extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;
 
-extern void half_chop(char *string, char *arg1, char *arg2);
 extern void asciiflag_conv(const char *flag, void *value);
 
 int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract);

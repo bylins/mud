@@ -31,14 +31,8 @@ void command_interpreter(CHAR_DATA * ch, char *argument);
 int search_block(const char *arg, const char **list, int exact);
 int search_block(const std::string &arg, const char **list, int exact);
 char lower(char c);
-char *one_argument(char *argument, char *first_arg);
-char *one_word(char *argument, char *first_arg);
-char * any_one_arg(char *argument, char *first_arg);
-char const * any_one_arg(char const *argument, char *first_arg);
-char *two_arguments(char *argument, char *first_arg, char *second_arg);
-char *three_arguments(char *argument, char *first_arg, char *second_arg, char *third_arg);
 int fill_word(const char *argument);
-void half_chop(char *string, char *arg1, char *arg2);
+void half_chop(char const *string, char *arg1, char *arg2);
 void nanny(DESCRIPTOR_DATA * d, char *arg);
 int is_abbrev(const char *arg1, const char *arg2);
 int is_number(const char *str);
@@ -314,4 +308,115 @@ struct alias_data
 #define SCMD_CHANNEL 0
 #define SCMD_ACHANNEL 1
 
-#endif
+extern void log(const char *format, ...) __attribute__((format(printf, 1, 2)));
+extern inline char a_lcc(unsigned char c);
+
+/**
+* copy the first non-fill-word, space-delimited argument of 'argument'
+* to 'first_arg'; return a pointer to the remainder of the string.
+*/
+template<class T>T one_argument(T argument, char *first_arg)
+{
+	char *begin = first_arg;
+
+	if (!argument)
+	{
+		log("SYSERR: one_argument received a NULL pointer!");
+		*first_arg = '\0';
+		return (NULL);
+	}
+
+	do
+	{
+		skip_spaces(&argument);
+
+		first_arg = begin;
+		while (*argument && !a_isspace(*argument))
+		{
+			*(first_arg++) = a_lcc(*argument);
+			argument++;
+		}
+
+		*first_arg = '\0';
+	}
+	while (fill_word(begin));
+
+	return (argument);
+}
+
+/**
+* same as one_argument except that it doesn't ignore fill words
+*/
+template<class T> T any_one_arg(T argument, char *first_arg)
+{
+	if (!argument)
+	{
+		log("SYSERR: any_one_arg() passed a NULL pointer.");
+		return 0;
+	}
+	skip_spaces(&argument);
+
+	while (*argument && !a_isspace(*argument))
+	{
+		*(first_arg++) = a_lcc(*argument);
+		argument++;
+	}
+
+	*first_arg = '\0';
+
+	return (argument);
+}
+
+/**
+* one_word is like one_argument, except that words in quotes ("") are
+* considered one word.
+*/
+template<class T> T one_word(T argument, char *first_arg)
+{
+	char *begin = first_arg;
+
+	do
+	{
+		skip_spaces(&argument);
+		first_arg = begin;
+
+		if (*argument == '\"')
+		{
+			argument++;
+			while (*argument && *argument != '\"')
+			{
+				*(first_arg++) = a_lcc(*argument);
+				argument++;
+			}
+			argument++;
+		}
+		else
+		{
+			while (*argument && !a_isspace(*argument))
+			{
+				*(first_arg++) = a_lcc(*argument);
+				argument++;
+			}
+		}
+		*first_arg = '\0';
+	}
+	while (fill_word(begin));
+
+	return (argument);
+}
+
+/**
+* Same as one_argument except that it takes two args and returns the rest;
+* ignores fill words
+*/
+template<class T> T two_arguments(T argument, char *first_arg, char *second_arg)
+{
+	return (one_argument(one_argument(argument, first_arg), second_arg));	/* :-) */
+}
+
+template<class T> T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg)
+{
+	return (one_argument(one_argument(one_argument(argument, first_arg), second_arg), third_arg));	/* :-) */
+}
+
+#endif // _INTERPRETER_H_
