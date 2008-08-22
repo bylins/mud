@@ -30,7 +30,6 @@ ACMD(do_move);
 void command_interpreter(CHAR_DATA * ch, char *argument);
 int search_block(const char *arg, const char **list, int exact);
 int search_block(const std::string &arg, const char **list, int exact);
-char lower(char c);
 int fill_word(const char *argument);
 void half_chop(char const *string, char *arg1, char *arg2);
 void nanny(DESCRIPTOR_DATA * d, char *arg);
