@@ -274,7 +274,7 @@ int Character::get_skill(int skill_num)
 */
 void Character::set_skill(int skill_num, int percent)
 {
-	if (skill_num > MAX_SKILL_NUM)
+	if (skill_num < 0 || skill_num > MAX_SKILL_NUM)
 	{
 		log("SYSERROR: неизвесный номер скилла %d в set_skill.", skill_num);
 		return;
