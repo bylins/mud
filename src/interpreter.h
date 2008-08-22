@@ -15,8 +15,9 @@
 #ifndef _INTERPRETER_H_
 #define _INTERPRETER_H_
 
-#include "conf.h"
 #include <string>
+#include "conf.h"
+#include "utils.h"
 
 #define ACMD(name)  \
    void name(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
@@ -306,9 +307,6 @@ struct alias_data
 /* do_hchannel */
 #define SCMD_CHANNEL 0
 #define SCMD_ACHANNEL 1
-
-extern void log(const char *format, ...) __attribute__((format(printf, 1, 2)));
-extern inline char a_lcc(unsigned char c);
 
 /**
 * copy the first non-fill-word, space-delimited argument of 'argument'
