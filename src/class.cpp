@@ -2402,6 +2402,29 @@ void advance_level(CHAR_DATA * ch)
 	save_char(ch);
 }
 
+/**
+*
+*/
+void check_max_skills(CHAR_DATA *ch)
+{
+	for (int i = 1; i <= MAX_SKILL_NUM; i++)
+	{
+		if (ch->get_skill(i)  && i != SKILL_SATTACK)
+		{
+			int max = wis_app[GET_REAL_WIS(ch)].max_learn_l20 * (GET_LEVEL(ch) + 1) / 20;
+			if (max > MAX_EXP_PERCENT)
+				max = MAX_EXP_PERCENT;
+			int sval = ch->get_skill(i) - max - GET_REMORT(ch) * 5;
+			if (sval < 0)
+				sval = 0;
+			if ((ch->get_skill(i) - sval) > (wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20))
+			{
+				ch->set_skill(i, ((wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20) + sval));
+			}
+		}
+	}
+}
+
 void decrease_level(CHAR_DATA * ch)
 {
 	int add_move = 0;
@@ -2442,8 +2465,7 @@ void decrease_level(CHAR_DATA * ch)
 	if (!IS_IMMORTAL(ch))
 		REMOVE_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
 
-	ch->check_max_skills();
-
+	check_max_skills(ch);
 	save_char(ch);
 }
 

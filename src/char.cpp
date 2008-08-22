@@ -303,30 +303,6 @@ void Character::clear_skills()
 /**
 *
 */
-void Character::check_max_skills()
-{
-	for (CharSkillsType::iterator it = skills.begin(); it != skills.end(); ++it)
-	{
-		int skill_num = it->first;
-		if (skill_num != SKILL_SATTACK)
-		{
-			int max = wis_app[GET_REAL_WIS(this)].max_learn_l20 * (GET_LEVEL(this) + 1) / 20;
-			if (max > MAX_EXP_PERCENT)
-				max = MAX_EXP_PERCENT;
-			int sval = this->get_skill(skill_num) - max - GET_REMORT(this) * 5;
-			if (sval < 0)
-				sval = 0;
-			if ((this->get_skill(skill_num) - sval) > (wis_app[GET_REAL_WIS(this)].max_learn_l20 * GET_LEVEL(this) / 20))
-			{
-				this->set_skill(skill_num, ((wis_app[GET_REAL_WIS(this)].max_learn_l20 * GET_LEVEL(this) / 20) + sval));
-			}
-		}
-	}
-}
-
-/**
-*
-*/
 int Character::get_skills_count()
 {
 	return skills.size();

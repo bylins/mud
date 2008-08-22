@@ -220,10 +220,9 @@ public:
 	~Character();
 
 	int get_skill(int skill_num);
-	int get_skills_count();
 	void set_skill(int skill_num, int percent);
 	void clear_skills();
-	void check_max_skills();
+	int get_skills_count();
 
 private:
 	CharSkillsType skills; // список изученных скиллов
