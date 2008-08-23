@@ -2036,6 +2036,8 @@ ACMD(do_stat)
 
 ACMD(do_shutdown)
 {
+	static char const *help = "Формат команды shutdown [reboot|die|pause|schedule] кол-во секунд\r\n"
+							  "               shutdown now|cancel";
 	int times = 0;
 	time_t reboot_time;
 
@@ -2043,7 +2045,7 @@ ACMD(do_shutdown)
 
 	if (!*arg)
 	{
-		send_to_char("Формат команды shutdown [reboot|now|die|pause|schedule|cancel] [кол-во секунд]\r\n", ch);
+		send_to_char(help, ch);
 		return;
 	}
 
@@ -2054,18 +2056,20 @@ ACMD(do_shutdown)
 	else if (str_cmp(arg, "schedule"))
 		shutdown_time = time(NULL);
 
-
 	if (!str_cmp(arg, "reboot"))
 	{
-		log("(GC) Reboot by %s.", GET_NAME(ch));
-		imm_log("Reboot by %s.", GET_NAME(ch));
 		if (!times)
-			send_to_all("ПЕРЕЗАГРУЗКА.\r\n");
+		{
+			send_to_char(help, ch);
+			return;
+		}
 		else
 		{
 			sprintf(buf, "[ПЕРЕЗАГРУЗКА через %d %s]\r\n", times, desc_count(times, WHAT_SEC));
 			send_to_all(buf);
 		};
+		log("(GC) Reboot by %s.", GET_NAME(ch));
+		imm_log("Reboot by %s.", GET_NAME(ch));
 		touch(FASTBOOT_FILE);
 		if (!times)
 			circle_shutdown = 1;
@@ -2087,16 +2091,18 @@ ACMD(do_shutdown)
 	}
 	if (!str_cmp(arg, "die"))
 	{
-		log("(GC) Shutdown die by %s.", GET_NAME(ch));
-		imm_log("Shutdown die by %s.", GET_NAME(ch));
-		send_to_all("ОСТАНОВКА.\r\n");
 		if (!times)
-			send_to_all("ОСТАНОВКА.\r\n");
+		{
+			send_to_char(help, ch);
+			return;
+		}
 		else
 		{
 			sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", times, desc_count(times, WHAT_SEC));
 			send_to_all(buf);
 		};
+		log("(GC) Shutdown die by %s.", GET_NAME(ch));
+		imm_log("Shutdown die by %s.", GET_NAME(ch));
 		touch(KILLSCRIPT_FILE);
 		circle_reboot = 0;
 		if (!times)
@@ -2107,15 +2113,18 @@ ACMD(do_shutdown)
 	}
 	if (!str_cmp(arg, "pause"))
 	{
-		log("(GC) Shutdown pause by %s.", GET_NAME(ch));
-		imm_log("Shutdown pause by %s.", GET_NAME(ch));
 		if (!times)
-			send_to_all("ОСТАНОВКА.\r\n");
+		{
+			send_to_char(help, ch);
+			return;
+		}
 		else
 		{
 			sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", times, desc_count(times, WHAT_SEC));
 			send_to_all(buf);
 		};
+		log("(GC) Shutdown pause by %s.", GET_NAME(ch));
+		imm_log("Shutdown pause by %s.", GET_NAME(ch));
 		touch(PAUSE_FILE);
 		circle_reboot = 0;
 		if (!times)
@@ -2171,7 +2180,7 @@ ACMD(do_shutdown)
 		send_to_all("ПЕРЕЗАГРУЗКА ОТМЕНЕНА.\r\n");
 		return;
 	}
-	send_to_char("Формат команды shutdown [reboot|now|die|pause|schedule|cancel] [кол-во секунд]\r\n", ch);
+	send_to_char(help, ch);
 }
 
 
