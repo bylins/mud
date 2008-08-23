@@ -54,7 +54,7 @@ extern class insert_wanted_gem iwg;
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;
 extern INDEX_DATA *mob_index;
-extern char *class_abbrevs[];
+extern char const *class_abbrevs[];
 extern int free_rent;
 extern int max_filesize;
 extern int nameserver_is_slow;

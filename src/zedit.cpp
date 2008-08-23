@@ -34,8 +34,8 @@ extern CHAR_DATA *mob_proto;
 extern INDEX_DATA *mob_index;
 extern vector < OBJ_DATA * >obj_proto;
 extern INDEX_DATA *obj_index;
-extern char *equipment_types[];
-extern const char *dirs[];
+extern char const *equipment_types[];
+extern char const *dirs[];
 extern INDEX_DATA **trig_index;
 //MZ.load
 extern struct zone_type * zone_types;

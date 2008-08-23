@@ -3893,7 +3893,7 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 		{
 			pcFirstChar[0] = LOWER(it->second->name[0]);
 			pcFirstChar[1] = '\0';
-			char *pTmp = strpbrk(pSortAlph, pcFirstChar);
+			char const *pTmp = strpbrk(pSortAlph, pcFirstChar);
 			if (pTmp) lSortParam = pTmp - pSortAlph; // индекс первой буквы в массиве
 			else lSortParam = pcFirstChar[0]; // или не русская буква или я хз
 			break;

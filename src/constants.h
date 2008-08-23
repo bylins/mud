@@ -57,7 +57,7 @@ extern const char *pray_metter[];
 extern const char *pray_whom[];
 extern const char *room_aff_visib_bits[];
 extern const char *room_aff_invis_bits[];
-extern char *equipment_types[];
+extern const char *equipment_types[];
 extern struct str_app_type str_app[];
 extern struct dex_skill_type dex_app_skill[];
 extern struct dex_app_type dex_app[];

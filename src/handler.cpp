@@ -758,7 +758,7 @@ void affect_total(CHAR_DATA * ch)
 
 			for (i = 0; extra_affect && (extra_affect + i)->affect != -1; i++)
 				affect_modify(ch, APPLY_NONE, 0, (extra_affect + i)->affect,
-							  (extra_affect + i)->set_or_clear);
+							  (extra_affect + i)->set_or_clear ? true : false);
 			/* for (i = 0; extra_modifier && (extra_modifier + i)->location != -1; i++)
 				affect_modify(ch, (extra_modifier + i)->location,
 					      (extra_modifier + i)->modifier, 0, TRUE);*/
@@ -770,7 +770,7 @@ void affect_total(CHAR_DATA * ch)
 			extra_modifier = race_app[(int) GET_RACE(ch)].extra_modifiers;
 			for (i = 0; extra_affect && (extra_affect + i)->affect != -1; i++)
 				affect_modify(ch, APPLY_NONE, 0, (extra_affect + i)->affect,
-							  (extra_affect + i)->set_or_clear);
+							  (extra_affect + i)->set_or_clear ? true : false);
 			for (i = 0; extra_modifier && (extra_modifier + i)->location != (byte) - 1; i++)
 				affect_modify(ch, (extra_modifier + i)->location,
 							  (extra_modifier + i)->modifier, 0, TRUE);
@@ -3787,7 +3787,7 @@ float get_damage_per_round(CHAR_DATA * victim)
 
 //Если дыхание - то дамаг умножается на 1.1
 	if (MOB_FLAGGED(victim, (MOB_FIREBREATH | MOB_GASBREATH | MOB_FROSTBREATH | MOB_ACIDBREATH | MOB_LIGHTBREATH)))
-		dam_per_round *= 1.1;
+		dam_per_round *= 1.1f;
 
 	return dam_per_round;
 }

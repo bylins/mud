@@ -365,9 +365,9 @@ extern char arg[MAX_STRING_LENGTH];
 #endif
 
 #ifndef __CONFIG_C__
-extern char *OK;
-extern char *NOPERSON;
-extern char *NOEFFECT;
+extern char const *OK;
+extern char const *NOPERSON;
+extern char const *NOEFFECT;
 #endif
 
 /* external variables */
