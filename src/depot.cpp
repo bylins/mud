@@ -1514,7 +1514,7 @@ void reload_char(long uid, CHAR_DATA *ch)
 	}
 	if (t_vict) delete t_vict;
 
-	sprintf(buf, "Depot: %s reload items for %s.", GET_NAME(ch), it->second.name.c_str());
+	snprintf(buf, MAX_STRING_LENGTH, "Depot: %s reload items for %s.", GET_NAME(ch), it->second.name.c_str());
 	mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 	imm_log(buf);
 }
@@ -1534,7 +1534,7 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 			if (!isname(name.c_str(), (*obj_it)->name) || OBJ_FLAGGED((*obj_it), ITEM_NOLOCATE))
 				continue;
 
-			sprintf(buf, "%s находится у кого-то в персональном хранилище.\r\n", (*obj_it)->short_description);
+			snprintf(buf, MAX_STRING_LENGTH, "%s находится у кого-то в персональном хранилище.\r\n", (*obj_it)->short_description);
 			CAP(buf);
 			send_to_char(buf, ch);
 

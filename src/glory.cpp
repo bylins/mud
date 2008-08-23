@@ -1105,7 +1105,7 @@ bool check_stats(CHAR_DATA *ch)
 	// чар со старым роллом статов или после попыток поправить статы в файле
 	if (bad_start_stats(ch))
 	{
-		sprintf(buf, "\r\n%sВаши параметры за вычетом перевоплощений:\r\n"
+		snprintf(buf, MAX_STRING_LENGTH, "\r\n%sВаши параметры за вычетом перевоплощений:\r\n"
 				"Сила: %d, Ловкость: %d, Ум: %d, Мудрость: %d, Телосложение: %d, Обаяние: %d\r\n"
 				"Если вы долго отсутствовали в игре, то изменения, касающиеся стартовых параметров были следующие:%s\r\n"
 				"\r\n"
@@ -1138,7 +1138,7 @@ bool check_stats(CHAR_DATA *ch)
 		GET_CON(ch) = MIN_CON(ch);
 		GET_CHA(ch) = MIN_CHA(ch);
 
-		sprintf(buf, "%sПросим вас заново распределить основные параметры персонажа.%s\r\n",
+		snprintf(buf, MAX_STRING_LENGTH, "%sПросим вас заново распределить основные параметры персонажа.%s\r\n",
 				CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
 		SEND_TO_Q(buf, ch->desc);
 		SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", ch->desc);
