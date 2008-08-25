@@ -437,10 +437,22 @@ bool parse_remove_stat(CHAR_DATA *ch, int stat)
 		if ((*it)->stat == stat)
 		{
 			(*it)->glory -= 1;
-			// если в стате не осталось плюсов (при перекладывании), то освобождаем поле стата,
-			// но оставляем таймер и перемещаем запись в начало списка, чтобы обрабатывать его первым при вложении
-			if ((*it)->glory == 0 && (*it)->timer != 0)
+
+			if ((*it)->glory > 0)
 			{
+				// если мы убрали только часть статов, то надо сохранять таймер этой части
+				// да, все это тупняк и надо было разбирать еще в момент входа/выхода олц
+				GloryTimePtr temp_timer(new glory_time);
+				temp_timer->stat = -1;
+				temp_timer->timer = (*it)->timer;
+				// в начало списка, чтобы при вложении он ушел первым
+				ch->desc->glory->olc_node->timers.push_front(temp_timer);
+
+			}
+			else if ((*it)->glory == 0 && (*it)->timer != 0)
+			{
+				// если в стате не осталось плюсов (при перекладывании), то освобождаем поле стата,
+				// но оставляем таймер и перемещаем запись в начало списка, чтобы обрабатывать его первым при вложении
 				(*it)->stat = -1;
 				ch->desc->glory->olc_node->timers.push_front(*it);
 				ch->desc->glory->olc_node->timers.erase(it);
@@ -468,12 +480,26 @@ void parse_add_stat(CHAR_DATA *ch, int stat)
 	ch->desc->glory->olc_add_spend_glory += 1;
 	ch->desc->glory->olc_node->free_glory -= 1000;
 
-	for (GloryTimeType::const_iterator it = ch->desc->glory->olc_node->timers.begin(); it != ch->desc->glory->olc_node->timers.end(); ++it)
+	for (GloryTimeType::iterator it = ch->desc->glory->olc_node->timers.begin();
+			it != ch->desc->glory->olc_node->timers.end(); ++it)
 	{
 		// если есть какой-то невложенный стат (переливание), то в первую очередь вливаем его,
 		// чтобы учесть его таймеры. после перекладки уже идет вливание новой славы
 		if ((*it)->stat == -1)
 		{
+			// это полный идиотизм, но чет я тогда не учел эту тему, а щас уже подпираю побыстрому
+			// ищем уже вложенный такой же стат с тем же таймером, чтобы не плодить разные записи
+			for (GloryTimeType::const_iterator tmp_it = ch->desc->glory->olc_node->timers.begin();
+					tmp_it != ch->desc->glory->olc_node->timers.end(); ++tmp_it)
+			{
+				if ((*tmp_it)->stat == stat && (*tmp_it)->timer == (*it)->timer)
+				{
+					(*tmp_it)->glory += 1;
+					ch->desc->glory->olc_node->timers.erase(it);
+					return;
+				}
+			}
+			// если статов с тем же таймером нет - пишем его как и было отдельной записью
 			(*it)->stat = stat;
 			(*it)->glory += 1;
 			return;
@@ -660,11 +686,13 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 		GET_CHA(ch) = ch->desc->glory->olc_cha;
 
 		// проставляем таймеры, потому что в олц удобнее иметь нулевые для новых статов
-		for (GloryTimeType::const_iterator it = ch->desc->glory->olc_node->timers.begin(); it != ch->desc->glory->olc_node->timers.end(); ++it)
+		for (GloryTimeType::const_iterator tmp_it = ch->desc->glory->olc_node->timers.begin();
+				tmp_it != ch->desc->glory->olc_node->timers.end(); ++tmp_it)
 		{
-			if ((*it)->timer == 0)
-				(*it)->timer = MAX_GLORY_TIMER;
+			if ((*tmp_it)->timer == 0)
+				(*tmp_it)->timer = MAX_GLORY_TIMER;
 		}
+
 		ch->desc->glory->olc_node->spend_glory = ch->desc->glory->olc_add_spend_glory;
 		*(it->second) = *(ch->desc->glory->olc_node);
 		save_glory();
