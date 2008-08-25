@@ -28,6 +28,7 @@
 extern INDEX_DATA *obj_index;
 extern const char *dirs[];
 extern int dg_owner_purged;
+extern int up_obj_where(OBJ_DATA * obj);
 
 CHAR_DATA *get_char_by_obj(OBJ_DATA * obj, char *name);
 OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name);
@@ -560,7 +561,7 @@ OCMD(do_odamage)
 
 	if ((ch = get_char_by_obj(obj, name)))
 	{
-		if (world[IN_ROOM(ch)]->zone != world[IN_ROOM(obj)]->zone)
+		if (world[IN_ROOM(ch)]->zone != world[up_obj_where(obj)]->zone)
 			return;
 
 		if (GET_LEVEL(ch) >= LVL_IMMORT)
