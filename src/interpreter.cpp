@@ -3494,11 +3494,19 @@ DESCRIPTOR_DATA* get_desc_by_id(long id, bool playing)
 	return d;
 }
 
-// ищет УИД игрока по его имени, второй необязательный параметр - учитывать или нет БОГОВ
+/**
+* ищет УИД игрока по его имени, второй необязательный параметр - учитывать или нет БОГОВ
+* проверка уида на -1 нужна потому, что при делете чара (через меню например), его имя
+* останется в плеер-листе, но все остальные параметры будут -1
+* TODO: т.к. за все это время понадобилось только при добавлении в пкл - встает вопрос нафига было это городить...
+* \param god по умолчанию = 0
+* \return >0 - уид чара, 0 - не нашли, -1 - нашли, но это оказался бог (только при god = true)
+*/
 long GetUniqueByName(const std::string & name, bool god)
 {
 	for (int i = 0; i <= top_of_p_table; ++i)
-		if (!str_cmp(player_table[i].name, name))
+	{
+		if (!str_cmp(player_table[i].name, name) && player_table[i].unique != -1)
 		{
 			if (!god)
 				return player_table[i].unique;
@@ -3511,6 +3519,7 @@ long GetUniqueByName(const std::string & name, bool god)
 			}
 
 		}
+	}
 	return 0;
 }
 
