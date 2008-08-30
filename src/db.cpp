@@ -4826,16 +4826,14 @@ long get_id_by_name(char *name)
 	return (-1);
 }
 
-
 const char *get_name_by_id(long id)
 {
-	int i;
-
-	for (i = 0; i <= top_of_p_table; i++)
+	for (int i = 0; i <= top_of_p_table; i++)
+	{
 		if (player_table[i].id == id)
-			return (player_table[i].name);
-
-	return "<null>";
+			return player_table[i].name;
+	}
+	return "";
 }
 
 char *get_name_by_unique(long unique)
