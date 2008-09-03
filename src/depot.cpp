@@ -23,7 +23,6 @@
 extern SPECIAL(bank);
 extern void write_one_object(char **data, OBJ_DATA * object, int location);
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
-extern void write_one_object(char **data, OBJ_DATA * object, int location);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 
 namespace Depot
