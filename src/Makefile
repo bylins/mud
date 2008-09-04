@@ -17,7 +17,6 @@ TESTCFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH -D_GLIBCXX_DEBU
 
 #LIBS =  -lsocket -lnsl
 LIBS =  -lz -lcrypt
-TESTLIBS =
 
 OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	act.offensive.o act.other.o act.social.o act.wizard.o alias.o ban.o \
@@ -71,7 +70,7 @@ depend:
 	@echo "Done building dependencies."
 
 test:
-	$(MAKE) CFLAGS="$(TESTCFLAGS)" CC="$(TESTCC)" LIBS="$(TESTLIBS)" $(BINDIR)/circle
+	$(MAKE) CFLAGS="$(TESTCFLAGS)" CC="$(TESTCC)" $(BINDIR)/circle
 
 # Dependencies for the object files (automagically generated with
 # gcc -MM)
