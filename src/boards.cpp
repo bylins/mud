@@ -290,7 +290,7 @@ ACMD(DoBoard)
 	}
 
 	std::string buffer, buffer2 = argument;
-	long date = GET_BOARD_DATE(ch, (*board)->type);
+	time_t const date = GET_BOARD_DATE(ch, (*board)->type);
 	GetOneParam(buffer2, buffer);
 	boost::trim_if(buffer2, boost::is_any_of(" \'"));
 	// первый аргумент в buffer, второй в buffer2
@@ -340,9 +340,7 @@ ACMD(DoBoard)
 		if (((*board)->type == NEWS_BOARD || (*board)->type == GODNEWS_BOARD) && !PRF_FLAGGED(ch, PRF_NEWS_MODE))
 		{
 			std::ostringstream body;
-			long date = GET_BOARD_DATE(ch, (*board)->type);
 			char timeBuf[17];
-
 			MessageListType::reverse_iterator message;
 			for (message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message)
 			{
@@ -360,8 +358,6 @@ ACMD(DoBoard)
 		if ((*board)->type == CLANNEWS_BOARD && !PRF_FLAGGED(ch, PRF_NEWS_MODE))
 		{
 			std::ostringstream body;
-			long date = GET_BOARD_DATE(ch, (*board)->type);
-
 			MessageListType::reverse_iterator message;
 			for (message = (*board)->messages.rbegin(); message != (*board)->messages.rend(); ++message)
 			{
