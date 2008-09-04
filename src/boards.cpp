@@ -427,7 +427,7 @@ ACMD(DoBoard)
 
 		// написание новостей от другого имени
 		std::string name = GET_NAME(ch);
-		if ((*board)->type == NEWS_BOARD && Privilege::check_flag(ch, Privilege::NEWS_MAKER))
+		if (((*board)->type == NEWS_BOARD || (*board)->type == NOTICE_BOARD) && Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 		{
 			GetOneParam(buffer2, buffer);
 			if (buffer.empty())
@@ -620,7 +620,7 @@ int Board::Access(CHAR_DATA * ch)
 			return 0;
 	case GODGENERAL_BOARD:
 		// 32 читают/пишут, 34 полный
-		if (IS_IMPL(ch))
+		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 			return 4;
 		else if (IS_GOD(ch))
 			return 3;
@@ -637,7 +637,7 @@ int Board::Access(CHAR_DATA * ch)
 			return 0;
 	case GODPUNISH_BOARD:
 		// 32 читают/пишут, 34 полный
-		if (IS_IMPL(ch))
+		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
 			return 4;
 		else if (IS_GOD(ch))
 			return 3;
