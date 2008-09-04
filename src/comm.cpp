@@ -2924,6 +2924,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		{
 			sprintf(buf, "Losing player: %s.", GET_NAME(d->character) ? GET_NAME(d->character) : "<null>");
 			mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
+			Depot::exit_char(d->character);
 			delete d->character;
 		}
 	}
