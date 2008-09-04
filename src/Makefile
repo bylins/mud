@@ -1,11 +1,9 @@
 # C compiler to use
-CC = g++
+CC = g++43
+TESTCC = g++
 
 # Path to cxref utility
 CXREF = cxref
-
-#flags for profiling (see hacker.doc for more information)
-PROFILE = 
 
 ##############################################################################
 # Do Not Modify Anything Below This Line (unless you know what you're doing) #
@@ -13,13 +11,13 @@ PROFILE =
 
 BINDIR = ../bin
 
-CFLAGS = -ggdb3 -O3 -Wall -ftemplate-depth-30
-
+CFLAGS = -ggdb3 -O2 -Wall
 # use 'make test' for faster compile w/o optimizations, crypt and 34lvl god for first character
-TESTFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC
+TESTCFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC
 
 #LIBS =  -lsocket -lnsl
 LIBS =  -lz -lcrypt
+TESTLIBS =
 
 OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	act.offensive.o act.other.o act.social.o act.wizard.o alias.o ban.o \
@@ -61,7 +59,7 @@ circle:
 	$(MAKE) $(BINDIR)/circle
 
 $(BINDIR)/circle : $(OBJFILES)
-	$(CC) -o $(BINDIR)/circle $(PROFILE) $(OBJFILES) $(LIBS)
+	$(CC) -o $(BINDIR)/circle $(OBJFILES) $(LIBS)
 	rm -f version.o
 	@echo "Done building Bylins."
 
@@ -73,7 +71,7 @@ depend:
 	@echo "Done building dependencies."
 
 test:
-	$(MAKE) CFLAGS="$(TESTFLAGS)" $(BINDIR)/circle
+	$(MAKE) CFLAGS="$(TESTCFLAGS)" CC="$(TESTCC)" LIBS="$(TESTLIBS)" $(BINDIR)/circle
 
 # Dependencies for the object files (automagically generated with
 # gcc -MM)
