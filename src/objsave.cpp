@@ -2077,9 +2077,9 @@ void Crash_save(int iplayer, OBJ_DATA * obj, int location)
 		if (obj->in_obj)
 			GET_OBJ_WEIGHT(obj->in_obj) -= GET_OBJ_WEIGHT(obj);
 		Crash_save(iplayer, obj->contains, MIN(0, location) - 1);
-		if (iplayer >= 0 &&
-//           Crashitems < MAX_SAVED_ITEMS &&  /* Removed to avoid objects loss */
-				Crashbufferpos - Crashbufferdata + CRASH_DEPTH < CRASH_LENGTH)
+		if (iplayer >= 0)
+//		 	&& Crashbufferpos - Crashbufferdata + CRASH_DEPTH < CRASH_LENGTH)
+//			Crashitems < MAX_SAVED_ITEMS &&  /* Removed to avoid objects loss */
 		{
 			write_one_object(&Crashbufferpos, obj, location);
 			SAVEINFO(iplayer)->time[Crashitems].vnum = GET_OBJ_VNUM(obj);
@@ -2169,7 +2169,8 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 
 	if (Crashbufferdata)
 		free(Crashbufferdata);	//?
-	CREATE(Crashbufferdata, char, CRASH_LENGTH);
+	CREATE(Crashbufferdata, char, 1000 * num);
+//	CREATE(Crashbufferdata, char, CRASH_LENGTH);
 	Crashitems = 0;
 	Crashbufferpos = Crashbufferdata;
 	*Crashbufferpos = '\0';
@@ -2497,7 +2498,6 @@ int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int 
 		act(buf, FALSE, receptionist, 0, ch, TO_VICT);
 		return (FALSE);
 	}
-
 	divide = 1;
 
 	if (display)
