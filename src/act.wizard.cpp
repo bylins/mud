@@ -1615,8 +1615,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 				buf1, buf2, k->player_data.time.played / 3600, ((k->player_data.time.played % 3600) / 60), age(k)->year);
 		send_to_char(buf, ch);
 
-		sprintf(buf, "Рента: [%d] На постое: [%d], Говорил: [%d/%d/%d]",
-				GET_LOADROOM(k), k->player_data.hometown, GET_TALK(k, 0), GET_TALK(k, 1), GET_TALK(k, 2));
+		sprintf(buf, "Рента: [%d] На постое: [%d]", GET_LOADROOM(k), k->player_data.hometown);
 		/*. Display OLC zone for immorts . */
 		if (GET_LEVEL(k) >= LVL_IMMORT)
 			sprintf(buf, "%s, OLC[%d]", buf, GET_OLC_ZONE(k));

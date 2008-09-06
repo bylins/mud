@@ -483,7 +483,6 @@ extern SPECIAL(postmaster);
                                 GET_FLAG((ch)->BattleAffects, INT_ONE) = \
                                 GET_FLAG((ch)->BattleAffects, INT_TWO) = \
                                 GET_FLAG((ch)->BattleAffects, INT_THREE) = 0)
-#define GET_GLORY(ch)          ((ch)->player_specials->saved.glory)
 #define GET_REMORT(ch)         ((ch)->player_specials->saved.Remorts)
 #define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)
 #define GET_LASTIP(ch)         ((ch)->player_specials->saved.LastIP)
@@ -525,10 +524,8 @@ extern SPECIAL(postmaster);
 #define IS_NOSEXY(ch)   (GET_SEX(ch) == SEX_NEUTRAL)
 #define IS_POLY(ch)     (GET_SEX(ch) == SEX_POLY)
 
-#define GET_LOWS(ch) ((ch)->player_data.Lows)
 #define GET_RELIGION(ch) ((ch)->player_data.Religion)
 #define GET_RACE(ch) ((ch)->player_data.Race)
-#define GET_SIDE(ch) ((ch)->player_data.Side)
 #define GET_PAD(ch,i)    ((ch)->player_data.PNames[i])
 #define GET_DRUNK_STATE(ch) ((ch)->player_specials->saved.DrunkState)
 
@@ -657,7 +654,6 @@ extern SPECIAL(postmaster);
 #define GET_INVIS_LEV(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.invis_level))
 #define GET_WIMP_LEV(ch)   CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.wimp_level))
 #define GET_BAD_PWS(ch)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.bad_pws))
-#define GET_TALK(ch, i)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->saved.talks[i]))
 #define POOFIN(ch)              CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->poofin))
 #define POOFOUT(ch)     CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->poofout))
 #define RENTABLE(ch)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->may_rent))

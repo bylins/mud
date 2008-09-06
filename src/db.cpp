@@ -5203,7 +5203,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	set_gold(ch, 0, 0);
 	set_bank_gold(ch, 0, 0);
 
-	GET_GLORY(ch) = 0;
 	ch->player_specials->saved.GodsLike = 0;
 	GET_HIT(ch) = 21;
 	GET_MAX_HIT(ch) = 21;
@@ -5402,8 +5401,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				set_gold(ch, num, 0);
 			else if (!strcmp(tag, "GodD"))
 				GCURSE_DURATION(ch) = lnum;
-			else if (!strcmp(tag, "Glor"))
-				GET_GLORY(ch) = num;
 			else if (!strcmp(tag, "GdFl"))
 				ch->player_specials->saved.GodsLike = lnum;
 			break;
@@ -6188,9 +6185,6 @@ void init_char(CHAR_DATA * ch)
 	ch->player_data.time.birth = time(0);
 	ch->player_data.time.played = 0;
 	ch->player_data.time.logon = time(0);
-
-	for (i = 0; i < MAX_TONGUE; i++)
-		GET_TALK(ch, i) = 0;
 
 	/* make favors for sex */
 	if (ch->player_data.sex == SEX_MALE)
@@ -7120,7 +7114,6 @@ void save_char(CHAR_DATA *ch)
 	fprintf(saved, "Reli: %d %s\n", GET_RELIGION(ch), religion_name[GET_RELIGION(ch)][(int) GET_SEX(ch)]);
 	fprintf(saved, "Race: %d %s\n", GET_RACE(ch), race_name[GET_RACE(ch)][(int) GET_SEX(ch)]);
 	fprintf(saved, "DrSt: %d\n", GET_DRUNK_STATE(ch));
-	fprintf(saved, "Glor: %d\n", GET_GLORY(ch));
 	fprintf(saved, "Olc : %d\n", GET_OLC_ZONE(ch));
 	*buf = '\0';
 	tascii(&PRF_FLAGS(ch, 0), 4, buf);

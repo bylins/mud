@@ -1151,7 +1151,6 @@ typedef struct trig_data TRIG_DATA;
 #define MIN_NAME_LENGTH       4
 #define HOST_LENGTH           30
 #define EXDSCR_LENGTH         512
-#define MAX_TONGUE            3
 #define MAX_SPELLS            350
 #define MAX_AFFECT            32
 #define MAX_OBJ_AFFECT        6

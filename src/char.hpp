@@ -42,8 +42,6 @@ struct char_player_data
 	ubyte Religion;
 	ubyte Kin;
 	ubyte Race;
-	ubyte Side;
-	ubyte Lows;
 };
 
 /* Char's additional abilities. Used only while work */
@@ -211,83 +209,27 @@ struct cast_attack_type
 
 struct player_special_data_saved
 {
-	byte PADDING0;		/* used to be spells_to_learn      */
-	bool talks[MAX_TONGUE];	/* PC s Tongues 0 for NPC     */
-	int
-	wimp_level;		/* Below this # of hit points, flee!  */
-	int
-	invis_level;		/* level of invisibility      */
+	int wimp_level;		/* Below this # of hit points, flee!  */
+	int invis_level;		/* level of invisibility      */
 	room_vnum load_room;	/* Which room to place char in      */
 	FLAG_DATA pref;		/* preference flags for PC's.    */
-	int
-	bad_pws;		/* number of bad password attemps   */
-	int
-	conditions[3];		/* Drunk, full, thirsty        */
+	int bad_pws;		/* number of bad password attemps   */
+	int conditions[3];		/* Drunk, full, thirsty        */
 
-	/* spares below for future expansion.  You can change the names from
-	   'sparen' to something meaningful, but don't change the order.  */
+	int DrunkState;
+	int olc_zone;
+	int unique;
+	int Remorts;
+	int NameGod;
+	long NameIDGod;
+	long GodsLike;
+	time_t LastLogon; //by kilnik
 
-	int
-	Side;		  /****/
-	int
-	Religion;	  /****/
-	int
-	Kin;
-	int
-	Race;		  /****/
-	int
-	Lows;		  /****/
-	int
-	DrunkState;
-	int
-	Prelimit; // FIXME пока не трогать -- Krodo
-	int
-	glory; // FIXME пока не трогать -- Krodo
-	int
-	olc_zone;
-	int
-	unique;
-	int
-	Remorts;
-	int
-	NameGod;
-	int
-	spare12;
-	int
-	spare13;
-	int
-	spare14;
-	int
-	spare15;
+	char EMail[128];
+	char LastIP[128];
 
-	long
-	GodsLike;
-	time_t
-	LastLogon; //by kilnik
-	long
-	NameIDGod;
-	long
-	spare0A;
-	long
-	spare0B;
-	long
-	spare0C;
-	long
-	spare0D;
-	long
-	spare0E;
-	long
-	spare0F;
-
-	char
-	EMail[128];
-	char
-	LastIP[128];
-
-	char
-	remember[MAX_REMEMBER_TELLS][MAX_RAW_INPUT_LENGTH];
-	int
-	lasttell;
+	char remember[MAX_REMEMBER_TELLS][MAX_RAW_INPUT_LENGTH];
+	int lasttell;
 
 	int stringLength;
 	int stringWidth;
@@ -298,27 +240,19 @@ struct player_special_data_saved
 
 struct player_special_data
 {
-	struct player_special_data_saved
-				saved;
+	struct player_special_data_saved saved;
 
 	char *poofin;		/* Description on arrival of a god. */
 	char *poofout;		/* Description upon a god's exit.   */
 	struct alias_data *aliases;	/* Character's aliases    */
-	long
-	last_tell;		/* idnum of last tell from      */
+	long last_tell;		/* idnum of last tell from      */
 	void *last_olc_targ;	/* olc control         */
-	int
-	last_olc_mode;		/* olc control         */
-	time_t
-	may_rent;		/* PK control                       */
-	int
-	agressor;		/* Agression room(it is also a flag) */
-	time_t
-	agro_time;		/* Last agression time (it is also a flag) */
-	int
-	bet;			/* bet amount */
-	int
-	bet_slot;		/* bet slot number */
+	int last_olc_mode;		/* olc control         */
+	time_t may_rent;		/* PK control                       */
+	int agressor;		/* Agression room(it is also a flag) */
+	time_t agro_time;		/* Last agression time (it is also a flag) */
+	int bet;			/* bet amount */
+	int bet_slot;		/* bet slot number */
 	struct _im_rskill_tag *rskill;	/* Известные рецепты */
 	struct char_portal_type *portals;	/* порталы теперь живут тут */
 	int *logs;		// уровни подробности каналов log
