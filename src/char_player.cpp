@@ -10,16 +10,16 @@
 #include "comm.h"
 #include "utils.h"
 
+PlayerBase::~PlayerBase() {};
+// дефолтные поля плеера для всех мобов разом
+Player PlayerProxy::mob;
+char const *log_message = "SYSERR: Mob using 'player' at %s.";
+
 Player::Player()
 	: pfilepos(-1)
 {
 
 }
-
-PlayerBase::~PlayerBase() {};
-// дефолтные поля плеера для всех мобов разом
-Player PlayerProxy::mob;
-char const *log_message = "SYSERR: Mob using 'player' at %s.";
 
 int Player::get_pfilepos()
 {
