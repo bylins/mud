@@ -1873,9 +1873,10 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 			// небольшое дублирование кода, чтобы зря не гонять по аффектам всех шмоток
 			if (!strcmp(buf, "ничего"))  // added by WorM (Видолюб) отображение не только аффектов, но и доп.свойств запястий
 			{
-				int found = 0, drndice = 0, drsdice = 0, n, k;
+				bool found = false;
+				int drndice = 0, drsdice = 0;
 
-				for (n = 0; n < MAX_OBJ_AFFECT; n++)
+				for (int n = 0; n < MAX_OBJ_AFFECT; n++)
 				{
 					drndice = GET_EXCHANGE_ITEM(j)->affected[n].location;
 					drsdice = GET_EXCHANGE_ITEM(j)->affected[n].modifier;
@@ -1883,7 +1884,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 					{
 						sprinttype(drndice, apply_types, buf2);
 						bool negative = false;
-						for (k = 0; *apply_negative[k] != '\n'; k++)
+						for (int k = 0; *apply_negative[k] != '\n'; k++)
 						{
 							if (!str_cmp(buf2, apply_negative[k]))
 							{
@@ -1894,7 +1895,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 						if (drsdice < 0)
 							negative = !negative;
 						sprintf(buf, "%s %s%d", buf2, negative ? "-" : "+", abs(drsdice));
-						found++;
+						found = true;
 						break;
 					}
 				}
