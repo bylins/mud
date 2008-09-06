@@ -47,5 +47,8 @@ void PlayerProxy::set_pfilepos(int num)
 	if (player)
 		player->set_pfilepos(num);
 	else
+	{
 		log(log_message, __func__);
+		mob.set_pfilepos(num);
+	}
 }
