@@ -11,6 +11,9 @@
 class PlayerBase
 {
 public:
+	virtual ~PlayerBase() = 0;
+
+private:
 	virtual int get_pfilepos() = 0;
 	virtual void set_pfilepos(int num) = 0;
 };
@@ -19,7 +22,7 @@ class Player : public PlayerBase
 {
 public:
 	Player();
-	virtual ~Player() {};
+	~Player() {};
 
 	int get_pfilepos();
 	void set_pfilepos(int num);
@@ -33,7 +36,7 @@ typedef boost::shared_ptr<Player> PlayerPtr;
 class PlayerProxy : public PlayerBase
 {
 public:
-	virtual ~PlayerProxy() {};
+	~PlayerProxy() {};
 
 	int get_pfilepos();
 	void set_pfilepos(int num);

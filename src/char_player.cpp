@@ -16,6 +16,7 @@ Player::Player()
 
 }
 
+PlayerBase::~PlayerBase() {};
 // дефолтные поля плеера для всех мобов разом
 Player PlayerProxy::mob;
 char const *log_message = "SYSERR: Mob using 'player' at %s.";
