@@ -2272,7 +2272,7 @@ CHAR_DATA *get_char_room(char *name, room_rnum room)
 		return (NULL);
 
 	for (i = world[room]->people; i && (j <= number); i = i->next_in_room)
-		if (isname(tmp, i->player.name))
+		if (isname(tmp, i->player_data.name))
 			if (++j == number)
 				return (i);
 
@@ -2964,11 +2964,11 @@ CHAR_DATA *get_player_vis(CHAR_DATA * ch, const char *name, int inroom)
 			continue;
 		if ((inroom & FIND_CHAR_ROOM) && i->in_room != ch->in_room)
 			continue;
-		//if (str_cmp(i->player.name, name))
+		//if (str_cmp(i->player_data.name, name))
 		//   continue;
 		if (!CAN_SEE_CHAR(ch, i))
 			continue;
-		if (!isname(name, i->player.name))
+		if (!isname(name, i->player_data.name))
 			continue;
 		return (i);
 	}
@@ -2989,11 +2989,11 @@ CHAR_DATA *get_player_vis(CHAR_DATA * ch, const std::string &name, int inroom)
 			continue;
 		if ((inroom & FIND_CHAR_ROOM) && i->in_room != ch->in_room)
 			continue;
-		//if (str_cmp(i->player.name, name))
+		//if (str_cmp(i->player_data.name, name))
 		//   continue;
 		if (!CAN_SEE_CHAR(ch, i))
 			continue;
-		if (!isname(name, i->player.name))
+		if (!isname(name, i->player_data.name))
 			continue;
 		return (i);
 	}
@@ -3012,7 +3012,7 @@ CHAR_DATA *get_player_pun(CHAR_DATA * ch, const char *name, int inroom)
 			continue;
 		if ((inroom & FIND_CHAR_ROOM) && i->in_room != ch->in_room)
 			continue;
-		if (!isname(name, i->player.name))
+		if (!isname(name, i->player_data.name))
 			continue;
 		return (i);
 	}
@@ -3029,7 +3029,7 @@ CHAR_DATA *get_player_pun(CHAR_DATA * ch, const std::string &name, int inroom)
 			continue;
 		if ((inroom & FIND_CHAR_ROOM) && i->in_room != ch->in_room)
 			continue;
-		if (!isname(name, i->player.name))
+		if (!isname(name, i->player_data.name))
 			continue;
 		return (i);
 	}
@@ -3056,7 +3056,7 @@ CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const char *name)
 		return (get_player_vis(ch, tmp, FIND_CHAR_ROOM));
 
 	for (i = world[ch->in_room]->people; i && j <= number; i = i->next_in_room)
-		if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->player.name))
+		if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->player_data.name))
 			if (++j == number)
 				return (i);
 
@@ -3078,7 +3078,7 @@ CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const std::string &name)
 		return (get_player_vis(ch, tmp, FIND_CHAR_ROOM));
 
 	for (i = world[ch->in_room]->people; i && j <= number; i = i->next_in_room)
-		if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->player.name))
+		if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->player_data.name))
 			if (++j == number)
 				return (i);
 
@@ -3106,7 +3106,7 @@ CHAR_DATA *get_char_vis(CHAR_DATA * ch, const char *name, int where)
 			return get_player_vis(ch, tmp, 0);
 
 		for (i = character_list; i && (j <= number); i = i->next)
-			if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->player.name))
+			if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->player_data.name))
 				if (++j == number)
 					return (i);
 	}
@@ -3131,7 +3131,7 @@ CHAR_DATA *get_char_vis(CHAR_DATA * ch, const std::string &name, int where)
 			return get_player_vis(ch, tmp, 0);
 
 		for (i = character_list; i && (j <= number); i = i->next)
-			if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->player.name))
+			if (HERE(i) && CAN_SEE(ch, i) && isname(tmp, i->player_data.name))
 				if (++j == number)
 					return (i);
 	}
@@ -3766,10 +3766,10 @@ CHAR_DATA *charm_mob(CHAR_DATA * victim)
 	GET_PAD(mob, 3) = str_dup(GET_PAD(victim, 3));
 	GET_PAD(mob, 4) = str_dup(GET_PAD(victim, 4));
 	GET_PAD(mob, 5) = str_dup(GET_PAD(victim, 5));
-	mob->player.name = str_dup(victim->player.name);
-	mob->player.short_descr = str_dup(victim->player.short_descr);
-	mob->player.long_descr = str_dup(victim->player.long_descr);
-	mob->player.description = str_dup(victim->player.description);
+	mob->player_data.name = str_dup(victim->player_data.name);
+	mob->player_data.short_descr = str_dup(victim->player_data.short_descr);
+	mob->player_data.long_descr = str_dup(victim->player_data.long_descr);
+	mob->player_data.description = str_dup(victim->player_data.description);
 	/* Убираем моба victim */
 	extract_mob(victim);
 	return (mob);

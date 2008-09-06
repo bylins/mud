@@ -3403,10 +3403,10 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		clear_char_skills(mob);
 		// Меняем именование.
 		sprintf(buf2, "умертвие %s", GET_NAME(mob));
-		mob->player.name = str_dup(buf2);
+		mob->player_data.name = str_dup(buf2);
 		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-		mob->player.short_descr = str_dup(buf2);
-		mob->player.long_descr = NULL;
+		mob->player_data.short_descr = str_dup(buf2);
+		mob->player_data.long_descr = NULL;
 		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
 		GET_PAD(mob, 0) = str_dup(buf2);
 		sprintf(buf2, "умертвию %s", GET_PAD(mob, 1));
@@ -3491,10 +3491,10 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	if (spellnum == SPELL_CLONE)  	/* Don't mess up the proto with strcpy. */
 	{
 		sprintf(buf2, "двойник %s", GET_NAME(ch));
-		mob->player.name = str_dup(buf2);
+		mob->player_data.name = str_dup(buf2);
 		sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
-		mob->player.short_descr = str_dup(buf2);
-		mob->player.long_descr = NULL;
+		mob->player_data.short_descr = str_dup(buf2);
+		mob->player_data.long_descr = NULL;
 		sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
 		GET_PAD(mob, 0) = str_dup(buf2);
 		sprintf(buf2, "двойника %s", GET_PAD(ch, 1));

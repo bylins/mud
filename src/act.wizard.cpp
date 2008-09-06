@@ -1471,7 +1471,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	if (IS_MOB(k))
 	{
 		sprintf(buf, "Синонимы: %s, VNum: [%5d], RNum: [%5d]\r\n",
-				k->player.name, GET_MOB_VNUM(k), GET_MOB_RNUM(k));
+				k->player_data.name, GET_MOB_VNUM(k), GET_MOB_RNUM(k));
 		send_to_char(buf, ch);
 	}
 
@@ -1565,12 +1565,12 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 		}
 	}
 
-	sprintf(buf, "Титул: %s\r\n", (k->player.title ? k->player.title : "<Нет>"));
+	sprintf(buf, "Титул: %s\r\n", (k->player_data.title ? k->player_data.title : "<Нет>"));
 	send_to_char(buf, ch);
 	if (IS_NPC(k))
-		sprintf(buf, "L-Des: %s", (k->player.long_descr ? k->player.long_descr : "<Нет>\r\n"));
+		sprintf(buf, "L-Des: %s", (k->player_data.long_descr ? k->player_data.long_descr : "<Нет>\r\n"));
 	else
-		sprintf(buf, "L-Des: %s", (k->player.description ? k->player.description : "<Нет>\r\n"));
+		sprintf(buf, "L-Des: %s", (k->player_data.description ? k->player_data.description : "<Нет>\r\n"));
 	send_to_char(buf, ch);
 
 	if (IS_NPC(k))
@@ -1584,12 +1584,12 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	if (IS_NPC(k))  	/* Use GET_CLASS() macro? */
 	{
 		strcpy(buf, "Тип монстра: ");
-		sprinttype(k->player.chclass, npc_class_types, buf2);
+		sprinttype(k->player_data.chclass, npc_class_types, buf2);
 	}
 	else
 	{
 		strcpy(buf, "Профессия: ");
-		sprinttype(k->player.chclass, pc_class_types, buf2);
+		sprinttype(k->player_data.chclass, pc_class_types, buf2);
 	}
 	strcat(buf, buf2);
 
@@ -1606,17 +1606,17 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 		if (CLAN(k))
 			send_to_char(ch, "Статус дружины: %s\r\n", GET_CLAN_STATUS(k));
 
-		strftime(buf1, sizeof(buf1), "%d-%m-%Y", localtime(&(k->player.time.birth)));
-		strftime(buf2, sizeof(buf1), "%d-%m-%Y", localtime(&(k->player.time.logon)));
+		strftime(buf1, sizeof(buf1), "%d-%m-%Y", localtime(&(k->player_data.time.birth)));
+		strftime(buf2, sizeof(buf1), "%d-%m-%Y", localtime(&(k->player_data.time.logon)));
 		buf1[10] = buf2[10] = '\0';
 
 		sprintf(buf,
 				"Создан: [%s] Последний вход: [%s] Играл: [%dh %dm] Возраст: [%d]\r\n",
-				buf1, buf2, k->player.time.played / 3600, ((k->player.time.played % 3600) / 60), age(k)->year);
+				buf1, buf2, k->player_data.time.played / 3600, ((k->player_data.time.played % 3600) / 60), age(k)->year);
 		send_to_char(buf, ch);
 
 		sprintf(buf, "Рента: [%d] На постое: [%d], Говорил: [%d/%d/%d]",
-				GET_LOADROOM(k), k->player.hometown, GET_TALK(k, 0), GET_TALK(k, 1), GET_TALK(k, 2));
+				GET_LOADROOM(k), k->player_data.hometown, GET_TALK(k, 0), GET_TALK(k, 1), GET_TALK(k, 2));
 		/*. Display OLC zone for immorts . */
 		if (GET_LEVEL(k) >= LVL_IMMORT)
 			sprintf(buf, "%s, OLC[%d]", buf, GET_OLC_ZONE(k));
@@ -3600,9 +3600,9 @@ ACMD(do_show)
 			sprintf(rem, "Перевоплощений: 3+\r\n");
 		sprintf(buf + strlen(buf), rem);
 		sprintf(buf + strlen(buf), "Уровень: %s\r\n", (GET_LEVEL(vict) < 25 ? "ниже 25" : "25+"));
-		sprintf(buf + strlen(buf), "Титул: %s\r\n", (vict->player.title ? vict->player.title : "<Нет>"));
+		sprintf(buf + strlen(buf), "Титул: %s\r\n", (vict->player_data.title ? vict->player_data.title : "<Нет>"));
 		sprintf(buf + strlen(buf), "Описание игрока:\r\n");
-		sprintf(buf + strlen(buf), "%s\r\n", (vict->player.description ? vict->player.description : "<Нет>"));
+		sprintf(buf + strlen(buf), "%s\r\n", (vict->player_data.description ? vict->player_data.description : "<Нет>"));
 		send_to_char(buf, ch);
 		// Отображаем карму.
 		if (KARMA(vict))
@@ -4149,7 +4149,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			return (0);
 		}
 		RANGE(0, LVL_IMPL);
-		vict->player.level = (byte) value;
+		vict->player_data.level = (byte) value;
 		break;
 	case 27:
 		if ((rnum = real_room(value)) == NOWHERE)
@@ -4275,7 +4275,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		 * division used elsewhere in the code.  Seems to only happen for
 		 * some values below the starting age (17) anyway. -gg 5/27/98
 		 */
-		vict->player.time.birth = time(0) - ((value - 17) * SECS_PER_MUD_YEAR);
+		vict->player_data.time.birth = time(0) - ((value - 17) * SECS_PER_MUD_YEAR);
 		break;
 
 	case 40:		/* Blame/Thank Rick Glover. :) */
@@ -4852,7 +4852,7 @@ ACMD(do_liblist)
 			if (mob_index[nr].vnum >= first && mob_index[nr].vnum <= last)
 			{
 				sprintf(bf, "%s%5d. [%5d] %s\r\n", bf, ++found,
-						mob_index[nr].vnum, mob_proto[nr].player.short_descr);
+						mob_index[nr].vnum, mob_proto[nr].player_data.short_descr);
 			}
 		}
 		break;

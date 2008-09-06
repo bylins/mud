@@ -178,7 +178,7 @@ void roll_real_abils(CHAR_DATA * ch)
 {
 	int i;
 
-	switch (ch->player.chclass)
+	switch (ch->player_data.chclass)
 	{
 	case CLASS_CLERIC:
 		ch->real_abils.cha = 10;

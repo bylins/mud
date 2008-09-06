@@ -1,199 +1,219 @@
 act.comm.o: act.comm.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h screen.h dg_scripts.h auction.h \
-  privilege.hpp char.hpp
+  privilege.hpp char.hpp char_player.hpp
 act.informative.o: act.informative.cpp conf.h sysdep.h structs.h utils.h \
   comm.h interpreter.h handler.h db.h spells.h skills.h fight.h screen.h \
   constants.h pk.h dg_scripts.h mail.h features.hpp im.h house.h \
-  description.h privilege.hpp depot.hpp glory.hpp random.hpp char.hpp
+  description.h privilege.hpp depot.hpp glory.hpp random.hpp char.hpp \
+  char_player.hpp
 act.item.o: act.item.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h constants.h dg_scripts.h \
-  house.h magic.h fight.h features.hpp depot.hpp char.hpp
+  house.h magic.h fight.h features.hpp depot.hpp char.hpp char_player.hpp
 act.movement.o: act.movement.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h house.h constants.h \
   dg_scripts.h screen.h pk.h features.hpp deathtrap.hpp privilege.hpp \
-  char.hpp
+  char.hpp char_player.hpp
 act.offensive.o: act.offensive.cpp conf.h sysdep.h structs.h utils.h \
   comm.h interpreter.h handler.h db.h constants.h screen.h spells.h \
-  skills.h pk.h features.hpp privilege.hpp random.hpp char.hpp
+  skills.h pk.h features.hpp privilege.hpp random.hpp char.hpp \
+  char_player.hpp
 act.other.o: act.other.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h screen.h house.h \
   constants.h dg_scripts.h pk.h fight.h magic.h features.hpp depot.hpp \
-  privilege.hpp random.hpp char.hpp
+  privilege.hpp random.hpp char.hpp char_player.hpp
 act.social.o: act.social.cpp conf.h sysdep.h structs.h utils.h comm.h \
-  interpreter.h handler.h db.h spells.h char.hpp
+  interpreter.h handler.h db.h spells.h char.hpp char_player.hpp
 act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h house.h screen.h skills.h \
   constants.h olc.h dg_scripts.h mobmax.h pk.h im.h top.h ban.hpp \
   diskio.h description.h title.hpp password.hpp privilege.hpp depot.hpp \
-  glory.hpp genchar.h file_crc.hpp char.hpp
+  glory.hpp genchar.h file_crc.hpp char.hpp char_player.hpp
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h interpreter.h db.h \
-  char.hpp
+  char.hpp char_player.hpp
 ban.o: ban.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
-  handler.h db.h ban.hpp diskio.h char.hpp
+  handler.h db.h ban.hpp diskio.h char.hpp char_player.hpp
 boards.o: boards.cpp conf.h house.h sysdep.h structs.h utils.h db.h \
-  interpreter.h screen.h comm.h privilege.hpp boards.h char.hpp
+  interpreter.h screen.h comm.h privilege.hpp boards.h char.hpp \
+  char_player.hpp
 class.o: class.cpp conf.h sysdep.h structs.h comm.h db.h utils.h spells.h \
   skills.h interpreter.h handler.h constants.h pk.h top.h features.hpp \
-  im.h char.hpp
+  im.h char.hpp char_player.hpp
 comm.o: comm.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
   handler.h db.h house.h olc.h dg_scripts.h screen.h ban.hpp diskio.h \
   auction.h exchange.h deathtrap.hpp title.hpp depot.hpp glory.hpp \
-  file_crc.hpp char.hpp
+  file_crc.hpp char.hpp char_player.hpp
 config.o: config.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
-  constants.h char.hpp
+  constants.h char.hpp char_player.hpp
 constants.o: constants.cpp conf.h sysdep.h structs.h spells.h skills.h \
-  interpreter.h house.h utils.h db.h
+  interpreter.h utils.h house.h db.h
 features.o: features.cpp conf.h sysdep.h structs.h utils.h handler.h \
-  comm.h db.h interpreter.h skills.h spells.h features.hpp char.hpp
+  comm.h db.h interpreter.h skills.h spells.h features.hpp char.hpp \
+  char_player.hpp
 db.o: db.cpp conf.h sysdep.h structs.h utils.h db.h comm.h handler.h \
   spells.h mail.h interpreter.h house.h constants.h dg_scripts.h mobmax.h \
   pk.h olc.h diskio.h im.h top.h stuff.hpp double_map.hpp ban.hpp \
   item.creation.hpp features.hpp boards.h description.h deathtrap.hpp \
   title.hpp privilege.hpp depot.hpp glory.hpp genchar.h random.hpp \
-  file_crc.hpp char.hpp
+  file_crc.hpp char.hpp char_player.hpp skills.h
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h comm.h handler.h \
   interpreter.h db.h spells.h screen.h constants.h dg_scripts.h mobmax.h \
   pk.h im.h fight.h skills.h features.hpp house.h stuff.hpp \
-  double_map.hpp random.hpp char.hpp
+  double_map.hpp random.hpp char.hpp char_player.hpp
 graph.o: graph.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
   constants.h handler.h db.h spells.h skills.h features.hpp random.hpp \
-  char.hpp
+  char.hpp char_player.hpp
 handler.o: handler.cpp conf.h sysdep.h structs.h constants.h utils.h \
   comm.h db.h handler.h interpreter.h spells.h skills.h screen.h \
-  dg_scripts.h auction.h features.hpp house.h exchange.h char.hpp
+  dg_scripts.h auction.h features.hpp house.h exchange.h char.hpp \
+  char_player.hpp
 house.o: house.cpp conf.h house.h sysdep.h structs.h utils.h db.h \
   interpreter.h comm.h handler.h pk.h screen.h boards.h skills.h spells.h \
-  privilege.hpp char.hpp
+  privilege.hpp char.hpp char_player.hpp
 interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
-  interpreter.h constants.h db.h utils.h spells.h skills.h handler.h \
+  interpreter.h utils.h constants.h db.h spells.h skills.h handler.h \
   house.h mail.h screen.h olc.h dg_scripts.h pk.h genchar.h ban.hpp \
   diskio.h item.creation.hpp features.hpp boards.h top.h title.hpp \
-  password.hpp privilege.hpp depot.hpp glory.hpp char.hpp
+  password.hpp privilege.hpp depot.hpp glory.hpp char.hpp char_player.hpp
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h spells.h skills.h \
   comm.h db.h handler.h screen.h interpreter.h constants.h dg_scripts.h \
   house.h exchange.h top.h deathtrap.hpp ban.hpp diskio.h depot.hpp \
-  glory.hpp features.hpp char.hpp
+  glory.hpp features.hpp char.hpp char_player.hpp
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
   skills.h handler.h db.h interpreter.h screen.h constants.h dg_scripts.h \
-  pk.h features.hpp magic.h fight.h deathtrap.hpp random.hpp char.hpp
+  pk.h features.hpp magic.h fight.h deathtrap.hpp random.hpp char.hpp \
+  char_player.hpp
 mail.o: mail.cpp conf.h sysdep.h structs.h utils.h comm.h db.h \
-  interpreter.h handler.h mail.h char.hpp
+  interpreter.h handler.h mail.h char.hpp char_player.hpp
 mobact.o: mobact.cpp conf.h sysdep.h structs.h utils.h db.h comm.h \
   interpreter.h handler.h spells.h skills.h constants.h pk.h random.hpp \
-  char.hpp
+  char.hpp char_player.hpp
 modify.o: modify.cpp conf.h sysdep.h structs.h utils.h interpreter.h \
   handler.h db.h comm.h spells.h mail.h boards.h screen.h olc.h \
-  features.hpp house.h privilege.hpp char.hpp
+  features.hpp house.h privilege.hpp char.hpp char_player.hpp skills.h
 objsave.o: objsave.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
-  interpreter.h utils.h spells.h screen.h house.h im.h depot.hpp char.hpp
-olc.o: olc.cpp conf.h sysdep.h structs.h interpreter.h comm.h utils.h \
+  interpreter.h utils.h spells.h screen.h house.h im.h depot.hpp char.hpp \
+  char_player.hpp
+olc.o: olc.cpp conf.h sysdep.h structs.h interpreter.h utils.h comm.h \
   db.h olc.h dg_olc.h dg_scripts.h screen.h item.creation.hpp im.h \
-  privilege.hpp char.hpp
-random.o: random.cpp conf.h random.hpp
+  privilege.hpp char.hpp char_player.hpp
+random.o: random.cpp conf.h random.hpp sysdep.h
 shop.o: shop.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
   interpreter.h utils.h shop.h dg_scripts.h constants.h features.hpp \
-  char.hpp
+  char.hpp char_player.hpp
 spec_assign.o: spec_assign.cpp conf.h sysdep.h structs.h db.h constants.h \
   interpreter.h utils.h house.h boards.h
 spec_procs.o: spec_procs.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h screen.h dg_scripts.h \
-  constants.h features.hpp house.h char.hpp
+  constants.h features.hpp house.h char.hpp char_player.hpp
 spell_parser.o: spell_parser.cpp conf.h sysdep.h structs.h utils.h \
   interpreter.h spells.h skills.h handler.h comm.h db.h screen.h \
-  constants.h dg_scripts.h pk.h features.hpp im.h privilege.hpp char.hpp
+  constants.h dg_scripts.h pk.h features.hpp im.h privilege.hpp char.hpp \
+  char_player.hpp
 spells.o: spells.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
   skills.h handler.h db.h constants.h interpreter.h dg_scripts.h screen.h \
-  house.h pk.h features.hpp im.h deathtrap.hpp privilege.hpp char.hpp
+  house.h pk.h features.hpp im.h deathtrap.hpp privilege.hpp char.hpp \
+  char_player.hpp depot.hpp
 utils.o: utils.cpp conf.h sysdep.h structs.h utils.h db.h comm.h screen.h \
   spells.h handler.h interpreter.h constants.h im.h dg_scripts.h \
-  features.hpp boards.h privilege.hpp char.hpp
+  features.hpp boards.h privilege.hpp char.hpp char_player.hpp
 weather.o: weather.cpp conf.h sysdep.h structs.h spells.h skills.h \
   utils.h comm.h handler.h interpreter.h db.h screen.h constants.h \
-  random.hpp char.hpp
+  random.hpp char.hpp char_player.hpp
 redit.o: redit.cpp conf.h sysdep.h structs.h comm.h utils.h db.h olc.h \
   dg_olc.h dg_scripts.h constants.h im.h description.h deathtrap.hpp \
-  char.hpp
+  char.hpp char_player.hpp
 oedit.o: oedit.cpp conf.h sysdep.h structs.h comm.h spells.h utils.h db.h \
-  shop.h olc.h dg_olc.h dg_scripts.h im.h features.hpp depot.hpp char.hpp
+  shop.h olc.h dg_olc.h dg_scripts.h im.h features.hpp depot.hpp char.hpp \
+  char_player.hpp house.h interpreter.h skills.h
 zedit.o: zedit.cpp conf.h sysdep.h structs.h comm.h utils.h db.h olc.h \
-  dg_scripts.h char.hpp
+  dg_scripts.h char.hpp char_player.hpp
 medit.o: medit.cpp conf.h sysdep.h structs.h comm.h spells.h utils.h db.h \
   shop.h olc.h handler.h dg_olc.h dg_scripts.h constants.h features.hpp \
-  im.h char.hpp
+  im.h char.hpp char_player.hpp skills.h
 sedit.o: sedit.cpp conf.h sysdep.h structs.h comm.h utils.h db.h shop.h \
-  olc.h char.hpp
+  olc.h char.hpp char_player.hpp
 dg_comm.o: dg_comm.cpp conf.h sysdep.h structs.h dg_scripts.h utils.h \
-  comm.h handler.h db.h char.hpp
+  comm.h handler.h db.h char.hpp char_player.hpp
 dg_db_scripts.o: dg_db_scripts.cpp conf.h sysdep.h structs.h dg_scripts.h \
   utils.h db.h handler.h dg_event.h comm.h spells.h skills.h im.h \
-  features.hpp char.hpp
+  features.hpp char.hpp char_player.hpp interpreter.h
 dg_event.o: dg_event.cpp conf.h sysdep.h structs.h utils.h dg_event.h \
   db.h dg_scripts.h comm.h
 dg_handler.o: dg_handler.cpp conf.h sysdep.h structs.h dg_scripts.h \
   utils.h comm.h db.h handler.h spells.h dg_event.h im.h features.hpp \
-  char.hpp
+  char.hpp char_player.hpp
 dg_mobcmd.o: dg_mobcmd.cpp conf.h sysdep.h structs.h dg_scripts.h db.h \
   utils.h handler.h interpreter.h comm.h spells.h im.h features.hpp \
-  char.hpp
+  char.hpp char_player.hpp skills.h
 dg_misc.o: dg_misc.cpp conf.h sysdep.h structs.h constants.h dg_scripts.h \
   utils.h comm.h interpreter.h handler.h dg_event.h db.h screen.h \
-  spells.h char.hpp
+  spells.h char.hpp char_player.hpp
 dg_objcmd.o: dg_objcmd.cpp conf.h sysdep.h structs.h screen.h \
   dg_scripts.h utils.h comm.h interpreter.h handler.h db.h spells.h im.h \
-  features.hpp char.hpp
+  features.hpp char.hpp char_player.hpp skills.h
 dg_scripts.o: dg_scripts.cpp conf.h sysdep.h structs.h dg_scripts.h \
   utils.h comm.h interpreter.h handler.h dg_event.h db.h screen.h house.h \
-  constants.h top.h features.hpp char.hpp
+  constants.h top.h features.hpp char.hpp char_player.hpp
 dg_triggers.o: dg_triggers.cpp conf.h sysdep.h structs.h dg_scripts.h \
-  utils.h comm.h interpreter.h handler.h db.h olc.h char.hpp
+  utils.h comm.h interpreter.h handler.h db.h olc.h char.hpp \
+  char_player.hpp
 dg_wldcmd.o: dg_wldcmd.cpp conf.h sysdep.h structs.h screen.h \
   dg_scripts.h utils.h comm.h interpreter.h handler.h spells.h db.h im.h \
-  features.hpp deathtrap.hpp char.hpp
+  features.hpp deathtrap.hpp char.hpp char_player.hpp skills.h
 dg_olc.o: dg_olc.cpp conf.h sysdep.h structs.h utils.h comm.h db.h olc.h \
-  dg_olc.h dg_scripts.h dg_event.h char.hpp
+  dg_olc.h dg_scripts.h dg_event.h char.hpp char_player.hpp
 color.o: color.cpp conf.h sysdep.h
 mobmax.o: mobmax.cpp conf.h sysdep.h structs.h utils.h db.h mobmax.h \
-  char.hpp
+  char.hpp char_player.hpp
 pk.o: pk.cpp conf.h sysdep.h structs.h constants.h utils.h comm.h db.h \
-  handler.h interpreter.h screen.h pk.h char.hpp
+  handler.h interpreter.h screen.h pk.h char.hpp char_player.hpp
 genchar.o: genchar.cpp conf.h sysdep.h structs.h comm.h utils.h genchar.h \
-  spells.h char.hpp
+  spells.h char.hpp char_player.hpp db.h
 diskio.o: diskio.cpp conf.h sysdep.h diskio.h
 im.o: im.cpp conf.h sysdep.h structs.h utils.h handler.h db.h \
-  interpreter.h comm.h constants.h screen.h features.hpp im.h char.hpp
+  interpreter.h comm.h constants.h screen.h features.hpp im.h char.hpp \
+  char_player.hpp
 names.o: names.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
-  handler.h db.h screen.h privilege.hpp char.hpp
+  handler.h db.h screen.h privilege.hpp char.hpp char_player.hpp
 auction.o: auction.cpp conf.h sysdep.h structs.h screen.h utils.h comm.h \
-  interpreter.h handler.h db.h auction.h constants.h char.hpp
+  interpreter.h handler.h db.h auction.h constants.h char.hpp \
+  char_player.hpp
 item.creation.o: item.creation.cpp conf.h sysdep.h structs.h screen.h \
   spells.h skills.h constants.h utils.h comm.h interpreter.h handler.h \
-  db.h olc.h im.h features.hpp item.creation.hpp char.hpp
+  db.h olc.h im.h features.hpp item.creation.hpp char.hpp char_player.hpp
 skills.o: skills.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
   interpreter.h utils.h shop.h spells.h skills.h screen.h dg_scripts.h \
-  constants.h im.h features.hpp random.hpp char.hpp
+  constants.h im.h features.hpp random.hpp char.hpp char_player.hpp
 exchange.o: exchange.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h screen.h exchange.h im.h constants.h \
-  skills.h char.hpp
+  skills.h char.hpp char_player.hpp
 top.o: top.cpp conf.h sysdep.h structs.h utils.h interpreter.h comm.h \
-  screen.h top.h glory.hpp char.hpp
+  screen.h top.h glory.hpp char.hpp char_player.hpp
 stuff.o: stuff.cpp conf.h sysdep.h structs.h comm.h db.h handler.h \
-  utils.h dg_scripts.h stuff.hpp double_map.hpp char.hpp
+  utils.h dg_scripts.h stuff.hpp double_map.hpp char.hpp char_player.hpp
 description.o: description.cpp conf.h sysdep.h structs.h utils.h \
   description.h
 deathtrap.o: deathtrap.cpp conf.h deathtrap.hpp sysdep.h structs.h \
   constants.h db.h spells.h utils.h handler.h comm.h house.h \
-  interpreter.h char.hpp
+  interpreter.h char.hpp char_player.hpp
 title.o: title.cpp conf.h title.hpp sysdep.h structs.h interpreter.h \
-  utils.h comm.h db.h screen.h pk.h privilege.hpp handler.h char.hpp
+  utils.h comm.h db.h screen.h pk.h privilege.hpp handler.h char.hpp \
+  char_player.hpp
 password.o: password.cpp password.hpp conf.h sysdep.h structs.h utils.h \
-  interpreter.h char.hpp
+  interpreter.h char.hpp char_player.hpp
 privilege.o: privilege.cpp conf.h sysdep.h structs.h utils.h db.h \
-  interpreter.h boards.h spells.h privilege.hpp char.hpp
+  interpreter.h boards.h spells.h privilege.hpp char.hpp char_player.hpp
 version.o: version.cpp conf.h sysdep.h structs.h comm.h
 depot.o: depot.cpp depot.hpp conf.h sysdep.h structs.h db.h handler.h \
-  utils.h comm.h auction.h exchange.h interpreter.h screen.h char.hpp
+  utils.h comm.h auction.h exchange.h interpreter.h screen.h char.hpp \
+  char_player.hpp
 glory.o: glory.cpp conf.h glory.hpp sysdep.h structs.h interpreter.h \
-  utils.h db.h comm.h password.hpp genchar.h screen.h top.h char.hpp
+  utils.h db.h comm.h password.hpp genchar.h screen.h top.h char.hpp \
+  char_player.hpp
 file_crc.o: file_crc.cpp conf.h file_crc.hpp sysdep.h structs.h db.h \
   utils.h interpreter.h comm.h
-char.o: char.cpp char.hpp conf.h sysdep.h structs.h
+char.o: char.cpp char.hpp conf.h sysdep.h structs.h char_player.hpp \
+  utils.h db.h mobmax.h pk.h im.h handler.h interpreter.h boards.h \
+  privilege.hpp skills.h constants.h
+char_player.o: char_player.cpp conf.h sysdep.h structs.h char.hpp \
+  char_player.hpp comm.h utils.h

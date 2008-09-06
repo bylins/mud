@@ -15,7 +15,6 @@
 #ifndef _STRUCTS_H_
 #define _STRUCTS_H_
 
-#include "conf.h"
 #include <vector>
 #include <list>
 #include <bitset>
@@ -24,6 +23,7 @@
 #include <fstream>
 #include <map>
 #include <iterator>
+#include "conf.h"
 
 using std::map;
 using std::iterator;
@@ -1812,98 +1812,6 @@ struct time_info_data
 	sh_int year;
 };
 
-/*
- *  If you want to add new values to the playerfile, do it here.  DO NOT
- * ADD, DELETE OR MOVE ANY OF THE VARIABLES - doing so will change the
- * size of the structure and ruin the playerfile.  However, you can change
- * the names of the spares to something more meaningful, and then use them
- * in your new code.  They will automatically be transferred from the
- * playerfile into memory when players log in.
- */
-struct player_special_data_saved
-{
-	byte PADDING0;		/* used to be spells_to_learn      */
-	bool talks[MAX_TONGUE];	/* PC s Tongues 0 for NPC     */
-	int
-	wimp_level;		/* Below this # of hit points, flee!  */
-	int
-	invis_level;		/* level of invisibility      */
-	room_vnum load_room;	/* Which room to place char in      */
-	FLAG_DATA pref;		/* preference flags for PC's.    */
-	int
-	bad_pws;		/* number of bad password attemps   */
-	int
-	conditions[3];		/* Drunk, full, thirsty        */
-
-	/* spares below for future expansion.  You can change the names from
-	   'sparen' to something meaningful, but don't change the order.  */
-
-	int
-	Side;		  /****/
-	int
-	Religion;	  /****/
-	int
-	Kin;
-	int
-	Race;		  /****/
-	int
-	Lows;		  /****/
-	int
-	DrunkState;
-	int
-	Prelimit; // FIXME пока не трогать -- Krodo
-	int
-	glory; // FIXME пока не трогать -- Krodo
-	int
-	olc_zone;
-	int
-	unique;
-	int
-	Remorts;
-	int
-	NameGod;
-	int
-	spare12;
-	int
-	spare13;
-	int
-	spare14;
-	int
-	spare15;
-
-	long
-	GodsLike;
-	time_t
-	LastLogon; //by kilnik
-	long
-	NameIDGod;
-	long
-	spare0A;
-	long
-	spare0B;
-	long
-	spare0C;
-	long
-	spare0D;
-	long
-	spare0E;
-	long
-	spare0F;
-
-	char
-	EMail[128];
-	char
-	LastIP[128];
-
-	char
-	remember[MAX_REMEMBER_TELLS][MAX_RAW_INPUT_LENGTH];
-	int
-	lasttell;
-
-	int stringLength;
-	int stringWidth;
-};
-
 // shapirus
 struct ignore_data
 {
@@ -1928,72 +1836,6 @@ struct punish_data
 	char * reason;
 	int  level;
 	long godid;
-};
-
-#define START_STATS_TOTAL 5 // кол-во сохраняемых стартовых статов в файле
-
-/*
- * Specials needed only by PCs, not NPCs.  Space for this structure is
- * not allocated in memory for NPCs, but it is for PCs and the portion
- * of it labelled 'saved' is saved in the playerfile.  This structure can
- * be changed freely; beware, though, that changing the contents of
- * player_special_data_saved will corrupt the playerfile.
- */
-struct player_special_data
-{
-	struct player_special_data_saved
-				saved;
-
-	char *poofin;		/* Description on arrival of a god. */
-	char *poofout;		/* Description upon a god's exit.   */
-	struct alias_data *aliases;	/* Character's aliases    */
-	long
-	last_tell;		/* idnum of last tell from      */
-	void *last_olc_targ;	/* olc control         */
-	int
-	last_olc_mode;		/* olc control         */
-	time_t
-	may_rent;		/* PK control                       */
-	int
-	agressor;		/* Agression room(it is also a flag) */
-	time_t
-	agro_time;		/* Last agression time (it is also a flag) */
-	int
-	bet;			/* bet amount */
-	int
-	bet_slot;		/* bet slot number */
-	struct _im_rskill_tag *rskill;	/* Известные рецепты */
-	struct char_portal_type *portals;	/* порталы теперь живут тут */
-	int *logs;		// уровни подробности каналов log
-
-	char *LastAllTell;
-//F@N|
-	char *Exchange_filter;
-// shapirus
-	struct ignore_data *ignores;
-// Alez Karma
-	char *Karma; /* Записи о поощрениях, наказаниях персонажа*/
-
-// Alez logons.
-	struct logon_data * logons; /*Записи о входах чара*/
-
-// Punishments structs
-	struct punish_data pmute;
-	struct punish_data pdumb;
-	struct punish_data phell;
-	struct punish_data pname;
-	struct punish_data pfreeze;
-	struct punish_data pgcurse;
-	struct punish_data punreg;
-
-	char *clanStatus; // строка для отображения приписки по кто
-	// TODO: вообще тут надо weak_ptr втыкать, но смотрится очень тупо ща с макросами и в структуре
-	// поэтому пока просто надо не забывать чистить указатели у плееров, чтобы не оставлять клан
-	boost::shared_ptr<class Clan> clan; // собсна клан, если он есть
-	boost::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
-
-	struct board_data *board; // последние прочитанные мессаги на досках
-	int start_stats[START_STATS_TOTAL]; // сгенеренные при старте чара статы
 };
 
 /* An affect structure. */

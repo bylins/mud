@@ -596,10 +596,10 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 	if (!ch->desc)
 		return;
 
-	if (i->player.description && *i->player.description)
+	if (i->player_data.description && *i->player_data.description)
 	{
 		send_to_char(" * ", ch);
-		send_to_char(i->player.description, ch);
+		send_to_char(i->player_data.description, ch);
 	}
 	else if (!IS_NPC(i))
 	{
@@ -890,7 +890,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	}
 
 	if (IS_NPC(i) &&
-			i->player.long_descr &&
+			i->player_data.long_descr &&
 			GET_POS(i) == GET_DEFAULT_POS(i) &&
 			IN_ROOM(ch) == IN_ROOM(i) && !AFF_FLAGGED(i, AFF_CHARM) && !IS_HORSE(i))
 	{
@@ -934,7 +934,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		if (AFF_FLAGGED(i, AFF_HORSE))
 			strcat(buf, "(под седлом) ");
 
-		strcat(buf, i->player.long_descr);
+		strcat(buf, i->player_data.long_descr);
 		send_to_char(buf, ch);
 
 		*aura_txt = '\0';
@@ -1060,7 +1060,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 
 	if (IS_NPC(i))
 	{
-		strcpy(buf1, i->player.short_descr);
+		strcpy(buf1, i->player_data.short_descr);
 		strcat(buf1, " ");
 		if (AFF_FLAGGED(i, AFF_HORSE))
 			strcat(buf1, "(под седлом) ");
@@ -3005,7 +3005,7 @@ ACMD(do_score)
 	if (glory)
 		sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n",
 				glory, desc_count(glory, WHAT_POINT));
-	playing_time = *real_time_passed((time(0) - ch->player.time.logon) + ch->player.time.played, 0);
+	playing_time = *real_time_passed((time(0) - ch->player_data.time.logon) + ch->player_data.time.played, 0);
 	sprintf(buf + strlen(buf), "Вы играете %d %s %d %s реального времени.\r\n",
 			playing_time.day, desc_count(playing_time.day, WHAT_DAY),
 			playing_time.hours, desc_count(playing_time.hours, WHAT_HOUR));
@@ -3789,7 +3789,7 @@ ACMD(do_who)
 						GET_LEVEL(tch),
 						KIN_ABBR(tch),
 						CLASS_ABBR(tch),
-						GET_PFILEPOS(tch),
+						tch->player.get_pfilepos(),
 						CCPK(ch, C_NRM, tch),
 						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", race_or_title(tch), CCNRM(ch, C_NRM));
 			else
@@ -3987,7 +3987,7 @@ ACMD(do_who_new)
 					GET_LEVEL(tch),
 					KIN_ABBR(tch),
 					CLASS_ABBR(tch),
-					GET_PFILEPOS(tch),
+					tch->player.get_pfilepos(),
 					CCPK(ch, C_NRM, tch),
 					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", race_or_title(tch), CCNRM(ch, C_NRM));
 		else
@@ -4360,7 +4360,7 @@ ACMD(do_users)
 				switch (sorting)
 				{
 				case 'n':
-					if (strcoll(t ? t->player.name : "", t_tmp ? t_tmp->player.name : "") > 0)
+					if (strcoll(t ? t->player_data.name : "", t_tmp ? t_tmp->player_data.name : "") > 0)
 						flag_change = 1;
 					break;
 				case 'e':
@@ -4441,14 +4441,14 @@ ACMD(do_users)
 		else
 			strcpy(idletime, "");
 
-		if (d->character && d->character->player.name)
+		if (d->character && d->character->player_data.name)
 		{
 			if (d->original)
 				sprintf(line, format, d->desc_num, classname,
-						d->original->player.name, state, idletime, timeptr);
+						d->original->player_data.name, state, idletime, timeptr);
 			else
 				sprintf(line, format, d->desc_num, classname,
-						d->character->player.name, state, idletime, timeptr);
+						d->character->player_data.name, state, idletime, timeptr);
 		}
 		else
 			sprintf(line, format, d->desc_num, "   -   ", "UNDEFINED", state, idletime, timeptr);
@@ -4546,7 +4546,7 @@ ACMD(do_gen_ps)
 				GET_PAD(ch, 3), GET_PAD(ch, 4), GET_PAD(ch, 5));
 
 		sprintf(buf + strlen(buf), "Ваш e-mail : %s\r\n", GET_EMAIL(ch));
-		time_t birt = ch->player.time.birth;
+		time_t birt = ch->player_data.time.birth;
 		sprintf(buf + strlen(buf), "Дата Вашего рождения : %s\r\n", rustime(localtime(&birt)));
 		sprintf(buf + strlen(buf), "Ваш IP-адрес : %s\r\n", ch->desc ? ch->desc->host : "Unknown");
 //               GET_LASTIP (ch));
@@ -4614,7 +4614,7 @@ void perform_mortal_where(CHAR_DATA * ch, char *arg)
 			if (!CAN_SEE(ch, i)
 					|| world[i->in_room]->zone != world[ch->in_room]->zone)
 				continue;
-			if (!isname(arg, i->player.name))
+			if (!isname(arg, i->player_data.name))
 				continue;
 			sprintf(buf, "%-25s - %s\r\n", GET_NAME(i), world[i->in_room]->name);
 			send_to_char(buf, ch);
@@ -4701,7 +4701,7 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 	else
 	{
 		for (i = character_list; i; i = i->next)
-			if (CAN_SEE(ch, i) && i->in_room != NOWHERE && isname(arg, i->player.name))
+			if (CAN_SEE(ch, i) && i->in_room != NOWHERE && isname(arg, i->player_data.name))
 			{
 				found = 1;
 				sprintf(buf, "M%3d. %-25s - [%5d] %s\r\n", ++num, GET_NAME(i),

@@ -2346,30 +2346,30 @@ ASPELL(spell_angel)
 	if (IS_FEMALE(ch))
 	{
 		GET_SEX(mob) = SEX_MALE;
-		mob->player.name = str_dup("Небесный защитник");
+		mob->player_data.name = str_dup("Небесный защитник");
 		GET_PAD(mob, 0) = str_dup("Небесный защитник");
 		GET_PAD(mob, 1) = str_dup("Небесного защитника");
 		GET_PAD(mob, 2) = str_dup("Небесному защитнику");
 		GET_PAD(mob, 3) = str_dup("Небесного защитника");
 		GET_PAD(mob, 4) = str_dup("Небесным защитником");
 		GET_PAD(mob, 5) = str_dup("Небесном защитнике");
-		mob->player.short_descr = str_dup("Небесный защитник");
-		mob->player.long_descr = str_dup("Небесный защитник летает тут.\r\n");
-		mob->player.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
+		mob->player_data.short_descr = str_dup("Небесный защитник");
+		mob->player_data.long_descr = str_dup("Небесный защитник летает тут.\r\n");
+		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
 	}
 	else
 	{
 		GET_SEX(mob) = SEX_FEMALE;
-		mob->player.name = str_dup("Небесная защитница");
+		mob->player_data.name = str_dup("Небесная защитница");
 		GET_PAD(mob, 0) = str_dup("Небесная защитница");
 		GET_PAD(mob, 1) = str_dup("Небесной защитницы");
 		GET_PAD(mob, 2) = str_dup("Небесной защитнице");
 		GET_PAD(mob, 3) = str_dup("Небесную защитницу");
 		GET_PAD(mob, 4) = str_dup("Небесной защитницей");
 		GET_PAD(mob, 5) = str_dup("Небесной защитнице");
-		mob->player.short_descr = str_dup("Небесная защитница");
-		mob->player.long_descr = str_dup("Небесная защитница летает тут.\r\n");
-		mob->player.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
+		mob->player_data.short_descr = str_dup("Небесная защитница");
+		mob->player_data.long_descr = str_dup("Небесная защитница летает тут.\r\n");
+		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
 	}
 
 	GET_STR(mob) = 11;

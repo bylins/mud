@@ -17,8 +17,7 @@
 #include "constants.h"
 
 Character::Character()
-		: pfilepos(-1),
-		nr(NOBODY),
+		: nr(NOBODY),
 		in_room(0),
 		was_in_room(NOWHERE),
 		wait(0),
@@ -54,7 +53,7 @@ Character::Character()
 		ing_list(0),
 		dl_list(0)
 {
-	memset(&player, 0, sizeof(char_player_data));
+	memset(&player_data, 0, sizeof(char_player_data));
 	memset(&add_abils, 0, sizeof(char_played_ability_data));
 	memset(&real_abils, 0, sizeof(char_ability_data));
 	memset(&points, 0, sizeof(char_point_data));
@@ -107,17 +106,17 @@ Character::~Character()
 			if (GET_PAD(this, j))
 				free(GET_PAD(this, j));
 
-		if (this->player.title)
-			free(this->player.title);
+		if (this->player_data.title)
+			free(this->player_data.title);
 
-		if (this->player.short_descr)
-			free(this->player.short_descr);
+		if (this->player_data.short_descr)
+			free(this->player_data.short_descr);
 
-		if (this->player.long_descr)
-			free(this->player.long_descr);
+		if (this->player_data.long_descr)
+			free(this->player_data.long_descr);
 
-		if (this->player.description)
-			free(this->player.description);
+		if (this->player_data.description)
+			free(this->player_data.description);
 
 		if (IS_NPC(this) && this->mob_specials.Questor)
 			free(this->mob_specials.Questor);
@@ -134,25 +133,25 @@ Character::~Character()
 	}
 	else if ((i = GET_MOB_RNUM(this)) >= 0)
 	{	/* otherwise, free strings only if the string is not pointing at proto */
-		if (this->player.name && this->player.name != mob_proto[i].player.name)
-			free(this->player.name);
+		if (this->player_data.name && this->player_data.name != mob_proto[i].player_data.name)
+			free(this->player_data.name);
 
 		for (j = 0; j < NUM_PADS; j++)
 			if (GET_PAD(this, j)
-					&& (this->player.PNames[j] != mob_proto[i].player.PNames[j]))
-				free(this->player.PNames[j]);
+					&& (this->player_data.PNames[j] != mob_proto[i].player_data.PNames[j]))
+				free(this->player_data.PNames[j]);
 
-		if (this->player.title && this->player.title != mob_proto[i].player.title)
-			free(this->player.title);
+		if (this->player_data.title && this->player_data.title != mob_proto[i].player_data.title)
+			free(this->player_data.title);
 
-		if (this->player.short_descr && this->player.short_descr != mob_proto[i].player.short_descr)
-			free(this->player.short_descr);
+		if (this->player_data.short_descr && this->player_data.short_descr != mob_proto[i].player_data.short_descr)
+			free(this->player_data.short_descr);
 
-		if (this->player.long_descr && this->player.long_descr != mob_proto[i].player.long_descr)
-			free(this->player.long_descr);
+		if (this->player_data.long_descr && this->player_data.long_descr != mob_proto[i].player_data.long_descr)
+			free(this->player_data.long_descr);
 
-		if (this->player.description && this->player.description != mob_proto[i].player.description)
-			free(this->player.description);
+		if (this->player_data.description && this->player_data.description != mob_proto[i].player_data.description)
+			free(this->player_data.description);
 
 		if (this->mob_specials.Questor && this->mob_specials.Questor != mob_proto[i].mob_specials.Questor)
 			free(this->mob_specials.Questor);

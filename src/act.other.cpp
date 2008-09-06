@@ -1378,7 +1378,7 @@ ACMD(do_ungroup)
 	{
 		next_fol = f->next;
 		tch = f->follower;
-		if (isname(buf, tch->player.name) && !AFF_FLAGGED(tch, AFF_CHARM) && !IS_HORSE(tch))
+		if (isname(buf, tch->player_data.name) && !AFF_FLAGGED(tch, AFF_CHARM) && !IS_HORSE(tch))
 		{
 			REMOVE_BIT(AFF_FLAGS(tch, AFF_GROUP), AFF_GROUP);
 			act("$N более не член Вашей группы.", FALSE, ch, 0, tch, TO_CHAR);
@@ -2821,9 +2821,9 @@ ACMD(do_dig)
 			if (GET_LEVEL(mob) <= GET_LEVEL(ch))
 			{
 				SET_BIT(MOB_FLAGS(mob, MOB_AGGRESSIVE), MOB_AGGRESSIVE);
-				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player.PNames[3]);
+				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[3]);
 				send_to_char(textbuf, ch);
-				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player.PNames[3]);
+				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[3]);
 				act(textbuf, FALSE, ch, 0, 0, TO_ROOM);
 				char_to_room(mob, ch->in_room);
 				return;

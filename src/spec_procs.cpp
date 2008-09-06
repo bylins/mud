@@ -2742,15 +2742,15 @@ SPECIAL(pet_shops)
 
 		if (*pet_name)
 		{
-			sprintf(buf, "%s %s", pet->player.name, pet_name);
-			/* free(pet->player.name); don't free the prototype! */
-			pet->player.name = str_dup(buf);
+			sprintf(buf, "%s %s", pet->player_data.name, pet_name);
+			/* free(pet->player_data.name); don't free the prototype! */
+			pet->player_data.name = str_dup(buf);
 
 			sprintf(buf,
 					"%sA small sign on a chain around the neck says 'My name is %s'\r\n",
-					pet->player.description, pet_name);
-			/* free(pet->player.description); don't free the prototype! */
-			pet->player.description = str_dup(buf);
+					pet->player_data.description, pet_name);
+			/* free(pet->player_data.description); don't free the prototype! */
+			pet->player_data.description = str_dup(buf);
 		}
 		char_to_room(pet, ch->in_room);
 		add_follower(pet, ch);
@@ -2778,7 +2778,7 @@ CHAR_DATA *get_player_of_name(CHAR_DATA * ch, char *name)
 	{
 		if (IS_NPC(i))
 			continue;
-		if (!isname(name, i->player.name))
+		if (!isname(name, i->player_data.name))
 			continue;
 		return (i);
 	}

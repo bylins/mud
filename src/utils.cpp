@@ -687,7 +687,7 @@ TIME_INFO_DATA *age(CHAR_DATA * ch)
 {
 	static TIME_INFO_DATA player_age;
 
-	player_age = *mud_time_passed(time(0), ch->player.time.birth);
+	player_age = *mud_time_passed(time(0), ch->player_data.time.birth);
 
 	player_age.year += 17;	/* All players start at 17 */
 

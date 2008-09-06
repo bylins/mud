@@ -531,13 +531,13 @@ void zedit_save_to_disk(int zone_num)
 			arg2 = ZCMD.arg2;
 			arg3 = world[ZCMD.arg3]->number;
 			arg4 = ZCMD.arg4;
-			comment = mob_proto[ZCMD.arg1].player.short_descr;
+			comment = mob_proto[ZCMD.arg1].player_data.short_descr;
 			break;
 		case 'F':
 			arg1 = world[ZCMD.arg1]->number;
 			arg2 = mob_index[ZCMD.arg2].vnum;
 			arg3 = mob_index[ZCMD.arg3].vnum;
-			comment = mob_proto[ZCMD.arg2].player.short_descr;
+			comment = mob_proto[ZCMD.arg2].player_data.short_descr;
 			break;
 		case 'O':
 			arg1 = obj_index[ZCMD.arg1].vnum;
@@ -564,7 +564,7 @@ void zedit_save_to_disk(int zone_num)
 			arg1 = mob_index[ZCMD.arg1].vnum;
 			arg2 = -1;
 			arg3 = -1;
-			comment = mob_proto[ZCMD.arg1].player.short_descr;
+			comment = mob_proto[ZCMD.arg1].player_data.short_descr;
 			break;
 		case 'P':
 			arg1 = obj_index[ZCMD.arg1].vnum;
@@ -639,7 +639,7 @@ enum { MOB_NAME, OBJ_NAME, ROOM_NAME, TRIG_NAME };
 
 /**
 * Замена макросов:
-* #define MOB_NAME(vnum) (rnum=real_mobile(vnum))>=0?mob_proto[rnum].player.short_descr:"???"
+* #define MOB_NAME(vnum) (rnum=real_mobile(vnum))>=0?mob_proto[rnum].player_data.short_descr:"???"
 * #define OBJ_NAME(vnum) (rnum=real_object(vnum))>=0?obj_proto[rnum]->short_description:"???"
 * #define ROOM_NAME(vnum) (rnum=real_room(vnum))>=0?world[rnum]->name:"???"
 * #define TRIG_NAME(vnum) (rnum=real_trigger(vnum))>=0?trig_index[rnum]->proto->name:"???"
@@ -657,7 +657,7 @@ const char * name_by_vnum(int vnum, int type)
 	case MOB_NAME:
 		rnum = real_mobile(vnum);
 		if (rnum >= 0)
-			return mob_proto[rnum].player.short_descr;
+			return mob_proto[rnum].player_data.short_descr;
 		break;
 	case OBJ_NAME:
 		rnum = real_object(vnum);

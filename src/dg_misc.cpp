@@ -235,7 +235,7 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 		if (type == OBJ_TRIGGER)
 		{
 			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->PNames[1]);
-			caster->player.short_descr = str_dup(buf);
+			caster->player_data.short_descr = str_dup(buf);
 			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->PNames[1]);
 			GET_PAD(caster, 0) = str_dup(buf);
 			sprintf(buf, "духа %s", ((OBJ_DATA *) go)->PNames[1]);
@@ -251,7 +251,7 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 		}
 		else if (type == WLD_TRIGGER)
 		{
-			caster->player.short_descr = str_dup("Боги");
+			caster->player_data.short_descr = str_dup("Боги");
 			GET_PAD(caster, 0) = str_dup("Боги");
 			GET_PAD(caster, 1) = str_dup("Богов");
 			GET_PAD(caster, 2) = str_dup("Богам");

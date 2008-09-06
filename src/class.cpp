@@ -2329,8 +2329,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 
 // Gunner а вот тут дырка после реморта тоже выполняется do_start и
 // нам не нужно обнулять время в игре ни время последнего логона
-//  ch->player.time.played = 0;
-//  ch->player.time.logon  = time(0);
+//  ch->player_data.time.played = 0;
+//  ch->player_data.time.logon  = time(0);
 
 	if (siteok_everyone)
 		SET_BIT(PLR_FLAGS(ch, PLR_SITEOK), PLR_SITEOK);

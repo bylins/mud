@@ -1871,10 +1871,43 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 		{
 			sprintbits(GET_EXCHANGE_ITEM(j)->obj_flags.affects, weapon_affects, buf, ",");
 			// небольшое дублирование кода, чтобы зря не гонять по аффектам всех шмоток
-			if (!strcmp(buf, "ничего"))
-				sprintf(tmpbuf, "[%4d]   %s", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
-			else
+			if (!strcmp(buf, "ничего"))  // added by WorM (Видолюб) отображение не только аффектов, но и доп.свойств запястий
+			{
+				int found = 0, drndice = 0, drsdice = 0, n, k;
+
+				for (n = 0; n < MAX_OBJ_AFFECT; n++)
+				{
+					drndice = GET_EXCHANGE_ITEM(j)->affected[n].location;
+					drsdice = GET_EXCHANGE_ITEM(j)->affected[n].modifier;
+					if ((drndice != APPLY_NONE) && (drsdice != 0))
+					{
+						sprinttype(drndice, apply_types, buf2);
+						bool negative = false;
+						for (k = 0; *apply_negative[k] != '\n'; k++)
+						{
+							if (!str_cmp(buf2, apply_negative[k]))
+							{
+								negative = true;
+								break;
+							}
+						}
+						if (drsdice < 0)
+							negative = !negative;
+						sprintf(buf, "%s %s%d", buf2, negative ? "-" : "+", abs(drsdice));
+						found++;
+						break;
+					}
+				}
+
+				if (!found)
+					sprintf(tmpbuf, "[%4d]   %s", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
+				else
+					sprintf(tmpbuf, "[%4d]   %s (%s)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0), buf);
+			}
+			else  // end by WorM
+			{
 				sprintf(tmpbuf, "[%4d]   %s (%s)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0), buf);
+			}
 		}
 		else
 			sprintf(tmpbuf, "[%4d]   %s", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
@@ -2042,3 +2075,4 @@ void clear_exchange_lot(EXCHANGE_ITEM_DATA * lot)
 		free(lot->comment);
 	free(lot);
 }
+

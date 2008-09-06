@@ -223,7 +223,7 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 	else
 	{
 		if (CAN_SEE_CHAR(ch, vict) || IS_IMMORTAL(vict) || GET_INVIS_LEV(vict))
-			sprintf(buf, "Вы сказали %s : '%s'", vict->player.PNames[2], arg);
+			sprintf(buf, "Вы сказали %s : '%s'", vict->player_data.PNames[2], arg);
 		else
 			sprintf(buf, "Вы сказали кому-то : '%s'", arg);
 		send_to_char(ch, "%s%s%s\r\n", CCICYN(ch, C_NRM), buf, CCNRM(ch, C_NRM));

@@ -43,6 +43,7 @@
 #include "depot.hpp"
 #include "glory.hpp"
 #include "char.hpp"
+#include "char_player.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -2306,6 +2307,7 @@ void CreateChar(DESCRIPTOR_DATA * d)
 	d->character = new CHAR_DATA;
 	CREATE(d->character->player_specials, struct player_special_data, 1);
 	memset(d->character->player_specials, 0, sizeof(struct player_special_data));
+	d->character->player.create_player();
 	d->character->desc = d;
 }
 
@@ -2401,7 +2403,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				REMOVE_BIT(PLR_FLAGS(d->character, PLR_MAILING), PLR_MAILING);
 				REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
 				REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRYO), PLR_CRYO);
-				GET_PFILEPOS(d->character) = player_i;
+				d->character->player.set_pfilepos(player_i);
 				GET_ID(d->character) = GET_IDNUM(d->character);
 				DoAfterPassword(d);
 				return;
@@ -2424,7 +2426,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				}
 			if ((player_i = load_char(tmp_name, d->character)) > -1)
 			{
-				GET_PFILEPOS(d->character) = player_i;
+				d->character->player.set_pfilepos(player_i);
 				if (PLR_FLAGGED(d->character, PLR_DELETED))  	/* We get a false positive from the original deleted character. */
 				{
 					delete d->character;
@@ -2436,11 +2438,11 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 						return;
 					}
 					CreateChar(d);
-					CREATE(d->character->player.name, char, strlen(tmp_name) + 1);
-					strcpy(d->character->player.name, CAP(tmp_name));
+					CREATE(d->character->player_data.name, char, strlen(tmp_name) + 1);
+					strcpy(d->character->player_data.name, CAP(tmp_name));
 					CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
 					strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
-					GET_PFILEPOS(d->character) = player_i;
+					d->character->player.set_pfilepos(player_i);
 					sprintf(buf, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ] ? ", tmp_name);
 					SEND_TO_Q(buf, d);
 					STATE(d) = CON_NAME_CNFRM;
@@ -2474,8 +2476,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					return;
 				}
 
-				CREATE(d->character->player.name, char, strlen(tmp_name) + 1);
-				strcpy(d->character->player.name, CAP(tmp_name));
+				CREATE(d->character->player_data.name, char, strlen(tmp_name) + 1);
+				strcpy(d->character->player_data.name, CAP(tmp_name));
 				CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
 				strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
 				SEND_TO_Q(create_name_rules, d);
@@ -2532,8 +2534,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		else if (UPPER(*arg) == 'N' || UPPER(*arg) == 'Н')
 		{
 			SEND_TO_Q("Итак, чего изволите ? Учтите, бананов нет :)\r\n" "Имя : ", d);
-			free(d->character->player.name);
-			d->character->player.name = NULL;
+			free(d->character->player_data.name);
+			d->character->player_data.name = NULL;
 			STATE(d) = CON_GET_NAME;
 		}
 		else
@@ -2586,8 +2588,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					  "Имя  : ", d);
 			return;
 		}
-		CREATE(d->character->player.name, char, strlen(tmp_name) + 1);
-		strcpy(d->character->player.name, CAP(tmp_name));
+		CREATE(d->character->player_data.name, char, strlen(tmp_name) + 1);
+		strcpy(d->character->player_data.name, CAP(tmp_name));
 		CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
 		strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
 		if (ban->is_banned(d->host) >= BanList::BAN_NEW)
@@ -3029,8 +3031,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 
-		if (GET_PFILEPOS(d->character) < 0)
-			GET_PFILEPOS(d->character) = create_entry(GET_PC_NAME(d->character));
+		if (d->character->player.get_pfilepos() < 0)
+			d->character->player.set_pfilepos(create_entry(GET_PC_NAME(d->character)));
 
 		/* Now GET_NAME() will work properly. */
 		init_char(d->character);
@@ -3056,7 +3058,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 		STATE(d) = CON_RMOTD;
 
-		//sprintf(buf, "%s [%s] new player.", GET_NAME(d->character), d->host);
+		//sprintf(buf, "%s [%s] new player_data.", GET_NAME(d->character), d->host);
 		//mudlog(buf, NRM, LVL_IMMORT, SYSLOG, TRUE);
 		break;
 
@@ -3109,24 +3111,24 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			break;
 
 		case '2':
-			if (d->character->player.description)
+			if (d->character->player_data.description)
 			{
 				SEND_TO_Q("Ваше ТЕКУЩЕЕ описание:\r\n", d);
-				SEND_TO_Q(d->character->player.description, d);
+				SEND_TO_Q(d->character->player_data.description, d);
 				/*
 				 * Don't free this now... so that the old description gets loaded
 				 * as the current buffer in the editor.  Do setup the ABORT buffer
 				 * here, however.
 				 *
-				 * free(d->character->player.description);
-				 * d->character->player.description = NULL;
+				 * free(d->character->player_data.description);
+				 * d->character->player_data.description = NULL;
 				 */
-				d->backstr = str_dup(d->character->player.description);
+				d->backstr = str_dup(d->character->player_data.description);
 			}
 			SEND_TO_Q
 			("Введите описание Вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
 			SEND_TO_Q("(/s сохранить /h помощь)\r\n", d);
-			d->str = &d->character->player.description;
+			d->str = &d->character->player_data.description;
 			d->max_str = EXDSCR_LENGTH;
 			STATE(d) = CON_EXDESC;
 			break;

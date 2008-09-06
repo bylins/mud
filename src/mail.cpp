@@ -379,7 +379,7 @@ void store_mail(long to, long from, char *message_pointer)
  * #1 - The id number of the person we're checking mail for.
  * Returns the message text of the mail received.
  *
- * Retrieves one messsage for a player. The mail is then discarded from
+ * Retrieves one messsage for a player_data. The mail is then discarded from
  * the file and the mail index.
  */
 char *read_delete(long recipient)

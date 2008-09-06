@@ -7,9 +7,11 @@
 
 #include <bitset>
 #include <map>
+#include <boost/shared_ptr.hpp>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
+#include "char_player.hpp"
 
 /* These data contain information about a players time data */
 struct time_data
@@ -207,6 +209,150 @@ struct cast_attack_type
 	ROOM_DATA *troom;
 };
 
+struct player_special_data_saved
+{
+	byte PADDING0;		/* used to be spells_to_learn      */
+	bool talks[MAX_TONGUE];	/* PC s Tongues 0 for NPC     */
+	int
+	wimp_level;		/* Below this # of hit points, flee!  */
+	int
+	invis_level;		/* level of invisibility      */
+	room_vnum load_room;	/* Which room to place char in      */
+	FLAG_DATA pref;		/* preference flags for PC's.    */
+	int
+	bad_pws;		/* number of bad password attemps   */
+	int
+	conditions[3];		/* Drunk, full, thirsty        */
+
+	/* spares below for future expansion.  You can change the names from
+	   'sparen' to something meaningful, but don't change the order.  */
+
+	int
+	Side;		  /****/
+	int
+	Religion;	  /****/
+	int
+	Kin;
+	int
+	Race;		  /****/
+	int
+	Lows;		  /****/
+	int
+	DrunkState;
+	int
+	Prelimit; // FIXME пока не трогать -- Krodo
+	int
+	glory; // FIXME пока не трогать -- Krodo
+	int
+	olc_zone;
+	int
+	unique;
+	int
+	Remorts;
+	int
+	NameGod;
+	int
+	spare12;
+	int
+	spare13;
+	int
+	spare14;
+	int
+	spare15;
+
+	long
+	GodsLike;
+	time_t
+	LastLogon; //by kilnik
+	long
+	NameIDGod;
+	long
+	spare0A;
+	long
+	spare0B;
+	long
+	spare0C;
+	long
+	spare0D;
+	long
+	spare0E;
+	long
+	spare0F;
+
+	char
+	EMail[128];
+	char
+	LastIP[128];
+
+	char
+	remember[MAX_REMEMBER_TELLS][MAX_RAW_INPUT_LENGTH];
+	int
+	lasttell;
+
+	int stringLength;
+	int stringWidth;
+};
+
+
+#define START_STATS_TOTAL 5 // кол-во сохраняемых стартовых статов в файле
+
+struct player_special_data
+{
+	struct player_special_data_saved
+				saved;
+
+	char *poofin;		/* Description on arrival of a god. */
+	char *poofout;		/* Description upon a god's exit.   */
+	struct alias_data *aliases;	/* Character's aliases    */
+	long
+	last_tell;		/* idnum of last tell from      */
+	void *last_olc_targ;	/* olc control         */
+	int
+	last_olc_mode;		/* olc control         */
+	time_t
+	may_rent;		/* PK control                       */
+	int
+	agressor;		/* Agression room(it is also a flag) */
+	time_t
+	agro_time;		/* Last agression time (it is also a flag) */
+	int
+	bet;			/* bet amount */
+	int
+	bet_slot;		/* bet slot number */
+	struct _im_rskill_tag *rskill;	/* Известные рецепты */
+	struct char_portal_type *portals;	/* порталы теперь живут тут */
+	int *logs;		// уровни подробности каналов log
+
+	char *LastAllTell;
+//F@N|
+	char *Exchange_filter;
+// shapirus
+	struct ignore_data *ignores;
+// Alez Karma
+	char *Karma; /* Записи о поощрениях, наказаниях персонажа*/
+
+// Alez logons.
+	struct logon_data * logons; /*Записи о входах чара*/
+
+// Punishments structs
+	struct punish_data pmute;
+	struct punish_data pdumb;
+	struct punish_data phell;
+	struct punish_data pname;
+	struct punish_data pfreeze;
+	struct punish_data pgcurse;
+	struct punish_data punreg;
+
+	char *clanStatus; // строка для отображения приписки по кто
+	// TODO: вообще тут надо weak_ptr втыкать, но смотрится очень тупо ща с макросами и в структуре
+	// поэтому пока просто надо не забывать чистить указатели у плееров, чтобы не оставлять клан
+	boost::shared_ptr<class Clan> clan; // собсна клан, если он есть
+	boost::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
+
+	struct board_data *board; // последние прочитанные мессаги на досках
+	int start_stats[START_STATS_TOTAL]; // сгенеренные при старте чара статы
+};
+
 typedef std::map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
 
 /**
@@ -224,12 +370,14 @@ public:
 	void clear_skills();
 	int get_skills_count();
 
+	// поля, имеющиеся только у персонажа (CreateChar и load_char_ascii), у мобов это одна общая область памяти
+	PlayerProxy player;
+
 private:
 	CharSkillsType skills; // список изученных скиллов
 
 // старое
 public:
-	int pfilepos;		/* playerfile pos                */
 	mob_rnum nr;		/* Mob's rnum                   */
 	room_rnum in_room;	/* Location (real room number)   */
 	room_rnum was_in_room;	/* location for linkdead people  */
@@ -237,7 +385,7 @@ public:
 	int punctual_wait;		/* wait for how many loops (punctual style) */
 	char *last_comm;		/* последний приказ чармису перед окончанием лага */
 
-	struct char_player_data player;		/* Normal data                   */
+	struct char_player_data player_data;		/* Normal data                   */
 	struct char_played_ability_data add_abils;		/* Abilities that add to main */
 	struct char_ability_data real_abils;		/* Abilities without modifiers   */
 	struct char_point_data points;		/* Points                       */

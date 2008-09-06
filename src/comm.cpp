@@ -2407,7 +2407,7 @@ int write_to_descriptor(socket_t desc, const char *txt, size_t total)
 
 		if (bytes_written < 0)
 		{
-			/* Fatal error.  Disconnect the player. */
+			/* Fatal error.  Disconnect the player_data. */
 			perror("SYSERR: write_to_descriptor");
 			return (0);
 		}

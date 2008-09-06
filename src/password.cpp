@@ -76,7 +76,7 @@ bool compare_password(CHAR_DATA *ch, const std::string &pwd)
 {
 	bool result = 0;
 	if (get_password_type(ch))
-		result = CompareParam(ch->player.passwd, CRYPT(pwd.c_str(), GET_PASSWD(ch)), 1);
+		result = CompareParam(ch->player_data.passwd, CRYPT(pwd.c_str(), GET_PASSWD(ch)), 1);
 	else
 	{
 		// если пароль des сошелся - конвертим сразу в md5 (10 - бывший MAX_PWD_LENGTH)

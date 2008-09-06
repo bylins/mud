@@ -1009,7 +1009,7 @@ void shopping_sell_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int 
 	write_buf(buf, shop_index[shop_nr].message_sell, GET_NAME(ch), goldamt, WHAT_MONEYa);
 	do_tell(keeper, buf, cmd_tell, 0);
 
-	sprintf(buf, "Теперь у %s есть %s.\r\n", keeper->player.PNames[1], times_message(obj, 0, sold, 0));
+	sprintf(buf, "Теперь у %s есть %s.\r\n", keeper->player_data.PNames[1], times_message(obj, 0, sold, 0));
 	send_to_char(buf, ch);
 
 	if (get_gold(keeper) < MIN_OUTSIDE_BANK)
@@ -1087,7 +1087,7 @@ void shopping_sell(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 	write_buf(buf, shop_index[shop_nr].message_sell, GET_NAME(ch), goldamt, WHAT_MONEYa);
 	do_tell(keeper, buf, cmd_tell, 0);
 
-	sprintf(buf, "Теперь у %s есть %s.\r\n", keeper->player.PNames[1], times_message(0, name, sold, 0));
+	sprintf(buf, "Теперь у %s есть %s.\r\n", keeper->player_data.PNames[1], times_message(0, name, sold, 0));
 	send_to_char(buf, ch);
 
 	if (get_gold(keeper) < MIN_OUTSIDE_BANK)

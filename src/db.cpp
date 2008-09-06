@@ -51,6 +51,7 @@
 #include "file_crc.hpp"
 #include "char.hpp"
 #include "skills.h"
+#include "char_player.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -2451,11 +2452,11 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 
 	mob_proto[i].char_specials.position = t[0];
 	mob_proto[i].mob_specials.default_pos = t[1];
-	mob_proto[i].player.sex = t[2];
+	mob_proto[i].player_data.sex = t[2];
 
-	mob_proto[i].player.chclass = 0;
-	mob_proto[i].player.weight = 200;
-	mob_proto[i].player.height = 198;
+	mob_proto[i].player_data.chclass = 0;
+	mob_proto[i].player_data.weight = 200;
+	mob_proto[i].player_data.height = 198;
 
 	/*
 	 * these are now save applies; base save numbers for MOBs are now from
@@ -2643,26 +2644,26 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 	CASE("Class")
 	{
 		RANGE(100, 116);
-		mob_proto[i].player.chclass = num_arg;
+		mob_proto[i].player_data.chclass = num_arg;
 	}
 
 
 	CASE("Height")
 	{
 		RANGE(0, 200);
-		mob_proto[i].player.height = num_arg;
+		mob_proto[i].player_data.height = num_arg;
 	}
 
 	CASE("Weight")
 	{
 		RANGE(0, 200);
-		mob_proto[i].player.weight = num_arg;
+		mob_proto[i].player_data.weight = num_arg;
 	}
 
 	CASE("Race")
 	{
 		RANGE(0, 20);
-		mob_proto[i].player.Race = num_arg;
+		mob_proto[i].player_data.Race = num_arg;
 	}
 
 	CASE("Special_Bitvector")
@@ -2991,21 +2992,21 @@ void parse_mobile(FILE * mob_f, int nr)
 	mob_proto[i].player_specials = &dummy_mob;
 	sprintf(buf2, "mob vnum %d", nr);
 	/***** String data *****/
-	mob_proto[i].player.name = fread_string(mob_f, buf2);	/* aliases */
-	tmpptr = mob_proto[i].player.short_descr = fread_string(mob_f, buf2);
+	mob_proto[i].player_data.name = fread_string(mob_f, buf2);	/* aliases */
+	tmpptr = mob_proto[i].player_data.short_descr = fread_string(mob_f, buf2);
 	/* real name */
-	CREATE(GET_PAD(mob_proto + i, 0), char, strlen(mob_proto[i].player.short_descr) + 1);
-	strcpy(GET_PAD(mob_proto + i, 0), mob_proto[i].player.short_descr);
+	CREATE(GET_PAD(mob_proto + i, 0), char, strlen(mob_proto[i].player_data.short_descr) + 1);
+	strcpy(GET_PAD(mob_proto + i, 0), mob_proto[i].player_data.short_descr);
 	for (j = 1; j < NUM_PADS; j++)
 		GET_PAD(mob_proto + i, j) = fread_string(mob_f, buf2);
 	if (tmpptr && *tmpptr)
 		if (!str_cmp(fname(tmpptr), "a") || !str_cmp(fname(tmpptr), "an") || !str_cmp(fname(tmpptr), "the"))
 			*tmpptr = LOWER(*tmpptr);
 
-	mob_proto[i].player.long_descr = fread_string(mob_f, buf2);
-	mob_proto[i].player.description = fread_string(mob_f, buf2);
+	mob_proto[i].player_data.long_descr = fread_string(mob_f, buf2);
+	mob_proto[i].player_data.description = fread_string(mob_f, buf2);
 	mob_proto[i].mob_specials.Questor = NULL;
-	mob_proto[i].player.title = NULL;
+	mob_proto[i].player_data.title = NULL;
 
 	// mob_proto[i].mob_specials.Questor = fread_string(mob_f, buf2);
 
@@ -3580,10 +3581,10 @@ int vnum_mobile(char *searchname, CHAR_DATA * ch)
 
 	for (nr = 0; nr <= top_of_mobt; nr++)
 	{
-		if (isname(searchname, mob_proto[nr].player.name))
+		if (isname(searchname, mob_proto[nr].player_data.name))
 		{
 			sprintf(buf, "%3d. [%5d] %s\r\n", ++found,
-					mob_index[nr].vnum, mob_proto[nr].player.short_descr);
+					mob_index[nr].vnum, mob_proto[nr].player_data.short_descr);
 			send_to_char(buf, ch);
 		}
 	}
@@ -3755,7 +3756,6 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	GET_MEM_TOTAL(mob) = GET_MEM_COMPLETED(mob) = 0;
 	GET_HORSESTATE(mob) = 200;
 	GET_LASTROOM(mob) = NOWHERE;
-	GET_PFILEPOS(mob) = -1;
 	if (mob->mob_specials.speed <= -1)
 		GET_ACTIVITY(mob) = number(0, PULSE_MOBILE - 1);
 	else
@@ -3764,9 +3764,9 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	mob->points.move = mob->points.max_move;
 	add_gold(mob, dice(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
 
-	mob->player.time.birth = time(0);
-	mob->player.time.played = 0;
-	mob->player.time.logon = time(0);
+	mob->player_data.time.birth = time(0);
+	mob->player_data.time.played = 0;
+	mob->player_data.time.logon = time(0);
 
 	mob_index[i].number++;
 	GET_ID(mob) = max_id++;
@@ -5031,6 +5031,9 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	// первыми иним и парсим поля для ребута до поля "Rebt", если reboot на входе = 1, то на этом парс и кончается
 	if (ch->player_specials == NULL)
 		CREATE(ch->player_specials, struct player_special_data, 1);
+
+	ch->player.create_player();
+
 	GET_LEVEL(ch) = 1;
 	GET_CLASS(ch) = 1;
 	GET_UNIQUE(ch) = 0;
@@ -5120,8 +5123,8 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	/* character init */
 	/* initializations necessary to keep some things straight */
 
-	ch->player.short_descr = NULL;
-	ch->player.long_descr = NULL;
+	ch->player_data.short_descr = NULL;
+	ch->player_data.long_descr = NULL;
 
 	ch->real_abils.Feats.reset();
 
@@ -5150,7 +5153,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	GET_AC(ch) = 10;
 	GET_ALIGNMENT(ch) = 0;
 	GET_BAD_PWS(ch) = 0;
-	ch->player.time.birth = time(0);
+	ch->player_data.time.birth = time(0);
 	GET_CHA(ch) = 10;
 	GET_KIN(ch) = 0;
 	GET_CON(ch) = 10;
@@ -5211,7 +5214,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	GET_COND(ch, FULL) = 0;
 	GET_INT(ch) = 10;
 	GET_INVIS_LEV(ch) = 0;
-	ch->player.time.logon = time(0);
+	ch->player_data.time.logon = time(0);
 	GET_MOVE(ch) = 44;
 	GET_MAX_MOVE(ch) = 44;
 	KARMA(ch) = 0;
@@ -5221,7 +5224,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	STRING_WIDTH(ch) = 25;
 	NAME_ID_GOD(ch) = 0;
 	GET_OLC_ZONE(ch) = 0;
-	ch->player.time.played = 0;
+	ch->player_data.time.played = 0;
 	IS_KILLER(ch) = 0;
 	GET_LOADROOM(ch) = NOWHERE;
 	GET_RELIGION(ch) = 1;
@@ -5328,7 +5331,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				GET_BOARD_DATE(ch, MISPRINT_BOARD) = lnum;
 
 			else if (!strcmp(tag, "Brth"))
-				ch->player.time.birth = lnum;
+				ch->player_data.time.birth = lnum;
 			break;
 
 		case 'C':
@@ -5341,7 +5344,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 		case 'D':
 			if (!strcmp(tag, "Desc"))
 			{
-				ch->player.description = fbgetstring(fl);
+				ch->player_data.description = fbgetstring(fl);
 			}
 			else if (!strcmp(tag, "Dex "))
 				GET_DEX(ch) = num;
@@ -5539,7 +5542,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			if (!strcmp(tag, "Pass"))
 				GET_PASSWD(ch) = str_dup(line);
 			else if (!strcmp(tag, "Plyd"))
-				ch->player.time.played = num;
+				ch->player_data.time.played = num;
 			else if (!strcmp(tag, "PfIn"))
 				POOFIN(ch) = str_dup(line);
 			else if (!strcmp(tag, "PfOt"))
@@ -5839,7 +5842,7 @@ int load_char(const char *name, CHAR_DATA * char_element, bool reboot)
 	player_i = load_char_ascii(name, char_element, reboot);
 	if (player_i > -1)
 	{
-		GET_PFILEPOS(char_element) = player_i;
+		char_element->player.set_pfilepos(player_i);
 	}
 	return (player_i);
 }
@@ -6169,35 +6172,37 @@ void init_char(CHAR_DATA * ch)
 	int i, start_room = NOWHERE;
 
 	/* create a player_special structure */
-	if (ch->player_specials == NULL)
-		CREATE(ch->player_specials, struct player_special_data, 1);
+//	if (ch->player_specials == NULL)
+//		CREATE(ch->player_specials, struct player_special_data, 1);
+
 #ifdef TEST_BUILD
 	if (top_of_p_table == 0) GET_LEVEL(ch) = LVL_IMPL; // При собирании через make test первый чар в маде становится иммом 34
 #endif
+
 	start_room = calc_loadroom(ch);
 	GET_PORTALS(ch) = NULL;
 	CREATE(GET_LOGS(ch), int, NLOG);
-	ch->player.short_descr = NULL;
-	ch->player.long_descr = NULL;
-	ch->player.description = NULL;
-	ch->player.hometown = 1;
-	ch->player.time.birth = time(0);
-	ch->player.time.played = 0;
-	ch->player.time.logon = time(0);
+	ch->player_data.short_descr = NULL;
+	ch->player_data.long_descr = NULL;
+	ch->player_data.description = NULL;
+	ch->player_data.hometown = 1;
+	ch->player_data.time.birth = time(0);
+	ch->player_data.time.played = 0;
+	ch->player_data.time.logon = time(0);
 
 	for (i = 0; i < MAX_TONGUE; i++)
 		GET_TALK(ch, i) = 0;
 
 	/* make favors for sex */
-	if (ch->player.sex == SEX_MALE)
+	if (ch->player_data.sex == SEX_MALE)
 	{
-		ch->player.weight = number(120, 180);
-		ch->player.height = number(160, 200);
+		ch->player_data.weight = number(120, 180);
+		ch->player_data.height = number(160, 200);
 	}
 	else
 	{
-		ch->player.weight = number(100, 160);
-		ch->player.height = number(150, 180);
+		ch->player_data.weight = number(100, 160);
+		ch->player_data.height = number(150, 180);
 	}
 
 	ch->points.hit = GET_MAX_HIT(ch);
@@ -6846,9 +6851,9 @@ void save_char(CHAR_DATA *ch)
 	OBJ_DATA *char_eq[NUM_WEARS];
 	struct timed_type *skj;
 	struct char_portal_type *prt;
-	int tmp = time(0) - ch->player.time.logon;
+	int tmp = time(0) - ch->player_data.time.logon;
 	if (!now_entrycount)
-		if (IS_NPC(ch) || GET_PFILEPOS(ch) < 0)
+		if (IS_NPC(ch) || ch->player.get_pfilepos() < 0)
 			return;
 
 	log("Save char %s", GET_NAME(ch));
@@ -6949,9 +6954,9 @@ void save_char(CHAR_DATA *ch)
 		fprintf(saved, "EMal: %s\n", GET_EMAIL(ch));
 	if (GET_TITLE(ch))
 		fprintf(saved, "Titl: %s\n", GET_TITLE(ch));
-	if (ch->player.description && *ch->player.description)
+	if (ch->player_data.description && *ch->player_data.description)
 	{
-		strcpy(buf, ch->player.description);
+		strcpy(buf, ch->player_data.description);
 		kill_ems(buf);
 		fprintf(saved, "Desc:\n%s~\n", buf);
 	}
@@ -6963,15 +6968,15 @@ void save_char(CHAR_DATA *ch)
 	fprintf(saved, "Kin : %d %s\n", GET_KIN(ch), kin_name[GET_KIN(ch)][(int) GET_SEX(ch)]);
 	if ((location = real_room(GET_HOME(ch))) != NOWHERE)
 		fprintf(saved, "Home: %d %s\n", GET_HOME(ch), world[(location)]->name);
-	li = ch->player.time.birth;
+	li = ch->player_data.time.birth;
 	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
 	// Gunner
 	// time.logon ЦАБ=---Lг- -= -Е-г ┐ёЮ-L-- - А┐АБг-Ц = time(0) -= БгLЦИ┐L ---г-Б
 	//-Юг-О - АгLЦ-г=Е А -=Г=L= ┐ёЮК
-	tmp += ch->player.time.played;
+	tmp += ch->player_data.time.played;
 	fprintf(saved, "Plyd: %d\n", tmp);
 	// Gunner end
-	li = ch->player.time.logon;
+	li = ch->player_data.time.logon;
 	fprintf(saved, "Last: %ld %s\n", static_cast<long int>(li), ctime(&li));
 	if (ch->desc)
 		strcpy(buf, ch->desc->host);

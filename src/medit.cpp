@@ -65,10 +65,10 @@ int real_zone(int number);
 
 //#define GET_NDD(mob) ((mob)->mob_specials.damnodice)
 //#define GET_SDD(mob) ((mob)->mob_specials.damsizedice)
-#define GET_ALIAS(mob) ((mob)->player.name)
-#define GET_SDESC(mob) ((mob)->player.short_descr)
-#define GET_LDESC(mob) ((mob)->player.long_descr)
-#define GET_DDESC(mob) ((mob)->player.description)
+#define GET_ALIAS(mob) ((mob)->player_data.name)
+#define GET_SDESC(mob) ((mob)->player_data.short_descr)
+#define GET_LDESC(mob) ((mob)->player_data.long_descr)
+#define GET_DDESC(mob) ((mob)->player_data.description)
 #define GET_ATTACK(mob) ((mob)->mob_specials.attack_type)
 #define S_KEEPER(shop) ((shop)->keeper)
 #if defined(OASIS_MPROG)
@@ -146,11 +146,11 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
    Т.к. работа идет с прототипом, необходимо отслеживать только следующие поля
    (остальные будут в безопасном состоянии)
 
-   player.name
-   player.short_descr
-   player.long_descr
-   player.description
-   player.PNames[6]
+   player_data.name
+   player_data.short_descr
+   player_data.long_descr
+   player_data.description
+   player_data.PNames[6]
    mob_specials.Questor - странно, т.к. похоже всегда NULL
    скрипт=NULL и прототипы
    помощники
@@ -1618,12 +1618,12 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_MODE(d) = MEDIT_D_DESC;
 			SEND_TO_Q("Введите описание моба: (/s сохранить /h помощь)\r\n\r\n", d);
 			d->backstr = NULL;
-			if (OLC_MOB(d)->player.description)
+			if (OLC_MOB(d)->player_data.description)
 			{
-				SEND_TO_Q(OLC_MOB(d)->player.description, d);
-				d->backstr = str_dup(OLC_MOB(d)->player.description);
+				SEND_TO_Q(OLC_MOB(d)->player_data.description, d);
+				d->backstr = str_dup(OLC_MOB(d)->player_data.description);
 			}
-			d->str = &OLC_MOB(d)->player.description;
+			d->str = &OLC_MOB(d)->player_data.description;
 			d->max_str = MAX_MOB_DESC;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;
