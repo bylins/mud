@@ -43,7 +43,6 @@
 #include "depot.hpp"
 #include "glory.hpp"
 #include "char.hpp"
-#include "char_player.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;

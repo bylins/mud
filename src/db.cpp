@@ -51,7 +51,6 @@
 #include "file_crc.hpp"
 #include "char.hpp"
 #include "skills.h"
-#include "char_player.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
