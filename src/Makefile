@@ -11,7 +11,7 @@ CXREF = cxref
 
 BINDIR = ../bin
 
-CFLAGS = -ggdb3 -O2 -Wall
+CFLAGS = -ggdb3 -O3 -Wall
 # use 'make test' for faster compile w/o optimizations, crypt and 34lvl god for first character
 TESTCFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC
 
