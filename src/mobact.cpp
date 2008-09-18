@@ -845,7 +845,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 			door = npc_walk(ch);
 		}
 
-		if (ch->get_skill(SKILL_TRACK) && GET_POS(ch) > POS_FIGHTING && MEMORY(ch) && door == BFS_ERROR)
+		if (MEMORY(ch) && door == BFS_ERROR && GET_POS(ch) > POS_FIGHTING && ch->get_skill(SKILL_TRACK))
 			door = npc_track(ch);
 
 		if (door == BFS_ALREADY_THERE)
