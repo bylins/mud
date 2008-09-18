@@ -1429,7 +1429,7 @@ public:
 
 template<class T> void skip_spaces(T string)
 {
-	for (; **string && a_isspace(**string); (*string)++);
+	for (; **string && a_isspace(**string); (*string)++) ;
 }
 
 #endif // _UTILS_H_

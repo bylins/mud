@@ -387,10 +387,10 @@ bool check_spells(CHAR_DATA *ch, int spellnum)
 
 /**
 * Проверка на возможность использования скилла. Вызов через get_skill.
-* У морталов и 34х проверка не производится.
+* У морталов, мобов и 34х проверка не производится.
 * \return 0 - не может использовать скиллы, 1 - может
 */
-bool check_skills(CHAR_DATA *ch, int skills)
+bool check_skills(CHAR_DATA *ch)
 {
 	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;

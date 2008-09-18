@@ -259,7 +259,7 @@ Character::~Character()
 */
 int Character::get_skill(int skill_num)
 {
-	if (Privilege::check_skills(this, skill_num))
+	if (Privilege::check_skills(this))
 	{
 		CharSkillsType::iterator it = skills.find(skill_num);
 		if (it != skills.end())
