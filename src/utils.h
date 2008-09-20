@@ -37,7 +37,6 @@ extern char AltToLat[];
 
 /* public functions in utils.cpp */
 CHAR_DATA *find_char(long n);
-char *title_noname(CHAR_DATA *ch);
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);
@@ -441,7 +440,6 @@ extern SPECIAL(postmaster);
 
 #define IS_MANA_CASTER(ch) (GET_CLASS(ch)==CLASS_DRUID)
 #define IN_ROOM(ch)  ((ch)->in_room)
-#define GET_WAS_IN(ch)  ((ch)->was_in_room)
 #define GET_AGE(ch)     (age(ch)->year)
 #define GET_REAL_AGE(ch) (age(ch)->year + GET_AGE_ADD(ch))
 
@@ -467,7 +465,6 @@ extern SPECIAL(postmaster);
 #define PUNCTUAL_WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
 #define CLR_MEMORY(ch)  (memset((ch)->Memory,0,MAX_SPELLS+1))
 #define FORGET_ALL(ch) {MemQ_flush(ch);memset((ch)->real_abils.SplMem,0,MAX_SPELLS+1);}
-#define GET_PASSWD(ch)   ((ch)->player_data.passwd)
 #define IS_KILLER(ch)    ((ch)->points.pk_counter)
 #define IS_CODER(ch)    (GET_LEVEL(ch) < LVL_IMMORT && PRF_FLAGGED(ch, PRF_CODERINFO))
 #define IS_COLORED(ch)    (pk_count (ch))
@@ -510,7 +507,6 @@ extern SPECIAL(postmaster);
 #define VPOSI(val,min,max)      ((val < max) ? ((val > min) ? val : min) : max)
 #define GET_CLASS(ch)   ((ch)->player_data.chclass)
 #define GET_KIN(ch)     ((ch)->player_data.Kin)
-#define GET_HOME(ch) ((ch)->player_data.hometown)
 #define GET_HEIGHT(ch)  ((ch)->player_data.height)
 #define GET_HEIGHT_ADD(ch) ((ch)->add_abils.height_add)
 #define GET_REAL_HEIGHT(ch) (GET_HEIGHT(ch) + GET_HEIGHT_ADD(ch))
@@ -599,7 +595,6 @@ extern SPECIAL(postmaster);
 #define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
 #define IS_CARRYING_N(ch) ((ch)->char_specials.carry_items)
 #define FIGHTING(ch)   ((ch)->char_specials.fighting)
-#define HUNTING(ch)        ((ch)->char_specials.hunting)
 #define PROTECTING(ch)    ((ch)->Protecting)
 #define TOUCHING(ch)   ((ch)->Touching)
 
@@ -663,11 +658,6 @@ extern SPECIAL(postmaster);
 #define EXCHANGE_FILTER(ch)     CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->Exchange_filter))
 #define IGNORE_LIST(ch)     CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->ignores))
 
-#define GET_BET(ch)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->bet))
-#define GET_BET_SLOT(ch)  CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->bet_slot))
-
-#define GET_LAST_OLC_TARG(ch) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->last_olc_targ))
-#define GET_LAST_OLC_MODE(ch) CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->last_olc_mode))
 #define GET_ALIASES(ch)        CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->aliases))
 #define GET_LAST_TELL(ch)      CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->last_tell))
 #define GET_LAST_ALL_TELL(ch)   CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->LastAllTell))
@@ -1189,7 +1179,6 @@ int is_rent(room_rnum room);
 char *noclan_title(CHAR_DATA * ch);
 char *only_title(CHAR_DATA * ch);
 char *race_or_title(CHAR_DATA * ch);
-char *race_or_title_enl(CHAR_DATA * ch);
 int pc_duration(CHAR_DATA * ch, int cnst, int level, int level_divisor, int min, int max);
 
 /* Modifier functions */

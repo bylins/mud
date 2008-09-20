@@ -4747,7 +4747,7 @@ int is_empty(zone_rnum zone_nr)
 // теперь проверю всех товарищей в void комнате STRANGE_ROOM
 	for (c = world[STRANGE_ROOM]->people; c; c = c->next_in_room)
 	{
-		int was = GET_WAS_IN(c);
+		int was = c->player.get_was_in_room();
 		if (was == NOWHERE)
 			continue;
 		if (GET_LEVEL(c) >= LVL_IMMORT)
@@ -5207,7 +5207,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	GET_HIT(ch) = 21;
 	GET_MAX_HIT(ch) = 21;
 	GET_HEIGHT(ch) = 50;
-	GET_HOME(ch) = 0;
 	GET_HR(ch) = 0;
 	GET_COND(ch, FULL) = 0;
 	GET_INT(ch) = 10;
@@ -5414,8 +5413,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			}
 			else if (!strcmp(tag, "Hite"))
 				GET_HEIGHT(ch) = num;
-			else if (!strcmp(tag, "Home"))
-				GET_HOME(ch) = num;
 			else if (!strcmp(tag, "Hrol"))
 				GET_HR(ch) = num;
 			else if (!strcmp(tag, "Hung"))
@@ -5536,7 +5533,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 
 		case 'P':
 			if (!strcmp(tag, "Pass"))
-				GET_PASSWD(ch) = str_dup(line);
+				ch->player.set_passwd(line);
 			else if (!strcmp(tag, "Plyd"))
 				ch->player_data.time.played = num;
 			else if (!strcmp(tag, "PfIn"))
@@ -6181,7 +6178,6 @@ void init_char(CHAR_DATA * ch)
 	ch->player_data.short_descr = NULL;
 	ch->player_data.long_descr = NULL;
 	ch->player_data.description = NULL;
-	ch->player_data.hometown = 1;
 	ch->player_data.time.birth = time(0);
 	ch->player_data.time.played = 0;
 	ch->player_data.time.logon = time(0);
@@ -6837,7 +6833,6 @@ void save_char(CHAR_DATA *ch)
 {
 	FILE *saved;
 	char filename[MAX_STRING_LENGTH];
-	room_rnum location;
 	int i;
 	time_t li;
 	AFFECT_DATA *aff, tmp_aff[MAX_AFFECT];
@@ -6941,8 +6936,8 @@ void save_char(CHAR_DATA *ch)
 		fprintf(saved, "NmT : %s\n", GET_PAD(ch, 4));
 	if (GET_PAD(ch, 0))
 		fprintf(saved, "NmP : %s\n", GET_PAD(ch, 5));
-	if (GET_PASSWD(ch))
-		fprintf(saved, "Pass: %s\n", GET_PASSWD(ch));
+	if (!ch->player.get_passwd().empty())
+		fprintf(saved, "Pass: %s\n", ch->player.get_passwd().c_str());
 	if (GET_EMAIL(ch))
 		fprintf(saved, "EMal: %s\n", GET_EMAIL(ch));
 	if (GET_TITLE(ch))
@@ -6959,8 +6954,6 @@ void save_char(CHAR_DATA *ch)
 		fprintf(saved, "PfOt: %s\n", POOFOUT(ch));
 	fprintf(saved, "Sex : %d %s\n", GET_SEX(ch), genders[(int) GET_SEX(ch)]);
 	fprintf(saved, "Kin : %d %s\n", GET_KIN(ch), kin_name[GET_KIN(ch)][(int) GET_SEX(ch)]);
-	if ((location = real_room(GET_HOME(ch))) != NOWHERE)
-		fprintf(saved, "Home: %d %s\n", GET_HOME(ch), world[(location)]->name);
 	li = ch->player_data.time.birth;
 	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
 	// Gunner

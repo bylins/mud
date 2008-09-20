@@ -2,53 +2,48 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include <string>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "char.hpp"
 #include "char_player.hpp"
-#include "comm.h"
-#include "utils.h"
 
-PlayerBase::~PlayerBase() {};
-// дефолтные поля плеера для всех мобов разом
-Player PlayerProxy::mob;
-char const *log_message = "SYSERR: Mob using 'player' at %s.";
+PlayerI::~PlayerI() {};
 
 Player::Player()
-	: pfilepos(-1)
+	: pfilepos_(-1),
+	was_in_room_(NOWHERE)
 {
 
 }
 
-int Player::get_pfilepos()
+int Player::get_pfilepos() const
 {
-	return pfilepos;
+	return pfilepos_;
 }
 
-int PlayerProxy::get_pfilepos()
+void Player::set_pfilepos(int pfilepos)
 {
-	if (player)
-		return player->get_pfilepos();
-	else
-	{
-		log(log_message, __func__);
-		return mob.get_pfilepos();
-	}
+	pfilepos_ = pfilepos;
 }
 
-void Player::set_pfilepos(int num)
+room_rnum Player::get_was_in_room() const
 {
-	pfilepos = num;
+	return was_in_room_;
 }
 
-void PlayerProxy::set_pfilepos(int num)
+void Player::set_was_in_room(room_rnum was_in_room)
 {
-	if (player)
-		player->set_pfilepos(num);
-	else
-	{
-		log(log_message, __func__);
-		mob.set_pfilepos(num);
-	}
+	was_in_room_ = was_in_room;
+}
+
+std::string const & Player::get_passwd() const
+{
+	return passwd_;
+}
+
+void Player::set_passwd(std::string const & passwd)
+{
+	passwd_ = passwd;
 }

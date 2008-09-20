@@ -1530,45 +1530,6 @@ char *noclan_title(CHAR_DATA * ch)
 	return title;
 }
 
-char *title_noname(CHAR_DATA *ch)
-{
-	static char title[MAX_STRING_LENGTH];
-	static char clan[MAX_STRING_LENGTH];
-	char *pos, *pos1;
-
-	if (CLAN(ch) && !IS_IMMORTAL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
-		sprintf(clan, " (%s)", GET_CLAN_STATUS(ch));
-	else
-		clan[0] = 0;
-
-	if (!GET_TITLE(ch) || !*GET_TITLE(ch))
-		sprintf(title, "%s%s", GET_NAME(ch), clan);
-	else
-	{
-		if ((pos1 = strchr(GET_TITLE(ch), '/')))
-			* (pos1++) = '\0';
-
-		if ((pos = strchr(GET_TITLE(ch), ';')))
-		{
-			*(pos++) = '\0';
-			sprintf(title, "%s;%s%s", pos, GET_TITLE(ch), clan);
-
-			*(--pos) = ';';
-		}
-		else
-		{
-			sprintf(title, "%s%s", GET_TITLE(ch), clan);
-		}
-		if (pos1)
-			*(--pos1) = '/';
-	}
-	return title;
-}
-
-
-
-
-
 char *only_title(CHAR_DATA * ch)
 {
 	static char title[MAX_STRING_LENGTH];

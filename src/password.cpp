@@ -51,12 +51,11 @@ std::string generate_md5_hash(const std::string &pwd)
 
 /**
 * Генерируем новый хэш и пишем его чару
+* TODO: в принципе можно и совместить с методом плеера.
 */
 void set_password(CHAR_DATA *ch, const std::string &pwd)
 {
-	if (GET_PASSWD(ch))
-		free(GET_PASSWD(ch));
-	GET_PASSWD(ch) = str_dup(generate_md5_hash(pwd).c_str());
+	ch->player.set_passwd(generate_md5_hash(pwd));
 }
 
 /**
@@ -65,7 +64,7 @@ void set_password(CHAR_DATA *ch, const std::string &pwd)
 */
 bool get_password_type(const CHAR_DATA *ch)
 {
-	return CompareParam("$1$", GET_PASSWD(ch));
+	return CompareParam("$1$", ch->player.get_passwd());
 }
 
 /**
@@ -76,11 +75,11 @@ bool compare_password(CHAR_DATA *ch, const std::string &pwd)
 {
 	bool result = 0;
 	if (get_password_type(ch))
-		result = CompareParam(ch->player_data.passwd, CRYPT(pwd.c_str(), GET_PASSWD(ch)), 1);
+		result = CompareParam(ch->player.get_passwd(), CRYPT(pwd.c_str(), ch->player.get_passwd().c_str()), 1);
 	else
 	{
 		// если пароль des сошелся - конвертим сразу в md5 (10 - бывший MAX_PWD_LENGTH)
-		if (!strncmp(CRYPT(pwd.c_str(), GET_PASSWD(ch)), GET_PASSWD(ch), 10))
+		if (!strncmp(CRYPT(pwd.c_str(), ch->player.get_passwd().c_str()), ch->player.get_passwd().c_str(), 10))
 		{
 			set_password(ch, pwd);
 			result = 1;

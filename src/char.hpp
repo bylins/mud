@@ -11,7 +11,7 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-#include "char_player.hpp"
+#include "char_player_proxy.hpp"
 
 /* These data contain information about a players time data */
 struct time_data
@@ -24,7 +24,6 @@ struct time_data
 /* general player-related info, usually PC's and NPC's */
 struct char_player_data
 {
-	char *passwd;	/* character's password      */
 	char *name;		/* PC / NPC s name (kill ...  )         */
 	char *short_descr;	/* for NPC 'actions'                    */
 	char *long_descr;	/* for 'look'               */
@@ -33,7 +32,6 @@ struct char_player_data
 	byte sex;		/* PC / NPC's sex                       */
 	byte chclass;		/* PC / NPC's class             */
 	byte level;		/* PC / NPC's level                     */
-	int hometown;		/* PC s Hometown (zone)                 */
 	struct time_data time;			/* PC's AGE in days                 */
 	ubyte weight;		/* PC / NPC's weight                    */
 	ubyte height;		/* PC / NPC's height                    */
@@ -132,7 +130,6 @@ struct char_special_data_saved
 struct char_special_data
 {
 	CHAR_DATA *fighting;	/* Opponent */
-	CHAR_DATA *hunting;	/* Char hunted by this char */
 
 	byte position;		/* Standing, fighting, sleeping, etc. */
 
@@ -246,26 +243,18 @@ struct player_special_data
 	char *poofout;		/* Description upon a god's exit.   */
 	struct alias_data *aliases;	/* Character's aliases    */
 	long last_tell;		/* idnum of last tell from      */
-	void *last_olc_targ;	/* olc control         */
-	int last_olc_mode;		/* olc control         */
 	time_t may_rent;		/* PK control                       */
 	int agressor;		/* Agression room(it is also a flag) */
 	time_t agro_time;		/* Last agression time (it is also a flag) */
-	int bet;			/* bet amount */
-	int bet_slot;		/* bet slot number */
 	struct _im_rskill_tag *rskill;	/* Известные рецепты */
 	struct char_portal_type *portals;	/* порталы теперь живут тут */
 	int *logs;		// уровни подробности каналов log
 
 	char *LastAllTell;
-//F@N|
 	char *Exchange_filter;
-// shapirus
 	struct ignore_data *ignores;
-// Alez Karma
 	char *Karma; /* Записи о поощрениях, наказаниях персонажа*/
 
-// Alez logons.
 	struct logon_data * logons; /*Записи о входах чара*/
 
 // Punishments structs
@@ -304,7 +293,7 @@ public:
 	void clear_skills();
 	int get_skills_count();
 
-	// поля, имеющиеся только у персонажа (CreateChar и load_char_ascii), у мобов это одна общая область памяти
+	// поля, имеющиеся только у персонажа (CreateChar и load_char_ascii)
 	PlayerProxy player;
 
 private:
@@ -314,7 +303,6 @@ private:
 public:
 	mob_rnum nr;		/* Mob's rnum                   */
 	room_rnum in_room;	/* Location (real room number)   */
-	room_rnum was_in_room;	/* location for linkdead people  */
 	int wait;			/* wait for how many loops         */
 	int punctual_wait;		/* wait for how many loops (punctual style) */
 	char *last_comm;		/* последний приказ чармису перед окончанием лага */

@@ -348,7 +348,6 @@ ACMD(do_mteleport);
 ACMD(do_mforce);
 ACMD(do_mexp);
 ACMD(do_mgold);
-ACMD(do_mhunt);
 ACMD(do_mremember);
 ACMD(do_mforget);
 ACMD(do_mfeatturn);
@@ -1046,7 +1045,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"mforce", POS_DEAD, do_mforce, -1, 0, -1},
 	{"mexp", POS_DEAD, do_mexp, -1, 0, -1},
 	{"mgold", POS_DEAD, do_mgold, -1, 0, -1},
-	{"mhunt", POS_DEAD, do_mhunt, -1, 0, -1},
 	{"mremember", POS_DEAD, do_mremember, -1, 0, -1},
 	{"mforget", POS_DEAD, do_mforget, -1, 0, -1},
 	{"mtransform", POS_DEAD, do_mtransform, -1, 0, -1},
@@ -1957,7 +1955,7 @@ int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0)
 			{
 			case 0:
 				// если уже сидим в проксе, то смысла спамить никакого
-				if (IN_ROOM(d->character) == r_unreg_start_room || GET_WAS_IN(d->character) == r_unreg_start_room)
+				if (IN_ROOM(d->character) == r_unreg_start_room || d->character->player.get_was_in_room() == r_unreg_start_room)
 					return 0;
 				send_to_char(d->character,
 							 "&RВы вошли с игроком %s с одного IP(%s) !\r\n"

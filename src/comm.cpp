@@ -927,12 +927,12 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if (d->character)  	/* Reset the idle timer & pull char back from void if necessary */
 		{
 			d->character->char_specials.timer = 0;
-			if (STATE(d) == CON_PLAYING && GET_WAS_IN(d->character) != NOWHERE)
+			if (STATE(d) == CON_PLAYING && d->character->player.get_was_in_room() != NOWHERE)
 			{
 				if (d->character->in_room != NOWHERE)
 					char_from_room(d->character);
-				char_to_room(d->character, GET_WAS_IN(d->character));
-				GET_WAS_IN(d->character) = NOWHERE;
+				char_to_room(d->character, d->character->player.get_was_in_room());
+				d->character->player.set_was_in_room(NOWHERE);
 				act("$n вернул$u.", TRUE, d->character, 0, 0, TO_ROOM);
 				GET_WAIT_STATE(d->character) = 1;
 			}

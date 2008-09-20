@@ -94,9 +94,6 @@ void mob_log(CHAR_DATA * mob, const char *msg)
 /* prints the argument to all the rooms aroud the mobile */
 ACMD(do_masound)
 {
-	int was_in_room;
-	int door;
-
 	if (!MOB_OR_IMPL(ch))
 	{
 		send_to_char("Чаво ?\r\n", ch);
@@ -114,19 +111,19 @@ ACMD(do_masound)
 
 	skip_spaces(&argument);
 
-	was_in_room = IN_ROOM(ch);
-	for (door = 0; door < NUM_OF_DIRS; door++)
+	int temp_in_room = IN_ROOM(ch);
+	for (int door = 0; door < NUM_OF_DIRS; door++)
 	{
 		EXIT_DATA *exit;
-		if (((exit = world[was_in_room]->dir_option[door]) != NULL) &&
-				exit->to_room != NOWHERE && exit->to_room != was_in_room)
+		if (((exit = world[temp_in_room]->dir_option[door]) != NULL) &&
+				exit->to_room != NOWHERE && exit->to_room != temp_in_room)
 		{
 			IN_ROOM(ch) = exit->to_room;
 			sub_write(argument, ch, TRUE, TO_ROOM);
 		}
 	}
 
-	IN_ROOM(ch) = was_in_room;
+	IN_ROOM(ch) = temp_in_room;
 }
 
 
@@ -931,56 +928,6 @@ ACMD(do_mgold)
 	}
 }
 
-
-/* hunt for someone */
-ACMD(do_mhunt)
-{
-	CHAR_DATA *victim;
-	char arg[MAX_INPUT_LENGTH];
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво ?\r\n", ch);
-		return;
-	}
-
-	if (AFF_FLAGGED(ch, AFF_CHARM))
-		return;
-
-	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
-		return;
-
-	one_argument(argument, arg);
-
-	if (!*arg)
-	{
-		mob_log(ch, "mhunt called with no argument");
-		return;
-	}
-
-
-	if (FIGHTING(ch))
-		return;
-
-	if (*arg == UID_CHAR)
-	{
-		if (!(victim = get_char(arg)))
-		{
-			sprintf(buf, "mhunt: victim (%s) does not exist", arg);
-			mob_log(ch, buf);
-			return;
-		}
-	}
-	else if (!(victim = get_char_vis(ch, arg, FIND_CHAR_WORLD)))
-	{
-		sprintf(buf, "mhunt: victim (%s) does not exist", arg);
-		mob_log(ch, buf);
-		return;
-	}
-	HUNTING(ch) = victim;
-}
-
-
 /* place someone into the mob's memory list */
 ACMD(do_mremember)
 {
@@ -1217,8 +1164,6 @@ ACMD(do_mtransform)
 		m->followers = tmpmob.followers;
 		ch->master = m->master;
 		m->master = tmpmob.master;
-		GET_WAS_IN(ch) = GET_WAS_IN(m);
-		GET_WAS_IN(m) = GET_WAS_IN(&tmpmob);
 		if (keep_hp)
 		{
 			GET_HIT(ch) = GET_HIT(m);
@@ -1233,8 +1178,6 @@ ACMD(do_mtransform)
 		IS_CARRYING_N(m) = IS_CARRYING_N(&tmpmob);
 		FIGHTING(ch) = FIGHTING(m);
 		FIGHTING(m) = FIGHTING(&tmpmob);
-		HUNTING(ch) = HUNTING(m);
-		HUNTING(m) = HUNTING(&tmpmob);
 
 		for (pos = 0; pos < NUM_WEARS; pos++)
 		{

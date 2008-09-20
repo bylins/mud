@@ -19,7 +19,6 @@
 Character::Character()
 		: nr(NOBODY),
 		in_room(0),
-		was_in_room(NOWHERE),
 		wait(0),
 		punctual_wait(0),
 		last_comm(0),
@@ -98,9 +97,6 @@ Character::~Character()
 	{	/* if this is a player, or a non-prototyped non-player, free all */
 		if (GET_NAME(this))
 			free(GET_NAME(this));
-
-		if (GET_PASSWD(this))
-			free(GET_PASSWD(this));
 
 		for (j = 0; j < NUM_PADS; j++)
 			if (GET_PAD(this, j))

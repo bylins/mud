@@ -2737,18 +2737,6 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 	if (IN_ROOM(ch) != IN_ROOM(victim))
 		return dam;
 
-	// *********** Help out poor linkless people who are attacked */
-	if (!IS_NPC(victim) && !(victim->desc) && GET_POS(victim) > POS_STUNNED)
-	{	/*
-		do_flee(victim, NULL, 0, 0);
-		if (!FIGHTING(victim)) {
-			act("$n был$g спасен$a Богами.", FALSE, victim, 0, 0, TO_ROOM);
-			GET_WAS_IN(victim) = IN_ROOM(victim);
-			char_from_room(victim);
-			char_to_room(victim, STRANGE_ROOM);
-		}
-											 */
-	}
 	// *********** Stop someone from fighting if they're stunned or worse
 	if ((GET_POS(victim) <= POS_STUNNED) && (FIGHTING(victim) != NULL))
 	{
