@@ -310,7 +310,7 @@ void Character::create_player()
 }
 
 static PlayerPtr shared_mob(new Player);
-#define CHECK_MOB_GUARD(player) if (player == shared_mob) log("SYSERR: Mob using player %s.", __func__)
+#define CHECK_MOB_GUARD(player) if (player == shared_mob) log("SYSERR: Mob using %s.", __func__)
 
 void Character::create_mob_guard()
 {
