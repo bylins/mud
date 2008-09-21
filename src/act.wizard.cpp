@@ -1869,7 +1869,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 			}
 		}
 
-		std::string quested = k->print_quested();
+		std::string quested(k->print_quested());
 		if (!quested.empty())
 			send_to_char(ch, "Выполнил квесты:%s\r\n", quested.c_str());
 
