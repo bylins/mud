@@ -537,7 +537,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				char_to_room(vict, r_helled_start_room);
 				look_at_room(vict, r_helled_start_room);
 			};
-			vict->player.set_was_in_room(NOWHERE);
+			vict->set_was_in_room(NOWHERE);
 
 			sprintf(buf, "%s moved TO hell by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -563,7 +563,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				char_to_room(vict, r_named_start_room);
 				look_at_room(vict, r_named_start_room);
 			};
-			vict->player.set_was_in_room(NOWHERE);
+			vict->set_was_in_room(NOWHERE);
 
 			sprintf(buf, "%s removed to nameroom by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -590,7 +590,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 					look_at_room(vict, r_unreg_start_room);
 				}
 			}
-			vict->player.set_was_in_room(NOWHERE);
+			vict->set_was_in_room(NOWHERE);
 
 			sprintf(buf, "%s unregistred by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -3699,7 +3699,7 @@ ACMD(do_show)
 			++i;
 			sprintf(buf, "%-50s[%6d][%6d]   %d\r\n",
 					noclan_title(vict), GET_ROOM_VNUM(IN_ROOM(vict)),
-					GET_ROOM_VNUM(vict->player.get_was_in_room()), vict->char_specials.timer);
+					GET_ROOM_VNUM(vict->get_was_in_room()), vict->char_specials.timer);
 			send_to_char(buf, ch);
 		}
 		sprintf(buf, "Всего - %d\r\n", i);

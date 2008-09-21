@@ -302,3 +302,61 @@ int Character::get_skills_count()
 {
 	return skills.size();
 }
+
+////////////////////////////////////////////////////////////////////////////////
+void Character::create_player()
+{
+	player.reset(new Player);
+}
+
+static PlayerPtr shared_mob(new Player);
+#define CHECK_MOB_GUARD(player) if (player == shared_mob) log("SYSERR: Mob using player %s.", __func__)
+
+void Character::create_mob_guard()
+{
+	player = shared_mob;
+}
+
+Player::Player()
+	: pfilepos_(-1),
+	was_in_room_(NOWHERE)
+{
+
+}
+
+int Character::get_pfilepos() const
+{
+	CHECK_MOB_GUARD(player);
+	return player->pfilepos_;
+}
+
+void Character::set_pfilepos(int pfilepos)
+{
+	CHECK_MOB_GUARD(player);
+	player->pfilepos_ = pfilepos;
+}
+
+room_rnum Character::get_was_in_room() const
+{
+	CHECK_MOB_GUARD(player);
+	return player->was_in_room_;
+}
+
+void Character::set_was_in_room(room_rnum was_in_room)
+{
+	CHECK_MOB_GUARD(player);
+	player->was_in_room_ = was_in_room;
+}
+
+std::string const & Character::get_passwd() const
+{
+	CHECK_MOB_GUARD(player);
+	return player->passwd_;
+}
+
+void Character::set_passwd(std::string const & passwd)
+{
+	CHECK_MOB_GUARD(player);
+	player->passwd_ = passwd;
+}
+////////////////////////////////////////////////////////////////////////////////

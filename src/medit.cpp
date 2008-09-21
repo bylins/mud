@@ -127,6 +127,7 @@ void medit_mobile_init(CHAR_DATA * mob)
 
 	SET_BIT(MOB_FLAGS(mob, MOB_ISNPC), MOB_ISNPC);
 	mob->player_specials = &dummy_mob;
+	mob->create_mob_guard();
 
 	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
 		GET_RESIST(mob, i) = 0;
