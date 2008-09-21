@@ -1868,15 +1868,10 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 				send_to_char(buf, ch);
 			}
 		}
-		if (k->Questing.count)
-		{
-			send_to_char("Выполнил квесты NN : \r\n", ch);
-			*buf = '\0';
-			for (i = 0; i < k->Questing.count && strlen(buf) + 80 < MAX_STRING_LENGTH; i++)
-				sprintf(buf + strlen(buf), "%-8d", k->Questing.quests[i]);
-			strcat(buf, "\r\n");
-			send_to_char(buf, ch);
-		}
+
+		std::string quested = k->print_quested();
+		if (!quested.empty())
+			send_to_char(ch, "Выполнил квесты:%s\r\n", quested.c_str());
 
 		if (RENTABLE(k))
 		{
@@ -4424,28 +4419,20 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		if (!str_cmp(npad[0], "off") || !str_cmp(npad[0], "выкл"))
 		{
-			for (i = j = 0; j < vict->Questing.count; i++, j++)
-			{
-				if (vict->Questing.quests[i] == ptnum)
-					j++;
-				vict->Questing.quests[i] = vict->Questing.quests[j];
-			}
-			if (j > i)
-				vict->Questing.count--;
-			else
+			if (!vict->remove_quested(ptnum))
 			{
 				act("$N не выполнял$G этого квеста.", FALSE, ch, 0, vict, TO_CHAR);
-				return (0);
+				return 0;
 			}
 		}
 		else if (!str_cmp(npad[0], "on") || !str_cmp(npad[0], "вкл"))
 		{
-			set_quested(vict, ptnum);
+			vict->add_quested(ptnum);
 		}
 		else
 		{
 			send_to_char("Требуется on или off.\r\n", ch);
-			return (0);
+			return 0;
 		}
 		break;
 

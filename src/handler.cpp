@@ -268,58 +268,6 @@ int isname(const std::string &str, const char *namelist)
 	}
 }
 
-void set_quested(CHAR_DATA * ch, int quest)
-{
-	int i;
-	if (IS_NPC(ch) || IS_IMMORTAL(ch))
-		return;
-	if (ch->Questing.quests)
-	{
-		for (i = 0; i < ch->Questing.count; i++)
-			if (*(ch->Questing.quests + i) == quest)
-				return;
-		if (!(ch->Questing.count % 10L))
-			RECREATE(ch->Questing.quests, int, (ch->Questing.count / 10L + 1) * 10L);
-	}
-	else
-	{
-		ch->Questing.count = 0;
-		CREATE(ch->Questing.quests, int, 10);
-	}
-	*(ch->Questing.quests + ch->Questing.count++) = quest;
-}
-
-void set_unquest(CHAR_DATA * ch, int quest)
-{
-	int i, j;
-
-	for (i = j = 0; j < ch->Questing.count; i++, j++)
-	{
-		if (ch->Questing.quests[i] == quest)
-			j++;
-		ch->Questing.quests[i] = ch->Questing.quests[j];
-	}
-	if (j > i)
-		ch->Questing.count--;
-
-}
-
-
-int get_quested(CHAR_DATA * ch, int quest)
-{
-	int i;
-	if (IS_NPC(ch) || IS_IMMORTAL(ch))
-		return (FALSE);
-	if (ch->Questing.quests)
-	{
-		for (i = 0; i < ch->Questing.count; i++)
-			if (*(ch->Questing.quests + i) == quest)
-				return (TRUE);
-	}
-	return (FALSE);
-}
-
-
 bool is_wear_light(CHAR_DATA *ch)
 {
 	bool wear_light = FALSE;

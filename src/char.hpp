@@ -7,6 +7,7 @@
 
 #include <bitset>
 #include <map>
+#include <set>
 #include <boost/shared_ptr.hpp>
 #include "conf.h"
 #include "sysdep.h"
@@ -173,13 +174,6 @@ struct spell_mem_queue
 	int total;			// полное время мема всей очереди
 };
 
-/* Structure used for questing */
-struct quest_data
-{
-	int count;
-	int *quests;
-};
-
 struct mob_kill_data
 {
 	int count;
@@ -287,6 +281,8 @@ public:
 	room_rnum was_in_room_;
 	// хэш пароля
 	std::string passwd_;
+	// внумы выполненных квестов
+	std::set<int> quested_;
 };
 
 typedef boost::shared_ptr<Player> PlayerPtr;
@@ -301,7 +297,6 @@ class Character
 public:
 	Character();
 	~Character();
-
 ////////////////////////////////////////////////////////////////////////////////
 	void create_player();
 	void create_mob_guard();
@@ -314,8 +309,16 @@ public:
 
 	std::string const & get_passwd() const;
 	void set_passwd(std::string const & passwd);
-////////////////////////////////////////////////////////////////////////////////
 
+	void add_quested(int vnum);
+	bool remove_quested(int vnum);
+	bool get_quested(int vnum) const;
+	std::string print_quested() const;
+////////////////////////////////////////////////////////////////////////////////
+	// это все как обычно временно... =)
+	friend void save_char(CHAR_DATA *ch);
+	void player_remort();
+////////////////////////////////////////////////////////////////////////////////
 	int get_skill(int skill_num);
 	void set_skill(int skill_num, int percent);
 	void clear_skills();
@@ -364,7 +367,6 @@ public:
 
 	struct spell_mem_queue MemQueue;		// очередь изучаемых заклинаний
 
-	struct quest_data Questing;
 	struct mob_kill_data MobKill;
 
 	int CasterLevel;

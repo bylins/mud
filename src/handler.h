@@ -98,10 +98,6 @@ void char_from_room(CHAR_DATA * ch);
 void char_to_room(CHAR_DATA * ch, room_rnum room);
 void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset = 0);
 
-void set_quested(CHAR_DATA * ch, int quest);
-int get_quested(CHAR_DATA * ch, int quest);
-void set_unquest(CHAR_DATA * ch, int quest);
-
 /* find if character can see */
 CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const char *name);
 CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const std::string &name);

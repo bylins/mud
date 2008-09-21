@@ -5235,8 +5235,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	GET_WIS(ch) = 10;
 	asciiflag_conv("", &PRF_FLAGS(ch, 0));
 	asciiflag_conv("", &AFF_FLAGS(ch, 0));
-	ch->Questing.quests = NULL;
-	ch->Questing.count = 0;
 	GET_PORTALS(ch) = NULL;
 	GET_LASTIP(ch)[0] = 0;
 	EXCHANGE_FILTER(ch) = NULL;
@@ -5639,7 +5637,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 
 		case 'Q':
 			if (!strcmp(tag, "Qst "))
-				set_quested(ch, num);
+				ch->add_quested(num);
 			break;
 
 		case 'R':
@@ -6298,6 +6296,9 @@ ACMD(do_remort)
 	}
 
 	log("Remort %s", GET_NAME(ch));
+
+	ch->player_remort();
+
 	get_filename(GET_NAME(ch), filename, PQUESTS_FILE);
 	remove(filename);
 	get_filename(GET_NAME(ch), filename, PMKILL_FILE);
@@ -6319,15 +6320,8 @@ ACMD(do_remort)
 
 	die_follower(ch);
 
-	ch->Questing.count = 0;
 	free_mkill(ch);
 	delete_mkill_file(GET_NAME(ch));
-
-	if (ch->Questing.quests)
-	{
-		free(ch->Questing.quests);
-		ch->Questing.quests = 0;
-	}
 
 	while (ch->helpers)
 		REMOVE_FROM_LIST(ch->helpers, ch->helpers, next_helper);
@@ -7197,14 +7191,9 @@ void save_char(CHAR_DATA *ch)
 		}
 		fprintf(saved, "Logs: %d %d\n", i, GET_LOGS(ch)[i]);
 	}
-	/* Квесты */
-	if (ch->Questing.quests)
-	{
-		for (i = 0; i < ch->Questing.count; i++)
-		{
-			fprintf(saved, "Qst : %d\n", *(ch->Questing.quests + i));
-		}
-	}
+
+	for (std::set<int>::const_iterator it = ch->player->quested_.begin(); it != ch->player->quested_.end(); ++it)
+		fprintf(saved, "Qst : %d\n", *it);
 
 	save_mkill(ch, saved);
 	save_pkills(ch, saved);

@@ -2322,7 +2322,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			{
 				if (*subfield && (num = atoi(subfield)) > 0)
 				{
-					if (get_quested(c, num))
+					if (c->get_quested(num))
 						strcpy(str, "1");
 					else
 						strcpy(str, "0");
@@ -2332,7 +2332,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			{
 				if (*subfield && (num = atoi(subfield)) > 0)
 				{
-					set_quested(c, num);
+					c->add_quested(num);
 					strcpy(str, "1");
 				}
 			}
@@ -2340,7 +2340,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			{
 				if (*subfield && (num = atoi(subfield)) > 0)
 				{
-					set_unquest(c, num);
+					c->remove_quested(num);
 					strcpy(str, "1");
 				}
 			}

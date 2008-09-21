@@ -63,7 +63,6 @@ Character::Character()
 		equipment[i] = 0;
 
 	memset(&MemQueue, 0, sizeof(spell_mem_queue));
-	memset(&Questing, 0, sizeof(quest_data));
 	memset(&MobKill, 0, sizeof(mob_kill_data));
 	memset(&Temporary, 0, sizeof(FLAG_DATA));
 	memset(&BattleAffects, 0, sizeof(FLAG_DATA));
@@ -116,9 +115,6 @@ Character::~Character()
 
 		if (IS_NPC(this) && this->mob_specials.Questor)
 			free(this->mob_specials.Questor);
-
-		if (this->Questing.quests)
-			free(this->Questing.quests);
 
 		free_mkill(this);
 
@@ -358,5 +354,49 @@ void Character::set_passwd(std::string const & passwd)
 {
 	CHECK_MOB_GUARD(player);
 	player->passwd_ = passwd;
+}
+
+void Character::add_quested(int vnum)
+{
+	CHECK_MOB_GUARD(player);
+	if (IS_IMMORTAL(this)) return;
+
+	player->quested_.insert(vnum);
+}
+
+bool Character::remove_quested(int vnum)
+{
+	CHECK_MOB_GUARD(player);
+	std::set<int>::iterator it = player->quested_.find(vnum);
+	if (it != player->quested_.end())
+	{
+		player->quested_.erase(it);
+		return true;
+	}
+	return false;
+}
+
+bool Character::get_quested(int vnum) const
+{
+	CHECK_MOB_GUARD(player);
+	std::set<int>::iterator it = player->quested_.find(vnum);
+	if (it != player->quested_.end())
+		return true;
+	return false;
+}
+
+std::string Character::print_quested() const
+{
+	CHECK_MOB_GUARD(player);
+	std::stringstream text;
+	for (std::set<int>::const_iterator it = player->quested_.begin(); it != player->quested_.end(); ++it)
+		text << " " << *it;
+	return text.str();
+}
+
+void Character::player_remort()
+{
+	CHECK_MOB_GUARD(player);
+	player->quested_.clear();
 }
 ////////////////////////////////////////////////////////////////////////////////
