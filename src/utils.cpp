@@ -1013,9 +1013,17 @@ int get_filename(const char *orig_name, char *filename, int mode)
 
 	switch (mode)
 	{
-	case CRASH_FILE:
-		prefix = LIB_PLROBJS;
-		suffix = SUF_OBJS;
+	case ALIAS_FILE:
+		prefix = LIB_PLRALIAS;
+		suffix = SUF_ALIAS;
+		break;
+	case SCRIPT_VARS_FILE:
+		prefix = LIB_PLRVARS;
+		suffix = SUF_MEM;
+		break;
+	case PLAYERS_FILE:
+		prefix = LIB_PLRS;
+		suffix = SUF_PLAYER;
 		break;
 	case TEXT_CRASH_FILE:
 		prefix = LIB_PLROBJS;
@@ -1024,30 +1032,6 @@ int get_filename(const char *orig_name, char *filename, int mode)
 	case TIME_CRASH_FILE:
 		prefix = LIB_PLROBJS;
 		suffix = TIME_SUF_OBJS;
-		break;
-	case ALIAS_FILE:
-		prefix = LIB_PLRALIAS;
-		suffix = SUF_ALIAS;
-		break;
-	case PLAYERS_FILE:
-		prefix = LIB_PLRS;
-		suffix = SUF_PLAYER;
-		break;
-	case PQUESTS_FILE:
-		prefix = LIB_PLRS;
-		suffix = SUF_QUESTS;
-		break;
-	case PMKILL_FILE:
-		prefix = LIB_PLRS;
-		suffix = SUF_PMKILL;
-		break;
-	case ETEXT_FILE:
-		prefix = LIB_PLRTEXT;
-		suffix = SUF_TEXT;
-		break;
-	case SCRIPT_VARS_FILE:
-		prefix = LIB_PLRVARS;
-		suffix = SUF_MEM;
 		break;
 	case PERS_DEPOT_FILE:
 		prefix = LIB_DEPOT;

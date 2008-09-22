@@ -92,16 +92,11 @@ const int SETSTUFF_AFCN = 10;
 #error "Unknown path components."
 #endif
 
-#define SUF_OBJS	"objs"
 #define TEXT_SUF_OBJS	"textobjs"
 #define TIME_SUF_OBJS	"timeobjs"
-#define SUF_TEXT	"text"
 #define SUF_ALIAS	"alias"
 #define SUF_MEM		"mem"
-#define SUF_BLACK	"blk"
 #define SUF_PLAYER  "player"
-#define SUF_QUESTS  "quests"
-#define SUF_PMKILL	"mobkill"
 #define SUF_PERS_DEPOT "pers"
 #define SUF_SHARE_DEPOT "share"
 #define SUF_PURGE_DEPOT "purge"

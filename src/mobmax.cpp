@@ -67,67 +67,6 @@ void drop_old_mobs(CHAR_DATA * ch, int level)
 	}
 }
 
-/* Загрузка файла замакса */
-void new_load_mkill(CHAR_DATA * ch)
-{
-	FILE *loaded;
-	char filename[MAX_STRING_LENGTH];
-	int intload = 0, i, c;
-
-	if (ch->MobKill.howmany)
-	{
-		log("MOBKILL ERROR for %s - attempt load when not empty - call to Coder", GET_NAME(ch));
-		free(ch->MobKill.howmany);
-	}
-	if (ch->MobKill.vnum)
-	{
-		log("MOBKILL ERROR for %s - attempt load when not empty - call to Coder", GET_NAME(ch));
-		free(ch->MobKill.vnum);
-	}
-	ch->MobKill.count = 0;
-	ch->MobKill.howmany = NULL;
-	ch->MobKill.vnum = NULL;
-
-	log("Load mkill %s", GET_NAME(ch));
-	if (get_filename(GET_NAME(ch), filename, PMKILL_FILE) && (loaded = fopen(filename, "r+b")))
-	{
-		intload = fread(&ch->MobKill.count, sizeof(int), 1, loaded);
-		if (ch->MobKill.count && intload)
-		{
-			CREATE(ch->MobKill.howmany, int, (ch->MobKill.count / 10L + 1) * 10L);
-			CREATE(ch->MobKill.vnum, int, (ch->MobKill.count / 10L + 1) * 10L);
-			intload = fread(ch->MobKill.howmany, sizeof(int), ch->MobKill.count, loaded);
-			intload = fread(ch->MobKill.vnum, sizeof(int), ch->MobKill.count, loaded);
-			if (intload < ch->MobKill.count)
-				ch->MobKill.count = intload;
-			for (i = c = 0; c < ch->MobKill.count; c++)
-				if (*(ch->MobKill.vnum + c) > 0 && *(ch->MobKill.vnum + c) < 100000)
-				{
-					*(ch->MobKill.vnum + i) = *(ch->MobKill.vnum + c);
-					*(ch->MobKill.howmany + i) = *(ch->MobKill.howmany + c);
-					i++;
-				}
-			ch->MobKill.count = i;
-		}
-		else
-		{
-			ch->MobKill.count = 0;
-			CREATE(ch->MobKill.howmany, int, 10);
-			CREATE(ch->MobKill.vnum, int, 10);
-		}
-		fclose(loaded);
-	}
-	else
-	{
-		CREATE(ch->MobKill.howmany, int, 10);
-		CREATE(ch->MobKill.vnum, int, 10);
-	}
-	/* Убираем замакс на лишних мобов, посткольку за время отсутствия
-	   они могли измениться */
-	for (i = 0; i <= MAX_MOB_LEVEL; i++)
-		drop_old_mobs(ch, i);
-}
-
 /* снимаем замакс по мобу vnum. возвращает true если сняли замакс и false
    если его и не было */
 int clear_kill_vnum(CHAR_DATA * vict, int vnum)
@@ -222,29 +161,6 @@ void save_mkill(CHAR_DATA * ch, FILE * saved)
 	fprintf(saved, "~\n");
 }
 
-/* сохраняет на диске файл замакса */
-void new_save_mkill(CHAR_DATA * ch)
-{
-	FILE *saved;
-	char filename[MAX_STRING_LENGTH];
-
-	if (!ch->MobKill.count || !ch->MobKill.vnum || !ch->MobKill.howmany)  	//if (!IS_IMMORTAL(ch))
-	{
-		//   {sprintf(buf,"SYSERR: MobKill list for %s empty...",GET_NAME(ch));
-		//    mudlog(buf, BRF, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-		//   }
-	}
-
-	log("Save mkill %s", GET_NAME(ch));
-	if (get_filename(GET_NAME(ch), filename, PMKILL_FILE) && (saved = fopen(filename, "w+b")))
-	{
-		fwrite(&ch->MobKill.count, sizeof(int), 1, saved);
-		fwrite(ch->MobKill.howmany, sizeof(int), ch->MobKill.count, saved);
-		fwrite(ch->MobKill.vnum, sizeof(int), ch->MobKill.count, saved);
-		fclose(saved);
-	}
-}
-
 /* снимает замакс или освобждает память под него */
 void free_mkill(CHAR_DATA * ch)
 {
@@ -257,15 +173,6 @@ void free_mkill(CHAR_DATA * ch)
 	ch->MobKill.count = 0;
 	ch->MobKill.vnum = NULL;
 	ch->MobKill.howmany = NULL;
-}
-
-/* удаляет файл замакса */
-void delete_mkill_file(char *name)
-{
-	char filename[MAX_INPUT_LENGTH];
-
-	get_filename(name, filename, PMKILL_FILE);
-	remove(filename);
 }
 
 /* пересчет количества типов мобов каждого уровня в мире и вычмсление

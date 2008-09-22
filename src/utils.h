@@ -174,19 +174,14 @@ void update_pos(CHAR_DATA * victim);
 #define DEF 5
 
 /* get_filename() */
-#define CRASH_FILE        0
-#define ETEXT_FILE        1
-#define ALIAS_FILE        2
-#define SCRIPT_VARS_FILE  3
-#define PLAYERS_FILE      4
-// тут были пк-файлы
-#define PQUESTS_FILE      6
-#define PMKILL_FILE       7
-#define TEXT_CRASH_FILE   8
-#define TIME_CRASH_FILE   9
-#define PERS_DEPOT_FILE  10
-#define SHARE_DEPOT_FILE 11
-#define PURGE_DEPOT_FILE 12
+#define ALIAS_FILE        1
+#define SCRIPT_VARS_FILE  2
+#define PLAYERS_FILE      3
+#define TEXT_CRASH_FILE   4
+#define TIME_CRASH_FILE   5
+#define PERS_DEPOT_FILE   6
+#define SHARE_DEPOT_FILE  7
+#define PURGE_DEPOT_FILE  8
 
 /* breadth-first searching */
 #define BFS_ERROR        -1

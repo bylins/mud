@@ -6267,7 +6267,6 @@ const char *remort_msg =
 
 ACMD(do_remort)
 {
-	char filename[MAX_INPUT_LENGTH];
 	int i, load_room = NOWHERE;
 	struct helper_data_type *temp;
 	const char *remort_msg2 = "$n вспыхнул$g ослепительным пламенем и пропал$g!\r\n";
@@ -6299,11 +6298,6 @@ ACMD(do_remort)
 
 	ch->player_remort();
 
-	get_filename(GET_NAME(ch), filename, PQUESTS_FILE);
-	remove(filename);
-	get_filename(GET_NAME(ch), filename, PMKILL_FILE);
-	remove(filename);
-
 	act(remort_msg2, FALSE, ch, 0, 0, TO_ROOM);
 
 	GET_REMORT(ch)++;
@@ -6321,7 +6315,6 @@ ACMD(do_remort)
 	die_follower(ch);
 
 	free_mkill(ch);
-	delete_mkill_file(GET_NAME(ch));
 
 	while (ch->helpers)
 		REMOVE_FROM_LIST(ch->helpers, ch->helpers, next_helper);
@@ -6699,19 +6692,11 @@ void entrycount(char *name)
 			log("Player %s already deleted - kill player file", name);
 			remove(filename);
 			// 2) Remove all other files
-
-			get_filename(name, filename, ETEXT_FILE);
-			remove(filename);
-
 			get_filename(name, filename, ALIAS_FILE);
 			remove(filename);
 
 			get_filename(name, filename, SCRIPT_VARS_FILE);
 			remove(filename);
-
-			get_filename(name, filename, PQUESTS_FILE);
-			remove(filename);
-
 			// хранилища
 			get_filename(name, filename, PERS_DEPOT_FILE);
 			remove(filename);
@@ -6719,8 +6704,6 @@ void entrycount(char *name)
 			remove(filename);
 			get_filename(name, filename, PURGE_DEPOT_FILE);
 			remove(filename);
-
-			delete_mkill_file(name);
 		}
 	}
 	return;
@@ -7245,10 +7228,6 @@ void rename_char(CHAR_DATA * ch, char *oname)
 	save_char(ch);
 
 	// 2) Rename all other files
-	get_filename(oname, ofilename, CRASH_FILE);
-	get_filename(GET_NAME(ch), filename, CRASH_FILE);
-	rename(ofilename, filename);
-
 	get_filename(oname, ofilename, TEXT_CRASH_FILE);
 	get_filename(GET_NAME(ch), filename, TEXT_CRASH_FILE);
 	rename(ofilename, filename);
@@ -7257,24 +7236,12 @@ void rename_char(CHAR_DATA * ch, char *oname)
 	get_filename(GET_NAME(ch), filename, TIME_CRASH_FILE);
 	rename(ofilename, filename);
 
-	get_filename(oname, ofilename, ETEXT_FILE);
-	get_filename(GET_NAME(ch), filename, ETEXT_FILE);
-	rename(ofilename, filename);
-
 	get_filename(oname, ofilename, ALIAS_FILE);
 	get_filename(GET_NAME(ch), filename, ALIAS_FILE);
 	rename(ofilename, filename);
 
 	get_filename(oname, ofilename, SCRIPT_VARS_FILE);
 	get_filename(GET_NAME(ch), filename, SCRIPT_VARS_FILE);
-	rename(ofilename, filename);
-
-	get_filename(oname, ofilename, PQUESTS_FILE);
-	get_filename(GET_NAME(ch), filename, PQUESTS_FILE);
-	rename(ofilename, filename);
-
-	get_filename(oname, ofilename, PMKILL_FILE);
-	get_filename(GET_NAME(ch), filename, PMKILL_FILE);
 	rename(ofilename, filename);
 
 	// хранилища
