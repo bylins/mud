@@ -24,6 +24,7 @@
 #include "top.h"
 #include "features.hpp"
 #include "char.hpp"
+#include "char_player.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -2322,7 +2323,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			{
 				if (*subfield && (num = atoi(subfield)) > 0)
 				{
-					if (c->get_quested(num))
+					if (c->player->quested.get(num))
 						strcpy(str, "1");
 					else
 						strcpy(str, "0");
@@ -2332,7 +2333,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			{
 				if (*subfield && (num = atoi(subfield)) > 0)
 				{
-					c->add_quested(num);
+					c->player->quested.add(c, num);
 					strcpy(str, "1");
 				}
 			}
@@ -2340,7 +2341,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			{
 				if (*subfield && (num = atoi(subfield)) > 0)
 				{
-					c->remove_quested(num);
+					c->player->quested.remove(num);
 					strcpy(str, "1");
 				}
 			}

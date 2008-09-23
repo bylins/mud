@@ -42,6 +42,7 @@
 #include "genchar.h"
 #include "file_crc.hpp"
 #include "char.hpp"
+#include "char_player.hpp"
 
 /*   external vars  */
 extern FILE *player_fl;
@@ -537,7 +538,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				char_to_room(vict, r_helled_start_room);
 				look_at_room(vict, r_helled_start_room);
 			};
-			vict->set_was_in_room(NOWHERE);
+			vict->player->set_was_in_room(NOWHERE);
 
 			sprintf(buf, "%s moved TO hell by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -563,7 +564,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				char_to_room(vict, r_named_start_room);
 				look_at_room(vict, r_named_start_room);
 			};
-			vict->set_was_in_room(NOWHERE);
+			vict->player->set_was_in_room(NOWHERE);
 
 			sprintf(buf, "%s removed to nameroom by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -590,7 +591,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 					look_at_room(vict, r_unreg_start_room);
 				}
 			}
-			vict->set_was_in_room(NOWHERE);
+			vict->player->set_was_in_room(NOWHERE);
 
 			sprintf(buf, "%s unregistred by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -1869,7 +1870,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 			}
 		}
 
-		std::string quested(k->print_quested());
+		std::string quested(k->player->quested.print());
 		if (!quested.empty())
 			send_to_char(ch, "Выполнил квесты:%s\r\n", quested.c_str());
 
@@ -3694,7 +3695,7 @@ ACMD(do_show)
 			++i;
 			sprintf(buf, "%-50s[%6d][%6d]   %d\r\n",
 					noclan_title(vict), GET_ROOM_VNUM(IN_ROOM(vict)),
-					GET_ROOM_VNUM(vict->get_was_in_room()), vict->char_specials.timer);
+					GET_ROOM_VNUM(vict->player->get_was_in_room()), vict->char_specials.timer);
 			send_to_char(buf, ch);
 		}
 		sprintf(buf, "Всего - %d\r\n", i);
@@ -4419,7 +4420,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		if (!str_cmp(npad[0], "off") || !str_cmp(npad[0], "выкл"))
 		{
-			if (!vict->remove_quested(ptnum))
+			if (!vict->player->quested.remove(ptnum))
 			{
 				act("$N не выполнял$G этого квеста.", FALSE, ch, 0, vict, TO_CHAR);
 				return 0;
@@ -4427,7 +4428,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		else if (!str_cmp(npad[0], "on") || !str_cmp(npad[0], "вкл"))
 		{
-			vict->add_quested(ptnum);
+			vict->player->quested.add(vict, ptnum);
 		}
 		else
 		{

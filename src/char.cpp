@@ -15,6 +15,7 @@
 #include "privilege.hpp"
 #include "skills.h"
 #include "constants.h"
+#include "char_player.hpp"
 
 Character::Character()
 		: nr(NOBODY),
@@ -299,104 +300,14 @@ int Character::get_skills_count()
 	return skills.size();
 }
 
-////////////////////////////////////////////////////////////////////////////////
 void Character::create_player()
 {
 	player.reset(new Player);
 }
 
 static PlayerPtr shared_mob(new Player);
-#define CHECK_MOB_GUARD(player) if (player == shared_mob) log("SYSERR: Mob using %s.", __func__)
 
 void Character::create_mob_guard()
 {
 	player = shared_mob;
 }
-
-Player::Player()
-	: pfilepos_(-1),
-	was_in_room_(NOWHERE)
-{
-
-}
-
-int Character::get_pfilepos() const
-{
-	CHECK_MOB_GUARD(player);
-	return player->pfilepos_;
-}
-
-void Character::set_pfilepos(int pfilepos)
-{
-	CHECK_MOB_GUARD(player);
-	player->pfilepos_ = pfilepos;
-}
-
-room_rnum Character::get_was_in_room() const
-{
-	CHECK_MOB_GUARD(player);
-	return player->was_in_room_;
-}
-
-void Character::set_was_in_room(room_rnum was_in_room)
-{
-	CHECK_MOB_GUARD(player);
-	player->was_in_room_ = was_in_room;
-}
-
-std::string const & Character::get_passwd() const
-{
-	CHECK_MOB_GUARD(player);
-	return player->passwd_;
-}
-
-void Character::set_passwd(std::string const & passwd)
-{
-	CHECK_MOB_GUARD(player);
-	player->passwd_ = passwd;
-}
-
-void Character::add_quested(int vnum)
-{
-	CHECK_MOB_GUARD(player);
-	if (IS_IMMORTAL(this)) return;
-
-	player->quested_.insert(vnum);
-}
-
-bool Character::remove_quested(int vnum)
-{
-	CHECK_MOB_GUARD(player);
-	std::set<int>::iterator it = player->quested_.find(vnum);
-	if (it != player->quested_.end())
-	{
-		player->quested_.erase(it);
-		return true;
-	}
-	return false;
-}
-
-bool Character::get_quested(int vnum) const
-{
-	CHECK_MOB_GUARD(player);
-	std::set<int>::iterator it = player->quested_.find(vnum);
-	if (it != player->quested_.end())
-		return true;
-	return false;
-}
-
-std::string Character::print_quested() const
-{
-	CHECK_MOB_GUARD(player);
-	std::stringstream text;
-	for (std::set<int>::const_iterator it = player->quested_.begin(); it != player->quested_.end(); ++it)
-		text << " " << *it;
-	return text.str();
-}
-
-void Character::player_remort()
-{
-	CHECK_MOB_GUARD(player);
-	player->quested_.clear();
-}
-////////////////////////////////////////////////////////////////////////////////

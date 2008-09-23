@@ -51,6 +51,7 @@
 #include "file_crc.hpp"
 #include "char.hpp"
 #include "skills.h"
+#include "char_player.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -4748,7 +4749,7 @@ int is_empty(zone_rnum zone_nr)
 // теперь проверю всех товарищей в void комнате STRANGE_ROOM
 	for (c = world[STRANGE_ROOM]->people; c; c = c->next_in_room)
 	{
-		int was = c->get_was_in_room();
+		int was = c->player->get_was_in_room();
 		if (was == NOWHERE)
 			continue;
 		if (GET_LEVEL(c) >= LVL_IMMORT)
@@ -5532,7 +5533,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 
 		case 'P':
 			if (!strcmp(tag, "Pass"))
-				ch->set_passwd(line);
+				ch->player->set_passwd(line);
 			else if (!strcmp(tag, "Plyd"))
 				ch->player_data.time.played = num;
 			else if (!strcmp(tag, "PfIn"))
@@ -5637,7 +5638,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 
 		case 'Q':
 			if (!strcmp(tag, "Qst "))
-				ch->add_quested(num);
+				ch->player->quested.add(ch, num);
 			break;
 
 		case 'R':
@@ -5834,7 +5835,7 @@ int load_char(const char *name, CHAR_DATA * char_element, bool reboot)
 	player_i = load_char_ascii(name, char_element, reboot);
 	if (player_i > -1)
 	{
-		char_element->set_pfilepos(player_i);
+		char_element->player->set_pfilepos(player_i);
 	}
 	return (player_i);
 }
@@ -6296,7 +6297,7 @@ ACMD(do_remort)
 
 	log("Remort %s", GET_NAME(ch));
 
-	ch->player_remort();
+	ch->player->remort();
 
 	act(remort_msg2, FALSE, ch, 0, 0, TO_ROOM);
 
@@ -6819,7 +6820,7 @@ void save_char(CHAR_DATA *ch)
 	struct char_portal_type *prt;
 	int tmp = time(0) - ch->player_data.time.logon;
 	if (!now_entrycount)
-		if (IS_NPC(ch) || ch->get_pfilepos() < 0)
+		if (IS_NPC(ch) || ch->player->get_pfilepos() < 0)
 			return;
 
 	log("Save char %s", GET_NAME(ch));
@@ -6914,8 +6915,8 @@ void save_char(CHAR_DATA *ch)
 		fprintf(saved, "NmT : %s\n", GET_PAD(ch, 4));
 	if (GET_PAD(ch, 0))
 		fprintf(saved, "NmP : %s\n", GET_PAD(ch, 5));
-	if (!ch->get_passwd().empty())
-		fprintf(saved, "Pass: %s\n", ch->get_passwd().c_str());
+	if (!ch->player->get_passwd().empty())
+		fprintf(saved, "Pass: %s\n", ch->player->get_passwd().c_str());
 	if (GET_EMAIL(ch))
 		fprintf(saved, "EMal: %s\n", GET_EMAIL(ch));
 	if (GET_TITLE(ch))
@@ -7175,9 +7176,7 @@ void save_char(CHAR_DATA *ch)
 		fprintf(saved, "Logs: %d %d\n", i, GET_LOGS(ch)[i]);
 	}
 
-	for (std::set<int>::const_iterator it = ch->player->quested_.begin(); it != ch->player->quested_.end(); ++it)
-		fprintf(saved, "Qst : %d\n", *it);
-
+	ch->player->quested.save(saved);
 	save_mkill(ch, saved);
 	save_pkills(ch, saved);
 

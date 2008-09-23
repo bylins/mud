@@ -6,6 +6,7 @@
 #include "utils.h"
 #include "interpreter.h"
 #include "char.hpp"
+#include "char_player.hpp"
 
 // для ручного отключения крипования (на локалке лучше собирайте через make test и не парьтесь)
 //#define NOCRYPT
@@ -55,7 +56,7 @@ std::string generate_md5_hash(const std::string &pwd)
 */
 void set_password(CHAR_DATA *ch, const std::string &pwd)
 {
-	ch->set_passwd(generate_md5_hash(pwd));
+	ch->player->set_passwd(generate_md5_hash(pwd));
 }
 
 /**
@@ -64,7 +65,7 @@ void set_password(CHAR_DATA *ch, const std::string &pwd)
 */
 bool get_password_type(const CHAR_DATA *ch)
 {
-	return CompareParam("$1$", ch->get_passwd());
+	return CompareParam("$1$", ch->player->get_passwd());
 }
 
 /**
@@ -75,11 +76,11 @@ bool compare_password(CHAR_DATA *ch, const std::string &pwd)
 {
 	bool result = 0;
 	if (get_password_type(ch))
-		result = CompareParam(ch->get_passwd(), CRYPT(pwd.c_str(), ch->get_passwd().c_str()), 1);
+		result = CompareParam(ch->player->get_passwd(), CRYPT(pwd.c_str(), ch->player->get_passwd().c_str()), 1);
 	else
 	{
 		// если пароль des сошелся - конвертим сразу в md5 (10 - бывший MAX_PWD_LENGTH)
-		if (!strncmp(CRYPT(pwd.c_str(), ch->get_passwd().c_str()), ch->get_passwd().c_str(), 10))
+		if (!strncmp(CRYPT(pwd.c_str(), ch->player->get_passwd().c_str()), ch->player->get_passwd().c_str(), 10))
 		{
 			set_password(ch, pwd);
 			result = 1;

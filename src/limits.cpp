@@ -35,6 +35,7 @@
 #include "glory.hpp"
 #include "features.hpp"
 #include "char.hpp"
+#include "char_player.hpp"
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
@@ -515,7 +516,7 @@ void beat_punish(CHAR_DATA * i)
 	}
 	// Проверяем а там ли мы где должны быть по флагам.
 	if (IN_ROOM(i) == STRANGE_ROOM)
-		restore = i->get_was_in_room();
+		restore = i->player->get_was_in_room();
 	else
 		restore = IN_ROOM(i);
 
@@ -524,7 +525,7 @@ void beat_punish(CHAR_DATA * i)
 		if (restore != r_helled_start_room)
 		{
 			if (IN_ROOM(i) == STRANGE_ROOM)
-				i->set_was_in_room(r_helled_start_room);
+				i->player->set_was_in_room(r_helled_start_room);
 			else
 			{
 				send_to_char("Чья-то злая воля вернула Вас в темницу.\r\n", i);
@@ -534,7 +535,7 @@ void beat_punish(CHAR_DATA * i)
 				char_from_room(i);
 				char_to_room(i, r_helled_start_room);
 				look_at_room(i, r_helled_start_room);
-				i->set_was_in_room(NOWHERE);
+				i->player->set_was_in_room(NOWHERE);
 			};
 		}
 	}
@@ -543,7 +544,7 @@ void beat_punish(CHAR_DATA * i)
 		if (restore != r_named_start_room)
 		{
 			if (IN_ROOM(i) == STRANGE_ROOM)
-				i->set_was_in_room(r_named_start_room);
+				i->player->set_was_in_room(r_named_start_room);
 			else
 			{
 				send_to_char("Чья-то злая воля вернула Вас в комнату имени.\r\n", i);
@@ -552,7 +553,7 @@ void beat_punish(CHAR_DATA * i)
 				char_from_room(i);
 				char_to_room(i, r_named_start_room);
 				look_at_room(i, r_named_start_room);
-				i->set_was_in_room(NOWHERE);
+				i->player->set_was_in_room(NOWHERE);
 			};
 		};
 	}
@@ -564,7 +565,7 @@ void beat_punish(CHAR_DATA * i)
 				&& !check_dupes_host(i->desc, 1))
 		{
 			if (IN_ROOM(i) == STRANGE_ROOM)
-				i->set_was_in_room(r_unreg_start_room);
+				i->player->set_was_in_room(r_unreg_start_room);
 			else
 			{
 				act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.\r\n",
@@ -572,7 +573,7 @@ void beat_punish(CHAR_DATA * i)
 				char_from_room(i);
 				char_to_room(i, r_unreg_start_room);
 				look_at_room(i, r_unreg_start_room);
-				i->set_was_in_room(NOWHERE);
+				i->player->set_was_in_room(NOWHERE);
 			};
 		}
 		else if (restore == r_unreg_start_room && check_dupes_host(i->desc, 1) && !IS_IMMORTAL(i))
@@ -580,7 +581,7 @@ void beat_punish(CHAR_DATA * i)
 			send_to_char("Неведомая вытолкнула вас из комнаты для незарегистрированных игроков.\r\n", i);
 			act("$n появил$u в центре комнаты, правда без штампика регистрации...\r\n",
 				FALSE, i, 0, 0, TO_ROOM);
-			restore = i->get_was_in_room();
+			restore = i->player->get_was_in_room();
 			if (restore == NOWHERE || restore == r_unreg_start_room)
 			{
 				restore = GET_LOADROOM(i);
@@ -591,7 +592,7 @@ void beat_punish(CHAR_DATA * i)
 			char_from_room(i);
 			char_to_room(i, restore);
 			look_at_room(i, restore);
-			i->set_was_in_room(NOWHERE);
+			i->player->set_was_in_room(NOWHERE);
 		}
 	}
 }
@@ -932,9 +933,9 @@ void check_idling(CHAR_DATA * ch)
 	{
 		if (++(ch->char_specials.timer) > idle_void)
 		{
-			if (ch->get_was_in_room() == NOWHERE && ch->in_room != NOWHERE)
+			if (ch->player->get_was_in_room() == NOWHERE && ch->in_room != NOWHERE)
 			{
-				ch->set_was_in_room(ch->in_room);
+				ch->player->set_was_in_room(ch->in_room);
 				if (FIGHTING(ch))
 				{
 					stop_fighting(FIGHTING(ch), FALSE);
