@@ -29,7 +29,6 @@
 #include "house.h"
 #include "constants.h"
 #include "dg_scripts.h"
-#include "mobmax.h"
 #include "pk.h"
 #include "olc.h"
 #include "diskio.h"
@@ -603,7 +602,7 @@ void boot_world(void)
 	index_boot(DB_BOOT_MOB);
 
 	log("Count mob qwantity by level");
-	mob_lev_count();
+	MobMax::init();
 
 	log("Loading objs and generating index.");
 	index_boot(DB_BOOT_OBJ);
@@ -5498,7 +5497,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 					if (*line == '~')
 						break;
 					sscanf(line, "%d %d", &num, &num2);
-					inc_kill_vnum(ch, num, num2);
+					ch->player->mobmax.load(ch, num, num2, MobMax::get_level_by_vnum(num));
 				}
 				while (true);
 			}
@@ -6314,8 +6313,6 @@ ACMD(do_remort)
 		stop_fighting(ch, TRUE);
 
 	die_follower(ch);
-
-	free_mkill(ch);
 
 	while (ch->helpers)
 		REMOVE_FROM_LIST(ch->helpers, ch->helpers, next_helper);
@@ -7177,7 +7174,7 @@ void save_char(CHAR_DATA *ch)
 	}
 
 	ch->player->quested.save(saved);
-	save_mkill(ch, saved);
+	ch->player->mobmax.save(saved);
 	save_pkills(ch, saved);
 
 	fclose(saved);

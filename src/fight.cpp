@@ -24,7 +24,6 @@
 #include "screen.h"
 #include "constants.h"
 #include "dg_scripts.h"
-#include "mobmax.h"
 #include "pk.h"
 #include "im.h"
 #include "fight.h"
@@ -34,6 +33,7 @@
 #include "stuff.hpp"
 #include "random.hpp"
 #include "char.hpp"
+#include "char_player.hpp"
 
 extern CHAR_DATA *mob_proto;
 
@@ -961,7 +961,7 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
 						}
 					}
 				}
-				inc_kill_vnum(master, GET_MOB_VNUM(ch), 1);
+				master->player->mobmax.add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 			}
 		}
 
@@ -999,21 +999,11 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 	if (!IS_NPC(victim) || IS_NPC(ch))
 		return (exp);
 
-	for (koef = 100, base = 0, diff = get_kill_vnum(ch, GET_MOB_VNUM(victim));
+	for (koef = 100, base = 0, diff = ch->player->mobmax.get_kill_count(GET_MOB_VNUM(victim));
 			base < diff && koef > 5; base++, koef = koef * 95 / 100);
 
-// log("[Expierence] Mob %s - %d %d(%d) %d",GET_NAME(victim),exp,base,diff,koef);
-// Experience scaling introduced - the next line is not needed any more
-// exp = exp * MAX(1, 100 - GET_REMORT(ch) * 10) / 100;
 	exp = exp * MAX(5, koef) / 100;
 	exp /= MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1);
-
-	// if (!(base = victim->mob_specials.MaxFactor))
-	//    return (exp);
-	//
-	// if ((diff = get_kill_vnum(ch,GET_MOB_VNUM(victim)) - base) <= 0)
-	//    return (exp);
-	// exp = exp * base / (base+diff);
 
 	return (exp);
 }

@@ -20,6 +20,7 @@ public:
 	std::string print() const;
 	void save(FILE *saved) const;
 	void clear();
+
 private:
 	// выполненные квесты
 	std::set<int/* внум */> quested_;

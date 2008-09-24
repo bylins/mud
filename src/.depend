@@ -5,7 +5,7 @@ act.informative.o: act.informative.cpp conf.h sysdep.h structs.h utils.h \
   comm.h interpreter.h handler.h db.h spells.h skills.h fight.h screen.h \
   constants.h pk.h dg_scripts.h mail.h features.hpp im.h house.h \
   description.h privilege.hpp depot.hpp glory.hpp random.hpp char.hpp \
-  char_player.hpp quested.hpp
+  char_player.hpp quested.hpp mobmax.hpp
 act.item.o: act.item.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h constants.h dg_scripts.h \
   house.h magic.h fight.h features.hpp depot.hpp char.hpp
@@ -24,9 +24,9 @@ act.social.o: act.social.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h char.hpp
 act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h house.h screen.h skills.h \
-  constants.h olc.h dg_scripts.h mobmax.h pk.h im.h top.h ban.hpp \
-  diskio.h description.h title.hpp password.hpp privilege.hpp depot.hpp \
-  glory.hpp genchar.h file_crc.hpp char.hpp char_player.hpp quested.hpp
+  constants.h olc.h dg_scripts.h pk.h im.h top.h ban.hpp diskio.h \
+  description.h title.hpp password.hpp privilege.hpp depot.hpp glory.hpp \
+  genchar.h file_crc.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h interpreter.h db.h \
   char.hpp
 ban.o: ban.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
@@ -39,7 +39,7 @@ class.o: class.cpp conf.h sysdep.h structs.h comm.h db.h utils.h spells.h \
 comm.o: comm.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
   handler.h db.h house.h olc.h dg_scripts.h screen.h ban.hpp diskio.h \
   auction.h exchange.h deathtrap.hpp title.hpp depot.hpp glory.hpp \
-  file_crc.hpp char.hpp char_player.hpp quested.hpp
+  file_crc.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp
 config.o: config.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
   constants.h char.hpp
 constants.o: constants.cpp conf.h sysdep.h structs.h spells.h skills.h \
@@ -47,15 +47,15 @@ constants.o: constants.cpp conf.h sysdep.h structs.h spells.h skills.h \
 features.o: features.cpp conf.h sysdep.h structs.h utils.h handler.h \
   comm.h db.h interpreter.h skills.h spells.h features.hpp char.hpp
 db.o: db.cpp conf.h sysdep.h structs.h utils.h db.h comm.h handler.h \
-  spells.h mail.h interpreter.h house.h constants.h dg_scripts.h mobmax.h \
-  pk.h olc.h diskio.h im.h top.h stuff.hpp double_map.hpp ban.hpp \
+  spells.h mail.h interpreter.h house.h constants.h dg_scripts.h pk.h \
+  olc.h diskio.h im.h top.h stuff.hpp double_map.hpp ban.hpp \
   item.creation.hpp features.hpp boards.h description.h deathtrap.hpp \
   title.hpp privilege.hpp depot.hpp glory.hpp genchar.h random.hpp \
-  file_crc.hpp char.hpp skills.h char_player.hpp quested.hpp
+  file_crc.hpp char.hpp skills.h char_player.hpp quested.hpp mobmax.hpp
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h comm.h handler.h \
-  interpreter.h db.h spells.h screen.h constants.h dg_scripts.h mobmax.h \
-  pk.h im.h fight.h skills.h features.hpp house.h stuff.hpp \
-  double_map.hpp random.hpp char.hpp
+  interpreter.h db.h spells.h screen.h constants.h dg_scripts.h pk.h im.h \
+  fight.h skills.h features.hpp house.h stuff.hpp double_map.hpp \
+  random.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp
 graph.o: graph.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
   constants.h handler.h db.h spells.h skills.h features.hpp random.hpp \
   char.hpp
@@ -70,11 +70,11 @@ interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
   house.h mail.h screen.h olc.h dg_scripts.h pk.h genchar.h ban.hpp \
   diskio.h item.creation.hpp features.hpp boards.h top.h title.hpp \
   password.hpp privilege.hpp depot.hpp glory.hpp char.hpp char_player.hpp \
-  quested.hpp
+  quested.hpp mobmax.hpp
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h spells.h skills.h \
   comm.h db.h handler.h screen.h interpreter.h constants.h dg_scripts.h \
   house.h exchange.h top.h deathtrap.hpp ban.hpp diskio.h depot.hpp \
-  glory.hpp features.hpp char.hpp char_player.hpp quested.hpp
+  glory.hpp features.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
   skills.h handler.h db.h interpreter.h screen.h constants.h dg_scripts.h \
   pk.h features.hpp magic.h fight.h deathtrap.hpp random.hpp char.hpp
@@ -115,7 +115,7 @@ weather.o: weather.cpp conf.h sysdep.h structs.h spells.h skills.h \
   random.hpp char.hpp
 redit.o: redit.cpp conf.h sysdep.h structs.h comm.h utils.h db.h olc.h \
   dg_olc.h dg_scripts.h constants.h im.h description.h deathtrap.hpp \
-  char.hpp char_player.hpp quested.hpp
+  char.hpp char_player.hpp quested.hpp mobmax.hpp
 oedit.o: oedit.cpp conf.h sysdep.h structs.h comm.h spells.h utils.h db.h \
   shop.h olc.h dg_olc.h dg_scripts.h im.h features.hpp depot.hpp char.hpp \
   house.h interpreter.h skills.h
@@ -147,7 +147,8 @@ dg_objcmd.o: dg_objcmd.cpp conf.h sysdep.h structs.h screen.h \
   features.hpp char.hpp skills.h
 dg_scripts.o: dg_scripts.cpp conf.h sysdep.h structs.h dg_scripts.h \
   utils.h comm.h interpreter.h handler.h dg_event.h db.h screen.h house.h \
-  constants.h top.h features.hpp char.hpp char_player.hpp quested.hpp
+  constants.h top.h features.hpp char.hpp char_player.hpp quested.hpp \
+  mobmax.hpp
 dg_triggers.o: dg_triggers.cpp conf.h sysdep.h structs.h dg_scripts.h \
   utils.h comm.h interpreter.h handler.h db.h olc.h char.hpp
 dg_wldcmd.o: dg_wldcmd.cpp conf.h sysdep.h structs.h screen.h \
@@ -156,8 +157,8 @@ dg_wldcmd.o: dg_wldcmd.cpp conf.h sysdep.h structs.h screen.h \
 dg_olc.o: dg_olc.cpp conf.h sysdep.h structs.h utils.h comm.h db.h olc.h \
   dg_olc.h dg_scripts.h dg_event.h char.hpp
 color.o: color.cpp conf.h sysdep.h
-mobmax.o: mobmax.cpp conf.h sysdep.h structs.h utils.h db.h mobmax.h \
-  char.hpp
+mobmax.o: mobmax.cpp mobmax.hpp conf.h sysdep.h structs.h char.hpp \
+  utils.h
 pk.o: pk.cpp conf.h sysdep.h structs.h constants.h utils.h comm.h db.h \
   handler.h interpreter.h screen.h pk.h char.hpp
 genchar.o: genchar.cpp conf.h sysdep.h structs.h comm.h utils.h genchar.h \
@@ -190,7 +191,7 @@ deathtrap.o: deathtrap.cpp conf.h deathtrap.hpp sysdep.h structs.h \
 title.o: title.cpp conf.h title.hpp sysdep.h structs.h interpreter.h \
   utils.h comm.h db.h screen.h pk.h privilege.hpp handler.h char.hpp
 password.o: password.cpp password.hpp conf.h sysdep.h structs.h utils.h \
-  interpreter.h char.hpp char_player.hpp quested.hpp
+  interpreter.h char.hpp char_player.hpp quested.hpp mobmax.hpp
 privilege.o: privilege.cpp conf.h sysdep.h structs.h utils.h db.h \
   interpreter.h boards.h spells.h privilege.hpp char.hpp
 version.o: version.cpp conf.h sysdep.h structs.h comm.h
@@ -200,10 +201,10 @@ glory.o: glory.cpp conf.h glory.hpp sysdep.h structs.h interpreter.h \
   utils.h db.h comm.h password.hpp genchar.h screen.h top.h char.hpp
 file_crc.o: file_crc.cpp conf.h file_crc.hpp sysdep.h structs.h db.h \
   utils.h interpreter.h comm.h
-char.o: char.cpp char.hpp conf.h sysdep.h structs.h utils.h db.h mobmax.h \
-  pk.h im.h handler.h interpreter.h boards.h privilege.hpp skills.h \
-  constants.h char_player.hpp quested.hpp
+char.o: char.cpp char.hpp conf.h sysdep.h structs.h utils.h db.h pk.h \
+  im.h handler.h interpreter.h boards.h privilege.hpp skills.h \
+  constants.h char_player.hpp quested.hpp mobmax.hpp
 char_player.o: char_player.cpp char_player.hpp conf.h sysdep.h structs.h \
-  quested.hpp utils.h
+  quested.hpp mobmax.hpp utils.h
 quested.o: quested.cpp quested.hpp conf.h sysdep.h structs.h utils.h \
   char.hpp

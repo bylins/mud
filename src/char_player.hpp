@@ -10,6 +10,7 @@
 #include "sysdep.h"
 #include "structs.h"
 #include "quested.hpp"
+#include "mobmax.hpp"
 
 class Player
 {
@@ -31,6 +32,8 @@ public:
 
 	// внумы выполненных квестов
 	Quested quested;
+	// замаксы по отдельным мобам
+	MobMax mobmax;
 
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)

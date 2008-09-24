@@ -173,13 +173,6 @@ struct spell_mem_queue
 	int total;			// полное время мема всей очереди
 };
 
-struct mob_kill_data
-{
-	int count;
-	int *howmany;
-	int *vnum;
-};
-
 /* Structure used for extra_attack - bash, kick, diasrm, chopoff, etc */
 struct extra_attack_type
 {
@@ -336,8 +329,6 @@ public:
 	CHAR_DATA *master;	/* Who is char following?        */
 
 	struct spell_mem_queue MemQueue;		// очередь изучаемых заклинаний
-
-	struct mob_kill_data MobKill;
 
 	int CasterLevel;
 	int DamageLevel;

@@ -6,7 +6,6 @@
 #include "char.hpp"
 #include "utils.h"
 #include "db.h"
-#include "mobmax.h"
 #include "pk.h"
 #include "im.h"
 #include "handler.h"
@@ -64,7 +63,6 @@ Character::Character()
 		equipment[i] = 0;
 
 	memset(&MemQueue, 0, sizeof(spell_mem_queue));
-	memset(&MobKill, 0, sizeof(mob_kill_data));
 	memset(&Temporary, 0, sizeof(FLAG_DATA));
 	memset(&BattleAffects, 0, sizeof(FLAG_DATA));
 	memset(&extra_attack, 0, sizeof(extra_attack_type));
@@ -116,8 +114,6 @@ Character::~Character()
 
 		if (IS_NPC(this) && this->mob_specials.Questor)
 			free(this->mob_specials.Questor);
-
-		free_mkill(this);
 
 		pk_free_list(this);
 

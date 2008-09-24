@@ -9,7 +9,7 @@
 
 void Quested::add(CHAR_DATA *ch, int vnum)
 {
-	if (!IS_IMMORTAL(ch))
+	if (!IS_NPC(ch) && !IS_IMMORTAL(ch))
 		quested_.insert(vnum);
 }
 

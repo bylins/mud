@@ -27,7 +27,6 @@
 #include "constants.h"
 #include "olc.h"
 #include "dg_scripts.h"
-#include "mobmax.h"
 #include "pk.h"
 #include "im.h"
 #include "utils.h"
@@ -4445,17 +4444,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			return (0);
 		}
 		if (!str_cmp(npad[0], "off") || !str_cmp(npad[0], "выкл"))
-		{
-			if (!clear_kill_vnum(vict, ptnum))
-			{
-				act("$N не убивал$G ни одного этого моба.", FALSE, ch, 0, vict, TO_CHAR);
-				return (0);
-			}
-		}
+			vict->player->mobmax.remove(ptnum);
 		else if ((j = atoi(npad[0])) > 0)
 		{
-			if ((c = get_kill_vnum(vict, ptnum)) != j)
-				inc_kill_vnum(vict, ptnum, j - c);
+			if ((c = vict->player->mobmax.get_kill_count(ptnum)) != j)
+				vict->player->mobmax.add(vict, ptnum, j - c, MobMax::get_level_by_vnum(ptnum));
 			else
 			{
 				act("$N убил$G именно столько этих мобов.", FALSE, ch, 0, vict, TO_CHAR);

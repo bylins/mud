@@ -1,208 +1,167 @@
-/* ************************************************************************
-*   File: mobmax.cpp                                    Part of Bylins    *
-*  Usage: Расчет замакса по мобам                                         *
-*                                                                         *
-*  All rights reserved.  See license.doc for complete information.        *
-*                                                                         *
-*  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
-* 									  *
-*  $Author$                                                        *
-*  $Date$                                           *
-*  $Revision$                                                      *
-************************************************************************ */
+// $RCSfile$     $Date$     $Revision$
+// Copyright (c) 2008 Krodo
+// Part of Bylins http://www.mud.ru
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
-#include "db.h"
-#include "mobmax.h"
+#include <map>
+#include <vector>
+#include <boost/array.hpp>
+#include "mobmax.hpp"
 #include "char.hpp"
+#include "utils.h"
 
-#define MAX_MOB_LEVEL 50	/* Максимальный уровень мобов */
-#define MIN_MOB_IN_MOBKILL 2	/* Минимальное количество мобов одного уровня */
-/*  в файле замакса */
-#define MAX_MOB_IN_MOBKILL 100	/* Максимальное количество мобов одного уровня */
-/*  в файле замакса */
-#define MOBKILL_KOEFF 3		/* Во сколько раз надо убить мобов меньше */
-/* чем  их есть в мире, чтобы начать */
-/*  размаксивать */
-
-/* external vars */
 extern mob_rnum top_of_mobt;
 extern CHAR_DATA *mob_proto;
+extern INDEX_DATA *mob_index;
 
-/* local global */
-int num_mob_lev[MAX_MOB_LEVEL + 1];
+// Максимальный уровень мобов
+static const int MAX_MOB_LEVEL = 50;
+// Минимальное количество мобов одного уровня в файле замакса
+static const int MIN_MOB_IN_MOBKILL  = 2;
+// Максимальное количество мобов одного уровня в файле замакса
+static const int MAX_MOB_IN_MOBKILL = 100;
+// Во сколько раз надо убить мобов меньше, чем их есть в мире, чтобы начать размаксивать
+static const int MOBKILL_KOEFF = 3;
+// кол-во мобов каждого уровня
+static boost::array<int, MAX_MOB_LEVEL + 1> num_levels = {0};
+// мап соответствий внумов и левелов (для быстрого чтения плеер-файла)
+static std::map<int/* внум моба */, int/* левел моба */> vnum_to_level;
 
-/* Размакс для мобов уровня level */
-void drop_old_mobs(CHAR_DATA * ch, int level)
+/**
+* Иним массив кол-ва мобов каждого левела и мап соответствий внумов и левелов.
+*/
+void MobMax::init()
 {
-	int i, lev_count, r_num;
-
-	if (level > MAX_MOB_LEVEL || level < 0)
-		return;
-
-	i = ch->MobKill.count - 1;
-	lev_count = 0;
-	while (i >= 0)
+	for (int i = 0; i <= top_of_mobt; ++i)
 	{
-		r_num = real_mobile(ch->MobKill.vnum[i]);
-		if (r_num < 0 || (ch->MobKill.howmany[i]) < 1)
-		{
-			clear_kill_vnum(ch, (ch->MobKill.vnum[i]));
-		}
-		else if (GET_LEVEL(mob_proto + r_num) == level)
-		{
-			if (lev_count > num_mob_lev[level])
-			{
-				clear_kill_vnum(ch, (ch->MobKill.vnum[i]));
-			}
-			else
-			{
-				lev_count++;
-			}
-		}
-		i--;
-	}
-}
-
-/* снимаем замакс по мобу vnum. возвращает true если сняли замакс и false
-   если его и не было */
-int clear_kill_vnum(CHAR_DATA * vict, int vnum)
-{
-	int i, j;
-
-	for (i = j = 0; j < vict->MobKill.count; i++, j++)
-	{
-		if (vict->MobKill.vnum[i] == vnum)
-			j++;
-		vict->MobKill.vnum[i] = vict->MobKill.vnum[j];
-		vict->MobKill.howmany[i] = vict->MobKill.howmany[j];
-	}
-	if (j > i)
-	{
-		vict->MobKill.count--;
-		return (TRUE);
-	}
-	else
-	{
-		return (FALSE);
-	}
-}
-
-/* Увеличиваем количество убитых vnum мобов на incvalue */
-void inc_kill_vnum(CHAR_DATA * ch, int vnum, int incvalue)
-{
-	int i;
-	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0)
-		return;
-
-	if (ch->MobKill.vnum)
-	{
-		for (i = 0; i < ch->MobKill.count; i++)
-			if (*(ch->MobKill.vnum + i) == vnum)
-			{
-				*(ch->MobKill.howmany + i) += incvalue;
-				return;
-			}
-		if (!(ch->MobKill.count % 10L))
-		{
-			RECREATE(ch->MobKill.howmany, int, (ch->MobKill.count / 10L + 1) * 10L);
-			RECREATE(ch->MobKill.vnum, int, (ch->MobKill.count / 10L + 1) * 10L);
-		}
-	}
-	else
-	{
-		ch->MobKill.count = 0;
-		CREATE(ch->MobKill.vnum, int, 10);
-		CREATE(ch->MobKill.howmany, int, 10);
-	}
-
-	*(ch->MobKill.vnum + ch->MobKill.count) = vnum;
-	*(ch->MobKill.howmany + ch->MobKill.count++) = incvalue;
-
-	/* Проводим размакс */
-	i = real_mobile(vnum);
-	if (i >= 0)
-	{
-		drop_old_mobs(ch, GET_LEVEL(mob_proto + i));
-	}
-}
-
-/* возвращет количество убитых vnum мобов */
-int get_kill_vnum(CHAR_DATA * ch, int vnum)
-{
-	int i;
-	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0)
-		return (0);
-	if (ch->MobKill.vnum)
-	{
-		for (i = 0; i < ch->MobKill.count; i++)
-			if (*(ch->MobKill.vnum + i) == vnum)
-				return (*(ch->MobKill.howmany + i));
-	}
-	return (0);
-}
-
-/* сохраняет в аски файле замакс */
-void save_mkill(CHAR_DATA * ch, FILE * saved)
-{
-	int i;
-	mob_rnum r_num;
-
-	if (IS_NPC(ch) || IS_IMMORTAL(ch))
-		return;
-	fprintf(saved, "Mobs:\n");
-	if (ch->MobKill.vnum)
-		for (i = 0; i < ch->MobKill.count; i++)
-			if ((r_num = real_mobile(*(ch->MobKill.vnum + i))) > -1)
-				fprintf(saved, "%d %d\n", *(ch->MobKill.vnum + i), *(ch->MobKill.howmany + i));
-	fprintf(saved, "~\n");
-}
-
-/* снимает замакс или освобждает память под него */
-void free_mkill(CHAR_DATA * ch)
-{
-	if (ch->MobKill.howmany)
-		free(ch->MobKill.howmany);
-
-	if (ch->MobKill.vnum)
-		free(ch->MobKill.vnum);
-
-	ch->MobKill.count = 0;
-	ch->MobKill.vnum = NULL;
-	ch->MobKill.howmany = NULL;
-}
-
-/* пересчет количества типов мобов каждого уровня в мире и вычмсление
-   максимального их количества в файле замакса */
-void mob_lev_count(void)
-{
-	int nr;
-
-	for (nr = 0; nr <= MAX_MOB_LEVEL; nr++)
-		num_mob_lev[nr] = 0;
-
-	for (nr = 0; nr <= top_of_mobt; nr++)
-	{
-		if (GET_LEVEL(mob_proto + nr) > MAX_MOB_LEVEL)
+		int level = GET_LEVEL(mob_proto + i);
+		if (level > MAX_MOB_LEVEL)
 			log("Warning! Mob >MAXIMUN lev!");
-		else if (GET_LEVEL(mob_proto + nr) < 0)
+		else if (level < 0)
 			log("Warning! Mob <0 lev!");
 		else
-			num_mob_lev[(int) GET_LEVEL(mob_proto + nr)]++;
+		{
+			++num_levels[level];
+			vnum_to_level[mob_index[i].vnum] = level;
+		}
 	}
 
-	for (nr = 0; nr <= MAX_MOB_LEVEL; nr++)
+	for (int i = 0; i <= MAX_MOB_LEVEL; ++i)
 	{
-		log("Mob lev %d. Num of mobs %d", nr, num_mob_lev[nr]);
-		num_mob_lev[nr] = num_mob_lev[nr] / MOBKILL_KOEFF;
-		if (num_mob_lev[nr] < MIN_MOB_IN_MOBKILL)
-			num_mob_lev[nr] = MIN_MOB_IN_MOBKILL;
-		if (num_mob_lev[nr] > MAX_MOB_IN_MOBKILL)
-			num_mob_lev[nr] = MAX_MOB_IN_MOBKILL;
-		log("Mob lev %d. Max in MobKill file %d", nr, num_mob_lev[nr]);
+		log("Mob lev %d. Num of mobs %d", i, num_levels[i]);
+		num_levels[i] = num_levels[i] / MOBKILL_KOEFF;
+		if (num_levels[i] < MIN_MOB_IN_MOBKILL)
+			num_levels[i] = MIN_MOB_IN_MOBKILL;
+		if (num_levels[i] > MAX_MOB_IN_MOBKILL)
+			num_levels[i] = MAX_MOB_IN_MOBKILL;
+		log("Mob lev %d. Max in MobKill file %d", i, num_levels[i]);
 
 	}
+}
+
+/**
+* Возвращает левел указанного vnum моба или -1, если такого нет.
+*/
+int MobMax::get_level_by_vnum(int vnum)
+{
+	std::map<int, int>::const_iterator it = vnum_to_level.find(vnum);
+	if (it != vnum_to_level.end())
+		return it->second;
+	return -1;
+}
+
+/**
+* Снятие замакса по мобам уровня level, если мобов данного уровня убито необходимое кол-во.
+*/
+void MobMax::refresh(int level)
+{
+	int count = 0;
+	for (MobMaxType::iterator it = mobmax_.begin(); it != mobmax_.end();/* empty*/)
+	{
+		if (it->second.level == level)
+		{
+			if (count > num_levels[level])
+				mobmax_.erase(it++);
+			else
+			{
+				++count;
+				++it;
+			}
+		}
+		else
+			++it;
+	}
+}
+
+/**
+* Добавление замакса по мобу vnum, левела level. count для случая сета замакса иммом.
+*/
+void MobMax::add(CHAR_DATA *ch, int vnum, int count, int level)
+{
+	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > MAX_MOB_LEVEL) return;
+
+	MobMaxType::iterator it = mobmax_.find(vnum);
+	if (it != mobmax_.end())
+		it->second.count += count;
+	else
+	{
+		struct mobmax_data tmp_data;
+		tmp_data.count = count;
+		tmp_data.level = level;
+		mobmax_.insert(std::make_pair(vnum, tmp_data));
+	}
+	refresh(level);
+}
+
+/**
+* Версия add без лишних расчетов для инита во время загрузки персонажа.
+*/
+void MobMax::load(CHAR_DATA *ch, int vnum, int count, int level)
+{
+	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > MAX_MOB_LEVEL) return;
+
+	struct mobmax_data tmp_data;
+	tmp_data.count = count;
+	tmp_data.level = level;
+	mobmax_.insert(std::make_pair(vnum, tmp_data));
+}
+
+/**
+* Удаление замакса по указанному мобу vnum.
+*/
+void MobMax::remove(int vnum)
+{
+	MobMaxType::iterator it = mobmax_.find(vnum);
+	if (it != mobmax_.end())
+		mobmax_.erase(it);
+}
+
+/**
+* Возвращает кол-во убитых мобов данного vnum.
+*/
+int MobMax::get_kill_count(int vnum) const
+{
+	MobMaxType::const_iterator it = mobmax_.find(vnum);
+	if (it != mobmax_.end())
+		return it->second.count;
+	return 0;
+}
+
+/**
+* Сохранение в плеер-файл.
+*/
+void MobMax::save(FILE *saved) const
+{
+	fprintf(saved, "Mobs:\n");
+	for (MobMaxType::const_iterator it = mobmax_.begin(); it != mobmax_.end(); ++it)
+		fprintf(saved, "%d %d\n", it->first, it->second.count);
+	fprintf(saved, "~\n");
+
+}
+
+/**
+* Для очистки всех замаксов при реморте.
+*/
+void MobMax::clear()
+{
+	mobmax_.clear();
 }

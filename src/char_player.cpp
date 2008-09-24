@@ -46,4 +46,5 @@ void Player::set_passwd(std::string const & passwd)
 void Player::remort()
 {
 	quested.clear();
+	mobmax.clear();
 }
