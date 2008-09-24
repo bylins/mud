@@ -12,13 +12,15 @@
 
 struct mobmax_data
 {
+	// внум моба
+	int vnum;
 	// кол-во мобов
 	int count;
 	// их уровень
 	int level;
 };
 
-typedef std::map<int/* внум моба */, mobmax_data> MobMaxType;
+typedef std::list<mobmax_data> MobMaxType;
 
 class MobMax
 {

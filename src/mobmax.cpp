@@ -4,6 +4,7 @@
 
 #include <map>
 #include <boost/array.hpp>
+#include <boost/bind.hpp>
 #include "mobmax.hpp"
 #include "char.hpp"
 #include "utils.h"
@@ -76,7 +77,7 @@ void MobMax::refresh(int level)
 	int count = 0;
 	for (MobMaxType::iterator it = mobmax_.begin(); it != mobmax_.end();/* empty*/)
 	{
-		if (it->second.level == level)
+		if (it->level == level)
 		{
 			if (count > num_levels[level])
 				mobmax_.erase(it++);
@@ -98,15 +99,19 @@ void MobMax::add(CHAR_DATA *ch, int vnum, int count, int level)
 {
 	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > MAX_MOB_LEVEL) return;
 
-	MobMaxType::iterator it = mobmax_.find(vnum);
+	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
+		boost::bind(std::equal_to<int>(),
+			boost::bind(&mobmax_data::vnum, _1), vnum));
+
 	if (it != mobmax_.end())
-		it->second.count += count;
+		it->count += count;
 	else
 	{
 		struct mobmax_data tmp_data;
+		tmp_data.vnum = vnum;
 		tmp_data.count = count;
 		tmp_data.level = level;
-		mobmax_.insert(std::make_pair(vnum, tmp_data));
+		mobmax_.push_front(tmp_data);
 	}
 	refresh(level);
 }
@@ -119,9 +124,10 @@ void MobMax::load(CHAR_DATA *ch, int vnum, int count, int level)
 	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > MAX_MOB_LEVEL) return;
 
 	struct mobmax_data tmp_data;
+	tmp_data.vnum = vnum;
 	tmp_data.count = count;
 	tmp_data.level = level;
-	mobmax_.insert(std::make_pair(vnum, tmp_data));
+	mobmax_.push_front(tmp_data);
 }
 
 /**
@@ -129,9 +135,9 @@ void MobMax::load(CHAR_DATA *ch, int vnum, int count, int level)
 */
 void MobMax::remove(int vnum)
 {
-	MobMaxType::iterator it = mobmax_.find(vnum);
-	if (it != mobmax_.end())
-		mobmax_.erase(it);
+	mobmax_.remove_if(
+		boost::bind(std::equal_to<int>(),
+			boost::bind(&mobmax_data::vnum, _1), vnum));
 }
 
 /**
@@ -139,9 +145,12 @@ void MobMax::remove(int vnum)
 */
 int MobMax::get_kill_count(int vnum) const
 {
-	MobMaxType::const_iterator it = mobmax_.find(vnum);
+	MobMaxType::const_iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
+		boost::bind(std::equal_to<int>(),
+			boost::bind(&mobmax_data::vnum, _1), vnum));
+
 	if (it != mobmax_.end())
-		return it->second.count;
+		return it->count;
 	return 0;
 }
 
@@ -151,8 +160,8 @@ int MobMax::get_kill_count(int vnum) const
 void MobMax::save(FILE *saved) const
 {
 	fprintf(saved, "Mobs:\n");
-	for (MobMaxType::const_iterator it = mobmax_.begin(); it != mobmax_.end(); ++it)
-		fprintf(saved, "%d %d\n", it->first, it->second.count);
+	for (MobMaxType::const_reverse_iterator it = mobmax_.rbegin(); it != mobmax_.rend(); ++it)
+		fprintf(saved, "%d %d\n", it->vnum, it->count);
 	fprintf(saved, "~\n");
 
 }
