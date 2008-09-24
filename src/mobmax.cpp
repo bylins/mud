@@ -79,8 +79,7 @@ void MobMax::refresh(int level)
 	{
 		if (it->second.level == level)
 		{
-			// TODO: интересно с фига тут при num_levels[level] выдается варнинг
-			if (count > num_levels[it->second.level])
+			if (count > num_levels[level])
 				mobmax_.erase(it++);
 			else
 			{
