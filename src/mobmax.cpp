@@ -3,7 +3,6 @@
 // Part of Bylins http://www.mud.ru
 
 #include <map>
-#include <vector>
 #include <boost/array.hpp>
 #include "mobmax.hpp"
 #include "char.hpp"
