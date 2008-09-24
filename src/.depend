@@ -157,8 +157,6 @@ dg_wldcmd.o: dg_wldcmd.cpp conf.h sysdep.h structs.h screen.h \
 dg_olc.o: dg_olc.cpp conf.h sysdep.h structs.h utils.h comm.h db.h olc.h \
   dg_olc.h dg_scripts.h dg_event.h char.hpp
 color.o: color.cpp conf.h sysdep.h
-mobmax.o: mobmax.cpp mobmax.hpp conf.h sysdep.h structs.h char.hpp \
-  utils.h
 pk.o: pk.cpp conf.h sysdep.h structs.h constants.h utils.h comm.h db.h \
   handler.h interpreter.h screen.h pk.h char.hpp
 genchar.o: genchar.cpp conf.h sysdep.h structs.h comm.h utils.h genchar.h \
@@ -208,3 +206,5 @@ char_player.o: char_player.cpp char_player.hpp conf.h sysdep.h structs.h \
   quested.hpp mobmax.hpp utils.h
 quested.o: quested.cpp quested.hpp conf.h sysdep.h structs.h utils.h \
   char.hpp
+mobmax.o: mobmax.cpp mobmax.hpp conf.h sysdep.h structs.h char.hpp \
+  utils.h
