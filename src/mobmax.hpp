@@ -29,12 +29,13 @@ public:
 	int get_kill_count(int vnum) const;
 	void add(CHAR_DATA *ch, int vnum, int count, int level);
 	void load(CHAR_DATA *ch, int vnum, int count, int level);
-	void refresh(int level);
 	void remove(int vnum);
 	void save(FILE *saved) const;
 	void clear();
 
 private:
+	void refresh(int level);
+
 	MobMaxType mobmax_;
 };
 
