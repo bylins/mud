@@ -22,7 +22,7 @@ static const int MAX_MOB_IN_MOBKILL = 100;
 // Во сколько раз надо убить мобов меньше, чем их есть в мире, чтобы начать размаксивать
 static const int MOBKILL_KOEFF = 3;
 // кол-во мобов каждого уровня
-static boost::array<int, MAX_MOB_LEVEL + 1> num_levels = {0};
+static boost::array<int, MAX_MOB_LEVEL + 1> num_levels = { {0} };
 // мап соответствий внумов и левелов (для быстрого чтения плеер-файла)
 static std::map<int/* внум моба */, int/* левел моба */> vnum_to_level;
 
