@@ -1229,7 +1229,7 @@ int ign_find_id(char *name, long *id)
 
 	for (i = 0; i <= top_of_p_table; i++)
 	{
-		if (!strcmp(name, player_table[i].name))
+		if (!str_cmp(name, player_table[i].name))
 		{
 			if (player_table[i].level >= LVL_IMMORT)
 				return 0;
