@@ -251,8 +251,7 @@ struct player_special_data
 	struct punish_data punreg;
 
 	char *clanStatus; // строка для отображения приписки по кто
-	// TODO: вообще тут надо weak_ptr втыкать, но смотрится очень тупо ща с макросами и в структуре
-	// поэтому пока просто надо не забывать чистить указатели у плееров, чтобы не оставлять клан
+	// TODO: однозначно переписать
 	boost::shared_ptr<class Clan> clan; // собсна клан, если он есть
 	boost::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
 
