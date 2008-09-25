@@ -207,4 +207,4 @@ char_player.o: char_player.cpp char_player.hpp conf.h sysdep.h structs.h \
 quested.o: quested.cpp quested.hpp conf.h sysdep.h structs.h utils.h \
   char.hpp
 mobmax.o: mobmax.cpp mobmax.hpp conf.h sysdep.h structs.h char.hpp \
-  utils.h
+  utils.h db.h

@@ -5,7 +5,7 @@
 #ifndef MOBMAX_HPP_INCLUDED
 #define MOBMAX_HPP_INCLUDED
 
-#include <map>
+#include <list>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"

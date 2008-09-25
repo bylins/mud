@@ -8,10 +8,7 @@
 #include "mobmax.hpp"
 #include "char.hpp"
 #include "utils.h"
-
-extern mob_rnum top_of_mobt;
-extern CHAR_DATA *mob_proto;
-extern INDEX_DATA *mob_index;
+#include "db.h"
 
 // Максимальный уровень мобов
 static const int MAX_MOB_LEVEL = 50;
