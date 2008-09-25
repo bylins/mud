@@ -16,7 +16,7 @@ extern INDEX_DATA *mob_index;
 // Максимальный уровень мобов
 static const int MAX_MOB_LEVEL = 50;
 // Минимальное количество мобов одного уровня в файле замакса
-static const int MIN_MOB_IN_MOBKILL  = 2;
+static const int MIN_MOB_IN_MOBKILL = 2;
 // Максимальное количество мобов одного уровня в файле замакса
 static const int MAX_MOB_IN_MOBKILL = 100;
 // Во сколько раз надо убить мобов меньше, чем их есть в мире, чтобы начать размаксивать
