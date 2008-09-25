@@ -104,7 +104,6 @@ struct char_point_data
 	int gold;			/* Money carried                           */
 	long bank_gold;		/* Gold the char has in a bank account    */
 	long exp;			/* The experience of the player            */
-	long pk_counter;		/* pk counter list */
 };
 
 /*

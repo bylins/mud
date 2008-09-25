@@ -10,18 +10,6 @@
 #include "sysdep.h"
 #include "structs.h"
 
-struct mobmax_data
-{
-	// внум моба
-	int vnum;
-	// кол-во мобов
-	int count;
-	// их уровень
-	int level;
-};
-
-typedef std::list<mobmax_data> MobMaxType;
-
 class MobMax
 {
 public:
@@ -38,6 +26,20 @@ public:
 private:
 	void refresh(int level);
 
+	struct mobmax_data
+	{
+		mobmax_data(int in_vnum, int in_count, int in_level)
+			: vnum(in_vnum), count(in_count), level(in_level)
+		{};
+		// внум моба
+		int vnum;
+		// кол-во мобов
+		int count;
+		// их уровень
+		int level;
+	};
+
+	typedef std::list<mobmax_data> MobMaxType;
 	MobMaxType mobmax_;
 };
 

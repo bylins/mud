@@ -460,7 +460,6 @@ extern SPECIAL(postmaster);
 #define PUNCTUAL_WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
 #define CLR_MEMORY(ch)  (memset((ch)->Memory,0,MAX_SPELLS+1))
 #define FORGET_ALL(ch) {MemQ_flush(ch);memset((ch)->real_abils.SplMem,0,MAX_SPELLS+1);}
-#define IS_KILLER(ch)    ((ch)->points.pk_counter)
 #define IS_CODER(ch)    (GET_LEVEL(ch) < LVL_IMMORT && PRF_FLAGGED(ch, PRF_CODERINFO))
 #define IS_COLORED(ch)    (pk_count (ch))
 #define GET_LASTTELL(ch)    ((ch)->player_specials->saved.lasttell)
@@ -868,7 +867,6 @@ extern SPECIAL(postmaster);
 #define WAIT_STATE(ch, cycle) do { GET_WAIT_STATE(ch) = (cycle); } while(0)
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { GET_PUNCTUAL_WAIT_STATE(ch) = (cycle); } while(0)
 #define CHECK_WAIT(ch)        ((ch)->wait > 0)
-#define CHECK_PUNCTUAL_WAIT(ch)        ((ch)->punctual_wait > 0)
 #define GET_WAIT(ch)          GET_WAIT_STATE(ch)
 #define GET_PUNCTUAL_WAIT(ch)          GET_PUNCTUAL_WAIT_STATE(ch)
 #define GET_MOB_HOLD(ch)      (AFF_FLAGGED((ch),AFF_HOLD) ? 1 : 0)

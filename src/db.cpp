@@ -5223,7 +5223,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	NAME_ID_GOD(ch) = 0;
 	GET_OLC_ZONE(ch) = 0;
 	ch->player_data.time.played = 0;
-	IS_KILLER(ch) = 0;
 	GET_LOADROOM(ch) = NOWHERE;
 	GET_RELIGION(ch) = 1;
 	GET_RACE(ch) = 1;
@@ -5571,8 +5570,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 				}
 				while (true);
 			}
-			else if (!strcmp(tag, "PK  "))
-				IS_KILLER(ch) = lnum;
 			else if (!strcmp(tag, "Prtl"))
 				add_portal_to_char(ch, num);
 			// Loads Here new punishment strings
@@ -7057,7 +7054,6 @@ void save_char(CHAR_DATA *ch)
 	fprintf(saved, "Move: %d/%d\n", GET_MOVE(ch), GET_MAX_MOVE(ch));
 	fprintf(saved, "Gold: %d\n", get_gold(ch));
 	fprintf(saved, "Bank: %ld\n", get_bank_gold(ch));
-	fprintf(saved, "PK  : %ld\n", IS_KILLER(ch));
 
 	fprintf(saved, "Wimp: %d\n", GET_WIMP_LEV(ch));
 	fprintf(saved, "Frez: %d\n", GET_FREEZE_LEV(ch));

@@ -107,10 +107,7 @@ void MobMax::add(CHAR_DATA *ch, int vnum, int count, int level)
 		it->count += count;
 	else
 	{
-		struct mobmax_data tmp_data;
-		tmp_data.vnum = vnum;
-		tmp_data.count = count;
-		tmp_data.level = level;
+		mobmax_data tmp_data(vnum, count, level);
 		mobmax_.push_front(tmp_data);
 	}
 	refresh(level);
@@ -123,10 +120,7 @@ void MobMax::load(CHAR_DATA *ch, int vnum, int count, int level)
 {
 	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > MAX_MOB_LEVEL) return;
 
-	struct mobmax_data tmp_data;
-	tmp_data.vnum = vnum;
-	tmp_data.count = count;
-	tmp_data.level = level;
+	mobmax_data tmp_data(vnum, count, level);
 	mobmax_.push_front(tmp_data);
 }
 
