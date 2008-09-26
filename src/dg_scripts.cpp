@@ -2297,12 +2297,12 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				if (!IS_NPC(c))
 				{
 					if (!*subfield || !(pos = atoi(subfield)))
-						sprintf(str, "%d", real_room(GET_LOADROOM(c)));
+						sprintf(str, "%d", GET_LOADROOM(c));
 					else
 					{
 						GET_LOADROOM(c) = pos;
 						save_char(c);
-						sprintf(str, "%d", real_room(pos));
+						sprintf(str, "%d", real_room(pos)); // TODO: почему тогда тут рнум?
 					}
 				}
 			}
