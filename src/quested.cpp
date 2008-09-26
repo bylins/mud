@@ -15,7 +15,7 @@ void Quested::add(CHAR_DATA *ch, int vnum)
 
 bool Quested::remove(int vnum)
 {
-	std::set<int>::iterator it = quested_.find(vnum);
+	QuestedType::iterator it = quested_.find(vnum);
 	if (it != quested_.end())
 	{
 		quested_.erase(it);
@@ -26,7 +26,7 @@ bool Quested::remove(int vnum)
 
 bool Quested::get(int vnum) const
 {
-	std::set<int>::const_iterator it = quested_.find(vnum);
+	QuestedType::const_iterator it = quested_.find(vnum);
 	if (it != quested_.end())
 		return true;
 	return false;
@@ -35,14 +35,14 @@ bool Quested::get(int vnum) const
 std::string Quested::print() const
 {
 	std::stringstream text;
-	for (std::set<int>::const_iterator it = quested_.begin(); it != quested_.end(); ++it)
+	for (QuestedType::const_iterator it = quested_.begin(); it != quested_.end(); ++it)
 		text << " " << *it;
 	return text.str();
 }
 
 void Quested::save(FILE *saved) const
 {
-	for (std::set<int>::const_iterator it = quested_.begin(); it != quested_.end(); ++it)
+	for (QuestedType::const_iterator it = quested_.begin(); it != quested_.end(); ++it)
 		fprintf(saved, "Qst : %d\n", *it);
 }
 

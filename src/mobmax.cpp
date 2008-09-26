@@ -10,18 +10,24 @@
 #include "utils.h"
 #include "db.h"
 
+namespace
+{
+
 // Максимальный уровень мобов
-static const int MAX_MOB_LEVEL = 50;
+const int MAX_MOB_LEVEL = 50;
 // Минимальное количество мобов одного уровня в списке замакса по левелам
-static const int MIN_MOB_IN_MOBKILL = 2;
+const int MIN_MOB_IN_MOBKILL = 2;
 // Максимальное количество мобов одного уровня в списке замакса по левелам
-static const int MAX_MOB_IN_MOBKILL = 100;
+const int MAX_MOB_IN_MOBKILL = 100;
 // Во сколько раз надо убить мобов меньше, чем их есть в мире, чтобы начать размаксивать
-static const int MOBKILL_KOEFF = 3;
+const int MOBKILL_KOEFF = 3;
 // кол-во мобов каждого уровня
-static boost::array<int, MAX_MOB_LEVEL + 1> num_levels = { {0} };
+boost::array<int, MAX_MOB_LEVEL + 1> num_levels = { {0} };
 // мап соответствий внумов и левелов (для быстрого чтения плеер-файла)
-static std::map<int/* внум моба */, int/* левел моба */> vnum_to_level;
+typedef std::map<int/* внум моба */, int/* левел моба */> VnumToLevelType;
+VnumToLevelType vnum_to_level;
+
+} // namespace
 
 /**
 * Иним массив кол-ва мобов каждого левела и мап соответствий внумов и левелов.
@@ -60,7 +66,7 @@ void MobMax::init()
 */
 int MobMax::get_level_by_vnum(int vnum)
 {
-	std::map<int, int>::const_iterator it = vnum_to_level.find(vnum);
+	VnumToLevelType::const_iterator it = vnum_to_level.find(vnum);
 	if (it != vnum_to_level.end())
 		return it->second;
 	return -1;

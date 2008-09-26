@@ -23,7 +23,8 @@ public:
 
 private:
 	// выполненные квесты
-	std::set<int/* внум */> quested_;
+	typedef std::set<int/* внум */> QuestedType;
+	QuestedType quested_;
 };
 
 #endif // QUESTED_HPP_INCLUDED
