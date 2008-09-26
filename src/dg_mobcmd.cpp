@@ -139,6 +139,12 @@ ACMD(do_mkill)
 		return;
 	}
 
+	if (MOB_FLAGGED(ch, MOB_NOFIGHT))
+	{
+		mob_log(ch, "mkill called for mob with NOFIGHT flag");
+		return;
+	}
+
 	if (AFF_FLAGGED(ch, AFF_CHARM))
 		return;
 
