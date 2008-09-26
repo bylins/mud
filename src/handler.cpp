@@ -1336,7 +1336,8 @@ bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 			|| (GET_OBJ_TYPE(obj_one) == ITEM_DRINKCON && GET_OBJ_VAL(obj_one, 2) != GET_OBJ_VAL(obj_two, 2))
 			|| (GET_OBJ_TYPE(obj_one) == ITEM_CONTAINER && (obj_one->contains || obj_two->contains))
 			|| GET_OBJ_VNUM(obj_two) == -1
-			|| (GET_OBJ_TYPE(obj_one) == ITEM_MING && strcmp(obj_one->name, obj_two->name)))
+			|| (GET_OBJ_TYPE(obj_one) == ITEM_MING && strcmp(obj_one->short_description, obj_two->short_description))
+			|| (GET_OBJ_TYPE(obj_one) == ITEM_MATERIAL && strcmp(obj_one->short_description, obj_two->short_description)))
 	{
 		return 0;
 	}
