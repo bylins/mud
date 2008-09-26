@@ -72,7 +72,7 @@ int MobMax::get_level_by_vnum(int vnum)
 void MobMax::refresh(int level)
 {
 	int count = 0;
-	for (MobMaxType::iterator it = mobmax_.begin(); it != mobmax_.end();/* empty*/)
+	for (MobMaxType::iterator it = mobmax_.begin(); it != mobmax_.end();/* empty */)
 	{
 		if (it->level == level)
 		{
@@ -154,7 +154,6 @@ void MobMax::save(FILE *saved) const
 	for (MobMaxType::const_reverse_iterator it = mobmax_.rbegin(); it != mobmax_.rend(); ++it)
 		fprintf(saved, "%d %d\n", it->vnum, it->count);
 	fprintf(saved, "~\n");
-
 }
 
 /**
