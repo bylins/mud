@@ -26,7 +26,7 @@ bool Quested::remove(int vnum)
 
 bool Quested::get(int vnum) const
 {
-	std::set<int>::iterator it = quested_.find(vnum);
+	std::set<int>::const_iterator it = quested_.find(vnum);
 	if (it != quested_.end())
 		return true;
 	return false;
