@@ -20,10 +20,10 @@
 * Убрано редактирование из мада и запись уида автоматом -> все изменения производятся прямой правкой файла на сервере.
 * Добавлены группы команд и флаги для более удобного распределения привилегий.
 * Пример файла privilege.lst:
-* # предустановленные группы (названия не менять): default, default_demigod, news, arena, skills
+* # предустановленные группы (названия не менять): default, default_demigod, boards, arena, skills
 * # default - команды, доступные всем иммам по умолчанию (демигоды не в счет)
 * # default_demigod - команды всем демигодам по дефолту
-* # news - возможность писать новости от любого имени + полный доступ на доски ошибок и кодеров
+* # boards - полный доступ на доски новостей, ошибок, кодеров и какие там еще будут
 * # arena - команды, которые доступны только на арене, без set и show (+ спеллы переход и призвать)
 * # skills - флаг, позволяющий имму пользоваться заклинаниями, умениями, рунами, взламывать двери (34е по дефолту)
 * # fullzedit - возможность открытия/закрытия зон для записи (zed lock/unlock) (34е по дефолту)
@@ -39,14 +39,14 @@
 * </groups>
 * <gods>
 * Йцук 595336650 groups (olc) hell mute dumb ban delete set (bank)
-* Фыва 803863739 groups (arena goto olc news) hell mute dumb ban delete set (bank)
+* Фыва 803863739 groups (arena goto olc boards) hell mute dumb ban delete set (bank)
 * </gods>
 * Формат файла временный, zone.ru там грозится своим форматом на lua, а xml в очередной раз решено не воротить, хотя и хотелось...
 */
 namespace Privilege
 {
 
-const int NEWS_MAKER = 0;
+const int BOARDS = 0;
 const int USE_SKILLS = 1;
 const int ARENA_MASTER = 2;
 const int KRODER = 3;
@@ -93,8 +93,8 @@ void parse_command_line(const std::string &command, int other_flags = 0); // про
 */
 void parse_flags(const std::string &command)
 {
-	if (command == "news")
-		tmp_god.flags.set(NEWS_MAKER);
+	if (command == "boards")
+		tmp_god.flags.set(BOARDS);
 	else if (command == "skills")
 		tmp_god.flags.set(USE_SKILLS);
 	else if (command == "arena")

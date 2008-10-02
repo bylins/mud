@@ -21,7 +21,7 @@ bool check_flag(CHAR_DATA *ch, int flag);
 bool check_spells(CHAR_DATA *ch, int spellnum);
 bool check_skills(CHAR_DATA *ch);
 
-extern const int NEWS_MAKER;
+extern const int BOARDS;
 extern const int USE_SKILLS;
 extern const int ARENA_MASTER;
 extern const int KRODER;

@@ -415,7 +415,7 @@ ACMD(DoBoard)
 				&& (*board)->type != CLAN_BOARD
 				&& (*board)->type != CLANNEWS_BOARD
 				&& (*board)->type != PERS_BOARD
-				&& !Privilege::check_flag(ch, Privilege::NEWS_MAKER))
+				&& !Privilege::check_flag(ch, Privilege::BOARDS))
 		{
 			send_to_char("Да Вы ведь только что писали сюда.\r\n", ch);
 			return;
@@ -423,7 +423,7 @@ ACMD(DoBoard)
 
 		// написание новостей от другого имени
 		std::string name = GET_NAME(ch);
-		if (((*board)->type == NEWS_BOARD || (*board)->type == NOTICE_BOARD) && Privilege::check_flag(ch, Privilege::NEWS_MAKER))
+		if (((*board)->type == NEWS_BOARD || (*board)->type == NOTICE_BOARD) && Privilege::check_flag(ch, Privilege::KRODER))
 		{
 			GetOneParam(buffer2, buffer);
 			if (buffer.empty())
@@ -438,8 +438,8 @@ ACMD(DoBoard)
 		MessagePtr tempMessage(new Message);
 		tempMessage->author = name;
 		tempMessage->unique = GET_UNIQUE(ch);
-		// для досок кроме клановых и персональных пишет левел автора (для возможной очистки кем-то)
-		tempMessage->level = GET_LEVEL(ch);
+		// для досок кроме клановых и персональных пишем левел автора (для возможной очистки кем-то)
+		Privilege::check_flag(ch, Privilege::KRODER) ? tempMessage->level = LVL_IMPL : tempMessage->level = GET_LEVEL(ch);
 		// клановым еще ранг
 		if (CLAN(ch))
 			tempMessage->rank = CLAN_MEMBER(ch)->rank_num;
@@ -493,7 +493,7 @@ ACMD(DoBoard)
 		else if ((*board)->type != CLAN_BOARD
 				 && (*board)->type != CLANNEWS_BOARD
 				 && (*board)->type != PERS_BOARD
-				 && !Privilege::check_flag(ch, Privilege::NEWS_MAKER)
+				 && !Privilege::check_flag(ch, Privilege::KRODER)
 				 && GET_LEVEL(ch) < (*board)->messages[num]->level)
 		{
 			// для простых досок сверяем левела (для контроля иммов)
@@ -586,7 +586,7 @@ int Board::Access(CHAR_DATA * ch)
 	case GENERAL_BOARD:
 	case IDEA_BOARD:
 		// все читают, пишут с мин.левела, 32 и по привилегии полный
-		if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
+		if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::BOARDS))
 			return 4;
 		if (GET_LEVEL(ch) < MIN_WRITE_LEVEL && !GET_REMORT(ch))
 			return 1;
@@ -594,7 +594,7 @@ int Board::Access(CHAR_DATA * ch)
 			return 3;
 	case ERROR_BOARD:
 		// все пишут с мин.левела, 34 и по привилегии полный
-		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
+		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS))
 			return 4;
 		if (GET_LEVEL(ch) < MIN_WRITE_LEVEL && !GET_REMORT(ch))
 			return 0;
@@ -602,13 +602,13 @@ int Board::Access(CHAR_DATA * ch)
 			return 2;
 	case NEWS_BOARD:
 		// все читают, 34 и по привилегии полный
-		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
+		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS))
 			return 4;
 		else
 			return 1;
 	case GODNEWS_BOARD:
 		// 32 читают, 34 и по привилегии полный
-		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
+		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS))
 			return 4;
 		else if (IS_GOD(ch))
 			return 1;
@@ -616,7 +616,7 @@ int Board::Access(CHAR_DATA * ch)
 			return 0;
 	case GODGENERAL_BOARD:
 		// 32 читают/пишут, 34 полный
-		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
+		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS))
 			return 4;
 		else if (IS_GOD(ch))
 			return 3;
@@ -625,7 +625,7 @@ int Board::Access(CHAR_DATA * ch)
 	case GODBUILD_BOARD:
 	case GODCODE_BOARD:
 		// 33 читают/пишут, 34 и по привилегии полный
-		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
+		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS))
 			return 4;
 		else if (IS_GRGOD(ch))
 			return 3;
@@ -633,7 +633,7 @@ int Board::Access(CHAR_DATA * ch)
 			return 0;
 	case GODPUNISH_BOARD:
 		// 32 читают/пишут, 34 полный
-		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
+		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS))
 			return 4;
 		else if (IS_GOD(ch))
 			return 3;
@@ -668,13 +668,13 @@ int Board::Access(CHAR_DATA * ch)
 			return 0;
 	case NOTICE_BOARD:
 		// 32+ и по привилегии полный, остальные только читают
-		if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
+		if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::BOARDS))
 			return 4;
 		else
 			return 1;
 	case MISPRINT_BOARD:
 		// по привилегии (группа olc) и 34 полный, остальным только запись с мин левела/морта
-		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::MISPRINT) || Privilege::check_flag(ch, Privilege::NEWS_MAKER))
+		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::MISPRINT) || Privilege::check_flag(ch, Privilege::BOARDS))
 			return 4;
 		else if (GET_LEVEL(ch) < MIN_WRITE_LEVEL && !GET_REMORT(ch))
 			return 0;
