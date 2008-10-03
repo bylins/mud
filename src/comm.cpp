@@ -1035,7 +1035,7 @@ void game_loop(socket_t mother_desc)
 	/* The Main Loop.  The Big Cheese.  The Top Dog.  The Head Honcho.  The.. */
 	while (!shutting_down())  	/* Sleep if we don't have any connections */
 	{
-		log("..."); // TODO: это здесь на денек-другой максимум
+		log("."); // TODO: это здесь на денек-другой максимум
 		if (descriptor_list == NULL)
 		{
 			log("No connections.  Going to sleep.");
@@ -1150,6 +1150,7 @@ void game_loop(socket_t mother_desc)
 		/* Update tics for deadlock protection (UNIX only) */
 		tics++;
 #endif
+		log(".."); // TODO: это здесь на денек-другой максимум
 	}
 }
 
