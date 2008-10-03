@@ -336,29 +336,43 @@ void write_time(FILE *file)
 	fprintf(file, "%s :: ", time_buf);
 }
 
+/**
+* Так, потестить...
+*/
+void write_test_time(FILE *file)
+{
+	char time_buf[20];
+	struct timeval tv;
+
+	gettimeofday(&tv, 0);
+	time_t ct = tv.tv_sec;
+
+	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
+	fprintf(file, "%s.%ld :: ", time_buf, tv.tv_usec);
+}
+
 /*
  * New variable argument log() function.  Works the same as the old for
  * previously written code but is very nice for new code.
  */
 void log(const char *format, ...)
 {
-	va_list args;
-	time_t ct = time(0);
-	char *time_s = asctime(localtime(&ct));
-
 	if (logfile == NULL)
 		puts("SYSERR: Using log() before stream was initialized!");
 	if (format == NULL)
 		format = "SYSERR: log() received a NULL format.";
 
-	time_s[strlen(time_s) - 1] = '\0';
+//	time_t ct = time(0);
+//	char *time_s = asctime(localtime(&ct));
 
-	fprintf(logfile, "%-15.15s :: ", time_s + 4);
+//	time_s[strlen(time_s) - 1] = '\0';
+//	fprintf(logfile, "%-15.15s :: ", time_s + 4);
 
+	write_test_time(logfile);
+	va_list args;
 	va_start(args, format);
 	vfprintf(logfile, format, args);
 	va_end(args);
-
 	fprintf(logfile, "\n");
 
 // shapirus: для дебаггинга
