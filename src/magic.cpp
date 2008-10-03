@@ -224,7 +224,7 @@ void mobile_affect_update(void)
 	AFFECT_DATA *af, *next;
 	struct timed_type *timed, *timed_next;
 	CHAR_DATA *i, *i_next;
-	int was_charmed = 0, count, charmed_msg = FALSE;
+	int was_charmed = 0, charmed_msg = FALSE;
 
 	for (i = character_list; i; i = i_next)
 	{
