@@ -59,6 +59,7 @@ extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;
 extern struct spell_create_type spell_create[];
 extern int CheckProxy(DESCRIPTOR_DATA * ch);
+extern int check_death_ice(int room, CHAR_DATA * ch);
 
 void decrease_level(CHAR_DATA * ch);
 int max_exp_gain_pc(CHAR_DATA * ch);
@@ -1012,14 +1013,438 @@ void hour_update(void)
 	}
 }
 
+void room_point_update()
+{
+	int mana;
+	for (int count = FIRST_ROOM; count <= top_of_world; count++)
+	{
+		if (world[count]->fires)
+		{
+			switch (get_room_sky(count))
+			{
+			case SKY_CLOUDY:
+			case SKY_CLOUDLESS:
+				mana = number(1, 2);
+				break;
+			case SKY_RAINING:
+				mana = 2;
+				break;
+			default:
+				mana = 1;
+			}
+			world[count]->fires -= MIN(mana, world[count]->fires);
+			if (world[count]->fires <= 0)
+			{
+				act("Костер затух.", FALSE, world[count]->people, 0, 0, TO_ROOM);
+				act("Костер затух.", FALSE, world[count]->people, 0, 0, TO_CHAR);
+				world[count]->fires = 0;
+			}
+		}
+		if (world[count]->forbidden)
+		{
+			world[count]->forbidden--;
+			if (!world[count]->forbidden)
+			{
+				act("Магия, запечатывающая входы, пропала.", FALSE,
+					world[count]->people, 0, 0, TO_ROOM);
+				act("Магия, запечатывающая входы, пропала.", FALSE,
+					world[count]->people, 0, 0, TO_CHAR);
+			}
+		}
+		if (world[count]->portal_time)
+		{
+			world[count]->portal_time--;
+			if (!world[count]->portal_time)
+			{
+				OneWayPortal::remove(world[count]);
+				act("Пентаграмма медленно растаяла.", FALSE, world[count]->people, 0, 0, TO_ROOM);
+				act("Пентаграмма медленно растаяла.", FALSE, world[count]->people, 0, 0, TO_CHAR);
+			}
+		}
+		if (world[count]->holes)
+		{
+			world[count]->holes--;
+			if (!world[count]->holes || roundup(world[count]->holes) == world[count]->holes)
+			{
+				act("Ямку присыпало землей...", FALSE, world[count]->people, 0, 0, TO_ROOM);
+				act("Ямку присыпало землей...", FALSE, world[count]->people, 0, 0, TO_CHAR);
+			}
+		}
+		if (world[count]->ices)
+			if (!--world[count]->ices)
+			{
+				REMOVE_BIT(ROOM_FLAGS(count, ROOM_ICEDEATH), ROOM_ICEDEATH);
+				DeathTrap::remove(world[count]);
+			}
+
+		world[count]->glight = MAX(0, world[count]->glight);
+		world[count]->gdark = MAX(0, world[count]->gdark);
+
+		struct track_data *track, *next_track, *temp;
+		int spellnum;
+		for (track = world[count]->track, temp = NULL; track; track = next_track)
+		{
+			next_track = track->next;
+			switch (real_sector(count))
+			{
+			case SECT_FLYING:
+			case SECT_UNDERWATER:
+			case SECT_SECRET:
+			case SECT_WATER_SWIM:
+			case SECT_WATER_NOSWIM:
+				spellnum = 31;
+				break;
+			case SECT_THICK_ICE:
+			case SECT_NORMAL_ICE:
+			case SECT_THIN_ICE:
+				spellnum = 16;
+				break;
+			case SECT_CITY:
+				spellnum = 4;
+				break;
+			case SECT_FIELD:
+			case SECT_FIELD_RAIN:
+				spellnum = 2;
+				break;
+			case SECT_FIELD_SNOW:
+				spellnum = 1;
+				break;
+			case SECT_FOREST:
+			case SECT_FOREST_RAIN:
+				spellnum = 2;
+				break;
+			case SECT_FOREST_SNOW:
+				spellnum = 1;
+				break;
+			case SECT_HILLS:
+			case SECT_HILLS_RAIN:
+				spellnum = 3;
+				break;
+			case SECT_HILLS_SNOW:
+				spellnum = 1;
+				break;
+			case SECT_MOUNTAIN:
+				spellnum = 4;
+				break;
+			case SECT_MOUNTAIN_SNOW:
+				spellnum = 1;
+				break;
+			default:
+				spellnum = 2;
+			}
+
+			int restore;
+			for (mana = 0, restore = FALSE; mana < NUM_OF_DIRS; mana++)
+			{
+				if ((track->time_income[mana] <<= spellnum))
+					restore = TRUE;
+				if ((track->time_outgone[mana] <<= spellnum))
+					restore = TRUE;
+			}
+			if (!restore)
+			{
+				if (temp)
+					temp->next = next_track;
+				else
+					world[count]->track = next_track;
+				free(track);
+			}
+			else
+				temp = track;
+		}
+
+		check_death_ice(count, NULL);
+	}
+}
+
+void exchange_point_update()
+{
+	EXCHANGE_ITEM_DATA *exch_item, *next_exch_item;
+	for (exch_item = exchange_item_list; exch_item; exch_item = next_exch_item)
+	{
+		next_exch_item = exch_item->next;
+		if (GET_OBJ_TIMER(GET_EXCHANGE_ITEM(exch_item)) > 0)
+			GET_OBJ_TIMER(GET_EXCHANGE_ITEM(exch_item))--;
+
+		if (GET_OBJ_TIMER(GET_EXCHANGE_ITEM(exch_item)) <= 0)
+		{
+			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
+					CAP(GET_EXCHANGE_ITEM(exch_item)->PNames[0]),
+					GET_OBJ_SUF_2(GET_EXCHANGE_ITEM(exch_item)));
+			log(buf);
+			extract_exchange_item(exch_item);
+		}
+	}
+
+}
+
+/**
+* Оповещение о дикее шмотки из храна в клан-канал.
+*/
+void clan_chest_invoice(OBJ_DATA *j)
+{
+	int room = GET_ROOM_VNUM(j->in_obj->in_room);
+	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
+	{
+		if (d->character
+			&& STATE(d) == CON_PLAYING
+			&& !AFF_FLAGGED(d->character, AFF_DEAFNESS)
+			&& CLAN(d->character)
+			&& PRF_FLAGGED(d->character, PRF_DECAY_MODE)
+			&& world[real_room(CLAN(d->character)->GetRent())]->zone == world[real_room(room)]->zone)
+		{
+			send_to_char(d->character, "[Хранилище]: %s'%s рассыпал%s в прах'%s\r\n",
+				CCIRED(d->character, C_NRM), j->short_description, GET_OBJ_SUF_2(j), CCNRM(d->character, C_NRM));
+		}
+	}
+}
+
+/**
+* Дикей шмоток в клан-хране.
+*/
+void clan_chest_point_update(OBJ_DATA *j)
+{
+	if (GET_OBJ_TIMER(j) > 0)
+		GET_OBJ_TIMER(j)--;
+
+	if ((OBJ_FLAGGED(j, ITEM_ZONEDECAY)
+			&& GET_OBJ_ZONE(j) != NOWHERE
+			&& up_obj_where(j->in_obj) != NOWHERE
+			&& GET_OBJ_ZONE(j) != world[up_obj_where(j->in_obj)]->zone)
+		|| GET_OBJ_TIMER(j) <= 0)
+	{
+		clan_chest_invoice(j);
+		obj_from_obj(j);
+		extract_obj(j);
+	}
+}
+
+void obj_point_update()
+{
+	OBJ_DATA *j, *next_thing, *jj, *next_thing2;
+	int count, cont = 0;
+
+	for (j = object_list; j; j = next_thing)
+	{
+		next_thing = j->next;	/* Next in object list */
+
+		// смотрим клан-сундуки
+		if (j->in_obj && Clan::is_clan_chest(j->in_obj))
+		{
+			clan_chest_point_update(j);
+			continue;
+		}
+
+		// контейнеры на земле с флагом !дикей, но не загружаемые в этой комнате, а хз кем брошенные
+		// извращение конечно перебирать на каждый объект команды резета зоны, но в голову ниче интересного
+		// не лезет, да и не так уж и много на самом деле таких предметов будет, условий порядочно
+		// а так привет любителям оставлять книги в клановых сумках или лоадить в замке столы
+		if (j->in_obj
+				&& !j->in_obj->carried_by
+				&& !j->in_obj->worn_by
+				&& OBJ_FLAGGED(j->in_obj, ITEM_NODECAY)
+				&& GET_ROOM_VNUM(IN_ROOM(j->in_obj)) % 100 != 99)
+		{
+			int zone = world[j->in_obj->in_room]->zone;
+			bool find = 0;
+			ClanListType::const_iterator clan = Clan::IsClanRoom(j->in_obj->in_room);
+			if (clan == Clan::ClanList.end())   // внутри замков даже и смотреть не будем
+			{
+				for (int cmd_no = 0; zone_table[zone].cmd[cmd_no].command != 'S'; ++cmd_no)
+				{
+					if (zone_table[zone].cmd[cmd_no].command == 'O'
+							&& zone_table[zone].cmd[cmd_no].arg1 == GET_OBJ_RNUM(j->in_obj)
+							&& zone_table[zone].cmd[cmd_no].arg3 == IN_ROOM(j->in_obj))
+					{
+						find = 1;
+						break;
+					}
+				}
+			}
+
+			if (!find && GET_OBJ_TIMER(j) > 0)
+				GET_OBJ_TIMER(j)--;
+		}
+
+		/* If this is a corpse */
+		if (IS_CORPSE(j))  	/* timer count down */
+		{
+			if (GET_OBJ_TIMER(j) > 0)
+				GET_OBJ_TIMER(j)--;
+			if (GET_OBJ_TIMER(j) <= 0)
+			{
+				for (jj = j->contains; jj; jj = next_thing2)
+				{
+					next_thing2 = jj->next_content;	/* Next in inventory */
+					obj_from_obj(jj);
+					if (j->in_obj)
+						obj_to_obj(jj, j->in_obj);
+					else if (j->carried_by)
+						obj_to_char(jj, j->carried_by);
+					else if (j->in_room != NOWHERE)
+						obj_to_room(jj, j->in_room);
+					else
+					{
+						log("SYSERR: extract %s from %s to NOTHING !!!",
+							jj->PNames[0], j->PNames[0]);
+						// core_dump();
+						extract_obj(jj);
+					}
+				}
+				// Добавлено Ладником
+//              next_thing = j->next; /* пурж по obj_to_room я убрал, но пускай на всякий случай */
+				// Конец Ладник
+				if (j->carried_by)
+				{
+					act("$p рассыпал$U в Ваших руках.", FALSE, j->carried_by, j, 0, TO_CHAR);
+					obj_from_char(j);
+				}
+				else if (j->in_room != NOWHERE)
+				{
+					if (world[j->in_room]->people)
+					{
+						act("Черви полностью сожрали $o3.",
+							TRUE, world[j->in_room]->people, j, 0, TO_ROOM);
+						act("Черви не оставили от $o1 и следа.",
+							TRUE, world[j->in_room]->people, j, 0, TO_CHAR);
+					}
+					obj_from_room(j);
+				}
+				else if (j->in_obj)
+					obj_from_obj(j);
+				extract_obj(j);
+			}
+		}
+		/* If the timer is set, count it down and at 0, try the trigger */
+		/* note to .rej hand-patchers: make this last in your point-update() */
+		else
+		{
+			if (SCRIPT_CHECK(j, OTRIG_TIMER))
+			{
+				if (GET_OBJ_TIMER(j) > 0 && OBJ_FLAGGED(j, ITEM_TICKTIMER))
+					GET_OBJ_TIMER(j)--;
+				if (!GET_OBJ_TIMER(j))
+				{
+					timer_otrigger(j);
+					j = NULL;
+				}
+			}
+			else if (GET_OBJ_DESTROY(j) > 0 && !NO_DESTROY(j))
+				GET_OBJ_DESTROY(j)--;
+
+			if (j && (j->in_room != NOWHERE) && GET_OBJ_TIMER(j) > 0 && !NO_DESTROY(j))
+				GET_OBJ_TIMER(j)--;
+
+			if (j && ((OBJ_FLAGGED(j, ITEM_ZONEDECAY) && GET_OBJ_ZONE(j) != NOWHERE && up_obj_where(j) != NOWHERE && GET_OBJ_ZONE(j) != world[up_obj_where(j)]->zone) || (GET_OBJ_TIMER(j) <= 0 && !NO_TIMER(j)) || (GET_OBJ_DESTROY(j) == 0 && !NO_DESTROY(j))))
+			{
+				/**** рассыпание обьекта */
+				for (jj = j->contains; jj; jj = next_thing2)
+				{
+					next_thing2 = jj->next_content;
+					obj_from_obj(jj);
+					if (j->in_obj)
+						obj_to_obj(jj, j->in_obj);
+					else if (j->worn_by)
+						obj_to_char(jj, j->worn_by);
+					else if (j->carried_by)
+						obj_to_char(jj, j->carried_by);
+					else if (j->in_room != NOWHERE)
+						obj_to_room(jj, j->in_room);
+					else
+					{
+						log("SYSERR: extract %s from %s to NOTHING !!!",
+							jj->PNames[0], j->PNames[0]);
+						// core_dump();
+						extract_obj(jj);
+					}
+				}
+				// Добавлено Ладником
+//              next_thing = j->next; /* пурж по obj_to_room я убрал, но пускай на всякий случай */
+				// Конец Ладник
+				if (j->worn_by)
+				{
+					switch (j->worn_on)
+					{
+					case WEAR_LIGHT:
+					case WEAR_SHIELD:
+					case WEAR_WIELD:
+					case WEAR_HOLD:
+					case WEAR_BOTHS:
+						act("$o рассыпал$U в Ваших руках...", FALSE, j->worn_by, j, 0, TO_CHAR);
+						break;
+					default:
+						act("$o рассыпал$U прямо на Вас...", FALSE, j->worn_by, j, 0, TO_CHAR);
+						break;
+					}
+					unequip_char(j->worn_by, j->worn_on);
+				}
+				else if (j->carried_by)
+				{
+					act("$o рассыпал$U в Ваших руках...", FALSE, j->carried_by, j, 0, TO_CHAR);
+					obj_from_char(j);
+				}
+				else if (j->in_room != NOWHERE)
+				{
+					if (world[j->in_room]->people)
+					{
+						act("$o рассыпал$U в прах, который был развеян ветром...",
+							FALSE, world[j->in_room]->people, j, 0, TO_CHAR);
+						act("$o рассыпал$U в прах, который был развеян ветром...",
+							FALSE, world[j->in_room]->people, j, 0, TO_ROOM);
+					}
+					obj_from_room(j);
+				}
+				else if (j->in_obj)
+					obj_from_obj(j);
+				extract_obj(j);
+			}
+			else
+			{
+				if (!j)
+					continue;
+
+				/* decay poision && other affects */
+				for (count = 0; count < MAX_OBJ_AFFECT; count++)
+					if (j->affected[count].location == APPLY_POISON)
+					{
+						j->affected[count].modifier--;
+						if (j->affected[count].modifier <= 0)
+						{
+							j->affected[count].location = APPLY_NONE;
+							j->affected[count].modifier = 0;
+						}
+					}
+			}
+		}
+	}
+
+	/* Тонущие, падающие, и сыпящиеся обьекты. */
+	for (j = object_list; j; j = next_thing)
+	{
+		next_thing = j->next;	/* Next in object list */
+		if (j->contains)
+		{
+			cont = TRUE;
+		}
+		else
+		{
+			cont = FALSE;
+		}
+		if (obj_decay(j))
+		{
+			if (cont)
+			{
+				next_thing = object_list;
+			}
+		}
+	}
+}
 
 void point_update(void)
 {
 	memory_rec *mem, *nmem, *pmem;
 	CHAR_DATA *i, *next_char;
-	OBJ_DATA *j, *next_thing, *jj, *next_thing2;
-	struct track_data *track, *next_track, *temp;
-	int count, mob_num, spellnum, mana, restore, cont = 0;
+	int count, mob_num, spellnum, mana;
 	char buffer_mem[MAX_SPELLS + 1], real_spell[MAX_SPELLS + 1];
 
 	for (count = 0; count <= MAX_SPELLS; count++)
@@ -1204,395 +1629,6 @@ void point_update(void)
 		update_char_objects(i);
 		if (!IS_NPC(i) && GET_LEVEL(i) < idle_max_level && !PRF_FLAGGED(i, PRF_CODERINFO))
 			check_idling(i);
-	}
-
-	/* rooms */
-	for (count = FIRST_ROOM; count <= top_of_world; count++)
-	{
-		if (world[count]->fires)
-		{
-			switch (get_room_sky(count))
-			{
-			case SKY_CLOUDY:
-			case SKY_CLOUDLESS:
-				mana = number(1, 2);
-				break;
-			case SKY_RAINING:
-				mana = 2;
-				break;
-			default:
-				mana = 1;
-			}
-			world[count]->fires -= MIN(mana, world[count]->fires);
-			if (world[count]->fires <= 0)
-			{
-				act("Костер затух.", FALSE, world[count]->people, 0, 0, TO_ROOM);
-				act("Костер затух.", FALSE, world[count]->people, 0, 0, TO_CHAR);
-				world[count]->fires = 0;
-			}
-		}
-		if (world[count]->forbidden)
-		{
-			world[count]->forbidden--;
-			if (!world[count]->forbidden)
-			{
-				act("Магия, запечатывающая входы, пропала.", FALSE,
-					world[count]->people, 0, 0, TO_ROOM);
-				act("Магия, запечатывающая входы, пропала.", FALSE,
-					world[count]->people, 0, 0, TO_CHAR);
-			}
-		}
-		if (world[count]->portal_time)
-		{
-			world[count]->portal_time--;
-			if (!world[count]->portal_time)
-			{
-				OneWayPortal::remove(world[count]);
-				act("Пентаграмма медленно растаяла.", FALSE, world[count]->people, 0, 0, TO_ROOM);
-				act("Пентаграмма медленно растаяла.", FALSE, world[count]->people, 0, 0, TO_CHAR);
-			}
-		}
-		if (world[count]->holes)
-		{
-			world[count]->holes--;
-			if (!world[count]->holes || roundup(world[count]->holes) == world[count]->holes)
-			{
-				act("Ямку присыпало землей...", FALSE, world[count]->people, 0, 0, TO_ROOM);
-				act("Ямку присыпало землей...", FALSE, world[count]->people, 0, 0, TO_CHAR);
-			}
-		}
-		if (world[count]->ices)
-			if (!--world[count]->ices)
-			{
-				REMOVE_BIT(ROOM_FLAGS(count, ROOM_ICEDEATH), ROOM_ICEDEATH);
-				DeathTrap::remove(world[count]);
-			}
-
-		world[count]->glight = MAX(0, world[count]->glight);
-		world[count]->gdark = MAX(0, world[count]->gdark);
-
-		for (track = world[count]->track, temp = NULL; track; track = next_track)
-		{
-			next_track = track->next;
-			switch (real_sector(count))
-			{
-			case SECT_FLYING:
-			case SECT_UNDERWATER:
-			case SECT_SECRET:
-			case SECT_WATER_SWIM:
-			case SECT_WATER_NOSWIM:
-				spellnum = 31;
-				break;
-			case SECT_THICK_ICE:
-			case SECT_NORMAL_ICE:
-			case SECT_THIN_ICE:
-				spellnum = 16;
-				break;
-			case SECT_CITY:
-				spellnum = 4;
-				break;
-			case SECT_FIELD:
-			case SECT_FIELD_RAIN:
-				spellnum = 2;
-				break;
-			case SECT_FIELD_SNOW:
-				spellnum = 1;
-				break;
-			case SECT_FOREST:
-			case SECT_FOREST_RAIN:
-				spellnum = 2;
-				break;
-			case SECT_FOREST_SNOW:
-				spellnum = 1;
-				break;
-			case SECT_HILLS:
-			case SECT_HILLS_RAIN:
-				spellnum = 3;
-				break;
-			case SECT_HILLS_SNOW:
-				spellnum = 1;
-				break;
-			case SECT_MOUNTAIN:
-				spellnum = 4;
-				break;
-			case SECT_MOUNTAIN_SNOW:
-				spellnum = 1;
-				break;
-			default:
-				spellnum = 2;
-			}
-
-			for (mana = 0, restore = FALSE; mana < NUM_OF_DIRS; mana++)
-			{
-				if ((track->time_income[mana] <<= spellnum))
-					restore = TRUE;
-				if ((track->time_outgone[mana] <<= spellnum))
-					restore = TRUE;
-			}
-			if (!restore)
-			{
-				if (temp)
-					temp->next = next_track;
-				else
-					world[count]->track = next_track;
-				free(track);
-			}
-			else
-				temp = track;
-		}
-	}
-//F@N++
-//Exchange countdown timer
-	EXCHANGE_ITEM_DATA *exch_item, *next_exch_item;
-	for (exch_item = exchange_item_list; exch_item; exch_item = next_exch_item)
-	{
-		next_exch_item = exch_item->next;
-		if (GET_OBJ_TIMER(GET_EXCHANGE_ITEM(exch_item)) > 0)
-			GET_OBJ_TIMER(GET_EXCHANGE_ITEM(exch_item))--;
-
-		if (GET_OBJ_TIMER(GET_EXCHANGE_ITEM(exch_item)) <= 0)
-		{
-			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
-					CAP(GET_EXCHANGE_ITEM(exch_item)->PNames[0]),
-					GET_OBJ_SUF_2(GET_EXCHANGE_ITEM(exch_item)));
-			log(buf);
-			extract_exchange_item(exch_item);
-		}
-	}
-//F@N--
-
-
-	/* objects */
-
-	for (j = object_list; j; j = next_thing)
-	{
-		next_thing = j->next;	/* Next in object list */
-		// смотрим клан-сундуки
-		if (j->in_obj && Clan::is_clan_chest(j->in_obj))
-		{
-			if (GET_OBJ_TIMER(j) > 0)
-				GET_OBJ_TIMER(j)--;
-
-			if (j && ((OBJ_FLAGGED(j, ITEM_ZONEDECAY) && GET_OBJ_ZONE(j) != NOWHERE
-					   && up_obj_where(j->in_obj) != NOWHERE
-					   && GET_OBJ_ZONE(j) != world[up_obj_where(j->in_obj)]->zone)
-					  || GET_OBJ_TIMER(j) <= 0))
-			{
-				int room = GET_ROOM_VNUM(j->in_obj->in_room);
-				DESCRIPTOR_DATA *d;
-
-				for (d = descriptor_list; d; d = d->next)
-					if (d->character && STATE(d) == CON_PLAYING && !AFF_FLAGGED(d->character, AFF_DEAFNESS)
-							&& CLAN(d->character) && world[real_room(CLAN(d->character)->GetRent())]->zone == world[real_room(room)]->zone && PRF_FLAGGED(d->character, PRF_DECAY_MODE))
-						send_to_char(d->character, "[Хранилище]: %s'%s рассыпал%s в прах'%s\r\n",
-									 CCIRED(d->character, C_NRM), j->short_description, GET_OBJ_SUF_2(j), CCNRM(d->character, C_NRM));
-				obj_from_obj(j);
-				extract_obj(j);
-			}
-			continue;
-		}
-
-		// контейнеры на земле с флагом !дикей, но не загружаемые в этой комнате, а хз кем брошенные
-		// извращение конечно перебирать на каждый объект команды резета зоны, но в голову ниче интересного
-		// не лезет, да и не так уж и многона самом деле таких предметов будет, условий порядочно
-		// а так привет любителям оставлять книги в клановых сумках или лоадить в замке столы
-		if (j->in_obj
-				&& !j->in_obj->carried_by
-				&& !j->in_obj->worn_by
-				&& OBJ_FLAGGED(j->in_obj, ITEM_NODECAY)
-				&& GET_ROOM_VNUM(IN_ROOM(j->in_obj)) % 100 != 99)
-		{
-			int zone = world[j->in_obj->in_room]->zone;
-			bool find = 0;
-			ClanListType::const_iterator clan = Clan::IsClanRoom(j->in_obj->in_room);
-			if (clan == Clan::ClanList.end())   // внутри замков даже и смотреть не будем
-			{
-				for (int cmd_no = 0; zone_table[zone].cmd[cmd_no].command != 'S'; ++cmd_no)
-				{
-					if (zone_table[zone].cmd[cmd_no].command == 'O'
-							&& zone_table[zone].cmd[cmd_no].arg1 == GET_OBJ_RNUM(j->in_obj)
-							&& zone_table[zone].cmd[cmd_no].arg3 == IN_ROOM(j->in_obj))
-					{
-						find = 1;
-						break;
-					}
-				}
-			}
-
-			if (!find && GET_OBJ_TIMER(j) > 0)
-				GET_OBJ_TIMER(j)--;
-		}
-
-		/* If this is a corpse */
-		if (IS_CORPSE(j))  	/* timer count down */
-		{
-			if (GET_OBJ_TIMER(j) > 0)
-				GET_OBJ_TIMER(j)--;
-			if (GET_OBJ_TIMER(j) <= 0)
-			{
-				for (jj = j->contains; jj; jj = next_thing2)
-				{
-					next_thing2 = jj->next_content;	/* Next in inventory */
-					obj_from_obj(jj);
-					if (j->in_obj)
-						obj_to_obj(jj, j->in_obj);
-					else if (j->carried_by)
-						obj_to_char(jj, j->carried_by);
-					else if (j->in_room != NOWHERE)
-						obj_to_room(jj, j->in_room);
-					else
-					{
-						log("SYSERR: extract %s from %s to NOTHING !!!",
-							jj->PNames[0], j->PNames[0]);
-						// core_dump();
-						extract_obj(jj);
-					}
-				}
-				// Добавлено Ладником
-//              next_thing = j->next; /* пурж по obj_to_room я убрал, но пускай на всякий случай */
-				// Конец Ладник
-				if (j->carried_by)
-				{
-					act("$p рассыпал$U в Ваших руках.", FALSE, j->carried_by, j, 0, TO_CHAR);
-					obj_from_char(j);
-				}
-				else if (j->in_room != NOWHERE)
-				{
-					if (world[j->in_room]->people)
-					{
-						act("Черви полностью сожрали $o3.",
-							TRUE, world[j->in_room]->people, j, 0, TO_ROOM);
-						act("Черви не оставили от $o1 и следа.",
-							TRUE, world[j->in_room]->people, j, 0, TO_CHAR);
-					}
-					obj_from_room(j);
-				}
-				else if (j->in_obj)
-					obj_from_obj(j);
-				extract_obj(j);
-			}
-		}
-		/* If the timer is set, count it down and at 0, try the trigger */
-		/* note to .rej hand-patchers: make this last in your point-update() */
-		else
-		{
-			if (SCRIPT_CHECK(j, OTRIG_TIMER))
-			{
-				if (GET_OBJ_TIMER(j) > 0 && OBJ_FLAGGED(j, ITEM_TICKTIMER))
-					GET_OBJ_TIMER(j)--;
-				if (!GET_OBJ_TIMER(j))
-				{
-					timer_otrigger(j);
-					j = NULL;
-				}
-			}
-			else if (GET_OBJ_DESTROY(j) > 0 && !NO_DESTROY(j))
-				GET_OBJ_DESTROY(j)--;
-
-			if (j && (j->in_room != NOWHERE) && GET_OBJ_TIMER(j) > 0 && !NO_DESTROY(j))
-				GET_OBJ_TIMER(j)--;
-
-			if (j && ((OBJ_FLAGGED(j, ITEM_ZONEDECAY) && GET_OBJ_ZONE(j) != NOWHERE && up_obj_where(j) != NOWHERE && GET_OBJ_ZONE(j) != world[up_obj_where(j)]->zone) || (GET_OBJ_TIMER(j) <= 0 && !NO_TIMER(j)) || (GET_OBJ_DESTROY(j) == 0 && !NO_DESTROY(j))))
-			{
-				/**** рассыпание обьекта */
-				for (jj = j->contains; jj; jj = next_thing2)
-				{
-					next_thing2 = jj->next_content;
-					obj_from_obj(jj);
-					if (j->in_obj)
-						obj_to_obj(jj, j->in_obj);
-					else if (j->worn_by)
-						obj_to_char(jj, j->worn_by);
-					else if (j->carried_by)
-						obj_to_char(jj, j->carried_by);
-					else if (j->in_room != NOWHERE)
-						obj_to_room(jj, j->in_room);
-					else
-					{
-						log("SYSERR: extract %s from %s to NOTHING !!!",
-							jj->PNames[0], j->PNames[0]);
-						// core_dump();
-						extract_obj(jj);
-					}
-				}
-				// Добавлено Ладником
-//              next_thing = j->next; /* пурж по obj_to_room я убрал, но пускай на всякий случай */
-				// Конец Ладник
-				if (j->worn_by)
-				{
-					switch (j->worn_on)
-					{
-					case WEAR_LIGHT:
-					case WEAR_SHIELD:
-					case WEAR_WIELD:
-					case WEAR_HOLD:
-					case WEAR_BOTHS:
-						act("$o рассыпал$U в Ваших руках...", FALSE, j->worn_by, j, 0, TO_CHAR);
-						break;
-					default:
-						act("$o рассыпал$U прямо на Вас...", FALSE, j->worn_by, j, 0, TO_CHAR);
-						break;
-					}
-					unequip_char(j->worn_by, j->worn_on);
-				}
-				else if (j->carried_by)
-				{
-					act("$o рассыпал$U в Ваших руках...", FALSE, j->carried_by, j, 0, TO_CHAR);
-					obj_from_char(j);
-				}
-				else if (j->in_room != NOWHERE)
-				{
-					if (world[j->in_room]->people)
-					{
-						act("$o рассыпал$U в прах, который был развеян ветром...",
-							FALSE, world[j->in_room]->people, j, 0, TO_CHAR);
-						act("$o рассыпал$U в прах, который был развеян ветром...",
-							FALSE, world[j->in_room]->people, j, 0, TO_ROOM);
-					}
-					obj_from_room(j);
-				}
-				else if (j->in_obj)
-					obj_from_obj(j);
-				extract_obj(j);
-			}
-			else
-			{
-				if (!j)
-					continue;
-
-				/* decay poision && other affects */
-				for (count = 0; count < MAX_OBJ_AFFECT; count++)
-					if (j->affected[count].location == APPLY_POISON)
-					{
-						j->affected[count].modifier--;
-						if (j->affected[count].modifier <= 0)
-						{
-							j->affected[count].location = APPLY_NONE;
-							j->affected[count].modifier = 0;
-						}
-					}
-			}
-		}
-	}
-	/* Тонущие, падающие, и сыпящиеся обьекты. */
-	for (j = object_list; j; j = next_thing)
-	{
-		next_thing = j->next;	/* Next in object list */
-		if (j->contains)
-		{
-			cont = TRUE;
-		}
-		else
-		{
-			cont = FALSE;
-		}
-		if (obj_decay(j))
-		{
-			if (cont)
-			{
-				next_thing = object_list;
-			}
-		}
 	}
 }
 

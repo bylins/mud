@@ -41,6 +41,7 @@ const char * print_god_or_player(int level)
 // Check if name agree (name must be parsed)
 int was_agree_name(DESCRIPTOR_DATA * d)
 {
+	log("was_agree_name start");
 	FILE *fp;
 	char temp[MAX_INPUT_LENGTH];
 	char immname[MAX_INPUT_LENGTH];
@@ -54,6 +55,7 @@ int was_agree_name(DESCRIPTOR_DATA * d)
 	if (!(fp = fopen(ANAME_FILE, "r")))
 	{
 		perror("SYSERR: Unable to open '" ANAME_FILE "' for reading");
+	log("was_agree_name end");
 		return (1);
 	}
 //2. Find name in list ...
@@ -79,15 +81,18 @@ int was_agree_name(DESCRIPTOR_DATA * d)
 			sprintf(buf, "AUTOAGREE: %s was agreed by %s", GET_PC_NAME(d->character), immname);
 			log(buf, d);
 			fclose(fp);
+	log("was_agree_name end");
 			return (0);
 		}
 	}
 	fclose(fp);
+	log("was_agree_name end");
 	return (1);
 }
 
 int was_disagree_name(DESCRIPTOR_DATA * d)
 {
+	log("was_disagree_name start");
 	FILE *fp;
 	char temp[MAX_INPUT_LENGTH];
 	char mortname[MAX_INPUT_LENGTH];
@@ -97,6 +102,7 @@ int was_disagree_name(DESCRIPTOR_DATA * d)
 	if (!(fp = fopen(DNAME_FILE, "r")))
 	{
 		perror("SYSERR: Unable to open '" DNAME_FILE "' for reading");
+	log("was_disagree_name end");
 		return (1);
 	}
 	//1. Load list
@@ -116,10 +122,12 @@ int was_disagree_name(DESCRIPTOR_DATA * d)
 			log(buf, d);
 
 			fclose(fp);
+	log("was_disagree_name end");
 			return (0);
 		};
 	}
 	fclose(fp);
+	log("was_disagree_name end");
 	return (1);
 }
 

@@ -1945,20 +1945,18 @@ void Crash_restore_weight(OBJ_DATA * obj)
 	}
 }
 
-void Crash_extract_objs(OBJ_DATA * obj)
+void Crash_extract_objs(OBJ_DATA *obj)
 {
-	int rnum;
 	OBJ_DATA *next;
 	for (; obj; obj = next)
 	{
 		next = obj->next_content;
 		Crash_extract_objs(obj->contains);
-		if ((rnum = real_object(GET_OBJ_VNUM(obj))) >= 0 && GET_OBJ_TIMER(obj) >= 0)
-			obj_index[rnum].stored++;
+		if (GET_OBJ_RNUM(obj) >= 0 && GET_OBJ_TIMER(obj) >= 0)
+			obj_index[GET_OBJ_RNUM(obj)].stored++;
 		extract_obj(obj);
 	}
 }
-
 
 int Crash_is_unrentable(OBJ_DATA * obj)
 {
@@ -1971,7 +1969,6 @@ int Crash_is_unrentable(OBJ_DATA * obj)
 
 	return FALSE;
 }
-
 
 void Crash_extract_norents(OBJ_DATA * obj)
 {

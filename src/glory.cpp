@@ -271,32 +271,33 @@ void load_glory()
 */
 void save_glory()
 {
-	const char *glory_file = LIB_PLRSTUFF"glory.backup";
+	long all_sum = 0;
+	std::stringstream out;
+
+	for (GloryListType::const_iterator it = glory_list.begin(); it != glory_list.end(); ++it)
+	{
+		out << "<Node>\n" << it->first << " " << it->second->free_glory << " " << it->second->denial << " " << it->second->hide << " " << it->second->freeze << "\n<Glory>\n";
+		all_sum += it->first + it->second->free_glory + it->second->denial + it->second->hide + it->second->freeze;
+		for (GloryTimeType::const_iterator gl_it = it->second->timers.begin(); gl_it != it->second->timers.end(); ++gl_it)
+		{
+			out << (*gl_it)->glory << " " << (*gl_it)->stat << " " << (*gl_it)->timer << "\n";
+			all_sum += (*gl_it)->stat + (*gl_it)->glory + (*gl_it)->timer;
+		}
+		out << "</Glory>\n</Node>\n";
+	}
+	out << "<End>\n";
+	// TODO: в file_crc систему это надо
+	out << Password::generate_md5_hash(boost::lexical_cast<std::string>(all_sum)) << "\n";
+
+	const char *glory_file = LIB_PLRSTUFF"glory.lst";
 	std::ofstream file(glory_file);
 	if (!file.is_open())
 	{
 		log("Glory: не удалось открыть файл на запись: %s", glory_file);
 		return;
 	}
-
-	long all_sum = 0;
-	for (GloryListType::const_iterator it = glory_list.begin(); it != glory_list.end(); ++it)
-	{
-		file << "<Node>\n" << it->first << " " << it->second->free_glory << " " << it->second->denial << " " << it->second->hide << " " << it->second->freeze << "\n<Glory>\n";
-		all_sum += it->first + it->second->free_glory + it->second->denial + it->second->hide + it->second->freeze;
-		for (GloryTimeType::const_iterator gl_it = it->second->timers.begin(); gl_it != it->second->timers.end(); ++gl_it)
-		{
-			file << (*gl_it)->glory << " " << (*gl_it)->stat << " " << (*gl_it)->timer << "\n";
-			all_sum += (*gl_it)->stat + (*gl_it)->glory + (*gl_it)->timer;
-		}
-		file << "</Glory>\n</Node>\n";
-	}
-	file << "<End>\n";
-	file << Password::generate_md5_hash(boost::lexical_cast<std::string>(all_sum)) << "\n";
+	file << out.rdbuf();
 	file.close();
-
-	std::string buffer("cp "LIB_PLRSTUFF"glory.backup "LIB_PLRSTUFF"glory.lst");
-	system(buffer.c_str());
 }
 
 /**
@@ -996,7 +997,6 @@ void timers_update()
 		}
 
 	}
-	save_glory();
 
 	// тут еще есть момент, что в меню таймеры не идут, в случае последующей записи изменений
 	// в принципе фигня канеш, но тем не менее - хорошо бы учесть
@@ -1513,20 +1513,20 @@ void load_glory_log()
 */
 void save_glory_log()
 {
-	const char *glory_file = "../log/glory.backup";
+	std::stringstream out;
+
+	for (GloryLogType::const_iterator it = glory_log.begin(); it != glory_log.end(); ++it)
+		out << it->first << " " << it->second->type << " " << it->second->num << " " << it->second->karma << "\n";
+
+	const char *glory_file = "../log/glory.log";
 	std::ofstream file(glory_file);
 	if (!file.is_open())
 	{
 		log("GloryLog: не удалось открыть файл на запись: %s", glory_file);
 		return;
 	}
-
-	for (GloryLogType::const_iterator it = glory_log.begin(); it != glory_log.end(); ++it)
-		file << it->first << " " << it->second->type << " " << it->second->num << " " << it->second->karma << "\n";
+	file << out.rdbuf();
 	file.close();
-
-	std::string buffer("cp ""../log/glory.backup ""../log/glory.log");
-	system(buffer.c_str());
 }
 
 /**

@@ -599,11 +599,11 @@ void CharNode::add_cost_per_day(OBJ_DATA *obj)
 /**
 * Для удобства в save_timedata(), запись строки с параметрами шмотки.
 */
-void write_objlist_timedata(const ObjListType &cont, std::ofstream &file)
+void write_objlist_timedata(const ObjListType &cont, std::stringstream &out)
 {
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
-		file << GET_OBJ_VNUM(*obj_it) << " " << GET_OBJ_TIMER(*obj_it) << " "
-		<< get_object_low_rent(*obj_it) << " " << GET_OBJ_UID(*obj_it) << "\n";
+		out << GET_OBJ_VNUM(*obj_it) << " " << GET_OBJ_TIMER(*obj_it) << " "
+			<< get_object_low_rent(*obj_it) << " " << GET_OBJ_UID(*obj_it) << "\n";
 }
 
 /**
@@ -611,38 +611,41 @@ void write_objlist_timedata(const ObjListType &cont, std::ofstream &file)
 */
 void save_timedata()
 {
-	const char *depot_file = LIB_DEPOT"depot.backup";
+	// на случай падения мада во время прохода по списку
+	std::stringstream out;
+
+	for (DepotListType::const_iterator it = depot_list.begin(); it != depot_list.end(); ++it)
+	{
+		out << "<Node>\n" << it->first << " ";
+		// чар онлайн - пишем бабло с его счета, иначе берем из оффлайновых полей инфу
+		if (it->second.ch)
+			out << get_bank_gold(it->second.ch) + get_gold(it->second.ch) << " 0 ";
+		else
+			out << it->second.money << " " << it->second.money_spend << " ";
+		out << it->second.buffer_cost << "\n";
+
+		// собсна какие списки не пустые - те и пишем, особо не мудрствуя
+		out << "<Objects>\n";
+		write_objlist_timedata(it->second.pers_online, out);
+		for (TimerListType::const_iterator obj_it = it->second.offline_list.begin();
+				obj_it != it->second.offline_list.end(); ++obj_it)
+		{
+			out << obj_it->vnum << " " << obj_it->timer << " " << obj_it->rent_cost
+				<< " " << obj_it->uid << "\n";
+		}
+		out << "</Objects>\n</Node>\n";
+	}
+
+	// канеш тут может файл не открыться и мы зря все считали, но это клиника
+	const char *depot_file = LIB_DEPOT"depot.db";
 	std::ofstream file(depot_file);
 	if (!file.is_open())
 	{
 		log("Хранилище: error open file: %s! (%s %s %d)", depot_file, __FILE__, __func__, __LINE__);
 		return;
 	}
-
-	for (DepotListType::const_iterator it = depot_list.begin(); it != depot_list.end(); ++it)
-	{
-		file << "<Node>\n" << it->first << " ";
-		// чар онлайн - пишем бабло с его счета, иначе берем из оффлайновых полей инфу
-		if (it->second.ch)
-			file << get_bank_gold(it->second.ch) + get_gold(it->second.ch) << " 0 ";
-		else
-			file << it->second.money << " " << it->second.money_spend << " ";
-		file << it->second.buffer_cost << "\n";
-
-		// собсна какие списки не пустые - те и пишем, особо не мудрствуя
-		file << "<Objects>\n";
-		write_objlist_timedata(it->second.pers_online, file);
-		for (TimerListType::const_iterator obj_it = it->second.offline_list.begin();
-				obj_it != it->second.offline_list.end(); ++obj_it)
-		{
-			file << obj_it->vnum << " " << obj_it->timer << " " << obj_it->rent_cost
-			<< " " << obj_it->uid << "\n";
-		}
-		file << "</Objects>\n</Node>\n";
-	}
+	file << out.rdbuf();
 	file.close();
-	std::string buffer("cp "LIB_DEPOT"depot.backup "LIB_DEPOT"depot.db");
-	system(buffer.c_str());
 }
 
 /**
@@ -650,6 +653,7 @@ void save_timedata()
 */
 void write_obj_file(const std::string &name, int file_type, const ObjListType &cont)
 {
+	// генерим имя файла
 	depot_log("write_obj_file: %s", name.c_str());
 	char filename[MAX_STRING_LENGTH];
 	if (!get_filename(name.c_str(), filename, file_type))
@@ -658,6 +662,7 @@ void write_obj_file(const std::string &name, int file_type, const ObjListType &c
 			name.c_str(), filename, __FILE__, __func__, __LINE__);
 		return;
 	}
+
 	// при пустом списке просто удаляем файл, чтобы не плодить пустышек в дире
 	if (cont.empty())
 	{
@@ -666,22 +671,27 @@ void write_obj_file(const std::string &name, int file_type, const ObjListType &c
 		return;
 	}
 
-	std::ofstream file(filename);
-	if (!file.is_open())
-	{
-		log("Хранилище: error open file: %s! (%s %s %d)", filename, __FILE__, __func__, __LINE__);
-		return;
-	}
-	file << "* Items file\n";
+	// пишем в буфер для верности на время цикла
+	std::stringstream out;
+	out << "* Items file\n";
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
 	{
 		depot_log("save: %s %d %d", (*obj_it)->short_description, GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
 		char databuf[MAX_STRING_LENGTH];
 		char *data = databuf;
 		write_one_object(&data, *obj_it, 0);
-		file << databuf;
+		out << databuf;
 	}
-	file << "\n$\n$\n";
+	out << "\n$\n$\n";
+
+	// скидываем в файл
+	std::ofstream file(filename);
+	if (!file.is_open())
+	{
+		log("Хранилище: error open file: %s! (%s %s %d)", filename, __FILE__, __func__, __LINE__);
+		return;
+	}
+	file << out.rdbuf();
 	file.close();
 }
 

@@ -159,30 +159,31 @@ void save(bool force_save)
 	if (!need_save && !force_save) return;
 
 	need_save = false;
-	const char *file_name = LIB_PLRSTUFF"crc.backup";
+	std::stringstream out;
+
+	for (CRCListType::const_iterator it = crc_list.begin(); it != crc_list.end(); ++it)
+		out << it->first << " " << it->second->player << "\r\n";
+
+	const char *file_name = LIB_PLRSTUFF"crc.lst";
 	std::ofstream file(file_name);
 	if (!file.is_open())
 	{
 		add_message("SYSERROR: не удалось открыть файл на запись: %s", file_name);
 		return;
 	}
-
-	for (CRCListType::const_iterator it = crc_list.begin(); it != crc_list.end(); ++it)
-		file << it->first << " " << it->second->player << "\r\n";
+	file << out.rdbuf();
 	file.close();
 
+	// crc32 самого файла пишется ему же в конец
 	const boost::uint32_t crc = calculate_file_crc(file_name);
-	std::ofstream out(file_name, std::ios_base::app);
-	if (!out.is_open())
+	std::ofstream file2(file_name, std::ios_base::app);
+	if (!file2.is_open())
 	{
 		add_message("SYSERROR: не удалось открыть файл на дозапись crc: %s", file_name);
 		return;
 	}
-	out << CRC_UID << " " << crc << "\r\n";
-	out.close();
-
-	std::string buffer("cp "LIB_PLRSTUFF"crc.backup "LIB_PLRSTUFF"crc.lst");
-	system(buffer.c_str());
+	file2 << CRC_UID << " " << crc << "\r\n";
+	file2.close();
 }
 
 /**

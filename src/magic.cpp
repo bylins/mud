@@ -52,7 +52,6 @@ void alterate_object(OBJ_DATA * obj, int dam, int chance);
 void death_cry(CHAR_DATA * ch);
 int has_boat(CHAR_DATA * ch);
 int check_death_trap(CHAR_DATA * ch);
-int check_death_ice(int room, CHAR_DATA * ch);
 int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum);
 int slot_for_char(CHAR_DATA * ch, int slotnum);
 void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum);
@@ -294,9 +293,6 @@ void mobile_affect_update(void)
 			stop_follower(i, SF_CHARMLOST);
 		}
 	}
-
-	for (count = FIRST_ROOM; count <= top_of_world; count++)
-		check_death_ice(count, NULL);
 }
 
 CHAR_DATA * find_char_in_room(long char_id, ROOM_DATA *room)

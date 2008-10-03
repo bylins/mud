@@ -620,8 +620,10 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		* str = '\0';
 #endif
 
-	//log("[SA] Start<%s>", str);
-	log("[SA] <%s> adds string '%s'", GET_NAME(d->character), str);
+	// почту логировать как-то не оно
+	if (d->character && !PLR_FLAGGED(d->character, PLR_MAILING))
+		log("[SA] <%s> adds string '%s'", GET_NAME(d->character), str);
+
 	smash_tilde(str);
 	if (!d->str)
 		return;
