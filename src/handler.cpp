@@ -1456,6 +1456,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 				global_uid++; // Увеличиваем глобальный счетчик уидов
 				global_uid = global_uid == 0 ? 1 : global_uid; // Если произошло переполнение инта
 				GET_OBJ_UID(object) = global_uid; // Назначаем уид
+				log("%s obj_to_char %s (%d|%u)", GET_NAME(ch), object->PNames[0], GET_OBJ_VNUM(object), object->uid);
 			}
 		}
 
@@ -1463,7 +1464,6 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 		{
 			SET_BIT(GET_OBJ_EXTRA(object, ITEM_TICKTIMER), ITEM_TICKTIMER);
 			insert_obj_and_group(object, &ch->carrying);
-			log("%s obj_to_char %s (%d|%u)", GET_NAME(ch), object->PNames[0], GET_OBJ_VNUM(object), object->uid);
 		}
 		else
 		{

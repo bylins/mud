@@ -85,7 +85,7 @@ void Crash_report_rent(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj,
 void update_obj_file(void);
 int Crash_write_rentcode(CHAR_DATA * ch, FILE * fl, struct save_rent_info *rent);
 int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int mode);
-void Crash_save(int iplayer, OBJ_DATA * obj, int location);
+void Crash_save(int iplayer, OBJ_DATA * obj, int location, int savetype);
 void Crash_rent_deadline(CHAR_DATA * ch, CHAR_DATA * recep, long cost);
 void Crash_restore_weight(OBJ_DATA * obj);
 void Crash_extract_objs(OBJ_DATA * obj);
@@ -1880,7 +1880,7 @@ int Crash_load(CHAR_DATA * ch)
 			obj->worn_on = 0;
 
 			auto_equip(ch, obj, location);
-			log("%s obj_to_char %s (%d|%u)", GET_NAME(ch), obj->PNames[0], GET_OBJ_VNUM(obj), obj->uid);
+			log("%s load_char_obj %s (%d|%u)", GET_NAME(ch), obj->PNames[0], GET_OBJ_VNUM(obj), obj->uid);
 		}
 		else
 		{
@@ -1911,7 +1911,7 @@ int Crash_load(CHAR_DATA * ch)
 				obj_to_obj(obj, tank_to->tank);
 			else
 				obj_to_char(obj, ch);
-			log("%s obj_to_char %s (%d|%u)", GET_NAME(ch), obj->PNames[0], GET_OBJ_VNUM(obj), obj->uid);
+			log("%s load_char_obj %s (%d|%u)", GET_NAME(ch), obj->PNames[0], GET_OBJ_VNUM(obj), obj->uid);
 		}
 	}
 	while (tank_list)  	//Clear tanks list
@@ -2069,13 +2069,13 @@ int Crashitems;
 char *Crashbufferdata = NULL;
 char *Crashbufferpos;
 
-void Crash_save(int iplayer, OBJ_DATA * obj, int location)
+void Crash_save(int iplayer, OBJ_DATA * obj, int location, int savetype)
 {
 	for (; obj; obj = obj->next_content)
 	{
 		if (obj->in_obj)
 			GET_OBJ_WEIGHT(obj->in_obj) -= GET_OBJ_WEIGHT(obj);
-		Crash_save(iplayer, obj->contains, MIN(0, location) - 1);
+		Crash_save(iplayer, obj->contains, MIN(0, location) - 1, savetype);
 		if (iplayer >= 0)
 //		 	&& Crashbufferpos - Crashbufferdata + CRASH_DEPTH < CRASH_LENGTH)
 //			Crashitems < MAX_SAVED_ITEMS &&  /* Removed to avoid objects loss */
@@ -2084,14 +2084,15 @@ void Crash_save(int iplayer, OBJ_DATA * obj, int location)
 			SAVEINFO(iplayer)->time[Crashitems].vnum = GET_OBJ_VNUM(obj);
 			SAVEINFO(iplayer)->time[Crashitems].timer = GET_OBJ_TIMER(obj);
 			Crashitems++;
-			log("%s save_char_obj %s (%d|%u)", player_table[iplayer].name, obj->PNames[0], GET_OBJ_VNUM(obj), obj->uid);
+			if (savetype != RENT_CRASH)
+				log("%s save_char_obj %s (%d|%u)", player_table[iplayer].name, obj->PNames[0], GET_OBJ_VNUM(obj), obj->uid);
 		}
 	}
 }
 
-void crash_save_and_restore_weight(int iplayer, OBJ_DATA * obj, int location)
+void crash_save_and_restore_weight(int iplayer, OBJ_DATA * obj, int location, int savetype)
 {
-	Crash_save(iplayer, obj, location);
+	Crash_save(iplayer, obj, location, savetype);
 	Crash_restore_weight(obj);
 }
 
@@ -2177,9 +2178,9 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 
 	for (j = 0; j < NUM_WEARS; j++)
 		if (GET_EQ(ch, j))
-			crash_save_and_restore_weight(iplayer, GET_EQ(ch, j), j + 1);
+			crash_save_and_restore_weight(iplayer, GET_EQ(ch, j), j + 1, savetype);
 
-	crash_save_and_restore_weight(iplayer, ch->carrying, 0);
+	crash_save_and_restore_weight(iplayer, ch->carrying, 0, savetype);
 
 	if (ch->followers && savetype == RENT_CRASH)
 	{
@@ -2189,8 +2190,8 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 				continue;
 			for (j = 0; j < NUM_WEARS; j++)
 				if (GET_EQ(k->follower, j))
-					crash_save_and_restore_weight(iplayer, GET_EQ(k->follower, j), 0);
-			crash_save_and_restore_weight(iplayer, k->follower->carrying, 0);
+					crash_save_and_restore_weight(iplayer, GET_EQ(k->follower, j), 0, savetype);
+			crash_save_and_restore_weight(iplayer, k->follower->carrying, 0, savetype);
 		}
 	}
 
