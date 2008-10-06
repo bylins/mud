@@ -1463,6 +1463,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 		{
 			SET_BIT(GET_OBJ_EXTRA(object, ITEM_TICKTIMER), ITEM_TICKTIMER);
 			insert_obj_and_group(object, &ch->carrying);
+			log("%s obj_to_char %s (%d|%u)", GET_NAME(ch), object->PNames[0], GET_OBJ_VNUM(object), object->uid);
 		}
 		else
 		{

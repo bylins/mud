@@ -1127,7 +1127,7 @@ int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 				else
 				{
 					equip_char(ch, obj, j | 0x80 | 0x40);
-					log("Equipped with %s %d", (obj)->short_description, j);
+//					log("Equipped with %s %d", (obj)->short_description, j);
 				}
 			}
 			else  	/* Oops, saved a player with double equipment? */
@@ -1880,6 +1880,7 @@ int Crash_load(CHAR_DATA * ch)
 			obj->worn_on = 0;
 
 			auto_equip(ch, obj, location);
+			log("%s obj_to_char %s (%d|%u)", GET_NAME(ch), obj->PNames[0], GET_OBJ_VNUM(obj), obj->uid);
 		}
 		else
 		{
@@ -1910,6 +1911,7 @@ int Crash_load(CHAR_DATA * ch)
 				obj_to_obj(obj, tank_to->tank);
 			else
 				obj_to_char(obj, ch);
+			log("%s obj_to_char %s (%d|%u)", GET_NAME(ch), obj->PNames[0], GET_OBJ_VNUM(obj), obj->uid);
 		}
 	}
 	while (tank_list)  	//Clear tanks list
@@ -2082,6 +2084,7 @@ void Crash_save(int iplayer, OBJ_DATA * obj, int location)
 			SAVEINFO(iplayer)->time[Crashitems].vnum = GET_OBJ_VNUM(obj);
 			SAVEINFO(iplayer)->time[Crashitems].timer = GET_OBJ_TIMER(obj);
 			Crashitems++;
+			log("%s save_char_obj %s (%d|%u)", player_table[iplayer].name, obj->PNames[0], GET_OBJ_VNUM(obj), obj->uid);
 		}
 	}
 }
