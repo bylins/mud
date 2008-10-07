@@ -281,8 +281,10 @@ ACMD(DoBoard)
 	BoardListType::const_iterator board;
 	// ну и в остальных случаях доски одни на всех и последовательно лежат, но найдем для верности
 	for (board = Board::BoardList.begin(); board != Board::BoardList.end(); ++board)
+	{
 		if ((*board)->type == subcmd && (*board)->Access(ch))
 			break;
+	}
 	if (board == Board::BoardList.end())
 	{
 		send_to_char("Чаво ?\r\n", ch);
