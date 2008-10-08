@@ -3456,8 +3456,8 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		set_battle_pos(victim);
 
 	/* Check protections */
-	if (GET_AF_BATTLE(ch, EAF_PROTECT))
-		return;
+//	if (GET_AF_BATTLE(ch, EAF_PROTECT))
+//		return;
 
 	/* Find weapon for attack number weapon */
 	if (weapon == 1)

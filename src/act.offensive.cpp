@@ -1407,7 +1407,7 @@ void go_protect(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 
 	PROTECTING(ch) = vict;
-	act("Вы попытаетесь прикрыть $N1 от следующей атаки.", FALSE, ch, 0, vict, TO_CHAR);
+	act("Вы попытаетесь прикрыть $N3 от следующей атаки.", FALSE, ch, 0, vict, TO_CHAR);
 	SET_AF_BATTLE(ch, EAF_PROTECT);
 }
 
@@ -1416,6 +1416,19 @@ ACMD(do_protect)
 	CHAR_DATA *vict, *tch;
 
 	one_argument(argument, arg);
+	if (!*arg)
+	{
+		if (PROTECTING(ch))
+		{
+			CLR_AF_BATTLE(ch, EAF_PROTECT);
+			PROTECTING(ch) = NULL;
+			send_to_char("Вы перестали прикрывать своего товарища. \r\n", ch);
+		}else
+		{
+			send_to_char("Вы никого не прикрываете. \r\n", ch);
+		}
+		return;
+	}
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_PROTECT))
 	{
@@ -1432,12 +1445,6 @@ ACMD(do_protect)
 	for (tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
 		if (FIGHTING(tch) == vict)
 			break;
-
-	if (!tch)
-	{
-		act("Но $N3 никто не атакует.", FALSE, ch, 0, vict, TO_CHAR);
-		return;
-	}
 
 	if (vict == ch)
 	{

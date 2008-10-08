@@ -269,29 +269,29 @@ char *diag_weapon_to_char(OBJ_DATA * obj, int show_wear)
 		if (show_wear)
 		{
 			if (CAN_WEAR(obj, ITEM_WEAR_FINGER))
-				sprintf(out_str + strlen(out_str), "Можно одеть на палец.\r\n");
+				sprintf(out_str + strlen(out_str), "Можно надеть на палец.\r\n");
 			if (CAN_WEAR(obj, ITEM_WEAR_NECK))
-				sprintf(out_str + strlen(out_str), "Можно одеть на шею.\r\n");
+				sprintf(out_str + strlen(out_str), "Можно надеть на шею.\r\n");
 			if (CAN_WEAR(obj, ITEM_WEAR_BODY))
-				sprintf(out_str + strlen(out_str), "Можно одеть на туловище.\r\n");
+				sprintf(out_str + strlen(out_str), "Можно надеть на туловище.\r\n");
 			if (CAN_WEAR(obj, ITEM_WEAR_HEAD))
-				sprintf(out_str + strlen(out_str), "Можно одеть на голову.\r\n");
+				sprintf(out_str + strlen(out_str), "Можно надеть на голову.\r\n");
 			if (CAN_WEAR(obj, ITEM_WEAR_LEGS))
-				sprintf(out_str + strlen(out_str), "Можно одеть на ноги.\r\n");
+				sprintf(out_str + strlen(out_str), "Можно надеть на ноги.\r\n");
 			if (CAN_WEAR(obj, ITEM_WEAR_FEET))
 				sprintf(out_str + strlen(out_str), "Можно обуть.\r\n");
 			if (CAN_WEAR(obj, ITEM_WEAR_HANDS))
-				sprintf(out_str + strlen(out_str), "Можно одеть на кисти.\r\n");
+				sprintf(out_str + strlen(out_str), "Можно надеть на кисти.\r\n");
 			if (CAN_WEAR(obj, ITEM_WEAR_ARMS))
-				sprintf(out_str + strlen(out_str), "Можно одеть на руки.\r\n");
+				sprintf(out_str + strlen(out_str), "Можно надеть на руки.\r\n");
 			if (CAN_WEAR(obj, ITEM_WEAR_SHIELD))
 				sprintf(out_str + strlen(out_str), "Можно использовать как щит.\r\n");
 			if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))
-				sprintf(out_str + strlen(out_str), "Можно одеть на плечи.\r\n");
+				sprintf(out_str + strlen(out_str), "Можно надеть на плечи.\r\n");
 			if (CAN_WEAR(obj, ITEM_WEAR_WAIST))
-				sprintf(out_str + strlen(out_str), "Можно одеть на пояс.\r\n");
+				sprintf(out_str + strlen(out_str), "Можно надеть на пояс.\r\n");
 			if (CAN_WEAR(obj, ITEM_WEAR_WRIST))
-				sprintf(out_str + strlen(out_str), "Можно одеть на запястья.\r\n");
+				sprintf(out_str + strlen(out_str), "Можно надеть на запястья.\r\n");
 			if (CAN_WEAR(obj, ITEM_WEAR_WIELD))
 				sprintf(out_str + strlen(out_str), "Можно взять в правую руку.\r\n");
 			if (CAN_WEAR(obj, ITEM_WEAR_HOLD))
