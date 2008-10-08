@@ -16,6 +16,7 @@
 #include <string>
 #include <sstream>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "sysdep.h"
 #include "structs.h"
@@ -344,6 +345,21 @@ char *diag_uses_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 	return (out_str);
 }
 
+/**
+* При чтении писем подставляем в начало каждой строки пробел (для дурных тригов),
+* пользуясь случаем передаю привет проне!
+*/
+std::string convert_player_mail(char const *text)
+{
+	if (text)
+	{
+		std::string tmp(text);
+		boost::replace_all(tmp, "\r\n", "\r\n ");
+		return tmp;
+	}
+	return "";
+}
+
 // mode 1 show_state 3 для хранилище, я хз вешать туда таймер в вывод или нет, пока ничего нету
 const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how)
 {
@@ -362,7 +378,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 			if (object->action_description)
 			{
 				strcpy(buf, "Вы прочитали следующее :\r\n\r\n");
-				strcat(buf, object->action_description);
+				strcat(buf, convert_player_mail(object->action_description).c_str());
 				page_string(ch->desc, buf, 1);
 			}
 			else
