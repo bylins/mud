@@ -346,15 +346,17 @@ char *diag_uses_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 }
 
 /**
-* При чтении писем подставляем в начало каждой строки пробел (для дурных тригов),
-* пользуясь случаем передаю привет проне!
+* При чтении писем и осмотре чара в его описании подставляем в начало каждой строки пробел
+* (для дурных тригов), пользуясь случаем передаю привет проне!
 */
-std::string convert_player_mail(char const *text)
+std::string space_before_string(char const *text)
 {
 	if (text)
 	{
-		std::string tmp(text);
+		std::string tmp(" ");
+		tmp += text;
 		boost::replace_all(tmp, "\n", "\n ");
+		boost::trim_right_if(tmp, boost::is_any_of(" "));
 		return tmp;
 	}
 	return "";
@@ -378,7 +380,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 			if (object->action_description)
 			{
 				strcpy(buf, "Вы прочитали следующее :\r\n\r\n");
-				strcat(buf, convert_player_mail(object->action_description).c_str());
+				strcat(buf, space_before_string(object->action_description).c_str());
 				page_string(ch->desc, buf, 1);
 			}
 			else
@@ -615,8 +617,7 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 
 	if (i->player_data.description && *i->player_data.description)
 	{
-		send_to_char(" * ", ch);
-		send_to_char(i->player_data.description, ch);
+		send_to_char(ch, "*\r\n%s*\r\n", space_before_string(i->player_data.description).c_str());
 	}
 	else if (!IS_NPC(i))
 	{
