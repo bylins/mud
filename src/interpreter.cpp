@@ -2133,12 +2133,14 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		if ((load_room = GET_LOADROOM(d->character)) == NOWHERE)
 			load_room = calc_loadroom(d->character);
 		load_room = real_room(load_room);
+
+		if (!Clan::MayEnter(d->character, load_room, HCE_PORTAL))
+			load_room = Clan::CloseRent(load_room);
+
+		if (!is_rent(load_room))
+			load_room = NOWHERE;
 	}
 
-	if (!Clan::MayEnter(d->character, load_room, HCE_PORTAL))
-		load_room = Clan::CloseRent(load_room);
-
-	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));
 	/* If char was saved with NOWHERE, or real_room above failed... */
 	if (load_room == NOWHERE)
 	{
@@ -2147,6 +2149,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		else
 			load_room = r_mortal_start_room;
 	}
+
 	send_to_char(WELC_MESSG, d->character);
 
 	for (ch = character_list; ch; ch = ch->next)
@@ -2164,6 +2167,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		REMOVE_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
 	}
 
+	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));
 	char_to_room(d->character, load_room);
 
 	// а потом уже вычитаем за ренту

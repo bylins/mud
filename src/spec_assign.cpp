@@ -21,6 +21,7 @@
 #include "utils.h"
 #include "house.h"
 #include "boards.h"
+#include "char.hpp"
 
 extern int dts_are_dumps;
 extern int mini_mud;
@@ -65,7 +66,16 @@ void ASSIGNMOB(mob_vnum mob, SPECIAL(fname))
 	mob_rnum rnum;
 
 	if ((rnum = real_mobile(mob)) >= 0)
+	{
 		mob_index[rnum].func = fname;
+		// рентерам хардкодом снимаем возможные нежелательные флаги
+		if (fname == receptionist)
+		{
+			REMOVE_BIT(MOB_FLAGS(&mob_proto[rnum], MOB_MOUNTING), MOB_MOUNTING);
+			SET_BIT(MOB_FLAGS(&mob_proto[rnum], MOB_NOCHARM), MOB_NOCHARM);
+			SET_BIT(MOB_FLAGS(&mob_proto[rnum], MOB_NORESURRECTION), MOB_NORESURRECTION);
+		}
+	}
 	else if (!mini_mud)
 		log("SYSERR: Attempt to assign spec to non-existant mob #%d", mob);
 }
@@ -108,32 +118,24 @@ void ASSIGNMASTER(mob_vnum mob, SPECIAL(fname), int learn_info)
 *  Assignments                                                        *
 ******************************************************************** */
 
-/* assign special procedures to mobiles */
+/**
+* Спешиалы на мобов сюда писать не нужно, пишите в lib/misc/specials.lst,
+* TODO: вообще убирать надо это тоже в конфиг, всеравно без конфигов мад
+* не запустится, толку в коде держать даже этот минимальный набор.
+*/
 void assign_mobiles(void)
 {
-//  assign_kings_castle();
-
-	ASSIGNMOB(1, puff);
-
 	/* HOTEL */
-//Adept: пока закомментил мешающее - потом надо посмотреть какого оно утт вообще делает.
-//	ASSIGNMOB(3005, receptionist);
-	ASSIGNMOB(3122, receptionist);
-	ASSIGNMOB(4022, receptionist);
 	ASSIGNMOB(106, receptionist);
+	ASSIGNMOB(4022, receptionist);
 
 	/* POSTMASTER */
-	ASSIGNMOB(3027, postmaster);
-	ASSIGNMOB(3102, postmaster);
 	ASSIGNMOB(4002, postmaster);
 
 	/* BANK */
-	ASSIGNMOB(3019, bank);
-	ASSIGNMOB(3101, bank);
 	ASSIGNMOB(4001, bank);
 
 	/* HORSEKEEPER */
-	ASSIGNMOB(3123, horse_keeper);
 	ASSIGNMOB(4023, horse_keeper);
 }
 

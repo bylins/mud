@@ -1170,7 +1170,7 @@ void check_horse(CHAR_DATA * ch);
 int same_group(CHAR_DATA * ch, CHAR_DATA * tch);
 
 int is_post(room_rnum room);
-int is_rent(room_rnum room);
+bool is_rent(room_rnum room);
 
 char *noclan_title(CHAR_DATA * ch);
 char *only_title(CHAR_DATA * ch);

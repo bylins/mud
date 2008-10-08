@@ -1670,14 +1670,14 @@ int same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 }
 
 // Проверка является комната рентой.
-int is_rent(room_rnum room)
+bool is_rent(room_rnum room)
 {
-	CHAR_DATA *ch;
-	for (ch = world[room]->people; ch; ch = ch->next_in_room)
+	for (CHAR_DATA *ch = world[room]->people; ch; ch = ch->next_in_room)
+	{
 		if (IS_NPC(ch) && IS_RENTKEEPER(ch))
-			return (TRUE);
-	return (FALSE);
-
+			return true;
+	}
+	return false;
 }
 
 // Проверка является комната почтой.
