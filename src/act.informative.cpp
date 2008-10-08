@@ -354,7 +354,7 @@ std::string convert_player_mail(char const *text)
 	if (text)
 	{
 		std::string tmp(text);
-		boost::replace_all(tmp, "\r\n", "\r\n ");
+		boost::replace_all(tmp, "\n", "\n ");
 		return tmp;
 	}
 	return "";
