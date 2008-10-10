@@ -96,7 +96,7 @@ shop.o: shop.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
   interpreter.h utils.h shop.h dg_scripts.h constants.h features.hpp \
   char.hpp
 spec_assign.o: spec_assign.cpp conf.h sysdep.h structs.h db.h constants.h \
-  interpreter.h utils.h house.h boards.h
+  interpreter.h utils.h house.h boards.h char.hpp
 spec_procs.o: spec_procs.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h screen.h dg_scripts.h \
   constants.h features.hpp house.h char.hpp
