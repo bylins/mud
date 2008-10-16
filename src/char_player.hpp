@@ -25,6 +25,9 @@ public:
 	std::string const & get_passwd() const;
 	void set_passwd(std::string const & passwd);
 
+	room_rnum get_from_room() const;
+	void set_from_room(room_rnum was_in_room);
+
 	void remort();
 
 	// это все как обычно временно... =)
@@ -44,6 +47,9 @@ private:
 	room_rnum was_in_room_;
 	// хэш пароля
 	std::string passwd_;
+	// комната, где был чар до вызова char_from_room (was_in_room_ под это использовать не оч хорошо)
+	// в данный момент поле нужно для проверки чара на бд при входе на арену любым способом, но может и еще потом пригодиться
+	room_rnum from_room_;
 };
 
 #endif // CHAR_PLAYER_HPP_INCLUDED

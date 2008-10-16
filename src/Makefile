@@ -14,6 +14,7 @@ BINDIR = ../bin
 CFLAGS = -ggdb3 -O3 -Wall
 # use 'make test' for faster compile w/o optimizations, crypt and 34lvl god for first character
 TESTCFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC
+NODEBUGFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH
 
 #LIBS =  -lsocket -lnsl
 LIBS =  -lz -lcrypt
@@ -75,6 +76,9 @@ testdepend:
 
 test:
 	$(MAKE) CFLAGS="$(TESTCFLAGS)" CC="$(TESTCC)" $(BINDIR)/circle
+
+nodebug:
+	$(MAKE) CFLAGS="$(NODEBUGFLAGS)" CC="$(TESTCC)" $(BINDIR)/circle
 
 # Dependencies for the object files (automagically generated with
 # gcc -MM)

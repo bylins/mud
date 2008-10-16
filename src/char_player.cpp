@@ -48,3 +48,13 @@ void Player::remort()
 	quested.clear();
 	mobmax.clear();
 }
+
+room_rnum Player::get_from_room() const
+{
+	return from_room_;
+}
+
+void Player::set_from_room(room_rnum from_room)
+{
+	from_room_ = from_room;
+}
