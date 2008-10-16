@@ -61,7 +61,8 @@ graph.o: graph.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
   char.hpp
 handler.o: handler.cpp conf.h sysdep.h structs.h constants.h utils.h \
   comm.h db.h handler.h interpreter.h spells.h skills.h screen.h \
-  dg_scripts.h auction.h features.hpp house.h exchange.h char.hpp
+  dg_scripts.h auction.h features.hpp house.h exchange.h char.hpp \
+  char_player.hpp quested.hpp mobmax.hpp
 house.o: house.cpp conf.h house.h sysdep.h structs.h utils.h db.h \
   interpreter.h comm.h handler.h pk.h screen.h boards.h skills.h spells.h \
   privilege.hpp char.hpp
