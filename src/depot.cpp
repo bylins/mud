@@ -19,6 +19,7 @@
 #include "interpreter.h"
 #include "screen.h"
 #include "char.hpp"
+#include "obj_list.hpp"
 
 extern SPECIAL(bank);
 extern void write_one_object(char **data, OBJ_DATA * object, int location);
@@ -1116,8 +1117,7 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 
 	obj_from_char(obj);
 	check_auction(NULL, obj);
-	OBJ_DATA *temp;
-	REMOVE_FROM_LIST(obj, object_list, next);
+	ObjList::remove(obj);
 
 	return 1;
 }
@@ -1156,8 +1156,7 @@ void take_depot(CHAR_DATA *vict, char *arg, int howmany)
 void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, CHAR_DATA *vict)
 {
 	depot_log("remove_item %s: %s %d %d", name.c_str(), (*obj_it)->short_description, GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
-	(*obj_it)->next = object_list;
-	object_list = *obj_it;
+	ObjList::add(*obj_it);
 	obj_to_char(*obj_it, vict);
 	act("Вы взяли $o3 из персонального хранилища.", FALSE, vict, *obj_it, 0, TO_CHAR);
 	act("$n взял$g $o3 из персонального хранилища.", TRUE, vict, *obj_it, 0, TO_ROOM);
@@ -1369,8 +1368,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 
 		pers_online.push_front(obj);
 		// убираем ее из глобального листа, в который она добавилась еще на стадии чтения из файла
-		OBJ_DATA *temp;
-		REMOVE_FROM_LIST(obj, object_list, next);
+		ObjList::remove(obj);
 	}
 	delete [] databuf;
 	offline_list.clear();

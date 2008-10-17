@@ -24,6 +24,7 @@
 #include "char.hpp"
 #include "house.h"
 #include "skills.h"
+#include "obj_list.hpp"
 
 /*------------------------------------------------------------------------*/
 
@@ -33,7 +34,6 @@
 
 extern vector < OBJ_DATA * >obj_proto;
 extern INDEX_DATA *obj_index;
-extern OBJ_DATA *object_list;
 extern obj_rnum top_of_objt;
 extern struct zone_data *zone_table;
 extern zone_rnum top_of_zone_table;
@@ -250,25 +250,6 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 	OLC_VAL(d) = 0;
 }
 
-/**
-* Пересчет рнумов объектов (больше нигде не меняются).
-*/
-void renumber_obj_rnum(int rnum)
-{
-	for (OBJ_DATA *obj = object_list; obj; obj = obj->next)
-	{
-		if (GET_OBJ_RNUM(obj) >= rnum)
-		{
-			// пересчет персональных хранилищ
-			if (GET_OBJ_RNUM(obj) == Depot::PERS_CHEST_RNUM)
-				Depot::PERS_CHEST_RNUM++;
-			GET_OBJ_RNUM(obj)++;
-		}
-	}
-	Depot::renumber_obj_rnum(rnum);
-	Clan::init_chest_rnum();
-}
-
 /*------------------------------------------------------------------------*/
 
 #define ZCMD zone_table[zone].cmd[cmd_no]
@@ -276,7 +257,6 @@ void renumber_obj_rnum(int rnum)
 void oedit_save_internally(DESCRIPTOR_DATA * d)
 {
 	int i, shop, robj_num, found = FALSE, zone, cmd_no;
-	OBJ_DATA *obj;
 	INDEX_DATA *new_obj_index;
 	DESCRIPTOR_DATA *dsc;
 
@@ -296,37 +276,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 				 */
 		log("[OEdit] Save object to mem %d", robj_num);
 
-		for (obj = object_list; obj; obj = obj->next)
-		{
-			if (obj->item_number == robj_num)
-			{
-				// Итак, нашел объект
-				// Внимание! Таймер объекта, его состояние и т.д. обновятся!
-
-				// Сохраняю текущую игровую информацию
-				OBJ_DATA tmp(*obj);
-
-				// Удаляю его строки и т.д.
-				// прототип скрипта не удалится, т.к. его у экземпляра нету
-				// скрипт не удалится, т.к. его не удаляю
-				oedit_object_free(obj);
-
-				// Нужно скопировать все новое, сохранив определенную информацию
-				*obj = *OLC_OBJ(d);
-				obj->proto_script = NULL;
-				// Восстанавливаю игровую информацию
-				obj->in_room = tmp.in_room;
-				obj->item_number = robj_num;
-				obj->carried_by = tmp.carried_by;
-				obj->worn_by = tmp.worn_by;
-				obj->worn_on = tmp.worn_on;
-				obj->in_obj = tmp.in_obj;
-				obj->contains = tmp.contains;
-				obj->next_content = tmp.next_content;
-				obj->next = tmp.next;
-				SCRIPT(obj) = SCRIPT(&tmp);
-			}
-		}
+		ObjList::olc_update(robj_num, d);
 		// Все существующие в мире объекты обновлены согласно нового прототипа
 		// Строки в этих объектах как ссылки на данные прототипа
 
@@ -410,7 +360,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 // ПЕРЕИНДЕКСАЦИЯ по всей программе
 
 		/* Renumber live objects */
-		renumber_obj_rnum(robj_num);
+		ObjList::recalculate_rnum(robj_num);
 
 		/* Renumber zone table. */
 		for (zone = 0; zone <= top_of_zone_table; zone++)

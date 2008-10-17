@@ -77,7 +77,6 @@ OBJ_DATA *get_obj_in_list_num(int num, OBJ_DATA * list);
 OBJ_DATA *get_obj_in_list_vnum(int num, OBJ_DATA * list);
 
 OBJ_DATA *get_obj(char *name);
-OBJ_DATA *get_obj_num(obj_rnum nr);
 
 int obj_decay(OBJ_DATA * object);
 bool obj_to_room(OBJ_DATA * object, room_rnum room);

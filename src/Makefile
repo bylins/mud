@@ -13,8 +13,9 @@ BINDIR = ../bin
 
 CFLAGS = -ggdb3 -O3 -Wall
 # use 'make test' for faster compile w/o optimizations, crypt and 34lvl god for first character
-TESTCFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC
-NODEBUGFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH
+TESTCFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH
+DEBUGFLAGS = -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC
+FASTTEST   = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -O3
 
 #LIBS =  -lsocket -lnsl
 LIBS =  -lz -lcrypt
@@ -31,7 +32,7 @@ OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	color.o pk.o genchar.o diskio.o im.o names.o auction.o \
 	item.creation.o skills.o exchange.o top.o stuff.o description.o \
 	deathtrap.o title.o password.o privilege.o version.o depot.o glory.o file_crc.o \
-	char.o char_player.o quested.o mobmax.o
+	char.o char_player.o quested.o mobmax.o obj_list.o
 
 CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	act.offensive.cpp act.other.cpp act.social.cpp act.wizard.cpp alias.cpp ban.cpp \
@@ -45,7 +46,8 @@ CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	color.cpp pk.cpp genchar.cpp diskio.cpp im.cpp names.cpp \
 	auction.cpp item.creation.cpp skills.cpp exchange.cpp top.cpp stuff.cpp \
 	description.cpp deathtrap.cpp title.cpp password.cpp privilege.cpp version.cpp \
-	depot.cpp glory.cpp file_crc.cpp char.cpp char_player.cpp quested.cpp mobmax.cpp
+	depot.cpp glory.cpp file_crc.cpp char.cpp char_player.cpp quested.cpp mobmax.cpp \
+	obj_list.cpp
 
 default: circle
 
@@ -77,8 +79,11 @@ testdepend:
 test:
 	$(MAKE) CFLAGS="$(TESTCFLAGS)" CC="$(TESTCC)" $(BINDIR)/circle
 
-nodebug:
-	$(MAKE) CFLAGS="$(NODEBUGFLAGS)" CC="$(TESTCC)" $(BINDIR)/circle
+debug:
+	$(MAKE) CFLAGS="$(TESTCFLAGS) $(DEBUGFLAGS)" CC="$(TESTCC)" $(BINDIR)/circle
+
+fasttest:
+	$(MAKE) CFLAGS="$(FASTTEST)" CC="$(TESTCC)" $(BINDIR)/circle
 
 # Dependencies for the object files (automagically generated with
 # gcc -MM)

@@ -33,6 +33,7 @@
 #include "exchange.h"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "obj_list.hpp"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -1397,10 +1398,6 @@ void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 /* give an object to a char   */
 void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 {
-	OBJ_DATA *i;
-	unsigned int tuid;
-	int inworld;
-
 	int may_carry = TRUE;
 	if (object && ch)
 	{
@@ -1436,19 +1433,8 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 					GET_OBJ_UID(object) != 0 && // Есть UID
 					GET_OBJ_TIMER(object) > 0) // Целенький
 			{
-				tuid = GET_OBJ_UID(object);
-				inworld = 1;
 				// Объект готов для проверки. Ищем в мире такой же.
-				for (i = object_list; i; i = i->next)
-				{
-					if (GET_OBJ_UID(i) == tuid && // UID совпадает
-							GET_OBJ_TIMER(i) > 0 && // Целенький
-							object != i && // Не оно же
-							GET_OBJ_VNUM(i) == GET_OBJ_VNUM(object))   // Для верности
-					{
-						inworld++;
-					}
-				}
+				int inworld = ObjList::count_dupes(object);
 				if (inworld > 1) // У объекта есть как минимум одна копия
 				{
 					sprintf(buf, "Copy detected and prepared to extract! Object %s (UID=%d, VNUM=%d), holder %s. In world %d.",
@@ -2204,21 +2190,6 @@ OBJ_DATA *get_obj_in_list_vnum(int num, OBJ_DATA * list)
 	return (NULL);
 }
 
-
-/* search the entire world for an object number, and return a pointer  */
-OBJ_DATA *get_obj_num(obj_rnum nr)
-{
-	OBJ_DATA *i;
-
-	for (i = object_list; i; i = i->next)
-		if (GET_OBJ_RNUM(i) == nr)
-			return (i);
-
-	return (NULL);
-}
-
-
-
 /* search a room for a char, and return a pointer if found..  */
 CHAR_DATA *get_char_room(char *name, room_rnum room)
 {
@@ -2532,15 +2503,15 @@ void extract_obj(OBJ_DATA * obj)
 
 	check_auction(NULL, obj);
 	check_exchange(obj);
-	REMOVE_FROM_LIST(obj, object_list, next);
 
+	ObjList::remove(obj);
 	if (GET_OBJ_RNUM(obj) >= 0)
 		(obj_index[GET_OBJ_RNUM(obj)].number)--;
 
 	free_script(SCRIPT(obj));	// без комментариев
 
 	free_obj(obj);
-// TODO: в дебаг log("Stop extract obj %s", name);
+//	log("Stop extract obj %s", name);
 }
 
 
@@ -3143,14 +3114,13 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const std::string &name, OBJ_DATA 
 	return (NULL);
 }
 
-
-
+// TODO: муть какая-то в плане перегрузки для строк, внутри вызывающтеся тоже все с перегрузками
 
 /* search the entire world for an object, and return a pointer  */
 OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name)
 {
 	OBJ_DATA *i;
-	int j = 0, number;
+	int number;
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
 
@@ -3167,19 +3137,13 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name)
 		return (NULL);
 
 	/* ok.. no luck yet. scan the entire obj list   */
-	for (i = object_list; i && (j <= number); i = i->next)
-		if (isname(tmp, i->name))
-			if (CAN_SEE_OBJ(ch, i))
-				if (++j == number)
-					return (i);
-
-	return (NULL);
+	return ObjList::obj_by_nname(ch, tmp, number);
 }
 /* search the entire world for an object, and return a pointer  */
 OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const std::string &name)
 {
 	OBJ_DATA *i;
-	int j = 0, number;
+	int number;
 
 	/* scan items carried */
 	if ((i = get_obj_in_list_vis(ch, name, ch->carrying)) != NULL)
@@ -3194,13 +3158,7 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const std::string &name)
 		return (NULL);
 
 	/* ok.. no luck yet. scan the entire obj list   */
-	for (i = object_list; i && (j <= number); i = i->next)
-		if (isname(tmp, i->name))
-			if (CAN_SEE_OBJ(ch, i))
-				if (++j == number)
-					return (i);
-
-	return (NULL);
+	return ObjList::obj_by_nname(ch, tmp.c_str(), number);
 }
 
 

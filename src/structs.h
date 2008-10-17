@@ -1521,7 +1521,6 @@ public:
 };
 
 typedef std::map< int, set_info > id_to_set_info_map;
-
 extern std::vector < OBJ_DATA * >obj_proto;
 
 /* ================== Memory Structure for Objects ================== */
@@ -1531,10 +1530,8 @@ struct obj_data
 	obj_vnum item_number;	/* Where in data-base            */
 	room_rnum in_room;	/* In what room -1 when conta/carr */
 
-	struct obj_flag_data
-				obj_flags;		/* Object information       */
-	struct obj_affected_type
-				affected[MAX_OBJ_AFFECT];	/* affects */
+	struct obj_flag_data obj_flags;		/* Object information       */
+	struct obj_affected_type affected[MAX_OBJ_AFFECT];	/* affects */
 
 	char *name;		/* Title of object :get etc.        */
 	char *description;	/* When in room                     */
@@ -1549,18 +1546,21 @@ struct obj_data
 	OBJ_DATA *in_obj;	/* In what object NULL when none    */
 	OBJ_DATA *contains;	/* Contains objects                 */
 
-	long
-	id;			/* used by DG triggers              */
+	long id;			/* used by DG triggers              */
 	struct trig_proto_list *proto_script;	/* list of default triggers  */
 	struct script_data *script;	/* script info for the object       */
 
 	OBJ_DATA *next_content;	/* For 'contains' lists             */
 	OBJ_DATA *next;		/* For the object list              */
-	int
-	room_was_in;
+	int room_was_in;
 	char *PNames[6];
-	int
-	max_in_world;		/* max in world             */
+	int max_in_world;		/* max in world             */
+
+	// итератор из глобального списка для быстрого удаления
+	// ахтунг, при otransform или еще каких подобных финтах нужно следить, что мы в итоге имеем у предмета
+	// (в т.ч. временного) при экстракте, т.к. при прямом копировании полей итератор тоже будет скопирован
+	// TODO: да, список должен быть в этом классе статикой и конструктор копирования тоже нужно писать свой
+	boost::shared_ptr<std::list<OBJ_DATA *>::iterator> it_ptr;
 
 	static id_to_set_info_map set_table;
 

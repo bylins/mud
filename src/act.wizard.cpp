@@ -42,12 +42,12 @@
 #include "file_crc.hpp"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "obj_list.hpp"
 
 /*   external vars  */
 extern FILE *player_fl;
 
 extern CHAR_DATA *character_list;
-extern OBJ_DATA *object_list;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;
@@ -3469,7 +3469,6 @@ ACMD(do_show)
 	zone_vnum zvn;
 	char self = 0;
 	CHAR_DATA *vict;
-	OBJ_DATA *obj;
 	DESCRIPTOR_DATA *d;
 	char field[MAX_INPUT_LENGTH], value[MAX_INPUT_LENGTH], value1[MAX_INPUT_LENGTH];
 	// char bf[MAX_EXTEND_LENGTH];
@@ -3621,13 +3620,11 @@ ACMD(do_show)
 					con++;
 			}
 		}
-		for (obj = object_list; obj; obj = obj->next)
-			k++;
 		strcpy(buf, "Текущее состояние:\r\n");
 		sprintf(buf + strlen(buf), "  Игроков в игре - %5d, соединений - %5d\r\n", i, con);
 		sprintf(buf + strlen(buf), "  Всего зарегистрировано игроков - %5d\r\n", top_of_p_table + 1);
 		sprintf(buf + strlen(buf), "  Мобов - %5d,  прообразов мобов - %5d\r\n", j, top_of_mobt + 1);
-		sprintf(buf + strlen(buf), "  Предметов - %5d, прообразов предметов - %5d\r\n", k, top_of_objt + 1);
+		sprintf(buf + strlen(buf), "  Предметов - %5d, прообразов предметов - %5d\r\n", ObjList::size(), top_of_objt + 1);
 		sprintf(buf + strlen(buf), "  Комнат - %5d, зон - %5d\r\n", top_of_world + 1, top_of_zone_table + 1);
 		sprintf(buf + strlen(buf), "  Больших буферов - %5d\r\n", buf_largecount);
 		sprintf(buf + strlen(buf), "  Переключенных буферов - %5d, переполненных - %5d\r\n", buf_switches, buf_overflows);

@@ -51,6 +51,7 @@
 #include "char.hpp"
 #include "skills.h"
 #include "char_player.hpp"
+#include "obj_list.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -87,7 +88,6 @@ mob_rnum top_of_mobt = 0;	/* top of mobile index table     */
 
 int global_uid = 0;
 
-OBJ_DATA *object_list = NULL;	/* global linked list of objs    */
 INDEX_DATA *obj_index;		/* index table for object file   */
 //OBJ_DATA *obj_proto;		/* prototypes for objs           */
 vector < OBJ_DATA * >obj_proto;
@@ -236,7 +236,6 @@ void do_start(CHAR_DATA * ch, int newbie);
 int calc_loadroom(CHAR_DATA * ch);
 void die_follower(CHAR_DATA * ch);
 extern void tascii(int *pointer, int num_planes, char *ascii);
-extern void repop_decay(zone_rnum zone);	/* рассыпание обьектов ITEM_REPOP_DECAY */
 int real_zone(int number);
 int level_exp(CHAR_DATA * ch, int level);
 extern void NewNameRemove(CHAR_DATA * ch);
@@ -3788,13 +3787,10 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 OBJ_DATA *create_obj(void)
 {
 	OBJ_DATA *obj;
-
 	NEWCREATE(obj, OBJ_DATA);
-	obj->next = object_list;
-	object_list = obj;
+	ObjList::add(obj);
 	GET_ID(obj) = max_id++;
-
-	return (obj);
+	return obj;
 }
 
 // никакая это не копия, строковые и остальные поля с выделением памяти остаются общими
@@ -3844,8 +3840,6 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOLOCATE), ITEM_NOLOCATE);
 	}
 	obj->proto_script = NULL;
-	obj->next = object_list;
-	object_list = obj;
 	GET_ID(obj) = max_id++;
 	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON)
 	{
@@ -3854,6 +3848,7 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 			name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2));
 	}
 	assign_triggers(obj, OBJ_TRIGGER);
+	ObjList::add(obj);
 
 	return (obj);
 }
@@ -4196,12 +4191,7 @@ void paste_mobiles()
 		paste_mob(ch, IN_ROOM(ch));
 	}
 
-	OBJ_DATA *obj_next;
-	for (OBJ_DATA *obj = object_list; obj; obj = obj_next)
-	{
-		obj_next = obj->next;
-		paste_obj(obj, IN_ROOM(obj));
-	}
+	ObjList::paste();
 }
 
 void paste_on_reset(ROOM_DATA *to_room)
@@ -4255,7 +4245,7 @@ void reset_zone(zone_rnum zone)
 	int last_state, curr_state;	// статус завершения последней и текущей команды
 
 	log("[Reset] Start zone %s", zone_table[zone].name);
-	repop_decay(zone);	/* рассыпание обьектов ITEM_REPOP_DECAY */
+	ObjList::repop_decay(zone);	/* рассыпание обьектов ITEM_REPOP_DECAY */
 
 	//----------------------------------------------------------------------------
 	last_state = 1;		// для первой команды считаем, что все ок
@@ -4387,7 +4377,7 @@ void reset_zone(zone_rnum zone)
 						GET_OBJ_MIW(obj_proto[ZCMD.arg1]) || GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == -1)
 						&& (ZCMD.arg4 <= 0 || number(1, 100) <= ZCMD.arg4))
 				{
-					if (!(obj_to = get_obj_num(ZCMD.arg3)))
+					if (!(obj_to = ObjList::obj_by_rnum(ZCMD.arg3)))
 					{
 						ZONE_ERROR("target obj not found, command omited");
 //                 ZCMD.command = '*';

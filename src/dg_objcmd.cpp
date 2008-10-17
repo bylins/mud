@@ -28,7 +28,6 @@
 extern INDEX_DATA *obj_index;
 extern const char *dirs[];
 extern int dg_owner_purged;
-extern int up_obj_where(OBJ_DATA * obj);
 
 CHAR_DATA *get_char_by_obj(OBJ_DATA * obj, char *name);
 OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name);
@@ -330,13 +329,15 @@ OCMD(do_otransform)
 		obj->next = o->next;
 		o->next = tmpobj.next;
 
+		// иначе это катастрофа
+		obj->it_ptr.swap(o->it_ptr);
+
 		if (wearer)
 		{
 			equip_char(wearer, obj, pos);
 		}
 
 		extract_obj(o);
-
 	}
 }
 

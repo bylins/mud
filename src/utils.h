@@ -162,9 +162,8 @@ void check_idling(CHAR_DATA * ch);
 void point_update(void);
 void room_point_update();
 void exchange_point_update();
-void obj_point_update();
 void update_pos(CHAR_DATA * victim);
-
+int up_obj_where(OBJ_DATA * obj);
 
 /* various constants *****************************************************/
 

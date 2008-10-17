@@ -25,6 +25,7 @@
 #include "features.hpp"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "obj_list.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -40,7 +41,6 @@ extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 
 extern CHAR_DATA *character_list;
 extern CHAR_DATA *combat_list;
-extern OBJ_DATA *object_list;
 extern const char *item_types[];
 extern const char *genders[];
 extern const char *pc_class_types[];
@@ -291,16 +291,6 @@ int count_obj_vnum(long n)
  * search by number routines
  ************************************************************/
 
-/* return object with UID n */
-OBJ_DATA *find_obj(long n)
-{
-	OBJ_DATA *i;
-	for (i = object_list; i; i = i->next)
-		if (n == GET_ID(i))
-			return i;
-	return NULL;
-}
-
 /* return room with UID n */
 room_data *find_room(long n)
 {
@@ -323,19 +313,6 @@ int find_char_vnum(long n)
 	for (ch = character_list; ch; ch = ch->next)
 		if (n == GET_MOB_VNUM(ch) && IN_ROOM(ch) != NOWHERE)
 			return (GET_ID(ch));
-
-	return (-1);
-}
-
-
-/* return object with VNUM n */
-int find_obj_vnum(long n)
-{
-	OBJ_DATA *i;
-
-	for (i = object_list; i; i = i->next)
-		if (n == GET_OBJ_VNUM(i))
-			return (GET_ID(i));
 
 	return (-1);
 }
@@ -389,25 +366,17 @@ CHAR_DATA *get_char(char *name)
 /* returns the object in the world with name name, or NULL if not found */
 OBJ_DATA *get_obj(char *name)
 {
-	OBJ_DATA *obj;
-	long id;
+	OBJ_DATA *obj = 0;
 
 	if ((*name == UID_CHAR) || (*name == UID_ROOM))
-		return NULL;
+		return obj;
 
 	if (*name == UID_OBJ)
-	{
-		id = atoi(name + 1);
-		return find_obj(id);
-	}
+		obj = ObjList::obj_by_id(atoi(name + 1));
 	else
-	{
-		for (obj = object_list; obj; obj = obj->next)
-			if (isname(name, obj->name))
-				return obj;
-	}
+		obj = ObjList::obj_by_name(name);
 
-	return NULL;
+	return obj;
 }
 
 
@@ -507,7 +476,6 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name)
 {
 	OBJ_DATA *i = NULL;
 	int rm;
-	long id;
 
 	if ((*name == UID_ROOM) || (*name == UID_CHAR))
 		return NULL;
@@ -522,7 +490,7 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name)
 	{
 		if (*name == UID_OBJ)
 		{
-			id = atoi(name + 1);
+			long id = atoi(name + 1);
 
 			if (id == GET_ID(obj->in_obj))
 				return obj->in_obj;
@@ -538,19 +506,9 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name)
 		return i;
 
 	if (*name == UID_OBJ)
-	{
-		id = atoi(name + 1);
-
-		for (i = object_list; i; i = i->next)
-			if (id == GET_ID(i))
-				break;
-	}
+		i = ObjList::obj_by_id(atoi(name + 1));
 	else
-	{
-		for (i = object_list; i; i = i->next)
-			if (isname(name, i->name))
-				break;
-	}
+		i = ObjList::obj_by_name(name);
 
 	return i;
 }
@@ -559,22 +517,20 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name)
 /* returns obj with name */
 OBJ_DATA *get_obj_by_room(room_data * room, char *name)
 {
-	OBJ_DATA *obj;
-	long id;
+	OBJ_DATA *obj = 0;
+
 	if ((*name == UID_ROOM) || (*name == UID_CHAR))
-		return NULL;
+		return obj;
 
 	if (*name == UID_OBJ)
 	{
-		id = atoi(name + 1);
+		int id = atoi(name + 1);
 
 		for (obj = room->contents; obj; obj = obj->next_content)
 			if (id == GET_ID(obj))
 				return obj;
 
-		for (obj = object_list; obj; obj = obj->next)
-			if (id == GET_ID(obj))
-				return obj;
+		obj = ObjList::obj_by_id(id);
 	}
 	else
 	{
@@ -582,48 +538,44 @@ OBJ_DATA *get_obj_by_room(room_data * room, char *name)
 			if (isname(name, obj->name))
 				return obj;
 
-		for (obj = object_list; obj; obj = obj->next)
-			if (isname(name, obj->name))
-				return obj;
+		obj = ObjList::obj_by_name(name);
 	}
 
-	return NULL;
+	return obj;
 }
 
 
 /* returns obj with name */
 OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 {
-	OBJ_DATA *obj;
-	long id;
+	OBJ_DATA *obj = 0;
+
 	if ((*name == UID_ROOM) || (*name == UID_CHAR))
-		return NULL;
+		return obj;
 
 	if (*name == UID_OBJ)
 	{
-		id = atoi(name + 1);
+		int id = atoi(name + 1);
 		if (ch)
+		{
 			for (obj = ch->carrying; obj; obj = obj->next_content)
 				if (id == GET_ID(obj))
 					return obj;
-
-		for (obj = object_list; obj; obj = obj->next)
-			if (id == GET_ID(obj))
-				return obj;
+		}
+		obj = ObjList::obj_by_id(id);
 	}
 	else
 	{
 		if (ch)
+		{
 			for (obj = ch->carrying; obj; obj = obj->next_content)
 				if (isname(name, obj->name))
 					return obj;
-
-		for (obj = object_list; obj; obj = obj->next)
-			if (isname(name, obj->name))
-				return obj;
+		}
+		obj = ObjList::obj_by_name(name);
 	}
 
-	return NULL;
+	return obj;
 }
 
 
@@ -631,7 +583,6 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 void script_trigger_check(void)
 {
 	CHAR_DATA *ch;
-	OBJ_DATA *obj;
 	ROOM_DATA *room = NULL;
 	int nr;
 	SCRIPT_DATA *sc;
@@ -648,15 +599,7 @@ void script_trigger_check(void)
 		}
 	}
 
-	for (obj = object_list; obj; obj = obj->next)
-	{
-		if (SCRIPT(obj))
-		{
-			sc = SCRIPT(obj);
-			if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM))
-				random_otrigger(obj);
-		}
-	}
+	ObjList::check_script();
 
 	for (nr = FIRST_ROOM; nr <= top_of_world; nr++)
 	{
@@ -1735,7 +1678,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				}
 				else if (!str_cmp(field, "obj") && num > 0)
 				{
-					num = find_obj_vnum(num);
+					num = ObjList::id_by_vnum(num);
 					if (num >= 0)
 						sprintf(str, "%c%d", UID_OBJ, num);
 				}
@@ -3876,7 +3819,7 @@ void calcuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *c
 	else if (!str_cmp(what, "obj"))
 	{
 		uid_type = UID_OBJ;
-		result = find_obj_vnum(result);
+		result = ObjList::id_by_vnum(result);
 	}
 	else
 	{

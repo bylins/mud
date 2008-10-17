@@ -33,10 +33,9 @@
 #include "privilege.hpp"
 #include "char.hpp"
 #include "depot.hpp"
+#include "obj_list.hpp"
 
 extern room_rnum r_mortal_start_room;
-
-extern OBJ_DATA *object_list;
 extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *character_list;
 extern INDEX_DATA *obj_index;
@@ -726,7 +725,6 @@ ASPELL(spell_townportal)
 
 ASPELL(spell_locate_object)
 {
-	OBJ_DATA *i;
 	char name[MAX_INPUT_LENGTH];
 	int j;
 
@@ -740,86 +738,8 @@ ASPELL(spell_locate_object)
 		return;
 
 	strcpy(name, cast_argument);
-	j = level;
 
-	for (i = object_list; i && (j > 0); i = i->next)
-	{
-		if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
-			continue;
-
-		if (IS_CORPSE(i))
-			continue;
-
-		if (!isname(name, i->name))
-			continue;
-
-		if (SECT(IN_ROOM(i)) == SECT_SECRET)
-			continue;
-
-		if (i->carried_by)
-			if (SECT(IN_ROOM(i->carried_by)) == SECT_SECRET ||
-					(OBJ_FLAGGED(i, ITEM_NOLOCATE) && IS_NPC(i->carried_by)) ||
-					IS_IMMORTAL(i->carried_by))
-				continue;
-
-		if (i->carried_by)
-		{
-			if (world[IN_ROOM(i->carried_by)]->zone == world[IN_ROOM(ch)]->zone || !IS_NPC(i->carried_by))
-				sprintf(buf, "%s находится у %s в инвентаре.\r\n",
-						i->short_description, PERS(i->carried_by, ch, 1));
-			else
-				continue;
-		}
-		else if (IN_ROOM(i) != NOWHERE && IN_ROOM(i))
-		{
-			if (world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone && !OBJ_FLAGGED(i, ITEM_NOLOCATE))
-				sprintf(buf, "%s находится в %s.\r\n", i->short_description, world[IN_ROOM(i)]->name);
-			else
-				continue;
-		}
-		else if (i->in_obj)
-		{
-			if (Clan::is_clan_chest(i->in_obj))
-			{
-				ClanListType::const_iterator clan = Clan::IsClanRoom(i->in_obj->in_room);
-				if (clan != Clan::ClanList.end())
-					sprintf(buf, "%s находится в хранилище дружины '%s'.\r\n", i->short_description, (*clan)->GetAbbrev());
-				else
-					continue;
-			}
-			else
-			{
-				if (i->in_obj->carried_by)
-					if (IS_NPC(i->in_obj->carried_by) && (OBJ_FLAGGED(i, ITEM_NOLOCATE) || world[IN_ROOM(i->in_obj->carried_by)]->zone != world[IN_ROOM(ch)]->zone))
-						continue;
-				if (IN_ROOM(i->in_obj) != NOWHERE && IN_ROOM(i->in_obj))
-					if (world[IN_ROOM(i->in_obj)]->zone != world[IN_ROOM(ch)]->zone || OBJ_FLAGGED(i, ITEM_NOLOCATE))
-						continue;
-				if (i->in_obj->worn_by)
-					if (IS_NPC(i->in_obj->worn_by)
-							&& (OBJ_FLAGGED(i, ITEM_NOLOCATE)
-								|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
-						continue;
-				sprintf(buf, "%s находится в %s.\r\n", i->short_description, i->in_obj->PNames[5]);
-			}
-		}
-		else if (i->worn_by)
-		{
-			if ((IS_NPC(i->worn_by) && !OBJ_FLAGGED(i, ITEM_NOLOCATE)
-					&& world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
-					|| (!IS_NPC(i->worn_by) && GET_LEVEL(i->worn_by) < LVL_IMMORT))
-				sprintf(buf, "%s одет%s на %s.\r\n", i->short_description,
-						GET_OBJ_SUF_6(i), PERS(i->worn_by, ch, 3));
-			else
-				continue;
-		}
-		else
-			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i, ch, 1));
-
-		CAP(buf);
-		send_to_char(buf, ch);
-		j--;
-	}
+	j = ObjList::print_spell_locate_object(ch, level, name);
 
 	if (j > 0)
 		j = Depot::print_spell_locate_object(ch, j, std::string(name));
