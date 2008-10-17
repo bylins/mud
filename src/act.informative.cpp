@@ -617,7 +617,10 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 
 	if (i->player_data.description && *i->player_data.description)
 	{
-		send_to_char(ch, "*\r\n%s*\r\n", space_before_string(i->player_data.description).c_str());
+		if (IS_NPC(i))
+			send_to_char(ch, " * %s", i->player_data.description);
+		else
+			send_to_char(ch, "*\r\n%s*\r\n", space_before_string(i->player_data.description).c_str());
 	}
 	else if (!IS_NPC(i))
 	{
