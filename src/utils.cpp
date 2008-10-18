@@ -377,7 +377,7 @@ void log(const char *format, ...)
 
 // shapirus: для дебаггинга
 #ifdef LOG_AUTOFLUSH
-//	fflush(logfile);
+	fflush(logfile);
 #endif
 }
 
