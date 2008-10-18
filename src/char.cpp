@@ -301,9 +301,7 @@ void Character::create_player()
 	player.reset(new Player);
 }
 
-static PlayerPtr shared_mob(new Player);
-
 void Character::create_mob_guard()
 {
-	player = shared_mob;
+	player = Player::shared_mob;
 }

@@ -6,6 +6,7 @@
 #define CHAR_PLAYER_HPP_INCLUDED
 
 #include <string>
+#include <boost/shared_ptr.hpp>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -37,6 +38,8 @@ public:
 	Quested quested;
 	// замаксы по отдельным мобам
 	MobMax mobmax;
+	// общие поля мобов
+	static boost::shared_ptr<Player> shared_mob;
 
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)

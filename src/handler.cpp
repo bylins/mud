@@ -1250,7 +1250,8 @@ void char_from_room(CHAR_DATA * ch)
 	if (FIGHTING(ch) != NULL)
 		stop_fighting(ch, TRUE);
 
-	ch->player->set_from_room(ch->in_room);
+	if (!IS_NPC(ch))
+		ch->player->set_from_room(ch->in_room);
 
 	check_light(ch, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, -1);
 	REMOVE_FROM_LIST(ch, world[ch->in_room]->people, next_in_room);
@@ -1266,7 +1267,7 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
 	else
 	{
-		if (RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA))
+		if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA))
 		{
 			send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 			char_to_room(ch, ch->player->get_from_room());
