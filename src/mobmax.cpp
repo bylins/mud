@@ -27,17 +27,6 @@ boost::array<int, MAX_MOB_LEVEL + 1> num_levels = { {0} };
 typedef std::map<int/* внум моба */, int/* левел моба */> VnumToLevelType;
 VnumToLevelType vnum_to_level;
 
-/**
-* Проверка перед добавлением в замаксы на всякий шлак.
-*/
-bool bad_data(CHAR_DATA *ch, int vnum, int count, int level)
-{
-	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > MAX_MOB_LEVEL)
-		return true;
-
-	return false;
-}
-
 } // namespace
 
 /**
@@ -114,7 +103,7 @@ void MobMax::refresh(int level)
 */
 void MobMax::add(CHAR_DATA *ch, int vnum, int count, int level)
 {
-	if (bad_data(ch, vnum, count, level)) return;
+	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > MAX_MOB_LEVEL) return;
 
 	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
 		boost::bind(std::equal_to<int>(),
@@ -135,7 +124,7 @@ void MobMax::add(CHAR_DATA *ch, int vnum, int count, int level)
 */
 void MobMax::load(CHAR_DATA *ch, int vnum, int count, int level)
 {
-	if (bad_data(ch, vnum, count, level)) return;
+	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > MAX_MOB_LEVEL) return;
 
 	mobmax_data tmp_data(vnum, count, level);
 	mobmax_.push_front(tmp_data);
