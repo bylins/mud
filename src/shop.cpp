@@ -1827,7 +1827,16 @@ SPECIAL(shop_keeper)
 		return (0);
 
 	if (!AWAKE(keeper))
-		return (FALSE);
+	{
+		if (GET_POS(keeper) == POS_DEAD)
+		{
+			// это нужно выводить, потому что мертвый по умолчанию моб-продавец
+			// в игре стоит как живой и ничем эту фигню не выдает Ж)
+			sprintf(buf1, "Shop keeper %d has dead position.", GET_MOB_VNUM(keeper));
+			mudlog(buf1, DEF, LVL_IMMORT, SYSLOG, false);
+		}
+ 		return (FALSE);
+	}
 
 	if (CMD_IS("steal") || CMD_IS("украсть"))
 	{
