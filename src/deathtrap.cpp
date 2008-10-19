@@ -18,7 +18,6 @@
 
 extern int has_boat(CHAR_DATA * ch);
 extern void die(CHAR_DATA * ch, CHAR_DATA * killer);
-extern void change_fighting(CHAR_DATA * ch, int need_stop);
 extern void death_cry(CHAR_DATA * ch);
 extern OBJ_DATA *make_corpse(CHAR_DATA * ch);
 extern void reset_affects(CHAR_DATA *ch);
@@ -242,7 +241,7 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 			return true;
 		}
 		// игроки уходят на ренту с потерей части шмоток (см remove_items) и резетом как после рипа
-		change_fighting(ch, true);
+		ch->clear_battle_list();
 		reset_affects(ch);
 		MemQ_flush(ch);
 		for (int i = 1; i <= MAX_SPELLS; i++)

@@ -15,9 +15,15 @@
 #include "skills.h"
 #include "constants.h"
 #include "char_player.hpp"
+#include "spells.h"
+#include "comm.h"
 
 Character::Character()
-		: nr(NOBODY),
+		:
+		protecting_(0),
+		touching_(0),
+		fighting_(0),
+		nr(NOBODY),
 		in_room(0),
 		wait(0),
 		punctual_wait(0),
@@ -46,12 +52,13 @@ Character::Character()
 		ExtractTimer(0),
 		Initiative(0),
 		BattleCounter(0),
-		Protecting(0),
-		Touching(0),
 		Poisoner(0),
 		ing_list(0),
 		dl_list(0)
 {
+	memset(&extra_attack_, 0, sizeof(extra_attack_type));
+	memset(&cast_attack_, 0, sizeof(cast_attack_type));
+
 	memset(&player_data, 0, sizeof(char_player_data));
 	memset(&add_abils, 0, sizeof(char_played_ability_data));
 	memset(&real_abils, 0, sizeof(char_ability_data));
@@ -65,8 +72,6 @@ Character::Character()
 	memset(&MemQueue, 0, sizeof(spell_mem_queue));
 	memset(&Temporary, 0, sizeof(FLAG_DATA));
 	memset(&BattleAffects, 0, sizeof(FLAG_DATA));
-	memset(&extra_attack, 0, sizeof(extra_attack_type));
-	memset(&cast_attack, 0, sizeof(cast_attack_type));
 
 	char_specials.position = POS_STANDING;
 	mob_specials.default_pos = POS_STANDING;
@@ -305,3 +310,219 @@ void Character::create_mob_guard()
 {
 	player = Player::shared_mob;
 }
+
+// battle_list >> //////////////////////////////////////////////////////////////
+
+/**
+* Добавляем vict в свой список.
+*/
+void Character::add_battle_list(CHAR_DATA *vict)
+{
+	BattleListType::iterator it = std::find(battle_list_.begin(), battle_list_.end(), vict);
+	if (it == battle_list_.end())
+		battle_list_.push_back(vict);
+}
+
+/**
+* Проверяем есть ли у нас еще что-то, связанное с vict и удаляем его из списка,
+* если нас с ним уже ничего не связывает.
+*/
+void Character::check_battle_list(CHAR_DATA *vict)
+{
+	if (get_protecting() != vict
+		&& get_touching() != vict
+		&& get_fighting() != vict
+		&& get_extra_victim() != vict
+		&& get_cast_char() != vict)
+	{
+		BattleListType::iterator it = std::find(battle_list_.begin(), battle_list_.end(), vict);
+		if (it != battle_list_.end())
+			battle_list_.erase(it);
+	}
+}
+
+/**
+* Чистим поля, связанные с нами у чаров, находящихся в нашем списке, и сам список.
+*/
+void Character::clear_battle_list()
+{
+	BattleListType::iterator next_it;
+	for (BattleListType::iterator it = battle_list_.begin(); it != battle_list_.end(); it = next_it)
+	{
+		CHAR_DATA *vict = *it;
+		next_it = ++it;
+		// здесь сеты могут удалять запись, так что пользовать it дальше нельзя
+		if (vict->get_protecting() == this)
+		{
+			vict->set_protecting(0);
+			CLR_AF_BATTLE(vict, EAF_PROTECT);
+		}
+		if (vict->get_touching() == this)
+		{
+			vict->set_touching(0);
+			CLR_AF_BATTLE(vict, EAF_PROTECT);
+		}
+		if (vict->get_fighting() == this && IN_ROOM(vict) != NOWHERE)
+		{
+			log("[Change fighting] Change victim");
+			CHAR_DATA *j;
+			for (j = world[IN_ROOM(this)]->people; j; j = j->next_in_room)
+			{
+				if (j->get_fighting() == vict)
+				{
+					act("Вы переключили внимание на $N3.", FALSE, vict, 0, j, TO_CHAR);
+					act("$n переключил$u на Вас !", FALSE, vict, 0, j, TO_VICT);
+					vict->set_fighting(j);
+					break;
+				}
+			}
+			if (!j)
+				stop_fighting(vict, FALSE);
+		}
+		if (vict->get_extra_victim() == this)
+		{
+			vict->set_extra_attack(0, 0);
+		}
+		if (vict->get_cast_char() == this)
+		{
+			vict->set_cast(0, 0, 0, 0, 0);
+		}
+	}
+	battle_list_.clear();
+}
+
+// << battle_list //////////////////////////////////////////////////////////////
+
+// эти поля завязаны на battle_list >> /////////////////////////////////////////
+
+CHAR_DATA * Character::get_protecting() const
+{
+	return protecting_;
+}
+
+void Character::set_protecting(CHAR_DATA *vict)
+{
+	if (protecting_ && protecting_ != vict)
+	{
+		// чистим старую цель
+		CHAR_DATA *tmp_vict = protecting_;
+		protecting_ = 0;
+		tmp_vict->check_battle_list(this);
+	}
+
+	if (vict != protecting_)
+		vict->add_battle_list(this);
+
+	protecting_ = vict;
+}
+
+CHAR_DATA * Character::get_touching() const
+{
+	return touching_;
+}
+
+void Character::set_touching(CHAR_DATA *vict)
+{
+	if (touching_ && touching_ != vict)
+	{
+		// чистим старую цель
+		CHAR_DATA *tmp_vict = touching_;
+		touching_ = 0;
+		tmp_vict->check_battle_list(this);
+	}
+
+	if (vict != touching_)
+		vict->add_battle_list(this);
+
+	touching_ = vict;
+}
+
+CHAR_DATA * Character::get_fighting() const
+{
+	return fighting_;
+}
+
+void Character::set_fighting(CHAR_DATA *vict)
+{
+	if (fighting_ && fighting_ != vict)
+	{
+		// чистим старую цель
+		CHAR_DATA *tmp_vict = fighting_;
+		fighting_ = 0;
+		tmp_vict->check_battle_list(this);
+	}
+
+	if (vict != fighting_)
+		vict->add_battle_list(this);
+
+	fighting_ = vict;
+}
+
+int Character::get_extra_skill() const
+{
+	return extra_attack_.used_skill;
+}
+
+CHAR_DATA * Character::get_extra_victim() const
+{
+	return extra_attack_.victim;
+}
+
+void Character::set_extra_attack(int skill, CHAR_DATA *vict)
+{
+	if (extra_attack_.victim && extra_attack_.victim != vict)
+	{
+		// чистим старую цель
+		CHAR_DATA *tmp_vict = extra_attack_.victim;
+		extra_attack_.victim = 0;
+		tmp_vict->check_battle_list(this);
+	}
+
+	if (vict != extra_attack_.victim)
+		vict->add_battle_list(this);
+
+	extra_attack_.used_skill = skill;
+	extra_attack_.victim = vict;
+}
+
+void Character::set_cast(int spellnum, int spell_subst, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom)
+{
+	if (cast_attack_.tch && cast_attack_.tch != tch)
+	{
+		// чистим старую цель
+		CHAR_DATA *tmp_vict = cast_attack_.tch;
+		cast_attack_.tch = 0;
+		tmp_vict->check_battle_list(this);
+	}
+
+	if (tch != cast_attack_.tch)
+		tch->add_battle_list(this);
+
+	cast_attack_.spellnum = spellnum;
+	cast_attack_.spell_subst = spell_subst;
+	cast_attack_.tch = tch;
+	cast_attack_.tobj = tobj;
+	cast_attack_.troom = troom;
+}
+
+int Character::get_cast_spell() const
+{
+	return cast_attack_.spellnum;
+}
+
+int Character::get_cast_subst() const
+{
+	return cast_attack_.spell_subst;
+}
+
+CHAR_DATA * Character::get_cast_char() const
+{
+	return cast_attack_.tch;
+}
+
+OBJ_DATA * Character::get_cast_obj() const
+{
+	return cast_attack_.tobj;
+}
+
+// << эти поля завязаны на battle_list /////////////////////////////////////////

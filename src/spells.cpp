@@ -222,9 +222,9 @@ ASPELL(spell_recall)
 		return;
 	}
 
-	if (FIGHTING(victim) && (victim != ch))
+	if (victim->get_fighting() && (victim != ch))
 	{
-		pk_agro_action(ch, FIGHTING(victim));
+		pk_agro_action(ch, victim->get_fighting());
 	}
 
 	act("$n исчез$q.", TRUE, victim, 0, 0, TO_ROOM);
@@ -289,9 +289,9 @@ ASPELL(spell_teleport)
 		return;
 	}
 
-	if (FIGHTING(victim) && (victim != ch))
+	if (victim->get_fighting() && (victim != ch))
 	{
-		pk_agro_action(ch, FIGHTING(victim));
+		pk_agro_action(ch, victim->get_fighting());
 	}
 
 	act("$n медленно исчез$q из виду.", FALSE, victim, 0, 0, TO_ROOM);
@@ -575,7 +575,7 @@ ASPELL(spell_summon)
 				return;
 			}
 			/* Нельзя призвать жертву в бою  */
-			if (FIGHTING(victim))
+			if (victim->get_fighting())
 			{
 				send_to_char(SUMMON_FAIL4, ch);	// Цель в бою
 				return;
@@ -854,7 +854,7 @@ ASPELL(spell_charm)
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else if (IS_HORSE(victim))
 		send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
-	else if (FIGHTING(victim) || GET_POS(victim) < POS_RESTING)
+	else if (victim->get_fighting() || GET_POS(victim) < POS_RESTING)
 		act("$M сейчас, похоже, не до Вас.", FALSE, ch, 0, victim, TO_CHAR);
 	else if (circle_follow(victim, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
@@ -1003,7 +1003,7 @@ ACMD(do_findhelpee)
 			act("$N не слышит Вас.", FALSE, ch, 0, helpee, TO_CHAR);
 		else if (IS_HORSE(helpee))
 			send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
-		else if (FIGHTING(helpee) || GET_POS(helpee) < POS_RESTING)
+		else if (helpee->get_fighting() || GET_POS(helpee) < POS_RESTING)
 			act("$M сейчас, похоже, не до Вас.", FALSE, ch, 0, helpee, TO_CHAR);
 		else if (circle_follow(helpee, ch))
 			send_to_char("Следование по кругу запрещено.\r\n", ch);

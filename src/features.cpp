@@ -749,7 +749,7 @@ void check_berserk(CHAR_DATA * ch)
 		send_to_char("Предсмертное исступление оставило Вас.\r\n", ch);
 	}
 //!IS_NPC(ch) &&
-	if (can_use_feat(ch, BERSERK_FEAT) && FIGHTING(ch) &&
+	if (can_use_feat(ch, BERSERK_FEAT) && ch->get_fighting() &&
 			!timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, AFF_BERSERK) &&
 			(GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4))
 	{
