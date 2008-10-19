@@ -135,12 +135,9 @@ void MobMax::load(CHAR_DATA *ch, int vnum, int count, int level)
 */
 void MobMax::remove(int vnum)
 {
-	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
+	mobmax_.remove_if(
 		boost::bind(std::equal_to<int>(),
 			boost::bind(&mobmax_data::vnum, _1), vnum));
-
-	if (it != mobmax_.end())
-		mobmax_.erase(it);
 }
 
 /**

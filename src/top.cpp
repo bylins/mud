@@ -31,18 +31,11 @@ TopListType TopPlayer::TopList(NUM_CLASSES);
 // подробности в комментарии к load_char_ascii
 void TopPlayer::Remove(CHAR_DATA * short_ch)
 {
-	std::list<TopPlayer> &tmp_list = TopPlayer::TopList[static_cast<int>(GET_CLASS(short_ch))];
-
-	std::list<TopPlayer>::iterator it = std::find_if(tmp_list.begin(), tmp_list.end(),
-			boost::bind(std::equal_to<long>(),
-			boost::bind(&TopPlayer::unique, _1), GET_UNIQUE(short_ch)));
-
-	if (it != tmp_list.end())
-		tmp_list.erase(it);
+	TopPlayer::TopList[static_cast<int>(GET_CLASS(short_ch))].remove_if(
+		boost::bind(std::equal_to<long>(),
+					boost::bind(&TopPlayer::unique, _1), GET_UNIQUE(short_ch)));
 }
 
-// TODO: надо убирать рефреш из гейн_экспа, но тут надо подумать когда обновлять, чтобы реагировать на все
-// возможные ситуации, т.е. левел апы, делевелы, окончание боя, и т.п.
 // проверяем надо-ли добавлять в топ и добавляем/обновляем при случае. reboot по дефолту 0 (1 для ребута)
 // данная функция работает в том числе и с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii

@@ -63,7 +63,7 @@ int have_mind(CHAR_DATA * ch)
 
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room)
 {
-	if (!WAITLESS(ch) && (!victim_in_room || (ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))))
+	if (!WAITLESS(ch) && (!victim_in_room || (FIGHTING(ch) && IN_ROOM(ch) == IN_ROOM(FIGHTING(ch)))))
 		WAIT_STATE(ch, waittime * PULSE_VIOLENCE);
 };
 
@@ -74,7 +74,7 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return (FALSE);
 	}
-	if (ch->get_fighting() || GET_MOB_HOLD(ch))
+	if (FIGHTING(ch) || GET_MOB_HOLD(ch))
 	{
 		return (FALSE);
 	}
@@ -154,7 +154,7 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch, int skill)
 
 	for (vict = world[IN_ROOM(victim)]->people; vict; vict = vict->next_in_room)
 	{
-		if (vict->get_protecting() == victim &&
+		if (PROTECTING(vict) == victim &&
 				!AFF_FLAGGED(vict, AFF_STOPFIGHT) &&
 				!AFF_FLAGGED(vict, AFF_MAGICSTOPFIGHT) &&
 				GET_WAIT(vict) <= 0 && !GET_MOB_HOLD(vict) && GET_POS(vict) >= POS_FIGHTING)
@@ -168,12 +168,12 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch, int skill)
 				percent = 0;
 
 
-			if ((vict->get_fighting() != ch) && (ch != victim))
+			if ((FIGHTING(vict) != ch) && (ch != victim))
 			{
 				// Вписываемся в противника прикрываемого ...
 				pk_agro_action(vict, ch);
 				stop_fighting(vict, FALSE);
-				start_fighting(vict, ch);
+				set_fighting(vict, ch);
 				// Лаг от переключения.
 				set_wait(vict, 2, TRUE);
 				// Восстанавливаем прикрытие.
@@ -226,7 +226,7 @@ void parry_override(CHAR_DATA * ch)
 	{
 		message = "Вы оставили своего товарища без прикрытия и ринулись в бой.";
 		CLR_AF_BATTLE(ch, EAF_PROTECT);
-		ch->set_protecting(0);
+		PROTECTING(ch) = NULL;
 	}
 
 	if (message)
@@ -239,10 +239,10 @@ int used_attack(CHAR_DATA * ch)
 
 	parry_override(ch);
 
-	if (!ch->get_extra_victim())
+	if (!GET_EXTRA_VICTIM(ch))
 		return (FALSE);
 	else
-		switch (ch->get_extra_skill())
+		switch (GET_EXTRA_SKILL(ch))
 		{
 		case SKILL_BASH:
 			message = "Невозможно. Вы пытаетесь сбить $N3.";
@@ -263,7 +263,7 @@ int used_attack(CHAR_DATA * ch)
 			return (FALSE);
 		}
 	if (message)
-		act(message, FALSE, ch, 0, ch->get_extra_victim(), TO_CHAR);
+		act(message, FALSE, ch, 0, GET_EXTRA_VICTIM(ch), TO_CHAR);
 	return (TRUE);
 }
 
@@ -271,7 +271,7 @@ ACMD(do_assist)
 {
 	CHAR_DATA *helpee, *opponent;
 
-	if (ch->get_fighting())
+	if (FIGHTING(ch))
 	{
 		send_to_char("Невозможно. Вы сражаетесь сами.\r\n", ch);
 		return;
@@ -281,7 +281,7 @@ ACMD(do_assist)
 	if (!*arg)
 	{
 		for (helpee = world[ch->in_room]->people; helpee; helpee = helpee->next_in_room)
-			if (helpee->get_fighting() && helpee->get_fighting() != ch && ((ch->master && ch->master == helpee->master)
+			if (FIGHTING(helpee) && FIGHTING(helpee) != ch && ((ch->master && ch->master == helpee->master)
 					|| ch->master == helpee
 					|| helpee->master == ch))
 				break;
@@ -305,11 +305,11 @@ ACMD(do_assist)
 	/*
 	 * Hit the same enemy the person you're helping is.
 	 */
-	if (helpee->get_fighting())
-		opponent = helpee->get_fighting();
+	if (FIGHTING(helpee))
+		opponent = FIGHTING(helpee);
 	else
 		for (opponent = world[ch->in_room]->people;
-				opponent && (opponent->get_fighting() != helpee); opponent = opponent->next_in_room);
+				opponent && (FIGHTING(opponent) != helpee); opponent = opponent->next_in_room);
 
 	if (!opponent)
 		act("Но никто не сражается с $N4!", FALSE, ch, 0, helpee, TO_CHAR);
@@ -355,23 +355,23 @@ ACMD(do_hit)
 	{
 		if (subcmd != SCMD_MURDER && !check_pkill(ch, vict, arg))
 			return;
-		if (ch->get_fighting())
+		if (FIGHTING(ch))
 		{
-			if (vict == ch->get_fighting())
+			if (vict == FIGHTING(ch))
 			{
 				act("Вы уже сражаетесь с $N4.", FALSE, ch, 0, vict, TO_CHAR);
 				return;
 			}
-			if (ch != vict->get_fighting())
+			if (ch != FIGHTING(vict))
 			{
 				act("$N не сражается с Вами, не трогайте $S.", FALSE, ch, 0, vict, TO_CHAR);
 				return;
 			}
 			stop_fighting(ch, FALSE);
-			start_fighting(ch, vict);
+			set_fighting(ch, vict);
 			set_wait(ch, 2, TRUE);
 		}
-		else if ((GET_POS(ch) == POS_STANDING) && (vict != ch->get_fighting()))
+		else if ((GET_POS(ch) == POS_STANDING) && (vict != FIGHTING(ch)))
 		{
 			set_hit(ch, vict);
 		}
@@ -426,7 +426,7 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	pk_agro_action(ch, vict);
 
-	if (((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) || (vict->get_fighting() && GET_CLASS(ch) != CLASS_THIEF))
+	if (((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) || (FIGHTING(vict) && GET_CLASS(ch) != CLASS_THIEF))
 			&& !IS_GOD(ch))
 	{
 		act("Вы заметили, что $N попытал$y Вас заколоть !", FALSE, vict, 0, ch, TO_CHAR);
@@ -439,7 +439,7 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 	percent = number(1, skill_info[SKILL_BACKSTAB].max_percent);
 	prob = train_skill(ch, SKILL_BACKSTAB, skill_info[SKILL_BACKSTAB].max_percent, vict);
 
-	if (vict->get_fighting())
+	if (FIGHTING(vict))
 		prob = prob * (GET_REAL_DEX(ch) + 50) / 100;
 
 	if (AFF_FLAGGED(ch, AFF_HIDE))
@@ -515,7 +515,7 @@ ACMD(do_backstab)
 		return;
 	}
 
-	if (vict->get_fighting() && GET_CLASS(ch) != CLASS_THIEF)
+	if (FIGHTING(vict) && GET_CLASS(ch) != CLASS_THIEF)
 	{
 		send_to_char("Ваша цель слишком быстро движется - Вы можете пораниться !\r\n", ch);
 		return;
@@ -588,7 +588,7 @@ ACMD(do_order)
 				send_to_char(OK, ch);
 				if (GET_WAIT_STATE(vict) <= 0)
 					command_interpreter(vict, message);
-				else if (vict->get_fighting())
+				else if (FIGHTING(vict))
 				{
 					if (vict->last_comm != NULL)
 						free(vict->last_comm);
@@ -611,7 +611,7 @@ ACMD(do_order)
 						found = TRUE;
 						if (GET_WAIT_STATE(k->follower) <= 0)
 							command_interpreter(k->follower, message);
-						else if (k->follower->get_fighting())
+						else if (FIGHTING(k->follower))
 						{
 							if (k->follower->last_comm != NULL)
 								free(k->follower->last_comm);
@@ -651,7 +651,7 @@ void go_flee(CHAR_DATA * ch)
 			if (ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_TUNNEL) ||
 					(ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_NOHORSE)))
 				continue;
-			was_fighting = ch->get_fighting();
+			was_fighting = FIGHTING(ch);
 			if (do_simple_move(ch, attempt | 0x80, TRUE, 0))
 			{
 				act("Верн$W $N вынес$Q Вас из боя.", FALSE, ch, 0, get_horse(ch), TO_CHAR);
@@ -691,7 +691,7 @@ void go_flee(CHAR_DATA * ch)
 		if (legal_dir(ch, attempt, TRUE, FALSE) && !ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_DEATH))
 		{
 			act("$n запаниковал$g и пытал$u сбежать !", TRUE, ch, 0, 0, TO_ROOM);
-			was_fighting = ch->get_fighting();
+			was_fighting = FIGHTING(ch);
 			if ((do_simple_move(ch, attempt | 0x80, TRUE, 0)))
 			{
 				send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
@@ -755,7 +755,7 @@ void go_dir_flee(CHAR_DATA * ch, int direction)
 			if (on_horse(ch))
 				continue;
 		act("$n запаниковал$g и попытал$u убежать.", FALSE, ch, 0, 0, TO_ROOM);
-		was_fighting = ch->get_fighting();
+		was_fighting = FIGHTING(ch);
 		if (do_simple_move(ch, attempt | 0x80, TRUE, 0))
 		{
 			send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
@@ -787,7 +787,7 @@ const char *FleeDirs[] = { "север",
 ACMD(do_flee)
 {
 	int direction = -1;
-	if (!ch->get_fighting())
+	if (!FIGHTING(ch))
 	{
 		send_to_char("Но вы ведь ни с кем не сражаетесь !\r\n", ch);
 		return;
@@ -972,8 +972,8 @@ ACMD(do_bash)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
-			vict = ch->get_fighting();
+		if (!*arg && FIGHTING(ch) && IN_ROOM(ch) == IN_ROOM(FIGHTING(ch)))
+			vict = FIGHTING(ch);
 		else
 		{
 			send_to_char("Кого же Вы так сильно желаете сбить ?\r\n", ch);
@@ -992,12 +992,12 @@ ACMD(do_bash)
 	if (!check_pkill(ch, vict, arg))
 		return;
 
-	if (IS_IMPL(ch) || !ch->get_fighting())
+	if (IS_IMPL(ch) || !FIGHTING(ch))
 		go_bash(ch, vict);
 	else if (!used_attack(ch))
 	{
 		act("Хорошо. Вы попытаетесь сбить $N3.", FALSE, ch, 0, vict, TO_CHAR);
-		ch->set_extra_attack(SKILL_BASH, vict);
+		SET_EXTRA(ch, SKILL_BASH, vict);
 	}
 }
 
@@ -1032,19 +1032,25 @@ void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch)
 	act("Вы были спасены $N4. Вы чувствуете себя Иудой!", FALSE, vict, 0, ch, TO_CHAR);
 	act("$n героически спас$q $N3!", TRUE, ch, 0, vict, TO_NOTVICT);
 
-	if (vict->get_fighting() == tmp_ch)
+	if (FIGHTING(vict) == tmp_ch)
 		stop_fighting(vict, FALSE);
+//  if (FIGHTING(tmp_ch))
+//     stop_fighting(tmp_ch,FALSE);
+//  if (FIGHTING(ch))
+//     stop_fighting(ch,FALSE);
 
 	pk_agro_action(ch, tmp_ch);
 
-	if (ch->get_fighting())
-		ch->set_fighting(tmp_ch);
+//  set_fighting(ch, tmp_ch);
+//  set_fighting(tmp_ch, ch);
+	if (FIGHTING(ch))
+		FIGHTING(ch) = tmp_ch;
 	else
-		start_fighting(ch, tmp_ch);
-	if (tmp_ch->get_fighting())
-		tmp_ch->set_fighting(ch);
+		set_fighting(ch, tmp_ch);
+	if (FIGHTING(tmp_ch))
+		FIGHTING(tmp_ch) = ch;
 	else
-		start_fighting(tmp_ch, ch);
+		set_fighting(tmp_ch, ch);
 	set_wait(ch, 1, FALSE);
 	set_wait(vict, 2, FALSE);
 }
@@ -1072,19 +1078,23 @@ ACMD(do_rescue)
 		send_to_char("Ваше спасение Вы можете доверить только Богам.\r\n", ch);
 		return;
 	}
-	if (ch->get_fighting() == vict)
+	if (FIGHTING(ch) == vict)
 	{
 		send_to_char("Вы пытаетесь спасти атакующего Вас ?\r\n" "Это не о Вас ли писали Марк и Лука ?\r\n", ch);
 		return;
 	}
 
-	for (tmp_ch = world[ch->in_room]->people; tmp_ch && (tmp_ch->get_fighting() != vict); tmp_ch = tmp_ch->next_in_room);
+	for (tmp_ch = world[ch->in_room]->people; tmp_ch && (FIGHTING(tmp_ch) != vict); tmp_ch = tmp_ch->next_in_room);
 
 	if (!tmp_ch)
 	{
 		act("Но никто не сражается с $N4!", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
+//  if (!IS_NPC(FIGHTING(vict)) && !IS_NPC(ch) && IS_NPC(vict))
+//     {send_to_char("Вы пытаетесь спасти чужого противника.\r\n", ch);
+//      return;
+//     }
 
 	if (IS_NPC(vict) && tmp_ch && (!IS_NPC(tmp_ch) || (AFF_FLAGGED(tmp_ch, AFF_CHARM)
 								   && tmp_ch->master && !IS_NPC(tmp_ch->master))) &&
@@ -1209,8 +1219,8 @@ ACMD(do_kick)
 	one_argument(argument, arg);
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
-			vict = ch->get_fighting();
+		if (!*arg && FIGHTING(ch) && IN_ROOM(ch) == IN_ROOM(FIGHTING(ch)))
+			vict = FIGHTING(ch);
 		else
 		{
 			send_to_char("Кто это так сильно путается под Вашими ногами ?\r\n", ch);
@@ -1228,12 +1238,12 @@ ACMD(do_kick)
 	if (!check_pkill(ch, vict, arg))
 		return;
 
-	if (IS_IMPL(ch) || !ch->get_fighting())
+	if (IS_IMPL(ch) || !FIGHTING(ch))
 		go_kick(ch, vict);
 	else if (!used_attack(ch))
 	{
 		act("Хорошо. Вы попытаетесь пнуть $N3.", FALSE, ch, 0, vict, TO_CHAR);
-		ch->set_extra_attack(SKILL_KICK, vict);
+		SET_EXTRA(ch, SKILL_KICK, vict);
 	}
 }
 
@@ -1256,7 +1266,7 @@ ACMD(do_block)
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (!ch->get_fighting())
+	if (!FIGHTING(ch))
 	{
 		send_to_char("Но Вы ни с кем не сражаетесь ?\r\n", ch);
 		return;
@@ -1301,7 +1311,7 @@ ACMD(do_multyparry)
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (!ch->get_fighting())
+	if (!FIGHTING(ch))
 	{
 		send_to_char("Но Вы ни с кем не сражаетесь ?\r\n", ch);
 		return;
@@ -1347,7 +1357,7 @@ ACMD(do_parry)
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (!ch->get_fighting())
+	if (!FIGHTING(ch))
 	{
 		send_to_char("Но Вы ни с кем не сражаетесь ?\r\n", ch);
 		return;
@@ -1396,7 +1406,7 @@ void go_protect(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 
-	ch->set_protecting(vict);
+	PROTECTING(ch) = vict;
 	act("Вы попытаетесь прикрыть $N3 от следующей атаки.", FALSE, ch, 0, vict, TO_CHAR);
 	SET_AF_BATTLE(ch, EAF_PROTECT);
 }
@@ -1408,10 +1418,10 @@ ACMD(do_protect)
 	one_argument(argument, arg);
 	if (!*arg)
 	{
-		if (ch->get_protecting())
+		if (PROTECTING(ch))
 		{
 			CLR_AF_BATTLE(ch, EAF_PROTECT);
-			ch->set_protecting(0);
+			PROTECTING(ch) = NULL;
 			send_to_char("Вы перестали прикрывать своего товарища. \r\n", ch);
 		}else
 		{
@@ -1433,7 +1443,7 @@ ACMD(do_protect)
 	};
 
 	for (tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
-		if (tch->get_fighting() == vict)
+		if (FIGHTING(tch) == vict)
 			break;
 
 	if (vict == ch)
@@ -1442,7 +1452,7 @@ ACMD(do_protect)
 		return;
 	}
 
-	if (ch->get_fighting() == vict)
+	if (FIGHTING(ch) == vict)
 	{
 		send_to_char("Вы явно пацифист, или мазохист.\r\n", ch);
 		return;
@@ -1463,7 +1473,7 @@ ACMD(do_protect)
 
 	for (tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
 	{
-		if (tch->get_fighting() == vict && !may_kill_here(ch, tch))
+		if (FIGHTING(tch) == vict && !may_kill_here(ch, tch))
 			return;
 	}
 	go_protect(ch, vict);
@@ -1479,7 +1489,7 @@ void go_touch(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 	act("Вы попытаетесь перехватить следующую атаку $N1.", FALSE, ch, 0, vict, TO_CHAR);
 	SET_AF_BATTLE(ch, EAF_TOUCH);
-	ch->set_touching(vict);
+	TOUCHING(ch) = vict;
 }
 
 ACMD(do_touch)
@@ -1507,17 +1517,17 @@ ACMD(do_touch)
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
 		for (vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next_in_room)
-			if (vict->get_fighting() == ch)
+			if (FIGHTING(vict) == ch)
 				break;
 		if (!vict)
 		{
-			if (!ch->get_fighting())
+			if (!FIGHTING(ch))
 			{
 				send_to_char("Но Вы ни с кем не сражаетесь.\r\n", ch);
 				return;
 			}
 			else
-				vict = ch->get_fighting();
+				vict = FIGHTING(ch);
 		}
 	}
 
@@ -1527,7 +1537,7 @@ ACMD(do_touch)
 		send_to_char(", Вы похожи на котенка, ловящего собственный хвост.\r\n", ch);
 		return;
 	}
-	if (vict->get_fighting() != ch && ch->get_fighting() != vict)
+	if (FIGHTING(vict) != ch && FIGHTING(ch) != vict)
 	{
 		act("Но Вы не сражаетесь с $N4.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
@@ -1568,7 +1578,7 @@ ACMD(do_deviate)
 		return;
 	}
 
-	if (!ch->get_fighting())
+	if (!(FIGHTING(ch)))
 	{
 		send_to_char("Но Вы ведь ни с кем не сражаетесь !\r\n", ch);
 		return;
@@ -1673,8 +1683,8 @@ ACMD(do_disarm)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
-			vict = ch->get_fighting();
+		if (!*arg && FIGHTING(ch) && IN_ROOM(ch) == IN_ROOM(FIGHTING(ch)))
+			vict = FIGHTING(ch);
 		else
 		{
 			send_to_char("Кого обезоруживаем ?\r\n", ch);
@@ -1706,12 +1716,12 @@ ACMD(do_disarm)
 		return;
 	}
 
-	if (IS_IMPL(ch) || !ch->get_fighting())
+	if (IS_IMPL(ch) || !FIGHTING(ch))
 		go_disarm(ch, vict);
 	else if (!used_attack(ch))
 	{
 		act("Хорошо. Вы попытаетесь разоружить $N3.", FALSE, ch, 0, vict, TO_CHAR);
-		ch->set_extra_attack(SKILL_DISARM, vict);
+		SET_EXTRA(ch, SKILL_DISARM, vict);
 	}
 }
 
@@ -1805,8 +1815,8 @@ ACMD(do_chopoff)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
-			vict = ch->get_fighting();
+		if (!*arg && FIGHTING(ch) && IN_ROOM(ch) == IN_ROOM(FIGHTING(ch)))
+			vict = FIGHTING(ch);
 		else
 		{
 			send_to_char("Кого Вы собираетесь подсечь ?\r\n", ch);
@@ -1825,12 +1835,12 @@ ACMD(do_chopoff)
 	if (!check_pkill(ch, vict, arg))
 		return;
 
-	if (IS_IMPL(ch) || !ch->get_fighting())
+	if (IS_IMPL(ch) || !FIGHTING(ch))
 		go_chopoff(ch, vict);
 	else if (!used_attack(ch))
 	{
 		act("Хорошо. Вы попытаетесь подсечь $N3.", FALSE, ch, 0, vict, TO_CHAR);
-		ch->set_extra_attack(SKILL_CHOPOFF, vict);
+		SET_EXTRA(ch, SKILL_CHOPOFF, vict);
 	}
 }
 
@@ -1849,19 +1859,20 @@ void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim)
 		return;
 	}
 
-	if (!ch->get_fighting())
+	if (!FIGHTING(ch))
 	{
 		SET_AF_BATTLE(ch, EAF_STUPOR);
 		hit(ch, victim, TYPE_NOPARRY, 1);
 		set_wait(ch, 2, TRUE);
-	}
+	} /* else if ((FIGHTING(victim) != ch) && (FIGHTING(ch) != victim))
+		act("$N не сражается с Вами, не трогайте $S.", FALSE, ch, 0, victim, TO_CHAR); */
 	else
 	{
 		act("Вы попытаетесь оглушить $N3.", FALSE, ch, 0, victim, TO_CHAR);
-		if (ch->get_fighting() != victim)
+		if (FIGHTING(ch) != victim)
 		{
 			stop_fighting(ch, FALSE);
-			start_fighting(ch, victim);
+			set_fighting(ch, victim);
 			set_wait(ch, 2, TRUE);
 		}
 		SET_AF_BATTLE(ch, EAF_STUPOR);
@@ -1882,8 +1893,8 @@ ACMD(do_stupor)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
-			vict = ch->get_fighting();
+		if (!*arg && FIGHTING(ch) && IN_ROOM(ch) == IN_ROOM(FIGHTING(ch)))
+			vict = FIGHTING(ch);
 		else
 		{
 			send_to_char("Кого Вы хотите оглушить ?\r\n", ch);
@@ -1921,21 +1932,21 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim)
 		return;
 	}
 
-	if (!ch->get_fighting())
+	if (!FIGHTING(ch))
 	{
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
 		hit(ch, victim, TYPE_NOPARRY, 1);
 		set_wait(ch, 2, TRUE);
 	}
-	else if ((victim->get_fighting() != ch) && (ch->get_fighting() != victim))
+	else if ((FIGHTING(victim) != ch) && (FIGHTING(ch) != victim))
 		act("$N не сражается с Вами, не трогайте $S.", FALSE, ch, 0, victim, TO_CHAR);
 	else
 	{
 		act("Вы попытаетесь нанести богатырский удар по $N2.", FALSE, ch, 0, victim, TO_CHAR);
-		if (ch->get_fighting() != victim)
+		if (FIGHTING(ch) != victim)
 		{
 			stop_fighting(ch, FALSE);
-			start_fighting(ch, victim);
+			set_fighting(ch, victim);
 			set_wait(ch, 2, TRUE);
 		}
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
@@ -1956,8 +1967,8 @@ ACMD(do_mighthit)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
-			vict = ch->get_fighting();
+		if (!*arg && FIGHTING(ch) && IN_ROOM(ch) == IN_ROOM(FIGHTING(ch)))
+			vict = FIGHTING(ch);
 		else
 		{
 			send_to_char("Кого Вы хотите СИЛЬНО ударить ?\r\n", ch);
@@ -2063,7 +2074,7 @@ ACMD(do_style)
 		SET_BIT(PRF_FLAGS(ch, PRF_PUNCTUAL), PRF_PUNCTUAL * (tp == 1));
 		SET_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE * (tp == 2));
 
-		if (ch->get_fighting() && !(AFF_FLAGGED(ch, AFF_COURAGE) ||
+		if (FIGHTING(ch) && !(AFF_FLAGGED(ch, AFF_COURAGE) ||
 							  AFF_FLAGGED(ch, AFF_DRUNKED) || AFF_FLAGGED(ch, AFF_ABSTINENT)))
 		{
 			CLR_AF_BATTLE(ch, EAF_PUNCTUAL);
@@ -2156,7 +2167,7 @@ ACMD(do_stopfight)
 {
 	CHAR_DATA *tmp_ch;
 
-	if (!ch->get_fighting() || IS_NPC(ch))
+	if (!FIGHTING(ch) || IS_NPC(ch))
 	{
 		send_to_char("Но Вы же ни с кем не сражаетесь.\r\n", ch);
 		return;
@@ -2175,7 +2186,7 @@ ACMD(do_stopfight)
 	}
 
 	for (tmp_ch = world[IN_ROOM(ch)]->people; tmp_ch; tmp_ch = tmp_ch->next_in_room)
-		if (tmp_ch->get_fighting() == ch)
+		if (FIGHTING(tmp_ch) == ch)
 			break;
 
 	if (tmp_ch)
@@ -2258,9 +2269,9 @@ ACMD(do_throw)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (FIGHTING(ch) && IN_ROOM(ch) == IN_ROOM(FIGHTING(ch)))
 		{
-			vict = ch->get_fighting();
+			vict = FIGHTING(ch);
 		}
 		else
 		{
@@ -2280,12 +2291,12 @@ ACMD(do_throw)
 	if (!check_pkill(ch, vict, arg))
 		return;
 
-	if (IS_IMPL(ch) || !ch->get_fighting())
+	if (IS_IMPL(ch) || !FIGHTING(ch))
 		go_throw(ch, vict);
 	else if (!used_attack(ch))
 	{
 		act("Хорошо. Вы попытаетесь метнуть оружие в $N3.", FALSE, ch, 0, vict, TO_CHAR);
-		ch->set_extra_attack(SKILL_THROW, vict);
+		SET_EXTRA(ch, SKILL_THROW, vict);
 	}
 }
 
@@ -2311,9 +2322,9 @@ ACMD(do_manadrain)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
+		if (FIGHTING(ch) && IN_ROOM(ch) == IN_ROOM(FIGHTING(ch)))
 		{
-			vict = ch->get_fighting();
+			vict = FIGHTING(ch);
 		}
 		else
 		{
@@ -2554,7 +2565,7 @@ void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim)
 		send_to_char("Вы уже впали в неистовство.\r\n", ch);
 		return;
 	}
-	if (ch->get_fighting() && (ch->get_fighting() != victim))
+	if (FIGHTING(ch) && (FIGHTING(ch) != victim))
 	{
 		act("$N не сражается с Вами, не трогайте $S.", FALSE, ch, 0, victim, TO_CHAR);
 		return;
@@ -2578,7 +2589,7 @@ void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim)
 	act(buf, FALSE, ch, weapon, victim, TO_NOTVICT);
 	act(buf2, FALSE, victim, weapon, ch, TO_CHAR);
 
-	if (!ch->get_fighting())
+	if (!FIGHTING(ch))
 	{
 		SET_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
 		SET_AF_BATTLE(ch, EAF_IRON_WIND);
@@ -2623,8 +2634,8 @@ ACMD(do_iron_wind)
 	one_argument(argument, arg);
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
-			vict = ch->get_fighting();
+		if (!*arg && FIGHTING(ch) && IN_ROOM(ch) == IN_ROOM(FIGHTING(ch)))
+			vict = FIGHTING(ch);
 		else
 		{
 			send_to_char("Кого Вам угодно изрубить в капусту?\r\n", ch);

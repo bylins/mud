@@ -152,7 +152,7 @@ int mana_gain(CHAR_DATA * ch)
 
 
 	/* Position calculations    */
-	if (ch->get_fighting())
+	if (FIGHTING(ch))
 		percent -= 90;
 	else
 		switch (GET_POS(ch))
@@ -937,9 +937,9 @@ void check_idling(CHAR_DATA * ch)
 			if (ch->player->get_was_in_room() == NOWHERE && ch->in_room != NOWHERE)
 			{
 				ch->player->set_was_in_room(ch->in_room);
-				if (ch->get_fighting())
+				if (FIGHTING(ch))
 				{
-					stop_fighting(ch->get_fighting(), FALSE);
+					stop_fighting(FIGHTING(ch), FALSE);
 					stop_fighting(ch, TRUE);
 				}
 				act("$n растворил$u в пустоте.", TRUE, ch, 0, 0, TO_ROOM);
@@ -1228,7 +1228,7 @@ void point_update(void)
 					GET_HIT(i) = MIN(GET_HIT(i) + count, GET_REAL_MAX_HIT(i));
 			}
 			// Restore mobs
-			if (IS_NPC(i) && !i->get_fighting())  	// Restore horse
+			if (IS_NPC(i) && !FIGHTING(i))  	// Restore horse
 			{
 				if (IS_HORSE(i))
 				{
@@ -1285,7 +1285,7 @@ void point_update(void)
 				for (mem = MEMORY(i), pmem = NULL; mem; mem = nmem)
 				{
 					nmem = mem->next;
-					if (mem->time <= 0 && i->get_fighting())
+					if (mem->time <= 0 && FIGHTING(i))
 					{
 						pmem = mem;
 						continue;

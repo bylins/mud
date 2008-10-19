@@ -868,8 +868,18 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 		EXTRACT_TIMER(ch) = 5;
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_CHARM), AFF_CHARM);
 		// log("[Stop follower] Stop fight charmee");
-		if (ch->get_fighting())
+		if (FIGHTING(ch))
 			stop_fighting(ch, TRUE);
+		/*
+		   log("[Stop follower] Stop fight charmee opponee");
+		   for (vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next)
+		   {if (FIGHTING(vict) &&
+		   FIGHTING(vict) == ch &&
+		   FIGHTING(ch) != vict)
+		   stop_fighting(vict);
+		   }
+		 */
+		//log("[Stop follower] Charmee MOB reaction");
 		if (IS_NPC(ch))
 		{
 			if (MOB_FLAGGED(ch, MOB_CORPSE))
@@ -888,7 +898,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 				if (master &&
 						!IS_SET(mode, SF_MASTERDIE) &&
 						IN_ROOM(ch) == IN_ROOM(master) &&
-						CAN_SEE(ch, master) && !ch->get_fighting() &&
+						CAN_SEE(ch, master) && !FIGHTING(ch) &&
 						!ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL))   //Polud - ну не надо агрить в мирках, незачем это
 				{
 					if (number(1, GET_REAL_INT(ch) * 2) > GET_REAL_CHA(master))
@@ -896,7 +906,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 						act("$n посчитал$g, что Вы заслуживаете смерти !",
 							FALSE, ch, 0, master, TO_VICT | CHECK_DEAF);
 						act("$n заорал$g : \"Ты долго водил$G меня за нос, но дальше так не пойдет !\"" "              \"Теперь только твоя смерть может искупить твой обман !!!\"", TRUE, ch, 0, master, TO_NOTVICT | CHECK_DEAF);
-						start_fighting(ch, master);
+						set_fighting(ch, master);
 					}
 				}
 				else

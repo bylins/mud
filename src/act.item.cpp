@@ -1479,7 +1479,7 @@ ACMD(do_drink)
 		extract_obj(obj_potion);
 		return;
 	}
-	else if (ch->get_fighting())
+	else if (FIGHTING(ch))
 	{
 		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
@@ -1633,7 +1633,7 @@ ACMD(do_drunkoff)
 	if (IS_NPC(ch))		/* Cannot use GET_COND() on mobs. */
 		return;
 
-	if (ch->get_fighting())
+	if (FIGHTING(ch))
 	{
 		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
@@ -1821,7 +1821,7 @@ ACMD(do_eat)
 		send_to_char("Чем Вы собрались закусить ?\r\n", ch);
 		return;
 	}
-	if (ch->get_fighting())
+	if (FIGHTING(ch))
 	{
 		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
@@ -2964,7 +2964,7 @@ ACMD(do_firstaid)
 		return;
 	};
 
-	if (vict->get_fighting())
+	if (FIGHTING(vict))
 	{
 		act("$N сражается, $M не до Ваших телячьих нежностей.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
@@ -3138,7 +3138,7 @@ ACMD(do_repair)
 
 	one_argument(argument, arg);
 
-	if (ch->get_fighting())
+	if (FIGHTING(ch))
 	{
 		send_to_char("Вы не можете сделать это в бою !\r\n", ch);
 		return;

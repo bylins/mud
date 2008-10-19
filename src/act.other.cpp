@@ -517,7 +517,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 	if (!vict)
 		return;
 
-	if (!WAITLESS(ch) && vict->get_fighting())
+	if (!WAITLESS(ch) && FIGHTING(vict))
 	{
 		act("$N слишком быстро перемещается.", FALSE, ch, 0, vict, TO_CHAR);
 		return;

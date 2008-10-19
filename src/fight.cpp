@@ -82,6 +82,7 @@ int max_exp_gain_pc(CHAR_DATA * ch);
 int max_exp_loss_pc(CHAR_DATA * ch);
 int level_exp(CHAR_DATA * ch, int chlevel);
 int extra_aco(int class_num, int level);
+void change_fighting(CHAR_DATA * ch, int need_stop);
 int perform_mob_switch(CHAR_DATA * ch);
 /* local functions */
 //void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koef);
@@ -144,12 +145,12 @@ void go_autoassist(CHAR_DATA * ch)
 	for (k = ch_lider->followers; k; k = k->next)
 	{
 		if (PRF_FLAGGED(k->follower, PRF_AUTOASSIST) &&
-				(IN_ROOM(k->follower) == IN_ROOM(ch)) && !k->follower->get_fighting() &&
+				(IN_ROOM(k->follower) == IN_ROOM(ch)) && !FIGHTING(k->follower) &&
 				(GET_POS(k->follower) == POS_STANDING) && !CHECK_WAIT(k->follower))
 			do_assist(k->follower, buf2, 0, 0);
 	}
 	if (PRF_FLAGGED(ch_lider, PRF_AUTOASSIST) &&
-			(IN_ROOM(ch_lider) == IN_ROOM(ch)) && !ch_lider->get_fighting() &&
+			(IN_ROOM(ch_lider) == IN_ROOM(ch)) && !FIGHTING(ch_lider) &&
 			(GET_POS(ch_lider) == POS_STANDING) && !CHECK_WAIT(ch_lider))
 		do_assist(ch_lider, buf2, 0, 0);
 }
@@ -441,15 +442,15 @@ void restore_battle_pos(CHAR_DATA * ch)
 }
 
 /* start one char fighting another (yes, it is horrible, I know... )  */
-void start_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
+void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	if (ch == vict)
 		return;
 
-	if (ch->get_fighting())
+	if (FIGHTING(ch))
 	{
-		log("SYSERR: start_fighting(%s->%s) when already fighting(%s)...",
-			GET_NAME(ch), GET_NAME(vict), GET_NAME(ch->get_fighting()));
+		log("SYSERR: set_fighting(%s->%s) when already fighting(%s)...",
+			GET_NAME(ch), GET_NAME(vict), GET_NAME(FIGHTING(ch)));
 		// core_dump();
 		return;
 	}
@@ -465,13 +466,13 @@ void start_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (AFF_FLAGGED(ch, AFF_SLEEP))
 		affect_from_char(ch, SPELL_SLEEP);
-	ch->set_fighting(vict);
+	FIGHTING(ch) = vict;
 	NUL_AF_BATTLE(ch);
-	ch->set_protecting(0);
-	ch->set_touching(0);
+	PROTECTING(ch) = 0;
+	TOUCHING(ch) = 0;
 	INITIATIVE(ch) = 0;
 	BATTLECNTR(ch) = 0;
-	ch->set_extra_attack(0, 0);
+	SET_EXTRA(ch, 0, NULL);
 	set_battle_pos(ch);
 	/* Set combat style */
 	if (!AFF_FLAGGED(ch, AFF_COURAGE) && !AFF_FLAGGED(ch, AFF_DRUNKED) && !AFF_FLAGGED(ch, AFF_ABSTINENT))
@@ -498,13 +499,13 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	if (ch->last_comm != NULL)
 		free(ch->last_comm);
 	ch->last_comm = NULL;
-	ch->set_protecting(0);
-	ch->set_touching(0);
-	ch->set_fighting(0);
+	PROTECTING(ch) = NULL;
+	TOUCHING(ch) = NULL;
+	FIGHTING(ch) = NULL;
 	INITIATIVE(ch) = 0;
 	BATTLECNTR(ch) = 0;
-	ch->set_extra_attack(0, 0);
-	ch->set_cast(0, 0, 0, 0, 0);
+	SET_EXTRA(ch, 0, NULL);
+	SET_CAST(ch, 0, 0, NULL, NULL, NULL);
 	restore_battle_pos(ch);
 	NUL_AF_BATTLE(ch);
 	// sprintf(buf,"[Stop fighting] %s - %s\r\n",GET_NAME(ch),switch_others ? "switching" : "no switching");
@@ -513,28 +514,28 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 
 	for (temp = combat_list; temp; temp = temp->next_fighting)
 	{
-		if (temp->get_protecting() == ch)
+		if (PROTECTING(temp) == ch)
 		{
-			temp->set_protecting(0);
+			PROTECTING(temp) = NULL;
 			CLR_AF_BATTLE(temp, EAF_PROTECT);
 		}
-		if (temp->get_touching() == ch)
+		if (TOUCHING(temp) == ch)
 		{
-			temp->set_touching(0);
+			TOUCHING(temp) = NULL;
 			CLR_AF_BATTLE(temp, EAF_TOUCH);
 		}
-		if (temp->get_extra_victim() == ch)
-			temp->set_extra_attack(0, 0);
-		if (temp->get_cast_char() == ch)
-			temp->set_cast(0, 0, 0, 0, 0);
-		if (temp->get_fighting() == ch && switch_others)
+		if (GET_EXTRA_VICTIM(temp) == ch)
+			SET_EXTRA(temp, 0, NULL);
+		if (GET_CAST_CHAR(temp) == ch)
+			SET_CAST(temp, 0, 0, NULL, NULL, NULL);
+		if (FIGHTING(temp) == ch && switch_others)
 		{
 			log("[Stop fighting] %s : Change victim for fighting", GET_NAME(temp));
 			for (found = combat_list; found; found = found->next_fighting)
-				if (found != ch && found->get_fighting() == temp)
+				if (found != ch && FIGHTING(found) == temp)
 				{
 					act("Вы переключили свое внимание на $N3.", FALSE, temp, 0, found, TO_CHAR);
-					temp->set_fighting(found);
+					FIGHTING(temp) = found;
 					break;
 				}
 			if (!found)
@@ -545,7 +546,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	update_pos(ch);
 
 	/* проверка скилла "железный ветер" - снимаем флаг по окончанию боя */
-	if ((ch->get_fighting() == NULL) && IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	if ((FIGHTING(ch) == NULL) && IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
 	{
 		REMOVE_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
 		if (GET_POS(ch) > POS_INCAP)
@@ -761,11 +762,11 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 	char obj[256];
 
 
-	if (ch->get_fighting())
+	if (FIGHTING(ch))
 		stop_fighting(ch, TRUE);
 
 	for (hitter = combat_list; hitter; hitter = hitter->next_fighting)
-		if (hitter->get_fighting() == ch)
+		if (FIGHTING(hitter) == ch)
 			WAIT_STATE(hitter, 0);
 
 	reset_affects(ch);
@@ -780,7 +781,7 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 				&& ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA))
 		{
 			make_arena_corpse(ch, killer);
-			ch->clear_battle_list();
+			change_fighting(ch, TRUE);
 //          FORGET_ALL(ch);
 			GET_HIT(ch) = 1;
 			GET_POS(ch) = POS_SITTING;
@@ -2533,16 +2534,16 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 
 	if (victim != ch)  	//**************** Start the attacker fighting the victim
 	{
-		if (GET_POS(ch) > POS_STUNNED && (ch->get_fighting() == NULL))
+		if (GET_POS(ch) > POS_STUNNED && (FIGHTING(ch) == NULL))
 		{
 			pk_agro_action(ch, victim);
-			start_fighting(ch, victim);
+			set_fighting(ch, victim);
 			npc_groupbattle(ch);
 		}
 		//***************** Start the victim fighting the attacker
-		if (GET_POS(victim) > POS_STUNNED && (victim->get_fighting() == NULL))
+		if (GET_POS(victim) > POS_STUNNED && (FIGHTING(victim) == NULL))
 		{
-			start_fighting(victim, ch);
+			set_fighting(victim, ch);
 			npc_groupbattle(victim);
 		}
 	}
@@ -2727,7 +2728,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		return dam;
 
 	// *********** Stop someone from fighting if they're stunned or worse
-	if ((GET_POS(victim) <= POS_STUNNED) && (victim->get_fighting() != NULL))
+	if ((GET_POS(victim) <= POS_STUNNED) && (FIGHTING(victim) != NULL))
 	{
 		stop_fighting(victim, GET_POS(victim) <= POS_DEAD);
 	}
@@ -2753,7 +2754,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 					CHAR_DATA *attacker;
 					for (attacker = world[IN_ROOM(victim)]->people; attacker;
 							attacker = attacker->next_in_room)
-						if (attacker->get_fighting() == victim)
+						if (FIGHTING(attacker) == victim)
 							killer = attacker;
 				}
 			}
@@ -2846,7 +2847,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 //      }
 		return (-1);
 	}
-	if (FS_damage && victim->get_fighting() && GET_POS(victim) > POS_STUNNED
+	if (FS_damage && FIGHTING(victim) && GET_POS(victim) > POS_STUNNED
 			&& IN_ROOM(victim) != NOWHERE && attacktype != SKILL_TURN_UNDEAD + TYPE_HIT)
 		damage(victim, ch, FS_damage, SPELL_FIRE_SHIELD, FALSE);
 	return (dam);
@@ -2861,7 +2862,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 */
 void addshot_damage(CHAR_DATA * ch, int type, int weapon)
 {
-	int prob = train_skill(ch, SKILL_ADDSHOT, skill_info[SKILL_ADDSHOT].max_percent, ch->get_fighting());
+	int prob = train_skill(ch, SKILL_ADDSHOT, skill_info[SKILL_ADDSHOT].max_percent, FIGHTING(ch));
 
 	// ловка роляет только выше 21 (стартовый максимум охота) и до 50
 	float dex_mod = static_cast<float>(MAX(GET_REAL_DEX(ch) - 21, 0)) / 29;
@@ -2889,22 +2890,22 @@ void addshot_damage(CHAR_DATA * ch, int type, int weapon)
 	int percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
 	// 1й доп - не более 100% при скилее 100+
 	if (prob * sit_mod >= percent / 2)
-		hit(ch, ch->get_fighting(), type, weapon);
+		hit(ch, FIGHTING(ch), type, weapon);
 
 	percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
 	// 2й доп - 60% при скилле 100, до 100% при максимуме скилла и дексы
-	if ((prob * 3 + skill_mod * 100 + dex_mod * 100) * sit_mod > percent * 5 / 2 && ch->get_fighting())
-		hit(ch, ch->get_fighting(), type, weapon);
+	if ((prob * 3 + skill_mod * 100 + dex_mod * 100) * sit_mod > percent * 5 / 2 && FIGHTING(ch))
+		hit(ch, FIGHTING(ch), type, weapon);
 
 	percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
 	// 3й доп - 30% при скилле 100, до 70% при максимуме скилла и дексы (при 5+ мортов)
-	if ((prob * 3 + skill_mod * 200 + dex_mod * 200) * remort_mod * sit_mod > percent * 5 && ch->get_fighting())
-		hit(ch, ch->get_fighting(), type, weapon);
+	if ((prob * 3 + skill_mod * 200 + dex_mod * 200) * remort_mod * sit_mod > percent * 5 && FIGHTING(ch))
+		hit(ch, FIGHTING(ch), type, weapon);
 
 	percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
 	// 4й доп - 10% при скилле 100, до 30% при максимуме скилла и дексы (при 5+ мортов)
-	if ((prob + skill_mod * 100 + dex_mod * 100) * remort_mod * sit_mod > percent * 5 && ch->get_fighting())
-		hit(ch, ch->get_fighting(), type, weapon);
+	if ((prob + skill_mod * 100 + dex_mod * 100) * remort_mod * sit_mod > percent * 5 && FIGHTING(ch))
+		hit(ch, FIGHTING(ch), type, weapon);
 }
 
 /**** This function realize second shot for bows *******/
@@ -2952,7 +2953,7 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 				}
 			}
 			else
-				mag_damage(GET_LEVEL(ch), ch, ch->get_fighting(),
+				mag_damage(GET_LEVEL(ch), ch, FIGHTING(ch),
 						   SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_CRITICAL);
 			return;
 		}
@@ -2975,7 +2976,7 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 		if (can_use_feat(ch, DOUBLESHOT_FEAT) && !ch->get_skill(SKILL_ADDSHOT)
 				&& MIN(850, 200 + ch->get_skill(SKILL_BOWS) * 4 + GET_REAL_DEX(ch) * 5) >= number(1, 1000))
 		{
-			hit(ch, ch->get_fighting(), type, weapon);
+			hit(ch, FIGHTING(ch), type, weapon);
 			prob = 0;
 		}
 		else if (ch->get_skill(SKILL_ADDSHOT) > 0)
@@ -3007,7 +3008,7 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 	};
 	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
 	{
-		(void) train_skill(ch, SKILL_IRON_WIND, skill_info[SKILL_IRON_WIND].max_percent, ch->get_fighting());
+		(void) train_skill(ch, SKILL_IRON_WIND, skill_info[SKILL_IRON_WIND].max_percent, FIGHTING(ch));
 		if (weapon == RIGHT_WEAPON)
 		{
 			div = 100 + MIN(80, MAX(1, percent - 80));
@@ -3021,12 +3022,12 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 		while (div > 0)
 		{
 			if (number(1, 100) < div)
-				hit(ch, ch->get_fighting(), type, weapon);
+				hit(ch, FIGHTING(ch), type, weapon);
 			div -= prob;
 		};
 	};
 
-	hit(ch, ch->get_fighting(), type, weapon);
+	hit(ch, FIGHTING(ch), type, weapon);
 }
 
 // бонусы/штрафы классам за юзание определенных видов оружия
@@ -3440,14 +3441,14 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 	/* Do some sanity checking, in case someone flees, etc. */
 	if (IN_ROOM(ch) != IN_ROOM(victim) || IN_ROOM(ch) == NOWHERE)
 	{
-		if (ch->get_fighting() && ch->get_fighting() == victim)
+		if (FIGHTING(ch) && FIGHTING(ch) == victim)
 			stop_fighting(ch, TRUE);
 		return;
 	}
 
 	/* Stand awarness mobs */
 	if (CAN_SEE(victim, ch) &&
-			!victim->get_fighting() &&
+			!FIGHTING(victim) &&
 			((IS_NPC(victim) &&
 			  (GET_HIT(victim) < GET_MAX_HIT(victim) ||
 			   MOB_FLAGGED(victim, MOB_AWARE))) ||
@@ -3482,7 +3483,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 	{
 		if ((train_skill
 				(ch, SKILL_NOPARRYHIT, skill_info[SKILL_NOPARRYHIT].max_percent,
-				 ch->get_fighting()) >= number(1, skill_info[SKILL_NOPARRYHIT].max_percent)) || WAITLESS(ch))
+				 FIGHTING(ch)) >= number(1, skill_info[SKILL_NOPARRYHIT].max_percent)) || WAITLESS(ch))
 		{
 			type = TYPE_NOPARRY;
 		}
@@ -4133,7 +4134,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 					!GET_AF_BATTLE(ch, EAF_MIGHTHIT) &&
 					!GET_AF_BATTLE(ch, EAF_STUPOR); vict = vict->next_in_room)
 			{
-				if (vict->get_touching() == ch &&
+				if (TOUCHING(vict) == ch &&
 						!AFF_FLAGGED(vict, AFF_STOPFIGHT) &&
 						!AFF_FLAGGED(vict, AFF_MAGICSTOPFIGHT) &&
 						!AFF_FLAGGED(vict, AFF_STOPRIGHT) &&
@@ -4153,7 +4154,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 						percent = 0;
 					CLR_AF_BATTLE(vict, EAF_TOUCH);
 					SET_AF_BATTLE(vict, EAF_USEDRIGHT);
-					vict->set_touching(0);
+					TOUCHING(vict) = NULL;
 					if (prob < percent)
 					{
 						act("Вы не смогли перехватить атаку $N1.", FALSE, vict, 0, ch, TO_CHAR);
@@ -4474,11 +4475,11 @@ int in_same_battle(CHAR_DATA * npc, CHAR_DATA * pc, int opponent)
 
 	if (npc == pc)
 		return (!opponent);
-	if (npc->get_fighting() == pc)	// NPC fight PC - opponent
+	if (FIGHTING(npc) == pc)	// NPC fight PC - opponent
 		return (opponent);
-	if (pc->get_fighting() == npc)	// PC fight NPC - opponent
+	if (FIGHTING(pc) == npc)	// PC fight NPC - opponent
 		return (opponent);
-	if (npc->get_fighting() && npc->get_fighting() == pc->get_fighting())
+	if (FIGHTING(npc) && FIGHTING(npc) == FIGHTING(pc))
 		return (!opponent);	// Fight same victim - friend
 	if (AFF_FLAGGED(pc, AFF_HORSE) || AFF_FLAGGED(pc, AFF_CHARM))
 		return (opponent);
@@ -4488,7 +4489,7 @@ int in_same_battle(CHAR_DATA * npc, CHAR_DATA * pc, int opponent)
 
 	for (ch = world[IN_ROOM(npc)]->people; ch; ch = ch->next)
 	{
-		if (!ch->get_fighting())
+		if (!FIGHTING(ch))
 			continue;
 		ch_master = ch->master ? ch->master : ch;
 		ch_friend_npc = (ch_master == npc_master) ||
@@ -4499,15 +4500,15 @@ int in_same_battle(CHAR_DATA * npc, CHAR_DATA * pc, int opponent)
 					   (IS_NPC(ch) && IS_NPC(pc) &&
 						!AFF_FLAGGED(ch, AFF_CHARM) && !AFF_FLAGGED(pc, AFF_CHARM) &&
 						!AFF_FLAGGED(ch, AFF_HORSE) && !AFF_FLAGGED(pc, AFF_HORSE));
-		if (ch->get_fighting() == pc && ch_friend_npc)	// Friend NPC fight PC - opponent
+		if (FIGHTING(ch) == pc && ch_friend_npc)	// Friend NPC fight PC - opponent
 			return (opponent);
-		if (pc->get_fighting() == ch && ch_friend_npc)	// PC fight friend NPC - opponent
+		if (FIGHTING(pc) == ch && ch_friend_npc)	// PC fight friend NPC - opponent
 			return (opponent);
-		if (npc->get_fighting() == ch && ch_friend_pc)	// NPC fight friend PC - opponent
+		if (FIGHTING(npc) == ch && ch_friend_pc)	// NPC fight friend PC - opponent
 			return (opponent);
-		if (ch->get_fighting() == npc && ch_friend_pc)	// Friend PC fight NPC - opponent
+		if (FIGHTING(ch) == npc && ch_friend_pc)	// Friend PC fight NPC - opponent
 			return (opponent);
-		vict = ch->get_fighting();
+		vict = FIGHTING(ch);
 		vict_master = vict->master ? vict->master : vict;
 		vict_friend_npc = (vict_master == npc_master) ||
 						  (IS_NPC(vict) && IS_NPC(npc) &&
@@ -4557,7 +4558,7 @@ CHAR_DATA *find_friend_cure(CHAR_DATA * caster, int spellnum)
 //         !IS_NPC(caster->master)                    &&
 				 CAN_SEE(caster, caster->master) &&
 				 IN_ROOM(caster->master) == IN_ROOM(caster) &&
-				 caster->master->get_fighting() && GET_HP_PERC(caster->master) < AFF_USED)
+				 FIGHTING(caster->master) && GET_HP_PERC(caster->master) < AFF_USED)
 			return (caster->master);
 		return (NULL);
 	}
@@ -4568,7 +4569,7 @@ CHAR_DATA *find_friend_cure(CHAR_DATA * caster, int spellnum)
 				&& (vict->master && !IS_NPC(vict->master)))
 				|| !CAN_SEE(caster, vict))
 			continue;
-		if (!vict->get_fighting() && !MOB_FLAGGED(vict, MOB_HELPER))
+		if (!FIGHTING(vict) && !MOB_FLAGGED(vict, MOB_HELPER))
 			continue;
 		if (GET_HP_PERC(vict) < AFF_USED && (!victim || vict_val > GET_HP_PERC(vict)))
 		{
@@ -4612,7 +4613,9 @@ CHAR_DATA *find_friend(CHAR_DATA * caster, int spellnum)
 		if (AFF_FLAGGED(caster, AFF_USED) || affected_by_spell(caster, spellreal))
 			return (caster);
 		else if (caster->master &&
+//         !IS_NPC(caster->master)                    &&
 				 CAN_SEE(caster, caster->master) && IN_ROOM(caster->master) == IN_ROOM(caster) &&
+//         FIGHTING(caster->master)                   &&
 				 (AFF_FLAGGED(caster->master, AFF_USED) || affected_by_spell(caster->master, spellreal)))
 			return (caster->master);
 		return (NULL);
@@ -4626,7 +4629,7 @@ CHAR_DATA *find_friend(CHAR_DATA * caster, int spellnum)
 			continue;
 		if (!AFF_FLAGGED(vict, AFF_USED))
 			continue;
-		if (!vict->get_fighting() && !MOB_FLAGGED(vict, MOB_HELPER))
+		if (!FIGHTING(vict) && !MOB_FLAGGED(vict, MOB_HELPER))
 			continue;
 		if (!victim || vict_val < GET_MAXDAMAGE(vict))
 		{
@@ -4671,7 +4674,9 @@ CHAR_DATA *find_caster(CHAR_DATA * caster, int spellnum)
 		if (AFF_FLAGGED(caster, AFF_USED) || affected_by_spell(caster, spellreal))
 			return (caster);
 		else if (caster->master &&
+//         !IS_NPC(caster->master)                    &&
 				 CAN_SEE(caster, caster->master) && IN_ROOM(caster->master) == IN_ROOM(caster) &&
+//         FIGHTING(caster->master)                   &&
 				 (AFF_FLAGGED(caster->master, AFF_USED) || affected_by_spell(caster->master, spellreal)))
 			return (caster->master);
 		return (NULL);
@@ -4685,7 +4690,7 @@ CHAR_DATA *find_caster(CHAR_DATA * caster, int spellnum)
 			continue;
 		if (!AFF_FLAGGED(vict, AFF_USED))
 			continue;
-		if (!vict->get_fighting() && !MOB_FLAGGED(vict, MOB_HELPER))
+		if (!FIGHTING(vict) && !MOB_FLAGGED(vict, MOB_HELPER))
 			continue;
 		if (!victim || vict_val < GET_MAXCASTER(vict))
 		{
@@ -4725,7 +4730,7 @@ CHAR_DATA *find_affectee(CHAR_DATA * caster, int spellnum)
 //         !IS_NPC(caster->master)                    &&
 				 CAN_SEE(caster, caster->master) &&
 				 IN_ROOM(caster->master) == IN_ROOM(caster) &&
-				 caster->master->get_fighting() && !affected_by_spell(caster->master, spellreal))
+				 FIGHTING(caster->master) && !affected_by_spell(caster->master, spellreal))
 			return (caster->master);
 		return (NULL);
 	}
@@ -4738,7 +4743,7 @@ CHAR_DATA *find_affectee(CHAR_DATA * caster, int spellnum)
 						&& !IS_NPC(vict->master)))
 					|| !CAN_SEE(caster, vict))
 				continue;
-			if (!vict->get_fighting() || AFF_FLAGGED(vict, AFF_HOLD) || affected_by_spell(vict, spellreal))
+			if (!FIGHTING(vict) || AFF_FLAGGED(vict, AFF_HOLD) || affected_by_spell(vict, spellreal))
 				continue;
 			if (!victim || vict_val < GET_MAXDAMAGE(vict))
 			{
@@ -4776,7 +4781,7 @@ CHAR_DATA *find_opp_affectee(CHAR_DATA * caster, int spellnum)
 																		 && !IS_NPC(vict->master))))
 					|| !CAN_SEE(caster, vict))
 				continue;
-			if ((!vict->get_fighting()
+			if ((!FIGHTING(vict)
 					&& (GET_REAL_INT(caster) < number(20, 27)
 						|| !in_same_battle(caster, vict, TRUE)))
 					|| AFF_FLAGGED(vict, AFF_HOLD)
@@ -4789,9 +4794,9 @@ CHAR_DATA *find_opp_affectee(CHAR_DATA * caster, int spellnum)
 			}
 		}
 
-	if (!victim && caster->get_fighting()
-			&& !affected_by_spell(caster->get_fighting(), spellreal))
-		victim = caster->get_fighting();
+	if (!victim && FIGHTING(caster)
+			&& !affected_by_spell(FIGHTING(caster), spellreal))
+		victim = FIGHTING(caster);
 	return (victim);
 }
 
@@ -4807,11 +4812,11 @@ CHAR_DATA *find_opp_caster(CHAR_DATA * caster)
 				!(MOB_FLAGGED(vict, MOB_ANGEL)
 				  && (vict->master && !IS_NPC(vict->master))))
 			continue;
-		if ((!vict->get_fighting()
+		if ((!FIGHTING(vict)
 				&& (GET_REAL_INT(caster) < number(15, 25)
 					|| !in_same_battle(caster, vict, TRUE)))
 				|| AFF_FLAGGED(vict, AFF_HOLD) || AFF_FLAGGED(vict, AFF_SIELENCE)
-				|| (!CAN_SEE(caster, vict) && caster->get_fighting() != vict))
+				|| (!CAN_SEE(caster, vict) && FIGHTING(caster) != vict))
 			continue;
 		if (vict_val < GET_MAXCASTER(vict))
 		{
@@ -4835,7 +4840,7 @@ CHAR_DATA *find_damagee(CHAR_DATA * caster)
 																		 && !IS_NPC(vict->master))))
 					|| !CAN_SEE(caster, vict))
 				continue;
-			if ((!vict->get_fighting()
+			if ((!FIGHTING(vict)
 					&& (GET_REAL_INT(caster) < number(20, 27)
 						|| !in_same_battle(caster, vict, TRUE)))
 					|| AFF_FLAGGED(vict, AFF_HOLD))
@@ -4855,7 +4860,7 @@ CHAR_DATA *find_damagee(CHAR_DATA * caster)
 			}
 		}
 	if (!victim)
-		victim = caster->get_fighting();
+		victim = FIGHTING(caster);
 
 	return (victim);
 }
@@ -4873,7 +4878,7 @@ CHAR_DATA *find_minhp(CHAR_DATA * caster)
 																		 && !IS_NPC(vict->master))))
 					|| !CAN_SEE(caster, vict))
 				continue;
-			if (!vict->get_fighting() && (GET_REAL_INT(caster) < number(20, 27)
+			if (!FIGHTING(vict) && (GET_REAL_INT(caster) < number(20, 27)
 									|| !in_same_battle(caster, vict, TRUE)))
 				continue;
 			if (!victim || vict_val > GET_HIT(vict))
@@ -4883,7 +4888,7 @@ CHAR_DATA *find_minhp(CHAR_DATA * caster)
 			}
 		}
 	if (!victim)
-		victim = caster->get_fighting();
+		victim = FIGHTING(caster);
 
 	return (victim);
 }
@@ -4966,6 +4971,8 @@ void mob_casting(CHAR_DATA * ch)
 		if (!spellnum && (spellnum = battle_spells[(sp_num = number(0, spells - 1))])
 				&& spellnum > 0 && spellnum <= MAX_SPELLS)  	// sprintf(buf,"$n using spell '%s', %d from %d",
 		{
+			//         spell_name(spellnum), sp_num, spells);
+			// act(buf,FALSE,ch,0,FIGHTING(ch),TO_VICT);
 			if (spell_info[spellnum].routines & NPC_DAMAGE_PC_MINHP)
 			{
 				if (!AFF_FLAGGED(ch, AFF_CHARM))
@@ -5061,7 +5068,7 @@ void perform_violence(void)
 	{
 		next_combat_list = ch->next_fighting;
 		// Extract battler if no opponent
-		if (ch->get_fighting() == NULL || IN_ROOM(ch) != IN_ROOM(ch->get_fighting()) || IN_ROOM(ch) == NOWHERE)
+		if (FIGHTING(ch) == NULL || IN_ROOM(ch) != IN_ROOM(FIGHTING(ch)) || IN_ROOM(ch) == NOWHERE)
 		{
 			stop_fighting(ch, TRUE);
 			continue;
@@ -5075,7 +5082,7 @@ void perform_violence(void)
 				AFF_FLAGGED(ch, AFF_STOPFIGHT) || AFF_FLAGGED(ch, AFF_SIELENCE))
 			continue;
 
-		if (!PRF_FLAGGED(ch->get_fighting(), PRF_NOHASSLE))
+		if (!PRF_FLAGGED(FIGHTING(ch), PRF_NOHASSLE))
 			for (sk_use = 0, helpee = GET_HELPER(ch); helpee; helpee = helpee->next_helper)
 				for (vict = character_list; vict; vict = vict->next)
 				{
@@ -5086,7 +5093,7 @@ void perform_violence(void)
 							AFF_FLAGGED(vict, AFF_CHARM) ||
 							AFF_FLAGGED(vict, AFF_BLIND) ||
 							GET_WAIT(vict) > 0 ||
-							GET_POS(vict) < POS_STANDING || IN_ROOM(vict) == NOWHERE || vict->get_fighting())
+							GET_POS(vict) < POS_STANDING || IN_ROOM(vict) == NOWHERE || FIGHTING(vict))
 						continue;
 					if (!sk_use &&
 							!(GET_CLASS(ch) == CLASS_ANIMAL || GET_CLASS(ch) == CLASS_BASIC_NPC))
@@ -5102,7 +5109,7 @@ void perform_violence(void)
 					else
 						act("$n вступил$g в битву на стороне $N1.", FALSE, vict, 0,
 							ch, TO_ROOM);
-					start_fighting(vict, ch->get_fighting());
+					set_fighting(vict, FIGHTING(ch));
 				};
 	}
 
@@ -5129,13 +5136,13 @@ void perform_violence(void)
 				k_next = k->next;
 				if (AFF_FLAGGED(k->follower, AFF_HELPER) &&
 						MOB_FLAGGED(k->follower, MOB_ANGEL) &&
-						!k->follower->get_fighting() &&
+						!FIGHTING(k->follower) &&
 						IN_ROOM(k->follower) == IN_ROOM(ch) &&
 						CAN_SEE(k->follower, ch) && AWAKE(k->follower) &&
 						MAY_ACT(k->follower) && GET_POS(k->follower) >= POS_FIGHTING)
 				{
 					for (vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next_in_room)
-						if (vict->get_fighting() == ch && vict != ch && vict != k->follower)
+						if (FIGHTING(vict) == ch && vict != ch && vict != k->follower)
 							break;
 					if (vict && k->follower->get_skill(SKILL_RESCUE))  	//if(GET_MOB_VNUM(k->follower)==108)
 					{
@@ -5298,7 +5305,7 @@ void perform_violence(void)
 					AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT) || AFF_FLAGGED(ch, AFF_STOPFIGHT) || !AWAKE(ch))
 				continue;
 			// If mob cast 'fear', 'teleport', 'recall', etc when initiative setted
-			if (!ch->get_fighting() || IN_ROOM(ch) != IN_ROOM(ch->get_fighting()))
+			if (!FIGHTING(ch) || IN_ROOM(ch) != IN_ROOM(FIGHTING(ch)))
 				continue;
 
 			if (IS_NPC(ch))  	// Select extra_attack type
@@ -5316,7 +5323,7 @@ void perform_violence(void)
 				// Cast spells
 				if (MAY_LIKES(ch))
 					mob_casting(ch);
-				if (!ch->get_fighting() || IN_ROOM(ch) != IN_ROOM(ch->get_fighting()) || AFF_FLAGGED(ch, AFF_HOLD) ||	// mob_casting мог от зеркала отразиться
+				if (!FIGHTING(ch) || IN_ROOM(ch) != IN_ROOM(FIGHTING(ch)) || AFF_FLAGGED(ch, AFF_HOLD) ||	// mob_casting мог от зеркала отразиться
 						AFF_FLAGGED(ch, AFF_STOPFIGHT) || !AWAKE(ch) || AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))
 					continue;
 
@@ -5326,7 +5333,7 @@ void perform_violence(void)
 						MAY_ACT(ch) && GET_POS(ch) >= POS_FIGHTING)
 				{
 					for (vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next_in_room)
-						if (vict->get_fighting() == ch->master && vict != ch && vict != ch->master)
+						if (FIGHTING(vict) == ch->master && vict != ch && vict != ch->master)
 							break;
 					if (vict && (ch->get_skill(SKILL_RESCUE)	// бред какой-то || GET_REAL_INT(ch) < number(0,100)
 								))  	//if(GET_MOB_VNUM(ch)==108 && ch->master)
@@ -5338,13 +5345,17 @@ void perform_violence(void)
 						go_protect(ch, ch->master);
 				}
 				else if (!AFF_FLAGGED(ch, AFF_CHARM))
-					for (sk_num = 0, sk_use = GET_REAL_INT(ch);
+					for (sk_num = 0, sk_use = GET_REAL_INT(ch)
+											  /*,sprintf(buf,"{%d}-{%d}\r\n",sk_use,GET_WAIT(ch)) */
+											  /*,send_to_char(buf,FIGHTING(ch)) */ ;
 							MAY_LIKES(ch) && sk_use > 0; sk_use--)
 					{
 						do_this = number(0, 100);
 						if (do_this > GET_LIKES(ch))
 							continue;
 						do_this = number(0, 100);
+						//sprintf(buf,"<%d>\r\n",do_this);
+						//send_to_char(buf,FIGHTING(ch));
 						if (do_this < 10)
 							sk_num = SKILL_BASH;
 						else if (do_this < 20)
@@ -5355,7 +5366,7 @@ void perform_violence(void)
 							sk_num = SKILL_PROTECT;
 						else if (do_this < 50)
 							sk_num = SKILL_RESCUE;
-						else if (do_this < 60 && !ch->get_touching())
+						else if (do_this < 60 && !TOUCHING(ch))
 							sk_num = SKILL_TOUCH;
 						else if (do_this < 70)
 							sk_num = SKILL_CHOPOFF;
@@ -5365,6 +5376,8 @@ void perform_violence(void)
 							sk_num = 0;
 						if (!sk_num)
 							continue;
+						//else
+						//   act("Victim prepare to skill '$F'.",FALSE,FIGHTING(ch),0,skill_name(sk_num),TO_CHAR);
 						/* Если умеет метать и вооружен метательным, то должен метнуть */
 						if (GET_EQ(ch, WEAR_WIELD))
 							if (OBJ_FLAGGED(GET_EQ(ch, WEAR_WIELD), ITEM_THROWING))
@@ -5374,7 +5387,7 @@ void perform_violence(void)
 						if (sk_num == SKILL_TOUCH)
 						{
 							sk_use = 0;
-							go_touch(ch, ch->get_fighting());
+							go_touch(ch, FIGHTING(ch));
 						}
 
 						if (sk_num == SKILL_THROW)
@@ -5417,7 +5430,7 @@ void perform_violence(void)
 							for (attacker = world[IN_ROOM(ch)]->people;
 									attacker; attacker = attacker->next_in_room)
 							{
-								vict = attacker->get_fighting();	// выяснение жертвы
+								vict = FIGHTING(attacker);	// выяснение жертвы
 								if (!vict ||	// жертвы нет
 										(!IS_NPC(vict) || AFF_FLAGGED(vict, AFF_CHARM) || AFF_FLAGGED(vict, AFF_HELPER)) ||	// жертва - не моб
 										(IS_NPC(attacker) &&
@@ -5464,8 +5477,8 @@ void perform_violence(void)
 							damager = NULL;
 							if (GET_REAL_INT(ch) < number(15, 25))
 							{
-								caster = ch->get_fighting();
-								damager = ch->get_fighting();
+								caster = FIGHTING(ch);
+								damager = FIGHTING(ch);
 							}
 							else
 							{
@@ -5474,7 +5487,7 @@ void perform_violence(void)
 								{
 									if ((IS_NPC(vict)
 											&& !AFF_FLAGGED(vict, AFF_CHARM))
-											|| !vict->get_fighting())
+											|| !FIGHTING(vict))
 										continue;
 									if ((AFF_FLAGGED(vict, AFF_HOLD)
 											&& GET_POS(vict) < POS_FIGHTING)
@@ -5493,7 +5506,7 @@ void perform_violence(void)
 								}
 							}
 							if (caster &&
-									(CAN_SEE(ch, caster) || ch->get_fighting() == caster) &&
+									(CAN_SEE(ch, caster) || FIGHTING(ch) == caster) &&
 									GET_CASTER(caster) > POOR_CASTER &&
 									(sk_num == SKILL_BASH || sk_num == SKILL_CHOPOFF))
 							{
@@ -5520,7 +5533,7 @@ void perform_violence(void)
 							}
 							if (sk_use &&
 									damager &&
-									(CAN_SEE(ch, damager) || ch->get_fighting() == damager))
+									(CAN_SEE(ch, damager) || FIGHTING(ch) == damager))
 							{
 								if (sk_num == SKILL_BASH)
 								{
@@ -5581,14 +5594,14 @@ void perform_violence(void)
 							}
 						}
 
-						if (sk_num == SKILL_KICK && !on_horse(ch->get_fighting()))
+						if (sk_num == SKILL_KICK && !on_horse(FIGHTING(ch)))
 						{
 							sk_use = 0;
-							go_kick(ch, ch->get_fighting());
+							go_kick(ch, FIGHTING(ch));
 						}
 					}
 
-				if (!ch->get_fighting() || IN_ROOM(ch) != IN_ROOM(ch->get_fighting()))
+				if (!FIGHTING(ch) || IN_ROOM(ch) != IN_ROOM(FIGHTING(ch)))
 					continue;
 
 				/***** удар основным оружием или рукой */
@@ -5617,17 +5630,18 @@ void perform_violence(void)
 					CLR_AF_BATTLE(ch, EAF_STAND);
 				}
 
-				if (ch->get_cast_spell() && GET_WAIT(ch) <= 0)
+				if (GET_CAST_SPELL(ch) && GET_WAIT(ch) <= 0)
 				{
 					if (AFF_FLAGGED(ch, AFF_SIELENCE))
 						send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 					else
 					{
-						cast_spell(ch, ch->get_cast_char(), ch->get_cast_obj(), 0, ch->get_cast_spell(), ch->get_cast_subst());
+						cast_spell(ch, GET_CAST_CHAR(ch), GET_CAST_OBJ(ch),
+								   0, GET_CAST_SPELL(ch), GET_CAST_SUBST(ch));
 						if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)
 								|| CHECK_WAIT(ch)))
 							WAIT_STATE(ch, PULSE_VIOLENCE);
-						ch->set_cast(0, 0, 0, 0, 0);
+						SET_CAST(ch, 0, 0, NULL, NULL, NULL);
 					}
 					if (INITIATIVE(ch) > min_init)
 					{
@@ -5639,10 +5653,10 @@ void perform_violence(void)
 				if (GET_AF_BATTLE(ch, EAF_MULTYPARRY))
 					continue;
 
-				if (ch->get_extra_skill() == SKILL_THROW && ch->get_extra_victim() && GET_WAIT(ch) <= 0)
+				if (GET_EXTRA_SKILL(ch) == SKILL_THROW && GET_EXTRA_VICTIM(ch) && GET_WAIT(ch) <= 0)
 				{
-					go_throw(ch, ch->get_extra_victim());
-					ch->set_extra_attack(0, 0);
+					go_throw(ch, GET_EXTRA_VICTIM(ch));
+					SET_EXTRA(ch, 0, NULL);
 					if (INITIATIVE(ch) > min_init)
 					{
 						INITIATIVE(ch)--;
@@ -5651,10 +5665,10 @@ void perform_violence(void)
 				}
 
 
-				if (ch->get_extra_skill() == SKILL_BASH && ch->get_extra_victim() && GET_WAIT(ch) <= 0)
+				if (GET_EXTRA_SKILL(ch) == SKILL_BASH && GET_EXTRA_VICTIM(ch) && GET_WAIT(ch) <= 0)
 				{
-					go_bash(ch, ch->get_extra_victim());
-					ch->set_extra_attack(0, 0);
+					go_bash(ch, GET_EXTRA_VICTIM(ch));
+					SET_EXTRA(ch, 0, NULL);
 					if (INITIATIVE(ch) > min_init)
 					{
 						INITIATIVE(ch)--;
@@ -5662,10 +5676,10 @@ void perform_violence(void)
 					}
 				}
 
-				if (ch->get_extra_skill() == SKILL_KICK && ch->get_extra_victim() && GET_WAIT(ch) <= 0)
+				if (GET_EXTRA_SKILL(ch) == SKILL_KICK && GET_EXTRA_VICTIM(ch) && GET_WAIT(ch) <= 0)
 				{
-					go_kick(ch, ch->get_extra_victim());
-					ch->set_extra_attack(0, 0);
+					go_kick(ch, GET_EXTRA_VICTIM(ch));
+					SET_EXTRA(ch, 0, NULL);
 					if (INITIATIVE(ch) > min_init)
 					{
 						INITIATIVE(ch)--;
@@ -5673,10 +5687,10 @@ void perform_violence(void)
 					}
 				}
 
-				if (ch->get_extra_skill() == SKILL_CHOPOFF && ch->get_extra_victim() && GET_WAIT(ch) <= 0)
+				if (GET_EXTRA_SKILL(ch) == SKILL_CHOPOFF && GET_EXTRA_VICTIM(ch) && GET_WAIT(ch) <= 0)
 				{
-					go_chopoff(ch, ch->get_extra_victim());
-					ch->set_extra_attack(0, 0);
+					go_chopoff(ch, GET_EXTRA_VICTIM(ch));
+					SET_EXTRA(ch, 0, NULL);
 					if (INITIATIVE(ch) > min_init)
 					{
 						INITIATIVE(ch)--;
@@ -5684,10 +5698,10 @@ void perform_violence(void)
 					}
 				}
 
-				if (ch->get_extra_skill() == SKILL_DISARM && ch->get_extra_victim() && GET_WAIT(ch) <= 0)
+				if (GET_EXTRA_SKILL(ch) == SKILL_DISARM && GET_EXTRA_VICTIM(ch) && GET_WAIT(ch) <= 0)
 				{
-					go_disarm(ch, ch->get_extra_victim());
-					ch->set_extra_attack(0, 0);
+					go_disarm(ch, GET_EXTRA_VICTIM(ch));
+					SET_EXTRA(ch, 0, NULL);
 					if (INITIATIVE(ch) > min_init)
 					{
 						INITIATIVE(ch)--;
@@ -5695,7 +5709,7 @@ void perform_violence(void)
 					}
 				}
 
-				if (!ch->get_fighting() || IN_ROOM(ch) != IN_ROOM(ch->get_fighting()))
+				if (!FIGHTING(ch) || IN_ROOM(ch) != IN_ROOM(FIGHTING(ch)))
 					continue;
 				/***** удар основным оружием или рукой */
 				if (GET_AF_BATTLE(ch, EAF_FIRST))
@@ -5745,13 +5759,13 @@ void perform_violence(void)
 					k_next = k->next;
 					if (AFF_FLAGGED(k->follower, AFF_HELPER) &&
 							MOB_FLAGGED(k->follower, MOB_ANGEL) &&
-							!k->follower->get_fighting() &&
+							!FIGHTING(k->follower) &&
 							IN_ROOM(k->follower) == IN_ROOM(ch) &&
 							CAN_SEE(k->follower, ch) && AWAKE(k->follower) &&
 							MAY_ACT(k->follower) && GET_POS(k->follower) >= POS_FIGHTING)
 					{
 						for (vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next_in_room)
-							if (vict->get_fighting() == ch && vict != ch && vict != k->follower)
+							if (FIGHTING(vict) == ch && vict != ch && vict != k->follower)
 								break;
 						if (vict && k->follower->get_skill(SKILL_RESCUE))
 						{
