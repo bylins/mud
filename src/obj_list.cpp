@@ -531,7 +531,7 @@ void olc_update(obj_rnum nr, DESCRIPTOR_DATA *d)
 
 int print_spell_locate_object(CHAR_DATA *ch, int count, char const *name)
 {
-	for (ObjListType::const_iterator it = obj_list.begin(); it != obj_list.end(); ++it)
+	for (ObjListType::const_iterator it = obj_list.begin(); it != obj_list.end() && count > 0; ++it)
 	{
 		OBJ_DATA *i = *it;
 
