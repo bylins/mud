@@ -1551,7 +1551,6 @@ struct obj_data
 	struct script_data *script;	/* script info for the object       */
 
 	OBJ_DATA *next_content;	/* For 'contains' lists             */
-	OBJ_DATA *next;		/* For the object list              */
 	int room_was_in;
 	char *PNames[6];
 	int max_in_world;		/* max in world             */
@@ -1582,7 +1581,6 @@ struct obj_data
 			proto_script(NULL),
 			script(NULL),
 			next_content(NULL),
-			next(NULL),
 			room_was_in(NOWHERE),
 			max_in_world(0)
 	{

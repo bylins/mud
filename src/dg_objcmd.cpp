@@ -326,8 +326,6 @@ OCMD(do_otransform)
 		o->script = tmpobj.script;
 		obj->next_content = o->next_content;
 		o->next_content = tmpobj.next_content;
-		obj->next = o->next;
-		o->next = tmpobj.next;
 
 		// иначе это катастрофа
 		obj->it_ptr.swap(o->it_ptr);

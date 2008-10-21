@@ -24,7 +24,6 @@ int id_by_vnum(int vnum);
 
 void paste();
 void check_script();
-void check_decay();
 void point_update();
 void repop_decay(zone_rnum zone);
 void recalculate_rnum(int rnum);
