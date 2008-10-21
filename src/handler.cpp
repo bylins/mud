@@ -818,7 +818,7 @@ void affect_total(CHAR_DATA * ch)
 	}
 
 	check_berserk(ch);
-	if (FIGHTING(ch) || affected_by_spell(ch, SPELL_GLITTERDUST))
+	if (ch->get_fighting() || affected_by_spell(ch, SPELL_GLITTERDUST))
 	{
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_HIDE), AFF_HIDE);
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_SNEAK), AFF_SNEAK);
@@ -1247,7 +1247,7 @@ void char_from_room(CHAR_DATA * ch)
 		return;
 	}
 
-	if (FIGHTING(ch) != NULL)
+	if (ch->get_fighting())
 		stop_fighting(ch, TRUE);
 
 	if (!IS_NPC(ch))
@@ -1302,9 +1302,9 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		}
 
 		/* Stop fighting now, if we left. */
-		if (FIGHTING(ch) && IN_ROOM(ch) != IN_ROOM(FIGHTING(ch)))
+		if (ch->get_fighting() && IN_ROOM(ch) != IN_ROOM(ch->get_fighting()))
 		{
-			stop_fighting(FIGHTING(ch), FALSE);
+			stop_fighting(ch->get_fighting(), FALSE);
 			stop_fighting(ch, TRUE);
 		}
 
@@ -2573,44 +2573,6 @@ void update_char_objects(CHAR_DATA * ch)
 		update_object(ch->carrying, 1);
 }
 
-void change_fighting(CHAR_DATA * ch, int need_stop)
-{
-	CHAR_DATA *k, *j, *temp;
-
-	for (k = character_list; k; k = temp)
-	{
-		temp = k->next;
-		if (PROTECTING(k) == ch)
-		{
-			PROTECTING(k) = NULL;
-			CLR_AF_BATTLE(k, EAF_PROTECT);
-		}
-		if (TOUCHING(k) == ch)
-		{
-			TOUCHING(k) = NULL;
-			CLR_AF_BATTLE(k, EAF_PROTECT);
-		}
-		if (GET_EXTRA_VICTIM(k) == ch)
-			SET_EXTRA(k, 0, NULL);
-		if (GET_CAST_CHAR(k) == ch)
-			SET_CAST(k, 0, 0, NULL, NULL, NULL);
-		if (FIGHTING(k) == ch && IN_ROOM(k) != NOWHERE)
-		{
-			log("[Change fighting] Change victim");
-			for (j = world[IN_ROOM(ch)]->people; j; j = j->next_in_room)
-				if (FIGHTING(j) == k)
-				{
-					act("Вы переключили внимание на $N3.", FALSE, k, 0, j, TO_CHAR);
-					act("$n переключил$u на Вас !", FALSE, k, 0, j, TO_VICT);
-					FIGHTING(k) = j;
-					break;
-				}
-			if (!j && need_stop)
-				stop_fighting(k, FALSE);
-		}
-	}
-}
-
 /**
 * Если на мобе шмотки, одетые во время резета зоны, то при резете в случае пуржа моба - они уничтожаются с ним же.
 * Если на мобе шмотки, поднятые и бывшие у игрока (таймер уже тикал), то он их при резете выкинет на землю, как обычно.
@@ -2724,12 +2686,11 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		die_follower(ch);
 
 	log("[Extract char] Stop fighting self");
-	if (FIGHTING(ch))
+	if (ch->get_fighting())
 		stop_fighting(ch, TRUE);
 
 	log("[Extract char] Stop all fight for opponee");
-	change_fighting(ch, TRUE);
-
+	ch->clear_battle_list();
 
 	log("[Extract char] Remove char from room");
 	char_from_room(ch);
@@ -2840,11 +2801,11 @@ void extract_mob(CHAR_DATA * ch)
 		if (GET_EQ(ch, i))
 			extract_obj(GET_EQ(ch, i));
 
-	if (FIGHTING(ch))
+	if (ch->get_fighting())
 		stop_fighting(ch, TRUE);
 
 	log("[Extract mob] Stop all fight for opponee");
-	change_fighting(ch, TRUE);
+	ch->clear_battle_list();
 
 	char_from_room(ch);
 

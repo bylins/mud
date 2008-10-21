@@ -1905,31 +1905,6 @@ int may_cast_in_nomagic(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 	if (IS_NPC(caster) && !(AFF_FLAGGED(caster, AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)))
 		return TRUE;
 
-	/*  // In nomagic cast only to victim
-	  if (!victim)
-	     return (FALSE);
-
-	  // In nomagic cann't cast groups, masses, areas spells
-	  if (IS_SET(SpINFO.routines, MAG_GROUPS | MAG_MASSES | MAG_AREAS))
-	     return (FALSE);
-
-	  // May cast themself if FIGHTING
-	  if (caster == victim && FIGHTING(caster))
-	     return (TRUE);
-
-	  // May cast good affects to VICTIM, if it REVENGE
-	  if (IS_SET(SpINFO.routines, NPC_AFFECT_NPC | NPC_UNAFFECT_NPC | NPC_DUMMY) &&
-	      FIGHTING(victim) &&
-	      may_pkill(victim, FIGHTING(victim)) == PC_REVENGE_PC
-	     )
-	     return (TRUE);
-
-	  // May cast bad affects to VICTIM, as REVENGE
-	  if (IS_SET(SpINFO.routines, NPC_AFFECT_PC | NPC_DAMAGE_PC) &&
-	      may_pkill(caster, victim) == PC_REVENGE_PC
-	     )
-	     return (TRUE);*/
-
 	return FALSE;
 }
 
@@ -1992,7 +1967,7 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 		}
 		else
 		{
-			if (!may_kill_here(caster, FIGHTING(ch_vict)))
+			if (!may_kill_here(caster, ch_vict->get_fighting()))
 				return 0;
 		}
 	}
@@ -2288,15 +2263,15 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 	else
 	{
 		if (IS_SET(SpINFO.targets, TAR_FIGHT_SELF))
-			if (FIGHTING(ch) != NULL)
+			if (ch->get_fighting())
 			{
 				*tch = ch;
 				return TRUE;
 			}
 		if (IS_SET(SpINFO.targets, TAR_FIGHT_VICT))
-			if (FIGHTING(ch) != NULL)
+			if (ch->get_fighting())
 			{
-				*tch = FIGHTING(ch);
+				*tch = ch->get_fighting();
 				return TRUE;
 			}
 		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM) && !SpINFO.violent)
@@ -2400,15 +2375,15 @@ int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DA
 	else
 	{
 		if (IS_SET(SpINFO.targets, TAR_FIGHT_SELF))
-			if (FIGHTING(ch) != NULL)
+			if (ch->get_fighting())
 			{
 				*tch = ch;
 				return TRUE;
 			}
 		if (IS_SET(SpINFO.targets, TAR_FIGHT_VICT))
-			if (FIGHTING(ch) != NULL)
+			if (ch->get_fighting())
 			{
-				*tch = FIGHTING(ch);
+				*tch = ch->get_fighting();
 				return TRUE;
 			}
 		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM) && !SpINFO.violent)
@@ -2776,7 +2751,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 	/* Конец изменений.
 	   (с) Дмитрий ака dzMUDiST ака Кудояр */
 
-	if (!FIGHTING(ch) && !IS_NPC(ch))
+	if (!ch->get_fighting() && !IS_NPC(ch))
 	{
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(OK, ch);
@@ -2981,7 +2956,7 @@ ACMD(do_cast)
 
 	/* You throws the dice and you takes your chances.. 101% is total failure */
 	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
-	SET_CAST(ch, 0, 0, NULL, NULL, NULL);
+	ch->set_cast(0, 0, 0, 0, 0);
 
 	if (!spell_use_success(ch, tch, SAVING_STABILITY, spellnum))
 	{
@@ -3003,9 +2978,9 @@ ACMD(do_cast)
 	}
 	else  		/* cast spell returns 1 on success; subtract mana & set waitstate */
 	{
-		if (FIGHTING(ch) && !IS_IMPL(ch))
+		if (ch->get_fighting() && !IS_IMPL(ch))
 		{
-			SET_CAST(ch, spellnum, spell_subst, tch, tobj, troom);
+			ch->set_cast(spellnum, spell_subst, tch, tobj, troom);
 			sprintf(buf,
 					"Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
 					CCCYN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM),

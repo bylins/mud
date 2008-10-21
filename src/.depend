@@ -207,7 +207,7 @@ file_crc.o: file_crc.cpp conf.h file_crc.hpp sysdep.h structs.h db.h \
   utils.h interpreter.h comm.h
 char.o: char.cpp char.hpp conf.h sysdep.h structs.h utils.h db.h pk.h \
   im.h handler.h interpreter.h boards.h privilege.hpp skills.h \
-  constants.h char_player.hpp quested.hpp mobmax.hpp
+  constants.h char_player.hpp quested.hpp mobmax.hpp spells.h comm.h
 char_player.o: char_player.cpp char_player.hpp conf.h sysdep.h structs.h \
   quested.hpp mobmax.hpp utils.h
 quested.o: quested.cpp quested.hpp conf.h sysdep.h structs.h utils.h \

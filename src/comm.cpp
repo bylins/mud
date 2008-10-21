@@ -501,6 +501,12 @@ void init_game(ush_int port)
 	game_loop(mother_desc);
 
 	flush_player_index();
+
+	// храны надо сейвить до Crash_save_all_rent(), иначе будем брать бабло у чара при записи
+	// уже после его экстракта, и что там будет хз...
+	Depot::save_all_online_objs();
+	Depot::save_timedata();
+
 	if (circle_shutdown == 2)
 	{
 		log("Entering Crash_save_all_rent");
@@ -515,8 +521,6 @@ void init_game(ush_int port)
 	Clan::ClanSave();
 	TitleSystem::save_title_list();
 	RegisterSystem::save();
-	Depot::save_all_online_objs();
-	Depot::save_timedata();
 	Glory::save_glory();
 	Glory::save_glory_log();
 
@@ -1765,8 +1769,8 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		}
 
 
-		if (!FIGHTING(d->character)
-				|| IN_ROOM(d->character) != IN_ROOM(FIGHTING(d->character)))  	/* SHOW NON COMBAT INFO */
+		if (!d->character->get_fighting()
+				|| IN_ROOM(d->character) != IN_ROOM(d->character->get_fighting()))  	/* SHOW NON COMBAT INFO */
 		{
 
 			if (PRF_FLAGGED(d->character, PRF_DISPLEVEL))
@@ -1797,12 +1801,12 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		{
 			if (PRF_FLAGGED(d->character, PRF_DISPFIGHT))
 				count += sprintf(prompt + count, "%s", show_state(d->character, d->character));
-			if (FIGHTING(FIGHTING(d->character))
-					&& FIGHTING(FIGHTING(d->character)) != d->character)
+			if (d->character->get_fighting()->get_fighting()
+					&& d->character->get_fighting()->get_fighting() != d->character)
 				count +=
 					sprintf(prompt + count, "%s",
-							show_state(d->character, FIGHTING(FIGHTING(d->character))));
-			count += sprintf(prompt + count, "%s", show_state(d->character, FIGHTING(d->character)));
+							show_state(d->character, d->character->get_fighting()->get_fighting()));
+			count += sprintf(prompt + count, "%s", show_state(d->character, d->character->get_fighting()));
 		};
 		strcat(prompt, "> ");
 	}

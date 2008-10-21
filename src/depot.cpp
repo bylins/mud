@@ -134,7 +134,9 @@ void depot_log(const char *format, ...)
 	vfprintf(file, format, args);
 	va_end(args);
 	fprintf(file, "\n");
+#ifdef LOG_AUTOFLUSH
 	fflush(file);
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1474,7 +1476,6 @@ void exit_char(CHAR_DATA *ch)
 		// тут лучше дернуть сейв руками до тика, т.к. есть вариант зайти и тут же выйти
 		// в итоге к моменту сейва онлайн список будет пустой и все похерится
 		it->second.save_online_objs();
-
 		it->second.online_to_offline(it->second.pers_online);
 		it->second.ch = 0;
 		it->second.money = get_bank_gold(ch) + get_gold(ch);
