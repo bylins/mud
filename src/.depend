@@ -58,7 +58,7 @@ db.o: db.cpp conf.h sysdep.h structs.h utils.h db.h comm.h handler.h \
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h comm.h handler.h \
   interpreter.h db.h spells.h screen.h constants.h dg_scripts.h pk.h im.h \
   fight.h skills.h features.hpp house.h stuff.hpp double_map.hpp \
-  random.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp
+  random.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp top.h
 graph.o: graph.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
   constants.h handler.h db.h spells.h skills.h features.hpp random.hpp \
   char.hpp
