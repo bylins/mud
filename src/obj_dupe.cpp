@@ -15,6 +15,7 @@ namespace
 
 int global_uid = 0;
 
+// TODO:: мультимап тут вобщем надо и без второго списка
 typedef std::list<OBJ_DATA *> DupeNodeType;
 typedef std::map<int /* уид шмотки */, DupeNodeType> DupeListType;
 DupeListType dupe_list;
