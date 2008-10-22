@@ -205,7 +205,7 @@ std::string generate_purged_filename(long uid)
 	return filename;
 }
 
-std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
+std::string generate_purged_text(long uid, int obj_vnum, int obj_uid)
 {
 	std::ostringstream out;
 	out << "Ошибка при удалении предмета: vnum " << obj_vnum << ", uid " << obj_uid << "\r\n";
@@ -280,7 +280,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 /**
 *
 */
-void add_purged_message(long uid, int obj_vnum, unsigned int obj_uid)
+void add_purged_message(long uid, int obj_vnum, int obj_uid)
 {
 	std::string name = generate_purged_filename(uid);
 	if (name.empty())

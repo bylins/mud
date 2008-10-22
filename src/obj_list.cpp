@@ -205,21 +205,6 @@ void check_script()
 	}
 }
 
-int count_dupes(OBJ_DATA *obj)
-{
-	int count = 0;
-	for (ObjListType::const_iterator it = obj_list.begin(); it != obj_list.end(); ++it)
-	{
-		if (GET_OBJ_UID((*it)) == GET_OBJ_UID(obj)
-			&& GET_OBJ_TIMER((*it)) > 0
-			&& GET_OBJ_VNUM((*it)) == GET_OBJ_VNUM(obj))
-		{
-			++count;
-		}
-	}
-	return count;
-}
-
 OBJ_DATA * obj_by_nname(CHAR_DATA *ch, char const *name, int number)
 {
 	int i = 0;

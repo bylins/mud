@@ -34,6 +34,7 @@
 #include "char.hpp"
 #include "char_player.hpp"
 #include "obj_list.hpp"
+#include "obj_dupe.hpp"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -103,7 +104,6 @@ int get_player_charms(CHAR_DATA * ch, int spellnum);
 int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect);
 
 extern struct zone_data *zone_table;
-extern int global_uid;
 extern void change_leader(CHAR_DATA *ch, CHAR_DATA *vict);
 
 char *fname(const char *namelist)
@@ -1428,34 +1428,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 		}
 
 		if (!IS_NPC(ch))
-		{
-			// Контроль уникальности предметов
-			if (object && // Объект существует
-					GET_OBJ_UID(object) != 0 && // Есть UID
-					GET_OBJ_TIMER(object) > 0) // Целенький
-			{
-				// Объект готов для проверки. Ищем в мире такой же.
-				int inworld = ObjList::count_dupes(object);
-				if (inworld > 1) // У объекта есть как минимум одна копия
-				{
-					sprintf(buf, "Copy detected and prepared to extract! Object %s (UID=%d, VNUM=%d), holder %s. In world %d.",
-							object->PNames[0], GET_OBJ_UID(object), GET_OBJ_VNUM(object), GET_NAME(ch), inworld);
-					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-					// Удаление предмета
-					act("$o0 замигал$Q и Вы увидели медленно проступившие руны 'DUPE'.", FALSE, ch, object, 0, TO_CHAR);
-					GET_OBJ_TIMER(object) = 0; // Хана предмету, развалится на тике
-					SET_BIT(GET_OBJ_EXTRA(object, ITEM_NOSELL), ITEM_NOSELL); // Ибо нефиг
-				}
-			} // Назначаем UID
-			else if (GET_OBJ_VNUM(object) > 0 && // Объект не виртуальный
-					 GET_OBJ_UID(object) == 0)   // У объекта точно нет уида
-			{
-				global_uid++; // Увеличиваем глобальный счетчик уидов
-				global_uid = global_uid == 0 ? 1 : global_uid; // Если произошло переполнение инта
-				GET_OBJ_UID(object) = global_uid; // Назначаем уид
-				log("%s obj_to_char %s (%d|%u)", GET_NAME(ch), object->PNames[0], GET_OBJ_VNUM(object), object->uid);
-			}
-		}
+			ObjDupe::check(ch, object);
 
 		if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
 		{
@@ -2504,6 +2477,9 @@ void extract_obj(OBJ_DATA * obj)
 
 	check_auction(NULL, obj);
 	check_exchange(obj);
+
+	if (GET_OBJ_UID(obj))
+		ObjDupe::remove(obj);
 
 	ObjList::remove(obj);
 	if (GET_OBJ_RNUM(obj) >= 0)

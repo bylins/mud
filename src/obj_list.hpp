@@ -29,7 +29,6 @@ void repop_decay(zone_rnum zone);
 void recalculate_rnum(int rnum);
 
 void olc_update(obj_rnum nr, DESCRIPTOR_DATA *d);
-int count_dupes(OBJ_DATA *obj);
 
 void print_god_where(CHAR_DATA *ch, char const *arg);
 int print_spell_locate_object(CHAR_DATA *ch, int count, char const *name);

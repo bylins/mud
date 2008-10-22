@@ -52,6 +52,7 @@
 #include "skills.h"
 #include "char_player.hpp"
 #include "obj_list.hpp"
+#include "obj_dupe.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -85,8 +86,6 @@ long max_id = MOBOBJ_ID_BASE;	/* for unique mob/obj id's       */
 INDEX_DATA *mob_index;		/* index table for mobile file   */
 CHAR_DATA *mob_proto;		/* prototypes for mobs           */
 mob_rnum top_of_mobt = 0;	/* top of mobile index table     */
-
-int global_uid = 0;
 
 INDEX_DATA *obj_index;		/* index table for object file   */
 //OBJ_DATA *obj_proto;		/* prototypes for objs           */
@@ -146,8 +145,6 @@ class insert_wanted_gem iwg;
 //-Polos.insert_wanted_gem
 
 /* local functions */
-void SaveGlobalUID(void);
-void LoadGlobalUID(void);
 int check_object_spell_number(OBJ_DATA * obj, int val);
 int check_object_level(OBJ_DATA * obj, int val);
 void setup_dir(FILE * fl, int room, int dir);
@@ -1385,7 +1382,7 @@ void boot_db(void)
 	NewNameLoad();
 
 	log("Load global uid counter");
-	LoadGlobalUID();
+	ObjDupe::load_global_uid();
 
 	log("Init DeathTrap list.");
 	DeathTrap::load();
@@ -7396,37 +7393,3 @@ void room_free(ROOM_DATA * room)
 	}
 	room->affected = NULL;
 }
-
-void LoadGlobalUID(void)
-{
-	FILE *guid;
-	char buffer[256];
-
-	global_uid = 0;
-
-	if (!(guid = fopen(LIB_MISC "globaluid", "r")))
-	{
-		log("Can't open global uid file...");
-		return;
-	}
-	get_line(guid, buffer);
-	global_uid = atoi(buffer);
-	fclose(guid);
-	return;
-}
-
-void SaveGlobalUID(void)
-{
-	FILE *guid;
-
-	if (!(guid = fopen(LIB_MISC "globaluid", "w")))
-	{
-		log("Can't write global uid file...");
-		return;
-	}
-
-	fprintf(guid, "%d\n", global_uid);
-	fclose(guid);
-	return;
-}
-
