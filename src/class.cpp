@@ -2133,8 +2133,6 @@ void do_start(CHAR_DATA * ch, int newbie)
 	GET_LEVEL(ch) = 1;
 	GET_EXP(ch) = 1;
 
-	TopPlayer::Refresh(ch);
-
 	if (newbie && GET_CLASS(ch) == CLASS_DRUID)
 		for (i = 1; i <= MAX_SPELLS; i++)
 			GET_SPELL_TYPE(ch, i) = SPELL_RUNES;
@@ -2399,6 +2397,7 @@ void advance_level(CHAR_DATA * ch)
 		SET_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
 	}
 
+	TopPlayer::Refresh(ch);
 	save_char(ch);
 }
 
@@ -2466,6 +2465,7 @@ void decrease_level(CHAR_DATA * ch)
 		REMOVE_BIT(PRF_FLAGS(ch, PRF_HOLYLIGHT), PRF_HOLYLIGHT);
 
 	check_max_skills(ch);
+	TopPlayer::Refresh(ch);
 	save_char(ch);
 }
 

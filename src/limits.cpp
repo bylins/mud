@@ -803,7 +803,6 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 		CLR_GOD_FLAG(ch, GF_REMORT);
 	}
 
-	TopPlayer::Refresh(ch);
 	if (CLAN(ch))
 		CLAN(ch)->AddTopExp(ch, gain + clan_exp); // для рейтинга кланов
 }
@@ -867,8 +866,6 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 		}
 
 	}
-
-	TopPlayer::Refresh(ch);
 }
 
 

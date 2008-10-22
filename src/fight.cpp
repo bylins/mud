@@ -34,6 +34,7 @@
 #include "random.hpp"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "top.h"
 
 extern CHAR_DATA *mob_proto;
 
@@ -1068,6 +1069,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 
 	gain_exp(ch, exp, clan_exp);
 	change_alignment(ch, victim);
+	TopPlayer::Refresh(ch);
 }
 
 
