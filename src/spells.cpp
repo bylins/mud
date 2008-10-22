@@ -33,9 +33,10 @@
 #include "privilege.hpp"
 #include "char.hpp"
 #include "depot.hpp"
-#include "obj_list.hpp"
 
 extern room_rnum r_mortal_start_room;
+
+extern OBJ_DATA *object_list;
 extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *character_list;
 extern INDEX_DATA *obj_index;
@@ -222,9 +223,9 @@ ASPELL(spell_recall)
 		return;
 	}
 
-	if (victim->get_fighting() && (victim != ch))
+	if (FIGHTING(victim) && (victim != ch))
 	{
-		pk_agro_action(ch, victim->get_fighting());
+		pk_agro_action(ch, FIGHTING(victim));
 	}
 
 	act("$n исчез$q.", TRUE, victim, 0, 0, TO_ROOM);
@@ -289,9 +290,9 @@ ASPELL(spell_teleport)
 		return;
 	}
 
-	if (victim->get_fighting() && (victim != ch))
+	if (FIGHTING(victim) && (victim != ch))
 	{
-		pk_agro_action(ch, victim->get_fighting());
+		pk_agro_action(ch, FIGHTING(victim));
 	}
 
 	act("$n медленно исчез$q из виду.", FALSE, victim, 0, 0, TO_ROOM);
@@ -575,7 +576,7 @@ ASPELL(spell_summon)
 				return;
 			}
 			/* Нельзя призвать жертву в бою  */
-			if (victim->get_fighting())
+			if (FIGHTING(victim))
 			{
 				send_to_char(SUMMON_FAIL4, ch);	// Цель в бою
 				return;
@@ -725,6 +726,7 @@ ASPELL(spell_townportal)
 
 ASPELL(spell_locate_object)
 {
+	OBJ_DATA *i;
 	char name[MAX_INPUT_LENGTH];
 	int j;
 
@@ -738,8 +740,86 @@ ASPELL(spell_locate_object)
 		return;
 
 	strcpy(name, cast_argument);
+	j = level;
 
-	j = ObjList::print_spell_locate_object(ch, level, name);
+	for (i = object_list; i && (j > 0); i = i->next)
+	{
+		if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
+			continue;
+
+		if (IS_CORPSE(i))
+			continue;
+
+		if (!isname(name, i->name))
+			continue;
+
+		if (SECT(IN_ROOM(i)) == SECT_SECRET)
+			continue;
+
+		if (i->carried_by)
+			if (SECT(IN_ROOM(i->carried_by)) == SECT_SECRET ||
+					(OBJ_FLAGGED(i, ITEM_NOLOCATE) && IS_NPC(i->carried_by)) ||
+					IS_IMMORTAL(i->carried_by))
+				continue;
+
+		if (i->carried_by)
+		{
+			if (world[IN_ROOM(i->carried_by)]->zone == world[IN_ROOM(ch)]->zone || !IS_NPC(i->carried_by))
+				sprintf(buf, "%s находится у %s в инвентаре.\r\n",
+						i->short_description, PERS(i->carried_by, ch, 1));
+			else
+				continue;
+		}
+		else if (IN_ROOM(i) != NOWHERE && IN_ROOM(i))
+		{
+			if (world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone && !OBJ_FLAGGED(i, ITEM_NOLOCATE))
+				sprintf(buf, "%s находится в %s.\r\n", i->short_description, world[IN_ROOM(i)]->name);
+			else
+				continue;
+		}
+		else if (i->in_obj)
+		{
+			if (Clan::is_clan_chest(i->in_obj))
+			{
+				ClanListType::const_iterator clan = Clan::IsClanRoom(i->in_obj->in_room);
+				if (clan != Clan::ClanList.end())
+					sprintf(buf, "%s находится в хранилище дружины '%s'.\r\n", i->short_description, (*clan)->GetAbbrev());
+				else
+					continue;
+			}
+			else
+			{
+				if (i->in_obj->carried_by)
+					if (IS_NPC(i->in_obj->carried_by) && (OBJ_FLAGGED(i, ITEM_NOLOCATE) || world[IN_ROOM(i->in_obj->carried_by)]->zone != world[IN_ROOM(ch)]->zone))
+						continue;
+				if (IN_ROOM(i->in_obj) != NOWHERE && IN_ROOM(i->in_obj))
+					if (world[IN_ROOM(i->in_obj)]->zone != world[IN_ROOM(ch)]->zone || OBJ_FLAGGED(i, ITEM_NOLOCATE))
+						continue;
+				if (i->in_obj->worn_by)
+					if (IS_NPC(i->in_obj->worn_by)
+							&& (OBJ_FLAGGED(i, ITEM_NOLOCATE)
+								|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
+						continue;
+				sprintf(buf, "%s находится в %s.\r\n", i->short_description, i->in_obj->PNames[5]);
+			}
+		}
+		else if (i->worn_by)
+		{
+			if ((IS_NPC(i->worn_by) && !OBJ_FLAGGED(i, ITEM_NOLOCATE)
+					&& world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
+					|| (!IS_NPC(i->worn_by) && GET_LEVEL(i->worn_by) < LVL_IMMORT))
+				sprintf(buf, "%s одет%s на %s.\r\n", i->short_description,
+						GET_OBJ_SUF_6(i), PERS(i->worn_by, ch, 3));
+			else
+				continue;
+		}
+		else
+			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i, ch, 1));
+
+		CAP(buf);
+		send_to_char(buf, ch);
+		j--;
+	}
 
 	if (j > 0)
 		j = Depot::print_spell_locate_object(ch, j, std::string(name));
@@ -854,7 +934,7 @@ ASPELL(spell_charm)
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else if (IS_HORSE(victim))
 		send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
-	else if (victim->get_fighting() || GET_POS(victim) < POS_RESTING)
+	else if (FIGHTING(victim) || GET_POS(victim) < POS_RESTING)
 		act("$M сейчас, похоже, не до Вас.", FALSE, ch, 0, victim, TO_CHAR);
 	else if (circle_follow(victim, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
@@ -1003,7 +1083,7 @@ ACMD(do_findhelpee)
 			act("$N не слышит Вас.", FALSE, ch, 0, helpee, TO_CHAR);
 		else if (IS_HORSE(helpee))
 			send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
-		else if (helpee->get_fighting() || GET_POS(helpee) < POS_RESTING)
+		else if (FIGHTING(helpee) || GET_POS(helpee) < POS_RESTING)
 			act("$M сейчас, похоже, не до Вас.", FALSE, ch, 0, helpee, TO_CHAR);
 		else if (circle_follow(helpee, ch))
 			send_to_char("Следование по кругу запрещено.\r\n", ch);

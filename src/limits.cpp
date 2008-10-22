@@ -36,7 +36,6 @@
 #include "features.hpp"
 #include "char.hpp"
 #include "char_player.hpp"
-#include "obj_list.hpp"
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
@@ -44,6 +43,7 @@ extern room_rnum r_unreg_start_room;
 
 extern CHAR_DATA *character_list;
 extern CHAR_DATA *mob_proto;
+extern OBJ_DATA *object_list;
 
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct zone_data *zone_table;
@@ -152,7 +152,7 @@ int mana_gain(CHAR_DATA * ch)
 
 
 	/* Position calculations    */
-	if (ch->get_fighting())
+	if (FIGHTING(ch))
 		percent -= 90;
 	else
 		switch (GET_POS(ch))
@@ -934,9 +934,9 @@ void check_idling(CHAR_DATA * ch)
 			if (ch->player->get_was_in_room() == NOWHERE && ch->in_room != NOWHERE)
 			{
 				ch->player->set_was_in_room(ch->in_room);
-				if (ch->get_fighting())
+				if (FIGHTING(ch))
 				{
-					stop_fighting(ch->get_fighting(), FALSE);
+					stop_fighting(FIGHTING(ch), FALSE);
 					stop_fighting(ch, TRUE);
 				}
 				act("$n растворил$u в пустоте.", TRUE, ch, 0, 0, TO_ROOM);
@@ -975,6 +975,19 @@ void check_idling(CHAR_DATA * ch)
 	}
 }
 
+
+
+/* Update PCs, NPCs, and objects */
+#define NO_DESTROY(obj) ((obj)->carried_by   || \
+                         (obj)->worn_by      || \
+                         (obj)->in_obj       || \
+                         (obj)->script       || \
+                         GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN || \
+	                 obj->in_room == NOWHERE || \
+			 (OBJ_FLAGGED(obj, ITEM_NODECAY) && !ROOM_FLAGGED(obj->in_room, ROOM_DEATH)))
+#define NO_TIMER(obj)   (GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN)
+/* || OBJ_FLAGGED(obj, ITEM_NODECAY)) */
+
 int up_obj_where(OBJ_DATA * obj)
 {
 	if (obj->in_obj)
@@ -982,6 +995,7 @@ int up_obj_where(OBJ_DATA * obj)
 	else
 		return OBJ_WHERE(obj);
 }
+
 
 void hour_update(void)
 {
@@ -1161,6 +1175,268 @@ void exchange_point_update()
 
 }
 
+/**
+* Оповещение о дикее шмотки из храна в клан-канал.
+*/
+void clan_chest_invoice(OBJ_DATA *j)
+{
+	int room = GET_ROOM_VNUM(j->in_obj->in_room);
+	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
+	{
+		if (d->character
+			&& STATE(d) == CON_PLAYING
+			&& !AFF_FLAGGED(d->character, AFF_DEAFNESS)
+			&& CLAN(d->character)
+			&& PRF_FLAGGED(d->character, PRF_DECAY_MODE)
+			&& world[real_room(CLAN(d->character)->GetRent())]->zone == world[real_room(room)]->zone)
+		{
+			send_to_char(d->character, "[Хранилище]: %s'%s рассыпал%s в прах'%s\r\n",
+				CCIRED(d->character, C_NRM), j->short_description, GET_OBJ_SUF_2(j), CCNRM(d->character, C_NRM));
+		}
+	}
+}
+
+/**
+* Дикей шмоток в клан-хране.
+*/
+void clan_chest_point_update(OBJ_DATA *j)
+{
+	if (GET_OBJ_TIMER(j) > 0)
+		GET_OBJ_TIMER(j)--;
+
+	if ((OBJ_FLAGGED(j, ITEM_ZONEDECAY)
+			&& GET_OBJ_ZONE(j) != NOWHERE
+			&& up_obj_where(j->in_obj) != NOWHERE
+			&& GET_OBJ_ZONE(j) != world[up_obj_where(j->in_obj)]->zone)
+		|| GET_OBJ_TIMER(j) <= 0)
+	{
+		clan_chest_invoice(j);
+		obj_from_obj(j);
+		extract_obj(j);
+	}
+}
+
+void obj_point_update()
+{
+	OBJ_DATA *j, *next_thing, *jj, *next_thing2;
+	int count, cont = 0;
+
+	for (j = object_list; j; j = next_thing)
+	{
+		next_thing = j->next;	/* Next in object list */
+
+		// смотрим клан-сундуки
+		if (j->in_obj && Clan::is_clan_chest(j->in_obj))
+		{
+			clan_chest_point_update(j);
+			continue;
+		}
+
+		// контейнеры на земле с флагом !дикей, но не загружаемые в этой комнате, а хз кем брошенные
+		// извращение конечно перебирать на каждый объект команды резета зоны, но в голову ниче интересного
+		// не лезет, да и не так уж и много на самом деле таких предметов будет, условий порядочно
+		// а так привет любителям оставлять книги в клановых сумках или лоадить в замке столы
+		if (j->in_obj
+				&& !j->in_obj->carried_by
+				&& !j->in_obj->worn_by
+				&& OBJ_FLAGGED(j->in_obj, ITEM_NODECAY)
+				&& GET_ROOM_VNUM(IN_ROOM(j->in_obj)) % 100 != 99)
+		{
+			int zone = world[j->in_obj->in_room]->zone;
+			bool find = 0;
+			ClanListType::const_iterator clan = Clan::IsClanRoom(j->in_obj->in_room);
+			if (clan == Clan::ClanList.end())   // внутри замков даже и смотреть не будем
+			{
+				for (int cmd_no = 0; zone_table[zone].cmd[cmd_no].command != 'S'; ++cmd_no)
+				{
+					if (zone_table[zone].cmd[cmd_no].command == 'O'
+							&& zone_table[zone].cmd[cmd_no].arg1 == GET_OBJ_RNUM(j->in_obj)
+							&& zone_table[zone].cmd[cmd_no].arg3 == IN_ROOM(j->in_obj))
+					{
+						find = 1;
+						break;
+					}
+				}
+			}
+
+			if (!find && GET_OBJ_TIMER(j) > 0)
+				GET_OBJ_TIMER(j)--;
+		}
+
+		/* If this is a corpse */
+		if (IS_CORPSE(j))  	/* timer count down */
+		{
+			if (GET_OBJ_TIMER(j) > 0)
+				GET_OBJ_TIMER(j)--;
+			if (GET_OBJ_TIMER(j) <= 0)
+			{
+				for (jj = j->contains; jj; jj = next_thing2)
+				{
+					next_thing2 = jj->next_content;	/* Next in inventory */
+					obj_from_obj(jj);
+					if (j->in_obj)
+						obj_to_obj(jj, j->in_obj);
+					else if (j->carried_by)
+						obj_to_char(jj, j->carried_by);
+					else if (j->in_room != NOWHERE)
+						obj_to_room(jj, j->in_room);
+					else
+					{
+						log("SYSERR: extract %s from %s to NOTHING !!!",
+							jj->PNames[0], j->PNames[0]);
+						// core_dump();
+						extract_obj(jj);
+					}
+				}
+				// Добавлено Ладником
+//              next_thing = j->next; /* пурж по obj_to_room я убрал, но пускай на всякий случай */
+				// Конец Ладник
+				if (j->carried_by)
+				{
+					act("$p рассыпал$U в Ваших руках.", FALSE, j->carried_by, j, 0, TO_CHAR);
+					obj_from_char(j);
+				}
+				else if (j->in_room != NOWHERE)
+				{
+					if (world[j->in_room]->people)
+					{
+						act("Черви полностью сожрали $o3.",
+							TRUE, world[j->in_room]->people, j, 0, TO_ROOM);
+						act("Черви не оставили от $o1 и следа.",
+							TRUE, world[j->in_room]->people, j, 0, TO_CHAR);
+					}
+					obj_from_room(j);
+				}
+				else if (j->in_obj)
+					obj_from_obj(j);
+				extract_obj(j);
+			}
+		}
+		/* If the timer is set, count it down and at 0, try the trigger */
+		/* note to .rej hand-patchers: make this last in your point-update() */
+		else
+		{
+			if (SCRIPT_CHECK(j, OTRIG_TIMER))
+			{
+				if (GET_OBJ_TIMER(j) > 0 && OBJ_FLAGGED(j, ITEM_TICKTIMER))
+					GET_OBJ_TIMER(j)--;
+				if (!GET_OBJ_TIMER(j))
+				{
+					timer_otrigger(j);
+					j = NULL;
+				}
+			}
+			else if (GET_OBJ_DESTROY(j) > 0 && !NO_DESTROY(j))
+				GET_OBJ_DESTROY(j)--;
+
+			if (j && (j->in_room != NOWHERE) && GET_OBJ_TIMER(j) > 0 && !NO_DESTROY(j))
+				GET_OBJ_TIMER(j)--;
+
+			if (j && ((OBJ_FLAGGED(j, ITEM_ZONEDECAY) && GET_OBJ_ZONE(j) != NOWHERE && up_obj_where(j) != NOWHERE && GET_OBJ_ZONE(j) != world[up_obj_where(j)]->zone) || (GET_OBJ_TIMER(j) <= 0 && !NO_TIMER(j)) || (GET_OBJ_DESTROY(j) == 0 && !NO_DESTROY(j))))
+			{
+				/**** рассыпание обьекта */
+				for (jj = j->contains; jj; jj = next_thing2)
+				{
+					next_thing2 = jj->next_content;
+					obj_from_obj(jj);
+					if (j->in_obj)
+						obj_to_obj(jj, j->in_obj);
+					else if (j->worn_by)
+						obj_to_char(jj, j->worn_by);
+					else if (j->carried_by)
+						obj_to_char(jj, j->carried_by);
+					else if (j->in_room != NOWHERE)
+						obj_to_room(jj, j->in_room);
+					else
+					{
+						log("SYSERR: extract %s from %s to NOTHING !!!",
+							jj->PNames[0], j->PNames[0]);
+						// core_dump();
+						extract_obj(jj);
+					}
+				}
+				// Добавлено Ладником
+//              next_thing = j->next; /* пурж по obj_to_room я убрал, но пускай на всякий случай */
+				// Конец Ладник
+				if (j->worn_by)
+				{
+					switch (j->worn_on)
+					{
+					case WEAR_LIGHT:
+					case WEAR_SHIELD:
+					case WEAR_WIELD:
+					case WEAR_HOLD:
+					case WEAR_BOTHS:
+						act("$o рассыпал$U в Ваших руках...", FALSE, j->worn_by, j, 0, TO_CHAR);
+						break;
+					default:
+						act("$o рассыпал$U прямо на Вас...", FALSE, j->worn_by, j, 0, TO_CHAR);
+						break;
+					}
+					unequip_char(j->worn_by, j->worn_on);
+				}
+				else if (j->carried_by)
+				{
+					act("$o рассыпал$U в Ваших руках...", FALSE, j->carried_by, j, 0, TO_CHAR);
+					obj_from_char(j);
+				}
+				else if (j->in_room != NOWHERE)
+				{
+					if (world[j->in_room]->people)
+					{
+						act("$o рассыпал$U в прах, который был развеян ветром...",
+							FALSE, world[j->in_room]->people, j, 0, TO_CHAR);
+						act("$o рассыпал$U в прах, который был развеян ветром...",
+							FALSE, world[j->in_room]->people, j, 0, TO_ROOM);
+					}
+					obj_from_room(j);
+				}
+				else if (j->in_obj)
+					obj_from_obj(j);
+				extract_obj(j);
+			}
+			else
+			{
+				if (!j)
+					continue;
+
+				/* decay poision && other affects */
+				for (count = 0; count < MAX_OBJ_AFFECT; count++)
+					if (j->affected[count].location == APPLY_POISON)
+					{
+						j->affected[count].modifier--;
+						if (j->affected[count].modifier <= 0)
+						{
+							j->affected[count].location = APPLY_NONE;
+							j->affected[count].modifier = 0;
+						}
+					}
+			}
+		}
+	}
+
+	/* Тонущие, падающие, и сыпящиеся обьекты. */
+	for (j = object_list; j; j = next_thing)
+	{
+		next_thing = j->next;	/* Next in object list */
+		if (j->contains)
+		{
+			cont = TRUE;
+		}
+		else
+		{
+			cont = FALSE;
+		}
+		if (obj_decay(j))
+		{
+			if (cont)
+			{
+				next_thing = object_list;
+			}
+		}
+	}
+}
+
 void point_update(void)
 {
 	memory_rec *mem, *nmem, *pmem;
@@ -1225,7 +1501,7 @@ void point_update(void)
 					GET_HIT(i) = MIN(GET_HIT(i) + count, GET_REAL_MAX_HIT(i));
 			}
 			// Restore mobs
-			if (IS_NPC(i) && !i->get_fighting())  	// Restore horse
+			if (IS_NPC(i) && !FIGHTING(i))  	// Restore horse
 			{
 				if (IS_HORSE(i))
 				{
@@ -1282,7 +1558,7 @@ void point_update(void)
 				for (mem = MEMORY(i), pmem = NULL; mem; mem = nmem)
 				{
 					nmem = mem->next;
-					if (mem->time <= 0 && i->get_fighting())
+					if (mem->time <= 0 && FIGHTING(i))
 					{
 						pmem = mem;
 						continue;
@@ -1350,5 +1626,53 @@ void point_update(void)
 		update_char_objects(i);
 		if (!IS_NPC(i) && GET_LEVEL(i) < idle_max_level && !PRF_FLAGGED(i, PRF_CODERINFO))
 			check_idling(i);
+	}
+}
+
+void repop_decay(zone_rnum zone)
+{				/* рассыпание обьектов ITEM_REPOP_DECAY */
+	OBJ_DATA *j, *next_thing;
+	int cont = FALSE;
+	zone_vnum obj_zone_num, zone_num;
+
+	zone_num = zone_table[zone].number;
+	for (j = object_list; j; j = next_thing)
+	{
+		next_thing = j->next;	/* Next in object list */
+		if (j->contains)
+		{
+			cont = TRUE;
+		}
+		else
+		{
+			cont = FALSE;
+		}
+		obj_zone_num = GET_OBJ_VNUM(j) / 100;
+		if (((obj_zone_num == zone_num) && IS_OBJ_STAT(j, ITEM_REPOP_DECAY)))
+		{
+			/* F@N
+			 * Если мне кто-нибудь объяснит глубинный смысл последующей строчки,
+			 * буду очень признателен
+			*/
+//                 || (GET_OBJ_TYPE(j) == ITEM_INGRADIENT && GET_OBJ_SKILL(j) > 19)
+			if (j->worn_by)
+				act("$o рассыпал$U, вспыхнув ярким светом...", FALSE, j->worn_by, j, 0, TO_CHAR);
+			else if (j->carried_by)
+				act("$o рассыпал$U в Ваших руках, вспыхнув ярким светом...",
+					FALSE, j->carried_by, j, 0, TO_CHAR);
+			else if (j->in_room != NOWHERE)
+			{
+				if (world[j->in_room]->people)
+				{
+					act("$o рассыпал$U, вспыхнув ярким светом...",
+						FALSE, world[j->in_room]->people, j, 0, TO_CHAR);
+					act("$o рассыпал$U, вспыхнув ярким светом...",
+						FALSE, world[j->in_room]->people, j, 0, TO_ROOM);
+				}
+			}
+			extract_obj(j);
+			if (cont)
+				next_thing = object_list;
+		}
 	}
 }

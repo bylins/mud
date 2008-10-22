@@ -185,9 +185,7 @@ void copy_shop(SHOP_DATA * tshop, SHOP_DATA * fshop)
 	// уже был какой-то другой продавец - надо почистить,
 	// иначе будет падать на выполнении спешиала
 	if (S_KEEPER(tshop) >= 0 && S_KEEPER(tshop) != S_KEEPER(fshop))
-	{
 		mob_index[S_KEEPER(tshop)].func = 0;
-	}
 	S_KEEPER(tshop) = S_KEEPER(fshop);
 
 	S_OPEN1(tshop) = S_OPEN1(fshop);

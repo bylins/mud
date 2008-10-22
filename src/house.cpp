@@ -1972,7 +1972,7 @@ ACMD(DoClanPkList)
 		}
 		if (unique < 0)
 		{
-			send_to_char("Не дело это, Богов добавлять куда не надо....\r\n", ch);
+			send_to_char("Не дело это, Богов добалять куда не надо....\r\n", ch);
 			return;
 		}
 		ClanMemberList::const_iterator it = CLAN(ch)->members.find(unique);

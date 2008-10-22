@@ -162,8 +162,9 @@ void check_idling(CHAR_DATA * ch);
 void point_update(void);
 void room_point_update();
 void exchange_point_update();
+void obj_point_update();
 void update_pos(CHAR_DATA * victim);
-int up_obj_where(OBJ_DATA * obj);
+
 
 /* various constants *****************************************************/
 
@@ -345,6 +346,21 @@ extern SPECIAL(postmaster);
 #define OBJ_FLAGGED(obj, flag)       (IS_SET(GET_OBJ_EXTRA(obj,flag), (flag)))
 #define HAS_SPELL_ROUTINE(spl, flag) (IS_SET(SPELL_ROUTINES(spl), (flag)))
 #define IS_FLY(ch)                   (AFF_FLAGGED(ch,AFF_FLY))
+#define SET_EXTRA(ch,skill,vict)   {(ch)->extra_attack.used_skill = skill; \
+                                     (ch)->extra_attack.victim     = vict;}
+#define GET_EXTRA_SKILL(ch)          ((ch)->extra_attack.used_skill)
+#define GET_EXTRA_VICTIM(ch)         ((ch)->extra_attack.victim)
+#define SET_CAST(ch,snum,subst,dch,dobj,droom)   {(ch)->cast_attack.spellnum  = snum; \
+					(ch)->cast_attack.spell_subst  = subst; \
+                                       (ch)->cast_attack.tch       = dch; \
+                                       (ch)->cast_attack.tobj      = dobj; \
+				       (ch)->cast_attack.troom     = droom;}
+#define GET_CAST_SPELL(ch)         ((ch)->cast_attack.spellnum)
+#define GET_CAST_SUBST(ch)         ((ch)->cast_attack.spell_subst)
+#define GET_CAST_CHAR(ch)          ((ch)->cast_attack.tch)
+#define GET_CAST_OBJ(ch)           ((ch)->cast_attack.tobj)
+
+
 
 /* IS_AFFECTED for backwards compatibility */
 #define IS_AFFECTED(ch, skill) (AFF_FLAGGED(ch, skill))
@@ -575,6 +591,9 @@ extern SPECIAL(postmaster);
 #define GET_ID(x)         ((x)->id)
 #define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
 #define IS_CARRYING_N(ch) ((ch)->char_specials.carry_items)
+#define FIGHTING(ch)   ((ch)->char_specials.fighting)
+#define PROTECTING(ch)    ((ch)->Protecting)
+#define TOUCHING(ch)   ((ch)->Touching)
 
 /*Макросы доступа к полям параметров комнат*/
 #define GET_ROOM_BASE_POISON(room) ((room)->base_property.poison)
@@ -954,7 +973,7 @@ extern SPECIAL(postmaster);
            !AFF_FLAGGED((sub),AFF_HOLD)           && \
            !MOB_FLAGGED((sub),MOB_NOFIGHT)        && \
            GET_WAIT(sub) <= 0                     && \
-           !sub->get_fighting()                   && \
+           !FIGHTING(sub)                         && \
            GET_POS(sub) >= POS_RESTING)
 // Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
 //пока здесь только чарм, как и было раньше

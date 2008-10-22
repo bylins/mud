@@ -377,6 +377,7 @@ extern CHAR_DATA *combat_list;
 using std::vector;
 extern vector < ROOM_DATA * >world;
 
+extern OBJ_DATA *object_list;
 extern CHAR_DATA *character_list;
 extern INDEX_DATA *mob_index;
 extern mob_rnum top_of_mobt;
@@ -407,6 +408,5 @@ void free_alias(struct alias_data *a);
 extern struct player_index_element *player_table;
 
 void set_god_skills(CHAR_DATA *ch);
-void paste_obj(OBJ_DATA *obj, room_rnum room);
 
 #endif

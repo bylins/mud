@@ -106,7 +106,7 @@ void MobMax::add(CHAR_DATA *ch, int vnum, int count, int level)
 	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > MAX_MOB_LEVEL) return;
 
 	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
-		boost::bind(std::equal_to<int>(),
+			boost::bind(std::equal_to<int>(),
 			boost::bind(&mobmax_data::vnum, _1), vnum));
 
 	if (it != mobmax_.end())
@@ -136,7 +136,7 @@ void MobMax::load(CHAR_DATA *ch, int vnum, int count, int level)
 void MobMax::remove(int vnum)
 {
 	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
-		boost::bind(std::equal_to<int>(),
+			boost::bind(std::equal_to<int>(),
 			boost::bind(&mobmax_data::vnum, _1), vnum));
 
 	if (it != mobmax_.end())
@@ -149,7 +149,7 @@ void MobMax::remove(int vnum)
 int MobMax::get_kill_count(int vnum) const
 {
 	MobMaxType::const_iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
-		boost::bind(std::equal_to<int>(),
+			boost::bind(std::equal_to<int>(),
 			boost::bind(&mobmax_data::vnum, _1), vnum));
 
 	if (it != mobmax_.end())

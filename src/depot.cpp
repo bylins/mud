@@ -19,7 +19,6 @@
 #include "interpreter.h"
 #include "screen.h"
 #include "char.hpp"
-#include "obj_list.hpp"
 
 extern SPECIAL(bank);
 extern void write_one_object(char **data, OBJ_DATA * object, int location);
@@ -134,9 +133,7 @@ void depot_log(const char *format, ...)
 	vfprintf(file, format, args);
 	va_end(args);
 	fprintf(file, "\n");
-#ifdef LOG_AUTOFLUSH
 	fflush(file);
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -205,7 +202,7 @@ std::string generate_purged_filename(long uid)
 	return filename;
 }
 
-std::string generate_purged_text(long uid, int obj_vnum, int obj_uid)
+std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 {
 	std::ostringstream out;
 	out << "Ошибка при удалении предмета: vnum " << obj_vnum << ", uid " << obj_uid << "\r\n";
@@ -280,7 +277,7 @@ std::string generate_purged_text(long uid, int obj_vnum, int obj_uid)
 /**
 *
 */
-void add_purged_message(long uid, int obj_vnum, int obj_uid)
+void add_purged_message(long uid, int obj_vnum, unsigned int obj_uid)
 {
 	std::string name = generate_purged_filename(uid);
 	if (name.empty())
@@ -1119,7 +1116,8 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 
 	obj_from_char(obj);
 	check_auction(NULL, obj);
-	ObjList::remove(obj);
+	OBJ_DATA *temp;
+	REMOVE_FROM_LIST(obj, object_list, next);
 
 	return 1;
 }
@@ -1158,7 +1156,8 @@ void take_depot(CHAR_DATA *vict, char *arg, int howmany)
 void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, CHAR_DATA *vict)
 {
 	depot_log("remove_item %s: %s %d %d", name.c_str(), (*obj_it)->short_description, GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
-	ObjList::add(*obj_it);
+	(*obj_it)->next = object_list;
+	object_list = *obj_it;
 	obj_to_char(*obj_it, vict);
 	act("Вы взяли $o3 из персонального хранилища.", FALSE, vict, *obj_it, 0, TO_CHAR);
 	act("$n взял$g $o3 из персонального хранилища.", TRUE, vict, *obj_it, 0, TO_ROOM);
@@ -1370,7 +1369,8 @@ void CharNode::load_online_objs(int file_type, bool reload)
 
 		pers_online.push_front(obj);
 		// убираем ее из глобального листа, в который она добавилась еще на стадии чтения из файла
-		ObjList::remove(obj);
+		OBJ_DATA *temp;
+		REMOVE_FROM_LIST(obj, object_list, next);
 	}
 	delete [] databuf;
 	offline_list.clear();
@@ -1476,6 +1476,7 @@ void exit_char(CHAR_DATA *ch)
 		// тут лучше дернуть сейв руками до тика, т.к. есть вариант зайти и тут же выйти
 		// в итоге к моменту сейва онлайн список будет пустой и все похерится
 		it->second.save_online_objs();
+
 		it->second.online_to_offline(it->second.pers_online);
 		it->second.ch = 0;
 		it->second.money = get_bank_gold(ch) + get_gold(ch);

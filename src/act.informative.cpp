@@ -43,7 +43,6 @@
 #include "random.hpp"
 #include "char.hpp"
 #include "char_player.hpp"
-#include "obj_list.hpp"
 
 using std::string;
 
@@ -53,6 +52,7 @@ extern struct help_index_element *help_table;
 extern char *help;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *character_list;
+extern OBJ_DATA *object_list;
 extern vector < OBJ_DATA * >obj_proto;
 extern int top_of_socialk;
 extern char *credits;
@@ -79,7 +79,7 @@ int compute_armor_class(CHAR_DATA * ch);
 int low_charm(CHAR_DATA * ch);
 int pk_count(CHAR_DATA * ch);
 /* local functions */
-void print_object_location(int num, OBJ_DATA *obj, CHAR_DATA *ch, int recur);
+void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur);
 const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
 void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode);
@@ -1129,16 +1129,16 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	}
 	else
 	{
-		if (i->get_fighting())
+		if (FIGHTING(i))
 		{
 			strcat(buf, IS_POLY(i) ? "сражаются с " : "сражается c ");
-			if (i->in_room != i->get_fighting()->in_room)
+			if (i->in_room != FIGHTING(i)->in_room)
 				strcat(buf, "чьей-то тенью ");
-			else if (i->get_fighting() == ch)
+			else if (FIGHTING(i) == ch)
 				strcat(buf, "ВАМИ ");
 			else
 			{
-				strcat(buf, GET_PAD(i->get_fighting(), 4));
+				strcat(buf, GET_PAD(FIGHTING(i), 4));
 				strcat(buf, " ");
 			}
 			strcat(buf, "! ");
@@ -1703,7 +1703,7 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			percent = number(1, skill_info[SKILL_HEARING].max_percent);
 			probe = train_skill(ch, SKILL_HEARING, skill_info[SKILL_HEARING].max_percent, tch);
 			// Если сражаются то слышем только борьбу.
-			if (tch->get_fighting())
+			if (FIGHTING(tch))
 			{
 				if (IS_NPC(tch))
 					tmpstr += " Вы слышите шум чьей-то борьбы.\r\n";
@@ -2660,7 +2660,7 @@ ACMD(do_score)
 						CCIGRN(ch, C_NRM), string("Вы сидите.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
 				break;
 			case POS_FIGHTING:
-				if (ch->get_fighting())
+				if (FIGHTING(ch))
 					sprintf(buf + strlen(buf), " || %s%-19s%s|",
 							CCIRED(ch, C_NRM), string("Вы сражаетесь!").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
 				else
@@ -3056,8 +3056,8 @@ ACMD(do_score)
 			strcat(buf, "Вы сидите.\r\n");
 			break;
 		case POS_FIGHTING:
-			if (ch->get_fighting())
-				sprintf(buf + strlen(buf), "Вы сражаетесь с %s.\r\n", GET_PAD(ch->get_fighting(), 4));
+			if (FIGHTING(ch))
+				sprintf(buf + strlen(buf), "Вы сражаетесь с %s.\r\n", GET_PAD(FIGHTING(ch), 4));
 			else
 				strcat(buf, "Вы машете кулаками по воздуху.\r\n");
 			break;
@@ -4646,7 +4646,7 @@ void perform_mortal_where(CHAR_DATA * ch, char *arg)
 }
 
 
-void print_object_location(int num, OBJ_DATA *obj, CHAR_DATA *ch, int recur)
+void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur)
 {
 	if (num > 0)
 		sprintf(buf, "O%3d. %-25s - ", num, obj->short_description);
@@ -4683,9 +4683,12 @@ void print_object_location(int num, OBJ_DATA *obj, CHAR_DATA *ch, int recur)
 	}
 }
 
+
+
 void perform_immort_where(CHAR_DATA * ch, char *arg)
 {
 	register CHAR_DATA *i;
+	register OBJ_DATA *k;
 	DESCRIPTOR_DATA *d;
 	int num = 0, found = 0;
 
@@ -4719,7 +4722,6 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 	else
 	{
 		for (i = character_list; i; i = i->next)
-		{
 			if (CAN_SEE(ch, i) && i->in_room != NOWHERE && isname(arg, i->player_data.name))
 			{
 				found = 1;
@@ -4727,11 +4729,21 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 						GET_ROOM_VNUM(IN_ROOM(i)), world[IN_ROOM(i)]->name);
 				send_to_char(buf, ch);
 			}
-		}
 		if (GET_LEVEL(ch) > LVL_GOD || Privilege::check_flag(ch, Privilege::KRODER))
-			ObjList::print_god_where(ch, arg);
+		{
+			for (num = 0, k = object_list; k; k = k->next)
+				if (CAN_SEE_OBJ(ch, k) && isname(arg, k->name))
+				{
+					found = 1;
+					print_object_location(++num, k, ch, TRUE);
+				}
+			if (!found)
+				send_to_char("Нет ничего похожего.\r\n", ch);
+		}
 	}
 }
+
+
 
 ACMD(do_where)
 {
@@ -4742,6 +4754,8 @@ ACMD(do_where)
 	else
 		perform_mortal_where(ch, arg);
 }
+
+
 
 ACMD(do_levels)
 {
@@ -4829,8 +4843,8 @@ ACMD(do_diagnose)
 	}
 	else
 	{
-		if (ch->get_fighting())
-			diag_char_to_char(ch->get_fighting(), ch);
+		if (FIGHTING(ch))
+			diag_char_to_char(FIGHTING(ch), ch);
 		else
 			send_to_char("На кого вы хотите взглянуть ?\r\n", ch);
 	}

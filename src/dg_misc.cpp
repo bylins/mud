@@ -125,15 +125,15 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 	else
 	{
 		if (IS_SET(SpINFO.targets, TAR_FIGHT_SELF))
-			if (ch->get_fighting())
+			if (FIGHTING(ch) != NULL)
 			{
 				*tch = ch;
 				return TRUE;
 			}
 		if (IS_SET(SpINFO.targets, TAR_FIGHT_VICT))
-			if (ch->get_fighting())
+			if (FIGHTING(ch) != NULL)
 			{
-				*tch = ch->get_fighting();
+				*tch = FIGHTING(ch);
 				return TRUE;
 			}
 		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM) && !SpINFO.violent)

@@ -1767,7 +1767,7 @@ int npc_move(CHAR_DATA * ch, int dir, int need_specials_check)
 	EXIT_DATA *rdata = NULL;
 	int retval = FALSE;
 
-	if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting())
+	if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || FIGHTING(ch))
 		return (FALSE);
 	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room == NOWHERE)
 		return (FALSE);
@@ -2155,7 +2155,7 @@ int do_npc_steal(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL))
 		return (FALSE);
 
-	if (IS_NPC(victim) || IS_SHOPKEEPER(ch) || victim->get_fighting())
+	if (IS_NPC(victim) || IS_SHOPKEEPER(ch) || FIGHTING(victim))
 		return (FALSE);
 
 	if (GET_LEVEL(victim) >= LVL_IMMORT)
@@ -2201,7 +2201,7 @@ int npc_steal(CHAR_DATA * ch)
 	if (!NPC_FLAGGED(ch, NPC_STEALING))
 		return (FALSE);
 
-	if (GET_POS(ch) != POS_STANDING || IS_SHOPKEEPER(ch) || ch->get_fighting())
+	if (GET_POS(ch) != POS_STANDING || IS_SHOPKEEPER(ch) || FIGHTING(ch))
 		return (FALSE);
 
 	for (cons = world[ch->in_room]->people; cons; cons = cons->next_in_room)
@@ -2290,7 +2290,7 @@ void npc_groupbattle(CHAR_DATA * ch)
 	CHAR_DATA *tch, *helper;
 
 	if (!IS_NPC(ch) ||
-			!ch->get_fighting() || AFF_FLAGGED(ch, AFF_CHARM) || !ch->master || IN_ROOM(ch) == NOWHERE || !ch->followers)
+			!FIGHTING(ch) || AFF_FLAGGED(ch, AFF_CHARM) || !ch->master || IN_ROOM(ch) == NOWHERE || !ch->followers)
 		return;
 
 	k = ch->master ? ch->master->followers : ch->followers;
@@ -2299,10 +2299,10 @@ void npc_groupbattle(CHAR_DATA * ch)
 	{
 		helper = tch ? tch : k->follower;
 		if (IN_ROOM(ch) == IN_ROOM(helper) &&
-				!helper->get_fighting() && !IS_NPC(helper) && GET_POS(helper) > POS_STUNNED)
+				!FIGHTING(helper) && !IS_NPC(helper) && GET_POS(helper) > POS_STUNNED)
 		{
 			GET_POS(helper) = POS_STANDING;
-			start_fighting(helper, ch->get_fighting());
+			set_fighting(helper, FIGHTING(ch));
 			act("$n вступил$u за $N3.", FALSE, helper, 0, ch, TO_ROOM);
 		}
 	}
@@ -2451,11 +2451,11 @@ SPECIAL(snake)
 	if (GET_POS(ch) != POS_FIGHTING)
 		return (FALSE);
 
-	if (ch->get_fighting() && (ch->get_fighting()->in_room == ch->in_room) && (number(0, 42 - GET_LEVEL(ch)) == 0))
+	if (FIGHTING(ch) && (FIGHTING(ch)->in_room == ch->in_room) && (number(0, 42 - GET_LEVEL(ch)) == 0))
 	{
-		act("$n bites $N!", 1, ch, 0, ch->get_fighting(), TO_NOTVICT);
-		act("$n bites you!", 1, ch, 0, ch->get_fighting(), TO_VICT);
-		call_magic(ch, ch->get_fighting(), NULL, world[IN_ROOM(ch)], SPELL_POISON, GET_LEVEL(ch), CAST_SPELL);
+		act("$n bites $N!", 1, ch, 0, FIGHTING(ch), TO_NOTVICT);
+		act("$n bites you!", 1, ch, 0, FIGHTING(ch), TO_VICT);
+		call_magic(ch, FIGHTING(ch), NULL, world[IN_ROOM(ch)], SPELL_POISON, GET_LEVEL(ch), CAST_SPELL);
 		return (TRUE);
 	}
 	return (FALSE);
@@ -2491,12 +2491,12 @@ SPECIAL(magic_user)
 
 	/* pseudo-randomly choose someone in the room who is fighting me */
 	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
-		if (vict->get_fighting() == ch && !number(0, 4))
+		if (FIGHTING(vict) == ch && !number(0, 4))
 			break;
 
 	/* if I didn't pick any of those, then just slam the guy I'm fighting */
-	if (vict == NULL && IN_ROOM(ch->get_fighting()) == IN_ROOM(ch))
-		vict = ch->get_fighting();
+	if (vict == NULL && IN_ROOM(FIGHTING(ch)) == IN_ROOM(ch))
+		vict = FIGHTING(ch);
 
 	/* Hm...didn't pick anyone...I'll wait a round. */
 	if (vict == NULL)
@@ -2652,7 +2652,7 @@ SPECIAL(cityguard)
 	CHAR_DATA *tch, *evil;
 	int max_evil;
 
-	if (cmd || !AWAKE(ch) || ch->get_fighting())
+	if (cmd || !AWAKE(ch) || FIGHTING(ch))
 		return (FALSE);
 
 	max_evil = 1000;
@@ -2680,9 +2680,9 @@ SPECIAL(cityguard)
 
 	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
 	{
-		if (CAN_SEE(ch, tch) && tch->get_fighting())
+		if (CAN_SEE(ch, tch) && FIGHTING(tch))
 		{
-			if ((GET_ALIGNMENT(tch) < max_evil) && (IS_NPC(tch) || IS_NPC(tch->get_fighting())))
+			if ((GET_ALIGNMENT(tch) < max_evil) && (IS_NPC(tch) || IS_NPC(FIGHTING(tch))))
 			{
 				max_evil = GET_ALIGNMENT(tch);
 				evil = tch;
@@ -2690,7 +2690,7 @@ SPECIAL(cityguard)
 		}
 	}
 
-	if (evil && (GET_ALIGNMENT(evil->get_fighting()) >= 0))
+	if (evil && (GET_ALIGNMENT(FIGHTING(evil)) >= 0))
 	{
 		act("$n screams 'PROTECT THE INNOCENT!  BANZAI!  CHARGE!  ARARARAGGGHH!'", FALSE, ch, 0, 0, TO_ROOM);
 		hit(ch, evil, TYPE_UNDEFINED, 1);

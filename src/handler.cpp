@@ -33,8 +33,6 @@
 #include "exchange.h"
 #include "char.hpp"
 #include "char_player.hpp"
-#include "obj_list.hpp"
-#include "obj_dupe.hpp"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -104,6 +102,7 @@ int get_player_charms(CHAR_DATA * ch, int spellnum);
 int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect);
 
 extern struct zone_data *zone_table;
+extern int global_uid;
 extern void change_leader(CHAR_DATA *ch, CHAR_DATA *vict);
 
 char *fname(const char *namelist)
@@ -818,7 +817,7 @@ void affect_total(CHAR_DATA * ch)
 	}
 
 	check_berserk(ch);
-	if (ch->get_fighting() || affected_by_spell(ch, SPELL_GLITTERDUST))
+	if (FIGHTING(ch) || affected_by_spell(ch, SPELL_GLITTERDUST))
 	{
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_HIDE), AFF_HIDE);
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_SNEAK), AFF_SNEAK);
@@ -1247,7 +1246,7 @@ void char_from_room(CHAR_DATA * ch)
 		return;
 	}
 
-	if (ch->get_fighting())
+	if (FIGHTING(ch) != NULL)
 		stop_fighting(ch, TRUE);
 
 	if (!IS_NPC(ch))
@@ -1302,9 +1301,9 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		}
 
 		/* Stop fighting now, if we left. */
-		if (ch->get_fighting() && IN_ROOM(ch) != IN_ROOM(ch->get_fighting()))
+		if (FIGHTING(ch) && IN_ROOM(ch) != IN_ROOM(FIGHTING(ch)))
 		{
-			stop_fighting(ch->get_fighting(), FALSE);
+			stop_fighting(FIGHTING(ch), FALSE);
 			stop_fighting(ch, TRUE);
 		}
 
@@ -1399,6 +1398,10 @@ void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 /* give an object to a char   */
 void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 {
+	OBJ_DATA *i;
+	unsigned int tuid;
+	int inworld;
+
 	int may_carry = TRUE;
 	if (object && ch)
 	{
@@ -1428,7 +1431,45 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 		}
 
 		if (!IS_NPC(ch))
-			ObjDupe::check(ch, object);
+		{
+			// Контроль уникальности предметов
+			if (object && // Объект существует
+					GET_OBJ_UID(object) != 0 && // Есть UID
+					GET_OBJ_TIMER(object) > 0) // Целенький
+			{
+				tuid = GET_OBJ_UID(object);
+				inworld = 1;
+				// Объект готов для проверки. Ищем в мире такой же.
+				for (i = object_list; i; i = i->next)
+				{
+					if (GET_OBJ_UID(i) == tuid && // UID совпадает
+							GET_OBJ_TIMER(i) > 0 && // Целенький
+							object != i && // Не оно же
+							GET_OBJ_VNUM(i) == GET_OBJ_VNUM(object))   // Для верности
+					{
+						inworld++;
+					}
+				}
+				if (inworld > 1) // У объекта есть как минимум одна копия
+				{
+					sprintf(buf, "Copy detected and prepared to extract! Object %s (UID=%d, VNUM=%d), holder %s. In world %d.",
+							object->PNames[0], GET_OBJ_UID(object), GET_OBJ_VNUM(object), GET_NAME(ch), inworld);
+					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+					// Удаление предмета
+					act("$o0 замигал$Q и Вы увидели медленно проступившие руны 'DUPE'.", FALSE, ch, object, 0, TO_CHAR);
+					GET_OBJ_TIMER(object) = 0; // Хана предмету, развалится на тике
+					SET_BIT(GET_OBJ_EXTRA(object, ITEM_NOSELL), ITEM_NOSELL); // Ибо нефиг
+				}
+			} // Назначаем UID
+			else if (GET_OBJ_VNUM(object) > 0 && // Объект не виртуальный
+					 GET_OBJ_UID(object) == 0)   // У объекта точно нет уида
+			{
+				global_uid++; // Увеличиваем глобальный счетчик уидов
+				global_uid = global_uid == 0 ? 1 : global_uid; // Если произошло переполнение инта
+				GET_OBJ_UID(object) = global_uid; // Назначаем уид
+				log("%s obj_to_char %s (%d|%u)", GET_NAME(ch), object->PNames[0], GET_OBJ_VNUM(object), object->uid);
+			}
+		}
 
 		if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
 		{
@@ -2164,6 +2205,21 @@ OBJ_DATA *get_obj_in_list_vnum(int num, OBJ_DATA * list)
 	return (NULL);
 }
 
+
+/* search the entire world for an object number, and return a pointer  */
+OBJ_DATA *get_obj_num(obj_rnum nr)
+{
+	OBJ_DATA *i;
+
+	for (i = object_list; i; i = i->next)
+		if (GET_OBJ_RNUM(i) == nr)
+			return (i);
+
+	return (NULL);
+}
+
+
+
 /* search a room for a char, and return a pointer if found..  */
 CHAR_DATA *get_char_room(char *name, room_rnum room)
 {
@@ -2477,18 +2533,15 @@ void extract_obj(OBJ_DATA * obj)
 
 	check_auction(NULL, obj);
 	check_exchange(obj);
+	REMOVE_FROM_LIST(obj, object_list, next);
 
-	if (GET_OBJ_UID(obj))
-		ObjDupe::remove(obj);
-
-	ObjList::remove(obj);
 	if (GET_OBJ_RNUM(obj) >= 0)
 		(obj_index[GET_OBJ_RNUM(obj)].number)--;
 
 	free_script(SCRIPT(obj));	// без комментариев
 
 	free_obj(obj);
-//	log("Stop extract obj %s", name);
+// TODO: в дебаг log("Stop extract obj %s", name);
 }
 
 
@@ -2547,6 +2600,44 @@ void update_char_objects(CHAR_DATA * ch)
 
 	if (ch->carrying)
 		update_object(ch->carrying, 1);
+}
+
+void change_fighting(CHAR_DATA * ch, int need_stop)
+{
+	CHAR_DATA *k, *j, *temp;
+
+	for (k = character_list; k; k = temp)
+	{
+		temp = k->next;
+		if (PROTECTING(k) == ch)
+		{
+			PROTECTING(k) = NULL;
+			CLR_AF_BATTLE(k, EAF_PROTECT);
+		}
+		if (TOUCHING(k) == ch)
+		{
+			TOUCHING(k) = NULL;
+			CLR_AF_BATTLE(k, EAF_PROTECT);
+		}
+		if (GET_EXTRA_VICTIM(k) == ch)
+			SET_EXTRA(k, 0, NULL);
+		if (GET_CAST_CHAR(k) == ch)
+			SET_CAST(k, 0, 0, NULL, NULL, NULL);
+		if (FIGHTING(k) == ch && IN_ROOM(k) != NOWHERE)
+		{
+			log("[Change fighting] Change victim");
+			for (j = world[IN_ROOM(ch)]->people; j; j = j->next_in_room)
+				if (FIGHTING(j) == k)
+				{
+					act("Вы переключили внимание на $N3.", FALSE, k, 0, j, TO_CHAR);
+					act("$n переключил$u на Вас !", FALSE, k, 0, j, TO_VICT);
+					FIGHTING(k) = j;
+					break;
+				}
+			if (!j && need_stop)
+				stop_fighting(k, FALSE);
+		}
+	}
 }
 
 /**
@@ -2662,11 +2753,12 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		die_follower(ch);
 
 	log("[Extract char] Stop fighting self");
-	if (ch->get_fighting())
+	if (FIGHTING(ch))
 		stop_fighting(ch, TRUE);
 
 	log("[Extract char] Stop all fight for opponee");
-	ch->clear_battle_list();
+	change_fighting(ch, TRUE);
+
 
 	log("[Extract char] Remove char from room");
 	char_from_room(ch);
@@ -2777,11 +2869,11 @@ void extract_mob(CHAR_DATA * ch)
 		if (GET_EQ(ch, i))
 			extract_obj(GET_EQ(ch, i));
 
-	if (ch->get_fighting())
+	if (FIGHTING(ch))
 		stop_fighting(ch, TRUE);
 
 	log("[Extract mob] Stop all fight for opponee");
-	ch->clear_battle_list();
+	change_fighting(ch, TRUE);
 
 	char_from_room(ch);
 
@@ -3052,13 +3144,14 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const std::string &name, OBJ_DATA 
 	return (NULL);
 }
 
-// TODO: муть какая-то в плане перегрузки для строк, внутри вызывающтеся тоже все с перегрузками
+
+
 
 /* search the entire world for an object, and return a pointer  */
 OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name)
 {
 	OBJ_DATA *i;
-	int number;
+	int j = 0, number;
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
 
@@ -3075,13 +3168,19 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name)
 		return (NULL);
 
 	/* ok.. no luck yet. scan the entire obj list   */
-	return ObjList::obj_by_nname(ch, tmp, number);
+	for (i = object_list; i && (j <= number); i = i->next)
+		if (isname(tmp, i->name))
+			if (CAN_SEE_OBJ(ch, i))
+				if (++j == number)
+					return (i);
+
+	return (NULL);
 }
 /* search the entire world for an object, and return a pointer  */
 OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const std::string &name)
 {
 	OBJ_DATA *i;
-	int number;
+	int j = 0, number;
 
 	/* scan items carried */
 	if ((i = get_obj_in_list_vis(ch, name, ch->carrying)) != NULL)
@@ -3096,7 +3195,13 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const std::string &name)
 		return (NULL);
 
 	/* ok.. no luck yet. scan the entire obj list   */
-	return ObjList::obj_by_nname(ch, tmp.c_str(), number);
+	for (i = object_list; i && (j <= number); i = i->next)
+		if (isname(tmp, i->name))
+			if (CAN_SEE_OBJ(ch, i))
+				if (++j == number)
+					return (i);
+
+	return (NULL);
 }
 
 
