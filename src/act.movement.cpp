@@ -602,7 +602,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 					sprintf(buf, "Ваши ноги не хотят слушаться Вас...\r\n");
 					send_to_char(buf, ch);
 				}
-				if (!FIGHTING(ch) && number(10, 24) < GET_COND(ch, DRUNK))
+				if (!ch->get_fighting() && number(10, 24) < GET_COND(ch, DRUNK))
 				{
 					sprintf(buf, "%s", drunk_songs[number(0, MAX_DRUNK_SONG - 1)]);
 					send_to_char(buf, ch);
@@ -868,7 +868,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 		if (!CAN_SEE(vict, ch) ||
 				AFF_FLAGGED(ch, AFF_SNEAK) ||
-				AFF_FLAGGED(ch, AFF_CAMOUFLAGE) || FIGHTING(vict) || GET_POS(vict) < POS_RESTING)
+				AFF_FLAGGED(ch, AFF_CAMOUFLAGE) || vict->get_fighting() || GET_POS(vict) < POS_RESTING)
 			continue;
 
 		/* AWARE mobs */
@@ -893,7 +893,7 @@ int perform_move(CHAR_DATA * ch, int dir, int need_specials_check, int checkmob,
 	room_rnum was_in;
 	struct follow_type *k, *next;
 
-	if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || FIGHTING(ch))
+	if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting())
 		return (0);
 	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room == NOWHERE)
 		send_to_char("Вы не сможете туда пройти...\r\n", ch);
@@ -926,7 +926,7 @@ int perform_move(CHAR_DATA * ch, int dir, int need_specials_check, int checkmob,
 			{
 				next = k->next;
 				if (k->follower->in_room == was_in &&
-						!FIGHTING(k->follower) &&
+						!k->follower->get_fighting() &&
 						HERE(k->follower) &&
 						!GET_MOB_HOLD(k->follower) &&
 						AWAKE(k->follower) &&
@@ -1441,7 +1441,7 @@ ACMD(do_enter)
 				{
 					k_next = k->next;
 					if (IS_HORSE(k->follower) &&
-							!FIGHTING(k->follower) &&
+							!k->follower->get_fighting() &&
 							!GET_MOB_HOLD(k->follower) &&
 							IN_ROOM(k->follower) == from_room && AWAKE(k->follower))
 					{
@@ -1454,7 +1454,7 @@ ACMD(do_enter)
 					if (AFF_FLAGGED(k->follower, AFF_HELPER) &&
 							!GET_MOB_HOLD(k->follower) &&
 							MOB_FLAGGED(k->follower, MOB_ANGEL) &&
-							!FIGHTING(k->follower) &&
+							!k->follower->get_fighting() &&
 							IN_ROOM(k->follower) == from_room && AWAKE(k->follower))
 						if (k)
 						{
@@ -1557,12 +1557,12 @@ ACMD(do_stand)
 		send_to_char("Вы встали.\r\n", ch);
 		act("$n поднял$u.", TRUE, ch, 0, 0, TO_ROOM);
 		/* Will be sitting after a successful bash and may still be fighting. */
-		GET_POS(ch) = FIGHTING(ch) ? POS_FIGHTING : POS_STANDING;
+		GET_POS(ch) = ch->get_fighting() ? POS_FIGHTING : POS_STANDING;
 		break;
 	case POS_RESTING:
 		send_to_char("Вы прекратили отдыхать и встали.\r\n", ch);
 		act("$n прекратил$g отдых и поднял$u.", TRUE, ch, 0, 0, TO_ROOM);
-		GET_POS(ch) = FIGHTING(ch) ? POS_FIGHTING : POS_STANDING;
+		GET_POS(ch) = ch->get_fighting() ? POS_FIGHTING : POS_STANDING;
 		break;
 	case POS_SLEEPING:
 		send_to_char("Пожалуй, сначала стоит проснуться !\r\n", ch);
@@ -2104,7 +2104,7 @@ ACMD(do_follow)
 
 	one_argument(argument, buf);
 
-	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM) && FIGHTING(ch))
+	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM) && ch->get_fighting())
 		return;
 
 	if (*buf)

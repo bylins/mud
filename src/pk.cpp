@@ -911,7 +911,7 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 		return (FALSE);
 	}
 
-	if ((FIGHTING(ch) && FIGHTING(ch) == victim) || (FIGHTING(victim) && FIGHTING(victim) == ch))
+	if ((ch->get_fighting() && ch->get_fighting() == victim) || (victim->get_fighting() && victim->get_fighting() == ch))
 		return (TRUE);
 
 	if (ch != victim && !ROOM_FLAGGED(victim->in_room, ROOM_ARENA) && (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)))
@@ -944,7 +944,7 @@ bool need_full_alias(CHAR_DATA * ch, CHAR_DATA * opponent)
 		return false;
 
 	// õÖÅ ×ÏÀÀ?
-	if (FIGHTING(ch) == opponent || FIGHTING(opponent) == ch)
+	if (ch->get_fighting() == opponent || opponent->get_fighting() == ch)
 		return false;
 
 	return true;

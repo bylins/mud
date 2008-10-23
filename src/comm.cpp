@@ -1768,8 +1768,8 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		}
 
 
-		if (!FIGHTING(d->character)
-				|| IN_ROOM(d->character) != IN_ROOM(FIGHTING(d->character)))  	/* SHOW NON COMBAT INFO */
+		if (!d->character->get_fighting()
+				|| IN_ROOM(d->character) != IN_ROOM(d->character->get_fighting()))  	/* SHOW NON COMBAT INFO */
 		{
 
 			if (PRF_FLAGGED(d->character, PRF_DISPLEVEL))
@@ -1800,12 +1800,12 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		{
 			if (PRF_FLAGGED(d->character, PRF_DISPFIGHT))
 				count += sprintf(prompt + count, "%s", show_state(d->character, d->character));
-			if (FIGHTING(FIGHTING(d->character))
-					&& FIGHTING(FIGHTING(d->character)) != d->character)
+			if (d->character->get_fighting()->get_fighting()
+					&& d->character->get_fighting()->get_fighting() != d->character)
 				count +=
 					sprintf(prompt + count, "%s",
-							show_state(d->character, FIGHTING(FIGHTING(d->character))));
-			count += sprintf(prompt + count, "%s", show_state(d->character, FIGHTING(d->character)));
+							show_state(d->character, d->character->get_fighting()->get_fighting()));
+			count += sprintf(prompt + count, "%s", show_state(d->character, d->character->get_fighting()));
 		};
 		strcat(prompt, "> ");
 	}

@@ -133,7 +133,9 @@ void depot_log(const char *format, ...)
 	vfprintf(file, format, args);
 	va_end(args);
 	fprintf(file, "\n");
-	fflush(file);
+#ifdef LOG_AUTOFLUSH
+ 	fflush(file);
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

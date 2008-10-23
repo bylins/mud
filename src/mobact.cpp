@@ -151,7 +151,7 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	if (victim)
 	{
-		if (ch->get_skill(SKILL_BACKSTAB) && !FIGHTING(victim))
+		if (ch->get_skill(SKILL_BACKSTAB) && !victim->get_fighting())
 		{
 			go_backstab(ch, victim);
 			return (TRUE);
@@ -179,7 +179,7 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 		{
 			go_chopoff(ch, victim);
 		}
-		if (!FIGHTING(ch))
+		if (!ch->get_fighting())
 			hit(ch, victim, TYPE_UNDEFINED, 1);
 		return (TRUE);
 	}
@@ -201,7 +201,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 	CHAR_DATA *vict, *victim, *use_light = NULL, *min_hp = NULL, *min_lvl = NULL, *caster = NULL, *best = NULL;
 	int kill_this, extra_aggr = 0;
 
-	victim = FIGHTING(ch);
+	victim = ch->get_fighting();
 
 	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
 	{	/*
@@ -218,10 +218,10 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 											   act(buf,FALSE,ch,0,0,TO_ROOM); */
 
 		if ((IS_NPC(vict) && !IS_SET(extmode, CHECK_OPPONENT) && !IS_CHARMICE(vict))
-				|| (IS_CHARMICE(vict) && !FIGHTING(vict)) // чармиса агрим только если он уже с кем-то сражается
+				|| (IS_CHARMICE(vict) && !vict->get_fighting()) // чармиса агрим только если он уже с кем-то сражается
 				|| PRF_FLAGGED(vict, PRF_NOHASSLE)
 				|| !MAY_SEE(ch, vict)
-				|| (IS_SET(extmode, CHECK_OPPONENT) && ch != FIGHTING(vict))
+				|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->get_fighting())
 				|| !may_kill_here(ch, vict))
 			continue;
 
@@ -234,9 +234,9 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 
 		// Mobile helpers... //ассист
 		if (IS_SET(extmode, KILL_FIGHTING) &&
-				FIGHTING(vict) &&
-				FIGHTING(vict) != ch &&
-				IS_NPC(FIGHTING(vict)) && !AFF_FLAGGED(FIGHTING(vict), AFF_CHARM) && SAME_ALIGN(ch, FIGHTING(vict)))
+				vict->get_fighting() &&
+				vict->get_fighting() != ch &&
+				IS_NPC(vict->get_fighting()) && !AFF_FLAGGED(vict->get_fighting(), AFF_CHARM) && SAME_ALIGN(ch, vict->get_fighting()))
 			kill_this = TRUE;
 		else
 			// ... but no aggressive for this char
@@ -326,14 +326,14 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 	else
 		best = min_hp ? min_hp : (caster ? caster : (min_lvl ? min_lvl : (use_light ? use_light : victim)));
 
-	if (best && !FIGHTING(ch) && MOB_FLAGGED(ch, MOB_AGGRMONO) &&
+	if (best && !ch->get_fighting() && MOB_FLAGGED(ch, MOB_AGGRMONO) &&
 			!IS_NPC(best) && GET_RELIGION(best) == RELIGION_MONO)
 	{
 		act("$n закричал$g: 'Умри, христианская собака!' и набросился на вас.", FALSE, ch, 0, best, TO_VICT);
 		act("$n закричал$g: 'Умри, христианская собака!' и набросился на $N3.", FALSE, ch, 0, best, TO_NOTVICT);
 	}
 
-	if (best && !FIGHTING(ch) && MOB_FLAGGED(ch, MOB_AGGRPOLY) &&
+	if (best && !ch->get_fighting() && MOB_FLAGGED(ch, MOB_AGGRPOLY) &&
 			!IS_NPC(best) && GET_RELIGION(best) == RELIGION_POLY)
 	{
 		act("$n закричал$g: 'Умри, грязный язычник!' и набросился на вас.", FALSE, ch, 0, best, TO_VICT);
@@ -365,11 +365,11 @@ int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
 			GET_POS(ch) = POS_STANDING;
 		}
 
-		if (IS_SET(extmode, KILL_FIGHTING) && FIGHTING(best))
+		if (IS_SET(extmode, KILL_FIGHTING) && best->get_fighting())
 		{
-			if (MOB_FLAGGED(FIGHTING(best), MOB_NOHELPS))
+			if (MOB_FLAGGED(best->get_fighting(), MOB_NOHELPS))
 				return (FALSE);
-			act("$n вступил$g в битву на стороне $N1.", FALSE, ch, 0, FIGHTING(best), TO_ROOM);
+			act("$n вступил$g в битву на стороне $N1.", FALSE, ch, 0, best->get_fighting(), TO_ROOM);
 		}
 		if (!IS_NPC(best))
 		{
@@ -393,7 +393,7 @@ int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
 					break;
 				}
 		}
-		if (!attack_best(ch, best) && !FIGHTING(ch))
+		if (!attack_best(ch, best) && !ch->get_fighting())
 			hit(ch, best, TYPE_UNDEFINED, 1);
 		return (TRUE);
 	}
@@ -417,7 +417,7 @@ int perform_best_horde_attack(CHAR_DATA * ch, int extmode)
 				act("$n вскочил$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_STANDING;
 			}
-			if (!attack_best(ch, vict) && !FIGHTING(ch))
+			if (!attack_best(ch, vict) && !ch->get_fighting())
 				hit(ch, vict, TYPE_UNDEFINED, 1);
 			return (TRUE);
 		}
@@ -431,11 +431,11 @@ int perform_mob_switch(CHAR_DATA * ch)
 	best = find_best_mob_victim(ch, SKIP_HIDING | SKIP_CAMOUFLAGE | SKIP_SNEAKING | CHECK_OPPONENT);
 	if (!best)
 		return FALSE;
-	if (best == FIGHTING(ch))
+	if (best == ch->get_fighting())
 		return FALSE;
 	// переключаюсь на best
 	stop_fighting(ch, FALSE);
-	set_fighting(ch, best);
+	start_fighting(ch, best);
 	set_wait(ch, 2, FALSE);
 	if (ch->get_skill(SKILL_MIGHTHIT))
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
@@ -658,7 +658,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 			}
 		}
 		// If the mob has no specproc, do the default actions
-		if (FIGHTING(ch) ||
+		if (ch->get_fighting() ||
 				GET_POS(ch) <= POS_STUNNED ||
 				GET_WAIT(ch) > 0 ||
 				AFF_FLAGGED(ch, AFF_CHARM) ||
@@ -686,7 +686,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		{
 			if (ch == vict)
 				continue;
-			if (FIGHTING(vict) == ch)
+			if (vict->get_fighting() == ch)
 				break;
 			if (!IS_NPC(vict) && CAN_SEE(ch, vict))
 				max = TRUE;
@@ -735,7 +735,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		do_aggressive_mob(ch, FALSE);
 
 		// if mob attack something
-		if (FIGHTING(ch) || GET_WAIT(ch) > 0)
+		if (ch->get_fighting() || GET_WAIT(ch) > 0)
 			continue;
 
 		/* Scavenger (picking up objects) */
@@ -825,7 +825,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 							first && kw < 25; first = first->next_in_room, kw++)
 						if (IS_NPC(first) && !AFF_FLAGGED(first, AFF_CHARM)
 								&& !IS_HORSE(first) && CAN_SEE(ch, first)
-								&& FIGHTING(first) && SAME_ALIGN(ch, first))
+								&& first->get_fighting() && SAME_ALIGN(ch, first))
 						{
 							found = TRUE;
 							break;
@@ -885,7 +885,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		/*****************  Mob Memory      */
 		if (MOB_FLAGGED(ch, MOB_MEMORY) &&
-				MEMORY(ch) && GET_POS(ch) > POS_SLEEPING && !AFF_FLAGGED(ch, AFF_BLIND) && !FIGHTING(ch))
+				MEMORY(ch) && GET_POS(ch) > POS_SLEEPING && !AFF_FLAGGED(ch, AFF_BLIND) && !ch->get_fighting())
 		{
 			victim = NULL;
 			// Find memory in world
