@@ -131,7 +131,7 @@ void check(CHAR_DATA *ch, OBJ_DATA *object)
 		global_uid = global_uid <= 0 ? 1 : global_uid; // Если произошло переполнение инта
 		GET_OBJ_UID(object) = global_uid; // Назначаем уид
 		ObjDupe::add(object);
-		log("%s obj_to_char %s (%d|%u)", GET_NAME(ch), object->PNames[0], GET_OBJ_VNUM(object), object->uid);
+		log("%s obj_to_char %s #%d|%u", GET_NAME(ch), object->PNames[0], GET_OBJ_VNUM(object), object->uid);
 	}
 }
 
