@@ -51,6 +51,7 @@
 #include "char.hpp"
 #include "skills.h"
 #include "char_player.hpp"
+#include "obj_dupe.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -1386,7 +1387,7 @@ void boot_db(void)
 	NewNameLoad();
 
 	log("Load global uid counter");
-	LoadGlobalUID();
+	ObjDupe::load_global_uid();
 
 	log("Init DeathTrap list.");
 	DeathTrap::load();

@@ -1527,7 +1527,7 @@ extern std::vector < OBJ_DATA * >obj_proto;
 /* ================== Memory Structure for Objects ================== */
 struct obj_data
 {
-	unsigned int uid;
+	int uid;
 	obj_vnum item_number;	/* Where in data-base            */
 	room_rnum in_room;	/* In what room -1 when conta/carr */
 

@@ -26,6 +26,7 @@
 #include "im.h"
 #include "depot.hpp"
 #include "char.hpp"
+#include "obj_dupe.hpp"
 
 /* these factors should be unique integers */
 #define RENT_FACTOR 	1
@@ -475,6 +476,9 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 		if (err)
 			*error = 100 + err;
 	}
+	if (!*error && GET_OBJ_UID(object))
+		ObjDupe::add(object);
+
 	return (object);
 }
 
