@@ -311,40 +311,6 @@ void Character::create_mob_guard()
 	player = Player::shared_mob;
 }
 
-/**
-* Капитально расширенная версия сислога для теста battle_list.
-*/
-void battle_log(const char *format, ...)
-{
-	const char *filename = "../log/battle.log";
-	static FILE *file = 0;
-	if (!file)
-	{
-		file = fopen(filename, "a");
-		if (!file)
-		{
-			log("SYSERR: can't open %s!", filename);
-			return;
-		}
-		opened_files.push_back(file);
-	}
-	else if (!format)
-		format = "SYSERR: // battle_log received a NULL format.";
-
-	write_time(file);
-	va_list args;
-	va_start(args, format);
-	vfprintf(file, format, args);
-	va_end(args);
-	fprintf(file, "\n");
-#ifdef LOG_AUTOFLUSH
-	fflush(file);
-#endif
-}
-
-#define START_DEBUG battle_log("%s: %s start", GET_NAME(this), __func__)
-#define STOP_DEBUG battle_log("%s: %s stop", GET_NAME(this), __func__)
-
 // battle_list >> //////////////////////////////////////////////////////////////
 
 /**
@@ -352,16 +318,9 @@ void battle_log(const char *format, ...)
 */
 void Character::add_battle_list(CHAR_DATA *vict)
 {
-START_DEBUG;
 	BattleListType::iterator it = std::find(battle_list_.begin(), battle_list_.end(), vict);
 	if (it == battle_list_.end())
-	{
-		battle_log("%s: add to list %s", GET_NAME(this), GET_NAME(vict));
 		battle_list_.push_back(vict);
-	}
-	else
-		battle_log("%s: do nothing, %s is already in list", GET_NAME(this), GET_NAME(vict));
-STOP_DEBUG;
 }
 
 /**
@@ -370,7 +329,6 @@ STOP_DEBUG;
 */
 void Character::check_battle_list(CHAR_DATA *vict)
 {
-START_DEBUG;
 	if (vict->get_protecting() != this
 		&& vict->get_touching() != this
 		&& vict->get_fighting() != this
@@ -379,14 +337,8 @@ START_DEBUG;
 	{
 		BattleListType::iterator it = std::find(battle_list_.begin(), battle_list_.end(), vict);
 		if (it != battle_list_.end())
-		{
-			battle_log("%s: remove from list %s", GET_NAME(this), GET_NAME(vict));
 			battle_list_.erase(it);
-		}
-		else
-			battle_log("%s: do nothing, %s is not in list", GET_NAME(this), GET_NAME(vict));
 	}
-STOP_DEBUG;
 }
 
 /**
@@ -394,13 +346,11 @@ STOP_DEBUG;
 */
 void Character::clear_battle_list()
 {
-START_DEBUG;
 	BattleListType::iterator next_it;
 	for (BattleListType::iterator it = battle_list_.begin(); it != battle_list_.end(); it = next_it)
 	{
 		CHAR_DATA *vict = *it;
 		next_it = ++it;
-		battle_log("%s: checking %s", GET_NAME(this), GET_NAME(vict));
 		// пользовать it дальше нельзя
 		if (vict->get_protecting() == this)
 		{
@@ -439,7 +389,6 @@ START_DEBUG;
 		}
 	}
 	battle_list_.clear();
-STOP_DEBUG;
 }
 
 // << battle_list //////////////////////////////////////////////////////////////
@@ -453,8 +402,6 @@ CHAR_DATA * Character::get_protecting() const
 
 void Character::set_protecting(CHAR_DATA *vict)
 {
-START_DEBUG;
-	battle_log("%s: protecting_ = %s, vict = ", GET_NAME(this), protecting_ ? GET_NAME(protecting_) : "null", vict ? GET_NAME(vict) : "null");
 	if (protecting_ && protecting_ != vict)
 	{
 		// чистим старую цель
@@ -467,7 +414,6 @@ START_DEBUG;
 		vict->add_battle_list(this);
 
 	protecting_ = vict;
-STOP_DEBUG;
 }
 
 CHAR_DATA * Character::get_touching() const
@@ -477,8 +423,6 @@ CHAR_DATA * Character::get_touching() const
 
 void Character::set_touching(CHAR_DATA *vict)
 {
-START_DEBUG;
-	battle_log("%s: touching_ = %s, vict = ", GET_NAME(this), touching_ ? GET_NAME(touching_) : "null", vict ? GET_NAME(vict) : "null");
 	if (touching_ && touching_ != vict)
 	{
 		// чистим старую цель
@@ -491,7 +435,6 @@ START_DEBUG;
 		vict->add_battle_list(this);
 
 	touching_ = vict;
-STOP_DEBUG;
 }
 
 CHAR_DATA * Character::get_fighting() const
@@ -501,8 +444,6 @@ CHAR_DATA * Character::get_fighting() const
 
 void Character::set_fighting(CHAR_DATA *vict)
 {
-START_DEBUG;
-	battle_log("%s: fighting_ = %s, vict = ", GET_NAME(this), fighting_ ? GET_NAME(fighting_) : "null", vict ? GET_NAME(vict) : "null");
 	if (fighting_ && fighting_ != vict)
 	{
 		// чистим старую цель
@@ -515,7 +456,6 @@ START_DEBUG;
 		vict->add_battle_list(this);
 
 	fighting_ = vict;
-STOP_DEBUG;
 }
 
 int Character::get_extra_skill() const
@@ -530,8 +470,6 @@ CHAR_DATA * Character::get_extra_victim() const
 
 void Character::set_extra_attack(int skill, CHAR_DATA *vict)
 {
-START_DEBUG;
-	battle_log("%s: extra_attack_.victim = %s, vict = ", GET_NAME(this), extra_attack_.victim ? GET_NAME(extra_attack_.victim) : "null", vict ? GET_NAME(vict) : "null");
 	if (extra_attack_.victim && extra_attack_.victim != vict)
 	{
 		// чистим старую цель
@@ -545,13 +483,10 @@ START_DEBUG;
 
 	extra_attack_.used_skill = skill;
 	extra_attack_.victim = vict;
-STOP_DEBUG;
 }
 
 void Character::set_cast(int spellnum, int spell_subst, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom)
 {
-START_DEBUG;
-	battle_log("%s: cast_attack_.tch = %s, tch = ", GET_NAME(this), cast_attack_.tch ? GET_NAME(cast_attack_.tch) : "null", tch ? GET_NAME(tch) : "null");
 	if (cast_attack_.tch && cast_attack_.tch != tch)
 	{
 		// чистим старую цель
@@ -568,7 +503,6 @@ START_DEBUG;
 	cast_attack_.tch = tch;
 	cast_attack_.tobj = tobj;
 	cast_attack_.troom = troom;
-STOP_DEBUG;
 }
 
 int Character::get_cast_spell() const
