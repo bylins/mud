@@ -39,8 +39,7 @@ class.o: class.cpp conf.h sysdep.h structs.h comm.h db.h utils.h spells.h \
 comm.o: comm.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
   handler.h db.h house.h olc.h dg_scripts.h screen.h ban.hpp diskio.h \
   auction.h exchange.h deathtrap.hpp title.hpp depot.hpp glory.hpp \
-  file_crc.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp \
-  obj_dupe.hpp
+  file_crc.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp
 config.o: config.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
   constants.h char.hpp
 constants.o: constants.cpp conf.h sysdep.h structs.h spells.h skills.h \
@@ -52,8 +51,7 @@ db.o: db.cpp conf.h sysdep.h structs.h utils.h db.h comm.h handler.h \
   olc.h diskio.h im.h top.h stuff.hpp double_map.hpp ban.hpp \
   item.creation.hpp features.hpp boards.h description.h deathtrap.hpp \
   title.hpp privilege.hpp depot.hpp glory.hpp genchar.h random.hpp \
-  file_crc.hpp char.hpp skills.h char_player.hpp quested.hpp mobmax.hpp \
-  obj_dupe.hpp
+  file_crc.hpp char.hpp skills.h char_player.hpp quested.hpp mobmax.hpp
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h comm.h handler.h \
   interpreter.h db.h spells.h screen.h constants.h dg_scripts.h pk.h im.h \
   fight.h skills.h features.hpp house.h stuff.hpp double_map.hpp \
@@ -64,7 +62,7 @@ graph.o: graph.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
 handler.o: handler.cpp conf.h sysdep.h structs.h constants.h utils.h \
   comm.h db.h handler.h interpreter.h spells.h skills.h screen.h \
   dg_scripts.h auction.h features.hpp house.h exchange.h char.hpp \
-  char_player.hpp quested.hpp mobmax.hpp obj_dupe.hpp
+  char_player.hpp quested.hpp mobmax.hpp
 house.o: house.cpp conf.h house.h sysdep.h structs.h utils.h db.h \
   interpreter.h comm.h handler.h pk.h screen.h boards.h skills.h spells.h \
   privilege.hpp char.hpp
@@ -90,8 +88,7 @@ modify.o: modify.cpp conf.h sysdep.h structs.h utils.h interpreter.h \
   handler.h db.h comm.h spells.h mail.h boards.h screen.h olc.h \
   features.hpp house.h privilege.hpp char.hpp skills.h
 objsave.o: objsave.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
-  interpreter.h utils.h spells.h screen.h house.h im.h depot.hpp char.hpp \
-  obj_dupe.hpp
+  interpreter.h utils.h spells.h screen.h house.h im.h depot.hpp char.hpp
 olc.o: olc.cpp conf.h sysdep.h structs.h interpreter.h utils.h comm.h \
   db.h olc.h dg_olc.h dg_scripts.h screen.h item.creation.hpp im.h \
   privilege.hpp char.hpp
@@ -205,12 +202,10 @@ file_crc.o: file_crc.cpp conf.h file_crc.hpp sysdep.h structs.h db.h \
   utils.h interpreter.h comm.h
 char.o: char.cpp char.hpp conf.h sysdep.h structs.h utils.h db.h pk.h \
   im.h handler.h interpreter.h boards.h privilege.hpp skills.h \
-  constants.h char_player.hpp quested.hpp mobmax.hpp spells.h comm.h
+  constants.h char_player.hpp quested.hpp mobmax.hpp
 char_player.o: char_player.cpp char_player.hpp conf.h sysdep.h structs.h \
   quested.hpp mobmax.hpp utils.h
 quested.o: quested.cpp quested.hpp conf.h sysdep.h structs.h utils.h \
   char.hpp
 mobmax.o: mobmax.cpp mobmax.hpp conf.h sysdep.h structs.h char.hpp \
   utils.h db.h
-obj_dupe.o: obj_dupe.cpp obj_dupe.hpp conf.h sysdep.h structs.h utils.h \
-  db.h comm.h char.hpp

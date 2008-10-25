@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include <map>
+#include <list>
 #include "obj_dupe.hpp"
 #include "utils.h"
 #include "db.h"
@@ -14,7 +15,9 @@ namespace
 
 int global_uid = 0;
 
-typedef std::multimap<int /* уид шмотки */, OBJ_DATA *> DupeListType;
+// TODO:: мультимап тут вобщем надо и без второго списка
+typedef std::list<OBJ_DATA *> DupeNodeType;
+typedef std::map<int /* уид шмотки */, DupeNodeType> DupeListType;
 DupeListType dupe_list;
 
 int count_dupes(OBJ_DATA *obj)
@@ -24,15 +27,11 @@ int count_dupes(OBJ_DATA *obj)
 	DupeListType::iterator it = dupe_list.find(GET_OBJ_UID(obj));
 	if (it != dupe_list.end())
 	{
-		do
+		for (DupeNodeType::const_iterator tmp_it = it->second.begin(); tmp_it != it->second.end(); ++tmp_it)
 		{
-			if (GET_OBJ_VNUM(it->second) == GET_OBJ_VNUM(obj) && GET_OBJ_TIMER(it->second) > 0)
-			{
+			if (GET_OBJ_VNUM((*tmp_it)) == GET_OBJ_VNUM(obj) && GET_OBJ_TIMER((*tmp_it)) > 0)
 				++count;
-			}
-			++it;
 		}
-		while (it != dupe_list.end() && it->first == GET_OBJ_UID(obj));
 	}
 	return count;
 }
@@ -76,7 +75,17 @@ void save_global_uid()
 // TODO: в принципе можно смотреть дюпы в том числе и в хранах личных и где там еще будет шмот вне глоб.списка
 void add(OBJ_DATA *obj)
 {
-	dupe_list.insert(std::make_pair(GET_OBJ_UID(obj), obj));
+	DupeListType::iterator it = dupe_list.find(GET_OBJ_UID(obj));
+	if (it != dupe_list.end())
+	{
+		it->second.push_back(obj);
+	}
+	else
+	{
+		DupeNodeType tmp_list;
+		tmp_list.push_back(obj);
+		dupe_list[GET_OBJ_UID(obj)] = tmp_list;
+	}
 }
 
 void remove(OBJ_DATA *obj)
@@ -84,16 +93,13 @@ void remove(OBJ_DATA *obj)
 	DupeListType::iterator it = dupe_list.find(GET_OBJ_UID(obj));
 	if (it != dupe_list.end())
 	{
-		do
+		DupeNodeType::iterator tmp_it = std::find(it->second.begin(), it->second.end(), obj);
+		if (tmp_it != it->second.end())
 		{
-			if (it->second == obj)
-			{
+			it->second.erase(tmp_it);
+			if (it->second.empty())
 				dupe_list.erase(it);
-				return;
-			}
-			++it;
 		}
-		while (it != dupe_list.end() && it->first == GET_OBJ_UID(obj));
 	}
 }
 
@@ -101,8 +107,8 @@ void check(CHAR_DATA *ch, OBJ_DATA *object)
 {
 	// Контроль уникальности предметов
 	if (object && // Объект существует
-			GET_OBJ_UID(object) != 0 && // Есть UID
-			GET_OBJ_TIMER(object) > 0) // Целенький
+		GET_OBJ_UID(object) != 0 && // Есть UID
+		GET_OBJ_TIMER(object) > 0) // Целенький
 	{
 		// Объект готов для проверки. Ищем в мире такой же.
 		int inworld = count_dupes(object);
@@ -119,7 +125,7 @@ void check(CHAR_DATA *ch, OBJ_DATA *object)
 		}
 	} // Назначаем UID
 	else if (GET_OBJ_VNUM(object) > 0 && // Объект не виртуальный
-			 GET_OBJ_UID(object) == 0)   // У объекта точно нет уида
+		 GET_OBJ_UID(object) == 0)   // У объекта точно нет уида
 	{
 		++global_uid; // Увеличиваем глобальный счетчик уидов
 		global_uid = global_uid <= 0 ? 1 : global_uid; // Если произошло переполнение инта

@@ -52,7 +52,6 @@
 #include "file_crc.hpp"
 #include "char.hpp"
 #include "char_player.hpp"
-#include "obj_dupe.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -514,7 +513,7 @@ void init_game(ush_int port)
 	}
 	//Crash_save_all();
 
-	ObjDupe::save_global_uid();
+	SaveGlobalUID();
 	exchange_database_save();	//exchange database save
 	Clan::ChestUpdate();
 	Clan::ChestSave();
@@ -1437,7 +1436,7 @@ inline void heartbeat()
 
 	if (auto_save && !((pulse + 9) % (60 * PASSES_PER_SEC)))
 	{
-		ObjDupe::save_global_uid();
+		SaveGlobalUID();
 	}
 
 	if (!FRAC_SAVE && auto_save && !((pulse + 11) % (60 * PASSES_PER_SEC)))  	// 1 minute
@@ -1769,8 +1768,8 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		}
 
 
-		if (!d->character->get_fighting()
-				|| IN_ROOM(d->character) != IN_ROOM(d->character->get_fighting()))  	/* SHOW NON COMBAT INFO */
+		if (!FIGHTING(d->character)
+				|| IN_ROOM(d->character) != IN_ROOM(FIGHTING(d->character)))  	/* SHOW NON COMBAT INFO */
 		{
 
 			if (PRF_FLAGGED(d->character, PRF_DISPLEVEL))
@@ -1801,12 +1800,12 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		{
 			if (PRF_FLAGGED(d->character, PRF_DISPFIGHT))
 				count += sprintf(prompt + count, "%s", show_state(d->character, d->character));
-			if (d->character->get_fighting()->get_fighting()
-					&& d->character->get_fighting()->get_fighting() != d->character)
+			if (FIGHTING(FIGHTING(d->character))
+					&& FIGHTING(FIGHTING(d->character)) != d->character)
 				count +=
 					sprintf(prompt + count, "%s",
-							show_state(d->character, d->character->get_fighting()->get_fighting()));
-			count += sprintf(prompt + count, "%s", show_state(d->character, d->character->get_fighting()));
+							show_state(d->character, FIGHTING(FIGHTING(d->character))));
+			count += sprintf(prompt + count, "%s", show_state(d->character, FIGHTING(d->character)));
 		};
 		strcat(prompt, "> ");
 	}

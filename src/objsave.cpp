@@ -26,7 +26,6 @@
 #include "im.h"
 #include "depot.hpp"
 #include "char.hpp"
-#include "obj_dupe.hpp"
 
 /* these factors should be unique integers */
 #define RENT_FACTOR 	1
@@ -476,9 +475,6 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 		if (err)
 			*error = 100 + err;
 	}
-	if (!*error && GET_OBJ_UID(object))
-		ObjDupe::add(object);
-
 	return (object);
 }
 
@@ -2582,7 +2578,7 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 		send_to_char("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
 		return (TRUE);
 	}
-	if (ch->get_fighting())
+	if (FIGHTING(ch))
 	{
 		return (FALSE);
 	}

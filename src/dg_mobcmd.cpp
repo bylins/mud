@@ -184,7 +184,7 @@ ACMD(do_mkill)
 		return;
 	}
 
-	if (ch->get_fighting())
+	if (FIGHTING(ch))
 	{
 		mob_log(ch, "mkill: already fighting");
 		return;
@@ -571,7 +571,7 @@ ACMD(do_mgoto)
 		return;
 	}
 
-	if (ch->get_fighting())
+	if (FIGHTING(ch))
 		stop_fighting(ch, TRUE);
 
 	char_from_room(ch);
@@ -1182,8 +1182,8 @@ ACMD(do_mtransform)
 		IS_CARRYING_W(m) = IS_CARRYING_W(&tmpmob);
 		IS_CARRYING_N(ch) = IS_CARRYING_N(m);
 		IS_CARRYING_N(m) = IS_CARRYING_N(&tmpmob);
-		ch->set_fighting(m->get_fighting());
-		m->set_fighting(tmpmob.get_fighting());
+		FIGHTING(ch) = FIGHTING(m);
+		FIGHTING(m) = FIGHTING(&tmpmob);
 
 		for (pos = 0; pos < NUM_WEARS; pos++)
 		{

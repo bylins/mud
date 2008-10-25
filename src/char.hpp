@@ -127,6 +127,8 @@ struct char_special_data_saved
 /* Special playing constants shared by PCs and NPCs which aren't in pfile */
 struct char_special_data
 {
+	CHAR_DATA *fighting;	/* Opponent */
+
 	byte position;		/* Standing, fighting, sleeping, etc. */
 
 	int carry_weight;		/* Carried weight */
@@ -259,6 +261,7 @@ struct player_special_data
 
 class Player;
 typedef boost::shared_ptr<Player> PlayerPtr;
+typedef std::map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
 
 /**
 * Общий класс для игроков/мобов.
@@ -269,8 +272,6 @@ class Character
 public:
 	Character();
 	~Character();
-
-	PlayerPtr player;
 
 	void create_player();
 	void create_mob_guard();
@@ -283,51 +284,10 @@ public:
 	void clear_skills();
 	int get_skills_count();
 
-	void clear_battle_list();
-
-	CHAR_DATA * get_protecting() const;
-	void set_protecting(CHAR_DATA *vict);
-
-	CHAR_DATA * get_touching() const;
-	void set_touching(CHAR_DATA *vict);
-
-	CHAR_DATA * get_fighting() const;
-	void set_fighting(CHAR_DATA *vict);
-
-	int get_extra_skill() const;
-	CHAR_DATA * get_extra_victim() const;
-	void set_extra_attack(int skill, CHAR_DATA *vict);
-
-	// TODO: касты можно сделать и красивее (+ troom не используется)
-	void set_cast(int spellnum, int spell_subst, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom);
-	int get_cast_spell() const;
-	int get_cast_subst() const;
-	CHAR_DATA * get_cast_char() const;
-	OBJ_DATA * get_cast_obj() const;
+	PlayerPtr player;
 
 private:
-// типы
-	typedef std::map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
-	typedef std::list<CHAR_DATA *> BattleListType;
-// поля
-	// список изученных скиллов
- 	CharSkillsType skills;
-	// список чаров, с которыми взаимодействуем (для быстрой очистики при экстракте,
-	// не гоняя по всему чар-листу), список взаимодействий см в check_battle_list
- 	BattleListType battle_list_;
- 	// цель для 'прикрыть'
-	CHAR_DATA *protecting_;
- 	// цель для 'перехватить'
-	CHAR_DATA *touching_;
-	// противник
-	CHAR_DATA *fighting_;
-	// атаки типа баша, пинка и т.п.
-	struct extra_attack_type extra_attack_;
-	// каст заклинания
-	struct cast_attack_type cast_attack_;
-// методы
-	void add_battle_list(CHAR_DATA *vict);
-	void check_battle_list(CHAR_DATA *vict);
+	CharSkillsType skills; // список изученных скиллов
 
 // старое
 public:
@@ -383,7 +343,13 @@ public:
 
 	FLAG_DATA BattleAffects;
 
+	CHAR_DATA *Protecting;
+	CHAR_DATA *Touching;
+
 	int Poisoner;
+
+	struct extra_attack_type extra_attack;
+	struct cast_attack_type cast_attack;
 
 	int *ing_list;		//загружаемые в труп ингредиенты
 	load_list *dl_list;	// загружаемые в труп предметы

@@ -51,7 +51,6 @@
 #include "char.hpp"
 #include "skills.h"
 #include "char_player.hpp"
-#include "obj_dupe.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -1387,7 +1386,7 @@ void boot_db(void)
 	NewNameLoad();
 
 	log("Load global uid counter");
-	ObjDupe::load_global_uid();
+	LoadGlobalUID();
 
 	log("Init DeathTrap list.");
 	DeathTrap::load();
@@ -4000,7 +3999,7 @@ bool can_be_reset(zone_rnum zone)
 
 void paste_mob(CHAR_DATA *ch, room_rnum room)
 {
-	if (!IS_NPC(ch) || ch->get_fighting() || GET_POS(ch) < POS_STUNNED)
+	if (!IS_NPC(ch) || FIGHTING(ch) || GET_POS(ch) < POS_STUNNED)
 		return;
 	if (AFF_FLAGGED(ch, AFF_CHARM) || AFF_FLAGGED(ch, AFF_HORSE) || AFF_FLAGGED(ch, AFF_HOLD))
 		return;
@@ -6121,11 +6120,11 @@ void reset_char(CHAR_DATA * ch)
 	ch->next = NULL;
 	ch->next_fighting = NULL;
 	ch->next_in_room = NULL;
-	ch->set_protecting(0);
-	ch->set_touching(0);
-	ch->set_fighting(0);
+	ch->Protecting = NULL;
+	ch->Touching = NULL;
 	ch->BattleAffects = clear_flags;
 	ch->Poisoner = 0;
+	FIGHTING(ch) = NULL;
 	ch->char_specials.position = POS_STANDING;
 	ch->mob_specials.default_pos = POS_STANDING;
 	ch->char_specials.carry_weight = 0;
@@ -6307,7 +6306,7 @@ ACMD(do_remort)
 	GET_WIS(ch) += 1;
 	GET_CHA(ch) += 1;
 
-	if (ch->get_fighting())
+	if (FIGHTING(ch))
 		stop_fighting(ch, TRUE);
 
 	die_follower(ch);

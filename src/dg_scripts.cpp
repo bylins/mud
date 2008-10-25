@@ -2164,8 +2164,8 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 
 			else if (!str_cmp(field, "fighting"))
 			{
-				if (c->get_fighting())
-					sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->get_fighting()));
+				if (FIGHTING(c))
+					sprintf(str, "%c%ld", UID_CHAR, GET_ID(FIGHTING(c)));
 			}
 			else if (!str_cmp(field, "is_killer"))
 			{
@@ -2459,7 +2459,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				CHAR_DATA *t;
 				for (t = combat_list; t; t = t->next_fighting)
 				{
-					if (t->get_fighting() != c)
+					if (FIGHTING(t) != c)
 						continue;
 					sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(t));
 				}
