@@ -112,6 +112,7 @@ DepotListType depot_list; // список личных хранилищ
 */
 void depot_log(const char *format, ...)
 {
+	return;
 	const char *filename = "../log/depot.log";
 	static FILE *file = 0;
 	if (!file)
