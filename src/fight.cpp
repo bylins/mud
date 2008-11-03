@@ -2997,7 +2997,7 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
 	{
 		percent = ch->get_skill(SKILL_IRON_WIND);
-		moves = GET_MAX_MOVE(ch) / (2 + MAX(15, percent) / 15);
+		moves = GET_MAX_MOVE(ch) / (6 + MAX(10, percent) / 10);
 		prob = GET_AF_BATTLE(ch, EAF_IRON_WIND);
 		if (prob && !check_moves(ch, moves))
 		{
