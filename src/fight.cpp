@@ -2399,7 +2399,7 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktyp
 		}
 		else
 		{
-			act("$n мертв$g, $s душа медленно подымается в небеса.", FALSE, victim, 0, 0, TO_ROOM);
+			act("$n мертв$a, $s душа медленно подымается в небеса.", FALSE, victim, 0, 0, TO_ROOM);
 			send_to_char("Вы мертвы!  Hам очень жаль...\r\n", victim);
 		}
 		break;

@@ -561,7 +561,7 @@ ACMD(do_order)
 	{
 		if (vict && !IS_NPC(vict) && !IS_GOD(ch))
 		{
-			send_to_char(ch, "Игрокам приказывать могут только Боги!.\r\n");
+			send_to_char(ch, "Игрокам приказывать могут только Боги!\r\n");
 			return;
 		}
 		if (AFF_FLAGGED(ch, AFF_CHARM))
