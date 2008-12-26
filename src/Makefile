@@ -1,6 +1,7 @@
 # C compiler to use
 CC = g++43
 TESTCC = g++
+TESTCC4 = g++-4
 
 # Path to cxref utility
 CXREF = cxref
@@ -77,6 +78,9 @@ testdepend:
 
 test:
 	$(MAKE) CFLAGS="$(TESTCFLAGS)" CC="$(TESTCC)" $(BINDIR)/circle
+
+test4:
+	$(MAKE) CFLAGS="$(TESTCFLAGS)" CC="$(TESTCC4)" $(BINDIR)/circle
 
 debug:
 	$(MAKE) CFLAGS="$(TESTCFLAGS) $(DEBUGFLAGS)" CC="$(TESTCC)" $(BINDIR)/circle

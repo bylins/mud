@@ -2972,8 +2972,10 @@ ACMD(do_last)
 		send_to_char("Нет такого игрока.\r\n", ch);
 		return;
 	}
-	if (GET_LEVEL(chdata) > GET_LEVEL(ch) && !IS_IMPL(ch))
+	if (GET_LEVEL(chdata) > GET_LEVEL(ch) && !IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
+	{
 		send_to_char("Вы не столь уж и божественны для этого.\r\n", ch);
+	}
 	else
 	{
 		sprintf(buf, "[%5ld] [%2d %s %s] %-12s : %-18s : %-20s\r\n",
