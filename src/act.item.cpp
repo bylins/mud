@@ -1278,12 +1278,21 @@ ACMD(do_give)
 			if (!ch->carrying)
 				send_to_char("У Вас ведь ничего нет.\r\n", ch);
 			else
+			{
+				bool has_items = false;
 				for (obj = ch->carrying; obj; obj = next_obj)
 				{
+
 					next_obj = obj->next_content;
 					if (CAN_SEE_OBJ(ch, obj) && ((dotmode == FIND_ALL || isname(arg, obj->name))))
+					{
 						perform_give(ch, vict, obj);
+						has_items = true;
+					}
 				}
+				if (!has_items)
+					send_to_char(ch, "У Вас нет '%s'.\r\n", arg);
+			}
 		}
 	}
 }
