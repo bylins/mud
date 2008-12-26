@@ -964,9 +964,6 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 		for (std::vector<CHAR_DATA *>::reverse_iterator it = temp_list.rbegin(); it != temp_list.rend(); ++it)
 			add_follower(*it, leader, true);
 
-	if (!leader->followers)
-		return;
-
 	// бывшего лидера последним закидываем обратно в группу, если он живой
 	if (vict)
 	{
@@ -974,6 +971,9 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
 		add_follower(ch, leader, true);
 	}
+
+	if (!leader->followers)
+		return;
 
 	perform_group(leader, leader);
 	int followers = 0;
@@ -1292,14 +1292,25 @@ ACMD(do_group)
 	else if (!str_cmp(buf, "leader") || !str_cmp(buf, "лидер"))
 	{
 		vict = get_char_vis(ch, argument, FIND_CHAR_WORLD);
-		if (vict == ch)
-		{
-			send_to_char("Вы и так лидер группы...\r\n", ch);
-			return;
+		// added by WorM (Видолюб) Если найден клон и его хозяин персонаж
+		// а то чото как-то глючно Двойник %1 не является членом вашей группы.
+		if (vict && IS_NPC(vict) && MOB_FLAGGED(vict, MOB_CLONE) && AFF_FLAGGED(vict, AFF_CHARM) && vict->master && !IS_NPC(vict->master)) {
+			if(CAN_SEE(ch, vict->master)) {
+				vict = vict->master;
+			}
+			else {
+				vict = NULL;
+			}
 		}
-		else if (!vict)
+		// end by WorM
+		if (!vict)
 		{
 			send_to_char("Нет такого персонажа.\r\n", ch);
+			return;
+		}
+		else if (vict == ch)
+		{
+			send_to_char("Вы и так лидер группы...\r\n", ch);
 			return;
 		}
 		else if (!AFF_FLAGGED(vict, AFF_GROUP) || vict->master != ch)
