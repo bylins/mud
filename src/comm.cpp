@@ -2212,7 +2212,24 @@ int process_output(DESCRIPTOR_DATA * t)
 
 	/* add the extra CRLF if the person isn't in compact mode */
 	if (STATE(t) == CON_PLAYING && t->character && !IS_NPC(t->character) && !PRF_FLAGGED(t->character, PRF_COMPACT))
+	{
 		strcat(i, "\r\n");
+	}
+	else if (STATE(t) == CON_PLAYING && t->character && !IS_NPC(t->character) && PRF_FLAGGED(t->character, PRF_COMPACT))
+	{
+		// added by WorM (Видолюб)
+		//фикс сжатого режима добавляет в конец строки \r\n если его там нету, чтобы промпт был всегда на след. строке
+		for (c=strlen(i)-1; c>0; c--)
+		{
+			if (*(i+c)=='\n' || *(i+c)=='\r')
+				break;
+			else if (*(i+c)!=';' && *(i+c)!='\033' && *(i+c)!='m' && !(*(i+c)>='0' && *(i+c)<='9')  && *(i+c)!='[')
+			{
+				strcat(i, "\r\n");
+				break;
+			}
+		}
+	}// end by WorM
 
 	/* add a prompt */
 	strncat(i, make_prompt(t), MAX_PROMPT_LENGTH);
