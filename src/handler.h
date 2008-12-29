@@ -195,4 +195,6 @@ void MemQ_remember(CHAR_DATA * ch, int num);
 void MemQ_forget(CHAR_DATA * ch, int num);
 int *MemQ_slots(CHAR_DATA * ch);
 
+int get_object_low_rent(OBJ_DATA *obj);
+
 #endif

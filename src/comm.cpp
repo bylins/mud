@@ -52,6 +52,7 @@
 #include "file_crc.hpp"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "parcel.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -1343,6 +1344,11 @@ inline void heartbeat()
 
 // раз в минуту >> /////////////////////////////////////////////////////////////
 
+	// апдейт таймеров на почте + разворот посылок/пурж
+	if (!((pulse + 25) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	{
+		Parcel::update_timers();
+	}
 	// апдейт таймеров в личных хранах + пурж чего надо
 	if (!((pulse + 24) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{

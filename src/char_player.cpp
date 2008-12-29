@@ -11,7 +11,9 @@ Player::Player()
 	:
 	pfilepos_(-1),
 	was_in_room_(NOWHERE),
-	from_room_(0)
+	from_room_(0),
+	reserved_money_(0),
+	reserved_count_(0)
 {
 
 }
@@ -82,3 +84,67 @@ void Player::set_from_room(room_rnum from_room)
 	check_mob_guard(this, __func__);
 	from_room_ = from_room;
 }
+
+void Player::add_reserved_money(int money)
+{
+	check_mob_guard(this, __func__);
+
+	if (money <= 0)
+	{
+		log("SYSERR: money <= 0 (%s)'.", __func__);
+		return;
+	}
+	reserved_money_ += money;
+}
+
+void Player::remove_reserved_money(int money)
+{
+	check_mob_guard(this, __func__);
+
+	if (money <= 0)
+	{
+		log("SYSERR: money <= 0 (%s)'.", __func__);
+		return;
+	}
+
+	reserved_money_ -= money;
+	if (reserved_money_ < 0)
+	{
+		log("SYSERR: reserved_money_ < 0 (%s)'.", __func__);
+		reserved_money_ = 0;
+	}
+}
+
+int Player::get_reserved_money() const
+{
+	check_mob_guard(this, __func__);
+
+	return reserved_money_;
+}
+
+void Player::inc_reserved_count()
+{
+	check_mob_guard(this, __func__);
+
+	++reserved_count_;
+}
+
+void Player::dec_reserved_count()
+{
+	check_mob_guard(this, __func__);
+
+	--reserved_count_;
+	if (reserved_count_ < 0)
+	{
+		log("SYSERR: reserved_count_ < 0 (%s)'.", __func__);
+		reserved_count_ = 0;
+	}
+}
+
+int Player::get_reserved_count() const
+{
+	check_mob_guard(this, __func__);
+
+	return reserved_count_;
+}
+

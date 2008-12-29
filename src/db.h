@@ -179,6 +179,7 @@ bool can_be_reset(zone_rnum zone);
 room_rnum real_room(room_vnum vnum);
 char *fread_string(FILE * fl, char *error);
 long get_id_by_name(char *name);
+long get_id_by_uid(long uid);
 long cmp_ptable_by_name(char *name, int len);
 const char *get_name_by_id(long id);
 char *get_name_by_unique(long id);

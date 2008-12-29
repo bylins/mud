@@ -42,6 +42,7 @@
 #include "file_crc.hpp"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "parcel.hpp"
 
 /*   external vars  */
 extern FILE *player_fl;
@@ -3640,6 +3641,7 @@ ACMD(do_show)
 		send_to_char(buf, ch);
 		Depot::show_stats(ch);
 		Glory::show_stats(ch);
+		Parcel::show_stats(ch);
 		break;
 	case 5:
 		strcpy(buf, "Пустых выходов\r\n" "--------------\r\n");

@@ -4301,3 +4301,33 @@ void Clan::clan_invoice(CHAR_DATA *ch, bool enter)
 		}
 	}
 }
+
+int Clan::print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
+{
+	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+	{
+		OBJ_DATA *temp, *chest;
+		for (chest = world[real_room((*clan)->chest_room)]->contents; chest; chest = chest->next_content)
+		{
+			if (Clan::is_clan_chest(chest))
+			{
+				for (temp = chest->contains; temp; temp = temp->next_content)
+				{
+					if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
+						continue;
+					if (!isname(name.c_str(), temp->name))
+						continue;
+
+					snprintf(buf, MAX_STRING_LENGTH, "%s находится в хранилище дружины '%s'.\r\n", temp->short_description, (*clan)->GetAbbrev());
+					CAP(buf);
+					send_to_char(buf, ch);
+
+					if (--count <= 0)
+						return count;
+				}
+				break;
+			}
+		}
+	}
+	return count;
+}

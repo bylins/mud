@@ -564,15 +564,6 @@ void load_chests()
 }
 
 /**
-* Берется минимальная цена ренты шмотки, не важно, одетая она будет или снятая.
-*/
-int get_object_low_rent(OBJ_DATA *obj)
-{
-	int rent = GET_OBJ_RENT(obj) > GET_OBJ_RENTEQ(obj) ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj);
-	return rent;
-}
-
-/**
 * Добавление цены ренты с порверкой на валидность и переполнение.
 */
 void CharNode::add_cost_per_day(int amount)
@@ -1544,7 +1535,7 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 		{
 			if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
 				continue;
-			if (!isname(name.c_str(), (*obj_it)->name) || OBJ_FLAGGED((*obj_it), ITEM_NOLOCATE))
+			if (!isname(name.c_str(), (*obj_it)->name))
 				continue;
 
 			snprintf(buf, MAX_STRING_LENGTH, "%s находится у кого-то в персональном хранилище.\r\n", (*obj_it)->short_description);

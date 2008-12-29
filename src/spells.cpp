@@ -33,6 +33,7 @@
 #include "privilege.hpp"
 #include "char.hpp"
 #include "depot.hpp"
+#include "parcel.hpp"
 
 extern room_rnum r_mortal_start_room;
 
@@ -781,11 +782,7 @@ ASPELL(spell_locate_object)
 		{
 			if (Clan::is_clan_chest(i->in_obj))
 			{
-				ClanListType::const_iterator clan = Clan::IsClanRoom(i->in_obj->in_room);
-				if (clan != Clan::ClanList.end())
-					sprintf(buf, "%s находится в хранилище дружины '%s'.\r\n", i->short_description, (*clan)->GetAbbrev());
-				else
-					continue;
+				continue; // шоб не забивало локейт на мобах/плеерах - по кланам проходим ниже отдельно
 			}
 			else
 			{
@@ -798,7 +795,7 @@ ASPELL(spell_locate_object)
 				if (i->in_obj->worn_by)
 					if (IS_NPC(i->in_obj->worn_by)
 							&& (OBJ_FLAGGED(i, ITEM_NOLOCATE)
-								|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
+							|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
 						continue;
 				sprintf(buf, "%s находится в %s.\r\n", i->short_description, i->in_obj->PNames[5]);
 			}
@@ -822,7 +819,11 @@ ASPELL(spell_locate_object)
 	}
 
 	if (j > 0)
+		j = Clan::print_spell_locate_object(ch, j, std::string(name));
+	if (j > 0)
 		j = Depot::print_spell_locate_object(ch, j, std::string(name));
+	if (j > 0)
+		j = Parcel::print_spell_locate_object(ch, j, std::string(name));
 
 	if (j == level)
 		send_to_char("Вы ничего не чувствуете.\r\n", ch);

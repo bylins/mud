@@ -26,7 +26,8 @@ act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h house.h screen.h skills.h \
   constants.h olc.h dg_scripts.h pk.h im.h top.h ban.hpp diskio.h \
   description.h title.hpp password.hpp privilege.hpp depot.hpp glory.hpp \
-  genchar.h file_crc.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp
+  genchar.h file_crc.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp \
+  parcel.hpp
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h interpreter.h db.h \
   char.hpp
 ban.o: ban.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
@@ -39,7 +40,7 @@ class.o: class.cpp conf.h sysdep.h structs.h comm.h db.h utils.h spells.h \
 comm.o: comm.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
   handler.h db.h house.h olc.h dg_scripts.h screen.h ban.hpp diskio.h \
   auction.h exchange.h deathtrap.hpp title.hpp depot.hpp glory.hpp \
-  file_crc.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp
+  file_crc.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp parcel.hpp
 config.o: config.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
   constants.h char.hpp
 constants.o: constants.cpp conf.h sysdep.h structs.h spells.h skills.h \
@@ -51,7 +52,8 @@ db.o: db.cpp conf.h sysdep.h structs.h utils.h db.h comm.h handler.h \
   olc.h diskio.h im.h top.h stuff.hpp double_map.hpp ban.hpp \
   item.creation.hpp features.hpp boards.h description.h deathtrap.hpp \
   title.hpp privilege.hpp depot.hpp glory.hpp genchar.h random.hpp \
-  file_crc.hpp char.hpp skills.h char_player.hpp quested.hpp mobmax.hpp
+  file_crc.hpp char.hpp skills.h char_player.hpp quested.hpp mobmax.hpp \
+  parcel.hpp
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h comm.h handler.h \
   interpreter.h db.h spells.h screen.h constants.h dg_scripts.h pk.h im.h \
   fight.h skills.h features.hpp house.h stuff.hpp double_map.hpp \
@@ -71,7 +73,7 @@ interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
   house.h mail.h screen.h olc.h dg_scripts.h pk.h genchar.h ban.hpp \
   diskio.h item.creation.hpp features.hpp boards.h top.h title.hpp \
   password.hpp privilege.hpp depot.hpp glory.hpp char.hpp char_player.hpp \
-  quested.hpp mobmax.hpp
+  quested.hpp mobmax.hpp parcel.hpp
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h spells.h skills.h \
   comm.h db.h handler.h screen.h interpreter.h constants.h dg_scripts.h \
   house.h exchange.h top.h deathtrap.hpp ban.hpp diskio.h depot.hpp \
@@ -80,7 +82,8 @@ magic.o: magic.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
   skills.h handler.h db.h interpreter.h screen.h constants.h dg_scripts.h \
   pk.h features.hpp magic.h fight.h deathtrap.hpp random.hpp char.hpp
 mail.o: mail.cpp conf.h sysdep.h structs.h utils.h comm.h db.h \
-  interpreter.h handler.h mail.h char.hpp
+  interpreter.h handler.h mail.h char.hpp parcel.hpp char_player.hpp \
+  quested.hpp mobmax.hpp
 mobact.o: mobact.cpp conf.h sysdep.h structs.h utils.h db.h comm.h \
   interpreter.h handler.h spells.h skills.h constants.h pk.h random.hpp \
   char.hpp
@@ -107,7 +110,7 @@ spell_parser.o: spell_parser.cpp conf.h sysdep.h structs.h utils.h \
 spells.o: spells.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
   skills.h handler.h db.h constants.h interpreter.h dg_scripts.h screen.h \
   house.h pk.h features.hpp im.h deathtrap.hpp privilege.hpp char.hpp \
-  depot.hpp
+  depot.hpp parcel.hpp
 utils.o: utils.cpp conf.h sysdep.h structs.h utils.h db.h comm.h screen.h \
   spells.h handler.h interpreter.h constants.h im.h dg_scripts.h \
   features.hpp boards.h privilege.hpp char.hpp
@@ -209,3 +212,6 @@ quested.o: quested.cpp quested.hpp conf.h sysdep.h structs.h utils.h \
   char.hpp
 mobmax.o: mobmax.cpp mobmax.hpp conf.h sysdep.h structs.h char.hpp \
   utils.h db.h
+parcel.o: parcel.cpp parcel.hpp conf.h sysdep.h structs.h db.h \
+  interpreter.h utils.h comm.h char.hpp handler.h auction.h screen.h \
+  char_player.hpp quested.hpp mobmax.hpp mail.h

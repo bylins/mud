@@ -153,6 +153,7 @@ public:
 	static int GetRankByUID(long);
 	static bool ChestShow(OBJ_DATA * list, CHAR_DATA * ch);
 	static void remove_from_clan(long unique);
+	static int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name);
 
 	void Manage(DESCRIPTOR_DATA * d, const char * arg);
 	void AddTopExp(CHAR_DATA * ch, int add_exp);

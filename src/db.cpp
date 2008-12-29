@@ -51,6 +51,7 @@
 #include "char.hpp"
 #include "skills.h"
 #include "char_player.hpp"
+#include "parcel.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -1403,6 +1404,9 @@ void boot_db(void)
 	// должен идти до резета зон
 	log("Init Depot system.");
 	Depot::init_depot();
+
+	log("Init Parcel system.");
+	Parcel::load();
 
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
 	for (i = 0; i <= top_of_zone_table; i++)
@@ -4824,6 +4828,14 @@ long get_id_by_name(char *name)
 			return (player_table[i].id);
 
 	return (-1);
+}
+
+long get_id_by_uid(long uid)
+{
+	for (int i = 0; i <= top_of_p_table; i++)
+		if (player_table[i].unique == uid)
+			return player_table[i].id;
+	return -1;
 }
 
 const char *get_name_by_id(long id)

@@ -31,6 +31,14 @@ public:
 
 	void remort();
 
+	void add_reserved_money(int money);
+	void remove_reserved_money(int money);
+	int get_reserved_money() const;
+
+	void inc_reserved_count();
+	void dec_reserved_count();
+	int get_reserved_count() const;
+
 	// это все как обычно временно... =)
 	friend void save_char(CHAR_DATA *ch);
 
@@ -53,6 +61,10 @@ private:
 	// комната, где был чар до вызова char_from_room (was_in_room_ под это использовать не оч хорошо)
 	// в данный момент поле нужно для проверки чара на бд при входе на арену любым способом, но может и еще потом пригодиться
 	room_rnum from_room_;
+	// зарезервированные на почте куны (посылки)
+	int reserved_money_;
+	// кол-во шмоток уже находящихся в состоянии отправки
+	int reserved_count_;
 };
 
 #endif // CHAR_PLAYER_HPP_INCLUDED

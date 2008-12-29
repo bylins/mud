@@ -4137,3 +4137,12 @@ int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect)
 	result = MAX(0, result);
 	return result;
 }
+
+/**
+* Берется минимальная цена ренты шмотки, не важно, одетая она будет или снятая.
+*/
+int get_object_low_rent(OBJ_DATA *obj)
+{
+	int rent = GET_OBJ_RENT(obj) > GET_OBJ_RENTEQ(obj) ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj);
+	return rent;
+}

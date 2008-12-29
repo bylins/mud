@@ -44,6 +44,7 @@
 #include "glory.hpp"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "parcel.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -2244,6 +2245,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	look_at_room(d->character, 0);
 	d->has_prompt = 0;
 	login_change_invoice(d->character);
+	Parcel::enter_game(d->character);
 }
 
 void DoAfterPassword(DESCRIPTOR_DATA * d)
@@ -3648,5 +3650,7 @@ void login_change_invoice(CHAR_DATA* ch)
 		single_god_invoice(ch);
 	if (has_mail(GET_IDNUM(ch)))
 		send_to_char("&R\r\nВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
+	if (Parcel::has_parcel(ch))
+		send_to_char("&R\r\nВас ожидает посылка. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
 	Depot::show_purged_message(ch);
 }

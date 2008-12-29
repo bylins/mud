@@ -2770,7 +2770,7 @@ SPECIAL(pet_shops)
 }
 
 
-CHAR_DATA *get_player_of_name(CHAR_DATA * ch, char *name)
+CHAR_DATA *get_player_of_name(const char *name)
 {
 	CHAR_DATA *i;
 
@@ -2882,7 +2882,7 @@ SPECIAL(bank)
 			return (1);
 		}
 
-		if ((vict = get_player_of_name(ch, arg)))
+		if ((vict = get_player_of_name(arg)))
 		{
 			add_bank_gold(ch, -(amount + (amount * 5) / 100));
 			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,

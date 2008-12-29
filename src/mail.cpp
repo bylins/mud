@@ -28,6 +28,8 @@ Written by Jeremy Elson (jelson@circlemud.org)
 #include "handler.h"
 #include "mail.h"
 #include "char.hpp"
+#include "parcel.hpp"
+#include "char_player.hpp"
 
 void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *arg);
 void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *arg);
@@ -299,7 +301,7 @@ void store_mail(long to, long from, char *message_pointer)
 		return;
 	}
 
-	if (from < 0 || to < 0 || !*message_pointer)
+	if (to < 0 || !*message_pointer)
 	{
 		log("SYSERR: Mail system -- non-fatal error #5. (from == %ld, to == %ld)", from, to);
 		return;
@@ -447,7 +449,7 @@ char *read_delete(long recipient)
 	tmstr = asctime(localtime(&header.header_data.mail_time));
 	*(tmstr + strlen(tmstr) - 1) = '\0';
 
-	const char *from = get_name_by_id(header.header_data.from);
+	const char *from = header.header_data.from >= 0 ? get_name_by_id(header.header_data.from) : "Почтовая служба";
 	const char *to = get_name_by_id(recipient);
 
 	sprintf(buf, " * * * * Княжеская почта * * * *\r\n"
@@ -541,13 +543,34 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
-	one_argument(arg, buf);
+	arg = one_argument(arg, buf);
 
 	if (!*buf)  		/* you'll get no argument from me! */
 	{
 		act("$n сказал$g Вам, 'Вы не указали адресата!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
+	if ((recipient = get_id_by_name(buf)) < 0)
+	{
+		act("$n сказал$g Вам, 'Извините, но такого игрока нет в игре!'", FALSE, mailman, 0, ch, TO_VICT);
+		return;
+	}
+
+	skip_spaces(&arg);
+	if (*arg)
+	{
+		long vict_uid = GetUniqueByName(buf);
+		if (vict_uid > 0)
+		{
+			Parcel::send(ch, mailman, vict_uid, arg);
+		}
+		else
+		{
+			act("$n сказал$g Вам : 'Ошибочка вышла, сообщите Богам!'", FALSE, mailman, 0, ch, TO_VICT);
+		}
+		return;
+	}
+
 	if (get_gold(ch) < cost)
 	{
 		sprintf(buf, "$n сказал$g Вам, 'Письмо стоит %d %s.'\r\n"
@@ -556,11 +579,7 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
-	if ((recipient = get_id_by_name(buf)) < 0)
-	{
-		act("$n сказал$g Вам, 'Извините, но такого игрока нет в игре!'", FALSE, mailman, 0, ch, TO_VICT);
-		return;
-	}
+
 	act("$n начал$g писать письмо.", TRUE, ch, 0, 0, TO_ROOM);
 	if (cost == 0)
 		sprintf(buf, "$n сказал$g Вам, 'Со своих - почтовый сбор не берем.'\r\n"
@@ -590,6 +609,9 @@ void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *a
 	else
 		sprintf(buf, "$n сказал$g Вам : 'Похоже, сегодня Вам ничего нет.'");
 	act(buf, FALSE, mailman, 0, ch, TO_VICT);
+
+	if (ch->player->get_reserved_count())
+		Parcel::print_sending_stuff(ch);
 }
 
 
@@ -598,7 +620,7 @@ void postmaster_receive_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char 
 	char buf[256];
 	OBJ_DATA *obj;
 
-	if (!has_mail(GET_IDNUM(ch)))
+	if (!has_mail(GET_IDNUM(ch)) && !Parcel::has_parcel(ch))
 	{
 		sprintf(buf, "$n удивленно сказал$g Вам : 'Но для Вас нет писем !?'");
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
@@ -634,4 +656,5 @@ void postmaster_receive_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char 
 		act("$n дал$g Вам письмо.", FALSE, mailman, 0, ch, TO_VICT);
 		act("$N дал$G $n2 письмо.", FALSE, ch, 0, mailman, TO_ROOM);
 	}
+	Parcel::receive(ch, mailman);
 }
