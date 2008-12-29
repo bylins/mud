@@ -375,6 +375,7 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
 			obj->PNames[3] = str_dup("посылку");
 			obj->PNames[4] = str_dup("посылкой");
 			obj->PNames[5] = str_dup("посылке");
+			GET_OBJ_SEX(obj) = SEX_FEMALE;
 			GET_OBJ_TYPE(obj) = ITEM_CONTAINER;
 			GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
 			GET_OBJ_WEIGHT(obj) = 1;
