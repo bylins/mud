@@ -610,8 +610,7 @@ void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *a
 		sprintf(buf, "$n сказал$g Вам : 'Похоже, сегодня Вам ничего нет.'");
 	act(buf, FALSE, mailman, 0, ch, TO_VICT);
 
-	if (ch->player->get_reserved_count())
-		Parcel::print_sending_stuff(ch);
+	Parcel::print_sending_stuff(ch);
 }
 
 

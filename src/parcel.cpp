@@ -115,6 +115,23 @@ void add_parcel(long target, long sender, const Node &tmp_node)
 	}
 }
 
+int total_sended(CHAR_DATA *ch)
+{
+	int sended = 0;
+	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it)
+	{
+		SenderListType::const_iterator it2 = it->second.find(GET_UNIQUE(ch));
+		if (it2 != it->second.end())
+		{
+			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
+			{
+				++sended;
+			}
+		}
+	}
+	return sended;
+}
+
 void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj)
 {
 	if (!ch || !mailman || !vict_uid || !obj)
@@ -130,7 +147,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 		act("$n сказал$g Вам : 'Да у тебя ведь нет столько денег!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
-	if (ch->player->get_reserved_count() >= MAX_SLOTS)
+	if (total_sended(ch) >= MAX_SLOTS)
 	{
 		act("$n сказал$g Вам : 'Ты уже и так отправил кучу вещей! Подожди, пока их получат адресаты!'",
 				FALSE, mailman, 0, ch, TO_VICT);
@@ -163,8 +180,6 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 		set_bank_gold(ch, 0);
 	}
 	save_char(ch);
-	ch->player->add_reserved_money(cost);
-	ch->player->inc_reserved_count();
 
 	obj_from_char(obj);
 	check_auction(NULL, obj);
@@ -236,11 +251,13 @@ void print_sending_stuff(CHAR_DATA *ch)
 {
 	std::stringstream out;
 	out << "\r\nВаши текущие посылки:";
+	bool print = false;
 	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it)
 	{
 		SenderListType::const_iterator it2 = it->second.find(GET_UNIQUE(ch));
 		if (it2 != it->second.end())
 		{
+			print = true;
 			std::string name = GetNameByUnique(it->first);
 			name_convert(name);
 			out << "\r\nАдресат: " << name << ", отправлено:\r\n" << CCWHT(ch, C_NRM);
@@ -255,7 +272,8 @@ void print_sending_stuff(CHAR_DATA *ch)
 				<< money << " " << desc_count(money, WHAT_MONEYa) << " зарезервировано на 3 дня хранения.\r\n";
 		}
 	}
-	send_to_char(out.str(), ch);
+	if (print)
+		send_to_char(out.str(), ch);
 }
 
 int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
@@ -308,11 +326,6 @@ void return_money(std::string const &name, int money, bool add)
 			send_to_char(vict, "%sВы получили %d %s банковским переводом от почтовой службы%s.\r\n",
 					CCWHT(vict, C_NRM), money, desc_count(money, WHAT_MONEYa), CCNRM(vict, C_NRM));
 		}
-		vict->player->remove_reserved_money(money);
-		vict->player->dec_reserved_count();
-		// из-за округлений мелких рент тут могут быть несостыковки
-		if (!vict->player->get_reserved_count() && vict->player->get_reserved_money())
-			vict->player->remove_reserved_money(vict->player->get_reserved_money());
 	}
 	else
 	{
@@ -384,6 +397,7 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
 			GET_OBJ_RENTEQ(obj) = 1;
 			GET_OBJ_TIMER(obj) = 24 * 60;
 			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
+			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_DECAY), ITEM_DECAY);
 			fill_ex_desc(ch, obj, name);
 
 			int money = 0;
@@ -714,22 +728,6 @@ void show_stats(CHAR_DATA *ch)
 		}
 	}
 	send_to_char(ch, "  Почта: получателей %d, возвращено %d, предметов %d, зарезервировано %d\r\n", targets, returned, objs, reserved_money);
-}
-
-void enter_game(CHAR_DATA *ch)
-{
-	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it)
-	{
-		SenderListType::const_iterator it2 = it->second.find(GET_UNIQUE(ch));
-		if (it2 != it->second.end())
-		{
-			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
-			{
-				ch->player->inc_reserved_count();
-				ch->player->add_reserved_money(it3->money_);
-			}
-		}
-	}
 }
 
 } // namespace Parcel

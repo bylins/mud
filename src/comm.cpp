@@ -1344,15 +1344,15 @@ inline void heartbeat()
 
 // раз в минуту >> /////////////////////////////////////////////////////////////
 
-	// апдейт таймеров на почте + разворот посылок/пурж
+	// апдейт таймеров в личных хранах + пурж чего надо
 	if (!((pulse + 25) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		Parcel::update_timers();
+		Depot::update_timers();
 	}
-	// апдейт таймеров в личных хранах + пурж чего надо
+	// апдейт таймеров на почте + разворот посылок/пурж
 	if (!((pulse + 24) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		Depot::update_timers();
+		Parcel::update_timers();
 	}
 	// апдейт таймеров славы
 	if (!((pulse + 23) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))

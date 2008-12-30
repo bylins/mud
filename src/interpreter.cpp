@@ -2245,7 +2245,6 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	look_at_room(d->character, 0);
 	d->has_prompt = 0;
 	login_change_invoice(d->character);
-	Parcel::enter_game(d->character);
 }
 
 void DoAfterPassword(DESCRIPTOR_DATA * d)
