@@ -2300,30 +2300,94 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg)
 
 	if (!arg || !*arg)
 	{
+		int tmp_where = -1;
 		if (CAN_WEAR(obj, ITEM_WEAR_FINGER))
-			where = WEAR_FINGER_R;
+		{
+			if (!GET_EQ(ch, WEAR_FINGER_R))
+				where = WEAR_FINGER_R;
+			else
+				tmp_where = WEAR_FINGER_R;
+		}
 		if (CAN_WEAR(obj, ITEM_WEAR_NECK))
-			where = WEAR_NECK_1;
+		{
+			if (!GET_EQ(ch, WEAR_NECK_1))
+				where = WEAR_NECK_1;
+			else
+				tmp_where = WEAR_NECK_1;
+		}
 		if (CAN_WEAR(obj, ITEM_WEAR_BODY))
-			where = WEAR_BODY;
+		{
+			if (!GET_EQ(ch, WEAR_BODY))
+				where = WEAR_BODY;
+			else
+				tmp_where = WEAR_BODY;
+		}
 		if (CAN_WEAR(obj, ITEM_WEAR_HEAD))
-			where = WEAR_HEAD;
+		{
+			if (!GET_EQ(ch, WEAR_HEAD))
+				where = WEAR_HEAD;
+			else
+				tmp_where = WEAR_HEAD;
+		}
 		if (CAN_WEAR(obj, ITEM_WEAR_LEGS))
-			where = WEAR_LEGS;
+		{
+			if (!GET_EQ(ch, WEAR_LEGS))
+				where = WEAR_LEGS;
+			else
+				tmp_where = WEAR_LEGS;
+		}
 		if (CAN_WEAR(obj, ITEM_WEAR_FEET))
-			where = WEAR_FEET;
+		{
+			if (!GET_EQ(ch, WEAR_FEET))
+				where = WEAR_FEET;
+			else
+				tmp_where = WEAR_FEET;
+		}
 		if (CAN_WEAR(obj, ITEM_WEAR_HANDS))
-			where = WEAR_HANDS;
+		{
+			if (!GET_EQ(ch, WEAR_HANDS))
+				where = WEAR_HANDS;
+			else
+				tmp_where = WEAR_HANDS;
+		}
 		if (CAN_WEAR(obj, ITEM_WEAR_ARMS))
-			where = WEAR_ARMS;
+		{
+			if (!GET_EQ(ch, WEAR_ARMS))
+				where = WEAR_ARMS;
+			else
+				tmp_where = WEAR_ARMS;
+		}
 		if (CAN_WEAR(obj, ITEM_WEAR_SHIELD))
-			where = WEAR_SHIELD;
+		{
+			if (!GET_EQ(ch, WEAR_SHIELD))
+				where = WEAR_SHIELD;
+			else
+				tmp_where = WEAR_SHIELD;
+		}
 		if (CAN_WEAR(obj, ITEM_WEAR_ABOUT))
-			where = WEAR_ABOUT;
+		{
+			if (!GET_EQ(ch, WEAR_ABOUT))
+				where = WEAR_ABOUT;
+			else
+				tmp_where = WEAR_ABOUT;
+		}
 		if (CAN_WEAR(obj, ITEM_WEAR_WAIST))
-			where = WEAR_WAIST;
+		{
+			if (!GET_EQ(ch, WEAR_WAIST))
+				where = WEAR_WAIST;
+			else
+				tmp_where = WEAR_WAIST;
+		}
 		if (CAN_WEAR(obj, ITEM_WEAR_WRIST))
-			where = WEAR_WRIST_R;
+		{
+			if (!GET_EQ(ch, WEAR_WRIST_R))
+				where = WEAR_WRIST_R;
+			else
+				tmp_where = WEAR_WRIST_R;
+		}
+
+		if (where == -1)
+			where = tmp_where;
 	}
 	else
 	{
