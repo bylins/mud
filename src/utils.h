@@ -1,3 +1,4 @@
+
 /* ************************************************************************
 *   File: utils.h                                       Part of Bylins    *
 *  Usage: header file: utility macros and prototypes of utility funcs     *                                                                         *
