@@ -563,8 +563,6 @@ LoadNode parcel_read_one_object(char **data, int *error)
 
 void load()
 {
-	parcel_log("load start");
-
 	FILE *fl;
 	if (!(fl = fopen(LIB_DEPOT"parcel.db", "r")))
 	{
@@ -610,13 +608,10 @@ void load()
 	}
 
 	free(readdata);
-	parcel_log("load stop");
 }
 
 void save()
 {
-	parcel_log("save start");
-
 	std::stringstream out;
 	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it)
 	{
@@ -644,13 +639,11 @@ void save()
 	file << out.rdbuf();
 	file.close();
 
-	parcel_log("save stop");
 	return;
 }
 
 void update_timers()
 {
-	parcel_log("update_timers start");
 	for (ParcelListType::iterator it = parcel_list.begin(); it != parcel_list.end(); /* empty */)
 	{
 		for (SenderListType::iterator it2 = it->second.begin(); it2 != it->second.end(); /* empty */)
@@ -707,7 +700,6 @@ void update_timers()
 	}
 	return_parcel();
 	save();
-	parcel_log("update_timers stop");
 }
 
 void show_stats(CHAR_DATA *ch)
