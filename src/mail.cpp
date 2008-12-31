@@ -604,11 +604,20 @@ void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *a
 {
 	char buf[256];
 
+	bool empty = true;
 	if (has_mail(GET_IDNUM(ch)))
-		sprintf(buf, "$n сказал$g Вам : 'Вас ожидает почта.'");
-	else
-		sprintf(buf, "$n сказал$g Вам : 'Похоже, сегодня Вам ничего нет.'");
-	act(buf, FALSE, mailman, 0, ch, TO_VICT);
+	{
+		empty = false;
+		act("$n сказал$g Вам : 'Вас ожидает почта.'", FALSE, mailman, 0, ch, TO_VICT);
+	}
+	if (Parcel::has_parcel(ch))
+	{
+		empty = false;
+		act("$n сказал$g Вам : 'Вас ожидает посылка.'", FALSE, mailman, 0, ch, TO_VICT);
+	}
+
+	if (empty)
+		act("$n сказал$g Вам : 'Похоже, сегодня Вам ничего нет.'", FALSE, mailman, 0, ch, TO_VICT);
 
 	Parcel::print_sending_stuff(ch);
 }
