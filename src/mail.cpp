@@ -602,8 +602,6 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 
 void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *arg)
 {
-	char buf[256];
-
 	bool empty = true;
 	if (has_mail(GET_IDNUM(ch)))
 	{
