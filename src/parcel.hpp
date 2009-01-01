@@ -20,6 +20,7 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman);
 void update_timers();
 void show_stats(CHAR_DATA *ch);
 void load();
+void renumber_obj_rnum(int rnum);
 
 } // namespace Parcel
 

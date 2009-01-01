@@ -24,6 +24,7 @@
 #include "char.hpp"
 #include "house.h"
 #include "skills.h"
+#include "parcel.hpp"
 
 /*------------------------------------------------------------------------*/
 
@@ -265,8 +266,9 @@ void renumber_obj_rnum(int rnum)
 			GET_OBJ_RNUM(obj)++;
 		}
 	}
-	Depot::renumber_obj_rnum(rnum);
 	Clan::init_chest_rnum();
+	Depot::renumber_obj_rnum(rnum);
+	Parcel::renumber_obj_rnum(rnum);
 }
 
 /*------------------------------------------------------------------------*/
