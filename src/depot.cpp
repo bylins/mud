@@ -1549,4 +1549,20 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 	return count;
 }
 
+int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
+{
+	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
+	{
+		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end(); ++obj_it)
+		{
+			if (isname(arg, (*obj_it)->name))
+			{
+				send_to_char(ch, "O%3d. %-25s - находится в персональном хранилище (%s).\r\n",
+						num++, (*obj_it)->short_description, it->second.name.c_str());
+			}
+		}
+	}
+	return num;
+}
+
 } // namespace Depot

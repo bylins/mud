@@ -21,6 +21,7 @@ void update_timers();
 void show_stats(CHAR_DATA *ch);
 void load();
 void renumber_obj_rnum(int rnum);
+int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num);
 
 } // namespace Parcel
 

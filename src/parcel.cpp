@@ -404,6 +404,9 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
 			for (std::list<Node>::iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
 			{
 				money += it3->money_ - calculate_timer_cost(it3);
+				// добавляем в глоб.список и кладем в посылку
+				it3->obj_->next = object_list;
+				object_list = it3->obj_;
 				obj_to_obj(it3->obj_, obj);
 			}
 			return_money(name, money, RETURN_WITH_MONEY);
@@ -605,6 +608,10 @@ void load()
 			return;
 		}
 		add_parcel(node.target, node.sender, node.obj_node);
+		// из глобального списка изымаем
+		OBJ_DATA *temp;
+		REMOVE_FROM_LIST(node.obj_node.obj_, object_list, next);
+
 	}
 
 	free(readdata);
@@ -738,6 +745,28 @@ void renumber_obj_rnum(int rnum)
 			}
 		}
 	}
+}
+
+int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
+{
+	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it)
+	{
+		for (SenderListType::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+		{
+			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
+			{
+				if (isname(arg, it3->obj_->name))
+				{
+					std::string target = GetNameByUnique(it->first);
+					std::string sender = GetNameByUnique(it2->first);
+
+					send_to_char(ch, "O%3d. %-25s - находится на почте (отправитель: %s, получатель: %s).\r\n",
+							num++, it3->obj_->short_description, sender.c_str(), target.c_str());
+				}
+			}
+		}
+	}
+	return num;
 }
 
 } // namespace Parcel

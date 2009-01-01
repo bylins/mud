@@ -43,6 +43,7 @@
 #include "random.hpp"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "parcel.hpp"
 
 using std::string;
 
@@ -4671,7 +4672,7 @@ void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur)
 	else if (obj->in_obj)
 	{
 		sprintf(buf + strlen(buf), "лежит в %s%s\r\n",
-				obj->in_obj->short_description, (recur ? ", который находится " : " "));
+				GET_OBJ_PNAME(obj->in_obj, 5), (recur ? ", который находится " : " "));
 		send_to_char(buf, ch);
 		if (recur)
 			print_object_location(0, obj->in_obj, ch, recur);
@@ -4683,12 +4684,39 @@ void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur)
 	}
 }
 
+/**
+* Иммский поиск шмоток по 'где' с проходом как по глобальному списку, так
+* и по спискам хранилищ и почты.
+*/
+bool print_imm_where_obj(CHAR_DATA *ch, char *arg)
+{
+	bool found = false;
+	int num = 1;
+	for (OBJ_DATA *k = object_list; k; k = k->next)
+	{
+		if (isname(arg, k->name))
+		{
+			found = true;
+			print_object_location(num++, k, ch, TRUE);
+		}
+	}
 
+	int tmp_num = num;
+	if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::KRODER))
+	{
+		tmp_num = Depot::print_imm_where_obj(ch, arg, tmp_num);
+		tmp_num = Parcel::print_imm_where_obj(ch, arg, tmp_num);
+	}
+
+	if (!found && tmp_num == num)
+		return false;
+	else
+		return true;
+}
 
 void perform_immort_where(CHAR_DATA * ch, char *arg)
 {
 	register CHAR_DATA *i;
-	register OBJ_DATA *k;
 	DESCRIPTOR_DATA *d;
 	int num = 0, found = 0;
 
@@ -4722,6 +4750,7 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 	else
 	{
 		for (i = character_list; i; i = i->next)
+		{
 			if (CAN_SEE(ch, i) && i->in_room != NOWHERE && isname(arg, i->player_data.name))
 			{
 				found = 1;
@@ -4729,17 +4758,9 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 						GET_ROOM_VNUM(IN_ROOM(i)), world[IN_ROOM(i)]->name);
 				send_to_char(buf, ch);
 			}
-		if (GET_LEVEL(ch) > LVL_GOD || Privilege::check_flag(ch, Privilege::KRODER))
-		{
-			for (num = 0, k = object_list; k; k = k->next)
-				if (CAN_SEE_OBJ(ch, k) && isname(arg, k->name))
-				{
-					found = 1;
-					print_object_location(++num, k, ch, TRUE);
-				}
-			if (!found)
-				send_to_char("Нет ничего похожего.\r\n", ch);
 		}
+		if (!found && !print_imm_where_obj(ch, arg))
+			send_to_char("Нет ничего похожего.\r\n", ch);
 	}
 }
 
