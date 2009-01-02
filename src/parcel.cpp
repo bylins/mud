@@ -352,7 +352,7 @@ void fill_ex_desc(CHAR_DATA *ch, OBJ_DATA *obj, std::string sender)
 	out.setf(std::ios_base::left);
 
 	out << "   Разваливающийся на глазах ящик с явными признаками\r\n"
-			"неуклюжего взлома - царская служба безопастности бдит...\r\n"
+			"неуклюжего взлома - царская служба безопасности бдит...\r\n"
 			"На табличке сбоку видны надписи:\r\n\r\n";
 	out << std::setw(size + 16) << std::setfill('-') << " " << std::setfill(' ') << "\r\n";
 	out << "| Отправитель: " << std::setw(size) << sender
