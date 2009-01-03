@@ -49,11 +49,23 @@ public:
 	OBJ_DATA *obj_; // шмотка (здесь же берется таймер, при уходе в ноль - пурж и возврат оставшегося резерва)
 };
 
+class LoadNode
+{
+public:
+	Node obj_node;
+	long sender;
+	long target;
+};
+
 typedef std::map<long /* уид отправителя */, std::list<Node> > SenderListType;
 typedef std::map<long /* уид получателя */,  SenderListType> ParcelListType;
 
-ParcelListType parcel_list;
+ParcelListType parcel_list; // список посылок
+SenderListType return_list; // временный список на возврат
 
+/**
+* Отдельный лог для отладки.
+*/
 void parcel_log(const char *format, ...)
 {
 	const char *filename = "../log/parcel.log";
@@ -80,6 +92,9 @@ void parcel_log(const char *format, ...)
 	fflush(file);
 }
 
+/**
+* Уведомление чара (если он онлайна) о новой посылке.
+*/
 void invoice(long uid)
 {
 	DESCRIPTOR_DATA *d = DescByUID(uid);
@@ -93,6 +108,9 @@ void invoice(long uid)
 	}
 }
 
+/**
+* Добавление шмотки в список посылок.
+*/
 void add_parcel(long target, long sender, const Node &tmp_node)
 {
 	invoice(target);
@@ -121,6 +139,9 @@ void add_parcel(long target, long sender, const Node &tmp_node)
 	}
 }
 
+/**
+* Сколько всего предметов уже посылается данным персонажем (для ограничения).
+*/
 int total_sended(CHAR_DATA *ch)
 {
 	int sended = 0;
@@ -138,6 +159,9 @@ int total_sended(CHAR_DATA *ch)
 	return sended;
 }
 
+/**
+* Отправка предмета (снятие/резервирование денег, вывод из списка предметов).
+*/
 void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj)
 {
 	if (!ch || !mailman || !vict_uid || !obj)
@@ -220,7 +244,9 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj)
 	return 1;
 }
 
-
+/**
+* Отправка предмета, дергается из спешиала почты ('отправить имя предмет)'.
+*/
 void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 {
 	if (IS_NPC(ch)) return;
@@ -253,6 +279,9 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 		send_object(ch, mailman, vict_uid, obj);
 }
 
+/**
+* Дергается из спешиала почты ('почта'). Распечатка отправленных посылок, которые еще не доставлены.
+*/
 void print_sending_stuff(CHAR_DATA *ch)
 {
 	std::stringstream out;
@@ -282,6 +311,9 @@ void print_sending_stuff(CHAR_DATA *ch)
 		send_to_char(out.str(), ch);
 }
 
+/**
+* Для учитывания предметов на почте в локейте.
+*/
 int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 {
 	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it)
@@ -307,6 +339,9 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 	return count;
 }
 
+/**
+* Есть ли на чара какие-нить посылки.
+*/
 bool has_parcel(CHAR_DATA *ch)
 {
 	ParcelListType::const_iterator it = parcel_list.find(GET_UNIQUE(ch));
@@ -316,6 +351,9 @@ bool has_parcel(CHAR_DATA *ch)
 		return false;
 }
 
+/**
+* Возврат зарезервированных денег отправителю.
+*/
 void return_money(std::string const &name, int money, bool add)
 {
 	if (!money) return;
@@ -344,6 +382,9 @@ void return_money(std::string const &name, int money, bool add)
 	}
 }
 
+/**
+* Экстра-описание на самой посылке при получении.
+*/
 void fill_ex_desc(CHAR_DATA *ch, OBJ_DATA *obj, std::string sender)
 {
 	CREATE(obj->ex_description, EXTRA_DESCR_DATA, 1);
@@ -365,12 +406,18 @@ void fill_ex_desc(CHAR_DATA *ch, OBJ_DATA *obj, std::string sender)
 	obj->ex_description->description = str_dup(out.str().c_str());
 }
 
+/**
+* Расчет стоимости ренты за предмет, пока он лежал на почте.
+*/
 int calculate_timer_cost(std::list<Node>::iterator const &it)
 {
 	double tmp = static_cast<double>(get_object_low_rent(it->obj_))/(24*60);
 	return tmp * it->timer_;
 }
 
+/**
+* Получение посылки на почте, дергается из спешиала почты. ('получить').
+*/
 void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
 {
 	ParcelListType::iterator it = parcel_list.find(GET_UNIQUE(ch));
@@ -424,6 +471,9 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
 	}
 }
 
+/**
+* Отправка сообщения через письмо, с уведомлением чару, если тот онлайн.
+*/
 void create_mail(long to, long from, char *text)
 {
 	store_mail(to, from, text);
@@ -433,8 +483,9 @@ void create_mail(long to, long from, char *text)
 				CCWHT(i->character, C_NRM), CCNRM(i->character, C_NRM));
 }
 
-SenderListType return_list;
-
+/**
+* Формирование временного списка возвращенных предметов (из основного удалены).
+*/
 void prepare_return(const long uid, const std::list<Node>::iterator &it)
 {
 	Node tmp_node(0, it->obj_);
@@ -453,6 +504,9 @@ void prepare_return(const long uid, const std::list<Node>::iterator &it)
 	}
 }
 
+/**
+* Возврат предметов из временного списка (перекидывание их в основной список посылок).
+*/
 void return_parcel()
 {
 	for (SenderListType::iterator it = return_list.begin(); it != return_list.end(); ++it)
@@ -467,6 +521,9 @@ void return_parcel()
 	return_list.clear();
 }
 
+/**
+* Дикей предмета на почте и уведомление об этом отправителя и получателя через письма.
+*/
 void extract_parcel(const long sender_uid, const long target_uid, const std::list<Node>::iterator &it)
 {
 	long sender_id = get_id_by_uid(sender_uid);
@@ -491,6 +548,9 @@ void extract_parcel(const long sender_uid, const long target_uid, const std::lis
 	extract_obj(it->obj_);
 }
 
+/**
+* Генерация письма о возврате посылки.
+*/
 void return_invoice(long uid, OBJ_DATA *obj)
 {
 	long target_id = get_id_by_uid(uid);
@@ -501,14 +561,9 @@ void return_invoice(long uid, OBJ_DATA *obj)
 	free(tmp);
 }
 
-class LoadNode
-{
-public:
-	Node obj_node;
-	long sender;
-	long target;
-};
-
+/**
+* Чтение записи, включающей инфу почты и сам предмет после нее.
+*/
 LoadNode parcel_read_one_object(char **data, int *error)
 {
 	LoadNode tmp_node;
@@ -567,7 +622,9 @@ LoadNode parcel_read_one_object(char **data, int *error)
 	return tmp_node;
 }
 
-
+/**
+* Загрузка предметов и тех.информации (при ребуте).
+*/
 void load()
 {
 	FILE *fl;
@@ -621,6 +678,9 @@ void load()
 	free(readdata);
 }
 
+/**
+* Сохранение предметов и тех.информации (при апдейте таймеров).
+*/
 void save()
 {
 	std::stringstream out;
@@ -653,6 +713,9 @@ void save()
 	return;
 }
 
+/**
+* Обновление таймеров у предметов + таймеров ожидания на почте. Пурж/возврат по надобности.
+*/
 void update_timers()
 {
 	for (ParcelListType::iterator it = parcel_list.begin(); it != parcel_list.end(); /* empty */)
@@ -713,6 +776,9 @@ void update_timers()
 	save();
 }
 
+/**
+* Иммский 'show stats' интересу и статистики ради.
+*/
 void show_stats(CHAR_DATA *ch)
 {
 	int targets = 0, returned = 0, objs = 0, reserved_money = 0;
@@ -751,6 +817,9 @@ void renumber_obj_rnum(int rnum)
 	}
 }
 
+/**
+* Иммское 'где' для учета предметов на почте.
+*/
 int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 {
 	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it)
