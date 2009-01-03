@@ -33,6 +33,12 @@ const int MAX_SLOTS = 25; // сколько шмоток может находиться в отправке от одног
 const int RETURNED_TIMER = -1; // при развороте посылки идет двойной таймер шмоток без капания ренты
 const char * FILE_NAME = LIB_DEPOT"parcel.db";
 
+// для возврата посылки отправителю
+const bool RETURN_WITH_MONEY = 1;
+const bool RETURN_NO_MONEY = 0;
+// доставленные с ребута посылки
+static int was_sended = 0;
+
 class Node
 {
 public:
@@ -310,9 +316,6 @@ bool has_parcel(CHAR_DATA *ch)
 		return false;
 }
 
-const bool RETURN_WITH_MONEY = 1;
-const bool RETURN_NO_MONEY = 0;
-
 void return_money(std::string const &name, int money, bool add)
 {
 	if (!money) return;
@@ -415,6 +418,7 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
 			snprintf(buf, MAX_STRING_LENGTH, "$n дал$g Вам посылку (отправитель %s).", name.c_str());
 			act(buf, FALSE, mailman, 0, ch, TO_VICT);
 			act("$N дал$G $n2 посылку.", FALSE, ch, 0, mailman, TO_ROOM);
+			++was_sended;
 		}
 		parcel_list.erase(it);
 	}
@@ -726,7 +730,7 @@ void show_stats(CHAR_DATA *ch)
 			}
 		}
 	}
-	send_to_char(ch, "  Почта: получателей %d, возвращено %d, предметов %d, зарезервировано %d\r\n", targets, returned, objs, reserved_money);
+	send_to_char(ch, "  Почта: предметов в ожидании %d, доставлено с ребута %d\r\n", objs, was_sended);
 }
 
 /**
