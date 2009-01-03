@@ -36,8 +36,14 @@ const char * FILE_NAME = LIB_DEPOT"parcel.db";
 // для возврата посылки отправителю
 const bool RETURN_WITH_MONEY = 1;
 const bool RETURN_NO_MONEY = 0;
+
 // доставленные с ребута посылки
 static int was_sended = 0;
+
+// для групповой отсылки шмоток (чтобы не спамить на каждую)
+static std::string send_buffer;
+static int send_cost_buffer = 0;
+static int send_reserved_buffer = 0;
 
 class Node
 {
@@ -160,6 +166,34 @@ int total_sended(CHAR_DATA *ch)
 }
 
 /**
+* Проверка возможности отправить шмотку почтой.
+* FIXME с кланами и перс.хранами почти копипаст.
+*/
+bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj)
+{
+	if (OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
+			|| OBJ_FLAGGED(obj, ITEM_REPOP_DECAY)
+			|| OBJ_FLAGGED(obj, ITEM_NOSELL)
+			|| OBJ_FLAGGED(obj, ITEM_DECAY)
+			|| OBJ_FLAGGED(obj, ITEM_NORENT)
+			|| GET_OBJ_TYPE(obj) == ITEM_KEY
+			|| GET_OBJ_RENT(obj) < 0
+			|| GET_OBJ_RNUM(obj) <= NOTHING)
+	{
+		snprintf(buf, MAX_STRING_LENGTH, "$n сказал$g Вам : '%s - мы не отправляем такие вещи!'", OBJ_PAD(obj, 1));
+		act("$n сказал$g Вам : 'Мы не отправляем такие вещи!'", FALSE, mailman, 0, ch, TO_VICT);
+		return 0;
+	}
+	else if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && obj->contains)
+	{
+		snprintf(buf, MAX_STRING_LENGTH, "$n сказал$g Вам : 'В %s что-то лежит.'\r\n", OBJ_PAD(obj, 5));
+		act(buf, FALSE, mailman, 0, ch, TO_VICT);
+		return 0;
+	}
+	return 1;
+}
+
+/**
 * Отправка предмета (снятие/резервирование денег, вывод из списка предметов).
 */
 void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj)
@@ -170,6 +204,8 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 				ch ? 1 : 0, mailman ? 1 : 0, vict_uid ? 1 : 0, obj ? 1 : 0, __FILE__, __func__, __LINE__);
 		return;
 	}
+
+	if (!can_send(ch, mailman, obj)) return;
 
 	const int cost = get_object_low_rent(obj) * RESERVED_COST_COEFF;
 	if (get_bank_gold(ch) + get_gold(ch) < cost)
@@ -191,18 +227,21 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 		return;
 	}
 	name_convert(name);
-	send_to_char(ch,
-			"Адресат: %s, отправлено:\r\n"
-			"%s%s%s\r\n"
-			"с Вас удержано %d %s и еще %d %s зарезервировано на 3 дня хранения.\r\n",
-			name.c_str(), CCWHT(ch, C_NRM), GET_OBJ_PNAME(obj, 0), CCNRM(ch, C_NRM),
-			SEND_COST, desc_count(SEND_COST, WHAT_MONEYa), cost, desc_count(cost, WHAT_MONEYa));
+
+	if (send_buffer.empty())
+		send_buffer += "Адресат: " + name + ", отправлено:\r\n";
+
+	snprintf(buf, sizeof(buf), "%s%s%s\r\n", CCWHT(ch, C_NRM), GET_OBJ_PNAME(obj, 0), CCNRM(ch, C_NRM));
+	send_buffer += buf;
 
 	Node tmp_node(cost, obj);
 	add_parcel(vict_uid, GET_UNIQUE(ch), tmp_node);
 
 	add_bank_gold(ch, -cost);
+	send_reserved_buffer += cost;
 	add_bank_gold(ch, -SEND_COST);
+	send_cost_buffer += SEND_COST;
+
 	if (get_bank_gold(ch) < 0)
 	{
 		// выше мы убедились, что денег банк+руки как минимум не меньше, чем нужно
@@ -215,33 +254,6 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 	check_auction(NULL, obj);
 	OBJ_DATA *temp;
 	REMOVE_FROM_LIST(obj, object_list, next);
-}
-
-/**
-* Проверка возможности отправить шмотку почтой.
-* FIXME с кланами и перс.хранами почти копипаст.
-*/
-bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj)
-{
-	if (OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
-			|| OBJ_FLAGGED(obj, ITEM_REPOP_DECAY)
-			|| OBJ_FLAGGED(obj, ITEM_NOSELL)
-			|| OBJ_FLAGGED(obj, ITEM_DECAY)
-			|| OBJ_FLAGGED(obj, ITEM_NORENT)
-			|| GET_OBJ_TYPE(obj) == ITEM_KEY
-			|| GET_OBJ_RENT(obj) < 0
-			|| GET_OBJ_RNUM(obj) <= NOTHING)
-	{
-		act("$n сказал$g Вам : 'Мы не отправляем такие вещи!'", FALSE, mailman, 0, ch, TO_VICT);
-		return 0;
-	}
-	else if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && obj->contains)
-	{
-		snprintf(buf, MAX_STRING_LENGTH, "$n сказал$g Вам : 'В %s что-то лежит.'\r\n", OBJ_PAD(obj, 5));
-		act(buf, FALSE, mailman, 0, ch, TO_VICT);
-		return 0;
-	}
-	return 1;
 }
 
 /**
@@ -267,16 +279,102 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 		return;
 	}
 
-	OBJ_DATA *obj;
-	arg = one_argument(arg, buf);
+	OBJ_DATA *obj, *next_obj;
+	char tmp_arg[MAX_INPUT_LENGTH];
+	char tmp_arg2[MAX_INPUT_LENGTH];
 
-	// TODO: все.имя, 10 имя
-	if (!(obj = get_obj_in_list_vis(ch, buf, ch->carrying)))
+	two_arguments(arg, tmp_arg, tmp_arg2);
+
+	if (is_number(tmp_arg))
 	{
-		send_to_char(ch, "У Вас нет '%s'.\r\n", buf);
+		int amount = atoi(tmp_arg);
+		if (!strn_cmp("coin", tmp_arg2, 4) || !strn_cmp("кун", tmp_arg2, 5) || !str_cmp("денег", tmp_arg2))
+		{
+			act("$n сказал$g Вам : 'Для перевода денег воспользуйтесь услугами банка.'", FALSE, mailman, 0, ch, TO_VICT);
+			return;
+		}
+		else if (!str_cmp("все", tmp_arg2) || !str_cmp("all", tmp_arg2))
+		{
+			if (!ch->carrying)
+			{
+				send_to_char("У Вас ведь ничего нет.\r\n", ch);
+				return;
+			}
+			for (obj = ch->carrying; obj && amount; obj = next_obj)
+			{
+				--amount;
+				next_obj = obj->next_content;
+				send_object(ch, mailman, vict_uid, obj);
+			}
+		}
+		else if (!*tmp_arg2)
+		{
+			send_to_char(ch, "Чего %d Вы хотите отправить ?\r\n", amount);
+		}
+		else if (!(obj = get_obj_in_list_vis(ch, tmp_arg2, ch->carrying)))
+		{
+			send_to_char(ch, "У Вас нет '%s'.\r\n", tmp_arg2);
+		}
+		else
+		{
+			while (obj && amount--)
+			{
+				next_obj = get_obj_in_list_vis(ch, tmp_arg2, obj->next_content);
+				send_object(ch, mailman, vict_uid, obj);
+				obj = next_obj;
+			}
+		}
 	}
-	else if (can_send(ch, mailman, obj))
-		send_object(ch, mailman, vict_uid, obj);
+	else
+	{
+		int dotmode = find_all_dots(tmp_arg);
+		if (dotmode == FIND_INDIV)
+		{
+			if (!(obj = get_obj_in_list_vis(ch, tmp_arg, ch->carrying)))
+			{
+				send_to_char(ch, "У Вас нет '%s'.\r\n", tmp_arg);
+			}
+			send_object(ch, mailman, vict_uid, obj);
+		}
+		else
+		{
+			if (dotmode == FIND_ALLDOT && !*tmp_arg)
+			{
+				send_to_char("Отправить \"все\" какого типа предметов ?\r\n", ch);
+				return;
+			}
+			if (!ch->carrying)
+				send_to_char("У Вас ведь ничего нет.\r\n", ch);
+			else
+			{
+				bool has_items = false;
+				for (obj = ch->carrying; obj; obj = next_obj)
+				{
+					next_obj = obj->next_content;
+					if (CAN_SEE_OBJ(ch, obj) && ((dotmode == FIND_ALL || isname(tmp_arg, obj->name))))
+					{
+						send_object(ch, mailman, vict_uid, obj);
+						has_items = true;
+					}
+				}
+				if (!has_items)
+					send_to_char(ch, "У Вас нет '%s'.\r\n", tmp_arg);
+			}
+		}
+	}
+
+	if (!send_buffer.empty())
+	{
+		snprintf(buf, sizeof(buf), "с Вас удержано %d %s и еще %d %s зарезервировано на 3 дня хранения.\r\n",
+			send_cost_buffer, desc_count(send_cost_buffer, WHAT_MONEYa),
+			send_reserved_buffer, desc_count(send_reserved_buffer, WHAT_MONEYa));
+		send_buffer += buf;
+		send_to_char(ch, send_buffer.c_str());
+
+		send_buffer = "";
+		send_cost_buffer = 0;
+		send_reserved_buffer = 0;
+	}
 }
 
 /**
@@ -584,7 +682,6 @@ LoadNode parcel_read_one_object(char **data, int *error)
 	if (!get_buf_line(data, buffer))
 		return tmp_node;
 	*error = 3;
-	log("3: %s", buffer);
 	if ((tmp_node.target = atol(buffer)) <= 0)
 		return tmp_node;
 
@@ -593,13 +690,11 @@ LoadNode parcel_read_one_object(char **data, int *error)
 	if (!get_buf_line(data, buffer))
 		return tmp_node;
 	*error = 5;
-	log("5: %s", buffer);
 	if ((tmp_node.sender = atol(buffer)) <= 0)
 		return tmp_node;
 
 	*error = 6;
 	// зарезервированная сумма
-	log("6: %s", buffer);
 	if (!get_buf_line(data, buffer))
 		return tmp_node;
 	*error = 7;
