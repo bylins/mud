@@ -208,7 +208,8 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 	if (!can_send(ch, mailman, obj)) return;
 
 	const int cost = get_object_low_rent(obj) * RESERVED_COST_COEFF;
-	if (get_bank_gold(ch) + get_gold(ch) < cost + SEND_COST)
+	const int total_cost = cost + SEND_COST;
+	if (get_bank_gold(ch) + get_gold(ch) < total_cost)
 	{
 		act("$n сказал$g Вам : 'Да у тебя ведь нет столько денег!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
@@ -237,9 +238,8 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 	Node tmp_node(cost, obj);
 	add_parcel(vict_uid, GET_UNIQUE(ch), tmp_node);
 
-	add_bank_gold(ch, -cost);
+	add_bank_gold(ch, -total_cost);
 	send_reserved_buffer += cost;
-	add_bank_gold(ch, -SEND_COST);
 	send_cost_buffer += SEND_COST;
 
 	if (get_bank_gold(ch) < 0)
@@ -251,7 +251,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 		if (get_gold(ch) < 0)
 		{
 			log("SYSERROR: отрицательная сумма у чара после посылки.");
-			get_gold(ch) = 0;
+			set_gold(ch, 0);
 		}
 	}
 	save_char(ch);
