@@ -327,7 +327,8 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 				if (!isname(name.c_str(), it3->obj_->name))
 					continue;
 
-				snprintf(buf, MAX_STRING_LENGTH, "%s находится у почтового голубя в инвентаре.\r\n", it3->obj_->short_description);
+				snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у почтового голубя в инвентаре.\r\n",
+						it3->obj_->short_description, GET_OBJ_POLY_1(ch, it3->obj_));
 				CAP(buf);
 				send_to_char(buf, ch);
 
@@ -833,8 +834,8 @@ int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 					std::string target = GetNameByUnique(it->first);
 					std::string sender = GetNameByUnique(it2->first);
 
-					send_to_char(ch, "O%3d. %-25s - находится на почте (отправитель: %s, получатель: %s).\r\n",
-							num++, it3->obj_->short_description, sender.c_str(), target.c_str());
+					send_to_char(ch, "O%3d. %-25s - наход%sся на почте (отправитель: %s, получатель: %s).\r\n",
+							num++, it3->obj_->short_description, GET_OBJ_POLY_1(ch, it3->obj_), sender.c_str(), target.c_str());
 				}
 			}
 		}

@@ -1538,7 +1538,8 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 			if (!isname(name.c_str(), (*obj_it)->name))
 				continue;
 
-			snprintf(buf, MAX_STRING_LENGTH, "%s находится у кого-то в персональном хранилище.\r\n", (*obj_it)->short_description);
+			snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у кого-то в персональном хранилище.\r\n",
+					(*obj_it)->short_description, GET_OBJ_POLY_1(ch, (*obj_it)));
 			CAP(buf);
 			send_to_char(buf, ch);
 
@@ -1557,8 +1558,8 @@ int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 		{
 			if (isname(arg, (*obj_it)->name))
 			{
-				send_to_char(ch, "O%3d. %-25s - находится в персональном хранилище (%s).\r\n",
-						num++, (*obj_it)->short_description, it->second.name.c_str());
+				send_to_char(ch, "O%3d. %-25s - наход%sся в персональном хранилище (%s).\r\n",
+						num++, (*obj_it)->short_description, GET_OBJ_POLY_1(ch, (*obj_it)), it->second.name.c_str());
 			}
 		}
 	}

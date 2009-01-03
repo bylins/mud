@@ -766,15 +766,15 @@ ASPELL(spell_locate_object)
 		if (i->carried_by)
 		{
 			if (world[IN_ROOM(i->carried_by)]->zone == world[IN_ROOM(ch)]->zone || !IS_NPC(i->carried_by))
-				sprintf(buf, "%s находится у %s в инвентаре.\r\n",
-						i->short_description, PERS(i->carried_by, ch, 1));
+				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n",
+						i->short_description, GET_OBJ_POLY_1(ch, i), PERS(i->carried_by, ch, 1));
 			else
 				continue;
 		}
 		else if (IN_ROOM(i) != NOWHERE && IN_ROOM(i))
 		{
 			if (world[IN_ROOM(i)]->zone == world[IN_ROOM(ch)]->zone && !OBJ_FLAGGED(i, ITEM_NOLOCATE))
-				sprintf(buf, "%s находится в %s.\r\n", i->short_description, world[IN_ROOM(i)]->name);
+				sprintf(buf, "%s наход%sся в %s.\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), world[IN_ROOM(i)]->name);
 			else
 				continue;
 		}
@@ -797,7 +797,7 @@ ASPELL(spell_locate_object)
 							&& (OBJ_FLAGGED(i, ITEM_NOLOCATE)
 							|| world[IN_ROOM(i->in_obj->worn_by)]->zone != world[IN_ROOM(ch)]->zone))
 						continue;
-				sprintf(buf, "%s находится в %s.\r\n", i->short_description, i->in_obj->PNames[5]);
+				sprintf(buf, "%s наход%sся в %s.\r\n", i->short_description, GET_OBJ_POLY_1(ch, i), i->in_obj->PNames[5]);
 			}
 		}
 		else if (i->worn_by)

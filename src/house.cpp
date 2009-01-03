@@ -4318,7 +4318,8 @@ int Clan::print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 					if (!isname(name.c_str(), temp->name))
 						continue;
 
-					snprintf(buf, MAX_STRING_LENGTH, "%s находится в хранилище дружины '%s'.\r\n", temp->short_description, (*clan)->GetAbbrev());
+					snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся в хранилище дружины '%s'.\r\n",
+							temp->short_description, GET_OBJ_POLY_1(ch, temp), (*clan)->GetAbbrev());
 					CAP(buf);
 					send_to_char(buf, ch);
 
