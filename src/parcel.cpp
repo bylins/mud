@@ -167,13 +167,13 @@ int total_sended(CHAR_DATA *ch)
 
 /**
 * Проверка возможности отправить шмотку почтой.
-* FIXME с кланами и перс.хранами почти копипаст.
 */
 bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj)
 {
-	if (OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
+	if (IS_OBJ_STAT(obj, ITEM_NODROP)
+			|| IS_OBJ_STAT(obj, ITEM_NORENT)
+			|| OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
 			|| OBJ_FLAGGED(obj, ITEM_REPOP_DECAY)
-			|| OBJ_FLAGGED(obj, ITEM_NOSELL)
 			|| OBJ_FLAGGED(obj, ITEM_DECAY)
 			|| OBJ_FLAGGED(obj, ITEM_NORENT)
 			|| GET_OBJ_TYPE(obj) == ITEM_KEY
