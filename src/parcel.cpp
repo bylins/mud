@@ -207,7 +207,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 
 	if (!can_send(ch, mailman, obj)) return;
 
-	const int cost = get_object_low_rent(obj) * RESERVED_COST_COEFF;
+	const int cost = get_object_low_rent(obj) * RESERVED_COST_COEFF + SEND_COST;
 	if (get_bank_gold(ch) + get_gold(ch) < cost)
 	{
 		act("$n сказал$g Вам : 'Да у тебя ведь нет столько денег!'", FALSE, mailman, 0, ch, TO_VICT);
@@ -247,6 +247,12 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 		// выше мы убедились, что денег банк+руки как минимум не меньше, чем нужно
 		add_gold(ch, get_bank_gold(ch));
 		set_bank_gold(ch, 0);
+		// всякое бывает
+		if (get_gold(ch) < 0)
+		{
+			log("SYSERROR: отрицательная сумма у чара после посылки.");
+			get_gold(ch) = 0;
+		}
 	}
 	save_char(ch);
 
