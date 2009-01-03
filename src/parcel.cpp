@@ -207,8 +207,8 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 
 	if (!can_send(ch, mailman, obj)) return;
 
-	const int cost = get_object_low_rent(obj) * RESERVED_COST_COEFF + SEND_COST;
-	if (get_bank_gold(ch) + get_gold(ch) < cost)
+	const int cost = get_object_low_rent(obj) * RESERVED_COST_COEFF;
+	if (get_bank_gold(ch) + get_gold(ch) < cost + SEND_COST)
 	{
 		act("$n сказал$g Вам : 'Да у тебя ведь нет столько денег!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
