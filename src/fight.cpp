@@ -2688,6 +2688,9 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 	else
 		GET_HIT(victim) -= dam;
 
+	void dmeter_update(CHAR_DATA *ch, int dam);
+	dmeter_update(ch, dam);
+
 	update_pos(victim);
 
 

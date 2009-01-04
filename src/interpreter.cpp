@@ -327,7 +327,7 @@ ACMD(do_ignore);
 ACMD(do_proxy);
 ACMD(do_turn_undead);
 ACMD(do_iron_wind);
-
+ACMD(do_dmeter);
 
 /* DG Script ACMD's */
 ACMD(do_attach);
@@ -539,6 +539,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"дрновости", POS_DEAD, DoBoard, 1, CLANNEWS_BOARD, -1},
 	{"дрвече", POS_DEAD, DoBoard, 1, CLAN_BOARD, -1},
 	{"дрлист", POS_DEAD, DoClanPkList, 0, 1, 0},
+	{"дметр", POS_DEAD, do_dmeter, 0, 1, 0},
 
 	{"есть", POS_RESTING, do_eat, 0, SCMD_EAT, 500},
 
