@@ -4926,22 +4926,32 @@ ACMD(do_forcetime)
 #include <sstream>
 #include <iomanip>
 bool is_group_member(CHAR_DATA *ch, CHAR_DATA *vict);
+extern const char *class_name[];
+
 class dmeter_node
 {
 public:
-	dmeter_node(const char *name) : name_(name), damage_(0) {};
+	dmeter_node(const char *name, std::string prof) : name_(name), damage_(0), real_damage_(0), prof_(prof) {};
 	std::string name_;
 	int damage_;
+	int real_damage_;
+	std::string prof_;
 };
 std::map<long /* id */, dmeter_node> dmeter_list;
 
-void dmeter_update(CHAR_DATA *ch, int dam)
+void dmeter_update(CHAR_DATA *ch, int real_dam, int dam)
 {
 	std::map<long, dmeter_node>::iterator it = dmeter_list.find(GET_ID(ch));
 	if (it != dmeter_list.end())
 	{
 		it->second.damage_ += dam;
+		it->second.real_damage_ += real_dam;
 	}
+}
+
+std::string dmeter_get_prof(CHAR_DATA *ch)
+{
+	return IS_NPC(ch) ? "" : class_name[(int) GET_CLASS(ch)+14*GET_KIN(ch)];
 }
 
 ACMD(do_dmeter)
@@ -4963,7 +4973,9 @@ ACMD(do_dmeter)
 		std::stringstream out;
 		for (std::map<long, dmeter_node>::iterator it = dmeter_list.begin(); it != dmeter_list.end(); ++it)
 		{
-			out << std::setw(35) << it->second.name_ << " : " << std::setw(15) << it->second.damage_ << "\r\n";
+			out << std::setw(35) << it->second.name_ << " : "  << std::setw(15) << it->second.damage_
+					<< " : " << std::setw(15) << it->second.real_damage_
+					<< " : " << std::setw(15) << it->second.prof_ << "\r\n";
 		}
 		send_to_char(out.str(), ch);
 	}
@@ -4972,6 +4984,7 @@ ACMD(do_dmeter)
 		for (std::map<long, dmeter_node>::iterator it = dmeter_list.begin(); it != dmeter_list.end(); ++it)
 		{
 			it->second.damage_ = 0;
+			it->second.real_damage_ = 0;
 		}
 		return;
 	}
@@ -4996,16 +5009,16 @@ ACMD(do_dmeter)
 		}
 
 		dmeter_list.clear();
-		dmeter_node tmp_node(GET_NAME(vict));
+		dmeter_node tmp_node(GET_NAME(vict), dmeter_get_prof(vict));
 		dmeter_list.insert(std::make_pair(GET_ID(vict), tmp_node));
 
 		for (struct follow_type *f = vict->followers; f; f = f->next)
 		{
-			dmeter_node tmp_node(GET_NAME(f->follower));
+			dmeter_node tmp_node(GET_NAME(f->follower), dmeter_get_prof(f->follower));
 			dmeter_list.insert(std::make_pair(GET_ID(f->follower), tmp_node));
 			for (struct follow_type *ff = f->follower->followers; ff; ff = ff->next)
 			{
-				dmeter_node tmp_node(GET_NAME(ff->follower));
+				dmeter_node tmp_node(GET_NAME(ff->follower), dmeter_get_prof(ff->follower));
 				dmeter_list.insert(std::make_pair(GET_ID(ff->follower), tmp_node));
 			}
 		}
