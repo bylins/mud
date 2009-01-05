@@ -56,7 +56,6 @@ long find_class_bitvector(char arg);
 byte saving_throws(int class_num, int type, int level);
 int thaco(int class_num, int level);
 void do_start(CHAR_DATA * ch, int newbie);
-int backstab_mult(int level);
 int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
 int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj);
 int level_exp(CHAR_DATA * ch, int level);
@@ -2468,40 +2467,6 @@ void decrease_level(CHAR_DATA * ch)
 	TopPlayer::Refresh(ch);
 	save_char(ch);
 }
-
-
-/*
- * This simply calculates the backstab multiplier based on a character's
- * level.  This used to be an array, but was changed to be a function so
- * that it would be easier to add more levels to your MUD.  This doesn't
- * really create a big performance hit because it's not used very often.
- */
-int backstab_mult(int level)
-{
-	if (level <= 0)
-		return 1;	/* level 0 */
-	else if (level <= 5)
-		return 2;	/* level 1 - 7 */
-	else if (level <= 10)
-		return 3;	/* level 8 - 13 */
-	else if (level <= 15)
-		return 4;	/* level 14 - 20 */
-	else if (level <= 20)
-		return 5;	/* level 21 - 28 */
-	else if (level <= 25)
-		return 6;	/* level 21 - 28 */
-	else if (level <= 30)
-		return 7;	/* level 21 - 28 */
-	else
-		return 10;
-
-//	Adept: убрал, бо хайлевел мобы со стаба батыров сносили :)
-//	 if (level < LVL_GRGOD)
-//		return 10;	/* all remaining mortal levels */
-//	else
-//		return 20;	/* immortals */
-}
-
 
 /*
  * invalid_class is used by handler.cpp to determine if a piece of equipment is

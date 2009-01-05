@@ -58,7 +58,6 @@ ACMD(do_flee);
 ACMD(do_assist);
 ACMD(do_get);
 void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount);
-int backstab_mult(int level);
 int thaco(int ch_class, int level);
 int ok_damage_shopkeeper(CHAR_DATA * ch, CHAR_DATA * victim);
 void battle_affect_update(CHAR_DATA * ch);
@@ -3435,6 +3434,65 @@ inline int do_punctual(CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *wielded)
 	return dam_critic;
 }
 
+/**
+* Умножение дамаги при стабе.
+*/
+int backstab_mult(int level)
+{
+	if (level <= 0)
+		return 1;	/* level 0 */
+	else if (level <= 5)
+		return 2;	/* level 1 - 5 */
+	else if (level <= 10)
+		return 3;	/* level 6 - 10 */
+	else if (level <= 15)
+		return 4;	/* level 11 - 15 */
+	else if (level <= 20)
+		return 5;	/* level 16 - 20 */
+	else if (level <= 25)
+		return 6;	/* level 21 - 25 */
+	else if (level <= 30)
+		return 7;	/* level 26 - 30 */
+	else
+		return 10;
+}
+
+/**
+* Процент прохождения крит.стаба = скилл/14 + (декса-20)/(декса/35)
+*/
+int calculate_crit_backstab_percent(CHAR_DATA *ch)
+{
+	double dex = GET_REAL_DEX(ch);
+	double skill = ch->get_skill(SKILL_BACKSTAB);
+	int result = skill/14 + (dex - 20)/(dex/35);
+	return result;
+}
+
+/**
+* Расчет множителя крит.стаба (по игрокам только для татей).
+*/
+double calculate_crit_backstab(CHAR_DATA *ch, CHAR_DATA *victim)
+{
+	double tmp_skill = static_cast<double>(ch->get_skill(SKILL_BACKSTAB));
+	double bs_coeff = 1;
+	if (IS_NPC(victim))
+	{
+		// (скилл - 40)/10 (от 2 до 16)
+		bs_coeff = (tmp_skill - 40) / 10;
+		if (bs_coeff < 2)
+			bs_coeff = 2;
+	}
+	else if (GET_CLASS(ch) == CLASS_THIEF)
+	{
+		// по чарам коэф. до 1.25 при 200 скила
+		bs_coeff *= 1 + (tmp_skill * 0.00125);
+		// санку при крите как бы игнорим
+		if (AFF_FLAGGED(victim, AFF_SANCTUARY))
+			bs_coeff *= 2;
+	}
+	return bs_coeff;
+}
+
 // обработка ударов оружием, санка, призма, стили, итд.
 void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 {
@@ -4034,7 +4092,12 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		}
 
 		if (GET_MOB_HOLD(victim))
-			dam += (dam >> 1);
+		{
+			if (IS_NPC(ch))
+				dam *= 1.5;
+			else
+				dam *= 1.25;
+		}
 
 		// Cut damage in half if victim has sanct, to a minimum 1
 		if (AFF_FLAGGED(victim, AFF_PRISMATICAURA))
@@ -4081,21 +4144,14 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		if (type == SKILL_BACKSTAB)
 		{
 			dam *= backstab_mult(GET_LEVEL(ch));
-			/* если критбакстаб, то дамаж равен 95% хитов жертвы
-			   вероятность критстабба - стабб/20+ловкость-20 (кард) */
-			/*+скр.удар/20 */
-			if (IS_NPC(victim) && (number(1, 100) <
-								   (ch->get_skill(SKILL_BACKSTAB) / 20 + GET_REAL_DEX(ch) - 20)))
-				if (!general_savingthrow(ch, victim, SAVING_REFLEX,
-										 MAX(0, ch->get_skill(SKILL_BACKSTAB) -
-											 skill_info[SKILL_BACKSTAB].max_percent +
-											 dex_app[GET_REAL_DEX(ch)].reaction)))
-				{
-					dam *= MAX(2, (ch->get_skill(SKILL_BACKSTAB) - 40) / 8);
-					send_to_char("&GПрямо в сердце!&n\r\n", ch);
-				}
+			if (number(1, 100) < calculate_crit_backstab_percent(ch)
+				&& !general_savingthrow(ch, victim, SAVING_REFLEX, dex_app[GET_REAL_DEX(ch)].reaction))
+			{
+				dam *= calculate_crit_backstab(ch, victim);
+				send_to_char("&GПрямо в сердце!&n\r\n", ch);
+			}
 
-//Adept: учитываем резисты от крит. повреждений
+			//Adept: учитываем резисты от крит. повреждений
 			dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
 			extdamage(ch, victim, dam, w_type, 0, TRUE);
 			return;
