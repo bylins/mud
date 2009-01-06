@@ -2432,6 +2432,26 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktyp
 	}
 }
 
+/**
+* При надуве выше х 1.5 в пк есть 1% того, что весь надув слетит одним ударом.
+*/
+void try_remove_extrahits(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
+{
+	if (dam > 0
+		&& (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
+		&& !IS_NPC(victim)
+		&& GET_POS(victim) != POS_DEAD
+		&& GET_HIT(victim) > GET_REAL_MAX_HIT(victim) * 1.5
+		&& number(1, 100) == 1)
+	{
+		GET_HIT(victim) = GET_REAL_MAX_HIT(victim);
+		send_to_char(victim, "%s'Будь%s тощ%s аки прежде' - мелькнула чужая мысль в Вашей голове.%s\r\n",
+				CCWHT(victim, C_NRM), GET_CH_POLY_1(victim), GET_CH_EXSUF_1(victim), CCNRM(victim, C_NRM));
+		act("Вы прервали золотистую нить, питающую $N3 жизнью.", FALSE, ch, 0, victim, TO_CHAR);
+		act("$n прервал$g золотистую нить, питающую $N3 жизнью.", FALSE, ch, 0, victim, TO_NOTVICT);
+	}
+}
+
 // обработка щитов, зб, поглощения, сообщения для огн. щита НЕ ЗДЕСЬ
 // возвращает сделанный дамаг
 int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayflee)
@@ -2700,6 +2720,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 
 	update_pos(victim);
 
+	try_remove_extrahits(ch, victim, dam);
 
 	// * skill_message sends a message from the messages file in lib/misc.
 	//  * dam_message just sends a generic "You hit $n extremely hard.".

@@ -2214,7 +2214,7 @@ ASPELL(spell_sacrifice)
 	// Высосать жизнь - некроманы - уровень 18 круг 6й (5)
 	// *** мин 54 макс 66 (330)
 
-	if (WAITLESS(victim) || victim == ch)
+	if (WAITLESS(victim) || victim == ch || IS_CHARMICE(victim))
 	{
 		send_to_char(NOEFFECT, ch);
 		return;
@@ -2231,12 +2231,17 @@ ASPELL(spell_sacrifice)
 
 	do_sacrifice(ch, dam);
 	if (!IS_NPC(ch))
+	{
 		for (f = ch->followers; f; f = f->next)
-			if (IS_NPC(f->follower) &&
-					AFF_FLAGGED(f->follower, AFF_CHARM) &&
-					MOB_FLAGGED(f->follower, MOB_CORPSE) && IN_ROOM(ch) == IN_ROOM(f->follower))
+		{
+			if (IS_NPC(f->follower)
+					&& AFF_FLAGGED(f->follower, AFF_CHARM)
+					&& MOB_FLAGGED(f->follower, MOB_CORPSE) && IN_ROOM(ch) == IN_ROOM(f->follower))
+			{
 				do_sacrifice(f->follower, dam);
-
+			}
+		}
+	}
 }
 
 ASPELL(spell_eviless)

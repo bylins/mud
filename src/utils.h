@@ -864,6 +864,11 @@ extern SPECIAL(postmaster);
                             IS_OBJ_MALE(obj) ? ""  :\
                             IS_OBJ_FEMALE(obj) ? "а" : "ы")
 
+#define GET_CH_EXSUF_1(ch) (IS_NOSEXY(ch) ? "им" :\
+                            IS_MALE(ch) ? "им"  :\
+                            IS_FEMALE(ch) ? "ей" : "ими")
+#define GET_CH_POLY_1(ch) (IS_POLY(ch) ? "те" : "")
+
 #define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == SEX_POLY) ? "ят" : "ит")
 #define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == SEX_POLY) ? "ят" : "ит")
 
