@@ -3458,13 +3458,14 @@ int backstab_mult(int level)
 }
 
 /**
-* Процент прохождения крит.стаба = скилл/14 + (декса-20)/(декса/35)
+* Процент прохождения крит.стаба = скилл/11 + (декса-20)/(декса/30)
+* Влияение по 50% от скилла и дексы, максимум 36,18%.
 */
 int calculate_crit_backstab_percent(CHAR_DATA *ch)
 {
 	double dex = GET_REAL_DEX(ch);
 	double skill = ch->get_skill(SKILL_BACKSTAB);
-	int result = skill/14 + (dex - 20)/(dex/35);
+	int result = skill/11 + (dex - 20)/(dex/30);
 	return result;
 }
 
@@ -3477,10 +3478,19 @@ double calculate_crit_backstab(CHAR_DATA *ch, CHAR_DATA *victim)
 	double bs_coeff = 1;
 	if (IS_NPC(victim))
 	{
-		// (скилл - 40)/10 (от 2 до 16)
-		bs_coeff = (tmp_skill - 40) / 10;
-		if (bs_coeff < 2)
-			bs_coeff = 2;
+		if (ch->get_skill(SKILL_BACKSTAB) <= 100)
+		{
+			// (скилл-40)*0.1, по 0.5 за каждые 5 скила до 100 (множитель от 2 до 6)
+			bs_coeff = (tmp_skill-40)*0.1;
+			if (bs_coeff < 2)
+				bs_coeff = 2;
+		}
+		else
+		{
+			// 6+(скилл-100)*0.06, по 0.3 за каждые 5 скила после 100 (множитель от 6.3 до 12)
+			bs_coeff = 6+(tmp_skill-40)*0.06;
+		}
+		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
 	else if (GET_CLASS(ch) == CLASS_THIEF)
 	{
@@ -3489,6 +3499,7 @@ double calculate_crit_backstab(CHAR_DATA *ch, CHAR_DATA *victim)
 		// санку при крите как бы игнорим
 		if (AFF_FLAGGED(victim, AFF_SANCTUARY))
 			bs_coeff *= 2;
+		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
 	return bs_coeff;
 }
@@ -4148,7 +4159,6 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 				&& !general_savingthrow(ch, victim, SAVING_REFLEX, dex_app[GET_REAL_DEX(ch)].reaction))
 			{
 				dam *= calculate_crit_backstab(ch, victim);
-				send_to_char("&GПрямо в сердце!&n\r\n", ch);
 			}
 
 			//Adept: учитываем резисты от крит. повреждений
