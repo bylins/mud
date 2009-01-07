@@ -22,6 +22,7 @@ extern CHAR_DATA *get_player_of_name(const char *name);
 extern int get_buf_line(char **source, char *target);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern void write_one_object(char **data, OBJ_DATA * object, int location);
+extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);
 
 namespace Parcel
 {
@@ -942,6 +943,24 @@ int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 		}
 	}
 	return num;
+}
+
+/**
+* Обновление полей объектов при изменении их прототипа через олц.
+*/
+void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto)
+{
+	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it)
+	{
+		for (SenderListType::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+		{
+			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
+			{
+				if (GET_OBJ_RNUM(it3->obj_) == robj_num)
+					olc_update_object(robj_num, it3->obj_, olc_proto);
+			}
+		}
+	}
 }
 
 } // namespace Parcel

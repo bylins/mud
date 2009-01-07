@@ -271,6 +271,52 @@ void renumber_obj_rnum(int rnum)
 	Parcel::renumber_obj_rnum(rnum);
 }
 
+/**
+* Обновление данных у конкретной шмотки (для update_online_objects).
+*/
+void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
+{
+	// Итак, нашел объект
+	// Внимание! Таймер объекта, его состояние и т.д. обновятся!
+
+	// Сохраняю текущую игровую информацию
+	OBJ_DATA tmp(*obj);
+
+	// Удаляю его строки и т.д.
+	// прототип скрипта не удалится, т.к. его у экземпляра нету
+	// скрипт не удалится, т.к. его не удаляю
+	oedit_object_free(obj);
+
+	// Нужно скопировать все новое, сохранив определенную информацию
+	*obj = *olc_proto;
+	obj->proto_script = NULL;
+	// Восстанавливаю игровую информацию
+	obj->in_room = tmp.in_room;
+	obj->item_number = robj_num;
+	obj->carried_by = tmp.carried_by;
+	obj->worn_by = tmp.worn_by;
+	obj->worn_on = tmp.worn_on;
+	obj->in_obj = tmp.in_obj;
+	obj->contains = tmp.contains;
+	obj->next_content = tmp.next_content;
+	obj->next = tmp.next;
+	SCRIPT(obj) = SCRIPT(&tmp);
+}
+
+/**
+* Обновление полей объектов при изменении их прототипа через олц.
+*/
+void olc_update_objects(int robj_num, OBJ_DATA *olc_proto)
+{
+	for (OBJ_DATA *obj = object_list; obj; obj = obj->next)
+	{
+		if (obj->item_number == robj_num)
+			olc_update_object(robj_num, obj, olc_proto);
+	}
+	Depot::olc_update_from_proto(robj_num, olc_proto);
+	Parcel::olc_update_from_proto(robj_num, olc_proto);
+}
+
 /*------------------------------------------------------------------------*/
 
 #define ZCMD zone_table[zone].cmd[cmd_no]
@@ -278,7 +324,6 @@ void renumber_obj_rnum(int rnum)
 void oedit_save_internally(DESCRIPTOR_DATA * d)
 {
 	int i, shop, robj_num, found = FALSE, zone, cmd_no;
-	OBJ_DATA *obj;
 	INDEX_DATA *new_obj_index;
 	DESCRIPTOR_DATA *dsc;
 
@@ -297,38 +342,8 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 				 * with the new one.
 				 */
 		log("[OEdit] Save object to mem %d", robj_num);
+		olc_update_objects(robj_num, OLC_OBJ(d));
 
-		for (obj = object_list; obj; obj = obj->next)
-		{
-			if (obj->item_number == robj_num)
-			{
-				// Итак, нашел объект
-				// Внимание! Таймер объекта, его состояние и т.д. обновятся!
-
-				// Сохраняю текущую игровую информацию
-				OBJ_DATA tmp(*obj);
-
-				// Удаляю его строки и т.д.
-				// прототип скрипта не удалится, т.к. его у экземпляра нету
-				// скрипт не удалится, т.к. его не удаляю
-				oedit_object_free(obj);
-
-				// Нужно скопировать все новое, сохранив определенную информацию
-				*obj = *OLC_OBJ(d);
-				obj->proto_script = NULL;
-				// Восстанавливаю игровую информацию
-				obj->in_room = tmp.in_room;
-				obj->item_number = robj_num;
-				obj->carried_by = tmp.carried_by;
-				obj->worn_by = tmp.worn_by;
-				obj->worn_on = tmp.worn_on;
-				obj->in_obj = tmp.in_obj;
-				obj->contains = tmp.contains;
-				obj->next_content = tmp.next_content;
-				obj->next = tmp.next;
-				SCRIPT(obj) = SCRIPT(&tmp);
-			}
-		}
 		// Все существующие в мире объекты обновлены согласно нового прототипа
 		// Строки в этих объектах как ссылки на данные прототипа
 

@@ -24,6 +24,7 @@ extern SPECIAL(bank);
 extern void write_one_object(char **data, OBJ_DATA * object, int location);
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
+extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);
 
 namespace Depot
 {
@@ -1564,6 +1565,21 @@ int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 		}
 	}
 	return num;
+}
+
+/**
+* Обновление полей объектов при изменении их прототипа через олц.
+*/
+void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto)
+{
+	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
+	{
+		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end(); ++obj_it)
+		{
+			if (GET_OBJ_RNUM(*obj_it) == robj_num)
+				olc_update_object(robj_num, *obj_it, olc_proto);
+		}
+	}
 }
 
 } // namespace Depot

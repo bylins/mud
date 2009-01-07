@@ -26,7 +26,6 @@ bool is_depot(OBJ_DATA *obj);
 void show_depot(CHAR_DATA *ch);
 bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj);
 void take_depot(CHAR_DATA *ch, char *arg, int howmany);
-void renumber_obj_rnum(int rnum);
 
 int get_total_cost_per_day(CHAR_DATA *ch);
 void show_stats(CHAR_DATA *ch);
@@ -38,6 +37,9 @@ void reload_char(long uid, CHAR_DATA *ch);
 int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name);
 void show_purged_message(CHAR_DATA *ch);
 int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num);
+
+void renumber_obj_rnum(int rnum);
+void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto);
 
 } // namespace Depot
 

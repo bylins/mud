@@ -23,6 +23,9 @@ void load();
 void renumber_obj_rnum(int rnum);
 int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num);
 
+void renumber_obj_rnum(int rnum);
+void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto);
+
 } // namespace Parcel
 
 #endif // PARCEL_HPP_INCLUDED
