@@ -176,6 +176,7 @@ struct alias_data
 #define SCMD_PKFORMAT_MODE 41
 #define SCMD_WORKMATE_MODE 42
 #define SCMD_OFFTOP_MODE   43
+#define SCMD_ANTIDC_MODE   44
 
 /* do_wizutil */
 #define SCMD_REROLL     0

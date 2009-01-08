@@ -1916,6 +1916,7 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "пкформат", "pkformat",
 							   "соклановцы", "workmate",
 							   "оффтоп", "offtop",
+							   "потеря связи", "disconnect",
 							   "\n"
 							 };
 
@@ -1970,7 +1971,8 @@ struct gen_tog_param_type
 		0, SCMD_POLIT_MODE} , {
 		0, SCMD_PKFORMAT_MODE}, {
 		0, SCMD_WORKMATE_MODE}, {
-		0, SCMD_OFFTOP_MODE}
+		0, SCMD_OFFTOP_MODE}, {
+		0, SCMD_ANTIDC_MODE}
 };
 
 ACMD(do_mode)
@@ -2132,7 +2134,9 @@ ACMD(do_gen_tog)
 		{"Вам не будут показываться входы и выходы из игры ваших соклановцев.\r\n",
 		 "Вы видите входы и выходы из игры ваших соклановцев.\r\n"},
 		{"Вы отключены от канала оффтоп.\r\n",
-		 "Вы будете слышать болтовню в канале оффтоп.\r\n"}
+		 "Вы будете слышать болтовню в канале оффтоп.\r\n"},
+		{"Вы отключили защиту от потери связь во время боя.\r\n",
+		 "Защита от потери связи во время боя включена.\r\n"}
 	};
 
 
@@ -2279,6 +2283,9 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_OFFTOP_MODE:
 		result = PRF_TOG_CHK(ch, PRF_OFFTOP_MODE);
+		break;
+	case SCMD_ANTIDC_MODE:
+		result = PRF_TOG_CHK(ch, PRF_ANTIDC_MODE);
 		break;
 
 	default:

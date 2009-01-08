@@ -580,6 +580,7 @@ typedef struct trig_data TRIG_DATA;
 #define PRF_PKFORMAT_MODE (INT_ONE | 1 << 23) // формат пкл/дрл
 #define PRF_WORKMATE_MODE (INT_ONE | 1 << 24) // показ входов/выходов соклановцев
 #define PRF_OFFTOP_MODE (INT_ONE | 1 << 25) // вкл/выкл канала оффтопа
+#define PRF_ANTIDC_MODE (INT_ONE | 1 << 26) // режим защиты от зисконекта в бою
 
 /* Affect bits: used in char_data.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */

@@ -4956,7 +4956,7 @@ ACMD(do_toggle)
 			" Базар         : %-3s     " " Ширина экрана : %-3d     " " Высота экрана : %-3d \r\n"
 			" Новости (вид) : %-5s   "   " Доски         : %-3s     " " Хранилище     : %-10s\r\n"
 			" Пклист        : %-3s     " " Политика      : %-3s     " " Пкформат      : %-10s\r\n"
-			" Соклановцы    : %-3s     " " Оффтоп        : %-3s\r\n",
+			" Соклановцы    : %-3s     " " Оффтоп        : %-3s     " " Потеря связи  : %-3s \r\n",
 			ONOFF(PRF_FLAGGED(ch, PRF_DISPHP)),
 			ONOFF(!PRF_FLAGGED(ch, PRF_NOTELL)),
 			ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)), ONOFF(PRF_FLAGGED(ch, PRF_DISPMOVE)),
@@ -4997,7 +4997,8 @@ ACMD(do_toggle)
 			ONOFF(PRF_FLAGGED(ch, PRF_POLIT_MODE)),
 			PRF_FLAGGED(ch, PRF_PKFORMAT_MODE) ? "краткий" : "полный",
 			ONOFF(PRF_FLAGGED(ch, PRF_WORKMATE_MODE)),
-			ONOFF(PRF_FLAGGED(ch, PRF_OFFTOP_MODE)));
+			ONOFF(PRF_FLAGGED(ch, PRF_OFFTOP_MODE)),
+			ONOFF(PRF_FLAGGED(ch, PRF_ANTIDC_MODE)));
 
 	send_to_char(buf, ch);
 }

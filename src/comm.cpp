@@ -3018,6 +3018,11 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT)
 		{
 			act("$n потерял$g связь.", TRUE, d->character, 0, 0, TO_ROOM);
+			if (FIGHTING(d->character) && PRF_FLAGGED(d->character, PRF_ANTIDC_MODE))
+			{
+				snprintf(buf2, sizeof(buf2), "зачитать свиток.возврата");
+				command_interpreter(d->character, buf2);
+			}
 			if (!IS_NPC(d->character))
 			{
 				save_char(d->character);
