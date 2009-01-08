@@ -432,11 +432,14 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 
 	case SKILL_BLOCK:	/*закрыться щитом */
-		percent = skill_is + dex_app[GET_REAL_DEX(ch) * 2].reaction;
-		if (GET_AF_BATTLE(ch, EAF_AWAKE))
-			percent += ch->get_skill(SKILL_AWAKE);
+	{
+		// по 10 бонусом со щита (21-30) и дексы (21-50)
+		int shield_mod = GET_EQ(ch, WEAR_SHIELD) ? MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)) - 20)) : 0;
+		int dex_mod = MAX(0, (GET_REAL_DEX(ch) - 20)/3);
+		percent = skill_is + dex_mod + shield_mod;
 
 		break;
+	}
 
 	case SKILL_TOUCH:	/*захватить противника */
 		percent =

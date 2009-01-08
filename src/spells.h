@@ -96,6 +96,7 @@
 #define EAF_MULTYPARRY  (1 << 16)
 #define EAF_SLEEP       (1 << 17)
 #define EAF_IRON_WIND   (1 << 18)
+#define EAF_AUTOBLOCK   (1 << 19) // автоматический блок щитом в осторожном стиле
 
 #define TYPE_NOPARRY		    -2
 #define TYPE_UNDEFINED              -1

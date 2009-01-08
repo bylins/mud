@@ -41,6 +41,8 @@ void appear(CHAR_DATA * ch);
 int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg);
 void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance);
 void go_protect(CHAR_DATA * ch, CHAR_DATA * vict);
+extern bool can_auto_block(CHAR_DATA *ch);
+
 /* local functions */
 ACMD(do_assist);
 ACMD(do_hit);
@@ -896,10 +898,12 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 //         GET_NAME(vict), GET_LEVEL(vict), GET_REAL_DEX(vict),
 //         percent, prob, dam);
 //делаем блокирование баша
-		if (GET_AF_BATTLE(vict, EAF_BLOCK) &&
-				!AFF_FLAGGED(vict, AFF_STOPFIGHT) &&
-				!AFF_FLAGGED(vict, AFF_MAGICSTOPFIGHT) &&
-				!AFF_FLAGGED(vict, AFF_STOPLEFT) && GET_WAIT(vict) <= 0 && GET_MOB_HOLD(vict) == 0)
+		if ((GET_AF_BATTLE(vict, EAF_BLOCK) || can_auto_block(vict))
+			&& !AFF_FLAGGED(vict, AFF_STOPFIGHT)
+			&& !AFF_FLAGGED(vict, AFF_MAGICSTOPFIGHT)
+			&& !AFF_FLAGGED(vict, AFF_STOPLEFT)
+			&& GET_WAIT(vict) <= 0
+			&& GET_MOB_HOLD(vict) == 0)
 		{
 			if (!(GET_EQ(vict, WEAR_SHIELD) ||
 					IS_NPC(vict) || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE)))

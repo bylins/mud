@@ -4965,7 +4965,7 @@ void mag_assign_spells(void)
 	skillo(SKILL_STEAL, "украсть", 100);
 	skillo(SKILL_TRACK, "выследить", 100);
 	skillo(SKILL_PARRY, "парировать", 120);
-	skillo(SKILL_BLOCK, "блокировать щитом", 120);
+	skillo(SKILL_BLOCK, "блокировать щитом", 200);
 	skillo(SKILL_TOUCH, "перехватить атаку", 100);
 	skillo(SKILL_PROTECT, "прикрыть", 120);
 	skillo(SKILL_BOTHHANDS, "двуручники", 160);

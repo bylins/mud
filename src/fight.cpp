@@ -481,7 +481,12 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 			SET_AF_BATTLE(ch, EAF_PUNCTUAL);
 		else if (PRF_FLAGGED(ch, PRF_AWAKE))
 			SET_AF_BATTLE(ch, EAF_AWAKE);
-	};
+	}
+
+	if (GET_CLASS(ch) == CLASS_GUARD && ch->get_skill(SKILL_BLOCK))
+	{
+		SET_AF_BATTLE(ch, EAF_AUTOBLOCK);
+	}
 
 //  check_killer(ch, vict);
 }
@@ -1378,6 +1383,10 @@ void alterate_object(OBJ_DATA * obj, int dam, int chance)
 
 	if (dam > 0 && chance >= number(1, 100))
 	{
+		if (dam > 1 && obj->worn_by && GET_EQ(obj->worn_by, WEAR_SHIELD) == obj)
+		{
+			dam /= 2;
+		}
 		if ((GET_OBJ_CUR(obj) -= dam) <= 0)
 		{
 			if (obj->worn_by)
@@ -3525,6 +3534,17 @@ double calculate_crit_backstab(CHAR_DATA *ch, CHAR_DATA *victim)
 	return bs_coeff;
 }
 
+/**
+* Может ли персонаж блокировать атаки автоматом (вообще в данный момент, без учета лагов).
+*/
+bool can_auto_block(CHAR_DATA *ch)
+{
+	if (GET_EQ(ch, WEAR_SHIELD) && GET_AF_BATTLE(ch, EAF_AWAKE) && GET_AF_BATTLE(ch, EAF_AUTOBLOCK))
+		return true;
+	else
+		return false;
+}
+
 // обработка ударов оружием, санка, призма, стили, итд.
 void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 {
@@ -3808,9 +3828,18 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 	if (GET_AF_BATTLE(ch, EAF_AWAKE) &&
 			(IS_NPC(ch) || GET_CLASS(ch) != CLASS_ASSASINE) && skill != SKILL_THROW && skill != SKILL_BACKSTAB)
 	{
-		calc_thaco += ((ch->get_skill(SKILL_AWAKE) + 9) / 10) + 2;
-		if (ch->get_skill(SKILL_AWAKE) > 50 && !IS_NPC(ch))
-			dam = dam / (ch->get_skill(SKILL_AWAKE) / 50);
+		if (can_auto_block(ch))
+		{
+			// осторожка со щитом в руках у дружа с блоком - штрафы на хитролы (от 0 до 10)
+			double awake_skill = static_cast<double>(ch->get_skill(SKILL_AWAKE));
+			calc_thaco += awake_skill * 0.05;
+		}
+		else
+		{
+			// здесь еще были штрафы на дамаг через деление, но положительного дамага
+			// на этом этапе еще нет, так что делили по сути нули
+			calc_thaco += ((ch->get_skill(SKILL_AWAKE) + 9) / 10) + 2;
+		}
 	}
 
 	if (!IS_NPC(ch) && skill != SKILL_THROW && skill != SKILL_BACKSTAB)
@@ -4472,15 +4501,16 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 					}
 					else
 						/**** Обработаем команду   БЛОКИРОВАТЬ */
-						if (dam > 0 && type != TYPE_NOPARRY &&
-								!GET_AF_BATTLE(ch, EAF_MIGHTHIT) &&
-								!GET_AF_BATTLE(ch, EAF_STUPOR) &&
-								GET_AF_BATTLE(victim, EAF_BLOCK) &&
-								!AFF_FLAGGED(victim, AFF_STOPFIGHT) &&
-								!AFF_FLAGGED(victim, AFF_MAGICSTOPFIGHT) &&
-								!AFF_FLAGGED(victim, AFF_STOPLEFT) &&
-								GET_WAIT(victim) <= 0 &&
-								GET_MOB_HOLD(victim) == 0 && BATTLECNTR(victim) < (GET_LEVEL(victim) + 8) / 9)
+						if (dam > 0 && type != TYPE_NOPARRY
+							&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
+							&& !GET_AF_BATTLE(ch, EAF_STUPOR)
+							&& (GET_AF_BATTLE(victim, EAF_BLOCK) || can_auto_block(victim))
+							&& !AFF_FLAGGED(victim, AFF_STOPFIGHT)
+							&& !AFF_FLAGGED(victim, AFF_MAGICSTOPFIGHT)
+							&& !AFF_FLAGGED(victim, AFF_STOPLEFT)
+							&& GET_WAIT(victim) <= 0
+							&& GET_MOB_HOLD(victim) == 0
+							&& BATTLECNTR(victim) < (GET_LEVEL(victim) + 8) / 9)
 						{
 							if (!(GET_EQ(victim, WEAR_SHIELD) ||
 									IS_NPC(victim) || IS_IMMORTAL(victim) || GET_GOD_FLAG(victim, GF_GODSLIKE)))

@@ -2876,7 +2876,7 @@ void init_spell_levels(void)
 		if (sscanf(name, "%s %s %d %d %d %d %d", line1, line2, i, i + 1, i + 2, i + 3, i + 4) != 7)
 		{
 			log("Bad format for skill string !\r\n"
-				"Format : <skill name (%%s %%s)>  <kin (%%d)> <class (%%d)> <remort (%%d)> <improove (%%d)> !");
+				"Format : <skill name (%%s %%s)>  <kin (%%d)> <class (%%d)> <remort (%%d)> <minlevel> <improove (%%d)> !");
 			_exit(1);
 		}
 		name[0] = '\0';
