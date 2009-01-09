@@ -3783,6 +3783,9 @@ ACMD(do_who)
 			continue;
 		if (showname && !(!NAME_GOD(tch) && GET_LEVEL(tch) <= NAME_LEVEL))
 			continue;
+		if (PLR_FLAGGED(tch, PLR_NAMED) && NAME_DURATION(tch) && !IS_IMMORTAL(ch) && !kroder && ch != tch)
+			continue;
+
 		*buf = '\0';
 		num_can_see++;
 
