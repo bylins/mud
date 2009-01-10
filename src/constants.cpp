@@ -1103,7 +1103,7 @@ const char *color_liquid[] = { "прозрачной",
 
 
 /*
- * level of fullness for drink containers
+ * Уровень заполнения емкостей для питья и контейнеров для вещей
  * Not used in sprinttype() so no \n.
  */
 const char *fullness[] =

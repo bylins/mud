@@ -1827,7 +1827,20 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 				if (!obj->contains)
 					send_to_char(" Внутри ничего нет.\r\n", ch);
 				else
+				{
+					if (GET_OBJ_VAL(obj, 0) > 0 && bits != FIND_OBJ_ROOM) {
+						/* amt - индекс массива из 6 элементов (0..5) с опианием наполненности
+						   с помощью нехитрых мат. преобразований мы получаем соотношение веса и максимального объема контейнера,
+						   выраженные числами от 0 до 5. (причем 5 будет лишь при полностью полном контейнере)
+						*/
+						amt = int((GET_OBJ_WEIGHT(obj) * 100) / (GET_OBJ_VAL(obj, 0) *  20));
+						//sprintf(buf, "DEBUG 1: %d 2: %d 3: %d.\r\n", GET_OBJ_WEIGHT(obj), GET_OBJ_VAL(obj, 0), amt);
+						//send_to_char(buf, ch);
+						sprintf(buf, "Заполнен%s содержимым %s:\r\n", GET_OBJ_SUF_6(obj), fullness[amt]);
+						send_to_char(buf, ch);
+					}
 					list_obj_to_char(obj->contains, ch, 1, bits != FIND_OBJ_ROOM);
+				}
 			}
 		}
 		else  	/* item must be a fountain or drink container */
