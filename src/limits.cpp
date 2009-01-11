@@ -263,8 +263,11 @@ int hit_gain(CHAR_DATA * ch)
 	}
 
 	percent += GET_HITREG(ch);
+
+	// TODO: перевоткнуть на apply_аффект
 	if (AFF_FLAGGED(ch, AFF_POISON) && percent > 0)
 		percent /= 4;
+
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
 	if (!IS_NPC(ch))
@@ -272,8 +275,6 @@ int hit_gain(CHAR_DATA * ch)
 		if (GET_POS(ch) == POS_INCAP || GET_POS(ch) == POS_MORTALLYW)
 			gain = 0;
 	}
-	if (AFF_FLAGGED(ch, AFF_POISON))
-		gain -= (GET_POISON(ch) * (IS_NPC(ch) ? 4 : 5));
 	return (gain);
 }
 
@@ -644,12 +645,8 @@ void beat_points_update(int pulse)
 		// Restore hitpoints
 		restore = hit_gain(i);
 		restore = interpolate(restore, pulse);
-		if (restore < 0)
-		{
-			if (damage(i, i, -restore, SPELL_POISON, FALSE) < 0)
-				continue;
-		}
-		else if (GET_HIT(i) < GET_REAL_MAX_HIT(i))
+
+		if (GET_HIT(i) < GET_REAL_MAX_HIT(i))
 			GET_HIT(i) = MIN(GET_HIT(i) + restore, GET_REAL_MAX_HIT(i));
 
 		// Проверка аффекта !исступление!. Поместил именно здесь,
@@ -1492,12 +1489,7 @@ void point_update(void)
 			if (IS_NPC(i) || !UPDATE_PC_ON_BEAT)
 			{
 				count = hit_gain(i);
-				if (count < 0)
-				{
-					if (damage(i, i, -count, SPELL_POISON, FALSE) < 0)
-						continue;
-				}
-				else if (GET_HIT(i) < GET_REAL_MAX_HIT(i))
+				if (GET_HIT(i) < GET_REAL_MAX_HIT(i))
 					GET_HIT(i) = MIN(GET_HIT(i) + count, GET_REAL_MAX_HIT(i));
 			}
 			// Restore mobs
@@ -1602,12 +1594,6 @@ void point_update(void)
 				if (GET_MOVE(i) < GET_REAL_MAX_MOVE(i))
 					GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_REAL_MAX_MOVE(i));
 //-MZ.overflow_fix
-
-			/** Update poisoned - REMOVE TO UP !!!
-			    if ((IS_NPC(i) || !UPDATE_PC_ON_BEAT) && AFF_FLAGGED(i, AFF_POISON))
-			       if (damage(i, i, GET_POISON(i) * 5, SPELL_POISON,FALSE) == -1)
-			          continue;
-			 **/
 
 			// Update PC/NPC position
 			if (GET_POS(i) <= POS_STUNNED)

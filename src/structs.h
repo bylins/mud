@@ -192,9 +192,10 @@ typedef struct trig_data TRIG_DATA;
 #define EX_PICKPROOF    (1 << 3)	/* Lock can't be picked  */
 #define EX_HIDDEN       (1 << 4)
 
-#define AF_BATTLEDEC    (1 << 0)
-#define AF_DEADKEEP     (1 << 1)
-#define AF_PULSEDEC     (1 << 2)
+#define AF_BATTLEDEC (1 << 0)
+#define AF_DEADKEEP  (1 << 1)
+#define AF_PULSEDEC  (1 << 2)
+#define AF_SAME_TIME (1 << 3) // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
 
 /* Sector types: used in room_data.sector_type */
 #define SECT_INSIDE          0	/* Indoors        */

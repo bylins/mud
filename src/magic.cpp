@@ -528,6 +528,20 @@ void room_affect_update(void)
 	}
 }
 
+/**
+* Аффект тикает раз в 2 секунды, в бою тик идет во время раунда, а не между (AF_SAME_TIME).
+*/
+int same_time_update(CHAR_DATA *ch, AFFECT_DATA *af)
+{
+	int result = 0;
+	if (af->location == APPLY_POISON)
+	{
+		int poison_dmg = GET_POISON(ch) * (IS_NPC(ch) ? 8 : 10);
+		result = damage(ch, ch, poison_dmg, SPELL_POISON, FALSE);
+	}
+	return result;
+}
+
 void player_affect_update(void)
 {
 	AFFECT_DATA *af, *next;
@@ -545,7 +559,16 @@ void player_affect_update(void)
 		{
 			next = af->next;
 			if (af->duration >= 1)
-				af->duration--;
+			{
+				if (!IS_SET(af->battleflag, AF_SAME_TIME) || !FIGHTING(i))
+				{
+					// здесь плеера могут спуржить
+					if (same_time_update(i, af) == -1)
+						break;
+					af->duration--;
+				}
+				// иначе ничего не делаем
+			}
 			else if (af->duration == -1)
 				af->duration = -1;
 			else
@@ -591,14 +614,24 @@ void battle_affect_update(CHAR_DATA * ch)
 	for (af = ch->affected; af; af = next)
 	{
 		next = af->next;
-		if (!IS_SET(af->battleflag, AF_BATTLEDEC))
+		if (!IS_SET(af->battleflag, AF_BATTLEDEC) && !IS_SET(af->battleflag, AF_SAME_TIME))
 			continue;
 		if (af->duration >= 1)
 		{
-			if (IS_NPC(ch))
+			if (IS_SET(af->battleflag, AF_SAME_TIME))
+			{
+				// здесь плеера могут спуржить
+				if (same_time_update(ch, af) == -1)
+					return;
 				af->duration--;
+			}
 			else
-				af->duration -= MIN(af->duration, SECS_PER_MUD_HOUR / SECS_PER_PLAYER_AFFECT);
+			{
+				if (IS_NPC(ch))
+					af->duration--;
+				else
+					af->duration -= MIN(af->duration, SECS_PER_MUD_HOUR / SECS_PER_PLAYER_AFFECT);
+			}
 		}
 		else if (af->duration == -1)	/* No action */
 			af->duration = -1;	/* GODs only! unlimited */
@@ -2437,13 +2470,17 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 		af[0].location = APPLY_STR;
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-						 pc_duration(victim, 0, level, 1, 0, 0));
+				pc_duration(victim, 0, level, 1, 0, 0));
 		af[0].modifier = -2;
 		af[0].bitvector = AFF_POISON;
+		af[1].battleflag = AF_SAME_TIME;
+
 		af[1].location = APPLY_POISON;
 		af[1].duration = af[0].duration;
 		af[1].modifier = level;
 		af[1].bitvector = AFF_POISON;
+		af[1].battleflag = AF_SAME_TIME;
+
 		to_vict = "Вы почувствовали себя отравленным.";
 		to_room = "$n позеленел$g от действия яда.";
 		break;
