@@ -552,9 +552,12 @@ void player_affect_update(void)
 		i_next = i->next;
 		if (IS_NPC(i))
 			continue;
+
 		pulse_affect_update(i);
 
 		supress_godsapply = TRUE;
+		bool was_purged = false;
+
 		for (af = i->affected; af; af = next)
 		{
 			next = af->next;
@@ -564,14 +567,15 @@ void player_affect_update(void)
 				{
 					// здесь плеера могут спуржить
 					if (same_time_update(i, af) == -1)
+					{
+						was_purged = true;
 						break;
+					}
 					af->duration--;
 				}
 				// иначе ничего не делаем
 			}
-			else if (af->duration == -1)
-				af->duration = -1;
-			else
+			else if (af->duration != -1)
 			{
 				if ((af->type > 0) && (af->type <= MAX_SPELLS))
 				{
@@ -595,12 +599,15 @@ void player_affect_update(void)
 			}
 		}
 
-		(void) MemQ_slots(i);	// сколько каких слотов занято (с коррекцией)
+		if (!was_purged)
+		{
+			(void) MemQ_slots(i);	// сколько каких слотов занято (с коррекцией)
 
-		supress_godsapply = FALSE;
-		//log("[PLAYER_AFFECT_UPDATE->AFFECT_TOTAL] Start");
-		affect_total(i);
-		//log("[PLAYER_AFFECT_UPDATE->AFFECT_TOTAL] Stop");
+			supress_godsapply = FALSE;
+			//log("[PLAYER_AFFECT_UPDATE->AFFECT_TOTAL] Start");
+			affect_total(i);
+			//log("[PLAYER_AFFECT_UPDATE->AFFECT_TOTAL] Stop");
+		}
 	}
 }
 
@@ -633,9 +640,7 @@ void battle_affect_update(CHAR_DATA * ch)
 					af->duration -= MIN(af->duration, SECS_PER_MUD_HOUR / SECS_PER_PLAYER_AFFECT);
 			}
 		}
-		else if (af->duration == -1)	/* No action */
-			af->duration = -1;	/* GODs only! unlimited */
-		else
+		else if (af->duration != -1)
 		{
 			if ((af->type > 0) && (af->type <= MAX_SPELLS))
 			{
