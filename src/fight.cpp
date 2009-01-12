@@ -2080,28 +2080,28 @@ void poison_victim(CHAR_DATA * ch, CHAR_DATA * vict, int modifier)
 	af[0].duration = pc_duration(vict, 0, MAX(2, GET_LEVEL(ch) - GET_LEVEL(vict)), 2, 0, 1);
 	af[0].modifier = -MIN(2, (modifier + 29) / 40);
 	af[0].bitvector = AFF_POISON;
-	af[0].battleflag = 0;
+	af[0].battleflag = AF_SAME_TIME;
 	/* change damroll */
 	af[1].type = SPELL_POISON;
 	af[1].location = APPLY_DAMROLL;
 	af[1].duration = af[0].duration;
 	af[1].modifier = -MIN(2, (modifier + 29) / 30);
 	af[1].bitvector = AFF_POISON;
-	af[1].battleflag = 0;
+	af[1].battleflag = AF_SAME_TIME;
 	/* change hitroll */
 	af[2].type = SPELL_POISON;
 	af[2].location = APPLY_HITROLL;
 	af[2].duration = af[0].duration;
 	af[2].modifier = -MIN(2, (modifier + 19) / 20);
 	af[2].bitvector = AFF_POISON;
-	af[2].battleflag = 0;
+	af[2].battleflag = AF_SAME_TIME;
 	/* change poison level */
 	af[3].type = SPELL_POISON;
 	af[3].location = APPLY_POISON;
 	af[3].duration = af[0].duration;
 	af[3].modifier = GET_LEVEL(ch);
 	af[3].bitvector = AFF_POISON;
-	af[3].battleflag = 0;
+	af[3].battleflag = AF_SAME_TIME;
 
 	for (i = 0; i < 4; i++)
 		affect_join(vict, af + i, FALSE, FALSE, FALSE, FALSE);

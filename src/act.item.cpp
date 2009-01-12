@@ -1605,13 +1605,13 @@ ACMD(do_drink)
 		af.modifier = -2;
 		af.location = APPLY_STR;
 		af.bitvector = AFF_POISON;
-		af.battleflag = 0;
+		af.battleflag = AF_SAME_TIME;
 		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
 		af.type = SPELL_POISON;
 		af.modifier = amount * 3;
 		af.location = APPLY_POISON;
 		af.bitvector = AFF_POISON;
-		af.battleflag = 0;
+		af.battleflag = AF_SAME_TIME;
 		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
 		ch->Poisoner = 0;
 	}
@@ -1885,14 +1885,14 @@ ACMD(do_eat)
 		af.modifier = 0;
 		af.location = APPLY_STR;
 		af.bitvector = AFF_POISON;
-		af.battleflag = 0;
+		af.battleflag = AF_SAME_TIME;
 		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
 		af.type = SPELL_POISON;
 		af.duration = pc_duration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = amount * 3;
 		af.location = APPLY_POISON;
 		af.bitvector = AFF_POISON;
-		af.battleflag = 0;
+		af.battleflag = AF_SAME_TIME;
 		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
 		ch->Poisoner = 0;
 	}
