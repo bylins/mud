@@ -42,6 +42,7 @@ extern int mini_mud;
 extern const char *spell_wear_off_msg[];
 extern int supress_godsapply;
 extern const char *cast_phrase[LAST_USED_SPELL + 1][2];
+extern int interpolate(int min_value, int pulse);
 
 byte saving_throws(int class_num, int type, int level);	/* class.cpp */
 byte extend_saving_throws(int class_num, int type, int level);
@@ -537,6 +538,7 @@ int same_time_update(CHAR_DATA *ch, AFFECT_DATA *af)
 	if (af->location == APPLY_POISON)
 	{
 		int poison_dmg = GET_POISON(ch) * (IS_NPC(ch) ? 8 : 10);
+		poison_dmg = interpolate(poison_dmg, 2);
 		result = damage(ch, ch, poison_dmg, SPELL_POISON, FALSE);
 	}
 	return result;
