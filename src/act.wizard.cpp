@@ -43,6 +43,7 @@
 #include "char.hpp"
 #include "char_player.hpp"
 #include "parcel.hpp"
+#include "liquid.hpp"
 
 /*   external vars  */
 extern FILE *player_fl;
