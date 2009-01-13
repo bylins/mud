@@ -236,7 +236,7 @@ ACMD(do_drink)
 		return;
 	}
 	// Added by Adept - обкаст если в фонтане или емкости зелье
-	if (FIGHTING(ch) && can_drink_in_battle(temp))
+	if (can_drink_in_battle(temp))
 	{
 		act("$n выпил$g зелья из $o1.", TRUE, ch, temp, 0, TO_ROOM);
 		sprintf(buf, "Вы выпили зелья из %s.\r\n", OBJN(temp, ch, 1));
