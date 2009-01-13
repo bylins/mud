@@ -44,6 +44,7 @@
 #include "char.hpp"
 #include "char_player.hpp"
 #include "parcel.hpp"
+#include "liquid.hpp"
 
 using std::string;
 

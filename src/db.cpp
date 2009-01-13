@@ -52,6 +52,7 @@
 #include "skills.h"
 #include "char_player.hpp"
 #include "parcel.hpp"
+#include "liquid.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -229,8 +230,6 @@ int exchange_database_load(void);
 
 void load_socials(FILE * fl);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
-void name_from_drinkcon(OBJ_DATA * obj);
-void name_to_drinkcon(OBJ_DATA * obj, int type);
 void calc_easter(void);
 extern void calc_god_celebrate();
 void do_start(CHAR_DATA * ch, int newbie);

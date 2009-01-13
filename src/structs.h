@@ -1035,33 +1035,6 @@ typedef struct trig_data TRIG_DATA;
 #define CONT_CLOSED         (1 << 2)	/* Container is closed     */
 #define CONT_LOCKED         (1 << 3)	/* Container is locked     */
 
-
-/* Some different kind of liquids for use in values of drink containers */
-#define LIQ_WATER      0
-#define LIQ_BEER       1
-#define LIQ_WINE       2
-#define LIQ_ALE        3
-#define LIQ_QUAS       4
-#define LIQ_BRANDY     5
-#define LIQ_MORSE      6
-#define LIQ_VODKA      7
-#define LIQ_BRAGA      8
-#define LIQ_MED        9
-#define LIQ_MILK       10
-#define LIQ_TEA        11
-#define LIQ_COFFE      12
-#define LIQ_BLOOD      13
-#define LIQ_SALTWATER  14
-#define LIQ_CLEARWATER 15
-#define LIQ_POTION     16
-#define LIQ_POTION_RED     17
-#define LIQ_POTION_BLUE    18
-#define LIQ_POTION_WHITE   19
-#define LIQ_POTION_GOLD    20
-#define LIQ_POTION_BLACK   21
-#define LIQ_POTION_GREY    22
-#define LIQ_POTION_FUCHSIA 23
-
 /* other miscellaneous defines *******************************************/
 
 
@@ -1371,7 +1344,6 @@ struct obj_flag_data
 	int
 	Obj_parent;		/* Vnum for object parent */
 };
-
 
 struct obj_affected_type
 {

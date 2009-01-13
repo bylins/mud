@@ -34,6 +34,7 @@
 #include "char.hpp"
 #include "depot.hpp"
 #include "parcel.hpp"
+#include "liquid.hpp"
 
 extern room_rnum r_mortal_start_room;
 
@@ -51,8 +52,6 @@ extern char cast_argument[MAX_INPUT_LENGTH];
 
 void clearMemory(CHAR_DATA * ch);
 void weight_change_object(OBJ_DATA * obj, int weight);
-void name_to_drinkcon(OBJ_DATA * obj, int type);
-void name_from_drinkcon(OBJ_DATA * obj);
 int compute_armor_class(CHAR_DATA * ch);
 char *diag_weapon_to_char(OBJ_DATA * obj, int show_wear);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);

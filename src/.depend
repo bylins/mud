@@ -5,10 +5,10 @@ act.informative.o: act.informative.cpp conf.h sysdep.h structs.h utils.h \
   comm.h interpreter.h handler.h db.h spells.h skills.h fight.h screen.h \
   constants.h pk.h dg_scripts.h mail.h features.hpp im.h house.h \
   description.h privilege.hpp depot.hpp glory.hpp random.hpp char.hpp \
-  char_player.hpp quested.hpp mobmax.hpp
+  char_player.hpp quested.hpp mobmax.hpp parcel.hpp liquid.hpp
 act.item.o: act.item.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h constants.h dg_scripts.h \
-  house.h magic.h fight.h features.hpp depot.hpp char.hpp
+  house.h magic.h fight.h features.hpp depot.hpp char.hpp liquid.hpp
 act.movement.o: act.movement.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h house.h constants.h \
   dg_scripts.h screen.h pk.h features.hpp deathtrap.hpp privilege.hpp \
@@ -53,7 +53,7 @@ db.o: db.cpp conf.h sysdep.h structs.h utils.h db.h comm.h handler.h \
   item.creation.hpp features.hpp boards.h description.h deathtrap.hpp \
   title.hpp privilege.hpp depot.hpp glory.hpp genchar.h random.hpp \
   file_crc.hpp char.hpp skills.h char_player.hpp quested.hpp mobmax.hpp \
-  parcel.hpp
+  parcel.hpp liquid.hpp
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h comm.h handler.h \
   interpreter.h db.h spells.h screen.h constants.h dg_scripts.h pk.h im.h \
   fight.h skills.h features.hpp house.h stuff.hpp double_map.hpp \
@@ -73,7 +73,7 @@ interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
   house.h mail.h screen.h olc.h dg_scripts.h pk.h genchar.h ban.hpp \
   diskio.h item.creation.hpp features.hpp boards.h top.h title.hpp \
   password.hpp privilege.hpp depot.hpp glory.hpp char.hpp char_player.hpp \
-  quested.hpp mobmax.hpp parcel.hpp
+  quested.hpp mobmax.hpp parcel.hpp liquid.hpp
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h spells.h skills.h \
   comm.h db.h handler.h screen.h interpreter.h constants.h dg_scripts.h \
   house.h exchange.h top.h deathtrap.hpp ban.hpp diskio.h depot.hpp \
@@ -91,7 +91,8 @@ modify.o: modify.cpp conf.h sysdep.h structs.h utils.h interpreter.h \
   handler.h db.h comm.h spells.h mail.h boards.h screen.h olc.h \
   features.hpp house.h privilege.hpp char.hpp skills.h
 objsave.o: objsave.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
-  interpreter.h utils.h spells.h screen.h house.h im.h depot.hpp char.hpp
+  interpreter.h utils.h spells.h screen.h house.h im.h depot.hpp char.hpp \
+  liquid.hpp
 olc.o: olc.cpp conf.h sysdep.h structs.h interpreter.h utils.h comm.h \
   db.h olc.h dg_olc.h dg_scripts.h screen.h item.creation.hpp im.h \
   privilege.hpp char.hpp
@@ -110,7 +111,7 @@ spell_parser.o: spell_parser.cpp conf.h sysdep.h structs.h utils.h \
 spells.o: spells.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
   skills.h handler.h db.h constants.h interpreter.h dg_scripts.h screen.h \
   house.h pk.h features.hpp im.h deathtrap.hpp privilege.hpp char.hpp \
-  depot.hpp parcel.hpp
+  depot.hpp parcel.hpp liquid.hpp
 utils.o: utils.cpp conf.h sysdep.h structs.h utils.h db.h comm.h screen.h \
   spells.h handler.h interpreter.h constants.h im.h dg_scripts.h \
   features.hpp boards.h privilege.hpp char.hpp
@@ -122,7 +123,7 @@ redit.o: redit.cpp conf.h sysdep.h structs.h comm.h utils.h db.h olc.h \
   char.hpp char_player.hpp quested.hpp mobmax.hpp
 oedit.o: oedit.cpp conf.h sysdep.h structs.h comm.h spells.h utils.h db.h \
   shop.h olc.h dg_olc.h dg_scripts.h im.h features.hpp depot.hpp char.hpp \
-  house.h interpreter.h skills.h
+  house.h interpreter.h skills.h parcel.hpp liquid.hpp
 zedit.o: zedit.cpp conf.h sysdep.h structs.h comm.h utils.h db.h olc.h \
   dg_scripts.h char.hpp
 medit.o: medit.cpp conf.h sysdep.h structs.h comm.h spells.h utils.h db.h \
@@ -215,3 +216,5 @@ mobmax.o: mobmax.cpp mobmax.hpp conf.h sysdep.h structs.h char.hpp \
 parcel.o: parcel.cpp parcel.hpp conf.h sysdep.h structs.h db.h \
   interpreter.h utils.h comm.h char.hpp handler.h auction.h screen.h \
   char_player.hpp quested.hpp mobmax.hpp mail.h
+liquid.o: liquid.cpp liquid.hpp conf.h sysdep.h structs.h interpreter.h \
+  utils.h char.hpp db.h comm.h handler.h spells.h skills.h features.hpp

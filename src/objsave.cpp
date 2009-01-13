@@ -26,6 +26,7 @@
 #include "im.h"
 #include "depot.hpp"
 #include "char.hpp"
+#include "liquid.hpp"
 
 /* these factors should be unique integers */
 #define RENT_FACTOR 	1
@@ -67,8 +68,6 @@ int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj);
 int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
 int min_rent_cost(CHAR_DATA * ch);
-void name_from_drinkcon(OBJ_DATA * obj);
-void name_to_drinkcon(OBJ_DATA * obj, int type);
 OBJ_DATA *create_obj(void);
 void asciiflag_conv(const char *flag, void *value);
 void tascii(int *pointer, int num_planes, char *ascii);

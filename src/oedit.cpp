@@ -25,6 +25,7 @@
 #include "house.h"
 #include "skills.h"
 #include "parcel.hpp"
+#include "liquid.hpp"
 
 /*------------------------------------------------------------------------*/
 
