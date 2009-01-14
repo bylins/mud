@@ -53,6 +53,8 @@ extern zone_rnum top_of_zone_table;
 extern struct zone_data *zone_table;
 const char *spell_name(int num);
 
+extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
+
 /* external functions */
 int ext_search_block(const char *arg, const char **list, int exact);
 room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);
@@ -1745,6 +1747,17 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					if (num >= 0)
 						sprintf(str, "%c%d", UID_ROOM, num);
 				}
+//Polud world.maxobj(vnum) показывает максимальное количество предметов в мире, 
+//которое прописано в самом предмете с указанным vnum
+				else if (!str_cmp(field, "maxobj") && num > 0)
+				{
+					num = real_object(num);
+					if (num >= 0)
+					{
+						sprintf(str, "%d", GET_OBJ_MIW(obj_proto[num]));
+					}
+				}
+//-Polud
 				return;
 			}
 			else if (!str_cmp(var, "weather"))
@@ -1850,7 +1863,6 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 									rndm = c;
 								count++;
 							}
-						uid_type = UID_CHAR;
 					}
 					else if (type == OBJ_TRIGGER)
 					{
@@ -1865,7 +1877,6 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 									rndm = c;
 								count++;
 							}
-						uid_type = UID_OBJ;
 					}
 					else if (type == WLD_TRIGGER)
 					{
@@ -1879,10 +1890,9 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 									rndm = c;
 								count++;
 							}
-						uid_type = UID_ROOM;
 					}
 					if (rndm)
-						sprintf(str, "%c%ld", uid_type, GET_ID(rndm));
+						sprintf(str, "%c%ld", UID_CHAR, GET_ID(rndm));
 				}
 				else
 				{
@@ -2474,7 +2484,13 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				else
 					strcpy(str, "");
 			}
-
+//Polud обработка поля objs у чара, возвращает строку со списком UID предметов в инвентаре
+			else if (!str_cmp(field, "objs"))
+			{
+				for (obj = c->carrying; obj; obj = obj->next_content)
+					sprintf(str + strlen(str), "%c%ld ", UID_OBJ, GET_ID(obj));
+			}
+//-Polud
 			else if (!str_cmp(field, "char") ||
 					 !str_cmp(field, "pc") ||
 					 !str_cmp(field, "npc") || !str_cmp(field, "all"))
@@ -2621,6 +2637,75 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					sprintf(str, "%d", world[o->in_room]->number);
 				else
 					strcpy(str, "");
+//Polud обработка %obj.put(UID)% - пытается поместить объект в контейнер, комнату или инвентарь чара, в зависимости от UIDа
+			else if (!str_cmp(field, "put"))
+			{
+				OBJ_DATA *obj_to=NULL;
+				CHAR_DATA *char_to=NULL;
+				ROOM_DATA *room_to=NULL;
+				if (!((*subfield == UID_CHAR) || (*subfield == UID_OBJ) || (*subfield == UID_ROOM)))
+				{
+					trig_log(trig, "object.put: недопустимый аргумент, необходимо указать UID");
+					return;
+				}
+				if (o->in_room == NOWHERE)
+				{
+					trig_log(trig, "object.put: объект, вызвавший команду, находится в NOWHERE");
+					return;
+				}
+				if (*subfield == UID_OBJ)
+				{
+					obj_to = find_obj(atoi(subfield+1));
+					if (!(obj_to && GET_OBJ_TYPE(obj_to) == ITEM_CONTAINER))
+					{
+						trig_log(trig, "object.put: объект-приемник не найден или не является контейнером");
+						return;
+					}
+				}
+				if (*subfield == UID_CHAR)
+				{
+					char_to = find_char(atoi(subfield+1));
+					if (!(char_to && can_take_obj(char_to, o)))
+					{
+						trig_log(trig, "object.put: субъект-приемник не найден или не может нести этот объект");
+						return;
+					}
+				}
+				if (*subfield == UID_ROOM)
+				{
+					room_to = find_room(atoi(subfield+1));
+					if (!(room_to && (room_to->number != NOWHERE)))
+					{
+						trig_log(trig, "object.put: недопустимая комната для размещения объекта");
+						return;
+					}
+				}
+				//found something to put our object
+				//let's make it nobody's!
+				if (o->worn_by)
+					unequip_char(o->worn_by, o->worn_on);
+				if (o->carried_by)
+					obj_from_char(o);
+				if (o->in_obj)
+					obj_from_obj(o);
+				if (o->in_room > NOWHERE)
+					obj_from_room(o);
+				//finally, put it to destination
+				if (char_to)
+					obj_to_char(o, char_to);
+				else if (obj_to)
+					obj_to_obj(o, obj_to);
+				else if (room_to)
+					obj_to_room(o, real_room(room_to->number));
+				else
+				{
+					sprintf(buf2, "object.put: ATTENTION! за время подготовки объекта >%s< к передаче перестал существовать адресат. Объект сейчас в NOWHERE",
+						o->name);
+					trig_log(trig, buf2);
+					return;
+				}
+			}
+//-Polud
 			else if (!str_cmp(field, "char") ||
 					 !str_cmp(field, "pc") || !str_cmp(field, "npc") || !str_cmp(field, "all"))
 			{

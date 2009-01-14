@@ -2780,7 +2780,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 						 pc_duration(victim, 3, level, 4, 4, 0));
 		af[0].bitvector = AFF_NOFLEE;
 		to_room = "$n0 теперь прикован$a к $N2.";
-		to_vict = "Вы не сможете покинуть $N1.";
+		to_vict = "Вы не сможете покинуть $N3.";
 		break;
 
 	case SPELL_LIGHT:
