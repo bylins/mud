@@ -167,7 +167,7 @@ const char *color_liquid[] = { "прозрачной",
 * На случай, когда придется добавлять еще пошенов, которые
 * уже будут идти не подряд по номерам.
 */
-bool can_drink_in_battle(OBJ_DATA *obj)
+bool is_potion(OBJ_DATA *obj)
 {
 	switch(GET_OBJ_VAL(obj, 2))
 	{
@@ -236,7 +236,7 @@ ACMD(do_drink)
 		return;
 	}
 	// Added by Adept - обкаст если в фонтане или емкости зелье
-	if (can_drink_in_battle(temp))
+	if (is_potion(temp))
 	{
 		act("$n выпил$g зелья из $o1.", TRUE, ch, temp, 0, TO_ROOM);
 		sprintf(buf, "Вы выпили зелья из %s.\r\n", OBJN(temp, ch, 1));
