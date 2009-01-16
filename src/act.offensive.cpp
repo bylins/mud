@@ -1783,7 +1783,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 				CCIBLU(ch, C_NRM), GET_PAD(vict, 3), CCNRM(ch, C_NRM));
 		else
 			sprintf(buf, "%sВы провели подсечку, ловко усадив кого-то на землю.%s\r\n",
-				CCIBLU(ch, C_NRM), GET_PAD(vict, 3), CCNRM(ch, C_NRM));
+				CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		// act("Вы ловко подсекли $N3, усадив $S на землю.",FALSE,ch,0,vict,TO_CHAR);
 		act("$n ловко подсек$q Вас, усадив на попу.", FALSE, ch, 0, vict, TO_VICT);
