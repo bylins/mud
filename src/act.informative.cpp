@@ -1834,7 +1834,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 						   с помощью нехитрых мат. преобразований мы получаем соотношение веса и максимального объема контейнера,
 						   выраженные числами от 0 до 5. (причем 5 будет лишь при полностью полном контейнере)
 						*/
-						amt = int((GET_OBJ_WEIGHT(obj) * 100) / (GET_OBJ_VAL(obj, 0) *  20));
+						amt = MAX(0, MIN(5, (GET_OBJ_WEIGHT(obj) * 100) / (GET_OBJ_VAL(obj, 0) *  20)));
 						//sprintf(buf, "DEBUG 1: %d 2: %d 3: %d.\r\n", GET_OBJ_WEIGHT(obj), GET_OBJ_VAL(obj, 0), amt);
 						//send_to_char(buf, ch);
 						sprintf(buf, "Заполнен%s содержимым %s:\r\n", GET_OBJ_SUF_6(obj), fullness[amt]);
