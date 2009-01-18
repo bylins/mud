@@ -3731,8 +3731,11 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 
 	/*  Обработка доп. маг дамага */
 	if (AFF_FLAGGED(ch, AFF_CLOUD_OF_ARROWS) && IS_WEAPON(w_type))
-		mag_damage(1, ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
-
+	{
+		// тут уже можно получить спурженную чардату
+		if (mag_damage(1, ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX) == -1)
+			return;
+	}
 
 	/* Gorrah: Проверка на фит "любимое оружие"
 	   Сделал в виде HAVE_FEAT. Если кому не нравится - меняйте :) */
