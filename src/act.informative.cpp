@@ -413,7 +413,12 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 							GET_OBJ_VAL(object, 2), desc_count(GET_OBJ_VAL(object, 2), WHAT_HOUR));
 			}
 			else
-				sprintf(buf2, " %s", diag_obj_to_char(ch, object, 1));
+			{
+				if (object->is_spell_poisoned())
+					sprintf(buf2, " %s*%s%s", CCGRN(ch, C_NRM), CCCYN(ch, C_NRM), diag_obj_to_char(ch, object, 1));
+				else
+					sprintf(buf2, " %s", diag_obj_to_char(ch, object, 1));
+			}
 			if (GET_OBJ_TYPE(object) == ITEM_CONTAINER)
 			{
 				if (object->contains)
@@ -482,6 +487,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		strcat(buf, diag_weapon_to_char(object, TRUE));
 		strcat(buf, diag_timer_to_char(object));
 		strcat(buf, diag_uses_to_char(object, ch));
+		strcat(buf, object->diag_timed_spell_to_char(ch).c_str());
 	}
 	page_string(ch->desc, buf, TRUE);
 	return 0;

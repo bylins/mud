@@ -12,9 +12,9 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "conf.h"
+#include <sstream>
 #include <math.h>
-
+#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "constants.h"
@@ -33,6 +33,7 @@
 #include "exchange.h"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "liquid.hpp"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -511,6 +512,9 @@ void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool a
 		break;
 	case APPLY_MR:
 		GET_MR(ch) += mod;
+		break;
+	case APPLY_TEST_POISON:
+		GET_POISON(ch) += mod;
 		break;
 	default:
 		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
@@ -1136,6 +1140,41 @@ void affect_join(CHAR_DATA * ch, AFFECT_DATA * af, bool add_dur, bool avg_dur, b
 	{
 		affect_to_char(ch, af);
 	}
+}
+
+/**
+* Наложение ядов с пушек у наемов, аффект стакается до трех раз.
+*/
+bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA *af)
+{
+	AFFECT_DATA *hjp;
+	bool found = FALSE;
+
+	for (hjp = ch->affected; !found && hjp && af->location; hjp = hjp->next)
+	{
+		if ((hjp->location == APPLY_POISON
+				|| hjp->location == APPLY_TEST_POISON)
+			&& af->location != hjp->location)
+		{
+			// если уже есть другой яд - борода
+			return false;
+		}
+		if ((hjp->type == af->type) && (hjp->location == af->location))
+		{
+			if (hjp->modifier/3 < af->modifier)
+				af->modifier += hjp->modifier;
+			else
+				af->modifier = hjp->modifier;
+			affect_remove(ch, hjp);
+			affect_to_char(ch, af);
+			found = TRUE;
+		}
+	}
+	if (!found)
+	{
+		affect_to_char(ch, af);
+	}
+	return true;
 }
 
 /* Обработка тикающих способностей - added by Gorrah */
@@ -4138,6 +4177,9 @@ int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect)
 	return result;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// TODO: перенести в свой файл и скорее всего вынести в отдельный класс все по timed_spell
+
 /**
 * Берется минимальная цена ренты шмотки, не важно, одетая она будет или снятая.
 */
@@ -4146,3 +4188,99 @@ int get_object_low_rent(OBJ_DATA *obj)
 	int rent = GET_OBJ_RENT(obj) > GET_OBJ_RENTEQ(obj) ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj);
 	return rent;
 }
+
+/**
+* Тик доп.спелла на шмотке (раз в минуту).
+*/
+void obj_data::update_timed_spell()
+{
+	if (timed_spell)
+	{
+		--(timed_spell->time);
+		if (timed_spell->time <= 0)
+		{
+			delete timed_spell;
+			timed_spell = 0;
+			if (carried_by || worn_by)
+			{
+				CHAR_DATA *ch = carried_by ? carried_by : worn_by;
+				send_to_char(ch, "С %s испарились последние капельки яда.\r\n", GET_OBJ_PNAME(this, 1));
+			}
+		}
+	}
+}
+
+/**
+* Сет доп.спела с таймером на шмотку.
+* Параметр времени только для лоада из файла, по дефолту 30 минут.
+*/
+void obj_data::set_timed_spell(int spell, int time)
+{
+	timed_spell = new obj_timed_spell_type;
+	timed_spell->time = time;
+	timed_spell->spell = spell;
+}
+
+std::string get_poison_by_spell(int spell)
+{
+	if (spell == SPELL_TEST_POISON)
+		return drinknames[LIQ_POISON_TEST];
+	else
+		return "";
+}
+
+/**
+* Вывод оставшегося времени яда на пушке при осмотре.
+*/
+std::string obj_data::diag_timed_spell_to_char(CHAR_DATA *ch)
+{
+	if (timed_spell)
+	{
+		std::stringstream out;
+		out << CCGRN(ch, C_NRM) << "Отравлено " << get_poison_by_spell(timed_spell->spell) << " еще " << timed_spell->time << " "
+				<< desc_count(timed_spell->time, WHAT_MINu) << "." << CCCYN(ch, C_NRM) << "\r\n";
+		return out.str();
+	}
+	else
+		return "";
+}
+
+bool obj_data::is_spell_poisoned()
+{
+	if (timed_spell && timed_spell->spell == SPELL_TEST_POISON)
+		return true;
+	else
+		return false;
+}
+
+/**
+* Для сейва обкаста.
+*/
+bool obj_data::has_timed_spell()
+{
+	if (timed_spell)
+		return true;
+	else
+		return false;
+}
+
+/**
+* Сохранение строки в файл.
+*/
+std::string obj_data::print_timed_spell()
+{
+	std::stringstream out;
+	if (timed_spell)
+		out << "TSpl: " << timed_spell->spell << " " << timed_spell->time << "~\n";
+	return out.str();
+}
+
+int obj_data::get_timed_spell()
+{
+	if (timed_spell)
+		return timed_spell->spell;
+	else
+		return -1;
+}
+
+////////////////////////////////////////////////////////////////////////////////

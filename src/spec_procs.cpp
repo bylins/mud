@@ -350,7 +350,6 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict)
 			case SKILL_AID:
 			case SKILL_DRUNKOFF:
 			case SKILL_IDENTIFY:
-			case SKILL_POISONED:
 			case SKILL_CAMOUFLAGE:
 			case SKILL_COURAGE:
 			case SKILL_MANADRAIN:

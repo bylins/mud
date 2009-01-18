@@ -97,6 +97,7 @@
 #define EAF_SLEEP       (1 << 17)
 #define EAF_IRON_WIND   (1 << 18)
 #define EAF_AUTOBLOCK   (1 << 19) // автоматический блок щитом в осторожном стиле
+#define EAF_POISONED    (1 << 20) // отравление с пушек раз в раунд
 
 #define TYPE_NOPARRY		    -2
 #define TYPE_UNDEFINED              -1
@@ -323,7 +324,8 @@
 #define SPELL_WC_OF_POWER		185
 #define SPELL_WC_OF_BLESS		186
 #define SPELL_WC_OF_COURAGE		187
-#define LAST_USED_SPELL			188
+#define SPELL_TEST_POISON       188
+#define LAST_USED_SPELL			189
 
 /*
  *  NON-PLAYER AND OBJECT SPELLS AND SKILLS

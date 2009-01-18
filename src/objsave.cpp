@@ -27,6 +27,9 @@
 #include "depot.hpp"
 #include "char.hpp"
 #include "liquid.hpp"
+// "потестить"
+#include "features.hpp"
+#include "constants.h"
 
 /* these factors should be unique integers */
 #define RENT_FACTOR 	1
@@ -450,6 +453,12 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			{
 				*error = 48;
 				GET_OBJ_UID(object) = atoi(buffer);
+			}
+			else if (!strcmp(read_line, "TSpl"))
+			{
+				*error = 49;
+				sscanf(buffer, "%d %d", t, t + 1);
+				object->set_timed_spell(t[0], t[1]);
 			}
 			else
 			{
@@ -958,6 +967,12 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 							 descr->keyword ? descr->keyword : "",
 							 descr->description ? descr->description : "");
 	}
+	// обкаст (если он есть) сохраняется в любом случае независимо от прототипа
+	if (object->has_timed_spell())
+	{
+		count += sprintf(*data + count, "%s", object->print_timed_spell().c_str());
+	}
+
 	*data += count;
 	**data = '\0';
 }
@@ -2541,6 +2556,27 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 
 	if (!cmd && !number(0, 5))
 		return (FALSE);
+
+	// "потестить"
+	if (CMD_IS("потестить"))
+	{
+		OBJ_DATA *obj = read_object(4007, VIRTUAL);
+		if (GET_BANK_GOLD(ch) < 100)
+		{
+			send_to_char(ch, "У вас должно быть минимум 100 кун на банковском счете.\r\n");
+		}
+		else if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(ch) <= CAN_CARRY_W(ch))
+		{
+			send_to_char(ch, "За %s с Вас снято 100 кун.\r\n", GET_OBJ_PNAME(obj, 3));
+			obj_to_char(obj, ch);
+			GET_BANK_GOLD(ch) -= 100;
+		}
+		else
+		{
+			send_to_char(ch, "Вы не можете нести такой вес.\r\n");
+		}
+		return true;
+	}
 
 	if (!CMD_IS("offer") && !CMD_IS("rent") &&
 			!CMD_IS("постой") && !CMD_IS("предложение") && !CMD_IS("конец") && !CMD_IS("quit"))

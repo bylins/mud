@@ -541,6 +541,10 @@ int same_time_update(CHAR_DATA *ch, AFFECT_DATA *af)
 		poison_dmg = interpolate(poison_dmg, 2);
 		result = damage(ch, ch, poison_dmg, SPELL_POISON, FALSE);
 	}
+	else if (af->location == APPLY_TEST_POISON)
+	{
+		result = damage(ch, ch, GET_POISON(ch), SPELL_POISON, FALSE);
+	}
 	return result;
 }
 
@@ -3199,6 +3203,18 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = NULL;
 		to_room = NULL;
 		break;
+
+	case SPELL_TEST_POISON:
+		af[0].location = APPLY_TEST_POISON;
+		af[0].duration = 7;
+		af[0].modifier = level;
+		af[0].bitvector = AFF_POISON;
+		af[0].battleflag = AF_SAME_TIME;
+
+		to_vict = "Вы почувствовали себя отравленным.";
+		to_room = "$n позеленел$g от действия яда.";
+		break;
+
 	}
 
 

@@ -654,7 +654,6 @@ typedef struct trig_data TRIG_DATA;
 #define AFF_GLITTERDUST		(INT_TWO | (1 << 5))
 #define AFF_AFFRIGHT		(INT_TWO | (1 << 6))
 
-
 // shapirus: modes of ignoring
 #define IGNORE_TELL	(1 << 0)
 #define IGNORE_SAY	(1 << 1)
@@ -995,9 +994,10 @@ typedef struct trig_data TRIG_DATA;
 #define APPLY_RESIST_VITALITY  48	/* Apply to RESIST throw: light, dark, critical damage  */
 #define APPLY_RESIST_MIND      49	/* Apply to RESIST throw: mind magic  */
 #define APPLY_RESIST_IMMUNITY  50	/* Apply to RESIST throw: poison, disease etc.  */
-#define APPLY_AR	       51	/* Apply to Magic affect resist */
-#define APPLY_MR	       52	/* Apply to Magic damage resist */
-#define NUM_APPLIES	       53
+#define APPLY_AR	           51	/* Apply to Magic affect resist */
+#define APPLY_MR	           52	/* Apply to Magic damage resist */
+#define APPLY_TEST_POISON      53
+#define NUM_APPLIES	           54
 
 /* APPLY - эффекты для комнат */
 #define APPLY_ROOM_NONE        0
@@ -1353,6 +1353,16 @@ struct obj_affected_type
 	obj_affected_type(byte __location, sbyte __modifier) : location(__location), modifier(__modifier) {}
 };
 
+/**
+* Временное заклинание на предмете (одно).
+*/
+struct obj_timed_spell_type
+{
+	obj_timed_spell_type() : spell(0), time(0) {};
+	int spell; // номер заклинания (SPELL_ХХХ)
+	int time; // сколько еще будет висеть (в минутах)
+};
+
 class activation
 {
 	std::string actmsg, deactmsg, room_actmsg, room_deactmsg;
@@ -1505,10 +1515,8 @@ struct obj_data
 	obj_vnum item_number;	/* Where in data-base            */
 	room_rnum in_room;	/* In what room -1 when conta/carr */
 
-	struct obj_flag_data
-				obj_flags;		/* Object information       */
-	struct obj_affected_type
-				affected[MAX_OBJ_AFFECT];	/* affects */
+	struct obj_flag_data obj_flags;		/* Object information       */
+	struct obj_affected_type affected[MAX_OBJ_AFFECT];	/* affects */
 
 	char *name;		/* Title of object :get etc.        */
 	char *description;	/* When in room                     */
@@ -1558,7 +1566,8 @@ struct obj_data
 			next_content(NULL),
 			next(NULL),
 			room_was_in(NOWHERE),
-			max_in_world(0)
+			max_in_world(0),
+			timed_spell(0)
 	{
 		memset(&obj_flags, 0, sizeof(obj_flag_data));
 
@@ -1595,6 +1604,16 @@ struct obj_data
 		else
 			return "\n";
 	}
+	void update_timed_spell();
+	void set_timed_spell(int spell, int time = 30);
+	std::string diag_timed_spell_to_char(CHAR_DATA *ch);
+	bool is_spell_poisoned();
+	bool has_timed_spell();
+	std::string print_timed_spell();
+	int get_timed_spell();
+
+private:
+	struct obj_timed_spell_type *timed_spell; // временный обкаст
 };
 /* ======================================================================= */
 

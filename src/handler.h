@@ -37,6 +37,7 @@ void affect_from_char(CHAR_DATA * ch, int type);
 bool affected_by_spell(CHAR_DATA * ch, int type);
 void affect_join_fspell(CHAR_DATA * ch, AFFECT_DATA * af);
 void affect_join(CHAR_DATA * ch, AFFECT_DATA * af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
+bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA *af);
 void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed);
 void timed_feat_from_char(CHAR_DATA * ch, struct timed_type *timed);
 int timed_by_feat(CHAR_DATA * ch, int skill);

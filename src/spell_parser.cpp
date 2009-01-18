@@ -4921,6 +4921,12 @@ void mag_assign_spells(void)
 
 	/* NON-castable spells should appear below here. */
 
+// 188
+	spello(SPELL_TEST_POISON, "тестовый яд", "test poison",
+		   70, 55, 1, POS_FIGHTING,
+		   TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_OBJ_INV | TAR_FIGHT_VICT,
+		   MTYPE_NEUTRAL, MAG_AFFECTS | MAG_ALTER_OBJS | NPC_AFFECT_PC, 2, STYPE_LIFE);
+
 	spello(SPELL_IDENTIFY, "идентификация", "identify",
 		   0, 0, 0, 0, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, FALSE, MAG_MANUAL, 0, STYPE_MIND);
 
@@ -5000,7 +5006,7 @@ void mag_assign_spells(void)
 	skillo(SKILL_SHIT, "удар левой рукой", 100);
 	skillo(SKILL_MIGHTHIT, "богатырский молот", 100);
 	skillo(SKILL_STUPOR, "оглушить", 100);
-	skillo(SKILL_POISONED, "отравить", 100);
+	skillo(SKILL_POISONED, "отравить", 200);
 	skillo(SKILL_LEADERSHIP, "лидерство", 100);
 	skillo(SKILL_PUNCTUAL, "точный стиль", 110);
 	skillo(SKILL_AWAKE, "осторожный стиль", 100);

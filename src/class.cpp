@@ -2636,7 +2636,8 @@ int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj)
 			|| (IS_OBJ_NO(obj, ITEM_AN_VIKINGI)
 				&& GET_KIN(ch) == KIN_VIKINGI)
 			|| ((OBJ_FLAGGED(obj, ITEM_ARMORED) || OBJ_FLAGGED(obj, ITEM_SHARPEN))
-				&& !IS_SMITH(ch)))
+				&& !IS_SMITH(ch))
+			|| (obj->is_spell_poisoned() && !IS_ASSASINE(ch)))
 		return (TRUE);
 	return (FALSE);
 }

@@ -2380,72 +2380,76 @@ ACMD(do_firstaid)
 	}
 }
 
-#define MAX_POISON_TIME 12
-
 ACMD(do_poisoned)
 {
-	OBJ_DATA *obj;
-	struct timed_type timed;
-	int i, apply_pos = MAX_OBJ_AFFECT;
-
 	if (!ch->get_skill(SKILL_POISONED))
 	{
 		send_to_char("Вы не умеете этого.", ch);
 		return;
 	}
 
-	one_argument(argument, arg);
+	argument = one_argument(argument, arg);
+	skip_spaces(&argument);
 
 	if (!*arg)
 	{
-		send_to_char("Что вы хотите отравить ?\r\n", ch);
+		send_to_char("Что вы хотите отравить?\r\n", ch);
+		return;
+	}
+	else if (!*argument)
+	{
+		send_to_char("Из чего вы собираете взять яд?\r\n", ch);
 		return;
 	}
 
-	if (!IS_IMMORTAL(ch) && timed_by_skill(ch, SKILL_POISONED))
+	OBJ_DATA *weapon = 0;
+	CHAR_DATA *dummy = 0;
+	int result = generic_find(arg, FIND_OBJ_INV | FIND_OBJ_EQUIP, ch, &dummy, &weapon);
+
+	if (!weapon || !result)
 	{
-		send_to_char("Вы рискуете отравиться сами, подождите немного.\r\n", ch);
+		send_to_char(ch, "У Вас нет \'%s\'.\r\n", arg);
 		return;
 	}
-
-	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
-	{
-		sprintf(buf, "У Вас нет \'%s\'.\r\n", arg);
-		send_to_char(buf, ch);
-		return;
-	};
-
-	if (GET_OBJ_TYPE(obj) != ITEM_WEAPON)
+	else if (GET_OBJ_TYPE(weapon) != ITEM_WEAPON)
 	{
 		send_to_char("Вы можете нанести яд только на оружие.\r\n", ch);
 		return;
 	}
 
-	/* Make sure no other affections. */
-	for (i = 0; i < MAX_OBJ_AFFECT; i++)
-		if (obj->affected[i].location == APPLY_POISON)
-		{
-			send_to_char("На этот предмет уже нанесен яд.\r\n", ch);
-			return;
-		}
-		else if (obj->affected[i].location == APPLY_NONE && apply_pos == MAX_OBJ_AFFECT)
-			apply_pos = i;
-
-	if (apply_pos >= MAX_OBJ_AFFECT)
+	OBJ_DATA *cont = get_obj_in_list_vis(ch, argument, ch->carrying);
+	if (!cont)
 	{
-		send_to_char("Вы не можете нанести яд на этот предмет.\r\n", ch);
+		send_to_char(ch, "У Вас нет \'%s\'.\r\n", argument);
+		return;
+	}
+	else if (GET_OBJ_TYPE(cont) != ITEM_DRINKCON)
+	{
+		send_to_char(ch, "%s не является емкостью.\r\n", GET_OBJ_PNAME(cont, 0));
+		return;
+	}
+	else if (GET_OBJ_VAL(cont, 1) <= 0)
+	{
+		send_to_char(ch, "В %s нет никакой жидкости.\r\n", GET_OBJ_PNAME(cont, 5));
+		return;
+	}
+	else if (GET_OBJ_VAL(cont, 2) != LIQ_POISON_TEST) // тут будут еще...
+	{
+		send_to_char(ch, "В %s нет подходящего яда.\r\n", GET_OBJ_PNAME(cont, 5));
 		return;
 	}
 
-	obj->affected[apply_pos].location = APPLY_POISON;
-	obj->affected[apply_pos].modifier = MAX_POISON_TIME;
+	--GET_OBJ_VAL(cont, 1);
+	weight_change_object(cont, -1);
+	if (!GET_OBJ_VAL(cont, 1))
+		name_from_drinkcon(cont);
 
-	timed.skill = SKILL_POISONED;
-	timed.time = MAX_POISON_TIME;
-	timed_to_char(ch, &timed);
+	if (GET_OBJ_VAL(cont, 2) == LIQ_POISON_TEST) // тут будут еще...
+		weapon->set_timed_spell(SPELL_TEST_POISON);
 
-	act("Вы осторожно нанесли яд на $o3.", FALSE, ch, obj, 0, TO_CHAR);
-	act("$n осторожно нанес$q яд на $o3.", FALSE, ch, obj, 0, TO_ROOM);
+	snprintf(buf, sizeof(buf), "Вы осторожно нанесли немного %s на $o3.", drinks[GET_OBJ_VAL(cont, 2)]);
+	act(buf, FALSE, ch, weapon, 0, TO_CHAR);
+	act("$n осторожно нанес$q яд на $o3.", FALSE, ch, weapon, 0, TO_ROOM);
 }
 
 ACMD(do_repair)

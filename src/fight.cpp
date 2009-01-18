@@ -2106,8 +2106,54 @@ void poison_victim(CHAR_DATA * ch, CHAR_DATA * vict, int modifier)
 	for (i = 0; i < 4; i++)
 		affect_join(vict, af + i, FALSE, FALSE, FALSE, FALSE);
 	vict->Poisoner = GET_ID(ch);
-	act("Вы отравили $N3.", FALSE, ch, 0, vict, TO_CHAR);
-	act("$n отравил$g Вас.", FALSE, ch, 0, vict, TO_VICT);
+
+	snprintf(buf, sizeof(buf), "%sВы отравили $N3.%s", CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
+	act(buf, FALSE, ch, 0, vict, TO_CHAR);
+	snprintf(buf, sizeof(buf), "%s$n отравил$g Вас.%s", CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
+	act(buf, FALSE, ch, 0, vict, TO_VICT);
+}
+
+/**
+* Отравление с пушки у наема.
+*/
+bool weap_poison_victim(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
+{
+	if (GET_AF_BATTLE(ch, EAF_POISONED))
+		return false;
+
+	if (spell_num == SPELL_TEST_POISON)
+	{
+		AFFECT_DATA af;
+		af.type = SPELL_TEST_POISON;
+		af.location = APPLY_TEST_POISON;
+		af.duration = 7;
+		af.modifier = GET_LEVEL(ch)/2;
+		af.bitvector = AFF_POISON;
+		af.battleflag = AF_SAME_TIME;
+		if (poison_affect_join(vict, &af))
+		{
+			vict->Poisoner = GET_ID(ch);
+			SET_AF_BATTLE(ch, EAF_POISONED);
+			return true;
+		}
+	}
+	return false;
+}
+
+int weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *victim, int spell_num)
+{
+	int percent = number(1, skill_info[SKILL_POISONED].max_percent * 3);
+	int prob = calculate_skill(ch, SKILL_POISONED, skill_info[SKILL_POISONED].max_percent, victim);
+	if (prob >= percent
+		&& !general_savingthrow(ch, victim, SAVING_CRITICAL, con_app[GET_REAL_CON(victim)].poison_saving))
+	{
+		if (spell_num == SPELL_TEST_POISON)
+		{
+			return GET_LEVEL(ch) * 4;
+		}
+		// и прочие дебафы
+	}
+	return 0;
 }
 
 /**
@@ -2153,7 +2199,7 @@ int calculate_noparryhit_dmg(CHAR_DATA * ch, OBJ_DATA * wielded)
 
 int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_DATA * wielded, int mayflee)
 {
-	int prob, percent = 0, lag = 0, i, k, mem_dam = dam;
+	int prob, percent = 0, lag = 0, k, mem_dam = dam;
 	AFFECT_DATA af;
 
 	if (!victim)
@@ -2335,24 +2381,31 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				WAIT_STATE(ch, lag * PULSE_VIOLENCE);
 		}
 	}
-	// Calculate poisoned weapon
-	else if (dam && wielded && timed_by_skill(ch, SKILL_POISONED))
+	// отравленные пушки
+	else if (dam && wielded && wielded->is_spell_poisoned())
 	{
-		for (i = 0; i < MAX_OBJ_AFFECT; i++)
-			if (wielded->affected[i].location == APPLY_POISON)
-				break;
-		if (i < MAX_OBJ_AFFECT &&
-				wielded->affected[i].modifier > 0 && !AFF_FLAGGED(victim, AFF_POISON) && !WAITLESS(victim))
+		percent = number(1, 6);
+		if (percent == 1)
 		{
-			percent = number(1, skill_info[SKILL_POISONED].max_percent);
-			prob = calculate_skill(ch, SKILL_POISONED, skill_info[SKILL_POISONED].max_percent, victim);
-			if (prob >= percent
-					&& !general_savingthrow(ch, victim, SAVING_CRITICAL,
-											con_app[GET_REAL_CON(victim)].poison_saving))
+			improove_skill(ch, SKILL_POISONED, TRUE, victim);
+			if (weap_poison_victim(ch, victim, wielded->get_timed_spell()))
 			{
-				improove_skill(ch, SKILL_POISONED, TRUE, victim);
-				poison_victim(ch, victim, prob - percent);
-				wielded->affected[i].modifier--;
+				int crit_poison = weap_crit_poison(ch, victim, wielded->get_timed_spell());
+				if (crit_poison > 0)
+				{
+					snprintf(buf, sizeof(buf), "%sВы тестово-критически отравили $N3.%s", CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
+					act(buf, FALSE, ch, 0, victim, TO_CHAR);
+					snprintf(buf, sizeof(buf), "%s$n тестово-критически отравил$g Вас.%s", CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
+					act(buf, FALSE, ch, 0, victim, TO_VICT);
+					dam += crit_poison;
+				}
+				else
+				{
+					snprintf(buf, sizeof(buf), "%sВы отравили $N3.%s", CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
+					act(buf, FALSE, ch, 0, victim, TO_CHAR);
+					snprintf(buf, sizeof(buf), "%s$n отравил$g Вас.%s", CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
+					act(buf, FALSE, ch, 0, victim, TO_VICT);
+				}
 			}
 		}
 	}
@@ -2364,7 +2417,9 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 			 GET_WAIT(ch) <= 0 &&
 			 !AFF_FLAGGED(victim, AFF_POISON) && number(0, 100) < GET_LIKES(ch) + GET_LEVEL(ch) - GET_LEVEL(victim)
 			 && !general_savingthrow(ch, victim, SAVING_CRITICAL, con_app[GET_REAL_CON(victim)].poison_saving))
+	{
 		poison_victim(ch, victim, MAX(1, GET_LEVEL(ch) - GET_LEVEL(victim)) * 10);
+	}
 
 	// Если удар парирован, необходимо все равно ввязаться в драку.
 	// Вызывается damage с отрицательным уроном
@@ -5940,6 +5995,8 @@ void perform_violence(void)
 			if (!WAITLESS(ch) && GET_WAIT(ch) < PULSE_VIOLENCE)
 				WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 		}
+		if (GET_AF_BATTLE(ch, EAF_POISONED))
+			CLR_AF_BATTLE(ch, EAF_POISONED);
 		battle_affect_update(ch);
 	}
 }

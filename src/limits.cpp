@@ -1399,6 +1399,7 @@ void obj_point_update()
 
 				/* decay poision && other affects */
 				for (count = 0; count < MAX_OBJ_AFFECT; count++)
+				{
 					if (j->affected[count].location == APPLY_POISON)
 					{
 						j->affected[count].modifier--;
@@ -1408,6 +1409,8 @@ void obj_point_update()
 							j->affected[count].modifier = 0;
 						}
 					}
+				}
+				j->update_timed_spell();
 			}
 		}
 	}
