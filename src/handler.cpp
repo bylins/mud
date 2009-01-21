@@ -2648,11 +2648,6 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 	for (k = character_list; k; k = temp)
 	{
 		temp = k->next;
-		if (PROTECTING(k) == ch)
-		{
-			PROTECTING(k) = NULL;
-			CLR_AF_BATTLE(k, EAF_PROTECT);
-		}
 		if (TOUCHING(k) == ch)
 		{
 			TOUCHING(k) = NULL;

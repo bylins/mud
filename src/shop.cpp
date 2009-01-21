@@ -1006,7 +1006,7 @@ void shopping_sell_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int 
 	act(buf, FALSE, ch, obj, 0, TO_ROOM);
 
 	/*  sprintf(buf, shop_index[shop_nr].message_sell, GET_NAME(ch), goldamt); */
-	write_buf(buf, shop_index[shop_nr].message_sell, GET_NAME(ch), goldamt, WHAT_MONEYa);
+	write_buf(buf, shop_index[shop_nr].message_sell, GET_NAME(ch), goldamt, WHAT_MONEYu);
 	do_tell(keeper, buf, cmd_tell, 0);
 
 	sprintf(buf, "Теперь у %s есть %s.\r\n", keeper->player_data.PNames[1], times_message(obj, 0, sold, 0));
@@ -1084,7 +1084,7 @@ void shopping_sell(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 	act(buf, FALSE, ch, obj, 0, TO_ROOM);
 
 	/*  sprintf(buf, shop_index[shop_nr].message_sell, GET_NAME(ch), goldamt); */
-	write_buf(buf, shop_index[shop_nr].message_sell, GET_NAME(ch), goldamt, WHAT_MONEYa);
+	write_buf(buf, shop_index[shop_nr].message_sell, GET_NAME(ch), goldamt, WHAT_MONEYu);
 	do_tell(keeper, buf, cmd_tell, 0);
 
 	sprintf(buf, "Теперь у %s есть %s.\r\n", keeper->player_data.PNames[1], times_message(0, name, sold, 0));

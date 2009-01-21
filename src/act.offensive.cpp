@@ -55,6 +55,8 @@ ACMD(do_rescue);
 ACMD(do_kick);
 ACMD(do_manadrain);
 ACMD(do_coddle_out);
+CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
+
 
 int have_mind(CHAR_DATA * ch)
 {
@@ -76,10 +78,12 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return (FALSE);
 	}
+
 	if (FIGHTING(ch) || GET_MOB_HOLD(ch))
 	{
 		return (FALSE);
 	}
+	
 	// если жертва пишет на доску - вываливаем его оттуда и чистим все это дело
 	if (victim->desc && (STATE(victim->desc) == CON_WRITEBOARD))
 	{
@@ -147,12 +151,16 @@ int onhorse(CHAR_DATA * ch)
 };
 
 // Add by Voropay 8/05/2004
-CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch, int skill)
+CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 {
 
 	CHAR_DATA *vict;
 	int percent = 0;
 	int prob = 0;
+
+	//Polud прикрываем только от нападения
+	if (FIGHTING(ch)==victim)
+		return victim;
 
 	for (vict = world[IN_ROOM(victim)]->people; vict; vict = vict->next_in_room)
 	{
@@ -176,18 +184,19 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch, int skill)
 				pk_agro_action(vict, ch);
 				stop_fighting(vict, FALSE);
 				set_fighting(vict, ch);
-				// Лаг от переключения.
-				set_wait(vict, 2, TRUE);
-				// Восстанавливаем прикрытие.
-				go_protect(vict, victim);
 			}
+			// Polud очищаем флаги и поля. 
+			// Для востановления прикрытия нужно снова ввести команду 'прикрыть'
+			CLR_AF_BATTLE(ch, EAF_PROTECT);
+			PROTECTING(vict)=NULL;
 
 			if (prob < percent)
 			{
 				act("Вы не смогли прикрыть $N3.", FALSE, vict, 0, victim, TO_CHAR);
 				act("$N не смог$Q прикрыть Вас.", FALSE, victim, 0, vict, TO_CHAR);
 				act("$n не смог$q прикрыть $N3.", TRUE, vict, 0, victim, TO_NOTVICT);
-			}
+				set_wait(vict, 2, TRUE);
+		}
 			else
 			{
 				act("Вы героически прикрыли $N3, приняв удар на себя.", FALSE,
@@ -196,8 +205,8 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch, int skill)
 					victim, 0, vict, TO_CHAR);
 				act("$n героически прикрыл$g $N3, приняв удар на себя.", TRUE,
 					vict, 0, victim, TO_NOTVICT);
+				set_wait(vict, 1, TRUE);
 				return vict;
-				break;
 			}
 
 
@@ -224,13 +233,6 @@ void parry_override(CHAR_DATA * ch)
 		message = "Вы забыли о защите и бросились в бой.";
 		CLR_AF_BATTLE(ch, EAF_MULTYPARRY);
 	}
-	if (GET_AF_BATTLE(ch, EAF_PROTECT))
-	{
-		message = "Вы оставили своего товарища без прикрытия и ринулись в бой.";
-		CLR_AF_BATTLE(ch, EAF_PROTECT);
-		PROTECTING(ch) = NULL;
-	}
-
 	if (message)
 		act(message, FALSE, ch, 0, 0, TO_CHAR);
 }
@@ -527,7 +529,7 @@ ACMD(do_backstab)
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
-
+	vict = try_protect(vict, ch);
 	go_backstab(ch, vict);
 }
 
@@ -851,7 +853,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 
-	vict = try_protect(vict, ch, SKILL_BASH);
+	vict = try_protect(vict, ch);
 
 	percent = number(1, skill_info[SKILL_BASH].max_percent);
 	prob = train_skill(ch, SKILL_BASH, skill_info[SKILL_BASH].max_percent, vict);
@@ -1129,7 +1131,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 	if (onhorse(ch))
 		return;
 
-	vict = try_protect(vict, ch, SKILL_KICK);
+	vict = try_protect(vict, ch);
 
 	/* 101% is a complete failure */
 	percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, skill_info[SKILL_KICK].max_percent);
@@ -1411,7 +1413,7 @@ void go_protect(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 
 	PROTECTING(ch) = vict;
-	act("Вы попытаетесь прикрыть $N3 от следующей атаки.", FALSE, ch, 0, vict, TO_CHAR);
+	act("Вы попытаетесь прикрыть $N3 от нападения.", FALSE, ch, 0, vict, TO_CHAR);
 	SET_AF_BATTLE(ch, EAF_PROTECT);
 }
 
@@ -1445,11 +1447,7 @@ ACMD(do_protect)
 		send_to_char("И кто так сильно мил Вашему сердцу ?\r\n", ch);
 		return;
 	};
-
-	for (tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
-		if (FIGHTING(tch) == vict)
-			break;
-
+	
 	if (vict == ch)
 	{
 		send_to_char("Попробуйте парировать удары или защищаться щитом.\r\n", ch);
@@ -1461,6 +1459,10 @@ ACMD(do_protect)
 		send_to_char("Вы явно пацифист, или мазохист.\r\n", ch);
 		return;
 	}
+
+	for (tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
+		if (FIGHTING(tch) == vict)
+			break;
 
 	if (IS_NPC(vict) && tch && (!IS_NPC(tch) || (AFF_FLAGGED(tch, AFF_CHARM)
 								&& tch->master && !IS_NPC(tch->master))) && (!IS_NPC(ch)
@@ -1926,7 +1928,7 @@ ACMD(do_stupor)
 
 	parry_override(ch);
 
-	vict = try_protect(vict, ch, SKILL_STUPOR);
+	vict = try_protect(vict, ch);
 
 	go_stupor(ch, vict);
 }
@@ -2010,7 +2012,7 @@ ACMD(do_mighthit)
 
 	parry_override(ch);
 
-	vict = try_protect(vict, ch, SKILL_MIGHTHIT);
+	vict = try_protect(vict, ch);
 
 	go_mighthit(ch, vict);
 }
@@ -2235,6 +2237,9 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * vict)
 		act("$o не предназначен$A для метания.", FALSE, ch, wielded, 0, TO_CHAR);
 		return;
 	}
+
+	vict = try_protect(vict, ch);
+
 	percent = number(1, skill_info[SKILL_THROW].max_percent);
 	prob = train_skill(ch, SKILL_THROW, skill_info[SKILL_THROW].max_percent, vict);
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, GF_GODSCURSE)
@@ -2660,8 +2665,6 @@ ACMD(do_iron_wind)
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
-
-	vict = try_protect(vict, ch, SKILL_IRON_WIND);
 
 	go_iron_wind(ch, vict);
 }

@@ -2208,7 +2208,7 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 		if ((GET_OBJ_WEIGHT(chest) + GET_OBJ_WEIGHT(obj)) > CLAN(ch)->ChestMaxWeight() ||
 				CLAN(ch)->chest_objcount == CLAN(ch)->ChestMaxObjects())
 		{
-			act("Вы попытались запихнуть $o3 в $O3,но не смогли - там просто нет места.", FALSE, ch, obj, chest, TO_CHAR);
+			act("Вы попытались запихнуть $o3 в $O3, но не смогли - там просто нет места.", FALSE, ch, obj, chest, TO_CHAR);
 			return 0;
 		}
 		obj_from_char(obj);

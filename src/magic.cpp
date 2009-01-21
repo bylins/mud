@@ -60,7 +60,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop);
 int get_resist_type(int spellnum);
 
 /* Extern functions */
-CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch, int skill);
+CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
 /* local functions */
 int mag_materials(CHAR_DATA * ch, int item0, int item1, int item2, int extract, int verbose);
 void perform_mag_groups(int level, CHAR_DATA * ch, CHAR_DATA * tch, int spellnum, int savetype);
@@ -1107,7 +1107,6 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	pk_agro_action(ch, victim);
 
 //  log("[MAG DAMAGE] %s damage %s (%d)",GET_NAME(ch),GET_NAME(victim),spellnum);
-	victim = try_protect(victim, ch, spellnum);
 	// Magic glass
 	if (!IS_SET(SpINFO.routines, MAG_WARCRY))
 	{

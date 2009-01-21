@@ -52,7 +52,7 @@ extern int supress_godsapply;
 extern int r_helled_start_room;
 
 /* External procedures */
-CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch, int skill);
+CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
 char *fread_action(FILE * fl, int nr);
 ACMD(do_flee);
 ACMD(do_assist);
@@ -466,9 +466,12 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (AFF_FLAGGED(ch, AFF_SLEEP))
 		affect_from_char(ch, SPELL_SLEEP);
+	vict = try_protect(vict, ch);
 	FIGHTING(ch) = vict;
 	NUL_AF_BATTLE(ch);
-	PROTECTING(ch) = 0;
+//Polud вступление в битву не мешает прикрывать
+	if (PROTECTING(ch))
+		SET_AF_BATTLE(ch, EAF_PROTECT);
 	TOUCHING(ch) = 0;
 	INITIATIVE(ch) = 0;
 	BATTLECNTR(ch) = 0;
@@ -519,11 +522,6 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 
 	for (temp = combat_list; temp; temp = temp->next_fighting)
 	{
-		if (PROTECTING(temp) == ch)
-		{
-			PROTECTING(temp) = NULL;
-			CLR_AF_BATTLE(temp, EAF_PROTECT);
-		}
 		if (TOUCHING(temp) == ch)
 		{
 			TOUCHING(temp) = NULL;
@@ -3633,10 +3631,6 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			 AFF_FLAGGED(victim, AFF_AWARNESS)) && !GET_MOB_HOLD(victim) && GET_WAIT(victim) <= 0)
 		set_battle_pos(victim);
 
-	/* Check protections */
-//	if (GET_AF_BATTLE(ch, EAF_PROTECT))
-//		return;
-
 	/* Find weapon for attack number weapon */
 	if (weapon == 1)
 	{
@@ -4163,9 +4157,6 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 				dam = modi * dam / 100;
 			}
 		}
-
-		// Change victim, if protector present
-		victim = try_protect(victim, ch, weapon);
 
 		//dzMUDiST Обработка !исступления! +Gorrah
 		if (affected_by_spell(ch, SPELL_BERSERK))
