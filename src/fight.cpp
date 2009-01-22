@@ -2497,10 +2497,9 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktyp
 /**
 * При надуве выше х 1.5 в пк есть 1% того, что весь надув слетит одним ударом.
 */
-void try_remove_extrahits(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
+void try_remove_extrahits(CHAR_DATA *ch, CHAR_DATA *victim)
 {
-	if (dam > 0
-		&& (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
+	if ((!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
 		&& !IS_NPC(victim)
 		&& GET_POS(victim) != POS_DEAD
 		&& GET_HIT(victim) > GET_REAL_MAX_HIT(victim) * 1.5
@@ -2782,7 +2781,8 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 
 	update_pos(victim);
 
-	try_remove_extrahits(ch, victim, dam);
+	if (attacktype != SPELL_POISON && dam > 0)
+		try_remove_extrahits(ch, victim);
 
 	// * skill_message sends a message from the messages file in lib/misc.
 	//  * dam_message just sends a generic "You hit $n extremely hard.".
