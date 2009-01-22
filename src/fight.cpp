@@ -3571,7 +3571,7 @@ double calculate_crit_backstab(CHAR_DATA *ch, CHAR_DATA *victim)
 		else
 		{
 			// 6+(скилл-100)*0.06, по 0.3 за каждые 5 скила после 100 (множитель от 6.3 до 12)
-			bs_coeff = 6+(tmp_skill-40)*0.06;
+			bs_coeff = 6+(tmp_skill-100)*0.06;
 		}
 		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
