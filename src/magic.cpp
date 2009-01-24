@@ -57,7 +57,6 @@ int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum);
 int slot_for_char(CHAR_DATA * ch, int slotnum);
 void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum);
 void change_fighting(CHAR_DATA * ch, int need_stop);
-int get_resist_type(int spellnum);
 
 /* Extern functions */
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
@@ -541,7 +540,7 @@ int same_time_update(CHAR_DATA *ch, AFFECT_DATA *af)
 		poison_dmg = interpolate(poison_dmg, 2);
 		result = damage(ch, ch, poison_dmg, SPELL_POISON, FALSE);
 	}
-	else if (af->location == APPLY_TEST_POISON)
+	else if (af->location == APPLY_ACONITUM_POISON)
 	{
 		result = damage(ch, ch, GET_POISON(ch), SPELL_POISON, FALSE);
 	}
@@ -3203,8 +3202,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = NULL;
 		break;
 
-	case SPELL_TEST_POISON:
-		af[0].location = APPLY_TEST_POISON;
+	case SPELL_ACONITUM_POISON:
+		af[0].location = APPLY_ACONITUM_POISON;
 		af[0].duration = 7;
 		af[0].modifier = level;
 		af[0].bitvector = AFF_POISON;

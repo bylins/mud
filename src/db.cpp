@@ -4996,7 +4996,7 @@ void load_ignores(CHAR_DATA * ch, char *line)
 void set_god_skills(CHAR_DATA *ch)
 {
 	for (int i = 1; i <= MAX_SKILL_NUM; i++)
-		ch->set_skill(i, 100);
+		ch->set_skill(i, 150);
 }
 
 #define NUM_OF_SAVE_THROWS	5

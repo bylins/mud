@@ -35,6 +35,7 @@
 #include "char.hpp"
 #include "char_player.hpp"
 #include "top.h"
+#include "magic.h"
 
 extern CHAR_DATA *mob_proto;
 
@@ -77,13 +78,15 @@ void npc_groupbattle(CHAR_DATA * ch);
 int npc_battle_scavenge(CHAR_DATA * ch);
 void npc_wield(CHAR_DATA * ch);
 void npc_armor(CHAR_DATA * ch);
-
 int max_exp_gain_pc(CHAR_DATA * ch);
 int max_exp_loss_pc(CHAR_DATA * ch);
 int level_exp(CHAR_DATA * ch, int chlevel);
 int extra_aco(int class_num, int level);
 void change_fighting(CHAR_DATA * ch, int need_stop);
 int perform_mob_switch(CHAR_DATA * ch);
+extern void drop_from_horse(CHAR_DATA *victim);
+extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
+
 /* local functions */
 //void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koef);
 void dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int w_type);
@@ -2119,11 +2122,11 @@ bool weap_poison_victim(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 	if (GET_AF_BATTLE(ch, EAF_POISONED))
 		return false;
 
-	if (spell_num == SPELL_TEST_POISON)
+	if (spell_num == SPELL_ACONITUM_POISON)
 	{
 		AFFECT_DATA af;
-		af.type = SPELL_TEST_POISON;
-		af.location = APPLY_TEST_POISON;
+		af.type = SPELL_ACONITUM_POISON;
+		af.location = APPLY_ACONITUM_POISON;
 		af.duration = 7;
 		af.modifier = GET_LEVEL(ch)/2;
 		af.bitvector = AFF_POISON;
@@ -2138,20 +2141,56 @@ bool weap_poison_victim(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 	return false;
 }
 
-int weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *victim, int spell_num)
+void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *victim, int spell_num)
 {
 	int percent = number(1, skill_info[SKILL_POISONED].max_percent * 3);
 	int prob = calculate_skill(ch, SKILL_POISONED, skill_info[SKILL_POISONED].max_percent, victim);
-	if (prob >= percent
-		&& !general_savingthrow(ch, victim, SAVING_CRITICAL, con_app[GET_REAL_CON(victim)].poison_saving))
+	if (prob >= percent)
 	{
-		if (spell_num == SPELL_TEST_POISON)
+		if (spell_num == SPELL_ACONITUM_POISON && GET_POS(victim) >= POS_FIGHTING)
 		{
-			return GET_LEVEL(ch) * 4;
+			if (on_horse(victim))
+			{
+				send_to_char(ch, "%sОт действия Вашего яда у %s закружилась голова!%s\r\n",
+						CCGRN(ch, C_NRM), GET_PAD(victim, 1), CCNRM(ch, C_NRM));
+				send_to_char(victim, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",
+						GET_PAD(get_horse(victim), 5));
+				act("$n0 зашатался и не смог усидеть на $N5.", true, victim, 0, get_horse(victim), TO_NOTVICT);
+			}
+			else
+			{
+				send_to_char(ch, "%sОт действия Вашего яда у %s подкосились ноги!%s\r\n",
+						CCGRN(ch, C_NRM), GET_PAD(victim, 1), CCNRM(ch, C_NRM));
+				send_to_char(victim, "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
+				act("$N0 зашатался и не смог устоять на ногах.", true, ch, 0, victim, TO_NOTVICT);
+			}
+
+			GET_POS(victim) = POS_SITTING;
+			drop_from_horse(victim);
+			set_wait(victim, 3, FALSE);
+
+/*
+!AFF_FLAGGED(victim, AFF_HOLD)
+
+			AFFECT_DATA af;
+			af.duration = calculate_resistance_coeff(victim, get_resist_type(spell_num),
+					pc_duration(victim, 1, GET_LEVEL(ch) + 9, 10, 1, 3));
+			af.bitvector = AFF_HOLD;
+			af.battleflag = AF_BATTLEDEC;
+			af.type = spell_num;
+			af.duration = complex_spell_modifier(ch, spell_num, GAPPLY_SPELL_EFFECT, af.duration);
+			affect_join(victim, &af, false, false, false, false);
+
+			act("Яд $n3 заставил биться в судорогах $N1.", true, ch, 0, victim, TO_NOTVICT);
+			send_to_char(ch, "%sОт действия Вашего яда %s забился в судорогах.%s\r\n",
+					CCGRN(ch, C_NRM), GET_PAD(victim, 0), CCCYN(ch, C_NRM));
+			send_to_char(victim, "По всему телу прошли судороги, Вы не можете пошевелиться!\r\n");
+*/
+			return;
 		}
 		// и прочие дебафы
 	}
-	return 0;
+	return;
 }
 
 /**
@@ -2382,28 +2421,24 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 	// отравленные пушки
 	else if (dam && wielded && wielded->is_spell_poisoned())
 	{
-		percent = number(1, 6);
-		if (percent == 1)
+		if (number(1, 200) <= 30)
 		{
 			improove_skill(ch, SKILL_POISONED, TRUE, victim);
 			if (weap_poison_victim(ch, victim, wielded->get_timed_spell()))
 			{
-				int crit_poison = weap_crit_poison(ch, victim, wielded->get_timed_spell());
-				if (crit_poison > 0)
+				if (wielded->get_timed_spell() == SPELL_ACONITUM_POISON)
 				{
-					snprintf(buf, sizeof(buf), "%sВы тестово-критически отравили $N3.%s", CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
-					act(buf, FALSE, ch, 0, victim, TO_CHAR);
-					snprintf(buf, sizeof(buf), "%s$n тестово-критически отравил$g Вас.%s", CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
-					act(buf, FALSE, ch, 0, victim, TO_VICT);
-					dam += crit_poison;
+					send_to_char(ch, "%sКровоточащие язвы покрыли тело %s.%s\r\n",
+							CCGRN(ch, C_NRM), GET_PAD(victim, 1), CCNRM(ch, C_NRM));
 				}
 				else
 				{
-					snprintf(buf, sizeof(buf), "%sВы отравили $N3.%s", CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
-					act(buf, FALSE, ch, 0, victim, TO_CHAR);
-					snprintf(buf, sizeof(buf), "%s$n отравил$g Вас.%s", CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
-					act(buf, FALSE, ch, 0, victim, TO_VICT);
+					send_to_char(ch, "%sВы отравили %s.%s\r\n",
+							CCGRN(ch, C_NRM), GET_PAD(victim, 3), CCNRM(ch, C_NRM));
 				}
+				send_to_char(victim, "%s%s отравил%s Вас.%s\r\n",
+						CCIRED(ch, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch), CCNRM(ch, C_NRM));
+				weap_crit_poison(ch, victim, wielded->get_timed_spell());
 			}
 		}
 	}
@@ -4645,7 +4680,6 @@ int GET_MAXCASTER(CHAR_DATA * ch)
 #define POOR_DAMAGE  15
 #define POOR_CASTER  5
 #define MAX_PROBES   0
-#define SpINFO       spell_info[i]
 
 int in_same_battle(CHAR_DATA * npc, CHAR_DATA * pc, int opponent)
 {
@@ -5112,7 +5146,7 @@ void mob_casting(CHAR_DATA * ch)
 
 	memset(&battle_spells, 0, sizeof(battle_spells));
 	for (i = 1, spells = 0; i <= MAX_SPELLS; i++)
-		if (GET_SPELL_MEM(ch, i) && IS_SET(SpINFO.routines, NPC_CALCULATE))
+		if (GET_SPELL_MEM(ch, i) && IS_SET(spell_info[i].routines, NPC_CALCULATE))
 			battle_spells[spells++] = i;
 
 	for (item = ch->carrying;

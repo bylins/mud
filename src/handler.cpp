@@ -513,7 +513,7 @@ void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool a
 	case APPLY_MR:
 		GET_MR(ch) += mod;
 		break;
-	case APPLY_TEST_POISON:
+	case APPLY_ACONITUM_POISON:
 		GET_POISON(ch) += mod;
 		break;
 	default:
@@ -1153,7 +1153,7 @@ bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA *af)
 	for (hjp = ch->affected; !found && hjp && af->location; hjp = hjp->next)
 	{
 		if ((hjp->location == APPLY_POISON
-				|| hjp->location == APPLY_TEST_POISON)
+				|| hjp->location == APPLY_ACONITUM_POISON)
 			&& af->location != hjp->location)
 		{
 			// если уже есть другой яд - борода
@@ -4218,8 +4218,8 @@ void obj_data::set_timed_spell(int spell, int time)
 
 std::string get_poison_by_spell(int spell)
 {
-	if (spell == SPELL_TEST_POISON)
-		return drinknames[LIQ_POISON_TEST];
+	if (spell == SPELL_ACONITUM_POISON)
+		return drinknames[LIQ_POISON_ACONITUM];
 	else
 		return "";
 }
@@ -4242,7 +4242,7 @@ std::string obj_data::diag_timed_spell_to_char(CHAR_DATA *ch)
 
 bool obj_data::is_spell_poisoned()
 {
-	if (timed_spell && timed_spell->spell == SPELL_TEST_POISON)
+	if (timed_spell && timed_spell->spell == SPELL_ACONITUM_POISON)
 		return true;
 	else
 		return false;

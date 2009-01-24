@@ -996,7 +996,7 @@ typedef struct trig_data TRIG_DATA;
 #define APPLY_RESIST_IMMUNITY  50	/* Apply to RESIST throw: poison, disease etc.  */
 #define APPLY_AR	           51	/* Apply to Magic affect resist */
 #define APPLY_MR	           52	/* Apply to Magic damage resist */
-#define APPLY_TEST_POISON      53
+#define APPLY_ACONITUM_POISON  53
 #define NUM_APPLIES	           54
 
 /* APPLY - эффекты для комнат */

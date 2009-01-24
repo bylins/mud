@@ -1895,7 +1895,7 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	/* 0 */
 		"",		/* SPELL_WC_OF_POWER	*/
 		"",		/* SPELL_WC_OF_BLESS	*/
 		"",		/* SPELL_WC_OF_COURAGE	*/
-		"В Вашей крови не осталось ни капельки яда.", // SPELL_TEST_POISON
+		"В Вашей крови не осталось ни капельки яда.", // SPELL_ACONITUM_POISON
 													  };
 
 
@@ -2312,7 +2312,7 @@ const char *cast_phrase[LAST_USED_SPELL + 1][2] = { {"\nRESERVED DB.C",	/* 0 */
 	{"Орлы! Будем биться как львы!",
 	 "Орлы! Будем биться как львы!"}, //SPELL_WC_OF_COURAGE
 	{"трутизна",
-	 "... и пошлю на них зубы зверей и яд ползающих по земле."} // SPELL_TEST_POISON
+	 "... и пошлю на них зубы зверей и яд ползающих по земле."} // SPELL_ACONITUM_POISON
 };
 
 

@@ -2433,19 +2433,20 @@ ACMD(do_poisoned)
 		send_to_char(ch, "В %s нет никакой жидкости.\r\n", GET_OBJ_PNAME(cont, 5));
 		return;
 	}
-	else if (GET_OBJ_VAL(cont, 2) != LIQ_POISON_TEST) // тут будут еще...
+	else if (GET_OBJ_VAL(cont, 2) != LIQ_POISON_ACONITUM) // тут будут еще...
 	{
 		send_to_char(ch, "В %s нет подходящего яда.\r\n", GET_OBJ_PNAME(cont, 5));
 		return;
 	}
 
-	--GET_OBJ_VAL(cont, 1);
-	weight_change_object(cont, -1);
+	int cost = MIN(GET_OBJ_VAL(cont, 1), GET_LEVEL(ch) <= 10 ? 1 : GET_LEVEL(ch) <= 20 ? 2 : 3);
+	GET_OBJ_VAL(cont, 1) -= cost;
+	weight_change_object(cont, cost);
 	if (!GET_OBJ_VAL(cont, 1))
 		name_from_drinkcon(cont);
 
-	if (GET_OBJ_VAL(cont, 2) == LIQ_POISON_TEST) // тут будут еще...
-		weapon->set_timed_spell(SPELL_TEST_POISON);
+	if (GET_OBJ_VAL(cont, 2) == LIQ_POISON_ACONITUM) // тут будут еще...
+		weapon->set_timed_spell(SPELL_ACONITUM_POISON);
 
 	snprintf(buf, sizeof(buf), "Вы осторожно нанесли немного %s на $o3.", drinks[GET_OBJ_VAL(cont, 2)]);
 	act(buf, FALSE, ch, weapon, 0, TO_CHAR);

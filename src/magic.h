@@ -29,4 +29,6 @@
 
 #define SpINFO spell_info[spellnum]
 
+int get_resist_type(int spellnum);
+
 #endif

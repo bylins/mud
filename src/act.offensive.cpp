@@ -83,7 +83,7 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 	{
 		return (FALSE);
 	}
-	
+
 	// если жертва пишет на доску - вываливаем его оттуда и чистим все это дело
 	if (victim->desc && (STATE(victim->desc) == CON_WRITEBOARD))
 	{
@@ -185,7 +185,7 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 				stop_fighting(vict, FALSE);
 				set_fighting(vict, ch);
 			}
-			// Polud очищаем флаги и поля. 
+			// Polud очищаем флаги и поля.
 			// Для востановления прикрытия нужно снова ввести команду 'прикрыть'
 			CLR_AF_BATTLE(ch, EAF_PROTECT);
 			PROTECTING(vict)=NULL;
@@ -810,6 +810,17 @@ ACMD(do_flee)
 	go_flee(ch);
 }
 
+void drop_from_horse(CHAR_DATA *victim)
+{
+	if (on_horse(victim))
+	{
+		act("Вы упали с $N1.", FALSE, victim, 0, get_horse(victim), TO_CHAR);
+		REMOVE_BIT(AFF_FLAGS(victim, AFF_HORSE), AFF_HORSE);
+	}
+	if (IS_HORSE(victim) && on_horse(victim->master))
+		horse_drop(victim);
+}
+
 /************************** BASH PROCEDURES */
 void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 {
@@ -945,13 +956,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 			if (IN_ROOM(ch) == IN_ROOM(vict))
 			{
 				GET_POS(vict) = POS_SITTING;
-				if (on_horse(vict))
-				{
-					act("Вы упали с $N1.", FALSE, vict, 0, get_horse(vict), TO_CHAR);
-					REMOVE_BIT(AFF_FLAGS(vict, AFF_HORSE), AFF_HORSE);
-				}
-				if (IS_HORSE(vict) && on_horse(vict->master))
-					horse_drop(vict);
+				drop_from_horse(vict);
 			}
 			set_wait(vict, prob, FALSE);
 			prob = 2;
@@ -1447,7 +1452,7 @@ ACMD(do_protect)
 		send_to_char("И кто так сильно мил Вашему сердцу ?\r\n", ch);
 		return;
 	};
-	
+
 	if (vict == ch)
 	{
 		send_to_char("Попробуйте парировать удары или защищаться щитом.\r\n", ch);
