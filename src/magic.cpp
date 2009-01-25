@@ -543,6 +543,17 @@ int same_time_update(CHAR_DATA *ch, AFFECT_DATA *af)
 	else if (af->location == APPLY_ACONITUM_POISON)
 	{
 		result = damage(ch, ch, GET_POISON(ch), SPELL_POISON, FALSE);
+		////////////////////////////////////////////////////////////////////////////////
+		if (result > 0 && ch->Poisoner)
+		{
+			DESCRIPTOR_DATA *d = get_desc_by_id(ch->Poisoner, 0);
+			if (d && d->character)
+			{
+				void dmeter_update(CHAR_DATA *ch, int real_dam, int dam, int poison);
+				dmeter_update(d->character, 0, 0, result);
+			}
+		}
+		////////////////////////////////////////////////////////////////////////////////
 	}
 	return result;
 }

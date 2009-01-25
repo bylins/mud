@@ -4932,21 +4932,23 @@ extern const char *class_name[];
 class dmeter_node
 {
 public:
-	dmeter_node(const char *name, std::string prof) : name_(name), damage_(0), real_damage_(0), prof_(prof) {};
+	dmeter_node(const char *name, std::string prof) : name_(name), damage_(0), real_damage_(0), poison_(0), prof_(prof) {};
 	std::string name_;
 	int damage_;
 	int real_damage_;
+	int poison_;
 	std::string prof_;
 };
 std::map<long /* id */, dmeter_node> dmeter_list;
 
-void dmeter_update(CHAR_DATA *ch, int real_dam, int dam)
+void dmeter_update(CHAR_DATA *ch, int real_dam, int dam, int poison)
 {
 	std::map<long, dmeter_node>::iterator it = dmeter_list.find(GET_ID(ch));
 	if (it != dmeter_list.end())
 	{
 		it->second.damage_ += dam;
 		it->second.real_damage_ += real_dam;
+		it->second.poison_ += poison;
 	}
 }
 
@@ -4976,6 +4978,7 @@ ACMD(do_dmeter)
 		{
 			out << std::setw(35) << it->second.name_ << " : "  << std::setw(15) << it->second.damage_
 					<< " : " << std::setw(15) << it->second.real_damage_
+					<< " : " << std::setw(15) << it->second.poison_
 					<< " : " << std::setw(15) << it->second.prof_ << "\r\n";
 		}
 		send_to_char(out.str(), ch);

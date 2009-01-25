@@ -2803,13 +2803,14 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 	else
 	{
 		////////////////////////////////////////////////////////////////////////////////
-		void dmeter_update(CHAR_DATA *ch, int real_dam, int dam);
+		void dmeter_update(CHAR_DATA *ch, int real_dam, int dam, int poison);
 		int real_dam = dam;
 		if (GET_HIT(victim) + 11 < dam)
 		{
 			real_dam = GET_HIT(victim) + 11;
 		}
-		dmeter_update(ch, real_dam, dam);
+		if (ch != victim)
+			dmeter_update(ch, real_dam, dam, 0);
 		////////////////////////////////////////////////////////////////////////////////
 		GET_HIT(victim) -= dam;
 	}
