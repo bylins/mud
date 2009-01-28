@@ -2850,7 +2850,7 @@ ACMD(do_score)
 					" || %sВ связи с боевыми действиями Вы не можете уйти на постой еще %-18s%s ||\r\n",
 					CCIRED(ch, C_NRM),
 					minutes ? (boost::lexical_cast<std::string>(minutes) + string(" ") + string(desc_count(minutes, WHAT_MINu)) + string(".")).substr(0, 18).c_str()
-					: (boost::lexical_cast<std::string>(rent_time) + string(" ") + string(desc_count(rent_time, WHAT_SEC)) + string(".")).substr(0, 18).c_str(),
+							: (boost::lexical_cast<std::string>(rent_time) + string(" ") + string(desc_count(rent_time, WHAT_SEC)) + string(".")).substr(0, 18).c_str(),
 					CCCYN(ch, C_NRM));
 		}
 		else if ((IN_ROOM(ch) != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER))

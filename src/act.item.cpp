@@ -1555,6 +1555,8 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg)
 		{
 			if (!GET_EQ(ch, WEAR_FINGER_R))
 				where = WEAR_FINGER_R;
+			else if (!GET_EQ(ch, WEAR_FINGER_L))
+				where = WEAR_FINGER_L;
 			else
 				tmp_where = WEAR_FINGER_R;
 		}
@@ -1562,6 +1564,8 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg)
 		{
 			if (!GET_EQ(ch, WEAR_NECK_1))
 				where = WEAR_NECK_1;
+			else if (!GET_EQ(ch, WEAR_NECK_2))
+				where = WEAR_NECK_2;
 			else
 				tmp_where = WEAR_NECK_1;
 		}
@@ -1632,6 +1636,8 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg)
 		{
 			if (!GET_EQ(ch, WEAR_WRIST_R))
 				where = WEAR_WRIST_R;
+			else if (!GET_EQ(ch, WEAR_WRIST_L))
+				where = WEAR_WRIST_L;
 			else
 				tmp_where = WEAR_WRIST_R;
 		}

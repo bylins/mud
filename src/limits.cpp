@@ -620,7 +620,7 @@ void beat_points_update(int pulse)
 			continue;
 		}
 
-		if (RENTABLE(i) < time(NULL))
+		if (RENTABLE(i) <= time(NULL))
 		{
 			RENTABLE(i) = 0;
 			AGRESSOR(i) = 0;
