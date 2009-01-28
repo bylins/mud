@@ -38,7 +38,7 @@ struct char_player_data
 	char *PNames[6];
 	ubyte Religion;
 	ubyte Kin;
-	ubyte Race;
+	ubyte Race;		/* PC / NPC's race*/
 };
 
 /* Char's additional abilities. Used only while work */

@@ -288,7 +288,7 @@ typedef struct trig_data TRIG_DATA;
 
 #define MASK_RELIGION_POLY        (1 << RELIGION_POLY)
 #define MASK_RELIGION_MONO        (1 << RELIGION_MONO)
-/* PC reces */
+/* PC races */
 #define RACE_UNDEFINED      -1
 #define NUM_RACES            18
 
@@ -348,7 +348,7 @@ typedef struct trig_data TRIG_DATA;
 #define MASK_STEPNYAKI      (1 << KIN_STEPNYAKI)
 
 
-/* NPC classes (currently unused - feel free to implement!) */
+/* NPC classes */
 #define CLASS_BASIC_NPC    100
 #define CLASS_UNDEAD       101
 #define CLASS_HUMAN        102
@@ -357,6 +357,24 @@ typedef struct trig_data TRIG_DATA;
 #define CLASS_HERO_MAGIC   105
 #define CLASS_NPC_BATLEMAGE 106
 #define CLASS_LAST_NPC     107
+
+/* NPC races */
+#define NPC_RACE_BASIC			100
+#define NPC_RACE_HUMAN			101
+#define NPC_RACE_HUMAN_ANIMAL	102
+#define NPC_RACE_BIRD			103
+#define NPC_RACE_ANIMAL			104
+#define NPC_RACE_REPTILE		105
+#define NPC_RACE_FISH			106
+#define NPC_RACE_INSECT			107
+#define NPC_RACE_PLANT			108
+#define NPC_RACE_THING			109
+#define NPC_RACE_ZOMBIE			110
+#define NPC_RACE_GHOST			111
+#define NPC_RACE_EVIL_SPIRIT	112
+#define NPC_RACE_SPIRIT			113
+#define NPC_RACE_MAGIC_CREATURE	114
+#define NPC_RACE_LAST			115
 
 /* Sex */
 #define SEX_NEUTRAL         0

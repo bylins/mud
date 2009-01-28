@@ -97,6 +97,7 @@ void medit_disp_mob_flags(DESCRIPTOR_DATA * d);
 void medit_disp_aff_flags(DESCRIPTOR_DATA * d);
 void medit_disp_attack_types(DESCRIPTOR_DATA * d);
 void medit_disp_resistances(DESCRIPTOR_DATA * d);
+void medit_disp_race(DESCRIPTOR_DATA * d);
 
 #if defined(OASIS_MPROG)
 void medit_disp_mprog(DESCRIPTOR_DATA * d);
@@ -119,7 +120,8 @@ void medit_mobile_init(CHAR_DATA * mob)
 	GET_WEIGHT(mob) = 200;
 	GET_HEIGHT(mob) = 198;
 	GET_SIZE(mob) = 30;
-	GET_CLASS(mob) = 100;
+	GET_CLASS(mob) = CLASS_BASIC_NPC;
+	GET_RACE(mob) = NPC_RACE_BASIC;
 	GET_MR(mob) = GET_AR(mob) = 0;
 
 	mob->real_abils.str = mob->real_abils.intel = mob->real_abils.wis = 11;
@@ -745,6 +747,8 @@ void medit_save_to_disk(int zone_num)
 				fprintf(mob_file, "ExtraAttack: %d\n", mob->mob_specials.ExtraAttack);
 			if (GET_CLASS(mob))
 				fprintf(mob_file, "Class: %d\n", GET_CLASS(mob));
+			if (GET_RACE(mob))
+				fprintf(mob_file, "Race: %d\n", GET_RACE(mob));
 			if (GET_HEIGHT(mob))
 				fprintf(mob_file, "Height: %d\n", GET_HEIGHT(mob));
 			if (GET_WEIGHT(mob))
@@ -1117,6 +1121,25 @@ void medit_disp_features(DESCRIPTOR_DATA * d)
 // Конец изменений Gorrah'ом
 /*-------------------------------------------------------------------*/
 
+//Polud npc race menu
+void medit_disp_race(DESCRIPTOR_DATA * d)
+{
+	int i;
+
+	get_char_cols(d->character);
+
+#if defined(CLEAR_SCREEN)
+	send_to_char("[H[J", d->character);
+#endif
+	for (i = 0; i < NPC_RACE_LAST - NPC_RACE_BASIC ; i++)
+	{
+		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, npc_race_types[i]);
+		send_to_char(buf, d->character);
+	}
+	send_to_char("Выберите расу моба : ", d->character);
+}
+//-Polud
+
 /*
  * Display attack types menu.
  */
@@ -1405,10 +1428,11 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 			"%sО%s) Ингредиенты: %s%s\r\n"
 			"%sП%s) Загружаемые объекты: %s%s\r\n"
 			"%sР%s) Класс моба: %s%s\r\n"
-			"%sС%s) Резисты :\r\n"
-			"%sТ%s) Спас-броски :\r\n"
-			"%sУ%s) Дополнительные параметры :\r\n"
-			"%sФ%s) Способности :\r\n"
+			"%sС%s) Резисты:\r\n"
+			"%sТ%s) Спас-броски:\r\n"
+			"%sУ%s) Дополнительные параметры:\r\n"
+			"%sФ%s) Способности:\r\n"
+			"%sЦ%s) Раса моба: %s%s\r\n"
 			"%sS%s) Script     : %s%s\r\n" "%sQ%s) Quit\r\n" "Ваш выбор : ", grn, nrm, cyn, buf1,
 #if defined(OASIS_MPROG)
 			grn, nrm, cyn, (OLC_MPROGL(d) ? "Set." : "Not Set."),
@@ -1430,11 +1454,12 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, nrm, cyn, mob->mob_specials.LikeWork, nrm,
 			grn, nrm, cyn, mob->ing_list ? "Есть" : "Нет",
 			grn, nrm, cyn, mob->dl_list ? "Есть" : "Нет",
-			grn, nrm, cyn, npc_class_types[GET_CLASS(mob) - 100],
+			grn, nrm, cyn, npc_class_types[GET_CLASS(mob) - CLASS_BASIC_NPC],
 			grn, nrm,
 			grn, nrm,
 			grn, nrm,
 			grn, nrm,
+			grn, nrm, cyn, npc_race_types[GET_RACE(mob) - NPC_RACE_BASIC],
 			grn, nrm, cyn, mob->proto_script ? "Set." : "Not Set.", grn, nrm);
 	send_to_char(buf, d->character);
 
@@ -1854,6 +1879,11 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_MODE(d) = MEDIT_FEATURES;
 			medit_disp_features(d);
 			return;
+		case 'ц':
+		case 'Ц':
+			OLC_MODE(d) = MEDIT_RACE;
+			medit_disp_race(d);
+			return;
 		default:
 			medit_disp_menu(d);
 			return;
@@ -1872,8 +1902,12 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		break;
 		/*-------------------------------------------------------------------*/
+	case MEDIT_RACE:
+		GET_RACE(OLC_MOB(d)) = MAX(NPC_RACE_BASIC, MIN(NPC_RACE_LAST - 1, atoi(arg) + NPC_RACE_BASIC));
+		break;
+		/*-------------------------------------------------------------------*/
 	case MEDIT_CLASS:
-		GET_CLASS(OLC_MOB(d)) = MAX(100, MIN(CLASS_LAST_NPC - 1, atoi(arg) + 100));
+		GET_CLASS(OLC_MOB(d)) = MAX(CLASS_BASIC_NPC, MIN(CLASS_LAST_NPC - 1, atoi(arg) + CLASS_BASIC_NPC));
 		break;
 		/*-------------------------------------------------------------------*/
 	case MEDIT_FEATURES:

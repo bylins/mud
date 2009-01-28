@@ -343,6 +343,8 @@ extern struct olc_save_info *olc_save_list;
 #define MEDIT_PURGE_MPROG               65
 #endif
 
+#define MEDIT_RACE			66
+
 /* Medit additional parameters */
 
 #define MEDIT_HPREG			1

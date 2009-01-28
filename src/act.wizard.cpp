@@ -1580,7 +1580,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	if (IS_NPC(k))  	/* Use GET_CLASS() macro? */
 	{
 		strcpy(buf, "Тип монстра: ");
-		sprinttype(k->player_data.chclass, npc_class_types, buf2);
+		sprinttype(k->player_data.chclass-CLASS_BASIC_NPC, npc_class_types, buf2);
 	}
 	else
 	{
