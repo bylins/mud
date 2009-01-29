@@ -34,6 +34,7 @@
 #include "char.hpp"
 #include "char_player.hpp"
 #include "liquid.hpp"
+#include "magic.h"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -2796,6 +2797,8 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 
 	log("[Extract char] Remove char from room");
 	char_from_room(ch);
+
+	delete_from_tmp_char_list(ch);
 
 	/* pull the char from the list */
 	SET_BIT(MOB_FLAGS(ch, MOB_DELETE), MOB_DELETE);

@@ -30,5 +30,6 @@
 #define SpINFO spell_info[spellnum]
 
 int get_resist_type(int spellnum);
+void delete_from_tmp_char_list(CHAR_DATA *ch);
 
 #endif

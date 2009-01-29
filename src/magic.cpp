@@ -4464,12 +4464,35 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	return 0;
 
 }
+
+// наколенный список чаров для масс-заклов, бьющих по комнате
+// в необходимость самого списка не вникал, но данная конструкция над ним
+// нужна потому, что в случае смерти чара при проходе по уже сформированному
+// списку - за ним могут спуржиться и клоны например, которые тоже в этот
+// список попали, после чего имеем креш, т.к. бьем по невалидным указателям
+static std::vector<CHAR_DATA *> tmp_char_list;
+
+void add_to_tmp_char_list(CHAR_DATA *ch)
+{
+	std::vector<CHAR_DATA *>::iterator it = std::find(tmp_char_list.begin(), tmp_char_list.end(), ch);
+	if (it == tmp_char_list.end())
+		tmp_char_list.push_back(ch);
+}
+
+void delete_from_tmp_char_list(CHAR_DATA *ch)
+{
+	if (tmp_char_list.empty()) return;
+
+	std::vector<CHAR_DATA *>::iterator it = std::find(tmp_char_list.begin(), tmp_char_list.end(), ch);
+	if (it != tmp_char_list.end())
+		*it = 0;
+}
+
 // Применение заклинания к части существ в комнате
 //---------------------------------------------------------
 int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype)
 {
-	int i, ch_list_size, decay;
-	CHAR_DATA **ch_list;
+	int i, decay;
 	CHAR_DATA *ch_vict;
 	const char *msg;
 
@@ -4497,9 +4520,6 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 	(void) mag_single_target(level, ch, victim, NULL, spellnum, savetype);
 	level -= decay;
 
-	for (ch_list_size = 0, ch_vict = world[ch->in_room]->people;
-			ch_vict; ++ch_list_size, ch_vict = ch_vict->next_in_room);
-	CREATE(ch_list, CHAR_DATA *, ch_list_size);
 	for (i = 0, ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
 	{
 		if (IS_IMMORTAL(ch_vict))
@@ -4510,22 +4530,21 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 			continue;
 		if (SpINFO.violent && same_group(ch, ch_vict))
 			continue;
-		ch_list[i++] = ch_vict;
+		add_to_tmp_char_list(ch_vict);
 	}
-	ch_list_size = i;
 
-	while (level > 0 && ch_list_size != 0)
+	int size = tmp_char_list.size();
+	while (level > 0 && size != 0)
 	{
-		i = number(0, ch_list_size - 1);
-		ch_vict = ch_list[i];
-		ch_list[i] = ch_list[--ch_list_size];
-		if (IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		i = number(0, size - 1);
+		ch_vict = tmp_char_list[i];
+		tmp_char_list[i] = tmp_char_list[--size];
+		if (!ch_vict || IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 			continue;
 		(void) mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
 		level -= decay;
 	}
-
-	free(ch_list);
+	tmp_char_list.clear();
 
 	return 1;
 }
