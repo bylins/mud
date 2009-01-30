@@ -517,6 +517,9 @@ void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool a
 	case APPLY_ACONITUM_POISON:
 		GET_POISON(ch) += mod;
 		break;
+	case APPLY_SCOPOLIA_POISON:
+		GET_POISON(ch) += mod;
+		break;
 	default:
 		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
 		break;
@@ -1154,7 +1157,8 @@ bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA *af)
 	for (hjp = ch->affected; !found && hjp && af->location; hjp = hjp->next)
 	{
 		if ((hjp->location == APPLY_POISON
-				|| hjp->location == APPLY_ACONITUM_POISON)
+				|| hjp->location == APPLY_ACONITUM_POISON
+				|| hjp->location == APPLY_SCOPOLIA_POISON)
 			&& af->location != hjp->location)
 		{
 			// если уже есть другой яд - борода
@@ -4223,6 +4227,8 @@ std::string get_poison_by_spell(int spell)
 {
 	if (spell == SPELL_ACONITUM_POISON)
 		return drinknames[LIQ_POISON_ACONITUM];
+	if (spell == SPELL_SCOPOLIA_POISON)
+		return drinknames[LIQ_POISON_SCOPOLIA];
 	else
 		return "";
 }
@@ -4245,8 +4251,12 @@ std::string obj_data::diag_timed_spell_to_char(CHAR_DATA *ch)
 
 bool obj_data::is_spell_poisoned()
 {
-	if (timed_spell && timed_spell->spell == SPELL_ACONITUM_POISON)
+	if (timed_spell
+		&& (timed_spell->spell == SPELL_ACONITUM_POISON
+			|| timed_spell->spell == SPELL_SCOPOLIA_POISON))
+	{
 		return true;
+	}
 	else
 		return false;
 }

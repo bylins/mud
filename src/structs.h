@@ -671,6 +671,7 @@ typedef struct trig_data TRIG_DATA;
 #define AFF_SHADOW_CLOAK	(INT_TWO | (1 << 4))
 #define AFF_GLITTERDUST		(INT_TWO | (1 << 5))
 #define AFF_AFFRIGHT		(INT_TWO | (1 << 6))
+#define AFF_SCOPOLIA_POISON (INT_TWO | (1 << 7))
 
 // shapirus: modes of ignoring
 #define IGNORE_TELL	(1 << 0)
@@ -1015,7 +1016,8 @@ typedef struct trig_data TRIG_DATA;
 #define APPLY_AR	           51	/* Apply to Magic affect resist */
 #define APPLY_MR	           52	/* Apply to Magic damage resist */
 #define APPLY_ACONITUM_POISON  53
-#define NUM_APPLIES	           54
+#define APPLY_SCOPOLIA_POISON  54
+#define NUM_APPLIES	           55
 
 /* APPLY - эффекты для комнат */
 #define APPLY_ROOM_NONE        0

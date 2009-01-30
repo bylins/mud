@@ -5006,12 +5006,13 @@ ACMD(do_dmeter)
 			send_to_char("Нет такого.\r\n", ch);
 			return;
 		}
+/*
 		if (!vict->followers)
 		{
 			send_to_char("Не лидер группы.\r\n", ch);
 			return;
 		}
-
+*/
 		dmeter_list.clear();
 		dmeter_node tmp_node(GET_NAME(vict), dmeter_get_prof(vict));
 		dmeter_list.insert(std::make_pair(GET_ID(vict), tmp_node));

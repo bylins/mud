@@ -4924,6 +4924,9 @@ void mag_assign_spells(void)
 // 188
 	spello(SPELL_ACONITUM_POISON, "яд аконита", "aconitum poison",
 		0, 0, 0, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_AFFECTS, 0, STYPE_LIFE);
+// 189
+	spello(SPELL_SCOPOLIA_POISON, "яд скополии", "scopolia poison",
+		0, 0, 0, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_AFFECTS, 0, STYPE_LIFE);
 
 	spello(SPELL_IDENTIFY, "идентификация", "identify",
 		   0, 0, 0, 0, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, FALSE, MAG_MANUAL, 0, STYPE_MIND);

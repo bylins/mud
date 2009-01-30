@@ -2439,7 +2439,8 @@ ACMD(do_poisoned)
 		send_to_char(ch, "В %s нет никакой жидкости.\r\n", GET_OBJ_PNAME(cont, 5));
 		return;
 	}
-	else if (GET_OBJ_VAL(cont, 2) != LIQ_POISON_ACONITUM) // тут будут еще...
+	else if (GET_OBJ_VAL(cont, 2) != LIQ_POISON_ACONITUM
+		&& GET_OBJ_VAL(cont, 2) != LIQ_POISON_SCOPOLIA) // тут будут еще...
 	{
 		send_to_char(ch, "В %s нет подходящего яда.\r\n", GET_OBJ_PNAME(cont, 5));
 		return;
@@ -2453,6 +2454,8 @@ ACMD(do_poisoned)
 
 	if (GET_OBJ_VAL(cont, 2) == LIQ_POISON_ACONITUM) // тут будут еще...
 		weapon->set_timed_spell(SPELL_ACONITUM_POISON);
+	else if (GET_OBJ_VAL(cont, 2) == LIQ_POISON_SCOPOLIA)
+		weapon->set_timed_spell(SPELL_SCOPOLIA_POISON);
 
 	snprintf(buf, sizeof(buf), "Вы осторожно нанесли немного %s на $o3.", drinks[GET_OBJ_VAL(cont, 2)]);
 	act(buf, FALSE, ch, weapon, 0, TO_CHAR);

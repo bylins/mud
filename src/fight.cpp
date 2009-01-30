@@ -2138,6 +2138,23 @@ bool weap_poison_victim(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 			return true;
 		}
 	}
+	else if (spell_num == SPELL_SCOPOLIA_POISON)
+	{
+		// по +3% дамаги по целе за стак
+		AFFECT_DATA af;
+		af.type = SPELL_SCOPOLIA_POISON;
+		af.location = APPLY_SCOPOLIA_POISON;
+		af.duration = 7;
+		af.modifier = 3;
+		af.bitvector = AFF_POISON | AFF_SCOPOLIA_POISON;
+		af.battleflag = AF_SAME_TIME;
+		if (poison_affect_join(vict, &af))
+		{
+			vict->Poisoner = GET_ID(ch);
+			SET_AF_BATTLE(ch, EAF_POISONED);
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -2186,7 +2203,26 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *victim, int spell_num)
 					CCGRN(ch, C_NRM), GET_PAD(victim, 0), CCCYN(ch, C_NRM));
 			send_to_char(victim, "По всему телу прошли судороги, Вы не можете пошевелиться!\r\n");
 */
-			return;
+		}
+		else if (spell_num == SPELL_SCOPOLIA_POISON)
+		{
+			AFFECT_DATA af;
+			af.type = SPELL_POISON;
+			af.duration = 30;
+			af.modifier = -4;
+			af.bitvector = AFF_POISON;
+			af.battleflag = AF_SAME_TIME;
+
+			for (int i = APPLY_STR; i <= APPLY_CHA; i++)
+			{
+				af.location = i;
+				affect_join(victim, &af, FALSE, FALSE, FALSE, FALSE);
+			}
+
+			send_to_char(ch, "%sОт действия Вашего яда %s побледнел!%s\r\n",
+					CCGRN(ch, C_NRM), GET_NAME(victim), CCNRM(ch, C_NRM));
+			send_to_char(victim, "Вы почувствовали слабость во всем теле!\r\n");
+			act("$N0 побледнел от действия яда $n1.", true, ch, 0, victim, TO_NOTVICT);
 		}
 		// и прочие дебафы
 	}
@@ -2430,6 +2466,13 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				{
 					send_to_char(ch, "%sКровоточащие язвы покрыли тело %s.%s\r\n",
 							CCGRN(ch, C_NRM), GET_PAD(victim, 1), CCNRM(ch, C_NRM));
+				}
+				else if (wielded->get_timed_spell() == SPELL_SCOPOLIA_POISON)
+				{
+					strcpy(buf1, GET_NAME(victim));
+					CAP(buf1);
+					send_to_char(ch, "%s%s скрючил%s от нестерпимой боли.%s\r\n",
+							CCGRN(ch, C_NRM), buf1, GET_CH_SUF_2(victim), CCNRM(ch, C_NRM));
 				}
 				else
 				{
@@ -4250,6 +4293,20 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			dam *= 2;
 		if (AFF_FLAGGED(victim, AFF_SANCTUARY) && dam >= 2)
 			dam /= 2;
+
+		// + процент дамага с яда (до скрытого)
+		if (AFF_FLAGGED(victim, AFF_SCOPOLIA_POISON))
+		{
+			int mod = dam * (static_cast<double>(GET_POISON(victim)) / 100.0);
+			////////////////////////////////////////////////////////////////////////////////
+			if (mod > 0)
+			{
+				void dmeter_update(CHAR_DATA *ch, int real_dam, int dam, int poison);
+				dmeter_update(ch, 0, 0, mod);
+			}
+			////////////////////////////////////////////////////////////////////////////////
+			dam += mod;
+		}
 
 		// прибавляем дамаг со скрытого, в обход санки и призмы
 		dam += noparryhit;
