@@ -2128,7 +2128,7 @@ bool weap_poison_victim(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 		af.type = SPELL_ACONITUM_POISON;
 		af.location = APPLY_ACONITUM_POISON;
 		af.duration = 7;
-		af.modifier = GET_LEVEL(ch)/2;
+		af.modifier = GET_LEVEL(ch)/2 + MIN(5, GET_REMORT(ch));
 		af.bitvector = AFF_POISON;
 		af.battleflag = AF_SAME_TIME;
 		if (poison_affect_join(vict, &af))
