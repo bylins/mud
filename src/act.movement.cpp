@@ -586,8 +586,9 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		return (FALSE);
 
 	/* Mortally drunked - it is loss direction */
-	if (!IS_NPC(ch) && GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED && !on_horse(ch) &&
+	if (!IS_NPC(ch) && !leader && GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED && !on_horse(ch) &&
 			GET_COND(ch, DRUNK) >= number(CHAR_DRUNKED, 50))
+	{
 		for (i = 0; i < NUM_OF_DIRS && ndir < 0; i++)
 		{
 			ndir = number(0, 5);
@@ -616,6 +617,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 				need_movement = nm;
 			}
 		}
+	}
 
 	/* Now we know we're allow to go into the room. */
 	if (!IS_IMMORTAL(ch) && !IS_NPC(ch))

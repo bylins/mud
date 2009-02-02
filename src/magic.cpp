@@ -218,6 +218,36 @@ void show_room_spell_off(int aff, room_rnum room)
 //	send_to_char("\r\n", ch);
 }
 
+/**
+* Знач пока мысль такая: в бою AF_SAME_TIME тикает в раунд, а не между раундами.
+* Вне боя у плееров он тоже тикает раз в 2 секунды. У мобов - раз в минуту.
+*/
+int same_time_update(CHAR_DATA *ch, AFFECT_DATA *af)
+{
+	int result = 0;
+	if (af->location == APPLY_POISON)
+	{
+		int poison_dmg = GET_POISON(ch) * (IS_NPC(ch) ? 4 : 5);
+		poison_dmg = interpolate(poison_dmg, 2);
+		result = damage(ch, ch, poison_dmg, SPELL_POISON, FALSE);
+	}
+	else if (af->location == APPLY_ACONITUM_POISON)
+	{
+		result = damage(ch, ch, GET_POISON(ch), SPELL_POISON, FALSE);
+		////////////////////////////////////////////////////////////////////////////////
+		if (result > 0 && ch->Poisoner)
+		{
+			DESCRIPTOR_DATA *d = get_desc_by_id(ch->Poisoner, 0);
+			if (d && d->character)
+			{
+				void dmeter_update(CHAR_DATA *ch, int real_dam, int dam, int poison);
+				dmeter_update(d->character, 0, 0, result);
+			}
+		}
+		////////////////////////////////////////////////////////////////////////////////
+	}
+	return result;
+}
 
 void mobile_affect_update(void)
 {
@@ -232,11 +262,23 @@ void mobile_affect_update(void)
 		charmed_msg = FALSE;
 		was_charmed = FALSE;
 		supress_godsapply = TRUE;
+		bool was_purged = false;
+
 		for (af = i->affected; IS_NPC(i) && af; af = next)
 		{
 			next = af->next;
 			if (af->duration >= 1)
 			{
+				if (IS_SET(af->battleflag, AF_SAME_TIME) && !FIGHTING(i))
+				{
+					// здесь плеера могут спуржить
+					if (same_time_update(i, af) == -1)
+					{
+						was_purged = true;
+						break;
+					}
+				}
+
 				af->duration--;
 				if (af->type == SPELL_CHARM && !charmed_msg && af->duration <= 1)
 				{
@@ -265,32 +307,36 @@ void mobile_affect_update(void)
 				affect_remove(i, af);
 			}
 		}
-		supress_godsapply = FALSE;
-		//log("[MOBILE_AFFECT_UPDATE->AFFECT_TOTAL] (%s) Start",GET_NAME(i));
-		affect_total(i);
-		//log("[MOBILE_AFFECT_UPDATE->AFFECT_TOTAL] Stop");
-		for (timed = i->timed; timed; timed = timed_next)
-		{
-			timed_next = timed->next;
-			if (timed->time >= 1)
-				timed->time--;
-			else
-				timed_from_char(i, timed);
-		}
-		for (timed = i->timed_feat; timed; timed = timed_next)
-		{
-			timed_next = timed->next;
-			if (timed->time >= 1)
-				timed->time--;
-			else
-				timed_feat_from_char(i, timed);
-		}
 
-		if (DeathTrap::check_death_trap(i))
-			continue;
-		if (was_charmed)
+		if (!was_purged)
 		{
-			stop_follower(i, SF_CHARMLOST);
+			supress_godsapply = FALSE;
+			//log("[MOBILE_AFFECT_UPDATE->AFFECT_TOTAL] (%s) Start",GET_NAME(i));
+			affect_total(i);
+			//log("[MOBILE_AFFECT_UPDATE->AFFECT_TOTAL] Stop");
+			for (timed = i->timed; timed; timed = timed_next)
+			{
+				timed_next = timed->next;
+				if (timed->time >= 1)
+					timed->time--;
+				else
+					timed_from_char(i, timed);
+			}
+			for (timed = i->timed_feat; timed; timed = timed_next)
+			{
+				timed_next = timed->next;
+				if (timed->time >= 1)
+					timed->time--;
+				else
+					timed_feat_from_char(i, timed);
+			}
+
+			if (DeathTrap::check_death_trap(i))
+				continue;
+			if (was_charmed)
+			{
+				stop_follower(i, SF_CHARMLOST);
+			}
 		}
 	}
 }
@@ -528,36 +574,6 @@ void room_affect_update(void)
 	}
 }
 
-/**
-* Аффект тикает раз в 2 секунды, в бою тик идет во время раунда, а не между (AF_SAME_TIME).
-*/
-int same_time_update(CHAR_DATA *ch, AFFECT_DATA *af)
-{
-	int result = 0;
-	if (af->location == APPLY_POISON)
-	{
-		int poison_dmg = GET_POISON(ch) * (IS_NPC(ch) ? 8 : 10);
-		poison_dmg = interpolate(poison_dmg, 2);
-		result = damage(ch, ch, poison_dmg, SPELL_POISON, FALSE);
-	}
-	else if (af->location == APPLY_ACONITUM_POISON)
-	{
-		result = damage(ch, ch, GET_POISON(ch), SPELL_POISON, FALSE);
-		////////////////////////////////////////////////////////////////////////////////
-		if (result > 0 && ch->Poisoner)
-		{
-			DESCRIPTOR_DATA *d = get_desc_by_id(ch->Poisoner, 0);
-			if (d && d->character)
-			{
-				void dmeter_update(CHAR_DATA *ch, int real_dam, int dam, int poison);
-				dmeter_update(d->character, 0, 0, result);
-			}
-		}
-		////////////////////////////////////////////////////////////////////////////////
-	}
-	return result;
-}
-
 void player_affect_update(void)
 {
 	AFFECT_DATA *af, *next;
@@ -579,7 +595,7 @@ void player_affect_update(void)
 			next = af->next;
 			if (af->duration >= 1)
 			{
-				if (!IS_SET(af->battleflag, AF_SAME_TIME) || !FIGHTING(i))
+				if (IS_SET(af->battleflag, AF_SAME_TIME) && !FIGHTING(i))
 				{
 					// здесь плеера могут спуржить
 					if (same_time_update(i, af) == -1)
@@ -587,9 +603,8 @@ void player_affect_update(void)
 						was_purged = true;
 						break;
 					}
-					af->duration--;
 				}
-				// иначе ничего не делаем
+				af->duration--;
 			}
 			else if (af->duration != -1)
 			{

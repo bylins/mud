@@ -2169,7 +2169,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *victim, int spell_num)
 			if (on_horse(victim))
 			{
 				send_to_char(ch, "%sОт действия Вашего яда у %s закружилась голова!%s\r\n",
-						CCGRN(ch, C_NRM), GET_PAD(victim, 1), CCNRM(ch, C_NRM));
+						CCGRN(ch, C_NRM), PERS(victim, ch, 1), CCNRM(ch, C_NRM));
 				send_to_char(victim, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",
 						GET_PAD(get_horse(victim), 5));
 				act("$n0 зашатался и не смог усидеть на $N5.", true, victim, 0, get_horse(victim), TO_NOTVICT);
@@ -2177,7 +2177,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *victim, int spell_num)
 			else
 			{
 				send_to_char(ch, "%sОт действия Вашего яда у %s подкосились ноги!%s\r\n",
-						CCGRN(ch, C_NRM), GET_PAD(victim, 1), CCNRM(ch, C_NRM));
+						CCGRN(ch, C_NRM), PERS(victim, ch, 1), CCNRM(ch, C_NRM));
 				send_to_char(victim, "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
 				act("$N0 зашатался и не смог устоять на ногах.", true, ch, 0, victim, TO_NOTVICT);
 			}
@@ -2220,7 +2220,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *victim, int spell_num)
 			}
 
 			send_to_char(ch, "%sОт действия Вашего яда %s побледнел!%s\r\n",
-					CCGRN(ch, C_NRM), GET_NAME(victim), CCNRM(ch, C_NRM));
+					CCGRN(ch, C_NRM), PERS(victim, ch, 0), CCNRM(ch, C_NRM));
 			send_to_char(victim, "Вы почувствовали слабость во всем теле!\r\n");
 			act("$N0 побледнел от действия яда $n1.", true, ch, 0, victim, TO_NOTVICT);
 		}
@@ -2457,30 +2457,31 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 	// отравленные пушки
 	else if (dam && wielded && wielded->is_spell_poisoned() && ch->get_skill(SKILL_POISONED))
 	{
-		if (number(1, 200) <= 30)
+		if (number(1, 200) <= 30
+			|| (wielded->get_timed_spell() == SPELL_SCOPOLIA_POISON
+				&& !GET_AF_BATTLE(victim, EAF_FIRST_POISON)
+				&& !AFF_FLAGGED(victim, AFF_POISON)))
 		{
 			improove_skill(ch, SKILL_POISONED, TRUE, victim);
 			if (weap_poison_victim(ch, victim, wielded->get_timed_spell()))
 			{
 				if (wielded->get_timed_spell() == SPELL_ACONITUM_POISON)
 				{
-					send_to_char(ch, "%sКровоточащие язвы покрыли тело %s.%s\r\n",
-							CCGRN(ch, C_NRM), GET_PAD(victim, 1), CCNRM(ch, C_NRM));
+					send_to_char(ch, "Кровоточащие язвы покрыли тело %s.\r\n", PERS(victim, ch, 1));
 				}
 				else if (wielded->get_timed_spell() == SPELL_SCOPOLIA_POISON)
 				{
-					strcpy(buf1, GET_NAME(victim));
+					strcpy(buf1, PERS(victim, ch, 0));
 					CAP(buf1);
-					send_to_char(ch, "%s%s скрючил%s от нестерпимой боли.%s\r\n",
-							CCGRN(ch, C_NRM), buf1, GET_CH_SUF_2(victim), CCNRM(ch, C_NRM));
+					send_to_char(ch, "%s скрючил%s от нестерпимой боли.\r\n", buf1, GET_CH_VIS_SUF_2(victim, ch));
+					SET_AF_BATTLE(victim, EAF_FIRST_POISON);
 				}
 				else
 				{
-					send_to_char(ch, "%sВы отравили %s.%s\r\n",
-							CCGRN(ch, C_NRM), GET_PAD(victim, 3), CCNRM(ch, C_NRM));
+					send_to_char(ch, "Вы отравили %s.%s\r\n", PERS(ch, victim, 3));
 				}
 				send_to_char(victim, "%s%s отравил%s Вас.%s\r\n",
-						CCIRED(ch, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch), CCNRM(ch, C_NRM));
+						CCIRED(ch, C_NRM), PERS(ch, victim, 0), GET_CH_VIS_SUF_1(ch, victim), CCNRM(ch, C_NRM));
 				weap_crit_poison(ch, victim, wielded->get_timed_spell());
 			}
 		}

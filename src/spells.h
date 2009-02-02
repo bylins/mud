@@ -98,6 +98,7 @@
 #define EAF_IRON_WIND   (1 << 18)
 #define EAF_AUTOBLOCK   (1 << 19) // автоматический блок щитом в осторожном стиле
 #define EAF_POISONED    (1 << 20) // отравление с пушек раз в раунд
+#define EAF_FIRST_POISON (1 << 21) // отравление цели первый раз за бой
 
 #define TYPE_NOPARRY		    -2
 #define TYPE_UNDEFINED              -1
