@@ -4312,6 +4312,9 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		// прибавляем дамаг со скрытого, в обход санки и призмы
 		dam += noparryhit;
 
+		if (!IS_NPC(victim) && IS_CHARMICE(ch))
+			dam *= 0.8;
+
 		// at least 1 hp damage min per hit
 		dam = MAX(1, dam);
 		if (weapon_pos)
