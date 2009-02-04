@@ -219,8 +219,9 @@ void show_room_spell_off(int aff, room_rnum room)
 }
 
 /**
-* Знач пока мысль такая: в бою AF_SAME_TIME тикает в раунд, а не между раундами.
-* Вне боя у плееров он тоже тикает раз в 2 секунды. У мобов - раз в минуту.
+* Пока с AF_SAME_TIME получилось следубщее (в бою/вне боя):
+* APPLY_POISON - у плеера раз в 2 секунды везде, у моба раз в минуту везде.
+* Остальные аффекты - у плеера раз в 2 секунды везде, у моба в бою раз в 2 секунды, вне боя - раз в минуту.
 */
 int same_time_update(CHAR_DATA *ch, AFFECT_DATA *af)
 {
@@ -269,7 +270,7 @@ void mobile_affect_update(void)
 			next = af->next;
 			if (af->duration >= 1)
 			{
-				if (IS_SET(af->battleflag, AF_SAME_TIME) && !FIGHTING(i))
+				if (IS_SET(af->battleflag, AF_SAME_TIME) && (!FIGHTING(i) || af->location == APPLY_POISON))
 				{
 					// здесь плеера могут спуржить
 					if (same_time_update(i, af) == -1)
@@ -653,6 +654,8 @@ void battle_affect_update(CHAR_DATA * ch)
 	{
 		next = af->next;
 		if (!IS_SET(af->battleflag, AF_BATTLEDEC) && !IS_SET(af->battleflag, AF_SAME_TIME))
+			continue;
+		if (IS_NPC(ch) && af->location == APPLY_POISON)
 			continue;
 		if (af->duration >= 1)
 		{
