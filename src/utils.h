@@ -782,6 +782,9 @@ extern SPECIAL(postmaster);
 #define GET_CH_SUF_6(ch) (IS_NOSEXY(ch) ? "о" :\
                           IS_MALE(ch) ? ""  :\
                           IS_FEMALE(ch) ? "а" : "ы")
+#define GET_CH_SUF_7(ch) (IS_NOSEXY(ch) ? "ым" :\
+                          IS_MALE(ch) ? "ым"  :\
+                          IS_FEMALE(ch) ? "ой" : "ыми")
 
 #define GET_CH_VIS_SUF_1(ch,och) (!CAN_SEE(och,ch) ? "" :\
                           IS_NOSEXY(ch) ? "о" :\
@@ -807,6 +810,10 @@ extern SPECIAL(postmaster);
                           IS_NOSEXY(ch) ? "о" :\
                           IS_MALE(ch) ? ""  :\
                           IS_FEMALE(ch) ? "а" : "ы")
+#define GET_CH_VIS_SUF_7(ch,och) (!CAN_SEE(och,ch) ? "ым" :\
+                          IS_NOSEXY(ch) ? "ым" :\
+                          IS_MALE(ch) ? "ой"  :\
+                          IS_FEMALE(ch) ? "ым" : "ыми")
 
 
 #define GET_OBJ_SEX(obj) ((obj)->obj_flags.Obj_sex)

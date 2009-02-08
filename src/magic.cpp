@@ -32,6 +32,7 @@
 #include "deathtrap.hpp"
 #include "random.hpp"
 #include "char.hpp"
+#include "poison.hpp"
 
 extern void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer);
 extern int what_sky;
@@ -216,38 +217,6 @@ void show_room_spell_off(int aff, room_rnum room)
 	send_to_room(spell_wear_off_msg[aff], room, 0);
 //	send_to_char(spell_wear_off_msg[aff], ch);
 //	send_to_char("\r\n", ch);
-}
-
-/**
-* Пока с AF_SAME_TIME получилось следубщее (в бою/вне боя):
-* APPLY_POISON - у плеера раз в 2 секунды везде, у моба раз в минуту везде.
-* Остальные аффекты - у плеера раз в 2 секунды везде, у моба в бою раз в 2 секунды, вне боя - раз в минуту.
-*/
-int same_time_update(CHAR_DATA *ch, AFFECT_DATA *af)
-{
-	int result = 0;
-	if (af->location == APPLY_POISON)
-	{
-		int poison_dmg = GET_POISON(ch) * (IS_NPC(ch) ? 4 : 5);
-		poison_dmg = interpolate(poison_dmg, 2);
-		result = damage(ch, ch, poison_dmg, SPELL_POISON, FALSE);
-	}
-	else if (af->location == APPLY_ACONITUM_POISON)
-	{
-		result = damage(ch, ch, GET_POISON(ch), SPELL_POISON, FALSE);
-		////////////////////////////////////////////////////////////////////////////////
-		if (result > 0 && ch->Poisoner)
-		{
-			DESCRIPTOR_DATA *d = get_desc_by_id(ch->Poisoner, 0);
-			if (d && d->character)
-			{
-				void dmeter_update(CHAR_DATA *ch, int real_dam, int dam, int poison);
-				dmeter_update(d->character, 0, 0, result);
-			}
-		}
-		////////////////////////////////////////////////////////////////////////////////
-	}
-	return result;
 }
 
 void mobile_affect_update(void)

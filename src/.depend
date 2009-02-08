@@ -8,7 +8,8 @@ act.informative.o: act.informative.cpp conf.h sysdep.h structs.h utils.h \
   char_player.hpp quested.hpp mobmax.hpp parcel.hpp liquid.hpp
 act.item.o: act.item.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h constants.h dg_scripts.h \
-  house.h magic.h fight.h features.hpp depot.hpp char.hpp liquid.hpp
+  house.h magic.h fight.h features.hpp depot.hpp char.hpp liquid.hpp \
+  poison.hpp
 act.movement.o: act.movement.cpp conf.h sysdep.h structs.h utils.h comm.h \
   interpreter.h handler.h db.h spells.h skills.h house.h constants.h \
   dg_scripts.h screen.h pk.h features.hpp deathtrap.hpp privilege.hpp \
@@ -27,7 +28,7 @@ act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h comm.h \
   constants.h olc.h dg_scripts.h pk.h im.h top.h ban.hpp diskio.h \
   description.h title.hpp password.hpp privilege.hpp depot.hpp glory.hpp \
   genchar.h file_crc.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp \
-  parcel.hpp
+  parcel.hpp liquid.hpp
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h interpreter.h db.h \
   char.hpp
 ban.o: ban.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
@@ -57,14 +58,15 @@ db.o: db.cpp conf.h sysdep.h structs.h utils.h db.h comm.h handler.h \
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h comm.h handler.h \
   interpreter.h db.h spells.h screen.h constants.h dg_scripts.h pk.h im.h \
   fight.h skills.h features.hpp house.h stuff.hpp double_map.hpp \
-  random.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp top.h
+  random.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp top.h \
+  magic.h poison.hpp
 graph.o: graph.cpp conf.h sysdep.h structs.h utils.h comm.h interpreter.h \
   constants.h handler.h db.h spells.h skills.h features.hpp random.hpp \
   char.hpp
 handler.o: handler.cpp conf.h sysdep.h structs.h constants.h utils.h \
   comm.h db.h handler.h interpreter.h spells.h skills.h screen.h \
   dg_scripts.h auction.h features.hpp house.h exchange.h char.hpp \
-  char_player.hpp quested.hpp mobmax.hpp
+  char_player.hpp quested.hpp mobmax.hpp liquid.hpp magic.h poison.hpp
 house.o: house.cpp conf.h house.h sysdep.h structs.h utils.h db.h \
   interpreter.h comm.h handler.h pk.h screen.h boards.h skills.h spells.h \
   privilege.hpp char.hpp
@@ -80,7 +82,8 @@ limits.o: limits.cpp conf.h sysdep.h structs.h utils.h spells.h skills.h \
   glory.hpp features.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h comm.h spells.h \
   skills.h handler.h db.h interpreter.h screen.h constants.h dg_scripts.h \
-  pk.h features.hpp magic.h fight.h deathtrap.hpp random.hpp char.hpp
+  pk.h features.hpp magic.h fight.h deathtrap.hpp random.hpp char.hpp \
+  poison.hpp
 mail.o: mail.cpp conf.h sysdep.h structs.h utils.h comm.h db.h \
   interpreter.h handler.h mail.h char.hpp parcel.hpp char_player.hpp \
   quested.hpp mobmax.hpp
@@ -218,3 +221,4 @@ parcel.o: parcel.cpp parcel.hpp conf.h sysdep.h structs.h db.h \
   char_player.hpp quested.hpp mobmax.hpp mail.h
 liquid.o: liquid.cpp liquid.hpp conf.h sysdep.h structs.h interpreter.h \
   utils.h char.hpp db.h comm.h handler.h spells.h skills.h features.hpp
+poison.o: poison.cpp poison.hpp conf.h sysdep.h structs.h

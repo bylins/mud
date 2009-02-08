@@ -36,6 +36,7 @@
 #include "char_player.hpp"
 #include "top.h"
 #include "magic.h"
+#include "poison.hpp"
 
 extern CHAR_DATA *mob_proto;
 
@@ -84,8 +85,6 @@ int level_exp(CHAR_DATA * ch, int chlevel);
 int extra_aco(int class_num, int level);
 void change_fighting(CHAR_DATA * ch, int need_stop);
 int perform_mob_switch(CHAR_DATA * ch);
-extern void drop_from_horse(CHAR_DATA *victim);
-extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
 /* local functions */
 //void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koef);
@@ -2070,165 +2069,6 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 		return calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
 }
 
-void poison_victim(CHAR_DATA * ch, CHAR_DATA * vict, int modifier)
-{
-	AFFECT_DATA af[4];
-	int i;
-
-	/* change strength */
-	af[0].type = SPELL_POISON;
-	af[0].location = APPLY_STR;
-	af[0].duration = pc_duration(vict, 0, MAX(2, GET_LEVEL(ch) - GET_LEVEL(vict)), 2, 0, 1);
-	af[0].modifier = -MIN(2, (modifier + 29) / 40);
-	af[0].bitvector = AFF_POISON;
-	af[0].battleflag = AF_SAME_TIME;
-	/* change damroll */
-	af[1].type = SPELL_POISON;
-	af[1].location = APPLY_DAMROLL;
-	af[1].duration = af[0].duration;
-	af[1].modifier = -MIN(2, (modifier + 29) / 30);
-	af[1].bitvector = AFF_POISON;
-	af[1].battleflag = AF_SAME_TIME;
-	/* change hitroll */
-	af[2].type = SPELL_POISON;
-	af[2].location = APPLY_HITROLL;
-	af[2].duration = af[0].duration;
-	af[2].modifier = -MIN(2, (modifier + 19) / 20);
-	af[2].bitvector = AFF_POISON;
-	af[2].battleflag = AF_SAME_TIME;
-	/* change poison level */
-	af[3].type = SPELL_POISON;
-	af[3].location = APPLY_POISON;
-	af[3].duration = af[0].duration;
-	af[3].modifier = GET_LEVEL(ch);
-	af[3].bitvector = AFF_POISON;
-	af[3].battleflag = AF_SAME_TIME;
-
-	for (i = 0; i < 4; i++)
-		affect_join(vict, af + i, FALSE, FALSE, FALSE, FALSE);
-	vict->Poisoner = GET_ID(ch);
-
-	snprintf(buf, sizeof(buf), "%sВы отравили $N3.%s", CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
-	act(buf, FALSE, ch, 0, vict, TO_CHAR);
-	snprintf(buf, sizeof(buf), "%s$n отравил$g Вас.%s", CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
-	act(buf, FALSE, ch, 0, vict, TO_VICT);
-}
-
-/**
-* Отравление с пушки у наема.
-*/
-bool weap_poison_victim(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
-{
-	if (GET_AF_BATTLE(ch, EAF_POISONED))
-		return false;
-
-	if (spell_num == SPELL_ACONITUM_POISON)
-	{
-		AFFECT_DATA af;
-		af.type = SPELL_ACONITUM_POISON;
-		af.location = APPLY_ACONITUM_POISON;
-		af.duration = 7;
-		af.modifier = GET_LEVEL(ch)/2 + MIN(5, GET_REMORT(ch));
-		af.bitvector = AFF_POISON;
-		af.battleflag = AF_SAME_TIME;
-		if (poison_affect_join(vict, &af))
-		{
-			vict->Poisoner = GET_ID(ch);
-			SET_AF_BATTLE(ch, EAF_POISONED);
-			return true;
-		}
-	}
-	else if (spell_num == SPELL_SCOPOLIA_POISON)
-	{
-		// по +3% дамаги по целе за стак
-		AFFECT_DATA af;
-		af.type = SPELL_SCOPOLIA_POISON;
-		af.location = APPLY_SCOPOLIA_POISON;
-		af.duration = 7;
-		af.modifier = 3;
-		af.bitvector = AFF_POISON | AFF_SCOPOLIA_POISON;
-		af.battleflag = AF_SAME_TIME;
-		if (poison_affect_join(vict, &af))
-		{
-			vict->Poisoner = GET_ID(ch);
-			SET_AF_BATTLE(ch, EAF_POISONED);
-			return true;
-		}
-	}
-	return false;
-}
-
-void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *victim, int spell_num)
-{
-	int percent = number(1, skill_info[SKILL_POISONED].max_percent * 3);
-	int prob = calculate_skill(ch, SKILL_POISONED, skill_info[SKILL_POISONED].max_percent, victim);
-	if (prob >= percent)
-	{
-		if (spell_num == SPELL_ACONITUM_POISON && GET_POS(victim) >= POS_FIGHTING)
-		{
-			if (on_horse(victim))
-			{
-				send_to_char(ch, "%sОт действия Вашего яда у %s закружилась голова!%s\r\n",
-						CCGRN(ch, C_NRM), PERS(victim, ch, 1), CCNRM(ch, C_NRM));
-				send_to_char(victim, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",
-						GET_PAD(get_horse(victim), 5));
-				act("$n0 зашатался и не смог усидеть на $N5.", true, victim, 0, get_horse(victim), TO_NOTVICT);
-			}
-			else
-			{
-				send_to_char(ch, "%sОт действия Вашего яда у %s подкосились ноги!%s\r\n",
-						CCGRN(ch, C_NRM), PERS(victim, ch, 1), CCNRM(ch, C_NRM));
-				send_to_char(victim, "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
-				act("$N0 зашатался и не смог устоять на ногах.", true, ch, 0, victim, TO_NOTVICT);
-			}
-
-			GET_POS(victim) = POS_SITTING;
-			drop_from_horse(victim);
-			set_wait(victim, 3, FALSE);
-
-/*
-!AFF_FLAGGED(victim, AFF_HOLD)
-
-			AFFECT_DATA af;
-			af.duration = calculate_resistance_coeff(victim, get_resist_type(spell_num),
-					pc_duration(victim, 1, GET_LEVEL(ch) + 9, 10, 1, 3));
-			af.bitvector = AFF_HOLD;
-			af.battleflag = AF_BATTLEDEC;
-			af.type = spell_num;
-			af.duration = complex_spell_modifier(ch, spell_num, GAPPLY_SPELL_EFFECT, af.duration);
-			affect_join(victim, &af, false, false, false, false);
-
-			act("Яд $n3 заставил биться в судорогах $N1.", true, ch, 0, victim, TO_NOTVICT);
-			send_to_char(ch, "%sОт действия Вашего яда %s забился в судорогах.%s\r\n",
-					CCGRN(ch, C_NRM), GET_PAD(victim, 0), CCCYN(ch, C_NRM));
-			send_to_char(victim, "По всему телу прошли судороги, Вы не можете пошевелиться!\r\n");
-*/
-		}
-		else if (spell_num == SPELL_SCOPOLIA_POISON)
-		{
-			AFFECT_DATA af;
-			af.type = SPELL_POISON;
-			af.duration = 30;
-			af.modifier = -4;
-			af.bitvector = AFF_POISON;
-			af.battleflag = AF_SAME_TIME;
-
-			for (int i = APPLY_STR; i <= APPLY_CHA; i++)
-			{
-				af.location = i;
-				affect_join(victim, &af, FALSE, FALSE, FALSE, FALSE);
-			}
-
-			send_to_char(ch, "%sОт действия Вашего яда %s побледнел!%s\r\n",
-					CCGRN(ch, C_NRM), PERS(victim, ch, 0), CCNRM(ch, C_NRM));
-			send_to_char(victim, "Вы почувствовали слабость во всем теле!\r\n");
-			act("$N0 побледнел от действия яда $n1.", true, ch, 0, victim, TO_NOTVICT);
-		}
-		// и прочие дебафы
-	}
-	return;
-}
-
 /**
 * Расчет прибавки дамаги с концентрации силы.
 * (сила-25)*(среднее/8)*(левел/30)*(рандом(левел, 100)/100)*(мах(1, морты/5))
@@ -2457,34 +2297,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 	// отравленные пушки
 	else if (dam && wielded && wielded->is_spell_poisoned() && ch->get_skill(SKILL_POISONED))
 	{
-		if (number(1, 200) <= 30
-			|| (wielded->get_timed_spell() == SPELL_SCOPOLIA_POISON
-				&& !GET_AF_BATTLE(victim, EAF_FIRST_POISON)
-				&& !AFF_FLAGGED(victim, AFF_POISON)))
-		{
-			improove_skill(ch, SKILL_POISONED, TRUE, victim);
-			if (weap_poison_victim(ch, victim, wielded->get_timed_spell()))
-			{
-				if (wielded->get_timed_spell() == SPELL_ACONITUM_POISON)
-				{
-					send_to_char(ch, "Кровоточащие язвы покрыли тело %s.\r\n", PERS(victim, ch, 1));
-				}
-				else if (wielded->get_timed_spell() == SPELL_SCOPOLIA_POISON)
-				{
-					strcpy(buf1, PERS(victim, ch, 0));
-					CAP(buf1);
-					send_to_char(ch, "%s скрючил%s от нестерпимой боли.\r\n", buf1, GET_CH_VIS_SUF_2(victim, ch));
-					SET_AF_BATTLE(victim, EAF_FIRST_POISON);
-				}
-				else
-				{
-					send_to_char(ch, "Вы отравили %s.%s\r\n", PERS(ch, victim, 3));
-				}
-				send_to_char(victim, "%s%s отравил%s Вас.%s\r\n",
-						CCIRED(ch, C_NRM), PERS(ch, victim, 0), GET_CH_VIS_SUF_1(ch, victim), CCNRM(ch, C_NRM));
-				weap_crit_poison(ch, victim, wielded->get_timed_spell());
-			}
-		}
+		try_weap_poison(ch, victim, wielded);
 	}
 	// Calculate mob-poisoner
 	else if (dam &&
@@ -2825,6 +2638,26 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 			//act("Меткое попадание $N1 заставило $n3 пошатнуться.", TRUE, victim, 0, ch, TO_NOTVICT);
 		}
 	}
+
+	// по идее этот attacktype там только для мессаг, но пока должно
+	// работать и здесь, а вообще система номеров идиотская
+	if (attacktype != SKILL_BACKSTAB+TYPE_HIT)
+	{
+		// + процент дамага с яда скополии
+		if (AFF_FLAGGED(victim, AFF_SCOPOLIA_POISON))
+		{
+			int mod = dam * (static_cast<double>(GET_POISON(victim)) / 100.0);
+			////////////////////////////////////////////////////////////////////////////////
+			if (mod > 0)
+			{
+				void dmeter_update(CHAR_DATA *ch, int real_dam, int dam, int poison);
+				dmeter_update(ch, 0, 0, mod);
+			}
+			////////////////////////////////////////////////////////////////////////////////
+			dam += mod;
+		}
+	}
+
 	/* Обрезаем макс дамаг */
 	dam = MIN(dam, MAX_HITS);
 
@@ -4294,20 +4127,6 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			dam *= 2;
 		if (AFF_FLAGGED(victim, AFF_SANCTUARY) && dam >= 2)
 			dam /= 2;
-
-		// + процент дамага с яда (до скрытого)
-		if (AFF_FLAGGED(victim, AFF_SCOPOLIA_POISON))
-		{
-			int mod = dam * (static_cast<double>(GET_POISON(victim)) / 100.0);
-			////////////////////////////////////////////////////////////////////////////////
-			if (mod > 0)
-			{
-				void dmeter_update(CHAR_DATA *ch, int real_dam, int dam, int poison);
-				dmeter_update(ch, 0, 0, mod);
-			}
-			////////////////////////////////////////////////////////////////////////////////
-			dam += mod;
-		}
 
 		// прибавляем дамаг со скрытого, в обход санки и призмы
 		dam += noparryhit;

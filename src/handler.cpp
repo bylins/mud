@@ -35,6 +35,7 @@
 #include "char_player.hpp"
 #include "liquid.hpp"
 #include "magic.h"
+#include "poison.hpp"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -1144,42 +1145,6 @@ void affect_join(CHAR_DATA * ch, AFFECT_DATA * af, bool add_dur, bool avg_dur, b
 	{
 		affect_to_char(ch, af);
 	}
-}
-
-/**
-* Наложение ядов с пушек у наемов, аффект стакается до трех раз.
-*/
-bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA *af)
-{
-	AFFECT_DATA *hjp;
-	bool found = FALSE;
-
-	for (hjp = ch->affected; !found && hjp && af->location; hjp = hjp->next)
-	{
-		if ((hjp->location == APPLY_POISON
-				|| hjp->location == APPLY_ACONITUM_POISON
-				|| hjp->location == APPLY_SCOPOLIA_POISON)
-			&& af->location != hjp->location)
-		{
-			// если уже есть другой яд - борода
-			return false;
-		}
-		if ((hjp->type == af->type) && (hjp->location == af->location))
-		{
-			if (hjp->modifier/3 < af->modifier)
-				af->modifier += hjp->modifier;
-			else
-				af->modifier = hjp->modifier;
-			affect_remove(ch, hjp);
-			affect_to_char(ch, af);
-			found = TRUE;
-		}
-	}
-	if (!found)
-	{
-		affect_to_char(ch, af);
-	}
-	return true;
 }
 
 /* Обработка тикающих способностей - added by Gorrah */
@@ -4223,16 +4188,6 @@ void obj_data::set_timed_spell(int spell, int time)
 	timed_spell->spell = spell;
 }
 
-std::string get_poison_by_spell(int spell)
-{
-	if (spell == SPELL_ACONITUM_POISON)
-		return drinknames[LIQ_POISON_ACONITUM];
-	if (spell == SPELL_SCOPOLIA_POISON)
-		return drinknames[LIQ_POISON_SCOPOLIA];
-	else
-		return "";
-}
-
 /**
 * Вывод оставшегося времени яда на пушке при осмотре.
 */
@@ -4251,9 +4206,7 @@ std::string obj_data::diag_timed_spell_to_char(CHAR_DATA *ch)
 
 bool obj_data::is_spell_poisoned()
 {
-	if (timed_spell
-		&& (timed_spell->spell == SPELL_ACONITUM_POISON
-			|| timed_spell->spell == SPELL_SCOPOLIA_POISON))
+	if (timed_spell && check_poison(timed_spell->spell))
 	{
 		return true;
 	}
