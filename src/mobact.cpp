@@ -63,6 +63,8 @@ extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 /* local functions */
 void mobile_activity(int activity_level, int missed_pulses);
 void clearMemory(CHAR_DATA * ch);
+CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
+
 
 #define MOB_AGGR_TO_ALIGN (MOB_AGGR_EVIL | MOB_AGGR_NEUTRAL | MOB_AGGR_GOOD)
 
@@ -180,7 +182,10 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 			go_chopoff(ch, victim);
 		}
 		if (!FIGHTING(ch))
+		{
+			victim = try_protect(victim, ch);
 			hit(ch, victim, TYPE_UNDEFINED, 1);
+		}
 		return (TRUE);
 	}
 	else
@@ -431,6 +436,7 @@ int perform_mob_switch(CHAR_DATA * ch)
 	best = find_best_mob_victim(ch, SKIP_HIDING | SKIP_CAMOUFLAGE | SKIP_SNEAKING | CHECK_OPPONENT);
 	if (!best)
 		return FALSE;
+	best = try_protect(best, ch);
 	if (best == FIGHTING(ch))
 		return FALSE;
 	// переключаюсь на best

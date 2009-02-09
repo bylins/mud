@@ -83,6 +83,7 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 	{
 		return (FALSE);
 	}
+	victim = try_protect(victim, ch);
 
 	// если жертва пишет на доску - вываливаем его оттуда и чистим все это дело
 	if (victim->desc && (STATE(victim->desc) == CON_WRITEBOARD))
@@ -167,7 +168,7 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 		if (PROTECTING(vict) == victim &&
 				!AFF_FLAGGED(vict, AFF_STOPFIGHT) &&
 				!AFF_FLAGGED(vict, AFF_MAGICSTOPFIGHT) &&
-				GET_WAIT(vict) <= 0 && !GET_MOB_HOLD(vict) && GET_POS(vict) >= POS_FIGHTING)
+				!GET_MOB_HOLD(vict) && GET_POS(vict) >= POS_FIGHTING)
 		{
 			percent = number(1, skill_info[SKILL_PROTECT].max_percent);
 			prob = calculate_skill(vict, SKILL_PROTECT, skill_info[SKILL_PROTECT].max_percent, victim);
@@ -177,18 +178,12 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 			if (GET_GOD_FLAG(vict, GF_GODSCURSE))
 				percent = 0;
 
-
 			if ((FIGHTING(vict) != ch) && (ch != victim))
 			{
 				// Вписываемся в противника прикрываемого ...
-				pk_agro_action(vict, ch);
 				stop_fighting(vict, FALSE);
 				set_fighting(vict, ch);
 			}
-			// Polud очищаем флаги и поля.
-			// Для востановления прикрытия нужно снова ввести команду 'прикрыть'
-			CLR_AF_BATTLE(ch, EAF_PROTECT);
-			PROTECTING(vict)=NULL;
 
 			if (prob < percent)
 			{
@@ -196,7 +191,7 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 				act("$N не смог$Q прикрыть Вас.", FALSE, victim, 0, vict, TO_CHAR);
 				act("$n не смог$q прикрыть $N3.", TRUE, vict, 0, victim, TO_NOTVICT);
 				set_wait(vict, 2, TRUE);
-		}
+			}
 			else
 			{
 				act("Вы героически прикрыли $N3, приняв удар на себя.", FALSE,
@@ -208,8 +203,6 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 				set_wait(vict, 1, TRUE);
 				return vict;
 			}
-
-
 		}
 	}
 	return victim;
@@ -371,6 +364,7 @@ ACMD(do_hit)
 				act("$N не сражается с Вами, не трогайте $S.", FALSE, ch, 0, vict, TO_CHAR);
 				return;
 			}
+			vict = try_protect(vict, ch);
 			stop_fighting(ch, FALSE);
 			set_fighting(ch, vict);
 			set_wait(ch, 2, TRUE);

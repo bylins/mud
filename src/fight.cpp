@@ -468,7 +468,6 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (AFF_FLAGGED(ch, AFF_SLEEP))
 		affect_from_char(ch, SPELL_SLEEP);
-	vict = try_protect(vict, ch);
 	FIGHTING(ch) = vict;
 	NUL_AF_BATTLE(ch);
 //Polud вступление в битву не мешает прикрывать
@@ -509,7 +508,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	if (ch->last_comm != NULL)
 		free(ch->last_comm);
 	ch->last_comm = NULL;
-	PROTECTING(ch) = NULL;
+//	PROTECTING(ch) = NULL;
 	TOUCHING(ch) = NULL;
 	FIGHTING(ch) = NULL;
 	INITIATIVE(ch) = 0;

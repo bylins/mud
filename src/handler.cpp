@@ -2634,6 +2634,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 			TOUCHING(k) = NULL;
 			CLR_AF_BATTLE(k, EAF_PROTECT);
 		}
+		if (PROTECTING(k) == ch) PROTECTING(k) = NULL;
 		if (GET_EXTRA_VICTIM(k) == ch)
 			SET_EXTRA(k, 0, NULL);
 		if (GET_CAST_CHAR(k) == ch)

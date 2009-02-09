@@ -2862,6 +2862,12 @@ ACMD(do_score)
 			sprintf(buf + strlen(buf),
 					" || %sВас ожидает новое письмо, зайдите на почту                                      %s||\r\n",
 					CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
+	
+		if (PROTECTING(ch))
+			sprintf(buf + strlen(buf),
+					" || %sВы прикрываете %-65s%s||\r\n",
+					CCIGRN(ch, C_NRM), string(GET_PAD(PROTECTING(ch),3)+string(" от нападения.")).substr(0,65).c_str(),
+					CCCYN(ch, C_NRM));
 
 		if (GET_GOD_FLAG(ch, GF_GODSCURSE) && GCURSE_DURATION(ch))
 		{
