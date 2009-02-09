@@ -1017,7 +1017,9 @@ typedef struct trig_data TRIG_DATA;
 #define APPLY_MR	           52	/* Apply to Magic damage resist */
 #define APPLY_ACONITUM_POISON  53
 #define APPLY_SCOPOLIA_POISON  54
-#define NUM_APPLIES	           55
+#define APPLY_BELENA_POISON    55
+#define APPLY_DATURA_POISON    56
+#define NUM_APPLIES	           57
 
 /* APPLY - эффекты для комнат */
 #define APPLY_ROOM_NONE        0

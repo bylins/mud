@@ -3213,13 +3213,32 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_SCOPOLIA_POISON:
 		af[0].location = APPLY_SCOPOLIA_POISON;
 		af[0].duration = 7;
-		af[0].modifier = 3;
+		af[0].modifier = 5;
 		af[0].bitvector = AFF_POISON | AFF_SCOPOLIA_POISON;
 		af[0].battleflag = AF_SAME_TIME;
 		to_vict = "Вы почувствовали себя отравленным.";
 		to_room = "$n позеленел$g от действия яда.";
 		break;
 
+	case SPELL_BELENA_POISON:
+		af[0].location = APPLY_BELENA_POISON;
+		af[0].duration = 7;
+		af[0].modifier = 5;
+		af[0].bitvector = AFF_POISON;
+		af[0].battleflag = AF_SAME_TIME;
+		to_vict = "Вы почувствовали себя отравленным.";
+		to_room = "$n позеленел$g от действия яда.";
+		break;
+
+	case SPELL_DATURA_POISON:
+		af[0].location = APPLY_DATURA_POISON;
+		af[0].duration = 7;
+		af[0].modifier = 5;
+		af[0].bitvector = AFF_POISON;
+		af[0].battleflag = AF_SAME_TIME;
+		to_vict = "Вы почувствовали себя отравленным.";
+		to_room = "$n позеленел$g от действия яда.";
+		break;
 	}
 
 

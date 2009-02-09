@@ -521,6 +521,17 @@ void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool a
 	case APPLY_SCOPOLIA_POISON:
 		GET_POISON(ch) += mod;
 		break;
+	case APPLY_BELENA_POISON:
+		GET_POISON(ch) += mod;
+		GET_HR_ADD(ch) -= mod;
+		GET_DR_ADD(ch) -= mod;
+		GET_ARMOUR(ch) -= mod;
+		break;
+	case APPLY_DATURA_POISON:
+		GET_POISON(ch) += mod;
+		GET_CAST_SUCCESS(ch) -= mod;
+		GET_MANAREG(ch) -= mod;
+		break;
 	default:
 		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
 		break;

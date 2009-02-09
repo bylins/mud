@@ -38,6 +38,8 @@ extern const int LIQ_POTION_GREY;
 extern const int LIQ_POTION_FUCHSIA;
 extern const int LIQ_POISON_ACONITUM;
 extern const int LIQ_POISON_SCOPOLIA;
+extern const int LIQ_POISON_BELENA;
+extern const int LIQ_POISON_DATURA;
 extern const int NUM_LIQ_TYPES;
 
 extern const char *drinks[];

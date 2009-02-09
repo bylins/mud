@@ -31,7 +31,9 @@ bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA *af)
 	{
 		if ((hjp->location == APPLY_POISON
 				|| hjp->location == APPLY_ACONITUM_POISON
-				|| hjp->location == APPLY_SCOPOLIA_POISON)
+				|| hjp->location == APPLY_SCOPOLIA_POISON
+				|| hjp->location == APPLY_BELENA_POISON
+				|| hjp->location == APPLY_DATURA_POISON)
 			&& af->location != hjp->location)
 		{
 			// если уже есть другой яд - борода
@@ -89,6 +91,40 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 		af.duration = 7;
 		af.modifier = 5;
 		af.bitvector = AFF_POISON | AFF_SCOPOLIA_POISON;
+		af.battleflag = AF_SAME_TIME;
+		if (poison_affect_join(vict, &af))
+		{
+			vict->Poisoner = GET_ID(ch);
+			SET_AF_BATTLE(ch, EAF_POISONED);
+			return true;
+		}
+	}
+	else if (spell_num == SPELL_BELENA_POISON)
+	{
+		// минус хитролы/дамролы/броня (1..5)
+		AFFECT_DATA af;
+		af.type = SPELL_BELENA_POISON;
+		af.location = APPLY_BELENA_POISON;
+		af.duration = 7;
+		af.modifier = GET_LEVEL(ch)/6;
+		af.bitvector = AFF_POISON;
+		af.battleflag = AF_SAME_TIME;
+		if (poison_affect_join(vict, &af))
+		{
+			vict->Poisoner = GET_ID(ch);
+			SET_AF_BATTLE(ch, EAF_POISONED);
+			return true;
+		}
+	}
+	else if (spell_num == SPELL_DATURA_POISON)
+	{
+		// минус каст/мем (1..10)
+		AFFECT_DATA af;
+		af.type = SPELL_BELENA_POISON;
+		af.location = APPLY_DATURA_POISON;
+		af.duration = 7;
+		af.modifier = GET_LEVEL(ch)/3;
+		af.bitvector = AFF_POISON;
 		af.battleflag = AF_SAME_TIME;
 		if (poison_affect_join(vict, &af))
 		{
@@ -287,6 +323,20 @@ void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, OBJ_DATA *wielded)
 				send_to_char(ch, "%s скрючил%s от нестерпимой боли.\r\n", buf1, GET_CH_VIS_SUF_2(vict, ch));
 				SET_AF_BATTLE(vict, EAF_FIRST_POISON);
 			}
+			else if (wielded->get_timed_spell() == SPELL_BELENA_POISON)
+			{
+				strcpy(buf1, PERS(vict, ch, 3));
+				CAP(buf1);
+				send_to_char(ch, "%s перестали слушаться руки.\r\n", buf1);
+				SET_AF_BATTLE(vict, EAF_FIRST_POISON);
+			}
+			else if (wielded->get_timed_spell() == SPELL_DATURA_POISON)
+			{
+				strcpy(buf1, PERS(vict, ch, 3));
+				CAP(buf1);
+				send_to_char(ch, "%s выглядит уже не таким искусным заклинателем.\r\n", buf1);
+				SET_AF_BATTLE(vict, EAF_FIRST_POISON);
+			}
 			else
 			{
 				send_to_char(ch, "Вы отравили %s.%s\r\n", PERS(ch, vict, 3));
@@ -304,7 +354,9 @@ void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, OBJ_DATA *wielded)
 bool poison_in_vessel(int liquid_num)
 {
 	if (liquid_num == LIQ_POISON_ACONITUM
-		|| liquid_num == LIQ_POISON_SCOPOLIA)
+		|| liquid_num == LIQ_POISON_SCOPOLIA
+		|| liquid_num == LIQ_POISON_BELENA
+		|| liquid_num == LIQ_POISON_DATURA)
 	{
 		return true;
 	}
@@ -320,6 +372,10 @@ void set_weap_poison(OBJ_DATA *weapon, int liquid_num)
 		weapon->set_timed_spell(SPELL_ACONITUM_POISON);
 	else if (liquid_num == LIQ_POISON_SCOPOLIA)
 		weapon->set_timed_spell(SPELL_SCOPOLIA_POISON);
+	else if (liquid_num == LIQ_POISON_BELENA)
+		weapon->set_timed_spell(SPELL_BELENA_POISON);
+	else if (liquid_num == LIQ_POISON_DATURA)
+		weapon->set_timed_spell(SPELL_DATURA_POISON);
 	else
 		log("SYSERROR: liquid_num == %d (%s %s %d)", liquid_num, __FILE__, __func__, __LINE__);
 }
@@ -335,6 +391,10 @@ std::string get_poison_by_spell(int spell)
 		return drinknames[LIQ_POISON_ACONITUM];
 	case SPELL_SCOPOLIA_POISON:
 		return drinknames[LIQ_POISON_SCOPOLIA];
+	case SPELL_BELENA_POISON:
+		return drinknames[LIQ_POISON_BELENA];
+	case SPELL_DATURA_POISON:
+		return drinknames[LIQ_POISON_DATURA];
 	}
 	return "";
 }
@@ -348,6 +408,8 @@ bool check_poison(int spell)
 	{
 	case SPELL_ACONITUM_POISON:
 	case SPELL_SCOPOLIA_POISON:
+	case SPELL_BELENA_POISON:
+	case SPELL_DATURA_POISON:
 		return true;
 	}
 	return false;
