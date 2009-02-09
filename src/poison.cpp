@@ -190,8 +190,8 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 				affect_join(vict, &af, false, false, false, false);
 			}
 
-			send_to_char(ch, "%sОт действия Вашего яда %s побледнел!%s\r\n",
-					CCGRN(ch, C_NRM), PERS(vict, ch, 0), CCNRM(ch, C_NRM));
+			send_to_char(ch, "%sОт действия Вашего яда %s побледнел%s!%s\r\n",
+					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 			send_to_char(vict, "Вы почувствовали слабость во всем теле!\r\n");
 			act("$N0 побледнел на Ваших глазах.", true, ch, 0, vict, TO_NOTVICT);
 			break;
