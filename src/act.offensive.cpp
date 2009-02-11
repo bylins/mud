@@ -168,7 +168,7 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 		if (PROTECTING(vict) == victim &&
 				!AFF_FLAGGED(vict, AFF_STOPFIGHT) &&
 				!AFF_FLAGGED(vict, AFF_MAGICSTOPFIGHT) &&
-				!GET_MOB_HOLD(vict) && GET_POS(vict) >= POS_FIGHTING)
+				!AFF_FLAGGED(vict, AFF_BLIND) && !GET_MOB_HOLD(vict) && GET_POS(vict) >= POS_FIGHTING)
 		{
 			percent = number(1, skill_info[SKILL_PROTECT].max_percent);
 			prob = calculate_skill(vict, SKILL_PROTECT, skill_info[SKILL_PROTECT].max_percent, victim);
@@ -190,7 +190,7 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 				act("Вы не смогли прикрыть $N3.", FALSE, vict, 0, victim, TO_CHAR);
 				act("$N не смог$Q прикрыть Вас.", FALSE, victim, 0, vict, TO_CHAR);
 				act("$n не смог$q прикрыть $N3.", TRUE, vict, 0, victim, TO_NOTVICT);
-				set_wait(vict, 2, TRUE);
+				set_wait(vict, 3, TRUE);
 			}
 			else
 			{
