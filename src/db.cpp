@@ -142,6 +142,7 @@ struct portals_list_type *portals_list;	/* Список проталов для townportal */
 int now_entrycount = FALSE;
 extern int reboot_uptime;
 
+MobRace *mobraces = 0;
 
 //Polos.inserd_wanted_gem
 class insert_wanted_gem iwg;
@@ -241,6 +242,10 @@ int real_zone(int number);
 int level_exp(CHAR_DATA * ch, int level);
 extern void NewNameRemove(CHAR_DATA * ch);
 extern void NewNameLoad();
+
+//polud
+void load_mobraces();
+//-polud
 
 /* external vars */
 extern int no_specials;
@@ -1423,6 +1428,9 @@ void boot_db(void)
 	log("Load glory list.");
 	Glory::load_glory();
 	Glory::load_glory_log();
+//Polud грузим параметры рас мобов
+	log("Load mob races.");
+	load_mobraces();
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");

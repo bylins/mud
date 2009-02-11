@@ -15,6 +15,7 @@
 #include "skills.h"
 #include "constants.h"
 #include "char_player.hpp"
+#include "xmlParser.h"
 
 Character::Character()
 		: nr(NOBODY),
@@ -305,3 +306,60 @@ void Character::create_mob_guard()
 {
 	player = Player::shared_mob;
 }
+//Polud тестовый класс для хранения параметров различных рас мобов
+//Читает данные из файла
+const char *MOBRACE_FILE = LIB_MISC"mobrace.xml";
+//использует xmlParser (xmlParser.cpp, xmlParser.h) см.  http://www.applied-mathematics.net/tools/xmlParser.html
+
+typedef std::list<MobRace> MobRaceListType;
+
+MobRaceListType mobraces_list;
+
+//загрузка рас из файла
+void load_mobraces()
+{
+	struct ingredient tmp_ingr;
+	XMLResults result;
+	XMLNode xMainNode=XMLNode::parseFile(MOBRACE_FILE, "mobraces", &result);
+	if (result.error != eXMLErrorNone)
+	{
+		log("SYSERROR: Ошибка чтения файла %s: %s", MOBRACE_FILE, XMLNode::getError(result.error));
+		return;
+	}
+	int numraces = xMainNode.nChildNode("mobrace");
+	for (int i=0;i<numraces;i++)
+	{
+		MobRace *tmp_mobrace;
+		tmp_mobrace = new MobRace();
+		XMLNode xNodeRace = xMainNode.getChildNode("mobrace", i);
+		XMLNode xNodeImList = xNodeRace.getChildNode("imlist");
+		int numims = xNodeImList.nChildNode("im");
+		for (int j=0; j<numims; j++)
+		{
+			XMLNode xNodeIm = xNodeImList.getChildNode("im",j);
+			tmp_ingr.imtype = xmltoi(xNodeIm.getAttribute("type"));
+			tmp_ingr.imname = str_dup(xNodeIm.getAttribute("name"));
+			int numprobs = xNodeIm.nChildNode("prob");
+			for (int k=0; k<numprobs; k++)
+				tmp_ingr.prob[xmltoi(xNodeIm.getChildNode("prob",k).getAttribute("lvl"))]=xmltoi(xNodeIm.getChildNode("prob",k).getText());
+			tmp_mobrace->ingrlist.push_back(tmp_ingr);
+			tmp_ingr.prob.clear();
+		}
+		mobraces_list.push_back(*tmp_mobrace);
+	}
+}
+
+
+MobRace::MobRace()
+{
+	ingrlist.clear();
+}
+
+MobRace::~MobRace()
+{
+	std::vector<ingredient>::iterator it;
+	for (it = ingrlist.begin(); it != ingrlist.end(); ++it)
+		it->prob.clear();
+	ingrlist.clear();
+}
+//-Polud

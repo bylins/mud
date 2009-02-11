@@ -355,4 +355,21 @@ public:
 	load_list *dl_list;	// загружаемые в труп предметы
 };
 
+//Polud тестовый класс для хранения параметров различных рас мобов
+struct ingredient
+{
+	int imtype;
+	std::string imname;
+	std::map<int/*lvl*/,int/*вероятность загрузки*/> prob;
+};
+
+class MobRace{
+public:
+	MobRace();
+	~MobRace();
+	std::vector<ingredient> ingrlist;
+};
+
+//-Polud
+
 #endif // CHAR_HPP_INCLUDED
