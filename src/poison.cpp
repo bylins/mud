@@ -332,7 +332,7 @@ void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, OBJ_DATA *wielded)
 			}
 			else if (wielded->get_timed_spell() == SPELL_DATURA_POISON)
 			{
-				strcpy(buf1, PERS(vict, ch, 3));
+				strcpy(buf1, PERS(vict, ch, 0));
 				CAP(buf1);
 				send_to_char(ch, "%s выглядит уже не таким искусным заклинателем.\r\n", buf1);
 				SET_AF_BATTLE(vict, EAF_FIRST_POISON);
