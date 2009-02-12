@@ -170,6 +170,23 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 				!AFF_FLAGGED(vict, AFF_MAGICSTOPFIGHT) &&
 				!AFF_FLAGGED(vict, AFF_BLIND) && !GET_MOB_HOLD(vict) && GET_POS(vict) >= POS_FIGHTING)
 		{
+			if (vict == ch)
+			{
+				act("Вы попытались напасть на того, кого прикрывали, и замерли в глубокой задумчивости.", FALSE, vict, 0, victim, TO_CHAR);
+				act("$N пытается напасть на Вас! Лучше бы Вам отойти.", FALSE, victim, 0, vict, TO_CHAR);
+				PROTECTING(vict) = NULL;
+				CLR_AF_BATTLE(vict, EAF_PROTECT);
+				WAIT_STATE(vict, PULSE_VIOLENCE);
+				AFFECT_DATA af;
+				af.type = SPELL_BATTLE;
+				af.bitvector = AFF_STOPFIGHT;
+				af.location = 0;
+				af.modifier = 0;
+				af.duration = pc_duration(vict, 1, 0, 0, 0, 0);
+				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+				affect_join(vict, &af, TRUE, FALSE, TRUE, FALSE);
+				return victim;
+			}
 			percent = number(1, skill_info[SKILL_PROTECT].max_percent);
 			prob = calculate_skill(vict, SKILL_PROTECT, skill_info[SKILL_PROTECT].max_percent, victim);
 			prob = prob * 8 / 10;
