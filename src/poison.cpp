@@ -29,19 +29,18 @@ bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA *af)
 
 	for (hjp = ch->affected; !found && hjp && af->location; hjp = hjp->next)
 	{
-		if ((hjp->location == APPLY_POISON
-				|| hjp->location == APPLY_ACONITUM_POISON
-				|| hjp->location == APPLY_SCOPOLIA_POISON
-				|| hjp->location == APPLY_BELENA_POISON
-				|| hjp->location == APPLY_DATURA_POISON)
-			&& af->location != hjp->location)
+		if ((hjp->type == SPELL_ACONITUM_POISON
+				|| hjp->type == SPELL_SCOPOLIA_POISON
+				|| hjp->type == SPELL_BELENA_POISON
+				|| hjp->type == SPELL_DATURA_POISON)
+			&& af->type != hjp->type)
 		{
 			// если уже есть другой яд - борода
 			return false;
 		}
 		if ((hjp->type == af->type) && (hjp->location == af->location))
 		{
-			if (hjp->modifier/3 < af->modifier)
+			if (abs(hjp->modifier/3) < abs(af->modifier))
 				af->modifier += hjp->modifier;
 			else
 				af->modifier = hjp->modifier;
@@ -101,15 +100,41 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 	}
 	else if (spell_num == SPELL_BELENA_POISON)
 	{
-		// минус хитролы/дамролы/броня (1..5)
-		AFFECT_DATA af;
-		af.type = SPELL_BELENA_POISON;
-		af.location = APPLY_BELENA_POISON;
-		af.duration = 7;
-		af.modifier = GET_LEVEL(ch)/6;
-		af.bitvector = AFF_POISON;
-		af.battleflag = AF_SAME_TIME;
-		if (poison_affect_join(vict, &af))
+		// не переключается (моб)
+		// -хитролы/хп-рег/дамаг-физ.атак/скилы
+
+		AFFECT_DATA af[3];
+		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
+		double percent = 0;
+		if (ch->get_skill(SKILL_POISONED) >= 80)
+			percent = ch->get_skill(SKILL_POISONED) * 0.05 + (IS_NPC(vict) ? 5 : 0);
+		// -дамаг физ.атак и скиллы
+		af[0].location = APPLY_BELENA_POISON;
+		af[0].modifier = percent;
+
+		// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
+		percent = ch->get_skill(SKILL_POISONED) * 0.05 + (IS_NPC(vict) ? 10 : 5);
+		// -хитролы
+		int remove_hit = GET_REAL_HR(vict) * (percent/100);
+		af[1].location = APPLY_HITROLL;
+		af[1].modifier = -remove_hit;
+		// -хп-рег
+		int remove_hp = GET_HITREG(vict) * (percent/100);
+		af[2].location = APPLY_HITREG;
+		af[2].modifier = -remove_hp;
+
+		bool was_poisoned = true;
+		for (int i = 0; i < 3; i++)
+		{
+			af[i].type = SPELL_BELENA_POISON;
+			af[i].duration = 7;
+			af[i].bitvector = AFF_POISON | AFF_BELENA_POISON | AFF_SKILLS_REDUCE | AFF_NOT_SWITCH;
+			af[i].battleflag = AF_SAME_TIME;
+
+			if (!poison_affect_join(vict, af + i))
+				was_poisoned = false;
+		}
+		if (was_poisoned)
 		{
 			vict->Poisoner = GET_ID(ch);
 			SET_AF_BATTLE(ch, EAF_POISONED);
@@ -118,15 +143,42 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 	}
 	else if (spell_num == SPELL_DATURA_POISON)
 	{
-		// минус каст/мем (1..10)
-		AFFECT_DATA af;
-		af.type = SPELL_BELENA_POISON;
-		af.location = APPLY_DATURA_POISON;
-		af.duration = 7;
-		af.modifier = GET_LEVEL(ch)/3;
-		af.bitvector = AFF_POISON;
-		af.battleflag = AF_SAME_TIME;
-		if (poison_affect_join(vict, &af))
+		// не переключается (моб)
+		// -каст/мем-рег/дамаг-заклов/скилы
+		// AFF_DATURA_POISON - флаг на снижение дамага с заклов
+
+		AFFECT_DATA af[3];
+		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
+		double percent = 0;
+		if (ch->get_skill(SKILL_POISONED) >= 80)
+			percent = ch->get_skill(SKILL_POISONED) * 0.05 + (IS_NPC(vict) ? 5 : 0);
+		// -дамаг заклов и скиллы
+		af[0].location = APPLY_DATURA_POISON;
+		af[0].modifier = percent;
+
+		// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
+		percent = ch->get_skill(SKILL_POISONED) * 0.05 + (IS_NPC(vict) ? 10 : 5);
+		// -каст
+		int remove_cast = GET_CAST_SUCCESS(vict) * (percent/100);
+		af[1].location = APPLY_CAST_SUCCESS;
+		af[1].modifier = -remove_cast;
+		// -мем
+		int remove_mem = GET_MANAREG(vict) * (percent/100);
+		af[2].location = APPLY_MANAREG;
+		af[2].modifier = -remove_mem;
+
+		bool was_poisoned = true;
+		for (int i = 0; i < 3; i++)
+		{
+			af[i].type = SPELL_DATURA_POISON;
+			af[i].duration = 7;
+			af[i].bitvector = AFF_POISON | AFF_DATURA_POISON | AFF_SKILLS_REDUCE | AFF_NOT_SWITCH;
+			af[i].battleflag = AF_SAME_TIME;
+
+			if (!poison_affect_join(vict, af + i))
+				was_poisoned = false;
+		}
+		if (was_poisoned)
 		{
 			vict->Poisoner = GET_ID(ch);
 			SET_AF_BATTLE(ch, EAF_POISONED);
@@ -332,9 +384,9 @@ void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, OBJ_DATA *wielded)
 			}
 			else if (wielded->get_timed_spell() == SPELL_DATURA_POISON)
 			{
-				strcpy(buf1, PERS(vict, ch, 0));
+				strcpy(buf1, PERS(vict, ch, 2));
 				CAP(buf1);
-				send_to_char(ch, "%s выглядит уже не таким искусным заклинателем.\r\n", buf1);
+				send_to_char(ch, "%s стало труднее плести заклинания.\r\n", buf1);
 				SET_AF_BATTLE(vict, EAF_FIRST_POISON);
 			}
 			else

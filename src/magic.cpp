@@ -1639,6 +1639,11 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		dam *= MAX(MIN(100, wis_app[GET_REAL_WIS(ch)].spell_success + 100 + MAX(0, wis_app[GET_WIS(ch)].spell_success)),
 				   number(MAX(0, wis_app[GET_WIS(ch)].spell_success), 100) + wis_app[GET_REAL_WIS(ch)].spell_success);
 		dam /= 100;
+
+
+		if (AFF_FLAGGED(ch, AFF_DATURA_POISON))
+			dam -= dam * (static_cast<double>(GET_POISON(ch)) / 100.0);
+
 		if (!IS_SET(SpINFO.routines, MAG_WARCRY))
 		{
 			if (AFF_FLAGGED(victim, AFF_SANCTUARY))

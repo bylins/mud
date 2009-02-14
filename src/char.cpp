@@ -253,7 +253,15 @@ int Character::get_skill(int skill_num)
 	{
 		CharSkillsType::iterator it = skills.find(skill_num);
 		if (it != skills.end())
+		{
+			if (AFF_FLAGGED(this, AFF_SKILLS_REDUCE))
+			{
+				int skill = it->second;
+				skill -= skill * (static_cast<double>(GET_POISON(this)) / 100.0);
+				return skill;
+			}
 			return it->second;
+		}
 	}
 	return 0;
 }

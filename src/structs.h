@@ -672,6 +672,10 @@ typedef struct trig_data TRIG_DATA;
 #define AFF_GLITTERDUST		(INT_TWO | (1 << 5))
 #define AFF_AFFRIGHT		(INT_TWO | (1 << 6))
 #define AFF_SCOPOLIA_POISON (INT_TWO | (1 << 7))
+#define AFF_DATURA_POISON   (INT_TWO | (1 << 8))
+#define AFF_SKILLS_REDUCE   (INT_TWO | (1 << 9))
+#define AFF_NOT_SWITCH      (INT_TWO | (1 << 10))
+#define AFF_BELENA_POISON   (INT_TWO | (1 << 11))
 
 // shapirus: modes of ignoring
 #define IGNORE_TELL	(1 << 0)

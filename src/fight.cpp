@@ -4133,6 +4133,9 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		if (!IS_NPC(victim) && IS_CHARMICE(ch))
 			dam *= 0.8;
 
+		if (AFF_FLAGGED(ch, AFF_BELENA_POISON))
+			dam -= dam * (static_cast<double>(GET_POISON(ch)) / 100.0);
+
 		// at least 1 hp damage min per hit
 		dam = MAX(1, dam);
 		if (weapon_pos)
@@ -5410,8 +5413,13 @@ void perform_violence(void)
 				fight_mtrigger(ch);
 
 				// переключение
-				if (MAY_LIKES(ch) && !AFF_FLAGGED(ch, AFF_CHARM) && GET_REAL_INT(ch) > number(15, 25))
+				if (MAY_LIKES(ch)
+					&& !AFF_FLAGGED(ch, AFF_CHARM)
+					&& !AFF_FLAGGED(ch, AFF_NOT_SWITCH)
+					&& GET_REAL_INT(ch) > number(15, 25))
+				{
 					perform_mob_switch(ch);
+				}
 
 				// Cast spells
 				if (MAY_LIKES(ch))
