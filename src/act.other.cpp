@@ -1291,7 +1291,7 @@ ACMD(do_group)
 	}
 	else if (!str_cmp(buf, "leader") || !str_cmp(buf, "лидер"))
 	{
-		vict = get_char_vis(ch, argument, FIND_CHAR_WORLD);
+		vict = get_player_vis(ch, argument, FIND_CHAR_WORLD);
 		// added by WorM (Видолюб) Если найден клон и его хозяин персонаж
 		// а то чото как-то глючно Двойник %1 не является членом вашей группы.
 		if (vict && IS_NPC(vict) && MOB_FLAGGED(vict, MOB_CLONE) && AFF_FLAGGED(vict, AFF_CHARM) && vict->master && !IS_NPC(vict->master))
