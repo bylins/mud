@@ -1582,4 +1582,16 @@ void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto)
 	}
 }
 
+/**
+* Обработка ренейма персонажа.
+*/
+void rename_char(CHAR_DATA *ch)
+{
+	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
+	if (it != depot_list.end())
+	{
+		it->second.name = GET_NAME(ch);
+	}
+}
+
 } // namespace Depot

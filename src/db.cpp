@@ -7257,10 +7257,10 @@ void rename_char(CHAR_DATA * ch, char *oname)
 	rename(ofilename, filename);
 
 	// хранилища
+	Depot::rename_char(ch);
 	get_filename(oname, ofilename, PERS_DEPOT_FILE);
 	get_filename(GET_NAME(ch), filename, PERS_DEPOT_FILE);
 	rename(ofilename, filename);
-
 	get_filename(oname, ofilename, PURGE_DEPOT_FILE);
 	get_filename(GET_NAME(ch), filename, PURGE_DEPOT_FILE);
 	rename(ofilename, filename);

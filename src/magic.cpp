@@ -1635,10 +1635,9 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			if (GET_POS(victim) < POS_FIGHTING)
 				dam += (dam * (POS_FIGHTING - GET_POS(victim)) / 3);
 		}
-		dam *= MAX(MIN(100, wis_app[GET_REAL_WIS(ch)].spell_success + 100
-					   + MAX(0, wis_app[GET_WIS(ch)].spell_success)),
-				   number(MAX(0, wis_app[GET_WIS(ch)].spell_success), 100)
-				   + wis_app[GET_REAL_WIS(ch)].spell_success);
+		// TODO: по-моему тут первое число всегда будет 100
+		dam *= MAX(MIN(100, wis_app[GET_REAL_WIS(ch)].spell_success + 100 + MAX(0, wis_app[GET_WIS(ch)].spell_success)),
+				   number(MAX(0, wis_app[GET_WIS(ch)].spell_success), 100) + wis_app[GET_REAL_WIS(ch)].spell_success);
 		dam /= 100;
 		if (!IS_SET(SpINFO.routines, MAG_WARCRY))
 		{
