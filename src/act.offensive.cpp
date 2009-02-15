@@ -439,6 +439,8 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 	if (onhorse(ch))
 		return;
 
+	vict = try_protect(vict, ch);
+
 	pk_agro_action(ch, vict);
 
 	if (((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) || (FIGHTING(vict) && GET_CLASS(ch) != CLASS_THIEF))
@@ -540,7 +542,6 @@ ACMD(do_backstab)
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
-	vict = try_protect(vict, ch);
 	go_backstab(ch, vict);
 }
 
@@ -1884,6 +1885,8 @@ void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim)
 		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
+	
+	victim = try_protect(victim, ch);
 
 	if (!FIGHTING(ch))
 	{
@@ -1944,8 +1947,6 @@ ACMD(do_stupor)
 
 	parry_override(ch);
 
-	vict = try_protect(vict, ch);
-
 	go_stupor(ch, vict);
 }
 
@@ -1957,7 +1958,9 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim)
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-
+	
+	victim = try_protect(victim, ch);
+	
 	if (!FIGHTING(ch))
 	{
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
@@ -2027,8 +2030,6 @@ ACMD(do_mighthit)
 		return;
 
 	parry_override(ch);
-
-	vict = try_protect(vict, ch);
 
 	go_mighthit(ch, vict);
 }

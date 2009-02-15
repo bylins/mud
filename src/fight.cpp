@@ -5327,7 +5327,7 @@ void perform_violence(void)
 			}
 			// 6) mighthit
 			do_this = number(0, 100);
-			if (!sk_use && do_this <= GET_LIKES(ch) && ch->get_skill(SKILL_STUPOR))
+			if (!sk_use && do_this <= GET_LIKES(ch) && ch->get_skill(SKILL_MIGHTHIT))
 			{
 				SET_AF_BATTLE(ch, EAF_MIGHTHIT);
 				sk_use = TRUE;
