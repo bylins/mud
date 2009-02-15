@@ -1901,7 +1901,7 @@ int Crash_load(CHAR_DATA * ch)
 			obj->worn_on = 0;
 
 			auto_equip(ch, obj, location);
-			log("%s load_char_obj %s #%d|%u", GET_NAME(ch), obj->PNames[0], GET_OBJ_VNUM(obj), obj->uid);
+			log("%s load_char_obj %d %d %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->uid, GET_OBJ_TIMER(obj));
 		}
 		else
 		{
@@ -1932,7 +1932,7 @@ int Crash_load(CHAR_DATA * ch)
 				obj_to_obj(obj, tank_to->tank);
 			else
 				obj_to_char(obj, ch);
-			log("%s load_char_obj %s #%d|%u", GET_NAME(ch), obj->PNames[0], GET_OBJ_VNUM(obj), obj->uid);
+			log("%s load_char_obj %d %d %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->uid, GET_OBJ_TIMER(obj));
 		}
 	}
 	while (tank_list)  	//Clear tanks list
@@ -2106,7 +2106,10 @@ void Crash_save(int iplayer, OBJ_DATA * obj, int location, int savetype)
 			SAVEINFO(iplayer)->time[Crashitems].timer = GET_OBJ_TIMER(obj);
 			Crashitems++;
 			if (savetype != RENT_CRASH)
-				log("%s save_char_obj %s #%d|%u", player_table[iplayer].name, obj->PNames[0], GET_OBJ_VNUM(obj), obj->uid);
+			{
+				log("%s save_char_obj %d %d %u", player_table[iplayer].name,
+						GET_OBJ_VNUM(obj), obj->uid, GET_OBJ_TIMER(obj));
+			}
 		}
 	}
 }
