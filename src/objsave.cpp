@@ -27,6 +27,7 @@
 #include "depot.hpp"
 #include "char.hpp"
 #include "liquid.hpp"
+#include "file_crc.hpp"
 
 /* these factors should be unique integers */
 #define RENT_FACTOR 	1
@@ -1203,6 +1204,7 @@ int Crash_delete_files(int index)
 				log("SYSERR: Error deleting objects file %s (2): %s", filename, strerror(errno));
 				retcode = FALSE;
 			}
+			FileCRC::check_crc(filename, FileCRC::UPDATE_TEXTOBJS, player_table[index].unique);
 		}
 	}
 
@@ -1229,8 +1231,10 @@ int Crash_delete_files(int index)
 				log("SYSERR: deleting timer file %s (2): %s", filename, strerror(errno));
 				retcode = FALSE;
 			}
+			FileCRC::check_crc(filename, FileCRC::UPDATE_TIMEOBJS, player_table[index].unique);
 		}
 	}
+
 	return (retcode);
 }
 
@@ -1314,6 +1318,7 @@ int Crash_write_timer(int index)
 	}
 	fwrite(SAVEINFO(index), SAVESIZE(index), 1, fl);
 	fclose(fl);
+	FileCRC::check_crc(fname, FileCRC::UPDATE_TIMEOBJS, player_table[index].unique);
 	return TRUE;
 }
 
@@ -1391,6 +1396,7 @@ int Crash_read_timer(int index, int temp)
 		{
 			log("SYSERR: I/O Error reading %s timer file.", name);
 			fclose(fl);
+			FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].unique);
 			free(SAVEINFO(index));
 			SAVEINFO(index) = NULL;
 			return FALSE;
@@ -1405,6 +1411,8 @@ int Crash_read_timer(int index, int temp)
 			obj_index[rnum].stored++;
 	}
 	fclose(fl);
+	FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].unique);
+
 	if (rent.nitems != num)
 	{
 		log("[ReadTimer] Error reading %s timer file - file is corrupt.", fname);
@@ -1759,6 +1767,7 @@ int Crash_load(CHAR_DATA * ch)
 	if (!fread(readdata, fsize, 1, fl) || ferror(fl) || !readdata)
 	{
 		fclose(fl);
+		FileCRC::check_crc(fname, FileCRC::TEXTOBJS, GET_UNIQUE(ch));
 		send_to_char("\r\n** Ошибка чтения файла описания вещей **\r\n"
 					 "Проблемы с восстановлением Ваших вещей из файла.\r\n"
 					 "Обращайтесь за помощью к Богам.\r\n", ch);
@@ -1768,6 +1777,7 @@ int Crash_load(CHAR_DATA * ch)
 		return (1);
 	};
 	fclose(fl);
+	FileCRC::check_crc(fname, FileCRC::TEXTOBJS, GET_UNIQUE(ch));
 
 	data = readdata;
 	*(data + fsize) = '\0';
@@ -2227,6 +2237,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 		}
 		fprintf(fl, "@ Items file\n%s\n$\n$\n", Crashbufferdata);
 		fclose(fl);
+		FileCRC::check_crc(fname, FileCRC::UPDATE_TEXTOBJS, GET_UNIQUE(ch));
 	}
 	else
 	{

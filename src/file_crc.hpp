@@ -12,7 +12,8 @@
 namespace FileCRC
 {
 
-enum { PLAYER, TEXTOBJS, TIMEOBJS, UPDATE_PLAYER };
+// UPDATE_х идут после обычных флагов
+enum { PLAYER, TEXTOBJS, TIMEOBJS, UPDATE_PLAYER, UPDATE_TEXTOBJS, UPDATE_TIMEOBJS };
 
 void load();
 void save(bool force_save = false);
