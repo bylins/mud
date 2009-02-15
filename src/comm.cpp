@@ -434,6 +434,7 @@ int main(int argc, char **argv)
 	 */
 	log(circlemud_version);
 	log(DG_SCRIPT_VERSION);
+	log("Code version %s %s", __DATE__, __TIME__);
 	if (chdir(dir) < 0)
 	{
 		perror("SYSERR: Fatal error changing to data directory");
