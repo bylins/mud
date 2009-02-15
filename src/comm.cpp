@@ -125,6 +125,7 @@ extern CHAR_DATA *combat_list;
 extern void proc_color(char *inbuf, int color);
 extern void tact_auction(void);
 extern time_t boot_time;
+extern void log_code_date();
 
 /* external global objects and containers */
 extern BanList *ban;
@@ -434,7 +435,7 @@ int main(int argc, char **argv)
 	 */
 	log(circlemud_version);
 	log(DG_SCRIPT_VERSION);
-	log("Code version %s %s", __DATE__, __TIME__);
+	log_code_date();
 	if (chdir(dir) < 0)
 	{
 		perror("SYSERR: Fatal error changing to data directory");

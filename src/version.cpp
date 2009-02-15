@@ -6,6 +6,7 @@
 #include "sysdep.h"
 #include "structs.h"
 #include "comm.h"
+#include "utils.h"
 
 /**
 * Весь файл - исключительно как попытка автоматической вставки в код нормальной даты сборки.
@@ -14,4 +15,9 @@
 void show_code_date(CHAR_DATA *ch)
 {
 	send_to_char(ch, "МПМ Былины, версия от %s %s\r\n", __DATE__, __TIME__);
+}
+
+void log_code_date()
+{
+	log("Code version %s %s", __DATE__, __TIME__);
 }
