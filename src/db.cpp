@@ -1993,6 +1993,26 @@ char fread_letter(FILE * fp)
 	return c;
 }
 
+/**
+* Проверки всяких несочетаемых флагов на комнатах.
+*/
+void check_room_flags(int rnum)
+{
+	if (DeathTrap::is_slow_dt(rnum))
+	{
+		// снятие номагик и прочих флагов, запрещающих чару выбраться из комнаты без выходов при наличии медленного дт
+		REMOVE_BIT(ROOM_FLAGS(rnum, ROOM_NOMAGIC), ROOM_NOMAGIC);
+		REMOVE_BIT(ROOM_FLAGS(rnum, ROOM_NOTELEPORTOUT), ROOM_NOTELEPORTOUT);
+		REMOVE_BIT(ROOM_FLAGS(rnum, ROOM_NOSUMMON), ROOM_NOSUMMON);
+	}
+	if (ROOM_FLAGGED(rnum, ROOM_HOUSE)
+		&& (SECT(rnum) == SECT_MOUNTAIN || SECT(rnum) == SECT_HILLS))
+	{
+		// шоб в замках умные не копали
+		SECT(rnum) = SECT_INSIDE;
+	}
+}
+
 /* load the rooms */
 void parse_room(FILE * fl, int virtual_nr, int virt)
 {
@@ -2066,7 +2086,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 		world[room_nr]->sector_type = t[2];
 	}
 
-	DeathTrap::check_nomagic_slowdeath(room_nr);
+	check_room_flags(room_nr);
 
 	// Обнуляем флаги от аффектов и сами аффекты на комнате.
 	world[room_nr]->affected = NULL;

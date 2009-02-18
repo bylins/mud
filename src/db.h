@@ -409,5 +409,6 @@ void free_alias(struct alias_data *a);
 extern struct player_index_element *player_table;
 
 void set_god_skills(CHAR_DATA *ch);
+void check_room_flags(int rnum);
 
 #endif

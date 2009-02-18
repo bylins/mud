@@ -316,16 +316,3 @@ bool DeathTrap::is_slow_dt(int rnum)
 		return true;
 	return false;
 }
-
-/**
-* Снятие номагик и прочих флагов, запрещающих чару выбраться из комнаты без выходов при наличии медленного дт.
-*/
-void DeathTrap::check_nomagic_slowdeath(int rnum)
-{
-	if (is_slow_dt(rnum))
-	{
-		REMOVE_BIT(ROOM_FLAGS(rnum, ROOM_NOMAGIC), ROOM_NOMAGIC);
-		REMOVE_BIT(ROOM_FLAGS(rnum, ROOM_NOTELEPORTOUT), ROOM_NOTELEPORTOUT);
-		REMOVE_BIT(ROOM_FLAGS(rnum, ROOM_NOSUMMON), ROOM_NOSUMMON);
-	}
-}
