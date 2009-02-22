@@ -397,7 +397,7 @@
 
 #define TAR_IGNORE      (1 << 0)
 #define TAR_CHAR_ROOM   (1 << 1)
-#define TAR_CHAR_WORLD  (1 << 2)
+#define TAR_CHAR_WORLD  (1 << 2) // не ищет мобов при касте чарами (призвать/переместиться/переход)
 #define TAR_FIGHT_SELF  (1 << 3)
 #define TAR_FIGHT_VICT  (1 << 4)
 #define TAR_SELF_ONLY   (1 << 5)	/* Only a check, use with i.e. TAR_CHAR_ROOM */
