@@ -2372,9 +2372,13 @@ int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DA
 		{
 			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != NULL)
 			{
-				if (SpINFO.violent && !check_pkill(ch, *tch, t))
-					return FALSE;
-				return TRUE;
+				// чтобы мобов не чекали
+				if (IS_NPC(ch) || !IS_NPC(*tch))
+				{
+					if (SpINFO.violent && !check_pkill(ch, *tch, t))
+						return FALSE;
+					return TRUE;
+				}
 			}
 		}
 
