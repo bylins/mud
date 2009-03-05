@@ -2956,7 +2956,7 @@ void init_spell_levels(void)
 			{
 				if (!strchr("1xX!", line4[j]))
 					continue;
-				skill_info[sp_num].classknow[l][j] = KNOW_SKILL;
+				skill_info[sp_num].classknow[j][l] = KNOW_SKILL;
 				log("Set skill '%s' kin %d classes %d is Know", skill_info[sp_num].name, l, j);
 			}
 		}

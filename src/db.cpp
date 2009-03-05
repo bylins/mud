@@ -5724,7 +5724,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 					fbgetline(fl, line);
 					sscanf(line, "%d %d", &num, &num2);
 					if (num != 0)
-						if (skill_info[num].classknow[(int) GET_KIN(ch)][(int) GET_CLASS(ch)] == KNOW_SKILL)
+						if (skill_info[num].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == KNOW_SKILL)
 							ch->set_skill(num, num2);
 				}
 				while (num != 0);

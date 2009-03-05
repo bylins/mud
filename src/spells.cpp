@@ -1322,7 +1322,7 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SKILL_NUM)
 			{
 				drndice = GET_OBJ_VAL(obj, 1);
-				if (skill_info[drndice].classknow[(int) GET_KIN(ch)][(int) GET_CLASS(ch)] == KNOW_SKILL)
+				if (skill_info[drndice].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == KNOW_SKILL)
 				{
 					drsdice = GET_OBJ_VAL(obj, 2);
 				}
@@ -1610,7 +1610,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SKILL_NUM)
 			{
 				drndice = GET_OBJ_VAL(obj, 1);
-				if (skill_info[drndice].classknow[(int) GET_KIN(ch)][(int) GET_CLASS(ch)] == KNOW_SKILL)
+				if (skill_info[drndice].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == KNOW_SKILL)
 				{
 					drsdice = GET_OBJ_VAL(obj, 2);
 				}
