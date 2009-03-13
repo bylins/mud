@@ -2732,18 +2732,21 @@ void Crash_save_all_rent(void)
 // а по списку чаров, чтобы сохранить заодно и тех,
 // кто перед ребутом ушел в ЛД с целью сохранить
 // свои грязные денежки.
-	CHAR_DATA *ch;
-	for (ch = character_list; ch; ch = ch->next)
+	CHAR_DATA *ch, *tch;
+	for (ch = character_list; ch; ch = tch)
+	{
+		tch = ch->next;
 		if (!IS_NPC(ch))
 		{
 			Crash_offer_rent(ch, ch, FALSE, RENT_FACTOR, &cost);
 			Crash_rentsave(ch, cost);
 			log("Saving char: %s with rent %i \n", GET_NAME(ch), cost);
 			REMOVE_BIT(PLR_FLAGS(ch, PLR_CRASH), PLR_CRASH);
-			REMOVE_BIT(PLR_FLAGS(ch, AFF_GROUP), AFF_GROUP);
-			REMOVE_BIT(PLR_FLAGS(ch, AFF_HORSE), AFF_HORSE);
+			REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
+			REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
 			extract_char(ch, FALSE);
 		}
+	}
 }
 
 
