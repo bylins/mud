@@ -2781,15 +2781,15 @@ void load_skills()
 						_exit(1);
 					}
 				skill_info[sk_num].classknow[j][i] = KNOW_SKILL;
-				log("Умение '%s' для расы %d класса %d разрешено.", skill_info[sk_num].name, j, i);
+				log("Умение '%s' для расы %d класса %d разрешено.", skill_info[sk_num].name, i, j);
 				value = xmltoi(xNodeSkill.getAttribute("improve"));
 				skill_info[sk_num].k_improove[j][i] = MAX(1, value);
-				log("Коэффициент улучшения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, j, i, skill_info[sk_num].k_improove[j][i]);
+				log("Коэффициент улучшения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, i, j, (int)skill_info[sk_num].k_improove[j][i]);
 				value = xmltoi(xNodeSkill.getAttribute("level"));
 				if (value>0 && value<LVL_IMMORT)
 				{
 					skill_info[sk_num].min_level[j][i] = value;
-					log("Минимальный уровень изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, j, i, value);
+					log("Минимальный уровень изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, i, j, value);
 				}else
 				{
 					log("ERROR: Недопустимый минимальный уровень изучения умения '%s' - %d", skill_info[sk_num].name, value);
@@ -2799,7 +2799,7 @@ void load_skills()
 				if (value>=0 && value<MAX_REMORT)
 				{
 					skill_info[sk_num].min_remort[j][i] = value;
-					log("Минимальное количество ремортов для изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, j, i, skill_info[sk_num].min_remort[j][i]);
+					log("Минимальное количество ремортов для изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, i, j, skill_info[sk_num].min_remort[j][i]);
 				}else
 				{
 					log("ERROR: Недопустимое минимальное количество ремортов для умения '%s' - %d", skill_info[sk_num].name, value);
