@@ -35,6 +35,7 @@
 #include "features.hpp"
 #include "im.h"
 #include "char.hpp"
+#include "xmlParser.h"
 
 extern int siteok_everyone;
 extern struct spell_create_type spell_create[];
@@ -2641,9 +2642,174 @@ int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj)
 	return (FALSE);
 }
 
+void load_skills_definitions()
+{
+	char line1[256], line2[256], line3[256], line4[256], name[256];
+	int i[15], j, sp_num, l;
+	FILE* magic;
 
+	if (!(magic = fopen(LIB_MISC "skills.lst", "r")))
+	{
+		log("Cann't open skills list file...");
+		_exit(1);
+	}
+	while (get_line(magic, name))
+	{
+		if (!name[0] || name[0] == ';')
+			continue;
+		if (sscanf(name, "%s %s %d %d %d %d %d", line1, line2, i, i + 1, i + 2, i + 3, i + 4) != 7)
+		{
+			log("Bad format for skill string !\r\n"
+				"Format : <skill name (%%s %%s)>  <kin (%%d)> <class (%%d)> <remort (%%d)> <minlevel> <improove (%%d)> !");
+			_exit(1);
+		}
+		name[0] = '\0';
+		strcat(name, line1);
+		if (*line2 != '*')
+		{
+			*(name + strlen(name) + 1) = '\0';
+			*(name + strlen(name) + 0) = ' ';
+			strcat(name, line2);
+		}
+		if ((sp_num = find_skill_num(name)) < 0)
+		{
+			log("Skill '%s' not found...", name);
+			_exit(1);
+		}
+		if (i[0] < 0 || i[0] >= NUM_KIN)
+		{
+			log("Bad kin type for skill \"%s\"...", skill_info[sp_num].name);
+			_exit(1);
+		}
+		if (i[1] < 0 || i[1] >= NUM_CLASSES)
+		{
+			log("Bad class type for skill \"%s\"...", skill_info[sp_num].name);
+			_exit(1);
+		}
+		if (i[2] < 0 || i[2] >= MAX_REMORT)
+		{
+			log("Bad remort type for skill \"%s\"...", skill_info[sp_num].name);
+			_exit(1);
+		}
+		if (i[4])
+		{
+			skill_info[sp_num].k_improove[i[1]][i[0]] = MAX(1, i[4]);
+			log("Improove set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[4]);
+		}
+		if (i[3])
+		{
+			skill_info[sp_num].min_level[i[1]][i[0]] = i[3];
+			log("Level set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[3]);
+		}
+		skill_info[sp_num].min_remort[i[1]][i[0]] = i[2];
+		log("Remort set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[2]);
+	}
+	fclose(magic);
+	if (!(magic = fopen(LIB_MISC "classskill.lst", "r")))
+	{
+		log("Cann't open classskill list file...");
+		_exit(1);
+	}
+	while (get_line(magic, name))
+	{
+		if (!name[0] || name[0] == ';')
+			continue;
+		if (sscanf(name, "%s %s %s %s", line1, line2, line3, line4) != 4)
+		{
+			log("Bad format for skill string !\r\n" "Format : <skill name (%%s %%s)> <kin (%%s)> <skills (%%s)> !");
+			_exit(1);
+		}
+		name[0] = '\0';
+		strcat(name, line1);
+		if (*line2 != '*')
+		{
+			*(name + strlen(name) + 1) = '\0';
+			*(name + strlen(name) + 0) = ' ';
+			strcat(name, line2);
+		}
+		if ((sp_num = find_skill_num(name)) < 0)
+		{
+			log("Skill '%s' not found...", name);
+			_exit(1);
+		}
+		for (l = 0; line3[l] && l < NUM_KIN; l++)
+		{
+			if (!strchr("1xX!", line3[l]))
+				continue;
+			for (j = 0; line4[j] && j < NUM_CLASSES; j++)
+			{
+				if (!strchr("1xX!", line4[j]))
+					continue;
+				skill_info[sp_num].classknow[j][l] = KNOW_SKILL;
+				log("Set skill '%s' kin %d classes %d is Know", skill_info[sp_num].name, l, j);
+			}
+		}
+	}
+	fclose(magic);
+}
 
+//Polud Читает данные из файла хранения параметров умений
+void load_skills()
+{
+	const char *SKILLS_FILE = LIB_MISC"skills.xml";
+	int sk_num, value;
+	char *name;
+	XMLResults result;
+	XMLNode xMainNode=XMLNode::parseFile(SKILLS_FILE, "skills", &result);
+	if (result.error != eXMLErrorNone)
+	{
+		log("SYSERROR: Ошибка чтения файла %s: %s", SKILLS_FILE, XMLNode::getError(result.error));
+		load_skills_definitions();
+		return;
+	}
+	int numraces = xMainNode.nChildNode("race");
+	for (int i=0; i<numraces; i++)
+	{
+		XMLNode xNodeRace = xMainNode.getChildNode("race", i);
+		int numclasses = xNodeRace.nChildNode("class");
+		for (int j=0; j<numclasses; j++)
+		{
+			XMLNode xNodeClass = xNodeRace.getChildNode("class", j);
+			int numskills = xNodeClass.nChildNode("skill");
+			for (int k=0; k<numskills; k++)
+			{
+				XMLNode xNodeSkill = xNodeClass.getChildNode("skill", k);
+				name = str_dup(xNodeSkill.getAttribute("name"));		
+				if ((sk_num = find_skill_num(name)) < 0)
+					{
+						log("Skill '%s' not found...", name);
+						_exit(1);
+					}
+				skill_info[sk_num].classknow[j][i] = KNOW_SKILL;
+				log("Умение '%s' для расы %d класса %d разрешено.", skill_info[sk_num].name, j, i);
+				value = xmltoi(xNodeSkill.getAttribute("improve"));
+				skill_info[sk_num].k_improove[j][i] = MAX(1, value);
+				log("Коэффициент улучшения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, j, i, skill_info[sk_num].k_improove[j][i]);
+				value = xmltoi(xNodeSkill.getAttribute("level"));
+				if (value>0 && value<LVL_IMMORT)
+				{
+					skill_info[sk_num].min_level[j][i] = value;
+					log("Минимальный уровень изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, j, i, value);
+				}else
+				{
+					log("ERROR: Недопустимый минимальный уровень изучения умения '%s' - %d", skill_info[sk_num].name, value);
+					_exit(1);
+				}
+				value = xmltoi(xNodeSkill.getAttribute("remort"));
+				if (value>=0 && value<MAX_REMORT)
+				{
+					skill_info[sk_num].min_remort[j][i] = value;
+					log("Минимальное количество ремортов для изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, j, i, skill_info[sk_num].min_remort[j][i]);
+				}else
+				{
+					log("ERROR: Недопустимое минимальное количество ремортов для умения '%s' - %d", skill_info[sk_num].name, value);
+					_exit(1);
+				}
+			}
+		}
 
+	}
+}
 /*
  * SPELLS AND SKILLS.  This area defines which spells are assigned to
  * which classes, and the minimum level the character must be to use
@@ -2652,8 +2818,8 @@ int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj)
 void init_spell_levels(void)
 {
 	FILE *magic;
-	char line1[256], line2[256], line3[256], line4[256], name[256];
-	int i[15], c, j, sp_num, l;
+	char line1[256], line2[256], line3[256], name[256];
+	int i[15], j, c, sp_num;
 	if (!(magic = fopen(LIB_MISC "magic.lst", "r")))
 	{
 		log("Cann't open magic list file...");
@@ -2864,104 +3030,9 @@ void init_spell_levels(void)
 	fclose(magic);
 	/* End of changed */
 
-	if (!(magic = fopen(LIB_MISC "skills.lst", "r")))
-	{
-		log("Cann't open skills list file...");
-		_exit(1);
-	}
-	while (get_line(magic, name))
-	{
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf(name, "%s %s %d %d %d %d %d", line1, line2, i, i + 1, i + 2, i + 3, i + 4) != 7)
-		{
-			log("Bad format for skill string !\r\n"
-				"Format : <skill name (%%s %%s)>  <kin (%%d)> <class (%%d)> <remort (%%d)> <minlevel> <improove (%%d)> !");
-			_exit(1);
-		}
-		name[0] = '\0';
-		strcat(name, line1);
-		if (*line2 != '*')
-		{
-			*(name + strlen(name) + 1) = '\0';
-			*(name + strlen(name) + 0) = ' ';
-			strcat(name, line2);
-		}
-		if ((sp_num = find_skill_num(name)) < 0)
-		{
-			log("Skill '%s' not found...", name);
-			_exit(1);
-		}
-		if (i[0] < 0 || i[0] >= NUM_KIN)
-		{
-			log("Bad kin type for skill \"%s\"...", skill_info[sp_num].name);
-			_exit(1);
-		}
-		if (i[1] < 0 || i[1] >= NUM_CLASSES)
-		{
-			log("Bad class type for skill \"%s\"...", skill_info[sp_num].name);
-			_exit(1);
-		}
-		if (i[2] < 0 || i[2] >= MAX_REMORT)
-		{
-			log("Bad remort type for skill \"%s\"...", skill_info[sp_num].name);
-			_exit(1);
-		}
-		if (i[4])
-		{
-			skill_info[sp_num].k_improove[i[1]][i[0]] = MAX(1, i[4]);
-			log("Improove set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[4]);
-		}
-		if (i[3])
-		{
-			skill_info[sp_num].min_level[i[1]][i[0]] = i[3];
-			log("Level set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[3]);
-		}
-		skill_info[sp_num].min_remort[i[1]][i[0]] = i[2];
-		log("Remort set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[2]);
-	}
-	fclose(magic);
-	if (!(magic = fopen(LIB_MISC "classskill.lst", "r")))
-	{
-		log("Cann't open classskill list file...");
-		_exit(1);
-	}
-	while (get_line(magic, name))
-	{
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf(name, "%s %s %s %s", line1, line2, line3, line4) != 4)
-		{
-			log("Bad format for skill string !\r\n" "Format : <skill name (%%s %%s)> <kin (%%s)> <skills (%%s)> !");
-			_exit(1);
-		}
-		name[0] = '\0';
-		strcat(name, line1);
-		if (*line2 != '*')
-		{
-			*(name + strlen(name) + 1) = '\0';
-			*(name + strlen(name) + 0) = ' ';
-			strcat(name, line2);
-		}
-		if ((sp_num = find_skill_num(name)) < 0)
-		{
-			log("Skill '%s' not found...", name);
-			_exit(1);
-		}
-		for (l = 0; line3[l] && l < NUM_KIN; l++)
-		{
-			if (!strchr("1xX!", line3[l]))
-				continue;
-			for (j = 0; line4[j] && j < NUM_CLASSES; j++)
-			{
-				if (!strchr("1xX!", line4[j]))
-					continue;
-				skill_info[sp_num].classknow[j][l] = KNOW_SKILL;
-				log("Set skill '%s' kin %d classes %d is Know", skill_info[sp_num].name, l, j);
-			}
-		}
-	}
-	fclose(magic);
+//	Polud новый файл описания умений Skills.xml, если его нет - читаются старые
+	load_skills();
+
 	if (!(magic = fopen(LIB_MISC "skillvariables.lst", "r")))
 	{
 		log("Cann't open skillvariables list file...");
@@ -3056,6 +3127,7 @@ void init_spell_levels(void)
 		name[0] = '\0';
 	}
 	fclose(magic);
+
 
 	/* Remove to init_im::im.cpp - Gorrah
 	// +newbook.patch (Alisher)
