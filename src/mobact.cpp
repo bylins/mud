@@ -26,6 +26,7 @@
 #include "pk.h"
 #include "random.hpp"
 #include "char.hpp"
+#include "house.h"
 
 /* external structs */
 extern CHAR_DATA *character_list;
@@ -33,6 +34,8 @@ extern INDEX_DATA *mob_index;
 extern int no_specials;
 extern TIME_INFO_DATA time_info;
 extern SPECIAL(guild_poly);
+extern guardian_type guardian_list;
+extern struct zone_data * zone_table;
 
 ACMD(do_get);
 void go_bash(CHAR_DATA * ch, CHAR_DATA * vict);
@@ -59,6 +62,7 @@ int npc_steal(CHAR_DATA * ch);
 void npc_light(CHAR_DATA * ch);
 void pulse_affect_update(CHAR_DATA * ch);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
+bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict);
 
 /* local functions */
 void mobile_activity(int activity_level, int missed_pulses);
@@ -76,6 +80,9 @@ int extra_aggressive(CHAR_DATA * ch, CHAR_DATA * victim)
 		return (FALSE);
 
 	if (MOB_FLAGGED(ch, MOB_AGGRESSIVE))
+		return (TRUE);
+
+	if (victim && guardian_attack(ch, victim))
 		return (TRUE);
 
 	if (victim && MOB_FLAGGED(ch, MOB_AGGRMONO) && !IS_NPC(victim) && GET_RELIGION(victim) == RELIGION_MONO)
@@ -198,6 +205,7 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 #define SKIP_CAMOUFLAGE (1 << 12)
 #define SKIP_SNEAKING   (1 << 13)
 #define CHECK_OPPONENT  (1 << 14)
+#define GUARD_ATTACK    (1 << 15)
 
 
 
@@ -227,7 +235,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 				|| PRF_FLAGGED(vict, PRF_NOHASSLE)
 				|| !MAY_SEE(ch, vict)
 				|| (IS_SET(extmode, CHECK_OPPONENT) && ch != FIGHTING(vict))
-				|| !may_kill_here(ch, vict))
+				|| (!may_kill_here(ch, vict) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
 			continue;
 
 		kill_this = FALSE;
@@ -452,12 +460,14 @@ int perform_mob_switch(CHAR_DATA * ch)
 
 void do_aggressive_mob(CHAR_DATA * ch, int check_sneak)
 {
-	CHAR_DATA *vict, *next_ch, *next_vict, *victim;
+	CHAR_DATA *vict, *next_ch, *next_vict, *victim, *guard_vict=NULL;
 	int mode = check_sneak ? SKIP_SNEAKING : 0;
 	memory_rec *names;
 
 	if (IN_ROOM(ch) == NOWHERE)
 		return;
+
+	if (!IS_NPC(ch)) guard_vict = ch;
 
 	for (ch = world[IN_ROOM(ch)]->people; ch; ch = next_ch)
 	{
@@ -476,6 +486,14 @@ void do_aggressive_mob(CHAR_DATA * ch, int check_sneak)
 		if (extra_aggressive(ch, NULL))
 		{
 			perform_best_mob_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE | CHECK_HITS);
+			continue;
+		}
+		//Polud стражники
+		if (guard_vict && guardian_attack(ch, guard_vict))
+		{
+			act("'$N - за грехи свои ты заслуживаешь смерти!', сурово проговорил$g $n.", FALSE, ch, 0, guard_vict, TO_ROOM);
+			act("'Как страж этого города, я намерен$g привести приговор в исполнение немедленно. Защищайся!'", FALSE, ch, 0, guard_vict, TO_ROOM);
+			perform_best_mob_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE | SKIP_SNEAKING | GUARD_ATTACK);
 			continue;
 		}
 
@@ -1016,4 +1034,41 @@ void clearMemory(CHAR_DATA * ch)
 		curr = next;
 	}
 	MEMORY(ch) = NULL;
+}
+//Polud Функция проверяет, является ли моб ch стражником (описан в файле guards.xml)
+//и должен ли он сагрить на эту жертву vict
+bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict)
+{
+	struct mob_guardian tmp_guard;
+	int num_wars_vict = 0;
+
+	if (!IS_NPC(ch) || !vict)
+		return false;
+
+	guardian_type::iterator it = guardian_list.find(GET_MOB_VNUM(ch));
+
+	if (it == guardian_list.end())
+		return false;
+	
+	tmp_guard = guardian_list[GET_MOB_VNUM(ch)];
+
+	if ((tmp_guard.agro_all_agressors && AGRESSOR(vict)) ||
+		(tmp_guard.agro_killers && PLR_FLAGGED(vict, PLR_KILLER)))
+		return true;
+
+	if (CLAN(vict))
+	{
+		num_wars_vict = Clan::GetClanWars(vict);
+		int clan_town_vnum = CLAN(vict)->GetOutRent()/100; //Polud подскажите мне другой способ определить vnum зоны 
+		int mob_town_vnum = GET_MOB_VNUM(ch)/100;          //по vnum комнаты, не перебирая все комнаты и зоны мира
+		if (num_wars_vict && num_wars_vict > tmp_guard.max_wars_allow &&  clan_town_vnum != mob_town_vnum)
+			return true;
+	}
+	if (AGRESSOR(vict))
+		for (std::vector<zone_vnum>::iterator iter = tmp_guard.agro_argressors_in_zones.begin(); iter != tmp_guard.agro_argressors_in_zones.end();iter++)
+		{
+			if (*iter == AGRESSOR(vict)/100) return true;
+		}
+	
+	return false;
 }

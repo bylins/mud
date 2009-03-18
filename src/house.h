@@ -163,6 +163,7 @@ public:
 		return this->abbrev.c_str();
 	};
 	int GetRent();
+	int GetOutRent();
 	int SetClanExp(CHAR_DATA *ch, int add);  //На входе - икспа с моба - на выходе икспа собсно игроку. за вычетом той что идет в клан
 	int GetMemberExpPersent(CHAR_DATA *ch);
 	int GetClanLevel()
@@ -177,7 +178,9 @@ public:
 	{
 		return this->privileges[rank][privilege];
 	};
-
+//Polud 
+	static int GetClanWars(CHAR_DATA * ch);
+//-Polud
 	static void init_chest_rnum();
 	static bool is_clan_chest(OBJ_DATA *obj);
 	static void clan_invoice(CHAR_DATA *ch, bool enter);

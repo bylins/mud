@@ -2465,5 +2465,18 @@ public:
 
 //-Polos.insert_wanted_gem
 
+//Polud
+struct mob_guardian
+{
+	int max_wars_allow;
+	bool agro_killers;
+	bool agro_all_agressors;
+	std::vector<zone_vnum> agro_argressors_in_zones;
+};
+
+typedef map <int, mob_guardian> guardian_type;
+
+//-Polud
+
 #endif /* __STRUCTS_H__ */
 

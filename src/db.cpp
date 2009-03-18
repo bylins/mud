@@ -53,6 +53,7 @@
 #include "char_player.hpp"
 #include "parcel.hpp"
 #include "liquid.hpp"
+#include "xmlParser.h"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -142,8 +143,9 @@ struct portals_list_type *portals_list;	/* Список проталов для townportal */
 int now_entrycount = FALSE;
 extern int reboot_uptime;
 
-MobRace *mobraces = 0;
-
+//Polud
+guardian_type guardian_list;
+//-Polud
 //Polos.inserd_wanted_gem
 class insert_wanted_gem iwg;
 //-Polos.insert_wanted_gem
@@ -205,7 +207,9 @@ void init_im(void);
 //MZ.load
 void init_zone_types(void);
 //-MZ.load
-
+//Polud
+void load_guardians();
+//-Polud
 
 /* external functions */
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
@@ -244,7 +248,7 @@ extern void NewNameRemove(CHAR_DATA * ch);
 extern void NewNameLoad();
 
 //polud
-void load_mobraces();
+extern void load_mobraces();
 //-polud
 
 /* external vars */
@@ -1431,6 +1435,9 @@ void boot_db(void)
 //Polud грузим параметры рас мобов
 	log("Load mob races.");
 	load_mobraces();
+//Polud стражников
+	log("Load guardians.");
+	load_guardians();
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");
@@ -7480,3 +7487,64 @@ void SaveGlobalUID(void)
 	return;
 }
 
+void load_guardians()
+{
+	const char *GUARD_FILE = LIB_MISC"guards.xml";
+	int num_wars = 0, num_wars_global = 0, guard_vnum = 0;
+	struct mob_guardian tmp_guard;
+	XMLResults result;
+
+	XMLNode xMainNode=XMLNode::parseFile(GUARD_FILE, "guardians", &result);
+	
+	if (result.error != eXMLErrorNone)
+	{
+		log("SYSERROR: Ошибка чтения файла %s - %s", GUARD_FILE, XMLNode::getError(result.error));
+		return;
+	}
+
+	guardian_list.clear();
+
+	num_wars_global = xmltoi(xMainNode.getChildNode("wars").getText());
+	int num_guards = xMainNode.nChildNode("guard");
+
+	for (int i=0; i<num_guards;i++)
+	{
+		XMLNode xNodeGuard = xMainNode.getChildNode("guard", i);
+		guard_vnum = xmltoi(xNodeGuard.getAttribute("vnum"));
+
+		if (guard_vnum <= 0)
+		{
+			log("ERROR: Ошибка загрузки файла %s - некорректное значение VNUM: %d", GUARD_FILE, guard_vnum);
+			continue;
+		}
+		//значения по умолчанию
+		tmp_guard.max_wars_allow = num_wars_global;
+		tmp_guard.agro_all_agressors = false;
+		tmp_guard.agro_argressors_in_zones.clear();
+		tmp_guard.agro_killers = true;
+
+		num_wars = xmltoi(xNodeGuard.getAttribute("wars"));
+
+		if (num_wars && (num_wars != num_wars_global))
+			tmp_guard.max_wars_allow = num_wars;
+
+		if (!strcmp(xNodeGuard.getAttribute("killer"),"no"))
+			tmp_guard.agro_killers = false;
+
+		if (!strcmp(xNodeGuard.getAttribute("agressor"),"yes"))
+			tmp_guard.agro_all_agressors = true;
+
+		if (!strcmp(xNodeGuard.getAttribute("agressor"),"list"))
+		{
+			int num_zones = xNodeGuard.nChildNode("zone");
+
+			for (int j=0; j<num_zones; j++)
+			{
+				XMLNode xNodeZone = xNodeGuard.getChildNode("zone", j);
+				tmp_guard.agro_argressors_in_zones.push_back(xmltoi(xNodeZone.getText()));
+			}
+		}
+		guardian_list[guard_vnum] = tmp_guard;
+	}
+
+}

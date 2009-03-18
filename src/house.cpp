@@ -4234,6 +4234,11 @@ int Clan::GetRent()
 	return this->rent;
 }
 
+int Clan::GetOutRent()
+{
+	return this->out_rent;
+}
+
 /**
 * Удаление чара из клана, клан берется не через поля чара, а ищем по всем кланам
 */
@@ -4331,4 +4336,22 @@ int Clan::print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 		}
 	}
 	return count;
+}
+
+int Clan::GetClanWars(CHAR_DATA *ch)
+{
+	int result=0, p1=0;
+	if (IS_NPC(ch) || !CLAN(ch))
+		return 0;
+
+	ClanListType::const_iterator clanVictim;
+	for (clanVictim = Clan::ClanList.begin(); clanVictim != Clan::ClanList.end(); ++clanVictim)
+	{
+		if (*clanVictim == CLAN(ch))
+			continue;
+		p1 = CLAN(ch)->CheckPolitics((*clanVictim)->rent);
+		if (p1 == POLITICS_WAR) result++;
+	}
+
+	return result;
 }

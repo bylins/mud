@@ -1,5 +1,6 @@
 18.03.09 Polud
-	Описания умений перенесены из файлов skills.lst classkills.lst в файл skills.xml
+	Описания умений перенесены из файлов skills.lst classskills.lst в файл skills.xml
+	Введены мобы-городские стражники. Описываются в файле misc/guards.xml.
 
 13.03.09 Polud
 	Mute больше не будет слетать при ребуте.
