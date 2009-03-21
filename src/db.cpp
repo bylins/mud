@@ -1257,6 +1257,8 @@ void obj_data::init_set_table()
 void boot_db(void)
 {
 	zone_rnum i;
+//Polud глобальные установки для xmlParser, учат его правильно работать с koi8-r
+	XMLNode::setGlobalOptions(XMLNode::char_encoding_legacy, 0, 1, 1);
 
 	log("Boot db -- BEGIN.");
 
@@ -1294,6 +1296,10 @@ void boot_db(void)
 	log("Booting inser_wanted.lst.");
 	iwg.init();
 //Polos.insert_wanted_gem
+
+//Polud загрузим список стражников
+	log("Load guardians.");
+	load_guardians();
 
 	boot_world();
 
@@ -1435,9 +1441,6 @@ void boot_db(void)
 //Polud грузим параметры рас мобов
 	log("Load mob races.");
 	load_mobraces();
-//Polud стражников
-	log("Load guardians.");
-	load_guardians();
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");
@@ -3818,6 +3821,11 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 		// mobile принадлежит тестовой зоне
 		SET_BIT(MOB_FLAGS(mob, MOB_NOSUMMON), MOB_NOSUMMON);
 	}
+
+//Polud - поставим флаг стражнику
+	guardian_type::iterator it = guardian_list.find(GET_MOB_VNUM(mob));
+	if (it != guardian_list.end())
+		SET_BIT(MOB_FLAGS(mob, MOB_GUARDIAN), MOB_GUARDIAN);
 
 	return (mob);
 }

@@ -82,7 +82,7 @@ int extra_aggressive(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (MOB_FLAGGED(ch, MOB_AGGRESSIVE))
 		return (TRUE);
 
-	if (victim && guardian_attack(ch, victim))
+	if (MOB_FLAGGED(ch, MOB_GUARDIAN)&& guardian_attack(ch, victim))
 		return (TRUE);
 
 	if (victim && MOB_FLAGGED(ch, MOB_AGGRMONO) && !IS_NPC(victim) && GET_RELIGION(victim) == RELIGION_MONO)
@@ -253,7 +253,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 			kill_this = TRUE;
 		else
 			// ... but no aggressive for this char
-			if (!(extra_aggr = extra_aggressive(ch, vict)))
+			if (!(extra_aggr = extra_aggressive(ch, vict)) && !IS_SET(extmode, GUARD_ATTACK))
 				continue;
 
 		// skip sneaking, hiding and camouflaging pc
@@ -384,6 +384,13 @@ int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
 				return (FALSE);
 			act("$n вступил$g в битву на стороне $N1.", FALSE, ch, 0, FIGHTING(best), TO_ROOM);
 		}
+		
+		if (IS_SET(extmode, GUARD_ATTACK))
+		{
+			act("'$N - за грехи свои ты заслуживаешь смерти!', сурово проговорил$g $n.", FALSE, ch, 0, best, TO_ROOM);
+			act("'Как страж этого города, я намерен$g привести приговор в исполнение немедленно. Защищайся!'", FALSE, ch, 0, best, TO_ROOM);
+		}
+		
 		if (!IS_NPC(best))
 		{
 			struct follow_type *f;
@@ -460,15 +467,15 @@ int perform_mob_switch(CHAR_DATA * ch)
 
 void do_aggressive_mob(CHAR_DATA * ch, int check_sneak)
 {
-	CHAR_DATA *vict, *next_ch, *next_vict, *victim, *guard_vict=NULL;
+	CHAR_DATA *vict, *next_ch, *next_vict, *victim;
 	int mode = check_sneak ? SKIP_SNEAKING : 0;
 	memory_rec *names;
 
+	if (!ch) return;
+
 	if (IN_ROOM(ch) == NOWHERE)
 		return;
-
-	if (!IS_NPC(ch)) guard_vict = ch;
-
+	
 	for (ch = world[IN_ROOM(ch)]->people; ch; ch = next_ch)
 	{
 		next_ch = ch->next_in_room;
@@ -489,11 +496,9 @@ void do_aggressive_mob(CHAR_DATA * ch, int check_sneak)
 			continue;
 		}
 		//Polud стражники
-		if (guard_vict && guardian_attack(ch, guard_vict))
+		if (MOB_FLAGGED(ch, MOB_GUARDIAN))
 		{
-			act("'$N - за грехи свои ты заслуживаешь смерти!', сурово проговорил$g $n.", FALSE, ch, 0, guard_vict, TO_ROOM);
-			act("'Как страж этого города, я намерен$g привести приговор в исполнение немедленно. Защищайся!'", FALSE, ch, 0, guard_vict, TO_ROOM);
-			perform_best_mob_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE | SKIP_SNEAKING | GUARD_ATTACK);
+			perform_best_mob_attack(ch, SKIP_HIDING | SKIP_CAMOUFLAGE | SKIP_SNEAKING | GUARD_ATTACK);
 			continue;
 		}
 
@@ -1042,14 +1047,13 @@ bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict)
 	struct mob_guardian tmp_guard;
 	int num_wars_vict = 0;
 
-	if (!IS_NPC(ch) || !vict)
+	if (!IS_NPC(ch) || !vict || !MOB_FLAGGED(ch, MOB_GUARDIAN))
 		return false;
-
+//на всякий случай проверим, а вдруг моб да подевался куда из списка...
 	guardian_type::iterator it = guardian_list.find(GET_MOB_VNUM(ch));
-
 	if (it == guardian_list.end())
 		return false;
-	
+
 	tmp_guard = guardian_list[GET_MOB_VNUM(ch)];
 
 	if ((tmp_guard.agro_all_agressors && AGRESSOR(vict)) ||
