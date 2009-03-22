@@ -751,8 +751,8 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 //
 			 (diff =
 				  wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20 -
-				  ch->get_skill(skill_no)) > 0
-			 && ch->get_skill(skill_no) < MAX_EXP_PERCENT + GET_REMORT(ch) * 5))
+				  ch->get_trained_skill(skill_no)) > 0
+			 && ch->get_trained_skill(skill_no) < MAX_EXP_PERCENT + GET_REMORT(ch) * 5))
 	{
 		int how_many = ch->get_skills_count();
 		how_many += (im_get_char_rskill_count(ch) + 1) >> 1;
@@ -771,7 +771,7 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 			prob += (5 * diff);
 		else
 			prob += (10 * diff);
-		prob += number(1, ch->get_skill(skill_no) * 5);
+		prob += number(1, ch->get_trained_skill(skill_no) * 5);
 
 		skill_is = number(1, MAX(1, prob));
 
@@ -794,9 +794,9 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 						CCICYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch,
 								C_NRM));
 			send_to_char(buf, ch);
-			ch->set_skill(skill_no, (ch->get_skill(skill_no) + number(1, 2)));
+			ch->set_skill(skill_no, (ch->get_trained_skill(skill_no) + number(1, 2)));
 			if (!IS_IMMORTAL(ch))
-				ch->set_skill(skill_no, (MIN(MAX_EXP_PERCENT + GET_REMORT(ch) * 5, ch->get_skill(skill_no))));
+				ch->set_skill(skill_no, (MIN(MAX_EXP_PERCENT + GET_REMORT(ch) * 5, ch->get_trained_skill(skill_no))));
 // скилл прокачался, помечаю моба (если он есть)
 			if (victim && IS_NPC(victim))
 				SET_BIT(MOB_FLAGS(victim, MOB_NOTRAIN), MOB_NOTRAIN);
@@ -813,7 +813,7 @@ int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict)
 	if (!IS_NPC(ch))
 	{
 		if (skill_no != SKILL_SATTACK &&
-				ch->get_skill(skill_no) > 0 && (!vict
+				ch->get_trained_skill(skill_no) > 0 && (!vict
 												|| (IS_NPC(vict)
 													&& !MOB_FLAGGED(vict, MOB_PROTECT)
 													&& !MOB_FLAGGED(vict, MOB_NOTRAIN)

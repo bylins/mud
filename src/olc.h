@@ -217,6 +217,7 @@ extern struct olc_save_info *olc_save_list;
 #define OEDIT_LEVEL                 	38
 #define OEDIT_SEXVALUE			39
 #define OEDIT_MIWVALUE			40
+#define OEDIT_SKILLS					41
 /*
  * Submodes of REDIT connectedness.
  */

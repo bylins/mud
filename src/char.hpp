@@ -284,6 +284,13 @@ public:
 	void clear_skills();
 	int get_skills_count();
 
+	int get_equipped_skill(int skill_num);
+	int get_trained_skill(int skill_num);
+
+private:
+	static int normolize_skill(int skill_num, int percent);
+
+public:
 	PlayerPtr player;
 
 private:

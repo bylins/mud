@@ -3348,7 +3348,22 @@ char *parse_object(FILE * obj_f, int nr)
 		case 'M':
 			GET_OBJ_MIW(tobj) = atoi(line + 1);
 			break;
-
+		case 'S':
+			if (!get_line(obj_f, line))
+			{
+				log("SYSERR: Format error in 'S' field, %s\n"
+					"...expecting 2 numeric constants but file ended!", buf2);
+				exit(1);
+			}
+			if ((retval = sscanf(line, " %d %d ", t, t + 1)) != 2)
+			{
+				log("SYSERR: Format error in 'S' field, %s\n"
+					"...expecting 2 numeric arguments, got %d\n"
+					"...offending line: '%s'", buf2, retval, line);
+				exit(1);
+			}
+			tobj->set_skill(t[0], t[1]);
+			break;
 		case '$':
 		case '#':
 			check_object(tobj);
@@ -7042,10 +7057,12 @@ void save_char(CHAR_DATA *ch)
 	if (GET_LEVEL(ch) < LVL_IMMORT)
 	{
 		fprintf(saved, "Skil:\n");
+		int skill;
 		for (i = 1; i <= MAX_SKILL_NUM; i++)
 		{
-			if (ch->get_skill(i))
-				fprintf(saved, "%d %d %s\n", i, ch->get_skill(i), skill_info[i].name);
+			skill = ch->get_trained_skill(i);
+			if (skill)
+				fprintf(saved, "%d %d %s\n", i, skill, skill_info[i].name);
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -7503,7 +7520,7 @@ void load_guardians()
 	XMLResults result;
 
 	XMLNode xMainNode=XMLNode::parseFile(GUARD_FILE, "guardians", &result);
-	
+
 	if (result.error != eXMLErrorNone)
 	{
 		log("SYSERROR: Ошибка чтения файла %s - %s", GUARD_FILE, XMLNode::getError(result.error));

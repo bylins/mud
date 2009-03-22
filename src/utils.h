@@ -16,6 +16,7 @@
 #define _UTILS_H_
 
 #include "conf.h"
+#include "features.hpp"
 #include <string>
 #include <list>
 #include <map>
@@ -1055,9 +1056,10 @@ extern SPECIAL(postmaster);
  */
 
 #define MORT_CAN_SEE_OBJ(sub, obj) \
-  (INVIS_OK_OBJ(sub, obj) && !AFF_FLAGGED(sub, AFF_BLIND) && \
-   (IS_LIGHT(IN_ROOM(sub)) || OBJ_FLAGGED(obj, ITEM_GLOW) || \
-    (IS_CORPSE(obj) && AFF_FLAGGED(sub, AFF_INFRAVISION))))
+	(INVIS_OK_OBJ(sub, obj) && !AFF_FLAGGED(sub, AFF_BLIND) && \
+	(IS_LIGHT(IN_ROOM(sub)) || OBJ_FLAGGED(obj, ITEM_GLOW) || \
+	(IS_CORPSE(obj) && AFF_FLAGGED(sub, AFF_INFRAVISION)) || \
+	can_use_feat(sub, DARK_READING_FEAT)))
 
 #define CAN_SEE_OBJ(sub, obj) \
    (obj->worn_by    == sub || \

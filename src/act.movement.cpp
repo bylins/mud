@@ -1418,7 +1418,8 @@ ACMD(do_enter)
 										  || (GET_LEVEL(ch) <= 10
 											  && world[door]->portal_time)))
 										 || (ROOM_FLAGGED(from_room, ROOM_NOTELEPORTOUT)
-											 || ROOM_FLAGGED(door, ROOM_NOTELEPORTIN))))
+											 || ROOM_FLAGGED(door, ROOM_NOTELEPORTIN)))
+											 || AFF_FLAGGED(ch, AFF_NOTELEPORT))
 				{
 					sprintf(buf, "%sПентаграмма ослепительно вспыхнула!%s\r\n",
 							CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));

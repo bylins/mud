@@ -1501,7 +1501,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	if (!ch->desc)
 		return;
 
-	if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch))
+	if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !can_use_feat(ch, DARK_READING_FEAT))
 	{
 		send_to_char("Слишком темно...\r\n", ch);
 		return;
@@ -2862,7 +2862,7 @@ ACMD(do_score)
 			sprintf(buf + strlen(buf),
 					" || %sВас ожидает новое письмо, зайдите на почту                                      %s||\r\n",
 					CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
-	
+
 		if (PROTECTING(ch))
 			sprintf(buf + strlen(buf),
 					" || %sВы прикрываете %-65s%s||\r\n",

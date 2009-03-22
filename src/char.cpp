@@ -249,21 +249,52 @@ Character::~Character()
 */
 int Character::get_skill(int skill_num)
 {
+	return normolize_skill(skill_num, get_trained_skill(skill_num) + get_equipped_skill(skill_num));
+}
+
+int Character::get_equipped_skill(int skill_num)
+{
+	int skill = 0;
+	for (int i = 0; i < NUM_WEARS; ++i)
+		if (equipment[i])
+			skill += equipment[i]->get_skill(skill_num);
+
+	return skill;
+}
+
+int Character::get_trained_skill(int skill_num)
+{
+	int skill = 0;
 	if (Privilege::check_skills(this))
 	{
 		CharSkillsType::iterator it = skills.find(skill_num);
 		if (it != skills.end())
 		{
+			skill = it->second;
 			if (AFF_FLAGGED(this, AFF_SKILLS_REDUCE))
-			{
-				int skill = it->second;
 				skill -= skill * (static_cast<double>(GET_POISON(this)) / 100.0);
-				return skill;
-			}
-			return it->second;
 		}
 	}
-	return 0;
+	return normolize_skill(skill_num, skill);
+}
+
+int Character::normolize_skill(int skill_num, int percent)
+{
+	const static int KMinSkillPercent = 0;
+
+	const static int KDefaultMaxSkillPercent = 200;
+	const static int KDigMaxSkillPercent = 100;
+
+	if (percent <= KMinSkillPercent)
+		return KMinSkillPercent;
+
+	switch (skill_num)
+	{
+		case SKILL_DIG:
+			return percent < KDigMaxSkillPercent? percent : KDigMaxSkillPercent;
+		default:
+			return percent < KDefaultMaxSkillPercent? percent : KDefaultMaxSkillPercent;
+	}
 }
 
 /**

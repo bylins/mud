@@ -677,6 +677,7 @@ typedef struct trig_data TRIG_DATA;
 #define AFF_SKILLS_REDUCE   (INT_TWO | (1 << 9))
 #define AFF_NOT_SWITCH      (INT_TWO | (1 << 10))
 #define AFF_BELENA_POISON   (INT_TWO | (1 << 11))
+#define AFF_NOTELEPORT		(INT_TWO | (1 << 12))
 
 // shapirus: modes of ignoring
 #define IGNORE_TELL	(1 << 0)
@@ -1594,7 +1595,8 @@ struct obj_data
 			next(NULL),
 			room_was_in(NOWHERE),
 			max_in_world(0),
-			timed_spell(0)
+			timed_spell(0),
+			skills(NULL)
 	{
 		memset(&obj_flags, 0, sizeof(obj_flag_data));
 
@@ -1639,8 +1641,48 @@ struct obj_data
 	std::string print_timed_spell();
 	int get_timed_spell();
 
+	void set_skill(int skill_num, int percent)
+	{
+		if (!skills)
+			skills = new std::map<int, int>;
+
+		(*skills)[skill_num] = percent;
+	};
+
+	int get_skill(int skill_num)
+	{
+		if (skills)
+		{
+			return (*skills)[skill_num];
+			std::map<int, int>::iterator skill = skills->find(skill_num);
+			if (skill != skills->end())
+				return skill->second;
+			else
+				return 0;
+		}
+		else
+		{
+			return 0;
+		}
+	};
+
+	void get_skills(std::map<int, int>& out_skills)
+	{
+		if (skills)
+		{
+			for (std::map<int, int>::iterator it = skills->begin(); it != skills->end(); ++it)
+				out_skills[it->first] = it->second;
+		}
+	};
+
+	bool has_skills()
+	{
+		return skills != NULL;
+	};
+
 private:
 	struct obj_timed_spell_type *timed_spell; // временный обкаст
+	std::map<int, int>* skills; // если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
 };
 /* ======================================================================= */
 

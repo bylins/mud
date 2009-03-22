@@ -92,6 +92,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d);
 void oedit_disp_skills_menu(DESCRIPTOR_DATA * d);
 void oedit_disp_receipts_menu(DESCRIPTOR_DATA * d);
 void oedit_disp_feats_menu(DESCRIPTOR_DATA * d);
+void oedit_disp_skills_mod_menu(DESCRIPTOR_DATA* d);
 
 /*------------------------------------------------------------------------*\
   Utility and exported functions
@@ -345,7 +346,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 		log("[OEdit] Save object to mem %d", robj_num);
 		olc_update_objects(robj_num, OLC_OBJ(d));
 
-		// Все существующие в мире объекты обновлены согласно нового прототипа
+		// Все существующие в мире объекты обновлены согласно новому прототипу
 		// Строки в этих объектах как ссылки на данные прототипа
 
 		// Теперь возьмусь за прототип.
@@ -594,6 +595,13 @@ void oedit_save_to_disk(int zone_num)
 					fprintf(fp, "A\n"
 							"%d %d\n", obj->affected[counter2].location,
 							obj->affected[counter2].modifier);
+			if (obj->has_skills())
+			{
+				std::map<int, int> skills;
+				obj->get_skills(skills);
+				for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)
+					fprintf(fp, "S\n%d %d\n", it->first, it->second);
+			}
 		}
 	}
 
@@ -838,6 +846,31 @@ void oedit_disp_feats_menu(DESCRIPTOR_DATA * d)
 	}
 	sprintf(buf, "\r\n%sВыберите способность (0 - выход) : ", nrm);
 	send_to_char(buf, d->character);
+}
+
+void oedit_disp_skills_mod_menu(DESCRIPTOR_DATA* d)
+{
+	int columns = 0, counter;
+
+	get_char_cols(d->character);
+#if defined(CLEAR_SCREEN)
+	send_to_char("[H[J", d->character);
+#endif
+	int percent;
+	for (counter = 1; counter <= MAX_SKILL_NUM; ++counter)
+	{
+		if (!skill_info[counter].name || *skill_info[counter].name == '!')
+			continue;
+		percent = OLC_OBJ(d)->get_skill(counter);
+		if (percent != 0)
+			sprintf(buf1, "%s[%3d]%s", cyn, percent, nrm);
+		else
+			strcpy(buf1, "     ");
+		sprintf(buf, "%s%3d%s) %25s%s%s", grn, counter, nrm,
+				skill_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
+		send_to_char(buf, d->character);
+	}
+	send_to_char("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character);
 }
 
 /*
@@ -1410,6 +1443,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			"%sS%s) Скрипт      : %s%s\r\n"
 			"%sU%s) Пол         : %s%d\r\n"
 			"%sV%s) Макс.в мире : %s%d\r\n"
+			"%sW%s) Меню умений\r\n"
 			"%sQ%s) Quit\r\n"
 			"Ваш выбор : ",
 			grn, nrm, cyn, buf1,
@@ -1426,7 +1460,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 			GET_OBJ_VAL(obj, 3), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
 			nrm, cyn, obj->proto_script ? "Set." : "Not Set.", grn, nrm, cyn,
-			GET_OBJ_SEX(obj), grn, nrm, cyn, GET_OBJ_MIW(obj), grn, nrm);
+			GET_OBJ_SEX(obj), grn, nrm, cyn, GET_OBJ_MIW(obj), grn, nrm, grn, nrm);
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = OEDIT_MAIN_MENU;
 }
@@ -1677,7 +1711,11 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			send_to_char("Максимальное число в мире : ", d->character);
 			OLC_MODE(d) = OEDIT_MIWVALUE;
 			break;
-
+		case 'w':
+		case 'W':
+			oedit_disp_skills_mod_menu(d);
+			OLC_MODE(d) = OEDIT_SKILLS;
+			break;
 		default:
 			oedit_disp_menu(d);
 			break;
@@ -2260,6 +2298,20 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		break;
+	case OEDIT_SKILLS:
+		number = atoi(arg);
+		if (number == 0)
+			break;
+		if (number > MAX_SKILL_NUM || !skill_info[number].name || *skill_info[number].name == '!')
+			send_to_char("Неизвестное умение.\r\n", d->character);
+		else if (OLC_OBJ(d)->get_skill(number) != 0)
+			OLC_OBJ(d)->set_skill(number, 0);
+		else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
+			send_to_char("Не указан уровень владения умением.\r\n", d->character);
+		else
+			OLC_OBJ(d)->set_skill(number, bit);
+		oedit_disp_skills_mod_menu(d);
+		return;
 	default:
 		mudlog("SYSERR: OLC: Reached default case in oedit_parse()!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		send_to_char("Oops...\r\n", d->character);

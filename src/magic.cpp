@@ -2770,7 +2770,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Сверкающий щит вспыхнул вокруг Вас и угас.";
 		break;
 
-	case SPELL_NOFLEE:
+	case SPELL_NOFLEE: // "приковать противника"
 		savetype = SAVING_WILL;
 		if (AFF_FLAGGED(victim, AFF_BROKEN_CHAINS)
 				|| (ch != victim && general_savingthrow(ch, victim, savetype, modi)))
@@ -2782,7 +2782,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 3, level, 4, 4, 0));
-		af[0].bitvector = AFF_NOFLEE;
+		af[0].bitvector = AFF_NOTELEPORT;
 		to_room = "$n0 теперь прикован$a к $N2.";
 		to_vict = "Вы не сможете покинуть $N3.";
 		break;

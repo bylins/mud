@@ -171,7 +171,7 @@ ASPELL(spell_recall)
 	room_rnum rnum_start, rnum_stop;
 	int modi = 0;
 
-	if (!victim || IS_NPC(victim) || IN_ROOM(ch) != IN_ROOM(victim) || GET_LEVEL(victim) >= LVL_IMMORT)
+	if (!victim || IS_NPC(victim) || IN_ROOM(ch) != IN_ROOM(victim) || GET_LEVEL(victim) >= LVL_IMMORT || AFF_FLAGGED(victim, AFF_NOTELEPORT))
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
@@ -251,7 +251,7 @@ ASPELL(spell_teleport)
 //  if (victim == NULL)
 	victim = ch;
 
-	if ((IN_ROOM(victim) == NOWHERE) || (IS_NPC(victim)))
+	if ((IN_ROOM(victim) == NOWHERE) || (IS_NPC(victim)) || AFF_FLAGGED(ch, AFF_NOTELEPORT))
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
@@ -316,7 +316,7 @@ ASPELL(spell_relocate)
 		return;
 
 	/* Если левел жертвы больше чем перемещяющегося - фейл */
-	if (IS_NPC(victim) || (GET_LEVEL(victim) > GET_LEVEL(ch)) || IS_IMMORTAL(victim))
+	if (IS_NPC(victim) || (GET_LEVEL(victim) > GET_LEVEL(ch)) || IS_IMMORTAL(victim) || AFF_FLAGGED(ch, AFF_NOTELEPORT))
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
@@ -511,7 +511,7 @@ ASPELL(spell_summon)
 	vic_room = IN_ROOM(victim);
 
 	/* Нельзя суммонить находясь в NOWHERE или если цель в NOWHERE. */
-	if (ch_room == NOWHERE || vic_room == NOWHERE)
+	if (ch_room == NOWHERE || vic_room == NOWHERE || AFF_FLAGGED(victim, AFF_NOTELEPORT))
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
@@ -1492,6 +1492,29 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			send_to_char(buf, ch);
 		}
 	}
+
+	if (obj->has_skills())
+	{
+		send_to_char("Меняет умения :\r\n", ch);
+		std::map<int, int> skills;
+		obj->get_skills(skills);
+		int skill_num;
+		int percent;
+		for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)
+		{
+			skill_num = it->first;
+			percent = it->second;
+
+			if (percent == 0) // TODO: такого не должно быть?
+				continue;
+
+			sprintf(buf, "   %s%s%s%s%s%d%s%s\r\n",
+					CCCYN(ch, C_NRM), skill_info[skill_num].name, CCNRM(ch, C_NRM),
+					CCCYN(ch, C_NRM),
+					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), "\%", CCNRM(ch, C_NRM));
+			send_to_char(buf, ch);
+		}
+	}
 }
 
 void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
@@ -1766,6 +1789,28 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 					CCCYN(ch, C_NRM),
 					negative ? " ухудшает на " : " улучшает на ",
 					abs(obj->affected[i].modifier), CCNRM(ch, C_NRM));
+			send_to_char(buf, ch);
+		}
+	}
+	if (obj->has_skills())
+	{
+		send_to_char("Меняет умения :\r\n", ch);
+		std::map<int, int> skills;
+		obj->get_skills(skills);
+		int skill_num;
+		int percent;
+		for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)
+		{
+			skill_num = it->first;
+			percent = it->second;
+
+			if (percent == 0) // TODO: такого не должно быть?
+				continue;
+
+			sprintf(buf, "   %s%s%s%s%s%d%s%s\r\n",
+					CCCYN(ch, C_NRM), skill_info[skill_num].name, CCNRM(ch, C_NRM),
+					CCCYN(ch, C_NRM),
+					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), "\%", CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 	}

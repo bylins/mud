@@ -141,8 +141,6 @@ int find_feat_slot(CHAR_DATA *ch, int feat);
 int feature_mod(int feat, int location);
 void check_berserk(CHAR_DATA * ch);
 
-#endif
-
 struct feat_info_type
 {
 	int min_remort[NUM_CLASSES][NUM_KIN];
@@ -156,3 +154,5 @@ struct feat_info_type
 	const char *name;
 
 };
+
+#endif // __FEATURES_HPP__
