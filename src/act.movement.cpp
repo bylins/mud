@@ -1415,11 +1415,10 @@ ACMD(do_enter)
 				}
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
 				if (!IS_IMMORTAL(ch) && ((!IS_NPC(ch) && (!Clan::MayEnter(ch, door, HCE_PORTAL)
-										  || (GET_LEVEL(ch) <= 10
-											  && world[door]->portal_time)))
-										 || (ROOM_FLAGGED(from_room, ROOM_NOTELEPORTOUT)
-											 || ROOM_FLAGGED(door, ROOM_NOTELEPORTIN)))
-											 || AFF_FLAGGED(ch, AFF_NOTELEPORT))
+											|| (GET_LEVEL(ch) <= 10 && world[door]->portal_time)))
+											|| (ROOM_FLAGGED(from_room, ROOM_NOTELEPORTOUT)
+												|| ROOM_FLAGGED(door, ROOM_NOTELEPORTIN))
+											|| AFF_FLAGGED(ch, AFF_NOTELEPORT)))
 				{
 					sprintf(buf, "%sПентаграмма ослепительно вспыхнула!%s\r\n",
 							CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
