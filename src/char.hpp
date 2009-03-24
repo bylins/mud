@@ -288,7 +288,7 @@ public:
 	int get_trained_skill(int skill_num);
 
 private:
-	static int normolize_skill(int skill_num, int percent);
+	static int normolize_skill(int percent);
 
 public:
 	PlayerPtr player;

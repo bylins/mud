@@ -171,13 +171,13 @@ ASPELL(spell_recall)
 	room_rnum rnum_start, rnum_stop;
 	int modi = 0;
 
-	if (!victim || IS_NPC(victim) || IN_ROOM(ch) != IN_ROOM(victim) || GET_LEVEL(victim) >= LVL_IMMORT || AFF_FLAGGED(victim, AFF_NOTELEPORT))
+	if (!victim || IS_NPC(victim) || IN_ROOM(ch) != IN_ROOM(victim) || GET_LEVEL(victim) >= LVL_IMMORT)
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	if (!IS_GOD(ch) && ROOM_FLAGGED(IN_ROOM(victim), ROOM_NOTELEPORTOUT))
+	if (!IS_GOD(ch) && (ROOM_FLAGGED(IN_ROOM(victim), ROOM_NOTELEPORTOUT) || AFF_FLAGGED(victim, AFF_NOTELEPORT)))
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
@@ -246,65 +246,31 @@ ASPELL(spell_teleport)
 {
 	room_rnum to_room, fnd_room = NOWHERE;
 	room_rnum rnum_start, rnum_stop;
-	int modi = 0;
 
-//  if (victim == NULL)
-	victim = ch;
-
-	if ((IN_ROOM(victim) == NOWHERE) || (IS_NPC(victim)) || AFF_FLAGGED(ch, AFF_NOTELEPORT))
+	if (!IS_GOD(ch) && (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT) || AFF_FLAGGED(ch, AFF_NOTELEPORT)))
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	if (victim != ch)
-	{
-		if (same_group(ch, victim))
-			modi += 25;
-		if (general_savingthrow(ch, victim, SAVING_WILL, modi))
-		{
-			send_to_char(SUMMON_FAIL, ch);
-			return;
-		}
-	}
-
-	if (!IS_GOD(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT))
-	{
-		send_to_char("Перемещение невозможно.\r\n", ch);
-		return;
-	}
-
-	to_room = IN_ROOM(victim);
-
-	if (to_room == NOWHERE)
-	{
-		send_to_char(SUMMON_FAIL, ch);
-		return;
-	}
-
-	(void) get_zone_rooms(world[to_room]->zone, &rnum_start, &rnum_stop);
-	fnd_room = get_teleport_target_room(victim, rnum_start, rnum_stop);
+	get_zone_rooms(world[to_room]->zone, &rnum_start, &rnum_stop);
+	fnd_room = get_teleport_target_room(ch, rnum_start, rnum_stop);
 	if (fnd_room == NOWHERE)
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	if (FIGHTING(victim) && (victim != ch))
-	{
-		pk_agro_action(ch, FIGHTING(victim));
-	}
-
-	act("$n медленно исчез$q из виду.", FALSE, victim, 0, 0, TO_ROOM);
-	char_from_room(victim);
-	char_to_room(victim, fnd_room);
-	check_horse(victim);
-	act("$n медленно появил$u откуда-то.", FALSE, victim, 0, 0, TO_ROOM);
-	look_at_room(victim, 0);
-	entry_memory_mtrigger(victim);
-	greet_mtrigger(victim, -1);
-	greet_otrigger(victim, -1);
-	greet_memory_mtrigger(victim);
+	act("$n медленно исчез$q из виду.", FALSE, ch, 0, 0, TO_ROOM);
+	char_from_room(ch);
+	char_to_room(ch, fnd_room);
+	check_horse(ch);
+	act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
+	look_at_room(ch, 0);
+	entry_memory_mtrigger(ch);
+	greet_mtrigger(ch, -1);
+	greet_otrigger(ch, -1);
+	greet_memory_mtrigger(ch);
 }
 
 // ПЕРЕМЕСТИТЬСЯ
@@ -316,7 +282,7 @@ ASPELL(spell_relocate)
 		return;
 
 	/* Если левел жертвы больше чем перемещяющегося - фейл */
-	if (IS_NPC(victim) || (GET_LEVEL(victim) > GET_LEVEL(ch)) || IS_IMMORTAL(victim) || AFF_FLAGGED(ch, AFF_NOTELEPORT))
+	if (IS_NPC(victim) || (GET_LEVEL(victim) > GET_LEVEL(ch)) || IS_IMMORTAL(victim))
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
@@ -351,7 +317,12 @@ ASPELL(spell_relocate)
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
-
+		// Нельзя перемещаться после того, как попал под заклинание "приковать противника".
+		if (AFF_FLAGGED(ch, AFF_NOTELEPORT))
+		{
+			send_to_char(SUMMON_FAIL, ch);
+			return;
+		}
 	}
 
 	to_room = IN_ROOM(victim);
@@ -511,7 +482,7 @@ ASPELL(spell_summon)
 	vic_room = IN_ROOM(victim);
 
 	/* Нельзя суммонить находясь в NOWHERE или если цель в NOWHERE. */
-	if (ch_room == NOWHERE || vic_room == NOWHERE || AFF_FLAGGED(victim, AFF_NOTELEPORT))
+	if (ch_room == NOWHERE || vic_room == NOWHERE)
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
@@ -559,7 +530,6 @@ ASPELL(spell_summon)
 	/* Ограничения для смертных (богов ниже следующее не касается) */
 	if (!IS_IMMORTAL(ch))
 	{
-
 		/* Если игрок не моб или чармис, то: */
 		if (!IS_NPC(ch) || IS_CHARMICE(ch))
 		{
@@ -605,11 +575,12 @@ ASPELL(spell_summon)
 			return;
 		}
 		// Жертву нельзя призвать если она в:
-		if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON) ||	// жертва в комнате с флагом !призвать
-				ROOM_FLAGGED(vic_room, ROOM_TUNNEL) ||	// жертва стоит в ван-руме
-				ROOM_FLAGGED(vic_room, ROOM_GODROOM) ||	// жертва в комнате для бессмертных
-				ROOM_FLAGGED(vic_room, ROOM_ARENA) ||	// жертва на арене
-				!Clan::MayEnter(ch, vic_room, HCE_PORTAL))	// жертва во внутренних покоях клан-замка
+		if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)	||	// жертва в комнате с флагом !призвать
+				ROOM_FLAGGED(vic_room, ROOM_TUNNEL)	||	// жертва стоит в ван-руме
+				ROOM_FLAGGED(vic_room, ROOM_GODROOM)||	// жертва в комнате для бессмертных
+				ROOM_FLAGGED(vic_room, ROOM_ARENA)	||	// жертва на арене
+				!Clan::MayEnter(ch, vic_room, HCE_PORTAL)||// жертва во внутренних покоях клан-замка
+				AFF_FLAGGED(victim, AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;

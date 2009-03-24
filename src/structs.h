@@ -1643,17 +1643,31 @@ struct obj_data
 
 	void set_skill(int skill_num, int percent)
 	{
-		if (!skills)
-			skills = new std::map<int, int>;
-
-		(*skills)[skill_num] = percent;
+		if (skills)
+		{
+			std::map<int, int>::iterator skill = skills->find(skill_num);
+			if (skill != skills->end())
+			{
+				if (percent)
+					skill->second = percent;
+				else
+					skills->erase(skill);
+			}
+		}
+		else
+		{
+			if (percent)
+			{
+				skills = new std::map<int, int>;
+				(*skills)[skill_num] = percent;
+			}
+		}
 	};
 
-	int get_skill(int skill_num)
+	int get_skill(int skill_num) const
 	{
 		if (skills)
 		{
-			return (*skills)[skill_num];
 			std::map<int, int>::iterator skill = skills->find(skill_num);
 			if (skill != skills->end())
 				return skill->second;
@@ -1666,7 +1680,7 @@ struct obj_data
 		}
 	};
 
-	void get_skills(std::map<int, int>& out_skills)
+	void get_skills(std::map<int, int>& out_skills) const
 	{
 		if (skills)
 		{
