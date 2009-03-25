@@ -2422,7 +2422,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				if (!*subfield || (pos = atoi(subfield)) <= 0)
 					sprintf(str, "%d", GET_WAIT(c));
 				else if (!WAITLESS(c))
-					GET_WAIT(c) = pos * PULSE_VIOLENCE;
+					WAIT_STATE(c, pos * PULSE_VIOLENCE);
 			}
 			else if (!str_cmp(field, "affect"))
 			{

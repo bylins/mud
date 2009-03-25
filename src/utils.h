@@ -881,7 +881,7 @@ extern SPECIAL(postmaster);
 #define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == SEX_POLY) ? "ят" : "ит")
 
 /* These three deprecated. */
-#define WAIT_STATE(ch, cycle) do { GET_WAIT_STATE(ch) = (cycle); } while(0)
+#define WAIT_STATE(ch, cycle) if (GET_WAIT_STATE(ch)<(cycle)) { do { GET_WAIT_STATE(ch) = (cycle); } while(0);}
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { GET_PUNCTUAL_WAIT_STATE(ch) = (cycle); } while(0)
 #define CHECK_WAIT(ch)        ((ch)->wait > 0)
 #define GET_WAIT(ch)          GET_WAIT_STATE(ch)
