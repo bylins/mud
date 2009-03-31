@@ -110,7 +110,7 @@ void im_parse(int **ing_list, char *line);
 //MZ.load
 void im_reset_room(ROOM_DATA * room, int level, int type);
 //-MZ.load
-void im_make_corpse(OBJ_DATA * corpse, int *ing_list);
+void im_make_corpse(OBJ_DATA * corpse, int *ing_list, int max_prob);
 int im_assign_power(OBJ_DATA * obj);
 int im_get_recipe(int id);
 int im_get_type_by_name(char *name, int mode);
@@ -126,6 +126,6 @@ int im_get_recipe_by_name(char *name);
 im_rskill *im_get_char_rskill(CHAR_DATA * ch, int rid);
 void compose_recipe(CHAR_DATA * ch, char *argument, int subcmd);
 void forget_recipe(CHAR_DATA * ch, char *argument, int subcmd);
-
+int im_get_idx_by_type(int type);
 
 #endif

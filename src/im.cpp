@@ -62,6 +62,18 @@ int im_get_type_by_name(char *name, int mode)
 	}
 	return -1;
 }
+//Поиск index по номеру ТИПА
+
+int im_get_idx_by_type(int type)
+{
+	int i;
+	for (i = 0; i <= top_imtypes; ++i)
+	{
+		if (imtypes[i].id == type)
+		return i;
+	}
+	return -1;
+}
 
 // Поиск rid по id
 int im_get_recipe(int id)
@@ -1074,7 +1086,7 @@ void im_reset_room(ROOM_DATA * room, int level, int type)
 //-MZ.load
 // Создание трупа
 // Загрузить ингредиенты в труп
-void im_make_corpse(OBJ_DATA * corpse, int *ing_list)
+void im_make_corpse(OBJ_DATA * corpse, int *ing_list, int max_prob)
 {
 	OBJ_DATA *o;
 	int indx;
@@ -1082,7 +1094,7 @@ void im_make_corpse(OBJ_DATA * corpse, int *ing_list)
 	for (indx = 0; ing_list[indx] != -1; indx += 2)
 	{
 		int power;
-		if (number(1, 100) >= (ing_list[indx + 1] & 0xFFFF))
+		if (number(1, max_prob) >= (ing_list[indx + 1] & 0xFFFF))
 			continue;
 		// Загрузить ингредиент в труп
 		power = (ing_list[indx + 1] >> 16) & 0xFFFF;

@@ -367,15 +367,19 @@ struct ingredient
 {
 	int imtype;
 	std::string imname;
-	std::map<int/*lvl*/,int/*вероятность загрузки*/> prob;
+	int prob[50]; // вероятность загрузки для каждого уровня моба 
 };
 
 class MobRace{
 public:
 	MobRace();
 	~MobRace();
+	std::string race_name;
 	std::vector<ingredient> ingrlist;
 };
+
+typedef boost::shared_ptr<MobRace> MobRacePtr;
+typedef std::map<int, MobRacePtr> MobRaceListType;
 
 //-Polud
 
