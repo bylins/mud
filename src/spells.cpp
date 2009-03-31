@@ -244,16 +244,16 @@ ASPELL(spell_recall)
 // ðòùöïë × ÒÁÍËÁÈ ÚÏÎÙ
 ASPELL(spell_teleport)
 {
-	room_rnum to_room, fnd_room = NOWHERE;
+	room_rnum in_room = IN_ROOM(ch), fnd_room = NOWHERE;
 	room_rnum rnum_start, rnum_stop;
 
-	if (!IS_GOD(ch) && (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTELEPORTOUT) || AFF_FLAGGED(ch, AFF_NOTELEPORT)))
+	if (!IS_GOD(ch) && (ROOM_FLAGGED(in_room, ROOM_NOTELEPORTOUT) || AFF_FLAGGED(ch, AFF_NOTELEPORT)))
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	get_zone_rooms(world[to_room]->zone, &rnum_start, &rnum_stop);
+	get_zone_rooms(world[in_room]->zone, &rnum_start, &rnum_stop);
 	fnd_room = get_teleport_target_room(ch, rnum_start, rnum_stop);
 	if (fnd_room == NOWHERE)
 	{
