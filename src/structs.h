@@ -1646,7 +1646,11 @@ struct obj_data
 		if (skills)
 		{
 			std::map<int, int>::iterator skill = skills->find(skill_num);
-			if (skill != skills->end())
+			if (skill == skills->end())
+			{
+				(*skills)[skill_num] = percent;
+			}
+			else
 			{
 				if (percent)
 					skill->second = percent;
@@ -1691,7 +1695,10 @@ struct obj_data
 
 	bool has_skills()
 	{
-		return skills != NULL;
+		if (skills)
+			return skills->size() > 0;
+		else
+			return false;
 	};
 
 private:

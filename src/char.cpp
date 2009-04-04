@@ -286,7 +286,7 @@ int Character::normolize_skill(int percent)
 
 	if (percent < KMinSkillPercent)
 		percent = KMinSkillPercent;
-	if (percent > KMaxSkillPercent)
+	else if (percent > KMaxSkillPercent)
 		percent = KMaxSkillPercent;
 
 	return percent;
@@ -375,7 +375,7 @@ void load_mobraces()
 			boost::trim(tmp_ingr.imname);
 			int numprobs = xNodeIm.nChildNode("prob"), cur_lvl=50, next_lvl=0, prob;
 			for (int k=numprobs-1; k>=0; k--)
-			{	
+			{
 				next_lvl = xmltoi(xNodeIm.getChildNode("prob",k).getAttribute("lvl"));
 				prob = xmltoi(xNodeIm.getChildNode("prob",k).getText());
 				if (next_lvl>0)

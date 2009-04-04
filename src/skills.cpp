@@ -731,6 +731,11 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 
 void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victim)
 {
+	// Проверка на то, что скилл вообще изучен. Стала необходима после того,
+	// как появились шмотки со скилами и ф-я Character::get_skill() несколько изменилась.
+	if (ch->get_trained_skill(skill_no) == 0)
+		return;
+
 	int skill_is, diff = 0, prob, div;
 
 	if (IS_NPC(ch))

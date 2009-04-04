@@ -488,13 +488,6 @@ ASPELL(spell_summon)
 		return;
 	}
 
-	/* Жертву в лаге нельзя суммонить. */
-	if (GET_WAIT(victim) > 0)
-	{
-		send_to_char(SUMMON_FAIL, ch);
-		return;
-	}
-
 	/* Игрок не может присуммонить моба. */
 	if (!IS_NPC(ch) && IS_NPC(victim))
 	{
@@ -520,16 +513,24 @@ ASPELL(spell_summon)
 			return;
 		}
 	}
-	// и чаров 10 и ниже левела тоже
-	if (!IS_NPC(ch) && GET_LEVEL(victim) <= 10)
-	{
-		send_to_char(SUMMON_FAIL, ch);
-		return;
-	}
 
 	/* Ограничения для смертных (богов ниже следующее не касается) */
 	if (!IS_IMMORTAL(ch))
 	{
+		/* Жертву в лаге нельзя суммонить. */
+		if (GET_WAIT(victim) > 0)
+		{
+			send_to_char(SUMMON_FAIL, ch);
+			return;
+		}
+
+		// и чаров 10 и ниже левела тоже
+		if (!IS_NPC(ch) && GET_LEVEL(victim) <= 10)
+		{
+			send_to_char(SUMMON_FAIL, ch);
+			return;
+		}
+
 		/* Если игрок не моб или чармис, то: */
 		if (!IS_NPC(ch) || IS_CHARMICE(ch))
 		{
