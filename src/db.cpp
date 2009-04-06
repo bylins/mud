@@ -456,6 +456,7 @@ ACMD(do_reboot)
 		load_sheduled_reboot();
 		oload_table.init();
 		obj_data::init_set_table();
+		load_mobraces();
 	}
 	else if (!str_cmp(arg, "portals"))
 		init_portals();
@@ -508,6 +509,8 @@ ACMD(do_reboot)
 		RegisterSystem::load();
 	else if (!str_cmp(arg, "privilege"))
 		Privilege::load();
+	else if (!str_cmp(arg, "mobraces"))
+		load_mobraces();
 	else if (!str_cmp(arg, "depot"))
 	{
 		argument = one_argument(argument, arg);
