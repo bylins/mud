@@ -29,7 +29,7 @@ void assign_feats(void);
 int find_feat_num(char *name);
 bool can_use_feat(CHAR_DATA *ch, int feat);
 bool can_get_feat(CHAR_DATA *ch, int feat);
-bool find_feat_slot(CHAR_DATA *ch, int feat);
+int find_feat_slot(CHAR_DATA *ch, int feat);
 int feature_mod(int feat, int location);
 void check_berserk(CHAR_DATA * ch);
 
@@ -122,7 +122,7 @@ void feato(int feat, const char *name, int type, bool can_up_slot, aff_array app
 		for (j = 0; j < NUM_KIN; j++)
 		{
 			feat_info[feat].min_remort[i][j] = 0;
-			feat_info[feat].slot[i][j] = 0;
+			feat_info[feat].min_level[i][j] = 0;
 		}
 	feat_info[feat].name = name;
 	feat_info[feat].type = type;
@@ -143,7 +143,7 @@ void unused_feat(int feat)
 		for (j = 0; j < NUM_KIN; j++)
 		{
 			feat_info[feat].min_remort[i][j] = MAX_REMORT;
-			feat_info[feat].slot[i][j] = 0;
+			feat_info[feat].min_level[i][j] = LVL_IMPL + 1;
 			feat_info[feat].natural_classfeat[i][j] = FALSE;
 			feat_info[feat].classknow[i][j] = FALSE;
 		}
@@ -512,7 +512,7 @@ bool can_use_feat(CHAR_DATA *ch, int feat)
 {
 	if (!HAVE_FEAT(ch, feat))
 		return FALSE;
-	if (NUM_LEV_FEAT(ch) < feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+	if (GET_LEVEL(ch) < feat_info[feat].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 		return FALSE;
 	if (GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 		return FALSE;
@@ -563,13 +563,14 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 		mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
 		return FALSE;
 	}
-	/* Доступность по классу, реморту. */
+	/* Доступность по уровню, классу, реморту. */
 	if (!feat_info[feat].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
+			|| GET_LEVEL(ch) < feat_info[feat].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
 			|| GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 		return FALSE;
 
 	/* Наличие свободных слотов */
-	if (!find_feat_slot(ch, feat))
+	if (find_feat_slot(ch, feat) < 0)
 		return FALSE;
 
 	/* Специальные требования для изучения */
@@ -614,7 +615,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 		for (i = PUNCH_MASTER_FEAT; i <= BOWS_MASTER_FEAT; i++)
 			if (HAVE_FEAT(ch, i))
 				count++;
-		if (count >= 1+GET_REMORT(ch)/7)
+		if (count >= 1)
 			return FALSE;
 		break;
 	case SPIRIT_WARRIOR_FEAT:
@@ -644,7 +645,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 		for (i = PUNCH_FOCUS_FEAT; i <= BOWS_FOCUS_FEAT; i++)
 			if (HAVE_FEAT(ch, i))
 				count++;
-		if (count >= 2+GET_REMORT(ch)/6)
+		if (count >= 2)
 			return FALSE;
 		break;
 	case GREAT_AIMING_ATTACK_FEAT:
@@ -678,32 +679,50 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	0, если способность врожденная и -1 если слотов не найдено.
 	НЕ проверяет доступность врожденной способности на данном уровне.
 */
-bool find_feat_slot(CHAR_DATA *ch, int feat)
+int find_feat_slot(CHAR_DATA *ch, int feat)
 {
-	int i, lowfeat, hifeat;
-	//если способность врожденная - ее всегда можно получить
+	int i, slot, fslot;
+	bitset<MAX_ACC_FEAT> sockets;
+
 	if (feat_info[feat].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
-		return TRUE;
-    //сколько у нас вообще способностей, у которых слот меньше требуемого, и сколько - тех, у которых больше или равно?
-    lowfeat = 0;
-    hifeat = 0;
+		return (0);
+
+	slot = FEAT_SLOT(ch, feat);
 	for (i = 1; i < MAX_FEATS; i++)
 	{
-        if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
-            continue;
-	    if (HAVE_FEAT(ch,i) && (FEAT_SLOT(ch,i) < FEAT_SLOT(ch,feat)))
-            lowfeat++;
-        if (HAVE_FEAT(ch,i) && (FEAT_SLOT(ch,i) >= FEAT_SLOT(ch,feat)))
-            hifeat++;
+		if (!HAVE_FEAT(ch, i) || feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+			continue;
+
+		fslot = FEAT_SLOT(ch, i);
+		for (; fslot < MAX_ACC_FEAT; fslot++)
+		{
+			if (!sockets.test(fslot))
+			{
+				sockets.set(fslot);
+				break;
+			}
+		}
 	}
-//из имеющегося количества слотов нужно вычесть:
-//число высоких слотов, занятых низкоуровневыми способностями,
-//с учтом, что низкоуровневые могут и не занимать слотов выше им положенных,
-//а также собственно число слотов, занятых высокоуровневыми способностями
-	if (NUM_LEV_FEAT(ch)-FEAT_SLOT(ch, feat)-hifeat-MAX(0, lowfeat-FEAT_SLOT(ch, feat)) > 0)
-        return TRUE;
-//oops.. слотов нет
-	return FALSE;
+
+	if (abs(static_cast<int>(sockets.count())) >= NUM_LEV_FEAT(ch))
+		return (-1);
+
+	for (; slot < MAX_ACC_FEAT && slot < NUM_LEV_FEAT(ch);)
+	{
+		if (sockets.test(slot))
+		{
+			if (feat_info[feat].up_slot)
+			{
+				slot++;
+				continue;
+			}
+			return (-1);
+		}
+		else
+			return (slot);
+	}
+
+	return (-1);
 }
 
 /* Возвращает значение значение модификатора из поля location структуры affected */

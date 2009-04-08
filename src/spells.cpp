@@ -1350,7 +1350,7 @@ void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				drndice = GET_OBJ_VAL(obj, 1);
 				if (can_get_feat(ch, drndice))
 				{
-					drsdice = feat_info[drndice].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
+					drsdice = feat_info[drndice].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
 				}
 				else
 				{
@@ -1661,7 +1661,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 				drndice = GET_OBJ_VAL(obj, 1);
 				if (can_get_feat(ch, drndice))
 				{
-					drsdice = feat_info[drndice].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
+					drsdice = feat_info[drndice].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
 				}
 				else
 				{
