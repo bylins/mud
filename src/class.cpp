@@ -2774,7 +2774,7 @@ void load_skills()
 			for (int k=0; k<numskills; k++)
 			{
 				XMLNode xNodeSkill = xNodeClass.getChildNode("skill", k);
-				name = str_dup(xNodeSkill.getAttribute("name"));		
+				name = str_dup(xNodeSkill.getAttribute("name"));
 				if ((sk_num = find_skill_num(name)) < 0)
 					{
 						log("Skill '%s' not found...", name);
@@ -3020,7 +3020,7 @@ void init_spell_levels(void)
 				feat_info[sp_num].min_remort[i[3]][j] = i[4];
 				log("Remort feat set '%d' kin '%d' classes %d value %d", sp_num, j, i[3], i[4]);
 
-				feat_info[sp_num].min_level[i[3]][j] = i[5];
+				feat_info[sp_num].slot[i[3]][j] = i[5];
 				log("Level feat set '%d' kin '%d' classes %d value %d", sp_num, j, i[3], i[5]);
 
 				feat_info[sp_num].natural_classfeat[i[3]][j] = i[6] ? true : false;
