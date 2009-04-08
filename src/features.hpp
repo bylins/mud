@@ -123,9 +123,16 @@ using std::bitset;
 #define AFFECT_FTYPE	1
 #define SKILL_MOD_FTYPE	2
 
-#define MAX_FEAT_AFFECT	5 /* Количество пар "параметр-значение" */
-#define MAX_ACC_FEAT	7 /* Максимально доступное количество не-врожденных способностей. */
-#define LEV_ACC_FEAT	5 /* Раз в сколько уровней появляется новая способность */
+/* Константы и формулы, определяющие число способностей у персонажа
+   Скорость появления новых слотов можно задавать для каждого класса
+   индивидуально, но последний слот персонаж всегда получает на 28 уровне */
+
+//Раз в сколько ремортов появляется новый слот под способность
+const int feat_slot_for_remort[NUM_CLASSES] = { 4,4,4,4,4,4,4,4,4,4,4,4,4,4 };
+// Количество пар "параметр-значение" у способности
+#define MAX_FEAT_AFFECT	5
+// Максимально доступное количество не-врожденных способностей.
+#define MAX_ACC_FEAT	30
 
 /* Поля изменений для способностей (кроме AFFECT_FTYPE, для них используются стардартные поля APPLY) */
 #define FEAT_TIMER 1
@@ -137,14 +144,14 @@ int find_feat_num(char *name);
 void assign_feats(void);
 bool can_use_feat(CHAR_DATA *ch, int feat);
 bool can_get_feat(CHAR_DATA *ch, int feat);
-int find_feat_slot(CHAR_DATA *ch, int feat);
+bool find_feat_slot(CHAR_DATA *ch, int feat);
 int feature_mod(int feat, int location);
 void check_berserk(CHAR_DATA * ch);
 
 struct feat_info_type
 {
 	int min_remort[NUM_CLASSES][NUM_KIN];
-	int min_level[NUM_CLASSES][NUM_KIN];
+	int slot[NUM_CLASSES][NUM_KIN];
 	bool classknow[NUM_CLASSES][NUM_KIN];
 	bool natural_classfeat[NUM_CLASSES][NUM_KIN];
 	struct obj_affected_type

@@ -164,12 +164,20 @@ extern int prac_params[4][NUM_CLASSES];
 
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 {
-	int i = 0, j = 0, sortpos, slot;
-	char names[MAX_ACC_FEAT][MAX_STRING_LENGTH];
+	int i = 0, j = 0, sortpos, slot, max_slot;
 	char msg[MAX_STRING_LENGTH];
 	bool sfound;
 
-	for (i = 0; i < MAX_ACC_FEAT; i++)
+	//Найдем максимальный слот, который вобще может потребоваться данному персонажу
+	max_slot = 0;
+	for (i = 1; i < MAX_FEATS; i++)
+        max_slot = MAX(max_slot,FEAT_SLOT(ch,i));
+    max_slot = MIN(max_slot+1, MAX_ACC_FEAT);
+
+	char names[max_slot][MAX_STRING_LENGTH];
+	//return;
+
+	for (i = 0; i < max_slot; i++)
 		if (all_feats)
 			sprintf(names[i], "\r\nКруг %d:\r\n", i + 1);
 		else
@@ -182,16 +190,15 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 		send_to_char(" Список доступных способностей.\r\n"
 					 " Зеленым цветом выделены уже изученные способности.\r\n"
 					 " Красным цветом выделены способности, недоступные Вам в настоящий момент.\r\n"
-					 "\r\n Способность				Уровень\r\n", vict);
+					 "\r\n Способность\r\n", vict);
 		for (sortpos = 1; sortpos < MAX_FEATS; sortpos++)
 		{
 			if (!feat_info[sortpos].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 				continue;
-			sprintf(buf, "	%s%-30s%s %2d%s\r\n",
+			sprintf(buf, "	%s%-30s%s\r\n",
 					HAVE_FEAT(ch, sortpos) ? CCGRN(vict, C_NRM) :
 					can_get_feat(ch, sortpos) ? CCNRM(vict, C_NRM) : CCRED(vict, C_NRM),
-					feat_info[sortpos].name, CCCYN(vict, C_NRM),
-					feat_info[sortpos].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)], CCNRM(vict, C_NRM));
+					feat_info[sortpos].name, CCNRM(vict, C_NRM));
 
 			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 			{
@@ -199,10 +206,10 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 				j++;
 			}
 			else
-				strcat(names[FEAT_SLOT(ch, sortpos)], buf);
+                    strcat(names[FEAT_SLOT(ch, sortpos)], buf);
 		}
 		sprintf(buf1, "-------------------------------------");
-		for (i = 0; i < MAX_ACC_FEAT; i++)
+		for (i = 0; i < max_slot; i++)
 		{
 			if (strlen(buf1) >= MAX_STRING_LENGTH - 60)
 			{
@@ -282,7 +289,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 			{
 				slot = FEAT_SLOT(ch, sortpos);
 				sfound = FALSE;
-				while (slot < MAX_ACC_FEAT)
+				while (slot < NUM_LEV_FEAT(ch))
 				{
 					if (*names[slot] == '\0')
 					{
@@ -308,12 +315,12 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 		}
 	}
 
-	for (i = 0; i < MAX_ACC_FEAT; i++)
+	for (i = 0; i < NUM_LEV_FEAT(ch); i++)
 	{
 		if (*names[i] == '\0')
 			sprintf(names[i], " %s%d%s)       %s[пусто]%s\r\n",
 					CCGRN(vict, C_NRM), i + 1, CCNRM(vict, C_NRM), CCIWHT(vict, C_NRM), CCNRM(vict, C_NRM));
-		if (i >= NUM_LEV_FEAT(ch) && GET_LEVEL(vict) < LVL_IMMORT)
+		if (i >= NUM_LEV_FEAT(ch))
 			break;
 		sprintf(buf1 + strlen(buf1), names[i]);
 	}
