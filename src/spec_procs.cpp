@@ -319,7 +319,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 		}
 	}
 
-	for (i = 0; i < NUM_LEV_FEAT(ch); i++)
+	for (i = 0; i < max_slot; i++)
 	{
 		if (*names[i] == '\0')
 			sprintf(names[i], " %s%-2d%s)       %s[пусто]%s\r\n",
