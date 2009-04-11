@@ -748,7 +748,7 @@ void check_berserk(CHAR_DATA * ch)
 		af.location = APPLY_NONE;
 		af.battleflag = 0;
 
-		prob = IS_NPC(ch) ? 400 : (500 - GET_LEVEL(ch) * 5 - GET_REMORT(ch) * 5);
+		prob = IS_NPC(ch) ? 500 : (500 - GET_LEVEL(ch) * 5);
 		if (number(1, 1000) <=  prob)
 		{
 			af.bitvector = AFF_BERSERK;
@@ -806,7 +806,7 @@ ACMD(do_lightwalk)
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
-	if (number(1, 1000) > number(1, GET_REAL_DEX(ch) * 20))
+	if (number(1, 1000) > number(1, GET_REAL_DEX(ch) * 30))
 	{
 		af.bitvector = 0;
 		send_to_char("Вам не хватает ловкости...\r\n", ch);
