@@ -713,8 +713,8 @@ extern SPECIAL(postmaster);
 #define SET_FEAT(ch, feat) ((ch)->real_abils.Feats.set(feat))
 #define UNSET_FEAT(ch, feat) ((ch)->real_abils.Feats.reset(feat))
 #define HAVE_FEAT(ch, feat) ((ch)->real_abils.Feats.test(feat))
-#define	NUM_LEV_FEAT(ch) (MIN (MAX_ACC_FEAT, (GET_LEVEL(ch) / LEV_ACC_FEAT) + 1))
-#define FEAT_SLOT(ch, feat) (feat_info[feat].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] / LEV_ACC_FEAT)
+#define	NUM_LEV_FEAT(ch) ((int) 1+GET_LEVEL(ch)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
+#define FEAT_SLOT(ch, feat) (feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 
 // Min cast level getting
 #define MIN_CAST_LEV(sp, ch) (MMAX(0,MOD_CAST_LEV(sp,ch)))

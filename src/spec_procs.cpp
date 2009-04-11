@@ -164,34 +164,42 @@ extern int prac_params[4][NUM_CLASSES];
 
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 {
-	int i = 0, j = 0, sortpos, slot;
-	char names[MAX_ACC_FEAT][MAX_STRING_LENGTH];
+	int i = 0, j = 0, sortpos, slot, max_slot=0;
 	char msg[MAX_STRING_LENGTH];
 	bool sfound;
 
-	for (i = 0; i < MAX_ACC_FEAT; i++)
+	//Найдем максимальный слот, который вобще может потребоваться данному персонажу на текущем морте
+    max_slot =  MAX_ACC_FEAT(ch);
+    char names[max_slot][MAX_STRING_LENGTH];
+	if (all_feats)
+	{
+        sprintf(names[0], "\r\nКруг 1  (1  уровень):\r\n");
+	} else
+		*names[0] = '\0';
+	for (i = 1; i < max_slot; i++)
 		if (all_feats)
-			sprintf(names[i], "\r\nКруг %d:\r\n", i + 1);
-		else
+		{
+		    j = i*28/(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)]); //на каком уровне появится этот слот?
+            sprintf(names[i], "\r\nКруг %-2d (%-2d уровень):\r\n", i + 1, j);
+		} else
 			*names[i] = '\0';
 
 	sprintf(buf2, "\r\nВрожденные способности :\r\n");
-
+    j = 0;
 	if (all_feats)
 	{
-		send_to_char(" Список доступных способностей.\r\n"
+		send_to_char(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
 					 " Зеленым цветом выделены уже изученные способности.\r\n"
 					 " Красным цветом выделены способности, недоступные Вам в настоящий момент.\r\n"
-					 "\r\n Способность				Уровень\r\n", vict);
+					 "\r\n Способность\r\n", vict);
 		for (sortpos = 1; sortpos < MAX_FEATS; sortpos++)
 		{
 			if (!feat_info[sortpos].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 				continue;
-			sprintf(buf, "	%s%-30s%s %2d%s\r\n",
+			sprintf(buf, "	%s%-30s%s\r\n",
 					HAVE_FEAT(ch, sortpos) ? CCGRN(vict, C_NRM) :
 					can_get_feat(ch, sortpos) ? CCNRM(vict, C_NRM) : CCRED(vict, C_NRM),
-					feat_info[sortpos].name, CCCYN(vict, C_NRM),
-					feat_info[sortpos].min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)], CCNRM(vict, C_NRM));
+					feat_info[sortpos].name, CCNRM(vict, C_NRM));
 
 			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 			{
@@ -199,10 +207,11 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 				j++;
 			}
 			else
-				strcat(names[FEAT_SLOT(ch, sortpos)], buf);
+                if (FEAT_SLOT(ch, sortpos) < max_slot)
+                        strcat(names[FEAT_SLOT(ch, sortpos)], buf);
 		}
 		sprintf(buf1, "-------------------------------------");
-		for (i = 0; i < MAX_ACC_FEAT; i++)
+		for (i = 0; i < max_slot; i++)
 		{
 			if (strlen(buf1) >= MAX_STRING_LENGTH - 60)
 			{
@@ -218,6 +227,8 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 			send_to_char(buf2, vict);
 		return;
 	}
+
+/* ====================================================== */
 
 	sprintf(buf1, "Вы обладаете следующими способностями :\r\n");
 
@@ -282,11 +293,11 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 			{
 				slot = FEAT_SLOT(ch, sortpos);
 				sfound = FALSE;
-				while (slot < MAX_ACC_FEAT)
+				while (slot < max_slot)
 				{
 					if (*names[slot] == '\0')
 					{
-						sprintf(names[slot], " %s%d%s) ",
+						sprintf(names[slot], " %s%-2d%s) ",
 								CCGRN(vict, C_NRM), slot + 1, CCNRM(vict, C_NRM));
 						strcat(names[slot],  buf);
 						sfound = TRUE;
@@ -308,12 +319,12 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 		}
 	}
 
-	for (i = 0; i < MAX_ACC_FEAT; i++)
+	for (i = 0; i < NUM_LEV_FEAT(ch); i++)
 	{
 		if (*names[i] == '\0')
-			sprintf(names[i], " %s%d%s)       %s[пусто]%s\r\n",
+			sprintf(names[i], " %s%-2d%s)       %s[пусто]%s\r\n",
 					CCGRN(vict, C_NRM), i + 1, CCNRM(vict, C_NRM), CCIWHT(vict, C_NRM), CCNRM(vict, C_NRM));
-		if (i >= NUM_LEV_FEAT(ch) && GET_LEVEL(vict) < LVL_IMMORT)
+		if (i >= NUM_LEV_FEAT(ch))
 			break;
 		sprintf(buf1 + strlen(buf1), names[i]);
 	}
