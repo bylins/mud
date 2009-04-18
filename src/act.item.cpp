@@ -2582,8 +2582,7 @@ ACMD(do_makefood)
 	}
 	mob = (mob_proto + real_mobile(mobn));
 
-	if (!IS_IMMORTAL(ch) && (GET_CLASS(mob) != CLASS_ANIMAL
-			|| (GET_CLASS(mob) != CLASS_BASIC_NPC && (wgt = GET_WEIGHT(mob)) < 11)))
+	if (!IS_IMMORTAL(ch) && (GET_RACE(mob) != NPC_RACE_ANIMAL || (wgt = GET_WEIGHT(mob)) < 11))
 	{
 		send_to_char("Этот труп невозможно освежевать.\r\n", ch);
 		return;

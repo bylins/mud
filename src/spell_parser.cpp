@@ -1638,22 +1638,26 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	strcpy(lbuf, SpINFO.syn);
 
 	/* Say phrase ? */
-	switch (GET_CLASS(ch))
+	switch (GET_RACE(ch))
 	{
-	case CLASS_CLERIC:
-	case CLASS_BATTLEMAGE:
-	case CLASS_THIEF:
-	case CLASS_WARRIOR:
-	case CLASS_ASSASINE:
-	case CLASS_GUARD:
-	case CLASS_DEFENDERMAGE:
-	case CLASS_CHARMMAGE:
-	case CLASS_NECROMANCER:
-	case CLASS_PALADINE:
-	case CLASS_RANGER:
-	case CLASS_SMITH:
-	case CLASS_MERCHANT:
-	case CLASS_DRUID:
+	case RACE_SEVERANE:
+	case RACE_POLANE:
+	case RACE_KRIVICHI:
+	case RACE_VATICHI:
+	case RACE_VELANE:
+	case RACE_DREVLANE:
+	case RACE_POLOVCI:
+	case RACE_PECHENEGI:
+	case RACE_MONGOLI:
+	case RACE_YIGURI:
+	case RACE_KANGARI:
+	case RACE_XAZARI:
+	case RACE_SVEI:
+	case RACE_DATCHANE:
+	case RACE_GETTI:
+	case RACE_UTTI:
+	case RACE_XALEIGI:
+	case RACE_NORVEZCI:
 		if (*cast_phrase[spellnum][GET_RELIGION(ch)] != '\n')
 			strcpy(buf, cast_phrase[spellnum][GET_RELIGION(ch)]);
 		say_to_self = "$n прикрыл$g глаза и прошептал$g : '%s'.";
@@ -1664,10 +1668,11 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 		helpee_vict = "$n подмигнул$g Вам и произнес$q : '%s'.";
 		spell_prefix(spellnum, &say_to_self, &say_to_other, &say_to_obj_vis, &say_to_something, &damagee_vict, &helpee_vict);
 		break;
-	case CLASS_UNDEAD:
-	case CLASS_HUMAN:
-	case CLASS_HERO_WARRIOR:
-	case CLASS_HERO_MAGIC:
+	case NPC_RACE_EVIL_SPIRIT:
+	case NPC_RACE_GHOST:
+	case NPC_RACE_HUMAN:
+	case NPC_RACE_ZOMBIE:
+	case NPC_RACE_SPIRIT:
 		religion = number(RELIGION_POLY, RELIGION_MONO);
 		if (*cast_phrase[spellnum][religion] != '\n')
 			strcpy(buf, cast_phrase[spellnum][religion]);

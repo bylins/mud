@@ -700,7 +700,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 
 //Polud привязываем загрузку ингров к расе (типу) моба
 
-	if (IS_NPC(ch) && GET_RACE(ch)>NPC_RACE_BASIC)
+	if (IS_NPC(ch) && GET_RACE(ch)>NPC_RACE_BASIC && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_HOUSE))
 	{	
 		MobRaceListType::iterator it = mobraces_list.find(GET_RACE(ch));
 		if (it != mobraces_list.end())
@@ -5057,7 +5057,7 @@ void mob_casting(CHAR_DATA * ch)
 	for (item = ch->carrying;
 			spells < MAX_STRING_LENGTH &&
 			item &&
-			GET_CLASS(ch) != CLASS_ANIMAL &&
+			GET_RACE(ch) == NPC_RACE_HUMAN &&
 			!MOB_FLAGGED(ch, MOB_ANGEL) && !AFF_FLAGGED(ch, AFF_CHARM); item = item->next_content)
 		switch (GET_OBJ_TYPE(item))
 		{
@@ -5126,7 +5126,7 @@ void mob_casting(CHAR_DATA * ch)
 	{
 		for (item = ch->carrying;
 				!AFF_FLAGGED(ch, AFF_CHARM) &&
-				!MOB_FLAGGED(ch, MOB_ANGEL) && item && GET_CLASS(ch) != CLASS_ANIMAL; item = item->next_content)
+				!MOB_FLAGGED(ch, MOB_ANGEL) && item && GET_RACE(ch) == NPC_RACE_HUMAN; item = item->next_content)
 			switch (GET_OBJ_TYPE(item))
 			{
 			case ITEM_WAND:
@@ -5213,8 +5213,7 @@ void perform_violence(void)
 							GET_WAIT(vict) > 0 ||
 							GET_POS(vict) < POS_STANDING || IN_ROOM(vict) == NOWHERE || FIGHTING(vict))
 						continue;
-					if (!sk_use &&
-							!(GET_CLASS(ch) == CLASS_ANIMAL || GET_CLASS(ch) == CLASS_BASIC_NPC))
+					if (!sk_use && GET_RACE(ch) == NPC_RACE_HUMAN)
 						act("$n воззвал$g : \"На помощь, мои верные соратники !\"",
 							FALSE, ch, 0, 0, TO_ROOM);
 					if (IN_ROOM(vict) != IN_ROOM(ch))

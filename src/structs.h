@@ -350,9 +350,9 @@ typedef struct trig_data TRIG_DATA;
 
 /* NPC classes */
 #define CLASS_BASIC_NPC    100
-#define CLASS_UNDEAD       101
-#define CLASS_HUMAN        102
-#define CLASS_ANIMAL       103
+//#define CLASS_UNDEAD       101 к классам не относится, перенесено в расы (типы) мобов
+//#define CLASS_HUMAN        102
+//#define CLASS_ANIMAL       103
 #define CLASS_HERO_WARRIOR 104
 #define CLASS_HERO_MAGIC   105
 #define CLASS_NPC_BATLEMAGE 106

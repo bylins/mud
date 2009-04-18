@@ -880,20 +880,6 @@ std_saving_type std_saving[] =
 			sav_05, sav_12, sav_05, sav_17}}, {
 		CLASS_MOB, {
 			sav_06, sav_13, sav_06, sav_18}}, {
-		CLASS_BASIC_NPC, {
-			sav_06, sav_13, sav_06, sav_18}}, {
-		CLASS_UNDEAD, {
-			sav_06, sav_13, sav_06, sav_18}}, {
-		CLASS_HUMAN, {
-			sav_06, sav_13, sav_06, sav_18}}, {
-		CLASS_ANIMAL, {
-			sav_06, sav_13, sav_06, sav_18}}, {
-		CLASS_HERO_WARRIOR, {
-			sav_06, sav_13, sav_06, sav_18}}, {
-		CLASS_HERO_MAGIC, {
-			sav_06, sav_13, sav_06, sav_18}}, {
-		CLASS_NPC_BATLEMAGE, {
-			sav_06, sav_13, sav_06, sav_18}}, {
 		-1, {
 			sav_02, sav_12, sav_02, sav_16}}
 };

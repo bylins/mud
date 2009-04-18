@@ -170,7 +170,10 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 
 	//Найдем максимальный слот, который вобще может потребоваться данному персонажу на текущем морте
     max_slot =  MAX_ACC_FEAT(ch);
-    char names[max_slot][MAX_STRING_LENGTH];
+    char  **names = new char*[max_slot];
+	for (int k = 0; k< max_slot; k++)
+		names[k]=new char[MAX_STRING_LENGTH];
+
 	if (all_feats)
 	{
         sprintf(names[0], "\r\nКруг 1  (1  уровень):\r\n");

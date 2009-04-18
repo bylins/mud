@@ -2295,7 +2295,7 @@ ASPELL(spell_holystrike)
 		if (IS_NPC(tch))
 		{
 			if (!MOB_FLAGGED(tch, MOB_CORPSE)
-					&& GET_CLASS(tch) != CLASS_UNDEAD)
+				&& GET_RACE(tch) != NPC_RACE_ZOMBIE && GET_RACE(tch) != NPC_RACE_EVIL_SPIRIT)
 				continue;
 		}
 		else

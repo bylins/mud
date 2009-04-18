@@ -716,6 +716,7 @@ extern SPECIAL(postmaster);
 #define	NUM_LEV_FEAT(ch) ((int) 1+GET_LEVEL(ch)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
 #define FEAT_SLOT(ch, feat) (feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 
+
 // Min cast level getting
 #define MIN_CAST_LEV(sp, ch) (MMAX(0,MOD_CAST_LEV(sp,ch)))
 #define MOD_CAST_LEV(sp, ch) (BASE_CAST_LEV(sp, ch) - (MMAX(GET_REMORT(ch) - MIN_CAST_REM(sp,ch),0) / 3))
@@ -1159,7 +1160,7 @@ extern SPECIAL(postmaster);
 #define IS_CHARMICE(ch)    (IS_NPC(ch) && (AFF_FLAGGED(ch,AFF_HELPER) || AFF_FLAGGED(ch,AFF_CHARM)))
 
 #define IS_UNDEAD(ch) (IS_NPC(ch) && \
-		(MOB_FLAGGED(ch, MOB_RESURRECTED) || (GET_CLASS(ch) == CLASS_UNDEAD)))
+	(MOB_FLAGGED(ch, MOB_RESURRECTED) || (GET_RACE(ch) == NPC_RACE_ZOMBIE)))
 
 #define LIKE_ROOM(ch) ((IS_CLERIC(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_CLERIC)) || \
                        (IS_MAGIC_USER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_MAGE)) || \

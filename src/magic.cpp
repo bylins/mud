@@ -107,8 +107,7 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 
 	if (IS_NPC(victim))
 	{
-		if (class_sav < CLASS_BASIC_NPC || class_sav >= CLASS_LAST_NPC)
-			class_sav = CLASS_MOB;	// неизвестный класс моба
+		class_sav = CLASS_MOB;	// неизвестный класс моба
 	}
 	else
 	{
@@ -190,10 +189,15 @@ int multi_cast_say(CHAR_DATA * ch)
 	case CLASS_SMITH:
 	case CLASS_MERCHANT:
 	case CLASS_DRUID:
-	case CLASS_UNDEAD:
-	case CLASS_HUMAN:
-	case CLASS_HERO_WARRIOR:
-	case CLASS_HERO_MAGIC:
+		return 1;
+	}
+	switch (GET_RACE(ch))
+	{
+	case NPC_RACE_EVIL_SPIRIT:
+	case NPC_RACE_GHOST:
+	case NPC_RACE_HUMAN:
+	case NPC_RACE_ZOMBIE:
+	case NPC_RACE_SPIRIT:
 		return 1;
 	}
 	return 0;

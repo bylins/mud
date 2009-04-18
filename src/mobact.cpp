@@ -545,7 +545,7 @@ void do_aggressive_mob(CHAR_DATA * ch, int check_sneak)
 					act("$n вскочил$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
 					GET_POS(ch) = POS_STANDING;
 				}
-				if (GET_CLASS(ch) == CLASS_ANIMAL || GET_CLASS(ch) == CLASS_BASIC_NPC)
+				if (GET_RACE(ch) != NPC_RACE_HUMAN)
 					act("$n вспомнил$g $N3.", FALSE, ch, 0, victim, TO_ROOM);
 				else
 					act("'$N - ты пытал$U убить меня ! Попал$U ! Умри !!!', воскликнул$g $n.",

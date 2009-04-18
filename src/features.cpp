@@ -512,6 +512,8 @@ bool can_use_feat(CHAR_DATA *ch, int feat)
 {
 	if (!HAVE_FEAT(ch, feat))
 		return FALSE;
+	if (IS_NPC(ch))
+		return TRUE;
 	if (NUM_LEV_FEAT(ch) < feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 		return FALSE;
 	if (GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
@@ -548,7 +550,6 @@ bool can_use_feat(CHAR_DATA *ch, int feat)
 			return FALSE;
 		break;
 	}
-
 	return TRUE;
 }
 
@@ -556,7 +557,6 @@ bool can_use_feat(CHAR_DATA *ch, int feat)
 bool can_get_feat(CHAR_DATA *ch, int feat)
 {
 	int i, count = 0;
-
 	if (feat <= 0 || feat >= MAX_FEATS)
 	{
 		sprintf(buf, "Неверный номер способности (%d) передан в features::can_get_feat!", feat);
@@ -668,7 +668,6 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 			return FALSE;
 		break;
 	}
-
 	return TRUE;
 }
 
@@ -696,12 +695,14 @@ bool find_feat_slot(CHAR_DATA *ch, int feat)
         if (HAVE_FEAT(ch,i) && (FEAT_SLOT(ch,i) >= FEAT_SLOT(ch,feat)))
             hifeat++;
 	}
+
 //из имеющегося количества слотов нужно вычесть:
 //число высоких слотов, занятых низкоуровневыми способностями,
 //с учтом, что низкоуровневые могут и не занимать слотов выше им положенных,
 //а также собственно число слотов, занятых высокоуровневыми способностями
 	if (NUM_LEV_FEAT(ch)-FEAT_SLOT(ch, feat)-hifeat-MAX(0, lowfeat-FEAT_SLOT(ch, feat)) > 0)
         return TRUE;
+
 //oops.. слотов нет
 	return FALSE;
 }
