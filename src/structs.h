@@ -184,6 +184,7 @@ typedef struct trig_data TRIG_DATA;
 /* Флаги комнатных аффектов НЕ сохраняются в файлах и возникают только от заклов */
 #define AFF_ROOM_LIGHT       (1 << 0) /* Аффект освещения комнаты  - SPELL_ROOM_LIGHT */
 #define AFF_ROOM_FOG         (2 << 0) /* Комната затуманена для SPELL_POISONED_FOG */
+#define AFF_ROOM_RUNE_LABEL	(4 << 0) /* Комната помечена SPELL_MAGIC_LABEL */
 
 /* Exit info: used in room_data.dir_option.exit_info */
 #define EX_ISDOOR    (1 << 0)	/* Exit is a door     */

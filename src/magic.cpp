@@ -69,6 +69,436 @@ void battle_affect_update(CHAR_DATA * ch);
 void pulse_affect_update(CHAR_DATA * ch);
 
 
+CHAR_DATA * find_char_in_room(long char_id, ROOM_DATA *room)
+{
+	CHAR_DATA * tch, * next_ch;
+	assert(room);
+
+	for (tch = room->people ; tch ; tch = next_ch)
+	{
+		next_ch = tch->next_in_room;
+		if (GET_ID(tch) == char_id)
+			return (tch);
+	}
+	return NULL;
+}
+
+CHAR_DATA * random_char_in_room(ROOM_DATA *room)
+{
+	CHAR_DATA * c , * result = NULL;
+	int count = 0, index = 0;
+	// посчитаем число перцев  в комнате
+	for (c = room->people; c; c = c->next_in_room)
+		if (!PRF_FLAGGED(c, PRF_NOHASSLE)
+				&& !GET_INVIS_LEV(c))
+		{
+			count++;
+		}
+	count = number(0, count - 1);
+	// А теперь узнаем его указатель.
+	for (c = room->people; c; c = c->next_in_room)
+		if (!PRF_FLAGGED(c, PRF_NOHASSLE)
+				&& !GET_INVIS_LEV(c))
+		{
+			if (index == count)
+			{
+				result = c;
+				break;
+			}
+
+			index++;
+		}
+	return (result);
+
+}
+
+/*
+ * Структуры и функции для работы с заклинаниями, обкастовывающими комнаты
+*/
+
+namespace RoomSpells {
+
+ /* список всех обкстованных комнат */
+std::list<ROOM_DATA*> aff_room_list;
+
+ /* Обработка самих аффектов т.е. их влияния на персонажей в комнате раз в 2 секунды */
+void pulse_room_affect_handler(room_rnum room, CHAR_DATA * ch, AFFECT_DATA * aff);
+/* Сообщение при снятии аффекта */
+void show_room_spell_off(int aff, room_rnum room);
+/* Добавление новой комнаты в список */
+void AddRoom(ROOM_DATA* room);
+/* Применение заклинания к комнате */
+int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
+
+/* =============================================================== */
+
+/* Сообщение при снятии аффекта */
+void show_room_spell_off(int aff, room_rnum room)
+{
+	send_to_room(spell_wear_off_msg[aff], room, 0);
+}
+
+/* =============================================================== */
+
+/* Добавление новой комнаты в список */
+void AddRoom(ROOM_DATA* room)
+{
+	std::list<ROOM_DATA*>::const_iterator it = std::find(aff_room_list.begin(), aff_room_list.end(), room);
+	if (it == aff_room_list.end())
+		aff_room_list.push_back(room);
+}
+
+/* =============================================================== */
+
+/* Раз в 2 секунды идет вызов обработчиков аффектов*/
+void pulse_room_affect_handler(ROOM_DATA * room, CHAR_DATA * ch, AFFECT_DATA * aff)
+{
+	// Аффект в комнате.
+	// Проверяем на то что нам передали бяку в параметрах.
+	assert(aff);
+	assert(room);
+
+	// Тут надо понимать что если закл наложит не один аффект а несколько
+	// то обработчик будет вызываться за пульс именно столько раз.
+	int spellnum = aff->type;
+	CHAR_DATA * tch, *tch_next;
+	switch (spellnum)
+	{
+	case SPELL_ROOM_LIGHT:
+//			sprintf(buf2 , "Ярко светит колдовской свет. (%d)\r\n", aff->apply_time);
+//			send_to_room(buf2,room, 0);
+		break;
+
+	case SPELL_POISONED_FOG:
+		// Обработчик закла
+		// По сути это каст яда на всех без разбора.
+		//	sprintf(buf2 , "Травим всех тут. (%d : %d)\r\n", aff->apply_time, aff->duration);
+		//send_to_room(buf2, room, 0);
+		if (ch) // Кастер нашелся и он тут ...
+		{
+			for (tch = room->people; tch ; tch = tch_next)
+			{
+				tch_next = tch->next_in_room;
+
+				if (!call_magic(ch, tch, NULL, NULL, SPELL_POISON, GET_LEVEL(ch), CAST_SPELL))
+				{
+					aff->duration = 0;
+					break;
+				}
+			}
+		}
+
+		break;
+	case SPELL_THUNDERSTORM:
+		/* Что можно учудить тут :
+			1-2 - Первые два раунда чары только предупреждаются что тут будет гоооорячо.
+			3 - начинает идти дождь
+			4-6 - цепи молний
+			7-8 - 1-но испепеление - убивает нафиг рэндомно одного чара ...
+			9-10 - шаравухи
+			11 - дождь кончается.
+		*/
+		switch (aff->duration)
+		{
+		case 1:
+			what_sky = SKY_CLOUDY;
+			if (!call_magic(ch, NULL, NULL, NULL, SPELL_CONTROL_WEATHER, GET_LEVEL(ch), CAST_SPELL))
+			{
+				// Если закл сфейлился то прекращаем новый год )
+				aff->duration = 0;
+				break;
+			}
+			break;
+
+		case 2:
+			what_sky = SKY_RAINING;
+			if (!call_magic(ch, NULL, NULL, NULL, SPELL_CONTROL_WEATHER, GET_LEVEL(ch), CAST_SPELL))
+			{
+				// Если закл сфейлился то прекращаем новый год )
+				aff->duration = 0;
+				break;
+			}
+			break;
+		case 3:
+			// Хреначим  рэндомно молниями.
+			tch = random_char_in_room(room);
+			if (tch)
+			{
+				call_magic(ch, tch, NULL, NULL, SPELL_CHAIN_LIGHTNING, GET_LEVEL(ch), CAST_SPELL);
+			}
+			break;
+		case 5:
+			// Делаем мега молнию - которая мочит чара Ж)
+			tch = random_char_in_room(room);
+			if (tch)
+			{
+				send_to_char("Удар молнии просто испепелил Вас", tch);
+				act("Удар молнии призванной испепелил $n!", FALSE, tch, 0, 0, TO_ROOM);
+				pk_agro_action(ch, tch);
+				raw_kill(tch, ch);
+			}
+			break;
+		case 6:
+			// Хреначим  рэндомно молниями.
+			tch = random_char_in_room(room);
+			if (tch)
+			{
+				call_magic(ch, tch, NULL, NULL, SPELL_CHAIN_LIGHTNING, GET_LEVEL(ch), CAST_SPELL);
+			}
+			break;
+
+		case 7:
+			// Успокаиваем погоду.
+
+			what_sky = SKY_CLOUDLESS;
+			if (!call_magic(ch, NULL, NULL, NULL, SPELL_CONTROL_WEATHER, GET_LEVEL(ch), CAST_SPELL))
+			{
+				// Если закл сфейлился то прекращаем новый год )
+				aff->duration = 0;
+				break;
+			}
+			break;
+		}
+
+		break;
+	default:
+		log("Try handle room affect for spell without handler");
+	}
+}
+
+/* =============================================================== */
+
+/* Апдейт аффектов для комнат - надеюсь это мир не прикончит*/
+/* Gorrah: Вынес в отдельный лист обкастованные комнаты - теперь думаю не прикончит */
+void room_affect_update(void)
+{
+	AFFECT_DATA *af, *next;
+	CHAR_DATA *ch;
+	int spellnum;
+	//std::list<ROOM_DATA*>::iterator i = aff_room_list.begin();
+
+	for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();)
+	{
+		assert(*it);
+		for (af = (*it)->affected ; af ; af = next)
+		{
+			next = af->next;
+			spellnum = af->type;
+//sprintf(buf2 , "Вызвано обновление аффекта на комнате (%d).\r\n", af->duration);
+//send_to_gods(buf2);
+			ch = NULL;
+			if (IS_SET(SpINFO.routines, MAG_CASTER_INROOM) || IS_SET(SpINFO.routines, MAG_CASTER_INWORLD))
+			{
+				ch = find_char_in_room(af->caster_id, *it);
+                // Кастер слинял ... или помер - зря.
+				if (!ch)
+                    af->duration = 0;
+			} else if (IS_SET(SpINFO.routines, MAG_CASTER_INWORLD_DELAY))
+			{
+			    //Если спелл с задержкой таймера - то обнулять не надо, даже если чара нет, просто тикаем таймером как обычно
+                ch = find_char_in_room(af->caster_id, *it);
+			}
+
+			// Чую долгое это будет дело ... но деваться некуда
+			if ((!ch) && IS_SET(SpINFO.routines, MAG_CASTER_INWORLD))
+			{
+				// Ищем чара по миру
+				ch = find_char(af->caster_id);
+				if (!ch)
+					af->duration = 0;
+			} else if (IS_SET(SpINFO.routines, MAG_CASTER_INWORLD_DELAY))
+			{
+				ch = find_char(af->caster_id);
+			}
+
+			if (ch && IS_SET(SpINFO.routines, MAG_CASTER_INWORLD_DELAY))
+			{
+			//Если персонаж найден, то таймер тикать не должен - восстанавливаем время.
+                switch (spellnum)
+                {
+                    case SPELL_RUNE_LABEL:
+                        af->duration = TIME_SPELL_RUNE_LABEL;
+                        break;
+                }
+			}
+
+			if (af->duration >= 1)
+				af->duration--;
+			else if (af->duration == -1)
+				af->duration = -1;
+			else
+			{
+				if ((af->type > 0) && (af->type <= MAX_SPELLS))
+				{
+					if (!af->next || (af->next->type != af->type)
+							|| (af->next->duration > 0))
+					{
+						if (af->type > 0 &&
+								af->type <= LAST_USED_SPELL && *spell_wear_off_msg[af->type])
+						{
+							show_room_spell_off(af->type, real_room((*it)->number));
+						}
+					}
+				}
+				affect_room_remove(*it, af);
+				//если больше аффектов нет, удаляем комнату из списка обкастованных
+				if ((*it)->affected == NULL)
+                    it = aff_room_list.erase(it);
+//sprintf(buf2 , "\r\nАффект снят с комнаты. Всего в списке осталось %d комнат.\r\n", aff_room_list.size());
+//send_to_gods(buf2);
+				continue;  // Чтоб не вызвался обработчик
+			}
+
+			// Учитываем что время выдается в пульсах а не в секундах
+			// т.е. надо умножать на 2
+			af->apply_time++;
+			if (af->must_handled) pulse_room_affect_handler(*it, ch, af);
+		}
+        ++it; //Инкремент итератора. Здесь, чтобы можно было удалять элементы списка.
+	}
+}
+
+/* =============================================================== */
+
+/* Применение заклинания к комнате */
+int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
+{
+	// Специфика заклов на комнаты заключается в том, что
+	// практически все взаимодействие с персонажами осуществляется
+	// не в прямую а косвенно , через аффекты которые на ней присутствуют
+	// поэтому любой каст на комнату это прежде всего вешание
+	// на нее какого-то определенного аффекта.
+
+	AFFECT_DATA af[MAX_SPELL_AFFECTS];
+	bool accum_affect = FALSE, accum_duration = FALSE, success = TRUE;
+	/*Данный флажок говорит можно ли обновлять закл
+	или  оно должно висеть пока не спадет*/
+	bool update_spell = FALSE;
+	const char *to_char = NULL;
+	const char *to_room = NULL;
+	int i = 0;
+	// Sanity check
+	if (room == NULL || IN_ROOM(ch) == NOWHERE || ch == NULL)
+		return 0;
+
+	// Нулим все аффекты в массиве.
+	for (i = 0; i < MAX_SPELL_AFFECTS; i++)
+	{
+		af[i].type = spellnum;
+		af[i].bitvector = 0;
+		af[i].modifier = 0;
+		af[i].battleflag = 0;
+		af[i].location = APPLY_NONE;
+		af[i].caster_id = 0;
+		af[i].must_handled = false;
+		af[i].apply_time = 0;
+	}
+	// Проверки ПК - флагов осуществлятся тогда когда аффекты реально работают
+
+	switch (spellnum)
+	{
+	case SPELL_ROOM_LIGHT:
+		af[0].type = spellnum;
+		af[0].location = APPLY_ROOM_NONE;
+		af[0].modifier = 0;
+		// Расчет взят  только ориентировочный
+		af[0].duration = pc_duration(ch, 0, GET_LEVEL(ch) + 5, 6, 0, 0);
+		af[0].caster_id = GET_UNIQUE(ch);
+		af[0].bitvector = AFF_ROOM_LIGHT;
+		/* Сохраняем ID кастера т.к. возможно что в живых его
+		к моменту срабатывания аффекта уже не будет, а ПК-флаги на него вешать
+		придется*/
+		af[0].must_handled = false;
+		accum_duration = TRUE;
+		update_spell = TRUE;
+		to_char = "Вы облили комнату бензином и бросили окурок.";
+		to_room = "Пространство вокруг начало светиться.";
+		break;
+
+	case SPELL_POISONED_FOG:
+		/* Идея закла - комната заражается и охватывается туманом
+		   не знаю там какие плюшки с туманом. Но яд травит Ж)
+		*/
+		af[0].type = spellnum;
+		af[0].location = APPLY_ROOM_POISON; /* Изменяет уровень зараженности территории */
+		af[0].modifier = 50;
+		// Расчет взят  только ориентировочный
+		af[0].duration = pc_duration(ch, 0, GET_LEVEL(ch) + 5, 6, 0, 0);
+		af[0].bitvector = AFF_ROOM_FOG; /*Добаляет бит туман*/
+		af[0].caster_id = GET_ID(ch);
+		af[0].must_handled = true;
+		/* Не имеет смысла разделять на разные аффекты
+		если описание будет одно и время работы одно*/
+		update_spell = FALSE;
+		to_room = "$n испортил воздух и плюнул в суп.";
+		break;
+
+	case SPELL_THUNDERSTORM:
+		/* Иллюстрация закла со стадиями */
+		af[0].type = spellnum;
+		af[0].duration = 10; /*закл длиться 20 секунд*/
+		af[0].must_handled = true; /*требует вызов обработчика*/
+		af[0].caster_id = GET_ID(ch);
+		update_spell = FALSE;
+		to_room = "Вы услышали раскат далекой грозы.";
+		break;
+
+	case SPELL_RUNE_LABEL:
+		af[0].type = spellnum;
+		af[0].location = APPLY_ROOM_NONE;
+		af[0].modifier = 0;
+		af[0].duration = TIME_SPELL_RUNE_LABEL; //10 минут
+		af[0].caster_id = GET_ID(ch);
+		af[0].bitvector = AFF_ROOM_RUNE_LABEL;
+		af[0].must_handled = false;
+		accum_duration = TRUE;
+		update_spell = TRUE;
+		to_char = "Вы начертали свое имя рунами на земле и произнесли заклинание.";
+		to_room = "$n начертил на земле несколько рун и произнес заклинание.";
+//		MANUAL_SPELL(spell_rune_label); //тут делаем все нестандартное
+		break;
+	}
+
+	// Проверяем а не висит ли уже аффектов от аналогичных заклов на комнате.
+	if ((world[IN_ROOM(ch)] == room) && room_affected_by_spell(room, spellnum) && success && (!update_spell))
+	{
+		send_to_char(NOEFFECT, ch);
+		success = FALSE;
+	}
+
+	// Перебираем заклы чтобы понять не производиться ли рефрешь закла
+	for (i = 0; success && i < MAX_SPELL_AFFECTS; i++)
+	{
+		af[i].type = spellnum;
+		if (af[i].bitvector || af[i].location != APPLY_ROOM_NONE
+				|| af[i].must_handled)
+		{
+			af[i].duration = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, af[i].duration);
+			if (update_spell)
+				affect_room_join_fspell(room, af + i);
+			else
+				affect_room_join(room, af + i, accum_duration, FALSE, accum_affect, FALSE);
+				//вставляем указатель на комнату в список обкастованных, с проверкой на наличие
+				AddRoom(room);
+		}
+	}
+
+	if (success)
+	{
+		if (to_room != NULL)
+			act(to_room, TRUE, ch, 0, 0, TO_ROOM);
+
+		return 1;
+	}
+
+	return 0;
+
+}
+
+/* =============================================================== */
+
+} // namespace RoomSpells
+
 /*
  * Saving throws are now in class.cpp as of bpl13.
  */
@@ -216,12 +646,6 @@ void show_spell_off(int aff, CHAR_DATA * ch)
 	send_to_char("\r\n", ch);
 
 }
-void show_room_spell_off(int aff, room_rnum room)
-{
-	send_to_room(spell_wear_off_msg[aff], room, 0);
-//	send_to_char(spell_wear_off_msg[aff], ch);
-//	send_to_char("\r\n", ch);
-}
 
 void mobile_affect_update(void)
 {
@@ -311,239 +735,6 @@ void mobile_affect_update(void)
 			{
 				stop_follower(i, SF_CHARMLOST);
 			}
-		}
-	}
-}
-
-CHAR_DATA * find_char_in_room(long char_id, ROOM_DATA *room)
-{
-	CHAR_DATA * tch, * next_ch;
-	assert(room);
-
-	for (tch = room->people ; tch ; tch = next_ch)
-	{
-		next_ch = tch->next_in_room;
-		if (GET_ID(tch) == char_id)
-			return (tch);
-	}
-	return NULL;
-}
-CHAR_DATA * random_char_in_room(ROOM_DATA *room)
-{
-	CHAR_DATA * c , * result = NULL;
-	int count = 0, index = 0;
-	// посчитаем число перцев  в комнате
-	for (c = room->people; c; c = c->next_in_room)
-		if (!PRF_FLAGGED(c, PRF_NOHASSLE)
-				&& !GET_INVIS_LEV(c))
-		{
-			count++;
-		}
-	count = number(0, count - 1);
-	// А теперь узнаем его указатель.
-	for (c = room->people; c; c = c->next_in_room)
-		if (!PRF_FLAGGED(c, PRF_NOHASSLE)
-				&& !GET_INVIS_LEV(c))
-		{
-			if (index == count)
-			{
-				result = c;
-				break;
-			}
-
-			index++;
-		}
-	return (result);
-
-}
-/* Раз в 2 секунды идет вызов обработчиков аффектов*/
-void pulse_room_affect_handler(room_rnum room, CHAR_DATA * ch, AFFECT_DATA * aff)
-{
-	// Аффект в комнате.
-	// Проверяем на то что нам передали бяку в параметрах.
-	assert(aff);
-	assert(world[room]);
-
-	// Тут надо понимать что если закл наложит не один аффект а несколько
-	// то обработчик будет вызываться за пульс именно столько раз.
-	int spellnum = aff->type;
-	CHAR_DATA * tch, *tch_next;
-	switch (spellnum)
-	{
-	case SPELL_ROOM_LIGHT:
-//			sprintf(buf2 , "Ярко светит колдовской свет. (%d)\r\n", aff->apply_time);
-//			send_to_room(buf2,room, 0);
-		break;
-
-	case SPELL_POISONED_FOG:
-		// Обработчик закла
-		// По сути это каст яда на всех без разбора.
-		//	sprintf(buf2 , "Травим всех тут. (%d : %d)\r\n", aff->apply_time, aff->duration);
-		send_to_room(buf2, room, 0);
-		if (ch) // Кастер нашелся и он тут ...
-		{
-			for (tch = world[room]->people; tch ; tch = tch_next)
-			{
-				tch_next = tch->next_in_room;
-
-				if (!call_magic(ch, tch, NULL, NULL, SPELL_POISON, GET_LEVEL(ch), CAST_SPELL))
-				{
-					aff->duration = 0;
-					break;
-				}
-			}
-		}
-
-		break;
-	case SPELL_THUNDERSTORM:
-		/* Что можно учудить тут :
-			1-2 - Первые два раунда чары только предупреждаются что тут будет гоооорячо.
-			3 - начинает идти дождь
-			4-6 - цепи молний
-			7-8 - 1-но испепеление - убивает нафиг рэндомно одного чара ...
-			9-10 - шаравухи
-			11 - дождь кончается.
-		*/
-		switch (aff->duration)
-		{
-		case 1:
-			what_sky = SKY_CLOUDY;
-			if (!call_magic(ch, NULL, NULL, NULL, SPELL_CONTROL_WEATHER, GET_LEVEL(ch), CAST_SPELL))
-			{
-				// Если закл сфейлился то прекращаем новый год )
-				aff->duration = 0;
-				break;
-			}
-			break;
-
-		case 2:
-			what_sky = SKY_RAINING;
-			if (!call_magic(ch, NULL, NULL, NULL, SPELL_CONTROL_WEATHER, GET_LEVEL(ch), CAST_SPELL))
-			{
-				// Если закл сфейлился то прекращаем новый год )
-				aff->duration = 0;
-				break;
-			}
-			break;
-		case 3:
-			// Хреначим  рэндомно молниями.
-			tch = random_char_in_room(world[room]);
-			if (tch)
-			{
-				call_magic(ch, tch, NULL, NULL, SPELL_CHAIN_LIGHTNING, GET_LEVEL(ch), CAST_SPELL);
-			}
-			break;
-		case 5:
-			// Делаем мега молнию - которая мочит чара Ж)
-			tch = random_char_in_room(world[room]);
-			if (tch)
-			{
-				send_to_char("Удар молнии просто испепелил Вас", tch);
-				act("Удар молнии призванной испепелил $n!", FALSE, tch, 0, 0, TO_ROOM);
-				pk_agro_action(ch, tch);
-				raw_kill(tch, ch);
-			}
-			break;
-		case 6:
-			// Хреначим  рэндомно молниями.
-			tch = random_char_in_room(world[room]);
-			if (tch)
-			{
-				call_magic(ch, tch, NULL, NULL, SPELL_CHAIN_LIGHTNING, GET_LEVEL(ch), CAST_SPELL);
-			}
-			break;
-
-		case 7:
-			// Успокаиваем погоду.
-
-			what_sky = SKY_CLOUDLESS;
-			if (!call_magic(ch, NULL, NULL, NULL, SPELL_CONTROL_WEATHER, GET_LEVEL(ch), CAST_SPELL))
-			{
-				// Если закл сфейлился то прекращаем новый год )
-				aff->duration = 0;
-				break;
-			}
-			break;
-
-		}
-
-		break;
-	default:
-		log("Try handle room affect for spell without handler");
-	}
-}
-
-/* Апдейт аффектов для комнат - надеюсь это мир не прикончит*/
-void room_affect_update(void)
-{
-	AFFECT_DATA *af, *next;
-	CHAR_DATA *ch;
-	ROOM_DATA *i;
-	int cnt, spellnum;
-	for (cnt = FIRST_ROOM; cnt <= top_of_world; cnt++)
-	{
-		i = world[cnt];
-		assert(i);
-		for (af = i->affected ; af ; af = next)
-		{
-			next = af->next;
-			spellnum = af->type;
-			// Пока проверяем кастер в комнате если нет то снимаем закл
-			// иначе искать его по миру пока слишком долго
-
-			ch = NULL;
-			if (IS_SET(SpINFO.routines, MAG_CASTER_INROOM) || IS_SET(SpINFO.routines, MAG_CASTER_INWORLD))
-			{
-
-				ch = find_char_in_room(af->caster_id, i);
-				if ((!ch) && IS_SET(SpINFO.routines, MAG_CASTER_INROOM))
-				{
-					// Кастер слинял ... или помер - зря.
-					af->duration = 0;
-				}
-
-			}
-			// Чую долгое это будет дело ... но деваться не куда
-			if ((!ch) && IS_SET(SpINFO.routines, MAG_CASTER_INWORLD))
-			{
-				// Ищем чара по миру
-				ch = find_char(af->caster_id);
-				if (!ch)
-				{
-					// Нету кастера в мире ... Ж(
-					af->duration = 0;
-				}
-			}
-
-			if (af->duration >= 1)
-				af->duration--;
-			else if (af->duration == -1)
-				af->duration = -1;
-			else
-			{
-				if ((af->type > 0) && (af->type <= MAX_SPELLS))
-				{
-					if (!af->next || (af->next->type != af->type)
-							|| (af->next->duration > 0))
-					{
-						if (af->type > 0 &&
-								af->type <= LAST_USED_SPELL && *spell_wear_off_msg[af->type])
-						{
-							show_room_spell_off(af->type, cnt);
-						}
-					}
-				}
-				affect_room_remove(i, af);
-				continue;  // Чтоб не вызвался обработчик
-			}
-
-			// Учитываем что время выдается в пульсах а не в секундах
-			// т.е. надо умножать на 2
-
-			af->apply_time++;
-
-			if (af->must_handled) pulse_room_affect_handler(cnt, ch, af);
-
 		}
 	}
 }
@@ -4297,7 +4488,6 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 	return 1;
 }
 
-
 const spl_message areas_messages[] =
 {
 	{SPELL_CHAIN_LIGHTNING,
@@ -4367,126 +4557,6 @@ const spl_message areas_messages[] =
 	 0},
 	{ -1}
 };
-// Применение заклинания к комнате
-//---------------------------------------------------------
-int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
-{
-	// Специфика заклов на комнаты заключается в том, что
-	// практически все взаимодействие с персонажами осуществляется
-	// не в прямую а косвенно , через аффекты которые на ней присутствуют
-	// поэтому любой каст на комнату это прежде всего вешание
-	// на нее какого-то определенного аффекта.
-
-	AFFECT_DATA af[MAX_SPELL_AFFECTS];
-	bool accum_affect = FALSE, accum_duration = FALSE, success = TRUE;
-	/*Данный флажок говорит можно ли обновлять закл
-	или  оно должно висеть пока не спадет*/
-	bool update_spell = FALSE;
-	const char *to_char = NULL;
-	const char *to_room = NULL;
-	int i = 0;
-	// Sanity check
-	if (room == NULL || IN_ROOM(ch) == NOWHERE || ch == NULL)
-		return 0;
-
-	// Нулим все аффекты в массиве.
-	for (i = 0; i < MAX_SPELL_AFFECTS; i++)
-	{
-		af[i].type = spellnum;
-		af[i].bitvector = 0;
-		af[i].modifier = 0;
-		af[i].battleflag = 0;
-		af[i].location = APPLY_NONE;
-		af[i].caster_id = 0;
-		af[i].must_handled = false;
-		af[i].apply_time = 0;
-	}
-	// Проверки ПК - флагов осуществлятся тогда когда аффекты реально работают
-
-	switch (spellnum)
-	{
-	case SPELL_ROOM_LIGHT:
-		af[0].type = spellnum;
-		af[0].location = APPLY_ROOM_NONE;
-		af[0].modifier = 0;
-		// Расчет взят  только ориентировочный
-		af[0].duration = pc_duration(ch, 0, GET_LEVEL(ch) + 5, 6, 0, 0);
-		af[0].caster_id = GET_UNIQUE(ch);
-		af[0].bitvector = AFF_ROOM_LIGHT;
-		/* Сохраняем ID кастера т.к. возможно что в живых его
-		к моменту срабатывания аффекта уже не будет, а ПК-флаги на него вешать
-		придется*/
-		af[0].must_handled = false;
-		accum_duration = TRUE;
-		update_spell = TRUE;
-		to_char = "Вы облили комнату бензином и бросили окурок.";
-		to_room = "Пространство вокруг начало светиться.";
-		break;
-
-	case SPELL_POISONED_FOG:
-		/* Идея закла - комната заражается и охватывается туманом
-		   не знаю там какие плюшки с туманом. Но яд травит Ж)
-		*/
-		af[0].type = spellnum;
-		af[0].location = APPLY_ROOM_POISON; /* Изменяет уровень зараженности территории */
-		af[0].modifier = 50;
-		// Расчет взят  только ориентировочный
-		af[0].duration = pc_duration(ch, 0, GET_LEVEL(ch) + 5, 6, 0, 0);
-		af[0].bitvector = AFF_ROOM_FOG; /*Добаляет бит туман*/
-		af[0].caster_id = GET_ID(ch);
-		af[0].must_handled = true;
-		/* Не имеет смысла разделять на разные аффекты
-		если описание будет одно и время работы одно*/
-		update_spell = FALSE;
-		to_room = "$n испортил воздух и плюнул в суп.";
-		break;
-
-	case SPELL_THUNDERSTORM:
-		/* Иллюстрация закла со стадиями */
-		af[0].type = spellnum;
-		af[0].duration = 10; /*закл длиться 20 секунд*/
-		af[0].must_handled = true; /*требует вызов обработчика*/
-		af[0].caster_id = GET_ID(ch);
-		update_spell = FALSE;
-		to_room = "Вы услышали раскат далекой грозы.";
-
-		break;
-
-	}
-
-	// Проверяем а не висит ли уже аффектов от аналогичных заклов на комнате.
-	if ((world[IN_ROOM(ch)] == room) && room_affected_by_spell(room, spellnum) && success && (!update_spell))
-	{
-		send_to_char(NOEFFECT, ch);
-		success = FALSE;
-	}
-
-	// Перебираем заклы чтобы понять не производиться ли рефрешь закла
-	for (i = 0; success && i < MAX_SPELL_AFFECTS; i++)
-	{
-		af[i].type = spellnum;
-		if (af[i].bitvector || af[i].location != APPLY_ROOM_NONE
-				|| af[i].must_handled)
-		{
-			af[i].duration = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, af[i].duration);
-			if (update_spell)
-				affect_room_join_fspell(room, af + i);
-			else
-				affect_room_join(room, af + i, accum_duration, FALSE, accum_affect, FALSE);
-		}
-	}
-
-	if (success)
-	{
-		if (to_room != NULL)
-			act(to_room, TRUE, ch, 0, 0, TO_ROOM);
-
-		return 1;
-	}
-
-	return 0;
-
-}
 
 // наколенный список чаров для масс-заклов, бьющих по комнате
 // в необходимость самого списка не вникал, но данная конструкция над ним
@@ -4571,7 +4641,6 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 
 	return 1;
 }
-
 
 const spl_message groups_messages[] =
 {

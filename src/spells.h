@@ -76,6 +76,7 @@
 #define MAG_CASTER_INROOM       (1 << 25) /* Аффект от этого спелла действует пока кастер в комнате */
 #define MAG_CASTER_INWORLD      (1 << 26) /* висит пока кастер в мире */
 #define MAG_CASTER_ANYWHERE     (1 << 27) /* висит пока не упадет сам */
+#define MAG_CASTER_INWORLD_DELAY     (1 << 28) /* висит пока кастер в мире, плюс таймер после ухода кастера*/
 #define NPC_CALCULATE           (0xff << 16)
 /***** Extra attack bit flags */
 #define EAF_PARRY       (1 << 0)
@@ -325,11 +326,12 @@
 #define SPELL_WC_OF_POWER		185
 #define SPELL_WC_OF_BLESS		186
 #define SPELL_WC_OF_COURAGE		187
-#define SPELL_ACONITUM_POISON   188
-#define SPELL_SCOPOLIA_POISON   189
-#define SPELL_BELENA_POISON     190
-#define SPELL_DATURA_POISON     191
-#define LAST_USED_SPELL			192
+#define SPELL_RUNE_LABEL                188
+#define SPELL_ACONITUM_POISON       189
+#define SPELL_SCOPOLIA_POISON   190
+#define SPELL_BELENA_POISON     191
+#define SPELL_DATURA_POISON     192
+#define LAST_USED_SPELL			193
 
 /*
  *  NON-PLAYER AND OBJECT SPELLS AND SKILLS
@@ -553,13 +555,21 @@ int mag_creations(int level, CHAR_DATA * ch, int spellnum);
 
 int mag_single_target(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int casttype);
 
-int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
-
 int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DATA *rvict, int spellnum, int level, int casttype);
 
 void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument);
 
 int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA *troom, int spellnum, int spell_subst);
+
+namespace RoomSpells {
+
+/* Обработка таймеров аффектов на комнатах */
+void room_affect_update(void);
+
+/* Применение заклинания к комнате */
+int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
+
+} // RoomSpells
 
 /* other prototypes */
 void mspell_remort(char *name , int spell, int kin , int chclass, int remort);

@@ -2136,7 +2136,7 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 		return mag_areas(level, caster, cvict, spellnum, savetype);
 
 	if (IS_SET(SpINFO.routines, MAG_ROOM))
-		return mag_room(level, caster, rvict, spellnum);
+		return RoomSpells::mag_room(level, caster, rvict, spellnum);
 
 	return mag_single_target(level, caster, cvict, ovict, spellnum, savetype);
 }
@@ -4931,19 +4931,22 @@ void mag_assign_spells(void)
 	spello(SPELL_WC_OF_COURAGE, "клич отваги", "warcry of courage", 90, 90, 30,
 		   POS_FIGHTING, TAR_IGNORE, FALSE,
 		   MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+//188
+	spello(SPELL_RUNE_LABEL, "рунная метка", "rune label", 50, 35, 1,
+		POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_ROOM | MAG_CASTER_INWORLD_DELAY, 0, STYPE_LIGHT);
 
 	/* NON-castable spells should appear below here. */
 
-// 188
+// 189
 	spello(SPELL_ACONITUM_POISON, "яд аконита", "aconitum poison",
 		0, 0, 0, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_AFFECTS, 0, STYPE_LIFE);
-// 189
+// 190
 	spello(SPELL_SCOPOLIA_POISON, "яд скополии", "scopolia poison",
 		0, 0, 0, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_AFFECTS, 0, STYPE_LIFE);
-// 190
+// 191
 	spello(SPELL_BELENA_POISON, "яд белены", "belena poison",
 		0, 0, 0, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_AFFECTS, 0, STYPE_LIFE);
-// 191
+// 192
 	spello(SPELL_DATURA_POISON, "яд дурмана", "datura poison",
 		0, 0, 0, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_AFFECTS, 0, STYPE_LIFE);
 

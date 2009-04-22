@@ -53,6 +53,7 @@
 #include "char.hpp"
 #include "char_player.hpp"
 #include "parcel.hpp"
+#include "spells.h"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -216,7 +217,7 @@ void zlib_free(void *opaque, void *address);
 void SaveGlobalUID(void);
 void boot_world(void);
 void player_affect_update(void);	/* In spells.cpp */
-void room_affect_update(void);		/* In spells.cpp */
+void RoomSpells::room_affect_update(void);		/* In spells.cpp */
 void mobile_affect_update(void);
 void mobile_activity(int activity_level, int missed_pulses);
 void perform_violence(void);
@@ -1264,7 +1265,7 @@ inline void heartbeat()
 
 	if (!(pulse % (SECS_PER_ROOM_AFFECT * PASSES_PER_SEC)))  	//log ("Player affect update...");
 	{
-		room_affect_update();
+		RoomSpells::room_affect_update();
 		//log("Stop it...");
 	}
 

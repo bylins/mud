@@ -27,6 +27,9 @@
 
 #define MAX_SPELL_AFFECTS 5	/* change if more needed */
 
+//таймеры для спеллов, которые должны тикать, только если кастер помер или вышел
+#define TIME_SPELL_RUNE_LABEL 20 //300
+
 #define SpINFO spell_info[spellnum]
 
 int get_resist_type(int spellnum);
