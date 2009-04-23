@@ -59,6 +59,9 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim);
 // Определение необходимости вводить имя жертвы полностью
 bool need_full_alias(CHAR_DATA * ch, CHAR_DATA * opponent);
 
+//Определение, является ли строка arg полным именем ch
+int name_cmp(CHAR_DATA * ch, const char *arg);
+
 // Определение возможности агродействий
 int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const char *arg);
 int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const std::string &arg);

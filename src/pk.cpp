@@ -950,11 +950,24 @@ bool need_full_alias(CHAR_DATA * ch, CHAR_DATA * opponent)
 	return true;
 }
 
+//Проверка, является ли строка arg полным именем ch
+int name_cmp(CHAR_DATA * ch, const char *arg)
+{
+    char opp_name_part[200] = "\0", opp_name[200] = "\0", *opp_name_remain;
+	strcpy(opp_name, GET_NAME(ch));
+	for (opp_name_remain = opp_name; *opp_name_remain;)
+	{
+		opp_name_remain = one_argument(opp_name_remain, opp_name_part);
+		if (!str_cmp(arg, opp_name_part))
+			return TRUE;
+	}
+	return FALSE;
+}
+
 // Проверка потенциальной возможности агродействий
 // TRUE - агродействие разрешено, FALSE - агродействие запрещено
 int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const char *arg)
 {
-	char opp_name_part[200] = "\0", opp_name[200] = "\0", *opp_name_remain;
 
 	if (!need_full_alias(ch, opponent))
 		return TRUE;
@@ -966,14 +979,16 @@ int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const char *arg)
 	while (*arg && (*arg == '.' || (*arg >= '0' && *arg <= '9')))
 		++arg;
 
-	strcpy(opp_name, GET_NAME(opponent));
+    if (name_cmp(opponent, arg))
+        return TRUE;
+    //Svent: Вынес в отдельную функцию, ибо понадобилась такая же проверка.
+	/*strcpy(opp_name, GET_NAME(opponent));
 	for (opp_name_remain = opp_name; *opp_name_remain;)
 	{
 		opp_name_remain = one_argument(opp_name_remain, opp_name_part);
 		if (!str_cmp(arg, opp_name_part))
 			return TRUE;
-	}
-
+	}*/
 	// Совпадений не нашел
 	send_to_char("Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n", ch);
 	return FALSE;
