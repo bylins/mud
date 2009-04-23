@@ -1511,6 +1511,17 @@ inline void heartbeat()
 		FileCRC::save();
 	}
 
+	//Polud раз в час проверяем не пришло ли время сохранить статистику
+	if (SpellUsage::isActive && (!(pulse % (60*60*PASSES_PER_SEC))))
+	{
+		time_t tmp_time = time(0);
+		if ((tmp_time - SpellUsage::start) >= (60*60*24))
+		{
+			SpellUsage::save();
+			SpellUsage::clear();
+		}
+
+	}
 	//log("---------- Stop heartbeat ----------");
 }
 

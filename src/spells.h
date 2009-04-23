@@ -582,6 +582,19 @@ const char *skill_name(int num);
 const char *spell_name(int num);
 int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply);
 
+//Polud статистика использования заклинаний
+typedef std::map<int, int> SpellCountType;
+
+namespace SpellUsage 
+{
+	extern bool isActive;
+	extern time_t start;
+	void AddSpellStat(int charClass, int spellNum);
+	void save();
+	void clear();
+};
+//-Polud
+
 #define CALC_SUCCESS(modi,perc)         ((modi)-100+(perc))
 
 const int HOURS_PER_WARCRY = 4;

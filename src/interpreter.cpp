@@ -247,6 +247,7 @@ ACMD(do_pour);
 ACMD(do_skills);
 ACMD(do_statistic);
 ACMD(do_spells);
+ACMD(do_spellstat);
 ACMD(do_remember);
 ACMD(do_learn);
 ACMD(do_forget);
@@ -550,6 +551,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"забыть", POS_RESTING, do_forget, 0, 0, 0},
 	{"задержать", POS_STANDING, do_not_here, 1, 0, -1},
 	{"заклинания", POS_SLEEPING, do_spells, 0, 0, 0},
+	{"заклстат", POS_DEAD, do_spellstat, LVL_GRGOD, 0, 0},
 	{"закрыть", POS_SITTING, do_gen_door, 0, SCMD_CLOSE, 500},
 	{"замести", POS_STANDING, do_hidetrack, 1, 0, -1},
 	{"замолчать", POS_DEAD, do_wizutil, LVL_GOD, SCMD_MUTE, 0},

@@ -2121,6 +2121,9 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 		break;
 	}
 
+	if (SpellUsage::isActive)
+		SpellUsage::AddSpellStat(GET_CLASS(caster), spellnum);
+
 	// Обработка заклинания
 	//******************************************
 

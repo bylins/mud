@@ -15,8 +15,6 @@
 #include "skills.h"
 #include "constants.h"
 #include "char_player.hpp"
-#include "xmlParser.h"
-#include <boost/algorithm/string.hpp>
 
 Character::Character()
 		: nr(NOBODY),
@@ -340,70 +338,3 @@ void Character::create_mob_guard()
 {
 	player = Player::shared_mob;
 }
-//Polud тестовый класс для хранения параметров различных рас мобов
-//Читает данные из файла
-const char *MOBRACE_FILE = LIB_MISC"mobrace.xml";
-//использует xmlParser (xmlParser.cpp, xmlParser.h) см.  http://www.applied-mathematics.net/tools/xmlParser.html
-
-MobRaceListType mobraces_list;
-
-//загрузка рас из файла
-void load_mobraces()
-{
-	struct ingredient tmp_ingr;
-	XMLResults result;
-	XMLNode xMainNode=XMLNode::parseFile(MOBRACE_FILE, "mobraces", &result);
-	if (result.error != eXMLErrorNone)
-	{
-		log("SYSERROR: Ошибка чтения файла %s: %s", MOBRACE_FILE, XMLNode::getError(result.error));
-		return;
-	}
-	int numraces = xMainNode.nChildNode("mobrace");
-	for (int i=0;i<numraces;i++)
-	{
-		MobRacePtr tmp_mobrace(new MobRace);
-		XMLNode xNodeRace = xMainNode.getChildNode("mobrace", i);
-		tmp_mobrace->race_name = xNodeRace.getAttribute("name");
-		int race_num = xmltoi(xNodeRace.getAttribute("key"));
-		XMLNode xNodeImList = xNodeRace.getChildNode("imlist");
-		int numims = xNodeImList.nChildNode("im");
-		for (int j=0; j<numims; j++)
-		{
-			XMLNode xNodeIm = xNodeImList.getChildNode("im",j);
-			tmp_ingr.imtype = xmltoi(xNodeIm.getAttribute("type"));
-			tmp_ingr.imname = str_dup(xNodeIm.getAttribute("name"));
-			boost::trim(tmp_ingr.imname);
-			int numprobs = xNodeIm.nChildNode("prob"), cur_lvl=50, next_lvl=0, prob;
-			for (int k=numprobs-1; k>=0; k--)
-			{
-				next_lvl = xmltoi(xNodeIm.getChildNode("prob",k).getAttribute("lvl"));
-				prob = xmltoi(xNodeIm.getChildNode("prob",k).getText());
-				if (next_lvl>0)
-				{
-					for (int lvl=cur_lvl; lvl>=next_lvl; lvl--)
-						tmp_ingr.prob[lvl-1] = prob;
-				}
-				else
-				{
-					log("SYSERROR: Неверный уровень lvl=%d для ингредиента %s расы %s", next_lvl, tmp_ingr.imname.c_str(), tmp_mobrace->race_name.c_str());
-					return;
-				}
-				cur_lvl = next_lvl-1;
-			}
-			tmp_mobrace->ingrlist.push_back(tmp_ingr);
-		}
-		mobraces_list[race_num] = tmp_mobrace;
-	}
-}
-
-
-MobRace::MobRace()
-{
-	ingrlist.clear();
-}
-
-MobRace::~MobRace()
-{
-	ingrlist.clear();
-}
-//-Polud

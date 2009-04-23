@@ -80,6 +80,7 @@ extern long max_id;
 /* for chars */
 extern const char *pc_class_types[];
 extern const char *pc_kin_types[];
+extern struct spell_info_type spell_info[];
 /*for name auto-agree*/
 extern void agree_name(CHAR_DATA * d, char *immname, int immlev);
 extern void disagree_name(CHAR_DATA * d, char *immname, int immlev);
@@ -5031,3 +5032,115 @@ ACMD(do_dmeter)
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////
+//Polud статистика использования заклинаний
+namespace SpellUsage
+{ 
+	bool isActive = false;
+	std::map <int, SpellCountType> usage;
+	const char* SPELL_STAT_FILE = LIB_STAT"spellstat.txt";
+	time_t start;
+}
+
+void SpellUsage::clear()
+{
+	for(std::map<int, SpellCountType>::iterator it=usage.begin();it != usage.end(); ++it)
+		it->second.clear();
+	usage.clear();
+	start = time(0);
+}
+
+std::string statToPrint()
+{
+	std::stringstream out;
+	int i=0, j=0;
+	time_t now=time(0);
+	char * end_time = str_dup(rustime(localtime(&now)));
+	out << rustime(localtime(&SpellUsage::start)) << " - " << end_time << "\n";
+	for (std::map<int, SpellCountType>::iterator it = SpellUsage::usage.begin(); it != SpellUsage::usage.end(); ++it)
+	{
+		out << std::setw(35)<<pc_class_types[it->first] << "\n";
+		for (SpellCountType::iterator itt = it->second.begin(); itt !=it->second.end(); ++itt)
+			out << std::setw(25) << spell_info[itt->first].name << " : " << itt->second << "\n";
+	}
+	return out.str();
+}
+
+void SpellUsage::save()
+{
+	if (!isActive)
+		return;
+
+	std::ofstream file(SPELL_STAT_FILE, std::ios_base::app | std::ios_base::out);
+	
+	if (!file.is_open())
+	{
+		log("Error open file: %s! (%s %s %d)", SPELL_STAT_FILE, __FILE__, __func__, __LINE__);
+		return;
+	}
+	file << statToPrint();	
+	file.close();
+}
+
+void SpellUsage::AddSpellStat(int charClass, int spellNum)
+{
+	if (!isActive)
+		return;
+	if (charClass > NUM_CLASSES || spellNum > MAX_SPELLS)
+		return;
+	usage[charClass][spellNum]++;
+}
+
+
+ACMD(do_spellstat)
+{
+	skip_spaces(&argument);
+
+	if (!*argument)
+	{
+		send_to_char("заклстат [стоп|старт|очистить|показать|сохранить]\r\n", ch);
+		return;
+	}
+
+	if (!str_cmp(argument, "старт"))
+	{
+		SpellUsage::isActive = true;
+		SpellUsage::start = time(0);
+		send_to_char("Сбор включен.\r\n", ch);
+		return;
+	}
+
+	if (!SpellUsage::isActive)
+	{
+		send_to_char("Сбор выключен. Включите сбор 'заклстат старт'.\r\n", ch);
+		return;
+	}
+
+	if (!str_cmp(argument, "стоп"))
+	{
+		SpellUsage::clear();
+		SpellUsage::isActive = false;
+		send_to_char("Сбор выключен.\r\n", ch);
+		return;
+	}
+
+	if (!str_cmp(argument, "показать"))
+	{
+		send_to_char(statToPrint(), ch);
+		return;
+	}
+
+	if (!str_cmp(argument, "очистить"))
+	{
+		SpellUsage::clear();
+		return;
+	}
+
+	if (!str_cmp(argument, "сохранить"))
+	{
+		SpellUsage::save();
+		return;
+	}
+
+	send_to_char("заклстат: неизвестный аргумент\r\n", ch);
+}
+//-Polud
