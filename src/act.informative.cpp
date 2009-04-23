@@ -1535,7 +1535,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	}
 
 	/* Отображаем аффекты комнаты */
-	if AFF_FLAGGED(ch, AFF_DETECT_MAGIC)
+	if (AFF_FLAGGED(ch, AFF_DETECT_MAGIC) || IS_IMMORTAL(ch))
 		sprintbits(world[ch->in_room]->affected_by, room_aff_invis_bits, buf2, "\n");
 	else
 		sprintbits(world[ch->in_room]->affected_by, room_aff_visib_bits, buf2, "\n");

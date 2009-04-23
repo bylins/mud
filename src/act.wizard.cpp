@@ -1088,6 +1088,7 @@ void do_stat_room(CHAR_DATA * ch)
 	int i, found;
 	OBJ_DATA *j;
 	CHAR_DATA *k;
+	AFFECT_DATA *aff;
 
 	sprintf(buf, "Комната : %s%s%s\r\n", CCCYN(ch, C_NRM), rm->name, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
@@ -1185,6 +1186,19 @@ void do_stat_room(CHAR_DATA * ch)
 			send_to_char(buf, ch);
 		}
 	}
+	if (rm->affected)
+    {
+        sprintf(buf1," Аффекты на комнате:\r\n");
+        for (aff = rm->affected; aff; aff = aff->next)
+        {
+            sprintf(buf1+strlen(buf1),
+                    "       Заклинание \"%s\" (%d) - %s.\r\n",
+                    spell_name(aff->type),
+                    aff->duration,
+                    ((k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно"));
+        }
+        send_to_char(buf1, ch);
+    }
 	/* check the room for a script */
 	if (GET_LEVEL(ch) >= LVL_BUILDER || PRF_FLAGGED(ch, PRF_CODERINFO))
 		do_sstat_room(ch);
@@ -3463,6 +3477,7 @@ struct show_struct show_fields[] =
 	{"features", LVL_IMPL},
 	{"glory", LVL_IMPL},
 	{"crc", LVL_IMMORT},
+	{"affectedrooms", LVL_IMMORT},
 	{"\n", 0}
 };
 
@@ -3842,6 +3857,9 @@ ACMD(do_show)
 		break;
 	case 19:		// show crc
 		FileCRC::show(ch);
+		break;
+	case 20:		// show affected rooms
+		RoomSpells::ShowRooms(ch);
 		break;
 	default:
 		send_to_char("Извините, неверная команда.\r\n", ch);

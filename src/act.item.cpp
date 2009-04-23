@@ -32,6 +32,7 @@
 #include "char.hpp"
 #include "liquid.hpp"
 #include "poison.hpp"
+#include "pk.h"
 
 /* extern variables */
 extern vector < OBJ_DATA * >obj_proto;
@@ -2249,16 +2250,70 @@ ACMD(do_fire)
 
 ACMD(do_extinguish)
 {
-	if (world[IN_ROOM(ch)]->fires)
+    AFFECT_DATA *aff;
+    CHAR_DATA *caster;
+    int tp, lag = 0;
+    const char *targets[] = { "костер",
+                                                "fire",
+                                                "метку",
+                                                "label",
+                                                "\n"
+                                                };
+
+	one_argument(argument, arg);
+
+	if ((!*arg) || ((tp = search_block(arg, targets, FALSE)) == -1))
 	{
-		world[IN_ROOM(ch)]->fires = 0;
-		send_to_char("Вы затоптали костер.\r\n", ch);
-		act("$n затоптал$g костер.", FALSE, ch, 0, 0, TO_ROOM);
+		send_to_char("Что вы хотите затоптать?\r\n", ch);
+		return;
 	}
-	else
-	{
-		send_to_char("А тут топтать и нечего :)\r\n", ch);
-	}
+    tp >>= 1;
+
+    switch (tp)
+    {
+    case 0:
+        if (world[IN_ROOM(ch)]->fires)
+        {
+            world[IN_ROOM(ch)]->fires = 0;
+            send_to_char("Вы затоптали костер.\r\n", ch);
+            act("$n затоптал$g костер.", FALSE, ch, 0, 0, TO_ROOM);
+            lag = 2;
+        }
+        else
+        {
+            send_to_char("А тут топтать и нечего :)\r\n", ch);
+        }
+        break;
+    case 1:
+        if ((aff = room_affected_by_spell(world[IN_ROOM(ch)], SPELL_RUNE_LABEL))
+            && (AFF_FLAGGED(ch, AFF_DETECT_MAGIC) || IS_IMMORTAL(ch)))
+        {
+            affect_room_remove(world[IN_ROOM(ch)], aff);
+            send_to_char("Шаркнув несколько раз по земле вы стерли светящуюся надпись.\r\n", ch);
+            act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM);
+            if (GET_ID(ch) != aff->caster_id) //чел стирает не свою метку - вай, нехорошо
+            {
+                //Ищем кастера по миру
+                caster = find_char(aff->caster_id);
+                //Если кастер онлайн - выдаем деятелю БД как за воровство
+                if (caster)
+                {
+                    pk_thiefs_action(ch, caster);
+                    sprintf(buf, "Послышался далекий звук лопнувшей струны, и перед вами промельнул призрачный облик %s.\r\n", GET_PAD(ch,3));
+                    send_to_char(buf, caster);
+                }
+            }
+            lag = 3;
+        }
+        else
+        {
+            send_to_char("А тут топтать и нечего :)\r\n", ch);
+        }
+        break;
+    }
+    //Выдадим-ка лаг за эти дела.
+    if (!WAITLESS(ch))
+            WAIT_STATE(ch, lag * PULSE_VIOLENCE);
 }
 
 #define MAX_REMOVE  12

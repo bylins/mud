@@ -1038,15 +1038,16 @@ bool affected_by_spell(CHAR_DATA * ch, int type)
 	return (FALSE);
 }
 /* Проверяем а не висит ли на комнате закла ужо */
-bool room_affected_by_spell(ROOM_DATA * room, int type)
+//bool room_affected_by_spell(ROOM_DATA * room, int type)
+AFFECT_DATA *room_affected_by_spell(ROOM_DATA * room, int type)
 {
 	AFFECT_DATA *hjp;
 
 	for (hjp = room->affected; hjp; hjp = hjp->next)
 		if (hjp->type == type)
-			return (TRUE);
+			return hjp;
 
-	return (FALSE);
+	return NULL;
 }
 
 void affect_join_fspell(CHAR_DATA * ch, AFFECT_DATA * af)
