@@ -563,11 +563,16 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA *troo
 
 namespace RoomSpells {
 
+/* список всех обкстованных комнат */
+extern std::list<ROOM_DATA*> aff_room_list;
+/* Показываем комнаты под аффектами */
+void ShowRooms(CHAR_DATA *ch);
 /* Обработка таймеров аффектов на комнатах */
 void room_affect_update(void);
-
 /* Применение заклинания к комнате */
 int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
+/* Поиск первой комнаты с аффектом от spellnum и кастером с идом Id */
+ROOM_DATA * find_affected_roomt(long id, int spellnum);
 
 } // RoomSpells
 

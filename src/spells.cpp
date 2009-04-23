@@ -613,13 +613,33 @@ ASPELL(spell_summon)
 ASPELL(spell_townportal)
 {
 	int gcount = 0, cn = 0, ispr = 0;
+	bool has_label_portal = false;
 	struct timed_type timed;
 	char *nm;
 	struct char_portal_type *tmp;
 	struct portals_list_type *port;
+	struct portals_list_type label_port;
+	ROOM_DATA * label_room;
 
 	port = get_portal(-1, cast_argument);
-	if (port && has_char_portal(ch, port->vnum))
+
+	//если портала нет, проверяем, возможно игрок ставит врата на свою метку
+	if (!port && name_cmp(ch, cast_argument))
+	{
+        //Таки да, персонаж пытается поставить врата на себя, то бишь на свою метку. Ищем комнату с меткой.
+        label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
+
+        //Если такая комната есть - заполняем структуру портала
+        //Тупо конечно, но какого блин туча проверок по всем функциям рассована? Их все обойти - убиться проще.
+        if (label_room)
+        {
+            label_port.vnum = label_room->number;
+            label_port.level = 1;
+            port = &label_port;
+            has_label_portal = true;
+        }
+	}
+	if (port && (has_char_portal(ch, port->vnum) || has_label_portal))
 	{
 
 		// Проверяем скилл тут, чтобы можно было смотреть список и удалять без -!-
@@ -633,6 +653,12 @@ ASPELL(spell_townportal)
 		if (find_portal_by_vnum(GET_ROOM_VNUM(IN_ROOM(ch))))
 		{
 			send_to_char("Камень рядом с Вами мешает Вашей магии.\r\n", ch);
+			return;
+		}
+		/* Если в комнате есть метка-"камень" то врата ставить нельзя */
+		if (room_affected_by_spell(world[IN_ROOM(ch)], SPELL_RUNE_LABEL))
+		{
+			send_to_char("Начертанные на земле магические руны подавляют Вашу магию!\r\n", ch);
 			return;
 		}
 		// Чтоб не кастили в NOMAGIC

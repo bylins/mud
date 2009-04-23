@@ -118,9 +118,15 @@ CHAR_DATA * random_char_in_room(ROOM_DATA *room)
 
 namespace RoomSpells {
 
- /* список всех обкстованных комнат */
+/* список всех обкстованных комнат */
 std::list<ROOM_DATA*> aff_room_list;
 
+ /* Поиск первой комнаты с аффектом от spellnum и кастером с идом Id */
+ROOM_DATA * find_affected_roomt(long id, int spellnum);
+/* Показываем комнаты под аффектами */
+void ShowRooms(CHAR_DATA *ch);
+/* Поиск и удаление первого аффекта от спелла spellnum и кастером с идом id */
+void find_and_remove_room_affect(long id, int spellnum);
  /* Обработка самих аффектов т.е. их влияния на персонажей в комнате раз в 2 секунды */
 void pulse_room_affect_handler(room_rnum room, CHAR_DATA * ch, AFFECT_DATA * aff);
 /* Сообщение при снятии аффекта */
@@ -129,6 +135,58 @@ void show_room_spell_off(int aff, room_rnum room);
 void AddRoom(ROOM_DATA* room);
 /* Применение заклинания к комнате */
 int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
+
+/* =============================================================== */
+
+/* Показываем комнаты под аффектами */
+void ShowRooms(CHAR_DATA *ch)
+{
+	buf[0] = '\0';
+    strcpy(buf, "Список комнат под аффектами:\r\n" "-------------------\r\n");
+    for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
+        sprintf(buf + strlen(buf),  "   [%d]\r\n", (*it)->number);
+    page_string(ch->desc, buf, TRUE);
+}
+
+/* =============================================================== */
+
+/* Поиск первой комнаты с аффектом от spellnum и кастером с идом Id */
+ROOM_DATA * find_affected_roomt(long id, int spellnum)
+{
+    AFFECT_DATA *af;
+
+    for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
+    {
+        for (af = (*it)->affected ; af ; af = af->next)
+        {
+			if ((af->type == spellnum) && (af->caster_id == id))
+                return *it;
+        }
+    }
+    return NULL;
+}
+
+/* =============================================================== */
+
+/* Поиск и удаление первого аффекта от спелла spellnum и кастером с идом id */
+void find_and_remove_room_affect(long id, int spellnum)
+{
+    AFFECT_DATA *af;
+
+    for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
+    {
+        for (af = (*it)->affected ; af ; af = af->next)
+        {
+			if ((af->type == spellnum) && (af->caster_id == id))
+			{
+                if (af->type > 0 && af->type <= LAST_USED_SPELL && *spell_wear_off_msg[af->type])
+							show_room_spell_off(af->type, real_room((*it)->number));
+                affect_room_remove(*it, af);
+                return;
+			}
+        }
+    }
+}
 
 /* =============================================================== */
 
@@ -344,8 +402,8 @@ void room_affect_update(void)
 				//если больше аффектов нет, удаляем комнату из списка обкастованных
 				if ((*it)->affected == NULL)
                     it = aff_room_list.erase(it);
-//sprintf(buf2 , "\r\nАффект снят с комнаты. Всего в списке осталось %d комнат.\r\n", aff_room_list.size());
-//send_to_gods(buf2);
+sprintf(buf2 , "\r\nАффект снят с комнаты. Всего в списке осталось %d комнат.\r\n", aff_room_list.size());
+send_to_gods(buf2);
 				continue;  // Чтоб не вызвался обработчик
 			}
 
@@ -374,9 +432,11 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	/*Данный флажок говорит можно ли обновлять закл
 	или  оно должно висеть пока не спадет*/
 	bool update_spell = FALSE;
+	/* Должен ли данный спелл быть только 1 в мире от этого кастера? */
+	bool only_one = FALSE;
 	const char *to_char = NULL;
 	const char *to_room = NULL;
-	int i = 0;
+	int i = 0, lag = 0;
 	// Sanity check
 	if (room == NULL || IN_ROOM(ch) == NOWHERE || ch == NULL)
 		return 0;
@@ -403,7 +463,7 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		af[0].modifier = 0;
 		// Расчет взят  только ориентировочный
 		af[0].duration = pc_duration(ch, 0, GET_LEVEL(ch) + 5, 6, 0, 0);
-		af[0].caster_id = GET_UNIQUE(ch);
+		af[0].caster_id = GET_ID(ch);
 		af[0].bitvector = AFF_ROOM_LIGHT;
 		/* Сохраняем ID кастера т.к. возможно что в живых его
 		к моменту срабатывания аффекта уже не будет, а ПК-флаги на него вешать
@@ -436,7 +496,7 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	case SPELL_THUNDERSTORM:
 		/* Иллюстрация закла со стадиями */
 		af[0].type = spellnum;
-		af[0].duration = 10; /*закл длиться 20 секунд*/
+		af[0].duration = 10; /*закл длится 20 секунд*/
 		af[0].must_handled = true; /*требует вызов обработчика*/
 		af[0].caster_id = GET_ID(ch);
 		update_spell = FALSE;
@@ -447,15 +507,16 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		af[0].type = spellnum;
 		af[0].location = APPLY_ROOM_NONE;
 		af[0].modifier = 0;
-		af[0].duration = TIME_SPELL_RUNE_LABEL; //10 минут
+		af[0].duration = TIME_SPELL_RUNE_LABEL;
 		af[0].caster_id = GET_ID(ch);
 		af[0].bitvector = AFF_ROOM_RUNE_LABEL;
 		af[0].must_handled = false;
 		accum_duration = TRUE;
-		update_spell = TRUE;
+		update_spell = FALSE; //ибо нефик
+		only_one = TRUE;
 		to_char = "Вы начертали свое имя рунами на земле и произнесли заклинание.";
 		to_room = "$n начертил на земле несколько рун и произнес заклинание.";
-//		MANUAL_SPELL(spell_rune_label); //тут делаем все нестандартное
+		lag = 2; //Чет много тут всяких циклов-искалок. Повесим-ка лаг на чара. И вобще может пригодиться.
 		break;
 	}
 
@@ -464,6 +525,9 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	{
 		send_to_char(NOEFFECT, ch);
 		success = FALSE;
+	} else if (only_one) //Вообще по хорошему счетчик надо, типа не более N экземпляров, но это потом
+	{
+	    find_and_remove_room_affect(GET_ID(ch), SPELL_RUNE_LABEL);
 	}
 
 	// Перебираем заклы чтобы понять не производиться ли рефрешь закла
@@ -478,8 +542,9 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 				affect_room_join_fspell(room, af + i);
 			else
 				affect_room_join(room, af + i, accum_duration, FALSE, accum_affect, FALSE);
-				//вставляем указатель на комнату в список обкастованных, с проверкой на наличие
-				AddRoom(room);
+			//Вставляем указатель на комнату в список обкастованных, с проверкой на наличие
+			//Здесь - потому что все равно надо проверять, может это не первый спелл такого типа на руме
+            AddRoom(room);
 		}
 	}
 
@@ -487,9 +552,10 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	{
 		if (to_room != NULL)
 			act(to_room, TRUE, ch, 0, 0, TO_ROOM);
-
 		return 1;
 	}
+    if (!WAITLESS(ch))
+            WAIT_STATE(ch, lag * PULSE_VIOLENCE);
 
 	return 0;
 

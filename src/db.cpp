@@ -4824,6 +4824,11 @@ int is_empty(zone_rnum zone_nr)
 		return 0;
 	}
 
+//Проверим, нет ли в зоне метки для врат, чтоб не абузили.
+    for (std::list<ROOM_DATA*>::iterator it = RoomSpells::aff_room_list.begin();it != RoomSpells::aff_room_list.end();++it)
+        if (((*it)->zone == zone_nr) && room_affected_by_spell(*it, SPELL_RUNE_LABEL))
+            return 0;
+
 	return (1);
 }
 

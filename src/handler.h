@@ -50,7 +50,8 @@ void affect_room_modify(ROOM_DATA * room, byte loc, sbyte mod, bitvector_t bitv,
 void affect_to_room(ROOM_DATA * room, AFFECT_DATA * af);
 void affect_room_remove(ROOM_DATA * room, AFFECT_DATA * af);
 void affect_from_room(ROOM_DATA * room, int type);
-bool room_affected_by_spell(ROOM_DATA * room, int type);
+//bool room_affected_by_spell(ROOM_DATA * room, int type);
+AFFECT_DATA *room_affected_by_spell(ROOM_DATA * room, int type);
 void affect_room_join_fspell(ROOM_DATA *room, AFFECT_DATA * af);
 void affect_room_join(ROOM_DATA * room, AFFECT_DATA * af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
 
