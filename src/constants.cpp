@@ -539,7 +539,7 @@ const char *room_aff_visib_bits[] =
 	"&W... земля освещена колдовством ...&n",	/* 0 */
 	"&G... все окутано туманом ...&n", 		/* AFF_FOG */
 	"",	/* AFF_RUNE_LABEL */
-	"\n",
+	"", // AFF_FORBIDDEN
 	"\n",
 	"\n",
 	"\n"
@@ -551,7 +551,7 @@ const char *room_aff_invis_bits[] =
 	"&W... земля освещена колдовством ...&n",	/* 0 */
 	"&G... колдовской туман плывет над Вами &n ...", /* AFF_FOG */
 	"&G... светящиеся руны на земле складываются в чьё-то имя ...&n",	/* AFF_RUNE_LABEL */
-	"\n",
+	"&C... магическая печать закрывает все входы ...&n", // AFF_FORBIDDEN
 	"\n",
 	"\n",
 	"\n",
@@ -1806,7 +1806,7 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	/* 0 */
 		"!SPELL EXTRA HITS!",
 		"!SPELL RESSURECTION!",	/* 85 */
 		"Ваш волшебный щит рассеялся.",
-		"!SPELL FORBIDDEN!",
+		"Магия, запечатывающая входы, пропала.",
 		"!SPELL MASS SIELENCE!",
 		"!SPELL REMOVE SIELENCE!",
 		"!SPELL DAMAGE LIGHT!",	/* 90 */

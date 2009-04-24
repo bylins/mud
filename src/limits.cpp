@@ -1034,17 +1034,7 @@ void room_point_update()
 				world[count]->fires = 0;
 			}
 		}
-		if (world[count]->forbidden)
-		{
-			world[count]->forbidden--;
-			if (!world[count]->forbidden)
-			{
-				act("Магия, запечатывающая входы, пропала.", FALSE,
-					world[count]->people, 0, 0, TO_ROOM);
-				act("Магия, запечатывающая входы, пропала.", FALSE,
-					world[count]->people, 0, 0, TO_CHAR);
-			}
-		}
+
 		if (world[count]->portal_time)
 		{
 			world[count]->portal_time--;

@@ -37,6 +37,7 @@ extern SPECIAL(guild_poly);
 extern guardian_type guardian_list;
 extern struct zone_data * zone_table;
 
+
 ACMD(do_get);
 void go_bash(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict);
@@ -63,6 +64,7 @@ void npc_light(CHAR_DATA * ch);
 void pulse_affect_update(CHAR_DATA * ch);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict);
+extern bool is_room_forbidden(ROOM_DATA*room);
 
 /* local functions */
 void mobile_activity(int activity_level, int missed_pulses);
@@ -843,8 +845,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 					if (!rdata ||
 							rdata->to_room == NOWHERE ||
 							!legal_dir(ch, door, TRUE, FALSE) ||
-							(world[rdata->to_room]->forbidden
-							 && (number(1, 100) <= world[rdata->to_room]->forbidden_percent))
+							is_room_forbidden(world[rdata->to_room]) 
 							|| IS_DARK(rdata->to_room)
 							|| (MOB_FLAGGED(ch, MOB_STAY_ZONE)
 								&& world[IN_ROOM(ch)]->zone != world[rdata->to_room]->zone))
@@ -893,7 +894,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 				&& EXIT(ch, door)
 				&& EXIT(ch, door)->to_room != NOWHERE
 				&& legal_dir(ch, door, TRUE, FALSE)
-				&& !(world[EXIT(ch, door)->to_room]->forbidden && (number(1, 100) <= world[EXIT(ch, door)->to_room]->forbidden_percent))
+				&& !is_room_forbidden(world[EXIT(ch, door)->to_room])
 				&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
 					|| world[EXIT(ch, door)->to_room]->zone == world[ch->in_room]->zone)
 				&& allow_master_enter(world[EXIT(ch, door)->to_room], ch))

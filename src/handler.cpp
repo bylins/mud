@@ -1300,19 +1300,15 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		{
 			sprintf(buf,
 					"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d \r\n"
-					"%sТьма=%s%d %sЗапрет=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d.\r\n",
-					CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), room, CCRED(ch,
-							C_NRM),
-					CCIRED(ch, C_NRM), world[room]->light, CCGRN(ch, C_NRM),
-					CCIGRN(ch, C_NRM), world[room]->glight, CCYEL(ch, C_NRM),
-					CCIYEL(ch, C_NRM), world[room]->fires, CCBLU(ch, C_NRM),
-					CCIBLU(ch, C_NRM), world[room]->gdark, CCMAG(ch, C_NRM),
-					CCIMAG(ch, C_NRM), world[room]->forbidden, CCCYN(ch,
-							C_NRM),
-					CCICYN(ch, C_NRM), weather_info.sky, CCWHT(ch, C_NRM),
-					CCIWHT(ch, C_NRM), weather_info.sunlight, CCYEL(ch,
-							C_NRM),
-					CCIYEL(ch, C_NRM), weather_info.moon_day);
+					"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d.\r\n",
+					CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), room, 
+					CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[room]->light,
+					CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[room]->glight,
+					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->fires,
+					CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[room]->gdark,
+					CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
+					CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
+					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day);
 			send_to_char(buf, ch);
 		}
 

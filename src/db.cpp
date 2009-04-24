@@ -2123,7 +2123,6 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	world[room_nr]->fires = 0;
 	world[room_nr]->gdark = 0;
 	world[room_nr]->glight = 0;
-	world[room_nr]->forbidden = 0;
 	world[room_nr]->ing_list = NULL;	// ингредиентов нет
 	world[room_nr]->proto_script = NULL;
 

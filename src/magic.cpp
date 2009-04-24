@@ -112,6 +112,15 @@ CHAR_DATA * random_char_in_room(ROOM_DATA *room)
 
 }
 
+bool is_room_forbidden(ROOM_DATA * room)
+{
+	AFFECT_DATA* af;
+	for (af = room->affected ; af ; af = af->next)
+		if (af->type == SPELL_FORBIDDEN && (number(1, 100) <= af->modifier))
+			return true;
+	return false;
+}
+
 /*
  * Структуры и функции для работы с заклинаниями, обкастовывающими комнаты
 */
@@ -142,9 +151,15 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
 void ShowRooms(CHAR_DATA *ch)
 {
 	buf[0] = '\0';
+	AFFECT_DATA *af;
     strcpy(buf, "Список комнат под аффектами:\r\n" "-------------------\r\n");
     for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
-        sprintf(buf + strlen(buf),  "   [%d]\r\n", (*it)->number);
+	{
+		buf1[0] = '\0';
+		for (af = (*it)->affected ; af ; af = af->next)
+			sprintf(buf1 + strlen(buf1),  " !%s!(%s) ", spell_info[af->type].name, get_name_by_id(af->caster_id));
+        sprintf(buf + strlen(buf),  "   [%d] %s\r\n", (*it)->number, buf1);
+	}
     page_string(ch->desc, buf, TRUE);
 }
 
@@ -222,6 +237,8 @@ void pulse_room_affect_handler(ROOM_DATA * room, CHAR_DATA * ch, AFFECT_DATA * a
 	CHAR_DATA * tch, *tch_next;
 	switch (spellnum)
 	{
+	case SPELL_FORBIDDEN:
+		break;
 	case SPELL_ROOM_LIGHT:
 //			sprintf(buf2 , "Ярко светит колдовской свет. (%d)\r\n", aff->apply_time);
 //			send_to_room(buf2,room, 0);
@@ -402,8 +419,8 @@ void room_affect_update(void)
 				//если больше аффектов нет, удаляем комнату из списка обкастованных
 				if ((*it)->affected == NULL)
                     it = aff_room_list.erase(it);
-sprintf(buf2 , "\r\nАффект снят с комнаты. Всего в списке осталось %d комнат.\r\n", aff_room_list.size());
-send_to_gods(buf2);
+//sprintf(buf2 , "\r\nАффект снят с комнаты. Всего в списке осталось %d комнат.\r\n", aff_room_list.size());
+//send_to_gods(buf2);
 				continue;  // Чтоб не вызвался обработчик
 			}
 
@@ -412,7 +429,7 @@ send_to_gods(buf2);
 			af->apply_time++;
 			if (af->must_handled) pulse_room_affect_handler(*it, ch, af);
 		}
-        ++it; //Инкремент итератора. Здесь, чтобы можно было удалять элементы списка.
+        if (it != aff_room_list.end()) ++it; //Инкремент итератора. Здесь, чтобы можно было удалять элементы списка.
 	}
 }
 
@@ -457,6 +474,33 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 
 	switch (spellnum)
 	{
+	case SPELL_FORBIDDEN:
+		af[0].type = spellnum;
+		af[0].location = APPLY_ROOM_NONE;
+		af[0].duration = (1 + (GET_LEVEL(ch) + 14) / 15)*30;
+		af[0].caster_id = GET_ID(ch);
+		af[0].bitvector = AFF_ROOM_FORBIDDEN;
+		ROOM_AFF_FLAGS(room, AFF_ROOM_FORBIDDEN);
+		af[0].must_handled = false;
+		accum_duration = FALSE;
+		update_spell = TRUE;
+		af[0].modifier = GET_REAL_INT(ch) + MAX((GET_REAL_INT(ch) - 30) * 4, 0);
+		if (af[0].modifier>99)
+		{
+			to_char = "Вы запечатали магией все входы.";
+			to_room = "$n запечатал$g магией все входы.";
+		}
+		else if (af[0].modifier>79)
+		{
+			to_char = "Вы почти полностью запечатали магией все входы.";
+			to_room = "$n почти полностью запечатал$g магией все входы.";
+		}
+		else
+		{
+			to_char = "Вы очень плохо запечатали магией все входы.";
+			to_room = "$n очень плохо запечатал$g магией все входы.";
+		}
+		break;
 	case SPELL_ROOM_LIGHT:
 		af[0].type = spellnum;
 		af[0].location = APPLY_ROOM_NONE;
@@ -552,6 +596,8 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	{
 		if (to_room != NULL)
 			act(to_room, TRUE, ch, 0, 0, TO_ROOM);
+		if (to_char != NULL)
+			act(to_char, TRUE, ch, 0, 0, TO_CHAR);
 		return 1;
 	}
     if (!WAITLESS(ch))
@@ -4362,9 +4408,6 @@ int mag_manual(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovic
 		break;
 	case SPELL_SACRIFICE:
 		MANUAL_SPELL(spell_sacrifice);
-		break;
-	case SPELL_FORBIDDEN:
-		MANUAL_SPELL(spell_forbidden);
 		break;
 	case SPELL_IDENTIFY:
 		MANUAL_SPELL(spell_identify);

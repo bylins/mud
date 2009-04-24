@@ -2185,33 +2185,6 @@ ASPELL(spell_wc_of_fear)
 		go_flee(victim);
 }
 
-ASPELL(spell_forbidden)
-{
-	if (world[IN_ROOM(ch)]->forbidden)
-	{
-		send_to_char(NOEFFECT, ch);
-		return;
-	}
-	world[IN_ROOM(ch)]->forbidden = 1 + (GET_LEVEL(ch) + 14) / 15;
-	world[IN_ROOM(ch)]->forbidden_percent = GET_REAL_INT(ch) + MAX((GET_REAL_INT(ch) - 30) * 4, 0);
-	if (world[IN_ROOM(ch)]->forbidden_percent > 99)
-	{
-		act("Вы запечатали магией все входы.", FALSE, ch, 0, 0, TO_CHAR);
-		act("$n запечатал$g магией все входы.", FALSE, ch, 0, 0, TO_ROOM);
-	}
-	else if (world[IN_ROOM(ch)]->forbidden_percent > 79)
-	{
-		act("Вы почти полностью запечатали магией все входы.", FALSE, ch, 0, 0, TO_CHAR);
-		act("$n почти полностью запечатал$g магией все входы.", FALSE, ch, 0, 0, TO_ROOM);
-	}
-	else
-	{
-		act("Вы очень плохо запечатали магией все входы.", FALSE, ch, 0, 0, TO_CHAR);
-		act("$n очень плохо запечатал$g магией все входы.", FALSE, ch, 0, 0, TO_ROOM);
-	}
-
-}
-
 ASPELL(spell_energydrain)
 {
 	// истощить энергию - круг 28 уровень 9 (1)

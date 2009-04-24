@@ -5070,7 +5070,6 @@ void SpellUsage::clear()
 std::string statToPrint()
 {
 	std::stringstream out;
-	int i=0, j=0;
 	time_t now=time(0);
 	char * end_time = str_dup(rustime(localtime(&now)));
 	out << rustime(localtime(&SpellUsage::start)) << " - " << end_time << "\n";
@@ -5143,7 +5142,7 @@ ACMD(do_spellstat)
 
 	if (!str_cmp(argument, "показать"))
 	{
-		send_to_char(statToPrint(), ch);
+		page_string(ch->desc, statToPrint(), 1);
 		return;
 	}
 
