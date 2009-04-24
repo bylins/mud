@@ -2260,6 +2260,9 @@ ACMD(do_extinguish)
                                                 "\n"
                                                 };
 
+    if (IS_NPC(ch))
+        return;
+
 	one_argument(argument, arg);
 
 	if ((!*arg) || ((tp = search_block(arg, targets, FALSE)) == -1))
