@@ -2254,8 +2254,12 @@ ACMD(do_extinguish)
     CHAR_DATA *caster;
     int tp, lag = 0;
     const char *targets[] = { "костер",
+                                                "пламя",
+                                                "огонь",
                                                 "fire",
                                                 "метку",
+                                                "надпись",
+                                                "руны",
                                                 "label",
                                                 "\n"
                                                 };
@@ -2270,7 +2274,7 @@ ACMD(do_extinguish)
 		send_to_char("Что вы хотите затоптать?\r\n", ch);
 		return;
 	}
-    tp >>= 1;
+    tp >>= 2;
 
     switch (tp)
     {
@@ -2292,7 +2296,7 @@ ACMD(do_extinguish)
             && (AFF_FLAGGED(ch, AFF_DETECT_MAGIC) || IS_IMMORTAL(ch)))
         {
             affect_room_remove(world[IN_ROOM(ch)], aff);
-            send_to_char("Шаркнув несколько раз по земле вы стерли светящуюся надпись.\r\n", ch);
+            send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
             act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM);
             if (GET_ID(ch) != aff->caster_id) //чел стирает не свою метку - вай, нехорошо
             {
@@ -2302,7 +2306,7 @@ ACMD(do_extinguish)
                 if (caster)
                 {
                     pk_thiefs_action(ch, caster);
-                    sprintf(buf, "Послышался далекий звук лопнувшей струны, и перед вами промельнул призрачный облик %s.\r\n", GET_PAD(ch,3));
+                    sprintf(buf, "Послышался далекий звук лопнувшей струны, и перед вами промельнул призрачный облик %s.\r\n", GET_PAD(ch,1));
                     send_to_char(buf, caster);
                 }
             }

@@ -157,7 +157,7 @@ void ShowRooms(CHAR_DATA *ch)
 	{
 		buf1[0] = '\0';
 		for (af = (*it)->affected ; af ; af = af->next)
-			sprintf(buf1 + strlen(buf1),  " !%s!(%s) ", spell_info[af->type].name, get_name_by_id(af->caster_id));
+			sprintf(buf1 + strlen(buf1),  " !%s! (%s) ", spell_info[af->type].name, get_name_by_id(af->caster_id));
         sprintf(buf + strlen(buf),  "   [%d] %s\r\n", (*it)->number, buf1);
 	}
     page_string(ch->desc, buf, TRUE);
@@ -359,9 +359,8 @@ void room_affect_update(void)
 		{
 			next = af->next;
 			spellnum = af->type;
-//sprintf(buf2 , "Вызвано обновление аффекта на комнате (%d).\r\n", af->duration);
-//send_to_gods(buf2);
 			ch = NULL;
+
 			if (IS_SET(SpINFO.routines, MAG_CASTER_INROOM) || IS_SET(SpINFO.routines, MAG_CASTER_INWORLD))
 			{
 				ch = find_char_in_room(af->caster_id, *it);
@@ -416,20 +415,22 @@ void room_affect_update(void)
 					}
 				}
 				affect_room_remove(*it, af);
-				//если больше аффектов нет, удаляем комнату из списка обкастованных
-				if ((*it)->affected == NULL)
-                    it = aff_room_list.erase(it);
 //sprintf(buf2 , "\r\nАффект снят с комнаты. Всего в списке осталось %d комнат.\r\n", aff_room_list.size());
 //send_to_gods(buf2);
 				continue;  // Чтоб не вызвался обработчик
 			}
 
-			// Учитываем что время выдается в пульсах а не в секундах
-			// т.е. надо умножать на 2
+			// Учитываем что время выдается в пульсах а не в секундах  т.е. надо умножать на 2
 			af->apply_time++;
-			if (af->must_handled) pulse_room_affect_handler(*it, ch, af);
+			if (af->must_handled)
+                pulse_room_affect_handler(*it, ch, af);
 		}
-        if (it != aff_room_list.end()) ++it; //Инкремент итератора. Здесь, чтобы можно было удалять элементы списка.
+        //если больше аффектов нет, удаляем комнату из списка обкастованных
+        if ((*it)->affected == NULL)
+            it = aff_room_list.erase(it);
+        //Инкремент итератора. Здесь, чтобы можно было удалять элементы списка.
+        if (it != aff_room_list.end())
+            ++it;
 	}
 }
 
