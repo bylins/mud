@@ -485,13 +485,13 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		af[0].must_handled = false;
 		accum_duration = FALSE;
 		update_spell = TRUE;
-		af[0].modifier = GET_REAL_INT(ch) + MAX((GET_REAL_INT(ch) - 30) * 4, 0);
-		if (af[0].modifier>99)
+		af[0].modifier = MIN(100, GET_REAL_INT(ch) + MAX((GET_REAL_INT(ch) - 30) * 4, 0));
+		if (af[0].modifier > 99)
 		{
 			to_char = "Вы запечатали магией все входы.";
 			to_room = "$n запечатал$g магией все входы.";
 		}
-		else if (af[0].modifier>79)
+		else if (af[0].modifier > 79)
 		{
 			to_char = "Вы почти полностью запечатали магией все входы.";
 			to_room = "$n почти полностью запечатал$g магией все входы.";
