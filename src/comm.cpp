@@ -1165,12 +1165,13 @@ void beat_points_update(int pulse);
 
 inline void heartbeat()
 {
-	static int mins_since_crashsave = 0, pulse = 0, lr_firstrun = 1;
+	static int mins_since_crashsave = 0, pulse = 0;
+//	static int lr_firstrun = 1;
 	int uptime_minutes = 0;
 	long check_at = 0, save_start = 0;
-	static struct tm syslog_o;
-	struct tm *syslog_n;
-	static long syslog_pos = 0;
+//	static struct tm syslog_o;
+//	struct tm *syslog_n;
+//	static long syslog_pos = 0;
 
 	pulse++;
 	/* Roll pulse over after 10 hours */
@@ -1482,6 +1483,7 @@ inline void heartbeat()
 	}
 
 // shapirus: ротация логов. сислог каждые 2 часа, остальные раз в сутки.
+/*
 	if (!((pulse + 19) % PULSE_LOGROTATE))
 	{
 		time_t r_now = time(NULL);
@@ -1504,7 +1506,7 @@ inline void heartbeat()
 			memcpy(&syslog_o, syslog_n, sizeof(struct tm));
 		}
 	}
-
+*/
 	// сохранение файла чексумм, если в нем были изменения
 	if (!((pulse + 23) % (PASSES_PER_SEC)))
 	{
