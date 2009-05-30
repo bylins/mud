@@ -1747,7 +1747,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					if (num >= 0)
 						sprintf(str, "%c%d", UID_ROOM, num);
 				}
-//Polud world.maxobj(vnum) показывает максимальное количество предметов в мире, 
+//Polud world.maxobj(vnum) показывает максимальное количество предметов в мире,
 //которое прописано в самом предмете с указанным vnum
 				else if (!str_cmp(field, "maxobj") && num > 0)
 				{
@@ -1817,16 +1817,16 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					switch (weather_info.season)
 					{
 					case SEASON_WINTER:
-						strcat(buf, "зима");
+						strcat(str, "зима");
 						break;
 					case SEASON_SPRING:
-						strcat(buf, "весна");
+						strcat(str, "весна");
 						break;
 					case SEASON_SUMMER:
-						strcat(buf, "лето");
+						strcat(str, "лето");
 						break;
 					case SEASON_AUTUMN:
-						strcat(buf, "осень");
+						strcat(str, "осень");
 						break;
 					}
 				}
