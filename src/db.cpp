@@ -830,7 +830,7 @@ void obj_data::init_set_table()
 
 		if (cppstr[0] == '#')
 		{
-			if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN)
+			if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN && mode != SETSTUFF_NITM)
 			{
 				cppstr = "init_set_table:: Wrong position of line '" + cppstr + "'";
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
@@ -1084,6 +1084,28 @@ void obj_data::init_set_table()
 				clss->second.set_deactmsg(cppstr);
 				mode = SETSTUFF_RAMG;
 			}
+			else if (tag == "Dice")
+			{
+				if (mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN)
+				{
+					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				isstream.str(cppstr);
+
+				int ndices, nsides;
+
+				if (!(isstream >> std::skipws >> ndices >> std::skipws >> nsides))
+				{
+					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected ndices and nsides";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				clss->second.set_ndices(ndices).set_nsides(nsides);
+			}
 			else
 			{
 				cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
@@ -1195,7 +1217,7 @@ void obj_data::init_set_table()
 			if (tag == "Vnum")
 			{
 				if (mode != SETSTUFF_VNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS &&
-						mode != SETSTUFF_AFCN)
+						mode != SETSTUFF_AFCN && mode != SETSTUFF_NITM)
 				{
 					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
@@ -1242,6 +1264,36 @@ void obj_data::init_set_table()
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
 			break;
+		case 'W':
+			if (tag == "Wght")
+			{
+				if (mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN && mode != SETSTUFF_WGHT)
+				{
+					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				isstream.str(cppstr);
+
+				int weight;
+
+				if (!(isstream >> std::skipws >> weight))
+				{
+					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected item weight";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				clss->second.set_weight(weight);
+				mode = SETSTUFF_NITM;
+			}
+			else
+			{
+				cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "'";
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+			}
+			break;
 
 		default:
 			cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "'";
@@ -1249,7 +1301,7 @@ void obj_data::init_set_table()
 		}
 	}
 
-	if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN)
+	if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN && mode != SETSTUFF_NITM)
 	{
 		cppstr = "init_set_table:: Last set was deleted, because of unexpected end of file";
 		obj_data::set_table.erase(snum);

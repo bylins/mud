@@ -35,17 +35,22 @@
 #define DL_LOAD_ANYWAY_NC  2
 #define DL_LOAD_IFLAST_NC  3
 
-const int SETSTUFF_SNUM = 0;
-const int SETSTUFF_NAME = 1;
-const int SETSTUFF_VNUM = 2;
-const int SETSTUFF_OQTY = 3;
-const int SETSTUFF_CLSS = 4;
-const int SETSTUFF_AMSG = 5;
-const int SETSTUFF_DMSG = 6;
-const int SETSTUFF_RAMG = 7;
-const int SETSTUFF_RDMG = 8;
-const int SETSTUFF_AFFS = 9;
-const int SETSTUFF_AFCN = 10;
+enum SetStuffMode
+{
+	SETSTUFF_SNUM,
+	SETSTUFF_NAME,
+	SETSTUFF_VNUM,
+	SETSTUFF_OQTY,
+	SETSTUFF_CLSS,
+	SETSTUFF_AMSG,
+	SETSTUFF_DMSG,
+	SETSTUFF_RAMG,
+	SETSTUFF_RDMG,
+	SETSTUFF_AFFS,
+	SETSTUFF_AFCN,
+	SETSTUFF_WGHT, /**< Ожидается вес предмета. */
+	SETSTUFF_NITM, /**< Ожидается новый элемент сэта или сэт: # или Vnum*/
+};
 
 #define LIB_A       "A-E"
 #define LIB_F       "F-J"
@@ -349,7 +354,7 @@ struct ingredient
 {
 	int imtype;
 	std::string imname;
-	int prob[50]; // вероятность загрузки для каждого уровня моба 
+	int prob[50]; // вероятность загрузки для каждого уровня моба
 };
 
 class MobRace{
