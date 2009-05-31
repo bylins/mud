@@ -1,5 +1,5 @@
 # C compiler to use
-CC = g++43
+CC = g++
 TESTCC = g++
 TESTCC4 = g++-4
 
