@@ -517,8 +517,9 @@ void fill_ex_desc(CHAR_DATA *ch, OBJ_DATA *obj, std::string sender)
 */
 int calculate_timer_cost(std::list<Node>::iterator const &it)
 {
-	double tmp = static_cast<double>(get_object_low_rent(it->obj_))/(24*60);
-	return tmp * it->timer_;
+	double hours_in_day = 24 * 60; // чтобы делило не инт сразу
+	double total_cost = (get_object_low_rent(it->obj_) / hours_in_day) * it->timer_;
+	return static_cast<int>(total_cost);
 }
 
 /**

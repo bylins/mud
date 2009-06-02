@@ -271,7 +271,10 @@ int Character::get_trained_skill(int skill_num)
 		{
 			skill = it->second;
 			if (AFF_FLAGGED(this, AFF_SKILLS_REDUCE))
-				skill -= skill * (static_cast<double>(GET_POISON(this)) / 100.0);
+			{
+				skill -= skill * GET_POISON(this) / 100;
+				// skill -= skill * (static_cast<double>(GET_POISON(this)) / 100.0);
+			}
 		}
 	}
 	return normolize_skill(skill);

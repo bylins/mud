@@ -701,18 +701,19 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 //Polud привязываем загрузку ингров к расе (типу) моба
 
 	if (IS_NPC(ch) && GET_RACE(ch)>NPC_RACE_BASIC && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_HOUSE))
-	{	
+	{
 		MobRaceListType::iterator it = mobraces_list.find(GET_RACE(ch));
 		if (it != mobraces_list.end())
 		{
 			int *ingr_to_load_list, j;
 			int num_inrgs = it->second->ingrlist.size();
 			CREATE(ingr_to_load_list, int, num_inrgs * 2 + 1);
+			int char_level = GET_LEVEL(ch); // варининг array subscript has type `char'
 			for (j=0; j < num_inrgs; j++)
 			{
 				ingr_to_load_list[2*j] = im_get_idx_by_type(it->second->ingrlist[j].imtype);
-				ingr_to_load_list[2*j+1] = it->second->ingrlist[j].prob[GET_LEVEL(ch)];
-				ingr_to_load_list[2*j+1] |= (GET_LEVEL(ch) << 16);
+				ingr_to_load_list[2*j+1] = it->second->ingrlist[j].prob[char_level];
+				ingr_to_load_list[2*j+1] |= (char_level << 16);
 			}
 			ingr_to_load_list[2*j] = -1;
 			im_make_corpse(corpse, ingr_to_load_list, 1000);
@@ -2667,7 +2668,8 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		// + процент дамага с яда скополии
 		if (AFF_FLAGGED(victim, AFF_SCOPOLIA_POISON))
 		{
-			int mod = dam * (static_cast<double>(GET_POISON(victim)) / 100.0);
+			double coeff = GET_POISON(victim) / 100.0;
+			int mod = static_cast<int>(dam * coeff);
 			////////////////////////////////////////////////////////////////////////////////
 			if (mod > 0)
 			{
@@ -3482,8 +3484,8 @@ int calculate_crit_backstab_percent(CHAR_DATA *ch)
 {
 	double dex = GET_REAL_DEX(ch);
 	double skill = ch->get_skill(SKILL_BACKSTAB);
-	int result = skill/11 + (dex - 20)/(dex/30);
-	return result;
+	double result = skill/11 + (dex - 20)/(dex/30);
+	return static_cast<int>(result);
 }
 
 /**
@@ -3817,8 +3819,7 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		if (can_auto_block(ch))
 		{
 			// осторожка со щитом в руках у дружа с блоком - штрафы на хитролы (от 0 до 10)
-			double awake_skill = static_cast<double>(ch->get_skill(SKILL_AWAKE));
-			calc_thaco += awake_skill * 0.05;
+			calc_thaco += static_cast<int>(ch->get_skill(SKILL_AWAKE) * 0.05);
 		}
 		else
 		{
@@ -4138,9 +4139,9 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		if (GET_MOB_HOLD(victim))
 		{
 			if (IS_NPC(ch))
-				dam *= 1.5;
+				dam = dam * 3 / 2; // x 1.5
 			else
-				dam *= 1.25;
+				dam = dam * 5 / 4; // x 1.25
 		}
 
 		// Cut damage in half if victim has sanct, to a minimum 1
@@ -4153,10 +4154,14 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 		dam += noparryhit;
 
 		if (!IS_NPC(victim) && IS_CHARMICE(ch))
-			dam *= 0.8;
+			dam = dam * 4 / 5; // x 0.8
 
+		// уменьшение урона отравленного атакующего
 		if (AFF_FLAGGED(ch, AFF_BELENA_POISON))
-			dam -= dam * (static_cast<double>(GET_POISON(ch)) / 100.0);
+		{
+			dam -= dam * GET_POISON(ch) / 100;
+			// dam -= static_cast<int>(dam * (GET_POISON(ch) / 100.0));
+		}
 
 		// at least 1 hp damage min per hit
 		dam = MAX(1, dam);
@@ -4197,7 +4202,8 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 			if (number(1, 100) < calculate_crit_backstab_percent(ch)
 				&& !general_savingthrow(ch, victim, SAVING_REFLEX, dex_app[GET_REAL_DEX(ch)].reaction))
 			{
-				dam *= calculate_crit_backstab(ch, victim);
+				dam = static_cast<int>(dam * calculate_crit_backstab(ch, victim));
+				// dam *= calculate_crit_backstab(ch, victim);
 			}
 
 			//Adept: учитываем резисты от крит. повреждений
