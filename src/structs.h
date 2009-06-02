@@ -1776,34 +1776,22 @@ private:
 /* header block for rent files.  BEWARE: Changing it will ruin rent files  */
 struct save_rent_info
 {
-	int
-	time;
-	int
-	rentcode;
-	int
-	net_cost_per_diem;
-	int
-	gold;
-	int
-	account;
-	int
-	nitems;
-	int
-	oitems;
-	int
-	spare1;
-	int
-	spare2;
-	int
-	spare3;
-	int
-	spare4;
-	int
-	spare5;
-	int
-	spare6;
-	int
-	spare7;
+	save_rent_info() : time(0), rentcode(0), net_cost_per_diem(0), gold(0), account(0), nitems(0), oitems(0), spare1(0), spare2(0),spare3(0),spare4(0),spare5(0),spare6(0),spare7(0) {};
+
+	int time;
+	int rentcode;
+	int net_cost_per_diem;
+	int gold;
+	int account;
+	int nitems;
+	int oitems;
+	int spare1;
+	int spare2;
+	int spare3;
+	int spare4;
+	int spare5;
+	int spare6;
+	int spare7;
 };
 
 struct save_time_info
