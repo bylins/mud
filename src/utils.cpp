@@ -404,7 +404,6 @@ void olc_log(const char *format, ...)
 	vfprintf(file, format, args);
 	va_end(args);
 	fprintf(file, "\n");
-	fflush(file);
 }
 
 void imm_log(const char *format, ...)
@@ -430,7 +429,6 @@ void imm_log(const char *format, ...)
 	vfprintf(file, format, args);
 	va_end(args);
 	fprintf(file, "\n");
-	fflush(file);
 }
 
 /**

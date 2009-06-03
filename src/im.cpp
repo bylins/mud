@@ -1967,7 +1967,7 @@ ACMD(do_imlist)
 
 	for (i = 0; i < 100; ++i)
 	{
-		if ((rnum = real_mobile(i + 100 * zone)) == -1)
+		if ((rnum = real_mobile(i + 100 * zone)) == NOWHERE)
 			continue;
 		ping = mob_proto[rnum].ing_list;
 		for (str = buf1, str[0] = 0; im_ing_dump(ping, str); ping += 2)

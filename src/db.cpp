@@ -830,7 +830,7 @@ void obj_data::init_set_table()
 
 		if (cppstr[0] == '#')
 		{
-			if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN && mode != SETSTUFF_NITM)
+			if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN)
 			{
 				cppstr = "init_set_table:: Wrong position of line '" + cppstr + "'";
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
@@ -1084,28 +1084,6 @@ void obj_data::init_set_table()
 				clss->second.set_deactmsg(cppstr);
 				mode = SETSTUFF_RAMG;
 			}
-			else if (tag == "Dice")
-			{
-				if (mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN)
-				{
-					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
-					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
-					continue;
-				}
-
-				isstream.str(cppstr);
-
-				int ndices, nsides;
-
-				if (!(isstream >> std::skipws >> ndices >> std::skipws >> nsides))
-				{
-					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected ndices and nsides";
-					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
-					continue;
-				}
-
-				clss->second.set_ndices(ndices).set_nsides(nsides);
-			}
 			else
 			{
 				cppstr = "init_set_table:: Format error in line '" + tag + ":" + cppstr + "'";
@@ -1217,7 +1195,7 @@ void obj_data::init_set_table()
 			if (tag == "Vnum")
 			{
 				if (mode != SETSTUFF_VNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS &&
-						mode != SETSTUFF_AFCN && mode != SETSTUFF_NITM)
+						mode != SETSTUFF_AFCN)
 				{
 					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
 					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
@@ -1264,36 +1242,6 @@ void obj_data::init_set_table()
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
 			break;
-		case 'W':
-			if (tag == "Wght")
-			{
-				if (mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN && mode != SETSTUFF_WGHT)
-				{
-					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
-					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
-					continue;
-				}
-
-				isstream.str(cppstr);
-
-				int weight;
-
-				if (!(isstream >> std::skipws >> weight))
-				{
-					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected item weight";
-					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
-					continue;
-				}
-
-				clss->second.set_weight(weight);
-				mode = SETSTUFF_NITM;
-			}
-			else
-			{
-				cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "'";
-				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
-			}
-			break;
 
 		default:
 			cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "'";
@@ -1301,7 +1249,7 @@ void obj_data::init_set_table()
 		}
 	}
 
-	if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN && mode != SETSTUFF_NITM)
+	if (mode != SETSTUFF_SNUM && mode != SETSTUFF_OQTY && mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN)
 	{
 		cppstr = "init_set_table:: Last set was deleted, because of unexpected end of file";
 		obj_data::set_table.erase(snum);
@@ -3508,8 +3456,7 @@ void load_zones(FILE * fl, char *zonename)
 //-MZ.load
 	*t1 = 0;
 	*t2 = 0;
-	int reset_idle; // варнинг на (int *)&Z.reset_idle (bool)
-	if (sscanf(buf, " %d %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, &reset_idle, t1, t2) < 4)
+	if (sscanf(buf, " %d %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, (int *)&Z.reset_idle, t1, t2) < 4)
 	{
 		// если нет четырех констант, то, возможно, это старый формат -- попробуем прочитать три
 		if (sscanf(buf, " %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, t1, t2) < 3)
@@ -3518,7 +3465,6 @@ void load_zones(FILE * fl, char *zonename)
 			exit(1);
 		}
 	}
-	Z.reset_idle = reset_idle;
 	Z.under_construction = !str_cmp(t1, "test");
 	Z.locked = !str_cmp(t2, "locked");
 	cmd_no = 0;

@@ -517,7 +517,6 @@ struct guild_learn_type
 
 struct guild_mono_type
 {
-	guild_mono_type() : races(0), classes(0), religion(0), alignment(0), learn_info(0) {};
 	int races;		/* bitvector */
 	int classes;		/* bitvector */
 	int religion;		/* bitvector */

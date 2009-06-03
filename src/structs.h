@@ -1398,53 +1398,16 @@ class activation
 	std::string actmsg, deactmsg, room_actmsg, room_deactmsg;
 	flag_data affects;
 	obj_affected_type affected[MAX_OBJ_AFFECT];
-	int weight, ndices, nsides;
 public:
-	activation() : affects(clear_flags), weight(-1), ndices(-1), nsides(-1) {}
+	activation() : affects(clear_flags) {}
 
 	activation(const std::string& __actmsg, const std::string& __deactmsg,
 			   const std::string& __room_actmsg, const std::string& __room_deactmsg,
-			   const flag_data& __affects, const obj_affected_type* __affected, int __weight, int __ndices, int __nsides) :
-			actmsg(__actmsg), deactmsg(__deactmsg), room_actmsg(__room_actmsg), room_deactmsg(__room_deactmsg), affects(__affects), weight(__weight), ndices(__ndices), nsides(__nsides)
+			   const flag_data& __affects, const obj_affected_type* __affected) :
+			actmsg(__actmsg), deactmsg(__deactmsg), room_actmsg(__room_actmsg), room_deactmsg(__room_deactmsg), affects(__affects)
 	{
 		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 			affected[i] = __affected[i];
-	}
-
-	int get_nsides() const
-	{
-		return nsides;
-	}
-
-	activation&
-	set_nsides(int __nsides)
-	{
-		nsides = __nsides;
-		return *this;
-	}
-
-	int get_ndices() const
-	{
-		return ndices;
-	}
-
-	activation&
-	set_ndices(int __ndices)
-	{
-		ndices = __ndices;
-		return *this;
-	}
-
-	int get_weight() const
-	{
-		return weight;
-	}
-
-	activation&
-	set_weight(int __weight)
-	{
-		weight = __weight;
-		return *this;
 	}
 
 	const std::string&
@@ -1653,23 +1616,6 @@ struct obj_data
 			obj_flags.affects = __act.get_affects();
 			for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 				affected[i] = __act.get_affected_i(i);
-
-			int weight = __act.get_weight();
-			if (weight > 0)
-				obj_flags.weight = weight;
-
-			if (obj_flags.type_flag == ITEM_WEAPON)
-			{
-				int ndices = __act.get_ndices();
-				int nsides = __act.get_nsides();
-				// Типа такая проверка на то, устанавливались ли эти параметры.
-				if (ndices > 0 && nsides > 0)
-				{
-					obj_flags.value[1] = ndices;
-					obj_flags.value[2] = nsides;
-				}
-			}
-
 			return __act.get_actmsg() + "\n" + __act.get_room_actmsg();
 		}
 		else
@@ -1684,15 +1630,6 @@ struct obj_data
 			obj_flags.affects = obj_proto[item_number]->obj_flags.affects;
 			for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 				affected[i] = obj_proto[item_number]->affected[i];
-
-			obj_flags.weight = obj_proto[item_number]->obj_flags.weight;
-
-			if (obj_flags.type_flag == ITEM_WEAPON)
-			{
-				obj_flags.value[1] = obj_proto[item_number]->obj_flags.value[1];
-				obj_flags.value[2] = obj_proto[item_number]->obj_flags.value[2];
-			}
-
 			return __act.get_deactmsg() + "\n" + __act.get_room_deactmsg();
 		}
 		else
@@ -1776,22 +1713,34 @@ private:
 /* header block for rent files.  BEWARE: Changing it will ruin rent files  */
 struct save_rent_info
 {
-	save_rent_info() : time(0), rentcode(0), net_cost_per_diem(0), gold(0), account(0), nitems(0), oitems(0), spare1(0), spare2(0),spare3(0),spare4(0),spare5(0),spare6(0),spare7(0) {};
-
-	int time;
-	int rentcode;
-	int net_cost_per_diem;
-	int gold;
-	int account;
-	int nitems;
-	int oitems;
-	int spare1;
-	int spare2;
-	int spare3;
-	int spare4;
-	int spare5;
-	int spare6;
-	int spare7;
+	int
+	time;
+	int
+	rentcode;
+	int
+	net_cost_per_diem;
+	int
+	gold;
+	int
+	account;
+	int
+	nitems;
+	int
+	oitems;
+	int
+	spare1;
+	int
+	spare2;
+	int
+	spare3;
+	int
+	spare4;
+	int
+	spare5;
+	int
+	spare6;
+	int
+	spare7;
 };
 
 struct save_time_info
