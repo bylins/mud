@@ -1027,9 +1027,6 @@ static std::list<std::string> remember_offtop;
 */
 ACMD(do_offtop)
 {
-	send_to_char("Канал выключен до тех пор, пока не надумается как с ним быть.\r\n", ch);
-	return;
-
 	if (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_IMMORT)
 	{
 		send_to_char("Чаво ?\r\n", ch);
