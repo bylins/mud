@@ -384,18 +384,15 @@ void log(const char *format, ...)
 void olc_log(const char *format, ...)
 {
 	const char *filename = "../log/olc.log";
-	static FILE *file = 0;
+
+	FILE *file = fopen(filename, "a");
 	if (!file)
 	{
-		file = fopen(filename, "a");
-		if (!file)
-		{
-			log("SYSERR: can't open %s!", filename);
-			return;
-		}
-		opened_files.push_back(file);
+		log("SYSERR: can't open %s!", filename);
+		return;
 	}
-	else if (!format)
+
+	if (!format)
 		format = "SYSERR: olc_log received a NULL format.";
 
 	write_time(file);
@@ -404,23 +401,22 @@ void olc_log(const char *format, ...)
 	vfprintf(file, format, args);
 	va_end(args);
 	fprintf(file, "\n");
+
+	fclose(file);
 }
 
 void imm_log(const char *format, ...)
 {
 	const char *filename = "../log/imm.log";
-	static FILE *file = 0;
+
+	FILE *file = fopen(filename, "a");
 	if (!file)
 	{
-		file = fopen(filename, "a");
-		if (!file)
-		{
-			log("SYSERR: can't open %s!", filename);
-			return;
-		}
-		opened_files.push_back(file);
+		log("SYSERR: can't open %s!", filename);
+		return;
 	}
-	else if (!format)
+
+	if (!format)
 		format = "SYSERR: imm_log received a NULL format.";
 
 	write_time(file);
@@ -429,6 +425,8 @@ void imm_log(const char *format, ...)
 	vfprintf(file, format, args);
 	va_end(args);
 	fprintf(file, "\n");
+
+	fclose(file);
 }
 
 /**
