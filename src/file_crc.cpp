@@ -78,9 +78,7 @@ boost::uint32_t calculate_file_crc(const char *name)
 
 	std::ostringstream t_out;
 	t_out << in.rdbuf();
-	std::string out;
-	t_out.str().swap(out);
-	return calculate_str_crc(out);
+	return calculate_str_crc(t_out.str());
 }
 
 /**
@@ -177,6 +175,10 @@ void save(bool force_save)
 			<< it->second->timeobjs << "\r\n";
 	}
 
+	// crc32 самого файла пишется ему же в конец
+	const boost::uint32_t crc = calculate_str_crc(out.str());
+
+	// это все в конце, чтобы не завалить на креше файл
 	const char *file_name = LIB_PLRSTUFF"crc.lst";
 	std::ofstream file(file_name);
 	if (!file.is_open())
@@ -184,19 +186,8 @@ void save(bool force_save)
 		add_message("SYSERROR: не удалось открыть файл на запись: %s", file_name);
 		return;
 	}
-	file << out.rdbuf();
+	file << out.rdbuf() << CRC_UID << " " << crc << "\r\n";
 	file.close();
-
-	// crc32 самого файла пишется ему же в конец
-	const boost::uint32_t crc = calculate_file_crc(file_name);
-	std::ofstream file2(file_name, std::ios_base::app);
-	if (!file2.is_open())
-	{
-		add_message("SYSERROR: не удалось открыть файл на дозапись crc: %s", file_name);
-		return;
-	}
-	file2 << CRC_UID << " " << crc << "\r\n";
-	file2.close();
 }
 
 void create_message(std::string &name, int mode)
