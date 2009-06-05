@@ -8,7 +8,7 @@
 #include <bitset>
 #include <map>
 #include <boost/shared_ptr.hpp>
-#include <ext\hash_map>
+#include <ext/hash_map>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
