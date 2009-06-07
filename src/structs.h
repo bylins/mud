@@ -1651,12 +1651,12 @@ struct obj_data
 			if (obj_flags.type_flag == ITEM_WEAPON)
 			{
 				int nsides, ndices;
-				__act.get_dices(nsides, ndices);
+				__act.get_dices(ndices, nsides);
 				// Типа такая проверка на то, устанавливались ли эти параметры.
 				if (ndices > 0 && nsides > 0)
 				{
-					obj_flags.value[2] = ndices;
-					obj_flags.value[1] = nsides;
+					obj_flags.value[1] = ndices;
+					obj_flags.value[2] = nsides;
 				}
 			}
 
