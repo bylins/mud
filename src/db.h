@@ -48,8 +48,6 @@ enum SetStuffMode
 	SETSTUFF_RDMG,
 	SETSTUFF_AFFS,
 	SETSTUFF_AFCN,
-	SETSTUFF_WGHT, /**< Ожидается вес предмета. */
-	SETSTUFF_NITM, /**< Ожидается новый элемент сэта или сэт: # или Vnum*/
 };
 
 #define LIB_A       "A-E"

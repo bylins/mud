@@ -1411,27 +1411,17 @@ public:
 			affected[i] = __affected[i];
 	}
 
-	int get_nsides() const
+	void get_dices(int& __ndices, int& __nsides) const
 	{
-		return nsides;
+		__ndices = ndices;
+		__nsides = nsides;
 	}
 
 	activation&
-	set_nsides(int __nsides)
-	{
-		nsides = __nsides;
-		return *this;
-	}
-
-	int get_ndices() const
-	{
-		return ndices;
-	}
-
-	activation&
-	set_ndices(int __ndices)
+	set_dices(int __ndices, int __nsides)
 	{
 		ndices = __ndices;
+		nsides = __nsides;
 		return *this;
 	}
 
@@ -1660,13 +1650,13 @@ struct obj_data
 
 			if (obj_flags.type_flag == ITEM_WEAPON)
 			{
-				int ndices = __act.get_ndices();
-				int nsides = __act.get_nsides();
+				int nsides, ndices;
+				__act.get_dices(nsides, ndices);
 				// Типа такая проверка на то, устанавливались ли эти параметры.
 				if (ndices > 0 && nsides > 0)
 				{
-					obj_flags.value[1] = ndices;
-					obj_flags.value[2] = nsides;
+					obj_flags.value[2] = ndices;
+					obj_flags.value[1] = nsides;
 				}
 			}
 
