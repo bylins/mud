@@ -8,7 +8,7 @@
 #include <bitset>
 #include <map>
 #include <boost/shared_ptr.hpp>
-#include <ext/hash_map>
+//#include <ext/hash_map>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -262,8 +262,8 @@ struct player_special_data
 
 class Player;
 typedef boost::shared_ptr<Player> PlayerPtr;
-//typedef std::map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
-typedef __gnu_cxx::hash_map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
+typedef std::map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
+//typedef __gnu_cxx::hash_map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
 
 /**
 * Общий класс для игроков/мобов.
