@@ -2510,7 +2510,7 @@ ACMD(do_turn_undead)
 			continue;
 		if (same_group(ch, ch_vict))
 			continue;
-		if (!IS_UNDEAD(ch_vict))
+		if (!(IS_UNDEAD(ch_vict) || GET_RACE(ch_vict) == NPC_RACE_GHOST))
 			continue;
 		if (!may_kill_here(ch, ch_vict))
 			return;
