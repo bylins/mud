@@ -20,6 +20,7 @@
 #include "genchar.h"
 #include "spells.h"
 #include "char.hpp"
+#include "char_player.hpp"
 #include "db.h"
 
 const char *genchar_help =
@@ -156,12 +157,12 @@ int genchar_parse(CHAR_DATA * ch, char *arg)
 		if (SUM_STATS(ch) != SUM_ALL_STATS)
 			break;
 		// по случаю успешной генерации сохраняем стартовые статы
-		GET_START_STAT(ch, G_STR) = GET_STR(ch);
-		GET_START_STAT(ch, G_DEX) = GET_DEX(ch);
-		GET_START_STAT(ch, G_INT) = GET_INT(ch);
-		GET_START_STAT(ch, G_WIS) = GET_WIS(ch);
-		GET_START_STAT(ch, G_CON) = GET_CON(ch);
-		GET_START_STAT(ch, G_CHA) = GET_CHA(ch);
+		ch->player->set_start_stat(G_STR, GET_STR(ch));
+		ch->player->set_start_stat(G_DEX, GET_DEX(ch));
+		ch->player->set_start_stat(G_INT, GET_INT(ch));
+		ch->player->set_start_stat(G_WIS, GET_WIS(ch));
+		ch->player->set_start_stat(G_CON, GET_CON(ch));
+		ch->player->set_start_stat(G_CHA, GET_CHA(ch));
 		return GENCHAR_EXIT;
 	default:
 		break;

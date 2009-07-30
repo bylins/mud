@@ -16,6 +16,7 @@
 #include "screen.h"
 #include "top.h"
 #include "char.hpp"
+#include "char_player.hpp"
 
 extern void add_karma(CHAR_DATA * ch, char const * punish , char * reason);
 extern void check_max_hp(CHAR_DATA *ch);
@@ -1024,30 +1025,35 @@ void timers_update()
 }
 
 /**
+* Суммарное кол-во стартовых статов у чара (должно совпадать с SUM_ALL_STATS)
+*/
+int start_stats_count(CHAR_DATA *ch)
+{
+	int count = 0;
+	for (int i = 0; i <= START_STATS_TOTAL; ++i)
+		count += ch->player->get_start_stat(i);
+	return count;
+}
+
+/**
 * Стартовые статы при любых условиях должны соответствовать границам ролла.
 * В случае старого ролла тут это всплывет из-за нулевых статов.
 */
 bool bad_start_stats(CHAR_DATA *ch)
 {
-	int total_stats = GET_START_STAT(ch, G_STR)
-					  + GET_START_STAT(ch, G_DEX)
-					  + GET_START_STAT(ch, G_INT)
-					  + GET_START_STAT(ch, G_WIS)
-					  + GET_START_STAT(ch, G_CON)
-					  + GET_START_STAT(ch, G_CHA);
-	if (GET_START_STAT(ch, G_STR) > MAX_STR(ch)
-			|| GET_START_STAT(ch, G_STR) < MIN_STR(ch)
-			|| GET_START_STAT(ch, G_DEX) > MAX_DEX(ch)
-			|| GET_START_STAT(ch, G_DEX) < MIN_DEX(ch)
-			|| GET_START_STAT(ch, G_INT) > MAX_INT(ch)
-			|| GET_START_STAT(ch, G_INT) < MIN_INT(ch)
-			|| GET_START_STAT(ch, G_WIS) > MAX_WIS(ch)
-			|| GET_START_STAT(ch, G_WIS) < MIN_WIS(ch)
-			|| GET_START_STAT(ch, G_CON) > MAX_CON(ch)
-			|| GET_START_STAT(ch, G_CON) < MIN_CON(ch)
-			|| GET_START_STAT(ch, G_CHA) > MAX_CHA(ch)
-			|| GET_START_STAT(ch, G_CHA) < MIN_CHA(ch)
-			|| total_stats != SUM_ALL_STATS)
+	if (ch->player->get_start_stat(G_STR) > MAX_STR(ch)
+			|| ch->player->get_start_stat(G_STR) < MIN_STR(ch)
+			|| ch->player->get_start_stat(G_DEX) > MAX_DEX(ch)
+			|| ch->player->get_start_stat(G_DEX) < MIN_DEX(ch)
+			|| ch->player->get_start_stat(G_INT) > MAX_INT(ch)
+			|| ch->player->get_start_stat(G_INT) < MIN_INT(ch)
+			|| ch->player->get_start_stat(G_WIS) > MAX_WIS(ch)
+			|| ch->player->get_start_stat(G_WIS) < MIN_WIS(ch)
+			|| ch->player->get_start_stat(G_CON) > MAX_CON(ch)
+			|| ch->player->get_start_stat(G_CON) < MIN_CON(ch)
+			|| ch->player->get_start_stat(G_CHA) > MAX_CHA(ch)
+			|| ch->player->get_start_stat(G_CHA) < MIN_CHA(ch)
+			|| start_stats_count(ch) != SUM_ALL_STATS)
 	{
 		return 1;
 	}
@@ -1177,12 +1183,12 @@ bool check_stats(CHAR_DATA *ch)
 	if (bad_real_stats(ch, have_stats))
 	{
 		// проставляем стартовые статы
-		GET_STR(ch) = GET_START_STAT(ch, G_STR);
-		GET_DEX(ch) = GET_START_STAT(ch, G_DEX);
-		GET_INT(ch) = GET_START_STAT(ch, G_INT);
-		GET_WIS(ch) = GET_START_STAT(ch, G_WIS);
-		GET_CON(ch) = GET_START_STAT(ch, G_CON);
-		GET_CHA(ch) = GET_START_STAT(ch, G_CHA);
+		GET_STR(ch) = ch->player->get_start_stat(G_STR);
+		GET_DEX(ch) = ch->player->get_start_stat(G_DEX);
+		GET_INT(ch) = ch->player->get_start_stat(G_INT);
+		GET_WIS(ch) = ch->player->get_start_stat(G_WIS);
+		GET_CON(ch) = ch->player->get_start_stat(G_CON);
+		GET_CHA(ch) = ch->player->get_start_stat(G_CHA);
 		// и все нужные плюсеги сверху
 		calculate_total_stats(ch);
 	}
@@ -1255,12 +1261,12 @@ bool remove_stats(CHAR_DATA *ch, CHAR_DATA *god, int amount)
 */
 void recalculate_stats(CHAR_DATA *ch)
 {
-	GET_STR(ch) = GET_START_STAT(ch, G_STR);
-	GET_DEX(ch) = GET_START_STAT(ch, G_DEX);
-	GET_INT(ch) = GET_START_STAT(ch, G_INT);
-	GET_WIS(ch) = GET_START_STAT(ch, G_WIS);
-	GET_CON(ch) = GET_START_STAT(ch, G_CON);
-	GET_CHA(ch) = GET_START_STAT(ch, G_CHA);
+	GET_STR(ch) = ch->player->get_start_stat(G_STR);
+	GET_DEX(ch) = ch->player->get_start_stat(G_DEX);
+	GET_INT(ch) = ch->player->get_start_stat(G_INT);
+	GET_WIS(ch) = ch->player->get_start_stat(G_WIS);
+	GET_CON(ch) = ch->player->get_start_stat(G_CON);
+	GET_CHA(ch) = ch->player->get_start_stat(G_CHA);
 	calculate_total_stats(ch);
 }
 

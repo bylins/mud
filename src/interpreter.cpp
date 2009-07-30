@@ -3368,7 +3368,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			// после перераспределения и сейва в genchar_parse стартовых статов надо учесть морты и славу
 			Glory::calculate_total_stats(d->character);
 			// статы срезетили и новые выбрали
-			sprintf(buf, "\r\n%sБлагодарим за содрудничество. Ж)%s\r\n",
+			sprintf(buf, "\r\n%sБлагодарим за сотрудничество. Ж)%s\r\n",
 					CCIGRN(d->character, C_SPR), CCNRM(d->character, C_SPR));
 			SEND_TO_Q(buf, d);
 

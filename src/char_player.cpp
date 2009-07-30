@@ -13,7 +13,8 @@ Player::Player()
 	was_in_room_(NOWHERE),
 	from_room_(0)
 {
-
+	for (int i = 0; i <= START_STATS_TOTAL; ++i)
+		start_stats[i] = 0;
 }
 
 bool check_mob_guard(Player const *plr, char const *fnc)
@@ -81,4 +82,32 @@ void Player::set_from_room(room_rnum from_room)
 {
 	check_mob_guard(this, __func__);
 	from_room_ = from_room;
+}
+
+int Player::get_start_stat(int stat_num)
+{
+	check_mob_guard(this, __func__);
+	int stat = 0;
+	try
+	{
+		stat = start_stats.at(stat_num);
+	}
+	catch (...)
+	{
+		log("SYSERROR : ban start_stat %d (%s %s %d)", stat_num, __FILE__, __func__, __LINE__);
+	}
+	return stat;
+}
+
+void Player::set_start_stat(int stat_num, int number)
+{
+	check_mob_guard(this, __func__);
+	try
+	{
+		start_stats.at(stat_num) = number;
+	}
+	catch (...)
+	{
+		log("SYSERROR : ban start_stat num %d (%s %s %d)", stat_num, __FILE__, __func__, __LINE__);
+	}
 }

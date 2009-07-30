@@ -7,11 +7,16 @@
 
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include <boost/array.hpp>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "quested.hpp"
 #include "mobmax.hpp"
+
+// кол-во сохраняемых стартовых статов в файле
+const int START_STATS_TOTAL = 5;
+typedef boost::array<int, START_STATS_TOTAL + 1> StartStatsType;
 
 class Player
 {
@@ -31,6 +36,9 @@ public:
 
 	void remort();
 
+	int get_start_stat(int num);
+	void set_start_stat(int stat_num, int number);
+
 	// это все как обычно временно... =)
 	friend void save_char(CHAR_DATA *ch);
 
@@ -38,6 +46,7 @@ public:
 	Quested quested;
 	// замаксы по отдельным мобам
 	MobMax mobmax;
+
 	// общие поля мобов
 	static boost::shared_ptr<Player> shared_mob;
 
@@ -53,6 +62,8 @@ private:
 	// комната, где был чар до вызова char_from_room (was_in_room_ под это использовать не оч хорошо)
 	// в данный момент поле нужно для проверки чара на бд при входе на арену любым способом, но может и еще потом пригодиться
 	room_rnum from_room_;
+	// стартовые статы
+	StartStatsType start_stats;
 };
 
 #endif // CHAR_PLAYER_HPP_INCLUDED

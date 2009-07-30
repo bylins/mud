@@ -217,9 +217,6 @@ struct player_special_data_saved
 	int stringWidth;
 };
 
-
-#define START_STATS_TOTAL 5 // кол-во сохраняемых стартовых статов в файле
-
 struct player_special_data
 {
 	struct player_special_data_saved saved;
@@ -257,7 +254,6 @@ struct player_special_data
 	boost::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
 
 	struct board_data *board; // последние прочитанные мессаги на досках
-	int start_stats[START_STATS_TOTAL]; // сгенеренные при старте чара статы
 };
 
 class Player;

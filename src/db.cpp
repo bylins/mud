@@ -5374,8 +5374,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	// например, чтобы не пугать игрока 200+ новостями при первом запуске системы
 	for (int i = 0; i < BOARD_TOTAL; ++i)
 		GET_BOARD_DATE(ch, i) = 1143706650;
-	for (int i = 0; i < START_STATS_TOTAL; ++i)
-		GET_BOARD_DATE(ch, i) = 0;
 
 	while (fbgetline(fl, line))
 	{
@@ -5862,17 +5860,17 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			else if (!strcmp(tag, "StrW"))
 				STRING_WIDTH(ch) = num;
 			else if (!strcmp(tag, "St00"))
-				GET_START_STAT(ch, G_STR) = lnum;
+				ch->player->set_start_stat(G_STR, lnum);
 			else if (!strcmp(tag, "St01"))
-				GET_START_STAT(ch, G_DEX) = lnum;
+				ch->player->set_start_stat(G_DEX, lnum);
 			else if (!strcmp(tag, "St02"))
-				GET_START_STAT(ch, G_INT) = lnum;
+				ch->player->set_start_stat(G_INT, lnum);
 			else if (!strcmp(tag, "St03"))
-				GET_START_STAT(ch, G_WIS) = lnum;
+				ch->player->set_start_stat(G_WIS, lnum);
 			else if (!strcmp(tag, "St04"))
-				GET_START_STAT(ch, G_CON) = lnum;
+				ch->player->set_start_stat(G_CON, lnum);
 			else if (!strcmp(tag, "St05"))
-				GET_START_STAT(ch, G_CHA) = lnum;
+				ch->player->set_start_stat(G_CHA, lnum);
 			break;
 
 		case 'T':
@@ -7198,7 +7196,7 @@ void save_char(CHAR_DATA *ch)
 			fprintf(saved, "Br%02d: %ld\n", i + 1, static_cast<long int>(GET_BOARD_DATE(ch, i)));
 
 	for (int i = 0; i <= START_STATS_TOTAL; ++i)
-		fprintf(saved, "St%02d: %i\n", i, GET_START_STAT(ch, i));
+		fprintf(saved, "St%02d: %i\n", i, ch->player->get_start_stat(i));
 
 	if (GET_LEVEL(ch) < LVL_IMMORT)
 		fprintf(saved, "Hung: %d\n", GET_COND(ch, FULL));
