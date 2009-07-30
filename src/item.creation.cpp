@@ -1969,9 +1969,10 @@ int MakeRecept::make(CHAR_DATA * ch)
 				tmpstr = "Вам не хватило " + string(ingrs[i]->PNames[1]) + ".\r\n";
 				//  Удаляем объект и выходим.
 				send_to_char(tmpstr.c_str(), ch);
-
-				extract_obj(ingrs[i]);
-
+				// если мы здесь экстрактим ингр и ставим make_fail = true, то дальше этот ингр может сэкстрактиться еще раз,
+				// откуда там берется вес <= 0 чет так сходу не очень ясно
+				// extract_obj(ingrs[i]);
+				GET_OBJ_WEIGHT(ingrs[i]) = -1;
 				make_fail = true;
 				continue;
 			}
