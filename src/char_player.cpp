@@ -14,7 +14,7 @@ Player::Player()
 	from_room_(0)
 {
 	for (int i = 0; i <= START_STATS_TOTAL; ++i)
-		start_stats[i] = 0;
+		start_stats.at(i) = 0;
 }
 
 bool check_mob_guard(Player const *plr, char const *fnc)
