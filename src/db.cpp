@@ -3507,7 +3507,8 @@ void load_zones(FILE * fl, char *zonename)
 //-MZ.load
 	*t1 = 0;
 	*t2 = 0;
-	if (sscanf(buf, " %d %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, (int *)&Z.reset_idle, t1, t2) < 4)
+	int tmp_reset_idle = 0;
+	if (sscanf(buf, " %d %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, &tmp_reset_idle, t1, t2) < 4)
 	{
 		// если нет четырех констант, то, возможно, это старый формат -- попробуем прочитать три
 		if (sscanf(buf, " %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, t1, t2) < 3)
@@ -3516,6 +3517,7 @@ void load_zones(FILE * fl, char *zonename)
 			exit(1);
 		}
 	}
+	Z.reset_idle = tmp_reset_idle;
 	Z.under_construction = !str_cmp(t1, "test");
 	Z.locked = !str_cmp(t2, "locked");
 	cmd_no = 0;
