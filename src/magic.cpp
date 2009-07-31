@@ -481,7 +481,7 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		af[0].duration = (1 + (GET_LEVEL(ch) + 14) / 15)*30;
 		af[0].caster_id = GET_ID(ch);
 		af[0].bitvector = AFF_ROOM_FORBIDDEN;
-		ROOM_AFF_FLAGS(room, AFF_ROOM_FORBIDDEN);
+		// ROOM_AFF_FLAGS(room, AFF_ROOM_FORBIDDEN); смысл этой строки?
 		af[0].must_handled = false;
 		accum_duration = FALSE;
 		update_spell = TRUE;
@@ -1950,7 +1950,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 
 		if (AFF_FLAGGED(ch, AFF_DATURA_POISON))
-			dam -= dam * (static_cast<double>(GET_POISON(ch)) / 100.0);
+			dam -= dam * GET_POISON(ch) / 100;
 
 		if (!IS_SET(SpINFO.routines, MAG_WARCRY))
 		{

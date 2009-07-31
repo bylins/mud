@@ -31,7 +31,7 @@ struct char_player_data
 	char *title;		/* PC / NPC's title                     */
 	byte sex;		/* PC / NPC's sex                       */
 	byte chclass;		/* PC / NPC's class             */
-	byte level;		/* PC / NPC's level                     */
+	ubyte level;		/* PC / NPC's level                     */
 	struct time_data time;			/* PC's AGE in days                 */
 	ubyte weight;		/* PC / NPC's weight                    */
 	ubyte height;		/* PC / NPC's height                    */

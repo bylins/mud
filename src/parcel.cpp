@@ -517,8 +517,7 @@ void fill_ex_desc(CHAR_DATA *ch, OBJ_DATA *obj, std::string sender)
 */
 int calculate_timer_cost(std::list<Node>::iterator const &it)
 {
-	double tmp = static_cast<double>(get_object_low_rent(it->obj_))/(24*60);
-	return tmp * it->timer_;
+	return static_cast<int>((get_object_low_rent(it->obj_) / (24.0 * 60.0)) * it->timer_);
 }
 
 /**
