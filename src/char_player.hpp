@@ -15,7 +15,7 @@
 #include "mobmax.hpp"
 
 // кол-во сохраняемых стартовых статов в файле
-#define START_STATS_TOTAL 5
+const int START_STATS_TOTAL = 5;
 typedef boost::array<int, START_STATS_TOTAL + 1> StartStatsType;
 
 class Player
