@@ -3453,7 +3453,7 @@ void print_zone_enters_to_buf(char *bufptr, zone_rnum zone)
 		sprintf(bufptr, "%sВходов в зону не обнаружено.\r\n", bufptr);
 }
 
-
+int magic_repair_used = 0;
 
 struct show_struct show_fields[] =
 {
@@ -3659,6 +3659,7 @@ ACMD(do_show)
 		Depot::show_stats(ch);
 		Glory::show_stats(ch);
 		Parcel::show_stats(ch);
+		send_to_char(ch, "  Использовано свитков ремонта - %d\r\n", magic_repair_used);
 		break;
 	case 5:
 		strcpy(buf, "Пустых выходов\r\n" "--------------\r\n");
@@ -5052,7 +5053,7 @@ ACMD(do_dmeter)
 ///////////////////////////////////////////////////////////////////////////////
 //Polud статистика использования заклинаний
 namespace SpellUsage
-{ 
+{
 	bool isActive = false;
 	std::map <int, SpellCountType> usage;
 	const char* SPELL_STAT_FILE = LIB_STAT"spellstat.txt";
@@ -5088,13 +5089,13 @@ void SpellUsage::save()
 		return;
 
 	std::ofstream file(SPELL_STAT_FILE, std::ios_base::app | std::ios_base::out);
-	
+
 	if (!file.is_open())
 	{
 		log("Error open file: %s! (%s %s %d)", SPELL_STAT_FILE, __FILE__, __func__, __LINE__);
 		return;
 	}
-	file << statToPrint();	
+	file << statToPrint();
 	file.close();
 }
 

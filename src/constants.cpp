@@ -1911,7 +1911,8 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	/* 0 */
 		"В Вашей крови не осталось ни капельки яда.", // SPELL_ACONITUM_POISON
 		"В Вашей крови не осталось ни капельки яда.", // SPELL_SCOPOLIA_POISON
 		"В Вашей крови не осталось ни капельки яда.", // SPELL_BELENA_POISON
-		"В Вашей крови не осталось ни капельки яда."  // SPELL_DATURA_POISON
+		"В Вашей крови не осталось ни капельки яда.",  // SPELL_DATURA_POISON
+		"SPELL_TIMER_REPAIR"
 };
 
 
@@ -2336,7 +2337,9 @@ const char *cast_phrase[LAST_USED_SPELL + 1][2] = { {"\nRESERVED DB.C",	/* 0 */
 	{"трутизна",
 	 "... и пошлю на них зубы зверей и яд ползающих по земле."}, // SPELL_BELENA_POISON
 	{"трутизна",
-	 "... и пошлю на них зубы зверей и яд ползающих по земле."} // SPELL_DATURA_POISON
+	 "... и пошлю на них зубы зверей и яд ползающих по земле."}, // SPELL_DATURA_POISON
+	{"\n",
+	 "\n"} // SPELL_TIMER_REPAIR
 };
 
 

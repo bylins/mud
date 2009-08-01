@@ -429,6 +429,27 @@ void imm_log(const char *format, ...)
 	fclose(file);
 }
 
+void mob_kills_log(CHAR_DATA *ch)
+{
+	if (!IS_NPC(ch)) return;
+
+	const char *filename = "../log/mob-kills.log";
+	static FILE *file = 0;
+	if (!file)
+	{
+		file = fopen(filename, "a");
+		if (!file)
+		{
+			log("SYSERR: can't open %s!", filename);
+			return;
+		}
+		opened_files.push_back(file);
+	}
+
+	write_time(file);
+	fprintf(file, "%d %ld\n", GET_LEVEL(ch), GET_EXP(ch));
+}
+
 /**
 * Файл персонального лога терь открывается один раз за каждый вход плеера в игру.
 * Дескриптор открытого файла у плеера же и хранится (закрывает при con_close).

@@ -331,7 +331,8 @@
 #define SPELL_SCOPOLIA_POISON   190
 #define SPELL_BELENA_POISON     191
 #define SPELL_DATURA_POISON     192
-#define LAST_USED_SPELL			193
+#define SPELL_TIMER_REPAIR      193
+#define LAST_USED_SPELL			194
 
 /*
  *  NON-PLAYER AND OBJECT SPELLS AND SKILLS
@@ -590,7 +591,7 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 //Polud статистика использования заклинаний
 typedef std::map<int, int> SpellCountType;
 
-namespace SpellUsage 
+namespace SpellUsage
 {
 	extern bool isActive;
 	extern time_t start;

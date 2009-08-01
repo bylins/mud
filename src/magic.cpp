@@ -44,6 +44,7 @@ extern const char *spell_wear_off_msg[];
 extern int supress_godsapply;
 extern const char *cast_phrase[LAST_USED_SPELL + 1][2];
 extern int interpolate(int min_value, int pulse);
+extern int magic_repair_used;
 
 byte saving_throws(int class_num, int type, int level);	/* class.cpp */
 byte extend_saving_throws(int class_num, int type, int level);
@@ -4293,6 +4294,21 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 	case SPELL_REPAIR:
 		GET_OBJ_CUR(obj) = GET_OBJ_MAX(obj);
 		to_char = "Вы полностью восстановили $o3.";
+		break;
+	case SPELL_TIMER_REPAIR:
+		if (GET_OBJ_RNUM(obj) != NOTHING)
+		{
+			GET_OBJ_CUR(obj) = GET_OBJ_MAX(obj);
+			GET_OBJ_TIMER(obj) = GET_OBJ_TIMER(obj_proto.at(GET_OBJ_RNUM(obj)));
+			to_char = "Вы полностью восстановили $o3.";
+			log("%s used magic repair", GET_NAME(ch));
+			++magic_repair_used;
+		}
+		else
+		{
+			to_char = "Этот предмет нельзя восстановить.";
+			return 0;
+		}
 		break;
 	}
 
