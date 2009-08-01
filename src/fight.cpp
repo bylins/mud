@@ -53,6 +53,7 @@ extern int material_value[];
 extern int supress_godsapply;
 extern int r_helled_start_room;
 extern MobRaceListType mobraces_list;
+extern int magic_repair_dropped;
 
 /* External procedures */
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
@@ -612,9 +613,30 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	obj_to_room(corpse, IN_ROOM(ch));
 }
 
+/**
+* Глобальный дроп с мобов заданных параметров.
+* TODO: если что-то еще добавится - выносить в конфиг.
+*/
+void put_global_drop(CHAR_DATA *mob)
+{
+	if (!IS_NPC(mob))
+	{
+		sprintf(buf, "SYSERROR: получили на входе персонажа. (%s %s %d)", __FILE__, __func__, __LINE__);
+		mudlog(buf, DEF, LVL_GOD, SYSLOG, TRUE);
+		return;
+	}
 
-
-
+	// свиток ремонта vnum #1912 (параметры пока от фанаря)
+	if (GET_LEVEL(mob) >= 35 && GET_EXP(mob) >= 500000 && number(1, 10000) == 5000)
+	{
+		OBJ_DATA *obj = read_object(1912, VIRTUAL);
+		if (obj)
+		{
+			obj_to_char(obj, mob);
+			++magic_repair_dropped;
+		}
+	}
+}
 
 OBJ_DATA *make_corpse(CHAR_DATA * ch)
 {
@@ -662,7 +684,10 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 	else
 		GET_OBJ_TIMER(corpse) = max_pc_corpse_time * 2;
 
-
+	if (IS_NPC(ch))
+	{
+		put_global_drop(ch);
+	}
 
 	/* transfer character's equipment to the corpse */
 	for (i = 0; i < NUM_WEARS; i++)
