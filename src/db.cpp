@@ -14,8 +14,9 @@
 
 #define __DB_C__
 
-#include "conf.h"
 #include <sstream>
+#include <boost/algorithm/string.hpp>
+#include "conf.h"
 #include "sys/stat.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -54,7 +55,7 @@
 #include "parcel.hpp"
 #include "liquid.hpp"
 #include "xmlParser.h"
-#include <boost/algorithm/string.hpp>
+#include "corpse.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -1496,6 +1497,9 @@ void boot_db(void)
 //Polud грузим параметры рас мобов
 	log("Load mob races.");
 	load_mobraces();
+
+	log("Init global drop list.");
+	GlobalDrop::init();
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");

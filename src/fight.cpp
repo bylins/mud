@@ -37,6 +37,7 @@
 #include "top.h"
 #include "magic.h"
 #include "poison.hpp"
+#include "corpse.hpp"
 
 extern CHAR_DATA *mob_proto;
 
@@ -53,8 +54,6 @@ extern int material_value[];
 extern int supress_godsapply;
 extern int r_helled_start_room;
 extern MobRaceListType mobraces_list;
-extern int magic_repair_dropped;
-extern int magic_repair_chance;
 
 /* External procedures */
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
@@ -94,7 +93,6 @@ int perform_mob_switch(CHAR_DATA * ch);
 void dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int w_type);
 void appear(CHAR_DATA * ch);
 void load_messages(void);
-OBJ_DATA *make_corpse(CHAR_DATA * ch);
 void change_alignment(CHAR_DATA * ch, CHAR_DATA * victim);
 void death_cry(CHAR_DATA * ch);
 void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer);
@@ -563,206 +561,6 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 		};
 	};
 }
-
-void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
-{
-	OBJ_DATA *corpse;
-	EXTRA_DESCR_DATA *exdesc;
-
-	corpse = create_obj();
-	GET_OBJ_SEX(corpse) = SEX_POLY;
-
-	sprintf(buf2, "Останки %s лежат на земле.", GET_PAD(ch, 1));
-	corpse->description = str_dup(buf2);
-
-	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
-	corpse->short_description = str_dup(buf2);
-
-	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
-	corpse->PNames[0] = str_dup(buf2);
-	corpse->name = str_dup(buf2);
-
-	sprintf(buf2, "останков %s", GET_PAD(ch, 1));
-	corpse->PNames[1] = str_dup(buf2);
-	sprintf(buf2, "останкам %s", GET_PAD(ch, 1));
-	corpse->PNames[2] = str_dup(buf2);
-	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
-	corpse->PNames[3] = str_dup(buf2);
-	sprintf(buf2, "останками %s", GET_PAD(ch, 1));
-	corpse->PNames[4] = str_dup(buf2);
-	sprintf(buf2, "останках %s", GET_PAD(ch, 1));
-	corpse->PNames[5] = str_dup(buf2);
-
-	GET_OBJ_TYPE(corpse) = ITEM_CONTAINER;
-	GET_OBJ_WEAR(corpse) = ITEM_WEAR_TAKE;
-	SET_BIT(GET_OBJ_EXTRA(corpse, ITEM_NODONATE), ITEM_NODONATE);
-	GET_OBJ_VAL(corpse, 0) = 0;	/* You can't store stuff in a corpse */
-	GET_OBJ_VAL(corpse, 2) = IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1;
-	GET_OBJ_VAL(corpse, 3) = 1;	/* corpse identifier */
-	GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch);
-	GET_OBJ_RENT(corpse) = 100000;
-	GET_OBJ_TIMER(corpse) = max_pc_corpse_time * 2;
-	CREATE(exdesc, EXTRA_DESCR_DATA, 1);
-	exdesc->keyword = str_dup(corpse->PNames[0]);	// косметика
-	if (killer)
-		sprintf(buf, "Убит%s на арене %s.\r\n", GET_CH_SUF_6(ch), GET_PAD(killer, 4));
-	else
-		sprintf(buf, "Умер%s на арене.\r\n", GET_CH_SUF_4(ch));
-	exdesc->description = str_dup(buf);	// косметика
-	exdesc->next = corpse->ex_description;
-	corpse->ex_description = exdesc;
-	obj_to_room(corpse, IN_ROOM(ch));
-}
-
-/**
-* Глобальный дроп с мобов заданных параметров.
-* TODO: если что-то еще добавится - выносить в конфиг.
-*/
-void put_global_drop(CHAR_DATA *mob)
-{
-	if (!IS_NPC(mob))
-	{
-		sprintf(buf, "SYSERROR: получили на входе персонажа. (%s %s %d)", __FILE__, __func__, __LINE__);
-		mudlog(buf, DEF, LVL_GOD, SYSLOG, TRUE);
-		return;
-	}
-
-	// свиток ремонта vnum #1912
-	if (GET_LEVEL(mob) >= 30 && GET_EXP(mob) >= 500000)
-	{
-		if (number(1, 5000) == 2500)
-		{
-			OBJ_DATA *obj = read_object(1912, VIRTUAL);
-			if (obj)
-			{
-				obj_to_char(obj, mob);
-				++magic_repair_dropped;
-			}
-		}
-		else
-		{
-			++magic_repair_chance;
-		}
-	}
-}
-
-OBJ_DATA *make_corpse(CHAR_DATA * ch)
-{
-	OBJ_DATA *corpse, *o;
-	OBJ_DATA *money;
-	int i;
-
-	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_CORPSE))
-		return NULL;
-
-	corpse = create_obj();
-	GET_OBJ_SEX(corpse) = SEX_MALE;
-
-	sprintf(buf2, "Труп %s лежит здесь.", GET_PAD(ch, 1));
-	corpse->description = str_dup(buf2);
-
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
-	corpse->short_description = str_dup(buf2);
-
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
-	corpse->PNames[0] = str_dup(buf2);
-	corpse->name = str_dup(buf2);
-
-	sprintf(buf2, "трупа %s", GET_PAD(ch, 1));
-	corpse->PNames[1] = str_dup(buf2);
-	sprintf(buf2, "трупу %s", GET_PAD(ch, 1));
-	corpse->PNames[2] = str_dup(buf2);
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
-	corpse->PNames[3] = str_dup(buf2);
-	sprintf(buf2, "трупом %s", GET_PAD(ch, 1));
-	corpse->PNames[4] = str_dup(buf2);
-	sprintf(buf2, "трупе %s", GET_PAD(ch, 1));
-	corpse->PNames[5] = str_dup(buf2);
-
-	GET_OBJ_TYPE(corpse) = ITEM_CONTAINER;
-	GET_OBJ_WEAR(corpse) = ITEM_WEAR_TAKE;
-	SET_BIT(GET_OBJ_EXTRA(corpse, ITEM_NODONATE), ITEM_NODONATE);
-	SET_BIT(GET_OBJ_EXTRA(corpse, ITEM_NOSELL), ITEM_NOSELL);
-	GET_OBJ_VAL(corpse, 0) = 0;	/* You can't store stuff in a corpse */
-	GET_OBJ_VAL(corpse, 2) = IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1;
-	GET_OBJ_VAL(corpse, 3) = 1;	/* corpse identifier */
-	GET_OBJ_RENT(corpse) = 100000;
-	if (IS_NPC(ch))
-		GET_OBJ_TIMER(corpse) = max_npc_corpse_time * 2;
-	else
-		GET_OBJ_TIMER(corpse) = max_pc_corpse_time * 2;
-
-	if (IS_NPC(ch))
-	{
-		put_global_drop(ch);
-	}
-
-	/* transfer character's equipment to the corpse */
-	for (i = 0; i < NUM_WEARS; i++)
-		if (GET_EQ(ch, i))
-		{
-			remove_otrigger(GET_EQ(ch, i), ch);
-			obj_to_char(unequip_char(ch, i), ch);
-		}
-	// Считаем вес шмоток после того как разденем чара
-	GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch) + IS_CARRYING_W(ch);
-
-	/* transfer character's inventory to the corpse */
-	corpse->contains = ch->carrying;
-	for (o = corpse->contains; o != NULL; o = o->next_content)
-	{
-		o->in_obj = corpse;
-	}
-	object_list_new_owner(corpse, NULL);
-
-
-	/* transfer gold */
-	if (get_gold(ch) > 0)  	/* following 'if' clause added to fix gold duplication loophole */
-	{
-		if (IS_NPC(ch) || (!IS_NPC(ch) && ch->desc))
-		{
-			money = create_money(get_gold(ch));
-			obj_to_obj(money, corpse);
-		}
-		set_gold(ch, 0);
-	}
-
-	ch->carrying = NULL;
-	IS_CARRYING_N(ch) = 0;
-	IS_CARRYING_W(ch) = 0;
-
-//Polud привязываем загрузку ингров к расе (типу) моба
-
-	if (IS_NPC(ch) && GET_RACE(ch)>NPC_RACE_BASIC && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_HOUSE))
-	{
-		MobRaceListType::iterator it = mobraces_list.find(GET_RACE(ch));
-		if (it != mobraces_list.end())
-		{
-			int *ingr_to_load_list, j;
-			int num_inrgs = it->second->ingrlist.size();
-			CREATE(ingr_to_load_list, int, num_inrgs * 2 + 1);
-			for (j=0; j < num_inrgs; j++)
-			{
-				ingr_to_load_list[2*j] = im_get_idx_by_type(it->second->ingrlist[j].imtype);
-				ingr_to_load_list[2*j+1] = it->second->ingrlist[j].prob[GET_LEVEL(ch)];
-				ingr_to_load_list[2*j+1] |= (GET_LEVEL(ch) << 16);
-			}
-			ingr_to_load_list[2*j] = -1;
-			im_make_corpse(corpse, ingr_to_load_list, 1000);
-		}
-		else
-			if (mob_proto[GET_MOB_RNUM(ch)].ing_list)
-				im_make_corpse(corpse, mob_proto[GET_MOB_RNUM(ch)].ing_list, 100);
-	}
-
-	// Загружаю шмотки по листу. - перемещено в raw_kill
-	/*  if (IS_NPC (ch))
-	    dl_load_obj (corpse, ch); */
-
-	obj_to_room(corpse, IN_ROOM(ch));
-	return corpse;
-}
-
 
 /* When ch kills victim */
 void change_alignment(CHAR_DATA * ch, CHAR_DATA * victim)
