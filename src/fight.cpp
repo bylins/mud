@@ -627,7 +627,7 @@ void put_global_drop(CHAR_DATA *mob)
 		return;
 	}
 
-	// свиток ремонта vnum #1912 (параметры пока от фанаря)
+	// свиток ремонта vnum #1912
 	if (GET_LEVEL(mob) >= 30 && GET_EXP(mob) >= 500000)
 	{
 		if (number(1, 5000) == 2500)
