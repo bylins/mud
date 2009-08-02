@@ -21,10 +21,10 @@ namespace GlobalDrop
 
 struct global_drop
 {
-	int vnum; // внум шмотки
-	int lvl;  // мин левел моба
-	int exp;  // мин экспа за моба
-	int prc;  // шансы дропа (1 к Х)
+	int vnum; // ЧОХН ЫНПФЛЙ
+	int lvl;  // НЙО МЕЧЕМ НПВБ
+	int exp;  // НЙО ЬЛУРБ ЪБ НПВБ
+	int prc;  // ЫБОУЩ ДТПРБ (1 Л и)
 };
 
 typedef std::vector<global_drop> DropListType;
@@ -38,7 +38,7 @@ void init()
 	XMLNode xMainNode=XMLNode::parseFile(CONFIG_FILE, "globaldrop", &result);
 	if (result.error != eXMLErrorNone)
 	{
-		log("SYSERROR: Ошибка чтения файла %s: %s", CONFIG_FILE, XMLNode::getError(result.error));
+		log("SYSERROR: пЫЙВЛБ ЮФЕОЙС ЖБКМБ %s: %s", CONFIG_FILE, XMLNode::getError(result.error));
 		return;
 	}
 
@@ -56,14 +56,14 @@ void init()
 }
 
 /**
-* Глобальный дроп с мобов заданных параметров.
-* TODO: если что-то еще добавится - выносить в конфиг.
+* зМПВБМШОЩК ДТПР У НПВПЧ ЪБДБООЩИ РБТБНЕФТПЧ.
+* TODO: ЕУМЙ ЮФП-ФП ЕЭЕ ДПВБЧЙФУС - ЧЩОПУЙФШ Ч ЛПОЖЙЗ.
 */
 void check_mob(CHAR_DATA *mob)
 {
 	if (!IS_NPC(mob))
 	{
-		sprintf(buf, "SYSERROR: получили на входе персонажа. (%s %s %d)", __FILE__, __func__, __LINE__);
+		sprintf(buf, "SYSERROR: РПМХЮЙМЙ ОБ ЧИПДЕ РЕТУПОБЦБ. (%s %s %d)", __FILE__, __func__, __LINE__);
 		mudlog(buf, DEF, LVL_GOD, SYSLOG, TRUE);
 		return;
 	}
@@ -99,25 +99,25 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	corpse = create_obj();
 	GET_OBJ_SEX(corpse) = SEX_POLY;
 
-	sprintf(buf2, "Останки %s лежат на земле.", GET_PAD(ch, 1));
+	sprintf(buf2, "пУФБОЛЙ %s МЕЦБФ ОБ ЪЕНМЕ.", GET_PAD(ch, 1));
 	corpse->description = str_dup(buf2);
 
-	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
+	sprintf(buf2, "ПУФБОЛЙ %s", GET_PAD(ch, 1));
 	corpse->short_description = str_dup(buf2);
 
-	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
+	sprintf(buf2, "ПУФБОЛЙ %s", GET_PAD(ch, 1));
 	corpse->PNames[0] = str_dup(buf2);
 	corpse->name = str_dup(buf2);
 
-	sprintf(buf2, "останков %s", GET_PAD(ch, 1));
+	sprintf(buf2, "ПУФБОЛПЧ %s", GET_PAD(ch, 1));
 	corpse->PNames[1] = str_dup(buf2);
-	sprintf(buf2, "останкам %s", GET_PAD(ch, 1));
+	sprintf(buf2, "ПУФБОЛБН %s", GET_PAD(ch, 1));
 	corpse->PNames[2] = str_dup(buf2);
-	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
+	sprintf(buf2, "ПУФБОЛЙ %s", GET_PAD(ch, 1));
 	corpse->PNames[3] = str_dup(buf2);
-	sprintf(buf2, "останками %s", GET_PAD(ch, 1));
+	sprintf(buf2, "ПУФБОЛБНЙ %s", GET_PAD(ch, 1));
 	corpse->PNames[4] = str_dup(buf2);
-	sprintf(buf2, "останках %s", GET_PAD(ch, 1));
+	sprintf(buf2, "ПУФБОЛБИ %s", GET_PAD(ch, 1));
 	corpse->PNames[5] = str_dup(buf2);
 
 	GET_OBJ_TYPE(corpse) = ITEM_CONTAINER;
@@ -130,12 +130,12 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	GET_OBJ_RENT(corpse) = 100000;
 	GET_OBJ_TIMER(corpse) = max_pc_corpse_time * 2;
 	CREATE(exdesc, EXTRA_DESCR_DATA, 1);
-	exdesc->keyword = str_dup(corpse->PNames[0]);	// косметика
+	exdesc->keyword = str_dup(corpse->PNames[0]);	// ЛПУНЕФЙЛБ
 	if (killer)
-		sprintf(buf, "Убит%s на арене %s.\r\n", GET_CH_SUF_6(ch), GET_PAD(killer, 4));
+		sprintf(buf, "хВЙФ%s ОБ БТЕОЕ %s.\r\n", GET_CH_SUF_6(ch), GET_PAD(killer, 4));
 	else
-		sprintf(buf, "Умер%s на арене.\r\n", GET_CH_SUF_4(ch));
-	exdesc->description = str_dup(buf);	// косметика
+		sprintf(buf, "хНЕТ%s ОБ БТЕОЕ.\r\n", GET_CH_SUF_4(ch));
+	exdesc->description = str_dup(buf);	// ЛПУНЕФЙЛБ
 	exdesc->next = corpse->ex_description;
 	corpse->ex_description = exdesc;
 	obj_to_room(corpse, IN_ROOM(ch));
@@ -153,25 +153,25 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 	corpse = create_obj();
 	GET_OBJ_SEX(corpse) = SEX_MALE;
 
-	sprintf(buf2, "Труп %s лежит здесь.", GET_PAD(ch, 1));
+	sprintf(buf2, "фТХР %s МЕЦЙФ ЪДЕУШ.", GET_PAD(ch, 1));
 	corpse->description = str_dup(buf2);
 
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
+	sprintf(buf2, "ФТХР %s", GET_PAD(ch, 1));
 	corpse->short_description = str_dup(buf2);
 
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
+	sprintf(buf2, "ФТХР %s", GET_PAD(ch, 1));
 	corpse->PNames[0] = str_dup(buf2);
 	corpse->name = str_dup(buf2);
 
-	sprintf(buf2, "трупа %s", GET_PAD(ch, 1));
+	sprintf(buf2, "ФТХРБ %s", GET_PAD(ch, 1));
 	corpse->PNames[1] = str_dup(buf2);
-	sprintf(buf2, "трупу %s", GET_PAD(ch, 1));
+	sprintf(buf2, "ФТХРХ %s", GET_PAD(ch, 1));
 	corpse->PNames[2] = str_dup(buf2);
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
+	sprintf(buf2, "ФТХР %s", GET_PAD(ch, 1));
 	corpse->PNames[3] = str_dup(buf2);
-	sprintf(buf2, "трупом %s", GET_PAD(ch, 1));
+	sprintf(buf2, "ФТХРПН %s", GET_PAD(ch, 1));
 	corpse->PNames[4] = str_dup(buf2);
-	sprintf(buf2, "трупе %s", GET_PAD(ch, 1));
+	sprintf(buf2, "ФТХРЕ %s", GET_PAD(ch, 1));
 	corpse->PNames[5] = str_dup(buf2);
 
 	GET_OBJ_TYPE(corpse) = ITEM_CONTAINER;
@@ -199,7 +199,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 			remove_otrigger(GET_EQ(ch, i), ch);
 			obj_to_char(unequip_char(ch, i), ch);
 		}
-	// Считаем вес шмоток после того как разденем чара
+	// уЮЙФБЕН ЧЕУ ЫНПФПЛ РПУМЕ ФПЗП ЛБЛ ТБЪДЕОЕН ЮБТБ
 	GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch) + IS_CARRYING_W(ch);
 
 	/* transfer character's inventory to the corpse */
@@ -226,7 +226,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 	IS_CARRYING_N(ch) = 0;
 	IS_CARRYING_W(ch) = 0;
 
-//Polud привязываем загрузку ингров к расе (типу) моба
+//Polud РТЙЧСЪЩЧБЕН ЪБЗТХЪЛХ ЙОЗТПЧ Л ТБУЕ (ФЙРХ) НПВБ
 
 	if (IS_NPC(ch) && GET_RACE(ch)>NPC_RACE_BASIC && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_HOUSE))
 	{
@@ -250,7 +250,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 				im_make_corpse(corpse, mob_proto[GET_MOB_RNUM(ch)].ing_list, 100);
 	}
 
-	// Загружаю шмотки по листу. - перемещено в raw_kill
+	// ъБЗТХЦБА ЫНПФЛЙ РП МЙУФХ. - РЕТЕНЕЭЕОП Ч raw_kill
 	/*  if (IS_NPC (ch))
 	    dl_load_obj (corpse, ch); */
 
