@@ -1888,7 +1888,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 
 		std::string quested(k->player->quested.print());
 		if (!quested.empty())
-			send_to_char(ch, "Выполнил квесты:%s\r\n", quested.c_str());
+			send_to_char(ch, "Выполнил квесты:\r\n%s\r\n", quested.c_str());
 
 		if (RENTABLE(k))
 		{
@@ -4441,11 +4441,16 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 
 	case 46:
 
-		if (sscanf(val_arg, "%d %s", &ptnum, npad[0]) != 2)
+		npad[1][0] = '\0';
+		if (sscanf(val_arg, "%d %s %[^\n]", &ptnum, npad[0], npad[1]) != 3)
 		{
-			send_to_char("Формат : set <имя> trgquest <quest_num> <on|off>\r\n", ch);
-			return (0);
+			if (sscanf(val_arg, "%d %s", &ptnum, npad[0]) != 2)
+			{
+				send_to_char("Формат : set <имя> trgquest <quest_num> <on|off> <строка данных>\r\n", ch);
+				return 0;
+			}
 		}
+
 		if (!str_cmp(npad[0], "off") || !str_cmp(npad[0], "выкл"))
 		{
 			if (!vict->player->quested.remove(ptnum))
@@ -4456,7 +4461,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		else if (!str_cmp(npad[0], "on") || !str_cmp(npad[0], "вкл"))
 		{
-			vict->player->quested.add(vict, ptnum);
+			vict->player->quested.add(vict, ptnum, npad[1]);
 		}
 		else
 		{

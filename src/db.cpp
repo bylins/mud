@@ -5763,7 +5763,11 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 
 		case 'Q':
 			if (!strcmp(tag, "Qst "))
-				ch->player->quested.add(ch, num);
+			{
+				buf[0] = '\0';
+				sscanf(line, "%d %[^~]", &num, &buf[0]);
+				ch->player->quested.add(ch, num, buf);
+			}
 			break;
 
 		case 'R':

@@ -2336,12 +2336,24 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 						strcpy(str, "0");
 				}
 			}
-			else if (!str_cmp(field, "setquest"))
+			else if (!str_cmp(field, "getquest"))
 			{
 				if (*subfield && (num = atoi(subfield)) > 0)
 				{
-					c->player->quested.add(c, num);
-					strcpy(str, "1");
+					strcpy(str, (c->player->quested.get_text(num)).c_str());
+				}
+			}
+			else if (!str_cmp(field, "setquest"))
+			{
+				if (*subfield)
+				{
+					subfield = one_argument(subfield, buf);
+					skip_spaces(&subfield);
+					if ((num = atoi(buf)) > 0)
+					{
+						c->player->quested.add(c, num, subfield);
+						strcpy(str, "1");
+					}
 				}
 			}
 			else if (!str_cmp(field, "unsetquest"))
