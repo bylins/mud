@@ -54,6 +54,7 @@ extern int supress_godsapply;
 extern int r_helled_start_room;
 extern MobRaceListType mobraces_list;
 extern int magic_repair_dropped;
+extern int magic_repair_chance;
 
 /* External procedures */
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
@@ -627,13 +628,20 @@ void put_global_drop(CHAR_DATA *mob)
 	}
 
 	// свиток ремонта vnum #1912 (параметры пока от фанаря)
-	if (GET_LEVEL(mob) >= 35 && GET_EXP(mob) >= 500000 && number(1, 10000) == 5000)
+	if (GET_LEVEL(mob) >= 30 && GET_EXP(mob) >= 500000)
 	{
-		OBJ_DATA *obj = read_object(1912, VIRTUAL);
-		if (obj)
+		if (number(1, 5000) == 2500)
 		{
-			obj_to_char(obj, mob);
-			++magic_repair_dropped;
+			OBJ_DATA *obj = read_object(1912, VIRTUAL);
+			if (obj)
+			{
+				obj_to_char(obj, mob);
+				++magic_repair_dropped;
+			}
+		}
+		else
+		{
+			++magic_repair_chance;
 		}
 	}
 }

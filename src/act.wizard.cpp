@@ -3453,8 +3453,11 @@ void print_zone_enters_to_buf(char *bufptr, zone_rnum zone)
 		sprintf(bufptr, "%sВходов в зону не обнаружено.\r\n", bufptr);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 int magic_repair_used = 0;
 int magic_repair_dropped = 0;
+int magic_repair_chance = 0;
+////////////////////////////////////////////////////////////////////////////////
 
 struct show_struct show_fields[] =
 {
@@ -3660,7 +3663,7 @@ ACMD(do_show)
 		Depot::show_stats(ch);
 		Glory::show_stats(ch);
 		Parcel::show_stats(ch);
-		send_to_char(ch, "  Свитки ремонта: использовано %d, выпало %d\r\n", magic_repair_used, magic_repair_dropped);
+		send_to_char(ch, "  Свитки ремонта: использовано %d, выпало %d/%d\r\n", magic_repair_used, magic_repair_dropped, magic_repair_chance);
 		break;
 	case 5:
 		strcpy(buf, "Пустых выходов\r\n" "--------------\r\n");
