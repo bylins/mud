@@ -4001,7 +4001,7 @@ bool find_all_char_vnum(long n, char *str)
 	{
 		if (n == GET_MOB_VNUM(ch) && IN_ROOM(ch) != NOWHERE && count < 20)
 		{
-			sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(ch));
+			snprintf(str + strlen(str), MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(ch));
 			++count;
 		}
 	}
@@ -4018,7 +4018,7 @@ bool find_all_obj_vnum(long n, char *str)
 	{
 		if (n == GET_OBJ_VNUM(i) && count < 20)
 		{
-			sprintf(str + strlen(str), "%c%ld ", UID_OBJ, GET_ID(i));
+			snprintf(str + strlen(str), MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, GET_ID(i));
 			++count;
 		}
 	}
