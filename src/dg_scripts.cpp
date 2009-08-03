@@ -3999,7 +3999,7 @@ bool find_all_char_vnum(long n, char *str)
 	int count = 0;
 	for (CHAR_DATA *ch = character_list; ch; ch = ch->next)
 	{
-		if (n == GET_MOB_VNUM(ch) && IN_ROOM(ch) != NOWHERE && count < 20)
+		if (n == GET_MOB_VNUM(ch) && IN_ROOM(ch) != NOWHERE && count < 25)
 		{
 			snprintf(str + strlen(str), MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(ch));
 			++count;
@@ -4016,17 +4016,18 @@ bool find_all_obj_vnum(long n, char *str)
 	int count = 0;
 	for (OBJ_DATA *i = object_list; i; i = i->next)
 	{
-		if (n == GET_OBJ_VNUM(i) && count < 20)
+		if (n == GET_OBJ_VNUM(i) && count < 25)
 		{
 			snprintf(str + strlen(str), MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, GET_ID(i));
 			++count;
 		}
 	}
+	log("test: %s", str);
 	return count ? true : false;
 }
 
 /**
-* Копи-паст с calcuid_var для возврата строки со всеми найденными уидами мобов/предметов (до 20ти вхождений).
+* Копи-паст с calcuid_var для возврата строки со всеми найденными уидами мобов/предметов (до 25ти вхождений).
 */
 void calcuidall_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
 {
