@@ -3991,7 +3991,99 @@ void calcuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *c
 	add_var_cntx(&GET_TRIG_VARS(trig), varname, uid, 0);
 }
 
+/**
+* Поиск мобов для calcuidall_var.
+*/
+bool find_all_char_vnum(long n, char *str)
+{
+	int count = 0;
+	for (CHAR_DATA *ch = character_list; ch; ch = ch->next)
+	{
+		if (n == GET_MOB_VNUM(ch) && IN_ROOM(ch) != NOWHERE && count < 20)
+		{
+			sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(ch));
+			++count;
+		}
+	}
+	return count ? true : false;
+}
 
+/**
+* Поиск предметов для calcuidall_var.
+*/
+bool find_all_obj_vnum(long n, char *str)
+{
+	int count = 0;
+	for (OBJ_DATA *i = object_list; i; i = i->next)
+	{
+		if (n == GET_OBJ_VNUM(i) && count < 20)
+		{
+			sprintf(str + strlen(str), "%c%ld ", UID_OBJ, GET_ID(i));
+			++count;
+		}
+	}
+	return count ? true : false;
+}
+
+/**
+* Копи-паст с calcuid_var для возврата строки со всеми найденными уидами мобов/предметов (до 20ти вхождений).
+*/
+void calcuidall_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
+{
+	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
+	char *t, vnum[MAX_INPUT_LENGTH], what[MAX_INPUT_LENGTH];
+	char uid[MAX_INPUT_LENGTH];
+	int result = -1;
+
+	uid[0] = '\0';
+	t = two_arguments(cmd, arg, varname);
+	two_arguments(t, vnum, what);
+
+	if (!*varname)
+	{
+		sprintf(buf2, "calcuidall w/o an arg: '%s'", cmd);
+		trig_log(trig, buf2);
+		return;
+	}
+
+	if (!*vnum || (result = atoi(vnum)) == 0)
+	{
+		sprintf(buf2, "calcuidall invalid VNUM arg: '%s'", cmd);
+		trig_log(trig, buf2);
+		return;
+	}
+
+	if (!*what)
+	{
+		sprintf(buf2, "calcuidall exceed TYPE arg: '%s'", cmd);
+		trig_log(trig, buf2);
+		return;
+	}
+
+	if (!str_cmp(what, "mob"))
+	{
+		result = find_all_char_vnum(result, uid);
+	}
+	else if (!str_cmp(what, "obj"))
+	{
+		result = find_all_obj_vnum(result, uid);
+	}
+	else
+	{
+		sprintf(buf2, "calcuidall unknown TYPE arg: '%s'", cmd);
+		trig_log(trig, buf2);
+		return;
+	}
+
+	if (!result)
+	{
+		sprintf(buf2, "calcuidall target not found '%s'", vnum);
+		trig_log(trig, buf2);
+		*uid = '\0';
+		return;
+	}
+	add_var_cntx(&GET_TRIG_VARS(trig), varname, uid, 0);
+}
 
 /*
  * processes a script return command.
@@ -4582,6 +4674,8 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 				makeuid_var(go, sc, trig, type, cmd);
 			else if (!strn_cmp(cmd, "calcuid ", 8))
 				calcuid_var(go, sc, trig, type, cmd);
+			else if (!strn_cmp(cmd, "calcuidall ", 11))
+				calcuidall_var(go, sc, trig, type, cmd);
 			else if (!strn_cmp(cmd, "halt", 4))
 				break;
 			else if (!strn_cmp(cmd, "dg_cast ", 8))
