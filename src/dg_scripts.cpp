@@ -317,29 +317,56 @@ room_data *find_room(long n)
 /************************************************************
  * search by VNUM routines
  ************************************************************/
-/* return char with VNUM n */
-int find_char_vnum(long n)
+
+/**
+* Возвращает id моба указанного внума.
+* \param num - если есть и больше 0 - возвращает id не первого моба, а указанного порядкового номера.
+*/
+int find_char_vnum(long n, int num = 0)
 {
 	CHAR_DATA *ch;
-
+	int count = 0;
 	for (ch = character_list; ch; ch = ch->next)
+	{
 		if (n == GET_MOB_VNUM(ch) && IN_ROOM(ch) != NOWHERE)
-			return (GET_ID(ch));
-
-	return (-1);
+		{
+			++count;
+			if (num > 0 && num != count)
+			{
+				continue;
+			}
+			else
+			{
+				return (GET_ID(ch));
+			}
+		}
+	}
+	return -1;
 }
 
-
-/* return object with VNUM n */
-int find_obj_vnum(long n)
+/**
+* Аналогично find_char_vnum, только для объектов.
+*/
+int find_obj_vnum(long n, int num = 0)
 {
 	OBJ_DATA *i;
-
+	int count = 0;
 	for (i = object_list; i; i = i->next)
+	{
 		if (n == GET_OBJ_VNUM(i))
-			return (GET_ID(i));
-
-	return (-1);
+		{
+			++count;
+			if (num > 0 && num != count)
+			{
+				continue;
+			}
+			else
+			{
+				return (GET_ID(i));
+			}
+		}
+	}
+	return -1;
 }
 
 /* return room with VNUM n */
@@ -3923,18 +3950,22 @@ void makeuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *c
 	add_var_cntx(&GET_TRIG_VARS(trig), varname, uid, 0);
 }
 
-/* Added 17/04/2000 */
-/* calculate a UID variable from the VNUM */
+/**
+* Added 17/04/2000
+* calculate a UID variable from the VNUM
+* calcuid <переменная куда пишется id> <внум> <room|mob|obj> <порядковый номер от 1 до х>
+* если порядковый не указан - возвращается первое вхождение.
+*/
 void calcuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
 	char *t, vnum[MAX_INPUT_LENGTH], what[MAX_INPUT_LENGTH];
-	char uid[MAX_INPUT_LENGTH];
+	char uid[MAX_INPUT_LENGTH], count[MAX_INPUT_LENGTH];
 	char uid_type;
 	int result = -1;
 
 	t = two_arguments(cmd, arg, varname);
-	two_arguments(t, vnum, what);
+	three_arguments(t, vnum, what, count);
 
 	if (!*varname)
 	{
@@ -3957,6 +3988,12 @@ void calcuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *c
 		return;
 	}
 
+	int count_num = 0;
+	if (*count)
+	{
+		count_num = atoi(count);
+	}
+
 	if (!str_cmp(what, "room"))
 	{
 		uid_type = UID_ROOM;
@@ -3965,12 +4002,12 @@ void calcuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *c
 	else if (!str_cmp(what, "mob"))
 	{
 		uid_type = UID_CHAR;
-		result = find_char_vnum(result);
+		result = find_char_vnum(result, count_num);
 	}
 	else if (!str_cmp(what, "obj"))
 	{
 		uid_type = UID_OBJ;
-		result = find_obj_vnum(result);
+		result = find_obj_vnum(result, count_num);
 	}
 	else
 	{
@@ -3981,7 +4018,7 @@ void calcuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *c
 
 	if (result <= -1)
 	{
-		sprintf(buf2, "calcuid target not found '%s'", vnum);
+		sprintf(buf2, "calcuid target not found vnum: %s, count: %d", vnum, count_num);
 		trig_log(trig, buf2);
 		*uid = '\0';
 		return;
