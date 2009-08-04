@@ -4022,7 +4022,6 @@ bool find_all_obj_vnum(long n, char *str)
 			++count;
 		}
 	}
-	log("test: %s", str);
 	return count ? true : false;
 }
 
