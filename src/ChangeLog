@@ -26,7 +26,7 @@
 eval i %world.curmobs(4018)%
 while (%i% > 0)
   calcuid uid 4018 mob %i%
-  mecho Моб номер %i% - комната %uid.realroom%.
+  %echo% Моб номер %i% - комната %uid.realroom%.
   eval i %i%-1
 done
 
@@ -35,7 +35,7 @@ done
 eval i %world.gameobjs(100)%
 while (%i% > 0)
   calcuid uid 100 obj %i%
-  mecho Предмет номер %i% - комната %uid.room%.
+  %echo% Предмет номер %i% - комната %uid.room%.
   eval i %i%-1
 done
 
