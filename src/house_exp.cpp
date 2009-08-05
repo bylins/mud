@@ -36,6 +36,7 @@ void ClanExp::add_chunk()
 		list_.erase(list_.begin());
 	}
 	buffer_exp_ = 0;
+	update_total_exp();
 }
 
 /**
@@ -43,18 +44,13 @@ void ClanExp::add_chunk()
 */
 int ClanExp::get_exp() const
 {
-	int result = 0;
-	for (ExpListType::const_iterator it = list_.begin(); it != list_.end(); ++it)
-	{
-		result += *it;
-	}
-	return result;
+	return total_exp_;
 }
 
 /**
 * Сохранение списка и буффера в отдельный файл клана (по аббревиатуре).
 */
-void ClanExp::save(std::string abbrev)
+void ClanExp::save(std::string abbrev) const
 {
 	for (unsigned i = 0; i != abbrev.length(); ++i)
 		abbrev[i] = LOWER(AtoL(abbrev[i]));
@@ -94,9 +90,19 @@ void ClanExp::load(std::string abbrev)
 		return;
 	}
 	int tmp_exp;
-	while (file >> tmp_exp)
+	while (file >> tmp_exp && list_.size() < MAX_LIST_NODES)
 	{
 		list_.push_back(tmp_exp);
+	}
+	update_total_exp();
+}
+
+void ClanExp::update_total_exp()
+{
+	total_exp_ = 0;
+	for (ExpListType::const_iterator it = list_.begin(); it != list_.end(); ++it)
+	{
+		total_exp_ += *it;
 	}
 }
 

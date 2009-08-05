@@ -17,14 +17,16 @@ const int CLAN_EXP_UPDATE_PERIOD = 60;
 class ClanExp
 {
 public:
-	ClanExp() : buffer_exp_(0) {};
+	ClanExp() : buffer_exp_(0), total_exp_(0) {};
 	int get_exp() const;
 	void add_chunk();
 	void add_temp(int exp);
 	void load(std::string abbrev);
-	void save(std::string abbrev);
+	void save(std::string abbrev) const;
+	void update_total_exp();
 private:
 	int buffer_exp_;
+	int total_exp_;
 	typedef std::list<int> ExpListType;
 	ExpListType list_;
 };
