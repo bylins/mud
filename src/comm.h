@@ -83,7 +83,7 @@ extern log_info logs[NLOG];
 
 extern unsigned long cmd_cnt;
 
-#define DEFAULT_REBOOT_UPTIME 60*24*5	//время до ближайшего ребута по умолчанию в минутах
+#define DEFAULT_REBOOT_UPTIME 60*24*3	//время до ближайшего ребута по умолчанию в минутах
 #define UPTIME_THRESHOLD      120	//минимальный аптайм для ребута в часах
 
 #endif
