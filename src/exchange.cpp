@@ -1733,6 +1733,12 @@ void message_exchange(char *message, CHAR_DATA * ch, EXCHANGE_ITEM_DATA * j)
 				!PRF_FLAGGED(i->character, PRF_NOEXCHANGE) &&
 				!PLR_FLAGGED(i->character, PLR_WRITING) &&
 				!ROOM_FLAGGED(IN_ROOM(i->character), ROOM_SOUNDPROOF) && GET_POS(i->character) > POS_SLEEPING)
+		{
+			if ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_INGRADIENT || GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_MING)
+				&& !PRF_FLAGGED(i->character, PRF_NOINGR_MODE))
+			{
+				continue;
+			}
 			if (!EXCHANGE_FILTER(i->character)
 					|| ((parse_exch_filter(EXCHANGE_FILTER(i->character),
 										   filter_name, filter_owner, &filter_type, &filter_cost, &filter_timer,
@@ -1748,6 +1754,7 @@ void message_exchange(char *message, CHAR_DATA * ch, EXCHANGE_ITEM_DATA * j)
 				if (COLOR_LEV(i->character) >= C_NRM)
 					send_to_char(CCNRM(i->character, C_NRM), i->character);
 			}
+		}
 	}
 }
 
