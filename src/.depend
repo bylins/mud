@@ -243,4 +243,4 @@ corpse.o: corpse.cpp corpse.hpp conf.h sysdep.h structs.h db.h \
   xmlParser.h utils.h features.hpp char.hpp comm.h handler.h dg_scripts.h \
   im.h
 house_exp.o: house_exp.cpp house_exp.hpp conf.h sysdep.h structs.h \
-  utils.h features.hpp
+  utils.h features.hpp house.h db.h interpreter.h
