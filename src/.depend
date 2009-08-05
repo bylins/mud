@@ -4,85 +4,87 @@ act.comm.o: act.comm.cpp conf.h sysdep.h structs.h utils.h features.hpp \
 act.informative.o: act.informative.cpp conf.h sysdep.h structs.h utils.h \
   features.hpp comm.h interpreter.h handler.h db.h spells.h skills.h \
   fight.h screen.h constants.h pk.h dg_scripts.h mail.h im.h house.h \
-  description.h privilege.hpp depot.hpp glory.hpp random.hpp char.hpp \
-  char_player.hpp quested.hpp mobmax.hpp parcel.hpp liquid.hpp
+  house_exp.hpp description.h privilege.hpp depot.hpp glory.hpp \
+  random.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp parcel.hpp \
+  liquid.hpp
 act.item.o: act.item.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   comm.h interpreter.h handler.h db.h spells.h skills.h constants.h \
-  dg_scripts.h house.h magic.h fight.h depot.hpp char.hpp liquid.hpp \
-  poison.hpp pk.h
+  dg_scripts.h house.h house_exp.hpp magic.h fight.h depot.hpp char.hpp \
+  liquid.hpp poison.hpp pk.h
 act.movement.o: act.movement.cpp conf.h sysdep.h structs.h utils.h \
   features.hpp comm.h interpreter.h handler.h db.h spells.h skills.h \
-  house.h constants.h dg_scripts.h screen.h pk.h deathtrap.hpp \
-  privilege.hpp char.hpp corpse.hpp
+  house.h house_exp.hpp constants.h dg_scripts.h screen.h pk.h \
+  deathtrap.hpp privilege.hpp char.hpp corpse.hpp
 act.offensive.o: act.offensive.cpp conf.h sysdep.h structs.h utils.h \
   features.hpp comm.h interpreter.h handler.h db.h constants.h screen.h \
   spells.h skills.h pk.h privilege.hpp random.hpp char.hpp
 act.other.o: act.other.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   comm.h interpreter.h handler.h db.h spells.h skills.h screen.h house.h \
-  constants.h dg_scripts.h pk.h fight.h magic.h depot.hpp privilege.hpp \
-  random.hpp char.hpp
+  house_exp.hpp constants.h dg_scripts.h pk.h fight.h magic.h depot.hpp \
+  privilege.hpp random.hpp char.hpp
 act.social.o: act.social.cpp conf.h sysdep.h structs.h utils.h \
   features.hpp comm.h interpreter.h handler.h db.h spells.h char.hpp
 act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h \
   features.hpp comm.h interpreter.h handler.h db.h spells.h house.h \
-  screen.h skills.h constants.h olc.h dg_scripts.h pk.h im.h top.h \
-  ban.hpp diskio.h description.h title.hpp password.hpp privilege.hpp \
-  depot.hpp glory.hpp genchar.h file_crc.hpp char.hpp char_player.hpp \
-  quested.hpp mobmax.hpp parcel.hpp liquid.hpp
+  house_exp.hpp screen.h skills.h constants.h olc.h dg_scripts.h pk.h \
+  im.h top.h ban.hpp diskio.h description.h title.hpp password.hpp \
+  privilege.hpp depot.hpp glory.hpp genchar.h file_crc.hpp char.hpp \
+  char_player.hpp quested.hpp mobmax.hpp parcel.hpp liquid.hpp
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   interpreter.h db.h char.hpp
 ban.o: ban.cpp conf.h sysdep.h structs.h utils.h features.hpp comm.h \
   interpreter.h handler.h db.h ban.hpp diskio.h char.hpp
 boards.o: boards.cpp conf.h house.h sysdep.h structs.h utils.h \
-  features.hpp db.h interpreter.h screen.h comm.h privilege.hpp boards.h \
-  char.hpp
+  features.hpp db.h interpreter.h house_exp.hpp screen.h comm.h \
+  privilege.hpp boards.h char.hpp
 class.o: class.cpp conf.h sysdep.h structs.h comm.h db.h utils.h \
   features.hpp spells.h skills.h interpreter.h handler.h constants.h pk.h \
   top.h im.h char.hpp xmlParser.h
 comm.o: comm.cpp conf.h sysdep.h structs.h utils.h features.hpp comm.h \
-  interpreter.h handler.h db.h house.h olc.h dg_scripts.h screen.h \
-  ban.hpp diskio.h auction.h exchange.h deathtrap.hpp title.hpp depot.hpp \
-  glory.hpp file_crc.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp \
-  parcel.hpp spells.h
+  interpreter.h handler.h db.h house.h house_exp.hpp olc.h dg_scripts.h \
+  screen.h ban.hpp diskio.h auction.h exchange.h deathtrap.hpp title.hpp \
+  depot.hpp glory.hpp file_crc.hpp char.hpp char_player.hpp quested.hpp \
+  mobmax.hpp parcel.hpp spells.h
 config.o: config.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
   features.hpp constants.h char.hpp
 constants.o: constants.cpp conf.h sysdep.h structs.h spells.h skills.h \
-  interpreter.h utils.h features.hpp house.h db.h
+  interpreter.h utils.h features.hpp house.h db.h house_exp.hpp
 features.o: features.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   handler.h comm.h db.h interpreter.h skills.h spells.h char.hpp
 db.o: db.cpp conf.h sysdep.h structs.h utils.h features.hpp db.h comm.h \
-  handler.h spells.h mail.h interpreter.h house.h constants.h \
-  dg_scripts.h pk.h olc.h diskio.h im.h top.h stuff.hpp double_map.hpp \
-  ban.hpp item.creation.hpp boards.h description.h deathtrap.hpp \
-  title.hpp privilege.hpp depot.hpp glory.hpp genchar.h random.hpp \
-  file_crc.hpp char.hpp skills.h char_player.hpp quested.hpp mobmax.hpp \
-  parcel.hpp liquid.hpp xmlParser.h corpse.hpp
+  handler.h spells.h mail.h interpreter.h house.h house_exp.hpp \
+  constants.h dg_scripts.h pk.h olc.h diskio.h im.h top.h stuff.hpp \
+  double_map.hpp ban.hpp item.creation.hpp boards.h description.h \
+  deathtrap.hpp title.hpp privilege.hpp depot.hpp glory.hpp genchar.h \
+  random.hpp file_crc.hpp char.hpp skills.h char_player.hpp quested.hpp \
+  mobmax.hpp parcel.hpp liquid.hpp xmlParser.h corpse.hpp
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h features.hpp comm.h \
   handler.h interpreter.h db.h spells.h screen.h constants.h dg_scripts.h \
-  pk.h im.h fight.h skills.h house.h stuff.hpp double_map.hpp random.hpp \
-  char.hpp char_player.hpp quested.hpp mobmax.hpp top.h magic.h \
-  poison.hpp corpse.hpp
+  pk.h im.h fight.h skills.h house.h house_exp.hpp stuff.hpp \
+  double_map.hpp random.hpp char.hpp char_player.hpp quested.hpp \
+  mobmax.hpp top.h magic.h poison.hpp corpse.hpp
 graph.o: graph.cpp conf.h sysdep.h structs.h utils.h features.hpp comm.h \
   interpreter.h constants.h handler.h db.h spells.h skills.h random.hpp \
   char.hpp
 handler.o: handler.cpp conf.h sysdep.h structs.h constants.h utils.h \
   features.hpp comm.h db.h handler.h interpreter.h spells.h skills.h \
-  screen.h dg_scripts.h auction.h house.h exchange.h char.hpp \
-  char_player.hpp quested.hpp mobmax.hpp liquid.hpp magic.h poison.hpp
+  screen.h dg_scripts.h auction.h house.h house_exp.hpp exchange.h \
+  char.hpp char_player.hpp quested.hpp mobmax.hpp liquid.hpp magic.h \
+  poison.hpp
 house.o: house.cpp conf.h house.h sysdep.h structs.h utils.h features.hpp \
-  db.h interpreter.h comm.h handler.h pk.h screen.h boards.h skills.h \
-  spells.h privilege.hpp char.hpp
+  db.h interpreter.h house_exp.hpp comm.h handler.h pk.h screen.h \
+  boards.h skills.h spells.h privilege.hpp char.hpp
 interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
   interpreter.h utils.h features.hpp constants.h db.h spells.h skills.h \
-  handler.h house.h mail.h screen.h olc.h dg_scripts.h pk.h genchar.h \
-  ban.hpp diskio.h item.creation.hpp boards.h top.h title.hpp \
+  handler.h house.h house_exp.hpp mail.h screen.h olc.h dg_scripts.h pk.h \
+  genchar.h ban.hpp diskio.h item.creation.hpp boards.h top.h title.hpp \
   password.hpp privilege.hpp depot.hpp glory.hpp char.hpp char_player.hpp \
   quested.hpp mobmax.hpp parcel.hpp liquid.hpp
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   spells.h skills.h comm.h db.h handler.h screen.h interpreter.h \
-  constants.h dg_scripts.h house.h exchange.h top.h deathtrap.hpp ban.hpp \
-  diskio.h depot.hpp glory.hpp char.hpp char_player.hpp quested.hpp \
-  mobmax.hpp
+  constants.h dg_scripts.h house.h house_exp.hpp exchange.h top.h \
+  deathtrap.hpp ban.hpp diskio.h depot.hpp glory.hpp char.hpp \
+  char_player.hpp quested.hpp mobmax.hpp
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h features.hpp comm.h \
   spells.h skills.h handler.h db.h interpreter.h screen.h constants.h \
   dg_scripts.h pk.h magic.h fight.h deathtrap.hpp random.hpp char.hpp \
@@ -92,13 +94,13 @@ mail.o: mail.cpp conf.h sysdep.h structs.h utils.h features.hpp comm.h \
   quested.hpp mobmax.hpp
 mobact.o: mobact.cpp conf.h sysdep.h structs.h utils.h features.hpp db.h \
   comm.h interpreter.h handler.h spells.h skills.h constants.h pk.h \
-  random.hpp char.hpp house.h
+  random.hpp char.hpp house.h house_exp.hpp
 modify.o: modify.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   interpreter.h handler.h db.h comm.h spells.h mail.h boards.h screen.h \
-  olc.h house.h privilege.hpp char.hpp skills.h
+  olc.h house.h house_exp.hpp privilege.hpp char.hpp skills.h
 objsave.o: objsave.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
-  interpreter.h utils.h features.hpp spells.h screen.h house.h im.h \
-  depot.hpp char.hpp liquid.hpp file_crc.hpp
+  interpreter.h utils.h features.hpp spells.h screen.h house.h \
+  house_exp.hpp im.h depot.hpp char.hpp liquid.hpp file_crc.hpp
 olc.o: olc.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
   features.hpp comm.h db.h olc.h dg_olc.h dg_scripts.h screen.h \
   item.creation.hpp im.h privilege.hpp char.hpp
@@ -107,17 +109,18 @@ shop.o: shop.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
   interpreter.h utils.h features.hpp shop.h dg_scripts.h constants.h \
   char.hpp
 spec_assign.o: spec_assign.cpp conf.h sysdep.h structs.h db.h constants.h \
-  interpreter.h utils.h features.hpp house.h boards.h char.hpp
+  interpreter.h utils.h features.hpp house.h house_exp.hpp boards.h \
+  char.hpp
 spec_procs.o: spec_procs.cpp conf.h sysdep.h structs.h utils.h \
   features.hpp comm.h interpreter.h handler.h db.h spells.h skills.h \
-  screen.h dg_scripts.h constants.h house.h char.hpp
+  screen.h dg_scripts.h constants.h house.h house_exp.hpp char.hpp
 spell_parser.o: spell_parser.cpp conf.h sysdep.h structs.h utils.h \
   features.hpp interpreter.h spells.h skills.h handler.h comm.h db.h \
   screen.h constants.h dg_scripts.h pk.h im.h privilege.hpp char.hpp
 spells.o: spells.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   comm.h spells.h skills.h handler.h db.h constants.h interpreter.h \
-  dg_scripts.h screen.h house.h pk.h im.h deathtrap.hpp privilege.hpp \
-  char.hpp depot.hpp parcel.hpp liquid.hpp
+  dg_scripts.h screen.h house.h house_exp.hpp pk.h im.h deathtrap.hpp \
+  privilege.hpp char.hpp depot.hpp parcel.hpp liquid.hpp
 utils.o: utils.cpp conf.h sysdep.h structs.h utils.h features.hpp db.h \
   comm.h screen.h spells.h handler.h interpreter.h constants.h im.h \
   dg_scripts.h boards.h privilege.hpp char.hpp
@@ -129,7 +132,8 @@ redit.o: redit.cpp conf.h sysdep.h structs.h comm.h utils.h features.hpp \
   deathtrap.hpp char.hpp char_player.hpp quested.hpp mobmax.hpp
 oedit.o: oedit.cpp conf.h sysdep.h structs.h comm.h spells.h utils.h \
   features.hpp db.h shop.h olc.h dg_olc.h dg_scripts.h im.h depot.hpp \
-  char.hpp house.h interpreter.h skills.h parcel.hpp liquid.hpp
+  char.hpp house.h interpreter.h house_exp.hpp skills.h parcel.hpp \
+  liquid.hpp
 zedit.o: zedit.cpp conf.h sysdep.h structs.h comm.h utils.h features.hpp \
   db.h olc.h dg_scripts.h char.hpp
 medit.o: medit.cpp conf.h sysdep.h structs.h comm.h spells.h utils.h \
@@ -158,8 +162,8 @@ dg_objcmd.o: dg_objcmd.cpp conf.h sysdep.h structs.h screen.h \
   spells.h im.h char.hpp skills.h
 dg_scripts.o: dg_scripts.cpp conf.h sysdep.h structs.h dg_scripts.h \
   utils.h features.hpp comm.h interpreter.h handler.h dg_event.h db.h \
-  screen.h house.h constants.h top.h char.hpp char_player.hpp quested.hpp \
-  mobmax.hpp
+  screen.h house.h house_exp.hpp constants.h top.h char.hpp \
+  char_player.hpp quested.hpp mobmax.hpp
 dg_triggers.o: dg_triggers.cpp conf.h sysdep.h structs.h dg_scripts.h \
   utils.h features.hpp comm.h interpreter.h handler.h db.h olc.h char.hpp
 dg_wldcmd.o: dg_wldcmd.cpp conf.h sysdep.h structs.h screen.h \
@@ -198,7 +202,7 @@ description.o: description.cpp conf.h sysdep.h structs.h utils.h \
   features.hpp description.h
 deathtrap.o: deathtrap.cpp conf.h deathtrap.hpp sysdep.h structs.h \
   constants.h db.h spells.h utils.h features.hpp handler.h comm.h house.h \
-  interpreter.h char.hpp corpse.hpp
+  interpreter.h house_exp.hpp char.hpp corpse.hpp
 title.o: title.cpp conf.h title.hpp sysdep.h structs.h interpreter.h \
   utils.h features.hpp comm.h db.h screen.h pk.h privilege.hpp handler.h \
   char.hpp
@@ -238,3 +242,5 @@ xmlParser.o: xmlParser.cpp xmlParser.h
 corpse.o: corpse.cpp corpse.hpp conf.h sysdep.h structs.h db.h \
   xmlParser.h utils.h features.hpp char.hpp comm.h handler.h dg_scripts.h \
   im.h
+house_exp.o: house_exp.cpp house_exp.hpp conf.h sysdep.h structs.h \
+  utils.h features.hpp

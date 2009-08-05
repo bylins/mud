@@ -503,6 +503,9 @@ void Clan::ClanLoad()
 				tempClan->clanstuff.push_back(temp);
 			}
 		}
+		// клан-экспа
+		tempClan->last_exp.load(tempClan->get_abbrev());
+
 		Clan::ClanList.push_back(tempClan);
 	}
 
@@ -1369,18 +1372,18 @@ ACMD(DoClanList)
 		for (clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
 		{
 			if (!(*clan)->test_clan)
-				sort_clan.insert(std::make_pair((*clan)->exp, *clan));
+				sort_clan.insert(std::make_pair((*clan)->last_exp.get_exp(), *clan));
 			else
 				sort_clan.insert(std::make_pair(0, *clan));
 		}
 
 		std::ostringstream out;
-		boost::format clanTopFormat(" %5d  %6s %15s %-30s %14s %8d\r\n");
+		boost::format clanTopFormat(" %5d  %6s   %-30s %14s%14s %9d\r\n");
 		out << "В игре зарегистрированы следующие дружины:\r\n"
-		<< "     #                   Глава Название                        Набрано очков  Человек\r\n\r\n";
+		<< "     #           Название                    Всего очков опыта    За 30 дней   Человек\r\n\r\n";
 		int count = 1;
 		for (std::multimap<long long, ClanPtr>::reverse_iterator it = sort_clan.rbegin(); it != sort_clan.rend(); ++it, ++count)
-			out << clanTopFormat % count % it->second->abbrev % it->second->owner % it->second->name % ExpFormat(it->first) % it->second->members.size();
+			out << clanTopFormat % count % it->second->abbrev % it->second->name % ExpFormat(it->second->exp) % ExpFormat(it->second->last_exp.get_exp()) % it->second->members.size();
 		send_to_char(out.str(), ch);
 		return;
 	}

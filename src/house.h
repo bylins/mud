@@ -7,18 +7,18 @@
 #ifndef _HOUSE_H_
 #define _HOUSE_H_
 
-#include "conf.h"
 #include <vector>
 #include <map>
 #include <bitset>
 #include <string>
 #include <boost/shared_ptr.hpp>
-
+#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
 #include "db.h"
 #include "interpreter.h"
+#include "house_exp.hpp"
 
 #define CLAN_PRIVILEGES_NUM 12
 #define MAY_CLAN_INFO       0
@@ -174,11 +174,15 @@ public:
 	{
 		return this->title;
 	};
+	std::string get_abbrev()
+	{
+		return abbrev;
+	};
 	bool CheckPrivilege(int rank, int privilege)
 	{
 		return this->privileges[rank][privilege];
 	};
-//Polud 
+//Polud
 	static int GetClanWars(CHAR_DATA * ch);
 //-Polud
 	static void init_chest_rnum();
@@ -194,6 +198,9 @@ public:
 	friend ACMD(DoClanPkList);
 	friend ACMD(DoStoreHouse);
 	friend ACMD(do_clanstuff);
+
+	// набранная за последний месяц экспа
+	ClanExp last_exp;
 
 private:
 	std::string abbrev; // аббревиатура клана, ОДНО слово

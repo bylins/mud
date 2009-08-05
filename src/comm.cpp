@@ -54,6 +54,7 @@
 #include "char_player.hpp"
 #include "parcel.hpp"
 #include "spells.h"
+#include "house_exp.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -522,6 +523,7 @@ void init_game(ush_int port)
 	Clan::ChestUpdate();
 	Clan::ChestSave();
 	Clan::ClanSave();
+	save_clan_exp();
 	TitleSystem::save_title_list();
 	RegisterSystem::save();
 	Glory::save_glory();
@@ -1471,6 +1473,12 @@ inline void heartbeat()
 		}
 	}
 
+	// обновление и сохранение клановой экспы
+	if (!((pulse + 14) % (60 * CLAN_EXP_UPDATE_PERIOD * PASSES_PER_SEC)))
+	{
+		update_clan_exp();
+		save_clan_exp();
+	}
 	// оповещение о скорой кончине денег в дружине
 	if (!((pulse + 15) % (60 * CHEST_INVOICE_PERIOD * PASSES_PER_SEC)))
 	{

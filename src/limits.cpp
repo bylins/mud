@@ -801,7 +801,10 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 	}
 
 	if (CLAN(ch))
+	{
+		CLAN(ch)->last_exp.add_temp(gain + clan_exp);
 		CLAN(ch)->AddTopExp(ch, gain + clan_exp); // для рейтинга кланов
+	}
 }
 
 // юзается исключительно в act.wizards.cpp в имм командах "advance" и "set exp".
