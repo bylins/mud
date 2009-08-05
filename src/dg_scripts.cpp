@@ -2620,7 +2620,13 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			else if (!str_cmp(field, "id"))
 				sprintf(str, "%c%ld", UID_OBJ, GET_ID(o));
 			else if (!str_cmp(field, "uid"))
+			{
+				if (!GET_OBJ_UID(o))
+				{
+					set_uid(o);
+				}
 				sprintf(str, "%u", GET_OBJ_UID(o));
+			}
 			else if (!str_cmp(field, "skill"))
 				sprintf(str, "%d", GET_OBJ_SKILL(o));
 			else if (!str_cmp(field, "shortdesc"))

@@ -1301,7 +1301,7 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 			sprintf(buf,
 					"%sëÏÍÎÁÔÁ=%s%d %só×ÅÔ=%s%d %sïÓ×Åİ=%s%d %sëÏÓÔÅÒ=%s%d \r\n"
 					"%sôØÍÁ=%s%d %sóÏÌÎÃÅ=%s%d %sîÅÂÏ=%s%d %sìÕÎÁ=%s%d.\r\n",
-					CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), room, 
+					CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), room,
 					CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[room]->light,
 					CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[room]->glight,
 					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->fires,
@@ -1407,6 +1407,20 @@ void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 
 } // no-name namespace
 
+/**
+* éÎÉÃÉÁÌÉÚÁÃÉÑ ÕÉÄÁ ÄÌÑ ÎÏ×ÏÇÏ ÏÂßÅËÔÁ.
+*/
+void set_uid(OBJ_DATA *object)
+{
+	if (GET_OBJ_VNUM(object) > 0 && // ïÂßÅËÔ ÎÅ ×ÉÒÔÕÁÌØÎÙÊ
+		GET_OBJ_UID(object) == 0)   // õ ÏÂßÅËÔÁ ÔÏŞÎÏ ÎÅÔ ÕÉÄÁ
+	{
+		global_uid++; // õ×ÅÌÉŞÉ×ÁÅÍ ÇÌÏÂÁÌØÎÙÊ ÓŞÅÔŞÉË ÕÉÄÏ×
+		global_uid = global_uid == 0 ? 1 : global_uid; // åÓÌÉ ĞÒÏÉÚÏÛÌÏ ĞÅÒÅĞÏÌÎÅÎÉÅ ÉÎÔÁ
+		GET_OBJ_UID(object) = global_uid; // îÁÚÎÁŞÁÅÍ ÕÉÄ
+	}
+}
+
 /* give an object to a char   */
 void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 {
@@ -1473,12 +1487,9 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 					SET_BIT(GET_OBJ_EXTRA(object, ITEM_NOSELL), ITEM_NOSELL); // éÂÏ ÎÅÆÉÇ
 				}
 			} // îÁÚÎÁŞÁÅÍ UID
-			else if (GET_OBJ_VNUM(object) > 0 && // ïÂßÅËÔ ÎÅ ×ÉÒÔÕÁÌØÎÙÊ
-					 GET_OBJ_UID(object) == 0)   // õ ÏÂßÅËÔÁ ÔÏŞÎÏ ÎÅÔ ÕÉÄÁ
+			else
 			{
-				global_uid++; // õ×ÅÌÉŞÉ×ÁÅÍ ÇÌÏÂÁÌØÎÙÊ ÓŞÅÔŞÉË ÕÉÄÏ×
-				global_uid = global_uid == 0 ? 1 : global_uid; // åÓÌÉ ĞÒÏÉÚÏÛÌÏ ĞÅÒÅĞÏÌÎÅÎÉÅ ÉÎÔÁ
-				GET_OBJ_UID(object) = global_uid; // îÁÚÎÁŞÁÅÍ ÕÉÄ
+				set_uid(object);
 				log("%s obj_to_char %s #%d|%u", GET_NAME(ch), object->PNames[0], GET_OBJ_VNUM(object), object->uid);
 			}
 		}
