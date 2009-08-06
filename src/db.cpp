@@ -5276,7 +5276,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	ch->char_specials.saved.affected_by = clear_flags;
 	POOFIN(ch) = NULL;
 	POOFOUT(ch) = NULL;
-	GET_LAST_TELL(ch) = NOBODY;
 	GET_RSKILL(ch) = NULL;	// рецептов не знает
 	ch->char_specials.carry_weight = 0;
 	ch->char_specials.carry_items = 0;
@@ -6278,7 +6277,7 @@ void reset_char(CHAR_DATA * ch)
 
 	GET_CASTER(ch) = 0;
 	GET_DAMAGE(ch) = 0;
-	GET_LAST_TELL(ch) = NOBODY;
+	ch->player->reset();
 }
 
 void clear_char_skills(CHAR_DATA * ch)

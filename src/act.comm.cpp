@@ -28,6 +28,8 @@
 #include "auction.h"
 #include "privilege.hpp"
 #include "char.hpp"
+#include "char_player.hpp"
+#include "remember.hpp"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -212,10 +214,7 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 			sprintf(buf, "%s[%5.5s]%s Кто-то : '%s'%s", CCNRM(ch, C_NRM), (tmp + 11), CCICYN(ch, C_NRM),
 					arg, CCNRM(ch, C_NRM));
 		}
-		strcpy(GET_TELL(vict, GET_LASTTELL(vict)), buf);
-		GET_LASTTELL(vict)++;
-		if (GET_LASTTELL(vict) == MAX_REMEMBER_TELLS)
-			GET_LASTTELL(vict) = 0;
+		vict->player->add_remember(buf, Remember::PERSONAL);
 	}
 
 	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT))
@@ -230,7 +229,9 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 	}
 
 	if (!IS_NPC(vict) && !IS_NPC(ch))
-		GET_LAST_TELL(vict) = GET_IDNUM(ch);
+	{
+		vict->player->set_answer_id(GET_IDNUM(ch));
+	}
 }
 
 int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict)
@@ -332,7 +333,7 @@ ACMD(do_reply)
 
 	skip_spaces(&argument);
 
-	if (GET_LAST_TELL(ch) == NOBODY)
+	if (ch->player->get_answer_id() == NOBODY)
 		send_to_char("Вам некому ответить !\r\n", ch);
 	else if (!*argument)
 		send_to_char("Что Вы собираетесь ответить?\r\n", ch);
@@ -349,7 +350,7 @@ ACMD(do_reply)
 		 *      we could not find link dead people.  Not that they can
 		 *      hear tells anyway. :) -gg 2/24/98
 		 */
-		while (tch != NULL && (IS_NPC(tch) || GET_IDNUM(tch) != GET_LAST_TELL(ch)))
+		while (tch != NULL && (IS_NPC(tch) || GET_IDNUM(tch) != ch->player->get_answer_id()))
 			tch = tch->next;
 
 		if (tch == NULL)
@@ -1112,32 +1113,10 @@ ACMD(do_remember_char)
 	if (IS_NPC(ch))
 		return;
 
-// Если без аргумента - выдает личные теллы
+	// Если без аргумента - выдает личные теллы
 	if (!*argument)
 	{
-		for (i = 0; i < MAX_REMEMBER_TELLS; i++)
-		{
-			j = GET_LASTTELL(ch) + i;
-			if (j >= MAX_REMEMBER_TELLS)
-				j = j - MAX_REMEMBER_TELLS;
-			if (GET_TELL(ch, j)[0] != '\0')
-			{
-				if (k == 0)
-					send_to_char("&C", ch);
-				k = 1;
-				send_to_char(GET_TELL(ch, j), ch);
-				send_to_char("\r\n", ch);
-			}
-		}
-
-		if (!k)
-		{
-			send_to_char("Вам нечего вспомнить.\r\n", ch);
-		}
-		else
-		{
-			send_to_char("&n", ch);
-		}
+		send_to_char(ch, "%s", ch->player->get_remember(Remember::PERSONAL).c_str());
 		return;
 	}
 

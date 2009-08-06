@@ -14,7 +14,7 @@ Player::Player()
 	from_room_(0)
 {
 	for (int i = 0; i <= START_STATS_TOTAL; ++i)
-		start_stats.at(i) = 0;
+		start_stats_.at(i) = 0;
 }
 
 bool check_mob_guard(Player const *plr, char const *fnc)
@@ -90,7 +90,7 @@ int Player::get_start_stat(int stat_num)
 	int stat = 0;
 	try
 	{
-		stat = start_stats.at(stat_num);
+		stat = start_stats_.at(stat_num);
 	}
 	catch (...)
 	{
@@ -104,10 +104,40 @@ void Player::set_start_stat(int stat_num, int number)
 	check_mob_guard(this, __func__);
 	try
 	{
-		start_stats.at(stat_num) = number;
+		start_stats_.at(stat_num) = number;
 	}
 	catch (...)
 	{
 		log("SYSERROR : ban start_stat num %d (%s %s %d)", stat_num, __FILE__, __func__, __LINE__);
 	}
+}
+
+void Player::set_answer_id(int id)
+{
+	check_mob_guard(this, __func__);
+	remember_.set_answer_id(id);
+}
+
+int Player::get_answer_id() const
+{
+	check_mob_guard(this, __func__);
+	return remember_.get_answer_id();
+}
+
+void Player::add_remember(std::string text, int flag)
+{
+	check_mob_guard(this, __func__);
+	remember_.add_str(text, flag);
+}
+
+std::string Player::get_remember(int flag) const
+{
+	check_mob_guard(this, __func__);
+	return remember_.get_text(flag);
+}
+
+void Player::reset()
+{
+	check_mob_guard(this, __func__);
+	remember_.reset();
 }

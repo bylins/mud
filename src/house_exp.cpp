@@ -6,19 +6,20 @@
 #include <string>
 #include <sstream>
 #include "house_exp.hpp"
+#include "structs.h"
 #include "utils.h"
 #include "house.h"
 
 namespace
 {
 
-// êîëè÷åñòâî íîäîâ â ñïèñêå ýêñïû (çàâèñèò îò CLAN_EXP_UPDATE_PERIOD)
+// ËÏÌÉÞÅÓÔ×Ï ÎÏÄÏ× × ÓÐÉÓËÅ ÜËÓÐÙ (ÚÁ×ÉÓÉÔ ÏÔ CLAN_EXP_UPDATE_PERIOD)
 const unsigned int MAX_LIST_NODES = 720;
 
 } // namespace
 
 /**
-* Äîáàâëåíèå ýêñïû âî âðåìåííûé áóôôåð.
+* äÏÂÁ×ÌÅÎÉÅ ÜËÓÐÙ ×Ï ×ÒÅÍÅÎÎÙÊ ÂÕÆÆÅÒ.
 */
 void ClanExp::add_temp(int exp)
 {
@@ -26,7 +27,7 @@ void ClanExp::add_temp(int exp)
 }
 
 /**
-* Äîáàâëåíèå íîäû â ñïèñîê ýêñïû è âûòàëêèâàíèå ñòàðîé çàïèñè.
+* äÏÂÁ×ÌÅÎÉÅ ÎÏÄÙ × ÓÐÉÓÏË ÜËÓÐÙ É ×ÙÔÁÌËÉ×ÁÎÉÅ ÓÔÁÒÏÊ ÚÁÐÉÓÉ.
 */
 void ClanExp::add_chunk()
 {
@@ -40,15 +41,15 @@ void ClanExp::add_chunk()
 }
 
 /**
-* Îáùåå êîë-âî ýêñïû â ñïèñêå.
+* ïÂÝÅÅ ËÏÌ-×Ï ÜËÓÐÙ × ÓÐÉÓËÅ.
 */
-int ClanExp::get_exp() const
+long long ClanExp::get_exp() const
 {
 	return total_exp_;
 }
 
 /**
-* Ñîõðàíåíèå ñïèñêà è áóôôåðà â îòäåëüíûé ôàéë êëàíà (ïî àááðåâèàòóðå).
+* óÏÈÒÁÎÅÎÉÅ ÓÐÉÓËÁ É ÂÕÆÆÅÒÁ × ÏÔÄÅÌØÎÙÊ ÆÁÊÌ ËÌÁÎÁ (ÐÏ ÁÂÂÒÅ×ÉÁÔÕÒÅ).
 */
 void ClanExp::save(std::string abbrev) const
 {
@@ -71,7 +72,7 @@ void ClanExp::save(std::string abbrev) const
 }
 
 /**
-* Çàãðóçêà ñïèñêà ýêñïû è áóôôåðà êîíêðåòíîãî êëàíà (ïî àááðåâèàòóðå).
+* úÁÇÒÕÚËÁ ÓÐÉÓËÁ ÜËÓÐÙ É ÂÕÆÆÅÒÁ ËÏÎËÒÅÔÎÏÇÏ ËÌÁÎÁ (ÐÏ ÁÂÂÒÅ×ÉÁÔÕÒÅ).
 */
 void ClanExp::load(std::string abbrev)
 {
@@ -89,7 +90,7 @@ void ClanExp::load(std::string abbrev)
 		log("Error read buffer_exp_: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
-	int tmp_exp;
+	long long tmp_exp;
 	while (file >> tmp_exp && list_.size() < MAX_LIST_NODES)
 	{
 		list_.push_back(tmp_exp);
@@ -107,7 +108,7 @@ void ClanExp::update_total_exp()
 }
 
 /**
-* Äîáàâëåíèå íîäû (ðàç â ÷àñ).
+* äÏÂÁ×ÌÅÎÉÅ ÎÏÄÙ (ÒÁÚ × ÞÁÓ).
 */
 void update_clan_exp()
 {
@@ -118,7 +119,7 @@ void update_clan_exp()
 }
 
 /**
-* Ñîõðàíåíèå ñïèñêîâ (ðàç â ÷àñ è íà ðåáóòå).
+* óÏÈÒÁÎÅÎÉÅ ÓÐÉÓËÏ× (ÒÁÚ × ÞÁÓ É ÎÁ ÒÅÂÕÔÅ).
 */
 void save_clan_exp()
 {

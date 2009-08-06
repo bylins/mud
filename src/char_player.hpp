@@ -13,6 +13,7 @@
 #include "structs.h"
 #include "quested.hpp"
 #include "mobmax.hpp"
+#include "remember.hpp"
 
 // кол-во сохраняемых стартовых статов в файле
 const int START_STATS_TOTAL = 5;
@@ -35,9 +36,11 @@ public:
 	void set_from_room(room_rnum was_in_room);
 
 	void remort();
+	void reset();
 
 	int get_start_stat(int num);
 	void set_start_stat(int stat_num, int number);
+
 
 	// это все как обычно временно... =)
 	friend void save_char(CHAR_DATA *ch);
@@ -49,6 +52,11 @@ public:
 
 	// общие поля мобов
 	static boost::shared_ptr<Player> shared_mob;
+	// обретки для контроля за мобами
+	void set_answer_id(int id);
+	int get_answer_id() const;
+	void add_remember(std::string text, int flag);
+	std::string get_remember(int flag) const;
 
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
@@ -63,7 +71,9 @@ private:
 	// в данный момент поле нужно для проверки чара на бд при входе на арену любым способом, но может и еще потом пригодиться
 	room_rnum from_room_;
 	// стартовые статы
-	StartStatsType start_stats;
+	StartStatsType start_stats_;
+	// вспомнить
+	CharRemember remember_;
 };
 
 #endif // CHAR_PLAYER_HPP_INCLUDED

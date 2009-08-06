@@ -2059,7 +2059,7 @@ void add_logon_record(DESCRIPTOR_DATA * d)
 
 void do_entergame(DESCRIPTOR_DATA * d)
 {
-	int load_room, i, cmd, flag = 0;
+	int load_room, cmd, flag = 0;
 	CHAR_DATA *ch;
 
 	reset_char(d->character);
@@ -2181,11 +2181,6 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	Depot::enter_char(d->character);
 	Glory::check_freeze(d->character);
 	Clan::clan_invoice(d->character, true);
-
-	/* сбрасываем телы для команды "вспомнить" */
-	for (i = 0; i < MAX_REMEMBER_TELLS; i++)
-		GET_TELL(d->character, i)[0] = '\0';
-	GET_LASTTELL(d->character) = 0;
 
 	/*Чистим стили если не знаем их */
 	if (IS_SET(PRF_FLAGS(d->character, PRF_PUNCTUAL), PRF_PUNCTUAL)
@@ -3581,14 +3576,20 @@ void StringReplace(std::string & buffer, char s, std::string d)
 // вывод экспы аля диабла
 std::string ExpFormat(long long exp)
 {
+	std::string prefix;
+	if (exp < 0)
+	{
+		exp = -exp;
+		prefix = "-";
+	}
 	if (exp < 1000000)
-		return (boost::lexical_cast<std::string>(exp));
+		return (prefix + boost::lexical_cast<std::string>(exp));
 	else if (exp < 1000000000)
-		return (boost::lexical_cast<std::string>(exp / 1000) + " тыс");
+		return (prefix + boost::lexical_cast<std::string>(exp / 1000) + " тыс");
 	else if (exp < 1000000000000LL)
-		return (boost::lexical_cast<std::string>(exp / 1000000) + " млн");
+		return (prefix + boost::lexical_cast<std::string>(exp / 1000000) + " млн");
 	else
-		return (boost::lexical_cast<std::string>(exp / 1000000000LL) + " млрд");
+		return (prefix + boost::lexical_cast<std::string>(exp / 1000000000LL) + " млрд");
 }
 
 /**

@@ -468,8 +468,6 @@ extern SPECIAL(postmaster);
 #define FORGET_ALL(ch) {MemQ_flush(ch);memset((ch)->real_abils.SplMem,0,MAX_SPELLS+1);}
 #define IS_CODER(ch)    (GET_LEVEL(ch) < LVL_IMMORT && PRF_FLAGGED(ch, PRF_CODERINFO))
 #define IS_COLORED(ch)    (pk_count (ch))
-#define GET_LASTTELL(ch)    ((ch)->player_specials->saved.lasttell)
-#define GET_TELL(ch,i)   ((ch)->player_specials->saved.remember)[i]
 #define MAX_PORTALS(ch)  ((GET_LEVEL(ch)/3)+GET_REMORT(ch))
 
 /**** Adding by me */
@@ -659,7 +657,6 @@ extern SPECIAL(postmaster);
 #define IGNORE_LIST(ch)     CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->ignores))
 
 #define GET_ALIASES(ch)        CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->aliases))
-#define GET_LAST_TELL(ch)      CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->last_tell))
 #define GET_LAST_ALL_TELL(ch)   CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->LastAllTell))
 #define GET_RSKILL(ch)          CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->rskill))
 #define GET_PORTALS(ch)         CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->portals))

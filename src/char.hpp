@@ -210,9 +210,6 @@ struct player_special_data_saved
 	char EMail[128];
 	char LastIP[128];
 
-	char remember[MAX_REMEMBER_TELLS][MAX_RAW_INPUT_LENGTH];
-	int lasttell;
-
 	int stringLength;
 	int stringWidth;
 };
@@ -224,7 +221,6 @@ struct player_special_data
 	char *poofin;		/* Description on arrival of a god. */
 	char *poofout;		/* Description upon a god's exit.   */
 	struct alias_data *aliases;	/* Character's aliases    */
-	long last_tell;		/* idnum of last tell from      */
 	time_t may_rent;		/* PK control                       */
 	int agressor;		/* Agression room(it is also a flag) */
 	time_t agro_time;		/* Last agression time (it is also a flag) */

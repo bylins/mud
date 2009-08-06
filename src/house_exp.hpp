@@ -5,20 +5,20 @@
 #ifndef HOUSE_EXP_HPP_INCLUDED
 #define HOUSE_EXP_HPP_INCLUDED
 
+#include <list>
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
 
 void update_clan_exp();
 void save_clan_exp();
-// период обновления и сохранения экспы (в минутах)
+// РЕТЙПД ПВОПЧМЕОЙС Й УПИТБОЕОЙС ЬЛУРЩ (Ч НЙОХФБИ)
 const int CLAN_EXP_UPDATE_PERIOD = 60;
 
 class ClanExp
 {
 public:
 	ClanExp() : buffer_exp_(0), total_exp_(0) {};
-	int get_exp() const;
+	long long get_exp() const;
 	void add_chunk();
 	void add_temp(int exp);
 	void load(std::string abbrev);
@@ -26,8 +26,8 @@ public:
 	void update_total_exp();
 private:
 	int buffer_exp_;
-	int total_exp_;
-	typedef std::list<int> ExpListType;
+	long long total_exp_;
+	typedef std::list<long long> ExpListType;
 	ExpListType list_;
 };
 

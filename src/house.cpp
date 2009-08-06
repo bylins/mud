@@ -1380,7 +1380,7 @@ ACMD(DoClanList)
 		std::ostringstream out;
 		boost::format clanTopFormat(" %5d  %6s   %-30s %14s%14s %9d\r\n");
 		out << "В игре зарегистрированы следующие дружины:\r\n"
-		<< "     #           Название                    Всего очков опыта    За 30 дней   Человек\r\n\r\n";
+		<< "     #           Название                          Всего опыта    За 30 дней   Человек\r\n\r\n";
 		int count = 1;
 		for (std::multimap<long long, ClanPtr>::reverse_iterator it = sort_clan.rbegin(); it != sort_clan.rend(); ++it, ++count)
 			out << clanTopFormat % count % it->second->abbrev % it->second->name % ExpFormat(it->second->exp) % ExpFormat(it->second->last_exp.get_exp()) % it->second->members.size();
