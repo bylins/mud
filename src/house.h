@@ -19,6 +19,7 @@
 #include "db.h"
 #include "interpreter.h"
 #include "house_exp.hpp"
+#include "remember.hpp"
 
 #define CLAN_PRIVILEGES_NUM 12
 #define MAY_CLAN_INFO       0
@@ -154,6 +155,10 @@ public:
 	static bool ChestShow(OBJ_DATA * list, CHAR_DATA * ch);
 	static void remove_from_clan(long unique);
 	static int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name);
+	static int GetClanWars(CHAR_DATA * ch);
+	static void init_chest_rnum();
+	static bool is_clan_chest(OBJ_DATA *obj);
+	static void clan_invoice(CHAR_DATA *ch, bool enter);
 
 	void Manage(DESCRIPTOR_DATA * d, const char * arg);
 	void AddTopExp(CHAR_DATA * ch, int add_exp);
@@ -182,12 +187,9 @@ public:
 	{
 		return this->privileges[rank][privilege];
 	};
-//Polud
-	static int GetClanWars(CHAR_DATA * ch);
-//-Polud
-	static void init_chest_rnum();
-	static bool is_clan_chest(OBJ_DATA *obj);
-	static void clan_invoice(CHAR_DATA *ch, bool enter);
+
+	void add_remember(std::string text, int flag);
+	std::string get_remember(unsigned int num, int flag) const;
 
 	friend ACMD(DoHouse);
 	friend ACMD(DoClanChannel);
@@ -235,6 +237,9 @@ private:
 	int chest_objcount;
 	int chest_discount;
 	int chest_weight;
+
+	Remember::RememberListType remember_; // вспомнить клан
+	Remember::RememberListType remember_ally_; // вспомнить союз
 
 	void ClanUpgrade();
 	int CheckPolitics(int victim);

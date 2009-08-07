@@ -30,6 +30,7 @@
 #include "char.hpp"
 #include "char_player.hpp"
 #include "remember.hpp"
+#include "house.h"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -174,12 +175,20 @@ ACMD(do_gsay)
 	}
 }
 
+bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict)
+{
+	if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 {
-	time_t ct;
-	char *tmp;
-
 // shapirus: не позволим телять, если жертва не видит и включила
 // соответствующий режим; имморталы могут телять всегда
 	if (PRF_FLAGGED(vict, PRF_NOINVISTELL)
@@ -192,40 +201,36 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 	}
 
 	// TODO: если в act() останется показ иммов, то это и эхо ниже переделать на act()
-	if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))
-		sprintf(buf, "%s сказал%s Вам : '%s'", GET_NAME(ch), GET_CH_SUF_1(ch), arg);
+	if (tell_can_see(ch, vict))
+	{
+		snprintf(buf, MAX_STRING_LENGTH, "%s сказал%s Вам : '%s'", GET_NAME(ch), GET_CH_SUF_1(ch), arg);
+	}
 	else
-		sprintf(buf, "Кто-то сказал Вам : '%s'", arg);
-	send_to_char(vict, "%s%s%s\r\n", CCICYN(vict, C_NRM), CAP(buf), CCNRM(vict, C_NRM));
+	{
+		snprintf(buf, MAX_STRING_LENGTH, "Кто-то сказал Вам : '%s'", arg);
+	}
+	snprintf(buf1, MAX_STRING_LENGTH, "%s%s%s\r\n", CCICYN(vict, C_NRM), CAP(buf), CCNRM(vict, C_NRM));
+	send_to_char(buf1, vict);
+	vict->player->add_remember(buf1, Remember::ALL);
 
-	/* Обработка для "вспомнить" */
-	arg[MAX_RAW_INPUT_LENGTH - 35] = 0;
 	if (!IS_NPC(vict) && !IS_NPC(ch))
 	{
-		ct = time(0);
-		tmp = asctime(localtime(&ct));
-		if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))
-		{
-			sprintf(buf, "%s[%5.5s]%s %s : '%s'%s", CCNRM(ch, C_NRM), (tmp + 11), CCICYN(ch, C_NRM),
-					GET_NAME(ch), arg, CCNRM(ch, C_NRM));
-		}
-		else
-		{
-			sprintf(buf, "%s[%5.5s]%s Кто-то : '%s'%s", CCNRM(ch, C_NRM), (tmp + 11), CCICYN(ch, C_NRM),
-					arg, CCNRM(ch, C_NRM));
-		}
+		snprintf(buf, MAX_STRING_LENGTH, "%s%s : '%s'%s\r\n", CCICYN(ch, C_NRM),
+				tell_can_see(ch, vict) ? GET_NAME(ch) : "Кто-то", arg, CCNRM(ch, C_NRM));
 		vict->player->add_remember(buf, Remember::PERSONAL);
 	}
 
 	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT))
+	{
 		send_to_char(OK, ch);
+	}
 	else
 	{
-		if (CAN_SEE_CHAR(ch, vict) || IS_IMMORTAL(vict) || GET_INVIS_LEV(vict))
-			sprintf(buf, "Вы сказали %s : '%s'", vict->player_data.PNames[2], arg);
-		else
-			sprintf(buf, "Вы сказали кому-то : '%s'", arg);
-		send_to_char(ch, "%s%s%s\r\n", CCICYN(ch, C_NRM), buf, CCNRM(ch, C_NRM));
+
+		snprintf(buf, MAX_STRING_LENGTH, "%sВы сказали %s : '%s'%s\r\n", CCICYN(ch, C_NRM),
+				tell_can_see(vict, ch) ? vict->player_data.PNames[2] : "кому-то", arg, CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
+		ch->player->add_remember(buf, Remember::ALL);
 	}
 
 	if (!IS_NPC(vict) && !IS_NPC(ch))
@@ -1181,6 +1186,21 @@ ACMD(do_remember_char)
 			for (std::list<std::string>::const_iterator it = remember_offtop.begin(); it != remember_offtop.end(); ++it)
 				send_to_char(ch, "%s%s%s", CCCYN(ch, C_NRM), (*it).c_str(), CCNRM(ch, C_NRM));
 		}
+	}
+	else if (is_abbrev(arg, "клан") || is_abbrev(arg, "гдругам"))
+	{
+		send_to_char(ch, "%s", CLAN(ch)->get_remember(ch->player->get_remember_num(), Remember::CLAN).c_str());
+		return;
+	}
+	else if (is_abbrev(arg, "союзники") || is_abbrev(arg, "альянс") || is_abbrev(arg, "гсоюзникам"))
+	{
+		send_to_char(ch, "%s", CLAN(ch)->get_remember(ch->player->get_remember_num(), Remember::ALLY).c_str());
+		return;
+	}
+	else if (is_abbrev(arg, "все"))
+	{
+		send_to_char(ch, "%s", ch->player->get_remember(Remember::ALL).c_str());
+		return;
 	}
 	else
 	{

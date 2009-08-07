@@ -43,6 +43,8 @@
 #include "privilege.hpp"
 #include "random.hpp"
 #include "char.hpp"
+#include "char_player.hpp"
+#include "remember.hpp"
 
 using std::ifstream;
 using std::fstream;
@@ -1918,6 +1920,7 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "оффтоп", "offtop",
 							   "потеря связи", "disconnect",
 							   "ингредиенты", "ingredient",
+							   "вспомнить", "remember",
 							   "\n"
 							 };
 
@@ -1974,7 +1977,8 @@ struct gen_tog_param_type
 		0, SCMD_WORKMATE_MODE}, {
 		0, SCMD_OFFTOP_MODE}, {
 		0, SCMD_ANTIDC_MODE}, {
-		0, SCMD_NOINGR_MODE}
+		0, SCMD_NOINGR_MODE}, {
+		0, SCMD_REMEMBER}
 };
 
 ACMD(do_mode)
@@ -2140,7 +2144,8 @@ ACMD(do_gen_tog)
 		{"Вы отключили защиту от потери связь во время боя.\r\n",
 		 "Защита от потери связи во время боя включена.\r\n"},
 		{"Показ покупок и продаж ингредиентов в режиме базара отключен.\r\n",
-		 "Показ покупок и продаж ингредиентов в режиме базара включен.\r\n"}
+		 "Показ покупок и продаж ингредиентов в режиме базара включен.\r\n"},
+		{"", ""} // SCMD_REMEMBER
 	};
 
 
@@ -2294,6 +2299,26 @@ ACMD(do_gen_tog)
 	case SCMD_NOINGR_MODE:
 		result = PRF_TOG_CHK(ch, PRF_NOINGR_MODE);
 		break;
+	case SCMD_REMEMBER:
+	{
+		skip_spaces(&argument);
+		if (!*argument)
+		{
+			send_to_char("Формат команды: режим вспомнить <число строк от 1 до 100>.\r\n", ch);
+			return;
+		}
+		unsigned int size = atoi(argument);
+		if (ch->player->set_remember_num(size))
+		{
+			send_to_char(ch, "Количество выводимых строк по команде 'вспомнить' установлено в %d.\r\n", size);
+			save_char(ch);
+		}
+		else
+		{
+			send_to_char(ch, "Количество строк для вывода может быть в пределах от 1 до %d.\r\n", Remember::MAX_REMEMBER_NUM);
+		}
+		return;
+	}
 
 	default:
 		log("SYSERR: Unknown subcmd %d in do_gen_toggle.", subcmd);

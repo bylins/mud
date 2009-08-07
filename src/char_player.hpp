@@ -52,12 +52,13 @@ public:
 
 	// общие поля мобов
 	static boost::shared_ptr<Player> shared_mob;
-	// обретки для контроля за мобами
+	// обертки для контроля за мобами
 	void set_answer_id(int id);
 	int get_answer_id() const;
 	void add_remember(std::string text, int flag);
 	std::string get_remember(int flag) const;
-
+	bool set_remember_num(unsigned int num);
+	unsigned int get_remember_num() const;
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
 	// TODO: вообще его можно пользовать вместо постоянного поиска по имени при сейвах чара и т.п. вещах, пользующих

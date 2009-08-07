@@ -4986,7 +4986,7 @@ ACMD(do_toggle)
 			" Новости (вид) : %-5s   "   " Доски         : %-3s     " " Хранилище     : %-10s\r\n"
 			" Пклист        : %-3s     " " Политика      : %-3s     " " Пкформат      : %-10s\r\n"
 			" Соклановцы    : %-3s     " " Оффтоп        : %-3s     " " Потеря связи  : %-3s \r\n"
-			" Ингредиенты   : %-3s\r\n",
+			" Ингредиенты   : %-3s     " " Вспомнить     : %-3d\r\n",
 			ONOFF(PRF_FLAGGED(ch, PRF_DISPHP)),
 			ONOFF(!PRF_FLAGGED(ch, PRF_NOTELL)),
 			ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)), ONOFF(PRF_FLAGGED(ch, PRF_DISPMOVE)),
@@ -5029,7 +5029,8 @@ ACMD(do_toggle)
 			ONOFF(PRF_FLAGGED(ch, PRF_WORKMATE_MODE)),
 			ONOFF(PRF_FLAGGED(ch, PRF_OFFTOP_MODE)),
 			ONOFF(PRF_FLAGGED(ch, PRF_ANTIDC_MODE)),
-			ONOFF(PRF_FLAGGED(ch, PRF_NOINGR_MODE)));
+			ONOFF(PRF_FLAGGED(ch, PRF_NOINGR_MODE)),
+			ch->player->get_remember_num());
 
 	send_to_char(buf, ch);
 }

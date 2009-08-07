@@ -25,6 +25,7 @@
 #include "spells.h"
 #include "privilege.hpp"
 #include "char.hpp"
+#include "char_player.hpp"
 
 extern void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 extern void write_one_object(char **data, OBJ_DATA * object, int location);
@@ -1252,10 +1253,16 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 		send_to_char("Что Вы хотите сообщить?\r\n", ch);
 		return;
 	}
+
 	switch (subcmd)
 	{
-		// своей дружине
+	// своей дружине
 	case SCMD_CHANNEL:
+	{
+		// вспомнить
+		snprintf(buf, MAX_STRING_LENGTH, "%s дружине: &R'%s'.&n\r\n", GET_NAME(ch), text.c_str());
+		CLAN(ch)->add_remember(buf, Remember::CLAN);
+
 		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 		{
 			if (d->character && d->character != ch
@@ -1264,15 +1271,32 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 					&& !AFF_FLAGGED(d->character, AFF_DEAFNESS)
 					&& !ignores(d->character, ch, IGNORE_CLAN))
 			{
-				send_to_char(d->character, "%s дружине: %s'%s'.%s\r\n",
-							 GET_NAME(ch), CCIRED(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
+				snprintf(buf, MAX_STRING_LENGTH, "%s дружине: %s'%s'.%s\r\n",
+						GET_NAME(ch), CCIRED(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
+				d->character->player->add_remember(buf, Remember::ALL);
+				send_to_char(buf, d->character);
+			}
+		}
+		snprintf(buf, MAX_STRING_LENGTH, "Вы дружине: %s'%s'.%s\r\n", CCIRED(ch, C_NRM), text.c_str(), CCNRM(ch, C_NRM));
+		ch->player->add_remember(buf, Remember::ALL);
+		send_to_char(buf, ch);
+		break;
+	}
+	// союзникам
+	case SCMD_ACHANNEL:
+	{
+		// вспомнить
+		snprintf(buf, MAX_STRING_LENGTH, "%s союзникам: &G'%s'.&n\r\n", GET_NAME(ch), text.c_str());
+		for (ClanListType::iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+		{
+			if ((CLAN(ch)->CheckPolitics((*clan)->GetRent())== POLITICS_ALLIANCE
+					&& (*clan)->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE)
+				|| CLAN(ch) == (*clan))
+			{
+				(*clan)->add_remember(buf, Remember::ALLY);
 			}
 		}
 
-		send_to_char(ch, "Вы дружине: %s'%s'.%s\r\n", CCIRED(ch, C_NRM), text.c_str(), CCNRM(ch, C_NRM));
-		break;
-		// союзникам
-	case SCMD_ACHANNEL:
 		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 		{
 			if (d->character && CLAN(d->character)
@@ -1285,22 +1309,23 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 						|| CLAN(ch) == CLAN(d->character))
 				{
 					// проверка на альянс с обеих сторон, шоб не спамили друг другу на зло
-					if (CLAN(ch) != CLAN(d->character))
+					if ((CLAN(d->character)->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE)
+						|| CLAN(ch) == CLAN(d->character))
 					{
-						if (CLAN(d->character)->CheckPolitics(CLAN(ch)->GetRent()) == POLITICS_ALLIANCE)
-							send_to_char(d->character, "%s союзникам: %s'%s'.%s\r\n",
+							snprintf(buf, MAX_STRING_LENGTH, "%s союзникам: %s'%s'.%s\r\n",
 										 GET_NAME(ch), CCIGRN(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
+							d->character->player->add_remember(buf, Remember::ALL);
+							send_to_char(buf, d->character);
 					}
-					// своему клану выдается всегда
-					else
-						send_to_char(d->character, "%s союзникам: %s'%s'.%s\r\n",
-									 GET_NAME(ch), CCIGRN(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
 				}
 			}
 		}
-		send_to_char(ch, "Вы союзникам: %s'%s'.%s\r\n", CCIGRN(ch, C_NRM), text.c_str(), CCNRM(ch, C_NRM));
+		snprintf(buf, MAX_STRING_LENGTH, "Вы союзникам: %s'%s'.%s\r\n", CCIGRN(ch, C_NRM), text.c_str(), CCNRM(ch, C_NRM));
+		ch->player->add_remember(buf, Remember::ALL);
+		send_to_char(buf, ch);
 		break;
 	}
+	} // switch
 }
 
 
@@ -4357,4 +4382,76 @@ int Clan::GetClanWars(CHAR_DATA *ch)
 	}
 
 	return result;
+}
+
+void Clan::add_remember(std::string text, int flag)
+{
+	std::string buffer = Remember::time_format();
+	buffer += text;
+
+	switch (flag)
+	{
+	case Remember::CLAN:
+		remember_.push_back(buffer);
+		if (remember_.size() > Remember::MAX_REMEMBER_NUM)
+		{
+			remember_.erase(remember_.begin());
+		}
+		break;
+	case Remember::ALLY:
+		remember_ally_.push_back(buffer);
+		if (remember_ally_.size() > Remember::MAX_REMEMBER_NUM)
+		{
+			remember_ally_.erase(remember_ally_.begin());
+		}
+		break;
+	default:
+		log("SYSERROR: мы не должны были сюда попасть, flag: %d, func: %s",
+				flag, __func__);
+		break;
+	}
+}
+
+std::string Clan::get_remember(unsigned int num, int flag) const
+{
+	std::string buffer;
+
+	switch (flag)
+	{
+	case Remember::CLAN:
+	{
+		Remember::RememberListType::const_iterator it = remember_.begin();
+		if (remember_.size() > num)
+		{
+			std::advance(it, remember_.size() - num);
+		}
+		for (; it != remember_.end(); ++it)
+		{
+			buffer += *it;
+		}
+		break;
+	}
+	case Remember::ALLY:
+	{
+		Remember::RememberListType::const_iterator it = remember_ally_.begin();
+		if (remember_ally_.size() > num)
+		{
+			std::advance(it, remember_ally_.size() - num);
+		}
+		for (; it != remember_ally_.end(); ++it)
+		{
+			buffer += *it;
+		}
+		break;
+	}
+	default:
+		log("SYSERROR: мы не должны были сюда попасть, flag: %d, func: %s",
+				flag, __func__);
+		break;
+	}
+	if (buffer.empty())
+	{
+		buffer = "Вам нечего вспомнить.\r\n";
+	}
+	return buffer;
 }

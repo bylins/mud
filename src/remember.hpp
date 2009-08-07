@@ -14,27 +14,37 @@
 namespace Remember
 {
 
-enum { ALL, PERSONAL, GROUP, PRAY };
+enum { ALL, PERSONAL, GROUP, PRAY, CLAN, ALLY };
+// кол-во запоминаемых строк в каждом списке
+const unsigned int MAX_REMEMBER_NUM = 100;
+// кол-во выводимых стсрок по умолчанию
+const unsigned int DEF_REMEMBER_NUM = 15;
+typedef std::list<std::string> RememberListType;
+
+std::string time_format();
 
 } // namespace Remember
 
 class CharRemember
 {
 public:
-	CharRemember() : answer_id_(NOBODY), num_str_(15) {};
+	CharRemember() : answer_id_(NOBODY), num_str_(Remember::DEF_REMEMBER_NUM) {};
 	void add_str(std::string text, int flag);
 	std::string get_text(int flag) const;
 	void set_answer_id(int id);
 	int get_answer_id() const;
 	void reset();
+	bool set_num_str(unsigned int num);
+	unsigned int get_num_str() const;
 private:
-	typedef std::list<std::string> RememberListType;
-	RememberListType personal_; // теллы
-	RememberListType group_; // группа
-	RememberListType pray_; // воззвания (личные)
 	long answer_id_; // id последнего телявшего (для ответа)
 	unsigned int num_str_; // кол-во выводимых строк (режим вспомнить)
 	std::string last_tell_; // последняя введенная строка (от спама)
+	Remember::RememberListType all_; // все запоминаемые каналы
+	Remember::RememberListType personal_; // теллы
+	Remember::RememberListType group_; // группа
+	Remember::RememberListType say_; // теллы в клетку
+	Remember::RememberListType pray_; // воззвания (личные)
 };
 
 #endif // REMEMBER_HPP_INCLUDED

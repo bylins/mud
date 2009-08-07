@@ -5776,6 +5776,8 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 		case 'R':
 			if (!strcmp(tag, "Room"))
 				GET_LOADROOM(ch) = num;
+			else if (!strcmp(tag, "Rmbr"))
+				ch->player->set_remember_num(num);
 			else if (!strcmp(tag, "Reli"))
 				GET_RELIGION(ch) = num;
 			else if (!strcmp(tag, "Race"))
@@ -7261,6 +7263,12 @@ void save_char(CHAR_DATA *ch)
 	fprintf(saved, "NaID: %ld\n", NAME_ID_GOD(ch));
 	fprintf(saved, "StrL: %d\n", STRING_LENGTH(ch));
 	fprintf(saved, "StrW: %d\n", STRING_WIDTH(ch));
+
+	if (ch->player->get_remember_num() != Remember::DEF_REMEMBER_NUM)
+	{
+		fprintf(saved, "Rmbr: %d\n", ch->player->get_remember_num());
+	}
+
 	if (EXCHANGE_FILTER(ch))
 		fprintf(saved, "ExFl: %s\n", EXCHANGE_FILTER(ch));
 

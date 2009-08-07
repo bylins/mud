@@ -136,8 +136,21 @@ std::string Player::get_remember(int flag) const
 	return remember_.get_text(flag);
 }
 
+bool Player::set_remember_num(unsigned int num)
+{
+	check_mob_guard(this, __func__);
+	return remember_.set_num_str(num);
+}
+
+unsigned int Player::get_remember_num() const
+{
+	check_mob_guard(this, __func__);
+	return remember_.get_num_str();
+}
+
 void Player::reset()
 {
 	check_mob_guard(this, __func__);
 	remember_.reset();
 }
+
