@@ -40,23 +40,6 @@ extern TIME_INFO_DATA time_info;
 /* local functions */
 void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg);
 int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict);
-static char remember_pray[MAX_REMEMBER_PRAY][MAX_INPUT_LENGTH];
-static int num_pray = 0;
-//MZ.gossip_fix
-#define REMEMBER_TIME_LENGTH 24
-#define PREFIX_LENGTH 4
-#if PREFIX_LENGTH == 4
-#define HOLLER_PREFIX (" &Y'")
-#define GOSSIP_PREFIX (" &y'")
-#endif
-#define SUFFIX_LENGTH 3
-#if SUFFIX_LENGTH == 3
-#define SUFFIX ("'&n")
-#endif
-static char remember_gossip[MAX_REMEMBER_GOSSIP]
-[(REMEMBER_TIME_LENGTH - 1) + PREFIX_LENGTH + MAX_INPUT_LENGTH + SUFFIX_LENGTH];
-//-MZ.gossip_fix
-static int num_gossip = 0;
 
 /* external functions */
 extern char *diag_timer_to_char(OBJ_DATA * obj);
@@ -605,9 +588,6 @@ ACMD(do_gen_comm)
 {
 	DESCRIPTOR_DATA *i;
 	char color_on[24];
-//MZ.gossip_fix
-	char remember_time[REMEMBER_TIME_LENGTH];
-//-MZ.gossip_fix
 	int ign_flag;
 	/*
 	 * com_msgs: Message if you can't perform the action because of mute
@@ -783,75 +763,26 @@ ACMD(do_gen_comm)
 		else
 		{
 			if (COLOR_LEV(ch) >= C_CMP)
-				sprintf(buf1, "%sВы %s : '%s'%s", color_on,
+			{
+				snprintf(buf1, MAX_STRING_LENGTH, "%sВы %s : '%s'%s", color_on,
 						com_msgs[subcmd].you_action, argument, KNRM);
+			}
 			else
-				sprintf(buf1, "Вы %s : '%s'", com_msgs[subcmd].you_action, argument);
+			{
+				snprintf(buf1, MAX_STRING_LENGTH, "Вы %s : '%s'",
+						com_msgs[subcmd].you_action, argument);
+			}
 			act(buf1, FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
-		}
 
+			snprintf(buf1 + strlen(buf1), MAX_STRING_LENGTH, "\r\n");
+			ch->player->add_remember(buf1, Remember::ALL);
+		}
 		sprintf(buf, "$n %s : '%s'", com_msgs[subcmd].hi_action, argument);
-		// Обработка для "вспомнить крики"
-		switch (time_info.hours % 24)
+
+		if (subcmd == SCMD_GOSSIP || subcmd == SCMD_HOLLER)
 		{
-		case 0:
-			sprintf(remember_time, "[полночь]");
-			break;
-		case 1:
-			sprintf(remember_time, "[1 час ночи]");
-			break;
-		case 2:
-		case 3:
-		case 4:
-			sprintf(remember_time, "[%d часа ночи]", time_info.hours);
-			break;
-		case 5:
-		case 6:
-		case 7:
-		case 8:
-		case 9:
-		case 10:
-		case 11:
-			sprintf(remember_time, "[%d часов утра]", time_info.hours);
-			break;
-		case 12:
-			sprintf(remember_time, "[полдень]");
-			break;
-		case 13:
-			sprintf(remember_time, "[1 час пополудни]");
-			break;
-		case 14:
-		case 15:
-		case 16:
-			sprintf(remember_time, "[%d часа пополудни]", time_info.hours - 12);
-			break;
-		case 17:
-		case 18:
-		case 19:
-		case 20:
-		case 21:
-		case 22:
-		case 23:
-			sprintf(remember_time, "[%d часов вечера]", time_info.hours - 12);
-			break;
-		}
-		if (subcmd == SCMD_HOLLER)
-		{
-//MZ.gossip_fix
-			sprintf(remember_gossip[num_gossip], "%s%s%s%s", remember_time, HOLLER_PREFIX, argument, SUFFIX);
-//-MZ.gossip_fix
-			num_gossip++;
-			if (num_gossip == MAX_REMEMBER_GOSSIP)
-				num_gossip = 0;
-		}
-		if (subcmd == SCMD_GOSSIP)
-		{
-//MZ.gossip_fix
-			sprintf(remember_gossip[num_gossip], "%s%s%s%s", remember_time, GOSSIP_PREFIX, argument, SUFFIX);
-//-MZ.gossip_fix
-			num_gossip++;
-			if (num_gossip == MAX_REMEMBER_GOSSIP)
-				num_gossip = 0;
+			snprintf(buf1, MAX_STRING_LENGTH, "%s'%s'%s\r\n", color_on, argument, KNRM);
+			ch->player->add_remember(buf1, Remember::GOSSIP);
 		}
 	}
 
@@ -883,11 +814,15 @@ ACMD(do_gen_comm)
 			if (subcmd == SCMD_SHOUT &&
 					((world[ch->in_room]->zone != world[i->character->in_room]->zone) || !AWAKE(i->character)))
 				continue;
+
 			if (COLOR_LEV(i->character) >= C_NRM)
 				send_to_char(color_on, i->character);
 			act(buf, FALSE, ch, 0, i->character, TO_VICT | TO_SLEEP | CHECK_DEAF);
 			if (COLOR_LEV(i->character) >= C_NRM)
 				send_to_char(KNRM, i->character);
+
+			std::string text = Remember::format_gossip(ch, i->character, subcmd, argument);
+			i->character->player->add_remember(text, Remember::ALL);
 		}
 	}
 }
@@ -922,10 +857,8 @@ ACMD(do_mobshout)
 ACMD(do_pray_gods)
 {
 	char arg1[MAX_INPUT_LENGTH];
-	char *tmp;
 	DESCRIPTOR_DATA *i;
 	CHAR_DATA *victim = NULL;
-	time_t ct;
 
 	skip_spaces(&argument);
 
@@ -967,51 +900,40 @@ ACMD(do_pray_gods)
 			return;
 		if (IS_IMMORTAL(ch))
 		{
-			sprintf(buf, "&RВы одарили СЛОВОМ %s : '%s'&n", GET_PAD(victim, 3), argument);
+			sprintf(buf, "&RВы одарили СЛОВОМ %s : '%s'&n\r\n", GET_PAD(victim, 3), argument);
 		}
 		else
 		{
-			sprintf(buf, "&RВы воззвали к Богам с сообщением : '%s'&n", argument);
+			sprintf(buf, "&RВы воззвали к Богам с сообщением : '%s'&n\r\n", argument);
 			set_wait(ch, 3, FALSE);
 		}
-		act(buf, FALSE, ch, 0, argument, TO_CHAR);
+		send_to_char(ch, buf);
+		ch->player->add_remember(buf, Remember::ALL);
 	}
 
 	if (IS_IMMORTAL(ch))
 	{
 		sprintf(buf, "&R%s ответил%s Вам : '%s'&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), argument);
 		send_to_char(buf, victim);
-		sprintf(buf, "&R%s ответил%s на воззвание %s : '%s'&n", GET_NAME(ch),
-				GET_CH_SUF_1(ch), GET_PAD(victim, 1), argument);
-// Обработка для "вспомнить взывания"
-		ct = time(0);
-		tmp = asctime(localtime(&ct));
-//MZ.pray_fix
-		snprintf(remember_pray[num_pray], MAX_INPUT_LENGTH - SUFFIX_LENGTH,
-				 "&w[%5.5s] &R%s ответил%s %s : '%s", (tmp + 11),
-				 GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 2), argument);
-		sprintf(remember_pray[num_pray] + strlen(remember_pray[num_pray]), "%s", SUFFIX);
-//-MZ.pray_fix
-		num_pray++;
-		if (num_pray == MAX_REMEMBER_PRAY)
-			num_pray = 0;
+		victim->player->add_remember(buf, Remember::ALL);
+
+		snprintf(buf1, MAX_STRING_LENGTH, "&R%s ответил%s %s : '%s&n\r\n",
+				GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 2), argument);
+		ch->player->add_remember(buf1, Remember::PRAY);
+
+		snprintf(buf, MAX_STRING_LENGTH, "&R%s ответил%s на воззвание %s : '%s'&n\r\n",
+				GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 1), argument);
 	}
 	else
 	{
-		sprintf(buf, "&R$n воззвал$g к богам с сообщением : '%s'&n", argument);
-// Обработка для "вспомнить взывания"
-		ct = time(0);
-		tmp = asctime(localtime(&ct));
-//MZ.pray_fix
-		snprintf(remember_pray[num_pray], MAX_INPUT_LENGTH - SUFFIX_LENGTH,
-				 "&w[%5.5s] &R%s воззвал%s к богам : '%s", (tmp + 11),
+		snprintf(buf1, MAX_STRING_LENGTH, "&R%s воззвал%s к богам : '%s&n\r\n",
 				 GET_NAME(ch), GET_CH_SUF_1(ch), argument);
-		sprintf(remember_pray[num_pray] + strlen(remember_pray[num_pray]), "%s", SUFFIX);
-//-MZ.pray_fix
-		num_pray++;
-		if (num_pray == MAX_REMEMBER_PRAY)
-			num_pray = 0;
+		ch->player->add_remember(buf1, Remember::PRAY);
+
+		snprintf(buf, MAX_STRING_LENGTH, "&R%s воззвал%s к богам с сообщением : '%s'&n\r\n",
+				GET_NAME(ch), GET_CH_SUF_1(ch), argument);
 	}
+
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) == CON_PLAYING
@@ -1019,14 +941,11 @@ ACMD(do_pray_gods)
 //			&& Privilege::god_list_check(GET_NAME(i->character), GET_UNIQUE(i->character))
 				&& i->character != ch)
 		{
-			act(buf, 0, ch, 0, i->character, TO_VICT | TO_SLEEP);
+			send_to_char(buf, i->character);
+			i->character->player->add_remember(buf, Remember::ALL);
 		}
 	}
 }
-
-static const int min_offtop_level = 6;
-static const unsigned int max_remember_offtop = 15;
-static std::list<std::string> remember_offtop;
 
 /**
 * Канал оффтоп. Не виден иммам, всегда видно кто говорит, вкл/выкл режим оффтоп.
@@ -1049,9 +968,10 @@ ACMD(do_offtop)
 		send_to_char("Стены заглушили Ваши слова.\r\n", ch);
 		return;
 	}
-	if (GET_LEVEL(ch) < min_offtop_level && !GET_REMORT(ch))
+	static const int MIN_OFFTOP_LVL = 6;
+	if (GET_LEVEL(ch) < MIN_OFFTOP_LVL && !GET_REMORT(ch))
 	{
-		send_to_char(ch, "Вам стоит достичь хотя бы %d уровня, чтобы Вы могли оффтопить.\r\n", min_offtop_level);
+		send_to_char(ch, "Вам стоит достичь хотя бы %d уровня, чтобы Вы могли оффтопить.\r\n", MIN_OFFTOP_LVL);
 		return;
 	}
 	if (!PRF_FLAGGED(ch, PRF_OFFTOP_MODE))
@@ -1081,8 +1001,8 @@ ACMD(do_offtop)
 
 	strcpy(GET_LAST_ALL_TELL(ch), argument);
 
-	std::stringstream text;
-	text << "[оффтоп] " << GET_NAME(ch) << " : '" << argument << "'" << "\r\n";
+	snprintf(buf, MAX_STRING_LENGTH, "[оффтоп] %s : '%s'\r\n", GET_NAME(ch), argument);
+	snprintf(buf1, MAX_STRING_LENGTH, "&c%s&n", buf);
 
 	for (DESCRIPTOR_DATA *i = descriptor_list; i; i = i->next)
 	{
@@ -1094,25 +1014,17 @@ ACMD(do_offtop)
 		{
 			if (ignores(i->character, ch, IGNORE_OFFTOP))
 				continue;
-			send_to_char(i->character, "%s%s%s", CCCYN(i->character, C_NRM), text.str().c_str(), CCNRM(i->character, C_NRM));
+
+			send_to_char(i->character, "%s%s%s", CCCYN(i->character, C_NRM), buf, CCNRM(i->character, C_NRM));
+			i->character->player->add_remember(buf1, Remember::ALL);
 		}
 	}
-
-	char timeBuf[9];
-	time_t tmp_time = time(0);
-	strftime(timeBuf, sizeof(timeBuf), "[%H:%M] ", localtime(&tmp_time));
-	std::string remember = timeBuf + text.str();
-
-	if (remember_offtop.size() >= max_remember_offtop)
-		remember_offtop.erase(remember_offtop.begin());
-	remember_offtop.push_back(remember);
-
+	ch->player->add_remember(buf1, Remember::OFFTOP);
 	set_wait(ch, 1, FALSE);
 }
 
 ACMD(do_remember_char)
 {
-	int i, j = 0, k = 0;
 	char arg[MAX_INPUT_LENGTH];
 
 	if (IS_NPC(ch))
@@ -1127,65 +1039,17 @@ ACMD(do_remember_char)
 
 	argument = one_argument(argument, arg);
 
-	if (GET_LEVEL(ch) >= LVL_IMMORT && is_abbrev(arg, "воззвать"))
+	if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) && is_abbrev(arg, "воззвать"))
 	{
-		// Выдает взывания к богам
-		if (!IS_IMMORTAL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
-			return;
-		for (i = 0; i < MAX_REMEMBER_PRAY; i++)
-		{
-			j = num_pray + i;
-			if (j >= MAX_REMEMBER_PRAY)
-				j = j - MAX_REMEMBER_PRAY;
-			if (remember_pray[j][0] != '\0')
-			{
-				if (k == 0)
-					send_to_char("&C", ch);
-				k = 1;
-				send_to_char(remember_pray[j], ch);
-				send_to_char("\r\n", ch);
-			}
-		}
-
-		if (!k)
-			send_to_char("Никто не взывал Богам.\r\n", ch);
-		else
-			send_to_char("&n", ch);
+		send_to_char(ch, "%s", ch->player->get_remember(Remember::PRAY).c_str());
 	}
 	else if (is_abbrev(arg, "болтать"))
 	{
-		// Выдает крики в эфир
-		for (i = 0; i < MAX_REMEMBER_GOSSIP; i++)
-		{
-			j = num_gossip + i;
-			if (j >= MAX_REMEMBER_GOSSIP)
-				j = j - MAX_REMEMBER_GOSSIP;
-			if (remember_gossip[j][0] != '\0')
-			{
-				if (k == 0)
-					send_to_char("Последние крики в эфир:\r\n", ch);
-				k = 1;
-				send_to_char(remember_gossip[j], ch);
-				send_to_char("\r\n", ch);
-			}
-		}
-
-		if (!k)
-			send_to_char("Никто не кричал в эфир.\r\n", ch);
-		else
-			send_to_char("&n", ch);
+		send_to_char(ch, "%s", ch->player->get_remember(Remember::GOSSIP).c_str());
 	}
 	else if (GET_LEVEL(ch) < LVL_IMMORT && is_abbrev(arg, "оффтоп"))
 	{
-		// выдает канал оффтопа
-		if (remember_offtop.empty())
-			send_to_char("Никто пока не оффтопил.\r\n", ch);
-		else
-		{
-			send_to_char("Последние крики в канале оффтоп:\r\n", ch);
-			for (std::list<std::string>::const_iterator it = remember_offtop.begin(); it != remember_offtop.end(); ++it)
-				send_to_char(ch, "%s%s%s", CCCYN(ch, C_NRM), (*it).c_str(), CCNRM(ch, C_NRM));
-		}
+		send_to_char(ch, "%s", ch->player->get_remember(Remember::OFFTOP).c_str());
 	}
 	else if (is_abbrev(arg, "клан") || is_abbrev(arg, "гдругам"))
 	{
@@ -1219,9 +1083,9 @@ ACMD(do_remember_char)
 	else
 	{
 		if (IS_IMMORTAL(ch))
-			send_to_char("Формат команды: вспомнить [без параметров|болтать|воззвать]\r\n", ch);
+			send_to_char("Формат команды: вспомнить [без параметров|болтать|воззвать|гд|гс|все]\r\n", ch);
 		else
-			send_to_char("Формат команды: вспомнить [без параметров|болтать|оффтоп]\r\n", ch);
+			send_to_char("Формат команды: вспомнить [без параметров|болтать|оффтоп|гд|гс|все]\r\n", ch);
 	}
 }
 

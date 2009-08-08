@@ -7,9 +7,19 @@
 #include "utils.h"
 #include "comm.h"
 #include "db.h"
+#include "char.hpp"
+#include "interpreter.h"
+#include "screen.h"
 
 namespace Remember
 {
+
+// болтать/орать
+RememberListType gossip;
+// оффтоп
+RememberListType offtop;
+// воззвания (иммам)
+RememberListType pray;
 
 std::string time_format()
 {
@@ -17,6 +27,20 @@ std::string time_format()
 	time_t tmp_time = time(0);
 	strftime(time_buf, sizeof(time_buf), "[%H:%M] ", localtime(&tmp_time));
 	return time_buf;
+}
+
+/**
+* Болтовня ch, пишущаяся во вспом все к vict'иму. Изврат конечно, но переделывать
+* систему в do_gen_comm чет облом пока, а возвращать сформированную строку из act() не хочется.
+*/
+std::string format_gossip(CHAR_DATA *ch, CHAR_DATA *vict, int cmd, const char *argument)
+{
+	snprintf(buf, MAX_STRING_LENGTH, "%s%s %s%s : '%s'%s\r\n",
+			cmd == SCMD_GOSSIP ? CCYEL(vict, C_NRM) : CCIYEL(vict, C_NRM),
+			PERS(ch, vict, 0), cmd == SCMD_GOSSIP ? "заметил" : "заорал",
+			GET_CH_VIS_SUF_1(ch, vict), argument,
+			CCNRM(vict, C_NRM));
+	return buf;
 }
 
 } // namespace Remember
@@ -46,7 +70,26 @@ void CharRemember::add_str(std::string text, int flag)
 		break;
 	case GROUP:
 		break;
+	case GOSSIP:
+		gossip.push_back(buffer);
+		if (gossip.size() > MAX_REMEMBER_NUM)
+		{
+			gossip.erase(gossip.begin());
+		}
+		break;
+	case OFFTOP:
+		offtop.push_back(buffer);
+		if (offtop.size() > MAX_REMEMBER_NUM)
+		{
+			offtop.erase(offtop.begin());
+		}
+		break;
 	case PRAY:
+		pray.push_back(buffer);
+		if (pray.size() > MAX_REMEMBER_NUM)
+		{
+			pray.erase(pray.begin());
+		}
 		break;
 	default:
 		log("SYSERROR: мы не должны были сюда попасть, flag: %d, func: %s",
@@ -89,8 +132,45 @@ std::string CharRemember::get_text(int flag) const
 	}
 	case GROUP:
 		break;
-	case PRAY:
+	case GOSSIP:
+	{
+		RememberListType::const_iterator it = gossip.begin();
+		if (gossip.size() > num_str_)
+		{
+			std::advance(it, gossip.size() - num_str_);
+		}
+		for (; it != gossip.end(); ++it)
+		{
+			buffer += *it;
+		}
 		break;
+	}
+	case OFFTOP:
+	{
+		RememberListType::const_iterator it = offtop.begin();
+		if (offtop.size() > num_str_)
+		{
+			std::advance(it, offtop.size() - num_str_);
+		}
+		for (; it != offtop.end(); ++it)
+		{
+			buffer += *it;
+		}
+		break;
+	}
+	case PRAY:
+	{
+		RememberListType::const_iterator it = pray.begin();
+		if (pray.size() > num_str_)
+		{
+			std::advance(it, pray.size() - num_str_);
+		}
+		for (; it != pray.end(); ++it)
+		{
+			buffer += *it;
+		}
+		break;
+	}
 	default:
 		log("SYSERROR: мы не должны были сюда попасть, flag: %d, func: %s",
 				flag, __func__);
@@ -115,9 +195,9 @@ int CharRemember::get_answer_id() const
 
 void CharRemember::reset()
 {
+	all_.clear();
 	personal_.clear();
 	group_.clear();
-	pray_.clear();
 	answer_id_ = NOBODY;
 	last_tell_ = "";
 }

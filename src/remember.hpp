@@ -14,7 +14,7 @@
 namespace Remember
 {
 
-enum { ALL, PERSONAL, GROUP, PRAY, CLAN, ALLY };
+enum { ALL, PERSONAL, GROUP, CLAN, ALLY, GOSSIP, OFFTOP, PRAY };
 // кол-во запоминаемых строк в каждом списке
 const unsigned int MAX_REMEMBER_NUM = 100;
 // кол-во выводимых стсрок по умолчанию
@@ -22,6 +22,7 @@ const unsigned int DEF_REMEMBER_NUM = 15;
 typedef std::list<std::string> RememberListType;
 
 std::string time_format();
+std::string format_gossip(CHAR_DATA *ch, CHAR_DATA *vict, int cmd, const char *argument);
 
 } // namespace Remember
 
@@ -40,11 +41,9 @@ private:
 	long answer_id_; // id последнего телявшего (для ответа)
 	unsigned int num_str_; // кол-во выводимых строк (режим вспомнить)
 	std::string last_tell_; // последняя введенная строка (от спама)
-	Remember::RememberListType all_; // все запоминаемые каналы
+	Remember::RememberListType all_; // все запоминаемые каналы + воззвания (TODO: теллы в клетку и крики?), включая собственные
 	Remember::RememberListType personal_; // теллы
-	Remember::RememberListType group_; // группа
-	Remember::RememberListType say_; // теллы в клетку
-	Remember::RememberListType pray_; // воззвания (личные)
+	// Remember::RememberListType group_; // группа
 };
 
 #endif // REMEMBER_HPP_INCLUDED
