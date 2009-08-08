@@ -1189,12 +1189,20 @@ ACMD(do_remember_char)
 	}
 	else if (is_abbrev(arg, "клан") || is_abbrev(arg, "гдругам"))
 	{
-		send_to_char(ch, "%s", CLAN(ch)->get_remember(ch->player->get_remember_num(), Remember::CLAN).c_str());
+		if (CLAN(ch))
+		{
+			send_to_char(ch, "%s", CLAN(ch)->get_remember(ch->player->get_remember_num(), Remember::CLAN).c_str());
+		}
+		send_to_char(ch, "Вам нечего вспомнить.\r\n");
 		return;
 	}
 	else if (is_abbrev(arg, "союзники") || is_abbrev(arg, "альянс") || is_abbrev(arg, "гсоюзникам"))
 	{
-		send_to_char(ch, "%s", CLAN(ch)->get_remember(ch->player->get_remember_num(), Remember::ALLY).c_str());
+		if (CLAN(ch))
+		{
+			send_to_char(ch, "%s", CLAN(ch)->get_remember(ch->player->get_remember_num(), Remember::ALLY).c_str());
+		}
+		send_to_char(ch, "Вам нечего вспомнить.\r\n");
 		return;
 	}
 	else if (is_abbrev(arg, "все"))
