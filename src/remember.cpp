@@ -197,7 +197,7 @@ void CharRemember::reset()
 {
 	all_.clear();
 	personal_.clear();
-	group_.clear();
+//	group_.clear();
 	answer_id_ = NOBODY;
 	last_tell_ = "";
 }
