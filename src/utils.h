@@ -460,6 +460,7 @@ extern SPECIAL(postmaster);
 #define MEMQUEUE_EMPTY(ch)    ((ch)->MemQueue.queue == NULL)
 #define INITIATIVE(ch)        ((ch)->Initiative)
 #define BATTLECNTR(ch)        ((ch)->BattleCounter)
+#define ROUND_COUNTER(ch)     ((ch)->round_counter)
 #define EXTRACT_TIMER(ch)     ((ch)->ExtractTimer)
 #define CHECK_AGRO(ch)        ((ch)->CheckAggressive)
 #define WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))

@@ -477,6 +477,7 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 	TOUCHING(ch) = 0;
 	INITIATIVE(ch) = 0;
 	BATTLECNTR(ch) = 0;
+	ROUND_COUNTER(ch) = 0;
 	SET_EXTRA(ch, 0, NULL);
 	set_battle_pos(ch);
 	/* Set combat style */
@@ -492,6 +493,8 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 	{
 		SET_AF_BATTLE(ch, EAF_AUTOBLOCK);
 	}
+
+	start_fight_mtrigger(ch, vict);
 
 //  check_killer(ch, vict);
 }
@@ -5070,6 +5073,10 @@ void perform_violence(void)
 		// Initialize initiative
 		INITIATIVE(ch) = 0;
 		BATTLECNTR(ch) = 0;
+
+		ROUND_COUNTER(ch) += 1;
+		round_num_mtrigger(ch, FIGHTING(ch));
+
 		SET_AF_BATTLE(ch, EAF_STAND);
 		if (affected_by_spell(ch, SPELL_SLEEP))
 			SET_AF_BATTLE(ch, EAF_SLEEP);

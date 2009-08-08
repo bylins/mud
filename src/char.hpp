@@ -341,6 +341,7 @@ public:
 
 	int Initiative;
 	int BattleCounter;
+	int round_counter;
 
 	FLAG_DATA BattleAffects;
 

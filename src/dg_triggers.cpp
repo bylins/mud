@@ -60,8 +60,8 @@ const char *trig_types[] = { "Global",
 							 "Great-All PC",
 							 "Income",
 							 "Income PC",
-							 "UNUSED",
-							 "UNUSED",
+							 "Агродействие",
+							 "Раунд боя",
 							 "UNUSED",
 							 "UNUSED",
 							 "UNUSED",
@@ -754,7 +754,41 @@ void load_mtrigger(CHAR_DATA * ch)
 	}
 }
 
+void start_fight_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor)
+{
+	if (!SCRIPT_CHECK(ch, MTRIG_START_FIGHT) || !ch || !actor)
+	{
+		return;
+	}
 
+	for (TRIG_DATA *t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
+	{
+		if (TRIGGER_CHECK(t, MTRIG_START_FIGHT) && (number(1, 100) <= GET_TRIG_NARG(t)))
+		{
+			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
+			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			return;
+		}
+	}
+}
+
+void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor)
+{
+	if (!SCRIPT_CHECK(ch, MTRIG_ROUND_NUM) || !ch || !actor)
+	{
+		return;
+	}
+
+	for (TRIG_DATA *t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
+	{
+		if (TRIGGER_CHECK(t, MTRIG_ROUND_NUM) && ROUND_COUNTER(ch) == GET_TRIG_NARG(t))
+		{
+			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
+			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			return;
+		}
+	}
+}
 /*
  *  object triggers
  */

@@ -42,6 +42,8 @@
 #define MTRIG_GREET_PC_ALL     (1 << 17)
 #define MTRIG_INCOME           (1 << 18)	/* mob income to room */
 #define MTRIG_INCOME_PC        (1 << 19)	/* mob income to room if PC there */
+#define MTRIG_START_FIGHT      (1 << 20) // начало боя с мобом
+#define MTRIG_ROUND_NUM        (1 << 21) // на х раунде боя
 
 /* obj trigger types */
 #define OTRIG_GLOBAL           (1 << 0)	/* unused                     */
@@ -198,9 +200,10 @@ void random_mtrigger(CHAR_DATA * ch);
 void random_otrigger(OBJ_DATA * obj);
 void random_wtrigger(ROOM_DATA * room, int num, void *s, int types, void *list, void *next);
 void reset_wtrigger(ROOM_DATA * ch);
-
 void load_mtrigger(CHAR_DATA * ch);
 void load_otrigger(OBJ_DATA * obj);
+void start_fight_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor);
+void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor);
 
 /* function prototypes from scripts.cpp */
 void script_trigger_check(void);
