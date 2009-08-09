@@ -30,6 +30,22 @@ std::string time_format()
 }
 
 /**
+* Формирование имени болтающего/орущего при записе во 'вспом все' в обход act().
+* Иммы видны всегда, кто-ты с большой буквы.
+*/
+std::string format_gossip_name(CHAR_DATA *ch, CHAR_DATA *vict)
+{
+	if (!GET_NAME(ch))
+	{
+		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
+		return "";
+	}
+	std::string name = IS_IMMORTAL(ch) ? GET_NAME(ch) : PERS(ch, vict, 0);
+	name[0] = UPPER(name[0]);
+	return name;
+}
+
+/**
 * Болтовня ch, пишущаяся во вспом все к vict'иму. Изврат конечно, но переделывать
 * систему в do_gen_comm чет облом пока, а возвращать сформированную строку из act() не хочется.
 */
@@ -37,7 +53,8 @@ std::string format_gossip(CHAR_DATA *ch, CHAR_DATA *vict, int cmd, const char *a
 {
 	snprintf(buf, MAX_STRING_LENGTH, "%s%s %s%s : '%s'%s\r\n",
 			cmd == SCMD_GOSSIP ? CCYEL(vict, C_NRM) : CCIYEL(vict, C_NRM),
-			PERS(ch, vict, 0), cmd == SCMD_GOSSIP ? "заметил" : "заорал",
+			format_gossip_name(ch, vict).c_str(),
+			cmd == SCMD_GOSSIP ? "заметил" : "заорал",
 			GET_CH_VIS_SUF_1(ch, vict), argument,
 			CCNRM(vict, C_NRM));
 	return buf;
