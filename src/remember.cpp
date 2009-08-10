@@ -60,6 +60,9 @@ std::string format_gossip(CHAR_DATA *ch, CHAR_DATA *vict, int cmd, const char *a
 	return buf;
 }
 
+/**
+* Анти-копипаст для CharRemember::add_str.
+*/
 void add_to_cont(RememberListType &cont, const std::string &text)
 {
 	cont.push_back(text);
@@ -69,6 +72,9 @@ void add_to_cont(RememberListType &cont, const std::string &text)
 	}
 }
 
+/**
+* Анти-копипаст для CharRemember::get_text.
+*/
 std::string get_from_cont(const RememberListType &cont, unsigned int num_str)
 {
 	std::string text;
@@ -88,6 +94,9 @@ std::string get_from_cont(const RememberListType &cont, unsigned int num_str)
 
 using namespace Remember;
 
+/**
+* Добавление строки в список (flag).
+*/
 void CharRemember::add_str(std::string text, int flag)
 {
 	std::string buffer = time_format();
@@ -117,6 +126,9 @@ void CharRemember::add_str(std::string text, int flag)
 	}
 }
 
+/**
+* Вывод списка (flag), ограниченного числом из режима вспомнить.
+*/
 std::string CharRemember::get_text(int flag) const
 {
 	std::string buffer;
