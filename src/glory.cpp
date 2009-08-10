@@ -1030,8 +1030,10 @@ void timers_update()
 int start_stats_count(CHAR_DATA *ch)
 {
 	int count = 0;
-	for (int i = 0; i <= START_STATS_TOTAL; ++i)
+	for (int i = 0; i < START_STATS_TOTAL; ++i)
+	{
 		count += ch->player->get_start_stat(i);
+	}
 	return count;
 }
 

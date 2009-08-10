@@ -7206,7 +7206,7 @@ void save_char(CHAR_DATA *ch)
 		for (int i = 0; i < BOARD_TOTAL; ++i)
 			fprintf(saved, "Br%02d: %ld\n", i + 1, static_cast<long int>(GET_BOARD_DATE(ch, i)));
 
-	for (int i = 0; i <= START_STATS_TOTAL; ++i)
+	for (int i = 0; i < START_STATS_TOTAL; ++i)
 		fprintf(saved, "St%02d: %i\n", i, ch->player->get_start_stat(i));
 
 	if (GET_LEVEL(ch) < LVL_IMMORT)

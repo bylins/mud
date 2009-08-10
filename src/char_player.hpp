@@ -16,8 +16,7 @@
 #include "remember.hpp"
 
 // кол-во сохраняемых стартовых статов в файле
-const int START_STATS_TOTAL = 5;
-typedef boost::array<int, START_STATS_TOTAL + 1> StartStatsType;
+const int START_STATS_TOTAL = 6;
 
 class Player
 {
@@ -72,7 +71,7 @@ private:
 	// в данный момент поле нужно для проверки чара на бд при входе на арену любым способом, но может и еще потом пригодиться
 	room_rnum from_room_;
 	// стартовые статы
-	StartStatsType start_stats_;
+	boost::array<int, START_STATS_TOTAL> start_stats_;
 	// вспомнить
 	CharRemember remember_;
 };

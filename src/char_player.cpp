@@ -13,7 +13,7 @@ Player::Player()
 	was_in_room_(NOWHERE),
 	from_room_(0)
 {
-	for (int i = 0; i <= START_STATS_TOTAL; ++i)
+	for (int i = 0; i < START_STATS_TOTAL; ++i)
 		start_stats_.at(i) = 0;
 }
 
