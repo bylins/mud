@@ -124,30 +124,20 @@ std::string CharRemember::get_text(int flag) const
 	switch (flag)
 	{
 	case ALL:
-	{
 		buffer = get_from_cont(all_, num_str_);
 		break;
-	}
 	case PERSONAL:
-	{
 		buffer = get_from_cont(personal_, num_str_);
 		break;
-	}
 	case GOSSIP:
-	{
 		buffer = get_from_cont(gossip, num_str_);
 		break;
-	}
 	case OFFTOP:
-	{
 		buffer = get_from_cont(offtop, num_str_);
 		break;
-	}
 	case PRAY:
-	{
 		buffer = get_from_cont(pray, num_str_);
 		break;
-	}
 	default:
 		log("SYSERROR: мы не должны были сюда попасть, flag: %d, func: %s",
 				flag, __func__);
