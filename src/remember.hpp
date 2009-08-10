@@ -14,7 +14,7 @@
 namespace Remember
 {
 
-enum { ALL, PERSONAL, GROUP, CLAN, ALLY, GOSSIP, OFFTOP, PRAY };
+enum { ALL, PERSONAL, CLAN, ALLY, GOSSIP, OFFTOP, PRAY };
 // кол-во запоминаемых строк в каждом списке
 const unsigned int MAX_REMEMBER_NUM = 100;
 // кол-во выводимых стсрок по умолчанию
@@ -43,7 +43,6 @@ private:
 	std::string last_tell_; // последняя введенная строка (от спама)
 	Remember::RememberListType all_; // все запоминаемые каналы + воззвания (TODO: теллы в клетку и крики?), включая собственные
 	Remember::RememberListType personal_; // теллы
-	// Remember::RememberListType group_; // группа
 };
 
 #endif // REMEMBER_HPP_INCLUDED

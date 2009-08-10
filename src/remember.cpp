@@ -60,6 +60,30 @@ std::string format_gossip(CHAR_DATA *ch, CHAR_DATA *vict, int cmd, const char *a
 	return buf;
 }
 
+void add_to_cont(RememberListType &cont, const std::string &text)
+{
+	cont.push_back(text);
+	if (cont.size() > MAX_REMEMBER_NUM)
+	{
+		cont.erase(cont.begin());
+	}
+}
+
+std::string get_from_cont(const RememberListType &cont, unsigned int num_str)
+{
+	std::string text;
+	RememberListType::const_iterator it = cont.begin();
+	if (cont.size() > num_str)
+	{
+		std::advance(it, cont.size() - num_str);
+	}
+	for (; it != cont.end(); ++it)
+	{
+		text += *it;
+	}
+	return text;
+}
+
 } // namespace Remember
 
 using namespace Remember;
@@ -72,41 +96,19 @@ void CharRemember::add_str(std::string text, int flag)
 	switch (flag)
 	{
 	case ALL:
-		all_.push_back(buffer);
-		if (all_.size() > MAX_REMEMBER_NUM)
-		{
-			all_.erase(all_.begin());
-		}
+		add_to_cont(all_, buffer);
 		break;
 	case PERSONAL:
-		personal_.push_back(buffer);
-		if (personal_.size() > MAX_REMEMBER_NUM)
-		{
-			personal_.erase(personal_.begin());
-		}
-		break;
-	case GROUP:
+		add_to_cont(personal_, buffer);
 		break;
 	case GOSSIP:
-		gossip.push_back(buffer);
-		if (gossip.size() > MAX_REMEMBER_NUM)
-		{
-			gossip.erase(gossip.begin());
-		}
+		add_to_cont(gossip, buffer);
 		break;
 	case OFFTOP:
-		offtop.push_back(buffer);
-		if (offtop.size() > MAX_REMEMBER_NUM)
-		{
-			offtop.erase(offtop.begin());
-		}
+		add_to_cont(offtop, buffer);
 		break;
 	case PRAY:
-		pray.push_back(buffer);
-		if (pray.size() > MAX_REMEMBER_NUM)
-		{
-			pray.erase(pray.begin());
-		}
+		add_to_cont(pray, buffer);
 		break;
 	default:
 		log("SYSERROR: мы не должны были сюда попасть, flag: %d, func: %s",
@@ -123,69 +125,27 @@ std::string CharRemember::get_text(int flag) const
 	{
 	case ALL:
 	{
-		RememberListType::const_iterator it = all_.begin();
-		if (all_.size() > num_str_)
-		{
-			std::advance(it, all_.size() - num_str_);
-		}
-		for (; it != all_.end(); ++it)
-		{
-			buffer += *it;
-		}
+		buffer = get_from_cont(all_, num_str_);
 		break;
 	}
 	case PERSONAL:
 	{
-		RememberListType::const_iterator it = personal_.begin();
-		if (personal_.size() > num_str_)
-		{
-			std::advance(it, personal_.size() - num_str_);
-		}
-		for (; it != personal_.end(); ++it)
-		{
-			buffer += *it;
-		}
+		buffer = get_from_cont(personal_, num_str_);
 		break;
 	}
-	case GROUP:
-		break;
 	case GOSSIP:
 	{
-		RememberListType::const_iterator it = gossip.begin();
-		if (gossip.size() > num_str_)
-		{
-			std::advance(it, gossip.size() - num_str_);
-		}
-		for (; it != gossip.end(); ++it)
-		{
-			buffer += *it;
-		}
+		buffer = get_from_cont(gossip, num_str_);
 		break;
 	}
 	case OFFTOP:
 	{
-		RememberListType::const_iterator it = offtop.begin();
-		if (offtop.size() > num_str_)
-		{
-			std::advance(it, offtop.size() - num_str_);
-		}
-		for (; it != offtop.end(); ++it)
-		{
-			buffer += *it;
-		}
+		buffer = get_from_cont(offtop, num_str_);
 		break;
 	}
 	case PRAY:
 	{
-		RememberListType::const_iterator it = pray.begin();
-		if (pray.size() > num_str_)
-		{
-			std::advance(it, pray.size() - num_str_);
-		}
-		for (; it != pray.end(); ++it)
-		{
-			buffer += *it;
-		}
+		buffer = get_from_cont(pray, num_str_);
 		break;
 	}
 	default:
@@ -214,7 +174,6 @@ void CharRemember::reset()
 {
 	all_.clear();
 	personal_.clear();
-//	group_.clear();
 	answer_id_ = NOBODY;
 	last_tell_ = "";
 }
