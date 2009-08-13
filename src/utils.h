@@ -466,7 +466,6 @@ extern SPECIAL(postmaster);
 #define WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
 #define PUNCTUAL_WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
 #define CLR_MEMORY(ch)  (memset((ch)->Memory,0,MAX_SPELLS+1))
-#define FORGET_ALL(ch) {MemQ_flush(ch);memset((ch)->real_abils.SplMem,0,MAX_SPELLS+1);}
 #define IS_CODER(ch)    (GET_LEVEL(ch) < LVL_IMMORT && PRF_FLAGGED(ch, PRF_CODERINFO))
 #define IS_COLORED(ch)    (pk_count (ch))
 #define MAX_PORTALS(ch)  ((GET_LEVEL(ch)/3)+GET_REMORT(ch))
@@ -579,7 +578,6 @@ extern SPECIAL(postmaster);
 #define GET_AGE_ADD(ch)   ((ch)->add_abils.age_add)
 #define GET_HIT_ADD(ch)   ((ch)->add_abils.hit_add)
 #define GET_MOVE_ADD(ch)  ((ch)->add_abils.move_add)
-#define GET_SLOT(ch,i)    ((ch)->add_abils.slot_add[i])
 #define GET_SAVE(ch,i)    ((ch)->add_abils.apply_saving_throw[i])
 #define GET_RESIST(ch,i)  ((ch)->add_abils.apply_resistance_throw[i])
 #define GET_AR(ch)        ((ch)->add_abils.aresist)

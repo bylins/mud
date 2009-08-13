@@ -11,6 +11,8 @@
 #ifndef _IM_H_
 #define _IM_H_
 
+#include <boost/array.hpp>
+
 // Определение основных классов ингредиентов: росль, живь, твердь
 #define		IM_CLASS_ROSL		0
 #define		IM_CLASS_JIV		1
@@ -84,11 +86,11 @@ struct _im_recipe_tag
 	int *require;		// массив обязательных компонентов
 	int nAddon;		// количество добавочных компонентов
 	im_addon *addon;	// массив добавочных компонентов
-	char *msg_char[3];	// сообщения OK,FAIL,DAM
-	char *msg_room[3];	// сообщения OK,FAIL,DAM
+	boost::array<char *, 3> msg_char;	// сообщения OK,FAIL,DAM
+	boost::array<char *, 3> msg_room;	// сообщения OK,FAIL,DAM
 	int x, y;		// XdY - повреждения
 // +newbook.patch (Alisher)
-	int classknow[NUM_CLASSES]; // владеет ли класс данным рецептом
+	boost::array<int, NUM_CLASSES> classknow; // владеет ли класс данным рецептом
 	int level; // на каком уровне можно выучить рецепт
 	int remort; // сколько ремортов необходимо для рецепта
 // -newbook.patch (Alisher)

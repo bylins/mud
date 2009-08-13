@@ -7,10 +7,11 @@
 #ifndef _BOARDS_H_
 #define _BOARDS_H_
 
-#include "conf.h"
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include <boost/array.hpp>
+#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -55,7 +56,7 @@ typedef std::vector<MessagePtr> MessageListType;
 // даты последних прочтенных мессаг на досках
 struct board_data
 {
-	time_t board_date[BOARD_TOTAL];
+	boost::array<time_t, BOARD_TOTAL> board_date;
 };
 
 // отдельное сообщение

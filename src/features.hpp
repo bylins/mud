@@ -9,8 +9,9 @@
 #ifndef __FEATURES_HPP__
 #define __FEATURES_HPP__
 
-#include "conf.h"
 #include <bitset>
+#include <boost/array.hpp>
+#include "conf.h"
 
 using std::bitset;
 
@@ -155,8 +156,7 @@ struct feat_info_type
 	int slot[NUM_CLASSES][NUM_KIN];
 	bool classknow[NUM_CLASSES][NUM_KIN];
 	bool natural_classfeat[NUM_CLASSES][NUM_KIN];
-	struct obj_affected_type
-				affected[MAX_FEAT_AFFECT];
+	boost::array<obj_affected_type, MAX_FEAT_AFFECT> affected;
 	int type;
 	bool up_slot;
 	const char *name;

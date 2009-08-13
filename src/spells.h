@@ -12,6 +12,7 @@
 #define _SPELLS_H_
 
 #include <boost/tokenizer.hpp>
+#include <boost/array.hpp>
 
 #define DEFAULT_STAFF_LVL	12
 #define DEFAULT_WAND_LVL	12
@@ -334,6 +335,8 @@
 #define SPELL_TIMER_REPAIR      193
 #define LAST_USED_SPELL			194
 
+#define MAX_SLOT 13
+
 /*
  *  NON-PLAYER AND OBJECT SPELLS AND SKILLS
  *  The practice levels for the spells and skills below are _not_ recorded
@@ -412,7 +415,6 @@
 #define TAR_ROOM_THIS	(1 << 11) /* Цель комната в которой сидит чар*/
 #define TAR_ROOM_DIR	(1 << 12) /* Цель комната в каком-то направлении от чара*/
 #define TAR_ROOM_WORLD	(1 << 13) /* Цель какая-то комната в мире*/
-#define MAX_SLOT        13
 
 struct spell_info_type
 {
@@ -448,7 +450,7 @@ struct skill_info_type
 
 struct spell_create_item
 {
-	int items[3];
+	boost::array<int, 3> items;
 	int rnumber;
 	int min_caster_level;	// Понятно из названия :)
 };

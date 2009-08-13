@@ -12,6 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include <boost/array.hpp>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -1435,7 +1436,8 @@ void point_update(void)
 	memory_rec *mem, *nmem, *pmem;
 	CHAR_DATA *i, *next_char;
 	int count, mob_num, spellnum, mana;
-	char buffer_mem[MAX_SPELLS + 1], real_spell[MAX_SPELLS + 1];
+	boost::array<int, MAX_SPELLS + 1> buffer_mem;
+	boost::array<int, MAX_SPELLS + 1> real_spell;
 
 	for (count = 0; count <= MAX_SPELLS; count++)
 	{
@@ -1448,7 +1450,6 @@ void point_update(void)
 		real_spell[MAX_SPELLS - spellnum] = buffer_mem[count];
 		for (; count < MAX_SPELLS; buffer_mem[count] = buffer_mem[count + 1], count++);
 	}
-
 	/* characters */
 	for (i = character_list; i; i = next_char)
 	{

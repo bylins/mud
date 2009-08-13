@@ -4044,3 +4044,17 @@ int toggle_compression(DESCRIPTOR_DATA * t)
 #endif
 	return 0;
 }
+
+#if defined(BOOST_ENABLE_ASSERT_HANDLER)
+
+namespace boost
+{
+
+void assertion_failed(char const * expr, char const * function, char const * file, long line)
+{
+	log("Assert: '%s' in '%s', file: %s line: %ld", expr, function, file, line);
+}
+
+}
+
+#endif

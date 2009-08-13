@@ -613,6 +613,15 @@ void reset_affects(CHAR_DATA *ch)
 	affect_total(ch);
 }
 
+void forget_all_spells(CHAR_DATA *ch)
+{
+	MemQ_flush(ch);
+	for (int i = 0; i < MAX_SPELLS + 1; i++)
+	{
+		ch->real_abils.SplMem[i] = 0;
+	}
+}
+
 void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 {
 	CHAR_DATA *hitter;
@@ -642,7 +651,6 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 		{
 			make_arena_corpse(ch, killer);
 			change_fighting(ch, TRUE);
-//          FORGET_ALL(ch);
 			GET_HIT(ch) = 1;
 			GET_POS(ch) = POS_SITTING;
 			char_from_room(ch);
@@ -674,7 +682,7 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 
 			if (!IS_NPC(ch))
 			{
-				FORGET_ALL(ch);
+				forget_all_spells(ch);
 				for (hitter = character_list; hitter; hitter = hitter->next)
 					if (IS_NPC(hitter) && MEMORY(hitter))
 						forget(hitter, ch);

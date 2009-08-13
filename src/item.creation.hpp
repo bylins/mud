@@ -10,6 +10,13 @@
 #ifndef __ITEM_CREATION_HPP__
 #define __ITEM_CREATION_HPP__
 
+#include <string>
+#include <list>
+#include <iostream>
+#include <fstream>
+#include <boost/array.hpp>
+#include "conf.h"
+
 #define MAX_ITEMS 	9
 
 #define MAX_PARTS	3
@@ -37,13 +44,6 @@
 #define MAKE_METALL	3
 #define MAKE_CRAFT	4
 
-#include "conf.h"
-#include <string>
-#include <list>
-#include <iostream>
-#include <fstream>
-
-
 // определяем минимальное количество мувов для возможности что-то сделать.
 #define MIN_MAKE_MOVE   10
 
@@ -69,7 +69,7 @@ struct create_item_type
 	int material_bits;
 	int min_weight;
 	int max_weight;
-	int proto[MAX_PROTO];
+	boost::array<int, MAX_PROTO> proto;
 	int skill;
 	int wear;
 };
@@ -148,7 +148,7 @@ public:
 
 	int skill;
 	int obj_proto;
-	struct ingr_part_type parts[MAX_PARTS];
+	boost::array<ingr_part_type, MAX_PARTS> parts;
 
 	// конструктор деструктор загрузка из строчки.
 	// изготовление рецепта указанным чаром.

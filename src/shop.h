@@ -15,6 +15,8 @@
 #ifndef _SHOP_H_
 #define _SHOP_H_
 
+#include <boost/array.hpp>
+
 struct shop_buy_data
 {
 	int type;
@@ -104,7 +106,7 @@ struct shop_data
 
 struct stack_data
 {
-	int data[100];
+	boost::array<int, 100> data;
 	int len;
 };
 

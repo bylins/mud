@@ -1517,7 +1517,7 @@ int slot_for_char(CHAR_DATA * ch, int slot_num)
 		break;
 	}
 	if (wis_is == -1) return 0; /*Go here if no magic for char*/
-	return ((wis_is || (GET_REMORT(ch) > slot_num)) ? MIN(25, wis_is + GET_SLOT(ch, slot_num) + GET_REMORT(ch)) : 0);
+	return ((wis_is || (GET_REMORT(ch) > slot_num)) ? MIN(25, wis_is + ch->get_obj_slot(slot_num) + GET_REMORT(ch)) : 0);
 }
 
 inline int spell_create_level(CHAR_DATA * ch, int spellnum)

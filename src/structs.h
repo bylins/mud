@@ -19,10 +19,11 @@
 #include <list>
 #include <bitset>
 #include <string>
-#include <boost/shared_ptr.hpp>
 #include <fstream>
 #include <map>
 #include <iterator>
+#include <boost/shared_ptr.hpp>
+#include <boost/array.hpp>
 #include "conf.h"
 
 using std::map;
@@ -1218,8 +1219,7 @@ typedef long int
 bitvector_t;
 struct flag_data
 {
-	int
-	flags[4];
+	int flags[4];
 };
 
 extern const FLAG_DATA clear_flags;
@@ -1327,8 +1327,7 @@ struct extra_descr_data
 
 struct obj_flag_data
 {
-	int
-	value[NUM_OBJ_VAL_POSITIONS];
+	boost::array<int, NUM_OBJ_VAL_POSITIONS> value;
 	byte type_flag;		/* Type of item               */
 	int
 	wear_flags;		/* Where you can wear it     */
@@ -1596,7 +1595,7 @@ struct obj_data
 	OBJ_DATA *next;		/* For the object list              */
 	int
 	room_was_in;
-	char *PNames[6];
+	boost::array<char *, 6> PNames;
 	int
 	max_in_world;		/* max in world             */
 
@@ -1765,50 +1764,34 @@ private:
 /* header block for rent files.  BEWARE: Changing it will ruin rent files  */
 struct save_rent_info
 {
-	int
-	time;
-	int
-	rentcode;
-	int
-	net_cost_per_diem;
-	int
-	gold;
-	int
-	account;
-	int
-	nitems;
-	int
-	oitems;
-	int
-	spare1;
-	int
-	spare2;
-	int
-	spare3;
-	int
-	spare4;
-	int
-	spare5;
-	int
-	spare6;
-	int
-	spare7;
+	save_rent_info() : time(0), rentcode(0), net_cost_per_diem(0), gold(0), account(0), nitems(0), oitems(0),
+			spare1(0), spare2(0), spare3(0), spare4(0), spare5(0), spare6(0), spare7(0) {};
+	int time;
+	int rentcode;
+	int net_cost_per_diem;
+	int gold;
+	int account;
+	int nitems;
+	int oitems;
+	int spare1;
+	int spare2;
+	int spare3;
+	int spare4;
+	int spare5;
+	int spare6;
+	int spare7;
 };
 
 struct save_time_info
 {
-	int
-	vnum;
-	int
-	timer;
+	int vnum;
+	int timer;
 };
 
 struct save_info
 {
-	struct save_rent_info
-				rent;
-	struct save_time_info
-				time[2];
+	struct save_rent_info rent;
+	std::vector<save_time_info> time;
 };
 
 /* ======================================================================= */
@@ -1835,10 +1818,8 @@ struct track_data
 	track_info;		/* bitvector */
 	int
 	who;			/* real_number for NPC, IDNUM for PC */
-	int
-	time_income[6];	/* time bitvector */
-	int
-	time_outgone[6];
+	boost::array<int, 6> time_income;	/* time bitvector */
+	boost::array<int, 6> time_outgone;
 	struct track_data *next;
 };
 
@@ -1876,7 +1857,7 @@ struct room_data
 	int description_num;    // номер описания в глобальном списке
 	char *temp_description; // для олц, пока редактора не будет нормального
 	EXTRA_DESCR_DATA *ex_description;	/* for examine/look       */
-	EXIT_DATA *dir_option[NUM_OF_DIRS];	/* Directions */
+	boost::array<EXIT_DATA *, NUM_OF_DIRS> dir_option;	/* Directions */
 	FLAG_DATA room_flags;	/* DEATH,DARK ... etc */
 
 	byte light;		/* Number of lightsources in room */

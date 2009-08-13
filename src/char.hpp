@@ -8,6 +8,7 @@
 #include <bitset>
 #include <map>
 #include <boost/shared_ptr.hpp>
+#include <boost/array.hpp>
 //#include <ext/hash_map>
 #include "conf.h"
 #include "sysdep.h"
@@ -36,11 +37,14 @@ struct char_player_data
 	ubyte weight;		/* PC / NPC's weight                    */
 	ubyte height;		/* PC / NPC's height                    */
 
-	char *PNames[6];
+	boost::array<char *, 6> PNames;
 	ubyte Religion;
 	ubyte Kin;
 	ubyte Race;		/* PC / NPC's race*/
 };
+
+// кол-во +слотов со шмоток
+const int MAX_ADD_SLOTS = 10;
 
 /* Char's additional abilities. Used only while work */
 struct char_played_ability_data
@@ -60,7 +64,7 @@ struct char_played_ability_data
 	int hitreg;
 	int movereg;
 	int manareg;
-	sbyte slot_add[10];
+	boost::array<sbyte, MAX_ADD_SLOTS> obj_slot;
 	int armour;
 	int ac_add;
 	int hr_add;
@@ -71,8 +75,8 @@ struct char_played_ability_data
 	int initiative_add;
 	int poison_add;
 	int pray_add;
-	sh_int apply_saving_throw[4];		/* Saving throw (Bonuses)  */
-	sh_int apply_resistance_throw[7];	/* Сопротивление (резисты) к магии, ядам и крит. ударам */
+	boost::array<sh_int, 4> apply_saving_throw;		/* Saving throw (Bonuses)  */
+	boost::array<sh_int, 7> apply_resistance_throw;	/* Сопротивление (резисты) к магии, ядам и крит. ударам */
 	ubyte mresist;
 	ubyte aresist;
 };
@@ -80,8 +84,8 @@ struct char_played_ability_data
 /* Char's abilities. */
 struct char_ability_data
 {
-	ubyte SplKnw[MAX_SPELLS + 1];	/* array of SPELL_KNOW_TYPE         */
-	ubyte SplMem[MAX_SPELLS + 1];	/* array of MEMed SPELLS            */
+	boost::array<ubyte, MAX_SPELLS + 1> SplKnw; /* array of SPELL_KNOW_TYPE         */
+	boost::array<ubyte, MAX_SPELLS + 1> SplMem; /* array of MEMed SPELLS            */
 	bitset<MAX_FEATS> Feats;
 	sbyte str;
 	sbyte intel;
@@ -148,7 +152,7 @@ struct mob_special_data
 	memory_rec *memory;	/* List of attackers to remember          */
 	byte damnodice;		/* The number of damage dice's             */
 	byte damsizedice;	/* The size of the damage dice's           */
-	int dest[MAX_DEST];
+	boost::array<int, MAX_DEST> dest;
 	int dest_dir;
 	int dest_pos;
 	int dest_count;
@@ -196,7 +200,7 @@ struct player_special_data_saved
 	room_vnum load_room;	/* Which room to place char in      */
 	FLAG_DATA pref;		/* preference flags for PC's.    */
 	int bad_pws;		/* number of bad password attemps   */
-	int conditions[3];		/* Drunk, full, thirsty        */
+	boost::array<int, 3> conditions;		/* Drunk, full, thirsty        */
 
 	int DrunkState;
 	int olc_zone;
@@ -280,6 +284,9 @@ public:
 
 	int get_equipped_skill(int skill_num);
 	int get_trained_skill(int skill_num);
+
+	int get_obj_slot(int slot_num);
+	void add_obj_slot(int slot_num, int count);
 
 private:
 	static int normolize_skill(int percent);

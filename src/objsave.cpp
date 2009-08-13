@@ -53,12 +53,8 @@ extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;
 extern room_rnum r_unreg_start_room;
 
-#define MAKESIZE(number) (sizeof(struct save_info) + sizeof(struct save_time_info) * number)
-#define MAKEINFO(pointer, number) CREATE(pointer, char, MAKESIZE(number))
 #define SAVEINFO(number) ((player_table+number)->timer)
 #define RENTCODE(number) ((player_table+number)->timer->rent.rentcode)
-#define SAVESIZE(number) (sizeof(struct save_info) +\
-                          sizeof(struct save_time_info) * (player_table+number)->timer->rent.nitems)
 #define GET_INDEX(ch) (get_ptable_by_name(GET_NAME(ch)))
 
 /* Extern functions */
@@ -1250,8 +1246,8 @@ void Crash_clear_objects(int index)
 			if (SAVEINFO(index)->time[i].timer >= 0 &&
 					(rnum = real_object(SAVEINFO(index)->time[i].vnum)) >= 0)
 				obj_index[rnum].stored--;
-		free(SAVEINFO(index));
-		SAVEINFO(index) = NULL;
+		delete SAVEINFO(index);
+		SAVEINFO(index) = 0;
 	}
 }
 
@@ -1264,8 +1260,8 @@ void Crash_reload_timer(int index)
 			if (SAVEINFO(index)->time[i].timer >= 0 &&
 					(rnum = real_object(SAVEINFO(index)->time[i].vnum)) >= 0)
 				obj_index[rnum].stored--;
-		free(SAVEINFO(index));
-		SAVEINFO(index) = NULL;
+		delete SAVEINFO(index);
+		SAVEINFO(index) = 0;
 	}
 
 	if (!Crash_read_timer(index, FALSE))
@@ -1279,19 +1275,8 @@ void Crash_reload_timer(int index)
 void Crash_create_timer(int index, int num)
 {
 	if (SAVEINFO(index))
-		free(SAVEINFO(index));
-
-	if (((sizeof(struct save_info) + sizeof(struct save_time_info) * num)) * sizeof(char) <= 0)
-		log("SYSERR: Zero bytes or less requested at %s:%d.", __FILE__, __LINE__);
-	if (!((((player_table + index)->timer)) = (save_info *) calloc(((sizeof(struct save_info)
-			+ sizeof(struct save_time_info) * num)), sizeof(char))))
-	{
-		perror("SYSERR: malloc failure");
-		abort();
-	}
-
-	// выше - развертка MAKEINFO((char *) SAVEINFO(index), num);
-	memset(SAVEINFO(index), 0, MAKESIZE(num));
+		delete SAVEINFO(index);
+	SAVEINFO(index) = new save_info;
 }
 
 int Crash_write_timer(int index)
@@ -1316,7 +1301,11 @@ int Crash_write_timer(int index)
 		log("[WriteTimer] Error writing %s timer file - unable to open file %s.", name, fname);
 		return FALSE;
 	}
-	fwrite(SAVEINFO(index), SAVESIZE(index), 1, fl);
+	fwrite(&(SAVEINFO(index)->rent), sizeof(save_rent_info), 1, fl);
+	for (int i = 0; i < SAVEINFO(index)->rent.nitems; ++i)
+	{
+		fwrite(&(SAVEINFO(index)->time[i]), sizeof(save_time_info), 1, fl);
+	}
 	fclose(fl);
 	FileCRC::check_crc(fname, FileCRC::UPDATE_TIMEOBJS, player_table[index].unique);
 	return TRUE;
@@ -1397,18 +1386,24 @@ int Crash_read_timer(int index, int temp)
 			log("SYSERR: I/O Error reading %s timer file.", name);
 			fclose(fl);
 			FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].unique);
-			free(SAVEINFO(index));
-			SAVEINFO(index) = NULL;
+			delete SAVEINFO(index);
+			SAVEINFO(index) = 0;
 			return FALSE;
 		}
 		if (info.vnum && info.timer >= -1)
-			player_table[index].timer->time[num++] = info;
+		{
+			player_table[index].timer->time.push_back(info);
+			++num;
+		}
 		else
+		{
 			log("[ReadTimer] Warning: incorrect vnum (%d) or timer (%d) while reading %s timer file.",
-				info.vnum, info.timer, name);
-
+					info.vnum, info.timer, name);
+		}
 		if (info.timer >= 0 && (rnum = real_object(info.vnum)) >= 0 && !temp)
+		{
 			obj_index[rnum].stored++;
+		}
 	}
 	fclose(fl);
 	FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].unique);
@@ -1416,8 +1411,8 @@ int Crash_read_timer(int index, int temp)
 	if (rent.nitems != num)
 	{
 		log("[ReadTimer] Error reading %s timer file - file is corrupt.", fname);
-		free(SAVEINFO(index));
-		SAVEINFO(index) = NULL;
+		delete SAVEINFO(index);
+		SAVEINFO(index) = 0;
 		return FALSE;
 	}
 	else
@@ -1608,8 +1603,8 @@ void Crash_listrent(CHAR_DATA * ch, char *name)
 			sprintf(buf, "%s находится в игре. Содержимое файла ренты:\r\n", CAP(name));
 			send_to_char(buf, ch);
 			Crash_list_objects(ch, index);
-			free(SAVEINFO(index));
-			SAVEINFO(index) = NULL;
+			delete SAVEINFO(index);
+			SAVEINFO(index) = 0;
 		}
 	else
 	{
@@ -1942,8 +1937,8 @@ int Crash_load(CHAR_DATA * ch)
 		free(tank);
 	}
 	affect_total(ch);
-	free(SAVEINFO(index));
-	SAVEINFO(index) = NULL;
+	delete SAVEINFO(index);
+	SAVEINFO(index) = 0;
 	//???
 	//Crash_crashsave();
 	return (0);
@@ -2086,7 +2081,6 @@ int Crash_calc_charmee_items(CHAR_DATA *ch)
 #define CRASH_LENGTH   0x40000
 #define CRASH_DEPTH    0x1000
 
-int Crashitems;
 char *Crashbufferdata = NULL;
 char *Crashbufferpos;
 
@@ -2098,13 +2092,12 @@ void Crash_save(int iplayer, OBJ_DATA * obj, int location, int savetype)
 			GET_OBJ_WEIGHT(obj->in_obj) -= GET_OBJ_WEIGHT(obj);
 		Crash_save(iplayer, obj->contains, MIN(0, location) - 1, savetype);
 		if (iplayer >= 0)
-//		 	&& Crashbufferpos - Crashbufferdata + CRASH_DEPTH < CRASH_LENGTH)
-//			Crashitems < MAX_SAVED_ITEMS &&  /* Removed to avoid objects loss */
 		{
 			write_one_object(&Crashbufferpos, obj, location);
-			SAVEINFO(iplayer)->time[Crashitems].vnum = GET_OBJ_VNUM(obj);
-			SAVEINFO(iplayer)->time[Crashitems].timer = GET_OBJ_TIMER(obj);
-			Crashitems++;
+			save_time_info tmp_node;
+			tmp_node.vnum = GET_OBJ_VNUM(obj);
+			tmp_node.timer = GET_OBJ_TIMER(obj);
+			SAVEINFO(iplayer)->time.push_back(tmp_node);
 			if (savetype != RENT_CRASH)
 			{
 				log("%s save_char_obj %d %d %u", player_table[iplayer].name,
@@ -2195,8 +2188,6 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 	if (Crashbufferdata)
 		free(Crashbufferdata);	//?
 	CREATE(Crashbufferdata, char, 1000 * num);
-//	CREATE(Crashbufferdata, char, CRASH_LENGTH);
-	Crashitems = 0;
 	Crashbufferpos = Crashbufferdata;
 	*Crashbufferpos = '\0';
 
@@ -2260,8 +2251,8 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 
 	if (savetype == RENT_CRASH)
 	{
-		free(SAVEINFO(iplayer));
-		SAVEINFO(iplayer) = NULL;
+		delete SAVEINFO(iplayer);
+		SAVEINFO(iplayer) = 0;
 	}
 
 	return TRUE;

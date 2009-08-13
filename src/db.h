@@ -15,6 +15,8 @@
 #ifndef _DB_H_
 #define _DB_H_
 
+#include <boost/array.hpp>
+
 /* arbitrary constants used by index_boot() (must be unique) */
 #define MAX_PROTO_NUMBER 999999	//Максимально возможный номер комнаты, предмета и т.д.
 
@@ -352,7 +354,7 @@ struct ingredient
 {
 	int imtype;
 	std::string imname;
-	int prob[50]; // вероятность загрузки для каждого уровня моба
+	boost::array<int, 50> prob; // вероятность загрузки для каждого уровня моба
 };
 
 class MobRace{

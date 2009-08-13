@@ -462,7 +462,7 @@ void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool a
 	case APPLY_C7:
 	case APPLY_C8:
 	case APPLY_C9:
-		GET_SLOT(ch, loc - APPLY_C1) += mod;
+		ch->add_obj_slot(loc - APPLY_C1, mod);
 		break;
 	case APPLY_SIZE:
 		GET_SIZE_ADD(ch) += mod;
