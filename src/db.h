@@ -17,6 +17,9 @@
 
 #include <boost/array.hpp>
 
+// Максимальный уровень мобов
+const int MAX_MOB_LEVEL = 50;
+
 /* arbitrary constants used by index_boot() (must be unique) */
 #define MAX_PROTO_NUMBER 999999	//Максимально возможный номер комнаты, предмета и т.д.
 
@@ -354,7 +357,7 @@ struct ingredient
 {
 	int imtype;
 	std::string imname;
-	boost::array<int, 50> prob; // вероятность загрузки для каждого уровня моба
+	boost::array<int, MAX_MOB_LEVEL + 1> prob; // вероятность загрузки для каждого уровня моба
 };
 
 class MobRace{
