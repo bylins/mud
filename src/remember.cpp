@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include <algorithm>
+#include <boost/format.hpp>
 #include "remember.hpp"
 #include "utils.h"
 #include "comm.h"

@@ -749,6 +749,8 @@ ACMD(do_gen_comm)
 	if (!check_moves(ch, com_msgs[subcmd].move_cost))
 		return;
 
+	char out_str[MAX_STRING_LENGTH];
+
 	/* first, set up strings to be given to the communicator */
 	if (subcmd == SCMD_AUCTION)
 	{
@@ -777,7 +779,7 @@ ACMD(do_gen_comm)
 			snprintf(buf1 + strlen(buf1), MAX_STRING_LENGTH, "\r\n");
 			ch->player->add_remember(buf1, Remember::ALL);
 		}
-		sprintf(buf, "$n %s : '%s'", com_msgs[subcmd].hi_action, argument);
+		snprintf(out_str, MAX_STRING_LENGTH, "$n %s : '%s'", com_msgs[subcmd].hi_action, argument);
 
 		if (subcmd == SCMD_GOSSIP || subcmd == SCMD_HOLLER)
 		{
@@ -817,7 +819,7 @@ ACMD(do_gen_comm)
 
 			if (COLOR_LEV(i->character) >= C_NRM)
 				send_to_char(color_on, i->character);
-			act(buf, FALSE, ch, 0, i->character, TO_VICT | TO_SLEEP | CHECK_DEAF);
+			act(out_str, FALSE, ch, 0, i->character, TO_VICT | TO_SLEEP | CHECK_DEAF);
 			if (COLOR_LEV(i->character) >= C_NRM)
 				send_to_char(KNRM, i->character);
 
