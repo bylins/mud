@@ -52,13 +52,13 @@ std::string format_gossip_name(CHAR_DATA *ch, CHAR_DATA *vict)
 */
 std::string format_gossip(CHAR_DATA *ch, CHAR_DATA *vict, int cmd, const char *argument)
 {
-	snprintf(buf, MAX_STRING_LENGTH, "%s%s %s%s : '%s'%s\r\n",
-			cmd == SCMD_GOSSIP ? CCYEL(vict, C_NRM) : CCIYEL(vict, C_NRM),
-			format_gossip_name(ch, vict).c_str(),
-			cmd == SCMD_GOSSIP ? "заметил" : "заорал",
-			GET_CH_VIS_SUF_1(ch, vict), argument,
-			CCNRM(vict, C_NRM));
-	return buf;
+	return str(boost::format("%1%%2% %3%%4% : '%5%'%6%\r\n")
+			% (cmd == SCMD_GOSSIP ? CCYEL(vict, C_NRM) : CCIYEL(vict, C_NRM))
+			% format_gossip_name(ch, vict).c_str()
+			% (cmd == SCMD_GOSSIP ? "заметил" : "заорал")
+			% GET_CH_VIS_SUF_1(ch, vict)
+			% argument
+			% CCNRM(vict, C_NRM));
 }
 
 /**
