@@ -194,7 +194,10 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 	}
 	snprintf(buf1, MAX_STRING_LENGTH, "%s%s%s\r\n", CCICYN(vict, C_NRM), CAP(buf), CCNRM(vict, C_NRM));
 	send_to_char(buf1, vict);
-	vict->player->add_remember(buf1, Remember::ALL);
+	if (!IS_NPC(vict))
+	{
+		vict->player->add_remember(buf1, Remember::ALL);
+	}
 
 	if (!IS_NPC(vict) && !IS_NPC(ch))
 	{
@@ -209,11 +212,13 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 	}
 	else
 	{
-
 		snprintf(buf, MAX_STRING_LENGTH, "%sВы сказали %s : '%s'%s\r\n", CCICYN(ch, C_NRM),
 				tell_can_see(vict, ch) ? vict->player_data.PNames[2] : "кому-то", arg, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
-		ch->player->add_remember(buf, Remember::ALL);
+		if (!IS_NPC(ch))
+		{
+			ch->player->add_remember(buf, Remember::ALL);
+		}
 	}
 
 	if (!IS_NPC(vict) && !IS_NPC(ch))
@@ -776,12 +781,15 @@ ACMD(do_gen_comm)
 			}
 			act(buf1, FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
 
-			snprintf(buf1 + strlen(buf1), MAX_STRING_LENGTH, "\r\n");
-			ch->player->add_remember(buf1, Remember::ALL);
+			if (!IS_NPC(ch))
+			{
+				snprintf(buf1 + strlen(buf1), MAX_STRING_LENGTH, "\r\n");
+				ch->player->add_remember(buf1, Remember::ALL);
+			}
 		}
 		snprintf(out_str, MAX_STRING_LENGTH, "$n %s : '%s'", com_msgs[subcmd].hi_action, argument);
 
-		if (subcmd == SCMD_GOSSIP || subcmd == SCMD_HOLLER)
+		if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP || subcmd == SCMD_HOLLER))
 		{
 			snprintf(buf1, MAX_STRING_LENGTH, "%s'%s'%s\r\n", color_on, argument, KNRM);
 			ch->player->add_remember(buf1, Remember::GOSSIP);

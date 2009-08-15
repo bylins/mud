@@ -45,6 +45,8 @@ struct char_player_data
 
 // кол-во +слотов со шмоток
 const int MAX_ADD_SLOTS = 10;
+// типы резистов
+enum { FIRE_RESISTANCE = 0, AIR_RESISTANCE, WATER_RESISTANCE, EARTH_RESISTANCE, VITALITY_RESISTANCE, MIND_RESISTANCE, IMMUNITY_RESISTANCE, MAX_NUMBER_RESISTANCE };
 
 /* Char's additional abilities. Used only while work */
 struct char_played_ability_data
@@ -76,7 +78,7 @@ struct char_played_ability_data
 	int poison_add;
 	int pray_add;
 	boost::array<sh_int, 4> apply_saving_throw;		/* Saving throw (Bonuses)  */
-	boost::array<sh_int, 7> apply_resistance_throw;	/* Сопротивление (резисты) к магии, ядам и крит. ударам */
+	boost::array<sh_int, MAX_NUMBER_RESISTANCE> apply_resistance_throw;	/* Сопротивление (резисты) к магии, ядам и крит. ударам */
 	ubyte mresist;
 	ubyte aresist;
 };

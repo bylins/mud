@@ -102,7 +102,6 @@ extern void check_auction(CHAR_DATA * ch, OBJ_DATA * obj);
 extern void check_exchange(OBJ_DATA * obj);
 void free_script(SCRIPT_DATA * sc);
 int get_player_charms(CHAR_DATA * ch, int spellnum);
-int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect);
 
 extern struct zone_data *zone_table;
 extern int global_uid;
@@ -4137,7 +4136,6 @@ int awake_others(CHAR_DATA * ch)
 
 int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect)
 {
-
 	int result, resistance;
 
 	resistance = GET_RESIST(ch, resist_type);

@@ -388,19 +388,6 @@
 #define SAVING_COUNT      4
 #define SAVING_NONE	5 /*Внимание! Элемента массива с этим номером НЕТ! Исп. в кач-ве заглушки для нефейлящихся спеллов.*/
 
-/**********************************************************************
-* Resistance constants
-**********************************************************************/
-
-#define FIRE_RESISTANCE		0
-#define AIR_RESISTANCE		1
-#define WATER_RESISTANCE	2
-#define EARTH_RESISTANCE	3
-#define VITALITY_RESISTANCE	4
-#define MIND_RESISTANCE		5
-#define IMMUNITY_RESISTANCE	6
-#define MAX_NUMBER_RESISTANCE	7
-
 #define TAR_IGNORE      (1 << 0)
 #define TAR_CHAR_ROOM   (1 << 1)
 #define TAR_CHAR_WORLD  (1 << 2) // не ищет мобов при касте чарами (призвать/переместиться/переход)

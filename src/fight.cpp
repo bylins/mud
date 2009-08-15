@@ -1925,11 +1925,8 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 	if (!IS_NPC(victim))
 	{
 		dam /= 5;
-		return calculate_resistance_coeff(victim, VITALITY_RESISTANCE +
-										  GET_LEVEL(victim) + GET_REMORT(victim), dam);
 	}
-	else
-		return calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
+	return calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
 }
 
 /**
