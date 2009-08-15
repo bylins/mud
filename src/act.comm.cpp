@@ -1053,7 +1053,7 @@ ACMD(do_remember_char)
 	{
 		send_to_char(ch, "%s", ch->player->get_remember(Remember::PRAY).c_str());
 	}
-	else if (is_abbrev(arg, "болтать"))
+	else if (is_abbrev(arg, "болтать") || is_abbrev(arg, "орать"))
 	{
 		send_to_char(ch, "%s", ch->player->get_remember(Remember::GOSSIP).c_str());
 	}
