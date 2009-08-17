@@ -2697,11 +2697,6 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					trig_log(trig, "object.put: недопустимый аргумент, необходимо указать UID");
 					return;
 				}
-				if (o->in_room == NOWHERE)
-				{
-					trig_log(trig, "object.put: объект, вызвавший команду, находится в NOWHERE");
-					return;
-				}
 				if (*subfield == UID_OBJ)
 				{
 					obj_to = find_obj(atoi(subfield+1));
@@ -2735,10 +2730,15 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					unequip_char(o->worn_by, o->worn_on);
 				if (o->carried_by)
 					obj_from_char(o);
-				if (o->in_obj)
+				else if (o->in_obj)
 					obj_from_obj(o);
-				if (o->in_room > NOWHERE)
+				else if (o->in_room > NOWHERE)
 					obj_from_room(o);
+				else				
+				{
+						trig_log(trig, "object.put: не удалось извлечь объект");
+						return;
+				}
 				//finally, put it to destination
 				if (char_to)
 					obj_to_char(o, char_to);
