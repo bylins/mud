@@ -786,6 +786,14 @@ void affect_total(CHAR_DATA * ch)
 		act("Вам слишком тяжело держать $o3 в правой руке !", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
 		obj_to_char(unequip_char(ch, WEAR_WIELD), ch);
+		// если пушку можно вооружить в обе руки и эти руки свободны
+		if (CAN_WEAR(obj, ITEM_WEAR_BOTHS) && OK_BOTH(ch, obj)
+			&& !GET_EQ(ch, WEAR_HOLD) && !GET_EQ(ch, WEAR_LIGHT)
+			&& !GET_EQ(ch, WEAR_SHIELD) && !GET_EQ(ch, WEAR_WIELD)
+			&& !GET_EQ(ch, WEAR_BOTHS))
+		{
+			equip_char(ch, obj, WEAR_BOTHS | 0x100);
+		}
 		return;
 	}
 	if (!IS_NPC(ch) && (obj = GET_EQ(ch, WEAR_HOLD)) && !IS_IMMORTAL(ch)
