@@ -361,14 +361,14 @@ void log(const char *format, ...)
 		puts("SYSERR: Using log() before stream was initialized!");
 	if (format == NULL)
 		format = "SYSERR: log() received a NULL format.";
-/*
+
 	time_t ct = time(0);
 	char *time_s = asctime(localtime(&ct));
 
 	time_s[strlen(time_s) - 1] = '\0';
 	fprintf(logfile, "%-15.15s :: ", time_s + 4);
-*/
-	write_test_time(logfile);
+
+//	write_test_time(logfile);
 	va_list args;
 	va_start(args, format);
 	vfprintf(logfile, format, args);
