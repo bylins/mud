@@ -1798,8 +1798,8 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		}
 
 
-		if (!FIGHTING(d->character)
-				|| IN_ROOM(d->character) != IN_ROOM(FIGHTING(d->character)))  	/* SHOW NON COMBAT INFO */
+		if (!d->character->get_fighting()
+				|| IN_ROOM(d->character) != IN_ROOM(d->character->get_fighting()))  	/* SHOW NON COMBAT INFO */
 		{
 
 			if (PRF_FLAGGED(d->character, PRF_DISPLEVEL))
@@ -1830,12 +1830,12 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		{
 			if (PRF_FLAGGED(d->character, PRF_DISPFIGHT))
 				count += sprintf(prompt + count, "%s", show_state(d->character, d->character));
-			if (FIGHTING(FIGHTING(d->character))
-					&& FIGHTING(FIGHTING(d->character)) != d->character)
+			if (d->character->get_fighting()->get_fighting()
+					&& d->character->get_fighting()->get_fighting() != d->character)
 				count +=
 					sprintf(prompt + count, "%s",
-							show_state(d->character, FIGHTING(FIGHTING(d->character))));
-			count += sprintf(prompt + count, "%s", show_state(d->character, FIGHTING(d->character)));
+							show_state(d->character, d->character->get_fighting()->get_fighting()));
+			count += sprintf(prompt + count, "%s", show_state(d->character, d->character->get_fighting()));
 		};
 		strcat(prompt, "> ");
 	}
@@ -3042,7 +3042,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT)
 		{
 			act("$n потерял$g связь.", TRUE, d->character, 0, 0, TO_ROOM);
-			if (FIGHTING(d->character) && PRF_FLAGGED(d->character, PRF_ANTIDC_MODE))
+			if (d->character->get_fighting() && PRF_FLAGGED(d->character, PRF_ANTIDC_MODE))
 			{
 				snprintf(buf2, sizeof(buf2), "зачитать свиток.возврата");
 				command_interpreter(d->character, buf2);

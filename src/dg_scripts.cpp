@@ -2201,8 +2201,8 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 
 			else if (!str_cmp(field, "fighting"))
 			{
-				if (FIGHTING(c))
-					sprintf(str, "%c%ld", UID_CHAR, GET_ID(FIGHTING(c)));
+				if (c->get_fighting())
+					sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->get_fighting()));
 			}
 			else if (!str_cmp(field, "is_killer"))
 			{
@@ -2508,7 +2508,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				CHAR_DATA *t;
 				for (t = combat_list; t; t = t->next_fighting)
 				{
-					if (FIGHTING(t) != c)
+					if (t->get_fighting() != c)
 						continue;
 					sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(t));
 				}
@@ -2734,7 +2734,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					obj_from_obj(o);
 				else if (o->in_room > NOWHERE)
 					obj_from_room(o);
-				else				
+				else
 				{
 						trig_log(trig, "object.put: не удалось извлечь объект");
 						return;

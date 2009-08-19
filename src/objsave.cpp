@@ -2594,7 +2594,7 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 		send_to_char("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
 		return (TRUE);
 	}
-	if (FIGHTING(ch))
+	if (ch->get_fighting())
 	{
 		return (FALSE);
 	}

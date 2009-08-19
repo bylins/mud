@@ -134,8 +134,6 @@ struct char_special_data_saved
 /* Special playing constants shared by PCs and NPCs which aren't in pfile */
 struct char_special_data
 {
-	CHAR_DATA *fighting;	/* Opponent */
-
 	byte position;		/* Standing, fighting, sleeping, etc. */
 
 	int carry_weight;		/* Carried weight */
@@ -290,14 +288,46 @@ public:
 	int get_obj_slot(int slot_num);
 	void add_obj_slot(int slot_num, int count);
 
-private:
-	static int normolize_skill(int percent);
+	////////////////////////////////////////////////////////////////////////////
+	CHAR_DATA * get_touching() const;
+	void set_touching(CHAR_DATA *vict);
 
-public:
+	CHAR_DATA * get_protecting() const;
+	void set_protecting(CHAR_DATA *vict);
+
+	int get_extra_skill() const;
+	CHAR_DATA * get_extra_victim() const;
+	void set_extra_attack(int skill, CHAR_DATA *vict);
+
+	CHAR_DATA * get_fighting() const;
+	void set_fighting(CHAR_DATA *vict);
+
+	// TODO: касты можно сделать и красивее (+ troom не используется, cast_spell/cast_subst/cast_obj только по разу)
+	void set_cast(int spellnum, int spell_subst, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom);
+	int get_cast_spell() const;
+	int get_cast_subst() const;
+	CHAR_DATA * get_cast_char() const;
+	OBJ_DATA * get_cast_obj() const;
+
+	void clear_fighing_list();
+	////////////////////////////////////////////////////////////////////////////
+
 	PlayerPtr player;
 
 private:
-	CharSkillsType skills; // список изученных скиллов
+	static int normolize_skill(int percent);
+	void check_fighting_list();
+
+	CharSkillsType skills;  // список изученных скиллов
+	////////////////////////////////////////////////////////////////////////////
+	CHAR_DATA *protecting_; // цель для 'прикрыть'
+	CHAR_DATA *touching_;   // цель для 'перехватить'
+	CHAR_DATA *fighting_;   // противник
+	bool in_fighting_list_;  // наличие чара в списке проверки сражающихся
+
+	struct extra_attack_type extra_attack_; // атаки типа баша, пинка и т.п.
+	struct cast_attack_type cast_attack_;   // каст заклинания
+	////////////////////////////////////////////////////////////////////////////
 
 // старое
 public:
@@ -354,17 +384,13 @@ public:
 
 	FLAG_DATA BattleAffects;
 
-	CHAR_DATA *Protecting;
-	CHAR_DATA *Touching;
-
 	int Poisoner;
-
-	struct extra_attack_type extra_attack;
-	struct cast_attack_type cast_attack;
 
 	int *ing_list;		//загружаемые в труп ингредиенты
 	load_list *dl_list;	// загружаемые в труп предметы
 };
 
+void change_fighting(CHAR_DATA * ch, int need_stop);
+int fighting_list_size();
 
 #endif // CHAR_HPP_INCLUDED

@@ -1137,16 +1137,16 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	}
 	else
 	{
-		if (FIGHTING(i))
+		if (i->get_fighting())
 		{
 			strcat(buf, IS_POLY(i) ? "сражаются с " : "сражается c ");
-			if (i->in_room != FIGHTING(i)->in_room)
+			if (i->in_room != i->get_fighting()->in_room)
 				strcat(buf, "чьей-то тенью ");
-			else if (FIGHTING(i) == ch)
+			else if (i->get_fighting() == ch)
 				strcat(buf, "ВАМИ ");
 			else
 			{
-				strcat(buf, GET_PAD(FIGHTING(i), 4));
+				strcat(buf, GET_PAD(i->get_fighting(), 4));
 				strcat(buf, " ");
 			}
 			strcat(buf, "! ");
@@ -1711,7 +1711,7 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			percent = number(1, skill_info[SKILL_HEARING].max_percent);
 			probe = train_skill(ch, SKILL_HEARING, skill_info[SKILL_HEARING].max_percent, tch);
 			// Если сражаются то слышем только борьбу.
-			if (FIGHTING(tch))
+			if (tch->get_fighting())
 			{
 				if (IS_NPC(tch))
 					tmpstr += " Вы слышите шум чьей-то борьбы.\r\n";
@@ -2681,7 +2681,7 @@ ACMD(do_score)
 						CCIGRN(ch, C_NRM), string("Вы сидите.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
 				break;
 			case POS_FIGHTING:
-				if (FIGHTING(ch))
+				if (ch->get_fighting())
 					sprintf(buf + strlen(buf), " || %s%-19s%s|",
 							CCIRED(ch, C_NRM), string("Вы сражаетесь!").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
 				else
@@ -2863,10 +2863,10 @@ ACMD(do_score)
 					" || %sВас ожидает новое письмо, зайдите на почту                                      %s||\r\n",
 					CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
-		if (PROTECTING(ch))
+		if (ch->get_protecting())
 			sprintf(buf + strlen(buf),
 					" || %sВы прикрываете %-65s%s||\r\n",
-					CCIGRN(ch, C_NRM), string(GET_PAD(PROTECTING(ch),3)+string(" от нападения.")).substr(0,65).c_str(),
+					CCIGRN(ch, C_NRM), string(GET_PAD(ch->get_protecting(),3)+string(" от нападения.")).substr(0,65).c_str(),
 					CCCYN(ch, C_NRM));
 
 		if (GET_GOD_FLAG(ch, GF_GODSCURSE) && GCURSE_DURATION(ch))
@@ -3083,8 +3083,8 @@ ACMD(do_score)
 			strcat(buf, "Вы сидите.\r\n");
 			break;
 		case POS_FIGHTING:
-			if (FIGHTING(ch))
-				sprintf(buf + strlen(buf), "Вы сражаетесь с %s.\r\n", GET_PAD(FIGHTING(ch), 4));
+			if (ch->get_fighting())
+				sprintf(buf + strlen(buf), "Вы сражаетесь с %s.\r\n", GET_PAD(ch->get_fighting(), 4));
 			else
 				strcat(buf, "Вы машете кулаками по воздуху.\r\n");
 			break;
@@ -4893,8 +4893,8 @@ ACMD(do_diagnose)
 	}
 	else
 	{
-		if (FIGHTING(ch))
-			diag_char_to_char(FIGHTING(ch), ch);
+		if (ch->get_fighting())
+			diag_char_to_char(ch->get_fighting(), ch);
 		else
 			send_to_char("На кого вы хотите взглянуть ?\r\n", ch);
 	}

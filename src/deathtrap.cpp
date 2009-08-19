@@ -19,7 +19,6 @@
 
 extern int has_boat(CHAR_DATA * ch);
 extern void die(CHAR_DATA * ch, CHAR_DATA * killer);
-extern void change_fighting(CHAR_DATA * ch, int need_stop);
 extern void death_cry(CHAR_DATA * ch);
 extern void reset_affects(CHAR_DATA *ch);
 

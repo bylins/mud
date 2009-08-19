@@ -1359,7 +1359,7 @@ ACMD(do_eat)
 		send_to_char("Чем Вы собрались закусить ?\r\n", ch);
 		return;
 	}
-	if (FIGHTING(ch))
+	if (ch->get_fighting())
 	{
 		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
@@ -2356,7 +2356,7 @@ ACMD(do_firstaid)
 		return;
 	};
 
-	if (FIGHTING(vict))
+	if (vict->get_fighting())
 	{
 		act("$N сражается, $M не до Ваших телячьих нежностей.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
@@ -2534,7 +2534,7 @@ ACMD(do_repair)
 
 	one_argument(argument, arg);
 
-	if (FIGHTING(ch))
+	if (ch->get_fighting())
 	{
 		send_to_char("Вы не можете сделать это в бою !\r\n", ch);
 		return;

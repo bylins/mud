@@ -58,7 +58,6 @@ int check_death_trap(CHAR_DATA * ch);
 int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum);
 int slot_for_char(CHAR_DATA * ch, int slotnum);
 void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum);
-void change_fighting(CHAR_DATA * ch, int need_stop);
 
 /* Extern functions */
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
@@ -781,7 +780,7 @@ void mobile_affect_update(void)
 			next = af->next;
 			if (af->duration >= 1)
 			{
-				if (IS_SET(af->battleflag, AF_SAME_TIME) && (!FIGHTING(i) || af->location == APPLY_POISON))
+				if (IS_SET(af->battleflag, AF_SAME_TIME) && (!i->get_fighting() || af->location == APPLY_POISON))
 				{
 					// здесь плеера могут спуржить
 					if (same_time_update(i, af) == -1)
@@ -874,7 +873,7 @@ void player_affect_update(void)
 			next = af->next;
 			if (af->duration >= 1)
 			{
-				if (IS_SET(af->battleflag, AF_SAME_TIME) && !FIGHTING(i))
+				if (IS_SET(af->battleflag, AF_SAME_TIME) && !i->get_fighting())
 				{
 					// здесь плеера могут спуржить
 					if (same_time_update(i, af) == -1)
@@ -982,7 +981,7 @@ void pulse_affect_update(CHAR_DATA * ch)
 	AFFECT_DATA *af, *next;
 	bool pulse_aff = FALSE;
 
-	if (FIGHTING(ch))
+	if (ch->get_fighting())
 		return;
 
 	supress_godsapply = TRUE;
@@ -2049,10 +2048,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			//send_to_char("1\r\n",victim);
 			pk_agro_action(ch, victim);
 		}
-		else if (IS_SET(SpINFO.routines, NPC_AFFECT_NPC) && FIGHTING(victim))  	//send_to_char("2\r\n",ch);
+		else if (IS_SET(SpINFO.routines, NPC_AFFECT_NPC) && victim->get_fighting())  	//send_to_char("2\r\n",ch);
 		{
 			//send_to_char("2\r\n",victim);
-			pk_agro_action(ch, FIGHTING(victim));
+			pk_agro_action(ch, victim->get_fighting());
 		}
 		//send_to_char("Stop\r\n",ch);
 		//send_to_char("Stop\r\n",victim);
@@ -2847,7 +2846,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			break;
 		};
 
-		if (FIGHTING(victim))
+		if (victim->get_fighting())
 			stop_fighting(victim, FALSE);
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 1, level, 6, 1, 6));
@@ -3258,7 +3257,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			success = FALSE;
 			break;
 		}
-		if (FIGHTING(victim))
+		if (victim->get_fighting())
 		{
 			stop_fighting(victim, TRUE);
 			change_fighting(victim, TRUE);
@@ -4045,9 +4044,9 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	hit = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, hit);
 
-	if (hit && FIGHTING(victim) && ch != victim)
+	if (hit && victim->get_fighting() && ch != victim)
 	{
-		pk_agro_action(ch, FIGHTING(victim));
+		pk_agro_action(ch, victim->get_fighting());
 	}
 
 	if ((spellnum == SPELL_EXTRA_HITS || spellnum == SPELL_PATRONAGE)
@@ -4168,9 +4167,9 @@ int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, i
 		{
 			pk_agro_action(ch, victim);
 		}
-		else if (IS_SET(SpINFO.routines, NPC_AFFECT_PC) && FIGHTING(victim))
+		else if (IS_SET(SpINFO.routines, NPC_AFFECT_PC) && victim->get_fighting())
 		{
-			pk_agro_action(ch, FIGHTING(victim));
+			pk_agro_action(ch, victim->get_fighting());
 		}
 	}
 	affect_from_char(victim, spell);

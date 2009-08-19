@@ -361,14 +361,14 @@ void log(const char *format, ...)
 		puts("SYSERR: Using log() before stream was initialized!");
 	if (format == NULL)
 		format = "SYSERR: log() received a NULL format.";
-
+/*
 	time_t ct = time(0);
 	char *time_s = asctime(localtime(&ct));
 
 	time_s[strlen(time_s) - 1] = '\0';
 	fprintf(logfile, "%-15.15s :: ", time_s + 4);
-
-//	write_test_time(logfile);
+*/
+	write_test_time(logfile);
 	va_list args;
 	va_start(args, format);
 	vfprintf(logfile, format, args);
@@ -887,15 +887,15 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 		EXTRACT_TIMER(ch) = 5;
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_CHARM), AFF_CHARM);
 		// log("[Stop follower] Stop fight charmee");
-		if (FIGHTING(ch))
+		if (ch->get_fighting())
 			stop_fighting(ch, TRUE);
 		/*
 		   log("[Stop follower] Stop fight charmee opponee");
 		   for (vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next)
-		   {if (FIGHTING(vict) &&
-		   FIGHTING(vict) == ch &&
-		   FIGHTING(ch) != vict)
-		   stop_fighting(vict);
+		   {if (vict->get_fighting() &&
+		   vict->get_fighting() == ch &&
+		   ch->get_fighting() != vict)
+		   stop_vict->get_fighting();
 		   }
 		 */
 		//log("[Stop follower] Charmee MOB reaction");
@@ -917,7 +917,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 				if (master &&
 						!IS_SET(mode, SF_MASTERDIE) &&
 						IN_ROOM(ch) == IN_ROOM(master) &&
-						CAN_SEE(ch, master) && !FIGHTING(ch) &&
+						CAN_SEE(ch, master) && !ch->get_fighting() &&
 						!ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL))   //Polud - ну не надо агрить в мирках, незачем это
 				{
 					if (number(1, GET_REAL_INT(ch) * 2) > GET_REAL_CHA(master))

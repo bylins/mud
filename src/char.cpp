@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include <sstream>
+#include <list>
 #include "char.hpp"
 #include "utils.h"
 #include "db.h"
@@ -15,9 +16,16 @@
 #include "skills.h"
 #include "constants.h"
 #include "char_player.hpp"
+#include "spells.h"
+#include "comm.h"
 
 Character::Character()
-		: nr(NOBODY),
+		:
+		protecting_(0),
+		touching_(0),
+		fighting_(0),
+		in_fighting_list_(0),
+		nr(NOBODY),
 		in_room(0),
 		wait(0),
 		punctual_wait(0),
@@ -46,12 +54,12 @@ Character::Character()
 		ExtractTimer(0),
 		Initiative(0),
 		BattleCounter(0),
-		Protecting(0),
-		Touching(0),
 		Poisoner(0),
 		ing_list(0),
 		dl_list(0)
 {
+	memset(&extra_attack_, 0, sizeof(extra_attack_type));
+	memset(&cast_attack_, 0, sizeof(cast_attack_type));
 	memset(&player_data, 0, sizeof(char_player_data));
 	memset(&add_abils, 0, sizeof(char_played_ability_data));
 	memset(&real_abils, 0, sizeof(char_ability_data));
@@ -65,8 +73,6 @@ Character::Character()
 	memset(&MemQueue, 0, sizeof(spell_mem_queue));
 	memset(&Temporary, 0, sizeof(FLAG_DATA));
 	memset(&BattleAffects, 0, sizeof(FLAG_DATA));
-	memset(&extra_attack, 0, sizeof(extra_attack_type));
-	memset(&cast_attack, 0, sizeof(cast_attack_type));
 
 	char_specials.position = POS_STANDING;
 	mob_specials.default_pos = POS_STANDING;
@@ -355,3 +361,162 @@ void Character::add_obj_slot(int slot_num, int count)
 		add_abils.obj_slot[slot_num] += count;
 	}
 }
+
+void Character::set_touching(CHAR_DATA *vict)
+{
+	touching_ = vict;
+	check_fighting_list();
+}
+
+CHAR_DATA * Character::get_touching() const
+{
+	return touching_;
+}
+
+void Character::set_protecting(CHAR_DATA *vict)
+{
+	protecting_ = vict;
+	check_fighting_list();
+}
+
+CHAR_DATA * Character::get_protecting() const
+{
+	return protecting_;
+}
+
+void Character::set_fighting(CHAR_DATA *vict)
+{
+	fighting_ = vict;
+	check_fighting_list();
+}
+
+CHAR_DATA * Character::get_fighting() const
+{
+	return fighting_;
+}
+
+void Character::set_extra_attack(int skill, CHAR_DATA *vict)
+{
+	extra_attack_.used_skill = skill;
+	extra_attack_.victim = vict;
+	check_fighting_list();
+}
+
+int Character::get_extra_skill() const
+{
+	return extra_attack_.used_skill;
+}
+
+CHAR_DATA * Character::get_extra_victim() const
+{
+	return extra_attack_.victim;
+}
+
+void Character::set_cast(int spellnum, int spell_subst, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom)
+{
+	cast_attack_.spellnum = spellnum;
+	cast_attack_.spell_subst = spell_subst;
+	cast_attack_.tch = tch;
+	cast_attack_.tobj = tobj;
+	cast_attack_.troom = troom;
+	check_fighting_list();
+}
+
+int Character::get_cast_spell() const
+{
+	return cast_attack_.spellnum;
+}
+
+int Character::get_cast_subst() const
+{
+	return cast_attack_.spell_subst;
+}
+
+CHAR_DATA * Character::get_cast_char() const
+{
+	return cast_attack_.tch;
+}
+
+OBJ_DATA * Character::get_cast_obj() const
+{
+	return cast_attack_.tobj;
+}
+
+namespace {
+
+// список для быстрого прогона по сражающимся при пурже моба
+// при попадании в список чар остается в нем до своего экстракта
+std::list<CHAR_DATA *> fighting_list;
+
+} // namespace
+
+void Character::check_fighting_list()
+{
+	if (!in_fighting_list_)
+	{
+		in_fighting_list_ = true;
+		fighting_list.push_back(this);
+	}
+}
+
+void Character::clear_fighing_list()
+{
+	if (in_fighting_list_)
+	{
+		in_fighting_list_ = false;
+		std::list<CHAR_DATA *>::iterator it =  std::find(fighting_list.begin(), fighting_list.end(), this);
+		if (it != fighting_list.end())
+		{
+			fighting_list.erase(it);
+		}
+	}
+}
+
+/**
+* Внутри цикла чар нигде не пуржится и сам список соответственно не меняется.
+*/
+void change_fighting(CHAR_DATA * ch, int need_stop)
+{
+	for (std::list<CHAR_DATA *>::const_iterator it = fighting_list.begin(); it != fighting_list.end(); ++it)
+	{
+		CHAR_DATA *k = *it;
+		if (k->get_touching() == ch)
+		{
+			k->set_touching(0);
+			CLR_AF_BATTLE(k, EAF_PROTECT); // сомнительно
+		}
+		if (k->get_protecting() == ch)
+		{
+			k->set_protecting(0);
+		}
+		if (k->get_extra_victim() == ch)
+		{
+			k->set_extra_attack(0, 0);
+		}
+		if (k->get_cast_char() == ch)
+		{
+			k->set_cast(0, 0, 0, 0, 0);
+		}
+		if (k->get_fighting() == ch && IN_ROOM(k) != NOWHERE)
+		{
+			log("[Change fighting] Change victim");
+			CHAR_DATA *j;
+			for (j = world[IN_ROOM(ch)]->people; j; j = j->next_in_room)
+				if (j->get_fighting() == k)
+				{
+					act("Вы переключили внимание на $N3.", FALSE, k, 0, j, TO_CHAR);
+					act("$n переключил$u на Вас !", FALSE, k, 0, j, TO_VICT);
+					k->set_fighting(j);
+					break;
+				}
+			if (!j && need_stop)
+				stop_fighting(k, FALSE);
+		}
+	}
+}
+
+int fighting_list_size()
+{
+	return fighting_list.size();
+}
+

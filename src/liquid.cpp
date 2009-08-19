@@ -289,7 +289,7 @@ ACMD(do_drink)
 		extract_obj(obj_potion);
 		return;
 	}
-	else if (FIGHTING(ch))
+	else if (ch->get_fighting())
 	{
 		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
 		return;
@@ -442,7 +442,7 @@ ACMD(do_drunkoff)
 	if (IS_NPC(ch))		/* Cannot use GET_COND() on mobs. */
 		return;
 
-	if (FIGHTING(ch))
+	if (ch->get_fighting())
 	{
 		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
 		return;

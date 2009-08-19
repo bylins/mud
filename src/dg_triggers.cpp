@@ -274,7 +274,7 @@ void greet_memory_mtrigger(CHAR_DATA * actor)
 
 	for (ch = world[IN_ROOM(actor)]->people; ch; ch = ch->next_in_room)
 	{
-		if (!SCRIPT_MEM(ch) || !AWAKE(ch) || FIGHTING(ch) || (ch == actor) || !CAN_START_MTRIG(ch))
+		if (!SCRIPT_MEM(ch) || !AWAKE(ch) || ch->get_fighting() || (ch == actor) || !CAN_START_MTRIG(ch))
 			continue;
 
 		/* find memory line with command only */
@@ -340,7 +340,7 @@ int greet_mtrigger(CHAR_DATA * actor, int dir)
 	{
 		if (!SCRIPT_CHECK
 				(ch,
-				 MTRIG_GREET | MTRIG_GREET_ALL | MTRIG_GREET_PC | MTRIG_GREET_PC_ALL) || !AWAKE(ch) || FIGHTING(ch)
+				 MTRIG_GREET | MTRIG_GREET_ALL | MTRIG_GREET_PC | MTRIG_GREET_PC_ALL) || !AWAKE(ch) || ch->get_fighting()
 				|| (ch == actor) || !CAN_START_MTRIG(ch))
 			continue;
 
@@ -637,14 +637,14 @@ void fight_mtrigger(CHAR_DATA * ch)
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
-	if (!SCRIPT_CHECK(ch, MTRIG_FIGHT) || !FIGHTING(ch) || !CAN_START_MTRIG(ch))
+	if (!SCRIPT_CHECK(ch, MTRIG_FIGHT) || !ch->get_fighting() || !CAN_START_MTRIG(ch))
 		return;
 
 	for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 	{
 		if (TRIGGER_CHECK(t, MTRIG_FIGHT) && (number(1, 100) <= GET_TRIG_NARG(t)))
 		{
-			ADD_UID_CHAR_VAR(buf, t, FIGHTING(ch), "actor", 0)
+			ADD_UID_CHAR_VAR(buf, t, ch->get_fighting(), "actor", 0)
 			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 			break;
 		}
@@ -678,7 +678,7 @@ void hitprcnt_mtrigger(CHAR_DATA * ch)
 
 	if (!ch) return;
 
-	if (!SCRIPT_CHECK(ch, MTRIG_HITPRCNT) || !FIGHTING(ch) || !CAN_START_MTRIG(ch))
+	if (!SCRIPT_CHECK(ch, MTRIG_HITPRCNT) || !ch->get_fighting() || !CAN_START_MTRIG(ch))
 		return;
 
 	for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
@@ -686,7 +686,7 @@ void hitprcnt_mtrigger(CHAR_DATA * ch)
 		if (TRIGGER_CHECK(t, MTRIG_HITPRCNT) && GET_MAX_HIT(ch) &&
 				(((GET_HIT(ch) * 100) / GET_MAX_HIT(ch)) <= GET_TRIG_NARG(t)))
 		{
-			ADD_UID_CHAR_VAR(buf, t, FIGHTING(ch), "actor", 0)
+			ADD_UID_CHAR_VAR(buf, t, ch->get_fighting(), "actor", 0)
 			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 			break;
 		}
