@@ -429,6 +429,9 @@ void imm_log(const char *format, ...)
 	fclose(file);
 }
 
+/**
+* пока отключен
+*/
 void mob_kills_log(CHAR_DATA *ch)
 {
 	if (!IS_NPC(ch)) return;
