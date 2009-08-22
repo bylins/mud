@@ -4981,7 +4981,7 @@ ACMD(do_toggle)
 			" IAC GA        : %-3s     "
 			" Показ группы  : %-7s "
 			" Автодележ     : %-3s \r\n"
-			" Автограбеж    : %-3s     " " Без двойников : %-3s     " " Арена         : %-3s \r\n"
+			" Автограбеж    : %-7s " " Без двойников : %-3s     " " Арена         : %-3s \r\n"
 			" Базар         : %-3s     " " Ширина экрана : %-3d     " " Высота экрана : %-3d \r\n"
 			" Новости (вид) : %-5s   "   " Доски         : %-3s     " " Хранилище     : %-10s\r\n"
 			" Пклист        : %-3s     " " Политика      : %-3s     " " Пкформат      : %-10s\r\n"
@@ -5015,7 +5015,7 @@ ACMD(do_toggle)
 			ONOFF(PRF_FLAGGED(ch, PRF_GOAHEAD)),
 			PRF_FLAGGED(ch, PRF_SHOWGROUP) ? "полный" : "краткий",
 			ONOFF(PRF_FLAGGED(ch, PRF_AUTOSPLIT)),
-			ONOFF(PRF_FLAGGED(ch, PRF_AUTOLOOT)),
+			PRF_FLAGGED(ch, PRF_AUTOLOOT) ? PRF_FLAGGED(ch, PRF_NOINGR_LOOT) ? "NO-INGR" : "ALL    " : "OFF    ",
 			ONOFF(PRF_FLAGGED(ch, PRF_NOCLONES)),
 			ONOFF(!PRF_FLAGGED(ch, PRF_NOARENA)),
 			ONOFF(!PRF_FLAGGED(ch, PRF_NOEXCHANGE)),

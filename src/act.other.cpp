@@ -2050,6 +2050,50 @@ void SetScreen(CHAR_DATA * ch, char *argument, int flag)
 	}
 }
 
+/**
+* 'режим автограбеж все|ингредиенты', по дефолту - все
+*/
+void set_autoloot_mode(CHAR_DATA *ch, char *argument)
+{
+	static const char *message_on = "Автоматический грабеж трупов включен.\r\n";
+	static const char *message_no_ingr = "Автоматический грабеж трупов, исключая ингредиенты и магические компоненты, включен.\r\n";
+	static const char *message_off = "Автоматический грабеж трупов выключен.\r\n";
+
+	skip_spaces(&argument);
+	if (!*argument)
+	{
+		if (PRF_TOG_CHK(ch, PRF_AUTOLOOT))
+		{
+			send_to_char(PRF_FLAGGED(ch, PRF_NOINGR_LOOT) ? message_no_ingr : message_on, ch);
+		}
+		else
+		{
+			send_to_char(message_off, ch);
+		}
+	}
+	else if (is_abbrev(argument, "все"))
+	{
+		SET_BIT(PRF_FLAGS(ch, PRF_AUTOLOOT), PRF_AUTOLOOT);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_NOINGR_LOOT), PRF_NOINGR_LOOT);
+		send_to_char(message_on, ch);
+	}
+	else if (is_abbrev(argument, "ингредиенты"))
+	{
+		SET_BIT(PRF_FLAGS(ch, PRF_AUTOLOOT), PRF_AUTOLOOT);
+		SET_BIT(PRF_FLAGS(ch, PRF_NOINGR_LOOT), PRF_NOINGR_LOOT);
+		send_to_char(message_no_ingr, ch);
+	}
+	else if (is_abbrev(argument, "нет"))
+	{
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_AUTOLOOT), PRF_AUTOLOOT);
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_NOINGR_LOOT), PRF_NOINGR_LOOT);
+		send_to_char(message_off, ch);
+	}
+	else
+	{
+		send_to_char("Формат команды: режим автограбеж <без-параметров|все|ингредиенты|нет>\r\n", ch);
+	}
+}
 
 ACMD(do_gen_tog)
 {
@@ -2109,8 +2153,7 @@ ACMD(do_gen_tog)
 		 "При просмотре состава группы будут отображаться все персонажи и последователи.\r\n"},
 		{"Вы не будете автоматически помогать согрупникам.\r\n",
 		 "Вы будете автоматически помогать согрупникам.\r\n"},
-		{"Автоматический грабеж трупов выключен.\r\n",
-		 "Автоматический грабеж трупов включен.\r\n"},
+		{"", ""}, // SCMD_AUTOLOOT
 		{"Вы не будете делить деньги, поднятые с трупов.\r\n",
 		 "Вы будете автоматически делить деньги, поднятые с трупов.\r\n"},
 		{"Вы не будете брать куны, оставшиеся в трупах.\r\n",
@@ -2234,8 +2277,8 @@ ACMD(do_gen_tog)
 		result = PRF_TOG_CHK(ch, PRF_AUTOASSIST);
 		break;
 	case SCMD_AUTOLOOT:
-		result = PRF_TOG_CHK(ch, PRF_AUTOLOOT);
-		break;
+		set_autoloot_mode(ch, argument);
+		return;
 	case SCMD_AUTOSPLIT:
 		result = PRF_TOG_CHK(ch, PRF_AUTOSPLIT);
 		break;

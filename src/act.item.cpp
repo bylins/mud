@@ -54,7 +54,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
 CHAR_DATA *give_find_vict(CHAR_DATA * ch, char *arg);
 void weight_change_object(OBJ_DATA * obj, int weight);
 int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont);
-void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount);
+void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
 void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where);
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
 bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont, int mode);
@@ -542,8 +542,10 @@ bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont,
 	return 1;
 }
 
-
-void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int howmany)
+/**
+* \param autoloot - true только при взятии шмоток из трупа в режиме автограбежа
+*/
+void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int howmany, bool autoloot)
 {
 	if (Depot::is_depot(cont))
 	{
@@ -588,6 +590,10 @@ void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, in
 			next_obj = obj->next_content;
 			if (CAN_SEE_OBJ(ch, obj) && (obj_dotmode == FIND_ALL || isname(arg, obj->name)))
 			{
+				if (autoloot && (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT || GET_OBJ_TYPE(obj) == ITEM_MING) && PRF_FLAGGED(ch, PRF_NOINGR_LOOT))
+				{
+					continue;
+				}
 				found = 1;
 				if (!perform_get_from_container(ch, obj, cont, mode))
 					return;
@@ -816,7 +822,7 @@ ACMD(do_get)
 			else if (GET_OBJ_TYPE(cont) != ITEM_CONTAINER)
 				act("$o - не контейнер.", FALSE, ch, cont, 0, TO_CHAR);
 			else
-				get_from_container(ch, cont, theobj, mode, amount);
+				get_from_container(ch, cont, theobj, mode, amount, false);
 		}
 		else
 		{
@@ -831,7 +837,7 @@ ACMD(do_get)
 					if (GET_OBJ_TYPE(cont) == ITEM_CONTAINER)
 					{
 						found = 1;
-						get_from_container(ch, cont, theobj, FIND_OBJ_INV, amount);
+						get_from_container(ch, cont, theobj, FIND_OBJ_INV, amount, false);
 					}
 					else if (cont_dotmode == FIND_ALLDOT)
 					{
@@ -845,7 +851,7 @@ ACMD(do_get)
 				{
 					if (GET_OBJ_TYPE(cont) == ITEM_CONTAINER)
 					{
-						get_from_container(ch, cont, theobj, FIND_OBJ_ROOM, amount);
+						get_from_container(ch, cont, theobj, FIND_OBJ_ROOM, amount, false);
 						found = 1;
 					}
 					else if (cont_dotmode == FIND_ALLDOT)

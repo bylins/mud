@@ -61,7 +61,7 @@ char *fread_action(FILE * fl, int nr);
 ACMD(do_flee);
 ACMD(do_assist);
 ACMD(do_get);
-void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount);
+void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
 int thaco(int ch_class, int level);
 int ok_damage_shopkeeper(CHAR_DATA * ch, CHAR_DATA * victim);
 void battle_affect_update(CHAR_DATA * ch);
@@ -707,14 +707,14 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 						&& (corpse != NULL) && can_loot(killer))
 				{
 					sprintf(obj, "all");
-					get_from_container(killer, corpse, obj, FIND_OBJ_INV, 1);
+					get_from_container(killer, corpse, obj, FIND_OBJ_INV, 1, true);
 				}
 				else if (IS_NPC(ch) && !IS_NPC(killer) && local_gold
 						 && PRF_FLAGGED(killer, PRF_AUTOMONEY) && (corpse != NULL)
 						 && can_loot(killer))
 				{
 					sprintf(obj, "all.coin");
-					get_from_container(killer, corpse, obj, FIND_OBJ_INV, 1);
+					get_from_container(killer, corpse, obj, FIND_OBJ_INV, 1, false);
 				}
 				else if (IS_NPC(ch) && IS_NPC(killer) && (AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
 						 && (corpse != NULL) && killer->master
@@ -722,7 +722,7 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 						 && PRF_FLAGGED(killer->master, PRF_AUTOLOOT) && can_loot(killer->master))
 				{
 					sprintf(obj, "all");
-					get_from_container(killer->master, corpse, obj, FIND_OBJ_INV, 1);
+					get_from_container(killer->master, corpse, obj, FIND_OBJ_INV, 1, true);
 				}
 				else if (IS_NPC(ch) && IS_NPC(killer) && local_gold && (AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
 						 && (corpse != NULL) && killer->master
@@ -730,7 +730,7 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 						 && PRF_FLAGGED(killer->master, PRF_AUTOMONEY) && can_loot(killer->master))
 				{
 					sprintf(obj, "all.coin");
-					get_from_container(killer->master, corpse, obj, FIND_OBJ_INV, 1);
+					get_from_container(killer->master, corpse, obj, FIND_OBJ_INV, 1, false);
 				}
 			}
 
