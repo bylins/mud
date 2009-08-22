@@ -114,10 +114,12 @@ void process_events(void)
 			if (((stop.tv_sec - start.tv_sec) > 0) ||
 					(((stop.tv_usec - start.tv_usec) / 1000) > MAX_EVENT_TIME))
 			{
+				int sec = stop.tv_sec - start.tv_sec;
+				int msec = stop.tv_usec - start.tv_usec;
 				// Выводим номер триггера который переполнил время работы.
 				sprintf(buf,
-						"SCRIPT TIMER (TrigVNum: %d) : превышен лимит времени обработки отложенных триггеров.",
-						trig_vnum);
+						"SCRIPT TIMER (TrigVNum: %d) : process_events limit overflow (%dsec : %dmsec).",
+						trig_vnum, sec, msec);
 				mudlog(buf, BRF, -1, ERRLOG, TRUE);
 
 				break;
