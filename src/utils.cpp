@@ -430,13 +430,11 @@ void imm_log(const char *format, ...)
 }
 
 /**
-* пока отключен
+*
 */
-void mob_kills_log(CHAR_DATA *ch)
+void temp_log(const char *format, ...)
 {
-	if (!IS_NPC(ch)) return;
-
-	const char *filename = "../log/mob-kills.log";
+	const char *filename = "../log/trig.log";
 	static FILE *file = 0;
 	if (!file)
 	{
@@ -450,7 +448,11 @@ void mob_kills_log(CHAR_DATA *ch)
 	}
 
 	write_time(file);
-	fprintf(file, "%d %ld\n", GET_LEVEL(ch), GET_EXP(ch));
+	va_list args;
+	va_start(args, format);
+	vfprintf(file, format, args);
+	va_end(args);
+	fprintf(file, "\n");
 }
 
 /**

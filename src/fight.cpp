@@ -2683,13 +2683,6 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 				forget(ch, victim);
 		}
 
-/*
-		if (IS_NPC(victim) && GET_LEVEL(victim) >= 25)
-		{
-			mob_kills_log(victim);
-		}
-*/
-
 		/* Есть ли в будующем трупе куны...? */
 //      if (IS_NPC (victim))
 //      local_gold = get_gold(victim);

@@ -409,7 +409,7 @@ CHAR_DATA *get_char(char *name, int vnum)
 		for (i = character_list; i; i = i->next)
 			if (isname(name, i->player_data.name) && (IS_NPC(i) || !GET_INVIS_LEV(i)))
 			{
-				log("test_char: %s (%d)", name, vnum);
+				temp_log("char %s (%d)", name, vnum);
 				return i;
 			}
 	}
@@ -437,7 +437,7 @@ OBJ_DATA *get_obj(char *name, int vnum)
 		for (obj = object_list; obj; obj = obj->next)
 			if (isname(name, obj->name))
 			{
-				log("test_obj: %s (%d)", name, vnum);
+				temp_log("obj %s (%d)", name, vnum);
 				return obj;
 			}
 	}
