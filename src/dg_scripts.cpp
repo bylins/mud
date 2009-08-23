@@ -389,7 +389,7 @@ int find_room_uid(long n)
  ************************************************************/
 
 /* search the entire world for a char, and return a pointer */
-CHAR_DATA *get_char(char *name)
+CHAR_DATA *get_char(char *name, int vnum)
 {
 	CHAR_DATA *i;
 
@@ -408,7 +408,10 @@ CHAR_DATA *get_char(char *name)
 	{
 		for (i = character_list; i; i = i->next)
 			if (isname(name, i->player_data.name) && (IS_NPC(i) || !GET_INVIS_LEV(i)))
+			{
+				log("test_char: %s (%d)", name, vnum);
 				return i;
+			}
 	}
 
 	return NULL;
@@ -416,7 +419,7 @@ CHAR_DATA *get_char(char *name)
 
 
 /* returns the object in the world with name name, or NULL if not found */
-OBJ_DATA *get_obj(char *name)
+OBJ_DATA *get_obj(char *name, int vnum)
 {
 	OBJ_DATA *obj;
 	long id;
@@ -433,7 +436,10 @@ OBJ_DATA *get_obj(char *name)
 	{
 		for (obj = object_list; obj; obj = obj->next)
 			if (isname(name, obj->name))
+			{
+				log("test_obj: %s (%d)", name, vnum);
 				return obj;
+			}
 	}
 
 	return NULL;
@@ -1661,8 +1667,8 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				else if ((o = get_obj_in_list(name, ch->carrying)));
 				else if ((c = get_char_room(name, IN_ROOM(ch))));
 				else if ((o = get_obj_in_list(name, world[IN_ROOM(ch)]->contents)));
-				else if ((c = get_char(name)));
-				else if ((o = get_obj(name)));
+				else if ((c = get_char(name, GET_TRIG_VNUM(trig))));
+				else if ((o = get_obj(name, GET_TRIG_VNUM(trig))));
 				else if ((r = get_room(name)))
 				{
 				}

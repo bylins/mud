@@ -77,7 +77,7 @@ OBJ_DATA *get_obj_in_list(char *name, OBJ_DATA * list);
 OBJ_DATA *get_obj_in_list_num(int num, OBJ_DATA * list);
 OBJ_DATA *get_obj_in_list_vnum(int num, OBJ_DATA * list);
 
-OBJ_DATA *get_obj(char *name);
+OBJ_DATA *get_obj(char *name, int vnum = 0);
 OBJ_DATA *get_obj_num(obj_rnum nr);
 
 int obj_decay(OBJ_DATA * object);
@@ -93,7 +93,7 @@ void extract_obj(OBJ_DATA * obj);
 
 CHAR_DATA *get_char_room(char *name, room_rnum room);
 CHAR_DATA *get_char_num(mob_rnum nr);
-CHAR_DATA *get_char(char *name);
+CHAR_DATA *get_char(char *name, int vnum = 0);
 
 void char_from_room(CHAR_DATA * ch);
 void char_to_room(CHAR_DATA * ch, room_rnum room);
