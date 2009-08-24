@@ -4548,7 +4548,7 @@ int dg_owner_purged;
 /* define this if you want measure time of you scripts*/
 #define TIMED_SCRIPT
 #define MAX_TRIG_SEC  0
-#define MAX_TRIG_MSEC 0
+#define MAX_TRIG_MSEC 30
 
 #ifdef TIMED_SCRIPT
 int timed_script_driver(void *go, TRIG_DATA * trig, int type, int mode);
