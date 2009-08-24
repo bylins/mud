@@ -1587,8 +1587,7 @@ struct obj_data
 	OBJ_DATA *in_obj;	/* In what object NULL when none    */
 	OBJ_DATA *contains;	/* Contains objects                 */
 
-	long
-	id;			/* used by DG triggers              */
+	long id;			/* used by DG triggers              */
 	struct trig_proto_list *proto_script;	/* list of default triggers  */
 	struct script_data *script;	/* script info for the object       */
 
@@ -1624,7 +1623,8 @@ struct obj_data
 			room_was_in(NOWHERE),
 			max_in_world(0),
 			timed_spell(0),
-			skills(NULL)
+			skills(NULL),
+			serial_num_(0)
 	{
 		memset(&obj_flags, 0, sizeof(obj_flag_data));
 
@@ -1755,9 +1755,13 @@ struct obj_data
 			return false;
 	};
 
+	int get_serial_num();
+	void set_serial_num();
+
 private:
 	struct obj_timed_spell_type *timed_spell; // временный обкаст
 	std::map<int, int>* skills; // если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
+	int serial_num_; // порядковый номер в списке чаров (для name_list)
 };
 /* ======================================================================= */
 

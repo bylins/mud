@@ -46,6 +46,7 @@
 #include "char_player.hpp"
 #include "parcel.hpp"
 #include "liquid.hpp"
+#include "name_list.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -2165,6 +2166,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	{
 		d->character->next = character_list;
 		character_list = d->character;
+		CharacterList::add(d->character);
 	}
 	else
 	{

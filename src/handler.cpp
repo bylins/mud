@@ -36,6 +36,7 @@
 #include "liquid.hpp"
 #include "magic.h"
 #include "poison.hpp"
+#include "name_list.hpp"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -2564,6 +2565,7 @@ void extract_obj(OBJ_DATA * obj)
 	check_auction(NULL, obj);
 	check_exchange(obj);
 	REMOVE_FROM_LIST(obj, object_list, next);
+	ObjectList::remove(obj);
 
 	if (GET_OBJ_RNUM(obj) >= 0)
 		(obj_index[GET_OBJ_RNUM(obj)].number)--;
@@ -2761,6 +2763,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	/* pull the char from the list */
 	SET_BIT(MOB_FLAGS(ch, MOB_DELETE), MOB_DELETE);
 	REMOVE_FROM_LIST(ch, character_list, next);
+	CharacterList::remove(ch);
 
 	if (ch->desc && ch->desc->original)
 		do_return(ch, NULL, 0, 0);
@@ -2878,7 +2881,7 @@ void extract_mob(CHAR_DATA * ch)
 	/* pull the char from the list */
 	SET_BIT(MOB_FLAGS(ch, MOB_DELETE), MOB_DELETE);
 	REMOVE_FROM_LIST(ch, character_list, next);
-
+	CharacterList::remove(ch);
 
 	if (ch->desc && ch->desc->original)
 		do_return(ch, NULL, 0, 0);

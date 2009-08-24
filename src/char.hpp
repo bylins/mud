@@ -312,6 +312,9 @@ public:
 	void clear_fighing_list();
 	////////////////////////////////////////////////////////////////////////////
 
+	int get_serial_num();
+	void set_serial_num();
+
 	PlayerPtr player;
 
 private:
@@ -328,6 +331,7 @@ private:
 	struct extra_attack_type extra_attack_; // атаки типа баша, пинка и т.п.
 	struct cast_attack_type cast_attack_;   // каст заклинания
 	////////////////////////////////////////////////////////////////////////////
+	int serial_num_; // порядковый номер в списке чаров (для name_list)
 
 // старое
 public:

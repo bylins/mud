@@ -25,6 +25,7 @@
 #include "features.hpp"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "name_list.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -406,12 +407,14 @@ CHAR_DATA *get_char(char *name, int vnum)
 	}
 	else
 	{
+		return CharacterList::get_by_name(name);
+/*
 		for (i = character_list; i; i = i->next)
 			if (isname(name, i->player_data.name) && (IS_NPC(i) || !GET_INVIS_LEV(i)))
 			{
 				temp_log("char %s (%d)", name, vnum);
 				return i;
-			}
+*/
 	}
 
 	return NULL;
@@ -421,7 +424,6 @@ CHAR_DATA *get_char(char *name, int vnum)
 /* returns the object in the world with name name, or NULL if not found */
 OBJ_DATA *get_obj(char *name, int vnum)
 {
-	OBJ_DATA *obj;
 	long id;
 
 	if ((*name == UID_CHAR) || (*name == UID_ROOM))
@@ -434,12 +436,14 @@ OBJ_DATA *get_obj(char *name, int vnum)
 	}
 	else
 	{
-		for (obj = object_list; obj; obj = obj->next)
+		return ObjectList::get_by_name(name);
+/*
+		for (OBJ_DATA *obj = object_list; obj; obj = obj->next)
 			if (isname(name, obj->name))
 			{
 				temp_log("obj %s (%d)", name, vnum);
 				return obj;
-			}
+*/
 	}
 
 	return NULL;
@@ -4544,7 +4548,7 @@ int dg_owner_purged;
 /* define this if you want measure time of you scripts*/
 #define TIMED_SCRIPT
 #define MAX_TRIG_SEC  0
-#define MAX_TRIG_MSEC 30
+#define MAX_TRIG_MSEC 0
 
 #ifdef TIMED_SCRIPT
 int timed_script_driver(void *go, TRIG_DATA * trig, int type, int mode);
