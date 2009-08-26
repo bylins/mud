@@ -314,4 +314,6 @@ void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell);
 extern int top_of_trigt;
 extern INDEX_DATA **trig_index;
 
+const int MAX_TRIG_USEC = 30000;
+
 #endif

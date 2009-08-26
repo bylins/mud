@@ -4547,8 +4547,6 @@ int dg_owner_purged;
 /*  This is the core driver for scripts. */
 /* define this if you want measure time of you scripts*/
 #define TIMED_SCRIPT
-#define MAX_TRIG_SEC  0
-#define MAX_TRIG_MSEC 30
 
 #ifdef TIMED_SCRIPT
 int timed_script_driver(void *go, TRIG_DATA * trig, int type, int mode);
@@ -4557,20 +4555,20 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	int i;
 	TRIG_DATA ttrig;
 
-	struct timeval start, stop;
+	struct timeval start, stop, result;
+
 	memcpy(&ttrig, trig, sizeof(TRIG_DATA));	// Делаем т.к. кто то меняет потом trig
 	gettimeofday(&start, NULL);
 
 	i = timed_script_driver(go, trig, type, mode);
 
 	gettimeofday(&stop, NULL);
-	start.tv_usec = (stop.tv_usec - start.tv_usec) / 1000;
-	start.tv_sec = (stop.tv_sec - start.tv_sec);
+	timediff(&result, &stop, &start);
 
-	if ((start.tv_sec >= MAX_TRIG_SEC) && (start.tv_usec >= MAX_TRIG_MSEC))
+	if (result.tv_sec > 0 || result.tv_usec >= MAX_TRIG_USEC)
 	{
-		sprintf(buf, "SCRIPT TIMER (TrigVNum: %d) : ", GET_TRIG_VNUM(&ttrig));
-		sprintf(buf + strlen(buf), "work time %ld sec. %ld msec.", start.tv_sec, start.tv_usec);
+		sprintf(buf, "[TrigVNum: %d] : ", GET_TRIG_VNUM(&ttrig));
+		sprintf(buf + strlen(buf), "work time overflow %ld sec. %ld us.", result.tv_sec, result.tv_usec);
 		mudlog(buf, BRF, -1, ERRLOG, TRUE);
 	};
 	// Stop time
@@ -4595,7 +4593,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	void wld_command_interpreter(ROOM_DATA * room, char *argument);
 
 	sprintf(buf,
-			"[%s] Запуск триггера %s (VNUM=%d)",
+			"[%s] %s (VNUM=%d)",
 			mode == TRIG_NEW ? "NEW" : "OLD", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig));
 	mudlog(buf, BRF, -1, ERRLOG, TRUE);
 

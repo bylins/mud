@@ -188,7 +188,6 @@ int new_descriptor(socket_t s);
 int get_max_players(void);
 int process_output(DESCRIPTOR_DATA * t);
 int process_input(DESCRIPTOR_DATA * t);
-void timediff(struct timeval *diff, struct timeval *a, struct timeval *b);
 void timeadd(struct timeval *sum, struct timeval *a, struct timeval *b);
 void flush_queues(DESCRIPTOR_DATA * d);
 void nonblock(socket_t s);

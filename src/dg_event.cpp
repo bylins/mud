@@ -86,12 +86,11 @@ void remove_event(struct event_info *event)
 	free(event);
 }
 
-#define MAX_EVENT_TIME 80
 void process_events(void)
 {
 	struct event_info *e = event_list;
 	struct event_info *del;
-	struct timeval start, stop;
+	struct timeval start, stop, result;
 	int trig_vnum;
 
 	gettimeofday(&start, NULL);
@@ -111,15 +110,14 @@ void process_events(void)
 			// По исчерпанию лимита откладываем отработку на следующий тик.
 			// Делаем для более равномерного распределения времени процессора.
 			gettimeofday(&stop, NULL);
-			if (((stop.tv_sec - start.tv_sec) > 0) ||
-					(((stop.tv_usec - start.tv_usec) / 1000) > MAX_EVENT_TIME))
+			timediff(&result, &stop, &start);
+
+			if (result.tv_sec > 0 || result.tv_usec >= MAX_TRIG_USEC)
 			{
-				int sec = stop.tv_sec - start.tv_sec;
-				int msec = stop.tv_usec - start.tv_usec;
 				// Выводим номер триггера который переполнил время работы.
 				sprintf(buf,
-						"SCRIPT TIMER (TrigVNum: %d) : process_events limit overflow (%dsec : %dmsec).",
-						trig_vnum, sec, msec);
+						"[TrigVNum: %d]: process_events overflow %ld sec. %ld us.",
+						trig_vnum, result.tv_sec, result.tv_usec);
 				mudlog(buf, BRF, -1, ERRLOG, TRUE);
 
 				break;
