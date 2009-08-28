@@ -37,10 +37,10 @@ public:
 	void reset();
 	bool set_num_str(unsigned int num);
 	unsigned int get_num_str() const;
+
 private:
 	long answer_id_; // id последнего телявшего (для ответа)
 	unsigned int num_str_; // кол-во выводимых строк (режим вспомнить)
-	std::string last_tell_; // последняя введенная строка (от спама)
 	Remember::RememberListType all_; // все запоминаемые каналы + воззвания (TODO: теллы в клетку и крики?), включая собственные
 	Remember::RememberListType personal_; // теллы
 };

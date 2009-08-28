@@ -178,7 +178,6 @@ void CharRemember::reset()
 	all_.clear();
 	personal_.clear();
 	answer_id_ = NOBODY;
-	last_tell_ = "";
 }
 
 bool CharRemember::set_num_str(unsigned int num)

@@ -733,21 +733,12 @@ ACMD(do_gen_comm)
 				argument[k] = a_lcc(argument[k]);
 		}
 		/* фильтруем одинаковые сообщения в эфире */
-		if (GET_LAST_ALL_TELL(ch) == NULL)
-		{
-			GET_LAST_ALL_TELL(ch) = (char *) malloc(strlen(argument) + 1);
-		}
-		else
-		{
-			GET_LAST_ALL_TELL(ch) = (char *) realloc(GET_LAST_ALL_TELL(ch), strlen(argument) + 1);
-		}
-
-		if (!strcmp(GET_LAST_ALL_TELL(ch), argument))
+		if (!str_cmp(ch->player->get_last_tell().c_str(), argument))
 		{
 			send_to_char("Но Вы же недавно говорили тоже самое!?!\r\n", ch);
 			return;
 		}
-		strcpy(GET_LAST_ALL_TELL(ch), argument);
+		ch->player->set_last_tell(argument);
 	}
 
 	// в этой проверке заодно списываются мувы за крики, поэтому она должна идти последней
@@ -998,18 +989,12 @@ ACMD(do_offtop)
 	}
 	lower_convert(argument);
 
-	if (GET_LAST_ALL_TELL(ch) && !strcmp(GET_LAST_ALL_TELL(ch), argument))
+	if (!strcmp(ch->player->get_last_tell().c_str(), argument))
 	{
 		send_to_char("Но Вы же недавно говорили тоже самое!?!\r\n", ch);
 		return;
 	}
-
-	if (!GET_LAST_ALL_TELL(ch))
-		CREATE(GET_LAST_ALL_TELL(ch), char, strlen(argument) + 1);
-	else
-		RECREATE(GET_LAST_ALL_TELL(ch), char, strlen(argument) + 1);
-
-	strcpy(GET_LAST_ALL_TELL(ch), argument);
+	ch->player->set_last_tell(argument);
 
 	snprintf(buf, MAX_STRING_LENGTH, "[оффтоп] %s : '%s'\r\n", GET_NAME(ch), argument);
 	snprintf(buf1, MAX_STRING_LENGTH, "&c%s&n", buf);

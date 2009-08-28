@@ -152,5 +152,20 @@ void Player::reset()
 {
 	check_mob_guard(this, __func__);
 	remember_.reset();
+	last_tell_ = "";
 }
 
+void Player::set_last_tell(const char *text)
+{
+	check_mob_guard(this, __func__);
+	if (text)
+	{
+		last_tell_ = text;
+	}
+}
+
+std::string & Player::get_last_tell()
+{
+	check_mob_guard(this, __func__);
+	return last_tell_;
+}

@@ -40,6 +40,8 @@ public:
 	int get_start_stat(int num);
 	void set_start_stat(int stat_num, int number);
 
+	void set_last_tell(const char *text);
+	std::string & get_last_tell();
 
 	// это все как обычно временно... =)
 	friend void save_char(CHAR_DATA *ch);
@@ -58,6 +60,7 @@ public:
 	std::string get_remember(int flag) const;
 	bool set_remember_num(unsigned int num);
 	unsigned int get_remember_num() const;
+
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
 	// TODO: вообще его можно пользовать вместо постоянного поиска по имени при сейвах чара и т.п. вещах, пользующих
@@ -74,6 +77,8 @@ private:
 	boost::array<int, START_STATS_TOTAL> start_stats_;
 	// вспомнить
 	CharRemember remember_;
+	// последняя введенная строка (от спама)
+	std::string last_tell_;
 };
 
 #endif // CHAR_PLAYER_HPP_INCLUDED

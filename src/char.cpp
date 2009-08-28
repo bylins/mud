@@ -207,8 +207,6 @@ Character::~Character()
 		if (KARMA(this))
 			free(KARMA(this));
 
-		if (GET_LAST_ALL_TELL(this))
-			free(GET_LAST_ALL_TELL(this));
 		free(GET_LOGS(this));
 // shapirus: подчистим за криворукуми кодерами memory leak,
 // вызванный неосвобождением фильтра базара...

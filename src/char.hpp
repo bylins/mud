@@ -232,7 +232,6 @@ struct player_special_data
 	struct char_portal_type *portals;	/* порталы теперь живут тут */
 	int *logs;		// уровни подробности каналов log
 
-	char *LastAllTell;
 	char *Exchange_filter;
 	struct ignore_data *ignores;
 	char *Karma; /* Записи о поощрениях, наказаниях персонажа*/
