@@ -69,8 +69,7 @@ int was_agree_name(DESCRIPTOR_DATA * d)
 			// We find char ...
 			for (i = 1; i < 6; i++)
 			{
-				GET_PAD(d->character, i) = (char *) malloc(strlen(mortname[i]));
-				strcpy(GET_PAD(d->character, i), mortname[i]);
+				GET_PAD(d->character, i) = str_dup(mortname[i]);
 			}
 			GET_SEX(d->character) = sex;
 			// Auto-Agree char ...
