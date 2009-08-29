@@ -713,6 +713,13 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		stop_fighting(ch, TRUE);
 	}
 
+	/* track improovment */
+	if (!IS_NPC(ch) && IS_BITS(ch->track_dirs, dir))
+	{
+		send_to_char("Вы двинулись по следу.\r\n", ch);
+		improove_skill(ch, SKILL_TRACK, TRUE, 0);
+	}
+
 	char_from_room(ch);
 	char_to_room(ch, go_to);
 	if (horse)
@@ -840,17 +847,6 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		}
 	}
 
-	/* track improovment */
-	// if (ch->track.dirs)
-	//     {sprintf(buf,"[DEBUG] Direction mask %d, dir %d\r\n",ch->track.dirs,dir);
-	//      send_to_char(buf,ch);
-	//     }
-	if (!IS_NPC(ch) && IS_BITS(ch->track_dirs, dir))
-	{
-		send_to_char("Вы двинулись по следу.\r\n", ch);
-		improove_skill(ch, SKILL_TRACK, TRUE, 0);
-	}
-	ch->track_dirs = 0;
 
 	/* hide improovment */
 	if (IS_NPC(ch))
