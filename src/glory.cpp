@@ -1032,7 +1032,7 @@ int start_stats_count(CHAR_DATA *ch)
 	int count = 0;
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 	{
-		count += ch->player->get_start_stat(i);
+		count += ch->get_start_stat(i);
 	}
 	return count;
 }
@@ -1043,18 +1043,18 @@ int start_stats_count(CHAR_DATA *ch)
 */
 bool bad_start_stats(CHAR_DATA *ch)
 {
-	if (ch->player->get_start_stat(G_STR) > MAX_STR(ch)
-			|| ch->player->get_start_stat(G_STR) < MIN_STR(ch)
-			|| ch->player->get_start_stat(G_DEX) > MAX_DEX(ch)
-			|| ch->player->get_start_stat(G_DEX) < MIN_DEX(ch)
-			|| ch->player->get_start_stat(G_INT) > MAX_INT(ch)
-			|| ch->player->get_start_stat(G_INT) < MIN_INT(ch)
-			|| ch->player->get_start_stat(G_WIS) > MAX_WIS(ch)
-			|| ch->player->get_start_stat(G_WIS) < MIN_WIS(ch)
-			|| ch->player->get_start_stat(G_CON) > MAX_CON(ch)
-			|| ch->player->get_start_stat(G_CON) < MIN_CON(ch)
-			|| ch->player->get_start_stat(G_CHA) > MAX_CHA(ch)
-			|| ch->player->get_start_stat(G_CHA) < MIN_CHA(ch)
+	if (ch->get_start_stat(G_STR) > MAX_STR(ch)
+			|| ch->get_start_stat(G_STR) < MIN_STR(ch)
+			|| ch->get_start_stat(G_DEX) > MAX_DEX(ch)
+			|| ch->get_start_stat(G_DEX) < MIN_DEX(ch)
+			|| ch->get_start_stat(G_INT) > MAX_INT(ch)
+			|| ch->get_start_stat(G_INT) < MIN_INT(ch)
+			|| ch->get_start_stat(G_WIS) > MAX_WIS(ch)
+			|| ch->get_start_stat(G_WIS) < MIN_WIS(ch)
+			|| ch->get_start_stat(G_CON) > MAX_CON(ch)
+			|| ch->get_start_stat(G_CON) < MIN_CON(ch)
+			|| ch->get_start_stat(G_CHA) > MAX_CHA(ch)
+			|| ch->get_start_stat(G_CHA) < MIN_CHA(ch)
 			|| start_stats_count(ch) != SUM_ALL_STATS)
 	{
 		return 1;
@@ -1185,12 +1185,12 @@ bool check_stats(CHAR_DATA *ch)
 	if (bad_real_stats(ch, have_stats))
 	{
 		// проставляем стартовые статы
-		GET_STR(ch) = ch->player->get_start_stat(G_STR);
-		GET_DEX(ch) = ch->player->get_start_stat(G_DEX);
-		GET_INT(ch) = ch->player->get_start_stat(G_INT);
-		GET_WIS(ch) = ch->player->get_start_stat(G_WIS);
-		GET_CON(ch) = ch->player->get_start_stat(G_CON);
-		GET_CHA(ch) = ch->player->get_start_stat(G_CHA);
+		GET_STR(ch) = ch->get_start_stat(G_STR);
+		GET_DEX(ch) = ch->get_start_stat(G_DEX);
+		GET_INT(ch) = ch->get_start_stat(G_INT);
+		GET_WIS(ch) = ch->get_start_stat(G_WIS);
+		GET_CON(ch) = ch->get_start_stat(G_CON);
+		GET_CHA(ch) = ch->get_start_stat(G_CHA);
 		// и все нужные плюсеги сверху
 		calculate_total_stats(ch);
 	}
@@ -1263,12 +1263,12 @@ bool remove_stats(CHAR_DATA *ch, CHAR_DATA *god, int amount)
 */
 void recalculate_stats(CHAR_DATA *ch)
 {
-	GET_STR(ch) = ch->player->get_start_stat(G_STR);
-	GET_DEX(ch) = ch->player->get_start_stat(G_DEX);
-	GET_INT(ch) = ch->player->get_start_stat(G_INT);
-	GET_WIS(ch) = ch->player->get_start_stat(G_WIS);
-	GET_CON(ch) = ch->player->get_start_stat(G_CON);
-	GET_CHA(ch) = ch->player->get_start_stat(G_CHA);
+	GET_STR(ch) = ch->get_start_stat(G_STR);
+	GET_DEX(ch) = ch->get_start_stat(G_DEX);
+	GET_INT(ch) = ch->get_start_stat(G_INT);
+	GET_WIS(ch) = ch->get_start_stat(G_WIS);
+	GET_CON(ch) = ch->get_start_stat(G_CON);
+	GET_CHA(ch) = ch->get_start_stat(G_CHA);
 	calculate_total_stats(ch);
 }
 
@@ -1311,7 +1311,7 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	else
 	{
 		// принимающий оффлайн
-		t_vict = new CHAR_DATA; // TODO: переделать на стек
+		t_vict = new Player; // TODO: переделать на стек
 		if (load_char(name.c_str(), t_vict) < 0)
 		{
 			send_to_char(god, "Некорректное имя персонажа (%s), принимающего славу.\r\n", name.c_str());

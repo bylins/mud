@@ -3090,7 +3090,6 @@ void parse_mobile(FILE * mob_f, int nr)
 	 * structure is to save newbie coders from themselves. -gg 2/25/98
 	 */
 	mob_proto[i].player_specials = &dummy_mob;
-	mob_proto[i].create_mob_guard();
 	sprintf(buf2, "mob vnum %d", nr);
 	/***** String data *****/
 	mob_proto[i].player_data.name = fread_string(mob_f, buf2);	/* aliases */
@@ -4874,7 +4873,7 @@ int is_empty(zone_rnum zone_nr)
 // теперь проверю всех товарищей в void комнате STRANGE_ROOM
 	for (c = world[STRANGE_ROOM]->people; c; c = c->next_in_room)
 	{
-		int was = c->player->get_was_in_room();
+		int was = c->get_was_in_room();
 		if (was == NOWHERE)
 			continue;
 		if (GET_LEVEL(c) >= LVL_IMMORT)
@@ -5170,8 +5169,6 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 	// первыми иним и парсим поля для ребута до поля "Rebt", если reboot на входе = 1, то на этом парс и кончается
 	if (ch->player_specials == NULL)
 		CREATE(ch->player_specials, struct player_special_data, 1);
-
-	ch->create_player();
 
 	GET_LEVEL(ch) = 1;
 	GET_CLASS(ch) = 1;
@@ -5632,7 +5629,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 					if (*line == '~')
 						break;
 					sscanf(line, "%d %d", &num, &num2);
-					ch->player->mobmax.load(ch, num, num2, MobMax::get_level_by_vnum(num));
+					ch->mobmax_load(ch, num, num2, MobMax::get_level_by_vnum(num));
 				}
 				while (true);
 			}
@@ -5667,7 +5664,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 
 		case 'P':
 			if (!strcmp(tag, "Pass"))
-				ch->player->set_passwd(line);
+				ch->set_passwd(line);
 			else if (!strcmp(tag, "Plyd"))
 				ch->player_data.time.played = num;
 			else if (!strcmp(tag, "PfIn"))
@@ -5773,7 +5770,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			{
 				buf[0] = '\0';
 				sscanf(line, "%d %[^~]", &num, &buf[0]);
-				ch->player->quested.add(ch, num, buf);
+				ch->quested_add(ch, num, buf);
 			}
 			break;
 
@@ -5781,7 +5778,7 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			if (!strcmp(tag, "Room"))
 				GET_LOADROOM(ch) = num;
 			else if (!strcmp(tag, "Rmbr"))
-				ch->player->set_remember_num(num);
+				ch->remember_set_num(num);
 			else if (!strcmp(tag, "Reli"))
 				GET_RELIGION(ch) = num;
 			else if (!strcmp(tag, "Race"))
@@ -5875,17 +5872,17 @@ int load_char_ascii(const char *name, CHAR_DATA * ch, bool reboot = 0)
 			else if (!strcmp(tag, "StrW"))
 				STRING_WIDTH(ch) = num;
 			else if (!strcmp(tag, "St00"))
-				ch->player->set_start_stat(G_STR, lnum);
+				ch->set_start_stat(G_STR, lnum);
 			else if (!strcmp(tag, "St01"))
-				ch->player->set_start_stat(G_DEX, lnum);
+				ch->set_start_stat(G_DEX, lnum);
 			else if (!strcmp(tag, "St02"))
-				ch->player->set_start_stat(G_INT, lnum);
+				ch->set_start_stat(G_INT, lnum);
 			else if (!strcmp(tag, "St03"))
-				ch->player->set_start_stat(G_WIS, lnum);
+				ch->set_start_stat(G_WIS, lnum);
 			else if (!strcmp(tag, "St04"))
-				ch->player->set_start_stat(G_CON, lnum);
+				ch->set_start_stat(G_CON, lnum);
 			else if (!strcmp(tag, "St05"))
-				ch->player->set_start_stat(G_CHA, lnum);
+				ch->set_start_stat(G_CHA, lnum);
 			break;
 
 		case 'T':
@@ -5973,7 +5970,7 @@ int load_char(const char *name, CHAR_DATA * char_element, bool reboot)
 	player_i = load_char_ascii(name, char_element, reboot);
 	if (player_i > -1)
 	{
-		char_element->player->set_pfilepos(player_i);
+		char_element->set_pfilepos(player_i);
 	}
 	return (player_i);
 }
@@ -6283,7 +6280,7 @@ void reset_char(CHAR_DATA * ch)
 
 	GET_CASTER(ch) = 0;
 	GET_DAMAGE(ch) = 0;
-	ch->player->reset();
+	ch->reset();
 }
 
 void clear_char_skills(CHAR_DATA * ch)
@@ -6435,7 +6432,7 @@ ACMD(do_remort)
 
 	log("Remort %s", GET_NAME(ch));
 
-	ch->player->remort();
+	ch->remort();
 
 	act(remort_msg2, FALSE, ch, 0, 0, TO_ROOM);
 
@@ -6783,8 +6780,8 @@ void entrycount(char *name)
 
 	if (get_filename(name, filename, PLAYERS_FILE))
 	{
-		CHAR_DATA t_short_ch;
-		CHAR_DATA *short_ch = &t_short_ch;
+		Player t_short_ch;
+		Player *short_ch = &t_short_ch;
 		deleted = 1;
 		// персонаж загружается неполностью
 		if (load_char(name, short_ch, 1) > -1)
@@ -6956,7 +6953,7 @@ void save_char(CHAR_DATA *ch)
 	struct char_portal_type *prt;
 	int tmp = time(0) - ch->player_data.time.logon;
 	if (!now_entrycount)
-		if (IS_NPC(ch) || ch->player->get_pfilepos() < 0)
+		if (IS_NPC(ch) || ch->get_pfilepos() < 0)
 			return;
 
 	log("Save char %s", GET_NAME(ch));
@@ -7051,8 +7048,8 @@ void save_char(CHAR_DATA *ch)
 		fprintf(saved, "NmT : %s\n", GET_PAD(ch, 4));
 	if (GET_PAD(ch, 0))
 		fprintf(saved, "NmP : %s\n", GET_PAD(ch, 5));
-	if (!ch->player->get_passwd().empty())
-		fprintf(saved, "Pass: %s\n", ch->player->get_passwd().c_str());
+	if (!ch->get_passwd().empty())
+		fprintf(saved, "Pass: %s\n", ch->get_passwd().c_str());
 	if (GET_EMAIL(ch))
 		fprintf(saved, "EMal: %s\n", GET_EMAIL(ch));
 	if (GET_TITLE(ch))
@@ -7211,7 +7208,7 @@ void save_char(CHAR_DATA *ch)
 			fprintf(saved, "Br%02d: %ld\n", i + 1, static_cast<long int>(GET_BOARD_DATE(ch, i)));
 
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
-		fprintf(saved, "St%02d: %i\n", i, ch->player->get_start_stat(i));
+		fprintf(saved, "St%02d: %i\n", i, ch->get_start_stat(i));
 
 	if (GET_LEVEL(ch) < LVL_IMMORT)
 		fprintf(saved, "Hung: %d\n", GET_COND(ch, FULL));
@@ -7268,9 +7265,9 @@ void save_char(CHAR_DATA *ch)
 	fprintf(saved, "StrL: %d\n", STRING_LENGTH(ch));
 	fprintf(saved, "StrW: %d\n", STRING_WIDTH(ch));
 
-	if (ch->player->get_remember_num() != Remember::DEF_REMEMBER_NUM)
+	if (ch->remember_get_num() != Remember::DEF_REMEMBER_NUM)
 	{
-		fprintf(saved, "Rmbr: %d\n", ch->player->get_remember_num());
+		fprintf(saved, "Rmbr: %d\n", ch->remember_get_num());
 	}
 
 	if (EXCHANGE_FILTER(ch))
@@ -7319,8 +7316,8 @@ void save_char(CHAR_DATA *ch)
 		fprintf(saved, "Logs: %d %d\n", i, GET_LOGS(ch)[i]);
 	}
 
-	ch->player->quested.save(saved);
-	ch->player->mobmax.save(saved);
+	ch->quested_save(saved);
+	ch->mobmax_save(saved);
 	save_pkills(ch, saved);
 
 	fclose(saved);
@@ -7401,8 +7398,8 @@ void rename_char(CHAR_DATA * ch, char *oname)
 */
 void delete_char(char *name)
 {
-	CHAR_DATA t_st;
-	CHAR_DATA *st = &t_st;
+	Player t_st;
+	Player *st = &t_st;
 	int id = load_char(name, st);
 
 	if (id >= 0)

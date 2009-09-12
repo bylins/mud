@@ -2351,7 +2351,7 @@ ACMD(do_gen_tog)
 			return;
 		}
 		unsigned int size = atoi(argument);
-		if (ch->player->set_remember_num(size))
+		if (ch->remember_set_num(size))
 		{
 			send_to_char(ch, "Количество выводимых строк по команде 'вспомнить' установлено в %d.\r\n", size);
 			save_char(ch);

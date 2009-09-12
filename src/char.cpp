@@ -19,6 +19,8 @@
 #include "spells.h"
 #include "comm.h"
 
+std::string PlayerI::empty_const_str;
+
 Character::Character()
 		:
 		protecting_(0),
@@ -332,16 +334,6 @@ void Character::clear_skills()
 int Character::get_skills_count()
 {
 	return skills.size();
-}
-
-void Character::create_player()
-{
-	player.reset(new Player);
-}
-
-void Character::create_mob_guard()
-{
-	player = Player::shared_mob;
 }
 
 int Character::get_obj_slot(int slot_num)

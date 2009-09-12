@@ -14,11 +14,12 @@
 #include "quested.hpp"
 #include "mobmax.hpp"
 #include "remember.hpp"
+#include "char.hpp"
 
 // кол-во сохраняемых стартовых статов в файле
 const int START_STATS_TOTAL = 6;
 
-class Player
+class Player : public Character
 {
 public:
 	Player();
@@ -41,25 +42,34 @@ public:
 	void set_start_stat(int stat_num, int number);
 
 	void set_last_tell(const char *text);
-	std::string & get_last_tell();
+	std::string const & get_last_tell();
+
+	void set_answer_id(int id);
+	int get_answer_id() const;
+
+	// обертка на CharRemember
+	void remember_add(std::string text, int flag);
+	std::string remember_get(int flag) const;
+	bool remember_set_num(unsigned int num);
+	unsigned int remember_get_num() const;
+
+	// обертка на Quested
+	void quested_add(CHAR_DATA *ch, int vnum, char *text);
+	bool quested_remove(int vnum);
+	bool quested_get(int vnum) const;
+	std::string quested_get_text(int vnum) const;
+	std::string quested_print() const;
+	void quested_save(FILE *saved) const; // TODO мб убрать
+
+	// обертка на MobMax
+	int mobmax_get(int vnum) const;
+	void mobmax_add(CHAR_DATA *ch, int vnum, int count, int level);
+	void mobmax_load(CHAR_DATA *ch, int vnum, int count, int level);
+	void mobmax_remove(int vnum);
+	void mobmax_save(FILE *saved) const; // TODO мб убрать
 
 	// это все как обычно временно... =)
 	friend void save_char(CHAR_DATA *ch);
-
-	// внумы выполненных квестов
-	Quested quested;
-	// замаксы по отдельным мобам
-	MobMax mobmax;
-
-	// общие поля мобов
-	static boost::shared_ptr<Player> shared_mob;
-	// обертки для контроля за мобами
-	void set_answer_id(int id);
-	int get_answer_id() const;
-	void add_remember(std::string text, int flag);
-	std::string get_remember(int flag) const;
-	bool set_remember_num(unsigned int num);
-	unsigned int get_remember_num() const;
 
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
@@ -77,8 +87,14 @@ private:
 	boost::array<int, START_STATS_TOTAL> start_stats_;
 	// вспомнить
 	CharRemember remember_;
+	// внумы выполненных квестов с сохраненными данными
+	Quested quested_;
+	// замаксы по отдельным мобам
+	MobMax mobmax_;
 	// последняя введенная строка (от спама)
 	std::string last_tell_;
+	// id последнего телявшего (для ответа)
+	long answer_id_;
 };
 
 #endif // CHAR_PLAYER_HPP_INCLUDED

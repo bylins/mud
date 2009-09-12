@@ -157,12 +157,12 @@ int genchar_parse(CHAR_DATA * ch, char *arg)
 		if (SUM_STATS(ch) != SUM_ALL_STATS)
 			break;
 		// по случаю успешной генерации сохраняем стартовые статы
-		ch->player->set_start_stat(G_STR, GET_STR(ch));
-		ch->player->set_start_stat(G_DEX, GET_DEX(ch));
-		ch->player->set_start_stat(G_INT, GET_INT(ch));
-		ch->player->set_start_stat(G_WIS, GET_WIS(ch));
-		ch->player->set_start_stat(G_CON, GET_CON(ch));
-		ch->player->set_start_stat(G_CHA, GET_CHA(ch));
+		ch->set_start_stat(G_STR, GET_STR(ch));
+		ch->set_start_stat(G_DEX, GET_DEX(ch));
+		ch->set_start_stat(G_INT, GET_INT(ch));
+		ch->set_start_stat(G_WIS, GET_WIS(ch));
+		ch->set_start_stat(G_CON, GET_CON(ch));
+		ch->set_start_stat(G_CHA, GET_CHA(ch));
 		return GENCHAR_EXIT;
 	default:
 		break;

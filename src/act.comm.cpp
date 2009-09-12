@@ -196,14 +196,14 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 	send_to_char(buf1, vict);
 	if (!IS_NPC(vict))
 	{
-		vict->player->add_remember(buf1, Remember::ALL);
+		vict->remember_add(buf1, Remember::ALL);
 	}
 
 	if (!IS_NPC(vict) && !IS_NPC(ch))
 	{
 		snprintf(buf, MAX_STRING_LENGTH, "%s%s : '%s'%s\r\n", CCICYN(ch, C_NRM),
 				tell_can_see(ch, vict) ? GET_NAME(ch) : "Кто-то", arg, CCNRM(ch, C_NRM));
-		vict->player->add_remember(buf, Remember::PERSONAL);
+		vict->remember_add(buf, Remember::PERSONAL);
 	}
 
 	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT))
@@ -217,13 +217,13 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 		send_to_char(buf, ch);
 		if (!IS_NPC(ch))
 		{
-			ch->player->add_remember(buf, Remember::ALL);
+			ch->remember_add(buf, Remember::ALL);
 		}
 	}
 
 	if (!IS_NPC(vict) && !IS_NPC(ch))
 	{
-		vict->player->set_answer_id(GET_IDNUM(ch));
+		vict->set_answer_id(GET_IDNUM(ch));
 	}
 }
 
@@ -326,7 +326,7 @@ ACMD(do_reply)
 
 	skip_spaces(&argument);
 
-	if (ch->player->get_answer_id() == NOBODY)
+	if (ch->get_answer_id() == NOBODY)
 		send_to_char("Вам некому ответить !\r\n", ch);
 	else if (!*argument)
 		send_to_char("Что Вы собираетесь ответить?\r\n", ch);
@@ -343,7 +343,7 @@ ACMD(do_reply)
 		 *      we could not find link dead people.  Not that they can
 		 *      hear tells anyway. :) -gg 2/24/98
 		 */
-		while (tch != NULL && (IS_NPC(tch) || GET_IDNUM(tch) != ch->player->get_answer_id()))
+		while (tch != NULL && (IS_NPC(tch) || GET_IDNUM(tch) != ch->get_answer_id()))
 			tch = tch->next;
 
 		if (tch == NULL)
@@ -733,12 +733,12 @@ ACMD(do_gen_comm)
 				argument[k] = a_lcc(argument[k]);
 		}
 		/* фильтруем одинаковые сообщения в эфире */
-		if (!str_cmp(ch->player->get_last_tell().c_str(), argument))
+		if (!str_cmp(ch->get_last_tell().c_str(), argument))
 		{
 			send_to_char("Но Вы же недавно говорили тоже самое!?!\r\n", ch);
 			return;
 		}
-		ch->player->set_last_tell(argument);
+		ch->set_last_tell(argument);
 	}
 
 	// в этой проверке заодно списываются мувы за крики, поэтому она должна идти последней
@@ -775,7 +775,7 @@ ACMD(do_gen_comm)
 			if (!IS_NPC(ch))
 			{
 				snprintf(buf1 + strlen(buf1), MAX_STRING_LENGTH, "\r\n");
-				ch->player->add_remember(buf1, Remember::ALL);
+				ch->remember_add(buf1, Remember::ALL);
 			}
 		}
 		snprintf(out_str, MAX_STRING_LENGTH, "$n %s : '%s'", com_msgs[subcmd].hi_action, argument);
@@ -783,7 +783,7 @@ ACMD(do_gen_comm)
 		if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP || subcmd == SCMD_HOLLER))
 		{
 			snprintf(buf1, MAX_STRING_LENGTH, "%s'%s'%s\r\n", color_on, argument, KNRM);
-			ch->player->add_remember(buf1, Remember::GOSSIP);
+			ch->remember_add(buf1, Remember::GOSSIP);
 		}
 	}
 
@@ -823,7 +823,7 @@ ACMD(do_gen_comm)
 				send_to_char(KNRM, i->character);
 
 			std::string text = Remember::format_gossip(ch, i->character, subcmd, argument);
-			i->character->player->add_remember(text, Remember::ALL);
+			i->character->remember_add(text, Remember::ALL);
 		}
 	}
 }
@@ -909,18 +909,18 @@ ACMD(do_pray_gods)
 			set_wait(ch, 3, FALSE);
 		}
 		send_to_char(ch, buf);
-		ch->player->add_remember(buf, Remember::ALL);
+		ch->remember_add(buf, Remember::ALL);
 	}
 
 	if (IS_IMMORTAL(ch))
 	{
 		sprintf(buf, "&R%s ответил%s Вам : '%s'&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), argument);
 		send_to_char(buf, victim);
-		victim->player->add_remember(buf, Remember::ALL);
+		victim->remember_add(buf, Remember::ALL);
 
 		snprintf(buf1, MAX_STRING_LENGTH, "&R%s ответил%s %s : '%s&n\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 2), argument);
-		ch->player->add_remember(buf1, Remember::PRAY);
+		ch->remember_add(buf1, Remember::PRAY);
 
 		snprintf(buf, MAX_STRING_LENGTH, "&R%s ответил%s на воззвание %s : '%s'&n\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 1), argument);
@@ -929,7 +929,7 @@ ACMD(do_pray_gods)
 	{
 		snprintf(buf1, MAX_STRING_LENGTH, "&R%s воззвал%s к богам : '%s&n\r\n",
 				 GET_NAME(ch), GET_CH_SUF_1(ch), argument);
-		ch->player->add_remember(buf1, Remember::PRAY);
+		ch->remember_add(buf1, Remember::PRAY);
 
 		snprintf(buf, MAX_STRING_LENGTH, "&R%s воззвал%s к богам с сообщением : '%s'&n\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch), argument);
@@ -943,7 +943,7 @@ ACMD(do_pray_gods)
 				&& i->character != ch)
 		{
 			send_to_char(buf, i->character);
-			i->character->player->add_remember(buf, Remember::ALL);
+			i->character->remember_add(buf, Remember::ALL);
 		}
 	}
 }
@@ -989,12 +989,12 @@ ACMD(do_offtop)
 	}
 	lower_convert(argument);
 
-	if (!strcmp(ch->player->get_last_tell().c_str(), argument))
+	if (!strcmp(ch->get_last_tell().c_str(), argument))
 	{
 		send_to_char("Но Вы же недавно говорили тоже самое!?!\r\n", ch);
 		return;
 	}
-	ch->player->set_last_tell(argument);
+	ch->set_last_tell(argument);
 
 	snprintf(buf, MAX_STRING_LENGTH, "[оффтоп] %s : '%s'\r\n", GET_NAME(ch), argument);
 	snprintf(buf1, MAX_STRING_LENGTH, "&c%s&n", buf);
@@ -1011,10 +1011,10 @@ ACMD(do_offtop)
 				continue;
 
 			send_to_char(i->character, "%s%s%s", CCCYN(i->character, C_NRM), buf, CCNRM(i->character, C_NRM));
-			i->character->player->add_remember(buf1, Remember::ALL);
+			i->character->remember_add(buf1, Remember::ALL);
 		}
 	}
-	ch->player->add_remember(buf1, Remember::OFFTOP);
+	ch->remember_add(buf1, Remember::OFFTOP);
 	set_wait(ch, 1, FALSE);
 }
 
@@ -1028,7 +1028,7 @@ ACMD(do_remember_char)
 	// Если без аргумента - выдает личные теллы
 	if (!*argument)
 	{
-		send_to_char(ch, "%s", ch->player->get_remember(Remember::PERSONAL).c_str());
+		send_to_char(ch, "%s", ch->remember_get(Remember::PERSONAL).c_str());
 		return;
 	}
 
@@ -1036,21 +1036,21 @@ ACMD(do_remember_char)
 
 	if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) && is_abbrev(arg, "воззвать"))
 	{
-		send_to_char(ch, "%s", ch->player->get_remember(Remember::PRAY).c_str());
+		send_to_char(ch, "%s", ch->remember_get(Remember::PRAY).c_str());
 	}
 	else if (GET_LEVEL(ch) < LVL_IMMORT && is_abbrev(arg, "оффтоп"))
 	{
-		send_to_char(ch, "%s", ch->player->get_remember(Remember::OFFTOP).c_str());
+		send_to_char(ch, "%s", ch->remember_get(Remember::OFFTOP).c_str());
 	}
 	else if (is_abbrev(arg, "болтать") || is_abbrev(arg, "орать"))
 	{
-		send_to_char(ch, "%s", ch->player->get_remember(Remember::GOSSIP).c_str());
+		send_to_char(ch, "%s", ch->remember_get(Remember::GOSSIP).c_str());
 	}
 	else if (is_abbrev(arg, "клан") || is_abbrev(arg, "гдругам"))
 	{
 		if (CLAN(ch))
 		{
-			send_to_char(ch, "%s", CLAN(ch)->get_remember(ch->player->get_remember_num(), Remember::CLAN).c_str());
+			send_to_char(ch, "%s", CLAN(ch)->get_remember(ch->remember_get_num(), Remember::CLAN).c_str());
 		}
 		else
 		{
@@ -1062,7 +1062,7 @@ ACMD(do_remember_char)
 	{
 		if (CLAN(ch))
 		{
-			send_to_char(ch, "%s", CLAN(ch)->get_remember(ch->player->get_remember_num(), Remember::ALLY).c_str());
+			send_to_char(ch, "%s", CLAN(ch)->get_remember(ch->remember_get_num(), Remember::ALLY).c_str());
 		}
 		else
 		{
@@ -1072,7 +1072,7 @@ ACMD(do_remember_char)
 	}
 	else if (is_abbrev(arg, "все"))
 	{
-		send_to_char(ch, "%s", ch->player->get_remember(Remember::ALL).c_str());
+		send_to_char(ch, "%s", ch->remember_get(Remember::ALL).c_str());
 		return;
 	}
 	else

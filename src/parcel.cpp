@@ -478,7 +478,7 @@ void return_money(std::string const &name, int money, bool add)
 	}
 	else
 	{
-		vict = new CHAR_DATA; // TODO: переделать на стек
+		vict = new Player; // TODO: переделать на стек
 		if (load_char(name.c_str(), vict) < 0)
 		{
 			delete vict;

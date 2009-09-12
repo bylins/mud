@@ -1963,7 +1963,7 @@ int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0)
 			{
 			case 0:
 				// если уже сидим в проксе, то смысла спамить никакого
-				if (IN_ROOM(d->character) == r_unreg_start_room || d->character->player->get_was_in_room() == r_unreg_start_room)
+				if (IN_ROOM(d->character) == r_unreg_start_room || d->character->get_was_in_room() == r_unreg_start_room)
 					return 0;
 				send_to_char(d->character,
 							 "&RВы вошли с игроком %s с одного IP(%s) !\r\n"
@@ -2309,10 +2309,9 @@ void CreateChar(DESCRIPTOR_DATA * d)
 {
 	if (d->character != NULL) return;
 
-	d->character = new CHAR_DATA;
+	d->character = new Player;
 	CREATE(d->character->player_specials, struct player_special_data, 1);
 	memset(d->character->player_specials, 0, sizeof(struct player_special_data));
-	d->character->create_player();
 	d->character->desc = d;
 }
 
@@ -2408,7 +2407,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				REMOVE_BIT(PLR_FLAGS(d->character, PLR_MAILING), PLR_MAILING);
 				REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
 				REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRYO), PLR_CRYO);
-				d->character->player->set_pfilepos(player_i);
+				d->character->set_pfilepos(player_i);
 				GET_ID(d->character) = GET_IDNUM(d->character);
 				DoAfterPassword(d);
 				return;
@@ -2431,7 +2430,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				}
 			if ((player_i = load_char(tmp_name, d->character)) > -1)
 			{
-				d->character->player->set_pfilepos(player_i);
+				d->character->set_pfilepos(player_i);
 				if (PLR_FLAGGED(d->character, PLR_DELETED))  	/* We get a false positive from the original deleted character. */
 				{
 					delete d->character;
@@ -2447,7 +2446,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					strcpy(d->character->player_data.name, CAP(tmp_name));
 					CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
 					strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
-					d->character->player->set_pfilepos(player_i);
+					d->character->set_pfilepos(player_i);
 					sprintf(buf, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ] ? ", tmp_name);
 					SEND_TO_Q(buf, d);
 					STATE(d) = CON_NAME_CNFRM;
@@ -3036,8 +3035,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 
-		if (d->character->player->get_pfilepos() < 0)
-			d->character->player->set_pfilepos(create_entry(GET_PC_NAME(d->character)));
+		if (d->character->get_pfilepos() < 0)
+			d->character->set_pfilepos(create_entry(GET_PC_NAME(d->character)));
 
 		/* Now GET_NAME() will work properly. */
 		init_char(d->character);

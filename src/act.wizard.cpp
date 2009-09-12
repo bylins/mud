@@ -540,7 +540,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				char_to_room(vict, r_helled_start_room);
 				look_at_room(vict, r_helled_start_room);
 			};
-			vict->player->set_was_in_room(NOWHERE);
+			vict->set_was_in_room(NOWHERE);
 
 			sprintf(buf, "%s moved TO hell by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -566,7 +566,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				char_to_room(vict, r_named_start_room);
 				look_at_room(vict, r_named_start_room);
 			};
-			vict->player->set_was_in_room(NOWHERE);
+			vict->set_was_in_room(NOWHERE);
 
 			sprintf(buf, "%s removed to nameroom by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -593,7 +593,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 					look_at_room(vict, r_unreg_start_room);
 				}
 			}
-			vict->player->set_was_in_room(NOWHERE);
+			vict->set_was_in_room(NOWHERE);
 
 			sprintf(buf, "%s unregistred by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -653,8 +653,8 @@ ACMD(do_email)
 	}
 	else
 	{
-		CHAR_DATA t_victim;
-		CHAR_DATA *victim = &t_victim;
+		Player t_victim;
+		Player *victim = &t_victim;
 		send_to_char("[char is offline]\r\n", ch);
 		if (load_char(name, victim) < 0)
 		{
@@ -792,15 +792,15 @@ ACMD(do_glory)
 	}
 
 	CHAR_DATA *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
-	CHAR_DATA t_vict; // TODO: надо выносить во вторую функцию, чтобы зря не создавать
+	Player t_vict; // TODO: надо выносить во вторую функцию, чтобы зря не создавать
 	if (!vict)
 	{
-		vict = &t_vict;
-		if (load_char(arg, vict) < 0)
+		if (load_char(arg, &t_vict) < 0)
 		{
 			send_to_char("Такого персонажа не существует.\r\n", ch);
 			return;
 		}
+		vict = &t_vict;
 	}
 
 	switch (mode)
@@ -1886,7 +1886,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 			}
 		}
 
-		std::string quested(k->player->quested.print());
+		std::string quested(k->quested_print());
 		if (!quested.empty())
 			send_to_char(ch, "Выполнил квесты:\r\n%s\r\n", quested.c_str());
 
@@ -1980,10 +1980,10 @@ ACMD(do_stat)
 		}
 		else
 		{
-			CHAR_DATA t_victim;
-			CHAR_DATA *victim = &t_victim;
-			if (load_char(buf2, victim) > -1)
+			Player t_victim;
+			if (load_char(buf2, &t_victim) > -1)
 			{
+				victim = &t_victim;
 				if (GET_LEVEL(victim) > GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
 					send_to_char("Извините, Вам это еще рано.\r\n", ch);
 				else
@@ -2982,8 +2982,8 @@ ACMD(do_last)
 		return;
 	}
 
-	CHAR_DATA t_chdata;
-	CHAR_DATA *chdata = &t_chdata;
+	Player t_chdata;
+	Player *chdata = &t_chdata;
 	if (load_char(arg, chdata) < 0)
 	{
 		send_to_char("Нет такого игрока.\r\n", ch);
@@ -3721,7 +3721,7 @@ ACMD(do_show)
 			++i;
 			sprintf(buf, "%-50s[%6d][%6d]   %d\r\n",
 					noclan_title(vict), GET_ROOM_VNUM(IN_ROOM(vict)),
-					GET_ROOM_VNUM(vict->player->get_was_in_room()), vict->char_specials.timer);
+					GET_ROOM_VNUM(vict->get_was_in_room()), vict->char_specials.timer);
 			send_to_char(buf, ch);
 		}
 		sprintf(buf, "Всего - %d\r\n", i);
@@ -4454,7 +4454,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 
 		if (!str_cmp(npad[0], "off") || !str_cmp(npad[0], "выкл"))
 		{
-			if (!vict->player->quested.remove(ptnum))
+			if (!vict->quested_remove(ptnum))
 			{
 				act("$N не выполнял$G этого квеста.", FALSE, ch, 0, vict, TO_CHAR);
 				return 0;
@@ -4462,7 +4462,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		else if (!str_cmp(npad[0], "on") || !str_cmp(npad[0], "вкл"))
 		{
-			vict->player->quested.add(vict, ptnum, npad[1]);
+			vict->quested_add(vict, ptnum, npad[1]);
 		}
 		else
 		{
@@ -4479,11 +4479,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			return (0);
 		}
 		if (!str_cmp(npad[0], "off") || !str_cmp(npad[0], "выкл"))
-			vict->player->mobmax.remove(ptnum);
+			vict->mobmax_remove(ptnum);
 		else if ((j = atoi(npad[0])) > 0)
 		{
-			if ((c = vict->player->mobmax.get_kill_count(ptnum)) != j)
-				vict->player->mobmax.add(vict, ptnum, j - c, MobMax::get_level_by_vnum(ptnum));
+			if ((c = vict->mobmax_get(ptnum)) != j)
+				vict->mobmax_add(vict, ptnum, j - c, MobMax::get_level_by_vnum(ptnum));
 			else
 			{
 				act("$N убил$G именно столько этих мобов.", FALSE, ch, 0, vict, TO_CHAR);
@@ -4696,7 +4696,7 @@ ACMD(do_set)
 	}
 	else if (is_file)  	/* try to load the player off disk */
 	{
-		cbuf = new CHAR_DATA; // TODO: переделать на стек
+		cbuf = new Player; // TODO: переделать на стек
 		if ((player_i = load_char(name, cbuf)) > -1)
 		{
 			/* Запрет на злоупотребление командой SET на бессмертных */

@@ -13,6 +13,7 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
+#include "player_i.hpp"
 
 /* These data contain information about a players time data */
 struct time_data
@@ -263,15 +264,12 @@ typedef std::map < int/* номер скилла */, int/* значение скилла */ > CharSkillsT
 /**
 * Общий класс для игроков/мобов.
 */
-class Character
+class Character : public PlayerI
 {
 // новое
 public:
 	Character();
-	~Character();
-
-	void create_player();
-	void create_mob_guard();
+	virtual ~Character();
 
 	// это все как обычно временно... =)
 	friend void save_char(CHAR_DATA *ch);
@@ -313,8 +311,6 @@ public:
 
 	int get_serial_num();
 	void set_serial_num();
-
-	PlayerPtr player;
 
 private:
 	static int normolize_skill(int percent);

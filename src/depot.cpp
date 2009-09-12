@@ -20,6 +20,7 @@
 #include "screen.h"
 #include "char.hpp"
 #include "name_list.hpp"
+#include "char_player.hpp"
 
 extern SPECIAL(bank);
 extern void write_one_object(char **data, OBJ_DATA * object, int location);
@@ -214,8 +215,8 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 	if (name.empty())
 		return out.str();
 
-	CHAR_DATA t_ch;
-	CHAR_DATA *ch = &t_ch;
+	Player t_ch;
+	Player *ch = &t_ch;
 	if (load_char(name.c_str(), ch) < 0)
 		return out.str();
 
@@ -412,8 +413,8 @@ void remove_char_entry(long uid, CharNode &node)
 	// если чар был что-то должен, надо попытаться с него это снять
 	if (!node.name.empty() && (node.money_spend || node.buffer_cost))
 	{
-		CHAR_DATA t_victim;
-		CHAR_DATA *victim = &t_victim;
+		Player t_victim;
+		Player *victim = &t_victim;
 		if (load_char(node.name.c_str(), victim) > -1 && GET_UNIQUE(victim) == uid)
 		{
 			int total_pay = node.money_spend + static_cast<int>(node.buffer_cost);
@@ -1503,7 +1504,7 @@ void reload_char(long uid, CHAR_DATA *ch)
 	else
 	{
 		// чар соответственно оффлайн
-		t_vict = new CHAR_DATA; // TODO: переделать на стек
+		t_vict = new Player; // TODO: переделать на стек
 		if (load_char(it->second.name.c_str(), t_vict) < 0)
 		{
 			// вообще эт нереальная ситуация после проверки в do_reboot

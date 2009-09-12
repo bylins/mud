@@ -2367,7 +2367,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			{
 				if (*subfield && (num = atoi(subfield)) > 0)
 				{
-					if (c->player->quested.get(num))
+					if (c->quested_get(num))
 						strcpy(str, "1");
 					else
 						strcpy(str, "0");
@@ -2377,7 +2377,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			{
 				if (*subfield && (num = atoi(subfield)) > 0)
 				{
-					strcpy(str, (c->player->quested.get_text(num)).c_str());
+					strcpy(str, (c->quested_get_text(num)).c_str());
 				}
 			}
 			else if (!str_cmp(field, "setquest"))
@@ -2388,7 +2388,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					skip_spaces(&subfield);
 					if ((num = atoi(buf)) > 0)
 					{
-						c->player->quested.add(c, num, subfield);
+						c->quested_add(c, num, subfield);
 						strcpy(str, "1");
 					}
 				}
@@ -2397,7 +2397,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			{
 				if (*subfield && (num = atoi(subfield)) > 0)
 				{
-					c->player->quested.remove(num);
+					c->quested_remove(num);
 					strcpy(str, "1");
 				}
 			}

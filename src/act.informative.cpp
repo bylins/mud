@@ -3840,7 +3840,7 @@ ACMD(do_who)
 						GET_LEVEL(tch),
 						KIN_ABBR(tch),
 						CLASS_ABBR(tch),
-						tch->player->get_pfilepos(),
+						tch->get_pfilepos(),
 						CCPK(ch, C_NRM, tch),
 						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", race_or_title(tch), CCNRM(ch, C_NRM));
 			else
@@ -4038,7 +4038,7 @@ ACMD(do_who_new)
 					GET_LEVEL(tch),
 					KIN_ABBR(tch),
 					CLASS_ABBR(tch),
-					tch->player->get_pfilepos(),
+					tch->get_pfilepos(),
 					CCPK(ch, C_NRM, tch),
 					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", race_or_title(tch), CCNRM(ch, C_NRM));
 		else
@@ -5030,7 +5030,7 @@ ACMD(do_toggle)
 			ONOFF(PRF_FLAGGED(ch, PRF_OFFTOP_MODE)),
 			ONOFF(PRF_FLAGGED(ch, PRF_ANTIDC_MODE)),
 			ONOFF(PRF_FLAGGED(ch, PRF_NOINGR_MODE)),
-			ch->player->get_remember_num());
+			ch->remember_get_num());
 
 	send_to_char(buf, ch);
 }

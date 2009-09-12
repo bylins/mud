@@ -1277,7 +1277,7 @@ void char_from_room(CHAR_DATA * ch)
 		stop_fighting(ch, TRUE);
 
 	if (!IS_NPC(ch))
-		ch->player->set_from_room(ch->in_room);
+		ch->set_from_room(ch->in_room);
 
 	check_light(ch, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, -1);
 	REMOVE_FROM_LIST(ch, world[ch->in_room]->people, next_in_room);
@@ -1297,7 +1297,7 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA))
 		{
 			send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
-			char_to_room(ch, ch->player->get_from_room());
+			char_to_room(ch, ch->get_from_room());
 			return;
 		}
 

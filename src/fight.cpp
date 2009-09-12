@@ -827,7 +827,7 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
 						}
 					}
 				}
-				master->player->mobmax.add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
+				master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 			}
 		}
 
@@ -865,7 +865,7 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 	if (!IS_NPC(victim) || IS_NPC(ch))
 		return (exp);
 
-	for (koef = 100, base = 0, diff = ch->player->mobmax.get_kill_count(GET_MOB_VNUM(victim));
+	for (koef = 100, base = 0, diff = ch->mobmax_get(GET_MOB_VNUM(victim));
 			base < diff && koef > 5; base++, koef = koef * 95 / 100);
 
 	exp = exp * MAX(5, koef) / 100;

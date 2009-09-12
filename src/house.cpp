@@ -1273,12 +1273,12 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "%s дружине: %s'%s'.%s\r\n",
 						GET_NAME(ch), CCIRED(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
-				d->character->player->add_remember(buf, Remember::ALL);
+				d->character->remember_add(buf, Remember::ALL);
 				send_to_char(buf, d->character);
 			}
 		}
 		snprintf(buf, MAX_STRING_LENGTH, "Вы дружине: %s'%s'.%s\r\n", CCIRED(ch, C_NRM), text.c_str(), CCNRM(ch, C_NRM));
-		ch->player->add_remember(buf, Remember::ALL);
+		ch->remember_add(buf, Remember::ALL);
 		send_to_char(buf, ch);
 		break;
 	}
@@ -1314,14 +1314,14 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 					{
 							snprintf(buf, MAX_STRING_LENGTH, "%s союзникам: %s'%s'.%s\r\n",
 										 GET_NAME(ch), CCIGRN(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
-							d->character->player->add_remember(buf, Remember::ALL);
+							d->character->remember_add(buf, Remember::ALL);
 							send_to_char(buf, d->character);
 					}
 				}
 			}
 		}
 		snprintf(buf, MAX_STRING_LENGTH, "Вы союзникам: %s'%s'.%s\r\n", CCIGRN(ch, C_NRM), text.c_str(), CCNRM(ch, C_NRM));
-		ch->player->add_remember(buf, Remember::ALL);
+		ch->remember_add(buf, Remember::ALL);
 		send_to_char(buf, ch);
 		break;
 	}

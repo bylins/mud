@@ -28,6 +28,7 @@
 #include "features.hpp"
 #include "house.h"
 #include "char.hpp"
+#include "char_player.hpp"
 
 /*   external vars  */
 
@@ -2911,7 +2912,7 @@ SPECIAL(bank)
 		}
 		else
 		{
-			vict = new CHAR_DATA; // TODO: переделать на стек
+			vict = new Player; // TODO: переделать на стек
 			if (load_char(arg, vict) < 0)
 			{
 				send_to_char("Такого персонажа не существует.\r\n", ch);

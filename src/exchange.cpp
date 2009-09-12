@@ -24,6 +24,7 @@
 #include "constants.h"
 #include "skills.h"
 #include "char.hpp"
+#include "char_player.hpp"
 
 //Используемые внешние ф-ии.
 extern void write_one_object(char **data, OBJ_DATA * object, int location);
@@ -634,7 +635,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 	if (seller == NULL)
 	{
 		const char *seller_name = get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(item));
-		seller = new CHAR_DATA; // TODO: переделать на стек
+		seller = new Player; // TODO: переделать на стек
 		if ((seller_name == NULL) || (load_char(seller_name, seller) < 0))
 		{
 			act("Вы приобрели $O3 на базаре даром, так как владельца давно след простыл.\r\n",

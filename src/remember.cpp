@@ -163,21 +163,10 @@ std::string CharRemember::get_text(int flag) const
 	return buffer;
 }
 
-void CharRemember::set_answer_id(int id)
-{
-	answer_id_ = id;
-}
-
-int CharRemember::get_answer_id() const
-{
-	return answer_id_;
-}
-
 void CharRemember::reset()
 {
 	all_.clear();
 	personal_.clear();
-	answer_id_ = NOBODY;
 }
 
 bool CharRemember::set_num_str(unsigned int num)

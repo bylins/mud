@@ -15,6 +15,7 @@
 #include "privilege.hpp"
 #include "handler.h"
 #include "char.hpp"
+#include "char_player.hpp"
 
 namespace TitleSystem
 {
@@ -323,7 +324,7 @@ DESCRIPTOR_DATA* TitleSystem::send_result_message(long unique, bool action)
 * Оповещение игрока об одобрении, если он онлайн. Запись в файл, если оффлайн.
 * \param action - 0 запрет титула, 1 одобрение
 */
-bool TitleSystem::manage_title_list(std::string& name, bool action, CHAR_DATA* ch)
+bool TitleSystem::manage_title_list(std::string &name, bool action, CHAR_DATA *ch)
 {
 	name_convert(name);
 	TitleListType::iterator it = title_list.find(name);
@@ -336,7 +337,7 @@ bool TitleSystem::manage_title_list(std::string& name, bool action, CHAR_DATA* c
 				set_player_title(d->character, it->second->pre_title, it->second->title, GET_NAME(ch));
 			else
 			{
-				CHAR_DATA *victim = new CHAR_DATA; // TODO: переделать на стек
+				Player *victim = new Player; // TODO: переделать на стек
 				if (load_char(it->first.c_str(), victim) < 0)
 				{
 					send_to_char("Персонаж был удален или ошибочка какая-то вышла.\r\n", ch);

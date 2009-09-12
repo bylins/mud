@@ -27,6 +27,7 @@
 #include "screen.h"
 #include "privilege.hpp"
 #include "char.hpp"
+#include "char_player.hpp"
 
 extern const char *genders[];
 
@@ -266,8 +267,8 @@ void NewNameLoad()
 	while (file >> buffer)
 	{
 		// сразу проверяем не сделетился ли уже персонаж
-		CHAR_DATA t_tch;
-		CHAR_DATA *tch = &t_tch;
+		Player t_tch;
+		Player *tch = &t_tch;
 		if (load_char(buffer.c_str(), tch) < 0)
 			continue;
 		// не сделетился...
@@ -491,7 +492,7 @@ ACMD(do_name)
 	}
 	else
 	{
-		vict = new CHAR_DATA; // TODO: переделать на стек
+		vict = new Player; // TODO: переделать на стек
 		if (load_char(name.c_str(), vict) < 0)
 		{
 			send_to_char("Такого персонажа не существует.\r\n", ch);
