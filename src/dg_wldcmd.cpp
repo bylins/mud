@@ -30,7 +30,6 @@ extern const char *dirs[];
 extern struct zone_data *zone_table;
 extern zone_rnum top_of_zone_table;
 
-void die_follower(CHAR_DATA * ch);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void send_to_zone(char *messg, int zone_rnum);

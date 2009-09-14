@@ -139,7 +139,6 @@ ACMD(do_return);
 ACMD(do_load);
 ACMD(do_vstat);
 ACMD(do_purge);
-void die_follower(CHAR_DATA * ch);
 ACMD(do_syslog);
 ACMD(do_advance);
 ACMD(do_restore);

@@ -242,7 +242,6 @@ void calc_easter(void);
 extern void calc_god_celebrate();
 void do_start(CHAR_DATA * ch, int newbie);
 int calc_loadroom(CHAR_DATA * ch);
-void die_follower(CHAR_DATA * ch);
 extern void tascii(int *pointer, int num_planes, char *ascii);
 extern void repop_decay(zone_rnum zone);	/* рассыпание обьектов ITEM_REPOP_DECAY */
 int real_zone(int number);

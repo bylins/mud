@@ -67,7 +67,6 @@ room_data *get_room(char *name);
 extern void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktype, int mayflee);
 OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name);
 extern void die(CHAR_DATA * ch, CHAR_DATA * killer);
-void die_follower(CHAR_DATA * victim);
 /*
  * Local functions.
  */

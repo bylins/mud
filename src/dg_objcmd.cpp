@@ -34,7 +34,6 @@ CHAR_DATA *get_char_by_obj(OBJ_DATA * obj, char *name);
 OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name);
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
-void die_follower(CHAR_DATA * ch);
 room_data *get_room(char *name);
 void asciiflag_conv(const char *flag, void *value);
 int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);

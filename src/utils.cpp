@@ -41,7 +41,6 @@ extern CHAR_DATA *mob_proto;
 /* local functions */
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
-void die_follower(CHAR_DATA * ch);
 void prune_crlf(char *txt);
 int valid_email(const char *address);
 
@@ -956,12 +955,15 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 
 
 /* Called when a character that follows/is followed dies */
-void die_follower(CHAR_DATA * ch)
+bool die_follower(CHAR_DATA * ch)
 {
 	struct follow_type *j, *k = ch->followers;
 
-	if (ch->master)
-		stop_follower(ch, SF_FOLLOWERDIE);
+	if (ch->master && stop_follower(ch, SF_FOLLOWERDIE))
+	{
+		//  чармиса спуржили в stop_follower
+		return true;
+	}
 
 	if (on_horse(ch))
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
@@ -971,6 +973,7 @@ void die_follower(CHAR_DATA * ch)
 		j = k->next;
 		stop_follower(k->follower, SF_MASTERDIE);
 	}
+	return false;
 }
 
 

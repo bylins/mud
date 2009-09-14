@@ -93,7 +93,6 @@ int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj);
 int invalid_clan(CHAR_DATA * ch, OBJ_DATA * obj);
 void remove_follower(CHAR_DATA * ch);
 void clearMemory(CHAR_DATA * ch);
-void die_follower(CHAR_DATA * ch);
 int extra_damroll(int class_num, int level);
 int Crash_delete_file(char *name, int mask);
 void do_entergame(DESCRIPTOR_DATA * d);
@@ -2683,7 +2682,6 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	int i, freed = 0;
 	CHAR_DATA *ch_w, *temp;
 
-
 	if (MOB_FLAGGED(ch, MOB_FREE) || MOB_FLAGGED(ch, MOB_DELETE))
 		return;
 
@@ -2749,8 +2747,12 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	}
 
 	log("[Extract char] Die followers");
-	if (ch->followers || ch->master)
-		die_follower(ch);
+	if ((ch->followers || ch->master) && die_follower(ch))
+	{
+		// TODO: странно все это с пуржем в stop_follower
+		// extract_mob тоже самое
+		return;
+	}
 
 	log("[Extract char] Stop fighting self");
 	if (ch->get_fighting())
@@ -2845,8 +2847,13 @@ void extract_mob(CHAR_DATA * ch)
 		return;
 		exit(1);
 	}
-	if (ch->followers || ch->master)
-		die_follower(ch);
+
+	if ((ch->followers || ch->master) && die_follower(ch))
+	{
+		// TODO: странно все это с пуржем в stop_follower
+		// extract_char тоже самое
+		return;
+	}
 
 	/* Forget snooping, if applicable */
 	if (ch->desc)
