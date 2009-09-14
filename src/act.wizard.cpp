@@ -12,6 +12,8 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include <sstream>
+#include <iomanip>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -4953,113 +4955,6 @@ ACMD(do_forcetime)
 
 }
 
-///////////////////////////////////////////////////////////////////////////////
-#include <sstream>
-#include <iomanip>
-bool is_group_member(CHAR_DATA *ch, CHAR_DATA *vict);
-extern const char *class_name[];
-
-class dmeter_node
-{
-public:
-	dmeter_node(const char *name, std::string prof) : name_(name), damage_(0), real_damage_(0), poison_(0), prof_(prof) {};
-	std::string name_;
-	int damage_;
-	int real_damage_;
-	int poison_;
-	std::string prof_;
-};
-std::map<long /* id */, dmeter_node> dmeter_list;
-
-void dmeter_update(CHAR_DATA *ch, int real_dam, int dam, int poison)
-{
-	std::map<long, dmeter_node>::iterator it = dmeter_list.find(GET_ID(ch));
-	if (it != dmeter_list.end())
-	{
-		it->second.damage_ += dam;
-		it->second.real_damage_ += real_dam;
-		it->second.poison_ += poison;
-	}
-}
-
-std::string dmeter_get_prof(CHAR_DATA *ch)
-{
-	return IS_NPC(ch) ? "" : class_name[(int) GET_CLASS(ch)+14*GET_KIN(ch)];
-}
-
-ACMD(do_dmeter)
-{
-	if (!Privilege::check_flag(ch, Privilege::KRODER))
-	{
-		send_to_char("Чаво ?\r\n", ch);
-		return;
-	}
-
-	skip_spaces(&argument);
-	if (!*argument)
-	{
-		if (dmeter_list.empty())
-		{
-			send_to_char("Пусто.\r\n", ch);
-			return;
-		}
-		std::stringstream out;
-		for (std::map<long, dmeter_node>::iterator it = dmeter_list.begin(); it != dmeter_list.end(); ++it)
-		{
-			out << std::setw(35) << it->second.name_ << " : "  << std::setw(15) << it->second.damage_
-					<< " : " << std::setw(15) << it->second.real_damage_
-					<< " : " << std::setw(15) << it->second.poison_
-					<< " : " << std::setw(15) << it->second.prof_ << "\r\n";
-		}
-		send_to_char(out.str(), ch);
-	}
-	if (!str_cmp(argument, "сбросить"))
-	{
-		for (std::map<long, dmeter_node>::iterator it = dmeter_list.begin(); it != dmeter_list.end(); ++it)
-		{
-			it->second.damage_ = 0;
-			it->second.real_damage_ = 0;
-		}
-		return;
-	}
-	if (!str_cmp(argument, "очистить"))
-	{
-		dmeter_list.clear();
-		return;
-	}
-
-	if (*argument)
-	{
-		CHAR_DATA *vict = get_player_vis(ch, argument, FIND_CHAR_WORLD);
-		if (!vict)
-		{
-			send_to_char("Нет такого.\r\n", ch);
-			return;
-		}
-/*
-		if (!vict->followers)
-		{
-			send_to_char("Не лидер группы.\r\n", ch);
-			return;
-		}
-*/
-		dmeter_list.clear();
-		dmeter_node tmp_node(GET_NAME(vict), dmeter_get_prof(vict));
-		dmeter_list.insert(std::make_pair(GET_ID(vict), tmp_node));
-
-		for (struct follow_type *f = vict->followers; f; f = f->next)
-		{
-			dmeter_node tmp_node(GET_NAME(f->follower), dmeter_get_prof(f->follower));
-			dmeter_list.insert(std::make_pair(GET_ID(f->follower), tmp_node));
-			for (struct follow_type *ff = f->follower->followers; ff; ff = ff->next)
-			{
-				dmeter_node tmp_node(GET_NAME(ff->follower), dmeter_get_prof(ff->follower));
-				dmeter_list.insert(std::make_pair(GET_ID(ff->follower), tmp_node));
-			}
-		}
-		send_to_char("Сделано.\r\n", ch);
-	}
-}
 ///////////////////////////////////////////////////////////////////////////////
 //Polud статистика использования заклинаний
 namespace SpellUsage

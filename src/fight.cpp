@@ -493,8 +493,26 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 		SET_AF_BATTLE(ch, EAF_AUTOBLOCK);
 	}
 
-	start_fight_mtrigger(ch, vict);
+	if (!IS_NPC(ch))
+	{
+		ch->dps_start_timer(DpsSystem::PERS_DPS);
+		if (AFF_FLAGGED(ch, AFF_GROUP))
+		{
+			CHAR_DATA *leader = ch->master ? ch->master : ch;
+			leader->dps_start_timer(DpsSystem::GROUP_DPS, ch);
+		}
+	}
+	else if (IS_CHARMICE(ch) && ch->master)
+	{
+		ch->master->dps_start_timer(DpsSystem::PERS_CHARM_DPS, ch);
+		if (AFF_FLAGGED(ch->master, AFF_GROUP))
+		{
+			CHAR_DATA *leader = ch->master->master ? ch->master->master : ch->master;
+			leader->dps_start_timer(DpsSystem::GROUP_CHARM_DPS, ch);
+		}
+	}
 
+	start_fight_mtrigger(ch, vict);
 //  check_killer(ch, vict);
 }
 
@@ -561,6 +579,25 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 			act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.", FALSE, ch, 0, 0, TO_ROOM);
 		};
 	};
+
+	if (!IS_NPC(ch))
+	{
+		ch->dps_stop_timer(DpsSystem::PERS_DPS);
+		if (AFF_FLAGGED(ch, AFF_GROUP))
+		{
+			CHAR_DATA *leader = ch->master ? ch->master : ch;
+			leader->dps_stop_timer(DpsSystem::GROUP_DPS, ch);
+		}
+	}
+	else if (IS_CHARMICE(ch) && ch->master)
+	{
+		ch->master->dps_stop_timer(DpsSystem::PERS_CHARM_DPS, ch);
+		if (AFF_FLAGGED(ch->master, AFF_GROUP))
+		{
+			CHAR_DATA *leader = ch->master->master ? ch->master->master : ch->master;
+			leader->dps_stop_timer(DpsSystem::GROUP_CHARM_DPS, ch);
+		}
+	}
 }
 
 /* When ch kills victim */
@@ -2505,13 +2542,6 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		if (AFF_FLAGGED(victim, AFF_SCOPOLIA_POISON))
 		{
 			int mod = dam * GET_POISON(victim) / 100;
-			////////////////////////////////////////////////////////////////////////////////
-			if (mod > 0)
-			{
-				void dmeter_update(CHAR_DATA *ch, int real_dam, int dam, int poison);
-				dmeter_update(ch, 0, 0, mod);
-			}
-			////////////////////////////////////////////////////////////////////////////////
 			dam += mod;
 		}
 	}
@@ -2530,24 +2560,45 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 	// gain_exp(ch, IS_NPC(ch) ? GET_LEVEL(victim) * dam : (GET_LEVEL(victim) * dam + 4) / 5);
 	// log("[DAMAGE] Updating pos...");
 
+	int real_dam = dam;
+	int over_dam = 0;
+
 	if (attacktype == SPELL_FIRE_SHIELD)
 	{
 		if ((GET_HIT(victim) -= dam) < 1)
+		{
 			GET_HIT(victim) = 1;
+			real_dam = GET_HIT(victim) - 1;
+			over_dam = dam - real_dam;
+		}
 	}
 	else
 	{
-		////////////////////////////////////////////////////////////////////////////////
-		void dmeter_update(CHAR_DATA *ch, int real_dam, int dam, int poison);
-		int real_dam = dam;
-		if (GET_HIT(victim) + 11 < dam)
+		if (dam > GET_HIT(victim) + 11)
 		{
 			real_dam = GET_HIT(victim) + 11;
+			over_dam = dam - real_dam;
 		}
-		if (ch != victim)
-			dmeter_update(ch, real_dam, dam, 0);
-		////////////////////////////////////////////////////////////////////////////////
 		GET_HIT(victim) -= dam;
+	}
+
+	if (!IS_NPC(ch))
+	{
+		ch->dps_add_dmg(DpsSystem::PERS_DPS, real_dam, over_dam);
+		if (AFF_FLAGGED(ch, AFF_GROUP))
+		{
+			CHAR_DATA *leader = ch->master ? ch->master : ch;
+			leader->dps_add_dmg(DpsSystem::GROUP_DPS, real_dam, over_dam, ch);
+		}
+	}
+	else if (IS_CHARMICE(ch) && ch->master)
+	{
+		ch->master->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
+		if (AFF_FLAGGED(ch->master, AFF_GROUP))
+		{
+			CHAR_DATA *leader = ch->master->master ? ch->master->master : ch->master;
+			leader->dps_add_dmg(DpsSystem::GROUP_CHARM_DPS, real_dam, over_dam, ch);
+		}
 	}
 
 	update_pos(victim);

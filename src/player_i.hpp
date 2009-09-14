@@ -10,6 +10,11 @@
 #include "sysdep.h"
 #include "structs.h"
 
+namespace DpsSystem
+{
+	class Dps;
+}
+
 extern room_rnum r_helled_start_room;
 
 /**
@@ -61,6 +66,15 @@ public:
 	virtual void mobmax_load(CHAR_DATA *ch, int vnum, int count, int level) {};
 	virtual void mobmax_remove(int vnum) {};
 	virtual void mobmax_save(FILE *saved) const {};
+
+	virtual void dps_start_timer(int type, CHAR_DATA *ch = 0) {};
+	virtual void dps_stop_timer(int type, CHAR_DATA *ch = 0) {};
+	virtual void dps_add_dmg(int type, int dmg, int over_dmg = 0, CHAR_DATA *ch = 0) {};
+	virtual void dps_clear(int type) {};
+	virtual void dps_print_stats() {};
+	virtual void dps_print_group_stats(CHAR_DATA *ch) {};
+	virtual void dps_set(DpsSystem::Dps *dps) {};
+	virtual void dps_copy(CHAR_DATA *ch) {};
 
 protected:
 	PlayerI() {};

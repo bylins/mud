@@ -15,6 +15,7 @@
 #include "mobmax.hpp"
 #include "remember.hpp"
 #include "char.hpp"
+#include "dps.hpp"
 
 // кол-во сохраняемых стартовых статов в файле
 const int START_STATS_TOTAL = 6;
@@ -68,6 +69,16 @@ public:
 	void mobmax_remove(int vnum);
 	void mobmax_save(FILE *saved) const; // TODO мб убрать
 
+	// обертка на Dps
+	void dps_start_timer(int type, CHAR_DATA *ch = 0);
+	void dps_stop_timer(int type, CHAR_DATA *ch = 0);
+	void dps_add_dmg(int type, int dmg, int over_dmg = 0, CHAR_DATA *ch = 0);
+	void dps_clear(int type);
+	void dps_print_stats();
+	void dps_print_group_stats(CHAR_DATA *ch);
+	void dps_set(DpsSystem::Dps *dps);
+	void dps_copy(CHAR_DATA *ch);
+
 	// это все как обычно временно... =)
 	friend void save_char(CHAR_DATA *ch);
 
@@ -95,6 +106,8 @@ private:
 	std::string last_tell_;
 	// id последнего телявшего (для ответа)
 	long answer_id_;
+	// 'дметр' персональный и группы, если чар лидер
+	DpsSystem::Dps dps_;
 };
 
 #endif // CHAR_PLAYER_HPP_INCLUDED

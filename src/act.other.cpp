@@ -975,8 +975,11 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 	}
 
 	if (!leader->followers)
+	{
 		return;
+	}
 
+	ch->dps_copy(leader);
 	perform_group(leader, leader);
 	int followers = 0;
 	for (struct follow_type *f = leader->followers; f; f = f->next)

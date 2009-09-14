@@ -330,7 +330,6 @@ ACMD(do_ignore);
 ACMD(do_proxy);
 ACMD(do_turn_undead);
 ACMD(do_iron_wind);
-ACMD(do_dmeter);
 
 /* DG Script ACMD's */
 ACMD(do_attach);
@@ -389,6 +388,7 @@ ACMD(DoStoreHouse);
 ACMD(do_clanstuff);
 ACMD(DoBest);
 ACMD(do_offtop);
+ACMD(do_dmeter);
 
 /* This is the Master Command List(tm).
 
@@ -535,14 +535,13 @@ cpp_extern const struct command_info cmd_info[] =
 	{"дата", POS_DEAD, do_date, 0, SCMD_DATE, 0},
 	{"делить", POS_RESTING, do_split, 1, 0, 200},
 	{"держать", POS_RESTING, do_grab, 0, 0, 300},
+	{"дметр", POS_DEAD, do_dmeter, 0, 0, 0},
 	{"доложить", POS_RESTING, do_report, 0, 0, 500},
-
 	{"доски", POS_DEAD, DoBoardList, 0, 0, 0},
 	{"дружины", POS_DEAD, DoClanList, 0, 0, 0},
 	{"дрновости", POS_DEAD, DoBoard, 1, CLANNEWS_BOARD, -1},
 	{"дрвече", POS_DEAD, DoBoard, 1, CLAN_BOARD, -1},
 	{"дрлист", POS_DEAD, DoClanPkList, 0, 1, 0},
-	{"дметр", POS_DEAD, do_dmeter, 0, 1, 0},
 
 	{"есть", POS_RESTING, do_eat, 0, SCMD_EAT, 500},
 

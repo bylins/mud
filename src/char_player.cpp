@@ -192,3 +192,49 @@ void Player::mobmax_save(FILE *saved) const
 {
 	mobmax_.save(saved);
 }
+
+void Player::dps_start_timer(int type, CHAR_DATA *ch)
+{
+	dps_.start_timer(type, ch);
+}
+
+void Player::dps_stop_timer(int type, CHAR_DATA *ch)
+{
+	dps_.stop_timer(type, ch);
+}
+
+void Player::dps_add_dmg(int type, int dmg, int over_dmg, CHAR_DATA *ch)
+{
+	dps_.add_dmg(type, ch, dmg, over_dmg);
+}
+
+void Player::dps_clear(int type)
+{
+	dps_.clear(type);
+}
+
+void Player::dps_print_stats()
+{
+	dps_.print_stats(this);
+}
+
+void Player::dps_print_group_stats(CHAR_DATA *ch)
+{
+	dps_.print_group_stats(ch);
+}
+
+/**
+* Для dps_copy.
+*/
+void Player::dps_set(DpsSystem::Dps *dps)
+{
+	dps_ = *dps;
+}
+
+/**
+* Нужно только для копирования всего этого дела при передаче лидера.
+*/
+void Player::dps_copy(CHAR_DATA *ch)
+{
+	ch->dps_set(&dps_);
+}
