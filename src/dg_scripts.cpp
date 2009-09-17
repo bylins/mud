@@ -1881,6 +1881,39 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					sprintf(str, "%d", time_info.year);
 				return;
 			}
+			else if (!str_cmp(var, "date"))
+			{
+				time_t now_time = time(0);
+				if (!str_cmp(field, "unix"))
+				{
+					sprintf(str, "%ld", now_time);
+				}
+				else if (!str_cmp(field, "day-year"))
+				{
+					strftime(str, sizeof(str), "%j", localtime(&now_time));
+				}
+				else if (!str_cmp(field, "minute"))
+				{
+					strftime(str, sizeof(str), "%M", localtime(&now_time));
+				}
+				else if (!str_cmp(field, "hour"))
+				{
+					strftime(str, sizeof(str), "%H", localtime(&now_time));
+				}
+				else if (!str_cmp(field, "day"))
+				{
+					strftime(str, sizeof(str), "%d", localtime(&now_time));
+				}
+				else if (!str_cmp(field, "month"))
+				{
+					strftime(str, sizeof(str), "%m", localtime(&now_time));
+				}
+				else if (!str_cmp(field, "year"))
+				{
+					strftime(str, sizeof(str), "%y", localtime(&now_time));
+				}
+				return;
+			}
 			else if (!str_cmp(var, "random"))
 			{
 				if (!str_cmp(field, "char") || !str_cmp(field, "pc") || !str_cmp(field, "npc"))

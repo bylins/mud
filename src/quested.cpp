@@ -25,7 +25,7 @@ void Quested::add(CHAR_DATA *ch, int vnum, char *text)
 		{
 			text_node = text_node.substr(0, 128);
 		}
-		quested_.insert(std::make_pair(vnum, text_node));
+		quested_[vnum] = text_node;
 	}
 }
 
