@@ -1888,9 +1888,13 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				{
 					sprintf(str, "%ld", now_time);
 				}
-				else if (!str_cmp(field, "day-year"))
+				else if (!str_cmp(field, "yday"))
 				{
 					strftime(str, sizeof(str), "%j", localtime(&now_time));
+				}
+				else if (!str_cmp(field, "wday"))
+				{
+					strftime(str, sizeof(str), "%w", localtime(&now_time));
 				}
 				else if (!str_cmp(field, "minute"))
 				{
