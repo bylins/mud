@@ -72,12 +72,14 @@ public:
 	// обертка на Dps
 	void dps_start_timer(int type, CHAR_DATA *ch = 0);
 	void dps_stop_timer(int type, CHAR_DATA *ch = 0);
-	void dps_add_dmg(int type, int dmg, int over_dmg = 0, CHAR_DATA *ch = 0);
+	void dps_add_dmg(int type, int dmg, int over_dmg, CHAR_DATA *ch = 0);
 	void dps_clear(int type);
 	void dps_print_stats();
 	void dps_print_group_stats(CHAR_DATA *ch);
 	void dps_set(DpsSystem::Dps *dps);
 	void dps_copy(CHAR_DATA *ch);
+	void dps_end_round(int type, CHAR_DATA *ch = 0);
+	void dps_add_exp(int exp, bool battle = false);
 
 	// это все как обычно временно... =)
 	friend void save_char(CHAR_DATA *ch);

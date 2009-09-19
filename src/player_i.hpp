@@ -75,6 +75,8 @@ public:
 	virtual void dps_print_group_stats(CHAR_DATA *ch) {};
 	virtual void dps_set(DpsSystem::Dps *dps) {};
 	virtual void dps_copy(CHAR_DATA *ch) {};
+	virtual void dps_end_round(int type, CHAR_DATA *ch = 0) {};
+	virtual void dps_add_exp(int exp, bool battle = false) {};
 
 protected:
 	PlayerI() {};

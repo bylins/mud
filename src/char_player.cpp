@@ -238,3 +238,20 @@ void Player::dps_copy(CHAR_DATA *ch)
 {
 	ch->dps_set(&dps_);
 }
+
+void Player::dps_end_round(int type, CHAR_DATA *ch)
+{
+	dps_.end_round(type, ch);
+}
+
+void Player::dps_add_exp(int exp, bool battle)
+{
+	if (battle)
+	{
+		dps_.add_battle_exp(exp);
+	}
+	else
+	{
+		dps_.add_exp(exp);
+	}
+}

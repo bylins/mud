@@ -21,7 +21,8 @@ enum { PERS_DPS, PERS_CHARM_DPS, GROUP_DPS, GROUP_CHARM_DPS };
 class DpsNode
 {
 public:
-	DpsNode(long id = 0) : dmg_(0), over_dmg_(0), curr_time_(0), total_time_(0), id_(id) {};
+	DpsNode(long id = 0) : dmg_(0), over_dmg_(0), curr_time_(0),
+			total_time_(0), id_(id), round_dmg_(0), buf_dmg_(0) {};
 	void start_timer();
 	void stop_timer();
 	void add_dmg(int dmg, int over_dmg);
@@ -31,14 +32,26 @@ public:
 	unsigned get_over_dmg() const;
 	long get_id() const;
 	const std::string & get_name() const;
+	unsigned get_round_dmg() const;
+	void end_round();
 
 private:
-	unsigned dmg_; // нанесенный дамаг
-	unsigned over_dmg_; // часть дамага по уже мертвой целе
-	time_t curr_time_; // время, проведенное в текущем бою
-	time_t total_time_; // общее проведенное в боях время
-	std::string name_; // имя для вывода в списке при отсутствии в игре
-	long id_; // для идентификации
+	// нанесенный дамаг
+	unsigned dmg_;
+	// часть дамага по уже мертвой целе
+	unsigned over_dmg_;
+	// время, проведенное в текущем бою
+	time_t curr_time_;
+	// общее проведенное в боях время
+	time_t total_time_;
+	// имя для вывода в списке при отсутствии в игре
+	std::string name_;
+	// для идентификации
+	long id_;
+	// наибольший дамаг за раунд
+	unsigned round_dmg_;
+	// для сбора дамаги за раунд
+	unsigned buf_dmg_;
 };
 
 typedef std::list<DpsNode> CharmListType;
@@ -54,11 +67,13 @@ public:
 	void add_charm_dmg(int id, int dmg, int over_dmg);
 	std::string print_charm_stats() const;
 	void print_group_charm_stats(CHAR_DATA *ch) const;
+	void end_charm_round(int id);
 
 private:
 	CharmListType::iterator find_charmice(long id);
 
-	CharmListType charm_list_; // список чармисов (MAX_DPS_CHARMICE)
+	// список чармисов (MAX_DPS_CHARMICE)
+	CharmListType charm_list_;
 };
 
 typedef std::map<long /* id */, PlayerDpsNode> GroupListType;
@@ -69,24 +84,41 @@ typedef std::map<long /* id */, PlayerDpsNode> GroupListType;
 class Dps
 {
 public:
+	Dps() : exp_(0), battle_exp_(0) {};
+	Dps & operator= (const Dps &copy);
+
 	void start_timer(int type, CHAR_DATA *ch);
 	void stop_timer(int type, CHAR_DATA *ch);
 	void add_dmg(int type, CHAR_DATA *ch, int dmg, int over_dmg);
 	void clear(int type);
 	void print_stats(CHAR_DATA *ch);
 	void print_group_stats(CHAR_DATA *ch);
+	void end_round(int type, CHAR_DATA *ch);
+
+	void add_exp(int exp);
+	void add_battle_exp(int exp);
 
 private:
+	void add_tmp_group_list(CHAR_DATA *ch);
+
 	void start_group_timer(int id, const char *name);
 	void stop_group_timer(int id);
 	void add_group_dmg(int id, int dmg, int over_dmg);
+	void end_group_round(int id);
 
 	void start_group_charm_timer(CHAR_DATA *ch);
-	void stop_group_charm_timer(int master_id, int charm_id);
-	void add_group_charm_dmg(int master_id, int charm_id, int dmg, int over_dmg);
+	void stop_group_charm_timer(CHAR_DATA *ch);
+	void add_group_charm_dmg(CHAR_DATA *ch, int dmg, int over_dmg);
+	void end_group_charm_round(CHAR_DATA *ch);
 
-	GroupListType group_dps_; // групповая статистика
-	PlayerDpsNode pers_dps_; // персональная статистика и свои чармисы
+	// групповая статистика
+	GroupListType group_dps_;
+	// персональная статистика и свои чармисы
+	PlayerDpsNode pers_dps_;
+	// набрано экспы, включая бэтл-экспу
+	int exp_;
+	// набрно бэтл-экспы
+	int battle_exp_;
 };
 
 } // namespace DpsSystem

@@ -726,14 +726,19 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 	int num_levels = 0;
 	char buf[128];
 
-	if (!IS_NPC(ch) && ((GET_LEVEL(ch) < 1 || GET_LEVEL(ch) >= LVL_IMMORT)))
-		return;
-
 	if (IS_NPC(ch))
 	{
 		GET_EXP(ch) += gain;
 		return;
 	}
+	else
+	{
+		ch->dps_add_exp(gain);
+	}
+
+	if (!IS_NPC(ch) && ((GET_LEVEL(ch) < 1 || GET_LEVEL(ch) >= LVL_IMMORT)))
+		return;
+
 	if (gain > 0 && GET_LEVEL(ch) < LVL_IMMORT)
 	{
 		gain = MIN(max_exp_gain_pc(ch), gain);	/* put a cap on the max gain per kill */
