@@ -225,6 +225,8 @@ void Dps::clear(int type)
 	{
 		PlayerDpsNode empty_dps;
 		pers_dps_ = empty_dps;
+		exp_ = 0;
+		battle_exp_ = 0;
 		break;
 	}
 	case PERS_CHARM_DPS:
