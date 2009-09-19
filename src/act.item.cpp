@@ -2702,19 +2702,18 @@ ACMD(do_makefood)
 void feed_charmice(CHAR_DATA * ch, char *arg)
 {
 	OBJ_DATA *obj;
-	mob_vnum mob_num = 0;
 	AFFECT_DATA af;
-	int mob_level = 1, max_heal_hp = 1, max_charm_duration = 1;
+	int max_charm_duration = 1;
 	int chance_to_eat = 0;
 	struct follow_type *k;
 	int reformed_hp_summ = 0;
 
-//  imm_log("feed_charmice entered %s", arg);
-
 	obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents);
 
 	if (!obj || !IS_CORPSE(obj) || !ch->master)
+	{
 		return;
+	}
 
 	for (k = ch->master->followers; k; k = k->next)
 	{
@@ -2727,15 +2726,18 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 
 	if (reformed_hp_summ >= get_player_charms(ch->master, SPELL_ANIMATE_DEAD))
 	{
-//    imm_log("reformed_hp_summ : %i, get_player_charms %i",reformed_hp_summ, get_player_charms(ch->master, SPELL_ANIMATE_DEAD) );
 		send_to_char("Вы не можете управлять столькими последователями.\r\n", ch->master);
 		extract_char(ch, FALSE);
 		return;
 	}
 
-	mob_num = GET_OBJ_VAL(obj, 2);
-	mob_level = GET_LEVEL(mob_proto + real_mobile(mob_num));
-	max_heal_hp = 3 * mob_level;
+	int mob_level = 1;
+	// труп не игрока
+	if (GET_OBJ_VAL(obj, 2) != -1)
+	{
+		mob_level = GET_LEVEL(mob_proto + real_mobile(GET_OBJ_VAL(obj, 2)));
+	}
+	const int max_heal_hp = 3 * mob_level;
 	chance_to_eat = (100 - 2 * mob_level) / 2;
 	//Added by Ann
 	if (affected_by_spell(ch->master, SPELL_FASCINATION))
@@ -2746,25 +2748,27 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	if (number(1, 100) < chance_to_eat)
 	{
 		act("$N подавил$U и начал$G сильно кашлять.", TRUE, ch, NULL, ch, TO_ROOM);
-
 		GET_HIT(ch) -= 3 * mob_level;
-
 		update_pos(ch);
-
 		// Подавился насмерть.
 		if (GET_POS(ch) == POS_DEAD)
+		{
 			die(ch, NULL);
-
+		}
 		extract_obj(obj);
 		return;
 	}
 	if (weather_info.moon_day < 14)
+	{
 		max_charm_duration =
 			pc_duration(ch, GET_REAL_WIS(ch->master) - 6 + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
+	}
 	else
+	{
 		max_charm_duration =
 			pc_duration(ch,
 						GET_REAL_WIS(ch->master) - 6 + number(0, 14 - weather_info.moon_day % 14), 0, 0, 0, 0);
+	}
 
 	af.type = SPELL_CHARM;
 	af.duration = MIN(max_charm_duration, (int)(mob_level * max_charm_duration / 30));
@@ -2791,6 +2795,4 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	}
 
 	extract_obj(obj);
-
-//  imm_log("mob_level :%i\r\n max_heal_hp: %i\r\n max_charm_duration : %i", mob_level, max_heal_hp,max_charm_duration);
 }
