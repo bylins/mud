@@ -4551,12 +4551,35 @@ const spl_message masses_messages[] =
 	{ -1}
 };
 
+// наколенный список чаров для масс-заклов, бьющих по комнате
+// в необходимость самого списка не вникал, но данная конструкция над ним
+// нужна потому, что в случае смерти чара при проходе по уже сформированному
+// списку - за ним могут спуржиться и клоны например, которые тоже в этот
+// список попали, после чего имеем креш, т.к. бьем по невалидным указателям
+typedef std::vector<CHAR_DATA *>  AreaCharListType;
+AreaCharListType tmp_char_list;
+
+void add_to_tmp_char_list(CHAR_DATA *ch)
+{
+	std::vector<CHAR_DATA *>::iterator it = std::find(tmp_char_list.begin(), tmp_char_list.end(), ch);
+	if (it == tmp_char_list.end())
+		tmp_char_list.push_back(ch);
+}
+
+void delete_from_tmp_char_list(CHAR_DATA *ch)
+{
+	if (tmp_char_list.empty()) return;
+
+	std::vector<CHAR_DATA *>::iterator it = std::find(tmp_char_list.begin(), tmp_char_list.end(), ch);
+	if (it != tmp_char_list.end())
+		*it = 0;
+}
+
 // Применение заклинания к всем существам в комнате
 //---------------------------------------------------------
 int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int savetype)
 {
-	int i, k, ch_list_size;
-	CHAR_DATA **ch_list;
+	int i, k;
 	CHAR_DATA *ch_vict;
 	const char *msg;
 
@@ -4583,9 +4606,6 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 
 	k = i;
 
-	for (ch_list_size = 0, ch_vict = room->people;
-			ch_vict; ++ch_list_size, ch_vict = ch_vict->next_in_room);
-	CREATE(ch_list, CHAR_DATA *, ch_list_size);
 	for (i = 0, ch_vict = room->people; ch_vict; ch_vict = ch_vict->next_in_room)
 	{
 		if (IS_IMMORTAL(ch_vict))
@@ -4594,21 +4614,23 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 			continue;
 		if (SpINFO.violent && same_group(ch, ch_vict))
 			continue;
-		ch_list[i++] = ch_vict;
+		add_to_tmp_char_list(ch_vict);
 	}
-	ch_list_size = i;
 
-	for (i = 0; i < ch_list_size; ++i)
+	for (AreaCharListType::const_iterator it = tmp_char_list.begin(); it != tmp_char_list.end(); ++it)
 	{
-		ch_vict = ch_list[i];
-		if (IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		ch_vict = *it;
+		if (!ch_vict || IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		{
 			continue;
+		}
 		if ((msg = masses_messages[k].to_vict) != NULL && ch_vict->desc)
+		{
 			act(msg, FALSE, ch, 0, ch_vict, TO_VICT);
-		(void) mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
+		}
+		mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
 	}
-
-	free(ch_list);
+	tmp_char_list.clear();
 
 	return 1;
 }
@@ -4682,29 +4704,6 @@ const spl_message areas_messages[] =
 	 0},
 	{ -1}
 };
-
-// наколенный список чаров для масс-заклов, бьющих по комнате
-// в необходимость самого списка не вникал, но данная конструкция над ним
-// нужна потому, что в случае смерти чара при проходе по уже сформированному
-// списку - за ним могут спуржиться и клоны например, которые тоже в этот
-// список попали, после чего имеем креш, т.к. бьем по невалидным указателям
-static std::vector<CHAR_DATA *> tmp_char_list;
-
-void add_to_tmp_char_list(CHAR_DATA *ch)
-{
-	std::vector<CHAR_DATA *>::iterator it = std::find(tmp_char_list.begin(), tmp_char_list.end(), ch);
-	if (it == tmp_char_list.end())
-		tmp_char_list.push_back(ch);
-}
-
-void delete_from_tmp_char_list(CHAR_DATA *ch)
-{
-	if (tmp_char_list.empty()) return;
-
-	std::vector<CHAR_DATA *>::iterator it = std::find(tmp_char_list.begin(), tmp_char_list.end(), ch);
-	if (it != tmp_char_list.end())
-		*it = 0;
-}
 
 // Применение заклинания к части существ в комнате
 //---------------------------------------------------------
@@ -4852,8 +4851,7 @@ const spl_message groups_messages[] =
 //---------------------------------------------------------
 int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 {
-	int i, ch_list_size;
-	CHAR_DATA **ch_list;
+	int i;
 	CHAR_DATA *ch_vict;
 	const char *msg;
 
@@ -4875,9 +4873,6 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 			act(msg, FALSE, ch, 0, 0, TO_ROOM);
 	}
 
-	for (ch_list_size = 0, ch_vict = world[ch->in_room]->people;
-			ch_vict; ++ch_list_size, ch_vict = ch_vict->next_in_room);
-	CREATE(ch_list, CHAR_DATA *, ch_list_size);
 	for (i = 0, ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
 	{
 		if (ch_vict == ch)
@@ -4886,22 +4881,21 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 			continue;
 		if (!same_group(ch, ch_vict))
 			continue;
-		ch_list[i++] = ch_vict;
+		add_to_tmp_char_list(ch_vict);
 	}
-	ch_list_size = i;
 
-	for (i = 0; i < ch_list_size; ++i)
+	for (AreaCharListType::const_iterator it = tmp_char_list.begin(); it != tmp_char_list.end(); ++it)
 	{
-		ch_vict = ch_list[i];
-		if (IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		ch_vict = *it;
+		if (!ch_vict || IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		{
 			continue;
-		(void) mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
+		}
+		mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
 	}
+	mag_single_target(level, ch, ch, NULL, spellnum, savetype);
 
-	(void) mag_single_target(level, ch, ch, NULL, spellnum, savetype);
-
-	free(ch_list);
-
+	tmp_char_list.clear();
 	return 1;
 }
 
