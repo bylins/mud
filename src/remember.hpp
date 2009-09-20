@@ -14,7 +14,7 @@
 namespace Remember
 {
 
-enum { ALL, PERSONAL, CLAN, ALLY, GOSSIP, OFFTOP, PRAY };
+enum { ALL, PERSONAL, CLAN, ALLY, GOSSIP, OFFTOP, PRAY, PRAY_PERSONAL };
 // кол-во запоминаемых строк в каждом списке
 const unsigned int MAX_REMEMBER_NUM = 100;
 // кол-во выводимых стсрок по умолчанию
@@ -40,6 +40,7 @@ private:
 	unsigned int num_str_; // кол-во выводимых строк (режим вспомнить)
 	Remember::RememberListType all_; // все запоминаемые каналы + воззвания (TODO: теллы в клетку и крики?), включая собственные
 	Remember::RememberListType personal_; // теллы
+	Remember::RememberListType pray_; // воззвания для мортала
 };
 
 #endif // REMEMBER_HPP_INCLUDED

@@ -11,6 +11,7 @@
 #include "char.hpp"
 #include "interpreter.h"
 #include "screen.h"
+#include "house.h"
 
 namespace Remember
 {
@@ -20,7 +21,7 @@ RememberListType gossip;
 // оффтоп
 RememberListType offtop;
 // воззвания (иммам)
-RememberListType pray;
+RememberListType imm_pray;
 
 std::string time_format()
 {
@@ -118,7 +119,11 @@ void CharRemember::add_str(std::string text, int flag)
 		add_to_cont(offtop, buffer);
 		break;
 	case PRAY:
-		add_to_cont(pray, buffer);
+		add_to_cont(imm_pray, buffer);
+		break;
+	case PRAY_PERSONAL:
+		add_to_cont(pray_, buffer);
+		add_to_cont(all_, buffer);
 		break;
 	default:
 		log("SYSERROR: мы не должны были сюда попасть, flag: %d, func: %s",
@@ -149,7 +154,10 @@ std::string CharRemember::get_text(int flag) const
 		buffer = get_from_cont(offtop, num_str_);
 		break;
 	case PRAY:
-		buffer = get_from_cont(pray, num_str_);
+		buffer = get_from_cont(imm_pray, num_str_);
+		break;
+	case PRAY_PERSONAL:
+		buffer = get_from_cont(pray_, num_str_);
 		break;
 	default:
 		log("SYSERROR: мы не должны были сюда попасть, flag: %d, func: %s",
@@ -167,6 +175,7 @@ void CharRemember::reset()
 {
 	all_.clear();
 	personal_.clear();
+	pray_.clear();
 }
 
 bool CharRemember::set_num_str(unsigned int num)
@@ -182,4 +191,77 @@ bool CharRemember::set_num_str(unsigned int num)
 unsigned int CharRemember::get_num_str() const
 {
 	return num_str_;
+}
+
+ACMD(do_remember_char)
+{
+	char arg[MAX_INPUT_LENGTH];
+
+	if (IS_NPC(ch))
+		return;
+
+	// Если без аргумента - выдает личные теллы
+	if (!*argument)
+	{
+		send_to_char(ch->remember_get(Remember::PERSONAL), ch);
+		return;
+	}
+
+	argument = one_argument(argument, arg);
+
+	if (is_abbrev(arg, "воззвать"))
+	{
+		if (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+		{
+			send_to_char(ch->remember_get(Remember::PRAY), ch);
+		}
+		else
+		{
+			send_to_char(ch->remember_get(Remember::PRAY_PERSONAL), ch);
+		}
+	}
+	else if (GET_LEVEL(ch) < LVL_IMMORT && is_abbrev(arg, "оффтоп"))
+	{
+		send_to_char(ch->remember_get(Remember::OFFTOP), ch);
+	}
+	else if (is_abbrev(arg, "болтать") || is_abbrev(arg, "орать"))
+	{
+		send_to_char(ch->remember_get(Remember::GOSSIP), ch);
+	}
+	else if (is_abbrev(arg, "клан") || is_abbrev(arg, "гдругам"))
+	{
+		if (CLAN(ch))
+		{
+			send_to_char(CLAN(ch)->get_remember(ch->remember_get_num(), Remember::CLAN), ch);
+		}
+		else
+		{
+			send_to_char(ch, "Вам нечего вспомнить.\r\n");
+		}
+		return;
+	}
+	else if (is_abbrev(arg, "союзники") || is_abbrev(arg, "альянс") || is_abbrev(arg, "гсоюзникам"))
+	{
+		if (CLAN(ch))
+		{
+			send_to_char(CLAN(ch)->get_remember(ch->remember_get_num(), Remember::ALLY), ch);
+		}
+		else
+		{
+			send_to_char(ch, "Вам нечего вспомнить.\r\n");
+		}
+		return;
+	}
+	else if (is_abbrev(arg, "все"))
+	{
+		send_to_char(ch->remember_get(Remember::ALL), ch);
+		return;
+	}
+	else
+	{
+		if (IS_IMMORTAL(ch))
+			send_to_char("Формат команды: вспомнить [без параметров|болтать|воззвать|гд|гс|все]\r\n", ch);
+		else
+			send_to_char("Формат команды: вспомнить [без параметров|болтать|оффтоп|гд|гс|все]\r\n", ch);
+	}
 }

@@ -909,14 +909,14 @@ ACMD(do_pray_gods)
 			set_wait(ch, 3, FALSE);
 		}
 		send_to_char(ch, buf);
-		ch->remember_add(buf, Remember::ALL);
+		ch->remember_add(buf, Remember::PRAY_PERSONAL);
 	}
 
 	if (IS_IMMORTAL(ch))
 	{
 		sprintf(buf, "&R%s ответил%s Вам : '%s'&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), argument);
 		send_to_char(buf, victim);
-		victim->remember_add(buf, Remember::ALL);
+		victim->remember_add(buf, Remember::PRAY_PERSONAL);
 
 		snprintf(buf1, MAX_STRING_LENGTH, "&R%s ответил%s %s : '%s&n\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 2), argument);
@@ -1016,72 +1016,6 @@ ACMD(do_offtop)
 	}
 	ch->remember_add(buf1, Remember::OFFTOP);
 	set_wait(ch, 1, FALSE);
-}
-
-ACMD(do_remember_char)
-{
-	char arg[MAX_INPUT_LENGTH];
-
-	if (IS_NPC(ch))
-		return;
-
-	// Если без аргумента - выдает личные теллы
-	if (!*argument)
-	{
-		send_to_char(ch, "%s", ch->remember_get(Remember::PERSONAL).c_str());
-		return;
-	}
-
-	argument = one_argument(argument, arg);
-
-	if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) && is_abbrev(arg, "воззвать"))
-	{
-		send_to_char(ch, "%s", ch->remember_get(Remember::PRAY).c_str());
-	}
-	else if (GET_LEVEL(ch) < LVL_IMMORT && is_abbrev(arg, "оффтоп"))
-	{
-		send_to_char(ch, "%s", ch->remember_get(Remember::OFFTOP).c_str());
-	}
-	else if (is_abbrev(arg, "болтать") || is_abbrev(arg, "орать"))
-	{
-		send_to_char(ch, "%s", ch->remember_get(Remember::GOSSIP).c_str());
-	}
-	else if (is_abbrev(arg, "клан") || is_abbrev(arg, "гдругам"))
-	{
-		if (CLAN(ch))
-		{
-			send_to_char(ch, "%s", CLAN(ch)->get_remember(ch->remember_get_num(), Remember::CLAN).c_str());
-		}
-		else
-		{
-			send_to_char(ch, "Вам нечего вспомнить.\r\n");
-		}
-		return;
-	}
-	else if (is_abbrev(arg, "союзники") || is_abbrev(arg, "альянс") || is_abbrev(arg, "гсоюзникам"))
-	{
-		if (CLAN(ch))
-		{
-			send_to_char(ch, "%s", CLAN(ch)->get_remember(ch->remember_get_num(), Remember::ALLY).c_str());
-		}
-		else
-		{
-			send_to_char(ch, "Вам нечего вспомнить.\r\n");
-		}
-		return;
-	}
-	else if (is_abbrev(arg, "все"))
-	{
-		send_to_char(ch, "%s", ch->remember_get(Remember::ALL).c_str());
-		return;
-	}
-	else
-	{
-		if (IS_IMMORTAL(ch))
-			send_to_char("Формат команды: вспомнить [без параметров|болтать|воззвать|гд|гс|все]\r\n", ch);
-		else
-			send_to_char("Формат команды: вспомнить [без параметров|болтать|оффтоп|гд|гс|все]\r\n", ch);
-	}
 }
 
 // shapirus
