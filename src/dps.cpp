@@ -35,9 +35,9 @@ void DpsNode::start_timer()
 void DpsNode::stop_timer()
 {
 	time_t tmp_time = time(0) - curr_time_;
-	tmp_time = MAX(1, tmp_time);
-	total_time_ += tmp_time;
+	total_time_ += MAX(1, tmp_time);
 	curr_time_ = 0;
+	end_round();
 }
 
 /**
@@ -377,6 +377,10 @@ void Dps::stop_group_timer(int id)
 	{
 		it->second.stop_timer();
 	}
+	else
+	{
+		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
+	}
 }
 
 void Dps::add_group_dmg(int id, int dmg, int over_dmg)
@@ -385,6 +389,10 @@ void Dps::add_group_dmg(int id, int dmg, int over_dmg)
 	if (it != group_dps_.end())
 	{
 		it->second.add_dmg(dmg, over_dmg);
+	}
+	else
+	{
+		log("dps %s : %d %d %d", __func__, id, dmg, over_dmg);
 	}
 }
 
@@ -395,7 +403,12 @@ void Dps::end_group_round(int id)
 	{
 		it->second.end_round();
 	}
+	else
+	{
+		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
+	}
 }
+
 
 void Dps::start_group_charm_timer(CHAR_DATA *ch)
 {
@@ -420,6 +433,10 @@ void Dps::stop_group_charm_timer(CHAR_DATA *ch)
 	{
 		it->second.stop_charm_timer(GET_ID(ch));
 	}
+	else
+	{
+		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
+	}
 }
 
 void Dps::add_group_charm_dmg(CHAR_DATA *ch, int dmg, int over_dmg)
@@ -429,6 +446,10 @@ void Dps::add_group_charm_dmg(CHAR_DATA *ch, int dmg, int over_dmg)
 	{
 		it->second.add_charm_dmg(GET_ID(ch), dmg, over_dmg);
 	}
+	else
+	{
+		log("dps %s : %s %d %d", __func__, GET_NAME(ch), dmg, over_dmg);
+	}
 }
 
 void Dps::end_group_charm_round(CHAR_DATA *ch)
@@ -437,6 +458,10 @@ void Dps::end_group_charm_round(CHAR_DATA *ch)
 	if (it != group_dps_.end())
 	{
 		it->second.end_charm_round(GET_ID(ch));
+	}
+	else
+	{
+		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
 	}
 }
 
@@ -501,6 +526,10 @@ void PlayerDpsNode::stop_charm_timer(int id)
 	{
 		it->stop_timer();
 	}
+	else
+	{
+		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
+	}
 }
 
 void PlayerDpsNode::add_charm_dmg(int id, int dmg, int over_dmg)
@@ -509,6 +538,23 @@ void PlayerDpsNode::add_charm_dmg(int id, int dmg, int over_dmg)
 	if (it != charm_list_.end())
 	{
 		it->add_dmg(dmg, over_dmg);
+	}
+	else
+	{
+		log("dps %s : %d %d %d", __func__, id, dmg, over_dmg);
+	}
+}
+
+void PlayerDpsNode::end_charm_round(int id)
+{
+	CharmListType::iterator it = find_charmice(id);
+	if (it != charm_list_.end())
+	{
+		it->end_round();
+	}
+	else
+	{
+		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
 	}
 }
 
@@ -547,15 +593,6 @@ void PlayerDpsNode::print_group_charm_stats(CHAR_DATA *ch) const
 			tmp_group_list.insert(std::make_pair(it->get_dmg(), tmp_node));
 			tmp_total_dmg += it->get_dmg();
 		}
-	}
-}
-
-void PlayerDpsNode::end_charm_round(int id)
-{
-	CharmListType::iterator it = find_charmice(id);
-	if (it != charm_list_.end())
-	{
-		it->end_round();
 	}
 }
 
