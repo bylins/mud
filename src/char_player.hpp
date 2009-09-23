@@ -70,8 +70,6 @@ public:
 	void mobmax_save(FILE *saved) const; // TODO мб убрать
 
 	// обертка на Dps
-	void dps_start_timer(int type, CHAR_DATA *ch = 0);
-	void dps_stop_timer(int type, CHAR_DATA *ch = 0);
 	void dps_add_dmg(int type, int dmg, int over_dmg, CHAR_DATA *ch = 0);
 	void dps_clear(int type);
 	void dps_print_stats();

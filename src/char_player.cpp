@@ -193,16 +193,6 @@ void Player::mobmax_save(FILE *saved) const
 	mobmax_.save(saved);
 }
 
-void Player::dps_start_timer(int type, CHAR_DATA *ch)
-{
-	dps_.start_timer(type, ch);
-}
-
-void Player::dps_stop_timer(int type, CHAR_DATA *ch)
-{
-	dps_.stop_timer(type, ch);
-}
-
 void Player::dps_add_dmg(int type, int dmg, int over_dmg, CHAR_DATA *ch)
 {
 	dps_.add_dmg(type, ch, dmg, over_dmg);

@@ -493,25 +493,6 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 		SET_AF_BATTLE(ch, EAF_AUTOBLOCK);
 	}
 
-	if (!IS_NPC(ch))
-	{
-		ch->dps_start_timer(DpsSystem::PERS_DPS);
-		if (AFF_FLAGGED(ch, AFF_GROUP))
-		{
-			CHAR_DATA *leader = ch->master ? ch->master : ch;
-			leader->dps_start_timer(DpsSystem::GROUP_DPS, ch);
-		}
-	}
-	else if (IS_CHARMICE(ch) && ch->master)
-	{
-		ch->master->dps_start_timer(DpsSystem::PERS_CHARM_DPS, ch);
-		if (AFF_FLAGGED(ch->master, AFF_GROUP))
-		{
-			CHAR_DATA *leader = ch->master->master ? ch->master->master : ch->master;
-			leader->dps_start_timer(DpsSystem::GROUP_CHARM_DPS, ch);
-		}
-	}
-
 	start_fight_mtrigger(ch, vict);
 //  check_killer(ch, vict);
 }
@@ -537,6 +518,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	ch->set_cast(0, 0, 0, 0, 0);
 	restore_battle_pos(ch);
 	NUL_AF_BATTLE(ch);
+	DpsSystem::check_round(ch);
 	// sprintf(buf,"[Stop fighting] %s - %s\r\n",GET_NAME(ch),switch_others ? "switching" : "no switching");
 	// send_to_gods(buf);
 	/**** switch others *****/
@@ -579,25 +561,6 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 			act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.", FALSE, ch, 0, 0, TO_ROOM);
 		};
 	};
-
-	if (!IS_NPC(ch))
-	{
-		ch->dps_stop_timer(DpsSystem::PERS_DPS);
-		if (AFF_FLAGGED(ch, AFF_GROUP))
-		{
-			CHAR_DATA *leader = ch->master ? ch->master : ch;
-			leader->dps_stop_timer(DpsSystem::GROUP_DPS, ch);
-		}
-	}
-	else if (IS_CHARMICE(ch) && ch->master)
-	{
-		ch->master->dps_stop_timer(DpsSystem::PERS_CHARM_DPS, ch);
-		if (AFF_FLAGGED(ch->master, AFF_GROUP))
-		{
-			CHAR_DATA *leader = ch->master->master ? ch->master->master : ch->master;
-			leader->dps_stop_timer(DpsSystem::GROUP_CHARM_DPS, ch);
-		}
-	}
 }
 
 /* When ch kills victim */
@@ -5124,8 +5087,9 @@ void perform_violence(void)
 		// Initialize initiative
 		INITIATIVE(ch) = 0;
 		BATTLECNTR(ch) = 0;
-
 		ROUND_COUNTER(ch) += 1;
+		DpsSystem::check_round(ch);
+
 		round_num_mtrigger(ch, ch->get_fighting());
 
 		SET_AF_BATTLE(ch, EAF_STAND);
@@ -5822,25 +5786,6 @@ void perform_violence(void)
 		if (GET_AF_BATTLE(ch, EAF_POISONED))
 			CLR_AF_BATTLE(ch, EAF_POISONED);
 		battle_affect_update(ch);
-
-		if (!IS_NPC(ch))
-		{
-			ch->dps_end_round(DpsSystem::PERS_DPS);
-			if (AFF_FLAGGED(ch, AFF_GROUP))
-			{
-				CHAR_DATA *leader = ch->master ? ch->master : ch;
-				leader->dps_end_round(DpsSystem::GROUP_DPS, ch);
-			}
-		}
-		else if (IS_CHARMICE(ch) && ch->master)
-		{
-			ch->master->dps_end_round(DpsSystem::PERS_CHARM_DPS, ch);
-			if (AFF_FLAGGED(ch->master, AFF_GROUP))
-			{
-				CHAR_DATA *leader = ch->master->master ? ch->master->master : ch->master;
-				leader->dps_end_round(DpsSystem::GROUP_CHARM_DPS, ch);
-			}
-		}
 	}
 }
 

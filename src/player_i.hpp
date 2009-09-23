@@ -67,8 +67,6 @@ public:
 	virtual void mobmax_remove(int vnum) {};
 	virtual void mobmax_save(FILE *saved) const {};
 
-	virtual void dps_start_timer(int type, CHAR_DATA *ch = 0) {};
-	virtual void dps_stop_timer(int type, CHAR_DATA *ch = 0) {};
 	virtual void dps_add_dmg(int type, int dmg, int over_dmg = 0, CHAR_DATA *ch = 0) {};
 	virtual void dps_clear(int type) {};
 	virtual void dps_print_stats() {};

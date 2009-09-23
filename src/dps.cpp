@@ -22,25 +22,6 @@ boost::format dps_stat_format(" %25s |  %15d | %5d |  %5d | %11d |\r\n");
 boost::format dps_group_stat_format(" %25s |  %8d | %3.0f%% | %5d |  %5d | %11d |\r\n");
 
 /**
-* Для расчета дпс, запускается при начале боя.
-*/
-void DpsNode::start_timer()
-{
-	curr_time_ = time(0);
-}
-
-/**
-* В конце боя, минимум секунду.
-*/
-void DpsNode::stop_timer()
-{
-	time_t tmp_time = time(0) - curr_time_;
-	total_time_ += MAX(1, tmp_time);
-	curr_time_ = 0;
-	end_round();
-}
-
-/**
 * Добавление эффективной дамаги и овер-дамаги.
 */
 void DpsNode::add_dmg(int dmg, int over_dmg)
@@ -70,27 +51,13 @@ void DpsNode::set_name(const char *name)
 }
 
 /**
-* Расчет дамаги в 2 секунды (раунд).
+* Расчет дамаги в раунд.
 */
 int DpsNode::get_stat() const
 {
-	// идет бой
-	if (curr_time_)
+	if (rounds_)
 	{
-		time_t tmp_time = total_time_ + (time(0) - curr_time_);
-		if (tmp_time)
-		{
-			return (dmg_/tmp_time) * 2;
-		}
-		else
-		{
-			return 0;
-		}
-	}
-	// тиха украинская ночь...
-	if(total_time_)
-	{
-		return (dmg_/total_time_) * 2;
+		return dmg_/rounds_;
 	}
 	return 0;
 }
@@ -125,6 +92,7 @@ void DpsNode::end_round()
 		round_dmg_ = buf_dmg_;
 	}
 	buf_dmg_ = 0;
+	++rounds_;
 }
 
 unsigned DpsNode::get_round_dmg() const
@@ -135,60 +103,6 @@ unsigned DpsNode::get_round_dmg() const
 ////////////////////////////////////////////////////////////////////////////////
 // Dps
 
-/**
-* При старте таймера идет проверка присутствия чара/чармиса в списке
-* и создание новой записи при необходимости.
-*/
-void Dps::start_timer(int type, CHAR_DATA *ch)
-{
-	switch (type)
-	{
-	case PERS_DPS:
-		pers_dps_.start_timer();
-		break;
-	case PERS_CHARM_DPS:
-		pers_dps_.start_charm_timer(GET_ID(ch), GET_NAME(ch));
-		break;
-	case GROUP_DPS:
-		start_group_timer(GET_ID(ch), GET_NAME(ch));
-		break;
-	case GROUP_CHARM_DPS:
-		if (ch && ch->master)
-		{
-			start_group_charm_timer(ch);
-		}
-		break;
-	default:
-		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
-		return;
-	}
-}
-
-void Dps::stop_timer(int type, CHAR_DATA *ch)
-{
-	switch (type)
-	{
-	case PERS_DPS:
-		pers_dps_.stop_timer();
-		break;
-	case PERS_CHARM_DPS:
-		pers_dps_.stop_charm_timer(GET_ID(ch));
-		break;
-	case GROUP_DPS:
-		stop_group_timer(GET_ID(ch));
-		break;
-	case GROUP_CHARM_DPS:
-		if (ch && ch->master)
-		{
-			stop_group_charm_timer(ch);
-		}
-		break;
-	default:
-		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
-		return;
-	}
-}
-
 void Dps::add_dmg(int type, CHAR_DATA *ch, int dmg, int over_dmg)
 {
 	switch (type)
@@ -197,16 +111,38 @@ void Dps::add_dmg(int type, CHAR_DATA *ch, int dmg, int over_dmg)
 		pers_dps_.add_dmg(dmg, over_dmg);
 		break;
 	case PERS_CHARM_DPS:
-		pers_dps_.add_charm_dmg(GET_ID(ch), dmg, over_dmg);
+		pers_dps_.add_charm_dmg(ch, dmg, over_dmg);
 		break;
 	case GROUP_DPS:
-		add_group_dmg(GET_ID(ch), dmg, over_dmg);
+		add_group_dmg(ch, dmg, over_dmg);
 		break;
 	case GROUP_CHARM_DPS:
 		if (ch && ch->master)
 		{
 			add_group_charm_dmg(ch, dmg, over_dmg);
 		}
+		break;
+	default:
+		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
+		return;
+	}
+}
+
+void Dps::end_round(int type, CHAR_DATA *ch)
+{
+	switch (type)
+	{
+	case PERS_DPS:
+		pers_dps_.end_round();
+		break;
+	case PERS_CHARM_DPS:
+		pers_dps_.end_charm_round(ch);
+		break;
+	case GROUP_DPS:
+		end_group_round(ch);
+		break;
+	case GROUP_CHARM_DPS:
+		end_group_charm_round(ch);
 		break;
 	default:
 		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
@@ -227,6 +163,7 @@ void Dps::clear(int type)
 		pers_dps_ = empty_dps;
 		exp_ = 0;
 		battle_exp_ = 0;
+		lost_exp_ = 0;
 		break;
 	}
 	case PERS_CHARM_DPS:
@@ -235,28 +172,6 @@ void Dps::clear(int type)
 		group_dps_.clear();
 		break;
 	case GROUP_CHARM_DPS:
-		break;
-	default:
-		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
-		return;
-	}
-}
-
-void Dps::end_round(int type, CHAR_DATA *ch)
-{
-	switch (type)
-	{
-	case PERS_DPS:
-		pers_dps_.end_round();
-		break;
-	case PERS_CHARM_DPS:
-		pers_dps_.end_charm_round(GET_ID(ch));
-		break;
-	case GROUP_DPS:
-		end_group_round(GET_ID(ch));
-		break;
-	case GROUP_CHARM_DPS:
-		end_group_charm_round(ch);
 		break;
 	default:
 		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
@@ -314,7 +229,10 @@ void Dps::print_stats(CHAR_DATA *ch)
 			% pers_dps_.get_over_dmg()), ch);
 	send_to_char(pers_dps_.print_charm_stats(), ch);
 	double percent = exp_ ? battle_exp_ * 100.0 / exp_ : 0.0;
-	send_to_char(ch, "\r\nВсего получено опыта: %d, за удары: %d (%.2f%%)\r\n", exp_, battle_exp_, percent);
+	int balance = exp_ + lost_exp_;
+	send_to_char(ch, "\r\nВсего получено опыта: %d, за удары: %d (%.2f%%)\r\n"
+			"Потеряно опыта: %d, баланс:%s%d\r\n",
+			exp_, battle_exp_, percent, abs(lost_exp_), balance > 0 ? " +" : " ", balance);
 
 	if (AFF_FLAGGED(ch, AFF_GROUP))
 	{
@@ -354,88 +272,35 @@ void Dps::print_group_stats(CHAR_DATA *ch)
 	tmp_group_list.clear();
 }
 
-void Dps::start_group_timer(int id, const char *name)
+void Dps::add_group_dmg(CHAR_DATA *ch, int dmg, int over_dmg)
 {
-	GroupListType::iterator it = group_dps_.find(id);
-	if (it != group_dps_.end())
-	{
-		it->second.start_timer();
-	}
-	else
-	{
-		PlayerDpsNode tmp_node;
-		tmp_node.set_name(name);
-		tmp_node.start_timer();
-		group_dps_.insert(std::make_pair(id, tmp_node));
-	}
-}
-
-void Dps::stop_group_timer(int id)
-{
-	GroupListType::iterator it = group_dps_.find(id);
-	if (it != group_dps_.end())
-	{
-		it->second.stop_timer();
-	}
-	else
-	{
-		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
-	}
-}
-
-void Dps::add_group_dmg(int id, int dmg, int over_dmg)
-{
-	GroupListType::iterator it = group_dps_.find(id);
+	GroupListType::iterator it = group_dps_.find(GET_ID(ch));
 	if (it != group_dps_.end())
 	{
 		it->second.add_dmg(dmg, over_dmg);
 	}
 	else
 	{
-		log("dps %s : %d %d %d", __func__, id, dmg, over_dmg);
+		PlayerDpsNode tmp_node;
+		tmp_node.set_name(GET_NAME(ch));
+		tmp_node.add_dmg(dmg, over_dmg);
+		group_dps_.insert(std::make_pair(GET_ID(ch), tmp_node));
 	}
 }
 
-void Dps::end_group_round(int id)
+void Dps::end_group_round(CHAR_DATA *ch)
 {
-	GroupListType::iterator it = group_dps_.find(id);
+	GroupListType::iterator it = group_dps_.find(GET_ID(ch));
 	if (it != group_dps_.end())
 	{
 		it->second.end_round();
 	}
 	else
 	{
-		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
-	}
-}
-
-
-void Dps::start_group_charm_timer(CHAR_DATA *ch)
-{
-	GroupListType::iterator it = group_dps_.find(GET_ID(ch->master));
-	if (it != group_dps_.end())
-	{
-		it->second.start_charm_timer(GET_ID(ch), GET_NAME(ch));
-	}
-	else
-	{
 		PlayerDpsNode tmp_node;
-		tmp_node.set_name(GET_NAME(ch->master));
-		tmp_node.start_charm_timer(GET_ID(ch), GET_NAME(ch));
-		group_dps_.insert(std::make_pair(GET_ID(ch->master), tmp_node));
-	}
-}
-
-void Dps::stop_group_charm_timer(CHAR_DATA *ch)
-{
-	GroupListType::iterator it = group_dps_.find(GET_ID(ch->master));
-	if (it != group_dps_.end())
-	{
-		it->second.stop_charm_timer(GET_ID(ch));
-	}
-	else
-	{
-		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
+		tmp_node.set_name(GET_NAME(ch));
+		tmp_node.end_round();
+		group_dps_.insert(std::make_pair(GET_ID(ch), tmp_node));
 	}
 }
 
@@ -444,11 +309,14 @@ void Dps::add_group_charm_dmg(CHAR_DATA *ch, int dmg, int over_dmg)
 	GroupListType::iterator it = group_dps_.find(GET_ID(ch->master));
 	if (it != group_dps_.end())
 	{
-		it->second.add_charm_dmg(GET_ID(ch), dmg, over_dmg);
+		it->second.add_charm_dmg(ch, dmg, over_dmg);
 	}
 	else
 	{
-		log("dps %s : %s %d %d", __func__, GET_NAME(ch), dmg, over_dmg);
+		PlayerDpsNode tmp_node;
+		tmp_node.set_name(GET_NAME(ch->master));
+		tmp_node.add_charm_dmg(ch, dmg, over_dmg);
+		group_dps_.insert(std::make_pair(GET_ID(ch->master), tmp_node));
 	}
 }
 
@@ -457,11 +325,14 @@ void Dps::end_group_charm_round(CHAR_DATA *ch)
 	GroupListType::iterator it = group_dps_.find(GET_ID(ch->master));
 	if (it != group_dps_.end())
 	{
-		it->second.end_charm_round(GET_ID(ch));
+		it->second.end_charm_round(ch);
 	}
 	else
 	{
-		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
+		PlayerDpsNode tmp_node;
+		tmp_node.set_name(GET_NAME(ch->master));
+		tmp_node.end_charm_round(ch);
+		group_dps_.insert(std::make_pair(GET_ID(ch->master), tmp_node));
 	}
 }
 
@@ -479,7 +350,14 @@ Dps & Dps::operator= (const Dps &copy)
 
 void Dps::add_exp(int exp)
 {
-	exp_ += exp;
+	if (exp >= 0)
+	{
+		exp_ += exp;
+	}
+	else
+	{
+		lost_exp_ += exp;
+	}
 }
 
 void Dps::add_battle_exp(int exp)
@@ -491,40 +369,34 @@ void Dps::add_battle_exp(int exp)
 ////////////////////////////////////////////////////////////////////////////////
 // PlayerDpsNode
 
-CharmListType::iterator PlayerDpsNode::find_charmice(long id)
+CharmListType::iterator PlayerDpsNode::find_charmice(CHAR_DATA *ch)
 {
-	return std::find_if(charm_list_.begin(), charm_list_.end(),
+	CharmListType::iterator i = std::find_if(charm_list_.begin(), charm_list_.end(),
 			boost::bind(std::equal_to<int>(),
-			boost::bind(&DpsNode::get_id, _1), id));
+			boost::bind(&DpsNode::get_id, _1), GET_ID(ch)));
+
+	if (i != charm_list_.end())
+	{
+		return i;
+	}
+
+	DpsNode tmp_node(GET_ID(ch));
+	tmp_node.set_name(GET_NAME(ch));
+
+	charm_list_.push_back(tmp_node);
+	if (charm_list_.size() > MAX_DPS_CHARMICE)
+	{
+		charm_list_.erase(charm_list_.begin());
+	}
+	return charm_list_.rbegin().base();
 }
 
-void PlayerDpsNode::start_charm_timer(int id, const char *name)
+void PlayerDpsNode::add_charm_dmg(CHAR_DATA *ch, int dmg, int over_dmg)
 {
-	CharmListType::iterator it = find_charmice(id);
-	if (it != charm_list_.end())
+	CharmListType::iterator i = find_charmice(ch);
+	if (i != charm_list_.end())
 	{
-		it->start_timer();
-	}
-	else
-	{
-		DpsNode tmp_node(id);
-		tmp_node.set_name(name);
-		tmp_node.start_timer();
-		charm_list_.push_back(tmp_node);
-
-		if (charm_list_.size() > MAX_DPS_CHARMICE)
-		{
-			charm_list_.erase(charm_list_.begin());
-		}
-	}
-}
-
-void PlayerDpsNode::stop_charm_timer(int id)
-{
-	CharmListType::iterator it = find_charmice(id);
-	if (it != charm_list_.end())
-	{
-		it->stop_timer();
+		i->add_dmg(dmg, over_dmg);
 	}
 	else
 	{
@@ -532,22 +404,9 @@ void PlayerDpsNode::stop_charm_timer(int id)
 	}
 }
 
-void PlayerDpsNode::add_charm_dmg(int id, int dmg, int over_dmg)
+void PlayerDpsNode::end_charm_round(CHAR_DATA *ch)
 {
-	CharmListType::iterator it = find_charmice(id);
-	if (it != charm_list_.end())
-	{
-		it->add_dmg(dmg, over_dmg);
-	}
-	else
-	{
-		log("dps %s : %d %d %d", __func__, id, dmg, over_dmg);
-	}
-}
-
-void PlayerDpsNode::end_charm_round(int id)
-{
-	CharmListType::iterator it = find_charmice(id);
+	CharmListType::iterator it = find_charmice(ch);
 	if (it != charm_list_.end())
 	{
 		it->end_round();
@@ -598,6 +457,31 @@ void PlayerDpsNode::print_group_charm_stats(CHAR_DATA *ch) const
 
 // PlayerDpsNode
 ////////////////////////////////////////////////////////////////////////////////
+
+/**
+* Подсчет дамаги за предыдущий раунд, дергается в начале раунда и по окончанию боя.
+*/
+void check_round(CHAR_DATA *ch)
+{
+	if (!IS_NPC(ch))
+	{
+		ch->dps_end_round(DpsSystem::PERS_DPS);
+		if (AFF_FLAGGED(ch, AFF_GROUP))
+		{
+			CHAR_DATA *leader = ch->master ? ch->master : ch;
+			leader->dps_end_round(DpsSystem::GROUP_DPS, ch);
+		}
+	}
+	else if (IS_CHARMICE(ch) && ch->master)
+	{
+		ch->master->dps_end_round(DpsSystem::PERS_CHARM_DPS, ch);
+		if (AFF_FLAGGED(ch->master, AFF_GROUP))
+		{
+			CHAR_DATA *leader = ch->master->master ? ch->master->master : ch->master;
+			leader->dps_end_round(DpsSystem::GROUP_CHARM_DPS, ch);
+		}
+	}
+}
 
 } // namespace DpsSystem
 
