@@ -2,6 +2,7 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include <limits>
 #include <map>
 #include <string>
 #include <set>
@@ -300,6 +301,34 @@ OBJ_DATA * get_by_name(const char *str)
 		return 0;
 	}
 	return check_node(str, temp_list);
+}
+
+/**
+* Поиск цели для каста локейта, в данном случае нам не важен порядковый номер,
+* а просто нужен любой предмет с данным алиасом.
+*/
+OBJ_DATA * locate_object(const char *str)
+{
+	if (!str || !*str) return 0;
+
+	char buffer[MAX_STRING_LENGTH], out[MAX_STRING_LENGTH];
+	strcpy(buffer, str);
+
+	get_one_name(buffer, out, buffer);
+	if (!*out) return 0;
+
+	ObjListType::const_iterator i = obj_list.lower_bound(out);
+	if (i != obj_list.end())
+	{
+		for (ObjNodeListType::const_iterator k = i->second.begin(); k != i->second.end(); ++k)
+		{
+			if (isname(str, (*k)->name))
+			{
+				return *k;
+			}
+		}
+	}
+	return 0;
 }
 
 } // namespace ObjectList

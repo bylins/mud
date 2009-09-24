@@ -30,6 +30,9 @@
 #include "im.h"
 #include "privilege.hpp"
 #include "char.hpp"
+#include "name_list.hpp"
+#include "depot.hpp"
+#include "parcel.hpp"
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct spell_create_type spell_create[TOP_SPELL_DEFINE + 1];
@@ -2189,6 +2192,24 @@ const char *what_weapon[] = { "плеть",
 							  "\n"
 							};
 
+/**
+* Поиск предмета для каста локейта (без учета видимости для чара и с поиском
+* как в основном списке, так и в личных хранилищах с почтой).
+*/
+OBJ_DATA *find_obj_for_locate(const char *name)
+{
+	OBJ_DATA *obj = ObjectList::locate_object(name);
+	if (!obj)
+	{
+		obj = Depot::locate_object(name);
+		if (!obj)
+		{
+			obj = Parcel::locate_object(name);
+		}
+	}
+	return obj;
+}
+
 int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OBJ_DATA ** tobj, ROOM_DATA ** troom)
 {
 	*tch = NULL;
@@ -2269,8 +2290,22 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 				return TRUE;
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_WORLD))
-			if ((*tobj = get_obj_vis(ch, t)) != NULL)
-				return TRUE;
+		{
+			if (spellnum == SPELL_LOCATE_OBJECT)
+			{
+				*tobj = find_obj_for_locate(t);
+			}
+			else
+			{
+				*tobj = get_obj_vis(ch, t);
+			}
+			if (*tobj)
+			{
+				return true;
+			}
+//			if ((*tobj = get_obj_vis(ch, t)) != NULL)
+//				return TRUE;
+		}
 	}
 	else
 	{

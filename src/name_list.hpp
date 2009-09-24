@@ -26,6 +26,7 @@ namespace ObjectList
 void add(OBJ_DATA *obj);
 void remove(OBJ_DATA *obj);
 OBJ_DATA * get_by_name(const char *str);
+OBJ_DATA * locate_object(const char *str);
 
 } // namespace ObjectList
 

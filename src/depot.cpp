@@ -1599,4 +1599,22 @@ void rename_char(CHAR_DATA *ch)
 	}
 }
 
+/**
+* Поиск цели для каста локейта.
+*/
+OBJ_DATA * locate_object(const char *str)
+{
+	for (DepotListType::const_iterator i = depot_list.begin(); i != depot_list.end(); ++i)
+	{
+		for (ObjListType::const_iterator k = i->second.pers_online.begin(); k != i->second.pers_online.end(); ++k)
+		{
+			if (isname(str, (*k)->name))
+			{
+				return *k;
+			}
+		}
+	}
+	return 0;
+}
+
 } // namespace Depot

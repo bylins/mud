@@ -965,4 +965,25 @@ void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto)
 	}
 }
 
+/**
+* Поиск цели для каста локейта.
+*/
+OBJ_DATA * locate_object(const char *str)
+{
+	for (ParcelListType::const_iterator i = parcel_list.begin(); i != parcel_list.end(); ++i)
+	{
+		for (SenderListType::const_iterator k = i->second.begin(); k != i->second.end(); ++k)
+		{
+			for (std::list<Node>::const_iterator o = k->second.begin(); o != k->second.end(); ++o)
+			{
+				if (isname(str, o->obj_->name))
+				{
+					return o->obj_;
+				}
+			}
+		}
+	}
+	return 0;
+}
+
 } // namespace Parcel
