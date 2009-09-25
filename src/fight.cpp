@@ -2291,10 +2291,10 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		die(victim, NULL);
 		return 0;	/* -je, 7/7/92 */
 	}
-	//
+
+	// первая такая проверка идет в hit перед ломанием пушек
 	if (dam >= 0 && damage_mtrigger(ch, victim))
 		return 0;
-
 	// Shopkeeper protection
 	if (!ok_damage_shopkeeper(ch, victim))
 		return 0;
@@ -4011,8 +4011,17 @@ void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 
 		// at least 1 hp damage min per hit
 		dam = MAX(1, dam);
+
+		// Shopkeeper protection
+		if (damage_mtrigger(ch, victim) || !ok_damage_shopkeeper(ch, victim))
+		{
+			// зовется до alt_equip, чтобы не абузить повреждение пушек
+			return;
+		}
 		if (weapon_pos)
+		{
 			alt_equip(ch, weapon_pos, dam, 10);
+		}
 		dam_critic = 0;
 		was_critic = 0;
 		/* Маги, волхвы и не-купеческие чармисы не умеют критать */
