@@ -2507,11 +2507,11 @@ int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int 
 			FALSE, receptionist, 0, ch, TO_VICT);
 		return (FALSE);
 	}
-	// Зачем оно нужно? - чтобы вещи не пропадали (или систему хранения переделать нужно)
 	if (numitems > MAX_SAVED_ITEMS)
 	{
 		sprintf(buf,
-				"$n сказал$g Вам : \"Извините, но я не могу хранить больше %d предметов.\"", MAX_SAVED_ITEMS);
+				"$n сказал$g Вам : \"Извините, но я не могу хранить больше %d предметов.\"\r\n"
+				"$n сказал$g Вам : \"В данный момент их у Вас %ld.\"", MAX_SAVED_ITEMS, numitems);
 		act(buf, FALSE, receptionist, 0, ch, TO_VICT);
 		return (FALSE);
 	}
