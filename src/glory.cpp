@@ -35,12 +35,17 @@ struct glory_time
 
 typedef boost::shared_ptr<struct glory_time> GloryTimePtr;
 typedef std::list<GloryTimePtr> GloryTimeType;
+class GloryNode;
+typedef boost::shared_ptr<GloryNode> GloryNodePtr;
+typedef std::map<long, GloryNodePtr> GloryListType; // first - уид
 
 class GloryNode
 {
 public:
 	GloryNode() : free_glory(0), spend_glory(0), denial(0), hide(0), freeze(0) {};
+
 	GloryNode &operator= (const GloryNode&);
+	void copy_glory(const GloryNodePtr k);
 
 	int free_glory; // свободная слава на руках
 	int spend_glory; // потраченная слава в статах
@@ -49,10 +54,10 @@ public:
 	std::string name; // для топа
 	bool hide; // показывать или нет в топе прославленных
 	bool freeze; // состояние фриза (таймеры не тикают)
-};
 
-typedef boost::shared_ptr<GloryNode> GloryNodePtr;
-typedef std::map<long, GloryNodePtr> GloryListType; // first - уид
+private:
+	void copy_stat(const GloryTimePtr k);
+};
 
 class spend_glory
 {
@@ -125,6 +130,33 @@ GloryNode & GloryNode::operator= (const GloryNode &t)
 		timers.push_back(temp_timer);
 	}
 	return *this;
+}
+
+/**
+* Копирование ноды с влитым статом от k с проверкой на макс_стат.
+*/
+void GloryNode::copy_stat(const GloryTimePtr k)
+{
+	if (spend_glory < MAX_STATS_BY_GLORY)
+	{
+		GloryTimePtr tmp_node(new glory_time);
+		*tmp_node = *k;
+		tmp_node->glory = MIN(k->glory, MAX_STATS_BY_GLORY - spend_glory);
+		spend_glory += tmp_node->glory;
+		timers.push_back(tmp_node);
+	}
+}
+
+/**
+* Копирование свободной и влитой (по возможности) славы от k.
+*/
+void GloryNode::copy_glory(const GloryNodePtr k)
+{
+	free_glory += k->free_glory;
+	for (GloryTimeType::const_iterator i = k->timers.begin(); i != k->timers.end(); ++i)
+	{
+		copy_stat(*i);
+	}
 }
 
 /**
@@ -1328,6 +1360,7 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 		if (t_vict) delete t_vict;
 		return;
 	}
+
 	if (str_cmp(GET_EMAIL(ch), GET_EMAIL(vict)))
 	{
 		send_to_char(god, "Персонажи имеют разные email адреса.\r\n");
@@ -1335,81 +1368,66 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 		return;
 	}
 
-	int free_glory = 0;
-	// ищем запись принимающего, если таковая есть - обнуляем ее по полной программе
+	// ищем запись принимающего, если ее нет - создаем
 	GloryListType::iterator vict_it = glory_list.find(vict_uid);
-	if (vict_it != glory_list.end())
+	if (vict_it == glory_list.end())
 	{
-		free_glory = vict_it->second->free_glory;
-		glory_list.erase(vict_it);
-		// и выставляем ему новые статы, если он онлайн
-		DESCRIPTOR_DATA *k = DescByUID(vict_uid);
-		if (k)
-		{
-			// стартовые статы полюбому должны быть валидными, раз он уже в игре
-			recalculate_stats(k->character);
-		}
+		GloryNodePtr temp_node(new GloryNode);
+		glory_list[vict_uid] = temp_node;
+		vict_it = glory_list.find(vict_uid);
 	}
+	// vict_it сейчас валидный итератор на принимающего
+	int was_stats = vict_it->second->spend_glory;
+	vict_it->second->copy_glory(it->second);
+	vict_it->second->denial = DISPLACE_TIMER;
 
-	// создаем новую запись...
-	GloryNodePtr temp_node(new GloryNode);
-	glory_list[vict_uid] = temp_node;
-	// и берем новый итератор
-	vict_it = glory_list.find(vict_uid);
-	// тут перекинутся все поля, только имя нужно вставить свое
-	*(vict_it->second) = *(it->second);
-	// у передающего мог стоять фриз славы, поэтому тут не помешает перепроверить и воткнуть нужное
-	// тут есть вариант, когда нас не спасет даже проверка при входе в игру
-	vict_it->second->freeze = PLR_FLAGGED(vict, PLR_FROZEN) ? true : false;
-	name_convert(name);
-	vict_it->second->name = name;
-	vict_it->second->free_glory += free_glory; // если была свободная слава на принимающем - плюсуем
-
-	std::ostringstream out;
-	out << "Transfer "
-	<< vict_it->second->spend_glory << " stats and "
-	<< vict_it->second->free_glory - free_glory << " glory from "
-	<< GET_NAME(ch) << " to " << name << " by " << GET_NAME(god);
-	// в лог, обоим чарам в карму, имму в конце
-	imm_log(out.str().c_str());
-	add_karma(ch, out.str().c_str(), reason);
-	Glory::add_glory_log(TRANSFER_GLORY, 0, out.str(), std::string(reason), vict);
+	snprintf(buf, MAX_STRING_LENGTH,
+			"%s: перекинуто (%s -> %s) славы: %d, статов: %d",
+			GET_NAME(god), GET_NAME(ch), GET_NAME(vict), it->second->free_glory,
+			vict_it->second->spend_glory - was_stats);
+	imm_log(buf);
+	mudlog(buf, DEF, LVL_IMMORT, SYSLOG, TRUE);
+	add_karma(ch, buf, reason);
+	Glory::add_glory_log(TRANSFER_GLORY, 0, buf, std::string(reason), vict);
 
 	// если принимающий чар онлайн - сетим сразу ему статы
 	if (d_vict)
 	{
-		for (GloryTimeType::iterator tm_it = vict_it->second->timers.begin(); tm_it != vict_it->second->timers.end(); ++tm_it)
+		// стартовые статы полюбому должны быть валидными, раз он уже в игре
+		recalculate_stats(vict);
+		for (GloryTimeType::iterator tm_it = vict_it->second->timers.begin();
+				tm_it != vict_it->second->timers.end(); ++tm_it)
 		{
 			if ((*tm_it)->timer > 0)
 			{
 				switch ((*tm_it)->stat)
 				{
 				case G_STR:
-					GET_STR(d_vict->character) += (*tm_it)->glory;
+					GET_STR(vict) += (*tm_it)->glory;
 					break;
 				case G_DEX:
-					GET_DEX(d_vict->character) += (*tm_it)->glory;
+					GET_DEX(vict) += (*tm_it)->glory;
 					break;
 				case G_INT:
-					GET_INT(d_vict->character) += (*tm_it)->glory;
+					GET_INT(vict) += (*tm_it)->glory;
 					break;
 				case G_WIS:
-					GET_WIS(d_vict->character) += (*tm_it)->glory;
+					GET_WIS(vict) += (*tm_it)->glory;
 					break;
 				case G_CON:
-					GET_CON(d_vict->character) += (*tm_it)->glory;
+					GET_CON(vict) += (*tm_it)->glory;
 					break;
 				case G_CHA:
-					GET_CHA(d_vict->character) += (*tm_it)->glory;
+					GET_CHA(vict) += (*tm_it)->glory;
 					break;
 				default:
-					log("Glory: некорректный номер стата %d (uid: %ld)", (*tm_it)->stat, it->first);
+					log("Glory: некорректный номер стата %d (uid: %ld)",
+							(*tm_it)->stat, it->first);
 				}
 			}
 		}
 	}
-
-	add_karma(vict, out.str().c_str(), reason);
+	add_karma(vict, buf, reason);
 	save_char(vict);
 
 	// удаляем запись чара, с которого перекидывали
@@ -1417,12 +1435,15 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	// и выставляем ему новые статы (он то полюбому уже загружен канеш,
 	// но тут стройная картина через дескриптор везде) и если он был оффлайн - обнулится при входе
 	DESCRIPTOR_DATA *k = DescByUID(GET_UNIQUE(ch));
-	if (k) recalculate_stats(k->character);
-
-	out << ".\r\n";
-	send_to_char(out.str(), god);
+	if (k)
+	{
+		recalculate_stats(k->character);
+	}
 	save_glory();
-	if (t_vict) delete t_vict;
+	if (t_vict)
+	{
+		delete t_vict;
+	}
 }
 
 /**
