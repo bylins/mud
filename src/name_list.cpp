@@ -15,10 +15,18 @@
 namespace
 {
 
+typedef std::map<int /* serial_num */, CHAR_DATA *> CharNodeListType;
+typedef std::map<std::string /* имя */, CharNodeListType> CharListType;
+CharListType char_list;
+
+typedef std::map<int /* serial_num */, OBJ_DATA *> ObjNodeListType;
+typedef std::map<std::string /* имя */, ObjNodeListType> ObjListType;
+ObjListType obj_list;
+
 /**
 * Версия skip_spaces с a_isalnum.
 */
-template<class T> void skip_delim(T string)
+void skip_delim(const char **string)
 {
 	for (; **string && !a_isalnum(**string); (*string)++) ;
 }
@@ -58,23 +66,15 @@ void get_one_name(char const *string, char *arg1, char *arg2)
 	strcpy(arg2, temp);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-// список алиасов по каждому слову и соответствующих им чаров
-typedef std::set<CHAR_DATA *> CharNodeListType;
-typedef std::map<std::string /* имя */, CharNodeListType> CharListType;
-CharListType char_list;
-
-// список чаров, сортированный по порядковым номерам для итогового вывода
-typedef std::map<int /* char_num */, CHAR_DATA *> TempCharListType;
-
 } // namespace
 
-namespace CharacterList
+////////////////////////////////////////////////////////////////////////////////
+
+namespace CharacterAlias
 {
 
 /**
-* Добавление чара в мап с разделением по каждому из его алиасов.
+* См ObjectAlias::add()
 */
 void add(CHAR_DATA *ch)
 {
@@ -91,25 +91,25 @@ void add(CHAR_DATA *ch)
 		CharListType::iterator it = char_list.find(out);
 		if (it != char_list.end())
 		{
-			it->second.insert(ch);
+			it->second.insert(std::make_pair(ch->get_serial_num(), ch));
 		}
 		else
 		{
 			CharNodeListType tmp_node;
-			tmp_node.insert(ch);
-			char_list.insert(std::make_pair(out, tmp_node));
+			tmp_node[ch->get_serial_num()] = ch;
+			char_list[out] = tmp_node;
 		}
 	}
 }
 
 /**
-* Удаление чара из всех полей мапа.
+* См ObjectAlias::remove()
 */
 void remove(CHAR_DATA *ch)
 {
 	for (CharListType::iterator it = char_list.begin(); it != char_list.end(); /* empty */)
 	{
-		CharNodeListType::iterator tmp_it = it->second.find(ch);
+		CharNodeListType::iterator tmp_it = it->second.find(ch->get_serial_num());
 		if (tmp_it != it->second.end())
 		{
 			it->second.erase(tmp_it);
@@ -127,84 +127,69 @@ void remove(CHAR_DATA *ch)
 }
 
 /**
-* Заполнение временного списка из мапа алиасов по первому слову с сортировкой по порядковому номеру чара.
+* См ObjectAlias::search_by_word()
 */
-void fill_list_by_name(const char *name, TempCharListType &cont)
+CHAR_DATA * search_by_word(const char *name, const char *search_word)
 {
-	CharListType::const_iterator it = char_list.lower_bound(name);
-	while (it != char_list.end())
+	CHAR_DATA *ch = 0;
+	CharListType::iterator i = char_list.lower_bound(search_word);
+
+	while (i != char_list.end())
 	{
-		if (isname(name, it->first.c_str()))
+		if (isname(search_word, i->first.c_str()))
 		{
-			for (CharNodeListType::iterator tmp_it = it->second.begin(); tmp_it != it->second.end(); ++tmp_it)
+			for (CharNodeListType::reverse_iterator k = i->second.rbegin(); k != i->second.rend(); ++k)
 			{
-				cont[(*tmp_it)->get_serial_num()] = *tmp_it;
+				if (isname(name, GET_NAME(k->second)))
+				{
+					if (!ch || (ch && ch->get_serial_num() < k->second->get_serial_num()))
+					{
+						ch = k->second;
+					}
+					break;
+				}
 			}
-			++it;
+			++i;
 		}
 		else
 		{
-			return;
+			break;
 		}
 	}
+
+	return ch;
 }
 
 /**
-* Поиск во временном списке первого совпадающего с полной строкой поиска моба.
-*/
-CHAR_DATA * check_node(const char *str, TempCharListType &cont)
-{
-	for (TempCharListType::reverse_iterator it = cont.rbegin(); it != cont.rend(); ++it)
-	{
-		if (isname(str, GET_NAME(it->second)))
-		{
-			return it->second;
-		}
-	}
-	return 0;
-}
-
-/**
-* Возвращает последнего (технически первого в character_list) моба или 0 по его алиасу.
+* См ObjectAlias::get_by_name()
 */
 CHAR_DATA * get_by_name(const char *str)
 {
-	if (!str || !*str) return 0;
-
-	char buffer[MAX_STRING_LENGTH], out[MAX_STRING_LENGTH];
-	strcpy(buffer, str);
-
-	get_one_name(buffer, out, buffer);
-	if (!*out) return 0;
-
-	TempCharListType temp_list;
-	fill_list_by_name(out, temp_list);
-	if (temp_list.empty())
+	if (!str || !*str)
 	{
 		return 0;
 	}
-	return check_node(str, temp_list);
+	char buffer[MAX_STRING_LENGTH], word[MAX_STRING_LENGTH];
+	strcpy(buffer, str);
+	get_one_name(buffer, word, buffer);
+	if (!*word)
+	{
+		return 0;
+	}
+	return search_by_word(str, word);
 }
 
-} // namespace CharacterList
+} // namespace CharacterAlias
 
 ////////////////////////////////////////////////////////////////////////////////
-// ниже все полный копипаст с чаров для предметов
 
-namespace
+namespace ObjectAlias
 {
 
-typedef std::set<OBJ_DATA *> ObjNodeListType;
-typedef std::map<std::string, ObjNodeListType> ObjListType;
-ObjListType obj_list;
-
-typedef std::map<int, OBJ_DATA *> TempObjListType;
-
-} // namespace
-
-namespace ObjectList
-{
-
+/**
+* Добавление предмета в мап с разделением по каждому из его алиасов
+* и сортировкой по порядковому номеру, который тут же и инится.
+*/
 void add(OBJ_DATA *obj)
 {
 	if (!obj->name) return;
@@ -220,22 +205,25 @@ void add(OBJ_DATA *obj)
 		ObjListType::iterator it = obj_list.find(out);
 		if (it != obj_list.end())
 		{
-			it->second.insert(obj);
+			it->second.insert(std::make_pair(obj->get_serial_num(), obj));
 		}
 		else
 		{
 			ObjNodeListType tmp_node;
-			tmp_node.insert(obj);
-			obj_list.insert(std::make_pair(out, tmp_node));
+			tmp_node[obj->get_serial_num()] = obj;
+			obj_list[out] = tmp_node;
 		}
 	}
 }
 
+/**
+* Удаление предмета из всех полей мапа.
+*/
 void remove(OBJ_DATA *obj)
 {
 	for (ObjListType::iterator it = obj_list.begin(); it != obj_list.end(); /* empty */)
 	{
-		ObjNodeListType::iterator tmp_it = it->second.find(obj);
+		ObjNodeListType::iterator tmp_it = it->second.find(obj->get_serial_num());
 		if (tmp_it != it->second.end())
 		{
 			it->second.erase(tmp_it);
@@ -252,55 +240,60 @@ void remove(OBJ_DATA *obj)
 	}
 }
 
-void fill_list_by_name(const char *name, TempObjListType &cont)
+/**
+* Система поиска такая: список предметов сортированы по номеру, поэтому
+* всегда достаточно взять последний подходящий по алиасу и он для данного
+* поискового слова будет последним добавленным в глобальный список предметом,
+* в процессе прохода по словам просто выделяется предмет с наибольшим номером.
+*/
+OBJ_DATA * search_by_word(const char *name, const char *search_word)
 {
-	ObjListType::const_iterator it = obj_list.lower_bound(name);
-	while (it != obj_list.end())
+	OBJ_DATA *obj = 0;
+	ObjListType::iterator i = obj_list.lower_bound(search_word);
+
+	while (i != obj_list.end())
 	{
-		if (isname(name, it->first.c_str()))
+		if (isname(search_word, i->first.c_str()))
 		{
-			for (ObjNodeListType::iterator tmp_it = it->second.begin(); tmp_it != it->second.end(); ++tmp_it)
+			for (ObjNodeListType::reverse_iterator k = i->second.rbegin(); k != i->second.rend(); ++k)
 			{
-				cont[(*tmp_it)->get_serial_num()] = *tmp_it;
+				if (isname(name, k->second->name))
+				{
+					if (!obj || (obj && obj->get_serial_num() < k->second->get_serial_num()))
+					{
+						obj = k->second;
+					}
+					break;
+				}
 			}
-			++it;
+			++i;
 		}
 		else
 		{
-			return;
+			break;
 		}
 	}
+
+	return obj;
 }
 
-OBJ_DATA * check_node(const char *str, TempObjListType &cont)
-{
-	for (TempObjListType::reverse_iterator it = cont.rbegin(); it != cont.rend(); ++it)
-	{
-		if (isname(str, it->second->name))
-		{
-			return it->second;
-		}
-	}
-	return 0;
-}
-
+/**
+* \return последний (технически первый в object_list) предмет или 0 по его алиасу.
+*/
 OBJ_DATA * get_by_name(const char *str)
 {
-	if (!str || !*str) return 0;
-
-	char buffer[MAX_STRING_LENGTH], out[MAX_STRING_LENGTH];
-	strcpy(buffer, str);
-
-	get_one_name(buffer, out, buffer);
-	if (!*out) return 0;
-
-	TempObjListType temp_list;
-	fill_list_by_name(out, temp_list);
-	if (temp_list.empty())
+	if (!str || !*str)
 	{
 		return 0;
 	}
-	return check_node(str, temp_list);
+	char buffer[MAX_STRING_LENGTH], word[MAX_STRING_LENGTH];
+	strcpy(buffer, str);
+	get_one_name(buffer, word, buffer);
+	if (!*word)
+	{
+		return 0;
+	}
+	return search_by_word(str, word);
 }
 
 /**
@@ -309,26 +302,38 @@ OBJ_DATA * get_by_name(const char *str)
 */
 OBJ_DATA * locate_object(const char *str)
 {
-	if (!str || !*str) return 0;
-
-	char buffer[MAX_STRING_LENGTH], out[MAX_STRING_LENGTH];
-	strcpy(buffer, str);
-
-	get_one_name(buffer, out, buffer);
-	if (!*out) return 0;
-
-	ObjListType::const_iterator i = obj_list.lower_bound(out);
-	if (i != obj_list.end())
+	if (!str || !*str)
 	{
-		for (ObjNodeListType::const_iterator k = i->second.begin(); k != i->second.end(); ++k)
+		return 0;
+	}
+	char buffer[MAX_STRING_LENGTH], word[MAX_STRING_LENGTH];
+	strcpy(buffer, str);
+	get_one_name(buffer, word, buffer);
+	if (!*word)
+	{
+		return 0;
+	}
+
+	ObjListType::iterator i = obj_list.lower_bound(word);
+	while (i != obj_list.end())
+	{
+		if (isname(word, i->first.c_str()))
 		{
-			if (isname(str, (*k)->name))
+			for (ObjNodeListType::reverse_iterator k = i->second.rbegin(); k != i->second.rend(); ++k)
 			{
-				return *k;
+				if (isname(str, k->second->name))
+				{
+					return k->second;
+				}
 			}
+			++i;
+		}
+		else
+		{
+			break;
 		}
 	}
 	return 0;
 }
 
-} // namespace ObjectList
+} // namespace ObjectAlias

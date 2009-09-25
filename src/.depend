@@ -130,7 +130,7 @@ spec_procs.o: spec_procs.cpp conf.h sysdep.h structs.h utils.h \
 spell_parser.o: spell_parser.cpp conf.h sysdep.h structs.h utils.h \
   features.hpp interpreter.h spells.h skills.h handler.h comm.h db.h \
   screen.h constants.h dg_scripts.h pk.h im.h privilege.hpp char.hpp \
-  player_i.hpp
+  player_i.hpp name_list.hpp depot.hpp parcel.hpp
 spells.o: spells.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   comm.h spells.h skills.h handler.h db.h constants.h interpreter.h \
   dg_scripts.h screen.h house.h house_exp.hpp remember.hpp pk.h im.h \
@@ -278,7 +278,8 @@ corpse.o: corpse.cpp corpse.hpp conf.h sysdep.h structs.h db.h \
 house_exp.o: house_exp.cpp house_exp.hpp conf.h sysdep.h structs.h \
   utils.h features.hpp house.h db.h interpreter.h remember.hpp
 remember.o: remember.cpp remember.hpp conf.h sysdep.h structs.h utils.h \
-  features.hpp comm.h db.h char.hpp player_i.hpp interpreter.h screen.h
+  features.hpp comm.h db.h char.hpp player_i.hpp interpreter.h screen.h \
+  house.h house_exp.hpp
 name_list.o: name_list.cpp name_list.hpp conf.h sysdep.h structs.h \
   utils.h features.hpp char.hpp player_i.hpp handler.h interpreter.h
 dps.o: dps.cpp dps.hpp conf.h sysdep.h structs.h utils.h features.hpp \

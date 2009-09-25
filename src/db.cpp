@@ -3860,7 +3860,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	mob->proto_script = NULL;
 	mob->next = character_list;
 	character_list = mob;
-	CharacterList::add(mob);
+	CharacterAlias::add(mob);
 
 	if (!mob->points.max_hit)
 	{
@@ -3914,7 +3914,7 @@ OBJ_DATA *create_obj(void)
 	NEWCREATE(obj, OBJ_DATA);
 	obj->next = object_list;
 	object_list = obj;
-	ObjectList::add(obj);
+	ObjectAlias::add(obj);
 	GET_ID(obj) = max_id++;
 
 	return (obj);
@@ -3969,7 +3969,7 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 	obj->proto_script = NULL;
 	obj->next = object_list;
 	object_list = obj;
-	ObjectList::add(obj);
+	ObjectAlias::add(obj);
 	GET_ID(obj) = max_id++;
 	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON)
 	{

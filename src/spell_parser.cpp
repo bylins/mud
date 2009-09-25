@@ -2198,7 +2198,7 @@ const char *what_weapon[] = { "плеть",
 */
 OBJ_DATA *find_obj_for_locate(const char *name)
 {
-	OBJ_DATA *obj = ObjectList::locate_object(name);
+	OBJ_DATA *obj = ObjectAlias::locate_object(name);
 	if (!obj)
 	{
 		obj = Depot::locate_object(name);

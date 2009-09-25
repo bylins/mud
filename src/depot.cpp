@@ -1113,7 +1113,7 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 	check_auction(NULL, obj);
 	OBJ_DATA *temp;
 	REMOVE_FROM_LIST(obj, object_list, next);
-	ObjectList::remove(obj);
+	ObjectAlias::remove(obj);
 
 	return 1;
 }
@@ -1154,7 +1154,7 @@ void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, CHA
 	depot_log("remove_item %s: %s %d %d", name.c_str(), (*obj_it)->short_description, GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
 	(*obj_it)->next = object_list;
 	object_list = *obj_it;
-	ObjectList::add(*obj_it);
+	ObjectAlias::add(*obj_it);
 	obj_to_char(*obj_it, vict);
 	act("Вы взяли $o3 из персонального хранилища.", FALSE, vict, *obj_it, 0, TO_CHAR);
 	act("$n взял$g $o3 из персонального хранилища.", TRUE, vict, *obj_it, 0, TO_ROOM);
@@ -1368,7 +1368,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 		// убираем ее из глобального листа, в который она добавилась еще на стадии чтения из файла
 		OBJ_DATA *temp;
 		REMOVE_FROM_LIST(obj, object_list, next);
-		ObjectList::remove(obj);
+		ObjectAlias::remove(obj);
 	}
 	delete [] databuf;
 	offline_list.clear();
