@@ -1505,6 +1505,16 @@ ACMD(do_cook)
 			W1 += (itype - osk) * osk;
 		else
 			W2 += osk - itype;
+		// минимальное качество ингров для варки рецепта (REQ рецепта/2)
+		int min_osk = osk/2;
+		if (itype < min_osk)
+		{
+			send_to_char("С ингредиентами такого качества вам лучше даже не пытаться...\r\n", ch);
+			sprintf(name, "Качество ингров ниже допустимого: itype=%d, min_osk=%d", itype, min_osk);
+			imlog(NRM, name);
+			free(objs);
+			return;
+		}
 		++i;
 	}
 	add_start = i;
