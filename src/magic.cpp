@@ -3477,14 +3477,14 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_WC_OF_BATTLE:
 		af[0].location = APPLY_AC;
 		af[0].modifier = - (10 + MIN(20, 2 * GET_REMORT(ch)));
-		af[0].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 28, 8, 0);
+		af[0].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 28, 7, 0);
 		to_room = NULL;
 		break;
 
 	case SPELL_WC_OF_POWER:
 		af[0].location = APPLY_HIT;
 		af[0].modifier = MIN(SCHAR_MAX, (4 * GET_CON(ch) + ch->get_skill(SKILL_WARCRY)) / 2);
-		af[0].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 28, 8, 0);
+		af[0].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 28, 7, 0);
 		to_vict = NULL;
 		to_room = NULL;
 		break;
@@ -3492,7 +3492,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_WC_OF_BLESS:
 		af[0].location = APPLY_SAVING_STABILITY;
 		af[0].modifier = -(4 * GET_CON(ch) + ch->get_skill(SKILL_WARCRY)) / 24;
-		af[0].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 28, 8, 0);
+		af[0].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 28, 7, 0);
 		af[1].location = APPLY_SAVING_WILL;
 		af[1].modifier = af[0].modifier;
 		af[1].duration = af[0].duration;
@@ -3503,7 +3503,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_WC_OF_COURAGE:
 		af[0].location = APPLY_HITROLL;
 		af[0].modifier = (44 + ch->get_skill(SKILL_WARCRY)) / 45;
-		af[0].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 28, 8, 0);
+		af[0].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 28, 7, 0);
 		af[1].location = APPLY_DAMROLL;
 		af[1].modifier = (29 + ch->get_skill(SKILL_WARCRY)) / 30;
 		af[1].duration = af[0].duration;
