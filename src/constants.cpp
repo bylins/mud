@@ -1903,10 +1903,10 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	/* 0 */
 		"",		/* SPELL_WC_OF_MADNESS	*/
 		"!SPELL_WC_OF_THUNDER!",
 		"!SPELL_WC_OF_FEAR!",
-		"",		/* SPELL_WC_OF_BATTLE	*/
-		"",		/* SPELL_WC_OF_POWER	*/
-		"",		/* SPELL_WC_OF_BLESS	*/
-		"",		/* SPELL_WC_OF_COURAGE	*/
+		"Действие клича битвы закончилось.",		/* SPELL_WC_OF_BATTLE	*/
+		"Действие клича мощи закончилось.",		/* SPELL_WC_OF_POWER	*/
+		"Действие клича доблести закончилось.",		/* SPELL_WC_OF_BLESS	*/
+		"Действие клича отваги закончилось.",		/* SPELL_WC_OF_COURAGE	*/
 		"Магические письмена на замле угасли.",         /* SPELL_RUNE_LABEL */
 		"В Вашей крови не осталось ни капельки яда.", // SPELL_ACONITUM_POISON
 		"В Вашей крови не осталось ни капельки яда.", // SPELL_SCOPOLIA_POISON

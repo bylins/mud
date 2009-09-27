@@ -4905,6 +4905,7 @@ void mag_assign_spells(void)
 // ДЛЯ УКАЗАНИЯ МИНИМАЛЬНОГО ПРОЦЕНТА СКИЛЛА,
 // С КОТОРОГО ДОСТУПЕН УКАЗАННЫЙ КЛИЧ
 //178
+/*
 	spello(SPELL_WC_OF_CHALLENGE, "клич вызова", "warcry of challenge", 10, 10, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_WARCRY | MAG_AREAS | MAG_DAMAGE | NPC_DAMAGE_PC, 0, STYPE_MIND);
@@ -4928,20 +4929,21 @@ void mag_assign_spells(void)
 	spello(SPELL_WC_OF_FEAR, "клич устрашения", "warcry of fear", 80, 80, 101,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_WARCRY | MAG_AREAS | MAG_MANUAL | NPC_AFFECT_PC, 0, STYPE_MIND);
+*/
 //184
-	spello(SPELL_WC_OF_BATTLE, "клич битвы", "warcry of battle", 30, 30, 60,
+	spello(SPELL_WC_OF_BATTLE, "клич битвы", "warcry of battle", 20, 20, 50,
 		   POS_FIGHTING, TAR_IGNORE, FALSE,
 		   MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
 //185
-	spello(SPELL_WC_OF_POWER, "клич мощи", "warcry of power", 60, 60, 96,
+	spello(SPELL_WC_OF_POWER, "клич мощи", "warcry of power", 25, 25, 70,
 		   POS_FIGHTING, TAR_IGNORE, FALSE,
 		   MAG_WARCRY | MAG_GROUPS | MAG_POINTS | MAG_AFFECTS | NPC_DUMMY | NPC_AFFECT_NPC, 0, STYPE_MIND);
 //186
-	spello(SPELL_WC_OF_BLESS, "клич доблести", "warcry of bless", 50, 50, 70,
+	spello(SPELL_WC_OF_BLESS, "клич доблести", "warcry of bless", 15, 15, 30,
 		   POS_FIGHTING, TAR_IGNORE, FALSE,
 		   MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
 //187
-	spello(SPELL_WC_OF_COURAGE, "клич отваги", "warcry of courage", 90, 90, 30,
+	spello(SPELL_WC_OF_COURAGE, "клич отваги", "warcry of courage", 10, 10, 10,
 		   POS_FIGHTING, TAR_IGNORE, FALSE,
 		   MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
 //188
