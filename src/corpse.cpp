@@ -150,7 +150,9 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_CORPSE))
 		return NULL;
 
-	corpse = create_obj();
+	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
+	corpse = create_obj(buf2);
+
 	GET_OBJ_SEX(corpse) = SEX_MALE;
 
 	sprintf(buf2, "Труп %s лежит здесь.", GET_PAD(ch, 1));
@@ -161,8 +163,6 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
 	corpse->PNames[0] = str_dup(buf2);
-	corpse->name = str_dup(buf2);
-
 	sprintf(buf2, "трупа %s", GET_PAD(ch, 1));
 	corpse->PNames[1] = str_dup(buf2);
 	sprintf(buf2, "трупу %s", GET_PAD(ch, 1));

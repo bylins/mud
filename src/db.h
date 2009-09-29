@@ -206,7 +206,7 @@ void reset_char(CHAR_DATA * ch);
 void clear_char_skills(CHAR_DATA * ch);
 int correct_unique(int unique);
 
-OBJ_DATA *create_obj(void);
+OBJ_DATA *create_obj(const char *alias = 0);
 void free_obj(OBJ_DATA * obj);
 obj_rnum real_object(obj_vnum vnum);
 OBJ_DATA *read_object(obj_vnum nr, int type);

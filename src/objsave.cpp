@@ -65,7 +65,6 @@ int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj);
 int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
 int min_rent_cost(CHAR_DATA * ch);
-OBJ_DATA *create_obj(void);
 void asciiflag_conv(const char *flag, void *value);
 void tascii(int *pointer, int num_planes, char *ascii);
 long get_ptable_by_name(char *name);

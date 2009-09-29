@@ -3905,17 +3905,23 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	return (mob);
 }
 
-
 /* create an object, and add it to the object list */
-OBJ_DATA *create_obj(void)
+/**
+* \param alias - строка алиасов объекта (нужна уже здесь, т.к.
+* сразу идет добавление в ObjectAlias). На данный момент актуально
+* для трупов, остальное вроде не особо и надо видеть.
+*/
+OBJ_DATA *create_obj(const char *alias)
 {
 	OBJ_DATA *obj;
 
 	NEWCREATE(obj, OBJ_DATA);
 	obj->next = object_list;
 	object_list = obj;
-	ObjectAlias::add(obj);
 	GET_ID(obj) = max_id++;
+
+	obj->name = str_dup(alias);
+	ObjectAlias::add(obj);
 
 	return (obj);
 }
