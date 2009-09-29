@@ -55,6 +55,7 @@
 #include "parcel.hpp"
 #include "spells.h"
 #include "house_exp.hpp"
+#include "skills.h"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -1795,7 +1796,14 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 			else
 				count += sprintf(prompt + count, "Зауч:0 ");
 		}
-
+		// Заряды кличей для батыров
+		if (PRF_FLAGGED(d->character, PRF_DISP_WC)
+			&& GET_CLASS(d->character) == CLASS_WARRIOR
+			&& d->character->get_skill(SKILL_WARCRY))
+		{
+			int wc_count = (HOURS_PER_DAY - timed_by_skill(d->character, SKILL_WARCRY)) / HOURS_PER_WARCRY;
+			count += sprintf(prompt + count, "К:%d ", wc_count);
+		}
 
 		if (!d->character->get_fighting()
 				|| IN_ROOM(d->character) != IN_ROOM(d->character->get_fighting()))  	/* SHOW NON COMBAT INFO */

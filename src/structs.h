@@ -606,6 +606,7 @@ typedef struct trig_data TRIG_DATA;
 #define PRF_ANTIDC_MODE (INT_ONE | 1 << 26) // режим защиты от зисконекта в бою
 #define PRF_NOINGR_MODE (INT_ONE | 1 << 27) // не показывать продажу/покупку ингров в канале базара
 #define PRF_NOINGR_LOOT (INT_ONE | 1 << 28) // не лутить ингры в режиме автограбежа
+#define PRF_DISP_WC     (INT_ONE | 1 << 29) // показ зарядов кличей в статусе
 
 /* Affect bits: used in char_data.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */

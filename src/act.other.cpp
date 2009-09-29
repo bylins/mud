@@ -1722,7 +1722,7 @@ ACMD(do_display)
 
 	if (!*argument)
 	{
-		send_to_char("Формат: статус { { Ж | Э | З | В | Д | У | О | Б } | все | нет }\r\n", ch);
+		send_to_char("Формат: статус { { Ж | Э | З | В | Д | У | О | Б | К } | все | нет }\r\n", ch);
 		return;
 	}
 	if (!str_cmp(argument, "on") || !str_cmp(argument, "all") ||
@@ -1736,6 +1736,7 @@ ACMD(do_display)
 		SET_BIT(PRF_FLAGS(ch, PRF_DISPLEVEL), PRF_DISPLEVEL);
 		SET_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
 		SET_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
+		SET_BIT(PRF_FLAGS(ch, PRF_DISP_WC), PRF_DISP_WC);
 	}
 	else
 		if (!str_cmp(argument, "off") || !str_cmp(argument, "none") ||
@@ -1749,9 +1750,11 @@ ACMD(do_display)
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPLEVEL), PRF_DISPLEVEL);
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
+			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISP_WC), PRF_DISP_WC);
 		}
 		else
 		{
+			// TODO: вообще можно и без дублирования переписать
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
@@ -1760,6 +1763,7 @@ ACMD(do_display)
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPLEVEL), PRF_DISPLEVEL);
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
+			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISP_WC), PRF_DISP_WC);
 
 			for (i = 0; i < strlen(argument); i++)
 			{
@@ -1775,6 +1779,7 @@ ACMD(do_display)
 					break;
 				case 'm':
 				case 'э':
+					// TODO: а не PRF_DISPMOVE первое для однообразия?
 					SET_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMOVE);
 					break;
 				case 'e':
@@ -1797,9 +1802,12 @@ ACMD(do_display)
 				case 'f':
 					SET_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
 					break;
+				case 'к':
+					SET_BIT(PRF_FLAGS(ch, PRF_DISP_WC), PRF_DISP_WC);
+					break;
 				default:
 					send_to_char
-					("Формат: статус { { Ж | Э | З | В | Д | У | О | Б } | все | нет }\r\n", ch);
+					("Формат: статус { { Ж | Э | З | В | Д | У | О | Б | К } | все | нет }\r\n", ch);
 					return;
 				}
 			}
