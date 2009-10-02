@@ -208,6 +208,7 @@ private:
 	std::string abbrev; // аббревиатура клана, ОДНО слово
 	std::string name;   // длинное имя клана
 	std::string title;  // что будет видно в титуле членов клана (лучше род.падеж, если это не аббревиатура)
+	std::string title_female; // title для персонажей женского рода
 	std::string owner;  // имя воеводы
 	mob_vnum guard;     // охранник замка
 	time_t builtOn;     // дата создания
@@ -266,6 +267,8 @@ private:
 	static void HcontrolBuild(CHAR_DATA * ch, std::string & buffer);
 	static void HcontrolDestroy(CHAR_DATA * ch, std::string & buffer);
 	static void hcon_outcast(CHAR_DATA *ch, std::string buffer);
+	static void hcontrol_title(CHAR_DATA *ch, std::string &text);
+	static void hcontrol_rank(CHAR_DATA *ch, std::string &text);
 	static void ChestLoad();
 	int ChestTax();
 	int ChestMaxObjects()

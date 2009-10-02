@@ -4,7 +4,7 @@
 * (c) 2005 Krodo                                                              *
 ******************************************************************************/
 
-#include "conf.h"
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <cmath>
@@ -14,7 +14,7 @@
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/bind.hpp>
-
+#include "conf.h"
 #include "house.h"
 #include "comm.h"
 #include "handler.h"
@@ -156,6 +156,12 @@ void Clan::ClanLoad()
 				boost::trim(buffer);
 				tempClan->title = buffer;
 			}
+			else if (buffer == "TitleFemale:")
+			{
+				std::getline(file, buffer);
+				boost::trim(buffer);
+				tempClan->title_female = buffer;
+			}
 			else if (buffer == "Rent:")
 			{
 				int rent = 0;
@@ -241,11 +247,16 @@ void Clan::ClanLoad()
 					log("Error open 'Ranks' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 					break;
 				}
+				lower_convert(buffer);
+				lower_convert(buffer2);
 				tempClan->ranks.push_back(buffer);
 				tempClan->ranks_female.push_back(buffer2);
+
 				tempClan->privileges.push_back(std::bitset<CLAN_PRIVILEGES_NUM> (0));
 				for (int i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
+				{
 					tempClan->privileges[0].set(i);
+				}
 
 				while (stream >> buffer)
 				{
@@ -254,6 +265,8 @@ void Clan::ClanLoad()
 						log("Error open 'Ranks' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 						break;
 					}
+					lower_convert(buffer);
+					lower_convert(buffer2);
 					tempClan->ranks.push_back(buffer);
 					tempClan->ranks_female.push_back(buffer2);
 					// на случай уменьшения привилегий
@@ -420,6 +433,11 @@ void Clan::ClanLoad()
 				|| tempClan->rent == 0 || tempClan->guard == 0 || tempClan->out_rent == 0
 				|| tempClan->ranks.empty() || tempClan->privileges.empty())
 			continue;
+		// по дефолту жен род для титула берем из основного
+		if (tempClan->title_female.empty())
+		{
+			tempClan->title_female = tempClan->title;
+		}
 		// сундук по дефолту на ренте
 		if (!tempClan->chest_room)
 			tempClan->chest_room = tempClan->rent;
@@ -582,6 +600,7 @@ void Clan::ClanSave()
 		file << "Abbrev: " << (*clan)->abbrev << "\n"
 		<< "Name: " << (*clan)->name << "\n"
 		<< "Title: " << (*clan)->title << "\n"
+		<< "TitleFemale: " << (*clan)->title_female << "\n"
 		<< "Rent: " << (*clan)->rent << "\n"
 		<< "OutRent: " << (*clan)->out_rent << "\n"
 		<< "ChestRoom: " << (*clan)->chest_room << "\n"
@@ -671,7 +690,7 @@ void Clan::SetClanData(CHAR_DATA * ch)
 	if (IS_MALE(ch))
 		buffer = CLAN(ch)->ranks[CLAN_MEMBER(ch)->rank_num] + " " + CLAN(ch)->title;
 	else
-		buffer = CLAN(ch)->ranks_female[CLAN_MEMBER(ch)->rank_num] + " " + CLAN(ch)->title;
+		buffer = CLAN(ch)->ranks_female[CLAN_MEMBER(ch)->rank_num] + " " + CLAN(ch)->title_female;
 	GET_CLAN_STATUS(ch) = str_dup(buffer.c_str());
 
 	// чтобы при выходе не смог приписаться опять за один ребут мада
@@ -1646,11 +1665,113 @@ void Clan::ManagePolitics(CHAR_DATA * ch, std::string & buffer)
 }
 
 const char *HCONTROL_FORMAT =
-	"Формат: hcontrol build <rent vnum> <outrent vnum> <guard vnum> <leader name> <abbreviation> <clan title> <clan name>\r\n"
+	"Формат: hcontrol build <rent vnum> <outrent vnum> <guard vnum> <leader name> <abbreviation> <clan name>\r\n"
 	"        hcontrol show\r\n"
 	"        hcontrol destroy <house vnum>\r\n"
 	"        hcontrol outcast <name>\r\n"
-	"        hcontrol save\r\n";
+	"        hcontrol save\r\n"
+	"        hcontrol title <vnum ренты> <аббревиатура для муж рода> <аббревиатура для жен рода>\r\n"
+	"        hcontrol rank <vnum ренты> <старое звание муж рода> <звание для муж рода> <звание для жен рода>\r\n";
+
+
+/**
+* hcontrol title - изменение аббревиатуры клана в титуле персонажа.
+*/
+void Clan::hcontrol_title(CHAR_DATA *ch, std::string &text)
+{
+	std::string buffer;
+
+	GetOneParam(text, buffer);
+	int rent = atoi(buffer.c_str());
+	ClanListType::iterator clan = std::find_if(ClanList.begin(), ClanList.end(),
+			boost::bind(std::equal_to<int>(),
+					boost::bind(&Clan::rent, _1), rent));
+	if (clan == Clan::ClanList.end())
+	{
+		send_to_char(ch, "Дружины с номером %d не существует.\r\n", rent);
+		return;
+	}
+
+	std::string title_male, title_female;
+	GetOneParam(text, title_male);
+	GetOneParam(text, title_female);
+	if (title_male.empty() || title_female.empty())
+	{
+		send_to_char(HCONTROL_FORMAT, ch);
+		return;
+	}
+
+	(*clan)->title = title_male;
+	(*clan)->title_female = title_female;
+
+	Clan::ClanSave();
+	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
+	{
+		if (d->character && CLAN(d->character) && CLAN(d->character) == *clan)
+		{
+			Clan::SetClanData(d->character);
+		}
+	}
+	send_to_char("Сделано.\r\n", ch);
+}
+
+/**
+* hcontrol rank - изменение кланового звания персонажа в титуле.
+*/
+void Clan::hcontrol_rank(CHAR_DATA *ch, std::string &text)
+{
+	std::string buffer;
+
+	GetOneParam(text, buffer);
+	int rent = atoi(buffer.c_str());
+	ClanListType::iterator clan = std::find_if(ClanList.begin(), ClanList.end(),
+			boost::bind(std::equal_to<int>(),
+					boost::bind(&Clan::rent, _1), rent));
+	if (clan == Clan::ClanList.end())
+	{
+		send_to_char(ch, "Дружины с номером %d не существует.\r\n", rent);
+		return;
+	}
+
+	std::string old_rank, rank_male, rank_female;
+	GetOneParam(text, old_rank);
+	GetOneParam(text, rank_male);
+	GetOneParam(text, rank_female);
+	if (old_rank.empty() || rank_male.empty() || rank_female.empty())
+	{
+		send_to_char(HCONTROL_FORMAT, ch);
+		return;
+	}
+	lower_convert(old_rank);
+	lower_convert(rank_male);
+	lower_convert(rank_female);
+
+	try
+	{
+		for (unsigned i = 0; i < (*clan)->ranks.size(); ++i)
+		{
+			if ((*clan)->ranks[i] == old_rank)
+			{
+				(*clan)->ranks[i] = rank_male;
+				(*clan)->ranks_female[i] = rank_female;
+			}
+		}
+	}
+	catch (...)
+	{
+		send_to_char(ch, "Ошибка в званиях дружины.\r\n");
+	}
+
+	Clan::ClanSave();
+	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
+	{
+		if (d->character && CLAN(d->character) && CLAN(d->character) == *clan)
+		{
+			Clan::SetClanData(d->character);
+		}
+	}
+	send_to_char("Сделано.\r\n", ch);
+}
 
 // божественный hcontrol
 ACMD(DoHcontrol)
@@ -1674,6 +1795,14 @@ ACMD(DoHcontrol)
 		Clan::ClanSave();
 		Clan::ChestUpdate();
 		Clan::ChestSave();
+	}
+	else if (CompareParam(buffer2, "title") && !buffer.empty())
+	{
+		Clan::hcontrol_title(ch, buffer);
+	}
+	else if (CompareParam(buffer2, "rank") && !buffer.empty())
+	{
+		Clan::hcontrol_rank(ch, buffer);
 	}
 	else
 		send_to_char(HCONTROL_FORMAT, ch);
@@ -1699,9 +1828,6 @@ void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 	// аббревиатура
 	std::string abbrev;
 	GetOneParam(buffer, abbrev);
-	// приписка в титул
-	std::string title;
-	GetOneParam(buffer, title);
 	// название клана
 	boost::trim_if(buffer, boost::is_any_of(" \'"));
 	std::string name = buffer;
@@ -1762,11 +1888,6 @@ void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 			send_to_char(ch, "Имя '%s' уже занято другой дружиной.\r\n", name.c_str());
 			return;
 		}
-		if (CompareParam((*clan)->title, title, 1))
-		{
-			send_to_char(ch, "Приписка в титул '%s' уже занята другой дружиной.\r\n", title.c_str());
-			return;
-		}
 	}
 
 	// собственно клан
@@ -1782,9 +1903,8 @@ void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 	tempMember->name = owner;
 	tempClan->members[unique] = tempMember;
 	// названия
-	tempClan->abbrev = abbrev;
 	tempClan->name = name;
-	tempClan->title = title;
+	tempClan->title_female = tempClan->title = tempClan->abbrev = abbrev;
 	// ранги
 	const char *ranks[] = { "воевода", "боярин", "десятник", "храбр", "кметь", "гридень", "муж", "вой", "отрок", "гость" };
 	// женский род пока тоже самое, а то воплей будет...
