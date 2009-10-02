@@ -251,13 +251,21 @@ Character::~Character()
 }
 
 /**
-*
+* Скилл с учетом всех плюсов и минусов от шмоток/яда.
 */
 int Character::get_skill(int skill_num)
 {
-	return normolize_skill(get_trained_skill(skill_num) + get_equipped_skill(skill_num));
+	int skill = get_trained_skill(skill_num) + get_equipped_skill(skill_num);
+	if (AFF_FLAGGED(this, AFF_SKILLS_REDUCE))
+	{
+		skill -= skill * GET_POISON(this) / 100;
+	}
+	return normolize_skill(skill);
 }
 
+/**
+* Скилл со шмоток.
+*/
 int Character::get_equipped_skill(int skill_num)
 {
 	int skill = 0;
@@ -268,20 +276,20 @@ int Character::get_equipped_skill(int skill_num)
 	return skill;
 }
 
+/**
+* Родной тренированный скилл чара.
+*/
 int Character::get_trained_skill(int skill_num)
 {
-	int skill = 0;
 	if (Privilege::check_skills(this))
 	{
 		CharSkillsType::iterator it = skills.find(skill_num);
 		if (it != skills.end())
 		{
-			skill = it->second;
-			if (AFF_FLAGGED(this, AFF_SKILLS_REDUCE))
-				skill -= skill * GET_POISON(this) / 100;
+			return normolize_skill(it->second);
 		}
 	}
-	return normolize_skill(skill);
+	return 0;
 }
 
 int Character::normolize_skill(int percent)
