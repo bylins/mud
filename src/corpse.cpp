@@ -12,8 +12,6 @@
 #include "im.h"
 
 extern int max_npc_corpse_time, max_pc_corpse_time;
-extern int magic_repair_dropped;
-extern int magic_repair_chance;
 extern MobRaceListType mobraces_list;
 
 namespace GlobalDrop
@@ -21,19 +19,25 @@ namespace GlobalDrop
 
 struct global_drop
 {
+	global_drop() : vnum(0), lvl(0), exp(0), prc(0), mobs(0) {};
 	int vnum; // внум шмотки
 	int lvl;  // мин левел моба
 	int exp;  // мин экспа за моба
 	int prc;  // шансы дропа (1 к Х)
+	int mobs; // убито подходящих мобов
 };
 
 typedef std::vector<global_drop> DropListType;
 DropListType drop_list;
 
 const char *CONFIG_FILE = LIB_MISC"global_drop.xml";
+const char *STAT_FILE = LIB_PLRSTUFF"global_drop.tmp";
 
 void init()
 {
+	// на случай релоада
+	drop_list.clear();
+	// конфиг
 	XMLResults result;
 	XMLNode xMainNode=XMLNode::parseFile(CONFIG_FILE, "globaldrop", &result);
 	if (result.error != eXMLErrorNone)
@@ -52,6 +56,38 @@ void init()
 		drop_node.exp = xmltoi(xNodeRace.getAttribute("mob_exp"));
 		drop_node.prc = xmltoi(xNodeRace.getAttribute("chance"));
 		drop_list.push_back(drop_node);
+	}
+	// сохраненные статы по убитым ранее мобам
+	std::ifstream file(STAT_FILE);
+	if (!file.is_open())
+	{
+		log("SYSERROR: не удалось открыть файл на чтение: %s", STAT_FILE);
+		return;
+	}
+	int vnum, mobs;
+	while (file >> vnum >> mobs)
+	{
+		for (DropListType::iterator i = drop_list.begin(); i != drop_list.end(); ++i)
+		{
+			if (i->vnum == vnum)
+			{
+				i->mobs = mobs;
+			}
+		}
+	}
+}
+
+void save()
+{
+	std::ofstream file(STAT_FILE);
+	if (!file.is_open())
+	{
+		log("SYSERROR: не удалось открыть файл на запись: %s", STAT_FILE);
+		return;
+	}
+	for (DropListType::iterator i = drop_list.begin(); i != drop_list.end(); ++i)
+	{
+		file << i->vnum << " " << i->mobs << "\n";
 	}
 }
 
@@ -72,18 +108,16 @@ void check_mob(CHAR_DATA *mob)
 	{
 		if (GET_LEVEL(mob) >= it->lvl && GET_EXP(mob) >= it->exp)
 		{
-			if (number(0, it->prc) == it->prc/2)
+			++(it->mobs);
+			if (it->mobs >= it->prc)
 			{
 				OBJ_DATA *obj = read_object(it->vnum, VIRTUAL);
 				if (obj)
 				{
 					obj_to_char(obj, mob);
-					++magic_repair_dropped;
+					it->mobs = 0;
+					save();
 				}
-			}
-			else
-			{
-				++magic_repair_chance;
 			}
 		}
 	}

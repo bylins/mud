@@ -459,6 +459,7 @@ ACMD(do_reboot)
 		oload_table.init();
 		obj_data::init_set_table();
 		load_mobraces();
+		GlobalDrop::init();
 	}
 	else if (!str_cmp(arg, "portals"))
 		init_portals();
@@ -527,6 +528,10 @@ ACMD(do_reboot)
 		}
 		else
 			send_to_char("Формат команды: reload depot <имя чара>.\r\n", ch);
+	}
+	else if (!str_cmp(arg, "globaldrop"))
+	{
+		GlobalDrop::init();
 	}
 	else
 	{

@@ -56,6 +56,7 @@
 #include "spells.h"
 #include "house_exp.hpp"
 #include "skills.h"
+#include "corpse.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -1305,6 +1306,12 @@ inline void heartbeat()
 	// все на разные пульсы не раскидаешь внутри одной секунды, а многие функции
 	// сами по себе работают намного дольше 1го пульса
 	// здесь важно то, что они не перекрываются друг другом в момент тика
+
+	// убитые мобы для глобал-дропа
+	if (!((pulse + 46) % (60 * GlobalDrop::SAVE_PERIOD * PASSES_PER_SEC)))
+	{
+		GlobalDrop::save();
+	}
 
 	// снятие денег за шмот в клановых сундуках
 	if (!((pulse + 44) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))

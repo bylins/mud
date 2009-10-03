@@ -15,6 +15,9 @@ namespace GlobalDrop
 {
 
 void init();
+void save();
+// период сохранения временного файла с мобами (в минутах)
+const int SAVE_PERIOD = 10;
 
 } // namespace GlobalDrop
 
