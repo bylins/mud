@@ -460,6 +460,7 @@ ACMD(do_reboot)
 		obj_data::init_set_table();
 		load_mobraces();
 		GlobalDrop::init();
+		OfftopSystem::init();
 	}
 	else if (!str_cmp(arg, "portals"))
 		init_portals();
@@ -532,6 +533,10 @@ ACMD(do_reboot)
 	else if (!str_cmp(arg, "globaldrop"))
 	{
 		GlobalDrop::init();
+	}
+	else if (!str_cmp(arg, "offtop"))
+	{
+		OfftopSystem::init();
 	}
 	else
 	{
@@ -1505,6 +1510,9 @@ void boot_db(void)
 
 	log("Init global drop list.");
 	GlobalDrop::init();
+
+	log("Init offtop block list.");
+	OfftopSystem::init();
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");
@@ -7726,3 +7734,75 @@ MobRace::~MobRace()
 	ingrlist.clear();
 }
 //-Polud
+
+////////////////////////////////////////////////////////////////////////////////
+namespace OfftopSystem
+{
+
+const char *BLOCK_FILE = LIB_MISC"offtop.lst";
+std::vector<std::string> block_list;
+
+/**
+* Лоад/релоад списка нежелательных для оффтопа товарисчей.
+*/
+void init()
+{
+	block_list.clear();
+	std::ifstream file(BLOCK_FILE);
+	if (!file.is_open())
+	{
+		log("SYSERROR: не удалось открыть файл на чтение: %s", BLOCK_FILE);
+		return;
+	}
+	std::string buffer;
+	while (file >> buffer)
+	{
+		lower_convert(buffer);
+		block_list.push_back(buffer);
+	}
+	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
+	{
+		if (d->character)
+		{
+			check(d->character);
+		}
+	}
+}
+
+/**
+* Проверка на наличие чара в стоп-списке.
+*/
+bool is_blocked(CHAR_DATA *ch)
+{
+	std::string mail(GET_EMAIL(ch));
+	lower_convert(mail);
+	std::vector<std::string>::const_iterator i = std::find(block_list.begin(), block_list.end(), mail);
+	if (i != block_list.end())
+	{
+		return true;
+	}
+	return false;
+}
+
+/**
+* Простановка флага наличия в стоп-списке оффтопа.
+*/
+void check(CHAR_DATA *ch)
+{
+	if (!ch || !GET_EMAIL(ch))
+	{
+		return;
+	}
+
+	if (is_blocked(ch))
+	{
+		SET_BIT(PRF_FLAGS(ch, PRF_IGVA_PRONA), PRF_IGVA_PRONA);
+	}
+	else
+	{
+		REMOVE_BIT(PRF_FLAGS(ch, PRF_IGVA_PRONA), PRF_IGVA_PRONA);
+	}
+}
+
+} // namespace OfftopSystem
+////////////////////////////////////////////////////////////////////////////////

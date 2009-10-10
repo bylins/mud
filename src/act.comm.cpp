@@ -953,7 +953,7 @@ ACMD(do_pray_gods)
 */
 ACMD(do_offtop)
 {
-	if (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_IMMORT)
+	if (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_IMMORT || PRF_FLAGGED(ch, PRF_IGVA_PRONA))
 	{
 		send_to_char("Чаво ?\r\n", ch);
 		return;
@@ -1003,13 +1003,12 @@ ACMD(do_offtop)
 	{
 		// переплут как любитель почитывать логи за ночь очень хотел этот канал...
 		if (STATE(i) == CON_PLAYING
-				&& i->character
-				&& (GET_LEVEL(i->character) < LVL_IMMORT || !strcmp(GET_NAME(i->character), "Переплут"))
-				&& PRF_FLAGGED(i->character, PRF_OFFTOP_MODE))
+			&& i->character
+			&& (GET_LEVEL(i->character) < LVL_IMMORT || !strcmp(GET_NAME(i->character), "Переплут"))
+			&& PRF_FLAGGED(i->character, PRF_OFFTOP_MODE)
+			&& !PRF_FLAGGED(i->character, PRF_IGVA_PRONA)
+			&& !ignores(i->character, ch, IGNORE_OFFTOP))
 		{
-			if (ignores(i->character, ch, IGNORE_OFFTOP))
-				continue;
-
 			send_to_char(i->character, "%s%s%s", CCCYN(i->character, C_NRM), buf, CCNRM(i->character, C_NRM));
 			i->character->remember_add(buf1, Remember::ALL);
 		}

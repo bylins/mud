@@ -608,6 +608,8 @@ typedef struct trig_data TRIG_DATA;
 #define PRF_NOINGR_LOOT (INT_ONE | 1 << 28) // не лутить ингры в режиме автограбежа
 #define PRF_DISP_WC     (INT_ONE | 1 << 29) // показ зарядов кличей в статусе
 
+#define PRF_IGVA_PRONA  (INT_TWO | 1 << 0)  // для стоп-списка оффтоп
+
 /* Affect bits: used in char_data.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
 #define AFF_BLIND             (1 << 0)	/* (R) Char is blind    */

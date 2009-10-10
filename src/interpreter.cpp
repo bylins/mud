@@ -2118,6 +2118,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 			GET_INVIS_LEV(d->character) = 0;
 	}
 
+	OfftopSystem::check(d->character);
 	// пересчет максимального хп, если нужно
 	check_max_hp(d->character);
 

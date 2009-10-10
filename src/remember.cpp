@@ -222,7 +222,14 @@ ACMD(do_remember_char)
 	}
 	else if (GET_LEVEL(ch) < LVL_IMMORT && is_abbrev(arg, "оффтоп"))
 	{
-		send_to_char(ch->remember_get(Remember::OFFTOP), ch);
+		if (!PRF_FLAGGED(ch, PRF_IGVA_PRONA))
+		{
+			send_to_char(ch->remember_get(Remember::OFFTOP), ch);
+		}
+		else
+		{
+			send_to_char(ch, "Вам нечего вспомнить.\r\n");
+		}
 	}
 	else if (is_abbrev(arg, "болтать") || is_abbrev(arg, "орать"))
 	{
