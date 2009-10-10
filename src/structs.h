@@ -1757,7 +1757,7 @@ struct obj_data
 	};
 
 	int get_serial_num();
-	void set_serial_num();
+	void set_serial_num(int num);
 
 private:
 	struct obj_timed_spell_type *timed_spell; // временный обкаст

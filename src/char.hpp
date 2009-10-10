@@ -273,6 +273,8 @@ public:
 
 	// это все как обычно временно... =)
 	friend void save_char(CHAR_DATA *ch);
+	friend void do_mtransform(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	friend void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src);
 
 	int get_skill(int skill_num);
 	void set_skill(int skill_num, int percent);
@@ -310,7 +312,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////
 
 	int get_serial_num();
-	void set_serial_num();
+	void set_serial_num(int num);
 
 private:
 	static int normolize_skill(int percent);

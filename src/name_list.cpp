@@ -23,48 +23,9 @@ typedef std::map<int /* serial_num */, OBJ_DATA *> ObjNodeListType;
 typedef std::map<std::string /* имя */, ObjNodeListType> ObjListType;
 ObjListType obj_list;
 
-/**
-* Версия skip_spaces с a_isalnum.
-*/
-void skip_delim(const char **string)
-{
-	for (; **string && !a_isalnum(**string); (*string)++) ;
-}
-
-/**
-* Версия any_one_arg с a_isalnum.
-* До кучи здесь идет перевод в нижний регистр, что удобно для мапа со стандартной функцией сравнения.
-*/
-const char * any_one_name(const char *argument, char *first_arg)
-{
-	if (!argument)
-	{
-		log("SYSERR: any_one_name() passed a NULL pointer.");
-		return 0;
-	}
-	skip_delim(&argument);
-
-	while (*argument && a_isalnum(*argument))
-	{
-		*(first_arg++) = a_lcc(*argument);
-		argument++;
-	}
-
-	*first_arg = '\0';
-
-	return (argument);
-}
-
-/**
-* Версия half_chop с a_isalnum.
-*/
-void get_one_name(char const *string, char *arg1, char *arg2)
-{
-	char const *temp;
-	temp = any_one_name(string, arg1);
-	skip_delim(&temp);
-	strcpy(arg2, temp);
-}
+// счетчик чаров/предметов для name_list
+int char_serial_num = 0;
+int obj_serial_num = 0;
 
 } // namespace
 
@@ -80,15 +41,18 @@ void add(CHAR_DATA *ch)
 {
 	if (!GET_NAME(ch)) return;
 
-	ch->set_serial_num();
+	ch->set_serial_num(++char_serial_num);
+	std::string name(GET_NAME(ch)), word;
+	lower_convert(name);
 
-	char buffer[MAX_STRING_LENGTH], out[MAX_STRING_LENGTH];
-	strcpy(buffer, GET_NAME(ch));
-
-	while (buffer[0] != 0)
+	while (!name.empty())
 	{
-		get_one_name(buffer, out, buffer);
-		CharListType::iterator it = char_list.find(out);
+		cut_one_word(name, word);
+		if (word.empty())
+		{
+			return;
+		}
+		CharListType::iterator it = char_list.find(word);
 		if (it != char_list.end())
 		{
 			it->second.insert(std::make_pair(ch->get_serial_num(), ch));
@@ -97,7 +61,7 @@ void add(CHAR_DATA *ch)
 		{
 			CharNodeListType tmp_node;
 			tmp_node[ch->get_serial_num()] = ch;
-			char_list[out] = tmp_node;
+			char_list[word] = tmp_node;
 		}
 	}
 }
@@ -129,7 +93,7 @@ void remove(CHAR_DATA *ch)
 /**
 * См ObjectAlias::search_by_word()
 */
-CHAR_DATA * search_by_word(const char *name, const char *search_word)
+CHAR_DATA * search_by_word(const char *name, const std::string &search_word)
 {
 	CHAR_DATA *ch = 0;
 	CharListType::iterator i = char_list.lower_bound(search_word);
@@ -169,10 +133,10 @@ CHAR_DATA * get_by_name(const char *str)
 	{
 		return 0;
 	}
-	char buffer[MAX_STRING_LENGTH], word[MAX_STRING_LENGTH];
-	strcpy(buffer, str);
-	get_one_name(buffer, word, buffer);
-	if (!*word)
+	std::string name(str), word;
+	lower_convert(name);
+	cut_one_word(name, word);
+	if (word.empty())
 	{
 		return 0;
 	}
@@ -194,15 +158,18 @@ void add(OBJ_DATA *obj)
 {
 	if (!obj->name) return;
 
-	obj->set_serial_num();
+	obj->set_serial_num(++obj_serial_num);
+	std::string name(obj->name), word;
+	lower_convert(name);
 
-	char buffer[MAX_STRING_LENGTH], out[MAX_STRING_LENGTH];
-	strcpy(buffer, obj->name);
-
-	while (buffer[0] != 0)
+	while (!name.empty())
 	{
-		get_one_name(buffer, out, buffer);
-		ObjListType::iterator it = obj_list.find(out);
+		cut_one_word(name, word);
+		if (word.empty())
+		{
+			return;
+		}
+		ObjListType::iterator it = obj_list.find(word);
 		if (it != obj_list.end())
 		{
 			it->second.insert(std::make_pair(obj->get_serial_num(), obj));
@@ -211,7 +178,7 @@ void add(OBJ_DATA *obj)
 		{
 			ObjNodeListType tmp_node;
 			tmp_node[obj->get_serial_num()] = obj;
-			obj_list[out] = tmp_node;
+			obj_list[word] = tmp_node;
 		}
 	}
 }
@@ -246,7 +213,7 @@ void remove(OBJ_DATA *obj)
 * поискового слова будет последним добавленным в глобальный список предметом,
 * в процессе прохода по словам просто выделяется предмет с наибольшим номером.
 */
-OBJ_DATA * search_by_word(const char *name, const char *search_word)
+OBJ_DATA * search_by_word(const char *name, const std::string &search_word)
 {
 	OBJ_DATA *obj = 0;
 	ObjListType::iterator i = obj_list.lower_bound(search_word);
@@ -286,10 +253,10 @@ OBJ_DATA * get_by_name(const char *str)
 	{
 		return 0;
 	}
-	char buffer[MAX_STRING_LENGTH], word[MAX_STRING_LENGTH];
-	strcpy(buffer, str);
-	get_one_name(buffer, word, buffer);
-	if (!*word)
+	std::string name(str), word;
+	lower_convert(name);
+	cut_one_word(name, word);
+	if (word.empty())
 	{
 		return 0;
 	}
@@ -306,10 +273,11 @@ OBJ_DATA * locate_object(const char *str)
 	{
 		return 0;
 	}
-	char buffer[MAX_STRING_LENGTH], word[MAX_STRING_LENGTH];
-	strcpy(buffer, str);
-	get_one_name(buffer, word, buffer);
-	if (!*word)
+
+	std::string name(str), word;
+	lower_convert(name);
+	cut_one_word(name, word);
+	if (word.empty())
 	{
 		return 0;
 	}

@@ -2273,3 +2273,50 @@ void kill_ems(char *str)
 	}
 	*ptr2 = '\0';
 }
+
+/**
+* Вырезание и перемещение в word одного слова из str (a_isalnum).
+*/
+void cut_one_word(std::string &str, std::string &word)
+{
+	if (str.empty())
+	{
+		word.clear();
+		return;
+	}
+
+	bool process = false;
+	unsigned begin = 0, end = 0;
+	for (unsigned i = 0; i < str.size(); ++i)
+	{
+		if (!process && a_isalnum(str.at(i)))
+		{
+			process = true;
+			begin = i;
+			continue;
+		}
+		if (process && !a_isalnum(str.at(i)))
+		{
+			end = i;
+			break;
+		}
+	}
+
+	if (process)
+	{
+		if (!end || end >= str.size())
+		{
+			word = str.substr(begin);
+			str.clear();
+		}
+		else
+		{
+			word = str.substr(begin, end - begin);
+			str.erase(0, end);
+		}
+		return;
+	}
+
+	str.clear();
+	word.clear();
+}

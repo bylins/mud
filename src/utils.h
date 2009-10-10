@@ -84,6 +84,7 @@ void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence = 0);
 char * str_str(char *cs, const char *ct);
 void kill_ems(char *str);
 bool die_follower(CHAR_DATA * ch);
+void cut_one_word(std::string &str, std::string &word);
 
 int get_gold(CHAR_DATA *ch);
 void add_gold(CHAR_DATA *ch, int gold);

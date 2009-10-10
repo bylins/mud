@@ -213,62 +213,7 @@ int isname(const char *str, const char *namelist)
 }
 int isname(const std::string &str, const char *namelist)
 {
-	int once_ok = FALSE;
-	const char *curname;
-	std::string::const_iterator curstr, laststr;
-
-	if (!namelist || !*namelist)
-		return (FALSE);
-
-	for (curstr = str.begin(); curstr != str.end() && !a_isalnum(*curstr); curstr++);
-	if (curstr == str.end())
-		return (once_ok);
-	laststr = curstr;
-	curname = namelist;
-	for (;;)
-	{
-		once_ok = FALSE;
-		for (;; curstr++, curname++)
-		{
-			if (curstr == str.end())
-				return (once_ok);
-			if (*curstr == '!')
-				if (a_isalnum(*curname))
-				{
-					curstr = laststr;
-					break;
-				}
-			if (!a_isalnum(*curstr))
-			{
-				for (; curstr != str.end() && !a_isalnum(*curstr); curstr++);
-				if (curstr == str.end())
-					return (once_ok);
-				laststr = curstr;
-				break;
-			}
-			if (!*curname)
-				return (FALSE);
-			if (!a_isalnum(*curname))
-			{
-				curstr = laststr;
-				break;
-			}
-			if (LOWER(*curstr) != LOWER(*curname))
-			{
-				curstr = laststr;
-				break;
-			}
-			else
-				once_ok = TRUE;
-		}
-		/* skip to next name */
-		for (; a_isalnum(*curname); curname++);
-		for (; !a_isalnum(*curname); curname++)
-		{
-			if (!*curname)
-				return (FALSE);
-		}
-	}
+	return isname(str.c_str(), namelist);
 }
 
 bool is_wear_light(CHAR_DATA *ch)

@@ -519,23 +519,14 @@ int fighting_list_size()
 	return fighting_list.size();
 }
 
-namespace
-{
-
-// счетчик чаров/предметов для name_list
-int char_serial_num = 0;
-int obj_serial_num = 0;
-
-} // namespace
-
 int Character::get_serial_num()
 {
 	return serial_num_;
 }
 
-void Character::set_serial_num()
+void Character::set_serial_num(int num)
 {
-	serial_num_ = ++char_serial_num;
+	serial_num_ = num;
 }
 
 int obj_data::get_serial_num()
@@ -543,7 +534,7 @@ int obj_data::get_serial_num()
 	return serial_num_;
 }
 
-void obj_data::set_serial_num()
+void obj_data::set_serial_num(int num)
 {
-	serial_num_ = ++obj_serial_num;
+	serial_num_ = num;
 }

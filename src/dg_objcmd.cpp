@@ -24,6 +24,7 @@
 #include "features.hpp"
 #include "char.hpp"
 #include "skills.h"
+#include "name_list.hpp"
 
 extern INDEX_DATA *obj_index;
 extern const char *dirs[];
@@ -328,12 +329,16 @@ OCMD(do_otransform)
 		o->next_content = tmpobj.next_content;
 		obj->next = o->next;
 		o->next = tmpobj.next;
+		// для name_list
+		obj->set_serial_num(o->get_serial_num());
+		o->set_serial_num(tmpobj.get_serial_num());
+		ObjectAlias::remove(obj);
+		ObjectAlias::add(obj);
 
 		if (wearer)
 		{
 			equip_char(wearer, obj, pos);
 		}
-
 		extract_obj(o);
 
 	}

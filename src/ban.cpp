@@ -601,7 +601,9 @@ bool BanList::proxy_ban_sort_func(const ProxyBanNodePtr & lft, const ProxyBanNod
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-BanList::BanList()
+BanList::BanList() :
+	current_sort_algorithm(0),
+	current_proxy_sort_algorithm(0)
 {
 
 	if (!(reload_ban() && reload_proxy_ban(RELOAD_MODE_MAIN)))
@@ -610,14 +612,11 @@ BanList::BanList()
 		exit(0);
 	}
 	sort_ip(SORT_BY_NAME);
-	current_sort_algorithm = SORT_BY_NAME;
 	sort_proxy(SORT_BY_NAME);
-	current_proxy_sort_algorithm = SORT_BY_NAME;
 	purge_obsolete();
 }
 
-void
-BanList::sort_ip(int sort_algorithm)
+void BanList::sort_ip(int sort_algorithm)
 {
 	if (sort_algorithm == current_sort_algorithm)
 		return;

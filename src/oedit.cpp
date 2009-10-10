@@ -26,6 +26,7 @@
 #include "skills.h"
 #include "parcel.hpp"
 #include "liquid.hpp"
+#include "name_list.hpp"
 
 /*------------------------------------------------------------------------*/
 
@@ -303,6 +304,10 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	obj->next_content = tmp.next_content;
 	obj->next = tmp.next;
 	SCRIPT(obj) = SCRIPT(&tmp);
+	// для name_list
+	obj->set_serial_num(tmp.get_serial_num());
+	ObjectAlias::remove(obj);
+	ObjectAlias::add(obj);
 }
 
 /**

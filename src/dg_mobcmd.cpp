@@ -48,6 +48,7 @@
 #include "features.hpp"
 #include "char.hpp"
 #include "skills.h"
+#include "name_list.hpp"
 
 #define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, AFF_CHARM))
 
@@ -1182,7 +1183,14 @@ ACMD(do_mtransform)
 		IS_CARRYING_N(ch) = IS_CARRYING_N(m);
 		IS_CARRYING_N(m) = IS_CARRYING_N(&tmpmob);
 		ch->set_fighting(m->get_fighting());
-		m->set_fighting((&tmpmob)->get_fighting());
+		m->set_fighting(tmpmob.get_fighting());
+		ch->in_fighting_list_ = m->in_fighting_list_;
+		m->in_fighting_list_ = tmpmob.in_fighting_list_;
+		// для name_list
+		ch->set_serial_num(m->get_serial_num());
+		m->set_serial_num(tmpmob.get_serial_num());
+		CharacterAlias::remove(ch);
+		CharacterAlias::add(ch);
 
 		for (pos = 0; pos < NUM_WEARS; pos++)
 		{

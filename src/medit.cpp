@@ -23,6 +23,7 @@
 #include "im.h"
 #include "char.hpp"
 #include "skills.h"
+#include "name_list.hpp"
 
 /*
  * Set this to 1 for debugging logs in medit_save_internally.
@@ -163,6 +164,9 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	int j;
 	struct helper_data_type **pdhd, *shd;
 
+	// сохраняем старые значения
+	CHAR_DATA tmp(*dst);
+
 	// Копирую все поверх
 	*dst = *src;
 
@@ -199,6 +203,11 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	proto_script_copy(&dst->proto_script, src->proto_script);
 	im_inglist_copy(&dst->ing_list, src->ing_list);
 	dl_list_copy(&dst->dl_list, src->dl_list);
+	dst->in_fighting_list_ = tmp.in_fighting_list_;
+	// для name_list
+	dst->set_serial_num(tmp.get_serial_num());
+	CharacterAlias::remove(dst);
+	CharacterAlias::add(dst);
 }
 
 
