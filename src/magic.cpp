@@ -2555,7 +2555,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_MASS_BLINDNESS:
 	case SPELL_POWER_BLINDNESS:
 	case SPELL_BLINDNESS:
-		savetype = SAVING_STABILITY;
+			savetype = SAVING_STABILITY;
 		if (MOB_FLAGGED(victim, MOB_NOBLIND) ||
 				WAITLESS(victim) ||
 				((ch != victim) &&
@@ -2961,7 +2961,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_WC_OF_RAGE:
 	case SPELL_SONICWAVE:
-	case SPELL_SHOCK:
 	case SPELL_MASS_DEAFNESS:
 	case SPELL_POWER_DEAFNESS:
 	case SPELL_DEAFNESS:
@@ -2972,7 +2971,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			modi = con_app[GET_REAL_CON(ch)].hitp * 2;
 			break;
 		case SPELL_SONICWAVE:
-		case SPELL_SHOCK:
 		case SPELL_MASS_DEAFNESS:
 		case SPELL_POWER_DEAFNESS:
 		case SPELL_DEAFNESS:
@@ -2995,8 +2993,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 							 pc_duration(victim, 2, level + 3, 4, 6, 0));
 			break;
-		case SPELL_SHOCK:
-			mag_affects(level, ch, victim, SPELL_BLINDNESS, SAVING_STABILITY);
 		case SPELL_MASS_DEAFNESS:
 		case SPELL_DEAFNESS:
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
@@ -3048,7 +3044,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_BROKEN_CHAINS:
-		af[0].duration = pc_duration(victim, 4, 0, 0, 0, 0);
+		af[0].duration = pc_duration(victim, 12, 0, 0, 0, 0);
 		af[0].bitvector = AFF_BROKEN_CHAINS;
 		af[0].battleflag = AF_BATTLEDEC;
 		to_room = "Ярко-синий ореол вспыхнул вокруг $n и тут же угас.";
@@ -3128,6 +3124,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_WC_OF_THUNDER:
 	case SPELL_ICESTORM:
 	case SPELL_EARTHFALL:
+	case SPELL_SHOCK:
 		switch (spellnum)
 		{
 		case SPELL_WC_OF_THUNDER:
@@ -3141,6 +3138,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		case SPELL_EARTHFALL:
 			savetype = SAVING_REFLEX;
 			modi = CALC_SUCCESS(modi, 95);
+			break;
+        case SPELL_SHOCK:
+			savetype = SAVING_REFLEX;
+			modi = CALC_SUCCESS(modi, 65);
 			break;
 		}
 		if (WAITLESS(victim) || (!WAITLESS(ch) && general_savingthrow(ch, victim, savetype, modi)))
@@ -3183,6 +3184,17 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			to_vict = "Вас оглушило.";
 			spellnum = SPELL_MAGICBATTLE;
 			break;
+        case SPELL_SHOCK:
+			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
+							 pc_duration(victim, 2, 0, 0, 0, 0));
+			af[0].bitvector = AFF_MAGICSTOPFIGHT;
+			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+			to_room = "$n3 оглушило.";
+			to_vict = "Вас оглушило.";
+			spellnum = SPELL_MAGICBATTLE;
+			mag_affects(level, ch, victim, SPELL_BLINDNESS, SAVING_STABILITY);
+            break;
 		}
 		break;
 
