@@ -1518,32 +1518,6 @@ void boot_db(void)
 	log("Boot db -- DONE.");
 }
 
-/* free rooms structures and pointers*/
-void free_rooms()
-{
-	vector < ROOM_DATA * >::iterator p = world.begin();
-
-	while (p != world.end())
-	{
-		room_free(*p);
-		free(*p);
-		p++;
-	}
-}
-
-/* body of the close world system */
-void free_db()
-{
-	log("Free db -- BEGIN.");
-
-	// Free all room pointers.
-	log("Free rooms.");
-	free_rooms();
-
-
-	log("Free db -- DONE.");
-}
-
 /* reset the time in the game from file */
 void reset_time(void)
 {

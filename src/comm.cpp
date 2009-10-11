@@ -589,7 +589,6 @@ void init_game(ush_int port)
 			}
 		}
 	}
-	free_db();
 	if (circle_reboot)
 	{
 		log("Rebooting.");
