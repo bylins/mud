@@ -4297,6 +4297,12 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 			to_char = "$o стал$G вполне пригодным к применению.";
 		}
 		break;
+	case SPELL_FLY:
+		obj->set_timed_spell(SPELL_FLY, 60 * 24 * 3);
+		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
+		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
+		to_char = "$o вспыхнул$G зеленоватым светом и тут же погас$Q.";
+		break;
 	case SPELL_ACID:
 		alterate_object(obj, number(GET_LEVEL(ch) * 2, GET_LEVEL(ch) * 4), 100);
 		break;

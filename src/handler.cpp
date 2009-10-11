@@ -4118,13 +4118,30 @@ void obj_data::update_timed_spell()
 		--(timed_spell->time);
 		if (timed_spell->time <= 0)
 		{
-			delete timed_spell;
-			timed_spell = 0;
 			if (carried_by || worn_by)
 			{
 				CHAR_DATA *ch = carried_by ? carried_by : worn_by;
-				send_to_char(ch, "С %s испарились последние капельки яда.\r\n", GET_OBJ_PNAME(this, 1));
+				switch (timed_spell->spell)
+				{
+				case SPELL_ACONITUM_POISON:
+				case SPELL_SCOPOLIA_POISON:
+				case SPELL_BELENA_POISON:
+				case SPELL_DATURA_POISON:
+					send_to_char(ch, "С %s испарились последние капельки яда.\r\n", GET_OBJ_PNAME(this, 1));
+					break;
+				case SPELL_FLY:
+					REMOVE_BIT(GET_OBJ_EXTRA(this, ITEM_FLYING), ITEM_FLYING);
+					REMOVE_BIT(GET_OBJ_EXTRA(this, ITEM_SWIMMING), ITEM_SWIMMING);
+					send_to_char(ch, "Ваш%s %s перестал%s парить.\r\n", GET_OBJ_VIS_SUF_7(this, ch),
+							GET_OBJ_PNAME(this, 0), GET_OBJ_VIS_SUF_1(this, ch));
+					break;
+				default:
+					send_to_char(ch, "С %s что-то исчезло (%d)... Оо Сообщите Богам!\r\n",
+							timed_spell->spell, GET_OBJ_PNAME(this, 1));
+				}
 			}
+			delete timed_spell;
+			timed_spell = 0;
 		}
 	}
 }
@@ -4148,8 +4165,23 @@ std::string obj_data::diag_timed_spell_to_char(CHAR_DATA *ch)
 	if (timed_spell)
 	{
 		std::stringstream out;
-		out << CCGRN(ch, C_NRM) << "Отравлено " << get_poison_by_spell(timed_spell->spell) << " еще " << timed_spell->time << " "
-				<< desc_count(timed_spell->time, WHAT_MINu) << "." << CCCYN(ch, C_NRM) << "\r\n";
+		switch (timed_spell->spell)
+		{
+		case SPELL_ACONITUM_POISON:
+		case SPELL_SCOPOLIA_POISON:
+		case SPELL_BELENA_POISON:
+		case SPELL_DATURA_POISON:
+			out << CCGRN(ch, C_NRM) << "Отравлено " << get_poison_by_spell(timed_spell->spell)
+					<< " еще " << timed_spell->time << " " << desc_count(timed_spell->time, WHAT_MINu)
+					<< "." << CCCYN(ch, C_NRM) << "\r\n";
+			break;
+		case SPELL_FLY:
+			out << CCCYN(ch, C_NRM) << "Будет парить еще " << time_format(timed_spell->time, true)
+					<< ".\r\n" << CCCYN(ch, C_NRM);
+			break;
+		default:
+			out << "Наложено неизвестное заклинание (" << timed_spell->spell << ")... Оо Соообщите Богам!\r\n";
+		}
 		return out.str();
 	}
 	else

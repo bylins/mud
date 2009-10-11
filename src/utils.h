@@ -851,6 +851,10 @@ extern SPECIAL(postmaster);
                             IS_OBJ_NOSEXY(obj) ? "о" :\
                             IS_OBJ_MALE(obj) ? ""  :\
                             IS_OBJ_FEMALE(obj) ? "а" : "ы")
+#define GET_OBJ_VIS_SUF_7(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "е" :\
+                            IS_OBJ_NOSEXY(obj) ? "е" :\
+                            IS_OBJ_MALE(obj) ? ""  :\
+                            IS_OBJ_FEMALE(obj) ? "а" : "и")
 
 #define GET_CH_EXSUF_1(ch) (IS_NOSEXY(ch) ? "им" :\
                             IS_MALE(ch) ? "им"  :\
@@ -1209,6 +1213,7 @@ const char * desc_count(int how_many, int of_what);
 #define WHAT_REMORT	19
 #define WHAT_WEEK	20
 #define WHAT_MONTH	21
+#define WHAT_WEEKu	22
 
 #undef AW_HIDE // конфликтует с winuser.h
 /* some awaking cases */
@@ -1229,7 +1234,7 @@ int awake_invis(CHAR_DATA * ch);
 int awake_camouflage(CHAR_DATA * ch);
 int awake_sneak(CHAR_DATA * ch);
 int awaking(CHAR_DATA * ch, int mode);
-std::string time_format(int timer);
+std::string time_format(int timer, int flag = 0);
 
 /* OS compatibility ******************************************************/
 
