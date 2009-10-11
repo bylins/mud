@@ -49,7 +49,7 @@ comm.o: comm.cpp conf.h sysdep.h structs.h utils.h features.hpp comm.h \
   dg_scripts.h screen.h ban.hpp diskio.h auction.h exchange.h \
   deathtrap.hpp title.hpp depot.hpp glory.hpp file_crc.hpp char.hpp \
   player_i.hpp char_player.hpp quested.hpp mobmax.hpp dps.hpp parcel.hpp \
-  spells.h
+  spells.h skills.h corpse.hpp
 config.o: config.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
   features.hpp constants.h char.hpp player_i.hpp
 constants.o: constants.cpp conf.h sysdep.h structs.h spells.h skills.h \
@@ -149,12 +149,12 @@ redit.o: redit.cpp conf.h sysdep.h structs.h comm.h utils.h features.hpp \
 oedit.o: oedit.cpp conf.h sysdep.h structs.h comm.h spells.h utils.h \
   features.hpp db.h shop.h olc.h dg_olc.h dg_scripts.h im.h depot.hpp \
   char.hpp player_i.hpp house.h interpreter.h house_exp.hpp remember.hpp \
-  skills.h parcel.hpp liquid.hpp
+  skills.h parcel.hpp liquid.hpp name_list.hpp
 zedit.o: zedit.cpp conf.h sysdep.h structs.h comm.h utils.h features.hpp \
   db.h olc.h dg_scripts.h char.hpp player_i.hpp
 medit.o: medit.cpp conf.h sysdep.h structs.h comm.h spells.h utils.h \
   features.hpp db.h shop.h olc.h handler.h dg_olc.h dg_scripts.h \
-  constants.h im.h char.hpp player_i.hpp skills.h
+  constants.h im.h char.hpp player_i.hpp skills.h name_list.hpp
 sedit.o: sedit.cpp conf.h sysdep.h structs.h comm.h utils.h features.hpp \
   db.h shop.h olc.h char.hpp player_i.hpp
 dg_comm.o: dg_comm.cpp conf.h sysdep.h structs.h dg_scripts.h utils.h \
@@ -169,13 +169,13 @@ dg_handler.o: dg_handler.cpp conf.h sysdep.h structs.h dg_scripts.h \
   char.hpp player_i.hpp
 dg_mobcmd.o: dg_mobcmd.cpp conf.h sysdep.h structs.h dg_scripts.h db.h \
   utils.h features.hpp handler.h interpreter.h comm.h spells.h im.h \
-  char.hpp player_i.hpp skills.h
+  char.hpp player_i.hpp skills.h name_list.hpp
 dg_misc.o: dg_misc.cpp conf.h sysdep.h structs.h constants.h dg_scripts.h \
   utils.h features.hpp comm.h interpreter.h handler.h dg_event.h db.h \
   screen.h spells.h char.hpp player_i.hpp
 dg_objcmd.o: dg_objcmd.cpp conf.h sysdep.h structs.h screen.h \
   dg_scripts.h utils.h features.hpp comm.h interpreter.h handler.h db.h \
-  spells.h im.h char.hpp player_i.hpp skills.h
+  spells.h im.h char.hpp player_i.hpp skills.h name_list.hpp
 dg_scripts.o: dg_scripts.cpp conf.h sysdep.h structs.h dg_scripts.h \
   utils.h features.hpp comm.h interpreter.h handler.h dg_event.h db.h \
   screen.h house.h house_exp.hpp remember.hpp constants.h top.h char.hpp \
