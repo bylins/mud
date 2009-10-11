@@ -383,12 +383,12 @@ CharmListType::iterator PlayerDpsNode::find_charmice(CHAR_DATA *ch)
 	DpsNode tmp_node(GET_ID(ch));
 	tmp_node.set_name(GET_NAME(ch));
 
-	charm_list_.push_back(tmp_node);
+	charm_list_.push_front(tmp_node);
 	if (charm_list_.size() > MAX_DPS_CHARMICE)
 	{
-		charm_list_.erase(charm_list_.begin());
+		charm_list_.pop_back();
 	}
-	return charm_list_.rbegin().base();
+	return charm_list_.begin();
 }
 
 void PlayerDpsNode::add_charm_dmg(CHAR_DATA *ch, int dmg, int over_dmg)
@@ -423,7 +423,7 @@ void PlayerDpsNode::end_charm_round(CHAR_DATA *ch)
 std::string PlayerDpsNode::print_charm_stats() const
 {
 	std::ostringstream text;
-	for (CharmListType::const_reverse_iterator it = charm_list_.rbegin(); it != charm_list_.rend(); ++it)
+	for (CharmListType::const_iterator it = charm_list_.begin(); it != charm_list_.end(); ++it)
 	{
 		text << dps_stat_format % it->get_name() % it->get_dmg()
 				% it->get_stat() % it->get_round_dmg() % it->get_over_dmg();
