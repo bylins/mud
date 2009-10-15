@@ -4176,8 +4176,8 @@ std::string obj_data::diag_timed_spell_to_char(CHAR_DATA *ch)
 					<< "." << CCCYN(ch, C_NRM) << "\r\n";
 			break;
 		case SPELL_FLY:
-			out << CCCYN(ch, C_NRM) << "Будет парить еще " << time_format(timed_spell->time, true)
-					<< ".\r\n" << CCCYN(ch, C_NRM);
+			out << CCCYN(ch, C_NRM) << "Наложено заклинание 'полет' (" << time_format(timed_spell->time, true)
+					<< ").\r\n" << CCCYN(ch, C_NRM);
 			break;
 		default:
 			out << "Наложено неизвестное заклинание (" << timed_spell->spell << ")... Оо Соообщите Богам!\r\n";
