@@ -1401,16 +1401,54 @@ class activation
 	flag_data affects;
 	obj_affected_type affected[MAX_OBJ_AFFECT];
 	int weight, ndices, nsides;
+	std::map<int, int> skills;
+
 public:
 	activation() : affects(clear_flags), weight(-1), ndices(-1), nsides(-1) {}
 
 	activation(const std::string& __actmsg, const std::string& __deactmsg,
 			   const std::string& __room_actmsg, const std::string& __room_deactmsg,
-			   const flag_data& __affects, const obj_affected_type* __affected, int __weight, int __ndices, int __nsides) :
-			actmsg(__actmsg), deactmsg(__deactmsg), room_actmsg(__room_actmsg), room_deactmsg(__room_deactmsg), affects(__affects), weight(__weight), ndices(__ndices), nsides(__nsides)
+			   const flag_data& __affects, const obj_affected_type* __affected,
+			   int __weight, int __ndices, int __nsides):
+			actmsg(__actmsg), deactmsg(__deactmsg), room_actmsg(__room_actmsg),
+			room_deactmsg(__room_deactmsg), affects(__affects), weight(__weight),
+			ndices(__ndices), nsides(__nsides)
 	{
 		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 			affected[i] = __affected[i];
+	}
+
+	bool has_skills() const
+	{
+		return !skills.empty();
+	}
+
+	/**
+	 * @warning Предполагается, что __out_skills.empty() == true.
+	 */
+	void get_skills(std::map<int, int>& __skills) const
+	{
+		__skills.insert(skills.begin(), skills.end());
+	}
+
+	activation&
+	set_skill(int __skillnum, int __percent)
+	{
+		std::map<int, int>::iterator skill = skills.find(__skillnum);
+		if (skill == skills.end())
+		{
+			if (__percent != 0)
+				skills.insert(std::make_pair(__skillnum, __percent));
+		}
+		else
+		{
+			if (__percent != 0)
+				skill->second = __percent;
+			else
+				skills.erase(skill);
+		}
+
+		return *this;
 	}
 
 	void get_dices(int& __ndices, int& __nsides) const
@@ -1662,6 +1700,17 @@ struct obj_data
 				}
 			}
 
+			// Активируем умения.
+			if (__act.has_skills())
+			{
+				// У всех объектов с умениями skills указывает на один и тот же
+				// массив. И у прототипов. Поэтому тут надо создавать новый,
+				// если нет желания "активировать" сразу все такие объекты.
+				// Умения, проставленные в сете, заменяют родные умения предмета.
+				skills = new std::map<int, int>;
+				__act.get_skills(*skills);
+			}
+
 			return __act.get_actmsg() + "\n" + __act.get_room_actmsg();
 		}
 		else
@@ -1685,6 +1734,15 @@ struct obj_data
 				obj_flags.value[2] = obj_proto[item_number]->obj_flags.value[2];
 			}
 
+			// Деактивируем умения.
+			if (__act.has_skills())
+			{
+				// При активации мы создавали новый массив с умениями. Его
+				// можно смело удалять.
+				delete skills;
+				skills = obj_proto[item_number]->skills;
+			}
+
 			return __act.get_deactmsg() + "\n" + __act.get_room_deactmsg();
 		}
 		else
@@ -1705,11 +1763,12 @@ struct obj_data
 			std::map<int, int>::iterator skill = skills->find(skill_num);
 			if (skill == skills->end())
 			{
-				(*skills)[skill_num] = percent;
+				if (percent != 0)
+					skills->insert(std::make_pair(skill_num, percent));
 			}
 			else
 			{
-				if (percent)
+				if (percent != 0)
 					skill->second = percent;
 				else
 					skills->erase(skill);
@@ -1717,13 +1776,13 @@ struct obj_data
 		}
 		else
 		{
-			if (percent)
+			if (percent != 0)
 			{
 				skills = new std::map<int, int>;
-				(*skills)[skill_num] = percent;
+				skills->insert(std::make_pair(skill_num, percent));
 			}
 		}
-	};
+	}
 
 	int get_skill(int skill_num) const
 	{
@@ -1739,24 +1798,24 @@ struct obj_data
 		{
 			return 0;
 		}
-	};
+	}
 
+	/**
+	 * @warning Предполагается, что __out_skills.empty() == true.
+	 */
 	void get_skills(std::map<int, int>& out_skills) const
 	{
 		if (skills)
-		{
-			for (std::map<int, int>::iterator it = skills->begin(); it != skills->end(); ++it)
-				out_skills[it->first] = it->second;
-		}
-	};
+			out_skills.insert(skills->begin(), skills->end());
+	}
 
-	bool has_skills()
+	bool has_skills() const
 	{
 		if (skills)
-			return skills->size() > 0;
+			return !skills->empty();
 		else
 			return false;
-	};
+	}
 
 	int get_serial_num();
 	void set_serial_num(int num);

@@ -1223,7 +1223,35 @@ void obj_data::init_set_table()
 				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
 			break;
+		case 'S':
+			if (tag == "Skll")
+			{
+				if (mode != SETSTUFF_AMSG && mode != SETSTUFF_AFFS && mode != SETSTUFF_AFCN)
+				{
+					cppstr = "init_set_table:: Wrong position of line '" + tag + ":" + cppstr + "'";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
 
+				isstream.str(cppstr);
+
+				int skillnum, percent;
+
+				if (!(isstream >> std::skipws >> skillnum >> std::skipws >> percent))
+				{
+					cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "', expected ndices and nsides";
+					mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				clss->second.set_skill(skillnum, percent);
+			}
+			else
+			{
+				cppstr = "init_set_table:: Error in line '" + tag + ":" + cppstr + "'";
+				mudlog(cppstr.c_str(), LGH, LVL_IMMORT, SYSLOG, TRUE);
+			}
+			break;
 		case 'V':
 			if (tag == "Vnum")
 			{
