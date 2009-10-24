@@ -97,7 +97,6 @@ OBJ_DATA *object_list = NULL;	/* global linked list of objs    */
 INDEX_DATA *obj_index;		/* index table for object file   */
 //OBJ_DATA *obj_proto;		/* prototypes for objs           */
 vector < OBJ_DATA * >obj_proto;
-id_to_set_info_map obj_data::set_table;
 obj_rnum top_of_objt = 0;	/* top of object index table     */
 
 struct zone_data *zone_table;	/* zone table                    */
@@ -3224,7 +3223,7 @@ char *parse_object(FILE * obj_f, int nr)
 	tobj->obj_flags.Obj_max = 100;
 	tobj->obj_flags.Obj_cur = 100;
 	tobj->obj_flags.Obj_sex = 1;
-	tobj->obj_flags.Obj_timer = SEVEN_DAYS;
+	tobj->set_timer(SEVEN_DAYS);
 	tobj->obj_flags.Obj_level = 1;
 	tobj->obj_flags.Obj_destroyer = 60;
 
@@ -3282,7 +3281,8 @@ char *parse_object(FILE * obj_f, int nr)
 		exit(1);
 	}
 	tobj->obj_flags.Obj_sex = t[0];
-	tobj->obj_flags.Obj_timer = t[1] > 0 ? t[1] : SEVEN_DAYS;
+	int timer = t[1] > 0 ? t[1] : SEVEN_DAYS;
+	tobj->set_timer(timer);
 	tobj->obj_flags.Obj_spell = t[2];
 	tobj->obj_flags.Obj_level = t[3];
 
@@ -3984,7 +3984,7 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 	if (i != -1 && zone_table[i].under_construction)
 	{
 		// модификация объектов тестовой зоны
-		GET_OBJ_TIMER(obj) = TEST_OBJECT_TIMER;
+		obj->set_timer(TEST_OBJECT_TIMER);
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOLOCATE), ITEM_NOLOCATE);
 	}
 	obj->proto_script = NULL;

@@ -1291,7 +1291,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j)
 
 	sprintf(buf,
 			"Вес: %d, Цена: %d, Рента(eq): %d, Рента(inv): %d, Таймер: %d\r\n",
-			GET_OBJ_WEIGHT(j), GET_OBJ_COST(j), GET_OBJ_RENTEQ(j), GET_OBJ_RENT(j), GET_OBJ_TIMER(j));
+			GET_OBJ_WEIGHT(j), GET_OBJ_COST(j), GET_OBJ_RENTEQ(j), GET_OBJ_RENT(j), j->get_timer());
 	send_to_char(buf, ch);
 
 	strcpy(buf, "Находится : ");

@@ -1156,10 +1156,12 @@ void exchange_point_update()
 	for (exch_item = exchange_item_list; exch_item; exch_item = next_exch_item)
 	{
 		next_exch_item = exch_item->next;
-		if (GET_OBJ_TIMER(GET_EXCHANGE_ITEM(exch_item)) > 0)
-			GET_OBJ_TIMER(GET_EXCHANGE_ITEM(exch_item))--;
+		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() > 0)
+		{
+			GET_EXCHANGE_ITEM(exch_item)->dec_timer();
+		}
 
-		if (GET_OBJ_TIMER(GET_EXCHANGE_ITEM(exch_item)) <= 0)
+		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() <= 0)
 		{
 			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
 					CAP(GET_EXCHANGE_ITEM(exch_item)->PNames[0]),
@@ -1197,14 +1199,16 @@ void clan_chest_invoice(OBJ_DATA *j)
 */
 void clan_chest_point_update(OBJ_DATA *j)
 {
-	if (GET_OBJ_TIMER(j) > 0)
-		GET_OBJ_TIMER(j)--;
+	if (j->get_timer() > 0)
+	{
+		j->dec_timer();
+	}
 
 	if ((OBJ_FLAGGED(j, ITEM_ZONEDECAY)
 			&& GET_OBJ_ZONE(j) != NOWHERE
 			&& up_obj_where(j->in_obj) != NOWHERE
 			&& GET_OBJ_ZONE(j) != world[up_obj_where(j->in_obj)]->zone)
-		|| GET_OBJ_TIMER(j) <= 0)
+		|| j->get_timer() <= 0)
 	{
 		clan_chest_invoice(j);
 		obj_from_obj(j);
@@ -1255,16 +1259,20 @@ void obj_point_update()
 				}
 			}
 
-			if (!find && GET_OBJ_TIMER(j) > 0)
-				GET_OBJ_TIMER(j)--;
+			if (!find && j->get_timer() > 0)
+			{
+				j->dec_timer();
+			}
 		}
 
 		/* If this is a corpse */
 		if (IS_CORPSE(j))  	/* timer count down */
 		{
-			if (GET_OBJ_TIMER(j) > 0)
-				GET_OBJ_TIMER(j)--;
-			if (GET_OBJ_TIMER(j) <= 0)
+			if (j->get_timer() > 0)
+			{
+				j->dec_timer();
+			}
+			if (j->get_timer() <= 0)
 			{
 				for (jj = j->contains; jj; jj = next_thing2)
 				{
@@ -1314,9 +1322,11 @@ void obj_point_update()
 		{
 			if (SCRIPT_CHECK(j, OTRIG_TIMER))
 			{
-				if (GET_OBJ_TIMER(j) > 0 && OBJ_FLAGGED(j, ITEM_TICKTIMER))
-					GET_OBJ_TIMER(j)--;
-				if (!GET_OBJ_TIMER(j))
+				if (j->get_timer() > 0 && OBJ_FLAGGED(j, ITEM_TICKTIMER))
+				{
+					j->dec_timer();
+				}
+				if (!j->get_timer())
 				{
 					timer_otrigger(j);
 					j = NULL;
@@ -1325,10 +1335,18 @@ void obj_point_update()
 			else if (GET_OBJ_DESTROY(j) > 0 && !NO_DESTROY(j))
 				GET_OBJ_DESTROY(j)--;
 
-			if (j && (j->in_room != NOWHERE) && GET_OBJ_TIMER(j) > 0 && !NO_DESTROY(j))
-				GET_OBJ_TIMER(j)--;
+			if (j && (j->in_room != NOWHERE) && j->get_timer() > 0 && !NO_DESTROY(j))
+			{
+				j->dec_timer();
+			}
 
-			if (j && ((OBJ_FLAGGED(j, ITEM_ZONEDECAY) && GET_OBJ_ZONE(j) != NOWHERE && up_obj_where(j) != NOWHERE && GET_OBJ_ZONE(j) != world[up_obj_where(j)]->zone) || (GET_OBJ_TIMER(j) <= 0 && !NO_TIMER(j)) || (GET_OBJ_DESTROY(j) == 0 && !NO_DESTROY(j))))
+			if (j && (
+					(OBJ_FLAGGED(j, ITEM_ZONEDECAY)
+					&& GET_OBJ_ZONE(j) != NOWHERE
+					&& up_obj_where(j) != NOWHERE
+					&& GET_OBJ_ZONE(j) != world[up_obj_where(j)]->zone)
+					|| (j->get_timer() <= 0 && !NO_TIMER(j))
+					|| (GET_OBJ_DESTROY(j) == 0 && !NO_DESTROY(j))))
 			{
 				/**** рассыпание обьекта */
 				for (jj = j->contains; jj; jj = next_thing2)
@@ -1409,7 +1427,6 @@ void obj_point_update()
 						}
 					}
 				}
-				j->update_timed_spell();
 			}
 		}
 	}

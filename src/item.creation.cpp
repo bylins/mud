@@ -880,14 +880,15 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 		case 3:
 		case 4:
 		case 11:
-//Polos.smith_craft_timer_up (max 3 weeks)
-			//GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, MIN(SEVEN_DAYS * 3, SEVEN_DAYS * prob / percent));
-//-Polos.smith_craft_timer_up
+		{
 			// Карачун. Таймер должен зависить от таймера прототипа.
 			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 			// В минимуме один день реала, в максимуме таймер из прототипа
-			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, GET_OBJ_TIMER(tobj) / 100 * ch->get_skill(skill) - number(0, GET_OBJ_TIMER(tobj) / 100 * 25));
-			sprintf(buf, "Ваше изделие продержится примерно %d дней\n", GET_OBJ_TIMER(tobj) / 24 / 60);
+			int timer = MAX(ONE_DAY,
+					tobj->get_timer() / 100 * ch->get_skill(skill)
+							- number(0, tobj->get_timer() / 100 * 25));
+			tobj->set_timer(timer);
+			sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
 			act(buf, FALSE, ch, tobj, 0, TO_CHAR);
 			GET_OBJ_MATER(tobj) = GET_OBJ_MATER(obj);
 			// Карачун. Так логичнее.
@@ -928,9 +929,10 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 				to_char = "Вы смастерили $o3.";
 			}
 			break;
+		}
 		case 5:	/* mages weapon */
 		case 6:
-			GET_OBJ_TIMER(tobj) = ONE_DAY;
+			tobj->set_timer(ONE_DAY);
 			GET_OBJ_MAX(tobj) = 50;
 			GET_OBJ_CUR(tobj) = 50;
 			ndice = MAX(2, MIN(4, GET_LEVEL(ch) / number(6, 8)));
@@ -950,14 +952,15 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 		case 8:
 		case 9:
 		case 10:
-//Polos.smith_craft_timer_up (max 3 weeks)
-			//GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, MIN(SEVEN_DAYS * 3, SEVEN_DAYS * prob / percent));
-//-Polos.smith_craft_timer_up
+		{
 			// Карачун. Таймер должен зависить от таймера прототипа.
 			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 			// В минимуме один день реала, в максимуме таймер из прототипа
-			GET_OBJ_TIMER(tobj) = MAX(ONE_DAY, GET_OBJ_TIMER(tobj) / 100 * ch->get_skill(skill) - number(0, GET_OBJ_TIMER(tobj) / 100 * 25));
-			sprintf(buf, "Ваше изделие продержится примерно %d дней\n", GET_OBJ_TIMER(tobj) / 24 / 60);
+			int timer = MAX(ONE_DAY,
+					tobj->get_timer() / 100 * ch->get_skill(skill)
+							- number(0, tobj->get_timer() / 100 * 25));
+			tobj->set_timer(timer);
+			sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
 			act(buf, FALSE, ch, tobj, 0, TO_CHAR);
 			GET_OBJ_MATER(tobj) = GET_OBJ_MATER(obj);
 			// Карачун. Так логичнее.
@@ -979,6 +982,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 			to_char = "Вы выковали $o3.";
 			break;
 		}
+		} // switch
 		if (to_char)
 			act(to_char, FALSE, ch, tobj, 0, TO_CHAR);
 		if (to_room)
@@ -2066,11 +2070,8 @@ int MakeRecept::make(CHAR_DATA * ch)
 //  sprintf(tmpbuf,"Вес: %d %d\r\n", i, GET_OBJ_WEIGHT(obj));
 //  send_to_char(tmpbuf,ch);
 
-	i = GET_OBJ_TIMER(obj);
-	GET_OBJ_TIMER(obj) = stat_modify(ch, GET_OBJ_TIMER(obj), 1);
-
-//  sprintf(tmpbuf,"Таймер: %d %d\r\n", i, GET_OBJ_TIMER(obj));
-//  send_to_char(tmpbuf,ch);
+	i = obj->get_timer();
+	obj->set_timer(stat_modify(ch, obj->get_timer(), 1));
 
 	// Модифицируем уникальные для предметов х-ки.
 

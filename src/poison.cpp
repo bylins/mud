@@ -362,27 +362,27 @@ void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, OBJ_DATA *wielded)
 		|| (!GET_AF_BATTLE(vict, EAF_FIRST_POISON) && !AFF_FLAGGED(vict, AFF_POISON)))
 	{
 		improove_skill(ch, SKILL_POISONED, TRUE, vict);
-		if (weap_poison_vict(ch, vict, wielded->get_timed_spell()))
+		if (weap_poison_vict(ch, vict, wielded->timed_spell.get()))
 		{
-			if (wielded->get_timed_spell() == SPELL_ACONITUM_POISON)
+			if (wielded->timed_spell.get() == SPELL_ACONITUM_POISON)
 			{
 				send_to_char(ch, "Кровоточащие язвы покрыли тело %s.\r\n", PERS(vict, ch, 1));
 			}
-			else if (wielded->get_timed_spell() == SPELL_SCOPOLIA_POISON)
+			else if (wielded->timed_spell.get() == SPELL_SCOPOLIA_POISON)
 			{
 				strcpy(buf1, PERS(vict, ch, 0));
 				CAP(buf1);
 				send_to_char(ch, "%s скрючил%s от нестерпимой боли.\r\n", buf1, GET_CH_VIS_SUF_2(vict, ch));
 				SET_AF_BATTLE(vict, EAF_FIRST_POISON);
 			}
-			else if (wielded->get_timed_spell() == SPELL_BELENA_POISON)
+			else if (wielded->timed_spell.get() == SPELL_BELENA_POISON)
 			{
 				strcpy(buf1, PERS(vict, ch, 3));
 				CAP(buf1);
 				send_to_char(ch, "%s перестали слушаться руки.\r\n", buf1);
 				SET_AF_BATTLE(vict, EAF_FIRST_POISON);
 			}
-			else if (wielded->get_timed_spell() == SPELL_DATURA_POISON)
+			else if (wielded->timed_spell.get() == SPELL_DATURA_POISON)
 			{
 				strcpy(buf1, PERS(vict, ch, 2));
 				CAP(buf1);
@@ -395,7 +395,7 @@ void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, OBJ_DATA *wielded)
 			}
 			send_to_char(vict, "%s%s отравил%s Вас.%s\r\n",
 					CCIRED(ch, C_NRM), PERS(ch, vict, 0), GET_CH_VIS_SUF_1(ch, vict), CCNRM(ch, C_NRM));
-			weap_crit_poison(ch, vict, wielded->get_timed_spell());
+			weap_crit_poison(ch, vict, wielded->timed_spell.get());
 		}
 	}
 }
@@ -420,14 +420,15 @@ bool poison_in_vessel(int liquid_num)
 */
 void set_weap_poison(OBJ_DATA *weapon, int liquid_num)
 {
+	const int poison_timer = 30;
 	if (liquid_num == LIQ_POISON_ACONITUM)
-		weapon->set_timed_spell(SPELL_ACONITUM_POISON);
+		weapon->timed_spell.set(SPELL_ACONITUM_POISON, poison_timer);
 	else if (liquid_num == LIQ_POISON_SCOPOLIA)
-		weapon->set_timed_spell(SPELL_SCOPOLIA_POISON);
+		weapon->timed_spell.set(SPELL_SCOPOLIA_POISON, poison_timer);
 	else if (liquid_num == LIQ_POISON_BELENA)
-		weapon->set_timed_spell(SPELL_BELENA_POISON);
+		weapon->timed_spell.set(SPELL_BELENA_POISON, poison_timer);
 	else if (liquid_num == LIQ_POISON_DATURA)
-		weapon->set_timed_spell(SPELL_DATURA_POISON);
+		weapon->timed_spell.set(SPELL_DATURA_POISON, poison_timer);
 	else
 		log("SYSERROR: liquid_num == %d (%s %s %d)", liquid_num, __FILE__, __func__, __LINE__);
 }

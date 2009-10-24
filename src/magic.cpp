@@ -4280,7 +4280,9 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		obj->affected[1].location = APPLY_DAMROLL;
 		obj->affected[1].modifier = 1 + (WAITLESS(ch) ? 3 : (level >= 20));
 		if (!WAITLESS(ch))
-			GET_OBJ_TIMER(obj) = MAX(GET_OBJ_TIMER(obj), 4 * 24 * 60);
+		{
+			obj->set_timer(MAX(obj->get_timer(), 4 * 24 * 60));
+		}
 		if (GET_RELIGION(ch) == RELIGION_MONO)
 			to_char = "$o вспыхнул$G на миг голубым светом и тут же потух$Q.";
 		else if (GET_RELIGION(ch) == RELIGION_POLY)
@@ -4298,7 +4300,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		}
 		break;
 	case SPELL_FLY:
-		obj->set_timed_spell(SPELL_FLY, 60 * 24 * 3);
+		obj->timed_spell.set(SPELL_FLY, 60 * 24 * 3);
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
 		to_char = "$o вспыхнул$G зеленоватым светом и тут же погас$Q.";
@@ -4314,7 +4316,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		if (GET_OBJ_RNUM(obj) != NOTHING)
 		{
 			GET_OBJ_CUR(obj) = GET_OBJ_MAX(obj);
-			GET_OBJ_TIMER(obj) = GET_OBJ_TIMER(obj_proto.at(GET_OBJ_RNUM(obj)));
+			obj->set_timer(obj_proto.at(GET_OBJ_RNUM(obj))->get_timer());
 			to_char = "Вы полностью восстановили $o3.";
 			log("%s used magic repair", GET_NAME(ch));
 		}

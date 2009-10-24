@@ -2474,9 +2474,11 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument)
 
 	if (OBJ_FLAGGED(obj, ITEM_TIMEDLVL))
 	{
-		level -=
-			level * (GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(obj)]) -
-					 GET_OBJ_TIMER(obj)) / GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(obj)]);
+		int proto_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
+		if (proto_timer != 0)
+		{
+			level -= level * (proto_timer - obj->get_timer()) / proto_timer;
+		}
 	}
 
 	switch (GET_OBJ_TYPE(obj))

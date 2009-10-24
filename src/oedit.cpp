@@ -559,7 +559,7 @@ void oedit_save_to_disk(int zone_num)
 					buf1,
 					GET_OBJ_SKILL(obj), GET_OBJ_MAX(obj), GET_OBJ_CUR(obj),
 					GET_OBJ_MATER(obj), GET_OBJ_SEX(obj),
-					GET_OBJ_TIMER(obj), GET_OBJ_SPELL(obj),
+					obj->get_timer(), GET_OBJ_SPELL(obj),
 					GET_OBJ_LEVEL(obj), buf2, GET_OBJ_VAL(obj, 0),
 					GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 					GET_OBJ_VAL(obj, 3), GET_OBJ_WEIGHT(obj),
@@ -1459,7 +1459,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, nrm, cyn, GET_OBJ_MAX(obj),
 			grn, nrm, cyn, GET_OBJ_CUR(obj),
 			grn, nrm, cyn, material_name[GET_OBJ_MATER(obj)],
-			grn, nrm, cyn, GET_OBJ_TIMER(obj),
+			grn, nrm, cyn, obj->get_timer(),
 			grn, nrm, cyn, GET_OBJ_SKILL(obj),
 			grn, nrm, cyn,
 			GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
@@ -1920,7 +1920,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case OEDIT_TIMER:
-		GET_OBJ_TIMER(OLC_OBJ(d)) = atoi(arg);
+		OLC_OBJ(d)->set_timer(atoi(arg));
 		break;
 
 	case OEDIT_SKILL:

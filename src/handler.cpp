@@ -1298,7 +1298,7 @@ void restore_object(OBJ_DATA * obj, CHAR_DATA * ch)
 		GET_OBJ_MAX(obj) = GET_OBJ_MAX(obj_proto[i]);
 		GET_OBJ_CUR(obj) = 1;
 		GET_OBJ_WEIGHT(obj) = GET_OBJ_WEIGHT(obj_proto[i]);
-		GET_OBJ_TIMER(obj) = 24 * 60;
+		obj->set_timer(24 * 60);
 		obj->obj_flags.extra_flags = obj_proto[i]->obj_flags.extra_flags;
 		obj->obj_flags.affects = obj_proto[i]->obj_flags.affects;
 		GET_OBJ_WEAR(obj) = GET_OBJ_WEAR(obj_proto[i]);
@@ -1417,7 +1417,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			// Контроль уникальности предметов
 			if (object && // Объект существует
 					GET_OBJ_UID(object) != 0 && // Есть UID
-					GET_OBJ_TIMER(object) > 0) // Целенький
+					object->get_timer() > 0) // Целенький
 			{
 				tuid = GET_OBJ_UID(object);
 				inworld = 1;
@@ -1425,7 +1425,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 				for (i = object_list; i; i = i->next)
 				{
 					if (GET_OBJ_UID(i) == tuid && // UID совпадает
-							GET_OBJ_TIMER(i) > 0 && // Целенький
+							i->get_timer() > 0 && // Целенький
 							object != i && // Не оно же
 							GET_OBJ_VNUM(i) == GET_OBJ_VNUM(object))   // Для верности
 					{
@@ -1439,7 +1439,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 					// Удаление предмета
 					act("$o0 замигал$Q и Вы увидели медленно проступившие руны 'DUPE'.", FALSE, ch, object, 0, TO_CHAR);
-					GET_OBJ_TIMER(object) = 0; // Хана предмету, развалится на тике
+					object->set_timer(0); // Хана предмету, развалится на тике
 					SET_BIT(GET_OBJ_EXTRA(object, ITEM_NOSELL), ITEM_NOSELL); // Ибо нефиг
 				}
 			} // Назначаем UID
@@ -2531,8 +2531,10 @@ void extract_obj(OBJ_DATA * obj)
 void update_object(OBJ_DATA * obj, int use)
 {
 	/* dont update objects with a timer trigger */
-	if (!SCRIPT_CHECK(obj, OTRIG_TIMER) && GET_OBJ_TIMER(obj) > 0 && OBJ_FLAGGED(obj, ITEM_TICKTIMER))
-		GET_OBJ_TIMER(obj) -= use;
+	if (!SCRIPT_CHECK(obj, OTRIG_TIMER) && obj->get_timer() > 0 && OBJ_FLAGGED(obj, ITEM_TICKTIMER))
+	{
+		obj->dec_timer(use);
+	}
 	if (obj->contains)
 		update_object(obj->contains, use);
 	if (obj->next_content)
@@ -3349,7 +3351,7 @@ OBJ_DATA *create_money(int amount)
 	GET_OBJ_COST(obj) = amount;
 	GET_OBJ_MAX(obj) = 100;
 	GET_OBJ_CUR(obj) = 100;
-	GET_OBJ_TIMER(obj) = 24 * 60 * 7;
+	obj->set_timer(24 * 60 * 7);
 	GET_OBJ_WEIGHT(obj) = 1;
 	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NODONATE), ITEM_NODONATE);
 	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
@@ -4096,9 +4098,6 @@ int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect)
 	return result;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// TODO: перенести в свой файл и скорее всего вынести в отдельный класс все по timed_spell
-
 /**
 * Берется минимальная цена ренты шмотки, не важно, одетая она будет или снятая.
 */
@@ -4107,125 +4106,3 @@ int get_object_low_rent(OBJ_DATA *obj)
 	int rent = GET_OBJ_RENT(obj) > GET_OBJ_RENTEQ(obj) ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj);
 	return rent;
 }
-
-/**
-* Тик доп.спелла на шмотке (раз в минуту).
-*/
-void obj_data::update_timed_spell()
-{
-	if (timed_spell)
-	{
-		--(timed_spell->time);
-		if (timed_spell->time <= 0)
-		{
-			if (carried_by || worn_by)
-			{
-				CHAR_DATA *ch = carried_by ? carried_by : worn_by;
-				switch (timed_spell->spell)
-				{
-				case SPELL_ACONITUM_POISON:
-				case SPELL_SCOPOLIA_POISON:
-				case SPELL_BELENA_POISON:
-				case SPELL_DATURA_POISON:
-					send_to_char(ch, "С %s испарились последние капельки яда.\r\n", GET_OBJ_PNAME(this, 1));
-					break;
-				case SPELL_FLY:
-					REMOVE_BIT(GET_OBJ_EXTRA(this, ITEM_FLYING), ITEM_FLYING);
-					REMOVE_BIT(GET_OBJ_EXTRA(this, ITEM_SWIMMING), ITEM_SWIMMING);
-					send_to_char(ch, "Ваш%s %s перестал%s парить.\r\n", GET_OBJ_VIS_SUF_7(this, ch),
-							GET_OBJ_PNAME(this, 0), GET_OBJ_VIS_SUF_1(this, ch));
-					break;
-				default:
-					send_to_char(ch, "С %s что-то исчезло (%d)... Оо Сообщите Богам!\r\n",
-							timed_spell->spell, GET_OBJ_PNAME(this, 1));
-				}
-			}
-			delete timed_spell;
-			timed_spell = 0;
-		}
-	}
-}
-
-/**
-* Сет доп.спела с таймером на шмотку.
-* Параметр времени только для лоада из файла, по дефолту 30 минут.
-*/
-void obj_data::set_timed_spell(int spell, int time)
-{
-	timed_spell = new obj_timed_spell_type;
-	timed_spell->time = time;
-	timed_spell->spell = spell;
-}
-
-/**
-* Вывод оставшегося времени яда на пушке при осмотре.
-*/
-std::string obj_data::diag_timed_spell_to_char(CHAR_DATA *ch)
-{
-	if (timed_spell)
-	{
-		std::stringstream out;
-		switch (timed_spell->spell)
-		{
-		case SPELL_ACONITUM_POISON:
-		case SPELL_SCOPOLIA_POISON:
-		case SPELL_BELENA_POISON:
-		case SPELL_DATURA_POISON:
-			out << CCGRN(ch, C_NRM) << "Отравлено " << get_poison_by_spell(timed_spell->spell)
-					<< " еще " << timed_spell->time << " " << desc_count(timed_spell->time, WHAT_MINu)
-					<< "." << CCCYN(ch, C_NRM) << "\r\n";
-			break;
-		case SPELL_FLY:
-			out << CCCYN(ch, C_NRM) << "Наложено заклинание 'полет' (" << time_format(timed_spell->time, true)
-					<< ").\r\n" << CCCYN(ch, C_NRM);
-			break;
-		default:
-			out << "Наложено неизвестное заклинание (" << timed_spell->spell << ")... Оо Соообщите Богам!\r\n";
-		}
-		return out.str();
-	}
-	else
-		return "";
-}
-
-bool obj_data::is_spell_poisoned()
-{
-	if (timed_spell && check_poison(timed_spell->spell))
-	{
-		return true;
-	}
-	else
-		return false;
-}
-
-/**
-* Для сейва обкаста.
-*/
-bool obj_data::has_timed_spell()
-{
-	if (timed_spell)
-		return true;
-	else
-		return false;
-}
-
-/**
-* Сохранение строки в файл.
-*/
-std::string obj_data::print_timed_spell()
-{
-	std::stringstream out;
-	if (timed_spell)
-		out << "TSpl: " << timed_spell->spell << " " << timed_spell->time << "~\n";
-	return out.str();
-}
-
-int obj_data::get_timed_spell()
-{
-	if (timed_spell)
-		return timed_spell->spell;
-	else
-		return -1;
-}
-
-////////////////////////////////////////////////////////////////////////////////

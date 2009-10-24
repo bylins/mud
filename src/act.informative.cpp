@@ -311,13 +311,13 @@ char *diag_timer_to_char(OBJ_DATA * obj)
 	*out_str = 0;
 	if (GET_OBJ_RNUM(obj) != NOTHING)
 	{
-		int prot_timer = GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(obj)]);
+		int prot_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
 		if (!prot_timer)
 		{
 			sprintf(out_str, "Состояние: прототип предмета имеет нулевой таймер!\r\n");
 			return (out_str);
 		}
-		int tm = (GET_OBJ_TIMER(obj) * 100 / prot_timer);
+		int tm = (obj->get_timer() * 100 / prot_timer);
 		if (tm < 20)
 			sprintf(out_str, "Состояние: ужасно.\r\n");
 		else if (tm < 40)
@@ -414,7 +414,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 			}
 			else
 			{
-				if (object->is_spell_poisoned())
+				if (object->timed_spell.is_spell_poisoned())
 					sprintf(buf2, " %s*%s%s", CCGRN(ch, C_NRM), CCCYN(ch, C_NRM), diag_obj_to_char(ch, object, 1));
 				else
 					sprintf(buf2, " %s", diag_obj_to_char(ch, object, 1));
@@ -487,7 +487,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		strcat(buf, diag_weapon_to_char(object, TRUE));
 		strcat(buf, diag_timer_to_char(object));
 		strcat(buf, diag_uses_to_char(object, ch));
-		strcat(buf, object->diag_timed_spell_to_char(ch).c_str());
+		strcat(buf, object->timed_spell.diag_to_char(ch).c_str());
 	}
 	page_string(ch->desc, buf, TRUE);
 	return 0;

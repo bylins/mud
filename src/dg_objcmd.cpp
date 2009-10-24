@@ -260,7 +260,9 @@ OCMD(do_otimer)
 	else if (!isdigit(*arg))
 		obj_log(obj, "otimer: bad argument");
 	else
-		GET_OBJ_TIMER(obj) = atoi(arg);
+	{
+		obj->set_timer(atoi(arg));
+	}
 }
 
 
@@ -317,8 +319,8 @@ OCMD(do_otransform)
 		o->worn_on = tmpobj.worn_on;
 		obj->in_obj = o->in_obj;
 		o->in_obj = tmpobj.in_obj;
-		obj->obj_flags.Obj_timer = o->obj_flags.Obj_timer;
-		o->obj_flags.Obj_timer = tmpobj.obj_flags.Obj_timer;
+		obj->set_timer(o->get_timer());
+		o->set_timer(tmpobj.get_timer());
 		obj->contains = o->contains;
 		o->contains = tmpobj.contains;
 		obj->id = o->id;

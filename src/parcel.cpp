@@ -552,7 +552,7 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
 			GET_OBJ_COST(obj) = 1;
 			GET_OBJ_RENT(obj) = 1;
 			GET_OBJ_RENTEQ(obj) = 1;
-			GET_OBJ_TIMER(obj) = 24 * 60;
+			obj->set_timer(24 * 60);
 			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
 			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_DECAY), ITEM_DECAY);
 			fill_ex_desc(ch, obj, name);
@@ -833,8 +833,8 @@ void update_timers()
 				tmp_it = it3;
 				++tmp_it;
 
-				--GET_OBJ_TIMER(it3->obj_);
-				if (GET_OBJ_TIMER(it3->obj_) <= 0)
+				it3->obj_->dec_timer();
+				if (it3->obj_->get_timer() <= 0)
 				{
 					extract_parcel(it2->first, it->first, it3);
 					it2->second.erase(it3);
@@ -844,8 +844,8 @@ void update_timers()
 					if (it3->timer_ == RETURNED_TIMER)
 					{
 						// шмотка уже развернута отправителю, рента не капает, но таймер идет два раза
-						--GET_OBJ_TIMER(it3->obj_);
-						if (GET_OBJ_TIMER(it3->obj_) <= 0)
+						it3->obj_->dec_timer();
+						if (it3->obj_->get_timer() <= 0)
 						{
 							extract_parcel(it2->first, it->first, it3);
 							it2->second.erase(it3);

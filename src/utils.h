@@ -908,7 +908,6 @@ extern SPECIAL(postmaster);
 #define GET_OBJ_PARENT(obj)      ((obj)->obj_flags.Obj_parent)
 #define GET_OBJ_VAL(obj, val) ((obj)->obj_flags.value[(val)])
 #define GET_OBJ_WEIGHT(obj)   ((obj)->obj_flags.weight)
-#define GET_OBJ_TIMER(obj) ((obj)->obj_flags.Obj_timer)
 #define GET_OBJ_DESTROY(obj) ((obj)->obj_flags.Obj_destroyer)
 #define GET_OBJ_SKILL(obj) ((obj)->obj_flags.Obj_skill)
 #define GET_OBJ_CUR(obj)    ((obj)->obj_flags.Obj_cur)

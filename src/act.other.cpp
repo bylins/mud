@@ -2794,7 +2794,9 @@ void break_inst(CHAR_DATA *ch)
 				}
 			}
 			else
-				GET_OBJ_TIMER(GET_EQ(ch, i)) = 0;
+			{
+				GET_EQ(ch, i)->set_timer(0);
+			}
 			if (GET_OBJ_CUR(GET_EQ(ch, i)) <= 1 && number(1, 3) == 1)
 			{
 				sprintf(buf, "Ваша %s трескается!\r\n", GET_EQ(ch, i)->name);
@@ -3283,9 +3285,15 @@ ACMD(do_insertgem)
 	act(buf, FALSE, ch, 0, 0, TO_ROOM);
 
 	if (GET_OBJ_OWNER(itemobj) == GET_UNIQUE(ch))
-		GET_OBJ_TIMER(itemobj) += GET_OBJ_TIMER(itemobj) / 100 * insgem_vars.timer_plus_percent;
+	{
+		int timer = itemobj->get_timer() + itemobj->get_timer() / 100 * insgem_vars.timer_plus_percent;
+		itemobj->set_timer(timer);
+	}
 	else
-		GET_OBJ_TIMER(itemobj) -= GET_OBJ_TIMER(itemobj) / 100 * insgem_vars.timer_minus_percent;
+	{
+		int timer = itemobj->get_timer() - itemobj->get_timer() / 100 * insgem_vars.timer_minus_percent;
+		itemobj->set_timer(timer);
+	}
 
 	if (GET_OBJ_MATER(gemobj) == 18)
 	{

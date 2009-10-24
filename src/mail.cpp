@@ -650,7 +650,7 @@ void postmaster_receive_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char 
 		GET_OBJ_WEIGHT(obj) = 1;
 		GET_OBJ_COST(obj) = 30;
 		GET_OBJ_RENT(obj) = 10;
-		GET_OBJ_TIMER(obj) = 24 * 60;
+		obj->set_timer(24 * 60);
 		obj->action_description = read_delete(GET_IDNUM(ch));
 
 		if (obj->action_description == NULL)

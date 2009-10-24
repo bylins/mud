@@ -528,13 +528,3 @@ void Character::set_serial_num(int num)
 {
 	serial_num_ = num;
 }
-
-int obj_data::get_serial_num()
-{
-	return serial_num_;
-}
-
-void obj_data::set_serial_num(int num)
-{
-	serial_num_ = num;
-}

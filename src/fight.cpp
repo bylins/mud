@@ -2153,7 +2153,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 		}
 	}
 	// отравленные пушки
-	else if (dam && wielded && wielded->is_spell_poisoned() && ch->get_skill(SKILL_POISONED))
+	else if (dam && wielded && wielded->timed_spell.is_spell_poisoned() && ch->get_skill(SKILL_POISONED))
 	{
 		try_weap_poison(ch, victim, wielded);
 	}

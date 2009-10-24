@@ -597,8 +597,10 @@ void CharNode::add_cost_per_day(OBJ_DATA *obj)
 void write_objlist_timedata(const ObjListType &cont, std::stringstream &out)
 {
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
-		out << GET_OBJ_VNUM(*obj_it) << " " << GET_OBJ_TIMER(*obj_it) << " "
+	{
+		out << GET_OBJ_VNUM(*obj_it) << " " << (*obj_it)->get_timer() << " "
 			<< get_object_low_rent(*obj_it) << " " << GET_OBJ_UID(*obj_it) << "\n";
+	}
 }
 
 /**
@@ -718,8 +720,8 @@ void CharNode::update_online_item()
 {
 	for (ObjListType::iterator obj_it = pers_online.begin(); obj_it != pers_online.end();)
 	{
-		GET_OBJ_TIMER(*obj_it)--;
-		if (GET_OBJ_TIMER(*obj_it) <= 0)
+		(*obj_it)->dec_timer();
+		if ((*obj_it)->get_timer() <= 0)
 		{
 			if (ch)
 			{
@@ -1347,7 +1349,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 			if (obj_it != offline_list.end() && obj_it->vnum == GET_OBJ_VNUM(obj))
 			{
 				depot_log("load object %s %d %d", obj->short_description, GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
-				GET_OBJ_TIMER(obj) = obj_it->timer;
+				obj->set_timer(obj_it->timer);
 				// надо уменьшать макс в мире на постое, макс в мире шмотки в игре
 				// увеличивается в read_one_object_new через read_object
 				int rnum = real_object(GET_OBJ_VNUM(obj));
@@ -1433,7 +1435,7 @@ void CharNode::online_to_offline(ObjListType &cont)
 		depot_log("online_to_offline %s: %s %d %d", name.c_str(), (*obj_it)->short_description, GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
 		OfflineNode tmp_obj;
 		tmp_obj.vnum = GET_OBJ_VNUM(*obj_it);
-		tmp_obj.timer = GET_OBJ_TIMER(*obj_it);
+		tmp_obj.timer = (*obj_it)->get_timer();
 		tmp_obj.rent_cost = get_object_low_rent(*obj_it);
 		tmp_obj.uid = GET_OBJ_UID(*obj_it);
 		offline_list.push_back(tmp_obj);

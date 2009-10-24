@@ -2668,7 +2668,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			else if (!str_cmp(field, "type"))
 				sprintf(str, "%d", (int) GET_OBJ_TYPE(o));
 			else if (!str_cmp(field, "timer"))
-				sprintf(str, "%d", GET_OBJ_TIMER(o));
+				sprintf(str, "%d", o->get_timer());
 			else if (!str_cmp(field, "val0"))
 				sprintf(str, "%d", GET_OBJ_VAL(o, 0));
 			else if (!str_cmp(field, "val1"))

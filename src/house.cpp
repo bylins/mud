@@ -3814,12 +3814,12 @@ ACMD(DoStoreHouse)
 				// таймер
 				if (filter.state >= 0)
 				{
-					if (!GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(temp_obj)]))
+					if (!obj_proto[GET_OBJ_RNUM(temp_obj)]->get_timer())
 					{
 						send_to_char("Нулевой таймер прототипа, сообщите Богам!", ch);
 						return;
 					}
-					int tm = (GET_OBJ_TIMER(temp_obj) * 100 / GET_OBJ_TIMER(obj_proto[GET_OBJ_RNUM(temp_obj)]));
+					int tm = (temp_obj->get_timer() * 100 / obj_proto[GET_OBJ_RNUM(temp_obj)]->get_timer());
 					if ((tm + 1) < filter.state || (tm + 1) > (filter.state + 20))
 						continue;
 				}

@@ -282,7 +282,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Tmer"))
 			{
 				*error = 20;
-				GET_OBJ_TIMER(object) = atoi(buffer);
+				object->set_timer(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Spll"))
 			{
@@ -451,7 +451,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			{
 				*error = 49;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->set_timed_spell(t[0], t[1]);
+				object->timed_spell.set(t[0], t[1]);
 			}
 			else
 			{
@@ -551,7 +551,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	if (!get_buf_line(data, buffer) || sscanf(buffer, " %d %d %d %d", t, t + 1, t + 2, t + 3) != 4)
 		return (object);
 	GET_OBJ_SEX(object) = t[0];
-	GET_OBJ_TIMER(object) = t[1];
+	object->set_timer(t[1]);
 	GET_OBJ_SPELL(object) = t[2];
 	GET_OBJ_LEVEL(object) = t[3];
 
@@ -770,8 +770,8 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 		if (GET_OBJ_SEX(object) != GET_OBJ_SEX(proto))
 			count += sprintf(*data + count, "Sexx: %d~\n", GET_OBJ_SEX(object));
 		// Таймер
-		if (GET_OBJ_TIMER(object) != GET_OBJ_TIMER(proto))
-			count += sprintf(*data + count, "Tmer: %d~\n", GET_OBJ_TIMER(object));
+		if (object->get_timer() != proto->get_timer())
+			count += sprintf(*data + count, "Tmer: %d~\n", object->get_timer());
 		// Вызываемое заклинание
 		if (GET_OBJ_SPELL(object) != GET_OBJ_SPELL(proto))
 			count += sprintf(*data + count, "Spll: %d~\n", GET_OBJ_SPELL(object));
@@ -892,8 +892,8 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 		if (GET_OBJ_SEX(object))
 			count += sprintf(*data + count, "Sexx: %d~\n", GET_OBJ_SEX(object));
 		// Таймер
-		if (GET_OBJ_TIMER(object))
-			count += sprintf(*data + count, "Tmer: %d~\n", GET_OBJ_TIMER(object));
+		if (object->get_timer())
+			count += sprintf(*data + count, "Tmer: %d~\n", object->get_timer());
 		// Вызываемое заклинание
 		if (GET_OBJ_SPELL(object))
 			count += sprintf(*data + count, "Spll: %d~\n", GET_OBJ_SPELL(object));
@@ -961,88 +961,14 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 							 descr->description ? descr->description : "");
 	}
 	// обкаст (если он есть) сохраняется в любом случае независимо от прототипа
-	if (object->has_timed_spell())
+	if (!object->timed_spell.empty())
 	{
-		count += sprintf(*data + count, "%s", object->print_timed_spell().c_str());
+		count += sprintf(*data + count, "%s", object->timed_spell.print().c_str());
 	}
 
 	*data += count;
 	**data = '\0';
 }
-
-// Данная процедура помещает предмет в буфер [ВНИМАНИЕ С 10.12.04 ИСПОЛЬЗУЕТСЯ ДРУГОЙ ЕЕ ВАРИАНТ]
-/*
-void
-write_one_object (char **data, OBJ_DATA * object, int location)
-{
-  char buf[MAX_STRING_LENGTH];
-  EXTRA_DESCR_DATA *descr;
-  int count = 0, i, j;
-
-  count += sprintf (*data + count, "#%d\n", GET_OBJ_VNUM (object));
-  if (GET_OBJ_VNUM (object) < 0)
-    {				// Предмет не имеет прототипа
-      // Алиасы
-      count += sprintf (*data + count, "%s~\n", GET_OBJ_ALIAS (object));
-      // Падежи
-      for (i = 0; i < NUM_PADS; i++)
-	count += sprintf (*data + count, "%s~\n", GET_OBJ_PNAME (object, i));
-      // Описание когда на земле
-      count += sprintf (*data + count, "%s~\n",
-			GET_OBJ_DESC (object) ? GET_OBJ_DESC (object) : "");
-      // Описание при действии
-      count += sprintf (*data + count, "%s~\n",
-			GET_OBJ_ACT (object) ? GET_OBJ_ACT (object) : "");
-    }
-
-  count += sprintf (*data + count, "%d %d %d %d\n",
-		    GET_OBJ_SKILL (object),
-		    GET_OBJ_MAX (object),
-		    GET_OBJ_CUR (object), GET_OBJ_MATER (object));
-  count += sprintf (*data + count, "%d %d %d %d\n",
-		    GET_OBJ_SEX (object),
-		    GET_OBJ_TIMER (object),
-		    GET_OBJ_SPELL (object), GET_OBJ_LEVEL (object));
-  *buf = '\0';
-  tascii ((int *) &GET_OBJ_AFFECTS (object), 4, buf);
-  tascii ((int *) &GET_OBJ_ANTI (object), 4, buf);
-  tascii ((int *) &GET_OBJ_NO (object), 4, buf);
-  count += sprintf (*data + count, "%s\n", buf);
-  *buf = '\0';
-  tascii (&GET_OBJ_EXTRA (object, 0), 4, buf);
-  tascii (&GET_OBJ_WEAR (object), 4, buf);
-  count += sprintf (*data + count, "%d %s\n", GET_OBJ_TYPE (object), buf);
-  count += sprintf (*data + count, "%d %d %d %d\n",
-		    GET_OBJ_VAL (object, 0),
-		    GET_OBJ_VAL (object, 1),
-		    GET_OBJ_VAL (object, 2), GET_OBJ_VAL (object, 3));
-  count += sprintf (*data + count, "%d %d %d %d\n",
-		    GET_OBJ_WEIGHT (object),
-		    GET_OBJ_COST (object),
-		    GET_OBJ_RENT (object), GET_OBJ_RENTEQ (object));
-  count += sprintf (*data + count, "%d %d\n",
-		    location, GET_OBJ_OWNER (object));
-  for (descr = object->ex_description; descr; descr = descr->next)
-    count += sprintf (*data + count, "E\n%s~\n%s~\n",
-		      descr->keyword ? descr->keyword : "",
-		      descr->description ? descr->description : "");
-  for (j = 0; j < MAX_OBJ_AFFECT; j++)
-    if (object->affected[j].location)
-      count += sprintf (*data + count, "A\n%d %d\n",
-			object->affected[j].location,
-			object->affected[j].modifier);
-
-  if (GET_OBJ_MAKER (object))
-    count += sprintf (*data + count, "M\n%d\n", GET_OBJ_MAKER (object));
-
-  if (GET_OBJ_PARENT (object))
-    count += sprintf (*data + count, "P\n%d\n", GET_OBJ_PARENT (object));
-
-  *data += count;
-  **data = '\0';
-}
-*/
-
 
 int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 {
@@ -1631,7 +1557,6 @@ int Crash_load(CHAR_DATA * ch)
 	OBJ_DATA *obj, *obj2, *obj_list = NULL;
 	int location, rnum;
 	struct container_list_type *tank_list = NULL, *tank, *tank_to;
-	long timer_dec;
 	bool need_convert_character_objects = 0;	// add by Pereplut
 
 	if ((index = GET_INDEX(ch)) < 0)
@@ -1781,7 +1706,7 @@ int Crash_load(CHAR_DATA * ch)
 		need_convert_character_objects = 1;
 
 	/*Создание объектов */
-	timer_dec = time(0) - SAVEINFO(index)->rent.time;
+	long timer_dec = time(0) - SAVEINFO(index)->rent.time;
 	timer_dec = (timer_dec / SECS_PER_MUD_HOUR) + (timer_dec % SECS_PER_MUD_HOUR ? 1 : 0);
 
 	for (fsize = 0, reccount = SAVEINFO(index)->rent.nitems;
@@ -1831,13 +1756,17 @@ int Crash_load(CHAR_DATA * ch)
 		}
 
 		/*Check timers */
-		if (SAVEINFO(index)->time[fsize].timer > 0 &&
-				(rnum = real_object(SAVEINFO(index)->time[fsize].vnum)) >= 0)
+		if (SAVEINFO(index)->time[fsize].timer > 0
+				&& (rnum = real_object(SAVEINFO(index)->time[fsize].vnum)) >= 0)
+		{
 			obj_index[rnum].stored--;
-		GET_OBJ_TIMER(obj) = MAX(-1, SAVEINFO(index)->time[fsize].timer - timer_dec);
+		}
+		// в два действия, чтобы заодно снять и таймер обкаста
+		obj->set_timer(SAVEINFO(index)->time[fsize].timer);
+		obj->dec_timer(timer_dec);
 
 		// Предмет разваливается от старости
-		if (GET_OBJ_TIMER(obj) <= 0)
+		if (obj->get_timer() <= 0)
 		{
 			sprintf(buf, "%s%s рассыпал%s от длительного использования.\r\n",
 					CCWHT(ch, C_NRM), CAP(obj->PNames[0]), GET_OBJ_SUF_2(obj));
@@ -1895,7 +1824,7 @@ int Crash_load(CHAR_DATA * ch)
 			obj->worn_on = 0;
 
 			auto_equip(ch, obj, location);
-			log("%s load_char_obj %d %d %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->uid, GET_OBJ_TIMER(obj));
+			log("%s load_char_obj %d %d %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->uid, obj->get_timer());
 		}
 		else
 		{
@@ -1926,7 +1855,7 @@ int Crash_load(CHAR_DATA * ch)
 				obj_to_obj(obj, tank_to->tank);
 			else
 				obj_to_char(obj, ch);
-			log("%s load_char_obj %d %d %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->uid, GET_OBJ_TIMER(obj));
+			log("%s load_char_obj %d %d %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->uid, obj->get_timer());
 		}
 	}
 	while (tank_list)  	//Clear tanks list
@@ -1969,7 +1898,7 @@ void Crash_extract_objs(OBJ_DATA *obj)
 	{
 		next = obj->next_content;
 		Crash_extract_objs(obj->contains);
-		if (GET_OBJ_RNUM(obj) >= 0 && GET_OBJ_TIMER(obj) >= 0)
+		if (GET_OBJ_RNUM(obj) >= 0 && obj->get_timer() >= 0)
 			obj_index[GET_OBJ_RNUM(obj)].stored++;
 		extract_obj(obj);
 	}
@@ -2095,12 +2024,12 @@ void Crash_save(int iplayer, OBJ_DATA * obj, int location, int savetype)
 			write_one_object(&Crashbufferpos, obj, location);
 			save_time_info tmp_node;
 			tmp_node.vnum = GET_OBJ_VNUM(obj);
-			tmp_node.timer = GET_OBJ_TIMER(obj);
+			tmp_node.timer = obj->get_timer();
 			SAVEINFO(iplayer)->time.push_back(tmp_node);
 			if (savetype != RENT_CRASH)
 			{
 				log("%s save_char_obj %d %d %u", player_table[iplayer].name,
-						GET_OBJ_VNUM(obj), obj->uid, GET_OBJ_TIMER(obj));
+						GET_OBJ_VNUM(obj), obj->uid, obj->get_timer());
 			}
 		}
 	}

@@ -1540,7 +1540,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
-	sprintf(buf, "Таймер : %d\r\n", GET_OBJ_TIMER(obj));
+	sprintf(buf, "Таймер : %d\r\n", obj->get_timer());
 	send_to_char(buf, ch);
 
 	send_to_char("Накладывает на Вас аффекты: ", ch);

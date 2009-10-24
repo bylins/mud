@@ -31,6 +31,7 @@
 #include "char_player.hpp"
 #include "remember.hpp"
 #include "house.h"
+#include "obj.hpp"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;

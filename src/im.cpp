@@ -1538,13 +1538,13 @@ ACMD(do_cook)
 	case ITEM_POTION:
 		param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);	// уровень
 		param[1] = 1;	// количество
-		param[2] = GET_OBJ_TIMER(obj_proto[tgt]);	// таймер
+		param[2] = obj_proto[tgt]->get_timer();	// таймер
 		break;
 	case ITEM_WAND:
 	case ITEM_STAFF:
 		param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);	// уровень
 		param[1] = GET_OBJ_VAL(obj_proto[tgt], 1);	// количество
-		param[2] = GET_OBJ_TIMER(obj_proto[tgt]);	// таймер
+		param[2] = obj_proto[tgt]->get_timer();	// таймер
 		break;
 	default:
 		imlog(NRM, "Прототип имеет неверный тип");
@@ -1675,7 +1675,9 @@ ACMD(do_cook)
 				if (val[0] > 0)
 					GET_OBJ_VAL(result, 0) = val[0];
 				if (val[2] > 0)
-					GET_OBJ_TIMER(result) = val[2];
+				{
+					result->set_timer(val[2]);
+				}
 				break;
 			case ITEM_WAND:
 			case ITEM_STAFF:
@@ -1684,7 +1686,9 @@ ACMD(do_cook)
 				if (val[1] > 0)
 					GET_OBJ_VAL(result, 1) = GET_OBJ_VAL(result, 2) = val[1];
 				if (val[2] > 0)
-					GET_OBJ_TIMER(result) = val[2];
+				{
+					result->set_timer(val[2]);
+				}
 				break;
 			}
 			obj_to_char(result, ch);

@@ -1159,7 +1159,7 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 	if (!get_buf_line(data, buffer) || sscanf(buffer, " %d %d %d %d", t, t + 1, t + 2, t + 3) != 4)
 		return (item);
 	GET_OBJ_SEX(GET_EXCHANGE_ITEM(item)) = t[0];
-	GET_OBJ_TIMER(GET_EXCHANGE_ITEM(item)) = t[1];
+	GET_EXCHANGE_ITEM(item)->set_timer(t[1]);
 	GET_OBJ_SPELL(GET_EXCHANGE_ITEM(item)) = t[2];
 	GET_OBJ_LEVEL(GET_EXCHANGE_ITEM(item)) = t[3];
 
@@ -1363,7 +1363,7 @@ void exchange_write_one_object(char **data, EXCHANGE_ITEM_DATA * item)
 					 GET_OBJ_CUR(GET_EXCHANGE_ITEM(item)), GET_OBJ_MATER(GET_EXCHANGE_ITEM(item)));
 	count += sprintf(*data + count, "%d %d %d %d\n",
 					 GET_OBJ_SEX(GET_EXCHANGE_ITEM(item)),
-					 GET_OBJ_TIMER(GET_EXCHANGE_ITEM(item)),
+					 GET_EXCHANGE_ITEM(item)->get_timer(),
 					 GET_OBJ_SPELL(GET_EXCHANGE_ITEM(item)), GET_OBJ_LEVEL(GET_EXCHANGE_ITEM(item)));
 	*buf = '\0';
 	tascii((int *) &GET_OBJ_AFFECTS(GET_EXCHANGE_ITEM(item)), 4, buf);
@@ -1470,7 +1470,7 @@ int exchange_database_load()
 		}
 
 		// Предмет разваливается от старости
-		if (GET_OBJ_TIMER(GET_EXCHANGE_ITEM(item)) <= 0)
+		if (GET_EXCHANGE_ITEM(item)->get_timer() <= 0)
 		{
 			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
 					CAP(GET_EXCHANGE_ITEM(item)->PNames[0]), GET_OBJ_SUF_2(GET_EXCHANGE_ITEM(item)));
@@ -1588,7 +1588,7 @@ int exchange_database_reload(bool loadbackup)
 		}
 
 		// Предмет разваливается от старости
-		if (GET_OBJ_TIMER(GET_EXCHANGE_ITEM(item)) <= 0)
+		if (GET_EXCHANGE_ITEM(item)->get_timer() <= 0)
 		{
 			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
 					CAP(GET_EXCHANGE_ITEM(item)->PNames[0]), GET_OBJ_SUF_2(GET_EXCHANGE_ITEM(item)));
@@ -1797,7 +1797,7 @@ int obj_matches_filter(EXCHANGE_ITEM_DATA * j, char *filter_name, char *filter_o
 		// сейчас туда нельзя ставить вещи с -1 рнумом, но на всякий оставим // Krodo
 		try
 		{
-			tm = (GET_OBJ_TIMER(GET_EXCHANGE_ITEM(j)) * 100 / GET_OBJ_TIMER(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(j)))));
+			tm = (GET_EXCHANGE_ITEM(j)->get_timer() * 100 / obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(j)))->get_timer());
 			if ((tm + 1) < *filter_timer)
 				return 0;
 		}

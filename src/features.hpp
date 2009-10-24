@@ -12,6 +12,7 @@
 #include <bitset>
 #include <boost/array.hpp>
 #include "conf.h"
+#include "obj.hpp"
 
 using std::bitset;
 
