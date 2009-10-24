@@ -451,11 +451,13 @@ std::list<CHAR_DATA *> fighting_list;
 
 void Character::check_fighting_list()
 {
+	/*
 	if (!in_fighting_list_)
 	{
 		in_fighting_list_ = true;
 		fighting_list.push_back(this);
 	}
+	*/
 }
 
 void Character::clear_fighing_list()
@@ -476,6 +478,7 @@ void Character::clear_fighing_list()
 */
 void change_fighting(CHAR_DATA * ch, int need_stop)
 {
+	/*
 	for (std::list<CHAR_DATA *>::const_iterator it = fighting_list.begin(); it != fighting_list.end(); ++it)
 	{
 		CHAR_DATA *k = *it;
@@ -487,6 +490,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 		if (k->get_protecting() == ch)
 		{
 			k->set_protecting(0);
+			CLR_AF_BATTLE(k, EAF_PROTECT);
 		}
 		if (k->get_extra_victim() == ch)
 		{
@@ -510,6 +514,49 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 				}
 			if (!j && need_stop)
 				stop_fighting(k, FALSE);
+		}
+	}
+	*/
+
+	CHAR_DATA *k, *j, *temp;
+	for (k = character_list; k; k = temp)
+	{
+		temp = k->next;
+		if (k->get_protecting() == ch)
+		{
+			k->set_protecting(0);
+			CLR_AF_BATTLE(k, EAF_PROTECT);
+		}
+		if (k->get_touching() == ch)
+		{
+			k->set_touching(0);
+			CLR_AF_BATTLE(k, EAF_PROTECT);
+		}
+		if (k->get_extra_victim() == ch)
+		{
+			k->set_extra_attack(0, 0);
+		}
+		if (k->get_cast_char() == ch)
+		{
+			k->set_cast(0, 0, 0, 0, 0);
+		}
+		if (k->get_fighting() == ch && IN_ROOM(k) != NOWHERE)
+		{
+			log("[Change fighting] Change victim");
+			for (j = world[IN_ROOM(ch)]->people; j; j = j->next_in_room)
+			{
+				if (j->get_fighting() == k)
+				{
+					act("Вы переключили внимание на $N3.", FALSE, k, 0, j, TO_CHAR);
+					act("$n переключил$u на Вас !", FALSE, k, 0, j, TO_VICT);
+					k->set_fighting(j);
+					break;
+				}
+			}
+			if (!j && need_stop)
+			{
+				stop_fighting(k, FALSE);
+			}
 		}
 	}
 }
