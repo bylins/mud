@@ -300,6 +300,8 @@ private:
 
 struct obj_data
 {
+	obj_data();
+
 	unsigned int uid;
 	obj_vnum item_number;	/* Where in data-base            */
 	room_rnum in_room;	/* In what room -1 when conta/carr */
@@ -334,41 +336,6 @@ struct obj_data
 
 	TimedSpell timed_spell;    // временный обкаст
 
-	static id_to_set_info_map set_table;
-
-	obj_data() :
-			uid(0),
-			item_number(NOTHING),
-			in_room(NOWHERE),
-			name(NULL),
-			description(NULL),
-			short_description(NULL),
-			action_description(NULL),
-			ex_description(NULL),
-			carried_by(NULL),
-			worn_by(NULL),
-			worn_on(NOWHERE),
-			in_obj(NULL),
-			contains(NULL),
-			id(0),
-			proto_script(NULL),
-			script(NULL),
-			next_content(NULL),
-			next(NULL),
-			room_was_in(NOWHERE),
-			max_in_world(0),
-			skills(NULL),
-			serial_num_(0),
-			timer_(0)
-	{
-		memset(&obj_flags, 0, sizeof(obj_flag_data));
-
-		for (int i = 0; i < 6; i++)
-			PNames[i] = NULL;
-	}
-
-	static void init_set_table();
-
 	const std::string activate_obj(const activation& __act);
 	const std::string deactivate_obj(const activation& __act);
 
@@ -384,6 +351,9 @@ struct obj_data
 	void set_timer(int timer);
 	int get_timer() const;
 	void dec_timer(int time = 1);
+
+	static id_to_set_info_map set_table;
+	static void init_set_table();
 
 private:
 	std::map<int, int>* skills; // если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"

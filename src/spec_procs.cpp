@@ -29,6 +29,7 @@
 #include "house.h"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "room.hpp"
 
 /*   external vars  */
 

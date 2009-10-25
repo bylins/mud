@@ -33,6 +33,7 @@
 #include "boards.h"
 #include "privilege.hpp"
 #include "char.hpp"
+#include "room.hpp"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 

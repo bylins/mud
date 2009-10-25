@@ -24,6 +24,7 @@
 #include "db.h"
 #include "olc.h"
 #include "char.hpp"
+#include "room.hpp"
 
 extern INDEX_DATA **trig_index;
 

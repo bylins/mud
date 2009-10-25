@@ -14,6 +14,7 @@
 #include "spells.h"
 #include "privilege.hpp"
 #include "char.hpp"
+#include "room.hpp"
 
 /**
 * Система привилегий иммов и демигодов, совмещенная с бывшим god.lst.

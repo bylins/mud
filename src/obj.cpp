@@ -7,6 +7,37 @@
 
 id_to_set_info_map obj_data::set_table;
 
+obj_data::obj_data() :
+	uid(0),
+	item_number(NOTHING),
+	in_room(NOWHERE),
+	name(NULL),
+	description(NULL),
+	short_description(NULL),
+	action_description(NULL),
+	ex_description(NULL),
+	carried_by(NULL),
+	worn_by(NULL),
+	worn_on(NOWHERE),
+	in_obj(NULL),
+	contains(NULL),
+	id(0),
+	proto_script(NULL),
+	script(NULL),
+	next_content(NULL),
+	next(NULL),
+	room_was_in(NOWHERE),
+	max_in_world(0),
+	skills(NULL),
+	serial_num_(0),
+	timer_(0)
+{
+	memset(&obj_flags, 0, sizeof(obj_flag_data));
+
+	for (int i = 0; i < 6; i++)
+		PNames[i] = NULL;
+}
+
 int obj_data::get_serial_num()
 {
 	return serial_num_;

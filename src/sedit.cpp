@@ -16,6 +16,7 @@
 #include "shop.h"
 #include "olc.h"
 #include "char.hpp"
+#include "room.hpp"
 
 /*-------------------------------------------------------------------*/
 

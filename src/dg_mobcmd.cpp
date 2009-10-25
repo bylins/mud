@@ -49,6 +49,7 @@
 #include "char.hpp"
 #include "skills.h"
 #include "name_list.hpp"
+#include "room.hpp"
 
 #define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, AFF_CHARM))
 

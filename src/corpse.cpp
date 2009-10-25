@@ -10,6 +10,7 @@
 #include "handler.h"
 #include "dg_scripts.h"
 #include "im.h"
+#include "room.hpp"
 
 extern int max_npc_corpse_time, max_pc_corpse_time;
 extern MobRaceListType mobraces_list;

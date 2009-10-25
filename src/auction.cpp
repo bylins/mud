@@ -20,6 +20,7 @@
 #include "auction.h"
 #include "constants.h"
 #include "char.hpp"
+#include "room.hpp"
 
 /* external functions */
 extern int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);

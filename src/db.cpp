@@ -60,6 +60,7 @@
 #include "corpse.hpp"
 #include "name_list.hpp"
 #include "modify.h"
+#include "room.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -1856,8 +1857,7 @@ void index_boot(int mode)
 		break;
 	case DB_BOOT_WLD:
 		// Creating empty world with NOWHERE room.
-		world.push_back(new(ROOM_DATA));
-		memset(world[0], 0, sizeof(ROOM_DATA));
+		world.push_back(new ROOM_DATA);
 		top_of_world = FIRST_ROOM;
 		size[0] = sizeof(ROOM_DATA) * rec_count;
 		log("   %d rooms, %d bytes.", rec_count, size[0]);
@@ -2126,9 +2126,8 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 			log("SYSERR: Room %d is outside of any zone.", virtual_nr);
 			exit(1);
 		}
-	// Создаем новую комнату и вычищаем ее содержимое
-	world.push_back(new(ROOM_DATA));
-	memset(world[room_nr], 0, sizeof(ROOM_DATA));
+	// Создаем новую комнату
+	world.push_back(new ROOM_DATA);
 
 	world[room_nr]->zone = zone;
 	world[room_nr]->number = virtual_nr;
@@ -7519,7 +7518,7 @@ void room_free(ROOM_DATA * room)
 /*++
    Функция полностью освобождает память, занимаемую данными комнаты.
    ВНИМАНИЕ. Память самой структуры room_data не освобождается.
-             Необходимо дополнительно использовать free()
+             Необходимо дополнительно использовать delete()
 --*/
 {
 	int i;

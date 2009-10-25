@@ -18,6 +18,7 @@
 #include "char_player.hpp"
 #include "mail.h"
 #include "name_list.hpp"
+#include "room.hpp"
 
 extern CHAR_DATA *get_player_of_name(const char *name);
 extern int get_buf_line(char **source, char *target);

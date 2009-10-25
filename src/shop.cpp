@@ -31,6 +31,7 @@
 #include "features.hpp"
 #include "char.hpp"
 #include "modify.h"
+#include "room.hpp"
 
 extern TIME_INFO_DATA time_info;
 

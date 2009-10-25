@@ -2,10 +2,10 @@
 // Copyright (c) 2006 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "conf.h"
 #include <list>
 #include <algorithm>
 
+#include "conf.h"
 #include "deathtrap.hpp"
 #include "constants.h"
 #include "db.h"
@@ -16,6 +16,7 @@
 #include "house.h"
 #include "char.hpp"
 #include "corpse.hpp"
+#include "room.hpp"
 
 extern int has_boat(CHAR_DATA * ch);
 extern void die(CHAR_DATA * ch, CHAR_DATA * killer);

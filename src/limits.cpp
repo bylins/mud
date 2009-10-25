@@ -37,6 +37,7 @@
 #include "features.hpp"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "room.hpp"
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 

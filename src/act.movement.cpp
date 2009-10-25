@@ -32,6 +32,7 @@
 #include "privilege.hpp"
 #include "char.hpp"
 #include "corpse.hpp"
+#include "room.hpp"
 
 /* external functs */
 void death_cry(CHAR_DATA * ch);

@@ -26,6 +26,7 @@
 #include "constants.h"
 #include "random.hpp"
 #include "char.hpp"
+#include "room.hpp"
 
 extern TIME_INFO_DATA time_info;
 

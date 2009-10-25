@@ -38,6 +38,7 @@
 #include "magic.h"
 #include "poison.hpp"
 #include "corpse.hpp"
+#include "room.hpp"
 
 extern CHAR_DATA *mob_proto;
 

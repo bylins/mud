@@ -46,6 +46,7 @@
 #include "parcel.hpp"
 #include "liquid.hpp"
 #include "modify.h"
+#include "room.hpp"
 
 using std::string;
 

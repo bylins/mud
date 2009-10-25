@@ -12,6 +12,7 @@
 #include "interpreter.h"
 #include "screen.h"
 #include "house.h"
+#include "room.hpp"
 
 namespace Remember
 {

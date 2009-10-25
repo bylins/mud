@@ -18,6 +18,7 @@
 #include "char_player.hpp"
 #include "spells.h"
 #include "comm.h"
+#include "room.hpp"
 
 std::string PlayerI::empty_const_str;
 

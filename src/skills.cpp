@@ -25,6 +25,7 @@
 #include "features.hpp"
 #include "random.hpp"
 #include "char.hpp"
+#include "room.hpp"
 
 /*
  * message for doing damage with a spell or skill

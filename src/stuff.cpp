@@ -17,6 +17,7 @@
 #include "dg_scripts.h"
 #include "stuff.hpp"
 #include "char.hpp"
+#include "room.hpp"
 
 void oload_class::init()
 {

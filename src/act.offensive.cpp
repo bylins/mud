@@ -29,6 +29,7 @@
 #include "privilege.hpp"
 #include "random.hpp"
 #include "char.hpp"
+#include "room.hpp"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;

@@ -14,6 +14,7 @@
 #include "poison.hpp"
 #include "char.hpp"
 #include "db.h"
+#include "room.hpp"
 
 /**
 * Тик доп.спелла на шмотке (раз в минуту).

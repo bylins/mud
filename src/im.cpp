@@ -24,6 +24,7 @@
 #include "im.h"
 #include "char.hpp"
 #include "modify.h"
+#include "room.hpp"
 
 #define		VAR_CHAR	'@'
 

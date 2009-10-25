@@ -23,6 +23,7 @@
 #include "screen.h"
 #include "pk.h"
 #include "char.hpp"
+#include "room.hpp"
 
 ACMD(do_revenge);
 

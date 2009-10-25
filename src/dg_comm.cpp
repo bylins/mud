@@ -17,6 +17,7 @@
 #include "handler.h"
 #include "db.h"
 #include "char.hpp"
+#include "room.hpp"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 

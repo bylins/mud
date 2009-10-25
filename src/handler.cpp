@@ -37,6 +37,7 @@
 #include "magic.h"
 #include "poison.hpp"
 #include "name_list.hpp"
+#include "room.hpp"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 

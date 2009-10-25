@@ -22,6 +22,7 @@
 #include "deathtrap.hpp"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "room.hpp"
 
 /* List each room saved, was used for debugging. */
 #if 0
@@ -83,10 +84,7 @@ void redit_setup(DESCRIPTOR_DATA * d, int real_num)
       real_num - RNUM исходной комнаты, новая -1
 --*/
 {
-	ROOM_DATA *room;
-	CREATE(room, ROOM_DATA, 1);
-	memset(room, 0, sizeof(ROOM_DATA));
-
+	ROOM_DATA *room = new ROOM_DATA;
 	if (real_num == NOWHERE)
 	{
 		room->name = str_dup("Недоделанная комната");
@@ -147,8 +145,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 			if ((*it)->number > OLC_NUM(d))
 				break;
 
-		ROOM_DATA *new_room = new(ROOM_DATA);
-		memset(new_room, 0, sizeof(ROOM_DATA));
+		ROOM_DATA *new_room = new ROOM_DATA;
 		room_copy(new_room, OLC_ROOM(d));
 		new_room->number = OLC_NUM(d);
 		new_room->zone = OLC_ZNUM(d);

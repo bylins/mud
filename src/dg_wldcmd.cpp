@@ -25,6 +25,7 @@
 #include "deathtrap.hpp"
 #include "char.hpp"
 #include "skills.h"
+#include "room.hpp"
 
 extern const char *dirs[];
 extern struct zone_data *zone_table;

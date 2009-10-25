@@ -15,6 +15,7 @@
 #include "spells.h"
 #include "skills.h"
 #include "features.hpp"
+#include "room.hpp"
 
 extern void weight_change_object(OBJ_DATA * obj, int weight);
 

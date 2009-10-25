@@ -12,10 +12,11 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "conf.h"
 #include <sstream>
 #include <list>
 #include <string>
+
+#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -32,6 +33,7 @@
 #include "remember.hpp"
 #include "house.h"
 #include "obj.hpp"
+#include "room.hpp"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;

@@ -25,6 +25,7 @@
 #include "char.hpp"
 #include "skills.h"
 #include "name_list.hpp"
+#include "room.hpp"
 
 extern INDEX_DATA *obj_index;
 extern const char *dirs[];

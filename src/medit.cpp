@@ -24,6 +24,7 @@
 #include "char.hpp"
 #include "skills.h"
 #include "name_list.hpp"
+#include "room.hpp"
 
 /*
  * Set this to 1 for debugging logs in medit_save_internally.

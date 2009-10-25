@@ -33,6 +33,7 @@
 #include "liquid.hpp"
 #include "poison.hpp"
 #include "pk.h"
+#include "room.hpp"
 
 /* extern variables */
 extern vector < OBJ_DATA * >obj_proto;

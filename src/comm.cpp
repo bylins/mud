@@ -57,6 +57,7 @@
 #include "house_exp.hpp"
 #include "skills.h"
 #include "corpse.hpp"
+#include "room.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13

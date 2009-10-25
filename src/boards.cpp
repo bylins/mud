@@ -19,6 +19,7 @@
 #include "boards.h"
 #include "char.hpp"
 #include "modify.h"
+#include "room.hpp"
 
 const int GENERAL_BOARD = 0;  // общая
 const int NEWS_BOARD = 1;  // новости

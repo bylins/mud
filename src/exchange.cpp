@@ -26,6 +26,7 @@
 #include "char.hpp"
 #include "char_player.hpp"
 #include "modify.h"
+#include "room.hpp"
 
 //Используемые внешние ф-ии.
 extern void write_one_object(char **data, OBJ_DATA * object, int location);

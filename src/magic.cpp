@@ -34,6 +34,7 @@
 #include "char.hpp"
 #include "poison.hpp"
 #include "modify.h"
+#include "room.hpp"
 
 extern void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer);
 extern int what_sky;

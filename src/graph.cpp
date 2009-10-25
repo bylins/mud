@@ -28,6 +28,7 @@
 #include "features.hpp"
 #include "random.hpp"
 #include "char.hpp"
+#include "room.hpp"
 
 /* Externals */
 ACMD(do_say);

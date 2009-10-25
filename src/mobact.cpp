@@ -27,6 +27,7 @@
 #include "random.hpp"
 #include "char.hpp"
 #include "house.h"
+#include "room.hpp"
 
 /* external structs */
 extern CHAR_DATA *character_list;

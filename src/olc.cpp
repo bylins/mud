@@ -22,6 +22,7 @@
 #include "im.h"
 #include "privilege.hpp"
 #include "char.hpp"
+#include "room.hpp"
 
 /*
  * External data structures.
@@ -532,7 +533,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 				room_free(OLC_ROOM(d));	// удаляет все содержимое
 				// break; - не нужен
 			case CLEANUP_STRUCTS:
-				free(OLC_ROOM(d));	// удаляет только оболочку
+				delete OLC_ROOM(d);	// удаляет только оболочку
 				break;
 			default:	/* The caller has screwed up. */
 				break;

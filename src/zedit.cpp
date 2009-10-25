@@ -13,6 +13,7 @@
 #include "olc.h"
 #include "dg_scripts.h"
 #include "char.hpp"
+#include "room.hpp"
 
 /*
  * Turn on zedit debugging.  Please mail log results to greerga@van.ml.org

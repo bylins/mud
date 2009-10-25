@@ -28,6 +28,7 @@
 #include "char.hpp"
 #include "liquid.hpp"
 #include "file_crc.hpp"
+#include "room.hpp"
 
 /* these factors should be unique integers */
 #define RENT_FACTOR 	1

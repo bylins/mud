@@ -22,6 +22,7 @@
 #include "house.h"
 #include "boards.h"
 #include "char.hpp"
+#include "room.hpp"
 
 extern int dts_are_dumps;
 extern int mini_mud;

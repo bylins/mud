@@ -28,6 +28,7 @@
 #include "features.hpp"
 #include "char.hpp"
 #include "interpreter.h"
+#include "room.hpp"
 
 void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg);
 void trig_data_free(TRIG_DATA * this_data);

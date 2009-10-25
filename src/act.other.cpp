@@ -45,6 +45,7 @@
 #include "char.hpp"
 #include "char_player.hpp"
 #include "remember.hpp"
+#include "room.hpp"
 
 using std::ifstream;
 using std::fstream;

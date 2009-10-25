@@ -22,6 +22,7 @@
 #include "db.h"
 #include "spells.h"
 #include "char.hpp"
+#include "room.hpp"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;

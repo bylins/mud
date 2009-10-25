@@ -48,6 +48,7 @@
 #include "parcel.hpp"
 #include "liquid.hpp"
 #include "modify.h"
+#include "room.hpp"
 
 /*   external vars  */
 extern FILE *player_fl;

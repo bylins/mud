@@ -49,6 +49,7 @@
 #include "liquid.hpp"
 #include "name_list.hpp"
 #include "modify.h"
+#include "room.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
