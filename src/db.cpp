@@ -15,7 +15,9 @@
 #define __DB_C__
 
 #include <sstream>
+#include <string>
 #include <boost/algorithm/string.hpp>
+
 #include "conf.h"
 #include "sys/stat.h"
 #include "sysdep.h"
@@ -57,6 +59,7 @@
 #include "xmlParser.h"
 #include "corpse.hpp"
 #include "name_list.hpp"
+#include "modify.h"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -3744,17 +3747,15 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 {
 	int nr, found = 0, plane = 0, counter = 0, plane_offset = 0;
 	bool f = FALSE;
-	char *text;
 // type:
 // 0 -- неизвестный тип
 // 1 -- объекты
 // 2 -- мобы
 // 4 -- комнаты
 // Ищем для объектов в списках: extra_bits[], apply_types[], weapon_affects[]
-//  Ищем для мобов в списках  action_bits[], function_bits[],  affected_bits[], preference_bits[]
+// Ищем для мобов в списках  action_bits[], function_bits[],  affected_bits[], preference_bits[]
 // Ищем для комнат в списках room_bits[]
-
-	text = (char *)calloc(1, 1);
+	std::string out;
 
 	for (counter = 0, plane = 0, plane_offset = 0; plane < NUM_PLANES; counter++)
 	{
@@ -3772,17 +3773,18 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 		plane_offset++;
 	}
 	if (f)
+	{
 		for (nr = 0; nr <= top_of_objt; nr++)
 		{
 			if (obj_proto[nr]->obj_flags.extra_flags.flags[plane] & (1 << (plane_offset)))
 			{
-				sprintf(buf, "%3d. [%5d] %s :   %s\r\n", ++found,
-						obj_index[nr].vnum, obj_proto[nr]->short_description, extra_bits[counter]);
-				text = (char *)realloc(text, strlen(text) + strlen(buf) + 1);
-				text = strcat(text, buf);
-//				send_to_char(buf, ch);
+				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
+						++found, obj_index[nr].vnum,
+						obj_proto[nr]->short_description, extra_bits[counter]);
+				out += buf;
 			}
-		};
+		}
+	}
 	f = FALSE;
 // ---------------------
 	for (counter = 0; *apply_types[counter] != '\n'; counter++)
@@ -3794,20 +3796,22 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 		}
 	}
 	if (f)
+	{
 		for (nr = 0; nr <= top_of_objt; nr++)
 		{
 			for (plane = 0; plane < MAX_OBJ_AFFECT; plane++)
+			{
 				if (obj_proto[nr]->affected[plane].location == counter)
 				{
-					sprintf(buf, "%3d. [%5d] %s :   %s\r\n", ++found,
-							obj_index[nr].vnum, obj_proto[nr]->short_description,
-							apply_types[counter]);
-					text = (char *)realloc(text, strlen(text) + strlen(buf) + 1);
-					text = strcat(text, buf);
-//					send_to_char(buf, ch);
+					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
+							++found, obj_index[nr].vnum,
+							obj_proto[nr]->short_description, apply_types[counter]);
+					out += buf;
 					continue;
 				}
-		};
+			}
+		}
+	}
 	f = FALSE;
 // ---------------------
 	for (counter = 0, plane = 0, plane_offset = 0; plane < NUM_PLANES; counter++)
@@ -3826,25 +3830,24 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 		plane_offset++;
 	}
 	if (f)
+	{
 		for (nr = 0; nr <= top_of_objt; nr++)
 		{
 			if (obj_proto[nr]->obj_flags.affects.flags[plane] & (1 << (plane_offset)))
 			{
-				sprintf(buf, "%3d. [%5d] %s :   %s\r\n", ++found,
-						obj_index[nr].vnum, obj_proto[nr]->short_description, weapon_affects[counter]);
-				text = (char *)realloc(text, strlen(text) + strlen(buf) + 1);
-				text = strcat(text, buf);
-//				send_to_char(buf, ch);
+				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
+						++found, obj_index[nr].vnum,
+						obj_proto[nr]->short_description, weapon_affects[counter]);
+				out += buf;
 			}
-		};
+		}
+	}
 
-	if (strlen(text))
-		page_string(ch->desc, text, TRUE);
-	free(text);
-
-	f = FALSE;
-
-	return (found);
+	if (!out.empty())
+	{
+		page_string(ch->desc, out, TRUE);
+	}
+	return found;
 }
 
 /* create a new mobile from a prototype */

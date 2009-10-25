@@ -26,6 +26,7 @@
 #include "char.hpp"
 #include "char_player.hpp"
 #include "name_list.hpp"
+#include "modify.h"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 

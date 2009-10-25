@@ -23,6 +23,7 @@
 #include "features.hpp"
 #include "im.h"
 #include "char.hpp"
+#include "modify.h"
 
 #define		VAR_CHAR	'@'
 

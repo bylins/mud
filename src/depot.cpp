@@ -9,6 +9,7 @@
 #include <bitset>
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
+
 #include "depot.hpp"
 #include "db.h"
 #include "handler.h"
@@ -21,6 +22,7 @@
 #include "char.hpp"
 #include "name_list.hpp"
 #include "char_player.hpp"
+#include "modify.h"
 
 extern SPECIAL(bank);
 extern void write_one_object(char **data, OBJ_DATA * object, int location);

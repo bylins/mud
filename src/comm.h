@@ -50,8 +50,6 @@ unsigned long get_ip(const char *addr);
 int write_to_descriptor(socket_t desc, const char *txt, size_t total);
 void write_to_q(const char *txt, struct txt_q *queue, int aliased);
 void write_to_output(const char *txt, DESCRIPTOR_DATA * d);
-void page_string(DESCRIPTOR_DATA * d, char *str, int keep_internal);
-void page_string(DESCRIPTOR_DATA * d, std::string buf, int keep_internal);
 void string_add(DESCRIPTOR_DATA * d, char *str);
 void string_write(DESCRIPTOR_DATA * d, char **txt, size_t len, long mailto, void *data);
 

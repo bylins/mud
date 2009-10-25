@@ -14,6 +14,7 @@
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/bind.hpp>
+
 #include "conf.h"
 #include "house.h"
 #include "comm.h"
@@ -26,6 +27,7 @@
 #include "privilege.hpp"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "modify.h"
 
 extern void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 extern void write_one_object(char **data, OBJ_DATA * object, int location);

@@ -8,9 +8,9 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "conf.h"
 #include <stdexcept>
 
+#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -25,6 +25,7 @@
 #include "skills.h"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "modify.h"
 
 //Используемые внешние ф-ии.
 extern void write_one_object(char **data, OBJ_DATA * object, int location);

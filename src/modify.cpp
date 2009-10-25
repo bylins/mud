@@ -12,8 +12,9 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "conf.h"
 #include <boost/algorithm/string.hpp>
+
+#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -31,6 +32,7 @@
 #include "privilege.hpp"
 #include "char.hpp"
 #include "skills.h"
+#include "modify.h"
 
 void show_string(DESCRIPTOR_DATA * d, char *input);
 
@@ -1334,7 +1336,6 @@ void paginate_string(char *str, DESCRIPTOR_DATA * d)
 	d->showstr_page = 0;
 }
 
-
 /* The call that gets the paging ball rolling... */
 void page_string(DESCRIPTOR_DATA * d, char *str, int keep_internal)
 {
@@ -1364,11 +1365,13 @@ void page_string(DESCRIPTOR_DATA * d, char *str, int keep_internal)
 // TODO типа временно для стрингов
 void page_string(DESCRIPTOR_DATA * d, std::string buf, int keep_internal)
 {
+	// TODO: при keep_internal == true (а в 99% случаев так оно есть)
+	// получаем дальше в page_string повторный str_dup.
+	// как бы собраться с силами и переписать все это :/
 	char *str = str_dup(buf.c_str());
 	page_string(d, str, keep_internal);
 	free(str);
 }
-
 
 /* The call that displays the next page. */
 void show_string(DESCRIPTOR_DATA * d, char *input)

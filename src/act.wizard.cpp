@@ -14,6 +14,7 @@
 
 #include <sstream>
 #include <iomanip>
+
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -46,6 +47,7 @@
 #include "char_player.hpp"
 #include "parcel.hpp"
 #include "liquid.hpp"
+#include "modify.h"
 
 /*   external vars  */
 extern FILE *player_fl;

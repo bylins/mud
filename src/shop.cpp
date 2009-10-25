@@ -30,6 +30,7 @@
 #include "constants.h"
 #include "features.hpp"
 #include "char.hpp"
+#include "modify.h"
 
 extern TIME_INFO_DATA time_info;
 

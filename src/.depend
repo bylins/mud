@@ -7,7 +7,7 @@ act.informative.o: act.informative.cpp conf.h sysdep.h structs.h utils.h \
   skills.h fight.h screen.h constants.h pk.h dg_scripts.h mail.h im.h \
   house.h house_exp.hpp remember.hpp description.h privilege.hpp \
   depot.hpp glory.hpp random.hpp char.hpp player_i.hpp char_player.hpp \
-  quested.hpp mobmax.hpp dps.hpp parcel.hpp liquid.hpp
+  quested.hpp mobmax.hpp dps.hpp parcel.hpp liquid.hpp modify.h
 act.item.o: act.item.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   obj.hpp comm.h interpreter.h handler.h db.h spells.h skills.h \
   constants.h dg_scripts.h house.h house_exp.hpp remember.hpp magic.h \
@@ -35,15 +35,15 @@ act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h \
   dg_scripts.h pk.h im.h top.h ban.hpp diskio.h description.h title.hpp \
   password.hpp privilege.hpp depot.hpp glory.hpp genchar.h file_crc.hpp \
   char.hpp player_i.hpp char_player.hpp quested.hpp mobmax.hpp dps.hpp \
-  parcel.hpp liquid.hpp
+  parcel.hpp liquid.hpp modify.h
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   interpreter.h db.h char.hpp player_i.hpp
 ban.o: ban.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   comm.h interpreter.h handler.h db.h ban.hpp diskio.h char.hpp \
-  player_i.hpp
+  player_i.hpp modify.h
 boards.o: boards.cpp conf.h house.h sysdep.h structs.h utils.h \
   features.hpp obj.hpp db.h interpreter.h house_exp.hpp remember.hpp \
-  screen.h comm.h privilege.hpp boards.h char.hpp player_i.hpp
+  screen.h comm.h privilege.hpp boards.h char.hpp player_i.hpp modify.h
 class.o: class.cpp conf.h sysdep.h structs.h comm.h db.h utils.h \
   features.hpp obj.hpp spells.h skills.h interpreter.h handler.h \
   constants.h pk.h top.h im.h char.hpp player_i.hpp xmlParser.h
@@ -68,7 +68,7 @@ db.o: db.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp db.h \
   description.h deathtrap.hpp title.hpp privilege.hpp depot.hpp glory.hpp \
   genchar.h random.hpp file_crc.hpp char.hpp player_i.hpp skills.h \
   char_player.hpp quested.hpp mobmax.hpp dps.hpp parcel.hpp liquid.hpp \
-  xmlParser.h corpse.hpp name_list.hpp
+  xmlParser.h corpse.hpp name_list.hpp modify.h
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   comm.h handler.h interpreter.h db.h spells.h screen.h constants.h \
   dg_scripts.h pk.h im.h fight.h skills.h house.h house_exp.hpp \
@@ -87,14 +87,14 @@ handler.o: handler.cpp conf.h sysdep.h structs.h constants.h utils.h \
 house.o: house.cpp conf.h house.h sysdep.h structs.h utils.h features.hpp \
   obj.hpp db.h interpreter.h house_exp.hpp remember.hpp comm.h handler.h \
   pk.h screen.h boards.h skills.h spells.h privilege.hpp char.hpp \
-  player_i.hpp char_player.hpp quested.hpp mobmax.hpp dps.hpp
+  player_i.hpp char_player.hpp quested.hpp mobmax.hpp dps.hpp modify.h
 interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
   interpreter.h utils.h features.hpp obj.hpp constants.h db.h spells.h \
   skills.h handler.h house.h house_exp.hpp remember.hpp mail.h screen.h \
   olc.h dg_scripts.h pk.h genchar.h ban.hpp diskio.h item.creation.hpp \
   boards.h top.h title.hpp password.hpp privilege.hpp depot.hpp glory.hpp \
   char.hpp player_i.hpp char_player.hpp quested.hpp mobmax.hpp dps.hpp \
-  parcel.hpp liquid.hpp name_list.hpp
+  parcel.hpp liquid.hpp name_list.hpp modify.h
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   obj.hpp spells.h skills.h comm.h db.h handler.h screen.h interpreter.h \
   constants.h dg_scripts.h house.h house_exp.hpp remember.hpp exchange.h \
@@ -103,7 +103,7 @@ limits.o: limits.cpp conf.h sysdep.h structs.h utils.h features.hpp \
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   comm.h spells.h skills.h handler.h db.h interpreter.h screen.h \
   constants.h dg_scripts.h pk.h magic.h fight.h deathtrap.hpp random.hpp \
-  char.hpp player_i.hpp poison.hpp
+  char.hpp player_i.hpp poison.hpp modify.h
 mail.o: mail.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   comm.h db.h interpreter.h handler.h mail.h char.hpp player_i.hpp \
   parcel.hpp char_player.hpp quested.hpp mobmax.hpp remember.hpp dps.hpp
@@ -114,7 +114,7 @@ mobact.o: mobact.cpp conf.h sysdep.h structs.h utils.h features.hpp \
 modify.o: modify.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   obj.hpp interpreter.h handler.h db.h comm.h spells.h mail.h boards.h \
   screen.h olc.h house.h house_exp.hpp remember.hpp privilege.hpp \
-  char.hpp player_i.hpp skills.h
+  char.hpp player_i.hpp skills.h modify.h
 objsave.o: objsave.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
   interpreter.h utils.h features.hpp obj.hpp spells.h screen.h house.h \
   house_exp.hpp remember.hpp im.h depot.hpp char.hpp player_i.hpp \
@@ -125,7 +125,7 @@ olc.o: olc.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
 random.o: random.cpp conf.h random.hpp sysdep.h
 shop.o: shop.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
   interpreter.h utils.h features.hpp obj.hpp shop.h dg_scripts.h \
-  constants.h char.hpp player_i.hpp
+  constants.h char.hpp player_i.hpp modify.h
 spec_assign.o: spec_assign.cpp conf.h sysdep.h structs.h db.h constants.h \
   interpreter.h utils.h features.hpp obj.hpp house.h house_exp.hpp \
   remember.hpp boards.h char.hpp player_i.hpp
@@ -142,7 +142,7 @@ spells.o: spells.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   obj.hpp comm.h spells.h skills.h handler.h db.h constants.h \
   interpreter.h dg_scripts.h screen.h house.h house_exp.hpp remember.hpp \
   pk.h im.h deathtrap.hpp privilege.hpp char.hpp player_i.hpp depot.hpp \
-  parcel.hpp liquid.hpp
+  parcel.hpp liquid.hpp modify.h
 utils.o: utils.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   db.h comm.h screen.h spells.h handler.h interpreter.h constants.h im.h \
   dg_scripts.h boards.h privilege.hpp char.hpp player_i.hpp
@@ -188,7 +188,7 @@ dg_scripts.o: dg_scripts.cpp conf.h sysdep.h structs.h dg_scripts.h \
   utils.h features.hpp obj.hpp comm.h interpreter.h handler.h dg_event.h \
   db.h screen.h house.h house_exp.hpp remember.hpp constants.h top.h \
   char.hpp player_i.hpp char_player.hpp quested.hpp mobmax.hpp dps.hpp \
-  name_list.hpp
+  name_list.hpp modify.h
 dg_triggers.o: dg_triggers.cpp conf.h sysdep.h structs.h dg_scripts.h \
   utils.h features.hpp obj.hpp comm.h interpreter.h handler.h db.h olc.h \
   char.hpp player_i.hpp
@@ -209,7 +209,7 @@ genchar.o: genchar.cpp conf.h sysdep.h structs.h comm.h utils.h \
 diskio.o: diskio.cpp conf.h sysdep.h diskio.h
 im.o: im.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   handler.h db.h interpreter.h comm.h constants.h screen.h im.h char.hpp \
-  player_i.hpp
+  player_i.hpp modify.h
 names.o: names.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   comm.h interpreter.h handler.h db.h screen.h privilege.hpp char.hpp \
   player_i.hpp char_player.hpp quested.hpp mobmax.hpp remember.hpp \
@@ -220,14 +220,14 @@ auction.o: auction.cpp conf.h sysdep.h structs.h screen.h utils.h \
 item.creation.o: item.creation.cpp conf.h sysdep.h structs.h screen.h \
   spells.h skills.h constants.h utils.h features.hpp obj.hpp comm.h \
   interpreter.h handler.h db.h olc.h im.h item.creation.hpp char.hpp \
-  player_i.hpp
+  player_i.hpp modify.h
 skills.o: skills.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
   interpreter.h utils.h features.hpp obj.hpp shop.h spells.h skills.h \
   screen.h dg_scripts.h constants.h im.h random.hpp char.hpp player_i.hpp
 exchange.o: exchange.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   obj.hpp comm.h interpreter.h handler.h db.h screen.h exchange.h im.h \
   constants.h skills.h char.hpp player_i.hpp char_player.hpp quested.hpp \
-  mobmax.hpp remember.hpp dps.hpp
+  mobmax.hpp remember.hpp dps.hpp modify.h
 top.o: top.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   interpreter.h comm.h screen.h top.h glory.hpp char.hpp player_i.hpp
 stuff.o: stuff.cpp conf.h sysdep.h structs.h comm.h db.h handler.h \
@@ -254,11 +254,11 @@ version.o: version.cpp conf.h sysdep.h structs.h comm.h utils.h \
 depot.o: depot.cpp depot.hpp conf.h sysdep.h structs.h db.h handler.h \
   utils.h features.hpp obj.hpp comm.h auction.h exchange.h interpreter.h \
   screen.h char.hpp player_i.hpp name_list.hpp char_player.hpp \
-  quested.hpp mobmax.hpp remember.hpp dps.hpp
+  quested.hpp mobmax.hpp remember.hpp dps.hpp modify.h
 glory.o: glory.cpp conf.h glory.hpp sysdep.h structs.h interpreter.h \
   utils.h features.hpp obj.hpp db.h comm.h password.hpp genchar.h \
   screen.h top.h char.hpp player_i.hpp char_player.hpp quested.hpp \
-  mobmax.hpp remember.hpp dps.hpp
+  mobmax.hpp remember.hpp dps.hpp modify.h
 file_crc.o: file_crc.cpp conf.h file_crc.hpp sysdep.h structs.h db.h \
   utils.h features.hpp obj.hpp interpreter.h comm.h
 char.o: char.cpp char.hpp conf.h sysdep.h structs.h player_i.hpp utils.h \

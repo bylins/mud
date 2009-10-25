@@ -33,6 +33,7 @@
 #include "random.hpp"
 #include "char.hpp"
 #include "poison.hpp"
+#include "modify.h"
 
 extern void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer);
 extern int what_sky;

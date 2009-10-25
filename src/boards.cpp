@@ -4,19 +4,21 @@
 * (c) 2005 Krodo                                                              *
 ******************************************************************************/
 
-#include "conf.h"
 #include <fstream>
 #include <sstream>
 #include <iomanip>
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+
+#include "conf.h"
 #include "house.h"
 #include "screen.h"
 #include "comm.h"
 #include "privilege.hpp"
 #include "boards.h"
 #include "char.hpp"
+#include "modify.h"
 
 const int GENERAL_BOARD = 0;  // общая
 const int NEWS_BOARD = 1;  // новости

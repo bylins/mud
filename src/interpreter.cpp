@@ -13,8 +13,9 @@
 
 #define __INTERPRETER_C__
 
-#include "conf.h"
 #include <boost/lexical_cast.hpp>
+
+#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "comm.h"
@@ -47,6 +48,7 @@
 #include "parcel.hpp"
 #include "liquid.hpp"
 #include "name_list.hpp"
+#include "modify.h"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;

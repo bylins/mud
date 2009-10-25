@@ -24,6 +24,7 @@
 #include "features.hpp"
 #include "item.creation.hpp"
 #include "char.hpp"
+#include "modify.h"
 
 #define SpINFO   spell_info[spellnum]
 

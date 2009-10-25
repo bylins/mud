@@ -6,6 +6,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
+
 #include "conf.h"
 #include "glory.hpp"
 #include "utils.h"
@@ -17,6 +18,7 @@
 #include "top.h"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "modify.h"
 
 extern void add_karma(CHAR_DATA * ch, char const * punish , char * reason);
 extern void check_max_hp(CHAR_DATA *ch);
