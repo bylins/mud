@@ -31,6 +31,17 @@ void TimedSpell::dec_timer(OBJ_DATA *obj, int time)
 	timer_ -= time;
 	if (timer_ <= 0)
 	{
+		// если что-то надо сделать со шмоткой при снятии обкаста
+		switch (spell_)
+		{
+		case SPELL_FLY:
+			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
+			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
+			break;
+		default:
+			log("SYSERROR: func: %s, spell_ = %d", __func__, spell_);
+		}
+		// онлайн уведомление чару
 		if (obj->carried_by || obj->worn_by)
 		{
 			CHAR_DATA *ch = obj->carried_by ? obj->carried_by : obj->worn_by;
@@ -44,8 +55,6 @@ void TimedSpell::dec_timer(OBJ_DATA *obj, int time)
 						GET_OBJ_PNAME(obj, 1));
 				break;
 			case SPELL_FLY:
-				REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
-				REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
 				send_to_char(ch, "Ваш%s %s перестал%s парить в воздухе.\r\n",
 						GET_OBJ_VIS_SUF_7(obj, ch), GET_OBJ_PNAME(obj, 0),
 						GET_OBJ_VIS_SUF_1(obj, ch));
