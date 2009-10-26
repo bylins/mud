@@ -100,7 +100,10 @@ void TimedSpell::set(OBJ_DATA *obj, int spell, int time)
 		return;
 	}
 	// иначе получится глупость
-	this->clear(obj, false);
+	if (!this->empty())
+	{
+		this->clear(obj, false);
+	}
 	timer_ = time;
 	spell_ = spell;
 }
