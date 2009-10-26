@@ -35,9 +35,18 @@ void TimedSpell::dec_timer(OBJ_DATA *obj, int time)
 		switch (spell_)
 		{
 		case SPELL_FLY:
-			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
-			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
+		{
+			const OBJ_DATA * const proto = read_object_mirror(GET_OBJ_VNUM(obj));
+			if (!OBJ_FLAGGED(proto, ITEM_FLYING))
+			{
+				REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
+			}
+			if (!OBJ_FLAGGED(proto, ITEM_SWIMMING))
+			{
+				REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
+			}
 			break;
+		}
 		default:
 			log("SYSERROR: func: %s, spell_ = %d", __func__, spell_);
 		}
