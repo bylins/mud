@@ -452,7 +452,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			{
 				*error = 49;
 				sscanf(buffer, "%d %d", t, t + 1);
-				object->timed_spell.set(t[0], t[1]);
+				object->timed_spell.set(object, t[0], t[1]);
 			}
 			else
 			{

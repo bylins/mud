@@ -423,13 +423,13 @@ void set_weap_poison(OBJ_DATA *weapon, int liquid_num)
 {
 	const int poison_timer = 30;
 	if (liquid_num == LIQ_POISON_ACONITUM)
-		weapon->timed_spell.set(SPELL_ACONITUM_POISON, poison_timer);
+		weapon->timed_spell.set(weapon, SPELL_ACONITUM_POISON, poison_timer);
 	else if (liquid_num == LIQ_POISON_SCOPOLIA)
-		weapon->timed_spell.set(SPELL_SCOPOLIA_POISON, poison_timer);
+		weapon->timed_spell.set(weapon, SPELL_SCOPOLIA_POISON, poison_timer);
 	else if (liquid_num == LIQ_POISON_BELENA)
-		weapon->timed_spell.set(SPELL_BELENA_POISON, poison_timer);
+		weapon->timed_spell.set(weapon, SPELL_BELENA_POISON, poison_timer);
 	else if (liquid_num == LIQ_POISON_DATURA)
-		weapon->timed_spell.set(SPELL_DATURA_POISON, poison_timer);
+		weapon->timed_spell.set(weapon, SPELL_DATURA_POISON, poison_timer);
 	else
 		log("SYSERROR: liquid_num == %d (%s %s %d)", liquid_num, __FILE__, __func__, __LINE__);
 }

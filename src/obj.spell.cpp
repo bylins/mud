@@ -17,6 +17,60 @@
 #include "room.hpp"
 
 /**
+* Снятие каста со шмотки.
+* \param send_message - true выводить мессагу при снятии каста
+*                     - false не выводить
+*/
+void TimedSpell::clear(OBJ_DATA *obj, bool send_message)
+{
+	// если что-то надо сделать со шмоткой при снятии обкаста
+	switch (spell_)
+	{
+	case SPELL_FLY:
+	{
+		const OBJ_DATA * const proto = read_object_mirror(GET_OBJ_VNUM(obj));
+		if (!OBJ_FLAGGED(proto, ITEM_FLYING))
+		{
+			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
+		}
+		if (!OBJ_FLAGGED(proto, ITEM_SWIMMING))
+		{
+			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
+		}
+		break;
+	}
+	default:
+		log("SYSERROR: func: %s, spell_ = %d", __func__, spell_);
+	} // case
+
+	// онлайн уведомление чару
+	if (send_message && (obj->carried_by || obj->worn_by))
+	{
+		CHAR_DATA *ch = obj->carried_by ? obj->carried_by : obj->worn_by;
+		switch (spell_)
+		{
+		case SPELL_ACONITUM_POISON:
+		case SPELL_SCOPOLIA_POISON:
+		case SPELL_BELENA_POISON:
+		case SPELL_DATURA_POISON:
+			send_to_char(ch, "С %s испарились последние капельки яда.\r\n",
+					GET_OBJ_PNAME(obj, 1));
+			break;
+		case SPELL_FLY:
+			send_to_char(ch, "Ваш%s %s перестал%s парить в воздухе.\r\n",
+					GET_OBJ_VIS_SUF_7(obj, ch), GET_OBJ_PNAME(obj, 0),
+					GET_OBJ_VIS_SUF_1(obj, ch));
+			break;
+		default:
+			send_to_char(ch, "С %s что-то исчезло (%d)... Оо Сообщите Богам!\r\n",
+					spell_, GET_OBJ_PNAME(obj, 1));
+		}
+	}
+	spell_ = -1;
+	timer_ = -1;
+}
+
+/**
 * Тик доп.спелла на шмотке (раз в минуту).
 * \param time по дефолту = 1.
 */
@@ -31,67 +85,24 @@ void TimedSpell::dec_timer(OBJ_DATA *obj, int time)
 	timer_ -= time;
 	if (timer_ <= 0)
 	{
-		// если что-то надо сделать со шмоткой при снятии обкаста
-		switch (spell_)
-		{
-		case SPELL_FLY:
-		{
-			const OBJ_DATA * const proto = read_object_mirror(GET_OBJ_VNUM(obj));
-			if (!OBJ_FLAGGED(proto, ITEM_FLYING))
-			{
-				REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
-			}
-			if (!OBJ_FLAGGED(proto, ITEM_SWIMMING))
-			{
-				REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
-			}
-			break;
-		}
-		default:
-			log("SYSERROR: func: %s, spell_ = %d", __func__, spell_);
-		}
-		// онлайн уведомление чару
-		if (obj->carried_by || obj->worn_by)
-		{
-			CHAR_DATA *ch = obj->carried_by ? obj->carried_by : obj->worn_by;
-			switch (spell_)
-			{
-			case SPELL_ACONITUM_POISON:
-			case SPELL_SCOPOLIA_POISON:
-			case SPELL_BELENA_POISON:
-			case SPELL_DATURA_POISON:
-				send_to_char(ch, "С %s испарились последние капельки яда.\r\n",
-						GET_OBJ_PNAME(obj, 1));
-				break;
-			case SPELL_FLY:
-				send_to_char(ch, "Ваш%s %s перестал%s парить в воздухе.\r\n",
-						GET_OBJ_VIS_SUF_7(obj, ch), GET_OBJ_PNAME(obj, 0),
-						GET_OBJ_VIS_SUF_1(obj, ch));
-				break;
-			default:
-				send_to_char(ch, "С %s что-то исчезло (%d)... Оо Сообщите Богам!\r\n",
-						spell_, GET_OBJ_PNAME(obj, 1));
-			}
-		}
-		spell_ = -1;
-		timer_ = -1;
+		this->clear(obj, true);
 	}
 }
 
 /**
 * Сет доп.спела с таймером на шмотку.
 */
-void TimedSpell::set(int spell, int time)
+void TimedSpell::set(OBJ_DATA *obj, int spell, int time)
 {
-	if (spell >= 0 && spell < LAST_USED_SPELL && time > 0)
+	if (!obj || spell < 0 || spell >= LAST_USED_SPELL || time < 0)
 	{
-		timer_ = time;
-		spell_ = spell;
+		log("SYSERROR: func: %s, obj = %s, spell = %d, time = %d", __func__, obj ? "true" : "false", spell, time);
+		return;
 	}
-	else
-	{
-		log("SYSERROR: func: %s, spell = %d, time = %d", __func__, spell, time);
-	}
+	// иначе получится глупость
+	this->clear(obj, false);
+	timer_ = time;
+	spell_ = spell;
 }
 
 /**

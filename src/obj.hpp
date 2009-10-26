@@ -290,10 +290,12 @@ public:
 	std::string print() const;
 
 	void dec_timer(OBJ_DATA *obj, int time = 1);
-	void set(int spell, int time);
+	void set(OBJ_DATA *obj, int spell, int time);
 	std::string diag_to_char(CHAR_DATA *ch);
 
 private:
+	void clear(OBJ_DATA *obj, bool send_message);
+
 	int spell_; // номер заклинания (SPELL_ХХХ)
 	int timer_; // сколько еще будет висеть (в минутах)
 };
