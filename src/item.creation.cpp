@@ -467,7 +467,7 @@ ACMD(do_edit_make)
 
 		make_recepts.add(trec);
 
-		CREATE(ch->desc->olc, struct olc_data, 1);
+		ch->desc->olc = new olc_data;
 		// входим в состояние правки рецепта.
 		STATE(ch->desc) = CON_MREDIT;
 
@@ -491,7 +491,7 @@ ACMD(do_edit_make)
 
 	i -= 1;
 
-	CREATE(ch->desc->olc, struct olc_data, 1);
+	ch->desc->olc = new olc_data;
 
 	STATE(ch->desc) = CON_MREDIT;
 

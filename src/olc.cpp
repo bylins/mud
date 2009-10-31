@@ -84,6 +84,34 @@ struct olc_scmd_data olc_scmd_info[6] =
 	{"trigger", CON_TRIGEDIT}
 };
 
+olc_data::olc_data()
+	: mode(0),
+	zone_num(0),
+	number(0),
+	value(0),
+	total_mprogs(0),
+	bitmask(0),
+	mob(0),
+	room(0),
+	obj(0),
+	zone(0),
+	shop(0),
+	desc(0),
+	mrec(0),
+#if defined(OASIS_MPROG)
+	mprog(0),
+	mprogl(0),
+#endif
+	trig(0),
+	script_mode(0),
+	trigger_position(0),
+	item_type(0),
+	script(0),
+	storage(0)
+{
+
+}
+
 /*------------------------------------------------------------*/
 
 /*
@@ -204,7 +232,7 @@ ACMD(do_olc)
 	/*
 	 * Give descriptor an OLC struct.
 	 */
-	CREATE(d->olc, struct olc_data, 1);
+	d->olc = new olc_data;
 
 	/*
 	 * Find the zone.
@@ -212,7 +240,7 @@ ACMD(do_olc)
 	if ((OLC_ZNUM(d) = real_zone(number)) == -1)
 	{
 		send_to_char("Звыняйтэ, такойи зоны нэмае.\r\n", ch);
-		free(d->olc);
+		delete d->olc;
 		return;
 	}
 	if (lock)
@@ -223,7 +251,7 @@ ACMD(do_olc)
 		olc_log("%s locks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].number);
 		mudlog(buf, LGH, LVL_IMPL, SYSLOG, TRUE);
 		zedit_save_to_disk(OLC_ZNUM(d));
-		free(d->olc);
+		delete d->olc;
 		return;
 	}
 
@@ -235,14 +263,14 @@ ACMD(do_olc)
 		olc_log("%s unlocks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].number);
 		mudlog(buf, LGH, LVL_IMPL, SYSLOG, TRUE);
 		zedit_save_to_disk(OLC_ZNUM(d));
-		free(d->olc);
+		delete d->olc;
 		return;
 	}
 	// Check if zone is protected from editing
 	if (zone_table[OLC_ZNUM(d)].locked)
 	{
 		send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
-		free(d->olc);
+		delete d->olc;
 		return;
 	}
 
@@ -252,7 +280,7 @@ ACMD(do_olc)
 	if (GET_OLC_ZONE(ch) && (zone_table[OLC_ZNUM(d)].number != GET_OLC_ZONE(ch)))
 	{
 		send_to_char("Вам запрещен доступ к сией зоне.\r\n", ch);
-		free(d->olc);
+		delete d->olc;
 		return;
 	}
 	if (save)
@@ -305,7 +333,7 @@ ACMD(do_olc)
 			sedit_save_to_disk(OLC_ZNUM(d));
 			break;
 		}
-		free(d->olc);
+		delete d->olc;
 		return;
 	}
 	OLC_NUM(d) = number;
@@ -333,7 +361,7 @@ ACMD(do_olc)
 		if ((real_num = real_room(number)) == NOWHERE)
 		{
 			send_to_char("Желательно создать комнату прежде, чем начинаете ее редактировать.\r\n", ch);
-			free(d->olc);
+			delete d->olc;
 			return;
 		}
 		zedit_setup(d, real_num);
@@ -358,8 +386,6 @@ ACMD(do_olc)
 			sedit_setup_existing(d, real_num);
 		else  		//send_to_char("Отключено.\r\n",ch);
 		{
-			//free(d->olc);
-			//return;
 			sedit_setup_new(d);
 		}
 		STATE(d) = CON_SEDIT;
@@ -605,8 +631,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			act("$n закончил$g работу и удовлетворенно посмотрел$g в развороченные недра Мироздания.",
 				TRUE, d->character, 0, 0, TO_ROOM);
 		}
-		free(d->olc);
-
+		delete d->olc;
 	}
 }
 

@@ -91,6 +91,8 @@ class MakeRecept;
 
 struct olc_data
 {
+	olc_data();
+
 	int mode;
 	int zone_num;
 	int number;
