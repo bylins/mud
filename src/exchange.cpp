@@ -714,7 +714,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 }
 
 /**
-* Проверка длинны фильтра.
+* Проверка длины фильтра.
 * \return false - перебор
 *         true - корректный
 */
