@@ -713,6 +713,21 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 
 }
 
+/**
+* Проверка длинны фильтра.
+* \return false - перебор
+*         true - корректный
+*/
+bool correct_filter_length(CHAR_DATA *ch, const char *str)
+{
+	if (strlen(str) >= FILTER_LENGTH)
+	{
+		send_to_char(ch, "Слишком длинный фильтр, максимальная длина: %d символа.\r\n", FILTER_LENGTH - 1);
+		return false;
+	}
+	return true;
+}
+
 int exchange_offers(CHAR_DATA * ch, char *arg)
 {
 //влом байты считать. Если кто хочет оптимизировать, посчитайте точно.
@@ -858,6 +873,11 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 	else
 		strcpy(multifilter, filter);
 
+	if (!correct_filter_length(ch, multifilter))
+	{
+		return 0;
+	}
+
 	show_lots(multifilter, show_type, ch);
 	return 1;
 }
@@ -900,10 +920,8 @@ int exchange_setfilter(CHAR_DATA * ch, char *arg)
 
 	skip_spaces(&arg);
 	strcpy(filter, arg);
-	if (strlen(filter) > FILTER_LENGTH)
+	if (!correct_filter_length(ch, filter))
 	{
-		sprintf(tmpbuf, "Слишком длинный фильтр. Максимальная длина: %d\r\n", FILTER_LENGTH);
-		send_to_char(tmpbuf, ch);
 		return false;
 	}
 	if (!strncmp(filter, "нет", 3))
