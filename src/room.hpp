@@ -58,7 +58,6 @@ struct room_data
 	char *name;		/* Rooms name 'You are ...'           */
 	int description_num;    // номер описания в глобальном списке
 	char *temp_description; // для олц, пока редактора не будет нормального
-	EXTRA_DESCR_DATA *ex_description;	/* for examine/look       */
 	boost::array<EXIT_DATA *, NUM_OF_DIRS> dir_option;	/* Directions */
 	FLAG_DATA room_flags;	/* DEATH,DARK ... etc */
 
@@ -96,6 +95,7 @@ struct room_data
 	struct room_property_data	add_property;
 
 	int poison;		/* Степень заражения территории в SPELL_POISONED_FOG */
+	ExtraDescSystem::PtrType extra_desc; // доп. описания
 };
 
 #endif // ROOM_HPP_INCLUDED

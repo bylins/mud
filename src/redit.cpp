@@ -271,7 +271,6 @@ void redit_save_to_disk(int zone_num)
 	int counter, counter2, realcounter;
 	FILE *fp;
 	ROOM_DATA *room;
-	EXTRA_DESCR_DATA *ex_desc;
 
 	if (zone_num < 0 || zone_num > top_of_zone_table)
 	{
@@ -372,18 +371,12 @@ void redit_save_to_disk(int zone_num)
 							world[room->dir_option[counter2]->to_room]->number : NOWHERE);
 				}
 			}
-			/*
-			 * Home straight, just deal with extra descriptions.
-			 */
-			if (room->ex_description)
+
+			if (room->extra_desc)
 			{
-				for (ex_desc = room->ex_description; ex_desc; ex_desc = ex_desc->next)
-				{
-					strcpy(buf1, ex_desc->description);
-					strip_string(buf1);
-					fprintf(fp, "E\n%s~\n%s~\n", ex_desc->keyword, buf1);
-				}
+				fprintf(fp, "%s", room->extra_desc->print_to_zone_file());
 			}
+
 			fprintf(fp, "S\n");
 			script_save_to_disk(fp, room, WLD_TRIGGER);
 			im_inglist_save_to_disk(fp, room->ing_list);
@@ -414,22 +407,7 @@ void redit_save_to_disk(int zone_num)
  */
 void redit_disp_extradesc_menu(DESCRIPTOR_DATA * d)
 {
-	EXTRA_DESCR_DATA *extra_desc = OLC_DESC(d);
-
-	sprintf(buf,
-#if defined(CLEAR_SCREEN)
-			"[H[J"
-#endif
-			"%s1%s) Ключ: %s%s\r\n"
-			"%s2%s) Описание:\r\n%s%s\r\n"
-			"%s3%s) Следующее описание: ",
-			grn, nrm, yel,
-			extra_desc->keyword ? extra_desc->keyword : "<NONE>", grn, nrm,
-			yel, extra_desc->description ? extra_desc->description : "<NONE>", grn, nrm);
-
-	strcat(buf, !extra_desc->next ? "<NOT SET>\r\n" : "Set.\r\n");
-	strcat(buf, "Enter choice (0 to quit) : ");
-	send_to_char(buf, d->character);
+	d->olc->main_exdesc_menu(d->character);
 	OLC_MODE(d) = REDIT_EXTRADESC_MENU;
 }
 
@@ -731,15 +709,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		case 'b':
 		case 'B':
-			/*
-			 * If the extra description doesn't exist.
-			 */
-			if (!OLC_ROOM(d)->ex_description)
-			{
-				CREATE(OLC_ROOM(d)->ex_description, EXTRA_DESCR_DATA, 1);
-				OLC_ROOM(d)->ex_description->next = NULL;
-			}
-			OLC_DESC(d) = OLC_ROOM(d)->ex_description;
+			d->olc->setup_exdesc(OLC_ROOM(d)->extra_desc);
 			redit_disp_extradesc_menu(d);
 			break;
 		case 'h':
@@ -962,83 +932,29 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		return;
 
 	case REDIT_EXTRADESC_KEY:
-		OLC_DESC(d)->keyword = ((arg && *arg) ? str_dup(arg) : NULL);
+		d->olc->set_exdesc_key(arg);
 		redit_disp_extradesc_menu(d);
 		return;
-
 	case REDIT_EXTRADESC_MENU:
 		switch ((number = atoi(arg)))
 		{
 		case 0:
-		{	/*
-		 * If something got left out, delete the extra description
-		 * when backing out to the menu.
-		 */
-			if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description)
-			{
-				EXTRA_DESCR_DATA **tmp_desc;
-
-				if (OLC_DESC(d)->keyword)
-					free(OLC_DESC(d)->keyword);
-				if (OLC_DESC(d)->description)
-					free(OLC_DESC(d)->description);
-
-				/*
-				 * Clean up pointers.
-				 */
-				for (tmp_desc = &(OLC_ROOM(d)->ex_description); *tmp_desc;
-						tmp_desc = &((*tmp_desc)->next))
-					if (*tmp_desc == OLC_DESC(d))
-					{
-						*tmp_desc = NULL;
-						break;
-					}
-				free(OLC_DESC(d));
-			}
-		}
-		break;
+			d->olc->exit_exdesc_menu(d, REDIT_MODE);
+			break;
 		case 1:
 			OLC_MODE(d) = REDIT_EXTRADESC_KEY;
 			send_to_char("Введите ключевые слова, разделенные пробелами : ", d->character);
 			return;
 		case 2:
 			OLC_MODE(d) = REDIT_EXTRADESC_DESCRIPTION;
-			SEND_TO_Q("Введите экстраописание: (/s сохранить /h помощь)\r\n\r\n", d);
-			d->backstr = NULL;
-			if (OLC_DESC(d)->description)
-			{
-				SEND_TO_Q(OLC_DESC(d)->description, d);
-				d->backstr = str_dup(OLC_DESC(d)->description);
-			}
-			d->str = &OLC_DESC(d)->description;
-			d->max_str = 4096;
-			d->mail_to = 0;
+			d->olc->setup_exdesc_text_edit(d);
 			return;
 
 		case 3:
-			if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description)
-			{
-				send_to_char
-				("Вы не можете редактировать следующее экстраописание, не завершив текущее.\r\n",
-				 d->character);
-				redit_disp_extradesc_menu(d);
-			}
-			else
-			{
-				EXTRA_DESCR_DATA *new_extra;
-
-				if (OLC_DESC(d)->next)
-					OLC_DESC(d) = OLC_DESC(d)->next;
-				else
-				{	/*
-					 * Make new extra description and attach at end.
-					 */
-					CREATE(new_extra, EXTRA_DESCR_DATA, 1);
-					OLC_DESC(d)->next = new_extra;
-					OLC_DESC(d) = new_extra;
-				}
-				redit_disp_extradesc_menu(d);
-			}
+			d->olc->next_exdesc_menu(d, REDIT_MODE);
+			// No break - drop into default case.
+		default:
+			redit_disp_extradesc_menu(d);
 			return;
 		}
 		break;

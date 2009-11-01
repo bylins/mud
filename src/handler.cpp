@@ -217,6 +217,11 @@ int isname(const std::string &str, const char *namelist)
 	return isname(str.c_str(), namelist);
 }
 
+int isname(const std::string &str, const std::string &namelist)
+{
+	return isname(str.c_str(), namelist.c_str());
+}
+
 bool is_wear_light(CHAR_DATA *ch)
 {
 	bool wear_light = FALSE;
@@ -3306,7 +3311,6 @@ OBJ_DATA *create_money(int amount)
 {
 	int i;
 	OBJ_DATA *obj;
-	EXTRA_DESCR_DATA *new_descr;
 	char buf[200];
 
 	if (amount <= 0)
@@ -3315,35 +3319,31 @@ OBJ_DATA *create_money(int amount)
 		return (NULL);
 	}
 	obj = create_obj();
-	CREATE(new_descr, EXTRA_DESCR_DATA, 1);
 
 	if (amount == 1)
 	{
-		sprintf(buf, "coin gold кун деньги денег монет %s", money_desc(amount, 0));
+		snprintf(buf, 200, "coin gold кун деньги денег монет %s", money_desc(amount, 0));
 		obj->name = str_dup(buf);
 		obj->short_description = str_dup("куна");
 		obj->description = str_dup("Одна куна лежит здесь.");
-		new_descr->keyword = str_dup("coin gold монет кун денег");
-		new_descr->description = str_dup("Всего лишь одна куна.");
 		for (i = 0; i < NUM_PADS; i++)
+		{
 			obj->PNames[i] = str_dup(money_desc(amount, i));
+		}
+		ExtraDescSystem::add(obj, "coin gold монет кун денег", "Всего лишь одна куна.");
 	}
 	else
 	{
-		sprintf(buf, "coins gold кун денег %s", money_desc(amount, 0));
+		snprintf(buf, 200, "coins gold кун денег %s", money_desc(amount, 0));
 		obj->name = str_dup(buf);
 		obj->short_description = str_dup(money_desc(amount, 0));
 		for (i = 0; i < NUM_PADS; i++)
+		{
 			obj->PNames[i] = str_dup(money_desc(amount, i));
-
-		sprintf(buf, "Здесь лежит %s.", money_desc(amount, 0));
-		obj->description = str_dup(CAP(buf));
-
-		new_descr->keyword = str_dup("coins gold кун денег");
+		}
+		snprintf(buf, 200, "Здесь лежит %s.", money_desc(amount, 0));
+		ExtraDescSystem::add(obj, "coins gold кун денег", buf);
 	}
-
-	new_descr->next = NULL;
-	obj->ex_description = new_descr;
 
 	GET_OBJ_TYPE(obj) = ITEM_MONEY;
 	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;

@@ -72,8 +72,6 @@ int parse_exch_filter(char *buf, char *filter_name, char *filter_owner, int *fil
 					  int *filter_cost, int *filter_timer, int *filter_wereon, int *filter_weaponclass);
 void clear_exchange_lot(EXCHANGE_ITEM_DATA * lot);
 
-int newbase;
-
 EXCHANGE_ITEM_DATA *create_exchange_item(void);
 
 EXCHANGE_ITEM_DATA *exchange_item_list = NULL;
@@ -1073,266 +1071,6 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error)
 	return (item);
 }
 
-EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
-{
-	char buffer[MAX_STRING_LENGTH], f0[MAX_STRING_LENGTH], f1[MAX_STRING_LENGTH], f2[MAX_STRING_LENGTH];
-	int vnum, i, j, t[5];
-	EXTRA_DESCR_DATA *new_descr;
-	EXCHANGE_ITEM_DATA *item = NULL;
-	*error = 1;
-	// Станем на начало предмета
-	for (; **data != EX_NEW_ITEM_CHAR; (*data)++)
-		if (!**data || **data == EX_END_CHAR)
-			return (item);
-
-	*error = 2;
-
-	// Пропустим #
-	(*data)++;
-
-	// Считаем lot предмета
-	if (!get_buf_line(data, buffer))
-		return (item);
-
-	*error = 3;
-	item = create_exchange_item();
-	if ((GET_EXCHANGE_ITEM_LOT(item) = atoi(buffer)) <= 0)
-		return (item);
-
-	*error = 4;
-	// Считаем seler_id предмета
-	if (!get_buf_line(data, buffer))
-		return (item);
-	*error = 5;
-	if (!(GET_EXCHANGE_ITEM_SELLERID(item) = atoi(buffer)))
-		return (item);
-
-	*error = 6;
-	// Считаем цену предмета
-	if (!get_buf_line(data, buffer))
-		return (item);
-	*error = 7;
-	if (!(GET_EXCHANGE_ITEM_COST(item) = atoi(buffer)))
-		return (item);
-
-	*error = 8;
-	// Считаем comment предмета
-	char *str_last_symb = strchr(*data, '\n');
-	strncpy(buffer, *data, str_last_symb - *data);
-	buffer[str_last_symb - *data] = '\0';
-	*data = str_last_symb;
-
-	if (strcmp(buffer, "EMPTY"))
-		if (!(GET_EXCHANGE_ITEM_COMMENT(item) = str_dup(buffer)))
-			return (item);
-	*error = 12;
-	// Считаем vnum предмета
-	if (!get_buf_line(data, buffer))
-		return (item);
-	*error = 13;
-	if (!(vnum = atoi(buffer)))
-		return (item);
-
-	if (vnum < 0)  		// Предмет не имеет прототипа
-	{
-		GET_EXCHANGE_ITEM(item) = create_obj();
-		*error = 14;
-		if (!get_buf_lines(data, buffer))
-			return (item);
-		// Алиасы
-		GET_OBJ_ALIAS(GET_EXCHANGE_ITEM(item)) = str_dup(buffer);
-		GET_EXCHANGE_ITEM(item)->name = str_dup(buffer);
-		// Падежи
-		*error = 15;
-		for (i = 0; i < NUM_PADS; i++)
-		{
-			if (!get_buf_lines(data, buffer))
-				return (item);
-			GET_OBJ_PNAME(GET_EXCHANGE_ITEM(item), i) = str_dup(buffer);
-		}
-		// Описание когда на земле
-		*error = 16;
-		if (!get_buf_lines(data, buffer))
-			return (item);
-		GET_OBJ_DESC(GET_EXCHANGE_ITEM(item)) = str_dup(buffer);
-		// Описание при действии
-		*error = 17;
-		if (!get_buf_lines(data, buffer))
-			return (item);
-		GET_OBJ_ACT(GET_EXCHANGE_ITEM(item)) = str_dup(buffer);
-	}
-	else if (!(GET_EXCHANGE_ITEM(item) = read_object(vnum, VIRTUAL)))
-	{
-		*error = 18;
-		return (item);
-	}
-	*error = 19;
-	if (!get_buf_line(data, buffer) || sscanf(buffer, " %s %d %d %d", f0, t + 1, t + 2, t + 3) != 4)
-		return (item);
-	GET_OBJ_SKILL(GET_EXCHANGE_ITEM(item)) = 0;
-	asciiflag_conv(f0, &GET_OBJ_SKILL(GET_EXCHANGE_ITEM(item)));
-	GET_OBJ_MAX(GET_EXCHANGE_ITEM(item)) = t[1];
-	GET_OBJ_CUR(GET_EXCHANGE_ITEM(item)) = t[2];
-	GET_OBJ_MATER(GET_EXCHANGE_ITEM(item)) = t[3];
-
-	*error = 20;
-	if (!get_buf_line(data, buffer) || sscanf(buffer, " %d %d %d %d", t, t + 1, t + 2, t + 3) != 4)
-		return (item);
-	GET_OBJ_SEX(GET_EXCHANGE_ITEM(item)) = t[0];
-	GET_EXCHANGE_ITEM(item)->set_timer(t[1]);
-	GET_OBJ_SPELL(GET_EXCHANGE_ITEM(item)) = t[2];
-	GET_OBJ_LEVEL(GET_EXCHANGE_ITEM(item)) = t[3];
-
-	*error = 21;
-	if (!get_buf_line(data, buffer) || sscanf(buffer, " %s %s %s", f0, f1, f2) != 3)
-		return (item);
-	GET_OBJ_AFFECTS(GET_EXCHANGE_ITEM(item)) = clear_flags;
-	GET_OBJ_ANTI(GET_EXCHANGE_ITEM(item)) = clear_flags;
-	GET_OBJ_NO(GET_EXCHANGE_ITEM(item)) = clear_flags;
-	asciiflag_conv(f0, &GET_OBJ_AFFECTS(GET_EXCHANGE_ITEM(item)));
-	asciiflag_conv(f1, &GET_OBJ_ANTI(GET_EXCHANGE_ITEM(item)));
-	asciiflag_conv(f2, &GET_OBJ_NO(GET_EXCHANGE_ITEM(item)));
-
-	*error = 22;
-	if (!get_buf_line(data, buffer) || sscanf(buffer, " %d %s %s", t, f1, f2) != 3)
-		return (item);
-	GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) = t[0];
-	GET_EXCHANGE_ITEM(item)->obj_flags.extra_flags = clear_flags;
-	GET_OBJ_WEAR(GET_EXCHANGE_ITEM(item)) = 0;
-	asciiflag_conv(f1, &GET_OBJ_EXTRA(GET_EXCHANGE_ITEM(item), 0));
-	asciiflag_conv(f2, &GET_OBJ_WEAR(GET_EXCHANGE_ITEM(item)));
-
-	*error = 23;
-	if (!get_buf_line(data, buffer) || sscanf(buffer, "%s %d %d %d", f0, t + 1, t + 2, t + 3) != 4)
-		return (item);
-	GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 0) = 0;
-	asciiflag_conv(f0, &GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 0));
-	GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 1) = t[1];
-	GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 2) = t[2];
-	GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 3) = t[3];
-
-	*error = 24;
-	if (!get_buf_line(data, buffer) || sscanf(buffer, "%d %d %d %d", t, t + 1, t + 2, t + 3) != 4)
-		return (item);
-	GET_OBJ_WEIGHT(GET_EXCHANGE_ITEM(item)) = t[0];
-	GET_OBJ_COST(GET_EXCHANGE_ITEM(item)) = t[1];
-	GET_OBJ_RENT(GET_EXCHANGE_ITEM(item)) = t[2];
-	GET_OBJ_RENTEQ(GET_EXCHANGE_ITEM(item)) = t[3];
-
-	*error = 25;
-	if (!get_buf_line(data, buffer) || sscanf(buffer, "%d %d", t, t + 1) != 2)
-		return (item);
-	GET_EXCHANGE_ITEM(item)->worn_on = t[0];
-	GET_OBJ_OWNER(GET_EXCHANGE_ITEM(item)) = t[1];
-
-
-	// Проверить вес фляг и т.п.
-	if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == ITEM_DRINKCON ||
-			GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == ITEM_FOUNTAIN)
-	{
-		if (GET_OBJ_WEIGHT(GET_EXCHANGE_ITEM(item)) < GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 1))
-			GET_OBJ_WEIGHT(GET_EXCHANGE_ITEM(item)) = GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 1) + 5;
-	}
-
-	GET_EXCHANGE_ITEM(item)->ex_description = NULL;	// Exclude doubling ex_description !!!
-	j = 0;
-
-	for (;;)
-	{
-		if (!get_buf_line(data, buffer))
-		{
-			*error = 0;
-			for (; j < MAX_OBJ_AFFECT; j++)
-			{
-				GET_EXCHANGE_ITEM(item)->affected[j].location = APPLY_NONE;
-				GET_EXCHANGE_ITEM(item)->affected[j].modifier = 0;
-			}
-			if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == ITEM_MING)
-			{
-				int err = im_assign_power(GET_EXCHANGE_ITEM(item));
-				if (err)
-					*error = 100 + err;
-			}
-			return (item);
-		}
-		switch (*buffer)
-		{
-		case 'E':
-			CREATE(new_descr, EXTRA_DESCR_DATA, 1);
-			if (!get_buf_lines(data, buffer))
-			{
-				free(new_descr);
-				*error = 26;
-				return (item);
-			}
-			new_descr->keyword = str_dup(buffer);
-			if (!get_buf_lines(data, buffer))
-			{
-				free(new_descr->keyword);
-				free(new_descr);
-				*error = 27;
-				return (item);
-			}
-			new_descr->description = str_dup(buffer);
-			new_descr->next = GET_EXCHANGE_ITEM(item)->ex_description;
-			GET_EXCHANGE_ITEM(item)->ex_description = new_descr;
-			break;
-		case 'A':
-			if (j >= MAX_OBJ_AFFECT)
-			{
-				*error = 28;
-				return (item);
-			}
-			if (!get_buf_line(data, buffer))
-			{
-				*error = 29;
-				return (item);
-			}
-			if (sscanf(buffer, " %d %d ", t, t + 1) == 2)
-			{
-				GET_EXCHANGE_ITEM(item)->affected[j].location = t[0];
-				GET_EXCHANGE_ITEM(item)->affected[j].modifier = t[1];
-				j++;
-			}
-			break;
-		case 'M':
-			// Вставляем сюда уникальный номер создателя
-			if (!get_buf_line(data, buffer))
-			{
-				*error = 30;
-				return (item);
-			}
-			if (sscanf(buffer, " %d ", t) == 1)
-			{
-				GET_OBJ_MAKER(GET_EXCHANGE_ITEM(item)) = t[0];
-			}
-			break;
-		case 'P':
-			if (!get_buf_line(data, buffer))
-			{
-				*error = 31;
-				return (item);
-			}
-			if (sscanf(buffer, " %d ", t) == 1)
-			{
-				int rnum;
-				GET_OBJ_PARENT(GET_EXCHANGE_ITEM(item)) = t[0];
-				rnum = real_mobile(GET_OBJ_PARENT(GET_EXCHANGE_ITEM(item)));
-				if (rnum > -1)
-				{
-					trans_obj_name(GET_EXCHANGE_ITEM(item), &mob_proto[rnum]);
-				}
-			}
-			break;
-
-		default:
-			break;
-		}
-	}
-	*error = 32;
-	return (item);
-}
-
 void exchange_write_one_object_new(char **data, EXCHANGE_ITEM_DATA * item)
 {
 	int count = 0;
@@ -1346,78 +1084,6 @@ void exchange_write_one_object_new(char **data, EXCHANGE_ITEM_DATA * item)
 
 	d = *data + count;
 	write_one_object(&d, GET_EXCHANGE_ITEM(item), 0);
-}
-
-void exchange_write_one_object(char **data, EXCHANGE_ITEM_DATA * item)
-{
-	char buf[MAX_STRING_LENGTH];
-	EXTRA_DESCR_DATA *descr;
-	int count = 0, i, j;
-
-	count += sprintf(*data + count, "#%d\n", GET_EXCHANGE_ITEM_LOT(item));
-	count += sprintf(*data + count, "%d\n", GET_EXCHANGE_ITEM_SELLERID(item));
-	count += sprintf(*data + count, "%d\n", GET_EXCHANGE_ITEM_COST(item));
-	count += sprintf(*data + count, "%s\n",
-					 GET_EXCHANGE_ITEM_COMMENT(item) ? GET_EXCHANGE_ITEM_COMMENT(item) : "EMPTY\n");
-
-	count += sprintf(*data + count, "%d\n", GET_OBJ_VNUM(GET_EXCHANGE_ITEM(item)));
-
-	if (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(item)) < 0)  	// Предмет не имеет прототипа
-	{
-		// Алиасы
-		count += sprintf(*data + count, "%s~\n", GET_OBJ_ALIAS(GET_EXCHANGE_ITEM(item)));
-		// Падежи
-		for (i = 0; i < NUM_PADS; i++)
-			count += sprintf(*data + count, "%s~\n", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(item), i));
-		// Описание когда на земле
-		count += sprintf(*data + count, "%s~\n",
-						 GET_OBJ_DESC(GET_EXCHANGE_ITEM(item)) ? GET_OBJ_DESC(GET_EXCHANGE_ITEM(item)) : "");
-		// Описание при действии
-		count += sprintf(*data + count, "%s~\n",
-						 GET_OBJ_ACT(GET_EXCHANGE_ITEM(item)) ? GET_OBJ_ACT(GET_EXCHANGE_ITEM(item)) : "");
-	}
-
-	count += sprintf(*data + count, "%d %d %d %d\n",
-					 GET_OBJ_SKILL(GET_EXCHANGE_ITEM(item)),
-					 GET_OBJ_MAX(GET_EXCHANGE_ITEM(item)),
-					 GET_OBJ_CUR(GET_EXCHANGE_ITEM(item)), GET_OBJ_MATER(GET_EXCHANGE_ITEM(item)));
-	count += sprintf(*data + count, "%d %d %d %d\n",
-					 GET_OBJ_SEX(GET_EXCHANGE_ITEM(item)),
-					 GET_EXCHANGE_ITEM(item)->get_timer(),
-					 GET_OBJ_SPELL(GET_EXCHANGE_ITEM(item)), GET_OBJ_LEVEL(GET_EXCHANGE_ITEM(item)));
-	*buf = '\0';
-	tascii((int *) &GET_OBJ_AFFECTS(GET_EXCHANGE_ITEM(item)), 4, buf);
-	tascii((int *) &GET_OBJ_ANTI(GET_EXCHANGE_ITEM(item)), 4, buf);
-	tascii((int *) &GET_OBJ_NO(GET_EXCHANGE_ITEM(item)), 4, buf);
-	count += sprintf(*data + count, "%s\n", buf);
-	*buf = '\0';
-	tascii(&GET_OBJ_EXTRA(GET_EXCHANGE_ITEM(item), 0), 4, buf);
-	tascii(&GET_OBJ_WEAR(GET_EXCHANGE_ITEM(item)), 4, buf);
-	count += sprintf(*data + count, "%d %s\n", GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)), buf);
-	count += sprintf(*data + count, "%d %d %d %d\n",
-					 GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 0),
-					 GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 1),
-					 GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 2), GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 3));
-	count += sprintf(*data + count, "%d %d %d %d\n",
-					 GET_OBJ_WEIGHT(GET_EXCHANGE_ITEM(item)),
-					 GET_OBJ_COST(GET_EXCHANGE_ITEM(item)),
-					 GET_OBJ_RENT(GET_EXCHANGE_ITEM(item)), GET_OBJ_RENTEQ(GET_EXCHANGE_ITEM(item)));
-	count += sprintf(*data + count, "%d %d\n", '0', GET_OBJ_OWNER(GET_EXCHANGE_ITEM(item)));
-
-	for (descr = GET_EXCHANGE_ITEM(item)->ex_description; descr; descr = descr->next)
-		count += sprintf(*data + count, "E\n%s~\n%s~\n",
-						 descr->keyword ? descr->keyword : "", descr->description ? descr->description : "");
-	for (j = 0; j < MAX_OBJ_AFFECT; j++)
-		if (GET_EXCHANGE_ITEM(item)->affected[j].location)
-			count += sprintf(*data + count, "A\n%d %d\n",
-							 GET_EXCHANGE_ITEM(item)->affected[j].location,
-							 GET_EXCHANGE_ITEM(item)->affected[j].modifier);
-
-	if (GET_OBJ_MAKER(GET_EXCHANGE_ITEM(item)))
-		count += sprintf(*data + count, "M\n%d\n", GET_OBJ_MAKER(GET_EXCHANGE_ITEM(item)));
-
-	if (GET_OBJ_PARENT(GET_EXCHANGE_ITEM(item)))
-		count += sprintf(*data + count, "P\n%d\n", GET_OBJ_PARENT(GET_EXCHANGE_ITEM(item)));
 }
 
 int exchange_database_load()
@@ -1457,24 +1123,13 @@ int exchange_database_load()
 	get_buf_line(&data, buffer);
 	if (strstr(buffer, "!NEW!") == NULL)
 	{
-		newbase = FALSE;
-		data = readdata;
-	}
-	else
-	{
-		newbase = TRUE;
+		log("SYSERR: Error reading exchange database file (or old format).");
+		return 0;
 	}
 
 	for (fsize = 0; *data && *data != EX_END_CHAR; fsize++)
 	{
-		if (newbase)
-		{
-			item = exchange_read_one_object_new(&data, &error);
-		}
-		else
-		{
-			item = exchange_read_one_object(&data, &error);
-		}
+		item = exchange_read_one_object_new(&data, &error);
 
 		if (item == NULL)
 		{
@@ -1565,28 +1220,17 @@ int exchange_database_reload(bool loadbackup)
 	data = readdata;
 	*(data + fsize) = '\0';
 
-	// Новая база или старая?
+	// база уже полюбому новая
 	get_buf_line(&data, buffer);
 	if (strstr(buffer, "!NEW!") == NULL)
 	{
-		newbase = FALSE;
-		data = readdata;
-	}
-	else
-	{
-		newbase = TRUE;
+		log("SYSERR: Error reading exchange database file (or old format).");
+		return 0;
 	}
 
 	for (fsize = 0; *data && *data != EX_END_CHAR; fsize++)
 	{
-		if (newbase)
-		{
-			item = exchange_read_one_object_new(&data, &error);
-		}
-		else
-		{
-			item = exchange_read_one_object(&data, &error);
-		}
+		item = exchange_read_one_object_new(&data, &error);
 
 		if (item == NULL)
 		{
@@ -1659,7 +1303,6 @@ int exchange_database_save()
 	for (j = exchange_item_list; j; j = next_thing)
 	{
 		next_thing = j->next;
-//      log("Exchange: Saving %d", GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)));
 		exchange_write_one_object_new(&buffer, j);
 		fprintf(fl, "%s\n", buffer);
 	}

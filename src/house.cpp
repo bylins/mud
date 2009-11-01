@@ -4329,12 +4329,7 @@ ACMD(do_clanstuff)
 
 		if (it->longdesc.length() > 0)
 		{
-			EXTRA_DESCR_DATA * new_descr;
-			CREATE(new_descr, EXTRA_DESCR_DATA, 1);
-			new_descr->keyword = str_dup(obj->short_description);
-			new_descr->description = str_dup(it->longdesc.c_str());
-			new_descr->next = NULL;
-			obj->ex_description = new_descr;
+			ExtraDescSystem::add(obj, obj->short_description, it->longdesc.c_str());
 		}
 
 		if (!cnt)

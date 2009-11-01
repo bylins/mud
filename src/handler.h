@@ -60,6 +60,8 @@ char *money_desc(int amount, int padis);
 OBJ_DATA *create_money(int amount);
 int isname(const char *str, const char *namelist);
 int isname(const std::string &str, const char *namelist);
+int isname(const std::string &str, const std::string &namelist);
+
 char *fname(const char *namelist);
 int get_number(char **name);
 int get_number(std::string &name);

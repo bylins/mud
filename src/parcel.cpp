@@ -496,10 +496,6 @@ void return_money(std::string const &name, int money, bool add)
 */
 void fill_ex_desc(CHAR_DATA *ch, OBJ_DATA *obj, std::string sender)
 {
-	CREATE(obj->ex_description, EXTRA_DESCR_DATA, 1);
-	obj->ex_description->keyword = str_dup("посылка бандероль пакет ящик parcel box case chest");
-	obj->ex_description->next = 0;
-
 	int size = MAX(strlen(GET_NAME(ch)), sender.size());
 	std::stringstream out;
 	out.setf(std::ios_base::left);
@@ -512,7 +508,7 @@ void fill_ex_desc(CHAR_DATA *ch, OBJ_DATA *obj, std::string sender)
 		<< " |\r\n|  Получатель: " << std::setw(size) << GET_NAME(ch) << " |\r\n";
 	out << std::setw(size + 16) << std::setfill('-') << " " << std::setfill(' ') << "\r\n";
 
-	obj->ex_description->description = str_dup(out.str().c_str());
+	ExtraDescSystem::add(obj, "посылка бандероль пакет ящик parcel box case chest", out.str().c_str());
 }
 
 /**

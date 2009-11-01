@@ -11,6 +11,10 @@
 #ifndef _OLC_H_
 #define _OLC_H_
 
+#include "conf.h"
+#include "sysdep.h"
+#include "structs.h"
+
 /*
  * If you don't want a short explanation of each field in your zone files,
  * change the number below to a 0 instead of a 1.
@@ -92,6 +96,15 @@ class MakeRecept;
 struct olc_data
 {
 	olc_data();
+	~olc_data();
+
+	void exit_exdesc_edit();
+	void main_exdesc_menu(CHAR_DATA *ch);
+	void setup_exdesc(ExtraDescSystem::PtrType &extra_desc);
+	void set_exdesc_key(const char *arg);
+	void exit_exdesc_menu(DESCRIPTOR_DATA *d, int mode);
+	void setup_exdesc_text_edit(DESCRIPTOR_DATA *d);
+	void next_exdesc_menu(DESCRIPTOR_DATA *d, int mode);
 
 	int mode;
 	int zone_num;
@@ -104,7 +117,6 @@ struct olc_data
 	OBJ_DATA *obj;
 	struct zone_data *zone;
 	struct shop_data *shop;
-	EXTRA_DESCR_DATA *desc;
 
 	MakeRecept *mrec;
 
@@ -118,7 +130,21 @@ struct olc_data
 	int item_type;
 	struct trig_proto_list *script;
 	char *storage;		/* for holding commands etc.. */
+
+private:
+	void clear_exdesc();
+
+	// для добавления нового extra_desc
+	ExtraDescSystem::extradesc_node description;
+	// порядковый номер (в векторе) текущего экстра описания, -1 для нового описания
+	int extra_desc_num;
+	// есть ли следующее экстра-описание
+	bool next_extra_desc;
+	// для редактора текста экстра-описания
+	char *temp_extra_desc_text;
 };
+
+enum { REDIT_MODE, OEDIT_MODE };
 
 struct olc_save_info
 {

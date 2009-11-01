@@ -93,7 +93,6 @@ typedef struct script_data SCRIPT_DATA;
 
 typedef struct exit_data EXIT_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
-typedef struct extra_descr_data EXTRA_DESCR_DATA;
 typedef struct descriptor_data DESCRIPTOR_DATA;
 typedef struct affect_data AFFECT_DATA;
 
@@ -1313,13 +1312,96 @@ operator>=(const unique_bit_flag_data& __lop, const unique_bit_flag_data& __rop)
 			*(__lop.flags + 2) > *(__rop.flags + 2) || *(__lop.flags + 3) > *(__rop.flags + 3));
 }
 
-/* Extra description: used in objects, mobiles, and rooms */
-struct extra_descr_data
+////////////////////////////////////////////////////////////////////////////////
+namespace ExtraDescSystem
 {
-	char *keyword;		/* Keyword in look/examine          */
-	char *description;	/* What to see                      */
-	EXTRA_DESCR_DATA *next;	/* Next in list                     */
+
+struct extradesc_node
+{
+	std::string key; // ключевое слово при осмотре
+	std::string text; // соответствующий этому слову текст
 };
+
+class ExtraDesc
+{
+public:
+	void add(const char *key, const char *text);
+	void add_from_make(const char *key, const char *text);
+	std::string find(const char *key) const;
+	std::string print_keys() const;
+	bool empty() const;
+	void clear();
+	// сейв
+	const char * print_to_char_file(const OBJ_DATA *proto) const;
+	const char * print_to_zone_file() const;
+	const char * print_to_obj_file() const;
+	// для олц
+	struct extradesc_node olc_get_node(unsigned num) const;
+	void olc_set_node(unsigned num, struct extradesc_node node);
+	bool olc_get_next(unsigned num) const;
+
+private:
+	bool have_desc(const std::string &key, const std::string &text) const;
+
+	typedef std::vector<extradesc_node> ExtraDescList;
+	ExtraDescList list_;
+};
+
+typedef boost::shared_ptr<ExtraDesc> PtrType;
+
+/**
+* Для поиска в экстра-описаниях объектов и комнат без предварительной
+* проверки на наличие extra_desc указателя.
+*/
+template<typename T> std::string find(T t, const char *what)
+{
+	if (t->extra_desc)
+	{
+		return t->extra_desc->find(what);
+	}
+	return "";
+}
+
+/**
+* Добавление нового экстра-описания к объекту/комнате
+* с созданием нового в случае пустого указателя.
+* \param from_make = true для вызова ExtraDesc::add_from_make().
+*/
+template<typename T> void add(T t, const char *key, const char *text, bool from_make = false)
+{
+	if (!key || !text)
+	{
+		return;
+	}
+	if (!t->extra_desc)
+	{
+		t->extra_desc.reset(new ExtraDesc);
+	}
+
+	if (!from_make)
+	{
+		t->extra_desc->add(key, text);
+	}
+	else
+	{
+		t->extra_desc->add_from_make(key, text);
+	}
+}
+
+/**
+* Копирование с выделением памяти из src в dst (для олц).
+*/
+template<typename T> void copy(T dst, T src)
+{
+	if (src->extra_desc)
+	{
+		dst->extra_desc.reset(new ExtraDescSystem::ExtraDesc);
+		*dst->extra_desc = *src->extra_desc;
+	}
+}
+
+} // namespace ExtraDescSystem
+////////////////////////////////////////////////////////////////////////////////
 
 /* header block for rent files.  BEWARE: Changing it will ruin rent files  */
 struct save_rent_info

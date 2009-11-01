@@ -12,7 +12,6 @@ room_data::room_data()
 	name(0),
 	description_num(0),
 	temp_description(0),
-	ex_description(0),
 	light(0),
 	glight(0),
 	gdark(0),

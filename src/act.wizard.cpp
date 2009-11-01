@@ -1087,7 +1087,6 @@ ACMD(do_vnum)
 
 void do_stat_room(CHAR_DATA * ch)
 {
-	EXTRA_DESCR_DATA *desc;
 	ROOM_DATA *rm = world[ch->in_room];
 	int i, found;
 	OBJ_DATA *j;
@@ -1110,17 +1109,14 @@ void do_stat_room(CHAR_DATA * ch)
 	send_to_char("Описание:\r\n", ch);
 	send_to_char(RoomDescription::show_desc(rm->description_num), ch);
 
-	if (rm->ex_description)
+	if (rm->extra_desc)
 	{
-		sprintf(buf, "Доп. описание:%s", CCCYN(ch, C_NRM));
-		for (desc = rm->ex_description; desc; desc = desc->next)
-		{
-			strcat(buf, " ");
-			strcat(buf, desc->keyword);
-		}
-		strcat(buf, CCNRM(ch, C_NRM));
-		send_to_char(strcat(buf, "\r\n"), ch);
+		std::string keys = rm->extra_desc->print_keys();
+		snprintf(buf, MAX_STRING_LENGTH, "Доп. описания:%s%s%s\r\n",
+				CCCYN(ch, C_NRM), keys.c_str(), CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
 	}
+
 	sprintf(buf, "Живые существа:%s", CCYEL(ch, C_NRM));
 	for (found = 0, k = rm->people; k; k = k->next_in_room)
 	{
@@ -1215,7 +1211,6 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j)
 	int i, found;
 	obj_vnum rnum, vnum;
 	OBJ_DATA *j2;
-	EXTRA_DESCR_DATA *desc;
 	long int li;
 	bool is_grgod = IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO) ? true : false;
 
@@ -1256,17 +1251,14 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j)
 	sprintf(buf, "L-Des: %s\r\n", ((j->description) ? j->description : "Нет"));
 	send_to_char(buf, ch);
 
-	if (j->ex_description)
+	if (j->extra_desc)
 	{
-		sprintf(buf, "Экстра описание:%s", CCCYN(ch, C_NRM));
-		for (desc = j->ex_description; desc; desc = desc->next)
-		{
-			strcat(buf, " ");
-			strcat(buf, desc->keyword);
-		}
-		strcat(buf, CCNRM(ch, C_NRM));
-		send_to_char(strcat(buf, "\r\n"), ch);
+		std::string keys = j->extra_desc->print_keys();
+		snprintf(buf, MAX_STRING_LENGTH, "Экстра описания:%s%s%s\r\n",
+				CCCYN(ch, C_NRM), keys.c_str(), CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
 	}
+
 	send_to_char("Может быть одет : ", ch);
 	sprintbit(j->obj_flags.wear_flags, wear_bits, buf);
 	strcat(buf, "\r\n");
