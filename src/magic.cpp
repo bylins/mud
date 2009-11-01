@@ -33,8 +33,6 @@
 #include "random.hpp"
 #include "char.hpp"
 #include "poison.hpp"
-#include "modify.h"
-#include "room.hpp"
 
 extern void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer);
 extern int what_sky;
@@ -3143,7 +3141,11 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			break;
         case SPELL_SHOCK:
 			savetype = SAVING_REFLEX;
-			modi = CALC_SUCCESS(modi, 65);
+			if (GET_CLASS(ch) == CLASS_CLERIC) {
+                modi = CALC_SUCCESS(modi, 75);
+			} else {
+			    modi = CALC_SUCCESS(modi, 25);
+			}
 			break;
 		}
 		if (WAITLESS(victim) || (!WAITLESS(ch) && general_savingthrow(ch, victim, savetype, modi)))
@@ -4282,9 +4284,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		obj->affected[1].location = APPLY_DAMROLL;
 		obj->affected[1].modifier = 1 + (WAITLESS(ch) ? 3 : (level >= 20));
 		if (!WAITLESS(ch))
-		{
-			obj->set_timer(MAX(obj->get_timer(), 4 * 24 * 60));
-		}
+			GET_OBJ_TIMER(obj) = MAX(GET_OBJ_TIMER(obj), 4 * 24 * 60);
 		if (GET_RELIGION(ch) == RELIGION_MONO)
 			to_char = "$o вспыхнул$G на миг голубым светом и тут же потух$Q.";
 		else if (GET_RELIGION(ch) == RELIGION_POLY)
@@ -4302,7 +4302,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		}
 		break;
 	case SPELL_FLY:
-		obj->timed_spell.set(obj, SPELL_FLY, 60 * 24 * 3);
+		obj->set_timed_spell(SPELL_FLY, 60 * 24 * 3);
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
 		to_char = "$o вспыхнул$G зеленоватым светом и тут же погас$Q.";
@@ -4318,7 +4318,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		if (GET_OBJ_RNUM(obj) != NOTHING)
 		{
 			GET_OBJ_CUR(obj) = GET_OBJ_MAX(obj);
-			obj->set_timer(obj_proto.at(GET_OBJ_RNUM(obj))->get_timer());
+			GET_OBJ_TIMER(obj) = GET_OBJ_TIMER(obj_proto.at(GET_OBJ_RNUM(obj)));
 			to_char = "Вы полностью восстановили $o3.";
 			log("%s used magic repair", GET_NAME(ch));
 		}
