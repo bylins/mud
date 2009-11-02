@@ -2105,6 +2105,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	static int room_nr = FIRST_ROOM, zone = 0;
 	int t[10], i;
 	char line[256], flags[128];
+	EXTRA_DESCR_DATA *new_descr;
 	char letter;
 
 	if (virt)
@@ -2199,6 +2200,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	for (i = 0; i < NUM_OF_DIRS; i++)
 		world[room_nr]->dir_option[i] = NULL;
 
+	world[room_nr]->ex_description = NULL;
 	if (virt)
 	{
 		top_of_world = room_nr++;
@@ -2220,25 +2222,23 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 			setup_dir(fl, room_nr, atoi(line + 1));
 			break;
 		case 'E':
-		{
-			char *key = fread_string(fl, buf2);
-			if (!key)
+			CREATE(new_descr, EXTRA_DESCR_DATA, 1);
+			new_descr->keyword = NULL;
+			new_descr->description = NULL;
+			new_descr->keyword = fread_string(fl, buf2);
+			new_descr->description = fread_string(fl, buf2);
+			if (new_descr->keyword && new_descr->description)
 			{
-				log("SYSERR: Format error in room #%d (Corrupt extradesc key)", virtual_nr);
-				break;
+				new_descr->next = world[room_nr]->ex_description;
+				world[room_nr]->ex_description = new_descr;
 			}
-			char *text = fread_string(fl, buf2);
-			if (!text)
+			else
 			{
-				log("SYSERR: Format error in room #%d (Corrupt extradesc text)", virtual_nr);
-				free(key);
-				break;
+				sprintf(buf, "SYSERR: Format error in room #%d (Corrupt extradesc)", virtual_nr);
+				log(buf);
+				free(new_descr);
 			}
-			ExtraDescSystem::add(world[room_nr], key, text);
-			free(key);
-			free(text);
 			break;
-		}
 		case 'S':	/* end of room */
 			/* DG triggers -- script is defined after the end of the room 'T' */
 			/* Ингредиентная магия -- 'I' */
@@ -3209,6 +3209,7 @@ char *parse_object(FILE * obj_f, int nr)
 	int t[10], j = 0, retval;
 	char *tmpptr;
 	char f0[256], f1[256], f2[256];
+	EXTRA_DESCR_DATA *new_descr;
 	OBJ_DATA *tobj;
 
 	NEWCREATE(tobj, OBJ_DATA);
@@ -3375,25 +3376,23 @@ char *parse_object(FILE * obj_f, int nr)
 		switch (*line)
 		{
 		case 'E':
-		{
-			char *key = fread_string(obj_f, buf2);
-			if (!key)
+			CREATE(new_descr, EXTRA_DESCR_DATA, 1);
+			new_descr->keyword = NULL;
+			new_descr->description = NULL;
+			new_descr->keyword = fread_string(obj_f, buf2);
+			new_descr->description = fread_string(obj_f, buf2);
+			if (new_descr->keyword && new_descr->description)
 			{
-				log("SYSERR: Format error in %s (Corrupt extradesc key)", buf2);
-				break;
+				new_descr->next = tobj->ex_description;
+				tobj->ex_description = new_descr;
 			}
-			char *text = fread_string(obj_f, buf2);
-			if (!text)
+			else
 			{
-				log("SYSERR: Format error in %s (Corrupt extradesc text)", buf2);
-				free(key);
-				break;
+				sprintf(buf, "SYSERR: Format error in %s (Corrupt extradesc)", buf2);
+				log(buf);
+				free(new_descr);
 			}
-			ExtraDescSystem::add(tobj, key, text);
-			free(key);
-			free(text);
 			break;
-		}
 		case 'A':
 			if (j >= MAX_OBJ_AFFECT)
 			{
@@ -6116,6 +6115,7 @@ char *fread_string(FILE * fl, char *error)
 void free_obj(OBJ_DATA * obj)
 {
 	int nr, i;
+	EXTRA_DESCR_DATA *thisd, *next_one, *tmp, *tmp_next;
 
 	if ((nr = GET_OBJ_RNUM(obj)) == -1)
 	{
@@ -6134,6 +6134,17 @@ void free_obj(OBJ_DATA * obj)
 
 		if (obj->action_description)
 			free(obj->action_description);
+
+		if (obj->ex_description)
+			for (thisd = obj->ex_description; thisd; thisd = next_one)
+			{
+				next_one = thisd->next;
+				if (thisd->keyword)
+					free(thisd->keyword);
+				if (thisd->description)
+					free(thisd->description);
+				free(thisd);
+			}
 	}
 	else
 	{
@@ -6152,6 +6163,29 @@ void free_obj(OBJ_DATA * obj)
 
 		if (obj->action_description && obj->action_description != obj_proto[nr]->action_description)
 			free(obj->action_description);
+
+		if (obj->ex_description && obj->ex_description != obj_proto[nr]->ex_description)
+			for (thisd = obj->ex_description; thisd; thisd = next_one)
+			{
+				next_one = thisd->next;
+				i = 0;
+				for (tmp = obj_proto[nr]->ex_description; tmp; tmp = tmp_next)
+				{
+					tmp_next = tmp->next;
+					if (tmp == thisd)
+					{
+						i = 1;
+						break;
+					}
+				}
+				if (i)
+					continue;
+				if (thisd->keyword)
+					free(thisd->keyword);
+				if (thisd->description)
+					free(thisd->description);
+				free(thisd);
+			}
 	}
 	delete obj;
 }
@@ -7418,6 +7452,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 --*/
 {
 	int i;
+	EXTRA_DESCR_DATA **pddd, *sdd;
 
 	{
 		// Сохраняю track, contents, people, аффекты
@@ -7457,8 +7492,18 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 		}
 	}
 
-	// экстра-описания
-	ExtraDescSystem::copy(dst, src);
+	// Дополнительные описания, если есть
+	pddd = &dst->ex_description;
+	sdd = src->ex_description;
+
+	while (sdd)
+	{
+		CREATE(pddd[0], EXTRA_DESCR_DATA, 1);
+		pddd[0]->keyword = sdd->keyword ? str_dup(sdd->keyword) : NULL;
+		pddd[0]->description = sdd->description ? str_dup(sdd->description) : NULL;
+		pddd = &(pddd[0]->next);
+		sdd = sdd->next;
+	}
 
 	// Копирую скрипт и прототипы
 	SCRIPT(dst) = NULL;
@@ -7477,6 +7522,7 @@ void room_free(ROOM_DATA * room)
 --*/
 {
 	int i;
+	EXTRA_DESCR_DATA *lthis, *next;
 
 	// Название и описание
 	if (room->name)
@@ -7489,7 +7535,6 @@ void room_free(ROOM_DATA * room)
 
 	// Выходы и входы
 	for (i = 0; i < NUM_OF_DIRS; i++)
-	{
 		if (room->dir_option[i])
 		{
 			if (room->dir_option[i]->general_description)
@@ -7500,12 +7545,15 @@ void room_free(ROOM_DATA * room)
 				free(room->dir_option[i]->vkeyword);
 			free(room->dir_option[i]);
 		}
-	}
-
 	// Дополнительные описания
-	if (room->extra_desc)
+	for (lthis = room->ex_description; lthis; lthis = next)
 	{
-		room->extra_desc.reset();
+		next = lthis->next;
+		if (lthis->keyword)
+			free(lthis->keyword);
+		if (lthis->description)
+			free(lthis->description);
+		free(lthis);
 	}
 
 	// Прототип

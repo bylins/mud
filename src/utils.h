@@ -85,7 +85,6 @@ char * str_str(char *cs, const char *ct);
 void kill_ems(char *str);
 bool die_follower(CHAR_DATA * ch);
 void cut_one_word(std::string &str, std::string &word);
-bool cpp_str_cmp(const std::string &str1, const std::string &str2);
 
 int get_gold(CHAR_DATA *ch);
 void add_gold(CHAR_DATA *ch, int gold);

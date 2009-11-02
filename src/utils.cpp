@@ -2323,23 +2323,3 @@ void cut_one_word(std::string &str, std::string &word)
 	str.clear();
 	word.clear();
 }
-
-/**
-* Аналог регистронезависимого сравнения str_cmp для string.
-* \return false - совпали, true - не совпали.
-*/
-bool cpp_str_cmp(const std::string &str1, const std::string &str2)
-{
-	if (str1.length() != str2.length())
-	{
-		return true;
-	}
-	for (std::string::size_type i = 0; i != str1.length(); ++i)
-	{
-		if (LOWER(str1[i]) != LOWER(str2[i]))
-		{
-			return true;
-		}
-	}
-	return false;
-}

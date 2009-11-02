@@ -2242,8 +2242,33 @@ int MakeRecept::make(CHAR_DATA * ch)
 	{
 		act(tagging.c_str(), FALSE, ch, obj, 0, TO_CHAR);
 		// Прибавляем в экстра описание строчку.
+		EXTRA_DESCR_DATA *new_desc;
+		EXTRA_DESCR_DATA *desc = obj->ex_description;
+
 		char *tagchar = format_act(itemtag.c_str(), ch, obj, 0);
-		ExtraDescSystem::add(obj, obj->name, tagchar, true);
+
+		if (desc == NULL)
+		{
+			CREATE(desc, EXTRA_DESCR_DATA, 1);
+			obj->ex_description = desc;
+			desc->keyword = str_dup(obj->name);
+			desc->description = str_dup(tagchar);
+			desc->next = NULL;	// На всякий случай :)
+		}
+		else
+		{
+			CREATE(new_desc, EXTRA_DESCR_DATA, 1);
+			obj->ex_description = new_desc;
+			new_desc->keyword = str_dup(desc->keyword);
+			new_desc->description = str_dup(desc->description);
+			new_desc->next = NULL;	// На всякий случай :)
+
+			new_desc->description = str_add(new_desc->description, tagchar);
+			// По уму тут надо бы стереть старое описапние если оно не с прототипа
+
+			obj->ex_description = new_desc;
+		}
+
 		free(tagchar);
 	};
 	// Пишем производителя в поле.

@@ -111,6 +111,7 @@ void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src)
 --*/
 {
 	int i;
+	EXTRA_DESCR_DATA **pddd, *sdd;
 
 	// Копирую все поверх
 	*dst = *src;
@@ -125,8 +126,18 @@ void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src)
 	for (i = 0; i < NUM_PADS; i++)
 		GET_OBJ_PNAME(dst, i) = str_dup(GET_OBJ_PNAME(src, i) ? GET_OBJ_PNAME(src, i) : "неопределен");
 
-	// экстра-описания
-	ExtraDescSystem::copy(dst, src);
+	// Дополнительные описания, если есть
+	pddd = &dst->ex_description;
+	sdd = src->ex_description;
+
+	while (sdd)
+	{
+		CREATE(pddd[0], EXTRA_DESCR_DATA, 1);
+		pddd[0]->keyword = sdd->keyword ? str_dup(sdd->keyword) : NULL;
+		pddd[0]->description = sdd->description ? str_dup(sdd->description) : NULL;
+		pddd = &(pddd[0]->next);
+		sdd = sdd->next;
+	}
 
 	// Копирую скрипт и прототипы
 	SCRIPT(dst) = NULL;
@@ -142,6 +153,7 @@ void oedit_object_free(OBJ_DATA * obj)
 --*/
 {
 	int i, j;
+	EXTRA_DESCR_DATA *lthis, *next;
 
 	if (!obj)
 		return;
@@ -160,11 +172,16 @@ void oedit_object_free(OBJ_DATA * obj)
 		if (obj->action_description)
 			free(obj->action_description);
 		for (j = 0; j < NUM_PADS; j++)
-		{
 			if (GET_OBJ_PNAME(obj, j))
-			{
 				free(GET_OBJ_PNAME(obj, j));
-			}
+		for (lthis = obj->ex_description; lthis; lthis = next)
+		{
+			next = lthis->next;
+			if (lthis->keyword)
+				free(lthis->keyword);
+			if (lthis->description)
+				free(lthis->description);
+			free(lthis);
 		}
 	}
 	else
@@ -179,19 +196,19 @@ void oedit_object_free(OBJ_DATA * obj)
 		if (obj->action_description && obj->action_description != obj_proto[i]->action_description)
 			free(obj->action_description);
 		for (j = 0; j < NUM_PADS; j++)
-		{
 			if (GET_OBJ_PNAME(obj, j)
 					&& GET_OBJ_PNAME(obj, j) != GET_OBJ_PNAME(obj_proto[i], j))
-			{
 				free(GET_OBJ_PNAME(obj, j));
+		if (obj->ex_description && obj->ex_description != obj_proto[i]->ex_description)
+			for (lthis = obj->ex_description; lthis; lthis = next)
+			{
+				next = lthis->next;
+				if (lthis->keyword)
+					free(lthis->keyword);
+				if (lthis->description)
+					free(lthis->description);
+				free(lthis);
 			}
-		}
-	}
-
-	// Дополнительные описания
-	if (obj->extra_desc)
-	{
-		obj->extra_desc.reset();
 	}
 
 	// Прототип
@@ -483,6 +500,7 @@ void oedit_save_to_disk(int zone_num)
 	int counter, counter2, realcounter;
 	FILE *fp;
 	OBJ_DATA *obj;
+	EXTRA_DESCR_DATA *ex_desc;
 
 	sprintf(buf, "%s/%d.new", OBJ_PREFIX, zone_table[zone_num].number);
 	if (!(fp = fopen(buf, "w+")))
@@ -553,13 +571,27 @@ void oedit_save_to_disk(int zone_num)
 			{
 				fprintf(fp, "M %d\n", GET_OBJ_MIW(obj));
 			}
-
-			// экстра-описания
-			if (obj->extra_desc)
+			/*
+			 * Do we have extra descriptions?
+			 */
+			if (obj->ex_description)  	/* Yes, save them too. */
 			{
-				fprintf(fp, "%s", obj->extra_desc->print_to_zone_file());
+				for (ex_desc = obj->ex_description; ex_desc; ex_desc = ex_desc->next)
+				{	/*
+													 * Sanity check to prevent nasty protection faults.
+													 */
+					if (!*ex_desc->keyword || !*ex_desc->description)
+					{
+						mudlog
+						("SYSERR: OLC: oedit_save_to_disk: Corrupt ex_desc!",
+						 BRF, LVL_BUILDER, SYSLOG, TRUE);
+						continue;
+					}
+					strcpy(buf1, ex_desc->description);
+					strip_string(buf1);
+					fprintf(fp, "E\n" "%s~\n" "%s~\n", ex_desc->keyword, buf1);
+				}
 			}
-
 			/*
 			 * Do we have affects?
 			 */
@@ -622,7 +654,28 @@ void oedit_disp_container_flags_menu(DESCRIPTOR_DATA * d)
  */
 void oedit_disp_extradesc_menu(DESCRIPTOR_DATA * d)
 {
-	d->olc->main_exdesc_menu(d->character);
+	EXTRA_DESCR_DATA *extra_desc = OLC_DESC(d);
+
+	strcpy(buf1, !extra_desc->next ? "<Not set>\r\n" : "Set.");
+
+	get_char_cols(d->character);
+#if defined(CLEAR_SCREEN)
+	send_to_char("[H[J", d->character);
+#endif
+	sprintf(buf,
+			"Меню экстрадескрипторов\r\n"
+			"%s1%s) Ключ: %s%s\r\n"
+			"%s2%s) Описание:\r\n%s%s\r\n"
+			"%s3%s) Следующий дескриптор: %s\r\n"
+			"%s0%s) Выход\r\n"
+			"Ваш выбор : ",
+			grn, nrm, yel, (extra_desc->keyword
+							&& *extra_desc->keyword) ? extra_desc->
+			keyword : "<NONE>", grn, nrm, yel, (extra_desc->description
+												&& *extra_desc->
+												description) ? extra_desc->
+			description : "<NONE>", grn, nrm, buf1, grn, nrm);
+	send_to_char(buf, d->character);
 	OLC_MODE(d) = OEDIT_EXTRADESC_MENU;
 }
 
@@ -1636,7 +1689,15 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		case 't':
 		case 'T':
-			d->olc->setup_exdesc(OLC_OBJ(d)->extra_desc);
+			/*
+			 * If extra descriptions don't exist.
+			 */
+			if (!OLC_OBJ(d)->ex_description)
+			{
+				CREATE(OLC_OBJ(d)->ex_description, EXTRA_DESCR_DATA, 1);
+				OLC_OBJ(d)->ex_description->next = NULL;
+			}
+			OLC_DESC(d) = OLC_OBJ(d)->ex_description;
 			oedit_disp_extradesc_menu(d);
 			break;
 		case 's':
@@ -2162,7 +2223,9 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		return;
 
 	case OEDIT_EXTRADESC_KEY:
-		d->olc->set_exdesc_key(arg);
+		if (OLC_DESC(d)->keyword)
+			free(OLC_DESC(d)->keyword);
+		OLC_DESC(d)->keyword = str_dup((arg && *arg) ? arg : "undefined");
 		oedit_disp_extradesc_menu(d);
 		return;
 
@@ -2170,7 +2233,29 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		switch ((number = atoi(arg)))
 		{
 		case 0:
-			d->olc->exit_exdesc_menu(d, OEDIT_MODE);
+			if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description)
+			{
+				EXTRA_DESCR_DATA **tmp_desc;
+
+				if (OLC_DESC(d)->keyword)
+					free(OLC_DESC(d)->keyword);
+				if (OLC_DESC(d)->description)
+					free(OLC_DESC(d)->description);
+
+				/*
+				 * Clean up pointers
+				 */
+				for (tmp_desc = &(OLC_OBJ(d)->ex_description); *tmp_desc;
+						tmp_desc = &((*tmp_desc)->next))
+				{
+					if (*tmp_desc == OLC_DESC(d))
+					{
+						*tmp_desc = NULL;
+						break;
+					}
+				}
+				free(OLC_DESC(d));
+			}
 			break;
 
 		case 1:
@@ -2180,13 +2265,39 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		case 2:
 			OLC_MODE(d) = OEDIT_EXTRADESC_DESCRIPTION;
-			d->olc->setup_exdesc_text_edit(d);
+			SEND_TO_Q("Enter the extra description: (/s saves /h for help)\r\n\r\n", d);
+			d->backstr = NULL;
+			if (OLC_DESC(d)->description)
+			{
+				SEND_TO_Q(OLC_DESC(d)->description, d);
+				d->backstr = str_dup(OLC_DESC(d)->description);
+			}
+			d->str = &OLC_DESC(d)->description;
+			d->max_str = 4096;
+			d->mail_to = 0;
 			OLC_VAL(d) = 1;
 			return;
 
 		case 3:
-			d->olc->next_exdesc_menu(d, OEDIT_MODE);
-			// No break - drop into default case.
+			/*
+			 * Only go to the next description if this one is finished.
+			 */
+			if (OLC_DESC(d)->keyword && OLC_DESC(d)->description)
+			{
+				EXTRA_DESCR_DATA *new_extra;
+
+				if (OLC_DESC(d)->next)
+					OLC_DESC(d) = OLC_DESC(d)->next;
+				else  	/* Make new extra description and attach at end. */
+				{
+					CREATE(new_extra, EXTRA_DESCR_DATA, 1);
+					OLC_DESC(d)->next = new_extra;
+					OLC_DESC(d) = OLC_DESC(d)->next;
+				}
+			}
+			/*
+			 * No break - drop into default case.
+			 */
 		default:
 			oedit_disp_extradesc_menu(d);
 			return;

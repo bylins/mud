@@ -129,6 +129,7 @@ void check_mob(CHAR_DATA *mob)
 void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 {
 	OBJ_DATA *corpse;
+	EXTRA_DESCR_DATA *exdesc;
 
 	corpse = create_obj();
 	GET_OBJ_SEX(corpse) = SEX_POLY;
@@ -163,13 +164,15 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch);
 	GET_OBJ_RENT(corpse) = 100000;
 	corpse->set_timer(max_pc_corpse_time * 2);
-
+	CREATE(exdesc, EXTRA_DESCR_DATA, 1);
+	exdesc->keyword = str_dup(corpse->PNames[0]);	// косметика
 	if (killer)
 		sprintf(buf, "Убит%s на арене %s.\r\n", GET_CH_SUF_6(ch), GET_PAD(killer, 4));
 	else
 		sprintf(buf, "Умер%s на арене.\r\n", GET_CH_SUF_4(ch));
-	ExtraDescSystem::add(corpse, corpse->PNames[0], buf);
-
+	exdesc->description = str_dup(buf);	// косметика
+	exdesc->next = corpse->ex_description;
+	corpse->ex_description = exdesc;
 	obj_to_room(corpse, IN_ROOM(ch));
 }
 

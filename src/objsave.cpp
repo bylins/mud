@@ -160,6 +160,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 	int t[2];
 	int vnum;
 	OBJ_DATA *object = NULL;
+	EXTRA_DESCR_DATA *new_descr;
 
 	*error = 1;
 	// Станем на начало предмета
@@ -429,12 +430,18 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Edes"))
 			{
 				*error = 46;
-				char text[MAX_STRING_LENGTH];
-				if (!get_buf_lines(data, text))
+				CREATE(new_descr, EXTRA_DESCR_DATA, 1);
+				new_descr->keyword = str_dup(buffer);
+				if (!get_buf_lines(data, buffer))
 				{
+					free(new_descr->keyword);
+					free(new_descr);
+					*error = 47;
 					return (object);
 				}
-				ExtraDescSystem::add(object, buffer, text);
+				new_descr->description = str_dup(buffer);
+				new_descr->next = object->ex_description;
+				object->ex_description = new_descr;
 			}
 			else if (!strcmp(read_line, "Ouid"))
 			{
@@ -481,6 +488,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	char buffer[MAX_STRING_LENGTH], f0[MAX_STRING_LENGTH], f1[MAX_STRING_LENGTH], f2[MAX_STRING_LENGTH];
 	int vnum, i, j, t[5];
 	OBJ_DATA *object = NULL;
+	EXTRA_DESCR_DATA *new_descr;
 
 	*error = 1;
 	// Станем на начало предмета
@@ -597,9 +605,9 @@ OBJ_DATA *read_one_object(char **data, int *error)
 			GET_OBJ_WEIGHT(object) = GET_OBJ_VAL(object, 1) + 5;
 	}
 
-	object->extra_desc->clear();
-
+	object->ex_description = NULL;	// Exclude doubling ex_description !!!
 	j = 0;
+
 	for (;;)
 	{
 		if (!get_buf_line(data, buffer))
@@ -621,21 +629,25 @@ OBJ_DATA *read_one_object(char **data, int *error)
 		switch (*buffer)
 		{
 		case 'E':
-		{
+			CREATE(new_descr, EXTRA_DESCR_DATA, 1);
 			if (!get_buf_lines(data, buffer))
 			{
+				free(new_descr);
 				*error = 16;
 				return (object);
 			}
-			char text[MAX_STRING_LENGTH];
-			if (!get_buf_lines(data, text))
+			new_descr->keyword = str_dup(buffer);
+			if (!get_buf_lines(data, buffer))
 			{
+				free(new_descr->keyword);
+				free(new_descr);
 				*error = 17;
 				return (object);
 			}
-			ExtraDescSystem::add(object, buffer, text);
+			new_descr->description = str_dup(buffer);
+			new_descr->next = object->ex_description;
+			object->ex_description = new_descr;
 			break;
-		}
 		case 'A':
 			if (j >= MAX_OBJ_AFFECT)
 			{
@@ -692,12 +704,26 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	return (object);
 }
 
+// shapirus: функция проверки наличия доп. описания в прототипе
+inline bool proto_has_descr(EXTRA_DESCR_DATA * odesc, EXTRA_DESCR_DATA * pdesc)
+{
+	EXTRA_DESCR_DATA *desc;
+
+	for (desc = pdesc; desc; desc = desc->next)
+		if (!str_cmp(odesc->keyword, desc->keyword) && !str_cmp(odesc->description, desc->description))
+			return TRUE;
+
+	return FALSE;
+}
+
 // Данная процедура помещает предмет в буфер
 // [ ИСПОЛЬЗУЕТСЯ В НОВОМ ФОРМАТЕ ВЕЩЕЙ ПЕРСОНАЖА ОТ 10.12.04 ]
 void write_one_object(char **data, OBJ_DATA * object, int location)
 {
 	char buf[MAX_STRING_LENGTH];
 	char buf2[MAX_STRING_LENGTH];
+	EXTRA_DESCR_DATA *descr;
+//  EXTRA_DESCR_DATA *descr2;
 	int count = 0, i, j;
 
 	// vnum
@@ -824,10 +850,16 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 				count += sprintf(*data + count, "Afc%d: %d %d~\n", j,
 								 object->affected[j].location, object->affected[j].modifier);
 
-		// Доп описания с проверкой прототипа
-		if (object->extra_desc)
+		// Доп описания
+		// shapirus: исправлена ошибка с несохранением, например, меток
+		// на крафтеных луках
+		for (descr = object->ex_description; descr; descr = descr->next)
 		{
-			count += sprintf(*data + count, "%s", object->extra_desc->print_to_char_file(proto));
+			if (proto_has_descr(descr, proto->ex_description))
+				continue;
+			count += sprintf(*data + count, "Edes: %s~\n%s~\n",
+							 descr->keyword ? descr->keyword : "",
+							 descr->description ? descr->description : "");
 		}
 	}
 	else  		// Если у шмотки нет прототипа - придется сохранять ее целиком.
@@ -919,19 +951,15 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 
 		// Аффекты
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
-		{
 			if (object->affected[j].location && object->affected[j].modifier)
-			{
 				count += sprintf(*data + count, "Afc%d: %d %d~\n", j,
 								 object->affected[j].location, object->affected[j].modifier);
-			}
-		}
 
 		// Доп описания
-		if (object->extra_desc)
-		{
-			count += sprintf(*data + count, "%s", object->extra_desc->print_to_char_file(0));
-		}
+		for (descr = object->ex_description; descr; descr = descr->next)
+			count += sprintf(*data + count, "Edes: %s~\n%s~\n",
+							 descr->keyword ? descr->keyword : "",
+							 descr->description ? descr->description : "");
 	}
 	// обкаст (если он есть) сохраняется в любом случае независимо от прототипа
 	if (!object->timed_spell.empty())

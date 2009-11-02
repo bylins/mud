@@ -315,6 +315,7 @@ struct obj_data
 	char *description;	/* When in room                     */
 	char *short_description;	/* when worn/carry/in cont.         */
 	char *action_description;	/* What to write when used          */
+	EXTRA_DESCR_DATA *ex_description;	/* extra descriptions     */
 	CHAR_DATA *carried_by;	/* Carried by :NULL in room/conta   */
 	CHAR_DATA *worn_by;	/* Worn by?              */
 	short int
@@ -335,8 +336,7 @@ struct obj_data
 	int
 	max_in_world;		/* max in world             */
 
-	TimedSpell timed_spell; // временный обкаст
-	ExtraDescSystem::PtrType extra_desc; // доп. описания
+	TimedSpell timed_spell;    // временный обкаст
 
 	const std::string activate_obj(const activation& __act);
 	const std::string deactivate_obj(const activation& __act);

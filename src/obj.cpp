@@ -15,6 +15,7 @@ obj_data::obj_data() :
 	description(NULL),
 	short_description(NULL),
 	action_description(NULL),
+	ex_description(NULL),
 	carried_by(NULL),
 	worn_by(NULL),
 	worn_on(NOWHERE),

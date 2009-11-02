@@ -106,26 +106,6 @@ Clan::~Clan()
 
 }
 
-namespace
-{
-
-const unsigned MAX_RANK_LENGHT = 10;
-
-/**
-* Обрезание названий рангов дружины до MAX_RANK_LENGHT символов
-* и перевод всего слова в нижний регистр.
-*/
-void check_rank(std::string &rank)
-{
-	if (rank.size() > MAX_RANK_LENGHT)
-	{
-		rank = rank.substr(0, MAX_RANK_LENGHT);
-	}
-	lower_convert(rank);
-}
-
-} // namespace
-
 // лоад/релоад индекса и файлов кланов
 void Clan::ClanLoad()
 {
@@ -270,8 +250,8 @@ void Clan::ClanLoad()
 					log("Error open 'Ranks' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 					break;
 				}
-				check_rank(buffer);
-				check_rank(buffer2);
+				lower_convert(buffer);
+				lower_convert(buffer2);
 				tempClan->ranks.push_back(buffer);
 				tempClan->ranks_female.push_back(buffer2);
 
@@ -288,8 +268,8 @@ void Clan::ClanLoad()
 						log("Error open 'Ranks' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 						break;
 					}
-					check_rank(buffer);
-					check_rank(buffer2);
+					lower_convert(buffer);
+					lower_convert(buffer2);
 					tempClan->ranks.push_back(buffer);
 					tempClan->ranks_female.push_back(buffer2);
 					// на случай уменьшения привилегий
@@ -1493,7 +1473,7 @@ ACMD(DoClanList)
 	std::ostringstream buffer2;
 	buffer2 << "В игре зарегистрированы следующие дружины:\r\n" << "     #                  Глава Название\r\n\r\n";
 	boost::format clanFormat(" %5d  %6s %15s %s\r\n");
-	boost::format memberFormat(" %-10s %s%s%s %s%s%s\r\n");
+	boost::format memberFormat(" %-10s%s%s%s %s%s%s\r\n");
 	// если искали конкретную дружину - выводим ее
 	if (!all)
 	{
@@ -1760,18 +1740,11 @@ void Clan::hcontrol_rank(CHAR_DATA *ch, std::string &text)
 	GetOneParam(text, old_rank);
 	GetOneParam(text, rank_male);
 	GetOneParam(text, rank_female);
-
 	if (old_rank.empty() || rank_male.empty() || rank_female.empty())
 	{
 		send_to_char(HCONTROL_FORMAT, ch);
 		return;
 	}
-	if (rank_male.size() > MAX_RANK_LENGHT || rank_female.size() > MAX_RANK_LENGHT)
-	{
-		send_to_char(ch, "Звание не должно быть длиннее %d символов.\r\n", MAX_RANK_LENGHT);
-		return;
-	}
-
 	lower_convert(old_rank);
 	lower_convert(rank_male);
 	lower_convert(rank_female);
@@ -4356,7 +4329,12 @@ ACMD(do_clanstuff)
 
 		if (it->longdesc.length() > 0)
 		{
-			ExtraDescSystem::add(obj, obj->short_description, it->longdesc.c_str());
+			EXTRA_DESCR_DATA * new_descr;
+			CREATE(new_descr, EXTRA_DESCR_DATA, 1);
+			new_descr->keyword = str_dup(obj->short_description);
+			new_descr->description = str_dup(it->longdesc.c_str());
+			new_descr->next = NULL;
+			obj->ex_description = new_descr;
 		}
 
 		if (!cnt)

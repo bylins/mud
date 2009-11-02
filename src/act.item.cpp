@@ -40,6 +40,9 @@ extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 extern struct house_control_rec house_control[];
 
+/* from act.informative.cpp */
+char *find_exdesc(char *word, EXTRA_DESCR_DATA * list);
+
 /* local functions */
 int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 void get_check_money(CHAR_DATA * ch, OBJ_DATA * obj);
@@ -634,15 +637,11 @@ void get_from_room(CHAR_DATA * ch, char *arg, int howmany)
 	OBJ_DATA *obj, *next_obj;
 	int dotmode, found = 0;
 
-	// попытка взять что-то из экстра-описания комнаты
-	if (world[ch->in_room]->extra_desc)
+	/* Are they trying to take something in a room extra description? */
+	if (find_exdesc(arg, world[IN_ROOM(ch)]->ex_description) != NULL)
 	{
-		std::string text = world[ch->in_room]->extra_desc->find(arg);
-		if (!text.empty())
-		{
-			send_to_char("Вы не можете это взять.\r\n", ch);
-			return;
-		}
+		send_to_char("Вы не можете это взять.\r\n", ch);
+		return;
 	}
 
 	dotmode = find_all_dots(arg);

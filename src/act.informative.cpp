@@ -125,6 +125,7 @@ void do_auto_exits(CHAR_DATA * ch);
 ACMD(do_exits);
 void look_in_direction(CHAR_DATA * ch, int dir, int info_is);
 void look_in_obj(CHAR_DATA * ch, char *arg);
+char *find_exdesc(char *word, EXTRA_DESCR_DATA * list);
 bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd);
 void gods_day_now(CHAR_DATA * ch);
 #define EXIT_SHOW_WALL    (1 << 0)
@@ -1877,6 +1878,20 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 	}
 }
 
+
+
+char *find_exdesc(char *word, EXTRA_DESCR_DATA * list)
+{
+	EXTRA_DESCR_DATA *i;
+
+	for (i = list; i; i = i->next)
+		if (isname(word, i->keyword))
+			return (i->description);
+
+	return (NULL);
+}
+
+
 /*
  * Given the argument "look at <target>", figure out what object or char
  * matches the target.  First, see if there is another char in the room
@@ -1888,12 +1903,12 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
  */
 bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 {
-	int bits, found = FALSE, fnum, cn = 0, j;
+	int bits, found = FALSE, fnum, i = 0, cn = 0, j;
 	struct portals_list_type *port;
 	CHAR_DATA *found_char = NULL;
 	OBJ_DATA *found_obj = NULL;
 	struct char_portal_type *tmp;
-	char *what, whatp[MAX_INPUT_LENGTH], where[MAX_INPUT_LENGTH];
+	char *desc, *what, whatp[MAX_INPUT_LENGTH], where[MAX_INPUT_LENGTH];
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP | FIND_CHAR_ROOM;
 
 	if (!ch->desc)
@@ -2002,15 +2017,11 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 		return 0;
 	}
 
-	// поиск аргумента в экстра-описаниях комнаты
-	if (world[ch->in_room]->extra_desc)
+	/* Does the argument match an extra desc in the room? */
+	if ((desc = find_exdesc(what, world[ch->in_room]->ex_description)) != NULL && ++i == fnum)
 	{
-		std::string text = world[ch->in_room]->extra_desc->find(what);
-		if (!text.empty())
-		{
-			page_string(ch->desc, text, false);
-			return 0;
-		}
+		page_string(ch->desc, desc, FALSE);
+		return 0;
 	}
 
 	/* If an object was found back in generic_find */
@@ -2028,14 +2039,11 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 
 		// Собственно изменение. Вместо проверки "if (!found)" юзается проверка
 		// наличия описания у объекта, найденного функцией "generic_find"
-		std::string text = ExtraDescSystem::find(found_obj, what);
-		if (text.empty())
-		{
+		if (!(desc = find_exdesc(what, found_obj->ex_description)))
 			show_obj_to_char(found_obj, ch, 5, TRUE, 1);	/* Show no-description */
-		}
 		else
 		{
-			send_to_char(text, ch);
+			send_to_char(desc, ch);
 			show_obj_to_char(found_obj, ch, 6, TRUE, 1);	/* Find hum, glow etc */
 		}
 
