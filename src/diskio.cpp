@@ -9,12 +9,11 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#include "conf.h"
 #include <sys/stat.h>
-
+#include "conf.h"
 #include "sysdep.h"
+#include "utils.h"
 #include "diskio.h"
-
 
 int fbgetline(FBFILE * fbfl, char *line)
 {
@@ -163,17 +162,10 @@ FBFILE *fbopen_for_read(char *fname)
 	}
 
 	fbfl->size = sb.st_size;
-	if (!(fbfl->buf = (char *) malloc(fbfl->size + 1)))
-	{
-		free(fbfl);
-		return NULL;
-	}
-	if (!(fbfl->name = (char *) malloc(strlen(fname) + 1)))
-	{
-		free(fbfl->buf);
-		free(fbfl);
-		return NULL;
-	}
+
+	CREATE(fbfl->buf, char, fbfl->size + 1);
+	CREATE(fbfl->name, char, fbfl->size + 1);
+
 	fbfl->ptr = fbfl->buf;
 	fbfl->flags = FB_READ;
 	strcpy(fbfl->name, fname);
