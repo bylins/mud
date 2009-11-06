@@ -2127,11 +2127,11 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 	return (obj);
 }
 
-
 int get_number(char **name)
 {
 	int i, res;
 	char *ppos;
+	char tmpname[MAX_INPUT_LENGTH];
 
 	if ((ppos = strchr(*name, '.')) != NULL)
 	{
@@ -2140,11 +2140,13 @@ int get_number(char **name)
 				return (1);
 		*ppos = '\0';
 		res = atoi(*name);
-		strcpy(*name, ppos + 1);
+		strl_cpy(tmpname, ppos + 1, MAX_INPUT_LENGTH);
+		strl_cpy(*name, tmpname, MAX_INPUT_LENGTH);
 		return (res);
 	}
 	return (1);
 }
+
 int get_number(std::string &name)
 {
 	std::string::size_type pos = name.find('.');
@@ -2974,7 +2976,7 @@ CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const char *name)
 		return (ch);
 
 	/* 0.<name> means PC with name */
-	strcpy(tmp, name);
+	strl_cpy(tmp, name, MAX_INPUT_LENGTH);
 	if (!(number = get_number(&tmp)))
 		return (get_player_vis(ch, tmp, FIND_CHAR_ROOM));
 
@@ -3476,15 +3478,17 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** 
 	return (0);
 }
 
-
 /* a function to scan for "all" or "all.x" */
 int find_all_dots(char *arg)
 {
+	char tmpname[MAX_INPUT_LENGTH];
+
 	if (!str_cmp(arg, "all") || !str_cmp(arg, "все"))
 		return (FIND_ALL);
 	else if (!strn_cmp(arg, "all.", 4) || !strn_cmp(arg, "все.", 4))
 	{
-		strcpy(arg, arg + 4);
+		strl_cpy(tmpname, arg + 4, MAX_INPUT_LENGTH);
+		strl_cpy(arg, tmpname, MAX_INPUT_LENGTH);
 		return (FIND_ALLDOT);
 	}
 	else

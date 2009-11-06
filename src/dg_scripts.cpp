@@ -3030,9 +3030,9 @@ void eval_op(const char *op, char *lhs, char *rhs, char *result, void *go, SCRIP
 		rhs++;
 
 	for (p = lhs; *p; p++);
-	for (--p; a_isspace(*p) && (p > lhs); *p-- = '\0');
+	for (--p; (p >= lhs) && a_isspace(*p); *p-- = '\0');
 	for (p = rhs; *p; p++);
-	for (--p; a_isspace(*p) && (p > rhs); *p-- = '\0');
+	for (--p; (p >= rhs) && a_isspace(*p); *p-- = '\0');
 
 
 	/* find the op, and figure out the value */

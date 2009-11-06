@@ -1624,11 +1624,11 @@ int is_abbrev(const char *arg1, const char *arg2)
 /* return first space-delimited token in arg1; remainder of string in arg2 */
 void half_chop(char const *string, char *arg1, char *arg2)
 {
-	char const *temp;
-
-	temp = any_one_arg(string, arg1);
+	char tmpname[MAX_INPUT_LENGTH];
+	char const *temp = any_one_arg(string, arg1);
 	skip_spaces(&temp);
-	strcpy(arg2, temp);
+	strl_cpy(tmpname, temp, MAX_INPUT_LENGTH);
+	strl_cpy(arg2, tmpname, MAX_INPUT_LENGTH);
 }
 
 /* Used in specprocs, mostly.  (Exactly) matches "command" to cmd number */
