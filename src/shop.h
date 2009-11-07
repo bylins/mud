@@ -48,7 +48,6 @@ struct shop_data
 	mob_rnum keeper;	/* The mobile who owns the shop (rnum) */
 	int with_who;		/* Who does the shop trade with? */
 	room_rnum *in_room;	/* Where is the shop?                     */
-	int in_room_cnt;    // кол-во комнат в in_room
 	int open1, open2;	/* When does the shop open?               */
 	int close1, close2;	/* When does the shop close?      */
 	int bankAccount;	/* Store all gold over 15000 (disabled) */

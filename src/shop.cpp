@@ -1796,11 +1796,7 @@ void shopping_list(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 
 bool ok_shop_room(int shop_nr, int room)
 {
-	if (NOWHERE == room)
-	{
-		return false;
-	}
-	for (int index = 0; index < shop_index[shop_nr].in_room_cnt; index++)
+	for (int index = 0; SHOP_ROOM(shop_nr, index) != NOTHING; index++)
 	{
 		if (SHOP_ROOM(shop_nr, index) == room)
 		{
@@ -2135,7 +2131,6 @@ void boot_the_shops(FILE * shop_f, char *filename, int rec_count)
 
 			log("Read shoprooms...");
 			temp = read_list(shop_f, list, new_format, 1, LIST_ROOM);
-			shop_index[top_shop].in_room_cnt = temp;
 			CREATE(shop_index[top_shop].in_room, room_rnum, temp);
 			for (count = 0; count < temp; count++)
 				SHOP_ROOM(top_shop, count) = BUY_TYPE(list[count]);
