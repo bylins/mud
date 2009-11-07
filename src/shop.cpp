@@ -88,7 +88,7 @@ char *times_message(OBJ_DATA * obj, char *name, int num, int padis);
 int buy_price(OBJ_DATA * obj, CHAR_DATA * ch, int shop_nr);
 int sell_price(OBJ_DATA * obj, CHAR_DATA * ch, int shop_nr);
 char *list_object(OBJ_DATA * obj, int cnt, int index, int shop_nr);
-int ok_shop_room(int shop_nr, int room);
+bool ok_shop_room(int shop_nr, int room);
 SPECIAL(shop_keeper);
 int ok_damage_shopkeeper(CHAR_DATA * ch, CHAR_DATA * victim);
 int add_to_list(struct shop_buy_data *list, int type, int *len, int *val);
@@ -1794,14 +1794,20 @@ void shopping_list(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 }
 
 
-int ok_shop_room(int shop_nr, int room)
+bool ok_shop_room(int shop_nr, int room)
 {
-	int index;
-
-	for (index = 0; SHOP_ROOM(shop_nr, index) != NOWHERE; index++)
+	if (NOWHERE == room)
+	{
+		return false;
+	}
+	for (int index = 0; index < shop_index[shop_nr].in_room_cnt; index++)
+	{
 		if (SHOP_ROOM(shop_nr, index) == room)
-			return (TRUE);
-	return (FALSE);
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 
@@ -2129,6 +2135,7 @@ void boot_the_shops(FILE * shop_f, char *filename, int rec_count)
 
 			log("Read shoprooms...");
 			temp = read_list(shop_f, list, new_format, 1, LIST_ROOM);
+			shop_index[top_shop].in_room_cnt = temp;
 			CREATE(shop_index[top_shop].in_room, room_rnum, temp);
 			for (count = 0; count < temp; count++)
 				SHOP_ROOM(top_shop, count) = BUY_TYPE(list[count]);
