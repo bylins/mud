@@ -120,7 +120,7 @@ void Crash_timer_obj(int index, long timer_dec);
 int find_social(char *name);
 int calc_loadroom(CHAR_DATA * ch);
 void delete_char(char *name);
-void do_aggressive_mob(CHAR_DATA * ch, int check_sneak);
+void do_aggressive_room(CHAR_DATA * ch, int check_sneak);
 extern int process_auto_agreement(DESCRIPTOR_DATA * d);
 extern int CheckProxy(DESCRIPTOR_DATA * ch);
 extern void NewNameShow(CHAR_DATA * ch);
@@ -1270,8 +1270,8 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		(*cmd_info[cmd].command_pointer)(ch, line, cmd, cmd_info[cmd].subcmd);
 		if (!IS_NPC(ch) && IN_ROOM(ch) != NOWHERE && CHECK_AGRO(ch))
 		{
-			do_aggressive_mob(ch, FALSE);
 			CHECK_AGRO(ch) = FALSE;
+			do_aggressive_room(ch, FALSE);
 		}
 	}
 }

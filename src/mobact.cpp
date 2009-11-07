@@ -468,107 +468,135 @@ int perform_mob_switch(CHAR_DATA * ch)
 	return TRUE;
 }
 
-void do_aggressive_mob(CHAR_DATA * ch, int check_sneak)
+void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 {
-	CHAR_DATA *vict, *next_ch, *next_vict, *victim;
-	int mode = check_sneak ? SKIP_SNEAKING : 0;
-	memory_rec *names;
-
-	if (!ch) return;
-
-	if (IN_ROOM(ch) == NOWHERE)
-		return;
-
-	for (ch = world[IN_ROOM(ch)]->people; ch; ch = next_ch)
+	if (!ch || IN_ROOM(ch) == NOWHERE || !IS_NPC(ch)
+		|| !MAY_ATTACK(ch) || AFF_FLAGGED(ch, AFF_BLIND))
 	{
-		next_ch = ch->next_in_room;
-		if (!IS_NPC(ch) || !MAY_ATTACK(ch) || AFF_FLAGGED(ch, AFF_BLIND))
-			continue;
+		return;
+	}
 
-		/****************  Horde */
-		if (MOB_FLAGGED(ch, MOB_HORDE))
-		{
-			perform_best_horde_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE);
-			continue;
-		}
+	CHAR_DATA *next_vict, *victim;
+	int mode = check_sneak ? SKIP_SNEAKING : 0;
 
-		/****************  Aggressive Mobs */
-		if (extra_aggressive(ch, NULL))
-		{
-			perform_best_mob_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE | CHECK_HITS);
-			continue;
-		}
-		//Polud стражники
-		if (MOB_FLAGGED(ch, MOB_GUARDIAN))
-		{
-			perform_best_mob_attack(ch, SKIP_HIDING | SKIP_CAMOUFLAGE | SKIP_SNEAKING | GUARD_ATTACK);
-			continue;
-		}
+	/****************  Horde */
+	if (MOB_FLAGGED(ch, MOB_HORDE))
+	{
+		perform_best_horde_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE);
+		return;
+	}
 
-		/*****************  Mob Memory      */
-		if (MOB_FLAGGED(ch, MOB_MEMORY) && MEMORY(ch))
+	/****************  Aggressive Mobs */
+	if (extra_aggressive(ch, NULL))
+	{
+		perform_best_mob_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE | CHECK_HITS);
+		return;
+	}
+	//Polud стражники
+	if (MOB_FLAGGED(ch, MOB_GUARDIAN))
+	{
+		perform_best_mob_attack(ch, SKIP_HIDING | SKIP_CAMOUFLAGE | SKIP_SNEAKING | GUARD_ATTACK);
+		return;
+	}
+
+	/*****************  Mob Memory      */
+	if (MOB_FLAGGED(ch, MOB_MEMORY) && MEMORY(ch))
+	{
+		victim = NULL;
+		// Find memory in room
+		for (CHAR_DATA *vict = world[ch->in_room]->people; vict && !victim; vict = next_vict)
 		{
-			victim = NULL;
-			// Find memory in room
-			for (vict = world[ch->in_room]->people; vict && !victim; vict = next_vict)
+			next_vict = vict->next_in_room;
+			if (IS_NPC(vict) || PRF_FLAGGED(vict, PRF_NOHASSLE))
 			{
-				next_vict = vict->next_in_room;
-				if (IS_NPC(vict) || PRF_FLAGGED(vict, PRF_NOHASSLE))
-					continue;
-				for (names = MEMORY(ch); names && !victim; names = names->next)
-					if (names->id == GET_IDNUM(vict))
-					{
-						if (!MAY_SEE(ch, vict) || !may_kill_here(ch, vict))
-							continue;
-						if (check_sneak)
-						{
-							skip_sneaking(vict, ch);
-							if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
-								REMOVE_BIT(AFF_FLAGS(vict, AFF_SNEAK), AFF_SNEAK);
-							if (AFF_FLAGGED(vict, AFF_SNEAK))
-							{
-								continue;
-							}
-						}
-						skip_hiding(vict, ch);
-						if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE))
-							REMOVE_BIT(AFF_FLAGS(vict, AFF_HIDE), AFF_HIDE);
-						skip_camouflage(vict, ch);
-						if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE))
-							REMOVE_BIT(AFF_FLAGS(vict, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);
-						if (CAN_SEE(ch, vict))
-							victim = vict;
-					}
-			}
-			// Is memory found ?
-			if (victim)
-			{
-				if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING)
-				{
-					act("$n вскочил$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
-					GET_POS(ch) = POS_STANDING;
-				}
-				if (GET_RACE(ch) != NPC_RACE_HUMAN)
-					act("$n вспомнил$g $N3.", FALSE, ch, 0, victim, TO_ROOM);
-				else
-					act("'$N - ты пытал$U убить меня ! Попал$U ! Умри !!!', воскликнул$g $n.",
-						FALSE, ch, 0, victim, TO_ROOM);
-
-				if (!attack_best(ch, victim))
-				{
-					hit(ch, victim, TYPE_UNDEFINED, 1);
-				}
 				continue;
 			}
+			for (memory_rec *names = MEMORY(ch); names && !victim; names = names->next)
+			{
+				if (names->id == GET_IDNUM(vict))
+				{
+					if (!MAY_SEE(ch, vict) || !may_kill_here(ch, vict))
+					{
+						continue;
+					}
+					if (check_sneak)
+					{
+						skip_sneaking(vict, ch);
+						if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
+						{
+							REMOVE_BIT(AFF_FLAGS(vict, AFF_SNEAK), AFF_SNEAK);
+						}
+						if (AFF_FLAGGED(vict, AFF_SNEAK))
+						{
+							continue;
+						}
+					}
+					skip_hiding(vict, ch);
+					if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE))
+					{
+						REMOVE_BIT(AFF_FLAGS(vict, AFF_HIDE), AFF_HIDE);
+					}
+					skip_camouflage(vict, ch);
+					if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE))
+					{
+						REMOVE_BIT(AFF_FLAGS(vict, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);
+					}
+					if (CAN_SEE(ch, vict))
+					{
+						victim = vict;
+					}
+				}
+			}
 		}
-
-		/****************  Helper Mobs     */
-		if (MOB_FLAGGED(ch, MOB_HELPER))
+		// Is memory found ?
+		if (victim)
 		{
-			perform_best_mob_attack(ch, mode | KILL_FIGHTING | CHECK_HITS);
-			continue;
+			if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING)
+			{
+				act("$n вскочил$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
+				GET_POS(ch) = POS_STANDING;
+			}
+			if (GET_RACE(ch) != NPC_RACE_HUMAN)
+			{
+				act("$n вспомнил$g $N3.", FALSE, ch, 0, victim, TO_ROOM);
+			}
+			else
+			{
+				act("'$N - ты пытал$U убить меня ! Попал$U ! Умри !!!', воскликнул$g $n.",
+					FALSE, ch, 0, victim, TO_ROOM);
+			}
+			if (!attack_best(ch, victim))
+			{
+				hit(ch, victim, TYPE_UNDEFINED, 1);
+			}
+			return;
 		}
+	}
 
+	/****************  Helper Mobs     */
+	if (MOB_FLAGGED(ch, MOB_HELPER))
+	{
+		perform_best_mob_attack(ch, mode | KILL_FIGHTING | CHECK_HITS);
+		return;
+	}
+}
+
+/**
+* Примечание: сам ch после этой функции уже может быть спуржен
+* в результате агра на себя кого-то в комнате и начале атаки
+* например с глуша.
+*/
+void do_aggressive_room(CHAR_DATA *ch, int check_sneak)
+{
+	if (!ch || IN_ROOM(ch) == NOWHERE)
+	{
+		return;
+	}
+	for (CHAR_DATA *vict = world[IN_ROOM(ch)]->people; vict; vict = vict->next_in_room)
+	{
+		// здесь не надо преварително запоминать next_in_room, потому что как раз
+		// он то и может быть спуржен по ходу do_aggressive_mob, а вот атакующий нет
+		do_aggressive_mob(vict, check_sneak);
 	}
 }
 
@@ -947,10 +975,12 @@ void mobile_activity(int activity_level, int missed_pulses)
 					}
 		}
 
-		if (was_in != IN_ROOM(ch))
-			do_aggressive_mob(ch, FALSE);
 		/* Add new mobile actions here */
 
+		if (was_in != IN_ROOM(ch))
+		{
+			do_aggressive_room(ch, FALSE);
+		}
 	}			/* end for() */
 }
 

@@ -41,7 +41,7 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
 int awake_others(CHAR_DATA * ch);
 void affect_from_char(CHAR_DATA * ch, int type);
-void do_aggressive_mob(CHAR_DATA * ch, int check_sneak);
+void do_aggressive_room(CHAR_DATA * ch, int check_sneak);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 /* local functions */
 void check_ice(int room);
@@ -881,7 +881,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 	/* If flee - go agressive mobs */
 	if (!IS_NPC(ch) && IsFlee)
-		do_aggressive_mob(ch, FALSE);
+		do_aggressive_room(ch, FALSE);
 
 	return (direction);
 }
@@ -953,7 +953,7 @@ int perform_move(CHAR_DATA * ch, int dir, int need_specials_check, int checkmob,
 		}
 		if (checkmob)
 		{
-			do_aggressive_mob(ch, TRUE);
+			do_aggressive_room(ch, TRUE);
 		}
 		return (TRUE);
 	}
