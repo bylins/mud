@@ -6028,6 +6028,7 @@ int create_entry(char *name)
 	/* create new save activity */
 	player_table[pos].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
 	player_table[pos].timer = NULL;
+	player_table[pos].unique = -1;
 
 	return (pos);
 }
