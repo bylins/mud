@@ -1268,10 +1268,18 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 	{
 		check_hiding_cmd(ch, cmd_info[cmd].unhide_percent);
 		(*cmd_info[cmd].command_pointer)(ch, line, cmd, cmd_info[cmd].subcmd);
+		if (ch->purged())
+		{
+			return;
+		}
 		if (!IS_NPC(ch) && IN_ROOM(ch) != NOWHERE && CHECK_AGRO(ch))
 		{
 			CHECK_AGRO(ch) = FALSE;
 			do_aggressive_room(ch, FALSE);
+			if (ch->purged())
+			{
+				return;
+			}
 		}
 	}
 }

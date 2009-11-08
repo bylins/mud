@@ -22,46 +22,135 @@
 
 std::string PlayerI::empty_const_str;
 
-Character::Character()
-		:
-		protecting_(0),
-		touching_(0),
-		fighting_(0),
-		in_fighting_list_(0),
-		serial_num_(0),
-		nr(NOBODY),
-		in_room(0),
-		wait(0),
-		punctual_wait(0),
-		last_comm(0),
-		player_specials(0),
-		affected(0),
-		timed(0),
-		timed_feat(0),
-		carrying(0),
-		desc(0),
-		id(0),
-		proto_script(0),
-		script(0),
-		memory(0),
-		next_in_room(0),
-		next(0),
-		next_fighting(0),
-		followers(0),
-		master(0),
-		CasterLevel(0),
-		DamageLevel(0),
-		pk_list(0),
-		helpers(0),
-		track_dirs(0),
-		CheckAggressive(0),
-		ExtractTimer(0),
-		Initiative(0),
-		BattleCounter(0),
-		Poisoner(0),
-		ing_list(0),
-		dl_list(0)
+namespace
 {
+
+// список чаров/мобов после пуржа для последующего удаления оболочки
+typedef std::vector<CHAR_DATA *> PurgedListType;
+PurgedListType purged_list;
+
+/**
+* На перспективу - втыкать во все методы character.
+*/
+void check_purged(const CHAR_DATA *ch, const char *fnc)
+{
+	if (ch->purged())
+	{
+		log("SYSERR: Using purged character (%s).", fnc);
+	}
+}
+
+int normolize_skill(int percent)
+{
+	const static int KMinSkillPercent = 0;
+	const static int KMaxSkillPercent = 200;
+
+	if (percent < KMinSkillPercent)
+		percent = KMinSkillPercent;
+	else if (percent > KMaxSkillPercent)
+		percent = KMaxSkillPercent;
+
+	return percent;
+}
+
+// список для быстрого прогона по сражающимся при пурже моба
+// при попадании в список чар остается в нем до своего экстракта
+std::list<CHAR_DATA *> fighting_list;
+
+} // namespace
+
+////////////////////////////////////////////////////////////////////////////////
+
+namespace CharacterSystem
+{
+
+/**
+* Реальное удаление указателей чаров после пуржа.
+*/
+void release_purged_list()
+{
+	if (purged_list.empty())
+	{
+		return;
+	}
+	struct timeval start, stop, result;
+	gettimeofday(&start, 0);
+
+	unsigned size = purged_list.size();
+	for (PurgedListType::iterator i = purged_list.begin(); i != purged_list.end(); ++i)
+	{
+		delete *i;
+	}
+	purged_list.clear();
+
+	gettimeofday(&stop, 0);
+	timediff(&result, &stop, &start);
+
+	snprintf(buf, MAX_STRING_LENGTH, "Purged: %u (%ld sec. %ld us)",
+			size, result.tv_sec, result.tv_usec);
+	mudlog(buf, NRM, 35, SYSLOG, TRUE);
+}
+
+} // namespace CharacterSystem
+
+////////////////////////////////////////////////////////////////////////////////
+
+Character::Character()
+{
+	this->zero_init();
+}
+
+Character::~Character()
+{
+	this->purge(true);
+}
+
+/**
+* Обнуление всех полей Character (аналог конструктора),
+* вынесено в отдельную функцию, чтобы дергать из purge().
+*/
+void Character::zero_init()
+{
+	protecting_ = 0;
+	touching_ = 0;
+	fighting_ = 0;
+	in_fighting_list_ = 0;
+	serial_num_ = 0;
+	purged_ = 0;
+	// char_data
+	nr = NOBODY;
+	in_room = 0;
+	wait = 0;
+	punctual_wait = 0;
+	last_comm = 0;
+	player_specials = 0;
+	affected = 0;
+	timed = 0;
+	timed_feat = 0;
+	carrying = 0;
+	desc = 0;
+	id = 0;
+	proto_script = 0;
+	script = 0;
+	memory = 0;
+	next_in_room = 0;
+	next = 0;
+	next_fighting = 0;
+	followers = 0;
+	master = 0;
+	CasterLevel = 0;
+	DamageLevel = 0;
+	pk_list = 0;
+	helpers = 0;
+	track_dirs = 0;
+	CheckAggressive = 0;
+	ExtractTimer = 0;
+	Initiative = 0;
+	BattleCounter = 0;
+	Poisoner = 0;
+	ing_list = 0;
+	dl_list = 0;
+
 	memset(&extra_attack_, 0, sizeof(extra_attack_type));
 	memset(&cast_attack_, 0, sizeof(cast_attack_type));
 	memset(&player_data, 0, sizeof(char_player_data));
@@ -72,17 +161,24 @@ Character::Character()
 	memset(&mob_specials, 0, sizeof(mob_special_data));
 
 	for (int i = 0; i < NUM_WEARS; i++)
+	{
 		equipment[i] = 0;
+	}
 
 	memset(&MemQueue, 0, sizeof(spell_mem_queue));
 	memset(&Temporary, 0, sizeof(FLAG_DATA));
 	memset(&BattleAffects, 0, sizeof(FLAG_DATA));
-
 	char_specials.position = POS_STANDING;
 	mob_specials.default_pos = POS_STANDING;
 }
 
-Character::~Character()
+/**
+* Освобождение выделенной в Character памяти, вынесено из деструктора,
+* т.к. есть необходимость дергать отдельно от delete.
+* \param destructor - true вызов произошел из дестркутора и обнулять/добавлять
+* в purged_list не нужно, по дефолту = false.
+*/
+void Character::purge(bool destructor)
 {
 	if (GET_NAME(this))
 		log("[FREE CHAR] (%s)", GET_NAME(this));
@@ -249,6 +345,17 @@ Character::~Character()
 		if (IS_NPC(this))
 			log("SYSERR: Mob %s (#%d) had player_specials allocated!", GET_NAME(this), GET_MOB_VNUM(this));
 	}
+
+	if (!destructor)
+	{
+		// обнуляем все
+		this->zero_init();
+		// проставляем неподходящие из конструктора поля
+		purged_ = true;
+		char_specials.position = POS_DEAD;
+		// закидываем в список ожидающих делета указателей
+		purged_list.push_back(this);
+	}
 }
 
 /**
@@ -291,19 +398,6 @@ int Character::get_trained_skill(int skill_num)
 		}
 	}
 	return 0;
-}
-
-int Character::normolize_skill(int percent)
-{
-	const static int KMinSkillPercent = 0;
-	const static int KMaxSkillPercent = 200;
-
-	if (percent < KMinSkillPercent)
-		percent = KMinSkillPercent;
-	else if (percent > KMaxSkillPercent)
-		percent = KMaxSkillPercent;
-
-	return percent;
 }
 
 /**
@@ -442,14 +536,6 @@ OBJ_DATA * Character::get_cast_obj() const
 	return cast_attack_.tobj;
 }
 
-namespace {
-
-// список для быстрого прогона по сражающимся при пурже моба
-// при попадании в список чар остается в нем до своего экстракта
-std::list<CHAR_DATA *> fighting_list;
-
-} // namespace
-
 void Character::check_fighting_list()
 {
 	/*
@@ -575,4 +661,9 @@ int Character::get_serial_num()
 void Character::set_serial_num(int num)
 {
 	serial_num_ = num;
+}
+
+bool Character::purged() const
+{
+	return purged_;
 }

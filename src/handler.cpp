@@ -2754,7 +2754,8 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		}
 
 		SET_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
-		delete ch;
+		ch->purge();
+		// delete ch;
 		freed = 1;
 	}
 
@@ -2775,7 +2776,8 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		if (!freed)
 		{
 			SET_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
-			delete ch;
+			ch->purge();
+			// delete ch;
 		}
 	}
 	log("[Extract char] Stop function for char %s", name);
@@ -2863,7 +2865,8 @@ void extract_mob(CHAR_DATA * ch)
 	}
 
 	SET_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
-	delete ch;
+	ch->purge();
+//	delete ch;
 }
 
 

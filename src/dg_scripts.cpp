@@ -3930,6 +3930,11 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 		trig_log(runtrig, "Attempt to run waiting trigger");
 	}
 
+	if (go && type == MOB_TRIGGER && ((CHAR_DATA *) go)->purged())
+	{
+		return (FALSE);
+	}
+
 	runtrig = NULL;
 	if (!go || (type == MOB_TRIGGER ? SCRIPT((CHAR_DATA *) go) :
 				type == OBJ_TRIGGER ? SCRIPT((OBJ_DATA *) go) :

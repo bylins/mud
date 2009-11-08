@@ -2231,22 +2231,20 @@ ASPELL(spell_sacrifice)
 	// Высосать жизнь - некроманы - уровень 18 круг 6й (5)
 	// *** мин 54 макс 66 (330)
 
-	if (WAITLESS(victim) || victim == ch)
+	if (WAITLESS(victim) || victim == ch || IS_CHARMICE(victim))
 	{
 		send_to_char(NOEFFECT, ch);
 		return;
 	}
 
 	dam = mag_damage(GET_LEVEL(ch), ch, victim, SPELL_SACRIFICE, SAVING_STABILITY);
+	// victim может быть спуржен
 
 	if (dam < 0)
 		dam = d0;
 	if (dam > d0)
 		dam = d0;
 	if (dam <= 0)
-		return;
-
-	if (IS_CHARMICE(victim))
 		return;
 
 	do_sacrifice(ch, dam);

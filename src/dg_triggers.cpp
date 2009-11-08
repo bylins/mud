@@ -332,13 +332,14 @@ void greet_memory_mtrigger(CHAR_DATA * actor)
 int greet_mtrigger(CHAR_DATA * actor, int dir)
 {
 	TRIG_DATA *t;
-	CHAR_DATA *ch;
+	CHAR_DATA *ch, *ch_next;
 	char buf[MAX_INPUT_LENGTH];
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
 	int intermediate, final = TRUE;
 
-	for (ch = world[IN_ROOM(actor)]->people; ch; ch = ch->next_in_room)
+	for (ch = world[IN_ROOM(actor)]->people; ch && !ch->purged(); ch = ch_next)
 	{
+		ch_next = ch->next_in_room;
 		if (!SCRIPT_CHECK
 				(ch,
 				 MTRIG_GREET | MTRIG_GREET_ALL | MTRIG_GREET_PC | MTRIG_GREET_PC_ALL) || !AWAKE(ch) || ch->get_fighting()
@@ -360,6 +361,10 @@ int greet_mtrigger(CHAR_DATA * actor, int dir)
 					add_var_cntx(&GET_TRIG_VARS(t), "direction", dirs[rev_dir[dir]], 0);
 				ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 				intermediate = script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+				if (ch->purged())
+				{
+					break;
+				}
 				if (!intermediate)
 					final = FALSE;
 				continue;

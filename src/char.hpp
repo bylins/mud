@@ -314,9 +314,12 @@ public:
 	int get_serial_num();
 	void set_serial_num(int num);
 
+	void purge(bool destructor = false);
+	bool purged() const;
+
 private:
-	static int normolize_skill(int percent);
 	void check_fighting_list();
+	void zero_init();
 
 	CharSkillsType skills;  // список изученных скиллов
 	////////////////////////////////////////////////////////////////////////////
@@ -329,6 +332,8 @@ private:
 	struct cast_attack_type cast_attack_;   // каст заклинания
 	////////////////////////////////////////////////////////////////////////////
 	int serial_num_; // порядковый номер в списке чаров (для name_list)
+	// true - чар очищен и ждет вызова delete для оболочки
+	bool purged_;
 
 // старое
 public:
@@ -393,5 +398,12 @@ public:
 
 void change_fighting(CHAR_DATA * ch, int need_stop);
 int fighting_list_size();
+
+namespace CharacterSystem
+{
+
+void release_purged_list();
+
+} // namespace CharacterSystem
 
 #endif // CHAR_HPP_INCLUDED

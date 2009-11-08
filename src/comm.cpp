@@ -1308,54 +1308,60 @@ inline void heartbeat()
 	// здесь важно то, что они не перекрываются друг другом в момент тика
 
 	// убитые мобы для глобал-дропа
-	if (!((pulse + 46) % (60 * GlobalDrop::SAVE_PERIOD * PASSES_PER_SEC)))
+	if (!((pulse + 47) % (60 * GlobalDrop::SAVE_PERIOD * PASSES_PER_SEC)))
 	{
 		GlobalDrop::save();
 	}
 
 	// снятие денег за шмот в клановых сундуках
-	if (!((pulse + 44) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
+	if (!((pulse + 45) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
 		Clan::ChestUpdate();
 	}
 	// сохранение клан-хранов
-	if (!((pulse + 43) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
+	if (!((pulse + 44) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
 		Clan::ChestSave();
 	}
 	// и самих кланов
-	if (!((pulse + 39) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
+	if (!((pulse + 40) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
 		Clan::ClanSave();
 	}
 
 // раз в 5 минут >> ////////////////////////////////////////////////////////////
 
-	if (!((pulse + 35) % (5 * 60 * PASSES_PER_SEC)))
+	if (!((pulse + 36) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		record_usage();
 	}
-	if (!((pulse + 34) % (5 * 60 * PASSES_PER_SEC)))
+	if (!((pulse + 35) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		ban->reload_proxy_ban(ban->RELOAD_MODE_TMPFILE);
 	}
 	// вывод иммам о неодобренных именах и титулах
-	if (!((pulse + 33) % (5 * 60 * PASSES_PER_SEC)))
+	if (!((pulse + 34) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		god_work_invoice();
 	}
 	// сейв титулов, ждущих одобрения
-	if (!((pulse + 32) % (5 * 60 * PASSES_PER_SEC)))
+	if (!((pulse + 33) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		TitleSystem::save_title_list();
 	}
 	// сейв зареганных мыл
-	if (!((pulse + 28) % (5 * 60 * PASSES_PER_SEC)))
+	if (!((pulse + 29) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		RegisterSystem::save();
 	}
 
 // раз в минуту >> /////////////////////////////////////////////////////////////
+
+	// очистка спурженных character
+	if (!((pulse + 28) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	{
+		CharacterSystem::release_purged_list();
+	}
 
 	// апдейт таймеров в личных хранах + пурж чего надо
 	if (!((pulse + 25) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
