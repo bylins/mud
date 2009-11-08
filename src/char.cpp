@@ -69,26 +69,11 @@ namespace CharacterSystem
 */
 void release_purged_list()
 {
-	if (purged_list.empty())
-	{
-		return;
-	}
-	struct timeval start, stop, result;
-	gettimeofday(&start, 0);
-
-	unsigned size = purged_list.size();
 	for (PurgedListType::iterator i = purged_list.begin(); i != purged_list.end(); ++i)
 	{
 		delete *i;
 	}
 	purged_list.clear();
-
-	gettimeofday(&stop, 0);
-	timediff(&result, &stop, &start);
-
-	snprintf(buf, MAX_STRING_LENGTH, "Purged: %u (%ld sec. %ld us)",
-			size, result.tv_sec, result.tv_usec);
-	mudlog(buf, NRM, 35, SYSLOG, TRUE);
 }
 
 } // namespace CharacterSystem
