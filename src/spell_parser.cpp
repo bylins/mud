@@ -2027,8 +2027,14 @@ void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
 			hit(victim, caster, TYPE_UNDEFINED, 1);
 	}
 	else if (CAN_SEE(victim, caster) && !IS_NPC(caster) && IS_NPC(victim) && MOB_FLAGGED(victim, MOB_MEMORY))
+	{
 		remember(victim, caster);
+	}
 
+	if (caster->purged())
+	{
+		return;
+	}
 	if (!CAN_SEE(victim, caster) && (GET_REAL_INT(victim) > 25 || GET_REAL_INT(victim) > number(10, 25)))
 	{
 		if (!AFF_FLAGGED(victim, AFF_DETECT_INVIS)
@@ -2041,7 +2047,6 @@ void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
 				 && GET_SPELL_MEM(victim, SPELL_LIGHT) > 0)
 			cast_spell(victim, victim, 0, 0, SPELL_LIGHT, SPELL_LIGHT);
 	}
-
 }
 
 
