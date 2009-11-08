@@ -26,6 +26,11 @@ void TimedSpell::clear(OBJ_DATA *obj, bool send_message)
 	// если что-то надо сделать со шмоткой при снятии обкаста
 	switch (spell_)
 	{
+	case SPELL_ACONITUM_POISON:
+	case SPELL_SCOPOLIA_POISON:
+	case SPELL_BELENA_POISON:
+	case SPELL_DATURA_POISON:
+		break;
 	case SPELL_FLY:
 	{
 		const OBJ_DATA * const proto = read_object_mirror(GET_OBJ_VNUM(obj));
@@ -40,8 +45,8 @@ void TimedSpell::clear(OBJ_DATA *obj, bool send_message)
 		break;
 	}
 	default:
-		log("SYSERROR: func: %s, spell_ = %d", __func__, spell_);
-	} // case
+		log("SYSERROR: %s:%d, spell_ = %d", __FILE__, __LINE__, spell_);
+	} // switch
 
 	// онлайн уведомление чару
 	if (send_message && (obj->carried_by || obj->worn_by))
