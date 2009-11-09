@@ -2488,8 +2488,13 @@ ACMD(do_purge)
 			// TODO: честно говоря дублирование куска из экстракта не ясно
 			// смену лидера пока сюду не сую, над вникнуть будет...
 			if (vict->followers || vict->master)
+			{
 				die_follower(vict);
-			extract_char(vict, FALSE);
+			}
+			if (!vict->purged())
+			{
+				extract_char(vict, FALSE);
+			}
 		}
 		else if ((obj = get_obj_in_list_vis(ch, buf, world[ch->in_room]->contents)) != NULL)
 		{
@@ -2514,8 +2519,13 @@ ACMD(do_purge)
 			if (IS_NPC(vict))
 			{
 				if (vict->followers || vict->master)
+				{
 					die_follower(vict);
-				extract_char(vict, FALSE);
+				}
+				if (!vict->purged())
+				{
+					extract_char(vict, FALSE);
+				}
 			}
 		}
 
