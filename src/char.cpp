@@ -165,6 +165,12 @@ void Character::zero_init()
 */
 void Character::purge(bool destructor)
 {
+	if (purged_)
+	{
+		log("SYSERROR: double purge (%s:%d)", __FILE__, __LINE__);
+		return;
+
+	}
 	if (GET_NAME(this))
 		log("[FREE CHAR] (%s)", GET_NAME(this));
 
