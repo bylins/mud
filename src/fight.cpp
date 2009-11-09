@@ -1971,13 +1971,17 @@ int calculate_noparryhit_dmg(CHAR_DATA * ch, OBJ_DATA * wielded)
 
 int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_DATA * wielded, int mayflee)
 {
+	if (!ch || ch->purged() || !victim || victim->purged())
+	{
+		log("SYSERROR: ch = %s, victim = %s (%s:%d)",
+				ch ? (ch->purged() ? "purged" : "true") : "false",
+				victim ? (victim->purged() ? "purged" : "true") : "false",
+				__FILE__, __LINE__);
+		return 0;
+	}
+
 	int prob, percent = 0, lag = 0, k, mem_dam = dam;
 	AFFECT_DATA af;
-
-	if (!victim)
-	{
-		return (0);
-	}
 
 	if (dam < 0)
 		dam = 0;
@@ -2268,15 +2272,19 @@ void try_remove_extrahits(CHAR_DATA *ch, CHAR_DATA *victim)
 // возвращает сделанный дамаг
 int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayflee)
 {
+	if (!ch || ch->purged() || !victim || victim->purged())
+	{
+		log("SYSERROR: ch = %s, victim = %s (%s:%d)",
+				ch ? (ch->purged() ? "purged" : "true") : "false",
+				victim ? (victim->purged() ? "purged" : "true") : "false",
+				__FILE__, __LINE__);
+		return 0;
+	}
+
 	int FS_damage = 0;
 	ACMD(do_get);
 //  long local_gold = 0;
 //  char local_corpse[256];
-
-	if (!ch || !victim)
-	{
-		return (0);
-	}
 
 
 	if (IN_ROOM(victim) == NOWHERE || IN_ROOM(ch) == NOWHERE || IN_ROOM(ch) != IN_ROOM(victim))
@@ -2797,6 +2805,14 @@ void addshot_damage(CHAR_DATA * ch, int type, int weapon)
 /**** This function realize second shot for bows *******/
 void exthit(CHAR_DATA * ch, int type, int weapon)
 {
+	if (!ch || ch->purged())
+	{
+		log("SYSERROR: ch = %s (%s:%d)",
+				ch ? (ch->purged() ? "purged" : "true") : "false",
+				__FILE__, __LINE__);
+		return;
+	}
+
 	OBJ_DATA *wielded = NULL;
 	int percent = 0, prob = 0, div = 0, moves = 0;
 	CHAR_DATA *tch;
@@ -3388,15 +3404,21 @@ bool can_auto_block(CHAR_DATA *ch)
 // обработка ударов оружием, санка, призма, стили, итд.
 void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 {
+	if (!ch || ch->purged() || !victim || victim->purged())
+	{
+		log("SYSERROR: ch = %s, victim = %s (%s:%d)",
+				ch ? (ch->purged() ? "purged" : "true") : "false",
+				victim ? (victim->purged() ? "purged" : "true") : "false",
+				__FILE__, __LINE__);
+		return;
+	}
+
 	OBJ_DATA *wielded = NULL;
 	CHAR_DATA *vict;
 	int made_dam = 0;
 //  int victim_old_ac;
 	int i, w_type = 0, victim_ac, calc_thaco, dam, diceroll, prob, range, skill =
 						0, weapon_pos = WEAR_WIELD, percent, is_shit = (weapon == 2) ? 1 : 0, modi = 0, skill_is = 0;
-
-	if (!victim)
-		return;
 
 	/* check if the character has a fight trigger */
 //  fight_mtrigger(ch);
