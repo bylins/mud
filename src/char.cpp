@@ -87,7 +87,10 @@ Character::Character()
 
 Character::~Character()
 {
-	this->purge(true);
+	if (!purged_)
+	{
+		this->purge(true);
+	}
 }
 
 /**
