@@ -2627,7 +2627,12 @@ void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 */
 void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 {
-	char name[MAX_STRING_LENGTH];
+	if (ch->purged())
+	{
+		log("SYSERROR: double extract_char (%s:%d)", __FILE__, __LINE__);
+		return;
+	}
+
 	DESCRIPTOR_DATA *t_desc;
 	int i, freed = 0;
 	CHAR_DATA *ch_w, *temp;
@@ -2635,9 +2640,8 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	if (MOB_FLAGGED(ch, MOB_FREE) || MOB_FLAGGED(ch, MOB_DELETE))
 		return;
 
-	strcpy(name, GET_NAME(ch));
-
-	log("[Extract char] Start function for char %s", name);
+	std::string name = GET_NAME(ch) ? GET_NAME(ch) : "<null>";
+	log("[Extract char] Start function for char %s", name.c_str());
 	if (!IS_NPC(ch) && !ch->desc)
 	{
 		log("[Extract char] Extract descriptors");
@@ -2780,7 +2784,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 			// delete ch;
 		}
 	}
-	log("[Extract char] Stop function for char %s", name);
+	log("[Extract char] Stop function for char %s", name.c_str());
 }
 
 
