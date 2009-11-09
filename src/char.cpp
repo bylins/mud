@@ -248,6 +248,10 @@ void Character::purge(bool destructor)
 	if (this->desc)
 		this->desc->character = NULL;
 
+	// у мобов пока сохраняем это поле после пуржа, оно уберется
+	// когда в Character вообще не останется этого player_specials
+	bool keep_player_specials = (player_specials == &dummy_mob) ? true : false;
+
 	if (this->player_specials != NULL && this->player_specials != &dummy_mob)
 	{
 		while ((a = GET_ALIASES(this)) != NULL)
@@ -338,6 +342,10 @@ void Character::purge(bool destructor)
 		// проставляем неподходящие из конструктора поля
 		purged_ = true;
 		char_specials.position = POS_DEAD;
+		if (keep_player_specials)
+		{
+			player_specials = &dummy_mob;
+		}
 		// закидываем в список ожидающих делета указателей
 		purged_list.push_back(this);
 	}
