@@ -3404,12 +3404,15 @@ bool can_auto_block(CHAR_DATA *ch)
 // обработка ударов оружием, санка, призма, стили, итд.
 void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon)
 {
-	if (!ch || ch->purged() || !victim || victim->purged())
+	if (!victim)
+	{
+		return;
+	}
+	if (!ch || ch->purged() || victim->purged())
 	{
 		log("SYSERROR: ch = %s, victim = %s (%s:%d)",
 				ch ? (ch->purged() ? "purged" : "true") : "false",
-				victim ? (victim->purged() ? "purged" : "true") : "false",
-				__FILE__, __LINE__);
+				victim->purged() ? "purged" : "true", __FILE__, __LINE__);
 		return;
 	}
 
