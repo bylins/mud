@@ -2791,6 +2791,12 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 /* Extract a MOB completely from the world, and destroy his stuff */
 void extract_mob(CHAR_DATA * ch)
 {
+	if (ch->purged())
+	{
+		log("SYSERROR: double extract_mob (%s:%d)", __FILE__, __LINE__);
+		return;
+	}
+
 	int i;
 	CHAR_DATA *temp;
 
