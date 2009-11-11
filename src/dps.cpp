@@ -485,6 +485,17 @@ void check_round(CHAR_DATA *ch)
 
 } // namespace DpsSystem
 
+namespace
+{
+
+const char *DMETR_FORMAT =
+"Формат команды:\r\n"
+"дметр - вывод всей статистики\r\n"
+"дметр очистить - очистка персональной статистики\r\n"
+"дметр очистить группа - очистка групповой статистики (только лидер)\r\n";
+
+} // namespace
+
 /**
 * 'дметр' - вывод своей статистики и групповой, если в группе.
 * 'дметр очистить' - очистка своей статистики.
@@ -492,7 +503,10 @@ void check_round(CHAR_DATA *ch)
 */
 ACMD(do_dmeter)
 {
-	if (IS_NPC(ch)) return;
+	if (IS_NPC(ch))
+	{
+		return;
+	}
 
 	char name[MAX_INPUT_LENGTH];
 	two_arguments(argument, arg, name);
@@ -501,13 +515,14 @@ ACMD(do_dmeter)
 	{
 		ch->dps_print_stats();
 	}
-	if (isname(arg, "очистить"))
+	else if (isname(arg, "очистить"))
 	{
 		if (!*name)
 		{
 			ch->dps_clear(DpsSystem::PERS_DPS);
+			send_to_char("Персональная статистика очищена.\r\n", ch);
 		}
-		if (isname(name, "группа"))
+		else if (isname(name, "группа"))
 		{
 			if (!AFF_FLAGGED(ch, AFF_GROUP))
 			{
@@ -521,5 +536,9 @@ ACMD(do_dmeter)
 			}
 			ch->dps_clear(DpsSystem::GROUP_DPS);
 		}
+	}
+	else
+	{
+		send_to_char(DMETR_FORMAT, ch);
 	}
 }

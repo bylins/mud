@@ -20,8 +20,8 @@
 namespace Password
 {
 
-const char *BAD_PASSWORD = "Пароль должен быть от 10 до 50 символов и не должен быть именем персонажа.";
-const unsigned int MIN_PWD_LENGTH = 10;
+const char *BAD_PASSWORD = "Пароль должен быть от 8 до 50 символов и не должен быть именем персонажа.";
+const unsigned int MIN_PWD_LENGTH = 8;
 const unsigned int MAX_PWD_LENGTH = 50;
 
 /**
