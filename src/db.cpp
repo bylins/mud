@@ -1821,9 +1821,9 @@ void index_boot(int mode)
 			else if (mode == DB_BOOT_WLD)
 			{
 				counter = count_hash_records(db_file);
-				if (counter >= 99)
+				if (counter > 99)
 				{
-					log("SYSERR: File '%s' list more than 98 room", buf2);
+					log("SYSERR: File '%s' list more than 99 room", buf2);
 					exit(1);
 				}
 				rec_count += (counter + 1);
