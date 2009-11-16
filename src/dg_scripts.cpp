@@ -3932,6 +3932,8 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 
 	if (go && type == MOB_TRIGGER && ((CHAR_DATA *) go)->purged())
 	{
+		*sc = NULL;
+		*trig = NULL;
 		return (FALSE);
 	}
 
