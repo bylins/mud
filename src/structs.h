@@ -57,7 +57,6 @@ using std::bitset;
  */
 #define USE_AUTOEQ   1		/* TRUE/FALSE aren't defined yet. */
 
-#define EXPERT_WEAPON    80
 #define MAX_DEST         50
 
 

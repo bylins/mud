@@ -451,7 +451,7 @@ extern SPECIAL(postmaster);
 #define ROUND_COUNTER(ch)     ((ch)->round_counter)
 #define EXTRACT_TIMER(ch)     ((ch)->ExtractTimer)
 #define CHECK_AGRO(ch)        ((ch)->CheckAggressive)
-#define WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
+#define WAITLESS(ch)          (IS_IMMORTAL(ch))
 #define PUNCTUAL_WAITLESS(ch)          (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
 #define CLR_MEMORY(ch)  (memset((ch)->Memory,0,MAX_SPELLS+1))
 #define IS_CODER(ch)    (GET_LEVEL(ch) < LVL_IMMORT && PRF_FLAGGED(ch, PRF_CODERINFO))
