@@ -1929,28 +1929,28 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 }
 
 /**
-* Расчет прибавки дамаги с концентрации силы.
-* (сила-25)*(среднее/8)*(левел/30)*(рандом(левел, 100)/100)*(мах(1, морты/5))
-* Т.е. сила выше 25ти, левел, среднее оружия, штрафы до 5го морта и рандом от левела до 100.
+* Расчет множителя дамаги пушки с концентрацией силы.
+* Текущая: 1 + ((сила-25)*0.4 + левел*0.2)/10 * ремы/5,
+* в цифрах множитель выглядит от 1 до 2.6 с равномерным
+* распределением 62.5% на силу и 37.5% на уровни + штрафы до 5 ремов.
 * Способность не плюсуется при железном ветре и оглушении.
 */
-int calculate_strconc_damage(CHAR_DATA * ch, OBJ_DATA * wielded)
+int calculate_strconc_damage(CHAR_DATA * ch, OBJ_DATA * wielded, int damage)
 {
-	if (!can_use_feat(ch, STRENGTH_CONCETRATION_FEAT)
-			|| GET_AF_BATTLE(ch, EAF_IRON_WIND)
-			|| GET_AF_BATTLE(ch, EAF_STUPOR))
+	if (IS_NPC(ch)
+		|| GET_REAL_STR(ch) <= 25
+		|| !can_use_feat(ch, STRENGTH_CONCETRATION_FEAT)
+		|| GET_AF_BATTLE(ch, EAF_IRON_WIND)
+		|| GET_AF_BATTLE(ch, EAF_STUPOR))
 	{
-		return 0;
+		return 1;
 	}
+	float str_mod = (GET_REAL_STR(ch) - 25) * 0.4;
+	float lvl_mod = GET_LEVEL(ch) * 0.2;
+	float rmt_mod = MIN(5, GET_REMORT(ch)) / 5.0;
+	float res_mod = 1 + (str_mod + lvl_mod) / 10.0 * rmt_mod;
 
-	int str_mod = MAX(0, GET_REAL_STR(ch) - 25);
-	float rnd_mod = static_cast<float>(number(GET_LEVEL(ch), 100)) / 100;
-	float weap_mod = static_cast<float>(((GET_OBJ_VAL(wielded, 2) + 1) / 2.0) * GET_OBJ_VAL(wielded, 1)) / 8;
-	float level_mod = static_cast<float>(GET_LEVEL(ch)) / 30;
-	float remort_mod = static_cast<float>(GET_REMORT(ch)) / 5;
-	if (remort_mod > 1) remort_mod = 1;
-
-	return (static_cast<int>(str_mod * weap_mod * level_mod * rnd_mod * remort_mod));
+	return static_cast<int>(damage * res_mod);
 }
 
 /**
@@ -2079,20 +2079,24 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 	else if (GET_AF_BATTLE(ch, EAF_STUPOR) && GET_WAIT(ch) <= 0)
 	{
 		CLR_AF_BATTLE(ch, EAF_STUPOR);
-		if (IS_NPC(ch) ||
-				IS_IMMORTAL(ch) ||
-				(wielded &&
-				 GET_OBJ_WEIGHT(wielded) > 18 &&
-				 GET_OBJ_SKILL(wielded) != SKILL_BOWS &&
-				 !GET_AF_BATTLE(ch, EAF_PARRY) && !GET_AF_BATTLE(ch, EAF_MULTYPARRY)))
+		if (IS_NPC(ch)
+			|| IS_IMMORTAL(ch)
+			|| (wielded && GET_OBJ_WEIGHT(wielded) > 18
+				&& GET_OBJ_SKILL(wielded) != SKILL_BOWS
+				&& !GET_AF_BATTLE(ch, EAF_PARRY)
+				&& !GET_AF_BATTLE(ch, EAF_MULTYPARRY)))
 		{
 			percent = number(1, skill_info[SKILL_STUPOR].max_percent);
 			prob = train_skill(ch, SKILL_STUPOR, skill_info[SKILL_STUPOR].max_percent, victim);
 			if (GET_MOB_HOLD(victim))
+			{
 				prob = MAX(prob, percent * 150 / 100 + 1);
+			}
 			if (IS_IMMORTAL(victim))
+			{
 				prob = 0;
-			if (prob * 100 / percent < 120 || dam == 0 || MOB_FLAGGED(victim, MOB_NOSTUPOR))
+			}
+			if (prob * 100 / percent < 117 || dam == 0 || MOB_FLAGGED(victim, MOB_NOSTUPOR))
 			{
 				sprintf(buf,
 						"%sВы попытались оглушить %s, но не смогли.%s\r\n",
@@ -2109,8 +2113,10 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				lag = 2;
 				k = ch->get_skill(SKILL_STUPOR) / 30;
 				if (!IS_NPC(victim))
+				{
 					k = MIN(2, k);
-				dam *= MAX(1, number(1, k));
+				}
+				dam *= MAX(2, number(1, k));
 				WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
 				sprintf(buf,
 						"%sВаше сознание помутилось после удара %s.%s\r\n",
@@ -2135,8 +2141,10 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				lag = 2;
 				k = ch->get_skill(SKILL_STUPOR) / 20;
 				if (!IS_NPC(victim))
+				{
 					k = MIN(4, k);
-				dam *= MAX(1, number(1, k));
+				}
+				dam *= MAX(3, number(1, k));
 				WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
 				if (GET_POS(victim) > POS_SITTING && !MOB_FLAGGED(victim, MOB_NOBASH))
 				{
@@ -2177,7 +2185,6 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 	// Если удар парирован, необходимо все равно ввязаться в драку.
 	// Вызывается damage с отрицательным уроном
 	return damage(ch, victim, mem_dam >= 0 ? dam : -1, attacktype, mayflee);
-
 }
 
 
@@ -4165,8 +4172,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		{
 			percent = MIN(percent, percent * GET_OBJ_CUR(wielded) / MAX(1, GET_OBJ_MAX(wielded)));
 		}
+		percent = calculate_strconc_damage(ch, wielded, percent);
 		dam += MAX(1, percent);
-		dam += calculate_strconc_damage(ch, wielded);
 		noparryhit += calculate_noparryhit_dmg(ch, wielded);
 		if (type == SKILL_BACKSTAB)
 			noparryhit = noparryhit * 10 / 15;

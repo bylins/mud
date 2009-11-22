@@ -140,7 +140,11 @@ const char *create_weapon_quality[] = { "RESERVED",
 										"качества, более чем достойного младших богов",
 										"качества, достойного богов",	/* 25 */
 										"качества, более чем достойного богов",
-										"качества, которого достигают немногие",	/* >25 */
+										"качества, которого достигают немногие", // 26
+										"качества, которого достигают немногие",
+										"качества, которого достигают немногие", // 27
+										"качества, которого достигают немногие",
+										"качества, достойного старших богов", // >= 28
 										"\n"
 									  };
 
@@ -905,7 +909,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 			ndice += GET_OBJ_WEIGHT(tobj) / 10;
 			percent = number(1, skill_info[skill].max_percent);
 			prob = calculate_skill(ch, skill, skill_info[skill].max_percent, 0);
-			sdice = MAX(2, MIN(4, prob / percent));
+			sdice = MAX(2, MIN(5, prob / percent));
 			sdice += GET_OBJ_WEIGHT(tobj) / 10;
 			GET_OBJ_VAL(tobj, 1) = ndice;
 			GET_OBJ_VAL(tobj, 2) = sdice;
@@ -918,11 +922,11 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 				average = (((float) sdice + 1) * (float) ndice / 2.0);
 				if (average < 3.0)
 					sprintf(txtbuff, "Вы выковали $o3 %s.", create_weapon_quality[(int)(2.5 * 2)]);
-				else if (average < 25.5)
+				else if (average <= 27.5)
 					sprintf(txtbuff, "Вы выковали $o3 %s.",
 							create_weapon_quality[(int)(average * 2)]);
 				else
-					sprintf(txtbuff, "Вы выковали $o3 %s!", create_weapon_quality[(26 * 2)]);
+					sprintf(txtbuff, "Вы выковали $o3 %s!", create_weapon_quality[56]);
 				to_char = (char *) txtbuff;
 			}
 			else
