@@ -1943,7 +1943,7 @@ int calculate_strconc_damage(CHAR_DATA * ch, OBJ_DATA * wielded, int damage)
 		|| GET_AF_BATTLE(ch, EAF_IRON_WIND)
 		|| GET_AF_BATTLE(ch, EAF_STUPOR))
 	{
-		return 1;
+		return damage;
 	}
 	float str_mod = (GET_REAL_STR(ch) - 25) * 0.4;
 	float lvl_mod = GET_LEVEL(ch) * 0.2;
@@ -4160,20 +4160,28 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	// потому что просто поменяв их тут местами - срежется последовательность модификаторов
 	int noparryhit = 0;
 
+log("test0: %d (%s)", dam, GET_NAME(ch));
+
 	if (wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)  	// Add weapon-based damage if a weapon is being wielded
 	{
 		percent = dice(GET_OBJ_VAL(wielded, 1), GET_OBJ_VAL(wielded, 2));
+log("test11: %d", percent);
 		if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM)
 				&& !MOB_FLAGGED(ch, MOB_ANGEL))
 		{
 			percent *= MOB_DAMAGE_MULT;
+log("test12: %d", percent);
 		}
 		else
 		{
 			percent = MIN(percent, percent * GET_OBJ_CUR(wielded) / MAX(1, GET_OBJ_MAX(wielded)));
+log("test13: %d", percent);
 		}
 		percent = calculate_strconc_damage(ch, wielded, percent);
+log("test14: %d", percent);
+log("test15: %d %d (%s)", dam, percent, GET_NAME(ch));
 		dam += MAX(1, percent);
+log("test16: %d %d (%s)", dam, percent, GET_NAME(ch));
 		noparryhit += calculate_noparryhit_dmg(ch, wielded);
 		if (type == SKILL_BACKSTAB)
 			noparryhit = noparryhit * 10 / 15;
@@ -4454,6 +4462,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		hit_block(ch, victim, &dam);
 	}
 
+log("test2: %d (%s)", dam, GET_NAME(ch));
 	int made_dam = extdamage(ch, victim, dam, w_type, wielded, TRUE);
 	was_critic = FALSE;
 	dam_critic = 0;
