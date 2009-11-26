@@ -2,7 +2,7 @@ act.comm.o: act.comm.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   obj.hpp comm.h interpreter.h handler.h db.h screen.h dg_scripts.h \
   auction.h privilege.hpp char.hpp player_i.hpp char_player.hpp \
   quested.hpp mobmax.hpp remember.hpp dps.hpp house.h house_exp.hpp \
-  room.hpp
+  room.hpp spam.hpp
 act.informative.o: act.informative.cpp conf.h sysdep.h structs.h utils.h \
   features.hpp obj.hpp comm.h interpreter.h handler.h db.h spells.h \
   skills.h fight.h screen.h constants.h pk.h dg_scripts.h mail.h im.h \
@@ -49,7 +49,7 @@ boards.o: boards.cpp conf.h house.h sysdep.h structs.h utils.h \
   room.hpp
 class.o: class.cpp conf.h sysdep.h structs.h comm.h db.h utils.h \
   features.hpp obj.hpp spells.h skills.h interpreter.h handler.h \
-  constants.h pk.h top.h im.h char.hpp player_i.hpp xmlParser.h
+  constants.h pk.h top.h im.h char.hpp player_i.hpp xmlParser.h spam.hpp
 comm.o: comm.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   comm.h interpreter.h handler.h db.h house.h house_exp.hpp remember.hpp \
   olc.h dg_scripts.h screen.h ban.hpp diskio.h auction.h exchange.h \
@@ -211,7 +211,8 @@ pk.o: pk.cpp conf.h sysdep.h structs.h constants.h utils.h features.hpp \
 genchar.o: genchar.cpp conf.h sysdep.h structs.h comm.h utils.h \
   features.hpp obj.hpp genchar.h spells.h char.hpp player_i.hpp \
   char_player.hpp quested.hpp mobmax.hpp remember.hpp dps.hpp db.h
-diskio.o: diskio.cpp conf.h sysdep.h diskio.h
+diskio.o: diskio.cpp conf.h sysdep.h utils.h features.hpp obj.hpp \
+  structs.h diskio.h
 im.o: im.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   handler.h db.h interpreter.h comm.h constants.h screen.h im.h char.hpp \
   player_i.hpp modify.h room.hpp
@@ -307,3 +308,5 @@ obj.spell.o: obj.spell.cpp conf.h sysdep.h structs.h spells.h utils.h \
   db.h room.hpp
 obj.o: obj.cpp obj.hpp conf.h sysdep.h structs.h utils.h features.hpp
 room.o: room.cpp room.hpp conf.h sysdep.h structs.h
+spam.o: spam.cpp spam.hpp conf.h sysdep.h structs.h db.h utils.h \
+  features.hpp obj.hpp char.hpp player_i.hpp comm.h screen.h
