@@ -34,6 +34,7 @@
 #include "house.h"
 #include "obj.hpp"
 #include "room.hpp"
+#include "spam.hpp"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -972,10 +973,10 @@ ACMD(do_offtop)
 		send_to_char("Стены заглушили Ваши слова.\r\n", ch);
 		return;
 	}
-	static const int MIN_OFFTOP_LVL = 6;
-	if (GET_LEVEL(ch) < MIN_OFFTOP_LVL && !GET_REMORT(ch))
+	if (GET_LEVEL(ch) < SpamSystem::MIN_OFFTOP_LVL && !GET_REMORT(ch))
 	{
-		send_to_char(ch, "Вам стоит достичь хотя бы %d уровня, чтобы Вы могли оффтопить.\r\n", MIN_OFFTOP_LVL);
+		send_to_char(ch, "Вам стоит достичь хотя бы %d уровня, чтобы Вы могли оффтопить.\r\n",
+				SpamSystem::MIN_OFFTOP_LVL);
 		return;
 	}
 	if (!PRF_FLAGGED(ch, PRF_OFFTOP_MODE))
@@ -983,7 +984,6 @@ ACMD(do_offtop)
 		send_to_char("Вы вне видимости канала.\r\n", ch);
 		return;
 	}
-
 	skip_spaces(&argument);
 	if (!*argument)
 	{
@@ -991,10 +991,14 @@ ACMD(do_offtop)
 		return;
 	}
 	lower_convert(argument);
-
 	if (!strcmp(ch->get_last_tell().c_str(), argument))
 	{
 		send_to_char("Но Вы же недавно говорили тоже самое!?!\r\n", ch);
+		return;
+	}
+	// эта проверка должна идти последней и послее нее мессага полюбому идет в эфир
+	if (!SpamSystem::check(ch, SpamSystem::OFFTOP_MODE))
+	{
 		return;
 	}
 	ch->set_last_tell(argument);
@@ -1017,7 +1021,6 @@ ACMD(do_offtop)
 		}
 	}
 	ch->remember_add(buf1, Remember::OFFTOP);
-	set_wait(ch, 1, FALSE);
 }
 
 // shapirus

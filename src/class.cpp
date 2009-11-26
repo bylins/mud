@@ -36,6 +36,7 @@
 #include "im.h"
 #include "char.hpp"
 #include "xmlParser.h"
+#include "spam.hpp"
 
 extern int siteok_everyone;
 extern struct spell_create_type spell_create[];
@@ -2384,6 +2385,7 @@ void advance_level(CHAR_DATA * ch)
 	}
 
 	TopPlayer::Refresh(ch);
+	SpamSystem::check_new_channels(ch);
 	save_char(ch);
 }
 
