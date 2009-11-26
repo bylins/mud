@@ -92,6 +92,7 @@ int add_message(int mode, long uid)
 	switch(mode)
 	{
 	case OFFTOP_MODE:
+	{
 		int flag = check_list(offtop_list, uid);
 		if (NORMAL_FLAG == flag)
 		{
@@ -102,6 +103,7 @@ int add_message(int mode, long uid)
 			return flag;
 		}
 		break;
+	}
 	default:
 		log("SYSERROR: мы не должны были сюда попасть (%s %s %d)", __FILE__, __func__, __LINE__);
 		return NORMAL_FLAG;
