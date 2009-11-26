@@ -49,7 +49,8 @@ boards.o: boards.cpp conf.h house.h sysdep.h structs.h utils.h \
   room.hpp
 class.o: class.cpp conf.h sysdep.h structs.h comm.h db.h utils.h \
   features.hpp obj.hpp spells.h skills.h interpreter.h handler.h \
-  constants.h pk.h top.h im.h char.hpp player_i.hpp xmlParser.h spam.hpp
+  constants.h pk.h top.h im.h char.hpp player_i.hpp xmlParser.h spam.hpp \
+  screen.h char_player.hpp quested.hpp mobmax.hpp remember.hpp dps.hpp
 comm.o: comm.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   comm.h interpreter.h handler.h db.h house.h house_exp.hpp remember.hpp \
   olc.h dg_scripts.h screen.h ban.hpp diskio.h auction.h exchange.h \
@@ -274,7 +275,9 @@ char.o: char.cpp char.hpp conf.h sysdep.h structs.h player_i.hpp utils.h \
   mobmax.hpp remember.hpp dps.hpp spells.h comm.h room.hpp
 char_player.o: char_player.cpp char_player.hpp conf.h sysdep.h structs.h \
   quested.hpp mobmax.hpp remember.hpp char.hpp player_i.hpp dps.hpp \
-  utils.h features.hpp obj.hpp
+  utils.h features.hpp obj.hpp db.h dg_scripts.h handler.h boards.h \
+  interpreter.h file_crc.hpp spells.h constants.h skills.h im.h olc.h \
+  comm.h pk.h diskio.h genchar.h
 quested.o: quested.cpp quested.hpp conf.h sysdep.h structs.h utils.h \
   features.hpp obj.hpp char.hpp player_i.hpp
 mobmax.o: mobmax.cpp mobmax.hpp conf.h sysdep.h structs.h char.hpp \
@@ -308,5 +311,5 @@ obj.spell.o: obj.spell.cpp conf.h sysdep.h structs.h spells.h utils.h \
   db.h room.hpp
 obj.o: obj.cpp obj.hpp conf.h sysdep.h structs.h utils.h features.hpp
 room.o: room.cpp room.hpp conf.h sysdep.h structs.h
-spam.o: spam.cpp spam.hpp conf.h sysdep.h structs.h db.h utils.h \
-  features.hpp obj.hpp char.hpp player_i.hpp comm.h screen.h
+spam.o: spam.cpp spam.hpp conf.h sysdep.h structs.h utils.h features.hpp \
+  obj.hpp char.hpp player_i.hpp comm.h
