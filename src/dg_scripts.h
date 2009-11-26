@@ -316,4 +316,6 @@ extern INDEX_DATA **trig_index;
 
 const int MAX_TRIG_USEC = 30000;
 
+void save_char_vars(CHAR_DATA *ch);
+
 #endif

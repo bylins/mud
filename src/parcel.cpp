@@ -257,7 +257,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 			set_gold(ch, 0);
 		}
 	}
-	save_char(ch);
+	ch->save_char();
 
 	obj_from_char(obj);
 	check_auction(NULL, obj);
@@ -486,7 +486,7 @@ void return_money(std::string const &name, int money, bool add)
 			return;
 		}
 		add_bank_gold(vict, money);
-		save_char(vict);
+		vict->save_char();
 		delete vict;
 	}
 }

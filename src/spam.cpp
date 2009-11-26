@@ -8,7 +8,6 @@
 #include "utils.h"
 #include "char.hpp"
 #include "comm.h"
-#include "screen.h"
 
 using namespace SpamSystem;
 
@@ -147,20 +146,6 @@ bool check(CHAR_DATA *ch, int mode)
 		return false;
 	}
 	return true;
-}
-
-/**
-*
-*/
-void check_new_channels(CHAR_DATA *ch)
-{
-	if (MIN_OFFTOP_LVL == GET_LEVEL(ch) && !GET_REMORT(ch))
-	{
-		SET_BIT(PRF_FLAGS(ch, PRF_OFFTOP_MODE), PRF_OFFTOP_MODE);
-		send_to_char(ch, "\r\n%sТеперь Вы можете пользоваться каналом [оффтоп]!\r\n"
-				"Рекомендуем преварительно ознакомиться со справкой (справка оффтоп).%s\r\n",
-				CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
-	}
 }
 
 } // SpamSystem

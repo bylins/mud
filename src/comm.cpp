@@ -3069,7 +3069,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			}
 			if (!IS_NPC(d->character))
 			{
-				save_char(d->character);
+				d->character->save_char();
 				check_light(d->character, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, -1);
 				Crash_ldsave(d->character);
 				sprintf(buf, "Closing link to: %s.", GET_NAME(d->character));

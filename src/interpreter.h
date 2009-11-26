@@ -54,6 +54,7 @@ void lower_convert(char* text);
 void name_convert(std::string& text);
 void god_work_invoice();
 int special(CHAR_DATA * ch, int cmd, char *arg);
+int find_name(const char *name);
 
 char *delete_doubledollar(char *string);
 /** Cоответствие классов и религий (Кард)*/

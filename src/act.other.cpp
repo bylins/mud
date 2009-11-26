@@ -223,7 +223,7 @@ ACMD(do_save)
 	}
 
 	write_aliases(ch);
-	save_char(ch);
+	ch->save_char();
 	Crash_crashsave(ch);
 }
 
@@ -2045,13 +2045,13 @@ void SetScreen(CHAR_DATA * ch, char *argument, int flag)
 	{
 		STRING_LENGTH(ch) = size;
 		send_to_char("Ладушки.\r\n", ch);
-		save_char(ch);
+		ch->save_char();
 	}
 	else if (flag == 1)
 	{
 		STRING_WIDTH(ch) = size;
 		send_to_char("Ладушки.\r\n", ch);
-		save_char(ch);
+		ch->save_char();
 	}
 	else
 	{
@@ -2366,7 +2366,7 @@ ACMD(do_gen_tog)
 		if (ch->remember_set_num(size))
 		{
 			send_to_char(ch, "Количество выводимых строк по команде 'вспомнить' установлено в %d.\r\n", size);
-			save_char(ch);
+			ch->save_char();
 		}
 		else
 		{

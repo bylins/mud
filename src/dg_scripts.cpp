@@ -2369,7 +2369,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					else
 					{
 						GET_LOADROOM(c) = pos;
-						save_char(c);
+						c->save_char();
 						sprintf(str, "%d", real_room(pos)); // TODO: почему тогда тут рнум?
 					}
 				}

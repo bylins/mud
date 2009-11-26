@@ -134,7 +134,6 @@ void free_alias(struct alias_data *a);
 void perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data *a);
 int perform_alias(DESCRIPTOR_DATA * d, char *orig);
 int reserved_word(const char *argument);
-int find_name(const char *name);
 int _parse_name(char *arg, char *name);
 void add_logon_record(DESCRIPTOR_DATA * d);
 /* prototypes for all do_x functions. */
@@ -2234,7 +2233,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	/* with the copyover patch, this next line goes in enter_player_game() */
 	GET_ID(d->character) = GET_IDNUM(d->character);
 	GET_ACTIVITY(d->character) = number(0, PLAYER_SAVE_ACTIVITY - 1);
-	save_char(d->character);
+	d->character->save_char();
 	player_table[get_ptable_by_unique(GET_UNIQUE(d->character))].last_logon = LAST_LOGON(d->character) = time(0);
 	add_logon_record(d);
 	act("$n вступил$g в игру.", TRUE, d->character, 0, 0, TO_ROOM);
@@ -2668,7 +2667,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				sprintf(buf, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
 				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 				GET_BAD_PWS(d->character)++;
-				save_char(d->character);
+				d->character->save_char();
 				if (++(d->bad_pws) >= max_bad_pws)  	/* 3 strikes and you're out. */
 				{
 					SEND_TO_Q("Неверный пароль... Отсоединяемся.\r\n", d);
@@ -2726,7 +2725,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else
 		{
-			save_char(d->character);
+			d->character->save_char();
 			SEND_TO_Q("\r\nГотово.\r\n", d);
 			SEND_TO_Q(MENU, d);
 			STATE(d) = CON_MENU;
@@ -3054,7 +3053,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		strncpy(GET_EMAIL(d->character), arg, 127);
 		*(GET_EMAIL(d->character) + 127) = '\0';
 		lower_convert(GET_EMAIL(d->character));
-		save_char(d->character);
+		d->character->save_char();
 
 		// добавляем в список ждущих одобрения
 		if (!(int)NAME_FINE(d->character))

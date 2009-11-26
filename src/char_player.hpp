@@ -20,6 +20,11 @@
 // кол-во сохраняемых стартовых статов в файле
 const int START_STATS_TOTAL = 6;
 
+// для одноразовых флагов
+const int OFFTOP_MESSAGE = 0;
+const int TOTAL_DISPOSABLE_NUM = 1;
+// TOTAL_DISPOSABLE_NUM не забываем менять
+
 class Player : public Character
 {
 public:
@@ -79,8 +84,11 @@ public:
 	void dps_end_round(int type, CHAR_DATA *ch = 0);
 	void dps_add_exp(int exp, bool battle = false);
 
-	// это все как обычно временно... =)
-	friend void save_char(CHAR_DATA *ch);
+	void save_char();
+	int load_char_ascii(const char *name, bool reboot = 0);
+
+	bool get_disposable_flag(int num);
+	void set_disposable_flag(int num);
 
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
@@ -108,6 +116,8 @@ private:
 	long answer_id_;
 	// 'дметр' персональный и группы, если чар лидер
 	DpsSystem::Dps dps_;
+	// одноразовые флаги
+	std::bitset<TOTAL_DISPOSABLE_NUM> disposable_flags_;
 };
 
 #endif // CHAR_PLAYER_HPP_INCLUDED

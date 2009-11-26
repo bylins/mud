@@ -76,6 +76,12 @@ public:
 	virtual void dps_end_round(int type, CHAR_DATA *ch = 0) {};
 	virtual void dps_add_exp(int exp, bool battle = false) {};
 
+	virtual void save_char() {};
+	virtual int load_char_ascii(const char *name, bool reboot = 0) { return -1; };
+
+	virtual bool get_disposable_flag(int num) { return false; };
+	virtual void set_disposable_flag(int num) {};
+
 protected:
 	PlayerI() {};
 	virtual ~PlayerI() {};

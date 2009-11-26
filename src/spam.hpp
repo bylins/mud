@@ -15,7 +15,6 @@ namespace SpamSystem
 const int MIN_OFFTOP_LVL = 6;
 enum { OFFTOP_MODE };
 bool check(CHAR_DATA *ch, int mode);
-void check_new_channels(CHAR_DATA *ch);
 
 } // SpamSystem
 

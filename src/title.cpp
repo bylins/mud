@@ -346,7 +346,7 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CHAR_DATA *c
 					return TITLE_FIND_CHAR;
 				}
 				set_player_title(victim, it->second->pre_title, it->second->title, GET_NAME(ch));
-				save_char(victim);
+				victim->save_char();
 				delete victim;
 			}
 			send_to_char("Титул одобрен.\r\n", ch);

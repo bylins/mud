@@ -37,6 +37,8 @@
 #include "char.hpp"
 #include "xmlParser.h"
 #include "spam.hpp"
+#include "screen.h"
+#include "char_player.hpp"
 
 extern int siteok_everyone;
 extern struct spell_create_type spell_create[];
@@ -2334,6 +2336,22 @@ void check_max_hp(CHAR_DATA *ch)
 	GET_MAX_HIT(ch) = 10 + static_cast<int>(add_hp_per_level * GET_LEVEL(ch));
 }
 
+/**
+* Обработка событий при левел-апе.
+*/
+void levelup_events(CHAR_DATA *ch)
+{
+	if (SpamSystem::MIN_OFFTOP_LVL == GET_LEVEL(ch)
+		&& !ch->get_disposable_flag(OFFTOP_MESSAGE))
+	{
+		SET_BIT(PRF_FLAGS(ch, PRF_OFFTOP_MODE), PRF_OFFTOP_MODE);
+		ch->set_disposable_flag(OFFTOP_MESSAGE);
+		send_to_char(ch, "\r\n%sТеперь Вы можете пользоваться каналом [оффтоп]!\r\n"
+				"Рекомендуем преварительно ознакомиться со справкой (справка оффтоп).%s\r\n",
+				CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
+	}
+}
+
 void advance_level(CHAR_DATA * ch)
 {
 	int add_move = 0, i;
@@ -2385,8 +2403,8 @@ void advance_level(CHAR_DATA * ch)
 	}
 
 	TopPlayer::Refresh(ch);
-	SpamSystem::check_new_channels(ch);
-	save_char(ch);
+	levelup_events(ch);
+	ch->save_char();
 }
 
 /**
@@ -2454,7 +2472,7 @@ void decrease_level(CHAR_DATA * ch)
 
 	check_max_skills(ch);
 	TopPlayer::Refresh(ch);
-	save_char(ch);
+	ch->save_char();
 }
 
 /*

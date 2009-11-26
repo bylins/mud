@@ -948,7 +948,7 @@ void check_idling(CHAR_DATA * ch)
 				}
 				act("$n растворил$u в пустоте.", TRUE, ch, 0, 0, TO_ROOM);
 				send_to_char("Вы пропали в пустоте этого мира.\r\n", ch);
-				save_char(ch);
+				ch->save_char();
 				Crash_crashsave(ch);
 				char_from_room(ch);
 				char_to_room(ch, STRANGE_ROOM);
