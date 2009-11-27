@@ -788,7 +788,8 @@ ACMD(do_visible)
 
 	if (AFF_FLAGGED(ch, AFF_INVISIBLE)
 		|| AFF_FLAGGED(ch, AFF_CAMOUFLAGE)
-		|| AFF_FLAGGED(ch, AFF_HIDE))
+		|| AFF_FLAGGED(ch, AFF_HIDE)
+		|| AFF_FLAGGED(ch, AFF_SNEAK))
 	{
 		appear(ch);
 		send_to_char("Вы перестали быть невидимым.\r\n", ch);
