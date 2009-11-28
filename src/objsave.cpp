@@ -29,6 +29,7 @@
 #include "liquid.hpp"
 #include "file_crc.hpp"
 #include "room.hpp"
+#include "mail.h"
 
 /* these factors should be unique integers */
 #define RENT_FACTOR 	1
@@ -2116,7 +2117,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 
 	if (Crashbufferdata)
 		free(Crashbufferdata);	//?
-	CREATE(Crashbufferdata, char, 1000 * num);
+	CREATE(Crashbufferdata, char, (1000 + MAX_MAIL_SIZE) * num);
 	Crashbufferpos = Crashbufferdata;
 	*Crashbufferpos = '\0';
 
