@@ -391,6 +391,7 @@ ACMD(do_clanstuff);
 ACMD(DoBest);
 ACMD(do_offtop);
 ACMD(do_dmeter);
+ACMD(do_mystat);
 
 /* This is the Master Command List(tm).
 
@@ -609,6 +610,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"месть", POS_RESTING, do_revenge, 0, 0, 0},
 	{"молот", POS_FIGHTING, do_mighthit, 0, 0, -1},
 	{"молиться", POS_STANDING, do_pray, 1, SCMD_PRAY, -1},
+	{"моястатистика", POS_DEAD, do_mystat, 0, 0, 0},
 
 	{"наказания", POS_DEAD, DoBoard, 1, GODPUNISH_BOARD, -1},
 	{"налить", POS_STANDING, do_pour, 0, SCMD_FILL, 500},

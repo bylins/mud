@@ -3198,6 +3198,36 @@ ACMD(do_score)
 	}
 }
 
+/*29.11.09 Отображение количества рипов (с) Василиса*/
+ACMD(do_mystat)
+{
+    sprintf(buf," &C----------------------------------------------------------------------------&n\r\n"
+                " &C||&n   Статистика Ваших смертей   &C|&n      &WТекущее&n       &C|&n                    &C||&n\r\n"
+                " &C||&n (количество, потеряно опыта) &C|&n   &Wперевоплощение&n   &C|&n        &KВсего&n       &C||&n\r\n"
+                " &C----------------------------------------------------------------------------&n\r\n"
+                " &C||&n    В неравном бою с тварями: &C|&n &W%4d (%11ld)&n &C|&n &K%4d (%11ld)&n &C||&n\r\n"
+                " &C||&n    В неравном бою с врагами: &C|&n &W%4d (%11ld)&n &C|&n &K%4d (%11ld)&n &C||&n\r\n"
+                " &C||&n             В гиблых местах: &C|&n &W%4d (%11ld)&n &C|&n &K%4d (%11ld)&n &C||&n\r\n"
+                " &C||&n   По стечению обстоятельств: &C|&n &W%4d (%11ld)&n &C|&n &K%4d (%11ld)&n &C||&n\r\n"
+                " &C----------------------------------------------------------------------------&n\r\n"
+                " &C||&n                       &yИТОГО:&n &C|&n &W%4d (%11ld)&n &C| &K%4d (%11ld)&n &n&C||&n\r\n"
+                " &C----------------------------------------------------------------------------&n\r\n"
+                " &C||&n &WНа арене (всего):                                                      &n&C||&n\r\n"
+                " &C||&n   &wУбито игроков:&n&r%4d&n     &wСмертей:&n&r%4d&n      &wПотеряно опыта:&n &r%11ld&n &C||&n\r\n"
+                " &C----------------------------------------------------------------------------&n\r\n"
+                ,
+				GET_RIP_MOBTHIS(ch),GET_EXP_MOBTHIS(ch), GET_RIP_MOB(ch), GET_EXP_MOB(ch),
+				GET_RIP_PKTHIS(ch),GET_EXP_PKTHIS(ch), GET_RIP_PK(ch), GET_EXP_PK(ch),
+				GET_RIP_DTTHIS(ch),GET_EXP_DTTHIS (ch), GET_RIP_DT(ch), GET_EXP_DT(ch),
+				GET_RIP_OTHERTHIS(ch),GET_EXP_OTHERTHIS(ch), GET_RIP_OTHER(ch), GET_EXP_OTHER(ch),
+				GET_RIP_MOBTHIS(ch)+GET_RIP_PKTHIS(ch)+GET_RIP_DTTHIS(ch)+GET_RIP_OTHERTHIS(ch),
+				GET_EXP_MOBTHIS(ch)+GET_EXP_PKTHIS(ch)+GET_EXP_DTTHIS(ch)+GET_EXP_OTHERTHIS(ch)+GET_EXP_ARENA(ch),
+				GET_RIP_MOB(ch)+GET_RIP_PK(ch)+GET_RIP_DT(ch)+GET_RIP_OTHER(ch),
+				GET_EXP_MOB(ch)+GET_EXP_PK(ch)+GET_EXP_DT(ch)+GET_EXP_OTHER(ch)+GET_EXP_ARENA(ch),
+				GET_WIN_ARENA(ch),GET_RIP_ARENA(ch), GET_EXP_ARENA(ch));
+    send_to_char(buf, ch);
+}
+/* конец правки (с) Василиса*/
 
 ACMD(do_inventory)
 {

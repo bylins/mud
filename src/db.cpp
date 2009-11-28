@@ -5689,6 +5689,16 @@ ACMD(do_remort)
 	// Убираем все заученные порталы
 	check_portals(ch);
 
+    /*Обновляем статистику рипов для текущего перевоплощения */
+    GET_RIP_DTTHIS(ch) = 0;
+    GET_EXP_DTTHIS(ch) = 0;
+    GET_RIP_MOBTHIS(ch) = 0;
+    GET_EXP_MOBTHIS(ch) = 0;
+    GET_RIP_PKTHIS(ch) = 0;
+    GET_EXP_PKTHIS(ch) = 0;
+    GET_RIP_OTHERTHIS(ch) = 0;
+    GET_EXP_OTHERTHIS(ch) = 0;
+
 	do_start(ch, FALSE);
 	ch->save_char();
 	if (PLR_FLAGGED(ch, PLR_HELLED))

@@ -294,6 +294,10 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 				return TRUE;
 			}
 			death_cry(ch);
+/*29.11.09 Для счета количество рипов (с) Василиса */
+			GET_RIP_DT(ch)= GET_RIP_DT(ch)+1;
+            GET_RIP_DTTHIS(ch)= GET_RIP_DTTHIS(ch)+1;
+/*конец правки (с) Василиса*/
 			corpse = make_corpse(ch);
 			if (corpse != NULL)
 			{

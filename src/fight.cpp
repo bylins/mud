@@ -768,6 +768,7 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
 {
 	CHAR_DATA *master = NULL;
 	struct follow_type *f;
+	int dec_exp = 0, e = GET_EXP(ch);
 
 	if (!IS_NPC(ch) && (IN_ROOM(ch) == NOWHERE))
 	{
@@ -780,7 +781,6 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
 	{
 		if (!(IS_NPC(ch) || IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
 		{
-			int dec_exp, e = GET_EXP(ch);
 			dec_exp = number(GET_EXP(ch) / 100, GET_EXP(ch) / 20) +
 					  (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / 4;
 			gain_exp(ch, -dec_exp);
@@ -853,6 +853,71 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
 		}
 		pk_revenge_action(killer, ch);
 	}
+
+	/*29.11.09 Увеличиваем счетчики рипов (с) Василиса */
+    if (!IS_NPC(ch) && killer)
+    {
+        if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)) //Рип на арене
+        {
+            GET_RIP_ARENA(ch)= GET_RIP_ARENA(ch)+1;
+            GET_WIN_ARENA(killer)= GET_WIN_ARENA(killer)+1;
+            if (dec_exp)
+            {
+                GET_EXP_ARENA(ch)=GET_EXP_ARENA(ch)+dec_exp; //Если чар в бд
+            }
+        }
+
+        if (!ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) && !IS_NPC(killer)) //Рип в ПК
+        {
+            GET_RIP_PK(ch)= GET_RIP_PK(ch)+1;
+            GET_RIP_PKTHIS(ch)= GET_RIP_PKTHIS(ch)+1;
+            if (dec_exp)
+            {
+                GET_EXP_PK(ch)= GET_EXP_PK(ch)+dec_exp;
+                GET_EXP_PKTHIS(ch)= GET_EXP_PKTHIS(ch)+dec_exp;
+            }
+        }
+
+        if (!ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) && IS_NPC(killer)) //Рип от моба
+        {
+            GET_RIP_MOB(ch)= GET_RIP_MOB(ch)+1;
+            GET_RIP_MOBTHIS(ch)= GET_RIP_MOBTHIS(ch)+1;
+            if (dec_exp)
+            {
+                GET_EXP_MOB(ch)= GET_EXP_MOB(ch)+dec_exp;
+                GET_EXP_MOBTHIS(ch)= GET_EXP_MOBTHIS(ch)+dec_exp;
+            }
+        }
+    }
+    if (!IS_NPC(ch) && !killer && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_DEATH)
+    && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_SLOWDEATH) &&
+    !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ICEDEATH)) //Рип без наличия убийцы не в дт
+    {
+        GET_RIP_OTHER(ch)= GET_RIP_OTHER(ch)+1;
+        GET_RIP_OTHERTHIS(ch)= GET_RIP_OTHERTHIS(ch)+1;
+        if (dec_exp)
+            {
+                GET_EXP_OTHER(ch)= GET_EXP_OTHER(ch)+dec_exp;
+                GET_EXP_OTHERTHIS(ch)= GET_EXP_OTHERTHIS(ch)+dec_exp;
+            }
+
+    }
+    if (!IS_NPC(ch) && !killer && (ROOM_FLAGGED(IN_ROOM(ch), ROOM_DEATH) ||
+    ROOM_FLAGGED(IN_ROOM(ch), ROOM_SLOWDEATH) ||
+    ROOM_FLAGGED(IN_ROOM(ch), ROOM_ICEDEATH))) //Рип в дт
+    {
+        GET_RIP_DT(ch)= GET_RIP_DT(ch)+1;
+        GET_RIP_DTTHIS(ch)= GET_RIP_DTTHIS(ch)+1;
+        if (dec_exp)
+            {
+                GET_EXP_DT(ch)= GET_EXP_DT(ch)+dec_exp;
+                GET_EXP_DTTHIS(ch)= GET_EXP_DTTHIS(ch)+dec_exp;
+            }
+
+    }
+
+    /*конец правки (с) Василиса */
+
 	raw_kill(ch, killer);
 	// if (killer)
 	//   log("Killer lag is %d", GET_WAIT(killer));

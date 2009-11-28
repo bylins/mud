@@ -29,12 +29,8 @@
  Spells type.
 ********************************/
 
-#define MTYPE_NEUTRAL		(1 << 0)
-#define MTYPE_AGGRESSIVE	(1 << 1)
-/*#define MTYPE_AIR	(1 << 1)
-#define MTYPE_FIRE	(1 << 2)
-#define MTYPE_WATER	(1 << 3)
-#define MTYPE_EARTH	(1 << 4)*/
+const bool MTYPE_NEUTRAL = false;
+const bool MTYPE_AGGRESSIVE = true;
 
 /********************************
  Spells class.
@@ -415,7 +411,7 @@ struct spell_info_type
 	int class_change[NUM_CLASSES][NUM_KIN];
 	long danger;
 	long routines;
-	byte violent;
+	bool violent;
 	int targets;		/* See below for use with TAR_XXX  */
 	byte spell_class;
 	const char *name;

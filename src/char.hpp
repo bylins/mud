@@ -217,6 +217,28 @@ struct player_special_data_saved
 
 	int stringLength;
 	int stringWidth;
+
+	/*29.11.09 переменные для подсчета количества рипов (с) Василиса*/
+	int Rip_arena; //рипы на арене
+	int Rip_mob; // рипы от мобов всего
+	int Rip_pk; // рипы от чаров всего
+	int Rip_dt; // дт всего
+	int Rip_other; // рипы от триггеров и прочее всего
+	int Win_arena; //убито игроком на арене
+	int Rip_mob_this; // рипы от мобов на этом морте
+	int Rip_pk_this; // рипы от чаров на этом морте
+	int Rip_dt_this; // дт на этом морте
+	int Rip_other_this; // рипы от триггеров и прочее на этом морте
+	long Exp_arena; //потеряно экспы за рипы на арене
+	long Exp_mob; //потеряно экспы  рипы от мобов всего
+	long Exp_pk; //потеряно экспы  рипы от чаров всего
+	long Exp_dt; //потеряно экспы  дт всего
+	long Exp_other; //потеряно экспы  рипы от триггеров и прочее всего
+	long Exp_mob_this; //потеряно экспы  рипы от мобов на этом морте
+	long Exp_pk_this; //потеряно экспы  рипы от чаров на этом морте
+	long Exp_dt_this; //потеряно экспы  дт на этом морте
+	long Exp_other_this; //потеряно экспы  рипы от триггеров и прочее на этом морте
+	/*конец правки (с) Василиса */
 };
 
 struct player_special_data
