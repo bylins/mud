@@ -2609,15 +2609,20 @@ void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 			act("Вы сняли $o3 и выбросили на землю.", FALSE, ch, obj, 0, TO_CHAR);
 		/* Если этот моб трупа не оставит, то не выводить сообщение
 		иначе ужасно коряво смотрится в бою и в тригах */
+		bool msgShown = false;
 		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE))
 		{
 			if (inv)
 				act("$n бросил$g $o3 на землю.", FALSE, ch, obj, 0, TO_ROOM);
 			else
 				act("$n снял$g $o3 и бросил$g на землю.", FALSE, ch, obj, 0, TO_ROOM);
+			msgShown = true;
 		}
 		obj_to_room(obj, ch->in_room);
-		obj_decay(obj);
+		if (!obj_decay(obj) && !msgShown)
+		{
+			act("На земле остал$U лежать $o.", FALSE, ch, obj, 0, TO_ROOM);
+		}
 	}
 }
 
