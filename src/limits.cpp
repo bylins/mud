@@ -67,7 +67,7 @@ void decrease_level(CHAR_DATA * ch);
 int max_exp_gain_pc(CHAR_DATA * ch);
 int max_exp_loss_pc(CHAR_DATA * ch);
 int average_day_temp(void);
-int calc_loadroom(CHAR_DATA * ch);
+int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BPLACE_UNDEFINED);
 
 int mag_manacost(CHAR_DATA * ch, int spellnum);
 

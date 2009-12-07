@@ -323,69 +323,48 @@ int max_exp_loss_pc(CHAR_DATA * ch)
 	return (IS_NPC(ch) ? 1 : (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch) + 0)) / 3);
 }
 
-int calc_loadroom(CHAR_DATA * ch)
+int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BPLACE_UNDEFINED)
 {
 	if (IS_IMMORTAL(ch))
 		return (immort_start_room);
 	else if (PLR_FLAGGED(ch, PLR_FROZEN))
 		return (frozen_start_room);
-	else if (GET_LEVEL(ch) < 15)
+	else
 	{
 		switch (GET_RACE(ch))
 		{
 		case RACE_SEVERANE:
-			return 4056;
+		case RACE_VELANE:
+		case RACE_POLOVCI:
+		case RACE_MONGOLI:
+		case RACE_KANGARI:
+		case RACE_PECHENEGI:
+		case RACE_YIGURI:
+		case RACE_XAZARI:
+		case RACE_SVEI:
+		case RACE_DATCHANE:
+		case RACE_GETTI:
+		case RACE_UTTI:
+		case RACE_XALEIGI:
+		case RACE_NORVEZCI:
+			if ((bplace_mode == BPLACE_KIEV) || (bplace_mode == BPLACE_UNDEFINED))
+                return 4056;
+			else if  (bplace_mode == BPLACE_NOVGOROD)
+                return 8010;
 			break;
 		case RACE_POLANE:
-			return 5000;
+		case RACE_VATICHI:
+			if ((bplace_mode == BPLACE_KIEV) || (bplace_mode == BPLACE_UNDEFINED))
+                return 5000;
+			else if  (bplace_mode == BPLACE_NOVGOROD)
+                return 7038;
 			break;
 		case RACE_KRIVICHI:
-			return 6049;
-			break;
-		case RACE_VATICHI:
-			return 5000;
-			break;
-		case RACE_VELANE:
-			return 4056;
-			break;
 		case RACE_DREVLANE:
-			return 6049;
-			break;
-		case RACE_POLOVCI:
-			return 4056;
-			break;
-		case RACE_PECHENEGI:
-			return 4056;
-			break;
-		case RACE_MONGOLI:
-			return 4056;
-			break;
-		case RACE_YIGURI:
-			return 4056;
-			break;
-		case RACE_KANGARI:
-			return 4056;
-			break;
-		case RACE_XAZARI:
-			return 4056;
-			break;
-		case RACE_SVEI:
-			return 4056;
-			break;
-		case RACE_DATCHANE:
-			return 4056;
-			break;
-		case RACE_GETTI:
-			return 4056;
-			break;
-		case RACE_UTTI:
-			return 4056;
-			break;
-		case RACE_XALEIGI:
-			return 4056;
-			break;
-		case RACE_NORVEZCI:
-			return 4056;
+			if ((bplace_mode == BPLACE_KIEV) || (bplace_mode == BPLACE_UNDEFINED))
+                return 6049;
+			else if  (bplace_mode == BPLACE_NOVGOROD)
+                return 9007;
 			break;
 		}
 	}

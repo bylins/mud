@@ -42,6 +42,7 @@ extern const char *fullness[];
 extern const char *spell_wear_off_msg[];
 extern const char *npc_class_types[];
 extern const char *npc_race_types[];
+extern const char *places_of_birth[];
 extern const char *weekdays[];
 extern const char *month_name[];
 extern const char *weekdays_poly[];

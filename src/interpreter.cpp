@@ -63,6 +63,7 @@ extern const char *class_menu_step;
 extern const char *race_menu;
 extern const char *race_menu_step;
 extern const char *race_menu_vik;
+extern const char *place_of_birth_menu;
 extern const char *kin_menu;
 extern const char *religion_menu;
 extern const char *color_menu;
@@ -104,6 +105,7 @@ int parse_class_step(char arg);
 int parse_race(char arg);
 int parse_race_step(char arg);
 int parse_race_vik(char arg);
+int parse_place_of_birth(char arg);
 int parse_kin(char arg);
 int Valid_Name(char *newname);
 int Is_Valid_Name(char *newname);
@@ -118,7 +120,7 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg);
 void trigedit_parse(DESCRIPTOR_DATA * d, char *arg);
 void Crash_timer_obj(int index, long timer_dec);
 int find_social(char *name);
-int calc_loadroom(CHAR_DATA * ch);
+int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BPLACE_UNDEFINED);
 void delete_char(char *name);
 void do_aggressive_room(CHAR_DATA * ch, int check_sneak);
 extern int process_auto_agreement(DESCRIPTOR_DATA * d);
@@ -2938,10 +2940,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		GET_RACE(d->character) = load_result;
-		roll_real_abils(d->character);
-		SEND_TO_Q(genchar_help, d);
-		SEND_TO_Q("\r\n\r\nНажмите любую клавишу.\r\n", d);
-		STATE(d) = CON_ROLL_STATS;
+        SEND_TO_Q(place_of_birth_menu, d);
+        SEND_TO_Q("\r\nГде вы хотите начать свои приключения: ", d);
+		STATE(d) = CON_BIRTHPLACE;
 		break;
 
 	case CON_RACES:		/* query race      */
@@ -2960,10 +2961,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		GET_RACE(d->character) = load_result;
-		roll_real_abils(d->character);
-		SEND_TO_Q(genchar_help, d);
-		SEND_TO_Q("\r\n\r\nНажмите любую клавишу.\r\n", d);
-		STATE(d) = CON_ROLL_STATS;
+        SEND_TO_Q(place_of_birth_menu, d);
+        SEND_TO_Q("\r\nГде вы хотите начать свои приключения: ", d);
+		STATE(d) = CON_BIRTHPLACE;
 		break;
 
 	case CON_RACEV:		/* query race      */
@@ -2982,11 +2982,34 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		GET_RACE(d->character) = load_result;
+        SEND_TO_Q(place_of_birth_menu, d);
+        SEND_TO_Q("\r\nГде вы хотите начать свои приключения: ", d);
+		STATE(d) = CON_BIRTHPLACE;
+		break;
+
+	case CON_BIRTHPLACE:
+        if (pre_help(d->character, arg))
+		{
+			SEND_TO_Q(place_of_birth_menu, d);
+			SEND_TO_Q("\r\nГде вы хотите начать свои приключения: ", d);
+			STATE(d) = CON_BIRTHPLACE;
+			return;
+		}
+		load_result = parse_place_of_birth(*arg);
+		if (load_result == BPLACE_UNDEFINED)
+		{
+			SEND_TO_Q("Не уверены? Бывает.\r\n"
+					  "Подумайте еще разок, и выберите:", d);
+			return;
+		}
+		GET_LOADROOM(d->character) = calc_loadroom(d->character, load_result);
+//		sprintf(buf, "\r\nВаша загрузочная комната: %5d\r\n", GET_LOADROOM(d->character));
+//		SEND_TO_Q(buf, d);
 		roll_real_abils(d->character);
 		SEND_TO_Q(genchar_help, d);
 		SEND_TO_Q("\r\n\r\nНажмите любую клавишу.\r\n", d);
-		STATE(d) = CON_ROLL_STATS;
-		break;
+        STATE(d) = CON_ROLL_STATS;
+        break;
 
 	case CON_ROLL_STATS:
 		switch (genchar_parse(d->character, arg))

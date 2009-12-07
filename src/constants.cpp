@@ -605,6 +605,7 @@ const char *connected_types[] = { "В игре",
 								  "Generate new name",
 								  "Glory OLC",
 								  "Base stats reroll",
+								  "Select place of birth",
 								  "\n"
 								};
 
@@ -2371,6 +2372,12 @@ const char *npc_race_types[] = { "Обычный",
 								"\n"
 };
 //-Polud
+
+const char *places_of_birth[] = { "Киев",
+								"Новгород",
+								"\n"
+};
+
 int rev_dir[] =
 {
 	2,

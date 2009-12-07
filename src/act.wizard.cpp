@@ -110,7 +110,7 @@ int _parse_name(char *arg, char *name);
 int Valid_Name(char *name);
 int reserved_word(const char *name);
 int compute_armor_class(CHAR_DATA * ch);
-int calc_loadroom(CHAR_DATA * ch);
+int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BPLACE_UNDEFINED);
 extern bool can_be_reset(zone_rnum zone);
 extern int is_empty(zone_rnum zone_nr);
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);

@@ -208,6 +208,7 @@ void init_basic_values(void);
 int init_grouping(void);
 void init_portals(void);
 void init_im(void);
+int parce_place_of_destination(char arg);
 
 //MZ.load
 void init_zone_types(void);
@@ -242,7 +243,7 @@ void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int c
 void calc_easter(void);
 extern void calc_god_celebrate();
 void do_start(CHAR_DATA * ch, int newbie);
-int calc_loadroom(CHAR_DATA * ch);
+int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BPLACE_UNDEFINED);
 extern void tascii(int *pointer, int num_planes, char *ascii);
 extern void repop_decay(zone_rnum zone);	/* рассыпание обьектов ITEM_REPOP_DECAY */
 int real_zone(int number);
@@ -5484,7 +5485,7 @@ void clear_char_skills(CHAR_DATA * ch)
 /* initialize a new character only if class is set */
 void init_char(CHAR_DATA * ch)
 {
-	int i, start_room = NOWHERE;
+	int i;
 
 	/* create a player_special structure */
 //	if (ch->player_specials == NULL)
@@ -5493,8 +5494,8 @@ void init_char(CHAR_DATA * ch)
 #ifdef TEST_BUILD
 	if (top_of_p_table == 0) GET_LEVEL(ch) = LVL_IMPL; // При собирании через make test первый чар в маде становится иммом 34
 #endif
-
-	start_room = calc_loadroom(ch);
+    //Это теперь не нужно - лоадрма инициализируется на этапе анкеты
+	//start_room = calc_loadroom(ch);
 	GET_PORTALS(ch) = NULL;
 	CREATE(GET_LOGS(ch), int, NLOG);
 	ch->player_data.short_descr = NULL;
@@ -5566,7 +5567,7 @@ void init_char(CHAR_DATA * ch)
 		GET_COND(ch, i) = (GET_LEVEL(ch) == LVL_IMPL ? -1 : i == DRUNK ? 0 : 24);
 	}
 	GET_LASTIP(ch)[0] = 0;
-	GET_LOADROOM(ch) = start_room;
+//	GET_LOADROOM(ch) = start_room;
 	SET_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
 	SET_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
 	SET_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
@@ -5585,12 +5586,26 @@ void init_char(CHAR_DATA * ch)
 	ch->save_char();
 }
 
+int
+parce_place_of_destination(char *arg)
+{
+    int i;
+
+    for (i = 0; i < BPLACE_MAX; i++)
+	{
+		if (!str_cmp(arg, places_of_birth[i]))
+            return i;
+	}
+
+    return BPLACE_UNDEFINED;
+}
+
 const char *remort_msg =
 	"  Если Вы так настойчивы в желании начать все заново -\r\n" "наберите <перевоплотиться> полностью.\r\n";
 
 ACMD(do_remort)
 {
-	int i, load_room = NOWHERE;
+	int i, place_of_destination,load_room = NOWHERE;
 	struct helper_data_type *temp;
 	const char *remort_msg2 = "$n вспыхнул$g ослепительным пламенем и пропал$g!\r\n";
 
@@ -5616,6 +5631,26 @@ ACMD(do_remort)
 		send_to_char(remort_msg, ch);
 		return;
 	}
+
+    one_argument(argument, arg);
+    if (!*arg)
+    {
+        sprintf(buf, "Укажите, где вы хотите заново начать свой путь:\r\n");
+        for (i = 0; i < BPLACE_MAX; i++)
+            sprintf(buf+strlen(buf), "%s\r\n", places_of_birth[i]);
+        send_to_char(buf, ch);
+        return;
+    } else {
+        i = parce_place_of_destination(arg);
+        if (i == BPLACE_UNDEFINED)
+        {
+            send_to_char("Багдад далече, выберите себе местечко среди родных осин.\r\n", ch);
+            return;
+        }
+        place_of_destination = calc_loadroom(ch, i);
+        //sprintf(buf, "Место назначения: %d\r\n", place_of_destination);
+        //send_to_char(buf, ch);
+    }
 
 	log("Remort %s", GET_NAME(ch));
 
@@ -5678,7 +5713,7 @@ ACMD(do_remort)
 	GET_LEVEL(ch) = 0;
 	GET_WIMP_LEV(ch) = 0;
 	GET_AC(ch) = 100;
-	GET_LOADROOM(ch) = calc_loadroom(ch);
+	GET_LOADROOM(ch) = place_of_destination;
 	REMOVE_BIT(PRF_FLAGS(ch, PRF_SUMMONABLE), PRF_SUMMONABLE);
 	REMOVE_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE);
 	REMOVE_BIT(PRF_FLAGS(ch, PRF_PUNCTUAL), PRF_PUNCTUAL);

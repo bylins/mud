@@ -337,6 +337,11 @@ typedef struct trig_data TRIG_DATA;
 #define MASK_XALEIGI         (1 << RACE_XALEIGI)
 #define MASK_NORVEZCI        (1 << RACE_NORVEZCI)
 
+/* Places of birth */
+#define BPLACE_UNDEFINED    -1
+#define BPLACE_KIEV                  0
+#define BPLACE_NOVGOROD   1
+#define BPLACE_MAX                   2
 
 /*PC Kin*/
 #define KIN_UNDEFINED     -1
@@ -749,6 +754,7 @@ typedef struct trig_data TRIG_DATA;
 #define CON_NEW_CHAR     44
 #define CON_SPEND_GLORY  45 // вливание славы через команду у чара
 #define CON_RESET_STATS  46 // реролл статов при входе в игру
+#define CON_BIRTHPLACE	47 //выбираем где начать игру
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 /* Character equipment positions: used as index for char_data.equipment[] */

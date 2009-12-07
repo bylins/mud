@@ -51,7 +51,7 @@ struct skillvariables_insgem insgem_vars;
 // grouping[class][remorts]
 int grouping[14][15];
 
-int calc_loadroom(CHAR_DATA * ch);
+int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BPLACE_UNDEFINED);
 
 /* local functions */
 int parse_class(char arg);
@@ -187,6 +187,12 @@ const char *class_menu_step =
 	"  [Д]архан\r\n"
 	"  [С]атучы\r\n"
 	"  Се[и]д\r\n";
+
+const char *place_of_birth_menu =
+	"\r\n"
+	"Откуда Вы родом?\r\n"
+	"  [К]иевское княжество (рекомендуется для новичков).\r\n"
+	"  [Н]овгородские земли.\r\n";
 
 const char *color_menu =
 	"\r\n"
@@ -484,6 +490,22 @@ parse_race_vik(char arg)
 		return RACE_NORVEZCI;
 	default:
 		return RACE_UNDEFINED;
+	}
+}
+
+int
+parse_place_of_birth(char arg)
+{
+	arg = LOWER(arg);
+
+	switch (arg)
+	{
+	case 'к':
+		return BPLACE_KIEV;
+	case 'н':
+		return BPLACE_NOVGOROD;
+	default:
+		return BPLACE_UNDEFINED;
 	}
 }
 
