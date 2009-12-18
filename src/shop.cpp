@@ -1820,9 +1820,16 @@ SPECIAL(shop_keeper)
 	if (shop_nr > top_shop)
 		return (FALSE);
 
-	if (SHOP_FUNC(shop_nr))	/* Check secondary function */
+	/* Check secondary function */
+	// по идее проверка на shop_keeper тут хоть как нужна, иначе
+	// есть вариант вызывать самого себя до потери сознания
+	if (SHOP_FUNC(shop_nr) && SHOP_FUNC(shop_nr) != shop_keeper)
+	{
 		if ((SHOP_FUNC(shop_nr))(ch, me, cmd, arg))
+		{
 			return (TRUE);
+		}
+	}
 
 	if (keeper == ch)
 	{
@@ -2172,7 +2179,9 @@ void assign_the_shopkeepers(void)
 		if (SHOP_KEEPER(index) == NOBODY)
 			continue;
 		if (mob_index[SHOP_KEEPER(index)].func)
+		{
 			SHOP_FUNC(index) = mob_index[SHOP_KEEPER(index)].func;
+		}
 		mob_index[SHOP_KEEPER(index)].func = shop_keeper;
 	}
 }
