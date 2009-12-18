@@ -71,13 +71,22 @@
 class ClanMember
 {
 public:
-	ClanMember() : rank_num(0), money(0), exp(0), exp_persent(0), clan_exp(0) {};
+	ClanMember() :
+		rank_num(0),
+		money(0),
+		exp(0),
+		exp_persent(0),
+		clan_exp(0),
+		level(0)
+	{};
+
 	std::string name;   // имя игрока
 	int rank_num;       // номер ранга
 	long long money;    // баланс персонажа по отношению к клановой казне
 	long long exp;      // набранная топ-экспа
 	int exp_persent;    // процент икспы отчисляемый в клан
 	long long clan_exp; // набранная клан-экспа
+	int level; // тестово только для вывода в клан-стате для тех, кто онлайн
 };
 
 struct ClanPk

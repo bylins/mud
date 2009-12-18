@@ -14,7 +14,7 @@
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/bind.hpp>
-
+#include <boost/lexical_cast.hpp>
 #include "conf.h"
 #include "house.h"
 #include "comm.h"
@@ -4022,19 +4022,27 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 		out << "чему БОГ пошлет";
 	}
 	out << "):\r\n";
-
-	out << CCNRM(ch, C_NRM) << "Имя             Рейтинговых очков  Опыта дружины  Заработано кун  Налог Последний вход\r\n";
+	out << CCNRM(ch, C_NRM)
+		<< "          Имя | Ур |Рейтинговых очков|Опыта дружины|Внесено кун|Налог|Был в игре\r\n"
+		<< "--------------------------------------------------------------------------------\r\n";
 
 	// multimap ибо могут быть совпадения
 	std::multimap<long long, std::pair<std::string, ClanMemberPtr> > temp_list;
 
 	for (ClanMemberList::const_iterator it = this->members.begin(); it != this->members.end(); ++it)
 	{
+		it->second->level = 0;
 		if (!all && !name)
 		{
 			DESCRIPTOR_DATA *d;
 			if (!(d = DescByUID(it->first)))
+			{
 				continue;
+			}
+			else
+			{
+				it->second->level = GET_LEVEL(d->character);
+			}
 		}
 		else if (name)
 		{
@@ -4085,13 +4093,20 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 
 	for (std::multimap<long long, std::pair<std::string, ClanMemberPtr> >::reverse_iterator it = temp_list.rbegin(); it != temp_list.rend(); ++it)
 	{
-		out.setf(std::ios_base::left, std::ios_base::adjustfield);
-		out << std::setw(15) << it->second.second->name << " "
-		<< std::setw(18) << it->second.second->exp << " " // аналог it->first
-		<< std::setw(14) << it->second.second->clan_exp << " "
-		<< std::setw(15) << it->second.second->money << " "
-		<< std::setw(5)  << it->second.second->exp_persent << " "
-		<< std::setw(14) << it->second.first << "\r\n";
+		out << std::setw(13) << it->second.second->name;
+		out << " | " << std::setw(2)
+			<< (it->second.second->level > 0 && it->second.second->level < LVL_IMMORT ?
+					boost::lexical_cast<std::string>(it->second.second->level) : "")
+			<< " | " << std::setw(15)
+			<< it->second.second->exp
+			<< " | " << std::setw(11)
+			<< it->second.second->clan_exp
+			<< " | " << std::setw(9)
+			<< it->second.second->money
+			<< " | " << std::setw(3)
+			<< it->second.second->exp_persent
+			<< " |"
+			<< it->second.first << "\r\n";
 	}
 	page_string(ch->desc, out.str(), 1);
 }
