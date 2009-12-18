@@ -3220,14 +3220,17 @@ ACMD(do_wiznet)
 				  level <= LVL_IMMORT)
 				) && (!PRF_FLAGGED(d->character, PRF_NOWIZ)) &&	/* игрок с режимом NOWIZ не видит имм канала */
 				(!PLR_FLAGGED(d->character, PLR_WRITING)) &&	/* пишущий не видит имм канала               */
-				(!PLR_FLAGGED(d->character, PLR_MAILING)) &&	/* отправляющий письмо не видит имм канала   */
-				(d != ch->desc || !(PRF_FLAGGED(d->character, PRF_NOREPEAT)))	/* не видино своих мессаг если 'режим repeat' */
-		   )
+				(!PLR_FLAGGED(d->character, PLR_MAILING)))	/* отправляющий письмо не видит имм канала   */
 		{
 			/* отправляем сообщение чару */
-			send_to_char(CCCYN(d->character, C_NRM), d->character);
-			send_to_char(buf1, d->character);
-			send_to_char(CCNRM(d->character, C_NRM), d->character);
+			snprintf(buf2, MAX_STRING_LENGTH, "%s%s%s",
+					CCCYN(d->character, C_NRM), buf1, CCNRM(d->character, C_NRM));
+			d->character->remember_add(buf2, Remember::ALL);
+			/* не видино своих мессаг если 'режим repeat' */
+			if (d != ch->desc || !(PRF_FLAGGED(d->character, PRF_NOREPEAT)))
+			{
+				send_to_char(buf2, d->character);
+			}
 		}
 	}
 
