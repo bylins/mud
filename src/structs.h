@@ -1419,8 +1419,8 @@ struct affect_data
 {
 	sh_int type;		/* The type of spell that caused this      */
 	sh_int duration;	/* For how long its effects will last      */
-	sbyte modifier;		/* This is added to apropriate ability     */
-	byte location;		/* Tells which ability to change(APPLY_XXX) */
+	int modifier;		/* This is added to apropriate ability     */
+	int location;		/* Tells which ability to change(APPLY_XXX) */
 	long
 	battleflag;	   /**** SUCH AS HOLD,SIELENCE etc **/
 	long

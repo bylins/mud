@@ -19,11 +19,11 @@
 #include "mail.h"
 #include "name_list.hpp"
 #include "room.hpp"
+#include "objsave.h"
 
 extern CHAR_DATA *get_player_of_name(const char *name);
 extern int get_buf_line(char **source, char *target);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
-extern void write_one_object(char **data, OBJ_DATA * object, int location);
 extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);
 
 namespace Parcel
@@ -797,10 +797,8 @@ void save()
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
 			{
 				out << "#" << it->first << "\n" << it2->first << "\n" << it3->money_ << "\n" << it3->timer_ << "\n\n";
-				char databuf[MAX_STRING_LENGTH];
-				char *data = databuf;
-				write_one_object(&data, it3->obj_, 0);
-				out << databuf << "\n";
+				write_one_object(out, it3->obj_, 0);
+				out << "\n";
 			}
 		}
 	}

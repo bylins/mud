@@ -23,9 +23,9 @@
 #include "name_list.hpp"
 #include "char_player.hpp"
 #include "modify.h"
+#include "objsave.h"
 
 extern SPECIAL(bank);
-extern void write_one_object(char **data, OBJ_DATA * object, int location);
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);
@@ -676,10 +676,7 @@ void write_obj_file(const std::string &name, int file_type, const ObjListType &c
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
 	{
 		depot_log("save: %s %d %d", (*obj_it)->short_description, GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
-		char databuf[MAX_STRING_LENGTH];
-		char *data = databuf;
-		write_one_object(&data, *obj_it, 0);
-		out << databuf;
+		write_one_object(out, *obj_it, 0);
 	}
 	out << "\n$\n$\n";
 

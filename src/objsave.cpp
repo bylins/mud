@@ -12,6 +12,7 @@
  * AutoEQ by Burkhard Knopf <burkhard.knopf@informatik.tu-clausthal.de>
  */
 
+#include <sstream>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -38,7 +39,6 @@
 #define LOC_INVENTORY	0
 #define MAX_BAG_ROWS	5
 #define ITEM_DESTROYED  100
-
 
 extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;
@@ -719,20 +719,21 @@ inline bool proto_has_descr(EXTRA_DESCR_DATA * odesc, EXTRA_DESCR_DATA * pdesc)
 
 // Данная процедура помещает предмет в буфер
 // [ ИСПОЛЬЗУЕТСЯ В НОВОМ ФОРМАТЕ ВЕЩЕЙ ПЕРСОНАЖА ОТ 10.12.04 ]
-void write_one_object(char **data, OBJ_DATA * object, int location)
+void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 {
 	char buf[MAX_STRING_LENGTH];
 	char buf2[MAX_STRING_LENGTH];
 	EXTRA_DESCR_DATA *descr;
-//  EXTRA_DESCR_DATA *descr2;
-	int count = 0, i, j;
+	int i, j;
 
 	// vnum
-	count += sprintf(*data + count, "#%d\n", GET_OBJ_VNUM(object));
+	out << "#" << GET_OBJ_VNUM(object) << "\n";
 
 	// Положение в экипировке (сохраняем только если > 0)
 	if (location)
-		count += sprintf(*data + count, "Lctn: %d~\n", location);
+	{
+		out << "Lctn: " << location << "~\n";
+	}
 
 	// Если у шмотки есть прототип то будем сохранять по обрезанной схеме, иначе
 	// придется сохранять все статсы шмотки.
@@ -741,115 +742,177 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 	if (GET_OBJ_VNUM(object) >= 0 && proto)
 	{
 		// Сохраняем UID
-		count += sprintf(*data + count, "Ouid: %d~\n", GET_OBJ_UID(object));
+		out << "Ouid: " << GET_OBJ_UID(object) << "~\n";
 		// Алиасы
 		if (str_cmp(GET_OBJ_ALIAS(object), GET_OBJ_ALIAS(proto)))
-			count += sprintf(*data + count, "Alia: %s~\n", GET_OBJ_ALIAS(object));
+		{
+			out << "Alia: " << GET_OBJ_ALIAS(object) << "~\n";
+		}
 		// Падежи
 		for (i = 0; i < NUM_PADS; i++)
+		{
 			if (str_cmp(GET_OBJ_PNAME(object, i), GET_OBJ_PNAME(proto, i)))
-				count += sprintf(*data + count, "Pad%d: %s~\n", i, GET_OBJ_PNAME(object, i));
+			{
+				out << "Pad" << i << ": " << GET_OBJ_PNAME(object, i) << "~\n";
+			}
+		}
 		// Описание когда на земле
 		if (GET_OBJ_DESC(proto) && str_cmp(GET_OBJ_DESC(object), GET_OBJ_DESC(proto)))
-			count += sprintf(*data + count, "Desc: %s~\n", GET_OBJ_DESC(object));
+		{
+			out << "Desc: " << GET_OBJ_DESC(object) << "~\n";
+		}
 		// Описание при действии
 		if (GET_OBJ_ACT(object) && GET_OBJ_ACT(proto))
+		{
 			if (str_cmp(GET_OBJ_ACT(object), GET_OBJ_ACT(proto)))
-				count += sprintf(*data + count, "ADsc: %s~\n", GET_OBJ_ACT(object));
+			{
+				out << "ADsc: " << GET_OBJ_ACT(object) << "~\n";
+			}
+		}
 		// Тренируемый скилл
 		if (GET_OBJ_SKILL(object) != GET_OBJ_SKILL(proto))
-			count += sprintf(*data + count, "Skil: %d~\n", GET_OBJ_SKILL(object));
+		{
+			out << "Skil: " << GET_OBJ_SKILL(object) << "~\n";
+		}
 		// Макс. прочность
 		if (GET_OBJ_MAX(object) != GET_OBJ_MAX(proto))
-			count += sprintf(*data + count, "Maxx: %d~\n", GET_OBJ_MAX(object));
+		{
+			out << "Maxx: " << GET_OBJ_MAX(object) << "~\n";
+		}
 		// Текущая прочность
 		if (GET_OBJ_CUR(object) != GET_OBJ_CUR(proto))
-			count += sprintf(*data + count, "Curr: %d~\n", GET_OBJ_CUR(object));
+		{
+			out << "Curr: " << GET_OBJ_CUR(object) << "~\n";
+		}
 		// Материал
 		if (GET_OBJ_MATER(object) != GET_OBJ_MATER(proto))
-			count += sprintf(*data + count, "Mter: %d~\n", GET_OBJ_MATER(object));
+		{
+			out << "Mter: " << GET_OBJ_MATER(object) << "~\n";
+		}
 		// Пол
 		if (GET_OBJ_SEX(object) != GET_OBJ_SEX(proto))
-			count += sprintf(*data + count, "Sexx: %d~\n", GET_OBJ_SEX(object));
+		{
+			out << "Sexx: " << GET_OBJ_SEX(object) << "~\n";
+		}
 		// Таймер
 		if (object->get_timer() != proto->get_timer())
-			count += sprintf(*data + count, "Tmer: %d~\n", object->get_timer());
+		{
+			out << "Tmer: " << object->get_timer() << "~\n";
+		}
 		// Вызываемое заклинание
 		if (GET_OBJ_SPELL(object) != GET_OBJ_SPELL(proto))
-			count += sprintf(*data + count, "Spll: %d~\n", GET_OBJ_SPELL(object));
+		{
+			out << "Spll: " << GET_OBJ_SPELL(object) << "~\n";
+		}
 		// Уровень заклинания
 		if (GET_OBJ_LEVEL(object) != GET_OBJ_LEVEL(proto))
-			count += sprintf(*data + count, "Levl: %d~\n", GET_OBJ_LEVEL(object));
+		{
+			out << "Levl: " << GET_OBJ_LEVEL(object) << "~\n";
+		}
 		// Наводимые аффекты
 		*buf = '\0';
 		*buf2 = '\0';
 		tascii((int *) &GET_OBJ_AFFECTS(object), 4, buf);
 		tascii((int *) &GET_OBJ_AFFECTS(proto), 4, buf2);
 		if (str_cmp(buf, buf2))
-			count += sprintf(*data + count, "Affs: %s~\n", buf);
+		{
+			out << "Affs: " << buf << "~\n";
+		}
 		// Анти флаги
 		*buf = '\0';
 		*buf2 = '\0';
 		tascii((int *) &GET_OBJ_ANTI(object), 4, buf);
 		tascii((int *) &GET_OBJ_ANTI(proto), 4, buf2);
 		if (str_cmp(buf, buf2))
-			count += sprintf(*data + count, "Anti: %s~\n", buf);
+		{
+			out << "Anti: " << buf << "~\n";
+		}
 		// Запрещающие флаги
 		*buf = '\0';
 		*buf2 = '\0';
 		tascii((int *) &GET_OBJ_NO(object), 4, buf);
 		tascii((int *) &GET_OBJ_NO(proto), 4, buf2);
 		if (str_cmp(buf, buf2))
-			count += sprintf(*data + count, "Nofl: %s~\n", buf);
+		{
+			out << "Nofl: " << buf << "~\n";
+		}
 		// Экстра флаги
 		*buf = '\0';
 		*buf2 = '\0';
 		tascii((int *) &GET_OBJ_EXTRA(object, 0), 4, buf);
 		tascii((int *) &GET_OBJ_EXTRA(proto, 0), 4, buf2);
 		if (str_cmp(buf, buf2))
-			count += sprintf(*data + count, "Extr: %s~\n", buf);
+		{
+			out << "Extr: " << buf << "~\n";
+		}
 		// Флаги слотов экипировки
 		*buf = '\0';
 		*buf2 = '\0';
 		tascii((int *) &GET_OBJ_WEAR(object), 4, buf);
 		tascii((int *) &GET_OBJ_WEAR(proto), 4, buf2);
 		if (str_cmp(buf, buf2))
-			count += sprintf(*data + count, "Wear: %s~\n", buf);
+		{
+			out << "Wear: " << buf << "~\n";
+		}
 		// Тип предмета
 		if (GET_OBJ_TYPE(object) != GET_OBJ_TYPE(proto))
-			count += sprintf(*data + count, "Type: %d~\n", GET_OBJ_TYPE(object));
+		{
+			out << "Type: " << GET_OBJ_TYPE(object) << "~\n";
+		}
 		// Значение 0, Значение 1, Значение 2, Значение 3.
 		for (i = 0; i < 4; i++)
+		{
 			if (GET_OBJ_VAL(object, i) != GET_OBJ_VAL(proto, i))
-				count += sprintf(*data + count, "Val%d: %d~\n", i, GET_OBJ_VAL(object, i));
+			{
+				out << "Val" << i << ": " << GET_OBJ_VAL(object, i) << "~\n";
+			}
+		}
 		// Вес
 		if (GET_OBJ_WEIGHT(object) != GET_OBJ_WEIGHT(proto))
-			count += sprintf(*data + count, "Weig: %d~\n", GET_OBJ_WEIGHT(object));
+		{
+			out << "Weig: " << GET_OBJ_WEIGHT(object) << "~\n";
+		}
 		// Цена
 		if (GET_OBJ_COST(object) != GET_OBJ_COST(proto))
-			count += sprintf(*data + count, "Cost: %d~\n", GET_OBJ_COST(object));
+		{
+			out << "Cost: " << GET_OBJ_COST(object) << "~\n";
+		}
 		// Рента (снято)
 		if (GET_OBJ_RENT(object) != GET_OBJ_RENT(proto))
-			count += sprintf(*data + count, "Rent: %d~\n", GET_OBJ_RENT(object));
+		{
+			out << "Rent: " << GET_OBJ_RENT(object) << "~\n";
+		}
 		// Рента (одето)
 		if (GET_OBJ_RENTEQ(object) != GET_OBJ_RENTEQ(proto))
-			count += sprintf(*data + count, "RntQ: %d~\n", GET_OBJ_RENTEQ(object));
+		{
+			out << "RntQ: " << GET_OBJ_RENTEQ(object) << "~\n";
+		}
 		// Владелец
 		if (GET_OBJ_OWNER(object) != GET_OBJ_OWNER(proto))
-			count += sprintf(*data + count, "Ownr: %d~\n", GET_OBJ_OWNER(object));
+		{
+			out << "Ownr: " << GET_OBJ_OWNER(object) << "~\n";
+		}
 		// Создатель
 		if (GET_OBJ_MAKER(object) != GET_OBJ_MAKER(proto))
-			count += sprintf(*data + count, "Mker: %d~\n", GET_OBJ_MAKER(object));
+		{
+			out << "Mker: " << GET_OBJ_MAKER(object) << "~\n";
+		}
 		// Родитель
 		if (GET_OBJ_PARENT(object) != GET_OBJ_PARENT(proto))
-			count += sprintf(*data + count, "Prnt: %d~\n", GET_OBJ_PARENT(object));
+		{
+			out << "Prnt: " << GET_OBJ_PARENT(object) << "~\n";
+		}
 
 		// Аффекты
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
+		{
 			if (object->affected[j].location != proto->affected[j].location
 					|| object->affected[j].modifier != proto->affected[j].modifier)
-				count += sprintf(*data + count, "Afc%d: %d %d~\n", j,
-								 object->affected[j].location, object->affected[j].modifier);
+			{
+				out << "Afc" << j << ": " << object->affected[j].location
+					<< " " << object->affected[j].modifier << "~\n";
+			}
+		}
 
 		// Доп описания
 		// shapirus: исправлена ошибка с несохранением, например, меток
@@ -857,119 +920,166 @@ void write_one_object(char **data, OBJ_DATA * object, int location)
 		for (descr = object->ex_description; descr; descr = descr->next)
 		{
 			if (proto_has_descr(descr, proto->ex_description))
+			{
 				continue;
-			count += sprintf(*data + count, "Edes: %s~\n%s~\n",
-							 descr->keyword ? descr->keyword : "",
-							 descr->description ? descr->description : "");
+			}
+			out << "Edes: " << (descr->keyword ? descr->keyword : "") << "~\n"
+				<< (descr->description ? descr->description : "") << "~\n";
 		}
 	}
 	else  		// Если у шмотки нет прототипа - придется сохранять ее целиком.
 	{
 		// Алиасы
 		if (GET_OBJ_ALIAS(object))
-			count += sprintf(*data + count, "Alia: %s~\n", GET_OBJ_ALIAS(object));
+		{
+			out << "Alia: " << GET_OBJ_ALIAS(object) << "~\n";
+		}
 		// Падежи
 		for (i = 0; i < NUM_PADS; i++)
+		{
 			if (GET_OBJ_PNAME(object, i))
-				count += sprintf(*data + count, "Pad%d: %s~\n", i, GET_OBJ_PNAME(object, i));
+			{
+				out << "Pad" << i << ": " << GET_OBJ_PNAME(object, i) << "~\n";
+			}
+		}
 		// Описание когда на земле
 		if (GET_OBJ_DESC(object))
-			count += sprintf(*data + count, "Desc: %s~\n", GET_OBJ_DESC(object));
+		{
+			out << "Desc: " << GET_OBJ_DESC(object) << "~\n";
+		}
 		// Описание при действии
 		if (GET_OBJ_ACT(object))
-			count += sprintf(*data + count, "ADsc: %s~\n", GET_OBJ_ACT(object));
+		{
+			out << "ADsc: " << GET_OBJ_ACT(object) << "~\n";
+		}
 		// Тренируемый скилл
 		if (GET_OBJ_SKILL(object))
-			count += sprintf(*data + count, "Skil: %d~\n", GET_OBJ_SKILL(object));
+		{
+			out << "Skil: " << GET_OBJ_SKILL(object) << "~\n";
+		}
 		// Макс. прочность
 		if (GET_OBJ_MAX(object))
-			count += sprintf(*data + count, "Maxx: %d~\n", GET_OBJ_MAX(object));
+		{
+			out << "Maxx: " << GET_OBJ_MAX(object) << "~\n";
+		}
 		// Текущая прочность
 		if (GET_OBJ_CUR(object))
-			count += sprintf(*data + count, "Curr: %d~\n", GET_OBJ_CUR(object));
+		{
+			out << "Curr: " << GET_OBJ_CUR(object) << "~\n";
+		}
 		// Материал
 		if (GET_OBJ_MATER(object))
-			count += sprintf(*data + count, "Mter: %d~\n", GET_OBJ_MATER(object));
+		{
+			out << "Mter: " << GET_OBJ_MATER(object) << "~\n";
+		}
 		// Пол
 		if (GET_OBJ_SEX(object))
-			count += sprintf(*data + count, "Sexx: %d~\n", GET_OBJ_SEX(object));
+		{
+			out << "Sexx: " << GET_OBJ_SEX(object) << "~\n";
+		}
 		// Таймер
 		if (object->get_timer())
-			count += sprintf(*data + count, "Tmer: %d~\n", object->get_timer());
+		{
+			out << "Tmer: " << object->get_timer() << "~\n";
+		}
 		// Вызываемое заклинание
 		if (GET_OBJ_SPELL(object))
-			count += sprintf(*data + count, "Spll: %d~\n", GET_OBJ_SPELL(object));
+		{
+			out << "Spll: " << GET_OBJ_SPELL(object) << "~\n";
+		}
 		// Уровень заклинания
 		if (GET_OBJ_LEVEL(object))
-			count += sprintf(*data + count, "Levl: %d~\n", GET_OBJ_LEVEL(object));
+		{
+			out << "Levl: " << GET_OBJ_LEVEL(object) << "~\n";
+		}
 		// Наводимые аффекты
 		*buf = '\0';
 		tascii((int *) &GET_OBJ_AFFECTS(object), 4, buf);
-		count += sprintf(*data + count, "Affs: %s~\n", buf);
+		out << "Affs: " << buf << "~\n";
 		// Анти флаги
 		*buf = '\0';
 		tascii((int *) &GET_OBJ_ANTI(object), 4, buf);
-		count += sprintf(*data + count, "Anti: %s~\n", buf);
+		out << "Anti: " << buf << "~\n";
 		// Запрещающие флаги
 		*buf = '\0';
 		tascii((int *) &GET_OBJ_NO(object), 4, buf);
-		count += sprintf(*data + count, "Nofl: %s~\n", buf);
+		out << "Nofl: " << buf << "~\n";
 		// Экстра флаги
 		*buf = '\0';
 		tascii((int *) &GET_OBJ_EXTRA(object, 0), 4, buf);
-		count += sprintf(*data + count, "Extr: %s~\n", buf);
+		out << "Extr: " << buf << "~\n";
 		// Флаги слотов экипировки
 		*buf = '\0';
 		tascii((int *) &GET_OBJ_WEAR(object), 4, buf);
-		count += sprintf(*data + count, "Wear: %s~\n", buf);
+		out << "Wear: " << buf << "~\n";
 		// Тип предмета
-		count += sprintf(*data + count, "Type: %d~\n", GET_OBJ_TYPE(object));
+		out << "Type: " << GET_OBJ_TYPE(object) << "~\n";
 		// Значение 0, Значение 1, Значение 2, Значение 3.
 		for (i = 0; i < 4; i++)
+		{
 			if (GET_OBJ_VAL(object, i))
-				count += sprintf(*data + count, "Val%d: %d~\n", i, GET_OBJ_VAL(object, i));
+			{
+				out << "Val" << i << ": " << GET_OBJ_VAL(object, i) << "~\n";
+			}
+		}
 		// Вес
 		if (GET_OBJ_WEIGHT(object))
-			count += sprintf(*data + count, "Weig: %d~\n", GET_OBJ_WEIGHT(object));
+		{
+			out << "Weig: " << GET_OBJ_WEIGHT(object) << "~\n";
+		}
 		// Цена
 		if (GET_OBJ_COST(object))
-			count += sprintf(*data + count, "Cost: %d~\n", GET_OBJ_COST(object));
+		{
+			out << "Cost: " << GET_OBJ_COST(object) << "~\n";
+		}
 		// Рента (снято)
 		if (GET_OBJ_RENT(object))
-			count += sprintf(*data + count, "Rent: %d~\n", GET_OBJ_RENT(object));
+		{
+			out << "Rent: " << GET_OBJ_RENT(object) << "~\n";
+		}
 		// Рента (одето)
 		if (GET_OBJ_RENTEQ(object))
-			count += sprintf(*data + count, "RntQ: %d~\n", GET_OBJ_RENTEQ(object));
+		{
+			out << "RntQ: " << GET_OBJ_RENTEQ(object) << "~\n";
+		}
 		// Владелец
 		if (GET_OBJ_OWNER(object))
-			count += sprintf(*data + count, "Ownr: %d~\n", GET_OBJ_OWNER(object));
+		{
+			out << "Ownr: " << GET_OBJ_OWNER(object) << "~\n";
+		}
 		// Создатель
 		if (GET_OBJ_MAKER(object))
-			count += sprintf(*data + count, "Mker: %d~\n", GET_OBJ_MAKER(object));
+		{
+			out << "Mker: " << GET_OBJ_MAKER(object) << "~\n";
+		}
 		// Родитель
 		if (GET_OBJ_PARENT(object))
-			count += sprintf(*data + count, "Prnt: %d~\n", GET_OBJ_PARENT(object));
+		{
+			out << "Prnt: " << GET_OBJ_PARENT(object) << "~\n";
+		}
 
 		// Аффекты
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
+		{
 			if (object->affected[j].location && object->affected[j].modifier)
-				count += sprintf(*data + count, "Afc%d: %d %d~\n", j,
-								 object->affected[j].location, object->affected[j].modifier);
+			{
+				out << "Afc" << j << ": " << object->affected[j].location
+					<< " " << object->affected[j].modifier << "~\n";
+			}
+		}
 
 		// Доп описания
 		for (descr = object->ex_description; descr; descr = descr->next)
-			count += sprintf(*data + count, "Edes: %s~\n%s~\n",
-							 descr->keyword ? descr->keyword : "",
-							 descr->description ? descr->description : "");
+		{
+			out << "Edes: " << (descr->keyword ? descr->keyword : "") << "~\n"
+				<< (descr->description ? descr->description : "") << "~\n";
+		}
 	}
 	// обкаст (если он есть) сохраняется в любом случае независимо от прототипа
 	if (!object->timed_spell.empty())
 	{
-		count += sprintf(*data + count, "%s", object->timed_spell.print().c_str());
+		out << object->timed_spell.print();
 	}
-
-	*data += count;
-	**data = '\0';
 }
 
 int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
@@ -2008,26 +2118,30 @@ int Crash_calc_charmee_items(CHAR_DATA *ch)
 	return num;
 }
 
-#define CRASH_LENGTH   0x40000
-#define CRASH_DEPTH    0x1000
+namespace
+{
 
-char *Crashbufferdata = NULL;
-char *Crashbufferpos;
+std::stringstream write_buffer;
+
+} // namespace
 
 void Crash_save(int iplayer, OBJ_DATA * obj, int location, int savetype)
 {
 	for (; obj; obj = obj->next_content)
 	{
 		if (obj->in_obj)
+		{
 			GET_OBJ_WEIGHT(obj->in_obj) -= GET_OBJ_WEIGHT(obj);
+		}
 		Crash_save(iplayer, obj->contains, MIN(0, location) - 1, savetype);
 		if (iplayer >= 0)
 		{
-			write_one_object(&Crashbufferpos, obj, location);
+			write_one_object(write_buffer, obj, location);
 			save_time_info tmp_node;
 			tmp_node.vnum = GET_OBJ_VNUM(obj);
 			tmp_node.timer = obj->get_timer();
 			SAVEINFO(iplayer)->time.push_back(tmp_node);
+
 			if (savetype != RENT_CRASH)
 			{
 				log("%s save_char_obj %d %d %u", player_table[iplayer].name,
@@ -2047,7 +2161,6 @@ void crash_save_and_restore_weight(int iplayer, OBJ_DATA * obj, int location, in
 /********************* save_char_objects ********************************/
 int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 {
-	FILE *fl;
 	char fname[MAX_STRING_LENGTH];
 	struct save_rent_info rent;
 	int j, num = 0, iplayer = -1, cost;
@@ -2115,15 +2228,16 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 	Crash_create_timer(iplayer, num);
 	SAVEINFO(iplayer)->rent = rent;
 
-	if (Crashbufferdata)
-		free(Crashbufferdata);	//?
-	CREATE(Crashbufferdata, char, (1000 + MAX_MAIL_SIZE) * num);
-	Crashbufferpos = Crashbufferdata;
-	*Crashbufferpos = '\0';
+	write_buffer.clear();
+	write_buffer << "@ Items file\n";
 
 	for (j = 0; j < NUM_WEARS; j++)
+	{
 		if (GET_EQ(ch, j))
+		{
 			crash_save_and_restore_weight(iplayer, GET_EQ(ch, j), j + 1, savetype);
+		}
+	}
 
 	crash_save_and_restore_weight(iplayer, ch->carrying, 0, savetype);
 
@@ -2150,29 +2264,25 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 
 	if (get_filename(GET_NAME(ch), fname, TEXT_CRASH_FILE))
 	{
-		if (!(fl = fopen(fname, "w")))
+		std::ofstream file(fname);
+		if (!file.is_open())
 		{
 			sprintf(buf, "[SYSERR] Store objects file '%s'- MAY BE LOCKED.", fname);
 			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-			free(Crashbufferdata);
-			Crashbufferdata = NULL;
 			Crash_delete_files(iplayer);
 			return FALSE;
 		}
-		fprintf(fl, "@ Items file\n%s\n$\n$\n", Crashbufferdata);
-		fclose(fl);
+		write_buffer << "\n$\n$\n";
+		file << write_buffer.rdbuf();
+		file.close();
 		FileCRC::check_crc(fname, FileCRC::UPDATE_TEXTOBJS, GET_UNIQUE(ch));
 	}
 	else
 	{
-		free(Crashbufferdata);
-		Crashbufferdata = NULL;
 		Crash_delete_files(iplayer);
 		return FALSE;
 	}
 
-	free(Crashbufferdata);
-	Crashbufferdata = NULL;
 	if (!Crash_write_timer(iplayer))
 	{
 		Crash_delete_files(iplayer);

@@ -29,9 +29,9 @@
 #include "char_player.hpp"
 #include "modify.h"
 #include "room.hpp"
+#include "objsave.h"
 
 extern void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
-extern void write_one_object(char **data, OBJ_DATA * object, int location);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern int file_to_string_alloc(const char *name, char **buf);
 extern struct player_index_element *player_table;
@@ -2446,15 +2446,13 @@ void Clan::ChestSave()
 		for (chest = world[real_room((*clan)->chest_room)]->contents; chest; chest = chest->next_content)
 			if (Clan::is_clan_chest(chest))
 			{
-				std::string buffer2;
+				std::stringstream out;
+				out << "* Items file\n";
 				for (temp = chest->contains; temp; temp = temp->next_content)
 				{
-					char databuf[MAX_STRING_LENGTH];
-					char *data = databuf;
-
-					write_one_object(&data, temp, 0);
-					buffer2 += databuf;
+					write_one_object(out, temp, 0);
 				}
+				out << "\n$\n$\n";
 
 				std::ofstream file(filename.c_str());
 				if (!file.is_open())
@@ -2462,7 +2460,7 @@ void Clan::ChestSave()
 					log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 					return;
 				}
-				file << "* Items file\n" << buffer2 << "\n$\n$\n";
+				file << out.rdbuf();
 				file.close();
 				break;
 			}

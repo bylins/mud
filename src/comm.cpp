@@ -247,9 +247,6 @@ void Crash_frac_save_all(int frac_part);
 void Crash_frac_rent_time(int frac_part);
 unsigned long TxtToIp(const char * text);
 void underwater_check(void);
-//F@N|
-int exchange_database_save(void);
-int exchange_database_savebackup(void);
 
 #ifdef __CXREF__
 #undef FD_ZERO
@@ -1455,7 +1452,7 @@ inline void heartbeat()
 
 	if (EXCHANGE_AUTOSAVEBACKUPTIME && !((pulse + 9) % (EXCHANGE_AUTOSAVEBACKUPTIME * PASSES_PER_SEC)))
 	{
-		exchange_database_savebackup();
+		exchange_database_save(true);
 	}
 //F@N--
 

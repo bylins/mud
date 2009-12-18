@@ -15,7 +15,7 @@
 struct obj_flag_data
 {
 	boost::array<int, NUM_OBJ_VAL_POSITIONS> value;
-	byte type_flag;		/* Type of item               */
+	int type_flag;		/* Type of item               */
 	int
 	wear_flags;		/* Where you can wear it     */
 	FLAG_DATA extra_flags;	/* If it hums, glows, etc.      */
@@ -60,10 +60,10 @@ struct obj_flag_data
 
 struct obj_affected_type
 {
-	byte location;		/* Which ability to change (APPLY_XXX) */
-	sbyte modifier;		/* How much it changes by              */
+	int location;		/* Which ability to change (APPLY_XXX) */
+	int modifier;		/* How much it changes by              */
 	obj_affected_type() : location(APPLY_NONE), modifier(0) {}
-	obj_affected_type(byte __location, sbyte __modifier) : location(__location), modifier(__modifier) {}
+	obj_affected_type(int __location, int __modifier) : location(__location), modifier(__modifier) {}
 };
 
 class activation

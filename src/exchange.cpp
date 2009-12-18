@@ -9,7 +9,7 @@
 ************************************************************************ */
 
 #include <stdexcept>
-
+#include <sstream>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -27,9 +27,9 @@
 #include "char_player.hpp"
 #include "modify.h"
 #include "room.hpp"
+#include "objsave.h"
 
 //Используемые внешние ф-ии.
-extern void write_one_object(char **data, OBJ_DATA * object, int location);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern int get_buf_line(char **source, char *target);
 extern int get_buf_lines(char **source, char *target);
@@ -59,8 +59,6 @@ int exchange_setfilter(CHAR_DATA * ch, char *arg);
 
 int exchange_database_load();
 int exchange_database_reload(bool loadbackup);
-int exchange_database_save();
-int exchange_database_savebackup();
 void check_exchange(OBJ_DATA * obj);
 void extract_exchange_item(EXCHANGE_ITEM_DATA * item);
 int get_unique_lot(void);
@@ -156,7 +154,7 @@ SPECIAL(exchange)
 		else if (is_abbrev(arg1, "save") && (GET_LEVEL(ch) >= LVL_IMPL))
 			exchange_database_save();
 		else if (is_abbrev(arg1, "savebackup") && (GET_LEVEL(ch) >= LVL_IMPL))
-			exchange_database_savebackup();
+			exchange_database_save(true);
 		else if (is_abbrev(arg1, "reload") && (GET_LEVEL(ch) >= LVL_IMPL))
 			exchange_database_reload(false);
 		else if (is_abbrev(arg1, "reloadbackup") && (GET_LEVEL(ch) >= LVL_IMPL))
@@ -1333,91 +1331,15 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 	return (item);
 }
 
-void exchange_write_one_object_new(char **data, EXCHANGE_ITEM_DATA * item)
+void exchange_write_one_object_new(std::stringstream &out, EXCHANGE_ITEM_DATA * item)
 {
-	int count = 0;
-	char *d;
-
-	count += sprintf(*data + count, "#%d\n", GET_EXCHANGE_ITEM_LOT(item));
-	count += sprintf(*data + count, "%d\n", GET_EXCHANGE_ITEM_SELLERID(item));
-	count += sprintf(*data + count, "%d\n", GET_EXCHANGE_ITEM_COST(item));
-	count += sprintf(*data + count, "%s\n",
-					 GET_EXCHANGE_ITEM_COMMENT(item) ? GET_EXCHANGE_ITEM_COMMENT(item) : "EMPTY\n");
-
-	d = *data + count;
-	write_one_object(&d, GET_EXCHANGE_ITEM(item), 0);
-}
-
-void exchange_write_one_object(char **data, EXCHANGE_ITEM_DATA * item)
-{
-	char buf[MAX_STRING_LENGTH];
-	EXTRA_DESCR_DATA *descr;
-	int count = 0, i, j;
-
-	count += sprintf(*data + count, "#%d\n", GET_EXCHANGE_ITEM_LOT(item));
-	count += sprintf(*data + count, "%d\n", GET_EXCHANGE_ITEM_SELLERID(item));
-	count += sprintf(*data + count, "%d\n", GET_EXCHANGE_ITEM_COST(item));
-	count += sprintf(*data + count, "%s\n",
-					 GET_EXCHANGE_ITEM_COMMENT(item) ? GET_EXCHANGE_ITEM_COMMENT(item) : "EMPTY\n");
-
-	count += sprintf(*data + count, "%d\n", GET_OBJ_VNUM(GET_EXCHANGE_ITEM(item)));
-
-	if (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(item)) < 0)  	// Предмет не имеет прототипа
-	{
-		// Алиасы
-		count += sprintf(*data + count, "%s~\n", GET_OBJ_ALIAS(GET_EXCHANGE_ITEM(item)));
-		// Падежи
-		for (i = 0; i < NUM_PADS; i++)
-			count += sprintf(*data + count, "%s~\n", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(item), i));
-		// Описание когда на земле
-		count += sprintf(*data + count, "%s~\n",
-						 GET_OBJ_DESC(GET_EXCHANGE_ITEM(item)) ? GET_OBJ_DESC(GET_EXCHANGE_ITEM(item)) : "");
-		// Описание при действии
-		count += sprintf(*data + count, "%s~\n",
-						 GET_OBJ_ACT(GET_EXCHANGE_ITEM(item)) ? GET_OBJ_ACT(GET_EXCHANGE_ITEM(item)) : "");
-	}
-
-	count += sprintf(*data + count, "%d %d %d %d\n",
-					 GET_OBJ_SKILL(GET_EXCHANGE_ITEM(item)),
-					 GET_OBJ_MAX(GET_EXCHANGE_ITEM(item)),
-					 GET_OBJ_CUR(GET_EXCHANGE_ITEM(item)), GET_OBJ_MATER(GET_EXCHANGE_ITEM(item)));
-	count += sprintf(*data + count, "%d %d %d %d\n",
-					 GET_OBJ_SEX(GET_EXCHANGE_ITEM(item)),
-					 GET_EXCHANGE_ITEM(item)->get_timer(),
-					 GET_OBJ_SPELL(GET_EXCHANGE_ITEM(item)), GET_OBJ_LEVEL(GET_EXCHANGE_ITEM(item)));
-	*buf = '\0';
-	tascii((int *) &GET_OBJ_AFFECTS(GET_EXCHANGE_ITEM(item)), 4, buf);
-	tascii((int *) &GET_OBJ_ANTI(GET_EXCHANGE_ITEM(item)), 4, buf);
-	tascii((int *) &GET_OBJ_NO(GET_EXCHANGE_ITEM(item)), 4, buf);
-	count += sprintf(*data + count, "%s\n", buf);
-	*buf = '\0';
-	tascii(&GET_OBJ_EXTRA(GET_EXCHANGE_ITEM(item), 0), 4, buf);
-	tascii(&GET_OBJ_WEAR(GET_EXCHANGE_ITEM(item)), 4, buf);
-	count += sprintf(*data + count, "%d %s\n", GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)), buf);
-	count += sprintf(*data + count, "%d %d %d %d\n",
-					 GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 0),
-					 GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 1),
-					 GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 2), GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 3));
-	count += sprintf(*data + count, "%d %d %d %d\n",
-					 GET_OBJ_WEIGHT(GET_EXCHANGE_ITEM(item)),
-					 GET_OBJ_COST(GET_EXCHANGE_ITEM(item)),
-					 GET_OBJ_RENT(GET_EXCHANGE_ITEM(item)), GET_OBJ_RENTEQ(GET_EXCHANGE_ITEM(item)));
-	count += sprintf(*data + count, "%d %d\n", '0', GET_OBJ_OWNER(GET_EXCHANGE_ITEM(item)));
-
-	for (descr = GET_EXCHANGE_ITEM(item)->ex_description; descr; descr = descr->next)
-		count += sprintf(*data + count, "E\n%s~\n%s~\n",
-						 descr->keyword ? descr->keyword : "", descr->description ? descr->description : "");
-	for (j = 0; j < MAX_OBJ_AFFECT; j++)
-		if (GET_EXCHANGE_ITEM(item)->affected[j].location)
-			count += sprintf(*data + count, "A\n%d %d\n",
-							 GET_EXCHANGE_ITEM(item)->affected[j].location,
-							 GET_EXCHANGE_ITEM(item)->affected[j].modifier);
-
-	if (GET_OBJ_MAKER(GET_EXCHANGE_ITEM(item)))
-		count += sprintf(*data + count, "M\n%d\n", GET_OBJ_MAKER(GET_EXCHANGE_ITEM(item)));
-
-	if (GET_OBJ_PARENT(GET_EXCHANGE_ITEM(item)))
-		count += sprintf(*data + count, "P\n%d\n", GET_OBJ_PARENT(GET_EXCHANGE_ITEM(item)));
+	out << "#" << GET_EXCHANGE_ITEM_LOT(item) << "\n"
+		<< GET_EXCHANGE_ITEM_SELLERID(item) << "\n"
+		<< GET_EXCHANGE_ITEM_COST(item) << "\n"
+		<< (GET_EXCHANGE_ITEM_COMMENT(item) ? GET_EXCHANGE_ITEM_COMMENT(item) : "EMPTY\n")
+		<< "\n";
+	write_one_object(out, GET_EXCHANGE_ITEM(item), 0);
+	out << "\n";
 }
 
 int exchange_database_load()
@@ -1633,83 +1555,39 @@ int exchange_database_reload(bool loadbackup)
 	return (1);
 }
 
-
-
-int exchange_database_save()
+/**
+* \param backup - false (дефолт) обычное сохранение
+*               - true сохранение в бэкап, вместо основного файла
+*/
+void exchange_database_save(bool backup)
 {
-	FILE *fl;
-	char *buffer;
-	EXCHANGE_ITEM_DATA *j, *next_thing;
-
 	log("Exchange: Saving exchange database...");
 
-
-	if (!(fl = fopen(EXCHANGE_DATABASE_FILE, "w")))
-	{
-		sprintf(buf, "[SYSERR] Error on open exchange database file ('%s') - FILE MAY BE LOCKED.", EXCHANGE_DATABASE_FILE);
-		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-		return FALSE;
-	}
-
-	CREATE(buffer, char, MAX_STRING_LENGTH);
-
-	// Метка нового формата
-	fprintf(fl, "!NEW!\n");
-
+	std::stringstream out;
+	out << "!NEW!\n";
+	EXCHANGE_ITEM_DATA *j, *next_thing;
 	for (j = exchange_item_list; j; j = next_thing)
 	{
 		next_thing = j->next;
-//      log("Exchange: Saving %d", GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)));
-		exchange_write_one_object_new(&buffer, j);
-		fprintf(fl, "%s\n", buffer);
+		exchange_write_one_object_new(out, j);
 	}
-	fprintf(fl, "$\n$\n");
-	fclose(fl);
-	free(buffer);
+	out << "$\n$\n";
+
+	const char *filename = backup ? EXCHANGE_DATABASE_BACKUPFILE : EXCHANGE_DATABASE_FILE;
+	std::ofstream file(filename);
+	if (!file.is_open())
+	{
+		sprintf(buf, "[SYSERROR] open exchange db ('%s')", filename);
+		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
+	file << out.rdbuf();
+	file.close();
 
 	log("Exchange: done saving database.");
-
-	return TRUE;
-
+	return;
 }
 
-int exchange_database_savebackup()
-{
-	FILE *fl;
-	char *buffer;
-	EXCHANGE_ITEM_DATA *j, *next_thing;
-
-	log("Exchange: Saving backup of exchange database...");
-
-
-	if (!(fl = fopen(EXCHANGE_DATABASE_BACKUPFILE, "w")))
-	{
-		sprintf(buf, "[SYSERR] Error on open backup exhange database file ('%s') - FILE MAY BE LOCKED.", EXCHANGE_DATABASE_BACKUPFILE);
-		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-		return FALSE;
-	}
-
-	CREATE(buffer, char, MAX_STRING_LENGTH);
-
-	// Метка нового формата
-	fprintf(fl, "!NEW!\n");
-
-	for (j = exchange_item_list; j; j = next_thing)
-	{
-		next_thing = j->next;
-//      log("Exchange: Saving %d", GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)));
-		exchange_write_one_object_new(&buffer, j);
-		fprintf(fl, "%s\n", buffer);
-	}
-	fprintf(fl, "$\n$\n");
-	fclose(fl);
-	free(buffer);
-
-	log("Exchange: done saving backup of database.");
-
-	return TRUE;
-
-}
 int get_unique_lot(void)
 {
 	int i;

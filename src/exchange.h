@@ -57,4 +57,6 @@ struct exchange_item_data
 	EXCHANGE_ITEM_DATA *next;	//для списка объектов базара
 };
 
+void exchange_database_save(bool backup = false);
+
 #endif
