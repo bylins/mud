@@ -754,7 +754,8 @@ typedef struct trig_data TRIG_DATA;
 #define CON_NEW_CHAR     44
 #define CON_SPEND_GLORY  45 // вливание славы через команду у чара
 #define CON_RESET_STATS  46 // реролл статов при входе в игру
-#define CON_BIRTHPLACE	47 //выбираем где начать игру
+#define CON_BIRTHPLACE   47 // выбираем где начать игру
+#define CON_WRITE_MOD    48 // пишет клановое сообщение дня
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 /* Character equipment positions: used as index for char_data.equipment[] */

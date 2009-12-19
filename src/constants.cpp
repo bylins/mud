@@ -606,6 +606,7 @@ const char *connected_types[] = { "В игре",
 								  "Glory OLC",
 								  "Base stats reroll",
 								  "Select place of birth",
+								  "Clan MoD edit",
 								  "\n"
 								};
 

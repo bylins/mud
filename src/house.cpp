@@ -61,6 +61,13 @@ long long clan_level_exp [MAX_CLANLEVEL+1] =
 	1000000000000LL /* BIG NUMBER. */
 };
 
+namespace
+{
+
+const int MAX_MOD_LENGTH = 3 * 80;
+
+} // namespace
+
 inline bool Clan::SortRank::operator()(const CHAR_DATA * ch1, const CHAR_DATA * ch2)
 {
 	return CLAN_MEMBER(ch1)->rank_num < CLAN_MEMBER(ch2)->rank_num;
@@ -276,7 +283,7 @@ void Clan::ClanLoad()
 				tempClan->ranks_female.push_back(buffer2);
 
 				tempClan->privileges.push_back(std::bitset<CLAN_PRIVILEGES_NUM> (0));
-				for (int i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
+				for (unsigned i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
 				{
 					tempClan->privileges[0].set(i);
 				}
@@ -547,6 +554,8 @@ void Clan::ClanLoad()
 		}
 		// клан-экспа
 		tempClan->last_exp.load(tempClan->get_abbrev());
+		// message of the day
+		tempClan->load_mod();
 
 		Clan::ClanList.push_back(tempClan);
 	}
@@ -794,6 +803,7 @@ const char *HOUSE_FORMAT[] =
 	"  брать вещи из хранилища\r\n",
 	"  казна (снимать)\r\n",
 	"  клан покинуть (выход из дружины)\r\n",
+	"  клан сообщение (написание сообщения дружины)\r\n"
 };
 
 // обработка клановых привилегий (команда house)
@@ -846,11 +856,19 @@ ACMD(DoHouse)
 		CLAN(ch)->HouseLeave(ch);
 	else if (CompareParam(buffer2, "налог"))
 		CLAN(ch)->TaxManage(ch, buffer);
+	else if (CompareParam(buffer2, "сообщение")  && CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_MOD])
+	{
+		char **text;
+		CREATE(text, char *, 1);
+		send_to_char("Можете писать сообщение.  (/s записать /h помощь)\r\n", ch);
+		STATE(ch->desc) = CON_WRITE_MOD;
+		string_write(ch->desc, text, MAX_MOD_LENGTH, 0, NULL);
+	}
 	else
 	{
 		// обработка списка доступных команд по званию персонажа
 		buffer = "Доступные Вам привилегии дружины:\r\n";
-		for (int i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
+		for (unsigned i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
 			if (CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][i])
 				buffer += HOUSE_FORMAT[i];
 		// воевода до кучи может сам сменить у дружины воеводу
@@ -893,7 +911,7 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 	for (std::vector<std::string>::const_iterator it = ranks.begin(); it != ranks.end(); ++it, ++num)
 	{
 		buffer << "  " << (*it) << ":";
-		for (int i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
+		for (unsigned i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
 			if (this->privileges[num][i])
 				switch (i)
 				{
@@ -932,6 +950,9 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 					break;
 				case MAY_CLAN_EXIT:
 					buffer << " выход";
+					break;
+				case MAY_CLAN_MOD:
+					buffer << " сообщение дружины";
 					break;
 				}
 		buffer << "\r\n";
@@ -1947,7 +1968,7 @@ void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 				tempClan->ranks.begin(); it != tempClan->ranks.end(); ++it)
 		tempClan->privileges.push_back(std::bitset<CLAN_PRIVILEGES_NUM> (0));
 	// воеводе проставим все привилегии
-	for (int i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
+	for (unsigned i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
 		tempClan->privileges[0].set(i);
 	// залоадим сразу хранилище
 	OBJ_DATA * chest = read_object(CLAN_CHEST_VNUM, VIRTUAL);
@@ -2631,6 +2652,66 @@ void Clan::TaxManage(CHAR_DATA * ch, std::string & arg)
 	}
 }
 
+/**
+* Запись сообщения дружины в файл и поле клана.
+*/
+void Clan::write_mod(std::string &arg)
+{
+	std::string abbrev = this->get_abbrev();
+	for (unsigned i = 0; i != abbrev.length(); ++i)
+	{
+		abbrev[i] = LOWER(AtoL(abbrev[i]));
+	}
+	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".mod";
+
+	std::ofstream file(filename.c_str());
+	if (!file.is_open())
+	{
+		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+		return;
+	}
+	file << arg;
+	file.close();
+
+	mod_text = arg;
+}
+
+/**
+* Распечатка сообщения дружины чару при входе.
+*/
+void Clan::print_mod(CHAR_DATA *ch)
+{
+	if (!mod_text.empty())
+	{
+		send_to_char(ch, "\r\n%s%s%s\r\n",
+				CCWHT(ch, C_NRM), mod_text.c_str(), CCNRM(ch, C_NRM));
+	}
+}
+
+/**
+* Загрузка сообщения дружины.
+*/
+void Clan::load_mod()
+{
+	std::string abbrev = this->get_abbrev();
+	for (unsigned i = 0; i != abbrev.length(); ++i)
+	{
+		abbrev[i] = LOWER(AtoL(abbrev[i]));
+	}
+	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".mod";
+
+	std::ifstream file(filename.c_str(), std::ios::binary);
+	if (!file.is_open())
+	{
+		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+		return;
+	}
+
+    std::ostringstream out;
+    out << file.rdbuf();
+    out.str().swap(mod_text);
+}
+
 // казна дружины... команды теже самые с приставкой 'казна' в начале
 // смотреть/вкладывать могут все, снимать по привилегии, висит на стандартных банкирах
 bool Clan::BankManage(CHAR_DATA * ch, char *arg)
@@ -2835,7 +2916,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 				return;
 			}
 			// мы выдаем только доступные привилегии в меню и нормально парсим их тут
-			int parse_num;
+			unsigned parse_num;
 			for (parse_num = 0; parse_num < CLAN_PRIVILEGES_NUM; ++parse_num)
 			{
 				if (d->clan_olc->privileges[CLAN_MEMBER(d->character)->rank_num][parse_num])
@@ -2888,7 +2969,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 		case 'q':
 		case 'Q':
 			// выход в общее меню с изменением всех званий
-			for (int i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
+			for (unsigned i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
 			{
 				if (d->clan_olc->all_ranks[i])
 				{
@@ -2917,7 +2998,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 				d->clan_olc->clan->AllMenu(d, 0);
 				return;
 			}
-			int parse_num;
+			unsigned parse_num;
 			for (parse_num = 0; parse_num < CLAN_PRIVILEGES_NUM; ++parse_num)
 			{
 				if (d->clan_olc->privileges[CLAN_MEMBER(d->character)->rank_num][parse_num])
@@ -2942,7 +3023,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 		case 'q':
 		case 'Q':
 			// выход в общее меню с изменением всех званий
-			for (int i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
+			for (unsigned i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
 			{
 				if (d->clan_olc->all_ranks[i])
 				{
@@ -2971,7 +3052,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 				d->clan_olc->clan->AllMenu(d, 1);
 				return;
 			}
-			int parse_num;
+			unsigned parse_num;
 			for (parse_num = 0; parse_num < CLAN_PRIVILEGES_NUM; ++parse_num)
 			{
 				if (d->clan_olc->privileges[CLAN_MEMBER(d->character)->rank_num][parse_num])
@@ -3048,7 +3129,7 @@ void Clan::PrivilegeMenu(DESCRIPTOR_DATA * d, unsigned num)
 	<< d->clan_olc->clan->ranks[num] << CCNRM(d->character, C_NRM) << "':\r\n";
 
 	int count = 0;
-	for (int i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
+	for (unsigned i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
 	{
 		switch (i)
 		{
@@ -3172,6 +3253,15 @@ void Clan::PrivilegeMenu(DESCRIPTOR_DATA * d, unsigned num)
 					buffer << "[ ] свободный выход из дружины\r\n";
 			}
 			break;
+		case MAY_CLAN_MOD:
+			if (d->clan_olc->privileges[CLAN_MEMBER(d->character)->rank_num][MAY_CLAN_MOD])
+			{
+				buffer << CCGRN(d->character, C_NRM) << std::setw(2) << ++count
+					<< CCNRM(d->character, C_NRM) << ") "
+					<< (d->clan_olc->privileges[num][MAY_CLAN_MOD] ? "[x]" : "[ ]")
+					<< " написание сообщения дружины\r\n";
+			}
+			break;
 		}
 	}
 	buffer << CCGRN(d->character, C_NRM) << " В(Q)" << CCNRM(d->character, C_NRM)
@@ -3193,7 +3283,7 @@ void Clan::AllMenu(DESCRIPTOR_DATA * d, unsigned flag)
 		<< "убрать у всех" << CCNRM(d->character, C_NRM) << " званий:\r\n";
 
 	int count = 0;
-	for (int i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
+	for (unsigned i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
 	{
 		switch (i)
 		{
@@ -3315,6 +3405,15 @@ void Clan::AllMenu(DESCRIPTOR_DATA * d, unsigned flag)
 					buffer << "[x] свободный выход из дружины\r\n";
 				else
 					buffer << "[ ] свободный выход из дружины\r\n";
+			}
+			break;
+		case MAY_CLAN_MOD:
+			if (d->clan_olc->privileges[CLAN_MEMBER(d->character)->rank_num][MAY_CLAN_MOD])
+			{
+				buffer << CCGRN(d->character, C_NRM) << std::setw(2) << ++count
+					<< CCNRM(d->character, C_NRM) << ") "
+					<< (d->clan_olc->all_ranks[MAY_CLAN_MOD] ? "[x]" : "[ ]")
+					<< " написание сообщения дружины\r\n";
 			}
 			break;
 		}

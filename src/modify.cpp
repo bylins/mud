@@ -13,7 +13,7 @@
 ************************************************************************ */
 
 #include <boost/algorithm/string.hpp>
-
+#include <boost/format.hpp>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -703,7 +703,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 
 	if (!(*d->str))  	//log("[SA] No str s");
 	{
-		if (strlen(str) + 3 > d->max_str)  	/* \r\n\0 */
+		if (strlen(str) + 3 > d->max_str)
 		{
 			send_to_char("Слишком длинная строка - усечена.\r\n", d->character);
 			strcpy(&str[d->max_str - 3], "\r\n");
@@ -712,6 +712,12 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 
 			/* Changed this to NOT abort out.. just give warning. */
 			/* terminator = 1;                                    */
+		}
+		else if (CON_WRITE_MOD == STATE(d) && strlen(str) + 3 > 80)
+		{
+			send_to_char("Слишком длинная строка - усечена.\r\n", d->character);
+			str[80 - 3] = '\0';
+			*d->str = str_dup(str);
 		}
 		else
 		{
@@ -722,6 +728,12 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 	}
 	else  		//log("[SA] 1s");
 	{
+		if (CON_WRITE_MOD == STATE(d) && strlen(str) + 3 > 80)
+		{
+			send_to_char("Слишком длинная строка - усечена.\r\n", d->character);
+			str[80 - 3] = '\0';
+		}
+
 		if (strlen(str) + strlen(*d->str) + 3 > d->max_str)  	/* \r\n\0 */
 		{
 			//log("[SA] 1.1");
@@ -888,6 +900,51 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				free(*d->str);
 			if (d->str)
 				free(d->str);
+			d->connected = CON_PLAYING;
+		}
+		else if (STATE(d) == CON_WRITE_MOD)
+		{
+			// писали клановое сообщение дня
+			if (terminator == 1 && *d->str)
+			{
+				// за время редактирования могли лишиться привилегии/клана
+				if (d->character
+					&& CLAN(d->character)
+					&& CLAN(d->character)->CheckPrivilege(CLAN_MEMBER(d->character)->rank_num, MAY_CLAN_MOD))
+				{
+					std::string head =
+							boost::str(boost::format("Сообщение дружины (автор %1%):\r\n")
+									% GET_NAME(d->character));
+
+					std::string body = *(d->str);
+					// отступ (копи-паст из CON_WRITEBOARD выше)
+					StringReplace(body, '\n', "\n  ");
+					boost::trim(body);
+					body.insert(0, "  ");
+					body += '\n';
+					head += body;
+
+					CLAN(d->character)->write_mod(head);
+					SEND_TO_Q("Сообщение добавлено.\r\n", d);
+				}
+				else
+				{
+					SEND_TO_Q("Ошибочка вышла...\r\n", d);
+				}
+			}
+			else
+			{
+				SEND_TO_Q("Сообщение прервано.\r\n", d);
+			}
+
+			if (*(d->str))
+			{
+				free(*d->str);
+			}
+			if (d->str)
+			{
+				free(d->str);
+			}
 			d->connected = CON_PLAYING;
 		}
 		else if (!d->connected && (PLR_FLAGGED(d->character, PLR_MAILING)))

@@ -3687,10 +3687,20 @@ void login_change_invoice(CHAR_DATA* ch)
 {
 	Board::LoginInfo(ch);
 	if (IS_IMMORTAL(ch))
+	{
 		single_god_invoice(ch);
+	}
 	if (has_mail(GET_IDNUM(ch)))
+	{
 		send_to_char("&R\r\n÷ÁÓ ÏÖÉÄÁÅÔ ÐÉÓØÍÏ. úáêäéôå îá ðïþôõ!&n\r\n", ch);
+	}
 	if (Parcel::has_parcel(ch))
+	{
 		send_to_char("&R\r\n÷ÁÓ ÏÖÉÄÁÅÔ ÐÏÓÙÌËÁ. úáêäéôå îá ðïþôõ!&n\r\n", ch);
+	}
 	Depot::show_purged_message(ch);
+	if (CLAN(ch))
+	{
+		CLAN(ch)->print_mod(ch);
+	}
 }

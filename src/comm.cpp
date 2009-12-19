@@ -2764,18 +2764,30 @@ int process_input(DESCRIPTOR_DATA * t)
 		for (ptr = read_point; (space_left > 1) && (ptr < nl_pos); ptr++)
 		{
 			/* Нафиг точку с запятой - задрали уроды с тригерами (Кард) */
-			if (*ptr == ';' && (STATE(t) == CON_PLAYING || STATE(t) == CON_EXDESC || STATE(t) == CON_WRITEBOARD))
+			if (*ptr == ';'
+				&& (STATE(t) == CON_PLAYING
+					|| STATE(t) == CON_EXDESC
+					|| STATE(t) == CON_WRITEBOARD
+					|| STATE(t) == CON_WRITE_MOD))
 			{
 				/* Иммам или морталам с GF_DEMIGOD разрешено использовать ";". */
 				if (GET_LEVEL(t->character) < LVL_IMMORT && !GET_GOD_FLAG(t->character, GF_DEMIGOD))
 					*ptr = ',';
 			}
-			if (*ptr == '&' && (STATE(t) == CON_PLAYING || STATE(t) == CON_EXDESC || STATE(t) == CON_WRITEBOARD))
+			if (*ptr == '&'
+				&& (STATE(t) == CON_PLAYING
+					|| STATE(t) == CON_EXDESC
+					|| STATE(t) == CON_WRITEBOARD
+					|| STATE(t) == CON_WRITE_MOD))
 			{
 				if (GET_LEVEL(t->character) < LVL_IMPL)
 					*ptr = '8';
 			}
-			if (*ptr == '\\' && (STATE(t) == CON_PLAYING || STATE(t) == CON_EXDESC || STATE(t) == CON_WRITEBOARD))
+			if (*ptr == '\\'
+				&& (STATE(t) == CON_PLAYING
+					|| STATE(t) == CON_EXDESC
+					|| STATE(t) == CON_WRITEBOARD
+					|| STATE(t) == CON_WRITE_MOD))
 			{
 				if (GET_LEVEL(t->character) < LVL_GRGOD)
 					*ptr = '/';
@@ -3045,7 +3057,11 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	if (d->character)
 	{
 		// Plug memory leak, from Eric Green.
-		if (!IS_NPC(d->character) && (PLR_FLAGGED(d->character, PLR_MAILING) || STATE(d) == CON_WRITEBOARD) && d->str)
+		if (!IS_NPC(d->character)
+			&& (PLR_FLAGGED(d->character, PLR_MAILING)
+				|| STATE(d) == CON_WRITEBOARD
+				|| STATE(d) == CON_WRITE_MOD)
+			&& d->str)
 		{
 			if (*(d->str))
 				free(*(d->str));
@@ -3053,8 +3069,13 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 				free(d->str);
 		}
 
-		if (STATE(d) == CON_WRITEBOARD || STATE(d) == CON_CLANEDIT || STATE(d) == CON_SPEND_GLORY)
+		if (STATE(d) == CON_WRITEBOARD
+			|| STATE(d) == CON_CLANEDIT
+			|| STATE(d) == CON_SPEND_GLORY
+			|| STATE(d) == CON_WRITE_MOD)
+		{
 			STATE(d) = CON_PLAYING;
+		}
 
 		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT)
 		{

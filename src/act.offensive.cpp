@@ -87,7 +87,7 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 	victim = try_protect(victim, ch);
 
 	// если жертва пишет на доску - вываливаем его оттуда и чистим все это дело
-	if (victim->desc && (STATE(victim->desc) == CON_WRITEBOARD))
+	if (victim->desc && (STATE(victim->desc) == CON_WRITEBOARD || STATE(victim->desc) == CON_WRITE_MOD))
 	{
 		victim->desc->message.reset();
 		victim->desc->board.reset();

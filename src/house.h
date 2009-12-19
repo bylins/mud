@@ -21,19 +21,20 @@
 #include "house_exp.hpp"
 #include "remember.hpp"
 
-#define CLAN_PRIVILEGES_NUM 12
-#define MAY_CLAN_INFO       0
-#define MAY_CLAN_ADD        1
-#define MAY_CLAN_REMOVE     2
-#define MAY_CLAN_PRIVILEGES 3
-#define MAY_CLAN_CHANNEL    4
-#define MAY_CLAN_POLITICS   5
-#define MAY_CLAN_NEWS       6
-#define MAY_CLAN_PKLIST     7
-#define MAY_CLAN_CHEST_PUT  8
-#define MAY_CLAN_CHEST_TAKE 9
-#define MAY_CLAN_BANK       10
-#define MAY_CLAN_EXIT       11
+const int MAY_CLAN_INFO = 0;
+const int MAY_CLAN_ADD = 1;
+const int MAY_CLAN_REMOVE = 2;
+const int MAY_CLAN_PRIVILEGES = 3;
+const int MAY_CLAN_CHANNEL = 4;
+const int MAY_CLAN_POLITICS = 5;
+const int MAY_CLAN_NEWS = 6;
+const int MAY_CLAN_PKLIST = 7;
+const int MAY_CLAN_CHEST_PUT = 8;
+const int MAY_CLAN_CHEST_TAKE = 9;
+const int MAY_CLAN_BANK = 10;
+const int MAY_CLAN_EXIT = 11;
+const int MAY_CLAN_MOD = 12;
+const unsigned CLAN_PRIVILEGES_NUM = 13;
 // не забываем про CLAN_PRIVILEGES_NUM
 
 #define POLITICS_NEUTRAL  0
@@ -200,6 +201,10 @@ public:
 	void add_remember(std::string text, int flag);
 	std::string get_remember(unsigned int num, int flag) const;
 
+	void write_mod(std::string &arg);
+	void print_mod(CHAR_DATA *ch);
+	void load_mod();
+
 	friend ACMD(DoHouse);
 	friend ACMD(DoClanChannel);
 	friend ACMD(DoClanList);
@@ -247,6 +252,7 @@ private:
 	int chest_objcount;
 	int chest_discount;
 	int chest_weight;
+	std::string mod_text; // сообщение дружины
 
 	Remember::RememberListType remember_; // вспомнить клан
 	Remember::RememberListType remember_ally_; // вспомнить союз
