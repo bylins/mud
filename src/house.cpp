@@ -47,10 +47,6 @@ extern const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode,
 extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 
-// vnum кланового сундука
-static const int CLAN_CHEST_VNUM = 330;
-static int CLAN_CHEST_RNUM = -1;
-
 long long clan_level_exp [MAX_CLANLEVEL+1] =
 {
 	0LL,
@@ -64,6 +60,10 @@ long long clan_level_exp [MAX_CLANLEVEL+1] =
 namespace
 {
 
+// vnum кланового сундука
+const int CLAN_CHEST_VNUM = 330;
+int CLAN_CHEST_RNUM = -1;
+// макс. длина сообщения дружины
 const int MAX_MOD_LENGTH = 3 * 80;
 
 } // namespace
@@ -556,6 +556,8 @@ void Clan::ClanLoad()
 		tempClan->last_exp.load(tempClan->get_abbrev());
 		// message of the day
 		tempClan->load_mod();
+		// клан пк
+		tempClan->pk_log.load(tempClan->get_file_abbrev());
 
 		Clan::ClanList.push_back(tempClan);
 	}
@@ -864,6 +866,10 @@ ACMD(DoHouse)
 		STATE(ch->desc) = CON_WRITE_MOD;
 		string_write(ch->desc, text, MAX_MOD_LENGTH, 0, NULL);
 	}
+	else if (CompareParam(buffer2, "пк"))
+	{
+		CLAN(ch)->pk_log.print(ch);
+	}
 	else
 	{
 		// обработка списка доступных команд по званию персонажа
@@ -883,7 +889,10 @@ ACMD(DoHouse)
 		else
 			buffer += " <имя|все>\r\n";
 		if (!CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_POLITICS])
+		{
 			buffer += "  политика (только просмотр)\r\n";
+		}
+		buffer += "  клан пк (список последних сражений)\r\n";
 		send_to_char(buffer, ch);
 	}
 }
@@ -1845,6 +1854,7 @@ ACMD(DoHcontrol)
 		Clan::ClanSave();
 		Clan::ChestUpdate();
 		Clan::ChestSave();
+		Clan::save_pk_log();
 	}
 	else if (CompareParam(buffer2, "title") && !buffer.empty())
 	{
@@ -2679,7 +2689,7 @@ void Clan::write_mod(std::string &arg)
 /**
 * Распечатка сообщения дружины чару при входе.
 */
-void Clan::print_mod(CHAR_DATA *ch)
+void Clan::print_mod(CHAR_DATA *ch) const
 {
 	if (!mod_text.empty())
 	{
@@ -2693,11 +2703,7 @@ void Clan::print_mod(CHAR_DATA *ch)
 */
 void Clan::load_mod()
 {
-	std::string abbrev = this->get_abbrev();
-	for (unsigned i = 0; i != abbrev.length(); ++i)
-	{
-		abbrev[i] = LOWER(AtoL(abbrev[i]));
-	}
+	std::string abbrev = this->get_file_abbrev();
 	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".mod";
 
 	std::ifstream file(filename.c_str(), std::ios::binary);
@@ -4715,4 +4721,22 @@ std::string Clan::get_remember(unsigned int num, int flag) const
 		buffer = "Вам нечего вспомнить.\r\n";
 	}
 	return buffer;
+}
+
+std::string Clan::get_file_abbrev() const
+{
+	std::string text = this->get_abbrev();
+	for (unsigned i = 0; i != text.length(); ++i)
+	{
+		text[i] = LOWER(AtoL(text[i]));
+	}
+	return text;
+}
+
+void Clan::save_pk_log()
+{
+	for (ClanListType::const_iterator i = Clan::ClanList.begin(); i != Clan::ClanList.end(); ++i)
+	{
+		(*i)->pk_log.save((*i)->get_file_abbrev());
+	}
 }

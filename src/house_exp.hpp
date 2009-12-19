@@ -6,8 +6,10 @@
 #define HOUSE_EXP_HPP_INCLUDED
 
 #include <list>
+#include <string>
 #include "conf.h"
 #include "sysdep.h"
+#include "char.hpp"
 
 void update_clan_exp();
 void save_clan_exp();
@@ -29,6 +31,26 @@ private:
 	long long total_exp_;
 	typedef std::list<long long> ExpListType;
 	ExpListType list_;
+};
+
+/**
+* Список последних пк с участием чаров из данного клана.
+*/
+class ClanPkLog
+{
+public:
+	ClanPkLog() : need_save(false) {};
+
+	void load(std::string abbrev);
+	void save(std::string abbrev);
+	void print(CHAR_DATA *ch) const;
+	static void check(CHAR_DATA *ch, CHAR_DATA *victim);
+
+private:
+	void add(const std::string &text);
+
+	bool need_save;
+	std::list<std::string> pk_log;
 };
 
 #endif // HOUSE_EXP_HPP_INCLUDED

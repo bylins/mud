@@ -2761,6 +2761,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		// в сислог иммам идут только смерти в пк (без арен), в файл пишутся все смерти чаров
 		if (!IS_NPC(victim))
 		{
+			ClanPkLog::check(ch, victim);
 			sprintf(buf2, "%s killed by %s at %s", GET_NAME(victim),
 					GET_NAME(ch), IN_ROOM(victim) != NOWHERE ? world[IN_ROOM(victim)]->name : "NOWHERE");
 			log(buf2);

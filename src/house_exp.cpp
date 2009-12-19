@@ -5,10 +5,13 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <boost/algorithm/string.hpp>
 #include "house_exp.hpp"
 #include "structs.h"
 #include "utils.h"
 #include "house.h"
+#include "comm.h"
+#include "room.hpp"
 
 namespace
 {
@@ -126,5 +129,122 @@ void save_clan_exp()
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
 	{
 		(*clan)->last_exp.save((*clan)->get_abbrev());
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// ClanPkLog
+
+namespace
+{
+
+// макс. кол-во записей в списке сражений
+const unsigned MAX_PK_LOG = 15;
+
+} // namespace
+
+
+void ClanPkLog::add(const std::string &text)
+{
+	pk_log.push_back(text);
+	if (pk_log.size() > MAX_PK_LOG)
+	{
+		pk_log.pop_front();
+	}
+	need_save = true;
+}
+
+void ClanPkLog::print(CHAR_DATA *ch) const
+{
+	std::string text;
+	for (std::list<std::string>::const_iterator i = pk_log.begin(); i != pk_log.end(); ++i)
+	{
+		text += *i;
+	}
+
+	if (!text.empty())
+	{
+		send_to_char(ch, "Последние пк-события с участием членов дружины:\r\n%s", text.c_str());
+	}
+	else
+	{
+		send_to_char("Пусто.\r\n", ch);
+	}
+}
+
+void ClanPkLog::save(std::string abbrev)
+{
+	if (!need_save)
+	{
+		return;
+	}
+	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".war";
+
+	std::ofstream file(filename.c_str());
+	if (!file.is_open())
+	{
+		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+		return;
+	}
+
+	for (std::list<std::string>::const_iterator i = pk_log.begin(); i != pk_log.end(); ++i)
+	{
+		file << *i;
+	}
+
+	file.close();
+	need_save = false;
+}
+
+void ClanPkLog::load(std::string abbrev)
+{
+	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".war";
+
+	std::ifstream file(filename.c_str(), std::ios::binary);
+	if (!file.is_open())
+	{
+		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+		return;
+	}
+
+	std::string buffer;
+	while(std::getline(file, buffer))
+	{
+		boost::trim(buffer);
+		buffer += "\r\n";
+		pk_log.push_back(buffer);
+	}
+	file.close();
+}
+
+void ClanPkLog::check(CHAR_DATA *ch, CHAR_DATA *victim)
+{
+	if (!ch || !victim || ch->purged() || victim->purged()
+		|| IS_NPC(victim) || !CLAN(victim) || ch == victim
+		|| (ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA) && !RENTABLE(victim)))
+	{
+		return;
+	}
+	CHAR_DATA *killer = ch;
+	if (IS_NPC(killer)
+		&& killer->master && !IS_NPC(killer->master))
+	{
+		killer = killer->master;
+	}
+	if (!IS_NPC(killer) && CLAN(killer) != CLAN(victim))
+	{
+		char time_buf[17];
+		time_t curr_time = time(0);
+		strftime(time_buf, sizeof(time_buf), "%d-%m-%Y", localtime(&curr_time));
+		std::stringstream out;
+		out << time_buf << ": "
+			<< GET_NAME(victim) << " убит" << GET_CH_SUF_6(victim) << " "
+			<< GET_PAD(killer, 4) << "\r\n";
+
+		CLAN(victim)->pk_log.add(out.str());
+		if (CLAN(killer))
+		{
+			CLAN(killer)->pk_log.add(out.str());
+		}
 	}
 }

@@ -1309,7 +1309,6 @@ inline void heartbeat()
 	{
 		GlobalDrop::save();
 	}
-
 	// снятие денег за шмот в клановых сундуках
 	if (!((pulse + 45) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
@@ -1353,6 +1352,12 @@ inline void heartbeat()
 	}
 
 // раз в минуту >> /////////////////////////////////////////////////////////////
+
+	// клан-пк
+	if (!((pulse + 29) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	{
+		Clan::save_pk_log();
+	}
 
 	// очистка спурженных character
 	if (!((pulse + 28) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))

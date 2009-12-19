@@ -169,6 +169,7 @@ public:
 	static void init_chest_rnum();
 	static bool is_clan_chest(OBJ_DATA *obj);
 	static void clan_invoice(CHAR_DATA *ch, bool enter);
+	static void save_pk_log();
 
 	void Manage(DESCRIPTOR_DATA * d, const char * arg);
 	void AddTopExp(CHAR_DATA * ch, int add_exp);
@@ -189,20 +190,22 @@ public:
 	{
 		return this->title;
 	};
-	std::string get_abbrev()
+	std::string get_abbrev() const
 	{
 		return abbrev;
 	};
+	std::string get_file_abbrev() const;
 	bool CheckPrivilege(int rank, int privilege)
 	{
 		return this->privileges[rank][privilege];
 	};
+	int CheckPolitics(int victim);
 
 	void add_remember(std::string text, int flag);
 	std::string get_remember(unsigned int num, int flag) const;
 
 	void write_mod(std::string &arg);
-	void print_mod(CHAR_DATA *ch);
+	void print_mod(CHAR_DATA *ch) const;
 	void load_mod();
 
 	friend ACMD(DoHouse);
@@ -217,6 +220,8 @@ public:
 
 	// набранная за последний месяц экспа
 	ClanExp last_exp;
+	// клан пк
+	ClanPkLog pk_log;
 
 private:
 	std::string abbrev; // аббревиатура клана, ОДНО слово
@@ -247,18 +252,16 @@ private:
 	bool storehouse;    // опция выборки из хранилища по параметрам шмота
 	bool exp_info;      // показывать или нет набранную экспу
 	bool test_clan;     // тестовый клан (привет рсп)
-	// вообще, если появится еще пара-тройка опций, то надо будет это в битсет засунуть
+	std::string mod_text; // сообщение дружины
+
 	//no save
 	int chest_objcount;
 	int chest_discount;
 	int chest_weight;
-	std::string mod_text; // сообщение дружины
-
 	Remember::RememberListType remember_; // вспомнить клан
 	Remember::RememberListType remember_ally_; // вспомнить союз
 
 	void ClanUpgrade();
-	int CheckPolitics(int victim);
 	void SetPolitics(int victim, int state);
 	void ManagePolitics(CHAR_DATA * ch, std::string & buffer);
 	void HouseInfo(CHAR_DATA * ch);
