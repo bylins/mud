@@ -204,7 +204,7 @@ public:
 	void add_remember(std::string text, int flag);
 	std::string get_remember(unsigned int num, int flag) const;
 
-	void write_mod(std::string &arg);
+	void write_mod(const std::string &arg);
 	void print_mod(CHAR_DATA *ch) const;
 	void load_mod();
 

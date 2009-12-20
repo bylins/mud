@@ -47,6 +47,9 @@ extern const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode,
 extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 
+namespace
+{
+
 long long clan_level_exp [MAX_CLANLEVEL+1] =
 {
 	0LL,
@@ -57,15 +60,43 @@ long long clan_level_exp [MAX_CLANLEVEL+1] =
 	1000000000000LL /* BIG NUMBER. */
 };
 
-namespace
-{
-
 // vnum кланового сундука
 const int CLAN_CHEST_VNUM = 330;
 int CLAN_CHEST_RNUM = -1;
 // макс. длина сообщения дружины
 const int MAX_MOD_LENGTH = 3 * 80;
+// макс. длина названия ранга в дружине
+const unsigned MAX_RANK_LENGHT = 10;
 
+void prepare_write_mod(CHAR_DATA *ch, std::string &param)
+{
+	boost::trim(param);
+	if (!param.empty() && (CompareParam(param, "очистить") || CompareParam(param, "удалить")))
+	{
+		std::string zero_str;
+		CLAN(ch)->write_mod(zero_str);
+		send_to_char("Сообщение удалено.\r\n", ch);
+		return;
+	}
+	char **text;
+	CREATE(text, char *, 1);
+	send_to_char("Можете писать сообщение.  (/s записать /h помощь)\r\n", ch);
+	STATE(ch->desc) = CON_WRITE_MOD;
+	string_write(ch->desc, text, MAX_MOD_LENGTH, 0, NULL);
+}
+
+/**
+* Обрезание названий рангов дружины до MAX_RANK_LENGHT символов
+* и перевод всего слова в нижний регистр.
+*/
+void check_rank(std::string &rank)
+{
+	if (rank.size() > MAX_RANK_LENGHT)
+	{
+		rank = rank.substr(0, MAX_RANK_LENGHT);
+	}
+	lower_convert(rank);
+}
 } // namespace
 
 inline bool Clan::SortRank::operator()(const CHAR_DATA * ch1, const CHAR_DATA * ch2)
@@ -112,26 +143,6 @@ Clan::~Clan()
 {
 
 }
-
-namespace
-{
-
-const unsigned MAX_RANK_LENGHT = 10;
-
-/**
-* Обрезание названий рангов дружины до MAX_RANK_LENGHT символов
-* и перевод всего слова в нижний регистр.
-*/
-void check_rank(std::string &rank)
-{
-	if (rank.size() > MAX_RANK_LENGHT)
-	{
-		rank = rank.substr(0, MAX_RANK_LENGHT);
-	}
-	lower_convert(rank);
-}
-
-} // namespace
 
 // лоад/релоад индекса и файлов кланов
 void Clan::ClanLoad()
@@ -860,11 +871,7 @@ ACMD(DoHouse)
 		CLAN(ch)->TaxManage(ch, buffer);
 	else if (CompareParam(buffer2, "сообщение")  && CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_MOD])
 	{
-		char **text;
-		CREATE(text, char *, 1);
-		send_to_char("Можете писать сообщение.  (/s записать /h помощь)\r\n", ch);
-		STATE(ch->desc) = CON_WRITE_MOD;
-		string_write(ch->desc, text, MAX_MOD_LENGTH, 0, NULL);
+		prepare_write_mod(ch, buffer);
 	}
 	else if (CompareParam(buffer2, "пк"))
 	{
@@ -2665,7 +2672,7 @@ void Clan::TaxManage(CHAR_DATA * ch, std::string & arg)
 /**
 * Запись сообщения дружины в файл и поле клана.
 */
-void Clan::write_mod(std::string &arg)
+void Clan::write_mod(const std::string &arg)
 {
 	std::string abbrev = this->get_abbrev();
 	for (unsigned i = 0; i != abbrev.length(); ++i)
