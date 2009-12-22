@@ -82,7 +82,7 @@ void Crash_report_rent(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj,
 void update_obj_file(void);
 int Crash_write_rentcode(CHAR_DATA * ch, FILE * fl, struct save_rent_info *rent);
 int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int mode);
-void Crash_save(int iplayer, OBJ_DATA * obj, int location, int savetype);
+void Crash_save(std::stringstream &write_buffer, int iplayer, OBJ_DATA * obj, int location, int savetype);
 void Crash_rent_deadline(CHAR_DATA * ch, CHAR_DATA * recep, long cost);
 void Crash_restore_weight(OBJ_DATA * obj);
 void Crash_extract_objs(OBJ_DATA * obj);
@@ -2118,14 +2118,7 @@ int Crash_calc_charmee_items(CHAR_DATA *ch)
 	return num;
 }
 
-namespace
-{
-
-std::stringstream write_buffer;
-
-} // namespace
-
-void Crash_save(int iplayer, OBJ_DATA * obj, int location, int savetype)
+void Crash_save(std::stringstream &write_buffer, int iplayer, OBJ_DATA * obj, int location, int savetype)
 {
 	for (; obj; obj = obj->next_content)
 	{
@@ -2133,7 +2126,7 @@ void Crash_save(int iplayer, OBJ_DATA * obj, int location, int savetype)
 		{
 			GET_OBJ_WEIGHT(obj->in_obj) -= GET_OBJ_WEIGHT(obj);
 		}
-		Crash_save(iplayer, obj->contains, MIN(0, location) - 1, savetype);
+		Crash_save(write_buffer, iplayer, obj->contains, MIN(0, location) - 1, savetype);
 		if (iplayer >= 0)
 		{
 			write_one_object(write_buffer, obj, location);
@@ -2151,9 +2144,9 @@ void Crash_save(int iplayer, OBJ_DATA * obj, int location, int savetype)
 	}
 }
 
-void crash_save_and_restore_weight(int iplayer, OBJ_DATA * obj, int location, int savetype)
+void crash_save_and_restore_weight(std::stringstream &write_buffer, int iplayer, OBJ_DATA * obj, int location, int savetype)
 {
-	Crash_save(iplayer, obj, location, savetype);
+	Crash_save(write_buffer, iplayer, obj, location, savetype);
 	Crash_restore_weight(obj);
 }
 
@@ -2228,18 +2221,18 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 	Crash_create_timer(iplayer, num);
 	SAVEINFO(iplayer)->rent = rent;
 
-	write_buffer.clear();
+	std::stringstream write_buffer;
 	write_buffer << "@ Items file\n";
 
 	for (j = 0; j < NUM_WEARS; j++)
 	{
 		if (GET_EQ(ch, j))
 		{
-			crash_save_and_restore_weight(iplayer, GET_EQ(ch, j), j + 1, savetype);
+			crash_save_and_restore_weight(write_buffer, iplayer, GET_EQ(ch, j), j + 1, savetype);
 		}
 	}
 
-	crash_save_and_restore_weight(iplayer, ch->carrying, 0, savetype);
+	crash_save_and_restore_weight(write_buffer, iplayer, ch->carrying, 0, savetype);
 
 	if (ch->followers && savetype == RENT_CRASH)
 	{
@@ -2249,8 +2242,8 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 				continue;
 			for (j = 0; j < NUM_WEARS; j++)
 				if (GET_EQ(k->follower, j))
-					crash_save_and_restore_weight(iplayer, GET_EQ(k->follower, j), 0, savetype);
-			crash_save_and_restore_weight(iplayer, k->follower->carrying, 0, savetype);
+					crash_save_and_restore_weight(write_buffer, iplayer, GET_EQ(k->follower, j), 0, savetype);
+			crash_save_and_restore_weight(write_buffer, iplayer, k->follower->carrying, 0, savetype);
 		}
 	}
 
