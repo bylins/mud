@@ -698,14 +698,17 @@ void Clan::ClanSave()
 	index.close();
 }
 
-// проставляем персонажу нужные поля если он клановый
-// отсюда и далее для проверки на клановость пользуем CLAN()
+/**
+* проставляем персонажу нужные поля если он клановый
+* отсюда и далее для проверки на клановость пользуем CLAN()
+* может быть вызвана с пустым дескриптором персонажа (stat file)
+*/
 void Clan::SetClanData(CHAR_DATA * ch)
 {
 	CLAN(ch).reset();
 	CLAN_MEMBER(ch).reset();
 	// если правит свою дружину в олц, то радостно его выкидываем
-	if (STATE(ch->desc) == CON_CLANEDIT)
+	if (ch->desc && STATE(ch->desc) == CON_CLANEDIT)
 	{
 		ch->desc->clan_olc.reset();
 		STATE(ch->desc) = CON_PLAYING;
@@ -739,7 +742,10 @@ void Clan::SetClanData(CHAR_DATA * ch)
 	GET_CLAN_STATUS(ch) = str_dup(buffer.c_str());
 
 	// чтобы при выходе не смог приписаться опять за один ребут мада
-	ch->desc->clan_invite.reset();
+	if (ch->desc)
+	{
+		ch->desc->clan_invite.reset();
+	}
 }
 
 // проверка комнаты на принадлежность какому-либо замку

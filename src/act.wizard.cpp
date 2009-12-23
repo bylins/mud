@@ -1618,8 +1618,12 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 
 	if (!IS_NPC(k))
 	{
+		// если грузили из файла
+		Clan::SetClanData(k);
 		if (CLAN(k))
+		{
 			send_to_char(ch, "Статус дружины: %s\r\n", GET_CLAN_STATUS(k));
+		}
 
 		strftime(buf1, sizeof(buf1), "%d-%m-%Y", localtime(&(k->player_data.time.birth)));
 		strftime(buf2, sizeof(buf1), "%d-%m-%Y", localtime(&(k->player_data.time.logon)));
@@ -3709,14 +3713,16 @@ ACMD(do_show)
 		send_to_char("----------------------------\r\n", ch);
 		for (d = descriptor_list; d; d = d->next)
 		{
-			if (d->snooping == NULL || d->character == NULL)
-				continue;
-			if (STATE(d) != CON_PLAYING || (GET_LEVEL(ch) < GET_LEVEL(d->character) && !Privilege::check_flag(ch, Privilege::KRODER)))
-				continue;
-			if (!CAN_SEE(ch, d->character) || IN_ROOM(d->character) == NOWHERE)
-				continue;
-			sprintf(buf + strlen(buf), "%-10s - подслушивается %s.\r\n",
+			if (d->snooping
+				&& d->character
+				&& STATE(d) == CON_PLAYING
+				&& IN_ROOM(d->character) != NOWHERE
+				&& ((CAN_SEE(ch, d->character) && GET_LEVEL(ch) >= GET_LEVEL(d->character))
+					|| PRF_FLAGGED(ch, PRF_CODERINFO)))
+			{
+				sprintf(buf + strlen(buf), "%-10s - подслушивается %s.\r\n",
 					GET_NAME(d->snooping->character), GET_PAD(d->character, 4));
+			}
 		}
 		send_to_char(*buf ? buf : "Никто не подслушивается.\r\n", ch);
 		break;		/* snoop */
