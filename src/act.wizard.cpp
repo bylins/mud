@@ -1618,8 +1618,6 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 
 	if (!IS_NPC(k))
 	{
-		// если грузили из файла
-		Clan::SetClanData(k);
 		if (CLAN(k))
 		{
 			send_to_char(ch, "Статус дружины: %s\r\n", GET_CLAN_STATUS(k));
@@ -1995,7 +1993,10 @@ ACMD(do_stat)
 				if (GET_LEVEL(victim) > GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
 					send_to_char("Извините, Вам это еще рано.\r\n", ch);
 				else
+				{
+					Clan::SetClanData(victim);
 					do_stat_character(ch, victim);
+				}
 			}
 			else
 				send_to_char("Такого игрока нет ВООБЩЕ.\r\n", ch);
