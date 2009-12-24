@@ -180,6 +180,7 @@ struct alias_data
 #define SCMD_ANTIDC_MODE   44
 #define SCMD_NOINGR_MODE   45
 #define SCMD_REMEMBER      46
+#define SCMD_NOTIFY_EXCH   47
 
 /* do_wizutil */
 #define SCMD_REROLL     0

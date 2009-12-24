@@ -536,7 +536,7 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		/* Не имеет смысла разделять на разные аффекты
 		если описание будет одно и время работы одно*/
 		update_spell = FALSE;
-		to_room = "$n испортил воздух и плюнул в суп.";
+		to_room = "$n испортил$g воздух и плюнул$g в суп.";
 		break;
 
 	case SPELL_THUNDERSTORM:
@@ -561,7 +561,7 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		update_spell = FALSE; //ибо нефик
 		only_one = TRUE;
 		to_char = "Вы начертали свое имя рунами на земле и произнесли заклинание.";
-		to_room = "$n начертил на земле несколько рун и произнес заклинание.";
+		to_room = "$n начертил$g на земле несколько рун и произнес$q заклинание.";
 		lag = 2; //Чет много тут всяких циклов-искалок. Повесим-ка лаг на чара. И вобще может пригодиться.
 		break;
 	}

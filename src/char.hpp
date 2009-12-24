@@ -239,6 +239,8 @@ struct player_special_data_saved
 	long Exp_dt_this; //потеряно экспы  дт на этом морте
 	long Exp_other_this; //потеряно экспы  рипы от триггеров и прочее на этом морте
 	/*конец правки (с) Василиса */
+	//Polud храним цену, начиная с которой нужно присылать оффлайн-уведомления с базара
+	long ntfyExchangePrice;
 };
 
 struct player_special_data

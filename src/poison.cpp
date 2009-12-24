@@ -256,7 +256,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 			af.type = SPELL_POISON;
 			af.duration = 30;
 			af.location = APPLY_SAVING_REFLEX;
-			af.modifier = -GET_LEVEL(ch)/6;
+			af.modifier = GET_LEVEL(ch)/6; //Polud с плюсом, поскольку здесь чем больше - тем хуже
 			af.bitvector = AFF_POISON;
 			af.battleflag = AF_SAME_TIME;
 			affect_join(vict, &af, false, false, false, false);

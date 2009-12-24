@@ -501,6 +501,8 @@ extern SPECIAL(postmaster);
 
 #define STRING_LENGTH(ch)  ((ch)->player_specials->saved.stringLength)
 #define STRING_WIDTH(ch)  ((ch)->player_specials->saved.stringWidth)
+//Polud
+#define NOTIFY_EXCH_PRICE(ch)  ((ch)->player_specials->saved.ntfyExchangePrice)
 
 /*
  * I wonder if this definition of GET_REAL_LEVEL should be the definition

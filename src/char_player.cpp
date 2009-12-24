@@ -589,6 +589,7 @@ void Player::save_char()
 	fprintf(saved, "NaID: %ld\n", NAME_ID_GOD(this));
 	fprintf(saved, "StrL: %d\n", STRING_LENGTH(this));
 	fprintf(saved, "StrW: %d\n", STRING_WIDTH(this));
+	fprintf(saved, "NtfE: %ld\n", NOTIFY_EXCH_PRICE(this)); //Polud мин. цена для оффлайн-оповещений
 
 	if (this->remember_get_num() != Remember::DEF_REMEMBER_NUM)
 	{
@@ -949,6 +950,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	EXCHANGE_FILTER(this) = NULL;
 	IGNORE_LIST(this) = NULL;
 	CREATE(GET_LOGS(this), int, NLOG);
+	NOTIFY_EXCH_PRICE(this) = 0; 
 
 	GET_BOARD(this) = new(struct board_data);
 	// здесь можно указать дату, с которой пойдет отсчет новых сообщений,
@@ -1252,6 +1254,8 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				NAME_GOD(this) = num;
 			else if (!strcmp(tag, "NaID"))
 				NAME_ID_GOD(this) = lnum;
+			else if (!strcmp(tag, "NtfE"))//Polud мин. цена для оффлайн-оповещений
+				NOTIFY_EXCH_PRICE(this) = lnum;
 			break;
 
 		case 'O':

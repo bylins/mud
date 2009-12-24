@@ -56,8 +56,6 @@ int cmd_say, cmd_tell, cmd_emote, cmd_slap, cmd_puke;
 int read_type_list(FILE * shop_f, struct shop_buy_data *list, int new_format, int max);
 int read_list(FILE * shop_f, struct shop_buy_data *list, int new_format, int max, int type);
 void shopping_list(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr);
-void shopping_value(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr);
-void shopping_sell(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr);
 OBJ_DATA *get_selling_obj(CHAR_DATA * ch, char *name, CHAR_DATA * keeper, int shop_nr, int msg);
 OBJ_DATA *slide_obj(OBJ_DATA * obj, CHAR_DATA * keeper, int shop_nr);
 void shopping_buy(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr);
@@ -968,7 +966,6 @@ void sort_keeper_objs(CHAR_DATA * keeper, int shop_nr)
 			(void) slide_obj(temp, keeper, shop_nr);
 	}
 }
-
 void shopping_sell_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 {
 	char buf[MAX_STRING_LENGTH];
@@ -1011,88 +1008,10 @@ void shopping_sell_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int 
 	act(buf, FALSE, ch, obj, 0, TO_ROOM);
 
 	/*  sprintf(buf, shop_index[shop_nr].message_sell, GET_NAME(ch), goldamt); */
-	write_buf(buf, shop_index[shop_nr].message_sell, GET_NAME(ch), goldamt, WHAT_MONEYu);
+	write_buf(buf, shop_index[shop_nr].message_sell, GET_NAME(ch), goldamt, WHAT_MONEYa);
 	do_tell(keeper, buf, cmd_tell, 0);
 
 	sprintf(buf, "Теперь у %s есть %s.\r\n", keeper->player_data.PNames[1], times_message(obj, 0, sold, 0));
-	send_to_char(buf, ch);
-
-	if (get_gold(keeper) < MIN_OUTSIDE_BANK)
-	{
-		goldamt = MIN(MAX_OUTSIDE_BANK - get_gold(keeper), SHOP_BANK(shop_nr));
-		SHOP_BANK(shop_nr) -= goldamt;
-		add_gold(keeper, goldamt);
-	}
-}
-
-
-
-void shopping_sell(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
-{
-	char buf[MAX_STRING_LENGTH], name[MAX_INPUT_LENGTH];
-	OBJ_DATA *obj;
-	int sellnum, sold = 0, goldamt = 0;
-
-	if (!(is_ok(keeper, ch, shop_nr)))
-		return;
-
-	if ((sellnum = transaction_amt(arg)) < 0)
-	{
-		sprintf(buf, "%s! Этой вещи у тебя быть не может.", GET_NAME(ch));
-		do_tell(keeper, buf, cmd_tell, 0);
-		return;
-	}
-
-	if (!(*arg) || !(sellnum))
-	{
-		sprintf(buf, "%s! ЧТО ты хочешь мне втюрить ?", GET_NAME(ch));
-		do_tell(keeper, buf, cmd_tell, 0);
-		return;
-	}
-	one_argument(arg, name);
-	if (!(obj = get_selling_obj(ch, name, keeper, shop_nr, TRUE)))
-		return;
-
-	if (get_gold(keeper) + SHOP_BANK(shop_nr) < sell_price(obj, ch, shop_nr))
-	{
-		sprintf(buf, shop_index[shop_nr].missing_cash1, GET_NAME(ch));
-		do_tell(keeper, buf, cmd_tell, 0);
-		return;
-	}
-	while ((obj) && (get_gold(keeper) + SHOP_BANK(shop_nr) >= sell_price(obj, ch, shop_nr)) && (sold < sellnum))
-	{
-		sold++;
-
-		goldamt += sell_price(obj, ch, shop_nr);
-		add_gold(keeper, -(sell_price(obj, ch, shop_nr)));
-
-		obj_from_char(obj);
-		slide_obj(obj, keeper, shop_nr);	/* Seems we don't use return value. */
-		obj = get_selling_obj(ch, name, keeper, shop_nr, FALSE);
-	}
-
-	if (sold < sellnum)
-	{
-		if (!obj)
-			sprintf(buf, "%s! У Вас их ведь только %d.", GET_NAME(ch), sold);
-		else if (get_gold(keeper) + SHOP_BANK(shop_nr) < sell_price(obj, ch, shop_nr))
-			sprintf(buf, "%s! Я смогу оплатить только %d %s.",
-					GET_NAME(ch), sold, desc_count(sold, WHAT_THINGu));
-		else
-			sprintf(buf, "%s! Но я могу купить только %d %s.",
-					GET_NAME(ch), sold, desc_count(sold, WHAT_THINGu));
-
-		do_tell(keeper, buf, cmd_tell, 0);
-	}
-	add_gold(ch, goldamt);
-	sprintf(buf, "$n продал$g %s.", times_message(0, name, sold, 3));
-	act(buf, FALSE, ch, obj, 0, TO_ROOM);
-
-	/*  sprintf(buf, shop_index[shop_nr].message_sell, GET_NAME(ch), goldamt); */
-	write_buf(buf, shop_index[shop_nr].message_sell, GET_NAME(ch), goldamt, WHAT_MONEYu);
-	do_tell(keeper, buf, cmd_tell, 0);
-
-	sprintf(buf, "Теперь у %s есть %s.\r\n", keeper->player_data.PNames[1], times_message(0, name, sold, 0));
 	send_to_char(buf, ch);
 
 	if (get_gold(keeper) < MIN_OUTSIDE_BANK)
@@ -1420,40 +1339,6 @@ void shopping_value_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int
 
 	int price = sell_price(obj, ch, shop_nr);
 	sprintf(buf, "%s! Я, пожалуй, дам тебе за %s %d %s !",
-			GET_NAME(ch), OBJN(obj, ch, 3), price, desc_count(price, WHAT_MONEYu));
-	do_tell(keeper, buf, cmd_tell, 0);
-
-	return;
-}
-
-void shopping_value(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
-{
-	char buf[MAX_STRING_LENGTH];
-	OBJ_DATA *obj;
-	char name[MAX_INPUT_LENGTH];
-
-	if (!(is_ok(keeper, ch, shop_nr)))
-		return;
-
-	if (!(*arg))
-	{
-		sprintf(buf, "%s! Что я Вам должен оценить ?", GET_NAME(ch));
-		do_tell(keeper, buf, cmd_tell, 0);
-		return;
-	}
-	one_argument(arg, name);
-	if (!(obj = get_selling_obj(ch, name, keeper, shop_nr, TRUE)))
-		return;
-
-	if (GET_OBJ_MAX(obj) > GET_OBJ_CUR(obj) * 2)
-	{
-		sprintf(buf, "%s! Я не куплю %s в таком ужасном состоянии.", GET_NAME(ch), obj->PNames[3]);
-		do_tell(keeper, buf, cmd_tell, 0);
-		return;
-	}
-
-	int price = sell_price(obj, ch, shop_nr);
-	sprintf(buf, "%s! Я пожалуй дам тебе за %s %d %s !",
 			GET_NAME(ch), OBJN(obj, ch, 3), price, desc_count(price, WHAT_MONEYu));
 	do_tell(keeper, buf, cmd_tell, 0);
 

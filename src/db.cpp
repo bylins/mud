@@ -5577,6 +5577,7 @@ void init_char(CHAR_DATA * ch)
 	REMOVE_BIT(PRF_FLAGS(ch, PRF_SUMMONABLE), PRF_SUMMONABLE);
 	STRING_LENGTH(ch) = 80;
 	STRING_WIDTH(ch) = 25;
+	NOTIFY_EXCH_PRICE(ch) = 0; 
 
 	GET_BOARD(ch) = new(struct board_data);
 	// новому игроку вываливать все новости/мессаги на доске как непроченные не имеет смысла

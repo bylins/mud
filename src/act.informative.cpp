@@ -5018,7 +5018,7 @@ ACMD(do_toggle)
 			" Новости (вид) : %-5s   "   " Доски         : %-3s     " " Хранилище     : %-10s\r\n"
 			" Пклист        : %-3s     " " Политика      : %-3s     " " Пкформат      : %-10s\r\n"
 			" Соклановцы    : %-3s     " " Оффтоп        : %-3s     " " Потеря связи  : %-3s \r\n"
-			" Ингредиенты   : %-3s     " " Вспомнить     : %-3d\r\n",
+			" Ингредиенты   : %-3s     " " Вспомнить     : %-3d     ",
 			ONOFF(PRF_FLAGGED(ch, PRF_DISPHP)),
 			ONOFF(!PRF_FLAGGED(ch, PRF_NOTELL)),
 			ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)), ONOFF(PRF_FLAGGED(ch, PRF_DISPMOVE)),
@@ -5063,8 +5063,13 @@ ACMD(do_toggle)
 			ONOFF(PRF_FLAGGED(ch, PRF_ANTIDC_MODE)),
 			ONOFF(PRF_FLAGGED(ch, PRF_NOINGR_MODE)),
 			ch->remember_get_num());
-
 	send_to_char(buf, ch);
+	if (NOTIFY_EXCH_PRICE(ch)>0)
+			sprintf(buf,  " Уведомления   : %-3ld \r\n", NOTIFY_EXCH_PRICE(ch));
+	else
+			sprintf(buf,  " Уведомления   : %-3s \r\n", "Нет");
+	send_to_char(buf, ch);
+
 }
 
 

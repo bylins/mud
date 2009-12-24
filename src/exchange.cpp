@@ -27,7 +27,9 @@
 #include "char_player.hpp"
 #include "modify.h"
 #include "room.hpp"
+#include "mail.h"
 #include "objsave.h"
+
 
 //Используемые внешние ф-ии.
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
@@ -69,6 +71,9 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch);
 int parse_exch_filter(char *buf, char *filter_name, char *filter_owner, int *filter_type,
 					  int *filter_cost, int *filter_timer, int *filter_wereon, int *filter_weaponclass);
 void clear_exchange_lot(EXCHANGE_ITEM_DATA * lot);
+
+//Polud
+ACMD(do_exchange);
 
 int newbase;
 
@@ -659,6 +664,16 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 
 		add_bank_gold(seller, GET_EXCHANGE_ITEM_COST(item));
 		add_bank_gold(ch, -(GET_EXCHANGE_ITEM_COST(item)));
+//Polud напишем письмецо чару, раз уж его нету онлайн
+		if (NOTIFY_EXCH_PRICE(seller) && GET_EXCHANGE_ITEM_COST(item) >= NOTIFY_EXCH_PRICE(seller))
+		{
+			sprintf(tmpbuf,
+				"Базар : лот %d(%s) продан%s. %d %s переведено на Ваш счет.\r\n", lot,
+				GET_EXCHANGE_ITEM(item)->PNames[0], GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
+				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYa));
+			store_mail(GET_EXCHANGE_ITEM_SELLERID(item), -1, tmpbuf);
+		}
+//-Polud
 		seller->save_char();
 		delete seller;
 		act("Вы купили $O3 на базаре.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
@@ -1983,3 +1998,23 @@ void clear_exchange_lot(EXCHANGE_ITEM_DATA * lot)
 	free(lot);
 }
 
+//Polud дублируем кучку кода, чтобы можно было часть команд базара выполнять в любой комнате
+ACMD(do_exchange)
+{
+		char* arg = str_dup(argument);
+		argument = one_argument(argument, arg1);
+
+		if (is_abbrev(arg1, "выставить") || is_abbrev(arg1, "exhibit")
+		|| is_abbrev(arg1, "цена") || is_abbrev(arg1, "cost")
+		|| is_abbrev(arg1, "снять") || is_abbrev(arg1, "withdraw")
+		|| is_abbrev(arg1, "купить") || is_abbrev(arg1, "purchase")
+		|| (is_abbrev(arg1, "save") && (GET_LEVEL(ch) >= LVL_IMPL))
+		|| (is_abbrev(arg1, "savebackup") && (GET_LEVEL(ch) >= LVL_IMPL))
+		|| (is_abbrev(arg1, "reload") && (GET_LEVEL(ch) >= LVL_IMPL))
+		|| (is_abbrev(arg1, "reloadbackup") && (GET_LEVEL(ch) >= LVL_IMPL)))
+		{
+			send_to_char("Вам необходимо находиться возле базарного торговца, чтобы воспользоваться этой командой.", ch);
+		} else
+			exchange(ch,NULL,cmd,arg);
+		free(arg);
+}

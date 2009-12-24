@@ -1562,7 +1562,7 @@ ACMD(do_use)
 		case SCMD_QUAFF:
 			if (!(mag_item = get_obj_in_list_vis(ch, arg, ch->carrying)))
 			{
-				sprintf(buf2, "Акститесь, нет у Вас %s.\r\n", arg);
+				sprintf(buf2, "Окститесь, нет у Вас %s.\r\n", arg);
 				send_to_char(buf2, ch);
 				return;
 			};
@@ -1936,6 +1936,7 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "потеря связи", "disconnect",
 							   "ингредиенты", "ingredient",
 							   "вспомнить", "remember",
+							   "уведомления", "notify",
 							   "\n"
 							 };
 
@@ -1993,7 +1994,8 @@ struct gen_tog_param_type
 		0, SCMD_OFFTOP_MODE}, {
 		0, SCMD_ANTIDC_MODE}, {
 		0, SCMD_NOINGR_MODE}, {
-		0, SCMD_REMEMBER}
+		0, SCMD_REMEMBER}, {
+		0, SCMD_NOTIFY_EXCH}
 };
 
 ACMD(do_mode)
@@ -2110,6 +2112,36 @@ void set_autoloot_mode(CHAR_DATA *ch, char *argument)
 	}
 }
 
+//Polud установка оффлайн-уведомлений базара
+void setNotifyEchange(CHAR_DATA* ch, char *argument)
+{
+	skip_spaces(&argument);
+	if (!*argument)
+	{
+		send_to_char(ch, "Формат команды: режим уведомления <минимальная цена, число от 0 до %ld>.\r\n", 0x7fffffff);
+		return;
+	}
+	long size = atol(argument);
+	if (size>=100)
+	{
+		send_to_char(ch, "Вам будут приходить уведомления о продаже с базара Ваших лотов стоимостью не менее чем %ld %s.\r\n", 
+			size, desc_count(size, WHAT_MONEYa));
+		NOTIFY_EXCH_PRICE(ch) = size;
+		ch->save_char();
+	}
+	else if (size>=0 && size<100)
+	{
+		send_to_char(ch, "Вам не будут приходить уведомления о продаже с базара Ваших лотов, так как указана цена меньше 100 кун.\r\n");
+		NOTIFY_EXCH_PRICE(ch) = 0;
+		ch->save_char();
+	}
+	else
+	{
+		send_to_char(ch, "Укажите стоимость лота от 0 до %ld\r\n", 0x7fffffff);
+	}
+
+}
+//-Polud
 ACMD(do_gen_tog)
 {
 	long result = 0;
@@ -2203,7 +2235,9 @@ ACMD(do_gen_tog)
 		 "Защита от потери связи во время боя включена.\r\n"},
 		{"Показ покупок и продаж ингредиентов в режиме базара отключен.\r\n",
 		 "Показ покупок и продаж ингредиентов в режиме базара включен.\r\n"},
-		{"", ""} // SCMD_REMEMBER
+		{"", ""}, 		// SCMD_REMEMBER
+		{"", ""},		//SCMD_NOTIFY_EXCH
+		 
 	};
 
 
@@ -2377,7 +2411,11 @@ ACMD(do_gen_tog)
 		}
 		return;
 	}
-
+	case SCMD_NOTIFY_EXCH:
+	{
+		setNotifyEchange(ch, argument);
+		return;
+	}
 	default:
 		log("SYSERR: Unknown subcmd %d in do_gen_toggle.", subcmd);
 		return;
