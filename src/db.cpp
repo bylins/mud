@@ -3028,6 +3028,7 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 				}
 				if (load)
 				{
+					GET_OBJ_ZONE(tobj) = world[IN_ROOM(ch)]->zone;
 					GET_OBJ_PARENT(tobj) = GET_MOB_VNUM(ch);
 					trans_obj_name(tobj, ch);
 					// Добавлена проверка на отсутствие трупа
@@ -5577,7 +5578,7 @@ void init_char(CHAR_DATA * ch)
 	REMOVE_BIT(PRF_FLAGS(ch, PRF_SUMMONABLE), PRF_SUMMONABLE);
 	STRING_LENGTH(ch) = 80;
 	STRING_WIDTH(ch) = 25;
-	NOTIFY_EXCH_PRICE(ch) = 0; 
+	NOTIFY_EXCH_PRICE(ch) = 0;
 
 	GET_BOARD(ch) = new(struct board_data);
 	// новому игроку вываливать все новости/мессаги на доске как непроченные не имеет смысла
