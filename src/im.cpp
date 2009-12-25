@@ -1511,7 +1511,7 @@ ACMD(do_cook)
 		int min_osk = osk/2;
 		if (itype < min_osk)
 		{
-			send_to_char("С ингредиентами такого качества вам лучше даже не пытаться...\r\n", ch);
+			send_to_char(ch, "Качество %s ниже минимально допустимого.\r\n", GET_OBJ_PNAME(objs[i], 1));
 			sprintf(name, "Качество ингров ниже допустимого: itype=%d, min_osk=%d", itype, min_osk);
 			imlog(NRM, name);
 			free(objs);
