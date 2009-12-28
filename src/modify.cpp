@@ -907,29 +907,37 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			// писали клановое сообщение дня
 			if (terminator == 1 && *d->str)
 			{
-				// за время редактирования могли лишиться привилегии/клана
-				if (d->character
-					&& CLAN(d->character)
-					&& CLAN(d->character)->CheckPrivilege(CLAN_MEMBER(d->character)->rank_num, MAY_CLAN_MOD))
+				std::string body = *(d->str);
+				boost::trim(body);
+				if (body.empty())
 				{
-					std::string head =
-							boost::str(boost::format("Сообщение дружины (автор %1%):\r\n")
-									% GET_NAME(d->character));
-
-					std::string body = *(d->str);
-					// отступ (копи-паст из CON_WRITEBOARD выше)
-					StringReplace(body, '\n', "\n  ");
-					boost::trim(body);
-					body.insert(0, "  ");
-					body += '\n';
-					head += body;
-
-					CLAN(d->character)->write_mod(head);
-					SEND_TO_Q("Сообщение добавлено.\r\n", d);
+					CLAN(d->character)->write_mod(body);
+					send_to_char("Сообщение удалено.\r\n", d->character);
 				}
 				else
 				{
-					SEND_TO_Q("Ошибочка вышла...\r\n", d);
+					// за время редактирования могли лишиться привилегии/клана
+					if (d->character
+						&& CLAN(d->character)
+						&& CLAN(d->character)->CheckPrivilege(CLAN_MEMBER(d->character)->rank_num, MAY_CLAN_MOD))
+					{
+						std::string head =
+								boost::str(boost::format("Сообщение дружины (автор %1%):\r\n")
+										% GET_NAME(d->character));
+						// отступ (копи-паст из CON_WRITEBOARD выше)
+						StringReplace(body, '\n', "\n  ");
+						boost::trim(body);
+						body.insert(0, "  ");
+						body += '\n';
+						head += body;
+
+						CLAN(d->character)->write_mod(head);
+						SEND_TO_Q("Сообщение добавлено.\r\n", d);
+					}
+					else
+					{
+						SEND_TO_Q("Ошибочка вышла...\r\n", d);
+					}
 				}
 			}
 			else
