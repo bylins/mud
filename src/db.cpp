@@ -6062,15 +6062,17 @@ void entrycount(char *name)
 			// 2) Remove all other files
 			get_filename(name, filename, ALIAS_FILE);
 			remove(filename);
-
 			get_filename(name, filename, SCRIPT_VARS_FILE);
 			remove(filename);
-			// хранилища
 			get_filename(name, filename, PERS_DEPOT_FILE);
 			remove(filename);
 			get_filename(name, filename, SHARE_DEPOT_FILE);
 			remove(filename);
 			get_filename(name, filename, PURGE_DEPOT_FILE);
+			remove(filename);
+			get_filename(name, filename, TEXT_CRASH_FILE);
+			remove(filename);
+			get_filename(name, filename, TIME_CRASH_FILE);
 			remove(filename);
 		}
 	}
