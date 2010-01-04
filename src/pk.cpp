@@ -42,9 +42,9 @@ extern CHAR_DATA *character_list;
 #define REVENGE_UNRENTABLE 10
 #define CLAN_REVENGE       10
 #define THIEF_UNRENTABLE   30
-#define PENTAGRAM_TIME     3
 #define BATTLE_DURATION    3
 #define SPAM_PK_TIME       30
+#define PENTAGRAM_TIME     5
 
 // Временные константы в секундах реального времени
 #define TIME_PK_GROUP      5
@@ -401,10 +401,6 @@ void pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 		// БД только между непосредственными участниками
 		pk_increment_gkill(agressor, victim);
 		break;
-
-	case PK_ACTION_PENTAGRAM_REVENGE:
-		remove_pent_pk(agressor, victim);
-		break;
 	}
 
 	return;
@@ -434,12 +430,6 @@ int pk_action_type_summon(CHAR_DATA * agressor, CHAR_DATA * victim)
 
 	for (pk = victim->pk_list; pk; pk = pk->next)
 	{
-		if (pk->unique == GET_UNIQUE(victim)	//pentagram flag
-				&& pk->pentagram_exp > time(NULL)
-				&& !ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL))
-		{
-			return PK_ACTION_PENTAGRAM_REVENGE;
-		}
 		if (pk->unique != GET_UNIQUE(agressor))
 			continue;
 		if (pk->battle_exp > time(NULL))
@@ -549,12 +539,6 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim)
 
 	for (pk = victim->pk_list; pk; pk = pk->next)
 	{
-		if (pk->unique == GET_UNIQUE(victim)	//pentagram flag
-				&& pk->pentagram_exp > time(NULL)
-				&& !ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL))
-		{
-			return PK_ACTION_PENTAGRAM_REVENGE;
-		}
 		if (pk->unique != GET_UNIQUE(agressor))
 			continue;
 		if (pk->battle_exp > time(NULL))
@@ -825,7 +809,6 @@ ACMD(do_forgive)
 				pk->battle_exp = 0;
 				pk->thief_exp = 0;
 				pk->clan_exp = 0;
-				pk->pentagram_exp = 0;
 				break;
 			}
 		if (bForgive) pk_update_revenge(ch, tch, 0, 0);
@@ -1042,45 +1025,10 @@ bool has_clan_members_in_group(CHAR_DATA * ch)
 	return false;
 }
 
-void set_pentagram_pk(CHAR_DATA * ch, bool isPortalEnter, int isGates)
+//Polud
+void pkPortal(CHAR_DATA* ch)
 {
-	PK_Memory_type *pk;
-
-	if (isPortalEnter == TRUE && !isGates)	//thrash has opened pentagram and entered it
-	{
-		for (pk = ch->pk_list; pk; pk = pk->next)
-		{
-			// эта жертва уже есть в списке игрока ?
-			if (pk->unique == GET_UNIQUE(ch))
-				break;
-		}
-		if (!pk)
-		{
-			CREATE(pk, struct PK_Memory_type, 1);
-			pk->unique = GET_UNIQUE(ch);
-			pk->pentagram_exp = time(0) + PENTAGRAM_TIME * 60;
-			pk->next = ch->pk_list;
-			ch->pk_list = pk;
-		}
-		pk->pentagram_exp = time(0) + PENTAGRAM_TIME * 60;
-	}
+	AGRO(ch) = MAX(AGRO(ch), time(NULL) + PENTAGRAM_TIME * 60);
+	RENTABLE(ch) = MAX(RENTABLE(ch), time(NULL) + PENTAGRAM_TIME * 60);
 }
 
-
-void remove_pent_pk(CHAR_DATA * agressor, CHAR_DATA * victim)
-{
-	PK_Memory_type *pk;
-	for (pk = victim->pk_list; pk; pk = pk->next)
-	{
-		if (pk->unique == GET_UNIQUE(victim) && pk->pentagram_exp != 0)
-			break;
-	}
-	if (!pk)
-	{
-		log("SYSERROR : pentagram revenge flag not found for %s", GET_NAME(victim));
-		return;
-	}
-	pk->pentagram_exp = 0;
-	act("$n наказал$g Вас за вход в пентаграмму!.", FALSE, agressor, 0, victim, TO_VICT);
-	act("Вы наказали $N1 за вход в пентаграмму!.", FALSE, agressor, 0, victim, TO_CHAR);
-}

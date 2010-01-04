@@ -26,7 +26,7 @@ room_data::room_data()
 	ices(0),
 	portal_room(0),
 	portal_time(0),
-	isPortalEntry(0),
+	pkPenterUnique(0),
 	holes(0),
 	ing_list(0),
 	poison(0)

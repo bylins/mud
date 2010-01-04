@@ -37,7 +37,6 @@ struct PK_Memory_type
 	long battle_exp;	// время истечения поединка
 	long thief_exp;		// время истечения флага воровства
 	long clan_exp;		// время истечения клан-флага
-	long pentagram_exp;
 	struct PK_Memory_type *next;
 };
 
@@ -45,7 +44,6 @@ struct PK_Memory_type
 #define		PK_ACTION_FIGHT     2	// действия в процессе поединка
 #define		PK_ACTION_REVENGE	4	// попытка реализовать месть
 #define		PK_ACTION_KILL		8	// нападение
-#define		PK_ACTION_PENTAGRAM_REVENGE		16	// Pent restiction override
 
 // agressor действует против victim
 // Результат - тип действий (см. выше)
@@ -81,9 +79,6 @@ void pk_free_list(CHAR_DATA * ch);
 // посчитать количество флагов мести
 int pk_count(CHAR_DATA * ch);
 
-//Добавить флаг нарушителя пентаграммы
-void set_pentagram_pk(CHAR_DATA * ch, bool isPortalEnter, int isGates);
-void remove_pent_pk(CHAR_DATA * agressor, CHAR_DATA * victim);
 //*************************************************************************
 // Информационные функции отображения статуса ПК
 
@@ -97,5 +92,7 @@ void save_pkills(CHAR_DATA * ch, FILE * saved);
 
 //*************************************************************************
 bool has_clan_members_in_group(CHAR_DATA * ch);
+//Polud
+void pkPortal(CHAR_DATA* ch);
 
 #endif

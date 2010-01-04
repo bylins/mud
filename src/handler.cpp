@@ -680,7 +680,7 @@ void affect_total(CHAR_DATA * ch)
 			for (i = 0; extra_affect && (extra_affect + i)->affect != -1; i++)
 				affect_modify(ch, APPLY_NONE, 0, (extra_affect + i)->affect,
 							  (extra_affect + i)->set_or_clear ? true : false);
-			for (i = 0; extra_modifier && (extra_modifier + i)->location != (byte) - 1; i++)
+			for (i = 0; extra_modifier && (extra_modifier + i)->location != -1; i++)
 				affect_modify(ch, (extra_modifier + i)->location,
 							  (extra_modifier + i)->modifier, 0, TRUE);
 		}

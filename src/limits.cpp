@@ -1051,6 +1051,7 @@ void room_point_update()
 			if (!world[count]->portal_time)
 			{
 				OneWayPortal::remove(world[count]);
+				world[count]->pkPenterUnique = 0;
 				act("Пентаграмма медленно растаяла.", FALSE, world[count]->people, 0, 0, TO_ROOM);
 				act("Пентаграмма медленно растаяла.", FALSE, world[count]->people, 0, 0, TO_CHAR);
 			}

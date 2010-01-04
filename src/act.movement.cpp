@@ -1430,7 +1430,12 @@ ACMD(do_enter)
 					return;
 				}
 				act("$n исчез$q в пентаграмме.", TRUE, ch, 0, 0, TO_ROOM);
-				set_pentagram_pk(ch, world[ch->in_room]->isPortalEntry, world[door]->portal_time);
+				if (world[from_room]->pkPenterUnique && world[from_room]->pkPenterUnique != GET_UNIQUE(ch) && !IS_IMMORTAL(ch)) 
+				{
+					send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n", 
+						CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
+					pkPortal(ch);
+				}
 				char_from_room(ch);
 				char_to_room(ch, door);
 				set_wait(ch, 3, FALSE);

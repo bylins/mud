@@ -85,7 +85,7 @@ struct room_data
 
 	int portal_room;
 	ubyte portal_time; 	/* Время жисти пентаграммы*/
-	bool isPortalEntry;
+	long pkPenterUnique; //Постановщик пенты по мести
 
 	int holes;		/* Дырки для камне - копателей */
 	int *ing_list;		/* загружаемые ингредиенты */

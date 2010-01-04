@@ -968,6 +968,7 @@ WCMD(do_wportal)
 	curroom = real_room(room->number);
 	world[curroom]->portal_room = target;
 	world[curroom]->portal_time = howlong;
+	world[curroom]->pkPenterUnique = 0;
 	OneWayPortal::add(world[target], world[curroom]);
 	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->people, 0, 0, TO_CHAR);
 	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->people, 0, 0, TO_ROOM);

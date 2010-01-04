@@ -365,6 +365,12 @@ ASPELL(spell_relocate)
 	char_to_room(ch, fnd_room);
 	check_horse(ch);
 	act("$n медленно появил$u откуда-то.", TRUE, ch, 0, 0, TO_ROOM);
+	if (!(PRF_FLAGGED(victim, PRF_SUMMONABLE) || same_group(ch, victim) || IS_IMMORTAL(ch)))
+	{
+		send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n", 
+			CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
+		pkPortal(ch);
+	}
 	look_at_room(ch, 0);
 	/* Прыжок на чара в БД удваивает лаг */
 	if (RENTABLE(victim))
@@ -437,28 +443,33 @@ ASPELL(spell_portal)
 		send_to_char("Неведомая сила не дает вам поставить портал в это место!\r\n", ch);
 		return;
 	}
+	bool pkPortal = pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
+			pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT;
 
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(victim, GF_GODSCURSE)
 			/* раньше было <= PK_ACTION_REVENGE, что вызывало абьюз при пенте на чара на арене,
 			   или пенте кидаемой с арены т.к. в данном случае использовалось PK_ACTION_NO которое меньше PK_ACTION_REVENGE */
-			|| (pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
-				pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT)
-			|| ((!IS_NPC(victim) || IS_CHARMICE(ch)) && PRF_FLAGGED(victim, PRF_SUMMONABLE))
+			   || pkPortal || ((!IS_NPC(victim) || IS_CHARMICE(ch)) && PRF_FLAGGED(victim, PRF_SUMMONABLE))
 			|| same_group(ch, victim))
 	{
 		/* Если пента по мести - то считаем постановку пенты попыткой ее реализовать */
 		// после 3ех попыток реализаци (3ех пент) -- месть исчезает
-		if (pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
-				pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT)
-		{
-			pk_increment_revenge(ch, victim);
-		}
+		if (pkPortal) pk_increment_revenge(ch, victim);
+		
 		to_room = IN_ROOM(ch);
 		world[fnd_room]->portal_room = to_room;
 		world[fnd_room]->portal_time = 1;
-		world[fnd_room]->isPortalEntry = FALSE;
-		act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[fnd_room]->people, 0, 0, TO_CHAR);
-		act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[fnd_room]->people, 0, 0, TO_ROOM);
+		if (pkPortal) world[fnd_room]->pkPenterUnique = GET_UNIQUE(ch);
+
+		if (pkPortal)
+		{
+			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.", FALSE, world[fnd_room]->people, 0, 0, TO_CHAR);
+			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.", FALSE, world[fnd_room]->people, 0, 0, TO_ROOM);
+		}else
+		{
+			act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[fnd_room]->people, 0, 0, TO_CHAR);
+			act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[fnd_room]->people, 0, 0, TO_ROOM);
+		}
 
 		// если пенту ставит имм с привилегией arena (и находясь на арене), то пента получается односторонняя
 		if (Privilege::check_flag(ch, Privilege::ARENA_MASTER) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
@@ -466,9 +477,17 @@ ASPELL(spell_portal)
 
 		world[to_room]->portal_room = fnd_room;
 		world[to_room]->portal_time = 1;
-		world[to_room]->isPortalEntry = TRUE;
-		act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[to_room]->people, 0, 0, TO_CHAR);
-		act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[to_room]->people, 0, 0, TO_ROOM);
+		if (pkPortal) world[to_room]->pkPenterUnique = GET_UNIQUE(ch);
+
+		if (pkPortal)
+		{
+			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.", FALSE, world[to_room]->people, 0, 0, TO_CHAR);
+			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.", FALSE, world[to_room]->people, 0, 0, TO_ROOM);
+		}else
+		{
+			act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[to_room]->people, 0, 0, TO_CHAR);
+			act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[to_room]->people, 0, 0, TO_ROOM);
+		}
 	}
 }
 
@@ -675,7 +694,7 @@ ASPELL(spell_townportal)
 		ROOM_DATA* from_room = world[IN_ROOM(ch)];
 		from_room->portal_room = real_room(port->vnum);
 		from_room->portal_time = 1;
-		from_room->isPortalEntry = FALSE;
+		from_room->pkPenterUnique = 0;
 		OneWayPortal::add(world[from_room->portal_room], from_room);
 		act("Лазурная пентаграмма возникла в воздухе.", FALSE, ch, 0, 0, TO_CHAR);
 		act("$n сложил$g руки в молитвенном жесте, испрашивая у Богов врата...", FALSE, ch, 0, 0, TO_ROOM);
