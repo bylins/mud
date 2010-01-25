@@ -1119,6 +1119,14 @@ ACMD(do_rescue)
 		return;
 	}
 
+	// Двойники и прочие очарки не в группе с тем, кого собираются спасать.
+	if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master && !same_group(ch->master, vict))
+	{
+		act("Спасали бы Вы лучше другов своих.", FALSE, ch, 0, vict, TO_CHAR);
+		act("Вы не можете спасти весь мир.", FALSE, ch->master, 0, vict, TO_CHAR);
+		return;
+	}
+
 	if (!may_kill_here(ch, tmp_ch))
 		return;
 
