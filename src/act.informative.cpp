@@ -2444,6 +2444,7 @@ const char *ac_text[] =
 ACMD(do_score)
 {
 	TIME_INFO_DATA playing_time;
+    ROOM_DATA * label_room;
 	OBJ_DATA *weapon = NULL;
 	int ac, ac_t, max_dam = 0, hr = 0, resist, modi = 0, skill = SKILL_BOTHHANDS;
 	string sum;
@@ -2803,6 +2804,11 @@ ACMD(do_score)
 						CCCYN(ch, C_NRM), CCIGRN(ch, C_NRM),
 						(string(GET_NAME(get_horse(ch))) + string(".")).substr(0, 69).c_str(), CCCYN(ch, C_NRM));
 		}
+//Напоминаем о метке, если она есть.
+		if (label_room  = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL))
+			sprintf(buf + strlen(buf),
+					" %s|| %sВы поставили рунную метку в комнате '%-43s%s||\r\n",
+					CCCYN(ch, C_NRM), CCIGRN(ch, C_NRM), string(label_room->name+string("'.")).c_str(), CCCYN(ch, C_NRM));
 
 		int glory = Glory::get_glory(GET_UNIQUE(ch));
 		if (glory)
