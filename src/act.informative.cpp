@@ -2805,7 +2805,8 @@ ACMD(do_score)
 						(string(GET_NAME(get_horse(ch))) + string(".")).substr(0, 69).c_str(), CCCYN(ch, C_NRM));
 		}
 //Напоминаем о метке, если она есть.
-		if (label_room  = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL))
+        label_room  = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
+		if (label_room)
 			sprintf(buf + strlen(buf),
 					" %s|| %sВы поставили рунную метку в комнате '%-43s%s||\r\n",
 					CCCYN(ch, C_NRM), CCIGRN(ch, C_NRM), string(label_room->name+string("'.")).c_str(), CCCYN(ch, C_NRM));
