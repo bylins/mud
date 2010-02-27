@@ -3064,6 +3064,13 @@ ACMD(do_score)
 				grouping[(int)GET_CLASS(ch)][MIN(14, (int)GET_REMORT(ch))],
 				desc_count(grouping[(int)GET_CLASS(ch)][MIN(14, (int)GET_REMORT(ch))], WHAT_LEVEL));
 
+//Напоминаем о метке, если она есть.
+    label_room  = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
+    if (label_room)
+        sprintf(buf + strlen(buf),
+                "%sВы поставили рунную метку в комнате '%s%s\r\n",
+                CCIGRN(ch, C_NRM), string(label_room->name+string("'.")).c_str(), CCCYN(ch, C_NRM));
+
 	int glory = Glory::get_glory(GET_UNIQUE(ch));
 	if (glory)
 		sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n",

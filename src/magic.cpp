@@ -3837,7 +3837,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		extract_char(mob, FALSE);
 		return 0;
 	}
-	if (!IS_IMMORTAL(ch) && (GET_MOB_SPEC(mob) || MOB_FLAGGED(mob, MOB_NORESURRECTION)))
+	if (!IS_IMMORTAL(ch) && (GET_MOB_SPEC(mob) || MOB_FLAGGED(mob, MOB_NORESURRECTION) || MOB_FLAGGED(mob, MOB_AREA_ATTACK)))
 	{
 		send_to_char("Вы не можете обрести власть над этим созданием!\r\n", ch);
 		extract_char(mob, FALSE);
