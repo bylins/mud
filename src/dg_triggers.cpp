@@ -13,6 +13,7 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
+#include <boost/lexical_cast.hpp>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -63,7 +64,7 @@ const char *trig_types[] = { "Global",
 							 "Income PC",
 							 "Агродействие",
 							 "Раунд боя",
-							 "UNUSED",
+							 "Каст в моба",
 							 "UNUSED",
 							 "UNUSED",
 							 "Auto",
@@ -766,6 +767,7 @@ void start_fight_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor)
 	{
 		return;
 	}
+	char buf[MAX_INPUT_LENGTH];
 
 	for (TRIG_DATA *t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 	{
@@ -785,6 +787,7 @@ void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor)
 		return;
 	}
 
+	char buf[MAX_INPUT_LENGTH];
 	for (TRIG_DATA *t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 	{
 		if (TRIGGER_CHECK(t, MTRIG_ROUND_NUM) && ROUND_COUNTER(ch) == GET_TRIG_NARG(t))
@@ -795,6 +798,40 @@ void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor)
 		}
 	}
 }
+
+/**
+* Реакиця на каст в моба.
+* \param ch - моб
+* \param actor - кастер, идет в скрипт как %actor%
+* \param spellnum - номер закла, идет в скрипт как %cast_num%
+*/
+void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum)
+{
+	if (!ch || ch->purged() || !actor || actor->purged())
+	{
+		log("SYSERROR: ch = %s, actor = %s (%s:%d)",
+				ch ? (ch->purged() ? "purged" : "true") : "false",
+				actor ? (actor->purged() ? "purged" : "true") : "false",
+				__FILE__, __LINE__);
+		return;
+	}
+	if (!SCRIPT_CHECK(ch, MTRIG_CAST))
+	{
+		return;
+	}
+	char buf[MAX_INPUT_LENGTH];
+	for (TRIG_DATA *t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
+	{
+		if (TRIGGER_CHECK(t, MTRIG_CAST) && (number(1, 100) <= GET_TRIG_NARG(t)))
+		{
+			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
+			add_var_cntx(&GET_TRIG_VARS(t), "castnum", boost::lexical_cast<string>(spellnum).c_str(), 0);
+			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			return;
+		}
+	}
+}
+
 /*
  *  object triggers
  */

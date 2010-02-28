@@ -44,6 +44,7 @@
 #define MTRIG_INCOME_PC        (1 << 19)	/* mob income to room if PC there */
 #define MTRIG_START_FIGHT      (1 << 20) // начало боя с мобом
 #define MTRIG_ROUND_NUM        (1 << 21) // на х раунде боя
+#define MTRIG_CAST             (1 << 22) // каст в моба
 
 /* obj trigger types */
 #define OTRIG_GLOBAL           (1 << 0)	/* unused                     */
@@ -204,6 +205,7 @@ void load_mtrigger(CHAR_DATA * ch);
 void load_otrigger(OBJ_DATA * obj);
 void start_fight_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor);
 void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor);
+void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum);
 
 /* function prototypes from scripts.cpp */
 void script_trigger_check(void);

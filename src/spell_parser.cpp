@@ -2064,6 +2064,8 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 	if (spellnum < 1 || spellnum > TOP_SPELL_DEFINE)
 		return (0);
 
+	cast_mtrigger(cvict, caster, spellnum);
+
 	// Определяю возможность чтения заклинания
 	//******************************************
 	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOMAGIC) && !may_cast_in_nomagic(caster, cvict, spellnum))
