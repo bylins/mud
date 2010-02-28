@@ -30,6 +30,7 @@
 #include "char.hpp"
 #include "char_player.hpp"
 #include "room.hpp"
+#include "depot.hpp"
 
 /*   external vars  */
 
@@ -2926,7 +2927,9 @@ SPECIAL(bank)
 					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 			add_bank_gold(vict, amount);
+			Depot::add_offline_money(GET_UNIQUE(vict), amount);
 			vict->save_char();
+
 			delete vict;
 			return (1);
 		}

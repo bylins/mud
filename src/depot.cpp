@@ -1618,4 +1618,16 @@ OBJ_DATA * locate_object(const char *str)
 	return 0;
 }
 
+/**
+* Добавление денег чару, находящемуся оффлайн при переводе кун (типа временное решение).
+*/
+void add_offline_money(long uid, int money)
+{
+	DepotListType::iterator it = depot_list.find(uid);
+	if (it != depot_list.end())
+	{
+		it->second.money += money;
+	}
+}
+
 } // namespace Depot
