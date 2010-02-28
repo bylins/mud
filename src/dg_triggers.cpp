@@ -815,17 +815,17 @@ void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum)
 				__FILE__, __LINE__);
 		return;
 	}
-	if (!SCRIPT_CHECK(ch, MTRIG_CAST))
+	if (!SCRIPT_CHECK(ch, MTRIG_CAST) || !CAN_START_MTRIG(ch))
 	{
 		return;
 	}
-	char buf[MAX_INPUT_LENGTH];
+	char local_buf[MAX_INPUT_LENGTH];
 	for (TRIG_DATA *t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 	{
 		if (TRIGGER_CHECK(t, MTRIG_CAST) && (number(1, 100) <= GET_TRIG_NARG(t)))
 		{
-			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-			add_var_cntx(&GET_TRIG_VARS(t), "castnum", boost::lexical_cast<string>(spellnum).c_str(), 0);
+			ADD_UID_CHAR_VAR(local_buf, t, actor, "actor", 0);
+			add_var_cntx(&GET_TRIG_VARS(t), "castnum", boost::lexical_cast<std::string>(spellnum).c_str(), 0);
 			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 			return;
 		}
