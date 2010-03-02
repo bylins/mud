@@ -26,6 +26,7 @@
 #include "olc.h"
 #include "char.hpp"
 #include "room.hpp"
+#include "spells.h"
 
 extern INDEX_DATA **trig_index;
 
@@ -815,6 +816,11 @@ void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum)
 				__FILE__, __LINE__);
 		return;
 	}
+	if (spellnum < 0 || spellnum >= LAST_USED_SPELL)
+	{
+		log("SYSERROR: spellnum = %d (%s:%d)", spellnum, __FILE__, __LINE__);
+		return;
+	}
 	if (!SCRIPT_CHECK(ch, MTRIG_CAST) || !CAN_START_MTRIG(ch))
 	{
 		return;
@@ -826,6 +832,7 @@ void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum)
 		{
 			ADD_UID_CHAR_VAR(local_buf, t, actor, "actor", 0);
 			add_var_cntx(&GET_TRIG_VARS(t), "castnum", boost::lexical_cast<std::string>(spellnum).c_str(), 0);
+			add_var_cntx(&GET_TRIG_VARS(t), "castname", spell_info[spellnum].name, 0);
 			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 			return;
 		}
