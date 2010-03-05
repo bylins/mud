@@ -2277,15 +2277,15 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 
 		case MEDIT_NUM_HP_DICE:
-			GET_MEM_TOTAL(OLC_MOB(d)) = MAX(0, MIN(30, atoi(arg)));
+			GET_MEM_TOTAL(OLC_MOB(d)) = MAX(0, MIN(50, atoi(arg)));
 			break;
 
 		case MEDIT_SIZE_HP_DICE:
-			GET_MANA_STORED(OLC_MOB(d)) = MAX(0, MIN(1000, atoi(arg)));
+			GET_MANA_STORED(OLC_MOB(d)) = MAX(0, MIN(100000, atoi(arg)));
 			break;
 
 		case MEDIT_ADD_HP:
-			GET_HIT(OLC_MOB(d)) = MAX(0, MIN(30000, atoi(arg)));
+			GET_HIT(OLC_MOB(d)) = MAX(0, MIN(5000000, atoi(arg)));
 			break;
 
 		case MEDIT_AC:

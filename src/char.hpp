@@ -105,8 +105,8 @@ struct char_ability_data
 /* Char's points. */
 struct char_point_data
 {
-	sh_int hit;
-	sh_int max_hit;		/* Max hit for PC/NPC                      */
+	int hit;
+	int max_hit;		/* Max hit for PC/NPC                      */
 	sh_int move;
 	sh_int max_move;	/* Max move for PC/NPC                     */
 	int gold;			/* Money carried                           */
