@@ -2672,13 +2672,53 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			else if (!str_cmp(field, "timer"))
 				sprintf(str, "%d", o->get_timer());
 			else if (!str_cmp(field, "val0"))
-				sprintf(str, "%d", GET_OBJ_VAL(o, 0));
+			{
+				if (*subfield)
+				{
+					skip_spaces(&subfield);
+					GET_OBJ_VAL(o, 0) = atoi(subfield);
+				}
+				else
+				{
+					sprintf(str, "%d", GET_OBJ_VAL(o, 0));
+				}
+			}
 			else if (!str_cmp(field, "val1"))
-				sprintf(str, "%d", GET_OBJ_VAL(o, 1));
+			{
+				if (*subfield)
+				{
+					skip_spaces(&subfield);
+					GET_OBJ_VAL(o, 1) = atoi(subfield);
+				}
+				else
+				{
+					sprintf(str, "%d", GET_OBJ_VAL(o, 1));
+				}
+			}
 			else if (!str_cmp(field, "val2"))
-				sprintf(str, "%d", GET_OBJ_VAL(o, 2));
+			{
+				if (*subfield)
+				{
+					skip_spaces(&subfield);
+					GET_OBJ_VAL(o, 2) = atoi(subfield);
+				}
+				else
+				{
+					sprintf(str, "%d", GET_OBJ_VAL(o, 2));
+				}
+			}
 			else if (!str_cmp(field, "val3"))
-				sprintf(str, "%d", GET_OBJ_VAL(o, 3));
+			{
+				if (*subfield)
+				{
+					skip_spaces(&subfield);
+					GET_OBJ_VAL(o, 3) = atoi(subfield);
+				}
+				else
+				{
+					sprintf(str, "%d", GET_OBJ_VAL(o, 3));
+				}
+			}
 			else if (!str_cmp(field, "maker"))
 				sprintf(str, "%d", GET_OBJ_MAKER(o));
 			else if (!str_cmp(field, "effect"))
