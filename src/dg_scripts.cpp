@@ -2813,6 +2813,22 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 
 				return;
 			}
+			else if (!str_cmp(field, "owner"))
+			{
+				if (*subfield)
+				{
+					skip_spaces(&subfield);
+					int num = atoi(subfield);
+					if (num > 0)
+					{
+						GET_OBJ_OWNER(o) = num;
+					}
+				}
+				else
+				{
+					sprintf(str, "%d", GET_OBJ_OWNER(o));
+				}
+			}
 			else
 			{
 				sprintf(buf2, "Type: %d. unknown object field: '%s'", type, field);
