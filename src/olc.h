@@ -244,33 +244,31 @@ extern struct olc_save_info *olc_save_list;
 /*
  * Submodes of ZEDIT connectedness.
  */
-#define ZEDIT_MAIN_MENU              	0
-#define ZEDIT_DELETE_ENTRY		1
-#define ZEDIT_NEW_ENTRY			2
-#define ZEDIT_CHANGE_ENTRY		3
-#define ZEDIT_COMMAND_TYPE		4
-#define ZEDIT_IF_FLAG			5
-#define ZEDIT_ARG1			6
-#define ZEDIT_ARG2			7
-#define ZEDIT_ARG3			8
-#define ZEDIT_ARG4			9
-#define ZEDIT_ZONE_NAME			10
-#define ZEDIT_ZONE_LIFE			11
-#define ZEDIT_ZONE_TOP			12
-#define ZEDIT_ZONE_RESET		13
-#define ZEDIT_RESET_IDLE		14
-#define ZEDIT_CONFIRM_SAVESTRING	15
-#define ZEDIT_SARG1			20
-#define ZEDIT_SARG2			21
-#define ZEDIT_MOVE_ENTRY		22
-#define ZEDIT_TYPE_A_LIST		23
-#define ZEDIT_TYPE_B_LIST		24
-//MZ.load
-#define ZEDIT_ZONE_LEVEL	25
-#define ZEDIT_ZONE_TYPE		26
-//-MZ.load
-
-
+#define ZEDIT_MAIN_MENU          0
+#define ZEDIT_DELETE_ENTRY       1
+#define ZEDIT_NEW_ENTRY          2
+#define ZEDIT_CHANGE_ENTRY       3
+#define ZEDIT_COMMAND_TYPE       4
+#define ZEDIT_IF_FLAG            5
+#define ZEDIT_ARG1               6
+#define ZEDIT_ARG2               7
+#define ZEDIT_ARG3               8
+#define ZEDIT_ARG4               9
+#define ZEDIT_ZONE_NAME          10
+#define ZEDIT_ZONE_LIFE          11
+#define ZEDIT_ZONE_TOP           12
+#define ZEDIT_ZONE_RESET         13
+#define ZEDIT_RESET_IDLE         14
+#define ZEDIT_CONFIRM_SAVESTRING 15
+#define ZEDIT_SARG1              20
+#define ZEDIT_SARG2              21
+#define ZEDIT_MOVE_ENTRY         22
+#define ZEDIT_TYPE_A_LIST        23
+#define ZEDIT_TYPE_B_LIST        24
+#define ZEDIT_ZONE_LEVEL         25
+#define ZEDIT_ZONE_TYPE          26
+#define ZEDIT_ZONE_COMMENT       27
+#define ZEDIT_ZONE_GROUP         28
 
 /*
  * Submodes of MEDIT connectedness.

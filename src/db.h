@@ -252,6 +252,8 @@ struct reset_com
 struct zone_data
 {
 	char *name;		/* name of this zone                  */
+	// автор, дата...
+	char *comment;
 //MZ.load
 	int level;	/* level of this zone (is used in ingredient loading)	*/
 	int type;	/* the surface type of this zone (is used in ingredient loading)	*/
@@ -282,6 +284,8 @@ struct zone_data
 	bool reset_idle;	/* очищать ли зону, в которой никто не бывал */
 	bool used;		/* был ли кто-то в зоне после очистки */
 	unsigned long long activity;	/* параметр активности игроков в зоне */
+	// зона для группы
+	bool group;
 };
 
 

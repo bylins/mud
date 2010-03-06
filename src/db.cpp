@@ -3471,6 +3471,8 @@ void load_zones(FILE * fl, char *zonename)
 	Z.reset_idle = FALSE;
 	Z.used = FALSE;
 	Z.activity = 0;
+	Z.comment = 0;
+	Z.group = false;
 	strcpy(zname, zonename);
 
 	while (get_line(fl, buf))
@@ -3516,15 +3518,28 @@ void load_zones(FILE * fl, char *zonename)
 	if ((ptr = strchr(buf, '~')) != NULL)	/* take off the '~' if it's there */
 		*ptr = '\0';
 	Z.name = str_dup(buf);
-
-//MZ.load
 	line_num += get_line(fl, buf);
-	if (*buf == '#')
+	if (*buf == '^')
 	{
-		sscanf(buf, "#%d %d", &Z.level, &Z.type);
+		std::string comment(buf);
+		boost::trim_if(comment, boost::is_any_of("^~"));
+		Z.comment = str_dup(comment.c_str());
 		line_num += get_line(fl, buf);
 	}
-//-MZ.load
+	if (*buf == '#')
+	{
+		int group = 0;
+		if (sscanf(buf, "#%d %d %d", &Z.level, &Z.type, &group) < 3)
+		{
+			if (sscanf(buf, "#%d %d", &Z.level, &Z.type) < 2)
+			{
+				log("SYSERR: ошибка чтения z.level, z.type, z.group: %s", buf);
+				exit(1);
+			}
+		}
+		Z.group = group;
+		line_num += get_line(fl, buf);
+	}
 	*t1 = 0;
 	*t2 = 0;
 	int tmp_reset_idle = 0;
