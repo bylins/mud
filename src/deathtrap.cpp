@@ -89,14 +89,12 @@ namespace OneWayPortal
 // список односторонних порталов <куда указывает, откуда поставлен>
 std::map<ROOM_DATA*, ROOM_DATA*> portal_list;
 
-} // namespace OneWayPortal
-
 /**
 * Добавление портала в список
 * \param to_room - куда ставится пента
 * \param from_room - откуда ставится
 */
-void OneWayPortal::add(ROOM_DATA* to_room, ROOM_DATA* from_room)
+void add(ROOM_DATA* to_room, ROOM_DATA* from_room)
 {
 	portal_list[to_room] = from_room;
 }
@@ -105,7 +103,7 @@ void OneWayPortal::add(ROOM_DATA* to_room, ROOM_DATA* from_room)
 * Удаление портала из списка
 * \param to_room - куда указывает пента
 */
-void OneWayPortal::remove(ROOM_DATA* to_room)
+void remove(ROOM_DATA* to_room)
 {
 	std::map<ROOM_DATA*, ROOM_DATA*>::iterator it = portal_list.find(to_room);
 	if (it != portal_list.end())
@@ -117,13 +115,15 @@ void OneWayPortal::remove(ROOM_DATA* to_room)
 * \param to_room - куда указывает пента
 * \return указатель на источник пенты
 */
-ROOM_DATA* OneWayPortal::get_from_room(ROOM_DATA* to_room)
+ROOM_DATA * get_from_room(ROOM_DATA* to_room)
 {
 	std::map<ROOM_DATA*, ROOM_DATA*>::const_iterator it = portal_list.find(to_room);
 	if (it != portal_list.end())
 		return it->second;
 	return 0;
 }
+
+} // namespace OneWayPortal
 
 /**
 * Логирование в отдельный файл уходов в дт для интересу и мб статистики.

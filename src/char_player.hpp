@@ -77,8 +77,8 @@ public:
 	// обертка на Dps
 	void dps_add_dmg(int type, int dmg, int over_dmg, CHAR_DATA *ch = 0);
 	void dps_clear(int type);
-	void dps_print_stats();
-	void dps_print_group_stats(CHAR_DATA *ch);
+	void dps_print_stats(CHAR_DATA *coder = 0);
+	void dps_print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder = 0);
 	void dps_set(DpsSystem::Dps *dps);
 	void dps_copy(CHAR_DATA *ch);
 	void dps_end_round(int type, CHAR_DATA *ch = 0);

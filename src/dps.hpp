@@ -85,8 +85,8 @@ public:
 
 	void add_dmg(int type, CHAR_DATA *ch, int dmg, int over_dmg);
 	void clear(int type);
-	void print_stats(CHAR_DATA *ch);
-	void print_group_stats(CHAR_DATA *ch);
+	void print_stats(CHAR_DATA *ch, CHAR_DATA *coder = 0);
+	void print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder = 0);
 	void end_round(int type, CHAR_DATA *ch);
 
 	void add_exp(int exp);

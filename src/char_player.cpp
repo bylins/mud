@@ -223,14 +223,14 @@ void Player::dps_clear(int type)
 	dps_.clear(type);
 }
 
-void Player::dps_print_stats()
+void Player::dps_print_stats(CHAR_DATA *coder)
 {
-	dps_.print_stats(this);
+	dps_.print_stats(this, coder);
 }
 
-void Player::dps_print_group_stats(CHAR_DATA *ch)
+void Player::dps_print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 {
-	dps_.print_group_stats(ch);
+	dps_.print_group_stats(ch, coder);
 }
 
 /**
@@ -950,7 +950,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	EXCHANGE_FILTER(this) = NULL;
 	IGNORE_LIST(this) = NULL;
 	CREATE(GET_LOGS(this), int, NLOG);
-	NOTIFY_EXCH_PRICE(this) = 0; 
+	NOTIFY_EXCH_PRICE(this) = 0;
 
 	GET_BOARD(this) = new(struct board_data);
 	// здесь можно указать дату, с которой пойдет отсчет новых сообщений,

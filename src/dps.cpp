@@ -218,19 +218,24 @@ void Dps::add_tmp_group_list(CHAR_DATA *ch)
 * Распечатка персональной статистики игрока и его чармисов.
 * \param ch - игрок, которому идет распечатка.
 */
-void Dps::print_stats(CHAR_DATA *ch)
+void Dps::print_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 {
+	if (!coder)
+	{
+		coder = ch;
+	}
+
 	send_to_char("Персональная статистика:\r\n"
 			"                       Имя |   Нанесено урона | В раунд (макс) | Лишний урон |\r\n"
-			"---------------------------|------------------|----------------|-------------|\r\n", ch);
+			"---------------------------|------------------|----------------|-------------|\r\n", coder);
 	send_to_char(str(dps_stat_format
 			% GET_NAME(ch) % pers_dps_.get_dmg()
 			% pers_dps_.get_stat() % pers_dps_.get_round_dmg()
-			% pers_dps_.get_over_dmg()), ch);
-	send_to_char(pers_dps_.print_charm_stats(), ch);
+			% pers_dps_.get_over_dmg()), coder);
+	send_to_char(pers_dps_.print_charm_stats(), coder);
 	double percent = exp_ ? battle_exp_ * 100.0 / exp_ : 0.0;
 	int balance = exp_ + lost_exp_;
-	send_to_char(ch, "\r\nВсего получено опыта: %d, за удары: %d (%.2f%%)\r\n"
+	send_to_char(coder, "\r\nВсего получено опыта: %d, за удары: %d (%.2f%%)\r\n"
 			"Потеряно опыта: %d, баланс:%s%d\r\n",
 			exp_, battle_exp_, percent, abs(lost_exp_), balance > 0 ? " +" : " ", balance);
 
@@ -238,7 +243,7 @@ void Dps::print_stats(CHAR_DATA *ch)
 	{
 		tmp_total_dmg = 0;
 		CHAR_DATA *leader = ch->master ? ch->master : ch;
-		leader->dps_print_group_stats(ch);
+		leader->dps_print_group_stats(ch, coder);
 	}
 }
 
@@ -246,10 +251,15 @@ void Dps::print_stats(CHAR_DATA *ch)
 * Распечатка групповой статистики, находящейся у лидера группы.
 * \param ch - игрок, которому идет распечатка.
 */
-void Dps::print_group_stats(CHAR_DATA *ch)
+void Dps::print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 {
+	if (!coder)
+	{
+		coder = ch;
+	}
+
 	send_to_char("\r\nСтатистика Вашей группы:\r\n"
-			"---------------------------|------------------|----------------|-------------|\r\n", ch);
+			"---------------------------|------------------|----------------|-------------|\r\n", coder);
 
 	CHAR_DATA *leader = ch->master ? ch->master : ch;
 	for (follow_type *f = leader->followers; f; f = f->next)
@@ -268,7 +278,7 @@ void Dps::print_group_stats(CHAR_DATA *ch)
 		out += (str(dps_group_stat_format % it->second.name % it->first % percent
 				% it->second.dps % it->second.round_dmg % it->second.over_dmg));
 	}
-	send_to_char(out, ch);
+	send_to_char(out, coder);
 	tmp_group_list.clear();
 }
 
@@ -535,6 +545,18 @@ ACMD(do_dmeter)
 				return;
 			}
 			ch->dps_clear(DpsSystem::GROUP_DPS);
+		}
+	}
+	else if (PRF_FLAGGED(ch, PRF_CODERINFO))
+	{
+		CHAR_DATA *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
+		if (vict)
+		{
+			vict->dps_print_stats(ch);
+		}
+		else
+		{
+			send_to_char("Нет такого чара.\r\n", ch);
 		}
 	}
 	else
