@@ -2529,8 +2529,8 @@ int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj)
 	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch))
 		return (FALSE);
 
-	if (   // (IS_OBJ_ANTI(obj, ITEM_ANTI_MONO)     && GET_RELIGION(ch) == RELIGION_MONO) ||
-		// (IS_OBJ_ANTI(obj, ITEM_ANTI_POLY)     && GET_RELIGION(ch) == RELIGION_POLY) ||
+	if ((IS_OBJ_ANTI(obj, ITEM_AN_MONO) && GET_RELIGION(ch) == RELIGION_MONO) ||
+		(IS_OBJ_ANTI(obj, ITEM_AN_POLY) && GET_RELIGION(ch) == RELIGION_POLY) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_BATTLEMAGE) && IS_BATTLEMAGE(ch)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_CHARMMAGE) && IS_CHARMMAGE(ch)) ||
