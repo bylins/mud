@@ -475,16 +475,16 @@ CHAR_DATA *get_char_by_obj(OBJ_DATA * obj, char *name)
 	else
 	{
 		if (obj->carried_by &&
-				isname(name, obj->carried_by->get_pc_name()) &&
+				isname(name, obj->carried_by->player_data.name) &&
 				(IS_NPC(obj->carried_by) || !GET_INVIS_LEV(obj->carried_by)))
 			return obj->carried_by;
 
 		if (obj->worn_by &&
-				isname(name, obj->worn_by->get_pc_name()) && (IS_NPC(obj->worn_by) || !GET_INVIS_LEV(obj->worn_by)))
+				isname(name, obj->worn_by->player_data.name) && (IS_NPC(obj->worn_by) || !GET_INVIS_LEV(obj->worn_by)))
 			return obj->worn_by;
 
 		for (ch = character_list; ch; ch = ch->next)
-			if (isname(name, ch->get_pc_name()) && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
+			if (isname(name, ch->player_data.name) && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
 				return ch;
 	}
 
@@ -513,11 +513,11 @@ CHAR_DATA *get_char_by_room(room_data * room, char *name)
 	else
 	{
 		for (ch = room->people; ch; ch = ch->next_in_room)
-			if (isname(name, ch->get_pc_name()) && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
+			if (isname(name, ch->player_data.name) && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
 				return ch;
 
 		for (ch = character_list; ch; ch = ch->next)
-			if (isname(name, ch->get_pc_name()) && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
+			if (isname(name, ch->player_data.name) && (IS_NPC(ch) || !GET_INVIS_LEV(ch)))
 				return ch;
 	}
 
@@ -777,7 +777,7 @@ void find_uid_name(char *uid, char *name)
 	OBJ_DATA *obj;
 
 	if ((ch = get_char(uid)))
-		strcpy(name, ch->get_pc_name());
+		strcpy(name, ch->player_data.name);
 	else if ((obj = get_obj(uid)))
 		strcpy(name, obj->name);
 	else

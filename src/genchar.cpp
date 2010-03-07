@@ -482,9 +482,10 @@ void roll_real_abils(CHAR_DATA * ch)
 //  4 - творительный (кем? чем?)
 //  5 - предложный (о ком? о чем?)
 // result - результат
-void GetCase(const char *name, int sex, int caseNum, char *result)
+void GetCase(char *name, int sex, int caseNum, char *result)
 {
 	int len = strlen(name);
+	name[0] = UPPER(name[0]);
 
 	if (strchr("цкнгшщзхфвпрлджчсмтб", name[len - 1]) != NULL && sex == SEX_MALE)
 	{
@@ -499,8 +500,10 @@ void GetCase(const char *name, int sex, int caseNum, char *result)
 			strcat(result, "ом"); // Иваном, Ретичем
 		else if (caseNum == 5)
 			strcat(result, "е"); // Иване
+		return;
 	}
-	else if (name[len - 1] == 'я')
+
+	if (name[len - 1] == 'я')
 	{
 		strncpy(result, name, len - 1);
 		result[len - 1] = '\0';
@@ -516,8 +519,10 @@ void GetCase(const char *name, int sex, int caseNum, char *result)
 			strcat(result, "е"); // Ане, Ване
 		else
 			strcat(result, "я"); // Аня, Ваня
+		return;
 	}
-	else if (name[len - 1] == 'й' && sex == SEX_MALE)
+
+	if (name[len - 1] == 'й' && sex == SEX_MALE)
 	{
 		strncpy(result, name, len - 1);
 		result[len - 1] = '\0';
@@ -533,8 +538,10 @@ void GetCase(const char *name, int sex, int caseNum, char *result)
 			strcat(result, "е"); // Дрегвие
 		else
 			strcat(result, "й"); // Дрегвий
+		return;
 	}
-	else if (name[len - 1] == 'а')
+
+	if (name[len - 1] == 'а')
 	{
 		strncpy(result, name, len - 1);
 		result[len - 1] = '\0';
@@ -560,12 +567,10 @@ void GetCase(const char *name, int sex, int caseNum, char *result)
 			strcat(result, "е"); // Паше, Анне
 		else
 			strcat(result, "а"); // Паша, Анна
+		return;
 	}
-	else
-	{
-		// остальные варианты либо не склоняются, либо редки (например, оканчиваются на ь)
-		strcpy(result, name);
-	}
-	CAP(result);
+
+	// остальные варианты либо не склоняются, либо редки (например, оканчиваются на ь)
+	strcpy(result, name);
 	return;
 }

@@ -67,8 +67,8 @@ int real_zone(int number);
 
 //#define GET_NDD(mob) ((mob)->mob_specials.damnodice)
 //#define GET_SDD(mob) ((mob)->mob_specials.damsizedice)
-#define GET_ALIAS(mob) ((mob)->get_pc_name())
-#define GET_SDESC(mob) ((mob)->get_npc_name())
+#define GET_ALIAS(mob) ((mob)->player_data.name)
+#define GET_SDESC(mob) ((mob)->player_data.short_descr)
 #define GET_LDESC(mob) ((mob)->player_data.long_descr)
 #define GET_DDESC(mob) ((mob)->player_data.description)
 #define GET_ATTACK(mob) ((mob)->mob_specials.attack_type)
@@ -172,6 +172,10 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	*dst = *src;
 
 	// Теперь дублирую память
+	GET_ALIAS(dst) = str_dup((GET_ALIAS(src)
+							  && *GET_ALIAS(src)) ? GET_ALIAS(src) : "неопределен");
+	GET_SDESC(dst) = str_dup((GET_SDESC(src)
+							  && *GET_SDESC(src)) ? GET_SDESC(src) : "неопределен");
 	GET_LDESC(dst) = str_dup((GET_LDESC(src)
 							  && *GET_LDESC(src)) ? GET_LDESC(src) : "неопределен");
 	GET_DDESC(dst) = str_dup((GET_DDESC(src)
@@ -231,6 +235,16 @@ void medit_mobile_free(CHAR_DATA * mob)
 	if (i == -1 || mob == &mob_proto[i])
 	{
 		// Нет прототипа или сам прототип, удалять все подряд
+		if (GET_ALIAS(mob))
+		{
+			free(GET_ALIAS(mob));
+			GET_ALIAS(mob) = 0;
+		}
+		if (GET_SDESC(mob))
+		{
+			free(GET_SDESC(mob));
+			GET_SDESC(mob) = 0;
+		}
 		if (GET_LDESC(mob))
 		{
 			free(GET_LDESC(mob));
@@ -256,6 +270,16 @@ void medit_mobile_free(CHAR_DATA * mob)
 	else
 	{
 		// Есть прототип, удалять несовпадающее
+		if (GET_ALIAS(mob) && GET_ALIAS(mob) != GET_ALIAS(&mob_proto[i]))
+		{
+			free(GET_ALIAS(mob));
+			GET_ALIAS(mob) = 0;
+		}
+		if (GET_SDESC(mob) && GET_SDESC(mob) != GET_SDESC(&mob_proto[i]))
+		{
+			free(GET_SDESC(mob));
+			GET_SDESC(mob) = 0;
+		}
 		if (GET_LDESC(mob) && GET_LDESC(mob) != GET_LDESC(&mob_proto[i]))
 		{
 			free(GET_LDESC(mob));
@@ -315,8 +339,8 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 	if (real_num == -1)
 	{
 		GET_MOB_RNUM(mob) = -1;
-		mob->set_pc_name("неоконченный моб");
-		mob->set_npc_name("неоконченный моб");
+		GET_ALIAS(mob) = str_dup("неоконченный моб");
+		GET_SDESC(mob) = str_dup("неоконченный моб");
 		GET_LDESC(mob) = str_dup("Неоконченный моб стоит тут.\r\n");
 		GET_DDESC(mob) = str_dup("Выглядит достаточно незавершенно.\r\n");
 		GET_PAD(mob, 0) = str_dup("неоконченный моб");
@@ -413,10 +437,10 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 		for (live_mob = character_list; live_mob; live_mob = live_mob->next)
 			if (IS_MOB(live_mob) && GET_MOB_RNUM(live_mob) == rmob_num)
 			{
-				live_mob->set_pc_name((mob_proto + rmob_num)->get_pc_name());
-				live_mob->set_npc_name((mob_proto + rmob_num)->get_npc_name());
 				// Только строки. Остальное после ресета/ребута
 				// Возможна небольшая утечка памяти, но иначе очень большая запара
+				GET_ALIAS(live_mob) = GET_ALIAS(mob_proto + rmob_num);
+				GET_SDESC(live_mob) = GET_SDESC(mob_proto + rmob_num);
 				GET_LDESC(live_mob) = GET_LDESC(mob_proto + rmob_num);
 				GET_DDESC(live_mob) = GET_DDESC(mob_proto + rmob_num);
 				for (j = 0; j < NUM_PADS; j++)
@@ -1981,14 +2005,18 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 		/*-------------------------------------------------------------------*/
 	case MEDIT_ALIAS:
-		OLC_MOB(d)->set_pc_name((arg && *arg) ? arg : "неопределен");
+		if (GET_ALIAS(OLC_MOB(d)))
+			free(GET_ALIAS(OLC_MOB(d)));
+		GET_ALIAS(OLC_MOB(d)) = str_dup((arg && *arg) ? arg : "неопределен");
 		break;
 		/*-------------------------------------------------------------------*/
 	case MEDIT_PAD0:
 		if (GET_PAD(OLC_MOB(d), 0))
 			free(GET_PAD(OLC_MOB(d), 0));
 		GET_PAD(OLC_MOB(d), 0) = str_dup((arg && *arg) ? arg : "кто-то");
-		OLC_MOB(d)->set_npc_name((arg && *arg) ? arg : "кто-то");
+		if (GET_SDESC(OLC_MOB(d)))
+			free(GET_SDESC(OLC_MOB(d)));
+		GET_SDESC(OLC_MOB(d)) = str_dup((arg && *arg) ? arg : "кто-то");
 		break;
 		/*-------------------------------------------------------------------*/
 	case MEDIT_PAD1:

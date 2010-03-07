@@ -181,7 +181,7 @@ void room_free(ROOM_DATA * room);
 void tag_argument(char *argument, char *tag);
 void boot_db(void);
 void free_db(void);
-int create_entry(const char *name);
+int create_entry(char *name);
 void zone_update(void);
 bool can_be_reset(zone_rnum zone);
 room_rnum real_room(room_vnum vnum);
@@ -437,7 +437,7 @@ extern room_rnum r_immort_start_room;
 extern room_rnum r_named_start_room;
 extern room_rnum r_unreg_start_room;
 
-long get_ptable_by_name(const char *name);
+long get_ptable_by_name(char *name);
 void free_alias(struct alias_data *a);
 extern struct player_index_element *player_table;
 
@@ -455,6 +455,5 @@ void check(CHAR_DATA *ch);
 extern int now_entrycount;
 void asciiflag_conv(const char *flag, void *value);
 void load_ignores(CHAR_DATA * ch, char *line);
-void delete_char(const char *name);
 
 #endif

@@ -129,7 +129,7 @@ const char *shop_bits[] = { "Можно напасть",
 							"\n"
 						  };
 
-void write_buf(char *buf, char *msg, const char *sparam, int dparam, int ending)
+void write_buf(char *buf, char *msg, char *sparam, int dparam, int ending)
 {
 	char *pos;
 

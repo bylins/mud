@@ -1091,7 +1091,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 
 	if (IS_NPC(i))
 	{
-		strcpy(buf1, i->get_npc_name());
+		strcpy(buf1, i->player_data.short_descr);
 		strcat(buf1, " ");
 		if (AFF_FLAGGED(i, AFF_HORSE))
 			strcat(buf1, "(под седлом) ");
@@ -4463,7 +4463,7 @@ ACMD(do_users)
 				switch (sorting)
 				{
 				case 'n':
-					if (strcoll(t ? t->get_pc_name() : "", t_tmp ? t_tmp->get_pc_name() : "") > 0)
+					if (strcoll(t ? t->player_data.name : "", t_tmp ? t_tmp->player_data.name : "") > 0)
 						flag_change = 1;
 					break;
 				case 'e':
@@ -4544,14 +4544,14 @@ ACMD(do_users)
 		else
 			strcpy(idletime, "");
 
-		if (d->character && d->character->get_pc_name())
+		if (d->character && d->character->player_data.name)
 		{
 			if (d->original)
 				sprintf(line, format, d->desc_num, classname,
-						d->original->get_pc_name(), state, idletime, timeptr);
+						d->original->player_data.name, state, idletime, timeptr);
 			else
 				sprintf(line, format, d->desc_num, classname,
-						d->character->get_pc_name(), state, idletime, timeptr);
+						d->character->player_data.name, state, idletime, timeptr);
 		}
 		else
 			sprintf(line, format, d->desc_num, "   -   ", "UNDEFINED", state, idletime, timeptr);
@@ -4717,7 +4717,7 @@ void perform_mortal_where(CHAR_DATA * ch, char *arg)
 			if (!CAN_SEE(ch, i)
 					|| world[i->in_room]->zone != world[ch->in_room]->zone)
 				continue;
-			if (!isname(arg, i->get_pc_name()))
+			if (!isname(arg, i->player_data.name))
 				continue;
 			sprintf(buf, "%-25s - %s\r\n", GET_NAME(i), world[i->in_room]->name);
 			send_to_char(buf, ch);
@@ -4832,7 +4832,7 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 	{
 		for (i = character_list; i; i = i->next)
 		{
-			if (CAN_SEE(ch, i) && i->in_room != NOWHERE && isname(arg, i->get_pc_name()))
+			if (CAN_SEE(ch, i) && i->in_room != NOWHERE && isname(arg, i->player_data.name))
 			{
 				found = 1;
 				sprintf(buf, "M%3d. %-25s - [%5d] %s\r\n", ++num, GET_NAME(i),

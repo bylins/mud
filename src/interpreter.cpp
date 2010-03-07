@@ -121,6 +121,7 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg);
 void Crash_timer_obj(int index, long timer_dec);
 int find_social(char *name);
 int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BPLACE_UNDEFINED);
+void delete_char(char *name);
 void do_aggressive_room(CHAR_DATA * ch, int check_sneak);
 extern int process_auto_agreement(DESCRIPTOR_DATA * d);
 extern int CheckProxy(DESCRIPTOR_DATA * ch);
@@ -2456,7 +2457,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 						return;
 					}
 					CreateChar(d);
-					d->character->set_pc_name(CAP(tmp_name));
+					CREATE(d->character->player_data.name, char, strlen(tmp_name) + 1);
+					strcpy(d->character->player_data.name, CAP(tmp_name));
 					CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
 					strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
 					d->character->set_pfilepos(player_i);
@@ -2492,7 +2494,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					 "Имя  : ", d);
 					return;
 				}
-				d->character->set_pc_name(CAP(tmp_name));
+
+				CREATE(d->character->player_data.name, char, strlen(tmp_name) + 1);
+				strcpy(d->character->player_data.name, CAP(tmp_name));
 				CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
 				strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
 				SEND_TO_Q(create_name_rules, d);
@@ -2549,7 +2553,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		else if (UPPER(*arg) == 'N' || UPPER(*arg) == 'Н')
 		{
 			SEND_TO_Q("Итак, чего изволите ? Учтите, бананов нет :)\r\n" "Имя : ", d);
-			d->character->set_pc_name(0);
+			free(d->character->player_data.name);
+			d->character->player_data.name = NULL;
 			STATE(d) = CON_GET_NAME;
 		}
 		else
@@ -2602,7 +2607,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					  "Имя  : ", d);
 			return;
 		}
-		d->character->set_pc_name(CAP(tmp_name));
+		CREATE(d->character->player_data.name, char, strlen(tmp_name) + 1);
+		strcpy(d->character->player_data.name, CAP(tmp_name));
 		CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
 		strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
 		if (ban->is_banned(d->host) >= BanList::BAN_NEW)

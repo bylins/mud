@@ -547,7 +547,7 @@ int mag_single_target(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA
 
 int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DATA *rvict, int spellnum, int level, int casttype);
 
-void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument);
+void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument);
 
 int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA *troom, int spellnum, int spell_subst);
 

@@ -2759,9 +2759,9 @@ SPECIAL(pet_shops)
 
 		if (*pet_name)
 		{
-			sprintf(buf, "%s %s", pet->get_pc_name(), pet_name);
-			/* free(pet->get_pc_name()); don't free the prototype! */
-			pet->set_pc_name(buf);
+			sprintf(buf, "%s %s", pet->player_data.name, pet_name);
+			/* free(pet->player_data.name); don't free the prototype! */
+			pet->player_data.name = str_dup(buf);
 
 			sprintf(buf,
 					"%sA small sign on a chain around the neck says 'My name is %s'\r\n",
@@ -2795,7 +2795,7 @@ CHAR_DATA *get_player_of_name(const char *name)
 	{
 		if (IS_NPC(i))
 			continue;
-		if (!isname(name, i->get_pc_name()))
+		if (!isname(name, i->player_data.name))
 			continue;
 		return (i);
 	}
