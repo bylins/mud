@@ -791,14 +791,19 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		case 'I':
 			if (!strcmp(tag, "Id  "))
 				GET_IDNUM(this) = lnum;
+			break;
 		case 'L':
 			if (!strcmp(tag, "LstL"))
 				LAST_LOGON(this) = lnum;
 			else if (!strcmp(tag, "Levl"))
 				GET_LEVEL(this) = num;
+			break;
 		case 'N':
 			if (!strcmp(tag, "Name"))
-				GET_NAME(this) = str_dup(line);
+			{
+				set_name(line);
+			}
+			break;
 		case 'R':
 			if (!strcmp(tag, "Rebt"))
 				skip_file = 1;
@@ -835,7 +840,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	/* character init */
 	/* initializations necessary to keep some things straight */
 
-	this->player_data.short_descr = NULL;
+	this->set_npc_name(0);
 	this->player_data.long_descr = NULL;
 
 	this->real_abils.Feats.reset();

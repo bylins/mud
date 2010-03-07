@@ -368,7 +368,7 @@ ASPELL(spell_relocate)
 	act("$n медленно появил$u откуда-то.", TRUE, ch, 0, 0, TO_ROOM);
 	if (!(PRF_FLAGGED(victim, PRF_SUMMONABLE) || same_group(ch, victim) || IS_IMMORTAL(ch)))
 	{
-		send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n", 
+		send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 			CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
 		pkPortal(ch);
 	}
@@ -456,7 +456,7 @@ ASPELL(spell_portal)
 		/* Если пента по мести - то считаем постановку пенты попыткой ее реализовать */
 		// после 3ех попыток реализаци (3ех пент) -- месть исчезает
 		if (pkPortal) pk_increment_revenge(ch, victim);
-		
+
 		to_room = IN_ROOM(ch);
 		world[fnd_room]->portal_room = to_room;
 		world[fnd_room]->portal_time = 1;
@@ -2390,28 +2390,28 @@ ASPELL(spell_angel)
 	if (IS_FEMALE(ch))
 	{
 		GET_SEX(mob) = SEX_MALE;
-		mob->player_data.name = str_dup("Небесный защитник");
+		mob->set_pc_name("Небесный защитник");
 		GET_PAD(mob, 0) = str_dup("Небесный защитник");
 		GET_PAD(mob, 1) = str_dup("Небесного защитника");
 		GET_PAD(mob, 2) = str_dup("Небесному защитнику");
 		GET_PAD(mob, 3) = str_dup("Небесного защитника");
 		GET_PAD(mob, 4) = str_dup("Небесным защитником");
 		GET_PAD(mob, 5) = str_dup("Небесном защитнике");
-		mob->player_data.short_descr = str_dup("Небесный защитник");
+		mob->set_npc_name("Небесный защитник");
 		mob->player_data.long_descr = str_dup("Небесный защитник летает тут.\r\n");
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
 	}
 	else
 	{
 		GET_SEX(mob) = SEX_FEMALE;
-		mob->player_data.name = str_dup("Небесная защитница");
+		mob->set_pc_name("Небесная защитница");
 		GET_PAD(mob, 0) = str_dup("Небесная защитница");
 		GET_PAD(mob, 1) = str_dup("Небесной защитницы");
 		GET_PAD(mob, 2) = str_dup("Небесной защитнице");
 		GET_PAD(mob, 3) = str_dup("Небесную защитницу");
 		GET_PAD(mob, 4) = str_dup("Небесной защитницей");
 		GET_PAD(mob, 5) = str_dup("Небесной защитнице");
-		mob->player_data.short_descr = str_dup("Небесная защитница");
+		mob->set_npc_name("Небесная защитница");
 		mob->player_data.long_descr = str_dup("Небесная защитница летает тут.\r\n");
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
 	}

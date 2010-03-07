@@ -269,8 +269,7 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 #define SCRIPT_TYPES(s)		  ((s)->types)
 #define TRIGGERS(s)		  ((s)->trig_list)
 
-#define GET_SHORT(ch)    ((ch)->player_data.short_descr)
-
+#define GET_SHORT(ch)    ((ch)->get_npc_name())
 
 #define SCRIPT_CHECK(go, type)   (SCRIPT(go) && \
 				  IS_SET(SCRIPT_TYPES(SCRIPT(go)), type))

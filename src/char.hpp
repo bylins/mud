@@ -26,8 +26,6 @@ struct time_data
 /* general player-related info, usually PC's and NPC's */
 struct char_player_data
 {
-	char *name;		/* PC / NPC s name (kill ...  )         */
-	char *short_descr;	/* for NPC 'actions'                    */
 	char *long_descr;	/* for 'look'               */
 	char *description;	/* Extra descriptions                   */
 	char *title;		/* PC / NPC's title                     */
@@ -341,6 +339,13 @@ public:
 	void purge(bool destructor = false);
 	bool purged() const;
 
+	const char * get_name() const;
+	void set_name(const char *name);
+	const char * get_pc_name() const;
+	void set_pc_name(const char *name);
+	const char * get_npc_name() const;
+	void set_npc_name(const char *name);
+
 private:
 	void check_fighting_list();
 	void zero_init();
@@ -358,6 +363,12 @@ private:
 	int serial_num_; // порядковый номер в списке чаров (для name_list)
 	// true - чар очищен и ждет вызова delete для оболочки
 	bool purged_;
+
+/** TODO: пока сюда скидывается, чтобы поля private были */
+	// имя чара или алиасы моба
+	std::string name_;
+	// имя моба (им.падеж)
+	std::string short_descr_;
 
 // старое
 public:

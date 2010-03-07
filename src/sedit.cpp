@@ -957,7 +957,7 @@ void sedit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, nrm, cyn, S_KEEPER(shop) == -1 ?
 			-1 : mob_index[S_KEEPER(shop)].vnum, nrm,
 			yel, S_KEEPER(shop) == -1 ?
-			"None" : mob_proto[S_KEEPER(shop)].player_data.short_descr,
+			"None" : mob_proto[S_KEEPER(shop)].get_npc_name(),
 			grn, nrm, cyn, S_OPEN1(shop), nrm,
 			grn, nrm, cyn, S_CLOSE1(shop),
 			grn, nrm, cyn, S_OPEN2(shop), nrm,
