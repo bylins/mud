@@ -1169,8 +1169,9 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 	EXIT_DATA *back = 0;
 	CHAR_DATA * to;
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
+	char local_buf[MAX_STRING_LENGTH]; // глобальный buf в тригах переписывается
 
-	sprintf(buf, "$n %s ", cmd_door[scmd]);
+	sprintf(local_buf, "$n %s ", cmd_door[scmd]);
 //  if (IS_NPC(ch))
 //     log("MOB DOOR Moving:Моб %s %s дверь в комнате %d",GET_NAME(ch),cmd_door[scmd],GET_ROOM_VNUM(IN_ROOM(ch)));
 	if (!obj && ((other_room = EXIT(ch, door)->to_room) != NOWHERE))
@@ -1233,24 +1234,24 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 		if (back)
 			LOCK_DOOR(other_room, obj, rev_dir[door]);
 		send_to_char("Замок очень скоро поддался под Вашим натиском.\r\n", ch);
-		strcpy(buf, "$n умело взломал$g ");
+		strcpy(local_buf, "$n умело взломал$g ");
 		break;
 	}
 
 	/* Notify the room */
-	sprintf(buf + strlen(buf), "%s.", (obj) ? "$p" : (EXIT(ch, door)->vkeyword ? "$F" : "дверь"));
+	sprintf(local_buf + strlen(local_buf), "%s.", (obj) ? "$p" : (EXIT(ch, door)->vkeyword ? "$F" : "дверь"));
 	if (!(obj) || (obj->in_room != NOWHERE))
-		act(buf, FALSE, ch, obj, obj ? 0 : EXIT(ch, door)->vkeyword, TO_ROOM);
+		act(local_buf, FALSE, ch, obj, obj ? 0 : EXIT(ch, door)->vkeyword, TO_ROOM);
 
 	/* Notify the other room */
 	if ((scmd == SCMD_OPEN || scmd == SCMD_CLOSE) && back)
 	{
 		if ((to = world[EXIT(ch, door)->to_room]->people))
 		{
-			sprintf(buf + strlen(buf) - 1, " с той стороны.");
+			sprintf(local_buf + strlen(local_buf) - 1, " с той стороны.");
 			for (int stopcount = 0; to && stopcount < 1000; to = to->next_in_room, stopcount++)
 			{
-				perform_act(buf, ch, obj, obj ? 0 : EXIT(ch, door)->vkeyword, to);
+				perform_act(local_buf, ch, obj, obj ? 0 : EXIT(ch, door)->vkeyword, to);
 			}
 		}
 	}
@@ -1432,9 +1433,9 @@ ACMD(do_enter)
 					return;
 				}
 				act("$n исчез$q в пентаграмме.", TRUE, ch, 0, 0, TO_ROOM);
-				if (world[from_room]->pkPenterUnique && world[from_room]->pkPenterUnique != GET_UNIQUE(ch) && !IS_IMMORTAL(ch)) 
+				if (world[from_room]->pkPenterUnique && world[from_room]->pkPenterUnique != GET_UNIQUE(ch) && !IS_IMMORTAL(ch))
 				{
-					send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n", 
+					send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 						CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
 					pkPortal(ch);
 				}
