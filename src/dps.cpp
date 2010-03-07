@@ -217,6 +217,7 @@ void Dps::add_tmp_group_list(CHAR_DATA *ch)
 /**
 * Распечатка персональной статистики игрока и его чармисов.
 * \param ch - игрок, которому идет распечатка.
+* \param coder - случай вывода статистики другому персонажу, по умолчанию = 0
 */
 void Dps::print_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 {
@@ -250,6 +251,7 @@ void Dps::print_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 /**
 * Распечатка групповой статистики, находящейся у лидера группы.
 * \param ch - игрок, которому идет распечатка.
+* \param coder - случай вывода статистики другому персонажу, по умолчанию = 0
 */
 void Dps::print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 {
@@ -549,6 +551,7 @@ ACMD(do_dmeter)
 	}
 	else if (PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
+		// распечатка статистики указанного персонажа
 		CHAR_DATA *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
 		if (vict)
 		{
