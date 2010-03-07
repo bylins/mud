@@ -69,8 +69,6 @@ int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
 int min_rent_cost(CHAR_DATA * ch);
 void asciiflag_conv(const char *flag, void *value);
 void tascii(int *pointer, int num_planes, char *ascii);
-long get_ptable_by_name(char *name);
-
 
 /* local functions */
 void Crash_extract_norent_eq(CHAR_DATA * ch);

@@ -1071,8 +1071,10 @@ void print_one_line(CHAR_DATA * ch, CHAR_DATA * k, int leader, int header)
 		if (!header)
 //       send_to_char("Персонаж       | Здоровье |Рядом| Доп | Положение     | Лояльн.\r\n",ch);
 			send_to_char("Персонаж            | Здоровье |Рядом| Аффект | Положение\r\n", ch);
+		std::string name = GET_NAME(k);
+		name[0] = UPPER(name[0]);
 		sprintf(buf, "%s%-20s%s|", CCIBLU(ch, C_NRM),
-				string(CAP(GET_NAME(k))).substr(0, 20).c_str(), CCNRM(ch, C_NRM));
+				name.substr(0, 20).c_str(), CCNRM(ch, C_NRM));
 		sprintf(buf + strlen(buf), "%s%10s%s|",
 				color_value(ch, GET_HIT(k), GET_REAL_MAX_HIT(k)),
 				WORD_STATE[posi_value(GET_HIT(k), GET_REAL_MAX_HIT(k)) + 1], CCNRM(ch, C_NRM));
@@ -1109,7 +1111,9 @@ void print_one_line(CHAR_DATA * ch, CHAR_DATA * k, int leader, int header)
 			send_to_char
 			("Персонаж            | Здоровье |Энергия|Рядом|Учить| Аффект | Кто | Положение\r\n", ch);
 
-		sprintf(buf, "%s%-20s%s|", CCIBLU(ch, C_NRM), CAP(GET_NAME(k)), CCNRM(ch, C_NRM));
+		std::string name = GET_NAME(k);
+		name[0] = UPPER(name[0]);
+		sprintf(buf, "%s%-20s%s|", CCIBLU(ch, C_NRM), name.c_str(), CCNRM(ch, C_NRM));
 		sprintf(buf + strlen(buf), "%s%10s%s|",
 				color_value(ch, GET_HIT(k), GET_REAL_MAX_HIT(k)),
 				WORD_STATE[posi_value(GET_HIT(k), GET_REAL_MAX_HIT(k)) + 1], CCNRM(ch, C_NRM));
@@ -1401,7 +1405,7 @@ ACMD(do_ungroup)
 	{
 		next_fol = f->next;
 		tch = f->follower;
-		if (isname(buf, tch->player_data.name) && !AFF_FLAGGED(tch, AFF_CHARM) && !IS_HORSE(tch))
+		if (isname(buf, tch->get_pc_name()) && !AFF_FLAGGED(tch, AFF_CHARM) && !IS_HORSE(tch))
 		{
 			REMOVE_BIT(AFF_FLAGS(tch, AFF_GROUP), AFF_GROUP);
 			act("$N более не член Вашей группы.", FALSE, ch, 0, tch, TO_CHAR);
@@ -2124,7 +2128,7 @@ void setNotifyEchange(CHAR_DATA* ch, char *argument)
 	long size = atol(argument);
 	if (size>=100)
 	{
-		send_to_char(ch, "Вам будут приходить уведомления о продаже с базара Ваших лотов стоимостью не менее чем %ld %s.\r\n", 
+		send_to_char(ch, "Вам будут приходить уведомления о продаже с базара Ваших лотов стоимостью не менее чем %ld %s.\r\n",
 			size, desc_count(size, WHAT_MONEYa));
 		NOTIFY_EXCH_PRICE(ch) = size;
 		ch->save_char();
@@ -2237,7 +2241,7 @@ ACMD(do_gen_tog)
 		 "Показ покупок и продаж ингредиентов в режиме базара включен.\r\n"},
 		{"", ""}, 		// SCMD_REMEMBER
 		{"", ""},		//SCMD_NOTIFY_EXCH
-		 
+
 	};
 
 

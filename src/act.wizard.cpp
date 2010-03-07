@@ -87,8 +87,8 @@ extern const char *pc_class_types[];
 extern const char *pc_kin_types[];
 extern struct spell_info_type spell_info[];
 /*for name auto-agree*/
-extern void agree_name(CHAR_DATA * d, char *immname, int immlev);
-extern void disagree_name(CHAR_DATA * d, char *immname, int immlev);
+extern void agree_name(CHAR_DATA * d, const char *immname, int immlev);
+extern void disagree_name(CHAR_DATA * d, const char *immname, int immlev);
 /* privileges class */
 extern int reboot_uptime;
 extern BanList *ban;
@@ -105,7 +105,6 @@ void reset_zone(zone_rnum zone);
 int parse_class(char arg);
 extern CHAR_DATA *find_char(long n);
 void rename_char(CHAR_DATA * ch, char *oname);
-long get_ptable_by_name(char *name);
 int _parse_name(char *arg, char *name);
 int Valid_Name(char *name);
 int reserved_word(const char *name);
@@ -1486,7 +1485,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	if (IS_MOB(k))
 	{
 		sprintf(buf, "Синонимы: %s, VNum: [%5d], RNum: [%5d]\r\n",
-				k->player_data.name, GET_MOB_VNUM(k), GET_MOB_RNUM(k));
+				k->get_pc_name(), GET_MOB_VNUM(k), GET_MOB_RNUM(k));
 		send_to_char(buf, ch);
 	}
 
@@ -4433,6 +4432,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 				TopPlayer::Remove(vict);
 
 			for (i = 0; i < NUM_PADS; i++)
+			{
 				if (!_parse_name(npad[i], npad[i]))
 				{
 					if (GET_PAD(vict, i))
@@ -4440,10 +4440,8 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 					CREATE(GET_PAD(vict, i), char, strlen(npad[i]) + 1);
 					strcpy(GET_PAD(vict, i), npad[i]);
 				}
-			if (GET_NAME(vict))
-				free(GET_NAME(vict));
-			CREATE(GET_NAME(vict), char, strlen(npad[0]) + 1);
-			strcpy(GET_NAME(vict), npad[0]);
+			}
+			vict->set_name(npad[0]);
 
 			if (!IS_SET(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN) && !IS_SET(PLR_FLAGS(vict, PLR_DELETED), PLR_DELETED) && !IS_IMMORTAL(vict))
 				TopPlayer::Refresh(ch);
@@ -4876,7 +4874,7 @@ ACMD(do_liblist)
 			if (mob_index[nr].vnum >= first && mob_index[nr].vnum <= last)
 			{
 				sprintf(bf, "%s%5d. [%5d] %s\r\n", bf, ++found,
-						mob_index[nr].vnum, mob_proto[nr].player_data.short_descr);
+						mob_index[nr].vnum, mob_proto[nr].get_npc_name());
 			}
 		}
 		break;

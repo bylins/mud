@@ -2467,7 +2467,7 @@ int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DA
 	return FALSE;
 }
 
-void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, char *argument)
+void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 {
 	int i, spellnum;
 	int level;

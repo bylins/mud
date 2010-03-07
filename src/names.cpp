@@ -344,7 +344,7 @@ void rm_disagree_name(CHAR_DATA * d)
 
 }
 
-void add_agree_name(CHAR_DATA * d, char *immname, int immlev)
+void add_agree_name(CHAR_DATA * d, const char *immname, int immlev)
 {
 	FILE *fl;
 	if (!(fl = fopen(ANAME_FILE, "a")))
@@ -359,7 +359,7 @@ void add_agree_name(CHAR_DATA * d, char *immname, int immlev)
 	return;
 }
 
-void add_disagree_name(CHAR_DATA * d, char *immname, int immlev)
+void add_disagree_name(CHAR_DATA * d, const char *immname, int immlev)
 {
 	FILE *fl;
 	if (!(fl = fopen(DNAME_FILE, "a")))
@@ -373,7 +373,7 @@ void add_disagree_name(CHAR_DATA * d, char *immname, int immlev)
 	return;
 }
 
-void disagree_name(CHAR_DATA * d, char *immname, int immlev)
+void disagree_name(CHAR_DATA * d, const char *immname, int immlev)
 {
 	// Clean record from agreed if present ...
 	rm_agree_name(d);
@@ -383,7 +383,7 @@ void disagree_name(CHAR_DATA * d, char *immname, int immlev)
 	add_disagree_name(d, immname, immlev);
 }
 
-void agree_name(CHAR_DATA * d, char *immname, int immlev)
+void agree_name(CHAR_DATA * d, const char *immname, int immlev)
 {
 	// Clean record from disgreed if present ...
 	rm_agree_name(d);

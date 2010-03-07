@@ -426,15 +426,12 @@ extern SPECIAL(postmaster);
 #define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : NULL)
 
 /* char utils ************************************************************/
-
 #define IS_MANA_CASTER(ch) (GET_CLASS(ch)==CLASS_DRUID)
 #define IN_ROOM(ch)  ((ch)->in_room)
 #define GET_AGE(ch)     (age(ch)->year)
 #define GET_REAL_AGE(ch) (age(ch)->year + GET_AGE_ADD(ch))
-
-#define GET_PC_NAME(ch) ((ch)->player_data.name)
-#define GET_NAME(ch)    (IS_NPC(ch) ? \
-          (ch)->player_data.short_descr : GET_PC_NAME(ch))
+#define GET_PC_NAME(ch) ((ch)->get_pc_name())
+#define GET_NAME(ch)    ((ch)->get_name())
 #define GET_HELPER(ch)  ((ch)->helpers)
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_LEVEL(ch)   ((ch)->player_data.level)

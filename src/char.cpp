@@ -193,18 +193,12 @@ void Character::purge(bool destructor)
 
 	if (!IS_NPC(this) || (IS_NPC(this) && GET_MOB_RNUM(this) == -1))
 	{	/* if this is a player, or a non-prototyped non-player, free all */
-		if (GET_NAME(this))
-			free(GET_NAME(this));
-
 		for (j = 0; j < NUM_PADS; j++)
 			if (GET_PAD(this, j))
 				free(GET_PAD(this, j));
 
 		if (this->player_data.title)
 			free(this->player_data.title);
-
-		if (this->player_data.short_descr)
-			free(this->player_data.short_descr);
 
 		if (this->player_data.long_descr)
 			free(this->player_data.long_descr);
@@ -222,9 +216,6 @@ void Character::purge(bool destructor)
 	}
 	else if ((i = GET_MOB_RNUM(this)) >= 0)
 	{	/* otherwise, free strings only if the string is not pointing at proto */
-		if (this->player_data.name && this->player_data.name != mob_proto[i].player_data.name)
-			free(this->player_data.name);
-
 		for (j = 0; j < NUM_PADS; j++)
 			if (GET_PAD(this, j)
 					&& (this->player_data.PNames[j] != mob_proto[i].player_data.PNames[j]))
@@ -232,9 +223,6 @@ void Character::purge(bool destructor)
 
 		if (this->player_data.title && this->player_data.title != mob_proto[i].player_data.title)
 			free(this->player_data.title);
-
-		if (this->player_data.short_descr && this->player_data.short_descr != mob_proto[i].player_data.short_descr)
-			free(this->player_data.short_descr);
 
 		if (this->player_data.long_descr && this->player_data.long_descr != mob_proto[i].player_data.long_descr)
 			free(this->player_data.long_descr);
@@ -668,4 +656,59 @@ void Character::set_serial_num(int num)
 bool Character::purged() const
 {
 	return purged_;
+}
+
+const char * Character::get_name() const
+{
+	if (IS_NPC(this))
+	{
+		return get_npc_name();
+	}
+	return get_pc_name();
+}
+
+void Character::set_name(const char *name)
+{
+	if (IS_NPC(this))
+	{
+		set_npc_name(name);
+	}
+	else
+	{
+		set_pc_name(name);
+	}
+}
+
+const char * Character::get_pc_name() const
+{
+	return name_.c_str();
+}
+
+void Character::set_pc_name(const char *name)
+{
+	if (name)
+	{
+		name_ = name;
+	}
+	else
+	{
+		name_.clear();
+	}
+}
+
+const char * Character::get_npc_name() const
+{
+	return short_descr_.c_str();
+}
+
+void Character::set_npc_name(const char *name)
+{
+	if (name)
+	{
+		short_descr_ = name;
+	}
+	else
+	{
+		short_descr_.clear();
+	}
 }

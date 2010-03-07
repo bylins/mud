@@ -197,7 +197,6 @@ void renum_world(void);
 void renum_zone_table(void);
 void log_zone_error(zone_rnum zone, int cmd_no, const char *message);
 void reset_time(void);
-long get_ptable_by_name(char *name);
 int mobs_in_room(int m_num, int r_num);
 void new_build_player_index(void);
 void renum_obj_zone(void);
@@ -3092,7 +3091,7 @@ void parse_mobile(FILE * mob_f, int nr)
 {
 	static int i = 0;
 	int j, t[10];
-	char line[256], *tmpptr, letter;
+	char line[256], letter;
 	char f1[128], f2[128];
 
 	mob_index[i].vnum = nr;
@@ -3106,17 +3105,26 @@ void parse_mobile(FILE * mob_f, int nr)
 	 */
 	mob_proto[i].player_specials = &dummy_mob;
 	sprintf(buf2, "mob vnum %d", nr);
+
 	/***** String data *****/
-	mob_proto[i].player_data.name = fread_string(mob_f, buf2);	/* aliases */
-	tmpptr = mob_proto[i].player_data.short_descr = fread_string(mob_f, buf2);
+	char *tmp_str = fread_string(mob_f, buf2);
+	mob_proto[i].set_pc_name(tmp_str);
+	if (tmp_str)
+	{
+		free(tmp_str);
+	}
+	tmp_str = fread_string(mob_f, buf2);
+	mob_proto[i].set_npc_name(tmp_str);
+	if (tmp_str)
+	{
+		free(tmp_str);
+	}
+
 	/* real name */
-	CREATE(GET_PAD(mob_proto + i, 0), char, strlen(mob_proto[i].player_data.short_descr) + 1);
-	strcpy(GET_PAD(mob_proto + i, 0), mob_proto[i].player_data.short_descr);
+	CREATE(GET_PAD(mob_proto + i, 0), char, strlen(mob_proto[i].get_npc_name()) + 1);
+	strcpy(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name());
 	for (j = 1; j < NUM_PADS; j++)
 		GET_PAD(mob_proto + i, j) = fread_string(mob_f, buf2);
-	if (tmpptr && *tmpptr)
-		if (!str_cmp(fname(tmpptr), "a") || !str_cmp(fname(tmpptr), "an") || !str_cmp(fname(tmpptr), "the"))
-			*tmpptr = LOWER(*tmpptr);
 
 	mob_proto[i].player_data.long_descr = fread_string(mob_f, buf2);
 	mob_proto[i].player_data.description = fread_string(mob_f, buf2);
@@ -3729,10 +3737,10 @@ int vnum_mobile(char *searchname, CHAR_DATA * ch)
 
 	for (nr = 0; nr <= top_of_mobt; nr++)
 	{
-		if (isname(searchname, mob_proto[nr].player_data.name))
+		if (isname(searchname, mob_proto[nr].get_pc_name()))
 		{
 			sprintf(buf, "%3d. [%5d] %s\r\n", ++found,
-					mob_index[nr].vnum, mob_proto[nr].player_data.short_descr);
+					mob_index[nr].vnum, mob_proto[nr].get_npc_name());
 			send_to_char(buf, ch);
 		}
 	}
@@ -4959,7 +4967,7 @@ long cmp_ptable_by_name(char *name, int len)
 
 
 
-long get_ptable_by_name(char *name)
+long get_ptable_by_name(const char *name)
 {
 	int i;
 
@@ -5184,7 +5192,7 @@ int load_char(const char *name, CHAR_DATA * char_element, bool reboot)
  * If the name already exists, by overwriting a deleted character, then
  * we re-use the old position.
  */
-int create_entry(char *name)
+int create_entry(const char *name)
 {
 	int i, pos, found = TRUE;
 
@@ -5514,7 +5522,7 @@ void init_char(CHAR_DATA * ch)
 	//start_room = calc_loadroom(ch);
 	GET_PORTALS(ch) = NULL;
 	CREATE(GET_LOGS(ch), int, NLOG);
-	ch->player_data.short_descr = NULL;
+	ch->set_npc_name(0);
 	ch->player_data.long_descr = NULL;
 	ch->player_data.description = NULL;
 	ch->player_data.time.birth = time(0);
@@ -6234,7 +6242,7 @@ void rename_char(CHAR_DATA * ch, char *oname)
 /*
 * Добровольное удаление персонажа через игровое меню.
 */
-void delete_char(char *name)
+void delete_char(const char *name)
 {
 	Player t_st;
 	Player *st = &t_st;
