@@ -263,7 +263,7 @@ void ClanExpHistory::add_exp(long exp)
 	}
 	char time_str[10];
 	time_t curr_time = time(0);
-	strftime(time_str, sizeof(time_str), "%m.%Y", localtime(&curr_time));
+	strftime(time_str, sizeof(time_str), "%Y.%m", localtime(&curr_time));
 	std::string time_cpp_str(time_str);
 
 	HistoryExpListType::iterator it = list_.find(time_cpp_str);
