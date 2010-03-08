@@ -218,10 +218,12 @@ public:
 	friend ACMD(DoStoreHouse);
 	friend ACMD(do_clanstuff);
 
-	// набранная за последний месяц экспа
-	ClanExp last_exp;
 	// клан пк
 	ClanPkLog pk_log;
+	// набранная за последний месяц экспа
+	ClanExp last_exp;
+	// помесячная история экспы без учета минусов
+	ClanExpHistory exp_history;
 
 private:
 	std::string abbrev; // аббревиатура клана, ОДНО слово

@@ -809,8 +809,13 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 
 	if (CLAN(ch))
 	{
-		CLAN(ch)->last_exp.add_temp(gain + clan_exp);
-		CLAN(ch)->AddTopExp(ch, gain + clan_exp); // для рейтинга кланов
+		long total_exp = gain + clan_exp;
+		CLAN(ch)->last_exp.add_temp(total_exp);
+		CLAN(ch)->AddTopExp(ch, total_exp);
+		if (total_exp > 0)
+		{
+			CLAN(ch)->exp_history.add_exp(total_exp);
+		}
 	}
 }
 

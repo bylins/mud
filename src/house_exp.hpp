@@ -6,6 +6,7 @@
 #define HOUSE_EXP_HPP_INCLUDED
 
 #include <list>
+#include <map>
 #include <string>
 #include "conf.h"
 #include "sysdep.h"
@@ -13,6 +14,7 @@
 
 void update_clan_exp();
 void save_clan_exp();
+
 // период обновления и сохранения экспы (в минутах)
 const int CLAN_EXP_UPDATE_PERIOD = 60;
 
@@ -23,8 +25,8 @@ public:
 	long long get_exp() const;
 	void add_chunk();
 	void add_temp(int exp);
-	void load(std::string abbrev);
-	void save(std::string abbrev) const;
+	void load(const std::string &abbrev);
+	void save(const std::string &abbrev) const;
 	void update_total_exp();
 private:
 	int buffer_exp_;
@@ -41,8 +43,8 @@ class ClanPkLog
 public:
 	ClanPkLog() : need_save(false) {};
 
-	void load(std::string abbrev);
-	void save(std::string abbrev);
+	void load(const std::string &abbrev);
+	void save(const std::string &abbrev);
 	void print(CHAR_DATA *ch) const;
 	static void check(CHAR_DATA *ch, CHAR_DATA *victim);
 
@@ -51,6 +53,20 @@ private:
 
 	bool need_save;
 	std::list<std::string> pk_log;
+};
+
+/**
+ * Помесячная история набранной кланом экспы без учета минусов от смертей и прочего.
+ */
+class ClanExpHistory
+{
+public:
+	void add_exp(long exp);
+	void load(const std::string &abbrev);
+	void save(const std::string &abbrev) const;
+private:
+	typedef std::map<std::string /* месяц.год */, long long /* экспа*/> HistoryExpListType;
+	HistoryExpListType list_;
 };
 
 #endif // HOUSE_EXP_HPP_INCLUDED

@@ -54,10 +54,8 @@ long long ClanExp::get_exp() const
 /**
 * Сохранение списка и буффера в отдельный файл клана (по аббревиатуре).
 */
-void ClanExp::save(std::string abbrev) const
+void ClanExp::save(const std::string &abbrev) const
 {
-	for (unsigned i = 0; i != abbrev.length(); ++i)
-		abbrev[i] = LOWER(AtoL(abbrev[i]));
 	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".exp";
 	std::ofstream file(filename.c_str());
 	if (!file.is_open())
@@ -77,10 +75,8 @@ void ClanExp::save(std::string abbrev) const
 /**
 * Загрузка списка экспы и буффера конкретного клана (по аббревиатуре).
 */
-void ClanExp::load(std::string abbrev)
+void ClanExp::load(const std::string &abbrev)
 {
-	for (unsigned i = 0; i != abbrev.length(); ++i)
-		abbrev[i] = LOWER(AtoL(abbrev[i]));
 	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".exp";
 	std::ifstream file(filename.c_str());
 	if (!file.is_open())
@@ -128,7 +124,8 @@ void save_clan_exp()
 {
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
 	{
-		(*clan)->last_exp.save((*clan)->get_abbrev());
+		(*clan)->last_exp.save((*clan)->get_file_abbrev());
+		(*clan)->exp_history.save((*clan)->get_file_abbrev());
 	}
 }
 
@@ -172,13 +169,19 @@ void ClanPkLog::print(CHAR_DATA *ch) const
 	}
 }
 
-void ClanPkLog::save(std::string abbrev)
+void ClanPkLog::save(const std::string &abbrev)
 {
 	if (!need_save)
 	{
 		return;
 	}
+
 	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".war";
+	if (pk_log.empty())
+	{
+		remove(filename.c_str());
+		return;
+	}
 
 	std::ofstream file(filename.c_str());
 	if (!file.is_open())
@@ -196,7 +199,7 @@ void ClanPkLog::save(std::string abbrev)
 	need_save = false;
 }
 
-void ClanPkLog::load(std::string abbrev)
+void ClanPkLog::load(const std::string &abbrev)
 {
 	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".war";
 
@@ -247,4 +250,72 @@ void ClanPkLog::check(CHAR_DATA *ch, CHAR_DATA *victim)
 			CLAN(killer)->pk_log.add(out.str());
 		}
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// ClanExpHistory
+
+void ClanExpHistory::add_exp(long exp)
+{
+	if (exp <= 0)
+	{
+		return;
+	}
+	char time_str[10];
+	time_t curr_time = time(0);
+	strftime(time_str, sizeof(time_str), "%m.%Y", localtime(&curr_time));
+	std::string time_cpp_str(time_str);
+
+	HistoryExpListType::iterator it = list_.find(time_cpp_str);
+	if (it != list_.end())
+	{
+		it->second += exp;
+	}
+	else
+	{
+		list_[time_cpp_str] = exp;
+	}
+}
+
+void ClanExpHistory::load(const std::string &abbrev)
+{
+	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + "-history.exp";
+
+	std::ifstream file(filename.c_str(), std::ios::binary);
+	if (!file.is_open())
+	{
+		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+		return;
+	}
+
+	std::string buffer;
+	long long exp;
+	while(file >> buffer >> exp)
+	{
+		list_[buffer] = exp;
+	}
+	file.close();
+}
+
+void ClanExpHistory::save(const std::string &abbrev) const
+{
+	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + "-history.exp";
+	if (list_.empty())
+	{
+		remove(filename.c_str());
+		return;
+	}
+
+	std::ofstream file(filename.c_str());
+	if (!file.is_open())
+	{
+		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+		return;
+	}
+
+	for (HistoryExpListType::const_iterator i = list_.begin(); i != list_.end(); ++i)
+	{
+		file << i->first << " " << i->second << "\n";
+	}
+	file.close();
 }

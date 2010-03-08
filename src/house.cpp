@@ -563,12 +563,11 @@ void Clan::ClanLoad()
 				tempClan->clanstuff.push_back(temp);
 			}
 		}
-		// клан-экспа
-		tempClan->last_exp.load(tempClan->get_abbrev());
-		// message of the day
+		// лоад доп. параметров клана
 		tempClan->load_mod();
-		// клан пк
 		tempClan->pk_log.load(tempClan->get_file_abbrev());
+		tempClan->last_exp.load(tempClan->get_file_abbrev());
+		tempClan->exp_history.load(tempClan->get_file_abbrev());
 
 		Clan::ClanList.push_back(tempClan);
 	}
