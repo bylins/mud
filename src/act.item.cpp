@@ -2517,7 +2517,7 @@ ACMD(do_poisoned)
 
 	int cost = MIN(GET_OBJ_VAL(cont, 1), GET_LEVEL(ch) <= 10 ? 1 : GET_LEVEL(ch) <= 20 ? 2 : 3);
 	GET_OBJ_VAL(cont, 1) -= cost;
-	weight_change_object(cont, cost);
+	weight_change_object(cont, -cost);
 	if (!GET_OBJ_VAL(cont, 1))
 		name_from_drinkcon(cont);
 
