@@ -474,7 +474,7 @@ void return_money(std::string const &name, int money, bool add)
 		{
 			add_bank_gold(vict, money);
 			send_to_char(vict, "%sВы получили %d %s банковским переводом от почтовой службы%s.\r\n",
-					CCWHT(vict, C_NRM), money, desc_count(money, WHAT_MONEYa), CCNRM(vict, C_NRM));
+					CCWHT(vict, C_NRM), money, desc_count(money, WHAT_MONEYu), CCNRM(vict, C_NRM));
 		}
 	}
 	else
@@ -524,6 +524,34 @@ int calculate_timer_cost(std::list<Node>::iterator const &it)
 }
 
 /**
+ * Генерим сам контейнер посылку.
+ */
+OBJ_DATA * create_parcel()
+{
+	OBJ_DATA *obj = create_obj();
+	obj->name = str_dup("посылка бандероль пакет ящик parcel box case chest");
+	obj->short_description = str_dup("посылка");
+	obj->description = str_dup("Кто-то забыл здесь свою посылку.");
+	obj->PNames[0] = str_dup("посылка");
+	obj->PNames[1] = str_dup("посылки");
+	obj->PNames[2] = str_dup("посылке");
+	obj->PNames[3] = str_dup("посылку");
+	obj->PNames[4] = str_dup("посылкой");
+	obj->PNames[5] = str_dup("посылке");
+	GET_OBJ_SEX(obj) = SEX_FEMALE;
+	GET_OBJ_TYPE(obj) = ITEM_CONTAINER;
+	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
+	GET_OBJ_WEIGHT(obj) = 1;
+	GET_OBJ_COST(obj) = 1;
+	GET_OBJ_RENT(obj) = 1;
+	GET_OBJ_RENTEQ(obj) = 1;
+	obj->set_timer(24 * 60);
+	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
+	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_DECAY), ITEM_DECAY);
+	return obj;
+}
+
+/**
 * Получение посылки на почте, дергается из спешиала почты. ('получить').
 */
 void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
@@ -536,26 +564,7 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
 			std::string name = GetNameByUnique(it2->first);
 			name_convert(name);
 
-			OBJ_DATA *obj = create_obj();
-			obj->name = str_dup("посылка бандероль пакет ящик parcel box case chest");
-			obj->short_description = str_dup("посылка");
-			obj->description = str_dup("Кто-то забыл здесь свою посылку.");
-			obj->PNames[0] = str_dup("посылка");
-			obj->PNames[1] = str_dup("посылки");
-			obj->PNames[2] = str_dup("посылке");
-			obj->PNames[3] = str_dup("посылку");
-			obj->PNames[4] = str_dup("посылкой");
-			obj->PNames[5] = str_dup("посылке");
-			GET_OBJ_SEX(obj) = SEX_FEMALE;
-			GET_OBJ_TYPE(obj) = ITEM_CONTAINER;
-			GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE;
-			GET_OBJ_WEIGHT(obj) = 1;
-			GET_OBJ_COST(obj) = 1;
-			GET_OBJ_RENT(obj) = 1;
-			GET_OBJ_RENTEQ(obj) = 1;
-			obj->set_timer(24 * 60);
-			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
-			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_DECAY), ITEM_DECAY);
+			OBJ_DATA *obj = create_parcel();
 			fill_ex_desc(ch, obj, name);
 
 			int money = 0;
@@ -983,6 +992,60 @@ OBJ_DATA * locate_object(const char *str)
 		}
 	}
 	return 0;
+}
+
+/**
+ * Возврат всех ждущих посылок их отправителю.
+ */
+void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman)
+{
+	int money = 0;
+	bool empty = true;
+	for (ParcelListType::iterator i = parcel_list.begin(); i != parcel_list.end(); /* empty */)
+	{
+		SenderListType::iterator k = i->second.find(GET_UNIQUE(ch));
+		if (k == i->second.end())
+		{
+			++i;
+			continue;
+		}
+		empty = false;
+		OBJ_DATA *obj = create_parcel();
+		fill_ex_desc(ch, obj, std::string("Отдел возвратов"));
+		for (std::list<Node>::iterator l = k->second.begin(); l != k->second.end(); ++l)
+		{
+			money += l->money_ - calculate_timer_cost(l);
+			l->obj_->next = object_list;
+			object_list = l->obj_;
+			ObjectAlias::add(l->obj_);
+			obj_to_obj(l->obj_, obj);
+		}
+		obj_to_char(obj, ch);
+		snprintf(buf, MAX_STRING_LENGTH, "$n дал$g Вам посылку.");
+		act(buf, FALSE, mailman, 0, ch, TO_VICT);
+		act("$N дал$G $n2 посылку.", FALSE, ch, 0, mailman, TO_ROOM);
+
+		i->second.erase(k);
+		if (i->second.empty())
+		{
+			parcel_list.erase(i++);
+		}
+		else
+		{
+			++i;
+		}
+	}
+	if (!empty && money > 0)
+	{
+		act("$n сказал$g Вам : 'За экстренный возврат посылок с Вас удержана половина зарезервированных кун.'",
+				FALSE, mailman, 0, ch, TO_VICT);
+		std::string name = GET_NAME(ch);
+		return_money(name, money/2, RETURN_WITH_MONEY);
+	}
+	else
+	{
+		act("$n сказал$g Вам : 'У нас нет ниодной Вашей посылки!'", FALSE, mailman, 0, ch, TO_VICT);
+	}
 }
 
 } // namespace Parcel

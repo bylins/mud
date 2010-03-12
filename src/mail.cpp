@@ -497,8 +497,9 @@ SPECIAL(postmaster)
 	if (!ch->desc || IS_NPC(ch))
 		return (0);	/* so mobs don't get caught here */
 
-	if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive") ||
-			CMD_IS("почта") || CMD_IS("получить") || CMD_IS("отправить")))
+	if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive")
+			|| CMD_IS("почта") || CMD_IS("получить") || CMD_IS("отправить")
+			|| CMD_IS("return") || CMD_IS("вернуть")))
 		return (0);
 
 	if (no_mail)
@@ -520,6 +521,11 @@ SPECIAL(postmaster)
 	else if (CMD_IS("receive") || CMD_IS("получить"))
 	{
 		postmaster_receive_mail(ch, (CHAR_DATA *) me, cmd, argument);
+		return (1);
+	}
+	else if (CMD_IS("return") || CMD_IS("вернуть"))
+	{
+		Parcel::bring_back(ch, (CHAR_DATA *) me);
 		return (1);
 	}
 	else
