@@ -30,7 +30,6 @@ struct char_player_data
 	char *description;	/* Extra descriptions                   */
 	char *title;		/* PC / NPC's title                     */
 	byte sex;		/* PC / NPC's sex                       */
-	byte chclass;		/* PC / NPC's class             */
 	ubyte level;		/* PC / NPC's level                     */
 	struct time_data time;			/* PC's AGE in days                 */
 	ubyte weight;		/* PC / NPC's weight                    */
@@ -346,6 +345,9 @@ public:
 	const char * get_npc_name() const;
 	void set_npc_name(const char *name);
 
+	short get_class() const;
+	void set_class(short chclass);
+
 private:
 	void check_fighting_list();
 	void zero_init();
@@ -369,6 +371,8 @@ private:
 	std::string name_;
 	// имя моба (им.падеж)
 	std::string short_descr_;
+	// профессия чара/класс моба
+	short chclass_;
 
 // старое
 public:

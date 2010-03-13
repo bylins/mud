@@ -2873,7 +2873,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		else
-			GET_CLASS(d->character) = load_result;
+		{
+			d->character->set_class(load_result);
+		}
 		SEND_TO_Q(religion_menu, d);
 		SEND_TO_Q("\n\rРелигия :", d);
 		STATE(d) = CON_RELIGION;
@@ -2894,7 +2896,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		else
-			GET_CLASS(d->character) = load_result;
+		{
+			d->character->set_class(load_result);
+		}
 		SEND_TO_Q(religion_menu, d);
 		SEND_TO_Q("\n\rРелигия :", d);
 		STATE(d) = CON_RELIGION;
@@ -2915,7 +2919,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		else
-			GET_CLASS(d->character) = load_result;
+		{
+			d->character->set_class(load_result);
+		}
 		SEND_TO_Q(religion_menu, d);
 		SEND_TO_Q("\n\rРелигия :", d);
 		STATE(d) = CON_RELIGION;

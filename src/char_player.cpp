@@ -747,7 +747,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		CREATE(this->player_specials, struct player_special_data, 1);
 
 	GET_LEVEL(this) = 1;
-	GET_CLASS(this) = 1;
+	set_class(1);
 	GET_UNIQUE(this) = 0;
 	LAST_LOGON(this) = time(0);
 	GET_IDNUM(this) = 0;
@@ -782,7 +782,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			break;
 		case 'C':
 			if (!strcmp(tag, "Clas"))
-				GET_CLASS(this) = num;
+			{
+				set_class(num);
+			}
 			break;
 		case 'E':
 			if (!strcmp(tag, "Exp "))

@@ -3943,7 +3943,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		GET_DEFAULT_POS(mob) = POS_STANDING;
 		GET_SEX(mob) = SEX_MALE;
 
-		GET_CLASS(mob) = GET_CLASS(ch);
+		mob->set_class(ch->get_class());
 		GET_WEIGHT(mob) = GET_WEIGHT(ch);
 		GET_HEIGHT(mob) = GET_HEIGHT(ch);
 		GET_SIZE(mob) = GET_SIZE(ch);

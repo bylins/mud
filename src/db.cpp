@@ -2567,7 +2567,7 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 	mob_proto[i].player_data.sex = t[2];
 
 	mob_proto[i].player_data.Race = NPC_RACE_BASIC;
-	mob_proto[i].player_data.chclass = CLASS_BASIC_NPC;
+	mob_proto[i].set_class(CLASS_BASIC_NPC);
 	mob_proto[i].player_data.weight = 200;
 	mob_proto[i].player_data.height = 198;
 
@@ -2757,7 +2757,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 	CASE("Class")
 	{
 		RANGE(CLASS_BASIC_NPC, CLASS_LAST_NPC);
-		mob_proto[i].player_data.chclass = num_arg;
+		mob_proto[i].set_class(num_arg);
 	}
 
 

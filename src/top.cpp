@@ -50,24 +50,22 @@ void TopPlayer::Refresh(CHAR_DATA * short_ch, bool reboot)
 			|| IS_SET(PLR_FLAGS(short_ch, PLR_DELETED), PLR_DELETED) || IS_IMMORTAL(short_ch))
 		return;
 
-	int class_num = static_cast<int>(GET_CLASS(short_ch)); // а то уж больно плохо смотрится
-
 	if (!reboot)
 		TopPlayer::Remove(short_ch);
 
 	// шерстим список по ремортам и экспе и смотрим куда воткнуться
 	std::list<TopPlayer>::iterator it_exp;
-	for (it_exp = TopPlayer::TopList[class_num].begin(); it_exp != TopPlayer::TopList[class_num].end(); ++it_exp)
+	for (it_exp = TopPlayer::TopList[GET_CLASS(short_ch)].begin(); it_exp != TopPlayer::TopList[GET_CLASS(short_ch)].end(); ++it_exp)
 		if (it_exp->remort < GET_REMORT(short_ch) || (it_exp->remort == GET_REMORT(short_ch) && it_exp->exp < GET_EXP(short_ch)))
 			break;
 
 	if (!GET_NAME(short_ch)) return; // у нас все может быть
 	TopPlayer temp_player(GET_UNIQUE(short_ch), GET_NAME(short_ch), GET_EXP(short_ch), GET_REMORT(short_ch));
 
-	if (it_exp != TopPlayer::TopList[class_num].end())
-		TopPlayer::TopList[class_num].insert(it_exp, temp_player);
+	if (it_exp != TopPlayer::TopList[GET_CLASS(short_ch)].end())
+		TopPlayer::TopList[GET_CLASS(short_ch)].insert(it_exp, temp_player);
 	else
-		TopPlayer::TopList[class_num].push_back(temp_player);
+		TopPlayer::TopList[GET_CLASS(short_ch)].push_back(temp_player);
 }
 
 const char * TopPlayer::TopFormat[NUM_CLASSES + 1] =

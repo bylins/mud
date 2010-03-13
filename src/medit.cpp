@@ -122,7 +122,7 @@ void medit_mobile_init(CHAR_DATA * mob)
 	GET_WEIGHT(mob) = 200;
 	GET_HEIGHT(mob) = 198;
 	GET_SIZE(mob) = 30;
-	GET_CLASS(mob) = CLASS_BASIC_NPC;
+	mob->set_class(CLASS_BASIC_NPC);
 	GET_RACE(mob) = NPC_RACE_BASIC;
 	GET_MR(mob) = GET_AR(mob) = 0;
 
@@ -1892,7 +1892,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 		/*-------------------------------------------------------------------*/
 	case MEDIT_CLASS:
-		GET_CLASS(OLC_MOB(d)) = MAX(CLASS_BASIC_NPC, MIN(CLASS_LAST_NPC - 1, atoi(arg) + CLASS_BASIC_NPC));
+		OLC_MOB(d)->set_class(MAX(CLASS_BASIC_NPC, MIN(CLASS_LAST_NPC - 1, atoi(arg) + CLASS_BASIC_NPC)));
 		break;
 		/*-------------------------------------------------------------------*/
 	case MEDIT_FEATURES:

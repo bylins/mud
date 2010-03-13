@@ -712,3 +712,17 @@ void Character::set_npc_name(const char *name)
 		short_descr_.clear();
 	}
 }
+
+short Character::get_class() const
+{
+	return chclass_;
+}
+
+void Character::set_class(short chclass)
+{
+	if (chclass < 0 || chclass > CLASS_LAST_NPC)
+	{
+		log("WARNING: chclass=%d (%s %s %d)", chclass, __FILE__, __func__, __LINE__);
+	}
+	chclass_ = chclass;
+}

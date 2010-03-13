@@ -1598,12 +1598,12 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	if (IS_NPC(k))  	/* Use GET_CLASS() macro? */
 	{
 		strcpy(buf, "Тип монстра: ");
-		sprinttype(k->player_data.chclass-CLASS_BASIC_NPC, npc_class_types, buf2);
+		sprinttype(k->get_class() - CLASS_BASIC_NPC, npc_class_types, buf2);
 	}
 	else
 	{
 		strcpy(buf, "Профессия: ");
-		sprinttype(k->player_data.chclass, pc_class_types, buf2);
+		sprinttype(k->get_class(), pc_class_types, buf2);
 	}
 	strcat(buf, buf2);
 
@@ -4214,7 +4214,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char("Нет такого клаcса в этой игре. Найдите себе другую.\r\n", ch);
 			return (0);
 		}
-		GET_CLASS(vict) = i;
+		vict->set_class(i);
 		break;
 	case 32:
 		/* Флаг для морталов с привилегиями */
