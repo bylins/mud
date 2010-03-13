@@ -2062,31 +2062,33 @@ int valid_email(const char *address)
 	return 1;
 }
 
-// TODO: на снос
 int get_gold(CHAR_DATA *ch)
 {
 	return ch->get_gold();
 }
 
-// TODO: на снос
+/*
+void add_gold(CHAR_DATA *ch, int gold)
+{
+	ch->add_gold(gold);
+}
+*/
+
 void set_gold(CHAR_DATA *ch, int gold, bool need_log)
 {
 	ch->set_gold(gold, need_log);
 }
 
-// TODO: на снос
 long get_bank_gold(CHAR_DATA *ch)
 {
 	return ch->get_bank_gold();
 }
 
-// TODO: на снос
 void add_bank_gold(CHAR_DATA *ch, long gold)
 {
 	ch->add_bank_gold(gold);
 }
 
-// TODO: на снос
 void set_bank_gold(CHAR_DATA *ch, long gold, bool need_log)
 {
 	ch->set_bank_gold(gold, need_log);

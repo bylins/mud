@@ -814,21 +814,50 @@ int Character::get_gold() const
 }
 
 /**
- * В данный момент просто оболочка над set_gold(),
- * где и идут все расчеты и логирование.
- */
+* Аналог GET_GOLD не поделенный на add/remove, т.к. везде логика завязана
+* на то, что голда знаковый тип, менять надо более основательно.
+* Изменения кун у чаров логиурем.
+*/
 void Character::add_gold(int gold)
 {
-	set_gold(get_gold() + gold);
+	if (!gold) return;
+
+	if (!IS_NPC(this))
+	{
+		if (gold > 0)
+			log("Gold: %s add %d", GET_NAME(this), gold);
+		else
+			log("Gold: %s remove %d", GET_NAME(this), -gold);
+	}
+
+	gold_ += gold;
+
+//	set_gold(get_gold() + gold);
 }
 
 /**
- * Сет кун на руках, можно сетить отрицательные значения, в лог всеравно пойдет
- * корректная цифра бывших на руках кун, просетится при этом ес-сно 0.
- * \param need_log - логировать или нет, по дефолту 1, т.е. логируем
- */
-void Character::set_gold(int num, bool need_log)
+* Сет кун на руках, чаров логируем, если надо.
+* \param need_log - логировать или нет, по дефолту 1, т.е. логируем
+* В основнм сеты остались только при обнулении бабла и ините полей,
+* т.е. всяких фишек и сетом отрицательных значений быть не должно,
+* все расчеты и выкрутасы идут через add_gold.
+*/
+void Character::set_gold(int gold, bool need_log)
 {
+	if (gold < 0 || gold > 100000000 || gold_ == gold) return;
+
+	if (need_log && !IS_NPC(this))
+	{
+		int change = gold - gold_;
+		if (change > 0)
+			log("Gold: %s add %d", GET_NAME(this), change);
+		else
+			log("Gold: %s remove %d", GET_NAME(this), -change);
+	}
+
+	gold_ = gold;
+
+/*
 	if (get_gold() == num)
 	{
 		// чтобы с логированием не заморачиваться
@@ -850,6 +879,7 @@ void Character::set_gold(int num, bool need_log)
 	}
 
 	gold_ = num;
+*/
 }
 
 long Character::get_bank_gold() const
@@ -862,14 +892,40 @@ long Character::get_bank_gold() const
 */
 void Character::add_bank_gold(long gold)
 {
-	set_bank_gold(get_bank_gold() + gold);
+	if (!gold) return;
+
+	if (!IS_NPC(this))
+	{
+		if (gold > 0)
+			log("Gold: %s add %ld", GET_NAME(this), gold);
+		else
+			log("Gold: %s remove %ld", GET_NAME(this), -gold);
+	}
+
+	bank_gold_ += gold;
+
+//	set_bank_gold(get_bank_gold() + gold);
 }
 
 /**
 * См. Character::set_gold()
 */
-void Character::set_bank_gold(long num, bool need_log)
+void Character::set_bank_gold(long gold, bool need_log)
 {
+	if (gold < 0 || gold > 100000000 || bank_gold_ == gold) return;
+
+	if (need_log && !IS_NPC(this))
+	{
+		long change = gold - bank_gold_;
+		if (change > 0)
+			log("Gold: %s add %ld", GET_NAME(this), change);
+		else
+			log("Gold: %s remove %ld", GET_NAME(this), -change);
+	}
+
+	bank_gold_ = gold;
+
+/*
 	if (get_bank_gold() == num)
 	{
 		// чтобы с логированием не заморачиваться
@@ -891,4 +947,5 @@ void Character::set_bank_gold(long num, bool need_log)
 	}
 
 	bank_gold_ = num;
+*/
 }
