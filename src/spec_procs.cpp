@@ -2754,7 +2754,7 @@ SPECIAL(pet_shops)
 		add_gold(ch, -PET_PRICE(pet));
 
 		pet = read_mobile(GET_MOB_RNUM(pet), REAL);
-		GET_EXP(pet) = 0;
+		pet->set_exp(0);
 		SET_BIT(AFF_FLAGS(pet, AFF_CHARM), AFF_CHARM);
 
 		if (*pet_name)

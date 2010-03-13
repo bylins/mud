@@ -3865,7 +3865,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		return 0;
 	}
 
-	GET_EXP(mob) = 0;
+	mob->set_exp(0);
 	IS_CARRYING_W(mob) = 0;
 	IS_CARRYING_N(mob) = 0;
 //Polud при оживлении и поднятии трупа лоадились куны из прототипа
@@ -3937,7 +3937,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		set_gold(mob, 0);
 		GET_GOLD_NoDs(mob) = 0;
 		GET_GOLD_SiDs(mob) = 0;
-		GET_EXP(mob) = 0;
+		mob->set_exp(0);
 
 		GET_POS(mob) = POS_STANDING;
 		GET_DEFAULT_POS(mob) = POS_STANDING;

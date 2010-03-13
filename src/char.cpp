@@ -761,3 +761,17 @@ void Character::set_uid(int uid)
 {
 	uid_ = uid;
 }
+
+long Character::get_exp() const
+{
+	return exp_;
+}
+
+void Character::set_exp(long exp)
+{
+	if (exp < 0)
+	{
+		log("WARNING: exp=%ld (%s %s %d)", exp, __FILE__, __func__, __LINE__);
+	}
+	exp_ = MAX(0, exp);
+}

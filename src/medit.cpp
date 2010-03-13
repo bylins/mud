@@ -2265,7 +2265,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 
 		case MEDIT_EXP:
-			GET_EXP(OLC_MOB(d)) = MAX(0, atoi(arg));
+			OLC_MOB(d)->set_exp(atoi(arg));
 			break;
 
 		case MEDIT_GOLD:

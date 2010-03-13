@@ -107,7 +107,6 @@ struct char_point_data
 	sh_int max_move;	/* Max move for PC/NPC                     */
 	int gold;			/* Money carried                           */
 	long bank_gold;		/* Gold the char has in a bank account    */
-	long exp;			/* The experience of the player            */
 };
 
 /*
@@ -353,6 +352,9 @@ public:
 	int get_uid() const;
 	void set_uid(int uid);
 
+	long get_exp() const;
+	void set_exp(long exp);
+
 private:
 	void check_fighting_list();
 	void zero_init();
@@ -384,6 +386,8 @@ private:
 	long idnum_;
 	// uid (бывший unique) чара
 	int uid_;
+	// экспа
+	long exp_;
 
 // старое
 public:

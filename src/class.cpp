@@ -2142,7 +2142,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 	int i;
 
 	ch->set_level(1);
-	GET_EXP(ch) = 1;
+	ch->set_exp(1);
 
 	if (newbie && GET_CLASS(ch) == CLASS_DRUID)
 		for (i = 1; i <= MAX_SPELLS; i++)

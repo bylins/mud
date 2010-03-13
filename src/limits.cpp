@@ -729,7 +729,7 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 
 	if (IS_NPC(ch))
 	{
-		GET_EXP(ch) += gain;
+		ch->set_exp(ch->get_exp() + gain);
 		return;
 	}
 	else
@@ -743,7 +743,7 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 	if (gain > 0 && GET_LEVEL(ch) < LVL_IMMORT)
 	{
 		gain = MIN(max_exp_gain_pc(ch), gain);	/* put a cap on the max gain per kill */
-		GET_EXP(ch) += gain;
+		ch->set_exp(ch->get_exp() + gain);
 		if (GET_EXP(ch) >= level_exp(ch, LVL_IMMORT))
 		{
 			if (!GET_GOD_FLAG(ch, GF_REMORT) && GET_REMORT(ch) < MAX_REMORT)
@@ -755,7 +755,7 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 				SET_GOD_FLAG(ch, GF_REMORT);
 			}
 		}
-		GET_EXP(ch) = MIN(GET_EXP(ch), level_exp(ch, LVL_IMMORT) - 1);
+		ch->set_exp(MIN(GET_EXP(ch), level_exp(ch, LVL_IMMORT) - 1));
 		while (GET_LEVEL(ch) < LVL_IMMORT && GET_EXP(ch) >= level_exp(ch, GET_LEVEL(ch) + 1))
 		{
 			ch->set_level(ch->get_level() + 1);
@@ -776,11 +776,11 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 	else if (gain < 0 && GET_LEVEL(ch) < LVL_IMMORT)
 	{
 		gain = MAX(-max_exp_loss_pc(ch), gain);	/* Cap max exp lost per death */
-		GET_EXP(ch) += gain;
+		ch->set_exp(ch->get_exp() + gain);
 		if (CLAN(ch))
+		{
 			CLAN(ch)->SetClanExp(ch, gain); // клану
-		if (GET_EXP(ch) < 0)
-			GET_EXP(ch) = 0;
+		}
 		while (GET_LEVEL(ch) > 1 && GET_EXP(ch) < level_exp(ch, GET_LEVEL(ch)))
 		{
 			ch->set_level(ch->get_level() - 1);
@@ -825,9 +825,7 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 	int is_altered = FALSE;
 	int num_levels = 0;
 
-	GET_EXP(ch) += gain;
-	if (GET_EXP(ch) < 0)
-		GET_EXP(ch) = 0;
+	ch->set_exp(ch->get_exp() + gain);
 	if (!IS_NPC(ch))
 	{
 		if (gain > 0)

@@ -1175,7 +1175,7 @@ ACMD(do_mtransform)
 		{
 			GET_HIT(ch) = GET_HIT(m);
 			GET_MAX_HIT(ch) = GET_MAX_HIT(m);
-			GET_EXP(ch) = GET_EXP(m);
+			ch->set_exp(m->get_exp());
 		}
 		set_gold(ch, get_gold(m));
 		GET_POS(ch) = GET_POS(m);

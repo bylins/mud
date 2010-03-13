@@ -2180,7 +2180,9 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 //                   GET_EXP(c) = MAX(1, GET_EXP(c) + atoi(subfield+1));
 						gain_exp(c, + MAX(1, atoi(subfield + 1)));
 					else if ((value = atoi(subfield)) > 0)
-						GET_EXP(c) = value;
+					{
+						c->set_exp(value);
+					}
 				}
 				sprintf(str, "%ld", GET_EXP(c));
 			}

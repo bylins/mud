@@ -2540,7 +2540,7 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 	set_gold(mob_proto + i, t[2], 0);
 	GET_GOLD_NoDs(mob_proto + i) = t[0];
 	GET_GOLD_SiDs(mob_proto + i) = t[1];
-	GET_EXP(mob_proto + i) = t[3];
+	mob_proto[i].set_exp(t[3]);
 
 	if (!get_line(mob_f, line))
 	{

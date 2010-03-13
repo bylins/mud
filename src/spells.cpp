@@ -2435,8 +2435,7 @@ ASPELL(spell_angel)
 	mob->mob_specials.damsizedice = 1;
 	mob->mob_specials.ExtraAttack = 1;
 
-
-	GET_EXP(mob) = 0;
+	mob->set_exp(0);
 
 	GET_MAX_HIT(mob) = 600;
 	GET_HIT(mob) = 600;

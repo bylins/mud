@@ -568,7 +568,7 @@ extern SPECIAL(postmaster);
 #define GET_CAST_SUCCESS(ch) ((ch)->add_abils.cast_success)
 #define GET_PRAY(ch)         ((ch)->add_abils.pray_add)
 
-#define GET_EXP(ch)            ((ch)->points.exp)
+#define GET_EXP(ch)           ((ch)->get_exp())
 #define GET_HIT(ch)            ((ch)->points.hit)
 #define GET_MAX_HIT(ch)       ((ch)->points.max_hit)
 #define GET_REAL_MAX_HIT(ch)  (GET_MAX_HIT(ch) + GET_HIT_ADD(ch))

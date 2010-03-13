@@ -751,7 +751,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	set_uid(0);
 	LAST_LOGON(this) = time(0);
 	set_idnum(0);
-	GET_EXP(this) = 0;
+	set_exp(0);
 	GET_REMORT(this) = 0;
 	asciiflag_conv("", &PLR_FLAGS(this, 0));
 
@@ -788,7 +788,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			break;
 		case 'E':
 			if (!strcmp(tag, "Exp "))
-				GET_EXP(this) = lnum;
+			{
+				set_exp(lnum);
+			}
 			break;
 		case 'I':
 			if (!strcmp(tag, "Id  "))
@@ -832,7 +834,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 
 	//Indexing experience - if his exp is lover than required for his level - set it to required
 	if (GET_EXP(this) < level_exp(this, GET_LEVEL(this)))
-		GET_EXP(this) = level_exp(this, GET_LEVEL(this));
+	{
+		set_exp(level_exp(this, GET_LEVEL(this)));
+	}
 
 	if (reboot)
 	{
