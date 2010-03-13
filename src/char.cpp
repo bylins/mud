@@ -775,3 +775,13 @@ void Character::set_exp(long exp)
 	}
 	exp_ = MAX(0, exp);
 }
+
+short Character::get_remort() const
+{
+	return remorts_;
+}
+
+void Character::set_remort(short num)
+{
+	remorts_ = MAX(0, num);
+}

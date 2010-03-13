@@ -752,7 +752,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	LAST_LOGON(this) = time(0);
 	set_idnum(0);
 	set_exp(0);
-	GET_REMORT(this) = 0;
+	set_remort(0);
 	asciiflag_conv("", &PLR_FLAGS(this, 0));
 
 	bool skip_file = 0;
@@ -816,7 +816,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			if (!strcmp(tag, "Rebt"))
 				skip_file = 1;
 			else if (!strcmp(tag, "Rmrt"))
-				GET_REMORT(this) = num;
+			{
+				set_remort(num);
+			}
 			break;
 		case 'U':
 			if (!strcmp(tag, "UIN "))

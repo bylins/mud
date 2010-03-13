@@ -5689,7 +5689,7 @@ ACMD(do_remort)
 
 	act(remort_msg2, FALSE, ch, 0, 0, TO_ROOM);
 
-	GET_REMORT(ch)++;
+	ch->set_remort(ch->get_remort() + 1);
 	CLR_GOD_FLAG(ch, GF_REMORT);
 	GET_STR(ch) += 1;
 	GET_CON(ch) += 1;

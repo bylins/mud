@@ -198,7 +198,6 @@ struct player_special_data_saved
 
 	int DrunkState;
 	int olc_zone;
-	int Remorts;
 	int NameGod;
 	long NameIDGod;
 	long GodsLike;
@@ -355,6 +354,9 @@ public:
 	long get_exp() const;
 	void set_exp(long exp);
 
+	short get_remort() const;
+	void set_remort(short num);
+
 private:
 	void check_fighting_list();
 	void zero_init();
@@ -388,6 +390,8 @@ private:
 	int uid_;
 	// экспа
 	long exp_;
+	// реморты
+	short remorts_;
 
 // старое
 public:
