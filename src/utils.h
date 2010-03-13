@@ -595,7 +595,7 @@ extern SPECIAL(postmaster);
 #define GET_LIKES(ch)     ((ch)->mob_specials.LikeWork)
 
 #define GET_POS(ch)        ((ch)->char_specials.position)
-#define GET_IDNUM(ch)     ((ch)->char_specials.saved.idnum)
+#define GET_IDNUM(ch)     ((ch)->get_idnum())
 #define GET_ID(x)         ((x)->id)
 #define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
 #define IS_CARRYING_N(ch) ((ch)->char_specials.carry_items)

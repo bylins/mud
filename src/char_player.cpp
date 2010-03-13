@@ -750,7 +750,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	set_class(1);
 	GET_UNIQUE(this) = 0;
 	LAST_LOGON(this) = time(0);
-	GET_IDNUM(this) = 0;
+	set_idnum(0);
 	GET_EXP(this) = 0;
 	GET_REMORT(this) = 0;
 	asciiflag_conv("", &PLR_FLAGS(this, 0));
@@ -792,7 +792,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			break;
 		case 'I':
 			if (!strcmp(tag, "Id  "))
-				GET_IDNUM(this) = lnum;
+			{
+				set_idnum(lnum);
+			}
 			break;
 		case 'L':
 			if (!strcmp(tag, "LstL"))

@@ -5552,7 +5552,8 @@ void init_char(CHAR_DATA * ch)
 
 	if ((i = get_ptable_by_name(GET_NAME(ch))) != -1)
 	{
-		player_table[i].id = GET_IDNUM(ch) = ++top_idnum;
+		ch->set_idnum(++top_idnum);
+		player_table[i].id = ch->get_idnum();
 		player_table[i].unique = GET_UNIQUE(ch) = create_unique();
 		player_table[i].level = 0;
 		player_table[i].last_logon = -1;

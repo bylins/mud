@@ -741,3 +741,13 @@ void Character::set_level(short level)
 	}
 	level_ = level;
 }
+
+long Character::get_idnum() const
+{
+	return idnum_;
+}
+
+void Character::set_idnum(long idnum)
+{
+	idnum_ = idnum;
+}

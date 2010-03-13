@@ -1,7 +1,7 @@
 13.03.2010 Krodo
 	GET_CLASS() -> get_class(), set_class(). Само поле терь short int, потому
 что это удобнее char с кучей (int) в массивах. GET_LEVEL() -> get_level(),
-set_level(), с типом тоже самое.
+set_level(), с типом тоже самое. GET_IDNUM() -> get_idnum(), set_idnum().
 
 12.03.2010 Krodo
 	В почту воткнута команда 'вернуть' - пихает назад все посылки, которые еще

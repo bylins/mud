@@ -121,9 +121,7 @@ struct char_point_data
 struct char_special_data_saved
 {
 	int alignment;		/* +-1000 for alignments                */
-	long idnum;			/* player's idnum; -1 for mobiles   */
 	FLAG_DATA act;		/* act flag for NPC's; player flag for PC's */
-
 	FLAG_DATA affected_by;
 	/* Bitvector for spells/skills affected by */
 };
@@ -350,6 +348,9 @@ public:
 	short get_level() const;
 	void set_level(short level);
 
+	long get_idnum() const;
+	void set_idnum(long idnum);
+
 private:
 	void check_fighting_list();
 	void zero_init();
@@ -377,6 +378,8 @@ private:
 	short chclass_;
 	// уровень
 	short level_;
+	// id чара (не тот, что для тригов), у мобов -1
+	long idnum_;
 
 // старое
 public:

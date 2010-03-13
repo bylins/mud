@@ -4262,8 +4262,10 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 	case 35:
 		if (!IS_IMPL(ch) || !IS_NPC(vict))
+		{
 			return (0);
-		GET_IDNUM(vict) = value;
+		}
+		vict->set_idnum(value);
 		break;
 	case 36:
 		if (!IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER) && ch != vict)
