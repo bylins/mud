@@ -2242,9 +2242,10 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	/* with the copyover patch, this next line goes in enter_player_game() */
 	GET_ID(d->character) = GET_IDNUM(d->character);
 	GET_ACTIVITY(d->character) = number(0, PLAYER_SAVE_ACTIVITY - 1);
-	d->character->save_char();
-	player_table[get_ptable_by_unique(GET_UNIQUE(d->character))].last_logon = LAST_LOGON(d->character) = time(0);
+	d->character->set_last_logon(time(0));
+	player_table[get_ptable_by_unique(GET_UNIQUE(d->character))].last_logon = LAST_LOGON(d->character);
 	add_logon_record(d);
+	d->character->save_char();
 	act("$n вступил$g в игру.", TRUE, d->character, 0, 0, TO_ROOM);
 	/* with the copyover patch, this next line goes in enter_player_game() */
 	read_saved_vars(d->character);
@@ -2314,8 +2315,9 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 		SEND_TO_Q(buf, d);
 		GET_BAD_PWS(d->character) = 0;
 	}
+	time_t tmp_time = LAST_LOGON(d->character);
 	sprintf(buf, "\r\nПоследний раз Вы заходили к нам в %s c адреса (%s).\r\n",
-			rustime(localtime(&LAST_LOGON(d->character))), GET_LASTIP(d->character));
+			rustime(localtime(&tmp_time)), GET_LASTIP(d->character));
 	SEND_TO_Q(buf, d);
 
 	if (!Glory::check_stats(d->character)) return;

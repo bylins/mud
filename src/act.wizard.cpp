@@ -3013,11 +3013,12 @@ ACMD(do_last)
 	}
 	else
 	{
+		time_t tmp_time = LAST_LOGON(chdata);
 		sprintf(buf, "[%5ld] [%2d %s %s] %-12s : %-18s : %-20s\r\n",
 				GET_IDNUM(chdata), (int) GET_LEVEL(chdata),
 				kin_abbrevs[(int) GET_KIN(chdata)],
 				class_abbrevs[(int) GET_CLASS(chdata)], GET_NAME(chdata),
-				GET_LASTIP(chdata)[0] ? GET_LASTIP(chdata) : "Unknown", ctime(&LAST_LOGON(chdata)));
+				GET_LASTIP(chdata)[0] ? GET_LASTIP(chdata) : "Unknown", ctime(&tmp_time));
 		send_to_char(buf, ch);
 	}
 }

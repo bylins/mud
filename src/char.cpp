@@ -785,3 +785,13 @@ void Character::set_remort(short num)
 {
 	remorts_ = MAX(0, num);
 }
+
+time_t Character::get_last_logon() const
+{
+	return last_logon_;
+}
+
+void Character::set_last_logon(time_t num)
+{
+	last_logon_ = num;
+}

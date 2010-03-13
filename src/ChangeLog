@@ -3,7 +3,8 @@
 что это удобнее char с кучей (int) в массивах. GET_LEVEL() -> get_level(),
 set_level(), с типом тоже самое. GET_IDNUM() -> get_idnum(), set_idnum().
 GET_UNIQUE() -> get_uid(), set_uid(). GET_EXP() -> get_exp(), set_exp().
-GET_REMORT() -> get_remort(), set_remort().
+GET_REMORT() -> get_remort(), set_remort(). LAST_LOGON() -> get_last_logon(),
+set_last_logon().
 
 12.03.2010 Krodo
 	В почту воткнута команда 'вернуть' - пихает назад все посылки, которые еще

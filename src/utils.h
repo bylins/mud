@@ -470,7 +470,7 @@ extern SPECIAL(postmaster);
 #define SET_GOD_FLAG(ch,flag)  (SET_BIT((ch)->player_specials->saved.GodsLike,flag))
 #define CLR_GOD_FLAG(ch,flag)  (REMOVE_BIT((ch)->player_specials->saved.GodsLike,flag))
 #define GET_UNIQUE(ch)         ((ch)->get_uid())
-#define LAST_LOGON(ch)         ((ch)->player_specials->saved.LastLogon)
+#define LAST_LOGON(ch)         ((ch)->get_last_logon())
 /*структуры для подсчета количества рипов на морте (с) Василиса */
 #define GET_RIP_ARENA(ch)      ((ch)->player_specials->saved.Rip_arena)
 #define GET_RIP_PK(ch)         ((ch)->player_specials->saved.Rip_pk)

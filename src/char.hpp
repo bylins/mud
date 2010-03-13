@@ -201,7 +201,6 @@ struct player_special_data_saved
 	int NameGod;
 	long NameIDGod;
 	long GodsLike;
-	time_t LastLogon; //by kilnik
 
 	char EMail[128];
 	char LastIP[128];
@@ -357,6 +356,9 @@ public:
 	short get_remort() const;
 	void set_remort(short num);
 
+	time_t get_last_logon() const;
+	void set_last_logon(time_t num);
+
 private:
 	void check_fighting_list();
 	void zero_init();
@@ -392,6 +394,8 @@ private:
 	long exp_;
 	// реморты
 	short remorts_;
+	// время последнего входа в игру //by kilnik
+	time_t last_logon_;
 
 // старое
 public:

@@ -749,7 +749,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	set_level(1);
 	set_class(1);
 	set_uid(0);
-	LAST_LOGON(this) = time(0);
+	set_last_logon(time(0));
 	set_idnum(0);
 	set_exp(0);
 	set_remort(0);
@@ -800,7 +800,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			break;
 		case 'L':
 			if (!strcmp(tag, "LstL"))
-				LAST_LOGON(this) = lnum;
+			{
+				set_last_logon(lnum);
+			}
 			else if (!strcmp(tag, "Levl"))
 			{
 				set_level(num);
