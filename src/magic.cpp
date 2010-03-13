@@ -3923,7 +3923,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		GET_CON(mob) = GET_CON(ch);
 		GET_CHA(mob) = GET_CHA(ch);
 
-		GET_LEVEL(mob) = GET_LEVEL(ch);
+		mob->set_level(ch->get_level());
 //      GET_HR (mob) = GET_HR (ch);
 // shapirus: нефиг клонам дамагать. сделаем хитролл достаточно плохой.
 		GET_HR(mob) = -20;

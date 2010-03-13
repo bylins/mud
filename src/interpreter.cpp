@@ -2081,9 +2081,13 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	read_aliases(d->character);
 
 	if (GET_LEVEL(d->character) == LVL_IMMORT)
-		GET_LEVEL(d->character) = LVL_GOD;
-	if (GET_LEVEL(d->character) > LVL_IMPL)
-		GET_LEVEL(d->character) = 1;
+	{
+		d->character->set_level(LVL_GOD);
+	}
+	if (GET_LEVEL(d->character) > LVL_IMPL || GET_LEVEL(d->character) < 1)
+	{
+		d->character->set_level(1);
+	}
 	if (GET_INVIS_LEV(d->character) > LVL_IMPL || GET_INVIS_LEV(d->character) < 0)
 		GET_INVIS_LEV(d->character) = 0;
 	if (GET_LEVEL(d->character) > LVL_IMMORT

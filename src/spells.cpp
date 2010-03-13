@@ -2472,7 +2472,7 @@ ASPELL(spell_angel)
 
 	SET_BIT(AFF_FLAGS(mob, AFF_FLY), AFF_FLY);
 	SET_BIT(AFF_FLAGS(mob, AFF_INFRAVISION), AFF_INFRAVISION);
-	GET_LEVEL(mob) = GET_LEVEL(ch);
+	mob->set_level(ch->get_level());
 //----------------------------------------------------------------------
 // добавляем зависимости от уровня и от обаяния
 // level

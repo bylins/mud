@@ -758,7 +758,7 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 		GET_EXP(ch) = MIN(GET_EXP(ch), level_exp(ch, LVL_IMMORT) - 1);
 		while (GET_LEVEL(ch) < LVL_IMMORT && GET_EXP(ch) >= level_exp(ch, GET_LEVEL(ch) + 1))
 		{
-			GET_LEVEL(ch) += 1;
+			ch->set_level(ch->get_level() + 1);
 			num_levels++;
 			sprintf(buf, "%sВы достигли следующего уровня !%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
@@ -783,7 +783,7 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 			GET_EXP(ch) = 0;
 		while (GET_LEVEL(ch) > 1 && GET_EXP(ch) < level_exp(ch, GET_LEVEL(ch)))
 		{
-			GET_LEVEL(ch) -= 1;
+			ch->set_level(ch->get_level() - 1);
 			num_levels++;
 			sprintf(buf,
 					"%sВы потеряли уровень. Вам должно быть стыдно !%s\r\n",
@@ -834,7 +834,7 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 		{
 			while (GET_LEVEL(ch) < LVL_IMPL && GET_EXP(ch) >= level_exp(ch, GET_LEVEL(ch) + 1))
 			{
-				GET_LEVEL(ch) += 1;
+				ch->set_level(ch->get_level() + 1);
 				num_levels++;
 				sprintf(buf, "%sВы достигли следующего уровня !%s\r\n",
 						CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -860,7 +860,7 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 //				GET_EXP(ch) = 0;
 			while (GET_LEVEL(ch) > 1 && GET_EXP(ch) < level_exp(ch, GET_LEVEL(ch)))
 			{
-				GET_LEVEL(ch) -= 1;
+				ch->set_level(ch->get_level() - 1);
 				num_levels++;
 				sprintf(buf,
 						"%sВы потеряли уровень!%s\r\n",

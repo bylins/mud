@@ -4181,7 +4181,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			return (0);
 		}
 		RANGE(0, LVL_IMPL);
-		vict->player_data.level = (byte) value;
+		vict->set_level(value);
 		break;
 	case 27:
 		if ((rnum = real_room(value)) == NOWHERE)

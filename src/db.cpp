@@ -2508,7 +2508,7 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 		exit(1);
 	}
 
-	GET_LEVEL(mob_proto + i) = t[0];
+	mob_proto[i].set_level(t[0]);
 	mob_proto[i].real_abils.hitroll = 20 - t[1];
 	mob_proto[i].real_abils.armor = 10 * t[2];
 
@@ -5516,7 +5516,11 @@ void init_char(CHAR_DATA * ch)
 //		CREATE(ch->player_specials, struct player_special_data, 1);
 
 #ifdef TEST_BUILD
-	if (top_of_p_table == 0) GET_LEVEL(ch) = LVL_IMPL; // При собирании через make test первый чар в маде становится иммом 34
+	if (top_of_p_table == 0)
+	{
+		// При собирании через make test первый чар в маде становится иммом 34
+		ch->set_level(LVL_IMPL);
+	}
 #endif
     //Это теперь не нужно - лоадрма инициализируется на этапе анкеты
 	//start_room = calc_loadroom(ch);
@@ -5735,7 +5739,7 @@ ACMD(do_remort)
 	GET_HIT(ch) = GET_MAX_HIT(ch) = 10;
 	GET_MOVE(ch) = GET_MAX_MOVE(ch) = 82;
 	GET_MEM_TOTAL(ch) = GET_MEM_COMPLETED(ch) = 0;
-	GET_LEVEL(ch) = 0;
+	ch->set_level(0);
 	GET_WIMP_LEV(ch) = 0;
 	GET_AC(ch) = 100;
 	GET_LOADROOM(ch) = place_of_destination;

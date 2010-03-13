@@ -746,7 +746,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	if (this->player_specials == NULL)
 		CREATE(this->player_specials, struct player_special_data, 1);
 
-	GET_LEVEL(this) = 1;
+	set_level(1);
 	set_class(1);
 	GET_UNIQUE(this) = 0;
 	LAST_LOGON(this) = time(0);
@@ -798,7 +798,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			if (!strcmp(tag, "LstL"))
 				LAST_LOGON(this) = lnum;
 			else if (!strcmp(tag, "Levl"))
-				GET_LEVEL(this) = num;
+			{
+				set_level(num);
+			}
 			break;
 		case 'N':
 			if (!strcmp(tag, "Name"))

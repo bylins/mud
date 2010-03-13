@@ -726,3 +726,18 @@ void Character::set_class(short chclass)
 	}
 	chclass_ = chclass;
 }
+
+short Character::get_level() const
+{
+	return level_;
+}
+
+void Character::set_level(short level)
+{
+	if (level < 0 || level > LVL_IMPL)
+	{
+		log("SYSERROR: level=%d (%s %s %d)", level, __FILE__, __func__, __LINE__);
+		return;
+	}
+	level_ = level;
+}

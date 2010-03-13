@@ -2141,7 +2141,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 	OBJ_DATA *obj;
 	int i;
 
-	GET_LEVEL(ch) = 1;
+	ch->set_level(1);
 	GET_EXP(ch) = 1;
 
 	if (newbie && GET_CLASS(ch) == CLASS_DRUID)
