@@ -5554,7 +5554,8 @@ void init_char(CHAR_DATA * ch)
 	{
 		ch->set_idnum(++top_idnum);
 		player_table[i].id = ch->get_idnum();
-		player_table[i].unique = GET_UNIQUE(ch) = create_unique();
+		ch->set_uid(create_unique());
+		player_table[i].unique = ch->get_uid();
 		player_table[i].level = 0;
 		player_table[i].last_logon = -1;
 	}

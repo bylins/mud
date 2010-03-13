@@ -199,7 +199,6 @@ struct player_special_data_saved
 
 	int DrunkState;
 	int olc_zone;
-	int unique;
 	int Remorts;
 	int NameGod;
 	long NameIDGod;
@@ -351,6 +350,9 @@ public:
 	long get_idnum() const;
 	void set_idnum(long idnum);
 
+	int get_uid() const;
+	void set_uid(int uid);
+
 private:
 	void check_fighting_list();
 	void zero_init();
@@ -380,6 +382,8 @@ private:
 	short level_;
 	// id чара (не тот, что для тригов), у мобов -1
 	long idnum_;
+	// uid (бывший unique) чара
+	int uid_;
 
 // старое
 public:

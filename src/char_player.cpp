@@ -748,7 +748,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 
 	set_level(1);
 	set_class(1);
-	GET_UNIQUE(this) = 0;
+	set_uid(0);
 	LAST_LOGON(this) = time(0);
 	set_idnum(0);
 	GET_EXP(this) = 0;
@@ -818,7 +818,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			break;
 		case 'U':
 			if (!strcmp(tag, "UIN "))
-				GET_UNIQUE(this) = num;
+			{
+				set_uid(num);
+			}
 			break;
 		default:
 			sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);

@@ -751,3 +751,13 @@ void Character::set_idnum(long idnum)
 {
 	idnum_ = idnum;
 }
+
+int Character::get_uid() const
+{
+	return uid_;
+}
+
+void Character::set_uid(int uid)
+{
+	uid_ = uid;
+}

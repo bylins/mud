@@ -469,7 +469,7 @@ extern SPECIAL(postmaster);
 #define GET_GOD_FLAG(ch,flag)  (IS_SET((ch)->player_specials->saved.GodsLike,flag))
 #define SET_GOD_FLAG(ch,flag)  (SET_BIT((ch)->player_specials->saved.GodsLike,flag))
 #define CLR_GOD_FLAG(ch,flag)  (REMOVE_BIT((ch)->player_specials->saved.GodsLike,flag))
-#define GET_UNIQUE(ch)         ((ch)->player_specials->saved.unique)
+#define GET_UNIQUE(ch)         ((ch)->get_uid())
 #define LAST_LOGON(ch)         ((ch)->player_specials->saved.LastLogon)
 /*структуры для подсчета количества рипов на морте (с) Василиса */
 #define GET_RIP_ARENA(ch)      ((ch)->player_specials->saved.Rip_arena)
