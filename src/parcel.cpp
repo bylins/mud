@@ -248,7 +248,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 	if (get_bank_gold(ch) < 0)
 	{
 		// выше мы убедились, что денег банк+руки как минимум не меньше, чем нужно
-		add_gold(ch, get_bank_gold(ch));
+		ch->add_gold(get_bank_gold(ch));
 		set_bank_gold(ch, 0);
 		// всякое бывает
 		if (get_gold(ch) < 0)

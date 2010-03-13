@@ -927,7 +927,7 @@ ACMD(do_mgold)
 		return;
 	}
 
-	add_gold(victim, atoi(amount));
+	victim->add_gold(atoi(amount));
 	if (get_gold(victim) < 0)
 	{
 		mob_log(ch, "mgold subtracting more gold than character has");

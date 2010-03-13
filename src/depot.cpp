@@ -423,7 +423,7 @@ void remove_char_entry(long uid, CharNode &node)
 			add_bank_gold(victim, -total_pay);
 			if (get_bank_gold(victim) < 0)
 			{
-				add_gold(victim, get_bank_gold(victim));
+				victim->add_gold(get_bank_gold(victim));
 				set_bank_gold(victim, 0);
 				if (get_gold(victim) < 0)
 					set_gold(victim, 0);
@@ -1014,7 +1014,7 @@ void put_gold_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 		long over = std::numeric_limits<long>::max() - get_bank_gold(ch);
 		add_bank_gold(ch, over);
 		gold -= over;
-		add_gold(ch, gold);
+		ch->add_gold(gold);
 		obj_from_char(obj);
 		extract_obj(obj);
 		send_to_char(ch, "Вы удалось вложить только %ld %s.\r\n",
@@ -1391,7 +1391,7 @@ void enter_char(CHAR_DATA *ch)
 			add_bank_gold(ch, -(it->second.money_spend));
 			if (get_bank_gold(ch) < 0)
 			{
-				add_gold(ch, get_bank_gold(ch));
+				ch->add_gold(get_bank_gold(ch));
 				set_bank_gold(ch, 0);
 				// есть вариант, что денег не хватит, потому что помимо хранилищ еще капает за
 				// одежду и инвентарь, а учитывать еще и их при расчетах уже как-то мутно

@@ -2062,100 +2062,34 @@ int valid_email(const char *address)
 	return 1;
 }
 
-/**
-* Гетер голды на руках.
-*/
+// TODO: на снос
 int get_gold(CHAR_DATA *ch)
 {
-	return ch->points.gold;
+	return ch->get_gold();
 }
 
-/**
-* Аналог GET_GOLD не поделенный на add/remove, т.к. везде логика завязана
-* на то, что голда знаковый тип, менять надо более основательно.
-* Изменения кун у чаров логиурем.
-*/
-void add_gold(CHAR_DATA *ch, int gold)
-{
-	if (!gold) return;
-
-	if (!IS_NPC(ch))
-	{
-		if (gold > 0)
-			log("Gold: %s add %d", GET_NAME(ch), gold);
-		else
-			log("Gold: %s remove %d", GET_NAME(ch), -gold);
-	}
-
-	ch->points.gold += gold;
-}
-
-/**
-* Сет кун на руках, чаров логируем, если надо.
-* \param need_log - логировать или нет, по дефолту 1, т.е. логируем
-* В основнм сеты остались только при обнулении бабла и ините полей,
-* т.е. всяких фишек и сетом отрицательных значений быть не должно,
-* все расчеты и выкрутасы идут через add_gold.
-*/
+// TODO: на снос
 void set_gold(CHAR_DATA *ch, int gold, bool need_log)
 {
-	if (gold < 0 || gold > 100000000 || ch->points.gold == gold) return;
-
-	if (need_log && !IS_NPC(ch))
-	{
-		int change = gold - ch->points.gold;
-		if (change > 0)
-			log("Gold: %s add %d", GET_NAME(ch), change);
-		else
-			log("Gold: %s remove %d", GET_NAME(ch), -change);
-	}
-
-	ch->points.gold = gold;
+	ch->set_gold(gold, need_log);
 }
 
-/**
-* См get_gold.
-*/
+// TODO: на снос
 long get_bank_gold(CHAR_DATA *ch)
 {
-	return ch->points.bank_gold;
+	return ch->get_bank_gold();
 }
 
-/**
-* См add_gold.
-*/
+// TODO: на снос
 void add_bank_gold(CHAR_DATA *ch, long gold)
 {
-	if (!gold) return;
-
-	if (!IS_NPC(ch))
-	{
-		if (gold > 0)
-			log("Gold: %s add %ld", GET_NAME(ch), gold);
-		else
-			log("Gold: %s remove %ld", GET_NAME(ch), -gold);
-	}
-
-	ch->points.bank_gold += gold;
+	ch->add_bank_gold(gold);
 }
 
-/**
-* См set_gold.
-*/
+// TODO: на снос
 void set_bank_gold(CHAR_DATA *ch, long gold, bool need_log)
 {
-	if (gold < 0 || gold > 100000000 || ch->points.bank_gold == gold) return;
-
-	if (need_log && !IS_NPC(ch))
-	{
-		long change = gold - ch->points.bank_gold;
-		if (change > 0)
-			log("Gold: %s add %ld", GET_NAME(ch), change);
-		else
-			log("Gold: %s remove %ld", GET_NAME(ch), -change);
-	}
-
-	ch->points.bank_gold = gold;
+	ch->set_bank_gold(gold, need_log);
 }
 
 /**

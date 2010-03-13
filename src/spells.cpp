@@ -1159,7 +1159,7 @@ ACMD(do_findhelpee)
 			if (isname(isbank, "банк bank"))
 				add_bank_gold(ch, -cost);
 			else
-				add_gold(ch, -cost);
+				ch->add_gold(-cost);
 
 			affect_from_char(helpee, AFF_CHARM);
 			add_follower(helpee, ch);

@@ -105,6 +105,16 @@ void Character::zero_init()
 	in_fighting_list_ = 0;
 	serial_num_ = 0;
 	purged_ = 0;
+	// на плеер-таблицу
+	chclass_ = 0;
+	level_ = 0;
+	idnum_ = 0;
+	uid_ = 0;
+	exp_ = 0;
+	remorts_ = 0;
+	last_logon_ = 0;
+	gold_ = 0;
+	bank_gold_ = 0;
 	// char_data
 	nr = NOBODY;
 	in_room = 0;
@@ -331,6 +341,8 @@ void Character::purge(bool destructor)
 		if (IS_NPC(this))
 			log("SYSERR: Mob %s (#%d) had player_specials allocated!", GET_NAME(this), GET_MOB_VNUM(this));
 	}
+	name_.clear();
+	short_descr_.clear();
 
 	if (!destructor)
 	{
@@ -794,4 +806,121 @@ time_t Character::get_last_logon() const
 void Character::set_last_logon(time_t num)
 {
 	last_logon_ = num;
+}
+
+int Character::get_gold() const
+{
+	return gold_;
+}
+
+/**
+ * Бывший set_gold(ch, ...)
+ * Сет кун на руках, чаров логируем, если надо.
+ * \param need_log - логировать или нет, по дефолту 1, т.е. логируем
+ * В основнм сеты остались только при обнулении бабла и ините полей,
+ * т.е. всяких фишек с сетом отрицательных значений быть не должно,
+ * все расчеты и выкрутасы идут через add_gold.
+ */
+void Character::set_gold(int num, bool need_log)
+{
+	if (num < 0 || num > 100000000 || get_gold() == num)
+	{
+		return;
+	}
+
+	if (need_log && !IS_NPC(this))
+	{
+		int change = num - get_gold();
+		if (change > 0)
+		{
+			log("Gold: %s add %d", GET_NAME(this), change);
+		}
+		else
+		{
+			log("Gold: %s remove %d", GET_NAME(this), -change);
+		}
+	}
+
+	gold_ = num;
+}
+
+/**
+ * Бывший add_gold(ch, ...)
+ * Аналог GET_GOLD не поделенный на add/remove, т.к. везде логика завязана
+ * на то, что голда знаковый тип, менять надо более основательно.
+ * Изменения кун у чаров логиурем.
+ */
+void Character::add_gold(int gold)
+{
+	if (!gold)
+	{
+		return;
+	}
+
+	if (!IS_NPC(this))
+	{
+		if (gold > 0)
+		{
+			log("Gold: %s add %d", GET_NAME(this), gold);
+		}
+		else
+		{
+			log("Gold: %s remove %d", GET_NAME(this), -gold);
+		}
+	}
+	set_gold(get_gold() + gold);
+}
+
+long Character::get_bank_gold() const
+{
+	return bank_gold_;
+}
+
+/**
+* См. Character::set_gold()
+*/
+void Character::set_bank_gold(long num, bool need_log)
+{
+	if (num < 0 || num > 100000000 || get_bank_gold() == num)
+	{
+		return;
+	}
+
+	if (need_log && !IS_NPC(this))
+	{
+		long change = num - get_bank_gold();
+		if (change > 0)
+		{
+			log("Gold: %s add %ld", GET_NAME(this), change);
+		}
+		else
+		{
+			log("Gold: %s remove %ld", GET_NAME(this), -change);
+		}
+	}
+	bank_gold_ = num;
+}
+
+/**
+* См. Character::add_gold()
+*/
+void Character::add_bank_gold(long gold)
+{
+	if (!gold)
+	{
+		return;
+	}
+
+	if (!IS_NPC(this))
+	{
+		if (gold > 0)
+		{
+			log("Gold: %s add %ld", GET_NAME(this), gold);
+		}
+		else
+		{
+			log("Gold: %s remove %ld", GET_NAME(this), -gold);
+		}
+	}
+	set_bank_gold(get_bank_gold() + gold);
 }

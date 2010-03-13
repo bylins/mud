@@ -2406,7 +2406,7 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 			CLAN(ch)->bank += over;
 			CLAN(ch)->members[GET_UNIQUE(ch)]->money += over;
 			gold -= over;
-			add_gold(ch, gold);
+			ch->add_gold(gold);
 			obj_from_char(obj);
 			extract_obj(obj);
 			send_to_char(ch, "Вы удалось вложить в казну дружины только %ld %s.\r\n", over, desc_count(over, WHAT_MONEYu));
@@ -2768,13 +2768,13 @@ bool Clan::BankManage(CHAR_DATA * ch, char *arg)
 			long over = std::numeric_limits<long int>::max() - CLAN(ch)->bank;
 			CLAN(ch)->bank += over;
 			CLAN(ch)->members[GET_UNIQUE(ch)]->money += over;
-			add_gold(ch, -over);
+			ch->add_gold(-over);
 			send_to_char(ch, "Вы удалось вложить в казну дружины только %ld %s.\r\n", over, desc_count(over, WHAT_MONEYu));
 			act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
 			return 1;
 		}
 
-		add_gold(ch, -gold);
+		ch->add_gold(-gold);
 		CLAN(ch)->bank += gold;
 		CLAN(ch)->members[GET_UNIQUE(ch)]->money += gold;
 		send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
@@ -2807,7 +2807,7 @@ bool Clan::BankManage(CHAR_DATA * ch, char *arg)
 		if ((get_gold(ch) + gold) < 0)
 		{
 			long over = std::numeric_limits<long int>::max() - get_gold(ch);
-			add_gold(ch, over);
+			ch->add_gold(over);
 			CLAN(ch)->bank -= over;
 			CLAN(ch)->members[GET_UNIQUE(ch)]->money -= over;
 			send_to_char(ch, "Вы удалось снять только %ld %s.\r\n", over, desc_count(over, WHAT_MONEYu));
@@ -2817,7 +2817,7 @@ bool Clan::BankManage(CHAR_DATA * ch, char *arg)
 
 		CLAN(ch)->bank -= gold;
 		CLAN(ch)->members[GET_UNIQUE(ch)]->money -= gold;
-		add_gold(ch, gold);
+		ch->add_gold(gold);
 		send_to_char(ch, "Вы сняли %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
 		act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
 		return 1;
@@ -4503,7 +4503,7 @@ ACMD(do_clanstuff)
 
 		if (get_gold(ch) >= gold)
 		{
-			add_gold(ch, -gold);
+			ch->add_gold(-gold);
 			gold_total += gold;
 		}
 		else

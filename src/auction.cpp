@@ -694,7 +694,7 @@ void trans_auction(int lot)
 	add_bank_gold(tch, -(GET_LOT(lot)->cost + (GET_LOT(lot)->cost / 10)));
 	if (get_bank_gold(tch) < 0)
 	{
-		add_gold(tch, get_bank_gold(tch));
+		tch->add_gold(get_bank_gold(tch));
 		set_bank_gold(tch, 0);
 	}
 	clear_auction(lot);
@@ -761,7 +761,7 @@ void sell_auction(int lot)
 	add_bank_gold(tch, -(GET_LOT(lot)->cost));
 	if (get_bank_gold(tch) < 0)
 	{
-		add_gold(tch, get_bank_gold(tch));
+		tch->add_gold(get_bank_gold(tch));
 		set_bank_gold(tch, 0);
 	}
 	clear_auction(lot);

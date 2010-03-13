@@ -3919,7 +3919,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 		GET_ACTIVITY(mob) = number(0, mob->mob_specials.speed);
 	EXTRACT_TIMER(mob) = 0;
 	mob->points.move = mob->points.max_move;
-	add_gold(mob, dice(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
+	mob->add_gold(dice(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
 
 	mob->player_data.time.birth = time(0);
 	mob->player_data.time.played = 0;

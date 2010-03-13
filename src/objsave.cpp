@@ -1764,7 +1764,7 @@ int Crash_load(CHAR_DATA * ch)
 					desc_count(SAVEINFO(index)->rent.net_cost_per_diem, WHAT_MONEYa), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
-		add_gold(ch, -(MAX(cost - get_bank_gold(ch), 0)));
+		ch->add_gold(-(MAX(cost - get_bank_gold(ch), 0)));
 		set_bank_gold(ch, MAX(get_bank_gold(ch) - cost, 0));
 		//???
 		//ch->save_char();

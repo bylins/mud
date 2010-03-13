@@ -734,7 +734,7 @@ void shopping_buy(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 
 		goldamt += buy_price(obj, ch, shop_nr);
 		if (!IS_GOD(ch))
-			add_gold(ch, -(buy_price(obj, ch, shop_nr)));
+			ch->add_gold(-(buy_price(obj, ch, shop_nr)));
 
 		last_obj = obj;
 		obj = get_purchase_obj(ch, arg, keeper, shop_nr, FALSE);
@@ -766,7 +766,7 @@ void shopping_buy(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 	}
 
 	/* if (!IS_GOD(ch)) */
-	add_gold(keeper, goldamt);
+	keeper->add_gold(goldamt);
 
 	sprintf(buf, "$n купил$g %s.", times_message(obj /* ch->carrying */ , 0, bought, 3));
 	act(buf, FALSE, ch, obj, 0, TO_ROOM);
@@ -1003,7 +1003,7 @@ void shopping_sell_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int 
 	obj_from_char(obj);
 	obj = slide_obj(obj, keeper, shop_nr);
 
-	add_gold(ch, goldamt);
+	ch->add_gold(goldamt);
 	sprintf(buf, "$n продал$g %s.", times_message(obj, 0, sold, 3));
 	act(buf, FALSE, ch, obj, 0, TO_ROOM);
 
@@ -1018,7 +1018,7 @@ void shopping_sell_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int 
 	{
 		goldamt = MIN(MAX_OUTSIDE_BANK - get_gold(keeper), SHOP_BANK(shop_nr));
 		SHOP_BANK(shop_nr) -= goldamt;
-		add_gold(keeper, goldamt);
+		keeper->add_gold(goldamt);
 	}
 }
 
@@ -1424,9 +1424,9 @@ void shopping_repair_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, in
 		return;
 	}
 
-	add_gold(keeper, price);
+	keeper->add_gold(price);
 	if (!IS_GOD(ch))
-		add_gold(ch, -price);
+		ch->add_gold(-price);
 	act("$n сноровисто починил$g $o3.", FALSE, keeper, obj, 0, TO_ROOM);
 	GET_OBJ_CUR(obj) = GET_OBJ_MAX(obj);
 

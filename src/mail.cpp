@@ -597,7 +597,7 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 				STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYa));
 
 	act(buf, FALSE, mailman, 0, ch, TO_VICT);
-	add_gold(ch, -cost);
+	ch->add_gold(-cost);
 	SET_BIT(PLR_FLAGS(ch, PLR_MAILING), PLR_MAILING);	/* string_write() sets writing. */
 
 	/* Start writing! */

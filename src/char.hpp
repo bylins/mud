@@ -105,8 +105,6 @@ struct char_point_data
 	int max_hit;		/* Max hit for PC/NPC                      */
 	sh_int move;
 	sh_int max_move;	/* Max move for PC/NPC                     */
-	int gold;			/* Money carried                           */
-	long bank_gold;		/* Gold the char has in a bank account    */
 };
 
 /*
@@ -359,6 +357,14 @@ public:
 	time_t get_last_logon() const;
 	void set_last_logon(time_t num);
 
+	int get_gold() const;
+	void set_gold(int num, bool log = true);
+	void add_gold(int gold);
+
+	long get_bank_gold() const;
+	void set_bank_gold(long num, bool log = true);
+	void add_bank_gold(long gold);
+
 private:
 	void check_fighting_list();
 	void zero_init();
@@ -396,6 +402,10 @@ private:
 	short remorts_;
 	// время последнего входа в игру //by kilnik
 	time_t last_logon_;
+	// деньги на руках
+	int gold_;
+	// деньги в банке
+	long bank_gold_;
 
 // старое
 public:

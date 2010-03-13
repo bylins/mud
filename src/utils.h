@@ -88,7 +88,6 @@ void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
 
 int get_gold(CHAR_DATA *ch);
-void add_gold(CHAR_DATA *ch, int gold);
 void set_gold(CHAR_DATA *ch, int gold, bool need_log = 1);
 long get_bank_gold(CHAR_DATA *ch);
 void add_bank_gold(CHAR_DATA *ch, long gold);
@@ -575,8 +574,6 @@ extern SPECIAL(postmaster);
 #define GET_MOVE(ch)       ((ch)->points.move)
 #define GET_MAX_MOVE(ch)      ((ch)->points.max_move)
 #define GET_REAL_MAX_MOVE(ch) (GET_MAX_MOVE(ch) + GET_MOVE_ADD(ch))
-#define GET_GOLD(ch)       ((ch)->points.gold)
-#define GET_BANK_GOLD(ch)     ((ch)->points.bank_gold)
 
 #define GET_MANAREG(ch)   ((ch)->add_abils.manareg)
 #define GET_HITREG(ch)    ((ch)->add_abils.hitreg)

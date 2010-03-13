@@ -1406,7 +1406,7 @@ SPECIAL(horse_keeper)
 		act(buf, FALSE, ch, 0, victim, TO_CHAR);
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s $n2.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, FALSE, ch, 0, victim, TO_ROOM);
-		add_gold(ch, -HORSE_COST);
+		ch->add_gold(-HORSE_COST);
 		SET_BIT(PLR_FLAGS(ch, PLR_CRASH), PLR_CRASH);
 		return (TRUE);
 	}
@@ -1443,7 +1443,7 @@ SPECIAL(horse_keeper)
 		sprintf(buf, "$N расседлал$G %s и отвел$G %s в стойло.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, FALSE, ch, 0, victim, TO_ROOM);
 		extract_char(horse, FALSE);
-		add_gold(ch, (HORSE_COST >> 1));
+		ch->add_gold((HORSE_COST >> 1));
 		SET_BIT(PLR_FLAGS(ch, PLR_CRASH), PLR_CRASH);
 		return (TRUE);
 	}
@@ -1631,7 +1631,7 @@ int npc_scavenge(CHAR_DATA * ch)
 				act("$n поднял$g $o3.", FALSE, ch, best_obj, 0, TO_ROOM);
 				if (GET_OBJ_TYPE(best_obj) == ITEM_MONEY)
 				{
-					add_gold(ch, GET_OBJ_VAL(best_obj, 0));
+					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
 					extract_obj(best_obj);
 				}
 				else
@@ -1646,7 +1646,7 @@ int npc_scavenge(CHAR_DATA * ch)
 				act(buf, FALSE, ch, best_obj, 0, TO_ROOM);
 				if (GET_OBJ_TYPE(best_obj) == ITEM_MONEY)
 				{
-					add_gold(ch, GET_OBJ_VAL(best_obj, 0));
+					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
 					extract_obj(best_obj);
 				}
 				else
@@ -1686,7 +1686,7 @@ int npc_loot(CHAR_DATA * ch)
 						act(buf, FALSE, ch, loot_obj, 0, TO_ROOM);
 						if (GET_OBJ_TYPE(loot_obj) == ITEM_MONEY)
 						{
-							add_gold(ch, GET_OBJ_VAL(loot_obj, 0));
+							ch->add_gold(GET_OBJ_VAL(loot_obj, 0));
 							extract_obj(loot_obj);
 						}
 						else
@@ -1715,7 +1715,7 @@ int npc_loot(CHAR_DATA * ch)
 								act(buf, FALSE, ch, cobj, 0, TO_ROOM);
 								if (GET_OBJ_TYPE(cobj) == ITEM_MONEY)
 								{
-									add_gold(ch, GET_OBJ_VAL(cobj, 0));
+									ch->add_gold(GET_OBJ_VAL(cobj, 0));
 									extract_obj(cobj);
 								}
 								else
@@ -1759,7 +1759,7 @@ int npc_loot(CHAR_DATA * ch)
 								act(buf, FALSE, ch, cobj, 0, TO_ROOM);
 								if (GET_OBJ_TYPE(cobj) == ITEM_MONEY)
 								{
-									add_gold(ch, GET_OBJ_VAL(cobj, 0));
+									ch->add_gold(GET_OBJ_VAL(cobj, 0));
 									extract_obj(cobj);
 								}
 								else
@@ -2191,8 +2191,8 @@ int do_npc_steal(CHAR_DATA * ch, CHAR_DATA * victim)
 		gold = (int)((get_gold(victim) * number(1, 10)) / 100);
 		if (gold > 0)
 		{
-			add_gold(ch, gold);
-			add_gold(victim, -gold);
+			ch->add_gold(gold);
+			victim->add_gold(-gold);
 		}
 		/* Steal something from equipment */
 		if (calculate_skill(ch, SKILL_STEAL, 100, victim) >= number(1, 100) - (AWAKE(victim) ? 100 : 0))
@@ -2356,7 +2356,7 @@ SPECIAL(dump)
 		if (GET_LEVEL(ch) < 3)
 			gain_exp(ch, value);
 		else
-			add_gold(ch, value);
+			ch->add_gold(value);
 	}
 	return (1);
 }
@@ -2751,7 +2751,7 @@ SPECIAL(pet_shops)
 			send_to_char("You don't have enough gold!\r\n", ch);
 			return (TRUE);
 		}
-		add_gold(ch, -PET_PRICE(pet));
+		ch->add_gold(-PET_PRICE(pet));
 
 		pet = read_mobile(GET_MOB_RNUM(pet), REAL);
 		pet->set_exp(0);
@@ -2836,7 +2836,7 @@ SPECIAL(bank)
 			send_to_char("О такой сумме Вы можете только мечтать !\r\n", ch);
 			return (1);
 		}
-		add_gold(ch, -amount);
+		ch->add_gold(-amount);
 		add_bank_gold(ch, amount);
 		sprintf(buf, "Вы вложили %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
 		send_to_char(buf, ch);
@@ -2855,7 +2855,7 @@ SPECIAL(bank)
 			send_to_char("Да Вы отродясь столько денег не видели !\r\n", ch);
 			return (1);
 		}
-		add_gold(ch, amount);
+		ch->add_gold(amount);
 		add_bank_gold(ch, -amount);
 		sprintf(buf, "Вы сняли %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
 		send_to_char(buf, ch);

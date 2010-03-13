@@ -675,8 +675,8 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 
 				if (gold > 0)
 				{
-					add_gold(ch, gold);
-					add_gold(vict, -gold);
+					ch->add_gold(gold);
+					vict->add_gold(-gold);
 					if (gold > 1)
 					{
 						sprintf(buf, "УР-Р-Р-А!  Вы таки сперли %d %s.\r\n",
@@ -1502,13 +1502,13 @@ ACMD(do_split)
 			return;
 		}
 
-		add_gold(ch, -(share * (num - 1)));
+		ch->add_gold(-(share * (num - 1)));
 
 		sprintf(buf, "%s разделил%s %d %s; Вам досталось %d.\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, WHAT_MONEYu), share);
 		if (AFF_FLAGGED(k, AFF_GROUP) && IN_ROOM(k) == IN_ROOM(ch) && !IS_NPC(k) && k != ch)
 		{
-			add_gold(k, share);
+			k->add_gold(share);
 			send_to_char(buf, k);
 		}
 		for (f = k->followers; f; f = f->next)
@@ -1516,7 +1516,7 @@ ACMD(do_split)
 			if (AFF_FLAGGED(f->follower, AFF_GROUP) &&
 					!IS_NPC(f->follower) && IN_ROOM(f->follower) == IN_ROOM(ch) && f->follower != ch)
 			{
-				add_gold(f->follower, share);
+				f->follower->add_gold(share);
 				send_to_char(buf, f->follower);
 			}
 		}
@@ -2557,7 +2557,7 @@ ACMD(do_pray)
 		act(buf, FALSE, ch, 0, 0, TO_ROOM);
 		sprintf(buf, "Вы затеплили свечку и вознесли молитву %s.", pray_whom[metter]);
 		act(buf, FALSE, ch, 0, 0, TO_CHAR);
-		add_gold(ch, -10);
+		ch->add_gold(-10);
 	}
 	else if (subcmd == SCMD_DONATE && obj)
 	{
@@ -2959,7 +2959,7 @@ ACMD(do_dig)
 	if (number(1, dig_vars.treasure_chance) == 1)	// копнули клад
 	{
 		int gold = number(40000, 60000);
-		add_gold(ch, gold);
+		ch->add_gold(gold);
 		send_to_char("Вы нашли клад!\r\n", ch);
 		act("$n выкопал$g клад!", FALSE, ch, 0, 0, TO_ROOM);
 		sprintf(textbuf, "Вы насчитали %i монет.\r\n", gold);

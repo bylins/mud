@@ -399,13 +399,13 @@ ACMD(do_put)
 					if (!obj)
 						return;
 					obj_to_char(obj, ch);
-					add_gold(ch, -howmany);
+					ch->add_gold(-howmany);
 					// если положить не удалось - возвращаем все взад
 					if (perform_put(ch, obj, cont))
 					{
 						obj_from_char(obj);
 						extract_obj(obj);
-						add_gold(ch, howmany);
+						ch->add_gold(howmany);
 						return;
 					}
 				}
@@ -506,7 +506,7 @@ void get_check_money(CHAR_DATA * ch, OBJ_DATA * obj)
 	obj_from_char(obj);
 	extract_obj(obj);
 
-	add_gold(ch, value);
+	ch->add_gold(value);
 
 	sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_MONEYu));
 	send_to_char(buf, ch);
@@ -929,7 +929,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 			sprintf(buf, "Вы пожертвовали Богам %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
 			send_to_char(buf, ch);
 		}
-		add_gold(ch, -amount);
+		ch->add_gold(-amount);
 	}
 }
 
@@ -1209,8 +1209,8 @@ void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 	sprintf(buf, "$n дал$g %s $N2.", money_desc(amount, 3));
 	act(buf, TRUE, ch, 0, vict, TO_NOTVICT);
 	if (IS_NPC(ch) || !IS_IMPL(ch))
-		add_gold(ch, -amount);
-	add_gold(vict, amount);
+		ch->add_gold(-amount);
+	vict->add_gold(amount);
 	bribe_mtrigger(vict, ch, amount);
 }
 
