@@ -1179,7 +1179,7 @@ typedef struct trig_data TRIG_DATA;
 #define MAX_REMEMBER_PRAY     20
 /* Количество запомненных предложений для эфира */
 #define MAX_REMEMBER_GOSSIP   15
-
+// планка на кол-во денег у чара на руках и в банке (раздельно)
 const long MAX_MONEY_KEPT = 1000000000;
 
 /**********************************************************************
