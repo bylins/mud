@@ -373,7 +373,7 @@ int exchange_change_cost(CHAR_DATA * ch, char *arg)
 	GET_EXCHANGE_ITEM_COST(item) = newcost;
 	if (pay > 0)
 	{
-		ch->remove_bank(pay * EXCHANGE_EXHIBIT_PAY_COEFF);
+		ch->remove_bank(static_cast<long>(pay * EXCHANGE_EXHIBIT_PAY_COEFF));
 	}
 
 	sprintf(tmpbuf, "Вы назначили цену %d %s, за %s (лот %d).\r\n",
