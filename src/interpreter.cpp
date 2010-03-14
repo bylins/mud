@@ -2084,7 +2084,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	{
 		d->character->set_level(LVL_GOD);
 	}
-	if (GET_LEVEL(d->character) > LVL_IMPL || GET_LEVEL(d->character) < 1)
+	if (GET_LEVEL(d->character) > LVL_IMPL)
 	{
 		d->character->set_level(1);
 	}
