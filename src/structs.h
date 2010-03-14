@@ -1180,6 +1180,7 @@ typedef struct trig_data TRIG_DATA;
 /* Количество запомненных предложений для эфира */
 #define MAX_REMEMBER_GOSSIP   15
 
+const long MAX_MONEY_KEPT = 1000000000;
 
 /**********************************************************************
 * Structures                                                          *

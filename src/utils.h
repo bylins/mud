@@ -87,13 +87,6 @@ bool die_follower(CHAR_DATA * ch);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
 
-int get_gold(CHAR_DATA *ch);
-//void add_gold(CHAR_DATA *ch, int gold);
-void set_gold(CHAR_DATA *ch, int gold, bool need_log = 1);
-long get_bank_gold(CHAR_DATA *ch);
-void add_bank_gold(CHAR_DATA *ch, long gold);
-void set_bank_gold(CHAR_DATA *ch, long gold, bool need_log = 1);
-
 extern std::list<FILE *> opened_files;
 
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
@@ -1208,7 +1201,7 @@ void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 bool ignores(CHAR_DATA *, CHAR_DATA *, unsigned int);
 
 /* PADS for something ****************************************************/
-const char * desc_count(int how_many, int of_what);
+const char * desc_count(long how_many, int of_what);
 #define WHAT_DAY	0
 #define WHAT_HOUR	1
 #define WHAT_YEAR	2

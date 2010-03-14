@@ -2537,7 +2537,7 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 		exit(1);
 	}
 
-	set_gold(mob_proto + i, t[2], 0);
+	mob_proto[i].set_gold(t[2], false);
 	GET_GOLD_NoDs(mob_proto + i) = t[0];
 	GET_GOLD_SiDs(mob_proto + i) = t[1];
 	mob_proto[i].set_exp(t[3]);

@@ -1388,7 +1388,7 @@ SPECIAL(horse_keeper)
 			act("$N засмеял$U : \"$n, ты шутишь, у тебя же есть скакун.\"", FALSE, ch, 0, victim, TO_CHAR);
 			return (TRUE);
 		}
-		if (get_gold(ch) < HORSE_COST)
+		if (ch->get_gold() < HORSE_COST)
 		{
 			act("\"Ступай отсюда, злыдень, у тебя нет таких денег!\"-заорал$G $N",
 				FALSE, ch, 0, victim, TO_CHAR);
@@ -1406,7 +1406,7 @@ SPECIAL(horse_keeper)
 		act(buf, FALSE, ch, 0, victim, TO_CHAR);
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s $n2.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, FALSE, ch, 0, victim, TO_ROOM);
-		ch->add_gold(-HORSE_COST);
+		ch->remove_gold(HORSE_COST);
 		SET_BIT(PLR_FLAGS(ch, PLR_CRASH), PLR_CRASH);
 		return (TRUE);
 	}
@@ -2188,11 +2188,11 @@ int do_npc_steal(CHAR_DATA * ch, CHAR_DATA * victim)
 	}
 	else  		/* Steal some gold coins          */
 	{
-		gold = (int)((get_gold(victim) * number(1, 10)) / 100);
+		gold = (int)((victim->get_gold() * number(1, 10)) / 100);
 		if (gold > 0)
 		{
 			ch->add_gold(gold);
-			victim->add_gold(-gold);
+			victim->remove_gold(gold);
 		}
 		/* Steal something from equipment */
 		if (calculate_skill(ch, SKILL_STEAL, 100, victim) >= number(1, 100) - (AWAKE(victim) ? 100 : 0))
@@ -2746,12 +2746,12 @@ SPECIAL(pet_shops)
 			send_to_char("There is no such pet!\r\n", ch);
 			return (TRUE);
 		}
-		if (get_gold(ch) < PET_PRICE(pet))
+		if (ch->get_gold() < PET_PRICE(pet))
 		{
 			send_to_char("You don't have enough gold!\r\n", ch);
 			return (TRUE);
 		}
-		ch->add_gold(-PET_PRICE(pet));
+		ch->remove_gold(PET_PRICE(pet));
 
 		pet = read_mobile(GET_MOB_RNUM(pet), REAL);
 		pet->set_exp(0);
@@ -2816,9 +2816,9 @@ SPECIAL(bank)
 
 	if (CMD_IS("balance") || CMD_IS("баланс") || CMD_IS("сальдо"))
 	{
-		if (get_bank_gold(ch) > 0)
+		if (ch->get_bank() > 0)
 			sprintf(buf, "У Вас на счету %ld %s.\r\n",
-					get_bank_gold(ch), desc_count(get_bank_gold(ch), WHAT_MONEYa));
+					ch->get_bank(), desc_count(ch->get_bank(), WHAT_MONEYa));
 		else
 			sprintf(buf, "У Вас нет денег.\r\n");
 		send_to_char(buf, ch);
@@ -2831,13 +2831,13 @@ SPECIAL(bank)
 			send_to_char("Сколько Вы хотите вложить ?\r\n", ch);
 			return (1);
 		}
-		if (get_gold(ch) < amount)
+		if (ch->get_gold() < amount)
 		{
 			send_to_char("О такой сумме Вы можете только мечтать !\r\n", ch);
 			return (1);
 		}
-		ch->add_gold(-amount);
-		add_bank_gold(ch, amount);
+		ch->remove_gold(amount, false);
+		ch->add_bank(amount, false);
 		sprintf(buf, "Вы вложили %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
 		send_to_char(buf, ch);
 		act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
@@ -2850,13 +2850,13 @@ SPECIAL(bank)
 			send_to_char("Уточните количество денег, которые Вы хотите получить ?\r\n", ch);
 			return (1);
 		}
-		if (get_bank_gold(ch) < amount)
+		if (ch->get_bank() < amount)
 		{
 			send_to_char("Да Вы отродясь столько денег не видели !\r\n", ch);
 			return (1);
 		}
-		ch->add_gold(amount);
-		add_bank_gold(ch, -amount);
+		ch->add_gold(amount, false);
+		ch->remove_bank(amount, false);
 		sprintf(buf, "Вы сняли %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
 		send_to_char(buf, ch);
 		act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
@@ -2888,12 +2888,12 @@ SPECIAL(bank)
 			return (1);
 		}
 
-		if (get_bank_gold(ch) < amount)
+		if (ch->get_bank() < amount)
 		{
 			send_to_char("Да Вы отродясь столько денег не видели !\r\n", ch);
 			return (1);
 		}
-		if (get_bank_gold(ch) < amount + ((amount * 5) / 100))
+		if (ch->get_bank() < amount + ((amount * 5) / 100))
 		{
 			send_to_char("У вас не хватит денег на налоги !\r\n", ch);
 			return (1);
@@ -2901,11 +2901,11 @@ SPECIAL(bank)
 
 		if ((vict = get_player_of_name(arg)))
 		{
-			add_bank_gold(ch, -(amount + (amount * 5) / 100));
+			ch->remove_bank(amount + (amount * 5) / 100);
 			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
-			add_bank_gold(vict, amount);
+			vict->add_bank(amount);
 			sprintf(buf, "%sВы получили %d кун банковским переводом от %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(ch, 1), CCNRM(ch, C_NRM));
 			send_to_char(buf, vict);
@@ -2922,11 +2922,11 @@ SPECIAL(bank)
 				return (1);
 			}
 
-			add_bank_gold(ch, -(amount + (amount * 5) / 100));
+			ch->remove_bank(amount + (amount * 5) / 100);
 			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
-			add_bank_gold(vict, amount);
+			vict->add_bank(amount);
 			Depot::add_offline_money(GET_UNIQUE(vict), amount);
 			vict->save_char();
 

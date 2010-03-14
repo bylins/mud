@@ -2161,13 +2161,13 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				sprintf(str, "%d", GET_RELIGION(c));
 			else if (!str_cmp(field, "gold"))
 			{
-				set_gold(c, (int) MAX(0, gm_char_field(c, field, subfield, (long) get_gold(c))));
-				sprintf(str, "%d", get_gold(c));
+				c->set_gold(MAX(0, gm_char_field(c, field, subfield, c->get_gold())));
+				sprintf(str, "%ld", c->get_gold());
 			}
 			else if (!str_cmp(field, "bank"))
 			{
-				set_bank_gold(c, MAX(0, gm_char_field(c, field, subfield, get_bank_gold(c))));
-				sprintf(str, "%ld", get_bank_gold(c));
+				c->set_bank(MAX(0, gm_char_field(c, field, subfield, c->get_bank())));
+				sprintf(str, "%ld", c->get_bank());
 			}
 			else if (!str_cmp(field, "exp"))
 			{

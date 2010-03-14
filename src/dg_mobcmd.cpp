@@ -927,11 +927,18 @@ ACMD(do_mgold)
 		return;
 	}
 
-	victim->add_gold(atoi(amount));
-	if (get_gold(victim) < 0)
+	int num = atoi(amount);
+	if (num >= 0)
 	{
-		mob_log(ch, "mgold subtracting more gold than character has");
-		set_gold(victim, 0);
+		victim->add_gold(num);
+	}
+	else
+	{
+		num = victim->remove_gold(num);
+		if (num > 0)
+		{
+			mob_log(ch, "mgold subtracting more gold than character has");
+		}
 	}
 }
 
@@ -1177,7 +1184,7 @@ ACMD(do_mtransform)
 			GET_MAX_HIT(ch) = GET_MAX_HIT(m);
 			ch->set_exp(m->get_exp());
 		}
-		set_gold(ch, get_gold(m));
+		ch->set_gold(m->get_gold());
 		GET_POS(ch) = GET_POS(m);
 		IS_CARRYING_W(ch) = IS_CARRYING_W(m);
 		IS_CARRYING_W(m) = IS_CARRYING_W(&tmpmob);

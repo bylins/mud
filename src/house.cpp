@@ -2398,11 +2398,9 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 	{
 		long gold = GET_OBJ_VAL(obj, 0);
 		// здесь и далее: в случае переполнения  - кладем сколько можем, остальное возвращаем чару
-		// на данный момент для персонажей и кланов максимум 2147483647 кун
-		// не знаю как сейчас в маде с деньгами и есть ли смысл поднимать планку
 		if ((CLAN(ch)->bank + gold) < 0)
 		{
-			long over = std::numeric_limits<long int>::max() - CLAN(ch)->bank;
+			long over = std::numeric_limits<long>::max() - CLAN(ch)->bank;
 			CLAN(ch)->bank += over;
 			CLAN(ch)->members[GET_UNIQUE(ch)]->money += over;
 			gold -= over;
@@ -2756,7 +2754,7 @@ bool Clan::BankManage(CHAR_DATA * ch, char *arg)
 			send_to_char("Сколько Вы хотите вложить?\r\n", ch);
 			return 1;
 		}
-		if (get_gold(ch) < gold)
+		if (ch->get_gold() < gold)
 		{
 			send_to_char("О такой сумме Вы можете только мечтать!\r\n", ch);
 			return 1;
@@ -2768,13 +2766,13 @@ bool Clan::BankManage(CHAR_DATA * ch, char *arg)
 			long over = std::numeric_limits<long int>::max() - CLAN(ch)->bank;
 			CLAN(ch)->bank += over;
 			CLAN(ch)->members[GET_UNIQUE(ch)]->money += over;
-			ch->add_gold(-over);
+			ch->remove_gold(over);
 			send_to_char(ch, "Вы удалось вложить в казну дружины только %ld %s.\r\n", over, desc_count(over, WHAT_MONEYu));
 			act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
 			return 1;
 		}
 
-		ch->add_gold(-gold);
+		ch->remove_gold(gold);
 		CLAN(ch)->bank += gold;
 		CLAN(ch)->members[GET_UNIQUE(ch)]->money += gold;
 		send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
@@ -2804,9 +2802,9 @@ bool Clan::BankManage(CHAR_DATA * ch, char *arg)
 		}
 
 		// на случай переполнения персонажа
-		if ((get_gold(ch) + gold) < 0)
+		if ((ch->get_gold() + gold) < 0)
 		{
-			long over = std::numeric_limits<long int>::max() - get_gold(ch);
+			long over = std::numeric_limits<long int>::max() - ch->get_gold();
 			ch->add_gold(over);
 			CLAN(ch)->bank -= over;
 			CLAN(ch)->members[GET_UNIQUE(ch)]->money -= over;
@@ -3608,7 +3606,7 @@ ACMD(DoStoreHouse)
 
 	if (is_abbrev(arg, "характеристики") || is_abbrev(arg, "identify") || is_abbrev(arg, "опознать"))
 	{
-		if ((get_bank_gold(ch) < CHEST_IDENT_PAY) && (GET_LEVEL(ch) < LVL_IMPL))
+		if ((ch->get_bank() < CHEST_IDENT_PAY) && (GET_LEVEL(ch) < LVL_IMPL))
 		{
 			send_to_char("У вас недостаточно денег в банке для такого исследования.\r\n", ch);
 			return;
@@ -3625,7 +3623,7 @@ ACMD(DoStoreHouse)
 						sprintf(buf1, "Характеристики предмета: %s\r\n", stufina);
 						send_to_char(buf1, ch);
 						GET_LEVEL(ch) < LVL_IMPL ? mort_show_obj_values(temp_obj, ch, 200) : imm_show_obj_values(temp_obj, ch);
-						add_bank_gold(ch, -(CHEST_IDENT_PAY));
+						ch->remove_bank(CHEST_IDENT_PAY);
 						sprintf(buf1, "%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",  CCIGRN(ch, C_NRM), CHEST_IDENT_PAY, desc_count(CHEST_IDENT_PAY, WHAT_MONEYu), CCNRM(ch, C_NRM));
 						send_to_char(buf1, ch);
 						return;
@@ -4501,9 +4499,9 @@ ACMD(do_clanstuff)
 
 		int gold = GET_OBJ_COST(obj);
 
-		if (get_gold(ch) >= gold)
+		if (ch->get_gold() >= gold)
 		{
-			ch->add_gold(-gold);
+			ch->remove_gold(gold);
 			gold_total += gold;
 		}
 		else

@@ -662,13 +662,13 @@ void medit_save_to_disk(int zone_num)
 
 			fprintf(mob_file,
 					// "%s~\n"
-					"%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%d %ld\n" "%d %d %d\n",
+					"%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
 					// buf1,
 					buf2, GET_ALIGNMENT(mob),
 					GET_LEVEL(mob), 20 - GET_HR(mob), GET_AC(mob) / 10,
 					GET_MEM_TOTAL(mob), GET_MEM_COMPLETED(mob), GET_HIT(mob),
 					GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
-					GET_GOLD_SiDs(mob), get_gold(mob), GET_EXP(mob),
+					GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob),
 					GET_POS(mob), GET_DEFAULT_POS(mob), GET_SEX(mob));
 
 			/*
@@ -1350,7 +1350,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 			"%sF%s) NumDamDice : [%s%4d%s],%sG%s) SizeDamDice:  [%s%4d%s]\r\n"
 			"%sH%s) Num HP Dice: [%s%4d%s],%sI%s) Size HP Dice: [%s%4d%s],%sJ%s) HP Bonus:    [%s%5d%s]\r\n"
 			"%sK%s) ArmorClass : [%s%4d%s],%sL%s) Опыт:         [%s%9ld%s],\r\n"
-			"%sM%s) Gold       : [%s%4d%s],%sN%s) NumGoldDice:  [%s%4d%s],%sO%s) SizeGoldDice: [%s%4d%s]\r\n",
+			"%sM%s) Gold       : [%s%4ld%s],%sN%s) NumGoldDice:  [%s%4d%s],%sO%s) SizeGoldDice: [%s%4d%s]\r\n",
 			cyn, OLC_NUM(d), nrm,
 			grn, nrm, yel, genders[(int) GET_SEX(mob)], nrm,
 			grn, nrm, yel, GET_ALIAS(mob),
@@ -1373,7 +1373,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, nrm, cyn, GET_HIT(mob), nrm,
 			grn, nrm, cyn, GET_AC(mob), nrm,
 			grn, nrm, cyn, GET_EXP(mob), nrm,
-			grn, nrm, cyn, get_gold(mob), nrm,
+			grn, nrm, cyn, mob->get_gold(), nrm,
 			grn, nrm, cyn, GET_GOLD_NoDs(mob), nrm, grn, nrm, cyn, GET_GOLD_SiDs(mob), nrm);
 	send_to_char(buf, d->character);
 
@@ -2269,7 +2269,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 
 		case MEDIT_GOLD:
-			set_gold(OLC_MOB(d), MAX(0, atoi(arg)));
+			OLC_MOB(d)->set_gold(atoi(arg));
 			break;
 
 		case MEDIT_GOLD_DICE:

@@ -1834,7 +1834,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 				count += sprintf(prompt + count, "%dL ", GET_LEVEL(d->character));
 
 			if (PRF_FLAGGED(d->character, PRF_DISPGOLD))
-				count += sprintf(prompt + count, "%dG ", get_gold(d->character));
+				count += sprintf(prompt + count, "%ldG ", d->character->get_gold());
 
 			if (PRF_FLAGGED(d->character, PRF_DISPEXITS))
 			{
@@ -3393,8 +3393,8 @@ void signal_setup(void)
 void send_stat_char(CHAR_DATA * ch)
 {
 	char fline[256];
-	sprintf(fline, "%d[%d]HP %d[%d]Mv %dG %dL ",
-			GET_HIT(ch), GET_REAL_MAX_HIT(ch), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), get_gold(ch), GET_LEVEL(ch));
+	sprintf(fline, "%d[%d]HP %d[%d]Mv %ldG %dL ",
+			GET_HIT(ch), GET_REAL_MAX_HIT(ch), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), ch->get_gold(), GET_LEVEL(ch));
 	SEND_TO_Q(fline, ch->desc);
 }
 

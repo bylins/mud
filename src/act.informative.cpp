@@ -2340,13 +2340,13 @@ ACMD(do_examine)
 ACMD(do_gold)
 {
 	int count = 0;
-	if (get_gold(ch) == 0)
+	if (ch->get_gold() == 0)
 		send_to_char("Вы разорены !\r\n", ch);
-	else if (get_gold(ch) == 1)
+	else if (ch->get_gold() == 1)
 		send_to_char("У Вас есть всего лишь одна куна.\r\n", ch);
 	else
 	{
-		count += sprintf(buf, "У Вас есть %d %s.\r\n", get_gold(ch), desc_count(get_gold(ch), WHAT_MONEYa));
+		count += sprintf(buf, "У Вас есть %ld %s.\r\n", ch->get_gold(), desc_count(ch->get_gold(), WHAT_MONEYa));
 		send_to_char(buf, ch);
 	}
 }
@@ -2642,10 +2642,10 @@ ACMD(do_score)
 
 		resist = MIN(GET_RESIST(ch, IMMUNITY_RESISTANCE), 75);
 		sprintf(buf + strlen(buf),
-				" || %sДенег: %s%-8d    %s|"
+				" || %sДенег: %s%-8ld    %s|"
 				" %sОбаяние:       %2d(%2d) %s|-------------------|"
 				" %sИммунитет: %3d %s||\r\n",
-				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), get_gold(ch), CCCYN(ch, C_NRM),
+				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), ch->get_gold(), CCCYN(ch, C_NRM),
 				CCICYN(ch, C_NRM), GET_CHA(ch), GET_REAL_CHA(ch), CCCYN(ch, C_NRM),
 				CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
@@ -2653,7 +2653,7 @@ ACMD(do_score)
 				" || %sНа счету: %s%-8ld %s|"
 				" %sЖизнь:     %4d(%4d) %s|"
 				" %sВоля:         %3d %s|----------------||\r\n",
-				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), get_bank_gold(ch), CCCYN(ch, C_NRM),
+				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), ch->get_bank(), CCCYN(ch, C_NRM),
 				CCICYN(ch, C_NRM), GET_HIT(ch), GET_REAL_MAX_HIT(ch), CCCYN(ch, C_NRM),
 				CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_WILL) - wis_app[GET_REAL_WIS(ch)].char_savings, CCCYN(ch, C_NRM)
 			   );
@@ -3045,11 +3045,11 @@ ACMD(do_score)
 	     sprintf(buf + strlen(buf),  " Из них свободно   : %4d\r\n",
 	             charm_points(ch) - used_charm_points(ch));
 	  } */
-	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, у Вас на руках %d %s",
-			GET_EXP(ch), desc_count(GET_EXP(ch), WHAT_POINT), get_gold(ch), desc_count(get_gold(ch), WHAT_MONEYa));
-	if (get_bank_gold(ch) > 0)
+	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, у Вас на руках %ld %s",
+			GET_EXP(ch), desc_count(GET_EXP(ch), WHAT_POINT), ch->get_gold(), desc_count(ch->get_gold(), WHAT_MONEYa));
+	if (ch->get_bank() > 0)
 		sprintf(buf + strlen(buf), "(и еще %ld %s припрятано в лежне).\r\n",
-				get_bank_gold(ch), desc_count(get_bank_gold(ch), WHAT_MONEYa));
+				ch->get_bank(), desc_count(ch->get_bank(), WHAT_MONEYa));
 	else
 		strcat(buf, ".\r\n");
 

@@ -212,7 +212,8 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 
 	const int reserved_cost = get_object_low_rent(obj) * RESERVED_COST_COEFF;
 	const int total_cost = reserved_cost + SEND_COST;
-	if (get_bank_gold(ch) + get_gold(ch) < total_cost)
+
+	if (ch->get_total_gold() < total_cost)
 	{
 		act("$n сказал$g Вам : 'Да у тебя ведь нет столько денег!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
@@ -243,23 +244,11 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 
 	send_reserved_buffer += reserved_cost;
 	send_cost_buffer += SEND_COST;
-	add_bank_gold(ch, -total_cost);
 
-	if (get_bank_gold(ch) < 0)
-	{
-		// выше мы убедились, что денег банк+руки как минимум не меньше, чем нужно
-		ch->add_gold(get_bank_gold(ch));
-		set_bank_gold(ch, 0);
-		// всякое бывает
-		if (get_gold(ch) < 0)
-		{
-			log("SYSERROR: отрицательная сумма у чара после посылки.");
-			set_gold(ch, 0);
-		}
-	}
+	ch->remove_both_gold(total_cost);
+	obj_from_char(obj);
 	ch->save_char();
 
-	obj_from_char(obj);
 	check_auction(NULL, obj);
 	OBJ_DATA *temp;
 	REMOVE_FROM_LIST(obj, object_list, next);
@@ -465,14 +454,18 @@ bool has_parcel(CHAR_DATA *ch)
 */
 void return_money(std::string const &name, int money, bool add)
 {
-	if (!money) return;
+	if (money <= 0)
+	{
+		log("WARNING: money=%d (%s %s %d)", money, __FILE__, __func__, __LINE__);
+		return;
+	}
 
 	CHAR_DATA *vict = 0;
 	if ((vict = get_player_of_name(name.c_str())))
 	{
 		if (add)
 		{
-			add_bank_gold(vict, money);
+			vict->add_bank(money);
 			send_to_char(vict, "%sВы получили %d %s банковским переводом от почтовой службы%s.\r\n",
 					CCWHT(vict, C_NRM), money, desc_count(money, WHAT_MONEYu), CCNRM(vict, C_NRM));
 		}
@@ -485,7 +478,7 @@ void return_money(std::string const &name, int money, bool add)
 			delete vict;
 			return;
 		}
-		add_bank_gold(vict, money);
+		vict->add_bank(money);
 		vict->save_char();
 		delete vict;
 	}
@@ -1042,7 +1035,7 @@ void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman)
 		std::string name = GET_NAME(ch);
 		return_money(name, money/2, RETURN_WITH_MONEY);
 	}
-	else
+	else if (empty)
 	{
 		act("$n сказал$g Вам : 'У нас нет ниодной Вашей посылки!'", FALSE, mailman, 0, ch, TO_VICT);
 	}

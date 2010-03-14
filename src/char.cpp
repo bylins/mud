@@ -734,7 +734,7 @@ void Character::set_class(short chclass)
 {
 	if (chclass < 0 || chclass > CLASS_LAST_NPC)
 	{
-		log("WARNING: chclass=%d (%s %s %d)", chclass, __FILE__, __func__, __LINE__);
+		log("WARNING: chclass=%d (%s:%d %s)", chclass, __FILE__, __LINE__, __func__);
 	}
 	chclass_ = chclass;
 }
@@ -746,9 +746,9 @@ short Character::get_level() const
 
 void Character::set_level(short level)
 {
-	if (level < 0 || level > LVL_IMPL)
+	if (level < 0 || (!IS_NPC(this) && level > LVL_IMPL))
 	{
-		log("SYSERROR: level=%d (%s %s %d)", level, __FILE__, __func__, __LINE__);
+		log("SYSERROR: level=%d (%s:%d %s)", level, __FILE__, __LINE__, __func__);
 		return;
 	}
 	level_ = level;
@@ -783,7 +783,8 @@ void Character::set_exp(long exp)
 {
 	if (exp < 0)
 	{
-		log("WARNING: exp=%ld (%s %s %d)", exp, __FILE__, __func__, __LINE__);
+		log("WARNING: exp=%ld name=%s (%s:%d %s)", exp,
+				get_name() ? get_name() : "null", __FILE__, __LINE__, __func__);
 	}
 	exp_ = MAX(0, exp);
 }
@@ -808,134 +809,92 @@ void Character::set_last_logon(time_t num)
 	last_logon_ = num;
 }
 
-int Character::get_gold() const
+long Character::get_gold() const
 {
 	return gold_;
 }
 
-/**
-* Аналог GET_GOLD не поделенный на add/remove, т.к. везде логика завязана
-* на то, что голда знаковый тип, менять надо более основательно.
-* Изменения кун у чаров логиурем.
-*/
-void Character::add_gold(int gold)
+long Character::get_bank() const
 {
-	if (!gold) return;
+	return bank_gold_;
+}
 
-	if (!IS_NPC(this))
-	{
-		if (gold > 0)
-			log("Gold: %s add %d", GET_NAME(this), gold);
-		else
-			log("Gold: %s remove %d", GET_NAME(this), -gold);
-	}
-
-	gold_ += gold;
-
-//	set_gold(get_gold() + gold);
+long Character::get_total_gold() const
+{
+	return get_gold() + get_bank();
 }
 
 /**
-* Сет кун на руках, чаров логируем, если надо.
-* \param need_log - логировать или нет, по дефолту 1, т.е. логируем
-* В основнм сеты остались только при обнулении бабла и ините полей,
-* т.е. всяких фишек и сетом отрицательных значений быть не должно,
-* все расчеты и выкрутасы идут через add_gold.
-*/
-void Character::set_gold(int gold, bool need_log)
+ * Добавление денег на руках, плюсуются только положительные числа.
+ * \param need_log здесь и далее - логировать или нет изменения счета
+ */
+void Character::add_gold(long num, bool need_log)
 {
-	if (gold < 0 || gold > 100000000 || gold_ == gold) return;
-
-	if (need_log && !IS_NPC(this))
+	if (num < 0)
 	{
-		int change = gold - gold_;
-		if (change > 0)
-			log("Gold: %s add %d", GET_NAME(this), change);
-		else
-			log("Gold: %s remove %d", GET_NAME(this), -change);
+		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
+		return;
 	}
+	set_gold(get_gold() + num, need_log);
+}
 
-	gold_ = gold;
+/**
+ * см. add_gold()
+ */
+void Character::add_bank(long num, bool need_log)
+{
+	if (num < 0)
+	{
+		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
+		return;
+	}
+	set_bank(get_bank() + num, need_log);
+}
 
-/*
+/**
+ * Сет денег на руках, отрицательные числа просто обнуляют счет с
+ * логированием бывшей суммы.
+ */
+void Character::set_gold(long num, bool need_log)
+{
 	if (get_gold() == num)
 	{
 		// чтобы с логированием не заморачиваться
 		return;
 	}
-	num = MAX(0, MIN(1000000000, num));
+	num = MAX(0, MIN(MAX_MONEY_KEPT, num));
 
 	if (need_log && !IS_NPC(this))
 	{
-		int change = num - get_gold();
+		long change = num - get_gold();
 		if (change > 0)
 		{
-			log("Gold: %s add %d", GET_NAME(this), change);
+			log("Gold: %s add %ld", GET_NAME(this), change);
 		}
 		else
 		{
-			log("Gold: %s remove %d", GET_NAME(this), -change);
+			log("Gold: %s remove %ld", GET_NAME(this), -change);
 		}
 	}
 
 	gold_ = num;
-*/
-}
-
-long Character::get_bank_gold() const
-{
-	return bank_gold_;
 }
 
 /**
-* См. Character::add_gold()
-*/
-void Character::add_bank_gold(long gold)
+ * см. set_gold()
+ */
+void Character::set_bank(long num, bool need_log)
 {
-	if (!gold) return;
-
-	if (!IS_NPC(this))
-	{
-		if (gold > 0)
-			log("Gold: %s add %ld", GET_NAME(this), gold);
-		else
-			log("Gold: %s remove %ld", GET_NAME(this), -gold);
-	}
-
-	bank_gold_ += gold;
-
-//	set_bank_gold(get_bank_gold() + gold);
-}
-
-/**
-* См. Character::set_gold()
-*/
-void Character::set_bank_gold(long gold, bool need_log)
-{
-	if (gold < 0 || gold > 100000000 || bank_gold_ == gold) return;
-
-	if (need_log && !IS_NPC(this))
-	{
-		long change = gold - bank_gold_;
-		if (change > 0)
-			log("Gold: %s add %ld", GET_NAME(this), change);
-		else
-			log("Gold: %s remove %ld", GET_NAME(this), -change);
-	}
-
-	bank_gold_ = gold;
-
-/*
-	if (get_bank_gold() == num)
+	if (get_bank() == num)
 	{
 		// чтобы с логированием не заморачиваться
 		return;
 	}
-	num = MAX(0, MIN(1000000000, num));
+	num = MAX(0, MIN(MAX_MONEY_KEPT, num));
 
 	if (need_log && !IS_NPC(this))
 	{
-		long change = num - get_bank_gold();
+		long change = num - get_bank();
 		if (change > 0)
 		{
 			log("Gold: %s add %ld", GET_NAME(this), change);
@@ -947,5 +906,66 @@ void Character::set_bank_gold(long gold, bool need_log)
 	}
 
 	bank_gold_ = num;
-*/
+}
+
+/**
+ * Снятие находящихся на руках денег.
+ * \param num - положительное число
+ * \return - кол-во кун, которое не удалось снять с рук (нехватило денег)
+ */
+long Character::remove_gold(long num, bool need_log)
+{
+	if (num < 0)
+	{
+		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
+		return num;
+	}
+
+	long rest = 0;
+	if (get_gold() >= num)
+	{
+		set_gold(get_gold() - num, need_log);
+	}
+	else
+	{
+		rest = num - get_gold();
+		set_gold(0, need_log);
+	}
+
+	return rest;
+}
+
+/**
+ * см. remove_gold()
+ */
+long Character::remove_bank(long num, bool need_log)
+{
+	if (num < 0)
+	{
+		log("SYSERROR: num=%ld (%s:%d %s)", num, __FILE__, __LINE__, __func__);
+		return num;
+	}
+
+	long rest = 0;
+	if (get_bank() >= num)
+	{
+		set_bank(get_bank() - num, need_log);
+	}
+	else
+	{
+		rest = num - get_bank();
+		set_bank(0, need_log);
+	}
+
+	return rest;
+}
+
+/**
+ * Попытка снятия денег с банка и, в случае остатка, с рук.
+ * \return - кол-во кун, которое не удалось снять (нехватило денег в банке и на руках)
+ */
+long Character::remove_both_gold(long num, bool need_log)
+{
+	long rest = remove_bank(num, need_log);
+	return remove_gold(rest, need_log);
 }

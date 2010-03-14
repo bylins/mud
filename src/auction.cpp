@@ -297,7 +297,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 			send_to_char("Повышайте ставку не ниже 5% текущей.\r\n", ch);
 			return false;
 		}
-		if (value > get_gold(ch) + get_bank_gold(ch))
+		if (value > ch->get_gold() + ch->get_bank())
 		{
 			send_to_char("У Вас нет такой суммы.\r\n", ch);
 			return false;
@@ -532,7 +532,7 @@ int check_sell(int lot)
 		}
 	}
 
-	if (get_gold(tch) + get_bank_gold(tch) < GET_LOT(lot)->cost)
+	if (tch->get_total_gold() < GET_LOT(lot)->cost)
 	{
 		sprintf(tmpbuf, "У Вас не хватает денег на покупку %s.\r\n", obj->PNames[1]);
 		send_to_char(tmpbuf, tch);
@@ -568,7 +568,7 @@ void trans_auction(int lot)
 		return;
 	}
 	// У покупателя есть 10% суммы на счету.
-	if (get_gold(tch) + get_bank_gold(tch) < (GET_LOT(lot)->cost + GET_LOT(lot)->cost / 10))
+	if (tch->get_total_gold() < (GET_LOT(lot)->cost + GET_LOT(lot)->cost / 10))
 	{
 		send_to_char("У Вас не хватает денег на передачу предмета.", tch);
 		return;
@@ -690,13 +690,9 @@ void trans_auction(int lot)
 	obj_from_char(obj);
 	obj_to_char(obj, tch);
 
-	add_bank_gold(ch, GET_LOT(lot)->cost);
-	add_bank_gold(tch, -(GET_LOT(lot)->cost + (GET_LOT(lot)->cost / 10)));
-	if (get_bank_gold(tch) < 0)
-	{
-		tch->add_gold(get_bank_gold(tch));
-		set_bank_gold(tch, 0);
-	}
+	ch->add_bank(GET_LOT(lot)->cost);
+	tch->remove_both_gold(GET_LOT(lot)->cost + (GET_LOT(lot)->cost / 10));
+
 	clear_auction(lot);
 	return;
 }
@@ -757,13 +753,10 @@ void sell_auction(int lot)
 
 	obj_from_char(obj);
 	obj_to_char(obj, tch);
-	add_bank_gold(ch, GET_LOT(lot)->cost);
-	add_bank_gold(tch, -(GET_LOT(lot)->cost));
-	if (get_bank_gold(tch) < 0)
-	{
-		tch->add_gold(get_bank_gold(tch));
-		set_bank_gold(tch, 0);
-	}
+
+	ch->add_bank(GET_LOT(lot)->cost);
+	tch->remove_both_gold(GET_LOT(lot)->cost);
+
 	clear_auction(lot);
 	return;
 }
@@ -814,7 +807,7 @@ void check_auction(CHAR_DATA * ch, OBJ_DATA * obj)
 				continue;
 			if (GET_LOT(i)->item->carried_by != GET_LOT(i)->seller ||
 					(GET_LOT(i)->buyer &&
-					 (get_gold(GET_LOT(i)->buyer) + get_bank_gold(GET_LOT(i)->buyer) < GET_LOT(i)->cost)))
+					 (GET_LOT(i)->buyer->get_total_gold() < GET_LOT(i)->cost)))
 			{
 				sprintf(tmpbuf,
 						"Аукцион : лот %d(%s) снят с аукциона распорядителем.",

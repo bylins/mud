@@ -420,14 +420,7 @@ void remove_char_entry(long uid, CharNode &node)
 		if (load_char(node.name.c_str(), victim) > -1 && GET_UNIQUE(victim) == uid)
 		{
 			int total_pay = node.money_spend + static_cast<int>(node.buffer_cost);
-			add_bank_gold(victim, -total_pay);
-			if (get_bank_gold(victim) < 0)
-			{
-				victim->add_gold(get_bank_gold(victim));
-				set_bank_gold(victim, 0);
-				if (get_gold(victim) < 0)
-					set_gold(victim, 0);
-			}
+			victim->remove_both_gold(total_pay);
 			victim->save_char();
 		}
 	}
@@ -618,7 +611,7 @@ void save_timedata()
 		out << "<Node>\n" << it->first << " ";
 		// чар онлайн - пишем бабло с его счета, иначе берем из оффлайновых полей инфу
 		if (it->second.ch)
-			out << get_bank_gold(it->second.ch) + get_gold(it->second.ch) << " 0 ";
+			out << it->second.ch->get_total_gold() << " 0 ";
 		else
 			out << it->second.money << " " << it->second.money_spend << " ";
 		out << it->second.buffer_cost << "\n";
@@ -996,7 +989,7 @@ void show_depot(CHAR_DATA *ch)
 	}
 
 	std::string out;
-	out = print_obj_list(ch, it->second.pers_online, "Ваше персональное хранилище:\r\n", (get_gold(ch) + get_bank_gold(ch)));
+	out = print_obj_list(ch, it->second.pers_online, "Ваше персональное хранилище:\r\n", (ch->get_gold() + ch->get_bank()));
 	page_string(ch->desc, out, 1);
 }
 
@@ -1006,27 +999,15 @@ void show_depot(CHAR_DATA *ch)
 */
 void put_gold_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	if (GET_OBJ_TYPE(obj) != ITEM_MONEY) return;
-
+	if (GET_OBJ_TYPE(obj) != ITEM_MONEY)
+	{
+		return;
+	}
 	long gold = GET_OBJ_VAL(obj, 0);
-	if ((get_bank_gold(ch) + gold) < 0)
-	{
-		long over = std::numeric_limits<long>::max() - get_bank_gold(ch);
-		add_bank_gold(ch, over);
-		gold -= over;
-		ch->add_gold(gold);
-		obj_from_char(obj);
-		extract_obj(obj);
-		send_to_char(ch, "Вы удалось вложить только %ld %s.\r\n",
-					 over, desc_count(over, WHAT_MONEYu));
-	}
-	else
-	{
-		add_bank_gold(ch, gold);
-		obj_from_char(obj);
-		extract_obj(obj);
-		send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
-	}
+	ch->add_bank(gold);
+	obj_from_char(obj);
+	extract_obj(obj);
+	send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
 }
 
 /**
@@ -1095,7 +1076,7 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 		send_to_char("В вашем хранилище совсем не осталось места :(.\r\n" , ch);
 		return 0;
 	}
-	if (!get_bank_gold(ch) && !get_gold(ch))
+	if (!ch->get_bank() && !ch->get_gold())
 	{
 		send_to_char(ch,
 					 "У Вас ведь совсем нет денег, чем Вы собираетесь расплачиваться за хранение вещей?\r\n",
@@ -1384,35 +1365,26 @@ void enter_char(CHAR_DATA *ch)
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
 	if (it != depot_list.end())
 	{
-		bool purged = false;
 		// снимаем бабло, если что-то было потрачено на ренту
 		if (it->second.money_spend > 0)
 		{
-			add_bank_gold(ch, -(it->second.money_spend));
-			if (get_bank_gold(ch) < 0)
+			send_to_char(ch, "%sХранилище: за время Вашего отсутствия удержано %d %s.%s\r\n\r\n",
+					CCWHT(ch, C_NRM), it->second.money_spend,
+					desc_count(it->second.money_spend, WHAT_MONEYa), CCNRM(ch, C_NRM));
+
+			long rest = ch->remove_both_gold(it->second.money_spend);
+			if (rest > 0)
 			{
-				ch->add_gold(get_bank_gold(ch));
-				set_bank_gold(ch, 0);
 				// есть вариант, что денег не хватит, потому что помимо хранилищ еще капает за
 				// одежду и инвентарь, а учитывать еще и их при расчетах уже как-то мутно
 				// поэтому мы просто готовы, если что, все технично спуржить при входе
-				if (get_gold(ch) < 0)
-				{
-					depot_log("no money %s %ld: reset depot", GET_NAME(ch), GET_UNIQUE(ch));
-					set_gold(ch, 0);
-					it->second.reset();
-					purged = true;
-					// файл убьется позже при ребуте на пустом хране,
-					// даже если не будет никаких перезаписей по ходу игры
-				}
-			}
-
-			send_to_char(ch, "%sХранилище: за время Вашего отсутствия удержано %d %s.%s\r\n\r\n",
-						 CCWHT(ch, C_NRM), it->second.money_spend, desc_count(it->second.money_spend,
-								 WHAT_MONEYa), CCNRM(ch, C_NRM));
-			if (purged)
+				depot_log("no money %s %ld: reset depot", GET_NAME(ch), GET_UNIQUE(ch));
+				it->second.reset();
+				// файл убьется позже при ребуте на пустом хране,
+				// даже если не будет никаких перезаписей по ходу игры
 				send_to_char(ch, "%sХранилище: у вас нехватило денег на постой.%s\r\n\r\n",
-							 CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+						CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+			}
 		}
 		// грузим хранилище, сохранять его тут вроде как смысла нет
 		it->second.load_online_objs(PERS_DEPOT_FILE);
@@ -1478,7 +1450,7 @@ void exit_char(CHAR_DATA *ch)
 
 		it->second.online_to_offline(it->second.pers_online);
 		it->second.ch = 0;
-		it->second.money = get_bank_gold(ch) + get_gold(ch);
+		it->second.money = ch->get_bank() + ch->get_gold();
 		it->second.money_spend = 0;
 	}
 }

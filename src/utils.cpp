@@ -908,8 +908,8 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			{
 				act("Налетевший ветер развеял $n3, не оставив и следа.", TRUE, ch, 0, 0, TO_ROOM);
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(IN_ROOM(ch));
-				perform_drop_gold(ch, get_gold(ch), SCMD_DROP, 0);
-				set_gold(ch, 0);
+				perform_drop_gold(ch, ch->get_gold(), SCMD_DROP, 0);
+				ch->set_gold(0);
 				extract_char(ch, FALSE);
 				return (TRUE);
 			}
@@ -1413,7 +1413,7 @@ const char *some_pads[3][23] =
 	{"дня", "часа", "года", "очка", "минуты", "минуты", "куны", "куны", "штуки", "штуки", "уровня", "версты", "версты", "единицы", "единицы", "секунды", "градуса", "строки", "предмета", "перевоплощения", "недели", "месяца", "недели"}
 };
 
-const char * desc_count(int how_many, int of_what)
+const char * desc_count(long how_many, int of_what)
 {
 	if (how_many < 0)
 		how_many = -how_many;
@@ -2060,38 +2060,6 @@ int valid_email(const char *address)
 		return 0;
 
 	return 1;
-}
-
-int get_gold(CHAR_DATA *ch)
-{
-	return ch->get_gold();
-}
-
-/*
-void add_gold(CHAR_DATA *ch, int gold)
-{
-	ch->add_gold(gold);
-}
-*/
-
-void set_gold(CHAR_DATA *ch, int gold, bool need_log)
-{
-	ch->set_gold(gold, need_log);
-}
-
-long get_bank_gold(CHAR_DATA *ch)
-{
-	return ch->get_bank_gold();
-}
-
-void add_bank_gold(CHAR_DATA *ch, long gold)
-{
-	ch->add_bank_gold(gold);
-}
-
-void set_bank_gold(CHAR_DATA *ch, long gold, bool need_log)
-{
-	ch->set_bank_gold(gold, need_log);
 }
 
 /**

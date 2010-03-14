@@ -350,7 +350,7 @@ ACMD(do_put)
 			send_to_char("Следует указать чиста конкретную сумму.\r\n", ch);
 			return;
 		}
-		if (get_gold(ch) < howmany)
+		if (ch->get_gold() < howmany)
 		{
 			send_to_char("Нет у Вас такой суммы.\r\n", ch);
 			return;
@@ -399,7 +399,7 @@ ACMD(do_put)
 					if (!obj)
 						return;
 					obj_to_char(obj, ch);
-					ch->add_gold(-howmany);
+					ch->remove_gold(howmany);
 					// если положить не удалось - возвращаем все взад
 					if (perform_put(ch, obj, cont))
 					{
@@ -881,7 +881,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 	OBJ_DATA *obj;
 	if (amount <= 0)
 		send_to_char("Да, похоже Вы слишком переиграли сегодня.\r\n", ch);
-	else if (get_gold(ch) < amount)
+	else if (ch->get_gold() < amount)
 		send_to_char("У Вас нет такой суммы !\r\n", ch);
 	else
 	{
@@ -929,7 +929,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 			sprintf(buf, "Вы пожертвовали Богам %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
 			send_to_char(buf, ch);
 		}
-		ch->add_gold(-amount);
+		ch->remove_gold(amount);
 	}
 }
 
@@ -1193,7 +1193,7 @@ void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 		send_to_char("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (get_gold(ch) < amount && (IS_NPC(ch) || !IS_IMPL(ch)))
+	if (ch->get_gold() < amount && (IS_NPC(ch) || !IS_IMPL(ch)))
 	{
 		send_to_char("И откуда Вы их взять собираетесь ?\r\n", ch);
 		return;
@@ -1209,7 +1209,9 @@ void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 	sprintf(buf, "$n дал$g %s $N2.", money_desc(amount, 3));
 	act(buf, TRUE, ch, 0, vict, TO_NOTVICT);
 	if (IS_NPC(ch) || !IS_IMPL(ch))
-		ch->add_gold(-amount);
+	{
+		ch->remove_gold(amount);
+	}
 	vict->add_gold(amount);
 	bribe_mtrigger(vict, ch, amount);
 }

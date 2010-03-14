@@ -252,14 +252,14 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 
 
 	/* transfer gold */
-	if (get_gold(ch) > 0)  	/* following 'if' clause added to fix gold duplication loophole */
+	if (ch->get_gold() > 0)  	/* following 'if' clause added to fix gold duplication loophole */
 	{
 		if (IS_NPC(ch) || (!IS_NPC(ch) && ch->desc))
 		{
-			money = create_money(get_gold(ch));
+			money = create_money(ch->get_gold());
 			obj_to_obj(money, corpse);
 		}
-		set_gold(ch, 0);
+		ch->set_gold(0);
 	}
 
 	ch->carrying = NULL;

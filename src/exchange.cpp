@@ -252,7 +252,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	(GET_OBJ_TYPE(obj) != ITEM_MING) ?
 	tax = EXCHANGE_EXHIBIT_PAY + (int)(item_cost * EXCHANGE_EXHIBIT_PAY_COEFF) :
 		  tax = (int)(item_cost * EXCHANGE_EXHIBIT_PAY_COEFF / 2);
-	if ((get_bank_gold(ch) < tax)
+	if ((ch->get_bank() < tax)
 			&& (GET_LEVEL(ch) < LVL_IMPL))
 	{
 		send_to_char("У вас не хватит денег на налоги !\r\n", ch);
@@ -302,7 +302,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 			GET_EXCHANGE_ITEM_LOT(item), obj->PNames[0], item_cost, desc_count(item_cost, WHAT_MONEYa));
 	message_exchange(tmpbuf, ch, item);
 
-	add_bank_gold(ch, -tax);
+	ch->remove_bank(tax);
 
 	if (EXCHANGE_SAVEONEVERYOPERATION)
 	{
@@ -363,7 +363,7 @@ int exchange_change_cost(CHAR_DATA * ch, char *arg)
 	}
 	pay = newcost - GET_EXCHANGE_ITEM_COST(item);
 	if (pay > 0)
-		if ((get_bank_gold(ch) < (pay * EXCHANGE_EXHIBIT_PAY_COEFF)) && (GET_LEVEL(ch) < LVL_IMPL))
+		if ((ch->get_bank() < (pay * EXCHANGE_EXHIBIT_PAY_COEFF)) && (GET_LEVEL(ch) < LVL_IMPL))
 		{
 			send_to_char("У вас не хватит денег на налоги !\r\n", ch);
 			return false;
@@ -372,7 +372,9 @@ int exchange_change_cost(CHAR_DATA * ch, char *arg)
 
 	GET_EXCHANGE_ITEM_COST(item) = newcost;
 	if (pay > 0)
-		add_bank_gold(ch, -((int)(pay * EXCHANGE_EXHIBIT_PAY_COEFF)));
+	{
+		ch->remove_bank(pay * EXCHANGE_EXHIBIT_PAY_COEFF);
+	}
 
 	sprintf(tmpbuf, "Вы назначили цену %d %s, за %s (лот %d).\r\n",
 			newcost, desc_count(newcost, WHAT_MONEYu), GET_EXCHANGE_ITEM(item)->PNames[3], GET_EXCHANGE_ITEM_LOT(item));
@@ -564,7 +566,7 @@ int exchange_identify(CHAR_DATA * ch, char *arg)
 		send_to_char("Господи, а ведь смертные за это деньги платят.\r\n", ch);
 		return false;
 	}
-	if ((get_bank_gold(ch) < (EXCHANGE_IDENT_PAY)) && (GET_LEVEL(ch) < LVL_IMPL))
+	if ((ch->get_bank() < (EXCHANGE_IDENT_PAY)) && (GET_LEVEL(ch) < LVL_IMPL))
 	{
 		send_to_char("У вас не хватит на это денег!\r\n", ch);
 		return false;
@@ -574,10 +576,9 @@ int exchange_identify(CHAR_DATA * ch, char *arg)
 	else
 		imm_show_obj_values(GET_EXCHANGE_ITEM(item), ch);
 
-	add_bank_gold(ch, -(EXCHANGE_IDENT_PAY));
+	ch->remove_bank(EXCHANGE_IDENT_PAY);
 
 	return true;
-
 }
 
 CHAR_DATA *get_char_by_id(int id)
@@ -627,7 +628,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 		send_to_char("Это же Ваш лот. Воспользуйтесь командой 'базар снять <лот>'\r\n", ch);
 		return false;
 	}
-	if ((get_bank_gold(ch) < (GET_EXCHANGE_ITEM_COST(item))) && (GET_LEVEL(ch) < LVL_IMPL))
+	if ((ch->get_bank() < (GET_EXCHANGE_ITEM_COST(item))) && (GET_LEVEL(ch) < LVL_IMPL))
 	{
 		send_to_char("У вас в банке не хватает денег на этот лот!\r\n", ch);
 		return false;
@@ -662,8 +663,8 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 			return true;
 		}
 
-		add_bank_gold(seller, GET_EXCHANGE_ITEM_COST(item));
-		add_bank_gold(ch, -(GET_EXCHANGE_ITEM_COST(item)));
+		seller->add_bank(GET_EXCHANGE_ITEM_COST(item));
+		ch->remove_bank(GET_EXCHANGE_ITEM_COST(item));
 //Polud напишем письмецо чару, раз уж его нету онлайн
 		if (NOTIFY_EXCH_PRICE(seller) && GET_EXCHANGE_ITEM_COST(item) >= NOTIFY_EXCH_PRICE(seller))
 		{
@@ -695,8 +696,8 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 	}
 	else
 	{
-		add_bank_gold(seller, GET_EXCHANGE_ITEM_COST(item));
-		add_bank_gold(ch, -(GET_EXCHANGE_ITEM_COST(item)));
+		seller->add_bank(GET_EXCHANGE_ITEM_COST(item));
+		ch->remove_bank(GET_EXCHANGE_ITEM_COST(item));
 
 		act("Вы купили $O3 на базаре.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
 		sprintf(tmpbuf,

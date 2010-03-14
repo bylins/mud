@@ -518,8 +518,8 @@ void Player::save_char()
 	fprintf(saved, "Hit : %d/%d\n", GET_HIT(this), GET_MAX_HIT(this));
 	fprintf(saved, "Mana: %d/%d\n", GET_MEM_COMPLETED(this), GET_MEM_TOTAL(this));
 	fprintf(saved, "Move: %d/%d\n", GET_MOVE(this), GET_MAX_MOVE(this));
-	fprintf(saved, "Gold: %d\n", get_gold());
-	fprintf(saved, "Bank: %ld\n", get_bank_gold());
+	fprintf(saved, "Gold: %ld\n", get_gold());
+	fprintf(saved, "Bank: %ld\n", get_bank());
 
 	fprintf(saved, "Wimp: %d\n", GET_WIMP_LEV(this));
 	fprintf(saved, "Frez: %d\n", GET_FREEZE_LEV(this));
@@ -933,8 +933,8 @@ int Player::load_char_ascii(const char *name, bool reboot)
 
 	GET_DR(this) = 0;
 
-	set_gold(0, 0);
-	set_bank_gold(0, 0);
+	set_gold(0, false);
+	set_bank(0, false);
 
 	this->player_specials->saved.GodsLike = 0;
 	GET_HIT(this) = 21;
@@ -1026,7 +1026,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				GET_BAD_PWS(this) = num;
 			else if (!strcmp(tag, "Bank"))
 			{
-				set_bank_gold(lnum, 0);
+				set_bank(lnum, false);
 			}
 			else if (!strcmp(tag, "Br01"))
 				GET_BOARD_DATE(this, GENERAL_BOARD) = lnum;
@@ -1150,7 +1150,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 
 		case 'G':
 			if (!strcmp(tag, "Gold"))
-				::set_gold(this, num, 0);
+			{
+				set_gold(lnum, false);
+			}
 			else if (!strcmp(tag, "GodD"))
 				GCURSE_DURATION(this) = lnum;
 			else if (!strcmp(tag, "GdFl"))

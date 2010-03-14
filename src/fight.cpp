@@ -670,12 +670,12 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 		else
 		{
 
-			local_gold = get_gold(ch);
+			local_gold = ch->get_gold();
 			corpse = make_corpse(ch);
 			if (MOB_FLAGGED(ch, MOB_CORPSE))
 			{
 				perform_drop_gold(ch, local_gold, SCMD_DROP, 0);
-				set_gold(ch, 0);
+				ch->set_gold(0);
 			}
 			obj_load_on_death(corpse, ch);
 
@@ -2785,7 +2785,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 
 		/* Есть ли в будующем трупе куны...? */
 //      if (IS_NPC (victim))
-//      local_gold = get_gold(victim);
+//      local_gold = victim->get_gold();
 //Polos.poison_mob_max_fix
 		if (killer) ch = killer;
 //-Polos.poison_mob_max_fix

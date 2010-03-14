@@ -1631,8 +1631,8 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 				buf1, buf2, k->player_data.time.played / 3600, ((k->player_data.time.played % 3600) / 60), age(k)->year);
 		send_to_char(buf, ch);
 
-		sprintf(buf, "Рента: [%d], Денег: [%9d], В банке: [%9ld] (Всего: %ld)",
-			GET_LOADROOM(k), get_gold(k), get_bank_gold(k), get_gold(k) + get_bank_gold(k));
+		sprintf(buf, "Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld)",
+			GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold());
 
 		/*. Display OLC zone for immorts . */
 		if (GET_LEVEL(k) >= LVL_IMMORT)
@@ -4107,10 +4107,10 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		affect_total(vict);
 		break;
 	case 12:
-		set_gold(vict, RANGE(0, 100000000));
+		vict->set_gold(value);
 		break;
 	case 13:
-		set_bank_gold(vict, RANGE(0, 100000000));
+		vict->set_bank(value);
 		break;
 	case 14:
 		//vict->points.exp = RANGE(0, 7000000);

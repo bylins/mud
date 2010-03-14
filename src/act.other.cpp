@@ -170,7 +170,7 @@ ACMD(do_quit)
 		if (depot_cost)
 		{
 			send_to_char(ch, "За вещи в хранилище придется заплатить %ld %s в день.\r\n", depot_cost, desc_count(depot_cost, WHAT_MONEYu));
-			int deadline = ((get_gold(ch) + get_bank_gold(ch)) / depot_cost);
+			int deadline = ((ch->get_gold() + ch->get_bank()) / depot_cost);
 			send_to_char(ch, "Твоих денег хватит на %ld %s.\r\n", deadline, desc_count(deadline, WHAT_DAY));
 		}
 		Depot::exit_char(ch);
@@ -656,7 +656,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 		}
 		else  	/* Steal some gold coins */
 		{
-			if (!get_gold(vict))
+			if (!vict->get_gold())
 			{
 				act("$E богат$A, как амбарная мышь :)", FALSE, ch, 0, vict, TO_CHAR);
 				return;
@@ -665,18 +665,18 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 			{
 				// Считаем вероятность крит-воровства (воровства всех денег)
 				if ((number(1, 100) - ch->get_skill(SKILL_STEAL) -
-						GET_DEX(ch) + GET_WIS(vict) + get_gold(vict) / 500) < 0)
+						GET_DEX(ch) + GET_WIS(vict) + vict->get_gold() / 500) < 0)
 				{
 					act("Тугой кошелек $N1 перекочевал к Вам.", TRUE, ch, 0, vict, TO_CHAR);
-					gold = get_gold(vict);
+					gold = vict->get_gold();
 				}
 				else
-					gold = (int)((get_gold(vict) * number(1, 75)) / 100);
+					gold = (int)((vict->get_gold() * number(1, 75)) / 100);
 
 				if (gold > 0)
 				{
 					ch->add_gold(gold);
-					vict->add_gold(-gold);
+					vict->remove_gold(gold);
 					if (gold > 1)
 					{
 						sprintf(buf, "УР-Р-Р-А!  Вы таки сперли %d %s.\r\n",
@@ -1473,7 +1473,7 @@ ACMD(do_split)
 			send_to_char("И как Вы это планируете сделать ?\r\n", ch);
 			return;
 		}
-		if (amount > get_gold(ch))
+		if (amount > ch->get_gold())
 		{
 			send_to_char("И где бы взять Вам столько денег ?.\r\n", ch);
 			return;
@@ -1502,7 +1502,7 @@ ACMD(do_split)
 			return;
 		}
 
-		ch->add_gold(-(share * (num - 1)));
+		ch->remove_gold(share * (num - 1));
 
 		sprintf(buf, "%s разделил%s %d %s; Вам досталось %d.\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, WHAT_MONEYu), share);
@@ -2519,7 +2519,7 @@ ACMD(do_pray)
 	}
 	else if (subcmd == SCMD_PRAY)
 	{
-		if (get_gold(ch) < 10)
+		if (ch->get_gold() < 10)
 		{
 			send_to_char("У Вас не хватит денег на свечку.\r\n", ch);
 			return;
@@ -2557,7 +2557,7 @@ ACMD(do_pray)
 		act(buf, FALSE, ch, 0, 0, TO_ROOM);
 		sprintf(buf, "Вы затеплили свечку и вознесли молитву %s.", pray_whom[metter]);
 		act(buf, FALSE, ch, 0, 0, TO_CHAR);
-		ch->add_gold(-10);
+		ch->remove_gold(10);
 	}
 	else if (subcmd == SCMD_DONATE && obj)
 	{

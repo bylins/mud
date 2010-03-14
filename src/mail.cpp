@@ -577,7 +577,7 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 		return;
 	}
 
-	if (get_gold(ch) < cost)
+	if (ch->get_gold() < cost)
 	{
 		sprintf(buf, "$n сказал$g Вам, 'Письмо стоит %d %s.'\r\n"
 				"$n сказал$g Вам, '...которых у Вас просто-напросто нет.'",
@@ -597,7 +597,7 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 				STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYa));
 
 	act(buf, FALSE, mailman, 0, ch, TO_VICT);
-	ch->add_gold(-cost);
+	ch->remove_gold(cost);
 	SET_BIT(PLR_FLAGS(ch, PLR_MAILING), PLR_MAILING);	/* string_write() sets writing. */
 
 	/* Start writing! */

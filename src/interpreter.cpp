@@ -2092,10 +2092,10 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		GET_INVIS_LEV(d->character) = 0;
 	if (GET_LEVEL(d->character) > LVL_IMMORT
 			&& GET_LEVEL(d->character) < LVL_BUILDER
-			&& (get_gold(d->character) > 0 || get_bank_gold(d->character) > 0))
+			&& (d->character->get_gold() > 0 || d->character->get_bank() > 0))
 	{
-		set_gold(d->character, 0);
-		set_bank_gold(d->character, 0);
+		d->character->set_gold(0);
+		d->character->set_bank(0);
 	}
 	if (GET_LEVEL(d->character) >= LVL_IMMORT && GET_LEVEL(d->character) < LVL_IMPL)
 	{

@@ -672,7 +672,7 @@ void shopping_buy(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 	if (!(obj = get_purchase_obj(ch, arg, keeper, shop_nr, TRUE)))
 		return;
 
-	if ((buy_price(obj, ch, shop_nr) > get_gold(ch)) && !IS_GOD(ch))
+	if ((buy_price(obj, ch, shop_nr) > ch->get_gold()) && !IS_GOD(ch))
 	{
 		sprintf(buf, shop_index[shop_nr].missing_cash2, GET_NAME(ch));
 		do_tell(keeper, buf, cmd_tell, 0);
@@ -705,7 +705,7 @@ void shopping_buy(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 		return;
 	}
 	while ((obj) &&
-			(get_gold(ch) >= buy_price(obj, ch, shop_nr) || IS_GOD(ch)) &&
+			(ch->get_gold() >= buy_price(obj, ch, shop_nr) || IS_GOD(ch)) &&
 			(IS_CARRYING_N(ch) < CAN_CARRY_N(ch)) &&
 			(bought < buynum) && (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) <= CAN_CARRY_W(ch)))
 	{
@@ -734,7 +734,9 @@ void shopping_buy(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 
 		goldamt += buy_price(obj, ch, shop_nr);
 		if (!IS_GOD(ch))
-			ch->add_gold(-(buy_price(obj, ch, shop_nr)));
+		{
+			ch->remove_gold(buy_price(obj, ch, shop_nr));
+		}
 
 		last_obj = obj;
 		obj = get_purchase_obj(ch, arg, keeper, shop_nr, FALSE);
@@ -751,7 +753,7 @@ void shopping_buy(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 
 	if (bought < buynum)
 	{
-		if (get_gold(ch) < buy_price(obj, ch, shop_nr))
+		if (ch->get_gold() < buy_price(obj, ch, shop_nr))
 			sprintf(buf, "%s! Мошенни%s, ты можешь оплатить только %d.",
 					GET_NAME(ch), IS_MALE(ch) ? "к" : "ца", bought);
 		else if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
@@ -781,10 +783,10 @@ void shopping_buy(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 	send_to_char(buf, ch);
 
 	if (SHOP_USES_BANK(shop_nr))
-		if (get_gold(keeper) > MAX_OUTSIDE_BANK)
+		if (keeper->get_gold() > MAX_OUTSIDE_BANK)
 		{
-			SHOP_BANK(shop_nr) += (get_gold(keeper) - MAX_OUTSIDE_BANK);
-			set_gold(keeper, MAX_OUTSIDE_BANK);
+			SHOP_BANK(shop_nr) += (keeper->get_gold() - MAX_OUTSIDE_BANK);
+			keeper->set_gold(MAX_OUTSIDE_BANK);
 		}
 }
 
@@ -993,12 +995,12 @@ void shopping_sell_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int 
 
 	goldamt += sell_price(obj, ch, shop_nr);	// стоимость продаваемой шмотки
 	/*
-		if (get_gold(keeper) + SHOP_BANK(shop_nr) < goldamt) {
+		if (keeper->get_gold() + SHOP_BANK(shop_nr) < goldamt) {
 			sprintf(buf, shop_index[shop_nr].missing_cash1, GET_NAME(ch));
 			do_tell(keeper, buf, cmd_tell, 0);
 			return;
 		}
-		add_gold(keeper, -goldamt);
+		keeper->remove_gold(goldamt);
 	*/
 	obj_from_char(obj);
 	obj = slide_obj(obj, keeper, shop_nr);
@@ -1014,9 +1016,9 @@ void shopping_sell_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int 
 	sprintf(buf, "Теперь у %s есть %s.\r\n", keeper->player_data.PNames[1], times_message(obj, 0, sold, 0));
 	send_to_char(buf, ch);
 
-	if (get_gold(keeper) < MIN_OUTSIDE_BANK)
+	if (keeper->get_gold() < MIN_OUTSIDE_BANK)
 	{
-		goldamt = MIN(MAX_OUTSIDE_BANK - get_gold(keeper), SHOP_BANK(shop_nr));
+		goldamt = MIN(MAX_OUTSIDE_BANK - keeper->get_gold(), SHOP_BANK(shop_nr));
 		SHOP_BANK(shop_nr) -= goldamt;
 		keeper->add_gold(goldamt);
 	}
@@ -1418,7 +1420,7 @@ void shopping_repair_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, in
 			GET_NAME(ch), OBJN(obj, ch, 1), price, desc_count(price, WHAT_MONEYu));
 	do_tell(keeper, buf, cmd_tell, 0);
 
-	if (!IS_GOD(ch) && price > get_gold(ch))
+	if (!IS_GOD(ch) && price > ch->get_gold())
 	{
 		act("А вот их у тебя как-раз то и нет.", FALSE, ch, 0, 0, TO_CHAR);
 		return;
@@ -1426,15 +1428,17 @@ void shopping_repair_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, in
 
 	keeper->add_gold(price);
 	if (!IS_GOD(ch))
-		ch->add_gold(-price);
+	{
+		ch->remove_gold(price);
+	}
 	act("$n сноровисто починил$g $o3.", FALSE, keeper, obj, 0, TO_ROOM);
 	GET_OBJ_CUR(obj) = GET_OBJ_MAX(obj);
 
 	if (SHOP_USES_BANK(shop_nr))
-		if (get_gold(keeper) > MAX_OUTSIDE_BANK)
+		if (keeper->get_gold() > MAX_OUTSIDE_BANK)
 		{
-			SHOP_BANK(shop_nr) += (get_gold(keeper) - MAX_OUTSIDE_BANK);
-			set_gold(keeper, MAX_OUTSIDE_BANK);
+			SHOP_BANK(shop_nr) += (keeper->get_gold() - MAX_OUTSIDE_BANK);
+			keeper->set_gold(MAX_OUTSIDE_BANK);
 		}
 
 	return;
@@ -2182,8 +2186,8 @@ void list_detailed_shop(CHAR_DATA * ch, int shop_nr)
 		if ((k = get_char_num(SHOP_KEEPER(shop_nr))))
 		{
 			send_to_char(buf, ch);
-			sprintf(buf, "Денег     :  [%9d], в банке : [%9d] (всего: %d)\r\n",
-					get_gold(k), SHOP_BANK(shop_nr), get_gold(k) + SHOP_BANK(shop_nr));
+			sprintf(buf, "Денег     :  [%9ld], в банке : [%9d] (всего: %ld)\r\n",
+					k->get_gold(), SHOP_BANK(shop_nr), k->get_gold() + SHOP_BANK(shop_nr));
 		}
 	}
 	else

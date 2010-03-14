@@ -180,12 +180,12 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		TitleListType::iterator it = temp_title_list.find(GET_NAME(ch));
 		if (it != temp_title_list.end())
 		{
-			if (get_bank_gold(ch) < SET_TITLE_COST)
+			if (ch->get_bank() < SET_TITLE_COST)
 			{
 				send_to_char("На Вашем счету не хватает денег для оплаты этой услуги.\r\n", ch);
 				return;
 			}
-			add_bank_gold(ch, -(SET_TITLE_COST));
+			ch->remove_bank(SET_TITLE_COST);
 			title_list[it->first] = it->second;
 			temp_title_list.erase(it);
 			send_to_char("Ваша заявка отправлена Богам и будет рассмотрена в ближайшее время.\r\n", ch);
@@ -200,7 +200,7 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		if (it != title_list.end())
 		{
 			title_list.erase(it);
-			add_bank_gold(ch, SET_TITLE_COST);
+			ch->add_bank(SET_TITLE_COST);
 			send_to_char("Ваша заявка на титул отменена.\r\n", ch);
 		}
 		else
