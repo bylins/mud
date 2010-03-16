@@ -642,6 +642,12 @@ void act_mtrigger(CHAR_DATA * ch, char *str, CHAR_DATA * actor, CHAR_DATA * vict
 
 void fight_mtrigger(CHAR_DATA * ch)
 {
+	if (!ch || ch->purged())
+	{
+		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
+		return;
+	}
+
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
@@ -661,6 +667,15 @@ void fight_mtrigger(CHAR_DATA * ch)
 
 int damage_mtrigger(CHAR_DATA * damager, CHAR_DATA * victim)
 {
+	if (!damager || damager->purged() || !victim || victim->purged())
+	{
+		log("SYSERROR: damager = %s, victim = %s (%s:%d)",
+				damager ? (damager->purged() ? "purged" : "true") : "false",
+				victim ? (victim->purged() ? "purged" : "true") : "false",
+				__FILE__, __LINE__);
+		return 0;
+	}
+
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
@@ -681,10 +696,14 @@ int damage_mtrigger(CHAR_DATA * damager, CHAR_DATA * victim)
 
 void hitprcnt_mtrigger(CHAR_DATA * ch)
 {
+	if (!ch || ch->purged())
+	{
+		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
+		return;
+	}
+
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
-
-	if (!ch) return;
 
 	if (!SCRIPT_CHECK(ch, MTRIG_HITPRCNT) || !ch->get_fighting() || !CAN_START_MTRIG(ch))
 		return;
@@ -704,6 +723,12 @@ void hitprcnt_mtrigger(CHAR_DATA * ch)
 
 int receive_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, OBJ_DATA * obj)
 {
+	if (!ch || ch->purged())
+	{
+		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
+		return 1;
+	}
+
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
@@ -726,6 +751,12 @@ int receive_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, OBJ_DATA * obj)
 
 int death_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor)
 {
+	if (!ch || ch->purged())
+	{
+		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
+		return 1;
+	}
+
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
@@ -747,6 +778,12 @@ int death_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor)
 
 void load_mtrigger(CHAR_DATA * ch)
 {
+	if (!ch || ch->purged())
+	{
+		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
+		return;
+	}
+
 	TRIG_DATA *t;
 
 	if (!SCRIPT_CHECK(ch, MTRIG_LOAD))
@@ -764,7 +801,16 @@ void load_mtrigger(CHAR_DATA * ch)
 
 void start_fight_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor)
 {
-	if (!SCRIPT_CHECK(ch, MTRIG_START_FIGHT) || !ch || !actor)
+	if (!ch || ch->purged() || !actor || actor->purged())
+	{
+		log("SYSERROR: ch = %s, actor = %s (%s:%d)",
+				ch ? (ch->purged() ? "purged" : "true") : "false",
+				actor ? (actor->purged() ? "purged" : "true") : "false",
+				__FILE__, __LINE__);
+		return;
+	}
+
+	if (!SCRIPT_CHECK(ch, MTRIG_START_FIGHT))
 	{
 		return;
 	}
@@ -783,7 +829,16 @@ void start_fight_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor)
 
 void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor)
 {
-	if (!SCRIPT_CHECK(ch, MTRIG_ROUND_NUM) || !ch || !actor)
+	if (!ch || ch->purged() || !actor || actor->purged())
+	{
+		log("SYSERROR: ch = %s, actor = %s (%s:%d)",
+				ch ? (ch->purged() ? "purged" : "true") : "false",
+				actor ? (actor->purged() ? "purged" : "true") : "false",
+				__FILE__, __LINE__);
+		return;
+	}
+
+	if (!SCRIPT_CHECK(ch, MTRIG_ROUND_NUM))
 	{
 		return;
 	}
@@ -816,6 +871,7 @@ void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum)
 				__FILE__, __LINE__);
 		return;
 	}
+
 	if (spellnum < 0 || spellnum >= TOP_SPELL_DEFINE)
 	{
 		log("SYSERROR: spellnum = %d (%s:%d)", spellnum, __FILE__, __LINE__);
