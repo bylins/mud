@@ -859,7 +859,7 @@ void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor)
 * Реакиця на каст в моба.
 * \param ch - моб
 * \param actor - кастер, идет в скрипт как %actor%
-* \param spellnum - номер закла, идет в скрипт как %cast_num%
+* \param spellnum - номер закла, идет в скрипт как %cast_num% и %castname%
 */
 void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum)
 {
