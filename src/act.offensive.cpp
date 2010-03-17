@@ -1119,12 +1119,24 @@ ACMD(do_rescue)
 		return;
 	}
 
-	// Двойники и прочие очарки не в группе с тем, кого собираются спасать.
-	if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master && !same_group(ch->master, vict))
+	// Двойники и прочие очарки не в группе с тем, кого собираются спасать:
+	// Если тот, кто собирается спасать - "чармис" и у него существует хозяин
+	if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master != NULL)
 	{
-		act("Спасали бы Вы лучше другов своих.", FALSE, ch, 0, vict, TO_CHAR);
-		act("Вы не можете спасти весь мир.", FALSE, ch->master, 0, vict, TO_CHAR);
-		return;
+		bool in_same_group;
+
+		// Если спасаем "чармиса", то проверять надо на нахождение в одной группе хозянина спасющего и спасаемого.
+		if (AFF_FLAGGED(vict, AFF_CHARM))
+			in_same_group = vict->master != NULL && same_group(vict->master, ch->master);
+		else
+			in_same_group = same_group(ch->master, vict);
+
+		if (!in_same_group)
+		{
+			act("Спасали бы Вы лучше другов своих.", FALSE, ch, 0, vict, TO_CHAR);
+			act("Вы не можете спасти весь мир.", FALSE, ch->master, 0, vict, TO_CHAR);
+			return;
+		}
 	}
 
 	if (!may_kill_here(ch, tmp_ch))

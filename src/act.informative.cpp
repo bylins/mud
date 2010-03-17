@@ -1536,7 +1536,11 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		show_extend_room(RoomDescription::show_desc(world[ch->in_room]->description_num).c_str(), ch);
 	}
 
-	/* Отображаем аффекты комнаты */
+	/* autoexits */
+	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_AUTOEXIT))
+		do_auto_exits(ch);
+
+	/* Отображаем аффекты комнаты. После автовыходов чтобы не ломать популярный маппер. */
 	if (AFF_FLAGGED(ch, AFF_DETECT_MAGIC) || IS_IMMORTAL(ch))
 		sprintbits(world[ch->in_room]->affected_by, room_aff_invis_bits, buf2, "\n");
 	else
@@ -1548,10 +1552,6 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		sprintf(buf, "%s\r\n\r\n", buf2);
 		send_to_char(buf, ch);
 	}
-
-	/* autoexits */
-	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_AUTOEXIT))
-		do_auto_exits(ch);
 
 	/* now list characters & objects */
 	if (world[IN_ROOM(ch)]->fires)
