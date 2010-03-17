@@ -345,15 +345,15 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 	if (best && !ch->get_fighting() && MOB_FLAGGED(ch, MOB_AGGRMONO) &&
 			!IS_NPC(best) && GET_RELIGION(best) == RELIGION_MONO)
 	{
-		act("$n закричал$g: 'Умри, христианская собака!' и набросился на вас.", FALSE, ch, 0, best, TO_VICT);
-		act("$n закричал$g: 'Умри, христианская собака!' и набросился на $N3.", FALSE, ch, 0, best, TO_NOTVICT);
+		act("$n закричал$g: 'Умри, христианская собака!' и набросил$u на вас.", FALSE, ch, 0, best, TO_VICT);
+		act("$n закричал$g: 'Умри, христианская собака!' и набросил$u на $N3.", FALSE, ch, 0, best, TO_NOTVICT);
 	}
 
 	if (best && !ch->get_fighting() && MOB_FLAGGED(ch, MOB_AGGRPOLY) &&
 			!IS_NPC(best) && GET_RELIGION(best) == RELIGION_POLY)
 	{
-		act("$n закричал$g: 'Умри, грязный язычник!' и набросился на вас.", FALSE, ch, 0, best, TO_VICT);
-		act("$n закричал$g: 'Умри, грязный язычник!' и набросился на $N3.", FALSE, ch, 0, best, TO_NOTVICT);
+		act("$n закричал$g: 'Умри, грязный язычник!' и набросил$u на вас.", FALSE, ch, 0, best, TO_VICT);
+		act("$n закричал$g: 'Умри, грязный язычник!' и набросил$u на $N3.", FALSE, ch, 0, best, TO_NOTVICT);
 	}
 
 	return best;
