@@ -409,7 +409,10 @@ CHAR_DATA *get_char(char *name, int vnum)
 	}
 	else
 	{
-		return CharacterAlias::get_by_name(name);
+		for (i = character_list; i; i = i->next)
+			if (isname(name, i->get_pc_name()) && (IS_NPC(i) || !GET_INVIS_LEV(i)))
+				return i;
+//		return CharacterAlias::get_by_name(name);
 	}
 
 	return NULL;
@@ -431,7 +434,10 @@ OBJ_DATA *get_obj(char *name, int vnum)
 	}
 	else
 	{
-		return ObjectAlias::get_by_name(name);
+		for (OBJ_DATA *obj = object_list; obj; obj = obj->next)
+			if (isname(name, obj->name))
+				return obj;
+//		return ObjectAlias::get_by_name(name);
 	}
 	return NULL;
 }
@@ -1654,6 +1660,16 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			{
 			case MOB_TRIGGER:
 				ch = (CHAR_DATA *) go;
+				if (!name)
+				{
+					log("SYSERROR: null name (%s:%d %s)", __FILE__, __LINE__, __func__);
+					break;
+				}
+				if (!ch)
+				{
+					log("SYSERROR: null ch (%s:%d %s)", __FILE__, __LINE__, __func__);
+					break;
+				}
 				if ((o = get_object_in_equip(ch, name)));
 				else if ((o = get_obj_in_list(name, ch->carrying)));
 				else if ((c = get_char_room(name, IN_ROOM(ch))));

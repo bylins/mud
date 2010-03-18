@@ -335,8 +335,8 @@ OCMD(do_otransform)
 		// для name_list
 		obj->set_serial_num(o->get_serial_num());
 		o->set_serial_num(tmpobj.get_serial_num());
-		ObjectAlias::remove(obj);
-		ObjectAlias::add(obj);
+//		ObjectAlias::remove(obj);
+//		ObjectAlias::add(obj);
 
 		if (wearer)
 		{

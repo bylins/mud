@@ -1197,8 +1197,8 @@ ACMD(do_mtransform)
 		// для name_list
 		ch->set_serial_num(m->get_serial_num());
 		m->set_serial_num(tmpmob.get_serial_num());
-		CharacterAlias::remove(ch);
-		CharacterAlias::add(ch);
+//		CharacterAlias::remove(ch);
+//		CharacterAlias::add(ch);
 
 		for (pos = 0; pos < NUM_WEARS; pos++)
 		{

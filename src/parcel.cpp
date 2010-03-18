@@ -252,7 +252,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 	check_auction(NULL, obj);
 	OBJ_DATA *temp;
 	REMOVE_FROM_LIST(obj, object_list, next);
-	ObjectAlias::remove(obj);
+//	ObjectAlias::remove(obj);
 }
 
 /**
@@ -567,7 +567,7 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
 				// добавляем в глоб.список и кладем в посылку
 				it3->obj_->next = object_list;
 				object_list = it3->obj_;
-				ObjectAlias::add(it3->obj_);
+//				ObjectAlias::add(it3->obj_);
 				obj_to_obj(it3->obj_, obj);
 			}
 			return_money(name, money, RETURN_WITH_MONEY);
@@ -780,7 +780,7 @@ void load()
 		// из глобального списка изымаем
 		OBJ_DATA *temp;
 		REMOVE_FROM_LIST(node.obj_node.obj_, object_list, next);
-		ObjectAlias::remove(node.obj_node.obj_);
+//		ObjectAlias::remove(node.obj_node.obj_);
 	}
 
 	free(readdata);
@@ -1010,7 +1010,7 @@ void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman)
 			money += l->money_ - calculate_timer_cost(l);
 			l->obj_->next = object_list;
 			object_list = l->obj_;
-			ObjectAlias::add(l->obj_);
+//			ObjectAlias::add(l->obj_);
 			obj_to_obj(l->obj_, obj);
 		}
 		obj_to_char(obj, ch);

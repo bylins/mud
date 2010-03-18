@@ -203,8 +203,8 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	dst->in_fighting_list_ = tmp.in_fighting_list_;
 	// для name_list
 	dst->set_serial_num(tmp.get_serial_num());
-	CharacterAlias::remove(dst);
-	CharacterAlias::add(dst);
+//	CharacterAlias::remove(dst);
+//	CharacterAlias::add(dst);
 }
 
 

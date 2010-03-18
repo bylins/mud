@@ -2302,6 +2302,9 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_WORLD))
 		{
+			if ((*tobj = get_obj_vis(ch, t)) != NULL)
+				return TRUE;
+			/*
 			if (spellnum == SPELL_LOCATE_OBJECT)
 			{
 				*tobj = find_obj_for_locate(t);
@@ -2314,8 +2317,7 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 			{
 				return true;
 			}
-//			if ((*tobj = get_obj_vis(ch, t)) != NULL)
-//				return TRUE;
+			*/
 		}
 	}
 	else

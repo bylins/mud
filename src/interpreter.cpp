@@ -2185,7 +2185,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	{
 		d->character->next = character_list;
 		character_list = d->character;
-		CharacterAlias::add(d->character);
+//		CharacterAlias::add(d->character);
 	}
 	else
 	{

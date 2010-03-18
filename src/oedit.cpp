@@ -306,8 +306,8 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	SCRIPT(obj) = SCRIPT(&tmp);
 	// для name_list
 	obj->set_serial_num(tmp.get_serial_num());
-	ObjectAlias::remove(obj);
-	ObjectAlias::add(obj);
+//	ObjectAlias::remove(obj);
+//	ObjectAlias::add(obj);
 }
 
 /**
