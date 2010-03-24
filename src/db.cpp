@@ -6273,7 +6273,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 /*++
    Функция делает создает копию комнаты.
    После вызова этой функции создается полностью независимая копия комнты src
-   за исключением полей track, contents, people.
+   за исключением полей track, contents, people, affected.
    Все поля имеют те же значения, но занимают свои области памяти.
       dst - "чистый" указатель на структуру room_data.
       src - исходная комната
@@ -6289,6 +6289,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 		struct track_data *track = dst->track;
 		OBJ_DATA *contents = dst->contents;
 		CHAR_DATA *people = dst->people;
+		AFFECT_DATA *affected = dst->affected;
 
 		// Копирую все поверх
 		*dst = *src;
@@ -6297,6 +6298,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 		dst->track = track;
 		dst->contents = contents;
 		dst->people = people;
+		dst->affected = affected;
 	}
 
 	// Теперь нужно выделить собственные области памяти
