@@ -2207,9 +2207,10 @@ const char *what_weapon[] = { "плеть",
 * Поиск предмета для каста локейта (без учета видимости для чара и с поиском
 * как в основном списке, так и в личных хранилищах с почтой).
 */
-OBJ_DATA *find_obj_for_locate(const char *name)
+OBJ_DATA *find_obj_for_locate(CHAR_DATA *ch, const char *name)
 {
-	OBJ_DATA *obj = ObjectAlias::locate_object(name);
+//	OBJ_DATA *obj = ObjectAlias::locate_object(name);
+	OBJ_DATA *obj = get_obj_vis(ch, name);
 	if (!obj)
 	{
 		obj = Depot::locate_object(name);
@@ -2302,22 +2303,20 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_WORLD))
 		{
-			if ((*tobj = get_obj_vis(ch, t)) != NULL)
-				return TRUE;
-			/*
+//			if ((*tobj = get_obj_vis(ch, t)) != NULL)
+//				return TRUE;
 			if (spellnum == SPELL_LOCATE_OBJECT)
 			{
-				*tobj = find_obj_for_locate(t);
+				*tobj = find_obj_for_locate(ch, t);
 			}
 			else
 			{
 				*tobj = get_obj_vis(ch, t);
 			}
-			if (*tobj)
+			if (tobj)
 			{
 				return true;
 			}
-			*/
 		}
 	}
 	else
