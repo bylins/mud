@@ -2313,7 +2313,7 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 			{
 				*tobj = get_obj_vis(ch, t);
 			}
-			if (tobj)
+			if (*tobj)
 			{
 				return true;
 			}
