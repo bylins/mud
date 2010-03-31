@@ -669,7 +669,10 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 		}
 		else
 		{
-
+			if (IS_NPC(ch) && killer && (!IS_NPC(killer) || IS_CHARMICE(killer)))
+			{
+				log("Killed: %d %d %ld", GET_LEVEL(ch), GET_MAX_HIT(ch), GET_EXP(ch));
+			}
 			local_gold = ch->get_gold();
 			corpse = make_corpse(ch);
 			if (MOB_FLAGGED(ch, MOB_CORPSE))
