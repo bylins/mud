@@ -889,6 +889,8 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 int perform_move(CHAR_DATA * ch, int dir, int need_specials_check, int checkmob, CHAR_DATA * master)
 {
+	ch->set_motion(true);
+
 	room_rnum was_in;
 	struct follow_type *k, *next;
 

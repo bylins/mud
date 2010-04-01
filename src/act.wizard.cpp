@@ -3646,19 +3646,28 @@ ACMD(do_show)
 		Crash_listrent(ch, value);
 		break;
 	case 4:
+	{
 		i = 0;
 		j = 0;
 		k = 0;
 		con = 0;
+		int motion = 0;
 		for (vict = character_list; vict; vict = vict->next)
 		{
 			if (IS_NPC(vict))
 				j++;
-			else if (CAN_SEE(ch, vict))
+			else
 			{
-				i++;
-				if (vict->desc)
-					con++;
+				if (vict->is_active())
+				{
+					++motion;
+				}
+				if (CAN_SEE(ch, vict))
+				{
+					i++;
+					if (vict->desc)
+						con++;
+				}
 			}
 		}
 		for (obj = object_list; obj; obj = obj->next)
@@ -3680,7 +3689,9 @@ ACMD(do_show)
 		Glory::show_stats(ch);
 		Parcel::show_stats(ch);
 		send_to_char(ch, "  Список полей сражающихся: %d\r\n", fighting_list_size());
+		send_to_char(ch, "  Передвижения: %d", motion);
 		break;
+	}
 	case 5:
 		strcpy(buf, "Пустых выходов\r\n" "--------------\r\n");
 		for (i = FIRST_ROOM, k = 0; i <= top_of_world; i++)

@@ -30,7 +30,8 @@ Player::Player()
 	pfilepos_(-1),
 	was_in_room_(NOWHERE),
 	from_room_(0),
-	answer_id_(NOBODY)
+	answer_id_(NOBODY),
+	motion_(true)
 {
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 		start_stats_.at(i) = 0;
@@ -1629,4 +1630,14 @@ void Player::set_disposable_flag(int num)
 		return;
 	}
 	disposable_flags_.set(num);
+}
+
+bool Player::is_active() const
+{
+	return motion_;
+}
+
+void Player::set_motion(bool flag)
+{
+	motion_ = flag;
 }

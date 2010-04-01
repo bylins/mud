@@ -941,6 +941,7 @@ void check_idling(CHAR_DATA * ch)
 	{
 		if (++(ch->char_specials.timer) > idle_void)
 		{
+			ch->set_motion(false);
 			if (ch->get_was_in_room() == NOWHERE && ch->in_room != NOWHERE)
 			{
 				ch->set_was_in_room(ch->in_room);

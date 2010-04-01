@@ -82,6 +82,9 @@ public:
 	virtual bool get_disposable_flag(int num) { return false; };
 	virtual void set_disposable_flag(int num) {};
 
+	virtual bool is_active() const { return false; };
+	virtual void set_motion(bool flag) {};
+
 protected:
 	PlayerI() {};
 	virtual ~PlayerI() {};

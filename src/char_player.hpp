@@ -90,6 +90,10 @@ public:
 	bool get_disposable_flag(int num);
 	void set_disposable_flag(int num);
 
+	// пока только как обертка на motion_, но может быть допилено
+	bool is_active() const;
+	void set_motion(bool flag);
+
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
 	// TODO: вообще его можно пользовать вместо постоянного поиска по имени при сейвах чара и т.п. вещах, пользующих
@@ -118,6 +122,8 @@ private:
 	DpsSystem::Dps dps_;
 	// одноразовые флаги
 	std::bitset<TOTAL_DISPOSABLE_NUM> disposable_flags_;
+	// false, если чар помечен как неактивный через check_idling и пока не двинется с места
+	bool motion_;
 };
 
 #endif // CHAR_PLAYER_HPP_INCLUDED
