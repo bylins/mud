@@ -4004,7 +4004,7 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 		trig_log(runtrig, "Attempt to run waiting trigger");
 	}
 
-	if (go && type == MOB_TRIGGER && ((CHAR_DATA *) go)->purged())
+	if (go && type == MOB_TRIGGER && reinterpret_cast<CHAR_DATA *>(go)->purged())
 	{
 		*sc = NULL;
 		*trig = NULL;
@@ -4923,13 +4923,13 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 						break;
 					}
 				}
-				if (dg_owner_purged)
-				{
-					depth--;
-					cur_trig = prev_trig;
-					return ret_val;
-				}
 			}
+		}
+		if (dg_owner_purged || (type == MOB_TRIGGER && reinterpret_cast<CHAR_DATA *>(go)->purged()))
+		{
+			depth--;
+			cur_trig = prev_trig;
+			return ret_val;
 		}
 	}
 

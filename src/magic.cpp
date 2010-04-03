@@ -4652,6 +4652,11 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 			act(msg, FALSE, ch, 0, ch_vict, TO_VICT);
 		}
 		mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
+		if (ch->purged())
+		{
+			tmp_char_list.clear();
+			return 1;
+		}
 	}
 	tmp_char_list.clear();
 
@@ -4757,7 +4762,13 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 		}
 	}
 	decay = areas_messages[i].decay;
-	(void) mag_single_target(level, ch, victim, NULL, spellnum, savetype);
+
+	mag_single_target(level, ch, victim, NULL, spellnum, savetype);
+	if (ch->purged())
+	{
+		return 1;
+	}
+
 	level -= decay;
 
 	for (i = 0, ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
@@ -4780,8 +4791,15 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 		ch_vict = tmp_char_list[i];
 		tmp_char_list[i] = tmp_char_list[--size];
 		if (!ch_vict || IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		{
 			continue;
-		(void) mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
+		}
+		mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
+		if (ch->purged())
+		{
+			tmp_char_list.clear();
+			return 1;
+		}
 		level -= decay;
 	}
 	tmp_char_list.clear();
@@ -4898,8 +4916,6 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 
 	for (i = 0, ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
 	{
-		if (ch_vict == ch)
-			continue;
 		if (!HERE(ch_vict))
 			continue;
 		if (!same_group(ch, ch_vict))
@@ -4915,8 +4931,12 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 			continue;
 		}
 		mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
+		if (ch->purged())
+		{
+			tmp_char_list.clear();
+			return 1;
+		}
 	}
-	mag_single_target(level, ch, ch, NULL, spellnum, savetype);
 
 	tmp_char_list.clear();
 	return 1;

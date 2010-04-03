@@ -3689,7 +3689,7 @@ ACMD(do_show)
 		Glory::show_stats(ch);
 		Parcel::show_stats(ch);
 		send_to_char(ch, "  Список полей сражающихся: %d\r\n", fighting_list_size());
-		send_to_char(ch, "  Передвижения: %d", motion);
+		send_to_char(ch, "  Передвижения: %d\r\n", motion);
 		break;
 	}
 	case 5:
