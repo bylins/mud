@@ -95,7 +95,7 @@ struct char_ability_data
 	sbyte size;
 	sbyte hitroll;
 	sbyte damroll;
-	sbyte armor;
+	short armor;
 };
 
 /* Char's points. */

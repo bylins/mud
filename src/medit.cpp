@@ -2261,7 +2261,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 
 		case MEDIT_AC:
-			GET_AC(OLC_MOB(d)) = MAX(-200, MIN(200, atoi(arg)));
+			GET_AC(OLC_MOB(d)) = MAX(-300, MIN(100, atoi(arg)));
 			break;
 
 		case MEDIT_EXP:

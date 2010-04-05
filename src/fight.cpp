@@ -276,8 +276,6 @@ int compute_armor_class(CHAR_DATA * ch)
 
 	armorclass += (size_app[GET_POS_SIZE(ch)].ac * 10);
 
-	armorclass = MIN(100, armorclass);
-
 	if (GET_AF_BATTLE(ch, EAF_PUNCTUAL))
 	{
 		if (GET_EQ(ch, WEAR_WIELD))
@@ -293,6 +291,8 @@ int compute_armor_class(CHAR_DATA * ch)
 		if (GET_EQ(ch, WEAR_BOTHS))
 			armorclass += 10 * MAX(-1, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) / 5 - 6);
 	}
+
+	armorclass = MIN(100, armorclass);
 	return (MAX(armor_class_limit(ch), armorclass));
 }
 
