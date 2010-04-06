@@ -2237,7 +2237,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 
 		case MEDIT_DAMROLL:
-			GET_DR(OLC_MOB(d)) = MAX(0, MIN(50, atoi(arg)));
+			GET_DR(OLC_MOB(d)) = MAX(0, MIN(50000, atoi(arg)));
 			break;
 
 		case MEDIT_NDD:

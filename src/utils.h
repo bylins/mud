@@ -86,6 +86,7 @@ void kill_ems(char *str);
 bool die_follower(CHAR_DATA * ch);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
+int get_real_dr(CHAR_DATA *ch);
 
 extern std::list<FILE *> opened_files;
 
@@ -551,7 +552,7 @@ extern SPECIAL(postmaster);
 #define GET_REAL_HR(ch)   (VPOSI(GET_HR(ch)+GET_HR_ADD(ch), -50, 50))
 #define GET_DR(ch)         ((ch)->real_abils.damroll)
 #define GET_DR_ADD(ch)    ((ch)->add_abils.dr_add)
-#define GET_REAL_DR(ch)   (VPOSI(GET_DR(ch)+GET_DR_ADD(ch), -50, 50))
+#define GET_REAL_DR(ch)   (get_real_dr(ch))
 #define GET_AC(ch)         ((ch)->real_abils.armor)
 #define GET_AC_ADD(ch)    ((ch)->add_abils.ac_add)
 #define GET_REAL_AC(ch)      (GET_AC(ch)+GET_AC_ADD(ch))

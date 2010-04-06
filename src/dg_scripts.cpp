@@ -4839,7 +4839,15 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			else if (!strn_cmp(cmd, "halt", 4))
 				break;
 			else if (!strn_cmp(cmd, "dg_cast ", 8))
+			{
 				do_dg_cast(go, sc, trig, type, cmd);
+				if (type == MOB_TRIGGER && reinterpret_cast<CHAR_DATA *>(go)->purged())
+				{
+					depth--;
+					cur_trig = prev_trig;
+					return ret_val;
+				}
+			}
 			else if (!strn_cmp(cmd, "dg_affect ", 10))
 				do_dg_affect(go, sc, trig, type, cmd);
 			else if (!strn_cmp(cmd, "global ", 7))
@@ -4923,13 +4931,13 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 						break;
 					}
 				}
+				if (dg_owner_purged || (type == MOB_TRIGGER && reinterpret_cast<CHAR_DATA *>(go)->purged()))
+				{
+					depth--;
+					cur_trig = prev_trig;
+					return ret_val;
+				}
 			}
-		}
-		if (dg_owner_purged || (type == MOB_TRIGGER && reinterpret_cast<CHAR_DATA *>(go)->purged()))
-		{
-			depth--;
-			cur_trig = prev_trig;
-			return ret_val;
 		}
 	}
 

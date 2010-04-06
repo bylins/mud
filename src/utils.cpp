@@ -2259,3 +2259,17 @@ size_t strl_cpy(char *dst, const char *src, size_t siz)
 
 	return(s - src - 1);	/* count does not include NUL */
 }
+
+/**
+* Аналог старого GET_REAL_DR(ch)
+* для мобов ограничение в 50 дамролов убрано
+* +еще есть рандом дамролы, в данный момент максимум 30d127
+*/
+int get_real_dr(CHAR_DATA *ch)
+{
+	if (IS_NPC(ch))
+	{
+		return MIN(0, GET_DR(ch) + GET_DR_ADD(ch));
+	}
+	return VPOSI(GET_DR(ch)+GET_DR_ADD(ch), -50, 50);
+}

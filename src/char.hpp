@@ -94,7 +94,7 @@ struct char_ability_data
 	sbyte cha;
 	sbyte size;
 	sbyte hitroll;
-	sbyte damroll;
+	int damroll;
 	short armor;
 };
 
