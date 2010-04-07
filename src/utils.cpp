@@ -2270,7 +2270,7 @@ int get_real_dr(CHAR_DATA *ch)
 {
 	if (IS_NPC(ch))
 	{
-		return MIN(0, GET_DR(ch) + GET_DR_ADD(ch));
+		return MAX(0, GET_DR(ch) + GET_DR_ADD(ch));
 	}
 	return VPOSI(GET_DR(ch)+GET_DR_ADD(ch), -50, 50);
 }
