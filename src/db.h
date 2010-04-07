@@ -288,7 +288,7 @@ struct zone_data
 	bool group;
 };
 
-
+extern zone_data *zone_table;
 
 /* for queueing zones for update   */
 struct reset_q_element

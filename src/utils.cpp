@@ -12,11 +12,11 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "conf.h"
 #include <fstream>
 #include <cmath>
+#include <iomanip>
 #include <boost/lexical_cast.hpp>
-
+#include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -34,6 +34,7 @@
 #include "privilege.hpp"
 #include "char.hpp"
 #include "room.hpp"
+#include "modify.h"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 
@@ -2273,3 +2274,80 @@ int get_real_dr(CHAR_DATA *ch)
 	}
 	return VPOSI(GET_DR(ch)+GET_DR_ADD(ch), -50, 50);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// show money
+
+namespace MoneyDropStat
+{
+
+typedef std::map<int /* zone vnum */, long /* money count */> ZoneListType;
+ZoneListType zone_list;
+
+void add(int zone_vnum, long money)
+{
+	log("test_add: %ld", money);
+	ZoneListType::iterator i = zone_list.find(zone_vnum);
+	if (i != zone_list.end())
+	{
+		i->second += money;
+	}
+	else
+	{
+		zone_list[zone_vnum] = money;
+	}
+}
+
+void print(CHAR_DATA *ch)
+{
+	if (!PRF_FLAGGED(ch, PRF_CODERINFO))
+	{
+		send_to_char(ch, "Пока в разработке.\r\n");
+		return;
+	}
+
+	std::map<long, int> tmp_list;
+	for (ZoneListType::const_iterator i = zone_list.begin(), iend = zone_list.end(); i != iend; ++i)
+	{
+		if (i->second > 0)
+		{
+			tmp_list[i->second] = i->first;
+		}
+	}
+	if (!tmp_list.empty())
+	{
+		send_to_char(ch,
+				"Money drop stats:\r\n"
+				"Total zones: %d\r\n"
+				"  vnum - money\r\n"
+				"================\r\n", tmp_list.size());
+	}
+	else
+	{
+		send_to_char(ch, "Empty.\r\n");
+		return;
+	}
+	std::stringstream out;
+	for (std::map<long, int>::const_reverse_iterator i = tmp_list.rbegin(), iend = tmp_list.rend(); i != iend; ++i)
+	{
+		out << "  " << std::setw(4) << i->second << " - " << i->first << "\r\n";
+//		send_to_char(ch, "  %4d - %ld\r\n", i->second, i->first);
+	}
+	page_string(ch->desc, out.str(), 1);
+}
+
+void print_log()
+{
+	std::map<long, int> tmp_list;
+	for (ZoneListType::const_iterator i = zone_list.begin(), iend = zone_list.end(); i != iend; ++i)
+	{
+		if (i->second > 0)
+		{
+			log("ZoneDrop: %d %ld", i->first, i->second);
+		}
+	}
+}
+
+} // MoneyDropStat
+
+////////////////////////////////////////////////////////////////////////////////

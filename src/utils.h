@@ -1429,4 +1429,13 @@ template<class T> void skip_spaces(T string)
 	for (; **string && a_isspace(**string); (*string)++) ;
 }
 
+namespace MoneyDropStat
+{
+
+void add(int zone_vnum, long money);
+void print(CHAR_DATA *ch);
+void print_log();
+
+} // MoneyDropStat
+
 #endif // _UTILS_H_

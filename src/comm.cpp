@@ -533,6 +533,7 @@ void init_game(ush_int port)
 	RegisterSystem::save();
 	Glory::save_glory();
 	Glory::save_glory_log();
+	MoneyDropStat::print_log();
 
 	log("Closing all sockets.");
 	while (descriptor_list)
@@ -1300,6 +1301,11 @@ inline void heartbeat()
 	{
 		zone_update();
 		//log("Stop it...");
+	}
+
+	if (!((pulse + 48) % (60 * PASSES_PER_SEC)))
+	{
+		MoneyDropStat::print_log();
 	}
 
 // раз в 10 минут >> ///////////////////////////////////////////////////////////

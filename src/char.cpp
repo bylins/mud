@@ -869,11 +869,15 @@ void Character::set_gold(long num, bool need_log)
 		long change = num - get_gold();
 		if (change > 0)
 		{
-			log("Gold: %s add %ld", GET_NAME(this), change);
+			log("Gold: %s add %ld", get_name(), change);
 		}
 		else
 		{
-			log("Gold: %s remove %ld", GET_NAME(this), -change);
+			log("Gold: %s remove %ld", get_name(), -change);
+		}
+		if (IN_ROOM(this) > 0)
+		{
+			MoneyDropStat::add(zone_table[world[IN_ROOM(this)]->zone].number, change);
 		}
 	}
 
@@ -897,11 +901,11 @@ void Character::set_bank(long num, bool need_log)
 		long change = num - get_bank();
 		if (change > 0)
 		{
-			log("Gold: %s add %ld", GET_NAME(this), change);
+			log("Gold: %s add %ld", get_name(), change);
 		}
 		else
 		{
-			log("Gold: %s remove %ld", GET_NAME(this), -change);
+			log("Gold: %s remove %ld", get_name(), -change);
 		}
 	}
 

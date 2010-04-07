@@ -3498,6 +3498,7 @@ struct show_struct show_fields[] =
 	{"glory", LVL_IMPL},
 	{"crc", LVL_IMMORT},
 	{"affectedrooms", LVL_IMMORT},
+	{"money", LVL_IMPL},
 	{"\n", 0}
 };
 
@@ -3894,6 +3895,9 @@ ACMD(do_show)
 		break;
 	case 20:		// show affected rooms
 		RoomSpells::ShowRooms(ch);
+		break;
+	case 21: // money
+		MoneyDropStat::print(ch);
 		break;
 	default:
 		send_to_char("Извините, неверная команда.\r\n", ch);
