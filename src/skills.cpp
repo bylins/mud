@@ -260,7 +260,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 				  dex_app[GET_REAL_DEX(ch)].reaction +
 				  dex_app[GET_REAL_STR(ch)].reaction +
 				  (GET_EQ(ch, WEAR_SHIELD) ?
-				   weapon_app[MIN(50, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].
+				   weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].
 				   bashing : 0);
 		if (vict)
 		{

@@ -2268,7 +2268,7 @@ size_t strl_cpy(char *dst, const char *src, size_t siz)
 */
 int get_real_dr(CHAR_DATA *ch)
 {
-	if (IS_NPC(ch))
+	if (IS_NPC(ch) && !IS_CHARMICE(ch))
 	{
 		return MAX(0, GET_DR(ch) + GET_DR_ADD(ch));
 	}
@@ -2286,7 +2286,6 @@ ZoneListType zone_list;
 
 void add(int zone_vnum, long money)
 {
-	log("test_add: %ld", money);
 	ZoneListType::iterator i = zone_list.find(zone_vnum);
 	if (i != zone_list.end())
 	{

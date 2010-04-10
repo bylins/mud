@@ -3723,18 +3723,21 @@ CHAR_DATA *charm_mob(CHAR_DATA * victim)
 //Функции для модифицированного чарма
 float get_damage_per_round(CHAR_DATA * victim)
 {
-	float dam_per_round = 0.0;
-	dam_per_round = (GET_DR(victim) + str_app[GET_STR(victim)].todam +
-					 victim->mob_specials.damnodice *
-					 (victim->mob_specials.damsizedice + 1) / 2.0) *
-					(1 + victim->mob_specials.ExtraAttack +
-					 2 * victim->get_skill(SKILL_ADDSHOT) / MAX(1, victim->get_skill(SKILL_ADDSHOT)));
+	float dam_per_attack = GET_DR(victim) + str_app[GET_STR(victim)].todam
+			+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
+			+ (AFF_FLAGGED(victim, AFF_CLOUD_OF_ARROWS) ? 14 : 0);
+	int num_attacks = 1 + victim->mob_specials.ExtraAttack
+			+ (victim->get_skill(SKILL_ADDSHOT) ? 2 : 0);
 
-//Если дыхание - то дамаг умножается на 1.1
-	if (MOB_FLAGGED(victim, (MOB_FIREBREATH | MOB_GASBREATH | MOB_FROSTBREATH | MOB_ACIDBREATH | MOB_LIGHTBREATH)))
-		dam_per_round *= 1.1f;
+	float dam_per_round = dam_per_attack * num_attacks;
 
-	return dam_per_round;
+	//Если дыхание - то дамаг умножается на 1.1
+ 	if (MOB_FLAGGED(victim, (MOB_FIREBREATH | MOB_GASBREATH | MOB_FROSTBREATH | MOB_ACIDBREATH | MOB_LIGHTBREATH)))
+ 	{
+ 		dam_per_round *= 1.1f;
+ 	}
+
+ 	return dam_per_round;
 }
 
 float get_effective_cha(CHAR_DATA * ch, int spellnum)

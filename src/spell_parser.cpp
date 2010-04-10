@@ -5017,7 +5017,7 @@ void mag_assign_spells(void)
 	 */
 
 	skillo(SKILL_BACKSTAB, "заколоть", 140);
-	skillo(SKILL_BASH, "сбить", 140);
+	skillo(SKILL_BASH, "сбить", 200);
 	skillo(SKILL_HIDE, "спрятаться", 100);
 	skillo(SKILL_KICK, "пнуть", 100);
 	skillo(SKILL_PICK_LOCK, "взломать", 120);

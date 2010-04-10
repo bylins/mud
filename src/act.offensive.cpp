@@ -837,8 +837,6 @@ void drop_from_horse(CHAR_DATA *victim)
 /************************** BASH PROCEDURES */
 void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 {
-	int percent = 0, prob;
-
 	if (AFF_FLAGGED(ch, AFF_STOPFIGHT) || AFF_FLAGGED(ch, AFF_STOPLEFT)
 			|| AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))
 	{
@@ -879,11 +877,23 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	vict = try_protect(vict, ch);
 
-	percent = number(1, skill_info[SKILL_BASH].max_percent);
-	prob = train_skill(ch, SKILL_BASH, skill_info[SKILL_BASH].max_percent, vict);
+	int percent = number(1, 100);
+	int prob = train_skill(ch, SKILL_BASH, skill_info[SKILL_BASH].max_percent, vict);
+	if (prob > 0)
+	{
+		if (ch->get_skill(SKILL_BASH) <= 90)
+		{
+			prob = 2 + ch->get_skill(SKILL_BASH) * 4 / 5;
+		}
+		else
+		{
+			prob = 74 + (ch->get_skill(SKILL_BASH)) / 5;
+		}
+	}
+
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
 		prob /= 2;
-	if (GET_GOD_FLAG(ch, GF_GODSLIKE) || GET_MOB_HOLD(vict))
+	if (GET_MOB_HOLD(vict))
 		prob = percent;
 	if (vict && GET_GOD_FLAG(vict, GF_GODSCURSE))
 		prob = percent;
@@ -891,7 +901,6 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 		prob = 0;
 	if (MOB_FLAGGED(vict, MOB_NOBASH))
 		prob = 0;
-
 
 	if (percent > prob)
 	{

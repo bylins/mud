@@ -1692,7 +1692,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			af[0].type = SPELL_BATTLE;
 			af[0].bitvector = AFF_STOPFIGHT;
 			af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
-			dam *= ch->get_skill(SKILL_PUNCTUAL);
+			dam *= ch->get_skill(SKILL_PUNCTUAL) / 2;
 			haemorragia(victim, 60);
 			to_char = "вывело $N3 из строя";
 			to_vict = "размозжило Вам грудь";
@@ -1881,7 +1881,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			WAIT_STATE(victim, 4 * PULSE_VIOLENCE);
 			alt_equip(victim, WEAR_HEAD, 100, 100);
 			//dam = GET_HIT(victim);
-			dam *= ch->get_skill(SKILL_PUNCTUAL);
+			dam *= ch->get_skill(SKILL_PUNCTUAL) / 2;
 			to_char = "отбило у $N1 сознание";
 			to_vict = "отбило у Вас сознание";
 			haemorragia(victim, 20);
@@ -1920,7 +1920,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			to_vict = "сорвало у Вас крышу";
 			break;
 		case 11:	// hits 0, WIS/2, INT/2, CHA/2
-			dam *= ch->get_skill(SKILL_PUNCTUAL);
+			dam *= ch->get_skill(SKILL_PUNCTUAL) / 2;
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_INT;
 			af[0].modifier = -GET_INT(victim) / 2;
@@ -1956,7 +1956,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			af[2].modifier = -GET_CHA(victim) / 2;
 			af[2].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 			af[2].battleflag = AF_DEADKEEP;
-			dam *= ch->get_skill(SKILL_PUNCTUAL);
+			dam *= ch->get_skill(SKILL_PUNCTUAL) / 2;
 			to_char = "размозжило $N2 голову";
 			to_vict = "размозжило Вам голову";
 			haemorragia(victim, 90);
