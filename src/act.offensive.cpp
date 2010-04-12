@@ -881,14 +881,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 	int prob = train_skill(ch, SKILL_BASH, skill_info[SKILL_BASH].max_percent, vict);
 	if (prob > 0)
 	{
-		if (ch->get_skill(SKILL_BASH) <= 90)
-		{
-			prob = 2 + ch->get_skill(SKILL_BASH) * 4 / 5;
-		}
-		else
-		{
-			prob = 74 + (ch->get_skill(SKILL_BASH)) / 5;
-		}
+		prob = MIN(95, ch->get_skill(SKILL_BASH));
 	}
 
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
@@ -925,8 +918,16 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 			return;
 		}
 
-		int dam = str_app[GET_REAL_STR(ch)].todam + GET_REAL_DR(ch) +
-				  MAX(0, ch->get_skill(SKILL_BASH) / 10 - 5) + GET_LEVEL(ch) / 5;
+		int dam = str_app[GET_REAL_STR(ch)].todam + GET_REAL_DR(ch)
+				+ MAX(0, ch->get_skill(SKILL_BASH) / 10 - 5)
+				+ GET_LEVEL(ch) / 5
+				+ (GET_EQ(ch, WEAR_SHIELD) ? MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)))) : 0);
+
+		if (ch->get_skill(SKILL_BASH) > 100)
+		{
+			dam += (ch->get_skill(SKILL_BASH) - 100) / 2;
+		}
+
 //      log("[BASH params] = actor = %s, actorlevel = %d, actordex = %d
 //           target=  %s, targetlevel = %d, targetdex = %d ,skill = %d,
 //           dice = %d, dam = %d", GET_NAME(ch), GET_LEVEL(ch), GET_REAL_DEX(ch),
