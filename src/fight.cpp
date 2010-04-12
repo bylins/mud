@@ -3442,15 +3442,13 @@ double crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		if (ch->get_skill(SKILL_BACKSTAB) <= 100)
 		{
-			// (скилл-40)*0.1, по 0.5 за каждые 5 скила до 100 (множитель от 2 до 6)
-			bs_coeff = (ch->get_skill(SKILL_BACKSTAB) - 40) * 0.1;
+			bs_coeff = ch->get_skill(SKILL_BACKSTAB) / 20;
 			if (bs_coeff < 2)
 				bs_coeff = 2;
 		}
 		else
 		{
-			// 6+(скилл-100)*0.06, по 0.3 за каждые 5 скила после 100 (множитель от 6.3 до 12)
-			bs_coeff = 6 + (ch->get_skill(SKILL_BACKSTAB) - 100) * 0.06;
+			bs_coeff = 5 + (ch->get_skill(SKILL_BACKSTAB) - 100) / 40;
 		}
 		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
