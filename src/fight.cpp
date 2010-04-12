@@ -2611,6 +2611,16 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 	// gain_exp(ch, IS_NPC(ch) ? GET_LEVEL(victim) * dam : (GET_LEVEL(victim) * dam + 4) / 5);
 	// log("[DAMAGE] Updating pos...");
 
+	// ÔÀÎÉÎÈ
+	if (IS_CHARMICE(ch))
+	{
+		double dps = get_damage_per_round(ch);
+		if (dps > 375 || (NPC_FLAGGED(ch, NPC_WIELDING) && NPC_FLAGGED(ch, NPC_ARMORING) && dps > 250))
+		{
+			dam = dam * 85 / 100;
+		}
+	}
+
 	int real_dam = dam;
 	int over_dam = 0;
 
