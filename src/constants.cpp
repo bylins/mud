@@ -528,6 +528,7 @@ const char *affected_bits[] = { "слепота",	/* 0 */
 								"не переключается",
 								"яд белены",
 								"прикован",
+								"боевое везение",
 								"\n",
 								"\n",
 							  };
@@ -1914,7 +1915,8 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	/* 0 */
 		"В Вашей крови не осталось ни капельки яда.", // SPELL_SCOPOLIA_POISON
 		"В Вашей крови не осталось ни капельки яда.", // SPELL_BELENA_POISON
 		"В Вашей крови не осталось ни капельки яда.",  // SPELL_DATURA_POISON
-		"SPELL_TIMER_REPAIR"
+		"SPELL_TIMER_REPAIR",
+		"!SPELL_LACKY!"
 };
 
 
@@ -2340,8 +2342,10 @@ const char *cast_phrase[LAST_USED_SPELL + 1][2] = { {"\nRESERVED DB.C",	/* 0 */
 	 "... и пошлю на них зубы зверей и яд ползающих по земле."}, // SPELL_BELENA_POISON
 	{"трутизна",
 	 "... и пошлю на них зубы зверей и яд ползающих по земле."}, // SPELL_DATURA_POISON
-	{"\n",
-	 "\n"} // SPELL_TIMER_REPAIR
+	 {"\n",
+	 "\n"}, // SPELL_TIMER_REPAIR
+	 {"\n",
+	 "\n"} // SPELL_LACKY
 };
 
 
@@ -2557,7 +2561,8 @@ const char *weapon_affects[] = { "слепота",
 								 "\n"
 							   };
 
-struct weapon_affect_types weapon_affect[] = { {(0 | (1 << 0)), 0, SPELL_BLINDNESS},
+struct weapon_affect_types weapon_affect[] = { 
+	{(0 | (1 << 0)), 0, SPELL_BLINDNESS},
 	{(0 | (1 << 1)), AFF_INVISIBLE, 0},
 	{(0 | (1 << 2)), AFF_DETECT_ALIGN, 0},
 	{(0 | (1 << 3)), AFF_DETECT_INVIS, 0},

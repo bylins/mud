@@ -333,7 +333,8 @@
 #define SPELL_BELENA_POISON     191
 #define SPELL_DATURA_POISON     192
 #define SPELL_TIMER_REPAIR      193
-#define LAST_USED_SPELL			194
+#define SPELL_LACKY				194
+#define LAST_USED_SPELL			195
 
 #define MAX_SLOT 13
 

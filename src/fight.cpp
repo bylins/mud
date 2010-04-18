@@ -39,6 +39,7 @@
 #include "poison.hpp"
 #include "corpse.hpp"
 #include "room.hpp"
+#include "AffectHandler.hpp"
 
 extern CHAR_DATA *mob_proto;
 
@@ -108,6 +109,7 @@ int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim);
 void apply_weapon_bonus(int ch_class, int skill, int *damroll, int *hitroll);
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
 
+
 /* Weapon attack texts */
 struct attack_hit_type attack_hit_text[] =
 {
@@ -132,6 +134,16 @@ struct attack_hit_type attack_hit_text[] =
 	{"*", "*"},
 	{"*", "*"}
 };
+//Polud функция, вызывающая обработчики аффектов, если они есть
+template <class S> void handle_affects( S& params ) //тип params определяется при вызове функции
+{
+	AFFECT_DATA* aff;
+	for (aff=params.ch->affected; aff; aff = aff->next)
+	{
+		if (aff->handler)
+			aff->handler->Handle(params); //в зависимости от типа params вызовется нужный Handler
+	}
+}
 
 void go_autoassist(CHAR_DATA * ch)
 {
@@ -520,6 +532,8 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	restore_battle_pos(ch);
 	NUL_AF_BATTLE(ch);
 	DpsSystem::check_round(ch);
+	StopFightParameters params(ch); //готовим параметры нужного типа и вызываем шаблонную функцию
+	handle_affects(params);
 	// sprintf(buf,"[Stop fighting] %s - %s\r\n",GET_NAME(ch),switch_others ? "switching" : "no switching");
 	// send_to_gods(buf);
 	/**** switch others *****/
@@ -2592,7 +2606,6 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 			dam += mod;
 		}
 	}
-
 	/* Обрезаем макс дамаг */
 	dam = MIN(dam, MAX_HITS);
 
@@ -4388,7 +4401,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			was_critic += (int)(ch->get_skill(SKILL_NOPARRYHIT) / 3);
 		if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
 			was_critic += GET_LEVEL(ch);
-	}
+	} else was_critic = FALSE; //Polud не должны - так пусть и не критают
 	//critical hit ignore magic_shields and armour
 	if (number(0, 2000) < was_critic)
 		was_critic = TRUE;
@@ -4530,6 +4543,13 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		/**** Обработаем команду   БЛОКИРОВАТЬ */
 		hit_block(ch, victim, &dam);
 	}
+
+	DamageActorParameters params(ch, victim, dam);
+	handle_affects(params);
+	dam = params.damage;
+	DamageVictimParameters params1(ch, victim, dam);
+	handle_affects(params1);
+	dam = params1.damage;
 
 	int made_dam = extdamage(ch, victim, dam, w_type, wielded, TRUE);
 	was_critic = FALSE;
@@ -5217,6 +5237,8 @@ void perform_violence(void)
 		BATTLECNTR(ch) = 0;
 		ROUND_COUNTER(ch) += 1;
 		DpsSystem::check_round(ch);
+		BattleRoundParameters params(ch);
+		handle_affects(params);
 
 		round_num_mtrigger(ch, ch->get_fighting());
 

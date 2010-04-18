@@ -910,6 +910,7 @@ void affect_remove(CHAR_DATA * ch, AFFECT_DATA * af)
 	else
 	{
 		REMOVE_FROM_LIST(af, ch->affected, next);
+		if (af->handler!=0) af->handler.reset();
 		free(af);
 	}
 	//log("[AFFECT_REMOVE->AFFECT_TOTAL] Start");
@@ -1845,7 +1846,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	//if (GET_EQ(ch, WEAR_LIGHT) &&
 	//  GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))
 	//  was_lamp = TRUE;
-	//Polud светить должно не только то что одето для освещения, а любой источник света
+	//Polud светить должно не только то что надето для освещения, а любой источник света
 	was_lamp = is_wear_light(ch);
 	//-Polud
 

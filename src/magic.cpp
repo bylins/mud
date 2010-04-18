@@ -35,6 +35,7 @@
 #include "poison.hpp"
 #include "modify.h"
 #include "room.hpp"
+#include "AffectHandler.hpp"
 
 extern void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer);
 extern int what_sky;
@@ -3566,6 +3567,17 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].battleflag = AF_SAME_TIME;
 		to_vict = "Вы почувствовали себя отравленным.";
 		to_room = "$n позеленел$g от действия яда.";
+		break;
+	case SPELL_LACKY:
+		af[0].duration = pc_duration(victim, 6, 0, 0, 0, 0);
+		af[0].bitvector = AFF_LACKY;
+//Polud пробный обработчик аффектов
+		af[0].handler = boost::shared_ptr<LackyAffectHandler>(new LackyAffectHandler());
+		af[0].type = SPELL_LACKY;
+		af[0].location = APPLY_HITROLL;
+		af[0].modifier = 0;
+		to_room = "$n вдохновенно выпятил$g грудь.";
+		to_vict = "Вы почувствовали вдохновение.";
 		break;
 	}
 

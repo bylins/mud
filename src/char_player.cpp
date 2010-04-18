@@ -21,6 +21,7 @@
 #include "diskio.h"
 #include "interpreter.h"
 #include "genchar.h"
+#include "affecthandler.hpp"
 
 void tascii(int *pointer, int num_planes, char *ascii);
 int level_exp(CHAR_DATA * ch, int level);
@@ -1012,6 +1013,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 						af.modifier = num3;
 						af.location = num4;
 						af.bitvector = num5;
+						if (af.type == SPELL_LACKY){
+							af.handler = boost::shared_ptr<LackyAffectHandler>(new LackyAffectHandler());
+						}
 						affect_to_char(this, &af);
 						i++;
 					}

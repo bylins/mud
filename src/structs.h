@@ -690,6 +690,7 @@ typedef struct trig_data TRIG_DATA;
 #define AFF_NOT_SWITCH      (INT_TWO | (1 << 10))
 #define AFF_BELENA_POISON   (INT_TWO | (1 << 11))
 #define AFF_NOTELEPORT		(INT_TWO | (1 << 12))
+#define AFF_LACKY			(INT_TWO | (1 << 13))
 
 // shapirus: modes of ignoring
 #define IGNORE_TELL	(1 << 0)
@@ -1417,6 +1418,7 @@ struct punish_data
 };
 
 /* An affect structure. */
+class IAffectHandler;
 struct affect_data
 {
 	sh_int type;		/* The type of spell that caused this      */
@@ -1434,6 +1436,7 @@ struct affect_data
 	sh_int
 	apply_time; /* Указывает сколько аффект висит (пока используется только в комнатах) */
 	AFFECT_DATA *next;
+	boost::shared_ptr<IAffectHandler> handler; //обработчик аффектов
 };
 
 struct timed_type

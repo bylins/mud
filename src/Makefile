@@ -35,7 +35,7 @@ OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	deathtrap.o title.o password.o privilege.o version.o depot.o glory.o file_crc.o \
 	char.o char_player.o quested.o mobmax.o parcel.o liquid.o poison.o xmlParser.o \
 	corpse.o house_exp.o remember.o name_list.o dps.o obj.spell.o obj.o room.o \
-	spam.o
+	spam.o AffectHandler.o
 
 CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	act.offensive.cpp act.other.cpp act.social.cpp act.wizard.cpp alias.cpp ban.cpp \
@@ -51,7 +51,7 @@ CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	description.cpp deathtrap.cpp title.cpp password.cpp privilege.cpp version.cpp \
 	depot.cpp glory.cpp file_crc.cpp char.cpp char_player.cpp quested.cpp mobmax.cpp \
 	parcel.cpp liquid.cpp poison.cpp xmlParser.cpp corpse.cpp house_exp.cpp remember.cpp \
-	name_list.cpp dps.cpp obj.spell.cpp obj.cpp room.cpp spam.cpp
+	name_list.cpp dps.cpp obj.spell.cpp obj.cpp room.cpp spam.cpp AffectHandler.cpp
 
 default: circle
 

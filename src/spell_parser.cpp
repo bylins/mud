@@ -4986,6 +4986,9 @@ void mag_assign_spells(void)
 	spello(SPELL_TIMER_REPAIR, "обновление таймера", " timer repair",
 		   110, 100, 1, POS_STANDING, TAR_OBJ_INV | TAR_OBJ_EQUIP, FALSE, MAG_ALTER_OBJS, 0, STYPE_LIGHT);
 
+//194
+	spello(SPELL_LACKY, "боевое везение", "lacky", 100, 90, 1,
+		POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, MAG_AFFECTS, 0, STYPE_MIND);
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.

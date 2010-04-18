@@ -688,7 +688,7 @@ void go_flee(CHAR_DATA * ch)
 
 	if (GET_MOB_HOLD(ch))
 		return;
-	if (AFF_FLAGGED(ch, AFF_NOFLEE) || IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	if (AFF_FLAGGED(ch, AFF_NOFLEE) ||AFF_FLAGGED(ch, AFF_LACKY) || IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
 	{
 		send_to_char("Невидимые оковы мешают Вам сбежать.\r\n", ch);
 		return;
@@ -740,7 +740,7 @@ void go_dir_flee(CHAR_DATA * ch, int direction)
 
 	if (GET_MOB_HOLD(ch))
 		return;
-	if (AFF_FLAGGED(ch, AFF_NOFLEE) || IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	if (AFF_FLAGGED(ch, AFF_NOFLEE) ||AFF_FLAGGED(ch, AFF_LACKY)|| IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
 	{
 		send_to_char("Невидимые оковы мешают Вам сбежать.\r\n", ch);
 		return;
@@ -2226,7 +2226,7 @@ ACMD(do_stopfight)
 		return;
 	}
 
-	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND) || AFF_FLAGGED(ch, AFF_LACKY))
 	{
 		send_to_char("Вы не желаете отступать, не расправившись со всеми врагами!\r\n", ch);
 		return;
