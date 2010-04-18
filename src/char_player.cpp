@@ -21,7 +21,7 @@
 #include "diskio.h"
 #include "interpreter.h"
 #include "genchar.h"
-#include "affecthandler.hpp"
+#include "AffectHandler.hpp"
 
 void tascii(int *pointer, int num_planes, char *ascii);
 int level_exp(CHAR_DATA * ch, int level);
