@@ -1303,7 +1303,7 @@ inline void heartbeat()
 		//log("Stop it...");
 	}
 
-	if (!((pulse + 48) % (60 * PASSES_PER_SEC)))
+	if (!((pulse + 48) % (60 * 60 * PASSES_PER_SEC)))
 	{
 		MoneyDropStat::print_log();
 	}
