@@ -877,6 +877,11 @@ OBJ_DATA *get_selling_obj(CHAR_DATA * ch, char *name, CHAR_DATA * keeper, int sh
 
 int sell_price(OBJ_DATA * obj, CHAR_DATA * ch, int shop_nr)
 {
+	if (GET_OBJ_RNUM(obj) < 0)
+	{
+		return 1;
+	}
+
 	double profit;
 	if (ch && !IS_NPC(ch) && GET_CLASS(ch) == CLASS_MERCHANT)
 		profit = MMAX(SHOP_SELLPROFIT(shop_nr), 1.0);
