@@ -3984,12 +3984,22 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	if (spellnum == SPELL_SUMMON_FIREKEEPER)
 	{
 		if (get_effective_cha(ch, SPELL_SUMMON_FIREKEEPER) >= 30)
+		{
 			SET_BIT(AFF_FLAGS(mob, AFF_FIRESHIELD), AFF_FIRESHIELD);
+		}
 		else
+		{
 			SET_BIT(AFF_FLAGS(mob, AFF_FIREAURA), AFF_FIREAURA);
+		}
+
 		modifier = VPOSI((int)get_effective_cha(ch, SPELL_SUMMON_FIREKEEPER) - 20, 0, 30);
-		GET_SDD(mob) = 3 + modifier / 6;
-		GET_MAX_HIT(mob) = GET_HIT(mob) = MIN(450, 200 + dice(14, 5 + modifier));
+
+		GET_DR(mob) = 10 + modifier * 3 / 2;
+		GET_NDD(mob) = 1;
+		GET_SDD(mob) = modifier / 5 + 1;
+		mob->mob_specials.ExtraAttack = 0;
+
+		GET_MAX_HIT(mob) = GET_HIT(mob) = 300 + number(modifier * 12, modifier * 16);
 		mob->set_skill(SKILL_AWAKE, 50 + modifier * 2);
 		SET_BIT(PRF_FLAGS(mob, PRF_AWAKE), PRF_AWAKE);
 	}
