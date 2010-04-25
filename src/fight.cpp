@@ -2675,6 +2675,32 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		}
 	}
 
+	// если виктим в группе с кем-то с ангелом - вместо смерти виктима умирает ангел
+	if (GET_HIT(victim) <= 0 && !IS_NPC(victim) && AFF_FLAGGED(victim, AFF_GROUP))
+	{
+		for (CHAR_DATA *keeper = world[IN_ROOM(victim)]->people; keeper; keeper = keeper->next_in_room)
+		{
+			if (IS_NPC(keeper) && MOB_FLAGGED(keeper, MOB_ANGEL)
+				&& keeper->master && AFF_FLAGGED(keeper->master, AFF_GROUP))
+			{
+				CHAR_DATA *keeper_leader = keeper->master->master ? keeper->master->master : keeper->master;
+				CHAR_DATA *victim_ledaer = victim->master ? victim->master : victim;
+
+				if (keeper_leader == victim_ledaer)
+				{
+					send_to_char(victim, "%s пожетрвовал%s своей жизнью, вытаскивая Вас с того света!\r\n",
+							GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
+					snprintf(buf, MAX_STRING_LENGTH, "%s пожетрвовал%s своей жизнью, вытаскивая %s с того света!",
+							GET_PAD(keeper, 0), GET_CH_SUF_1(keeper), GET_PAD(victim, 1));
+					act(buf, FALSE, victim, 0, 0, TO_ROOM);
+
+					extract_char(keeper, 0);
+					GET_HIT(victim) = MIN(300, GET_MAX_HIT(victim) / 2);
+				}
+			}
+		}
+	}
+
 	update_pos(victim);
 
 	if (attacktype != SPELL_POISON && dam > 0)
