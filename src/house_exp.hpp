@@ -64,6 +64,7 @@ public:
 	void add_exp(long exp);
 	void load(const std::string &abbrev);
 	void save(const std::string &abbrev) const;
+	long long get(int month) const;
 private:
 	typedef std::map<std::string /* месяц.год */, long long /* экспа*/> HistoryExpListType;
 	HistoryExpListType list_;

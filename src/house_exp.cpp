@@ -319,3 +319,25 @@ void ClanExpHistory::save(const std::string &abbrev) const
 	}
 	file.close();
 }
+
+/**
+* \param - количество последних месяцев, участвующих в расчете
+* \return - набранная кланом экспа за последние num месяцев
+*/
+long long ClanExpHistory::get(int month) const
+{
+	long long exp = 0;
+	int count = 0;
+	for (HistoryExpListType::const_iterator i = list_.begin(), iend = list_.end(); i != iend; ++i, ++count)
+	{
+		if (count <= month)
+		{
+			exp += i->second;
+		}
+		else
+		{
+			break;
+		}
+	}
+	return exp;
+}

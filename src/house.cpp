@@ -1844,6 +1844,44 @@ void Clan::hcontrol_rank(CHAR_DATA *ch, std::string &text)
 	send_to_char("Сделано.\r\n", ch);
 }
 
+/**
+* Распечатка списка кланов с историей экспы за указанное кол-во месяцев.
+* \param text - число последних месяцев, если пустая строка - 0 (только текущий месяц).
+*/
+void Clan::hcontrol_exphistory(CHAR_DATA *ch, std::string &text)
+{
+	if (!PRF_FLAGGED(ch, PRF_CODERINFO))
+	{
+		send_to_char(HCONTROL_FORMAT, ch);
+		return;
+	}
+
+	int month = 0;
+	if (!text.empty())
+	{
+		boost::trim(text);
+		try
+		{
+			month = boost::lexical_cast<int>(text);
+		}
+		catch (boost::bad_lexical_cast &)
+		{
+			send_to_char(ch, "Неверный формат (\"hcontrol exp <кол-во последних месяцев>\").");
+			return;
+		}
+	}
+
+	std::multimap<long long, std::string> tmp_list;
+	for (ClanListType::const_iterator i = Clan::ClanList.begin(), iend = Clan::ClanList.end(); i != iend; ++i)
+	{
+		tmp_list.insert(std::make_pair((*i)->exp_history.get(month), (*i)->get_abbrev()));
+	}
+	for (std::map<long long, std::string>::const_reverse_iterator i = tmp_list.rbegin(), iend = tmp_list.rend(); i != iend; ++i)
+	{
+		send_to_char(ch, "%5s - %s\r\n", i->second.c_str(), ExpFormat(i->first).c_str());
+	}
+}
+
 // божественный hcontrol
 ACMD(DoHcontrol)
 {
@@ -1875,6 +1913,10 @@ ACMD(DoHcontrol)
 	else if (CompareParam(buffer2, "rank") && !buffer.empty())
 	{
 		Clan::hcontrol_rank(ch, buffer);
+	}
+	else if (CompareParam(buffer2, "exphistory"))
+	{
+		Clan::hcontrol_exphistory(ch, buffer);
 	}
 	else
 		send_to_char(HCONTROL_FORMAT, ch);

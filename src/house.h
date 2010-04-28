@@ -289,6 +289,7 @@ private:
 	static void hcon_outcast(CHAR_DATA *ch, std::string buffer);
 	static void hcontrol_title(CHAR_DATA *ch, std::string &text);
 	static void hcontrol_rank(CHAR_DATA *ch, std::string &text);
+	static void hcontrol_exphistory(CHAR_DATA *ch, std::string &text);
 	static void ChestLoad();
 	int ChestTax();
 	int ChestMaxObjects()
