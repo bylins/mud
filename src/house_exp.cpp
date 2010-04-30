@@ -328,7 +328,7 @@ long long ClanExpHistory::get(int month) const
 {
 	long long exp = 0;
 	int count = 0;
-	for (HistoryExpListType::const_iterator i = list_.begin(), iend = list_.end(); i != iend; ++i, ++count)
+	for (HistoryExpListType::const_reverse_iterator i = list_.rbegin(), iend = list_.rend(); i != iend; ++i, ++count)
 	{
 		if (count <= month)
 		{
