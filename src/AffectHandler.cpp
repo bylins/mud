@@ -34,7 +34,7 @@ void LackyAffectHandler::Handle( BattleRoundParameters& params )
 		if (round_<5) {
 			++round_;
 		}
-	} 
+	}
 	else {
 		round_= 0;
 	}

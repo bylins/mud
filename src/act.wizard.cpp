@@ -1688,7 +1688,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	sprintf(buf,
 			"Saving throws: [Para:%d/Breath:%d/Spell:%d/Basic:%d], Morale: [%d], Init: [%d], ToCast: [%d]\r\n",
 			GET_SAVE(k, 0), GET_SAVE(k, 1), GET_SAVE(k, 2), GET_SAVE(k, 3),
-			GET_MORALE(k), GET_INITIATIVE(k), GET_CAST_SUCCESS(k));
+			k->calc_morale(), GET_INITIATIVE(k), GET_CAST_SUCCESS(k));
 	send_to_char(buf, ch);
 	sprintf(buf,
 			"Resistances: [Fire:%d/Air:%d/Water:%d/Earth:%d/Vit:%d/Mind:%d/Immun:%d]\r\n",
