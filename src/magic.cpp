@@ -4807,7 +4807,7 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 	}
 
 	int size = tmp_char_list.size();
-	while (level > 0 && size != 0)
+	while (level > 0 && level >= decay && size != 0)
 	{
 		i = number(0, size - 1);
 		ch_vict = tmp_char_list[i];
