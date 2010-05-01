@@ -490,8 +490,10 @@ ACMD(do_mpurge)
 
 	one_argument(argument, arg);
 
-	if (!*arg)  		/* 'purge' */
+	if (!*arg)
 	{
+		return;
+/*
 		CHAR_DATA *vnext;
 		OBJ_DATA *obj_next;
 
@@ -511,6 +513,7 @@ ACMD(do_mpurge)
 			extract_obj(obj);
 		}
 		return;
+*/
 	}
 	if (*arg == UID_CHAR)
 		victim = get_char(arg);

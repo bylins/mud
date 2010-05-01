@@ -352,14 +352,16 @@ OCMD(do_otransform)
 OCMD(do_opurge)
 {
 	char arg[MAX_INPUT_LENGTH];
-	CHAR_DATA *ch, *next_ch;
-	OBJ_DATA *o, *next_obj;
-	int rm;
+	CHAR_DATA *ch /*, *next_ch*/;
+	OBJ_DATA *o /*, *next_obj */;
+	// int rm;
 
 	one_argument(argument, arg);
 
 	if (!*arg)
 	{
+		return;
+/*
 		if ((rm = obj_room(obj)) != NOWHERE)
 		{
 			for (ch = world[rm]->people; ch; ch = next_ch)
@@ -380,6 +382,7 @@ OCMD(do_opurge)
 			}
 		}
 		return;
+*/
 	}
 
 	if (!(ch = get_char_by_obj(obj, arg)))

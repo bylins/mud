@@ -469,13 +469,15 @@ WCMD(do_wexp)
 WCMD(do_wpurge)
 {
 	char arg[MAX_INPUT_LENGTH];
-	CHAR_DATA *ch, *next_ch;
-	OBJ_DATA *obj, *next_obj;
+	CHAR_DATA *ch /*, *next_ch */;
+	OBJ_DATA *obj /*, *next_obj */;
 
 	one_argument(argument, arg);
 
 	if (!*arg)
 	{
+		return;
+/*
 		for (ch = room->people; ch; ch = next_ch)
 		{
 			next_ch = ch->next_in_room;
@@ -494,6 +496,7 @@ WCMD(do_wpurge)
 		}
 
 		return;
+*/
 	}
 
 	if (!(ch = get_char_by_room(room, arg)))
