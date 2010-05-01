@@ -36,7 +36,7 @@ class IAffectHandler
 {
 public:
 	IAffectHandler(void) {};
-	~IAffectHandler(void) {};
+	virtual ~IAffectHandler(void) {};
 	virtual void Handle(DamageActorParameters& params) {};
 	virtual void Handle(DamageVictimParameters& params) {};
 	virtual void Handle(BattleRoundParameters& params) {};
@@ -46,7 +46,7 @@ public:
 class LackyAffectHandler : public IAffectHandler{
 public:
 	LackyAffectHandler() : round_(0), damToMe_(false), damFromMe_(false) {};
-	~LackyAffectHandler() {};
+	virtual ~LackyAffectHandler() {};
 	virtual void Handle(DamageActorParameters& params);
 	virtual void Handle(BattleRoundParameters& params);
 	virtual void Handle(DamageVictimParameters& params);

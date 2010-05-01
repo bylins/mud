@@ -78,7 +78,7 @@ fight.o: fight.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   dg_scripts.h pk.h im.h fight.h skills.h house.h house_exp.hpp char.hpp \
   player_i.hpp remember.hpp stuff.hpp double_map.hpp random.hpp \
   char_player.hpp quested.hpp mobmax.hpp dps.hpp top.h magic.h poison.hpp \
-  corpse.hpp room.hpp
+  corpse.hpp room.hpp AffectHandler.hpp
 graph.o: graph.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   comm.h interpreter.h constants.h handler.h db.h spells.h skills.h \
   random.hpp char.hpp player_i.hpp room.hpp
@@ -108,7 +108,7 @@ limits.o: limits.cpp conf.h sysdep.h structs.h utils.h features.hpp \
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   comm.h spells.h skills.h handler.h db.h interpreter.h screen.h \
   constants.h dg_scripts.h pk.h magic.h fight.h deathtrap.hpp random.hpp \
-  char.hpp player_i.hpp poison.hpp modify.h room.hpp
+  char.hpp player_i.hpp poison.hpp modify.h room.hpp AffectHandler.hpp
 mail.o: mail.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   comm.h db.h interpreter.h handler.h mail.h char.hpp player_i.hpp \
   parcel.hpp char_player.hpp quested.hpp mobmax.hpp remember.hpp dps.hpp
@@ -150,7 +150,8 @@ spells.o: spells.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   depot.hpp parcel.hpp liquid.hpp modify.h room.hpp
 utils.o: utils.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   db.h comm.h screen.h spells.h handler.h interpreter.h constants.h im.h \
-  dg_scripts.h boards.h privilege.hpp char.hpp player_i.hpp room.hpp
+  dg_scripts.h boards.h privilege.hpp char.hpp player_i.hpp room.hpp \
+  modify.h
 weather.o: weather.cpp conf.h sysdep.h structs.h spells.h skills.h \
   utils.h features.hpp obj.hpp comm.h handler.h interpreter.h db.h \
   screen.h constants.h random.hpp char.hpp player_i.hpp room.hpp
@@ -277,7 +278,7 @@ char_player.o: char_player.cpp char_player.hpp conf.h sysdep.h structs.h \
   quested.hpp mobmax.hpp remember.hpp char.hpp player_i.hpp dps.hpp \
   utils.h features.hpp obj.hpp db.h dg_scripts.h handler.h boards.h \
   interpreter.h file_crc.hpp spells.h constants.h skills.h im.h olc.h \
-  comm.h pk.h diskio.h genchar.h
+  comm.h pk.h diskio.h genchar.h AffectHandler.hpp
 quested.o: quested.cpp quested.hpp conf.h sysdep.h structs.h utils.h \
   features.hpp obj.hpp char.hpp player_i.hpp
 mobmax.o: mobmax.cpp mobmax.hpp conf.h sysdep.h structs.h char.hpp \
@@ -314,3 +315,6 @@ obj.o: obj.cpp obj.hpp conf.h sysdep.h structs.h utils.h features.hpp
 room.o: room.cpp room.hpp conf.h sysdep.h structs.h
 spam.o: spam.cpp spam.hpp conf.h sysdep.h structs.h utils.h features.hpp \
   obj.hpp char.hpp player_i.hpp comm.h
+AffectHandler.o: AffectHandler.cpp AffectHandler.hpp char.hpp conf.h \
+  sysdep.h structs.h player_i.hpp utils.h features.hpp obj.hpp handler.h \
+  spells.h
