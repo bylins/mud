@@ -697,7 +697,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	if (!pass_mod)
 	{
 		percent = complex_skill_modifier(ch, skill_no, GAPPLY_SKILL_SUCCESS, percent);
-		morale = cha_app[GET_REAL_CHA(ch)].morale + GET_MORALE(ch);
+		morale = ch->calc_morale();
 
 		if (vict && percent > skill_info[skill_no].max_percent)
 			victim_modi += percent - skill_info[skill_no].max_percent;

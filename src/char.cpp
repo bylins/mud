@@ -973,3 +973,11 @@ long Character::remove_both_gold(long num, bool need_log)
 	long rest = remove_bank(num, need_log);
 	return remove_gold(rest, need_log);
 }
+
+/**
+* Удача (мораль) для расчетов в скилах и вывода чару по счет все.
+*/
+int Character::calc_morale() const
+{
+	return cha_app[GET_REAL_CHA(this)].morale + GET_MORALE(this);
+}

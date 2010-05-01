@@ -373,6 +373,8 @@ public:
 	long remove_both_gold(long num, bool log = true);
 	////////////////////////////////////////////////////////////////////////////
 
+	int calc_morale() const;
+
 private:
 	void check_fighting_list();
 	void zero_init();

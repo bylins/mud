@@ -2780,7 +2780,7 @@ ACMD(do_score)
 		sprintf(buf + strlen(buf),
 				" %sõÄÁÞÁ:       %4d %s|"
 				" %s          %4d %s||\r\n",
-				CCGRN(ch, C_NRM), GET_MORALE(ch), CCCYN(ch, C_NRM),
+				CCGRN(ch, C_NRM), ch->calc_morale(), CCCYN(ch, C_NRM),
 				CCRED(ch, C_NRM), GET_MOVEREG(ch), CCCYN(ch, C_NRM));
 
 		sprintf(buf + strlen(buf),
