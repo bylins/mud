@@ -2302,7 +2302,7 @@ ACMD(do_extinguish)
         break;
     case 1:
         if ((aff = room_affected_by_spell(world[IN_ROOM(ch)], SPELL_RUNE_LABEL))
-            && (AFF_FLAGGED(ch, AFF_DETECT_MAGIC) || IS_IMMORTAL(ch)))
+            && (AFF_FLAGGED(ch, AFF_DETECT_MAGIC) || IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)))
         {
             affect_room_remove(world[IN_ROOM(ch)], aff);
             send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
