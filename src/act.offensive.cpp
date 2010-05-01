@@ -837,6 +837,8 @@ void drop_from_horse(CHAR_DATA *victim)
 /************************** BASH PROCEDURES */
 void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 {
+	int percent = 0, prob;
+
 	if (AFF_FLAGGED(ch, AFF_STOPFIGHT) || AFF_FLAGGED(ch, AFF_STOPLEFT)
 			|| AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))
 	{
@@ -877,12 +879,8 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	vict = try_protect(vict, ch);
 
-	int percent = number(1, 100);
-	int prob = train_skill(ch, SKILL_BASH, skill_info[SKILL_BASH].max_percent, vict);
-	if (prob > 0)
-	{
-		prob = MIN(95, ch->get_skill(SKILL_BASH));
-	}
+	percent = number(1, skill_info[SKILL_BASH].max_percent + skill_info[SKILL_BASH].max_percent / 20);
+	prob = train_skill(ch, SKILL_BASH, skill_info[SKILL_BASH].max_percent, vict);
 
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
 		prob /= 2;
@@ -918,16 +916,8 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 			return;
 		}
 
-		int dam = str_app[GET_REAL_STR(ch)].todam + GET_REAL_DR(ch)
-				+ MAX(0, ch->get_skill(SKILL_BASH) / 10 - 5)
-				+ GET_LEVEL(ch) / 5
-				+ (GET_EQ(ch, WEAR_SHIELD) ? MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)))) : 0);
-
-		if (ch->get_skill(SKILL_BASH) > 100)
-		{
-			dam += (ch->get_skill(SKILL_BASH) - 100) / 2;
-		}
-
+		int dam = str_app[GET_REAL_STR(ch)].todam + GET_REAL_DR(ch) +
+				  MAX(0, ch->get_skill(SKILL_BASH) / 10 - 5) + GET_LEVEL(ch) / 5;
 //      log("[BASH params] = actor = %s, actorlevel = %d, actordex = %d
 //           target=  %s, targetlevel = %d, targetdex = %d ,skill = %d,
 //           dice = %d, dam = %d", GET_NAME(ch), GET_LEVEL(ch), GET_REAL_DEX(ch),
@@ -987,7 +977,6 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 	set_wait(ch, prob, TRUE);
 }
-
 
 ACMD(do_bash)
 {
@@ -1793,7 +1782,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 		}
 	}
 
-	percent = number(1, skill_info[SKILL_CHOPOFF].max_percent);
+	percent = number(1, skill_info[SKILL_CHOPOFF].max_percent + skill_info[SKILL_CHOPOFF].max_percent / 20);
 	prob = train_skill(ch, SKILL_CHOPOFF, skill_info[SKILL_CHOPOFF].max_percent, vict);
 
 	if (GET_GOD_FLAG(ch, GF_GODSLIKE) || GET_MOB_HOLD(vict) > 0 || GET_GOD_FLAG(vict, GF_GODSCURSE))

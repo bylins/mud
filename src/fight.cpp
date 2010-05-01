@@ -2084,7 +2084,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				prob = MAX(prob, percent);
 			if (IS_IMMORTAL(victim))
 				prob = 0;
-			if (prob * 100 / percent < 100 || dam == 0)
+			if (prob * 100 / percent < 107 || dam == 0)
 			{
 				sprintf(buf, "%sВаш богатырский удар пропал впустую.%s\r\n",
 						CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
