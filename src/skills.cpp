@@ -718,9 +718,9 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	}
 
 	// иммские флаги и прокла влияют на все
-	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
+	if (IS_IMMORTAL(ch))
 		percent = MAX(percent, skill_info[skill_no].max_percent);
-	else if (GET_GOD_FLAG(ch, GF_GODSCURSE) || (vict && GET_GOD_FLAG(vict, GF_GODSLIKE)))
+	else if (GET_GOD_FLAG(ch, GF_GODSCURSE))
 		percent = 0;
 	else if (vict && GET_GOD_FLAG(vict, GF_GODSCURSE))
 		percent = MAX(percent, skill_info[skill_no].max_percent);
