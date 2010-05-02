@@ -3087,6 +3087,97 @@ int dl_parse(load_list ** dl_list, char *line)
 	return TRUE;
 }
 
+namespace {
+
+int test_levels[] = {
+	100,
+	300,
+	600,
+	1000,
+	1500,
+	2100,
+	2900,
+	3900,
+	5100,
+	6500,
+	8100,
+	10100,
+	12500,
+	15300,
+	18500,
+	22500,
+	27300,
+	32900,
+	39300,
+	46500,
+	54500,
+	64100,
+	75300,
+	88100,
+	102500,
+	117500,
+	147500,
+	192500,
+	252500,
+	327500,
+	417500,
+	522500,
+	642500,
+	777500,
+	927500,
+	1127500,
+	1427500,
+	1827500,
+	2327500,
+	2927500,
+	3627500,
+	4427500,
+	5327500,
+	6327500,
+	7427500,
+	8627500,
+	9927500,
+	11327500,
+	12827500,
+	14427500
+};
+
+void set_test_data(CHAR_DATA *mob)
+{
+	if (GET_EXP(mob) > test_levels[49])
+	{
+		log("test1: %s - %d -> %d", mob->get_name(), mob->get_level(), 50);
+		mob->set_level(50);
+	}
+	else
+	{
+		for (int i = 0; i < 50; ++i)
+		{
+			if (test_levels[i] >= GET_EXP(mob))
+			{
+				log("test2: %s - %d -> %d", mob->get_name(), mob->get_level(), i + 1);
+				mob->set_level(i + 1);
+				break;
+			}
+		}
+	}
+
+	if (mob->get_level() > 30)
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			int min_save = (-mob->get_level() + 30) * 2;
+			if (GET_SAVE(mob, i) > min_save)
+			{
+				log("test3: %s - %d -> %d", mob->get_name(), GET_SAVE(mob, i), min_save);
+				GET_SAVE(mob, i) = min_save;
+			}
+		}
+	}
+}
+
+} // namespace
+
 void parse_mobile(FILE * mob_f, int nr)
 {
 	static int i = 0;
@@ -3203,6 +3294,8 @@ void parse_mobile(FILE * mob_f, int nr)
 
 	mob_proto[i].nr = i;
 	mob_proto[i].desc = NULL;
+
+	set_test_data(mob_proto + i);
 
 	top_of_mobt = i++;
 }
