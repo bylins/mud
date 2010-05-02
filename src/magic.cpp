@@ -4793,6 +4793,17 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 
 	level -= decay;
 
+	// у шока после первой цели - рандом на остальные две цели
+	int max_targets = 0;
+	if (SPELL_SHOCK)
+	{
+		max_targets = number(0, 2);
+		if (max_targets == 0)
+		{
+			return 1;
+		}
+	}
+
 	for (i = 0, ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
 	{
 		if (IS_IMMORTAL(ch_vict))
@@ -4807,8 +4818,13 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 	}
 
 	int size = tmp_char_list.size();
+	int count = 0;
 	while (level > 0 && level >= decay && size != 0)
 	{
+		if (max_targets > 0 && count >= max_targets)
+		{
+			break;
+		}
 		i = number(0, size - 1);
 		ch_vict = tmp_char_list[i];
 		tmp_char_list[i] = tmp_char_list[--size];
@@ -4819,10 +4835,10 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 		mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
 		if (ch->purged())
 		{
-			tmp_char_list.clear();
-			return 1;
+			break;
 		}
 		level -= decay;
+		++count;
 	}
 	tmp_char_list.clear();
 
