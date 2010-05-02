@@ -4795,7 +4795,7 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 
 	// у шока после первой цели - рандом на остальные две цели
 	int max_targets = 0;
-	if (SPELL_SHOCK)
+	if (spellnum == SPELL_SHOCK)
 	{
 		max_targets = number(0, 2);
 		if (max_targets == 0)
