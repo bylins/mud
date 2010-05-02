@@ -3142,8 +3142,16 @@ int test_levels[] = {
 	14427500
 };
 
+} // namespace
+
 void set_test_data(CHAR_DATA *mob)
 {
+	if (!mob)
+	{
+		log("SYSERROR: null mob (%s %s %d)", __FILE__, __func__, __LINE__);
+		return;
+	}
+
 	if (GET_EXP(mob) > test_levels[49])
 	{
 		log("test1: %s - %d -> %d", mob->get_name(), mob->get_level(), 50);
@@ -3175,8 +3183,6 @@ void set_test_data(CHAR_DATA *mob)
 		}
 	}
 }
-
-} // namespace
 
 void parse_mobile(FILE * mob_f, int nr)
 {

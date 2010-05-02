@@ -457,4 +457,6 @@ void asciiflag_conv(const char *flag, void *value);
 void load_ignores(CHAR_DATA * ch, char *line);
 void delete_char(const char *name);
 
+void set_test_data(CHAR_DATA *mob);
+
 #endif
