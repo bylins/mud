@@ -1306,6 +1306,7 @@ inline void heartbeat()
 	if (!((pulse + 48) % (60 * 60 * PASSES_PER_SEC)))
 	{
 		MoneyDropStat::print_log();
+		ZoneExpStat::print_log();
 	}
 
 // раз в 10 минут >> ///////////////////////////////////////////////////////////

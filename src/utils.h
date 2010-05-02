@@ -1438,4 +1438,13 @@ void print_log();
 
 } // MoneyDropStat
 
+namespace ZoneExpStat
+{
+
+void add(int zone_vnum, long exp);
+void print_gain(CHAR_DATA *ch);
+void print_log();
+
+} // ZoneExpStat
+
 #endif // _UTILS_H_

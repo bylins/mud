@@ -735,6 +735,7 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 	else
 	{
 		ch->dps_add_exp(gain);
+		ZoneExpStat::add(zone_table[world[IN_ROOM(ch)]->zone].number, gain);
 	}
 
 	if (!IS_NPC(ch) && ((GET_LEVEL(ch) < 1 || GET_LEVEL(ch) >= LVL_IMMORT)))

@@ -3497,8 +3497,9 @@ struct show_struct show_fields[] =
 	{"features", LVL_IMPL},
 	{"glory", LVL_IMPL},
 	{"crc", LVL_IMMORT},
-	{"affectedrooms", LVL_IMMORT},
+	{"affectedrooms", LVL_IMMORT}, /* 20 */
 	{"money", LVL_IMPL},
+	{"expgain", LVL_IMPL},
 	{"\n", 0}
 };
 
@@ -3898,6 +3899,9 @@ ACMD(do_show)
 		break;
 	case 21: // money
 		MoneyDropStat::print(ch);
+		break;
+	case 22: // expgain
+		ZoneExpStat::print_gain(ch);
 		break;
 	default:
 		send_to_char("Извините, неверная команда.\r\n", ch);
