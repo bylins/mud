@@ -396,7 +396,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 
 //  rmob_num = real_mobile(OLC_NUM(d));
 	rmob_num = GET_MOB_RNUM(OLC_MOB(d));
-	set_test_data(OLC_MOB(d));
+//	set_test_data(OLC_MOB(d));
 
 	if (rmob_num >= 0)
 	{
