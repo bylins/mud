@@ -879,7 +879,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	vict = try_protect(vict, ch);
 
-	percent = number(1, skill_info[SKILL_BASH].max_percent + skill_info[SKILL_BASH].max_percent / 20);
+	percent = number(1, skill_info[SKILL_BASH].max_percent);
 	prob = train_skill(ch, SKILL_BASH, skill_info[SKILL_BASH].max_percent, vict);
 
 	if (PRF_FLAGGED(ch, PRF_AWAKE))
@@ -1782,7 +1782,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 		}
 	}
 
-	percent = number(1, skill_info[SKILL_CHOPOFF].max_percent + skill_info[SKILL_CHOPOFF].max_percent / 20);
+	percent = number(1, skill_info[SKILL_CHOPOFF].max_percent);
 	prob = train_skill(ch, SKILL_CHOPOFF, skill_info[SKILL_CHOPOFF].max_percent, vict);
 
 	if (GET_GOD_FLAG(ch, GF_GODSLIKE) || GET_MOB_HOLD(vict) > 0 || GET_GOD_FLAG(vict, GF_GODSCURSE))
