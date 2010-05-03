@@ -3151,6 +3151,10 @@ void set_test_data(CHAR_DATA *mob)
 		log("SYSERROR: null mob (%s %s %d)", __FILE__, __func__, __LINE__);
 		return;
 	}
+	if (GET_EXP(mob) == 0)
+	{
+		return;
+	}
 
 	if (GET_EXP(mob) > test_levels[49])
 	{
