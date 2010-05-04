@@ -3754,13 +3754,13 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 				pfail += 30 + GET_REMORT(ch) * 5;	//есть под заклинанием "обаяние", то фейлов больше
 			}
 			//end Ann
-			if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 9)
+			if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 5)
 				mob_num = MOB_SKELETON;
-			else if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 15)
+			else if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 10)
 				mob_num = MOB_ZOMBIE;
-			else if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 24)
+			else if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 20)
 				mob_num = MOB_BONEDOG;
-			else if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 30)
+			else if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 27)
 				mob_num = MOB_BONEDRAGON;
 			else
 				mob_num = MOB_BONESPIRIT;
