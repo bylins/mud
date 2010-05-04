@@ -3178,7 +3178,7 @@ void set_test_data(CHAR_DATA *mob)
 	{
 		for (int i = 0; i < 4; ++i)
 		{
-			int min_save = (-mob->get_level() + 30) * 2;
+			int min_save = -(10 + 4 * (mob->get_level() - 31));
 			if (GET_SAVE(mob, i) > min_save)
 			{
 				log("test3: %s - %d -> %d", mob->get_name(), GET_SAVE(mob, i), min_save);

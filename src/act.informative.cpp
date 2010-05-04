@@ -2649,13 +2649,16 @@ ACMD(do_score)
 				CCICYN(ch, C_NRM), GET_CHA(ch), GET_REAL_CHA(ch), CCCYN(ch, C_NRM),
 				CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
+		char tmp_buf[10];
+		snprintf(tmp_buf, 10, "%d+%d", - wis_app[GET_REAL_WIS(ch)].char_savings, - GET_SAVE(ch, SAVING_WILL));
+
 		sprintf(buf + strlen(buf),
 				" || %sНа счету: %s%-8ld %s|"
 				" %sЖизнь:     %4d(%4d) %s|"
-				" %sВоля:         %3d %s|----------------||\r\n",
+				" %sВоля:      %6s %s|----------------||\r\n",
 				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), ch->get_bank(), CCCYN(ch, C_NRM),
 				CCICYN(ch, C_NRM), GET_HIT(ch), GET_REAL_MAX_HIT(ch), CCCYN(ch, C_NRM),
-				CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_WILL) - wis_app[GET_REAL_WIS(ch)].char_savings, CCCYN(ch, C_NRM)
+				CCGRN(ch, C_NRM), tmp_buf, CCCYN(ch, C_NRM)
 			   );
 
 		if (!on_horse(ch))
@@ -2710,12 +2713,13 @@ ACMD(do_score)
 			sprintf(buf + strlen(buf), " || %s%-19s%s|",
 					CCNRM(ch, C_NRM), string("Вы сидите верхом.").substr(0, 19).c_str(), CCCYN(ch, C_NRM));
 
+		snprintf(tmp_buf, 10, "%d+%d", - con_app[GET_REAL_CON(ch)].critic_saving, - GET_SAVE(ch, SAVING_CRITICAL));
 		sprintf(buf + strlen(buf),
 				" %sВыносл.:     %3d(%3d) %s|"
-				" %sЗдоровье:     %3d %s|"
+				" %sЗдоровье:  %6s %s|"
 				" %sВосст. жизни:  %s||\r\n",
 				CCICYN(ch, C_NRM), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), CCCYN(ch, C_NRM),
-				CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_CRITICAL) - con_app[GET_REAL_CON(ch)].critic_saving, CCCYN(ch, C_NRM),
+				CCGRN(ch, C_NRM), tmp_buf, CCCYN(ch, C_NRM),
 				CCRED(ch, C_NRM), CCCYN(ch, C_NRM));
 
 		if (GET_COND(ch, FULL) == 0)
@@ -2730,12 +2734,11 @@ ACMD(do_score)
 		else
 			strcat(buf, "                       |");
 
-
+		snprintf(tmp_buf, 10, "%d+%d", - con_app[GET_REAL_CON(ch)].affect_saving, - GET_SAVE(ch, SAVING_STABILITY));
 		sprintf(buf + strlen(buf),
-				" %sСтойкость:    %3d %s|"
+				" %sСтойкость: %6s %s|"
 				" %s          %4d %s||\r\n",
-				CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_STABILITY) - con_app[GET_REAL_CON(ch)].affect_saving,
-				CCCYN(ch, C_NRM),
+				CCGRN(ch, C_NRM), tmp_buf, CCCYN(ch, C_NRM),
 				CCRED(ch, C_NRM), GET_HITREG(ch), CCCYN(ch, C_NRM)
 			   );
 
@@ -2755,11 +2758,11 @@ ACMD(do_score)
 		else
 			strcat(buf, "                       |");
 
-
+		snprintf(tmp_buf, 10, "%d+%d", dex_app[GET_REAL_DEX(ch)].reaction, - GET_SAVE(ch, SAVING_REFLEX));
 		sprintf(buf + strlen(buf),
-				" %sРеакция:      %3d %s|"
+				" %sРеакция:   %6s %s|"
 				" %sВосст. сил:    %s||\r\n",
-				CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_REFLEX) + dex_app[GET_REAL_DEX(ch)].reaction, CCCYN(ch, C_NRM),
+				CCGRN(ch, C_NRM), tmp_buf, CCCYN(ch, C_NRM),
 				CCRED(ch, C_NRM), CCCYN(ch, C_NRM)
 			   );
 

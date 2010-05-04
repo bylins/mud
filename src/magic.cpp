@@ -646,6 +646,11 @@ int calc_anti_savings(CHAR_DATA * ch)
 
 int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply)
 {
+	if (- GET_SAVE(victim, type) / 10 > number(1, 100))
+	{
+		return 1;
+	}
+
 	/* NPCs use warrior tables according to some book */
 	int save;
 	int class_sav = GET_CLASS(victim);
