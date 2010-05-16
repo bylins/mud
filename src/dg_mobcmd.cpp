@@ -796,6 +796,8 @@ ACMD(do_mforce)
 		DESCRIPTOR_DATA *i;
 		CHAR_DATA *vch;
 
+		// не знаю почему здесь идут только по плеерам, но раз так,
+		// то LVL_IMMORT+ для мобов здесь исключать пока нет смысла
 		for (i = descriptor_list; i; i = i->next)
 		{
 			if ((i->character != ch) && !i->connected && (IN_ROOM(i->character) == IN_ROOM(ch)))
@@ -830,7 +832,7 @@ ACMD(do_mforce)
 			mob_log(ch, "mforce: forcing self");
 			return;
 		}
-		if (GET_LEVEL(victim) < LVL_IMMORT)
+		if (IS_NPC(victim) || GET_LEVEL(victim) < LVL_IMMORT)
 			command_interpreter(victim, argument);
 	}
 }

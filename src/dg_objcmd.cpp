@@ -172,7 +172,7 @@ OCMD(do_oforce)
 			for (ch = world[room]->people; ch; ch = next_ch)
 			{
 				next_ch = ch->next_in_room;
-				if (GET_LEVEL(ch) < LVL_IMMORT)
+				if (IS_NPC(ch) || GET_LEVEL(ch) < LVL_IMMORT)
 				{
 					command_interpreter(ch, line);
 				}
@@ -183,7 +183,7 @@ OCMD(do_oforce)
 	{
 		if ((ch = get_char_by_obj(obj, arg1)))
 		{
-			if (GET_LEVEL(ch) < LVL_IMMORT)
+			if (IS_NPC(ch) || GET_LEVEL(ch) < LVL_IMMORT)
 			{
 				command_interpreter(ch, line);
 			}

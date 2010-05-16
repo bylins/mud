@@ -419,7 +419,7 @@ WCMD(do_wforce)
 		for (ch = room->people; ch; ch = next_ch)
 		{
 			next_ch = ch->next_in_room;
-			if (GET_LEVEL(ch) < LVL_IMMORT)
+			if (IS_NPC(ch) || GET_LEVEL(ch) < LVL_IMMORT)
 			{
 				command_interpreter(ch, line);
 			}
@@ -429,7 +429,7 @@ WCMD(do_wforce)
 	{
 		if ((ch = get_char_by_room(room, arg1)))
 		{
-			if (GET_LEVEL(ch) < LVL_IMMORT)
+			if (IS_NPC(ch) || GET_LEVEL(ch) < LVL_IMMORT)
 			{
 				command_interpreter(ch, line);
 			}
