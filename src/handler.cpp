@@ -237,7 +237,7 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 	//   {sprintf(buf,"%d %d %d (%d)\r\n",world[IN_ROOM(ch)]->light,world[IN_ROOM(ch)]->glight,world[IN_ROOM(ch)]->gdark,koef);
 	//    send_to_char(buf,ch);
 	//   }
-	//Polud светить должно не только то что одето для освещения, а любой источник света
+	//Polud светить должно не только то что надето для освещения, а любой источник света
 	light_equip = is_wear_light(ch);
 	//-Polud
 	// In equipment
@@ -2077,7 +2077,7 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 //	if (GET_EQ(ch, WEAR_LIGHT) &&
 //	    GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))
 //		was_lamp = TRUE;
-	//Polud светить должно не только то что одето для освещения, а любой источник света
+	//Polud светить должно не только то что надето для освещения, а любой источник света
 	was_lamp = is_wear_light(ch);
 	//-Polud
 

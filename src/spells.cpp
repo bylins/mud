@@ -824,7 +824,7 @@ ASPELL(spell_locate_object)
 			if ((IS_NPC(i->worn_by) && !OBJ_FLAGGED(i, ITEM_NOLOCATE)
 					&& world[IN_ROOM(i->worn_by)]->zone == world[IN_ROOM(ch)]->zone)
 					|| (!IS_NPC(i->worn_by) && GET_LEVEL(i->worn_by) < LVL_IMMORT))
-				sprintf(buf, "%s одет%s на %s.\r\n", i->short_description,
+				sprintf(buf, "%s надет%s на %s.\r\n", i->short_description,
 						GET_OBJ_SUF_6(i), PERS(i->worn_by, ch, 3));
 			else
 				continue;

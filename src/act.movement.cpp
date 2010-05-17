@@ -940,7 +940,9 @@ int perform_move(CHAR_DATA * ch, int dir, int need_specials_check, int checkmob,
 					{
 						if (IS_NPC(k->follower) &&
 								IS_NPC(k->follower->master) &&
-								GET_POS(k->follower) > POS_SLEEPING)
+								GET_POS(k->follower) > POS_SLEEPING
+								&& !GET_WAIT(k->follower)
+							)
 						{
 							act("$n поднял$u.", FALSE, k->follower, 0, 0, TO_ROOM);
 							GET_POS(k->follower) = POS_STANDING;

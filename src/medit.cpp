@@ -1594,34 +1594,42 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			medit_disp_sex(d);
 			return;
 		case '2':
+			send_to_char("Введите синонимы : ", d->character);
 			OLC_MODE(d) = MEDIT_ALIAS;
 			i--;
 			break;
 		case '3':
+			send_to_char("Именительный падеж [это КТО]: ", d->character);
 			OLC_MODE(d) = MEDIT_PAD0;
 			i--;
 			break;
 		case '4':
+			send_to_char("Родительный падеж [нет КОГО] : ", d->character);
 			OLC_MODE(d) = MEDIT_PAD1;
 			i--;
 			break;
 		case '5':
+			send_to_char("Дательный падеж [дать КОМУ] : ", d->character);
 			OLC_MODE(d) = MEDIT_PAD2;
 			i--;
 			break;
 		case '6':
+			send_to_char("Винительный падеж [ударить КОГО] : ", d->character);
 			OLC_MODE(d) = MEDIT_PAD3;
 			i--;
 			break;
 		case '7':
+			send_to_char("Творительный падеж [следовать за КЕМ] : ", d->character);
 			OLC_MODE(d) = MEDIT_PAD4;
 			i--;
 			break;
 		case '8':
+			send_to_char("Предложный падеж [говорить о КОМ] : ", d->character);
 			OLC_MODE(d) = MEDIT_PAD5;
 			i--;
 			break;
 		case '9':
+			send_to_char("Введите длинное описание :-\r\n| ", d->character);
 			OLC_MODE(d) = MEDIT_L_DESC;
 			i--;
 			break;

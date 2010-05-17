@@ -1266,7 +1266,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j)
 		strcat(buf, CCNRM(ch, C_NRM));
 		send_to_char(strcat(buf, "\r\n"), ch);
 	}
-	send_to_char("Может быть одет : ", ch);
+	send_to_char("Может быть надет : ", ch);
 	sprintbit(j->obj_flags.wear_flags, wear_bits, buf);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
@@ -1312,7 +1312,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j)
 	strcat(buf, (j->in_obj && is_grgod) ? j->in_obj->short_description : "Нет");
 	strcat(buf, ", В инвентаре: ");
 	strcat(buf, (j->carried_by && is_grgod) ? GET_NAME(j->carried_by) : "Нет");
-	strcat(buf, ", Одет: ");
+	strcat(buf, ", Надет: ");
 	strcat(buf, (j->worn_by && is_grgod) ? GET_NAME(j->worn_by) : "Нет");
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
@@ -1760,7 +1760,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	for (i = 0, i2 = 0; i < NUM_WEARS; i++)
 		if (GET_EQ(k, i))
 			i2++;
-	sprintf(buf2, "(одето): %d\r\n", i2);
+	sprintf(buf2, "(надето): %d\r\n", i2);
 	strcat(buf, buf2);
 	send_to_char(buf, ch);
 

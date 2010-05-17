@@ -776,7 +776,7 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 	if (found)
 	{
 		send_to_char("\r\n", ch);
-		act("$n одет$a :", FALSE, i, 0, ch, TO_VICT);
+		act("$n надет$a :", FALSE, i, 0, ch, TO_VICT);
 		for (j = 0; j < NUM_WEARS; j++)
 			if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j)))
 			{
@@ -4750,7 +4750,7 @@ void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur)
 	}
 	else if (obj->worn_by)
 	{
-		sprintf(buf + strlen(buf), "одет на %s\r\n", PERS(obj->worn_by, ch, 1));
+		sprintf(buf + strlen(buf), "надет на %s\r\n", PERS(obj->worn_by, ch, 1));
 		send_to_char(buf, ch);
 	}
 	else if (obj->in_obj)

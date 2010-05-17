@@ -1486,7 +1486,7 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 	/* first, make sure that the wear position is valid. */
 	if (!CAN_WEAR(obj, wear_bitvectors[where]))
 	{
-		act("Вы не можете одеть $o3 на эту часть тела.", FALSE, ch, obj, 0, TO_CHAR);
+		act("Вы не можете надеть $o3 на эту часть тела.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
 	/* for neck, finger, and wrist, try pos 2 if pos 1 is already full */
@@ -1680,19 +1680,19 @@ ACMD(do_wear)
 
 	two_arguments(argument, arg1, arg2);
 
-	if (IS_NPC(ch) && (!NPC_FLAGGED(ch, NPC_ARMORING) || MOB_FLAGGED(ch, MOB_RESURRECTED)))
+	if (IS_NPC(ch) && (AFF_FLAGGED(ch, AFF_CHARM) && (!NPC_FLAGGED(ch, NPC_ARMORING) || MOB_FLAGGED(ch, MOB_RESURRECTED))))
 		return;
 
 	if (!*arg1)
 	{
-		send_to_char("Что Вы собрались одеть ?\r\n", ch);
+		send_to_char("Что Вы собрались надеть ?\r\n", ch);
 		return;
 	}
 	dotmode = find_all_dots(arg1);
 
 	if (*arg2 && (dotmode != FIND_INDIV))
 	{
-		send_to_char("И на какую часть тела Вы желаете это одеть !\r\n", ch);
+		send_to_char("И на какую часть тела Вы желаете это надеть ?!\r\n", ch);
 		return;
 	}
 	if (dotmode == FIND_ALL)
@@ -1708,7 +1708,7 @@ ACMD(do_wear)
 			}
 		}
 		if (!items_worn)
-			send_to_char("Увы, но одеть Вам нечего.\r\n", ch);
+			send_to_char("Увы, но надеть Вам нечего.\r\n", ch);
 	}
 	else if (dotmode == FIND_ALLDOT)
 	{
@@ -1729,7 +1729,7 @@ ACMD(do_wear)
 				if ((where = find_eq_pos(ch, obj, 0)) >= 0)
 					perform_wear(ch, obj, where);
 				else
-					act("Вы не можете одеть $o3.", FALSE, ch, obj, 0, TO_CHAR);
+					act("Вы не можете надеть $o3.", FALSE, ch, obj, 0, TO_CHAR);
 				obj = next_obj;
 			}
 	}
@@ -1745,7 +1745,7 @@ ACMD(do_wear)
 			if ((where = find_eq_pos(ch, obj, arg2)) >= 0)
 				perform_wear(ch, obj, where);
 			else if (!*arg2)
-				act("Вы не можете одеть $o3.", FALSE, ch, obj, 0, TO_CHAR);
+				act("Вы не можете надеть $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		}
 	}
 }
@@ -1755,7 +1755,7 @@ ACMD(do_wield)
 	OBJ_DATA *obj;
 	int wear;
 
-	if (IS_NPC(ch) && (!NPC_FLAGGED(ch, NPC_WIELDING) || MOB_FLAGGED(ch, MOB_RESURRECTED)))
+	if (IS_NPC(ch) && (AFF_FLAGGED(ch, AFF_CHARM)&&(!NPC_FLAGGED(ch, NPC_WIELDING) || MOB_FLAGGED(ch, MOB_RESURRECTED))))
 		return;
 
 	argument = one_argument(argument, arg);
@@ -1928,7 +1928,7 @@ ACMD(do_remove)
 				found = 1;
 			}
 		if (!found)
-			send_to_char("На Вас не одето предметов этого типа.\r\n", ch);
+			send_to_char("На Вас не надето предметов этого типа.\r\n", ch);
 	}
 	else if (dotmode == FIND_ALLDOT)
 	{
