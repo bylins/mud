@@ -525,10 +525,13 @@ void init_game(ush_int port)
 
 	SaveGlobalUID();
 	exchange_database_save();	//exchange database save
+
 	Clan::ChestUpdate();
 	Clan::ChestSave();
 	Clan::ClanSave();
 	save_clan_exp();
+	ClanSystem::save_ingr_chests();
+
 	TitleSystem::save_title_list();
 	RegisterSystem::save();
 	Glory::save_glory();
@@ -1317,6 +1320,11 @@ inline void heartbeat()
 	// сами по себе работают намного дольше 1го пульса
 	// здесь важно то, что они не перекрываются друг другом в момент тика
 
+	// сохранение клан-хранов
+	if (!((pulse + 48) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
+	{
+		ClanSystem::save_ingr_chests();
+	}
 	// убитые мобы для глобал-дропа
 	if (!((pulse + 47) % (60 * GlobalDrop::SAVE_PERIOD * PASSES_PER_SEC)))
 	{

@@ -87,21 +87,34 @@ ACMD(do_upgrade);
 int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 {
 	if (!drop_otrigger(obj, ch))
+	{
 		return 2;
-
+	}
 	// если кладем в клановый сундук
 	if (Clan::is_clan_chest(cont))
 	{
 		if (!Clan::PutChest(ch, obj, cont))
+		{
 			return 1;
+		}
 		return 0;
 	}
-
+	// клан-хранилище под ингры
+	if (ClanSystem::is_ingr_chest(cont))
+	{
+		if (!Clan::put_ingr_chest(ch, obj, cont))
+		{
+			return 1;
+		}
+		return 0;
+	}
 	// персональный сундук
 	if (Depot::is_depot(cont))
 	{
 		if (!Depot::put_depot(ch, obj))
+		{
 			return 1;
+		}
 		return 0;
 	}
 
@@ -528,7 +541,18 @@ bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont,
 		if (Clan::is_clan_chest(cont))
 		{
 			if (!Clan::TakeChest(ch, obj, cont))
+			{
 				return 0;
+			}
+			return 1;
+		}
+		// клан-хранилище ингров
+		if (ClanSystem::is_ingr_chest(cont))
+		{
+			if (!Clan::take_ingr_chest(ch, obj, cont))
+			{
+				return 0;
+			}
 			return 1;
 		}
 		obj_from_obj(obj);

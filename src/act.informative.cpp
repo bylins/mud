@@ -366,7 +366,7 @@ std::string space_before_string(char const *text)
 	return "";
 }
 
-// mode 1 show_state 3 для хранилище, я хз вешать туда таймер в вывод или нет, пока ничего нету
+// mode 1 show_state 3 для хранилище (4 - хранилище ингров)
 const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how)
 {
 	*buf = '\0';
@@ -399,7 +399,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 			strcpy(buf, "Это емкость для жидкости.");
 	}
 
-	if (show_state && show_state != 3)
+	if (show_state && show_state != 3 && show_state != 4)
 	{
 		*buf2 = '\0';
 		if (mode == 1 && how <= 1)
@@ -476,13 +476,26 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		if (IS_OBJ_STAT(object, ITEM_FIRE))
 			strcat(buf, " ..горит !");
 	}
-	// клан-сундук, выводим список разом постранично
-	if (show_state == 3 && mode == 1)
+
+	if (mode == 1)
 	{
-		sprintf(buf + strlen(buf), " [%d %s]\r\n", GET_OBJ_RENTEQ(object) * CLAN_STOREHOUSE_COEFF / 100,
-				desc_count(GET_OBJ_RENTEQ(object) * CLAN_STOREHOUSE_COEFF / 100, WHAT_MONEYa));
-		return buf;
+		// клан-сундук, выводим список разом постранично
+		if (show_state == 3)
+		{
+			sprintf(buf + strlen(buf), " [%d %s]\r\n",
+					GET_OBJ_RENTEQ(object) * CLAN_STOREHOUSE_COEFF / 100,
+					desc_count(GET_OBJ_RENTEQ(object) * CLAN_STOREHOUSE_COEFF / 100, WHAT_MONEYa));
+			return buf;
+		}
+		// ингры
+		else if (show_state == 4)
+		{
+			sprintf(buf + strlen(buf), " [%d %s]\r\n", GET_OBJ_RENT(object),
+					desc_count(GET_OBJ_RENT(object), WHAT_MONEYa));
+			return buf;
+		}
 	}
+
 	strcat(buf, "\r\n");
 	if (mode >= 5)
 	{
@@ -503,6 +516,12 @@ void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 	std::ostringstream buffer;
 	long count = 0, cost = 0;
 
+	bool clan_chest = false;
+	if (mode == 1 && (show == 3 || show == 4))
+	{
+		clan_chest = true;
+	}
+
 	for (i = list; i; i = i->next_content)
 	{
 		if (CAN_SEE_OBJ(ch, i))
@@ -514,8 +533,7 @@ void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 			}
 			else if (!equal_obj(i, push))
 			{
-				// если смотрим клан-сундук
-				if (show == 3 && mode == 1)
+				if (clan_chest)
 				{
 					buffer << show_obj_to_char(push, ch, mode, show, push_count);
 					count += push_count;
@@ -533,8 +551,7 @@ void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 	}
 	if (push && push_count)
 	{
-		// если смотрим клан-сундук
-		if (show == 3 && mode == 1)
+		if (clan_chest)
 		{
 			buffer << show_obj_to_char(push, ch, mode, show, push_count);
 			count += push_count;
@@ -555,7 +572,7 @@ void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 			return;
 		}
 	}
-	if (show == 3 && mode == 1)
+	if (clan_chest)
 		page_string(ch->desc, buffer.str(), TRUE);
 }
 
@@ -1812,8 +1829,13 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 	else
 	{
 		if (Clan::ChestShow(obj, ch))
+		{
 			return;
-
+		}
+		if (ClanSystem::show_ingr_chest(obj, ch))
+		{
+			return;
+		}
 		if (Depot::is_depot(obj))
 		{
 			Depot::show_depot(ch);
@@ -2035,8 +2057,13 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 	{
 
 		if (Clan::ChestShow(found_obj, ch))
+		{
 			return 1;
-
+		}
+		if (ClanSystem::show_ingr_chest(found_obj, ch))
+		{
+			return 1;
+		}
 		if (Depot::is_depot(found_obj))
 		{
 			Depot::show_depot(ch);

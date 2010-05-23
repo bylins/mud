@@ -44,12 +44,6 @@ const unsigned CLAN_PRIVILEGES_NUM = 13;
 #define HCE_ATRIUM 0
 #define	HCE_PORTAL 1
 
-#define CLAN_MAIN_MENU      0
-#define CLAN_PRIVILEGE_MENU 1
-#define CLAN_SAVE_MENU      2
-#define CLAN_ADDALL_MENU    3
-#define CLAN_DELALL_MENU    4
-
 // период снятия за ренту (минут)
 #define CHEST_UPDATE_PERIOD 10
 // период оповещения о скорой кончине денег (минут)
@@ -171,6 +165,9 @@ public:
 	static void clan_invoice(CHAR_DATA *ch, bool enter);
 	static void save_pk_log();
 
+	static bool put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest);
+	static bool take_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest);
+
 	void Manage(DESCRIPTOR_DATA * d, const char * arg);
 	void AddTopExp(CHAR_DATA * ch, int add_exp);
 
@@ -207,6 +204,17 @@ public:
 	void write_mod(const std::string &arg);
 	void print_mod(CHAR_DATA *ch) const;
 	void load_mod();
+
+	void init_ingr_chest();
+	int get_ingr_chest_room_rnum() const { return ingr_chest_room_rnum_; };
+	int ingr_chest_tax();
+	void purge_ingr_chest();
+	int get_ingr_chest_objcount() const { return ingr_chest_objcount_; };
+	bool ingr_chest_active() const;
+	void set_ingr_chest(CHAR_DATA *ch);
+	void disable_ingr_chest(CHAR_DATA *ch);
+
+	int calculate_clan_tax() const;
 
 	friend ACMD(DoHouse);
 	friend ACMD(DoClanChannel);
@@ -255,6 +263,8 @@ private:
 	bool exp_info;      // показывать или нет набранную экспу
 	bool test_clan;     // тестовый клан (привет рсп)
 	std::string mod_text; // сообщение дружины
+	// рнум комнаты, где стоит хранилище под ингры (-1 если опция выключена)
+	int ingr_chest_room_rnum_;
 
 	//no save
 	int chest_objcount;
@@ -262,6 +272,7 @@ private:
 	int chest_weight;
 	Remember::RememberListType remember_; // вспомнить клан
 	Remember::RememberListType remember_ally_; // вспомнить союз
+	int ingr_chest_objcount_;
 
 	void ClanUpgrade();
 	void SetPolitics(int victim, int state);
@@ -290,6 +301,8 @@ private:
 	static void hcontrol_title(CHAR_DATA *ch, std::string &text);
 	static void hcontrol_rank(CHAR_DATA *ch, std::string &text);
 	static void hcontrol_exphistory(CHAR_DATA *ch, std::string &text);
+	static void hcontrol_set_ingr_chest(CHAR_DATA *ch, std::string &text);
+
 	static void ChestLoad();
 	int ChestTax();
 	int ChestMaxObjects()
@@ -311,5 +324,14 @@ private:
 
 void SetChestMode(CHAR_DATA *ch, std::string &buffer);
 std::string GetChestMode(CHAR_DATA *ch);
+
+namespace ClanSystem
+{
+
+bool is_ingr_chest(OBJ_DATA *obj);
+void save_ingr_chests();
+bool show_ingr_chest(OBJ_DATA *obj, CHAR_DATA *ch);
+
+} // namespace ClanSystem
 
 #endif

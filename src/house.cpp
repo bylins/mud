@@ -31,6 +31,8 @@
 #include "room.hpp"
 #include "objsave.h"
 
+using namespace ClanSystem;
+
 extern void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern int file_to_string_alloc(const char *name, char **buf);
@@ -63,10 +65,18 @@ long long clan_level_exp [MAX_CLANLEVEL+1] =
 // vnum кланового сундука
 const int CLAN_CHEST_VNUM = 330;
 int CLAN_CHEST_RNUM = -1;
+// vnum кланового сундука
+const int INGR_CHEST_VNUM = 333;
+int INGR_CHEST_RNUM = -1;
+// налог на хранилище ингров (в день)
+const int INGR_CHEST_TAX = 1000;
 // макс. длина сообщения дружины
 const int MAX_MOD_LENGTH = 3 * 80;
 // макс. длина названия ранга в дружине
 const unsigned MAX_RANK_LENGHT = 10;
+
+enum { CLAN_MAIN_MENU = 0, CLAN_PRIVILEGE_MENU, CLAN_SAVE_MENU,
+		CLAN_ADDALL_MENU, CLAN_DELALL_MENU };
 
 void prepare_write_mod(CHAR_DATA *ch, std::string &param)
 {
@@ -134,7 +144,8 @@ bool Clan::InEnemyZone(CHAR_DATA * ch)
 Clan::Clan()
 		: guard(0), builtOn(time(0)), bankBuffer(0), entranceMode(0), bank(2000), exp(0), clan_exp(0),
 		exp_buf(0), clan_level(0), rent(0), out_rent(0), chest_room(0), storehouse(1), exp_info(1),
-		test_clan(0), chest_objcount(0), chest_discount(0), chest_weight(0)
+		test_clan(0), ingr_chest_room_rnum_(-1),
+		chest_objcount(0), chest_discount(0), chest_weight(0), ingr_chest_objcount_(0)
 {
 
 }
@@ -240,7 +251,7 @@ void Clan::ClanLoad()
 				int chest_room = 0;
 				if (!(file >> chest_room))
 				{
-					log("Error open 'OutRent:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+					log("Error open 'ChestRoom:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
 					break;
 				}
 				// зоны может и не быть
@@ -250,6 +261,30 @@ void Clan::ClanLoad()
 					break;
 				}
 				tempClan->chest_room = chest_room;
+			}
+			else if (buffer == "IngrChestRoom:")
+			{
+				int tmp_vnum = 0;
+				if (!(file >> tmp_vnum))
+				{
+					log("Error read 'IngrChestRoom:' in %s! (%s %s %d)",
+							filename.c_str(), __FILE__, __func__, __LINE__);
+					break;
+				}
+				if (tmp_vnum != 0)
+				{
+					// зоны может и не быть
+					int ingr_chest_room_rnum = real_room(tmp_vnum);
+					if (ingr_chest_room_rnum > 0)
+					{
+						tempClan->ingr_chest_room_rnum_ = ingr_chest_room_rnum;
+					}
+					else
+					{
+						log("Room %d is no longer exist (%s).",
+								tmp_vnum, filename.c_str());
+					}
+				}
 			}
 			else if (buffer == "Guard:")
 			{
@@ -568,6 +603,7 @@ void Clan::ClanLoad()
 		tempClan->pk_log.load(tempClan->get_file_abbrev());
 		tempClan->last_exp.load(tempClan->get_file_abbrev());
 		tempClan->exp_history.load(tempClan->get_file_abbrev());
+		tempClan->init_ingr_chest();
 
 		Clan::ClanList.push_back(tempClan);
 	}
@@ -577,6 +613,7 @@ void Clan::ClanLoad()
 	Clan::ChestSave();
 	Clan::ClanSave();
 	Board::ClanInit();
+	save_ingr_chests();
 
 	// на случай релоада кланов для выставления изменений игрокам онлайн
 	// лдшникам воткнется в другом месте, можно и тут чар-лист прогнать, варианты одинаково корявые
@@ -590,19 +627,28 @@ void Clan::ClanLoad()
 void Clan::HconShow(CHAR_DATA * ch)
 {
 	std::ostringstream buffer;
-	buffer << "Abbrev|  Rent|OutRent| Chest|  Guard|CreateDate|      StoredExp|      Bank|Items|DayTax|Lvl|Test\r\n";
-	boost::format show("%6d|%6d|%7d|%6d|%7d|%10s|%15d|%10d|%5d|%6d|%3s|%4s\r\n");
+	buffer << "Abbrev|  Rent|OutRent| Chest|iChest|  Guard|CreateDate|      StoredExp|      Bank|Items| Ing |DayTax|Lvl|Test\r\n";
+	boost::format show("%6d|%6d|%7d|%6d|%6d|%7d|%10s|%15d|%10d|%5d|%5d|%6d|%3s|%4s\r\n");
+
+	int total_day_tax = 0;
+
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
 	{
 		char timeBuf[17];
 		strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y", localtime(&(*clan)->builtOn));
 
-		int cost = (*clan)->ChestTax();
-		cost += CLAN_TAX + ((*clan)->storehouse * CLAN_STOREHOUSE_TAX);
+		int cost = (*clan)->ChestTax() + (*clan)->ingr_chest_tax();
+		cost += (*clan)->calculate_clan_tax();
+		total_day_tax += cost;
 
-		buffer << show % (*clan)->abbrev % (*clan)->rent % (*clan)->out_rent % (*clan)->chest_room % (*clan)->guard % timeBuf
-		% (*clan)->clan_exp % (*clan)->bank % (*clan)->chest_objcount % cost % (*clan)->clan_level % ((*clan)->test_clan ? "y" : "n");
+		buffer << show % (*clan)->abbrev % (*clan)->rent % (*clan)->out_rent % (*clan)->chest_room
+				% GET_ROOM_VNUM((*clan)->get_ingr_chest_room_rnum()) % (*clan)->guard % timeBuf
+				% (*clan)->clan_exp % (*clan)->bank % (*clan)->chest_objcount
+				% (*clan)->ingr_chest_objcount_ % cost % (*clan)->clan_level
+				% ((*clan)->test_clan ? "y" : "n");
 	}
+
+	buffer << "Total day tax: " << total_day_tax << "\r\n";
 	send_to_char(ch, buffer.str().c_str());
 }
 
@@ -648,6 +694,7 @@ void Clan::ClanSave()
 		<< "Rent: " << (*clan)->rent << "\n"
 		<< "OutRent: " << (*clan)->out_rent << "\n"
 		<< "ChestRoom: " << (*clan)->chest_room << "\n"
+		<< "IngrChestRoom: " << GET_ROOM_VNUM((*clan)->get_ingr_chest_room_rnum()) << "\n"
 		<< "Guard: " << (*clan)->guard << "\n"
 		<< "BuiltOn: " << (*clan)->builtOn << "\n"
 		<< "EntranceMode: " << (*clan)->entranceMode << "\n"
@@ -985,14 +1032,34 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 
 	// инфа о банке и хранилище
 	int cost = ChestTax();
-	buffer << "В хранилище Вашей дружины " << this->chest_objcount << " " << desc_count(this->chest_objcount, WHAT_OBJECT)  << " общим весом в " << this->chest_weight << " (" << cost << " " << desc_count(cost, WHAT_MONEYa) << " в день).\r\n"
-	<< "Состояние казны: " << this->bank << " " << desc_count(this->bank, WHAT_MONEYa) << ".\r\n"
-	<< "Налог составляет " << CLAN_TAX + (this->storehouse * CLAN_STOREHOUSE_TAX) << " " << desc_count(CLAN_TAX + (this->storehouse * CLAN_STOREHOUSE_TAX), WHAT_MONEYa) << " в день.\r\n";
-	cost += CLAN_TAX + (this->storehouse * CLAN_STOREHOUSE_TAX);
-	if (!cost)
+	int ingr_cost = ingr_chest_tax();
+	int options_tax = calculate_clan_tax();
+	int total_tax = cost + ingr_cost + options_tax;
+
+	buffer << "В хранилище Вашей дружины " << this->chest_objcount << " "
+		<< desc_count(this->chest_objcount, WHAT_OBJECT)
+		<< " общим весом в " << this->chest_weight
+		<< " (" << cost << " " << desc_count(cost, WHAT_MONEYa) << " в день).\r\n"
+		<< "В хранилище ингредиентов " << ingr_chest_objcount_ << " "
+		<< desc_count(ingr_chest_objcount_, WHAT_OBJECT)
+		<< " (" << ingr_cost << " " << desc_count(ingr_cost, WHAT_MONEYa) << " в день).\r\n"
+		<< "Состояние казны: " << this->bank << " "
+		<< desc_count(this->bank, WHAT_MONEYa) << ".\r\n"
+		<< "Налог: " << options_tax << " "
+		<< desc_count(options_tax, WHAT_MONEYa)
+		<< " в день, Общие расходы: " << total_tax << " "
+		<< desc_count(total_tax, WHAT_MONEYa) << " в день.\r\n";
+
+	if (total_tax <= 0)
+	{
 		buffer << "Ваших денег хватит на нереальное количество дней.\r\n";
+	}
 	else
-		buffer << "Ваших денег хватит примерно на " << this->bank / cost << " " << desc_count(this->bank / cost, WHAT_DAY) << ".\r\n";
+	{
+		buffer << "Ваших денег хватит примерно на "
+			<< bank/total_tax << " "
+			<< desc_count(bank/total_tax, WHAT_DAY) << ".\r\n";
+	}
 	send_to_char(buffer.str(), ch);
 }
 
@@ -1882,6 +1949,94 @@ void Clan::hcontrol_exphistory(CHAR_DATA *ch, std::string &text)
 	}
 }
 
+void Clan::hcontrol_set_ingr_chest(CHAR_DATA *ch, std::string &text)
+{
+	if (!PRF_FLAGGED(ch, PRF_CODERINFO))
+	{
+		send_to_char(HCONTROL_FORMAT, ch);
+		return;
+	}
+
+	// <клан> <комната> - buffer2, text
+	std::string buffer2;
+	GetOneParam(text, buffer2);
+	boost::trim(text);
+
+	int clan_vnum = 0, room_vnum = 0;
+	if (!text.empty())
+	{
+		try
+		{
+			clan_vnum = boost::lexical_cast<int>(buffer2);
+			room_vnum = boost::lexical_cast<int>(text);
+		}
+		catch (boost::bad_lexical_cast &)
+		{
+			send_to_char(ch, "Неверный формат (\"hcontrol ingr <клан-рента> <комната хранилища>\").");
+			return;
+		}
+	}
+
+	int room_rnum = real_room(room_vnum);
+	if (room_rnum <= 0)
+	{
+		send_to_char(ch, "Комнаты %d не существует.", room_vnum);
+		return;
+	}
+
+	ClanListType::const_iterator i = Clan::ClanList.begin(), iend = Clan::ClanList.end();
+	for (/**/; i != iend; ++i)
+	{
+		if ((*i)->GetRent() == clan_vnum)
+		{
+			break;
+		}
+	}
+	if (i == iend)
+	{
+		send_to_char(ch, "Клана %d не существует.", clan_vnum);
+		return;
+	}
+	if ((*i)->GetRent()/100 != room_vnum/100)
+	{
+		send_to_char(ch, "Комната %d находится вне зоны замка %d.", room_vnum, (*i)->GetRent());
+		return;
+	}
+
+	bool chest_moved = false;
+	// хран под ингры уже был
+	if ((*i)->ingr_chest_active())
+	{
+		for (OBJ_DATA *chest = world[(*i)->get_ingr_chest_room_rnum()]->contents; chest; chest = chest->next_content)
+		{
+			if (is_ingr_chest(chest))
+			{
+				obj_from_room(chest);
+				obj_to_room(chest, room_rnum);
+				chest_moved = true;
+				break;
+			}
+		}
+	}
+
+	(*i)->ingr_chest_room_rnum_ = room_rnum;
+	Clan::ClanSave();
+
+	if (!chest_moved)
+	{
+		OBJ_DATA *chest = read_object(INGR_CHEST_VNUM, VIRTUAL);
+		if (chest)
+		{
+			obj_to_room(chest, (*i)->get_ingr_chest_room_rnum());
+		}
+		send_to_char("Хранилище установлено.\r\n", ch);
+	}
+	else
+	{
+		send_to_char("Хранилище перенесено.\r\n", ch);
+	}
+}
+
 // божественный hcontrol
 ACMD(DoHcontrol)
 {
@@ -1905,6 +2060,7 @@ ACMD(DoHcontrol)
 		Clan::ChestUpdate();
 		Clan::ChestSave();
 		Clan::save_pk_log();
+		save_ingr_chests();
 	}
 	else if (CompareParam(buffer2, "title") && !buffer.empty())
 	{
@@ -1917,6 +2073,10 @@ ACMD(DoHcontrol)
 	else if (CompareParam(buffer2, "exphistory"))
 	{
 		Clan::hcontrol_exphistory(ch, buffer);
+	}
+	else if (CompareParam(buffer2, "ingr"))
+	{
+		Clan::hcontrol_set_ingr_chest(ch, buffer);
 	}
 	else
 		send_to_char(HCONTROL_FORMAT, ch);
@@ -2075,6 +2235,7 @@ void Clan::HcontrolDestroy(CHAR_DATA * ch, std::string & buffer)
 	Clan::ClanList.erase(clan);
 	Clan::ClanSave();
 	Board::ClanInit();
+
 	// TODO: по идее можно сундук и его содержимое пуржить, но не факт, что это хорошо
 	// уведомляем и чистим инфу игрокам
 	for (ClanMemberList::const_iterator it = members.begin(); it != members.end(); ++it)
@@ -2644,9 +2805,9 @@ void Clan::ChestUpdate()
 
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
 	{
-		cost = (*clan)->ChestTax();
-		// расчет и снимание за ренту (целой части по возможности) сразу снимем налог
-		cost += CLAN_TAX + ((*clan)->storehouse * CLAN_STOREHOUSE_TAX);
+		cost = (*clan)->ChestTax() + (*clan)->ingr_chest_tax();
+		cost += (*clan)->calculate_clan_tax();
+		// расчет и снимание за ренту (целой части по возможности)
 		cost = (cost * CHEST_UPDATE_PERIOD) / (60 * 24);
 
 		(*clan)->bankBuffer += cost;
@@ -2675,6 +2836,8 @@ void Clan::ChestUpdate()
 					break;
 				}
 			}
+			// пуржим ингры, если есть
+			(*clan)->purge_ingr_chest();
 		}
 	}
 }
@@ -2928,6 +3091,25 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 					d->clan_olc->clan->MainMenu(d);
 					return;
 				}
+				else if (i == 4 && !CLAN_MEMBER(d->character)->rank_num)
+				{
+					d->clan_olc->clan->set_ingr_chest(d->character);
+					d->clan_olc->clan->MainMenu(d);
+					return;
+				}
+				else if (i == 5 && !CLAN_MEMBER(d->character)->rank_num)
+				{
+					if (!ingr_chest_active())
+					{
+						send_to_char("Неверный выбор!\r\n", d->character);
+					}
+					else
+					{
+						d->clan_olc->clan->disable_ingr_chest(d->character);
+					}
+					d->clan_olc->clan->MainMenu(d);
+					return;
+				}
 				else
 				{
 					send_to_char("Неверный выбор!\r\n", d->character);
@@ -3001,7 +3183,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 			d->clan_olc->clan->privileges.clear();
 			d->clan_olc->clan->privileges = d->clan_olc->privileges;
 			d->clan_olc.reset();
-			Clan::ClanSave();
+			// Clan::ClanSave();
 			STATE(d) = CON_PLAYING;
 			send_to_char("Изменения сохранены.\r\n", d->character);
 			return;
@@ -3161,6 +3343,32 @@ void Clan::MainMenu(DESCRIPTOR_DATA * d)
 			buffer << "(отключить)\r\n";
 		else
 			buffer << "(включить)\r\n";
+
+		// хранилище ингров (включить/переместить)
+		buffer << CCGRN(d->character, C_NRM) << std::setw(2) << ++num
+			<< CCNRM(d->character, C_NRM) << ") ";
+		if (ingr_chest_active())
+		{
+			buffer << "Переместить в данную комнату хранилище для ингредиентов\r\n";
+		}
+		else
+		{
+			buffer << "Установить в данной комнате хранилище для ингредиентов (1000 кун/день)\r\n";
+		}
+
+		// хранилище ингров (выключить)
+		if (ingr_chest_active())
+		{
+			buffer << CCGRN(d->character, C_NRM) << std::setw(2) << ++num
+				<< CCNRM(d->character, C_NRM) << ") "
+				<< "Отключить хранилище для ингредиентов" << "\r\n";
+		}
+		else
+		{
+			buffer << CCINRM(d->character, C_NRM) << std::setw(2) << ++num
+				<< ") " << "Отключить хранилище для ингредиентов"
+				<< CCNRM(d->character, C_NRM) << "\r\n";
+		}
 	}
 	buffer << CCGRN(d->character, C_NRM) << " В(Q)" << CCNRM(d->character, C_NRM)
 	<< ") Выход\r\n" << "Ваш выбор:";
@@ -3506,7 +3714,7 @@ void Clan::ClanAddMember(CHAR_DATA * ch, int rank)
 		}
 	}
 	send_to_char(ch, "%sВас приписали к дружине '%s', статус - '%s'.%s\r\n", CCWHT(ch, C_NRM), this->name.c_str(), (this->ranks[rank]).c_str(), CCNRM(ch, C_NRM));
-	Clan::ClanSave();
+	// Clan::ClanSave();
 	return;
 }
 
@@ -4273,10 +4481,13 @@ void Clan::ChestInvoice()
 {
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
 	{
-		int cost = (*clan)->ChestTax();
-		cost += CLAN_TAX + ((*clan)->storehouse * CLAN_STOREHOUSE_TAX);
+		int cost = (*clan)->ChestTax() + (*clan)->ingr_chest_tax();
+		cost += (*clan)->calculate_clan_tax();
+
 		if (!cost)
+		{
 			continue; // чем черт не шутит
+		}
 		else
 		{
 			// опаньки
@@ -4308,7 +4519,7 @@ int Clan::ChestTax()
 		}
 	}
 	this->chest_objcount = count;
-	this->chest_discount = MAX(25, 50 - 5 * (this->clan_level));
+	this->chest_discount = MAX(50, 75 - 5 * (this->clan_level));
 	return cost * this->chest_discount / 100;
 }
 
@@ -4613,12 +4824,22 @@ int Clan::GetMemberExpPersent(CHAR_DATA *ch)
 void Clan::init_chest_rnum()
 {
 	CLAN_CHEST_RNUM = real_object(CLAN_CHEST_VNUM);
+	INGR_CHEST_RNUM = real_object(INGR_CHEST_VNUM);
 }
 
 bool Clan::is_clan_chest(OBJ_DATA *obj)
 {
 	if (CLAN_CHEST_RNUM < 0 || obj->item_number != CLAN_CHEST_RNUM)
 		return false;
+	return true;
+}
+
+bool ClanSystem::is_ingr_chest(OBJ_DATA *obj)
+{
+	if (INGR_CHEST_RNUM < 0 || obj->item_number != INGR_CHEST_RNUM)
+	{
+		return false;
+	}
 	return true;
 }
 
@@ -4791,4 +5012,353 @@ void Clan::save_pk_log()
 	{
 		(*i)->pk_log.save((*i)->get_file_abbrev());
 	}
+}
+
+void Clan::init_ingr_chest()
+{
+	if (!ingr_chest_active())
+	{
+		return;
+	}
+
+	// на случай релоада
+	for (OBJ_DATA *chest = world[get_ingr_chest_room_rnum()]->contents; chest; chest = chest->next_content)
+	{
+		if (is_ingr_chest(chest))
+		{
+			OBJ_DATA *obj_next;
+			for (OBJ_DATA *temp = chest->contains; temp; temp = obj_next)
+			{
+				obj_next = temp->next_content;
+				obj_from_obj(temp);
+				extract_obj(temp);
+			}
+			extract_obj(chest);
+			break;
+		}
+	}
+
+	std::string file_abbrev = get_file_abbrev();
+	std::string filename = LIB_HOUSE + file_abbrev + "/" + file_abbrev + ".ing";
+
+	OBJ_DATA *chest = read_object(INGR_CHEST_VNUM, VIRTUAL);
+	if (!chest)
+	{
+		log("<Clan> IngrChest load error '%d'! (%s %s %d)", GetRent(), __FILE__, __func__, __LINE__);
+		return;
+	}
+	//лоадим в комнату сам хран
+	obj_to_room(chest, get_ingr_chest_room_rnum());
+
+	FILE *fl = fopen(filename.c_str(), "r+b");
+	if (!fl)
+	{
+		return;
+	}
+
+	fseek(fl, 0L, SEEK_END);
+	int fsize = ftell(fl);
+	if (!fsize)
+	{
+		fclose(fl);
+		log("<Clan> Empty file '%s'. (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+		return;
+	}
+
+	char *databuf = new char [fsize + 1];
+
+	fseek(fl, 0L, SEEK_SET);
+	if (!fread(databuf, fsize, 1, fl) || ferror(fl) || !databuf)
+	{
+		fclose(fl);
+		log("<Clan> Error reading file '%s'. (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+		return;
+	}
+	fclose(fl);
+
+	char *data = databuf;
+	*(data + fsize) = '\0';
+
+	OBJ_DATA *obj;
+	int error = 0;
+	for (fsize = 0; *data && *data != '$'; fsize++)
+	{
+		if (!(obj = read_one_object_new(&data, &error)))
+		{
+			if (error)
+			{
+				log("<Clan> Items reading fail for %s error %d.", filename.c_str(), error);
+			}
+			continue;
+		}
+		obj_to_obj(obj, chest);
+	}
+	delete [] databuf;
+}
+
+// сохраняем храны ингров всех кланов в файлы
+void ClanSystem::save_ingr_chests()
+{
+	for (ClanListType::const_iterator i = Clan::ClanList.begin(), iend = Clan::ClanList.end(); i != iend; ++i)
+	{
+		if (!(*i)->ingr_chest_active())
+		{
+			continue;
+		}
+
+		std::string file_abbrev = (*i)->get_file_abbrev();
+		std::string filename = LIB_HOUSE + file_abbrev + "/" + file_abbrev + ".ing";
+
+		for (OBJ_DATA *chest = world[(*i)->get_ingr_chest_room_rnum()]->contents; chest; chest = chest->next_content)
+		{
+			if (!is_ingr_chest(chest))
+			{
+				continue;
+			}
+
+			std::stringstream out;
+			out << "* Items file\n";
+			for (OBJ_DATA *temp = chest->contains; temp; temp = temp->next_content)
+			{
+				write_one_object(out, temp, 0);
+			}
+			out << "\n$\n$\n";
+
+			std::ofstream file(filename.c_str());
+			if (!file.is_open())
+			{
+				log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				return;
+			}
+			file << out.rdbuf();
+			file.close();
+			break;
+		}
+	}
+}
+
+bool Clan::put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest)
+{
+	if (IS_NPC(ch) || !CLAN(ch)
+		|| CLAN(ch)->GetRent()/100 != GET_ROOM_VNUM(IN_ROOM(ch))/100)
+	{
+		send_to_char("Не имеете таких правов!\r\n", ch);
+		return 0;
+	}
+
+	if (GET_OBJ_TYPE(obj) != ITEM_INGRADIENT
+			&& GET_OBJ_TYPE(obj) != ITEM_MING
+			&& GET_OBJ_TYPE(obj)!= ITEM_MATERIAL)
+	{
+		send_to_char(ch,
+				"%s - Хранилище ингредиентов не предназначено для предметов данного типа.\r\n",
+				GET_OBJ_PNAME(obj, 0));
+	}
+	else if (IS_OBJ_STAT(obj, ITEM_NODROP)
+		|| OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
+		|| IS_OBJ_STAT(obj, ITEM_NORENT)
+		|| GET_OBJ_RENT(obj) < 0
+		|| GET_OBJ_RNUM(obj) <= NOTHING)
+	{
+		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj, chest, TO_CHAR);
+	}
+	else
+	{
+		if (CLAN(ch)->ingr_chest_objcount_ >= CLAN(ch)->ChestMaxObjects())
+		{
+			act("Вы попытались запихнуть $o3 в $O3, но не смогли - там просто нет места.", FALSE, ch, obj, chest, TO_CHAR);
+			return 0;
+		}
+
+		obj_from_char(obj);
+		obj_to_obj(obj, chest);
+		act("Вы положили $o3 в $O3.", FALSE, ch, obj, chest, TO_CHAR);
+		CLAN(ch)->ingr_chest_objcount_++;
+	}
+	return 1;
+}
+
+bool Clan::take_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest)
+{
+	if (IS_NPC(ch) || !CLAN(ch)
+		|| CLAN(ch)->GetRent()/100 != GET_ROOM_VNUM(IN_ROOM(ch))/100)
+	{
+		send_to_char("Не имеете таких правов!\r\n", ch);
+		return 0;
+	}
+
+	obj_from_obj(obj);
+	obj_to_char(obj, ch);
+	if (obj->carried_by == ch)
+	{
+		act("Вы взяли $o3 из $O1.", FALSE, ch, obj, chest, TO_CHAR);
+		CLAN(ch)->ingr_chest_objcount_--;
+	}
+	return 1;
+}
+
+bool ClanSystem::show_ingr_chest(OBJ_DATA *obj, CHAR_DATA *ch)
+{
+	if (!ch->desc || !is_ingr_chest(obj))
+	{
+		return 0;
+	}
+
+	if (CLAN(ch) && CLAN(ch)->ingr_chest_active() && CLAN(ch)->GetRent()/100 == GET_ROOM_VNUM(IN_ROOM(ch))/100)
+	{
+		send_to_char("Хранилище ингредиентов Вашей дружины:\r\n", ch);
+		int cost = CLAN(ch)->ingr_chest_tax();
+		send_to_char(ch, "Всего вещей: %d, Рента в день: %d %s\r\n\r\n",
+				CLAN(ch)->get_ingr_chest_objcount(), cost, desc_count(cost, WHAT_MONEYa));
+		list_obj_to_char(obj->contains, ch, 1, 4);
+	}
+	else
+	{
+		send_to_char("Не на что тут глазеть, пусто, вот те крест.\r\n", ch);
+	}
+
+	return 1;
+}
+
+/**
+ * Расчет суточной ренты хранилища ингров.
+ */
+int Clan::ingr_chest_tax()
+{
+	if (!ingr_chest_active())
+	{
+		return 0;
+	}
+
+	int cost = 0;
+	int count = 0;
+
+	for (OBJ_DATA *chest = world[get_ingr_chest_room_rnum()]->contents; chest; chest = chest->next_content)
+	{
+		if (is_ingr_chest(chest))
+		{
+			for (OBJ_DATA *temp = chest->contains; temp; temp = temp->next_content)
+			{
+				cost += GET_OBJ_RENT(temp);
+				++count;
+			}
+			break;
+		}
+	}
+
+	ingr_chest_objcount_ = count;
+	return cost;
+}
+
+/**
+ * Очистка хранилища ингров при нулевом клан-банке.
+ */
+void Clan::purge_ingr_chest()
+{
+	if (!ingr_chest_active())
+	{
+		return;
+	}
+	for (OBJ_DATA *chest = world[get_ingr_chest_room_rnum()]->contents; chest; chest = chest->next_content)
+	{
+		if (is_ingr_chest(chest))
+		{
+			OBJ_DATA *obj_next;
+			for (OBJ_DATA *temp = chest->contains; temp; temp = obj_next)
+			{
+				obj_next = temp->next_content;
+				obj_from_obj(temp);
+				extract_obj(temp);
+			}
+			break;
+		}
+	}
+}
+
+int Clan::calculate_clan_tax() const
+{
+	int cost = CLAN_TAX + (storehouse * CLAN_STOREHOUSE_TAX);
+
+	if (ingr_chest_active())
+	{
+		cost += INGR_CHEST_TAX;
+	}
+
+	return cost;
+}
+
+bool Clan::ingr_chest_active() const
+{
+	if (ingr_chest_room_rnum_ > 0)
+	{
+		return true;
+	}
+	return false;
+}
+
+void Clan::set_ingr_chest(CHAR_DATA *ch)
+{
+	if (GetRent()/100 != GET_ROOM_VNUM(IN_ROOM(ch))/100)
+	{
+		send_to_char("Данная комната находится вне зоны Вашего замка.\r\n", ch);
+		return;
+	}
+
+	bool chest_moved = false;
+	// хран под ингры уже был
+	if (ingr_chest_active())
+	{
+		for (OBJ_DATA *chest = world[get_ingr_chest_room_rnum()]->contents; chest; chest = chest->next_content)
+		{
+			if (is_ingr_chest(chest))
+			{
+				obj_from_room(chest);
+				obj_to_room(chest, IN_ROOM(ch));
+				chest_moved = true;
+				break;
+			}
+		}
+	}
+
+	ingr_chest_room_rnum_ = IN_ROOM(ch);
+	// Clan::ClanSave();
+
+	if (!chest_moved)
+	{
+		OBJ_DATA *chest = read_object(INGR_CHEST_VNUM, VIRTUAL);
+		if (chest)
+		{
+			obj_to_room(chest, get_ingr_chest_room_rnum());
+		}
+		send_to_char("Хранилище установлено.\r\n", ch);
+	}
+	else
+	{
+		send_to_char("Хранилище перенесено.\r\n", ch);
+	}
+}
+
+void Clan::disable_ingr_chest(CHAR_DATA *ch)
+{
+	if (!ingr_chest_active())
+	{
+		send_to_char("У Вас и так нет хранилища для ингредиентов.\r\n", ch);
+		return;
+	}
+
+	for (OBJ_DATA *chest = world[get_ingr_chest_room_rnum()]->contents; chest; chest = chest->next_content)
+	{
+		if (is_ingr_chest(chest))
+		{
+			if (chest->contains)
+			{
+				send_to_char("Во избежание недоразумений отключить можно только пустое хранилище.\r\n", ch);
+				return;
+			}
+			extract_obj(chest);
+			break;
+		}
+	}
+	ingr_chest_room_rnum_ = -1;
+	send_to_char("Хранилище отключено.\r\n", ch);
 }
