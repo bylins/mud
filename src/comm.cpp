@@ -537,6 +537,7 @@ void init_game(ush_int port)
 	Glory::save_glory();
 	Glory::save_glory_log();
 	MoneyDropStat::print_log();
+	ZoneExpStat::print_log();
 
 	log("Closing all sockets.");
 	while (descriptor_list)
