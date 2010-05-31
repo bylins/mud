@@ -508,7 +508,37 @@ void Clan::ClanLoad()
 				|| tempClan->title.empty() || tempClan->owner.empty()
 				|| tempClan->rent == 0 || tempClan->guard == 0 || tempClan->out_rent == 0
 				|| tempClan->ranks.empty() || tempClan->privileges.empty())
+		{
+			log("Clan read fail: %s", filename.c_str());
 			continue;
+		}
+
+		// удаление неактивных кланов
+		tempClan->exp_history.load(tempClan->get_file_abbrev());
+		// иним на случай полной неактивности по итогам месяца, чтобы не было пропусков в списке
+		tempClan->exp_history.add_exp(0);
+		if (tempClan->exp_history.need_destroy())
+		{
+			// клан-банк на воеводу
+			if (tempClan->bank > 0)
+			{
+				Player t_victim;
+				Player *victim = &t_victim;
+				if (load_char(tempClan->owner.c_str(), victim) < 0)
+				{
+					log("SYSERROR: error read owner file %s for clan delete (%s:%d)",
+							tempClan->owner.c_str(), __FILE__, __LINE__);
+					return;
+				}
+				victim->add_bank(tempClan->bank);
+				victim->save_char();
+				tempClan->bank = 0;
+				tempClan->save_clan_file(filename);
+			}
+			log("Clan deleted: %s", filename.c_str());
+			continue;
+		}
+
 		// по дефолту жен род для титула берем из основного
 		if (tempClan->title_female.empty())
 		{
@@ -602,7 +632,6 @@ void Clan::ClanLoad()
 		tempClan->load_mod();
 		tempClan->pk_log.load(tempClan->get_file_abbrev());
 		tempClan->last_exp.load(tempClan->get_file_abbrev());
-		tempClan->exp_history.load(tempClan->get_file_abbrev());
 		tempClan->init_ingr_chest();
 
 		Clan::ClanList.push_back(tempClan);
@@ -652,6 +681,75 @@ void Clan::HconShow(CHAR_DATA * ch)
 	send_to_char(ch, buffer.str().c_str());
 }
 
+void Clan::save_clan_file(const std::string &filename) const
+{
+	std::ofstream file(filename.c_str());
+	if (!file.is_open())
+	{
+		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+		return;
+	}
+
+	file << "Abbrev: " << abbrev << "\n"
+		<< "Name: " << name << "\n"
+		<< "Title: " << title << "\n"
+		<< "TitleFemale: " << title_female << "\n"
+		<< "Rent: " << rent << "\n"
+		<< "OutRent: " << out_rent << "\n"
+		<< "ChestRoom: " << chest_room << "\n"
+		<< "IngrChestRoom: " << GET_ROOM_VNUM(get_ingr_chest_room_rnum()) << "\n"
+		<< "Guard: " << guard << "\n"
+		<< "BuiltOn: " << builtOn << "\n"
+		<< "EntranceMode: " << entranceMode << "\n"
+		<< "Storehouse: " << storehouse << "\n"
+		<< "ExpInfo: " << exp_info << "\n"
+		<< "TestClan: " << test_clan << "\n"
+		<< "Exp: " << exp << "\n"
+		<< "ExpBuf: " << exp_buf << "\n"
+		<< "StoredExp: " << clan_exp << "\n"
+		<< "ClanLevel: " << clan_level << "\n"
+		<< "Bank: " << bank << "\n";
+
+	file << "Politics:\n";
+	for (ClanPolitics::const_iterator it = politics.begin(); it != politics.end(); ++it)
+	{
+		file << " " << it->first << " " << it->second << "\n";
+	}
+
+	file << "~\n";
+
+	file << "Ranks:\n";
+	int i = 0;
+	for (std::vector < std::string >::const_iterator it = ranks.begin(); it != ranks.end(); ++it, ++i)
+		file << " " << (*it) << " " << ranks_female[i] << " " << privileges[i].to_ulong() << "\n";
+	file << "~\n";
+
+	file << "Owner: ";
+	for (ClanMemberList::const_iterator it = members.begin(); it != members.end(); ++it)
+	{
+		if (it->second->rank_num == 0)
+		{
+			file << it->first << " " << it->second->money
+				<< " " << it->second->exp << " " << it->second->exp_persent
+				<< " " << it->second->clan_exp << "\n";
+			break;
+		}
+	}
+
+	file << "Members:\n";
+	for (ClanMemberList::const_iterator it = members.begin(); it != members.end(); ++it)
+	{
+		if (it->second->rank_num != 0)
+		{
+			file << " " << it->first << " " << it->second->rank_num << " "
+				<< it->second->money  << " " << it->second->exp << " "
+				<< it->second->exp_persent << " " << it->second->clan_exp << "\n";
+		}
+	}
+	file << "~\n";
+	file.close();
+}
+
 // сохранение кланов в файлы
 void Clan::ClanSave()
 {
@@ -680,53 +778,9 @@ void Clan::ClanSave()
 				return;
 			}
 		}
-		std::ofstream file(filepath.c_str());
-		if (!file.is_open())
-		{
-			log("Error open file: %s! (%s %s %d)", filepath.c_str(), __FILE__, __func__, __LINE__);
-			return;
-		}
-
-		file << "Abbrev: " << (*clan)->abbrev << "\n"
-		<< "Name: " << (*clan)->name << "\n"
-		<< "Title: " << (*clan)->title << "\n"
-		<< "TitleFemale: " << (*clan)->title_female << "\n"
-		<< "Rent: " << (*clan)->rent << "\n"
-		<< "OutRent: " << (*clan)->out_rent << "\n"
-		<< "ChestRoom: " << (*clan)->chest_room << "\n"
-		<< "IngrChestRoom: " << GET_ROOM_VNUM((*clan)->get_ingr_chest_room_rnum()) << "\n"
-		<< "Guard: " << (*clan)->guard << "\n"
-		<< "BuiltOn: " << (*clan)->builtOn << "\n"
-		<< "EntranceMode: " << (*clan)->entranceMode << "\n"
-		<< "Storehouse: " << (*clan)->storehouse << "\n"
-		<< "ExpInfo: " << (*clan)->exp_info << "\n"
-		<< "TestClan: " << (*clan)->test_clan << "\n"
-		<< "Exp: " << (*clan)->exp << "\n"
-		<< "ExpBuf: " << (*clan)->exp_buf << "\n"
-		<< "StoredExp: " << (*clan)->clan_exp << "\n"
-		<< "ClanLevel: " << (*clan)->clan_level << "\n"
-		<< "Bank: " << (*clan)->bank << "\n" << "Politics:\n";
-		for (ClanPolitics::const_iterator it = (*clan)->politics.begin(); it != (*clan)->politics.end(); ++it)
-			file << " " << it->first << " " << it->second << "\n";
-		file << "~\n" << "Ranks:\n";
-		int i = 0;
-
-		for (std::vector < std::string >::const_iterator it = (*clan)->ranks.begin(); it != (*clan)->ranks.end(); ++it, ++i)
-			file << " " << (*it) << " " << (*clan)->ranks_female[i] << " " << (*clan)->privileges[i].to_ulong() << "\n";
-		file << "~\n" << "Owner: ";
-		for (ClanMemberList::const_iterator it = (*clan)->members.begin(); it != (*clan)->members.end(); ++it)
-			if (it->second->rank_num == 0)
-			{
-				file << it->first << " " << it->second->money << " " << it->second->exp << " " << it->second->exp_persent << " " << it->second->clan_exp << "\n";
-				break;
-			}
-		file << "Members:\n";
-		for (ClanMemberList::const_iterator it = (*clan)->members.begin(); it != (*clan)->members.end(); ++it)
-			if (it->second->rank_num != 0)
-				file << " " << it->first << " " << it->second->rank_num << " " << it->second->money  << " " << it->second->exp << " " << it->second->exp_persent << " " << it->second->clan_exp << "\n";
-		file << "~\n";
-		file.close();
-
+		// основной файл клана
+		(*clan)->save_clan_file(filepath);
+		// пкл/дрл
 		std::ofstream pkFile((filepath + ".pkl").c_str());
 		if (!pkFile.is_open())
 		{
@@ -1026,9 +1080,13 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 		buffer << "\r\n";
 	}
 	//инфа о экспе замка левеле замка, рейтинге замка и плюшках
-	buffer << "Ваш замок набрал " << this->clan_exp << " очков опыта и имеет уровень " << this->clan_level << "\r\n";
-	buffer << "Рейтинг вашего замка: " << this->exp << " Это очень круто :), но ничего Вам не дает.\r\n";
-	buffer << "В хранилище замка может хранится до " << this->ChestMaxObjects() << " " << desc_count(this->ChestMaxObjects(), WHAT_OBJECT) << " с общим весом не более чем " << this->ChestMaxWeight() << ".\r\n";
+	buffer << "Ваш замок набрал " << this->clan_exp
+		<< " очков опыта и имеет уровень " << this->clan_level << "\r\n"
+		<< "Рейтинг вашего замка: " << this->exp
+		<< " Это очень круто :), но ничего Вам не дает.\r\n"
+		<< "В хранилище замка может храниться до " << this->ChestMaxObjects()
+		<< " " << desc_count(this->ChestMaxObjects(), WHAT_OBJECT)
+		<< " с общим весом не более чем " << this->ChestMaxWeight() << ".\r\n";
 
 	// инфа о банке и хранилище
 	int cost = ChestTax();
@@ -1042,7 +1100,7 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 		<< " (" << cost << " " << desc_count(cost, WHAT_MONEYa) << " в день).\r\n"
 		<< "В хранилище ингредиентов " << ingr_chest_objcount_ << " "
 		<< desc_count(ingr_chest_objcount_, WHAT_OBJECT)
-		<< " (" << ingr_cost << " " << desc_count(ingr_cost, WHAT_MONEYa) << " в день).\r\n"
+		<< " (" << ingr_cost << " " << desc_count(ingr_cost, WHAT_MONEYa) << " в день).\r\n\r\n"
 		<< "Состояние казны: " << this->bank << " "
 		<< desc_count(this->bank, WHAT_MONEYa) << ".\r\n"
 		<< "Налог: " << options_tax << " "
@@ -1061,6 +1119,7 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 			<< desc_count(bank/total_tax, WHAT_DAY) << ".\r\n";
 	}
 	send_to_char(buffer.str(), ch);
+	exp_history.show(ch);
 }
 
 // клан принять, повлиять можно только на соклановцев ниже рангом
@@ -2061,6 +2120,7 @@ ACMD(DoHcontrol)
 		Clan::ChestSave();
 		Clan::save_pk_log();
 		save_ingr_chests();
+		save_clan_exp();
 	}
 	else if (CompareParam(buffer2, "title") && !buffer.empty())
 	{

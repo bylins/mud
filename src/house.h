@@ -287,6 +287,7 @@ private:
 	int GetClanScore();
 	void HouseStat(CHAR_DATA * ch, std::string & buffer);
 	void remove_member(ClanMemberList::iterator &it);
+	void save_clan_file(const std::string &filename) const;
 
 	// house аля олц
 	void MainMenu(DESCRIPTOR_DATA * d);

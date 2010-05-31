@@ -18,6 +18,8 @@ namespace
 
 // количество нодов в списке экспы (зависит от CLAN_EXP_UPDATE_PERIOD)
 const unsigned int MAX_LIST_NODES = 720;
+// сколько экспы должен набрать клан за х месяцев, чтобы не быть удаленным
+const int MIN_EXP_HISTORY = 50000000;
 
 } // namespace
 
@@ -257,7 +259,7 @@ void ClanPkLog::check(CHAR_DATA *ch, CHAR_DATA *victim)
 
 void ClanExpHistory::add_exp(long exp)
 {
-	if (exp <= 0)
+	if (exp < 0)
 	{
 		return;
 	}
@@ -340,4 +342,48 @@ long long ClanExpHistory::get(int month) const
 		}
 	}
 	return exp;
+}
+
+/**
+ * В данный момент смотрится два последних полных календарных месяца.
+ * Чтобы месяцы были дейсвительно полными - история экспы должна включать в себя
+ * как минимум 4 элемента (возможно неполный месяц + 2 месяца + текущий неполный).
+ * В расчет идут соответственно второй и третий месяцы с конца списка.
+*/
+bool ClanExpHistory::need_destroy() const
+{
+	if (list_.size() < 4)
+	{
+		return false;
+	}
+	long long exp = 0;
+	int count = 1;
+	for (HistoryExpListType::const_reverse_iterator i = list_.rbegin(), iend = list_.rend(); i != iend; ++i, ++count)
+	{
+		if (count > 3)
+		{
+			break;
+		}
+		if (count > 1)
+		{
+			exp += i->second;
+		}
+	}
+	return exp < MIN_EXP_HISTORY ? true : false;
+}
+
+void ClanExpHistory::show(CHAR_DATA *ch) const
+{
+	send_to_char(ch, "\r\nОпыт, набранный за три последних календарных месяца без учета минусов:\r\n");
+	int num_print = list_.size() - 3;
+	int count = 0;
+	for (HistoryExpListType::const_iterator i = list_.begin(), iend = list_.end(); i != iend; ++i, ++count)
+	{
+		if (count >= num_print)
+		{
+			send_to_char(ch, "%s : %lld\r\n", i->first.c_str(), i->second);
+		}
+	}
+	send_to_char(ch, "Напоминаем, что в системе автоматической очистки неактивных кланов учитывается\r\n"
+			"опыт, набранный за два последних ПОЛНЫХ календарных месяца (>=%d в сумме).\r\n", MIN_EXP_HISTORY);
 }
