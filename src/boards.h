@@ -62,6 +62,8 @@ struct board_data
 // отдельное сообщение
 struct Message
 {
+	Message() : num(0), unique(0), level(0), rank(0), date(0) {};
+
 	int num;             // номер на доске
 	std::string author;  // имя автора
 	long unique;         // уид автора
