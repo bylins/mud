@@ -35,6 +35,7 @@
 #include "char.hpp"
 #include "room.hpp"
 #include "modify.h"
+#include "house.h"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 
@@ -1699,10 +1700,22 @@ int same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 // Проверка является комната рентой.
 bool is_rent(room_rnum room)
 {
+	// комната с флагом замок, но клан мертвый
+	if (ROOM_FLAGGED(room, ROOM_HOUSE))
+	{
+		ClanListType::const_iterator it = Clan::IsClanRoom(room);
+		if (Clan::ClanList.end() == it)
+		{
+			return false;
+		}
+	}
+	// комната без рентера в ней
 	for (CHAR_DATA *ch = world[room]->people; ch; ch = ch->next_in_room)
 	{
 		if (IS_NPC(ch) && IS_RENTKEEPER(ch))
+		{
 			return true;
+		}
 	}
 	return false;
 }
