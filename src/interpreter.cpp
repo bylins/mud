@@ -1658,6 +1658,15 @@ int find_command(const char *command)
 
 int special(CHAR_DATA * ch, int cmd, char *arg)
 {
+	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE))
+	{
+		ClanListType::const_iterator it = Clan::IsClanRoom(ch->in_room);
+		if (Clan::ClanList.end() == it)
+		{
+			return 0;
+		}
+	}
+
 	register OBJ_DATA *i;
 	register CHAR_DATA *k;
 	int j;
