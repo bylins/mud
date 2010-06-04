@@ -234,10 +234,15 @@ void Dps::print_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 			% pers_dps_.get_stat() % pers_dps_.get_round_dmg()
 			% pers_dps_.get_over_dmg()), coder);
 	send_to_char(pers_dps_.print_charm_stats(), coder);
+
 	double percent = exp_ ? battle_exp_ * 100.0 / exp_ : 0.0;
-	send_to_char(coder, "\r\nВсего получено опыта: %d, за удары: %d (%.2f%%)\r\n"
-			"Потеряно опыта: %d, баланс: %+d\r\n",
-			exp_, battle_exp_, percent, abs(lost_exp_), exp_ + lost_exp_);
+	int balance = exp_ + lost_exp_;
+
+	send_to_char(coder, "\r\nВсего получено опыта: %s, за удары: %s (%.2f%%)\r\n"
+			"Потеряно опыта: %s, баланс: %s %s\r\n",
+			thousands_sep(exp_).c_str(), thousands_sep(battle_exp_).c_str(), percent,
+			thousands_sep(abs(lost_exp_)).c_str(), balance >= 0 ? "+" : "-",
+			thousands_sep(abs(balance)).c_str());
 
 	if (AFF_FLAGGED(ch, AFF_GROUP))
 	{

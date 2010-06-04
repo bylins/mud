@@ -1447,4 +1447,6 @@ void print_log();
 
 } // ZoneExpStat
 
+std::string thousands_sep(long long n);
+
 #endif // _UTILS_H_

@@ -381,9 +381,9 @@ void ClanExpHistory::show(CHAR_DATA *ch) const
 	{
 		if (count >= num_print)
 		{
-			send_to_char(ch, "%s : %lld\r\n", i->first.c_str(), i->second);
+			send_to_char(ch, "%s : %14s\r\n", i->first.c_str(), thousands_sep(i->second).c_str());
 		}
 	}
 	send_to_char(ch, "Напоминаем, что в системе автоматической очистки неактивных кланов учитывается\r\n"
-			"опыт, набранный за два последних ПОЛНЫХ календарных месяца (>=%d в сумме).\r\n", MIN_EXP_HISTORY);
+			"опыт, набранный за два последних ПОЛНЫХ календарных месяца ( >= %s в сумме).\r\n", thousands_sep(MIN_EXP_HISTORY).c_str());
 }

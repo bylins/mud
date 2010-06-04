@@ -1075,9 +1075,18 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 						  boost::bind(&ClanMember::rank_num, _2)));
 
 	std::ostringstream buffer;
-	buffer << "К замку приписаны: ";
+	buffer << "К замку приписаны:\r\n";
+	int char_num = 0;
 	for (std::vector<ClanMemberPtr>::const_iterator it = temp_list.begin(); it != temp_list.end(); ++it)
+	{
+		if (char_num >= 80)
+		{
+			buffer << "\r\n";
+			char_num = 0;
+		}
 		buffer << (*it)->name << " ";
+		char_num += (*it)->name.size() + 1;
+	}
 	buffer << "\r\nПривилегии:\r\n";
 	int num = 0;
 
