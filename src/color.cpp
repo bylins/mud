@@ -152,9 +152,9 @@ int is_colour(char code)
 		break;		/* White background */
 
 		/* Misc characters */
-	case '&':
-		return 22;
-		break;		/* The & character */
+//	case '&':
+//		return 22;
+//		break;		/* The & character */
 	case '\\':
 		return 23;
 		break;		/* The \ character */
