@@ -3269,7 +3269,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 				d->clan_olc->clan->PrivilegeMenu(d, d->clan_olc->rank);
 				return;
 			}
-			if (num > CLAN_PRIVILEGES_NUM)
+			if (num > CLAN_PRIVILEGES_NUM || num <= 0)
 			{
 				send_to_char("Неверный выбор!\r\n", d->character);
 				d->clan_olc->clan->PrivilegeMenu(d, d->clan_olc->rank);
@@ -3277,7 +3277,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 			}
 			// мы выдаем только доступные привилегии в меню и нормально парсим их тут
 			unsigned parse_num;
-			for (parse_num = 0; parse_num < CLAN_PRIVILEGES_NUM; ++parse_num)
+			for (parse_num = 0; parse_num <= CLAN_PRIVILEGES_NUM; ++parse_num)
 			{
 				if (d->clan_olc->privileges[CLAN_MEMBER(d->character)->rank_num][parse_num])
 				{
