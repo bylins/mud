@@ -50,6 +50,8 @@
 #include "name_list.hpp"
 #include "modify.h"
 #include "room.hpp"
+#include "glory_const.hpp"
+#include "glory_misc.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -730,6 +732,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"следовать", POS_RESTING, do_follow, 0, 0, 500},
 	{"сложить", POS_FIGHTING, do_mixture, 0, SCMD_RUNES, -1},
 	{"слава", POS_STANDING, Glory::do_spend_glory, 0, 0, 0},
+	{"слава2", POS_STANDING, GloryConst::do_spend_glory, 0, 0, 0},
 	{"смотреть", POS_RESTING, do_look, 0, SCMD_LOOK, 0},
 	{"смешать", POS_STANDING, do_mixture, 0, SCMD_ITEMS, -1},
 //  { "смастерить",     POS_STANDING, do_transform_weapon, 0, SKILL_CREATEBOW, -1 },
@@ -863,6 +866,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"gold", POS_RESTING, do_gold, 0, 0, 0},
 	{"glide", POS_STANDING, do_lightwalk, 0, 0, 0},
 	{"glory", POS_RESTING, do_glory, LVL_BUILDER, 0, 0},
+	{"glory2", POS_RESTING, GloryConst::do_glory, LVL_IMPL, 0, 0},
 	{"gossip", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, -1},
 	{"goto", POS_SLEEPING, do_goto, LVL_GOD, 0, 0},
 	{"grab", POS_RESTING, do_grab, 0, 0, 500},
@@ -2329,7 +2333,10 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 			rustime(localtime(&tmp_time)), GET_LASTIP(d->character));
 	SEND_TO_Q(buf, d);
 
-	if (!Glory::check_stats(d->character)) return;
+	if (!GloryMisc::check_stats(d->character))
+	{
+		return;
+	}
 
 	SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 	STATE(d) = CON_RMOTD;
@@ -2384,6 +2391,10 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	case CON_SPEND_GLORY:
 		if (!Glory::parse_spend_glory_menu(d->character, arg))
 			Glory::spend_glory_menu(d->character);
+		break;
+	case CON_GLORY_CONST:
+		if (!GloryConst::parse_spend_glory_menu(d->character, arg))
+			GloryConst::spend_glory_menu(d->character);
 		break;
 		/*. End of OLC states . */
 
@@ -3414,7 +3425,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		default:
 			// после перераспределения и сейва в genchar_parse стартовых статов надо учесть морты и славу
-			Glory::calculate_total_stats(d->character);
+			GloryMisc::recalculate_stats(d->character);
 			// статы срезетили и новые выбрали
 			sprintf(buf, "\r\n%sБлагодарим за сотрудничество. Ж)%s\r\n",
 					CCIGRN(d->character, C_SPR), CCNRM(d->character, C_SPR));

@@ -61,6 +61,8 @@
 #include "name_list.hpp"
 #include "modify.h"
 #include "room.hpp"
+#include "glory_const.hpp"
+#include "glory_misc.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -1530,10 +1532,14 @@ void boot_db(void)
 	log("Load depot chests.");
 	Depot::load_chests();
 
-	log("Load glory list.");
+	log("Load glory.");
 	Glory::load_glory();
-	Glory::load_glory_log();
-//Polud грузим параметры рас мобов
+	log("Load const glory.");
+	GloryConst::load();
+	log("Load glory log.");
+	GloryMisc::load_log();
+
+	//Polud грузим параметры рас мобов
 	log("Load mob races.");
 	load_mobraces();
 

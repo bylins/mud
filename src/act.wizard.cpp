@@ -49,6 +49,8 @@
 #include "liquid.hpp"
 #include "modify.h"
 #include "room.hpp"
+#include "glory_misc.hpp"
+#include "glory_const.hpp"
 
 /*   external vars  */
 extern FILE *player_fl;
@@ -818,7 +820,7 @@ ACMD(do_glory)
 		// запись в карму
 		sprintf(buf, "Change glory +%d by %s", amount, GET_NAME(ch));
 		add_karma(vict, buf, reason);
-		Glory::add_glory_log(mode, amount, std::string(buf), std::string(reason), vict);
+		GloryMisc::add_log(mode, amount, std::string(buf), std::string(reason), vict);
 		break;
 	}
 	case SUB_GLORY:
@@ -835,7 +837,7 @@ ACMD(do_glory)
 		// запись в карму
 		sprintf(buf, "Change glory -%d by %s", amount, GET_NAME(ch));
 		add_karma(vict, buf, reason);
-		Glory::add_glory_log(mode, amount, std::string(buf), std::string(reason), vict);
+		GloryMisc::add_log(mode, amount, std::string(buf), std::string(reason), vict);
 		break;
 	}
 	case SUB_STATS:
@@ -844,7 +846,7 @@ ACMD(do_glory)
 		{
 			sprintf(buf, "Remove stats %s by %s", arg1, GET_NAME(ch));
 			add_karma(vict, buf, reason);
-			Glory::add_glory_log(mode, 0, std::string(buf), std::string(reason), vict);
+			GloryMisc::add_log(mode, 0, std::string(buf), std::string(reason), vict);
 		}
 		break;
 	}
@@ -858,7 +860,7 @@ ACMD(do_glory)
 		Glory::hide_char(vict, ch, arg1);
 		sprintf(buf, "Hide %s by %s", arg1, GET_NAME(ch));
 		add_karma(vict, buf, reason);
-		Glory::add_glory_log(mode, 0, std::string(buf), std::string(reason), vict);
+		GloryMisc::add_log(mode, 0, std::string(buf), std::string(reason), vict);
 		break;
 	}
 	default:
@@ -1679,8 +1681,8 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	send_to_char(buf, ch);
 
 	sprintf(buf,
-			"Glory: [%d], AC: [%d/%d(%d)], Броня: [%d], Hitroll: [%2d/%2d/%d], Damroll: [%2d/%2d/%d]\r\n",
-			Glory::get_glory(GET_UNIQUE(k)), GET_AC(k), GET_REAL_AC(k),
+			"Glory: [%d], ConstGlory: [%d] AC: [%d/%d(%d)], Броня: [%d], Hitroll: [%2d/%2d/%d], Damroll: [%2d/%2d/%d]\r\n",
+			Glory::get_glory(GET_UNIQUE(k)), GloryConst::get_glory(GET_UNIQUE(k)), GET_AC(k), GET_REAL_AC(k),
 			compute_armor_class(k), GET_ARMOUR(k), GET_HR(k),
 			GET_REAL_HR(k), GET_REAL_HR(k) + str_app[GET_REAL_STR(k)].tohit,
 			GET_DR(k), GET_REAL_DR(k), GET_REAL_DR(k) + str_app[GET_REAL_STR(k)].todam);
@@ -3889,7 +3891,7 @@ ACMD(do_show)
 		list_feats(vict, ch, FALSE);
 		break;
 	case 18:		// show glory
-		Glory::show_glory(ch, value);
+		GloryMisc::show_log(ch, value);
 		break;
 	case 19:		// show crc
 		FileCRC::show(ch);

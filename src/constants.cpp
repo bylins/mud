@@ -608,6 +608,7 @@ const char *connected_types[] = { "В игре",
 								  "Base stats reroll",
 								  "Select place of birth",
 								  "Clan MoD edit",
+								  "GloryConst OLC",
 								  "\n"
 								};
 
@@ -2561,7 +2562,7 @@ const char *weapon_affects[] = { "слепота",
 								 "\n"
 							   };
 
-struct weapon_affect_types weapon_affect[] = { 
+struct weapon_affect_types weapon_affect[] = {
 	{(0 | (1 << 0)), 0, SPELL_BLINDNESS},
 	{(0 | (1 << 1)), AFF_INVISIBLE, 0},
 	{(0 | (1 << 2)), AFF_DETECT_ALIGN, 0},

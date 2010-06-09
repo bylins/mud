@@ -757,6 +757,7 @@ typedef struct trig_data TRIG_DATA;
 #define CON_RESET_STATS  46 // реролл статов при входе в игру
 #define CON_BIRTHPLACE   47 // выбираем где начать игру
 #define CON_WRITE_MOD    48 // пишет клановое сообщение дня
+#define CON_GLORY_CONST  49 // вливает славу2
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 /* Character equipment positions: used as index for char_data.equipment[] */
@@ -1515,7 +1516,16 @@ struct txt_q
 
 namespace Glory
 {
+
 class spend_glory;
+
+}
+
+namespace GloryConst
+{
+
+struct glory_olc;
+
 }
 
 struct descriptor_data
@@ -1583,6 +1593,8 @@ struct descriptor_data
 	bool registered_email; // чтобы не шарить каждую секунду по списку мыл
 	FILE *pers_log; // чтобы не открывать файл на каждую команду чара при персональном логе
 	boost::shared_ptr<class Glory::spend_glory> glory; // вливание славы
+	// вливание славы2
+	boost::shared_ptr<GloryConst::glory_olc> glory_const;
 };
 
 

@@ -118,6 +118,13 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 		STATE(victim->desc) = CON_PLAYING;
 		send_to_char(victim, "На Вас было совершено нападение, редактирование отменено!\r\n");
 	}
+	else if (victim->desc && (STATE(victim->desc) == CON_GLORY_CONST))
+	{
+		// или вливает-переливает славу
+		victim->desc->glory_const.reset();
+		STATE(victim->desc) = CON_PLAYING;
+		send_to_char(victim, "На Вас было совершено нападение, редактирование отменено!\r\n");
+	}
 
 	// Карачун. Правка бага. Если моб в лаге, он не должен бить, но должен запомнить.
 	if (IS_NPC(ch) && GET_WAIT(ch) > 0)

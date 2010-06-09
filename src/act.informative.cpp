@@ -47,6 +47,7 @@
 #include "liquid.hpp"
 #include "modify.h"
 #include "room.hpp"
+#include "glory_const.hpp"
 
 using std::string;
 
@@ -2848,6 +2849,13 @@ ACMD(do_score)
 					CCCYN(ch, C_NRM), CCWHT(ch, C_NRM), glory,
 					(string(desc_count(glory, WHAT_POINT)) + string(" славы.")).substr(0, 61).c_str(),
 					CCCYN(ch, C_NRM));
+		glory = GloryConst::get_glory(GET_UNIQUE(ch));
+		if (glory)
+			sprintf(buf + strlen(buf),
+					" %s|| %sВы заслужили %5d %-61s%s||\r\n",
+					CCCYN(ch, C_NRM), CCWHT(ch, C_NRM), glory,
+					(string(desc_count(glory, WHAT_POINT)) + string(" постоянной славы.")).substr(0, 61).c_str(),
+					CCCYN(ch, C_NRM));
 
 		if (CLAN(ch))
 		{
@@ -3105,6 +3113,11 @@ ACMD(do_score)
 	if (glory)
 		sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n",
 				glory, desc_count(glory, WHAT_POINT));
+	glory = GloryConst::get_glory(GET_UNIQUE(ch));
+	if (glory)
+		sprintf(buf + strlen(buf), "Вы заслужили %d %s постоянной славы.\r\n",
+				glory, desc_count(glory, WHAT_POINT));
+
 	playing_time = *real_time_passed((time(0) - ch->player_data.time.logon) + ch->player_data.time.played, 0);
 	sprintf(buf + strlen(buf), "Вы играете %d %s %d %s реального времени.\r\n",
 			playing_time.day, desc_count(playing_time.day, WHAT_DAY),

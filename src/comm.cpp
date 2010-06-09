@@ -59,6 +59,8 @@
 #include "skills.h"
 #include "corpse.hpp"
 #include "room.hpp"
+#include "glory_misc.hpp"
+#include "glory_const.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -535,7 +537,8 @@ void init_game(ush_int port)
 	TitleSystem::save_title_list();
 	RegisterSystem::save();
 	Glory::save_glory();
-	Glory::save_glory_log();
+	GloryConst::save();
+	GloryMisc::save_log();
 	MoneyDropStat::print_log();
 	ZoneExpStat::print_log();
 
@@ -3099,7 +3102,8 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		if (STATE(d) == CON_WRITEBOARD
 			|| STATE(d) == CON_CLANEDIT
 			|| STATE(d) == CON_SPEND_GLORY
-			|| STATE(d) == CON_WRITE_MOD)
+			|| STATE(d) == CON_WRITE_MOD
+			|| STATE(d) == CON_GLORY_CONST)
 		{
 			STATE(d) = CON_PLAYING;
 		}

@@ -8,7 +8,8 @@ act.informative.o: act.informative.cpp conf.h sysdep.h structs.h utils.h \
   skills.h fight.h screen.h constants.h pk.h dg_scripts.h mail.h im.h \
   house.h house_exp.hpp char.hpp player_i.hpp remember.hpp description.h \
   privilege.hpp depot.hpp glory.hpp random.hpp char_player.hpp \
-  quested.hpp mobmax.hpp dps.hpp parcel.hpp liquid.hpp modify.h room.hpp
+  quested.hpp mobmax.hpp dps.hpp parcel.hpp liquid.hpp modify.h room.hpp \
+  glory_const.hpp
 act.item.o: act.item.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   obj.hpp comm.h interpreter.h handler.h db.h spells.h skills.h \
   constants.h dg_scripts.h house.h house_exp.hpp char.hpp player_i.hpp \
@@ -37,7 +38,8 @@ act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h \
   skills.h constants.h olc.h dg_scripts.h pk.h im.h top.h ban.hpp \
   diskio.h description.h title.hpp password.hpp privilege.hpp depot.hpp \
   glory.hpp genchar.h file_crc.hpp char_player.hpp quested.hpp mobmax.hpp \
-  dps.hpp parcel.hpp liquid.hpp modify.h room.hpp
+  dps.hpp parcel.hpp liquid.hpp modify.h room.hpp glory_misc.hpp \
+  glory_const.hpp
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   interpreter.h db.h char.hpp player_i.hpp
 ban.o: ban.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
@@ -56,7 +58,7 @@ comm.o: comm.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   player_i.hpp remember.hpp olc.h dg_scripts.h screen.h ban.hpp diskio.h \
   auction.h exchange.h deathtrap.hpp title.hpp depot.hpp glory.hpp \
   file_crc.hpp char_player.hpp quested.hpp mobmax.hpp dps.hpp parcel.hpp \
-  spells.h skills.h corpse.hpp room.hpp
+  spells.h skills.h corpse.hpp room.hpp glory_misc.hpp glory_const.hpp
 config.o: config.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
   features.hpp obj.hpp constants.h char.hpp player_i.hpp
 constants.o: constants.cpp conf.h sysdep.h structs.h spells.h skills.h \
@@ -72,7 +74,8 @@ db.o: db.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp db.h \
   boards.h description.h deathtrap.hpp title.hpp privilege.hpp depot.hpp \
   glory.hpp genchar.h random.hpp file_crc.hpp skills.h char_player.hpp \
   quested.hpp mobmax.hpp dps.hpp parcel.hpp liquid.hpp xmlParser.h \
-  corpse.hpp name_list.hpp modify.h room.hpp
+  corpse.hpp name_list.hpp modify.h room.hpp glory_const.hpp \
+  glory_misc.hpp
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   comm.h handler.h interpreter.h db.h spells.h screen.h constants.h \
   dg_scripts.h pk.h im.h fight.h skills.h house.h house_exp.hpp char.hpp \
@@ -99,7 +102,7 @@ interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
   diskio.h item.creation.hpp boards.h top.h title.hpp password.hpp \
   privilege.hpp depot.hpp glory.hpp char_player.hpp quested.hpp \
   mobmax.hpp dps.hpp parcel.hpp liquid.hpp name_list.hpp modify.h \
-  room.hpp
+  room.hpp glory_const.hpp glory_misc.hpp
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   obj.hpp spells.h skills.h comm.h db.h handler.h screen.h interpreter.h \
   constants.h dg_scripts.h house.h house_exp.hpp char.hpp player_i.hpp \
@@ -151,7 +154,7 @@ spells.o: spells.cpp conf.h sysdep.h structs.h utils.h features.hpp \
 utils.o: utils.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   db.h comm.h screen.h spells.h handler.h interpreter.h constants.h im.h \
   dg_scripts.h boards.h privilege.hpp char.hpp player_i.hpp room.hpp \
-  modify.h
+  modify.h house.h house_exp.hpp remember.hpp
 weather.o: weather.cpp conf.h sysdep.h structs.h spells.h skills.h \
   utils.h features.hpp obj.hpp comm.h handler.h interpreter.h db.h \
   screen.h constants.h random.hpp char.hpp player_i.hpp room.hpp
@@ -267,7 +270,7 @@ depot.o: depot.cpp depot.hpp conf.h sysdep.h structs.h db.h handler.h \
 glory.o: glory.cpp conf.h glory.hpp sysdep.h structs.h interpreter.h \
   utils.h features.hpp obj.hpp db.h comm.h password.hpp genchar.h \
   screen.h top.h char.hpp player_i.hpp char_player.hpp quested.hpp \
-  mobmax.hpp remember.hpp dps.hpp modify.h
+  mobmax.hpp remember.hpp dps.hpp modify.h glory_misc.hpp
 file_crc.o: file_crc.cpp conf.h file_crc.hpp sysdep.h structs.h db.h \
   utils.h features.hpp obj.hpp interpreter.h comm.h
 char.o: char.cpp char.hpp conf.h sysdep.h structs.h player_i.hpp utils.h \
@@ -318,3 +321,14 @@ spam.o: spam.cpp spam.hpp conf.h sysdep.h structs.h utils.h features.hpp \
 AffectHandler.o: AffectHandler.cpp AffectHandler.hpp char.hpp conf.h \
   sysdep.h structs.h player_i.hpp utils.h features.hpp obj.hpp handler.h \
   spells.h
+glory_const.o: glory_const.cpp pugixml.hpp pugiconfig.hpp glory_const.hpp \
+  conf.h sysdep.h interpreter.h utils.h features.hpp obj.hpp structs.h \
+  screen.h char.hpp player_i.hpp comm.h db.h genchar.h handler.h \
+  char_player.hpp quested.hpp mobmax.hpp remember.hpp dps.hpp \
+  glory_misc.hpp
+pugixml.o: pugixml.cpp pugixml.hpp pugiconfig.hpp
+pugixpath.o: pugixpath.cpp pugixml.hpp pugiconfig.hpp
+glory_misc.o: glory_misc.cpp glory_misc.hpp conf.h sysdep.h structs.h \
+  glory.hpp interpreter.h utils.h features.hpp obj.hpp glory_const.hpp \
+  genchar.h char.hpp player_i.hpp db.h screen.h comm.h char_player.hpp \
+  quested.hpp mobmax.hpp remember.hpp dps.hpp modify.h
