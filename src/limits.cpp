@@ -957,6 +957,7 @@ void check_idling(CHAR_DATA * ch)
 				Crash_crashsave(ch);
 				char_from_room(ch);
 				char_to_room(ch, STRANGE_ROOM);
+				remove_rune_label(ch);
 			}
 			else if (ch->char_specials.timer > idle_rent_time)
 			{

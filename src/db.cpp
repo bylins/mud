@@ -5899,6 +5899,8 @@ ACMD(do_remort)
 	char_to_room(ch, load_room);
 	look_at_room(ch, 0);
 	SET_BIT(PLR_FLAGS(ch, PLR_NODELETE), PLR_NODELETE);
+	remove_rune_label(ch);
+
 	act("$n вступил$g в игру.", TRUE, ch, 0, 0, TO_ROOM);
 	act("Вы перевоплотились ! Желаем удачи !", FALSE, ch, 0, 0, TO_CHAR);
 }

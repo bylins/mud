@@ -4133,3 +4133,20 @@ int get_object_low_rent(OBJ_DATA *obj)
 	int rent = GET_OBJ_RENT(obj) > GET_OBJ_RENTEQ(obj) ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj);
 	return rent;
 }
+
+/**
+ * Удаление рунной метки (при пропадании в пустоте и реморте).
+ */
+void remove_rune_label(CHAR_DATA *ch)
+{
+	ROOM_DATA *label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
+	if (label_room)
+	{
+		AFFECT_DATA *aff = room_affected_by_spell(label_room, SPELL_RUNE_LABEL);
+		if (aff)
+		{
+			affect_room_remove(label_room, aff);
+			send_to_char("Ваша рунная метка удалена.\r\n", ch);
+		}
+	}
+}

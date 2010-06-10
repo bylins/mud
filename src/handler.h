@@ -199,4 +199,5 @@ int *MemQ_slots(CHAR_DATA * ch);
 int get_object_low_rent(OBJ_DATA *obj);
 void set_uid(OBJ_DATA *object);
 
+void remove_rune_label(CHAR_DATA *ch);
 #endif
