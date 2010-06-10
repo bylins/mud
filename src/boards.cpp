@@ -599,8 +599,12 @@ int Board::Access(CHAR_DATA * ch)
 			return 3;
 	case ERROR_BOARD:
 		// все пишут с мин.левела, 34 и по привилегии полный
-		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS))
+		if (IS_IMPL(ch)
+			|| Privilege::check_flag(ch, Privilege::BOARDS)
+			|| Privilege::check_flag(ch, Privilege::MISPRINT))
+		{
 			return 4;
+		}
 		if (GET_LEVEL(ch) < MIN_WRITE_LEVEL && !GET_REMORT(ch))
 			return 0;
 		else
