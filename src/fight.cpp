@@ -883,26 +883,27 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
                 GET_EXP_ARENA(ch)=GET_EXP_ARENA(ch)+dec_exp; //Если чар в бд
             }
         }
-
-        if (!ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) && !IS_NPC(killer)) //Рип в ПК
+        else if (IS_NPC(killer) && !IS_CHARMICE(killer) && !IS_HORSE(killer))
         {
-            GET_RIP_PK(ch)= GET_RIP_PK(ch)+1;
-            GET_RIP_PKTHIS(ch)= GET_RIP_PKTHIS(ch)+1;
-            if (dec_exp)
-            {
-                GET_EXP_PK(ch)= GET_EXP_PK(ch)+dec_exp;
-                GET_EXP_PKTHIS(ch)= GET_EXP_PKTHIS(ch)+dec_exp;
-            }
-        }
-
-        if (!ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) && IS_NPC(killer)) //Рип от моба
-        {
+        	//Рип от моба
             GET_RIP_MOB(ch)= GET_RIP_MOB(ch)+1;
             GET_RIP_MOBTHIS(ch)= GET_RIP_MOBTHIS(ch)+1;
             if (dec_exp)
             {
                 GET_EXP_MOB(ch)= GET_EXP_MOB(ch)+dec_exp;
                 GET_EXP_MOBTHIS(ch)= GET_EXP_MOBTHIS(ch)+dec_exp;
+            }
+        }
+        else if (!IS_NPC(killer) || ((IS_CHARMICE(killer)
+				|| IS_HORSE(killer)) && killer->master && !IS_NPC(killer->master)))
+        {
+			//Рип в ПК
+            GET_RIP_PK(ch)= GET_RIP_PK(ch)+1;
+            GET_RIP_PKTHIS(ch)= GET_RIP_PKTHIS(ch)+1;
+            if (dec_exp)
+            {
+                GET_EXP_PK(ch)= GET_EXP_PK(ch)+dec_exp;
+                GET_EXP_PKTHIS(ch)= GET_EXP_PKTHIS(ch)+dec_exp;
             }
         }
     }
