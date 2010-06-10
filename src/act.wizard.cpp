@@ -1205,8 +1205,7 @@ void do_stat_room(CHAR_DATA * ch)
         send_to_char(buf1, ch);
     }
 	/* check the room for a script */
-	if (GET_LEVEL(ch) >= LVL_BUILDER || PRF_FLAGGED(ch, PRF_CODERINFO))
-		do_sstat_room(ch);
+	do_sstat_room(ch);
 }
 
 
@@ -1949,11 +1948,14 @@ ACMD(do_stat)
 		send_to_char("Состояние КОГО или ЧЕГО ?\r\n", ch);
 		return;
 	}
-	else if (is_abbrev(buf1, "room") && GET_LEVEL(ch) >= LVL_BUILDER)
+
+	int level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
+
+	if (is_abbrev(buf1, "room") && level >= LVL_BUILDER)
 	{
 		do_stat_room(ch);
 	}
-	else if (is_abbrev(buf1, "mob") && GET_LEVEL(ch) >= LVL_BUILDER)
+	else if (is_abbrev(buf1, "mob") && level >= LVL_BUILDER)
 	{
 		if (!*buf2)
 			send_to_char("Состояние какого создания ?\r\n", ch);
@@ -1991,8 +1993,10 @@ ACMD(do_stat)
 			if (load_char(buf2, &t_victim) > -1)
 			{
 				victim = &t_victim;
-				if (GET_LEVEL(victim) > GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
+				if (GET_LEVEL(victim) > level)
+				{
 					send_to_char("Извините, Вам это еще рано.\r\n", ch);
+				}
 				else
 				{
 					Clan::SetClanData(victim);
@@ -2003,7 +2007,7 @@ ACMD(do_stat)
 				send_to_char("Такого игрока нет ВООБЩЕ.\r\n", ch);
 		}
 	}
-	else if (is_abbrev(buf1, "object") && GET_LEVEL(ch) >= LVL_BUILDER)
+	else if (is_abbrev(buf1, "object") && level >= LVL_BUILDER)
 	{
 		if (!*buf2)
 			send_to_char("Состояние какого предмета ?\r\n", ch);
@@ -2017,7 +2021,7 @@ ACMD(do_stat)
 	}
 	else
 	{
-		if (GET_LEVEL(ch) >= LVL_BUILDER || PRF_FLAGGED(ch, PRF_CODERINFO))
+		if (level >= LVL_BUILDER)
 		{
 			if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)) != NULL)
 				do_stat_object(ch, object);
