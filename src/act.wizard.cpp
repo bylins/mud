@@ -1681,7 +1681,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	send_to_char(buf, ch);
 
 	sprintf(buf,
-			"Glory: [%d], ConstGlory: [%d] AC: [%d/%d(%d)], Броня: [%d], Hitroll: [%2d/%2d/%d], Damroll: [%2d/%2d/%d]\r\n",
+			"Glory: [%d], ConstGlory: [%d], AC: [%d/%d(%d)], Броня: [%d], Hitroll: [%2d/%2d/%d], Damroll: [%2d/%2d/%d]\r\n",
 			Glory::get_glory(GET_UNIQUE(k)), GloryConst::get_glory(GET_UNIQUE(k)), GET_AC(k), GET_REAL_AC(k),
 			compute_armor_class(k), GET_ARMOUR(k), GET_HR(k),
 			GET_REAL_HR(k), GET_REAL_HR(k) + str_app[GET_REAL_STR(k)].tohit,
@@ -3691,6 +3691,7 @@ ACMD(do_show)
 		send_to_char(buf, ch);
 		Depot::show_stats(ch);
 		Glory::show_stats(ch);
+		GloryConst::show_stats(ch);
 		Parcel::show_stats(ch);
 		send_to_char(ch, "  Список полей сражающихся: %d\r\n", fighting_list_size());
 		send_to_char(ch, "  Передвижения: %d\r\n", motion);

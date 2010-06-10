@@ -26,6 +26,8 @@ void load();
 void set_stats(CHAR_DATA *ch);
 int main_stats_count(CHAR_DATA *ch);
 
+void show_stats(CHAR_DATA *ch);
+
 } // namespace GloryConst
 
 #endif // GLORY_CONST_HPP_INCLUDED

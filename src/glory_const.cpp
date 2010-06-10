@@ -57,6 +57,8 @@ struct glory_node
 typedef boost::shared_ptr<glory_node> GloryNodePtr;
 typedef std::map<long /* уид чара */, GloryNodePtr> GloryListType;
 GloryListType glory_list;
+// суммарное списанное в виде комиса кол-во славы
+int total_charge = 0;
 
 struct glory_olc
 {
@@ -120,7 +122,7 @@ void add_glory(long uid, int amount)
 	DESCRIPTOR_DATA *d = DescByUID(uid);
 	if (d)
 	{
-		send_to_char(d->character, "%sВы заслужили %d %s славы!%s\r\n",
+		send_to_char(d->character, "%sВы заслужили %d %s постоянной славы!%s\r\n",
 			CCGRN(d->character, C_NRM),
 			amount, desc_count(amount, WHAT_POINT),
 			CCNRM(d->character, C_NRM));
@@ -380,6 +382,30 @@ int olc_real_stat(CHAR_DATA *ch, int stat)
 		+ ch->desc->glory_const->stat_add[stat];
 }
 
+int calculate_glory_in_stats(GloryListType::const_iterator &i)
+{
+	int total = 0;
+	for (std::map<int, int>::const_iterator k = i->second->stats.begin(),
+		kend = i->second->stats.end(); k != kend; ++k)
+	{
+		switch(k->first)
+		{
+			case G_STR:
+			case G_DEX:
+			case G_INT:
+			case G_WIS:
+			case G_CON:
+			case G_CHA:
+				for (int m = 0; m < k->second; ++m)
+				{
+					total += (m * 200) + 1000;
+				}
+				break;
+		}
+	}
+	return total;
+}
+
 bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 {
 	switch (*arg)
@@ -443,12 +469,20 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 			GET_CON(ch) = olc_real_stat(ch, GLORY_CON);
 			GET_CHA(ch) = olc_real_stat(ch, GLORY_CHA);
 			// обновление записи в списке славы
-			GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
-			if (it != glory_list.end())
+			GloryListType::const_iterator it = glory_list.find(GET_UNIQUE(ch));
+			if (glory_list.end() == it)
 			{
-				it->second->free_glory = ch->desc->glory_const->olc_free_glory;
+				log("SYSERROR : нет записи чара при выходе из олц постоянной славы name=%s (%s:%d)",
+					ch->get_name(), __FILE__, __LINE__);
+				send_to_char("Ошибка сохранения, сообщите Богам!\r\n", ch);
+				ch->desc->glory_const.reset();
+				STATE(ch->desc) = CON_PLAYING;
+				return 1;
 			}
+			// слава перед редактированием (для расчета комиса)
+			int was_glory = it->second->free_glory + calculate_glory_in_stats(it);
 			// обновление вложенных статов
+			it->second->free_glory = ch->desc->glory_const->olc_free_glory;
 			it->second->stats.clear();
 			for (int i = 0; i < GLORY_TOTAL; ++i)
 			{
@@ -456,6 +490,17 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 				{
 					it->second->stats[i] = ch->desc->glory_const->stat_add[i];
 				}
+			}
+			// расчет снятого комиса
+			int now_glory = it->second->free_glory + calculate_glory_in_stats(it);
+			if (was_glory < now_glory)
+			{
+				log("SYSERROR : прибавка постоянной славы после редактирования в олц (%d -> %d) name=%s (%s:%d)",
+					was_glory, now_glory, ch->get_name(), __FILE__, __LINE__);
+			}
+			else
+			{
+				total_charge += was_glory - now_glory;
 			}
 			// выход из олц с обновлением хп
 			ch->desc->glory_const.reset();
@@ -655,6 +700,11 @@ ACMD(do_glory)
 	}
 
 	CHAR_DATA *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
+	if (vict && vict->desc && STATE(vict->desc) == CON_GLORY_CONST)
+	{
+		send_to_char("Персонаж в данный момент редактирует свою славу.\r\n", ch);
+		return;
+	}
 	Player t_vict; // TODO: мутно
 	if (!vict)
 	{
@@ -749,6 +799,11 @@ void save()
 			stat.append_attribute("amount") = k->second;
 		}
 	}
+
+	pugi::xml_node charge_node = char_list.append_child();
+	charge_node.set_name("total_charge");
+	charge_node.append_attribute("amount") = total_charge;
+
 	doc.save_file(LIB_PLRSTUFF"glory_const.xml");
 }
 
@@ -798,6 +853,11 @@ void load()
 			tmp_node->stats[stat_num] = stat_amount;
 		}
 		glory_list[uid] = tmp_node;
+    }
+    pugi::xml_node charge_node = char_list.child("total_charge");
+    if (charge_node)
+    {
+		total_charge = boost::lexical_cast<int>(charge_node.attribute("amount").value());
     }
 }
 
@@ -866,6 +926,21 @@ int main_stats_count(CHAR_DATA *ch)
 		}
 	}
 	return count;
+}
+
+/**
+* Вывод инфы в show stats.
+*/
+void show_stats(CHAR_DATA *ch)
+{
+	int free_glory = 0, spend_glory = 0;
+	for (GloryListType::const_iterator i = glory_list.begin(), iend = glory_list.end();  i != iend; ++i)
+	{
+		free_glory += i->second->free_glory;
+		spend_glory += calculate_glory_in_stats(i);
+	}
+	send_to_char(ch, "  Слава2: вложено %d, свободно %d, всего %d, комиссии %d\r\n",
+		spend_glory, free_glory, free_glory + spend_glory, total_charge);
 }
 
 } // namespace GloryConst
