@@ -48,6 +48,7 @@ extern const char *weapon_affects[];
 extern const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
 extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
+extern char const *class_abbrevs[];
 
 namespace
 {
@@ -4508,7 +4509,7 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 	}
 	out << "):\r\n";
 	out << CCNRM(ch, C_NRM)
-		<< "          Имя | Ур |Рейтинговых очков|Опыта дружины|Внесено кун|Налог|Был в игре\r\n"
+		<< "          Имя | Ур |Проф| Рейт.очков |Опыта дружины|Внесено кун|Налог|Был в игре\r\n"
 		<< "--------------------------------------------------------------------------------\r\n";
 
 	// multimap ибо могут быть совпадения
@@ -4524,9 +4525,10 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 			{
 				continue;
 			}
-			else
+			else if (!IS_IMMORTAL(d->character))
 			{
 				it->second->level = GET_LEVEL(d->character);
+				it->second->class_abbr = CLASS_ABBR(d->character);
 			}
 		}
 		else if (name)
@@ -4580,17 +4582,12 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 	{
 		out << std::setw(13) << it->second.second->name;
 		out << " | " << std::setw(2)
-			<< (it->second.second->level > 0 && it->second.second->level < LVL_IMMORT ?
-					boost::lexical_cast<std::string>(it->second.second->level) : "")
-			<< " | " << std::setw(15)
-			<< it->second.second->exp
-			<< " | " << std::setw(11)
-			<< it->second.second->clan_exp
-			<< " | " << std::setw(9)
-			<< it->second.second->money
-			<< " | " << std::setw(3)
-			<< it->second.second->exp_persent
-			<< " |"
+			<< (it->second.second->level > 0 ? boost::lexical_cast<std::string>(it->second.second->level) : "") << " | "
+			<< std::setw(2) << it->second.second->class_abbr << " |"
+			<< std::setw(12) << it->second.second->exp << "|"
+			<< std::setw(13) << it->second.second->clan_exp << "| "
+			<< std::setw(9) << it->second.second->money << " | "
+			<< std::setw(3) << it->second.second->exp_persent << " |"
 			<< it->second.first << "\r\n";
 	}
 	page_string(ch->desc, out.str(), 1);
