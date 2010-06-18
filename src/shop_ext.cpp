@@ -392,7 +392,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 				int removed = Glory::remove_glory(GET_UNIQUE(ch), price);
 				if (removed != price)
 				{
-					GloryConst::remove_glory(GET_UNIQUE(ch), removed);
+					GloryConst::remove_glory(GET_UNIQUE(ch), price - removed);
 				}
 			}
 			else
