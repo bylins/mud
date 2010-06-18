@@ -47,7 +47,7 @@ extern const char *weapon_class[];
 extern const char *weapon_affects[];
 extern const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
 extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
-extern void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
+extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 extern char const *class_abbrevs[];
 
 namespace

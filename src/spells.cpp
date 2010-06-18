@@ -55,7 +55,7 @@ extern char cast_argument[MAX_INPUT_LENGTH];
 void clearMemory(CHAR_DATA * ch);
 void weight_change_object(OBJ_DATA * obj, int weight);
 int compute_armor_class(CHAR_DATA * ch);
-char *diag_weapon_to_char(OBJ_DATA * obj, int show_wear);
+char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BPLACE_UNDEFINED);
 int calc_anti_savings(CHAR_DATA * ch);
@@ -1220,7 +1220,7 @@ void show_weapon(CHAR_DATA * ch, OBJ_DATA * obj)
 }
 
 
-void mort_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
+void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 {
 	int i, found, drndice = 0, drsdice = 0, count = 0, negative, j;
 	long int li;

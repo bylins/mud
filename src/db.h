@@ -206,18 +206,18 @@ void reset_char(CHAR_DATA * ch);
 void clear_char_skills(CHAR_DATA * ch);
 int correct_unique(int unique);
 
+#define REAL          0
+#define VIRTUAL       (1 << 0)
+#define OBJ_NO_CALC   (1 << 1)
+
 OBJ_DATA *create_obj(const char *alias = 0);
 void free_obj(OBJ_DATA * obj);
 obj_rnum real_object(obj_vnum vnum);
 OBJ_DATA *read_object(obj_vnum nr, int type);
-const OBJ_DATA* read_object_mirror(obj_vnum nr);
+const OBJ_DATA* read_object_mirror(obj_vnum nr, int type = VIRTUAL);
 
 int vnum_object(char *searchname, CHAR_DATA * ch);
 int vnum_flag(char *searchname, CHAR_DATA * ch);
-
-#define REAL          0
-#define VIRTUAL       (1 << 0)
-#define OBJ_NO_CALC   (1 << 1)
 
 /* structure for the reset commands */
 struct reset_com

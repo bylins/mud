@@ -227,7 +227,7 @@ const char *weapon_class[] = { "луки",
 							   "копья и рогатины"
 							 };
 
-char *diag_weapon_to_char(OBJ_DATA * obj, int show_wear)
+char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear)
 {
 	static char out_str[MAX_STRING_LENGTH];
 	int skill = 0;

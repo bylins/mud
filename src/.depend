@@ -75,7 +75,7 @@ db.o: db.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp db.h \
   glory.hpp genchar.h random.hpp file_crc.hpp skills.h char_player.hpp \
   quested.hpp mobmax.hpp dps.hpp parcel.hpp liquid.hpp xmlParser.h \
   corpse.hpp name_list.hpp modify.h room.hpp glory_const.hpp \
-  glory_misc.hpp
+  glory_misc.hpp shop_ext.hpp
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   comm.h handler.h interpreter.h db.h spells.h screen.h constants.h \
   dg_scripts.h pk.h im.h fight.h skills.h house.h house_exp.hpp char.hpp \
@@ -332,3 +332,7 @@ glory_misc.o: glory_misc.cpp glory_misc.hpp conf.h sysdep.h structs.h \
   glory.hpp interpreter.h utils.h features.hpp obj.hpp glory_const.hpp \
   genchar.h char.hpp player_i.hpp db.h screen.h comm.h char_player.hpp \
   quested.hpp mobmax.hpp remember.hpp dps.hpp modify.h
+shop_ext.o: shop_ext.cpp pugixml.hpp pugiconfig.hpp shop_ext.hpp conf.h \
+  sysdep.h interpreter.h utils.h features.hpp obj.hpp structs.h char.hpp \
+  player_i.hpp db.h comm.h shop.h handler.h constants.h room.hpp \
+  glory.hpp glory_const.hpp

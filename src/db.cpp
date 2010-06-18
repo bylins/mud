@@ -63,6 +63,7 @@
 #include "room.hpp"
 #include "glory_const.hpp"
 #include "glory_misc.hpp"
+#include "shop_ext.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -540,6 +541,10 @@ ACMD(do_reboot)
 	else if (!str_cmp(arg, "offtop"))
 	{
 		OfftopSystem::init();
+	}
+	else if (!str_cmp(arg, "shop"))
+	{
+		ShopExt::load();
 	}
 	else
 	{
@@ -1548,6 +1553,10 @@ void boot_db(void)
 
 	log("Init offtop block list.");
 	OfftopSystem::init();
+
+	log("load shop_ext list start");
+	ShopExt::load();
+	log("load shop_ext list stop");
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");
@@ -4075,19 +4084,32 @@ OBJ_DATA *create_obj(const char *alias)
 	return (obj);
 }
 
+/**
 // никакая это не копия, строковые и остальные поля с выделением памяти остаются общими
 // мы просто отдаем константный указатель на прототип
-const OBJ_DATA* read_object_mirror(obj_vnum nr)
+ * \param type по дефолту VIRTUAL
+ */
+const OBJ_DATA* read_object_mirror(obj_vnum nr, int type)
 {
-	int i;
-	if ((i = real_object(nr)) < 0)
+	unsigned i;
+	if (type == VIRTUAL)
 	{
-		log("Object (V) %d does not exist in database.", nr);
-		return (NULL);
-	};
+		if ((i = real_object(nr)) < 0)
+		{
+			log("Object (V) %d does not exist in database.", nr);
+			return 0;
+		};
+	}
+	else
+	{
+		i = nr;
+	}
 
+	if (i < 0 || i > obj_proto.size())
+	{
+		return 0;
+	}
 	return obj_proto[i];
-	// Мы не регистрируем объект в листе и не даем никаких ID-ов
 }
 
 /* create a new object from a prototype */

@@ -14,6 +14,7 @@ namespace GloryConst
 
 int get_glory(long uid);
 void add_glory(long uid, int amount);
+int remove_glory(long uid, int amount);
 
 ACMD(do_glory);
 ACMD(do_spend_glory);

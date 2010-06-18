@@ -182,4 +182,6 @@ struct stack_data
 #define MSG_NO_USED_WANDSTAFF	"Я не покупаю использованные вещи!"
 #define MSG_CANT_KILL_KEEPER	"Ступай отсюда, пока не пришли стражи!"
 
+int transaction_amt(char *arg);
+
 #endif
