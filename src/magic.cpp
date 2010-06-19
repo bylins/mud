@@ -1094,6 +1094,54 @@ int mag_item_ok(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 	return (TRUE);
 }
 
+/////////////////////////////////////////////////////////////////////////////////
+#include <boost/format.hpp>
+
+std::map<int /* vnum */, int /* count */> rune_list;
+
+void add_rune_stats(CHAR_DATA *ch, int vnum, int spelltype)
+{
+	if (IS_NPC(ch) || SPELL_RUNES != spelltype)
+	{
+		return;
+	}
+	std::map<int, int>::iterator i = rune_list.find(vnum);
+	if (rune_list.end() != i)
+	{
+		i->second += 1;
+	}
+	else
+	{
+		rune_list[vnum] = 1;
+	}
+}
+
+void print_rune_stats(CHAR_DATA *ch)
+{
+	if (!PRF_FLAGGED(ch, PRF_CODERINFO))
+	{
+		send_to_char(ch, "Пока в разработке.\r\n");
+		return;
+	}
+
+	std::multimap<int, int> tmp_list;
+	for (std::map<int, int>::const_iterator i = rune_list.begin(),
+		iend = rune_list.end(); i != iend; ++i)
+	{
+		tmp_list.insert(std::make_pair(i->second, i->first));
+	}
+	std::string out(
+		"Rune stats:\r\n"
+		"vnum -> count\r\n"
+		"--------------\r\n");
+	for (std::multimap<int, int>::const_reverse_iterator i = tmp_list.rbegin(),
+		iend = tmp_list.rend(); i != iend; ++i)
+	{
+		out += boost::str(boost::format("%1% -> %2%\r\n") % i->second % i->first);
+	}
+	send_to_char(out, ch);
+}
+////////////////////////////////////////////////////////////////////////////////
 
 void extract_item(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 {
@@ -1120,8 +1168,6 @@ void extract_item(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 		extract_obj(obj);
 	}
 }
-
-
 
 int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract)
 {
@@ -1244,24 +1290,29 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract)
 			strcat(buf, CCWHT(ch, C_NRM));
 			strcat(buf, obj0->PNames[3]);
 			strcat(buf, ", ");
+			add_rune_stats(ch, GET_OBJ_VAL(obj0, 1), spelltype);
+
 		}
 		if (item1 == -2)
 		{
 			strcat(buf, CCWHT(ch, C_NRM));
 			strcat(buf, obj1->PNames[3]);
 			strcat(buf, ", ");
+			add_rune_stats(ch, GET_OBJ_VAL(obj1, 1), spelltype);
 		}
 		if (item2 == -2)
 		{
 			strcat(buf, CCWHT(ch, C_NRM));
 			strcat(buf, obj2->PNames[3]);
 			strcat(buf, ", ");
+			add_rune_stats(ch, GET_OBJ_VAL(obj2, 1), spelltype);
 		}
 		if (item3 == -2)
 		{
 			strcat(buf, CCWHT(ch, C_NRM));
 			strcat(buf, obj3->PNames[3]);
 			strcat(buf, ", ");
+			add_rune_stats(ch, GET_OBJ_VAL(obj3, 1), spelltype);
 		}
 		strcat(buf, CCNRM(ch, C_NRM));
 		if (create)

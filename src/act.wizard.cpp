@@ -121,6 +121,7 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 extern void NewNameShow(CHAR_DATA * ch);
 extern void NewNameRemove(CHAR_DATA * ch);
 extern void NewNameRemove(const std::string& name, CHAR_DATA * ch);
+extern void print_rune_stats(CHAR_DATA *ch);
 
 /* local functions */
 int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg);
@@ -3507,6 +3508,7 @@ struct show_struct show_fields[] =
 	{"affectedrooms", LVL_IMMORT}, /* 20 */
 	{"money", LVL_IMPL},
 	{"expgain", LVL_IMPL},
+	{"runes", LVL_IMPL},
 	{"\n", 0}
 };
 
@@ -3911,6 +3913,9 @@ ACMD(do_show)
 		break;
 	case 22: // expgain
 		ZoneExpStat::print_gain(ch);
+		break;
+	case 23: // runes
+		print_rune_stats(ch);
 		break;
 	default:
 		send_to_char("Извините, неверная команда.\r\n", ch);
