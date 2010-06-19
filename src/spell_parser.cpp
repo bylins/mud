@@ -3660,7 +3660,8 @@ ACMD(do_learn)
 				(IS_MERCHANT(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MERCHANT)) ? 10 : 0;
 	addchance += (GET_OBJ_VAL(obj, 0) == BOOK_SPELL) ? 0 : 10;
 
-	if (number(1, 100) > int_app[POSI(GET_REAL_INT(ch))].spell_aknowlege + addchance || GET_GOD_FLAG(ch, GF_GODSLIKE))
+	if (!OBJ_FLAGGED(obj, ITEM_NO_FAIL)
+		&& number(1, 100) > int_app[POSI(GET_REAL_INT(ch))].spell_aknowlege + addchance)
 	{
 		sprintf(buf, "Вы взяли в руки %s и начали изучать. Непослушные\r\n"
 				"буквы никак не хотели выстраиваться в понятные и доступные фразы.\r\n"

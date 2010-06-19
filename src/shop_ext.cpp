@@ -396,6 +396,12 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 			obj_to_char(obj, ch);
 			if (GLORY_SHOP == (*shop)->type)
 			{
+				// книги за славу не фейлим
+				if (ITEM_BOOK == GET_OBJ_TYPE(obj))
+				{
+					SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NO_FAIL), ITEM_NO_FAIL);
+				}
+				// снятие и логирование славы
 				GloryConst::add_total_spent(price);
 				int removed = Glory::remove_glory(GET_UNIQUE(ch), price);
 				if (removed > 0)
