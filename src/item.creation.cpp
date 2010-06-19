@@ -254,189 +254,187 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 				cleanup_olc(d, CLEANUP_ALL);
 				return;
 			}
-			send_to_char("Неверный ввод.\r\n", d->character);
-			mredit_disp_menu(d);
+		}
+		send_to_char("Неверный ввод.\r\n", d->character);
+		mredit_disp_menu(d);
+		break;
 
-			break;
+	case MREDIT_OBJ_PROTO:
+		i = atoi(sagr.c_str());
+		if (real_object(i) < 0)
+		{
+			send_to_char("Прототип выбранного Вами объекта не существует.\r\n", d->character);
+		}
+		else
+		{
+			trec->obj_proto = i;
+			OLC_VAL(d) = 1;
+		}
+		mredit_disp_menu(d);
+		break;
 
-		case MREDIT_OBJ_PROTO:
-			i = atoi(sagr.c_str());
-			if (real_object(i) < 0)
+	case MREDIT_SKILL:
+		int skill_num;
+
+		skill_num = atoi(sagr.c_str());
+		i = 0;
+
+		while (make_skills[i].num != 0)
+		{
+			if (skill_num == i + 1)
 			{
-				send_to_char("Прототип выбранного Вами объекта не существует.\r\n", d->character);
-			}
-			else
-			{
-				trec->obj_proto = i;
+				trec->skill = make_skills[i].num;
 				OLC_VAL(d) = 1;
-			}
-			mredit_disp_menu(d);
-			break;
-
-		case MREDIT_SKILL:
-			int skill_num;
-
-			skill_num = atoi(sagr.c_str());
-			i = 0;
-
-			while (make_skills[i].num != 0)
-			{
-				if (skill_num == i + 1)
-				{
-					trec->skill = make_skills[i].num;
-					OLC_VAL(d) = 1;
-					mredit_disp_menu(d);
-					return;
-				}
-				i++;
-			}
-			send_to_char("Выбрано некорректное умение.\r\n", d->character);
-
-			mredit_disp_menu(d);
-			break;
-
-		case MREDIT_DEL:
-			if (sagr == "Y" || sagr == "y")
-			{
-				send_to_char("Рецепт удален. Рецепты сохранены.\r\n", d->character);
-
-				make_recepts.del(trec);
-
-				make_recepts.save();
-
-				make_recepts.load();
-
-				// Очищаем структуры OLC выходим в нормальный режим работы
-				cleanup_olc(d, CLEANUP_ALL);
-				return;
-
-			}
-			else if (sagr == "N" || sagr == "n")
-			{
-				send_to_char("Рецепт не удален.\r\n", d->character);
-
-			}
-			else
-			{
-				send_to_char("Неверный ввод.\r\n", d->character);
-			}
-			mredit_disp_menu(d);
-			break;
-
-		case MREDIT_LOCK:
-			if (sagr == "Y" || sagr == "y")
-			{
-				send_to_char("Рецепт заблокирован от использования.\r\n", d->character);
-				trec->locked = true;
-				OLC_VAL(d) = 1;
-			}
-			else if (sagr == "N" || sagr == "n")
-			{
-				send_to_char("Рецепт разблокирован и может использоваться.\r\n", d->character);
-				trec->locked = false;
-				OLC_VAL(d) = 1;
-
-			}
-			else
-			{
-				send_to_char("Неверный ввод.\r\n", d->character);
-			}
-			mredit_disp_menu(d);
-			break;
-
-		case MREDIT_INGR_MENU:
-			// Ввод меню ингридиентов.
-			if (sagr == "1")
-			{
-				send_to_char("Введите VNUM ингредиента : ", d->character);
-				OLC_MODE(d) = MREDIT_INGR_PROTO;
-				return;
-			}
-			if (sagr == "2")
-			{
-				send_to_char("Введите мин.вес ингредиента : ", d->character);
-				OLC_MODE(d) = MREDIT_INGR_WEIGHT;
-				return;
-			}
-			if (sagr == "3")
-			{
-				send_to_char("Введите мин.силу ингредиента : ", d->character);
-				OLC_MODE(d) = MREDIT_INGR_POWER;
-				return;
-			}
-			if (sagr == "q")
-			{
 				mredit_disp_menu(d);
 				return;
 			}
-			send_to_char("Неверный ввод.\r\n", d->character);
-			mredit_disp_ingr_menu(d);
-			break;
+			i++;
+		}
+		send_to_char("Выбрано некорректное умение.\r\n", d->character);
 
-		case MREDIT_INGR_PROTO:
+		mredit_disp_menu(d);
+		break;
 
-			i = atoi(sagr.c_str());
-			if (real_object(i) < 0)
-			{
-				send_to_char("Прототип выбранного Вами ингредиента не существует.\r\n", d->character);
-			}
-			else
-			{
-				trec->parts[OLC_NUM(d)].proto = i;
-				OLC_VAL(d) = 1;
-			}
-			mredit_disp_ingr_menu(d);
+	case MREDIT_DEL:
+		if (sagr == "Y" || sagr == "y")
+		{
+			send_to_char("Рецепт удален. Рецепты сохранены.\r\n", d->character);
 
-			break;
+			make_recepts.del(trec);
 
-		case MREDIT_INGR_WEIGHT:
+			make_recepts.save();
 
-			i = atoi(sagr.c_str());
+			make_recepts.load();
 
-			trec->parts[OLC_NUM(d)].min_weight = i;
-			OLC_VAL(d) = 1;
-
-			mredit_disp_ingr_menu(d);
-
-			break;
-
-		case MREDIT_INGR_POWER:
-
-			i = atoi(sagr.c_str());
-
-			trec->parts[OLC_NUM(d)].min_power = i;
-
-			OLC_VAL(d) = 1;
-
-			mredit_disp_ingr_menu(d);
-
-			break;
-		case MREDIT_CONFIRM_SAVE:
-			if (sagr == "Y" || sagr == "y")
-			{
-				send_to_char("Рецепты сохранены.\r\n", d->character);
-
-				make_recepts.save();
-
-				make_recepts.load();
-				// Очищаем структуры OLC выходим в нормальный режим работы
-				cleanup_olc(d, CLEANUP_ALL);
-				return;
-			}
-			else if (sagr == "N" || sagr == "n")
-			{
-				send_to_char("Рецепт не был сохранен.\r\n", d->character);
-				cleanup_olc(d, CLEANUP_ALL);
-				return;
-			}
-			else
-			{
-				send_to_char("Неверный ввод.\r\n", d->character);
-			}
-			mredit_disp_menu(d);
-			break;
+			// Очищаем структуры OLC выходим в нормальный режим работы
+			cleanup_olc(d, CLEANUP_ALL);
+			return;
 
 		}
+		else if (sagr == "N" || sagr == "n")
+		{
+			send_to_char("Рецепт не удален.\r\n", d->character);
+
+		}
+		else
+		{
+			send_to_char("Неверный ввод.\r\n", d->character);
+		}
+		mredit_disp_menu(d);
+		break;
+
+	case MREDIT_LOCK:
+		if (sagr == "Y" || sagr == "y")
+		{
+			send_to_char("Рецепт заблокирован от использования.\r\n", d->character);
+			trec->locked = true;
+			OLC_VAL(d) = 1;
+		}
+		else if (sagr == "N" || sagr == "n")
+		{
+			send_to_char("Рецепт разблокирован и может использоваться.\r\n", d->character);
+			trec->locked = false;
+			OLC_VAL(d) = 1;
+
+		}
+		else
+		{
+			send_to_char("Неверный ввод.\r\n", d->character);
+		}
+		mredit_disp_menu(d);
+		break;
+
+	case MREDIT_INGR_MENU:
+		// Ввод меню ингридиентов.
+		if (sagr == "1")
+		{
+			send_to_char("Введите VNUM ингредиента : ", d->character);
+			OLC_MODE(d) = MREDIT_INGR_PROTO;
+			return;
+		}
+		if (sagr == "2")
+		{
+			send_to_char("Введите мин.вес ингредиента : ", d->character);
+			OLC_MODE(d) = MREDIT_INGR_WEIGHT;
+			return;
+		}
+		if (sagr == "3")
+		{
+			send_to_char("Введите мин.силу ингредиента : ", d->character);
+			OLC_MODE(d) = MREDIT_INGR_POWER;
+			return;
+		}
+		if (sagr == "q")
+		{
+			mredit_disp_menu(d);
+			return;
+		}
+		send_to_char("Неверный ввод.\r\n", d->character);
+		mredit_disp_ingr_menu(d);
+		break;
+
+	case MREDIT_INGR_PROTO:
+
+		i = atoi(sagr.c_str());
+		if (real_object(i) < 0)
+		{
+			send_to_char("Прототип выбранного Вами ингредиента не существует.\r\n", d->character);
+		}
+		else
+		{
+			trec->parts[OLC_NUM(d)].proto = i;
+			OLC_VAL(d) = 1;
+		}
+		mredit_disp_ingr_menu(d);
+
+		break;
+
+	case MREDIT_INGR_WEIGHT:
+
+		i = atoi(sagr.c_str());
+
+		trec->parts[OLC_NUM(d)].min_weight = i;
+		OLC_VAL(d) = 1;
+
+		mredit_disp_ingr_menu(d);
+
+		break;
+
+	case MREDIT_INGR_POWER:
+
+		i = atoi(sagr.c_str());
+
+		trec->parts[OLC_NUM(d)].min_power = i;
+
+		OLC_VAL(d) = 1;
+
+		mredit_disp_ingr_menu(d);
+
+		break;
+	case MREDIT_CONFIRM_SAVE:
+		if (sagr == "Y" || sagr == "y")
+		{
+			send_to_char("Рецепты сохранены.\r\n", d->character);
+
+			make_recepts.save();
+
+			make_recepts.load();
+			// Очищаем структуры OLC выходим в нормальный режим работы
+			cleanup_olc(d, CLEANUP_ALL);
+			return;
+		}
+		else if (sagr == "N" || sagr == "n")
+		{
+			send_to_char("Рецепт не был сохранен.\r\n", d->character);
+			cleanup_olc(d, CLEANUP_ALL);
+			return;
+		}
+		else
+		{
+			send_to_char("Неверный ввод.\r\n", d->character);
+		}
+		mredit_disp_menu(d);
+		break;
 	}
 }
 
