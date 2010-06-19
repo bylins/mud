@@ -20,6 +20,7 @@
 #include "room.hpp"
 #include "glory.hpp"
 #include "glory_const.hpp"
+#include "screen.h"
 
 /*
 Пример конфига (plrstuff/shop/test.xml):
@@ -38,7 +39,6 @@
 </shop_list>
 */
 
-extern ACMD(do_tell);
 extern ACMD(do_echo);
 extern int do_social(CHAR_DATA * ch, char *argument);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
@@ -268,18 +268,27 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop)
 	send_to_char(out, ch);
 }
 
+/**
+ * Симуляция телла продавца.
+ */
+void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
+{
+	char local_buf[MAX_INPUT_LENGTH];
+	snprintf(local_buf, MAX_INPUT_LENGTH,
+		"%s сказал%s Вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
+	send_to_char(ch, "%s%s%s\r\n",
+		CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
+}
+
 void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType::const_iterator &shop)
 {
 	std::string buffer2(argument), buffer1;
 	GetOneParam(buffer2, buffer1);
 	boost::trim(buffer2);
 
-	char local_buf[MAX_INPUT_LENGTH];
-
 	if (buffer1.empty())
 	{
-		snprintf(local_buf, MAX_INPUT_LENGTH, "%s! ЧТО ты хочешь купить ?", GET_NAME(ch));
-		do_tell(keeper, local_buf, 0, 0);
+		tell_to_char(keeper, ch, "ЧТО ты хочешь купить?");
 		return;
 	}
 
@@ -314,17 +323,13 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	}
 	else
 	{
-		snprintf(local_buf, MAX_INPUT_LENGTH,
-			"%s! ЧТО ты хочешь купить ?", GET_NAME(ch));
-		do_tell(keeper, local_buf, 0, 0);
+		tell_to_char(keeper, ch, "ЧТО ты хочешь купить?");
 		return;
 	}
 
 	if (!item_count || !item_num || item_num > (*shop)->item_list.size())
 	{
-		snprintf(local_buf, MAX_INPUT_LENGTH,
-			"%s! Протри глаза, у меня нет такой вещи.", GET_NAME(ch));
-		do_tell(keeper, local_buf, 0, 0);
+		tell_to_char(keeper, ch, "Протри глаза, у меня нет такой вещи.");
 		return;
 	}
 
@@ -341,9 +346,10 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 
 	if (!check_money(ch, price, (*shop)->type))
 	{
-		snprintf(local_buf, MAX_INPUT_LENGTH,
-			"%s! У вас нет столько %s!", GET_NAME(ch), SIMPLE_SHOP == (*shop)->type ? "денег" : "славы");
-		do_tell(keeper, local_buf, 0, 0);
+		snprintf(buf, MAX_STRING_LENGTH,
+			"У вас нет столько %s!", SIMPLE_SHOP == (*shop)->type ? "денег" : "славы");
+		tell_to_char(keeper, ch, buf);
+		char local_buf[MAX_INPUT_LENGTH];
 		switch (number(0, 3))
 		{
 		case 0:
@@ -415,32 +421,32 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	{
 		if (!check_money(ch, price, (*shop)->type))
 		{
-			snprintf(local_buf, MAX_INPUT_LENGTH,
-				"%s! Мошенни%s, ты можешь оплатить только %d.",
-				GET_NAME(ch), IS_MALE(ch) ? "к" : "ца", bought);
+			snprintf(buf, MAX_STRING_LENGTH,
+				"Мошенни%s, ты можешь оплатить только %d.",
+				IS_MALE(ch) ? "к" : "ца", bought);
 		}
 		else if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 		{
-			snprintf(local_buf, MAX_INPUT_LENGTH,
-				"%s! Ты сможешь унести только %d.", GET_NAME(ch), bought);
+			snprintf(buf, MAX_STRING_LENGTH,
+				"Ты сможешь унести только %d.", bought);
 		}
 		else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(proto) > CAN_CARRY_W(ch))
 		{
-			snprintf(local_buf, MAX_INPUT_LENGTH,
-				"%s! Ты сможешь поднять только %d.", GET_NAME(ch), bought);
+			snprintf(buf, MAX_STRING_LENGTH,
+				"Ты сможешь поднять только %d.", bought);
 		}
 		else
 		{
-			snprintf(local_buf, MAX_INPUT_LENGTH,
-				"%s! Я продам тебе только %d.", GET_NAME(ch), bought);
+			snprintf(buf, MAX_STRING_LENGTH,
+				"Я продам тебе только %d.", bought);
 		}
-		do_tell(keeper, local_buf, 0, 0);
+		tell_to_char(keeper, ch, buf);
 	}
 
-	snprintf(local_buf, MAX_INPUT_LENGTH,
-		"%s! Это будет стоить %d %s.", GET_NAME(ch), total_money,
+	snprintf(buf, MAX_STRING_LENGTH,
+		"Это будет стоить %d %s.", total_money,
 		desc_count(total_money, SIMPLE_SHOP == (*shop)->type ? WHAT_MONEYu : WHAT_GLORYu));
-	do_tell(keeper, local_buf, 0, 0);
+	tell_to_char(keeper, ch, buf);
 	send_to_char(ch, "Теперь Вы стали %s %s.\r\n",
 		IS_MALE(ch) ? "счастливым обладателем" : "счастливой обладательницей",
 		item_count_message(proto, bought, 1).c_str());
@@ -451,11 +457,9 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 	std::string buffer(argument);
 	boost::trim(buffer);
 
-	char local_buf[MAX_INPUT_LENGTH];
 	if (buffer.empty())
 	{
-		snprintf(local_buf, MAX_INPUT_LENGTH, "%s! ЧТО ты хочешь опознать ?", GET_NAME(ch));
-		do_tell(keeper, local_buf, 0, 0);
+		tell_to_char(keeper, ch, "ЧТО ты хочешь опознать?");
 		return;
 	}
 
@@ -473,9 +477,7 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 
 	if (!item_num || item_num > (*shop)->item_list.size())
 	{
-		snprintf(local_buf, MAX_INPUT_LENGTH,
-			"%s! Протри глаза, у меня нет такой вещи.", GET_NAME(ch));
-		do_tell(keeper, local_buf, 0, 0);
+		tell_to_char(keeper, ch, "Протри глаза, у меня нет такой вещи.");
 		return;
 	}
 
@@ -491,9 +493,8 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 
 	if (ch->get_gold() < IDENTIFY_COST)
 	{
-		snprintf(local_buf, MAX_INPUT_LENGTH,
-			"%s! У вас нет столько денег!", GET_NAME(ch));
-		do_tell(keeper, local_buf, 0, 0);
+		tell_to_char(keeper, ch, "У вас нет столько денег!");
+		char local_buf[MAX_INPUT_LENGTH];
 		switch (number(0, 3))
 		{
 		case 0:
@@ -510,10 +511,10 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 		return;
 	}
 
-	snprintf(local_buf, MAX_INPUT_LENGTH,
-		"%s! Эта услуга будет стоить %d %s.", GET_NAME(ch), IDENTIFY_COST,
+	snprintf(buf, MAX_STRING_LENGTH,
+		"Эта услуга будет стоить %d %s.", IDENTIFY_COST,
 		desc_count(IDENTIFY_COST, WHAT_MONEYu));
-	do_tell(keeper, local_buf, 0, 0);
+	tell_to_char(keeper, ch, buf);
 
 	send_to_char(ch, "Характеристики предмета: %s\r\n", GET_OBJ_PNAME(proto, 0));
 	mort_show_obj_values(proto, ch, 200);
