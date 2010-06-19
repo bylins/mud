@@ -49,6 +49,7 @@ namespace ShopExt
 enum { SIMPLE_SHOP = 0, GLORY_SHOP, TOTAL_SHOP_TYPES };
 
 const int IDENTIFY_COST = 110;
+int spent_today = 0;
 
 struct item_node
 {
@@ -395,15 +396,24 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 			obj_to_char(obj, ch);
 			if (GLORY_SHOP == (*shop)->type)
 			{
+				GloryConst::add_total_spent(price);
 				int removed = Glory::remove_glory(GET_UNIQUE(ch), price);
+				if (removed > 0)
+				{
+					GloryConst::transfer_log("%s bought %s for %d temp glory",
+						GET_NAME(ch), GET_OBJ_PNAME(proto, 0), removed);
+				}
 				if (removed != price)
 				{
 					GloryConst::remove_glory(GET_UNIQUE(ch), price - removed);
+					GloryConst::transfer_log("%s bought %s for %d const glory",
+						GET_NAME(ch), GET_OBJ_PNAME(proto, 0), price - removed);
 				}
 			}
 			else
 			{
 				ch->remove_gold(price);
+				spent_today += price;
 			}
 			++bought;
 			total_money += price;
@@ -564,6 +574,11 @@ SPECIAL(shop_ext)
 	}
 
 	return 0;
+}
+
+int get_spent_today()
+{
+	return spent_today;
 }
 
 } // namespace ShopExt

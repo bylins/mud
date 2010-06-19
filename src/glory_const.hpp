@@ -29,6 +29,9 @@ int main_stats_count(CHAR_DATA *ch);
 
 void show_stats(CHAR_DATA *ch);
 
+void transfer_log(const char *format, ...);
+void add_total_spent(int amount);
+
 } // namespace GloryConst
 
 #endif // GLORY_CONST_HPP_INCLUDED

@@ -51,6 +51,7 @@
 #include "room.hpp"
 #include "glory_misc.hpp"
 #include "glory_const.hpp"
+#include "shop_ext.hpp"
 
 /*   external vars  */
 extern FILE *player_fl;
@@ -175,7 +176,7 @@ ACMD(do_email);
 extern const char *deaf_social;
 
 /* Adds karma string to KARMA*/
-void add_karma(CHAR_DATA * ch, char const * punish , char * reason)
+void add_karma(CHAR_DATA * ch, char const * punish , const char * reason)
 {
 	if (reason && (reason[0] != '.'))
 	{
@@ -3699,6 +3700,7 @@ ACMD(do_show)
 		Parcel::show_stats(ch);
 		send_to_char(ch, "  Список полей сражающихся: %d\r\n", fighting_list_size());
 		send_to_char(ch, "  Передвижения: %d\r\n", motion);
+		send_to_char(ch, "  Потрачено кун в магазинах2 за ребут: %d", ShopExt::get_spent_today());
 		break;
 	}
 	case 5:

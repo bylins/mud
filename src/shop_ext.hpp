@@ -14,6 +14,7 @@ namespace ShopExt
 
 SPECIAL(shop_ext);
 void load();
+int get_spent_today();
 
 } // namespace ShopExt
 

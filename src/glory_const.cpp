@@ -12,6 +12,7 @@
 #include <boost/format.hpp>
 #include <boost/array.hpp>
 #include "pugixml.hpp"
+#include <boost/algorithm/string.hpp>
 
 #include "glory_const.hpp"
 #include "structs.h"
@@ -24,7 +25,7 @@
 #include "char_player.hpp"
 #include "glory_misc.hpp"
 
-extern void add_karma(CHAR_DATA * ch, char const * punish , char * reason);
+extern void add_karma(CHAR_DATA * ch, char const * punish , const char * reason);
 extern void check_max_hp(CHAR_DATA *ch);
 
 namespace GloryConst
@@ -59,6 +60,8 @@ typedef std::map<long /* уид чара */, GloryNodePtr> GloryListType;
 GloryListType glory_list;
 // суммарное списанное в виде комиса кол-во славы
 int total_charge = 0;
+// потраченное в магазинах
+int total_spent = 0;
 
 struct glory_olc
 {
@@ -82,6 +85,36 @@ struct glory_olc
 
 // процент комиссии на вложенную славу при вынимании
 const int STAT_RETURN_FEE = 10;
+// комис за перевод славы (проценты)
+const int TRANSFER_FEE = 5;
+// минимальный комис за перевод славы (не проценты)
+const int MIN_TRANSFER_TAX = 50;
+// минимальное кол-во славы для перевода (>= MIN_TRANSFER_TAX)
+const int MIN_TRANSFER_AMOUNT = 100;
+
+void transfer_log(const char *format, ...)
+{
+	const char *filename = "../log/glory_transfer.log";
+
+	FILE *file = fopen(filename, "a");
+	if (!file)
+	{
+		log("SYSERR: can't open %s!", filename);
+		return;
+	}
+
+	if (!format)
+		format = "SYSERR: imm_log received a NULL format.";
+
+	write_time(file);
+	va_list args;
+	va_start(args, format);
+	vfprintf(file, format, args);
+	va_end(args);
+	fprintf(file, "\n");
+
+	fclose(file);
+}
 
 /**
 * Аналог бывшего макроса GET_GLORY().
@@ -523,6 +556,11 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 	return 0;
 }
 
+const char *GLORY_CONST_FORMAT =
+	"Формат: слава2\r\n"
+	"        слава2 информация\r\n"
+	"        слава2 перевести <имя> <кол-во>\r\n";
+
 ACMD(do_spend_glory)
 {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
@@ -534,69 +572,126 @@ ACMD(do_spend_glory)
 
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
-	if (CompareParam(buffer2, "информация"))
+
+	if (buffer2.empty())
+	{
+		if (it->second->free_glory < 1000 && it->second->stats.empty())
+		{
+			send_to_char("У вас недостаточно очков славы для использования этой команды.\r\n", ch);
+			return;
+		}
+
+		boost::shared_ptr<glory_olc> tmp_glory_olc(new glory_olc);
+		tmp_glory_olc->stat_cur[GLORY_STR] = GET_STR(ch);
+		tmp_glory_olc->stat_cur[GLORY_DEX] = GET_DEX(ch);
+		tmp_glory_olc->stat_cur[GLORY_INT] = GET_INT(ch);
+		tmp_glory_olc->stat_cur[GLORY_WIS] = GET_WIS(ch);
+		tmp_glory_olc->stat_cur[GLORY_CON] = GET_CON(ch);
+		tmp_glory_olc->stat_cur[GLORY_CHA] = GET_CHA(ch);
+
+		for (std::map<int, int>::const_iterator i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i)
+		{
+			if (i->first < GLORY_TOTAL && i->first >= 0)
+			{
+				tmp_glory_olc->stat_cur[i->first] -= i->second;
+				tmp_glory_olc->stat_add[i->first] = tmp_glory_olc->stat_was[i->first] = i->second;
+			}
+			else
+			{
+				log("Glory: некорректный номер стата %d (uid: %ld)", i->first, it->first);
+			}
+		}
+		tmp_glory_olc->olc_free_glory = tmp_glory_olc->olc_was_free_glory = it->second->free_glory;
+
+		ch->desc->glory_const = tmp_glory_olc;
+		STATE(ch->desc) = CON_GLORY_CONST;
+		spend_glory_menu(ch);
+	}
+	else if (CompareParam(buffer2, "информация"))
 	{
 		send_to_char("Информация о вложенных вами очках славы:\r\n", ch);
 		print_glory(ch, it);
-		return;
 	}
-/*
-	if (CompareParam(buffer2, "перевести"))
+	else if (CompareParam(buffer2, "перевести"))
 	{
+		if (it->second->free_glory < MIN_TRANSFER_AMOUNT)
+		{
+			send_to_char(ch,
+				"У вас недостаточно свободных очков постоянной славы (минимум %d).\r\n",
+				MIN_TRANSFER_AMOUNT);
+			return;
+		}
+
 		std::string name;
 		GetOneParam(buffer, name);
 		// buffer = кол-во
 		boost::trim(buffer);
-		long vict_uid = GetUniqueByName(name, true);
-		int amount = boost::lexical_cast<int>(buffer);
-		if (amount <= 0 || amount > it->second->free_glory)
+
+		Player p_vict;
+		CHAR_DATA *vict = &p_vict;
+		if (load_char(name.c_str(), vict) < 0)
 		{
-			send_to_char(ch, "%d - некорректное количество для перевода.\r\n");
+			send_to_char(ch, "%s - некорректное имя персонажа.\r\n", name.c_str());
 			return;
 		}
-		if (vict_uid <= 0)
+		if (str_cmp(GET_EMAIL(ch), GET_EMAIL(vict)))
 		{
-			send_to_char(ch, "%s - персонаж не найден.\r\n", name.c_str());
+			send_to_char(ch, "Персонажи имеют разные email адреса.\r\n");
 			return;
 		}
+
+		int amount = 0;
+		try
+		{
+			amount = boost::lexical_cast<int>(buffer);
+		}
+		catch(...)
+		{
+			send_to_char(ch, "%s - некорректное количество для перевода.\r\n", buffer.c_str());
+			send_to_char(GLORY_CONST_FORMAT, ch);
+			return;
+		}
+		if (amount < MIN_TRANSFER_AMOUNT || amount > it->second->free_glory)
+		{
+			send_to_char(ch,
+				"%d - некорректное количество для перевода.\r\n"
+				"Вы можете перевести от %d до %d постоянной славы.\r\n",
+				amount, MIN_TRANSFER_AMOUNT, it->second->free_glory);
+			return;
+		}
+
+		int tax = MAX(MIN_TRANSFER_TAX, amount / 100 * TRANSFER_FEE);
+		int total_amount = amount - tax;
+
 		remove_glory(GET_UNIQUE(ch), amount);
-		add_glory(uid, amount);
+		add_glory(GET_UNIQUE(vict), total_amount);
+
+		snprintf(buf, MAX_STRING_LENGTH,
+			"Transfer %d const glory from %s", total_amount, GET_NAME(ch));
+		add_karma(vict, buf, "командой");
+
+		snprintf(buf, MAX_STRING_LENGTH,
+			"Transfer %d const glory to %s", amount, GET_NAME(vict));
+		add_karma(ch, buf, "командой");
+
+		total_charge += tax;
+		transfer_log("%s -> %s transfered %d (%d tax)", GET_NAME(ch), GET_NAME(vict), total_amount, tax);
+
+		ch->save_char();
+		vict->save_char();
+		save();
+
+		send_to_char(ch, "%s переведено %d постоянной славы (%d комиссии).\r\n",
+			GET_PAD(vict, 2), total_amount, tax);
+
 		// TODO: ну если в глори-лог или карму, то надо стоимость/налог
 		// на трансфер ставить, чтобы не заспамили.
 		// а без отдельных логов потом фик поймешь откуда на чаре слава
 	}
-*/
-	if (it->second->free_glory < 1000 && it->second->stats.empty())
+	else
 	{
-		send_to_char("У вас недостаточно очков славы для использования этой команды.\r\n", ch);
-		return;
+		send_to_char(GLORY_CONST_FORMAT, ch);
 	}
-
-	boost::shared_ptr<glory_olc> tmp_glory_olc(new glory_olc);
-	tmp_glory_olc->stat_cur[GLORY_STR] = GET_STR(ch);
-	tmp_glory_olc->stat_cur[GLORY_DEX] = GET_DEX(ch);
-	tmp_glory_olc->stat_cur[GLORY_INT] = GET_INT(ch);
-	tmp_glory_olc->stat_cur[GLORY_WIS] = GET_WIS(ch);
-	tmp_glory_olc->stat_cur[GLORY_CON] = GET_CON(ch);
-	tmp_glory_olc->stat_cur[GLORY_CHA] = GET_CHA(ch);
-
-	for (std::map<int, int>::const_iterator i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i)
-	{
-		if (i->first < GLORY_TOTAL && i->first >= 0)
-		{
-			tmp_glory_olc->stat_cur[i->first] -= i->second;
-			tmp_glory_olc->stat_add[i->first] = tmp_glory_olc->stat_was[i->first] = i->second;
-		}
-		else
-		{
-			log("Glory: некорректный номер стата %d (uid: %ld)", i->first, it->first);
-		}
-	}
-	tmp_glory_olc->olc_free_glory = tmp_glory_olc->olc_was_free_glory = it->second->free_glory;
-
-	ch->desc->glory_const = tmp_glory_olc;
-	STATE(ch->desc) = CON_GLORY_CONST;
-	spend_glory_menu(ch);
 }
 
 /**
@@ -804,6 +899,10 @@ void save()
 	charge_node.set_name("total_charge");
 	charge_node.append_attribute("amount") = total_charge;
 
+	pugi::xml_node spent_node = char_list.append_child();
+	spent_node.set_name("total_spent");
+	spent_node.append_attribute("amount") = total_spent;
+
 	doc.save_file(LIB_PLRSTUFF"glory_const.xml");
 }
 
@@ -858,6 +957,11 @@ void load()
     if (charge_node)
     {
 		total_charge = boost::lexical_cast<int>(charge_node.attribute("amount").value());
+    }
+    pugi::xml_node spent_node = char_list.child("total_spent");
+    if (spent_node)
+    {
+		total_spent = boost::lexical_cast<int>(spent_node.attribute("amount").value());
     }
 }
 
@@ -939,8 +1043,18 @@ void show_stats(CHAR_DATA *ch)
 		free_glory += i->second->free_glory;
 		spend_glory += calculate_glory_in_stats(i);
 	}
-	send_to_char(ch, "  Слава2: вложено %d, свободно %d, всего %d, комиссии %d\r\n",
-		spend_glory, free_glory, free_glory + spend_glory, total_charge);
+	send_to_char(ch,
+		"  Слава2: вложено %d, свободно %d, всего %d, комиссии %d\r\n"
+		"  Всего потрачено славы в магазинах: %d\r\n",
+		spend_glory, free_glory, free_glory + spend_glory, total_charge, total_spent);
+}
+
+void add_total_spent(int amount)
+{
+	if (amount > 0)
+	{
+		total_spent += amount;
+	}
 }
 
 } // namespace GloryConst
