@@ -306,16 +306,16 @@ const char *START_MESSG =
 /****************************************************************************/
 /****************************************************************************/
 
-extern double exp_coefficients[];
 int max_exp_gain_pc(CHAR_DATA * ch)
 {
-	float exp_modifier;
-	int max_per_lev = level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch) + 0);
-	if (GET_REMORT(ch) < MAX_EXP_COEFFICIENTS_USED)
-		exp_modifier = exp_coefficients[GET_REMORT(ch)];
-	else
-		exp_modifier = exp_coefficients[MAX_EXP_COEFFICIENTS_USED];
-	return (IS_NPC(ch) ? 1 : (max_per_lev / 10) + (2 / 3 * max_per_lev * GET_REMORT(ch) / 10));
+	int result = 1;
+	if (!IS_NPC(ch))
+	{
+		int max_per_lev =
+			level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch) + 0);
+		result = max_per_lev / (10 + GET_REMORT(ch));
+	}
+	return result;
 }
 
 int max_exp_loss_pc(CHAR_DATA * ch)
