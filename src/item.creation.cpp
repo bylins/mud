@@ -1977,11 +1977,10 @@ int MakeRecept::make(CHAR_DATA * ch)
 				tmpstr = "Вам не хватило " + string(ingrs[i]->PNames[1]) + ".\r\n";
 				//  Удаляем объект и выходим.
 				send_to_char(tmpstr.c_str(), ch);
-				// если мы здесь экстрактим ингр и ставим make_fail = true, то дальше этот ингр может сэкстрактиться еще раз,
-				// откуда там берется вес <= 0 чет так сходу не очень ясно
-				// extract_obj(ingrs[i]);
-				GET_OBJ_WEIGHT(ingrs[i]) = -1;
+				IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
+				GET_OBJ_WEIGHT(ingrs[i]) = 0;
 				make_fail = true;
+				// при make_fail = true этот ингр сэкстрактится дальше из-за нулевого веса
 				continue;
 			}
 
@@ -2229,7 +2228,6 @@ int MakeRecept::make(CHAR_DATA * ch)
 	if ((obj_index[GET_OBJ_RNUM(obj)].number + obj_index[GET_OBJ_RNUM(obj)].stored) >= (31 - created_lev) * 5)
 	{
 		tmpstr = "$o вспыхнул синим пламенем и исчез.\r\n";
-		send_to_char(tmpstr.c_str(), ch);
 		act(tmpstr.c_str(), FALSE, ch, obj, 0, TO_CHAR);
 		tmpstr = "$o в руках $n1 вспыхнул синим пламенем и исчез.";
 		act(tmpstr.c_str(), FALSE, ch, obj, 0, TO_ROOM);
