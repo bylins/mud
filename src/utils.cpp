@@ -458,6 +458,31 @@ void temp_log(const char *format, ...)
 	fprintf(file, "\n");
 }
 
+void kill_log(const char *format, ...)
+{
+	const char *filename = "../log/kill.log";
+
+	FILE *file = fopen(filename, "a");
+	if (!file)
+	{
+		log("SYSERR: can't open %s!", filename);
+		return;
+	}
+
+	if (!format)
+		format = "SYSERR: kill_log received a NULL format.";
+
+	write_time(file);
+	va_list args;
+	va_start(args, format);
+	vfprintf(file, format, args);
+	va_end(args);
+	fprintf(file, "\n");
+
+	fclose(file);
+}
+
+
 /**
 * Файл персонального лога терь открывается один раз за каждый вход плеера в игру.
 * Дескриптор открытого файла у плеера же и хранится (закрывает при con_close).

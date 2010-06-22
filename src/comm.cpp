@@ -134,6 +134,7 @@ extern void proc_color(char *inbuf, int color);
 extern void tact_auction(void);
 extern time_t boot_time;
 extern void log_code_date();
+extern void print_rune_log();
 
 /* external global objects and containers */
 extern BanList *ban;
@@ -541,6 +542,7 @@ void init_game(ush_int port)
 	GloryMisc::save_log();
 	MoneyDropStat::print_log();
 	ZoneExpStat::print_log();
+	print_rune_log();
 
 	log("Closing all sockets.");
 	while (descriptor_list)
@@ -1314,6 +1316,7 @@ inline void heartbeat()
 	{
 		MoneyDropStat::print_log();
 		ZoneExpStat::print_log();
+		print_rune_log();
 	}
 
 // раз в 10 минут >> ///////////////////////////////////////////////////////////

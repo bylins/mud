@@ -772,6 +772,7 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 			sprintf(buf, "%s advanced %d level%s to level %d.",
 					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
 			mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
+			kill_log(buf);
 		}
 	}
 	else if (gain < 0 && GET_LEVEL(ch) < LVL_IMMORT)

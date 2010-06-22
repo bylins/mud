@@ -686,6 +686,12 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 			if (IS_NPC(ch) && killer && (!IS_NPC(killer) || IS_CHARMICE(killer)))
 			{
 				log("Killed: %d %d %ld", GET_LEVEL(ch), GET_MAX_HIT(ch), GET_EXP(ch));
+				CHAR_DATA *master = killer;
+				if (IS_CHARMICE(killer))
+				{
+					master = killer->master ? killer->master : killer;
+				}
+				kill_log("%s (%d): %d", GET_NAME(master), GET_LEVEL(master), GET_LEVEL(ch));
 			}
 			local_gold = ch->get_gold();
 			corpse = make_corpse(ch);

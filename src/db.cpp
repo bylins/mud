@@ -5815,6 +5815,7 @@ ACMD(do_remort)
     }
 
 	log("Remort %s", GET_NAME(ch));
+	kill_log("Remort %s (%d -> %d)", GET_NAME(ch), GET_REMORT(ch), GET_REMORT(ch) + 1);
 
 	ch->remort();
 

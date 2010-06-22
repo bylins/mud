@@ -1141,6 +1141,16 @@ void print_rune_stats(CHAR_DATA *ch)
 	}
 	send_to_char(out, ch);
 }
+
+void print_rune_log()
+{
+	for (std::map<int, int>::const_iterator i = rune_list.begin(),
+		iend = rune_list.end(); i != iend; ++i)
+	{
+		log("RuneUsed: %d %d", i->first, i->second);
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void extract_item(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
