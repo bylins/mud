@@ -2357,7 +2357,7 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 		int max_exp = MIN(max_exp_gain_pc(ch), (GET_LEVEL(victim) * GET_MAX_HIT(victim) + 4) /
 			(5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 		double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
-		int battle_exp = static_cast<int>(max_exp * coeff);
+		int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
 //		int battle_exp = MAX(1, (GET_LEVEL(victim) * MIN(dam, GET_HIT(victim)) + 4) /
 //						 (5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 		gain_exp(ch, battle_exp);
