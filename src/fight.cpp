@@ -2345,6 +2345,26 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktyp
 	}
 }
 
+void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
+{
+	if (ch != victim
+		&& OK_GAIN_EXP(ch, victim)
+		&& GET_EXP(victim) > 0
+		&& !AFF_FLAGGED(victim, AFF_CHARM)
+		&& !MOB_FLAGGED(victim, MOB_ANGEL)
+		&& !IS_NPC(ch))
+	{
+		int max_exp = MIN(max_exp_gain_pc(ch), (GET_LEVEL(victim) * GET_MAX_HIT(victim) + 4) /
+			(5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
+		double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
+		int battle_exp = max_exp * coeff;
+//		int battle_exp = MAX(1, (GET_LEVEL(victim) * MIN(dam, GET_HIT(victim)) + 4) /
+//						 (5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
+		gain_exp(ch, battle_exp);
+		ch->dps_add_exp(battle_exp, true);
+	}
+}
+
 /**
 * При надуве выше х 1.5 в пк есть 1% того, что весь надув слетит одним ударом.
 */
@@ -2618,18 +2638,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 
 	//*************** Gain exp for the hit
 	//Battle exp gain for mobs is DISABLED
-	if (ch != victim &&
-			OK_GAIN_EXP(ch, victim) &&
-			GET_EXP(victim) > 0 &&
-			!AFF_FLAGGED(victim, AFF_CHARM) && !MOB_FLAGGED(victim, MOB_ANGEL) && !IS_NPC(ch))
-	{
-		int battle_exp = MAX(1, (GET_LEVEL(victim) * MIN(dam, GET_HIT(victim)) + 4) /
-						 (5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
-		gain_exp(ch, battle_exp);
-		ch->dps_add_exp(battle_exp, true);
-	}
-	// gain_exp(ch, IS_NPC(ch) ? GET_LEVEL(victim) * dam : (GET_LEVEL(victim) * dam + 4) / 5);
-	// log("[DAMAGE] Updating pos...");
+	gain_battle_exp(ch, victim, dam);
 
 	// тюнинх
 	if (IS_CHARMICE(ch))
