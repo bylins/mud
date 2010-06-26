@@ -1912,7 +1912,7 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	/* 0 */
 		"Действие клича мощи закончилось.",		/* SPELL_WC_OF_POWER	*/
 		"Действие клича доблести закончилось.",		/* SPELL_WC_OF_BLESS	*/
 		"Действие клича отваги закончилось.",		/* SPELL_WC_OF_COURAGE	*/
-		"Магические письмена на замле угасли.",         /* SPELL_RUNE_LABEL */
+		"Магические письмена на земле угасли.",         /* SPELL_RUNE_LABEL */
 		"В Вашей крови не осталось ни капельки яда.", // SPELL_ACONITUM_POISON
 		"В Вашей крови не осталось ни капельки яда.", // SPELL_SCOPOLIA_POISON
 		"В Вашей крови не осталось ни капельки яда.", // SPELL_BELENA_POISON
