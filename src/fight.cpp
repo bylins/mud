@@ -4327,6 +4327,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	if (IS_NPC(ch))
 	{
 		// TODO : чармисы
+		вфь += GET_REAL_DR(ch);
 		dam += str_app[STRENGTH_APPLY_INDEX(ch)].todam;
 	}
 	else
