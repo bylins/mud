@@ -3913,8 +3913,8 @@ int limit_weap_dam(CHAR_DATA *ch, OBJ_DATA *weap, int dam)
 	case SKILL_BOWS:
 		// 1..5 лвл = 4 ср
 		// 6..25 лвл = 4,5..14 ср
-		median_dam = MMAX(1, (GET_OBJ_VAL(weap, 2) + 1) * GET_OBJ_VAL(weap, 1) / 2.0);
-		capped_dam = MMAX(5, 1.5 + ch->get_level() * 0.5);
+		median_dam = static_cast<int>(MMAX(1, (GET_OBJ_VAL(weap, 2) + 1) * GET_OBJ_VAL(weap, 1) / 2.0));
+		capped_dam = static_cast<int>(MMAX(5, 1.5 + ch->get_level() * 0.5));
 		break;
 	case SKILL_SHORTS:
 	case SKILL_LONGS:
@@ -3926,15 +3926,13 @@ int limit_weap_dam(CHAR_DATA *ch, OBJ_DATA *weap, int dam)
 	case SKILL_SPADES:
 		// 1..5 лвл = 6 ср
 		// 6..25 лвл = 6,7..20 ср
-		median_dam = MMAX(1, (GET_OBJ_VAL(weap, 2) + 1) * GET_OBJ_VAL(weap, 1) / 2.0);
-		capped_dam = MMAX(5, 2.5 + ch->get_level() * 0.7);
+		median_dam = static_cast<int>(MMAX(1, (GET_OBJ_VAL(weap, 2) + 1) * GET_OBJ_VAL(weap, 1) / 2.0));
+		capped_dam = static_cast<int>(MMAX(5, 2.5 + ch->get_level() * 0.7));
 		break;
 	}
 
 	double over_coeff = median_dam / static_cast<double>(capped_dam);
-	int limited_dam = dam / over_coeff;
-
-log("aaa: %d -> %d, coef=%f, med=%d, cap=%d", dam, limited_dam, over_coeff, median_dam, capped_dam);
+	int limited_dam = static_cast<int>(dam / over_coeff);
 
 	return MIN(limited_dam, dam);
 }
