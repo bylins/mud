@@ -3909,7 +3909,7 @@ int limit_added_dr(CHAR_DATA *ch, int damroll, int total_dr)
 
 int add_pc_damroll(CHAR_DATA *ch, int dam, bool info = false)
 {
-	int dr_by_str = GET_REAL_DR(ch) - 14;
+	int dr_by_str = GET_REAL_STR(ch) - 14;
 	int native_str_dr = ch->get_start_stat(G_STR) + ch->get_remort() - 14;
 	int obj_str_dr = MAX(0, dr_by_str - native_str_dr);
 
