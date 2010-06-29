@@ -1080,24 +1080,35 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 	// Вычисляем, надо ли резать экспу, смотрим сначала лидера, если он рядом
 	rmrt = MIN(14, (int)GET_REMORT(k));
 	if (maxlevel - GET_LEVEL(k) > grouping[(int)GET_CLASS(k)][rmrt] && leader_inroom)
-		koef -= 50;
+	{
+		koef -= 50 + (maxlevel - GET_LEVEL(k) - grouping[(int)GET_CLASS(k)][rmrt]) * 2;
+	}
 	else	// если с лидером все ок либо он не тут, смотрим по группе
+	{
 		for (f = k->followers; f; f = f->next)
+		{
 			if (AFF_FLAGGED(f->follower, AFF_GROUP) && f->follower->in_room == IN_ROOM(ch))
 			{
 				rmrt = MIN(14, (int)GET_REMORT(f->follower));
 				if (maxlevel - GET_LEVEL(f->follower) >
 						grouping[(int)GET_CLASS(f->follower)][rmrt])
 				{
-					koef -= 50;
+					koef -= 50 + (maxlevel - GET_LEVEL(f->follower)
+						- grouping[(int)GET_CLASS(f->follower)][rmrt]) * 2;
 					break;
 				}
 			}
+		}
+	}
+
+	koef = MAX(0, koef);
 
 	// Лидерство используется, если в комнате лидер и есть еще хоть кто-то
 	// из группы из PC (последователи типа лошади или чармисов не считаются)
-	if (leader_inroom && (inroom_members > 1) && calc_leadership(k))
+	if (koef >= 100 && leader_inroom && (inroom_members > 1) && calc_leadership(k))
+	{
 		koef += 20;
+	}
 
 	// Раздача опыта
 
