@@ -2554,7 +2554,7 @@ ACMD(do_score)
 		{
 			if (GET_OBJ_TYPE(weapon) == ITEM_WEAPON)
 			{
-				int weap_dam = GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
+				int weap_dam = GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1);
 				max_dam += MAX(1, limit_weap_dam(ch, weapon, weap_dam));
 				skill = GET_OBJ_SKILL(weapon);
 				if (ch->get_skill(skill) == 0)
