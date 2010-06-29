@@ -40,6 +40,7 @@
 #include "corpse.hpp"
 #include "room.hpp"
 #include "AffectHandler.hpp"
+#include "genchar.h"
 
 extern CHAR_DATA *mob_proto;
 
@@ -3889,6 +3890,50 @@ void hit_block(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
 	}
 }
 
+int limit_added_dr(CHAR_DATA *ch, int damroll)
+{
+	int calc_dr = damroll;
+	if (ch->get_level() < 26)
+	{
+		calc_dr = MIN(2 * ch->get_level(), damroll);
+	}
+	return MIN(calc_dr, damroll);
+}
+
+int limit_weap_dam(CHAR_DATA *ch, OBJ_DATA *weap, int dam)
+{
+	if (GET_OBJ_TYPE(weap) != ITEM_WEAPON || ch->get_level() > 25)
+	{
+		return dam;
+	}
+
+	int median_dam = 1, capped_dam = 1;
+	switch (GET_OBJ_SKILL(weap))
+	{
+	case SKILL_BOWS:
+		// 1..5 лвл = 5 ср
+		// 6..25 лвл = 5,5..15 ср
+		median_dam = MAX(1, (GET_OBJ_VAL(weap, 2) + 1) * GET_OBJ_VAL(weap, 1) / 2.0);
+		capped_dam = MAX(5, 2.5 + ch->get_level() * 0.5);
+		break;
+	case SKILL_SHORTS:
+	case SKILL_LONGS:
+	case SKILL_AXES:
+	case SKILL_CLUBS:
+	case SKILL_NONSTANDART:
+	case SKILL_BOTHHANDS:
+	case SKILL_PICK:
+	case SKILL_SPADES:
+		// 1..5 лвл = 6 ср
+		// 6..25 лвл = 6,65..19 ср
+		median_dam = MAX(1, (GET_OBJ_VAL(weap, 2) + 1) * GET_OBJ_VAL(weap, 1) / 2.0);
+		capped_dam = MAX(5, 2.75 + ch->get_level() * 0.65);
+		break;
+	}
+	double over_coeff = median_dam/static_cast<double>(capped_dam);
+	return MIN(dam / over_coeff, dam);
+}
+
 /**
 * обработка ударов оружием, санка, призма, стили, итд.
 * \param weapon = 1 - атака правой или двумя руками
@@ -4276,9 +4321,19 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	// Start with the damage bonuses: the damroll and strength apply
 
-	dam += GET_REAL_DR(ch);
-	dam = dam > 0 ? number(1, (dam * 2)) : dam;
-	dam += str_app[STRENGTH_APPLY_INDEX(ch)].todam;
+	if (IS_NPC(ch))
+	{
+		dam += str_app[STRENGTH_APPLY_INDEX(ch)].todam;
+	}
+	else
+	{
+		int native_dr = ch->get_start_stat(G_STR) + ch->get_remort() - 14;
+		dam += MAX(0, native_dr);
+		int added_dr = MAX(0, GET_REAL_STR(ch) - native_dr) + GET_REAL_DR(ch);
+		dam += limit_added_dr(ch, added_dr);
+	}
+
+	dam = dam > 0 ? number(dam/2, (dam * 3 / 2)) : dam;
 
 	if (GET_EQ(ch, WEAR_BOTHS) && skill != SKILL_BOWS)
 		dam *= 2;
@@ -4305,7 +4360,14 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			percent = MIN(percent, percent * GET_OBJ_CUR(wielded) / MAX(1, GET_OBJ_MAX(wielded)));
 		}
 		percent = calculate_strconc_damage(ch, wielded, percent);
-		dam += MAX(1, percent);
+		if (IS_NPC(ch))
+		{
+			dam += MAX(1, percent);
+		}
+		else
+		{
+			dam += MAX(1, limit_weap_dam(ch, wielded, percent));
+		}
 		noparryhit += calculate_noparryhit_dmg(ch, wielded);
 		if (type == SKILL_BACKSTAB)
 			noparryhit = noparryhit * 10 / 15;
