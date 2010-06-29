@@ -3890,14 +3890,40 @@ void hit_block(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
 	}
 }
 
-int limit_added_dr(CHAR_DATA *ch, int damroll)
+int limit_added_dr(CHAR_DATA *ch, int damroll, int total_dr)
 {
 	int calc_dr = damroll;
+
 	if (ch->get_level() < 26)
 	{
-		calc_dr = MIN(2 * ch->get_level(), damroll);
+		int cap_dr = MIN(2 * ch->get_level(), total_dr);
+		if (cap_dr < total_dr)
+		{
+			double coeff = total_dr / static_cast<double>(cap_dr);
+			calc_dr = static_cast<int>(damroll/coeff);
+		}
 	}
+
 	return MIN(calc_dr, damroll);
+}
+
+int add_pc_damroll(CHAR_DATA *ch, int dam, bool info = false)
+{
+	int dr_by_str = GET_REAL_DR(ch) - 14;
+	int native_str_dr = ch->get_start_stat(G_STR) + ch->get_remort() - 14;
+	int obj_str_dr = MAX(0, dr_by_str - native_str_dr);
+
+	int added_dr_total = GET_REAL_DR(ch) + obj_str_dr;
+
+	dam += limit_added_dr(ch, GET_REAL_DR(ch), added_dr_total);
+	if (!info)
+	{
+		dam = dam > 0 ? number(1, (dam * 2)) : dam;
+	}
+	dam += limit_added_dr(ch, obj_str_dr, added_dr_total);
+	dam += MAX(0, native_str_dr);
+
+	return dam;
 }
 
 int limit_weap_dam(CHAR_DATA *ch, OBJ_DATA *weap, int dam)
@@ -4328,17 +4354,13 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	{
 		// TODO : чармисы
 		dam += GET_REAL_DR(ch);
+		dam = dam > 0 ? number(1, (dam * 2)) : dam;
 		dam += str_app[STRENGTH_APPLY_INDEX(ch)].todam;
 	}
 	else
 	{
-		int native_dr = ch->get_start_stat(G_STR) + ch->get_remort() - 14;
-		dam += MAX(0, native_dr);
-		int added_dr = MAX(0, GET_REAL_STR(ch) - native_dr) + GET_REAL_DR(ch);
-		dam += limit_added_dr(ch, added_dr);
+		dam = add_pc_damroll(ch, dam);
 	}
-
-	dam = dam > 0 ? number(dam/2, (dam * 3 / 2)) : dam;
 
 	if (GET_EQ(ch, WEAR_BOTHS) && skill != SKILL_BOWS)
 		dam *= 2;

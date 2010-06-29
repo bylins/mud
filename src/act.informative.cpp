@@ -75,6 +75,8 @@ extern const char *material_name[];
 extern im_type *imtypes;
 extern int top_imtypes;
 extern void show_code_date(CHAR_DATA *ch);
+extern int add_pc_damroll(CHAR_DATA *ch, int dam, bool info = false);
+extern int limit_weap_dam(CHAR_DATA *ch, OBJ_DATA *weap, int dam);
 
 /* extern functions */
 long find_class_bitvector(char arg);
@@ -2535,7 +2537,7 @@ ACMD(do_score)
 				CCIGRN(ch, C_NRM), GET_ABSORBE(ch), CCCYN(ch, C_NRM),
 				CCWHT(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
-		max_dam = GET_REAL_DR(ch) + str_app[GET_REAL_STR(ch)].todam;
+		max_dam = add_pc_damroll(ch, max_dam, true);
 
 		if (IS_WARRIOR(ch))
 		{
@@ -2552,7 +2554,8 @@ ACMD(do_score)
 		{
 			if (GET_OBJ_TYPE(weapon) == ITEM_WEAPON)
 			{
-				max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1);
+				int weap_dam = GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
+				max_dam += MAX(1, limit_weap_dam(ch, weapon, weap_dam));
 				skill = GET_OBJ_SKILL(weapon);
 				if (ch->get_skill(skill) == 0)
 				{
@@ -2571,7 +2574,8 @@ ACMD(do_score)
 			{
 				if (GET_OBJ_TYPE(weapon) == ITEM_WEAPON)
 				{
-					max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
+					int weap_dam = GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
+					max_dam += MAX(1, limit_weap_dam(ch, weapon, weap_dam));
 					skill = GET_OBJ_SKILL(weapon);
 					if (ch->get_skill(skill) == 0)
 					{
@@ -2588,7 +2592,8 @@ ACMD(do_score)
 			{
 				if (GET_OBJ_TYPE(weapon) == ITEM_WEAPON)
 				{
-					max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
+					int weap_dam = GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
+					max_dam += MAX(1, limit_weap_dam(ch, weapon, weap_dam));
 					skill = GET_OBJ_SKILL(weapon);
 					if (ch->get_skill(skill) == 0)
 					{
