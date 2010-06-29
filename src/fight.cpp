@@ -3911,10 +3911,10 @@ int limit_weap_dam(CHAR_DATA *ch, OBJ_DATA *weap, int dam)
 	switch (GET_OBJ_SKILL(weap))
 	{
 	case SKILL_BOWS:
-		// 1..5 лвл = 5 ср
-		// 6..25 лвл = 5,5..15 ср
-		median_dam = MAX(1, (GET_OBJ_VAL(weap, 2) + 1) * GET_OBJ_VAL(weap, 1) / 2.0);
-		capped_dam = MAX(5, 2.5 + ch->get_level() * 0.5);
+		// 1..5 лвл = 4 ср
+		// 6..25 лвл = 4,5..14 ср
+		median_dam = MMAX(1, (GET_OBJ_VAL(weap, 2) + 1) * GET_OBJ_VAL(weap, 1) / 2.0);
+		capped_dam = MMAX(5, 1.5 + ch->get_level() * 0.5);
 		break;
 	case SKILL_SHORTS:
 	case SKILL_LONGS:
@@ -3925,13 +3925,18 @@ int limit_weap_dam(CHAR_DATA *ch, OBJ_DATA *weap, int dam)
 	case SKILL_PICK:
 	case SKILL_SPADES:
 		// 1..5 лвл = 6 ср
-		// 6..25 лвл = 6,65..19 ср
-		median_dam = MAX(1, (GET_OBJ_VAL(weap, 2) + 1) * GET_OBJ_VAL(weap, 1) / 2.0);
-		capped_dam = MAX(5, 2.75 + ch->get_level() * 0.65);
+		// 6..25 лвл = 6,7..20 ср
+		median_dam = MMAX(1, (GET_OBJ_VAL(weap, 2) + 1) * GET_OBJ_VAL(weap, 1) / 2.0);
+		capped_dam = MMAX(5, 2.5 + ch->get_level() * 0.7);
 		break;
 	}
-	double over_coeff = median_dam/static_cast<double>(capped_dam);
-	return MIN(dam / over_coeff, dam);
+
+	double over_coeff = median_dam / static_cast<double>(capped_dam);
+	int limited_dam = dam / over_coeff;
+
+log("aaa: %d -> %d, coef=%f, med=%d, cap=%d", dam, limited_dam, over_coeff, median_dam, capped_dam);
+
+	return MIN(limited_dam, dam);
 }
 
 /**
@@ -4323,6 +4328,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	if (IS_NPC(ch))
 	{
+		// TODO : чармисы
 		dam += str_app[STRENGTH_APPLY_INDEX(ch)].todam;
 	}
 	else
@@ -4362,6 +4368,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		percent = calculate_strconc_damage(ch, wielded, percent);
 		if (IS_NPC(ch))
 		{
+			// TODO : чармисы
 			dam += MAX(1, percent);
 		}
 		else
