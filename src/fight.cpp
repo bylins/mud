@@ -3906,7 +3906,7 @@ int limit_added_dr(CHAR_DATA *ch, int damroll, int total_dr)
 	int calc_dr = damroll;
 	int rmrt = MIN(14, GET_REMORT(ch));
 
-	if (ch->get_level() <= 30 - grouping[GET_CLASS(ch)][rmrt])
+	if (ch->get_level() < 30 - grouping[GET_CLASS(ch)][rmrt])
 	{
 		int cap_dr = MIN(2 * ch->get_level(), total_dr);
 		if (cap_dr < total_dr)
@@ -3941,7 +3941,7 @@ int add_pc_damroll(CHAR_DATA *ch, int dam, bool info = false)
 int limit_weap_dam(CHAR_DATA *ch, OBJ_DATA *weap, int dam)
 {
 	int rmrt = MIN(14, GET_REMORT(ch));
-	if (GET_OBJ_TYPE(weap) != ITEM_WEAPON || ch->get_level() > 30 - grouping[GET_CLASS(ch)][rmrt])
+	if (GET_OBJ_TYPE(weap) != ITEM_WEAPON || ch->get_level() >= 30 - grouping[GET_CLASS(ch)][rmrt])
 	{
 		return dam;
 	}
