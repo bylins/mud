@@ -75,8 +75,6 @@ extern const char *material_name[];
 extern im_type *imtypes;
 extern int top_imtypes;
 extern void show_code_date(CHAR_DATA *ch);
-extern int add_pc_damroll(CHAR_DATA *ch, int dam, bool info = false);
-extern int limit_weap_dam(CHAR_DATA *ch, OBJ_DATA *weap, int dam);
 
 /* extern functions */
 long find_class_bitvector(char arg);
@@ -1363,7 +1361,7 @@ void do_auto_exits(CHAR_DATA * ch)
 		{
 			if (EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED))
 				slen += sprintf(buf + slen, "(%c) ", LOWER(*dirs[door]));
-			else if (!EXIT_FLAGGED(EXIT(ch, door), EX_HIDDEN)) 
+			else if (!EXIT_FLAGGED(EXIT(ch, door), EX_HIDDEN))
 			{
 				if (world[EXIT(ch, door)->to_room]->zone==world[ch->in_room]->zone)
 					slen += sprintf(buf + slen, "%c ", LOWER(*dirs[door]));
@@ -2542,7 +2540,7 @@ ACMD(do_score)
 				CCIGRN(ch, C_NRM), GET_ABSORBE(ch), CCCYN(ch, C_NRM),
 				CCWHT(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
-		max_dam = add_pc_damroll(ch, max_dam, true);
+		max_dam = GET_REAL_DR(ch) + str_app[GET_REAL_STR(ch)].todam;
 
 		if (IS_WARRIOR(ch))
 		{
@@ -2559,8 +2557,7 @@ ACMD(do_score)
 		{
 			if (GET_OBJ_TYPE(weapon) == ITEM_WEAPON)
 			{
-				int weap_dam = GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1);
-				max_dam += MAX(1, limit_weap_dam(ch, weapon, weap_dam));
+				max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1);
 				skill = GET_OBJ_SKILL(weapon);
 				if (ch->get_skill(skill) == 0)
 				{
@@ -2579,8 +2576,7 @@ ACMD(do_score)
 			{
 				if (GET_OBJ_TYPE(weapon) == ITEM_WEAPON)
 				{
-					int weap_dam = GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
-					max_dam += MAX(1, limit_weap_dam(ch, weapon, weap_dam));
+					max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
 					skill = GET_OBJ_SKILL(weapon);
 					if (ch->get_skill(skill) == 0)
 					{
@@ -2597,8 +2593,7 @@ ACMD(do_score)
 			{
 				if (GET_OBJ_TYPE(weapon) == ITEM_WEAPON)
 				{
-					int weap_dam = GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
-					max_dam += MAX(1, limit_weap_dam(ch, weapon, weap_dam));
+					max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
 					skill = GET_OBJ_SKILL(weapon);
 					if (ch->get_skill(skill) == 0)
 					{

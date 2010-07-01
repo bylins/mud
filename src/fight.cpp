@@ -3901,6 +3901,7 @@ void hit_block(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
 	}
 }
 
+/*
 int limit_added_dr(CHAR_DATA *ch, int damroll, int total_dr)
 {
 	int calc_dr = damroll;
@@ -3975,6 +3976,8 @@ int limit_weap_dam(CHAR_DATA *ch, OBJ_DATA *weap, int dam)
 
 	return MIN(limited_dam, dam);
 }
+
+*/
 
 /**
 * обработка ударов оружием, санка, призма, стили, итд.
@@ -4363,17 +4366,9 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	// Start with the damage bonuses: the damroll and strength apply
 
-	if (IS_NPC(ch))
-	{
-		// TODO : чармисы
-		dam += GET_REAL_DR(ch);
-		dam = dam > 0 ? number(1, (dam * 2)) : dam;
-		dam += str_app[STRENGTH_APPLY_INDEX(ch)].todam;
-	}
-	else
-	{
-		dam = add_pc_damroll(ch, dam);
-	}
+	dam += GET_REAL_DR(ch);
+	dam = dam > 0 ? number(1, (dam * 2)) : dam;
+	dam += str_app[STRENGTH_APPLY_INDEX(ch)].todam;
 
 	if (GET_EQ(ch, WEAR_BOTHS) && skill != SKILL_BOWS)
 		dam *= 2;
@@ -4400,15 +4395,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			percent = MIN(percent, percent * GET_OBJ_CUR(wielded) / MAX(1, GET_OBJ_MAX(wielded)));
 		}
 		percent = calculate_strconc_damage(ch, wielded, percent);
-		if (IS_NPC(ch))
-		{
-			// TODO : чармисы
-			dam += MAX(1, percent);
-		}
-		else
-		{
-			dam += MAX(1, limit_weap_dam(ch, wielded, percent));
-		}
+		dam += MAX(1, percent);
 		noparryhit += calculate_noparryhit_dmg(ch, wielded);
 		if (type == SKILL_BACKSTAB)
 			noparryhit = noparryhit * 10 / 15;
