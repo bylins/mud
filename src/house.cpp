@@ -2063,7 +2063,7 @@ void Clan::hcontrol_exphistory(CHAR_DATA *ch, std::string &text)
 	{
 		tmp_list.insert(std::make_pair((*i)->exp_history.get(month), (*i)->get_abbrev()));
 	}
-	for (std::map<long long, std::string>::const_reverse_iterator i = tmp_list.rbegin(), iend = tmp_list.rend(); i != iend; ++i)
+	for (std::multimap<long long, std::string>::const_reverse_iterator i = tmp_list.rbegin(), iend = tmp_list.rend(); i != iend; ++i)
 	{
 		send_to_char(ch, "%5s - %s\r\n", i->second.c_str(), ExpFormat(i->first).c_str());
 	}

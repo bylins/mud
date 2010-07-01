@@ -1363,8 +1363,13 @@ void do_auto_exits(CHAR_DATA * ch)
 		{
 			if (EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED))
 				slen += sprintf(buf + slen, "(%c) ", LOWER(*dirs[door]));
-			else if (!EXIT_FLAGGED(EXIT(ch, door), EX_HIDDEN))
-				slen += sprintf(buf + slen, "%c ", LOWER(*dirs[door]));
+			else if (!EXIT_FLAGGED(EXIT(ch, door), EX_HIDDEN)) 
+			{
+				if (world[EXIT(ch, door)->to_room]->zone==world[ch->in_room]->zone)
+					slen += sprintf(buf + slen, "%c ", LOWER(*dirs[door]));
+				else
+					slen += sprintf(buf + slen, "%c ", UPPER(*dirs[door]));
+			}
 		}
 	sprintf(buf2, "%s[ Exits: %s]%s\r\n", CCCYN(ch, C_NRM), *buf ? buf : "None! ", CCNRM(ch, C_NRM));
 
@@ -5138,6 +5143,11 @@ ACMD(do_toggle)
 			sprintf(buf,  " Уведомления   : %-3s \r\n", "Нет");
 	send_to_char(buf, ch);
 
+}
+
+ACMD(do_zone)
+{
+	send_to_char(ch, "%s.\r\n", zone_table[world[ch->in_room]->zone].name);
 }
 
 

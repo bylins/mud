@@ -396,6 +396,7 @@ ACMD(DoBest);
 ACMD(do_offtop);
 ACMD(do_dmeter);
 ACMD(do_mystat);
+ACMD(do_zone);
 
 /* This is the Master Command List(tm).
 
@@ -575,6 +576,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"заучить", POS_RESTING, do_remember, 0, 0, 0},
 	{"зачитать", POS_RESTING, do_use, 0, SCMD_RECITE, 500},
 	{"золото", POS_RESTING, do_gold, 0, 0, 0},
+	{"зона", POS_RESTING, do_zone, 0, 0, 0},
 
 	{"инвентарь", POS_SLEEPING, do_inventory, 0, 0, 0},
 	{"игнорировать", POS_DEAD, do_ignore, 0, 0, 0},
@@ -1026,6 +1028,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"wizat", POS_DEAD, do_at, LVL_GRGOD, 0, 0},
 	{"write", POS_STANDING, do_write, 1, 0, -1},
 	{"zedit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_ZEDIT},
+	{"zone", POS_RESTING, do_zone, 0, 0, 0},
 	{"zreset", POS_DEAD, do_zreset, LVL_GRGOD, 0, 0},
 
 	/* Команды крафтинга - для тестига пока уровня имма */
