@@ -996,6 +996,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	IGNORE_LIST(this) = NULL;
 	CREATE(GET_LOGS(this), int, NLOG);
 	NOTIFY_EXCH_PRICE(this) = 0;
+	this->player_specials->saved.HiredCost = 0;
 
 	GET_BOARD(this) = new(struct board_data);
 	// здесь можно указать дату, с которой пойдет отсчет новых сообщений,
