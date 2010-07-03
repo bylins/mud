@@ -1029,7 +1029,7 @@ ACMD(do_findhelpee)
 	CHAR_DATA *helpee;
 	struct follow_type *k;
 	AFFECT_DATA af;
-	int cost, times, i;
+	int cost=0, times, i;
 	char isbank[MAX_INPUT_LENGTH];
 
 	if (IS_NPC(ch) || (!WAITLESS(ch) && GET_CLASS(ch) != CLASS_MERCHANT))
@@ -1051,7 +1051,26 @@ ACMD(do_findhelpee)
 				act("$N2 сейчас, похоже, не до Вас.", FALSE, ch, 0, k->follower, TO_CHAR);
 			else
 			{
+				// added by WorM (Видолюб) 2010.06.04 Cохраняем цену найма моба
+				if (!IS_IMMORTAL(ch))
+				{
+					AFFECT_DATA *aff;
+					for (aff = k->follower->affected; aff; aff = aff->next)
+					 if (aff->type==SPELL_CHARM)
+					{
+						cost = MAX(0,(int)((aff->duration-1)/2)*(int)abs(k->follower->mob_specials.hire_price));
+						if(cost>0)
+						{
+							if(k->follower->mob_specials.hire_price < 0)
+								ch->add_bank(cost);
+							else
+								ch->add_gold(cost);
+						}
+					        break;
+					}
+				}
 				act("Вы рассчитали $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
+				// end by WorM
 				affect_from_char(k->follower, SPELL_CHARM);
 				stop_follower(k->follower, SF_CHARMLOST);
 			}
@@ -1160,10 +1179,12 @@ ACMD(do_findhelpee)
 			if (isname(isbank, "банк bank"))
 			{
 				ch->remove_bank(cost);
+				helpee->mob_specials.hire_price = -i;// added by WorM (Видолюб) 2010.06.04 Сохраняем цену по которой наняли моба через банк
 			}
 			else
 			{
 				ch->remove_gold(cost);
+				helpee->mob_specials.hire_price = i;// added by WorM (Видолюб) 2010.06.04 Сохраняем цену по которой наняли моба
 			}
 
 			affect_from_char(helpee, AFF_CHARM);

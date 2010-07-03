@@ -3843,6 +3843,7 @@ void show_wizdom(CHAR_DATA * ch, int bitset)
 							  slot_num ? CCICYN(ch, C_NRM) : "",
 							  i + 1, slot_num, slot_num ? CCNRM(ch, C_NRM) : "");
 		}
+		sprintf(buf2 + gcount, "\r\n");
 	}
 	//page_string(ch->desc, buf2, 1);
 	send_to_char(buf2, ch);

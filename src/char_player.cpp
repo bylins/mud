@@ -667,7 +667,29 @@ void Player::save_char()
     fprintf(saved, "Ript: %d\n", GET_RIP_PKTHIS(this)); //Rip_pk_this
     fprintf(saved, "Expt: %ld\n", GET_EXP_PKTHIS(this));//Exp_pk_this
 /*конец правки (с) Василиса*/
-
+	// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
+	i = 0;
+	if (this->followers && GET_CLASS(this) == CLASS_MERCHANT && !IS_IMMORTAL(this))
+	{
+		struct follow_type *k;
+		for (k = this->followers; k; k = k->next)
+			if (AFF_FLAGGED(k->follower, AFF_HELPER) && AFF_FLAGGED(k->follower, AFF_CHARM))
+				break;
+		if(k)
+		{
+			for (int j = 0; j < MAX_OBJ_AFFECT; j++)
+			 if (k->follower->affected[j].type==SPELL_CHARM)
+			{
+				if(k->follower->mob_specials.hire_price == 0)
+					break;
+				i = (int)(((k->follower->affected[j].duration-1)/2)*k->follower->mob_specials.hire_price);
+				break;
+			}
+		}
+	}
+	if(i != 0)
+		fprintf(saved, "GldH: %d\n", i);
+	// end by WorM
 	this->quested_save(saved);
 	this->mobmax_save(saved);
 	save_pkills(this, saved);
@@ -1162,6 +1184,15 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				GCURSE_DURATION(this) = lnum;
 			else if (!strcmp(tag, "GdFl"))
 				this->player_specials->saved.GodsLike = lnum;
+			// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
+			else if (!strcmp(tag, "GldH"))
+			{
+				if(num != 0 && !IS_IMMORTAL(this) && GET_CLASS(this) == CLASS_MERCHANT)
+				{
+					this->player_specials->saved.HiredCost = num;
+				}
+			}
+			// end by WorM
 			break;
 
 		case 'H':

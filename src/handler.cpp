@@ -969,7 +969,10 @@ void affect_from_char(CHAR_DATA * ch, int type)
 	}
 
 	if (IS_NPC(ch) && type == SPELL_CHARM)
+	{
 		EXTRACT_TIMER(ch) = 5;
+		ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
+	}
 }
 
 /*

@@ -1716,6 +1716,19 @@ int Crash_load(CHAR_DATA * ch)
 	mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 	cost = (int)(SAVEINFO(index)->rent.net_cost_per_diem * num_of_days);
 	cost = MAX(0, cost);
+	// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
+	if(RENTCODE(index) == RENT_CRASH)
+	{
+		if(!IS_IMMORTAL(ch) && GET_CLASS(ch) == CLASS_MERCHANT && ch->player_specials->saved.HiredCost!=0)
+		{
+			if(ch->player_specials->saved.HiredCost<0)
+				ch->add_bank(-ch->player_specials->saved.HiredCost, false);
+			else
+				ch->add_gold(ch->player_specials->saved.HiredCost, false);
+		}
+		ch->player_specials->saved.HiredCost=0;
+	}
+	// end by WorM
 	if ((RENTCODE(index) == RENT_CRASH || RENTCODE(index) == RENT_FORCED) && SAVEINFO(index)->rent.time + free_crashrent_period * SECS_PER_REAL_HOUR > time(0))  	/*Бесплатная рента, если выйти в течение 2 часов после ребута или креша */
 	{
 		sprintf(buf, "%s** На сей раз постой был бесплатным **%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));

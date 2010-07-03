@@ -159,6 +159,7 @@ struct mob_special_data
 	int LastRoom;
 	char *Questor;
 	int speed;
+	int hire_price;// added by WorM (Видолюб) 2010.06.04 Цена найма чармиса
 };
 
 // очередь запоминания заклинаний
@@ -229,6 +230,7 @@ struct player_special_data_saved
 	/*конец правки (с) Василиса */
 	//Polud храним цену, начиная с которой нужно присылать оффлайн-уведомления с базара
 	long ntfyExchangePrice;
+	int HiredCost;// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
 };
 
 struct player_special_data
