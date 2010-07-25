@@ -1586,8 +1586,12 @@ int npc_scavenge(CHAR_DATA * ch)
 		best_cont = NULL;
 		for (obj = world[ch->in_room]->contents; obj; obj = obj->next_content)
 		{
-			if (GET_OBJ_TYPE(obj) == ITEM_MING  || Clan::is_clan_chest(obj))
+			if (GET_OBJ_TYPE(obj) == ITEM_MING
+				|| Clan::is_clan_chest(obj)
+				|| ClanSystem::is_ingr_chest(obj))
+			{
 				continue;
+			}
 			if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER)
 			{
 				if (IS_CORPSE(obj))

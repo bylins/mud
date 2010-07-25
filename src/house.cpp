@@ -5263,9 +5263,7 @@ bool Clan::put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest)
 		return 0;
 	}
 
-	if (GET_OBJ_TYPE(obj) != ITEM_INGRADIENT
-			&& GET_OBJ_TYPE(obj) != ITEM_MING
-			&& GET_OBJ_TYPE(obj)!= ITEM_MATERIAL)
+	if (GET_OBJ_TYPE(obj) != ITEM_MING && GET_OBJ_TYPE(obj)!= ITEM_MATERIAL)
 	{
 		send_to_char(ch,
 				"%s - Хранилище ингредиентов не предназначено для предметов данного типа.\r\n",
