@@ -59,6 +59,10 @@ int planebit(char *str, int *plane, int *bit);
 
 int real_zone(int number);
 
+SPECIAL(shop_keeper);
+SPECIAL(receptionist);
+void clear_mob_charm(CHAR_DATA *mob);
+
 /*-------------------------------------------------------------------*/
 
 /*
@@ -409,6 +413,12 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 		// Теперь просто удалить OLC_MOB(d) и все будет хорошо
 		medit_mobile_free(OLC_MOB(d));
 		// Удаление "оболочки" произойдет в olc_cleanup
+
+		if (mob_index[rmob_num].func == shop_keeper
+			|| mob_index[rmob_num].func == receptionist)
+		{
+			clear_mob_charm(&mob_proto[rmob_num]);
+		}
 
 		// В живых мобах необходимо обновить строки, иначе будут крэши
 		for (live_mob = character_list; live_mob; live_mob = live_mob->next)

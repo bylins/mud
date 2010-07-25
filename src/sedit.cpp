@@ -109,6 +109,7 @@ void sedit_modify_string(char **str, char *lnew);
  * External functions.
  */
 SPECIAL(shop_keeper);
+void clear_mob_charm(CHAR_DATA *mob);
 
 /*-------------------------------------------------------------------*\
   utility functions
@@ -1290,6 +1291,7 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		 */
 		S_FUNC(OLC_SHOP(d)) = mob_index[i].func;
 		mob_index[i].func = shop_keeper;
+		clear_mob_charm(&mob_proto[i]);
 		break;
 	case SEDIT_OPEN1:
 		S_OPEN1(OLC_SHOP(d)) = MAX(0, MIN(28, atoi(arg)));

@@ -49,6 +49,7 @@ SPECIAL(snake);
 SPECIAL(thief);
 SPECIAL(magic_user);
 SPECIAL(bank);
+SPECIAL(shop_keeper);
 
 void assign_kings_castle(void);
 
@@ -59,6 +60,7 @@ void assign_rooms(void);
 void ASSIGNROOM(room_vnum room, SPECIAL(fname));
 void ASSIGNMOB(mob_vnum mob, SPECIAL(fname));
 void ASSIGNOBJ(obj_vnum obj, SPECIAL(fname));
+void clear_mob_charm(CHAR_DATA *mob);
 
 /* functions to perform assignments */
 
@@ -72,9 +74,7 @@ void ASSIGNMOB(mob_vnum mob, SPECIAL(fname))
 		// рентерам хардкодом снимаем возможные нежелательные флаги
 		if (fname == receptionist)
 		{
-			REMOVE_BIT(MOB_FLAGS(&mob_proto[rnum], MOB_MOUNTING), MOB_MOUNTING);
-			SET_BIT(MOB_FLAGS(&mob_proto[rnum], MOB_NOCHARM), MOB_NOCHARM);
-			SET_BIT(MOB_FLAGS(&mob_proto[rnum], MOB_NORESURRECTION), MOB_NORESURRECTION);
+			clear_mob_charm(&mob_proto[rnum]);
 		}
 	}
 	else if (!mini_mud)
@@ -232,4 +232,24 @@ void init_spec_procs(void)
 	}
 	fclose(magic);
 	return;
+}
+
+/**
+ * Снятие нежелательных флагов у рентеров и продавцов.
+ */
+void clear_mob_charm(CHAR_DATA *mob)
+{
+	if (mob && !mob->purged())
+	{
+		REMOVE_BIT(MOB_FLAGS(mob, MOB_MOUNTING), MOB_MOUNTING);
+		SET_BIT(MOB_FLAGS(mob, MOB_NOCHARM), MOB_NOCHARM);
+		SET_BIT(MOB_FLAGS(mob, MOB_NORESURRECTION), MOB_NORESURRECTION);
+		REMOVE_BIT(NPC_FLAGS(mob, NPC_HELPED), NPC_HELPED);
+	}
+	else
+	{
+		log("SYSERROR: mob = %s (%s:%d)",
+			mob ? (mob->purged() ? "purged" : "true") : "false",
+			__FILE__, __LINE__);
+	}
 }

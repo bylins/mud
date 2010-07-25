@@ -46,6 +46,7 @@ char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode);
 char *diag_timer_to_char(OBJ_DATA * obj);
 int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
+void clear_mob_charm(CHAR_DATA *mob);
 
 /* Local variables */
 SHOP_DATA *shop_index;
@@ -2070,12 +2071,16 @@ void assign_the_shopkeepers(void)
 	{
 //     log(">>%d",SHOP_KEEPER(index));
 		if (SHOP_KEEPER(index) == NOBODY)
-			continue;
-		if (mob_index[SHOP_KEEPER(index)].func)
 		{
-			SHOP_FUNC(index) = mob_index[SHOP_KEEPER(index)].func;
+			continue;
 		}
-		mob_index[SHOP_KEEPER(index)].func = shop_keeper;
+		const int rnum = SHOP_KEEPER(index);
+		if (mob_index[rnum].func)
+		{
+			SHOP_FUNC(index) = mob_index[rnum].func;
+		}
+		mob_index[rnum].func = shop_keeper;
+		clear_mob_charm(&mob_proto[rnum]);
 	}
 }
 
