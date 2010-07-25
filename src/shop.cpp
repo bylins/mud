@@ -768,7 +768,8 @@ void shopping_buy(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 	}
 
 	/* if (!IS_GOD(ch)) */
-	keeper->add_gold(goldamt);
+	//keeper->add_gold(goldamt); // commented by WorM (Видолюб) 25.07.2010 бабки то у нас в магазах бесконечные,
+	                             // собсно есть чит с чармисами торгашами
 
 	sprintf(buf, "$n купил$g %s.", times_message(obj /* ch->carrying */ , 0, bought, 3));
 	act(buf, FALSE, ch, obj, 0, TO_ROOM);
