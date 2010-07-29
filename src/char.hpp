@@ -52,7 +52,6 @@ struct char_played_ability_data
 	int intel_add;
 	int wis_add;
 	int dex_add;
-	int con_add;
 	int cha_add;
 	int weight_add;
 	int height_add;
@@ -90,7 +89,6 @@ struct char_ability_data
 	sbyte intel;
 	sbyte wis;
 	sbyte dex;
-	sbyte con;
 	sbyte cha;
 	sbyte size;
 	sbyte hitroll;
@@ -377,6 +375,11 @@ public:
 
 	int calc_morale() const;
 
+	int get_con() const;
+	void set_con(int);
+	int get_con_add() const;
+	void set_con_add(int);
+
 private:
 	void check_fighting_list();
 	void zero_init();
@@ -418,6 +421,10 @@ private:
 	long gold_;
 	// деньги в банке
 	long bank_gold_;
+	// родное тело
+	int con_;
+	// плюсы на тело
+	int con_add_;
 
 // старое
 public:

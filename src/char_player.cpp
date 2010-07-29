@@ -910,10 +910,15 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	GET_ALIGNMENT(this) = 0;
 	GET_BAD_PWS(this) = 0;
 	this->player_data.time.birth = time(0);
-	GET_CHA(this) = 10;
 	GET_KIN(this) = 0;
-	GET_CON(this) = 10;
+
+	GET_STR(this) = 10;
+	set_con(10);
 	GET_DEX(this) = 10;
+	GET_CHA(this) = 10;
+	GET_INT(this) = 10;
+	GET_WIS(this) = 10;
+
 	GET_COND(this, DRUNK) = 0;
 	GET_DRUNK_STATE(this) = 0;
 
@@ -966,7 +971,6 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	GET_HEIGHT(this) = 50;
 	GET_HR(this) = 0;
 	GET_COND(this, FULL) = 0;
-	GET_INT(this) = 10;
 	GET_INVIS_LEV(this) = 0;
 	this->player_data.time.logon = time(0);
 	GET_MOVE(this) = 44;
@@ -983,11 +987,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	GET_RELIGION(this) = 1;
 	GET_RACE(this) = 1;
 	GET_SEX(this) = 0;
-	GET_STR(this) = 10;
 	GET_COND(this, THIRST) = 0;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
-	GET_WIS(this) = 10;
 	asciiflag_conv("", &PRF_FLAGS(this, 0));
 	asciiflag_conv("", &AFF_FLAGS(this, 0));
 	GET_PORTALS(this) = NULL;
@@ -1093,7 +1095,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			if (!strcmp(tag, "Cha "))
 				GET_CHA(this) = num;
 			else if (!strcmp(tag, "Con "))
-				GET_CON(this) = num;
+				set_con(num);
 			break;
 
 		case 'D':

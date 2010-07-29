@@ -3804,39 +3804,53 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 			mob_num = MOB_SKELETON;
 		else
 		{
-			pfail =
-				110 -
-				con_app[GET_CON(mob_proto + real_mobile(mob_num))].
-				ressurection - number(1, GET_LEVEL(ch)) - GET_CAST_SUCCESS(ch) - GET_REMORT(ch) * 5;
-			//added by Ann
+			const int real_mob_num = real_mobile(mob_num);
+			pfail = 10 + GET_CON(mob_proto + real_mob_num) * 2
+				- number(1, GET_LEVEL(ch)) - GET_CAST_SUCCESS(ch) - GET_REMORT(ch) * 5;
+
 			if (affected_by_spell(ch, SPELL_FASCINATION))
 			{
-				//send_to_char("-обаяние",ch);
-				pfail += 30 + GET_REMORT(ch) * 5;	//есть под заклинанием "обаяние", то фейлов больше
+				//есть под заклинанием "обаяние", то фейлов больше
+				pfail += 30 + GET_REMORT(ch) * 5;
 			}
-			//end Ann
-			if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 5)
+
+			if (GET_LEVEL(mob_proto + real_mob_num) <= 5)
+			{
 				mob_num = MOB_SKELETON;
-			else if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 10)
+			}
+			else if (GET_LEVEL(mob_proto + real_mob_num) <= 10)
+			{
 				mob_num = MOB_ZOMBIE;
-			else if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 20)
+			}
+			else if (GET_LEVEL(mob_proto + real_mob_num) <= 20)
+			{
 				mob_num = MOB_BONEDOG;
-			else if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 27)
+			}
+			else if (GET_LEVEL(mob_proto + real_mob_num) <= 27)
+			{
 				mob_num = MOB_BONEDRAGON;
+			}
 			else
+			{
 				mob_num = MOB_BONESPIRIT;
+			}
 
 			if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 15 && mob_num > MOB_ZOMBIE)
+			{
 				mob_num = MOB_ZOMBIE;
+			}
 			else if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 25 && mob_num > MOB_BONEDOG)
+			{
 				mob_num = MOB_BONEDOG;
+			}
 			else if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 32 && mob_num > MOB_BONEDRAGON)
+			{
 				mob_num = MOB_BONEDRAGON;
+			}
 		}
 		handle_corpse = TRUE;
 		msg = number(1, 9);
 		fmsg = number(2, 6);
-//    pfail        += 10;
 		break;
 
 	case SPELL_RESSURECTION:
@@ -3854,10 +3868,8 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		handle_corpse = TRUE;
 		msg = 11;
 		fmsg = number(2, 6);
-		pfail =
-			110 -
-			con_app[GET_CON(mob_proto + real_mobile(mob_num))].ressurection -
-			number(1, GET_LEVEL(ch)) - GET_CAST_SUCCESS(ch) - GET_REMORT(ch) * 5;
+		pfail = 10 + GET_CON(mob_proto + real_mobile(mob_num)) * 2
+			- number(1, GET_LEVEL(ch)) - GET_CAST_SUCCESS(ch) - GET_REMORT(ch) * 5;
 		break;
 
 	default:
@@ -3998,7 +4010,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		GET_INT(mob) = GET_INT(ch);
 		GET_WIS(mob) = GET_WIS(ch);
 		GET_DEX(mob) = GET_DEX(ch);
-		GET_CON(mob) = GET_CON(ch);
+		mob->set_con(ch->get_con());
 		GET_CHA(mob) = GET_CHA(ch);
 
 		mob->set_level(ch->get_level());

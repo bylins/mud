@@ -283,7 +283,7 @@ bool check_stats(CHAR_DATA *ch)
 		GET_DEX(ch) = MIN_DEX(ch);
 		GET_INT(ch) = MIN_INT(ch);
 		GET_WIS(ch) = MIN_WIS(ch);
-		GET_CON(ch) = MIN_CON(ch);
+		ch->set_con(MIN_CON(ch));
 		GET_CHA(ch) = MIN_CHA(ch);
 
 		snprintf(buf, MAX_STRING_LENGTH, "%sПросим вас заново распределить основные параметры персонажа.%s\r\n",
@@ -311,13 +311,13 @@ void recalculate_stats(CHAR_DATA *ch)
 	GET_DEX(ch) = ch->get_start_stat(G_DEX);
 	GET_INT(ch) = ch->get_start_stat(G_INT);
 	GET_WIS(ch) = ch->get_start_stat(G_WIS);
-	GET_CON(ch) = ch->get_start_stat(G_CON);
+	ch->set_con(ch->get_start_stat(G_CON));
 	GET_CHA(ch) = ch->get_start_stat(G_CHA);
 	// морты
 	if (GET_REMORT(ch))
 	{
 		GET_STR(ch) += GET_REMORT(ch);
-		GET_CON(ch) += GET_REMORT(ch);
+		ch->set_con(ch->get_con() + GET_REMORT(ch));
 		GET_DEX(ch) += GET_REMORT(ch);
 		GET_INT(ch) += GET_REMORT(ch);
 		GET_WIS(ch) += GET_REMORT(ch);

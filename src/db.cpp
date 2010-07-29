@@ -2508,7 +2508,7 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 	mob_proto[i].real_abils.intel = 11;
 	mob_proto[i].real_abils.wis = 11;
 	mob_proto[i].real_abils.dex = 11;
-	mob_proto[i].real_abils.con = 11;
+	mob_proto[i].set_con(11);
 	mob_proto[i].real_abils.cha = 11;
 
 	if (!get_line(mob_f, line))
@@ -2735,8 +2735,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 
 	CASE("Con")
 	{
-		RANGE(3, 50);
-		mob_proto[i].real_abils.con = num_arg;
+		mob_proto[i].set_con(num_arg);
 	}
 
 	CASE("Cha")
@@ -5718,7 +5717,7 @@ void init_char(CHAR_DATA * ch)
 		ch->real_abils.wis = 25;
 		ch->real_abils.dex = 25;
 		ch->real_abils.str = 25;
-		ch->real_abils.con = 25;
+		ch->set_con(25);
 		ch->real_abils.cha = 25;
 	}
 	ch->real_abils.size = 50;
@@ -5824,7 +5823,7 @@ ACMD(do_remort)
 	ch->set_remort(ch->get_remort() + 1);
 	CLR_GOD_FLAG(ch, GF_REMORT);
 	GET_STR(ch) += 1;
-	GET_CON(ch) += 1;
+	ch->set_con(ch->get_con() + 1);
 	GET_DEX(ch) += 1;
 	GET_INT(ch) += 1;
 	GET_WIS(ch) += 1;

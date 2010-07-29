@@ -325,7 +325,7 @@ void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool a
 		GET_WIS_ADD(ch) += mod;
 		break;
 	case APPLY_CON:
-		GET_CON_ADD(ch) += mod;
+		ch->set_con_add(ch->get_con_add() + mod);
 		break;
 	case APPLY_CHA:
 		GET_CHA_ADD(ch) += mod;
