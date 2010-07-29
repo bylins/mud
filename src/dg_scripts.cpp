@@ -2360,9 +2360,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				sprintf(str, "%d", GET_CON(c));
 			}
 			else if (!str_cmp(field, "conadd"))
-			{
 				sprintf(str, "%d", GET_CON_ADD(c));
-			}
 			else if (!str_cmp(field, "cha"))
 			{
 				//GET_CHA(c)=(sbyte) MAX(1,gm_char_field(c,field,subfield,(long) GET_CHA(c)));

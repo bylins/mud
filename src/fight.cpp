@@ -2432,7 +2432,6 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 	// первая такая проверка идет в hit перед ломанием пушек
 	if (dam >= 0 && damage_mtrigger(ch, victim))
 		return 0;
-
 	// Shopkeeper protection
 	if (!ok_damage_shopkeeper(ch, victim))
 		return 0;
@@ -2517,7 +2516,6 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 			npc_groupbattle(victim);
 		}
 	}
-
 	//*************** If negative damage - return
 	if (dam < 0 || IN_ROOM(ch) == NOWHERE || IN_ROOM(victim) == NOWHERE || IN_ROOM(ch) != IN_ROOM(victim))
 		return (0);
@@ -2889,7 +2887,6 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 	if (FS_damage && victim->get_fighting() && GET_POS(victim) > POS_STUNNED
 			&& IN_ROOM(victim) != NOWHERE && attacktype != SKILL_TURN_UNDEAD + TYPE_HIT)
 		damage(victim, ch, FS_damage, SPELL_FIRE_SHIELD, FALSE);
-
 	return (dam);
 }
 

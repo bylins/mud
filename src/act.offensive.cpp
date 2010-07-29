@@ -478,13 +478,9 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 		prob = 0;
 
 	if (percent > prob)
-	{
 		damage(ch, vict, 0, SKILL_BACKSTAB + TYPE_HIT, TRUE);
-	}
 	else
-	{
 		hit(ch, vict, SKILL_BACKSTAB, 1);
-	}
 	set_wait(ch, 2, TRUE);
 }
 

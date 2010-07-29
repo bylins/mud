@@ -115,8 +115,6 @@ void Character::zero_init()
 	last_logon_ = 0;
 	gold_ = 0;
 	bank_gold_ = 0;
-	con_ = 0;
-	con_add_ = 0;
 	// char_data
 	nr = NOBODY;
 	in_room = 0;
@@ -982,24 +980,4 @@ long Character::remove_both_gold(long num, bool need_log)
 int Character::calc_morale() const
 {
 	return cha_app[GET_REAL_CHA(this)].morale + GET_MORALE(this);
-}
-
-int Character::get_con() const
-{
-	return con_;
-}
-
-void Character::set_con(int param)
-{
-	con_ = MAX(1, param);
-}
-
-int Character::get_con_add() const
-{
-	return con_add_;
-}
-
-void Character::set_con_add(int param)
-{
-	con_add_ = MAX(1, param);
 }
