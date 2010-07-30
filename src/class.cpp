@@ -2351,10 +2351,10 @@ void do_start(CHAR_DATA * ch, int newbie)
 */
 void check_max_hp(CHAR_DATA *ch)
 {
-	int ch_class = static_cast<int>(GET_CLASS(ch));
-	int con = MAX(class_app[ch_class].min_con, MIN(GET_CON(ch), class_app[ch_class].max_con));
+	int ch_class = GET_CLASS(ch);
 	double add_hp_per_level = class_app[ch_class].base_con
-							  + (con - class_app[ch_class].base_con) * static_cast<double>(class_app[ch_class].koef_con) / 100 + 3;
+		+ (GET_CON(ch) - class_app[ch_class].base_con)
+		* static_cast<double>(class_app[ch_class].koef_con) / 100 + 3;
 	GET_MAX_HIT(ch) = 10 + static_cast<int>(add_hp_per_level * GET_LEVEL(ch));
 }
 

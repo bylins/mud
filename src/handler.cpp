@@ -325,7 +325,7 @@ void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool a
 		GET_WIS_ADD(ch) += mod;
 		break;
 	case APPLY_CON:
-		GET_CON_ADD(ch) += mod;
+		ch->set_con_add(ch->get_con_add() + mod);
 		break;
 	case APPLY_CHA:
 		GET_CHA_ADD(ch) += mod;
@@ -579,8 +579,7 @@ void affect_total(CHAR_DATA * ch)
 	saved.flags[2] = 0;
 	saved.flags[3] = 0;
 
-	// Clear all affect, because recalc one
-	memset((char *) &ch->add_abils, 0, sizeof(struct char_played_ability_data));
+	ch->clear_add_affects();
 
 	// PC's clear all affects, because recalc one
 	if (!IS_NPC(ch))

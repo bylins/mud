@@ -216,7 +216,7 @@ int mana_gain(CHAR_DATA * ch)
 /* Hitpoint gain pr. game hour */
 int hit_gain(CHAR_DATA * ch)
 {
-	int gain = 0, restore = MAX(10, GET_REAL_CON(ch) + con_app[GET_REAL_CON(ch)].hitp), percent = 100;
+	int gain = 0, restore = MAX(10, GET_REAL_CON(ch) * 3 / 2), percent = 100;
 
 	if (IS_NPC(ch))
 		gain = GET_LEVEL(ch) + GET_REAL_CON(ch);
@@ -285,7 +285,7 @@ int hit_gain(CHAR_DATA * ch)
 /* move gain pr. game hour */
 int move_gain(CHAR_DATA * ch)
 {
-	int gain = 0, restore = con_app[GET_REAL_CON(ch)].hitp, percent = 100;
+	int gain = 0, restore = GET_REAL_CON(ch) / 2, percent = 100;
 
 	if (IS_NPC(ch))
 		gain = GET_LEVEL(ch);

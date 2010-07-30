@@ -385,16 +385,24 @@ void olc_del_stat(CHAR_DATA *ch, int stat)
 
 void olc_add_stat(CHAR_DATA *ch, int stat)
 {
+	int need_glory = add_stat_cost(stat, ch->desc->glory_const);
 	switch(stat)
 	{
+		case GLORY_CON:
+		{
+			if (ch->desc->glory_const->olc_free_glory >= need_glory)
+			{
+				ch->desc->glory_const->olc_free_glory -= need_glory;
+				ch->desc->glory_const->stat_add[stat] += 1;
+			}
+			break;
+		}
 		case GLORY_STR:
 		case GLORY_DEX:
 		case GLORY_INT:
 		case GLORY_WIS:
-		case GLORY_CON:
 		case GLORY_CHA:
 		{
-			int need_glory = add_stat_cost(stat, ch->desc->glory_const);
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
 					+ ch->desc->glory_const->stat_add[stat] < 50)
@@ -499,7 +507,7 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 			GET_DEX(ch) = olc_real_stat(ch, GLORY_DEX);
 			GET_INT(ch) = olc_real_stat(ch, GLORY_INT);
 			GET_WIS(ch) = olc_real_stat(ch, GLORY_WIS);
-			GET_CON(ch) = olc_real_stat(ch, GLORY_CON);
+			ch->set_con(olc_real_stat(ch, GLORY_CON));
 			GET_CHA(ch) = olc_real_stat(ch, GLORY_CHA);
 			// обновление записи в списке славы
 			GloryListType::const_iterator it = glory_list.find(GET_UNIQUE(ch));
@@ -991,7 +999,7 @@ void set_stats(CHAR_DATA *ch)
 				GET_WIS(ch) += k->second;
 				break;
 			case G_CON:
-				GET_CON(ch) += k->second;
+				ch->set_con(ch->get_con() + k->second);
 				break;
 			case G_CHA:
 				GET_CHA(ch) += k->second;

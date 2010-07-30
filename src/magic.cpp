@@ -676,13 +676,13 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 		save -= dex_app[GET_REAL_DEX(victim)].reaction;
 		break;
 	case SAVING_STABILITY:
-		save += con_app[GET_REAL_CON(victim)].affect_saving;
+		save += -GET_REAL_CON(victim);
 		break;
 	case SAVING_WILL:
 		save += wis_app[GET_REAL_WIS(victim)].char_savings;
 		break;
 	case SAVING_CRITICAL:
-		save += con_app[GET_REAL_CON(victim)].critic_saving;
+		save += -GET_REAL_CON(victim);
 		break;
 	}
 
@@ -1956,7 +1956,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		sdice = 5;
 		if (GET_POS(victim) > POS_SITTING &&
 				!WAITLESS(victim) &&
-				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, SAVING_STABILITY, con_app[GET_REAL_CON(ch)].hitp * 2)))
+				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, SAVING_STABILITY, GET_REAL_CON(ch))))
 		{
 			act("$n3 повалило на землю.", FALSE, victim, 0, 0, TO_ROOM);
 			act("Вас повалило на землю.", FALSE, victim, 0, 0, TO_CHAR);
@@ -2847,7 +2847,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_POISON:
 		savetype = SAVING_CRITICAL;
 		if (ch != victim && (AFF_FLAGGED(victim, AFF_SHIELD) ||
-							 general_savingthrow(ch, victim, savetype, modi + con_app[GET_REAL_CON(victim)].poison_saving)))
+							 general_savingthrow(ch, victim, savetype, modi - GET_REAL_CON(victim) / 2)))
 		{
 			if (IN_ROOM(ch) == IN_ROOM(victim)) /* Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно*/
 				send_to_char(NOEFFECT, ch);
@@ -3037,7 +3037,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		{
 		case SPELL_WC_OF_RAGE:
 			savetype = SAVING_WILL;
-			modi = con_app[GET_REAL_CON(ch)].hitp * 2;
+			modi = GET_REAL_CON(ch);
 			break;
 		case SPELL_SONICWAVE:
 		case SPELL_MASS_DEAFNESS:
@@ -3198,7 +3198,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		{
 		case SPELL_WC_OF_THUNDER:
 			savetype = SAVING_WILL;
-			modi = con_app[GET_REAL_CON(ch)].hitp * 3;
+			modi = GET_REAL_CON(ch) * 3 / 2;
 			break;
 		case SPELL_ICESTORM:
 			savetype = SAVING_REFLEX;
@@ -3490,7 +3490,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_WC_OF_MENACE:
 		savetype = SAVING_WILL;
-		modi = con_app[GET_REAL_CON(ch)].hitp * 2;
+		modi = GET_REAL_CON(ch);
 		if (ch != victim && general_savingthrow(ch, victim, savetype, modi))
 		{
 			send_to_char(NOEFFECT, ch);
@@ -3507,7 +3507,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_WC_OF_MADNESS:
 		savetype = SAVING_STABILITY;
-		modi = con_app[GET_REAL_CON(ch)].hitp * 3;
+		modi = GET_REAL_CON(ch) * 3 / 2;
 		if (ch == victim || !general_savingthrow(ch, victim, savetype, modi))
 		{
 			af[0].location = APPLY_INT;
@@ -3518,7 +3518,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			to_room = "$n0 потерял$g рассудок.";
 
 			savetype = SAVING_STABILITY;
-			modi = con_app[GET_REAL_CON(ch)].hitp * 4;
+			modi = GET_REAL_CON(ch) * 2;
 			if (ch == victim || !general_savingthrow(ch, victim, savetype, modi))
 			{
 				af[1].location = APPLY_CAST_SUCCESS;
@@ -3535,7 +3535,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		else
 		{
 			savetype = SAVING_STABILITY;
-			modi = con_app[GET_REAL_CON(ch)].hitp * 4;
+			modi = GET_REAL_CON(ch) * 2;
 			if (!general_savingthrow(ch, victim, savetype, modi))
 			{
 				af[0].location = APPLY_CAST_SUCCESS;
@@ -3804,39 +3804,53 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 			mob_num = MOB_SKELETON;
 		else
 		{
-			pfail =
-				110 -
-				con_app[GET_CON(mob_proto + real_mobile(mob_num))].
-				ressurection - number(1, GET_LEVEL(ch)) - GET_CAST_SUCCESS(ch) - GET_REMORT(ch) * 5;
-			//added by Ann
+			const int real_mob_num = real_mobile(mob_num);
+			pfail = 10 + GET_CON(mob_proto + real_mob_num) * 2
+				- number(1, GET_LEVEL(ch)) - GET_CAST_SUCCESS(ch) - GET_REMORT(ch) * 5;
+
 			if (affected_by_spell(ch, SPELL_FASCINATION))
 			{
-				//send_to_char("-обаяние",ch);
-				pfail += 30 + GET_REMORT(ch) * 5;	//есть под заклинанием "обаяние", то фейлов больше
+				//есть под заклинанием "обаяние", то фейлов больше
+				pfail += 30 + GET_REMORT(ch) * 5;
 			}
-			//end Ann
-			if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 5)
+
+			if (GET_LEVEL(mob_proto + real_mob_num) <= 5)
+			{
 				mob_num = MOB_SKELETON;
-			else if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 10)
+			}
+			else if (GET_LEVEL(mob_proto + real_mob_num) <= 10)
+			{
 				mob_num = MOB_ZOMBIE;
-			else if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 20)
+			}
+			else if (GET_LEVEL(mob_proto + real_mob_num) <= 20)
+			{
 				mob_num = MOB_BONEDOG;
-			else if (GET_LEVEL(mob_proto + real_mobile(mob_num)) <= 27)
+			}
+			else if (GET_LEVEL(mob_proto + real_mob_num) <= 27)
+			{
 				mob_num = MOB_BONEDRAGON;
+			}
 			else
+			{
 				mob_num = MOB_BONESPIRIT;
+			}
 
 			if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 15 && mob_num > MOB_ZOMBIE)
+			{
 				mob_num = MOB_ZOMBIE;
+			}
 			else if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 25 && mob_num > MOB_BONEDOG)
+			{
 				mob_num = MOB_BONEDOG;
+			}
 			else if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 32 && mob_num > MOB_BONEDRAGON)
+			{
 				mob_num = MOB_BONEDRAGON;
+			}
 		}
 		handle_corpse = TRUE;
 		msg = number(1, 9);
 		fmsg = number(2, 6);
-//    pfail        += 10;
 		break;
 
 	case SPELL_RESSURECTION:
@@ -3854,10 +3868,8 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		handle_corpse = TRUE;
 		msg = 11;
 		fmsg = number(2, 6);
-		pfail =
-			110 -
-			con_app[GET_CON(mob_proto + real_mobile(mob_num))].ressurection -
-			number(1, GET_LEVEL(ch)) - GET_CAST_SUCCESS(ch) - GET_REMORT(ch) * 5;
+		pfail = 10 + GET_CON(mob_proto + real_mobile(mob_num)) * 2
+			- number(1, GET_LEVEL(ch)) - GET_CAST_SUCCESS(ch) - GET_REMORT(ch) * 5;
 		break;
 
 	default:
@@ -3998,7 +4010,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		GET_INT(mob) = GET_INT(ch);
 		GET_WIS(mob) = GET_WIS(ch);
 		GET_DEX(mob) = GET_DEX(ch);
-		GET_CON(mob) = GET_CON(ch);
+		mob->set_con(ch->get_con());
 		GET_CHA(mob) = GET_CHA(ch);
 
 		mob->set_level(ch->get_level());

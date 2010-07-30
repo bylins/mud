@@ -478,9 +478,13 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 		prob = 0;
 
 	if (percent > prob)
+	{
 		damage(ch, vict, 0, SKILL_BACKSTAB + TYPE_HIT, TRUE);
+	}
 	else
+	{
 		hit(ch, vict, SKILL_BACKSTAB, 1);
+	}
 	set_wait(ch, 2, TRUE);
 }
 
@@ -2560,7 +2564,7 @@ ACMD(do_turn_undead)
 		if (IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 			continue;
 		if ((GET_LEVEL(ch_vict) > max_level) ||
-				(dice(1, GET_SAVE(ch_vict, SAVING_STABILITY) - con_app[GET_REAL_CON(ch_vict)].affect_saving) >
+				(dice(1, GET_SAVE(ch_vict, SAVING_STABILITY) + GET_REAL_CON(ch_vict)) >
 				 dice(1, GET_REAL_WIS(ch))))
 		{
 			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);

@@ -81,7 +81,7 @@ fight.o: fight.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   dg_scripts.h pk.h im.h fight.h skills.h house.h house_exp.hpp char.hpp \
   player_i.hpp remember.hpp stuff.hpp double_map.hpp random.hpp \
   char_player.hpp quested.hpp mobmax.hpp dps.hpp top.h magic.h poison.hpp \
-  corpse.hpp room.hpp AffectHandler.hpp
+  corpse.hpp room.hpp AffectHandler.hpp genchar.h
 graph.o: graph.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   comm.h interpreter.h constants.h handler.h db.h spells.h skills.h \
   random.hpp char.hpp player_i.hpp room.hpp

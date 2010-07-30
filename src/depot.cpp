@@ -852,10 +852,10 @@ void CharNode::reset()
 */
 bool is_depot(OBJ_DATA *obj)
 {
-	if (obj->item_number == PERS_CHEST_RNUM)
-		return true;
-	else
+	if (PERS_CHEST_RNUM < 0 || obj->item_number != PERS_CHEST_RNUM)
 		return false;
+	else
+		return true;
 }
 
 /**

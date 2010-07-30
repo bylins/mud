@@ -269,7 +269,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 				victim_modi -= 20;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
 				victim_modi -= calculate_awake_mod(ch, vict);
-			victim_modi -= dex_app[GET_REAL_CON(vict)].reaction;// !!!!!
+			victim_modi -= GET_REAL_CON(vict);
 		}
 		break;
 	case SKILL_HIDE:	/*спрятаться */
@@ -308,7 +308,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		if (vict)
 		{
 			victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
-			victim_modi += dex_app[GET_REAL_CON(vict)].reaction;
+			victim_modi += GET_REAL_CON(vict);
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
 				victim_modi -= calculate_awake_mod(ch, vict);
 		}
@@ -390,7 +390,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 
 		if (vict)
 		{
-			victim_modi += con_app[GET_REAL_CON(vict)].hitp;
+			victim_modi += GET_REAL_CON(vict) / 2;
 			if (AFF_FLAGGED(vict, AFF_NOTRACK)
 					|| ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK)) victim_modi = -100;
 		}
@@ -408,7 +408,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 
 		if (vict)
 		{
-			victim_modi += con_app[GET_REAL_CON(vict)].hitp;
+			victim_modi += GET_REAL_CON(vict) / 2;
 			if (AFF_FLAGGED(vict, AFF_NOTRACK)
 					|| ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOTRACK)) victim_modi = -100;
 		}
@@ -608,7 +608,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 
 		if (vict)
 		{
-			victim_modi += con_app[GET_REAL_CON(vict)].critic_saving;
+			victim_modi += - GET_REAL_CON(vict);
 		}
 		break;
 	case SKILL_POISONED:
@@ -669,7 +669,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		percent = skill_is;
 		break;
 	case SKILL_DRUNKOFF:
-		percent = skill_is - con_app[GET_REAL_CON(ch)].hitp
+		percent = skill_is - GET_REAL_CON(ch) / 2
 				  + (can_use_feat(ch, DRUNKARD_FEAT) ? 20 : 0);
 		break;
 	case SKILL_AID:

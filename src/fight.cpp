@@ -1412,7 +1412,7 @@ void haemorragia(CHAR_DATA * ch, int percent)
 	af[0].type = SPELL_HAEMORRAGIA;
 	af[0].location = APPLY_HITREG;
 	af[0].modifier = -percent;
-	af[0].duration = pc_duration(ch, number(1, 31 + con_app[GET_REAL_CON(ch)].critic_saving), 0, 0, 0, 0);
+	af[0].duration = pc_duration(ch, number(1, 31 - GET_REAL_CON(ch)), 0, 0, 0, 0);
 	af[0].bitvector = 0;
 	af[0].battleflag = 0;
 	af[1].type = SPELL_HAEMORRAGIA;
@@ -2278,7 +2278,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 			 !AFF_FLAGGED(ch, AFF_CHARM) &&
 			 GET_WAIT(ch) <= 0 &&
 			 !AFF_FLAGGED(victim, AFF_POISON) && number(0, 100) < GET_LIKES(ch) + GET_LEVEL(ch) - GET_LEVEL(victim)
-			 && !general_savingthrow(ch, victim, SAVING_CRITICAL, con_app[GET_REAL_CON(victim)].poison_saving))
+			 && !general_savingthrow(ch, victim, SAVING_CRITICAL, - GET_REAL_CON(victim)))
 	{
 		poison_victim(ch, victim, MAX(1, GET_LEVEL(ch) - GET_LEVEL(victim)) * 10);
 	}
@@ -2432,6 +2432,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 	// первая такая проверка идет в hit перед ломанием пушек
 	if (dam >= 0 && damage_mtrigger(ch, victim))
 		return 0;
+
 	// Shopkeeper protection
 	if (!ok_damage_shopkeeper(ch, victim))
 		return 0;
@@ -2516,6 +2517,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 			npc_groupbattle(victim);
 		}
 	}
+
 	//*************** If negative damage - return
 	if (dam < 0 || IN_ROOM(ch) == NOWHERE || IN_ROOM(victim) == NOWHERE || IN_ROOM(ch) != IN_ROOM(victim))
 		return (0);
@@ -2887,6 +2889,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 	if (FS_damage && victim->get_fighting() && GET_POS(victim) > POS_STUNNED
 			&& IN_ROOM(victim) != NOWHERE && attacktype != SKILL_TURN_UNDEAD + TYPE_HIT)
 		damage(victim, ch, FS_damage, SPELL_FIRE_SHIELD, FALSE);
+
 	return (dam);
 }
 

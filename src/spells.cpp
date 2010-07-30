@@ -2225,7 +2225,7 @@ ASPELL(spell_fear)
 
 ASPELL(spell_wc_of_fear)
 {
-	int modi = con_app[GET_REAL_CON(ch)].hitp * 3;
+	int modi = GET_REAL_CON(ch) * 3 / 2;
 	if (ch != victim)
 		pk_agro_action(ch, victim);
 
@@ -2446,7 +2446,7 @@ ASPELL(spell_angel)
 	GET_INT(mob) = 25;
 	GET_WIS(mob) = 25;
 	GET_DEX(mob) = 16;
-	GET_CON(mob) = 17;
+	mob->set_con(17);
 	GET_CHA(mob) = 22;
 
 	GET_WEIGHT(mob) = 150;
@@ -2515,7 +2515,7 @@ ASPELL(spell_angel)
 	GET_HR(mob) += modifier;
 
 	modifier = VPOSI(GET_LEVEL(ch) - 26, 0, 50);
-	GET_CON(mob) += modifier;
+	mob->set_con(mob->get_con() + modifier);
 
 	modifier = (int)(20 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
 	GET_MAX_HIT(mob) += modifier;
