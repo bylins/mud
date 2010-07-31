@@ -27,6 +27,7 @@
 #include "parcel.hpp"
 #include "liquid.hpp"
 #include "name_list.hpp"
+#include "corpse.hpp"
 
 /*------------------------------------------------------------------------*/
 
@@ -272,6 +273,7 @@ void renumber_obj_rnum(int rnum)
 	Clan::init_chest_rnum();
 	Depot::renumber_obj_rnum(rnum);
 	Parcel::renumber_obj_rnum(rnum);
+	GlobalDrop::renumber_obj_rnum(rnum);
 }
 
 /**

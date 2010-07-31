@@ -16,6 +16,9 @@ namespace GlobalDrop
 
 void init();
 void save();
+void renumber_obj_rnum(int rnum);
+bool check_mob(OBJ_DATA *corpse, CHAR_DATA *ch);
+
 // период сохранения временного файла с мобами (в минутах)
 const int SAVE_PERIOD = 10;
 

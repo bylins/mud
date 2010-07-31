@@ -75,31 +75,6 @@ typedef boost::shared_ptr<shop_node> ShopNodePtr;
 typedef std::vector<ShopNodePtr> ShopListType;
 ShopListType shop_list;
 
-int parse_shop_attribute(pugi::xml_node &node, const char *text)
-{
-	int result = -1;
-
-	pugi::xml_attribute attr = node.attribute(text);
-	if (!attr)
-	{
-		snprintf(buf, MAX_STRING_LENGTH, "...%s read fail", text);
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-	}
-	else
-	{
-		try
-		{
-			result = boost::lexical_cast<int>(attr.value());
-		}
-		catch(...)
-		{
-			snprintf(buf, MAX_STRING_LENGTH, "...%s lexical_cast fail", text);
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-		}
-	}
-	return result;
-}
-
 void load()
 {
 	shop_list.clear();
@@ -121,8 +96,8 @@ void load()
     }
 	for (pugi::xml_node node = node_list.child("shop"); node; node = node.next_sibling("shop"))
 	{
-		int mob_vnum = parse_shop_attribute(node, "mob_vnum");
-		int shop_type = parse_shop_attribute(node, "type");
+		int mob_vnum = xmlparse_int(node, "mob_vnum");
+		int shop_type = xmlparse_int(node, "type");
 		if (mob_vnum < 0 || shop_type < 0 || shop_type >= TOTAL_SHOP_TYPES)
 		{
 			snprintf(buf, MAX_STRING_LENGTH,
@@ -157,8 +132,8 @@ void load()
 		// и список его продукции
 		for (pugi::xml_node item = node.child("item"); item; item = item.next_sibling("item"))
 		{
-			int item_vnum = parse_shop_attribute(item, "vnum");
-			int price = parse_shop_attribute(item, "price");
+			int item_vnum = xmlparse_int(item, "vnum");
+			int price = xmlparse_int(item, "price");
 			if (item_vnum < 0 || price <= 0)
 			{
 				snprintf(buf, MAX_STRING_LENGTH,

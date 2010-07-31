@@ -2534,3 +2534,28 @@ std::string thousands_sep(long long n)
 	buffer = buffer.substr(curr_pos, size - 1);
 	return buffer;
 }
+
+int xmlparse_int(pugi::xml_node &node, const char *text)
+{
+	int result = -1;
+
+	pugi::xml_attribute attr = node.attribute(text);
+	if (!attr)
+	{
+		snprintf(buf, MAX_STRING_LENGTH, "...%s read fail", text);
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+	}
+	else
+	{
+		try
+		{
+			result = boost::lexical_cast<int>(attr.value());
+		}
+		catch(...)
+		{
+			snprintf(buf, MAX_STRING_LENGTH, "...%s lexical_cast fail", text);
+			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		}
+	}
+	return result;
+}

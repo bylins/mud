@@ -18,6 +18,7 @@
 #include "stuff.hpp"
 #include "char.hpp"
 #include "room.hpp"
+#include "corpse.hpp"
 
 void oload_class::init()
 {
@@ -119,9 +120,49 @@ obj_rnum ornum_by_info(const std::pair<obj_vnum, obj_load_info>& it)
 	return resutl_obj;
 }
 
-void obj_load_on_death(OBJ_DATA * corpse, CHAR_DATA * ch)
+/**
+ * \param setload = true - лоад через систему дропа сетов
+ *        setload = false - лоад через глобал дроп
+ */
+void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 {
-	OBJ_DATA *o;
+	OBJ_DATA *o = read_object(rnum, REAL);
+	if (!o)
+	{
+		log("SYSERROR: null from read_object rnum=%d (%s:%d)",
+				rnum, __FILE__, __LINE__);
+		return;
+	}
+
+	log("Load obj #%d by %s in room #%d (%s)",
+			GET_OBJ_VNUM(o), GET_NAME(ch), GET_ROOM_VNUM(ch->in_room),
+			setload ? "setload" : "globaldrop");
+
+	if (!setload)
+	{
+		act("Диво дивное, чудо чудное!", 0, ch, o, 0, TO_ROOM);
+	}
+
+	if (MOB_FLAGGED(ch, MOB_CORPSE))
+	{
+		obj_to_room(o, IN_ROOM(ch));
+	}
+	else
+	{
+		obj_to_obj(o, corpse);
+	}
+	if (!obj_decay(o))
+	{
+		if (o->in_room != NOWHERE)
+		{
+			act("На земле остал$U лежать $o.", FALSE, ch, o, 0, TO_ROOM);
+		}
+		load_otrigger(o);
+	}
+}
+
+void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch)
+{
 	/*
 		for (oload_class::iterator iter = oload_table.begin(); iter != oload_table.end(); iter++)
 			for (std::map<obj_vnum, obj_load_info>::iterator iter1 = iter->second.begin(); iter1 != iter->second.end(); iter1++)
@@ -129,32 +170,30 @@ void obj_load_on_death(OBJ_DATA * corpse, CHAR_DATA * ch)
 	*/
 
 	if (ch == NULL || !IS_NPC(ch) || (!MOB_FLAGGED(ch, MOB_CORPSE) && corpse == NULL))
+	{
 		return;
+	}
+
+	if (GlobalDrop::check_mob(corpse, ch))
+	{
+		return;
+	}
 
 	oload_class::const_iterator p = oload_table.find(GET_MOB_VNUM(ch));
 
 	if (p == oload_table.end())
+	{
 		return;
+	}
 
 	std::vector<obj_rnum> v(p->second.size());
 	std::transform(p->second.begin(), p->second.end(), v.begin(), ornum_by_info);
 
 	for (size_t i = 0; i < v.size(); i++)
+	{
 		if (v[i] >= 0)
 		{
-			o = read_object(v[i], REAL);
-			log("Load obj #%d by %s in room #%d (setload)", GET_OBJ_VNUM(o), GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
-			if (MOB_FLAGGED(ch, MOB_CORPSE))
-			{
-				obj_to_room(o, IN_ROOM(ch));
-			}
-			else
-				obj_to_obj(o, corpse);
-			if (!obj_decay(o))
-			{
-				if (o->in_room != NOWHERE)
-					act("На земле остал$U лежать $o.", FALSE, ch, o, 0, TO_ROOM);
-				load_otrigger(o);
-			}
+			obj_to_corpse(corpse, ch, v[i], true);
 		}
+	}
 }

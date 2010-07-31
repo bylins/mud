@@ -14,18 +14,24 @@
 
 extern int max_npc_corpse_time, max_pc_corpse_time;
 extern MobRaceListType mobraces_list;
+extern void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload);
 
 namespace GlobalDrop
 {
 
+typedef std::map<int /* vnum */, int /* rnum*/> OlistType;
+
 struct global_drop
 {
-	global_drop() : vnum(0), lvl(0), exp(0), prc(0), mobs(0) {};
-	int vnum; // внум шмотки
-	int lvl;  // мин левел моба
-	int exp;  // мин экспа за моба
-	int prc;  // шансы дропа (1 к Х)
+	global_drop() : vnum(0), mob_lvl(0), prc(0), mobs(0), rnum(-1) {};
+	int vnum; // внум шмотки, если число отрицательное - есть список внумов
+	int mob_lvl;  // мин левел моба
+	int prc;  // шансы дропа (каждые Х мобов)
 	int mobs; // убито подходящих мобов
+	int rnum; // рнум шмотки, если vnum валидный
+	// список внумов с общим дропом (дропается первый возможный)
+	// для внумов из списка учитывается поле максимума в мире
+	OlistType olist;
 };
 
 typedef std::vector<global_drop> DropListType;
@@ -38,26 +44,87 @@ void init()
 {
 	// на случай релоада
 	drop_list.clear();
+
 	// конфиг
-	XMLResults result;
-	XMLNode xMainNode=XMLNode::parseFile(CONFIG_FILE, "globaldrop", &result);
-	if (result.error != eXMLErrorNone)
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
+	if (!result)
 	{
-		log("SYSERROR: Ошибка чтения файла %s: %s", CONFIG_FILE, XMLNode::getError(result.error));
+		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
-
-	int nodes = xMainNode.nChildNode("drop");
-	for (int i = 0; i < nodes; i++)
+    pugi::xml_node node_list = doc.child("globaldrop");
+    if (!node_list)
+    {
+		snprintf(buf, MAX_STRING_LENGTH, "...<globaldrop> read fail");
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+    }
+	for (pugi::xml_node node = node_list.child("drop"); node; node = node.next_sibling("drop"))
 	{
-		global_drop drop_node;
-		XMLNode xNodeRace = xMainNode.getChildNode("drop", i);
-		drop_node.vnum = xmltoi(xNodeRace.getAttribute("obj_vnum"));
-		drop_node.lvl = xmltoi(xNodeRace.getAttribute("mob_level"));
-		drop_node.exp = xmltoi(xNodeRace.getAttribute("mob_exp"));
-		drop_node.prc = xmltoi(xNodeRace.getAttribute("chance"));
-		drop_list.push_back(drop_node);
+		int obj_vnum = xmlparse_int(node, "obj_vnum");
+		int mob_lvl = xmlparse_int(node, "mob_lvl");
+		int chance = xmlparse_int(node, "chance");
+
+		if (obj_vnum == -1 || mob_lvl <= 0 || chance <= 0)
+		{
+			snprintf(buf, MAX_STRING_LENGTH,
+					"...bad drop attributes (obj_vnum=%d, mob_lvl=%d, chance=%d)",
+					obj_vnum, mob_lvl, chance);
+			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			return;
+		}
+
+		global_drop tmp_node;
+		tmp_node.vnum = obj_vnum;
+		tmp_node.mob_lvl = mob_lvl;
+		tmp_node.prc = chance;
+
+		if (obj_vnum >= 0)
+		{
+			int obj_rnum = real_object(obj_vnum);
+			if (obj_rnum < 0)
+			{
+				snprintf(buf, MAX_STRING_LENGTH, "...incorrect obj_vnum=%d", obj_vnum);
+				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+				return;
+			}
+			tmp_node.rnum = obj_rnum;
+		}
+		else
+		{
+			// список шмоток с единым дропом
+			for (pugi::xml_node item = node.child("obj"); item; item = item.next_sibling("obj"))
+			{
+				int item_vnum = xmlparse_int(item, "vnum");
+				if (item_vnum <= 0)
+				{
+					snprintf(buf, MAX_STRING_LENGTH,
+						"...bad shop attributes (item_vnum=%d)", item_vnum);
+					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+					return;
+				}
+				// проверяем шмотку
+				int item_rnum = real_object(item_vnum);
+				if (item_rnum < 0)
+				{
+					snprintf(buf, MAX_STRING_LENGTH, "...incorrect item_vnum=%d", item_vnum);
+					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+					return;
+				}
+				tmp_node.olist[item_vnum] = item_rnum;
+			}
+			if (tmp_node.olist.empty())
+			{
+				snprintf(buf, MAX_STRING_LENGTH, "...item list empty (obj_vnum=%d)", obj_vnum);
+				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+				return;
+			}
+		}
+		drop_list.push_back(tmp_node);
 	}
+
 	// сохраненные статы по убитым ранее мобам
 	std::ifstream file(STAT_FILE);
 	if (!file.is_open())
@@ -93,31 +160,69 @@ void save()
 }
 
 /**
-* Глобальный дроп с мобов заданных параметров.
-* TODO: если что-то еще добавится - выносить в конфиг.
-*/
-void check_mob(CHAR_DATA *mob)
+ * Поиск шмотки для дропа из списка с учетом макс в мире.
+ * \return rnum
+ */
+int get_obj_to_drop(DropListType::iterator &i)
 {
-	if (!IS_NPC(mob))
+	std::vector<int> tmp_list;
+	for (OlistType::iterator k = i->olist.begin(), kend = i->olist.end(); k != kend; ++k)
 	{
-		sprintf(buf, "SYSERROR: получили на входе персонажа. (%s %s %d)", __FILE__, __func__, __LINE__);
-		mudlog(buf, DEF, LVL_GOD, SYSLOG, TRUE);
-		return;
-	}
-
-	for (DropListType::iterator it = drop_list.begin(); it != drop_list.end(); ++it)
-	{
-		if (GET_LEVEL(mob) >= it->lvl && GET_EXP(mob) >= it->exp)
+		if (obj_index[k->second].stored + obj_index[k->second].number < GET_OBJ_MIW(obj_proto[k->second]))
 		{
-			++(it->mobs);
-			if (it->mobs >= it->prc)
+			tmp_list.push_back(k->second);
+		}
+	}
+	if (!tmp_list.empty())
+	{
+		int rnd = number(0, tmp_list.size() - 1);
+		return tmp_list.at(rnd);
+	}
+	return -1;
+}
+
+/**
+ * Глобальный дроп с мобов заданных параметров.
+ * Если vnum отрицательный, то поиск идет по списку общего дропа.
+ */
+bool check_mob(OBJ_DATA *corpse, CHAR_DATA *ch)
+{
+	for (DropListType::iterator i = drop_list.begin(), iend = drop_list.end(); i != iend; ++i)
+	{
+		if (GET_LEVEL(ch) >= i->mob_lvl)
+		{
+			++(i->mobs);
+			if (i->mobs >= i->prc)
 			{
-				OBJ_DATA *obj = read_object(it->vnum, VIRTUAL);
-				if (obj)
+				int obj_rnum = i->vnum > 0 ? i->rnum : get_obj_to_drop(i);
+				if (obj_rnum >= 0)
 				{
-					obj_to_char(obj, mob);
-					it->mobs = 0;
-					save();
+					obj_to_corpse(corpse, ch, obj_rnum, false);
+				}
+				i->mobs = 0;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void renumber_obj_rnum(int rnum)
+{
+	for (DropListType::iterator i = drop_list.begin(); i != drop_list.end(); ++i)
+	{
+		if (i->vnum >= 0 && i->rnum >= rnum)
+		{
+			i->rnum += 1;
+		}
+		else if (i->vnum < 0)
+		{
+			for (OlistType::iterator k = i->olist.begin(), kend = i->olist.end();
+				k != kend; ++k)
+			{
+				if (k->second >= rnum)
+				{
+					k->second += 1;
 				}
 			}
 		}
@@ -225,11 +330,6 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 	else
 	{
 		corpse->set_timer(max_pc_corpse_time * 2);
-	}
-
-	if (IS_NPC(ch))
-	{
-		GlobalDrop::check_mob(ch);
 	}
 
 	/* transfer character's equipment to the corpse */

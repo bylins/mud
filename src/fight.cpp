@@ -701,7 +701,10 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 				perform_drop_gold(ch, local_gold, SCMD_DROP, 0);
 				ch->set_gold(0);
 			}
-			obj_load_on_death(corpse, ch);
+			if (killer && (!IS_NPC(killer) || IS_CHARMICE(killer)))
+			{
+				obj_load_on_death(corpse, ch);
+			}
 
 			if (!IS_NPC(ch))
 			{

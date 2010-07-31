@@ -15,12 +15,14 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-#include "conf.h"
-#include "features.hpp"
 #include <string>
 #include <list>
 #include <map>
 #include <new>
+#include "conf.h"
+#include "features.hpp"
+#include "pugixml.hpp"
+
 
 using std::string;
 using std::list;
@@ -1451,5 +1453,6 @@ void print_log();
 
 std::string thousands_sep(long long n);
 void kill_log(const char *format, ...);
+int xmlparse_int(pugi::xml_node &node, const char *text);
 
 #endif // _UTILS_H_
