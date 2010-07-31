@@ -3153,7 +3153,7 @@ ACMD(do_insertgem)
 		return;
 	}
 
-	if (GET_OBJ_VNUM(gemobj) < dig_vars.stone1_vnum || GET_OBJ_VNUM(gemobj) > dig_vars.stone1_vnum + 8)
+	if (GET_OBJ_VNUM(gemobj) < dig_vars.stone1_vnum || GET_OBJ_VNUM(gemobj) > dig_vars.stone1_vnum + 17)
 	{
 		sprintf(buf, "Вы не умеете вплавлять %s.\r\n", gemobj->PNames[3]);
 		send_to_char(buf, ch);
@@ -3505,8 +3505,9 @@ ACMD(do_insertgem)
 					set_obj_eff(itemobj, APPLY_HITROLL, 3);
 					break;
 				case 3:
-					if (CAN_WEAR(itemobj, ITEM_WEAR_WIELD) ||
+					if ((CAN_WEAR(itemobj, ITEM_WEAR_WIELD) ||
 							CAN_WEAR(itemobj, ITEM_WEAR_HOLD) || CAN_WEAR(itemobj, ITEM_WEAR_BOTHS))
+							&& !OBJ_FLAGGED(itemobj, ITEM_NODISARM))
 						SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_NODISARM), ITEM_NODISARM);
 					else
 						set_obj_eff(itemobj, APPLY_HITROLL, 3);
