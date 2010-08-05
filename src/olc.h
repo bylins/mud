@@ -357,7 +357,8 @@ extern struct olc_save_info *olc_save_list;
 #define MEDIT_ABSORBE			7
 #define MEDIT_AR			8
 #define MEDIT_MR			9
-#define NUM_ADD_PARAMETERS		9
+#define MEDIT_PR			10
+#define NUM_ADD_PARAMETERS		10
 
 /*
  * Submodes of SEDIT connectedness.

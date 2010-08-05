@@ -2688,6 +2688,13 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 		mob_proto[i].add_abils.mresist = num_arg;
 	}
 //End of changed
+	// added by WorM (Видолюб) поглощение физ.урона в %
+	CASE("PResist")
+	{
+		RANGE(0, 100);
+		mob_proto[i].add_abils.presist = num_arg;
+	}
+	// end by WorM
 	CASE("BareHandAttack")
 	{
 		RANGE(0, 99);

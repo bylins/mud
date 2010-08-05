@@ -1699,7 +1699,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 			GET_RESIST(k, 4), GET_RESIST(k, 5), GET_RESIST(k, 6));
 	send_to_char(buf, ch);
 	sprintf(buf,
-			"Magic affect resist : [%d], Magic damage resist : [%d]\r\n", GET_AR(k), GET_MR(k));
+			"Magic affect resist : [%d], Magic damage resist : [%d], Physical damage resist : [%d]\r\n", GET_AR(k), GET_MR(k), GET_PR(k));
 	send_to_char(buf, ch);
 
 	sprintf(buf, "EffCha: [%f], PlusMem: [%d], HpReg: [%d], MoveReg: [%d], Absorbe: [%d]\r\n",

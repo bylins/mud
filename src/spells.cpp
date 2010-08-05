@@ -1907,7 +1907,8 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 
 	val0 = MIN(GET_AR(victim), 100);
 	val1 = MIN(GET_MR(victim), 100);
-	sprintf(buf, "Защита от чар : %d, Защита от магических повреждений : %d\r\n", val0, val1);
+	val2 = MIN(GET_PR(victim), 100);
+	sprintf(buf, "Защита от чар : %d, Защита от магических повреждений : %d, Защита от физических повреждений : %d\r\n", val0, val1, val2);
 	send_to_char(buf, ch);
 	if (fullness < 90 && ch != victim)
 		return;
@@ -1995,8 +1996,8 @@ void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 	send_to_char(buf, ch);
 
 	sprintf(buf,
-			"Защита от чар : %d, Защита от магических повреждений : %d\r\n",
-			MIN(GET_AR(victim), 100), MIN(GET_MR(victim), 100));
+			"Защита от чар : %d, Защита от магических повреждений : %d, Защита от физических повреждений : %d\r\n",
+			MIN(GET_AR(victim), 100), MIN(GET_MR(victim), 100), MIN(GET_PR(victim), 100));
 	send_to_char(buf, ch);
 
 	sprintf(buf,

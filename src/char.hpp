@@ -77,6 +77,7 @@ struct char_played_ability_data
 	boost::array<sh_int, MAX_NUMBER_RESISTANCE> apply_resistance_throw;	/* Сопротивление (резисты) к магии, ядам и крит. ударам */
 	ubyte mresist;
 	ubyte aresist;
+	ubyte presist;	// added by WorM(Видолюб) по просьбе <сумасшедшего> (зачеркнуто) безбашенного билдера поглощение физ.урона в %
 };
 
 /* Char's abilities. */

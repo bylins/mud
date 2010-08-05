@@ -2527,6 +2527,12 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 
 	// Сюда при отрицательном уроне не пройдет, и сообщений видно не будет
 
+	// added by WorM(Видолюб) поглощение физ.урона в %
+	if(GET_PR(victim) && IS_NPC(victim) && (attacktype <= 0 || attacktype > TOP_SPELL_DEFINE))
+	{
+		dam = dam - (dam * GET_PR(victim) / 100);
+	}
+
 	if (victim != ch)
 	{
 		if (dam && AFF_FLAGGED(victim, AFF_SHIELD))
