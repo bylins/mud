@@ -4740,6 +4740,10 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 		add_to_tmp_char_list(ch_vict);
 	}
 
+	// наколенная (в прямом смысле этого слова, даже стола нет)
+	// версия снижения каста при масс-кастах на чаров, по 9% за каждого игрока
+	const int atacker_cast = GET_CAST_SUCCESS(ch);
+	int targets_count = 0;
 	for (AreaCharListType::const_iterator it = tmp_char_list.begin(); it != tmp_char_list.end(); ++it)
 	{
 		ch_vict = *it;
@@ -4751,14 +4755,20 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 		{
 			act(msg, FALSE, ch, 0, ch_vict, TO_VICT);
 		}
+		if (!IS_NPC(ch) && !IS_NPC(ch_vict))
+		{
+			++targets_count;
+		}
 		mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
 		if (ch->purged())
 		{
 			tmp_char_list.clear();
 			return 1;
 		}
+		GET_CAST_SUCCESS(ch) = atacker_cast - atacker_cast * targets_count * 9 / 100;
 	}
 	tmp_char_list.clear();
+	GET_CAST_SUCCESS(ch) = atacker_cast;
 
 	return 1;
 }
