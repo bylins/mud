@@ -4301,13 +4301,26 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	/* Использование ловкости вместо силы для попадания */
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
+	{
 		if (wielded && GET_OBJ_WEIGHT(wielded) > 20)
 			calc_thaco -= str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
 		else
 			calc_thaco -= str_app[GET_REAL_DEX(ch)].tohit;
+	}
 	else
+	{
 		calc_thaco -= str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
-	calc_thaco -= GET_REAL_HR(ch);
+	}
+
+	if (!IS_NPC(ch) || IS_CHARMICE(ch))
+	{
+		calc_thaco -= GET_REAL_HR(ch);
+	}
+	else
+	{
+		// TODO: это реально временно
+		calc_thaco -= GET_LEVEL(ch) + VPOSI(GET_HR_ADD(ch), -50, 50);
+	}
 
 	if ((type == SKILL_THROW || type == SKILL_BACKSTAB) && wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
 	{
