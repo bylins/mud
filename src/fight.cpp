@@ -4173,8 +4173,11 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 
 	//    AWAKE style - decrease hitroll
-	if (GET_AF_BATTLE(ch, EAF_AWAKE) &&
-			(IS_NPC(ch) || GET_CLASS(ch) != CLASS_ASSASINE) && type != SKILL_THROW && type != SKILL_BACKSTAB)
+	if ((!IS_NPC(ch) || IS_CHARMICE(ch))
+		&& GET_AF_BATTLE(ch, EAF_AWAKE)
+		&& GET_CLASS(ch) != CLASS_ASSASINE
+		&& type != SKILL_THROW
+		&& type != SKILL_BACKSTAB)
 	{
 		if (can_auto_block(ch))
 		{
