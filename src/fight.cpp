@@ -4293,11 +4293,26 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		dam -= IS_NPC(ch) ? 5 : 5;
 		calc_thaco += IS_NPC(ch) ? 4 : 2;
 	}
-	// Calculate the THAC0 of the attacker
-	if (!IS_NPC(ch))
-		calc_thaco += thaco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
-	else			// штраф мобам по рекомендации Триглава
-		calc_thaco += (25 - GET_LEVEL(ch) / 3);
+
+	if (!IS_NPC(ch) || IS_CHARMICE(ch))
+	{
+		// Calculate the THAC0 of the attacker
+		if (!IS_NPC(ch))
+		{
+			calc_thaco += thaco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
+		}
+		else if (IS_CHARMICE(ch))
+		{
+			// штраф мобам по рекомендации Триглава
+			calc_thaco += (25 - GET_LEVEL(ch) / 3);
+		}
+		calc_thaco -= GET_REAL_HR(ch);
+	}
+	else
+	{
+		// у мобов пока слито в одно число
+		calc_thaco -= GET_LEVEL(ch) - 30 + VPOSI(GET_HR_ADD(ch), -50, 50);
+	}
 
 	/* Использование ловкости вместо силы для попадания */
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
@@ -4310,16 +4325,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	else
 	{
 		calc_thaco -= str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
-	}
-
-	if (!IS_NPC(ch) || IS_CHARMICE(ch))
-	{
-		calc_thaco -= GET_REAL_HR(ch);
-	}
-	else
-	{
-		// TODO: это реально временно
-		calc_thaco -= GET_LEVEL(ch) * 0.75 + VPOSI(GET_HR_ADD(ch), -50, 50);
 	}
 
 	if ((type == SKILL_THROW || type == SKILL_BACKSTAB) && wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
