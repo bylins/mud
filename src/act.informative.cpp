@@ -794,7 +794,7 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 	if (found)
 	{
 		send_to_char("\r\n", ch);
-		act("$n надет$a :", FALSE, i, 0, ch, TO_VICT);
+		act("$n одет$a :", FALSE, i, 0, ch, TO_VICT);
 		for (j = 0; j < NUM_WEARS; j++)
 			if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j)))
 			{
