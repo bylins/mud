@@ -4319,7 +4319,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	else
 	{
 		// TODO: это реально временно
-		calc_thaco -= GET_LEVEL(ch) + VPOSI(GET_HR_ADD(ch), -50, 50);
+		calc_thaco -= GET_LEVEL(ch) * 0.75 + VPOSI(GET_HR_ADD(ch), -50, 50);
 	}
 
 	if ((type == SKILL_THROW || type == SKILL_BACKSTAB) && wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
