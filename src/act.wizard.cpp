@@ -1456,6 +1456,29 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j)
 	if (!found)
 		send_to_char(" Нет", ch);
 
+	if (j->has_skills())
+	{
+		std::map<int, int> skills;
+		j->get_skills(skills);
+		int skill_num;
+		int percent;
+
+		send_to_char("\r\nУмения :", ch);
+		for (std::map<int, int>::iterator it = skills.begin(); it != skills.end(); ++it)
+		{
+			skill_num = it->first;
+			percent = it->second;
+
+			if (percent == 0) // TODO: такого не должно быть?
+				continue;
+
+			sprintf(buf, " %+d%% to %s",
+					percent,
+					skill_info[skill_num].name);
+			send_to_char(buf, ch);
+		}
+	}
+
 	send_to_char("\r\n", ch);
 	if (is_grgod)
 	{

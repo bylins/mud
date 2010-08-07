@@ -534,6 +534,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"гговорить", POS_SLEEPING, do_gsay, 0, 0, 500},
 	{"гдругам", POS_SLEEPING, DoClanChannel, 0, SCMD_CHANNEL, 0},
 	{"где", POS_RESTING, do_where, 1, 0, 0},
+	{"гдея", POS_RESTING, do_zone, 0, 0, 0},
 	{"глоток", POS_RESTING, do_drink, 0, SCMD_SIP, 200},
 	{"группа", POS_SLEEPING, do_group, 1, 0, -1},
 	{"гсоюзникам", POS_SLEEPING, DoClanChannel, 0, SCMD_ACHANNEL, 0},

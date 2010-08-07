@@ -2369,7 +2369,7 @@ void levelup_events(CHAR_DATA *ch)
 		SET_BIT(PRF_FLAGS(ch, PRF_OFFTOP_MODE), PRF_OFFTOP_MODE);
 		ch->set_disposable_flag(OFFTOP_MESSAGE);
 		send_to_char(ch, "\r\n%sТеперь Вы можете пользоваться каналом [оффтоп]!\r\n"
-				"Рекомендуем преварительно ознакомиться со справкой (справка оффтоп).%s\r\n",
+				"Рекомендуем предварительно ознакомиться со справкой (справка оффтоп).%s\r\n",
 				CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
 	}
 }
