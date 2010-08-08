@@ -4072,13 +4072,12 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 
 	int calc_thaco = 0, victim_ac = 0, dam = 0;
-	int i, w_type = 0, diceroll, prob, range;
+	int i, w_type = 0, prob, range;
 	int percent, modi = 0;
 
 	/* Find the weapon type (for display purposes only) */
 	if (type == SKILL_THROW || type == SKILL_BACKSTAB)
 	{
-		diceroll = 100;
 		w_type = type + TYPE_HIT;
 	}
 	else if (wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
@@ -4364,7 +4363,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		victim_ac += 4;
 
 	// roll the dice and take your chances...
-	diceroll = number(1, 2000) / 100;
+	const int diceroll = number(1, 2000) / 100;
 
 	// decide whether this is a hit or a miss
 	// всегда есть 5% вероятность попасть или промазать,
