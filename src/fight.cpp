@@ -4270,9 +4270,9 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	// some protects
 	if (AFF_FLAGGED(victim, AFF_PROTECT_EVIL) && IS_EVIL(ch))
-		calc_thaco += 3;
+		calc_thaco += 2;
 	if (AFF_FLAGGED(victim, AFF_PROTECT_GOOD) && IS_GOOD(ch))
-		calc_thaco += 3;
+		calc_thaco += 2;
 
 	// "Dirty" methods for battle
 	if (type != SKILL_THROW && type != SKILL_BACKSTAB)
@@ -4295,8 +4295,15 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			train_skill(victim, SKILL_AWAKE, skill_info[SKILL_AWAKE].max_percent,
 						ch) >= number(1, skill_info[SKILL_AWAKE].max_percent))
 	{
-		dam -= IS_NPC(ch) ? 5 : 5;
-		calc_thaco += IS_NPC(ch) ? 4 : 2;
+		dam -= 5;
+		if (IS_NPC(ch))
+		{
+			calc_thaco += GET_CLASS(victim) == CLASS_GUARD ? 4 : 2;
+		}
+		else
+		{
+			calc_thaco += 2;
+		}
 	}
 
 	if (!IS_NPC(ch) || IS_CHARMICE(ch))
@@ -4316,7 +4323,15 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	else
 	{
 		// у мобов пока слито в одно число
-		calc_thaco -= GET_LEVEL(ch) - 30 + VPOSI(GET_HR_ADD(ch), -50, 50);
+		if (GET_LEVEL(ch) <= 25)
+		{
+			calc_thaco -= GET_LEVEL(ch) - 30;
+		}
+		else
+		{
+			calc_thaco -= (GET_LEVEL(ch) - 25) * 1.5 - 5;
+		}
+		calc_thaco -= VPOSI(GET_HR_ADD(ch), -50, 50);
 	}
 
 	/* Использование ловкости вместо силы для попадания */
@@ -4702,6 +4717,38 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	{
 		/**** Обработаем команду   БЛОКИРОВАТЬ */
 		hit_block(ch, victim, &dam);
+	}
+
+	if (IS_NPC(ch))
+	{
+		if (diceroll == 19)
+		{
+			act("Удар $n1 получился только в четверть силы.", FALSE, ch, 0, victim, TO_VICT);
+			act("Ваш удар получился только в четверть силы.", FALSE, ch, 0, victim, TO_CHAR);
+			act("Удар $n1 получился только в четверть силы.", TRUE, ch, 0, victim, TO_NOTVICT);
+			dam /= 4;
+		}
+		else if (diceroll == 18)
+		{
+			act("Удар $n1 получился только в треть силы.", FALSE, ch, 0, victim, TO_VICT);
+			act("Ваш удар получился только в треть силы.", FALSE, ch, 0, victim, TO_CHAR);
+			act("Удар $n1 получился только в треть силы.", TRUE, ch, 0, victim, TO_NOTVICT);
+			dam /= 3;
+		}
+		else if (diceroll == 17)
+		{
+			act("Удар $n1 получился только вполовину силы.", FALSE, ch, 0, victim, TO_VICT);
+			act("Ваш удар получился только вполовину силы.", FALSE, ch, 0, victim, TO_CHAR);
+			act("Удар $n1 получился только вполовину силы.", TRUE, ch, 0, victim, TO_NOTVICT);
+			dam /= 2;
+		}
+		else if (diceroll == 16)
+		{
+			act("Удар $n1 получился не в полную силу.", FALSE, ch, 0, victim, TO_VICT);
+			act("Ваш удар получился не в полную силу.", FALSE, ch, 0, victim, TO_CHAR);
+			act("Удар $n1 получился не в полную силу.", TRUE, ch, 0, victim, TO_NOTVICT);
+			dam = dam * 75 / 100;
+		}
 	}
 
 	DamageActorParameters params(ch, victim, dam);
