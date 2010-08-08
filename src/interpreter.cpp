@@ -397,6 +397,7 @@ ACMD(do_offtop);
 ACMD(do_dmeter);
 ACMD(do_mystat);
 ACMD(do_zone);
+ACMD(do_bandage);
 
 /* This is the Master Command List(tm).
 
@@ -681,6 +682,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"подкрасться", POS_STANDING, do_sneak, 1, 0, 500},
 	{"подножка", POS_FIGHTING, do_chopoff, 0, 0, 500},
 	{"подняться", POS_RESTING, do_stand, 0, 0, -1},
+	{"перевязать", POS_RESTING, do_bandage, 0, 0, 0},
 	{"переделать", POS_RESTING, do_fit, 0, SCMD_DO_ADAPT, 500},
 	{"подсмотреть", POS_RESTING, do_look, 0, SCMD_LOOK_HIDE, 0},
 	{"покинуть", POS_STANDING, do_leave, 0, 0, -2},

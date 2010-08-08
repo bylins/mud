@@ -392,6 +392,14 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 				send_to_char("Чисто.\r\n", ch);
 			return 0;
 		}
+		else if (GET_OBJ_TYPE(object) == ITEM_BANDAGE)
+		{
+			strcpy(buf, "Бинты для перевязки ран ('перевязать').\r\n");
+			snprintf(buf2, MAX_STRING_LENGTH,
+					"Осталось применений: %d, восстановление: %d",
+					GET_OBJ_WEIGHT(object), GET_OBJ_VAL(object, 0) * 10);
+			strcat(buf, buf2);
+		}
 		else if (GET_OBJ_TYPE(object) != ITEM_DRINKCON)
 		{
 			strcpy(buf, "Вы не видите ничего необычного.");

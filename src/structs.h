@@ -691,6 +691,8 @@ typedef struct trig_data TRIG_DATA;
 #define AFF_BELENA_POISON   (INT_TWO | (1 << 11))
 #define AFF_NOTELEPORT		(INT_TWO | (1 << 12))
 #define AFF_LACKY			(INT_TWO | (1 << 13))
+#define AFF_BANDAGE			(INT_TWO | (1 << 14))
+#define AFF_NO_BANDAGE		(INT_TWO | (1 << 15))
 
 // shapirus: modes of ignoring
 #define IGNORE_TELL	(1 << 0)
@@ -816,6 +818,7 @@ typedef struct trig_data TRIG_DATA;
 #define ITEM_INGRADIENT 25	/* Item is magical ingradient */
 #define ITEM_MING      26	/* Магический ингредиент */
 #define ITEM_MATERIAL  27	/* Материал для крафтовых умений */
+#define ITEM_BANDAGE   28   // бинты для перевязки
 
 // +newbook.patch (Alisher)
 /* Типы магических книг */

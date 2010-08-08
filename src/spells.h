@@ -334,7 +334,8 @@
 #define SPELL_DATURA_POISON     192
 #define SPELL_TIMER_REPAIR      193
 #define SPELL_LACKY				194
-#define LAST_USED_SPELL			195
+#define SPELL_BANDAGE           195
+#define LAST_USED_SPELL			196
 
 #define MAX_SLOT 13
 

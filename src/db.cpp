@@ -1558,6 +1558,9 @@ void boot_db(void)
 	ShopExt::load();
 	log("load shop_ext list stop");
 
+	log("Init town shop_keepers");
+	town_shop_keepers();
+
 	boot_time = time(0);
 	log("Boot db -- DONE.");
 }

@@ -3620,5 +3620,72 @@ ACMD(do_insertgem)
 	extract_obj(gemobj);
 }
 
+ACMD(do_bandage)
+{
+	if (IS_NPC(ch))
+	{
+		return;
+	}
+	if (GET_HIT(ch) == GET_REAL_MAX_HIT(ch))
+	{
+		send_to_char("Вы не нуждаетесь в перевязке!\r\n", ch);
+		return;
+	}
+	if (ch->get_fighting())
+	{
+		send_to_char("Вы не можете перевязывать раны во время боя!\r\n", ch);
+		return;
+	}
+	if (AFF_FLAGGED(ch, AFF_BANDAGE))
+	{
+		send_to_char("Вы и так уже занимаетесь перевязкой!\r\n", ch);
+		return;
+	}
+	if (AFF_FLAGGED(ch, AFF_NO_BANDAGE))
+	{
+		send_to_char("Вы не можете перевязывать свои раны чаще раза в минуту!\r\n", ch);
+		return;
+	}
 
+	OBJ_DATA *bandage = 0;
+	for (OBJ_DATA *i = ch->carrying; i ; i = i->next_content)
+	{
+		if (GET_OBJ_TYPE(i) == ITEM_BANDAGE)
+		{
+			bandage = i;
+			break;
+		}
+	}
+	if (!bandage || GET_OBJ_WEIGHT(bandage) <= 0)
+	{
+		send_to_char("В вашем инвентаре нет подходящих для перевязки бинтов!\r\n", ch);
+		return;
+	}
 
+	send_to_char("Вы достали бинты и начали оказывать себе первую помощь...\r\n", ch);
+	act("$n начал$g перевязывать свои раны.&n", TRUE, ch, 0, 0, TO_ROOM);
+
+	AFFECT_DATA af;
+	af.type = SPELL_BANDAGE;
+	af.location = APPLY_NONE;
+	af.modifier = GET_OBJ_VAL(bandage, 0);
+	af.duration = pc_duration(ch, 10, 0, 0, 0, 0);
+	af.bitvector = AFF_BANDAGE;
+	af.battleflag = AF_PULSEDEC;
+	affect_join(ch, &af, 0, 0, 0, 0);
+
+	af.type = 0;
+	af.location = APPLY_NONE;
+	af.duration = pc_duration(ch, 60, 0, 0, 0, 0);
+	af.bitvector = AFF_NO_BANDAGE;
+	af.battleflag = AF_PULSEDEC;
+	affect_join(ch, &af, 0, 0, 0, 0);
+
+	GET_OBJ_WEIGHT(bandage) -= 1;
+	IS_CARRYING_W(ch) -= 1;
+	if (GET_OBJ_WEIGHT(bandage) <= 0)
+	{
+		send_to_char("Очередная пачка бинтов подошла к концу.\r\n", ch);
+		extract_obj(bandage);
+	}
+}

@@ -887,8 +887,13 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 }
 
 
-int perform_move(CHAR_DATA * ch, int dir, int need_specials_check, int checkmob, CHAR_DATA * master)
+int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, CHAR_DATA *master)
 {
+	if (AFF_FLAGGED(ch, AFF_BANDAGE))
+	{
+		send_to_char("Перевязка была прервана!\r\n", ch);
+		affect_from_char(ch, SPELL_BANDAGE);
+	}
 	ch->set_motion(true);
 
 	room_rnum was_in;

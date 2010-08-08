@@ -18,4 +18,6 @@ int get_spent_today();
 
 } // namespace ShopExt
 
+void town_shop_keepers();
+
 #endif // SHOP_EXT_HPP_INCLUDED

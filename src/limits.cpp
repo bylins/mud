@@ -648,6 +648,19 @@ void beat_points_update(int pulse)
 		restore = hit_gain(i);
 		restore = interpolate(restore, pulse);
 
+		if (AFF_FLAGGED(i, AFF_BANDAGE))
+		{
+			AFFECT_DATA* aff;
+			for(aff = i->affected; aff; aff = aff->next)
+			{
+				if (aff->type == SPELL_BANDAGE)
+				{
+					restore += MIN(GET_REAL_MAX_HIT(i) / 10, aff->modifier);
+					break;
+				}
+			}
+		}
+
 		if (GET_HIT(i) < GET_REAL_MAX_HIT(i))
 			GET_HIT(i) = MIN(GET_HIT(i) + restore, GET_REAL_MAX_HIT(i));
 

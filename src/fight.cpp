@@ -477,6 +477,12 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 	// if (AFF_FLAGGED(ch,AFF_STOPFIGHT))
 	//    return;
 
+	if (AFF_FLAGGED(ch, AFF_BANDAGE))
+	{
+		send_to_char("Перевязка была прервана!\r\n", ch);
+		affect_from_char(ch, SPELL_BANDAGE);
+	}
+
 	ch->next_fighting = combat_list;
 	combat_list = ch;
 

@@ -947,6 +947,10 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 	case ITEM_MATERIAL:
 		send_to_char("Первый параметр: ", d->character);
 		break;
+	case ITEM_BANDAGE:
+		send_to_char("Хитов в секунду: ", d->character);
+		break;
+
 	default:
 		oedit_disp_menu(d);
 	}

@@ -529,6 +529,8 @@ const char *affected_bits[] = { "слепота",	/* 0 */
 								"яд белены",
 								"прикован",
 								"боевое везение",
+								"перевязка",
+								"не может перевязываться",
 								"\n",
 								"\n",
 							  };
@@ -692,6 +694,7 @@ const char *item_types[] = { "UNDEFINED",
 							 "МАГИЧЕСКИЙ ИНГРЕДИЕНТ",
 							 "МАГИЧЕСКИЙ КОМПОНЕНТ",
 							 "МАТЕРИАЛ",
+							 "БИНТ",
 							 "\n"
 						   };
 
@@ -1918,7 +1921,8 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	/* 0 */
 		"В Вашей крови не осталось ни капельки яда.", // SPELL_BELENA_POISON
 		"В Вашей крови не осталось ни капельки яда.",  // SPELL_DATURA_POISON
 		"SPELL_TIMER_REPAIR",
-		"!SPELL_LACKY!"
+		"!SPELL_LACKY!",
+		"Вы аккуратно перевязали свои раны."
 };
 
 

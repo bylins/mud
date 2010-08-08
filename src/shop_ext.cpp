@@ -21,6 +21,7 @@
 #include "glory.hpp"
 #include "glory_const.hpp"
 #include "screen.h"
+#include "house.h"
 
 /*
 Пример конфига (plrstuff/shop/test.xml):
@@ -563,3 +564,23 @@ int get_spent_today()
 }
 
 } // namespace ShopExt
+
+/**
+ * Лоад странствующих продавцов в каждой ренте.
+ */
+void town_shop_keepers()
+{
+	for (CHAR_DATA *ch = character_list; ch; ch = ch->next)
+	{
+		if (IS_RENTKEEPER(ch) && IN_ROOM(ch) > 0
+			&& Clan::IsClanRoom(IN_ROOM(ch)) == Clan::ClanList.end()
+			&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_SOUNDPROOF))
+		{
+			CHAR_DATA *mob = read_mobile(1901, VIRTUAL);
+			if (mob)
+			{
+				char_to_room(mob, IN_ROOM(ch));
+			}
+		}
+	}
+}
