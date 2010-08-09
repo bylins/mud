@@ -4329,7 +4329,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 		else
 		{
-			calc_thaco -= static_cast<int>((GET_LEVEL(ch) - 25) * 1.25 - 5);
+			calc_thaco -= static_cast<int>((GET_LEVEL(ch) - 25) * 2 - 5);
 		}
 		calc_thaco -= VPOSI(GET_HR_ADD(ch), -50, 50);
 	}
