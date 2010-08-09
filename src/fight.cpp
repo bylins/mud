@@ -4721,33 +4721,23 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	if (IS_NPC(ch))
 	{
-		if (diceroll == 19)
+		switch(diceroll)
 		{
-			act("Удар $n1 получился только в четверть силы.", FALSE, ch, 0, victim, TO_VICT);
-			act("Ваш удар получился только в четверть силы.", FALSE, ch, 0, victim, TO_CHAR);
-			act("Удар $n1 получился только в четверть силы.", TRUE, ch, 0, victim, TO_NOTVICT);
-			dam /= 4;
-		}
-		else if (diceroll == 18)
-		{
-			act("Удар $n1 получился только в треть силы.", FALSE, ch, 0, victim, TO_VICT);
-			act("Ваш удар получился только в треть силы.", FALSE, ch, 0, victim, TO_CHAR);
-			act("Удар $n1 получился только в треть силы.", TRUE, ch, 0, victim, TO_NOTVICT);
-			dam /= 3;
-		}
-		else if (diceroll == 17)
-		{
-			act("Удар $n1 получился только вполовину силы.", FALSE, ch, 0, victim, TO_VICT);
-			act("Ваш удар получился только вполовину силы.", FALSE, ch, 0, victim, TO_CHAR);
-			act("Удар $n1 получился только вполовину силы.", TRUE, ch, 0, victim, TO_NOTVICT);
-			dam /= 2;
-		}
-		else if (diceroll == 16)
-		{
-			act("Удар $n1 получился не в полную силу.", FALSE, ch, 0, victim, TO_VICT);
-			act("Ваш удар получился не в полную силу.", FALSE, ch, 0, victim, TO_CHAR);
-			act("Удар $n1 получился не в полную силу.", TRUE, ch, 0, victim, TO_NOTVICT);
-			dam = dam * 75 / 100;
+		case 19:
+			dam /= dam * 25 / 100;
+			break;
+		case 18:
+			dam /= dam * 40 / 100;
+			break;
+		case 17:
+			dam /= dam * 55 / 100;
+			break;
+		case 16:
+			dam = dam * 70 / 100;
+			break;
+		case 15:
+			dam = dam * 85 / 100;
+			break;
 		}
 	}
 
