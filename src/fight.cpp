@@ -4724,13 +4724,13 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		switch(diceroll)
 		{
 		case 19:
-			dam /= dam * 25 / 100;
+			dam = dam * 25 / 100;
 			break;
 		case 18:
-			dam /= dam * 40 / 100;
+			dam = dam * 40 / 100;
 			break;
 		case 17:
-			dam /= dam * 55 / 100;
+			dam = dam * 55 / 100;
 			break;
 		case 16:
 			dam = dam * 70 / 100;
