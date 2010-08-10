@@ -84,7 +84,7 @@ extern struct zone_type * zone_types;
 #define	MAX_EXP_COEFFICIENTS_USED 15
 
 /* unless you change this, Puff casts all your dg spells */
-#define DG_CASTER_PROXY 1
+#define DG_CASTER_PROXY 113
 
 #define FIRST_ROOM       1
 #define STRANGE_ROOM     3
