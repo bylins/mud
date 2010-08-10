@@ -2525,12 +2525,12 @@ int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj)
 		for (object = obj->contains; object; object = object->next_content)
 			if (invalid_anti_class(ch, object))
 				return (TRUE);
-	if ((OBJ_FLAGGED(obj, ITEM_NAMED)) && NamedStuff::check_named(ch, obj))//added by WorM(Видолюб) проверка именного стафа
-		return (TRUE);
 	if (IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE) && AFF_FLAGGED(ch, AFF_CHARM))
 		return (TRUE);
 	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch))
 		return (FALSE);
+	if ((OBJ_FLAGGED(obj, ITEM_NAMED)) && NamedStuff::check_named(ch, obj))//added by WorM(Видолюб) проверка именного стафа
+		return (TRUE);
 	if ((IS_OBJ_ANTI(obj, ITEM_AN_MONO) && GET_RELIGION(ch) == RELIGION_MONO) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_POLY) && GET_RELIGION(ch) == RELIGION_POLY) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch)) ||

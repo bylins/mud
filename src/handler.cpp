@@ -38,6 +38,7 @@
 #include "poison.hpp"
 #include "name_list.hpp"
 #include "room.hpp"
+#include "named_stuff.hpp"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -1830,6 +1831,12 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 			obj_from_char(obj);
 		obj_to_room(obj, IN_ROOM(ch));
 		obj_decay(obj);
+		return;
+	}
+	else if((!IS_NPC(ch) || IS_CHARMICE(ch)) && OBJ_FLAGGED(obj, ITEM_NAMED) && NamedStuff::check_named(ch, obj, true)) {
+		send_to_char("Просьба не трогать ! Частная собственность !\r\n", ch);
+		if (!obj->carried_by)
+			obj_to_char(obj, ch);
 		return;
 	}
 

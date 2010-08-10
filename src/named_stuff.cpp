@@ -93,7 +93,7 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 			}
 			obj = read_object(r_num, REAL);
 			if((GET_OBJ_MIW(obj) >= obj_index[GET_OBJ_RNUM(obj)].stored + obj_index[GET_OBJ_RNUM(obj)].number) ||//Проверка на макс в мире
-			  (GET_OBJ_MIW(obj) >= 1))//Пока что если в мире нету то тоже загрузить
+			  (obj_index[GET_OBJ_RNUM(obj)].stored + obj_index[GET_OBJ_RNUM(obj)].number <= 1))//Пока что если в мире нету то тоже загрузить
 			{
 				found++;
 				SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NAMED), ITEM_NAMED);
