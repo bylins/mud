@@ -4932,8 +4932,8 @@ ACMD(do_liblist)
 		{
 			if (mob_index[nr].vnum >= first && mob_index[nr].vnum <= last)
 			{
-				sprintf(bf, "%s%5d. [%5d] %s\r\n", bf, ++found,
-						mob_index[nr].vnum, mob_proto[nr].get_npc_name());
+				sprintf(bf, "%s%5d. [%5d] %2d %s\r\n", bf, ++found,
+						mob_index[nr].vnum, mob_proto[nr].get_level(), mob_proto[nr].get_npc_name());
 			}
 		}
 		break;
