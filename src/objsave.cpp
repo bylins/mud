@@ -31,6 +31,7 @@
 #include "file_crc.hpp"
 #include "room.hpp"
 #include "mail.h"
+#include "dg_scripts.h"
 
 /* these factors should be unique integers */
 #define RENT_FACTOR 	1
@@ -475,6 +476,11 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 		int err = im_assign_power(object);
 		if (err)
 			*error = 100 + err;
+	}
+	if (OBJ_FLAGGED(object, ITEM_NAMED))//Именной предмет
+	{
+		free_script(SCRIPT(object));//детачим все триги, пока что так
+		SCRIPT(object) = NULL;
 	}
 	return (object);
 }

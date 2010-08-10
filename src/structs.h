@@ -888,6 +888,7 @@ typedef struct trig_data TRIG_DATA;
 #define ITEM_WITH3SLOTS    (INT_ONE | (1 << 5))	/* в предмет можно вплавить 3 камня (овер) */
 #define ITEM_SETSTUFF      (INT_ONE | (1 << 6)) /* Item is set object */
 #define ITEM_NO_FAIL       (INT_ONE | (1 << 7)) // не фейлится при изучении (в случае книги)
+#define ITEM_NAMED         (INT_ONE | (1 << 8)) // именной предмет
 
 #define ITEM_NO_MONO       (1 << 0)
 #define ITEM_NO_POLY       (1 << 1)

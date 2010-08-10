@@ -32,11 +32,11 @@ OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	dg_misc.o dg_objcmd.o dg_scripts.o dg_triggers.o dg_wldcmd.o dg_olc.o \
 	color.o pk.o genchar.o diskio.o im.o names.o auction.o \
 	item.creation.o skills.o exchange.o top.o stuff.o description.o \
-	deathtrap.o title.o password.o privilege.o version.o depot.o glory.o file_crc.o \
+	deathtrap.o title.o password.o privilege.o depot.o glory.o file_crc.o \
 	char.o char_player.o quested.o mobmax.o parcel.o liquid.o poison.o xmlParser.o \
 	corpse.o house_exp.o remember.o name_list.o dps.o obj.spell.o obj.o room.o \
 	spam.o AffectHandler.o glory_const.o pugixml.o pugixpath.o glory_misc.o \
-	shop_ext.o
+	shop_ext.o named_stuff.o version.o
 
 CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	act.offensive.cpp act.other.cpp act.social.cpp act.wizard.cpp alias.cpp ban.cpp \
@@ -49,11 +49,12 @@ CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	dg_misc.cpp dg_objcmd.cpp dg_scripts.cpp dg_triggers.cpp dg_wldcmd.cpp dg_olc.cpp \
 	color.cpp pk.cpp genchar.cpp diskio.cpp im.cpp names.cpp \
 	auction.cpp item.creation.cpp skills.cpp exchange.cpp top.cpp stuff.cpp \
-	description.cpp deathtrap.cpp title.cpp password.cpp privilege.cpp version.cpp \
+	description.cpp deathtrap.cpp title.cpp password.cpp privilege.cpp \
 	depot.cpp glory.cpp file_crc.cpp char.cpp char_player.cpp quested.cpp mobmax.cpp \
 	parcel.cpp liquid.cpp poison.cpp xmlParser.cpp corpse.cpp house_exp.cpp remember.cpp \
 	name_list.cpp dps.cpp obj.spell.cpp obj.cpp room.cpp spam.cpp AffectHandler.cpp \
-	glory_const.cpp pugixml.cpp pugixpath.cpp glory_misc.cpp shop_ext.cpp
+	glory_const.cpp pugixml.cpp pugixpath.cpp glory_misc.cpp shop_ext.cpp named_stuff.cpp \
+	version.cpp
 
 default: circle
 

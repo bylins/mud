@@ -64,6 +64,7 @@
 #include "glory_const.hpp"
 #include "glory_misc.hpp"
 #include "shop_ext.hpp"
+#include "named_stuff.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -545,6 +546,10 @@ ACMD(do_reboot)
 	else if (!str_cmp(arg, "shop"))
 	{
 		ShopExt::load();
+	}
+	else if (!str_cmp(arg, "named"))
+	{
+		NamedStuff::load();
 	}
 	else
 	{
@@ -1544,6 +1549,7 @@ void boot_db(void)
 	log("Load glory log.");
 	GloryMisc::load_log();
 
+	NamedStuff::load();
 	//Polud грузим параметры рас мобов
 	log("Load mob races.");
 	load_mobraces();

@@ -2516,7 +2516,7 @@ ACMD(DoClanPkList)
 		}
 		if (unique < 0)
 		{
-			send_to_char("Не дело это, Богов добалять куда не надо....\r\n", ch);
+			send_to_char("Не дело это, Богов добавлять куда не надо....\r\n", ch);
 			return;
 		}
 		ClanMemberList::const_iterator it = CLAN(ch)->members.find(unique);
@@ -4949,6 +4949,28 @@ bool Clan::is_clan_chest(OBJ_DATA *obj)
 	if (CLAN_CHEST_RNUM < 0 || obj->item_number != CLAN_CHEST_RNUM)
 		return false;
 	return true;
+}
+
+bool Clan::is_clan_member(int unique)
+{
+	ClanMemberList::const_iterator cl = members.find(unique);
+	if (cl != members.end())
+		return TRUE;
+	else
+		return FALSE;
+}
+
+bool Clan::is_alli_member(int unique)
+{
+	ClanListType::const_iterator clan;
+	for (clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+	{
+		if ((*clan)->rent == rent)
+			continue;
+		if((*clan)->is_clan_member(unique) && (*clan)->CheckPolitics(GetRent()) == POLITICS_ALLIANCE)
+			return TRUE;
+	}
+	return FALSE;
 }
 
 bool ClanSystem::is_ingr_chest(OBJ_DATA *obj)

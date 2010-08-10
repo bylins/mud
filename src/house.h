@@ -165,6 +165,8 @@ public:
 	static int GetClanWars(CHAR_DATA * ch);
 	static void init_chest_rnum();
 	static bool is_clan_chest(OBJ_DATA *obj);
+	bool is_clan_member(int unique);//Возвращает true если чар с данным unique в клане
+	bool is_alli_member(int unique);//Возвращает true если чар с данным unique в альянсе
 	static void clan_invoice(CHAR_DATA *ch, bool enter);
 	static void save_pk_log();
 

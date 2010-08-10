@@ -33,6 +33,7 @@
 #include "char.hpp"
 #include "corpse.hpp"
 #include "room.hpp"
+#include "named_stuff.hpp"
 
 /* external functs */
 void death_cry(CHAR_DATA * ch);
@@ -1332,6 +1333,11 @@ ACMD(do_gen_door)
 
 	if ((obj) || (door >= 0))
 	{
+		if((obj) && !IS_IMMORTAL(ch) && (OBJ_FLAGGED(obj, ITEM_NAMED)) && NamedStuff::check_named(ch, obj, true))//Именной предмет открывать(закрывать) может только владелец
+		{
+			send_to_char("А кто Вы такой чтобы распоряжаться Чужим имуществом?\r\n", ch);
+			return;
+		}
 		keynum = DOOR_KEY(ch, obj, door);
 		if ((subcmd == SCMD_CLOSE || subcmd == SCMD_LOCK) && !IS_NPC(ch) && RENTABLE(ch))
 			send_to_char("Ведите себя достойно во время боевых действий!\r\n", ch);

@@ -30,6 +30,7 @@ Written by Jeremy Elson (jelson@circlemud.org)
 #include "char.hpp"
 #include "parcel.hpp"
 #include "char_player.hpp"
+#include "named_stuff.hpp"
 
 void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *arg);
 void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *arg);
@@ -520,7 +521,12 @@ SPECIAL(postmaster)
 	}
 	else if (CMD_IS("receive") || CMD_IS("получить"))
 	{
-		postmaster_receive_mail(ch, (CHAR_DATA *) me, cmd, argument);
+		one_argument(argument, arg);
+		if(is_abbrev(arg, "вещи")) {
+			NamedStuff::receive_items(ch, (CHAR_DATA *) me);
+		} else {
+			postmaster_receive_mail(ch, (CHAR_DATA *) me, cmd, argument);
+		}
 		return (1);
 	}
 	else if (CMD_IS("return") || CMD_IS("вернуть"))
