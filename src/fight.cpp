@@ -4323,15 +4323,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	else
 	{
 		// у мобов пока слито в одно число
-		if (GET_LEVEL(ch) <= 25)
-		{
-			calc_thaco -= GET_LEVEL(ch) - 30;
-		}
-		else
-		{
-			calc_thaco -= static_cast<int>((GET_LEVEL(ch) - 25) * 1.5 - 5);
-		}
-		calc_thaco -= VPOSI(GET_HR_ADD(ch), -50, 50);
+		calc_thaco -= static_cast<int>(GET_LEVEL(ch) * 0.8 - 30 + VPOSI(GET_HR_ADD(ch), -50, 50));
 	}
 
 	/* Использование ловкости вместо силы для попадания */
