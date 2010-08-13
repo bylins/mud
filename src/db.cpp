@@ -3129,7 +3129,7 @@ int test_levels[] = {
 	2900,
 	3900,
 	5100,
-	6500,
+	6500, // 10
 	8100,
 	10100,
 	12500,
@@ -3139,7 +3139,7 @@ int test_levels[] = {
 	27300,
 	32900,
 	39300,
-	46500,
+	46500, // 20
 	54500,
 	64100,
 	75300,
@@ -3149,7 +3149,7 @@ int test_levels[] = {
 	147500,
 	192500,
 	252500,
-	327500,
+	327500, // 30
 	417500,
 	522500,
 	642500,
@@ -3159,7 +3159,7 @@ int test_levels[] = {
 	1427500,
 	1827500,
 	2327500,
-	2927500,
+	2927500, // 40
 	3627500,
 	4427500,
 	5327500,
@@ -4040,7 +4040,16 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 		mob->points.max_hit = dice(GET_MEM_TOTAL(mob), GET_MEM_COMPLETED(mob)) + mob->points.hit;
 	}
 	else
+	{
 		mob->points.max_hit = number(mob->points.hit, GET_MEM_TOTAL(mob));
+	}
+
+	// тестово минимальная планка по хп для мобов 30+ уровня
+	if (GET_LEVEL(mob) >= 30)
+	{
+		const int min_hp = (GET_LEVEL(mob) - 30) * 1000 + 3000;
+		mob->points.max_hit = MAX(mob->points.max_hit, min_hp);
+	}
 
 	mob->points.hit = mob->points.max_hit;
 	GET_MEM_TOTAL(mob) = GET_MEM_COMPLETED(mob) = 0;
