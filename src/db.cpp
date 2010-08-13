@@ -4045,7 +4045,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	}
 
 	// тестово минимальная планка по хп для мобов 30+ уровня
-	if (GET_LEVEL(mob) >= 30)
+	if (GET_LEVEL(mob) > 30)
 	{
 		const int min_hp = (GET_LEVEL(mob) - 30) * 1000 + 3000;
 		mob->points.max_hit = MAX(mob->points.max_hit, min_hp);
