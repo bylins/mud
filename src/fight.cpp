@@ -4178,11 +4178,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 
 	//    AWAKE style - decrease hitroll
-	if ((!IS_NPC(ch) || IS_CHARMICE(ch))
-		&& GET_AF_BATTLE(ch, EAF_AWAKE)
-		&& GET_CLASS(ch) != CLASS_ASSASINE
-		&& type != SKILL_THROW
-		&& type != SKILL_BACKSTAB)
+	if (GET_AF_BATTLE(ch, EAF_AWAKE) &&
+			(IS_NPC(ch) || GET_CLASS(ch) != CLASS_ASSASINE) && skill != SKILL_THROW && skill != SKILL_BACKSTAB)
 	{
 		if (can_auto_block(ch))
 		{
@@ -4295,36 +4292,14 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			train_skill(victim, SKILL_AWAKE, skill_info[SKILL_AWAKE].max_percent,
 						ch) >= number(1, skill_info[SKILL_AWAKE].max_percent))
 	{
-		dam -= 5;
-		if (IS_NPC(ch))
-		{
-			calc_thaco += GET_CLASS(victim) == CLASS_GUARD ? 4 : 2;
-		}
-		else
-		{
-			calc_thaco += 2;
-		}
+		dam -= IS_NPC(ch) ? 5 : 5;
+		calc_thaco += IS_NPC(ch) ? 4 : 2;
 	}
-
-	if (!IS_NPC(ch) || IS_CHARMICE(ch))
-	{
-		// Calculate the THAC0 of the attacker
-		if (!IS_NPC(ch))
-		{
-			calc_thaco += thaco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
-		}
-		else if (IS_CHARMICE(ch))
-		{
-			// штраф мобам по рекомендации Триглава
-			calc_thaco += (25 - GET_LEVEL(ch) / 3);
-		}
-		calc_thaco -= GET_REAL_HR(ch);
-	}
-	else
-	{
-		// у мобов пока слито в одно число
-		calc_thaco -= static_cast<int>(GET_LEVEL(ch) * 0.8 - 30 + VPOSI(GET_HR_ADD(ch), -50, 50));
-	}
+	// Calculate the THAC0 of the attacker
+	if (!IS_NPC(ch))
+		calc_thaco += thaco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
+	else			// штраф мобам по рекомендации Триглава
+		calc_thaco += (25 - GET_LEVEL(ch) / 3);
 
 	/* Использование ловкости вместо силы для попадания */
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
@@ -4338,6 +4313,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	{
 		calc_thaco -= str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
 	}
+
+	calc_thaco -= GET_REAL_HR(ch);
 
 	if ((type == SKILL_THROW || type == SKILL_BACKSTAB) && wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
 	{
@@ -4709,28 +4686,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	{
 		/**** Обработаем команду   БЛОКИРОВАТЬ */
 		hit_block(ch, victim, &dam);
-	}
-
-	if (IS_NPC(ch))
-	{
-		switch(diceroll)
-		{
-		case 19:
-			dam = dam * 25 / 100;
-			break;
-		case 18:
-			dam = dam * 40 / 100;
-			break;
-		case 17:
-			dam = dam * 55 / 100;
-			break;
-		case 16:
-			dam = dam * 70 / 100;
-			break;
-		case 15:
-			dam = dam * 85 / 100;
-			break;
-		}
 	}
 
 	DamageActorParameters params(ch, victim, dam);
