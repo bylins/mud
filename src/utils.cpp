@@ -460,6 +460,7 @@ void temp_log(const char *format, ...)
 
 void kill_log(const char *format, ...)
 {
+/*
 	const char *filename = "../log/kill.log";
 
 	FILE *file = fopen(filename, "a");
@@ -480,6 +481,7 @@ void kill_log(const char *format, ...)
 	fprintf(file, "\n");
 
 	fclose(file);
+*/
 }
 
 
