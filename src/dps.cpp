@@ -441,8 +441,11 @@ std::string PlayerDpsNode::print_charm_stats() const
 	std::ostringstream text;
 	for (CharmListType::const_iterator it = charm_list_.begin(); it != charm_list_.end(); ++it)
 	{
-		text << dps_stat_format % it->get_name() % it->get_dmg()
-				% it->get_stat() % it->get_round_dmg() % it->get_over_dmg();
+		if (it->get_dmg() > 0)
+		{
+			text << dps_stat_format % it->get_name() % it->get_dmg()
+					% it->get_stat() % it->get_round_dmg() % it->get_over_dmg();
+		}
 	}
 	return text.str();
 }
@@ -462,7 +465,7 @@ void PlayerDpsNode::print_group_charm_stats(CHAR_DATA *ch) const
 		CharmListType::const_iterator it = std::find_if(charm_list_.begin(), charm_list_.end(),
 				boost::bind(std::equal_to<int>(),
 				boost::bind(&DpsNode::get_id, _1), GET_ID(f->follower)));
-		if (it != charm_list_.end())
+		if (it != charm_list_.end() && it->get_dmg() > 0)
 		{
 			sort_node tmp_node(it->get_name(), it->get_stat(), it->get_round_dmg(), it->get_over_dmg());
 			tmp_group_list.insert(std::make_pair(it->get_dmg(), tmp_node));
