@@ -3956,7 +3956,7 @@ ACMD(DoStoreHouse)
 		return;
 	}
 
-	OBJ_DATA *temp_obj, *chest;
+	OBJ_DATA *chest;
 
 	skip_spaces(&argument);
 	if (!*argument)
@@ -3987,18 +3987,15 @@ ACMD(DoStoreHouse)
 		{
 			if (Clan::is_clan_chest(chest))
 			{
-				for (temp_obj = chest->contains; temp_obj; temp_obj = temp_obj->next_content)
+				OBJ_DATA *tmp_obj = get_obj_in_list_vis(ch, stufina, chest->contains);
+				if (tmp_obj)
 				{
-					if (isname(stufina, temp_obj->name))
-					{
-						sprintf(buf1, "Характеристики предмета: %s\r\n", stufina);
-						send_to_char(buf1, ch);
-						GET_LEVEL(ch) < LVL_IMPL ? mort_show_obj_values(temp_obj, ch, 200) : imm_show_obj_values(temp_obj, ch);
-						ch->remove_bank(CHEST_IDENT_PAY);
-						sprintf(buf1, "%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",  CCIGRN(ch, C_NRM), CHEST_IDENT_PAY, desc_count(CHEST_IDENT_PAY, WHAT_MONEYu), CCNRM(ch, C_NRM));
-						send_to_char(buf1, ch);
-						return;
-					}
+					send_to_char(ch, "Характеристики предмета: %s\r\n", stufina);
+					GET_LEVEL(ch) < LVL_IMPL ? mort_show_obj_values(tmp_obj, ch, 200) : imm_show_obj_values(tmp_obj, ch);
+					ch->remove_bank(CHEST_IDENT_PAY);
+					send_to_char(ch, "%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
+							CCIGRN(ch, C_NRM), CHEST_IDENT_PAY, desc_count(CHEST_IDENT_PAY, WHAT_MONEYu), CCNRM(ch, C_NRM));
+					return;
 				}
 			}
 		}
@@ -4006,7 +4003,6 @@ ACMD(DoStoreHouse)
 		sprintf(buf1, "Ничего похожего на %s в хранилище ненайдено! Будьте внимательнее.\r\n", stufina);
 		send_to_char(buf1, ch);
 		return;
-
 	}
 
 	// мож сэйвить надумается или еще что, вобщем объединим все в структурку
@@ -4315,7 +4311,7 @@ ACMD(DoStoreHouse)
 	{
 		if (Clan::is_clan_chest(chest))
 		{
-			for (temp_obj = chest->contains; temp_obj; temp_obj = temp_obj->next_content)
+			for (OBJ_DATA *temp_obj = chest->contains; temp_obj; temp_obj = temp_obj->next_content)
 			{
 				std::ostringstream modif;
 				// сверяем имя
