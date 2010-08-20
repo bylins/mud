@@ -284,8 +284,8 @@ struct zone_data
 	bool reset_idle;	/* очищать ли зону, в которой никто не бывал */
 	bool used;		/* был ли кто-то в зоне после очистки */
 	unsigned long long activity;	/* параметр активности игроков в зоне */
-	// зона для группы
-	bool group;
+	// <= 1 - обычная зона (соло), >= 2 - зона для группы из указанного кол-ва человек
+	int group;
 };
 
 extern zone_data *zone_table;

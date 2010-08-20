@@ -505,7 +505,7 @@ void zedit_save_to_disk(int zone_num)
 	fprintf(zfile, "#%d %d %d\n" "%d %d %d %d %s %s\n",
 			zone_table[zone_num].level,
 			zone_table[zone_num].type,
-			zone_table[zone_num].group ? 1 : 0,
+			zone_table[zone_num].group,
 			zone_table[zone_num].top,
 			zone_table[zone_num].lifespan,
 			zone_table[zone_num].reset_mode,
@@ -945,8 +945,8 @@ void zedit_disp_menu(DESCRIPTOR_DATA * d)
 	sprintf(buf, "%s%sT%s) Режим       : %s%s%s\r\n", buf,
 			grn, nrm, yel, OLC_ZONE(d)->under_construction ? buf1 : "подключена", nrm);
 
-	sprintf(buf, "%s%sG%s) Для группы  : %s%s%s\r\n", buf,
-			grn, nrm, yel, OLC_ZONE(d)->group ? "да" : "нет", nrm);
+	sprintf(buf, "%s%sG%s) Оптимальное число игроков  : %s%d%s\r\n", buf,
+			grn, nrm, yel, OLC_ZONE(d)->group, nrm);
 
 	/* Print the commands into display buffer. */
 	zedit_disp_commands(d, buf);
@@ -1515,10 +1515,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		case 'g':
 		case 'G':
-			send_to_char(d->character,
-						"%s0%s) для одного игрока (по умолчанию)\r\n"
-						"%s1%s) для группы\r\n"
-						"Выберите тип зоны : ", grn, nrm, grn, nrm);
+			send_to_char(d->character, "Оптимальное число игроков (1 - 12): ");
 			OLC_MODE(d) = ZEDIT_ZONE_GROUP;
 			break;
 		case 'p':
@@ -2146,16 +2143,16 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case ZEDIT_ZONE_GROUP:
 	{
 		int num = atoi(arg);
-		if (num < 0 || num > 1)
+		if (num < 1 || num > 12)
 		{
-			send_to_char("Повторите ввод (0 или 1) :", d->character);
+			send_to_char("Повторите ввод (от 1 до 12) :", d->character);
 		}
 		else
 		{
 			OLC_ZONE(d)->group = num;
 			OLC_ZONE(d)->number = 1;
+			zedit_disp_menu(d);
 		}
-		zedit_disp_menu(d);
 		break;
 	}
 		/*-------------------------------------------------------------------*/
