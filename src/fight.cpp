@@ -2393,6 +2393,7 @@ void try_remove_extrahits(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	if ((!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
 		&& !IS_NPC(victim)
+		&& ch != victim
 		&& GET_POS(victim) != POS_DEAD
 		&& GET_HIT(victim) > GET_REAL_MAX_HIT(victim) * 1.5
 		&& number(1, 100) == 1)
