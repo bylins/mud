@@ -47,6 +47,7 @@ extern char *diag_timer_to_char(OBJ_DATA * obj);
 extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
+extern bool is_dig_stone(OBJ_DATA *obj);
 
 //свои ф-ии
 int exchange_exhibit(CHAR_DATA * ch, char *arg);
@@ -1789,7 +1790,8 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 			continue;
 
 		// ну идиотизм сидеть статить 5-10 страниц резных
-		if (is_abbrev("резное запястье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0)) || is_abbrev("широкое серебряное обручье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0)))
+		if (is_abbrev("резное запястье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0))
+			|| is_abbrev("широкое серебряное обручье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0)))
 		{
 			sprintbits(GET_EXCHANGE_ITEM(j)->obj_flags.affects, weapon_affects, buf, ",");
 			// небольшое дублирование кода, чтобы зря не гонять по аффектам всех шмоток
@@ -1832,8 +1834,14 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 				sprintf(tmpbuf, "[%4d]   %s (%s)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0), buf);
 			}
 		}
+		else if (is_dig_stone(GET_EXCHANGE_ITEM(j)) && GET_OBJ_MATER(GET_EXCHANGE_ITEM(j)) == MAT_GLASS)
+		{
+			sprintf(tmpbuf, "[%4d]   %s (стекло)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
+		}
 		else
+		{
 			sprintf(tmpbuf, "[%4d]   %s", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
+		}
 
 		sprintf(tmpbuf, "%-63s %9d\r\n", tmpbuf, GET_EXCHANGE_ITEM_COST(j));
 		// Такое вот кино, на выделения для каждой строчки тут уходило до 0.6 секунды при выводе всего базара. стринги рулят -- Krodo

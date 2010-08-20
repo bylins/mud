@@ -3111,6 +3111,16 @@ void set_obj_eff(struct obj_data *itemobj, int type, int mod)
 
 extern struct index_data *obj_index;
 
+bool is_dig_stone(OBJ_DATA *obj)
+{
+	if (GET_OBJ_VNUM(obj) >= dig_vars.stone1_vnum && GET_OBJ_VNUM(obj) <= dig_vars.stone1_vnum + 17)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 ACMD(do_insertgem)
 {
 	int percent, prob, i;
@@ -3153,7 +3163,7 @@ ACMD(do_insertgem)
 		return;
 	}
 
-	if (GET_OBJ_VNUM(gemobj) < dig_vars.stone1_vnum || GET_OBJ_VNUM(gemobj) > dig_vars.stone1_vnum + 17)
+	if (!is_dig_stone(gemobj))
 	{
 		sprintf(buf, "Вы не умеете вплавлять %s.\r\n", gemobj->PNames[3]);
 		send_to_char(buf, ch);
