@@ -880,8 +880,8 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
 			if (IS_NPC(killer) &&
 					AFF_FLAGGED(ch, AFF_GROUP) && ch->master && IN_ROOM(ch) == IN_ROOM(ch->master))
 			{
-				if (ch->master->get_skill(SKILL_LEADERSHIP) > 1)
-					ch->master->set_skill(SKILL_LEADERSHIP, ch->master->get_skill(SKILL_LEADERSHIP) - 1);
+				if (ch->master->get_trained_skill(SKILL_LEADERSHIP) > 1)
+					ch->master->set_skill(SKILL_LEADERSHIP, ch->master->get_trained_skill(SKILL_LEADERSHIP) - 1);
 			}
 		}
 		pk_revenge_action(killer, ch);
