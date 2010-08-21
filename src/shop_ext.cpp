@@ -576,10 +576,14 @@ void town_shop_keepers()
 			&& Clan::IsClanRoom(IN_ROOM(ch)) == Clan::ClanList.end()
 			&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_SOUNDPROOF))
 		{
-			CHAR_DATA *mob = read_mobile(1901, VIRTUAL);
-			if (mob)
+			int rnum_start, rnum_end;
+			if (get_zone_rooms(world[IN_ROOM(ch)]->zone, &rnum_start, &rnum_end))
 			{
-				char_to_room(mob, IN_ROOM(ch));
+				CHAR_DATA *mob = read_mobile(1901, VIRTUAL);
+				if (mob)
+				{
+					char_to_room(mob, number(rnum_start, rnum_end));
+				}
 			}
 		}
 	}
