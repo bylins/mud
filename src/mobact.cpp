@@ -28,6 +28,7 @@
 #include "char.hpp"
 #include "house.h"
 #include "room.hpp"
+#include "shop_ext.hpp"
 
 /* external structs */
 extern CHAR_DATA *character_list;
@@ -37,7 +38,7 @@ extern TIME_INFO_DATA time_info;
 extern SPECIAL(guild_poly);
 extern guardian_type guardian_list;
 extern struct zone_data * zone_table;
-
+SPECIAL(shop_keeper);
 
 ACMD(do_get);
 void go_bash(CHAR_DATA * ch, CHAR_DATA * vict);
@@ -601,19 +602,28 @@ void do_aggressive_room(CHAR_DATA *ch, int check_sneak)
 }
 
 /**
-* Проверка на наличие в комнате мобов-учитилей (чтобы по двое не толпились).
-* Смотрится только guild_poly, т.к. другие я так понял не используются в маде.
-* Входящий в комнату - ch.
-* \return true - можно войти, false - нельзя
-*/
-bool allow_master_enter(ROOM_DATA *room, CHAR_DATA *ch)
+ * Проверка на наличие в комнате мобов с таким же спешиалом,
+ * что и входящий (с магазинами случай входа shop_ext к shop_keeper).
+ * \param ch - входящий моб
+ * \return true - можно войти, false - нельзя
+ */
+bool allow_enter(ROOM_DATA *room, CHAR_DATA *ch)
 {
-	if (!IS_NPC(ch) || GET_MOB_SPEC(ch) != guild_poly)
+	if (!IS_NPC(ch) || !GET_MOB_SPEC(ch))
+	{
 		return true;
+	}
 
 	for (CHAR_DATA *vict = room->people; vict; vict = vict->next_in_room)
-		if (IS_NPC(vict) && GET_MOB_SPEC(vict) == guild_poly)
+	{
+		if (IS_NPC(vict)
+			&& (GET_MOB_SPEC(vict) == GET_MOB_SPEC(ch)
+				|| (GET_MOB_SPEC(vict) == shop_keeper && GET_MOB_SPEC(ch) == ShopExt::shop_ext)))
+		{
 			return false;
+		}
+	}
+
 	return true;
 }
 
@@ -926,7 +936,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 				&& !is_room_forbidden(world[EXIT(ch, door)->to_room])
 				&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
 					|| world[EXIT(ch, door)->to_room]->zone == world[ch->in_room]->zone)
-				&& allow_master_enter(world[EXIT(ch, door)->to_room], ch))
+				&& allow_enter(world[EXIT(ch, door)->to_room], ch))
 		{
 			// После хода нпц уже может не быть, т.к. ушел в дт, я не знаю почему
 			// оно не валится на муд.ру, но на цигвине у меня падало стабильно,
