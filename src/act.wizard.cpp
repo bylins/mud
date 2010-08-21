@@ -3445,7 +3445,7 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone)
 	char tmpstr[255];
 	sprintf(tmpstr,
 			"%3d %-30.30s Level: %2d; Type: %-10.10s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
-			"    Top: %5d %s%s; ResetIdle: %s; Used: %s; Activity: %.2f\r\n",
+			"    Top: %5d %s%s; ResetIdle: %s; Used: %s; Activity: %.2f; Group: %2d\r\n",
 			zone_table[zone].number, zone_table[zone].name,
 			zone_table[zone].level, zone_types[zone_table[zone].type].name,
 			zone_table[zone].age, zone_table[zone].lifespan,
@@ -3456,7 +3456,8 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone)
 					zone_table[zone].locked ? " LOCKED" : "",
 					zone_table[zone].reset_idle ? "Y" : "N",
 					zone_table[zone].used ? "Y" : "N",
-					(double)zone_table[zone].activity / 1000);
+					(double)zone_table[zone].activity / 1000,
+					zone_table[zone].group);
 	*bufptr = str_add(*bufptr, tmpstr);
 }
 
@@ -3625,9 +3626,23 @@ ACMD(do_show)
 				return;
 			}
 		}
-		else
+		else if (*value && !strcmp(value, "-g"))
+		{
 			for (zrn = 0; zrn <= top_of_zone_table; zrn++)
+			{
+				if (zone_table[zrn].group > 1)
+				{
+					print_zone_to_buf(&bf, zrn);
+				}
+			}
+		}
+		else
+		{
+			for (zrn = 0; zrn <= top_of_zone_table; zrn++)
+			{
 				print_zone_to_buf(&bf, zrn);
+			}
+		}
 		page_string(ch->desc, bf, TRUE);
 		free(bf);
 		break;
