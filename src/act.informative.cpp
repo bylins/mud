@@ -5142,7 +5142,16 @@ ACMD(do_toggle)
 
 ACMD(do_zone)
 {
-	send_to_char(ch, "%s.\r\n", zone_table[world[ch->in_room]->zone].name);
+	const int group = zone_table[world[ch->in_room]->zone].group;
+	if (group > 1)
+	{
+		send_to_char(ch, "%s (групповая на %d %s).\r\n",
+				zone_table[world[ch->in_room]->zone].name, group, desc_count(group, WHAT_PEOPLE));
+	}
+	else
+	{
+		send_to_char(ch, "%s.\r\n", zone_table[world[ch->in_room]->zone].name);
+	}
 }
 
 

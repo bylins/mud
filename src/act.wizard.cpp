@@ -1633,11 +1633,21 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	}
 	strcat(buf, buf2);
 
-	sprintf(buf2,
-			", Уровень: [%s%2d%s], Опыт: [%s%10ld%s], Наклонности: [%4d]\r\n",
-			CCYEL(ch, C_NRM), GET_LEVEL(k), CCNRM(ch, C_NRM), CCYEL(ch,
-					C_NRM),
-			GET_EXP(k), CCNRM(ch, C_NRM), GET_ALIGNMENT(k));
+	char tmp_buf[256];
+	if (k->get_zone_group() > 1)
+	{
+		snprintf(tmp_buf, sizeof(tmp_buf), " : групповой %ldx%d",
+				GET_EXP(k) / k->get_zone_group(), k->get_zone_group());
+	}
+	else
+	{
+		tmp_buf[0] = '\0';
+	}
+
+	sprintf(buf2, ", Уровень: [%s%2d%s], Опыт: [%s%10ld%s]%s, Наклонности: [%4d]\r\n",
+			CCYEL(ch, C_NRM), GET_LEVEL(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
+			GET_EXP(k), CCNRM(ch, C_NRM), tmp_buf, GET_ALIGNMENT(k));
+
 	strcat(buf, buf2);
 	send_to_char(buf, ch);
 
@@ -4938,19 +4948,19 @@ ACMD(do_liblist)
 		}
 		break;
 	case SCMD_ZLIST:
-		sprintf(bf, "Список зон от %d до %d\r\n", first, last);
+		sprintf(bf, "Список зон от %d до %d (флаги, номер, резет, уровень, группа, имя)\r\n", first, last);
 		for (nr = 0; nr <= top_of_zone_table && (zone_table[nr].number <= last); nr++)
 		{
 			if (zone_table[nr].number >= first)
 			{
-//MZ.load
-				sprintf(bf, "%s%5d. [%s%s] [%5d] (%3d) (%3d) %s\r\n", bf, ++found,
-//-MZ.load
-						zone_table[nr].locked ? "L " : "",
+				sprintf(bf, "%s%5d. [%s%s] [%5d] (%3d) (%3d) (%2d) %s\r\n", bf, ++found,
+						zone_table[nr].locked ? "L" : " ",
 						zone_table[nr].under_construction ? "T" : " ",
-//MZ.load
-						zone_table[nr].number, zone_table[nr].lifespan, zone_table[nr].level, zone_table[nr].name);
-//-MZ.load
+						zone_table[nr].number,
+						zone_table[nr].lifespan,
+						zone_table[nr].level,
+						zone_table[nr].group,
+						zone_table[nr].name);
 			}
 		}
 		break;

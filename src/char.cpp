@@ -1010,3 +1010,13 @@ void Character::clear_add_affects()
 	memset(&add_abils, 0, sizeof(char_played_ability_data));
 	set_con_add(0);
 }
+
+int Character::get_zone_group() const
+{
+	if (IS_NPC(this) && nr >= 0 && mob_index[nr].zone >= 0)
+	{
+		return MAX(1, zone_table[mob_index[nr].zone].group);
+	}
+
+	return 1;
+}

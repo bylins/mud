@@ -982,8 +982,6 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 --*/
 void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koef)
 {
-	int exp;
-
 // Странно, но для NPC эта функция тоже должна работать
 //  if (IS_NPC(ch) || !OK_GAIN_EXP(ch,victim))
 	if (!OK_GAIN_EXP(ch, victim))
@@ -991,8 +989,26 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		send_to_char("Ваше деяние никто не оценил.\r\n", ch);
 		return;
 	}
+
 	// 1. Опыт делится поровну на всех
-	exp = GET_EXP(victim) / MAX(members, 1);
+	int exp = GET_EXP(victim) / MAX(members, 1);
+
+	if(victim->get_zone_group() > 1)
+	{
+		int normal_exp = GET_EXP(victim) / victim->get_zone_group();
+		// моб из груп-зоны
+		if (members <= victim->get_zone_group())
+		{
+			exp = normal_exp;
+		}
+		else
+		{
+			// если группа больше рекомендуемой - за каждого лишнего
+			// человека штраф по 20% экспы
+			int penalty = members - victim->get_zone_group();
+			exp = MAX(0, normal_exp - normal_exp / 100 * penalty * 20);
+		}
+	}
 
 	// 2. Учитывается коэффициент (лидерство, разность уровней)
 	//    На мой взгляд его правильней использовать тут а не в конце процедуры,
