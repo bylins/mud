@@ -992,21 +992,10 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 	// 1. Опыт делится поровну на всех
 	int exp = GET_EXP(victim) / MAX(members, 1);
 
-	if(victim->get_zone_group() > 1)
+	if(victim->get_zone_group() > 1 && members < victim->get_zone_group())
 	{
-		int normal_exp = GET_EXP(victim) / victim->get_zone_group();
-		// моб из груп-зоны
-		if (members <= victim->get_zone_group())
-		{
-			exp = normal_exp;
-		}
-		else
-		{
-			// если группа больше рекомендуемой - за каждого лишнего
-			// человека штраф по 20% экспы
-			int penalty = members - victim->get_zone_group();
-			exp = MAX(0, normal_exp - normal_exp / 100 * penalty * 20);
-		}
+		// в случае груп-зоны своего рода планка на мин кол-во человек в группе
+		exp = GET_EXP(victim) / victim->get_zone_group();
 	}
 
 	// 2. Учитывается коэффициент (лидерство, разность уровней)
