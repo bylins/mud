@@ -17,6 +17,7 @@
 #include <sstream>
 #include <string>
 #include <boost/algorithm/string.hpp>
+#include <cmath>
 
 #include "conf.h"
 #include "sys/stat.h"
@@ -4042,6 +4043,21 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	else
 	{
 		mob->points.max_hit = number(mob->points.hit, GET_MEM_TOTAL(mob));
+	}
+
+	// тестово минимальная планка по хп для груп-мобов
+	if (mob->get_zone_group() > 1)
+	{
+		if (GET_LEVEL(mob) <= 30)
+		{
+//			const int min_hp = std::pow(GET_LEVEL(mob), 2.3) + 14;
+//			mob->points.max_hit = MAX(mob->points.max_hit, min_hp);
+		}
+		else
+		{
+			const int min_hp = (GET_LEVEL(mob) - 30) * 500 + 3000;
+			mob->points.max_hit = MAX(mob->points.max_hit, min_hp);
+		}
 	}
 
 	mob->points.hit = mob->points.max_hit;
