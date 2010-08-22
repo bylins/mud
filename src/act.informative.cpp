@@ -3603,6 +3603,37 @@ ACMD(do_index)
 
 ACMD(do_help)
 {
+	if (!ch->desc)
+	{
+		return;
+	}
+
+	skip_spaces(&argument);
+
+	/* печатаем экран справки если нет аргументов */
+	if (!*argument)
+	{
+		page_string(ch->desc, help, 0);
+		return;
+	}
+	else if (!str_cmp(argument, "групповыезоны") || !str_cmp(argument, "групповые зоны"))
+	{
+		std::string out;
+		for (int rnum = 0, i = 1; rnum <= top_of_zone_table; ++rnum)
+		{
+			const int group = zone_table[rnum].group;
+			if (group > 1)
+			{
+				snprintf(buf, MAX_STRING_LENGTH, "  %2d - %s (гр. %d+).\r\n",
+						i, zone_table[rnum].name, group);
+				out += buf;
+				++i;
+			}
+		}
+		send_to_char(out.c_str(), ch);
+		return;
+	}
+
 	int bin_search_direct  = 0; // будет показывать направление для бинарного поиска
 	int bin_search_bottom  = 0; // нижняя граница бинарного поиска
 	int bin_search_top  = 0; // верхняя граница бинарного оиска
@@ -3616,18 +3647,6 @@ ACMD(do_help)
 	int topic_need = 0;  // ссылка на нужный топик
 
 	char *space_pos; // указатель на пробел в строке
-
-	if (!ch->desc)
-		return;
-
-	skip_spaces(&argument);
-
-	/* печатаем экран справки если нет аргументов */
-	if (!*argument)
-	{
-		page_string(ch->desc, help, 0);
-		return;
-	}
 
 	/*залочка на случай крешей и прочих багов */
 //        send_to_char("Справка временно недоступна.\r\n", ch);

@@ -30,7 +30,6 @@
 extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 
-extern zone_rnum top_of_zone_table;
 extern struct zone_data *zone_table;
 extern DESCRIPTOR_DATA *descriptor_list;
 

@@ -67,7 +67,6 @@ extern char const *class_abbrevs[];
 extern char const *kin_abbrevs[];
 extern const char *weapon_affects[];
 extern time_t boot_time;
-extern zone_rnum top_of_zone_table;
 extern int circle_shutdown, circle_reboot;
 extern int circle_restrict;
 extern int load_into_inventory;

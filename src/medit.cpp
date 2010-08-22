@@ -44,7 +44,6 @@ extern CHAR_DATA *mob_proto;
 extern CHAR_DATA *character_list;
 extern mob_rnum top_of_mobt;
 extern struct zone_data *zone_table;
-extern zone_rnum top_of_zone_table;
 extern struct player_special_data dummy_mob;
 extern struct attack_hit_type attack_hit_text[];
 extern int top_shop;

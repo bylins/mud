@@ -459,4 +459,6 @@ void delete_char(const char *name);
 
 void set_test_data(CHAR_DATA *mob);
 
+extern zone_rnum top_of_zone_table;
+
 #endif

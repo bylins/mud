@@ -48,7 +48,6 @@ extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
 extern room_rnum r_named_start_room;
 extern room_rnum r_unreg_start_room;
-extern zone_rnum top_of_zone_table;
 extern DESCRIPTOR_DATA *descriptor_list;
 
 /*------------------------------------------------------------------------*/

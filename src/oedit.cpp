@@ -40,7 +40,6 @@ extern INDEX_DATA *obj_index;
 extern OBJ_DATA *object_list;
 extern obj_rnum top_of_objt;
 extern struct zone_data *zone_table;
-extern zone_rnum top_of_zone_table;
 extern SHOP_DATA *shop_index;
 extern int top_shop;
 extern struct attack_hit_type attack_hit_text[];

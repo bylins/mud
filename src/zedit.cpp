@@ -30,7 +30,6 @@
  * External data structures.
  */
 extern struct zone_data *zone_table;
-extern zone_rnum top_of_zone_table;
 extern CHAR_DATA *mob_proto;
 extern INDEX_DATA *mob_index;
 extern vector < OBJ_DATA * >obj_proto;

@@ -125,7 +125,6 @@ extern int autosave_time;	/* see config.cpp */
 extern int mana[];
 
 extern char *help;
-extern zone_rnum top_of_zone_table;
 extern struct zone_data *zone_table;
 extern const char *save_info_msg[];	/* In olc.cpp */
 extern CHAR_DATA *character_list;
