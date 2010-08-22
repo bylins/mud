@@ -2355,7 +2355,7 @@ void check_max_hp(CHAR_DATA *ch)
 	int ch_class = GET_CLASS(ch);
 	double add_hp_per_level = class_app[ch_class].base_con
 		+ (GET_CON(ch) - class_app[ch_class].base_con)
-		* static_cast<double>(class_app[ch_class].koef_con) / 100 + 3;
+		* class_app[ch_class].koef_con / 100.0 + 5;
 	GET_MAX_HIT(ch) = 10 + static_cast<int>(add_hp_per_level * GET_LEVEL(ch));
 }
 
