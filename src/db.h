@@ -286,6 +286,8 @@ struct zone_data
 	unsigned long long activity;	/* параметр активности игроков в зоне */
 	// <= 1 - обычная зона (соло), >= 2 - зона для группы из указанного кол-ва человек
 	int group;
+	// средний уровень мобов в зоне
+	int mob_level;
 };
 
 extern zone_data *zone_table;
@@ -461,5 +463,6 @@ void set_test_data(CHAR_DATA *mob);
 
 extern zone_rnum top_of_zone_table;
 int calc_min_hp(CHAR_DATA *mob);
+void set_zone_mob_level();
 
 #endif

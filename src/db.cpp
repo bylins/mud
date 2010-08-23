@@ -1361,6 +1361,23 @@ void obj_data::init_set_table()
 	}
 }
 
+void set_zone_mob_level()
+{
+	for (int i = 0; i <= top_of_zone_table; ++i)
+	{
+		int level = 0, count = 0;
+		for (int nr = 0; nr <= top_of_mobt; ++nr)
+		{
+			if (mob_index[nr].vnum >= zone_table[i].number * 100 && mob_index[nr].vnum <= zone_table[i].number * 100 + 99)
+			{
+				level += mob_proto[nr].get_level();
+				++count;
+			}
+		}
+		zone_table[i].mob_level = count ? level/count : 0;
+	}
+}
+
 /* body of the booting system */
 void boot_db(void)
 {
@@ -1567,6 +1584,9 @@ void boot_db(void)
 
 	log("Init town shop_keepers");
 	town_shop_keepers();
+
+	log("Set zone average mob_level");
+	set_zone_mob_level();
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");

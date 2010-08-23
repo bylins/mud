@@ -3444,19 +3444,20 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone)
 	char tmpstr[255];
 	sprintf(tmpstr,
 			"%3d %-30.30s Level: %2d; Type: %-10.10s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
-			"    Top: %5d %s%s; ResetIdle: %s; Used: %s; Activity: %.2f; Group: %2d\r\n",
+			"    Top: %5d %s%s; ResetIdle: %s; Used: %s; Activity: %.2f; Group: %2d, Mob-level: %2d\r\n",
 			zone_table[zone].number, zone_table[zone].name,
 			zone_table[zone].level, zone_types[zone_table[zone].type].name,
 			zone_table[zone].age, zone_table[zone].lifespan,
 			zone_table[zone].reset_mode,
 			(zone_table[zone].reset_mode == 3) ? (can_be_reset(zone) ? 1 : 0) : (is_empty(zone) ? 1 : 0),
 					zone_table[zone].top,
-					zone_table[zone].under_construction ? "TEST" : "",
-					zone_table[zone].locked ? " LOCKED" : "",
+					zone_table[zone].under_construction ? "T" : " ",
+					zone_table[zone].locked ? " L" : " ",
 					zone_table[zone].reset_idle ? "Y" : "N",
 					zone_table[zone].used ? "Y" : "N",
 					(double)zone_table[zone].activity / 1000,
-					zone_table[zone].group);
+					zone_table[zone].group,
+					zone_table[zone].mob_level);
 	*bufptr = str_add(*bufptr, tmpstr);
 }
 
@@ -3632,6 +3633,33 @@ ACMD(do_show)
 				if (zone_table[zrn].group > 1)
 				{
 					print_zone_to_buf(&bf, zrn);
+				}
+			}
+		}
+		else if (*value1 && !strcmp(value, "-l") && is_number(value1))
+		{
+			one_argument(arg, value);
+			if (*value && is_number(value))
+			{
+				// show zones -l x y
+				for (zrn = 0; zrn <= top_of_zone_table; zrn++)
+				{
+					if (zone_table[zrn].mob_level >= atoi(value1)
+						&& zone_table[zrn].mob_level <= atoi(value))
+					{
+						print_zone_to_buf(&bf, zrn);
+					}
+				}
+			}
+			else
+			{
+				// show zones -l x
+				for (zrn = 0; zrn <= top_of_zone_table; zrn++)
+				{
+					if (zone_table[zrn].mob_level == atoi(value1))
+					{
+						print_zone_to_buf(&bf, zrn);
+					}
 				}
 			}
 		}
@@ -4962,17 +4990,18 @@ ACMD(do_liblist)
 		}
 		break;
 	case SCMD_ZLIST:
-		sprintf(bf, "Список зон от %d до %d (флаги, номер, резет, уровень, группа, имя)\r\n", first, last);
+		sprintf(bf, "Список зон от %d до %d\r\n(флаги, номер, резет, уровень/средний уровень мобов, группа, имя)\r\n", first, last);
 		for (nr = 0; nr <= top_of_zone_table && (zone_table[nr].number <= last); nr++)
 		{
 			if (zone_table[nr].number >= first)
 			{
-				sprintf(bf, "%s%5d. [%s%s] [%5d] (%3d) (%3d) (%2d) %s\r\n", bf, ++found,
+				sprintf(bf, "%s%5d. [%s%s] [%5d] (%3d) (%2d/%2d) (%2d) %s\r\n", bf, ++found,
 						zone_table[nr].locked ? "L" : " ",
 						zone_table[nr].under_construction ? "T" : " ",
 						zone_table[nr].number,
 						zone_table[nr].lifespan,
 						zone_table[nr].level,
+						zone_table[nr].mob_level,
 						zone_table[nr].group,
 						zone_table[nr].name);
 			}
