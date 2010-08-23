@@ -274,7 +274,8 @@ int compute_armor_class(CHAR_DATA * ch)
 
 	if (AWAKE(ch))
 	{
-		armorclass += dex_app[GET_REAL_DEX(ch)].defensive * 10;
+		armorclass -= (GET_REAL_DEX(ch) - 10) * 7;
+//		armorclass += dex_app[GET_REAL_DEX(ch)].defensive * 10;
 		armorclass += extra_aco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
 	};
 
@@ -4183,7 +4184,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 
 	//    AWAKE style - decrease hitroll
-	if ((ch->get_zone_group() <= 1 || IS_CHARMICE(ch))
+	if ((!IS_NPC(ch) || IS_CHARMICE(ch))
 		&& GET_AF_BATTLE(ch, EAF_AWAKE)
 		&& GET_CLASS(ch) != CLASS_ASSASINE
 		&& type != SKILL_THROW
@@ -4305,23 +4306,24 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 
 	// Calculate the THAC0 of the attacker
-	if (ch->get_zone_group() <= 1 || IS_CHARMICE(ch))
+	int tmp_thaco = calc_thaco;
+
+	if (!IS_NPC(ch))
 	{
-		if (!IS_NPC(ch))
-		{
-			calc_thaco += thaco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
-		}
-		else
-		{
-			// штраф мобам по рекомендации Триглава
-			calc_thaco += (25 - GET_LEVEL(ch) / 3);
-		}
-		calc_thaco -= GET_REAL_HR(ch);
+		calc_thaco += thaco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
 	}
 	else
 	{
-		// у мобов из груп.зон пока слито в одно число
-		calc_thaco -= static_cast<int>(GET_LEVEL(ch) - 30 + VPOSI(GET_HR_ADD(ch), -50, 50));
+		// штраф мобам по рекомендации Триглава
+		calc_thaco += (25 - GET_LEVEL(ch) / 3);
+	}
+	calc_thaco -= GET_REAL_HR(ch);
+
+	if (IS_NPC(ch) && !IS_CHARMICE(ch))
+	{
+		// расчетные хитролы от левела моба - ставится в итоге лучший вариант
+		tmp_thaco -= GET_LEVEL(ch) - 30 + VPOSI(GET_HR_ADD(ch), -50, 50);
+		calc_thaco = MIN(tmp_thaco, calc_thaco);
 	}
 
 	/* Использование ловкости вместо силы для попадания */
@@ -4709,7 +4711,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		hit_block(ch, victim, &dam);
 	}
 
-	if (ch->get_zone_group() > 1)
+	if (IS_NPC(ch))
 	{
 		switch(diceroll)
 		{

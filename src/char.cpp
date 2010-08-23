@@ -981,7 +981,8 @@ long Character::remove_both_gold(long num, bool need_log)
 */
 int Character::calc_morale() const
 {
-	return cha_app[GET_REAL_CHA(this)].morale + GET_MORALE(this);
+	return GET_REAL_CHA(this) / 2 + GET_MORALE(this);
+//	return cha_app[GET_REAL_CHA(this)].morale + GET_MORALE(this);
 }
 
 int Character::get_con() const
