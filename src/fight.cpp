@@ -265,7 +265,6 @@ int armor_class_limit(CHAR_DATA * ch)
 	default:
 		return -300;
 	}
-
 }
 
 int compute_armor_class(CHAR_DATA * ch)
@@ -274,8 +273,8 @@ int compute_armor_class(CHAR_DATA * ch)
 
 	if (AWAKE(ch))
 	{
-		armorclass -= (GET_REAL_DEX(ch) - 10) * 7;
-//		armorclass += dex_app[GET_REAL_DEX(ch)].defensive * 10;
+//		armorclass -= (GET_REAL_DEX(ch) - 10) * 7;
+		armorclass += dex_app[GET_REAL_DEX(ch)].defensive * 10;
 		armorclass += extra_aco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
 	};
 
