@@ -4369,7 +4369,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		victim_ac += 4;
 
 	// roll the dice and take your chances...
-	const int diceroll = number(1, 2000) / 100;
+	const int diceroll = number(100, 2099) / 100;
 
 	// decide whether this is a hit or a miss
 	// всегда есть 5% вероятность попасть или промазать,
