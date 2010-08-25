@@ -814,7 +814,8 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
 	{
 		if (!(IS_NPC(ch) || IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
 		{
-			dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (4 + MIN(3, GET_REMORT(ch) / 5));
+			dec_exp = number(GET_EXP(ch) / 100, GET_EXP(ch) / 20) +
+			    (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / 4;
 			gain_exp(ch, -dec_exp);
 			dec_exp = e - GET_EXP(ch);
 			sprintf(buf, "Вы потеряли %d %s опыта.\r\n", dec_exp, desc_count(dec_exp, WHAT_POINT));
@@ -4183,8 +4184,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 
 	//    AWAKE style - decrease hitroll
-	if ((!IS_NPC(ch) || IS_CHARMICE(ch))
-		&& GET_AF_BATTLE(ch, EAF_AWAKE)
+	if (GET_AF_BATTLE(ch, EAF_AWAKE)
 		&& GET_CLASS(ch) != CLASS_ASSASINE
 		&& type != SKILL_THROW
 		&& type != SKILL_BACKSTAB)
@@ -4305,8 +4305,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 
 	// Calculate the THAC0 of the attacker
-	int tmp_thaco = calc_thaco;
-
 	if (!IS_NPC(ch))
 	{
 		calc_thaco += thaco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
@@ -4317,13 +4315,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		calc_thaco += (25 - GET_LEVEL(ch) / 3);
 	}
 	calc_thaco -= GET_REAL_HR(ch);
-
-	if (IS_NPC(ch) && !IS_CHARMICE(ch))
-	{
-		// расчетные хитролы от левела моба - ставится в итоге лучший вариант
-		tmp_thaco -= GET_LEVEL(ch) - 30 + VPOSI(GET_HR_ADD(ch), -50, 50);
-		calc_thaco = MIN(tmp_thaco, calc_thaco);
-	}
 
 	/* Использование ловкости вместо силы для попадания */
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
@@ -4708,28 +4699,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	{
 		/**** Обработаем команду   БЛОКИРОВАТЬ */
 		hit_block(ch, victim, &dam);
-	}
-
-	if (IS_NPC(ch))
-	{
-		switch(diceroll)
-		{
-		case 19:
-			dam = dam * 25 / 100;
-			break;
-		case 18:
-			dam = dam * 40 / 100;
-			break;
-		case 17:
-			dam = dam * 55 / 100;
-			break;
-		case 16:
-			dam = dam * 70 / 100;
-			break;
-		case 15:
-			dam = dam * 85 / 100;
-			break;
-		}
 	}
 
 	DamageActorParameters params(ch, victim, dam);

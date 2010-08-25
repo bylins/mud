@@ -4026,23 +4026,6 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	return found;
 }
 
-// тестово минимальная планка по хп для 31+ мобов
-int calc_min_hp(CHAR_DATA *mob)
-{
-	if (GET_LEVEL(mob) > 30)
-	{
-		if (mob->get_zone_group() > 1)
-		{
-			return (GET_LEVEL(mob) - 30) * 1500 + 2000;
-		}
-		else
-		{
-			return (GET_LEVEL(mob) - 30) * 500 + 2000;
-		}
-	}
-	return 0;
-}
-
 /* create a new mobile from a prototype */
 CHAR_DATA *read_mobile(mob_vnum nr, int type)
 {				/* and mob_rnum */
@@ -4081,8 +4064,6 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	{
 		mob->points.max_hit = number(mob->points.hit, GET_MEM_TOTAL(mob));
 	}
-
-	mob->points.max_hit = MAX(calc_min_hp(mob), mob->points.max_hit);
 
 	mob->points.hit = mob->points.max_hit;
 	GET_MEM_TOTAL(mob) = GET_MEM_COMPLETED(mob) = 0;

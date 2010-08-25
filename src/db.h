@@ -462,7 +462,6 @@ void delete_char(const char *name);
 void set_test_data(CHAR_DATA *mob);
 
 extern zone_rnum top_of_zone_table;
-int calc_min_hp(CHAR_DATA *mob);
 void set_zone_mob_level();
 
 #endif

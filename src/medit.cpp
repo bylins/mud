@@ -1362,13 +1362,12 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 			"%s8%s) Предложный (ехать на ком)      : %s%s\r\n"
 			"%s9%s) Короткое :-\r\n%s%s"
 			"%sA%s) Детальное:-\r\n%s%s"
-			"%sB%s) Уровень    : [%s%4d%s], %sC%s) Наклонности:  [%s%4d%s]\r\n"
-			"%sD%s) Хитролы    : [%s%4d%s] на выходе %d <> расчетные %d => %d\r\n"
-			"%sE%s) Дамролы    : [%s%4d%s], %sF%s) NumDamDice : [%s%4d%s],%sG%s) SizeDamDice:  [%s%4d%s]\r\n"
-			"%sH%s) Num HP Dice: [%s%4d%s], %sI%s) Size HP Dice: [%s%4d%s]\r\n"
-			"%sJ%s) HP Bonus   : [%s%5d%s] на выходе %d-%d <> полные расчетные %d\r\n"
-			"%sK%s) ArmorClass : [%s%4d%s], %sL%s) Опыт:         [%s%9ld%s],\r\n"
-			"%sM%s) Gold       : [%s%4ld%s], %sN%s) NumGoldDice:  [%s%4d%s],%s O%s) SizeGoldDice: [%s%4d%s]\r\n",
+			"%sB%s) Уровень    : [%s%4d%s],%sC%s) Наклонности:  [%s%4d%s]\r\n"
+			"%sD%s) Хитролы    : [%s%4d%s],%sE%s) Дамролы:      [%s%4d%s]\r\n"
+			"%sF%s) NumDamDice : [%s%4d%s],%sG%s) SizeDamDice:  [%s%4d%s]\r\n"
+			"%sH%s) Num HP Dice: [%s%4d%s],%sI%s) Size HP Dice: [%s%4d%s],%sJ%s) HP Bonus:    [%s%5d%s]\r\n"
+			"%sK%s) ArmorClass : [%s%4d%s],%sL%s) Опыт:         [%s%9ld%s],\r\n"
+			"%sM%s) Gold       : [%s%4ld%s],%sN%s) NumGoldDice:  [%s%4d%s],%sO%s) SizeGoldDice: [%s%4d%s]\r\n",
 			cyn, OLC_NUM(d), nrm,
 			grn, nrm, yel, genders[(int) GET_SEX(mob)], nrm,
 			grn, nrm, yel, GET_ALIAS(mob),
@@ -1383,18 +1382,12 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, nrm, cyn, GET_LEVEL(mob), nrm,
 			grn, nrm, cyn, GET_ALIGNMENT(mob), nrm,
 			grn, nrm, cyn, GET_HR(mob), nrm,
-				-GET_HR(mob) + (25 - GET_LEVEL(mob) / 3),
-				-(GET_LEVEL(mob) - 30),
-				MIN(-GET_HR(mob) + (25 - GET_LEVEL(mob) / 3), -(GET_LEVEL(mob) - 30)),
 			grn, nrm, cyn, GET_DR(mob), nrm,
 			grn, nrm, cyn, GET_NDD(mob), nrm,
 			grn, nrm, cyn, GET_SDD(mob), nrm,
 			grn, nrm, cyn, GET_MEM_TOTAL(mob), nrm,
 			grn, nrm, cyn, GET_MEM_COMPLETED(mob), nrm,
 			grn, nrm, cyn, GET_HIT(mob), nrm,
-			GET_MEM_TOTAL(mob) + GET_HIT(mob),
-			GET_MEM_TOTAL(mob) * GET_MEM_COMPLETED(mob) + GET_HIT(mob),
-			calc_min_hp(mob),
 			grn, nrm, cyn, GET_AC(mob), nrm,
 			grn, nrm, cyn, GET_EXP(mob), nrm,
 			grn, nrm, cyn, mob->get_gold(), nrm,
