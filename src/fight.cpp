@@ -814,8 +814,7 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
 	{
 		if (!(IS_NPC(ch) || IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
 		{
-			dec_exp = number(GET_EXP(ch) / 100, GET_EXP(ch) / 20) +
-			    (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / 4;
+			dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5));
 			gain_exp(ch, -dec_exp);
 			dec_exp = e - GET_EXP(ch);
 			sprintf(buf, "Вы потеряли %d %s опыта.\r\n", dec_exp, desc_count(dec_exp, WHAT_POINT));
