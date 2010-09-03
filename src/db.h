@@ -192,7 +192,7 @@ long cmp_ptable_by_name(char *name, int len);
 const char *get_name_by_id(long id);
 char *get_name_by_unique(long id);
 int get_level_by_unique(long unique);
-long get_lastlogon_by_uniquie(long uniquie);
+long get_lastlogon_by_unique(long uniquie);
 long get_ptable_by_unique(long unique);
 int get_zone_rooms(int, int *, int *);
 
@@ -315,6 +315,10 @@ struct reset_q_type
 struct player_index_element
 {
 	char *name;
+	//added by WorM индексируюца еще мыло и последний айпи
+	char *mail;
+	char *last_ip;
+	//end by WorM
 	long id;
 	long unique;
 	int level;

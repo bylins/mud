@@ -8,9 +8,21 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "interpreter.h"
+#define SCMD_NAMED_LIST 	1
+#define SCMD_NAMED_EDIT 	2
+#define NAMED_MAIN		0
+#define NAMED_EDIT		1
+#define NAMED_EDIT_VNUM		2
+#define NAMED_EDIT_OWNER	3
+#define NAMED_EDIT_CLAN		4
+#define NAMED_EDIT_ALLI		5
 
 namespace NamedStuff
 {
+
+ACMD(do_named);
+void nedit_menu(CHAR_DATA *ch);
+bool parse_nedit_menu(CHAR_DATA *ch, char *arg);
 
 struct stuff_node
 {
@@ -26,7 +38,7 @@ typedef std::map<long /* vnum предмета */, StuffNodePtr> StuffListType;
 
 extern StuffListType stuff_list;
 
-//void save();
+void save();
 void load();
 //Проверка доступен ли именной предмет чару, simple без проверки клана и союзов
 //Возвращаемое значение по аналогии с check_anti_classes false-доступен true-недоступен

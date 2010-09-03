@@ -198,7 +198,7 @@ void Character::purge(bool destructor)
 		id = get_ptable_by_name(GET_NAME(this));
 		if (id >= 0)
 		{
-			player_table[id].level = (GET_REMORT(this) ? 30 : GET_LEVEL(this));
+			player_table[id].level = (GET_REMORT(this) && !IS_IMMORTAL(this) ? 30 : GET_LEVEL(this));
 			player_table[id].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
 		}
 	}

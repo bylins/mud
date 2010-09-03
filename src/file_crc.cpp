@@ -16,6 +16,7 @@
 #include "interpreter.h"
 #include "comm.h"
 
+bool need_warn = true;
 namespace FileCRC
 {
 
@@ -192,6 +193,8 @@ void save(bool force_save)
 
 void create_message(std::string &name, int mode)
 {
+	if(!need_warn)
+		return;
 	char time_buf[20];
 	time_t ct = time(0);
 	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));

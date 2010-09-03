@@ -5208,7 +5208,7 @@ int get_level_by_unique(long unique)
 	return level;
 }
 
-long get_lastlogon_by_uniquie(long unique)
+long get_lastlogon_by_unique(long unique)
 {
 	long time = 0;
 	for (int i = 0; i <= top_of_p_table; ++i)
@@ -5727,6 +5727,8 @@ void init_char(CHAR_DATA * ch)
 		player_table[i].unique = ch->get_uid();
 		player_table[i].level = 0;
 		player_table[i].last_logon = -1;
+		player_table[i].mail = NULL;//added by WorM mail
+		player_table[i].last_ip = NULL;//added by WorM последний айпи
 	}
 	else
 	{
@@ -6236,20 +6238,43 @@ void entrycount(char *name)
 				CREATE(player_table[top_of_p_table].name, char, strlen(GET_NAME(short_ch)) + 1);
 				for (i = 0, player_table[top_of_p_table].name[i] = '\0';
 						(player_table[top_of_p_table].name[i] = LOWER(GET_NAME(short_ch)[i])); i++);
+				//added by WorM 2010.08.27 в индексе чистим мыло и ip
+				CREATE(player_table[top_of_p_table].mail, char, strlen(GET_EMAIL(short_ch)) + 1);
+				for (i = 0, player_table[top_of_p_table].mail[i] = '\0';
+						(player_table[top_of_p_table].mail[i] = LOWER(GET_EMAIL(short_ch)[i])); i++);
+				CREATE(player_table[top_of_p_table].last_ip, char, strlen(GET_LASTIP(short_ch)) + 1);
+				for (i = 0, player_table[top_of_p_table].last_ip[i] = '\0';
+						(player_table[top_of_p_table].last_ip[i] = GET_LASTIP(short_ch)[i]); i++);
+				//end by WorM
 				player_table[top_of_p_table].id = GET_IDNUM(short_ch);
 				player_table[top_of_p_table].unique = GET_UNIQUE(short_ch);
-				player_table[top_of_p_table].level = (GET_REMORT(short_ch) ? 30 : GET_LEVEL(short_ch));
+				player_table[top_of_p_table].level = (GET_REMORT(short_ch) && !IS_IMMORTAL(short_ch) ? 30 : GET_LEVEL(short_ch));
 				player_table[top_of_p_table].timer = NULL;
 				if (IS_SET(PLR_FLAGS(short_ch, PLR_DELETED), PLR_DELETED))
 				{
 					player_table[top_of_p_table].last_logon = -1;
 					player_table[top_of_p_table].activity = -1;
+					/*//added by WorM 2010.08.27 в индексе чистим мыло и ip
+					if(player_table[top_of_p_table].mail)
+					{
+						free(player_table[top_of_p_table].mail);
+					}
+					player_table[top_of_p_table].mail = NULL;
+					if(player_table[top_of_p_table].last_ip)
+					{
+						free(player_table[top_of_p_table].last_ip);
+					}
+					player_table[top_of_p_table].last_ip = NULL;
+					//end by WorM*/
 				}
 				else
 				{
 					player_table[top_of_p_table].last_logon = LAST_LOGON(short_ch);
 					player_table[top_of_p_table].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
 				}
+				#ifdef TEST_BUILD
+				log("entry: char:%s level:%d ip:%s", player_table[top_of_p_table].name, player_table[top_of_p_table].level, player_table[top_of_p_table].last_ip);
+				#endif
 				top_idnum = MAX(top_idnum, GET_IDNUM(short_ch));
 				TopPlayer::Refresh(short_ch, 1);
 				log("Add new player %s", player_table[top_of_p_table].name);
@@ -6438,6 +6463,12 @@ void delete_char(const char *name)
 		player_table[id].level = -1;
 		player_table[id].last_logon = -1;
 		player_table[id].activity = -1;
+		if(player_table[id].mail)
+			free(player_table[id].mail);
+		player_table[id].mail = NULL;
+		if(player_table[id].last_ip)
+			free(player_table[id].last_ip);
+		player_table[id].last_ip = NULL;
 	}
 }
 

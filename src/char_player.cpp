@@ -351,6 +351,13 @@ void Player::save_char()
 	fprintf(saved, "Clas: %d\n", GET_CLASS(this));
 	fprintf(saved, "UIN : %d\n", GET_UNIQUE(this));
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
+	if (this->desc)//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
+		strcpy(buf, this->desc->host);
+	else if (player_table[get_ptable_by_unique(GET_UNIQUE(this))].last_ip)//по сути так должен норм сохраняцо айпи
+		strcpy(buf, player_table[get_ptable_by_unique(GET_UNIQUE(this))].last_ip);
+	else
+		strcpy(buf, "Unknown");
+	fprintf(saved, "Host: %s\n", buf);
 	fprintf(saved, "Id  : %ld\n", GET_IDNUM(this));
 	fprintf(saved, "Exp : %ld\n", GET_EXP(this));
 	if (GET_REMORT(this) > 0)
@@ -359,6 +366,8 @@ void Player::save_char()
 	*buf = '\0';
 	tascii(&PLR_FLAGS(this, 0), 4, buf);
 	fprintf(saved, "Act : %s\n", buf);
+	if (GET_EMAIL(this))//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
+		fprintf(saved, "EMal: %s\n", GET_EMAIL(this));
 	// это пишем обязательно посленим, потому что после него ничего не прочитается
 	fprintf(saved, "Rebt: следующие далее поля при перезагрузке не парсятся\n\n");
 	// дальше пишем как хотим и что хотим
@@ -377,8 +386,6 @@ void Player::save_char()
 		fprintf(saved, "NmP : %s\n", GET_PAD(this, 5));
 	if (!this->get_passwd().empty())
 		fprintf(saved, "Pass: %s\n", this->get_passwd().c_str());
-	if (GET_EMAIL(this))
-		fprintf(saved, "EMal: %s\n", GET_EMAIL(this));
 	if (GET_TITLE(this))
 		fprintf(saved, "Titl: %s\n", GET_TITLE(this));
 	if (this->player_data.description && *this->player_data.description)
@@ -396,18 +403,11 @@ void Player::save_char()
 	li = this->player_data.time.birth;
 	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
 	// Gunner
-	// time.logon ЦАБ=---Lг- -= -Е-г ┐ёЮ-L-- - А┐АБг-Ц = time(0) -= БгLЦИ┐L ---г-Б
-	//-Юг-О - АгLЦ-г=Е А -=Г=L= ┐ёЮК
 	tmp += this->player_data.time.played;
 	fprintf(saved, "Plyd: %d\n", tmp);
 	// Gunner end
 	li = this->player_data.time.logon;
 	fprintf(saved, "Last: %ld %s\n", static_cast<long int>(li), ctime(&li));
-	if (this->desc)
-		strcpy(buf, this->desc->host);
-	else
-		strcpy(buf, "Unknown");
-	fprintf(saved, "Host: %s\n", buf);
 	fprintf(saved, "Hite: %d\n", GET_HEIGHT(this));
 	fprintf(saved, "Wate: %d\n", GET_WEIGHT(this));
 	fprintf(saved, "Size: %d\n", GET_SIZE(this));
@@ -725,6 +725,14 @@ void Player::save_char()
 	{
 		player_table[i].last_logon = LAST_LOGON(this);
 		player_table[i].level = GET_LEVEL(this);
+		//added by WorM 2010.08.27 в индексе добавляем мыло
+		if(player_table[i].mail)
+            free(player_table[i].mail);
+		player_table[i].mail = str_dup(GET_EMAIL(this));
+		if(player_table[i].last_ip)
+            free(player_table[i].last_ip);
+		player_table[i].last_ip = str_dup(GET_LASTIP(this));
+		//end by WorM
 	}
 }
 
@@ -732,7 +740,7 @@ void Player::save_char()
 // при включенном флаге файл читается только до поля Rebt, все остальные поля пропускаются
 // поэтому при каких-то изменениях в entrycount, must_be_deleted и TopPlayer::Refresh следует
 // убедиться, что изменный код работает с действительно проинициализированными полями персонажа
-// на данный момент это: PLR_FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GET_LEVEL, GET_NAME, GET_REMORT, GET_UNIQUE
+// на данный момент это: PLR_FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GET_LEVEL, GET_NAME, GET_REMORT, GET_UNIQUE, GET_EMAIL
 /**
 * \param reboot - по дефолту = false
 */
@@ -777,6 +785,8 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	set_idnum(0);
 	set_exp(0);
 	set_remort(0);
+	GET_LASTIP(this)[0] = 0;
+	GET_EMAIL(this)[0] = 0;
 	asciiflag_conv("", &PLR_FLAGS(this, 0));
 
 	bool skip_file = 0;
@@ -815,7 +825,17 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			{
 				set_exp(lnum);
 			}
+			//added by WorM 2010.08.27 лоадим мыло и айпи даже при ребуте
+			else if (!strcmp(tag, "EMal"))
+				strcpy(GET_EMAIL(this), line);
 			break;
+		case 'H':
+			if (!strcmp(tag, "Host"))
+			{
+				strcpy(GET_LASTIP(this), line);
+			}
+			//end by WorM
+		  break;
 		case 'I':
 			if (!strcmp(tag, "Id  "))
 			{
@@ -857,6 +877,26 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		}
 	}
 	while (!skip_file);
+
+	//added by WorM 2010.08.27 лоадим мыло и последний ip даже при считывании индексов
+	//while((reboot) && (!valid_email(GET_EMAIL(this)) || !strlen(GET_LASTIP(this))))
+	while((reboot) && (!strlen(GET_EMAIL(this)) || !strlen(GET_LASTIP(this))))
+	{
+		if (!fbgetline(fl, line))
+		{
+			log("SYSERROR: Wrong file ascii %d %s", id, filename);
+			return (-1);
+		}
+
+		tag_argument(line, tag);
+
+		if (!strcmp(tag, "EMal"))
+			strcpy(GET_EMAIL(this), line);
+		else if (!strcmp(tag, "Host"))
+			strcpy(GET_LASTIP(this), line);
+	}
+	//end by WorM
+	log("name:%s mail:%s ip:%s", GET_NAME(this), GET_EMAIL(this), GET_LASTIP(this));
 
 	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
 
@@ -993,7 +1033,6 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	asciiflag_conv("", &PRF_FLAGS(this, 0));
 	asciiflag_conv("", &AFF_FLAGS(this, 0));
 	GET_PORTALS(this) = NULL;
-	GET_LASTIP(this)[0] = 0;
 	EXCHANGE_FILTER(this) = NULL;
 	IGNORE_LIST(this) = NULL;
 	CREATE(GET_LOGS(this), int, NLOG);
@@ -1119,10 +1158,10 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			break;
 
 		case 'E':
-			if (!strcmp(tag, "EMal"))
-				strcpy(GET_EMAIL(this), line);
-			else if (!strcmp(tag, "ExFl"))
+			if (!strcmp(tag, "ExFl"))
 				EXCHANGE_FILTER(this) = str_dup(line);
+			else if (!strcmp(tag, "EMal"))
+				strcpy(GET_EMAIL(this), line);
 /*29.11.09. (c) Василиса*/
             else if (!strcmp(tag, "Expa"))
 				GET_EXP_ARENA(this) = lnum;

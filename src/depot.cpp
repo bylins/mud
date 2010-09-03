@@ -1024,7 +1024,8 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 			|| OBJ_FLAGGED(obj, ITEM_NORENT)
 			|| GET_OBJ_TYPE(obj) == ITEM_KEY
 			|| GET_OBJ_RENT(obj) < 0
-			|| GET_OBJ_RNUM(obj) <= NOTHING)
+			|| GET_OBJ_RNUM(obj) <= NOTHING
+			|| OBJ_FLAGGED(obj, ITEM_NAMED))//added by WorM именные вещи нельзя положить в хран
 	{
 		send_to_char(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", OBJ_PAD(obj, 3));
 		return 0;

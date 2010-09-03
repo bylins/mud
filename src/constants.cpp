@@ -611,6 +611,7 @@ const char *connected_types[] = { "В игре",
 								  "Select place of birth",
 								  "Clan MoD edit",
 								  "GloryConst OLC",
+								  "NamedStuff OLC",
 								  "\n"
 								};
 

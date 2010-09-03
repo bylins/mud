@@ -47,6 +47,7 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_mighthit(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_stupor(CHAR_DATA * ch, CHAR_DATA * vict);
+void go_throw(CHAR_DATA * ch, CHAR_DATA * vict);
 int skip_hiding(CHAR_DATA * ch, CHAR_DATA * vict);
 int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict);
 int skip_camouflage(CHAR_DATA * ch, CHAR_DATA * vict);
@@ -162,6 +163,7 @@ int extra_aggressive(CHAR_DATA * ch, CHAR_DATA * victim)
 
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 {
+	OBJ_DATA *wielded = GET_EQ(ch, WEAR_WIELD);
 	if (victim)
 	{
 		if (ch->get_skill(SKILL_BACKSTAB) && !victim->get_fighting())
@@ -183,6 +185,10 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 		{
 			go_bash(ch, victim);
 			return (TRUE);
+		}
+		if (ch->get_skill(SKILL_THROW) && wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON && OBJ_FLAGGED(wielded, ITEM_THROWING))
+		{
+			go_throw(ch, victim);
 		}
 		if (ch->get_skill(SKILL_DISARM))
 		{

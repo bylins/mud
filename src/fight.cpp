@@ -5456,11 +5456,18 @@ void perform_violence(void)
 		// For NPC without lags and charms make it likes
 		if (IS_NPC(ch) && MAY_LIKES(ch))  	// Get weapon from room
 		{
-			if (!AFF_FLAGGED(ch, AFF_CHARM) && npc_battle_scavenge(ch))
+			//edited by WorM 2010.09.03 добавил немного логики мобам в бою если у моба есть что-то в инве то он может
+			//переодется в это что-то если посчитает что это что-то ему лучше подходит
+			if (!AFF_FLAGGED(ch, AFF_CHARM))//Чото бред какой-то был, одеваюлись мобы только сразу после того как слутили
 			{
-				npc_wield(ch);
-				npc_armor(ch);
+				npc_battle_scavenge(ch);//лутим стаф
+				if(ch->carrying)//и если есть что-то в инве то вооружаемся, одеваемся
+				{
+					npc_wield(ch);
+					npc_armor(ch);
+				}
 			}
+			//end by WorM
 			//dzMUDiST. Выполнение последнего переданого в бою за время лага приказа
 			if (ch->last_comm != NULL)
 			{
@@ -5628,8 +5635,8 @@ void perform_violence(void)
 				}
 				else if (!AFF_FLAGGED(ch, AFF_CHARM))
 					for (sk_num = 0, sk_use = GET_REAL_INT(ch)
-											  /*,sprintf(buf,"{%d}-{%d}\r\n",sk_use,GET_WAIT(ch)) */
-											  /*,send_to_char(buf,ch->get_fighting()) */ ;
+											  /*,sprintf(buf,"sk_use {%d}-GET_WAIT {%d}\r\n",sk_use,GET_WAIT(ch))
+											  ,send_to_char(buf,ch->get_fighting())*/  ;
 							MAY_LIKES(ch) && sk_use > 0; sk_use--)
 					{
 						do_this = number(0, 100);
@@ -5652,6 +5659,10 @@ void perform_violence(void)
 							sk_num = SKILL_TOUCH;
 						else if (do_this < 70)
 							sk_num = SKILL_CHOPOFF;
+						//edited by WorM 2010.09.03 добавил метнуть сюда, хотя по сути все это надо к чертям переделывать
+						else if (do_this < 80)
+							sk_num = SKILL_THROW;
+						//end by WorM
 						else
 							sk_num = SKILL_BASH;
 						if (ch->get_skill(sk_num) <= 0)
@@ -5661,10 +5672,12 @@ void perform_violence(void)
 						//else
 						//   act("Victim prepare to skill '$F'.",FALSE,ch->get_fighting(),0,skill_name(sk_num),TO_CHAR);
 						/* Если умеет метать и вооружен метательным, то должен метнуть */
-						if (GET_EQ(ch, WEAR_WIELD))
-							if (OBJ_FLAGGED(GET_EQ(ch, WEAR_WIELD), ITEM_THROWING))
-								if (GET_REAL_INT(ch) > number(1, 36))
-									sk_num = SKILL_THROW;
+						//edited by WorM 2010.09.03 закоментил этот бред ибо любой моб с метательным оружием в прайме метался
+						/*if (ch->get_skill(SKILL_THROW))
+							if (GET_EQ(ch, WEAR_WIELD))
+								if (OBJ_FLAGGED(GET_EQ(ch, WEAR_WIELD), ITEM_THROWING))
+									if (GET_REAL_INT(ch) > number(1, 36))
+										sk_num = SKILL_THROW;*/
 
 						if (sk_num == SKILL_TOUCH)
 						{

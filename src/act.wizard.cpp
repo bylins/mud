@@ -54,6 +54,7 @@
 #include "shop_ext.hpp"
 
 /*   external vars  */
+extern bool need_warn;
 extern FILE *player_fl;
 
 extern CHAR_DATA *character_list;
@@ -144,6 +145,7 @@ ACMD(do_return);
 ACMD(do_load);
 ACMD(do_vstat);
 ACMD(do_purge);
+ACMD(do_inspect);
 ACMD(do_syslog);
 ACMD(do_advance);
 ACMD(do_restore);
@@ -1657,8 +1659,10 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 			send_to_char(ch, "Статус дружины: %s\r\n", GET_CLAN_STATUS(k));
 		}
 
+		//added by WorM когда статишь файл собсно показывалось текущее время а не время последнего входа
+		time_t ltime = get_lastlogon_by_unique(GET_UNIQUE(k));
 		strftime(buf1, sizeof(buf1), "%d-%m-%Y", localtime(&(k->player_data.time.birth)));
-		strftime(buf2, sizeof(buf1), "%d-%m-%Y", localtime(&(k->player_data.time.logon)));
+		strftime(buf2, sizeof(buf1), "%d-%m-%Y", localtime(&ltime));
 		buf1[10] = buf2[10] = '\0';
 
 		sprintf(buf,
@@ -2579,6 +2583,209 @@ ACMD(do_purge)
 			extract_obj(obj);
 		}
 	}
+}
+
+ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) mail и/или ip
+{
+	time_t mytime;
+	const int IP = 1;
+	const int MAIL = 2;
+	const int CHAR = 3;
+	int fullsearch = 0;
+	int found = 0, i = 0;
+	int sfor = 0;
+	int unique = 0;
+	char * mail = NULL;
+
+	DESCRIPTOR_DATA *d_vict = 0;
+	CHAR_DATA *vict = 0;
+	struct logon_data * ip_log = NULL;
+
+	argument = two_arguments(argument, buf, buf2);
+	if (!*buf || !*buf2 || !isprint(*buf2))
+	{
+		send_to_char("Usage: inspect { mail | ip | char } <argument> [all|все]\r\n", ch);
+		return;
+	}
+	if(strlen(buf2)<=3)
+	{
+		send_to_char("Слишком короткий запрос\r\n", ch);
+		return;
+	}
+	//send_to_char(argument, ch);
+	if(argument && isname(argument, "все all"))
+	{
+		if(IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::KRODER))
+		{
+			need_warn = false;
+			fullsearch = 1;
+		}
+	}
+	if (is_abbrev(buf, "mail"))
+	{
+		sfor = MAIL;
+	}
+	else if (is_abbrev(buf, "ip"))
+	{
+		sfor = IP;
+		if(fullsearch)
+		{
+			ip_log = new(struct logon_data);
+			ip_log->ip = str_dup(buf2);
+			ip_log->count = 0;
+			ip_log->lasttime = 0;
+			ip_log->next = 0;
+		}
+	}
+	else if (is_abbrev(buf, "char"))
+	{
+		sfor = CHAR;
+
+		unique = GetUniqueByName(buf2);
+		i = get_ptable_by_unique(unique);
+		if ((unique <= 0) || (player_table[i].level >= LVL_IMMORT && !IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)))
+		{
+			send_to_char(ch, "Некорректное имя персонажа (%s) inspecting char.\r\n", buf2);
+			return;
+		}
+
+		mail = str_dup(player_table[i].mail);
+		if(fullsearch)
+		{
+			d_vict = DescByUID(unique);
+			if (d_vict)
+				vict = d_vict->character;
+			else
+			{
+				vict = new Player;
+				if (load_char(buf2, vict) < 0)
+				{
+					send_to_char(ch, "Некорректное имя персонажа (%s) inspecting char.\r\n", buf2);
+					delete vict;
+					return;
+				}
+			}
+			if(vict && LOGON_LIST(vict))
+			{
+				struct logon_data * cur_log = LOGON_LIST(vict);
+				i = 0;
+				while (cur_log)
+				{
+						if(i == 0)
+						ip_log = new(struct logon_data);
+					else
+					{
+						ip_log->next = new(struct logon_data);
+					}
+					ip_log->ip = str_dup(cur_log->ip);
+					ip_log->count = cur_log->count;
+					ip_log->lasttime = cur_log->lasttime;
+					ip_log->next = 0;
+					i++;
+					cur_log = cur_log->next;
+				}
+			}
+			if (!d_vict && vict)
+				delete vict;
+		}
+		else
+		{
+			ip_log = new(struct logon_data);
+			ip_log->ip = str_dup(player_table[i].last_ip);
+			ip_log->count = 0;
+			ip_log->lasttime = player_table[i].last_logon;
+			ip_log->next = 0;
+		}
+	}
+	else
+	{
+		send_to_char("Нет уж. Изыщите другую цель для своих исследований.\r\n", ch);
+		return;
+	}
+
+	std::string out;
+	for (i = 0; i <= top_of_p_table; i++)
+	{
+	 	//int name_sended = 0;
+	 	if((sfor == CHAR && unique == player_table[i].unique) || (player_table[i].level >= LVL_IMMORT && !IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)))
+	 		continue;
+		buf1[0]='\0';
+	 	if(sfor != MAIL && fullsearch)
+	 	{
+			d_vict = DescByUID(player_table[i].unique);
+			vict = 0;
+			if (d_vict)
+				vict = d_vict->character;
+			else
+			{
+				vict = new Player;
+				if (load_char(player_table[i].name, vict) < 0)
+				{
+					send_to_char(ch, "Некорректное имя персонажа (%s) inspecting %s: %s.\r\n", player_table[i].name, (sfor==MAIL?"mail":(sfor==IP?"ip":"char")), buf2);
+					delete vict;
+					continue;
+				}
+			}
+		}
+	  if(sfor == MAIL || sfor == CHAR)
+		{
+	  	if((sfor == MAIL && strstr(player_table[i].mail, buf2)) || (sfor == CHAR && !strcmp(player_table[i].mail, mail)))
+				sprintf(buf1, " e-mail:%s\r\n", player_table[i].mail);
+		}
+		if(sfor == IP || sfor == CHAR)
+		{
+			if(!fullsearch)
+			{
+					if((sfor == IP && strstr(player_table[i].last_ip, buf2)) || (ip_log && !str_cmp(player_table[i].last_ip, ip_log->ip)))
+						sprintf(buf1, " IP:%-16s\r\n", player_table[i].last_ip);
+			}
+			else if (vict && LOGON_LIST(vict))
+			{
+				struct logon_data * cur_log = LOGON_LIST(vict);
+				while (cur_log)
+				{
+					struct logon_data * ch_log = ip_log;
+					while(ch_log)
+					{
+						if((sfor == IP && strstr(cur_log->ip, ch_log->ip)) || !str_cmp(cur_log->ip, ch_log->ip))
+						{
+							sprintf(buf1, " IP:%-16sCount:%5ld Last: %-30s%s",
+										cur_log->ip, cur_log->count, rustime(localtime(&cur_log->lasttime)),(sfor == IP?"\r\ns":""));
+							if(sfor == CHAR)
+								sprintf(buf1, "%s-> Count:%5ld Last : %s\r\n",
+											buf1, ch_log->count, rustime(localtime(&ch_log->lasttime)));
+						}
+						ch_log = ch_log->next;
+					}
+					cur_log = cur_log->next;
+				}
+			}
+		}
+		if((vict) && (!d_vict))
+			delete vict;
+		if(*buf1)
+		{
+			mytime = player_table[i].last_logon;
+			sprintf(buf, "Имя: %s Last: %s\r\n", player_table[i].name, rustime(localtime(&mytime)));
+			out += buf;
+			out += buf1;
+			found++;
+		}
+	}
+	while (ip_log)
+	{
+		struct logon_data *log_next;
+		log_next = ip_log->next;
+		free(ip_log->ip);
+		delete ip_log;
+		ip_log = log_next;
+	}
+	if(mail)
+		free(mail);
+	need_warn = true;
+	sprintf(buf1, "Всего найдено: %d\r\n", found);
+	out += buf1;
+	page_string(ch->desc, out.c_str(), 1);
 }
 
 
@@ -4639,6 +4846,10 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			strncpy(GET_EMAIL(vict), val_arg, 127);
 			*(GET_EMAIL(vict) + 127) = '\0';
 			lower_convert(GET_EMAIL(vict));
+			RECREATE(player_table[top_of_p_table].mail, char, strlen(GET_EMAIL(vict)) + 1);
+			strcpy(player_table[top_of_p_table].mail, GET_EMAIL(vict));
+			/*for (i = 0, player_table[top_of_p_table].mail[i] = '\0';
+					(player_table[top_of_p_table].mail[i] = LOWER(GET_EMAIL(vict)[i])); i++);*/
 		}
 		else
 		{

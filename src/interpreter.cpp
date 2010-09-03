@@ -52,6 +52,7 @@
 #include "room.hpp"
 #include "glory_const.hpp"
 #include "glory_misc.hpp"
+#include "named_stuff.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -222,6 +223,7 @@ ACMD(do_hide);
 ACMD(do_hit);
 ACMD(do_info);
 ACMD(do_index);
+ACMD(do_inspect);
 ACMD(do_insult);
 ACMD(do_inventory);
 ACMD(do_invis);
@@ -895,6 +897,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"index", POS_RESTING, do_help, 1, 0, 500},
 	{"info", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
 	{"insert", POS_STANDING, do_insertgem, 0, SKILL_INSERTGEM, -1},
+	{"inspect", POS_DEAD, do_inspect, LVL_BUILDER, 0, 0},
 	{"insult", POS_RESTING, do_insult, 0, 0, -1},
 	{"inventory", POS_SLEEPING, do_inventory, 0, 0, 0},
 	{"invis", POS_DEAD, do_invis, LVL_GOD, 0, -1},
@@ -916,7 +919,9 @@ cpp_extern const struct command_info cmd_info[] =
 	{"mute", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_MUTE, 0},
 	{"medit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_MEDIT},
 	{"name", POS_DEAD, do_wizutil, LVL_GOD, SCMD_NAME, 0},
+	{"nedit", POS_RESTING, NamedStuff::do_named, LVL_BUILDER, SCMD_NAMED_EDIT, 0}, //Именной стаф редактирование
 	{"news", POS_DEAD, DoBoard, 1, NEWS_BOARD, -1},
+	{"nlist", POS_RESTING, NamedStuff::do_named, LVL_BUILDER, SCMD_NAMED_LIST, 0}, //Именной стаф список
 	{"notitle", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_NOTITLE, 0},
 	{"oedit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_OEDIT},
 	{"offer", POS_STANDING, do_not_here, 1, 0, 0},
@@ -2364,6 +2369,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	char buf[MAX_STRING_LENGTH];
 	int player_i, load_result;
 	char tmp_name[MAX_INPUT_LENGTH], pwd_name[MAX_INPUT_LENGTH], pwd_pwd[MAX_INPUT_LENGTH];
+	int pos;
 
 	skip_spaces(&arg);
 
@@ -2401,6 +2407,10 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	case CON_GLORY_CONST:
 		if (!GloryConst::parse_spend_glory_menu(d->character, arg))
 			GloryConst::spend_glory_menu(d->character);
+		break;
+	case CON_NAMED_STUFF:
+		if (!NamedStuff::parse_nedit_menu(d->character, arg))
+			NamedStuff::nedit_menu(d->character);
 		break;
 		/*. End of OLC states . */
 
@@ -3107,11 +3117,17 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		if (d->character->get_pfilepos() < 0)
 			d->character->set_pfilepos(create_entry(GET_PC_NAME(d->character)));
 
+
+
 		/* Now GET_NAME() will work properly. */
 		init_char(d->character);
 		strncpy(GET_EMAIL(d->character), arg, 127);
 		*(GET_EMAIL(d->character) + 127) = '\0';
 		lower_convert(GET_EMAIL(d->character));
+		//added by WorM 2010.08.27 в индексе добавляем мыло
+		pos = get_ptable_by_name(GET_PC_NAME(d->character));
+		player_table[pos].mail = str_dup(GET_EMAIL(d->character));
+		//end by WorM
 		d->character->save_char();
 
 		// добавляем в список ждущих одобрения

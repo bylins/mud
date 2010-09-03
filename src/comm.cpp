@@ -3105,8 +3105,11 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			|| STATE(d) == CON_CLANEDIT
 			|| STATE(d) == CON_SPEND_GLORY
 			|| STATE(d) == CON_WRITE_MOD
-			|| STATE(d) == CON_GLORY_CONST)
+			|| STATE(d) == CON_GLORY_CONST
+			|| STATE(d) == CON_NAMED_STUFF)
 		{
+			if(STATE(d) == CON_NAMED_STUFF)
+			cleanup_olc(d, CLEANUP_ALL);
 			STATE(d) = CON_PLAYING;
 		}
 
