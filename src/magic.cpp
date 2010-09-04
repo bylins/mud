@@ -4270,6 +4270,17 @@ int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, i
 		return 0;
 	}
 
+  if(spellnum == SPELL_REMOVE_POISON && !affected_by_spell(victim, spell))
+  {
+  	if(affected_by_spell(victim, SPELL_ACONITUM_POISON))
+  	 spell = SPELL_ACONITUM_POISON;
+		else if(affected_by_spell(victim, SPELL_SCOPOLIA_POISON))
+  	 spell = SPELL_SCOPOLIA_POISON;
+		else if(affected_by_spell(victim, SPELL_BELENA_POISON))
+  	 spell = SPELL_BELENA_POISON;
+		else if(affected_by_spell(victim, SPELL_DATURA_POISON))
+  	 spell = SPELL_DATURA_POISON;
+  }
 	if (!affected_by_spell(victim, spell))
 	{
 		if (spellnum != SPELL_HEAL)	/* 'cure blindness' message. */
