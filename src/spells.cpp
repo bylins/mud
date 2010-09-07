@@ -1561,6 +1561,28 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			send_to_char(buf, ch);
 		}
 	}
+	//added by WorM 2010.09.07 доп ифна о сете
+	id_to_set_info_map::iterator it = obj_data::set_table.begin();
+	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+		for (; it != obj_data::set_table.end(); it++)
+			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
+			{
+				sprintf(buf, "Часть набора предметов: %s%s%s\r\n",CCNRM(ch, C_NRM), it->second.get_name().c_str(), CCNRM(ch, C_NRM));
+				send_to_char(buf, ch );
+	      for (set_info::iterator vnum = it->second.begin(), iend = it->second.end(); vnum != iend; ++vnum)
+	      {
+					int r_num;
+	      	if ((r_num = real_object(vnum->first)) < 0)
+	      	{
+	      		send_to_char("Неизвестный объект!!!\r\n",ch);
+	      		continue;
+	      	}
+					sprintf(buf, "   %s\r\n", obj_proto[r_num]->short_description);
+	        send_to_char(buf, ch);
+	      }
+				break;
+			}
+	//end by WorM
 }
 
 void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
@@ -1860,6 +1882,28 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			send_to_char(buf, ch);
 		}
 	}
+	//added by WorM 2010.09.07 доп ифна о сете
+	id_to_set_info_map::iterator it = obj_data::set_table.begin();
+	if (OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+		for (; it != obj_data::set_table.end(); it++)
+			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
+			{
+				sprintf(buf, "Часть набора предметов: %s%s%s\r\n",CCNRM(ch, C_NRM), it->second.get_name().c_str(), CCNRM(ch, C_NRM));
+				send_to_char(buf, ch );
+	      for (set_info::iterator vnum = it->second.begin(), iend = it->second.end(); vnum != iend; ++vnum)
+	      {
+					int r_num;
+	      	if ((r_num = real_object(vnum->first)) < 0)
+	      	{
+	      		send_to_char("Неизвестный объект!!!\r\n",ch);
+	      		continue;
+	      	}
+					sprintf(buf, "   %s\r\n", obj_proto[r_num]->short_description);
+	        send_to_char(buf, ch);
+	      }
+				break;
+			}
+	//end by WorM
 }
 
 #define IDENT_SELF_LEVEL 6
