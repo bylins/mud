@@ -2096,6 +2096,23 @@ void add_logon_record(DESCRIPTOR_DATA * d)
 	log("Exit logon list");
 }
 
+/**
+ * Проверка на доступные религии конкретной профе (из текущей генерации чара).
+ */
+void check_religion(CHAR_DATA *ch)
+{
+	if (class_religion[ch->get_class()] == RELIGION_POLY && GET_RELIGION(ch) != RELIGION_POLY)
+	{
+		GET_RELIGION(ch) = RELIGION_POLY;
+		log("Change religion to poly: %s", ch->get_name());
+	}
+	else if (class_religion[ch->get_class()] == RELIGION_MONO && GET_RELIGION(ch) != RELIGION_MONO)
+	{
+		GET_RELIGION(ch) = RELIGION_MONO;
+		log("Change religion to mono: %s", ch->get_name());
+	}
+}
+
 void do_entergame(DESCRIPTOR_DATA * d)
 {
 	int load_room, cmd, flag = 0;
@@ -2164,6 +2181,8 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	OfftopSystem::check(d->character);
 	// пересчет максимального хп, если нужно
 	check_max_hp(d->character);
+	// проверка и сет религии
+	check_religion(d->character);
 
 	/*
 	 * We have to place the character in a room before equipping them
