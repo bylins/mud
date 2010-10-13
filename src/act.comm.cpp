@@ -44,6 +44,7 @@ extern TIME_INFO_DATA time_info;
 /* local functions */
 void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg);
 int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict);
+bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict);
 
 /* external functions */
 extern char *diag_timer_to_char(OBJ_DATA * obj);
@@ -146,11 +147,31 @@ ACMD(do_gsay)
 		sprintf(buf, "$n сообщил$g группе : '%s'", argument);
 
 		if (AFF_FLAGGED(k, AFF_GROUP) && (k != ch) && !ignores(k, ch, IGNORE_GROUP))
-			act(buf, FALSE, ch, 0, k, TO_VICT | TO_SLEEP | CHECK_DEAF);
+		{
+			act(buf, FALSE, ch, 0, k, TO_VICT | TO_SLEEP | CHECK_DEAF)
+			// added by WorM  групптелы 2010.10.13;
+			if(!AFF_FLAGGED(k, AFF_DEAFNESS) && GET_POS(k) > POS_DEAD)
+			{
+				sprintf(buf1, "%s сообщил%s группе : '%s'\r\n", tell_can_see(ch, k) ? GET_NAME(ch) : "Кто-то", GET_CH_VIS_SUF_1(ch, k), argument);
+				k->remember_add(buf1, Remember::ALL);
+				k->remember_add(buf1, Remember::GROUP);
+			}
+			//end by WorM
+		}
 		for (f = k->followers; f; f = f->next)
 			if (AFF_FLAGGED(f->follower, AFF_GROUP) && (f->follower != ch) &&
 					!ignores(f->follower, ch, IGNORE_GROUP))
-				act(buf, FALSE, ch, 0, f->follower, TO_VICT | TO_SLEEP | CHECK_DEAF);
+				{
+					act(buf, FALSE, ch, 0, f->follower, TO_VICT | TO_SLEEP | CHECK_DEAF);
+					// added by WorM  групптелы 2010.10.13
+					if(!AFF_FLAGGED(f->follower, AFF_DEAFNESS) && GET_POS(f->follower) > POS_DEAD)
+					{
+						sprintf(buf1, "%s сообщил%s группе : '%s'\r\n", tell_can_see(ch, f->follower) ? GET_NAME(ch) : "Кто-то", GET_CH_VIS_SUF_1(ch, f->follower), argument);
+						f->follower->remember_add(buf1, Remember::ALL);
+						f->follower->remember_add(buf1, Remember::GROUP);
+					}
+					//end by WorM
+				}
 
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(OK, ch);
@@ -158,6 +179,10 @@ ACMD(do_gsay)
 		{
 			sprintf(buf, "Вы сообщили группе : '%s'\r\n", argument);
 			send_to_char(buf, ch);
+			// added by WorM  групптелы 2010.10.13
+			ch->remember_add(buf, Remember::ALL);
+			ch->remember_add(buf, Remember::GROUP);
+			//end by WorM
 		}
 	}
 }
