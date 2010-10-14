@@ -148,8 +148,8 @@ ACMD(do_gsay)
 
 		if (AFF_FLAGGED(k, AFF_GROUP) && (k != ch) && !ignores(k, ch, IGNORE_GROUP))
 		{
-			act(buf, FALSE, ch, 0, k, TO_VICT | TO_SLEEP | CHECK_DEAF)
-			// added by WorM  групптелы 2010.10.13;
+			act(buf, FALSE, ch, 0, k, TO_VICT | TO_SLEEP | CHECK_DEAF);
+			// added by WorM  групптелы 2010.10.13
 			if(!AFF_FLAGGED(k, AFF_DEAFNESS) && GET_POS(k) > POS_DEAD)
 			{
 				sprintf(buf1, "%s сообщил%s группе : '%s'\r\n", tell_can_see(ch, k) ? GET_NAME(ch) : "Кто-то", GET_CH_VIS_SUF_1(ch, k), argument);
