@@ -1195,18 +1195,18 @@ void do_stat_room(CHAR_DATA * ch)
 		}
 	}
 	if (rm->affected)
-    {
-        sprintf(buf1," Аффекты на комнате:\r\n");
-        for (aff = rm->affected; aff; aff = aff->next)
-        {
-            sprintf(buf1+strlen(buf1),
-                    "       Заклинание \"%s\" (%d) - %s.\r\n",
-                    spell_name(aff->type),
-                    aff->duration,
-                    ((k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно"));
-        }
-        send_to_char(buf1, ch);
-    }
+	{
+		sprintf(buf1," Аффекты на комнате:\r\n");
+		for (aff = rm->affected; aff; aff = aff->next)
+		{
+			sprintf(buf1+strlen(buf1),
+				"       Заклинание \"%s\" (%d) - %s.\r\n",
+			spell_name(aff->type),
+			aff->duration,
+			((k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно"));
+		}
+		send_to_char(buf1, ch);
+	}
 	/* check the room for a script */
 	do_sstat_room(ch);
 }
@@ -2602,9 +2602,14 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 	struct logon_data * ip_log = NULL;
 
 	argument = two_arguments(argument, buf, buf2);
-	if (!*buf || !*buf2 || !isprint(*buf2))
+	if (!*buf || !*buf2 || !a_isascii(*buf2))
 	{
 		send_to_char("Usage: inspect { mail | ip | char } <argument> [all|все]\r\n", ch);
+		return;
+	}
+	if(!isname(buf, "mail ip char"))
+	{
+		send_to_char("Нет уж. Изыщите другую цель для своих исследований.\r\n", ch);
 		return;
 	}
 	if(strlen(buf2)<=3)
@@ -2612,10 +2617,9 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 		send_to_char("Слишком короткий запрос\r\n", ch);
 		return;
 	}
-	//send_to_char(argument, ch);
 	if(argument && isname(argument, "все all"))
 	{
-		if(IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::KRODER))
+		if(IS_GRGOD(ch) || Privilege::check_flag(ch, Privilege::KRODER))
 		{
 			need_warn = false;
 			fullsearch = 1;
@@ -2640,17 +2644,18 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 	else if (is_abbrev(buf, "char"))
 	{
 		sfor = CHAR;
-
 		unique = GetUniqueByName(buf2);
 		i = get_ptable_by_unique(unique);
-		if ((unique <= 0) || (player_table[i].level >= LVL_IMMORT && !IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)))
+		if ((unique <= 0)//Перс не существует
+			|| (player_table[i].level >= LVL_IMMORT && !IS_GRGOD(ch))//Иммов могут чекать только 33+
+			|| (player_table[i].level > GET_LEVEL(ch) && !IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)))//если левел больше то облом
 		{
 			send_to_char(ch, "Некорректное имя персонажа (%s) inspecting char.\r\n", buf2);
 			return;
 		}
 
 		mail = str_dup(player_table[i].mail);
-		if(fullsearch)
+		if (fullsearch)
 		{
 			d_vict = DescByUID(unique);
 			if (d_vict)
@@ -2665,22 +2670,27 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 					return;
 				}
 			}
-			if(vict && LOGON_LIST(vict))
+			if (vict && LOGON_LIST(vict))
 			{
 				struct logon_data * cur_log = LOGON_LIST(vict);
+				struct logon_data * tmp_log = NULL;
 				i = 0;
 				while (cur_log)
 				{
-						if(i == 0)
+					if(i == 0)
+					{
 						ip_log = new(struct logon_data);
+						tmp_log = ip_log;
+					}
 					else
 					{
 						ip_log->next = new(struct logon_data);
+						tmp_log = ip_log->next;
 					}
-					ip_log->ip = str_dup(cur_log->ip);
-					ip_log->count = cur_log->count;
-					ip_log->lasttime = cur_log->lasttime;
-					ip_log->next = 0;
+					tmp_log->ip = str_dup(cur_log->ip);
+					tmp_log->count = cur_log->count;
+					tmp_log->lasttime = cur_log->lasttime;
+					tmp_log->next = 0;
 					i++;
 					cur_log = cur_log->next;
 				}
@@ -2697,21 +2707,23 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 			ip_log->next = 0;
 		}
 	}
-	else
-	{
-		send_to_char("Нет уж. Изыщите другую цель для своих исследований.\r\n", ch);
-		return;
-	}
 
 	std::string out;
+	int mail_found = 0;
 	for (i = 0; i <= top_of_p_table; i++)
 	{
-	 	//int name_sended = 0;
-	 	if((sfor == CHAR && unique == player_table[i].unique) || (player_table[i].level >= LVL_IMMORT && !IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)))
-	 		continue;
+		if(!*buf2)
+		{
+			send_to_char(ch, "Ошибка: пустой параметр для поиска");//впринципе никогда не должно вылезти, но на всякий случай воткнул проверку
+			break;
+		}
+		if ((sfor == CHAR && unique == player_table[i].unique)//Это тот же перс которого мы статим
+			|| (player_table[i].level >= LVL_IMMORT && !IS_GRGOD(ch))//Иммов могут чекать только 33+
+			|| (player_table[i].level > GET_LEVEL(ch) && !IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)))//если левел больше то облом
+				continue;
 		buf1[0]='\0';
-	 	if(sfor != MAIL && fullsearch)
-	 	{
+		if (sfor != MAIL && fullsearch)
+		{
 			d_vict = DescByUID(player_table[i].unique);
 			vict = 0;
 			if (d_vict)
@@ -2727,33 +2739,54 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 				}
 			}
 		}
-	  if(sfor == MAIL || sfor == CHAR)
+		if (sfor == MAIL || sfor == CHAR)
 		{
-	  	if((sfor == MAIL && strstr(player_table[i].mail, buf2)) || (sfor == CHAR && !strcmp(player_table[i].mail, mail)))
-				sprintf(buf1, " e-mail:%s\r\n", player_table[i].mail);
+			mail_found = 0;
+			if(!player_table[i].mail)
+			{
+				send_to_char(ch, "Ошибка: пустой e-mail у персонажа:%s", player_table[i].name);//поиск прерываеться если email у перса NULL
+				break;
+			}
+			if((sfor == MAIL && strstr(player_table[i].mail, buf2)) || (sfor == CHAR && !strcmp(player_table[i].mail, mail)))
+				mail_found = 1;
 		}
-		if(sfor == IP || sfor == CHAR)
+		if (sfor == IP || sfor == CHAR)
 		{
 			if(!fullsearch)
 			{
-					if((sfor == IP && strstr(player_table[i].last_ip, buf2)) || (ip_log && !str_cmp(player_table[i].last_ip, ip_log->ip)))
-						sprintf(buf1, " IP:%-16s\r\n", player_table[i].last_ip);
+				if(!player_table[i].last_ip)
+				{
+					send_to_char(ch, "Ошибка: пустой ip у персонажа:%s", player_table[i].name);//поиск прерываеться если ip у перса NULL
+					break;
+				}
+				if((sfor == IP && strstr(player_table[i].last_ip, buf2)) || (ip_log && !str_cmp(player_table[i].last_ip, ip_log->ip)))
+					sprintf(buf1 + strlen(buf1), " IP:%s%-16s%s\r\n", (sfor == CHAR? CCBLU(ch, C_SPR) : ""), player_table[i].last_ip, (sfor == CHAR? CCNRM(ch, C_SPR) : ""));
 			}
 			else if (vict && LOGON_LIST(vict))
 			{
 				struct logon_data * cur_log = LOGON_LIST(vict);
 				while (cur_log)
 				{
+					if(!cur_log->ip)
+					{
+						send_to_char(ch, "Ошибка: пустой ip у персонажа:%s", GET_NAME(vict));//поиск прерываеться если ip у перса NULL
+						break;
+					}
 					struct logon_data * ch_log = ip_log;
 					while(ch_log)
 					{
+						if(!ch_log->ip)
+						{
+							send_to_char(ch, "Ошибка: пустой ip");//поиск прерываеться если криво заполнено поле ip для поиска
+							break;
+						}
 						if((sfor == IP && strstr(cur_log->ip, ch_log->ip)) || !str_cmp(cur_log->ip, ch_log->ip))
 						{
-							sprintf(buf1, " IP:%-16sCount:%5ld Last: %-30s%s",
-										cur_log->ip, cur_log->count, rustime(localtime(&cur_log->lasttime)),(sfor == IP?"\r\ns":""));
+							sprintf(buf1 + strlen(buf1), " IP:%s%-16s%sCount:%5ld Last: %-30s%s",
+								(sfor == CHAR? CCBLU(ch, C_SPR) : ""), cur_log->ip, (sfor == CHAR? CCNRM(ch, C_SPR) : ""), cur_log->count, rustime(localtime(&cur_log->lasttime)),(sfor == IP?"\r\n":""));
 							if(sfor == CHAR)
-								sprintf(buf1, "%s-> Count:%5ld Last : %s\r\n",
-											buf1, ch_log->count, rustime(localtime(&ch_log->lasttime)));
+								sprintf(buf1 + strlen(buf1), "-> Count:%5ld Last : %s\r\n",
+									ch_log->count, rustime(localtime(&ch_log->lasttime)));
 						}
 						ch_log = ch_log->next;
 					}
@@ -2761,12 +2794,13 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 				}
 			}
 		}
-		if((vict) && (!d_vict))
+		if ((vict) && (!d_vict))
 			delete vict;
-		if(*buf1)
+		if (*buf1 || mail_found)
 		{
 			mytime = player_table[i].last_logon;
-			sprintf(buf, "Имя: %s Last: %s\r\n", player_table[i].name, rustime(localtime(&mytime)));
+			sprintf(buf, "Имя: %s%-12s%s e-mail: %s%-30s%s Last: %s\r\n",
+				CCWHT(ch, C_SPR), player_table[i].name, CCNRM(ch, C_SPR), (mail_found && sfor!=MAIL? CCBLU(ch, C_SPR) : ""), player_table[i].mail, (mail_found? CCNRM(ch, C_SPR) : ""), rustime(localtime(&mytime)));
 			out += buf;
 			out += buf1;
 			found++;
@@ -2780,7 +2814,7 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 		delete ip_log;
 		ip_log = log_next;
 	}
-	if(mail)
+	if (mail)
 		free(mail);
 	need_warn = true;
 	sprintf(buf1, "Всего найдено: %d\r\n", found);

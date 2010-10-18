@@ -879,8 +879,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	while (!skip_file);
 
 	//added by WorM 2010.08.27 лоадим мыло и последний ip даже при считывании индексов
-	//while((reboot) && (!valid_email(GET_EMAIL(this)) || !strlen(GET_LASTIP(this))))
-	while((reboot) && (!strlen(GET_EMAIL(this)) || !strlen(GET_LASTIP(this))))
+	while((reboot) && (!*GET_EMAIL(this) || !*GET_LASTIP(this)))
 	{
 		if (!fbgetline(fl, line))
 		{
@@ -896,7 +895,6 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			strcpy(GET_LASTIP(this), line);
 	}
 	//end by WorM
-	log("name:%s mail:%s ip:%s", GET_NAME(this), GET_EMAIL(this), GET_LASTIP(this));
 
 	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
 
@@ -1163,23 +1161,23 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			else if (!strcmp(tag, "EMal"))
 				strcpy(GET_EMAIL(this), line);
 /*29.11.09. (c) Василиса*/
-            else if (!strcmp(tag, "Expa"))
+			else if (!strcmp(tag, "Expa"))
 				GET_EXP_ARENA(this) = lnum;
-            else if (!strcmp(tag, "Expm"))
+			else if (!strcmp(tag, "Expm"))
 				GET_EXP_MOB(this) = lnum;
-            else if (!strcmp(tag, "Exmt"))
+			else if (!strcmp(tag, "Exmt"))
 				GET_EXP_MOBTHIS(this) = lnum;
-            else if (!strcmp(tag, "Expp"))
+			else if (!strcmp(tag, "Expp"))
 				GET_EXP_PK(this) = lnum;
-            else if (!strcmp(tag, "Expt"))
+			else if (!strcmp(tag, "Expt"))
 				GET_EXP_PKTHIS(this) = lnum;
-            else if (!strcmp(tag, "Expt"))
+			else if (!strcmp(tag, "Expt"))
 				GET_EXP_OTHER(this) = lnum;
-            else if (!strcmp(tag, "Exot"))
+			else if (!strcmp(tag, "Exot"))
 				GET_EXP_OTHERTHIS(this) = lnum;
-            else if (!strcmp(tag, "Expd"))
+			else if (!strcmp(tag, "Expd"))
 				GET_EXP_DT(this) = lnum;
-            else if (!strcmp(tag, "Exdt"))
+			else if (!strcmp(tag, "Exdt"))
 				GET_EXP_DTTHIS(this) = lnum;
 /*Конец правки (с) Василиса*/
 			break;
@@ -1482,23 +1480,23 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			if (!strcmp(tag, "Room"))
 				GET_LOADROOM(this) = num;
 /*29.11.09. (c) Василиса*/
-            else if (!strcmp(tag, "Ripa"))
+			else if (!strcmp(tag, "Ripa"))
 				GET_RIP_ARENA(this) = num;
-            else if (!strcmp(tag, "Ripm"))
+			else if (!strcmp(tag, "Ripm"))
 				GET_RIP_MOB(this) = num;
-            else if (!strcmp(tag, "Rimt"))
+			else if (!strcmp(tag, "Rimt"))
 				GET_RIP_MOBTHIS(this) = num;
-            else if (!strcmp(tag, "Ripp"))
+			else if (!strcmp(tag, "Ripp"))
 				GET_RIP_PK(this) = num;
-            else if (!strcmp(tag, "Ript"))
+			else if (!strcmp(tag, "Ript"))
 				GET_RIP_PKTHIS(this) = num;
-            else if (!strcmp(tag, "Ripo"))
+			else if (!strcmp(tag, "Ripo"))
 				GET_RIP_OTHER(this) = num;
-            else if (!strcmp(tag, "Riot"))
+			else if (!strcmp(tag, "Riot"))
 				GET_RIP_OTHERTHIS(this) = num;
-            else if (!strcmp(tag, "Ripd"))
+			else if (!strcmp(tag, "Ripd"))
 				GET_RIP_DT(this) = num;
-            else if (!strcmp(tag, "Ridt"))
+			else if (!strcmp(tag, "Ridt"))
 				GET_RIP_DTTHIS(this) = num;
 /*(с) Василиса*/
 			else if (!strcmp(tag, "Rmbr"))
@@ -1624,7 +1622,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			else if (!strcmp(tag, "Wis "))
 				GET_WIS(this) = num;
 /*29.11.09 (c) Василиса*/
-            else if (!strcmp(tag, "Wina"))
+			else if (!strcmp(tag, "Wina"))
 				GET_WIN_ARENA(this) = num;
 /*конец правки (с) Василиса*/
 			break;
