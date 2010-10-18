@@ -89,7 +89,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 	{
 		return false;
 	}
-	if(!*buf2 && *buf1!='в' && *buf1!='В' && *buf1!='х' && *buf1!='Х')
+	if(!*buf2 && *buf1!='в' && *buf1!='В' && *buf1!='х' && *buf1!='Х' && *buf1!='у' && *buf1!='У')
 	{
 		send_to_char("Не указан второй параметр!\r\n", ch);
 		return false;
@@ -105,7 +105,6 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 					return false;
 				}
 				OLC_NUM(ch->desc) = num;
-				//send_to_char(ch, "Ок.\r\n");
 			}
 			break;
 		case '2':
@@ -209,9 +208,10 @@ ACMD(do_named)
 					{
 						sprintf(buf2, "%6d) %45s",
 								obj_index[r_num].vnum, obj_proto[r_num]->short_description);
-						if (GET_LEVEL(ch) >= LVL_GRGOD || PRF_FLAGGED(ch, PRF_CODERINFO))
-							sprintf(buf2, "%s Игра:%d Пост:%d\r\n", buf2,
-									obj_index[r_num].number, obj_index[r_num].stored);
+						if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+							sprintf(buf2, "%s Игра:%d Пост:%d Владелец:%s e-mail:%s\r\n", buf2,
+								obj_index[r_num].number, obj_index[r_num].stored,
+								GetNameByUnique(it->second->uid,false).c_str(), it->second->mail.c_str());
 						else
 							sprintf(buf2, "%s\r\n", buf2);
 					}
@@ -278,7 +278,7 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 			if((GET_OBJ_MIW(obj_proto[r_num]) > obj_index[r_num].stored + obj_index[r_num].number) ||//Проверка на макс в мире
 			  (obj_index[r_num].stored + obj_index[r_num].number < 1))//Пока что если в мире нету то тоже загрузить
 			{
-                found++;
+				found++;
 				snprintf(buf1, MAX_STRING_LENGTH,
 					"выдаем именной предмет %s Max:%d > Current:%d",
 					obj_proto[r_num]->short_description, GET_OBJ_MIW(obj_proto[r_num]), obj_index[r_num].stored + obj_index[r_num].number);
@@ -301,7 +301,7 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 			snprintf(buf, MAX_STRING_LENGTH,
 				"NamedStuff: %s vnum:%ld %s",
 				GET_PAD(ch,0), it->first, buf1);
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf, DEF, LVL_IMMORT, SYSLOG, TRUE);
 		}
 	}
 	if(!found) {
@@ -330,14 +330,14 @@ void load()
 				snprintf(buf, MAX_STRING_LENGTH,
 					"NamedStuff: дубликат записи vnum=%ld пропущен",
 					vnum);
-				mudlog(buf, CMP, LVL_BUILDER, SYSLOG, TRUE);
+				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
 				continue;
 			}
 
 			if(real_object(vnum)<0) {
 				snprintf(buf, MAX_STRING_LENGTH,
 					"NamedStuff: предмет vnum=%ld не существует.", vnum);
-				mudlog(buf, CMP, LVL_BUILDER, SYSLOG, TRUE);
+				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
 			}
 			if(node.attribute("uid")) {
 				tmp_node->uid = boost::lexical_cast<long>(node.attribute("uid").value());
@@ -346,7 +346,7 @@ void load()
 				{
 					snprintf(buf, MAX_STRING_LENGTH,
 						"NamedStuff: Unique=%d - персонажа не существует(владелец предмета vnum=%ld).", tmp_node->uid, vnum);
-					mudlog(buf, CMP, LVL_BUILDER, SYSLOG, TRUE);
+					mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
 				}
 			}
 			if(node.attribute("mail")) {
@@ -357,7 +357,7 @@ void load()
 				std::string name = GetNameByUnique(tmp_node->uid, false);
 				snprintf(buf, MAX_STRING_LENGTH,
 					"NamedStuff: указан не корректный e-mail=%s для предмета vnum=%ld (владелец=%s).", tmp_node->mail.c_str(), vnum, (name.empty()?"неизвестен":name.c_str()));
-				mudlog(buf, CMP, LVL_BUILDER, SYSLOG, TRUE);
+				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
 			}
 			if(node.attribute("can_clan"))
 				tmp_node->can_clan = boost::lexical_cast<int>(node.attribute("can_clan").value());
@@ -368,10 +368,6 @@ void load()
 			else
 				tmp_node->can_alli = 0;
 			stuff_list[vnum] = tmp_node;
-			//snprintf(buf, MAX_STRING_LENGTH,
-			//	"NamedStuff: прочитан предмет vnum=%ld владелец=%s Unique=%d доступен клану=%d альянсу=%d",
-			//	vnum, name.c_str(), tmp_node->uid, tmp_node->can_clan, tmp_node->can_alli);
-			//mudlog(buf, CMP, LVL_BUILDER, SYSLOG, TRUE);
 		}
 		catch (std::exception &e)
 		{
