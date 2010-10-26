@@ -1333,9 +1333,10 @@ ACMD(do_gen_door)
 
 	if ((obj) || (door >= 0))
 	{
-		if((obj) && !IS_IMMORTAL(ch) && (OBJ_FLAGGED(obj, ITEM_NAMED)) && NamedStuff::check_named(ch, obj, true))//Именной предмет открывать(закрывать) может только владелец
+		if ((obj) && !IS_IMMORTAL(ch) && (OBJ_FLAGGED(obj, ITEM_NAMED)) && NamedStuff::check_named(ch, obj, true))//Именной предмет открывать(закрывать) может только владелец
 		{
-			send_to_char("Просьба не трогать ! Частная собственность !\r\n", ch);
+			if (!NamedStuff::wear_msg(ch, obj))
+				send_to_char("Просьба не трогать ! Частная собственность !\r\n", ch);
 			return;
 		}
 		keynum = DOOR_KEY(ch, obj, door);
@@ -1883,7 +1884,7 @@ ACMD(do_horsetake)
 
 	if (get_horse(ch))
 	{
-		send_to_char("Зачем Вам столько скакунов ?.\r\n", ch);
+		send_to_char("Зачем Вам столько скакунов ?\r\n", ch);
 		return;
 	}
 
@@ -1901,7 +1902,8 @@ ACMD(do_horsetake)
 		send_to_char("Господи, не чуди...\r\n", ch);
 		return;
 	}
-	else if (!IS_GOD(ch) && !MOB_FLAGGED(horse, MOB_MOUNTING))
+	// Исправил ошибку не дававшую воровать коняжек. -- Четырь (13.10.10)
+	else if (!IS_GOD(ch) && !MOB_FLAGGED(horse, MOB_MOUNTING) && !((horse->master) && AFF_FLAGGED(horse, AFF_HORSE)))
 	{
 		act("Вы не сможете оседлать $N3.", FALSE, ch, 0, horse, TO_CHAR);
 		return;
@@ -1926,6 +1928,11 @@ ACMD(do_horsetake)
 			send_to_char("Это не Ваш скакун.\r\n", ch);
 			return;
 		}
+		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
+		{
+			send_to_char("Вам не хочется заниматься конокрадством в таком мирном месте.\r\n", ch);
+			return;
+		}
 		if (on_horse(horse->master))
 		{
 			send_to_char("Вы не сможете увести скакуна из-под седока.\r\n", ch);
@@ -1938,8 +1945,14 @@ ACMD(do_horsetake)
 				send_to_char("Вы не умеете воровать.\r\n", ch);
 				return;
 			}
+			if (IS_IMMORTAL(horse->master) || GET_GOD_FLAG(horse->master, GF_GODSLIKE))
+			{
+				send_to_char("Вы постеснялись уводить скакуна у такого хорошего человека.\r\n", ch);
+				return;
+			}
+			pk_thiefs_action(ch, horse->master);
 			percent = number(1, skill_info[SKILL_STEAL].max_percent);
-			if (AWAKE(horse->master))
+			if (AWAKE(horse->master) && (IN_ROOM(ch) == IN_ROOM(horse->master)))
 				percent += 50;
 			if (AFF_FLAGGED(horse, AFF_TETHERED))
 				percent += 10;
@@ -1950,17 +1963,15 @@ ACMD(do_horsetake)
 					0, horse->master, TO_CHAR);
 				act("$n неудачно попытал$u украсть скакуна у $N1.", TRUE, ch,
 					0, horse->master, TO_NOTVICT);
-				act("$n пытал$u увести Вашего скакуна !", FALSE, ch, 0, horse->master, TO_VICT);
-				WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
+				if (IN_ROOM(ch) == IN_ROOM(horse->master))
+					act("$n пытал$u увести Вашего скакуна !", FALSE, ch, 0, horse->master, TO_VICT);
+				WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 				return;
 			}
-			WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 		}
-		else
-			if (stop_follower(horse, SF_EMPTY))
-				return;
 	}
-
+	if (stop_follower(horse, SF_EMPTY))
+		return;
 	act("Вы оседлали $N3.", FALSE, ch, 0, horse, TO_CHAR);
 	act("$n оседлал$g $N3.", FALSE, ch, 0, horse, TO_ROOM);
 	make_horse(horse, ch);

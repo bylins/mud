@@ -1806,26 +1806,17 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (percent > prob)
 	{
-		sprintf(buf, "%sВы попытались подсечь %s, но упали сами...%s\r\n",
-				CCWHT(ch, C_NRM), GET_PAD(vict, 3), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
-		// act("Вы попытались подсечь $N3, но упали сами...",FALSE,ch,0,vict,TO_CHAR);
+		sprintf(buf, "%sВы попытались подсечь $N3, но упали сами...%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		act(buf,FALSE,ch,0,vict,TO_CHAR);
 		act("$n попытал$u подсечь Вас, но упал$g сам$g.", FALSE, ch, 0, vict, TO_VICT);
 		act("$n попытал$u подсечь $N3, но упал$g сам$g.", TRUE, ch, 0, vict, TO_NOTVICT);
-
 		GET_POS(ch) = POS_SITTING;
 		prob = 3;
 	}
 	else
 	{
-		if (CAN_SEE(ch, vict))
-			sprintf(buf, "%sВы провели подсечку, ловко усадив %s на землю.%s\r\n",
-				CCIBLU(ch, C_NRM), GET_PAD(vict, 3), CCNRM(ch, C_NRM));
-		else
-			sprintf(buf, "%sВы провели подсечку, ловко усадив кого-то на землю.%s\r\n",
-				CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
-		send_to_char(buf, ch);
-		// act("Вы ловко подсекли $N3, усадив $S на землю.",FALSE,ch,0,vict,TO_CHAR);
+		sprintf(buf, "%sВы провели подсечку, ловко усадив $N3 на землю.%s", CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+		act(buf,FALSE,ch,0,vict,TO_CHAR);
 		act("$n ловко подсек$q Вас, усадив на попу.", FALSE, ch, 0, vict, TO_VICT);
 		act("$n ловко подсек$q $N3, уронив $S на землю.", TRUE, ch, 0, vict, TO_NOTVICT);
 		set_wait(vict, 3, FALSE);

@@ -1534,6 +1534,13 @@ struct glory_olc;
 
 }
 
+namespace NamedStuff
+{
+
+struct stuff_node;
+
+}
+
 struct descriptor_data
 {
 	socket_t descriptor;	/* file descriptor for socket    */
@@ -1601,6 +1608,9 @@ struct descriptor_data
 	boost::shared_ptr<class Glory::spend_glory> glory; // вливание славы
 	// вливание славы2
 	boost::shared_ptr<GloryConst::glory_olc> glory_const;
+	boost::shared_ptr<NamedStuff::stuff_node> named_obj;	// редактируемая именная шмотка
+	unsigned long cur_vnum;					// текущий внум именной шмотки
+	unsigned long old_vnum;					// старый внум именной шмотки
 };
 
 

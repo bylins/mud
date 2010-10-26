@@ -28,6 +28,7 @@
 #include "name_list.hpp"
 #include "modify.h"
 #include "room.hpp"
+#include "named_stuff.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -681,11 +682,18 @@ void script_trigger_check(void)
 
 	for (obj = object_list; obj; obj = obj->next)
 	{
-		if (SCRIPT(obj))
+		if(OBJ_FLAGGED(obj, ITEM_NAMED))
 		{
-			sc = SCRIPT(obj);
-			if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM))
-				random_otrigger(obj);
+			if(obj->worn_by && number(1, 100) <= 5)
+				NamedStuff::wear_msg(obj->worn_by, obj);
+		}
+		else if (SCRIPT(obj))
+		{
+			{
+				sc = SCRIPT(obj);
+				if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM))
+					random_otrigger(obj);
+			}
 		}
 	}
 

@@ -750,7 +750,7 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 				if (GET_WEIGHT(i) >= 190)
 					strcat(buf, " огромный мужик.\r\n");
 				else if (GET_WEIGHT(i) >= 180)
-					strcat(buf, " очень высокий, крупный амбал.");
+					strcat(buf, " очень высокий, крупный амбал.\r\n");
 				else
 					strcat(buf, " длиннющий, похожий на жердь мужчина.\r\n");
 			}
@@ -782,13 +782,13 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 	{
 		strcpy(buf, "\r\nЭто Ваш скакун. Он ");
 		if (GET_HORSESTATE(i) <= 0)
-			strcat(buf, "загнан.");
+			strcat(buf, "загнан.\r\n");
 		else if (GET_HORSESTATE(i) <= 20)
-			strcat(buf, "весь в мыле.");
+			strcat(buf, "весь в мыле.\r\n");
 		else if (GET_HORSESTATE(i) <= 80)
-			strcat(buf, "в хорошем состоянии.");
+			strcat(buf, "в хорошем состоянии.\r\n");
 		else
-			strcat(buf, "выглядит совсем свежим.");
+			strcat(buf, "выглядит совсем свежим.\r\n");
 		send_to_char(buf, ch);
 	};
 

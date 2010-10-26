@@ -34,6 +34,7 @@
 #include "poison.hpp"
 #include "pk.h"
 #include "room.hpp"
+#include "named_stuff.hpp"
 
 /* extern variables */
 extern vector < OBJ_DATA * >obj_proto;
@@ -495,7 +496,8 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	}
 	else if (invalid_anti_class(ch, obj))
 	{
-		act("$p: Эта вещь не предназначена для Вас !", FALSE, ch, obj, 0, TO_CHAR);
+		if(!OBJ_FLAGGED(obj, ITEM_NAMED) || !NamedStuff::wear_msg(ch, obj))
+			act("$p: Эта вещь не предназначена для Вас !", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
 	}
 	else if (invalid_unique(ch, obj) || (strstr(obj->name, "clan") && (IS_NPC(ch) || !CLAN(ch) || !strstr(obj->name, buf))))

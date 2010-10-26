@@ -20,12 +20,9 @@
 #include "char.hpp"
 #include "comm.h"
 #include "db.h"
-#include "genchar.h"
 #include "handler.h"
 #include "house.h"
-#include "char_player.hpp"
 #include "dg_scripts.h"
-#include "olc.h"
 
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
@@ -51,6 +48,10 @@ void save()
 			stuf_node.append_attribute("can_clan") = i->second->can_clan;
 		if(i->second->can_alli)
 			stuf_node.append_attribute("can_alli") = i->second->can_alli;
+		if(!i->second->wear_msg.empty())
+			stuf_node.append_attribute("wear_msg") = i->second->wear_msg.c_str();
+		if(!i->second->cant_msg.empty())
+			stuf_node.append_attribute("cant_msg") = i->second->cant_msg.c_str();
 	}
 
 	doc.save_file(LIB_PLRSTUFF"named_stuff_list.xml");
@@ -80,11 +81,46 @@ bool check_named(CHAR_DATA * ch, OBJ_DATA * obj, const bool simple)
 		return false;
 }
 
+bool wear_msg(CHAR_DATA * ch, OBJ_DATA * obj)
+{
+	StuffListType::iterator it = stuff_list.find(GET_OBJ_VNUM(obj));
+	if (it != stuff_list.end()) {
+		if (check_named(ch, obj, true))
+		{
+			if (!it->second->cant_msg.empty())
+			{
+				act(it->second->cant_msg.c_str(), FALSE, ch, obj, 0, TO_CHAR);
+				return true;
+			}
+			else
+			{
+				send_to_char("cant_msg.empty\r\n", ch);
+				return false;
+			}
+		}
+		else
+		{
+			if (!it->second->wear_msg.empty())
+			{
+				act(it->second->wear_msg.c_str(), FALSE, ch, obj, 0, TO_ROOM);
+				act(it->second->wear_msg.c_str(), FALSE, ch, obj, 0, TO_CHAR);
+				return true;
+			}
+			else
+			{
+				send_to_char("wear_msg.empty\r\n", ch);
+				return false;
+			}
+		}
+	}
+	return false;
+}
+
 bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 {
 	int num;
 	StuffNodePtr tmp_node(new stuff_node);
-	two_arguments(arg, buf1, buf2);
+	half_chop(arg, buf1, buf2);
 	if(!*buf1)
 	{
 		return false;
@@ -104,17 +140,15 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 					send_to_char(ch, "Такого объекта не существует.\r\n");
 					return false;
 				}
-				OLC_NUM(ch->desc) = num;
+				ch->desc->cur_vnum = num;
 			}
 			break;
 		case '2':
 			num = GetUniqueByName(buf2);
 			if(num>0)
 			{
-				OLC_MODE(ch->desc) = num;
-				if(OLC_STORAGE(ch->desc))
-					free(OLC_STORAGE(ch->desc));
-				OLC_STORAGE(ch->desc) = str_dup(player_table[get_ptable_by_unique(num)].mail);
+				ch->desc->named_obj->uid = num;
+				ch->desc->named_obj->mail = str_dup(player_table[get_ptable_by_unique(num)].mail);
 			}
 			else
 			{
@@ -124,43 +158,51 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 			break;
 		case '3':
 			if(*buf2 && a_isdigit(*buf2) && sscanf(buf2, "%d", &num))
-				OLC_VAL(ch->desc) = (int)(bool)num;
+				ch->desc->named_obj->can_clan = (int)(bool)num;
 			break;
 		case '4':
 			if(*buf2 && a_isdigit(*buf2) && sscanf(buf2, "%d", &num))
-				OLC_ZNUM(ch->desc) = (int)(bool)num;
+				ch->desc->named_obj->can_alli = (int)(bool)num;
+			break;
+		case '5':
+			if(*buf2)
+				ch->desc->named_obj->wear_msg = delete_doubledollar(buf2);
+			break;
+		case '6':
+			if(*buf2)
+				ch->desc->named_obj->cant_msg = delete_doubledollar(buf2);
 			break;
 		case 'У':
 		case 'у':
-			if(ch->desc->olc->item_type)
-				stuff_list.erase(ch->desc->olc->item_type);
-			cleanup_olc(ch->desc, CLEANUP_ALL);
+			if(!ch->desc->old_vnum)
+				return false;
+			stuff_list.erase(ch->desc->old_vnum);
 			STATE(ch->desc) = CON_PLAYING;
 			send_to_char(OK, ch);
 			save();
-			return 1;
+			return true;
 			break;
 		case 'В':
 		case 'в':
-			tmp_node->uid = OLC_MODE(ch->desc);
-			tmp_node->can_clan = OLC_VAL(ch->desc);
-			tmp_node->can_alli = OLC_ZNUM(ch->desc);
-			tmp_node->mail = str_dup(OLC_STORAGE(ch->desc));
-			if(ch->desc->olc->item_type)
-				stuff_list.erase(ch->desc->olc->item_type);
-			stuff_list[OLC_NUM(ch->desc)] = tmp_node;
-			cleanup_olc(ch->desc, CLEANUP_ALL);
+			tmp_node->uid = ch->desc->named_obj->uid;
+			tmp_node->can_clan = ch->desc->named_obj->can_clan;
+			tmp_node->can_alli = ch->desc->named_obj->can_alli;
+			tmp_node->mail = ch->desc->named_obj->mail;
+			tmp_node->wear_msg = ch->desc->named_obj->wear_msg;
+			tmp_node->cant_msg = ch->desc->named_obj->cant_msg;
+			if(ch->desc->old_vnum)
+				stuff_list.erase(ch->desc->old_vnum);
+			stuff_list[ch->desc->cur_vnum] = tmp_node;
 			STATE(ch->desc) = CON_PLAYING;
 			send_to_char(OK, ch);
 			save();
-			return 1;
+			return true;
 			break;
 		case 'Х':
 		case 'х':
-			cleanup_olc(ch->desc, CLEANUP_ALL);
 			STATE(ch->desc) = CON_PLAYING;
 			send_to_char(OK, ch);
-			return 1;
+			return true;
 		default:
 			break;
 	}
@@ -171,11 +213,13 @@ void nedit_menu(CHAR_DATA * ch)
 {
 	std::ostringstream out;
 
-	out << CCIGRN(ch, C_SPR) << "1" << CCNRM(ch, C_SPR) << ") Vnum: " << OLC_NUM(ch->desc) << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "2" << CCNRM(ch, C_SPR) << ") Владелец: " << GetNameByUnique(OLC_MODE(ch->desc),0) << " e-mail: " << OLC_STORAGE(ch->desc) << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "3" << CCNRM(ch, C_SPR) << ") Доступно клану: " << (int)(bool)OLC_VAL(ch->desc) << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "4" << CCNRM(ch, C_SPR) << ") Доступно альянсу: " << (int)(bool)OLC_ZNUM(ch->desc) << "\r\n";
-	if(ch->desc->olc->item_type)
+	out << CCIGRN(ch, C_SPR) << "1" << CCNRM(ch, C_SPR) << ") Vnum: " << ch->desc->cur_vnum << " Название: " << (real_object(ch->desc->cur_vnum)?obj_proto[real_object(ch->desc->cur_vnum)]->short_description:"&Rнеизвестно&n") << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "2" << CCNRM(ch, C_SPR) << ") Владелец: " << GetNameByUnique(ch->desc->named_obj->uid,0) << " e-mail: " << ch->desc->named_obj->mail << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "3" << CCNRM(ch, C_SPR) << ") Доступно клану: " << (int)(bool)ch->desc->named_obj->can_clan << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "4" << CCNRM(ch, C_SPR) << ") Доступно альянсу: " << (int)(bool)ch->desc->named_obj->can_alli << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "5" << CCNRM(ch, C_SPR) << ") Сообщение при одевании: " << ch->desc->named_obj->wear_msg << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "6" << CCNRM(ch, C_SPR) << ") Сообщение если вещь недоступна: " << ch->desc->named_obj->cant_msg << "\r\n";
+	if(ch->desc->old_vnum)
 		out << CCIGRN(ch, C_SPR) << "У" << CCNRM(ch, C_SPR) << ") Удалить\r\n";
 	out << CCIGRN(ch, C_SPR) << "В" << CCNRM(ch, C_SPR) << ") Выйти и сохранить\r\n";
 	out << CCIGRN(ch, C_SPR) << "Х" << CCNRM(ch, C_SPR) << ") Выйти без сохранения\r\n";
@@ -209,7 +253,7 @@ ACMD(do_named)
 						sprintf(buf2, "%6d) %45s",
 								obj_index[r_num].vnum, obj_proto[r_num]->short_description);
 						if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
-							sprintf(buf2, "%s Игра:%d Пост:%d Владелец:%s e-mail:%s\r\n", buf2,
+							sprintf(buf2, "%s Игра:%d Пост:%d Владелец:%16s e-mail:%s\r\n", buf2,
 								obj_index[r_num].number, obj_index[r_num].stored,
 								GetNameByUnique(it->second->uid,false).c_str(), it->second->mail.c_str());
 						else
@@ -231,30 +275,35 @@ ACMD(do_named)
 					send_to_char(ch, "Такого объекта не существует.\r\n");
 					return;
 				}
-				ch->desc->olc = new olc_data;
+				StuffNodePtr tmp_node(new stuff_node);
 				if((it = stuff_list.find(vnum)) != stuff_list.end())
 				{
-					ch->desc->olc->item_type = vnum;
-					OLC_MODE(ch->desc) = it->second->uid;
-					OLC_NUM(ch->desc) = vnum;
-					OLC_VAL(ch->desc) = it->second->can_clan;
-					OLC_ZNUM(ch->desc) = it->second->can_alli;
-					OLC_STORAGE(ch->desc) = str_dup(it->second->mail.c_str());
+					ch->desc->old_vnum = vnum;
+					ch->desc->cur_vnum = vnum;
+					tmp_node->uid = it->second->uid;
+					tmp_node->can_clan = it->second->can_clan;
+					tmp_node->can_alli = it->second->can_alli;
+					tmp_node->mail = str_dup(it->second->mail.c_str());
+					tmp_node->wear_msg = str_dup(it->second->wear_msg.c_str());
+					tmp_node->cant_msg = str_dup(it->second->cant_msg.c_str());
 				}
 				else
 				{
-					OLC_NUM(ch->desc) = vnum;
-					OLC_VAL(ch->desc) = 0;
-					OLC_ZNUM(ch->desc) = 0;
-					CREATE(OLC_STORAGE(ch->desc), char, 256);
-					OLC_STORAGE(ch->desc) = str_dup("");
+					ch->desc->old_vnum = 0;
+					ch->desc->cur_vnum = vnum;
+					tmp_node->uid = 0;
+					tmp_node->can_clan = 0;
+					tmp_node->can_alli = 0;
+					tmp_node->mail = str_dup("");
+					tmp_node->wear_msg = str_dup("");
+					tmp_node->cant_msg = str_dup("");
 				}
+				ch->desc->named_obj = tmp_node;
 				STATE(ch->desc) = CON_NAMED_STUFF;
 				nedit_menu(ch);
 				return;
 			}
-			sprintf(buf, "Укажите VNUM для редактирования.\r\n");
-			send_to_char(buf, ch);
+			send_to_char("Укажите VNUM для редактирования.\r\n", ch);
 			break;
 	}
 }
@@ -351,6 +400,12 @@ void load()
 			}
 			if(node.attribute("mail")) {
 				tmp_node->mail = node.attribute("mail").value();
+			}
+			if(node.attribute("wear_msg")) {
+				tmp_node->wear_msg = node.attribute("wear_msg").value();
+			}
+			if(node.attribute("cant_msg")) {
+				tmp_node->cant_msg = node.attribute("cant_msg").value();
 			}
 			if (!valid_email(tmp_node->mail.c_str()))
 			{

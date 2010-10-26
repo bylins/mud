@@ -1834,7 +1834,8 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		return;
 	}
 	else if((!IS_NPC(ch) || IS_CHARMICE(ch)) && OBJ_FLAGGED(obj, ITEM_NAMED) && NamedStuff::check_named(ch, obj, true)) {
-		send_to_char("Просьба не трогать ! Частная собственность !\r\n", ch);
+		if(!NamedStuff::wear_msg(ch, obj))
+			send_to_char("Просьба не трогать ! Частная собственность !\r\n", ch);
 		if (!obj->carried_by)
 			obj_to_char(obj, ch);
 		return;
@@ -1868,6 +1869,8 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 
 	if (show_msg)
 		wear_message(ch, obj, pos);
+	if (OBJ_FLAGGED(obj, ITEM_NAMED))
+		NamedStuff::wear_msg(ch, obj);
 
 	if (ch->in_room == NOWHERE)
 		log("SYSERR: ch->in_room = NOWHERE when equipping char %s.", GET_NAME(ch));
