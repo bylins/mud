@@ -50,7 +50,9 @@ int has_boat(CHAR_DATA * ch);
 int find_door(CHAR_DATA * ch, const char *type, char *dir, const char *cmdname);
 int has_key(CHAR_DATA * ch, obj_vnum key);
 void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd);
-int ok_pick(CHAR_DATA * ch, obj_vnum keynum, int pickproof, int scmd);
+int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd);
+extern int get_pick_chance(int skill_pick, int lock_complexity);
+
 ACMD(do_gen_door);
 ACMD(do_enter);
 ACMD(do_leave);
@@ -1035,12 +1037,15 @@ ACMD(do_hidemove)
 #define DOOR_IS_OPEN(ch, obj, door)	((obj) ? \
 			(!OBJVAL_FLAGGED(obj, CONT_CLOSED)) :\
 			(!EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED)))
+#define DOOR_IS_BROKEN(ch, obj, door)	((obj) ? \
+	(OBJVAL_FLAGGED(obj, CONT_BROKEN)) :\
+	(EXIT_FLAGGED(EXIT(ch, door), EX_BROKEN)))
 #define DOOR_IS_UNLOCKED(ch, obj, door)	((obj) ? \
 			(!OBJVAL_FLAGGED(obj, CONT_LOCKED)) :\
 			(!EXIT_FLAGGED(EXIT(ch, door), EX_LOCKED)))
 #define DOOR_IS_PICKPROOF(ch, obj, door) ((obj) ? \
-			(OBJVAL_FLAGGED(obj, CONT_PICKPROOF)) : \
-			(EXIT_FLAGGED(EXIT(ch, door), EX_PICKPROOF)))
+	(OBJVAL_FLAGGED(obj, CONT_PICKPROOF) || OBJVAL_FLAGGED(obj, CONT_BROKEN)) : \
+	(EXIT_FLAGGED(EXIT(ch, door), EX_PICKPROOF) || EXIT_FLAGGED(EXIT(ch, door), EX_BROKEN)))
 
 #define DOOR_IS_CLOSED(ch, obj, door)	(!(DOOR_IS_OPEN(ch, obj, door)))
 #define DOOR_IS_LOCKED(ch, obj, door)	(!(DOOR_IS_UNLOCKED(ch, obj, door)))
@@ -1048,7 +1053,9 @@ ACMD(do_hidemove)
 					(EXIT(ch, door)->key))
 #define DOOR_LOCK(ch, obj, door)	((obj) ? (GET_OBJ_VAL(obj, 1)) : \
 					(EXIT(ch, door)->exit_info))
-
+#define DOOR_LOCK_COMPLEX(ch, obj, door) ((obj) ? \
+			(GET_OBJ_VAL(obj,3)) :\
+			(EXIT(ch, door)->lock_complexity))
 
 
 int find_door(CHAR_DATA * ch, const char *type, char *dir, const char *cmdname)
@@ -1268,21 +1275,27 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 }
 
 
-int ok_pick(CHAR_DATA * ch, obj_vnum keynum, int pickproof, int scmd)
+int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd)
 {
 	int percent;
-
+	int pickproof = DOOR_IS_PICKPROOF(ch, obj, door);
 	percent = number(1, skill_info[SKILL_PICK_LOCK].max_percent);
 
 	if (scmd == SCMD_PICK)
 	{
-		if (keynum < 0)
-			send_to_char("А тут и не заперто.\r\n", ch);
-		else if (pickproof)
+		if (pickproof)
 			send_to_char("Вы никогда не сможете взломать ЭТО.\r\n", ch);
 		else if (!check_moves(ch, PICKLOCK_MOVES));
 		else if (percent > train_skill(ch, SKILL_PICK_LOCK, skill_info[SKILL_PICK_LOCK].max_percent, NULL))
 			send_to_char("Взломщик из Вас пока еще никудышний.\r\n", ch);
+		else if (get_pick_chance(ch->get_skill(SKILL_PICK_LOCK), DOOR_LOCK_COMPLEX(ch, obj, door)) < number(1,10))
+		{
+			send_to_char("Вы все-таки сломали этот замок...\r\n", ch);
+			if (obj)
+				SET_BIT(GET_OBJ_VAL(obj, 1), CONT_BROKEN);
+			if (door != -1)
+				SET_BIT(EXIT(ch, door)->exit_info, EX_BROKEN);
+		}
 		else
 			return (1);
 		return (0);
@@ -1355,7 +1368,9 @@ ACMD(do_gen_door)
 			send_to_char("Угу, заперто.\r\n", ch);
 		else if (!has_key(ch, keynum) && !Privilege::check_flag(ch, Privilege::USE_SKILLS) && ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
 			send_to_char("У Вас нет ключа.\r\n", ch);
-		else if (ok_pick(ch, keynum, DOOR_IS_PICKPROOF(ch, obj, door), subcmd))
+		else if (DOOR_IS_BROKEN(ch, obj, door) && !Privilege::check_flag(ch, Privilege::USE_SKILLS) && ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
+			send_to_char("Замок сломан.\r\n", ch);
+		else if (ok_pick(ch, keynum, obj, door, subcmd))
 			do_doorcmd(ch, obj, door, subcmd);
 	}
 	return;

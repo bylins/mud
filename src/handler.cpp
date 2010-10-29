@@ -2762,7 +2762,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	else
 	{
 		log("[Extract char] All clear for NPC");
-		if (GET_MOB_RNUM(ch) > -1)	/* if mobile */
+		if ((GET_MOB_RNUM(ch) > -1) && (!MOB_FLAGGED(ch, MOB_RESURRECTED)))	/* if mobile и не умертвие*/
 			mob_index[GET_MOB_RNUM(ch)].number--;
 		clearMemory(ch);	/* Only NPC's can have memory */
 

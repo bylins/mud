@@ -803,7 +803,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		{
 			out << "Tmer: " << object->get_timer() << "~\n";
 		}
-		// Вызываемое заклинание
+		// Сложность замкА
 		if (GET_OBJ_SPELL(object) != GET_OBJ_SPELL(proto))
 		{
 			out << "Spll: " << GET_OBJ_SPELL(object) << "~\n";
@@ -986,7 +986,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		{
 			out << "Tmer: " << object->get_timer() << "~\n";
 		}
-		// Вызываемое заклинание
+		// Сложность замкА
 		if (GET_OBJ_SPELL(object))
 		{
 			out << "Spll: " << GET_OBJ_SPELL(object) << "~\n";

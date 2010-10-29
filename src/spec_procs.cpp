@@ -55,7 +55,7 @@ SPECIAL(shop_keeper);
 void ASSIGNMASTER(mob_vnum mob, SPECIAL(fname), int learn_info);
 int mag_manacost(CHAR_DATA * ch, int spellnum);
 int has_key(CHAR_DATA * ch, obj_vnum key);
-int ok_pick(CHAR_DATA * ch, obj_vnum keynum, int pickproof, int scmd);
+int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd);
 
 /* local functions */
 char *how_good(CHAR_DATA * ch, int percent);
@@ -1603,7 +1603,7 @@ int npc_scavenge(CHAR_DATA * ch)
 				// Заперто, взламываем, если умеем
 				if (OBJVAL_FLAGGED(obj, CONT_LOCKED) &&
 						ch->get_skill(SKILL_PICK_LOCK) &&
-						ok_pick(ch, 0, OBJVAL_FLAGGED(obj, CONT_PICKPROOF), SCMD_PICK))
+						ok_pick(ch, 0, obj, 0, SCMD_PICK))
 					do_doorcmd(ch, obj, 0, SCMD_PICK);
 				// Все равно заперто, ну тогда фиг с ним
 				if (OBJVAL_FLAGGED(obj, CONT_LOCKED))
@@ -1748,7 +1748,7 @@ int npc_loot(CHAR_DATA * ch)
 						// ...или взломаем?
 						if (OBJVAL_FLAGGED(obj, CONT_LOCKED) &&
 								ch->get_skill(SKILL_PICK_LOCK) &&
-								ok_pick(ch, 0, OBJVAL_FLAGGED(obj, CONT_PICKPROOF), SCMD_PICK))
+								ok_pick(ch, 0, obj, 0, SCMD_PICK))
 							TOGGLE_BIT(GET_OBJ_VAL(loot_obj, 1), CONT_LOCKED);
 						// Эх, не открыть. Ну ладно.
 						if (OBJVAL_FLAGGED(obj, CONT_LOCKED))
@@ -1801,7 +1801,7 @@ int npc_move(CHAR_DATA * ch, int dir, int need_specials_check)
 		rdata = EXIT(ch, dir);
 		if (EXIT_FLAGGED(rdata, EX_LOCKED))
 		{
-			if (has_key(ch, rdata->key) || (!EXIT_FLAGGED(rdata, EX_PICKPROOF) &&
+			if (has_key(ch, rdata->key) || (!EXIT_FLAGGED(rdata, EX_PICKPROOF) && !EXIT_FLAGGED(rdata, EX_BROKEN) &&
 											calculate_skill(ch, SKILL_PICK, 100, 0) >= number(0, 100)))
 			{
 				do_doorcmd(ch, 0, dir, SCMD_UNLOCK);

@@ -2350,20 +2350,30 @@ void setup_dir(FILE * fl, int room, int dir)
 		log("SYSERR: Format error, %s", buf2);
 		exit(1);
 	}
-	if (sscanf(line, " %d %d %d ", t, t + 1, t + 2) != 3)
+    int result = sscanf(line, " %d %d %d %d", t, t + 1, t + 2, t + 3);
+	if (result == 3)//Polud видимо "старый" формат (20.10.2010), прочитаем в старом
+	{
+		if (t[0] & 1)
+			world[room]->dir_option[dir]->exit_info = EX_ISDOOR;
+		else if (t[0] & 2)
+			world[room]->dir_option[dir]->exit_info = EX_ISDOOR | EX_PICKPROOF;
+		else
+			world[room]->dir_option[dir]->exit_info = 0;
+		if (t[0] & 4)
+			world[room]->dir_option[dir]->exit_info |= EX_HIDDEN;
+
+		world[room]->dir_option[dir]->lock_complexity = 0;
+	}
+	else if (result == 4)
+	{
+		world[room]->dir_option[dir]->exit_info = t[0];
+		world[room]->dir_option[dir]->lock_complexity = t[3];
+	}
+	else
 	{
 		log("SYSERR: Format error, %s", buf2);
 		exit(1);
 	}
-
-	if (t[0] & 1)
-		world[room]->dir_option[dir]->exit_info = EX_ISDOOR;
-	else if (t[0] & 2)
-		world[room]->dir_option[dir]->exit_info = EX_ISDOOR | EX_PICKPROOF;
-	else
-		world[room]->dir_option[dir]->exit_info = 0;
-	if (t[0] & 4)
-		world[room]->dir_option[dir]->exit_info |= EX_HIDDEN;
 
 	world[room]->dir_option[dir]->key = t[1];
 	world[room]->dir_option[dir]->to_room = t[2];
@@ -4081,10 +4091,13 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	mob->player_data.time.played = 0;
 	mob->player_data.time.logon = time(0);
 
-	mob_index[i].number++;
 	GET_ID(mob) = max_id++;
+
 	if (!is_corpse)
+	{
+		mob_index[i].number++;
 		assign_triggers(mob, MOB_TRIGGER);
+	}
 
 	i = mob_index[i].zone;
 	if (i != -1 && zone_table[i].under_construction)
@@ -4847,6 +4860,7 @@ void reset_zone(zone_rnum zone)
 				}
 				else
 				{
+					REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EX_BROKEN);
 					switch (ZCMD.arg3)
 					{
 					case 0:
@@ -5111,7 +5125,7 @@ int mobs_in_room(int m_num, int r_num)
 	int count = 0;
 
 	for (ch = world[r_num]->people; ch; ch = ch->next_in_room)
-		if (m_num == GET_MOB_RNUM(ch))
+		if (m_num == GET_MOB_RNUM(ch) && !MOB_FLAGGED(ch, MOB_RESURRECTED))
 			count++;
 
 	return count;

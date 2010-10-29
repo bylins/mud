@@ -605,7 +605,7 @@ OCMD(do_odoor)
 	char field[MAX_INPUT_LENGTH], *value;
 	room_data *rm;
 	EXIT_DATA *exit;
-	int dir, fd, to_room;
+	int dir, fd, to_room, lock;
 
 	const char *door_field[] = { "purge",
 								 "description",
@@ -613,6 +613,7 @@ OCMD(do_odoor)
 								 "key",
 								 "name",
 								 "room",
+								 "lock",
 								 "\n"
 							   };
 
@@ -713,6 +714,13 @@ OCMD(do_odoor)
 				exit->to_room = to_room;
 			else
 				obj_log(obj, "odoor: invalid door target");
+			break;
+		case 6:	/* lock - сложность замка         */
+			lock = atoi(value);
+			if (!(lock < 0 || lock >255))
+				exit->lock_complexity = lock;
+			else
+				obj_log(obj, "odoor: invalid lock complexity");
 			break;
 		}
 	}

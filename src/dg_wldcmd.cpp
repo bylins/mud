@@ -200,7 +200,7 @@ WCMD(do_wdoor)
 	char field[MAX_INPUT_LENGTH], *value;
 	room_data *rm;
 	EXIT_DATA *exit;
-	int dir, fd, to_room;
+	int dir, fd, to_room, lock;
 
 	const char *door_field[] = { "purge",
 								 "description",
@@ -208,6 +208,7 @@ WCMD(do_wdoor)
 								 "key",
 								 "name",
 								 "room",
+								 "lock",
 								 "\n"
 							   };
 
@@ -308,6 +309,13 @@ WCMD(do_wdoor)
 				exit->to_room = to_room;
 			else
 				wld_log(room, "wdoor: invalid door target");
+			break;
+		case 6:	/* lock - сложность замка         */
+			lock = atoi(value);
+			if (!(lock < 0 || lock >255))
+				exit->lock_complexity = lock;
+			else
+				wld_log(room, "wdoor: invalid lock complexity");
 			break;
 		}
 	}

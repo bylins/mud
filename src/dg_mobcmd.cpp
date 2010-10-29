@@ -1221,7 +1221,7 @@ ACMD(do_mdoor)
 	char field[MAX_INPUT_LENGTH], *value;
 	room_data *rm;
 	EXIT_DATA *exit;
-	int dir, fd, to_room;
+	int dir, fd, to_room, lock;
 
 	const char *door_field[] =
 	{
@@ -1231,6 +1231,7 @@ ACMD(do_mdoor)
 		"key",
 		"name",
 		"room",
+		"lock",
 		"\n"
 	};
 
@@ -1340,6 +1341,13 @@ ACMD(do_mdoor)
 				exit->to_room = to_room;
 			else
 				mob_log(ch, "mdoor: invalid door target");
+			break;
+		case 6:	/* lock - сложность замка         */
+			lock = atoi(value);
+			if (!(lock < 0 || lock >255))
+				exit->lock_complexity = lock;
+			else
+				mob_log(ch, "mdoor: invalid lock complexity");
 			break;
 		}
 	}

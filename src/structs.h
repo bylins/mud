@@ -193,6 +193,7 @@ typedef struct trig_data TRIG_DATA;
 #define EX_LOCKED    (1 << 2)	/* The door is locked */
 #define EX_PICKPROOF    (1 << 3)	/* Lock can't be picked  */
 #define EX_HIDDEN       (1 << 4)
+#define EX_BROKEN       (1 << 5) //Polud замок двери сломан
 
 #define AF_BATTLEDEC (1 << 0)
 #define AF_DEADKEEP  (1 << 1)
@@ -1084,6 +1085,7 @@ typedef struct trig_data TRIG_DATA;
 #define CONT_PICKPROOF      (1 << 1)	/* Container is pickproof  */
 #define CONT_CLOSED         (1 << 2)	/* Container is closed     */
 #define CONT_LOCKED         (1 << 3)	/* Container is locked     */
+#define CONT_BROKEN         (1 << 4)	/* Container is locked     */
 
 /* other miscellaneous defines *******************************************/
 

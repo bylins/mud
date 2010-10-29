@@ -642,7 +642,7 @@ void oedit_disp_container_flags_menu(DESCRIPTOR_DATA * d)
 #endif
 	sprintf(buf,
 			"%s1%s) Закрываем\r\n"
-			"%s2%s) Запираем\r\n"
+			"%s2%s) Нельзя взломать\r\n"
 			"%s3%s) Закрыт\r\n"
 			"%s4%s) Заперт\r\n"
 			"Флаги контейнера: %s%s%s\r\n"
@@ -1122,6 +1122,9 @@ void oedit_disp_val4_menu(DESCRIPTOR_DATA * d)
 	case ITEM_MATERIAL:
 		send_to_char("Введите материал: ", d->character);
 		break;
+	case ITEM_CONTAINER:
+		send_to_char("Введите сложность замка (0-255): ", d->character);
+		break;
 	default:
 		oedit_disp_menu(d);
 	}
@@ -1330,7 +1333,7 @@ void oedit_disp_ingradient_menu(DESCRIPTOR_DATA * d)
 		send_to_char(buf, d->character);
 	}
 	sprintbit(GET_OBJ_SKILL(OLC_OBJ(d)), ingradient_bits, buf1);
-	sprintf(buf, "\r\nТип инградиента : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
+	sprintf(buf, "\r\nТип ингредиента : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
 

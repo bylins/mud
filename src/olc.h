@@ -240,6 +240,7 @@ extern struct olc_save_info *olc_save_list;
 #define REDIT_EXTRADESC_KEY 		15
 #define REDIT_EXTRADESC_DESCRIPTION 	16
 #define	REDIT_ING				17
+#define REDIT_LOCK_COMPLEXITY	18
 
 /*
  * Submodes of ZEDIT connectedness.

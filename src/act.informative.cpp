@@ -90,6 +90,7 @@ void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode);
 char *diag_timer_to_char(OBJ_DATA * obj);
 const char * print_god_or_player(int level);
+int get_pick_chance(int skill_pick, int lock_complexity);
 
 ACMD(do_affects);
 ACMD(do_look);
@@ -154,6 +155,14 @@ const char *ObjState[8][2] = { {"рассыпается", "рассыпается"},
 	{"хорошо", "в хорошем состоянии"},
 	{"очень хорошо", "в очень хорошем состоянии"},
 	{"великолепно", "в великолепном состоянии"}
+};
+
+const char *Locks[4][2] = 
+{
+	{"%s Вы в жизни не видели подобного замка.%s\r\n", KIRED},
+	{"%s Замок очень сложный.%s\r\n", KIYEL},
+	{"%s Сложный замок. Как бы не сломать.%s\r\n", KIGRN},
+	{"%s Простой замок. Эка невидаль.%s\r\n", KGRN}
 };
 
 char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode)
@@ -1659,6 +1668,10 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	send_to_char(CCNRM(ch, C_NRM), ch);
 }
 
+int get_pick_chance(int skill_pick, int lock_complexity)
+{
+	return (MIN(5, MAX(-5, skill_pick - lock_complexity)) + 5);
+}
 
 void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 {
@@ -1676,6 +1689,28 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 				count += sprintf(buf + count, " закрыто (%s).\r\n", rdata->keyword);
 			else
 				count += sprintf(buf + count, " закрыто (вероятно дверь).\r\n");
+			int skill_pick = ch->get_skill(SKILL_PICK_LOCK) ;
+			if (EXIT_FLAGGED(rdata, EX_LOCKED) && skill_pick)
+			{
+				if (EXIT_FLAGGED(rdata, EX_PICKPROOF))
+				{
+					count += sprintf(buf+count-2, "%s Вы никогда не сможете ЭТО взломать !%s\r\n", CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
+				}
+				else if (EXIT_FLAGGED(rdata, EX_BROKEN))
+				{
+					count += sprintf(buf+count-2, "%s Замок сломан... %s\r\n", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+				}
+				else
+				{
+					int chance = get_pick_chance(skill_pick, rdata->lock_complexity);
+					int index = chance ? chance/5 + 1 : 0;
+					if (COLOR_LEV(ch)>C_NRM)
+						count += sprintf(buf+count-2, Locks[index][0], Locks[index][1], KNRM);
+					else
+						count += sprintf(buf+count-2, Locks[index][0], KNUL, KNUL);
+				}
+			}
+
 			send_to_char(buf, ch);
 			return;
 		};
@@ -1859,7 +1894,29 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 		if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER)
 		{
 			if (OBJVAL_FLAGGED(obj, CONT_CLOSED))
+			{
 				act("Закрыт$g.", FALSE, ch, obj, 0, TO_CHAR);
+				int skill_pick = ch->get_skill(SKILL_PICK_LOCK) ;
+				if (OBJVAL_FLAGGED(obj, CONT_LOCKED) && skill_pick)
+				{
+					int count = sprintf(buf, "Заперт%s.", GET_OBJ_SUF_6(obj));
+
+					if (OBJVAL_FLAGGED(obj, CONT_PICKPROOF))
+						count += sprintf(buf+count, "%s Вы никогда не сможете ЭТО взломать !%s\r\n", CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
+					else if (OBJVAL_FLAGGED(obj, CONT_BROKEN))
+						count += sprintf(buf+count, "%s Замок сломан... %s\r\n", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+					else
+					{
+						int chance = get_pick_chance(skill_pick, GET_OBJ_VAL(obj, 3));
+						int index = chance ? chance/5 + 1 : 0;
+						if (COLOR_LEV(ch)>C_NRM)
+							count += sprintf(buf + count, Locks[index][0], Locks[index][1], KNRM);
+						else
+							count += sprintf(buf + count, Locks[index][0], KNUL, KNUL);
+					}
+					send_to_char(buf, ch);
+				}
+			}
 			else
 			{
 				send_to_char(OBJN(obj, ch, 0), ch);
@@ -1880,7 +1937,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 				else
 				{
 					if (GET_OBJ_VAL(obj, 0) > 0 && bits != FIND_OBJ_ROOM) {
-						/* amt - индекс массива из 6 элементов (0..5) с опианием наполненности
+						/* amt - индекс массива из 6 элементов (0..5) с описанием наполненности
 						   с помощью нехитрых мат. преобразований мы получаем соотношение веса и максимального объема контейнера,
 						   выраженные числами от 0 до 5. (причем 5 будет лишь при полностью полном контейнере)
 						*/

@@ -905,7 +905,7 @@ extern SPECIAL(postmaster);
 #define GET_OBJ_ALIAS(obj)      ((obj)->short_description)
 #define GET_OBJ_PNAME(obj,pad)  ((obj)->PNames[pad])
 #define GET_OBJ_DESC(obj)       ((obj)->description)
-#define GET_OBJ_SPELL(obj)      ((obj)->obj_flags.Obj_spell)
+#define GET_OBJ_SPELL(obj) ((obj)->obj_flags.Obj_spell)
 #define GET_OBJ_LEVEL(obj)      ((obj)->obj_flags.Obj_level)
 #define GET_OBJ_AFFECTS(obj)    ((obj)->obj_flags.affects)
 #define GET_OBJ_ANTI(obj)       ((obj)->obj_flags.anti_flag)
