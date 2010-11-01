@@ -1286,10 +1286,11 @@ int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd)
 		if (pickproof)
 			send_to_char("Вы никогда не сможете взломать ЭТО.\r\n", ch);
 		else if (!check_moves(ch, PICKLOCK_MOVES));
-		else if (DOOR_LOCK_COMPLEX(ch, obj, door) - ch->get_skill(SKILL_PICK_LOCK) > 10)//Polud очередной migic number... 
+		else if (DOOR_LOCK_COMPLEX(ch, obj, door) - ch->get_skill(SKILL_PICK_LOCK) > 10)//Polud очередной magic number... 
 		//если скилл меньше сложности на 10 и более - даже трениться на таком замке нельзя
 			send_to_char("С таким сложным замком даже и пытаться не следует...\r\n", ch);
-		else if (percent > train_skill(ch, SKILL_PICK_LOCK, skill_info[SKILL_PICK_LOCK].max_percent, NULL))
+		else if ((ch->get_skill(SKILL_PICK_LOCK) - DOOR_LOCK_COMPLEX(ch, obj, door) <= 10)  && //если скилл больше сложности на 10 и более - даже трениться на таком замке нельзя
+			(percent > train_skill(ch, SKILL_PICK_LOCK, skill_info[SKILL_PICK_LOCK].max_percent, NULL)))
 			send_to_char("Взломщик из Вас пока еще никудышний.\r\n", ch);
 		else if (get_pick_chance(ch->get_skill(SKILL_PICK_LOCK), DOOR_LOCK_COMPLEX(ch, obj, door)) < number(1,10))
 		{
