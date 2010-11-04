@@ -66,7 +66,7 @@ const char *trig_types[] = { "Global",
 							 "Агродействие",
 							 "Раунд боя",
 							 "Каст в моба",
-							 "UNUSED",
+							 "Смена времени",
 							 "UNUSED",
 							 "Auto",
 							 "\n"
@@ -94,7 +94,7 @@ const char *otrig_types[] = { "Global",
 							  "Close",
 							  "Взломать",
 							  "Вход PC",
-							  "UNUSED",
+							  "Смена времени",
 							  "UNUSED",
 							  "UNUSED",
 							  "UNUSED",
@@ -117,8 +117,8 @@ const char *wtrig_types[] = { "Global",
 							  "Open",
 							  "Lock",
 							  "Close",
-							  "UNUSED",
-							  "UNUSED",
+							  "Взломать",
+							  "Смена времени",
 							  "UNUSED",
 							  "UNUSED",
 							  "UNUSED",
@@ -895,6 +895,32 @@ void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum)
 	}
 }
 
+void timechange_mtrigger(CHAR_DATA * ch, const int time)
+{
+	if (!ch || ch->purged())
+	{
+		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
+		return;
+	}
+
+	TRIG_DATA *t;
+	char buf[MAX_INPUT_LENGTH];
+
+	if (!SCRIPT_CHECK(ch, MTRIG_TIMECHANGE))
+		return;
+
+	for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
+	{
+		if (TRIGGER_CHECK(t, MTRIG_TIMECHANGE) && (time == GET_TRIG_NARG(t)))
+		{
+			sprintf(buf, "%d", time);
+			add_var_cntx(&GET_TRIG_VARS(t), "time", buf, 0);
+			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			continue;
+		}
+	}
+}
+
 /*
  *  object triggers
  */
@@ -1222,6 +1248,28 @@ int greet_otrigger(CHAR_DATA * actor, int dir)
 	return final;
 }
 
+int timechange_otrigger(OBJ_DATA * obj, const int time)
+{
+	TRIG_DATA *t;
+	char buf[MAX_INPUT_LENGTH];
+
+	if (!SCRIPT_CHECK(obj, OTRIG_TIMECHANGE))
+		return 1;
+
+	for (t = TRIGGERS(SCRIPT(obj)); t; t = t->next)
+	{
+		if (TRIGGER_CHECK(t, OTRIG_TIMECHANGE)
+				&& (time == GET_TRIG_NARG(t)))
+		{
+			sprintf(buf, "%d", time);
+			add_var_cntx(&GET_TRIG_VARS(t), "time", buf, 0);
+			return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+		}
+	}
+
+	return 1;
+}
+
 
 /*
  *  world triggers
@@ -1449,6 +1497,27 @@ int close_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir, int lock)
 			add_var_cntx(&GET_TRIG_VARS(t), "direction", dirs[dir], 0);
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			return script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
+		}
+	}
+
+	return 1;
+}
+int timechange_wtrigger(ROOM_DATA * room, const int time)
+{
+	TRIG_DATA *t;
+	char buf[MAX_INPUT_LENGTH];
+
+	if (!SCRIPT_CHECK(room, WTRIG_TIMECHANGE))
+		return 1;
+
+	for (t = TRIGGERS(SCRIPT(room)); t; t = t->next)
+	{
+		if (TRIGGER_CHECK(t, WTRIG_TIMECHANGE) && (time == GET_TRIG_NARG(t)))
+		{
+			sprintf(buf, "%d", time);
+			add_var_cntx(&GET_TRIG_VARS(t), "time", buf, 0);
+			script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
+			continue;
 		}
 	}
 

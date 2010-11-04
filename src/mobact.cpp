@@ -684,10 +684,10 @@ void mobile_activity(int activity_level, int missed_pulses)
 		ch_activity = GET_ACTIVITY(ch);
 
 // на случай вызова mobile_activity() не каждый пульс
-		if (activity_level % tmp_speed > ch_activity &&
-				(activity_level - missed_pulses) % tmp_speed < ch_activity)
+		// TODO: by WorM а где-то используется это mob_specials.speed ???
+		if ((ch_activity - activity_lev < missed_pulses) &&
+		   (ch_activity - activity_lev >= 0))
 			ch_activity = activity_lev;
-
 		if (ch_activity != activity_lev ||
 				(was_in = IN_ROOM(ch)) == NOWHERE || GET_ROOM_VNUM(IN_ROOM(ch)) % 100 == 99)
 			continue;
@@ -890,7 +890,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 					if (!rdata ||
 							rdata->to_room == NOWHERE ||
 							!legal_dir(ch, door, TRUE, FALSE) ||
-							is_room_forbidden(world[rdata->to_room])
+							(is_room_forbidden(world[rdata->to_room]) && !MOB_FLAGGED(ch, MOB_IGNORE_FORBIDDEN))
 							|| IS_DARK(rdata->to_room)
 							|| (MOB_FLAGGED(ch, MOB_STAY_ZONE)
 								&& world[IN_ROOM(ch)]->zone != world[rdata->to_room]->zone))
@@ -939,7 +939,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 				&& EXIT(ch, door)
 				&& EXIT(ch, door)->to_room != NOWHERE
 				&& legal_dir(ch, door, TRUE, FALSE)
-				&& !is_room_forbidden(world[EXIT(ch, door)->to_room])
+				&& (!is_room_forbidden(world[EXIT(ch, door)->to_room]) || MOB_FLAGGED(ch, MOB_IGNORE_FORBIDDEN))
 				&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
 					|| world[EXIT(ch, door)->to_room]->zone == world[ch->in_room]->zone)
 				&& allow_enter(world[EXIT(ch, door)->to_room], ch))

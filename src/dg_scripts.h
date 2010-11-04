@@ -45,6 +45,7 @@
 #define MTRIG_START_FIGHT      (1 << 20) // начало боя с мобом
 #define MTRIG_ROUND_NUM        (1 << 21) // на х раунде боя
 #define MTRIG_CAST             (1 << 22) // каст в моба
+#define MTRIG_TIMECHANGE       (1 << 23) // смена времени
 
 /* obj trigger types */
 #define OTRIG_GLOBAL           (1 << 0)	/* unused                     */
@@ -66,6 +67,7 @@
 #define OTRIG_CLOSE            (1 << 17)
 #define OTRIG_PICK             (1 << 18)
 #define OTRIG_GREET_ALL_PC     (1 << 19)	/* любой персонаж вошел в комнату */
+#define OTRIG_TIMECHANGE       (1 << 20) // смена времени
 
 /* wld trigger types */
 #define WTRIG_GLOBAL           (1 << 0)	/* check even if zone empty   */
@@ -82,6 +84,7 @@
 #define WTRIG_LOCK             (1 << 10)
 #define WTRIG_CLOSE            (1 << 11)
 #define WTRIG_PICK             (1 << 12)
+#define WTRIG_TIMECHANGE       (1 << 13)
 
 /* obj command trigger types */
 #define OCMD_EQUIP             (1 << 0)	/* obj must be in char's equip */
@@ -209,6 +212,7 @@ void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum);
 
 /* function prototypes from scripts.cpp */
 void script_trigger_check(void);
+void script_timechange_trigger_check(const int time);
 void add_trigger(struct script_data *sc, TRIG_DATA * t, int loc);
 
 void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig);
@@ -297,12 +301,15 @@ void free_script(struct script_data *sc);
 typedef INDEX_DATA index_data;
 typedef ROOM_DATA room_data;
 
+void timechange_mtrigger(CHAR_DATA * ch, const int time);
 int pick_otrigger(OBJ_DATA * obj, CHAR_DATA * actor);
 int open_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, int unlock);
 int close_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, int lock);
+int timechange_otrigger(OBJ_DATA * obj, const int time);
 int pick_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir);
 int open_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir, int unlock);
 int close_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir, int lock);
+int timechange_wtrigger(ROOM_DATA * room, const int time);
 
 void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff);
 void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff);

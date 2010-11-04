@@ -3250,9 +3250,9 @@ ACMD(do_mixture)
 	if (!check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, FALSE))
 	{
 		if (subcmd == SCMD_ITEMS)
-			send_to_char("У Вас нет нужных ингредиентов !", ch);
+			send_to_char("У Вас нет нужных ингредиентов !\r\n", ch);
 		else if (subcmd == SCMD_RUNES)
-			send_to_char("У Вас нет нужных рун !", ch);
+			send_to_char("У Вас нет нужных рун !\r\n", ch);
 		return;
 	}
 
@@ -3352,7 +3352,7 @@ ACMD(do_create)
 		if (subcmd == SCMD_RECIPE)
 			send_to_char("Состав ЧЕГО Вы хотите узнать ?\r\n", ch);
 		else
-			send_to_char("ЧТО Вы хотите создать ?", ch);
+			send_to_char("ЧТО Вы хотите создать ?\r\n", ch);
 		return;
 	}
 
@@ -3438,7 +3438,7 @@ ACMD(do_create)
 
 	if (!check_recipe_items(ch, spellnum, itemnum, TRUE))
 	{
-		send_to_char("У Вас нет нужных инградиентов !", ch);
+		send_to_char("У Вас нет нужных инградиентов !\r\n", ch);
 		return;
 	}
 }
@@ -3863,7 +3863,7 @@ ACMD(do_remember)
 	}
 	if (IS_IMMORTAL(ch))
 	{
-		send_to_char("Господи, хоть ты не подкалывай !", ch);
+		send_to_char("Господи, хоть ты не подкалывай !\r\n", ch);
 		return;
 	}
 	s = strtok(argument, "'*!");
@@ -4991,6 +4991,10 @@ void mag_assign_spells(void)
 //194
 	spello(SPELL_LACKY, "боевое везение", "lacky", 100, 90, 1,
 		POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, MAG_AFFECTS, 0, STYPE_MIND);
+//195
+	spello(SPELL_BANDAGE, "перевязка", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
+//196
+	spello(SPELL_NO_BANDAGE, "!нельзя перевязываться!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.

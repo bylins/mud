@@ -727,11 +727,8 @@ void Player::save_char()
 		player_table[i].level = GET_LEVEL(this);
 		//added by WorM 2010.08.27 в индексе добавляем мыло
 		if(player_table[i].mail)
-            free(player_table[i].mail);
+			free(player_table[i].mail);
 		player_table[i].mail = str_dup(GET_EMAIL(this));
-		if(player_table[i].last_ip)
-            free(player_table[i].last_ip);
-		player_table[i].last_ip = str_dup(GET_LASTIP(this));
 		//end by WorM
 	}
 }

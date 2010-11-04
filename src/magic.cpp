@@ -1353,8 +1353,9 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract)
 			else if (spelltype == SPELL_RUNES)
 			{
 				sprintf(buf + strlen(buf),
-						"котор%s вспыхнул%s ярким светом.\r\n",
-						num > 1 ? "ые" : GET_OBJ_SUF_3(objo), num > 1 ? "и" : GET_OBJ_SUF_1(objo));
+						"котор%s вспыхнул%s ярким светом.%s",
+						num > 1 ? "ые" : GET_OBJ_SUF_3(objo), num > 1 ? "и" : GET_OBJ_SUF_1(objo),
+						PRF_FLAGGED(ch, PRF_COMPACT) ? "" : "\r\n");
 				act(buf, FALSE, ch, 0, 0, TO_CHAR);
 				act("$n сложил$g руны, которые вспыхнули ярким пламенем.",
 					TRUE, ch, NULL, NULL, TO_ROOM);

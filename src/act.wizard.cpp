@@ -2742,24 +2742,16 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 		if (sfor == MAIL || sfor == CHAR)
 		{
 			mail_found = 0;
-			if(!player_table[i].mail)
-			{
-				send_to_char(ch, "Ошибка: пустой e-mail у персонажа:%s", player_table[i].name);//поиск прерываеться если email у перса NULL
-				break;
-			}
-			if((sfor == MAIL && strstr(player_table[i].mail, buf2)) || (sfor == CHAR && !strcmp(player_table[i].mail, mail)))
+			if(player_table[i].mail)
+			 if((sfor == MAIL && strstr(player_table[i].mail, buf2)) || (sfor == CHAR && !strcmp(player_table[i].mail, mail)))
 				mail_found = 1;
 		}
 		if (sfor == IP || sfor == CHAR)
 		{
 			if(!fullsearch)
 			{
-				if(!player_table[i].last_ip)
-				{
-					send_to_char(ch, "Ошибка: пустой ip у персонажа:%s", player_table[i].name);//поиск прерываеться если ip у перса NULL
-					break;
-				}
-				if((sfor == IP && strstr(player_table[i].last_ip, buf2)) || (ip_log && !str_cmp(player_table[i].last_ip, ip_log->ip)))
+				if(player_table[i].last_ip)
+				 if((sfor == IP && strstr(player_table[i].last_ip, buf2)) || (ip_log && !str_cmp(player_table[i].last_ip, ip_log->ip)))
 					sprintf(buf1 + strlen(buf1), " IP:%s%-16s%s\r\n", (sfor == CHAR? CCBLU(ch, C_SPR) : ""), player_table[i].last_ip, (sfor == CHAR? CCNRM(ch, C_SPR) : ""));
 			}
 			else if (vict && LOGON_LIST(vict))
@@ -2767,13 +2759,9 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 				struct logon_data * cur_log = LOGON_LIST(vict);
 				while (cur_log)
 				{
-					if(!cur_log->ip)
-					{
-						send_to_char(ch, "Ошибка: пустой ip у персонажа:%s", GET_NAME(vict));//поиск прерываеться если ip у перса NULL
-						break;
-					}
 					struct logon_data * ch_log = ip_log;
-					while(ch_log)
+					if(cur_log->ip)
+					 while(ch_log)
 					{
 						if(!ch_log->ip)
 						{

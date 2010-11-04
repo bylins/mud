@@ -45,6 +45,8 @@ extern const char *item_types[];
 extern const char *wear_bits[];
 extern const char *weapon_class[];
 extern const char *weapon_affects[];
+extern const char *extra_bits[];
+extern const char *apply_negative[];
 extern const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
 extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
@@ -3942,6 +3944,7 @@ struct ChestFilter
 	int weap_message;      // для названия оружия
 	vector<int> affect;    // аффекты weap
 	vector<int> affect2;   // аффекты apply
+	vector<int> affect3;   // экстрафлаг
 };
 
 // вобщем это копи-паст из биржи + флаги
@@ -4017,6 +4020,7 @@ ACMD(DoStoreHouse)
 	filter.weap_message = -1;
 
 	int num = 0;
+	unsigned int len;
 	bool find = 0;
 	char tmpbuf[MAX_INPUT_LENGTH];
 	while (*argument)
@@ -4216,15 +4220,39 @@ ACMD(DoStoreHouse)
 			break;
 		case 'А':
 			argument = one_argument(++argument, tmpbuf);
-			if (filter.affect.size() + filter.affect2.size() >= 2)
+			if (!strlen(tmpbuf))
+			{
+				send_to_char("Неверный аффект предмета.\r\n", ch);
+				return;
+			}
+			if (filter.affect.size() + filter.affect2.size() + filter.affect3.size() >= 3)
 				break;
 			find = 0;
+			switch (*tmpbuf)
+			{
+				case '1':
+					sprintf(tmpbuf, "можно вплавить 1 камень");
+				break;
+				case '2':
+					sprintf(tmpbuf, "можно вплавить 2 камня");
+				break;
+				case '3':
+					sprintf(tmpbuf, "можно вплавить 3 камня");
+				break;
+				default:
+				break;
+			}
+			lower_convert(tmpbuf);
+			len = strlen(tmpbuf);
 			num = 0;
+
 			for (int flag = 0; flag < 4; ++flag)
 			{
 				for (/* тут ничего не надо */; *weapon_affects[num] != '\n'; ++num)
 				{
-					if (is_abbrev(tmpbuf, weapon_affects[num]))
+					if (strlen(weapon_affects[num]) < len)
+						continue;
+					if (!strncmp(weapon_affects[num], tmpbuf, len))
 					{
 						filter.affect.push_back(num);
 						find = 1;
@@ -4239,7 +4267,9 @@ ACMD(DoStoreHouse)
 			{
 				for (num = 0; *apply_types[num] != '\n'; ++num)
 				{
-					if (is_abbrev(tmpbuf, apply_types[num]))
+					if (strlen(apply_types[num]) < len)
+						continue;
+					if (!strncmp(apply_types[num], tmpbuf, len))
 					{
 						filter.affect2.push_back(num);
 						find = 1;
@@ -4247,9 +4277,31 @@ ACMD(DoStoreHouse)
 					}
 				}
 			}
+			if (!find)//Добавил поиск по экстрафлагу
+			{
+				num = 0;
+				for (int flag = 0; flag < 4; ++flag)
+				{
+					for (/* тут ничего не надо */; *extra_bits[num] != '\n'; ++num)
+					{
+						if (strlen(extra_bits[num]) < len)
+							continue;
+						if (!strncmp(extra_bits[num], tmpbuf, len))
+						{
+							filter.affect3.push_back(num);
+							find = 1;
+							break;
+						}
+					}
+					if (find)
+						break;
+					num++;
+				}
+			}
 			if (!find)
 			{
-				send_to_char("Неверный аффект предмета.\r\n", ch);
+				sprintf(buf,"Неверный аффект предмета: '%s'.\r\n", tmpbuf);
+				send_to_char(buf, ch);
 				return;
 			}
 			break;
@@ -4304,6 +4356,14 @@ ACMD(DoStoreHouse)
 			buffer += " ";
 		}
 	}
+	if (!filter.affect3.empty())
+	{
+		for (vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end(); ++it)
+		{
+			buffer += extra_bits[*it];
+			buffer += " ";
+		}
+	}
 	buffer += "\r\n";
 	send_to_char(buffer, ch);
 	set_wait(ch, 1, FALSE);
@@ -4352,7 +4412,7 @@ ACMD(DoStoreHouse)
 							break;
 						}
 					}
-					// первая часть не найдена, продолжать смысла нет
+					// аффект не найден, продолжать смысла нет
 					if (!find)
 						continue;
 				}
@@ -4363,9 +4423,17 @@ ACMD(DoStoreHouse)
 						find = 0;
 						for (int i = 0; i < MAX_OBJ_AFFECT; ++i)
 						{
+							int negative = 1;
+							sprinttype(temp_obj->affected[i].location, apply_types, buf2);
+							for (int j = 0; *apply_negative[j] != '\n'; j++)
+								if (!str_cmp(buf2, apply_negative[j]))
+								{
+									negative = -1;
+									break;
+								}
 							if (temp_obj->affected[i].location == *it)
 							{
-								if (temp_obj->affected[i].modifier > 0)
+								if ((temp_obj->affected[i].modifier * negative) > 0)
 									modif << "+";
 								else
 									modif << "-";
@@ -4374,6 +4442,24 @@ ACMD(DoStoreHouse)
 							}
 						}
 					}
+					// доп.свойство не найдено, продолжать смысла нет
+					if (!find)
+						continue;
+				}
+				if (!filter.affect3.empty())
+				{
+					for (vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end() && find; ++it)
+					{
+						//find = 1;
+						if (!CompareBits(temp_obj->obj_flags.extra_flags, extra_bits, *it))
+						{
+							find = 0;
+							break;
+						}
+					}
+					// экстрафлаг не найден, продолжать смысла нет
+					if (!find)
+						continue;
 				}
 				if (find)
 				{

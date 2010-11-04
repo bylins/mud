@@ -3518,7 +3518,10 @@ void send_to_room(const char *messg, room_rnum room, int to_awake)
 
 	for (i = world[room]->people; i; i = i->next_in_room)
 		if (i->desc && !IS_NPC(i) && (!to_awake || AWAKE(i)))
+		{
 			SEND_TO_Q(messg, i->desc);
+			SEND_TO_Q("\r\n", i->desc);
+		}
 }
 
 

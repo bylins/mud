@@ -334,6 +334,8 @@ const char *action_bits[] = { "спец",
 							  "!убить.точным.стилем",
 							  "!подсечь",
 							  "ангел-защитник",
+							  "моб-стражник",
+							  "игн.печать",
 							  "\n",
 							  "огненное дыхание",
 							  "зловонное дыхание",
@@ -1924,7 +1926,8 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	/* 0 */
 		"В Вашей крови не осталось ни капельки яда.",  // SPELL_DATURA_POISON
 		"SPELL_TIMER_REPAIR",
 		"!SPELL_LACKY!",
-		"Вы аккуратно перевязали свои раны."
+		"Вы аккуратно перевязали свои раны.",
+		"Вы снова можете перевязывать свои раны."
 };
 
 
@@ -2353,7 +2356,11 @@ const char *cast_phrase[LAST_USED_SPELL + 1][2] = { {"\nRESERVED DB.C",	/* 0 */
 	 {"\n",
 	 "\n"}, // SPELL_TIMER_REPAIR
 	 {"\n",
-	 "\n"} // SPELL_LACKY
+	 "\n"}, // SPELL_LACKY
+	 {"\n",
+	 "\n"}, // SPELL_BANDAGE
+	 {"\n",
+	 "\n"} // SPELL_NO_BANDAGE
 };
 
 

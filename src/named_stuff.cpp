@@ -93,10 +93,7 @@ bool wear_msg(CHAR_DATA * ch, OBJ_DATA * obj)
 				return true;
 			}
 			else
-			{
-				send_to_char("cant_msg.empty\r\n", ch);
 				return false;
-			}
 		}
 		else
 		{
@@ -107,10 +104,7 @@ bool wear_msg(CHAR_DATA * ch, OBJ_DATA * obj)
 				return true;
 			}
 			else
-			{
-				send_to_char("wear_msg.empty\r\n", ch);
 				return false;
-			}
 		}
 	}
 	return false;
@@ -166,11 +160,19 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 			break;
 		case '5':
 			if(*buf2)
+			{
 				ch->desc->named_obj->wear_msg = delete_doubledollar(buf2);
+				if(!strcmp(ch->desc->named_obj->wear_msg.c_str(), "_"))
+					ch->desc->named_obj->wear_msg == "";
+			}
 			break;
 		case '6':
 			if(*buf2)
+			{
 				ch->desc->named_obj->cant_msg = delete_doubledollar(buf2);
+				if(!strcmp(ch->desc->named_obj->cant_msg.c_str(), "_"))
+					ch->desc->named_obj->cant_msg == "";
+			}
 			break;
 		case 'õ':
 		case 'Õ':
@@ -350,7 +352,7 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 			snprintf(buf, MAX_STRING_LENGTH,
 				"NamedStuff: %s vnum:%ld %s",
 				GET_PAD(ch,0), it->first, buf1);
-			mudlog(buf, DEF, LVL_IMMORT, SYSLOG, TRUE);
+			mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
 		}
 	}
 	if(!found) {

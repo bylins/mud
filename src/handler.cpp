@@ -1868,9 +1868,11 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	CHECK_AGRO(ch) = TRUE;
 
 	if (show_msg)
+	{
 		wear_message(ch, obj, pos);
-	if (OBJ_FLAGGED(obj, ITEM_NAMED))
-		NamedStuff::wear_msg(ch, obj);
+		if (OBJ_FLAGGED(obj, ITEM_NAMED))
+			NamedStuff::wear_msg(ch, obj);
+	}
 
 	if (ch->in_room == NOWHERE)
 		log("SYSERR: ch->in_room = NOWHERE when equipping char %s.", GET_NAME(ch));

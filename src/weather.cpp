@@ -28,6 +28,7 @@
 #include "char.hpp"
 #include "room.hpp"
 
+extern void script_timechange_trigger_check(const int time);//Эксопрт тригеров смены времени
 extern TIME_INFO_DATA time_info;
 
 extern struct gods_celebrate_type gods_celebrate[];
@@ -128,21 +129,25 @@ void another_hour(int mode)
 	{
 		weather_info.sunlight = SUN_RISE;
 		send_to_outdoor("На востоке показались первые солнечные лучи.\r\n", SUN_CONTROL);
+		script_timechange_trigger_check(25);//рассвет
 	}
 	else if (time_info.hours == sunrise[time_info.month][0] + 1)
 	{
 		weather_info.sunlight = SUN_LIGHT;
 		send_to_outdoor("Начался день.\r\n", SUN_CONTROL);
+		script_timechange_trigger_check(26);//день
 	}
 	else if (time_info.hours == sunrise[time_info.month][1])
 	{
 		weather_info.sunlight = SUN_SET;
 		send_to_outdoor("Солнце медленно исчезло за горизонтом.\r\n", SUN_CONTROL);
+		script_timechange_trigger_check(27);//закат
 	}
 	else if (time_info.hours == sunrise[time_info.month][1] + 1)
 	{
 		weather_info.sunlight = SUN_DARK;
 		send_to_outdoor("Началась ночь.\r\n", SUN_CONTROL);
+		script_timechange_trigger_check(28);//ночь
 	}
 
 	if (time_info.hours >= HOURS_PER_DAY)  	/* Changed by HHS due to bug ??? */
@@ -173,6 +178,8 @@ void another_hour(int mode)
 		}
 		calc_god_celebrate();
 	}
+	script_timechange_trigger_check(24);//просто смена часа
+	script_timechange_trigger_check(time_info.hours);//выполняется для конкретного часа
 
 	if ((weather_info.sunlight == SUN_SET ||
 			weather_info.sunlight == SUN_DARK) &&

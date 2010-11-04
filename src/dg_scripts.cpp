@@ -712,6 +712,53 @@ void script_trigger_check(void)
 	}
 }
 
+/* проверка каждый час на триги изменении времени */
+void script_timechange_trigger_check(const int time)
+{
+	CHAR_DATA *ch;
+	OBJ_DATA *obj;
+	ROOM_DATA *room = NULL;
+	int nr;
+	SCRIPT_DATA *sc;
+
+	for (ch = character_list; ch; ch = ch->next)
+	{
+		if (SCRIPT(ch))
+		{
+			sc = SCRIPT(ch);
+
+			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_TIMECHANGE) &&
+					(!is_empty(world[IN_ROOM(ch)]->zone) || IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL)))
+				timechange_mtrigger(ch, time);
+		}
+	}
+
+	for (obj = object_list; obj; obj = obj->next)
+	{
+		if (SCRIPT(obj))
+		{
+			{
+				sc = SCRIPT(obj);
+				if (IS_SET(SCRIPT_TYPES(sc), OTRIG_TIMECHANGE))
+					timechange_otrigger(obj, time);
+			}
+		}
+	}
+
+	for (nr = FIRST_ROOM; nr <= top_of_world; nr++)
+	{
+		if (SCRIPT(world[nr]))
+		{
+			room = world[nr];
+			sc = SCRIPT(room);
+
+			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_TIMECHANGE) &&
+					(!is_empty(room->zone) || IS_SET(SCRIPT_TYPES(sc), WTRIG_GLOBAL)))
+				timechange_wtrigger(room, time);
+		}
+	}
+}
+
 EVENT(trig_wait_event)
 {
 	struct wait_event_data *wait_event_obj = (struct wait_event_data *) info;

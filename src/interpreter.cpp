@@ -2093,6 +2093,13 @@ void add_logon_record(DESCRIPTOR_DATA * d)
 		}
 		//
 	}
+	int pos = get_ptable_by_unique(GET_UNIQUE(d->character));
+	if (pos >= 0) {
+		if (player_table[pos].last_ip)
+			free(player_table[pos].last_ip);
+		player_table[pos].last_ip = str_dup(d->host);
+		player_table[pos].last_logon = LAST_LOGON(d->character);
+	}
 	log("Exit logon list");
 }
 
@@ -2388,7 +2395,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	char buf[MAX_STRING_LENGTH];
 	int player_i, load_result;
 	char tmp_name[MAX_INPUT_LENGTH], pwd_name[MAX_INPUT_LENGTH], pwd_pwd[MAX_INPUT_LENGTH];
-	int pos;
 
 	skip_spaces(&arg);
 
@@ -3143,10 +3149,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		strncpy(GET_EMAIL(d->character), arg, 127);
 		*(GET_EMAIL(d->character) + 127) = '\0';
 		lower_convert(GET_EMAIL(d->character));
-		//added by WorM 2010.08.27 в индексе добавляем мыло
-		pos = get_ptable_by_name(GET_PC_NAME(d->character));
-		player_table[pos].mail = str_dup(GET_EMAIL(d->character));
-		//end by WorM
 		d->character->save_char();
 
 		// добавляем в список ждущих одобрения
