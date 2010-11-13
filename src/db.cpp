@@ -213,13 +213,8 @@ int init_grouping(void);
 void init_portals(void);
 void init_im(void);
 int parce_place_of_destination(char arg);
-
-//MZ.load
 void init_zone_types(void);
-//-MZ.load
-//Polud
 void load_guardians();
-//-Polud
 
 /* external functions */
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
@@ -1378,6 +1373,108 @@ void set_zone_mob_level()
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+namespace
+{
+
+struct snoop_node
+{
+	// мыло имма
+	std::string mail;
+	// список уидов чаров с таким же мылом
+	std::vector<long> uid_list;
+};
+
+// номер клан ренты -> список мыл
+typedef std::map<int, std::set<std::string> > ClanMailType;
+ClanMailType clan_list;
+
+/**
+ * Инициализация списка мыл иммов для запрета снупа чаров из кланов,
+ * находящихся в состоянии войны с ними (иммами).
+ */
+void init_snoop_stop_list()
+{
+	std::vector<snoop_node> imm_list;
+
+	// формирование списка мыл иммов
+	for (int i = 0; i <= top_of_p_table; ++i)
+	{
+		if (player_table[i].level >= LVL_IMMORT && player_table[i].mail)
+		{
+			snoop_node tmp_node;
+			tmp_node.mail = player_table[i].mail;
+			imm_list.push_back(tmp_node);
+		}
+	}
+
+	// формирование списка чаров по каждому мылу
+	for (std::vector<snoop_node>::iterator i = imm_list.begin(),
+		iend = imm_list.end(); i != iend; ++i)
+	{
+		for (int k = 0; k <= top_of_p_table; ++k)
+		{
+			if (player_table[k].mail && !strcmp(player_table[k].mail, i->mail.c_str()))
+			{
+				i->uid_list.push_back(player_table[k].unique);
+			}
+		}
+	}
+
+	// формирование списка кланов с мылами из стоп-списка в них
+	for (std::vector<snoop_node>::const_iterator i = imm_list.begin(),
+		iend = imm_list.end(); i != iend; ++i)
+	{
+		for (std::vector<long>::const_iterator k = i->uid_list.begin(),
+			kend = i->uid_list.end(); k != kend; ++k)
+		{
+			for (ClanListType::const_iterator m = Clan::ClanList.begin(),
+				mend = Clan::ClanList.end(); m != mend; ++m)
+			{
+				if ((*m)->is_clan_member(*k))
+				{
+					ClanMailType::iterator clan = clan_list.find((*m)->GetRent());
+					if (clan != clan_list.end())
+					{
+						clan->second.insert(i->mail);
+					}
+					else
+					{
+						std::set<std::string> tmp_list;
+						tmp_list.insert(i->mail);
+						clan_list[(*m)->GetRent()] = tmp_list;
+					}
+				}
+			}
+		}
+	}
+}
+
+} // namespace
+
+/**
+ * Проверка возможности снупа виктима иммом (проверка кланов и их политики).
+ */
+bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict)
+{
+	if (!CLAN(vict))
+	{
+		return true;
+	}
+
+	for (ClanMailType::const_iterator i = clan_list.begin(),
+		iend = clan_list.end(); i != iend; ++i)
+	{
+		std::set<std::string>::const_iterator k = i->second.find(GET_EMAIL(imm));
+		if (k != i->second.end() && CLAN(vict)->CheckPolitics(i->first) == POLITICS_WAR)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+////////////////////////////////////////////////////////////////////////////////
+
 /* body of the booting system */
 void boot_db(void)
 {
@@ -1587,6 +1684,9 @@ void boot_db(void)
 
 	log("Set zone average mob_level");
 	set_zone_mob_level();
+
+	log("Init stop list for snoop.");
+	init_snoop_stop_list();
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");

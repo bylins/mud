@@ -468,4 +468,6 @@ void set_test_data(CHAR_DATA *mob);
 extern zone_rnum top_of_zone_table;
 void set_zone_mob_level();
 
+bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict);
+
 #endif
