@@ -1685,8 +1685,8 @@ void boot_db(void)
 	log("Set zone average mob_level");
 	set_zone_mob_level();
 
-	log("Init stop list for snoop.");
-	init_snoop_stop_list();
+//	log("Init stop list for snoop.");
+//	init_snoop_stop_list();
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");

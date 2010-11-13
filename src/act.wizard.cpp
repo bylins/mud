@@ -2273,8 +2273,8 @@ ACMD(do_snoop)
 		send_to_char("Вы уже подслушиваете.\r\n", ch);
 	else if (victim->desc->snoop_by)
 		send_to_char("Дык его уже кто-то из богов подслушивает.\r\n", ch);
-	else if (!can_snoop(ch, victim))
-		send_to_char("Дружина данного персонажа находится в состоянии войны с Вашей дружиной.\r\n", ch);
+//	else if (!can_snoop(ch, victim))
+//		send_to_char("Дружина данного персонажа находится в состоянии войны с Вашей дружиной.\r\n", ch);
 	else
 	{
 		if (victim->desc->original)
@@ -4867,11 +4867,13 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 50:
 		if (valid_email(val_arg))
 		{
+			/*
 			if (!strcmp(GET_EMAIL(ch), GET_EMAIL(vict)))
 			{
 				send_to_char("Вы не можете сделать этого.\r\n", ch);
 				return 0;
 			}
+			*/
 			strncpy(GET_EMAIL(vict), val_arg, 127);
 			*(GET_EMAIL(vict) + 127) = '\0';
 			lower_convert(GET_EMAIL(vict));
