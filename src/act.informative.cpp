@@ -88,6 +88,7 @@ void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur);
 const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
 void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode);
+char *diag_obj_timer(OBJ_DATA * obj);
 char *diag_timer_to_char(OBJ_DATA * obj);
 const char * print_god_or_player(int level);
 int get_pick_chance(int skill_pick, int lock_complexity);
@@ -317,7 +318,8 @@ char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear)
 	return (out_str);
 }
 
-char *diag_timer_to_char(OBJ_DATA * obj)
+// Чтобы можно было получить только строку состяния
+char *diag_obj_timer(OBJ_DATA * obj)
 {
 	static char out_str[MAX_STRING_LENGTH];
 	*out_str = 0;
@@ -326,21 +328,29 @@ char *diag_timer_to_char(OBJ_DATA * obj)
 		int prot_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
 		if (!prot_timer)
 		{
-			sprintf(out_str, "Состояние: прототип предмета имеет нулевой таймер!\r\n");
+			sprintf(out_str, "Прототип предмета имеет нулевой таймер!\r\n");
 			return (out_str);
 		}
 		int tm = (obj->get_timer() * 100 / prot_timer);
 		if (tm < 20)
-			sprintf(out_str, "Состояние: ужасно.\r\n");
+			sprintf(out_str, "ужасно");
 		else if (tm < 40)
-			sprintf(out_str, "Состояние: скоро испортится.\r\n");
+			sprintf(out_str, "скоро испортится");
 		else if (tm < 60)
-			sprintf(out_str, "Состояние: плоховато.\r\n");
+			sprintf(out_str, "плоховато");
 		else if (tm < 80)
-			sprintf(out_str, "Состояние: средне.\r\n");
+			sprintf(out_str, "средне");
 		else
-			sprintf(out_str, "Состояние: идеально.\r\n");
+			sprintf(out_str, "идеально");
 	}
+	return (out_str);
+}
+
+char *diag_timer_to_char(OBJ_DATA * obj)
+{
+	static char out_str[MAX_STRING_LENGTH];
+	*out_str = 0;
+	sprintf(out_str, "Сoстояние: %s.\r\n", diag_obj_timer(obj));
 	return (out_str);
 }
 

@@ -43,6 +43,7 @@ extern int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
 extern int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj);
 extern int invalid_align(CHAR_DATA * ch, OBJ_DATA * obj);
 char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear);
+extern char *diag_obj_timer(OBJ_DATA * obj);
 extern char *diag_timer_to_char(OBJ_DATA * obj);
 extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
@@ -578,6 +579,8 @@ int exchange_identify(CHAR_DATA * ch, char *arg)
 		imm_show_obj_values(GET_EXCHANGE_ITEM(item), ch);
 
 	ch->remove_bank(EXCHANGE_IDENT_PAY);
+	send_to_char(ch, "\r\n%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
+		CCIGRN(ch, C_NRM), EXCHANGE_IDENT_PAY, desc_count(EXCHANGE_IDENT_PAY, WHAT_MONEYu), CCNRM(ch, C_NRM));
 
 	return true;
 }
@@ -1763,8 +1766,8 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 	}
 
 	std::string buffer =
-		" Лот     Предмет                                                    Цена \r\n"
-		"-------------------------------------------------------------------------\r\n";
+		" Лот     Предмет                                                     Цена  Состояние\r\n"
+		"--------------------------------------------------------------------------------------------\r\n";
 
 	for (EXCHANGE_ITEM_DATA* j = exchange_item_list; j; j = j->next)
 	{
@@ -1843,7 +1846,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 			sprintf(tmpbuf, "[%4d]   %s", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
 		}
 
-		sprintf(tmpbuf, "%-63s %9d\r\n", tmpbuf, GET_EXCHANGE_ITEM_COST(j));
+		sprintf(tmpbuf, "%-63s %9d  %-s\r\n", tmpbuf, GET_EXCHANGE_ITEM_COST(j), diag_obj_timer(GET_EXCHANGE_ITEM(j)));
 		// Такое вот кино, на выделения для каждой строчки тут уходило до 0.6 секунды при выводе всего базара. стринги рулят -- Krodo
 		buffer += tmpbuf;
 		any_item = 1;
