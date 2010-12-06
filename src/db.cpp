@@ -66,6 +66,7 @@
 #include "glory_misc.hpp"
 #include "shop_ext.hpp"
 #include "named_stuff.hpp"
+#include "celebrates.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -147,7 +148,7 @@ TIME_INFO_DATA time_info;	/* the infomation about the time    */
 struct weather_data weather_info;	/* the infomation about the weather */
 struct player_special_data dummy_mob;	/* dummy spec area for mobs     */
 struct reset_q_type reset_q;	/* queue of zones to be reset    */
-int supress_godsapply = FALSE;
+
 const FLAG_DATA clear_flags = { {0, 0, 0, 0} };
 
 struct portals_list_type *portals_list;	/* Список проталов для townportal */
@@ -240,7 +241,6 @@ int exchange_database_load(void);
 void load_socials(FILE * fl);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 void calc_easter(void);
-extern void calc_god_celebrate();
 void do_start(CHAR_DATA * ch, int newbie);
 int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BPLACE_UNDEFINED);
 extern void tascii(int *pointer, int num_planes, char *ascii);
@@ -462,6 +462,7 @@ ACMD(do_reboot)
 		load_mobraces();
 		GlobalDrop::init();
 		OfftopSystem::init();
+		Celebrates::load();
 	}
 	else if (!str_cmp(arg, "portals"))
 		init_portals();
@@ -546,6 +547,10 @@ ACMD(do_reboot)
 	else if (!str_cmp(arg, "named"))
 	{
 		NamedStuff::load();
+	}
+	else if (!str_cmp(arg, "celebrates"))
+	{
+		Celebrates::load();
 	}
 	else
 	{
@@ -1644,6 +1649,9 @@ void boot_db(void)
 	log("Init Parcel system.");
 	Parcel::load();
 
+	log("Load Celebrates ."); //Polud праздники. используются при ресете зон
+	Celebrates::load();
+
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
 	for (i = 0; i <= top_of_zone_table; i++)
 	{
@@ -1705,8 +1713,7 @@ void reset_time(void)
 		((time_info.year * MONTHS_PER_YEAR + time_info.month) * DAYS_PER_MONTH + time_info.day) % POLY_WEEK_CYCLE;
 	// Calculate Easter
 	calc_easter();
-	calc_god_celebrate();
-
+	
 	if (time_info.hours < sunrise[time_info.month][0])
 		weather_info.sunlight = SUN_DARK;
 	else if (time_info.hours == sunrise[time_info.month][0])
@@ -4685,6 +4692,188 @@ void log_zone_error(zone_rnum zone, int cmd_no, const char *message)
 	mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
 }
 
+void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
+{
+	Celebrates::CelebrateRoomsList::iterator room;
+	Celebrates::LoadList::iterator load, load_in;
+
+	log("Processing celebrate %s load section for zone %d", celebrate->name, vnum);
+
+	if (celebrate->rooms.find(vnum) != celebrate->rooms.end())
+	{
+		for (room = celebrate->rooms[vnum].begin();room != celebrate->rooms[vnum].end(); ++room)
+		{
+			room_rnum rn = real_room((*room)->vnum);
+			if ( rn != NOWHERE)
+			{
+				if (!(world[rn]->script))
+					CREATE(world[rn]->script, SCRIPT_DATA, 1);
+
+				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin(); 
+						it != (*room)->triggers.end(); ++it)
+					add_trigger(world[rn]->script,read_trigger(real_trigger(*it)), -1);
+			}
+
+			for (load = (*room)->mobs.begin(); load != (*room)->mobs.end(); ++load)
+			{
+				CHAR_DATA* mob;
+				OBJ_DATA* obj;
+				int i = real_mobile((*load)->vnum);
+				if (i > 0 && mob_index[i].number < (*load)->max)
+				{
+					mob = read_mobile(i, REAL);
+					if (mob)
+					{
+						if (!SCRIPT(mob))
+							CREATE(SCRIPT(mob), SCRIPT_DATA, 1);
+						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin(); 
+							it != (*load)->triggers.end(); ++it)
+							add_trigger(SCRIPT(mob), read_trigger(real_trigger(*it)), -1);
+						load_mtrigger(mob);
+						char_to_room(mob, real_room((*room)->vnum));
+						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in)
+						{
+							if ((obj_index[(*load_in)->vnum].number + 
+								obj_index[(*load_in)->vnum].stored < (*load_in)->max))
+							{
+								obj = read_object(real_object((*load_in)->vnum), REAL);
+								if (obj)
+			 					{
+									obj_to_char(obj, mob);
+									GET_OBJ_ZONE(obj) = world[IN_ROOM(mob)]->zone;
+
+									if (!SCRIPT(obj))
+										CREATE(SCRIPT(obj), SCRIPT_DATA, 1);
+									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin(); 
+											it != (*load_in)->triggers.end(); ++it)
+										add_trigger(SCRIPT(obj), read_trigger(real_trigger(*it)), -1);
+
+									load_otrigger(obj);
+								}
+								else
+									log("{Error] Processing celebrate %s while loading obj %d", celebrate->name, (*load_in)->vnum);
+							}
+						}
+					}
+					else
+						log("{Error] Processing celebrate %s while loading mob %d", celebrate->name, (*load)->vnum);
+				}
+			}
+			for (load = (*room)->objects.begin(); load != (*room)->objects.end(); ++load)
+			{
+				OBJ_DATA *obj, *obj_in;
+
+				if (obj_index[real_object((*load)->vnum)].number + 
+								obj_index[real_object((*load)->vnum)].stored < (*load)->max)
+				{
+					obj = read_object(real_object((*load)->vnum), REAL);
+					if (obj)
+					{
+						if (!SCRIPT(obj))
+							CREATE(SCRIPT(obj), SCRIPT_DATA, 1);
+						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin(); 
+							it != (*load)->triggers.end(); ++it)
+							add_trigger(SCRIPT(obj), read_trigger(real_trigger(*it)), -1);
+						load_otrigger(obj);
+
+						obj_to_room(obj, real_room((*room)->vnum));
+
+						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in)
+						{
+							if ((obj_index[real_object((*load_in)->vnum)].number + 
+								obj_index[real_object((*load_in)->vnum)].stored < (*load_in)->max))
+							{
+								obj_in = read_object(real_object((*load_in)->vnum), REAL);
+								if (obj_in && GET_OBJ_TYPE(obj) == ITEM_CONTAINER)
+			 					{
+									obj_to_obj(obj_in, obj);
+									GET_OBJ_ZONE(obj_in) = GET_OBJ_ZONE(obj);
+
+									if (!SCRIPT(obj_in))
+										CREATE(SCRIPT(obj_in), SCRIPT_DATA, 1);
+									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin(); 
+											it != (*load_in)->triggers.end(); ++it)
+										add_trigger(SCRIPT(obj_in), read_trigger(real_trigger(*it)), -1);
+
+									load_otrigger(obj_in);
+								}
+								else
+									log("{Error] Processing celebrate %s while loading obj %d", celebrate->name, (*load_in)->vnum);
+							}
+						}
+					}
+					else
+						log("{Error] Processing celebrate %s while loading mob %d", celebrate->name, (*load)->vnum);
+				}
+			}
+		}
+	}
+
+}
+
+void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_vnum)
+{
+	log("Processing celebrate %s attach section for zone %d", celebrate->name, zone_vnum);
+
+	if (celebrate->mobsToAttach.find(zone_vnum) != celebrate->mobsToAttach.end())
+	{
+		//поскольку единственным доступным способом получить всех мобов одного внума является 
+		//обход всего списка мобов в мире, то будем хотя бы 1 раз его обходить
+		Celebrates::AttachList list = celebrate->mobsToAttach[zone_vnum];
+		for (CHAR_DATA *ch = character_list; ch; ch=ch->next)
+		{
+			if (ch->nr > 0 && list.find(mob_index[ch->nr].vnum) != list.end())
+			{
+				if (!SCRIPT(ch))
+					CREATE(SCRIPT(ch), SCRIPT_DATA, 1);
+				for (Celebrates::TrigList::iterator it = list[mob_index[ch->nr].vnum].begin(); 
+						it != list[mob_index[ch->nr].vnum].end(); ++it)
+					add_trigger(SCRIPT(ch), read_trigger(real_trigger(*it)), -1);
+			}
+		}
+	}
+
+	if (celebrate->objsToAttach.find(zone_vnum) != celebrate->objsToAttach.end())
+	{
+		Celebrates::AttachList list = celebrate->objsToAttach[zone_vnum];
+		for (OBJ_DATA *o = object_list; o; o=o->next)
+		{
+			if (o->item_number > 0 && list.find(o->item_number) != list.end())
+			{
+				if (!SCRIPT(o))
+					CREATE(SCRIPT(o), SCRIPT_DATA, 1);
+				for (Celebrates::TrigList::iterator it = list[o->item_number].begin(); 
+						it != list[o->item_number].end(); ++it)
+					add_trigger(SCRIPT(o), read_trigger(real_trigger(*it)), -1);
+			}
+		}
+	}
+}
+
+void process_celebrates(int vnum)
+{
+	Celebrates::CelebrateDataPtr mono = Celebrates::get_mono_celebrate();
+	Celebrates::CelebrateDataPtr poly = Celebrates::get_poly_celebrate();
+	Celebrates::CelebrateDataPtr real = Celebrates::get_real_celebrate();
+
+	if (mono)
+	{
+		process_load_celebrate(mono, vnum);
+		process_attach_celebrate(mono, vnum);
+	}
+
+	if (poly)
+	{
+		process_load_celebrate(poly, vnum);
+		process_attach_celebrate(poly, vnum);
+	}
+	if (real)
+	{
+		process_load_celebrate(real, vnum);
+		process_attach_celebrate(real, vnum);
+	}
+}
+
 #define ZONE_ERROR(message) \
         { log_zone_error(zone, cmd_no, message); }
 
@@ -5116,6 +5305,8 @@ void reset_zone(zone_rnum zone)
 			paste_on_reset(room);
 		}
 	}
+	
+	process_celebrates(zone_table[zone].number);
 
 	for (rnum_start = 0; rnum_start <= top_of_zone_table; rnum_start++)
 	{
@@ -5992,10 +6183,8 @@ ACMD(do_remort)
 	while (ch->helpers)
 		REMOVE_FROM_LIST(ch->helpers, ch->helpers, next_helper);
 
-	supress_godsapply = TRUE;
 	while (ch->affected)
 		affect_remove(ch, ch->affected);
-	supress_godsapply = FALSE;
 
 	/*  for (i = 0; i < NUM_WEARS; i++)
 	      if (GET_EQ(ch,i))

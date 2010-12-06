@@ -425,9 +425,7 @@ extern INDEX_DATA *obj_index;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *mob_proto;
 extern const char *MENU;
-extern struct gods_celebrate_apply_type *Mono_apply;
-extern struct gods_celebrate_apply_type *Poly_apply;
-extern int supress_godsapply;
+
 extern struct portals_list_type *portals_list;
 extern TIME_INFO_DATA time_info;
 

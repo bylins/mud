@@ -44,7 +44,7 @@ extern struct zone_data *zone_table;
 extern struct spell_create_type spell_create[];
 extern int mini_mud;
 extern const char *spell_wear_off_msg[];
-extern int supress_godsapply;
+
 extern const char *cast_phrase[LAST_USED_SPELL + 1][2];
 extern int interpolate(int min_value, int pulse);
 
@@ -779,7 +779,7 @@ void mobile_affect_update(void)
 		i_next = i->next;
 		charmed_msg = FALSE;
 		was_charmed = FALSE;
-		supress_godsapply = TRUE;
+
 		bool was_purged = false;
 
 		for (af = i->affected; IS_NPC(i) && af; af = next)
@@ -828,7 +828,6 @@ void mobile_affect_update(void)
 
 		if (!was_purged)
 		{
-			supress_godsapply = FALSE;
 			//log("[MOBILE_AFFECT_UPDATE->AFFECT_TOTAL] (%s) Start",GET_NAME(i));
 			affect_total(i);
 			//log("[MOBILE_AFFECT_UPDATE->AFFECT_TOTAL] Stop");
@@ -872,7 +871,7 @@ void player_affect_update(void)
 
 		pulse_affect_update(i);
 
-		supress_godsapply = TRUE;
+	
 		bool was_purged = false;
 
 		for (af = i->affected; af; af = next)
@@ -919,7 +918,7 @@ void player_affect_update(void)
 		{
 			(void) MemQ_slots(i);	// сколько каких слотов занято (с коррекцией)
 
-			supress_godsapply = FALSE;
+			
 			//log("[PLAYER_AFFECT_UPDATE->AFFECT_TOTAL] Start");
 			affect_total(i);
 			//log("[PLAYER_AFFECT_UPDATE->AFFECT_TOTAL] Stop");
@@ -933,7 +932,7 @@ void battle_affect_update(CHAR_DATA * ch)
 {
 	AFFECT_DATA *af, *next;
 
-	supress_godsapply = TRUE;
+
 	for (af = ch->affected; af; af = next)
 	{
 		next = af->next;
@@ -975,7 +974,7 @@ void battle_affect_update(CHAR_DATA * ch)
 			affect_remove(ch, af);
 		}
 	}
-	supress_godsapply = FALSE;
+
 	//log("[BATTLE_AFFECT_UPDATE->AFFECT_TOTAL] Start");
 	affect_total(ch);
 	//log("[BATTLE_AFFECT_UPDATE->AFFECT_TOTAL] Stop");
@@ -991,7 +990,7 @@ void pulse_affect_update(CHAR_DATA * ch)
 	if (ch->get_fighting())
 		return;
 
-	supress_godsapply = TRUE;
+	
 	for (af = ch->affected; af; af = next)
 	{
 		next = af->next;
@@ -1024,7 +1023,6 @@ void pulse_affect_update(CHAR_DATA * ch)
 			affect_remove(ch, af);
 		}
 	}
-	supress_godsapply = FALSE;
 	if (pulse_aff)
 		affect_total(ch);
 }
@@ -4296,6 +4294,14 @@ int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, i
 		{
 			pk_agro_action(ch, victim->get_fighting());
 		}
+	}
+//Polud затычка для закла !удалить яд!. По хорошему нужно его переделать с параметром - тип удаляемого яда
+	if (spell == SPELL_POISON)
+	{
+		affect_from_char(victim, SPELL_ACONITUM_POISON);
+		affect_from_char(victim, SPELL_DATURA_POISON);
+		affect_from_char(victim, SPELL_SCOPOLIA_POISON);
+		affect_from_char(victim, SPELL_BELENA_POISON);
 	}
 	affect_from_char(victim, spell);
 	if (to_vict != NULL)

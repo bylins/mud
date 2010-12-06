@@ -246,10 +246,8 @@ void Character::purge(bool destructor)
 			free(this->mob_specials.Questor);
 	}
 
-	supress_godsapply = TRUE;
 	while (this->affected)
 		affect_remove(this, this->affected);
-	supress_godsapply = FALSE;
 
 	while (this->timed)
 		timed_from_char(this, this->timed);

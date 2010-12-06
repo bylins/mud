@@ -508,30 +508,6 @@ void affect_room_modify(ROOM_DATA * room, byte loc, sbyte mod, bitvector_t bitv,
 	}			/* switch */
 }
 
-void total_gods_affect(CHAR_DATA * ch)
-{
-	struct gods_celebrate_apply_type *cur = NULL;
-
-	if (IS_NPC(ch) || supress_godsapply)
-		return;
-	// Set new affects
-	if (GET_RELIGION(ch) == RELIGION_POLY)
-		cur = Poly_apply;
-	else
-		cur = Mono_apply;
-	// log("[GODAFFECT] Start function...");
-	for (; cur; cur = cur->next)
-		if (cur->gapply_type == GAPPLY_AFFECT)
-		{
-			affect_modify(ch, 0, 0, cur->modi, TRUE);
-		}
-		else if (cur->gapply_type == GAPPLY_MODIFIER)
-		{
-			affect_modify(ch, cur->what, cur->modi, 0, TRUE);
-		};
-	// log("[GODAFFECT] Stop function...");
-}
-
 
 int char_saved_aff[] = { AFF_GROUP,
 						 AFF_HORSE,
@@ -597,9 +573,6 @@ void affect_total(CHAR_DATA * ch)
 	{
 		(ch)->add_abils = (&mob_proto[GET_MOB_RNUM(ch)])->add_abils;
 	}
-
-	// Apply some GODS affects and modifiers
-	total_gods_affect(ch);
 
 	/* move object modifiers */
 	for (i = 0; i < NUM_WEARS; i++)

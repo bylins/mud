@@ -336,10 +336,8 @@ void Player::save_char()
 	 * remove the affections so that the raw values are stored; otherwise the
 	 * effects are doubled when the char logs back in.
 	 */
-	supress_godsapply = TRUE;
 	while (this->affected)
 		affect_remove(this, this->affected);
-	supress_godsapply = FALSE;
 
 	if ((i >= MAX_AFFECT) && aff && aff->next)
 		log("SYSERR: WARNING: OUT OF STORE ROOM FOR AFFECTED TYPES!!!");

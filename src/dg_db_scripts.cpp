@@ -163,7 +163,7 @@ TRIG_DATA *read_trigger(int nr)
 	index_data *index;
 	TRIG_DATA *trig;
 
-	if (nr >= top_of_trigt)
+	if (nr >= top_of_trigt || nr == -1)
 		return NULL;
 	if ((index = trig_index[nr]) == NULL)
 		return NULL;

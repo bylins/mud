@@ -54,7 +54,7 @@ extern vector < OBJ_DATA * >obj_proto;
 extern int max_exp_gain_npc;	/* see config.cpp */
 extern int max_npc_corpse_time, max_pc_corpse_time;
 extern int material_value[];
-extern int supress_godsapply;
+
 extern int r_helled_start_room;
 extern MobRaceListType mobraces_list;
 
@@ -622,14 +622,14 @@ void death_cry(CHAR_DATA * ch)
 void reset_affects(CHAR_DATA *ch)
 {
 	AFFECT_DATA *af, *naf;
-	supress_godsapply = TRUE;
+
 	for (af = ch->affected; af; af = naf)
 	{
 		naf = af->next;
 		if (!IS_SET(af->battleflag, AF_DEADKEEP))
 			affect_remove(ch, af);
 	}
-	supress_godsapply = FALSE;
+
 	affect_total(ch);
 }
 
@@ -4865,7 +4865,7 @@ CHAR_DATA *find_friend(CHAR_DATA * caster, int spellnum)
 		SET_BIT(AFF_USED, AFF_BLIND);
 		break;
 	case SPELL_REMOVE_POISON:
-		SET_BIT(AFF_USED, AFF_POISON);
+		SET_BIT(AFF_USED, AFF_POISON | AFF_SCOPOLIA_POISON | AFF_BELENA_POISON | AFF_DATURA_POISON);
 		break;
 	case SPELL_REMOVE_HOLD:
 		SET_BIT(AFF_USED, AFF_HOLD);
@@ -4925,7 +4925,7 @@ CHAR_DATA *find_caster(CHAR_DATA * caster, int spellnum)
 		SET_BIT(AFF_USED, AFF_BLIND);
 		break;
 	case SPELL_REMOVE_POISON:
-		SET_BIT(AFF_USED, AFF_POISON);
+		SET_BIT(AFF_USED, AFF_POISON | AFF_SCOPOLIA_POISON | AFF_BELENA_POISON | AFF_DATURA_POISON);
 		break;
 	case SPELL_REMOVE_HOLD:
 		SET_BIT(AFF_USED, AFF_HOLD);

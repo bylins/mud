@@ -1192,12 +1192,10 @@ char *race_or_title(CHAR_DATA * ch);
 int pc_duration(CHAR_DATA * ch, int cnst, int level, int level_divisor, int min, int max);
 
 /* Modifier functions */
-int god_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value);
 int day_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value);
 int weather_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value);
 int complex_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value);
 
-int god_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value);
 int day_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value);
 int weather_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value);
 int complex_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value);

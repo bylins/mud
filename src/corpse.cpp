@@ -3,7 +3,6 @@
 
 #include "corpse.hpp"
 #include "db.h"
-#include "xmlParser.h"
 #include "utils.h"
 #include "char.hpp"
 #include "comm.h"

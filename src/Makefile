@@ -36,7 +36,7 @@ OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	char.o char_player.o quested.o mobmax.o parcel.o liquid.o poison.o xmlParser.o \
 	corpse.o house_exp.o remember.o name_list.o dps.o obj.spell.o obj.o room.o \
 	spam.o AffectHandler.o glory_const.o pugixml.o pugixpath.o glory_misc.o \
-	shop_ext.o named_stuff.o version.o
+	shop_ext.o named_stuff.o version.o celebrates.o
 
 CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	act.offensive.cpp act.other.cpp act.social.cpp act.wizard.cpp alias.cpp ban.cpp \
@@ -54,7 +54,7 @@ CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	parcel.cpp liquid.cpp poison.cpp xmlParser.cpp corpse.cpp house_exp.cpp remember.cpp \
 	name_list.cpp dps.cpp obj.spell.cpp obj.cpp room.cpp spam.cpp AffectHandler.cpp \
 	glory_const.cpp pugixml.cpp pugixpath.cpp glory_misc.cpp shop_ext.cpp named_stuff.cpp \
-	version.cpp
+	version.cpp celebrates.cpp
 
 default: circle
 

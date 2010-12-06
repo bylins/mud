@@ -27,12 +27,11 @@
 #include "random.hpp"
 #include "char.hpp"
 #include "room.hpp"
+#include "celebrates.hpp"
 
 extern void script_timechange_trigger_check(const int time);//Эксопрт тригеров смены времени
 extern TIME_INFO_DATA time_info;
 
-extern struct gods_celebrate_type gods_celebrate[];
-extern struct gods_celebrate_apply_type gods_apply[];
 extern CHAR_DATA *character_list;
 
 void weather_and_time(int mode);
@@ -40,63 +39,66 @@ void another_hour(int mode);
 void weather_change(void);
 
 void calc_easter(void);
-void calc_god_celebrate(void);
 
 
 int EasterMonth = 0;
 int EasterDay = 0;
-int CurrentMonoCelebrate = 0;
-int CurrentPolyCelebrate = 0;
-struct gods_celebrate_apply_type *Mono_apply = NULL;
-struct gods_celebrate_apply_type *Poly_apply = NULL;
 
 
 void gods_day_now(CHAR_DATA * ch)
 {
-	char mono[MAX_INPUT_LENGTH], poly[MAX_INPUT_LENGTH];
-	int i;
+	char mono[MAX_INPUT_LENGTH], poly[MAX_INPUT_LENGTH], real[MAX_INPUT_LENGTH];
+
+	std::string mono_name = Celebrates::get_name_mono(Celebrates::get_mud_day());
+	std::string poly_name = Celebrates::get_name_poly(Celebrates::get_mud_day());
+	std::string real_name = Celebrates::get_name_real(Celebrates::get_real_day());
 
 	if (IS_IMMORTAL(ch))
 	{
 		sprintf(poly, "Язычники : %s Нет праздника. %s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		sprintf(mono, "Христиане: %s Нет праздника. %s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(real, "В реальном мире: %s Нет праздника. %s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 
-		for (i = 0; gods_celebrate[i].unique; i++)
+		if (mono_name != "")
 		{
-			if (gods_celebrate[i].unique == CurrentMonoCelebrate)
-				sprintf(mono, "Христиане: %s %s. %s\r\n", CCWHT(ch, C_NRM),
-						gods_celebrate[i].name, CCNRM(ch, C_NRM));
-			if (gods_celebrate[i].unique == CurrentPolyCelebrate)
-				sprintf(poly, "Язычники : %s %s. %s\r\n", CCWHT(ch, C_NRM),
-						gods_celebrate[i].name, CCNRM(ch, C_NRM));
+			sprintf(mono, "Христиане: %s %s. %s\r\n", CCWHT(ch, C_NRM),
+				mono_name.c_str(), CCNRM(ch, C_NRM));
 		}
+
+		if (poly_name != "")
+		{
+			sprintf(poly, "Язычники : %s %s. %s\r\n", CCWHT(ch, C_NRM),
+							poly_name.c_str(), CCNRM(ch, C_NRM));
+		}
+
+		if (real_name != "")
+		{
+			sprintf(real, "В реальном мире : %s %s. %s\r\n", CCWHT(ch, C_NRM),
+							real_name.c_str(), CCNRM(ch, C_NRM));
+		}
+
 		sprintf(mono + strlen(mono), "Пасха    : %d.%02d\r\n", EasterDay + 1, EasterMonth + 1);
 		send_to_char(poly, ch);
 		send_to_char(mono, ch);
+		send_to_char(real, ch);
 	}
 	else if (GET_RELIGION(ch) == RELIGION_POLY)
 	{
-		*poly = '\0';
-		for (i = 0; gods_celebrate[i].unique && CurrentPolyCelebrate; i++)
+		if (poly_name != "")
 		{
-			if (gods_celebrate[i].unique == CurrentPolyCelebrate)
-				sprintf(poly, "%s Сегодня %s. %s\r\n", CCWHT(ch, C_NRM),
-						gods_celebrate[i].name, CCNRM(ch, C_NRM));
-		}
-		if (*poly)
+			sprintf(poly, "%s Сегодня %s. %s\r\n", CCWHT(ch, C_NRM),
+						poly_name, CCNRM(ch, C_NRM));
 			send_to_char(poly, ch);
+		}
 	}
 	else if (GET_RELIGION(ch) == RELIGION_MONO)
 	{
-		*mono = '\0';
-		for (i = 0; gods_celebrate[i].unique && CurrentMonoCelebrate; i++)
+		if (mono_name != "")
 		{
-			if (gods_celebrate[i].unique == CurrentMonoCelebrate)
-				sprintf(mono, "%s Сегодня %s. %s\r\n", CCWHT(ch, C_NRM),
-						gods_celebrate[i].name, CCNRM(ch, C_NRM));
-		}
-		if (*mono)
+			sprintf(mono, "%s Сегодня %s. %s\r\n", CCWHT(ch, C_NRM),
+						mono_name, CCNRM(ch, C_NRM));
 			send_to_char(mono, ch);
+		}
 	}
 }
 
@@ -180,7 +182,6 @@ void another_hour(int mode)
 				calc_easter();
 			}
 		}
-		calc_god_celebrate();
 	}
 	//script_timechange_trigger_check(24);//просто смена часа
 	//script_timechange_trigger_check(time_info.hours);//выполняется для конкретного часа
@@ -1000,140 +1001,11 @@ void calc_easter(void)
 	EasterMonth = t.month;
 }
 
-void calc_god_celebrate(void)
-{
-	int easter_rel, i, fday, lday, cday;
-	struct gods_celebrate_apply_type *tmp;
-	CHAR_DATA *ch;
-
-	CurrentMonoCelebrate = 0;
-	CurrentPolyCelebrate = 0;
-	while (Mono_apply)
-	{
-		tmp = Mono_apply->next;
-		free(Mono_apply);
-		Mono_apply = tmp;
-	}
-	while (Poly_apply)
-	{
-		tmp = Poly_apply->next;
-		free(Poly_apply);
-		Poly_apply = tmp;
-	}
-	cday = time_info.month * DAYS_PER_MONTH + time_info.day;
-	easter_rel = (EasterMonth * DAYS_PER_MONTH + EasterDay) - cday;
-
-	for (i = 0; gods_celebrate[i].unique && !CurrentMonoCelebrate; i++)
-	{
-		if (!IS_SET(gods_celebrate[i].religion, MASK_RELIGION_MONO))
-			continue;
-		fday = lday = -1;
-		// Absolute month
-		if (gods_celebrate[i].from_month > 0)
-		{
-			fday = (gods_celebrate[i].from_month - 1) * DAYS_PER_MONTH - (gods_celebrate[i].from_day + 1);
-			lday = fday + gods_celebrate[i].duration;
-		}
-		// Relative month
-		else
-		{
-			switch (gods_celebrate[i].from_month)
-			{
-			case DAY_EASTER:
-				fday = (EasterMonth * DAYS_PER_MONTH) + EasterDay + gods_celebrate[i].from_day - 1;
-				lday = fday + gods_celebrate[i].duration;
-				break;
-			default:
-				break;
-			}
-		}
-		if (cday >= fday && cday < lday)
-		{
-			CurrentMonoCelebrate = gods_celebrate[i].unique;
-			break;
-		};
-	}
-	if (CurrentMonoCelebrate)
-		for (i = 0; gods_apply[i].unique; i++)
-			if (gods_apply[i].unique == CurrentMonoCelebrate)
-			{
-				CREATE(tmp, struct gods_celebrate_apply_type, 1);
-				*tmp = gods_apply[i];
-				tmp->next = Mono_apply;
-				Mono_apply = tmp;
-			}
-
-	for (i = 0; gods_celebrate[i].unique && !CurrentPolyCelebrate; i++)
-	{
-		if (!IS_SET(gods_celebrate[i].religion, MASK_RELIGION_POLY))
-			continue;
-		fday = lday = -1;
-		// Absolute month
-		if (gods_celebrate[i].from_month > 0)
-		{
-			fday = (gods_celebrate[i].from_month - 1) * DAYS_PER_MONTH - (gods_celebrate[i].from_day + 1);
-			lday = fday + gods_celebrate[i].duration;
-		}
-		// Relative month
-		else
-		{
-			switch (gods_celebrate[i].from_month)
-			{
-			case DAY_EASTER:
-				fday = (EasterMonth * DAYS_PER_MONTH) + EasterDay + gods_celebrate[i].from_day - 1;
-				lday = fday + gods_celebrate[i].duration;
-				break;
-			default:
-				break;
-			}
-		}
-		if (cday >= fday && cday < lday)
-		{
-			CurrentPolyCelebrate = gods_celebrate[i].unique;
-			break;
-		};
-	}
-	if (CurrentPolyCelebrate)
-		for (i = 0; gods_apply[i].unique; i++)
-			if (gods_apply[i].unique == CurrentPolyCelebrate)
-			{
-				CREATE(tmp, struct gods_celebrate_apply_type, 1);
-				*tmp = gods_apply[i];
-				tmp->next = Poly_apply;
-				Poly_apply = tmp;
-			}
-	for (ch = character_list; ch; ch = ch->next)  	//log("[CALC_GOD_SELEBRATE->AFFECT_TOTAL] Start");
-	{
-		affect_total(ch);
-		//log("[CALC_GOD_SELEBRATE->AFFECT_TOTAL] Stop");
-	}
-}
-
 
 const int moon_modifiers[28] = { -10, -9, -7, -5, -3, 0, 0, 0, 0, 0, 0, 0, 1, 5, 10, 5, 1, 0, 0, 0, 0, 0,
 								 0, 0, -2, -5, -7, -9
 							   };
 
-
-int god_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value)
-{
-	int modi = value;
-	struct gods_celebrate_apply_type *cur = NULL;
-	if (IS_NPC(ch))
-		return (modi);
-	if (GET_RELIGION(ch) == RELIGION_POLY)
-		cur = Poly_apply;
-	else
-		cur = Mono_apply;
-	for (; cur; cur = cur->next)
-		if (cur->gapply_type == type && cur->what == spellnum)
-		{
-			modi = modi * (100 + cur->modi) / 100;
-		}
-	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))
-		modi = MAX(modi, value);
-	return (modi);
-}
 
 int day_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value)
 {
@@ -1221,33 +1093,11 @@ int weather_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value)
 int complex_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value)
 {
 	int modi = value;
-	modi = god_spell_modifier(ch, spellnum, type, modi);
 	modi = day_spell_modifier(ch, spellnum, type, modi);
 	modi = weather_spell_modifier(ch, spellnum, type, modi);
 	return (modi);
 }
 
-
-int god_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value)
-{
-	int modi = value;
-	struct gods_celebrate_apply_type *cur = NULL;
-
-	if (IS_NPC(ch))
-		return (modi);
-	if (GET_RELIGION(ch) == RELIGION_POLY)
-		cur = Poly_apply;
-	else
-		cur = Mono_apply;
-	for (; cur; cur = cur->next)
-		if (cur->gapply_type == type && cur->what == skillnum)
-		{
-			modi = modi * (100 + cur->modi) / 100;
-		}
-	if (WAITLESS(ch))
-		modi = MAX(modi, value);
-	return (modi);
-}
 
 int day_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value)
 {
@@ -1312,7 +1162,6 @@ int weather_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value)
 int complex_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value)
 {
 	int modi = value;
-	modi = god_skill_modifier(ch, skillnum, type, modi);
 	modi = day_skill_modifier(ch, skillnum, type, modi);
 	modi = weather_skill_modifier(ch, skillnum, type, modi);
 	return (modi);

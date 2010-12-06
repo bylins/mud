@@ -1947,35 +1947,12 @@ struct pray_affect_type
 
 #define  DAY_EASTER     -1
 
-struct gods_celebrate_type
-{
-	int unique;	// Uniqum ID
-	const char *name; // Celebrate
-	int from_day; // Day of month, -1 and less if in range
-	int from_month; // Month, -1 and less if relative
-	int duration;
-	int religion; // Religion type
-};
-
 #define  GAPPLY_NONE                 0
 #define  GAPPLY_SKILL_SUCCESS        1
 #define  GAPPLY_SPELL_SUCCESS        2
 #define  GAPPLY_SPELL_EFFECT         3
 #define         GAPPLY_MODIFIER             4
 #define         GAPPLY_AFFECT               5
-
-struct gods_celebrate_apply_type
-{
-	int
-	unique;
-	int
-	gapply_type;
-	int
-	what;
-	int
-	modi;
-	struct gods_celebrate_apply_type *next;
-};
 
 /* pclean_criteria_data структура которая определяет через какой время
    неактивности будет удален чар
