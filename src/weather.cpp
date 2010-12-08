@@ -87,7 +87,7 @@ void gods_day_now(CHAR_DATA * ch)
 		if (poly_name != "")
 		{
 			sprintf(poly, "%s Сегодня %s. %s\r\n", CCWHT(ch, C_NRM),
-						poly_name, CCNRM(ch, C_NRM));
+				poly_name.c_str(), CCNRM(ch, C_NRM));
 			send_to_char(poly, ch);
 		}
 	}
@@ -96,7 +96,7 @@ void gods_day_now(CHAR_DATA * ch)
 		if (mono_name != "")
 		{
 			sprintf(mono, "%s Сегодня %s. %s\r\n", CCWHT(ch, C_NRM),
-						mono_name, CCNRM(ch, C_NRM));
+						mono_name.c_str(), CCNRM(ch, C_NRM));
 			send_to_char(mono, ch);
 		}
 	}
