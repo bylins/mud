@@ -4697,7 +4697,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 	Celebrates::CelebrateRoomsList::iterator room;
 	Celebrates::LoadList::iterator load, load_in;
 
-	log("Processing celebrate %s load section for zone %d", celebrate->name, vnum);
+	log("Processing celebrate %s load section for zone %d", celebrate->name.c_str(), vnum);
 
 	if (celebrate->rooms.find(vnum) != celebrate->rooms.end())
 	{
@@ -4751,12 +4751,12 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 									load_otrigger(obj);
 								}
 								else
-									log("{Error] Processing celebrate %s while loading obj %d", celebrate->name, (*load_in)->vnum);
+									log("{Error] Processing celebrate %s while loading obj %d", celebrate->name.c_str(), (*load_in)->vnum);
 							}
 						}
 					}
 					else
-						log("{Error] Processing celebrate %s while loading mob %d", celebrate->name, (*load)->vnum);
+						log("{Error] Processing celebrate %s while loading mob %d", celebrate->name.c_str(), (*load)->vnum);
 				}
 			}
 			for (load = (*room)->objects.begin(); load != (*room)->objects.end(); ++load)
@@ -4798,12 +4798,12 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 									load_otrigger(obj_in);
 								}
 								else
-									log("{Error] Processing celebrate %s while loading obj %d", celebrate->name, (*load_in)->vnum);
+									log("{Error] Processing celebrate %s while loading obj %d", celebrate->name.c_str(), (*load_in)->vnum);
 							}
 						}
 					}
 					else
-						log("{Error] Processing celebrate %s while loading mob %d", celebrate->name, (*load)->vnum);
+						log("{Error] Processing celebrate %s while loading mob %d", celebrate->name.c_str(), (*load)->vnum);
 				}
 			}
 		}
@@ -4813,7 +4813,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 
 void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_vnum)
 {
-	log("Processing celebrate %s attach section for zone %d", celebrate->name, zone_vnum);
+	log("Processing celebrate %s attach section for zone %d", celebrate->name.c_str(), zone_vnum);
 
 	if (celebrate->mobsToAttach.find(zone_vnum) != celebrate->mobsToAttach.end())
 	{
