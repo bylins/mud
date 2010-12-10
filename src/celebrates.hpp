@@ -24,7 +24,7 @@ struct ToLoad
 typedef std::map<int, TrigList> AttachList; //mob vnum, списк триггеров
 typedef std::map<int, AttachList> AttachZonList; //zone_num, список для аттача
 
-struct СelebrateRoom
+struct CelebrateRoom
 {
 	int vnum;
 	TrigList triggers;
@@ -32,7 +32,7 @@ struct СelebrateRoom
 	LoadList objects;
 };
 
-typedef boost::shared_ptr<СelebrateRoom> CelebrateRoomPtr;
+typedef boost::shared_ptr<CelebrateRoom> CelebrateRoomPtr;
 typedef std::vector<CelebrateRoomPtr> CelebrateRoomsList;
 typedef std::map<int, CelebrateRoomsList> CelebrateZonList;//номер зоны, список комнат
 

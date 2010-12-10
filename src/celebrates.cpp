@@ -95,7 +95,7 @@ void parse_load_section(pugi::xml_node node, CelebrateDataPtr holiday)
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return;
 		}
-		CelebrateRoomPtr tmp_room(new óelebrateRoom);
+		CelebrateRoomPtr tmp_room(new CelebrateRoom);
 		tmp_room->vnum = vnum;
 		parse_trig_list(room, &tmp_room->triggers);
 		for (pugi::xml_node mob=room.child("mob"); mob; mob = mob.next_sibling("mob"))
