@@ -4733,8 +4733,9 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 						char_to_room(mob, real_room((*room)->vnum));
 						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in)
 						{
-							if ((obj_index[(*load_in)->vnum].number + 
-								obj_index[(*load_in)->vnum].stored < (*load_in)->max))
+							obj_rnum rnum = real_object((*load_in)->vnum);
+
+							if (obj_index[rnum].number + obj_index[rnum].stored < obj_proto[rnum]->max_in_world)
 							{
 								obj = read_object(real_object((*load_in)->vnum), REAL);
 								if (obj)
@@ -4761,10 +4762,17 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 			}
 			for (load = (*room)->objects.begin(); load != (*room)->objects.end(); ++load)
 			{
-				OBJ_DATA *obj, *obj_in;
+				OBJ_DATA *obj, *obj_in, *obj_room;
+				obj_rnum rnum = real_object((*load)->vnum);
+				int obj_in_room = 0;
 
-				if (obj_index[real_object((*load)->vnum)].number + 
-								obj_index[real_object((*load)->vnum)].stored < (*load)->max)
+				for (obj_room = world[rn]->contents;
+						obj_room; obj_room = obj_room->next_content)
+					if (rnum == GET_OBJ_RNUM(obj_room))
+						obj_in_room++;
+
+				if ((obj_index[rnum].number + obj_index[rnum].stored < obj_proto[rnum]->max_in_world)
+					&& (obj_in_room < (*load)->max))
 				{
 					obj = read_object(real_object((*load)->vnum), REAL);
 					if (obj)
@@ -4780,8 +4788,9 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 
 						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in)
 						{
-							if ((obj_index[real_object((*load_in)->vnum)].number + 
-								obj_index[real_object((*load_in)->vnum)].stored < (*load_in)->max))
+							obj_rnum rnum = real_object((*load_in)->vnum);
+
+							if (obj_index[rnum].number + obj_index[rnum].stored < obj_proto[rnum]->max_in_world)
 							{
 								obj_in = read_object(real_object((*load_in)->vnum), REAL);
 								if (obj_in && GET_OBJ_TYPE(obj) == ITEM_CONTAINER)
