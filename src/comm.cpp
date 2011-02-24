@@ -61,6 +61,7 @@
 #include "room.hpp"
 #include "glory_misc.hpp"
 #include "glory_const.hpp"
+#include "celebrates.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -1573,6 +1574,11 @@ inline void heartbeat()
 			SpellUsage::clear();
 		}
 
+	}
+//Polud раз в 12 часов организуем зачистку после праздника
+	if (!((pulse+7) % (12*60*60*PASSES_PER_SEC)))
+	{
+		Celebrates::sanitize();
 	}
 	//log("---------- Stop heartbeat ----------");
 }

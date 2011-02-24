@@ -1,12 +1,18 @@
 #include "pugixml.hpp"
 
-#include "celebrates.hpp"
 #include "conf.h"
 #include "sysdep.h"
-#include "structs.h"
 #include "utils.h"
 #include "comm.h"
 #include "db.h"
+#include "dg_scripts.h"
+#include "celebrates.hpp"
+#include "char.hpp"
+#include "handler.h"
+
+extern void extract_trigger(TRIG_DATA * trig);
+extern CHAR_DATA* character_list;
+extern OBJ_DATA *object_list;
 
 
 namespace Celebrates
@@ -15,6 +21,31 @@ namespace Celebrates
 int tab_day [12]= {31,28,31,30,31,30,31,31,30,31,30,31};//да и хрен с ним, с 29 февраля!
 
 CelebrateList mono_celebrates, poly_celebrates, real_celebrates;
+typedef std::vector<long> CelebrateUids;
+
+CelebrateUids loaded_mobs, attached_mobs;
+CelebrateUids loaded_objs, attached_objs;
+
+void add_mob_to_attach_list(long uid)
+{
+	if (std::find(attached_mobs.begin(), attached_mobs.end(), uid) == attached_mobs.end())
+		attached_mobs.push_back(uid);
+}
+void add_mob_to_load_list(long uid)
+{
+	if (std::find(loaded_mobs.begin(), loaded_mobs.end(), uid) == loaded_mobs.end())
+		loaded_mobs.push_back(uid);
+}
+void add_obj_to_attach_list(long uid)
+{
+	if (std::find(attached_objs.begin(), attached_objs.end(), uid) == attached_objs.end())
+		attached_objs.push_back(uid);
+}
+void add_obj_to_load_list(long uid)
+{
+	if (std::find(loaded_objs.begin(), loaded_objs.end(), uid) == loaded_objs.end())
+		loaded_objs.push_back(uid);
+}
 
 int get_real_hour()
 {
@@ -210,6 +241,7 @@ void load_celebrates(pugi::xml_node node_list, CelebrateList &celebrates, bool i
 		tmp_day->celebrate = tmp_holiday;
 		tmp_day->start_at = 0;
 		tmp_day->finish_at = 24;
+		tmp_day->is_clean = true;
 		celebrates[baseDay] = tmp_day;
 		if (start>0)
 		{
@@ -224,6 +256,7 @@ void load_celebrates(pugi::xml_node node_list, CelebrateList &celebrates, bool i
 			tmp_day1->celebrate = tmp_holiday;
 			tmp_day1->start_at = 24-start;
 			tmp_day1->finish_at = 24;
+			tmp_day1->is_clean = true;
 			dayBefore = get_previous_day(dayBefore, is_real);
 			celebrates[dayBefore] = tmp_day1;
 		}
@@ -240,6 +273,7 @@ void load_celebrates(pugi::xml_node node_list, CelebrateList &celebrates, bool i
 			tmp_day2->celebrate = tmp_holiday;
 			tmp_day2->start_at = 0;
 			tmp_day2->finish_at = end;
+			tmp_day2->is_clean = true;
 			dayAfter = get_next_day(dayAfter, is_real);
 			celebrates[dayAfter] = tmp_day2;
 		}
@@ -269,6 +303,7 @@ void load()
 	load_celebrates(poly_node_list, poly_celebrates, false);
 	pugi::xml_node real_node_list = node_list.child("celebratesReal");//Российские праздники
 	load_celebrates(real_node_list, real_celebrates, true);
+	CelebrateList l = poly_celebrates;
 }
 
 int get_mud_day()
@@ -292,7 +327,10 @@ CelebrateDataPtr get_mono_celebrate()
 	CelebrateDataPtr result = CelebrateDataPtr();
 	if (mono_celebrates.find(day) != mono_celebrates.end())
 		if (time_info.hours >= mono_celebrates[day]->start_at && time_info.hours <= mono_celebrates[day]->finish_at)
+		{
 			result = mono_celebrates[day]->celebrate;
+			mono_celebrates[day]->is_clean = false;
+		}
 	return result;
 };
 
@@ -302,7 +340,10 @@ CelebrateDataPtr get_poly_celebrate()
 	CelebrateDataPtr result = CelebrateDataPtr();
 	if (poly_celebrates.find(day) != poly_celebrates.end())
 		if (time_info.hours >= poly_celebrates[day]->start_at && time_info.hours <= poly_celebrates[day]->finish_at)
+		{
 			result = poly_celebrates[day]->celebrate;
+			poly_celebrates[day]->is_clean = false;
+		}
 	return result;
 };
 
@@ -312,8 +353,170 @@ CelebrateDataPtr get_real_celebrate()
 	CelebrateDataPtr result = CelebrateDataPtr();
 	if (real_celebrates.find(day) != real_celebrates.end())
 		if (get_real_hour() >= real_celebrates[day]->start_at && get_real_hour() <= real_celebrates[day]->finish_at)
+		{
 			result = real_celebrates[day]->celebrate;
+			real_celebrates[day]->is_clean = false;
+		}
 	return result;
 };
+
+void remove_triggers(TrigList trigs, script_data* sc)
+{
+	TrigList::const_iterator it;
+	TRIG_DATA *tr, *tmp;
+	
+	for (it = trigs.begin(); it!= trigs.end();++it)
+	{
+		for (tmp = NULL, tr = TRIGGERS(sc); tr; tmp = tr, tr = tr->next)
+		{
+			if (trig_index[tr->nr]->vnum == *it)
+				break;
+		}
+
+		if (tr)
+		{
+			if (tmp)
+			{
+				tmp->next = tr->next;
+				extract_trigger(tr);
+			}
+			/* this was the first trigger */
+			else
+			{
+				TRIGGERS(sc) = tr->next;
+				extract_trigger(tr);
+			}
+			/* update the script type bitvector */
+			SCRIPT_TYPES(sc) = 0;
+			for (tr = TRIGGERS(sc); tr; tr = tr->next)
+				SCRIPT_TYPES(sc) |= GET_TRIG_TYPE(tr);
+		}
+	}
+}
+
+
+bool make_clean (CelebrateDataPtr celebrate)
+{
+	CelebrateZonList::iterator zon;
+	CelebrateRoomsList::iterator room;
+	AttachZonList::iterator att;
+
+
+	std::vector<int> mobs_to_remove, objs_to_remove;
+	AttachList mobs_to_deatch, objs_to_deatch;
+
+	
+	for (att = celebrate->mobsToAttach.begin(); att !=celebrate->mobsToAttach.end();++att)
+	{
+		mobs_to_deatch.insert(att->second.begin(), att->second.end());
+	}
+	for (att = celebrate->objsToAttach.begin(); att !=celebrate->objsToAttach.end();++att)
+	{
+		objs_to_deatch.insert(att->second.begin(), att->second.end());
+	}
+	for (zon = celebrate->rooms.begin(); zon != celebrate->rooms.end(); ++zon)
+	{
+		for (room = zon->second.begin(); room != zon->second.end(); ++room)
+		{
+			LoadList::const_iterator it;
+			for (it = (*room)->mobs.begin(); it!= (*room)->mobs.end(); ++it)
+				mobs_to_remove.push_back((*it)->vnum);
+			for (it = (*room)->objects.begin(); it!= (*room)->objects.end(); ++it)
+				objs_to_remove.push_back((*it)->vnum);
+		}
+	}
+
+//поехали... обходим все мобы и предметы в мире, хача по дороге неугодные нам...
+	CHAR_DATA* tmp;
+	int vnum;
+	CelebrateUids::iterator uid;
+	
+	for (CHAR_DATA *ch=character_list;ch;ch=tmp)
+	{
+		tmp=ch->next;
+		vnum = mob_index[ch->nr].vnum;
+	
+		uid = std::find(attached_mobs.begin(), attached_mobs.end(), ch->get_uid());
+
+		if (mobs_to_deatch.find(vnum)!= mobs_to_deatch.end() && uid != attached_mobs.end())
+		{
+			remove_triggers(mobs_to_deatch[vnum], ch->script);
+			attached_mobs.erase(uid);
+		}
+
+		if (SCRIPT(ch) && !TRIGGERS(SCRIPT(ch)))
+		{
+			free_script(SCRIPT(ch));	// без комментариев
+			SCRIPT(ch) = NULL;
+		}			
+		uid = std::find(loaded_mobs.begin(), loaded_mobs.end(), ch->get_uid());
+		if (std::find(mobs_to_remove.begin(), mobs_to_remove.end(), vnum) != mobs_to_remove.end()
+			&& uid != loaded_mobs.end())
+		{
+			extract_char(ch, 0);
+			loaded_mobs.erase(uid);
+		}
+
+	}
+	OBJ_DATA* tmpo;	
+	for (OBJ_DATA *o=object_list;o;o=tmpo)
+	{
+		tmpo=o->next;
+		vnum = o->item_number;
+
+		uid = std::find(attached_objs.begin(), attached_objs.end(), o->uid);
+
+		if (objs_to_deatch.find(vnum)!= objs_to_deatch.end() && uid != attached_objs.end())
+		{
+			remove_triggers(objs_to_deatch[vnum], o->script);
+			attached_objs.erase(uid);
+		}
+
+		if (SCRIPT(o) && !TRIGGERS(SCRIPT(o)))
+		{
+			free_script(SCRIPT(o));	// без комментариев
+			SCRIPT(o) = NULL;
+		}			
+		uid = std::find(loaded_objs.begin(), loaded_objs.end(), o->uid);
+		if (std::find(objs_to_remove.begin(), objs_to_remove.end(), vnum) != objs_to_remove.end()
+			&& uid != loaded_objs.end())
+		{
+			extract_obj(o);
+			loaded_objs.erase(uid);
+		}
+
+	}
+
+	return true;//пока не знаю зачем
+}
+
+void clear_real_celebrates(CelebrateList celebrates)
+{
+	CelebrateList::iterator it;
+	for (it = celebrates.begin();it != celebrates.end(); ++it)
+	{
+		if (!it->second->is_clean && get_real_day()!=it->first) 
+			if (make_clean(it->second->celebrate))
+				it->second->is_clean = true;
+	}
+}
+
+void clear_mud_celebrates(CelebrateList celebrates)
+{
+	CelebrateList::iterator it;
+	for (it = celebrates.begin();it != celebrates.end(); ++it)
+	{
+		if (!it->second->is_clean && get_mud_day()!=it->first) 
+			if (make_clean(it->second->celebrate))
+				it->second->is_clean = true;
+	}
+}
+
+void sanitize()
+{
+	clear_real_celebrates(real_celebrates);
+	clear_mud_celebrates(poly_celebrates);
+	clear_mud_celebrates(mono_celebrates);
+}
 
 }

@@ -214,6 +214,7 @@ void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum);
 void script_trigger_check(void);
 void script_timechange_trigger_check(const int time);
 void add_trigger(struct script_data *sc, TRIG_DATA * t, int loc);
+int remove_trigger(SCRIPT_DATA * sc, char *name, TRIG_DATA ** trig_addr);
 
 void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig);
 void do_sstat_room(CHAR_DATA * ch);

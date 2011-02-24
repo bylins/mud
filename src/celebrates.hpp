@@ -48,6 +48,7 @@ typedef boost::shared_ptr<CelebrateData> CelebrateDataPtr;
 
 struct CelebrateDay
 {
+	bool is_clean;
 	int start_at;
 	int finish_at;
 	CelebrateDataPtr celebrate;
@@ -55,6 +56,7 @@ struct CelebrateDay
 
 typedef boost::shared_ptr<CelebrateDay> CelebrateDayPtr;
 typedef std::map<int, CelebrateDayPtr> CelebrateList; //номер дня в году, праздник
+
 
 CelebrateDataPtr get_mono_celebrate();
 CelebrateDataPtr get_poly_celebrate();
@@ -68,6 +70,13 @@ int get_mud_day();
 int get_real_day();
 
 void load();
+void sanitize();
+
+void add_mob_to_attach_list(long);
+void add_mob_to_load_list(long);
+void add_obj_to_attach_list(long);
+void add_obj_to_load_list(long);
+
 };
 
 #endif //CELEBRATES_HPP_INCLUDED

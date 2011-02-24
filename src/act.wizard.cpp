@@ -52,6 +52,7 @@
 #include "glory_misc.hpp"
 #include "glory_const.hpp"
 #include "shop_ext.hpp"
+#include "celebrates.hpp"
 
 /*   external vars  */
 extern bool need_warn;
@@ -5434,3 +5435,8 @@ ACMD(do_spellstat)
 	send_to_char("заклстат: неизвестный аргумент\r\n", ch);
 }
 //-Polud
+ACMD(do_sanitize)
+{
+	send_to_char("Запущена процедура сбора мусора после праздника...\r\n", ch);
+	Celebrates::sanitize();
+}

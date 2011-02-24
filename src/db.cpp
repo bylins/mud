@@ -4731,6 +4731,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 							add_trigger(SCRIPT(mob), read_trigger(real_trigger(*it)), -1);
 						load_mtrigger(mob);
 						char_to_room(mob, real_room((*room)->vnum));
+						Celebrates::add_mob_to_load_list(mob->get_uid());
 						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in)
 						{
 							obj_rnum rnum = real_object((*load_in)->vnum);
@@ -4750,6 +4751,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 										add_trigger(SCRIPT(obj), read_trigger(real_trigger(*it)), -1);
 
 									load_otrigger(obj);
+									Celebrates::add_obj_to_load_list(obj->uid);
 								}
 								else
 									log("{Error] Processing celebrate %s while loading obj %d", celebrate->name.c_str(), (*load_in)->vnum);
@@ -4783,6 +4785,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 							it != (*load)->triggers.end(); ++it)
 							add_trigger(SCRIPT(obj), read_trigger(real_trigger(*it)), -1);
 						load_otrigger(obj);
+						Celebrates::add_obj_to_load_list(obj->uid);
 
 						obj_to_room(obj, real_room((*room)->vnum));
 
@@ -4805,6 +4808,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 										add_trigger(SCRIPT(obj_in), read_trigger(real_trigger(*it)), -1);
 
 									load_otrigger(obj_in);
+									Celebrates::add_obj_to_load_list(obj->uid);
 								}
 								else
 									log("{Error] Processing celebrate %s while loading obj %d", celebrate->name.c_str(), (*load_in)->vnum);
@@ -4838,6 +4842,7 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 				for (Celebrates::TrigList::iterator it = list[mob_index[ch->nr].vnum].begin(); 
 						it != list[mob_index[ch->nr].vnum].end(); ++it)
 					add_trigger(SCRIPT(ch), read_trigger(real_trigger(*it)), -1);
+				Celebrates::add_mob_to_attach_list(ch->get_uid());
 			}
 		}
 	}
@@ -4854,6 +4859,7 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 				for (Celebrates::TrigList::iterator it = list[o->item_number].begin(); 
 						it != list[o->item_number].end(); ++it)
 					add_trigger(SCRIPT(o), read_trigger(real_trigger(*it)), -1);
+				Celebrates::add_obj_to_attach_list(o->uid);
 			}
 		}
 	}

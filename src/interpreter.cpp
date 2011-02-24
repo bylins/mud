@@ -400,7 +400,7 @@ ACMD(do_dmeter);
 ACMD(do_mystat);
 ACMD(do_zone);
 ACMD(do_bandage);
-
+ACMD(do_sanitize);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -579,6 +579,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"заточить", POS_RESTING, do_upgrade, 0, 0, 500},
 	{"заучить", POS_RESTING, do_remember, 0, 0, 0},
 	{"зачитать", POS_RESTING, do_use, 0, SCMD_RECITE, 500},
+	{"зачистить", POS_DEAD, do_sanitize, LVL_GRGOD, 0, 0},
 	{"золото", POS_RESTING, do_gold, 0, 0, 0},
 	{"зона", POS_RESTING, do_zone, 0, 0, 0},
 

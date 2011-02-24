@@ -3501,6 +3501,8 @@ ACMD(do_time)
 	if (GET_RELIGION(ch) == RELIGION_MONO || IS_IMMORTAL(ch))
 		sprintf(buf + strlen(buf), "%s, %dй День, Год %d",
 				month_name[(int) time_info.month], day, time_info.year);
+	if (IS_IMMORTAL(ch))
+		sprintf(buf + strlen(buf), "\r\n %d.%d.%d", day, time_info.month+1, time_info.year);
 	switch (weather_info.season)
 	{
 	case SEASON_WINTER:
