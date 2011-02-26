@@ -3035,6 +3035,25 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 
 					return;
 				}
+ 				//mixaz  Выдаем список объектов в комнате
+ 				else
+ 				if (!str_cmp(field, "objects"))
+ 				{
+					int inroom;
+ 					// Составление списка (для room)
+ 					inroom = real_room(r->number);
+ 					if (inroom == NOWHERE)
+ 					{
+ 						trig_log(trig, "room-построитель списка в NOWHERE");
+						return;
+ 					}
+ 					for (obj = world[inroom]->contents; obj; obj = obj->next_content)
+ 					{
+ 							sprintf(str + strlen(str), "%c%ld ", UID_OBJ, GET_ID(obj));
+ 					}
+ 					return;
+ 				}
+ 				//mixaz - end
 				else
 				{
 					sprintf(buf2, "Type: %d. unknown room field: '%s'", type, field);
