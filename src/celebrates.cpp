@@ -465,7 +465,7 @@ bool make_clean (CelebrateDataPtr celebrate)
 		tmpo=o->next;
 		vnum = o->item_number;
 
-		uid = std::find(attached_objs.begin(), attached_objs.end(), o->uid);
+		uid = std::find(attached_objs.begin(), attached_objs.end(), (int)o->uid);
 
 		if (objs_to_deatch.find(vnum)!= objs_to_deatch.end() && uid != attached_objs.end())
 		{
