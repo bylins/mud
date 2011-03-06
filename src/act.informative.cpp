@@ -1714,8 +1714,12 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 				{
 					int chance = get_pick_chance(skill_pick, rdata->lock_complexity);
 					int index = chance ? chance/5 + 1 : 0;
+					
+					std::string color = Locks[index][1];
+					if (abs(skill_pick - rdata->lock_complexity)>10)
+						color = KIDRK;
 					if (COLOR_LEV(ch)>C_NRM)
-						count += sprintf(buf+count-2, Locks[index][0], Locks[index][1], KNRM);
+						count += sprintf(buf+count-2, Locks[index][0], color.c_str(), KNRM);
 					else
 						count += sprintf(buf+count-2, Locks[index][0], KNUL, KNUL);
 				}
@@ -1919,8 +1923,12 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 					{
 						int chance = get_pick_chance(skill_pick, GET_OBJ_VAL(obj, 3));
 						int index = chance ? chance/5 + 1 : 0;
+						std::string color = Locks[index][1];
+						if (abs(skill_pick - GET_OBJ_VAL(obj, 3))>10)
+							color = KIDRK;
+
 						if (COLOR_LEV(ch)>C_NRM)
-							count += sprintf(buf + count, Locks[index][0], Locks[index][1], KNRM);
+							count += sprintf(buf + count, Locks[index][0], color.c_str(), KNRM);
 						else
 							count += sprintf(buf + count, Locks[index][0], KNUL, KNUL);
 					}
