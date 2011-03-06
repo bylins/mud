@@ -2438,7 +2438,11 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				sprintf(str, "%d", GET_SIZE_ADD(c));
 			}
 			else if (!str_cmp(field, "room"))
-				sprintf(str, "%d", IN_ROOM(c));
+			{
+				int n = find_room_uid(world[IN_ROOM(c)]->number);
+				if (n >= 0)
+					sprintf(str, "%c%d", UID_ROOM, n);
+			}
 			else if (!str_cmp(field, "realroom"))
 				sprintf(str, "%d", world[IN_ROOM(c)]->number);
 			else if (!str_cmp(field, "loadroom"))

@@ -518,6 +518,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"вернуть", POS_STANDING, do_not_here, 0, 0, -1},
 	{"вернуться", POS_DEAD, do_return, 0, 0, -1},
 	{"войти", POS_STANDING, do_enter, 0, 0, -2},
+	{"война", POS_RESTING, DoShowWars, 0, 0, 0},
 	{"вооружиться", POS_RESTING, do_wield, 0, 0, 200},
 	{"возврат", POS_RESTING, do_recall, 0, 0, -1},
 	{"воззвать", POS_DEAD, do_pray_gods, 0, 0, -1},

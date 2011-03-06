@@ -230,6 +230,7 @@ public:
 	friend ACMD(DoClanPkList);
 	friend ACMD(DoStoreHouse);
 	friend ACMD(do_clanstuff);
+	friend ACMD(DoShowWars);
 
 	// клан пк
 	ClanPkLog pk_log;

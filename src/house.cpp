@@ -1781,6 +1781,53 @@ void Clan::SetPolitics(int victim, int state)
 
 const char *politicsnames[] = { "Нейтралитет", "Война", "Альянс" };
 
+//Polud будем показывать всем происходящие войны
+ACMD(DoShowWars)
+{
+	if (IS_NPC(ch))	return;
+	ClanListType::const_iterator clan1, clan2;
+
+	std::string buffer = argument;
+	boost::trim_if(buffer, boost::is_any_of(" \'"));
+
+	std::ostringstream buffer3;
+	buffer3 << "Дружины, находящиеся в состоянии войны:\r\n";
+
+	if (!buffer.empty())
+	{
+		for (clan1 = Clan::ClanList.begin(); clan1 != Clan::ClanList.end(); ++clan1)
+			if (CompareParam(buffer, (*clan1)->abbrev))
+				break;
+		if (clan1 == Clan::ClanList.end())
+		{
+			send_to_char("Такая дружина не зарегистрирована\r\n", ch);
+			return;
+		}
+		for (clan2 = Clan::ClanList.begin(); clan2 != Clan::ClanList.end(); ++clan2)
+		{
+			if (clan2==clan1) continue;
+			if ((*clan1)->CheckPolitics((*clan2)->rent) == POLITICS_WAR)
+				buffer3<< " "<<(*clan1)->abbrev<< " против "<<(*clan2)->abbrev << "\r\n";
+		}
+	}
+	else
+	{
+		for (clan1 = Clan::ClanList.begin(); clan1 != Clan::ClanList.end(); ++clan1)
+		{
+			for (clan2 = Clan::ClanList.begin(); clan2 != Clan::ClanList.end(); ++clan2)
+			{
+				if (clan2==clan1) continue;
+				if ((*clan1)->CheckPolitics((*clan2)->rent) == POLITICS_WAR)
+					buffer3<< " "<<(*clan1)->abbrev<< " против "<<(*clan2)->abbrev << "\r\n";
+			}
+		}
+	}
+	buffer3<< "\r\n";
+	send_to_char(buffer3.str(), ch);
+
+}
+//-Polud
+
 // выводим информацию об отношениях дружин между собой
 ACMD(DoShowPolitics)
 {
@@ -1797,6 +1844,8 @@ ACMD(DoShowPolitics)
 		CLAN(ch)->ManagePolitics(ch, buffer);
 		return;
 	}
+	ClanListType::const_iterator clanVictim;
+
 	boost::format strFormat("  %-3s             %s%-11s%s                 %s%-11s%s\r\n");
 	int p1 = 0, p2 = 0;
 
@@ -1804,7 +1853,6 @@ ACMD(DoShowPolitics)
 	buffer2 << "Отношения Вашей дружины с другими дружинами:\r\n" <<
 	"Название     Отношение Вашей дружины     Отношение к Вашей дружине\r\n";
 
-	ClanListType::const_iterator clanVictim;
 	for (clanVictim = Clan::ClanList.begin(); clanVictim != Clan::ClanList.end(); ++clanVictim)
 	{
 		if (*clanVictim == CLAN(ch))

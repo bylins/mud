@@ -2452,7 +2452,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		return 0;
 
 	// No fight mobiles
-	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOFIGHT))
+	if ((IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOFIGHT)) || (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_NOFIGHT)))
 	{
 		return 0;
 	}
