@@ -478,7 +478,7 @@ bool make_clean (CelebrateDataPtr celebrate)
 			free_script(SCRIPT(o));	// без комментариев
 			SCRIPT(o) = NULL;
 		}			
-		uid = std::find(loaded_objs.begin(), loaded_objs.end(), o->uid);
+		uid = std::find(loaded_objs.begin(), loaded_objs.end(), (int)o->uid);
 		if (std::find(objs_to_remove.begin(), objs_to_remove.end(), vnum) != objs_to_remove.end()
 			&& uid != loaded_objs.end())
 		{
