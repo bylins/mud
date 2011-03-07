@@ -1028,7 +1028,7 @@ ACMD(do_findhelpee)
 {
 	CHAR_DATA *helpee;
 	struct follow_type *k;
-	AFFECT_DATA af;
+	AFFECT_DATA af, *aff;
 	int cost=0, times, i;
 	char isbank[MAX_INPUT_LENGTH];
 
@@ -1054,7 +1054,6 @@ ACMD(do_findhelpee)
 				// added by WorM (Видолюб) 2010.06.04 Cохраняем цену найма моба
 				if (!IS_IMMORTAL(ch))
 				{
-					AFFECT_DATA *aff;
 					for (aff = k->follower->affected; aff; aff = aff->next)
 					 if (aff->type==SPELL_CHARM)
 					{
@@ -1102,126 +1101,133 @@ ACMD(do_findhelpee)
 	for (k = ch->followers; k; k = k->next)
 		if (AFF_FLAGGED(k->follower, AFF_HELPER) && AFF_FLAGGED(k->follower, AFF_CHARM))
 			break;
-	if (k)
-	{
-		act("Вы уже наняли $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
-		return;
-	}
 
 	if (helpee == ch)
 		send_to_char("И как Вы это представляете - нанять самого себя ?\r\n", ch);
 	else if (!IS_NPC(helpee))
 		send_to_char("Вы не можете нанять реального игрока !\r\n", ch);
+	else if (!NPC_FLAGGED(helpee, NPC_HELPED))
+		act("$N не нанимается !", FALSE, ch, 0, helpee, TO_CHAR);
+	else if (k && helpee != k->follower)
+		act("Вы ужа наняли $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
+	else if (AFF_FLAGGED(helpee, AFF_CHARM) && (!k  || (k && helpee != k->follower)))
+		act("$N под чьим-то контролем.", FALSE, ch, 0, helpee, TO_CHAR);
+	else if (AFF_FLAGGED(helpee, AFF_DEAFNESS))
+		act("$N не слышит Вас.", FALSE, ch, 0, helpee, TO_CHAR);
+	else if (IS_HORSE(helpee))
+		send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
+	else if (helpee->get_fighting() || GET_POS(helpee) < POS_RESTING)
+		act("$M сейчас, похоже, не до Вас.", FALSE, ch, 0, helpee, TO_CHAR);
+	else if (circle_follow(helpee, ch))
+		send_to_char("Следование по кругу запрещено.\r\n", ch);
 	else
-//if (!WAITLESS(ch) && !NPC_FLAGGED(helpee, NPC_HELPED))
-		if (!NPC_FLAGGED(helpee, NPC_HELPED))
-			act("$N не нанимается !", FALSE, ch, 0, helpee, TO_CHAR);
-		else if (AFF_FLAGGED(helpee, AFF_CHARM))
-			act("$N под чьим-то контролем.", FALSE, ch, 0, helpee, TO_CHAR);
-		else if (AFF_FLAGGED(helpee, AFF_DEAFNESS))
-			act("$N не слышит Вас.", FALSE, ch, 0, helpee, TO_CHAR);
-		else if (IS_HORSE(helpee))
-			send_to_char("Это боевой скакун, а не хухры-мухры.\r\n", ch);
-		else if (helpee->get_fighting() || GET_POS(helpee) < POS_RESTING)
-			act("$M сейчас, похоже, не до Вас.", FALSE, ch, 0, helpee, TO_CHAR);
-		else if (circle_follow(helpee, ch))
-			send_to_char("Следование по кругу запрещено.\r\n", ch);
+	{
+		two_arguments(argument, arg, isbank);
+		if (!*arg)
+			times = 0;
+		else if ((times = atoi(arg)) < 0)
+		{
+			act("Уточните время, на которое Вы хотите нанять $N3.", FALSE, ch, 0, helpee, TO_CHAR);
+			return;
+		}
+		if (!times)  	//cost = GET_LEVEL(helpee) * TIME_KOEFF;
+		{
+			cost = calc_hire_price(ch, helpee);
+			sprintf(buf,
+					"$n сказал$g Вам : \"Один час моих услуг стоит %d %s\".\r\n",
+					cost, desc_count(cost, WHAT_MONEYu));
+			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+			return;
+		}
+		i = calc_hire_price(ch, helpee);
+		cost = (WAITLESS(ch) ? 0 : 1) * i * times;
+// проверка на overflow - не совсем корректно, но в принципе годится
+		sprintf(buf1, "%d", i);
+		if (cost < 0 || (strlen(buf1) + strlen(arg)) > 9)
+		{
+			cost = 100000000;
+			sprintf(buf, "$n сказал$g Вам : \" Хорошо, не буду жадничать, скину тебе немного с цены.\"");
+			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+		}
+		if ((!isname(isbank, "банк bank") && cost > ch->get_gold()) ||
+				(isname(isbank, "банк bank") && cost > ch->get_bank()))
+		{
+			sprintf(buf,
+					"$n сказал$g Вам : \" Мои услуги за %d %s стоят %d %s - это тебе не по карману.\"",
+					times, desc_count(times, WHAT_HOUR), cost, desc_count(cost, WHAT_MONEYu));
+			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+			return;
+		}
+		/*    if (GET_LEVEL(ch) < GET_LEVEL(helpee))
+				 {sprintf(buf,"$n сказал$g Вам : \" Вы слишком малы для того, чтоб я служил Вам.\"");
+				  act(buf,FALSE,helpee,0,ch,TO_VICT|CHECK_DEAF);
+				  return;
+				 }	 */
+		if (helpee->master && helpee->master != ch)
+		{
+			if (stop_follower(helpee, SF_MASTERDIE))
+				return;
+		}
+
+		if (!(k && k->follower == helpee))
+		{
+			add_follower(helpee, ch);
+			af.duration = pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
+		}
 		else
 		{
-			two_arguments(argument, arg, isbank);
-			if (!*arg)
-				times = 0;
-			else if ((times = atoi(arg)) < 0)
-			{
-				act("Уточните время, на которое Вы хотите нанять $N3.", FALSE, ch, 0, helpee, TO_CHAR);
-				return;
-			}
-			if (!times)  	//cost = GET_LEVEL(helpee) * TIME_KOEFF;
-			{
-				cost = calc_hire_price(ch, helpee);
-				sprintf(buf,
-						"$n сказал$g Вам : \"Один час моих услуг стоит %d %s\".\r\n",
-						cost, desc_count(cost, WHAT_MONEYu));
-				act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
-				return;
-			}
-			//cost =  (WAITLESS(ch) ? 0 : 1) * GET_LEVEL(helpee) * TIME_KOEFF * times;
-			i = calc_hire_price(ch, helpee);
-			cost = (WAITLESS(ch) ? 0 : 1) * i * times;
-// проверка на overflow - не совсем корректно, но в принципе годится
-			sprintf(buf1, "%d", i);
-			if (cost < 0 || (strlen(buf1) + strlen(arg)) > 9)
-			{
-				cost = 100000000;
-				sprintf(buf, "$n сказал$g Вам : \" Хорошо, не буду жадничать, скину тебе немного с цены.\"");
-				act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
-			}
-			if ((!isname(isbank, "банк bank") && cost > ch->get_gold()) ||
-					(isname(isbank, "банк bank") && cost > ch->get_bank()))
-			{
-				sprintf(buf,
-						"$n сказал$g Вам : \" Мои услуги за %d %s стоят %d %s - это тебе не по карману.\"",
-						times, desc_count(times, WHAT_HOUR), cost, desc_count(cost, WHAT_MONEYu));
-				act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
-				return;
-			}
-			/*    if (GET_LEVEL(ch) < GET_LEVEL(helpee))
-			         {sprintf(buf,"$n сказал$g Вам : \" Вы слишком малы для того, чтоб я служил Вам.\"");
-			          act(buf,FALSE,helpee,0,ch,TO_VICT|CHECK_DEAF);
-			          return;
-			         }	 */
-			if (helpee->master)
-			{
-				if (stop_follower(helpee, SF_MASTERDIE))
-					return;
-			}
-
-			if (isname(isbank, "банк bank"))
-			{
-				ch->remove_bank(cost);
-				helpee->mob_specials.hire_price = -i;// added by WorM (Видолюб) 2010.06.04 Сохраняем цену по которой наняли моба через банк
-			}
-			else
-			{
-				ch->remove_gold(cost);
-				helpee->mob_specials.hire_price = i;// added by WorM (Видолюб) 2010.06.04 Сохраняем цену по которой наняли моба
-			}
-
-			affect_from_char(helpee, AFF_CHARM);
-			add_follower(helpee, ch);
-			af.type = SPELL_CHARM;
-			af.duration = pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
-			af.modifier = 0;
-			af.location = 0;
-			af.bitvector = AFF_CHARM;
-			af.battleflag = 0;
-			affect_to_char(helpee, &af);
-			SET_BIT(AFF_FLAGS(helpee, AFF_HELPER), AFF_HELPER);
-			sprintf(buf, "$n сказал$g Вам : \"Приказывай, %s !\"",
-					GET_SEX(ch) == IS_FEMALE(ch) ? "хозяйка" : "хозяин");
-			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
-			if (IS_NPC(helpee))
-			{
-				for (i = 0; i < NUM_WEARS; i++)
-					if (GET_EQ(helpee, i))
-					{
-						if (!remove_otrigger(GET_EQ(helpee, i), helpee))
-							continue;
-						act("Вы прекратили использовать $o3.", FALSE, helpee, GET_EQ(helpee, i), 0, TO_CHAR);
-						act("$n прекратил$g использовать $o3.", TRUE, helpee, GET_EQ(helpee, i), 0, TO_ROOM);
-						obj_to_char(unequip_char(helpee, i | 0x40), helpee);
-					}
-				REMOVE_BIT(MOB_FLAGS(helpee, MOB_AGGRESSIVE), MOB_AGGRESSIVE);
-				REMOVE_BIT(MOB_FLAGS(helpee, MOB_SPEC), MOB_SPEC);
-				REMOVE_BIT(PRF_FLAGS(helpee, PRF_PUNCTUAL), PRF_PUNCTUAL);
-				// shapirus: !train для чармисов
-				SET_BIT(MOB_FLAGS(helpee, MOB_NOTRAIN), MOB_NOTRAIN);
-				helpee->set_skill(SKILL_PUNCTUAL, 0);
-				// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
-				Crash_crashsave(ch);
-				ch->save_char();
-			}
+			for (aff = k->follower->affected; aff; aff = aff->next)
+			if (aff->type==SPELL_CHARM)
+				break;
+			if (aff)
+				af.duration = aff->duration + pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
 		}
+
+		affect_from_char(helpee, AFF_CHARM);
+
+		if (isname(isbank, "банк bank"))
+		{
+			ch->remove_bank(cost);
+			helpee->mob_specials.hire_price = -i;// added by WorM (Видолюб) 2010.06.04 Сохраняем цену по которой наняли моба через банк
+		}
+		else
+		{
+			ch->remove_gold(cost);
+			helpee->mob_specials.hire_price = i;// added by WorM (Видолюб) 2010.06.04 Сохраняем цену по которой наняли моба
+		}
+
+		af.type = SPELL_CHARM;
+		af.modifier = 0;
+		af.location = 0;
+		af.bitvector = AFF_CHARM;
+		af.battleflag = 0;
+		affect_to_char(helpee, &af);
+		SET_BIT(AFF_FLAGS(helpee, AFF_HELPER), AFF_HELPER);
+		sprintf(buf, "$n сказал$g Вам : \"Приказывай, %s !\"",
+				GET_SEX(ch) == IS_FEMALE(ch) ? "хозяйка" : "хозяин");
+		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+		if (IS_NPC(helpee))
+		{
+			for (i = 0; i < NUM_WEARS; i++)
+				if (GET_EQ(helpee, i))
+				{
+					if (!remove_otrigger(GET_EQ(helpee, i), helpee))
+						continue;
+					act("Вы прекратили использовать $o3.", FALSE, helpee, GET_EQ(helpee, i), 0, TO_CHAR);
+					act("$n прекратил$g использовать $o3.", TRUE, helpee, GET_EQ(helpee, i), 0, TO_ROOM);
+					obj_to_char(unequip_char(helpee, i | 0x40), helpee);
+				}
+			REMOVE_BIT(MOB_FLAGS(helpee, MOB_AGGRESSIVE), MOB_AGGRESSIVE);
+			REMOVE_BIT(MOB_FLAGS(helpee, MOB_SPEC), MOB_SPEC);
+			REMOVE_BIT(PRF_FLAGS(helpee, PRF_PUNCTUAL), PRF_PUNCTUAL);
+			// shapirus: !train для чармисов
+			SET_BIT(MOB_FLAGS(helpee, MOB_NOTRAIN), MOB_NOTRAIN);
+			helpee->set_skill(SKILL_PUNCTUAL, 0);
+			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
+			Crash_crashsave(ch);
+			ch->save_char();
+		}
+	}
 }
 
 void show_weapon(CHAR_DATA * ch, OBJ_DATA * obj)
