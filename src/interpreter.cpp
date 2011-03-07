@@ -389,6 +389,7 @@ ACMD(DoHouse);
 ACMD(DoClanChannel);
 ACMD(DoClanList);
 ACMD(DoShowPolitics);
+ACMD(DoShowWars);
 ACMD(DoHcontrol);
 ACMD(DoWhoClan);
 ACMD(DoClanPkList);
