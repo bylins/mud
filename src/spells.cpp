@@ -1183,7 +1183,7 @@ ACMD(do_findhelpee)
 				af.duration = aff->duration + pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
 		}
 
-		affect_from_char(helpee, AFF_CHARM);
+		affect_from_char(helpee, SPELL_CHARM);
 
 		if (isname(isbank, "банк bank"))
 		{
