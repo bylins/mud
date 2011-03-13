@@ -1108,8 +1108,6 @@ ACMD(do_findhelpee)
 		send_to_char("Вы не можете нанять реального игрока !\r\n", ch);
 	else if (!NPC_FLAGGED(helpee, NPC_HELPED))
 		act("$N не нанимается !", FALSE, ch, 0, helpee, TO_CHAR);
-	else if (k && helpee != k->follower)
-		act("Вы ужа наняли $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
 	else if (AFF_FLAGGED(helpee, AFF_CHARM) && (!k  || (k && helpee != k->follower)))
 		act("$N под чьим-то контролем.", FALSE, ch, 0, helpee, TO_CHAR);
 	else if (AFF_FLAGGED(helpee, AFF_DEAFNESS))
@@ -1139,6 +1137,13 @@ ACMD(do_findhelpee)
 			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 			return;
 		}
+
+		if (k && helpee != k->follower)
+		{
+			act("Вы уже наняли $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
+			return;
+		}
+
 		i = calc_hire_price(ch, helpee);
 		cost = (WAITLESS(ch) ? 0 : 1) * i * times;
 // проверка на overflow - не совсем корректно, но в принципе годится
