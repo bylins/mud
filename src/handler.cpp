@@ -2724,6 +2724,17 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	if (ch->desc && ch->desc->original)
 		do_return(ch, NULL, 0, 0);
 
+    // на плееров сейчас тоже триги вешают
+	free_script(SCRIPT(ch));	// без комментариев
+	SCRIPT(ch) = NULL;	// т.к. реально char будет удален позже
+	// нужно обнулить его script_data, иначе
+	// там начнут искать random_triggers
+	if (SCRIPT_MEM(ch))
+	{
+		extract_script_mem(SCRIPT_MEM(ch));
+		SCRIPT_MEM(ch) = NULL;	// Аналогично предыдущему комментарию
+	}
+
 	if (!IS_NPC(ch))
 	{
 		log("[Extract char] All save for PC");
@@ -2740,16 +2751,6 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		if ((GET_MOB_RNUM(ch) > -1) && (!MOB_FLAGGED(ch, MOB_RESURRECTED)))	/* if mobile и не умертвие*/
 			mob_index[GET_MOB_RNUM(ch)].number--;
 		clearMemory(ch);	/* Only NPC's can have memory */
-
-		free_script(SCRIPT(ch));	// без комментариев
-		SCRIPT(ch) = NULL;	// т.к. реально char будет удален позже
-		// нужно обнулить его script_data, иначе
-		// там начнут искать random_triggers
-		if (SCRIPT_MEM(ch))
-		{
-			extract_script_mem(SCRIPT_MEM(ch));
-			SCRIPT_MEM(ch) = NULL;	// Аналогично предыдущему комментарию
-		}
 
 		SET_BIT(MOB_FLAGS(ch, MOB_FREE), MOB_FREE);
 		ch->purge();
