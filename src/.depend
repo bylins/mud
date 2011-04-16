@@ -338,3 +338,51 @@ xmlParser.o: xmlParser.cpp xmlParser.h
 corpse.o: corpse.cpp corpse.hpp conf.h sysdep.h structs.h db.h utils.h \
   features.hpp obj.hpp pugixml.hpp pugiconfig.hpp char.hpp player_i.hpp \
   comm.h handler.h dg_scripts.h im.h room.hpp
+house_exp.o: house_exp.cpp house_exp.hpp conf.h sysdep.h char.hpp \
+  structs.h player_i.hpp utils.h features.hpp obj.hpp pugixml.hpp \
+  pugiconfig.hpp house.h db.h interpreter.h remember.hpp comm.h room.hpp
+remember.o: remember.cpp remember.hpp conf.h sysdep.h structs.h utils.h \
+  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h db.h char.hpp \
+  player_i.hpp interpreter.h screen.h house.h house_exp.hpp room.hpp
+name_list.o: name_list.cpp name_list.hpp conf.h sysdep.h structs.h \
+  utils.h features.hpp obj.hpp pugixml.hpp pugiconfig.hpp char.hpp \
+  player_i.hpp handler.h interpreter.h
+dps.o: dps.cpp dps.hpp conf.h sysdep.h structs.h utils.h features.hpp \
+  obj.hpp pugixml.hpp pugiconfig.hpp comm.h char.hpp player_i.hpp \
+  interpreter.h db.h handler.h
+obj.spell.o: obj.spell.cpp conf.h sysdep.h structs.h spells.h utils.h \
+  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h screen.h \
+  poison.hpp char.hpp player_i.hpp db.h room.hpp
+obj.o: obj.cpp obj.hpp conf.h sysdep.h structs.h utils.h features.hpp \
+  pugixml.hpp pugiconfig.hpp
+room.o: room.cpp room.hpp conf.h sysdep.h structs.h
+spam.o: spam.cpp spam.hpp conf.h sysdep.h structs.h utils.h features.hpp \
+  obj.hpp pugixml.hpp pugiconfig.hpp char.hpp player_i.hpp comm.h
+AffectHandler.o: AffectHandler.cpp AffectHandler.hpp char.hpp conf.h \
+  sysdep.h structs.h player_i.hpp utils.h features.hpp obj.hpp \
+  pugixml.hpp pugiconfig.hpp handler.h spells.h
+glory_const.o: glory_const.cpp pugixml.hpp pugiconfig.hpp glory_const.hpp \
+  conf.h sysdep.h interpreter.h utils.h features.hpp obj.hpp structs.h \
+  screen.h char.hpp player_i.hpp comm.h db.h genchar.h handler.h \
+  char_player.hpp quested.hpp mobmax.hpp remember.hpp dps.hpp \
+  glory_misc.hpp
+pugixml.o: pugixml.cpp pugixml.hpp pugiconfig.hpp
+pugixpath.o: pugixpath.cpp pugixml.hpp pugiconfig.hpp
+glory_misc.o: glory_misc.cpp glory_misc.hpp conf.h sysdep.h structs.h \
+  glory.hpp interpreter.h utils.h features.hpp obj.hpp pugixml.hpp \
+  pugiconfig.hpp glory_const.hpp genchar.h char.hpp player_i.hpp db.h \
+  screen.h comm.h char_player.hpp quested.hpp mobmax.hpp remember.hpp \
+  dps.hpp modify.h
+shop_ext.o: shop_ext.cpp pugixml.hpp pugiconfig.hpp shop_ext.hpp conf.h \
+  sysdep.h interpreter.h utils.h features.hpp obj.hpp structs.h char.hpp \
+  player_i.hpp db.h comm.h shop.h handler.h constants.h room.hpp \
+  glory.hpp glory_const.hpp screen.h house.h house_exp.hpp remember.hpp
+named_stuff.o: named_stuff.cpp pugixml.hpp pugiconfig.hpp named_stuff.hpp \
+  conf.h sysdep.h interpreter.h utils.h features.hpp obj.hpp structs.h \
+  screen.h char.hpp player_i.hpp comm.h db.h handler.h house.h \
+  house_exp.hpp remember.hpp dg_scripts.h
+version.o: version.cpp conf.h sysdep.h structs.h comm.h utils.h \
+  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp
+celebrates.o: celebrates.cpp pugixml.hpp pugiconfig.hpp conf.h sysdep.h \
+  utils.h features.hpp obj.hpp structs.h comm.h db.h dg_scripts.h \
+  celebrates.hpp char.hpp player_i.hpp handler.h

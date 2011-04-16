@@ -993,8 +993,8 @@ void battle_affect_update(CHAR_DATA * ch)
 
 void round_affect_update()
 {
-	log("round_affect_update start");
 	AFFECT_DATA *af, *next;
+	bool flag = false;
 
 	for (CHAR_DATA *i = character_list; i; i = i->next)
 	{
@@ -1009,6 +1009,7 @@ void round_affect_update()
 			{
 				continue;
 			}
+			flag = true;
 			if (af->duration >= 1)
 			{
 				af->duration--;
@@ -1040,9 +1041,11 @@ void round_affect_update()
 				affect_remove(i, af);
 			}
 		}
-		affect_total(i);
+		if (flag)
+		{
+			affect_total(i);
+		}
 	}
-	log("round_affect_update stop");
 }
 
 /*
