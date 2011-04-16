@@ -190,8 +190,8 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 				af.bitvector = AFF_STOPFIGHT;
 				af.location = 0;
 				af.modifier = 0;
-				af.duration = pc_duration(vict, 1, 0, 0, 0, 0);
-				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+				af.duration = 1;
+				af.battleflag = AF_ROUNDDEC;
 				affect_join(vict, &af, TRUE, FALSE, TRUE, FALSE);
 				return victim;
 			}

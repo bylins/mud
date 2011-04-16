@@ -3679,16 +3679,16 @@ ACMD(do_bandage)
 	af.type = SPELL_BANDAGE;
 	af.location = APPLY_NONE;
 	af.modifier = GET_OBJ_VAL(bandage, 0);
-	af.duration = pc_duration(ch, 10, 0, 0, 0, 0);
+	af.duration = 5;
 	af.bitvector = AFF_BANDAGE;
-	af.battleflag = AF_PULSEDEC;
+	af.battleflag = AF_ROUNDDEC;
 	affect_join(ch, &af, 0, 0, 0, 0);
 
 	af.type = SPELL_NO_BANDAGE;
 	af.location = APPLY_NONE;
-	af.duration = pc_duration(ch, 60, 0, 0, 0, 0);
+	af.duration = 30;
 	af.bitvector = AFF_NO_BANDAGE;
-	af.battleflag = AF_PULSEDEC;
+	af.battleflag = AF_ROUNDDEC;
 	affect_join(ch, &af, 0, 0, 0, 0);
 
 	GET_OBJ_WEIGHT(bandage) -= 1;

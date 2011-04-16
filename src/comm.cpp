@@ -62,6 +62,7 @@
 #include "glory_misc.hpp"
 #include "glory_const.hpp"
 #include "celebrates.hpp"
+#include "magic.h"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -1310,6 +1311,11 @@ inline void heartbeat()
 	{
 		zone_update();
 		//log("Stop it...");
+	}
+
+	if (!((pulse + 51) % (2 * PASSES_PER_SEC)))
+	{
+		round_affect_update();
 	}
 
 	if (!((pulse + 49) % (60 * 60 * PASSES_PER_SEC)))
