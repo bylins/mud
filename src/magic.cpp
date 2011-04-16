@@ -994,7 +994,6 @@ void battle_affect_update(CHAR_DATA * ch)
 void round_affect_update()
 {
 	AFFECT_DATA *af, *next;
-	bool flag = false;
 
 	for (CHAR_DATA *i = character_list; i; i = i->next)
 	{
@@ -1002,6 +1001,7 @@ void round_affect_update()
 		{
 			continue;
 		}
+		bool flag = false;
 		for (af = i->affected; af; af = next)
 		{
 			next = af->next;
