@@ -3686,7 +3686,7 @@ ACMD(do_bandage)
 
 	af.type = SPELL_NO_BANDAGE;
 	af.location = APPLY_NONE;
-	af.duration = 30;
+	af.duration = 35;
 	af.bitvector = AFF_NO_BANDAGE;
 	af.battleflag = AF_ROUNDDEC;
 	affect_join(ch, &af, 0, 0, 0, 0);
