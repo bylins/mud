@@ -641,6 +641,16 @@ void forget_all_spells(CHAR_DATA *ch)
 	}
 }
 
+bool check_free_pk(CHAR_DATA * ch, CHAR_DATA * killer)
+{
+	if (FREE_PK_MODE && (!IS_NPC(killer) || ((IS_CHARMICE(killer) || IS_HORSE(killer))
+			&& killer->master && !IS_NPC(killer->master))))
+	{
+		return true;
+	}
+	return false;
+}
+
 void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 {
 	CHAR_DATA *hitter;
@@ -816,16 +826,6 @@ int can_loot(CHAR_DATA * ch)
 			return TRUE;
 	}
 	return FALSE;
-}
-
-bool check_free_pk(CHAR_DATA * ch, CHAR_DATA * killer)
-{
-	if (FREE_PK_MODE && (!IS_NPC(killer) || ((IS_CHARMICE(killer) || IS_HORSE(killer))
-			&& killer->master && !IS_NPC(killer->master))))
-	{
-		return true;
-	}
-	return false;
 }
 
 void die(CHAR_DATA * ch, CHAR_DATA * killer)
