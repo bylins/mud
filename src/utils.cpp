@@ -351,7 +351,7 @@ void write_test_time(FILE *file)
 	time_t ct = tv.tv_sec;
 
 	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
-	fprintf(file, "%s.%ld :: ", time_buf, tv.tv_usec);
+	fprintf(file, "%s.%06ld :: ", time_buf, tv.tv_usec);
 }
 
 /*
