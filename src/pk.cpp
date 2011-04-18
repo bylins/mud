@@ -29,7 +29,6 @@ ACMD(do_revenge);
 
 extern CHAR_DATA *character_list;
 
-
 #define FirstPK  1
 #define SecondPK 5
 #define ThirdPK	 10
@@ -378,7 +377,6 @@ void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim)
 
 void pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 {
-
 	pk_translate_pair(&agressor, &victim);
 	switch (pk_action_type(agressor, victim))
 	{
@@ -489,6 +487,10 @@ void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim)
 
 void pk_revenge_action(CHAR_DATA * killer, CHAR_DATA * victim)
 {
+	if (FREE_PK_MODE)
+	{
+		return;
+	}
 
 	if (killer)
 	{
@@ -517,9 +519,16 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim)
 	struct PK_Memory_type *pk;
 
 	pk_translate_pair(&agressor, &victim);
-	if (!agressor || !victim || agressor == victim || ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA) || ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA) ||	// предотвращаем баги с чармисами и ареной
-			IS_NPC(agressor) || IS_NPC(victim))
+	if (FREE_PK_MODE
+		|| !agressor
+		|| !victim
+		|| agressor == victim
+		|| ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA)
+		|| ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)
+		|| /* предотвращаем баги с чармисами и ареной */IS_NPC(agressor) || IS_NPC(victim))
+	{
 		return PK_ACTION_NO;
+	}
 
 	// Душегубов можно бить когда угодно и кому угодно
 	// Клановая принадлежность тут ни при чем
