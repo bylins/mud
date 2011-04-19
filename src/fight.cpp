@@ -697,7 +697,7 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 			look_at_room(ch, to_room);
 			act("$n со стонами упал$g с небес...", FALSE, ch, 0, 0, TO_ROOM);
 		}
-		else if (check_free_pk(ch, killer))
+		else if (!IS_NPC(ch) && check_free_pk(ch, killer))
 		{
 			// копи-паст с арены выше
 			make_arena_corpse(ch, killer);
@@ -840,10 +840,9 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
 		return;
 	}
 
-	if (!check_free_pk(ch, killer)
-		&& (IS_NPC(ch) || !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) || RENTABLE(ch)))
+	if (IS_NPC(ch) || !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) || RENTABLE(ch))
 	{
-		if (!(IS_NPC(ch) || IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
+		if (!check_free_pk(ch, killer) && !(IS_NPC(ch) || IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
 		{
 			dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5));
 			gain_exp(ch, -dec_exp);
