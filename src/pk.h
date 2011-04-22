@@ -98,4 +98,7 @@ bool has_clan_members_in_group(CHAR_DATA * ch);
 //Polud
 void pkPortal(CHAR_DATA* ch);
 
+// проверка возможности атаковать/кастить на моба, который сражается с каким-то игроком
+bool check_group_assist(CHAR_DATA *ch, CHAR_DATA *victim);
+
 #endif

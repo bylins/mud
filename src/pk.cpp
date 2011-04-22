@@ -882,15 +882,60 @@ void save_pkills(CHAR_DATA * ch, FILE * saved)
 	fprintf(saved, "~\n");
 }
 
+/**
+* Проверка возможности атаковать/кастить на моба, который сражается с каким-то игроком
+* \return true - ch может атаковать victim, false - не может
+*/
+bool check_group_assist(CHAR_DATA *ch, CHAR_DATA *victim)
+{
+	ch = ch ? get_charmice_master(ch) : ch;
+	if (!ch || IS_NPC(ch) || !victim || !IS_NPC(victim) || !victim->get_fighting())
+	{
+		// жертва не моб или ни с кем не сражается, или атакующий - моб
+		return true;
+	}
+	CHAR_DATA *k = get_charmice_master(victim->get_fighting());
+	if (k == ch || IS_NPC(k))
+	{
+		// жертва уже сражается с нами или сражается с другим мобом
+		return true;
+	}
+	// k - игрок, с которым (или с чьим чармисом) сражается моб
+	if (AFF_FLAGGED(k, AFF_GROUP) && AFF_FLAGGED(ch, AFF_GROUP))
+	{
+		CHAR_DATA *leader = k->master ? k->master : k;
+		if (leader == ch)
+		{
+			return true;
+		}
+		for (struct follow_type *f = leader->followers; f && f->follower; f = f->next)
+		{
+			if (f->follower == ch)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 // Проверка может ли ch начать аргессивные действия против victim
 int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 {
-	if (!victim)
+	if (!ch || !victim)
+	{
 		return TRUE;
-
+	}
+	if (!check_group_assist(ch, victim))
+	{
+		act("$N0 сражается с игроком не из Вашей группы.",
+				FALSE, ch, 0, victim, TO_CHAR);
+		return FALSE;
+	}
 	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOFIGHT))
+	{
 		return (FALSE);
-
+	}
 	if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_NOFIGHT))
 	{
 		act("Боги предотвратили Ваше нападение на $N3.", FALSE, ch, 0, victim, TO_CHAR);

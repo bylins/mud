@@ -251,7 +251,7 @@ void obj_data::init_killers_list(CHAR_DATA *ch)
 		killers_list_.push_back(leader->get_uid());
 		for (struct follow_type *f = leader->followers; f && f->follower; f = f->next)
 		{
-			if (!IS_NPC(f->follower))
+			if (!IS_NPC(f->follower) && AFF_FLAGGED(f->follower, AFF_GROUP))
 			{
 				killers_list_.push_back(f->follower->get_uid());
 			}
