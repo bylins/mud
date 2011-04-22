@@ -1929,8 +1929,10 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 		return TRUE;
 
 	// не в мирке можно кастовать все что угодно
-	if (!ROOM_FLAGGED(IN_ROOM(caster), ROOM_PEACEFUL))
+	if (!ROOM_FLAGGED(IN_ROOM(caster), ROOM_PEACEFUL) && in_pk_zone(caster))
+	{
 		return TRUE;
+	}
 
 	// Проверяю, что закл имеет одну из допустимых комбинаций параметров
 	ignore = IS_SET(SpINFO.targets, TAR_IGNORE) ||
@@ -1938,12 +1940,16 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 
 	// цели нет
 	if (!ignore && !victim)
+	{
 		return TRUE;
+	}
 
 	if (ignore && !IS_SET(SpINFO.routines, MAG_MASSES) && !IS_SET(SpINFO.routines, MAG_GROUPS))
 	{
 		if (SpINFO.violent)
+		{
 			return FALSE;	// нельзя злые кастовать
+		}
 		// если игнорируется цель, то должен быть GROUP или MASS
 		// в противном случае на цель кастовать нельзя
 		return victim == 0 ? TRUE : FALSE;
@@ -1972,12 +1978,16 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 		if (SpINFO.violent)
 		{
 			if (!may_kill_here(caster, ch_vict))
+			{
 				return 0;
+			}
 		}
 		else
 		{
 			if (!may_kill_here(caster, ch_vict->get_fighting()))
+			{
 				return 0;
+			}
 		}
 	}
 

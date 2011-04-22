@@ -39,6 +39,7 @@
 #include "name_list.hpp"
 #include "room.hpp"
 #include "named_stuff.hpp"
+#include "pk.h"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -1253,11 +1254,23 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 			stop_fighting(ch->get_fighting(), FALSE);
 			stop_fighting(ch, TRUE);
 		}
-
 		if (!IS_NPC(ch))
 		{
 			zone_table[world[room]->zone].used = 1;
 			zone_table[world[room]->zone].activity++;
+		}
+		if (is_pk_room(ch->get_from_room()) != in_pk_zone(ch))
+		{
+			if (in_pk_zone(ch))
+			{
+				send_to_char(ch, "\r\n%sЗона свободного убийства игроков.%s\r\n\r\n",
+						CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+			}
+			else
+			{
+				send_to_char(ch, "\r\n%sЗона ограниченного убийства игроков.%s\r\n\r\n",
+						CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+			}
 		}
 	}
 }

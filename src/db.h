@@ -288,6 +288,8 @@ struct zone_data
 	int group;
 	// средний уровень мобов в зоне
 	int mob_level;
+	// флаг пк-зоны (не сохраняется, нужен просто для удобства)
+	bool pk_zone;
 };
 
 extern zone_data *zone_table;

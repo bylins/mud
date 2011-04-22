@@ -158,7 +158,7 @@ const char *ObjState[8][2] = { {"рассыпается", "рассыпается"},
 	{"великолепно", "в великолепном состоянии"}
 };
 
-const char *Locks[4][2] = 
+const char *Locks[4][2] =
 {
 	{"%s Вы в жизни не видели подобного замка.%s\r\n", KIRED},
 	{"%s Замок очень сложный.%s\r\n", KIYEL},
@@ -1714,7 +1714,7 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 				{
 					int chance = get_pick_chance(skill_pick, rdata->lock_complexity);
 					int index = chance ? chance/5 + 1 : 0;
-					
+
 					std::string color = Locks[index][1];
 					if (abs(skill_pick - rdata->lock_complexity)>10)
 						color = KIDRK;
@@ -5248,8 +5248,16 @@ ACMD(do_zone)
 	{
 		send_to_char(ch, "%s.\r\n", zone_table[world[ch->in_room]->zone].name);
 	}
-}
 
+	if (in_pk_zone(ch))
+	{
+		send_to_char(ch, "Зона свободного убийства игроков.\r\n");
+	}
+	else
+	{
+		send_to_char(ch, "Зона ограниченного убийства игроков.\r\n");
+	}
+}
 
 struct sort_struct
 {
