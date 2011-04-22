@@ -479,6 +479,11 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	if (!IS_NPC(ch) && CLAN(ch))
 		sprintf(buf, "clan%d!", CLAN(ch)->GetRent());
 
+	if (!obj->can_touch_corpse(ch))
+	{
+		act("$p: Вы не можете взять труп убитого не Вами (Вашей группой) существа.", FALSE, ch, obj, 0, TO_CHAR);
+		return 0;
+	}
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 	{
 		act("$p: Вы не могете нести столько вещей.", FALSE, ch, obj, 0, TO_CHAR);
@@ -577,6 +582,12 @@ void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, in
 	if (Depot::is_depot(cont))
 	{
 		Depot::take_depot(ch, arg, howmany);
+		return;
+	}
+	if (!cont->can_touch_corpse(ch))
+	{
+		act("$p: Вы не можете брать вещи из трупа убитого не Вами (Вашей группой) существа.",
+				FALSE, ch, cont, 0, TO_CHAR);
 		return;
 	}
 

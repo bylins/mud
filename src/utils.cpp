@@ -2561,3 +2561,12 @@ int xmlparse_int(pugi::xml_node &node, const char *text)
 	}
 	return result;
 }
+
+CHAR_DATA * get_charmice_master(CHAR_DATA *ch)
+{
+	if (ch && (IS_CHARMICE(ch) || IS_HORSE(ch)) && ch->master)
+	{
+		return ch->master;
+	}
+	return ch;
+}

@@ -4,6 +4,7 @@
 
 #include "obj.hpp"
 #include "utils.h"
+#include "char.hpp"
 
 id_to_set_info_map obj_data::set_table;
 
@@ -204,6 +205,56 @@ void obj_data::dec_timer(int time)
 		if (!timed_spell.empty())
 		{
 			timed_spell.dec_timer(this, time);
+		}
+	}
+}
+
+/**
+* Проверка возможности взять сам труп или что-либо из него.
+*/
+bool obj_data::can_touch_corpse(CHAR_DATA *ch)
+{
+	if (killers_list_.empty())
+	{
+		return true;
+	}
+	CHAR_DATA *vict = ch ? get_charmice_master(ch) : 0;
+	if (vict)
+	{
+		std::vector<int>::iterator it = std::find(killers_list_.begin(),
+				killers_list_.end(), vict->get_uid());
+		if (it != killers_list_.end())
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+* Заполнение у трупа списка уидов убийцы и его группы.
+*/
+void obj_data::init_killers_list(CHAR_DATA *ch)
+{
+	CHAR_DATA *killer = ch ? get_charmice_master(ch) : 0;
+	if (!killer || IS_NPC(killer))
+	{
+		return;
+	}
+	if (!AFF_FLAGGED(killer, AFF_GROUP))
+	{
+		killers_list_.push_back(killer->get_uid());
+	}
+	else
+	{
+		CHAR_DATA *leader = killer->master ? killer->master : killer;
+		killers_list_.push_back(leader->get_uid());
+		for (struct follow_type *f = leader->followers; f && f->follower; f = f->next)
+		{
+			if (!IS_NPC(f->follower))
+			{
+				killers_list_.push_back(f->follower->get_uid());
+			}
 		}
 	}
 }

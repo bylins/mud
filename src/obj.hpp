@@ -357,10 +357,15 @@ struct obj_data
 	static id_to_set_info_map set_table;
 	static void init_set_table();
 
+	bool can_touch_corpse(CHAR_DATA *ch);
+	void init_killers_list(CHAR_DATA *ch);
+
 private:
 	std::map<int, int>* skills; // если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
 	int serial_num_;            // порядковый номер в списке чаров (для name_list)
 	int timer_; // таймер (в минутах рл)
+	// список уидов (чар, добивший моба и его группа на тот момент), для ограничения лута трупов
+	std::vector<int> killers_list_;
 };
 
 #endif // OBJ_HPP_INCLUDED

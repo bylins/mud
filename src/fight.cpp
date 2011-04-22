@@ -654,7 +654,6 @@ bool check_free_pk(CHAR_DATA * ch, CHAR_DATA * killer)
 void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 {
 	CHAR_DATA *hitter;
-	OBJ_DATA *corpse = NULL;
 	int to_room;
 	long local_gold = 0;
 	char obj[256];
@@ -732,7 +731,11 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 				kill_log("%s (%d): %d", GET_NAME(master), GET_LEVEL(master), GET_LEVEL(ch));
 			}
 			local_gold = ch->get_gold();
-			corpse = make_corpse(ch);
+			OBJ_DATA *corpse = make_corpse(ch);
+			if (corpse && IS_NPC(ch) && !IS_CHARMICE(ch) && !IS_HORSE(ch))
+			{
+				corpse->init_killers_list(killer);
+			}
 			if (MOB_FLAGGED(ch, MOB_CORPSE))
 			{
 				perform_drop_gold(ch, local_gold, SCMD_DROP, 0);
