@@ -592,8 +592,7 @@ ASPELL(spell_summon)
 				ROOM_FLAGGED(ch_room, ROOM_GODROOM) ||	// суммонер в комнате для бессмертных
 				ROOM_FLAGGED(ch_room, ROOM_ARENA) ||	// суммонер на арене
 				!Clan::MayEnter(victim, ch_room, HCE_PORTAL) ||	// суммонер стоит во внутренней части клан-замка
-				SECT(IN_ROOM(ch)) == SECT_SECRET || // суммонер стоит в клетке с типом "секретый"
-				!in_pk_zone(ch)) // суммонер в !пк зоне
+				SECT(IN_ROOM(ch)) == SECT_SECRET) // суммонер стоит в клетке с типом "секретый"
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
@@ -604,8 +603,7 @@ ASPELL(spell_summon)
 				ROOM_FLAGGED(vic_room, ROOM_GODROOM)||	// жертва в комнате для бессмертных
 				ROOM_FLAGGED(vic_room, ROOM_ARENA)	||	// жертва на арене
 				!Clan::MayEnter(ch, vic_room, HCE_PORTAL)||// жертва во внутренних покоях клан-замка
-				AFF_FLAGGED(victim, AFF_NOTELEPORT) || // жертва под действием заклинания "приковать противника"
-				!in_pk_zone(victim)) // жертва в !пк зоне
+				AFF_FLAGGED(victim, AFF_NOTELEPORT)) // жертва под действием заклинания "приковать противника"
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
