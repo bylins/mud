@@ -418,7 +418,7 @@ extern CHAR_DATA *combat_list;
 #include <vector>
 using std::vector;
 extern vector < ROOM_DATA * >world;
-
+extern struct zone_data *zone_table;
 extern OBJ_DATA *object_list;
 extern CHAR_DATA *character_list;
 extern INDEX_DATA *mob_index;

@@ -366,6 +366,8 @@ private:
 	int timer_; // таймер (в минутах рл)
 	// список уидов (чар, добивший моба и его группа на тот момент), для ограничения лута трупов
 	std::vector<int> killers_list_;
+	// rnum комнаты смерти (для ограничения лута)
+	int corpse_room_rnum_;
 };
 
 #endif // OBJ_HPP_INCLUDED

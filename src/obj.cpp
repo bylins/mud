@@ -5,6 +5,8 @@
 #include "obj.hpp"
 #include "utils.h"
 #include "char.hpp"
+#include "db.h"
+#include "room.hpp"
 
 id_to_set_info_map obj_data::set_table;
 
@@ -214,7 +216,9 @@ void obj_data::dec_timer(int time)
 */
 bool obj_data::can_touch_corpse(CHAR_DATA *ch)
 {
-	if (killers_list_.empty())
+	if (this->carried_by == ch
+		|| killers_list_.empty()
+		|| corpse_room_rnum_ != ch->in_room)
 	{
 		return true;
 	}
@@ -241,6 +245,9 @@ void obj_data::init_killers_list(CHAR_DATA *ch)
 	{
 		return;
 	}
+
+	corpse_room_rnum_ = ch->in_room;
+
 	if (!AFF_FLAGGED(killer, AFF_GROUP))
 	{
 		killers_list_.push_back(killer->get_uid());
