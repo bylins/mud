@@ -63,6 +63,7 @@
 #include "glory_const.hpp"
 #include "celebrates.hpp"
 #include "magic.h"
+#include "pk.h"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -1868,6 +1869,13 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 
 			if (PRF_FLAGGED(d->character, PRF_DISPGOLD))
 				count += sprintf(prompt + count, "%ldG ", d->character->get_gold());
+
+			if (!PRF_FLAGGED(d->character, PRF_NODISP_PK))
+			{
+				count += sprintf(prompt + count, "%sðë%s ",
+						in_pk_zone(d->character) ? CCRED(d->character, C_NRM) : CCGRN(d->character, C_NRM),
+						CCNRM(d->character, C_NRM));
+			}
 
 			if (PRF_FLAGGED(d->character, PRF_DISPEXITS))
 			{

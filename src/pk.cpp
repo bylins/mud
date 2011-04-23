@@ -954,15 +954,6 @@ bool in_pk_zone(CHAR_DATA *ch)
 	return false;
 }
 
-bool is_pk_room(int room_rnum)
-{
-	if (zone_table[world[room_rnum]->zone].pk_zone)
-	{
-		return true;
-	}
-	return false;
-}
-
 /**
 * Проверка возможности атаковать/кастить на моба, который сражается с каким-то игроком
 * \return true - ch может атаковать victim, false - не может
