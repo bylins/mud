@@ -218,7 +218,7 @@ bool obj_data::can_touch_corpse(CHAR_DATA *ch)
 {
 	if (this->carried_by == ch
 		|| killers_list_.empty()
-		|| corpse_room_rnum_ != ch->in_room)
+		|| (ch && corpse_room_rnum_ != ch->in_room))
 	{
 		return true;
 	}
