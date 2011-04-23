@@ -1008,6 +1008,29 @@ bool check_group_assist(CHAR_DATA *ch, CHAR_DATA *victim)
 	return false;
 }
 
+/**
+* Проверка возможности атаковать согрупника.
+* \return true - можно атаковать, false - нельзя
+*/
+bool check_group_attack(CHAR_DATA *ch, CHAR_DATA *vict)
+{
+	if (!ch || !vict)
+	{
+		return true;
+	}
+	ch = get_charmice_master(ch);
+	vict = get_charmice_master(vict);
+	if (IS_NPC(ch) || IS_NPC(vict) || (in_pk_zone(ch) && in_pk_zone(vict)))
+	{
+		return true;
+	}
+	if (same_group(ch, vict))
+	{
+		return true;
+	}
+	return false;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // Проверка может ли ch начать аргессивные действия против victim
@@ -1049,8 +1072,7 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 		&& !ROOM_FLAGGED(victim->in_room, ROOM_ARENA)
 		&& (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
 			|| ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)
-			|| !in_pk_zone(ch)
-			|| !in_pk_zone(victim)))
+			|| !check_group_attack(ch, victim)))
 	{
 		// Один из участников в мирной комнате
 		if (MOB_FLAGGED(victim, MOB_HORDE) || (MOB_FLAGGED(ch, MOB_IGNORPEACE) && !AFF_FLAGGED(ch, AFF_CHARM)))
