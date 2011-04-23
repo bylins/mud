@@ -1926,7 +1926,9 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 
 	/*  More than 33 level - may cast always */
 	if (IS_GRGOD(caster))
+	{
 		return TRUE;
+	}
 
 	// не в мирке можно кастовать все что угодно
 	if (!ROOM_FLAGGED(IN_ROOM(caster), ROOM_PEACEFUL) && in_pk_zone(caster))
@@ -4602,7 +4604,7 @@ void mag_assign_spells(void)
 
 //87
 	spello(SPELL_FORBIDDEN, "запечатать комнату", "forbidden",
-		125, 110, 2, POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_ROOM, 0, STYPE_MIND);
+		125, 110, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_ROOM, 0, STYPE_MIND);
 //88
 	spello(SPELL_MASS_SIELENCE, "массовое молчание", "mass sielence", 140, 120, 2,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 3, STYPE_MIND);
