@@ -351,7 +351,7 @@ void write_test_time(FILE *file)
 	time_t ct = tv.tv_sec;
 
 	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
-	fprintf(file, "%s.%06ld :: ", time_buf, tv.tv_usec);
+	fprintf(file, "%s.%ld :: ", time_buf, tv.tv_usec);
 }
 
 /*
@@ -2560,13 +2560,4 @@ int xmlparse_int(pugi::xml_node &node, const char *text)
 		}
 	}
 	return result;
-}
-
-CHAR_DATA * get_charmice_master(CHAR_DATA *ch)
-{
-	if (ch && (IS_CHARMICE(ch) || IS_HORSE(ch)) && ch->master)
-	{
-		return ch->master;
-	}
-	return ch;
 }

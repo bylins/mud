@@ -29,6 +29,7 @@ ACMD(do_revenge);
 
 extern CHAR_DATA *character_list;
 
+
 #define FirstPK  1
 #define SecondPK 5
 #define ThirdPK	 10
@@ -377,6 +378,7 @@ void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim)
 
 void pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 {
+
 	pk_translate_pair(&agressor, &victim);
 	switch (pk_action_type(agressor, victim))
 	{
@@ -487,10 +489,6 @@ void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim)
 
 void pk_revenge_action(CHAR_DATA * killer, CHAR_DATA * victim)
 {
-	if (FREE_PK_MODE)
-	{
-		return;
-	}
 
 	if (killer)
 	{
@@ -519,16 +517,9 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim)
 	struct PK_Memory_type *pk;
 
 	pk_translate_pair(&agressor, &victim);
-	if (FREE_PK_MODE
-		|| !agressor
-		|| !victim
-		|| agressor == victim
-		|| ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA)
-		|| ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)
-		|| /* предотвращаем баги с чармисами и ареной */IS_NPC(agressor) || IS_NPC(victim))
-	{
+	if (!agressor || !victim || agressor == victim || ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA) || ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA) ||	// предотвращаем баги с чармисами и ареной
+			IS_NPC(agressor) || IS_NPC(victim))
 		return PK_ACTION_NO;
-	}
 
 	// Душегубов можно бить когда угодно и кому угодно
 	// Клановая принадлежность тут ни при чем
@@ -882,165 +873,15 @@ void save_pkills(CHAR_DATA * ch, FILE * saved)
 	fprintf(saved, "~\n");
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-namespace
-{
-
-std::vector<int> deny_zone_list;
-
-} // namespace
-
-/**
-* Список внумов служебных и прочих зон, которые не нужно выводить в 'пкзоны'.
-*/
-void init_deny_zone_list()
-{
-	deny_zone_list.clear();
-	std::ifstream file(LIB_MISC"deny_pk_zones.lst");
-	if (!file.is_open())
-	{
-		return;
-	}
-	int num;
-	while (file >> num)
-	{
-		deny_zone_list.push_back(num);
-	}
-	file.close();
-	std::sort(deny_zone_list.begin(), deny_zone_list.end());
-}
-
-/**
-* Проверка зоны на список снятия флага пк-зоны.
-* \return false - нет в списке, true - есть в списке
-*/
-bool check_deny_zone_list(int vnum)
-{
-	std::vector<int>::iterator it = std::find(deny_zone_list.begin(),
-			deny_zone_list.end(), vnum);
-	if (it == deny_zone_list.end())
-	{
-		return false;
-	}
-	return true;
-}
-
-/**
-* Команда 'пкзоны'.
-*/
-ACMD(do_pk_zone)
-{
-	send_to_char(ch, "Список зон свободного убийства игроков:\r\n");
-	int num = 1;
-	for (int i = 0; i <= top_of_zone_table; ++i)
-	{
-		if (zone_table[i].pk_zone)
-		{
-			send_to_char(ch, "%3d - %s\r\n", num++, zone_table[i].name);
-		}
-	}
-}
-
-/**
-* Проверка зоны на возможность пк (по среднему уровню ее мобов).
-*/
-bool in_pk_zone(CHAR_DATA *ch)
-{
-	if (zone_table[world[ch->in_room]->zone].pk_zone)
-	{
-		return true;
-	}
-	return false;
-}
-
-/**
-* Проверка возможности атаковать/кастить на моба, который сражается с каким-то игроком
-* \return true - ch может атаковать victim, false - не может
-*/
-bool check_group_assist(CHAR_DATA *ch, CHAR_DATA *victim)
-{
-	if (!ch || !victim)
-	{
-		return true;
-	}
-	ch = get_charmice_master(ch);
-	if (IS_NPC(ch) || !IS_NPC(victim) || !victim->get_fighting())
-	{
-		// жертва не моб или ни с кем не сражается, или атакующий - моб
-		return true;
-	}
-	if (in_pk_zone(ch) && in_pk_zone(victim))
-	{
-		return true;
-	}
-	CHAR_DATA *k = get_charmice_master(victim->get_fighting());
-	if (k == ch || IS_NPC(k))
-	{
-		// жертва уже сражается с нами или сражается с другим мобом
-		return true;
-	}
-	// k - игрок, с которым (или с чьим чармисом) сражается моб
-	if (AFF_FLAGGED(k, AFF_GROUP) && AFF_FLAGGED(ch, AFF_GROUP))
-	{
-		CHAR_DATA *leader = k->master ? k->master : k;
-		if (leader == ch)
-		{
-			return true;
-		}
-		for (struct follow_type *f = leader->followers; f && f->follower; f = f->next)
-		{
-			if (f->follower == ch)
-			{
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-/**
-* Проверка возможности атаковать согрупника.
-* \return true - можно атаковать, false - нельзя
-*/
-bool check_group_attack(CHAR_DATA *ch, CHAR_DATA *vict)
-{
-	if (!ch || !vict)
-	{
-		return true;
-	}
-	ch = get_charmice_master(ch);
-	vict = get_charmice_master(vict);
-	if (IS_NPC(ch) || IS_NPC(vict) || (in_pk_zone(ch) && in_pk_zone(vict)))
-	{
-		return true;
-	}
-	if (same_group(ch, vict))
-	{
-		return true;
-	}
-	return false;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 // Проверка может ли ch начать аргессивные действия против victim
 int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 {
-	if (!ch || !victim)
-	{
+	if (!victim)
 		return TRUE;
-	}
-	if (!check_group_assist(ch, victim))
-	{
-		act("$N0 сражается с игроком не из Вашей группы.",
-				FALSE, ch, 0, victim, TO_CHAR);
-		return FALSE;
-	}
+
 	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOFIGHT))
-	{
 		return (FALSE);
-	}
+
 	if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_NOFIGHT))
 	{
 		act("Боги предотвратили Ваше нападение на $N3.", FALSE, ch, 0, victim, TO_CHAR);
@@ -1055,27 +896,19 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 	}
 
 	if ((ch->get_fighting() && ch->get_fighting() == victim) || (victim->get_fighting() && victim->get_fighting() == ch))
-	{
 		return (TRUE);
-	}
 
-	if (ch != victim
-		&& !ROOM_FLAGGED(victim->in_room, ROOM_ARENA)
-		&& (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
-			|| ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)
-			|| !check_group_attack(ch, victim)))
+	if (ch != victim && !ROOM_FLAGGED(victim->in_room, ROOM_ARENA) && (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)))
 	{
 		// Один из участников в мирной комнате
 		if (MOB_FLAGGED(victim, MOB_HORDE) || (MOB_FLAGGED(ch, MOB_IGNORPEACE) && !AFF_FLAGGED(ch, AFF_CHARM)))
 		{
 			return TRUE;
 		}
-		if (IS_GOD(ch)
-			|| (IS_NPC(ch) && ch->nr == real_mobile(DG_CASTER_PROXY))
-			|| (pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT)))
-		{
+		if (IS_GOD(ch) ||
+				(IS_NPC(ch) && ch->nr == real_mobile(DG_CASTER_PROXY)) ||
+				(pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT)))
 			return (TRUE);
-		}
 		else
 		{
 			send_to_char("Здесь слишком мирно, чтобы начинать драку...\r\n", ch);

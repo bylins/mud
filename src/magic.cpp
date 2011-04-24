@@ -4604,11 +4604,6 @@ int mag_manual(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovic
 //---------------------------------------------------------
 int mag_single_target(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int savetype)
 {
-	// каст чего угодно на чужого сражающегося моба
-	if (!check_group_assist(caster, cvict))
-	{
-		return 1;
-	}
 	if (IS_SET(SpINFO.routines, MAG_WARCRY) && cvict && IS_UNDEAD(cvict))
 		return 1;
 

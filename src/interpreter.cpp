@@ -393,7 +393,6 @@ ACMD(DoShowWars);
 ACMD(DoHcontrol);
 ACMD(DoWhoClan);
 ACMD(DoClanPkList);
-ACMD(do_pk_zone);
 ACMD(DoStoreHouse);
 ACMD(do_clanstuff);
 ACMD(DoBest);
@@ -683,7 +682,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"пить", POS_RESTING, do_drink, 0, SCMD_DRINK, 400},
 	{"писать", POS_STANDING, do_write, 1, 0, -1},
 	{"пклист", POS_SLEEPING, DoClanPkList, 0, 0, 0},
-	{"пкзоны", POS_SLEEPING, do_pk_zone, 0, 0, 0},
 	{"пнуть", POS_FIGHTING, do_kick, 1, 0, -1},
 	{"погода", POS_RESTING, do_weather, 0, 0, 0},
 	{"подкрасться", POS_STANDING, do_sneak, 1, 0, 500},

@@ -14,9 +14,6 @@
 #ifndef _PK_H_
 #define _PK_H_
 
-// ничего не отнимающая смерть в пк (пк-счетчики и статистика тоже не трогаются)
-const bool FREE_PK_MODE = false;
-
 //*************************************************************************
 // Основные функци и разрешения конфликтных ситуаций между игроками
 
@@ -97,14 +94,5 @@ void save_pkills(CHAR_DATA * ch, FILE * saved);
 bool has_clan_members_in_group(CHAR_DATA * ch);
 //Polud
 void pkPortal(CHAR_DATA* ch);
-
-// проверка возможности атаковать/кастить на моба, который сражается с каким-то игроком
-bool check_group_assist(CHAR_DATA *ch, CHAR_DATA *victim);
-// проверка зоны на возможность пк (по среднем уровню ее мобов)
-bool in_pk_zone(CHAR_DATA *ch);
-// лоад списка внумов зон, которые не надо выводить в пкзоны
-void init_deny_zone_list();
-// проверка зоны в списке запрета пк-зон
-bool check_deny_zone_list(int vnum);
 
 #endif

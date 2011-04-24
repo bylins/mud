@@ -288,8 +288,6 @@ struct zone_data
 	int group;
 	// средний уровень мобов в зоне
 	int mob_level;
-	// флаг пк-зоны (не сохраняется, нужен просто для удобства)
-	bool pk_zone;
 };
 
 extern zone_data *zone_table;
@@ -418,7 +416,7 @@ extern CHAR_DATA *combat_list;
 #include <vector>
 using std::vector;
 extern vector < ROOM_DATA * >world;
-extern struct zone_data *zone_table;
+
 extern OBJ_DATA *object_list;
 extern CHAR_DATA *character_list;
 extern INDEX_DATA *mob_index;

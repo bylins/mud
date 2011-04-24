@@ -39,7 +39,6 @@
 #include "name_list.hpp"
 #include "room.hpp"
 #include "named_stuff.hpp"
-#include "pk.h"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -1254,6 +1253,7 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 			stop_fighting(ch->get_fighting(), FALSE);
 			stop_fighting(ch, TRUE);
 		}
+
 		if (!IS_NPC(ch))
 		{
 			zone_table[world[room]->zone].used = 1;

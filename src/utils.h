@@ -1454,6 +1454,5 @@ void print_log();
 std::string thousands_sep(long long n);
 void kill_log(const char *format, ...);
 int xmlparse_int(pugi::xml_node &node, const char *text);
-CHAR_DATA * get_charmice_master(CHAR_DATA *ch);
 
 #endif // _UTILS_H_

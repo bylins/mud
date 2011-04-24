@@ -463,8 +463,6 @@ ACMD(do_reboot)
 		GlobalDrop::init();
 		OfftopSystem::init();
 		Celebrates::load();
-		init_deny_zone_list();
-		set_zone_mob_level();
 	}
 	else if (!str_cmp(arg, "portals"))
 		init_portals();
@@ -553,11 +551,6 @@ ACMD(do_reboot)
 	else if (!str_cmp(arg, "celebrates"))
 	{
 		Celebrates::load();
-	}
-	else if (!str_cmp(arg, "pkzones"))
-	{
-		init_deny_zone_list();
-		set_zone_mob_level();
 	}
 	else
 	{
@@ -1382,14 +1375,6 @@ void set_zone_mob_level()
 			}
 		}
 		zone_table[i].mob_level = count ? level/count : 0;
-		if (zone_table[i].mob_level > 20 && !check_deny_zone_list(zone_table[i].number))
-		{
-			zone_table[i].pk_zone = true;
-		}
-		else
-		{
-			zone_table[i].pk_zone = false;
-		}
 	}
 }
 
@@ -1705,9 +1690,6 @@ void boot_db(void)
 	log("Init town shop_keepers");
 	town_shop_keepers();
 
-	// надо инить до set_zone_mob_level()
-	log("Init deny pk zone list");
-	init_deny_zone_list();
 	log("Set zone average mob_level");
 	set_zone_mob_level();
 
@@ -1731,7 +1713,7 @@ void reset_time(void)
 		((time_info.year * MONTHS_PER_YEAR + time_info.month) * DAYS_PER_MONTH + time_info.day) % POLY_WEEK_CYCLE;
 	// Calculate Easter
 	calc_easter();
-
+	
 	if (time_info.hours < sunrise[time_info.month][0])
 		weather_info.sunlight = SUN_DARK;
 	else if (time_info.hours == sunrise[time_info.month][0])
@@ -4727,7 +4709,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 				if (!(world[rn]->script))
 					CREATE(world[rn]->script, SCRIPT_DATA, 1);
 
-				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin();
+				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin(); 
 						it != (*room)->triggers.end(); ++it)
 					add_trigger(world[rn]->script,read_trigger(real_trigger(*it)), -1);
 			}
@@ -4744,7 +4726,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 					{
 						if (!SCRIPT(mob))
 							CREATE(SCRIPT(mob), SCRIPT_DATA, 1);
-						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
+						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin(); 
 							it != (*load)->triggers.end(); ++it)
 							add_trigger(SCRIPT(mob), read_trigger(real_trigger(*it)), -1);
 						load_mtrigger(mob);
@@ -4764,7 +4746,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 
 									if (!SCRIPT(obj))
 										CREATE(SCRIPT(obj), SCRIPT_DATA, 1);
-									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
+									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin(); 
 											it != (*load_in)->triggers.end(); ++it)
 										add_trigger(SCRIPT(obj), read_trigger(real_trigger(*it)), -1);
 
@@ -4799,7 +4781,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 					{
 						if (!SCRIPT(obj))
 							CREATE(SCRIPT(obj), SCRIPT_DATA, 1);
-						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
+						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin(); 
 							it != (*load)->triggers.end(); ++it)
 							add_trigger(SCRIPT(obj), read_trigger(real_trigger(*it)), -1);
 						load_otrigger(obj);
@@ -4821,7 +4803,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 
 									if (!SCRIPT(obj_in))
 										CREATE(SCRIPT(obj_in), SCRIPT_DATA, 1);
-									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
+									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin(); 
 											it != (*load_in)->triggers.end(); ++it)
 										add_trigger(SCRIPT(obj_in), read_trigger(real_trigger(*it)), -1);
 
@@ -4848,7 +4830,7 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 
 	if (celebrate->mobsToAttach.find(zone_vnum) != celebrate->mobsToAttach.end())
 	{
-		//поскольку единственным доступным способом получить всех мобов одного внума является
+		//поскольку единственным доступным способом получить всех мобов одного внума является 
 		//обход всего списка мобов в мире, то будем хотя бы 1 раз его обходить
 		Celebrates::AttachList list = celebrate->mobsToAttach[zone_vnum];
 		for (CHAR_DATA *ch = character_list; ch; ch=ch->next)
@@ -4857,7 +4839,7 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 			{
 				if (!SCRIPT(ch))
 					CREATE(SCRIPT(ch), SCRIPT_DATA, 1);
-				for (Celebrates::TrigList::iterator it = list[mob_index[ch->nr].vnum].begin();
+				for (Celebrates::TrigList::iterator it = list[mob_index[ch->nr].vnum].begin(); 
 						it != list[mob_index[ch->nr].vnum].end(); ++it)
 					add_trigger(SCRIPT(ch), read_trigger(real_trigger(*it)), -1);
 				Celebrates::add_mob_to_attach_list(ch->get_uid());
@@ -4874,7 +4856,7 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 			{
 				if (!SCRIPT(o))
 					CREATE(SCRIPT(o), SCRIPT_DATA, 1);
-				for (Celebrates::TrigList::iterator it = list[o->item_number].begin();
+				for (Celebrates::TrigList::iterator it = list[o->item_number].begin(); 
 						it != list[o->item_number].end(); ++it)
 					add_trigger(SCRIPT(o), read_trigger(real_trigger(*it)), -1);
 				Celebrates::add_obj_to_attach_list(o->uid);
@@ -5338,7 +5320,7 @@ void reset_zone(zone_rnum zone)
 			paste_on_reset(room);
 		}
 	}
-
+	
 	process_celebrates(zone_table[zone].number);
 
 	for (rnum_start = 0; rnum_start <= top_of_zone_table; rnum_start++)
@@ -6107,14 +6089,12 @@ void init_char(CHAR_DATA * ch)
 	}
 	GET_LASTIP(ch)[0] = 0;
 //	GET_LOADROOM(ch) = start_room;
-
 	SET_BIT(PRF_FLAGS(ch, PRF_DISPHP), PRF_DISPHP);
 	SET_BIT(PRF_FLAGS(ch, PRF_DISPMANA), PRF_DISPMANA);
 	SET_BIT(PRF_FLAGS(ch, PRF_DISPEXITS), PRF_DISPEXITS);
 	SET_BIT(PRF_FLAGS(ch, PRF_DISPMOVE), PRF_DISPMOVE);
 	SET_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
 	SET_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
-
 	REMOVE_BIT(PRF_FLAGS(ch, PRF_SUMMONABLE), PRF_SUMMONABLE);
 	STRING_LENGTH(ch) = 80;
 	STRING_WIDTH(ch) = 25;

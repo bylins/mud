@@ -158,7 +158,7 @@ const char *ObjState[8][2] = { {"рассыпается", "рассыпается"},
 	{"великолепно", "в великолепном состоянии"}
 };
 
-const char *Locks[4][2] =
+const char *Locks[4][2] = 
 {
 	{"%s Вы в жизни не видели подобного замка.%s\r\n", KIRED},
 	{"%s Замок очень сложный.%s\r\n", KIYEL},
@@ -1714,7 +1714,7 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 				{
 					int chance = get_pick_chance(skill_pick, rdata->lock_complexity);
 					int index = chance ? chance/5 + 1 : 0;
-
+					
 					std::string color = Locks[index][1];
 					if (abs(skill_pick - rdata->lock_complexity)>10)
 						color = KIDRK;
@@ -5143,28 +5143,46 @@ ACMD(do_toggle)
 	if (GET_LEVEL(ch) >= LVL_IMMORT || Privilege::check_flag(ch, Privilege::KRODER))
 	{
 		sprintf(buf,
-			" Не выследить  : %-3s     " " Вечный свет   : %-3s     " " Флаги комнат     : %-3s \r\n",
+				" Не выследить  : %-3s     "
+				" Вечный свет   : %-3s     "
+				" Флаги комнат  : %-3s \r\n",
 				ONOFF(PRF_FLAGGED(ch, PRF_NOHASSLE)),
 				ONOFF(PRF_FLAGGED(ch, PRF_HOLYLIGHT)), ONOFF(PRF_FLAGGED(ch, PRF_ROOMFLAGS)));
 		send_to_char(buf, ch);
 	}
 
 	sprintf(buf,
-			" Уровень жизни : %-3s     " " Обращения     : %-3s     " " Краткий режим    : %-3s \r\n"
-			" Энергия       : %-3s     " " Кто-то        : %-6s  "    " Сжатый режим     : %-3s \r\n"
-			" Опыт          : %-3s     " " Орать         : %-3s     " " Повтор команд    : %-3s \r\n"
-			" Заучивание    : %-3s     " " Болтать       : %-3s     " " Автовыходы       : %-3s \r\n"
-			" Деньги        : %-3s     " " Аукцион       : %-3s     " " Цвет             : %-8s\r\n"
-			" Выходы        : %-3s     " " Себя в бою    : %-3s     " " Сжатие           : %-3s \r\n"
-			" Брать куны    : %-3s     " " Задание       : %-3s     " " Трусость         : %-3s \r\n"
-			" Автозауч.     : %-3s     " " Призыв        : %-3s     " " Автопомощь       : %-3s \r\n"
-			" IAC GA        : %-3s     " " Показ группы  : %-7s "     " Автодележ        : %-3s \r\n"
-			" Автограбеж    : %-7s "     " Без двойников : %-3s     " " Арена            : %-3s \r\n"
-			" Базар         : %-3s     " " Ширина экрана : %-3d     " " Высота экрана    : %-3d \r\n"
-			" Новости (вид) : %-5s   "   " Доски         : %-3s     " " Хранилище        : %-10s\r\n"
-			" Пклист        : %-3s     " " Политика      : %-3s     " " Пкформат         : %-10s\r\n"
-			" Соклановцы    : %-3s     " " Оффтоп        : %-3s     " " Потеря связи     : %-3s \r\n"
-			" Ингредиенты   : %-3s     " " Вспомнить     : %-3d     " " Пк-зоны (статус) : %-3s \r\n",
+			" Уровень жизни : %-3s     "
+			" Обращения     : %-3s     " " Краткий режим : %-3s \r\n" " Энергия       : %-3s     "
+			" Кто-то        : %-6s  "
+			" Сжатый режим  : %-3s \r\n"
+			" Опыт          : %-3s     "
+			" Орать         : %-3s     "
+			" Повтор команд : %-3s \r\n"
+			" Заучивание    : %-3s     "
+			" Болтать       : %-3s     "
+			" Автовыходы    : %-3s \r\n"
+			" Деньги        : %-3s     "
+			" Аукцион       : %-3s     "
+			" Цвет          : %-8s\r\n"
+			" Выходы        : %-3s     "
+			" Себя в бою    : %-3s     "
+			" Сжатие        : %-3s \r\n"
+			" Брать куны    : %-3s     "
+			" Задание       : %-3s     "
+			" Трусость      : %-3s \r\n"
+			" Автозауч.     : %-3s     "
+			" Призыв        : %-3s     "
+			" Автопомощь    : %-3s \r\n"
+			" IAC GA        : %-3s     "
+			" Показ группы  : %-7s "
+			" Автодележ     : %-3s \r\n"
+			" Автограбеж    : %-7s " " Без двойников : %-3s     " " Арена         : %-3s \r\n"
+			" Базар         : %-3s     " " Ширина экрана : %-3d     " " Высота экрана : %-3d \r\n"
+			" Новости (вид) : %-5s   "   " Доски         : %-3s     " " Хранилище     : %-10s\r\n"
+			" Пклист        : %-3s     " " Политика      : %-3s     " " Пкформат      : %-10s\r\n"
+			" Соклановцы    : %-3s     " " Оффтоп        : %-3s     " " Потеря связи  : %-3s \r\n"
+			" Ингредиенты   : %-3s     " " Вспомнить     : %-3d     ",
 			ONOFF(PRF_FLAGGED(ch, PRF_DISPHP)),
 			ONOFF(!PRF_FLAGGED(ch, PRF_NOTELL)),
 			ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)), ONOFF(PRF_FLAGGED(ch, PRF_DISPMOVE)),
@@ -5208,8 +5226,7 @@ ACMD(do_toggle)
 			ONOFF(PRF_FLAGGED(ch, PRF_OFFTOP_MODE)),
 			ONOFF(PRF_FLAGGED(ch, PRF_ANTIDC_MODE)),
 			ONOFF(PRF_FLAGGED(ch, PRF_NOINGR_MODE)),
-			ch->remember_get_num(),
-			ONOFF(!PRF_FLAGGED(ch, PRF_NODISP_PK)));
+			ch->remember_get_num());
 	send_to_char(buf, ch);
 	if (NOTIFY_EXCH_PRICE(ch)>0)
 			sprintf(buf,  " Уведомления   : %-3ld \r\n", NOTIFY_EXCH_PRICE(ch));
@@ -5231,16 +5248,8 @@ ACMD(do_zone)
 	{
 		send_to_char(ch, "%s.\r\n", zone_table[world[ch->in_room]->zone].name);
 	}
-
-	if (in_pk_zone(ch))
-	{
-		send_to_char(ch, "Зона свободного убийства игроков.\r\n");
-	}
-	else
-	{
-		send_to_char(ch, "Зона ограниченного убийства игроков.\r\n");
-	}
 }
+
 
 struct sort_struct
 {

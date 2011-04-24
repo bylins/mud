@@ -1730,7 +1730,7 @@ ACMD(do_display)
 
 	if (!*argument)
 	{
-		send_to_char("Формат: статус { { Ж | Э | З | В | Д | У | О | Б | К | П } | все | нет }\r\n", ch);
+		send_to_char("Формат: статус { { Ж | Э | З | В | Д | У | О | Б | К } | все | нет }\r\n", ch);
 		return;
 	}
 	if (!str_cmp(argument, "on") || !str_cmp(argument, "all") ||
@@ -1745,7 +1745,6 @@ ACMD(do_display)
 		SET_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
 		SET_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
 		SET_BIT(PRF_FLAGS(ch, PRF_DISP_WC), PRF_DISP_WC);
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_NODISP_PK), PRF_NODISP_PK);
 	}
 	else
 		if (!str_cmp(argument, "off") || !str_cmp(argument, "none") ||
@@ -1760,7 +1759,6 @@ ACMD(do_display)
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISP_WC), PRF_DISP_WC);
-			SET_BIT(PRF_FLAGS(ch, PRF_NODISP_PK), PRF_NODISP_PK);
 		}
 		else
 		{
@@ -1774,7 +1772,6 @@ ACMD(do_display)
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPEXP), PRF_DISPEXP);
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISPFIGHT), PRF_DISPFIGHT);
 			REMOVE_BIT(PRF_FLAGS(ch, PRF_DISP_WC), PRF_DISP_WC);
-			SET_BIT(PRF_FLAGS(ch, PRF_NODISP_PK), PRF_NODISP_PK);
 
 			for (i = 0; i < strlen(argument); i++)
 			{
@@ -1816,12 +1813,9 @@ ACMD(do_display)
 				case 'к':
 					SET_BIT(PRF_FLAGS(ch, PRF_DISP_WC), PRF_DISP_WC);
 					break;
-				case 'п':
-					REMOVE_BIT(PRF_FLAGS(ch, PRF_NODISP_PK), PRF_NODISP_PK);
-					break;
 				default:
 					send_to_char
-					("Формат: статус { { Ж | Э | З | В | Д | У | О | Б | К | П } | все | нет }\r\n", ch);
+					("Формат: статус { { Ж | Э | З | В | Д | У | О | Б | К } | все | нет }\r\n", ch);
 					return;
 				}
 			}
@@ -3692,7 +3686,7 @@ ACMD(do_bandage)
 
 	af.type = SPELL_NO_BANDAGE;
 	af.location = APPLY_NONE;
-	af.duration = 35;
+	af.duration = 30;
 	af.bitvector = AFF_NO_BANDAGE;
 	af.battleflag = AF_ROUNDDEC;
 	affect_join(ch, &af, 0, 0, 0, 0);

@@ -110,6 +110,7 @@ int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim);
 void apply_weapon_bonus(int ch_class, int skill, int *damroll, int *hitroll);
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
 
+
 /* Weapon attack texts */
 struct attack_hit_type attack_hit_text[] =
 {
@@ -641,19 +642,10 @@ void forget_all_spells(CHAR_DATA *ch)
 	}
 }
 
-bool check_free_pk(CHAR_DATA * ch, CHAR_DATA * killer)
-{
-	if (FREE_PK_MODE && (!IS_NPC(killer) || ((IS_CHARMICE(killer) || IS_HORSE(killer))
-			&& killer->master && !IS_NPC(killer->master))))
-	{
-		return true;
-	}
-	return false;
-}
-
 void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 {
 	CHAR_DATA *hitter;
+	OBJ_DATA *corpse = NULL;
 	int to_room;
 	long local_gold = 0;
 	char obj[256];
@@ -696,28 +688,6 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 			look_at_room(ch, to_room);
 			act("$n со стонами упал$g с небес...", FALSE, ch, 0, 0, TO_ROOM);
 		}
-		else if (!IS_NPC(ch) && check_free_pk(ch, killer))
-		{
-			// копи-паст с арены выше
-			make_arena_corpse(ch, killer);
-			change_fighting(ch, TRUE);
-			GET_HIT(ch) = 1;
-			GET_POS(ch) = POS_SITTING;
-			char_from_room(ch);
-			to_room = real_room(GET_LOADROOM(ch));
-			// тут придется ручками тащить чара за ворота, если ему в замке не рады
-			if (!Clan::MayEnter(ch, to_room, HCE_PORTAL))
-				to_room = Clan::CloseRent(to_room);
-			if (to_room == NOWHERE)
-			{
-				SET_BIT(PLR_FLAGS(ch, PLR_HELLED), PLR_HELLED);
-				HELL_DURATION(ch) = time(0) + 6;
-				to_room = r_helled_start_room;
-			}
-			char_to_room(ch, to_room);
-			look_at_room(ch, to_room);
-			act("$n со стонами упал$g с небес...", FALSE, ch, 0, 0, TO_ROOM);
-		}
 		else
 		{
 			if (IS_NPC(ch) && killer && (!IS_NPC(killer) || IS_CHARMICE(killer)))
@@ -731,11 +701,7 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 				kill_log("%s (%d): %d", GET_NAME(master), GET_LEVEL(master), GET_LEVEL(ch));
 			}
 			local_gold = ch->get_gold();
-			OBJ_DATA *corpse = make_corpse(ch);
-			if (corpse && IS_NPC(ch) && !IS_CHARMICE(ch) && !IS_HORSE(ch))
-			{
-				corpse->init_killers_list(killer);
-			}
+			corpse = make_corpse(ch);
 			if (MOB_FLAGGED(ch, MOB_CORPSE))
 			{
 				perform_drop_gold(ch, local_gold, SCMD_DROP, 0);
@@ -843,9 +809,10 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
 		return;
 	}
 
-	if (IS_NPC(ch) || !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) || RENTABLE(ch))
+	if (IS_NPC(ch) || !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)
+			|| RENTABLE(ch))
 	{
-		if (!check_free_pk(ch, killer) && !(IS_NPC(ch) || IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
+		if (!(IS_NPC(ch) || IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
 		{
 			dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5));
 			gain_exp(ch, -dec_exp);
@@ -942,8 +909,8 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
                 GET_EXP_MOBTHIS(ch)= GET_EXP_MOBTHIS(ch)+dec_exp;
             }
         }
-        else if (!FREE_PK_MODE && (!IS_NPC(killer) || ((IS_CHARMICE(killer)
-				|| IS_HORSE(killer)) && killer->master && !IS_NPC(killer->master))))
+        else if (!IS_NPC(killer) || ((IS_CHARMICE(killer)
+				|| IS_HORSE(killer)) && killer->master && !IS_NPC(killer->master)))
         {
 			//Рип в ПК
             GET_RIP_PK(ch)= GET_RIP_PK(ch)+1;
@@ -955,7 +922,6 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
             }
         }
     }
-
     if (!IS_NPC(ch) && !killer && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_DEATH)
     && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_SLOWDEATH) &&
     !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ICEDEATH)) //Рип без наличия убийцы не в дт

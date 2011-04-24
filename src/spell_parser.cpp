@@ -1926,15 +1926,11 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 
 	/*  More than 33 level - may cast always */
 	if (IS_GRGOD(caster))
-	{
 		return TRUE;
-	}
 
 	// не в мирке можно кастовать все что угодно
-	if (!ROOM_FLAGGED(IN_ROOM(caster), ROOM_PEACEFUL) && in_pk_zone(caster))
-	{
+	if (!ROOM_FLAGGED(IN_ROOM(caster), ROOM_PEACEFUL))
 		return TRUE;
-	}
 
 	// Проверяю, что закл имеет одну из допустимых комбинаций параметров
 	ignore = IS_SET(SpINFO.targets, TAR_IGNORE) ||
@@ -1942,16 +1938,12 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 
 	// цели нет
 	if (!ignore && !victim)
-	{
 		return TRUE;
-	}
 
 	if (ignore && !IS_SET(SpINFO.routines, MAG_MASSES) && !IS_SET(SpINFO.routines, MAG_GROUPS))
 	{
 		if (SpINFO.violent)
-		{
 			return FALSE;	// нельзя злые кастовать
-		}
 		// если игнорируется цель, то должен быть GROUP или MASS
 		// в противном случае на цель кастовать нельзя
 		return victim == 0 ? TRUE : FALSE;
@@ -1980,16 +1972,12 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 		if (SpINFO.violent)
 		{
 			if (!may_kill_here(caster, ch_vict))
-			{
 				return 0;
-			}
 		}
 		else
 		{
 			if (!may_kill_here(caster, ch_vict->get_fighting()))
-			{
 				return 0;
-			}
 		}
 	}
 
@@ -4604,7 +4592,7 @@ void mag_assign_spells(void)
 
 //87
 	spello(SPELL_FORBIDDEN, "запечатать комнату", "forbidden",
-		125, 110, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_ROOM, 0, STYPE_MIND);
+		125, 110, 2, POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_ROOM, 0, STYPE_MIND);
 //88
 	spello(SPELL_MASS_SIELENCE, "массовое молчание", "mass sielence", 140, 120, 2,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 3, STYPE_MIND);
