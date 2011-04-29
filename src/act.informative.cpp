@@ -158,7 +158,7 @@ const char *ObjState[8][2] = { {"рассыпается", "рассыпается"},
 	{"великолепно", "в великолепном состоянии"}
 };
 
-const char *Locks[4][2] = 
+const char *Locks[4][2] =
 {
 	{"%s Вы в жизни не видели подобного замка.%s\r\n", KIRED},
 	{"%s Замок очень сложный.%s\r\n", KIYEL},
@@ -1714,7 +1714,7 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 				{
 					int chance = get_pick_chance(skill_pick, rdata->lock_complexity);
 					int index = chance ? chance/5 + 1 : 0;
-					
+
 					std::string color = Locks[index][1];
 					if (abs(skill_pick - rdata->lock_complexity)>10)
 						color = KIDRK;
@@ -3068,6 +3068,20 @@ ACMD(do_score)
 					CCCYN(ch, C_NRM));
 		}
 
+		if (PLR_FLAGGED(ch, PLR_FROZEN) && FREEZE_DURATION(ch) != 0 && FREEZE_DURATION(ch) > time(NULL))
+		{
+			int hrs = (FREEZE_DURATION(ch) - time(NULL)) / 3600;
+			int mins = ((FREEZE_DURATION(ch) - time(NULL)) % 3600 + 59) / 60;
+			sprintf(buf + strlen(buf),
+					" || %sВы будете заморожены еще %6d %-5s %2d %-39s%s||\r\n"
+					" || %s[%-79s%s||\r\n",
+					CCRED(ch, C_NRM), hrs, string(desc_count(hrs, WHAT_HOUR)).substr(0, 5).c_str(),
+					mins, (string(desc_count(mins, WHAT_MINu)) + string(".")).substr(0, 42).c_str(),
+					CCCYN(ch, C_NRM), CCRED(ch, C_NRM),
+					(string(FREEZE_REASON(ch) ? FREEZE_REASON(ch) : "-") + string("].")).substr(0, 79).c_str(),
+					CCCYN(ch, C_NRM));
+		}
+
 		strcat(buf, " ||                                                                                 ||\r\n");
 		strcat(buf, " -------------------------------------------------------------------------------------\r\n");
 		strcat(buf, CCNRM(ch, C_NRM));
@@ -3318,6 +3332,15 @@ ACMD(do_score)
 		sprintf(buf, "Вы будете молчать еще %d %s %d %s [%s].\r\n",
 				hrs, desc_count(hrs, WHAT_HOUR),
 				mins, desc_count(mins, WHAT_MINu), DUMB_REASON(ch) ? DUMB_REASON(ch) : "-");
+		send_to_char(buf, ch);
+	}
+	if (PLR_FLAGGED(ch, PLR_FROZEN) && FREEZE_DURATION(ch) != 0 && FREEZE_DURATION(ch) > time(NULL))
+	{
+		int hrs = (FREEZE_DURATION(ch) - time(NULL)) / 3600;
+		int mins = ((FREEZE_DURATION(ch) - time(NULL)) % 3600 + 59) / 60;
+		sprintf(buf, "Вы будете заморожены еще %d %s %d %s [%s].\r\n",
+				hrs, desc_count(hrs, WHAT_HOUR),
+				mins, desc_count(mins, WHAT_MINu), FREEZE_REASON(ch) ? FREEZE_REASON(ch) : "-");
 		send_to_char(buf, ch);
 	}
 
