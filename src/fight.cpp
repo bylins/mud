@@ -2135,8 +2135,8 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				af.bitvector = AFF_STOPFIGHT;
 				af.location = 0;
 				af.modifier = 0;
-				af.duration = 1;
-				af.battleflag = AF_ROUNDDEC;
+				af.duration = pc_duration(victim, 1, 0, 0, 0, 0);
+				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
 				sprintf(buf,
 						"%sВаше сознание затуманилось после удара %s.%s\r\n",
@@ -2156,8 +2156,8 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				af.bitvector = AFF_STOPFIGHT;
 				af.location = 0;
 				af.modifier = 0;
-				af.duration = 2;
-				af.battleflag = AF_ROUNDDEC;
+				af.duration = pc_duration(victim, 2, 0, 0, 0, 0);
+				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
 				sprintf(buf,
 						"%sВаше сознание помутилось после удара %s.%s\r\n",
@@ -2177,8 +2177,8 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				af.bitvector = AFF_STOPFIGHT;
 				af.location = 0;
 				af.modifier = 0;
-				af.duration = 3;
-				af.battleflag = AF_ROUNDDEC;
+				af.duration = pc_duration(victim, 3, 0, 0, 0, 0);
+				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
 				sprintf(buf, "%sВаше сознание померкло после удара %s.%s\r\n",
 						CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));

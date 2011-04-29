@@ -68,6 +68,8 @@ int mag_materials(CHAR_DATA * ch, int item0, int item1, int item2, int extract, 
 void perform_mag_groups(int level, CHAR_DATA * ch, CHAR_DATA * tch, int spellnum, int savetype);
 void affect_update(void);
 void battle_affect_update(CHAR_DATA * ch);
+void pulse_affect_update(CHAR_DATA * ch);
+
 
 CHAR_DATA * find_char_in_room(long char_id, ROOM_DATA *room)
 {
@@ -775,7 +777,6 @@ void mobile_affect_update(void)
 	for (i = character_list; i; i = i_next)
 	{
 		i_next = i->next;
-
 		charmed_msg = FALSE;
 		was_charmed = FALSE;
 
@@ -784,10 +785,6 @@ void mobile_affect_update(void)
 		for (af = i->affected; IS_NPC(i) && af; af = next)
 		{
 			next = af->next;
-			if (IS_SET(af->battleflag, AF_ROUNDDEC))
-			{
-				continue;
-			}
 			if (af->duration >= 1)
 			{
 				if (IS_SET(af->battleflag, AF_SAME_TIME) && (!i->get_fighting() || af->location == APPLY_POISON))
@@ -872,15 +869,14 @@ void player_affect_update(void)
 		if (IS_NPC(i))
 			continue;
 
+		pulse_affect_update(i);
+
+	
 		bool was_purged = false;
 
 		for (af = i->affected; af; af = next)
 		{
 			next = af->next;
-			if (IS_SET(af->battleflag, AF_ROUNDDEC))
-			{
-				continue;
-			}
 			if (af->duration >= 1)
 			{
 				if (IS_SET(af->battleflag, AF_SAME_TIME) && !i->get_fighting())
@@ -922,7 +918,7 @@ void player_affect_update(void)
 		{
 			(void) MemQ_slots(i);	// сколько каких слотов занято (с коррекцией)
 
-
+			
 			//log("[PLAYER_AFFECT_UPDATE->AFFECT_TOTAL] Start");
 			affect_total(i);
 			//log("[PLAYER_AFFECT_UPDATE->AFFECT_TOTAL] Stop");
@@ -936,15 +932,12 @@ void battle_affect_update(CHAR_DATA * ch)
 {
 	AFFECT_DATA *af, *next;
 
+
 	for (af = ch->affected; af; af = next)
 	{
 		next = af->next;
-		if (!IS_SET(af->battleflag, AF_BATTLEDEC)
-			&& !IS_SET(af->battleflag, AF_SAME_TIME)
-			&& !IS_SET(af->battleflag, AF_ROUNDDEC))
-		{
+		if (!IS_SET(af->battleflag, AF_BATTLEDEC) && !IS_SET(af->battleflag, AF_SAME_TIME))
 			continue;
-		}
 		if (IS_NPC(ch) && af->location == APPLY_POISON)
 			continue;
 		if (af->duration >= 1)
@@ -954,10 +947,6 @@ void battle_affect_update(CHAR_DATA * ch)
 				// здесь плеера могут спуржить
 				if (same_time_update(ch, af) == -1)
 					return;
-				af->duration--;
-			}
-			if (IS_SET(af->battleflag, AF_ROUNDDEC))
-			{
 				af->duration--;
 			}
 			else
@@ -991,62 +980,53 @@ void battle_affect_update(CHAR_DATA * ch)
 	//log("[BATTLE_AFFECT_UPDATE->AFFECT_TOTAL] Stop");
 }
 
-void round_affect_update()
+
+/* This file update pulse affects only */
+void pulse_affect_update(CHAR_DATA * ch)
 {
 	AFFECT_DATA *af, *next;
+	bool pulse_aff = FALSE;
 
-	for (CHAR_DATA *i = character_list; i; i = i->next)
+	if (ch->get_fighting())
+		return;
+
+	
+	for (af = ch->affected; af; af = next)
 	{
-		if (i->get_fighting())
-		{
+		next = af->next;
+		if (!IS_SET(af->battleflag, AF_PULSEDEC))
 			continue;
-		}
-		bool flag = false;
-		for (af = i->affected; af; af = next)
+		pulse_aff = TRUE;
+		if (af->duration >= 1)
 		{
-			next = af->next;
-			if (!IS_SET(af->battleflag, AF_ROUNDDEC))
-			{
-				continue;
-			}
-			flag = true;
-			if (af->duration >= 1)
-			{
+			if (IS_NPC(ch))
 				af->duration--;
-			}
-			else if (af->duration != -1)
+			else
+				af->duration -= MIN(af->duration, SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC);
+		}
+		else if (af->duration == -1)	/* No action */
+			af->duration = -1;	/* GODs only! unlimited */
+		else
+		{
+			if ((af->type > 0) && (af->type <= MAX_SPELLS))
 			{
-				if ((af->type > 0) && (af->type <= MAX_SPELLS))
-				{
-					if (!af->next || (af->next->type != af->type)
+				if (!af->next || (af->next->type != af->type)
 						|| (af->next->duration > 0))
-					{
-						if (af->type > 0 &&
+				{
+					if (af->type > 0 &&
 							af->type <= LAST_USED_SPELL && *spell_wear_off_msg[af->type])
-						{
-							/*чтобы не выдавалось, "что теперь вы можете сражаться",
-							   хотя на самом деле не можете :) */
-							if (!(af->type == SPELL_MAGICBATTLE
-								&& AFF_FLAGGED(i, AFF_STOPFIGHT)))
-							{
-								if (!(af->type == SPELL_BATTLE
-									&& AFF_FLAGGED(i, AFF_MAGICSTOPFIGHT)))
-								{
-									show_spell_off(af->type, i);
-								}
-							}
-						}
+					{
+						show_spell_off(af->type, ch);
 					}
 				}
-				affect_remove(i, af);
 			}
-		}
-		if (flag)
-		{
-			affect_total(i);
+			affect_remove(ch, af);
 		}
 	}
+	if (pulse_aff)
+		affect_total(ch);
 }
+
 
 /*
  *  mag_materials:
@@ -3264,18 +3244,20 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		case SPELL_ICESTORM:
 		case SPELL_EARTHFALL:
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 2);
+			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
+							 pc_duration(victim, 2, 0, 0, 0, 0));
 			af[0].bitvector = AFF_MAGICSTOPFIGHT;
-			af[0].battleflag = AF_ROUNDDEC;
+			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			to_room = "$n3 оглушило.";
 			to_vict = "Вас оглушило.";
 			spellnum = SPELL_MAGICBATTLE;
 			break;
         case SPELL_SHOCK:
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
-			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum), 2);
+			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
+							 pc_duration(victim, 2, 0, 0, 0, 0));
 			af[0].bitvector = AFF_MAGICSTOPFIGHT;
-			af[0].battleflag = AF_ROUNDDEC;
+			af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			to_room = "$n3 оглушило.";
 			to_vict = "Вас оглушило.";
 			spellnum = SPELL_MAGICBATTLE;

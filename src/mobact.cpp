@@ -64,6 +64,7 @@ void npc_groupbattle(CHAR_DATA * ch);
 int npc_walk(CHAR_DATA * ch);
 int npc_steal(CHAR_DATA * ch);
 void npc_light(CHAR_DATA * ch);
+void pulse_affect_update(CHAR_DATA * ch);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict);
 extern bool is_room_forbidden(ROOM_DATA*room);
@@ -646,8 +647,12 @@ void mobile_activity(int activity_level, int missed_pulses)
 	{
 		next_ch = ch->next;
 
+
 		if (!IS_MOB(ch))
 			continue;
+		i = missed_pulses;
+		while (i--)
+			pulse_affect_update(ch);
 
 		if (GET_WAIT(ch) > 0)
 			GET_WAIT(ch) -= missed_pulses;

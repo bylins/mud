@@ -197,11 +197,7 @@ typedef struct trig_data TRIG_DATA;
 
 #define AF_BATTLEDEC (1 << 0)
 #define AF_DEADKEEP  (1 << 1)
-// аналог AF_BATTLEDEC, только без заморочек с тиками у мобов и секундами у плееров
-// в данном случае на вход идет кол-во раундов (аналог 2 секунд)
-// тикает везде и на всех одинаково раз в 2 секунды (раунд)
-// TODO: AF_SAME_TIME пойдет сюда же наверное, с ядами на мобах только к чему-то прийти
-#define AF_ROUNDDEC  (1 << 2)
+#define AF_PULSEDEC  (1 << 2)
 #define AF_SAME_TIME (1 << 3) // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
 
 /* Sector types: used in room_data.sector_type */
