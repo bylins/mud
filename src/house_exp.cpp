@@ -238,11 +238,11 @@ void ClanPkLog::check(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 	if (!IS_NPC(killer) && CLAN(killer) != CLAN(victim))
 	{
-		char time_buf[17];
+		char timeBuf[20];
 		time_t curr_time = time(0);
-		strftime(time_buf, sizeof(time_buf), "%d-%m-%Y", localtime(&curr_time));
+		strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y (%H:%M)", localtime(&curr_time));
 		std::stringstream out;
-		out << time_buf << ": "
+		out << timeBuf << ": "
 			<< GET_NAME(victim) << " убит" << GET_CH_SUF_6(victim) << " "
 			<< GET_PAD(killer, 4) << "\r\n";
 
