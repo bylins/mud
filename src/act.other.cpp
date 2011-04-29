@@ -3113,7 +3113,9 @@ extern struct index_data *obj_index;
 
 bool is_dig_stone(OBJ_DATA *obj)
 {
-	if (GET_OBJ_VNUM(obj) >= dig_vars.stone1_vnum && GET_OBJ_VNUM(obj) <= dig_vars.stone1_vnum + 17)
+	if ((GET_OBJ_VNUM(obj) >= dig_vars.stone1_vnum
+			&& GET_OBJ_VNUM(obj) <= dig_vars.stone1_vnum + 17)
+		|| GET_OBJ_VNUM(obj) == DIG_GLASS_VNUM)
 	{
 		return true;
 	}

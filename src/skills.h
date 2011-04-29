@@ -135,6 +135,8 @@ int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict);
 #define DIG_DFLT_MOB_VNUM_START		100
 #define DIG_DFLT_MOB_VNUM_END		103
 #define DIG_DFLT_PANDORA_VNUM		919
+// предмет с названием 'стекло' для продажи в магазине
+const int DIG_GLASS_VNUM = 1919;
 
 struct skillvariables_dig
 {
