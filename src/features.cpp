@@ -478,7 +478,8 @@ void assign_feats(void)
 	feato(STRENGTH_CONCETRATION_FEAT, "концентрация силы", NORMAL_FTYPE, TRUE, feat_app);
 //89
 	feato(DARK_READING_FEAT, "кошачий глаз", NORMAL_FTYPE, TRUE, feat_app);
-
+//90
+	feato(SPELL_CAPABLE_FEAT, "зачаровать", NORMAL_FTYPE, TRUE, feat_app);
 	/*
 	//
 		feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);
@@ -936,6 +937,182 @@ ACMD(do_fit)
 
 	send_to_char(buf, ch);
 
+}
+
+int slot_for_char(CHAR_DATA * ch, int i);
+#define SpINFO spell_info[spellnum]
+/* Вложить закл в клона */
+ACMD(do_spell_capable)
+{
+	AFFECT_DATA af;
+	struct timed_type timed;
+
+	if (IS_NPC(ch) || !can_use_feat(ch, SPELL_CAPABLE_FEAT))
+	{
+		send_to_char("Вы не столь могущественны.\r\n", ch);
+		return;
+	}
+
+	if (timed_by_feat(ch, SPELL_CAPABLE_FEAT)
+#ifdef TEST_BUILD
+		&& !IS_IMMORTAL(ch)
+#endif
+	  )
+	{
+		send_to_char("Не возможно использовать это так часто.\r\n", ch);
+		return;
+	}
+
+	char *s;
+	int spellnum;
+
+	if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))
+		return;
+
+	if (AFF_FLAGGED(ch, AFF_SIELENCE))
+	{
+		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
+		return;
+	}
+
+	s = strtok(argument, "'*!");
+	if (s == NULL)
+	{
+		send_to_char("ЧТО Вы хотите колдовать ?\r\n", ch);
+		return;
+	}
+	s = strtok(NULL, "'*!");
+	if (s == NULL)
+	{
+		send_to_char("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
+		return;
+	}
+
+	spellnum = find_spell_num(s);
+	if (spellnum < 1 || spellnum > MAX_SPELLS)
+	{
+		send_to_char("И откуда Вы набрались таких выражений ?\r\n", ch);
+		return;
+	}
+
+	if ((!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP | SPELL_KNOW) ||
+			GET_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)) &&
+			(GET_LEVEL(ch) < LVL_GRGOD) && (!IS_NPC(ch)))
+	{
+		if (GET_LEVEL(ch) < MIN_CAST_LEV(SpINFO, ch)
+				|| GET_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
+				||  slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
+		{
+			send_to_char("Рано еще Вам бросаться такими словами !\r\n", ch);
+			return;
+		}
+		else
+		{
+			send_to_char("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
+			return;
+		}
+	}
+
+	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch))
+	{
+		send_to_char("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
+		return;
+	}
+
+	follow_type *k;
+	CHAR_DATA *follower = NULL;
+	for (k = ch->followers; k; k = k->next)
+	{
+		if (AFF_FLAGGED(k->follower, AFF_CHARM) && k->follower->master == ch &&
+			MOB_FLAGGED(k->follower, MOB_CLONE) &&
+			!affected_by_spell(k->follower, SPELL_CAPABLE) &&
+			IN_ROOM(ch) == IN_ROOM(k->follower))
+		{
+			follower = k->follower;
+			break;
+		}
+	}
+	if(!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch))
+	{
+		send_to_char("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
+		return;
+	}
+
+	if (!follower)
+	{
+		send_to_char("Хорошо бы найти подходящую цель для этого.\r\n", ch);
+		return;
+	}
+
+	act("Вы принялись зачаровывать $N3.", FALSE, ch, 0, follower, TO_CHAR);
+	act("$n принял$u делать какие-то пасы и что-то бормотать в сторону $N3.", FALSE, ch, 0, follower, TO_ROOM);
+
+	GET_SPELL_MEM(ch, spellnum)--;
+	//if (!GET_SPELL_MEM(ch, spellnum))
+	//	REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
+	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
+		MemQ_remember(ch, spellnum);
+
+	if (!IS_SET(SpINFO.routines, MAG_DAMAGE) || !SpINFO.violent ||
+		IS_SET(SpINFO.routines, MAG_MASSES) || IS_SET(SpINFO.routines, MAG_GROUPS) ||
+		IS_SET(SpINFO.routines, MAG_AREAS))
+	{
+		send_to_char("Вы кончно мастер, но не такой магии.\r\n", ch);
+		return;
+	}
+	affect_from_char(ch, SPELL_CAPABLE_FEAT);
+
+	timed.skill = SPELL_CAPABLE_FEAT;
+	
+	switch (SpINFO.slot_forc[GET_CLASS(ch)][GET_KIN(ch)])
+	{
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5://1-5 слоты кд 4 тика
+			timed.time = 4;
+		break;
+		case 6:
+		case 7://6-7 слоты кд 6 тиков
+			timed.time = 6;
+		break;
+		case 8://8 слот кд 10 тиков
+			timed.time = 10;
+		break;
+		case 9://9 слот кд 12 тиков
+			timed.time = 12;
+		break;
+		default://10 слот или тп
+			timed.time = 24;
+	}
+	timed_feat_to_char(ch, &timed);
+
+	GET_CAST_SUCCESS(follower) = GET_REMORT(ch)*4;
+	af.type = SPELL_CAPABLE;
+	af.duration = 48;
+	if(GET_REMORT(ch)>0) {
+		af.modifier = GET_REMORT(ch)*4;//вешаецо аффект который дает +морт*4 касту
+		af.location = APPLY_CAST_SUCCESS;
+	} else {
+		af.modifier = 0;
+		af.location = APPLY_NONE;
+	}
+	af.battleflag = 0;
+	af.bitvector = 0;
+	affect_to_char(follower, &af);
+	follower->mob_specials.capable_spell = spellnum;
+/*
+	af.type = SPELL_CAPABLE;
+	af.duration = 24;
+	af.modifier = spellnum;
+	af.location = APPLY_NONE;
+	af.battleflag = 0;
+	af.bitvector = 0;
+	affect_to_char(follower, &af);
+	follower->mob_specials.capable_cast = GET_REMORT(ch)*4;
+	follower->mob_specials.capable_spell = spellnum;
+*/
 }
 
 /*

@@ -4726,11 +4726,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		else
 		{
-			if (!IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
+			/*if (!IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
 			{
 				send_to_char("Для изменения падежей пользуйтесь форматом 'set имя name *падеж1 падеж2 падеж3 падеж4 падеж5 падеж6'.\r\nРенеймы не разрешаются.\r\n", ch);
 				return 0;
-			}
+			}*/
 
 			if (_parse_name(npad[0], npad[0]) ||
 					strlen(npad[0]) < MIN_NAME_LENGTH ||

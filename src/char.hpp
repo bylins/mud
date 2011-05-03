@@ -159,6 +159,7 @@ struct mob_special_data
 	char *Questor;
 	int speed;
 	int hire_price;// added by WorM (Видолюб) 2010.06.04 Цена найма чармиса
+	int capable_spell;// added by WorM (Видолюб) Закл в мобе
 };
 
 // очередь запоминания заклинаний

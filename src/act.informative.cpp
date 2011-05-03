@@ -363,7 +363,13 @@ char *diag_uses_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 	if (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT && IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)
 			&& GET_CLASS(ch) == CLASS_DRUID)
 	{
-		sprintf(out_str, "Оcталось применений: %s%d&n.\r\n",
+		int i = -1;
+		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0)
+		{
+			sprintf(out_str, "Прототип: %s%s%s.\r\n",
+					CCICYN(ch, C_NRM), obj_proto[i]->PNames[0], CCNRM(ch, C_NRM));
+		}
+		sprintf(out_str + strlen(out_str), "Оcталось применений: %s%d&n.\r\n",
 				GET_OBJ_VAL(obj, 2) > 100 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 	}
 	return (out_str);
@@ -1181,6 +1187,8 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 			strcat(buf, IS_POLY(i) ? "плавают здесь. " : "плавает здесь. ");
 		else
 			strcat(buf, IS_POLY(i) ? poly_positions[(int) GET_POS(i)] : positions[(int) GET_POS(i)]);
+		if (AFF_FLAGGED(ch, AFF_DETECT_MAGIC) && IS_NPC(i) && affected_by_spell(i, SPELL_CAPABLE))
+			sprintf(buf + strlen(buf), "(аура магии) ");
 	}
 	else
 	{

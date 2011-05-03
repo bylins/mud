@@ -286,6 +286,7 @@ ACMD(do_sleep);
 ACMD(do_sneak);
 ACMD(do_snoop);
 ACMD(do_spec_comm);
+ACMD(do_spell_capable);
 ACMD(do_split);
 ACMD(do_stand);
 ACMD(do_stat);
@@ -581,6 +582,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"заточить", POS_RESTING, do_upgrade, 0, 0, 500},
 	{"заучить", POS_RESTING, do_remember, 0, 0, 0},
 	{"зачитать", POS_RESTING, do_use, 0, SCMD_RECITE, 500},
+	{"зачаровать", POS_STANDING, do_spell_capable, 1, 0, 0},
 	{"зачистить", POS_DEAD, do_sanitize, LVL_GRGOD, 0, 0},
 	{"золото", POS_RESTING, do_gold, 0, 0, 0},
 	{"зона", POS_RESTING, do_zone, 0, 0, 0},

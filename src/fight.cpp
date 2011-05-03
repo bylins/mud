@@ -651,6 +651,14 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 	char obj[256];
 
 
+	if(IS_NPC(ch) && killer && killer != ch && MOB_FLAGGED(ch, MOB_CLONE) && ch->master && affected_by_spell(ch, SPELL_CAPABLE))
+	{
+		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.", FALSE, ch, 0, killer, TO_ROOM);
+		int pos = GET_POS(ch);
+		GET_POS(ch) = POS_STANDING;
+		call_magic(ch, killer, NULL, world[IN_ROOM(ch)], ch->mob_specials.capable_spell, GET_LEVEL(ch), CAST_SPELL);
+		GET_POS(ch) = pos;
+	}
 	if (ch->get_fighting())
 		stop_fighting(ch, TRUE);
 
