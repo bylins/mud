@@ -238,7 +238,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	case SKILL_BACKSTAB:	/*заколоть */
 		victim_sav = SAVING_REFLEX;
 		percent = skill_is + dex_app[GET_REAL_DEX(ch)].reaction * 2;
-		if (awake_others(ch))
+		if (awake_others(ch) || equip_in_metall(ch))
 			percent -= 50;
 
 		if (vict)
@@ -277,7 +277,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			skill_is + dex_app_skill[GET_REAL_DEX(ch)].hide - size_app[GET_POS_SIZE(ch)].ac
 			+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 
-		if (awake_others(ch))
+		if (awake_others(ch) || equip_in_metall(ch))
 			percent -= 50;
 
 		if (IS_DARK(IN_ROOM(ch)))
@@ -291,8 +291,6 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			percent -= 20;
 		else if (SECT(IN_ROOM(ch)) == SECT_HILLS
 				 || SECT(IN_ROOM(ch)) == SECT_MOUNTAIN) percent -= 10;
-		if (equip_in_metall(ch))
-			percent -= 50;
 
 		if (vict)
 		{
@@ -328,15 +326,13 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].sneak
 				  + (can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0);
 
-		if (awake_others(ch))
+		if (awake_others(ch)||equip_in_metall(ch))
 			percent -= 50;
 
 		if (SECT(IN_ROOM(ch)) == SECT_CITY)
 			percent -= 10;
 		if (IS_DARK(IN_ROOM(ch)))
 			percent += 20;
-		if (equip_in_metall(ch))
-			percent -= 50;
 
 		if (vict)
 		{
@@ -352,7 +348,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].p_pocket
 				  + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 
-		if (awake_others(ch))
+		if (awake_others(ch) || equip_in_metall(ch))
 			percent -= 50;
 
 		if (IS_DARK(IN_ROOM(ch)))

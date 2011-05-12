@@ -4078,14 +4078,6 @@ int awake_others(CHAR_DATA * ch)
 			AFF_FLAGGED(ch, AFF_SANCTUARY) || AFF_FLAGGED(ch, AFF_SINGLELIGHT) || AFF_FLAGGED(ch, AFF_HOLYLIGHT))
 		return (TRUE);
 
-	for (i = 0; i < NUM_WEARS; i++)
-	{
-		if (GET_EQ(ch, i))
-			if ((GET_OBJ_TYPE(GET_EQ(ch, i)) == ITEM_ARMOR &&
-					GET_EQ(ch, i)->obj_flags.Obj_mater <= MAT_COLOR) ||
-					OBJ_FLAGGED(GET_EQ(ch, i), ITEM_HUM) || OBJ_FLAGGED(GET_EQ(ch, i), ITEM_GLOW))
-				return (TRUE);
-	}
 	return (FALSE);
 }
 
