@@ -540,6 +540,7 @@ void init_game(ush_int port)
 	Glory::save_glory();
 	GloryConst::save();
 	GloryMisc::save_log();
+	GlobalDrop::save();// сохраняем счетчики глобалдропа
 	MoneyDropStat::print_log();
 	ZoneExpStat::print_log();
 	print_rune_log();

@@ -645,25 +645,27 @@ void Player::save_char()
 	fprintf(saved, "Disp: %ld\n", disposable_flags_.to_ulong());
 
 /*29.11.09. Статистика по рипам (c) Василиса*/
+//edited by WorM 2011.05.21
     fprintf(saved, "Ripa: %d\n", GET_RIP_ARENA(this)); //Rip_arena
     fprintf(saved, "Wina: %d\n", GET_WIN_ARENA(this)); //Win_arena
-    fprintf(saved, "Expa: %ld\n", GET_EXP_ARENA(this)); //Exp_arena
+    fprintf(saved, "Expa: %llu\n", GET_EXP_ARENA(this)); //Exp_arena
     fprintf(saved, "Ripm: %d\n", GET_RIP_MOB(this)); //Rip_mob
-    fprintf(saved, "Expm: %ld\n", GET_EXP_MOB(this)); //Exp_mob
+    fprintf(saved, "Expm: %llu\n", GET_EXP_MOB(this)); //Exp_mob
     fprintf(saved, "Ripd: %d\n", GET_RIP_DT(this)); //Rip_dt
-    fprintf(saved, "Expd: %ld\n", GET_EXP_DT(this));//Exp_dt
+    fprintf(saved, "Expd: %llu\n", GET_EXP_DT(this));//Exp_dt
     fprintf(saved, "Ripo: %d\n", GET_RIP_OTHER(this));//Rip_other
-    fprintf(saved, "Expo: %ld\n", GET_EXP_OTHER(this));//Exp_other
+    fprintf(saved, "Expo: %llu\n", GET_EXP_OTHER(this));//Exp_other
     fprintf(saved, "Ripp: %d\n", GET_RIP_PK(this));//Rip_pk
-    fprintf(saved, "Expp: %ld\n", GET_EXP_PK(this)); //Exp_pk
+    fprintf(saved, "Expp: %llu\n", GET_EXP_PK(this)); //Exp_pk
     fprintf(saved, "Rimt: %d\n", GET_RIP_MOBTHIS(this)); //Rip_mob_this
-    fprintf(saved, "Exmt: %ld\n", GET_EXP_MOBTHIS(this));//Exp_mob_this
+    fprintf(saved, "Exmt: %llu\n", GET_EXP_MOBTHIS(this));//Exp_mob_this
     fprintf(saved, "Ridt: %d\n", GET_RIP_DTTHIS(this)); //Rip_dt_this
-    fprintf(saved, "Exdt: %ld\n", GET_EXP_DTTHIS(this)); //Exp_dt_this
+    fprintf(saved, "Exdt: %llu\n", GET_EXP_DTTHIS(this)); //Exp_dt_this
     fprintf(saved, "Riot: %d\n", GET_RIP_OTHERTHIS(this)); //Rip_other_this
-    fprintf(saved, "Exot: %ld\n", GET_EXP_OTHERTHIS(this)); ////Exp_other_this
+    fprintf(saved, "Exot: %llu\n", GET_EXP_OTHERTHIS(this)); ////Exp_other_this
     fprintf(saved, "Ript: %d\n", GET_RIP_PKTHIS(this)); //Rip_pk_this
-    fprintf(saved, "Expt: %ld\n", GET_EXP_PKTHIS(this));//Exp_pk_this
+    fprintf(saved, "Expt: %llu\n", GET_EXP_PKTHIS(this));//Exp_pk_this
+//end by WorM
 /*конец правки (с) Василиса*/
 	// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 	i = 0;
@@ -743,6 +745,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, i;
 	long int lnum = 0, lnum3 = 0;
+	unsigned long long llnum = 0;
 	FBFILE *fl;
 	char filename[40];
 	char buf[MAX_RAW_INPUT_LENGTH], line[MAX_RAW_INPUT_LENGTH], tag[6];
@@ -802,6 +805,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		line1[i] = '\0';
 		num = atoi(line1);
 		lnum = atol(line1);
+		llnum = atoll(line1);
 
 		switch (*tag)
 		{
@@ -1048,6 +1052,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		line1[i] = '\0';
 		num = atoi(line1);
 		lnum = atol(line1);
+		llnum = atoll(line1);
 
 		switch (*tag)
 		{
@@ -1156,24 +1161,26 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			else if (!strcmp(tag, "EMal"))
 				strcpy(GET_EMAIL(this), line);
 /*29.11.09. (c) Василиса*/
+//edited by WorM 2011.05.21
 			else if (!strcmp(tag, "Expa"))
-				GET_EXP_ARENA(this) = lnum;
+				GET_EXP_ARENA(this) = llnum;
 			else if (!strcmp(tag, "Expm"))
-				GET_EXP_MOB(this) = lnum;
+				GET_EXP_MOB(this) = llnum;
 			else if (!strcmp(tag, "Exmt"))
-				GET_EXP_MOBTHIS(this) = lnum;
+				GET_EXP_MOBTHIS(this) = llnum;
 			else if (!strcmp(tag, "Expp"))
-				GET_EXP_PK(this) = lnum;
+				GET_EXP_PK(this) = llnum;
 			else if (!strcmp(tag, "Expt"))
-				GET_EXP_PKTHIS(this) = lnum;
+				GET_EXP_PKTHIS(this) = llnum;
 			else if (!strcmp(tag, "Expt"))
-				GET_EXP_OTHER(this) = lnum;
+				GET_EXP_OTHER(this) = llnum;
 			else if (!strcmp(tag, "Exot"))
-				GET_EXP_OTHERTHIS(this) = lnum;
+				GET_EXP_OTHERTHIS(this) = llnum;
 			else if (!strcmp(tag, "Expd"))
-				GET_EXP_DT(this) = lnum;
+				GET_EXP_DT(this) = llnum;
 			else if (!strcmp(tag, "Exdt"))
-				GET_EXP_DTTHIS(this) = lnum;
+				GET_EXP_DTTHIS(this) = llnum;
+//end by WorM
 /*Конец правки (с) Василиса*/
 			break;
 

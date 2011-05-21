@@ -895,70 +895,84 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
 	}
 
 	/*29.11.09 Увеличиваем счетчики рипов (с) Василиса */
-    if (!IS_NPC(ch) && killer)
-    {
-        if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)) //Рип на арене
-        {
-            GET_RIP_ARENA(ch)= GET_RIP_ARENA(ch)+1;
-            GET_WIN_ARENA(killer)= GET_WIN_ARENA(killer)+1;
-            if (dec_exp)
-            {
-                GET_EXP_ARENA(ch)=GET_EXP_ARENA(ch)+dec_exp; //Если чар в бд
-            }
-        }
-        else if (IS_NPC(killer) && !IS_CHARMICE(killer) && !IS_HORSE(killer))
-        {
-        	//Рип от моба
-            GET_RIP_MOB(ch)= GET_RIP_MOB(ch)+1;
-            GET_RIP_MOBTHIS(ch)= GET_RIP_MOBTHIS(ch)+1;
-            if (dec_exp)
-            {
-                GET_EXP_MOB(ch)= GET_EXP_MOB(ch)+dec_exp;
-                GET_EXP_MOBTHIS(ch)= GET_EXP_MOBTHIS(ch)+dec_exp;
-            }
-        }
-        else if (!IS_NPC(killer) || ((IS_CHARMICE(killer)
-				|| IS_HORSE(killer)) && killer->master && !IS_NPC(killer->master)))
-        {
-			//Рип в ПК
-            GET_RIP_PK(ch)= GET_RIP_PK(ch)+1;
-            GET_RIP_PKTHIS(ch)= GET_RIP_PKTHIS(ch)+1;
-            if (dec_exp)
-            {
-                GET_EXP_PK(ch)= GET_EXP_PK(ch)+dec_exp;
-                GET_EXP_PKTHIS(ch)= GET_EXP_PKTHIS(ch)+dec_exp;
-            }
-        }
-    }
-    if (!IS_NPC(ch) && !killer && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_DEATH)
-    && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_SLOWDEATH) &&
-    !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ICEDEATH)) //Рип без наличия убийцы не в дт
-    {
-        GET_RIP_OTHER(ch)= GET_RIP_OTHER(ch)+1;
-        GET_RIP_OTHERTHIS(ch)= GET_RIP_OTHERTHIS(ch)+1;
-        if (dec_exp)
-            {
-                GET_EXP_OTHER(ch)= GET_EXP_OTHER(ch)+dec_exp;
-                GET_EXP_OTHERTHIS(ch)= GET_EXP_OTHERTHIS(ch)+dec_exp;
-            }
-
-    }
-    if (!IS_NPC(ch) && !killer && (ROOM_FLAGGED(IN_ROOM(ch), ROOM_DEATH) ||
-    ROOM_FLAGGED(IN_ROOM(ch), ROOM_SLOWDEATH) ||
-    ROOM_FLAGGED(IN_ROOM(ch), ROOM_ICEDEATH))) //Рип в дт
-    {
-        GET_RIP_DT(ch)= GET_RIP_DT(ch)+1;
-        GET_RIP_DTTHIS(ch)= GET_RIP_DTTHIS(ch)+1;
-        if (dec_exp)
-            {
-                GET_EXP_DT(ch)= GET_EXP_DT(ch)+dec_exp;
-                GET_EXP_DTTHIS(ch)= GET_EXP_DTTHIS(ch)+dec_exp;
-            }
-
-    }
-
-    /*конец правки (с) Василиса */
-
+	//edited by WorM
+	CHAR_DATA *rkiller = killer;//настоящий убийца мастер чармиса/коня/ангела
+	if (rkiller && IS_NPC(rkiller) && (IS_CHARMICE(rkiller) || IS_HORSE(rkiller) || MOB_FLAGGED(killer, MOB_ANGEL)))
+	{
+		if(rkiller->master)
+			rkiller = rkiller->master;
+		else
+		{
+			snprintf(buf, MAX_STRING_LENGTH,
+				"die: %s killed by %s(without master)",
+				GET_PAD(ch,0), GET_PAD(rkiller,0));
+			mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
+			rkiller = NULL;
+		}
+	}
+	if (!IS_NPC(ch)) {
+		if (rkiller && rkiller != ch)
+		{
+			if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)) //Рип на арене
+			{
+				GET_RIP_ARENA(ch)= GET_RIP_ARENA(ch)+1;
+				GET_WIN_ARENA(killer)= GET_WIN_ARENA(killer)+1;
+				if (dec_exp)
+				{
+					GET_EXP_ARENA(ch)=GET_EXP_ARENA(ch)+dec_exp; //Если чар в бд
+				}
+			}
+			else if (IS_NPC(rkiller))
+			{
+				//Рип от моба
+				GET_RIP_MOB(ch)= GET_RIP_MOB(ch)+1;
+				GET_RIP_MOBTHIS(ch)= GET_RIP_MOBTHIS(ch)+1;
+				if (dec_exp)
+				{
+					GET_EXP_MOB(ch)= GET_EXP_MOB(ch)+dec_exp;
+					GET_EXP_MOBTHIS(ch)= GET_EXP_MOBTHIS(ch)+dec_exp;
+				}
+			}
+			else if (!IS_NPC(rkiller))
+			{
+				//Рип в ПК
+				GET_RIP_PK(ch)= GET_RIP_PK(ch)+1;
+				GET_RIP_PKTHIS(ch)= GET_RIP_PKTHIS(ch)+1;
+				if (dec_exp)
+				{
+					GET_EXP_PK(ch)= GET_EXP_PK(ch)+dec_exp;
+					GET_EXP_PKTHIS(ch)= GET_EXP_PKTHIS(ch)+dec_exp;
+				}
+			}
+		}
+		else if ((!rkiller || (rkiller && rkiller == ch)) &&
+			(ROOM_FLAGGED(IN_ROOM(ch), ROOM_DEATH) ||
+			ROOM_FLAGGED(IN_ROOM(ch), ROOM_SLOWDEATH) ||
+			ROOM_FLAGGED(IN_ROOM(ch), ROOM_ICEDEATH)))
+		{
+			//Рип в дт
+			GET_RIP_DT(ch)= GET_RIP_DT(ch)+1;
+			GET_RIP_DTTHIS(ch)= GET_RIP_DTTHIS(ch)+1;
+			if (dec_exp)
+			{
+				GET_EXP_DT(ch)= GET_EXP_DT(ch)+dec_exp;
+				GET_EXP_DTTHIS(ch)= GET_EXP_DTTHIS(ch)+dec_exp;
+			}
+		}
+		else// if (!rkiller || (rkiller && rkiller == ch))
+		{
+			//Рип по стечению обстоятельств
+			GET_RIP_OTHER(ch)= GET_RIP_OTHER(ch)+1;
+			GET_RIP_OTHERTHIS(ch)= GET_RIP_OTHERTHIS(ch)+1;
+			if (dec_exp)
+			{
+				GET_EXP_OTHER(ch)= GET_EXP_OTHER(ch)+dec_exp;
+				GET_EXP_OTHERTHIS(ch)= GET_EXP_OTHERTHIS(ch)+dec_exp;
+			}
+		}
+	}
+	//end by WorM
+	/*конец правки (с) Василиса */
 	raw_kill(ch, killer);
 	// if (killer)
 	//   log("Killer lag is %d", GET_WAIT(killer));

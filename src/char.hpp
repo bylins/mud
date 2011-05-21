@@ -218,15 +218,16 @@ struct player_special_data_saved
 	int Rip_pk_this; // рипы от чаров на этом морте
 	int Rip_dt_this; // дт на этом морте
 	int Rip_other_this; // рипы от триггеров и прочее на этом морте
-	long Exp_arena; //потеряно экспы за рипы на арене
-	long Exp_mob; //потеряно экспы  рипы от мобов всего
-	long Exp_pk; //потеряно экспы  рипы от чаров всего
-	long Exp_dt; //потеряно экспы  дт всего
-	long Exp_other; //потеряно экспы  рипы от триггеров и прочее всего
-	long Exp_mob_this; //потеряно экспы  рипы от мобов на этом морте
-	long Exp_pk_this; //потеряно экспы  рипы от чаров на этом морте
-	long Exp_dt_this; //потеряно экспы  дт на этом морте
-	long Exp_other_this; //потеряно экспы  рипы от триггеров и прочее на этом морте
+	//edited by WorM переделал на unsigned long long чтоб экспа в минуса не уходила
+	unsigned long long Exp_arena; //потеряно экспы за рипы на арене
+	unsigned long long Exp_mob; //потеряно экспы  рипы от мобов всего
+	unsigned long long Exp_pk; //потеряно экспы  рипы от чаров всего
+	unsigned long long Exp_dt; //потеряно экспы  дт всего
+	unsigned long long Exp_other; //потеряно экспы  рипы от триггеров и прочее всего
+	unsigned long long Exp_mob_this; //потеряно экспы  рипы от мобов на этом морте
+	unsigned long long Exp_pk_this; //потеряно экспы  рипы от чаров на этом морте
+	unsigned long long Exp_dt_this; //потеряно экспы  дт на этом морте
+	unsigned long long Exp_other_this; //потеряно экспы  рипы от триггеров и прочее на этом морте
 	/*конец правки (с) Василиса */
 	//Polud храним цену, начиная с которой нужно присылать оффлайн-уведомления с базара
 	long ntfyExchangePrice;

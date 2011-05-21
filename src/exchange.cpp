@@ -485,7 +485,7 @@ int exchange_information(CHAR_DATA * ch, char *arg)
 
 	sprintf(buf, "Лот %d. Цена %d\r\n", GET_EXCHANGE_ITEM_LOT(item), GET_EXCHANGE_ITEM_COST(item));
 
-	sprintf(buf, "Предмет \"%s\", ", GET_EXCHANGE_ITEM(item)->short_description);
+	sprintf(buf + strlen(buf), "Предмет \"%s\", ", GET_EXCHANGE_ITEM(item)->short_description);
 	if ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == ITEM_WAND)
 			|| (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == ITEM_STAFF))
 	{
@@ -648,11 +648,19 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 		seller = new Player; // TODO: переделать на стек
 		if ((seller_name == NULL) || (load_char(seller_name, seller) < 0))
 		{
-			act("Вы приобрели $O3 на базаре даром, так как владельца давно след простыл.\r\n",
+			ch->remove_bank(GET_EXCHANGE_ITEM_COST(item));
+			//edited by WorM 2011.05.21
+			act("Вы купили $O3 на базаре.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
+			sprintf(tmpbuf,
+					"Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
+					GET_EXCHANGE_ITEM(item)->PNames[0], GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
+					GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYu));
+			/*act("Вы приобрели $O3 на базаре даром, так как владельца давно след простыл.\r\n",
 				FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
 			sprintf(tmpbuf,
 					"Базар : лот %d(%s) передан%s в надежные руки.\r\n", lot,
-					GET_EXCHANGE_ITEM(item)->PNames[0], GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)));
+					GET_EXCHANGE_ITEM(item)->PNames[0], GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)));*/
+			//end by WorM
 			message_exchange(tmpbuf, ch, item);
 			obj_to_char(GET_EXCHANGE_ITEM(item), ch);
 			clear_exchange_lot(item);
@@ -2016,14 +2024,18 @@ ACMD(do_exchange)
 		char* arg = str_dup(argument);
 		argument = one_argument(argument, arg1);
 
+		if (IS_NPC(ch)) {
+			send_to_char("Торговать?! Да вы же не человек!\r\n");
+		}
 		if (is_abbrev(arg1, "выставить") || is_abbrev(arg1, "exhibit")
 		|| is_abbrev(arg1, "цена") || is_abbrev(arg1, "cost")
 		|| is_abbrev(arg1, "снять") || is_abbrev(arg1, "withdraw")
 		|| is_abbrev(arg1, "купить") || is_abbrev(arg1, "purchase")
-		|| (is_abbrev(arg1, "save") && (GET_LEVEL(ch) >= LVL_IMPL))
+		//commented by WorM 2011.05.21 а нафиг чтоб сохранить/загрузить базар быть у базарного торговца ?
+		/*|| (is_abbrev(arg1, "save") && (GET_LEVEL(ch) >= LVL_IMPL))
 		|| (is_abbrev(arg1, "savebackup") && (GET_LEVEL(ch) >= LVL_IMPL))
 		|| (is_abbrev(arg1, "reload") && (GET_LEVEL(ch) >= LVL_IMPL))
-		|| (is_abbrev(arg1, "reloadbackup") && (GET_LEVEL(ch) >= LVL_IMPL)))
+		|| (is_abbrev(arg1, "reloadbackup") && (GET_LEVEL(ch) >= LVL_IMPL))*/)
 		{
 			send_to_char("Вам необходимо находиться возле базарного торговца, чтобы воспользоваться этой командой.", ch);
 		} else

@@ -51,6 +51,10 @@ extern const char *weapon_affects[];
 extern TIME_INFO_DATA time_info;
 extern int mini_mud, cmd_tell;
 extern char cast_argument[MAX_INPUT_LENGTH];
+// added by WorM  опознание магических ингров 2011.05.21
+extern im_type *imtypes;
+extern int top_imtypes;
+//end by WorM
 
 void clearMemory(CHAR_DATA * ch);
 void weight_change_object(OBJ_DATA * obj, int weight);
@@ -1493,7 +1497,33 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			send_to_char(buf, ch);
 		}
 		break;
-
+// added by WorM  опознание магических ингров 2011.05.21
+	case ITEM_MING:
+		for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT)  && j <= top_imtypes;)
+			j++;
+		sprintf(buf, "Это ингредиент вида '%s%s%s'\r\n", CCCYN(ch, C_NRM), imtypes[j].name, CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
+		i = GET_OBJ_VAL(obj, IM_POWER_SLOT);
+		if (i > 30)
+			send_to_char("Вы не в состоянии определить качество этого ингредиента.\r\n", ch);
+		else {
+			sprintf(buf, "Качество ингредиента ");
+			if (i > 25)
+				strcat(buf, "наилучшее.\r\n");
+			else if (i > 20)
+				strcat(buf, "отличное.\r\n");
+			else if (i > 15)
+				strcat(buf, "очень хорошее.\r\n");
+			else if (i > 10)
+				strcat(buf, "выше среднего.\r\n");
+			else if (i > 5)
+				strcat(buf, "весьма посредственное.\r\n");
+			else
+				strcat(buf, "хуже не бывает.\r\n");
+			send_to_char(buf, ch);
+		}
+		break;
+//end by WorM
 	}
 
 

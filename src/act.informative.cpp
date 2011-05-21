@@ -3373,23 +3373,36 @@ ACMD(do_score)
 }
 
 /*29.11.09 Отображение количества рипов (с) Василиса*/
+// edited by WorM 2011.05.21
 ACMD(do_mystat)
 {
-    sprintf(buf," &C----------------------------------------------------------------------------&n\r\n"
-                " &C||&n   Статистика Ваших смертей   &C|&n      &WТекущее&n       &C|&n                    &C||&n\r\n"
-                " &C||&n (количество, потеряно опыта) &C|&n   &Wперевоплощение&n   &C|&n        &KВсего&n       &C||&n\r\n"
-                " &C----------------------------------------------------------------------------&n\r\n"
-                " &C||&n    В неравном бою с тварями: &C|&n &W%4d (%11ld)&n &C|&n &K%4d (%11ld)&n &C||&n\r\n"
-                " &C||&n    В неравном бою с врагами: &C|&n &W%4d (%11ld)&n &C|&n &K%4d (%11ld)&n &C||&n\r\n"
-                " &C||&n             В гиблых местах: &C|&n &W%4d (%11ld)&n &C|&n &K%4d (%11ld)&n &C||&n\r\n"
-                " &C||&n   По стечению обстоятельств: &C|&n &W%4d (%11ld)&n &C|&n &K%4d (%11ld)&n &C||&n\r\n"
-                " &C----------------------------------------------------------------------------&n\r\n"
-                " &C||&n                       &yИТОГО:&n &C|&n &W%4d (%11ld)&n &C| &K%4d (%11ld)&n &n&C||&n\r\n"
-                " &C----------------------------------------------------------------------------&n\r\n"
-                " &C||&n &WНа арене (всего):                                                      &n&C||&n\r\n"
-                " &C||&n   &wУбито игроков:&n&r%4d&n     &wСмертей:&n&r%4d&n      &wПотеряно опыта:&n &r%11ld&n &C||&n\r\n"
-                " &C----------------------------------------------------------------------------&n\r\n"
-                ,
+	skip_spaces(&argument);
+	if (is_abbrev(argument, "очистить") || is_abbrev(argument, "clear"))
+	{
+		GET_RIP_MOBTHIS(ch) = GET_EXP_MOBTHIS(ch) = GET_RIP_MOB(ch) = GET_EXP_MOB(ch) =
+		GET_RIP_PKTHIS(ch) = GET_EXP_PKTHIS(ch) = GET_RIP_PK(ch) = GET_EXP_PK(ch) =
+		GET_RIP_DTTHIS(ch) = GET_EXP_DTTHIS (ch) = GET_RIP_DT(ch) = GET_EXP_DT(ch) =
+		GET_RIP_OTHERTHIS(ch) = GET_EXP_OTHERTHIS(ch) = GET_RIP_OTHER(ch) = GET_EXP_OTHER(ch) =
+		GET_WIN_ARENA(ch) = GET_RIP_ARENA(ch) = GET_EXP_ARENA(ch) = 0;
+		send_to_char("Статистика очищена.\r\n", ch);
+	}
+	else
+	{
+		sprintf(buf,    " &C--------------------------------------------------------------------------------------&n\r\n"
+				" &C||&n   Статистика Ваших смертей   &C|&n         &WТекущее&n         &C|&n                         &C||&n\r\n"
+				" &C||&n (количество, потеряно опыта) &C|&n      &Wперевоплощение&n     &C|&n           &KВсего&n         &C||&n\r\n"
+				" &C--------------------------------------------------------------------------------------&n\r\n"
+				" &C||&n    В неравном бою с тварями: &C|&n &W%4d (%16llu)&n &C|&n &K%4d (%16llu)&n &C||&n\r\n"
+				" &C||&n    В неравном бою с врагами: &C|&n &W%4d (%16llu)&n &C|&n &K%4d (%16llu)&n &C||&n\r\n"
+				" &C||&n             В гиблых местах: &C|&n &W%4d (%16llu)&n &C|&n &K%4d (%16llu)&n &C||&n\r\n"
+				" &C||&n   По стечению обстоятельств: &C|&n &W%4d (%16llu)&n &C|&n &K%4d (%16llu)&n &C||&n\r\n"
+				" &C--------------------------------------------------------------------------------------&n\r\n"
+				" &C||&n                       &yИТОГО:&n &C|&n &W%4d (%16llu)&n &C| &K%4d (%16llu)&n &n&C||&n\r\n"
+				" &C--------------------------------------------------------------------------------------&n\r\n"
+				" &C||&n &WНа арене (всего):                                                                &n&C||&n\r\n"
+				" &C||&n   &wУбито игроков:&n&r%4d&n     &wСмертей:&n&r%4d&n           &wПотеряно опыта:&n &r%16llu&n &C||&n\r\n"
+				" &C--------------------------------------------------------------------------------------&n\r\n"
+				,
 				GET_RIP_MOBTHIS(ch),GET_EXP_MOBTHIS(ch), GET_RIP_MOB(ch), GET_EXP_MOB(ch),
 				GET_RIP_PKTHIS(ch),GET_EXP_PKTHIS(ch), GET_RIP_PK(ch), GET_EXP_PK(ch),
 				GET_RIP_DTTHIS(ch),GET_EXP_DTTHIS (ch), GET_RIP_DT(ch), GET_EXP_DT(ch),
@@ -3399,8 +3412,10 @@ ACMD(do_mystat)
 				GET_RIP_MOB(ch)+GET_RIP_PK(ch)+GET_RIP_DT(ch)+GET_RIP_OTHER(ch),
 				GET_EXP_MOB(ch)+GET_EXP_PK(ch)+GET_EXP_DT(ch)+GET_EXP_OTHER(ch)+GET_EXP_ARENA(ch),
 				GET_WIN_ARENA(ch),GET_RIP_ARENA(ch), GET_EXP_ARENA(ch));
-    send_to_char(buf, ch);
+		send_to_char(buf, ch);
+	}
 }
+// end by WorM
 /* конец правки (с) Василиса*/
 
 ACMD(do_inventory)
@@ -5045,10 +5060,13 @@ ACMD(do_levels)
 	}
 	*buf = '\0';
 
+	sprintf(buf, "Уровень          Опыт            Макс на урв.\r\n");
 	for (i = 1; i < LVL_IMMORT; i++)
-		sprintf(buf + strlen(buf), "[%2d] %8d-%-8d\r\n", i, level_exp(ch, i), level_exp(ch, i + 1) - 1);
+		sprintf(buf + strlen(buf), "[%2d] %13s-%-13s %-13s\r\n", i, thousands_sep(level_exp(ch, i)).c_str(),
+			thousands_sep(level_exp(ch, i + 1) - 1).c_str(),
+			thousands_sep((int) (level_exp(ch, i + 1) - level_exp(ch, i)) / (10 + GET_REMORT(ch))).c_str());
 
-	sprintf(buf + strlen(buf), "[%2d] %8d          (БЕССМЕРТИЕ)\r\n", LVL_IMMORT, level_exp(ch, LVL_IMMORT));
+	sprintf(buf + strlen(buf), "[%2d] %13s               (БЕССМЕРТИЕ)\r\n", LVL_IMMORT, thousands_sep(level_exp(ch, LVL_IMMORT)).c_str());
 	page_string(ch->desc, buf, 1);
 }
 
