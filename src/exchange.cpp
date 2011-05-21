@@ -2026,8 +2026,7 @@ ACMD(do_exchange)
 
 		if (IS_NPC(ch)) {
 			send_to_char("Торговать?! Да вы же не человек!\r\n", ch);
-		}
-		if (is_abbrev(arg1, "выставить") || is_abbrev(arg1, "exhibit")
+		} else if (is_abbrev(arg1, "выставить") || is_abbrev(arg1, "exhibit")
 		|| is_abbrev(arg1, "цена") || is_abbrev(arg1, "cost")
 		|| is_abbrev(arg1, "снять") || is_abbrev(arg1, "withdraw")
 		|| is_abbrev(arg1, "купить") || is_abbrev(arg1, "purchase")
