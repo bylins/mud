@@ -2025,7 +2025,7 @@ ACMD(do_exchange)
 		argument = one_argument(argument, arg1);
 
 		if (IS_NPC(ch)) {
-			send_to_char("Торговать?! Да вы же не человек!\r\n");
+			send_to_char("Торговать?! Да вы же не человек!\r\n", ch);
 		}
 		if (is_abbrev(arg1, "выставить") || is_abbrev(arg1, "exhibit")
 		|| is_abbrev(arg1, "цена") || is_abbrev(arg1, "cost")
