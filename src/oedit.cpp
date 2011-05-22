@@ -28,6 +28,7 @@
 #include "liquid.hpp"
 #include "name_list.hpp"
 #include "corpse.hpp"
+#include "shop_ext.hpp"
 
 /*------------------------------------------------------------------------*/
 
@@ -273,6 +274,7 @@ void renumber_obj_rnum(int rnum)
 	Depot::renumber_obj_rnum(rnum);
 	Parcel::renumber_obj_rnum(rnum);
 	GlobalDrop::renumber_obj_rnum(rnum);
+	ShopExt::renumber_obj_rnum(rnum);
 }
 
 /**

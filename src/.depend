@@ -185,7 +185,7 @@ oedit.o: oedit.cpp conf.h sysdep.h structs.h comm.h spells.h utils.h \
   features.hpp obj.hpp pugixml.hpp pugiconfig.hpp db.h shop.h olc.h \
   dg_olc.h dg_scripts.h im.h depot.hpp char.hpp player_i.hpp house.h \
   interpreter.h house_exp.hpp remember.hpp skills.h parcel.hpp liquid.hpp \
-  name_list.hpp corpse.hpp
+  name_list.hpp corpse.hpp shop_ext.hpp
 zedit.o: zedit.cpp conf.h sysdep.h structs.h comm.h utils.h features.hpp \
   obj.hpp pugixml.hpp pugiconfig.hpp db.h olc.h dg_scripts.h char.hpp \
   player_i.hpp room.hpp

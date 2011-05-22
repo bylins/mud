@@ -15,6 +15,7 @@ namespace ShopExt
 SPECIAL(shop_ext);
 void load();
 int get_spent_today();
+void renumber_obj_rnum(int rnum);
 
 } // namespace ShopExt
 

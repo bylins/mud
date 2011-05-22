@@ -76,6 +76,18 @@ typedef boost::shared_ptr<shop_node> ShopNodePtr;
 typedef std::vector<ShopNodePtr> ShopListType;
 ShopListType shop_list;
 
+void log_shop_load()
+{
+	for (ShopListType::iterator i = shop_list.begin(); i != shop_list.end(); ++i)
+	{
+		log("ShopExt: mob=%d, type=%d", (*i)->mob_vnum, (*i)->type);
+		for (ItemListType::iterator k = (*i)->item_list.begin(); k != (*i)->item_list.end(); ++k)
+		{
+			log("ItemList: vnum=%d, price=%d", GET_OBJ_VNUM(obj_proto[(*k)->rnum]), (*k)->price);
+		}
+	}
+}
+
 void load()
 {
 	shop_list.clear();
@@ -164,6 +176,7 @@ void load()
 		}
 		shop_list.push_back(tmp_shop);
     }
+    log_shop_load();
 }
 
 unsigned get_item_num(ShopListType::const_iterator &shop, std::string &item_name)
@@ -563,6 +576,20 @@ int get_spent_today()
 	return spent_today;
 }
 
+void renumber_obj_rnum(int rnum)
+{
+	for (ShopListType::iterator i = shop_list.begin(); i != shop_list.end(); ++i)
+	{
+		for (ItemListType::iterator k = (*i)->item_list.begin(); k != (*i)->item_list.end(); ++k)
+		{
+			if ((*k)->rnum >= rnum)
+			{
+				(*k)->rnum += 1;
+			}
+		}
+	}
+}
+
 } // namespace ShopExt
 
 /**
@@ -570,11 +597,16 @@ int get_spent_today()
  */
 void town_shop_keepers()
 {
+	// список уже оработанных зон, чтобы не грузить двух и более торгашей в одну
+	std::vector<int> zone_list;
+
 	for (CHAR_DATA *ch = character_list; ch; ch = ch->next)
 	{
 		if (IS_RENTKEEPER(ch) && IN_ROOM(ch) > 0
 			&& Clan::IsClanRoom(IN_ROOM(ch)) == Clan::ClanList.end()
-			&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_SOUNDPROOF))
+			&& !ROOM_FLAGGED(IN_ROOM(ch), ROOM_SOUNDPROOF)
+			&& GET_ROOM_VNUM(IN_ROOM(ch)) % 100 != 99
+			&& std::find(zone_list.begin(), zone_list.end(), world[IN_ROOM(ch)]->zone) == zone_list.end())
 		{
 			int rnum_start, rnum_end;
 			if (get_zone_rooms(world[IN_ROOM(ch)]->zone, &rnum_start, &rnum_end))
@@ -585,6 +617,7 @@ void town_shop_keepers()
 					char_to_room(mob, number(rnum_start, rnum_end));
 				}
 			}
+			zone_list.push_back(world[IN_ROOM(ch)]->zone);
 		}
 	}
 }
