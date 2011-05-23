@@ -309,6 +309,11 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	SCRIPT(obj) = SCRIPT(&tmp);
 	// для name_list
 	obj->set_serial_num(tmp.get_serial_num());
+	//added by WorM 2011.05.23 сохраняем текущие таймер и прочность во избежании всяких приколов
+	//GET_OBJ_CUR(obj) = tmp.obj_flags.Obj_cur;
+	GET_OBJ_CUR(obj) = GET_OBJ_CUR(&tmp);
+	obj->set_timer(tmp.get_timer());
+	//end by WorM
 //	ObjectAlias::remove(obj);
 //	ObjectAlias::add(obj);
 }

@@ -98,7 +98,8 @@ const char * skill_percent(CHAR_DATA * ch, char *skill)
 	skillnum = find_skill_num(skill);
 	if (skillnum > 0)
 	{
-		sprintf(retval, "%d", ch->get_skill(skillnum));
+		//edited by WorM 2011.05.23 триги должны возвращать реальный скилл без бонусов от стафа
+		sprintf(retval, "%d", ch->get_trained_skill(skillnum));
 		return retval;
 	}
 
