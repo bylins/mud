@@ -60,12 +60,13 @@ struct wld_command_info
 
 
 
+extern int last_trig_vnum;
 /* attaches room vnum to msg and sends it to script_log */
 void wld_log(room_data * room, const char *msg)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
 
-	sprintf(buf, "(Room: %d): %s", room->number, msg);
+	sprintf(buf, "(Room: %d trig: %d): %s", room->number, last_trig_vnum, msg);
 	script_log(buf);
 }
 

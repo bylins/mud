@@ -30,6 +30,7 @@ extern int invalid_align(CHAR_DATA * ch, OBJ_DATA * obj);
 extern char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear);
 extern char *diag_timer_to_char(OBJ_DATA * obj);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
+extern void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH]);
 
 
 AUCTION_DATA auction_lots[MAX_AUCTION_LOT] = { { -1, NULL, -1, NULL, -1, NULL, -1, NULL, 0, 0},
@@ -440,6 +441,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 		};
 		strcat(buf, diag_timer_to_char(obj));
 		strcpy(buf2, diag_weapon_to_char(obj, TRUE));
+		obj_info(ch, obj, buf);
 		if (*buf2)
 		{
 			strcat(buf, buf2);

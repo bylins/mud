@@ -134,9 +134,9 @@ ACMD(do_at);
 ACMD(do_goto);
 ACMD(do_teleport);
 ACMD(do_vnum);
-void do_stat_room(CHAR_DATA * ch);
-void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j);
-void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k);
+void do_stat_room(CHAR_DATA * ch, const int rnum = 0);
+void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt = 0);//added by WorM virt при vstat'е 1 чтобы считалось реальное кол-во объектов в мире
+void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt = 0);//added by WorM virt при vstat'е 1 чтобы считалось реальное кол-во мобов в мире
 ACMD(do_stat);
 ACMD(do_shutdown);
 void stop_snooping(CHAR_DATA * ch);
@@ -1090,7 +1090,7 @@ ACMD(do_vnum)
 
 
 
-void do_stat_room(CHAR_DATA * ch)
+void do_stat_room(CHAR_DATA * ch, const int rnum)
 {
 	EXTRA_DESCR_DATA *desc;
 	ROOM_DATA *rm = world[ch->in_room];
@@ -1098,6 +1098,8 @@ void do_stat_room(CHAR_DATA * ch)
 	OBJ_DATA *j;
 	CHAR_DATA *k;
 	AFFECT_DATA *aff;
+	if(rnum != 0)
+		rm = world[rnum];
 
 	sprintf(buf, "Комната : %s%s%s\r\n", CCCYN(ch, C_NRM), rm->name, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
@@ -1214,7 +1216,7 @@ void do_stat_room(CHAR_DATA * ch)
 
 
 
-void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j)
+void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 {
 	int i, found;
 	obj_vnum rnum, vnum;
@@ -1485,7 +1487,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j)
 	if (is_grgod)
 	{
 		sprintf(buf, "Сейчас в мире : %d. На постое : %d\r\n",
-				rnum >= 0 ? obj_index[rnum].number : -1, rnum >= 0 ? obj_index[rnum].stored : -1);
+				rnum >= 0 ? obj_index[rnum].number - (virt ? 1 : 0) : -1, rnum >= 0 ? obj_index[rnum].stored : -1);
 		send_to_char(buf, ch);
 		/* check the object for a script */
 		do_sstat_object(ch, j);
@@ -1493,7 +1495,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j)
 }
 
 
-void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
+void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 {
 	int i, i2, found = 0;
 	OBJ_DATA *j;
@@ -1682,7 +1684,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k)
 	}
 	else
 	{
-		sprintf(buf, "Сейчас в мире : %d. \r\n", GET_MOB_RNUM(k) >= 0 ? mob_index[GET_MOB_RNUM(k)].number : -1);
+		sprintf(buf, "Сейчас в мире : %d. \r\n", GET_MOB_RNUM(k) >= 0 ? mob_index[GET_MOB_RNUM(k)].number - (virt ? 1 : 0) : -1);
 		send_to_char(buf, ch);
 	}
 	sprintf(buf,
@@ -1992,7 +1994,16 @@ ACMD(do_stat)
 
 	if (is_abbrev(buf1, "room") && level >= LVL_BUILDER)
 	{
-		do_stat_room(ch);
+		int vnum, rnum = NOWHERE;
+		if (*buf2 && (vnum = atoi(buf2)))
+		{
+			if ((rnum = real_room(vnum)) != NOWHERE)
+				do_stat_room(ch, rnum);
+			else
+				send_to_char("Состояние какой комнаты ?\r\n", ch);
+		}
+		if (!*buf2)
+			do_stat_room(ch);
 	}
 	else if (is_abbrev(buf1, "mob") && level >= LVL_BUILDER)
 	{
@@ -2495,7 +2506,7 @@ ACMD(do_vstat)
 			return;
 		}
 		obj = read_object(r_num, REAL);
-		do_stat_object(ch, obj);
+		do_stat_object(ch, obj, 1);
 		extract_obj(obj);
 	}
 	else
@@ -3486,6 +3497,8 @@ ACMD(do_wiznet)
 	{
 		sprintf(buf1, "%s%s: %s%s\r\n", GET_NAME(ch), emote ? "" : " богам", emote ? "<--- " : "", argument);
 	}
+	snprintf(buf2, MAX_STRING_LENGTH, "&c%s&n", buf1);
+	Remember::add_to_flaged_cont(Remember::wiznet_, buf2, level);
 
 	/* пробегаемся по списку дескрипторов чаров и кто должен - тот услышит богов */
 	for (d = descriptor_list; d; d = d->next)

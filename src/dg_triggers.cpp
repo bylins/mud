@@ -679,7 +679,7 @@ int damage_mtrigger(CHAR_DATA * damager, CHAR_DATA * victim)
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
-	if (!SCRIPT_CHECK(victim, MTRIG_DAMAGE) || !CAN_START_MTRIG(damager))
+	if (!SCRIPT_CHECK(victim, MTRIG_DAMAGE) || !CAN_START_MTRIG(victim))
 		return 0;
 
 	for (t = TRIGGERS(SCRIPT(victim)); t; t = t->next)

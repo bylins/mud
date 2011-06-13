@@ -241,7 +241,7 @@ bool check_money(CHAR_DATA *ch, int price, int type)
 	return ch->get_gold() >= price;
 }
 
-void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop)
+void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::string arg)
 {
 	send_to_char(ch,
 		" ##    Доступно   Предмет                                      Цена (%s)\r\n"
@@ -252,8 +252,11 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop)
 	for (ItemListType::const_iterator k = (*shop)->item_list.begin(),
 		kend = (*shop)->item_list.end(); k != kend; ++k)
 	{
-		out += boost::str(boost::format("%3d)   Навалом    %-47s %8d\r\n")
-			% num++ % GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0) % (*k)->price);
+		if (isname(arg.c_str(), GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0)))
+			out += boost::str(boost::format("%3d)   Навалом    %-47s %8d\r\n")
+				% num++ % GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0) % (*k)->price);
+		else
+			num++;
 	}
 	send_to_char(out, ch);
 }
@@ -464,19 +467,19 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 
 	if (buffer.empty())
 	{
-		tell_to_char(keeper, ch, "ЧТО ты хочешь опознать?");
+		tell_to_char(keeper, ch, "Характеристики ЧЕГО ты хочешь узнать?");
 		return;
 	}
 
 	unsigned item_num = 0;
 	if (is_number(buffer.c_str()))
 	{
-		// опознать 5
+		// характеристики 5
 		item_num = boost::lexical_cast<unsigned>(buffer);
 	}
 	else
 	{
-		// опознать меч
+		// характеристики меч
 		item_num = get_item_num(shop, buffer);
 	}
 
@@ -534,7 +537,7 @@ SPECIAL(shop_ext)
 	}
 	if (!(CMD_IS("список") || CMD_IS("list")
 		|| CMD_IS("купить") || CMD_IS("buy")
-		|| CMD_IS("опознать") || CMD_IS("identify")))
+		|| CMD_IS("характеристики") || CMD_IS("identify")))
 	{
 		return 0;
 	}
@@ -554,7 +557,9 @@ SPECIAL(shop_ext)
 
 	if (CMD_IS("список") || CMD_IS("list"))
 	{
-		print_shop_list(ch, shop);
+		std::string buffer = argument, buffer2;
+		GetOneParam(buffer, buffer2);
+		print_shop_list(ch, shop, buffer2);
 		return 1;
 	}
 	if (CMD_IS("купить") || CMD_IS("buy"))
@@ -562,7 +567,7 @@ SPECIAL(shop_ext)
 		process_buy(ch, keeper, argument, shop);
 		return 1;
 	}
-	if (CMD_IS("опознать") || CMD_IS("identify"))
+	if (CMD_IS("характеристики") || CMD_IS("identify"))
 	{
 		process_ident(ch, keeper, argument, shop);
 		return 1;

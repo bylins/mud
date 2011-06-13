@@ -23,6 +23,8 @@ RememberListType gossip;
 RememberListType offtop;
 // воззвания (иммам)
 RememberListType imm_pray;
+// гбогам/wiznet
+RememberWiznetListType wiznet_;
 
 std::string time_format()
 {
@@ -89,6 +91,38 @@ std::string get_from_cont(const RememberListType &cont, unsigned int num_str)
 	for (; it != cont.end(); ++it)
 	{
 		text += *it;
+	}
+	return text;
+}
+
+void add_to_flaged_cont(RememberWiznetListType &cont, const std::string &text, const int level)
+{
+	RememberMsgPtr temp_msg_ptr(new RememberMsg);
+	temp_msg_ptr->Msg = time_format() + text;
+	temp_msg_ptr->level = level;
+	cont.push_back(temp_msg_ptr);
+	if (cont.size() > MAX_REMEMBER_NUM)
+	{
+		cont.erase(cont.begin());
+	}
+}
+
+std::string get_from_flaged_cont(const RememberWiznetListType &cont, unsigned int num_str, const int level)
+{
+	std::string text;
+	RememberWiznetListType::const_iterator it = cont.begin();
+	if (cont.size() > num_str)
+	{
+		std::advance(it, cont.size() - num_str);
+	}
+	for (; it != cont.end(); ++it)
+	{
+		if(level >= (*it)->level)
+			text += (*it)->Msg;
+	}
+	if (text.empty())
+	{
+		text = "Вам нечего вспомнить.\r\n";
 	}
 	return text;
 }
@@ -271,6 +305,11 @@ ACMD(do_remember_char)
 		}
 		return;
 	}
+	else if (is_abbrev(arg, "гбогам") && IS_IMMORTAL(ch))
+	{
+		send_to_char(get_from_flaged_cont(wiznet_, ch->remember_get_num(), GET_LEVEL(ch)), ch);
+		return;
+	}
 	else if (is_abbrev(arg, "все"))
 	{
 		send_to_char(ch->remember_get(Remember::ALL), ch);
@@ -279,7 +318,7 @@ ACMD(do_remember_char)
 	else
 	{
 		if (IS_IMMORTAL(ch))
-			send_to_char("Формат команды: вспомнить [без параметров|болтать|воззвать|гг|гд|гс|все]\r\n", ch);
+			send_to_char("Формат команды: вспомнить [без параметров|болтать|воззвать|гг|гд|гс|гб|все]\r\n", ch);
 		else
 			send_to_char("Формат команды: вспомнить [без параметров|болтать|оффтоп|гг|гд|гс|все]\r\n", ch);
 	}

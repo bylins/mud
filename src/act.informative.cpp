@@ -2015,8 +2015,68 @@ char *find_exdesc(char *word, EXTRA_DESCR_DATA * list)
 
 	return (NULL);
 }
+//ф-ция вывода доп инфы об объекте
+//buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
+void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
+{
+	int j;
+		if (GET_CLASS(ch) == CLASS_MERCHANT && GET_LEVEL(ch) >= 20)
+		{
+			sprintf(buf+strlen(buf), "Материал : %s", CCCYN(ch, C_NRM));
+			sprinttype(obj->obj_flags.Obj_mater, material_name, buf+strlen(buf));
+			sprintf(buf+strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
+		}
 
+		if (can_use_feat(ch, BREW_POTION_FEAT) && GET_OBJ_TYPE(obj) == ITEM_MING)
+		{
+			for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT)  && j <= top_imtypes;)
+				j++;
+			sprintf(buf+strlen(buf), "Это ингредиент вида '%s'.\r\n", imtypes[j].name);
+			int imquality = GET_OBJ_VAL(obj, IM_POWER_SLOT);
+			if (GET_LEVEL(ch) >= imquality)
+			{
+				sprintf(buf+strlen(buf), "Качество ингредиента ");
+				if (imquality > 25)
+					strcat(buf+strlen(buf), "наилучшее.\r\n");
+				else if (imquality > 20)
+					strcat(buf+strlen(buf), "отличное.\r\n");
+				else if (imquality > 15)
+					strcat(buf+strlen(buf), "очень хорошее.\r\n");
+				else if (imquality > 10)
+					strcat(buf+strlen(buf), "выше среднего.\r\n");
+				else if (imquality > 5)
+					strcat(buf+strlen(buf), "весьма посредственное.\r\n");
+				else
+					strcat(buf+strlen(buf), "хуже не бывает.\r\n");
+			}
+			else
+			{
+				strcat(buf+strlen(buf), "Вы не в состоянии определить качество этого ингредиента.\r\n");
+			}
+		}
 
+		if ((CAN_WEAR(obj, ITEM_WEAR_BODY) ||
+				CAN_WEAR(obj, ITEM_WEAR_HEAD) ||
+				CAN_WEAR(obj, ITEM_WEAR_LEGS) ||
+				CAN_WEAR(obj, ITEM_WEAR_ARMS) ||
+				CAN_WEAR(obj, ITEM_WEAR_SHIELD) ||
+				CAN_WEAR(obj, ITEM_WEAR_WIELD) ||
+				CAN_WEAR(obj, ITEM_WEAR_HOLD) ||
+				CAN_WEAR(obj, ITEM_WEAR_BOTHS)) &&
+				(GET_CLASS(ch) == CLASS_SMITH && ch->get_skill(SKILL_INSERTGEM) >= 60))
+		{
+			sprintf(buf+strlen(buf), "Слоты : %s", CCCYN(ch, C_NRM));
+			if (OBJ_FLAGGED(obj, ITEM_WITH3SLOTS))
+				strcat(buf, "доступно 3 слота\r\n");
+			else if (OBJ_FLAGGED(obj, ITEM_WITH2SLOTS))
+				strcat(buf, "доступно 2 слота\r\n");
+			else if (OBJ_FLAGGED(obj, ITEM_WITH1SLOT))
+				strcat(buf, "доступен 1 слот\r\n");
+			else
+				strcat(buf, "нет слотов\r\n");
+			sprintf(buf+strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
+		}
+}
 /*
  * Given the argument "look at <target>", figure out what object or char
  * matches the target.  First, see if there is another char in the room
@@ -2028,7 +2088,7 @@ char *find_exdesc(char *word, EXTRA_DESCR_DATA * list)
  */
 bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 {
-	int bits, found = FALSE, fnum, i = 0, cn = 0, j;
+	int bits, found = FALSE, fnum, i = 0, cn = 0;
 	struct portals_list_type *port;
 	CHAR_DATA *found_char = NULL;
 	OBJ_DATA *found_obj = NULL;
@@ -2177,7 +2237,10 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 			show_obj_to_char(found_obj, ch, 6, TRUE, 1);	/* Find hum, glow etc */
 		}
 
-		if (GET_CLASS(ch) == CLASS_MERCHANT && GET_LEVEL(ch) >= 20)
+		*buf = '\0';
+		obj_info(ch, found_obj, buf);
+		send_to_char(buf, ch);
+		/*if (GET_CLASS(ch) == CLASS_MERCHANT && GET_LEVEL(ch) >= 20)
 		{
 			send_to_char("Материал : ", ch);
 			send_to_char(CCCYN(ch, C_NRM), ch);
@@ -2240,7 +2303,7 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 			strcat(buf, "\r\n");
 			send_to_char(buf, ch);
 			send_to_char(CCNRM(ch, C_NRM), ch);
-		}
+		}*/
 
 	}
 	else

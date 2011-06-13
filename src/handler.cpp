@@ -4066,8 +4066,6 @@ int equip_in_metall(CHAR_DATA * ch)
 
 int awake_others(CHAR_DATA * ch)
 {
-	int i;
-
 	if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
 		return (FALSE);
 

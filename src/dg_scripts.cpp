@@ -39,6 +39,7 @@
 
 /* external vars from triggers.cpp */
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
+int last_trig_vnum=0;
 
 /* other external vars */
 
@@ -5014,6 +5015,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 						obj_command_interpreter((OBJ_DATA *) go, cmd);
 						break;
 					case WLD_TRIGGER:
+						last_trig_vnum = GET_TRIG_VNUM(trig);
 						wld_command_interpreter((ROOM_DATA *) go, cmd);
 						break;
 					}

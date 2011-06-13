@@ -54,7 +54,7 @@ CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	parcel.cpp liquid.cpp poison.cpp xmlParser.cpp corpse.cpp house_exp.cpp remember.cpp \
 	name_list.cpp dps.cpp obj.spell.cpp obj.cpp room.cpp spam.cpp AffectHandler.cpp \
 	glory_const.cpp pugixml.cpp pugixpath.cpp glory_misc.cpp shop_ext.cpp named_stuff.cpp \
-	version.cpp celebrates.cpp
+	celebrates.cpp version.cpp
 
 default: circle
 

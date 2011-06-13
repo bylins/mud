@@ -3044,17 +3044,18 @@ void init_spell_levels(void)
 		for (j = 0; j < NUM_KIN; j++)
 			if (i[j] == 1)
 			{
+				//log("Setting up feat '%s'", feat_info[sp_num].name);
 				feat_info[sp_num].classknow[i[3]][j] = TRUE;
-				log("Classknow feat set '%d' kin '%d' classes %d", sp_num, j, i[3]);
+				log("Classknow feat set '%s': %d kin: %d classes: %d Remort: %d Level: %d Natural: %d", feat_info[sp_num].name, sp_num, j, i[3], i[4], i[5], i[6]);
 
 				feat_info[sp_num].min_remort[i[3]][j] = i[4];
-				log("Remort feat set '%d' kin '%d' classes %d value %d", sp_num, j, i[3], i[4]);
+				//log("Remort feat set '%d' kin '%d' classes %d value %d", sp_num, j, i[3], i[4]);
 
 				feat_info[sp_num].slot[i[3]][j] = i[5];
-				log("Level feat set '%d' kin '%d' classes %d value %d", sp_num, j, i[3], i[5]);
+				//log("Level feat set '%d' kin '%d' classes %d value %d", sp_num, j, i[3], i[5]);
 
 				feat_info[sp_num].natural_classfeat[i[3]][j] = i[6] ? true : false;
-				log("Natural classfeature set '%d' kin '%d' classes %d", sp_num, j, i[3]);
+				//log("Natural classfeature set '%d' kin '%d' classes %d", sp_num, j, i[3]);
 			}
 	}
 	fclose(magic);
