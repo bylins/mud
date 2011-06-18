@@ -297,6 +297,7 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	*obj = *olc_proto;
 	obj->proto_script = NULL;
 	// Восстанавливаю игровую информацию
+	obj->uid = tmp.uid;
 	obj->in_room = tmp.in_room;
 	obj->item_number = robj_num;
 	obj->carried_by = tmp.carried_by;
@@ -309,11 +310,10 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	SCRIPT(obj) = SCRIPT(&tmp);
 	// для name_list
 	obj->set_serial_num(tmp.get_serial_num());
-	//added by WorM 2011.05.23 сохраняем текущие таймер и прочность во избежании всяких приколов
-	//GET_OBJ_CUR(obj) = tmp.obj_flags.Obj_cur;
 	GET_OBJ_CUR(obj) = GET_OBJ_CUR(&tmp);
 	obj->set_timer(tmp.get_timer());
-	//end by WorM
+	if (OBJ_FLAGGED(&tmp, ITEM_TICKTIMER))//если у старого объекта запущен таймер
+		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_TICKTIMER), ITEM_TICKTIMER);//ставим флаг таймер запущен
 //	ObjectAlias::remove(obj);
 //	ObjectAlias::add(obj);
 }
