@@ -674,10 +674,15 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 
 	if (IN_ROOM(ch) != NOWHERE)
 	{
-		if (!IS_NPC(ch) && !RENTABLE(ch)
-				&& ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA))
+		if (!IS_NPC(ch) && ((!RENTABLE(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA))
+				|| (killer && PRF_FLAGGED(killer, PRF_EXECUTOR))))//Если убили на арене или палач
 		{
 			make_arena_corpse(ch, killer);
+			if(killer && PRF_FLAGGED(killer, PRF_EXECUTOR))//Если убил палач то все деньги перекачивают к нему
+			{
+				killer->set_gold(ch->get_gold() + killer->get_gold());
+				ch->set_gold(0);
+			}
 			change_fighting(ch, TRUE);
 			GET_HIT(ch) = 1;
 			GET_POS(ch) = POS_SITTING;
@@ -709,7 +714,7 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 				kill_log("%s (%d): %d", GET_NAME(master), GET_LEVEL(master), GET_LEVEL(ch));
 			}
 			local_gold = ch->get_gold();
-			corpse = make_corpse(ch);
+			corpse = make_corpse(ch, killer);
 			if (MOB_FLAGGED(ch, MOB_CORPSE))
 			{
 				perform_drop_gold(ch, local_gold, SCMD_DROP, 0);
@@ -820,7 +825,7 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
 	if (IS_NPC(ch) || !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)
 			|| RENTABLE(ch))
 	{
-		if (!(IS_NPC(ch) || IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
+		if (!(IS_NPC(ch) || IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) || (killer && PRF_FLAGGED(killer, PRF_EXECUTOR))))//если убил не палач
 		{
 			dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5));
 			gain_exp(ch, -dec_exp);
@@ -2873,7 +2878,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 				perform_group_gain(killer, victim, 1, 100);
 		}
 		// в сислог иммам идут только смерти в пк (без арен), в файл пишутся все смерти чаров
-		if (!IS_NPC(victim))
+		if (!IS_NPC(victim) && !(killer && PRF_FLAGGED(killer, PRF_EXECUTOR)))//если чар убит палачем то тоже не спамим
 		{
 			ClanPkLog::check(ch, victim);
 			sprintf(buf2, "%s killed by %s at %s", GET_NAME(victim),

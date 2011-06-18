@@ -2495,7 +2495,7 @@ ACMD(do_vstat)
 		}
 		mob = read_mobile(r_num, REAL);
 		char_to_room(mob, 1);
-		do_stat_character(ch, mob);
+		do_stat_character(ch, mob, 1);
 		extract_char(mob, FALSE);
 	}
 	else if (is_abbrev(buf, "obj"))
@@ -4327,6 +4327,7 @@ struct set_struct		/*
 	{"dumb", LVL_GOD, PC, MISC},
 	{"karma", LVL_IMPL, PC, MISC},
 	{"unreg", LVL_GOD, PC, MISC}, // 56
+	{"executor", LVL_IMPL, PC, BINARY}, // 57
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -4977,6 +4978,20 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		reason = one_argument(val_arg, num);
 		if (*num) times = atol(num);
 		if (!set_punish(ch, vict, SCMD_UNREGISTER, reason, times)) return (0);
+		break;
+
+	case 57:      // Установка флага палач
+		reason = one_argument(val_arg, num);
+		sprintf(buf, "executor %s by %s", (on?"on":"off"), GET_NAME(ch));
+		add_karma(vict, buf, reason);
+		if (on)
+		{
+			SET_BIT(PRF_FLAGS(vict, PRF_EXECUTOR), PRF_EXECUTOR);
+		}
+		else if (off)
+		{
+			REMOVE_BIT(PRF_FLAGS(vict, PRF_EXECUTOR), PRF_EXECUTOR);
+		}
 		break;
 
 	default:

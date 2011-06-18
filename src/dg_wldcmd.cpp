@@ -788,7 +788,7 @@ WCMD(do_wskilladd)
 
 	skilldiff = atoi(amount);
 
-	if ((ch = get_char_by_room(room, name)))
+	if (!(ch = get_char_by_room(room, name)))
 	{
 		wld_log(room, "wskilladd: target not found");
 		return;

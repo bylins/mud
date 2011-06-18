@@ -2055,15 +2055,7 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 			}
 		}
 
-		if ((CAN_WEAR(obj, ITEM_WEAR_BODY) ||
-				CAN_WEAR(obj, ITEM_WEAR_HEAD) ||
-				CAN_WEAR(obj, ITEM_WEAR_LEGS) ||
-				CAN_WEAR(obj, ITEM_WEAR_ARMS) ||
-				CAN_WEAR(obj, ITEM_WEAR_SHIELD) ||
-				CAN_WEAR(obj, ITEM_WEAR_WIELD) ||
-				CAN_WEAR(obj, ITEM_WEAR_HOLD) ||
-				CAN_WEAR(obj, ITEM_WEAR_BOTHS)) &&
-				(GET_CLASS(ch) == CLASS_SMITH && ch->get_skill(SKILL_INSERTGEM) >= 60))
+		if (GET_CLASS(ch) == CLASS_SMITH && ch->get_skill(SKILL_INSERTGEM) >= 60)
 		{
 			sprintf(buf+strlen(buf), "Слоты : %s", CCCYN(ch, C_NRM));
 			if (OBJ_FLAGGED(obj, ITEM_WITH3SLOTS))

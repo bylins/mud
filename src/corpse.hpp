@@ -9,7 +9,7 @@
 #include "structs.h"
 
 void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer);
-OBJ_DATA *make_corpse(CHAR_DATA * ch);
+OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer = NULL);
 
 namespace GlobalDrop
 {

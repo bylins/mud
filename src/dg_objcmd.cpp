@@ -335,6 +335,9 @@ OCMD(do_otransform)
 		// для name_list
 		obj->set_serial_num(o->get_serial_num());
 		o->set_serial_num(tmpobj.get_serial_num());
+		//копируем также инфу о зоне, вообще мне не совсем понятна замута с этой инфой об оригинальной зоне
+		GET_OBJ_ZONE(obj) = GET_OBJ_ZONE(o);
+		GET_OBJ_ZONE(o) = GET_OBJ_ZONE(&tmpobj);
 //		ObjectAlias::remove(obj);
 //		ObjectAlias::add(obj);
 

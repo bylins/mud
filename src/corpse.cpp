@@ -280,7 +280,7 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	obj_to_room(corpse, IN_ROOM(ch));
 }
 
-OBJ_DATA *make_corpse(CHAR_DATA * ch)
+OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 {
 	OBJ_DATA *corpse, *o;
 	OBJ_DATA *money;
@@ -393,6 +393,16 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch)
 	/*  if (IS_NPC (ch))
 	    dl_load_obj (corpse, ch); */
 
-	obj_to_room(corpse, IN_ROOM(ch));
-	return corpse;
+	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
+	if(IS_CHARMICE(ch) && !MOB_FLAGGED(ch, MOB_CORPSE) && ch->master && ((killer && PRF_FLAGGED(killer, PRF_EXECUTOR))
+		|| (ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) && !RENTABLE(ch->master))))
+	{
+		obj_to_char(corpse, ch->master);
+		return NULL;
+	}
+	else
+	{
+		obj_to_room(corpse, IN_ROOM(ch));
+		return corpse;
+	}
 }
