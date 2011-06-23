@@ -2480,9 +2480,9 @@ ACMD(do_townportal)
 ACMD(do_turn_undead)
 {
 	int percent, dam = 0;
-	int i, sum, ch_list_size, max_level;
+	int i, sum, max_level;
 	struct timed_type timed;
-	CHAR_DATA **ch_list;
+	vector<CHAR_DATA*> ch_list;
 	CHAR_DATA *ch_vict;
 
 	if (IS_NPC(ch))		/* Cannot use on mobs. */
@@ -2510,9 +2510,6 @@ ACMD(do_turn_undead)
 	act("$n свел$g руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n", FALSE, ch, 0, 0, TO_ROOM);
 
 //Составляем список всех персов в комнате и выкидываем дружественных и не-нежить
-	for (ch_list_size = 0, ch_vict = world[ch->in_room]->people;
-			ch_vict; ++ch_list_size, ch_vict = ch_vict->next_in_room);
-	CREATE(ch_list, CHAR_DATA *, ch_list_size);
 	for (i = 0, ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
 	{
 		if (IS_IMMORTAL(ch_vict))
@@ -2525,15 +2522,14 @@ ACMD(do_turn_undead)
 			continue;
 		if (!may_kill_here(ch, ch_vict))
 			return;
-		ch_list[i++] = ch_vict;
+		ch_list.push_back(ch_vict);
 	}
-	ch_list_size = i;
 
-	if (i > 0)
+	if (ch_list.size() > 0)
 		percent = ch->get_skill(SKILL_TURN_UNDEAD);
 	else
 	{
-		free(ch_list);
+		ch_list.clear();
 		return;
 	}
 
@@ -2547,11 +2543,11 @@ ACMD(do_turn_undead)
 //Применяем.
 //Если уровень больше максимального, или отсэйвилось - фейл по этому персу
 //Если поражение - то дамаг+страх, если от страха спасла воля - просто дамаг.
-	for (i = 0; i < ch_list_size; ++i)
+	for (vector<CHAR_DATA *>::iterator it=ch_list.begin();it!=ch_list.end();++it)
 	{
 		if (sum <= 0)
 			break;
-		ch_vict = ch_list[i];
+		ch_vict = *it;
 		if (IN_ROOM(ch) == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 			continue;
 		if ((GET_LEVEL(ch_vict) > max_level) ||
@@ -2582,7 +2578,6 @@ ACMD(do_turn_undead)
 			go_flee(ch_vict);
 	}
 
-	free(ch_list);
 }
 
 /* Умение "железный ветер" */

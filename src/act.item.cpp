@@ -648,8 +648,8 @@ int perform_get_from_room(CHAR_DATA * ch, OBJ_DATA * obj)
 		obj_to_char(obj, ch);
 		if (obj->carried_by == ch)
 		{
-			act("Вы взяли $o3.", FALSE, ch, obj, 0, TO_CHAR);
-			act("$n взял$g $o3.", TRUE, ch, obj, 0, TO_ROOM);
+			act("Вы подняли $o3.", FALSE, ch, obj, 0, TO_CHAR);
+			act("$n поднял$g $o3.", TRUE, ch, obj, 0, TO_ROOM);
 			get_check_money(ch, obj);
 			return (1);
 		}

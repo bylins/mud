@@ -1181,7 +1181,7 @@ void horse_drop(CHAR_DATA * ch);
 void make_horse(CHAR_DATA * horse, CHAR_DATA * ch);
 void check_horse(CHAR_DATA * ch);
 
-int same_group(CHAR_DATA * ch, CHAR_DATA * tch);
+bool same_group(CHAR_DATA * ch, CHAR_DATA * tch);
 
 int is_post(room_rnum room);
 bool is_rent(room_rnum room);

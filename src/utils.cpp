@@ -1702,10 +1702,10 @@ char *race_or_title(CHAR_DATA * ch)
 	return title;
 }
 
-int same_group(CHAR_DATA * ch, CHAR_DATA * tch)
+bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 {
 	if (!ch || !tch)
-		return (FALSE);
+		return false;
 
 	if (IS_NPC(ch) && ch->master && !IS_NPC(ch->master))
 		ch = ch->master;
@@ -1714,15 +1714,15 @@ int same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 
 	// NPC's always in same group
 	if ((IS_NPC(ch) && IS_NPC(tch)) || ch == tch)
-		return (TRUE);
+		return true;
 
 	if (!AFF_FLAGGED(ch, AFF_GROUP) || !AFF_FLAGGED(tch, AFF_GROUP))
-		return (FALSE);
+		return false;
 
 	if (ch->master == tch || tch->master == ch || (ch->master && ch->master == tch->master))
-		return (TRUE);
+		return true;
 
-	return (FALSE);
+	return false;
 }
 
 // Проверка является комната рентой.

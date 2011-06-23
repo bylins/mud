@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <bitset>
+#include <boost/lexical_cast.hpp>
 #include "char_player.hpp"
 #include "utils.h"
 #include "db.h"
@@ -805,7 +806,15 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		line1[i] = '\0';
 		num = atoi(line1);
 		lnum = atol(line1);
-		llnum = atoll(line1);
+		try
+		{
+			llnum = boost::lexical_cast<unsigned long long>(line1);
+		}
+		catch(boost::bad_lexical_cast &)
+        {
+			llnum = 0;
+		}
+
 
 		switch (*tag)
 		{
@@ -1052,7 +1061,14 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		line1[i] = '\0';
 		num = atoi(line1);
 		lnum = atol(line1);
-		llnum = atoll(line1);
+		try
+		{
+			llnum = boost::lexical_cast<unsigned long long>(line1);
+		}
+		catch(boost::bad_lexical_cast &)
+        {
+			llnum = 0;
+		}
 
 		switch (*tag)
 		{

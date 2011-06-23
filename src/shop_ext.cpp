@@ -252,11 +252,11 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 	for (ItemListType::const_iterator k = (*shop)->item_list.begin(),
 		kend = (*shop)->item_list.end(); k != kend; ++k)
 	{
-		if (isname(arg.c_str(), GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0)))
-			out += boost::str(boost::format("%3d)   Навалом    %-47s %8d\r\n")
-				% num++ % GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0) % (*k)->price);
-		else
-			num++;
+		if (arg.empty() || isname(arg.c_str(), GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0)))
+				out += boost::str(boost::format("%3d)   Навалом    %-47s %8d\r\n")
+					% num++ % GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0) % (*k)->price);
+			else
+				num++;
 	}
 	send_to_char(out, ch);
 }
