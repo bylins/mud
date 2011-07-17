@@ -563,7 +563,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 		return FALSE;
 	}
 	/* Доступность по классу, реморту. */
-	if (!(feat_info[feat].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck(GET_KIN(ch),GET_RACE(ch),feat)) ||
+	if ((!feat_info[feat].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && !PlayerRace::FeatureCheck(GET_KIN(ch),GET_RACE(ch),feat)) ||
 			(GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))
 		return FALSE;
 
