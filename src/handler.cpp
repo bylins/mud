@@ -546,7 +546,7 @@ void affect_total(CHAR_DATA * ch)
 	AFFECT_DATA *af;
 	OBJ_DATA *obj;
 	struct extra_affects_type *extra_affect = NULL;
-	struct obj_affected_type *extra_modifier = NULL;
+
 	int i, j;
 	FLAG_DATA saved;
 
