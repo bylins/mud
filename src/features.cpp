@@ -19,6 +19,7 @@
 #include "spells.h"
 #include "features.hpp"
 #include "char.hpp"
+#include "player_races.hpp"
 
 extern const char *unused_spellname;
 
@@ -319,41 +320,39 @@ void assign_feats(void)
 	feat_app.clear();
 //42
 	feato(SPIRIT_WARRIOR_FEAT, "боевой дух", NORMAL_FTYPE, TRUE, feat_app);
-//43 -*
-	feato(FIGHTING_TRICK_FEAT, "боевая уловка", NORMAL_FTYPE, TRUE, feat_app);
+//43
+ 	feat_app.insert(APPLY_HITREG, 50);
+	feato(RELIABLE_HEALTH_FEAT, "крепкое здоровье", AFFECT_FTYPE, TRUE, feat_app);
+	feat_app.clear();
 //44
 	feat_app.insert(APPLY_MANAREG, 100);
 	feato(EXCELLENT_MEMORY_FEAT, "превосходная память", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //45
-	feat_app.insert(APPLY_C3, 1);
-	feat_app.insert(APPLY_CAST_SUCCESS, -5);
-	feat_app.insert(APPLY_MANAREG, -5);
-	feato(THIRD_RING_SPELL_FEAT, "третья страница", AFFECT_FTYPE, TRUE, feat_app);
+	feat_app.insert(APPLY_DEX, 1);
+	feato(ANIMAL_DEXTERY_FEAT, "звериная прыть", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //46
-	feat_app.insert(APPLY_C4, 1);
-	feat_app.insert(APPLY_MANAREG, -5);
-	feato(FOURTH_RING_SPELL_FEAT, "четвертая страница", AFFECT_FTYPE, TRUE, feat_app);
+	feat_app.insert(APPLY_MANAREG, 25);
+	feato(LEGIBLE_WRITTING_FEAT, "чёткий почерк", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //47
-	feat_app.insert(APPLY_C5, 1);
-	feat_app.insert(APPLY_CAST_SUCCESS, -5);
-	feat_app.insert(APPLY_MANAREG, -5);
-	feato(FIFTH_RING_SPELL_FEAT, "пятая страница", AFFECT_FTYPE, TRUE, feat_app);
+	feat_app.insert(APPLY_DAMROLL, 2);
+	feato(IRON_MUSCLES_FEAT, "стальные мышцы", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //48
-	feat_app.insert(APPLY_C6, 1);
-	feat_app.insert(APPLY_MANAREG, -10);
-	feato(SIXTH_RING_SPELL_FEAT, "шестая страница", AFFECT_FTYPE, TRUE, feat_app);
+	feat_app.insert(APPLY_CAST_SUCCESS, 5);
+	feato(MAGIC_SIGN_FEAT, "знак чародея", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //49
 	feat_app.insert(APPLY_C7, 1);
 	feat_app.insert(APPLY_MANAREG, -10);
 	feato(SEVENTH_RING_SPELL_FEAT, "седьмая страница", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
-//50 -*
-	feato(LEGIBLE_WRITTING_FEAT, "четкий почерк", NORMAL_FTYPE, TRUE, feat_app);
+//50
+	feat_app.insert(APPLY_MORALE, 5);
+	feato(BEST_DESTINY_FEAT, "лучшая доля", AFFECT_FTYPE, TRUE, feat_app);
+	feat_app.clear();
 //51
 	feato(BREW_POTION_FEAT, "травник", NORMAL_FTYPE, TRUE, feat_app);
 //52
@@ -565,8 +564,8 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 		return FALSE;
 	}
 	/* Доступность по классу, реморту. */
-	if (!feat_info[feat].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
-			|| GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+	if (!(feat_info[feat].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck(GET_KIN(ch),GET_RACE(ch),feat)) ||
+			(GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))
 		return FALSE;
 
 	/* Наличие свободных слотов */
@@ -682,7 +681,7 @@ bool find_feat_slot(CHAR_DATA *ch, int feat)
 {
 	int i, lowfeat, hifeat;
 	//если способность врожденная - ее всегда можно получить
-	if (feat_info[feat].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+	if (feat_info[feat].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck(GET_KIN(ch),GET_RACE(ch),feat))
 		return TRUE;
     //сколько у нас вообще способностей, у которых слот меньше требуемого, и сколько - тех, у которых больше или равно?
     lowfeat = 0;

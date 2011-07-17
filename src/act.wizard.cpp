@@ -53,6 +53,7 @@
 #include "glory_const.hpp"
 #include "shop_ext.hpp"
 #include "celebrates.hpp"
+#include "player_races.hpp"
 
 /*   external vars  */
 extern bool need_warn;
@@ -172,6 +173,7 @@ ACMD(do_name);
 //Gunner
 ACMD(do_email);
 //
+ACMD(do_godtest);
 
 
 #define MAX_TIME 0x7fffffff
@@ -5467,4 +5469,16 @@ ACMD(do_sanitize)
 {
 	send_to_char("Запущена процедура сбора мусора после праздника...\r\n", ch);
 	Celebrates::sanitize();
+}
+
+/* This is test command for different testings */
+ACMD(do_godtest)
+{
+	if (PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch),41))
+	{
+		snprintf(buf, MAX_STRING_LENGTH, " Feature check done\r\n");
+	} else {
+		snprintf(buf, MAX_STRING_LENGTH, " Feature check fail \r\n");
+	}
+	send_to_char(buf, ch);
 }

@@ -59,14 +59,14 @@ using std::bitset;
 #define MOUNTAIN_PATHS_FEAT		40  //горные тропы
 #define LUCKY_FEAT			41  //счастливчик
 #define SPIRIT_WARRIOR_FEAT		42  //боевой дух
-#define FIGHTING_TRICK_FEAT		43  //боевая уловка
+#define RELIABLE_HEALTH_FEAT		43  //крепкое здоровье
 #define EXCELLENT_MEMORY_FEAT		44  //превосходная память
-#define THIRD_RING_SPELL_FEAT		45  //третья страница
-#define FOURTH_RING_SPELL_FEAT		46  //четвертая страница
-#define FIFTH_RING_SPELL_FEAT		47  //пятая страница
-#define SIXTH_RING_SPELL_FEAT		48  //шестая страница
+#define ANIMAL_DEXTERY_FEAT		45  //звериная прыть
+#define LEGIBLE_WRITTING_FEAT		46  //четкий почерк
+#define IRON_MUSCLES_FEAT		47  //стальные мышцы
+#define MAGIC_SIGN_FEAT			48  //знак чародея
 #define SEVENTH_RING_SPELL_FEAT		49  //седьмая страница
-#define LEGIBLE_WRITTING_FEAT		50  //четкий почерк
+#define BEST_DESTINY_FEAT		50  //лучшая доля
 #define BREW_POTION_FEAT		51  //травник
 #define JUGGLER_FEAT			52  //жонглер
 #define NIMBLE_FINGERS_FEAT		53  //ловкач

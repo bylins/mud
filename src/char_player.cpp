@@ -23,6 +23,7 @@
 #include "interpreter.h"
 #include "genchar.h"
 #include "AffectHandler.hpp"
+#include "player_races.hpp"
 
 void tascii(int *pointer, int num_planes, char *ascii);
 int level_exp(CHAR_DATA * ch, int level);
@@ -1211,7 +1212,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 					fbgetline(fl, line);
 					sscanf(line, "%d", &num);
 					if (num > 0 && num < MAX_FEATS)
-						if (feat_info[num].classknow[(int) GET_CLASS(this)][(int) GET_KIN(this)])
+						if (feat_info[num].classknow[(int) GET_CLASS(this)][(int) GET_KIN(this)] || PlayerRace::FeatureCheck((int)GET_KIN(this),(int)GET_RACE(this),num))
 							SET_FEAT(this, num);
 				}
 				while (num != 0);
@@ -1660,10 +1661,14 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		GET_LOADROOM(this) = NOWHERE;
 	}
 
-	/* Set natural features - added by Gorrah */
+	/* Set natural & race features - added by Gorrah */
 	for (i = 1; i < MAX_FEATS; i++)
 		if (can_get_feat(this, i) && feat_info[i].natural_classfeat[(int) GET_CLASS(this)][(int) GET_KIN(this)])
 			SET_FEAT(this, i);
+	std::vector<int> RaceFeatures = PlayerRace::GetRaceFeatures((int)GET_KIN(this),(int)GET_RACE(this));
+	for (std::vector<int>::iterator it = RaceFeatures.begin();it != RaceFeatures.end();++it)
+		if (can_get_feat(this, *it))
+			SET_FEAT(this, *it);
 
 	if (IS_GRGOD(this))
 	{

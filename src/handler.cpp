@@ -646,17 +646,6 @@ void affect_total(CHAR_DATA * ch)
 					      (extra_modifier + i)->modifier, 0, TRUE);*/
 		}
 
-		if (GET_RACE(ch) < NUM_RACES)
-		{
-			extra_affect = race_app[(int) GET_RACE(ch)].extra_affects;
-			extra_modifier = race_app[(int) GET_RACE(ch)].extra_modifiers;
-			for (i = 0; extra_affect && (extra_affect + i)->affect != -1; i++)
-				affect_modify(ch, APPLY_NONE, 0, (extra_affect + i)->affect,
-							  (extra_affect + i)->set_or_clear ? true : false);
-			for (i = 0; extra_modifier && (extra_modifier + i)->location != -1; i++)
-				affect_modify(ch, (extra_modifier + i)->location,
-							  (extra_modifier + i)->modifier, 0, TRUE);
-		}
 		// Apply other PC modifiers
 		switch (IS_CARRYING_W(ch) * 10 / MAX(1, CAN_CARRY_W(ch)))
 		{

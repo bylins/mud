@@ -381,8 +381,10 @@ named_stuff.o: named_stuff.cpp pugixml.hpp pugiconfig.hpp named_stuff.hpp \
   conf.h sysdep.h interpreter.h utils.h features.hpp obj.hpp structs.h \
   screen.h char.hpp player_i.hpp comm.h db.h handler.h house.h \
   house_exp.hpp remember.hpp dg_scripts.h
-version.o: version.cpp conf.h sysdep.h structs.h comm.h utils.h \
-  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp
 celebrates.o: celebrates.cpp pugixml.hpp pugiconfig.hpp conf.h sysdep.h \
   utils.h features.hpp obj.hpp structs.h comm.h db.h dg_scripts.h \
   celebrates.hpp char.hpp player_i.hpp handler.h
+player_races.o: player_races.hpp conf.h sysdep.h structs.h utils.h \
+  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp
+version.o: version.cpp conf.h sysdep.h structs.h comm.h utils.h \
+  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp

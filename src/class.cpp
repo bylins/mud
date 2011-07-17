@@ -40,6 +40,7 @@
 #include "screen.h"
 #include "char_player.hpp"
 #include "named_stuff.hpp"
+#include "player_races.hpp"
 
 extern int siteok_everyone;
 extern struct spell_create_type spell_create[];
@@ -2414,9 +2415,14 @@ void advance_level(CHAR_DATA * ch)
 	check_max_hp(ch);
 	ch->points.max_move += MAX(1, add_move);
 
+	/* Set natural & race features */
 	for (i = 1; i < MAX_FEATS; i++)
 		if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && can_get_feat(ch, i))
 			SET_FEAT(ch, i);
+	std::vector<int> RaceFeatures = PlayerRace::GetRaceFeatures((int)GET_KIN(ch),(int)GET_RACE(ch));
+	for (std::vector<int>::iterator it = RaceFeatures.begin();it != RaceFeatures.end();++it)
+		if (can_get_feat(ch, *it))
+			SET_FEAT(ch, *it);
 
 	if (IS_IMMORTAL(ch))
 	{

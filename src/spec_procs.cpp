@@ -31,6 +31,7 @@
 #include "char_player.hpp"
 #include "room.hpp"
 #include "depot.hpp"
+#include "player_races.hpp"
 
 /*   external vars  */
 
@@ -290,7 +291,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 			sprintf(buf + strlen(buf), "%s%s%s\r\n",
 					can_use_feat(ch, sortpos) ? CCIYEL(vict, C_NRM) : CCNRM(vict, C_NRM),
 					feat_info[sortpos].name, CCNRM(vict, C_NRM));
-			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
 			{
 				sprintf(buf2 + strlen(buf2), "    ");
 				strcat(buf2, buf);

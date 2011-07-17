@@ -66,7 +66,6 @@ extern struct wis_app_type wis_app[];
 extern struct cha_app_type cha_app[];
 extern struct size_app_type size_app[];
 extern struct class_app_type class_app[];
-extern struct race_app_type race_app[];
 extern struct weapon_app_type weapon_app[];
 extern struct pray_affect_type pray_affect[];
 extern int rev_dir[];

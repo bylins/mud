@@ -53,6 +53,7 @@
 #include "glory_const.hpp"
 #include "glory_misc.hpp"
 #include "named_stuff.hpp"
+#include "player_races.hpp"
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -339,6 +340,7 @@ ACMD(do_proxy);
 ACMD(do_turn_undead);
 ACMD(do_iron_wind);
 ACMD(do_exchange);
+ACMD(do_godtest);
 
 /* DG Script ACMD's */
 ACMD(do_attach);
@@ -1043,6 +1045,9 @@ cpp_extern const struct command_info cmd_info[] =
 	{"zedit", POS_DEAD, do_olc, LVL_BUILDER, SCMD_OLC_ZEDIT},
 	{"zone", POS_RESTING, do_zone, 0, 0, 0},
 	{"zreset", POS_DEAD, do_zreset, LVL_GRGOD, 0, 0},
+
+	/* test command for gods */
+	{"godtest", POS_DEAD, do_godtest, LVL_IMPL, 0, 0},
 
 	/* Команды крафтинга - для тестига пока уровня имма */
 	{"mrlist", POS_DEAD, do_list_make, LVL_BUILDER, 0, 0},
@@ -2310,6 +2315,23 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	/* Gorrah: сбрасываем флаг от скилла, если он каким-то чудом засэйвился */
 	if (IS_SET(PRF_FLAGS(d->character, PRF_IRON_WIND), PRF_IRON_WIND))
 		REMOVE_BIT(PRF_FLAGS(d->character, PRF_IRON_WIND), PRF_IRON_WIND);
+	
+	/* Check & remove/add natural, race & unavailable features*/
+	for (int i = 1; i < MAX_FEATS; i++)
+	{
+		if(HAVE_FEAT(d->character,i) && 
+			!(feat_info[i].natural_classfeat[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)] || PlayerRace::FeatureCheck((int)GET_KIN(d->character),(int)GET_RACE(d->character),i)))
+		{
+			UNSET_FEAT(d->character, i);
+		} else {
+			if (feat_info[i].natural_classfeat[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)])
+				SET_FEAT(d->character, i);
+		}
+	};
+	std::vector<int> RaceFeatures = PlayerRace::GetRaceFeatures((int)GET_KIN(d->character),(int)GET_RACE(d->character));
+	for (std::vector<int>::iterator it = RaceFeatures.begin();it != RaceFeatures.end();++it)
+		if (can_get_feat(d->character, *it))
+			SET_FEAT(d->character, *it);
 
 	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
 	REMOVE_BIT(AFF_FLAGS(d->character, AFF_GROUP), AFF_GROUP);

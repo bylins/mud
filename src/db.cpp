@@ -67,6 +67,7 @@
 #include "shop_ext.hpp"
 #include "named_stuff.hpp"
 #include "celebrates.hpp"
+#include "player_races.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -1504,6 +1505,9 @@ void boot_db(void)
 	file_to_string_alloc(BACKGROUND_FILE, &background);
 	if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 		prune_crlf(GREETINGS);
+
+	log("Loading player races definitions.");
+	PlayerRace::Load(LIB_MISC PLAYER_RACE_FILE);
 
 	log("Loading spell definitions.");
 	mag_assign_spells();
