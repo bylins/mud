@@ -2319,7 +2319,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	/* Check & remove/add natural, race & unavailable features*/
 	for (int i = 1; i < MAX_FEATS; i++)
 	{
-		if(HAVE_FEAT(d->character,i) && !can_get_feat(d->character,i)
+		if(HAVE_FEAT(d->character,i) && !can_get_feat(d->character,i))
 		{
 			UNSET_FEAT(d->character, i);
 		} else {
