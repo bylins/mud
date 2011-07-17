@@ -65,7 +65,7 @@ using std::bitset;
 #define LEGIBLE_WRITTING_FEAT		46  //четкий почерк
 #define IRON_MUSCLES_FEAT		47  //стальные мышцы
 #define MAGIC_SIGN_FEAT			48  //знак чародея
-#define SEVENTH_RING_SPELL_FEAT		49  //седьмая страница
+#define GREAT_ENDURANCE_FEAT		49  //двужильность
 #define BEST_DESTINY_FEAT		50  //лучшая доля
 #define BREW_POTION_FEAT		51  //травник
 #define JUGGLER_FEAT			52  //жонглер

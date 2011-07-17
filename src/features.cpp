@@ -345,9 +345,8 @@ void assign_feats(void)
 	feato(MAGIC_SIGN_FEAT, "знак чародея", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //49
-	feat_app.insert(APPLY_C7, 1);
-	feat_app.insert(APPLY_MANAREG, -10);
-	feato(SEVENTH_RING_SPELL_FEAT, "седьмая страница", AFFECT_FTYPE, TRUE, feat_app);
+	feat_app.insert(APPLY_MOVEREG, 75);
+	feato(GREAT_ENDURANCE_FEAT, "двужильность", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //50
 	feat_app.insert(APPLY_MORALE, 5);
