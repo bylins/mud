@@ -687,7 +687,7 @@ bool find_feat_slot(CHAR_DATA *ch, int feat)
     hifeat = 0;
 	for (i = 1; i < MAX_FEATS; i++)
 	{
-        if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+        if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]] || PlayerRace::FeatureCheck(GET_KIN(ch),GET_RACE(ch),feat))
             continue;
 	    if (HAVE_FEAT(ch,i) && (FEAT_SLOT(ch,i) < FEAT_SLOT(ch,feat)))
             lowfeat++;
