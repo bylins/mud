@@ -2321,12 +2321,13 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	{
 		if(HAVE_FEAT(d->character,i) && !can_get_feat(d->character,i))
 		{
-			UNSET_FEAT(d->character, i);
+			//UNSET_FEAT(d->character, i);
 		} else {
 			if (feat_info[i].natural_classfeat[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)])
 				SET_FEAT(d->character, i);
 		}
 	};
+
 	std::vector<int> RaceFeatures = PlayerRace::GetRaceFeatures((int)GET_KIN(d->character),(int)GET_RACE(d->character));
 	for (std::vector<int>::iterator it = RaceFeatures.begin();it != RaceFeatures.end();++it)
 		if (can_get_feat(d->character, *it))
