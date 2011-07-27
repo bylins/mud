@@ -143,7 +143,7 @@ void unused_feat(int feat)
 	for (i = 0; i < NUM_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++)
 		{
-			feat_info[feat].min_remort[i][j] = MAX_REMORT;
+			feat_info[feat].min_remort[i][j] = 0;
 			feat_info[feat].slot[i][j] = 0;
 			feat_info[feat].natural_classfeat[i][j] = FALSE;
 			feat_info[feat].classknow[i][j] = FALSE;
