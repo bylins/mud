@@ -1432,6 +1432,10 @@ struct punish_data
 class IAffectHandler;
 struct affect_data
 {
+	affect_data() : type(0), duration(0), modifier(0), location(0),
+		battleflag(0), bitvector(0), caster_id(0), must_handled(0),
+		apply_time(0), next(0) {};
+
 	sh_int type;		/* The type of spell that caused this      */
 	sh_int duration;	/* For how long its effects will last      */
 	int modifier;		/* This is added to apropriate ability     */
