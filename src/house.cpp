@@ -1427,7 +1427,7 @@ void Clan::HouseLeave(CHAR_DATA * ch)
 /**
 * hcontrol outcast имя - отписывание любого персонажа от дружины, кроме воеводы.
 */
-void Clan::hcon_outcast(CHAR_DATA *ch, std::string buffer)
+void Clan::hcon_outcast(CHAR_DATA *ch, std::string &buffer)
 {
 	std::string name;
 	GetOneParam(buffer, name);
@@ -1974,7 +1974,8 @@ const char *HCONTROL_FORMAT =
 	"        hcontrol outcast <name>\r\n"
 	"        hcontrol save\r\n"
 	"        hcontrol title <vnum ренты> <аббревиатура для муж рода> <аббревиатура для жен рода>\r\n"
-	"        hcontrol rank <vnum ренты> <старое звание муж рода> <звание для муж рода> <звание для жен рода>\r\n";
+	"        hcontrol rank <vnum ренты> <старое звание муж рода> <звание для муж рода> <звание для жен рода>\r\n"
+	"        hcontrol owner <vnum ренты> <имя нового воеводы>\r\n";
 
 
 /**
@@ -2249,6 +2250,10 @@ ACMD(DoHcontrol)
 	else if (CompareParam(buffer2, "ingr"))
 	{
 		Clan::hcontrol_set_ingr_chest(ch, buffer);
+	}
+	else if (CompareParam(buffer2, "owner") && !buffer.empty())
+	{
+		Clan::hcon_owner(ch, buffer);
 	}
 	else
 		send_to_char(HCONTROL_FORMAT, ch);
@@ -3867,14 +3872,26 @@ void Clan::AllMenu(DESCRIPTOR_DATA * d, unsigned flag)
 		d->clan_olc->mode = CLAN_DELALL_MENU;
 }
 
+void Clan::add_offline_member(const std::string &name, int uid, int rank)
+{
+	ClanMemberPtr tmp_member(new ClanMember);
+	tmp_member->name = name;
+	tmp_member->rank_num = rank;
+	this->members[uid] = tmp_member;
+}
+
 // игрок ранг
 void Clan::ClanAddMember(CHAR_DATA * ch, int rank)
 {
-	ClanMemberPtr tempMember(new ClanMember);
-	tempMember->name = GET_NAME(ch);
-	tempMember->rank_num = rank;
+	if (ch->get_name_str().empty())
+	{
+		log("SYSERROR: zero player name (uid = %d) (%s:%d %s)", GET_UNIQUE(ch),
+				__FILE__, __LINE__, __func__);
+		return;
+	}
 
-	this->members[GET_UNIQUE(ch)] = tempMember;
+	this->add_offline_member(ch->get_name_str(), GET_UNIQUE(ch), rank);
+
 	Clan::SetClanData(ch);
 	DESCRIPTOR_DATA *d;
 	std::string buffer;
@@ -3928,6 +3945,104 @@ void Clan::HouseOwner(CHAR_DATA * ch, std::string & buffer)
 		send_to_char(ch, "Поздравляем, Вы передали свои полномочия %s!\r\n", GET_PAD(d->character, 2));
 	}
 }
+
+/**
+* hcontrol owner vnum имя - передача воеводы клана внум игроку имя
+* Новый воевода не может быть мембером другого клана, старый исключается из клана.
+* Оба могут быть оффлайн во время выполнения команды иммом.
+*/
+void Clan::hcon_owner(CHAR_DATA *ch, std::string &text)
+{
+	std::string buffer;
+
+	GetOneParam(text, buffer);
+	const int vnum = atoi(buffer.c_str());
+
+	ClanListType::iterator clan = std::find_if(ClanList.begin(), ClanList.end(),
+			boost::bind(std::equal_to<int>(),
+					boost::bind(&Clan::rent, _1), vnum));
+
+	if (clan == Clan::ClanList.end())
+	{
+		send_to_char(ch, "Дружины с номером %d не существует.\r\n", vnum);
+		return;
+	}
+
+	std::string name;
+	GetOneParam(text, name);
+	long unique = GetUniqueByName(name);
+
+	if (!unique)
+	{
+		send_to_char("Неизвестный персонаж.\r\n", ch);
+		return;
+	}
+
+	name_convert(name);
+
+	for (ClanListType::iterator tmp_clan = Clan::ClanList.begin(); tmp_clan != Clan::ClanList.end(); ++tmp_clan)
+	{
+		ClanMemberList::iterator it = (*tmp_clan)->members.find(unique);
+		if (it != (*tmp_clan)->members.end())
+		{
+			if (vnum != (*tmp_clan)->GetRent())
+			{
+				send_to_char(ch, "%s состоит в другой дружине.\r\n", name.c_str());
+				return;
+			}
+			else if (!it->second->rank_num)
+			{
+				send_to_char(ch, "%s и так является воеводой этой дружины.\r\n", name.c_str());
+				return;
+			}
+		}
+	}
+
+	// убираем старого воеводу из клана
+	for (ClanMemberList::iterator it = (*clan)->members.begin(); it != (*clan)->members.end(); ++it)
+	{
+		if (!it->second->rank_num)
+		{
+			// ахтунг, удаляется элемент дерева, по которому мы и идем в цикле
+			(*clan)->remove_member(it);
+			break;
+		}
+	}
+
+	// вписываем нового
+	if ((*clan)->members.find(unique) != (*clan)->members.end())
+	{
+		// уже был в клане
+		(*clan)->members[unique]->rank_num = 0;
+	}
+	else
+	{
+		(*clan)->add_offline_member(name, unique, 0);
+	}
+
+	// новый воевода онлайн
+	DESCRIPTOR_DATA *d = DescByUID(unique);
+	if (d && d->character)
+	{
+		Clan::SetClanData(d->character);
+		send_to_char(d->character, "%sВы стали новым воеводой дружины %s. Желаем удачи!%s\r\n",
+				CCIGRN(d->character, C_NRM), (*clan)->get_abbrev().c_str(), CCNRM(d->character, C_NRM));
+	}
+	// оповещение
+	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
+	{
+		if (d->character && CLAN(d->character) && CLAN(d->character)->GetRent() == (*clan)->GetRent())
+		{
+			send_to_char(d->character, "%sОсуществлена принудительная смена воеводы Вашей дружины: %s -> %s.%s\r\n",
+					CCIGRN(d->character, C_NRM), (*clan)->owner.c_str(), name.c_str(), CCNRM(d->character, C_NRM));
+		}
+	}
+
+	(*clan)->owner = name;
+	Clan::ClanSave();
+	send_to_char("Сделано.\r\n", ch);
+}
+
 
 void Clan::CheckPkList(CHAR_DATA * ch)
 {

@@ -338,6 +338,7 @@ public:
 	void set_pc_name(const char *name);
 	const char * get_npc_name() const;
 	void set_npc_name(const char *name);
+	const std::string & get_name_str() const;
 
 	short get_class() const;
 	void set_class(short chclass);

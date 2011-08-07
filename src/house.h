@@ -220,6 +220,7 @@ public:
 	void disable_ingr_chest(CHAR_DATA *ch);
 
 	int calculate_clan_tax() const;
+	void add_offline_member(const std::string &name, int uid, int rank);
 
 	friend ACMD(DoHouse);
 	friend ACMD(DoClanChannel);
@@ -304,11 +305,12 @@ private:
 
 	static void HcontrolBuild(CHAR_DATA * ch, std::string & buffer);
 	static void HcontrolDestroy(CHAR_DATA * ch, std::string & buffer);
-	static void hcon_outcast(CHAR_DATA *ch, std::string buffer);
 	static void hcontrol_title(CHAR_DATA *ch, std::string &text);
 	static void hcontrol_rank(CHAR_DATA *ch, std::string &text);
 	static void hcontrol_exphistory(CHAR_DATA *ch, std::string &text);
 	static void hcontrol_set_ingr_chest(CHAR_DATA *ch, std::string &text);
+	static void hcon_outcast(CHAR_DATA *ch, std::string &buffer);
+	static void hcon_owner(CHAR_DATA *ch, std::string &text);
 
 	static void ChestLoad();
 	int ChestTax();

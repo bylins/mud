@@ -670,6 +670,15 @@ bool Character::purged() const
 	return purged_;
 }
 
+const std::string & Character::get_name_str() const
+{
+	if (IS_NPC(this))
+	{
+		return short_descr_;
+	}
+	return name_;
+}
+
 const char * Character::get_name() const
 {
 	if (IS_NPC(this))
