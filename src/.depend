@@ -9,7 +9,7 @@ act.informative.o: act.informative.cpp conf.h sysdep.h structs.h utils.h \
   dg_scripts.h mail.h im.h house.h house_exp.hpp char.hpp player_i.hpp \
   remember.hpp description.h privilege.hpp depot.hpp glory.hpp random.hpp \
   char_player.hpp quested.hpp mobmax.hpp dps.hpp parcel.hpp liquid.hpp \
-  modify.h room.hpp glory_const.hpp
+  modify.h room.hpp glory_const.hpp player_races.hpp
 act.item.o: act.item.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   obj.hpp pugixml.hpp pugiconfig.hpp comm.h interpreter.h handler.h db.h \
   spells.h skills.h constants.h dg_scripts.h house.h house_exp.hpp \
@@ -41,7 +41,7 @@ act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h \
   privilege.hpp depot.hpp glory.hpp genchar.h file_crc.hpp \
   char_player.hpp quested.hpp mobmax.hpp dps.hpp parcel.hpp liquid.hpp \
   modify.h room.hpp glory_misc.hpp glory_const.hpp shop_ext.hpp \
-  celebrates.hpp
+  celebrates.hpp player_races.hpp birth_places.hpp
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   pugixml.hpp pugiconfig.hpp interpreter.h db.h char.hpp player_i.hpp
 ban.o: ban.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
@@ -55,7 +55,8 @@ class.o: class.cpp conf.h sysdep.h structs.h comm.h db.h utils.h \
   features.hpp obj.hpp pugixml.hpp pugiconfig.hpp spells.h skills.h \
   interpreter.h handler.h constants.h pk.h top.h im.h char.hpp \
   player_i.hpp xmlParser.h spam.hpp screen.h char_player.hpp quested.hpp \
-  mobmax.hpp remember.hpp dps.hpp named_stuff.hpp
+  mobmax.hpp remember.hpp dps.hpp named_stuff.hpp player_races.hpp \
+  birth_places.hpp
 comm.o: comm.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   pugixml.hpp pugiconfig.hpp comm.h interpreter.h handler.h db.h house.h \
   house_exp.hpp char.hpp player_i.hpp remember.hpp olc.h dg_scripts.h \
@@ -65,13 +66,13 @@ comm.o: comm.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   glory_const.hpp celebrates.hpp
 config.o: config.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
   features.hpp obj.hpp pugixml.hpp pugiconfig.hpp constants.h char.hpp \
-  player_i.hpp
+  player_i.hpp birth_places.hpp
 constants.o: constants.cpp conf.h sysdep.h structs.h spells.h skills.h \
   interpreter.h utils.h features.hpp obj.hpp pugixml.hpp pugiconfig.hpp \
   house.h db.h house_exp.hpp char.hpp player_i.hpp remember.hpp
 features.o: features.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   obj.hpp pugixml.hpp pugiconfig.hpp handler.h comm.h db.h interpreter.h \
-  skills.h spells.h char.hpp player_i.hpp
+  skills.h spells.h char.hpp player_i.hpp player_races.hpp
 db.o: db.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   pugixml.hpp pugiconfig.hpp db.h comm.h handler.h spells.h mail.h \
   interpreter.h house.h house_exp.hpp char.hpp player_i.hpp remember.hpp \
@@ -81,7 +82,7 @@ db.o: db.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   random.hpp file_crc.hpp skills.h char_player.hpp quested.hpp mobmax.hpp \
   dps.hpp parcel.hpp liquid.hpp xmlParser.h corpse.hpp name_list.hpp \
   modify.h room.hpp glory_const.hpp glory_misc.hpp shop_ext.hpp \
-  named_stuff.hpp celebrates.hpp
+  named_stuff.hpp celebrates.hpp player_races.hpp birth_places.hpp
 fight.o: fight.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   pugixml.hpp pugiconfig.hpp comm.h handler.h interpreter.h db.h spells.h \
   screen.h constants.h dg_scripts.h pk.h im.h fight.h skills.h house.h \
@@ -111,13 +112,13 @@ interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
   title.hpp password.hpp privilege.hpp depot.hpp glory.hpp \
   char_player.hpp quested.hpp mobmax.hpp dps.hpp parcel.hpp liquid.hpp \
   name_list.hpp modify.h room.hpp glory_const.hpp glory_misc.hpp \
-  named_stuff.hpp
+  named_stuff.hpp player_races.hpp birth_places.hpp
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   obj.hpp pugixml.hpp pugiconfig.hpp spells.h skills.h comm.h db.h \
   handler.h screen.h interpreter.h constants.h dg_scripts.h house.h \
   house_exp.hpp char.hpp player_i.hpp remember.hpp exchange.h top.h \
   deathtrap.hpp ban.hpp diskio.h depot.hpp glory.hpp char_player.hpp \
-  quested.hpp mobmax.hpp dps.hpp room.hpp
+  quested.hpp mobmax.hpp dps.hpp room.hpp birth_places.hpp
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   pugixml.hpp pugiconfig.hpp comm.h spells.h skills.h handler.h db.h \
   interpreter.h screen.h constants.h dg_scripts.h pk.h magic.h fight.h \
@@ -156,7 +157,8 @@ spec_procs.o: spec_procs.cpp conf.h sysdep.h structs.h utils.h \
   features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h interpreter.h \
   handler.h db.h spells.h skills.h screen.h dg_scripts.h constants.h \
   house.h house_exp.hpp char.hpp player_i.hpp remember.hpp \
-  char_player.hpp quested.hpp mobmax.hpp dps.hpp room.hpp depot.hpp
+  char_player.hpp quested.hpp mobmax.hpp dps.hpp room.hpp depot.hpp \
+  player_races.hpp
 spell_parser.o: spell_parser.cpp conf.h sysdep.h structs.h utils.h \
   features.hpp obj.hpp pugixml.hpp pugiconfig.hpp interpreter.h spells.h \
   skills.h handler.h comm.h db.h screen.h constants.h dg_scripts.h pk.h \
@@ -167,12 +169,12 @@ spells.o: spells.cpp conf.h sysdep.h structs.h utils.h features.hpp \
   db.h constants.h interpreter.h dg_scripts.h screen.h house.h \
   house_exp.hpp char.hpp player_i.hpp remember.hpp pk.h im.h \
   deathtrap.hpp privilege.hpp depot.hpp parcel.hpp liquid.hpp modify.h \
-  room.hpp
+  room.hpp birth_places.hpp
 utils.o: utils.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   pugixml.hpp pugiconfig.hpp db.h comm.h screen.h spells.h handler.h \
   interpreter.h constants.h im.h dg_scripts.h boards.h privilege.hpp \
   char.hpp player_i.hpp room.hpp modify.h house.h house_exp.hpp \
-  remember.hpp
+  remember.hpp player_races.hpp
 weather.o: weather.cpp conf.h sysdep.h structs.h spells.h skills.h \
   utils.h features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h \
   handler.h interpreter.h db.h screen.h constants.h random.hpp char.hpp \
@@ -316,7 +318,7 @@ char_player.o: char_player.cpp char_player.hpp conf.h sysdep.h structs.h \
   utils.h features.hpp obj.hpp pugixml.hpp pugiconfig.hpp db.h \
   dg_scripts.h handler.h boards.h interpreter.h file_crc.hpp spells.h \
   constants.h skills.h im.h olc.h comm.h pk.h diskio.h genchar.h \
-  AffectHandler.hpp
+  AffectHandler.hpp player_races.hpp
 quested.o: quested.cpp quested.hpp conf.h sysdep.h structs.h utils.h \
   features.hpp obj.hpp pugixml.hpp pugiconfig.hpp char.hpp player_i.hpp
 mobmax.o: mobmax.cpp mobmax.hpp conf.h sysdep.h structs.h char.hpp \
@@ -384,7 +386,10 @@ named_stuff.o: named_stuff.cpp pugixml.hpp pugiconfig.hpp named_stuff.hpp \
 celebrates.o: celebrates.cpp pugixml.hpp pugiconfig.hpp conf.h sysdep.h \
   utils.h features.hpp obj.hpp structs.h comm.h db.h dg_scripts.h \
   celebrates.hpp char.hpp player_i.hpp handler.h
-player_races.o: player_races.hpp conf.h sysdep.h structs.h utils.h \
-  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp
+birth_places.o: birth_places.cpp conf.h sysdep.h utils.h features.hpp \
+  obj.hpp structs.h pugixml.hpp pugiconfig.hpp comm.h interpreter.h \
+  birth_places.hpp
+player_races.o: player_races.cpp conf.h sysdep.h utils.h features.hpp \
+  obj.hpp structs.h pugixml.hpp pugiconfig.hpp comm.h player_races.hpp
 version.o: version.cpp conf.h sysdep.h structs.h comm.h utils.h \
   features.hpp obj.hpp pugixml.hpp pugiconfig.hpp
