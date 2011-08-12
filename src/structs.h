@@ -290,12 +290,16 @@ typedef struct trig_data TRIG_DATA;
 #define RELIGION_MONO    1
 
 #define MASK_RELIGION_POLY        (1 << RELIGION_POLY)
-#define MASK_RELIGION_MONO        (1 << RELIGION_MONO)
+#define MASK_RELIGION_MONO        (1 << RELIGION_MONO)
+
 /* PC races */
-/** Все расы персонажей-игроков теперь описываются в playerraces.xml*/
+/*
+* Все расы персонажей-игроков теперь описываются в playerraces.xml
+*/
 
 /*PC Kin*/
-#define NUM_KIN            3
+#define NUM_KIN            3
+
 /* NPC classes */
 #define CLASS_BASIC_NPC    100
 //#define CLASS_UNDEAD       101 к классам не относится, перенесено в расы (типы) мобов
@@ -703,7 +707,9 @@ typedef struct trig_data TRIG_DATA;
 #define CON_BIRTHPLACE   47 // выбираем где начать игру
 #define CON_WRITE_MOD    48 // пишет клановое сообщение дня
 #define CON_GLORY_CONST  49 // вливает славу2
-#define CON_NAMED_STUFF  50 // редактирует именной стаф#define CON_RESET_KIN    51 // выбор расы после смены/удаления оной (или иного способа испоганивания значения)#define CON_RESET_RACE   52 // выбор РОДА посла смены/сброса оного
+#define CON_NAMED_STUFF  50 // редактирует именной стаф
+#define CON_RESET_KIN    51 // выбор расы после смены/удаления оной (или иного способа испоганивания значения)
+#define CON_RESET_RACE   52 // выбор РОДА посла смены/сброса оного
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 /* Character equipment positions: used as index for char_data.equipment[] */
@@ -1558,7 +1564,8 @@ struct descriptor_data
 	boost::shared_ptr<GloryConst::glory_olc> glory_const;
 	boost::shared_ptr<NamedStuff::stuff_node> named_obj;	// редактируемая именная шмотка
 	unsigned long cur_vnum;					// текущий внум именной шмотки
-	unsigned long old_vnum;					// старый внум именной шмотки    short CharBirthPlace;                   // ID точки входа в игру для новых чаров, тупо, но что поделать
+	unsigned long old_vnum;					// старый внум именной шмотки
+    short CharBirthPlace;                   // ID точки входа в игру для новых чаров, тупо, но что поделать
 };
 
 

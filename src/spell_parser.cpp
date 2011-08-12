@@ -1641,7 +1641,9 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	*buf = '\0';
 	strcpy(lbuf, SpINFO.syn);
 
-	/* Say phrase ? */    if (IS_NPC(ch))    {
+	/* Say phrase ? */
+    if (IS_NPC(ch))
+    {
         switch (GET_RACE(ch))
         {
         case NPC_RACE_EVIL_SPIRIT:
@@ -1675,7 +1677,9 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
             // say_to_something = "$n молвил$g : '%s'.";
             // damagee_vict     = "$n злобно рыкнул$g на Вас : '%s'.";
             // helpee_vict      = "$n тихо пробормотал$g Вам : '%s'.";
-	}    } else {		if (*cast_phrase[spellnum][GET_RELIGION(ch)] != '\n')
+	}
+    } else {
+		if (*cast_phrase[spellnum][GET_RELIGION(ch)] != '\n')
 			strcpy(buf, cast_phrase[spellnum][GET_RELIGION(ch)]);
 		say_to_self = "$n прикрыл$g глаза и прошептал$g : '%s'.";
 		say_to_other = "$n взглянул$g на $N3 и произнес$q : '%s'.";
@@ -1683,7 +1687,9 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 		say_to_something = "$n произнес$q : '%s'.";
 		damagee_vict = "$n зыркнул$g на Вас и произнес$q : '%s'.";
 		helpee_vict = "$n подмигнул$g Вам и произнес$q : '%s'.";
-		spell_prefix(spellnum, &say_to_self, &say_to_other, &say_to_obj_vis, &say_to_something, &damagee_vict, &helpee_vict);    }
+		spell_prefix(spellnum, &say_to_self, &say_to_other, &say_to_obj_vis, &say_to_something, &damagee_vict, &helpee_vict);
+    }
+
 	if (!*buf)
 	{
 		while (lbuf[ofs])

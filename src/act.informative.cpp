@@ -47,7 +47,8 @@
 #include "liquid.hpp"
 #include "modify.h"
 #include "room.hpp"
-#include "glory_const.hpp"#include "player_races.hpp"
+#include "glory_const.hpp"
+#include "player_races.hpp"
 
 using std::string;
 
@@ -3156,7 +3157,8 @@ ACMD(do_score)
 
 	sprintf(buf, "Вы %s (%s, %s, %s, %s %d уровня).\r\n",
 			only_title(ch),
-			string(PlayerRace::GetKinNameByNum(GET_KIN(ch),GET_SEX(ch))).c_str(),            string(PlayerRace::GetRaceNameByNum(GET_KIN(ch),GET_RACE(ch),GET_SEX(ch))).c_str(),
+			string(PlayerRace::GetKinNameByNum(GET_KIN(ch),GET_SEX(ch))).c_str(),
+            string(PlayerRace::GetRaceNameByNum(GET_KIN(ch),GET_RACE(ch),GET_SEX(ch))).c_str(),
 			religion_name[GET_RELIGION(ch)][(int) GET_SEX(ch)],
 			class_name[(int) GET_CLASS(ch)+14*GET_KIN(ch)], GET_LEVEL(ch));
 

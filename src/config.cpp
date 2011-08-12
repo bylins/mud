@@ -20,7 +20,8 @@
 #include "interpreter.h"	/* alias_data definition for structs.h */
 #include "utils.h"
 #include "constants.h"
-#include "char.hpp"#include "birth_places.hpp"
+#include "char.hpp"
+#include "birth_places.hpp"
 
 #define YES	    1
 #define FALSE	0
@@ -325,13 +326,16 @@ int max_exp_loss_pc(CHAR_DATA * ch)
 
 int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED)
 {
-	int loadroom;    if (IS_IMMORTAL(ch))
+	int loadroom;
+    if (IS_IMMORTAL(ch))
 		return (immort_start_room);
 	else if (PLR_FLAGGED(ch, PLR_FROZEN))
 		return (frozen_start_room);
 	else
 	{
-        loadroom = BirthPlace::GetLoadRoom(bplace_mode);        if (loadroom != BIRTH_PLACE_UNDEFINED)            return loadroom;
+        loadroom = BirthPlace::GetLoadRoom(bplace_mode);
+        if (loadroom != BIRTH_PLACE_UNDEFINED)
+            return loadroom;
 	}
 	return (mortal_start_room);
 }

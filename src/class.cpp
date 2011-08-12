@@ -41,7 +41,8 @@
 #include "screen.h"
 #include "char_player.hpp"
 #include "named_stuff.hpp"
-#include "player_races.hpp"#include "birth_places.hpp"
+#include "player_races.hpp"
+#include "birth_places.hpp"
 
 extern int siteok_everyone;
 extern struct spell_create_type spell_create[];
@@ -1963,7 +1964,8 @@ int extra_damroll(int class_num, int level)
 void do_start(CHAR_DATA * ch, int newbie)
 {
 	OBJ_DATA *obj;
-	int i;    std::vector<int> ItemList;
+	int i;
+    std::vector<int> ItemList;
 
 	ch->set_level(1);
 	ch->set_exp(1);
@@ -1991,8 +1993,15 @@ void do_start(CHAR_DATA * ch, int newbie)
 		obj_to_char(obj, ch);
 	ch->set_skill(SKILL_DRUNKOFF, 10);
 
-    // Подгружаем предметы в зависимости от точки входа в игру    ItemList = BirthPlace::GetItemList(ch->desc->CharBirthPlace);    for (std::vector<int>::iterator it = ItemList.begin();it != ItemList.end();++it)    {        obj = read_object((*it), VIRTUAL);        if (obj)
-            obj_to_char(obj, ch);    };
+    // Подгружаем предметы в зависимости от точки входа в игру
+    ItemList = BirthPlace::GetItemList(ch->desc->CharBirthPlace);
+    for (std::vector<int>::iterator it = ItemList.begin();it != ItemList.end();++it)
+    {
+        obj = read_object((*it), VIRTUAL);
+        if (obj)
+            obj_to_char(obj, ch);
+    };
+
 	switch (GET_CLASS(ch))
 	{
 	case CLASS_BATTLEMAGE:

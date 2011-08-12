@@ -36,7 +36,8 @@
 #include "parcel.hpp"
 #include "liquid.hpp"
 #include "modify.h"
-#include "room.hpp"#include "birth_places.hpp"
+#include "room.hpp"
+#include "birth_places.hpp"
 
 extern room_rnum r_mortal_start_room;
 

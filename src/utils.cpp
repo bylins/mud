@@ -36,7 +36,8 @@
 #include "char.hpp"
 #include "room.hpp"
 #include "modify.h"
-#include "house.h"#include "player_races.hpp"
+#include "house.h"
+#include "player_races.hpp"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 

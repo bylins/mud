@@ -1,11 +1,37 @@
-// $RCSfile$     $Date$     $Revision$// Part of Bylins http://www.mud.ru#include <algorithm>#include <sstream>#include "conf.h"#include "sysdep.h"#include "utils.h"#include "comm.h"//#include "db.h"//#include "dg_scripts.h"//#include "char.hpp"//#include "handler.h"#include "birth_places.hpp"#include "pugixml.hpp"BirthPlaceListType BirthPlace::BirthPlaceList;//Создаем новую расу и заполняем ее поля значениями из файлда
+// $RCSfile$     $Date$     $Revision$
+// Part of Bylins http://www.mud.ru
+
+#include <algorithm>
+#include <sstream>
+
+#include "conf.h"
+#include "sysdep.h"
+#include "utils.h"
+#include "comm.h"
+//#include "db.h"
+//#include "dg_scripts.h"
+//#include "char.hpp"
+//#include "handler.h"
+
+#include "birth_places.hpp"
+#include "pugixml.hpp"
+
+BirthPlaceListType BirthPlace::BirthPlaceList;
+
+//Создаем новую расу и заполняем ее поля значениями из файлда
 void BirthPlace::LoadBirthPlace(pugi::xml_node BirthPlaceNode)
 {
 	pugi::xml_node CurNode;
 	BirthPlacePtr TmpBirthPlace(new BirthPlace);
 
-	//Парсим параметры точки создания    TmpBirthPlace->_Id = BirthPlaceNode.attribute("id").as_int();
-	TmpBirthPlace->_Name = BirthPlaceNode.child("name").child_value();    TmpBirthPlace->_Description = BirthPlaceNode.child("shortdesc").child_value();    TmpBirthPlace->_MenuStr = BirthPlaceNode.child("menustring").child_value();    CurNode = BirthPlaceNode.child("room");    TmpBirthPlace->_LoadRoom = CurNode.attribute("vnum").as_int();
+	//Парсим параметры точки создания
+    TmpBirthPlace->_Id = BirthPlaceNode.attribute("id").as_int();
+	TmpBirthPlace->_Name = BirthPlaceNode.child("name").child_value();
+    TmpBirthPlace->_Description = BirthPlaceNode.child("shortdesc").child_value();
+    TmpBirthPlace->_MenuStr = BirthPlaceNode.child("menustring").child_value();
+    CurNode = BirthPlaceNode.child("room");
+    TmpBirthPlace->_LoadRoom = CurNode.attribute("vnum").as_int();
+
 	//Парсим список предметов
 	CurNode = BirthPlaceNode.child("items");
 	for (CurNode = CurNode.child("item"); CurNode; CurNode = CurNode.next_sibling("item"))
@@ -14,7 +40,9 @@ void BirthPlace::LoadBirthPlace(pugi::xml_node BirthPlaceNode)
 	}
 	//Добавляем новую точку в список
 	BirthPlace::BirthPlaceList.push_back(TmpBirthPlace);
-}//Загрузка параметров точек создания персонажей
+}
+
+//Загрузка параметров точек создания персонажей
 void BirthPlace::Load(const char *PathToFile)
 {
 	char buf[MAX_INPUT_LENGTH];
@@ -36,9 +64,89 @@ void BirthPlace::Load(const char *PathToFile)
 		snprintf(buf, MAX_STRING_LENGTH, "...birth places reading fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
-	}    // Парсим точки входа новых персонажей
+	}
+
+    // Парсим точки входа новых персонажей
 	for (BirthPlaceNode = BirthPlaceList.child("birthplace"); BirthPlaceNode; BirthPlaceNode = BirthPlaceNode.next_sibling("birthplace"))
 	{
 		BirthPlace::LoadBirthPlace(BirthPlaceNode);
 	}
-}// Надо было map использовать. %) Поздно сообразил// Если руки дойдут - потом переделаю.BirthPlacePtr BirthPlace::GetBirthPlaceById(short Id){    BirthPlacePtr BPPtr;    for (BirthPlaceListType::iterator it =  BirthPlaceList.begin();it != BirthPlaceList.end();++it)        if (Id == (*it)->Id())            BPPtr = *it;    return BPPtr;};int BirthPlace::GetLoadRoom(short Id){    BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);    if (BPPtr != NULL)        return BPPtr->LoadRoom();    return DEFAULT_LOADROOM;};std::vector<int> BirthPlace::GetItemList(short Id){    std::vector<int> BirthPlaceItemList;    BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);    if (BPPtr != NULL)        BirthPlaceItemList = BPPtr->ItemsList();    return BirthPlaceItemList;};std::string BirthPlace::GetMenuStr(short Id){    BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);    if (BPPtr != NULL)        return BPPtr->MenuStr();    return BIRTH_PLACE_NAME_UNDEFINED;};std::string BirthPlace::ShowMenu(std::vector<int> BPList){    int i;    BirthPlacePtr BPPtr;    std::ostringstream buffer;    i = 1;    for (std::vector<int>::iterator it = BPList.begin();it != BPList.end();++it)    {        BPPtr = BirthPlace::GetBirthPlaceById(*it);        buffer << " " << i << ") " << BPPtr->_MenuStr << "\r\n";        i++;    }     return buffer.str();};short BirthPlace::ParseSelect(char *arg){    std::string select = arg;    std::transform(select.begin(), select.end(), select.begin(), _tolower);    for (BirthPlaceListType::iterator it = BirthPlaceList.begin();it != BirthPlaceList.end();++it)        if (select == (*it)->Description())            return (*it)->Id();    return BIRTH_PLACE_UNDEFINED;};bool BirthPlace::CheckId(short Id){    BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);    if (BPPtr != NULL)        return true;    return false;};
+}
+
+// Надо было map использовать. %) Поздно сообразил
+// Если руки дойдут - потом переделаю.
+
+BirthPlacePtr BirthPlace::GetBirthPlaceById(short Id)
+{
+    BirthPlacePtr BPPtr;
+    for (BirthPlaceListType::iterator it =  BirthPlaceList.begin();it != BirthPlaceList.end();++it)
+        if (Id == (*it)->Id())
+            BPPtr = *it;
+
+    return BPPtr;
+};
+
+int BirthPlace::GetLoadRoom(short Id)
+{
+    BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);
+    if (BPPtr != NULL)
+        return BPPtr->LoadRoom();
+
+    return DEFAULT_LOADROOM;
+};
+
+std::vector<int> BirthPlace::GetItemList(short Id)
+{
+    std::vector<int> BirthPlaceItemList;
+    BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);
+    if (BPPtr != NULL)
+        BirthPlaceItemList = BPPtr->ItemsList();
+
+    return BirthPlaceItemList;
+};
+
+std::string BirthPlace::GetMenuStr(short Id)
+{
+    BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);
+    if (BPPtr != NULL)
+        return BPPtr->MenuStr();
+
+    return BIRTH_PLACE_NAME_UNDEFINED;
+};
+
+std::string BirthPlace::ShowMenu(std::vector<int> BPList)
+{
+    int i;
+    BirthPlacePtr BPPtr;
+    std::ostringstream buffer;
+    i = 1;
+    for (std::vector<int>::iterator it = BPList.begin();it != BPList.end();++it)
+    {
+        BPPtr = BirthPlace::GetBirthPlaceById(*it);
+        buffer << " " << i << ") " << BPPtr->_MenuStr << "\r\n";
+        i++;
+    }
+
+     return buffer.str();
+};
+
+short BirthPlace::ParseSelect(char *arg)
+{
+    std::string select = arg;
+    std::transform(select.begin(), select.end(), select.begin(), _tolower);
+    for (BirthPlaceListType::iterator it = BirthPlaceList.begin();it != BirthPlaceList.end();++it)
+        if (select == (*it)->Description())
+            return (*it)->Id();
+
+    return BIRTH_PLACE_UNDEFINED;
+};
+
+bool BirthPlace::CheckId(short Id)
+{
+    BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);
+    if (BPPtr != NULL)
+        return true;
+
+    return false;
+};
+

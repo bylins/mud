@@ -589,7 +589,9 @@ const char *connected_types[] = { "В игре",
 								  "Select place of birth",
 								  "Clan MoD edit",
 								  "GloryConst OLC",
-								  "NamedStuff OLC",                                  "Select new kin",                                  "Select new race",
+								  "NamedStuff OLC",
+                                  "Select new kin",
+                                  "Select new race",
 								  "\n"
 								};
 

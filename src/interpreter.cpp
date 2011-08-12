@@ -54,7 +54,8 @@
 #include "glory_misc.hpp"
 #include "named_stuff.hpp"
 #include "player_races.hpp"
-#include "birth_places.hpp"
+#include "birth_places.hpp"
+
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
 extern room_rnum r_frozen_start_room;
@@ -2358,13 +2359,37 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	d->has_prompt = 0;
 	login_change_invoice(d->character);
 }
-//По кругу проверяем корректность параметров//Все это засунуто в одну функцию для того//Чтобы в случае некорректности сразу нескольких параметров//Они все были корректно обработаныbool ValidateStats(DESCRIPTOR_DATA * d){	//Требуется рерол статов    if (!GloryMisc::check_stats(d->character))
-		return false;    //Некорректный номер расы    if (PlayerRace::GetKinNameByNum(GET_KIN(d->character),GET_SEX(d->character)) == KIN_NAME_UNDEFINED)    {        SEND_TO_Q("\r\nЧто-то заплутал ты, путник. Откуда бредешь?\r\nВыберите народ:\r\n", d);        SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
+
+//По кругу проверяем корректность параметров
+//Все это засунуто в одну функцию для того
+//Чтобы в случае некорректности сразу нескольких параметров
+//Они все были корректно обработаны
+bool ValidateStats(DESCRIPTOR_DATA * d)
+{
+	//Требуется рерол статов
+    if (!GloryMisc::check_stats(d->character))
+		return false;
+    //Некорректный номер расы
+    if (PlayerRace::GetKinNameByNum(GET_KIN(d->character),GET_SEX(d->character)) == KIN_NAME_UNDEFINED)
+    {
+        SEND_TO_Q("\r\nЧто-то заплутал ты, путник. Откуда бредешь?\r\nВыберите народ:\r\n", d);
+        SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
 		SEND_TO_Q("\r\nВыберите племя: ", d);
 		STATE(d) = CON_RESET_KIN;
-        return false;    }    //Некорректный номер рода    if (PlayerRace::GetRaceNameByNum(GET_KIN(d->character),GET_RACE(d->character),GET_SEX(d->character)) == RACE_NAME_UNDEFINED)    {		SEND_TO_Q("\r\nКакого роду-племени вы будете?\r\n", d);		SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
-		SEND_TO_Q("\r\nИз чьих Вы будете: ", d);        STATE(d) = CON_RESET_RACE;        return false;    }   return true;
-}
+        return false;
+    }
+    //Некорректный номер рода
+    if (PlayerRace::GetRaceNameByNum(GET_KIN(d->character),GET_RACE(d->character),GET_SEX(d->character)) == RACE_NAME_UNDEFINED)
+    {
+		SEND_TO_Q("\r\nКакого роду-племени вы будете?\r\n", d);
+		SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
+		SEND_TO_Q("\r\nИз чьих Вы будете: ", d);
+        STATE(d) = CON_RESET_RACE;
+        return false;
+    }
+   return true;
+}
+
 void DoAfterPassword(DESCRIPTOR_DATA * d)
 {
 	int load_result;
@@ -2417,7 +2442,8 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 			rustime(localtime(&tmp_time)), GET_LASTIP(d->character));
 	SEND_TO_Q(buf, d);
 
-	//if (!GloryMisc::check_stats(d->character))	if (!ValidateStats(d))
+	//if (!GloryMisc::check_stats(d->character))
+	if (!ValidateStats(d))
 	{
 		return;
 	}
@@ -2830,7 +2856,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		}
 
 		if (STATE(d) == CON_CNFPASSWD)
-		{            SEND_TO_Q("\r\nКакой народ вам ближе по духу:\r\n", d);
+		{
+            SEND_TO_Q("\r\nКакой народ вам ближе по духу:\r\n", d);
 			SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
 			SEND_TO_Q
 			("\r\nВаше Племя (Для более полной информации Вы можете набрать"
@@ -2878,7 +2905,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	case CON_QKIN:		/* query rass      */
 		if (pre_help(d->character, arg))
 		{
-            SEND_TO_Q("\r\nКакой народ вам ближе по духу:\r\n", d);            SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
+            SEND_TO_Q("\r\nКакой народ вам ближе по духу:\r\n", d);
+            SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
 			SEND_TO_Q("\r\nПлемя: ", d);
 			STATE(d) = CON_QKIN;
 			return;
@@ -2890,7 +2918,19 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					  "Какое Племя вам ближе по духу ? ", d);
 			return;
 		}
-		GET_KIN(d->character) = load_result;/*Ахтунг-партизанен!Пока что убраны все вызовы парсилок _классов_ для отличных от русичей _рас_.Сами парсилки и списки классов оставлены для потомков.Проверка тоже убрана, так что при создании перса другой расы ему предложат выбрать "русские" классы.Теоретически это конечно неправильно, но я сомневаюсь, что в ближайшем будущем кто-то станет доделывать расы.Если же такой садомазо найдется, то для него это всеи пишется.В таком варианте надо в описания _рас_ в файле playerraces.xmlВвести список доступных расе классов. И уже от этого списка плясать с названиями и парсом, а не городить все в 3 экземплярахСами классы при этом из кода можно и не выносить ж)Sventovit */
+		GET_KIN(d->character) = load_result;
+/*
+Ахтунг-партизанен!
+Пока что убраны все вызовы парсилок _классов_ для отличных от русичей _рас_.
+Сами парсилки и списки классов оставлены для потомков.
+Проверка тоже убрана, так что при создании перса другой расы ему предложат выбрать "русские" классы.
+Теоретически это конечно неправильно, но я сомневаюсь, что в ближайшем будущем кто-то станет доделывать расы.
+Если же такой садомазо найдется, то для него это всеи пишется.
+В таком варианте надо в описания _рас_ в файле playerraces.xml
+Ввести список доступных расе классов. И уже от этого списка плясать с названиями и парсом, а не городить все в 3 экземплярах
+Сами классы при этом из кода можно и не выносить ж)
+Sventovit
+ */
         SEND_TO_Q(class_menu, d);
 		SEND_TO_Q("\r\nВаша профессия (Для более полной информации Вы можете набрать"
 				  " \r\nсправка <интересующая профессия>): ", d);
@@ -2934,8 +2974,10 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		default:
 			SEND_TO_Q("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить ? ", d);
 			return;
-		}
-		SEND_TO_Q("\r\nКакой род вам ближе всего по духу:\r\n", d);		SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
+		}
+
+		SEND_TO_Q("\r\nКакой род вам ближе всего по духу:\r\n", d);
+		SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
 		SEND_TO_Q("\r\nИз чьих Вы будете : ", d);
 		STATE(d) = CON_RACE;
 		break;
@@ -3011,7 +3053,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 
 	case CON_RACE:		/* query race      */
 		if (pre_help(d->character, arg))
-		{			SEND_TO_Q("Какой род вам ближе всего по духу:\r\n", d);
+		{
+			SEND_TO_Q("Какой род вам ближе всего по духу:\r\n", d);
             SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
 			SEND_TO_Q("\r\nРод: ", d);
 			STATE(d) = CON_RACE;
@@ -3036,13 +3079,15 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			SEND_TO_Q("\r\nГде вы хотите начать свои приключения: ", d);
 			STATE(d) = CON_BIRTHPLACE;
 			return;
-		}        load_result = PlayerRace::CheckBirthPlace(GET_KIN(d->character), GET_RACE(d->character), arg);
+		}
+        load_result = PlayerRace::CheckBirthPlace(GET_KIN(d->character), GET_RACE(d->character), arg);
 		if (!BirthPlace::CheckId(load_result))
 		{
 			SEND_TO_Q("Не уверены? Бывает.\r\n"
 					  "Подумайте еще разок, и выберите:", d);
 			return;
-		}        d->CharBirthPlace = load_result; //Запоминаем точку входа
+		}
+        d->CharBirthPlace = load_result; //Запоминаем точку входа
 		GET_LOADROOM(d->character) = calc_loadroom(d->character, load_result);
 //		sprintf(buf, "\r\nВаша загрузочная комната: %5d\r\n", GET_LOADROOM(d->character));
 //		SEND_TO_Q(buf, d);
@@ -3445,13 +3490,20 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			sprintf(buf, "\r\n%sБлагодарим за сотрудничество. Ж)%s\r\n",
 					CCIGRN(d->character, C_SPR), CCNRM(d->character, C_SPR));
 			SEND_TO_Q(buf, d);
-            // Проверяем корректность статов            // Если что-то некорректно, функция проверки сама вернет чара на доработку.
-            if (!ValidateStats(d))                return;
-            SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);            STATE(d) = CON_RMOTD;
+            // Проверяем корректность статов
+            // Если что-то некорректно, функция проверки сама вернет чара на доработку.
+            if (!ValidateStats(d))
+                return;
+            SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+            STATE(d) = CON_RMOTD;
 		}
-		break;    case CON_RESET_KIN:		if (pre_help(d->character, arg))
+		break;
+
+    case CON_RESET_KIN:
+		if (pre_help(d->character, arg))
 		{
-            SEND_TO_Q("\r\nКакой народ вам ближе по духу:\r\n", d);            SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
+            SEND_TO_Q("\r\nКакой народ вам ближе по духу:\r\n", d);
+            SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
 			SEND_TO_Q("\r\nПлемя: ", d);
 			STATE(d) = CON_RESET_KIN;
 			return;
@@ -3463,9 +3515,16 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					  "Какое Племя вам ближе по духу ? ", d);
 			return;
 		}
-		GET_KIN(d->character) = load_result;        if (!ValidateStats(d))            return;
-        SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);        STATE(d) = CON_RMOTD;        break;    case CON_RESET_RACE:		if (pre_help(d->character, arg))
-		{            SEND_TO_Q("Какой род вам ближе всего по духу:\r\n", d);
+		GET_KIN(d->character) = load_result;
+        if (!ValidateStats(d))
+            return;
+        SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+        STATE(d) = CON_RMOTD;
+        break;
+    case CON_RESET_RACE:
+		if (pre_help(d->character, arg))
+		{
+            SEND_TO_Q("Какой род вам ближе всего по духу:\r\n", d);
             SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
 			SEND_TO_Q("\r\nРод: ", d);
 			STATE(d) = CON_RESET_RACE;
@@ -3477,8 +3536,12 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			SEND_TO_Q("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего ? ", d);
 			return;
 		}
-		GET_RACE(d->character) = load_result;        if (!ValidateStats(d))            return;
-        SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);        STATE(d) = CON_RMOTD;        break;
+		GET_RACE(d->character) = load_result;
+        if (!ValidateStats(d))
+            return;
+        SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+        STATE(d) = CON_RMOTD;
+        break;
 
 	default:
 		log("SYSERR: Nanny: illegal state of con'ness (%d) for '%s'; closing connection.",

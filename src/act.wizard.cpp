@@ -53,7 +53,8 @@
 #include "glory_const.hpp"
 #include "shop_ext.hpp"
 #include "celebrates.hpp"
-#include "player_races.hpp"#include "birth_places.hpp"
+#include "player_races.hpp"
+#include "birth_places.hpp"
 
 /*   external vars  */
 extern bool need_warn;

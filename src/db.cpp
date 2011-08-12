@@ -67,7 +67,8 @@
 #include "shop_ext.hpp"
 #include "named_stuff.hpp"
 #include "celebrates.hpp"
-#include "player_races.hpp"#include "birth_places.hpp"
+#include "player_races.hpp"
+#include "birth_places.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -1506,7 +1507,9 @@ void boot_db(void)
 		prune_crlf(GREETINGS);
 
     log("Loading birth places definitions.");
-	BirthPlace::Load(LIB_MISC BIRTH_PLACES_FILE);    log("Loading player races definitions.");
+	BirthPlace::Load(LIB_MISC BIRTH_PLACES_FILE);
+
+    log("Loading player races definitions.");
 	PlayerRace::Load(LIB_MISC PLAYER_RACE_FILE);
 
 	log("Loading spell definitions.");
@@ -6140,14 +6143,22 @@ ACMD(do_remort)
     one_argument(argument, arg);
     if (!*arg)
     {
-        sprintf(buf, "Укажите, где вы хотите заново начать свой путь:\r\n");        sprintf(buf+strlen(buf), string(BirthPlace::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(ch),GET_RACE(ch)))).c_str());
+        sprintf(buf, "Укажите, где вы хотите заново начать свой путь:\r\n");
+        sprintf(buf+strlen(buf), string(BirthPlace::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(ch),GET_RACE(ch)))).c_str());
         send_to_char(buf, ch);
         return;
-    } else {        // Сначала проверим по словам - может нам текстом сказали?        place_of_destination = BirthPlace::ParseSelect(arg);
+    } else {
+        // Сначала проверим по словам - может нам текстом сказали?
+        place_of_destination = BirthPlace::ParseSelect(arg);
         if (place_of_destination == BIRTH_PLACE_UNDEFINED)
-        {            //Нет, значит или ерунда в аргументе, или цифирь, смотрим            place_of_destination = PlayerRace::CheckBirthPlace(GET_KIN(ch), GET_RACE(ch), arg);
-            if (!BirthPlace::CheckId(place_of_destination))            {                send_to_char("Багдад далече, выберите себе местечко среди родных осин.\r\n", ch);
-                return;            }
+        {
+            //Нет, значит или ерунда в аргументе, или цифирь, смотрим
+            place_of_destination = PlayerRace::CheckBirthPlace(GET_KIN(ch), GET_RACE(ch), arg);
+            if (!BirthPlace::CheckId(place_of_destination))
+            {
+                send_to_char("Багдад далече, выберите себе местечко среди родных осин.\r\n", ch);
+                return;
+            }
         }
     }
 
