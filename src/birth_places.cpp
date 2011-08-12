@@ -133,7 +133,8 @@ std::string BirthPlace::ShowMenu(std::vector<int> BPList)
 short BirthPlace::ParseSelect(char *arg)
 {
     std::string select = arg;
-    std::transform(select.begin(), select.end(), select.begin(), _tolower);
+    lower_convert(select);
+//    std::transform(select.begin(), select.end(), select.begin(), _tolower);
     for (BirthPlaceListType::iterator it = BirthPlaceList.begin();it != BirthPlaceList.end();++it)
         if (select == (*it)->Description())
             return (*it)->Id();

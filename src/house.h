@@ -221,6 +221,7 @@ public:
 
 	int calculate_clan_tax() const;
 	void add_offline_member(const std::string &name, int uid, int rank);
+	int ingr_chest_max_objects();
 
 	friend ACMD(DoHouse);
 	friend ACMD(DoClanChannel);

@@ -1150,7 +1150,10 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 		<< " Это очень круто :), но ничего Вам не дает.\r\n"
 		<< "В хранилище замка может храниться до " << this->ChestMaxObjects()
 		<< " " << desc_count(this->ChestMaxObjects(), WHAT_OBJECT)
-		<< " с общим весом не более чем " << this->ChestMaxWeight() << ".\r\n";
+		<< " с общим весом не более чем " << this->ChestMaxWeight() << "\r\n"
+		<< "В хранилище ингредиентов может храниться до " << this->ingr_chest_max_objects()
+		<< " " << desc_count(this->ingr_chest_max_objects(), WHAT_OBJECT)
+		<< ".\r\n";
 
 	// инфа о банке и хранилище
 	int cost = ChestTax();
@@ -5550,7 +5553,7 @@ bool Clan::put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest)
 	}
 	else
 	{
-		if (CLAN(ch)->ingr_chest_objcount_ >= CLAN(ch)->ChestMaxObjects())
+		if (CLAN(ch)->ingr_chest_objcount_ >= CLAN(ch)->ingr_chest_max_objects())
 		{
 			act("Вы попытались запихнуть $o3 в $O3, но не смогли - там просто нет места.", FALSE, ch, obj, chest, TO_CHAR);
 			return 0;
@@ -5594,8 +5597,9 @@ bool ClanSystem::show_ingr_chest(OBJ_DATA *obj, CHAR_DATA *ch)
 	{
 		send_to_char("Хранилище ингредиентов Вашей дружины:\r\n", ch);
 		int cost = CLAN(ch)->ingr_chest_tax();
-		send_to_char(ch, "Всего вещей: %d, Рента в день: %d %s\r\n\r\n",
-				CLAN(ch)->get_ingr_chest_objcount(), cost, desc_count(cost, WHAT_MONEYa));
+		send_to_char(ch, "Всего вещей: %d/%d, Рента в день: %d %s\r\n\r\n",
+				CLAN(ch)->get_ingr_chest_objcount(), CLAN(ch)->ingr_chest_max_objects(),
+				cost, desc_count(cost, WHAT_MONEYa));
 		list_obj_to_char(obj->contains, ch, 1, 4);
 	}
 	else
@@ -5747,4 +5751,9 @@ void Clan::disable_ingr_chest(CHAR_DATA *ch)
 	}
 	ingr_chest_room_rnum_ = -1;
 	send_to_char("Хранилище отключено.\r\n", ch);
+}
+
+int Clan::ingr_chest_max_objects()
+{
+	return 600 + this->last_exp.get_exp() / 10000000;
 }
