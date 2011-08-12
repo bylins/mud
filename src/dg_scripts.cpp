@@ -49,7 +49,7 @@ extern OBJ_DATA *object_list;
 extern const char *item_types[];
 extern const char *genders[];
 extern const char *pc_class_types[];
-extern const char *race_types[];
+//extern const char *race_types[];
 extern const char *exit_bits[];
 extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;

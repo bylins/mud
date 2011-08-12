@@ -47,7 +47,7 @@
 #include "liquid.hpp"
 #include "modify.h"
 #include "room.hpp"
-#include "glory_const.hpp"
+#include "glory_const.hpp"#include "player_races.hpp"
 
 using std::string;
 
@@ -2653,7 +2653,7 @@ ACMD(do_score)
 				" %sБроня:       %4d %s|"
 				" %sСопротивление: %s||\r\n",
 				CCNRM(ch, C_NRM),
-				string(kin_name[GET_KIN(ch)][(int) GET_SEX(ch)]).substr(0, 14).c_str(),
+				string(PlayerRace::GetKinNameByNum(GET_KIN(ch),GET_SEX(ch))).substr(0, 14).c_str(),
 				CCCYN(ch, C_NRM),
 				CCICYN(ch, C_NRM), GET_HEIGHT(ch), GET_REAL_HEIGHT(ch), CCCYN(ch, C_NRM),
 				CCIGRN(ch, C_NRM), GET_ARMOUR(ch), CCCYN(ch, C_NRM),
@@ -2667,7 +2667,7 @@ ACMD(do_score)
 				" %sЗащита:       %3d %s|"
 				" %sОгню:      %3d %s||\r\n",
 				CCNRM(ch, C_NRM),
-				string(race_name[GET_RACE(ch)][(int)GET_SEX(ch)]).substr(0, 14).c_str(),
+                string(PlayerRace::GetRaceNameByNum(GET_KIN(ch),GET_RACE(ch),GET_SEX(ch))).substr(0, 14).c_str(),
 				CCCYN(ch, C_NRM),
 				CCICYN(ch, C_NRM), GET_WEIGHT(ch), GET_REAL_WEIGHT(ch), CCCYN(ch, C_NRM),
 				CCIGRN(ch, C_NRM), ac, CCCYN(ch, C_NRM),
@@ -3156,8 +3156,7 @@ ACMD(do_score)
 
 	sprintf(buf, "Вы %s (%s, %s, %s, %s %d уровня).\r\n",
 			only_title(ch),
-			kin_name[GET_KIN(ch)][(int) GET_SEX(ch)],
-			race_name[GET_RACE(ch)][(int) GET_SEX(ch)],
+			string(PlayerRace::GetKinNameByNum(GET_KIN(ch),GET_SEX(ch))).c_str(),            string(PlayerRace::GetRaceNameByNum(GET_KIN(ch),GET_RACE(ch),GET_SEX(ch))).c_str(),
 			religion_name[GET_RELIGION(ch)][(int) GET_SEX(ch)],
 			class_name[(int) GET_CLASS(ch)+14*GET_KIN(ch)], GET_LEVEL(ch));
 

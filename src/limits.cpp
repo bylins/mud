@@ -37,7 +37,7 @@
 #include "features.hpp"
 #include "char.hpp"
 #include "char_player.hpp"
-#include "room.hpp"
+#include "room.hpp"#include "birth_places.hpp"
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
@@ -67,7 +67,7 @@ void decrease_level(CHAR_DATA * ch);
 int max_exp_gain_pc(CHAR_DATA * ch);
 int max_exp_loss_pc(CHAR_DATA * ch);
 int average_day_temp(void);
-int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BPLACE_UNDEFINED);
+int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 
 int mag_manacost(CHAR_DATA * ch, int spellnum);
 

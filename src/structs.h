@@ -290,72 +290,12 @@ typedef struct trig_data TRIG_DATA;
 #define RELIGION_MONO    1
 
 #define MASK_RELIGION_POLY        (1 << RELIGION_POLY)
-#define MASK_RELIGION_MONO        (1 << RELIGION_MONO)
+#define MASK_RELIGION_MONO        (1 << RELIGION_MONO)
 /* PC races */
-#define RACE_UNDEFINED      -1
-#define NUM_RACES            18
-
-#define RACE_SEVERANE       0
-#define RACE_POLANE         1
-#define RACE_KRIVICHI       2
-#define RACE_VATICHI        3
-#define RACE_VELANE         4
-#define RACE_DREVLANE       5
-
-#define RACE_POLOVCI        6
-#define RACE_PECHENEGI      7
-#define RACE_MONGOLI        8
-#define RACE_YIGURI         9
-#define RACE_KANGARI        10
-#define RACE_XAZARI         11
-
-#define RACE_SVEI           12
-#define RACE_DATCHANE       13
-#define RACE_GETTI          14
-#define RACE_UTTI           15
-#define RACE_XALEIGI        16
-#define RACE_NORVEZCI       17
-
-
-#define MASK_SEVERANE        (1 << RACE_SEVERANE)
-#define MASK_POLANE          (1 << RACE_POLANE)
-#define MASK_KRIVICHI        (1 << RACE_CRIVICHI)
-#define MASK_VATICHI         (1 << RACE_VATICHI)
-#define MASK_VELANE          (1 << RACE_VELANE)
-#define MASK_DREVLANE        (1 << RACE_DREVLANE)
-
-#define MASK_POLOVCI         (1 << RACE_POLOVCI)
-#define MASK_PECHENEGI       (1 << RACE_PECHENEGI)
-#define MASK_MONGOLI         (1 << RACE_MONGOLI)
-#define MASK_YIGURI          (1 << RACE_YIGURI)
-#define MASK_KANGARI         (1 << RACE_KANGARI)
-#define MASK_XAZARI          (1 << RACE_XAZARI)
-
-#define MASK_SVEI            (1 << RACE_SVEI)
-#define MASK_DATCHANE        (1 << RACE_DATCHANE)
-#define MASK_GETTI           (1 << RACE_GETTI)
-#define MASK_UTTI            (1 << RACE_UTTI)
-#define MASK_XALEIGI         (1 << RACE_XALEIGI)
-#define MASK_NORVEZCI        (1 << RACE_NORVEZCI)
-
-/* Places of birth */
-#define BPLACE_UNDEFINED    -1
-#define BPLACE_KIEV                  0
-#define BPLACE_NOVGOROD   1
-#define BPLACE_MAX                   2
+/** Все расы персонажей-игроков теперь описываются в playerraces.xml*/
 
 /*PC Kin*/
-#define KIN_UNDEFINED     -1
-#define NUM_KIN            3
-#define KIN_RUSICHI        0
-#define KIN_VIKINGI        1
-#define KIN_STEPNYAKI      2
-
-#define MASK_RUSICHI        (1 << KIN_RUSICHI)
-#define MASK_VIKINGI        (1 << KIN_VIKINGI)
-#define MASK_STEPNYAKI      (1 << KIN_STEPNYAKI)
-
-
+#define NUM_KIN            3
 /* NPC classes */
 #define CLASS_BASIC_NPC    100
 //#define CLASS_UNDEAD       101 к классам не относится, перенесено в расы (типы) мобов
@@ -743,7 +683,7 @@ typedef struct trig_data TRIG_DATA;
 #define CON_NAME5        27
 #define CON_NAME6        28
 #define CON_RELIGION     29
-#define CON_RACER        30
+#define CON_RACE        30
 #define CON_LOWS         31
 #define CON_GET_KEYTABLE 32
 #define CON_GET_EMAIL    33
@@ -752,8 +692,8 @@ typedef struct trig_data TRIG_DATA;
 #define CON_QKIN         36
 #define CON_QCLASSV      37
 #define CON_QCLASSS      38
-#define CON_RACES        39
-#define CON_RACEV        40
+//#define CON_RACES        39 Это остаток от Поренутовских недорас, убрал ибо не надо стало
+//#define CON_RACEV        40 Номера режимов можно потом заюзать
 #define CON_COLOR        41
 #define CON_WRITEBOARD   42 // написание на доску
 #define CON_CLANEDIT     43 // команда house
@@ -763,7 +703,7 @@ typedef struct trig_data TRIG_DATA;
 #define CON_BIRTHPLACE   47 // выбираем где начать игру
 #define CON_WRITE_MOD    48 // пишет клановое сообщение дня
 #define CON_GLORY_CONST  49 // вливает славу2
-#define CON_NAMED_STUFF  50 // редактирует именной стаф
+#define CON_NAMED_STUFF  50 // редактирует именной стаф#define CON_RESET_KIN    51 // выбор расы после смены/удаления оной (или иного способа испоганивания значения)#define CON_RESET_RACE   52 // выбор РОДА посла смены/сброса оного
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 /* Character equipment positions: used as index for char_data.equipment[] */
@@ -1618,7 +1558,7 @@ struct descriptor_data
 	boost::shared_ptr<GloryConst::glory_olc> glory_const;
 	boost::shared_ptr<NamedStuff::stuff_node> named_obj;	// редактируемая именная шмотка
 	unsigned long cur_vnum;					// текущий внум именной шмотки
-	unsigned long old_vnum;					// старый внум именной шмотки
+	unsigned long old_vnum;					// старый внум именной шмотки    short CharBirthPlace;                   // ID точки входа в игру для новых чаров, тупо, но что поделать
 };
 
 

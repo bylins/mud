@@ -36,7 +36,7 @@
 #include "char.hpp"
 #include "room.hpp"
 #include "modify.h"
-#include "house.h"
+#include "house.h"#include "player_races.hpp"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 
@@ -1539,7 +1539,7 @@ char *noclan_title(CHAR_DATA * ch)
 	char *pos, *pos1;
 
 	if (!GET_TITLE(ch) || !*GET_TITLE(ch))
-		sprintf(title, "%s %s", race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)], GET_NAME(ch));
+		sprintf(title, "%s %s", string(PlayerRace::GetRaceNameByNum(GET_KIN(ch),GET_RACE(ch),GET_SEX(ch))).c_str(), GET_NAME(ch));
 	else
 	{
 		if ((pos1 = strchr(GET_TITLE(ch), '/')))
@@ -1548,14 +1548,14 @@ char *noclan_title(CHAR_DATA * ch)
 		{
 			*(pos++) = '\0';
 			if ((!GET_TITLE(ch) || !*GET_TITLE(ch)) && GET_REMORT(ch) == 0 && !IS_IMMORTAL(ch))
-				sprintf(title, "%s %s", race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)], GET_NAME(ch));
+				sprintf(title, "%s %s", string(PlayerRace::GetRaceNameByNum(GET_KIN(ch),GET_RACE(ch),GET_SEX(ch))).c_str(), GET_NAME(ch));
 			else
 			{
 				if (GET_REMORT(ch) == 0 && !IS_IMMORTAL(ch))
 				{
 					if (GET_LEVEL(ch) < MIN_TITLE_LEV)
 						sprintf(title, "%s %s",
-								race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)], GET_NAME(ch));
+								string(PlayerRace::GetRaceNameByNum(GET_KIN(ch),GET_RACE(ch),GET_SEX(ch))).c_str(), GET_NAME(ch));
 					else
 						sprintf(title, "%s%s%s", GET_NAME(ch), *GET_TITLE(ch) ? ", " : " ",
 								GET_TITLE(ch));
@@ -1574,7 +1574,7 @@ char *noclan_title(CHAR_DATA * ch)
 		else
 		{
 			if (GET_LEVEL(ch) < MIN_TITLE_LEV)
-				sprintf(title, "%s %s", race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)], GET_NAME(ch));
+				sprintf(title, "%s %s", string(PlayerRace::GetRaceNameByNum(GET_KIN(ch),GET_RACE(ch),GET_SEX(ch))).c_str(), GET_NAME(ch));
 			else if (GET_LEVEL(ch) >= MIN_TITLE_LEV)
 				sprintf(title, "%s%s%s", GET_NAME(ch), *GET_TITLE(ch) ? ", " : " ", GET_TITLE(ch));
 		}
@@ -1653,7 +1653,7 @@ char *race_or_title(CHAR_DATA * ch)
 		clan[0] = 0;
 
 	if (!GET_TITLE(ch) || !*GET_TITLE(ch))
-		sprintf(title, "%s %s%s", race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)], GET_NAME(ch), clan);
+		sprintf(title, "%s %s%s", string(PlayerRace::GetRaceNameByNum(GET_KIN(ch),GET_RACE(ch),GET_SEX(ch))).c_str(), GET_NAME(ch), clan);
 	else
 	{
 		if ((pos1 = strchr(GET_TITLE(ch), '/')))
@@ -1662,7 +1662,7 @@ char *race_or_title(CHAR_DATA * ch)
 		{
 			*(pos++) = '\0';
 			if ((!GET_TITLE(ch) || !*GET_TITLE(ch)) && GET_REMORT(ch) == 0 && !IS_IMMORTAL(ch))
-				sprintf(title, "%s %s%s", race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)],
+				sprintf(title, "%s %s%s", string(PlayerRace::GetRaceNameByNum(GET_KIN(ch),GET_RACE(ch),GET_SEX(ch))).c_str(),
 						GET_NAME(ch), clan);
 			else
 			{
@@ -1670,7 +1670,7 @@ char *race_or_title(CHAR_DATA * ch)
 				{
 					if (GET_LEVEL(ch) < MIN_TITLE_LEV)
 						sprintf(title, "%s %s%s",
-								race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)], GET_NAME(ch),
+								string(PlayerRace::GetRaceNameByNum(GET_KIN(ch),GET_RACE(ch),GET_SEX(ch))).c_str(), GET_NAME(ch),
 								clan);
 					else
 						sprintf(title, "%s%s%s%s", GET_NAME(ch), *GET_TITLE(ch) ? ", " : " ",
@@ -1690,7 +1690,7 @@ char *race_or_title(CHAR_DATA * ch)
 		else
 		{
 			if (GET_LEVEL(ch) < MIN_TITLE_LEV)
-				sprintf(title, "%s %s%s", race_name[(int) GET_RACE(ch)][(int) GET_SEX(ch)],
+				sprintf(title, "%s %s%s", string(PlayerRace::GetRaceNameByNum(GET_KIN(ch),GET_RACE(ch),GET_SEX(ch))).c_str(),
 						GET_NAME(ch), clan);
 			else if (GET_LEVEL(ch) >= MIN_TITLE_LEV)
 				sprintf(title, "%s%s%s%s", GET_NAME(ch), *GET_TITLE(ch) ? ", " : " ", GET_TITLE(ch),

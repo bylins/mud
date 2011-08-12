@@ -20,7 +20,7 @@
 #include "interpreter.h"	/* alias_data definition for structs.h */
 #include "utils.h"
 #include "constants.h"
-#include "char.hpp"
+#include "char.hpp"#include "birth_places.hpp"
 
 #define YES	    1
 #define FALSE	0
@@ -323,50 +323,15 @@ int max_exp_loss_pc(CHAR_DATA * ch)
 	return (IS_NPC(ch) ? 1 : (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch) + 0)) / 3);
 }
 
-int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BPLACE_UNDEFINED)
+int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED)
 {
-	if (IS_IMMORTAL(ch))
+	int loadroom;    if (IS_IMMORTAL(ch))
 		return (immort_start_room);
 	else if (PLR_FLAGGED(ch, PLR_FROZEN))
 		return (frozen_start_room);
 	else
 	{
-		switch (GET_RACE(ch))
-		{
-		case RACE_SEVERANE:
-		case RACE_VELANE:
-		case RACE_POLOVCI:
-		case RACE_MONGOLI:
-		case RACE_KANGARI:
-		case RACE_PECHENEGI:
-		case RACE_YIGURI:
-		case RACE_XAZARI:
-		case RACE_SVEI:
-		case RACE_DATCHANE:
-		case RACE_GETTI:
-		case RACE_UTTI:
-		case RACE_XALEIGI:
-		case RACE_NORVEZCI:
-			if ((bplace_mode == BPLACE_KIEV) || (bplace_mode == BPLACE_UNDEFINED))
-                return 4056;
-			else if  (bplace_mode == BPLACE_NOVGOROD)
-                return 8010;
-			break;
-		case RACE_POLANE:
-		case RACE_VATICHI:
-			if ((bplace_mode == BPLACE_KIEV) || (bplace_mode == BPLACE_UNDEFINED))
-                return 5000;
-			else if  (bplace_mode == BPLACE_NOVGOROD)
-                return 7038;
-			break;
-		case RACE_KRIVICHI:
-		case RACE_DREVLANE:
-			if ((bplace_mode == BPLACE_KIEV) || (bplace_mode == BPLACE_UNDEFINED))
-                return 6049;
-			else if  (bplace_mode == BPLACE_NOVGOROD)
-                return 9007;
-			break;
-		}
+        loadroom = BirthPlace::GetLoadRoom(bplace_mode);        if (loadroom != BIRTH_PLACE_UNDEFINED)            return loadroom;
 	}
 	return (mortal_start_room);
 }

@@ -53,7 +53,7 @@
 #include "glory_const.hpp"
 #include "shop_ext.hpp"
 #include "celebrates.hpp"
-#include "player_races.hpp"
+#include "player_races.hpp"#include "birth_places.hpp"
 
 /*   external vars  */
 extern bool need_warn;
@@ -81,15 +81,12 @@ extern int shutdown_time;
 extern struct player_index_element *player_table;
 extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
-extern const char *race_menu;
-extern int parse_race(char arg);
 extern const char *Dirs[];
 extern unsigned long int number_of_bytes_read;
 extern unsigned long int number_of_bytes_written;
 extern long max_id;
 /* for chars */
 extern const char *pc_class_types[];
-extern const char *pc_kin_types[];
 extern struct spell_info_type spell_info[];
 /*for name auto-agree*/
 extern void agree_name(CHAR_DATA * d, const char *immname, int immlev);
@@ -104,7 +101,6 @@ extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 int level_exp(CHAR_DATA * ch, int level);
 void show_shops(CHAR_DATA * ch, char *value);
 void hcontrol_list_houses(CHAR_DATA * ch);
-//void do_start(CHAR_DATA * ch, int newbie);
 void appear(CHAR_DATA * ch);
 void reset_zone(zone_rnum zone);
 int parse_class(char arg);
@@ -114,7 +110,7 @@ int _parse_name(char *arg, char *name);
 int Valid_Name(char *name);
 int reserved_word(const char *name);
 int compute_armor_class(CHAR_DATA * ch);
-int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BPLACE_UNDEFINED);
+int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 extern bool can_be_reset(zone_rnum zone);
 extern int is_empty(zone_rnum zone_nr);
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
@@ -1623,7 +1619,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		send_to_char("Племя: -- ", ch);
 	else
 	{
-		sprintf(buf, "Племя: %s ", pc_kin_types[(int) GET_KIN(k)]);
+		sprintf(buf, "Племя: %s ", string(PlayerRace::GetKinNameByNum(GET_KIN(k),GET_SEX(k))).c_str());
 		send_to_char(buf, ch);
 	}
 
@@ -2930,10 +2926,6 @@ ACMD(do_advance)
 	oldlevel = GET_LEVEL(victim);
 	if (newlevel < oldlevel)
 	{
-		// Pereplut: ну что за кривой код -- опустить чара до 1 левела, выдать ему дефолтный стаф,
-		// дефолтный скилл опохмелиться и т.д. и т.п. а затем приравнять его уровень к нужному? -- убрал нафиг.
-		//do_start(victim, FALSE);
-		//GET_LEVEL(victim) = newlevel;
 		send_to_char("Вас окутало облако тьмы.\r\n" "Вы почувствовали себя лишенным чего-то.\r\n", victim);
 	}
 	else
@@ -4439,12 +4431,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 	case 9:
 		/* Выставляется род для РС */
-		rod = parse_race(*val_arg);
+        rod = PlayerRace::CheckRace(GET_KIN(ch), val_arg);
 		if (rod == RACE_UNDEFINED)
 		{
 			send_to_char("Не было таких на земле русской!\r\n", ch);
-			send_to_char(race_menu, ch);
-			send_to_char("\r\n", ch);
+            send_to_char(PlayerRace::ShowRacesMenu(GET_KIN(ch)), ch);
 			return (0);
 		}
 		else

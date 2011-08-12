@@ -36,7 +36,7 @@
 #include "parcel.hpp"
 #include "liquid.hpp"
 #include "modify.h"
-#include "room.hpp"
+#include "room.hpp"#include "birth_places.hpp"
 
 extern room_rnum r_mortal_start_room;
 
@@ -61,7 +61,7 @@ void weight_change_object(OBJ_DATA * obj, int weight);
 int compute_armor_class(CHAR_DATA * ch);
 char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
-int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BPLACE_UNDEFINED);
+int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 int calc_anti_savings(CHAR_DATA * ch);
 void go_flee(CHAR_DATA * ch);
 

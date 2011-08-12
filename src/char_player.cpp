@@ -399,7 +399,7 @@ void Player::save_char()
 	if (POOFOUT(this))
 		fprintf(saved, "PfOt: %s\n", POOFOUT(this));
 	fprintf(saved, "Sex : %d %s\n", GET_SEX(this), genders[(int) GET_SEX(this)]);
-	fprintf(saved, "Kin : %d %s\n", GET_KIN(this), kin_name[GET_KIN(this)][(int) GET_SEX(this)]);
+	fprintf(saved, "Kin : %d %s\n", GET_KIN(this), string(PlayerRace::GetKinNameByNum(GET_KIN(this),GET_SEX(this))).c_str());
 	li = this->player_data.time.birth;
 	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
 	// Gunner
@@ -545,7 +545,7 @@ void Player::save_char()
 		fprintf(saved, "Drnk: %d\n", GET_COND(this, DRUNK));
 
 	fprintf(saved, "Reli: %d %s\n", GET_RELIGION(this), religion_name[GET_RELIGION(this)][(int) GET_SEX(this)]);
-	fprintf(saved, "Race: %d %s\n", GET_RACE(this), race_name[GET_RACE(this)][(int) GET_SEX(this)]);
+	fprintf(saved, "Race: %d %s\n", GET_RACE(this), string(PlayerRace::GetRaceNameByNum(GET_KIN(this),GET_RACE(this),GET_SEX(this))).c_str());
 	fprintf(saved, "DrSt: %d\n", GET_DRUNK_STATE(this));
 	fprintf(saved, "Olc : %d\n", GET_OLC_ZONE(this));
 	*buf = '\0';

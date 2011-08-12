@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 /*
+ * Th
  * This file attempts to concentrate most of the code which must be changed
  * in order for new classes to be added.  If you're adding a new class,
  * you should go through this entire file from beginning to end and add
@@ -40,7 +41,7 @@
 #include "screen.h"
 #include "char_player.hpp"
 #include "named_stuff.hpp"
-#include "player_races.hpp"
+#include "player_races.hpp"#include "birth_places.hpp"
 
 extern int siteok_everyone;
 extern struct spell_create_type spell_create[];
@@ -53,11 +54,10 @@ struct skillvariables_insgem insgem_vars;
 // grouping[class][remorts]
 int grouping[14][15];
 
-int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BPLACE_UNDEFINED);
+int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 
 /* local functions */
 int parse_class(char arg);
-int parse_race(char arg);
 long find_class_bitvector(char arg);
 byte saving_throws(int class_num, int type, int level);
 int thaco(int class_num, int level);
@@ -190,12 +190,6 @@ const char *class_menu_step =
 	"  [С]атучы\r\n"
 	"  Се[и]д\r\n";
 
-const char *place_of_birth_menu =
-	"\r\n"
-	"Откуда Вы родом?\r\n"
-	"  [К]иевское княжество (рекомендуется для новичков).\r\n"
-	"  [Н]овгородские земли.\r\n";
-
 const char *color_menu =
 	"\r\n"
 	"Выберите режим цвета :\r\n"
@@ -231,72 +225,6 @@ const int class_religion[] = { RELIGION_ANY,	/*Лекарь */
 							 };
 
 /*****/
-
-/* The menu for choosing a race in interpreter.c: */
-const char *race_menu =
-	"\r\n"
-	"Какой РОД Вам ближе всего по духу :\r\n"
-	"  [С]еверяне\r\n" "  [П]оляне\r\n" "  [К]ривичи\r\n" "  [В]ятичи\r\n" "  В[е]лыняне\r\n" "  [Д]ревляне\r\n";
-
-const char *race_types[] = { "северяне",
-							 "поляне",
-							 "кривичи",
-							 "вятичи",
-							 "велыняне",
-							 "древляне"
-						   };
-
-const char *race_menu_step =
-	"\r\n"
-	"Какой РОД Вам ближе всего по духу :\r\n"
-	"  [П]оловцы\r\n"
-	"  П[е]ченеги\r\n"
-	"  [М]онголы\r\n"
-	"  [У]йгуры\r\n"
-	"  [К]ангары\r\n"
-	"  [Х]азары\r\n";
-
-const char *race_types_srep[] = { "половцы",
-								  "печенеги",
-								  "монголы",
-								  "уйгуры",
-								  "кангары",
-								  "хазары"
-								};
-
-const char *race_menu_vik =
-	"\r\n"
-	"Какой РОД Вам ближе всего по духу :\r\n"
-	"  [С]веи\r\n"
-	"  [Д]атчане\r\n"
-	"  [Г]етты\r\n"
-	"  [Ю]тты\r\n"
-	"  [Х]алейги\r\n"
-	"  [Н]орвежцы\r\n";
-
-const char *race_types_vik[] = { "свеи",
-								 "датчане",
-								 "гетты",
-								 "ютты",
-								 "халейги",
-								 "норвежцы"
-							   };
-
-
-/**/
-const char *kin_menu =
-	"\r\n"
-	"Какие племена вам ближе по духу :\r\n"
-	"  [Р]усичи\r\n"
-	"  [C]тепняки (находится в стадии тестирования)\r\n"
-	"  [В]икинги (находится в стадии тестирования)\r\n";
-
-const char *pc_kin_types[] = { "Русичи",
-							   "Викинги",
-							   "Степняки",
-							   "\n"
-							 };
-
 
 /*
  * The code to interpret a class letter -- used in interpreter.cpp when a
@@ -420,112 +348,6 @@ parse_class_step(char arg)
 		return CLASS_DRUID;
 	default:
 		return CLASS_UNDEFINED;
-	}
-}
-
-
-int parse_race(char arg)
-{
-	arg = LOWER(arg);
-
-	switch (arg)
-	{
-	case 'с':
-		return RACE_SEVERANE;
-	case 'п':
-		return RACE_POLANE;
-	case 'к':
-		return RACE_KRIVICHI;
-	case 'в':
-		return RACE_VATICHI;
-	case 'е':
-		return RACE_VELANE;
-	case 'д':
-		return RACE_DREVLANE;
-	default:
-		return RACE_UNDEFINED;
-	}
-}
-
-int
-parse_race_step(char arg)
-{
-	arg = LOWER(arg);
-
-	switch (arg)
-	{
-	case 'п':
-		return RACE_POLOVCI;
-	case 'е':
-		return RACE_PECHENEGI;
-	case 'м':
-		return RACE_MONGOLI;
-	case 'у':
-		return RACE_YIGURI;
-	case 'к':
-		return RACE_KANGARI;
-	case 'х':
-		return RACE_XAZARI;
-	default:
-		return RACE_UNDEFINED;
-	}
-}
-
-int
-parse_race_vik(char arg)
-{
-	arg = LOWER(arg);
-
-	switch (arg)
-	{
-	case 'с':
-		return RACE_SVEI;
-	case 'д':
-		return RACE_DATCHANE;
-	case 'г':
-		return RACE_GETTI;
-	case 'ю':
-		return RACE_UTTI;
-	case 'х':
-		return RACE_XALEIGI;
-	case 'н':
-		return RACE_NORVEZCI;
-	default:
-		return RACE_UNDEFINED;
-	}
-}
-
-int
-parse_place_of_birth(char arg)
-{
-	arg = LOWER(arg);
-
-	switch (arg)
-	{
-	case 'к':
-		return BPLACE_KIEV;
-	case 'н':
-		return BPLACE_NOVGOROD;
-	default:
-		return BPLACE_UNDEFINED;
-	}
-}
-
-int
-parse_kin(char arg)
-{
-	arg = LOWER(arg);
-
-	switch (arg)
-	{
-	case 'р':
-		return KIN_RUSICHI;
-		/*	case 'Ё':
-				return KIN_STEPNYAKI;
-			case '@':
-				return KIN_VIKINGI;*//*Отключим пока*/
-	default:
-		return KIN_UNDEFINED;
 	}
 }
 
@@ -2141,7 +1963,7 @@ int extra_damroll(int class_num, int level)
 void do_start(CHAR_DATA * ch, int newbie)
 {
 	OBJ_DATA *obj;
-	int i;
+	int i;    std::vector<int> ItemList;
 
 	ch->set_level(1);
 	ch->set_exp(1);
@@ -2169,24 +1991,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 		obj_to_char(obj, ch);
 	ch->set_skill(SKILL_DRUNKOFF, 10);
 
-	switch (calc_loadroom(ch))
-	{
-	case 4056:
-		obj = read_object(4004, VIRTUAL);
-		break;
-	case 5000:
-		obj = read_object(5017, VIRTUAL);
-		break;
-	case 6049:
-		obj = read_object(6004, VIRTUAL);
-		break;
-	default:
-		obj = NULL;
-		break;
-	}
-	if (obj)
-		obj_to_char(obj, ch);
-
+    // Подгружаем предметы в зависимости от точки входа в игру    ItemList = BirthPlace::GetItemList(ch->desc->CharBirthPlace);    for (std::vector<int>::iterator it = ItemList.begin();it != ItemList.end();++it)    {        obj = read_object((*it), VIRTUAL);        if (obj)
+            obj_to_char(obj, ch);    };
 	switch (GET_CLASS(ch))
 	{
 	case CLASS_BATTLEMAGE:
@@ -2268,57 +2074,6 @@ void do_start(CHAR_DATA * ch, int newbie)
 
 	}
 
-	switch (GET_KIN(ch))
-	{
-	case KIN_RUSICHI:
-		break;
-	case KIN_VIKINGI:
-		break;
-	case KIN_STEPNYAKI:
-		break;
-	}
-
-	switch (GET_RACE(ch))
-	{
-	case RACE_SEVERANE:
-		break;
-	case RACE_POLANE:
-		break;
-	case RACE_KRIVICHI:
-		break;
-	case RACE_VATICHI:
-		break;
-	case RACE_VELANE:
-		break;
-	case RACE_DREVLANE:
-		break;
-	case RACE_POLOVCI:
-		break;
-	case RACE_PECHENEGI:
-		break;
-	case RACE_MONGOLI:
-		break;
-	case RACE_YIGURI:
-		break;
-	case RACE_KANGARI:
-		break;
-	case RACE_XAZARI:
-		break;
-	case RACE_SVEI:
-		break;
-	case RACE_DATCHANE:
-		break;
-	case RACE_GETTI:
-		break;
-	case RACE_UTTI:
-		break;
-	case RACE_XALEIGI:
-		break;
-	case RACE_NORVEZCI:
-		break;
-
-	}
-
 	switch (GET_RELIGION(ch))
 	{
 	case RELIGION_POLY:
@@ -2337,11 +2092,6 @@ void do_start(CHAR_DATA * ch, int newbie)
 	GET_COND(ch, THIRST) = 24;
 	GET_COND(ch, FULL) = 24;
 	GET_COND(ch, DRUNK) = 0;
-
-// Gunner а вот тут дырка после реморта тоже выполняется do_start и
-// нам не нужно обнулять время в игре ни время последнего логона
-//  ch->player_data.time.played = 0;
-//  ch->player_data.time.logon  = time(0);
 
 	if (siteok_everyone)
 		SET_BIT(PLR_FLAGS(ch, PLR_SITEOK), PLR_SITEOK);
@@ -2559,47 +2309,7 @@ int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj)
 		(IS_OBJ_ANTI(obj, ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_KILLERONLY)
 		 && !PLR_FLAGGED(ch, PLR_KILLER))
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_COLORED) && IS_COLORED(ch))
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_SEVERANE)
-			&& GET_RACE(ch) == RACE_SEVERANE)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_POLANE) && GET_RACE(ch) == RACE_POLANE)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_KRIVICHI)
-			&& GET_RACE(ch) == RACE_KRIVICHI)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_VATICHI)
-			&& GET_RACE(ch) == RACE_VATICHI)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_VELANE) && GET_RACE(ch) == RACE_VELANE)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_DREVLANE)
-			&& GET_RACE(ch) == RACE_DREVLANE)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_POLOVCI)
-			&& GET_RACE(ch) == RACE_POLOVCI)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_PECHENEGI)
-			&& GET_RACE(ch) == RACE_PECHENEGI)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_MONGOLI)
-			&& GET_RACE(ch) == RACE_MONGOLI)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_YIGURI)
-			&& GET_RACE(ch) == RACE_YIGURI)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_KANGARI)
-			&& GET_RACE(ch) == RACE_KANGARI)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_XAZARI)
-			&& GET_RACE(ch) == RACE_XAZARI)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_SVEI)
-			&& GET_RACE(ch) == RACE_SVEI)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_DATCHANE)
-			&& GET_RACE(ch) == RACE_DATCHANE)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_GETTI)
-			&& GET_RACE(ch) == RACE_GETTI)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_UTTI)
-			&& GET_RACE(ch) == RACE_UTTI)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_XALEIGI)
-			&& GET_RACE(ch) == RACE_XALEIGI)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_NORVEZCI)
-			&& GET_RACE(ch) == RACE_NORVEZCI)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_RUSICHI)
-			&& GET_KIN(ch) == KIN_RUSICHI)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_STEPNYAKI)
-			&& GET_KIN(ch) == KIN_STEPNYAKI)
-		|| (IS_OBJ_ANTI(obj, ITEM_AN_VIKINGI)
-			&& GET_KIN(ch) == KIN_VIKINGI))
+		|| (IS_OBJ_ANTI(obj, ITEM_AN_COLORED) && IS_COLORED(ch)))
 		return (TRUE);
 	return (FALSE);
 }
@@ -2632,48 +2342,7 @@ int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj)
 			(IS_OBJ_NO(obj, ITEM_NO_DRUID) && IS_DRUID(ch)) ||
 			(IS_OBJ_NO(obj, ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
 			(IS_OBJ_NO(obj, ITEM_NO_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER))
-			|| (IS_OBJ_NO(obj, ITEM_NO_COLORED) && IS_COLORED(ch))
-			|| (IS_OBJ_NO(obj, ITEM_NO_SEVERANE)
-				&& GET_RACE(ch) == RACE_SEVERANE)
-			|| (IS_OBJ_NO(obj, ITEM_NO_POLANE) && GET_RACE(ch) == RACE_POLANE)
-			|| (IS_OBJ_NO(obj, ITEM_NO_KRIVICHI)
-				&& GET_RACE(ch) == RACE_KRIVICHI)
-			|| (IS_OBJ_NO(obj, ITEM_NO_VATICHI) && GET_RACE(ch) == RACE_VATICHI)
-			|| (IS_OBJ_NO(obj, ITEM_NO_VELANE) && GET_RACE(ch) == RACE_VELANE)
-			|| (IS_OBJ_NO(obj, ITEM_NO_DREVLANE)
-				&& GET_RACE(ch) == RACE_DREVLANE)
-			|| (IS_OBJ_NO(obj, ITEM_AN_POLOVCI)
-				&& GET_RACE(ch) == RACE_POLOVCI)
-			|| (IS_OBJ_NO(obj, ITEM_AN_PECHENEGI)
-				&& GET_RACE(ch) == RACE_PECHENEGI)
-			|| (IS_OBJ_NO(obj, ITEM_AN_MONGOLI)
-				&& GET_RACE(ch) == RACE_MONGOLI)
-			|| (IS_OBJ_NO(obj, ITEM_AN_YIGURI)
-				&& GET_RACE(ch) == RACE_YIGURI)
-			|| (IS_OBJ_NO(obj, ITEM_AN_KANGARI)
-				&& GET_RACE(ch) == RACE_KANGARI)
-			|| (IS_OBJ_NO(obj, ITEM_AN_XAZARI)
-				&& GET_RACE(ch) == RACE_XAZARI)
-			|| (IS_OBJ_NO(obj, ITEM_AN_SVEI)
-				&& GET_RACE(ch) == RACE_SVEI)
-			|| (IS_OBJ_NO(obj, ITEM_AN_DATCHANE)
-				&& GET_RACE(ch) == RACE_DATCHANE)
-			|| (IS_OBJ_NO(obj, ITEM_AN_GETTI)
-				&& GET_RACE(ch) == RACE_GETTI)
-			|| (IS_OBJ_NO(obj, ITEM_AN_UTTI)
-				&& GET_RACE(ch) == RACE_UTTI)
-			|| (IS_OBJ_NO(obj, ITEM_AN_XALEIGI)
-				&& GET_RACE(ch) == RACE_XALEIGI)
-			|| (IS_OBJ_NO(obj, ITEM_AN_NORVEZCI)
-				&& GET_RACE(ch) == RACE_NORVEZCI)
-			|| (IS_OBJ_NO(obj, ITEM_AN_RUSICHI)
-				&& GET_KIN(ch) == KIN_RUSICHI)
-			|| (IS_OBJ_NO(obj, ITEM_AN_STEPNYAKI)
-				&& GET_KIN(ch) == KIN_STEPNYAKI)
-			|| (IS_OBJ_NO(obj, ITEM_AN_VIKINGI)
-				&& GET_KIN(ch) == KIN_VIKINGI)
-			|| ((OBJ_FLAGGED(obj, ITEM_ARMORED) || OBJ_FLAGGED(obj, ITEM_SHARPEN))
-				&& !IS_SMITH(ch)))
+			|| (IS_OBJ_NO(obj, ITEM_NO_COLORED) && IS_COLORED(ch)))
 		return (TRUE);
 	return (FALSE);
 }
@@ -2712,7 +2381,7 @@ void load_skills_definitions()
 			log("Skill '%s' not found...", name);
 			_exit(1);
 		}
-		if (i[0] < 0 || i[0] >= NUM_KIN)
+        if (PlayerRace::GetKinNameByNum(i[0], SEX_MALE) == RACE_NAME_UNDEFINED)
 		{
 			log("Bad kin type for skill \"%s\"...", skill_info[sp_num].name);
 			_exit(1);

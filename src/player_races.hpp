@@ -4,7 +4,7 @@
 #ifndef PLAYER_RACES_HPP_INCLUDED
 #define PLAYER_RACES_HPP_INCLUDED
 
-#define RACE_UNDEFINED -1
+#define RACE_UNDEFINED -1#define KIN_UNDEFINED -1#define RACE_NAME_UNDEFINED "RaceUndef"#define KIN_NAME_UNDEFINED "KinUndef"
 #define PLAYER_RACE_FILE "playerraces.xml"
 
 #include <string>
@@ -30,13 +30,13 @@ public:
 
 	PlayerKin();
 	//	void ShowMenu(CHAR_DATA *ch);
-	
-	int KinNum;					//number of kin
-	std::string KinMenuStr;	
-	std::string KinItName;	
-	std::string KinHeName;
-	std::string KinSheName;
-	std::string KinPluralName;
+
+	int KinNum;					// Номер расы    bool Enabled;               // Флаг доступности для создания персонажей
+	std::string KinMenuStr;	    // Название расы в меню выбора
+	std::string KinItName;	    // Название расы в среднем роде
+	std::string KinHeName;      // Название расы в мужском роде
+	std::string KinSheName;     // Название расы в женском роде
+	std::string KinPluralName;  // Название расы в множественном числе
 };
 
 class PlayerRace
@@ -47,7 +47,11 @@ public:
 	void SetRaceNum(int Num)
 	{
 		_RaceNum = Num;
+	};	void SetEnabledFlag(bool Flag)
+	{
+		_Enabled = Flag;
 	};
+
 	void SetRaceMenuStr(std::string MenuStr)
 	{
 		_RaceMenuStr = MenuStr;
@@ -77,21 +81,20 @@ public:
 		return _RaceMenuStr;
 	};
 
-	void AddRaceFeature(int feat);
+	void AddRaceFeature(int feat);    void AddRaceBirthPlace(int id);
 	static void Load(const char *PathToFile);
-	static PlayerRacePtr GetPlayerRace(int Kin,int Race);
+	static PlayerKinPtr GetPlayerKin(int Kin);	static PlayerRacePtr GetPlayerRace(int Kin,int Race);
 	static std::vector<int> GetRaceFeatures(int Kin,int Race);
 	static void GetKinNamesList(CHAR_DATA *ch);
-	static bool FeatureCheck(int Kin,int Race,int Feat);
-
+	static bool FeatureCheck(int Kin,int Race,int Feat);	static int GetKinNumByName(string KinName);	static int GetRaceNumByName(int Kin,string RaceName);	static std::string GetKinNameByNum(int KinNum,int Sex);	static std::string GetRaceNameByNum(int KinNum,int RaceNum,int Sex);    static std::string ShowRacesMenu(int KinNum);    static int CheckRace(int KinNum, char *arg);    static std::string ShowKinsMenu();    static int CheckKin(char *arg);    static std::vector<int> GetRaceBirthPlaces(int Kin,int Race);    static int CheckBirthPlace(int Kin, int Race, char *arg);
 private:
-	int _RaceNum;	//number of race
-	std::string _RaceMenuStr;	
-	std::string _RaceItName;	
-	std::string _RaceHeName;
-	std::string _RaceSheName;
-	std::string _RacePluralName;
-	std::vector<int> _RaceFeatureList; //list of race's features	
+	int _RaceNum;	            // Номер _рода_    bool _Enabled;               // Флаг доступности
+	std::string _RaceMenuStr;   // Название рода в меню
+	std::string _RaceItName;    // Название рода в среднем роде
+	std::string _RaceHeName;    // Название рода в мужском роде
+	std::string _RaceSheName;   // Название рода в женском роде
+	std::string _RacePluralName;// Название рода в множественном числе
+	std::vector<int> _RaceFeatureList; // Список родовых способностей    std::vector<int> _RaceBirthPlaceList; // Список "мест рождений" новых персонажей данной расы
 
 };
 

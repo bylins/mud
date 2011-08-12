@@ -95,15 +95,15 @@ int extra_aggressive(CHAR_DATA * ch, CHAR_DATA * victim)
 
 	if (victim && MOB_FLAGGED(ch, MOB_AGGRPOLY) && !IS_NPC(victim) && GET_RELIGION(victim) == RELIGION_POLY)
 		agro = TRUE;
-
-	if (victim && MOB_FLAGGED(ch, MOB_AGGR_RUSICHI) && !IS_NPC(victim) && GET_KIN(victim) == KIN_RUSICHI)
+//Пока что убрал обработку флагов, тем более что персов кроме русичей и нет//Поскольку расы и рода убраны из кода то так вот в лоб этот флаг не сделать,//надо или по названию расы смотреть или еще что придумывать
+	/*if (victim && MOB_FLAGGED(ch, MOB_AGGR_RUSICHI) && !IS_NPC(victim) && GET_KIN(victim) == KIN_RUSICHI)
 		agro = TRUE;
 
 	if (victim && MOB_FLAGGED(ch, MOB_AGGR_VIKINGI) && !IS_NPC(victim) && GET_KIN(victim) == KIN_VIKINGI)
 		agro = TRUE;
 
 	if (victim && MOB_FLAGGED(ch, MOB_AGGR_STEPNYAKI) && !IS_NPC(victim) && GET_KIN(victim) == KIN_STEPNYAKI)
-		agro = TRUE;
+		agro = TRUE; */
 
 	if (MOB_FLAGGED(ch, MOB_AGGR_DAY))
 	{

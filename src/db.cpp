@@ -67,7 +67,7 @@
 #include "shop_ext.hpp"
 #include "named_stuff.hpp"
 #include "celebrates.hpp"
-#include "player_races.hpp"
+#include "player_races.hpp"#include "birth_places.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -214,7 +214,6 @@ void init_basic_values(void);
 int init_grouping(void);
 void init_portals(void);
 void init_im(void);
-int parce_place_of_destination(char arg);
 void init_zone_types(void);
 void load_guardians();
 
@@ -243,7 +242,7 @@ void load_socials(FILE * fl);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 void calc_easter(void);
 void do_start(CHAR_DATA * ch, int newbie);
-int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BPLACE_UNDEFINED);
+int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 extern void tascii(int *pointer, int num_planes, char *ascii);
 extern void repop_decay(zone_rnum zone);	/* рассыпание обьектов ITEM_REPOP_DECAY */
 int real_zone(int number);
@@ -1506,7 +1505,8 @@ void boot_db(void)
 	if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 		prune_crlf(GREETINGS);
 
-	log("Loading player races definitions.");
+    log("Loading birth places definitions.");
+	BirthPlace::Load(LIB_MISC BIRTH_PLACES_FILE);    log("Loading player races definitions.");
 	PlayerRace::Load(LIB_MISC PLAYER_RACE_FILE);
 
 	log("Loading spell definitions.");
@@ -1518,17 +1518,12 @@ void boot_db(void)
 	log("Booting IM");
 	init_im();
 
-//MZ.load
 	log("Booting zone types and ingredient types for each zone type.");
 	init_zone_types();
-//-MZ.load
 
-//Polos.insert_wanted_gem
 	log("Booting inser_wanted.lst.");
 	iwg.init();
-//Polos.insert_wanted_gem
 
-//Polud загрузим список стражников
 	log("Load guardians.");
 	load_guardians();
 
@@ -1717,7 +1712,7 @@ void reset_time(void)
 		((time_info.year * MONTHS_PER_YEAR + time_info.month) * DAYS_PER_MONTH + time_info.day) % POLY_WEEK_CYCLE;
 	// Calculate Easter
 	calc_easter();
-	
+
 	if (time_info.hours < sunrise[time_info.month][0])
 		weather_info.sunlight = SUN_DARK;
 	else if (time_info.hours == sunrise[time_info.month][0])
@@ -4713,7 +4708,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 				if (!(world[rn]->script))
 					CREATE(world[rn]->script, SCRIPT_DATA, 1);
 
-				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin(); 
+				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin();
 						it != (*room)->triggers.end(); ++it)
 					add_trigger(world[rn]->script,read_trigger(real_trigger(*it)), -1);
 			}
@@ -4730,7 +4725,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 					{
 						if (!SCRIPT(mob))
 							CREATE(SCRIPT(mob), SCRIPT_DATA, 1);
-						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin(); 
+						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
 							it != (*load)->triggers.end(); ++it)
 							add_trigger(SCRIPT(mob), read_trigger(real_trigger(*it)), -1);
 						load_mtrigger(mob);
@@ -4750,7 +4745,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 
 									if (!SCRIPT(obj))
 										CREATE(SCRIPT(obj), SCRIPT_DATA, 1);
-									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin(); 
+									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
 											it != (*load_in)->triggers.end(); ++it)
 										add_trigger(SCRIPT(obj), read_trigger(real_trigger(*it)), -1);
 
@@ -4785,7 +4780,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 					{
 						if (!SCRIPT(obj))
 							CREATE(SCRIPT(obj), SCRIPT_DATA, 1);
-						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin(); 
+						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
 							it != (*load)->triggers.end(); ++it)
 							add_trigger(SCRIPT(obj), read_trigger(real_trigger(*it)), -1);
 						load_otrigger(obj);
@@ -4807,7 +4802,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 
 									if (!SCRIPT(obj_in))
 										CREATE(SCRIPT(obj_in), SCRIPT_DATA, 1);
-									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin(); 
+									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
 											it != (*load_in)->triggers.end(); ++it)
 										add_trigger(SCRIPT(obj_in), read_trigger(real_trigger(*it)), -1);
 
@@ -4834,7 +4829,7 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 
 	if (celebrate->mobsToAttach.find(zone_vnum) != celebrate->mobsToAttach.end())
 	{
-		//поскольку единственным доступным способом получить всех мобов одного внума является 
+		//поскольку единственным доступным способом получить всех мобов одного внума является
 		//обход всего списка мобов в мире, то будем хотя бы 1 раз его обходить
 		Celebrates::AttachList list = celebrate->mobsToAttach[zone_vnum];
 		for (CHAR_DATA *ch = character_list; ch; ch=ch->next)
@@ -4843,7 +4838,7 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 			{
 				if (!SCRIPT(ch))
 					CREATE(SCRIPT(ch), SCRIPT_DATA, 1);
-				for (Celebrates::TrigList::iterator it = list[mob_index[ch->nr].vnum].begin(); 
+				for (Celebrates::TrigList::iterator it = list[mob_index[ch->nr].vnum].begin();
 						it != list[mob_index[ch->nr].vnum].end(); ++it)
 					add_trigger(SCRIPT(ch), read_trigger(real_trigger(*it)), -1);
 				Celebrates::add_mob_to_attach_list(ch->get_uid());
@@ -4860,7 +4855,7 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 			{
 				if (!SCRIPT(o))
 					CREATE(SCRIPT(o), SCRIPT_DATA, 1);
-				for (Celebrates::TrigList::iterator it = list[o->item_number].begin(); 
+				for (Celebrates::TrigList::iterator it = list[o->item_number].begin();
 						it != list[o->item_number].end(); ++it)
 					add_trigger(SCRIPT(o), read_trigger(real_trigger(*it)), -1);
 				Celebrates::add_obj_to_attach_list(o->uid);
@@ -5324,7 +5319,7 @@ void reset_zone(zone_rnum zone)
 			paste_on_reset(room);
 		}
 	}
-	
+
 	process_celebrates(zone_table[zone].number);
 
 	for (rnum_start = 0; rnum_start <= top_of_zone_table; rnum_start++)
@@ -6015,8 +6010,6 @@ void init_char(CHAR_DATA * ch)
 		ch->set_level(LVL_IMPL);
 	}
 #endif
-    //Это теперь не нужно - лоадрма инициализируется на этапе анкеты
-	//start_room = calc_loadroom(ch);
 	GET_PORTALS(ch) = NULL;
 	CREATE(GET_LOGS(ch), int, NLOG);
 	ch->set_npc_name(0);
@@ -6112,20 +6105,6 @@ void init_char(CHAR_DATA * ch)
 	ch->save_char();
 }
 
-int
-parce_place_of_destination(char *arg)
-{
-    int i;
-
-    for (i = 0; i < BPLACE_MAX; i++)
-	{
-		if (!str_cmp(arg, places_of_birth[i]))
-            return i;
-	}
-
-    return BPLACE_UNDEFINED;
-}
-
 const char *remort_msg =
 	"  Если Вы так настойчивы в желании начать все заново -\r\n" "наберите <перевоплотиться> полностью.\r\n";
 
@@ -6161,21 +6140,15 @@ ACMD(do_remort)
     one_argument(argument, arg);
     if (!*arg)
     {
-        sprintf(buf, "Укажите, где вы хотите заново начать свой путь:\r\n");
-        for (i = 0; i < BPLACE_MAX; i++)
-            sprintf(buf+strlen(buf), "%s\r\n", places_of_birth[i]);
+        sprintf(buf, "Укажите, где вы хотите заново начать свой путь:\r\n");        sprintf(buf+strlen(buf), string(BirthPlace::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(ch),GET_RACE(ch)))).c_str());
         send_to_char(buf, ch);
         return;
-    } else {
-        i = parce_place_of_destination(arg);
-        if (i == BPLACE_UNDEFINED)
-        {
-            send_to_char("Багдад далече, выберите себе местечко среди родных осин.\r\n", ch);
-            return;
+    } else {        // Сначала проверим по словам - может нам текстом сказали?        place_of_destination = BirthPlace::ParseSelect(arg);
+        if (place_of_destination == BIRTH_PLACE_UNDEFINED)
+        {            //Нет, значит или ерунда в аргументе, или цифирь, смотрим            place_of_destination = PlayerRace::CheckBirthPlace(GET_KIN(ch), GET_RACE(ch), arg);
+            if (!BirthPlace::CheckId(place_of_destination))            {                send_to_char("Багдад далече, выберите себе местечко среди родных осин.\r\n", ch);
+                return;            }
         }
-        place_of_destination = calc_loadroom(ch, i);
-        //sprintf(buf, "Место назначения: %d\r\n", place_of_destination);
-        //send_to_char(buf, ch);
     }
 
 	log("Remort %s", GET_NAME(ch));
@@ -6205,13 +6178,6 @@ ACMD(do_remort)
 	while (ch->affected)
 		affect_remove(ch, ch->affected);
 
-	/*  for (i = 0; i < NUM_WEARS; i++)
-	      if (GET_EQ(ch,i))
-	         extract_obj(unequip_char(ch,i));
-	  for (obj = ch->carrying; obj; obj = nobj)
-	      {nobj = obj->next_content;
-	       extract_obj(obj);
-	      }*/
 // Снимаем весь стафф
 	for (i = 0; i < NUM_WEARS; i++)
 		if (GET_EQ(ch, i))
@@ -6238,7 +6204,7 @@ ACMD(do_remort)
 	ch->set_level(0);
 	GET_WIMP_LEV(ch) = 0;
 	GET_AC(ch) = 100;
-	GET_LOADROOM(ch) = place_of_destination;
+	GET_LOADROOM(ch) = calc_loadroom(ch, place_of_destination);
 	REMOVE_BIT(PRF_FLAGS(ch, PRF_SUMMONABLE), PRF_SUMMONABLE);
 	REMOVE_BIT(PRF_FLAGS(ch, PRF_AWAKE), PRF_AWAKE);
 	REMOVE_BIT(PRF_FLAGS(ch, PRF_PUNCTUAL), PRF_PUNCTUAL);
