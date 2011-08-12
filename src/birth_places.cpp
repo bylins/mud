@@ -12,7 +12,7 @@
 //#include "dg_scripts.h"
 //#include "char.hpp"
 //#include "handler.h"
-
+#include "interpreter.h"
 #include "birth_places.hpp"
 #include "pugixml.hpp"
 
