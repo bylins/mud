@@ -24,7 +24,9 @@
                         <pluralname>Имя рода ср.р. мн.ч.</pluralname>
                     </racename>
                     <feature featnum="65"/> - родовая способность #1
-                    <feature featnum="44"/> - родовая способность #2                    <birthplace id="3"/> - место рождения с идом 3 (задается через файл birthplaces.xml)                    <birthplace id="6"/>
+                    <feature featnum="44"/> - родовая способность #2
+                    <birthplace id="3"/> - место рождения с идом 3 (задается через файл birthplaces.xml)
+                    <birthplace id="6"/>
                 </race>
             </kinraces>
         <kin>
@@ -50,7 +52,9 @@
                     <shename>Северянка</shename>
                     <pluralname>Северяне</pluralname>
                 </racename>
-                <feature featnum="47"/>                <birthplace id="1"/>                <birthplace id="4"/>
+                <feature featnum="47"/>
+                <birthplace id="1"/>
+                <birthplace id="4"/>
             </race>
             <race racenum="1" enabled="1">
                 <menu>Поляне</menu>
@@ -61,7 +65,10 @@
                     <pluralname>Поляне</pluralname>
                 </racename>
                 <feature featnum="45"/>
-                <feature featnum="49"/>                <birthplace id="2"/>                <birthplace id="5"/>
+                <feature featnum="49"/>
+                <birthplace id="2"/>
+                <birthplace id="5"/>
+
             </race>
             <race racenum="2" enabled="1">
                 <menu>Кривичи</menu>
@@ -71,7 +78,9 @@
                     <shename>Кривич</shename>
                     <pluralname>Кривичи</pluralname>
                 </racename>
-                <feature featnum="46"/>                <birthplace id="3"/>                <birthplace id="6"/>
+                <feature featnum="46"/>
+                <birthplace id="3"/>
+                <birthplace id="6"/>
             </race>
             <race racenum="3" enabled="1">
                 <menu>Вятичи</menu>
@@ -82,7 +91,9 @@
                     <pluralname>Вятичи</pluralname>
                 </racename>
                 <feature featnum="61"/>
-                <feature featnum="43"/>                <birthplace id="2"/>                <birthplace id="5"/>
+                <feature featnum="43"/>
+                <birthplace id="2"/>
+                <birthplace id="5"/>
             </race>
             <race racenum="4" enabled="1">
                 <menu>Веляне</menu>
@@ -92,7 +103,10 @@
                     <shename>Велянка</shename>
                     <pluralname>Веляне</pluralname>
                 </racename>
-                <feature featnum="48"/>                <birthplace id="1"/>                <birthplace id="4"/>
+                <feature featnum="48"/>
+                <birthplace id="1"/>
+                <birthplace id="4"/>
+
             </race>
             <race racenum="5" enabled="1">
                 <menu>Древляне</menu>
@@ -102,7 +116,9 @@
                     <shename>Древлянка</shename>
                     <pluralname>Древляне</pluralname>
                 </racename>
-                <feature featnum="50"/>                <birthplace id="3"/>                <birthplace id="6"/>
+                <feature featnum="50"/>
+                <birthplace id="3"/>
+                <birthplace id="6"/>
             </race>
         </kinraces>
     </kin>
