@@ -27,14 +27,16 @@ typedef std::vector<BirthPlacePtr> BirthPlaceListType;
 class BirthPlace
 {
 public:
-    static void Load(const char *PathToFile);
-    static std::string GetBirthPlaceMenuStr(short Id);
-    static int GetLoadRoom(short Id);
-    static std::string GetMenuStr(short Id);
-    static std::vector<int> GetItemList(short Id);
-    static std::string ShowMenu(std::vector<int> BPList);
-    static short ParseSelect(char *arg);
-    static bool CheckId(short Id);
+    static void Load(const char *PathToFile);               // Загрузка файла настроек
+    static int GetLoadRoom(short Id);                       // Получение внума загрузочной комнаты по ID
+    static std::string GetMenuStr(short Id);                // Получение строчки для меню по ID
+    static std::vector<int> GetItemList(short Id);          // Получение списка выдаваемых итемов по ID
+    static std::string ShowMenu(std::vector<int> BPList);   // Получение меню выбора точек одной строкой
+    static short ParseSelect(char *arg);                    // Поиск точки по текстовому вводу и описанию (description)
+    static bool CheckId(short Id);                          // Проверка наличия точки с указанным ID
+
+    // Доступ к свойствам класса.
+    // Не особенно нужно, но пусть будет
     short Id() const {return this->_Id;}
     std::string Name() {return this->_Name;}
     std::string Description() {return this->_Description;}
@@ -51,8 +53,8 @@ private:
     std::vector<int> _ItemsList;                // Список предметов, которые дополнительно выдаются на руки в этой точке
     static BirthPlaceListType BirthPlaceList;   // Список точек входа в игру новых персонажей
 
-    static void LoadBirthPlace(pugi::xml_node BirthPlaceNode);
-    static BirthPlacePtr GetBirthPlaceById(short Id);
+    static void LoadBirthPlace(pugi::xml_node BirthPlaceNode);  // Парсинг описания одной точки входа
+    static BirthPlacePtr GetBirthPlaceById(short Id);           // Получение ссылки на точку хода по ее ID
 };
 
 #endif // BIRTH_PLACES_HPP_INCLUDED

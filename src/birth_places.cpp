@@ -8,17 +8,13 @@
 #include "sysdep.h"
 #include "utils.h"
 #include "comm.h"
-//#include "db.h"
-//#include "dg_scripts.h"
-//#include "char.hpp"
-//#include "handler.h"
 #include "interpreter.h"
 #include "birth_places.hpp"
 #include "pugixml.hpp"
 
 BirthPlaceListType BirthPlace::BirthPlaceList;
 
-//Создаем новую расу и заполняем ее поля значениями из файлда
+//Создаем новую точку входа и заполняем ее поля значениями из файлда
 void BirthPlace::LoadBirthPlace(pugi::xml_node BirthPlaceNode)
 {
 	pugi::xml_node CurNode;
@@ -76,6 +72,7 @@ void BirthPlace::Load(const char *PathToFile)
 // Надо было map использовать. %) Поздно сообразил
 // Если руки дойдут - потом переделаю.
 
+// Получение ссылки на точку входа по ее ID
 BirthPlacePtr BirthPlace::GetBirthPlaceById(short Id)
 {
     BirthPlacePtr BPPtr;
@@ -86,25 +83,28 @@ BirthPlacePtr BirthPlace::GetBirthPlaceById(short Id)
     return BPPtr;
 };
 
+// Получение внума комнаты по ID точки входа
 int BirthPlace::GetLoadRoom(short Id)
 {
     BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);
-    if (BPPtr != NULL)
+    if (BPPtr)
         return BPPtr->LoadRoom();
 
     return DEFAULT_LOADROOM;
 };
 
+// Получение списка предметов, которые выдаются в этой точке при первом входе в игру
 std::vector<int> BirthPlace::GetItemList(short Id)
 {
     std::vector<int> BirthPlaceItemList;
     BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);
-    if (BPPtr != NULL)
+    if (BPPtr)
         BirthPlaceItemList = BPPtr->ItemsList();
 
     return BirthPlaceItemList;
 };
 
+// Получение строчки меню для точки входа по ID
 std::string BirthPlace::GetMenuStr(short Id)
 {
     BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);
@@ -114,6 +114,7 @@ std::string BirthPlace::GetMenuStr(short Id)
     return BIRTH_PLACE_NAME_UNDEFINED;
 };
 
+// Генерация меню по списку точек входа
 std::string BirthPlace::ShowMenu(std::vector<int> BPList)
 {
     int i;
@@ -123,13 +124,18 @@ std::string BirthPlace::ShowMenu(std::vector<int> BPList)
     for (std::vector<int>::iterator it = BPList.begin();it != BPList.end();++it)
     {
         BPPtr = BirthPlace::GetBirthPlaceById(*it);
-        buffer << " " << i << ") " << BPPtr->_MenuStr << "\r\n";
-        i++;
-    }
+        if (BPPtr != NULL)
+        {
+            buffer << " " << i << ") " << BPPtr->_MenuStr << "\r\n";
+            i++;
+        };
+    };
 
      return buffer.str();
 };
 
+// Сравнение текстового ввода с описанием точек
+// Добавлено, чтоб не травмировать нежную психику мортящихся
 short BirthPlace::ParseSelect(char *arg)
 {
     std::string select = arg;
@@ -142,6 +148,7 @@ short BirthPlace::ParseSelect(char *arg)
     return BIRTH_PLACE_UNDEFINED;
 };
 
+// Проверка налияия точки входа с указанным ID
 bool BirthPlace::CheckId(short Id)
 {
     BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);
