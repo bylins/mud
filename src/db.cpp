@@ -4145,6 +4145,72 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	return found;
 }
 
+namespace {
+
+int test_hp[] = {
+	20,
+	40,
+	60,
+	80,
+	100,
+	120,
+	140,
+	160,
+	180,
+	200,
+	220,
+	240,
+	260,
+	280,
+	300,
+	340,
+	380,
+	420,
+	460,
+	520,
+	580,
+	640,
+	700,
+	760,
+	840,
+	1000,
+	1160,
+	1320,
+	1480,
+	1640,
+	1960,
+	2280,
+	2600,
+	2920,
+	3240,
+	3880,
+	4520,
+	5160,
+	5800,
+	6440,
+	7720,
+	9000,
+	10280,
+	11560,
+	12840,
+	15400,
+	17960,
+	20520,
+	23080,
+	25640
+};
+
+} // namespace
+
+int get_test_hp(int lvl)
+{
+	if (lvl > 0 && lvl <= 50)
+	{
+		return test_hp[lvl];
+	}
+	return 1;
+}
+
 /* create a new mobile from a prototype */
 CHAR_DATA *read_mobile(mob_vnum nr, int type)
 {				/* and mob_rnum */
@@ -4182,6 +4248,13 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	else
 	{
 		mob->points.max_hit = number(mob->points.hit, GET_MEM_TOTAL(mob));
+	}
+
+	int test_hp = get_test_hp(GET_LEVEL(mob));
+	if (mob->points.max_hit < test_hp)
+	{
+//		log("hp: (%s) %d -> %d", GET_NAME(mob), mob->points.max_hit, test_hp);
+		mob->points.max_hit = test_hp;
 	}
 
 	mob->points.hit = mob->points.max_hit;
