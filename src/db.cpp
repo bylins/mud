@@ -4251,7 +4251,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	}
 
 	int test_hp = get_test_hp(GET_LEVEL(mob));
-	if (mob->points.max_hit < test_hp)
+	if (GET_EXP(mob) > 0 && mob->points.max_hit < test_hp)
 	{
 //		log("hp: (%s) %d -> %d", GET_NAME(mob), mob->points.max_hit, test_hp);
 		mob->points.max_hit = test_hp;
