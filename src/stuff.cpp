@@ -19,6 +19,7 @@
 #include "char.hpp"
 #include "room.hpp"
 #include "corpse.hpp"
+#include "screen.h"
 
 void oload_class::init()
 {
@@ -135,12 +136,17 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 	}
 
 	log("Load obj #%d by %s in room #%d (%s)",
-			GET_OBJ_VNUM(o), GET_NAME(ch), GET_ROOM_VNUM(ch->in_room),
+			GET_OBJ_VNUM(o), GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)),
 			setload ? "setload" : "globaldrop");
 
 	if (!setload)
 	{
-		act("Диво дивное, чудо чудное!", 0, ch, o, 0, TO_ROOM);
+		for (CHAR_DATA *tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
+		{
+			send_to_char(tch, "%sДиво дивное, чудо чудное!%s\r\n",
+					CCGRN(tch, C_NRM), CCNRM(tch, C_NRM));
+		}
+//		act("Диво дивное, чудо чудное!", 0, ch, o, 0, TO_ROOM);
 	}
 
 	if (MOB_FLAGGED(ch, MOB_CORPSE))
