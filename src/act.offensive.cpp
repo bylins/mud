@@ -927,7 +927,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 			return;
 		}
 
-		int dam = str_app[GET_REAL_STR(ch)].todam + GET_REAL_DR(ch) +
+		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GET_REAL_DR(ch) +
 				  MAX(0, ch->get_skill(SKILL_BASH) / 10 - 5) + GET_LEVEL(ch) / 5;
 //      log("[BASH params] = actor = %s, actorlevel = %d, actordex = %d
 //           target=  %s, targetlevel = %d, targetdex = %d ,skill = %d,
@@ -1186,8 +1186,8 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 	else
 	{
-		int dam = str_app[GET_REAL_STR(ch)].todam + GET_REAL_DR(ch) + GET_LEVEL(ch) / 6;
-//      int dam = str_app[GET_REAL_STR(ch)].todam + (IS_NPC(ch) ? 0 : GET_REAL_DR(ch)) + GET_LEVEL(ch)/6;
+		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GET_REAL_DR(ch) + GET_LEVEL(ch) / 6;
+//      int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + (IS_NPC(ch) ? 0 : GET_REAL_DR(ch)) + GET_LEVEL(ch)/6;
 		// модификатор от веса обуви НЕ только для PC (линейная зависимость):
 		//  0 -  50%
 		//  5 -  75%

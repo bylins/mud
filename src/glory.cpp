@@ -704,7 +704,7 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 			ch->desc->glory->olc_node->denial = DISPLACE_TIMER;
 		}
 
-		GET_STR(ch) = ch->desc->glory->olc_str;
+		ch->set_str(ch->desc->glory->olc_str);
 		GET_DEX(ch) = ch->desc->glory->olc_dex;
 		GET_INT(ch) = ch->desc->glory->olc_int;
 		GET_WIS(ch) = ch->desc->glory->olc_wis;
@@ -964,7 +964,7 @@ void remove_stat_online(long uid, int stat, int glory)
 		switch (stat)
 		{
 		case G_STR:
-			GET_STR(d->character) -= glory;
+			d->character->set_str(d->character->get_str() - glory);
 			break;
 		case G_DEX:
 			GET_DEX(d->character) -= glory;
@@ -1208,7 +1208,7 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 				switch ((*tm_it)->stat)
 				{
 				case G_STR:
-					GET_STR(vict) += (*tm_it)->glory;
+					vict->set_str(vict->get_str() + (*tm_it)->glory);
 					break;
 				case G_DEX:
 					GET_DEX(vict) += (*tm_it)->glory;
@@ -1393,7 +1393,7 @@ void set_stats(CHAR_DATA *ch)
 			switch ((*tm_it)->stat)
 			{
 			case G_STR:
-				GET_STR(ch) += (*tm_it)->glory;
+				ch->set_str(ch->get_str() + (*tm_it)->glory);
 				break;
 			case G_DEX:
 				GET_DEX(ch) += (*tm_it)->glory;

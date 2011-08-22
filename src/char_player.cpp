@@ -959,12 +959,12 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	this->player_data.time.birth = time(0);
 	GET_KIN(this) = 0;
 
-	GET_STR(this) = 10;
-	set_con(10);
+	this->set_str(10);
 	GET_DEX(this) = 10;
 	GET_CHA(this) = 10;
 	GET_INT(this) = 10;
 	GET_WIS(this) = 10;
+	this->set_con(10);
 
 	GET_COND(this, DRUNK) = 0;
 	GET_DRUNK_STATE(this) = 0;
@@ -1149,7 +1149,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			if (!strcmp(tag, "Cha "))
 				GET_CHA(this) = num;
 			else if (!strcmp(tag, "Con "))
-				set_con(num);
+				this->set_con(num);
 			break;
 
 		case 'D':
@@ -1607,7 +1607,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				while (num != 0);
 			}
 			else if (!strcmp(tag, "Str "))
-				GET_STR(this) = num;
+				this->set_str(num);
 			else if (!strcmp(tag, "StrL"))
 				STRING_LENGTH(this) = num;
 			else if (!strcmp(tag, "StrW"))

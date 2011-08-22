@@ -503,7 +503,7 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 		case 'в':
 		{
 			// получившиеся статы
-			GET_STR(ch) = olc_real_stat(ch, GLORY_STR);
+			ch->set_str(olc_real_stat(ch, GLORY_STR));
 			GET_DEX(ch) = olc_real_stat(ch, GLORY_DEX);
 			GET_INT(ch) = olc_real_stat(ch, GLORY_INT);
 			GET_WIS(ch) = olc_real_stat(ch, GLORY_WIS);
@@ -987,7 +987,7 @@ void set_stats(CHAR_DATA *ch)
 		switch(k->first)
 		{
 			case G_STR:
-				GET_STR(ch) += k->second;
+				ch->set_str(ch->get_str() + k->second);
 				break;
 			case G_DEX:
 				GET_DEX(ch) += k->second;

@@ -527,9 +527,9 @@ extern SPECIAL(postmaster);
 #define GET_PAD(ch,i)    ((ch)->player_data.PNames[i])
 #define GET_DRUNK_STATE(ch) ((ch)->player_specials->saved.DrunkState)
 
-#define GET_STR(ch)     ((ch)->real_abils.str)
-#define GET_STR_ADD(ch) ((ch)->add_abils.str_add)
-#define GET_REAL_STR(ch) (POSI(GET_STR(ch) + GET_STR_ADD(ch)))
+#define GET_STR(ch)     ((ch)->get_str())
+#define GET_STR_ADD(ch) ((ch)->get_str_add())
+#define GET_REAL_STR(ch) (MAX(1, (GET_STR(ch) + GET_STR_ADD(ch))))
 #define GET_DEX(ch)     ((ch)->real_abils.dex)
 #define GET_DEX_ADD(ch) ((ch)->add_abils.dex_add)
 #define GET_REAL_DEX(ch) (POSI(GET_DEX(ch)+GET_DEX_ADD(ch)))
@@ -737,13 +737,6 @@ extern SPECIAL(postmaster);
 #define GET_HORSESTATE(ch)  ((ch)->mob_specials.HorseState)
 #define GET_LASTROOM(ch)    ((ch)->mob_specials.LastRoom)
 
-
-#define STRENGTH_APPLY_INDEX(ch) \
-        ( GET_REAL_STR(ch) )
-
-#define CAN_CARRY_W(ch) ((str_app[STRENGTH_APPLY_INDEX(ch)].carry_w * (HAVE_FEAT(ch, PORTER_FEAT) ? 110 : 100))/100)
-#define CAN_CARRY_N(ch) (5 + (GET_REAL_DEX(ch) >> 1) + (GET_LEVEL(ch) >> 1) \
-			 + (HAVE_FEAT(ch, JUGGLER_FEAT) ? (GET_LEVEL(ch) >> 1) : 0))
 #define AWAKE(ch) (GET_POS(ch) > POS_SLEEPING && !AFF_FLAGGED(ch,AFF_SLEEP))
 #define CAN_SEE_IN_DARK(ch) \
    (AFF_FLAGGED(ch, AFF_INFRAVISION) || (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
@@ -1074,18 +1067,6 @@ extern SPECIAL(postmaster);
 #define CAN_GET_OBJ(ch, obj)   \
    (CAN_WEAR((obj), ITEM_WEAR_TAKE) && CAN_CARRY_OBJ((ch),(obj)) && \
     CAN_SEE_OBJ((ch),(obj)))
-
-#define OK_BOTH(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
-                          str_app[STRENGTH_APPLY_INDEX(ch)].wield_w + str_app[STRENGTH_APPLY_INDEX(ch)].hold_w)
-
-#define OK_WIELD(ch,obj) (GET_OBJ_WEIGHT(obj) <= \
-                          str_app[STRENGTH_APPLY_INDEX(ch)].wield_w)
-
-#define OK_HELD(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
-                          str_app[STRENGTH_APPLY_INDEX(ch)].hold_w)
-
-#define OK_SHIELD(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
-                          (2 * str_app[STRENGTH_APPLY_INDEX(ch)].hold_w))
 
 #define GET_PAD_PERS(pad) ((pad) == 5 ? "ком-то" :\
                            (pad) == 4 ? "кем-то" :\
@@ -1454,5 +1435,24 @@ void print_log();
 std::string thousands_sep(long long n);
 void kill_log(const char *format, ...);
 int xmlparse_int(pugi::xml_node &node, const char *text);
+
+enum { STR_TO_HIT, STR_TO_DAM, STR_CARRY_W, STR_WIELD_W, STR_HOLD_W };
+int str_bonus(int str, int type);
+
+#define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, PORTER_FEAT) ? 110 : 100))/100)
+#define CAN_CARRY_N(ch) (5 + (GET_REAL_DEX(ch) >> 1) + (GET_LEVEL(ch) >> 1) \
+			 + (HAVE_FEAT(ch, JUGGLER_FEAT) ? (GET_LEVEL(ch) >> 1) : 0))
+
+#define OK_BOTH(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
+                          str_bonus(GET_REAL_STR(ch), STR_WIELD_W) + str_bonus(GET_REAL_STR(ch), STR_HOLD_W))
+
+#define OK_WIELD(ch,obj) (GET_OBJ_WEIGHT(obj) <= \
+                          str_bonus(GET_REAL_STR(ch), STR_WIELD_W))
+
+#define OK_HELD(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
+                          str_bonus(GET_REAL_STR(ch), STR_HOLD_W))
+
+#define OK_SHIELD(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
+                          (2 * str_bonus(GET_REAL_STR(ch), STR_HOLD_W)))
 
 #endif // _UTILS_H_

@@ -2562,3 +2562,59 @@ int xmlparse_int(pugi::xml_node &node, const char *text)
 	}
 	return result;
 }
+
+int str_bonus(int str, int type)
+{
+	int bonus = 0;
+	str = MAX(1, str);
+
+	switch (type)
+	{
+	case STR_TO_HIT:
+		// -5 ... 10
+		if (str < 10)
+		{
+			bonus = (str - 11) / 2;
+		}
+		else
+		{
+			bonus = (str - 10) / 4;
+		}
+		break;
+	case STR_TO_DAM:
+		// -5 ... 20
+		if (str < 10)
+		{
+			bonus = (str - 11) / 2;
+		}
+		else
+		{
+			bonus = (str - 10) / 2;
+		}
+		break;
+	case STR_CARRY_W:
+		// 50 ... 2500
+		bonus = str * 50;
+		break;
+	case STR_WIELD_W:
+		// 1 ... 35
+		if (str <= 20)
+		{
+			bonus = str;
+		}
+		else
+		{
+			bonus = 20 + (str - 20) / 2;
+		}
+		break;
+	case STR_HOLD_W:
+		// 0 ... 25
+		bonus = str / 2;
+		break;
+	default:
+		log("SYSERROR: str=%d, type=%d (%s %s %d)",
+				str, type, __FILE__, __func__, __LINE__);
+	}
+
+	return bonus;
+}

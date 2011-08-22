@@ -521,7 +521,7 @@ bool can_use_feat(CHAR_DATA *ch, int feat)
 	switch (feat)
 	{
 	case WEAPON_FINESSE_FEAT:
-		if (GET_REAL_DEX(ch) < STRENGTH_APPLY_INDEX(ch) || GET_REAL_DEX(ch) < 18)
+		if (GET_REAL_DEX(ch) < GET_REAL_STR(ch) || GET_REAL_DEX(ch) < 18)
 			return FALSE;
 		break;
 	case PARRY_ARROW_FEAT:
@@ -1061,7 +1061,7 @@ ACMD(do_spell_capable)
 	affect_from_char(ch, SPELL_CAPABLE_FEAT);
 
 	timed.skill = SPELL_CAPABLE_FEAT;
-	
+
 	switch (SpINFO.slot_forc[GET_CLASS(ch)][GET_KIN(ch)])
 	{
 		case 1:

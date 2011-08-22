@@ -115,6 +115,8 @@ void Character::zero_init()
 	last_logon_ = 0;
 	gold_ = 0;
 	bank_gold_ = 0;
+	str_ = 0;
+	str_add_ = 0;
 	con_ = 0;
 	con_add_ = 0;
 	// char_data
@@ -992,6 +994,26 @@ int Character::calc_morale() const
 //	return cha_app[GET_REAL_CHA(this)].morale + GET_MORALE(this);
 }
 
+int Character::get_str() const
+{
+	return str_;
+}
+
+void Character::set_str(int param)
+{
+	str_ = MAX(1, param);
+}
+
+int Character::get_str_add() const
+{
+	return str_add_;
+}
+
+void Character::set_str_add(int param)
+{
+	str_add_ = param;
+}
+
 int Character::get_con() const
 {
 	return con_;
@@ -1016,6 +1038,7 @@ void Character::clear_add_affects()
 {
 	// Clear all affect, because recalc one
 	memset(&add_abils, 0, sizeof(char_played_ability_data));
+	set_str_add(0);
 	set_con_add(0);
 }
 

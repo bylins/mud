@@ -871,7 +871,7 @@ void player_affect_update(void)
 
 		pulse_affect_update(i);
 
-	
+
 		bool was_purged = false;
 
 		for (af = i->affected; af; af = next)
@@ -918,7 +918,7 @@ void player_affect_update(void)
 		{
 			(void) MemQ_slots(i);	// сколько каких слотов занято (с коррекцией)
 
-			
+
 			//log("[PLAYER_AFFECT_UPDATE->AFFECT_TOTAL] Start");
 			affect_total(i);
 			//log("[PLAYER_AFFECT_UPDATE->AFFECT_TOTAL] Stop");
@@ -990,7 +990,7 @@ void pulse_affect_update(CHAR_DATA * ch)
 	if (ch->get_fighting())
 		return;
 
-	
+
 	for (af = ch->affected; af; af = next)
 	{
 		next = af->next;
@@ -1875,7 +1875,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			return (0);
 		ndice = ch->mob_specials.damnodice;
 		sdice = ch->mob_specials.damsizedice;
-		adice = GET_REAL_DR(ch) + str_app[STRENGTH_APPLY_INDEX(ch)].todam;
+		adice = GET_REAL_DR(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 		break;
 
 	case SPELL_SACRIFICE:
@@ -4002,7 +4002,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		sprintf(buf2, "двойнике %s", GET_PAD(ch, 1));
 		GET_PAD(mob, 5) = str_dup(buf2);
 
-		GET_STR(mob) = GET_STR(ch);
+		mob->set_str(ch->get_str());
 		GET_INT(mob) = GET_INT(ch);
 		GET_WIS(mob) = GET_WIS(ch);
 		GET_DEX(mob) = GET_DEX(ch);

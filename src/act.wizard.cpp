@@ -1723,8 +1723,8 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			"Glory: [%d], ConstGlory: [%d], AC: [%d/%d(%d)], Броня: [%d], Hitroll: [%2d/%2d/%d], Damroll: [%2d/%2d/%d]\r\n",
 			Glory::get_glory(GET_UNIQUE(k)), GloryConst::get_glory(GET_UNIQUE(k)), GET_AC(k), GET_REAL_AC(k),
 			compute_armor_class(k), GET_ARMOUR(k), GET_HR(k),
-			GET_REAL_HR(k), GET_REAL_HR(k) + str_app[GET_REAL_STR(k)].tohit,
-			GET_DR(k), GET_REAL_DR(k), GET_REAL_DR(k) + str_app[GET_REAL_STR(k)].todam);
+			GET_REAL_HR(k), GET_REAL_HR(k) + str_bonus(GET_REAL_STR(k), STR_TO_HIT),
+			GET_DR(k), GET_REAL_DR(k), GET_REAL_DR(k) + str_bonus(GET_REAL_STR(k), STR_TO_DAM));
 	send_to_char(buf, ch);
 	sprintf(buf,
 			"Saving throws: [Para:%d/Breath:%d/Spell:%d/Basic:%d], Morale: [%d], Init: [%d], ToCast: [%d]\r\n",
@@ -2992,10 +2992,10 @@ ACMD(do_restore)
 		{
 			if (IS_GRGOD(vict))
 			{
+				vict->set_str(25);
 				vict->real_abils.intel = 25;
 				vict->real_abils.wis = 25;
 				vict->real_abils.dex = 25;
-				vict->real_abils.str = 25;
 				vict->set_con(25);
 				vict->real_abils.cha = 25;
 			}

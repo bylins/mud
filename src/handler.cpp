@@ -314,7 +314,7 @@ void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool a
 	case APPLY_NONE:
 		break;
 	case APPLY_STR:
-		GET_STR_ADD(ch) += mod;
+		ch->set_str_add(ch->get_str_add() + mod);
 		break;
 	case APPLY_DEX:
 		GET_DEX_ADD(ch) += mod;
@@ -725,7 +725,7 @@ void affect_total(CHAR_DATA * ch)
 	}
 
 	/* calculate DAMAGE value */
-	GET_DAMAGE(ch) = (str_app[STRENGTH_APPLY_INDEX(ch)].todam + GET_REAL_DR(ch)) * 2;
+	GET_DAMAGE(ch) = (str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GET_REAL_DR(ch)) * 2;
 	if ((obj = GET_EQ(ch, WEAR_BOTHS)) && GET_OBJ_TYPE(obj) == ITEM_WEAPON)
 		GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1)) >> 1;
 	else
@@ -3702,7 +3702,7 @@ CHAR_DATA *charm_mob(CHAR_DATA * victim)
 //Функции для модифицированного чарма
 float get_damage_per_round(CHAR_DATA * victim)
 {
-	float dam_per_attack = GET_DR(victim) + str_app[GET_STR(victim)].todam
+	float dam_per_attack = GET_DR(victim) + str_bonus(GET_STR(victim), STR_TO_DAM)
 			+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
 			+ (AFF_FLAGGED(victim, AFF_CLOUD_OF_ARROWS) ? 14 : 0);
 	int num_attacks = 1 + victim->mob_specials.ExtraAttack

@@ -4121,14 +4121,14 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			switch (weapon_pos)
 			{
 			case WEAR_WIELD:
-				percent = (str_app[STRENGTH_APPLY_INDEX(ch)].wield_w - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+				percent = (str_bonus(GET_REAL_STR(ch), STR_WIELD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
 				break;
 			case WEAR_HOLD:
-				percent = (str_app[STRENGTH_APPLY_INDEX(ch)].hold_w - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+				percent = (str_bonus(GET_REAL_STR(ch), STR_HOLD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
 				break;
 			case WEAR_BOTHS:
-				percent = (str_app[STRENGTH_APPLY_INDEX(ch)].wield_w +
-						   str_app[STRENGTH_APPLY_INDEX(ch)].hold_w - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+				percent = (str_bonus(GET_REAL_STR(ch), STR_WIELD_W) +
+						   str_bonus(GET_REAL_STR(ch), STR_HOLD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
 				break;
 			}
 			calc_thaco -= MIN(3, MAX(percent, 0));
@@ -4346,13 +4346,13 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
 	{
 		if (wielded && GET_OBJ_WEIGHT(wielded) > 20)
-			calc_thaco -= str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
+			calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
 		else
-			calc_thaco -= str_app[GET_REAL_DEX(ch)].tohit;
+			calc_thaco -= str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
 	}
 	else
 	{
-		calc_thaco -= str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
+		calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
 	}
 
 	if ((type == SKILL_THROW || type == SKILL_BACKSTAB) && wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
@@ -4419,7 +4419,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	dam += GET_REAL_DR(ch);
 	dam = dam > 0 ? number(1, (dam * 2)) : dam;
-	dam += str_app[STRENGTH_APPLY_INDEX(ch)].todam;
+	dam += str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 
 	if (GET_EQ(ch, WEAR_BOTHS) && skill != SKILL_BOWS)
 		dam *= 2;

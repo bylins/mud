@@ -2653,7 +2653,7 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 	int j, t[10];
 	char line[256];
 
-	mob_proto[i].real_abils.str = 11;
+	mob_proto[i].set_str(11);
 	mob_proto[i].real_abils.intel = 11;
 	mob_proto[i].real_abils.wis = 11;
 	mob_proto[i].real_abils.dex = 11;
@@ -2861,14 +2861,12 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 
 	CASE("Str")
 	{
-		RANGE(3, 50);
-		mob_proto[i].real_abils.str = num_arg;
+		mob_proto[i].set_str(num_arg);
 	}
 
 	CASE("StrAdd")
 	{
-		RANGE(0, 100);
-		mob_proto[i].add_abils.str_add = num_arg;
+		mob_proto[i].set_str_add(num_arg);
 	}
 
 	CASE("Int")
@@ -6147,10 +6145,10 @@ void init_char(CHAR_DATA * ch)
 
 	if (GET_LEVEL(ch) == LVL_IMPL)
 	{
+		ch->set_str(25);
 		ch->real_abils.intel = 25;
 		ch->real_abils.wis = 25;
 		ch->real_abils.dex = 25;
-		ch->real_abils.str = 25;
 		ch->set_con(25);
 		ch->real_abils.cha = 25;
 	}
@@ -6244,7 +6242,7 @@ ACMD(do_remort)
 
 	ch->set_remort(ch->get_remort() + 1);
 	CLR_GOD_FLAG(ch, GF_REMORT);
-	GET_STR(ch) += 1;
+	ch->set_str(ch->get_str() + 1);
 	ch->set_con(ch->get_con() + 1);
 	GET_DEX(ch) += 1;
 	GET_INT(ch) += 1;

@@ -2687,7 +2687,7 @@ ACMD(do_score)
 				CCIGRN(ch, C_NRM), GET_ABSORBE(ch), CCCYN(ch, C_NRM),
 				CCWHT(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
-		max_dam = GET_REAL_DR(ch) + str_app[GET_REAL_STR(ch)].todam;
+		max_dam = GET_REAL_DR(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 
 		if (IS_WARRIOR(ch))
 		{
@@ -2754,12 +2754,20 @@ ACMD(do_score)
 		}
 
 		if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
+		{
 			if (weapon && GET_OBJ_WEIGHT(weapon) > 20)
-				hr += str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
+			{
+				hr += str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
+			}
 			else
-				hr += str_app[GET_REAL_DEX(ch)].tohit;
+			{
+				hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
+			}
+		}
 		else
-			hr += str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
+		{
+			hr += str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
+		}
 		hr += GET_REAL_HR(ch) - thaco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
 
 		max_dam = MAX(0, max_dam);

@@ -258,7 +258,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		percent = skill_is +
 				  size_app[GET_POS_SIZE(ch)].interpolate +
 				  dex_app[GET_REAL_DEX(ch)].reaction +
-				  dex_app[GET_REAL_STR(ch)].reaction +
+				  str_bonus(GET_REAL_STR(ch), STR_TO_HIT) +
 				  (GET_EQ(ch, WEAR_SHIELD) ?
 				   weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].
 				   bashing : 0);
@@ -302,7 +302,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		victim_sav = SAVING_STABILITY;
 		percent = skill_is +
 				  dex_app[GET_REAL_DEX(ch)].reaction +
-				  dex_app[GET_REAL_STR(ch)].reaction;
+				  str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
 		if (vict)
 		{
 			victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
@@ -483,10 +483,10 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	case SKILL_DISARM:
 		victim_sav = SAVING_REFLEX;
 		percent = skill_is + dex_app[GET_REAL_DEX(ch)].reaction +
-				  dex_app[GET_REAL_STR(ch)].reaction;
+				  str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
 		if (vict)
 		{
-			victim_modi -= dex_app[GET_REAL_STR(vict)].reaction;
+			victim_modi -= str_bonus(GET_REAL_STR(vict), STR_TO_HIT);
 			if (GET_EQ(vict, WEAR_BOTHS))
 				victim_modi -= 10;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
@@ -585,7 +585,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		victim_sav = SAVING_STABILITY;
 		percent =
 			skill_is + size_app[GET_POS_SIZE(ch)].shocking +
-			str_app[GET_REAL_STR(ch)].todam;
+			str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 
 		if (vict)
 		{
@@ -594,7 +594,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	case SKILL_STUPOR:
 		victim_sav = SAVING_STABILITY;
-		percent = skill_is + str_app[GET_REAL_STR(ch)].todam * 2;
+		percent = skill_is + str_bonus(GET_REAL_STR(ch), STR_TO_DAM) * 2;
 		if (GET_EQ(ch, WEAR_WIELD))
 			percent +=
 				weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;

@@ -379,6 +379,8 @@ public:
 
 	int calc_morale() const;
 
+	int get_str() const;
+	void set_str(int);
 	int get_con() const;
 	void set_con(int);
 
@@ -386,6 +388,8 @@ public:
 	void clear_add_affects();
 	int get_con_add() const;
 	void set_con_add(int);
+	int get_str_add() const;
+	void set_str_add(int);
 	////////////////////////////////////////////////////////////////////////////
 
 	/**
@@ -435,6 +439,10 @@ private:
 	long gold_;
 	// деньги в банке
 	long bank_gold_;
+	// родная сила
+	int str_;
+	// плюсы на силу
+	int str_add_;
 	// родное тело
 	int con_;
 	// плюсы на тело

@@ -2529,7 +2529,7 @@ ASPELL(spell_angel)
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
 	}
 
-	GET_STR(mob) = 11;
+	mob->set_str(11);
 	GET_INT(mob) = 25;
 	GET_WIS(mob) = 25;
 	GET_DEX(mob) = 16;
@@ -2612,7 +2612,7 @@ ASPELL(spell_angel)
 	GET_AC(mob) -= modifier;
 
 	modifier = 1 * VPOSI((int)((get_effective_cha(ch, SPELL_ANGEL) - 16) / 2), 0, 50);
-	GET_STR(mob) += modifier;
+	mob->set_str(mob->get_str() + modifier);
 	GET_DEX(mob) += modifier;
 
 	modifier = VPOSI((int)((get_effective_cha(ch, SPELL_ANGEL) - 22) / 4), 0, 50);
