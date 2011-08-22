@@ -273,7 +273,7 @@ int compute_armor_class(CHAR_DATA * ch)
 
 	if (AWAKE(ch))
 	{
-		armorclass -= dex_bonus(GET_REAL_DEX(ch)) * 10;
+		armorclass -= dex_ac_bonus(GET_REAL_DEX(ch)) * 10;
 		armorclass += extra_aco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
 	};
 

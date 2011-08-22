@@ -2634,3 +2634,19 @@ int dex_bonus(int dex)
 	}
 	return bonus;
 }
+
+int dex_ac_bonus(int dex)
+{
+	int bonus = 0;
+	dex = MAX(1, dex);
+	// -3 ... 35
+	if (dex <= 15)
+	{
+		bonus = (dex - 10) / 3;
+	}
+	else
+	{
+		bonus = dex - 15;
+	}
+	return bonus;
+}

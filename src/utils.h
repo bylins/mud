@@ -1439,6 +1439,7 @@ int xmlparse_int(pugi::xml_node &node, const char *text);
 enum { STR_TO_HIT, STR_TO_DAM, STR_CARRY_W, STR_WIELD_W, STR_HOLD_W };
 int str_bonus(int str, int type);
 int dex_bonus(int dex);
+int dex_ac_bonus(int dex);
 
 #define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, PORTER_FEAT) ? 110 : 100))/100)
 #define CAN_CARRY_N(ch) (5 + (GET_REAL_DEX(ch) >> 1) + (GET_LEVEL(ch) >> 1) \
