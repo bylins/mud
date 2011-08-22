@@ -454,6 +454,11 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 				sscanf(buffer, "%d %d", t, t + 1);
 				object->timed_spell.set(object, t[0], t[1]);
 			}
+			else if (!strcmp(read_line, "Mort"))
+			{
+				*error = 50;
+				object->set_mort_req(atoi(buffer));
+			}
 			else
 			{
 				sprintf(buf, "WARNING: \"%s\" is not valid key for character items! [value=\"%s\"]",
@@ -930,6 +935,12 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 			out << "Edes: " << (descr->keyword ? descr->keyword : "") << "~\n"
 				<< (descr->description ? descr->description : "") << "~\n";
 		}
+
+		// требования по мортам
+		if (object->get_mort_req() > 0 && object->get_mort_req() != proto->get_mort_req())
+		{
+			out << "Mort: " << object->get_mort_req() << "~\n";
+		}
 	}
 	else  		// Если у шмотки нет прототипа - придется сохранять ее целиком.
 	{
@@ -1077,6 +1088,12 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		{
 			out << "Edes: " << (descr->keyword ? descr->keyword : "") << "~\n"
 				<< (descr->description ? descr->description : "") << "~\n";
+		}
+
+		// требования по мортам
+		if (object->get_mort_req() > 0)
+		{
+			out << "Mort: " << object->get_mort_req() << "~\n";
 		}
 	}
 	// обкаст (если он есть) сохраняется в любом случае независимо от прототипа

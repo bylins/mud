@@ -354,13 +354,21 @@ struct obj_data
 	int get_timer() const;
 	void dec_timer(int time = 1);
 
+	int get_mort_req() const;
+	void set_mort_req(int);
+
 	static id_to_set_info_map set_table;
 	static void init_set_table();
 
 private:
-	std::map<int, int>* skills; // если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
-	int serial_num_;            // порядковый номер в списке чаров (для name_list)
-	int timer_; // таймер (в минутах рл)
+	// если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
+	std::map<int, int>* skills;
+	// порядковый номер в списке чаров (для name_list)
+	int serial_num_;
+	// таймер (в минутах рл)
+	int timer_;
+	// требование по минимальным мортам
+	int mort_req_;
 };
 
 #endif // OBJ_HPP_INCLUDED

@@ -579,6 +579,12 @@ void oedit_save_to_disk(int zone_num)
 			{
 				fprintf(fp, "M %d\n", GET_OBJ_MIW(obj));
 			}
+
+			if (obj->get_mort_req() > 0)
+			{
+				fprintf(fp, "R %d\n", obj->get_mort_req());
+			}
+
 			/*
 			 * Do we have extra descriptions?
 			 */
@@ -1464,6 +1470,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			"%sU%s) Пол         : %s%d\r\n"
 			"%sV%s) Макс.в мире : %s%d\r\n"
 			"%sW%s) Меню умений\r\n"
+			"%sX%s) Требует перевоплощений : %s%d\r\n"
 			"%sQ%s) Quit\r\n"
 			"Ваш выбор : ",
 			grn, nrm, cyn, buf1,
@@ -1479,8 +1486,12 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, nrm, cyn,
 			GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 			GET_OBJ_VAL(obj, 3), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
-			nrm, cyn, obj->proto_script ? "Set." : "Not Set.", grn, nrm, cyn,
-			GET_OBJ_SEX(obj), grn, nrm, cyn, GET_OBJ_MIW(obj), grn, nrm, grn, nrm);
+			nrm, cyn, obj->proto_script ? "Set." : "Not Set.",
+			grn, nrm, cyn, GET_OBJ_SEX(obj),
+			grn, nrm, cyn, GET_OBJ_MIW(obj),
+			grn, nrm,
+			grn, nrm, cyn, obj->get_mort_req(),
+			grn, nrm);
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = OEDIT_MAIN_MENU;
 }
@@ -1549,8 +1560,6 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 		case 'q':
 		case 'Q':
-		case 'x':
-		case 'X':
 			if (OLC_VAL(d))  	/* Something has been modified. */
 			{
 				send_to_char("Вы хотите сохранить этот предмет ? : ", d->character);
@@ -1559,6 +1568,11 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			else
 				cleanup_olc(d, CLEANUP_ALL);
 			return;
+		case 'x':
+		case 'X':
+			send_to_char("Требует перевоплощений : ", d->character);
+			OLC_MODE(d) = OEDIT_MORT_REQ;
+			break;
 		case '1':
 			send_to_char("Введите синонимы : ", d->character);
 			OLC_MODE(d) = OEDIT_EDIT_NAMELIST;
@@ -2332,6 +2346,14 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_OBJ(d)->set_skill(number, bit);
 		oedit_disp_skills_mod_menu(d);
 		return;
+	case OEDIT_MORT_REQ:
+		number = atoi(arg);
+		if (number < 0)
+			send_to_char("Число не должно быть меньше нуля.\r\n", d->character);
+		else
+			OLC_OBJ(d)->set_mort_req(number);
+		break;
+
 	default:
 		mudlog("SYSERR: OLC: Reached default case in oedit_parse()!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		send_to_char("Oops...\r\n", d->character);

@@ -3700,6 +3700,9 @@ char *parse_object(FILE * obj_f, int nr)
 		case 'M':
 			GET_OBJ_MIW(tobj) = atoi(line + 1);
 			break;
+		case 'R':
+			tobj->set_mort_req(atoi(line + 1));
+			break;
 		case 'S':
 			if (!get_line(obj_f, line))
 			{

@@ -30,7 +30,8 @@ obj_data::obj_data() :
 	max_in_world(0),
 	skills(NULL),
 	serial_num_(0),
-	timer_(0)
+	timer_(0),
+	mort_req_(0)
 {
 	memset(&obj_flags, 0, sizeof(obj_flag_data));
 
@@ -206,4 +207,14 @@ void obj_data::dec_timer(int time)
 			timed_spell.dec_timer(this, time);
 		}
 	}
+}
+
+int obj_data::get_mort_req() const
+{
+	return mort_req_;
+}
+
+void obj_data::set_mort_req(int param)
+{
+	mort_req_ = MAX(0, param);
 }
