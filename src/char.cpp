@@ -117,6 +117,8 @@ void Character::zero_init()
 	bank_gold_ = 0;
 	str_ = 0;
 	str_add_ = 0;
+	dex_ = 0;
+	dex_add_ = 0;
 	con_ = 0;
 	con_add_ = 0;
 	// char_data
@@ -993,7 +995,7 @@ int Character::calc_morale() const
 	return GET_REAL_CHA(this) / 2 + GET_MORALE(this);
 //	return cha_app[GET_REAL_CHA(this)].morale + GET_MORALE(this);
 }
-
+///////////////////////////////////////////////////////////////////////////////
 int Character::get_str() const
 {
 	return str_;
@@ -1013,7 +1015,27 @@ void Character::set_str_add(int param)
 {
 	str_add_ = param;
 }
+///////////////////////////////////////////////////////////////////////////////
+int Character::get_dex() const
+{
+	return dex_;
+}
 
+void Character::set_dex(int param)
+{
+	dex_ = MAX(1, param);
+}
+
+int Character::get_dex_add() const
+{
+	return dex_add_;
+}
+
+void Character::set_dex_add(int param)
+{
+	dex_add_ = param;
+}
+///////////////////////////////////////////////////////////////////////////////
 int Character::get_con() const
 {
 	return con_;
@@ -1033,15 +1055,16 @@ void Character::set_con_add(int param)
 {
 	con_add_ = param;
 }
-
+///////////////////////////////////////////////////////////////////////////////
 void Character::clear_add_affects()
 {
 	// Clear all affect, because recalc one
 	memset(&add_abils, 0, sizeof(char_played_ability_data));
 	set_str_add(0);
+	set_dex_add(0);
 	set_con_add(0);
 }
-
+///////////////////////////////////////////////////////////////////////////////
 int Character::get_zone_group() const
 {
 	if (IS_NPC(this) && nr >= 0 && mob_index[nr].zone >= 0)

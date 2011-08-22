@@ -273,8 +273,7 @@ int compute_armor_class(CHAR_DATA * ch)
 
 	if (AWAKE(ch))
 	{
-//		armorclass -= (GET_REAL_DEX(ch) - 10) * 7;
-		armorclass += dex_app[GET_REAL_DEX(ch)].defensive * 10;
+		armorclass -= dex_bonus(GET_REAL_DEX(ch)) * 10;
 		armorclass += extra_aco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
 	};
 
@@ -4595,7 +4594,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	{
 		dam *= backstab_mult(GET_LEVEL(ch));
 		if (number(1, 100) < calculate_crit_backstab_percent(ch)
-			&& !general_savingthrow(ch, victim, SAVING_REFLEX, dex_app[GET_REAL_DEX(ch)].reaction))
+			&& !general_savingthrow(ch, victim, SAVING_REFLEX, dex_bonus(GET_REAL_DEX(ch))))
 		{
 			dam = static_cast<int>(dam * crit_backstab_multiplier(ch, victim));
 		}

@@ -2530,10 +2530,10 @@ ASPELL(spell_angel)
 	}
 
 	mob->set_str(11);
+	mob->set_dex(16);
+	mob->set_con(17);
 	GET_INT(mob) = 25;
 	GET_WIS(mob) = 25;
-	GET_DEX(mob) = 16;
-	mob->set_con(17);
 	GET_CHA(mob) = 22;
 
 	GET_WEIGHT(mob) = 150;
@@ -2613,7 +2613,7 @@ ASPELL(spell_angel)
 
 	modifier = 1 * VPOSI((int)((get_effective_cha(ch, SPELL_ANGEL) - 16) / 2), 0, 50);
 	mob->set_str(mob->get_str() + modifier);
-	GET_DEX(mob) += modifier;
+	mob->set_dex(mob->get_dex() + modifier);
 
 	modifier = VPOSI((int)((get_effective_cha(ch, SPELL_ANGEL) - 22) / 4), 0, 50);
 	SET_SPELL(mob, SPELL_HEAL, GET_SPELL_MEM(mob, SPELL_HEAL) + modifier);

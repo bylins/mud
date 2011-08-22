@@ -2582,14 +2582,14 @@ int str_bonus(int str, int type)
 		}
 		break;
 	case STR_TO_DAM:
-		// -5 ... 20
-		if (str < 10)
+		// -5 ... 36
+		if (str < 15)
 		{
 			bonus = (str - 11) / 2;
 		}
 		else
 		{
-			bonus = (str - 10) / 2;
+			bonus = str - 14;
 		}
 		break;
 	case STR_CARRY_W:
@@ -2616,5 +2616,21 @@ int str_bonus(int str, int type)
 				str, type, __FILE__, __func__, __LINE__);
 	}
 
+	return bonus;
+}
+
+int dex_bonus(int dex)
+{
+	int bonus = 0;
+	dex = MAX(1, dex);
+	// -5 ... 40
+	if (dex < 10)
+	{
+		bonus = (dex - 11) / 2;
+	}
+	else
+	{
+		bonus = dex - 10;
+	}
 	return bonus;
 }

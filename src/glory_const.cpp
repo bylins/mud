@@ -504,7 +504,7 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 		{
 			// получившиеся статы
 			ch->set_str(olc_real_stat(ch, GLORY_STR));
-			GET_DEX(ch) = olc_real_stat(ch, GLORY_DEX);
+			ch->set_dex(olc_real_stat(ch, GLORY_DEX));
 			GET_INT(ch) = olc_real_stat(ch, GLORY_INT);
 			GET_WIS(ch) = olc_real_stat(ch, GLORY_WIS);
 			ch->set_con(olc_real_stat(ch, GLORY_CON));
@@ -990,7 +990,7 @@ void set_stats(CHAR_DATA *ch)
 				ch->set_str(ch->get_str() + k->second);
 				break;
 			case G_DEX:
-				GET_DEX(ch) += k->second;
+				ch->set_dex(ch->get_dex() + k->second);
 				break;
 			case G_INT:
 				GET_INT(ch) += k->second;

@@ -130,8 +130,9 @@ void medit_mobile_init(CHAR_DATA * mob)
 	GET_MR(mob) = GET_AR(mob) = GET_PR(mob) = 0;
 
 	mob->set_str(11);
+	mob->set_dex(11);
 	mob->real_abils.intel = mob->real_abils.wis = 11;
-	mob->real_abils.dex = mob->real_abils.cha = 11;
+	mob->real_abils.cha = 11;
 	mob->set_con(11);
 
 	SET_BIT(MOB_FLAGS(mob, MOB_ISNPC), MOB_ISNPC);
@@ -2413,7 +2414,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 
 		case MEDIT_DEX:
-			GET_DEX(OLC_MOB(d)) = MIN(50, MAX(1, atoi(arg)));
+			OLC_MOB(d)->set_dex(atoi(arg));
 			break;
 
 		case MEDIT_CON:

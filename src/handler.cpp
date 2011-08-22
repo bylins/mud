@@ -317,7 +317,7 @@ void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool a
 		ch->set_str_add(ch->get_str_add() + mod);
 		break;
 	case APPLY_DEX:
-		GET_DEX_ADD(ch) += mod;
+		ch->set_dex_add(ch->get_dex_add() + mod);
 		break;
 	case APPLY_INT:
 		GET_INT_ADD(ch) += mod;
@@ -652,12 +652,12 @@ void affect_total(CHAR_DATA * ch)
 		case 10:
 		case 9:
 		case 8:
-			GET_DEX_ADD(ch) -= 2;
+			ch->set_dex_add(ch->get_dex_add() - 2);
 			break;
 		case 7:
 		case 6:
 		case 5:
-			GET_DEX_ADD(ch) -= 1;
+			ch->set_dex_add(ch->get_dex_add() - 1);
 			break;
 		}
 		GET_DR_ADD(ch) += extra_damroll((int) GET_CLASS(ch), (int) GET_LEVEL(ch));

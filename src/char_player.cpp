@@ -960,7 +960,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	GET_KIN(this) = 0;
 
 	this->set_str(10);
-	GET_DEX(this) = 10;
+	this->set_dex(10);
 	GET_CHA(this) = 10;
 	GET_INT(this) = 10;
 	GET_WIS(this) = 10;
@@ -1163,7 +1163,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				disposable_flags_ = tmp_flags;
 			}
 			else if (!strcmp(tag, "Dex "))
-				GET_DEX(this) = num;
+				this->set_dex(num);
 			else if (!strcmp(tag, "Drnk"))
 				GET_COND(this, DRUNK) = num;
 			else if (!strcmp(tag, "DrSt"))

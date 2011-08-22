@@ -3227,66 +3227,66 @@ int level_exp(CHAR_DATA * ch, int level)
 		case 1:
 			return 1;
 		case 2:
-			return int (exp_modifier * 750);
+			return int (exp_modifier * 1000);
 		case 3:
-			return int (exp_modifier * 1500);
+			return int (exp_modifier * 2000);
 		case 4:
-			return int (exp_modifier * 3000);
+			return int (exp_modifier * 4000);
 		case 5:
-			return int (exp_modifier * 6000);
+			return int (exp_modifier * 8000);
 		case 6:
-			return int (exp_modifier * 11000);
+			return int (exp_modifier * 15000);
 		case 7:
-			return int (exp_modifier * 21000);
+			return int (exp_modifier * 28000);
 		case 8:
-			return int (exp_modifier * 34000);
+			return int (exp_modifier * 52000);
 		case 9:
-			return int (exp_modifier * 63000);
+			return int (exp_modifier * 85000);
 		case 10:
-			return int (exp_modifier * 96000);
+			return int (exp_modifier * 131000);
 		case 11:
-			return int (exp_modifier * 170000);
+			return int (exp_modifier * 192000);
 		case 12:
-			return int (exp_modifier * 203000);
+			return int (exp_modifier * 271000);
 		case 13:
-			return int (exp_modifier * 260000);
+			return int (exp_modifier * 372000);
 		case 14:
-			return int (exp_modifier * 380000);
+			return int (exp_modifier * 512000);
 		case 15:
-			return int (exp_modifier * 500000);
+			return int (exp_modifier * 672000);
 		case 16:
-			return int (exp_modifier * 604000);
+			return int (exp_modifier * 854000);
 		case 17:
-			return int (exp_modifier * 750000);
+			return int (exp_modifier * 1047000);
 		case 18:
-			return int (exp_modifier * 950000);
+			return int (exp_modifier * 1274000);
 		case 19:
-			return int (exp_modifier * 1200000);
+			return int (exp_modifier * 1534000);
 		case 20:
-			return int (exp_modifier * 1500000);
+			return int (exp_modifier * 1860000);
 		case 21:
-			return int (exp_modifier * 1900000);
+			return int (exp_modifier * 2520000);
 		case 22:
-			return int (exp_modifier * 2530000);
+			return int (exp_modifier * 3380000);
 		case 23:
-			return int (exp_modifier * 3250000);
+			return int (exp_modifier * 4374000);
 		case 24:
-			return int (exp_modifier * 4100000);
+			return int (exp_modifier * 5500000);
 		case 25:
-			return int (exp_modifier * 5000000);
+			return int (exp_modifier * 6827000);
 		case 26:
-			return int (exp_modifier * 6500000);
+			return int (exp_modifier * 8667000);
 		case 27:
-			return int (exp_modifier * 10000000);
+			return int (exp_modifier * 13334000);
 		case 28:
-			return int (exp_modifier * 15000000);
+			return int (exp_modifier * 20000000);
 		case 29:
-			return int (exp_modifier * 21500000);
+			return int (exp_modifier * 28667000);
 		case 30:
-			return int (exp_modifier * 30000000);
+			return int (exp_modifier * 40000000);
 			/* add new levels here */
 		case LVL_IMMORT:
-			return int (exp_modifier * 50000000);
+			return int (exp_modifier * 53000000);
 		}
 		break;
 

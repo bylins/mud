@@ -705,10 +705,10 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 		}
 
 		ch->set_str(ch->desc->glory->olc_str);
-		GET_DEX(ch) = ch->desc->glory->olc_dex;
+		ch->set_dex(ch->desc->glory->olc_dex);
+		ch->set_con(ch->desc->glory->olc_con);
 		GET_INT(ch) = ch->desc->glory->olc_int;
 		GET_WIS(ch) = ch->desc->glory->olc_wis;
-		ch->set_con(ch->desc->glory->olc_con);
 		GET_CHA(ch) = ch->desc->glory->olc_cha;
 
 		// проставляем таймеры, потому что в олц удобнее иметь нулевые для новых статов
@@ -967,7 +967,7 @@ void remove_stat_online(long uid, int stat, int glory)
 			d->character->set_str(d->character->get_str() - glory);
 			break;
 		case G_DEX:
-			GET_DEX(d->character) -= glory;
+			d->character->set_dex(d->character->get_dex() - glory);
 			break;
 		case G_INT:
 			GET_INT(d->character) -= glory;
@@ -1211,7 +1211,7 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 					vict->set_str(vict->get_str() + (*tm_it)->glory);
 					break;
 				case G_DEX:
-					GET_DEX(vict) += (*tm_it)->glory;
+					vict->set_dex(vict->get_dex() + (*tm_it)->glory);
 					break;
 				case G_INT:
 					GET_INT(vict) += (*tm_it)->glory;
@@ -1396,7 +1396,7 @@ void set_stats(CHAR_DATA *ch)
 				ch->set_str(ch->get_str() + (*tm_it)->glory);
 				break;
 			case G_DEX:
-				GET_DEX(ch) += (*tm_it)->glory;
+				ch->set_dex(ch->get_dex() + (*tm_it)->glory);
 				break;
 			case G_INT:
 				GET_INT(ch) += (*tm_it)->glory;

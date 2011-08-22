@@ -673,7 +673,7 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 	case SAVING_REFLEX:
 		if ((save > 0) && (GET_CLASS(victim) == CLASS_THIEF))
 			save >>= 1;
-		save -= dex_app[GET_REAL_DEX(victim)].reaction;
+		save -= dex_bonus(GET_REAL_DEX(victim));
 		break;
 	case SAVING_STABILITY:
 		save += -GET_REAL_CON(victim);
@@ -4003,10 +4003,10 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		GET_PAD(mob, 5) = str_dup(buf2);
 
 		mob->set_str(ch->get_str());
+		mob->set_dex(ch->get_dex());
+		mob->set_con(ch->get_con());
 		GET_INT(mob) = GET_INT(ch);
 		GET_WIS(mob) = GET_WIS(ch);
-		GET_DEX(mob) = GET_DEX(ch);
-		mob->set_con(ch->get_con());
 		GET_CHA(mob) = GET_CHA(ch);
 
 		mob->set_level(ch->get_level());

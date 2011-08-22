@@ -280,7 +280,7 @@ bool check_stats(CHAR_DATA *ch)
 		// данную фигню мы делаем для того, чтобы из ролла нельзя было случайно так просто выйти
 		// сразу, не раскидав статы, а то много любителей тригов и просто нажатий не глядя
 		ch->set_str(MIN_STR(ch));
-		GET_DEX(ch) = MIN_DEX(ch);
+		ch->set_dex(MIN_DEX(ch));
 		GET_INT(ch) = MIN_INT(ch);
 		GET_WIS(ch) = MIN_WIS(ch);
 		ch->set_con(MIN_CON(ch));
@@ -308,7 +308,7 @@ void recalculate_stats(CHAR_DATA *ch)
 {
 	// стартовые статы
 	ch->set_str(ch->get_start_stat(G_STR));
-	GET_DEX(ch) = ch->get_start_stat(G_DEX);
+	ch->set_dex(ch->get_start_stat(G_DEX));
 	ch->set_con(ch->get_start_stat(G_CON));
 	GET_INT(ch) = ch->get_start_stat(G_INT);
 	GET_WIS(ch) = ch->get_start_stat(G_WIS);
@@ -317,7 +317,7 @@ void recalculate_stats(CHAR_DATA *ch)
 	if (GET_REMORT(ch))
 	{
 		ch->set_str(ch->get_str() + GET_REMORT(ch));
-		GET_DEX(ch) += GET_REMORT(ch);
+		ch->set_dex(ch->get_dex() + GET_REMORT(ch));
 		ch->set_con(ch->get_con() + GET_REMORT(ch));
 		GET_INT(ch) += GET_REMORT(ch);
 		GET_WIS(ch) += GET_REMORT(ch);

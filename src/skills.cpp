@@ -237,7 +237,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	case SKILL_BACKSTAB:	/*заколоть */
 		victim_sav = SAVING_REFLEX;
-		percent = skill_is + dex_app[GET_REAL_DEX(ch)].reaction * 2;
+		percent = skill_is + dex_bonus(GET_REAL_DEX(ch)) * 2;
 		if (awake_others(ch) || equip_in_metall(ch))
 			percent -= 50;
 
@@ -250,15 +250,15 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 			else if (AFF_FLAGGED(vict, AFF_AWARNESS))
 				victim_modi -= 30;
 			victim_modi += size_app[GET_POS_SIZE(vict)].ac;
-			victim_modi -= dex_app[GET_REAL_DEX(vict)].reaction;
+			victim_modi -= dex_bonus(GET_REAL_DEX(vict));
 		}
 		break;
 	case SKILL_BASH:	/*сбить */
 		victim_sav = SAVING_REFLEX;
 		percent = skill_is +
 				  size_app[GET_POS_SIZE(ch)].interpolate +
-				  dex_app[GET_REAL_DEX(ch)].reaction +
-				  str_bonus(GET_REAL_STR(ch), STR_TO_HIT) +
+				  dex_bonus(GET_REAL_DEX(ch)) +
+				  dex_bonus(GET_REAL_STR(ch)) +
 				  (GET_EQ(ch, WEAR_SHIELD) ?
 				   weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].
 				   bashing : 0);
@@ -274,7 +274,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	case SKILL_HIDE:	/*спрятаться */
 		percent =
-			skill_is + dex_app_skill[GET_REAL_DEX(ch)].hide - size_app[GET_POS_SIZE(ch)].ac
+			skill_is + dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac
 			+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 
 		if (awake_others(ch) || equip_in_metall(ch))
@@ -301,8 +301,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	case SKILL_KICK:	/*пнуть */
 		victim_sav = SAVING_STABILITY;
 		percent = skill_is +
-				  dex_app[GET_REAL_DEX(ch)].reaction +
-				  str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
+				  dex_bonus(GET_REAL_DEX(ch)) +
+				  dex_bonus(GET_REAL_STR(ch));
 		if (vict)
 		{
 			victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
@@ -312,18 +312,18 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		}
 		break;
 	case SKILL_PICK_LOCK:	/*pick lock */
-		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].p_locks
+		percent = skill_is + dex_bonus(GET_REAL_DEX(ch))
 				  + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 		break;
 	case SKILL_PUNCH:	/*punch */
 		percent = skill_is;
 		break;
 	case SKILL_RESCUE:	/*спасти */
-		percent = skill_is + dex_app[GET_REAL_DEX(ch)].reaction;
+		percent = skill_is + dex_bonus(GET_REAL_DEX(ch));
 		victim_modi = 100;
 		break;
 	case SKILL_SNEAK:	/*sneak */
-		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].sneak
+		percent = skill_is + dex_bonus(GET_REAL_DEX(ch))
 				  + (can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0);
 
 		if (awake_others(ch)||equip_in_metall(ch))
@@ -345,7 +345,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		}
 		break;
 	case SKILL_STEAL:	/*steal */
-		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].p_pocket
+		percent = skill_is + dex_bonus(GET_REAL_DEX(ch))
 				  + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 
 		if (awake_others(ch) || equip_in_metall(ch))
@@ -411,7 +411,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	case SKILL_MULTYPARRY:
 	case SKILL_PARRY:	/*парировать */
-		percent = skill_is + dex_app[GET_REAL_DEX(ch)].reaction;
+		percent = skill_is + dex_bonus(GET_REAL_DEX(ch));
 		if (GET_AF_BATTLE(ch, EAF_AWAKE))
 			percent += ch->get_skill(SKILL_AWAKE);
 
@@ -440,26 +440,26 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 
 	case SKILL_TOUCH:	/*захватить противника */
 		percent =
-			skill_is + dex_app[GET_REAL_DEX(ch)].reaction +
+			skill_is + dex_bonus(GET_REAL_DEX(ch)) +
 			size_app[GET_POS_SIZE(vict)].interpolate;
 
 		if (vict)
 		{
-			victim_modi -= dex_app[GET_REAL_DEX(vict)].reaction;
+			victim_modi -= dex_bonus(GET_REAL_DEX(vict));
 			victim_modi -= size_app[GET_POS_SIZE(vict)].interpolate;
 		}
 		break;
 
 	case SKILL_PROTECT:	/*прикрыть грудью */
 		percent =
-			skill_is + dex_app[GET_REAL_DEX(ch)].reaction +
+			skill_is + dex_bonus(GET_REAL_DEX(ch)) +
 			size_app[GET_POS_SIZE(ch)].interpolate;
 
 		victim_modi = 100;
 		break;
 
 	case SKILL_BOWS:	/*луки */
-		percent = skill_is + dex_app[GET_REAL_DEX(ch)].miss_att;
+		percent = skill_is + dex_bonus(GET_REAL_DEX(ch));
 		break;
 	case SKILL_BOTHHANDS:	/*двуручники */
 	case SKILL_LONGS:	/*длинные лезвия */
@@ -482,11 +482,10 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		break;
 	case SKILL_DISARM:
 		victim_sav = SAVING_REFLEX;
-		percent = skill_is + dex_app[GET_REAL_DEX(ch)].reaction +
-				  str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
+		percent = skill_is + dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
 		if (vict)
 		{
-			victim_modi -= str_bonus(GET_REAL_STR(vict), STR_TO_HIT);
+			victim_modi -= dex_bonus(GET_REAL_STR(ch));
 			if (GET_EQ(vict, WEAR_BOTHS))
 				victim_modi -= 10;
 			if (GET_AF_BATTLE(vict, EAF_AWAKE))
@@ -506,10 +505,10 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		pass_mod = 1;
 		break;
 	case SKILL_NOPARRYHIT:
-		percent = skill_is + dex_app[GET_REAL_DEX(ch)].miss_att;
+		percent = skill_is + dex_bonus(GET_REAL_DEX(ch));
 		break;
 	case SKILL_CAMOUFLAGE:
-		percent = skill_is + dex_app_skill[GET_REAL_DEX(ch)].hide - size_app[GET_POS_SIZE(ch)].ac
+		percent = skill_is + dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac
 				  + (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 
 		if (awake_others(ch))
@@ -536,20 +535,20 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	case SKILL_DEVIATE:
 		percent =
 			skill_is - size_app[GET_POS_SIZE(ch)].ac +
-			dex_app[GET_REAL_DEX(ch)].reaction;
+			dex_bonus(GET_REAL_DEX(ch));
 
 		if (equip_in_metall(ch))
 			percent -= 40;
 
 		if (vict)
 		{
-			victim_modi -= dex_app[GET_REAL_DEX(vict)].miss_att;
+			victim_modi -= dex_bonus(GET_REAL_DEX(vict));
 		}
 		break;
 	case SKILL_CHOPOFF:
 		victim_sav = SAVING_REFLEX;
 		percent = skill_is +
-				  dex_app[GET_REAL_DEX(ch)].reaction + size_app[GET_POS_SIZE(ch)].ac;
+				  dex_bonus(GET_REAL_DEX(ch)) + size_app[GET_POS_SIZE(ch)].ac;
 
 		if (equip_in_metall(ch))
 			percent -= 10;

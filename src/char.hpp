@@ -381,15 +381,19 @@ public:
 
 	int get_str() const;
 	void set_str(int);
+	int get_dex() const;
+	void set_dex(int);
 	int get_con() const;
 	void set_con(int);
 
 	////////////////////////////////////////////////////////////////////////////
 	void clear_add_affects();
-	int get_con_add() const;
-	void set_con_add(int);
 	int get_str_add() const;
 	void set_str_add(int);
+	int get_dex_add() const;
+	void set_dex_add(int);
+	int get_con_add() const;
+	void set_con_add(int);
 	////////////////////////////////////////////////////////////////////////////
 
 	/**
@@ -443,6 +447,10 @@ private:
 	int str_;
 	// плюсы на силу
 	int str_add_;
+	// родная ловкость
+	int dex_;
+	// плюсы на ловкость
+	int dex_add_;
 	// родное тело
 	int con_;
 	// плюсы на тело

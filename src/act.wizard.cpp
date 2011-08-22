@@ -2995,7 +2995,7 @@ ACMD(do_restore)
 				vict->set_str(25);
 				vict->real_abils.intel = 25;
 				vict->real_abils.wis = 25;
-				vict->real_abils.dex = 25;
+				vict->set_dex(25);
 				vict->set_con(25);
 				vict->real_abils.cha = 25;
 			}
