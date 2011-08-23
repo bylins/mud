@@ -2597,19 +2597,26 @@ int str_bonus(int str, int type)
 		bonus = str * 50;
 		break;
 	case STR_WIELD_W:
-		// 1 ... 35
+		// 1 ... 30
 		if (str <= 20)
 		{
 			bonus = str;
 		}
 		else
 		{
-			bonus = 20 + (str - 20) / 2;
+			bonus = 20 + (str - 20) / 3;
 		}
 		break;
 	case STR_HOLD_W:
-		// 0 ... 25
-		bonus = str / 2;
+		// 0 ... 20
+		if (str <= 29)
+		{
+			bonus = str / 2;
+		}
+		else
+		{
+			bonus = 15 + (str - 29) / 4;
+		}
 		break;
 	default:
 		log("SYSERROR: str=%d, type=%d (%s %s %d)",
