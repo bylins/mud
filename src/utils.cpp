@@ -2715,6 +2715,7 @@ void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 				__FILE__, __func__, __LINE__);
 		return;
 	}
-	send_to_char(ch, "%s требует %d %s.\r\n", GET_OBJ_PNAME(obj, 0),
+	send_to_char(ch, "%s требу%s %d %s.\r\n", GET_OBJ_PNAME(obj, 0),
+			GET_OBJ_SEX(obj) == SEX_POLY ? "ют" : "ет",
 			need_str, desc_count(need_str, WHAT_STR));
 }
