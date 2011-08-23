@@ -685,7 +685,9 @@ void affect_total(CHAR_DATA * ch)
 		if ((obj = GET_EQ(ch, WEAR_BOTHS)) && !OK_BOTH(ch, obj))
 		{
 			if (!IS_NPC(ch))
+			{
 				act("Вам слишком тяжело держать $o3 в обоих руках !", FALSE, ch, obj, 0, TO_CHAR);
+			}
 			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_BOTHS), ch);
 			return;
@@ -693,7 +695,10 @@ void affect_total(CHAR_DATA * ch)
 		if ((obj = GET_EQ(ch, WEAR_WIELD)) && !OK_WIELD(ch, obj))
 		{
 			if (!IS_NPC(ch))
+			{
 				act("Вам слишком тяжело держать $o3 в правой руке !", FALSE, ch, obj, 0, TO_CHAR);
+				message_str_need(ch, obj, STR_WIELD_W);
+			}
 			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_WIELD), ch);
 			// если пушку можно вооружить в обе руки и эти руки свободны
@@ -709,7 +714,10 @@ void affect_total(CHAR_DATA * ch)
 		if ((obj = GET_EQ(ch, WEAR_HOLD)) && !OK_HELD(ch, obj))
 		{
 			if (!IS_NPC(ch))
+			{
 				act("Вам слишком тяжело держать $o3 в левой руке !", FALSE, ch, obj, 0, TO_CHAR);
+				message_str_need(ch, obj, STR_HOLD_W);
+			}
 			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_HOLD), ch);
 			return;

@@ -1823,6 +1823,8 @@ ACMD(do_wield)
 			if (wear == WEAR_WIELD && !IS_IMMORTAL(ch) && !OK_WIELD(ch, obj))
 			{
 				act("Вам слишком тяжело держать $o3 в правой руке.", FALSE, ch, obj, 0, TO_CHAR);
+				message_str_need(ch, obj, STR_WIELD_W);
+
 				if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
 					wear = WEAR_BOTHS;
 				else
@@ -1884,6 +1886,8 @@ ACMD(do_grab)
 			if (!IS_IMMORTAL(ch) && !OK_HELD(ch, obj))
 			{
 				act("Вам слишком тяжело держать $o3 в левой руке.", FALSE, ch, obj, 0, TO_CHAR);
+				message_str_need(ch, obj, STR_HOLD_W);
+
 				if (CAN_WEAR(obj, ITEM_WEAR_BOTHS))
 				{
 					if (!OK_BOTH(ch, obj))
