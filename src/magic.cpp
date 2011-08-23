@@ -4352,7 +4352,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 				if (GET_OBJ_VAL(obj, 2) > 0)
 					GET_OBJ_VAL(obj, 2)--;
 			}
-			else if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
+			else if (ObjSystem::is_armor_type(obj))
 			{
 				if (GET_OBJ_VAL(obj, 0) > 0)
 					GET_OBJ_VAL(obj, 0)--;

@@ -2134,7 +2134,7 @@ ACMD(do_armored)
 		return;
 	};
 
-	if (GET_OBJ_TYPE(obj) != ITEM_ARMOR)
+	if (!ObjSystem::is_armor_type(obj))
 	{
 		send_to_char("Вы можете укрепить только доспех.\r\n", ch);
 		return;
@@ -2593,7 +2593,7 @@ ACMD(do_repair)
 		act("$o в ремонте не нуждается.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
-	if ((GET_OBJ_TYPE(obj) != ITEM_WEAPON) && GET_OBJ_TYPE(obj) != ITEM_ARMOR)
+	if ((GET_OBJ_TYPE(obj) != ITEM_WEAPON) && !ObjSystem::is_armor_type(obj))
 	{
 		send_to_char("Вы можете отремонтировать только оружие или броню.\r\n", ch);
 		return;

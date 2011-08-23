@@ -393,6 +393,28 @@ std::string space_before_string(char const *text)
 	return "";
 }
 
+namespace
+{
+
+std::string diag_armor_type_to_char(const OBJ_DATA *obj)
+{
+	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR_LIGHT)
+	{
+		return "Легкий тип доспехов.\r\n";
+	}
+	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR_MEDIAN)
+	{
+		return "Средний тип доспехов.\r\n";
+	}
+	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR_HEAVY)
+	{
+		return "Тяжелый тип доспехов.\r\n";
+	}
+	return "";
+}
+
+} // namespace
+
 // mode 1 show_state 3 для хранилище (4 - хранилище ингров)
 const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how)
 {
@@ -535,6 +557,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 	if (mode >= 5)
 	{
 		strcat(buf, diag_weapon_to_char(object, TRUE));
+		strcat(buf, diag_armor_type_to_char(object).c_str());
 		strcat(buf, diag_timer_to_char(object));
 		strcat(buf, diag_uses_to_char(object, ch));
 		strcat(buf, object->timed_spell.diag_to_char(ch).c_str());

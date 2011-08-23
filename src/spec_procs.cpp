@@ -2016,7 +2016,7 @@ void npc_armor(CHAR_DATA * ch)
 	for (obj = ch->carrying; obj; obj = next)
 	{
 		next = obj->next_content;
-		if (GET_OBJ_TYPE(obj) != ITEM_ARMOR)
+		if (!ObjSystem::is_armor_type(obj))
 			continue;
 		if (CAN_WEAR(obj, ITEM_WEAR_FINGER))
 			where = WEAR_FINGER_R;
@@ -2119,7 +2119,7 @@ int npc_battle_scavenge(CHAR_DATA * ch)
 		{
 			next_obj = obj->next_content;
 			if (CAN_GET_OBJ(ch, obj) &&
-					!has_curse(obj) && (GET_OBJ_TYPE(obj) == ITEM_ARMOR || GET_OBJ_TYPE(obj) == ITEM_WEAPON))
+					!has_curse(obj) && (ObjSystem::is_armor_type(obj) || GET_OBJ_TYPE(obj) == ITEM_WEAPON))
 			{
 				obj_from_room(obj);
 				obj_to_char(obj, ch);

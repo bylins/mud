@@ -107,6 +107,9 @@ using std::bitset;
 #define STRENGTH_CONCETRATION_FEAT	88 // концентрация силы
 #define DARK_READING_FEAT		89 // кошачий глаз зы. Копи паст рулит!
 #define SPELL_CAPABLE_FEAT		90 // зачаровать
+#define ARMOR_LIGHT_FEAT		91 // ношение легкого типа доспехов
+#define ARMOR_MEDIAN_FEAT		92 // ношение среднего типа доспехов
+#define ARMOR_HEAVY_FEAT		93 // ношение тяжелого типа доспехов
 
 /*
 #define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух

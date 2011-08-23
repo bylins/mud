@@ -478,6 +478,12 @@ void assign_feats(void)
 	feato(DARK_READING_FEAT, "кошачий глаз", NORMAL_FTYPE, TRUE, feat_app);
 //90
 	feato(SPELL_CAPABLE_FEAT, "зачаровать", NORMAL_FTYPE, TRUE, feat_app);
+//91
+	feato(ARMOR_LIGHT_FEAT, "легкие доспехи", NORMAL_FTYPE, TRUE, feat_app);
+//92
+	feato(ARMOR_MEDIAN_FEAT, "средние доспехи", NORMAL_FTYPE, TRUE, feat_app);
+//93
+	feato(ARMOR_HEAVY_FEAT, "тяжелые доспехи", NORMAL_FTYPE, TRUE, feat_app);
 	/*
 	//
 		feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);

@@ -2125,6 +2125,9 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 		break;
 	case ITEM_ARMOR:
+	case ITEM_ARMOR_LIGHT:
+	case ITEM_ARMOR_MEDIAN:
+	case ITEM_ARMOR_HEAVY:
 		// Считаем + АС
 		GET_OBJ_VAL(obj, 0) = stat_modify(ch, GET_OBJ_VAL(obj, 0), 1);
 

@@ -371,4 +371,11 @@ private:
 	int mort_req_;
 };
 
+namespace ObjSystem
+{
+
+bool is_armor_type(const OBJ_DATA *obj);
+
+} // namespace ObjSystem
+
 #endif // OBJ_HPP_INCLUDED

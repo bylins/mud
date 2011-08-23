@@ -919,6 +919,9 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 		send_to_char("Модификатор попадания : ", d->character);
 		break;
 	case ITEM_ARMOR:
+	case ITEM_ARMOR_LIGHT:
+	case ITEM_ARMOR_MEDIAN:
+	case ITEM_ARMOR_HEAVY:
 		send_to_char("Изменяет АС на : ", d->character);
 		break;
 	case ITEM_CONTAINER:
@@ -988,6 +991,9 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 		send_to_char("Количество бросков кубика : ", d->character);
 		break;
 	case ITEM_ARMOR:
+	case ITEM_ARMOR_LIGHT:
+	case ITEM_ARMOR_MEDIAN:
+	case ITEM_ARMOR_HEAVY:
 		send_to_char("Изменяет броню на : ", d->character);
 		break;
 	case ITEM_FOOD:

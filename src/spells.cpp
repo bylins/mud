@@ -1361,6 +1361,9 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		send_to_char(buf, ch);
 		break;
 	case ITEM_ARMOR:
+	case ITEM_ARMOR_LIGHT:
+	case ITEM_ARMOR_MEDIAN:
+	case ITEM_ARMOR_HEAVY:
 		drndice = GET_OBJ_VAL(obj, 0);
 		drsdice = GET_OBJ_VAL(obj, 1);
 		sprintf(buf, "защита (AC) : %d\r\n", drndice);
@@ -1728,6 +1731,9 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 		send_to_char(buf, ch);
 		break;
 	case ITEM_ARMOR:
+	case ITEM_ARMOR_LIGHT:
+	case ITEM_ARMOR_MEDIAN:
+	case ITEM_ARMOR_HEAVY:
 		sprintf(buf, "защита (AC) : %d\r\n", GET_OBJ_VAL(obj, 0));
 		send_to_char(buf, ch);
 		sprintf(buf, "броня       : %d\r\n", GET_OBJ_VAL(obj, 1));

@@ -264,7 +264,7 @@ int check_awake(CHAR_DATA * ch, int what)
 					GET_OBJ_TYPE(GET_EQ(ch, i)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, i), 2))
 				SET_BIT(retval, ACHECK_LIGHT);
 
-			if (GET_OBJ_TYPE(GET_EQ(ch, i)) == ITEM_ARMOR && GET_OBJ_MATER(GET_EQ(ch, i)) <= MAT_COLOR)
+			if (ObjSystem::is_armor_type(GET_EQ(ch, i)) && GET_OBJ_MATER(GET_EQ(ch, i)) <= MAT_COLOR)
 				wgt += GET_OBJ_WEIGHT(GET_EQ(ch, i));
 		}
 

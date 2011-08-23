@@ -4224,6 +4224,12 @@ ACMD(DoStoreHouse)
 				filter.type = ITEM_INGRADIENT;
 			else if (is_abbrev(tmpbuf, "ингредиент") || is_abbrev(tmpbuf, "ingradient"))
 				filter.type = ITEM_MING;
+			else if (is_abbrev(tmpbuf, "легкие") || is_abbrev(tmpbuf, "легкая"))
+				filter.type = ITEM_ARMOR_LIGHT;
+			else if (is_abbrev(tmpbuf, "средние") || is_abbrev(tmpbuf, "средняя"))
+				filter.type = ITEM_ARMOR_MEDIAN;
+			else if (is_abbrev(tmpbuf, "тяжелые") || is_abbrev(tmpbuf, "тяжелая"))
+				filter.type = ITEM_ARMOR_HEAVY;
 			else
 			{
 				send_to_char("Неверный тип предмета.\r\n", ch);

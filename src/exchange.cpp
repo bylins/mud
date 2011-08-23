@@ -97,13 +97,14 @@ char info_message[] = ("базар выставить <предмет> <цена>        - выставить пред
 					   "базар предложения мои <предмет>         - мои предложения\r\n"
 					   "базар предложения руны <предмет>        - предложения рун\r\n"
 					   "базар предложения броня <предмет>       - предложения одежды и брони\r\n"
+					   "базар предложения легкие <предмет>      - предложения легких доспехов\r\n"
+					   "базар предложения средние <предмет>     - предложения средних доспехов\r\n"
+					   "базар предложения тяжелые <предмет>     - предложения тяжелых доспехов\r\n"
 					   "базар предложения оружие <предмет>      - предложения оружия\r\n"
 					   "базар предложения книги <предмет>       - предложения книг\r\n"
 					   "базар предложения ингредиенты <предмет> - предложения ингредиентов\r\n"
 					   "базар предложения прочие <предмет>      - прочие предложения\r\n"
 					   "базар фильтрация <фильтр>               - фильтрация товара на базаре\r\n");
-
-
 
 SPECIAL(exchange)
 {
@@ -887,6 +888,45 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 		if ((*arg2) && (*arg2 != '*'))
 		{
 			sprintf(filter, "%s И%s", filter, arg2);
+		}
+	}
+	else if (is_abbrev(arg1, "легкие") || is_abbrev(arg1, "легкая"))
+	{
+		show_type = 8;
+		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
+		{
+			sprintf(filter, "%s И%s", filter, arg2);
+		}
+		if (*multifilter)
+		{
+			strcat(filter, " О");
+			strcat(filter, multifilter);
+		}
+	}
+	else if (is_abbrev(arg1, "средние") || is_abbrev(arg1, "средняя"))
+	{
+		show_type = 9;
+		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
+		{
+			sprintf(filter, "%s И%s", filter, arg2);
+		}
+		if (*multifilter)
+		{
+			strcat(filter, " О");
+			strcat(filter, multifilter);
+		}
+	}
+	else if (is_abbrev(arg1, "тяжелые") || is_abbrev(arg1, "тяжелая"))
+	{
+		show_type = 10;
+		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
+		{
+			sprintf(filter, "%s И%s", filter, arg2);
+		}
+		if (*multifilter)
+		{
+			strcat(filter, " О");
+			strcat(filter, multifilter);
 		}
 	}
 
@@ -1752,6 +1792,9 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 	5 - книги
 	6 - ингры
 	7 - прочее
+	8 - легкие доспехи
+	9 - средние доспехи
+	10 - тяжелые доспехи
 	*/
 	char tmpbuf[MAX_INPUT_LENGTH];
 	bool any_item = 0;
@@ -1796,10 +1839,15 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 						|| (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) >= 200 && GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) <= 299)))
 
 				|| ((show_type == 7) && ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_INGRADIENT)
-										 || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_ARMOR)
+										 || ObjSystem::is_armor_type(GET_EXCHANGE_ITEM(j))
 										 || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_WEAPON)
 										 || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_BOOK)
-										 || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_MING))))
+										 || (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) == ITEM_MING)))
+
+				|| ((show_type == 8) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_LIGHT))
+				|| ((show_type == 9) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_MEDIAN))
+				|| ((show_type == 10) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_HEAVY))
+			)
 			continue;
 
 		// ну идиотизм сидеть статить 5-10 страниц резных
@@ -1913,6 +1961,12 @@ int parse_exch_filter(char *buf, char *filter_name, char *filter_owner, int *fil
 				*filter_type = ITEM_INGRADIENT;
 			else if (is_abbrev(tmpbuf, "ингредиент") || is_abbrev(tmpbuf, "ingradient"))
 				*filter_type = ITEM_MING;
+			else if (is_abbrev(tmpbuf, "легкие") || is_abbrev(tmpbuf, "легкая"))
+				*filter_type = ITEM_ARMOR_LIGHT;
+			else if (is_abbrev(tmpbuf, "средние") || is_abbrev(tmpbuf, "средняя"))
+				*filter_type = ITEM_ARMOR_MEDIAN;
+			else if (is_abbrev(tmpbuf, "тяжелые") || is_abbrev(tmpbuf, "тяжелая"))
+				*filter_type = ITEM_ARMOR_HEAVY;
 			else
 				return 0;
 			break;

@@ -1347,6 +1347,9 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 				GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 3));
 		break;
 	case ITEM_ARMOR:
+	case ITEM_ARMOR_LIGHT:
+	case ITEM_ARMOR_MEDIAN:
+	case ITEM_ARMOR_HEAVY:
 		sprintf(buf, "AC: [%d]  Броня: [%d]", GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1));
 		break;
 	case ITEM_TRAP:

@@ -218,3 +218,21 @@ void obj_data::set_mort_req(int param)
 {
 	mort_req_ = MAX(0, param);
 }
+
+namespace ObjSystem
+{
+
+bool is_armor_type(const OBJ_DATA *obj)
+{
+	switch GET_OBJ_TYPE(obj)
+	{
+	case ITEM_ARMOR:
+	case ITEM_ARMOR_LIGHT:
+	case ITEM_ARMOR_MEDIAN:
+	case ITEM_ARMOR_HEAVY:
+		return true;
+	}
+	return false;
+}
+
+} // namespace ObjSystem

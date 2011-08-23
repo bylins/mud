@@ -579,7 +579,7 @@ void affect_total(CHAR_DATA * ch)
 	{
 		if ((obj = GET_EQ(ch, i)))
 		{
-			if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
+			if (ObjSystem::is_armor_type(obj))
 			{
 				GET_AC_ADD(ch) -= apply_ac(ch, i);
 				GET_ARMOUR(ch) += apply_armour(ch, i);
@@ -1481,8 +1481,10 @@ int apply_ac(CHAR_DATA * ch, int eq_pos)
 		return (0);
 	}
 
-	if (!(GET_OBJ_TYPE(GET_EQ(ch, eq_pos)) == ITEM_ARMOR))
+	if (!ObjSystem::is_armor_type(GET_EQ(ch, eq_pos)))
+	{
 		return (0);
+	}
 
 	switch (eq_pos)
 	{
@@ -1518,7 +1520,7 @@ int apply_armour(CHAR_DATA * ch, int eq_pos)
 		return (0);
 	}
 
-	if (!(GET_OBJ_TYPE(obj) == ITEM_ARMOR))
+	if (!ObjSystem::is_armor_type(obj))
 		return (0);
 
 	switch (eq_pos)
@@ -1750,6 +1752,29 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 		return set_obj_qty;
 }
 
+bool check_armor_type(CHAR_DATA *ch, OBJ_DATA *obj)
+{
+	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR_LIGHT && !can_use_feat(ch, ARMOR_LIGHT_FEAT))
+	{
+		act("Для использования $o1 требуется способность носить легкие доспехи.",
+				FALSE, ch, obj, 0, TO_CHAR);
+		return false;
+	}
+	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR_MEDIAN && !can_use_feat(ch, ARMOR_MEDIAN_FEAT))
+	{
+		act("Для использования $o1 требуется способность носить средние доспехи.",
+				FALSE, ch, obj, 0, TO_CHAR);
+		return false;
+	}
+	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR_HEAVY && !can_use_feat(ch, ARMOR_HEAVY_FEAT))
+	{
+		act("Для использования $o1 требуется способность носить тяжелые доспехи.",
+				FALSE, ch, obj, 0, TO_CHAR);
+		return false;
+	}
+	return true;
+}
+
 //  0x40 - no spell casting
 //  0x80 - no total affect update
 // 0x100 - show wear and activation messages
@@ -1816,8 +1841,19 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	if (obj->get_mort_req() > GET_REMORT(ch))
 	{
 		send_to_char(ch, "Для использования %s требуется %d %s.\r\n",
-				GET_OBJ_PNAME(obj, 1), obj->get_mort_req(), desc_count(obj->get_mort_req(), WHAT_REMORT));
-		act("$n попытал$u надеть $o3, но у н$s ничего не получилось.", FALSE, ch, obj, 0, TO_ROOM);
+				GET_OBJ_PNAME(obj, 1), obj->get_mort_req(),
+				desc_count(obj->get_mort_req(), WHAT_REMORT));
+		act("$n попытал$u надеть $o3, но у н$s ничего не получилось.",
+				FALSE, ch, obj, 0, TO_ROOM);
+		if (!obj->carried_by)
+			obj_to_char(obj, ch);
+		return;
+	}
+
+	if (!check_armor_type(ch, obj))
+	{
+		act("$n попытал$u надеть $o3, но у н$s ничего не получилось.",
+				FALSE, ch, obj, 0, TO_ROOM);
 		if (!obj->carried_by)
 			obj_to_char(obj, ch);
 		return;
@@ -4052,9 +4088,12 @@ int equip_in_metall(CHAR_DATA * ch)
 
 	for (i = 0; i < NUM_WEARS; i++)
 	{
-		if (GET_EQ(ch, i) &&
-				GET_OBJ_TYPE(GET_EQ(ch, i)) == ITEM_ARMOR && GET_OBJ_MATER(GET_EQ(ch, i)) <= MAT_COLOR)
+		if (GET_EQ(ch, i)
+			&& ObjSystem::is_armor_type(GET_EQ(ch, i))
+			&& GET_OBJ_MATER(GET_EQ(ch, i)) <= MAT_COLOR)
+		{
 			wgt += GET_OBJ_WEIGHT(GET_EQ(ch, i));
+		}
 	}
 
 	if (wgt > GET_REAL_STR(ch))
