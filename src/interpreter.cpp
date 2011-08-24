@@ -332,6 +332,7 @@ ACMD(do_turn_undead);
 ACMD(do_iron_wind);
 ACMD(do_exchange);
 ACMD(do_godtest);
+ACMD(do_print_armor);
 
 /* DG Script ACMD's */
 ACMD(do_attach);
@@ -1039,6 +1040,7 @@ cpp_extern const struct command_info cmd_info[] =
 
 	/* test command for gods */
 	{"godtest", POS_DEAD, do_godtest, LVL_IMPL, 0, 0},
+	{"armor", POS_DEAD, do_print_armor, LVL_IMPL, 0, 0},
 
 	/* Команды крафтинга - для тестига пока уровня имма */
 	{"mrlist", POS_DEAD, do_list_make, LVL_BUILDER, 0, 0},

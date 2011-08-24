@@ -5477,3 +5477,150 @@ ACMD(do_godtest)
 	}
 	send_to_char(buf, ch);
 }
+
+namespace
+{
+
+struct filter_type
+{
+	filter_type() : type(-1), wear(-1), wear_message(-1) {};
+
+	int type;              // тип
+	int wear;              // куда одевается
+	int wear_message;      // для названия куда одеть
+};
+
+} // namespace
+
+/**
+ *
+ */
+ACMD(do_print_armor)
+{
+	if (IS_NPC(ch) || !IS_GRGOD(ch))
+	{
+		send_to_char("Чаво ?\r\n", ch);
+		return;
+	}
+
+	filter_type filter;
+	char tmpbuf[MAX_INPUT_LENGTH];
+	bool find_param = false;
+	while (*argument)
+	{
+		switch (*argument)
+		{
+		case 'Т':
+			argument = one_argument(++argument, tmpbuf);
+			if (is_abbrev(tmpbuf, "броня") || is_abbrev(tmpbuf, "armor"))
+				filter.type = ITEM_ARMOR;
+			else if (is_abbrev(tmpbuf, "легкие") || is_abbrev(tmpbuf, "легкая"))
+				filter.type = ITEM_ARMOR_LIGHT;
+			else if (is_abbrev(tmpbuf, "средние") || is_abbrev(tmpbuf, "средняя"))
+				filter.type = ITEM_ARMOR_MEDIAN;
+			else if (is_abbrev(tmpbuf, "тяжелые") || is_abbrev(tmpbuf, "тяжелая"))
+				filter.type = ITEM_ARMOR_HEAVY;
+			else
+			{
+				send_to_char("Неверный тип предмета.\r\n", ch);
+				return;
+			}
+			find_param = true;
+			break;
+		case 'О':
+			argument = one_argument(++argument, tmpbuf);
+			if (is_abbrev(tmpbuf, "тело"))
+			{
+				filter.wear = ITEM_WEAR_BODY;
+				filter.wear_message = 3;
+			}
+			else if (is_abbrev(tmpbuf, "голова"))
+			{
+				filter.wear = ITEM_WEAR_HEAD;
+				filter.wear_message = 4;
+			}
+			else if (is_abbrev(tmpbuf, "ноги"))
+			{
+				filter.wear = ITEM_WEAR_LEGS;
+				filter.wear_message = 5;
+			}
+			else if (is_abbrev(tmpbuf, "ступни"))
+			{
+				filter.wear = ITEM_WEAR_FEET;
+				filter.wear_message = 6;
+			}
+			else if (is_abbrev(tmpbuf, "кисти"))
+			{
+				filter.wear = ITEM_WEAR_HANDS;
+				filter.wear_message = 7;
+			}
+			else if (is_abbrev(tmpbuf, "руки"))
+			{
+				filter.wear = ITEM_WEAR_ARMS;
+				filter.wear_message = 8;
+			}
+			else
+			{
+				send_to_char("Неверное место одевания предмета.\r\n", ch);
+				return;
+			}
+			find_param = true;
+			break;
+		default:
+			++argument;
+		}
+	}
+	if (!find_param)
+	{
+		send_to_char("Формат команды: armor Т[броня|легкие|средние|тяжелые] О[тело|голова|ногиступни|кисти|руки]\r\n", ch);
+		return;
+	}
+	std::string buffer = "Выборка по следующим параметрам: ";
+	if (filter.type >= 0)
+	{
+		buffer += item_types[filter.type];
+		buffer += " ";
+	}
+	if (filter.wear >= 0)
+	{
+		buffer += wear_bits[filter.wear_message];
+		buffer += " ";
+	}
+	buffer += "\r\nСредний уровень мобов в зоне | внум предмета | имя предмета\r\n\r\n";
+	send_to_char(buffer, ch);
+
+	std::multimap<int /* zone lvl */, int /* obj rnum */> tmp_list;
+	for (std::vector <OBJ_DATA *>::iterator i = obj_proto.begin(), iend = obj_proto.end(); i != iend; ++i)
+	{
+		// тип
+		if (filter.type >= 0 && filter.type != GET_OBJ_TYPE(*i))
+		{
+			continue;
+		}
+		// куда можно одеть
+		if (filter.wear >= 0 && !CAN_WEAR(*i, filter.wear))
+		{
+			continue;
+		}
+		int vnum = GET_OBJ_VNUM(*i)/100;
+		for (int nr = 0; nr <= top_of_zone_table; nr++)
+		{
+			if (vnum == zone_table[nr].number)
+			{
+				tmp_list.insert(std::make_pair(zone_table[nr].mob_level, GET_OBJ_RNUM(*i)));
+			}
+		}
+	}
+	std::ostringstream out;
+	for (std::multimap<int, int>::const_reverse_iterator i = tmp_list.rbegin(), iend = tmp_list.rend(); i != iend; ++i)
+	{
+		out << "   "
+			<< std::setw(2) << i->first << " | "
+			<< std::setw(7) << GET_OBJ_VNUM(obj_proto[i->second]) << " | "
+			<< GET_OBJ_PNAME(obj_proto[i->second], 0) << "\r\n";
+	}
+	if (!out.str().empty())
+		page_string(ch->desc, out.str(), TRUE);
+	else
+		send_to_char("Ничего не найдено.\r\n", ch);
+}
