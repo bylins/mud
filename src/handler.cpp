@@ -1764,19 +1764,19 @@ bool check_armor_type(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR_LIGHT && !can_use_feat(ch, ARMOR_LIGHT_FEAT))
 	{
-		act("Для использования $o1 требуется способность носить легкие доспехи.",
+		act("Для использования $o1 требуется способность 'легкие доспехи'.",
 				FALSE, ch, obj, 0, TO_CHAR);
 		return false;
 	}
 	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR_MEDIAN && !can_use_feat(ch, ARMOR_MEDIAN_FEAT))
 	{
-		act("Для использования $o1 требуется способность носить средние доспехи.",
+		act("Для использования $o1 требуется способность 'средние доспехи'.",
 				FALSE, ch, obj, 0, TO_CHAR);
 		return false;
 	}
 	if (GET_OBJ_TYPE(obj) == ITEM_ARMOR_HEAVY && !can_use_feat(ch, ARMOR_HEAVY_FEAT))
 	{
-		act("Для использования $o1 требуется способность носить тяжелые доспехи.",
+		act("Для использования $o1 требуется способность 'тяжелые доспехи'.",
 				FALSE, ch, obj, 0, TO_CHAR);
 		return false;
 	}
