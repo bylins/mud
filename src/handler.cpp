@@ -1846,19 +1846,23 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		return;
 	}
 
-	if (obj->get_mort_req() > GET_REMORT(ch))
+	if (!IS_NPC(ch) || IS_CHARMICE(ch))
 	{
-		send_to_char(ch, "Для использования %s требуется %d %s.\r\n",
-				GET_OBJ_PNAME(obj, 1), obj->get_mort_req(),
-				desc_count(obj->get_mort_req(), WHAT_REMORT));
-		act("$n попытал$u надеть $o3, но у н$s ничего не получилось.",
-				FALSE, ch, obj, 0, TO_ROOM);
-		if (!obj->carried_by)
-			obj_to_char(obj, ch);
-		return;
+		int rem = IS_CHARMICE(ch) && ch->master ? GET_REMORT(ch->master) : GET_REMORT(ch);
+		if (obj->get_mort_req() > rem)
+		{
+			send_to_char(ch, "Для использования %s требуется %d %s.\r\n",
+					GET_OBJ_PNAME(obj, 1), obj->get_mort_req(),
+					desc_count(obj->get_mort_req(), WHAT_REMORT));
+			act("$n попытал$u надеть $o3, но у н$s ничего не получилось.",
+					FALSE, ch, obj, 0, TO_ROOM);
+			if (!obj->carried_by)
+				obj_to_char(obj, ch);
+			return;
+		}
 	}
 
-	if (!check_armor_type(ch, obj))
+	if (!IS_NPC(ch) && !check_armor_type(ch, obj))
 	{
 		act("$n попытал$u надеть $o3, но у н$s ничего не получилось.",
 				FALSE, ch, obj, 0, TO_ROOM);
