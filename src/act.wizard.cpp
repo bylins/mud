@@ -95,8 +95,8 @@ extern void disagree_name(CHAR_DATA * d, const char *immname, int immlev);
 /* privileges class */
 extern int reboot_uptime;
 extern BanList *ban;
-
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
+extern bool CompareBits(FLAG_DATA flags, const char *names[], int affect);
 
 /* extern functions */
 int level_exp(CHAR_DATA * ch, int level);
@@ -5483,11 +5483,22 @@ namespace
 
 struct filter_type
 {
-	filter_type() : type(-1), wear(-1), wear_message(-1) {};
+	filter_type() : type(-1), wear(-1), wear_message(-1), material(-1) {};
 
-	int type;              // тип
-	int wear;              // куда одевается
-	int wear_message;      // для названия куда одеть
+	// тип
+	int type;
+	// куда одевается
+	int wear;
+	// для названия куда одеть
+	int wear_message;
+	// материал
+	int material;
+	// аффекты weap
+	vector<int> affect;
+	// аффекты apply
+	vector<int> affect2;
+	// экстрафлаг
+	vector<int> affect3;
 };
 
 } // namespace
@@ -5510,6 +5521,51 @@ ACMD(do_print_armor)
 	{
 		switch (*argument)
 		{
+		case 'М':
+			argument = one_argument(++argument, tmpbuf);
+			if (is_abbrev(tmpbuf, "булат"))
+				filter.material = MAT_BULAT;
+			else if (is_abbrev(tmpbuf, "бронза"))
+				filter.material = MAT_BRONZE;
+			else if (is_abbrev(tmpbuf, "железо"))
+				filter.material = MAT_IRON;
+			else if (is_abbrev(tmpbuf, "сталь"))
+				filter.material = MAT_STEEL;
+			else if (is_abbrev(tmpbuf, "кованая.сталь"))
+				filter.material = MAT_SWORDSSTEEL;
+			else if (is_abbrev(tmpbuf, "драг.металл"))
+				filter.material = MAT_COLOR;
+			else if (is_abbrev(tmpbuf, "кристалл"))
+				filter.material = MAT_CRYSTALL;
+			else if (is_abbrev(tmpbuf, "дерево"))
+				filter.material = MAT_WOOD;
+			else if (is_abbrev(tmpbuf, "прочное.дерево"))
+				filter.material = MAT_SUPERWOOD;
+			else if (is_abbrev(tmpbuf, "керамика"))
+				filter.material = MAT_FARFOR;
+			else if (is_abbrev(tmpbuf, "стекло"))
+				filter.material = MAT_GLASS;
+			else if (is_abbrev(tmpbuf, "камень"))
+				filter.material = MAT_ROCK;
+			else if (is_abbrev(tmpbuf, "кость"))
+				filter.material = MAT_BONE;
+			else if (is_abbrev(tmpbuf, "ткань"))
+				filter.material = MAT_MATERIA;
+			else if (is_abbrev(tmpbuf, "кожа"))
+				filter.material = MAT_SKIN;
+			else if (is_abbrev(tmpbuf, "органика"))
+				filter.material = MAT_ORGANIC;
+			else if (is_abbrev(tmpbuf, "береста"))
+				filter.material = MAT_PAPER;
+			else if (is_abbrev(tmpbuf, "драг.камень"))
+				filter.material = MAT_DIAMOND;
+			else
+			{
+				send_to_char("Неверный материал предмета.\r\n", ch);
+				return;
+			}
+			find_param = true;
+			break;
 		case 'Т':
 			argument = one_argument(++argument, tmpbuf);
 			if (is_abbrev(tmpbuf, "броня") || is_abbrev(tmpbuf, "armor"))
@@ -5566,6 +5622,103 @@ ACMD(do_print_armor)
 			}
 			find_param = true;
 			break;
+		case 'А':
+		{
+			bool tmp_find = false;
+			argument = one_argument(++argument, tmpbuf);
+			if (!strlen(tmpbuf))
+			{
+				send_to_char("Неверный аффект предмета.\r\n", ch);
+				return;
+			}
+			if (filter.affect.size() + filter.affect2.size() + filter.affect3.size() >= 3)
+			{
+				break;
+			}
+			switch (*tmpbuf)
+			{
+				case '1':
+					sprintf(tmpbuf, "можно вплавить 1 камень");
+				break;
+				case '2':
+					sprintf(tmpbuf, "можно вплавить 2 камня");
+				break;
+				case '3':
+					sprintf(tmpbuf, "можно вплавить 3 камня");
+				break;
+				default:
+				break;
+			}
+			lower_convert(tmpbuf);
+			unsigned int len = strlen(tmpbuf);
+			int num = 0;
+
+			for (int flag = 0; flag < 4; ++flag)
+			{
+				for (/* тут ничего не надо */; *weapon_affects[num] != '\n'; ++num)
+				{
+					if (strlen(weapon_affects[num]) < len)
+						continue;
+					if (!strncmp(weapon_affects[num], tmpbuf, len))
+					{
+						filter.affect.push_back(num);
+						tmp_find = true;
+						break;
+					}
+				}
+				if (tmp_find)
+				{
+					break;
+				}
+				++num;
+			}
+			if (!tmp_find)
+			{
+				for (num = 0; *apply_types[num] != '\n'; ++num)
+				{
+					if (strlen(apply_types[num]) < len)
+						continue;
+					if (!strncmp(apply_types[num], tmpbuf, len))
+					{
+						filter.affect2.push_back(num);
+						tmp_find = true;
+						break;
+					}
+				}
+			}
+			// поиск по экстрафлагу
+			if (!tmp_find)
+			{
+				num = 0;
+				for (int flag = 0; flag < 4; ++flag)
+				{
+					for (/* тут ничего не надо */; *extra_bits[num] != '\n'; ++num)
+					{
+						if (strlen(extra_bits[num]) < len)
+							continue;
+						if (!strncmp(extra_bits[num], tmpbuf, len))
+						{
+							filter.affect3.push_back(num);
+							tmp_find = true;
+							break;
+						}
+					}
+					if (tmp_find)
+					{
+						break;
+					}
+					num++;
+				}
+			}
+			if (!tmp_find)
+			{
+				sprintf(buf,"Неверный аффект предмета: '%s'.\r\n", tmpbuf);
+				send_to_char(buf, ch);
+				return;
+			}
+			find_param = true;
+			break;
+		}
 		default:
 			++argument;
 		}
@@ -5576,6 +5729,11 @@ ACMD(do_print_armor)
 		return;
 	}
 	std::string buffer = "Выборка по следующим параметрам: ";
+	if (filter.material >= 0)
+	{
+		buffer += material_name[filter.material];
+		buffer += " ";
+	}
 	if (filter.type >= 0)
 	{
 		buffer += item_types[filter.type];
@@ -5586,12 +5744,41 @@ ACMD(do_print_armor)
 		buffer += wear_bits[filter.wear_message];
 		buffer += " ";
 	}
-	buffer += "\r\nСредний уровень мобов в зоне | внум предмета  | материал | имя предмета + аффекты если есть\r\n\r\n";
+	if (!filter.affect.empty())
+	{
+		for (vector<int>::const_iterator it = filter.affect.begin(); it != filter.affect.end(); ++it)
+		{
+			buffer += weapon_affects[*it];
+			buffer += " ";
+		}
+	}
+	if (!filter.affect2.empty())
+	{
+		for (vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end(); ++it)
+		{
+			buffer += apply_types[*it];
+			buffer += " ";
+		}
+	}
+	if (!filter.affect3.empty())
+	{
+		for (vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end(); ++it)
+		{
+			buffer += extra_bits[*it];
+			buffer += " ";
+		}
+	}
+	buffer += "\r\nСредний уровень мобов в зоне | внум предмета  | материал | имя предмета + аффекты если есть\r\n";
 	send_to_char(buffer, ch);
 
 	std::multimap<int /* zone lvl */, int /* obj rnum */> tmp_list;
 	for (std::vector <OBJ_DATA *>::iterator i = obj_proto.begin(), iend = obj_proto.end(); i != iend; ++i)
 	{
+		// материал
+		if (filter.material >= 0 && filter.material != GET_OBJ_MATER(*i))
+		{
+			continue;
+		}
 		// тип
 		if (filter.type >= 0 && filter.type != GET_OBJ_TYPE(*i))
 		{
@@ -5602,12 +5789,71 @@ ACMD(do_print_armor)
 		{
 			continue;
 		}
-		int vnum = GET_OBJ_VNUM(*i)/100;
-		for (int nr = 0; nr <= top_of_zone_table; nr++)
+		// аффекты
+		bool find = true;
+		if (!filter.affect.empty())
 		{
-			if (vnum == zone_table[nr].number)
+			for (vector<int>::const_iterator it = filter.affect.begin(); it != filter.affect.end(); ++it)
 			{
-				tmp_list.insert(std::make_pair(zone_table[nr].mob_level, GET_OBJ_RNUM(*i)));
+				if (!CompareBits((*i)->obj_flags.affects, weapon_affects, *it))
+				{
+					find = false;
+					break;
+				}
+			}
+			// аффект не найден, продолжать смысла нет
+			if (!find)
+			{
+				continue;
+			}
+		}
+
+		if (!filter.affect2.empty())
+		{
+			for (vector<int>::const_iterator it = filter.affect2.begin(); it != filter.affect2.end() && find; ++it)
+			{
+				find = false;
+				for (int k = 0; k < MAX_OBJ_AFFECT; ++k)
+				{
+					if ((*i)->affected[k].location == *it)
+					{
+						find = true;
+						break;
+					}
+				}
+			}
+			// доп.свойство не найдено, продолжать смысла нет
+			if (!find)
+			{
+				continue;
+			}
+		}
+		if (!filter.affect3.empty())
+		{
+			for (vector<int>::const_iterator it = filter.affect3.begin(); it != filter.affect3.end() && find; ++it)
+			{
+				//find = true;
+				if (!CompareBits((*i)->obj_flags.extra_flags, extra_bits, *it))
+				{
+					find = false;
+					break;
+				}
+			}
+			// экстрафлаг не найден, продолжать смысла нет
+			if (!find)
+			{
+				continue;
+			}
+		}
+		if (find)
+		{
+			int vnum = GET_OBJ_VNUM(*i)/100;
+			for (int nr = 0; nr <= top_of_zone_table; nr++)
+			{
+				if (vnum == zone_table[nr].number)
+				{
+					tmp_list.insert(std::make_pair(zone_table[nr].mob_level, GET_OBJ_RNUM(*i)));
+				}
 			}
 		}
 	}
@@ -5662,7 +5908,12 @@ ACMD(do_print_armor)
 		}
 	}
 	if (!out.str().empty())
+	{
+		send_to_char(ch, "Всего найдено предметов: %d\r\n\r\n", tmp_list.size());
 		page_string(ch->desc, out.str(), TRUE);
+	}
 	else
+	{
 		send_to_char("Ничего не найдено.\r\n", ch);
+	}
 }
