@@ -2602,16 +2602,20 @@ int str_bonus(int str, int type)
 		{
 			bonus = str;
 		}
+		else if (str < 30)
+		{
+			bonus = 20 + (str - 20) / 2;
+		}
 		else
 		{
-			bonus = 20 + (str - 20) / 3;
+			bonus = 25 + (str - 30) / 4;
 		}
 		break;
 	case STR_HOLD_W:
 		// 0 ... 20
 		if (str <= 29)
 		{
-			bonus = str / 2;
+			bonus = (str + 1) / 2;
 		}
 		else
 		{
@@ -2700,6 +2704,8 @@ int calc_str_req(int weight, int type)
 
 void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 {
+	return;
+
 	int need_str = 0;
 	switch (type)
 	{
