@@ -72,6 +72,7 @@ extern struct weapon_affect_types weapon_affect[];
 extern int mana[];
 extern int mana_gain_cs[];
 extern int mana_cost_cs[][9];
+extern const char *material_name[];
 
 //MZ.load
 extern struct zone_type * zone_types;

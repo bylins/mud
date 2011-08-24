@@ -5586,7 +5586,7 @@ ACMD(do_print_armor)
 		buffer += wear_bits[filter.wear_message];
 		buffer += " ";
 	}
-	buffer += "\r\nСредний уровень мобов в зоне | внум предмета | имя предмета\r\n\r\n";
+	buffer += "\r\nСредний уровень мобов в зоне | внум предмета  | материал | имя предмета + аффекты если есть\r\n\r\n";
 	send_to_char(buffer, ch);
 
 	std::multimap<int /* zone lvl */, int /* obj rnum */> tmp_list;
@@ -5614,10 +5614,52 @@ ACMD(do_print_armor)
 	std::ostringstream out;
 	for (std::multimap<int, int>::const_reverse_iterator i = tmp_list.rbegin(), iend = tmp_list.rend(); i != iend; ++i)
 	{
+		const OBJ_DATA *obj = obj_proto[i->second];
 		out << "   "
 			<< std::setw(2) << i->first << " | "
-			<< std::setw(7) << GET_OBJ_VNUM(obj_proto[i->second]) << " | "
-			<< GET_OBJ_PNAME(obj_proto[i->second], 0) << "\r\n";
+			<< std::setw(7) << GET_OBJ_VNUM(obj) << " | "
+			<< std::setw(14) << material_name[GET_OBJ_MATER(obj)] << " | "
+			<< GET_OBJ_PNAME(obj, 0) << "\r\n";
+
+		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+		{
+			int drndice = obj->affected[i].location;
+			int drsdice = obj->affected[i].modifier;
+			if (drndice == APPLY_NONE || !drsdice)
+			{
+				continue;
+			}
+			sprinttype(drndice, apply_types, buf2);
+			bool negative = false;
+			for (int j = 0; *apply_negative[j] != '\n'; j++)
+			{
+				if (!str_cmp(buf2, apply_negative[j]))
+				{
+					negative = true;
+					break;
+				}
+			}
+			switch (negative)
+			{
+			case false:
+				if (obj->affected[i].modifier < 0)
+				{
+					negative = true;
+				}
+				break;
+			case true:
+				if (obj->affected[i].modifier < 0)
+				{
+					negative = false;
+				}
+				break;
+			}
+			sprintf(buf, "   %s%s%s%s%s%d%s\r\n",
+					CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
+					CCCYN(ch, C_NRM),
+					negative ? " ухудшает на " : " улучшает на ", abs(drsdice), CCNRM(ch, C_NRM));
+			out << "      |         |                | " << buf;
+		}
 	}
 	if (!out.str().empty())
 		page_string(ch->desc, out.str(), TRUE);
