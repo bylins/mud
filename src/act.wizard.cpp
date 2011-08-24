@@ -5497,7 +5497,7 @@ struct filter_type
  */
 ACMD(do_print_armor)
 {
-	if (IS_NPC(ch) || !IS_GRGOD(ch))
+	if (IS_NPC(ch) || (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)))
 	{
 		send_to_char("Чаво ?\r\n", ch);
 		return;
