@@ -32,6 +32,7 @@
 #include "char.hpp"
 #include "modify.h"
 #include "room.hpp"
+#include "obj.hpp"
 
 extern TIME_INFO_DATA time_info;
 
@@ -407,8 +408,10 @@ int trade_with(OBJ_DATA * item, int shop_nr, int mode)
 	if (IS_OBJ_STAT(item, ITEM_NOSELL))
 		return (OBJECT_NOTOK);
 
+	const int obj_type = ObjSystem::is_armor_type(item) ? ITEM_ARMOR : GET_OBJ_TYPE(item);
+
 	for (counter = 0; value_for_mode(shop_nr, counter, mode) != NOTHING; counter++)
-		if (value_for_mode(shop_nr, counter, mode) == GET_OBJ_TYPE(item))  	// Used wand or stave
+		if (value_for_mode(shop_nr, counter, mode) == obj_type)  	// Used wand or stave
 		{
 			if (GET_OBJ_VAL(item, 2) == 0 &&
 					(GET_OBJ_TYPE(item) == ITEM_WAND || GET_OBJ_TYPE(item) == ITEM_STAFF))
