@@ -1085,11 +1085,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				do
 				{
 					fbgetline(fl, line);
-					int count = sscanf(line, "%d %d %d %d %d %d", &num, &num2, &num3, &num4, &num5, &num6);
-					if (count != 6)
-					{
-						count = sscanf(line, "%d %d %d %d %d", &num, &num2, &num3, &num4, &num5);
-					}
+					sscanf(line, "%d %d %d %d %d %d", &num, &num2, &num3, &num4, &num5, &num6);
 					if (num > 0)
 					{
 						af.type = num;
@@ -1097,11 +1093,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 						af.modifier = num3;
 						af.location = num4;
 						af.bitvector = num5;
-						if (count == 6)
+						af.battleflag = num6;
+						if (af.type == SPELL_LACKY)
 						{
-							af.battleflag = num6;
-						}
-						if (af.type == SPELL_LACKY){
 							af.handler = boost::shared_ptr<LackyAffectHandler>(new LackyAffectHandler());
 						}
 						affect_to_char(this, &af);
