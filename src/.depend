@@ -277,7 +277,8 @@ top.o: top.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
   glory.hpp char.hpp player_i.hpp
 stuff.o: stuff.cpp conf.h sysdep.h structs.h comm.h db.h handler.h \
   utils.h features.hpp obj.hpp pugixml.hpp pugiconfig.hpp dg_scripts.h \
-  stuff.hpp double_map.hpp char.hpp player_i.hpp room.hpp corpse.hpp
+  stuff.hpp double_map.hpp char.hpp player_i.hpp room.hpp corpse.hpp \
+  screen.h
 description.o: description.cpp conf.h sysdep.h structs.h utils.h \
   features.hpp obj.hpp pugixml.hpp pugiconfig.hpp description.h
 deathtrap.o: deathtrap.cpp conf.h deathtrap.hpp sysdep.h structs.h \
