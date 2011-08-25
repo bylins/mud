@@ -623,10 +623,11 @@ void Player::save_char()
 		{
 			aff = &tmp_aff[i];
 			if (aff->type)
-				fprintf(saved, "%d %d %d %d %d %s\n", aff->type, aff->duration,
-						aff->modifier, aff->location, (int) aff->bitvector, spell_name(aff->type));
+				fprintf(saved, "%d %d %d %d %d %d %s\n", aff->type, aff->duration,
+						aff->modifier, aff->location, static_cast<int>(aff->bitvector),
+						static_cast<int>(aff->battleflag), spell_name(aff->type));
 		}
-		fprintf(saved, "0 0 0 0 0\n");
+		fprintf(saved, "0 0 0 0 0 0\n");
 	}
 
 	/* порталы */
@@ -745,7 +746,7 @@ void Player::save_char()
 */
 int Player::load_char_ascii(const char *name, bool reboot)
 {
-	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, i;
+	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
 	long int lnum = 0, lnum3 = 0;
 	unsigned long long llnum = 0;
 	FBFILE *fl;
@@ -1084,7 +1085,11 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				do
 				{
 					fbgetline(fl, line);
-					sscanf(line, "%d %d %d %d %d", &num, &num2, &num3, &num4, &num5);
+					int count = sscanf(line, "%d %d %d %d %d %d", &num, &num2, &num3, &num4, &num5, &num6);
+					if (count != 6)
+					{
+						count = sscanf(line, "%d %d %d %d %d", &num, &num2, &num3, &num4, &num5);
+					}
 					if (num > 0)
 					{
 						af.type = num;
@@ -1092,6 +1097,10 @@ int Player::load_char_ascii(const char *name, bool reboot)
 						af.modifier = num3;
 						af.location = num4;
 						af.bitvector = num5;
+						if (count == 6)
+						{
+							af.battleflag = num6;
+						}
 						if (af.type == SPELL_LACKY){
 							af.handler = boost::shared_ptr<LackyAffectHandler>(new LackyAffectHandler());
 						}
