@@ -2465,14 +2465,14 @@ void load_skills_definitions()
 //Polud Читает данные из файла хранения параметров умений
 void load_skills()
 {
-	const char *SKILLS_FILE = LIB_MISC"skills.xml";
+	const char *CLASS_SKILLS_FILE = LIB_MISC"classskills.xml";
 	int sk_num, value;
 	char *name;
 	XMLResults result;
-	XMLNode xMainNode=XMLNode::parseFile(SKILLS_FILE, "skills", &result);
+	XMLNode xMainNode=XMLNode::parseFile(CLASS_SKILLS_FILE, "skills", &result);
 	if (result.error != eXMLErrorNone)
 	{
-		log("SYSERROR: Ошибка чтения файла %s: %s", SKILLS_FILE, XMLNode::getError(result.error));
+		log("SYSERROR: Ошибка чтения файла %s: %s", CLASS_SKILLS_FILE, XMLNode::getError(result.error));
 		load_skills_definitions();
 		return;
 	}

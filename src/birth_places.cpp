@@ -39,33 +39,13 @@ void BirthPlace::LoadBirthPlace(pugi::xml_node BirthPlaceNode)
 }
 
 //Загрузка параметров точек создания персонажей
-void BirthPlace::Load(const char *PathToFile)
+void BirthPlace::Load(pugi::xml_node XMLBirthPlaceList)
 {
-	char buf[MAX_INPUT_LENGTH];
-	pugi::xml_document Doc;
-	pugi::xml_node BirthPlaceList, BirthPlaceNode;
-	pugi::xml_parse_result Result;
+    pugi::xml_node CurNode;
 
-	Result = Doc.load_file(PathToFile);
-	if (!Result)
+	for (CurNode = XMLBirthPlaceList.child("birthplace"); CurNode; CurNode = CurNode.next_sibling("birthplace"))
 	{
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", Result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-		return;
-	}
-
-	BirthPlaceList = Doc.child("birthplaces");
-	if (!BirthPlaceList)
-	{
-		snprintf(buf, MAX_STRING_LENGTH, "...birth places reading fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-		return;
-	}
-
-    // Парсим точки входа новых персонажей
-	for (BirthPlaceNode = BirthPlaceList.child("birthplace"); BirthPlaceNode; BirthPlaceNode = BirthPlaceNode.next_sibling("birthplace"))
-	{
-		BirthPlace::LoadBirthPlace(BirthPlaceNode);
+		LoadBirthPlace(CurNode);
 	}
 }
 

@@ -82,31 +82,13 @@ void LoadKin(pugi::xml_node KinNode)
 }
 
 //Загрузка параметров родов и рас
-void PlayerRace::Load(const char *PathToFile)
+void PlayerRace::Load(pugi::xml_node XMLSRaceList)
 {
-	char buf[MAX_INPUT_LENGTH];
-	pugi::xml_document Doc;
-	pugi::xml_node KinList, KinNode;
-	pugi::xml_parse_result Result;
+    pugi::xml_node CurNode;
 
-	Result = Doc.load_file(PathToFile);
-	if (!Result)
+	for (CurNode = XMLSRaceList.child("kin"); CurNode; CurNode = CurNode.next_sibling("kin"))
 	{
-		snprintf(buf, MAX_STRING_LENGTH, "...%s", Result.description());
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-		return;
-	}
-
-	KinList = Doc.child("races");
-	if (!KinList)
-	{
-		snprintf(buf, MAX_STRING_LENGTH, "...players races reading fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-		return;
-	}
-	for (KinNode = KinList.child("kin"); KinNode; KinNode = KinNode.next_sibling("kin"))
-	{
-		LoadKin(KinNode);
+		LoadKin(CurNode);
 	}
 }
 

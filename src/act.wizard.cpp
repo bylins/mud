@@ -5469,13 +5469,26 @@ ACMD(do_sanitize)
 /* This is test command for different testings */
 ACMD(do_godtest)
 {
-	if (PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch),41))
+    int skl;
+    std::ostringstream buffer;
+
+    skip_spaces(&argument);
+
+	if (!*argument)
 	{
-		snprintf(buf, MAX_STRING_LENGTH, " Feature check done\r\n");
-	} else {
-		snprintf(buf, MAX_STRING_LENGTH, " Feature check fail \r\n");
+        send_to_char("Чувак, укажи ИД проверяемого скилла.\r\n", ch);
+		return;
 	}
-	send_to_char(buf, ch);
+    skl = Skill::GetNumByID(string(argument));
+    if (skl ==  SKILL_UNDEFINED)
+	{
+        send_to_char("Извини, братан, не нашел. :(\r\n", ch);
+		return;
+	} else {
+        buffer << " Найден скилл " << skill_info[skl].name << " под номером " << skl << "\r\n";
+	}
+
+	send_to_char(buffer.str(), ch);
 }
 
 namespace

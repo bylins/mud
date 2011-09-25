@@ -855,3 +855,63 @@ int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim)
 	}
 	return result;
 }
+
+/*
+    Реализация класса Skill
+*/
+
+//Объявляем глобальный скиллист
+SkillListType Skill::SkillList;
+
+// Конструктор
+Skill::Skill() : _Name(SKILL_NAME_UNDEFINED), _Number(SKILL_UNDEFINED), _MaxPercent(0)
+{
+// Инициализация от греха подальше
+};
+
+// Парсим блок описания скилла
+void Skill::ParseSkill(pugi::xml_node SkillNode)
+{
+    std::string SkillID;
+    pugi::xml_node CurNode;
+    SkillPtr TmpSkill(new Skill);
+
+    // Базовые параметры скилла (а пока боле ничего и нет)
+    SkillID = SkillNode.attribute("id").value();
+
+    CurNode = SkillNode.child("number");
+	TmpSkill->_Number = CurNode.attribute("val").as_int();
+    CurNode = SkillNode.child("name");
+	TmpSkill->_Name = CurNode.attribute("text").value();
+	CurNode = SkillNode.child("max_percent");
+	TmpSkill->_MaxPercent = CurNode.attribute("val").as_int();
+
+	// Добавляем новый скилл в лист
+    Skill::SkillList.insert(make_pair(SkillID, TmpSkill));
+};
+
+// Парсинг скиллов
+// Вынесено в отдельную функцию, чтобы, если нам передали кривой XML лист, не создавался кривой скилл
+void Skill::Load(pugi::xml_node XMLSkillList)
+{
+    pugi::xml_node CurNode;
+
+	for (CurNode = XMLSkillList.child("skill"); CurNode; CurNode = CurNode.next_sibling("skill"))
+	{
+		Skill::ParseSkill(CurNode);
+	}
+};
+
+// Получаем номер скилла по его иду
+// Отрыжка совместимости со старым кодом
+int Skill::GetNumByID(std::string ID)
+{
+    SkillPtr TmpSkill = Skill::SkillList[ID];
+    //SkillPtr TmpSkill = Skill::SkillList.find(ID);
+    if (TmpSkill)
+        return TmpSkill->_Number ;
+
+    return SKILL_UNDEFINED;
+};
+
+// Конец (увы) реализации класса Skill

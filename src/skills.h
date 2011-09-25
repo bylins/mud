@@ -15,6 +15,10 @@
 #ifndef _SKILLS_H_
 #define _SKILLS_H_
 
+#include <map>
+#include <boost/shared_ptr.hpp>
+#include "pugixml.hpp"
+
 /* PLAYER SKILLS - Numbered from 1 to MAX_SKILL_NUM */
 #define SKILL_THAC0                 0	/* Internal */
 #define SKILL_PROTECT               1 /**** Protect grouppers    */
@@ -30,6 +34,7 @@
 #define SKILL_MAKEFOOD              11
 #define SKILL_MULTYPARRY            12
 #define SKILL_TRANSFORMWEAPON       13
+//и щито?
 #define SKILL_LEADERSHIP            20
 #define SKILL_PUNCTUAL              21
 #define SKILL_AWAKE                 22
@@ -189,5 +194,47 @@ struct skillvariables_insgem
 };
 
 int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim);
+
+/*
+    В перспективе описанный далее класс должен будет содержать
+    всю информацию по скиллам и использоваться вместо скилл_инфо
+    и прочего.
+    Пока что тут только распарс файла и перевод идентификатора
+    в номер скилла.
+    Это все нужно для совместимости со старой системой.
+*/
+
+#define SKILL_UNDEFINED -1
+#define SKILL_NAME_UNDEFINED "undefined"
+#define SKILLS_FILE "skills.xml"
+#define SKILLS_MAIN_TAG "skills"
+#define SKILLS_ERROR_STR "...skills.xml reading fail"
+
+class Skill;
+
+typedef boost::shared_ptr<Skill> SkillPtr;
+typedef std::map<std::string, SkillPtr> SkillListType;
+
+class Skill
+{
+public:
+    Skill();
+
+    static int GetNumByID(std::string ID);   // Получение номера скилла по ИД
+    static void Load(pugi::xml_node XMLSkillList);  // Парсинг конфига скиллов
+    static SkillListType SkillList;                 // Глобальный скилллист
+
+    // Доступ к полям
+    std::string Name() {return this->_Name;}
+    int Number() {return this->_Number;}
+    int MaxPercent() {return this->_MaxPercent;}
+
+private:
+    std::string _Name;  // Имя скилла на русском
+    int _Number;        // Номер скилла
+    int _MaxPercent;    // Максимальная процент
+
+    static void ParseSkill(pugi::xml_node SkillNode);   // Парсинг описания одного скилла
+};
 
 #endif

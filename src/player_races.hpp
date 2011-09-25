@@ -9,6 +9,8 @@
 #define RACE_NAME_UNDEFINED "RaceUndef"
 #define KIN_NAME_UNDEFINED "KinUndef"
 #define PLAYER_RACE_FILE "playerraces.xml"
+#define RACE_MAIN_TAG "races"
+#define PLAYER_RACE_ERROR_STR "...players races reading fail"
 
 #include <string>
 #include <vector>
@@ -88,7 +90,8 @@ public:
 
 	void AddRaceFeature(int feat);
     void AddRaceBirthPlace(int id);
-	static void Load(const char *PathToFile);
+	//static void Load(const char *PathToFile);
+	static void Load(pugi::xml_node XMLSRaceList);
 	static PlayerKinPtr GetPlayerKin(int Kin);
 	static PlayerRacePtr GetPlayerRace(int Kin,int Race);
 	static std::vector<int> GetRaceFeatures(int Kin,int Race);

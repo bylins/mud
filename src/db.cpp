@@ -69,6 +69,7 @@
 #include "celebrates.hpp"
 #include "player_races.hpp"
 #include "birth_places.hpp"
+#include "pugixml.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -217,6 +218,7 @@ void init_portals(void);
 void init_im(void);
 void init_zone_types(void);
 void load_guardians();
+pugi::xml_node XMLLoad(const string *PathToFile, const string *MainTag, const string *ErrorStr); // Базовая функция загрузки XML конфигов
 
 /* external functions */
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
@@ -429,6 +431,33 @@ void load_sheduled_reboot()
 	log("Setting up reboot_uptime: %i", reboot_uptime);
 }
 
+// Базовая функция загрузки XML конфигов
+pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *ErrorStr)
+{
+	std::ostringstream buffer;
+	pugi::xml_document Doc;
+	pugi::xml_node NodeList;
+	pugi::xml_parse_result Result;
+
+    // Пробуем прочитать файл
+	Result = Doc.load_file(PathToFile);
+	// Oops, файла нет
+	if (!Result)
+	{
+		buffer << "..." << Result.description();
+		mudlog(string(buffer.str()).c_str(), CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return NodeList;
+	}
+
+    // Ищем в файле указанный тэг
+	NodeList = Doc.child(MainTag);
+	// Тэга нет - кляузничаем в сислоге
+	if (!NodeList)
+		mudlog(ErrorStr, CMP, LVL_IMMORT, SYSLOG, TRUE);
+
+    return NodeList;
+};
+
 /*
  * Too bad it doesn't check the return values to let the user
  * know about -1 values.  This will result in an 'Okay.' to a
@@ -463,6 +492,7 @@ ACMD(do_reboot)
 		load_mobraces();
 		GlobalDrop::init();
 		OfftopSystem::init();
+		//Celebrates::load(XMLLoad(LIB_MISC CELEBRATES_FILE, CELEBRATES_MAIN_TAG, CELEBRATES_ERROR_STR));
 		Celebrates::load();
 	}
 	else if (!str_cmp(arg, "portals"))
@@ -551,6 +581,7 @@ ACMD(do_reboot)
 	}
 	else if (!str_cmp(arg, "celebrates"))
 	{
+		//Celebrates::load(XMLLoad(LIB_MISC CELEBRATES_FILE, CELEBRATES_MAIN_TAG, CELEBRATES_ERROR_STR));
 		Celebrates::load();
 	}
 	else
@@ -1506,11 +1537,14 @@ void boot_db(void)
 	if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 		prune_crlf(GREETINGS);
 
+    log("Loading NEW skills definitions");
+    Skill::Load(XMLLoad(LIB_MISC SKILLS_FILE, SKILLS_MAIN_TAG, SKILLS_ERROR_STR));
+
     log("Loading birth places definitions.");
-	BirthPlace::Load(LIB_MISC BIRTH_PLACES_FILE);
+	BirthPlace::Load(XMLLoad(LIB_MISC BIRTH_PLACES_FILE, BIRTH_PLACE_MAIN_TAG, BIRTH_PLACE_ERROR_STR));
 
     log("Loading player races definitions.");
-	PlayerRace::Load(LIB_MISC PLAYER_RACE_FILE);
+	PlayerRace::Load(XMLLoad(LIB_MISC PLAYER_RACE_FILE, RACE_MAIN_TAG, PLAYER_RACE_ERROR_STR));
 
 	log("Loading spell definitions.");
 	mag_assign_spells();
@@ -1651,7 +1685,8 @@ void boot_db(void)
 	log("Init Parcel system.");
 	Parcel::load();
 
-	log("Load Celebrates ."); //Polud праздники. используются при ресете зон
+	log("Load Celebrates."); //Polud праздники. используются при ресете зон
+	//Celebrates::load(XMLLoad(LIB_MISC CELEBRATES_FILE, CELEBRATES_MAIN_TAG, CELEBRATES_ERROR_STR));
 	Celebrates::load();
 
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
