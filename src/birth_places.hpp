@@ -11,6 +11,8 @@
 #define BIRTH_PLACES_FILE "birthplaces.xml"
 #define BIRTH_PLACE_UNDEFINED    -1
 #define BIRTH_PLACE_NAME_UNDEFINED "Undefined: у кодера какие-то проблемы"
+#define BIRTH_PLACE_MAIN_TAG "birthplaces"
+#define BIRTH_PLACE_ERROR_STR "...birth places reading fail"
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
@@ -27,7 +29,8 @@ typedef std::vector<BirthPlacePtr> BirthPlaceListType;
 class BirthPlace
 {
 public:
-    static void Load(const char *PathToFile);               // Загрузка файла настроек
+    //static void Load(const char *PathToFile);               // Загрузка файла настроек
+    static void Load(pugi::xml_node XMLBirthPlaceList);
     static int GetLoadRoom(short Id);                       // Получение внума загрузочной комнаты по ID
     static std::string GetMenuStr(short Id);                // Получение строчки для меню по ID
     static std::vector<int> GetItemList(short Id);          // Получение списка выдаваемых итемов по ID
