@@ -2738,7 +2738,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	if (!IS_NPC(ch) && !ch->master && ch->followers && AFF_FLAGGED(ch, AFF_GROUP))
 	{
 		log("[Extract char] Change group leader");
-		change_leader(ch, false);
+		change_leader(ch, 0);
 	}
 
 	log("[Extract char] Die followers");
