@@ -20,7 +20,7 @@
 #include "interpreter.h"	/* alias_data */
 #include "house.h"
 
-cpp_extern const char *circlemud_version = "CircleMUD, version 3.00 beta patchlevel 16";
+const char *circlemud_version = "CircleMUD, version 3.00 beta patchlevel 16";
 
 
 int HORSE_VNUM = 4014;
