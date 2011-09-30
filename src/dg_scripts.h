@@ -322,6 +322,7 @@ void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell);
 /* external vars from db.cpp */
 extern int top_of_trigt;
 extern INDEX_DATA **trig_index;
+extern int last_trig_vnum;//последний триг в котором произошла ошибка
 
 const int MAX_TRIG_USEC = 30000;
 

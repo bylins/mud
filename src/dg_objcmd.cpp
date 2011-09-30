@@ -63,7 +63,7 @@ void obj_log(OBJ_DATA * obj, const char *msg)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
 
-	sprintf(buf, "(Obj: '%s', VNum: %d): %s", obj->short_description, GET_OBJ_VNUM(obj), msg);
+	sprintf(buf, "(Obj: '%s', VNum: %d, trig: %d): %s", obj->short_description, GET_OBJ_VNUM(obj), last_trig_vnum, msg);
 	script_log(buf);
 }
 

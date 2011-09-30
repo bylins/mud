@@ -351,7 +351,7 @@ char *diag_timer_to_char(OBJ_DATA * obj)
 {
 	static char out_str[MAX_STRING_LENGTH];
 	*out_str = 0;
-	sprintf(out_str, "Сoстояние: %s.\r\n", diag_obj_timer(obj));
+	sprintf(out_str, "Состояние: %s.\r\n", diag_obj_timer(obj));
 	return (out_str);
 }
 
@@ -370,7 +370,7 @@ char *diag_uses_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 			sprintf(out_str, "Прототип: %s%s%s.\r\n",
 					CCICYN(ch, C_NRM), obj_proto[i]->PNames[0], CCNRM(ch, C_NRM));
 		}
-		sprintf(out_str + strlen(out_str), "Оcталось применений: %s%d&n.\r\n",
+		sprintf(out_str + strlen(out_str), "Осталось применений: %s%d&n.\r\n",
 				GET_OBJ_VAL(obj, 2) > 100 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 	}
 	return (out_str);
@@ -2155,7 +2155,7 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 				("Все доступные вам камни уже запомнены, удалите и попробуйте еще.\r\n", ch);
 				return 0;
 			}
-			send_to_char("На камне огненными буквами напиcано слово '&R", ch);
+			send_to_char("На камне огненными буквами написано слово '&R", ch);
 			send_to_char(port->wrd, ch);
 			send_to_char("&n'.\r\n", ch);
 			/* теперь добавляем в память чара */

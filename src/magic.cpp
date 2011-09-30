@@ -2600,7 +2600,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[2].duration = af[0].duration;
 
 		to_room = "$n0 стал$g слаб$g на голову !";
-		to_vict = "Ваш разум помутилcя !";
+		to_vict = "Ваш разум помутился !";
 		break;
 
 	case SPELL_DUSTSTORM:
@@ -4145,7 +4145,7 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		{
 			GET_COND(victim, THIRST) = 24;
 			GET_COND(victim, FULL) = 24;
-			send_to_char("Вы полноcтью насытились.\r\n", victim);
+			send_to_char("Вы полностью насытились.\r\n", victim);
 		}
 		break;
 	case SPELL_WC_OF_POWER:

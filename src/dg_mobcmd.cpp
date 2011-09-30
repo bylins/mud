@@ -78,7 +78,7 @@ void mob_log(CHAR_DATA * mob, const char *msg)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
 
-	sprintf(buf, "(Mob: '%s', VNum: %d): %s", GET_SHORT(mob), GET_MOB_VNUM(mob), msg);
+	sprintf(buf, "(Mob: '%s', VNum: %d, trig: %d): %s", GET_SHORT(mob), GET_MOB_VNUM(mob), last_trig_vnum, msg);
 	script_log(buf);
 }
 

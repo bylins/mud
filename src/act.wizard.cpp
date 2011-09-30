@@ -4563,7 +4563,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 31:
 		if ((i = parse_class(*val_arg)) == CLASS_UNDEFINED)
 		{
-			send_to_char("Нет такого клаcса в этой игре. Найдите себе другую.\r\n", ch);
+			send_to_char("Нет такого класса в этой игре. Найдите себе другую.\r\n", ch);
 			return (0);
 		}
 		vict->set_class(i);

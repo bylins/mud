@@ -99,8 +99,11 @@ bool wear_msg(CHAR_DATA * ch, OBJ_DATA * obj)
 		{
 			if (!it->second->wear_msg.empty())
 			{
-				act(it->second->wear_msg.c_str(), FALSE, ch, obj, 0, TO_ROOM);
-				act(it->second->wear_msg.c_str(), FALSE, ch, obj, 0, TO_CHAR);
+				if (number(1, 100) <= 20)
+				{
+					act(it->second->wear_msg.c_str(), FALSE, ch, obj, 0, TO_ROOM);
+					act(it->second->wear_msg.c_str(), FALSE, ch, obj, 0, TO_CHAR);
+				}
 				return true;
 			}
 			else

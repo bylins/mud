@@ -2351,6 +2351,7 @@ int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj)
 			(IS_OBJ_NO(obj, ITEM_NO_DRUID) && IS_DRUID(ch)) ||
 			(IS_OBJ_NO(obj, ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
 			(IS_OBJ_NO(obj, ITEM_NO_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER))
+			((OBJ_FLAGGED(obj, ITEM_SHARPEN) || OBJ_FLAGGED(obj, ITEM_ARMORED)) && !IS_SMITH(ch)) ||
 			|| (IS_OBJ_NO(obj, ITEM_NO_COLORED) && IS_COLORED(ch)))
 		return (TRUE);
 	return (FALSE);

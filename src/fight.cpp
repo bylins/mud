@@ -3732,7 +3732,7 @@ void hit_deviate(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
 	prob = prob * 100 / range;
 	if (prob < 60)
 	{
-		act("Вы не смогли уклонитьcя от атаки $N1", FALSE, victim, 0, ch, TO_CHAR);
+		act("Вы не смогли уклониться от атаки $N1", FALSE, victim, 0, ch, TO_CHAR);
 		act("$N не сумел$G уклониться от Вашей атаки", FALSE, ch, 0, victim, TO_CHAR);
 		act("$n не сумел$g уклониться от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT);
 	}

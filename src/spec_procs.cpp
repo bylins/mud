@@ -600,7 +600,7 @@ void init_guilds(void)
 					SET_BIT(mono_guild.alignment, (1 << i));
 		}
 		else if (!strn_cmp(line, "polyguild", strlen(line))
-				 || !strn_cmp(line, "многокласcовая", strlen(line)))
+				 || !strn_cmp(line, "многоклассовая", strlen(line)))
 		{
 			type = 2;
 			poly_guild = NULL;
