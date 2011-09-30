@@ -35,7 +35,7 @@ extern CHAR_DATA *character_list;
 #define ThirdPK	 10
 #define FourthPK 20
 #define FifthPK  30
-#define KillerPK 50
+#define KillerPK 25 //уникальных игроков
 
 // Временные константы в минутах реального времени
 #define KILLER_UNRENTABLE  30
@@ -67,24 +67,43 @@ int pk_count(CHAR_DATA * ch)
 	return i;
 }
 
+//Количество убитых игроков (уникальное мыло)
+int pk_player_count(CHAR_DATA * ch)
+{
+	struct PK_Memory_type *pk, *pkg;
+	unsigned count = 0;
+	for (pk = ch->pk_list; pk; pk = pk->next)
+	{
+		long i = get_ptable_by_unique(pk->unique);
+		bool flag=true;
+		for (pkg = pk->next; pkg && flag; pkg = pkg->next)
+		{
+			long j = get_ptable_by_unique(pkg->unique);
+			flag = strcmp(player_table[i].mail, player_table[j].mail)!=0;
+		}
+		if (flag) ++count;
+	}
+	return count;
+}
+
 int pk_calc_spamm(CHAR_DATA * ch)
 {
 	struct PK_Memory_type *pk, *pkg;
-	int count = 0, grou_fl;
-
-	for (pk = ch->pk_list; pk; pk = pk->next)
+	int count = 0;
+    	for (pk = ch->pk_list; pk; pk = pk->next)
 	{
 		if (time(NULL) - pk->kill_at <= SPAM_PK_TIME * 60)
 		{
-			grou_fl = 1;
-			for (pkg = pk->next; pkg; pkg = pkg->next)
-				if (MAX(pk->kill_at, pkg->kill_at) - MIN(pk->kill_at, pkg->kill_at) <= TIME_PK_GROUP)
-				{
-					grou_fl = 0;
-					break;
-				}
-			if (grou_fl)
-				count++;
+			long i = get_ptable_by_unique(pk->unique);
+			bool flag = true; //false если запись не соответствует критериям спам пк
+			for (pkg = pk->next; pkg && flag; pkg = pkg->next)
+			{
+				long j = get_ptable_by_unique(pkg->unique);
+				//Щитаем убийства со временем больше TIME_PK_GROUP (5 секунд) и чаров с разных мыл
+				flag = !(MAX(pk->kill_at, pkg->kill_at) - MIN(pk->kill_at, pkg->kill_at) <= TIME_PK_GROUP || strcmp(player_table[i].mail, player_table[j].mail)==0);
+			}
+			if (flag)
+				++count;
 		}
 	}
 	return (count);
@@ -98,7 +117,7 @@ void pk_check_spamm(CHAR_DATA * ch)
 		GCURSE_DURATION(ch) = time(0) + TIME_GODS_CURSE * 60 * 60;
 		act("Боги прокляли тот день, когда ты появился на свет !", FALSE, ch, 0, 0, TO_CHAR);
 	}
-	if (pk_count(ch) >= KillerPK)
+	if (pk_player_count(ch) >= KillerPK)
 		SET_BIT(PLR_FLAGS(ch, PLR_KILLER), PLR_KILLER);
 }
 
