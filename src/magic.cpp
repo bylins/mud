@@ -749,7 +749,7 @@ int calc_base_saving(CHAR_DATA *killer, CHAR_DATA *victim, int type)
 	}
 
 	// бонус с одежды
-	save = -(GET_SAVE(victim, type));
+	save += -(GET_SAVE(victim, type));
 
 	// флаги
 	if (GET_GOD_FLAG(victim, GF_GODSCURSE))
