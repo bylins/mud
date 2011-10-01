@@ -49,6 +49,7 @@
 #include "room.hpp"
 #include "glory_const.hpp"
 #include "player_races.hpp"
+#include "magic.h"
 
 using std::string;
 
@@ -2665,16 +2666,16 @@ ACMD(do_score)
 			  + string(class_name[(int) GET_CLASS(ch)+14*GET_KIN(ch)]) + string(".");
 
 		sprintf(buf,
-				" %s-------------------------------------------------------------------------------------\r\n"
-				" || %s%-80s%s||\r\n"
-				" -------------------------------------------------------------------------------------\r\n",
+				" %s--------------------------------------------------------------------------------------\r\n"
+				" || %s%-81s%s||\r\n"
+				" --------------------------------------------------------------------------------------\r\n",
 				CCCYN(ch, C_NRM),
 				CCNRM(ch, C_NRM), sum.substr(0, 80).c_str(), CCCYN(ch, C_NRM));
 
 		sprintf(buf + strlen(buf),
 				" || %sПлемя: %-11s %s|"
 				" %sРост:        %-3d(%-3d) %s|"
-				" %sБроня:       %4d %s|"
+				" %sБроня:        %4d %s|"
 				" %sСопротивление: %s||\r\n",
 				CCNRM(ch, C_NRM),
 				string(PlayerRace::GetKinNameByNum(GET_KIN(ch),GET_SEX(ch))).substr(0, 14).c_str(),
@@ -2688,7 +2689,7 @@ ACMD(do_score)
 		sprintf(buf + strlen(buf),
 				" || %sРод: %-13s %s|"
 				" %sВес:         %3d(%3d) %s|"
-				" %sЗащита:       %3d %s|"
+				" %sЗащита:        %3d %s|"
 				" %sОгню:      %3d %s||\r\n",
 				CCNRM(ch, C_NRM),
                 string(PlayerRace::GetRaceNameByNum(GET_KIN(ch),GET_RACE(ch),GET_SEX(ch))).substr(0, 14).c_str(),
@@ -2701,7 +2702,7 @@ ACMD(do_score)
 		sprintf(buf + strlen(buf),
 				" || %sВера: %-13s%s|"
 				" %sРазмер:      %3d(%3d) %s|"
-				" %sПоглощение:   %3d %s|"
+				" %sПоглощение:    %3d %s|"
 				" %sВоздуху:   %3d %s||\r\n",
 				CCNRM(ch, C_NRM),
 				string(religion_name[GET_RELIGION(ch)][(int) GET_SEX(ch)]).substr(0, 13).c_str(),
@@ -2798,7 +2799,7 @@ ACMD(do_score)
 		sprintf(buf + strlen(buf),
 				" || %sУровень: %s%-2d        %s|"
 				" %sСила:          %2d(%2d) %s|"
-				" %sАтака:        %3d %s|"
+				" %sАтака:         %3d %s|"
 				" %sВоде:      %3d %s||\r\n",
 				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_LEVEL(ch), CCCYN(ch, C_NRM),
 				CCICYN(ch, C_NRM), GET_STR(ch), GET_REAL_STR(ch), CCCYN(ch, C_NRM),
@@ -2809,7 +2810,7 @@ ACMD(do_score)
 		sprintf(buf + strlen(buf),
 				" || %sПеревоплощений: %s%-2d %s|"
 				" %sЛовкость:      %2d(%2d) %s|"
-				" %sУрон:        %4d %s|"
+				" %sУрон:         %4d %s|"
 				" %sЗемле:     %3d %s||\r\n",
 				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_REMORT(ch), CCCYN(ch, C_NRM),
 				CCICYN(ch, C_NRM), GET_DEX(ch), GET_REAL_DEX(ch), CCCYN(ch, C_NRM),
@@ -2818,7 +2819,7 @@ ACMD(do_score)
 
 		sprintf(buf + strlen(buf),
 				" || %sВозраст: %s%-3d       %s|"
-				" %sТелосложение:  %2d(%2d) %s|-------------------|----------------||\r\n",
+				" %sТелосложение:  %2d(%2d) %s|--------------------|----------------||\r\n",
 				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_AGE(ch), CCCYN(ch, C_NRM),
 				CCICYN(ch, C_NRM), GET_CON(ch), GET_REAL_CON(ch), CCCYN(ch, C_NRM));
 
@@ -2826,7 +2827,7 @@ ACMD(do_score)
 		sprintf(buf + strlen(buf),
 				" || %sОпыт: %s%-10ld   %s|"
 				" %sМудрость:      %2d(%2d) %s|"
-				" %sКолдовство:   %3d %s|"
+				" %sКолдовство:    %3d %s|"
 				" %sЖивучесть: %3d %s||\r\n",
 				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_EXP(ch), CCCYN(ch, C_NRM),
 				CCICYN(ch, C_NRM), GET_WIS(ch), GET_REAL_WIS(ch), CCCYN(ch, C_NRM),
@@ -2840,12 +2841,12 @@ ACMD(do_score)
 					CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), CCCYN(ch, C_NRM));
 		else
 			sprintf(buf + strlen(buf),
-					" || %sДСУ: %s%-10ld    %s|",
+					" || %sДСУ: %s%-13ld %s|",
 					CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), level_exp(ch, GET_LEVEL(ch) + 1) - GET_EXP(ch), CCCYN(ch, C_NRM));
 
 		sprintf(buf + strlen(buf),
 				" %sУм:            %2d(%2d) %s|"
-				" %sЗапоминание: %4d %s|"
+				" %sЗапоминание:  %4d %s|"
 				" %sРазум:     %3d %s||\r\n",
 				CCICYN(ch, C_NRM), GET_INT(ch), GET_REAL_INT(ch), CCCYN(ch, C_NRM),
 				CCIGRN(ch, C_NRM), GET_MANAREG(ch), CCCYN(ch, C_NRM),
@@ -2854,7 +2855,7 @@ ACMD(do_score)
 		resist = MIN(GET_RESIST(ch, IMMUNITY_RESISTANCE), 75);
 		sprintf(buf + strlen(buf),
 				" || %sДенег: %s%-8ld    %s|"
-				" %sОбаяние:       %2d(%2d) %s|-------------------|"
+				" %sОбаяние:       %2d(%2d) %s|--------------------|"
 				" %sИммунитет: %3d %s||\r\n",
 				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), ch->get_gold(), CCCYN(ch, C_NRM),
 				CCICYN(ch, C_NRM), GET_CHA(ch), GET_REAL_CHA(ch), CCCYN(ch, C_NRM),
@@ -2863,10 +2864,10 @@ ACMD(do_score)
 		sprintf(buf + strlen(buf),
 				" || %sНа счету: %s%-8ld %s|"
 				" %sЖизнь:     %4d(%4d) %s|"
-				" %sВоля:         %3d%s |----------------||\r\n",
+				" %s            PC/NPC %s|----------------||\r\n",
 				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), ch->get_bank(), CCCYN(ch, C_NRM),
 				CCICYN(ch, C_NRM), GET_HIT(ch), GET_REAL_MAX_HIT(ch), CCCYN(ch, C_NRM),
-				CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_WILL) - wis_app[GET_REAL_WIS(ch)].char_savings, CCCYN(ch, C_NRM));
+				CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
 		if (!on_horse(ch))
 			switch (GET_POS(ch))
@@ -2922,10 +2923,11 @@ ACMD(do_score)
 
 		sprintf(buf + strlen(buf),
 				" %sВыносл.:     %3d(%3d) %s|"
-				" %sЗдоровье:     %3d %s|"
+				" %sРеакция:   %3d/%3d %s|"
 				" %sВосст. жизни:  %s||\r\n",
 				CCICYN(ch, C_NRM), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), CCCYN(ch, C_NRM),
-				CCGRN(ch, C_NRM), GET_REAL_CON(ch) - GET_SAVE(ch, SAVING_CRITICAL), CCCYN(ch, C_NRM),
+				CCGRN(ch, C_NRM), calc_base_saving(ch, ch, SAVING_REFLEX),
+				calc_base_saving(0, ch, SAVING_REFLEX), CCCYN(ch, C_NRM),
 				CCRED(ch, C_NRM), CCCYN(ch, C_NRM));
 
 		if (GET_COND(ch, FULL) == 0)
@@ -2941,9 +2943,10 @@ ACMD(do_score)
 			strcat(buf, "                       |");
 
 		sprintf(buf + strlen(buf),
-				" %sСтойкость:    %3d %s|"
+				" %sСтойкость: %3d/%3d %s|"
 				" %s          %4d %s||\r\n",
-				CCGRN(ch, C_NRM), GET_REAL_CON(ch) - GET_SAVE(ch, SAVING_STABILITY), CCCYN(ch, C_NRM),
+				CCGRN(ch, C_NRM), calc_base_saving(ch, ch, SAVING_STABILITY),
+				calc_base_saving(0, ch, SAVING_STABILITY), CCCYN(ch, C_NRM),
 				CCRED(ch, C_NRM), GET_HITREG(ch), CCCYN(ch, C_NRM)
 			   );
 
@@ -2964,9 +2967,9 @@ ACMD(do_score)
 			strcat(buf, "                       |");
 
 		sprintf(buf + strlen(buf),
-				" %sРеакция:      %3d %s|"
-				" %sВосст. сил:    %s||\r\n",
-				CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_REFLEX) + dex_bonus(GET_REAL_DEX(ch)), CCCYN(ch, C_NRM),
+				" %sВоля:      %3d/%3d %s| %sВосст. сил:    %s||\r\n",
+				CCGRN(ch, C_NRM), calc_base_saving(ch, ch, SAVING_WILL),
+				calc_base_saving(0, ch, SAVING_WILL), CCCYN(ch, C_NRM),
 				CCRED(ch, C_NRM), CCCYN(ch, C_NRM));
 
 		if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED)
@@ -2984,29 +2987,34 @@ ACMD(do_score)
 			strcat(buf, " ||                    |                       |");
 
 		sprintf(buf + strlen(buf),
-				" %sУдача:       %4d %s|"
+				"--------------------|"
 				" %s          %4d %s||\r\n",
-				CCGRN(ch, C_NRM), ch->calc_morale(), CCCYN(ch, C_NRM),
-				CCRED(ch, C_NRM), GET_MOVEREG(ch), CCCYN(ch, C_NRM));
+				CCRED(ch, C_NRM), ch->calc_morale(), CCCYN(ch, C_NRM));
 
 		sprintf(buf + strlen(buf),
 				" ||                    |                       |"
-				" %sИнициатива:  %4d %s|                ||\r\n"
-				" -------------------------------------------------------------------------------------\r\n",
+				" %sУдача:        %4d %s|"
+				"                ||\r\n",
+				CCGRN(ch, C_NRM), ch->calc_morale(), CCCYN(ch, C_NRM));
+
+		sprintf(buf + strlen(buf),
+				" ||                    |                       |"
+				" %sИнициатива:   %4d %s|                ||\r\n"
+				" --------------------------------------------------------------------------------------\r\n",
 				CCGRN(ch, C_NRM), GET_INITIATIVE(ch), CCCYN(ch, C_NRM));
 
 		if (has_horse(ch, FALSE))
 		{
 			if (on_horse(ch))
 				sprintf(buf + strlen(buf),
-						" %s|| %sВы верхом на %-67s%s||\r\n"
-						" -------------------------------------------------------------------------------------\r\n",
+						" %s|| %sВы верхом на %-68s%s||\r\n"
+						" --------------------------------------------------------------------------------------\r\n",
 						CCCYN(ch, C_NRM), CCIGRN(ch, C_NRM),
 						(string(GET_PAD(get_horse(ch), 5)) + string(".")).substr(0, 67).c_str(), CCCYN(ch, C_NRM));
 			else
 				sprintf(buf + strlen(buf),
-						" %s|| %sУ вас есть %-69s%s||\r\n"
-						" -------------------------------------------------------------------------------------\r\n",
+						" %s|| %sУ вас есть %-70s%s||\r\n"
+						" --------------------------------------------------------------------------------------\r\n",
 						CCCYN(ch, C_NRM), CCIGRN(ch, C_NRM),
 						(string(GET_NAME(get_horse(ch))) + string(".")).substr(0, 69).c_str(), CCCYN(ch, C_NRM));
 		}
@@ -3014,20 +3022,20 @@ ACMD(do_score)
         label_room  = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
 		if (label_room)
 			sprintf(buf + strlen(buf),
-					" %s|| %sВы поставили рунную метку в комнате '%-43s%s||\r\n",
+					" %s|| %sВы поставили рунную метку в комнате '%-44s%s||\r\n",
 					CCCYN(ch, C_NRM), CCIGRN(ch, C_NRM), string(label_room->name+string("'.")).c_str(), CCCYN(ch, C_NRM));
 
 		int glory = Glory::get_glory(GET_UNIQUE(ch));
 		if (glory)
 			sprintf(buf + strlen(buf),
-					" %s|| %sВы заслужили %5d %-61s%s||\r\n",
+					" %s|| %sВы заслужили %5d %-62s%s||\r\n",
 					CCCYN(ch, C_NRM), CCWHT(ch, C_NRM), glory,
 					(string(desc_count(glory, WHAT_POINT)) + string(" славы.")).substr(0, 61).c_str(),
 					CCCYN(ch, C_NRM));
 		glory = GloryConst::get_glory(GET_UNIQUE(ch));
 		if (glory)
 			sprintf(buf + strlen(buf),
-					" %s|| %sВы заслужили %5d %-61s%s||\r\n",
+					" %s|| %sВы заслужили %5d %-62s%s||\r\n",
 					CCCYN(ch, C_NRM), CCWHT(ch, C_NRM), glory,
 					(string(desc_count(glory, WHAT_POINT)) + string(" постоянной славы.")).substr(0, 61).c_str(),
 					CCCYN(ch, C_NRM));
@@ -3037,34 +3045,35 @@ ACMD(do_score)
 			int value = CLAN(ch)->GetMemberExpPersent(ch);
 			if (value > 0)
 			{
-				sprintf(buf + strlen(buf), " || Вы отдаете своей дружине %3d%% опыта                                             ||\r\n", value);
+				sprintf(buf + strlen(buf),
+						" || Вы отдаете своей дружине %3d%% опыта                                              ||\r\n", value);
 			}
 		}
 
 		if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
 			sprintf(buf + strlen(buf),
-					" || Вы можете быть призваны.                                                        ||\r\n");
+					" || Вы можете быть призваны.                                                         ||\r\n");
 		else
 			sprintf(buf + strlen(buf),
-					" || Вы защищены от призыва.                                                         ||\r\n");
+					" || Вы защищены от призыва.                                                          ||\r\n");
 
 		if (!NAME_GOD(ch) && GET_LEVEL(ch) <= NAME_LEVEL)
 		{
 			sprintf(buf + strlen(buf),
-					" &c|| &RВНИМАНИЕ!&n Ваше имя не одобрил никто из богов!&c                                   ||\r\n");
+					" &c|| &RВНИМАНИЕ!&n Ваше имя не одобрил никто из богов!&c                                    ||\r\n");
 			sprintf(buf + strlen(buf),
-					" || &nCкоро вы прекратите получать опыт, обратитесь к богам для одобрения имени.      &c||\r\n");
+					" || &nCкоро вы прекратите получать опыт, обратитесь к богам для одобрения имени.       &c||\r\n");
 		}
 		else if (NAME_BAD(ch))
 		{
 			sprintf(buf + strlen(buf),
-					" || &RВНИМАНИЕ!&n Ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.   &c||\r\n");
+					" || &RВНИМАНИЕ!&n Ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.    &c||\r\n");
 		}
 
 		if (GET_LEVEL(ch) < LVL_IMMORT)
 			sprintf(buf + strlen(buf),
-					" || %sВы можете вступить в группу с максимальной разницей                             %s||\r\n"
-					" || %sв %d %-76s%s||\r\n",
+					" || %sВы можете вступить в группу с максимальной разницей                              %s||\r\n"
+					" || %sв %d %-77s%s||\r\n",
 					CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
 					grouping[(int)GET_CLASS(ch)][MIN(14, (int)GET_REMORT(ch))],
 					(string(desc_count(grouping[(int)GET_CLASS(ch)][MIN(14, (int)GET_REMORT(ch))], WHAT_LEVEL))
@@ -3075,7 +3084,7 @@ ACMD(do_score)
 			time_t rent_time = RENTABLE(ch) - time(0);
 			int minutes = rent_time > 60 ? rent_time / 60 : 0;
 			sprintf(buf + strlen(buf),
-					" || %sВ связи с боевыми действиями Вы не можете уйти на постой еще %-18s%s ||\r\n",
+					" || %sВ связи с боевыми действиями Вы не можете уйти на постой еще %-19s%s ||\r\n",
 					CCIRED(ch, C_NRM),
 					minutes ? (boost::lexical_cast<std::string>(minutes) + string(" ") + string(desc_count(minutes, WHAT_MINu)) + string(".")).substr(0, 18).c_str()
 							: (boost::lexical_cast<std::string>(rent_time) + string(" ") + string(desc_count(rent_time, WHAT_SEC)) + string(".")).substr(0, 18).c_str(),
@@ -3083,17 +3092,17 @@ ACMD(do_score)
 		}
 		else if ((IN_ROOM(ch) != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER))
 			sprintf(buf + strlen(buf),
-					" || %sТут Вы чувствуете себя в безопасности.                                          %s||\r\n",
+					" || %sТут Вы чувствуете себя в безопасности.                                           %s||\r\n",
 					CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
 		if (has_mail(GET_IDNUM(ch)))
 			sprintf(buf + strlen(buf),
-					" || %sВас ожидает новое письмо, зайдите на почту                                      %s||\r\n",
+					" || %sВас ожидает новое письмо, зайдите на почту                                       %s||\r\n",
 					CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
 		if (ch->get_protecting())
 			sprintf(buf + strlen(buf),
-					" || %sВы прикрываете %-65s%s||\r\n",
+					" || %sВы прикрываете %-66s%s||\r\n",
 					CCIGRN(ch, C_NRM), string(GET_PAD(ch->get_protecting(),3)+string(" от нападения.")).substr(0,65).c_str(),
 					CCCYN(ch, C_NRM));
 
@@ -3102,7 +3111,7 @@ ACMD(do_score)
 			int hrs = (GCURSE_DURATION(ch) - time(NULL)) / 3600;
 			int mins = ((GCURSE_DURATION(ch) - time(NULL)) % 3600 + 59) / 60;
 			sprintf(buf + strlen(buf),
-					" || %sВы прокляты Богами на %3d %-5s %2d %-45s%s||\r\n",
+					" || %sВы прокляты Богами на %3d %-5s %2d %-46s%s||\r\n",
 					CCRED(ch, C_NRM), hrs, string(desc_count(hrs, WHAT_HOUR)).substr(0, 5).c_str(),
 					mins, (string(desc_count(mins, WHAT_MINu)) + string(".")).substr(0, 45).c_str(), CCCYN(ch, C_NRM));
 		}
@@ -3112,8 +3121,8 @@ ACMD(do_score)
 			int hrs = (HELL_DURATION(ch) - time(NULL)) / 3600;
 			int mins = ((HELL_DURATION(ch) - time(NULL)) % 3600 + 59) / 60;
 			sprintf(buf + strlen(buf),
-					" || %sВам предстоит провести в темнице еще %6d %-5s %2d %-27s%s||\r\n"
-					" || %s[%-79s%s||\r\n",
+					" || %sВам предстоит провести в темнице еще %6d %-5s %2d %-28s%s||\r\n"
+					" || %s[%-80s%s||\r\n",
 					CCRED(ch, C_NRM), hrs, string(desc_count(hrs, WHAT_HOUR)).substr(0, 5).c_str(),
 					mins, (string(desc_count(mins, WHAT_MINu)) + string(".")).substr(0, 27).c_str(),
 					CCCYN(ch, C_NRM), CCRED(ch, C_NRM),
@@ -3126,8 +3135,8 @@ ACMD(do_score)
 			int hrs = (MUTE_DURATION(ch) - time(NULL)) / 3600;
 			int mins = ((MUTE_DURATION(ch) - time(NULL)) % 3600 + 59) / 60;
 			sprintf(buf + strlen(buf),
-					" || %sВы не сможете кричать еще %6d %-5s %2d %-38s%s||\r\n"
-					" || %s[%-79s%s||\r\n",
+					" || %sВы не сможете кричать еще %6d %-5s %2d %-39s%s||\r\n"
+					" || %s[%-80s%s||\r\n",
 					CCRED(ch, C_NRM), hrs, string(desc_count(hrs, WHAT_HOUR)).substr(0, 5).c_str(),
 					mins, (string(desc_count(mins, WHAT_MINu)) + string(".")).substr(0, 38).c_str(),
 					CCCYN(ch, C_NRM), CCRED(ch, C_NRM),
@@ -3140,8 +3149,8 @@ ACMD(do_score)
 			int hrs = (UNREG_DURATION(ch) - time(NULL)) / 3600;
 			int mins = ((UNREG_DURATION(ch) - time(NULL)) % 3600 + 59) / 60;
 			sprintf(buf + strlen(buf),
-					" || %sВы не сможете входить с одного IP еще %6d %-5s %2d %-38s%s||\r\n"
-					" || %s[%-79s%s||\r\n",
+					" || %sВы не сможете входить с одного IP еще %6d %-5s %2d %-39s%s||\r\n"
+					" || %s[%-80s%s||\r\n",
 					CCRED(ch, C_NRM), hrs, string(desc_count(hrs, WHAT_HOUR)).substr(0, 5).c_str(),
 					mins, (string(desc_count(mins, WHAT_MINu)) + string(".")).substr(0, 38).c_str(),
 					CCCYN(ch, C_NRM), CCRED(ch, C_NRM),
@@ -3154,8 +3163,8 @@ ACMD(do_score)
 			int hrs = (DUMB_DURATION(ch) - time(NULL)) / 3600;
 			int mins = ((DUMB_DURATION(ch) - time(NULL)) % 3600 + 59) / 60;
 			sprintf(buf + strlen(buf),
-					" || %sВы будете молчать еще %6d %-5s %2d %-42s%s||\r\n"
-					" || %s[%-79s%s||\r\n",
+					" || %sВы будете молчать еще %6d %-5s %2d %-43s%s||\r\n"
+					" || %s[%-80s%s||\r\n",
 					CCRED(ch, C_NRM), hrs, string(desc_count(hrs, WHAT_HOUR)).substr(0, 5).c_str(),
 					mins, (string(desc_count(mins, WHAT_MINu)) + string(".")).substr(0, 42).c_str(),
 					CCCYN(ch, C_NRM), CCRED(ch, C_NRM),
@@ -3168,8 +3177,8 @@ ACMD(do_score)
 			int hrs = (FREEZE_DURATION(ch) - time(NULL)) / 3600;
 			int mins = ((FREEZE_DURATION(ch) - time(NULL)) % 3600 + 59) / 60;
 			sprintf(buf + strlen(buf),
-					" || %sВы будете заморожены еще %6d %-5s %2d %-39s%s||\r\n"
-					" || %s[%-79s%s||\r\n",
+					" || %sВы будете заморожены еще %6d %-5s %2d %-40s%s||\r\n"
+					" || %s[%-80s%s||\r\n",
 					CCRED(ch, C_NRM), hrs, string(desc_count(hrs, WHAT_HOUR)).substr(0, 5).c_str(),
 					mins, (string(desc_count(mins, WHAT_MINu)) + string(".")).substr(0, 42).c_str(),
 					CCCYN(ch, C_NRM), CCRED(ch, C_NRM),
@@ -3177,8 +3186,8 @@ ACMD(do_score)
 					CCCYN(ch, C_NRM));
 		}
 
-		strcat(buf, " ||                                                                                 ||\r\n");
-		strcat(buf, " -------------------------------------------------------------------------------------\r\n");
+		strcat(buf, " ||                                                                                  ||\r\n");
+		strcat(buf, " --------------------------------------------------------------------------------------\r\n");
 		strcat(buf, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		return;

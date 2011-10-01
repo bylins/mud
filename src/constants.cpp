@@ -1590,20 +1590,20 @@ struct extra_affects_type DruidAffects[] = { { -1, -1} };
 struct class_app_type class_app[NUM_CLASSES] =
 {
 // unknown_weapon_fault koef_con base_con min_con max_con extra_affects
-	{5,  40, 10, 12, 50, (struct extra_affects_type *) &ClericAffects},
-	{3,  35, 10, 10, 50, (struct extra_affects_type *) &MageAffects},
+	{5,  45, 10, 12, 50, (struct extra_affects_type *) &ClericAffects},
+	{3,  40, 10, 10, 50, (struct extra_affects_type *) &MageAffects},
 	{3,  55, 10, 14, 50, (struct extra_affects_type *) &ThiefAffects},
 	{2, 105, 10, 22, 50, (struct extra_affects_type *) &WarriorAffects},
 	{3,  50, 10, 14, 50, (struct extra_affects_type *) &AssasineAffects},
 	{2, 105, 10, 17, 50, (struct extra_affects_type *) &GuardAffects},
-	{5,  35, 10, 10, 50, (struct extra_affects_type *) &DefenderAffects},
-	{5,  35, 10, 10, 50, (struct extra_affects_type *) &CharmerAffects},
-	{5,  35, 10, 11, 50, (struct extra_affects_type *) &NecromancerAffects},
+	{5,  40, 10, 10, 50, (struct extra_affects_type *) &DefenderAffects},
+	{5,  40, 10, 10, 50, (struct extra_affects_type *) &CharmerAffects},
+	{5,  40, 10, 11, 50, (struct extra_affects_type *) &NecromancerAffects},
 	{2, 100, 10, 14, 50, (struct extra_affects_type *) &PaladineAffects},
 	{2, 100, 10, 14, 50, (struct extra_affects_type *) &RangerAffects},
 	{2, 100, 10, 14, 50, (struct extra_affects_type *) &SmithAffects},
 	{3,  50, 10, 14, 50, (struct extra_affects_type *) &MerchantAffects},
-	{5,  40, 10, 12, 50, (struct extra_affects_type *) &DruidAffects}
+	{5,  45, 10, 12, 50, (struct extra_affects_type *) &DruidAffects}
 };
 
 const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	/* 0 */

@@ -3466,7 +3466,7 @@ ACMD(do_insertgem)
 					set_obj_eff(itemobj, APPLY_SAVING_STABILITY, -10);
 					break;
 				case 2:
-					set_obj_eff(itemobj, APPLY_SAVING_CRITICAL, -10);
+					set_obj_eff(itemobj, APPLY_SAVING_REFLEX, -10);
 					break;
 				case 3:
 					set_obj_eff(itemobj, APPLY_RESIST_AIR, 15);
@@ -3478,7 +3478,7 @@ ACMD(do_insertgem)
 					set_obj_eff(itemobj, APPLY_RESIST_FIRE, 15);
 					break;
 				case 6:
-					set_obj_eff(itemobj, APPLY_SAVING_CRITICAL, 10);
+					set_obj_eff(itemobj, APPLY_SAVING_REFLEX, 10);
 					break;
 				}
 			if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum + 5)

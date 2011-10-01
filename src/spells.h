@@ -386,7 +386,7 @@
 #define TYPE_SUFFERING			499
 
 #define SAVING_WILL       0
-#define SAVING_CRITICAL   1
+#define SAVING_CRITICAL   1 // не используется
 #define SAVING_STABILITY  2
 #define SAVING_REFLEX     3
 #define SAVING_COUNT      4

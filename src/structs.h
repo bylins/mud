@@ -965,7 +965,7 @@ typedef struct trig_data TRIG_DATA;
 #define APPLY_SAVING_WILL      20	/* Apply to save throw: paralz   */
 #define APPLY_RESIST_FIRE      21	/* Apply to RESIST throw: fire  */
 #define APPLY_RESIST_AIR       22	/* Apply to RESIST throw: air   */
-#define APPLY_SAVING_CRITICAL  23	/* Apply to save throw: breath   */
+#define APPLY_SAVING_CRITICAL  23	// не используется
 #define APPLY_SAVING_STABILITY 24	/* Apply to save throw: spells   */
 #define APPLY_HITREG           25
 #define APPLY_MOVEREG          26

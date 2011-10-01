@@ -254,13 +254,11 @@ int armor_class_limit(CHAR_DATA * ch)
 		break;
 	case CLASS_CLERIC:
 	case CLASS_DRUID:
-		return -150;
-		break;
 	case CLASS_BATTLEMAGE:
 	case CLASS_DEFENDERMAGE:
 	case CLASS_CHARMMAGE:
 	case CLASS_NECROMANCER:
-		return -100;
+		return -150;
 		break;
 	default:
 		return -300;
@@ -2317,7 +2315,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 			 !AFF_FLAGGED(ch, AFF_CHARM) &&
 			 GET_WAIT(ch) <= 0 &&
 			 !AFF_FLAGGED(victim, AFF_POISON) && number(0, 100) < GET_LIKES(ch) + GET_LEVEL(ch) - GET_LEVEL(victim)
-			 && !general_savingthrow(ch, victim, SAVING_CRITICAL, - GET_REAL_CON(victim)))
+			 && !general_savingthrow(ch, victim, SAVING_STABILITY, - GET_REAL_CON(victim)))
 	{
 		poison_victim(ch, victim, MAX(1, GET_LEVEL(ch) - GET_LEVEL(victim)) * 10);
 	}
@@ -3043,12 +3041,12 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 						continue;
 					if (tch != ch && !same_group(ch, tch))
 						mag_damage(GET_LEVEL(ch), ch, tch,
-								   SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_CRITICAL);
+								   SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_STABILITY);
 				}
 			}
 			else
 				mag_damage(GET_LEVEL(ch), ch, ch->get_fighting(),
-						   SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_CRITICAL);
+						   SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_STABILITY);
 			return;
 		}
 	}

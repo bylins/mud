@@ -2045,8 +2045,6 @@ void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
  */
 int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DATA *rvict, int spellnum, int level, int casttype)
 {
-	int savetype;
-
 	if (spellnum < 1 || spellnum > TOP_SPELL_DEFINE)
 		return (0);
 
@@ -2079,23 +2077,6 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 		return 0;
 	}
 
-	/* determine the type of saving throw */
-	switch (casttype)
-	{
-	case CAST_STAFF:
-	case CAST_SCROLL:
-	case CAST_POTION:
-	case CAST_WAND:
-	case CAST_ITEMS:
-	case CAST_RUNES:
-	case CAST_SPELL:
-		savetype = SAVING_STABILITY;
-		break;
-	default:
-		savetype = SAVING_CRITICAL;
-		break;
-	}
-
 	if (SpellUsage::isActive)
 		SpellUsage::AddSpellStat(GET_CLASS(caster), spellnum);
 
@@ -2105,18 +2086,18 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 	// Проверка модификаторов целеуказаний
 
 	if (IS_SET(SpINFO.routines, MAG_MASSES))
-		return mag_masses(level, caster, rvict, spellnum, savetype);
+		return mag_masses(level, caster, rvict, spellnum, SAVING_STABILITY);
 
 	if (IS_SET(SpINFO.routines, MAG_GROUPS))
-		return mag_groups(level, caster, spellnum, savetype);
+		return mag_groups(level, caster, spellnum, SAVING_STABILITY);
 
 	if (IS_SET(SpINFO.routines, MAG_AREAS))
-		return mag_areas(level, caster, cvict, spellnum, savetype);
+		return mag_areas(level, caster, cvict, spellnum, SAVING_STABILITY);
 
 	if (IS_SET(SpINFO.routines, MAG_ROOM))
 		return RoomSpells::mag_room(level, caster, rvict, spellnum);
 
-	return mag_single_target(level, caster, cvict, ovict, spellnum, savetype);
+	return mag_single_target(level, caster, cvict, ovict, spellnum, SAVING_STABILITY);
 }
 
 

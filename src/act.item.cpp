@@ -181,7 +181,6 @@ const int effects[][2] = { {APPLY_MOVEREG, 100},
 	{APPLY_C2, 4},
 	{APPLY_CHAR_WEIGHT, 10},
 	{APPLY_HITREG, 76},
-	{APPLY_SAVING_CRITICAL, -20},
 	{APPLY_SAVING_STABILITY, -20},
 	{APPLY_RESIST_FIRE, 20},
 	{APPLY_RESIST_AIR, 20},
@@ -274,7 +273,7 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	{
 		limit = 10;
 		eff = number(0, 6);
-		max_eff = 39;
+		max_eff = 38;
 		//aff = number(0, 3);
 		GET_OBJ_VAL(skin, 0) = number(6, 10);
 		GET_OBJ_VAL(skin, 1) = number(5, 8);

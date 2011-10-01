@@ -1442,6 +1442,7 @@ int str_bonus(int str, int type);
 int dex_bonus(int dex);
 int dex_ac_bonus(int dex);
 void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type);
+int base_stat_bonus(int stat);
 
 #define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, PORTER_FEAT) ? 110 : 100))/100)
 #define CAN_CARRY_N(ch) (5 + (GET_REAL_DEX(ch) >> 1) + (GET_LEVEL(ch) >> 1) \
