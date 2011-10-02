@@ -250,7 +250,7 @@ void assign_feats(void)
 	feat_app.clear();
 //25 -*
 	feat_app.insert(APPLY_HITREG, 10);
-	feat_app.insert(APPLY_SAVING_STABILITY, -4);
+	feat_app.insert(APPLY_SAVING_CRITICAL, -4);
 	feato(SPLENDID_HEALTH_FEAT, "богатырское здоровье", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //26

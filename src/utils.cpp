@@ -2630,31 +2630,20 @@ int str_bonus(int str, int type)
 	return bonus;
 }
 
-int base_stat_bonus(int stat)
+int dex_bonus(int dex)
 {
 	int bonus = 0;
-	stat = MAX(1, stat);
-	if (stat < 10)
+	dex = MAX(1, dex);
+	// -5 ... 40
+	if (dex < 10)
 	{
-		// 1 = -5
-		// ...
-		// 9 = -1
-		bonus = (stat - 11) / 2;
+		bonus = (dex - 11) / 2;
 	}
 	else
 	{
-		// 10 = 0
-		// 11 = 1
-		// 12 = 2
-		// ...
-		bonus = stat - 10;
+		bonus = dex - 10;
 	}
 	return bonus;
-}
-
-int dex_bonus(int dex)
-{
-	return base_stat_bonus(dex);
 }
 
 int dex_ac_bonus(int dex)

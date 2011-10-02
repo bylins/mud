@@ -613,7 +613,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 		percent = skill_is + cha_app[GET_REAL_CHA(ch)].leadership;
 		break;
 	case SKILL_PUNCTUAL:
-		victim_sav = SAVING_STABILITY;
+		victim_sav = SAVING_CRITICAL;
 		percent = skill_is + int_app[GET_REAL_INT(ch)].observation;
 		if (GET_EQ(ch, WEAR_WIELD))
 			percent += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 18
@@ -842,29 +842,16 @@ int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict)
 int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim)
 {
 	int result = 0;
-	if (!killer)
-	{
-		// для отображения по 'сч все'
-		result = victim->get_skill(SKILL_AWAKE) / 2;
-	}
-	else if (!victim)
-	{
+	if (!killer || !victim)
 		log("SYSERROR: zero character in calculate_awake_mod.");
-	}
 	else if (IS_NPC(killer) || IS_NPC(victim))
-	{
 		result = victim->get_skill(SKILL_AWAKE) / 2;
-	}
 	else
 	{
 		if (GET_CLASS(victim) != CLASS_ASSASINE)
-		{
 			result = victim->get_skill(SKILL_AWAKE) / 2;
-		}
 		else
-		{
 			result = static_cast<int>(victim->get_skill(SKILL_AWAKE) / 2.5);
-		}
 	}
 	return result;
 }

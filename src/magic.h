@@ -35,6 +35,5 @@
 int get_resist_type(int spellnum);
 void delete_from_tmp_char_list(CHAR_DATA *ch);
 bool is_room_forbidden(ROOM_DATA * room);
-int calc_base_saving(CHAR_DATA *killer, CHAR_DATA *victim, int type);
 
 #endif

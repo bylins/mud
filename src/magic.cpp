@@ -643,147 +643,83 @@ int calc_anti_savings(CHAR_DATA * ch)
 	return modi;
 }
 
-int calc_class_bonus(int class_sav, int type)
-{
-	int bonus = 0;
 
-	switch (class_sav)
-	{
-	case CLASS_MOB:
-	case CLASS_CLERIC:
-	case CLASS_DRUID:
-		bonus += 15;
-		break;
-	case CLASS_BATTLEMAGE:
-	case CLASS_CHARMMAGE:
-	case CLASS_DEFENDERMAGE:
-	case CLASS_NECROMANCER:
-		if (type == SAVING_WILL)
-		{
-			bonus += 15;
-		}
-		break;
-	case CLASS_THIEF:
-	case CLASS_RANGER:
-		if (type == SAVING_REFLEX)
-		{
-			bonus += 15;
-		}
-		break;
-	case CLASS_WARRIOR:
-	case CLASS_ASSASINE:
-	case CLASS_GUARD:
-	case CLASS_PALADINE:
-	case CLASS_SMITH:
-	case CLASS_MERCHANT:
-		if (type == SAVING_CRITICAL)
-		{
-			bonus += 15;
-		}
-		break;
-	}
-
-	return bonus;
-}
-
-/**
- * Расчет сависов (воля, стойкость, реакция).
- * \param killer может быть нулевым
- */
-int calc_base_saving(CHAR_DATA *killer, CHAR_DATA *victim, int type)
-{
-	if (!victim || victim->purged())
-	{
-		log("SYSERROR: victim = %s (%s:%d)", victim ? "purged" : "false", __FILE__, __LINE__);
-		return 0;
-	}
-
-	int class_sav = GET_CLASS(victim);
-	if (IS_NPC(victim))
-	{
-		class_sav = CLASS_MOB;
-	}
-	else if (class_sav < 0 || class_sav >= NUM_CLASSES)
-	{
-		log("SYSERROR: class_sav = %d (%s:%d)", class_sav, __FILE__, __LINE__);
-		return 0;
-	}
-
-	// бонус уровня
-	int save = GET_LEVEL(victim) * 3 / 2;
-
-	// бонус класса
-	save += calc_class_bonus(class_sav, type);
-
-	// бонус с базового стата
-	switch (type)
-	{
-	case SAVING_WILL:
-		save += base_stat_bonus(MAX(GET_WIS(victim), GET_CHA(victim)));
-		break;
-	case SAVING_STABILITY:
-		save += base_stat_bonus(MAX(GET_CON(victim), GET_STR(victim)));
-		break;
-	case SAVING_REFLEX:
-		save += base_stat_bonus(MAX(GET_DEX(victim), GET_INT(victim)));
-		break;
-	}
-
-	// бонус с любой из аур
-	if (type != SAVING_REFLEX
-		&& (AFF_FLAGGED(victim, AFF_AIRAURA)
-			|| AFF_FLAGGED(victim, AFF_FIREAURA)
-			|| AFF_FLAGGED(victim, AFF_ICEAURA)))
-	{
-		save += 15;
-	}
-
-	// бонус осторожного стиля
-	if (PRF_FLAGGED(victim, PRF_AWAKE))
-	{
-		if (GET_CLASS(victim) == CLASS_GUARD)
-		{
-			save += MAX(0, victim->get_skill(SKILL_AWAKE) - 80)  /  2;
-		}
-		save += calculate_awake_mod(killer, victim);
-	}
-
-	// бонус с одежды
-	save += -(GET_SAVE(victim, type));
-
-	// флаги
-	if (GET_GOD_FLAG(victim, GF_GODSCURSE))
-	{
-		save -= 50;
-	}
-
-	return save;
-}
-
-/**
- * \return 1 - савис сработал, 2 - не сработал
- */
 int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply)
 {
-	// шанс безусловного резиста
 	if (- GET_SAVE(victim, type) / 10 > number(1, 100))
 	{
 		return 1;
 	}
 
-	// 90 из таблиц базовых спасов
-	int save = 90 - calc_base_saving(killer, victim, type);
-	// внешний модификатор
-	save += ext_apply;
+	/* NPCs use warrior tables according to some book */
+	int save;
+	int class_sav = GET_CLASS(victim);
 
-	// 5% безусловного фейла резиста
-	if (MAX(5, save) <= number(1, 100))
+	if (IS_NPC(victim))
 	{
-		return 1;
+		class_sav = CLASS_MOB;	// неизвестный класс моба
+	}
+	else
+	{
+		if (class_sav < 0 || class_sav >= NUM_CLASSES)
+			class_sav = CLASS_WARRIOR;	// неизвестный класс игрока
 	}
 
-	return 0;
+	// Базовые спасброски профессии/уровня
+	save = extend_saving_throws(class_sav, type, GET_LEVEL(victim));
+
+	switch (type)
+	{
+	case SAVING_REFLEX:
+		if ((save > 0) && (GET_CLASS(victim) == CLASS_THIEF))
+			save >>= 1;
+		save -= dex_bonus(GET_REAL_DEX(victim));
+		break;
+	case SAVING_STABILITY:
+		save += -GET_REAL_CON(victim);
+		break;
+	case SAVING_WILL:
+		save += wis_app[GET_REAL_WIS(victim)].char_savings;
+		break;
+	case SAVING_CRITICAL:
+		save += -GET_REAL_CON(victim);
+		break;
+	}
+
+	// Ослабление магических атак
+	if (type != SAVING_REFLEX)
+	{
+		if ((save > 0) &&
+				(AFF_FLAGGED(victim, AFF_AIRAURA) || AFF_FLAGGED(victim, AFF_FIREAURA) || AFF_FLAGGED(victim, AFF_ICEAURA)))
+			save >>= 1;
+	}
+	// Учет осторожного стиля
+	if (PRF_FLAGGED(victim, PRF_AWAKE))
+	{
+		if (GET_CLASS(victim) == CLASS_GUARD)
+			save -= MAX(0, victim->get_skill(SKILL_AWAKE) - 80)  /  2;
+		save -= calculate_awake_mod(killer, victim);
+	}
+
+	save += GET_SAVE(victim, type);	// одежда
+	save += ext_apply;	// внешний модификатор
+
+	if (IS_GOD(victim))
+		save = -150;
+	else if (GET_GOD_FLAG(victim, GF_GODSLIKE))
+		save -= 50;
+	else if (GET_GOD_FLAG(victim, GF_GODSCURSE))
+		save += 50;
+//  if (!IS_NPC(victim))
+//     log("SAVING: Name==%s type==%d save==%d ext_apply==%d",GET_NAME(victim),type,save, ext_apply);
+	/* Throwing a 0 is always a failure. */
+	if (MAX(5, save) <= number(1, 100))
+		return (TRUE);
+
+	/* Oops, failed. Sorry. */
+	return (FALSE);
 }
+
 
 int multi_cast_say(CHAR_DATA * ch)
 {
@@ -1827,7 +1763,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	case SPELL_STUNNING:
 		if (ch == victim ||
 				((number(1, 999)  > GET_AR(victim) * 10) &&
-				 !general_savingthrow(ch, victim, SAVING_STABILITY, CALC_SUCCESS(modi, GET_REAL_WIS(ch)))))
+				 !general_savingthrow(ch, victim, SAVING_CRITICAL, CALC_SUCCESS(modi, GET_REAL_WIS(ch)))))
 		{
 			savetype = SAVING_STABILITY;
 			ndice = GET_REAL_WIS(ch) / 5;
@@ -1860,7 +1796,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		//	    Ну явно кривота была. Отбалансил на свой вкус. В 50 мудры на 25м леве лаг на 3 на 30 лаг на 4 а не наоборот
 		adice = MAX(1, GET_LEVEL(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;
 		if (ch == victim ||
-				(!general_savingthrow(ch, victim, SAVING_STABILITY, CALC_SUCCESS(modi, GET_REAL_WIS(ch))) &&
+				(!general_savingthrow(ch, victim, SAVING_CRITICAL, CALC_SUCCESS(modi, GET_REAL_WIS(ch))) &&
 				 (number(1, 999)  > GET_AR(victim) * 10) &&
 				 number(0, 1000) <= 500))
 		{
@@ -1871,19 +1807,19 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 		/********* СПЕЦИФИЧНАЯ ДЛЯ КЛЕРИКОВ МАГИЯ **********/
 	case SPELL_DAMAGE_LIGHT:
-		savetype = SAVING_STABILITY;
+		savetype = SAVING_CRITICAL;
 		ndice = 4;
 		sdice = 3;
 		adice = (level + 2) / 3;
 		break;
 	case SPELL_DAMAGE_SERIOUS:
-		savetype = SAVING_STABILITY;
+		savetype = SAVING_CRITICAL;
 		ndice = 10;
 		sdice = 3;
 		adice = (level + 1) / 2;
 		break;
 	case SPELL_DAMAGE_CRITIC:
-		savetype = SAVING_STABILITY;
+		savetype = SAVING_CRITICAL;
 		ndice = 15;
 		sdice = 4;
 		adice = (level + 1) / 2;
@@ -1921,7 +1857,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		};
 		break;
 	case SPELL_HARM:
-		savetype = SAVING_STABILITY;
+		savetype = SAVING_CRITICAL;
 		ndice = 7;
 		sdice = level;
 		adice = level * GET_REMORT(ch) / 4;
@@ -2079,10 +2015,6 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 				   number(MAX(0, wis_app[GET_WIS(ch)].spell_success), 100) + wis_app[GET_REAL_WIS(ch)].spell_success);
 		dam /= 100;
 
-		if (GET_CAST_SUCCESS(ch) > 0 && IS_NPC(victim))
-		{
-			dam += dam * GET_CAST_SUCCESS(ch) / 100;
-		}
 
 		if (AFF_FLAGGED(ch, AFF_DATURA_POISON))
 			dam -= dam * GET_POISON(ch) / 100;
@@ -2897,7 +2829,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 
 	case SPELL_POISON:
-		savetype = SAVING_STABILITY;
+		savetype = SAVING_CRITICAL;
 		if (ch != victim && (AFF_FLAGGED(victim, AFF_SHIELD) ||
 							 general_savingthrow(ch, victim, savetype, modi - GET_REAL_CON(victim) / 2)))
 		{
