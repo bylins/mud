@@ -273,7 +273,7 @@ std::string PlayerRace::ShowRacesMenu(int KinNum)
 //Возвращаем номер рода или "неопределено"
 int PlayerRace::CheckRace(int KinNum, char *arg)
 {
-    int RaceNum = atoi(arg);
+    unsigned RaceNum = atoi(arg);
     //Поскольку меню формируется в этом же модуле функцией ShowRacesMenu
     //То для доступа к конкретному _роду_ можно использовать просто само введенное число
     //как индекс массива (с поправкой на единицу). Нужно только убедиться, что введено вменяемое значение.

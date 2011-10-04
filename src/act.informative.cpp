@@ -710,6 +710,9 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 	else if (!IS_NPC(i))
 	{
 		strcpy(buf, "\r\nЭто");
+		if (i->is_morphed())
+			strcat(buf, string(" "+i->get_morph_desc()+".\r\n").c_str());
+		else
 		if (IS_FEMALE(i))
 		{
 			if (GET_HEIGHT(i) <= 151)
@@ -843,24 +846,34 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 
 	diag_char_to_char(i, ch);
 
-	found = FALSE;
-	for (j = 0; !found && j < NUM_WEARS; j++)
-		if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j)))
-			found = TRUE;
-
-	if (found)
+	if (i->is_morphed())
 	{
 		send_to_char("\r\n", ch);
-		act("$n одет$a :", FALSE, i, 0, ch, TO_VICT);
-		for (j = 0; j < NUM_WEARS; j++)
+		std::string coverDesc = "$n покрыт$a " + i->get_cover_desc()+".";
+		act(coverDesc.c_str(), FALSE, i, 0, ch, TO_VICT);
+		send_to_char("\r\n", ch);
+	}
+	else
+	{
+		found = FALSE;
+		for (j = 0; !found && j < NUM_WEARS; j++)
 			if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j)))
-			{
-				send_to_char(where[j], ch);
-				if (i->master && IS_NPC(i))
-					show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i->master, 1);
-				else
-					show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i, 1);
-			}
+				found = TRUE;
+
+		if (found)
+		{
+			send_to_char("\r\n", ch);
+			act("$n одет$a :", FALSE, i, 0, ch, TO_VICT);
+			for (j = 0; j < NUM_WEARS; j++)
+				if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j)))
+				{
+					send_to_char(where[j], ch);
+					if (i->master && IS_NPC(i))
+						show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i->master, 1);
+					else
+						show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i, 1);
+				}
+		}
 	}
 
 	if (ch != i && (ch->get_skill(SKILL_LOOK_HIDE) || IS_IMMORTAL(ch)))
@@ -1180,7 +1193,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	}
 	else
 	{
-		sprintf(buf1, "%s%s ", race_or_title(i), PLR_FLAGGED(i, PLR_KILLER) ? " <ДУШЕГУБ>" : "");
+		sprintf(buf1, "%s%s ", i->get_morphed_title().c_str(), PLR_FLAGGED(i, PLR_KILLER) ? " <ДУШЕГУБ>" : "");
 	}
 
 	sprintf(buf, "%s%s", AFF_FLAGGED(i, AFF_CHARM) ? "*" : "", buf1);
@@ -2336,7 +2349,7 @@ void skip_hide_on_look(CHAR_DATA * ch)
 			((!ch->get_skill(SKILL_LOOK_HIDE) ||
 			  ((number(1, 100) -
 				calculate_skill(ch, SKILL_LOOK_HIDE,
-								skill_info[SKILL_LOOK_HIDE].max_percent, 0) - 2 * (GET_WIS(ch) - 9)) > 0))))
+								skill_info[SKILL_LOOK_HIDE].max_percent, 0) - 2 * (ch->get_wis() - 9)) > 0))))
 	{
 		affect_from_char(ch, SPELL_HIDE);
 		if (!AFF_FLAGGED(ch, AFF_HIDE))
@@ -2801,7 +2814,7 @@ ACMD(do_score)
 				" %sАтака:        %3d %s|"
 				" %sВоде:      %3d %s||\r\n",
 				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_LEVEL(ch), CCCYN(ch, C_NRM),
-				CCICYN(ch, C_NRM), GET_STR(ch), GET_REAL_STR(ch), CCCYN(ch, C_NRM),
+				CCICYN(ch, C_NRM), ch->get_str(), GET_REAL_STR(ch), CCCYN(ch, C_NRM),
 				CCIGRN(ch, C_NRM), hr, CCCYN(ch, C_NRM),
 				CCICYN(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
@@ -2812,7 +2825,7 @@ ACMD(do_score)
 				" %sУрон:        %4d %s|"
 				" %sЗемле:     %3d %s||\r\n",
 				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_REMORT(ch), CCCYN(ch, C_NRM),
-				CCICYN(ch, C_NRM), GET_DEX(ch), GET_REAL_DEX(ch), CCCYN(ch, C_NRM),
+				CCICYN(ch, C_NRM), ch->get_dex(), GET_REAL_DEX(ch), CCCYN(ch, C_NRM),
 				CCIGRN(ch, C_NRM), max_dam, CCCYN(ch, C_NRM),
 				CCYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
@@ -2820,7 +2833,7 @@ ACMD(do_score)
 				" || %sВозраст: %s%-3d       %s|"
 				" %sТелосложение:  %2d(%2d) %s|-------------------|----------------||\r\n",
 				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_AGE(ch), CCCYN(ch, C_NRM),
-				CCICYN(ch, C_NRM), GET_CON(ch), GET_REAL_CON(ch), CCCYN(ch, C_NRM));
+				CCICYN(ch, C_NRM), ch->get_con(), GET_REAL_CON(ch), CCCYN(ch, C_NRM));
 
 		resist = MIN(GET_RESIST(ch, VITALITY_RESISTANCE), 75);
 		sprintf(buf + strlen(buf),
@@ -2829,7 +2842,7 @@ ACMD(do_score)
 				" %sКолдовство:   %3d %s|"
 				" %sЖивучесть: %3d %s||\r\n",
 				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_EXP(ch), CCCYN(ch, C_NRM),
-				CCICYN(ch, C_NRM), GET_WIS(ch), GET_REAL_WIS(ch), CCCYN(ch, C_NRM),
+				CCICYN(ch, C_NRM), ch->get_wis(), GET_REAL_WIS(ch), CCCYN(ch, C_NRM),
 				CCIGRN(ch, C_NRM), GET_CAST_SUCCESS(ch), CCCYN(ch, C_NRM),
 				CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
@@ -2847,7 +2860,7 @@ ACMD(do_score)
 				" %sУм:            %2d(%2d) %s|"
 				" %sЗапоминание: %4d %s|"
 				" %sРазум:     %3d %s||\r\n",
-				CCICYN(ch, C_NRM), GET_INT(ch), GET_REAL_INT(ch), CCCYN(ch, C_NRM),
+				CCICYN(ch, C_NRM), ch->get_int(), GET_REAL_INT(ch), CCCYN(ch, C_NRM),
 				CCIGRN(ch, C_NRM), GET_MANAREG(ch), CCCYN(ch, C_NRM),
 				CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
@@ -2857,7 +2870,7 @@ ACMD(do_score)
 				" %sОбаяние:       %2d(%2d) %s|-------------------|"
 				" %sИммунитет: %3d %s||\r\n",
 				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), ch->get_gold(), CCCYN(ch, C_NRM),
-				CCICYN(ch, C_NRM), GET_CHA(ch), GET_REAL_CHA(ch), CCCYN(ch, C_NRM),
+				CCICYN(ch, C_NRM), ch->get_cha(), GET_REAL_CHA(ch), CCCYN(ch, C_NRM),
 				CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
 		sprintf(buf + strlen(buf),
@@ -3176,7 +3189,15 @@ ACMD(do_score)
 					(string(FREEZE_REASON(ch) ? FREEZE_REASON(ch) : "-") + string("].")).substr(0, 79).c_str(),
 					CCCYN(ch, C_NRM));
 		}
-
+		
+		if (ch->is_morphed())
+		{
+			sprintf(buf + strlen(buf),
+				" || %sВы находитесь в звериной форме - %-47s%s||\r\n", 
+				CCYEL(ch, C_NRM),
+				ch->get_morph_desc().substr(0, 47).c_str(),
+				CCCYN(ch, C_NRM));
+		}
 		strcat(buf, " ||                                                                                 ||\r\n");
 		strcat(buf, " -------------------------------------------------------------------------------------\r\n");
 		strcat(buf, CCNRM(ch, C_NRM));
@@ -3187,7 +3208,7 @@ ACMD(do_score)
 	/**********************************************/
 
 	sprintf(buf, "Вы %s (%s, %s, %s, %s %d уровня).\r\n",
-			only_title(ch),
+			ch->only_title().c_str(),
 			string(PlayerRace::GetKinNameByNum(GET_KIN(ch),GET_SEX(ch))).c_str(),
             string(PlayerRace::GetRaceNameByNum(GET_KIN(ch),GET_RACE(ch),GET_SEX(ch))).c_str(),
 			religion_name[GET_RELIGION(ch)][(int) GET_SEX(ch)],
@@ -3239,12 +3260,12 @@ ACMD(do_score)
 			"  Размер %3d(%3d)"
 			"  Рост   %3d(%3d)"
 			"  Вес    %3d(%3d)%s\r\n",
-			CCICYN(ch, C_NRM), GET_STR(ch), GET_REAL_STR(ch),
-			GET_DEX(ch), GET_REAL_DEX(ch),
-			GET_CON(ch), GET_REAL_CON(ch),
-			GET_WIS(ch), GET_REAL_WIS(ch),
-			GET_INT(ch), GET_REAL_INT(ch),
-			GET_CHA(ch), GET_REAL_CHA(ch),
+			CCICYN(ch, C_NRM), ch->get_str(), GET_REAL_STR(ch),
+			ch->get_dex(), GET_REAL_DEX(ch),
+			ch->get_con(), GET_REAL_CON(ch),
+			ch->get_wis(), GET_REAL_WIS(ch),
+			ch->get_int(), GET_REAL_INT(ch),
+			ch->get_cha(), GET_REAL_CHA(ch),
 			GET_SIZE(ch), GET_REAL_SIZE(ch),
 			GET_HEIGHT(ch), GET_REAL_HEIGHT(ch), GET_WEIGHT(ch), GET_REAL_WEIGHT(ch), CCNRM(ch, C_NRM));
 
@@ -3457,6 +3478,16 @@ ACMD(do_score)
 				hrs, desc_count(hrs, WHAT_HOUR), mins, desc_count(mins, WHAT_MINu));
 		send_to_char(buf, ch);
 	}
+
+	if (ch->is_morphed())
+	{
+		sprintf(buf, "Вы находитесь в звериной форме - ");
+		sprintf(buf+strlen(buf), ch->get_morph_desc().c_str());
+		sprintf(buf+strlen(buf), ".\r\n");
+
+		send_to_char(buf, ch);
+	}
+
 }
 
 /*29.11.09 Отображение количества рипов (с) Василиса*/
@@ -4123,11 +4154,12 @@ ACMD(do_who)
 		if (!*argument && GET_LEVEL(tch) < LVL_IMMORT)
 			++all;
 
-		if (*name_search &&
-				!(isname(name_search, GET_NAME(tch)) ||
-				  (only_title(tch) && strstr(only_title(tch), name_search))))
+		std::string only_title = ch->only_title();
 
+		if (*name_search &&
+			!(isname(name_search, GET_NAME(tch)) || only_title.find(name_search) != string::npos ))
 			continue;
+
 		if (!CAN_SEE_CHAR(ch, tch) || GET_LEVEL(tch) < low || GET_LEVEL(tch) > high)
 			continue;
 		if (localwho && world[ch->in_room]->zone != world[tch->in_room]->zone)
@@ -4146,7 +4178,7 @@ ACMD(do_who)
 
 		*name_who = '\0';
 		if (!short_list)
-			sprintf(name_who, "%s%s%s", CCPK(ch, C_NRM, tch), race_or_title(tch), CCNRM(ch, C_NRM));
+			sprintf(name_who, "%s%s%s", CCPK(ch, C_NRM, tch), tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
 		else
 			sprintf(name_who, "%s%s%s", CCPK(ch, C_NRM, tch), GET_NAME(tch), CCNRM(ch, C_NRM));
 
@@ -4171,11 +4203,11 @@ ACMD(do_who)
 						CLASS_ABBR(tch),
 						tch->get_pfilepos(),
 						CCPK(ch, C_NRM, tch),
-						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", race_or_title(tch), CCNRM(ch, C_NRM));
+						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
 			else
 				sprintf(buf, "%s %s%s%s",
 						CCPK(ch, C_NRM, tch),
-						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", race_or_title(tch), CCNRM(ch, C_NRM));
+						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
 
 			if (GET_INVIS_LEV(tch))
 				sprintf(buf + strlen(buf), " (i%d)", GET_INVIS_LEV(tch));
@@ -4357,7 +4389,7 @@ ACMD(do_who_new)
 
 // Добавлено Дажьбогом
 		*name_who = '\0';
-		sprintf(name_who, "%s%s%s", CCPK(ch, C_NRM, tch), race_or_title(tch), CCNRM(ch, C_NRM));
+		sprintf(name_who, "%s%s%s", CCPK(ch, C_NRM, tch), tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
 
 
 //      {
@@ -4369,11 +4401,11 @@ ACMD(do_who_new)
 					CLASS_ABBR(tch),
 					tch->get_pfilepos(),
 					CCPK(ch, C_NRM, tch),
-					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", race_or_title(tch), CCNRM(ch, C_NRM));
+					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
 		else
 			sprintf(buf, "%s %s%s%s",
 					CCPK(ch, C_NRM, tch),
-					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", race_or_title(tch), CCNRM(ch, C_NRM));
+					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
 
 		if (GET_INVIS_LEV(tch))
 			sprintf(buf + strlen(buf), " (i%d)", GET_INVIS_LEV(tch));
@@ -5587,7 +5619,7 @@ void make_who2html(void)
 		if (STATE(d) == CON_PLAYING && GET_INVIS_LEV(d->character) < 31)
 		{
 			ch = d->character;
-			sprintf(buf, "%s <BR> \r\n ", race_or_title(ch));
+			sprintf(buf, "%s <BR> \r\n ", ch->race_or_title().c_str());
 
 			if (IS_IMMORTAL(ch))
 			{

@@ -231,7 +231,7 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 		return NULL;
 	}
 
-	definitor = (int)((GET_STR(mob) + GET_DEX(mob) + GET_CON(mob) + GET_WIS(mob) + GET_INT(mob)) / 5);
+	definitor = (int)((mob->get_str() + mob->get_dex() + mob->get_con() + mob->get_wis() + mob->get_int()) / 5);
 	GET_OBJ_PARENT(skin) = GET_MOB_VNUM(mob);
 	trans_obj_name(skin, mob);
 	if (0 <= definitor && definitor <= 15)

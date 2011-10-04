@@ -131,8 +131,9 @@ void medit_mobile_init(CHAR_DATA * mob)
 
 	mob->set_str(11);
 	mob->set_dex(11);
-	mob->real_abils.intel = mob->real_abils.wis = 11;
-	mob->real_abils.cha = 11;
+	mob->set_int(11);
+	mob->set_wis(11);
+	mob->set_cha(11);
 	mob->set_con(11);
 
 	SET_BIT(MOB_FLAGS(mob, MOB_ISNPC), MOB_ISNPC);
@@ -726,18 +727,18 @@ void medit_save_to_disk(int zone_num)
 				fprintf(mob_file, "BareHandAttack: %d\n", GET_ATTACK(mob));
 			for (c = 0; c < mob->mob_specials.dest_count; c++)
 				fprintf(mob_file, "Destination: %d\n", mob->mob_specials.dest[c]);
-			if (GET_STR(mob) != 11)
-				fprintf(mob_file, "Str: %d\n", GET_STR(mob));
-			if (GET_DEX(mob) != 11)
-				fprintf(mob_file, "Dex: %d\n", GET_DEX(mob));
-			if (GET_INT(mob) != 11)
-				fprintf(mob_file, "Int: %d\n", GET_INT(mob));
-			if (GET_WIS(mob) != 11)
-				fprintf(mob_file, "Wis: %d\n", GET_WIS(mob));
-			if (GET_CON(mob) != 11)
-				fprintf(mob_file, "Con: %d\n", GET_CON(mob));
-			if (GET_CHA(mob) != 11)
-				fprintf(mob_file, "Cha: %d\n", GET_CHA(mob));
+			if (mob->get_str() != 11)
+				fprintf(mob_file, "Str: %d\n", mob->get_str());
+			if (mob->get_dex() != 11)
+				fprintf(mob_file, "Dex: %d\n", mob->get_dex());
+			if (mob->get_int() != 11)
+				fprintf(mob_file, "Int: %d\n", mob->get_int());
+			if (mob->get_wis() != 11)
+				fprintf(mob_file, "Wis: %d\n", mob->get_wis());
+			if (mob->get_con() != 11)
+				fprintf(mob_file, "Con: %d\n", mob->get_con());
+			if (mob->get_cha() != 11)
+				fprintf(mob_file, "Cha: %d\n", mob->get_cha());
 			if (GET_SIZE(mob))
 				fprintf(mob_file, "Size: %d\n", GET_SIZE(mob));
 
@@ -1445,12 +1446,12 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, nrm, cyn, mob->helpers ? "Yes" : "No",
 			grn, nrm,
 			grn, nrm,
-			grn, nrm, cyn, GET_STR(mob), nrm,
-			grn, nrm, cyn, GET_DEX(mob), nrm,
-			grn, nrm, cyn, GET_CON(mob), nrm,
-			grn, nrm, cyn, GET_WIS(mob), nrm,
-			grn, nrm, cyn, GET_INT(mob), nrm,
-			grn, nrm, cyn, GET_CHA(mob), nrm,
+			grn, nrm, cyn, mob->get_str(), nrm,
+			grn, nrm, cyn, mob->get_dex(), nrm,
+			grn, nrm, cyn, mob->get_con(), nrm,
+			grn, nrm, cyn, mob->get_wis(), nrm,
+			grn, nrm, cyn, mob->get_int(), nrm,
+			grn, nrm, cyn, mob->get_cha(), nrm,
 			grn, nrm, cyn, GET_HEIGHT(mob), nrm,
 			grn, nrm, cyn, GET_WEIGHT(mob), nrm,
 			grn, nrm, cyn, GET_SIZE(mob), nrm,
@@ -2422,15 +2423,15 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 
 		case MEDIT_WIS:
-			GET_WIS(OLC_MOB(d)) = MIN(50, MAX(1, atoi(arg)));
+			OLC_MOB(d)->set_wis(MIN(50, MAX(1, atoi(arg))));
 			break;
 
 		case MEDIT_INT:
-			GET_INT(OLC_MOB(d)) = MIN(50, MAX(1, atoi(arg)));
+			OLC_MOB(d)->set_int(MIN(50, MAX(1, atoi(arg))));
 			break;
 
 		case MEDIT_CHA:
-			GET_CHA(OLC_MOB(d)) = MIN(50, MAX(1, atoi(arg)));
+			OLC_MOB(d)->set_cha(MIN(50, MAX(1, atoi(arg))));
 			break;
 
 		case MEDIT_WEIGHT:

@@ -38,6 +38,7 @@ Player::Player()
 {
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 		start_stats_.at(i) = 0;
+	set_morph(NormalMorph::GetNormalMorph(this));
 }
 
 int Player::get_pfilepos() const
@@ -419,12 +420,12 @@ void Player::save_char()
 
 	/* дальше не по порядку */
 	/* статсы */
-	fprintf(saved, "Str : %d\n", GET_STR(this));
-	fprintf(saved, "Int : %d\n", GET_INT(this));
-	fprintf(saved, "Wis : %d\n", GET_WIS(this));
-	fprintf(saved, "Dex : %d\n", GET_DEX(this));
-	fprintf(saved, "Con : %d\n", GET_CON(this));
-	fprintf(saved, "Cha : %d\n", GET_CHA(this));
+	fprintf(saved, "Str : %d\n", this->get_inborn_str());
+	fprintf(saved, "Int : %d\n", this->get_inborn_int());
+	fprintf(saved, "Wis : %d\n", this->get_inborn_wis());
+	fprintf(saved, "Dex : %d\n", this->get_inborn_dex());
+	fprintf(saved, "Con : %d\n", this->get_inborn_con());
+	fprintf(saved, "Cha : %d\n", this->get_inborn_cha());
 
 	/* способности - added by Gorrah */
 	if (GET_LEVEL(this) < LVL_IMMORT)
@@ -962,10 +963,10 @@ int Player::load_char_ascii(const char *name, bool reboot)
 
 	this->set_str(10);
 	this->set_dex(10);
-	GET_CHA(this) = 10;
-	GET_INT(this) = 10;
-	GET_WIS(this) = 10;
 	this->set_con(10);
+	this->set_int(10);
+	this->set_wis(10);
+	this ->set_cha(10);
 
 	GET_COND(this, DRUNK) = 0;
 	GET_DRUNK_STATE(this) = 0;
@@ -1150,7 +1151,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 
 		case 'C':
 			if (!strcmp(tag, "Cha "))
-				GET_CHA(this) = num;
+				this->set_cha(num);
 			else if (!strcmp(tag, "Con "))
 				this->set_con(num);
 			break;
@@ -1276,7 +1277,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 
 		case 'I':
 			if (!strcmp(tag, "Int "))
-				GET_INT(this) = num;
+				this->set_int(num);
 			else if (!strcmp(tag, "Invs"))
 				GET_INVIS_LEV(this) = num;
 // shapirus
@@ -1642,7 +1643,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			else if (!strcmp(tag, "Wimp"))
 				GET_WIMP_LEV(this) = num;
 			else if (!strcmp(tag, "Wis "))
-				GET_WIS(this) = num;
+				this->set_wis(num);
 /*29.11.09 (c) Василиса*/
 			else if (!strcmp(tag, "Wina"))
 				GET_WIN_ARENA(this) = num;
@@ -1658,6 +1659,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	if (GET_LEVEL(this) >= LVL_IMMORT)
 	{
 		set_god_skills(this);
+		set_god_morphs(this);
 		GET_COND(this, FULL) = -1;
 		GET_COND(this, THIRST) = -1;
 		GET_COND(this, DRUNK) = -1;

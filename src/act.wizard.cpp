@@ -1692,17 +1692,17 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	sprintf(buf,
 			"Сила: [%s%d/%d%s]  Инт : [%s%d/%d%s]  Мудр : [%s%d/%d%s] \r\n"
 			"Ловк: [%s%d/%d%s]  Тело:[%s%d/%d%s]  Обаян:[%s%d/%d%s] Размер: [%s%d/%d%s]\r\n",
-			CCCYN(ch, C_NRM), GET_STR(k), GET_REAL_STR(k), CCNRM(ch,
+			CCCYN(ch, C_NRM), k->get_inborn_str(), GET_REAL_STR(k), CCNRM(ch,
 					C_NRM),
-			CCCYN(ch, C_NRM), GET_INT(k), GET_REAL_INT(k), CCNRM(ch,
+			CCCYN(ch, C_NRM), k->get_inborn_int(), GET_REAL_INT(k), CCNRM(ch,
 					C_NRM),
-			CCCYN(ch, C_NRM), GET_WIS(k), GET_REAL_WIS(k), CCNRM(ch,
+			CCCYN(ch, C_NRM), k->get_inborn_wis(), GET_REAL_WIS(k), CCNRM(ch,
 					C_NRM),
-			CCCYN(ch, C_NRM), GET_DEX(k), GET_REAL_DEX(k), CCNRM(ch,
+			CCCYN(ch, C_NRM), k->get_inborn_dex(), GET_REAL_DEX(k), CCNRM(ch,
 					C_NRM),
-			CCCYN(ch, C_NRM), GET_CON(k), GET_REAL_CON(k), CCNRM(ch,
+			CCCYN(ch, C_NRM), k->get_inborn_con(), GET_REAL_CON(k), CCNRM(ch,
 					C_NRM),
-			CCCYN(ch, C_NRM), GET_CHA(k), GET_REAL_CHA(k), CCNRM(ch,
+			CCCYN(ch, C_NRM), k->get_inborn_cha(), GET_REAL_CHA(k), CCNRM(ch,
 					C_NRM),
 			CCCYN(ch, C_NRM), GET_SIZE(k), GET_REAL_SIZE(k), CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
@@ -2996,11 +2996,11 @@ ACMD(do_restore)
 			if (IS_GRGOD(vict))
 			{
 				vict->set_str(25);
-				vict->real_abils.intel = 25;
-				vict->real_abils.wis = 25;
+				vict->set_int(25);
+				vict->set_wis(25);
 				vict->set_dex(25);
 				vict->set_con(25);
-				vict->real_abils.cha = 25;
+				vict->set_cha(25);
 			}
 		}
 		update_pos(vict);
@@ -3610,8 +3610,8 @@ ACMD(do_wizutil)
 			imm_log("%s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
 			sprintf(buf,
 					"Новые параметры: Str %d, Int %d, Wis %d, Dex %d, Con %d, Cha %d\r\n",
-					GET_STR(vict), GET_INT(vict), GET_WIS(vict),
-					GET_DEX(vict), GET_CON(vict), GET_CHA(vict));
+					vict->get_inborn_str(), vict->get_inborn_int(), vict->get_inborn_wis(),
+					vict->get_inborn_dex(), vict->get_inborn_con(), vict->get_inborn_cha());
 			send_to_char(buf, ch);
 			break;
 		case SCMD_NOTITLE:
@@ -4079,7 +4079,7 @@ ACMD(do_show)
 				continue;
 			++i;
 			sprintf(buf, "%-50s[%6d][%6d]   %d\r\n",
-					noclan_title(vict), GET_ROOM_VNUM(IN_ROOM(vict)),
+					vict->noclan_title().c_str(), GET_ROOM_VNUM(IN_ROOM(vict)),
 					GET_ROOM_VNUM(vict->get_was_in_room()), vict->char_specials.timer);
 			send_to_char(buf, ch);
 		}
@@ -5459,12 +5459,14 @@ ACMD(do_spellstat)
 
 	send_to_char("заклстат: неизвестный аргумент\r\n", ch);
 }
-//-Polud
+
 ACMD(do_sanitize)
 {
 	send_to_char("Запущена процедура сбора мусора после праздника...\r\n", ch);
 	Celebrates::sanitize();
 }
+
+//-Polud
 
 /* This is test command for different testings */
 ACMD(do_godtest)

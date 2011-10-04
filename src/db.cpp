@@ -57,7 +57,6 @@
 #include "char_player.hpp"
 #include "parcel.hpp"
 #include "liquid.hpp"
-#include "xmlParser.h"
 #include "corpse.hpp"
 #include "name_list.hpp"
 #include "modify.h"
@@ -68,6 +67,7 @@
 #include "named_stuff.hpp"
 #include "celebrates.hpp"
 #include "player_races.hpp"
+#include "morph.hpp"
 #include "birth_places.hpp"
 #include "pugixml.hpp"
 
@@ -432,12 +432,11 @@ void load_sheduled_reboot()
 }
 
 // Базовая функция загрузки XML конфигов
-pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *ErrorStr)
+pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *ErrorStr, pugi::xml_document& Doc)
 {
 	std::ostringstream buffer;
-	pugi::xml_document Doc;
-	pugi::xml_node NodeList;
 	pugi::xml_parse_result Result;
+	pugi::xml_node NodeList;
 
     // Пробуем прочитать файл
 	Result = Doc.load_file(PathToFile);
@@ -455,7 +454,7 @@ pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *
 	if (!NodeList)
 		mudlog(ErrorStr, CMP, LVL_IMMORT, SYSLOG, TRUE);
 
-    return NodeList;
+	return NodeList;
 };
 
 /*
@@ -490,6 +489,7 @@ ACMD(do_reboot)
 		oload_table.init();
 		obj_data::init_set_table();
 		load_mobraces();
+		load_morphs();
 		GlobalDrop::init();
 		OfftopSystem::init();
 		//Celebrates::load(XMLLoad(LIB_MISC CELEBRATES_FILE, CELEBRATES_MAIN_TAG, CELEBRATES_ERROR_STR));
@@ -548,6 +548,8 @@ ACMD(do_reboot)
 		Privilege::load();
 	else if (!str_cmp(arg, "mobraces"))
 		load_mobraces();
+	else if (!str_cmp(arg, "morphs"))
+		load_morphs();
 	else if (!str_cmp(arg, "depot"))
 	{
 		argument = one_argument(argument, arg);
@@ -1516,8 +1518,6 @@ bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict)
 void boot_db(void)
 {
 	zone_rnum i;
-//Polud глобальные установки для xmlParser, учат его правильно работать с koi8-r
-	XMLNode::setGlobalOptions(XMLNode::char_encoding_legacy, 0, 1, 1);
 
 	log("Boot db -- BEGIN.");
 
@@ -1538,13 +1538,15 @@ void boot_db(void)
 		prune_crlf(GREETINGS);
 
     log("Loading NEW skills definitions");
-    Skill::Load(XMLLoad(LIB_MISC SKILLS_FILE, SKILLS_MAIN_TAG, SKILLS_ERROR_STR));
+	pugi::xml_document doc;
+
+	Skill::Load(XMLLoad(LIB_MISC SKILLS_FILE, SKILLS_MAIN_TAG, SKILLS_ERROR_STR, doc));
 
     log("Loading birth places definitions.");
-	BirthPlace::Load(XMLLoad(LIB_MISC BIRTH_PLACES_FILE, BIRTH_PLACE_MAIN_TAG, BIRTH_PLACE_ERROR_STR));
+	BirthPlace::Load(XMLLoad(LIB_MISC BIRTH_PLACES_FILE, BIRTH_PLACE_MAIN_TAG, BIRTH_PLACE_ERROR_STR, doc));
 
     log("Loading player races definitions.");
-	PlayerRace::Load(XMLLoad(LIB_MISC PLAYER_RACE_FILE, RACE_MAIN_TAG, PLAYER_RACE_ERROR_STR));
+	PlayerRace::Load(XMLLoad(LIB_MISC PLAYER_RACE_FILE, RACE_MAIN_TAG, PLAYER_RACE_ERROR_STR, doc));
 
 	log("Loading spell definitions.");
 	mag_assign_spells();
@@ -1713,6 +1715,9 @@ void boot_db(void)
 	//Polud грузим параметры рас мобов
 	log("Load mob races.");
 	load_mobraces();
+
+	log("Load morphs.");
+	load_morphs();
 
 	log("Init global drop list.");
 	GlobalDrop::init();
@@ -2689,11 +2694,11 @@ void parse_simple_mob(FILE * mob_f, int i, int nr)
 	char line[256];
 
 	mob_proto[i].set_str(11);
-	mob_proto[i].real_abils.intel = 11;
-	mob_proto[i].real_abils.wis = 11;
+	mob_proto[i].set_int(11);
+	mob_proto[i].set_wis(11);
 	mob_proto[i].set_dex(11);
 	mob_proto[i].set_con(11);
-	mob_proto[i].real_abils.cha = 11;
+	mob_proto[i].set_cha(11);
 
 	if (!get_line(mob_f, line))
 	{
@@ -2907,13 +2912,13 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 	CASE("Int")
 	{
 		RANGE(3, 50);
-		mob_proto[i].real_abils.intel = num_arg;
+		mob_proto[i].set_int(num_arg);
 	}
 
 	CASE("Wis")
 	{
 		RANGE(3, 50);
-		mob_proto[i].real_abils.wis = num_arg;
+		mob_proto[i].set_wis(num_arg);
 	}
 
 	CASE("Dex")
@@ -2929,7 +2934,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 	CASE("Cha")
 	{
 		RANGE(3, 50);
-		mob_proto[i].real_abils.cha = num_arg;
+		mob_proto[i].set_cha(num_arg);
 	}
 
 	CASE("Size")
@@ -5770,6 +5775,7 @@ void set_god_skills(CHAR_DATA *ch)
 		ch->set_skill(i, 150);
 }
 
+
 #define NUM_OF_SAVE_THROWS	5
 
 // по умолчанию reboot = 0 (пользуется только при ребуте)
@@ -6164,7 +6170,10 @@ void init_char(CHAR_DATA * ch)
 	}
 
 	if (GET_LEVEL(ch) == LVL_IMPL)
+	{
 		set_god_skills(ch);
+		set_god_morphs(ch);
+	}
 
 	for (i = 1; i <= MAX_SPELLS; i++)
 	{
@@ -6183,11 +6192,11 @@ void init_char(CHAR_DATA * ch)
 	if (GET_LEVEL(ch) == LVL_IMPL)
 	{
 		ch->set_str(25);
-		ch->real_abils.intel = 25;
-		ch->real_abils.wis = 25;
+		ch->set_int(25);
+		ch->set_wis(25);
 		ch->set_dex(25);
 		ch->set_con(25);
-		ch->real_abils.cha = 25;
+		ch->set_cha(25);
 	}
 	ch->real_abils.size = 50;
 
@@ -6277,14 +6286,15 @@ ACMD(do_remort)
 
 	act(remort_msg2, FALSE, ch, 0, 0, TO_ROOM);
 
+	ch->reset_morph();
 	ch->set_remort(ch->get_remort() + 1);
 	CLR_GOD_FLAG(ch, GF_REMORT);
-	ch->set_str(ch->get_str() + 1);
-	ch->set_dex(ch->get_dex() + 1);
-	ch->set_con(ch->get_con() + 1);
-	GET_INT(ch) += 1;
-	GET_WIS(ch) += 1;
-	GET_CHA(ch) += 1;
+	ch->inc_str(1);
+	ch->inc_dex(1);
+	ch->inc_con(1);
+	ch->inc_wis(1);
+	ch->inc_int(1);
+	ch->inc_cha(1);
 
 	if (ch->get_fighting())
 		stop_fighting(ch, TRUE);
@@ -7053,32 +7063,36 @@ void SaveGlobalUID(void)
 
 void load_guardians()
 {
-	const char *GUARD_FILE = LIB_MISC"guards.xml";
-	int num_wars = 0, num_wars_global = 0, guard_vnum = 0;
-	struct mob_guardian tmp_guard;
-	XMLResults result;
-
-	XMLNode xMainNode=XMLNode::parseFile(GUARD_FILE, "guardians", &result);
-
-	if (result.error != eXMLErrorNone)
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file(LIB_MISC"guards.xml");
+	if (!result)
 	{
-		log("SYSERROR: Ошибка чтения файла %s - %s", GUARD_FILE, XMLNode::getError(result.error));
+		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
+
+	pugi::xml_node xMainNode = doc.child("guardians");
+	
+	if (!xMainNode)
+	{
+		snprintf(buf, MAX_STRING_LENGTH, "...guards.xml read fail");
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
 
 	guardian_list.clear();
 
-	num_wars_global = xmltoi(xMainNode.getChildNode("wars").getText());
-	int num_guards = xMainNode.nChildNode("guard");
-
-	for (int i=0; i<num_guards;i++)
+	int num_wars_global = atoi(xMainNode.child_value("wars"));
+	
+	struct mob_guardian tmp_guard;
+	for (pugi::xml_node xNodeGuard = xMainNode.child("guard");xNodeGuard; xNodeGuard = xNodeGuard.next_sibling("guard"))
 	{
-		XMLNode xNodeGuard = xMainNode.getChildNode("guard", i);
-		guard_vnum = xmltoi(xNodeGuard.getAttribute("vnum"));
+		int guard_vnum = xNodeGuard.attribute("vnum").as_int();
 
 		if (guard_vnum <= 0)
 		{
-			log("ERROR: Ошибка загрузки файла %s - некорректное значение VNUM: %d", GUARD_FILE, guard_vnum);
+			log("ERROR: Ошибка загрузки файла %s - некорректное значение VNUM: %d", LIB_MISC"guards.xml", guard_vnum);
 			continue;
 		}
 		//значения по умолчанию
@@ -7087,25 +7101,22 @@ void load_guardians()
 		tmp_guard.agro_argressors_in_zones.clear();
 		tmp_guard.agro_killers = true;
 
-		num_wars = xmltoi(xNodeGuard.getAttribute("wars"));
+		int num_wars = xNodeGuard.attribute("wars").as_int();
 
 		if (num_wars && (num_wars != num_wars_global))
 			tmp_guard.max_wars_allow = num_wars;
 
-		if (!strcmp(xNodeGuard.getAttribute("killer"),"no"))
+		if (!strcmp(xNodeGuard.attribute("killer").value(),"no"))
 			tmp_guard.agro_killers = false;
 
-		if (!strcmp(xNodeGuard.getAttribute("agressor"),"yes"))
+		if (!strcmp(xNodeGuard.attribute("agressor").value(),"yes"))
 			tmp_guard.agro_all_agressors = true;
 
-		if (!strcmp(xNodeGuard.getAttribute("agressor"),"list"))
+		if (!strcmp(xNodeGuard.attribute("agressor").value(),"list"))
 		{
-			int num_zones = xNodeGuard.nChildNode("zone");
-
-			for (int j=0; j<num_zones; j++)
+			for (pugi::xml_node xNodeZone = xNodeGuard.child("zone"); xNodeZone; xNodeZone = xNodeZone.next_sibling("zone"))
 			{
-				XMLNode xNodeZone = xNodeGuard.getChildNode("zone", j);
-				tmp_guard.agro_argressors_in_zones.push_back(xmltoi(xNodeZone.getText()));
+				tmp_guard.agro_argressors_in_zones.push_back(atoi(xNodeZone.child_value()));
 			}
 		}
 		guardian_list[guard_vnum] = tmp_guard;
@@ -7116,45 +7127,53 @@ void load_guardians()
 //Polud тестовый класс для хранения параметров различных рас мобов
 //Читает данные из файла
 const char *MOBRACE_FILE = LIB_MISC"mobrace.xml";
-//использует xmlParser (xmlParser.cpp, xmlParser.h) см.  http://www.applied-mathematics.net/tools/xmlParser.html
 
 MobRaceListType mobraces_list;
 
 //загрузка рас из файла
 void load_mobraces()
 {
-	struct ingredient tmp_ingr;
-	XMLResults result;
-	XMLNode xMainNode=XMLNode::parseFile(MOBRACE_FILE, "mobraces", &result);
-	if (result.error != eXMLErrorNone)
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file(MOBRACE_FILE);
+	if (!result)
 	{
-		log("SYSERROR: Ошибка чтения файла %s: %s", MOBRACE_FILE, XMLNode::getError(result.error));
+		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
-	int numraces = xMainNode.nChildNode("mobrace");
-	for (int i=0;i<numraces;i++)
+
+	pugi::xml_node node_list = doc.child("mobraces");
+	
+	if (!node_list)
+	{
+		snprintf(buf, MAX_STRING_LENGTH, "...mobraces read fail");
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
+	
+	for (pugi::xml_node race = node_list.child("mobrace");race; race = race.next_sibling("mobrace"))
 	{
 		MobRacePtr tmp_mobrace(new MobRace);
-		XMLNode xNodeRace = xMainNode.getChildNode("mobrace", i);
-		tmp_mobrace->race_name = xNodeRace.getAttribute("name");
-		int race_num = xmltoi(xNodeRace.getAttribute("key"));
-		XMLNode xNodeImList = xNodeRace.getChildNode("imlist");
-		int numims = xNodeImList.nChildNode("im");
-		for (int j=0; j<numims; j++)
+		tmp_mobrace->race_name = race.attribute("name").value();
+		int race_num = race.attribute("key").as_int();
+
+		pugi::xml_node imList = race.child("imlist");
+
+		for (pugi::xml_node im = imList.child("im");im;im = im.next_sibling("im"))
 		{
-			XMLNode xNodeIm = xNodeImList.getChildNode("im",j);
-			tmp_ingr.imtype = xmltoi(xNodeIm.getAttribute("type"));
-			tmp_ingr.imname = str_dup(xNodeIm.getAttribute("name"));
+			struct ingredient tmp_ingr;
+			tmp_ingr.imtype = im.attribute("type").as_int();
+			tmp_ingr.imname = string(im.attribute("name").value());
 			boost::trim(tmp_ingr.imname);
-			int numprobs = xNodeIm.nChildNode("prob"), cur_lvl=50, next_lvl=0, prob;
-			for (int k=numprobs-1; k>=0; k--)
+			int cur_lvl=50;
+			for (pugi::xml_node prob = im.child("prob"); prob; prob = prob.next_sibling("prob"))
 			{
-				next_lvl = xmltoi(xNodeIm.getChildNode("prob",k).getAttribute("lvl"));
-				prob = xmltoi(xNodeIm.getChildNode("prob",k).getText());
+				int next_lvl = prob.attribute("lvl").as_int();
+				int prob_value = atoi(prob.child_value());
 				if (next_lvl>0)
 				{
-					for (int lvl=cur_lvl; lvl>=next_lvl; lvl--)
-						tmp_ingr.prob[lvl-1] = prob;
+					for (int lvl=cur_lvl; lvl >= next_lvl; lvl--)
+						tmp_ingr.prob[lvl-1] = prob_value;
 				}
 				else
 				{

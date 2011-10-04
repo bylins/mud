@@ -304,7 +304,6 @@ void load()
 	load_celebrates(poly_node_list, poly_celebrates, false);
 	pugi::xml_node real_node_list = node_list.child("celebratesReal");//Российские праздники
 	load_celebrates(real_node_list, real_celebrates, true);
-	CelebrateList l = poly_celebrates;
 }
 
 int get_mud_day()

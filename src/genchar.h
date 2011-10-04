@@ -16,7 +16,7 @@
 #define _GENCHAR_H_
 
 #define SUM_ALL_STATS 95
-#define SUM_STATS(ch) (GET_STR(ch) + GET_DEX(ch) + GET_INT(ch) +  GET_WIS(ch) + GET_CON(ch) +  GET_CHA(ch))
+#define SUM_STATS(ch) (ch->get_str() + ch->get_dex() + ch->get_int() +  ch->get_wis() + ch->get_con() +  ch->get_cha())
 
 #define GENCHAR_CONTINUE 1
 #define GENCHAR_EXIT 0

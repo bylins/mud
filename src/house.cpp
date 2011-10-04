@@ -1735,7 +1735,7 @@ ACMD(DoClanList)
 		buffer2 << clanFormat % 1 % (*clan)->abbrev % (*clan)->owner % (*clan)->name;
 		for (std::vector < CHAR_DATA * >::const_iterator it = temp_list.begin(); it != temp_list.end(); ++it)
 			buffer2 << memberFormat % (*clan)->ranks[CLAN_MEMBER(*it)->rank_num]
-			% CCPK(ch, C_NRM, *it) % noclan_title(*it)
+			% CCPK(ch, C_NRM, *it) % (*it)->noclan_title()
 			% CCNRM(ch, C_NRM) % CCIRED(ch, C_NRM)
 			% (PLR_FLAGGED(*it, PLR_KILLER) ? "(äõûåçõâ)" : "")
 			% CCNRM(ch, C_NRM);
@@ -1750,7 +1750,7 @@ ACMD(DoClanList)
 			for (std::vector < CHAR_DATA * >::const_iterator it = temp_list.begin(); it != temp_list.end(); ++it)
 				if (CLAN(*it) == *clan)
 					buffer2 << memberFormat % (*clan)->ranks[CLAN_MEMBER(*it)->rank_num]
-					% CCPK(ch, C_NRM, *it) % noclan_title(*it)
+					% CCPK(ch, C_NRM, *it) % (*it)->noclan_title()
 					% CCNRM(ch, C_NRM) % CCIRED(ch, C_NRM)
 					% (PLR_FLAGGED(*it, PLR_KILLER) ? "(äõûåçõâ)" : "")
 					% CCNRM(ch, C_NRM);
@@ -2447,7 +2447,7 @@ ACMD(DoWhoClan)
 	for (d = descriptor_list, num = 0; d; d = d->next)
 		if (d->character && STATE(d) == CON_PLAYING && CLAN(d->character) == CLAN(ch))
 		{
-			buffer << "    " << race_or_title(d->character) << "\r\n";
+			buffer << "    " << d->character->race_or_title().c_str() << "\r\n";
 			++num;
 		}
 	buffer << "\r\n ÷ÓÅÇÏ: " << num << ".\r\n";

@@ -2011,8 +2011,8 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 				dam += (dam * (POS_FIGHTING - GET_POS(victim)) / 3);
 		}
 		// TODO: по-моему тут первое число всегда будет 100
-		dam *= MAX(MIN(100, wis_app[GET_REAL_WIS(ch)].spell_success + 100 + MAX(0, wis_app[GET_WIS(ch)].spell_success)),
-				   number(MAX(0, wis_app[GET_WIS(ch)].spell_success), 100) + wis_app[GET_REAL_WIS(ch)].spell_success);
+		dam *= MAX(MIN(100, wis_app[GET_REAL_WIS(ch)].spell_success + 100 + MAX(0, wis_app[ch->get_wis()].spell_success)),
+				   number(MAX(0, wis_app[ch->get_wis()].spell_success), 100) + wis_app[GET_REAL_WIS(ch)].spell_success);
 		dam /= 100;
 
 
@@ -3562,7 +3562,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_WC_OF_POWER:
 		af[0].location = APPLY_HIT;
-		af[0].modifier = MIN(SCHAR_MAX, (4 * GET_CON(ch) + ch->get_skill(SKILL_WARCRY)) / 2);
+		af[0].modifier = MIN(SCHAR_MAX, (4 * ch->get_con() + ch->get_skill(SKILL_WARCRY)) / 2);
 		af[0].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 28, 7, 0);
 		to_vict = NULL;
 		to_room = NULL;
@@ -3570,7 +3570,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_WC_OF_BLESS:
 		af[0].location = APPLY_SAVING_STABILITY;
-		af[0].modifier = -(4 * GET_CON(ch) + ch->get_skill(SKILL_WARCRY)) / 24;
+		af[0].modifier = -(4 * ch->get_con() + ch->get_skill(SKILL_WARCRY)) / 24;
 		af[0].duration = pc_duration(victim, 1, ch->get_skill(SKILL_WARCRY), 28, 7, 0);
 		af[1].location = APPLY_SAVING_WILL;
 		af[1].modifier = af[0].modifier;
@@ -3806,7 +3806,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		else
 		{
 			const int real_mob_num = real_mobile(mob_num);
-			pfail = 10 + GET_CON(mob_proto + real_mob_num) * 2
+			pfail = 10 + (mob_proto + real_mob_num)->get_con() * 2
 				- number(1, GET_LEVEL(ch)) - GET_CAST_SUCCESS(ch) - GET_REMORT(ch) * 5;
 
 
@@ -3864,7 +3864,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		handle_corpse = TRUE;
 		msg = 11;
 		fmsg = number(2, 6);
-		pfail = 10 + GET_CON(mob_proto + real_mobile(mob_num)) * 2
+		pfail = 10 + (mob_proto + real_mobile(mob_num))->get_con() * 2
 			- number(1, GET_LEVEL(ch)) - GET_CAST_SUCCESS(ch) - GET_REMORT(ch) * 5;
 		break;
 
@@ -4005,9 +4005,9 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		mob->set_str(ch->get_str());
 		mob->set_dex(ch->get_dex());
 		mob->set_con(ch->get_con());
-		GET_INT(mob) = GET_INT(ch);
-		GET_WIS(mob) = GET_WIS(ch);
-		GET_CHA(mob) = GET_CHA(ch);
+		mob->set_wis(ch->get_wis());
+		mob->set_int(ch->get_int());
+		mob->set_cha(ch->get_cha());
 
 		mob->set_level(ch->get_level());
 //      GET_HR (mob) = GET_HR (ch);
@@ -4149,7 +4149,7 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		}
 		break;
 	case SPELL_WC_OF_POWER:
-		hit = (4 * GET_CON(ch) + ch->get_skill(SKILL_WARCRY)) / 2;
+		hit = (4 * ch->get_con() + ch->get_skill(SKILL_WARCRY)) / 2;
 		send_to_char("По Вашему телу начала струиться живительная сила.\r\n", victim);
 		break;
 	}

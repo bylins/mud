@@ -523,7 +523,7 @@ ASPELL(spell_angel);
 
 /* basic magic calling functions */
 
-int find_skill_num(char *name);
+int find_skill_num(const char *name);
 
 int find_spell_num(char *name);
 

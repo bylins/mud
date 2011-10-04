@@ -505,10 +505,10 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 			// получившиеся статы
 			ch->set_str(olc_real_stat(ch, GLORY_STR));
 			ch->set_dex(olc_real_stat(ch, GLORY_DEX));
-			GET_INT(ch) = olc_real_stat(ch, GLORY_INT);
-			GET_WIS(ch) = olc_real_stat(ch, GLORY_WIS);
+			ch->set_int(olc_real_stat(ch, GLORY_INT));
+			ch->set_wis(olc_real_stat(ch, GLORY_WIS));
 			ch->set_con(olc_real_stat(ch, GLORY_CON));
-			GET_CHA(ch) = olc_real_stat(ch, GLORY_CHA);
+			ch->set_cha(olc_real_stat(ch, GLORY_CHA));
 			// обновление записи в списке славы
 			GloryListType::const_iterator it = glory_list.find(GET_UNIQUE(ch));
 			if (glory_list.end() == it)
@@ -590,12 +590,12 @@ ACMD(do_spend_glory)
 		}
 
 		boost::shared_ptr<glory_olc> tmp_glory_olc(new glory_olc);
-		tmp_glory_olc->stat_cur[GLORY_STR] = GET_STR(ch);
-		tmp_glory_olc->stat_cur[GLORY_DEX] = GET_DEX(ch);
-		tmp_glory_olc->stat_cur[GLORY_INT] = GET_INT(ch);
-		tmp_glory_olc->stat_cur[GLORY_WIS] = GET_WIS(ch);
-		tmp_glory_olc->stat_cur[GLORY_CON] = GET_CON(ch);
-		tmp_glory_olc->stat_cur[GLORY_CHA] = GET_CHA(ch);
+		tmp_glory_olc->stat_cur[GLORY_STR] = ch->get_inborn_str();
+		tmp_glory_olc->stat_cur[GLORY_DEX] = ch->get_inborn_dex();
+		tmp_glory_olc->stat_cur[GLORY_INT] = ch->get_inborn_int();
+		tmp_glory_olc->stat_cur[GLORY_WIS] = ch->get_inborn_wis();
+		tmp_glory_olc->stat_cur[GLORY_CON] = ch->get_inborn_con();
+		tmp_glory_olc->stat_cur[GLORY_CHA] = ch->get_inborn_cha();
 
 		for (std::map<int, int>::const_iterator i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i)
 		{
@@ -890,7 +890,7 @@ void save()
 	{
 		pugi::xml_node char_node = char_list.append_child();
 		char_node.set_name("char");
-		char_node.append_attribute("uid") = i->first;
+		char_node.append_attribute("uid") = (int)i->first;
 		char_node.append_attribute("glory") = i->second->free_glory;
 
 		for (std::map<int, int>::const_iterator k = i->second->stats.begin(),
@@ -987,22 +987,22 @@ void set_stats(CHAR_DATA *ch)
 		switch(k->first)
 		{
 			case G_STR:
-				ch->set_str(ch->get_str() + k->second);
+				ch->inc_str(k->second);
 				break;
 			case G_DEX:
-				ch->set_dex(ch->get_dex() + k->second);
+				ch->inc_dex(k->second);
 				break;
 			case G_INT:
-				GET_INT(ch) += k->second;
+				ch->inc_int(k->second);
 				break;
 			case G_WIS:
-				GET_WIS(ch) += k->second;
+				ch->inc_wis(k->second);
 				break;
 			case G_CON:
-				ch->set_con(ch->get_con() + k->second);
+				ch->inc_con(k->second);
 				break;
 			case G_CHA:
-				GET_CHA(ch) += k->second;
+				ch->inc_cha(k->second);
 				break;
 			default:
 				log("Glory: некорректный номер стата %d (uid: %d)", k->first, GET_UNIQUE(ch));

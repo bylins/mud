@@ -527,24 +527,18 @@ extern SPECIAL(postmaster);
 #define GET_PAD(ch,i)    ((ch)->player_data.PNames[i])
 #define GET_DRUNK_STATE(ch) ((ch)->player_specials->saved.DrunkState)
 
-#define GET_STR(ch)     ((ch)->get_str())
 #define GET_STR_ADD(ch) ((ch)->get_str_add())
-#define GET_REAL_STR(ch) (MAX(1, (GET_STR(ch) + GET_STR_ADD(ch))))
-#define GET_DEX(ch)     ((ch)->get_dex())
+#define GET_REAL_STR(ch) (MAX(1, ((ch)->get_str() + GET_STR_ADD(ch))))
 #define GET_DEX_ADD(ch) ((ch)->get_dex_add())
-#define GET_REAL_DEX(ch) (MAX(1, (GET_DEX(ch) + GET_DEX_ADD(ch))))
-#define GET_INT(ch)     ((ch)->real_abils.intel)
-#define GET_INT_ADD(ch) ((ch)->add_abils.intel_add)
-#define GET_REAL_INT(ch) (POSI(GET_INT(ch) + GET_INT_ADD(ch)))
-#define GET_WIS(ch)     ((ch)->real_abils.wis)
-#define GET_WIS_ADD(ch) ((ch)->add_abils.wis_add)
-#define GET_REAL_WIS(ch) (POSI(GET_WIS(ch) + GET_WIS_ADD(ch)))
-#define GET_CON(ch)     ((ch)->get_con())
+#define GET_REAL_DEX(ch) (MAX(1, ((ch)->get_dex() + GET_DEX_ADD(ch))))
+#define GET_INT_ADD(ch) ((ch)->get_int_add())
+#define GET_REAL_INT(ch) (MAX(1, ((ch)->get_int() + GET_INT_ADD(ch))))
+#define GET_WIS_ADD(ch) ((ch)->get_wis_add())
+#define GET_REAL_WIS(ch) (MAX(1, ((ch)->get_wis() + GET_WIS_ADD(ch))))
 #define GET_CON_ADD(ch) ((ch)->get_con_add())
-#define GET_REAL_CON(ch) (MAX(1, (GET_CON(ch) + GET_CON_ADD(ch))))
-#define GET_CHA(ch)     ((ch)->real_abils.cha)
-#define GET_CHA_ADD(ch) ((ch)->add_abils.cha_add)
-#define GET_REAL_CHA(ch) (POSI(GET_CHA(ch) + GET_CHA_ADD(ch)))
+#define GET_REAL_CON(ch) (MAX(1, ((ch)->get_con() + GET_CON_ADD(ch))))
+#define GET_CHA_ADD(ch) ((ch)->get_cha_add())
+#define GET_REAL_CHA(ch) (MAX(1, ((ch)->get_cha() + GET_CHA_ADD(ch))))
 #define GET_SIZE(ch)    ((ch)->real_abils.size)
 #define GET_SIZE_ADD(ch)  ((ch)->add_abils.size_add)
 #define GET_REAL_SIZE(ch) (VPOSI(GET_SIZE(ch) + GET_SIZE_ADD(ch), 1, 100))
@@ -1167,9 +1161,6 @@ bool same_group(CHAR_DATA * ch, CHAR_DATA * tch);
 int is_post(room_rnum room);
 bool is_rent(room_rnum room);
 
-char *noclan_title(CHAR_DATA * ch);
-char *only_title(CHAR_DATA * ch);
-char *race_or_title(CHAR_DATA * ch);
 int pc_duration(CHAR_DATA * ch, int cnst, int level, int level_divisor, int min, int max);
 
 /* Modifier functions */

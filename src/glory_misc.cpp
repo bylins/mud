@@ -248,7 +248,8 @@ bool check_stats(CHAR_DATA *ch)
 		return 1;
 	}
 
-	int have_stats = GET_STR(ch) + GET_DEX(ch) + GET_INT(ch) + GET_WIS(ch) + GET_CON(ch) + GET_CHA(ch);
+	int have_stats = ch->get_inborn_str() + ch->get_inborn_dex() + ch->get_inborn_int() + ch->get_inborn_wis() 
+		+ ch->get_inborn_con() + ch->get_inborn_cha();
 
 	// чар со старым роллом статов или после попыток поправить статы в файле
 	if (bad_start_stats(ch))
@@ -268,12 +269,12 @@ bool check_stats(CHAR_DATA *ch)
 			"\tв целом это увеличивает кол-во жизней персонажа тем сильнее, чем больше у него было ремортов.\r\n"
 			"\r\n",
 			CCIGRN(ch, C_SPR),
-			GET_STR(ch) - GET_REMORT(ch),
-			GET_DEX(ch) - GET_REMORT(ch),
-			GET_INT(ch) - GET_REMORT(ch),
-			GET_WIS(ch) - GET_REMORT(ch),
-			GET_CON(ch) - GET_REMORT(ch),
-			GET_CHA(ch) - GET_REMORT(ch),
+			ch->get_inborn_str() - GET_REMORT(ch),
+			ch->get_inborn_dex() - GET_REMORT(ch),
+			ch->get_inborn_int() - GET_REMORT(ch),
+			ch->get_inborn_wis() - GET_REMORT(ch),
+			ch->get_inborn_con() - GET_REMORT(ch),
+			ch->get_inborn_cha() - GET_REMORT(ch),
 			CCNRM(ch, C_SPR));
 		SEND_TO_Q(buf, ch->desc);
 
@@ -281,10 +282,10 @@ bool check_stats(CHAR_DATA *ch)
 		// сразу, не раскидав статы, а то много любителей тригов и просто нажатий не глядя
 		ch->set_str(MIN_STR(ch));
 		ch->set_dex(MIN_DEX(ch));
-		GET_INT(ch) = MIN_INT(ch);
-		GET_WIS(ch) = MIN_WIS(ch);
+		ch->set_int(MIN_INT(ch));
+		ch->set_wis(MIN_WIS(ch));
 		ch->set_con(MIN_CON(ch));
-		GET_CHA(ch) = MIN_CHA(ch);
+		ch->set_cha(MIN_CHA(ch));
 
 		snprintf(buf, MAX_STRING_LENGTH, "%sПросим вас заново распределить основные параметры персонажа.%s\r\n",
 			CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
@@ -310,18 +311,18 @@ void recalculate_stats(CHAR_DATA *ch)
 	ch->set_str(ch->get_start_stat(G_STR));
 	ch->set_dex(ch->get_start_stat(G_DEX));
 	ch->set_con(ch->get_start_stat(G_CON));
-	GET_INT(ch) = ch->get_start_stat(G_INT);
-	GET_WIS(ch) = ch->get_start_stat(G_WIS);
-	GET_CHA(ch) = ch->get_start_stat(G_CHA);
+	ch->set_int(ch->get_start_stat(G_INT));
+	ch->set_wis(ch->get_start_stat(G_WIS));
+	ch->set_cha(ch->get_start_stat(G_CHA));
 	// морты
 	if (GET_REMORT(ch))
 	{
-		ch->set_str(ch->get_str() + GET_REMORT(ch));
-		ch->set_dex(ch->get_dex() + GET_REMORT(ch));
-		ch->set_con(ch->get_con() + GET_REMORT(ch));
-		GET_INT(ch) += GET_REMORT(ch);
-		GET_WIS(ch) += GET_REMORT(ch);
-		GET_CHA(ch) += GET_REMORT(ch);
+		ch->inc_str(GET_REMORT(ch));
+		ch->inc_dex(GET_REMORT(ch));
+		ch->inc_con(GET_REMORT(ch));
+		ch->inc_wis(GET_REMORT(ch));
+		ch->inc_int(GET_REMORT(ch));
+		ch->inc_cha(GET_REMORT(ch));
 	}
 	// влитая слава
 	Glory::set_stats(ch);

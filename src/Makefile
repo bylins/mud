@@ -33,10 +33,11 @@ OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	color.o pk.o genchar.o diskio.o im.o names.o auction.o \
 	item.creation.o skills.o exchange.o top.o stuff.o description.o \
 	deathtrap.o title.o password.o privilege.o depot.o glory.o file_crc.o \
-	char.o char_player.o quested.o mobmax.o parcel.o liquid.o poison.o xmlParser.o \
+	char.o char_player.o quested.o mobmax.o parcel.o liquid.o poison.o \
 	corpse.o house_exp.o remember.o name_list.o dps.o obj.spell.o obj.o room.o \
-	spam.o AffectHandler.o glory_const.o pugixml.o pugixpath.o glory_misc.o \
+	spam.o AffectHandler.o glory_const.o pugixml.o morph.o glory_misc.o \
 	shop_ext.o named_stuff.o version.o birth_places.o player_races.o celebrates.o
+	
 
 CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	act.offensive.cpp act.other.cpp act.social.cpp act.wizard.cpp alias.cpp ban.cpp \
@@ -51,10 +52,10 @@ CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	auction.cpp item.creation.cpp skills.cpp exchange.cpp top.cpp stuff.cpp \
 	description.cpp deathtrap.cpp title.cpp password.cpp privilege.cpp \
 	depot.cpp glory.cpp file_crc.cpp char.cpp char_player.cpp quested.cpp mobmax.cpp \
-	parcel.cpp liquid.cpp poison.cpp xmlParser.cpp corpse.cpp house_exp.cpp remember.cpp \
+	parcel.cpp liquid.cpp poison.cpp corpse.cpp house_exp.cpp remember.cpp \
 	name_list.cpp dps.cpp obj.spell.cpp obj.cpp room.cpp spam.cpp AffectHandler.cpp \
-	glory_const.cpp pugixml.cpp pugixpath.cpp glory_misc.cpp shop_ext.cpp named_stuff.cpp \
-	celebrates.cpp birth_places.cpp player_races.cpp version.cpp
+	glory_const.cpp pugixml.cpp glory_misc.cpp shop_ext.cpp named_stuff.cpp \
+	celebrates.cpp birth_places.cpp player_races.cpp version.cpp morph.cpp
 
 default: circle
 

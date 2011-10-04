@@ -41,7 +41,7 @@ void save()
 	{
 		pugi::xml_node stuf_node = obj_list.append_child();
 		stuf_node.set_name("obj");
-		stuf_node.append_attribute("vnum") = i->first;
+		stuf_node.append_attribute("vnum") = (int)i->first;
 		stuf_node.append_attribute("uid") = i->second->uid;
 		stuf_node.append_attribute("mail") = i->second->mail.c_str();
 		if(i->second->can_clan)

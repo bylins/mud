@@ -320,16 +320,16 @@ void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool a
 		ch->set_dex_add(ch->get_dex_add() + mod);
 		break;
 	case APPLY_INT:
-		GET_INT_ADD(ch) += mod;
+		ch->set_int_add(ch->get_int_add() + mod);
 		break;
 	case APPLY_WIS:
-		GET_WIS_ADD(ch) += mod;
+		ch->set_wis_add(ch->get_wis_add() + mod);
 		break;
 	case APPLY_CON:
 		ch->set_con_add(ch->get_con_add() + mod);
 		break;
 	case APPLY_CHA:
-		GET_CHA_ADD(ch) += mod;
+		ch->set_cha_add(ch->get_cha_add() + mod);
 		break;
 	case APPLY_CLASS:
 		break;
@@ -3760,7 +3760,7 @@ CHAR_DATA *charm_mob(CHAR_DATA * victim)
 //Функции для модифицированного чарма
 float get_damage_per_round(CHAR_DATA * victim)
 {
-	float dam_per_attack = GET_DR(victim) + str_bonus(GET_STR(victim), STR_TO_DAM)
+	float dam_per_attack = GET_DR(victim) + str_bonus(victim->get_str(), STR_TO_DAM)
 			+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
 			+ (AFF_FLAGGED(victim, AFF_CLOUD_OF_ARROWS) ? 14 : 0);
 	int num_attacks = 1 + victim->mob_specials.ExtraAttack
@@ -3784,14 +3784,14 @@ float get_effective_cha(CHAR_DATA * ch, int spellnum)
 //Для поднять/оживить труп учитываем мудрость, в любом другом случае - обаяние
 	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD)
 	{
-		key_value = GET_WIS(ch) - 6;
-		key_value_add = MIN(56 - GET_WIS(ch), GET_WIS_ADD(ch));
+		key_value = ch->get_wis() - 6;
+		key_value_add = MIN(56 - ch->get_wis(), GET_WIS_ADD(ch));
 		i = 3;
 	}
 	else
 	{
-		key_value = GET_CHA(ch);
-		key_value_add = MIN(50 - GET_CHA(ch), GET_CHA_ADD(ch));
+		key_value = ch->get_cha();
+		key_value_add = MIN(50 - ch->get_cha(), GET_CHA_ADD(ch));
 		i = 5;
 	}
 	float eff_cha = 0.0;
@@ -3817,16 +3817,16 @@ float get_effective_int(CHAR_DATA * ch)
 {
 	float eff_int = 0.0;
 	if (GET_LEVEL(ch) <= 14)
-		eff_int = MIN(max_stats2[(int) GET_CLASS(ch)][2], GET_INT(ch))
+		eff_int = MIN(max_stats2[(int) GET_CLASS(ch)][2], ch->get_int())
 				  - 6 * (float)(14 - GET_LEVEL(ch)) / 13.0 + GET_INT_ADD(ch)
 				  * (0.2 + 0.3 * (float)(GET_LEVEL(ch) - 1) / 13.0);
 	else if (GET_LEVEL(ch) <= 26)
 	{
-		if (GET_INT(ch) <= 16)
-			eff_int = GET_INT(ch) + GET_INT_ADD(ch) * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
+		if (ch->get_int() <= 16)
+			eff_int = ch->get_int() + GET_INT_ADD(ch) * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
 		else
 			eff_int =
-				16 + (float)((GET_INT(ch) - 16) * (GET_LEVEL(ch) - 14)) / 12.0 +
+				16 + (float)((ch->get_int() - 16) * (GET_LEVEL(ch) - 14)) / 12.0 +
 				GET_INT_ADD(ch) * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
 	}
 	else
@@ -3856,9 +3856,9 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	float needed_cha = calc_cha_for_hire(victim), dpr = 0.0;
 	float e_cha = get_effective_cha(ch, 0), e_int = get_effective_int(ch);
-	//((e_cha<(1+min_stats2[(int)GET_CLASS(ch)][5]))?MIN(GET_CHA(ch),(1+min_stats2[(int)GET_CLASS(ch)][5])):e_cha)-
+	//((e_cha<(1+min_stats2[(int)GET_CLASS(ch)][5]))?MIN(ch->get_cha(),(1+min_stats2[(int)GET_CLASS(ch)][5])):e_cha)-
 	//                     1 - min_stats2[(int)GET_CLASS(ch)][5] +
-	//((e_int<(1+min_stats2[(int)GET_CLASS(ch)][2]))?MIN(GET_INT(ch),(1+min_stats2[(int)GET_CLASS(ch)][2])):e_int)-
+	//((e_int<(1+min_stats2[(int)GET_CLASS(ch)][2]))?MIN(ch->get_int(),(1+min_stats2[(int)GET_CLASS(ch)][2])):e_int)-
 	//                     1.0 - min_stats2[(int)GET_CLASS(ch)][2];
 	float stat_overlimit = VPOSI(e_cha + e_int - 1.0 -
 								 min_stats2[(int) GET_CLASS(ch)][5] - 1 -

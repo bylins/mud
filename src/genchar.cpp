@@ -84,12 +84,12 @@ void genchar_disp_menu(CHAR_DATA * ch)
 			"  Можно добавить: %3d \r\n"
 			"\r\n"
 			"  П) Помощь\r\n",
-			GET_STR(ch), MIN_STR(ch), MAX_STR(ch),
-			GET_DEX(ch), MIN_DEX(ch), MAX_DEX(ch),
-			GET_INT(ch), MIN_INT(ch), MAX_INT(ch),
-			GET_WIS(ch), MIN_WIS(ch), MAX_WIS(ch),
-			GET_CON(ch), MIN_CON(ch), MAX_CON(ch),
-			GET_CHA(ch), MIN_CHA(ch), MAX_CHA(ch), SUM_ALL_STATS - SUM_STATS(ch));
+			ch->get_inborn_str(), MIN_STR(ch), MAX_STR(ch),
+			ch->get_inborn_dex(), MIN_DEX(ch), MAX_DEX(ch),
+			ch->get_inborn_int(), MIN_INT(ch), MAX_INT(ch),
+			ch->get_inborn_wis(), MIN_WIS(ch), MAX_WIS(ch),
+			ch->get_inborn_con(), MIN_CON(ch), MAX_CON(ch),
+			ch->get_inborn_cha(), MIN_CHA(ch), MAX_CHA(ch), SUM_ALL_STATS - SUM_STATS(ch));
 	send_to_char(buf, ch);
 	if (SUM_ALL_STATS == SUM_STATS(ch))
 		send_to_char("  В) Закончить генерацию\r\n", ch);
@@ -102,51 +102,51 @@ int genchar_parse(CHAR_DATA * ch, char *arg)
 	{
 	case 'А':
 	case 'а':
-		ch->set_str(MAX(GET_STR(ch) - 1, MIN_STR(ch)));
+		ch->set_str(MAX(ch->get_inborn_str() - 1, MIN_STR(ch)));
 		break;
 	case 'Б':
 	case 'б':
-		ch->set_dex(MAX(GET_DEX(ch) - 1, MIN_DEX(ch)));
+		ch->set_dex(MAX(ch->get_inborn_dex() - 1, MIN_DEX(ch)));
 		break;
 	case 'Г':
 	case 'г':
-		GET_INT(ch) = MAX(GET_INT(ch) - 1, MIN_INT(ch));
+		ch->set_int(MAX(ch->get_inborn_int() - 1, MIN_INT(ch)));
 		break;
 	case 'Д':
 	case 'д':
-		GET_WIS(ch) = MAX(GET_WIS(ch) - 1, MIN_WIS(ch));
+		ch->set_wis(MAX(ch->get_inborn_wis() - 1, MIN_WIS(ch)));
 		break;
 	case 'Е':
 	case 'е':
-		ch->set_con(MAX(GET_CON(ch) - 1, MIN_CON(ch)));
+		ch->set_con(MAX(ch->get_inborn_con() - 1, MIN_CON(ch)));
 		break;
 	case 'Ж':
 	case 'ж':
-		GET_CHA(ch) = MAX(GET_CHA(ch) - 1, MIN_CHA(ch));
+		ch->set_cha(MAX(ch->get_inborn_cha() - 1, MIN_CHA(ch)));
 		break;
 	case 'З':
 	case 'з':
-		ch->set_str(MIN(GET_STR(ch) + 1, MAX_STR(ch)));
+		ch->set_str(MIN(ch->get_inborn_str() + 1, MAX_STR(ch)));
 		break;
 	case 'И':
 	case 'и':
-		ch->set_dex(MIN(GET_DEX(ch) + 1, MAX_DEX(ch)));
+		ch->set_dex(MIN(ch->get_inborn_dex() + 1, MAX_DEX(ch)));
 		break;
 	case 'К':
 	case 'к':
-		GET_INT(ch) = MIN(GET_INT(ch) + 1, MAX_INT(ch));
+		ch->set_int(MIN(ch->get_inborn_int() + 1, MAX_INT(ch)));
 		break;
 	case 'Л':
 	case 'л':
-		GET_WIS(ch) = MIN(GET_WIS(ch) + 1, MAX_WIS(ch));
+		ch->set_wis(MIN(ch->get_inborn_wis() + 1, MAX_WIS(ch)));
 		break;
 	case 'М':
 	case 'м':
-		ch->set_con(MIN(GET_CON(ch) + 1, MAX_CON(ch)));
+		ch->set_con(MIN(ch->get_inborn_con() + 1, MAX_CON(ch)));
 		break;
 	case 'Н':
 	case 'н':
-		GET_CHA(ch) = MIN(GET_CHA(ch) + 1, MAX_CHA(ch));
+		ch->set_cha(MIN(ch->get_inborn_cha() + 1, MAX_CHA(ch)));
 		break;
 	case 'П':
 	case 'п':
@@ -157,12 +157,12 @@ int genchar_parse(CHAR_DATA * ch, char *arg)
 		if (SUM_STATS(ch) != SUM_ALL_STATS)
 			break;
 		// по случаю успешной генерации сохраняем стартовые статы
-		ch->set_start_stat(G_STR, GET_STR(ch));
-		ch->set_start_stat(G_DEX, GET_DEX(ch));
-		ch->set_start_stat(G_INT, GET_INT(ch));
-		ch->set_start_stat(G_WIS, GET_WIS(ch));
-		ch->set_start_stat(G_CON, GET_CON(ch));
-		ch->set_start_stat(G_CHA, GET_CHA(ch));
+		ch->set_start_stat(G_STR, ch->get_inborn_str());
+		ch->set_start_stat(G_DEX, ch->get_inborn_dex());
+		ch->set_start_stat(G_INT, ch->get_inborn_int());
+		ch->set_start_stat(G_WIS, ch->get_inborn_wis());
+		ch->set_start_stat(G_CON, ch->get_inborn_con());
+		ch->set_start_stat(G_CHA, ch->get_inborn_cha());
 		return GENCHAR_EXIT;
 	default:
 		break;
@@ -182,24 +182,24 @@ void roll_real_abils(CHAR_DATA * ch)
 	switch (ch->get_class())
 	{
 	case CLASS_CLERIC:
-		ch->real_abils.cha = 10;
+		ch->set_cha (10);
 		do
 		{
 			ch->set_con(12 + number(0, 3));
-			ch->real_abils.wis = 18 + number(0, 5);
-			ch->real_abils.intel = 18 + number(0, 5);
+			ch->set_wis(18 + number(0, 5));
+			ch->set_int(18 + number(0, 5));
 		}		// 57/48 roll 13/9
-		while (GET_CON(ch) + ch->real_abils.wis + ch->real_abils.intel != 57);
+		while (ch->get_con() + ch->get_wis() + ch->get_int() != 57);
 		do
 		{
 			ch->set_str(11 + number(0, 3));
 			ch->set_dex(10 + number(0, 3));
 		}		// 92/88 roll 6/4
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) +
-				ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() +
+				ch->get_wis() + ch->get_int() + ch->get_cha() != 92);
 		/* ADD SPECIFIC STATS */
-		ch->real_abils.wis += 2;
-		ch->real_abils.intel += 1;
+		ch->set_wis(ch->get_wis() + 2);
+		ch->set_int(ch->get_int() + 1);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
 		GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
 		break;
@@ -210,21 +210,21 @@ void roll_real_abils(CHAR_DATA * ch)
 		do
 		{
 			ch->set_str(10 + number(0, 4));
-			ch->real_abils.wis = 17 + number(0, 5);
-			ch->real_abils.intel = 18 + number(0, 5);
+			ch->set_wis(17 + number(0, 5));
+			ch->set_int(18 + number(0, 5));
 		}		// 55/45 roll 14/10
-		while (GET_STR(ch) + ch->real_abils.wis + ch->real_abils.intel != 55);
+		while (ch->get_str() + ch->get_wis()+ ch->get_int()!= 55);
 		do
 		{
 			ch->set_con(10 + number(0, 3));
 			ch->set_dex(9 + number(0, 3));
-			ch->real_abils.cha = 13 + number(0, 3);
+			ch->set_cha(13 + number(0, 3));
 		}		// 92/87 roll 9/5
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) +
-				ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() +
+				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
 		/* ADD SPECIFIC STATS */
-		ch->real_abils.wis += 1;
-		ch->real_abils.intel += 2;
+		ch->set_wis(ch->get_wis() + 1);
+		ch->set_int(ch->get_int() + 2);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 170) : number(150, 180);
 		GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 150) : number(120, 180);
 		break;
@@ -232,22 +232,22 @@ void roll_real_abils(CHAR_DATA * ch)
 	case CLASS_NECROMANCER:
 		do
 		{
-			ch->real_abils.cha = 10 + number(0, 2);
-			ch->real_abils.wis = 20 + number(0, 3);
-			ch->real_abils.intel = 18 + number(0, 5);
+			ch->set_cha(10 + number(0, 2));
+			ch->set_wis(20 + number(0, 3));
+			ch->set_int(18 + number(0, 5));
 		}		// 55/45 roll 14/10
-		while (ch->real_abils.cha + ch->real_abils.wis + ch->real_abils.intel != 55);
+		while (ch->get_cha()+ ch->get_wis()+ ch->get_int()!= 55);
 		do
 		{
 			ch->set_str(9 + number(0, 6));
 			ch->set_dex(9 + number(0, 4));
 			ch->set_con(11 + number(0, 3));
 		}		// 92/87 roll 9/5
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) +
-				ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() +
+				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
 		/* ADD SPECIFIC STATS */
 		ch->set_con(ch->get_con() + 1);
-		ch->real_abils.intel += 2;
+		ch->set_int(ch->get_int() + 2);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 170) : number(150, 180);
 		GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 150) : number(120, 180);
 		break;
@@ -259,38 +259,38 @@ void roll_real_abils(CHAR_DATA * ch)
 			ch->set_con(14 + number(0, 3));
 			ch->set_dex(20 + number(0, 3));
 		}		// 57/50 roll 9/7
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) != 57);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() != 57);
 		do
 		{
-			ch->real_abils.wis = 9 + number(0, 3);
-			ch->real_abils.cha = 13 + number(0, 3);
-			ch->real_abils.intel = 9 + number(0, 3);
+			ch->set_wis(9 + number(0, 3));
+			ch->set_cha(13 + number(0, 3));
+			ch->set_int(9 + number(0, 3));
 		}		// 92/87 roll 9/5
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) +
-				ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() +
+				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
 		/* ADD SPECIFIC STATS */
 		ch->set_dex(ch->get_dex() + 2);
-		ch->real_abils.cha += 1;
+		ch->set_cha(ch->get_cha()+ 1);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 190);
 		GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
 		break;
 
 	case CLASS_WARRIOR:
-		ch->real_abils.cha = 10;
+		ch->set_cha(10);
 		do
 		{
 			ch->set_str(20 + number(0, 4));
 			ch->set_dex(8 + number(0, 3));
 			ch->set_con(20 + number(0, 3));
 		}		// 55/48 roll 10/7
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) != 55);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() != 55);
 		do
 		{
-			ch->real_abils.intel = 11 + number(0, 4);
-			ch->real_abils.wis = 11 + number(0, 4);
+			ch->set_int(11 + number(0, 4));
+			ch->set_wis(11 + number(0, 4));
 		}		// 92/87 roll 8/5
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) +
-				ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() +
+				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
 		/* ADD SPECIFIC STATS */
 		ch->set_str(ch->get_str() + 1);
 		ch->set_con(ch->get_con() + 2);
@@ -299,21 +299,21 @@ void roll_real_abils(CHAR_DATA * ch)
 		break;
 
 	case CLASS_ASSASINE:
-		ch->real_abils.cha = 12;
+		ch->set_cha(12);
 		do
 		{
 			ch->set_str(16 + number(0, 5));
 			ch->set_dex(18 + number(0, 5));
 			ch->set_con(14 + number(0, 3));
 		}		// 55/48 roll 15/7
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) != 55);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() != 55);
 		do
 		{
-			ch->real_abils.intel = 11 + number(0, 3);
-			ch->real_abils.wis = 11 + number(0, 3);
+			ch->set_int(11 + number(0, 3));
+			ch->set_wis(11 + number(0, 3));
 		}		// 92/87 roll 8/5
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) +
-				ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() +
+				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
 		/* ADD SPECIFIC STATS */
 		ch->set_str(ch->get_str() + 1);
 		ch->set_con(ch->get_con() + 1);
@@ -323,21 +323,21 @@ void roll_real_abils(CHAR_DATA * ch)
 		break;
 
 	case CLASS_GUARD:
-		ch->real_abils.cha = 12;
+		ch->set_cha(12);
 		do
 		{
 			ch->set_str(19 + number(0, 3));
 			ch->set_dex(13 + number(0, 3));
 			ch->set_con(16 + number(0, 5));
 		}		// 55/48 roll 11/7
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) != 55);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() != 55);
 		do
 		{
-			ch->real_abils.intel = 10 + number(0, 4);
-			ch->real_abils.wis = 10 + number(0, 4);
+			ch->set_int(10 + number(0, 4));
+			ch->set_wis(10 + number(0, 4));
 		}		// 92/87 roll 8/5
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) +
-				ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() +
+				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
 		/* ADD SPECIFIC STATS */
 		ch->set_str(ch->get_str() + 1);
 		ch->set_dex(ch->get_dex() + 1);
@@ -350,22 +350,22 @@ void roll_real_abils(CHAR_DATA * ch)
 		do
 		{
 			ch->set_str(18 + number(0, 3));
-			ch->real_abils.wis = 14 + number(0, 4);
+			ch->set_wis(14 + number(0, 4));
 			ch->set_con(14 + number(0, 4));
 		}		// 53/46 roll 11/7
-		while (GET_STR(ch) + GET_CON(ch) + ch->real_abils.wis != 53);
+		while (ch->get_str() + ch->get_con() + ch->get_wis()!= 53);
 		do
 		{
-			ch->real_abils.intel = 12 + number(0, 4);
+			ch->set_int(12 + number(0, 4));
 			ch->set_dex(10 + number(0, 3));
-			ch->real_abils.cha = 12 + number(0, 4);
+			ch->set_cha(12 + number(0, 4));
 		}		// 92/87 roll 11/5
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) +
-				ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() +
+				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
 		/* ADD SPECIFIC STATS */
 		ch->set_str(ch->get_str() + 1);
-		ch->real_abils.cha += 1;
-		ch->real_abils.wis += 1;
+		ch->set_cha(ch->get_cha() + 1);
+		ch->set_wis(ch->get_wis() + 1);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
 		GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(140, 175) : number(140, 190);
 		break;
@@ -378,15 +378,15 @@ void roll_real_abils(CHAR_DATA * ch)
 			ch->set_dex(13 + number(0, 6));
 			ch->set_con(14 + number(0, 4));
 		}		// 53/46 roll 12/7
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) != 53);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() != 53);
 		do
 		{
-			ch->real_abils.intel = 11 + number(0, 5);
-			ch->real_abils.wis = 11 + number(0, 5);
-			ch->real_abils.cha = 11 + number(0, 5);
+			ch->set_int(11 + number(0, 5));
+			ch->set_wis(11 + number(0, 5));
+			ch->set_cha(11 + number(0, 5));
 		}		// 92/85 roll 10/7
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) +
-				ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() +
+				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
 		/* ADD SPECIFIC STATS */
 		ch->set_str(ch->get_str() + 1);
 		ch->set_dex(ch->get_dex() + 2);
@@ -401,18 +401,18 @@ void roll_real_abils(CHAR_DATA * ch)
 			ch->set_dex(14 + number(0, 3));
 			ch->set_con(14 + number(0, 6));
 		}		// 53/46 roll 11/7
-		while (GET_STR(ch) + GET_DEX(ch) + GET_CON(ch) != 55);
+		while (ch->get_str() + ch->get_dex() + ch->get_con() != 55);
 		do
 		{
-			ch->real_abils.intel = 10 + number(0, 3);
-			ch->real_abils.wis = 11 + number(0, 4);
-			ch->real_abils.cha = 11 + number(0, 4);
+			ch->set_int(10 + number(0, 3));
+			ch->set_wis(11 + number(0, 4));
+			ch->set_cha(11 + number(0, 4));
 		}		// 92/85 roll 11/7
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) +
-				ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() +
+				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
 		/* ADD SPECIFIC STATS */
 		ch->set_str(ch->get_str() + 2);
-		ch->real_abils.cha += 1;
+		ch->set_cha(ch->get_cha() + 1);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(160, 180) : number(170, 200);
 		GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(170, 200);
 		break;
@@ -424,41 +424,41 @@ void roll_real_abils(CHAR_DATA * ch)
 			ch->set_con(12 + number(0, 6));
 			ch->set_dex(14 + number(0, 3));
 		}		// 55/48 roll 9/7
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) != 55);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() != 55);
 		do
 		{
-			ch->real_abils.wis = 10 + number(0, 3);
-			ch->real_abils.cha = 12 + number(0, 4);
-			ch->real_abils.intel = 10 + number(0, 4);
+			ch->set_wis(10 + number(0, 3));
+			ch->set_cha(12 + number(0, 4));
+			ch->set_int(10 + number(0, 4));
 		}		// 92/87 roll 9/5
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) +
-				ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() +
+				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
 		/* ADD SPECIFIC STATS */
 		ch->set_con(ch->get_con() + 2);
-		ch->real_abils.cha += 1;
+		ch->set_cha(ch->get_cha() + 1);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 170) : number(150, 190);
 		GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 180) : number(120, 200);
 		break;
 
 	case CLASS_DRUID:
-		ch->real_abils.cha = 12;
+		ch->set_cha(12);
 		do
 		{
 			ch->set_con(12 + number(0, 3));
-			ch->real_abils.wis = 15 + number(0, 3);
-			ch->real_abils.intel = 17 + number(0, 5);
+			ch->set_wis(15 + number(0, 3));
+			ch->set_int(17 + number(0, 5));
 		}		// 53/45 roll 12/8
-		while (GET_CON(ch) + ch->real_abils.wis + ch->real_abils.intel != 53);
+		while (ch->get_con() + ch->get_wis()+ ch->get_int()!= 53);
 		do
 		{
 			ch->set_str(14 + number(0, 3));
 			ch->set_dex(10 + number(0, 2));
 		}		// 92/89 roll 5/3
-		while (GET_STR(ch) + GET_CON(ch) + GET_DEX(ch) +
-				ch->real_abils.wis + ch->real_abils.intel + ch->real_abils.cha != 92);
+		while (ch->get_str() + ch->get_con() + ch->get_dex() +
+				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
 		/* ADD SPECIFIC STATS */
 		ch->set_str(ch->get_str() + 1);
-		ch->real_abils.intel += 2;
+		ch->set_int(ch->get_int() + 2);
 		GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 190);
 		GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
 		for (i = 1; i <= MAX_SPELLS; i++)

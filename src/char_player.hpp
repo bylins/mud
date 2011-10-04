@@ -16,6 +16,7 @@
 #include "remember.hpp"
 #include "char.hpp"
 #include "dps.hpp"
+#include "morph.hpp"
 
 // кол-во сохраняемых стартовых статов в файле
 const int START_STATS_TOTAL = 6;

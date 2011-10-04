@@ -36,7 +36,6 @@
 #include "features.hpp"
 #include "im.h"
 #include "char.hpp"
-#include "xmlParser.h"
 #include "spam.hpp"
 #include "screen.h"
 #include "char_player.hpp"
@@ -2114,7 +2113,7 @@ void check_max_hp(CHAR_DATA *ch)
 {
 	int ch_class = GET_CLASS(ch);
 	double add_hp_per_level = class_app[ch_class].base_con
-		+ (GET_CON(ch) - class_app[ch_class].base_con)
+		+ (ch->get_con() - class_app[ch_class].base_con)
 		* class_app[ch_class].koef_con / 100.0 + 3;
 	GET_MAX_HIT(ch) = 10 + static_cast<int>(add_hp_per_level * GET_LEVEL(ch));
 }
@@ -2156,18 +2155,18 @@ void advance_level(CHAR_DATA * ch)
 	case CLASS_THIEF:
 	case CLASS_ASSASINE:
 	case CLASS_MERCHANT:
-		add_move = number(GET_DEX(ch) / 6 + 1, GET_DEX(ch) / 5 + 1);
+		add_move = number(ch->get_inborn_dex() / 6 + 1, ch->get_inborn_dex() / 5 + 1);
 		break;
 
 	case CLASS_WARRIOR:
-		add_move = number(GET_DEX(ch) / 6 + 1, GET_DEX(ch) / 5 + 1);
+		add_move = number(ch->get_inborn_dex() / 6 + 1, ch->get_inborn_dex() / 5 + 1);
 		break;
 
 	case CLASS_GUARD:
 	case CLASS_RANGER:
 	case CLASS_PALADINE:
 	case CLASS_SMITH:
-		add_move = number(GET_DEX(ch) / 6 + 1, GET_DEX(ch) / 5 + 1);
+		add_move = number(ch->get_inborn_dex() / 6 + 1, ch->get_inborn_dex() / 5 + 1);
 		break;
 	}
 
@@ -2239,7 +2238,7 @@ void decrease_level(CHAR_DATA * ch)
 	case CLASS_THIEF:
 	case CLASS_ASSASINE:
 	case CLASS_MERCHANT:
-		add_move = GET_DEX(ch) / 5 + 1;
+		add_move = ch->get_inborn_dex() / 5 + 1;
 		break;
 
 	case CLASS_WARRIOR:
@@ -2247,7 +2246,7 @@ void decrease_level(CHAR_DATA * ch)
 	case CLASS_PALADINE:
 	case CLASS_RANGER:
 	case CLASS_SMITH:
-		add_move = GET_DEX(ch) / 5 + 1;
+		add_move = ch->get_inborn_dex() / 5 + 1;
 		break;
 	}
 
@@ -2469,40 +2468,46 @@ void load_skills_definitions()
 void load_skills()
 {
 	const char *CLASS_SKILLS_FILE = LIB_MISC"classskills.xml";
-	int sk_num, value;
-	char *name;
-	XMLResults result;
-	XMLNode xMainNode=XMLNode::parseFile(CLASS_SKILLS_FILE, "skills", &result);
-	if (result.error != eXMLErrorNone)
+
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file(CLASS_SKILLS_FILE);
+	if (!result)
 	{
-		log("SYSERROR: Ошибка чтения файла %s: %s", CLASS_SKILLS_FILE, XMLNode::getError(result.error));
-		load_skills_definitions();
+		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
-	int numraces = xMainNode.nChildNode("race");
-	for (int i=0; i<numraces; i++)
+
+	pugi::xml_node node_list = doc.child("skills");
+	
+	if (!node_list)
 	{
-		XMLNode xNodeRace = xMainNode.getChildNode("race", i);
-		int numclasses = xNodeRace.nChildNode("class");
-		for (int j=0; j<numclasses; j++)
+		snprintf(buf, MAX_STRING_LENGTH, "...classskills.xml read fail");
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
+
+	pugi::xml_node xNodeClass, xNodeSkill, race;
+	int i, j;
+	for (i=0, race = node_list.child("race"); race; race = race.next_sibling("race"), i++)
+	{
+		for (j=0, xNodeClass = race.child("class"); xNodeClass; xNodeClass = xNodeClass.next_sibling("class"), j++)
 		{
-			XMLNode xNodeClass = xNodeRace.getChildNode("class", j);
-			int numskills = xNodeClass.nChildNode("skill");
-			for (int k=0; k<numskills; k++)
+			for (xNodeSkill = xNodeClass.child("skill"); xNodeSkill; xNodeSkill = xNodeSkill.next_sibling("skill"))
 			{
-				XMLNode xNodeSkill = xNodeClass.getChildNode("skill", k);
-				name = str_dup(xNodeSkill.getAttribute("name"));
-				if ((sk_num = find_skill_num(name)) < 0)
+				int sk_num;
+				string name = string(xNodeSkill.attribute("name").value());
+				if ((sk_num = find_skill_num(name.c_str())) < 0)
 					{
 						log("Skill '%s' not found...", name);
 						_exit(1);
 					}
 				skill_info[sk_num].classknow[j][i] = KNOW_SKILL;
 				log("Умение '%s' для расы %d класса %d разрешено.", skill_info[sk_num].name, i, j);
-				value = xmltoi(xNodeSkill.getAttribute("improve"));
+				int value = xNodeSkill.attribute("improve").as_int();
 				skill_info[sk_num].k_improove[j][i] = MAX(1, value);
 				log("Коэффициент улучшения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, i, j, (int)skill_info[sk_num].k_improove[j][i]);
-				value = xmltoi(xNodeSkill.getAttribute("level"));
+				value = xNodeSkill.attribute("level").as_int();
 				if (value>0 && value<LVL_IMMORT)
 				{
 					skill_info[sk_num].min_level[j][i] = value;
@@ -2512,7 +2517,7 @@ void load_skills()
 					log("ERROR: Недопустимый минимальный уровень изучения умения '%s' - %d", skill_info[sk_num].name, value);
 					_exit(1);
 				}
-				value = xmltoi(xNodeSkill.getAttribute("remort"));
+				value = xNodeSkill.attribute("remort").as_int();
 				if (value>=0 && value<MAX_REMORT)
 				{
 					skill_info[sk_num].min_remort[j][i] = value;

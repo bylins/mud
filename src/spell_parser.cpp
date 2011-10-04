@@ -1788,7 +1788,7 @@ const char *spell_name(int num)
 }
 
 
-int find_skill_num(char *name)
+int find_skill_num(const char *name)
 {
 	int index, ok;
 	char const *temp, *temp2;
@@ -5042,7 +5042,7 @@ void mag_assign_spells(void)
 
 	skillo(SKILL_DISARM, "обезоружить", 100);
 	skillo(SKILL_HEAL, "!heal!", 100);
-	skillo(SKILL_TURN, "turn", 100);
+	skillo(SKILL_MORPH, "оборотничество", 150);
 	skillo(SKILL_ADDSHOT, "дополнительный выстрел", 200);
 	skillo(SKILL_CAMOUFLAGE, "маскировка", 100);
 	skillo(SKILL_DEVIATE, "уклониться", 100);

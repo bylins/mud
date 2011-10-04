@@ -19,6 +19,7 @@
 #include "spells.h"
 #include "comm.h"
 #include "room.hpp"
+#include "player_races.hpp"
 
 std::string PlayerI::empty_const_str;
 
@@ -83,6 +84,7 @@ void release_purged_list()
 Character::Character()
 {
 	this->zero_init();
+    current_morph_ = NormalMorph::GetNormalMorph(this);
 }
 
 Character::~Character()
@@ -121,6 +123,12 @@ void Character::zero_init()
 	dex_add_ = 0;
 	con_ = 0;
 	con_add_ = 0;
+	wis_ = 0;
+	wis_add_ = 0;
+	int_ = 0;
+	int_add_ = 0;
+	cha_ = 0;
+	cha_add_ = 0;
 	// char_data
 	nr = NOBODY;
 	in_room = 0;
@@ -393,7 +401,7 @@ int Character::get_equipped_skill(int skill_num)
 /**
 * Родной тренированный скилл чара.
 */
-int Character::get_trained_skill(int skill_num)
+int Character::get_inborn_skill(int skill_num)
 {
 	if (Privilege::check_skills(this))
 	{
@@ -402,6 +410,15 @@ int Character::get_trained_skill(int skill_num)
 		{
 			return normolize_skill(it->second);
 		}
+	}
+	return 0;
+}
+
+int Character::get_trained_skill(int skill_num)
+{
+	if (Privilege::check_skills(this))
+	{
+		return normolize_skill(current_morph_->get_trained_skill(skill_num));
 	}
 	return 0;
 }
@@ -428,6 +445,12 @@ void Character::set_skill(int skill_num, int percent)
 	else if (percent)
 		skills[skill_num] = percent;
 }
+
+void Character::set_morphed_skill(int skill_num, int percent)
+{
+	current_morph_->set_skill(skill_num, percent);
+};
+
 
 /**
 *
@@ -998,12 +1021,22 @@ int Character::calc_morale() const
 ///////////////////////////////////////////////////////////////////////////////
 int Character::get_str() const
 {
+	return current_morph_->GetStr();
+}
+
+int Character::get_inborn_str() const
+{
 	return str_;
 }
 
 void Character::set_str(int param)
 {
 	str_ = MAX(1, param);
+}
+
+void Character::inc_str(int param)
+{
+	str_ = MAX(1, str_+param);
 }
 
 int Character::get_str_add() const
@@ -1018,6 +1051,11 @@ void Character::set_str_add(int param)
 ///////////////////////////////////////////////////////////////////////////////
 int Character::get_dex() const
 {
+	return current_morph_->GetDex();
+}
+
+int Character::get_inborn_dex() const
+{
 	return dex_;
 }
 
@@ -1025,6 +1063,12 @@ void Character::set_dex(int param)
 {
 	dex_ = MAX(1, param);
 }
+
+void Character::inc_dex(int param)
+{
+	dex_ = MAX(1, dex_+param);
+}
+
 
 int Character::get_dex_add() const
 {
@@ -1038,12 +1082,21 @@ void Character::set_dex_add(int param)
 ///////////////////////////////////////////////////////////////////////////////
 int Character::get_con() const
 {
+	return current_morph_->GetCon();
+}
+
+int Character::get_inborn_con() const
+{
 	return con_;
 }
 
 void Character::set_con(int param)
 {
 	con_ = MAX(1, param);
+}
+void Character::inc_con(int param)
+{
+	con_ = MAX(1, con_+param);
 }
 
 int Character::get_con_add() const
@@ -1055,7 +1108,100 @@ void Character::set_con_add(int param)
 {
 	con_add_ = param;
 }
+//////////////////////////////////////
+
+int Character::get_int() const
+{
+	return current_morph_->GetIntel();
+}
+
+int Character::get_inborn_int() const
+{
+	return int_;
+}
+
+void Character::set_int(int param)
+{
+	int_ = MAX(1, param);
+}
+
+void Character::inc_int(int param)
+{
+	int_ = MAX(1, int_+param);
+}
+
+int Character::get_int_add() const
+{
+	return int_add_;
+}
+
+void Character::set_int_add(int param)
+{
+	int_add_ = param;
+}
+////////////////////////////////////////
+int Character::get_wis() const
+{
+	return current_morph_->GetWis();
+}
+
+int Character::get_inborn_wis() const
+{
+	return wis_;
+}
+
+void Character::set_wis(int param)
+{
+	wis_ = MAX(1, param);
+}
+
+void Character::inc_wis(int param)
+{
+	wis_ = MAX(1, wis_ + param);
+}
+
+
+int Character::get_wis_add() const
+{
+	return wis_add_;
+}
+
+void Character::set_wis_add(int param)
+{
+	wis_add_ = param;
+}
 ///////////////////////////////////////////////////////////////////////////////
+int Character::get_cha() const
+{
+	return current_morph_->GetCha();
+}
+
+int Character::get_inborn_cha() const
+{
+	return cha_;
+}
+
+void Character::set_cha(int param)
+{
+	cha_ = MAX(1, param);
+}
+void Character::inc_cha(int param)
+{
+	cha_ = MAX(1, cha_+param);
+}
+
+
+int Character::get_cha_add() const
+{
+	return cha_add_;
+}
+
+void Character::set_cha_add(int param)
+{
+	cha_add_ = param;
+}
+///////////////////////////////////////////////////////////////////////////////
+
 void Character::clear_add_affects()
 {
 	// Clear all affect, because recalc one
@@ -1063,6 +1209,9 @@ void Character::clear_add_affects()
 	set_str_add(0);
 	set_dex_add(0);
 	set_con_add(0);
+	set_int_add(0);
+	set_wis_add(0);
+	set_cha_add(0);
 }
 ///////////////////////////////////////////////////////////////////////////////
 int Character::get_zone_group() const
@@ -1071,6 +1220,180 @@ int Character::get_zone_group() const
 	{
 		return MAX(1, zone_table[mob_index[nr].zone].group);
 	}
-
 	return 1;
 }
+
+//===================================
+//Polud формы и все что с ними связано
+//===================================
+
+bool Character::know_morph(string morph_id) const
+{
+	return std::find(morphs_.begin(), morphs_.end(), morph_id) != morphs_.end(); 
+}
+
+void Character::add_morph(string morph_id)
+{
+	morphs_.push_back(morph_id);
+};
+
+void Character::clear_morphs()
+{
+	morphs_.clear();
+};
+
+
+std::list<string> Character::get_morphs()
+{
+	return morphs_;
+};
+
+std::string Character::get_title()
+{	
+	if (!this->player_data.title) return string();
+	string tmp = string(this->player_data.title);
+	unsigned pos = tmp.find('/');
+	if (pos == string::npos)
+		return string();
+	tmp = tmp.substr(0, pos);
+	pos = tmp.find(';');
+	if (pos == string::npos)
+		return tmp;
+	else
+		return tmp.substr(0, pos);
+	
+};
+
+std::string Character::get_pretitle()
+{
+	if (!this->player_data.title) return string();
+	string tmp = string(this->player_data.title);
+	unsigned pos = tmp.find('/');
+	if (pos == string::npos)
+		return string();
+	tmp = tmp.substr(0, pos);
+	pos = tmp.find(';');
+	if (pos == string::npos)
+		return string();
+	else
+		return tmp.substr(pos + 1, tmp.length() - (pos+1));
+};
+
+std::string Character::get_race_name()
+{
+	return PlayerRace::GetRaceNameByNum(GET_KIN(this),GET_RACE(this),GET_SEX(this));
+};
+
+std::string Character::get_morph_desc()
+{
+	return current_morph_->GetMorphDesc();
+};
+
+std::string Character::get_morphed_name()
+{
+	return current_morph_->GetMorphDesc() + " - " + this->get_name();
+};
+
+std::string Character::get_morphed_title()
+{
+	return current_morph_->GetMorphTitle();
+};
+
+std::string Character::only_title_noclan()
+{
+	std::string result = string(this->get_name());
+	std::string title = this->get_title();
+	std::string pre_title = this->get_pretitle();
+
+	if (!pre_title.empty())
+		result = pre_title + " " + result;
+
+	if (!title.empty() && this->get_level() >= MIN_TITLE_LEV)
+		result = result + ", " + title;
+
+	return result;
+}
+
+std::string Character::clan_for_title()
+{
+	std::string result = string();
+
+	bool imm = IS_IMMORTAL(this) || PRF_FLAGGED(this, PRF_CODERINFO);
+
+	if (CLAN(this) && !imm)
+		result = result + "(" + GET_CLAN_STATUS(this) + ")";
+
+	return result;
+}
+
+std::string Character::only_title()
+{
+	std::string result = this->clan_for_title();
+	if (!result.empty())
+		result = this->only_title_noclan() + " " + result;
+	else
+		result = this->only_title_noclan();
+		
+	return result;
+}
+
+std::string Character::noclan_title()
+{
+	std::string race = this->get_race_name();
+
+	std::string result = this->only_title_noclan();
+
+	if (result == string(this->get_name()))
+		result = race + " " +result;
+
+	return result;
+}
+
+std::string Character::race_or_title()
+{
+	std::string result = this->clan_for_title();
+	
+	if (!result.empty())
+		result = this->noclan_title() + " " + result;
+	else
+		result = this->noclan_title();
+
+	return result;
+}
+
+int Character::get_morphs_count() const
+{
+	return morphs_.size();
+};
+
+std::string Character::get_cover_desc()
+{
+	return current_morph_->CoverDesc();
+}
+
+void Character::set_morph(MorphPtr morph)
+{
+	morph->SetChar(this);
+	morph->InitSkills(this->get_skill(SKILL_MORPH));
+	morph->InitAbils();
+	this->current_morph_ = morph;
+//	SET_BIT(AFF_FLAGS(this, AFF_MORPH), AFF_MORPH);
+};
+
+void Character::reset_morph()
+{
+	int value = this->get_trained_skill(SKILL_MORPH);
+	this->current_morph_ = NormalMorph::GetNormalMorph(this);
+	this->set_morphed_skill(SKILL_MORPH, (MIN(MAX_EXP_PERCENT + GET_REMORT(this) * 5, value)));
+//	REMOVE_BIT(AFF_FLAGS(this, AFF_MORPH), AFF_MORPH);
+};
+
+bool Character::is_morphed() const
+{
+	return current_morph_->Name() != "Обычная" || AFF_FLAGGED(this, AFF_MORPH); 
+};
+
+//===================================
+//-Polud 
+//===================================
+

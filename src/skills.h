@@ -73,7 +73,7 @@
 #define SKILL_DISARM                150
 #define SKILL_PARRY                 151
 #define SKILL_HEAL                  152
-#define SKILL_TURN                  153
+#define SKILL_MORPH		            153
 #define SKILL_BOWS                  154
 #define SKILL_ADDSHOT               155
 #define SKILL_CAMOUFLAGE            156

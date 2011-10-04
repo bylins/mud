@@ -1995,17 +1995,17 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			dam *= ch->get_skill(SKILL_PUNCTUAL) / 2;
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_INT;
-			af[0].modifier = -GET_INT(victim) / 2;
+			af[0].modifier = -victim->get_int() / 2;
 			af[0].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 			af[0].battleflag = AF_DEADKEEP;
 			af[1].type = SPELL_BATTLE;
 			af[1].location = APPLY_WIS;
-			af[1].modifier = -GET_WIS(victim) / 2;
+			af[1].modifier = -victim->get_wis() / 2;
 			af[1].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 			af[1].battleflag = AF_DEADKEEP;
 			af[2].type = SPELL_BATTLE;
 			af[2].location = APPLY_CHA;
-			af[2].modifier = -GET_CHA(victim) / 2;
+			af[2].modifier = -victim->get_cha() / 2;
 			af[2].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 			af[2].battleflag = AF_DEADKEEP;
 			haemorragia(victim, 60);
@@ -2015,17 +2015,17 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 		default:	// killed
 			af[0].type = SPELL_BATTLE;
 			af[0].location = APPLY_INT;
-			af[0].modifier = -GET_INT(victim) / 2;
+			af[0].modifier = -victim->get_int() / 2;
 			af[0].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 			af[0].battleflag = AF_DEADKEEP;
 			af[1].type = SPELL_BATTLE;
 			af[1].location = APPLY_WIS;
-			af[1].modifier = -GET_WIS(victim) / 2;
+			af[1].modifier = -victim->get_wis() / 2;
 			af[1].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 			af[1].battleflag = AF_DEADKEEP;
 			af[2].type = SPELL_BATTLE;
 			af[2].location = APPLY_CHA;
-			af[2].modifier = -GET_CHA(victim) / 2;
+			af[2].modifier = -victim->get_cha() / 2;
 			af[2].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
 			af[2].battleflag = AF_DEADKEEP;
 			dam *= ch->get_skill(SKILL_PUNCTUAL) / 2;
@@ -2853,20 +2853,17 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 			else if ((AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL)) && killer->master)
 // killer - зачармленный NPC с хозяином
 			{
-				if (IN_ROOM(killer) == IN_ROOM(killer->master))
-				{
-// Чармис и хозяин в одной комнате
-					if (!IS_NPC(killer->master)
-							&& AFF_FLAGGED(killer->master, AFF_GROUP))
+				if (!IS_NPC(killer->master)
+						&& AFF_FLAGGED(killer->master, AFF_GROUP))
 // Хозяин - PC в группе => опыт группе
-						group_gain(killer->master, victim);
-					else
-						// Опыт хозяину
-					{
-						perform_group_gain(killer->master, victim, 1, 100);
-						//solo_gain(killer->master, victim);
-						//solo_gain(killer,victim);
-					}
+					group_gain(killer->master, victim);
+				else if (IN_ROOM(killer) == IN_ROOM(killer->master))
+					// Чармис и хозяин в одной комнате
+					// Опыт хозяину
+				{
+					perform_group_gain(killer->master, victim, 1, 100);
+					//solo_gain(killer->master, victim);
+					//solo_gain(killer,victim);
 				}
 				// else
 				// А хозяина то рядом не оказалось, все чармису - убрано

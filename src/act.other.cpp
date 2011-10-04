@@ -665,7 +665,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 			{
 				// Считаем вероятность крит-воровства (воровства всех денег)
 				if ((number(1, 100) - ch->get_skill(SKILL_STEAL) -
-						GET_DEX(ch) + GET_WIS(vict) + vict->get_gold() / 500) < 0)
+						ch->get_dex() + vict->get_wis() + vict->get_gold() / 500) < 0)
 				{
 					act("Тугой кошелек $N1 перекочевал к Вам.", TRUE, ch, 0, vict, TO_CHAR);
 					gold = vict->get_gold();
@@ -3010,13 +3010,13 @@ ACMD(do_dig)
 
 	percent = number(1, skill_info[SKILL_DIG].max_percent);
 	prob = ch->get_skill(SKILL_DIG);
-	old_int = GET_INT(ch);
-	old_wis = GET_WIS(ch);
-	GET_INT(ch) += 14 - MAX(14, GET_REAL_INT(ch));
-	GET_WIS(ch) += 14 - MAX(14, GET_REAL_WIS(ch));
+	old_int = ch->get_int();
+	old_wis = ch->get_wis();
+	ch->set_int(ch->get_int() + 14 - MAX(14, GET_REAL_INT(ch)));
+	ch->set_wis(ch->get_wis() + 14 - MAX(14, GET_REAL_WIS(ch)));
 	improove_skill(ch, SKILL_DIG, 0, 0);
-	GET_INT(ch) = old_int;
-	GET_WIS(ch) = old_wis;
+	ch->set_int(old_int);
+	ch->set_wis(old_wis);
 
 
 	WAIT_STATE(ch, dig_vars.lag * PULSE_VIOLENCE);

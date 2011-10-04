@@ -14,6 +14,7 @@
 #include "sysdep.h"
 #include "structs.h"
 #include "player_i.hpp"
+#include "morph.hpp"
 
 /* These data contain information about a players time data */
 struct time_data
@@ -48,11 +49,6 @@ enum { FIRE_RESISTANCE = 0, AIR_RESISTANCE, WATER_RESISTANCE, EARTH_RESISTANCE, 
 /* Char's additional abilities. Used only while work */
 struct char_played_ability_data
 {
-	int str_add;
-	int intel_add;
-	int wis_add;
-	int dex_add;
-	int cha_add;
 	int weight_add;
 	int height_add;
 	int size_add;
@@ -86,11 +82,6 @@ struct char_ability_data
 	boost::array<ubyte, MAX_SPELLS + 1> SplKnw; /* array of SPELL_KNOW_TYPE         */
 	boost::array<ubyte, MAX_SPELLS + 1> SplMem; /* array of MEMed SPELLS            */
 	bitset<MAX_FEATS> Feats;
-	sbyte str;
-	sbyte intel;
-	sbyte wis;
-	sbyte dex;
-	sbyte cha;
 	sbyte size;
 	sbyte hitroll;
 	int damroll;
@@ -380,11 +371,29 @@ public:
 	int calc_morale() const;
 
 	int get_str() const;
+	int get_inborn_str() const;
 	void set_str(int);
+	void inc_str(int);
 	int get_dex() const;
+	int get_inborn_dex() const;
 	void set_dex(int);
+	void inc_dex(int);
 	int get_con() const;
+	int get_inborn_con() const;
 	void set_con(int);
+	void inc_con(int);
+	int get_wis() const;
+	int get_inborn_wis() const;
+	void set_wis(int);
+	void inc_wis(int);
+	int get_int() const;
+	int get_inborn_int() const;
+	void set_int(int);
+	void inc_int(int);
+	int get_cha() const;
+	int get_inborn_cha() const;
+	void set_cha(int);
+	void inc_cha(int);
 
 	////////////////////////////////////////////////////////////////////////////
 	void clear_add_affects();
@@ -394,6 +403,12 @@ public:
 	void set_dex_add(int);
 	int get_con_add() const;
 	void set_con_add(int);
+	int get_wis_add() const;
+	void set_wis_add(int);
+	int get_int_add() const;
+	void set_int_add(int);
+	int get_cha_add() const;
+	void set_cha_add(int);
 	////////////////////////////////////////////////////////////////////////////
 
 	/**
@@ -402,11 +417,35 @@ public:
 	 */
 	int get_zone_group() const;
 
+	bool know_morph(string morph_id) const;
+	void add_morph(string morph_id);
+	void clear_morphs();
+	void set_morph(MorphPtr morph);
+	void reset_morph();
+	int get_morphs_count() const;
+	std::list<string> get_morphs();
+	bool is_morphed() const;
+
+	std::string get_title();
+	std::string get_morphed_name();
+	std::string get_pretitle();
+	std::string get_race_name();
+	std::string only_title();
+	std::string noclan_title();
+	std::string race_or_title();
+	std::string get_morphed_title();
+	std::string get_cover_desc();
+	std::string get_morph_desc();
+	int get_inborn_skill(int skill_num);
+	void set_morphed_skill(int skill_num, int percent);
+
 private:
+	std::string clan_for_title();
+	std::string only_title_noclan();
 	void check_fighting_list();
 	void zero_init();
 
-	CharSkillsType skills;  // список изученных скиллов
+	CharSkillsType skills;  // список изученных скиллов 
 	////////////////////////////////////////////////////////////////////////////
 	CHAR_DATA *protecting_; // цель для 'прикрыть'
 	CHAR_DATA *touching_;   // цель для 'перехватить'
@@ -455,7 +494,22 @@ private:
 	int con_;
 	// плюсы на тело
 	int con_add_;
-
+	// родная мудра
+	int wis_;
+	// плюсы на мудру
+	int wis_add_;
+	// родная инта
+	int int_;
+	// плюсы на инту
+	int int_add_;
+	// родная харизма
+	int cha_;
+	// плюсы на харизму
+	int cha_add_;
+	//изученные формы
+	std::list<string> morphs_;
+	//текущая форма
+	MorphPtr current_morph_;
 // старое
 public:
 	mob_rnum nr;		/* Mob's rnum                   */

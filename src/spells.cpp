@@ -2026,13 +2026,13 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 	if (fullness < 100 || (ch != victim && !IS_NPC(victim)))
 		return;
 
-	val0 = GET_STR(victim);
-	val1 = GET_INT(victim);
-	val2 = GET_WIS(victim);
+	val0 = victim->get_str();
+	val1 = victim->get_int();
+	val2 = victim->get_wis();
 	sprintf(buf, "Сила: %d, Ум: %d, Муд: %d, ", val0, val1, val2);
-	val0 = GET_DEX(victim);
-	val1 = GET_CON(victim);
-	val2 = GET_CHA(victim);
+	val0 = victim->get_dex();
+	val1 = victim->get_con();
+	val2 = victim->get_cha();
 	sprintf(buf + strlen(buf), "Ловк: %d, Тел: %d, Обаян: %d\r\n", val0, val1, val2);
 	send_to_char(buf, ch);
 
@@ -2113,7 +2113,8 @@ void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 	send_to_char(buf, ch);
 
 	sprintf(buf, "Сила: %d, Ум: %d, Муд: %d, Ловк: %d, Тел: %d, Обаян: %d\r\n",
-			GET_STR(victim), GET_INT(victim), GET_WIS(victim), GET_DEX(victim), GET_CON(victim), GET_CHA(victim));
+			victim->get_inborn_str(), victim->get_inborn_int(), victim->get_inborn_wis(), victim->get_inborn_dex(),
+			victim->get_inborn_con(), victim->get_inborn_cha());
 	send_to_char(buf, ch);
 	sprintf(buf,
 			"Сила: %s%d%s, Ум: %s%d%s, Муд: %s%d%s, Ловк: %s%d%s, Тел: %s%d%s, Обаян: %s%d%s\r\n",
@@ -2550,9 +2551,9 @@ ASPELL(spell_angel)
 	mob->set_str(11);
 	mob->set_dex(16);
 	mob->set_con(17);
-	GET_INT(mob) = 25;
-	GET_WIS(mob) = 25;
-	GET_CHA(mob) = 22;
+	mob->set_int(25);
+	mob->set_wis(25);
+	mob->set_cha(22);
 
 	GET_WEIGHT(mob) = 150;
 	GET_HEIGHT(mob) = 200;
@@ -2620,7 +2621,7 @@ ASPELL(spell_angel)
 	GET_HR(mob) += modifier;
 
 	modifier = VPOSI(GET_LEVEL(ch) - 26, 0, 50);
-	mob->set_con(mob->get_con() + modifier);
+	mob->inc_con(modifier);
 
 	modifier = (int)(20 * VPOSI(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
 	GET_MAX_HIT(mob) += modifier;
@@ -2630,8 +2631,8 @@ ASPELL(spell_angel)
 	GET_AC(mob) -= modifier;
 
 	modifier = 1 * VPOSI((int)((get_effective_cha(ch, SPELL_ANGEL) - 16) / 2), 0, 50);
-	mob->set_str(mob->get_str() + modifier);
-	mob->set_dex(mob->get_dex() + modifier);
+	mob->inc_str(modifier);
+	mob->inc_dex(modifier);
 
 	modifier = VPOSI((int)((get_effective_cha(ch, SPELL_ANGEL) - 22) / 4), 0, 50);
 	SET_SPELL(mob, SPELL_HEAL, GET_SPELL_MEM(mob, SPELL_HEAL) + modifier);

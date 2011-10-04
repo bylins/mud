@@ -412,27 +412,27 @@ bool parse_denial_check(CHAR_DATA *ch, int stat)
 		switch (stat)
 		{
 		case G_STR:
-			if (GET_STR(ch) == ch->desc->glory->olc_str)
+			if (ch->get_inborn_str() == ch->desc->glory->olc_str)
 				stop = 1;
 			break;
 		case G_DEX:
-			if (GET_DEX(ch) == ch->desc->glory->olc_dex)
+			if (ch->get_inborn_dex() == ch->desc->glory->olc_dex)
 				stop = 1;
 			break;
 		case G_INT:
-			if (GET_INT(ch) == ch->desc->glory->olc_int)
+			if (ch->get_inborn_int() == ch->desc->glory->olc_int)
 				stop = 1;
 			break;
 		case G_WIS:
-			if (GET_WIS(ch) == ch->desc->glory->olc_wis)
+			if (ch->get_inborn_wis() == ch->desc->glory->olc_wis)
 				stop = 1;
 			break;
 		case G_CON:
-			if (GET_CON(ch) == ch->desc->glory->olc_con)
+			if (ch->get_inborn_con() == ch->desc->glory->olc_con)
 				stop = 1;
 			break;
 		case G_CHA:
-			if (GET_CHA(ch) == ch->desc->glory->olc_cha)
+			if (ch->get_inborn_cha() == ch->desc->glory->olc_cha)
 				stop = 1;
 			break;
 		default:
@@ -667,12 +667,12 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 	{
 		// проверка, чтобы не записывать зря, а только при изменения
 		// и чтобы нельзя было из стата славу вытащить
-		if ((ch->desc->glory->olc_str == GET_STR(ch)
-				&& ch->desc->glory->olc_dex == GET_DEX(ch)
-				&& ch->desc->glory->olc_int == GET_INT(ch)
-				&& ch->desc->glory->olc_wis == GET_WIS(ch)
-				&& ch->desc->glory->olc_con == GET_CON(ch)
-				&& ch->desc->glory->olc_cha == GET_CHA(ch))
+		if ((ch->desc->glory->olc_str == ch->get_inborn_str()
+				&& ch->desc->glory->olc_dex == ch->get_inborn_dex()
+				&& ch->desc->glory->olc_int == ch->get_inborn_int()
+				&& ch->desc->glory->olc_wis == ch->get_inborn_wis()
+				&& ch->desc->glory->olc_con == ch->get_inborn_con()
+				&& ch->desc->glory->olc_cha == ch->get_inborn_cha())
 				|| ch->desc->glory->olc_add_spend_glory < ch->desc->glory->olc_node->spend_glory)
 		{
 			return 0;
@@ -694,12 +694,12 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 		}
 
 		// включаем таймер, если было переливание статов
-		if (GET_STR(ch) < ch->desc->glory->olc_str
-				|| GET_DEX(ch) < ch->desc->glory->olc_dex
-				|| GET_INT(ch) < ch->desc->glory->olc_int
-				|| GET_WIS(ch) < ch->desc->glory->olc_wis
-				|| GET_CON(ch) < ch->desc->glory->olc_con
-				|| GET_CHA(ch) < ch->desc->glory->olc_cha)
+		if (ch->get_inborn_str() < ch->desc->glory->olc_str
+				|| ch->get_inborn_dex() < ch->desc->glory->olc_dex
+				|| ch->get_inborn_int() < ch->desc->glory->olc_int
+				|| ch->get_inborn_wis() < ch->desc->glory->olc_wis
+				|| ch->get_inborn_con() < ch->desc->glory->olc_con
+				|| ch->get_inborn_cha() < ch->desc->glory->olc_cha)
 		{
 			ch->desc->glory->olc_node->denial = DISPLACE_TIMER;
 		}
@@ -707,9 +707,9 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 		ch->set_str(ch->desc->glory->olc_str);
 		ch->set_dex(ch->desc->glory->olc_dex);
 		ch->set_con(ch->desc->glory->olc_con);
-		GET_INT(ch) = ch->desc->glory->olc_int;
-		GET_WIS(ch) = ch->desc->glory->olc_wis;
-		GET_CHA(ch) = ch->desc->glory->olc_cha;
+		ch->set_wis(ch->desc->glory->olc_wis);
+		ch->set_int(ch->desc->glory->olc_int);
+		ch->set_cha(ch->desc->glory->olc_cha);
 
 		// проставляем таймеры, потому что в олц удобнее иметь нулевые для новых статов
 		for (GloryTimeType::const_iterator tmp_it = ch->desc->glory->olc_node->timers.begin();
@@ -806,12 +806,12 @@ void spend_glory_menu(CHAR_DATA *ch)
 		out << "  Вы должны распределить вложенные ранее " << diff << " " << desc_count(diff, WHAT_POINT) << "\r\n";
 	}
 	else if (ch->desc->glory->olc_add_spend_glory > ch->desc->glory->olc_node->spend_glory
-			 || ch->desc->glory->olc_str != GET_STR(ch)
-			 || ch->desc->glory->olc_dex != GET_DEX(ch)
-			 || ch->desc->glory->olc_int != GET_INT(ch)
-			 || ch->desc->glory->olc_wis != GET_WIS(ch)
-			 || ch->desc->glory->olc_con != GET_CON(ch)
-			 || ch->desc->glory->olc_cha != GET_CHA(ch))
+			 || ch->desc->glory->olc_str != ch->get_inborn_str()
+			 || ch->desc->glory->olc_dex != ch->get_inborn_dex()
+			 || ch->desc->glory->olc_int != ch->get_inborn_int()
+			 || ch->desc->glory->olc_wis != ch->get_inborn_wis()
+			 || ch->desc->glory->olc_con != ch->get_inborn_con()
+			 || ch->desc->glory->olc_cha != ch->get_inborn_cha())
 	{
 		out << "  "
 		<< CCIGRN(ch, C_SPR) << "В" << CCNRM(ch, C_SPR)
@@ -904,12 +904,12 @@ ACMD(do_spend_glory)
 	}
 
 	boost::shared_ptr<class spend_glory> temp_glory(new spend_glory);
-	temp_glory->olc_str = GET_STR(ch);
-	temp_glory->olc_dex = GET_DEX(ch);
-	temp_glory->olc_int = GET_INT(ch);
-	temp_glory->olc_wis = GET_WIS(ch);
-	temp_glory->olc_con = GET_CON(ch);
-	temp_glory->olc_cha = GET_CHA(ch);
+	temp_glory->olc_str = ch->get_inborn_str();
+	temp_glory->olc_dex = ch->get_inborn_dex();
+	temp_glory->olc_int = ch->get_inborn_int();
+	temp_glory->olc_wis = ch->get_inborn_wis();
+	temp_glory->olc_con = ch->get_inborn_con();
+	temp_glory->olc_cha = ch->get_inborn_cha();
 
 	// я не помню уже, как там этот шаред-птр ведет себя при дефолтном копировании
 	// а т.к. внутри есть список таймеров на них - скопирую вручную и пофигу на все
@@ -964,22 +964,22 @@ void remove_stat_online(long uid, int stat, int glory)
 		switch (stat)
 		{
 		case G_STR:
-			d->character->set_str(d->character->get_str() - glory);
+			d->character->inc_str(-glory);
 			break;
 		case G_DEX:
-			d->character->set_dex(d->character->get_dex() - glory);
+			d->character->inc_dex(-glory);
 			break;
 		case G_INT:
-			GET_INT(d->character) -= glory;
+			d->character->inc_int(-glory);
 			break;
 		case G_WIS:
-			GET_WIS(d->character) -= glory;
+			d->character->inc_wis(-glory);
 			break;
 		case G_CON:
-			d->character->set_con(d->character->get_con() - glory);
+			d->character->inc_con(-glory);
 			break;
 		case G_CHA:
-			GET_CHA(d->character) -= glory;
+			d->character->inc_cha(-glory);
 			break;
 		default:
 			log("Glory: некорректный номер стата %d (uid: %ld)", stat, uid);
@@ -1208,22 +1208,22 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 				switch ((*tm_it)->stat)
 				{
 				case G_STR:
-					vict->set_str(vict->get_str() + (*tm_it)->glory);
+					vict->inc_str((*tm_it)->glory);
 					break;
 				case G_DEX:
-					vict->set_dex(vict->get_dex() + (*tm_it)->glory);
+					vict->inc_dex((*tm_it)->glory);
 					break;
 				case G_INT:
-					GET_INT(vict) += (*tm_it)->glory;
+					vict->inc_int((*tm_it)->glory);
 					break;
 				case G_WIS:
-					GET_WIS(vict) += (*tm_it)->glory;
+					vict->inc_wis((*tm_it)->glory);
 					break;
 				case G_CON:
-					vict->set_con(vict->get_con() + (*tm_it)->glory);
+					vict->inc_con((*tm_it)->glory);
 					break;
 				case G_CHA:
-					GET_CHA(vict) += (*tm_it)->glory;
+					vict->inc_cha((*tm_it)->glory);
 					break;
 				default:
 					log("Glory: некорректный номер стата %d (uid: %ld)",
@@ -1393,22 +1393,22 @@ void set_stats(CHAR_DATA *ch)
 			switch ((*tm_it)->stat)
 			{
 			case G_STR:
-				ch->set_str(ch->get_str() + (*tm_it)->glory);
+				ch->inc_str((*tm_it)->glory);
 				break;
 			case G_DEX:
-				ch->set_dex(ch->get_dex() + (*tm_it)->glory);
+				ch->inc_dex((*tm_it)->glory);
 				break;
 			case G_INT:
-				GET_INT(ch) += (*tm_it)->glory;
+				ch->inc_int((*tm_it)->glory);
 				break;
 			case G_WIS:
-				GET_WIS(ch) += (*tm_it)->glory;
+				ch->inc_wis((*tm_it)->glory);
 				break;
 			case G_CON:
-				ch->set_con(ch->get_con() + (*tm_it)->glory);
+				ch->inc_con((*tm_it)->glory);
 				break;
 			case G_CHA:
-				GET_CHA(ch) += (*tm_it)->glory;
+				ch->inc_cha((*tm_it)->glory);
 				break;
 			default:
 				log("Glory: некорректный номер стата %d (uid: %ld)", (*tm_it)->stat, it->first);

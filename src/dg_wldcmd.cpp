@@ -575,7 +575,7 @@ WCMD(do_wload)
 /* increases spells & skills */
 const char *skill_name(int num);
 const char *spell_name(int num);
-int find_skill_num(char *name);
+int find_skill_num(const char *name);
 int find_spell_num(char *name);
 
 

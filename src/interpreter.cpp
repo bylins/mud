@@ -397,6 +397,8 @@ ACMD(do_mystat);
 ACMD(do_zone);
 ACMD(do_bandage);
 ACMD(do_sanitize);
+ACMD(do_morph);
+ACMD(do_morphset);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -632,6 +634,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"надеть", POS_RESTING, do_wear, 0, 0, 500},
 
 	{"обезоружить", POS_FIGHTING, do_disarm, 0, 0, -1},
+	{"обернуться", POS_STANDING, do_morph, 0, 0, -1},
 	{"облачить", POS_RESTING, do_wear, 0, 0, 500},
 	{"обмен", POS_STANDING, do_not_here, 0, 0, 0},
 	{"оглядеться", POS_RESTING, do_sides, 0, 0, 0},
@@ -978,6 +981,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"sit", POS_RESTING, do_sit, 0, 0, -1},
 	{"skills", POS_RESTING, do_skills, 0, 0, 0},
 	{"skillset", POS_SLEEPING, do_skillset, LVL_IMPL, 0, 0},
+	{"morphset", POS_SLEEPING, do_morphset, LVL_IMPL, 0, 0},
 	{"sleep", POS_SLEEPING, do_sleep, 0, 0, -1},
 	{"sneak", POS_STANDING, do_sneak, 1, 0, -2},
 	{"snoop", POS_DEAD, do_snoop, LVL_GRGOD, 0, 0},

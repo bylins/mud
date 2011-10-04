@@ -16,6 +16,7 @@
 #define _DB_H_
 
 #include <boost/array.hpp>
+#include "pugixml.hpp"
 
 // Максимальный уровень мобов
 const int MAX_MOB_LEVEL = 50;
@@ -205,6 +206,7 @@ int vnum_mobile(char *searchname, CHAR_DATA * ch);
 void reset_char(CHAR_DATA * ch);
 void clear_char_skills(CHAR_DATA * ch);
 int correct_unique(int unique);
+
 
 #define REAL          0
 #define VIRTUAL       (1 << 0)

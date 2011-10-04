@@ -2384,35 +2384,35 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			else if (!str_cmp(field, "str"))
 			{
 				//GET_STR(c)=(sbyte) MAX(1,gm_char_field(c,field,subfield,(long) GET_STR(c)));
-				sprintf(str, "%d", GET_STR(c));
+				sprintf(str, "%d", c->get_str());
 			}
 			else if (!str_cmp(field, "stradd"))
 				sprintf(str, "%d", GET_STR_ADD(c));
 			else if (!str_cmp(field, "int"))
 			{
 				//GET_INT(c)=(sbyte) MAX(1,gm_char_field(c,field,subfield,(long) GET_INT(c)));
-				sprintf(str, "%d", GET_INT(c));
+				sprintf(str, "%d", c->get_int());
 			}
 			else if (!str_cmp(field, "intadd"))
 				sprintf(str, "%d", GET_INT_ADD(c));
 			else if (!str_cmp(field, "wis"))
 			{
 				//GET_WIS(c)=(sbyte) MAX(1,gm_char_field(c,field,subfield,(long) GET_WIS(c)));
-				sprintf(str, "%d", GET_WIS(c));
+				sprintf(str, "%d", c->get_wis());
 			}
 			else if (!str_cmp(field, "wisadd"))
 				sprintf(str, "%d", GET_WIS_ADD(c));
 			else if (!str_cmp(field, "dex"))
 			{
 				//GET_DEX(c)=(sbyte) MAX(1,gm_char_field(c,field,subfield,(long) GET_DEX(c)));
-				sprintf(str, "%d", GET_DEX(c));
+				sprintf(str, "%d", c->get_dex());
 			}
 			else if (!str_cmp(field, "dexadd"))
 				sprintf(str, "%d", GET_DEX_ADD(c));
 			else if (!str_cmp(field, "con"))
 			{
 				//GET_CON(c)=(sbyte) MAX(1,gm_char_field(c,field,subfield,(long) GET_CON(c)));
-				sprintf(str, "%d", GET_CON(c));
+				sprintf(str, "%d", c->get_con());
 			}
 			else if (!str_cmp(field, "conadd"))
 			{
@@ -2421,7 +2421,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			else if (!str_cmp(field, "cha"))
 			{
 				//GET_CHA(c)=(sbyte) MAX(1,gm_char_field(c,field,subfield,(long) GET_CHA(c)));
-				sprintf(str, "%d", GET_CHA(c));
+				sprintf(str, "%d", c->get_cha());
 			}
 			else if (!str_cmp(field, "chaadd"))
 				sprintf(str, "%d", GET_CHA_ADD(c));
