@@ -2499,7 +2499,7 @@ void load_skills()
 				string name = string(xNodeSkill.attribute("name").value());
 				if ((sk_num = find_skill_num(name.c_str())) < 0)
 					{
-						log("Skill '%s' not found...", name);
+						log("Skill '%s' not found...", name.c_str());
 						_exit(1);
 					}
 				skill_info[sk_num].classknow[j][i] = KNOW_SKILL;
