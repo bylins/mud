@@ -4,6 +4,7 @@
 
 #include "obj.hpp"
 #include "utils.h"
+#include "pk.h"
 
 id_to_set_info_map obj_data::set_table;
 
@@ -37,6 +38,12 @@ obj_data::obj_data() :
 
 	for (int i = 0; i < 6; i++)
 		PNames[i] = NULL;
+}
+
+obj_data::~obj_data()
+{
+	bloody::remove_obj(this); //см. комментарий в структуре BloodyInfo из pk.cpp
+	//weak_ptr тут бы был какраз в тему
 }
 
 int obj_data::get_serial_num()

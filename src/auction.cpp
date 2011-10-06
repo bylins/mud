@@ -21,6 +21,7 @@
 #include "constants.h"
 #include "char.hpp"
 #include "room.hpp"
+#include "pk.h"
 
 /* external functions */
 extern int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
@@ -607,6 +608,12 @@ void trans_auction(int lot)
 
 		tmpstr = "$N2 необходимо завершить боевые действия для получения денег от Вас.";
 		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_CHAR | TO_SLEEP);
+		return;
+	}
+
+	if (!bloody::handle_transfer(tch, ch, obj))
+	{
+		act("$N2 стоит сначала кровь смыть с товара.", FALSE, ch, 0, tch, TO_CHAR | TO_SLEEP);
 		return;
 	}
 

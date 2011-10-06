@@ -303,6 +303,7 @@ private:
 struct obj_data
 {
 	obj_data();
+	~obj_data();
 
 	unsigned int uid;
 	obj_vnum item_number;	/* Where in data-base            */

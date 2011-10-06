@@ -714,6 +714,11 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 			}
 			local_gold = ch->get_gold();
 			corpse = make_corpse(ch, killer);
+			bloody::handle_corpse(corpse, ch, killer);
+			//Перенес вызов pk_revenge_action из die, чтобы на момент создания трупа месть на убийцу была еще жива
+			if (IS_NPC(ch) || !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)
+					|| RENTABLE(ch))
+				pk_revenge_action(killer, ch);
 			if (MOB_FLAGGED(ch, MOB_CORPSE))
 			{
 				perform_drop_gold(ch, local_gold, SCMD_DROP, 0);
@@ -895,7 +900,6 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
 					ch->master->set_skill(SKILL_LEADERSHIP, ch->master->get_trained_skill(SKILL_LEADERSHIP) - 1);
 			}
 		}
-		pk_revenge_action(killer, ch);
 	}
 
 	/*29.11.09 Увеличиваем счетчики рипов (с) Василиса */

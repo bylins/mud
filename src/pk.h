@@ -98,4 +98,21 @@ bool has_clan_members_in_group(CHAR_DATA * ch);
 //Polud
 void pkPortal(CHAR_DATA* ch);
 
+//Кровавый стаф
+namespace bloody
+{
+	//обновляет флаг кровавости на стафе
+	void update(); 
+	//убирает флаг
+	void remove_obj(const OBJ_DATA* obj);
+
+	//обработка передачи предмета obj от ch к victim
+	//ch может быть NULL (лут)
+	//victim может быть null (в случае с бросить, аук, продать..)
+	//возвращает true, если передача может состояться, и false в противном случае
+	bool handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OBJ_DATA* container=NULL);
+	//Помечает стаф в трупе как кровавый
+	void handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer);
+}
+
 #endif

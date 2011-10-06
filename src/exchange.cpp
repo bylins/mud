@@ -29,7 +29,7 @@
 #include "room.hpp"
 #include "mail.h"
 #include "objsave.h"
-
+#include "pk.h"
 
 //Используемые внешние ф-ии.
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
@@ -224,6 +224,8 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		send_to_char("У Вас этого нет.\r\n", ch);
 		return false;
 	}
+	if (!bloody::handle_transfer(ch, NULL, obj))
+		return false;
 	if (GET_OBJ_TYPE(obj) != ITEM_BOOK)
 	{
 		if (OBJ_FLAGGED(obj, ITEM_NORENT)

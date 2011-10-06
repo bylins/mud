@@ -532,6 +532,11 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 			strcat(buf, " ..шумит !");
 		if (IS_OBJ_STAT(object, ITEM_FIRE))
 			strcat(buf, " ..горит !");
+		if (IS_OBJ_STAT(object, ITEM_BLOODY))
+			{
+		sprintf(buf2, " %s..покрыт%s кровью!%s", CCIRED(ch, C_NRM), GET_OBJ_SUF_6(object), CCNRM(ch, C_NRM));
+			strcat(buf, buf2);
+		}
 	}
 
 	if (mode == 1)

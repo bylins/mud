@@ -33,6 +33,7 @@
 #include "modify.h"
 #include "room.hpp"
 #include "obj.hpp"
+#include "pk.h"
 
 extern TIME_INFO_DATA time_info;
 
@@ -991,6 +992,9 @@ void shopping_sell_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int 
 		do_tell(keeper, buf, cmd_tell, 0);
 		return;
 	}
+
+	if (!bloody::handle_transfer(ch, NULL, obj))
+		return;
 
 	if (!(obj = get_selling_item(ch, obj, keeper, shop_nr, TRUE, MODE_TRADE)))
 		return;

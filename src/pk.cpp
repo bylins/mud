@@ -11,6 +11,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include <map>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -24,6 +25,7 @@
 #include "pk.h"
 #include "char.hpp"
 #include "room.hpp"
+#include "house.h"
 
 ACMD(do_revenge);
 
@@ -45,6 +47,7 @@ extern CHAR_DATA *character_list;
 #define BATTLE_DURATION    3
 #define SPAM_PK_TIME       30
 #define PENTAGRAM_TIME     5
+#define BLOODY_DURATION    30
 
 // Временные константы в секундах реального времени
 #define TIME_PK_GROUP      5
@@ -1051,3 +1054,120 @@ void pkPortal(CHAR_DATA* ch)
 	RENTABLE(ch) = MAX(RENTABLE(ch), time(NULL) + PENTAGRAM_TIME * 60);
 }
 
+
+//Структура для хранения информации о кровавом стафе
+//Чтобы не добавлять новых полей в OBJ_DATA, объект просто помечается экстрафлагом ITEM_BLOODY и добавляется запись в bloody_map
+struct BloodyInfo
+{
+	long owner_unique; //С кого сняли шмотку
+	long kill_at; //Когда произошло убийство
+	OBJ_DATA * object; //сама шмотка
+	//какой-либо ID вместо указателя хранить не получается, потому что тогда при апдейте таймера кровавости для каждой записи придется искать шмотку по id по списку шмоток
+	//А это O(n)
+	//По-этому в деструкторе OBJ_DATA нужно удалять запись о шмотке из bloody_map. Такой вот костыль в отсутствие shared_ptr'ов и иже с ними
+	BloodyInfo(const long _owner_unique=0, const long _kill_at=0, OBJ_DATA* _object=0):
+		owner_unique(_owner_unique), kill_at(_kill_at), object(_object) { }
+};
+
+typedef std::map<const OBJ_DATA*, BloodyInfo> BloodyInfoMap;
+BloodyInfoMap bloody_map;
+
+//Устанавливает экстрабит кровавому стафу
+void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch)
+{
+	if (!list) return;
+	set_bloody_flag(list->contains, ch);
+	set_bloody_flag(list->next_content, ch);
+	const int t = GET_OBJ_TYPE(list);
+	if ((t == ITEM_LIGHT || t == ITEM_WAND || t == ITEM_STAFF || t == ITEM_WEAPON 
+		|| t == ITEM_ARMOR || t == ITEM_CONTAINER || t == ITEM_ARMOR_LIGHT 
+		|| t == ITEM_ARMOR_MEDIAN || t == ITEM_ARMOR_HEAVY || t == ITEM_INGRADIENT
+		|| t == ITEM_WORN) && !IS_OBJ_STAT(list, ITEM_BLOODY))
+	{
+		SET_BIT(GET_OBJ_EXTRA(list, ITEM_BLOODY), ITEM_BLOODY);
+		bloody_map[list].owner_unique = GET_UNIQUE(ch);
+		bloody_map[list].kill_at = time(NULL);
+		bloody_map[list].object = list;
+	}
+}
+
+void bloody::update()
+{
+	const long t = time(NULL);
+	BloodyInfoMap::iterator it = bloody_map.begin();
+	while (it != bloody_map.end())
+	{
+		BloodyInfoMap::iterator cur = it++;
+		if (t - cur->second.kill_at >= BLOODY_DURATION * 60) //Действие флага заканчивается
+		{
+			REMOVE_BIT(GET_OBJ_EXTRA(cur->second.object, ITEM_BLOODY), ITEM_BLOODY);
+			bloody_map.erase(cur);
+		}
+	}
+}
+
+void bloody::remove_obj(const OBJ_DATA* obj)
+{
+	BloodyInfoMap::iterator it = bloody_map.find(obj);
+	if (it != bloody_map.end())
+	{
+		REMOVE_BIT(GET_OBJ_EXTRA(it->second.object, ITEM_BLOODY), ITEM_BLOODY);
+		bloody_map.erase(it);
+	}
+}
+
+bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OBJ_DATA* container)
+{
+	CHAR_DATA* initial_ch = ch;
+	CHAR_DATA* initial_victim = victim;
+	if (!obj || (ch && IS_GOD(ch))) return true;
+	pk_translate_pair(&ch, &victim);
+	bool result = false;
+	BloodyInfoMap::iterator it = bloody_map.find(obj);
+	if (!IS_OBJ_STAT(obj, ITEM_BLOODY) || it == bloody_map.end()) 
+		result = true;
+	else
+	//Если отдаем владельцу или берет владелец
+	if (victim && (GET_UNIQUE(victim) == it->second.owner_unique || (CLAN(victim) && 
+		(CLAN(victim)->is_clan_member(it->second.owner_unique) || CLAN(victim)->is_alli_member(it->second.owner_unique)))))
+	{
+	remove_obj(obj); //снимаем флаг
+		result = true;
+	}
+	else if (!ch && victim) //лут не владельцем
+	{
+		if (IS_NPC(initial_victim)) //чармисам брать нельзя
+			return false;
+		AGRO(victim) = MAX(AGRO(victim), time(NULL) + KILLER_UNRENTABLE * 60);
+		RENTABLE(victim) = MAX(RENTABLE(victim), time(NULL) + KILLER_UNRENTABLE * 60);
+		result = true;
+	} 
+	else if (ch && container && (container->carried_by == ch || container->worn_by == ch)) //чар пытается положить в контейнер в инвентаре или экипировке
+	result = true;
+	else //нельзя передавать кровавый шмот
+	{
+	if (ch)
+	act("Кровь, покрывающая $o3, намертво въелась вам в руки, не давая избавиться от н$S.", FALSE, ch, obj, 0, TO_CHAR);
+		return false;
+	}
+	//обработка контейнеров
+	for (OBJ_DATA* nobj = obj->contains; nobj!=NULL && result; nobj = nobj->next_content)
+		result = handle_transfer(initial_ch, initial_victim, nobj);
+	return result;
+}
+
+void bloody::handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer)
+{
+	pk_translate_pair(&ch, &killer);
+	//Если игрок убил игрока, и убитый не душегуб, то с него выпадает окровавленный стаф
+	if (ch && killer && !IS_NPC(ch) && !IS_NPC(killer) && !PLR_FLAGGED(ch, PLR_KILLER))
+	{
+		//Проверим, может у killer есть месть на ch
+		struct PK_Memory_type *pk = 0;
+		for (pk = ch->pk_list; pk; pk = pk->next)
+			if (pk->unique == GET_UNIQUE(killer) && (pk->clan_exp > time(NULL) || pk->thief_exp > time(NULL) || pk->kill_num))
+				break;
+		if (!pk) //не нашли мести
+			set_bloody_flag(corpse->contains, ch);
+	}
+}

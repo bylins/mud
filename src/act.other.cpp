@@ -583,6 +583,11 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 					send_to_char("Вы не сможете унести такой вес.\r\n", ch);
 					return;
 				}
+				else if (IS_OBJ_STAT(obj, ITEM_BLOODY))
+				{
+					send_to_char("\"Мокрухой пахнет!\" - пронеслось у Вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
+					return;
+				}
 				else
 				{
 					act("Вы раздели $N3 и взяли $o3.", FALSE, ch, obj, vict, TO_CHAR);
@@ -593,6 +598,11 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 		}
 		else  	/* obj found in inventory */
 		{
+			if (IS_OBJ_STAT(obj, ITEM_BLOODY))
+			{
+				send_to_char("\"Мокрухой пахнет!\" - пронеслось у Вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
+				return;
+			}
 			percent += GET_OBJ_WEIGHT(obj);	/* Make heavy harder */
 			prob = calculate_skill(ch, SKILL_STEAL, percent, vict);
 

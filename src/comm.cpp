@@ -54,6 +54,7 @@
 #include "char.hpp"
 #include "char_player.hpp"
 #include "parcel.hpp"
+#include "pk.h"
 #include "spells.h"
 #include "house_exp.hpp"
 #include "skills.h"
@@ -1433,6 +1434,7 @@ inline void heartbeat()
 	if (!((pulse + 11) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
 		obj_point_update();
+		bloody::update();
 	}
 
 	if (!((pulse + 6) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))

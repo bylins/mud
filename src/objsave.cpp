@@ -848,6 +848,8 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		// Экстра флаги
 		*buf = '\0';
 		*buf2 = '\0';
+		//Убираем флаг !окровавлен! с вещи
+		REMOVE_BIT(GET_OBJ_EXTRA(object, ITEM_BLOODY), ITEM_BLOODY);
 		tascii((int *) &GET_OBJ_EXTRA(object, 0), 4, buf);
 		tascii((int *) &GET_OBJ_EXTRA(proto, 0), 4, buf2);
 		if (str_cmp(buf, buf2))

@@ -87,6 +87,8 @@ ACMD(do_upgrade);
 // 0 - все ок, 1 - нельзя положить и дальше не обрабатывать (для кланов), 2 - нельзя положить и идти дальше
 int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 {
+	if (!bloody::handle_transfer(ch, NULL, obj, cont)) 
+		return 2;
 	if (!drop_otrigger(obj, ch))
 	{
 		return 2;
@@ -537,6 +539,8 @@ void get_check_money(CHAR_DATA * ch, OBJ_DATA * obj)
 // иначе при вз все сун будет спам на каждый предмет, мол низя
 bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont, int mode)
 {
+	if (!bloody::handle_transfer(NULL, ch, obj))
+		return false;
 	if ((mode == FIND_OBJ_INV || mode == FIND_OBJ_ROOM || mode == FIND_OBJ_EQUIP) && can_take_obj(ch, obj) && get_otrigger(obj, ch))
 	{
 		// если берем из клан-сундука
@@ -561,8 +565,15 @@ bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont,
 		obj_to_char(obj, ch);
 		if (obj->carried_by == ch)
 		{
-			act("Вы взяли $o3 из $O1.", FALSE, ch, obj, cont, TO_CHAR);
-			act("$n взял$g $o3 из $O1.", TRUE, ch, obj, cont, TO_ROOM);
+			if (IS_OBJ_STAT(obj, ITEM_BLOODY))
+			{
+				act("Вы взяли $o3 из $O1, испачкав свои руки кровью!", FALSE, ch, obj, cont, TO_CHAR);
+				act("$n взял$g $o3 из $O1, испачкав руки кровью.", TRUE, ch, obj, cont, TO_ROOM);
+			} else 
+			{
+				act("Вы взяли $o3 из $O1.", FALSE, ch, obj, cont, TO_CHAR);
+				act("$n взял$g $o3 из $O1.", TRUE, ch, obj, cont, TO_ROOM);
+			}
 			get_check_money(ch, obj);
 		}
 	}
@@ -642,14 +653,20 @@ void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, in
 
 int perform_get_from_room(CHAR_DATA * ch, OBJ_DATA * obj)
 {
-	if (can_take_obj(ch, obj) && get_otrigger(obj, ch))
+	if (can_take_obj(ch, obj) && get_otrigger(obj, ch) && bloody::handle_transfer(NULL, ch, obj))
 	{
 		obj_from_room(obj);
 		obj_to_char(obj, ch);
 		if (obj->carried_by == ch)
 		{
-			act("Вы подняли $o3.", FALSE, ch, obj, 0, TO_CHAR);
-			act("$n поднял$g $o3.", TRUE, ch, obj, 0, TO_ROOM);
+			if (IS_OBJ_STAT(obj, ITEM_BLOODY))
+			{
+				act("Вы подняли $o3, испачкав  свои руки кровью!", FALSE, ch, obj, 0, TO_CHAR);
+				act("$n поднял$g $o3, испачкав руки кровью.", TRUE, ch, obj, 0, TO_ROOM);
+			} else {
+				act("Вы подняли $o3.", FALSE, ch, obj, 0, TO_CHAR);
+				act("$n поднял$g $o3.", TRUE, ch, obj, 0, TO_ROOM);
+			}
 			get_check_money(ch, obj);
 			return (1);
 		}
@@ -974,6 +991,8 @@ int perform_drop(CHAR_DATA * ch, OBJ_DATA * obj, byte mode, const int sname, roo
 	int value;
 	if (!drop_otrigger(obj, ch))
 		return 0;
+	if (!bloody::handle_transfer(ch, NULL, obj))
+		return 0;
 	if ((mode == SCMD_DROP) && !drop_wtrigger(obj, ch))
 		return 0;
 	if (IS_OBJ_STAT(obj, ITEM_NODROP))
@@ -1157,6 +1176,8 @@ ACMD(do_drop)
 
 void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj)
 {
+	if (!bloody::handle_transfer(ch, vict, obj))
+		return;
 	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM) && !IS_GOD(ch))
 	{
 		act("Неведомая сила помешала Вам сделать это!!", FALSE, ch, 0, 0, TO_CHAR);

@@ -1060,7 +1060,8 @@ extern SPECIAL(postmaster);
 
 #define CAN_GET_OBJ(ch, obj)   \
    (CAN_WEAR((obj), ITEM_WEAR_TAKE) && CAN_CARRY_OBJ((ch),(obj)) && \
-    CAN_SEE_OBJ((ch),(obj)))
+    CAN_SEE_OBJ((ch),(obj))) && \
+	!(IS_NPC((ch))  && IS_OBJ_STAT((obj), ITEM_BLOODY))
 
 #define GET_PAD_PERS(pad) ((pad) == 5 ? "ком-то" :\
                            (pad) == 4 ? "кем-то" :\
