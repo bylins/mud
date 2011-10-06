@@ -425,6 +425,7 @@ public:
 	int get_morphs_count() const;
 	std::list<string> get_morphs();
 	bool is_morphed() const;
+	void set_normal_morph();
 
 	std::string get_title();
 	std::string get_morphed_name();

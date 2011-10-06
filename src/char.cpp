@@ -1393,6 +1393,12 @@ bool Character::is_morphed() const
 	return current_morph_->Name() != "Обычная" || AFF_FLAGGED(this, AFF_MORPH); 
 };
 
+void Character::set_normal_morph()
+{
+	current_morph_ = NormalMorph::GetNormalMorph(this);
+}
+;
+
 //===================================
 //-Polud 
 //===================================

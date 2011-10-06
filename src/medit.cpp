@@ -177,6 +177,7 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 
 	// Копирую все поверх
 	*dst = *src;
+	dst->set_normal_morph();//вот это копировать не нада
 
 	// Теперь дублирую память
 	GET_LDESC(dst) = str_dup((GET_LDESC(src)

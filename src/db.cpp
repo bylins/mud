@@ -4275,7 +4275,8 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 		i = nr;
 
 	CHAR_DATA *mob = new CHAR_DATA;
-	*mob = mob_proto[i];
+	*mob = mob_proto[i]; //чет мне кажется что конструкции типа этой не принесут нам щастья...
+	mob->set_normal_morph();
 	mob->proto_script = NULL;
 	mob->next = character_list;
 	character_list = mob;
