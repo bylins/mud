@@ -170,4 +170,6 @@ public:
 
 void load_morphs();
 void set_god_morphs(CHAR_DATA *ch);
+void morphs_save(CHAR_DATA*, FILE*);
+void morphs_load(CHAR_DATA*, std::string);
 #endif // MORPH_HPP_INCLUDED

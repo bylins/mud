@@ -24,6 +24,7 @@
 #include "genchar.h"
 #include "AffectHandler.hpp"
 #include "player_races.hpp"
+#include "morph.hpp"
 
 void tascii(int *pointer, int num_planes, char *ascii);
 int level_exp(CHAR_DATA * ch, int level);
@@ -457,7 +458,7 @@ void Player::save_char()
 		int skill;
 		for (i = 1; i <= MAX_SKILL_NUM; i++)
 		{
-			skill = this->get_trained_skill(i);
+			skill = this->get_inborn_skill(i);
 			if (skill)
 				fprintf(saved, "%d %d %s\n", i, skill, skill_info[i].name);
 		}
@@ -697,6 +698,7 @@ void Player::save_char()
 	this->quested_save(saved);
 	this->mobmax_save(saved);
 	save_pkills(this, saved);
+	morphs_save(this, saved);
 
 	fclose(saved);
 	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UNIQUE(this));
@@ -1355,6 +1357,10 @@ int Player::load_char_ascii(const char *name, bool reboot)
 					this->mobmax_load(this, num, num2, MobMax::get_level_by_vnum(num));
 				}
 				while (true);
+			}
+			else if (!strcmp(tag, "Mrph"))
+			{
+				morphs_load(this, string(line));
 			}
 			break;
 

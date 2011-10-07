@@ -1152,6 +1152,7 @@ ACMD(do_mtransform)
 		CHAR_DATA tmpmob(*m);
 		*m = *ch;
 		*ch = tmpmob;
+		ch->set_normal_morph();
 		/*
 				memcpy(&tmpmob, m, sizeof(CHAR_DATA));	// m  ==> tmpmob
 				memcpy(m, ch, sizeof(CHAR_DATA));	// ch ==> m

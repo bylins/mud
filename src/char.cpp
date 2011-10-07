@@ -84,7 +84,7 @@ void release_purged_list()
 Character::Character()
 {
 	this->zero_init();
-    current_morph_ = NormalMorph::GetNormalMorph(this);
+	current_morph_ = NormalMorph::GetNormalMorph(this);
 }
 
 Character::~Character()

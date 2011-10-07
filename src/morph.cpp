@@ -1,3 +1,4 @@
+#include <boost/algorithm/string.hpp>
 #include "pugixml.hpp"
 #include "utils.h"
 #include "screen.h"
@@ -141,7 +142,7 @@ void AnimalMorph::InitSkills(int value)
 void AnimalMorph::InitAbils()
 {
 	int extraWis = ch_->get_inborn_wis() - MIN_WIS_FOR_MORPH;
-	wis_= ch_->get_inborn_wis();
+	wis_= MIN(ch_->get_inborn_wis(), MIN_WIS_FOR_MORPH);
 	if (extraWis > 0)
 	{
 		str_ = ch_->get_inborn_str() + extraWis * toStr_ /100;
@@ -329,8 +330,36 @@ void set_god_morphs(CHAR_DATA *ch)
 {
 	for (MorphListType::const_iterator it= MorphList.begin(); it != MorphList.end();++it)
 	{
-		ch->add_morph(it->first);
+		if (!ch->know_morph(it->first))
+			ch->add_morph(it->first);
 	}
 }
 
+bool ExistsMorph(string morphId)
+{
+	for (MorphListType::const_iterator it = MorphList.begin(); it != MorphList.end(); ++it)
+		if (it->first == morphId) return true;
+	return false;
+}
+
+void morphs_save(CHAR_DATA* ch, FILE* saved)
+{
+	std::list<string> morphs = ch->get_morphs();
+	string line;
+	for (std::list<string>::const_iterator morph = morphs.begin(); morph != morphs.end(); ++morph)
+		line += ("#"+(*morph));
+	fprintf(saved, "Mrph: %s\n", line.c_str());
+};
+
+void morphs_load(CHAR_DATA* ch, std::string line)
+{
+	std::vector<string> morphs;
+	std::vector<string>::const_iterator it;
+	boost::split( morphs, line, boost::is_any_of("#"), boost::token_compress_on );
+	for (it = morphs.begin(), ++it;it!=morphs.end();++it)
+	{
+		if (ExistsMorph(*it) && !ch->know_morph(*it))
+			ch->add_morph(*it);
+	}
+};
 
