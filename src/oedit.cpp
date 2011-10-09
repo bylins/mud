@@ -1395,8 +1395,8 @@ void oedit_disp_skills_menu(DESCRIPTOR_DATA * d)
 				wskill_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintf(buf, "Тренируемое умение : %s%d%s"
-			"Выберите умение (0 - выход) : ", cyn, GET_OBJ_SKILL(OLC_OBJ(d)), nrm);
+	sprintf(buf, "%sТренируемое умение : %s%d%s\r\n"
+			"Выберите умение (0 - выход) : ", (columns%2 == 1?"\r\n":""), cyn, GET_OBJ_SKILL(OLC_OBJ(d)), nrm);
 	send_to_char(buf, d->character);
 }
 
@@ -1829,7 +1829,12 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		else
+		{
 			GET_OBJ_TYPE(OLC_OBJ(d)) = number;
+			if (number != ITEM_WEAPON && number != ITEM_INGRADIENT &&
+					number != ITEM_DRINKCON && number != ITEM_FOUNTAIN)
+				GET_OBJ_SKILL(OLC_OBJ(d)) = 0;
+		}
 		break;
 
 	case OEDIT_EXTRAS:

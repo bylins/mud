@@ -10,12 +10,6 @@
 #include "interpreter.h"
 #define SCMD_NAMED_LIST 	1
 #define SCMD_NAMED_EDIT 	2
-#define NAMED_MAIN		0
-#define NAMED_EDIT		1
-#define NAMED_EDIT_VNUM		2
-#define NAMED_EDIT_OWNER	3
-#define NAMED_EDIT_CLAN		4
-#define NAMED_EDIT_ALLI		5
 
 namespace NamedStuff
 {

@@ -2670,10 +2670,11 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 			return;
 		}
 
+		d_vict = DescByUID(unique);
+		send_to_char(ch, "%s%s%s:\r\n", (d_vict ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)), (d_vict ? GET_NAME(d_vict->character) : player_table[i].name), CCNRM(ch, C_SPR));
 		mail = str_dup(player_table[i].mail);
 		if (fullsearch)
 		{
-			d_vict = DescByUID(unique);
 			if (d_vict)
 				vict = d_vict->character;
 			else
@@ -2726,6 +2727,7 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 
 	std::string out;
 	int mail_found = 0;
+	int is_online;
 	for (i = 0; i <= top_of_p_table; i++)
 	{
 		if(!*buf2)
@@ -2737,11 +2739,14 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 			|| (player_table[i].level >= LVL_IMMORT && !IS_GRGOD(ch))//Иммов могут чекать только 33+
 			|| (player_table[i].level > GET_LEVEL(ch) && !IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)))//если левел больше то облом
 				continue;
-		buf1[0]='\0';
+		buf1[0] = '\0';
+		is_online = 0;
+		vict = 0;
+		d_vict = DescByUID(player_table[i].unique);
+		if (d_vict)
+			is_online = 1;
 		if (sfor != MAIL && fullsearch)
 		{
-			d_vict = DescByUID(player_table[i].unique);
-			vict = 0;
 			if (d_vict)
 				vict = d_vict->character;
 			else
@@ -2804,7 +2809,7 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 		{
 			mytime = player_table[i].last_logon;
 			sprintf(buf, "Имя: %s%-12s%s e-mail: %s%-30s%s Last: %s\r\n",
-				CCWHT(ch, C_SPR), player_table[i].name, CCNRM(ch, C_SPR), (mail_found && sfor!=MAIL? CCBLU(ch, C_SPR) : ""), player_table[i].mail, (mail_found? CCNRM(ch, C_SPR) : ""), rustime(localtime(&mytime)));
+				(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)), player_table[i].name, CCNRM(ch, C_SPR), (mail_found && sfor!=MAIL? CCBLU(ch, C_SPR) : ""), player_table[i].mail, (mail_found? CCNRM(ch, C_SPR) : ""), rustime(localtime(&mytime)));
 			out += buf;
 			out += buf1;
 			found++;

@@ -4505,8 +4505,8 @@ void zone_update(void)
 								zone_table[update_u->zone_to_reset].typeA_list[i])
 						{
 							reset_zone(j);
-							sprintf(buf, "%s]\r\n[Multireset: also resetting %s",
-									buf, zone_table[j].name);
+							sprintf(buf, "%s]\r\n[Multireset: also resetting %s (%d)",
+									buf, zone_table[j].name, zone_table[j].number);
 							break;
 						}
 					}

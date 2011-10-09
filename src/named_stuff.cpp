@@ -318,6 +318,7 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 	OBJ_DATA *obj;
 	mob_rnum r_num;
 	int found = 0;
+	int in_world = 0;
 	snprintf(buf1, MAX_STRING_LENGTH, "не найден именной предмет");
 	for (StuffListType::const_iterator it = stuff_list.begin(), iend = stuff_list.end(); it != iend; ++it)
 	{
@@ -351,6 +352,7 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 				snprintf(buf1, MAX_STRING_LENGTH,
 					"не выдаем именной предмет %s Max:%d <= Current:%d",
 					obj_proto[r_num]->short_description, GET_OBJ_MIW(obj_proto[r_num]), obj_index[r_num].stored + obj_index[r_num].number);
+				in_world++;
 			}
 			snprintf(buf, MAX_STRING_LENGTH,
 				"NamedStuff: %s vnum:%ld %s",
@@ -359,7 +361,10 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 		}
 	}
 	if(!found) {
-		act("$n сказал$g Вам : 'Кажется для тебя ничего нет'", FALSE, mailman, 0, ch, TO_VICT);
+		if(!in_world)
+			act("$n сказал$g Вам : 'Кажется для тебя ничего нет'", FALSE, mailman, 0, ch, TO_VICT);
+		else
+			act("$n сказал$g Вам : 'Забрал кто-то твои вещи'", FALSE, mailman, 0, ch, TO_VICT);
 	}
 	set_wait(ch, 3, FALSE);
 }

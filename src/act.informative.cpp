@@ -2810,6 +2810,22 @@ ACMD(do_score)
 			hr += str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
 		}
 		hr += GET_REAL_HR(ch) - thaco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
+		if (PRF_FLAGGED(ch, PRF_POWERATTACK)) {
+			hr -= 2;
+			max_dam += 5;
+		}
+		if (PRF_FLAGGED(ch, PRF_GREATPOWERATTACK)) {
+			hr -= 4;
+			max_dam += 10;
+		}
+		if (PRF_FLAGGED(ch, PRF_AIMINGATTACK)) {
+			hr += 2;
+			max_dam -= 5;
+		}
+		if (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK)) {
+			hr += 4;
+			max_dam -= 10;
+		}
 
 		max_dam = MAX(0, max_dam);
 		resist = MIN(GET_RESIST(ch, WATER_RESISTANCE), 75);

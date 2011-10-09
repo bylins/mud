@@ -1643,7 +1643,7 @@ int MakeRecept::get_ingr_lev(OBJ_DATA * ingrobj)
 		return (GET_OBJ_VAL(ingrobj, 0) >> 8);
 
 	}
-	else if (GET_OBJ_TYPE(ingrobj) == ITEM_MING)
+	else if (GET_OBJ_TYPE(ingrobj) == ITEM_MING || GET_OBJ_TYPE(ingrobj) == ITEM_MATERIAL)
 	{
 		// У ингров типа 26 совпадает уровень и сила.
 		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
@@ -1657,7 +1657,7 @@ int MakeRecept::get_ingr_lev(OBJ_DATA * ingrobj)
 int MakeRecept::get_ingr_pow(OBJ_DATA * ingrobj)
 {
 	// Получаем силу ингредиента ...
-	if (GET_OBJ_TYPE(ingrobj) == ITEM_INGRADIENT)
+	if (GET_OBJ_TYPE(ingrobj) == ITEM_INGRADIENT || GET_OBJ_TYPE(ingrobj) == ITEM_MATERIAL)
 	{
 
 		return GET_OBJ_VAL(ingrobj, 2);
