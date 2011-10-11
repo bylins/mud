@@ -936,7 +936,22 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 				act("Неведомая сила помешала Вам сделать это!!", FALSE, ch, 0, 0, TO_CHAR);
 				return;
 			}
-			obj = create_money(amount);
+			//Находим сначала кучку в комнате
+			int additional_amount = 0;
+			OBJ_DATA* next_obj;
+			if (mode != SCMD_DONATE)
+				for (OBJ_DATA* existing_obj=world[ch->in_room]->contents; existing_obj; existing_obj = next_obj)
+				{
+					next_obj  = existing_obj->next_content;
+					if (GET_OBJ_TYPE(existing_obj) == ITEM_MONEY) 
+					{
+						//Запоминаем стоимость существующей кучки и удаляем ее
+						additional_amount = GET_OBJ_VAL(existing_obj, 0);
+						obj_from_room(existing_obj);
+						extract_obj(existing_obj);
+					}
+				}
+			obj = create_money(amount+additional_amount);
 			if (mode == SCMD_DONATE)
 			{
 				sprintf(buf, "Вы выбросили %d %s на ветер.\r\n", amount,

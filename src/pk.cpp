@@ -1165,7 +1165,7 @@ void bloody::handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer)
 		//Проверим, может у killer есть месть на ch
 		struct PK_Memory_type *pk = 0;
 		for (pk = ch->pk_list; pk; pk = pk->next)
-			if (pk->unique == GET_UNIQUE(killer) && (pk->clan_exp > time(NULL) || pk->thief_exp > time(NULL) || pk->kill_num))
+			if (pk->unique == GET_UNIQUE(killer) && (pk->thief_exp > time(NULL) || pk->kill_num))
 				break;
 		if (!pk) //не нашли мести
 			set_bloody_flag(corpse->contains, ch);

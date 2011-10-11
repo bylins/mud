@@ -4087,7 +4087,9 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		{
 			next_obj = tobj->next_content;
 			obj_from_obj(tobj);
-			obj_to_char(tobj, mob);
+			obj_to_room(tobj, IN_ROOM(ch));
+			if (!obj_decay(tobj) && tobj->in_room != NOWHERE)
+				act("На земле остал$U лежать $o.", FALSE, ch, tobj, 0, TO_ROOM);
 			tobj = next_obj;
 		}
 		extract_obj(obj);

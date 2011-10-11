@@ -393,6 +393,13 @@ ASPELL(spell_relocate)
 	greet_memory_mtrigger(ch);
 }
 
+inline void decay_portal(const int room_num)
+{
+	act("Пентаграмма медленно растаяла.", FALSE, world[room_num]->people, 0, 0, TO_ROOM);
+	act("Пентаграмма медленно растаяла.", FALSE, world[room_num]->people, 0, 0, TO_CHAR);
+	world[room_num]->portal_time = 0;
+	world[room_num]->portal_room = 0;
+}
 
 ASPELL(spell_portal)
 {
@@ -438,16 +445,24 @@ ASPELL(spell_portal)
 		return;
 	}
 
-	/* чтобы пента не превратилась во врата (односторонний портал) - не даем ставить двойные пенты */
+	//Юзабилити фикс: не ставим пенту в одну клетку с кастующим
+	if (IN_ROOM(ch) == fnd_room)
+	{
+		send_to_char("Может Вам лучше просто потоптаться на месте?\r\n", ch);
+		return;
+	}
+
 	if (world[fnd_room]->portal_time)
 	{
-		send_to_char("Неведомая сила не дает вам поставить портал в это место!\r\n", ch);
-		return;
+		if (world[world[fnd_room]->portal_room]->portal_room == fnd_room && world[world[fnd_room]->portal_room]->portal_time)
+			decay_portal(world[fnd_room]->portal_room);
+		decay_portal(fnd_room);
 	}
 	if (world[IN_ROOM(ch)]->portal_time)
 	{
-		send_to_char("Неведомая сила не дает вам поставить портал в это место!\r\n", ch);
-		return;
+		if (world[world[IN_ROOM(ch)]->portal_room]->portal_room == IN_ROOM(ch) && world[world[IN_ROOM(ch)]->portal_room]->portal_time)
+			decay_portal(world[IN_ROOM(ch)]->portal_room);
+		decay_portal(IN_ROOM(ch));
 	}
 	bool pkPortal = pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
 			pk_action_type_summon(ch, victim) == PK_ACTION_FIGHT;
