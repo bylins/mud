@@ -1129,7 +1129,8 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 	else
 	//Если отдаем владельцу или берет владелец
 	if (victim && (GET_UNIQUE(victim) == it->second.owner_unique || (CLAN(victim) && 
-		(CLAN(victim)->is_clan_member(it->second.owner_unique) || CLAN(victim)->is_alli_member(it->second.owner_unique)))))
+		(CLAN(victim)->is_clan_member(it->second.owner_unique) || CLAN(victim)->is_alli_member(it->second.owner_unique))) 
+		|| strcmp(player_table[get_ptable_by_unique(it->second.owner_unique)].mail, GET_EMAIL(victim))==0))
 	{
 	remove_obj(obj); //снимаем флаг
 		result = true;
