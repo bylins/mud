@@ -1907,6 +1907,12 @@ ACMD(do_horsetake)
 		return;
 	}
 
+	if (ch->is_morphed())
+	{
+		send_to_char("И как Вы собираетесь это проделать без рук и без ног, одними лапами ?\r\n", ch);
+		return;
+	}
+
 	one_argument(argument, arg);
 	if (*arg)
 		horse = get_char_vis(ch, arg, FIND_CHAR_ROOM);

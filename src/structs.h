@@ -624,6 +624,7 @@ typedef struct trig_data TRIG_DATA;
 #define AFF_CRYING		(INT_ONE | (1 << 27))
 #define AFF_PEACEFUL		(INT_ONE | (1 << 28))
 #define AFF_MAGICSTOPFIGHT	(INT_ONE | (1 << 29))
+
 #define AFF_BERSERK		(INT_TWO | (1 << 0))
 #define AFF_LIGHT_WALK		(INT_TWO | (1 << 1))
 #define AFF_BROKEN_CHAINS	(INT_TWO | (1 << 2))

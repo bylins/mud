@@ -5607,6 +5607,19 @@ ACMD(do_affects)
 			send_to_char(strcat(buf, "\r\n"), ch);
 		}
 	}
+	if (ch->is_morphed())
+	{	
+		*buf2 = '\0';
+		send_to_char("Автоаффекты звериной формы: " , ch);
+		std::vector<long> affs = ch->GetMorphAffects();
+		for (std::vector<long>::const_iterator it = affs.begin();it!=affs.end();)
+		{
+			sprintbit(*it, affected_bits, buf2);
+			send_to_char(string(CCIYEL(ch, C_NRM))+ string(buf2)+ string(CCNRM(ch, C_NRM)), ch);
+			if (++it != affs.end())
+				send_to_char(", ", ch);
+		}
+	}
 }
 
 // Create web-page with users list

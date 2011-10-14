@@ -1366,6 +1366,11 @@ SPECIAL(horse_keeper)
 	if (!CMD_IS("лошадь") && !CMD_IS("horse"))
 		return (0);
 
+	if (ch->is_morphed())
+	{
+		send_to_char("Лошадка испугается Вас в таком виде... \r\n", ch);
+		return (TRUE);
+	}
 
 	skip_spaces(&argument);
 

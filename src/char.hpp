@@ -439,6 +439,8 @@ public:
 	std::string get_morph_desc();
 	int get_inborn_skill(int skill_num);
 	void set_morphed_skill(int skill_num, int percent);
+	bool isAffected(long flag) const;
+	std::vector<long> GetMorphAffects();
 
 private:
 	std::string clan_for_title();

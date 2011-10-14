@@ -1397,7 +1397,16 @@ void Character::set_normal_morph()
 {
 	current_morph_ = NormalMorph::GetNormalMorph(this);
 }
-;
+
+bool Character::isAffected(long flag) const
+{
+	return current_morph_->isAffected(flag);
+}
+
+std::vector<long> Character::GetMorphAffects()
+{
+	return current_morph_->GetAffects();
+}
 
 //===================================
 //-Polud 

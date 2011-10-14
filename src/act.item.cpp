@@ -1820,6 +1820,11 @@ ACMD(do_wield)
 	if (IS_NPC(ch) && (AFF_FLAGGED(ch, AFF_CHARM)&&(!NPC_FLAGGED(ch, NPC_WIELDING) || MOB_FLAGGED(ch, MOB_RESURRECTED))))
 		return;
 
+	if (ch->is_morphed())
+	{
+		send_to_char("Лапами неудобно держать оружие.\r\n", ch);
+		return;
+	}
 	argument = one_argument(argument, arg);
 
 	if (!*arg)
@@ -1884,6 +1889,12 @@ ACMD(do_grab)
 
 	if (IS_NPC(ch) && !NPC_FLAGGED(ch, NPC_WIELDING))
 		return;
+
+	if (ch->is_morphed())
+	{
+		send_to_char("Лапами неудобно это держать.\r\n", ch);
+		return;
+	}
 
 	if (!*arg)
 		send_to_char("Вы заорали : 'Держи его !!! Хватай его !!!'\r\n", ch);

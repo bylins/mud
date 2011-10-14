@@ -41,7 +41,8 @@ public:
 	virtual void SetAbilsParams(short toStr, short toDex, short toCon, short toInt, short toCha) {}; 
 	virtual void SetChar(CHAR_DATA *ch) {};
 	virtual string CoverDesc() {return "";};
-
+	virtual bool isAffected(long flag) const {return false;}
+	virtual std::vector<long> GetAffects() {return std::vector<long>();}
 
 	virtual int GetStr() const =0;
 	virtual void SetStr(int str)=0;
@@ -119,6 +120,8 @@ class AnimalMorph : public IMorph
 	int dex_;
 	int cha_;
 	int con_;
+	std::vector<long> affects_;
+
 public:
 	AnimalMorph(string id, string name, string padName, DescListType descList, MorphSkillsList skills, string coverDesc, string speech) : 
 		id_(id),
@@ -148,7 +151,10 @@ public:
 		toCha_ = toCha;
 		toInt_ = toInt;
 	}; 
-
+	bool isAffected(long flag) const;
+	void AddAffect(long flag);
+	std::vector<long> GetAffects();
+	void SetAffects(std::vector<long>);
 
 	virtual int GetStr() const {return str_;}
 	virtual void SetStr(int str) {str_=str;}
@@ -172,4 +178,5 @@ void load_morphs();
 void set_god_morphs(CHAR_DATA *ch);
 void morphs_save(CHAR_DATA*, FILE*);
 void morphs_load(CHAR_DATA*, std::string);
+
 #endif // MORPH_HPP_INCLUDED

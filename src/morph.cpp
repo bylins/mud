@@ -15,6 +15,7 @@
 MorphListType MorphList;
 
 short MIN_WIS_FOR_MORPH=0;
+void perform_remove(CHAR_DATA * ch, int pos);
 
 string AnimalMorph::GetMorphDesc()
 {
@@ -165,6 +166,27 @@ void AnimalMorph::SetChar(CHAR_DATA *ch)
 	ch_=ch;
 };
 
+bool AnimalMorph::isAffected(long flag) const
+{
+	return std::find(affects_.begin(), affects_.end(), flag) != affects_.end();
+}
+
+void AnimalMorph::AddAffect(long flag)
+{
+	if (std::find(affects_.begin(), affects_.end(), flag) == affects_.end())
+		affects_.push_back(flag);
+}
+
+std::vector<long> AnimalMorph::GetAffects()
+{
+	return affects_;
+}
+
+void AnimalMorph::SetAffects(std::vector<long> affs)
+{
+	affects_ = affs;
+}
+
 ACMD(do_morph)
 {
 	if (IS_NPC(ch))
@@ -190,6 +212,8 @@ ACMD(do_morph)
 		if (is_abbrev(arg, "назад"))
 		{
 			ch->reset_morph();
+			send_to_char("Вы вернули себе человеческий облик.\r\n", ch);
+			WAIT_STATE(ch, PULSE_VIOLENCE);
 			return;
 		}
 		send_to_char("Когти подстригите сначала...\r\n", ch);
@@ -205,8 +229,25 @@ ACMD(do_morph)
 
 	string msg = "Хорошо, Вы попытаетесь обернуться "+MorphList[morphId]->PadName()+".\r\n";
 	send_to_char(msg, ch);
+	act(string("&W$n перепрыгнул$g через пенек и стал$g " + MorphList[morphId]->PadName() + ".&n").c_str(), TRUE, ch, 0, 0, TO_ROOM);
 	MorphPtr newMorph = MorphPtr(new AnimalMorph(*MorphList[morphId]));
 	ch->set_morph(newMorph);
+	if (ch->equipment[WEAR_BOTHS])
+	{
+		send_to_char("Вы не можете держать в лапах " + string(ch->equipment[WEAR_BOTHS]->PNames[3])+".\r\n", ch);
+		perform_remove(ch, WEAR_BOTHS);
+	}
+	if (ch->equipment[WEAR_WIELD])
+	{
+		send_to_char("Ваша правая лапа бессильно опустила " + string(ch->equipment[WEAR_WIELD]->PNames[3])+".\r\n", ch);
+		perform_remove(ch, WEAR_WIELD);
+	}
+	if (ch->equipment[WEAR_HOLD]) 
+	{
+		send_to_char("Ваша левая лапа не удержала " + string(ch->equipment[WEAR_HOLD]->PNames[3])+".\r\n", ch);
+		perform_remove(ch, WEAR_HOLD);
+	}
+	WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
 }
 
 void PrintAllMorphsList(CHAR_DATA *ch)
@@ -298,7 +339,9 @@ void load_morphs()
 			descList.push_back(node);
 		}
 		CharSkillsType skills;
+		std::vector<long> affs;
 		pugi::xml_node skillsList=morph.child("skills"); 
+		pugi::xml_node affectsList=morph.child("affects"); 
 		string name = morph.child_value("name");
 		string padName = morph.child_value("padName");
 		string coverDesc = morph.child_value("cover");		
@@ -315,6 +358,18 @@ void load_morphs()
 				return;
 			}
 		}
+		for (pugi::xml_node aff = affectsList.child("affect"); aff; aff = aff.next_sibling("affect"))
+		{
+			int affNum = GetAffectNumByName(aff.child_value());
+			if (affNum != -1)
+				affs.push_back(affNum);
+			else
+			{
+				snprintf(buf, MAX_STRING_LENGTH, "...affects read fail for morph %s", name.c_str());
+				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+				return;
+			}
+		}
 		AnimalMorphPtr newMorph = AnimalMorphPtr(new AnimalMorph(id, name, padName, descList, skills, coverDesc, speech));
 		int toStr = atoi(morph.child_value("toStr"));
 		int toDex = atoi(morph.child_value("toDex"));
@@ -322,6 +377,7 @@ void load_morphs()
 		int toInt = atoi(morph.child_value("toInt"));
 		int toCha = atoi(morph.child_value("toCha"));
 		newMorph->SetAbilsParams(toStr, toDex, toCon, toInt, toCha);
+		newMorph->SetAffects(affs);
 		MorphList[id] = newMorph;
 	}
 };

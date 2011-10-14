@@ -2554,3 +2554,24 @@ void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 			GET_OBJ_SEX(obj) == SEX_POLY ? "ют" : "ет",
 			need_str, desc_count(need_str, WHAT_STR));
 }
+
+long GetAffectNumByName(std::string affName)
+{
+	int base = 0, offset = 0, counter = 0;
+	bool endOfArray = false;
+	while (!endOfArray)
+	{
+		if (affName == string(affected_bits[counter]))
+			return ((base << 30) | (1 << offset));
+		offset++;
+		if (*affected_bits[counter] == '\n')
+		{
+			base++;
+			offset = 0;
+			if (*affected_bits[counter+1] == '\n')
+				endOfArray = true;
+		}
+		counter++;
+	}
+	return -1;
+}

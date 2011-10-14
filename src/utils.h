@@ -89,6 +89,7 @@ bool die_follower(CHAR_DATA * ch);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
 int get_real_dr(CHAR_DATA *ch);
+long GetAffectNumByName(std::string);
 
 extern std::list<FILE *> opened_files;
 
@@ -335,7 +336,7 @@ extern SPECIAL(postmaster);
 
 #define MOB_FLAGGED(ch, flag)   (IS_NPC(ch) && IS_SET(MOB_FLAGS(ch,flag), (flag)))
 #define PLR_FLAGGED(ch, flag)   (!IS_NPC(ch) && IS_SET(PLR_FLAGS(ch,flag), (flag)))
-#define AFF_FLAGGED(ch, flag)   (IS_SET(AFF_FLAGS(ch,flag), (flag)))
+#define AFF_FLAGGED(ch, flag)   (IS_SET(AFF_FLAGS(ch,flag), (flag)) || (ch->isAffected(flag)))
 #define PRF_FLAGGED(ch, flag)   (IS_SET(PRF_FLAGS(ch,flag), (flag)))
 #define NPC_FLAGGED(ch, flag)   (IS_SET(NPC_FLAGS(ch,flag), (flag)))
 #define EXTRA_FLAGGED(ch, flag) (IS_SET(EXTRA_FLAGS(ch,flag), (flag)))
