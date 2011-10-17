@@ -7152,7 +7152,7 @@ void load_mobraces()
 		return;
 	}
 	
-	for (pugi::xml_node race = node_list.child("mobrace");race; race = race.next_sibling("mobrace"))
+	for (pugi::xml_node  race = node_list.child("mobrace");race; race = race.next_sibling("mobrace"))
 	{
 		MobRacePtr tmp_mobrace(new MobRace);
 		tmp_mobrace->race_name = race.attribute("name").value();
@@ -7166,14 +7166,14 @@ void load_mobraces()
 			tmp_ingr.imtype = im.attribute("type").as_int();
 			tmp_ingr.imname = string(im.attribute("name").value());
 			boost::trim(tmp_ingr.imname);
-			int cur_lvl=50;
+			int cur_lvl=1;
+			int prob_value = 1;
 			for (pugi::xml_node prob = im.child("prob"); prob; prob = prob.next_sibling("prob"))
 			{
 				int next_lvl = prob.attribute("lvl").as_int();
-				int prob_value = atoi(prob.child_value());
 				if (next_lvl>0)
 				{
-					for (int lvl=cur_lvl; lvl >= next_lvl; lvl--)
+					for (int lvl=cur_lvl; lvl < next_lvl; lvl++)
 						tmp_ingr.prob[lvl-1] = prob_value;
 				}
 				else
@@ -7181,8 +7181,12 @@ void load_mobraces()
 					log("SYSERROR: Неверный уровень lvl=%d для ингредиента %s расы %s", next_lvl, tmp_ingr.imname.c_str(), tmp_mobrace->race_name.c_str());
 					return;
 				}
-				cur_lvl = next_lvl-1;
+				prob_value = atoi(prob.child_value());
+				cur_lvl = next_lvl;
 			}
+			for (int lvl=cur_lvl; lvl <= MAX_MOB_LEVEL; lvl++)
+				tmp_ingr.prob[lvl-1] = prob_value;
+
 			tmp_mobrace->ingrlist.push_back(tmp_ingr);
 		}
 		mobraces_list[race_num] = tmp_mobrace;

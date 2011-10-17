@@ -378,7 +378,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 			for (j=0; j < num_inrgs; j++)
 			{
 				ingr_to_load_list[2*j] = im_get_idx_by_type(it->second->ingrlist[j].imtype);
-				ingr_to_load_list[2*j+1] = it->second->ingrlist[j].prob[GET_LEVEL(ch)];
+				ingr_to_load_list[2*j+1] = it->second->ingrlist[j].prob[GET_LEVEL(ch)-1];
 				ingr_to_load_list[2*j+1] |= (GET_LEVEL(ch) << 16);
 			}
 			ingr_to_load_list[2*j] = -1;
