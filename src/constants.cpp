@@ -1804,7 +1804,8 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	/* 0 */
 		"SPELL_TIMER_REPAIR",
 		"!SPELL_LACKY!",
 		"Вы аккуратно перевязали свои раны.",
-		"Вы снова можете перевязывать свои раны."
+		"Вы снова можете перевязывать свои раны.",
+		"!SPELL_CAPABLE!"
 };
 
 

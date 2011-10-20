@@ -43,6 +43,9 @@ public:
 	virtual string CoverDesc() {return "";};
 	virtual bool isAffected(long flag) const {return false;}
 	virtual std::vector<long> GetAffects() {return std::vector<long>();}
+	virtual string GetMessageToRoom() {return string();};
+	virtual string GetMessageToChar() {return string();};
+
 
 	virtual int GetStr() const =0;
 	virtual void SetStr(int str)=0;
@@ -121,6 +124,7 @@ class AnimalMorph : public IMorph
 	int cha_;
 	int con_;
 	std::vector<long> affects_;
+	string messageToRoom_, messageToChar_;
 
 public:
 	AnimalMorph(string id, string name, string padName, DescListType descList, MorphSkillsList skills, string coverDesc, string speech) : 
@@ -155,6 +159,13 @@ public:
 	void AddAffect(long flag);
 	std::vector<long> GetAffects();
 	void SetAffects(std::vector<long>);
+	void SetMessages(string toRoom, string toChar) {
+		messageToRoom_ = toRoom;
+		messageToChar_ = toChar;
+	};
+	string GetMessageToRoom() {return messageToRoom_;}
+	string GetMessageToChar() {return messageToChar_;}
+
 
 	virtual int GetStr() const {return str_;}
 	virtual void SetStr(int str) {str_=str;}

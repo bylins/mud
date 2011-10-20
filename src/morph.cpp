@@ -1,4 +1,5 @@
 #include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 #include "pugixml.hpp"
 #include "utils.h"
 #include "screen.h"
@@ -212,7 +213,6 @@ ACMD(do_morph)
 		if (is_abbrev(arg, "назад"))
 		{
 			ch->reset_morph();
-			send_to_char("Вы вернули себе человеческий облик.\r\n", ch);
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 			return;
 		}
@@ -227,10 +227,11 @@ ACMD(do_morph)
 		return;
 	}
 
-	string msg = "Хорошо, Вы попытаетесь обернуться "+MorphList[morphId]->PadName()+".\r\n";
-	send_to_char(msg, ch);
-	act(string("&W$n перепрыгнул$g через пенек и стал$g " + MorphList[morphId]->PadName() + ".&n").c_str(), TRUE, ch, 0, 0, TO_ROOM);
 	MorphPtr newMorph = MorphPtr(new AnimalMorph(*MorphList[morphId]));
+
+	send_to_char(str(boost::format(newMorph->GetMessageToChar()) % newMorph->PadName()) + "\r\n", ch);
+	act(str(boost::format(newMorph->GetMessageToRoom()) % newMorph->PadName()).c_str(), TRUE, ch, 0, 0, TO_ROOM);
+
 	ch->set_morph(newMorph);
 	if (ch->equipment[WEAR_BOTHS])
 	{
@@ -342,10 +343,22 @@ void load_morphs()
 		std::vector<long> affs;
 		pugi::xml_node skillsList=morph.child("skills"); 
 		pugi::xml_node affectsList=morph.child("affects"); 
+		pugi::xml_node messagesList=morph.child("messages"); 
 		string name = morph.child_value("name");
 		string padName = morph.child_value("padName");
 		string coverDesc = morph.child_value("cover");		
 		string speech = morph.child_value("speech");
+		string messageToChar, messageToRoom;
+
+		for (pugi::xml_node mess = messagesList.child("message"); mess; mess = mess.next_sibling("message"))
+		{
+			if (string(mess.attribute("destination").value()) == "room")
+				messageToRoom = string(mess.child_value());
+			if (string(mess.attribute("destination").value()) == "char")
+				messageToChar = string(mess.child_value());
+		}
+
+
 		for (pugi::xml_node skill = skillsList.child("skill"); skill; skill = skill.next_sibling("skill"))
 		{
 			int skillNum = find_skill_num(skill.child_value());
@@ -358,6 +371,7 @@ void load_morphs()
 				return;
 			}
 		}
+
 		for (pugi::xml_node aff = affectsList.child("affect"); aff; aff = aff.next_sibling("affect"))
 		{
 			int affNum = GetAffectNumByName(aff.child_value());
@@ -378,6 +392,7 @@ void load_morphs()
 		int toCha = atoi(morph.child_value("toCha"));
 		newMorph->SetAbilsParams(toStr, toDex, toCon, toInt, toCha);
 		newMorph->SetAffects(affs);
+		newMorph->SetMessages(messageToRoom, messageToChar);
 		MorphList[id] = newMorph;
 	}
 };
