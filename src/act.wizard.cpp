@@ -1258,7 +1258,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		send_to_char(buf, ch);
 	}
 
-	sprintf(buf, "L-Des: %s\r\n", ((j->description) ? j->description : "Нет"));
+	sprintf(buf, "L-Des: %s\r\n%s", ((j->description) ? j->description : "Нет"), CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
 	if (j->ex_description)
@@ -1274,6 +1274,11 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	}
 	send_to_char("Может быть надет : ", ch);
 	sprintbit(j->obj_flags.wear_flags, wear_bits, buf);
+	strcat(buf, "\r\n");
+	send_to_char(buf, ch);
+
+	sprintf(buf, "Материал : ");
+	sprinttype(j->obj_flags.Obj_mater, material_name, buf+strlen(buf));
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
@@ -1777,6 +1782,9 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		sprintbits(k->char_specials.saved.act, action_bits, buf2, ",");
 		sprintf(buf, "NPC флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
+		sprintbits(k->mob_specials.npc_flags, function_bits, buf2, ",");
+		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
 	}
 	else
 	{
@@ -1967,7 +1975,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			std::string out = "Персонаж заходил с IP-адресов:\r\n";
 			while (cur_log)
 			{
-				sprintf(buf1, "%16s     %ld 	%20s \r\n", cur_log->ip, cur_log->count, rustime(localtime(&cur_log->lasttime)));
+				sprintf(buf1, "%16s %5ld %20s \r\n", cur_log->ip, cur_log->count, rustime(localtime(&cur_log->lasttime)));
 				out += buf1;
 				cur_log = cur_log->next;
 			}
@@ -2628,7 +2636,7 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 		send_to_char("Нет уж. Изыщите другую цель для своих исследований.\r\n", ch);
 		return;
 	}
-	if(strlen(buf2)<=3)
+	if(strlen(buf2)<3)
 	{
 		send_to_char("Слишком короткий запрос\r\n", ch);
 		return;
@@ -2671,8 +2679,9 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 		}
 
 		d_vict = DescByUID(unique);
-		send_to_char(ch, "%s%s%s:\r\n", (d_vict ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)), (d_vict ? GET_NAME(d_vict->character) : player_table[i].name), CCNRM(ch, C_SPR));
 		mail = str_dup(player_table[i].mail);
+		send_to_char(ch, "Персонаж: %s%s%s e-mail: %s%s%s\r\n", (d_vict ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)),
+				player_table[i].name, CCNRM(ch, C_SPR),	CCWHT(ch, C_SPR), mail, CCNRM(ch, C_SPR));
 		if (fullsearch)
 		{
 			if (d_vict)
@@ -4984,6 +4993,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 
 	case 57:      // Установка флага палач
 		reason = one_argument(val_arg, num);
+		skip_spaces(&reason);
 		sprintf(buf, "executor %s by %s", (on?"on":"off"), GET_NAME(ch));
 		add_karma(vict, buf, reason);
 		if (on)
@@ -5241,8 +5251,8 @@ ACMD(do_liblist)
 		{
 			if (obj_index[nr].vnum >= first && obj_index[nr].vnum <= last)
 			{
-				sprintf(bf, "%s%5d. %45s [%5d]", bf, ++found,
-						obj_proto[nr]->short_description, obj_index[nr].vnum);
+				sprintf(bf, "%s%5d. %s [%5d]", bf, ++found,
+						colored_name(obj_proto[nr]->short_description, 45), obj_index[nr].vnum);
 				if (GET_LEVEL(ch) >= LVL_GRGOD || PRF_FLAGGED(ch, PRF_CODERINFO))
 					sprintf(bf, "%s Игра:%d Пост:%d\r\n", bf,
 							obj_index[nr].number, obj_index[nr].stored);

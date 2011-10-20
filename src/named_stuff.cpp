@@ -16,6 +16,7 @@
 
 #include "named_stuff.hpp"
 #include "structs.h"
+#include "utils.h"
 #include "screen.h"
 #include "char.hpp"
 #include "comm.h"
@@ -235,10 +236,22 @@ ACMD(do_named)
 {
 	mob_rnum r_num;
 	std::string out;
+	int first = 0, last, found = 0;
 
 	switch (subcmd)
 	{
 		case SCMD_NAMED_LIST:
+			two_arguments(argument, buf, buf2);
+
+			if (*buf)
+			{
+				first = atoi(buf);
+				if (*buf2)
+					last = atoi(buf2);
+				else
+					last = first;
+			}
+
 			out += "Список именных предметов:\r\n";
 			if(stuff_list.size() == 0)
 			{
@@ -252,21 +265,28 @@ ACMD(do_named)
 					{
 						sprintf(buf2, "%6ld) Неизвестный объект",
 							it->first);
+						out += buf2;
 					}
 					else
 					{
-						sprintf(buf2, "%6d) %45s",
-								obj_index[r_num].vnum, obj_proto[r_num]->short_description);
-						if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
-							sprintf(buf2, "%s Игра:%d Пост:%d Владелец:%16s e-mail:%s\r\n", buf2,
-								obj_index[r_num].number, obj_index[r_num].stored,
-								GetNameByUnique(it->second->uid,false).c_str(), it->second->mail.c_str());
-						else
-							sprintf(buf2, "%s\r\n", buf2);
+						if (first == 0 || (obj_index[r_num].vnum >= first && obj_index[r_num].vnum <= last))
+						{
+							sprintf(buf2, "%6d) %s",
+									obj_index[r_num].vnum, colored_name(obj_proto[r_num]->short_description, 45));
+							if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+								sprintf(buf2, "%s Игра:%d Пост:%d Владелец:%16s e-mail:%s\r\n", buf2,
+									obj_index[r_num].number, obj_index[r_num].stored,
+									GetNameByUnique(it->second->uid,false).c_str(), it->second->mail.c_str());
+							else
+								sprintf(buf2, "%s\r\n", buf2);
+							found++;
+							out += buf2;
+						}
 					}
-					out += buf2;
 				}
 			}
+			if (!found)
+				out += "Нет таких именных вещей.\r\n";
 			send_to_char(out.c_str(), ch);
 			break;
 		case SCMD_NAMED_EDIT:

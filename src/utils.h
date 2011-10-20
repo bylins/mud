@@ -1227,6 +1227,9 @@ int awake_sneak(CHAR_DATA * ch);
 int awaking(CHAR_DATA * ch, int mode);
 std::string time_format(int timer, int flag = 0);
 
+int count_colors(char * str);
+char* colored_name(char * str, int len);
+
 /* OS compatibility ******************************************************/
 
 

@@ -1711,6 +1711,7 @@ void boot_db(void)
 	log("Load glory log.");
 	GloryMisc::load_log();
 
+	// загрузка списка именных вещей
 	NamedStuff::load();
 	//Polud грузим параметры рас мобов
 	log("Load mob races.");

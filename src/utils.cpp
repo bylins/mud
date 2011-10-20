@@ -2575,3 +2575,25 @@ long GetAffectNumByName(std::string affName)
 	}
 	return -1;
 }
+
+int count_colors(char * str)//считает кол-во цветов &R и т.п. в строке
+{
+	unsigned int c, cc=0;
+	for (c=0; c<strlen(str)-1; c++)
+	{
+		if (*(str+c)=='&' && *(str+c+1)!='&')
+			cc++;
+	}
+	return cc;
+}
+
+char* colored_name(char * str, int len)//возвращает строку длины len + кол-во цветов*2 для того чтоб в табличке все было ровненько
+{
+	static char cstr[100];
+	char fmt[5];
+	int cc;
+	cc = len + count_colors(str) * 2;
+	snprintf(fmt, sizeof(fmt), "%%%ds", cc);
+	snprintf(cstr, sizeof(cstr), fmt, str);
+	return cstr;
+}
