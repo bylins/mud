@@ -759,6 +759,9 @@ const char *GLORY_CONST_FORMAT =
 ACMD(do_spend_glory)
 {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
+	// До исправления баги
+	send_to_char("Временно отключено...\r\n", ch);
+	return;
 	if (glory_list.end() == it || IS_IMMORTAL(ch))
 	{
 		send_to_char("Вам это не нужно...\r\n", ch);
