@@ -275,6 +275,9 @@ int add_stat_cost(int stat, boost::shared_ptr<GloryConst::glory_olc> olc)
 		case GLORY_HIT:
 			glory = (olc->stat_add[stat]/HP_FACTOR * 200) + 1000;
 			break;
+		case GLORY_SUCCESS:
+			glory = (olc->stat_add[stat]/SUCCESS_FACTOR * 200) + 1000;
+			break;
 		case GLORY_WILL:
 		case GLORY_STABILITY:
 		case GLORY_REFLEX:
@@ -760,8 +763,8 @@ ACMD(do_spend_glory)
 {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	// До исправления баги
-	send_to_char("Временно отключено...\r\n", ch);
-	return;
+	//send_to_char("Временно отключено...\r\n", ch);
+	//return;
 	if (glory_list.end() == it || IS_IMMORTAL(ch))
 	{
 		send_to_char("Вам это не нужно...\r\n", ch);
