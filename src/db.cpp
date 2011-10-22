@@ -6288,7 +6288,7 @@ ACMD(do_remort)
 
 	act(remort_msg2, FALSE, ch, 0, 0, TO_ROOM);
 
-	//ch->reset_morph(); пока закомментил ибо крешит
+	if (ch->is_morphed()) ch->reset_morph(); 
 	ch->set_remort(ch->get_remort() + 1);
 	CLR_GOD_FLAG(ch, GF_REMORT);
 	ch->inc_str(1);
