@@ -31,6 +31,7 @@ void show_stats(CHAR_DATA *ch);
 
 void transfer_log(const char *format, ...);
 void add_total_spent(int amount);
+void apply_modifiers(CHAR_DATA *ch);
 
 } // namespace GloryConst
 

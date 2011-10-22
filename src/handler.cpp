@@ -22,6 +22,7 @@
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
+#include "glory_const.hpp"
 #include "interpreter.h"
 #include "spells.h"
 #include "skills.h"
@@ -624,6 +625,7 @@ void affect_total(CHAR_DATA * ch)
 			affect_modify(ch, APPLY_MOVE, GET_LEVEL(ch) * 2, 0, TRUE);
 		if (can_use_feat(ch, SPLENDID_HEALTH_FEAT))
 			affect_modify(ch, APPLY_HIT, GET_LEVEL(ch) * 2, 0, TRUE);
+		GloryConst::apply_modifiers(ch);
 	}
 
 	/* move affect modifiers */

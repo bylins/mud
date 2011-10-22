@@ -39,7 +39,12 @@ enum
 	GLORY_WIS,
 	GLORY_CON,
 	GLORY_CHA, // -//-
-	GLORY_HIT, // +хп для тесту
+	GLORY_HIT, // +хп
+	GLORY_SUCCESS, //каст
+	GLORY_WILL, //воля
+	GLORY_STABILITY, //стойкость
+	GLORY_REFLEX, //реакция
+	GLORY_MIND, //разум
 	GLORY_TOTAL
 };
 
@@ -91,6 +96,18 @@ const int TRANSFER_FEE = 5;
 const int MIN_TRANSFER_TAX = 50;
 // минимальное кол-во славы для перевода (>= MIN_TRANSFER_TAX)
 const int MIN_TRANSFER_AMOUNT = 100;
+
+//Кол-во единиц жизни, добавляемое за раз
+const int HP_FACTOR=50;
+
+//каст
+const int SUCCESS_FACTOR=10;
+
+//Сависы
+const int SAVE_FACTOR = 15;
+
+//Резисты
+const int RESIST_FACTOR = 7;
 
 void transfer_log(const char *format, ...)
 {
@@ -191,6 +208,24 @@ void print_glory(CHAR_DATA *ch, GloryListType::iterator &it)
 		case GLORY_CHA:
 			out << "Обаян: +";
 			break;
+		case GLORY_HIT:
+			out << "Макс.жизнь: +";
+			break;
+		case GLORY_SUCCESS:
+			out << "Успех.колдовства: +";
+			break;
+		case GLORY_WILL:
+			out << "Воля: +";
+			break;
+		case GLORY_STABILITY:
+			out << "Стойкость: +";
+			break;
+		case GLORY_REFLEX:
+			out << "Реакция: +";
+			break;
+		case GLORY_MIND:
+			out << "Разум: +";
+			break;
 		default:
 			log("Glory: некорректный номер стата %d (uid: %ld)", i->first, it->first);
 		}
@@ -236,14 +271,23 @@ int add_stat_cost(int stat, boost::shared_ptr<GloryConst::glory_olc> olc)
 		case GLORY_CON:
 		case GLORY_CHA:
 			glory = (olc->stat_add[stat] * 200) + 1000;
-			if (olc->stat_was[stat] - olc->stat_add[stat] > 0)
-			{
-				glory -= glory * STAT_RETURN_FEE / 100;
-			}
+			break;
+		case GLORY_HIT:
+			glory = (olc->stat_add[stat]/HP_FACTOR * 200) + 1000;
+			break;
+		case GLORY_WILL:
+		case GLORY_STABILITY:
+		case GLORY_REFLEX:
+			glory = (olc->stat_add[stat]/SAVE_FACTOR * 200) + 1000;
+			break;
+		case GLORY_MIND:
+			glory = (olc->stat_add[stat]/RESIST_FACTOR * 200) + 1000;
 			break;
 		default:
 			log("SYSERROR : bad stat %d (%s:%d)", stat, __FILE__, __LINE__);
 	}
+	if (olc->stat_was[stat] - olc->stat_add[stat] > 0)
+		glory -= glory * STAT_RETURN_FEE / 100;
 	return glory;
 }
 
@@ -269,14 +313,26 @@ int remove_stat_cost(int stat, boost::shared_ptr<GloryConst::glory_olc> olc)
 		case GLORY_CON:
 		case GLORY_CHA:
 			glory = ((olc->stat_add[stat] -1) * 200) + 1000;
-			if (olc->stat_was[stat] - olc->stat_add[stat] >= 0)
-			{
-				glory -= glory * STAT_RETURN_FEE / 100;
-			}
+			break;
+		case GLORY_HIT:
+			glory = ((olc->stat_add[stat] -1)/HP_FACTOR * 200) + 1000;
+			break;
+		case GLORY_SUCCESS:
+			glory = ((olc->stat_add[stat] -1)/SUCCESS_FACTOR * 200) + 1000;
+			break;
+		case GLORY_WILL:
+		case GLORY_STABILITY:
+		case GLORY_REFLEX:
+			glory = ((olc->stat_add[stat] -1)/SAVE_FACTOR * 200) + 1000;
+			break;
+		case GLORY_MIND:
+			glory = ((olc->stat_add[stat] -1)/RESIST_FACTOR * 200) + 1000;
 			break;
 		default:
 			log("SYSERROR : bad stat %d (%s:%d)", stat, __FILE__, __LINE__);
 	}
+	if (olc->stat_was[stat] - olc->stat_add[stat] >= 0)
+		glory -= glory * STAT_RETURN_FEE / 100;
 	return glory;
 }
 
@@ -287,7 +343,13 @@ const char *olc_stat_name[] =
 	"Ум",
 	"Мудрость",
 	"Здоровье",
-	"Обаяние"
+	"Обаяние",
+	"Макс.жизнь",
+	"Успех.колдовства",
+	"Воля",
+	"Стойкость",
+	"Реакция",
+	"Разум"
 };
 
 const char *olc_del_name[] =
@@ -297,17 +359,29 @@ const char *olc_del_name[] =
 	"Г",
 	"Д",
 	"Е",
-	"Ж"
-};
-
-const char *olc_add_name[] =
-{
+	"Ж",
 	"З",
 	"И",
 	"К",
 	"Л",
 	"М",
-	"Н"
+	"Н",
+};
+
+const char *olc_add_name[] =
+{
+	"О",
+	"П",
+	"Р",
+	"С",
+	"Т",
+	"У",
+	"Ф",
+	"Х",
+	"Ц",
+	"Ч",
+	"Ш",
+	"Щ",
 };
 
 std::string olc_print_stat(CHAR_DATA *ch, int stat)
@@ -346,7 +420,13 @@ void spend_glory_menu(CHAR_DATA *ch)
 		<< olc_print_stat(ch, GLORY_INT)
 		<< olc_print_stat(ch, GLORY_WIS)
 		<< olc_print_stat(ch, GLORY_CON)
-		<< olc_print_stat(ch, GLORY_CHA);
+		<< olc_print_stat(ch, GLORY_CHA)
+		<< olc_print_stat(ch, GLORY_HIT)
+		<< olc_print_stat(ch, GLORY_SUCCESS)
+		<< olc_print_stat(ch, GLORY_WILL)
+		<< olc_print_stat(ch, GLORY_STABILITY)
+		<< olc_print_stat(ch, GLORY_REFLEX)
+		<< olc_print_stat(ch, GLORY_MIND);
 
 	out << "\r\n  Свободной славы: " << ch->desc->glory_const->olc_free_glory << "\r\n\r\n";
 
@@ -355,7 +435,7 @@ void spend_glory_menu(CHAR_DATA *ch)
 		out << "  " << CCIGRN(ch, C_SPR) << "В" << CCNRM(ch, C_SPR)
 			<< ") Сохранить результаты\r\n";
 	}
-	out << "  " << CCIGRN(ch, C_SPR) << "Х" << CCNRM(ch, C_SPR)
+	out << "  " << CCIGRN(ch, C_SPR) << "Я" << CCNRM(ch, C_SPR)
 		<< ") Выйти без сохранения\r\n"
 		<< "  Ваш выбор: ";
 	send_to_char(out.str(), ch);
@@ -363,6 +443,7 @@ void spend_glory_menu(CHAR_DATA *ch)
 
 void olc_del_stat(CHAR_DATA *ch, int stat)
 {
+	int REMOVE_AMOUNT = 0;
 	switch(stat)
 	{
 		case GLORY_STR:
@@ -371,15 +452,30 @@ void olc_del_stat(CHAR_DATA *ch, int stat)
 		case GLORY_WIS:
 		case GLORY_CON:
 		case GLORY_CHA:
-			if (ch->desc->glory_const->stat_add[stat] > 0)
-			{
-				ch->desc->glory_const->olc_free_glory +=
-					remove_stat_cost(stat, ch->desc->glory_const);
-				ch->desc->glory_const->stat_add[stat] -= 1;
-			}
+			REMOVE_AMOUNT = 1;
+			break;
+		case GLORY_HIT:
+			REMOVE_AMOUNT = HP_FACTOR;
+			break;
+		case GLORY_SUCCESS:
+			REMOVE_AMOUNT = SUCCESS_FACTOR;
+			break;
+		case GLORY_WILL:
+		case GLORY_STABILITY:
+		case GLORY_REFLEX:
+			REMOVE_AMOUNT = SAVE_FACTOR;
+			break;
+		case GLORY_MIND:
+			REMOVE_AMOUNT = RESIST_FACTOR;
 			break;
 		default:
 			log("SYSERROR : bad stat %d (%s:%d)", stat, __FILE__, __LINE__);
+	}
+	if (ch->desc->glory_const->stat_add[stat] > 0)
+	{
+		ch->desc->glory_const->olc_free_glory +=
+			remove_stat_cost(stat, ch->desc->glory_const);
+		ch->desc->glory_const->stat_add[stat] -= REMOVE_AMOUNT;
 	}
 }
 
@@ -412,6 +508,36 @@ void olc_add_stat(CHAR_DATA *ch, int stat)
 			}
 			break;
 		}
+		case GLORY_HIT:
+		if (ch->desc->glory_const->olc_free_glory >= need_glory)
+		{
+			ch->desc->glory_const->olc_free_glory -= need_glory;
+			ch->desc->glory_const->stat_add[stat] += HP_FACTOR;
+		}
+		break;
+		case GLORY_SUCCESS:
+		if (ch->desc->glory_const->olc_free_glory >= need_glory)
+		{
+			ch->desc->glory_const->olc_free_glory -= need_glory;
+			ch->desc->glory_const->stat_add[stat] += SUCCESS_FACTOR;
+		}
+		break;
+		case GLORY_WILL:
+		case GLORY_STABILITY:
+		case GLORY_REFLEX:
+		if (ch->desc->glory_const->olc_free_glory >= need_glory)
+		{
+			ch->desc->glory_const->olc_free_glory -= need_glory;
+			ch->desc->glory_const->stat_add[stat] += SAVE_FACTOR;
+		}
+		break;
+		case GLORY_MIND:
+		if (ch->desc->glory_const->olc_free_glory >= need_glory)
+		{
+			ch->desc->glory_const->olc_free_glory -= need_glory;
+			ch->desc->glory_const->stat_add[stat] += RESIST_FACTOR;
+		}
+		break;
 		default:
 			log("SYSERROR : bad stat %d (%s:%d)", stat, __FILE__, __LINE__);
 	}
@@ -429,20 +555,34 @@ int calculate_glory_in_stats(GloryListType::const_iterator &i)
 	for (std::map<int, int>::const_iterator k = i->second->stats.begin(),
 		kend = i->second->stats.end(); k != kend; ++k)
 	{
+		int factor = 0;
 		switch(k->first)
 		{
-			case G_STR:
-			case G_DEX:
-			case G_INT:
-			case G_WIS:
-			case G_CON:
-			case G_CHA:
-				for (int m = 0; m < k->second; ++m)
-				{
-					total += (m * 200) + 1000;
-				}
+			case GLORY_STR:
+			case GLORY_DEX:
+			case GLORY_INT:
+			case GLORY_WIS:
+			case GLORY_CON:
+			case GLORY_CHA:
+				factor = 1;
 				break;
-		}
+			case GLORY_HIT:
+				factor = HP_FACTOR;
+				break;
+			case GLORY_SUCCESS:
+				factor = SUCCESS_FACTOR;
+				break;
+			case GLORY_WILL:
+			case GLORY_STABILITY:
+			case GLORY_REFLEX:
+				factor = SAVE_FACTOR;
+				break;
+			case GLORY_MIND:
+				factor = RESIST_FACTOR;
+				break;
+				}
+		for (int m = 0; m < k->second; m+=factor)
+			total += (m/factor * 200) + 1000;
 	}
 	return total;
 }
@@ -477,29 +617,76 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 			break;
 		case 'З':
 		case 'з':
-			olc_add_stat(ch, GLORY_STR);
+			olc_del_stat(ch, GLORY_HIT);
 			break;
 		case 'И':
 		case 'и':
-			olc_add_stat(ch, GLORY_DEX);
+			olc_del_stat(ch, GLORY_SUCCESS);
 			break;
 		case 'К':
 		case 'к':
-			olc_add_stat(ch, GLORY_INT);
+			olc_del_stat(ch, GLORY_WILL);
 			break;
 		case 'Л':
 		case 'л':
-			olc_add_stat(ch, GLORY_WIS);
+			olc_del_stat(ch, GLORY_STABILITY);
 			break;
 		case 'М':
 		case 'м':
-			olc_add_stat(ch, GLORY_CON);
+			olc_del_stat(ch, GLORY_REFLEX);
 			break;
 		case 'Н':
 		case 'н':
+			olc_del_stat(ch, GLORY_MIND);
+			break;
+		case 'о':
+			olc_add_stat(ch, GLORY_STR);
+			break;
+		case 'П':
+		case 'п':
+			olc_add_stat(ch, GLORY_DEX);
+			break;
+		case 'Р':
+		case 'р':
+			olc_add_stat(ch, GLORY_INT);
+			break;
+		case 'С':
+		case 'с':
+			olc_add_stat(ch, GLORY_WIS);
+			break;
+		case 'Т':
+		case 'т':
+			olc_add_stat(ch, GLORY_CON);
+			break;
+		case 'У':
+		case 'у':
 			olc_add_stat(ch, GLORY_CHA);
 			break;
-		case 'В':
+		case 'Ф':
+		case 'ф':
+			olc_add_stat(ch, GLORY_HIT);
+			break;
+		case 'Х':
+		case 'х':
+			olc_add_stat(ch, GLORY_SUCCESS);
+			break;
+		case 'Ц':
+		case 'ц':
+			olc_add_stat(ch, GLORY_WILL);
+			break;
+		case 'Ч':
+		case 'ч':
+			olc_add_stat(ch, GLORY_STABILITY);
+			break;
+		case 'Ш':
+		case 'ш':
+			olc_add_stat(ch, GLORY_REFLEX);
+			break;
+		case 'Щ':
+		case 'щ':
+			olc_add_stat(ch, GLORY_MIND);
+			break;
+			case 'В':
 		case 'в':
 		{
 			// получившиеся статы
@@ -552,8 +739,8 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 			save();
 			return 1;
 		}
-		case 'Х':
-		case 'х':
+		case 'Я':
+		case 'я':
 			ch->desc->glory_const.reset();
 			STATE(ch->desc) = CON_PLAYING;
 			send_to_char("Редактирование прервано.\r\n", ch);
@@ -596,6 +783,12 @@ ACMD(do_spend_glory)
 		tmp_glory_olc->stat_cur[GLORY_WIS] = ch->get_inborn_wis();
 		tmp_glory_olc->stat_cur[GLORY_CON] = ch->get_inborn_con();
 		tmp_glory_olc->stat_cur[GLORY_CHA] = ch->get_inborn_cha();
+		tmp_glory_olc->stat_cur[GLORY_HIT] = it->second->stats[GLORY_HIT];
+		tmp_glory_olc->stat_cur[GLORY_SUCCESS] = it->second->stats[GLORY_SUCCESS];
+		tmp_glory_olc->stat_cur[GLORY_WILL] = it->second->stats[GLORY_WILL];
+		tmp_glory_olc->stat_cur[GLORY_STABILITY] = it->second->stats[GLORY_STABILITY];
+		tmp_glory_olc->stat_cur[GLORY_REFLEX] = it->second->stats[GLORY_REFLEX];
+		tmp_glory_olc->stat_cur[GLORY_MIND] = it->second->stats[GLORY_MIND];
 
 		for (std::map<int, int>::const_iterator i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i)
 		{
@@ -1064,5 +1257,45 @@ void add_total_spent(int amount)
 		total_spent += amount;
 	}
 }
+
+void apply_modifiers(CHAR_DATA *ch)
+{
+	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
+	if (it==glory_list.end())
+		return;
+	for (std::map<int, int>::const_iterator i = it->second->stats.begin(); i != it->second->stats.end(); ++i)
+	{
+		int location = 0;
+		bool add = true;
+	switch (i->first)
+		{
+			case GLORY_HIT:
+				location = APPLY_HIT;
+				break;
+			case GLORY_SUCCESS:
+				location = APPLY_CAST_SUCCESS;
+				break;
+			case GLORY_WILL:
+				location = APPLY_SAVING_WILL;
+				add = false;
+				break;
+			case GLORY_STABILITY:
+				location = APPLY_SAVING_STABILITY;
+				add = false;
+				break;
+			case GLORY_REFLEX:
+				location = APPLY_SAVING_REFLEX;
+				add = false;
+				break;
+			case GLORY_MIND:
+				location = APPLY_RESIST_MIND;
+				break;
+			default:
+				break;
+		}
+		if (location)
+			affect_modify(ch, location, i->second, 0, add);
+		}
+		}
 
 } // namespace GloryConst
