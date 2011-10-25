@@ -2904,6 +2904,12 @@ ACMD(do_cast)
 		return;
 	}
 
+	if (ch->is_morphed())
+	{
+		send_to_char("Вы не можете произносить заклинания в звериной форме.\r\n", ch);
+		return;
+	}
+
 	/* get: blank, spell name, target name */
 	s = strtok(argument, "'*!");
 	if (s == NULL)
