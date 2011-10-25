@@ -272,7 +272,7 @@ ACMD(do_named)
 						if (first == 0 || (obj_index[r_num].vnum >= first && obj_index[r_num].vnum <= last))
 						{
 							sprintf(buf2, "%6d) %s",
-									obj_index[r_num].vnum, colored_name(obj_proto[r_num]->short_description, 45));
+									obj_index[r_num].vnum, colored_name(obj_proto[r_num]->short_description, 50));
 							if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 								sprintf(buf2, "%s Игра:%d Пост:%d Владелец:%16s e-mail:%s\r\n", buf2,
 									obj_index[r_num].number, obj_index[r_num].stored,

@@ -2754,10 +2754,11 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 				&& keeper->master && AFF_FLAGGED(keeper->master, AFF_GROUP))
 			{
 				CHAR_DATA *keeper_leader = keeper->master->master ? keeper->master->master : keeper->master;
-				CHAR_DATA *victim_ledaer = victim->master ? victim->master : victim;
+				CHAR_DATA *victim_leader = victim->master ? victim->master : victim;
 
-				if (keeper_leader == victim_ledaer)
+				if ((keeper_leader == victim_leader) && (may_kill_here(keeper->master, ch)))
 				{
+					pk_agro_action(keeper->master, ch);
 					send_to_char(victim, "%s пожетрвовал%s своей жизнью, вытаскивая Вас с того света!\r\n",
 							GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
 					snprintf(buf, MAX_STRING_LENGTH, "%s пожетрвовал%s своей жизнью, вытаскивая %s с того света!",

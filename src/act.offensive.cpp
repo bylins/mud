@@ -205,6 +205,10 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 
 			if ((vict->get_fighting() != ch) && (ch != victim))
 			{
+				// агрим жертву после чего можно будет проверить возможно ли его здесь прикрыть(костыли конечно)
+				pk_agro_action(ch, victim);
+				if (!may_kill_here(vict, ch))
+					continue;
 				// Вписываемся в противника прикрываемого ...
 				stop_fighting(vict, FALSE);
 				set_fighting(vict, ch);
@@ -219,6 +223,7 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 			}
 			else
 			{
+				pk_agro_action(vict, ch); // по аналогии с реском прикрывая кого-то можно пофлагаться
 				act("Вы героически прикрыли $N3, приняв удар на себя.", FALSE,
 					vict, 0, victim, TO_CHAR);
 				act("$N героически прикрыл$G Вас, приняв удар на себя.", FALSE,
