@@ -2513,10 +2513,10 @@ ACMD(DoClanPkList)
 		// выводим список тех, кто онлайн
 		send_to_char(ch, "%sОтображаются только находящиеся в игре персонажи:%s\r\n\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		ClanPkList::const_iterator it;
-		// вобщем чтобы словить чаров с бд, находящихся в лд - придется гонять по чарактер-листу
+		// вобщем чтобы словить чаров, находящихся в лд - придется гонять по чарактер-листу
 		for (CHAR_DATA *tch = character_list; tch; tch = tch->next)
 		{
-			if (IS_NPC(tch) || (!tch->desc && !RENTABLE(tch)))
+			if (IS_NPC(tch))
 				continue;
 			// пкл
 			if (!subcmd)
