@@ -217,6 +217,7 @@ void add_trigger(struct script_data *sc, TRIG_DATA * t, int loc);
 int remove_trigger(SCRIPT_DATA * sc, char *name, TRIG_DATA ** trig_addr);
 
 void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig);
+void do_sstat_room(ROOM_DATA *rm, CHAR_DATA * ch);
 void do_sstat_room(CHAR_DATA * ch);
 void do_sstat_object(CHAR_DATA * ch, OBJ_DATA * j);
 void do_sstat_character(CHAR_DATA * ch, CHAR_DATA * k);

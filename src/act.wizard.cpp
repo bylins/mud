@@ -1210,7 +1210,7 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 		send_to_char(buf1, ch);
 	}
 	/* check the room for a script */
-	do_sstat_room(ch);
+	do_sstat_room(rm, ch);
 }
 
 

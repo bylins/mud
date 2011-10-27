@@ -935,7 +935,12 @@ void script_stat(CHAR_DATA * ch, SCRIPT_DATA * sc)
 void do_sstat_room(CHAR_DATA * ch)
 {
 	ROOM_DATA *rm = world[ch->in_room];
+	
+	do_sstat_room(rm, ch);
 
+}
+void do_sstat_room(ROOM_DATA *rm, CHAR_DATA * ch)
+{
 	send_to_char("Script information:\r\n", ch);
 	if (!SCRIPT(rm))
 	{
