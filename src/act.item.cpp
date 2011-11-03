@@ -565,7 +565,7 @@ bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont,
 		obj_to_char(obj, ch);
 		if (obj->carried_by == ch)
 		{
-			if (IS_OBJ_STAT(obj, ITEM_BLOODY))
+			if (bloody::is_bloody(obj))
 			{
 				act("Вы взяли $o3 из $O1, испачкав свои руки кровью!", FALSE, ch, obj, cont, TO_CHAR);
 				act("$n взял$g $o3 из $O1, испачкав руки кровью.", TRUE, ch, obj, cont, TO_ROOM);
@@ -659,7 +659,7 @@ int perform_get_from_room(CHAR_DATA * ch, OBJ_DATA * obj)
 		obj_to_char(obj, ch);
 		if (obj->carried_by == ch)
 		{
-			if (IS_OBJ_STAT(obj, ITEM_BLOODY))
+			if (bloody::is_bloody(obj))
 			{
 				act("Вы подняли $o3, испачкав  свои руки кровью!", FALSE, ch, obj, 0, TO_CHAR);
 				act("$n поднял$g $o3, испачкав руки кровью.", TRUE, ch, obj, 0, TO_ROOM);

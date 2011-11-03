@@ -113,6 +113,7 @@ namespace bloody
 	bool handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OBJ_DATA* container=NULL);
 	//Помечает стаф в трупе как кровавый
 	void handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer);
+	bool is_bloody(const OBJ_DATA* obj);
 }
 
 #endif

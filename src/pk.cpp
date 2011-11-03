@@ -1080,7 +1080,7 @@ void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch)
 	set_bloody_flag(list->next_content, ch);
 	const int t = GET_OBJ_TYPE(list);
 	if ((t == ITEM_LIGHT || t == ITEM_WAND || t == ITEM_STAFF || t == ITEM_WEAPON 
-		|| t == ITEM_ARMOR || t == ITEM_CONTAINER || t == ITEM_ARMOR_LIGHT 
+		|| t == ITEM_ARMOR || (t == ITEM_CONTAINER && GET_OBJ_VAL(list, 0)) || t == ITEM_ARMOR_LIGHT 
 		|| t == ITEM_ARMOR_MEDIAN || t == ITEM_ARMOR_HEAVY || t == ITEM_INGRADIENT
 		|| t == ITEM_WORN) && !IS_OBJ_STAT(list, ITEM_BLOODY))
 	{
@@ -1139,16 +1139,16 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 	{
 		if (IS_NPC(initial_victim)) //чармисам брать нельзя
 			return false;
-		AGRO(victim) = MAX(AGRO(victim), time(NULL) + KILLER_UNRENTABLE * 60);
-		RENTABLE(victim) = MAX(RENTABLE(victim), time(NULL) + KILLER_UNRENTABLE * 60);
+		AGRO(victim) = MAX(AGRO(victim), KILLER_UNRENTABLE * 60 +it->second.kill_at);
+		RENTABLE(victim) = MAX(RENTABLE(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
 		result = true;
 	} 
 	else if (ch && container && (container->carried_by == ch || container->worn_by == ch)) //чар пытается положить в контейнер в инвентаре или экипировке
-	result = true;
+		result = true;
 	else //нельзя передавать кровавый шмот
 	{
-	if (ch)
-	act("Кровь, покрывающая $o3, намертво въелась вам в руки, не давая избавиться от н$S.", FALSE, ch, obj, 0, TO_CHAR);
+		if (ch)
+		act("Кровь, покрывающая $o3, намертво въелась вам в руки, не давая избавиться от н$S.", FALSE, ch, obj, 0, TO_CHAR);
 		return false;
 	}
 	//обработка контейнеров
@@ -1160,8 +1160,8 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 void bloody::handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer)
 {
 	pk_translate_pair(&ch, &killer);
-	//Если игрок убил игрока, и убитый не душегуб, то с него выпадает окровавленный стаф
-	if (ch && killer && !IS_NPC(ch) && !IS_NPC(killer) && !PLR_FLAGGED(ch, PLR_KILLER))
+	//Если игрок убил игрока, который не был в агро бд и убитый не душегуб, то с него выпадает окровавленный стаф
+	if (ch && killer && !IS_NPC(ch) && !IS_NPC(killer) && !PLR_FLAGGED(ch, PLR_KILLER) && !AGRO(ch))
 	{
 		//Проверим, может у killer есть месть на ch
 		struct PK_Memory_type *pk = 0;
@@ -1171,4 +1171,13 @@ void bloody::handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer)
 		if (!pk) //не нашли мести
 			set_bloody_flag(corpse->contains, ch);
 	}
+}
+
+bool bloody::is_bloody(const OBJ_DATA* obj)
+{
+	if (IS_OBJ_STAT(obj, ITEM_BLOODY)) return true;
+	bool result = false;
+	for (OBJ_DATA* nobj = obj->contains; nobj!=NULL && !result; nobj = nobj->next_content)
+		result = is_bloody(nobj);
+	return result;
 }
