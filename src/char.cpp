@@ -392,9 +392,17 @@ int Character::get_skill(int skill_num)
 int Character::get_equipped_skill(int skill_num)
 {
 	int skill = 0;
+
+// мобам и тем классам, у которых скилл является родным, учитываем скилл с каждой шмотки полностью,
+// всем остальным -- не более 5% с шмотки
+	int is_native = IS_NPC(this) || skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == KNOW_SKILL;
 	for (int i = 0; i < NUM_WEARS; ++i)
-		if (equipment[i])
-			skill += equipment[i]->get_skill(skill_num);
+		if (equipment[i]) {
+			if (is_native)
+				skill += equipment[i]->get_skill(skill_num);
+			else
+				skill += (MIN(5, equipment[i]->get_skill(skill_num)));
+		}
 
 	return skill;
 }
