@@ -2729,6 +2729,7 @@ ACMD(do_makefood)
 		return;
 	}
 	mob = (mob_proto + real_mobile(mobn));
+	mob->set_normal_morph();
 
 	if (!IS_IMMORTAL(ch) && (GET_RACE(mob) != NPC_RACE_ANIMAL || (wgt = GET_WEIGHT(mob)) < 11))
 	{
