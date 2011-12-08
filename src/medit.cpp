@@ -637,6 +637,7 @@ void medit_save_to_disk(int zone_num)
 				return;
 			}
 			mob = (mob_proto + rmob_num);
+			mob->set_normal_morph();
 
 			/*
 			 * Clean up strings.
