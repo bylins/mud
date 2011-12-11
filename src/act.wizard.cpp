@@ -4340,6 +4340,7 @@ struct set_struct		/*
 	{"karma", LVL_IMPL, PC, MISC},
 	{"unreg", LVL_GOD, PC, MISC}, // 56
 	{"executor", LVL_IMPL, PC, BINARY}, // 57
+    {"killer", LVL_IMPL, PC, BINARY}, // 58
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -5005,6 +5006,10 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			REMOVE_BIT(PRF_FLAGS(vict, PRF_EXECUTOR), PRF_EXECUTOR);
 		}
 		break;
+
+	case 58: // Снятие или постановка флага !ДУШЕГУБ! только для имплементоров
+        SET_OR_REMOVE(PLR_FLAGS(vict, PLR_KILLER), PLR_KILLER);
+        break;
 
 	default:
 		send_to_char("Не могу установить это!\r\n", ch);

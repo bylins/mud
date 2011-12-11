@@ -395,7 +395,9 @@ int Character::get_equipped_skill(int skill_num)
 
 // мобам и тем классам, у которых скилл является родным, учитываем скилл с каждой шмотки полностью,
 // всем остальным -- не более 5% с шмотки
-	int is_native = IS_NPC(this) || skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == KNOW_SKILL;
+    // Пока что отменим это дело, народ морально не готов отказаться от автосников.
+	//int is_native = IS_NPC(this) || skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == KNOW_SKILL;
+	int is_native = true;
 	for (int i = 0; i < NUM_WEARS; ++i)
 		if (equipment[i]) {
 			if (is_native)
@@ -1238,7 +1240,7 @@ int Character::get_zone_group() const
 
 bool Character::know_morph(string morph_id) const
 {
-	return std::find(morphs_.begin(), morphs_.end(), morph_id) != morphs_.end(); 
+	return std::find(morphs_.begin(), morphs_.end(), morph_id) != morphs_.end();
 }
 
 void Character::add_morph(string morph_id)
@@ -1258,7 +1260,7 @@ std::list<string> Character::get_morphs()
 };
 
 std::string Character::get_title()
-{	
+{
 	if (!this->player_data.title) return string();
 	string tmp = string(this->player_data.title);
 	unsigned pos = tmp.find('/');
@@ -1270,7 +1272,7 @@ std::string Character::get_title()
 		return tmp;
 	else
 		return tmp.substr(0, pos);
-	
+
 };
 
 std::string Character::get_pretitle()
@@ -1342,7 +1344,7 @@ std::string Character::only_title()
 		result = this->only_title_noclan() + " " + result;
 	else
 		result = this->only_title_noclan();
-		
+
 	return result;
 }
 
@@ -1361,7 +1363,7 @@ std::string Character::noclan_title()
 std::string Character::race_or_title()
 {
 	std::string result = this->clan_for_title();
-	
+
 	if (!result.empty())
 		result = this->noclan_title() + " " + result;
 	else
@@ -1401,7 +1403,7 @@ void Character::reset_morph()
 
 bool Character::is_morphed() const
 {
-	return current_morph_->Name() != "Обычная" || AFF_FLAGGED(this, AFF_MORPH); 
+	return current_morph_->Name() != "Обычная" || AFF_FLAGGED(this, AFF_MORPH);
 };
 
 void Character::set_normal_morph()
@@ -1420,6 +1422,6 @@ std::vector<long> Character::GetMorphAffects()
 }
 
 //===================================
-//-Polud 
+//-Polud
 //===================================
 
