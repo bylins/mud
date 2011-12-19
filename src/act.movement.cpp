@@ -341,7 +341,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 	CHAR_DATA *tch;
 
 	buf2[0] = '\0';
-	if (need_specials_check && special(ch, dir + 1, buf2))
+	if (need_specials_check && special(ch, dir + 1, buf2, 1))
 		return (FALSE);
 
 	if (!CAN_GO(ch, dir))

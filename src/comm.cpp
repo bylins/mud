@@ -1355,6 +1355,11 @@ inline void heartbeat()
 		Clan::ClanSave();
 	}
 
+//Polud организуем зачистку после праздника
+	if (!((pulse+39) % (Celebrates::CLEAN_PERIOD * 60 * PASSES_PER_SEC)))
+	{
+		Celebrates::sanitize();
+	}
 // раз в 5 минут >> ////////////////////////////////////////////////////////////
 
 	if (!((pulse + 36) % (5 * 60 * PASSES_PER_SEC)))
@@ -1577,11 +1582,6 @@ inline void heartbeat()
 			SpellUsage::clear();
 		}
 
-	}
-//Polud раз в 12 часов организуем зачистку после праздника
-	if (!((pulse+7) % (12*60*60*PASSES_PER_SEC)))
-	{
-		Celebrates::sanitize();
 	}
 	//log("---------- Stop heartbeat ----------");
 }

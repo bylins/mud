@@ -1193,6 +1193,11 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		if (GET_LEVEL(ch) >= LVL_IMMORT || GET_GOD_FLAG(ch, GF_PERSLOG) || GET_GOD_FLAG(ch, GF_DEMIGOD))
 			pers_log(ch, "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)), argument);
 	}
+
+	//Polud спешиал для спешиалов добавим обработку числового префикса перед именем команды
+
+	int fnum = get_number(&argument);
+
 	/*
 	 * special case to handle one-character, non-alphanumeric commands;
 	 * requested by many people so "'hi" or ";godnet test" is possible.
@@ -1314,7 +1319,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		check_hiding_cmd(ch, -1);
 		do_social(ch, argument);
 	}
-	else if (no_specials || !special(ch, cmd, line))
+	else if (no_specials || !special(ch, cmd, line, fnum))
 	{
 		check_hiding_cmd(ch, cmd_info[cmd].unhide_percent);
 		(*cmd_info[cmd].command_pointer)(ch, line, cmd, cmd_info[cmd].subcmd);
@@ -1701,8 +1706,8 @@ int find_command(const char *command)
 	return (-1);
 }
 
-
-int special(CHAR_DATA * ch, int cmd, char *arg)
+/* int fnum - номер найденного в комнате спешиал-моба, для обработки нескольких спешиал-мобов в одной комнате */
+int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 {
 	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE))
 	{
@@ -1744,8 +1749,10 @@ int special(CHAR_DATA * ch, int cmd, char *arg)
 			}
 
 	/* special in mobile present? */
+//Polud чтобы продавцы не мешали друг другу в одной комнате, предусмотрим возможность различать их по номеру 
+	int specialNum = 1; //если номер не указан - по умолчанию берется первый
 	for (k = world[ch->in_room]->people; k; k = k->next_in_room)
-		if (GET_MOB_SPEC(k) != NULL)
+		if (GET_MOB_SPEC(k) != NULL && fnum == specialNum++)
 			if (GET_MOB_SPEC(k)(ch, k, cmd, arg))
 			{
 				check_hiding_cmd(ch, -1);

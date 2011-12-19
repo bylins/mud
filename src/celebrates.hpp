@@ -7,6 +7,9 @@
 
 namespace Celebrates
 {
+
+const int CLEAN_PERIOD = 10;
+
 typedef std::vector<int> TrigList;
 struct ToLoad;
 
@@ -35,6 +38,8 @@ struct CelebrateRoom
 typedef boost::shared_ptr<CelebrateRoom> CelebrateRoomPtr;
 typedef std::vector<CelebrateRoomPtr> CelebrateRoomsList;
 typedef std::map<int, CelebrateRoomsList> CelebrateZonList;//номер зоны, список комнат
+typedef std::map<long, CHAR_DATA *> CelebrateMobs;
+typedef std::map<long, OBJ_DATA *> CelebrateObjs;
 
 struct CelebrateData
 {
@@ -72,10 +77,13 @@ int get_real_day();
 void load();
 void sanitize();
 
-void add_mob_to_attach_list(long);
-void add_mob_to_load_list(long);
-void add_obj_to_attach_list(long);
-void add_obj_to_load_list(long);
+void add_mob_to_attach_list(long, CHAR_DATA *);
+void add_mob_to_load_list(long, CHAR_DATA *);
+void add_obj_to_attach_list(long, OBJ_DATA *);
+void add_obj_to_load_list(long, OBJ_DATA *);
+
+void remove_from_obj_lists(long uid);
+void remove_from_mob_lists(long uid);
 
 };
 

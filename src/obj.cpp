@@ -5,6 +5,7 @@
 #include "obj.hpp"
 #include "utils.h"
 #include "pk.h"
+#include "celebrates.hpp"
 
 id_to_set_info_map obj_data::set_table;
 
@@ -44,6 +45,7 @@ obj_data::~obj_data()
 {
 	bloody::remove_obj(this); //см. комментарий в структуре BloodyInfo из pk.cpp
 	//weak_ptr тут бы был какраз в тему
+	Celebrates::remove_from_obj_lists(this->uid);
 }
 
 int obj_data::get_serial_num()

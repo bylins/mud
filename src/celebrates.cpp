@@ -9,6 +9,7 @@
 #include "dg_scripts.h"
 #include "celebrates.hpp"
 #include "char.hpp"
+#include "room.hpp"
 #include "handler.h"
 
 extern void extract_trigger(TRIG_DATA * trig);
@@ -22,30 +23,26 @@ namespace Celebrates
 int tab_day [12]= {31,28,31,30,31,30,31,31,30,31,30,31};//да и хрен с ним, с 29 февраля!
 
 CelebrateList mono_celebrates, poly_celebrates, real_celebrates;
-typedef std::vector<long> CelebrateUids;
+CelebrateMobs attached_mobs;
+CelebrateMobs loaded_mobs;
+CelebrateObjs attached_objs;
+CelebrateObjs loaded_objs;
 
-CelebrateUids loaded_mobs, attached_mobs;
-CelebrateUids loaded_objs, attached_objs;
-
-void add_mob_to_attach_list(long uid)
+void add_mob_to_attach_list(long uid, CHAR_DATA * mob)
 {
-	if (std::find(attached_mobs.begin(), attached_mobs.end(), uid) == attached_mobs.end())
-		attached_mobs.push_back(uid);
+		attached_mobs[uid] = mob;
 }
-void add_mob_to_load_list(long uid)
+void add_mob_to_load_list(long uid, CHAR_DATA * mob)
 {
-	if (std::find(loaded_mobs.begin(), loaded_mobs.end(), uid) == loaded_mobs.end())
-		loaded_mobs.push_back(uid);
+		loaded_mobs[uid] = mob;
 }
-void add_obj_to_attach_list(long uid)
+void add_obj_to_attach_list(long uid, OBJ_DATA * obj)
 {
-	if (std::find(attached_objs.begin(), attached_objs.end(), uid) == attached_objs.end())
-		attached_objs.push_back(uid);
+		attached_objs[uid] = obj;
 }
-void add_obj_to_load_list(long uid)
+void add_obj_to_load_list(long uid, OBJ_DATA * obj)
 {
-	if (std::find(loaded_objs.begin(), loaded_objs.end(), uid) == loaded_objs.end())
-		loaded_objs.push_back(uid);
+		loaded_objs[uid] = obj;
 }
 
 int get_real_hour()
@@ -320,13 +317,19 @@ int get_real_day()
 	return find_real_day_number(timeinfo->tm_mday, timeinfo->tm_mon + 1);
 }
 
+bool is_active(CelebrateList::iterator it, bool is_real)
+{
+	int hours = is_real ? get_real_hour() : time_info.hours;
+	int day = is_real ? get_real_day() : get_mud_day();
+	return  (day == it->first) && hours >= it->second->start_at && hours <= it->second->finish_at;
+}
 
 CelebrateDataPtr get_mono_celebrate()
 {
 	int day = get_mud_day();
 	CelebrateDataPtr result = CelebrateDataPtr();
 	if (mono_celebrates.find(day) != mono_celebrates.end())
-		if (time_info.hours >= mono_celebrates[day]->start_at && time_info.hours <= mono_celebrates[day]->finish_at)
+		if (is_active(mono_celebrates.find(day), false))
 		{
 			result = mono_celebrates[day]->celebrate;
 			mono_celebrates[day]->is_clean = false;
@@ -334,12 +337,13 @@ CelebrateDataPtr get_mono_celebrate()
 	return result;
 };
 
+
 CelebrateDataPtr get_poly_celebrate()
 {
 	int day = get_mud_day();
 	CelebrateDataPtr result = CelebrateDataPtr();
 	if (poly_celebrates.find(day) != poly_celebrates.end())
-		if (time_info.hours >= poly_celebrates[day]->start_at && time_info.hours <= poly_celebrates[day]->finish_at)
+		if (is_active(poly_celebrates.find(day), false))
 		{
 			result = poly_celebrates[day]->celebrate;
 			poly_celebrates[day]->is_clean = false;
@@ -352,7 +356,7 @@ CelebrateDataPtr get_real_celebrate()
 	int day = get_real_day();
 	CelebrateDataPtr result = CelebrateDataPtr();
 	if (real_celebrates.find(day) != real_celebrates.end())
-		if (get_real_hour() >= real_celebrates[day]->start_at && get_real_hour() <= real_celebrates[day]->finish_at)
+		if (is_active(real_celebrates.find(day), true))
 		{
 			result = real_celebrates[day]->celebrate;
 			real_celebrates[day]->is_clean = false;
@@ -394,97 +398,114 @@ void remove_triggers(TrigList trigs, script_data* sc)
 	}
 }
 
-
-bool make_clean (CelebrateDataPtr celebrate)
+void remove_from_obj_lists(long uid)
 {
-	CelebrateZonList::iterator zon;
-	CelebrateRoomsList::iterator room;
-	AttachZonList::iterator att;
+	CelebrateObjs::iterator it = attached_objs.find(uid);
+	if (it != attached_objs.end())
+		attached_objs.erase(it);
+	it = loaded_objs.find(uid);
+	if (it != loaded_objs.end())
+		loaded_objs.erase(it);
+}
 
+void remove_from_mob_lists(long uid)
+{
+	CelebrateMobs::iterator it = attached_mobs.find(uid);
+	if (it != attached_mobs.end())
+		attached_mobs.erase(it);
+	it = loaded_mobs.find(uid);
+	if (it != loaded_mobs.end())
+		loaded_mobs.erase(it);
+}
 
-	std::vector<int> mobs_to_remove, objs_to_remove;
-	AttachList mobs_to_deatch, objs_to_deatch;
-
+bool make_clean(CelebrateDataPtr celebrate)
+{
+	CelebrateObjs::iterator obj_it;
+	CelebrateMobs::iterator mob_it;
 	
-	for (att = celebrate->mobsToAttach.begin(); att !=celebrate->mobsToAttach.end();++att)
+
+	for (mob_it = attached_mobs.begin(); mob_it != attached_mobs.end(); ++mob_it)
 	{
-		mobs_to_deatch.insert(att->second.begin(), att->second.end());
-	}
-	for (att = celebrate->objsToAttach.begin(); att !=celebrate->objsToAttach.end();++att)
-	{
-		objs_to_deatch.insert(att->second.begin(), att->second.end());
-	}
-	for (zon = celebrate->rooms.begin(); zon != celebrate->rooms.end(); ++zon)
-	{
-		for (room = zon->second.begin(); room != zon->second.end(); ++room)
+		int vnum = mob_index[mob_it->second->nr].vnum;	
+		for (AttachZonList::iterator it = celebrate->mobsToAttach.begin(); it != celebrate->mobsToAttach.end();++it)
 		{
-			LoadList::const_iterator it;
-			for (it = (*room)->mobs.begin(); it!= (*room)->mobs.end(); ++it)
-				mobs_to_remove.push_back((*it)->vnum);
-			for (it = (*room)->objects.begin(); it!= (*room)->objects.end(); ++it)
-				objs_to_remove.push_back((*it)->vnum);
+			if (it->second.find(vnum) != it->second.end())
+				remove_triggers(it->second[vnum], mob_it->second->script);
 		}
-	}
-
-//поехали... обходим все мобы и предметы в мире, хача по дороге неугодные нам...
-	CHAR_DATA* tmp;
-	int vnum;
-	CelebrateUids::iterator uid;
-	
-	for (CHAR_DATA *ch=character_list;ch;ch=tmp)
-	{
-		tmp=ch->next;
-		vnum = mob_index[ch->nr].vnum;
-	
-		uid = std::find(attached_mobs.begin(), attached_mobs.end(), ch->get_uid());
-
-		if (mobs_to_deatch.find(vnum)!= mobs_to_deatch.end() && uid != attached_mobs.end())
+		if (SCRIPT(mob_it->second) && !TRIGGERS(SCRIPT(mob_it->second)))
 		{
-			remove_triggers(mobs_to_deatch[vnum], ch->script);
-			attached_mobs.erase(uid);
-		}
-
-		if (SCRIPT(ch) && !TRIGGERS(SCRIPT(ch)))
-		{
-			free_script(SCRIPT(ch));	// без комментариев
-			SCRIPT(ch) = NULL;
+			free_script(SCRIPT(mob_it->second));	// без комментариев
+			SCRIPT(mob_it->second) = NULL;
 		}			
-		uid = std::find(loaded_mobs.begin(), loaded_mobs.end(), ch->get_uid());
-		if (std::find(mobs_to_remove.begin(), mobs_to_remove.end(), vnum) != mobs_to_remove.end()
-			&& uid != loaded_mobs.end())
+		attached_mobs.erase(mob_it);
+		if (attached_mobs.empty())
+			break;
+	}
+	
+
+	for (obj_it = attached_objs.begin(); obj_it != attached_objs.end(); ++obj_it)
+	{
+		int vnum = obj_it->second->item_number;	
+		for (AttachZonList::iterator it = celebrate->objsToAttach.begin(); it != celebrate->objsToAttach.end();++it)
 		{
-			extract_char(ch, 0);
-			loaded_mobs.erase(uid);
+			if (it->second.find(vnum) != it->second.end())
+				remove_triggers(it->second[vnum], obj_it->second->script);
 		}
+		if (SCRIPT(obj_it->second) && !TRIGGERS(SCRIPT(obj_it->second)))
+		{
+			free_script(SCRIPT(obj_it->second));	// без комментариев
+			SCRIPT(obj_it->second) = NULL;
+		}			
+		attached_objs.erase(obj_it);
+		if (attached_objs.empty())
+			break;
+	}
+
+	for (mob_it = loaded_mobs.begin(); mob_it != loaded_mobs.end(); ++mob_it)
+	{
+		int vnum = mob_index[mob_it->second->nr].vnum;	
+		for (CelebrateZonList::iterator rooms = celebrate->rooms.begin(); rooms != celebrate->rooms.end();++rooms)
+		{
+			for (CelebrateRoomsList::iterator room = rooms->second.begin(); room != rooms->second.end(); ++room)
+			{
+				for (LoadList::iterator it = (*room)->mobs.begin(); it != (*room)->mobs.end();++it)
+					if ((*it)->vnum == vnum)
+						extract_char(mob_it->second, 0);
+			}
+		}
+		if (loaded_mobs.empty())
+			break;
 
 	}
-	OBJ_DATA* tmpo;	
-	for (OBJ_DATA *o=object_list;o;o=tmpo)
+
+	for (obj_it = loaded_objs.begin(); obj_it != loaded_objs.end(); ++obj_it)
 	{
-		tmpo=o->next;
-		vnum = o->item_number;
-
-		uid = std::find(attached_objs.begin(), attached_objs.end(), (int)o->uid);
-
-		if (objs_to_deatch.find(vnum)!= objs_to_deatch.end() && uid != attached_objs.end())
+		int vnum = obj_it->second->item_number;	
+		for (CelebrateZonList::iterator rooms = celebrate->rooms.begin(); rooms != celebrate->rooms.end();++rooms)
 		{
-			remove_triggers(objs_to_deatch[vnum], o->script);
-			attached_objs.erase(uid);
+			for (CelebrateRoomsList::iterator room = rooms->second.begin(); room != rooms->second.end(); ++room)
+			{
+				for (LoadList::iterator it = (*room)->objects.begin(); it != (*room)->objects.end();++it)
+					if ((*it)->vnum == vnum)
+						extract_obj(obj_it->second);
+			}
 		}
+		if (loaded_objs.empty())
+			break;
+	}
 
-		if (SCRIPT(o) && !TRIGGERS(SCRIPT(o)))
+	for (CelebrateZonList::iterator rooms = celebrate->rooms.begin(); rooms != celebrate->rooms.end();++rooms)
+	{
+		for (CelebrateRoomsList::iterator room = rooms->second.begin(); room != rooms->second.end(); ++room)
 		{
-			free_script(SCRIPT(o));	// без комментариев
-			SCRIPT(o) = NULL;
-		}			
-		uid = std::find(loaded_objs.begin(), loaded_objs.end(), (int)o->uid);
-		if (std::find(objs_to_remove.begin(), objs_to_remove.end(), vnum) != objs_to_remove.end()
-			&& uid != loaded_objs.end())
-		{
-			extract_obj(o);
-			loaded_objs.erase(uid);
+			int rnum = real_room((*room)->vnum);
+			remove_triggers((*room)->triggers, world[rnum]->script);
+			if (SCRIPT(world[rnum]) && !TRIGGERS(SCRIPT(world[rnum])))
+			{
+				free_script(SCRIPT(world[rnum]));	// без комментариев
+				SCRIPT(world[rnum]) = NULL;
+			}			
 		}
-
 	}
 
 	return true;//пока не знаю зачем
@@ -495,7 +516,7 @@ void clear_real_celebrates(CelebrateList celebrates)
 	CelebrateList::iterator it;
 	for (it = celebrates.begin();it != celebrates.end(); ++it)
 	{
-		if (!it->second->is_clean && get_real_day()!=it->first) 
+		if (!it->second->is_clean && !is_active(it, true)) 
 			if (make_clean(it->second->celebrate))
 				it->second->is_clean = true;
 	}
@@ -506,7 +527,7 @@ void clear_mud_celebrates(CelebrateList celebrates)
 	CelebrateList::iterator it;
 	for (it = celebrates.begin();it != celebrates.end(); ++it)
 	{
-		if (!it->second->is_clean && get_mud_day()!=it->first) 
+		if (!it->second->is_clean && !is_active(it, false)) 
 			if (make_clean(it->second->celebrate))
 				it->second->is_clean = true;
 	}

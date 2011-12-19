@@ -21,6 +21,7 @@
 #include "comm.h"
 #include "room.hpp"
 #include "player_races.hpp"
+#include "celebrates.hpp"
 
 std::string PlayerI::empty_const_str;
 
@@ -267,6 +268,8 @@ void Character::purge(bool destructor)
 
 	if (this->desc)
 		this->desc->character = NULL;
+
+	Celebrates::remove_from_mob_lists(this->id);
 
 	// у мобов пока сохраняем это поле после пуржа, оно уберется
 	// когда в Character вообще не останется этого player_specials
