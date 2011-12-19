@@ -261,7 +261,7 @@ void load()
 						int item_rnum = real_object((*it)->item_list[i].item_vnum);
 						if (item_rnum < 0)
 						{
-							snprintf(buf, MAX_STRING_LENGTH, "...incorrect item_vnum=%l in item_set=%s", (*it)->item_list[i].item_vnum, (*it)->_id.c_str());
+							snprintf(buf, MAX_STRING_LENGTH, "...incorrect item_vnum=%d in item_set=%s", (int)(*it)->item_list[i].item_vnum, (*it)->_id.c_str());
 							mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 							return;
 						}
