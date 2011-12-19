@@ -123,7 +123,7 @@ void log_shop_load()
 	{
 		for (std::list<int>::const_iterator it = (*i)->mob_vnums.begin(); it != (*i)->mob_vnums.end(); ++it)
 			log("ShopExt: mob=%d",*it);
-		log("ShopExt: currency=%s", (*i)->currency);
+		log("ShopExt: currency=%s", (*i)->currency.c_str());
 		for (ItemListType::iterator k = (*i)->item_list.begin(); k != (*i)->item_list.end(); ++k)
 		{
 			log("ItemList: vnum=%d, price=%d", GET_OBJ_VNUM(obj_proto[(*k)->rnum]), (*k)->price);
@@ -195,7 +195,7 @@ void load()
 			if (mob_vnum < 0)
 			{
 				snprintf(buf, MAX_STRING_LENGTH,
-					"...bad shop attributes (mob_vnum=%s)", mob_vnum, shop_id);
+					"...bad shop attributes (mob_vnum=%d shop id=%s)", mob_vnum, shop_id.c_str());
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
 			}
@@ -261,7 +261,7 @@ void load()
 						int item_rnum = real_object((*it)->item_list[i].item_vnum);
 						if (item_rnum < 0)
 						{
-							snprintf(buf, MAX_STRING_LENGTH, "...incorrect item_vnum=%d in item_set=%s", (*it)->item_list[i].item_vnum, (*it)->_id.c_str());
+							snprintf(buf, MAX_STRING_LENGTH, "...incorrect item_vnum=%l in item_set=%s", (*it)->item_list[i].item_vnum, (*it)->_id.c_str());
 							mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 							return;
 						}
@@ -277,7 +277,7 @@ void load()
 		}
 		if (tmp_shop->item_list.empty())
 		{
-			snprintf(buf, MAX_STRING_LENGTH, "...item list empty (shop_id=%s)", shop_id);
+			snprintf(buf, MAX_STRING_LENGTH, "...item list empty (shop_id=%s)", shop_id.c_str());
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return;
 		}
@@ -400,7 +400,7 @@ void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 
 void remove_from_waste(ShopListType::const_iterator &shop, OBJ_DATA *obj)
 {
-	std::list<OBJ_DATA *>::const_iterator it;
+	std::list<OBJ_DATA *>::iterator it;
 	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end(); ++it)
 	{
 		if ((*it) == obj)
