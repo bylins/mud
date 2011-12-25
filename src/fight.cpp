@@ -2113,6 +2113,24 @@ int calculate_noparryhit_dmg(CHAR_DATA * ch, OBJ_DATA * wielded)
 	return static_cast<int>((skill_mod + GET_REMORT(ch) * 3) * weap_mod * level_mod);
 }
 
+void might_hit_bash(CHAR_DATA *ch, CHAR_DATA *victim)
+{
+	if (MOB_FLAGGED(victim, MOB_NOBASH) || !GET_MOB_HOLD(victim))
+	{
+		return;
+	}
+
+	act("$n обреченно повалил$u на землю.", TRUE, victim, 0, 0, TO_ROOM);
+	WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
+
+	if (GET_POS(victim) > POS_SITTING)
+	{
+		GET_POS(victim) = POS_SITTING;
+		send_to_char(victim, "%sБогатырский удар %s сбил Вас с ног.%s\r\n",
+				CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
+	}
+}
+
 int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_DATA * wielded, int mayflee)
 {
 	if (!ch || ch->purged() || !victim || victim->purged())
@@ -2143,7 +2161,9 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 			percent = number(1, skill_info[SKILL_MIGHTHIT].max_percent);
 			prob = train_skill(ch, SKILL_MIGHTHIT, skill_info[SKILL_MIGHTHIT].max_percent, victim);
 			if (GET_MOB_HOLD(victim))
+			{
 				prob = MAX(prob, percent);
+			}
 			if (IS_IMMORTAL(victim))
 				prob = 0;
 			if (prob * 100 / percent < 100 || dam == 0)
@@ -2173,6 +2193,10 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 						CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
 				send_to_char(buf, victim);
 				act("$N содрогнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT);
+				if (!number(0, 2))
+				{
+					might_hit_bash(ch, victim);
+				}
 			}
 			else if (prob * 100 / percent < 400)
 			{
@@ -2194,6 +2218,10 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 						CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
 				send_to_char(buf, victim);
 				act("$N пошатнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT);
+				if (!number(0, 1))
+				{
+					might_hit_bash(ch, victim);
+				}
 			}
 			else
 			{
@@ -2214,6 +2242,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 						CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
 				send_to_char(buf, victim);
 				act("$N зашатал$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT);
+				might_hit_bash(ch, victim);
 			}
 			if (!WAITLESS(ch))
 				WAIT_STATE(ch, lag * PULSE_VIOLENCE);
@@ -4456,17 +4485,17 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	{
 		if (AFF_FLAGGED(ch, AFF_STONEHAND))
 		{
-			if (GET_CLASS(ch) == CLASS_WARRIOR)
-				dam += number(5, 10 + GET_LEVEL(ch) / 5);
-			else
-				dam += number(5, 10);
+			dam += number(5, 10);
 		}
-		else if (!IS_NPC(ch))
+		else
 		{
-			if (GET_CLASS(ch) == CLASS_WARRIOR)
-				dam += number(1, 3 + GET_LEVEL(ch) / 5);
-			else
-				dam += number(1, 3);
+			dam += number(1, 3);
+		}
+
+		if (GET_CLASS(ch) == CLASS_WARRIOR)
+		{
+			dam += GET_LEVEL(ch) / 5;
+			dam += MAX(0, GET_REAL_STR(ch) - 25);
 		}
 		// Мультипликатор повреждений без оружия и в перчатках (линейная интерполяция)
 		// <вес перчаток> <увеличение>

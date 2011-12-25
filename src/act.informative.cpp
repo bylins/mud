@@ -2110,6 +2110,20 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 				strcat(buf, "нет слотов\r\n");
 			sprintf(buf+strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
 		}
+
+		if (GET_CLASS(ch) == CLASS_WARRIOR)
+		{
+			sprintf(buf+strlen(buf), "Слоты для инкрустации : %s", CCCYN(ch, C_NRM));
+			if (OBJ_FLAGGED(obj, ITEM_3INLAID))
+				strcat(buf, "доступно 3 слота\r\n");
+			else if (OBJ_FLAGGED(obj, ITEM_2INLAID))
+				strcat(buf, "доступно 2 слота\r\n");
+			else if (OBJ_FLAGGED(obj, ITEM_1INLAID))
+				strcat(buf, "доступен 1 слот\r\n");
+			else
+				strcat(buf, "нет слотов\r\n");
+			sprintf(buf+strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
+		}
 }
 /*
  * Given the argument "look at <target>", figure out what object or char
@@ -2736,6 +2750,7 @@ ACMD(do_score)
 			modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)) : 0));
 			modi = MAX(100, modi);
 			max_dam += modi * max_dam / 50;
+			max_dam += MAX(0, GET_REAL_STR(ch) - 25);
 		}
 		else
 			max_dam += 6 + 2 * GET_LEVEL(ch) / 3;
@@ -3210,11 +3225,11 @@ ACMD(do_score)
 					(string(FREEZE_REASON(ch) ? FREEZE_REASON(ch) : "-") + string("].")).substr(0, 79).c_str(),
 					CCCYN(ch, C_NRM));
 		}
-		
+
 		if (ch->is_morphed())
 		{
 			sprintf(buf + strlen(buf),
-				" || %sВы находитесь в звериной форме - %-47s%s||\r\n", 
+				" || %sВы находитесь в звериной форме - %-47s%s||\r\n",
 				CCYEL(ch, C_NRM),
 				ch->get_morph_desc().substr(0, 47).c_str(),
 				CCCYN(ch, C_NRM));
@@ -5608,7 +5623,7 @@ ACMD(do_affects)
 		}
 	}
 	if (ch->is_morphed())
-	{	
+	{
 		*buf2 = '\0';
 		send_to_char("Автоаффекты звериной формы: " , ch);
 		std::vector<long> affs = ch->GetMorphAffects();

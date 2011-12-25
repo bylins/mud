@@ -399,6 +399,8 @@ ACMD(do_bandage);
 ACMD(do_sanitize);
 ACMD(do_morph);
 ACMD(do_morphset);
+ACMD(do_inlay);
+
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -526,6 +528,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"вскочить", POS_FIGHTING, do_horseon, 0, 0, 500},
 	{"встать", POS_RESTING, do_stand, 0, 0, 500},
 	{"вспомнить", POS_DEAD, do_remember_char, 0, 0, 0},
+	{"вставить", POS_RESTING, do_inlay, 0, 0, 0},
 	{"выбросить", POS_RESTING, do_drop, 0, 0 /*SCMD_DONATE */ , 300},
 	{"выследить", POS_STANDING, do_track, 0, 0, 500},
 	{"вылить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
@@ -1749,7 +1752,7 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 			}
 
 	/* special in mobile present? */
-//Polud чтобы продавцы не мешали друг другу в одной комнате, предусмотрим возможность различать их по номеру 
+//Polud чтобы продавцы не мешали друг другу в одной комнате, предусмотрим возможность различать их по номеру
 	int specialNum = 1; //если номер не указан - по умолчанию берется первый
 	for (k = world[ch->in_room]->people; k; k = k->next_in_room)
 		if (GET_MOB_SPEC(k) != NULL && fnum == specialNum++)

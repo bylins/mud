@@ -3635,9 +3635,6 @@ ACMD(do_insertgem)
 		{
 			REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH1SLOT), ITEM_WITH1SLOT);
 		}
-
-
-
 	}
 	extract_obj(gemobj);
 }
@@ -3710,4 +3707,155 @@ ACMD(do_bandage)
 		send_to_char("Очередная пачка бинтов подошла к концу.\r\n", ch);
 		extract_obj(bandage);
 	}
+}
+
+/**
+ * Инкрустация ("вставить <камень> <вещь> <аффект (вывод списка, если пустой)>")
+ */
+ACMD(do_inlay)
+{
+	if (IS_NPC(ch))
+	{
+		return;
+	}
+	if (GET_CLASS(ch) != CLASS_WARRIOR)
+	{
+		send_to_char("Чаво ?\r\n", ch);
+		return;
+	}
+
+	char arg1[MAX_INPUT_LENGTH];
+	char arg2[MAX_INPUT_LENGTH];
+	char arg3[MAX_INPUT_LENGTH];
+	char *gem, *item;
+	OBJ_DATA *gemobj, *itemobj;
+
+	argument = two_arguments(argument, arg1, arg2);
+
+	if (!*arg1)
+	{
+		send_to_char("Вставить что?\r\n", ch);
+		return;
+	}
+	gem = arg1;
+
+	if (!(gemobj = get_obj_in_list_vis(ch, gem, ch->carrying)))
+	{
+		sprintf(buf, "У Вас нет '%s'.\r\n", gem);
+		send_to_char(buf, ch);
+		return;
+	}
+
+	if (!is_dig_stone(gemobj))
+	{
+		sprintf(buf, "Вы не умеете вставлять %s.\r\n", gemobj->PNames[3]);
+		send_to_char(buf, ch);
+		return;
+	}
+
+	if (!*arg2)
+	{
+		send_to_char("Вставить во что?\r\n", ch);
+		return;
+	}
+	item = arg2;
+
+	if (!(itemobj = get_obj_in_list_vis(ch, item, ch->carrying)))
+	{
+		sprintf(buf, "У Вас нет '%s'.\r\n", item);
+		send_to_char(buf, ch);
+		return;
+	}
+
+	if (!OBJ_FLAGGED(itemobj, ITEM_1INLAID)
+		&& !OBJ_FLAGGED(itemobj, ITEM_2INLAID)
+		&& !OBJ_FLAGGED(itemobj, ITEM_3INLAID))
+	{
+		send_to_char("Вы не видите куда здесь можно вставить камень.\r\n", ch);
+		return;
+	}
+
+	if (!WAITLESS(ch) && on_horse(ch))
+	{
+		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
+		return;
+	}
+
+	if (AFF_FLAGGED(ch, AFF_BLIND))
+	{
+		send_to_char("Вы слепы!\r\n", ch);
+		return;
+	}
+
+	if (IS_DARK(IN_ROOM(ch)) && !CAN_SEE_IN_DARK(ch) && !IS_IMMORTAL(ch))
+	{
+		send_to_char("Да тут темно хоть глаза выколи...\r\n", ch);
+		return;
+	}
+
+	argument = one_argument(argument, arg3);
+
+	if (!*arg || !iwg.exist(GET_OBJ_VNUM(gemobj), std::string(arg3)))
+	{
+		iwg.show(ch, GET_OBJ_VNUM(gemobj));
+		return;
+	}
+
+	send_to_char(ch, "Вы вставили %s в %s!\r\n", gemobj->PNames[3], itemobj->PNames[3]);
+	sprintf(buf, "$n вставил$g %s в %s.\r\n", gemobj->PNames[3], itemobj->PNames[3]);
+	act(buf, FALSE, ch, 0, 0, TO_ROOM);
+
+	if (GET_OBJ_MATER(gemobj) == MAT_DIAMOND && *arg3)
+	{
+		string str(arg3);
+		int tmp_type = iwg.get_type(GET_OBJ_VNUM(gemobj), str);
+		int tmp_bit = iwg.get_bit(GET_OBJ_VNUM(gemobj), str);
+		int tmp_qty = iwg.get_qty(GET_OBJ_VNUM(gemobj), str);
+
+		switch (tmp_type)
+		{
+		case 1:
+			set_obj_eff(itemobj, tmp_bit, tmp_qty);
+			break;
+		case 2:
+			set_obj_aff(itemobj, tmp_bit);
+			break;
+		case 3:
+			SET_BIT(GET_OBJ_EXTRA(itemobj, tmp_bit), tmp_bit);
+			break;
+		default:
+			break;
+		};
+	}
+
+	if (OBJ_FLAGGED(itemobj, ITEM_3INLAID))
+	{
+		REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_3INLAID), ITEM_3INLAID);
+		SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_2INLAID), ITEM_2INLAID);
+	}
+	else if (OBJ_FLAGGED(itemobj, ITEM_2INLAID))
+	{
+		REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_2INLAID), ITEM_2INLAID);
+		SET_BIT(GET_OBJ_EXTRA(itemobj, ITEM_1INLAID), ITEM_1INLAID);
+	}
+	else if (OBJ_FLAGGED(itemobj, ITEM_1INLAID))
+	{
+		REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_1INLAID), ITEM_1INLAID);
+	}
+
+	SET_BIT(GET_FLAG(GET_OBJ_NO(itemobj), ITEM_NO_CLERIC), ITEM_NO_CLERIC);
+	SET_BIT(GET_FLAG(GET_OBJ_NO(itemobj), ITEM_NO_THIEF), ITEM_NO_THIEF);
+	SET_BIT(GET_FLAG(GET_OBJ_NO(itemobj), ITEM_NO_ASSASINE), ITEM_NO_ASSASINE);
+	SET_BIT(GET_FLAG(GET_OBJ_NO(itemobj), ITEM_NO_GUARD), ITEM_NO_GUARD);
+	SET_BIT(GET_FLAG(GET_OBJ_NO(itemobj), ITEM_NO_PALADINE), ITEM_NO_PALADINE);
+	SET_BIT(GET_FLAG(GET_OBJ_NO(itemobj), ITEM_NO_RANGER), ITEM_NO_RANGER);
+	SET_BIT(GET_FLAG(GET_OBJ_NO(itemobj), ITEM_NO_SMITH), ITEM_NO_SMITH);
+	SET_BIT(GET_FLAG(GET_OBJ_NO(itemobj), ITEM_NO_MERCHANT), ITEM_NO_MERCHANT);
+	SET_BIT(GET_FLAG(GET_OBJ_NO(itemobj), ITEM_NO_DRUID), ITEM_NO_DRUID);
+	SET_BIT(GET_FLAG(GET_OBJ_NO(itemobj), ITEM_NO_BATTLEMAGE), ITEM_NO_BATTLEMAGE);
+	SET_BIT(GET_FLAG(GET_OBJ_NO(itemobj), ITEM_NO_CHARMMAGE), ITEM_NO_CHARMMAGE);
+	SET_BIT(GET_FLAG(GET_OBJ_NO(itemobj), ITEM_NO_DEFENDERMAGE), ITEM_NO_DEFENDERMAGE);
+	SET_BIT(GET_FLAG(GET_OBJ_NO(itemobj), ITEM_NO_NECROMANCER), ITEM_NO_NECROMANCER);
+
+	extract_obj(gemobj);
 }

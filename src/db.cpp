@@ -1514,6 +1514,51 @@ bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict)
 }
 ////////////////////////////////////////////////////////////////////////////////
 
+namespace {
+
+void set_obj_slots(OBJ_DATA *obj)
+{
+	const int zone_num = GET_OBJ_VNUM(obj)/100;
+	for (int nr = 0; nr <= top_of_zone_table; nr++)
+	{
+		if (zone_table[nr].number == zone_num)
+		{
+			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_1INLAID), ITEM_1INLAID);
+			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_2INLAID), ITEM_2INLAID);
+			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_3INLAID), ITEM_3INLAID);
+			if (zone_table[nr].mob_level >= 15 && zone_table[nr].mob_level < 25)
+			{
+				SET_BIT(GET_OBJ_EXTRA(obj, ITEM_1INLAID), ITEM_1INLAID);
+			}
+			if (zone_table[nr].mob_level >= 25 && zone_table[nr].mob_level < 35)
+			{
+				SET_BIT(GET_OBJ_EXTRA(obj, ITEM_2INLAID), ITEM_2INLAID);
+			}
+			else if (zone_table[nr].mob_level >= 35)
+			{
+				SET_BIT(GET_OBJ_EXTRA(obj, ITEM_3INLAID), ITEM_3INLAID);
+			}
+			break;
+		}
+	}
+}
+
+/**
+ * Сет прототипам перчаток слотов инкрустации для богатырей (кол-во слотов - от уровня мобов в зоне).
+ */
+void init_obj_slots()
+{
+	for (std::vector <OBJ_DATA *>::iterator i = obj_proto.begin(), iend = obj_proto.end(); i != iend; ++i)
+	{
+		if (CAN_WEAR(*i, ITEM_WEAR_HANDS))
+		{
+			set_obj_slots(*i);
+		}
+	}
+}
+
+} // namespace
+
 /* body of the booting system */
 void boot_db(void)
 {
@@ -1735,6 +1780,9 @@ void boot_db(void)
 
 	log("Set zone average mob_level");
 	set_zone_mob_level();
+
+	log("Set hands slots by average mob_level");
+	init_obj_slots();
 
 //	log("Init stop list for snoop.");
 //	init_snoop_stop_list();
@@ -6288,7 +6336,7 @@ ACMD(do_remort)
 
 	act(remort_msg2, FALSE, ch, 0, 0, TO_ROOM);
 
-	if (ch->is_morphed()) ch->reset_morph(); 
+	if (ch->is_morphed()) ch->reset_morph();
 	ch->set_remort(ch->get_remort() + 1);
 	CLR_GOD_FLAG(ch, GF_REMORT);
 	ch->inc_str(1);
@@ -7075,7 +7123,7 @@ void load_guardians()
 	}
 
 	pugi::xml_node xMainNode = doc.child("guardians");
-	
+
 	if (!xMainNode)
 	{
 		snprintf(buf, MAX_STRING_LENGTH, "...guards.xml read fail");
@@ -7086,7 +7134,7 @@ void load_guardians()
 	guardian_list.clear();
 
 	int num_wars_global = atoi(xMainNode.child_value("wars"));
-	
+
 	struct mob_guardian tmp_guard;
 	for (pugi::xml_node xNodeGuard = xMainNode.child("guard");xNodeGuard; xNodeGuard = xNodeGuard.next_sibling("guard"))
 	{
@@ -7145,14 +7193,14 @@ void load_mobraces()
 	}
 
 	pugi::xml_node node_list = doc.child("mobraces");
-	
+
 	if (!node_list)
 	{
 		snprintf(buf, MAX_STRING_LENGTH, "...mobraces read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
-	
+
 	for (pugi::xml_node  race = node_list.child("mobrace");race; race = race.next_sibling("mobrace"))
 	{
 		MobRacePtr tmp_mobrace(new MobRace);
