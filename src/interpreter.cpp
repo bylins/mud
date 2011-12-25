@@ -1755,12 +1755,16 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 //Polud чтобы продавцы не мешали друг другу в одной комнате, предусмотрим возможность различать их по номеру
 	int specialNum = 1; //если номер не указан - по умолчанию берется первый
 	for (k = world[ch->in_room]->people; k; k = k->next_in_room)
-		if (GET_MOB_SPEC(k) != NULL && fnum == specialNum++)
+	{
+		if (GET_MOB_SPEC(k) != NULL && (fnum == 1 || fnum == specialNum++))
+		{
 			if (GET_MOB_SPEC(k)(ch, k, cmd, arg))
 			{
 				check_hiding_cmd(ch, -1);
 				return (1);
 			}
+		}
+	}
 
 	/* special in object present? */
 	for (i = world[ch->in_room]->contents; i; i = i->next_content)
