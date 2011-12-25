@@ -1550,7 +1550,7 @@ void init_obj_slots()
 {
 	for (std::vector <OBJ_DATA *>::iterator i = obj_proto.begin(), iend = obj_proto.end(); i != iend; ++i)
 	{
-		if (CAN_WEAR(*i, ITEM_WEAR_HANDS))
+		if (CAN_WEAR(*i, ITEM_WEAR_HANDS) && !OBJ_FLAGGED(*i, ITEM_SETSTUFF))
 		{
 			set_obj_slots(*i);
 		}
