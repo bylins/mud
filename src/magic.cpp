@@ -3752,7 +3752,7 @@ const char *mag_summon_fail_msgs[] =
 
 int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int savetype)
 {
-	CHAR_DATA *mob = NULL;
+	CHAR_DATA *tmp_mob, *mob = NULL;
 	OBJ_DATA *tobj, *next_obj;
 	AFFECT_DATA af;
 	struct follow_type *k;
@@ -3806,7 +3806,9 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		else
 		{
 			const int real_mob_num = real_mobile(mob_num);
-			pfail = 10 + (mob_proto + real_mob_num)->get_con() * 2
+			tmp_mob = (mob_proto + real_mob_num);
+			tmp_mob->set_normal_morph();
+			pfail = 10 + tmp_mob->get_con() * 2
 				- number(1, GET_LEVEL(ch)) - GET_CAST_SUCCESS(ch) - GET_REMORT(ch) * 5;
 
 
@@ -3864,7 +3866,11 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		handle_corpse = TRUE;
 		msg = 11;
 		fmsg = number(2, 6);
-		pfail = 10 + (mob_proto + real_mobile(mob_num))->get_con() * 2
+		
+		tmp_mob = mob_proto + real_mobile(mob_num);
+		tmp_mob->set_normal_morph();
+
+		pfail = 10 + tmp_mob->get_con() * 2
 			- number(1, GET_LEVEL(ch)) - GET_CAST_SUCCESS(ch) - GET_REMORT(ch) * 5;
 		break;
 
