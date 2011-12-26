@@ -1356,10 +1356,10 @@ inline void heartbeat()
 	}
 
 //Polud организуем зачистку после праздника
-	if (!((pulse+39) % (Celebrates::CLEAN_PERIOD * 60 * PASSES_PER_SEC)))
-	{
-		Celebrates::sanitize();
-	}
+//	if (!((pulse+39) % (Celebrates::CLEAN_PERIOD * 60 * PASSES_PER_SEC)))
+//	{
+//		Celebrates::sanitize();
+//	}
 // раз в 5 минут >> ////////////////////////////////////////////////////////////
 
 	if (!((pulse + 36) % (5 * 60 * PASSES_PER_SEC)))
