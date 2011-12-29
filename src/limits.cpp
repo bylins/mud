@@ -1239,6 +1239,44 @@ void clan_chest_point_update(OBJ_DATA *j)
 	}
 }
 
+/* симуляция телла чармиса при дикее стафа по таймеру */
+/* параметр where определяет положение вещи:
+   0: руки или инвентарь
+   1: экипа
+   2: контейнер
+*/
+void charmee_obj_decay_tell(CHAR_DATA *charmee, OBJ_DATA *obj, int where)
+{
+	char buf[MAX_STRING_LENGTH];
+	char buf1[128]; /* ну не лепить же сюда malloc */
+
+	if (!charmee->master)
+		return;
+
+	if (where == 0)
+		sprintf(buf1, "в Ваших руках");
+	else if (where == 1)
+		sprintf(buf1, "прямо на Вас");
+	else if (where == 2 && obj->in_obj)
+		snprintf(buf1, 128, "в %s", obj->in_obj->PNames[5]);
+	else
+		sprintf(buf1, "непонятно где"); /* для дебага -- сюда выполнение доходить не должно */
+
+	/*
+	   реализация телла не самая красивая, но ничего более подходящего придумать не удается:
+	   через do_tell чармисы телять не могут, а если это будет выглядеть не как телл,
+	   то в игре будет выглядеть неестественно.
+	   короче, рефакторинг приветствуется, если кто-нибудь придумает лучше.
+	*/
+	snprintf(buf, MAX_STRING_LENGTH, "%s сказал%s Вам : '%s рассыпал%s %s...'",
+	         GET_NAME(charmee),
+	         GET_CH_SUF_1(charmee),
+	         CAP(OBJ_PAD(obj, 0)),
+	         GET_OBJ_SUF_2(obj),
+	         buf1);
+	send_to_char(charmee->master, "%s%s%s\r\n", CCICYN(charmee->master, C_NRM), CAP(buf), CCNRM(charmee->master, C_NRM));
+}
+
 void obj_point_update()
 {
 	OBJ_DATA *j, *next_thing, *jj, *next_thing2;
@@ -1371,7 +1409,7 @@ void obj_point_update()
 					|| (j->get_timer() <= 0 && !NO_TIMER(j))
 					|| (GET_OBJ_DESTROY(j) == 0 && !NO_DESTROY(j))))
 			{
-				/**** рассыпание обьекта */
+				/**** рассыпание объекта */
 				for (jj = j->contains; jj; jj = next_thing2)
 				{
 					next_thing2 = jj->next_content;
@@ -1404,17 +1442,26 @@ void obj_point_update()
 					case WEAR_WIELD:
 					case WEAR_HOLD:
 					case WEAR_BOTHS:
-						act("$o рассыпал$U в Ваших руках...", FALSE, j->worn_by, j, 0, TO_CHAR);
+						if (IS_CHARMICE(j->worn_by))
+							charmee_obj_decay_tell(j->worn_by, j, 0);
+						else
+							act("$o рассыпал$U в Ваших руках...", FALSE, j->worn_by, j, 0, TO_CHAR);
 						break;
 					default:
-						act("$o рассыпал$U прямо на Вас...", FALSE, j->worn_by, j, 0, TO_CHAR);
+						if (IS_CHARMICE(j->worn_by))
+							charmee_obj_decay_tell(j->worn_by, j, 1);
+						else
+							act("$o рассыпал$U прямо на Вас...", FALSE, j->worn_by, j, 0, TO_CHAR);
 						break;
 					}
 					unequip_char(j->worn_by, j->worn_on);
 				}
 				else if (j->carried_by)
 				{
-					act("$o рассыпал$U в Ваших руках...", FALSE, j->carried_by, j, 0, TO_CHAR);
+					if (IS_CHARMICE(j->carried_by))
+						charmee_obj_decay_tell(j->carried_by, j, 0);
+					else
+						act("$o рассыпал$U в Ваших руках...", FALSE, j->carried_by, j, 0, TO_CHAR);
 					obj_from_char(j);
 				}
 				else if (j->in_room != NOWHERE)
@@ -1428,8 +1475,27 @@ void obj_point_update()
 					}
 					obj_from_room(j);
 				}
-				else if (j->in_obj)
+				else if (j->in_obj) {
+					/* если сыпется в находящемся у чара или чармиса контейнере, то об этом тоже сообщаем */
+					CHAR_DATA *cont_owner = NULL;
+					if (j->in_obj->carried_by)
+						cont_owner = j->in_obj->carried_by;
+					else if (j->in_obj->worn_by)
+						cont_owner = j->in_obj->worn_by;
+
+					if (cont_owner)
+					{
+						if (IS_CHARMICE(cont_owner))
+							charmee_obj_decay_tell(cont_owner, j, 2);
+						else
+						{
+							char buf[MAX_STRING_LENGTH];
+							snprintf(buf, MAX_STRING_LENGTH, "$o рассыпал$U в %s...", j->in_obj->PNames[5]);
+							act(buf, FALSE, cont_owner, j, 0, TO_CHAR);
+						}
+					}
 					obj_from_obj(j);
+				}
 				extract_obj(j);
 			}
 			else

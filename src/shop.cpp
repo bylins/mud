@@ -499,10 +499,14 @@ int shop_producing(OBJ_DATA * item, int shop_nr)
 			return (TRUE);
 		}
 	}
+	/* предположительно есть проблема такого плана: какой-то уник стаф
+		с проставленным полем овнера суется продавцу в инвентарь и дальше
+		будет анлим на продажу
 	if (GET_OBJ_OWNER(item) != 0)
 	{
 		return (TRUE);
 	}
+	*/
 	return (FALSE);
 }
 
