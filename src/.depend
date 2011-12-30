@@ -285,7 +285,7 @@ top.o: top.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
 stuff.o: stuff.cpp conf.h sysdep.h structs.h comm.h db.h pugixml.hpp \
  pugiconfig.hpp handler.h utils.h features.hpp obj.hpp dg_scripts.h \
  stuff.hpp double_map.hpp char.hpp player_i.hpp morph.hpp room.hpp \
- corpse.hpp screen.h
+ corpse.hpp screen.h skills.h
 description.o: description.cpp conf.h sysdep.h structs.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp description.h
 deathtrap.o: deathtrap.cpp conf.h deathtrap.hpp sysdep.h structs.h \
