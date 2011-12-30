@@ -3561,7 +3561,7 @@ ACMD(do_learn)
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = skill_info[spellnum].name;
 	}
-	else if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && ch->get_skill(GET_OBJ_VAL(obj, 1)))
+	else if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && ch->get_trained_skill(GET_OBJ_VAL(obj, 1)))
 	{
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = skill_info[spellnum].name;
@@ -3627,7 +3627,7 @@ ACMD(do_learn)
 			GET_OBJ_VAL(obj, 0) != BOOK_RECPT) ||
 			((GET_OBJ_VAL(obj, 0) == BOOK_SKILL || GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) &&
 			 skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] != KNOW_SKILL) ||
-			(GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && !ch->get_skill(GET_OBJ_VAL(obj, 1))) ||
+			(GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && !ch->get_trained_skill(GET_OBJ_VAL(obj, 1))) ||
 			(GET_OBJ_VAL(obj, 0) == BOOK_SPELL &&
 			 (MIN_CAST_LEV(SpINFO, ch) > GET_LEVEL(ch) || MIN_CAST_REM(SpINFO, ch) > GET_REMORT(ch) ||
 			  slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)) ||

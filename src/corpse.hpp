@@ -22,7 +22,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *ch);
 // период сохранения временного файла с мобами (в минутах)
 const int SAVE_PERIOD = 10;
 // для генерации книги улучшения умения
-const int BOOK_UPRGD_VNUM = 1920;
+const int BOOK_UPGRD_VNUM = 1920;
 
 } // namespace GlobalDrop
 

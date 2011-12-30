@@ -201,7 +201,7 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 			send_to_char(tch, "%sДиво дивное, чудо чудное!%s\r\n",
 					CCGRN(tch, C_NRM), CCNRM(tch, C_NRM));
 		}
-		if (GET_OBJ_VNUM(o) == GlobalDrop::BOOK_UPRGD_VNUM)
+		if (GET_OBJ_VNUM(o) == GlobalDrop::BOOK_UPGRD_VNUM)
 		{
 			generate_book_upgrd(o);
 		}
