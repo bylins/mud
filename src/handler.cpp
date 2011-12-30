@@ -1294,7 +1294,8 @@ bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 			|| (GET_OBJ_TYPE(obj_one) == ITEM_CONTAINER && (obj_one->contains || obj_two->contains))
 			|| GET_OBJ_VNUM(obj_two) == -1
 			|| (GET_OBJ_TYPE(obj_one) == ITEM_MING && strcmp(obj_one->short_description, obj_two->short_description))
-			|| (GET_OBJ_TYPE(obj_one) == ITEM_MATERIAL && strcmp(obj_one->short_description, obj_two->short_description)))
+			|| (GET_OBJ_TYPE(obj_one) == ITEM_MATERIAL && strcmp(obj_one->short_description, obj_two->short_description))
+			|| (GET_OBJ_TYPE(obj_one) == ITEM_BOOK && GET_OBJ_VAL(obj_one, 1) != GET_OBJ_VAL(obj_two, 1)))
 	{
 		return 0;
 	}

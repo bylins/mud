@@ -3435,6 +3435,15 @@ ACMD(do_create)
 	}
 }
 
+void book_upgrd_fail_message(CHAR_DATA *ch, OBJ_DATA *obj)
+{
+	send_to_char(ch,
+			"Изучив %s от корки до корки Вы так и не узнали ничего нового.\r\n",
+			obj->PNames[3]);
+	act("$n с интересом принял$g читать $o3.\r\n"
+			"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
+			FALSE, ch, obj, 0, TO_ROOM);
+}
 
 // +newbook.patch (Alisher)
 
@@ -3597,15 +3606,20 @@ ACMD(do_learn)
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && ch->get_skill(spellnum) >= GET_OBJ_VAL(obj, 3))
+	if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD)
 	{
-		sprintf(buf, "Изучив %s от корки до корки Вы так и не узнали ничего нового.\r\n",
-				obj->PNames[3]);
-		send_to_char(buf, ch);
-		act("$n с интересом принял$g читать $o3.\r\n"
-			"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
-			FALSE, ch, obj, 0, TO_ROOM);
-		return;
+		// апгрейд скилла без учета макс.скилла плеера (до макс в книге)
+		if (GET_OBJ_VAL(obj, 3) > 0 && ch->get_trained_skill(spellnum) >= GET_OBJ_VAL(obj, 3))
+		{
+			book_upgrd_fail_message(ch, obj);
+			return;
+		}
+		// апгрейд скилла до макс.скилла плеера (без макса в книге)
+		if (GET_OBJ_VAL(obj, 3) <= 0 && ch->get_trained_skill(spellnum) >= MAX_EXP_PERCENT + GET_REMORT(ch) * 5)
+		{
+			book_upgrd_fail_message(ch, obj);
+			return;
+		}
 	}
 
 	if ((GET_OBJ_VAL(obj, 2) > GET_LEVEL(ch) && GET_OBJ_VAL(obj, 0) != BOOK_UPGRD &&
@@ -3677,7 +3691,18 @@ ACMD(do_learn)
 			ch->set_skill(spellnum, 1);
 			break;
 		case BOOK_UPGRD:
-			ch->set_skill(spellnum, (MIN(ch->get_skill(spellnum) + GET_OBJ_VAL(obj, 2), GET_OBJ_VAL(obj, 3))));
+			if (GET_OBJ_VAL(obj, 3) > 0)
+			{
+				ch->set_skill(spellnum,
+						MIN(ch->get_trained_skill(spellnum) + GET_OBJ_VAL(obj, 2),
+								GET_OBJ_VAL(obj, 3)));
+			}
+			else
+			{
+				ch->set_skill(spellnum,
+						MIN(ch->get_trained_skill(spellnum) + GET_OBJ_VAL(obj, 2),
+								MAX_EXP_PERCENT + GET_REMORT(ch) * 5));
+			}
 			break;
 		case BOOK_RECPT:
 			CREATE(rs, im_rskill, 1);

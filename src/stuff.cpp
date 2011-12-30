@@ -7,6 +7,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include <boost/array.hpp>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -20,6 +21,9 @@
 #include "room.hpp"
 #include "corpse.hpp"
 #include "screen.h"
+#include "skills.h"
+
+extern const char *skill_name(int num);
 
 void oload_class::init()
 {
@@ -121,6 +125,57 @@ obj_rnum ornum_by_info(const std::pair<obj_vnum, obj_load_info>& it)
 	return resutl_obj;
 }
 
+void generate_book_upgrd(OBJ_DATA *obj)
+{
+	const int skills_count = 10;
+	boost::array<int, skills_count> skill_list = { {
+			SKILL_BACKSTAB, SKILL_PUNCTUAL, SKILL_BASH, SKILL_MIGHTHIT,
+			SKILL_STUPOR, SKILL_ADDSHOT, SKILL_AWAKE, SKILL_NOPARRYHIT,
+			SKILL_IRON_WIND, SKILL_WARCRY} };
+
+	GET_OBJ_VAL(obj, 1) = skill_list[number(0, skills_count - 1)];
+	std::string book_name = skill_name(GET_OBJ_VAL(obj, 1));
+
+	if (obj->name
+		&& (GET_OBJ_RNUM(obj) < 0 || obj->name != obj_proto[GET_OBJ_RNUM(obj)]->name))
+	{
+		free(obj->name);
+	}
+	obj->name = str_dup(("книга секретов умения: " + book_name).c_str());
+
+	if (obj->short_description
+		&& (GET_OBJ_RNUM(obj) < 0
+			|| obj->short_description != obj_proto[GET_OBJ_RNUM(obj)]->short_description))
+	{
+		free(obj->short_description);
+	}
+	obj->short_description = str_dup(("книга секретов умения: " + book_name).c_str());
+
+	if (obj->description
+		&& (GET_OBJ_RNUM(obj) < 0
+			|| obj->description != obj_proto[GET_OBJ_RNUM(obj)]->description))
+	{
+		free(obj->description);
+	}
+	obj->description = str_dup(("Книга секретов умения: " + book_name + "лежит здесь.").c_str());
+
+	for (int i = 0; i < NUM_PADS; ++i)
+	{
+		if (GET_OBJ_PNAME(obj, i)
+			&& (GET_OBJ_RNUM(obj) < 0
+				|| GET_OBJ_PNAME(obj, i) != GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i)))
+		{
+			free(GET_OBJ_PNAME(obj, i));
+		}
+	}
+	GET_OBJ_PNAME(obj, 0) = str_dup(("книга секретов умения: " + book_name).c_str());
+	GET_OBJ_PNAME(obj, 1) = str_dup(("книги секретов умения: " + book_name).c_str());
+	GET_OBJ_PNAME(obj, 2) = str_dup(("книге секретов умения: " + book_name).c_str());
+	GET_OBJ_PNAME(obj, 3) = str_dup(("книгу секретов умения: " + book_name).c_str());
+	GET_OBJ_PNAME(obj, 4) = str_dup(("книгой секретов умения: " + book_name).c_str());
+	GET_OBJ_PNAME(obj, 5) = str_dup(("книге секретов умения: " + book_name).c_str());
+}
+
 /**
  * \param setload = true - лоад через систему дропа сетов
  *        setload = false - лоад через глобал дроп
@@ -146,7 +201,10 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 			send_to_char(tch, "%sДиво дивное, чудо чудное!%s\r\n",
 					CCGRN(tch, C_NRM), CCNRM(tch, C_NRM));
 		}
-//		act("Диво дивное, чудо чудное!", 0, ch, o, 0, TO_ROOM);
+		if (GET_OBJ_VNUM(o) == GlobalDrop::BOOK_UPRGD_VNUM)
+		{
+			generate_book_upgrd(o);
+		}
 	}
 
 	if (MOB_FLAGGED(ch, MOB_CORPSE))

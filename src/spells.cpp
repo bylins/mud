@@ -1271,6 +1271,27 @@ void show_weapon(CHAR_DATA * ch, OBJ_DATA * obj)
 	}
 }
 
+void print_book_uprgd_skill(CHAR_DATA *ch, const OBJ_DATA *obj)
+{
+	const int skill_num = GET_OBJ_VAL(obj, 1);
+	if (skill_num < 1 || skill_num >= MAX_SKILL_NUM)
+	{
+		log("SYSERR: invalid skill_num: %d, ch_name=%s, obj_vnum=%d (%s %s %d)",
+				skill_num, ch->get_name(), GET_OBJ_VNUM(obj),
+				__FILE__, __func__, __LINE__);
+		return;
+	}
+	if (GET_OBJ_VAL(obj, 3) > 0)
+	{
+		send_to_char(ch, "повышает умение \"%s\" (максимум %d)\r\n",
+				skill_info[skill_num].name, GET_OBJ_VAL(obj, 3));
+	}
+	else
+	{
+		send_to_char(ch, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)\r\n",
+				skill_info[skill_num].name);
+	}
+}
 
 void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 {
@@ -1423,12 +1444,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			}
 			break;
 		case BOOK_UPGRD:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SKILL_NUM)
-			{
-				drndice = GET_OBJ_VAL(obj, 1);
-				sprintf(buf, "повышает умение \"%s\"\r\n", skill_info[drndice].name);
-				send_to_char(buf, ch);
-			}
+			print_book_uprgd_skill(ch, obj);
 			break;
 		case BOOK_RECPT:
 			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
@@ -1791,12 +1807,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			}
 			break;
 		case BOOK_UPGRD:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SKILL_NUM)
-			{
-				drndice = GET_OBJ_VAL(obj, 1);
-				sprintf(buf, "повышает умение \"%s\"\r\n", skill_info[drndice].name);
-				send_to_char(buf, ch);
-			}
+			print_book_uprgd_skill(ch, obj);
 			break;
 		case BOOK_RECPT:
 			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));

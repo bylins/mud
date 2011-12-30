@@ -1128,7 +1128,10 @@ void oedit_disp_val4_menu(DESCRIPTOR_DATA * d)
 		switch (GET_OBJ_VAL(OLC_OBJ(d), 0))
 		{
 		case BOOK_UPGRD:
-			send_to_char("Максимальный % умения : ", d->character);
+			send_to_char("Максимальный % умения :\r\n"
+					"Если <= 0, то учитывается только макс. возможный навык игрока на данном реморте.\r\n"
+					"Если > 0, то учитывается только данное значение без учета макс. навыка игрока.\r\n"
+					, d->character);
 			break;
 		default:
 			OLC_VAL(d) = 1;
