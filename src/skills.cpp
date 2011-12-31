@@ -752,7 +752,7 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 			 && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ATRIUM) &&
 //
 			 (diff =
-				  wis_app[GET_REAL_WIS(ch)].max_learn_l20 * GET_LEVEL(ch) / 20 -
+				  wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20 -
 				  trained_skill) > 0
 			 && trained_skill < MAX_EXP_PERCENT + GET_REMORT(ch) * 5))
 	{
@@ -769,7 +769,7 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 
 		prob /= (MAX(1, div));
 
-		if ((diff = how_many - wis_app[GET_REAL_WIS(ch)].max_skills) < 0)
+		if ((diff = how_many - wis_bonus(GET_REAL_WIS(ch), WIS_MAX_SKILLS)) < 0)
 			prob += (5 * diff);
 		else
 			prob += (10 * diff);

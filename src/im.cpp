@@ -1306,7 +1306,7 @@ void im_improove_recipe(CHAR_DATA * ch, im_rskill * rs, int success)
 
 	if (IS_IMMORTAL(ch) ||
 			(IN_ROOM(ch) != NOWHERE &&
-			 (diff = wis_app[GET_REAL_WIS(ch)].max_learn_l20 *
+			 (diff = wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) *
 					 GET_LEVEL(ch) / 20 - rs->perc) > 0 && rs->perc < MAX_EXP_PERCENT + GET_REMORT(ch) * 5))
 	{
 		int n = ch->get_skills_count();
@@ -1316,7 +1316,7 @@ void im_improove_recipe(CHAR_DATA * ch, im_rskill * rs, int success)
 		div = int_app[GET_REAL_INT(ch)].improove;
 		div += imrecipes[rs->rid].k_improove / 100;
 		prob /= (MAX(1, div));
-		if ((diff = n - wis_app[GET_REAL_WIS(ch)].max_skills) < 0)
+		if ((diff = n - wis_bonus(GET_REAL_WIS(ch), WIS_MAX_SKILLS)) < 0)
 			prob += (5 * diff);
 		else
 			prob += (10 * diff);

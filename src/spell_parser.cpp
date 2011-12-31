@@ -2853,7 +2853,7 @@ int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int 
 	{
 	case SAVING_STABILITY:
 	case SAVING_NONE:
-		prob = int_app[GET_REAL_WIS(ch)].spell_success + GET_CAST_SUCCESS(ch);
+		prob = wis_bonus(GET_REAL_WIS(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);
 
 		if ((IS_MAGE(ch) && ch->in_room != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_MAGE))
 				|| (IS_CLERIC(ch) && IN_ROOM(ch) != NOWHERE && ROOM_FLAGGED(IN_ROOM(ch), ROOM_CLERIC))

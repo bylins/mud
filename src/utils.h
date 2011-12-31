@@ -532,12 +532,12 @@ extern SPECIAL(postmaster);
 #define GET_REAL_STR(ch) (MAX(1, ((ch)->get_str() + GET_STR_ADD(ch))))
 #define GET_DEX_ADD(ch) ((ch)->get_dex_add())
 #define GET_REAL_DEX(ch) (MAX(1, ((ch)->get_dex() + GET_DEX_ADD(ch))))
-#define GET_INT_ADD(ch) ((ch)->get_int_add())
-#define GET_REAL_INT(ch) (POSI(ch->get_int() + GET_INT_ADD(ch)))
-#define GET_WIS_ADD(ch) ((ch)->get_wis_add())
-#define GET_REAL_WIS(ch) (POSI(ch->get_wis() + GET_WIS_ADD(ch)))
 #define GET_CON_ADD(ch) ((ch)->get_con_add())
 #define GET_REAL_CON(ch) (MAX(1, ((ch)->get_con() + GET_CON_ADD(ch))))
+#define GET_WIS_ADD(ch) ((ch)->get_wis_add())
+#define GET_REAL_WIS(ch) (MAX(1, ((ch)->get_wis() + GET_WIS_ADD(ch))))
+#define GET_INT_ADD(ch) ((ch)->get_int_add())
+#define GET_REAL_INT(ch) (POSI(ch->get_int() + GET_INT_ADD(ch)))
 #define GET_CHA_ADD(ch) ((ch)->get_cha_add())
 #define GET_REAL_CHA(ch) (POSI(ch->get_cha() + GET_CHA_ADD(ch)))
 #define GET_SIZE(ch)    ((ch)->real_abils.size)
@@ -1434,10 +1434,13 @@ void kill_log(const char *format, ...);
 int xmlparse_int(pugi::xml_node &node, const char *text);
 
 enum { STR_TO_HIT, STR_TO_DAM, STR_CARRY_W, STR_WIELD_W, STR_HOLD_W };
+enum { WIS_MAX_LEARN_L20, WIS_SPELL_SUCCESS, WIS_MAX_SKILLS, WIS_FAILS };
+
 int str_bonus(int str, int type);
 int dex_bonus(int dex);
 int dex_ac_bonus(int dex);
 void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type);
+int wis_bonus(int stat, int type);
 
 #define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, PORTER_FEAT) ? 110 : 100))/100)
 #define CAN_CARRY_N(ch) (5 + (GET_REAL_DEX(ch) >> 1) + (GET_LEVEL(ch) >> 1) \

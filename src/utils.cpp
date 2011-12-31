@@ -2491,6 +2491,53 @@ int dex_ac_bonus(int dex)
 	return bonus;
 }
 
+int wis_bonus(int stat, int type)
+{
+	int bonus = 0;
+	stat = MAX(1, stat);
+
+	switch (type)
+	{
+	case WIS_MAX_LEARN_L20:
+		// 28 .. 175
+		bonus = 28 + (stat - 1) * 3;
+		break;
+	case WIS_SPELL_SUCCESS:
+		// -80 .. 116
+		bonus = stat * 4 - 84;
+		break;
+	case WIS_MAX_SKILLS:
+		// 1 .. 15
+		if (stat <= 15)
+		{
+			bonus = stat;
+		}
+		// 15 .. 32
+		else
+		{
+			bonus = 15 + (stat - 15) / 2;
+		}
+		break;
+	case WIS_FAILS:
+		// 34 .. 66
+		if (stat <= 9)
+		{
+			bonus = 30 + stat * 4;
+		}
+		// 140 .. 940
+		else
+		{
+			bonus = 120 + (stat - 9) * 20;
+		}
+		break;
+	default:
+		log("SYSERROR: stat=%d, type=%d (%s %s %d)",
+				stat, type, __FILE__, __func__, __LINE__);
+	}
+
+	return bonus;
+}
+
 namespace
 {
 

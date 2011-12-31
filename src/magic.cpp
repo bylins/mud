@@ -679,7 +679,7 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 		save += -GET_REAL_CON(victim);
 		break;
 	case SAVING_WILL:
-		save += wis_app[GET_REAL_WIS(victim)].char_savings;
+		save += -GET_REAL_WIS(victim);
 		break;
 	case SAVING_CRITICAL:
 		save += -GET_REAL_CON(victim);
@@ -2010,11 +2010,18 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			if (GET_POS(victim) < POS_FIGHTING)
 				dam += (dam * (POS_FIGHTING - GET_POS(victim)) / 3);
 		}
-		// TODO: по-моему тут первое число всегда будет 100
-		dam *= MAX(MIN(100, wis_app[GET_REAL_WIS(ch)].spell_success + 100 + MAX(0, wis_app[ch->get_wis()].spell_success)),
-				   number(MAX(0, wis_app[ch->get_wis()].spell_success), 100) + wis_app[GET_REAL_WIS(ch)].spell_success);
-		dam /= 100;
 
+		/*
+		dam *= MAX(MIN(100, wis_bonus(GET_REAL_WIS(ch), WIS_SPELL_SUCCESS) + 100 + MAX(0, wis_bonus(ch->get_wis(), WIS_SPELL_SUCCESS))),
+				   number(MAX(0, wis_bonus(ch->get_wis(), WIS_SPELL_SUCCESS)), 100) + wis_bonus(GET_REAL_WIS(ch), WIS_SPELL_SUCCESS));
+		dam /= 100;
+		*/
+
+		// по +5% дамага за каждую мудрость от 23 и выше
+		if (GET_REAL_WIS(ch) >= 23)
+		{
+			dam += dam * ((GET_REAL_WIS(ch) - 22) * 5) / 100;
+		}
 
 		if (AFF_FLAGGED(ch, AFF_DATURA_POISON))
 			dam -= dam * GET_POISON(ch) / 100;
@@ -3866,7 +3873,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		handle_corpse = TRUE;
 		msg = 11;
 		fmsg = number(2, 6);
-		
+
 		tmp_mob = mob_proto + real_mobile(mob_num);
 		tmp_mob->set_normal_morph();
 

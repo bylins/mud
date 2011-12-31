@@ -2915,7 +2915,7 @@ ACMD(do_score)
 				" %sВоля:         %3d%s |----------------||\r\n",
 				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), ch->get_bank(), CCCYN(ch, C_NRM),
 				CCICYN(ch, C_NRM), GET_HIT(ch), GET_REAL_MAX_HIT(ch), CCCYN(ch, C_NRM),
-				CCGRN(ch, C_NRM), - GET_SAVE(ch, SAVING_WILL) - wis_app[GET_REAL_WIS(ch)].char_savings, CCCYN(ch, C_NRM));
+				CCGRN(ch, C_NRM), GET_REAL_WIS(ch) - GET_SAVE(ch, SAVING_WILL), CCCYN(ch, C_NRM));
 
 		if (!on_horse(ch))
 			switch (GET_POS(ch))
