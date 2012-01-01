@@ -3005,10 +3005,12 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				{
 					skip_spaces(&subfield);
 					int num = atoi(subfield);
-					if (num > 0)
-					{
+					// Убрал пока проверку. По идее 0 -- отсутствие владельца.
+					// Понадобилась возможность обнулить владельца из трига.
+					//if (num > 0)
+					//{
 						GET_OBJ_OWNER(o) = num;
-					}
+					//}
 				}
 				else
 				{
