@@ -609,7 +609,7 @@ void mudlog(const char *str, int type, int level, int channel, int file)
  */
 const char *empty_string = "ничего";
 
-int sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div)
+bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div)
 {
 	long nr = 0, fail = 0, divider = FALSE;
 
@@ -655,20 +655,22 @@ int sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const 
 	if (!*result)
 	{
 		strcat(result, empty_string);
-		return FALSE;
+		return false;
 	}
 	else if (divider)
 		*(result + strlen(result) - 1) = '\0';
-	return TRUE;
+
+	return true;
 }
 
-int sprintbit(bitvector_t bitvector, const char *names[], char *result)
+bool sprintbit(bitvector_t bitvector, const char *names[], char *result)
 {
 	return sprintbitwd(bitvector, names, result, ",");
 }
 
-void sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div)
+bool sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div)
 {
+	bool have_flags = false;
 	char buffer[MAX_STRING_LENGTH];
 	int i;
 	*result = '\0';
@@ -679,13 +681,14 @@ void sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *
 			if (strlen(result))
 				strcat(result, div);
 			strcat(result, buffer);
+			have_flags = true;
 		}
 	}
 	if (!strlen(result))
 		strcat(result, buffer);
+
+	return have_flags;
 }
-
-
 
 void sprinttype(int type, const char *names[], char *result)
 {

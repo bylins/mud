@@ -24,6 +24,7 @@
 #include "skills.h"
 
 extern const char *skill_name(int num);
+extern void set_obj_eff(struct obj_data *itemobj, int type, int mod);
 
 void oload_class::init()
 {
@@ -176,6 +177,81 @@ void generate_book_upgrd(OBJ_DATA *obj)
 	GET_OBJ_PNAME(obj, 5) = str_dup(("книге секретов умения: " + book_name).c_str());
 }
 
+int get_stat_mod(int stat)
+{
+	int mod = 0;
+	switch (stat)
+	{
+	case APPLY_STR:
+	case APPLY_DEX:
+	case APPLY_CON:
+		mod = 1;
+		break;
+	case APPLY_AC:
+		mod = -10;
+		break;
+	case APPLY_HITROLL:
+		mod = 2;
+		break;
+	case APPLY_DAMROLL:
+		mod = 3;
+		break;
+	case APPLY_SAVING_WILL:
+	case APPLY_SAVING_CRITICAL:
+	case APPLY_SAVING_STABILITY:
+	case APPLY_SAVING_REFLEX:
+		mod = -10;
+		break;
+	case APPLY_HITREG:
+		mod = 10;
+		break;
+	case APPLY_MORALE:
+	case APPLY_INITIATIVE:
+		mod = 3;
+		break;
+	case APPLY_ABSORBE:
+		mod = 5;
+		break;
+	case APPLY_AR:
+	case APPLY_MR:
+		mod = 1;
+		break;
+	}
+	return mod;
+}
+
+void generate_warrior_enchant(OBJ_DATA *obj)
+{
+	const int main_count = 5;
+	boost::array<int, main_count> main_list = { {
+			APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_AC, APPLY_DAMROLL} };
+	const int other_count = 11;
+	boost::array<int, other_count> other_list = { {
+			APPLY_HITROLL, APPLY_SAVING_WILL, APPLY_SAVING_CRITICAL,
+			APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_SAVING_REFLEX,
+			APPLY_MORALE, APPLY_INITIATIVE, APPLY_ABSORBE, APPLY_AR, APPLY_MR} };
+
+	if (GET_OBJ_VNUM(obj) == GlobalDrop::WARR1_ENCHANT_VNUM)
+	{
+		int stat = main_list[number(0, main_count - 1)];
+		set_obj_eff(obj, stat, get_stat_mod(stat));
+	}
+	else if (GET_OBJ_VNUM(obj) == GlobalDrop::WARR2_ENCHANT_VNUM)
+	{
+		int stat = main_list[number(0, main_count - 1)];
+		set_obj_eff(obj, stat, get_stat_mod(stat));
+		stat = other_list[number(0, other_count - 1)];
+		set_obj_eff(obj, stat, get_stat_mod(stat));
+	}
+	else if (GET_OBJ_VNUM(obj) == GlobalDrop::WARR3_ENCHANT_VNUM)
+	{
+		int stat = main_list[number(0, main_count - 1)];
+		set_obj_eff(obj, stat, get_stat_mod(stat) * 2);
+		stat = other_list[number(0, other_count - 1)];
+		set_obj_eff(obj, stat, get_stat_mod(stat));
+	}
+}
+
 /**
  * \param setload = true - лоад через систему дропа сетов
  *        setload = false - лоад через глобал дроп
@@ -201,9 +277,16 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 			send_to_char(tch, "%sДиво дивное, чудо чудное!%s\r\n",
 					CCGRN(tch, C_NRM), CCNRM(tch, C_NRM));
 		}
-		if (GET_OBJ_VNUM(o) == GlobalDrop::BOOK_UPGRD_VNUM)
+		switch (GET_OBJ_VNUM(o))
 		{
+		case GlobalDrop::BOOK_UPGRD_VNUM:
 			generate_book_upgrd(o);
+			break;
+		case GlobalDrop::WARR1_ENCHANT_VNUM:
+		case GlobalDrop::WARR2_ENCHANT_VNUM:
+		case GlobalDrop::WARR3_ENCHANT_VNUM:
+			generate_warrior_enchant(o);
+			break;
 		}
 	}
 

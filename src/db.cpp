@@ -1526,6 +1526,7 @@ void set_obj_slots(OBJ_DATA *obj)
 			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_1INLAID), ITEM_1INLAID);
 			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_2INLAID), ITEM_2INLAID);
 			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_3INLAID), ITEM_3INLAID);
+			/*
 			if (zone_table[nr].mob_level >= 15 && zone_table[nr].mob_level < 25)
 			{
 				SET_BIT(GET_OBJ_EXTRA(obj, ITEM_1INLAID), ITEM_1INLAID);
@@ -1538,6 +1539,7 @@ void set_obj_slots(OBJ_DATA *obj)
 			{
 				SET_BIT(GET_OBJ_EXTRA(obj, ITEM_3INLAID), ITEM_3INLAID);
 			}
+			*/
 			break;
 		}
 	}

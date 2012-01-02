@@ -13,6 +13,7 @@
  */
 
 #include <sstream>
+#include <boost/algorithm/string.hpp>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -458,6 +459,75 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			{
 				*error = 50;
 				object->set_mort_req(atoi(buffer));
+			}
+			else if (!strcmp(read_line, "Ench"))
+			{
+				AcquiredAffects tmp_aff;
+				std::stringstream text(buffer);
+				std::string tmp_buf;
+
+				while (std::getline(text, tmp_buf))
+				{
+					boost::trim(tmp_buf);
+					if (tmp_buf.empty() || tmp_buf[0] == '~')
+					{
+						break;
+					}
+					switch (tmp_buf[0])
+					{
+					case 'I':
+						if (sscanf(tmp_buf.c_str(), "I %s", buf2) != 1)
+						{
+							*error = 51;
+							return object;
+						}
+						tmp_aff.name_ = *buf2 ? buf2 : "<null>";
+						break;
+					case 'T':
+						if (sscanf(tmp_buf.c_str(), "T %d", &tmp_aff.type_) != 1)
+						{
+							*error = 52;
+							return object;
+						}
+						break;
+					case 'A':
+					{
+						obj_affected_type tmp_affected;
+						if (sscanf(tmp_buf.c_str(), "A %d %d", &tmp_affected.location, &tmp_affected.modifier) != 2)
+						{
+							*error = 53;
+							return object;
+						}
+						tmp_aff.affected_.push_back(tmp_affected);
+						break;
+					}
+					case 'F':
+						if (sscanf(tmp_buf.c_str(), "F %s", buf2) != 1)
+						{
+							*error = 54;
+							return object;
+						}
+						asciiflag_conv(buf2, &tmp_aff.affects_flags_);
+						break;
+					case 'E':
+						if (sscanf(tmp_buf.c_str(), "E %s", buf2) != 1)
+						{
+							*error = 55;
+							return object;
+						}
+						asciiflag_conv(buf2, &tmp_aff.extra_flags_);
+						break;
+					case 'N':
+						if (sscanf(tmp_buf.c_str(), "N %s", buf2) != 1)
+						{
+							*error = 56;
+							return object;
+						}
+						asciiflag_conv(buf2, &tmp_aff.no_flags_);
+						break;
+					}
+				}
+				object->acquired_affects.push_back(tmp_aff);
 			}
 			else
 			{
@@ -1106,6 +1176,15 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 	if (!object->timed_spell.empty())
 	{
 		out << object->timed_spell.print();
+	}
+	// накладываемые энчанты
+	if (!object->acquired_affects.empty())
+	{
+		for (std::vector<AcquiredAffects>::const_iterator i = object->acquired_affects.begin(),
+			iend = object->acquired_affects.end(); i != iend; ++i)
+		{
+			out << i->print_to_file();
+		}
 	}
 }
 

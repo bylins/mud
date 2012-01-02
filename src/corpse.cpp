@@ -22,9 +22,10 @@ typedef std::map<int /* vnum */, int /* rnum*/> OlistType;
 
 struct global_drop
 {
-	global_drop() : vnum(0), mob_lvl(0), prc(0), mobs(0), rnum(-1) {};
+	global_drop() : vnum(0), mob_lvl(0), max_mob_lvl(0), prc(0), mobs(0), rnum(-1) {};
 	int vnum; // внум шмотки, если число отрицательное - есть список внумов
 	int mob_lvl;  // мин левел моба
+	int max_mob_lvl; // макс. левел моба (0 - не учитывается)
 	int prc;  // шансы дропа (каждые Х мобов)
 	int mobs; // убито подходящих мобов
 	int rnum; // рнум шмотки, если vnum валидный
@@ -64,13 +65,14 @@ void init()
 	{
 		int obj_vnum = xmlparse_int(node, "obj_vnum");
 		int mob_lvl = xmlparse_int(node, "mob_lvl");
+		int max_mob_lvl = xmlparse_int(node, "max_mob_lvl");
 		int chance = xmlparse_int(node, "chance");
 
-		if (obj_vnum == -1 || mob_lvl <= 0 || chance <= 0)
+		if (obj_vnum == -1 || mob_lvl <= 0 || chance <= 0 || max_mob_lvl < 0)
 		{
 			snprintf(buf, MAX_STRING_LENGTH,
-					"...bad drop attributes (obj_vnum=%d, mob_lvl=%d, chance=%d)",
-					obj_vnum, mob_lvl, chance);
+					"...bad drop attributes (obj_vnum=%d, mob_lvl=%d, chance=%d, max_mob_lvl=%d)",
+					obj_vnum, mob_lvl, chance, max_mob_lvl);
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return;
 		}
@@ -78,6 +80,7 @@ void init()
 		global_drop tmp_node;
 		tmp_node.vnum = obj_vnum;
 		tmp_node.mob_lvl = mob_lvl;
+		tmp_node.max_mob_lvl = max_mob_lvl;
 		tmp_node.prc = chance;
 
 		if (obj_vnum >= 0)
@@ -188,7 +191,8 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *ch)
 {
 	for (DropListType::iterator i = drop_list.begin(), iend = drop_list.end(); i != iend; ++i)
 	{
-		if (GET_LEVEL(ch) >= i->mob_lvl)
+		if (GET_LEVEL(ch) >= i->mob_lvl
+			&& (!i->max_mob_lvl || GET_LEVEL(ch) <= i->max_mob_lvl))
 		{
 			++(i->mobs);
 			if (i->mobs >= i->prc)

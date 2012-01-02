@@ -2,10 +2,19 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include <sstream>
 #include "obj.hpp"
 #include "utils.h"
 #include "pk.h"
 #include "celebrates.hpp"
+#include "screen.h"
+#include "comm.h"
+#include "char.hpp"
+#include "db.h"
+#include "constants.h"
+
+extern void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);
+extern void tascii(int *pointer, int num_planes, char *ascii);
 
 id_to_set_info_map obj_data::set_table;
 
@@ -245,3 +254,132 @@ bool is_armor_type(const OBJ_DATA *obj)
 }
 
 } // namespace ObjSystem
+
+////////////////////////////////////////////////////////////////////////////////
+
+AcquiredAffects::AcquiredAffects()
+{
+	type_ = 0;
+	affects_flags_ = clear_flags;
+	extra_flags_ = clear_flags;
+	no_flags_ = clear_flags;
+}
+
+AcquiredAffects::AcquiredAffects(OBJ_DATA *obj)
+{
+	name_ = GET_OBJ_PNAME(obj, 4) ? GET_OBJ_PNAME(obj, 4) : "<null>";
+	type_ = ACQUIRED_ENCHANT;
+
+	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+	{
+		if (obj->affected[i].location != APPLY_NONE
+			&& obj->affected[i].modifier != 0)
+		{
+			affected_.push_back(obj->affected[i]);
+		}
+	}
+
+	affects_flags_ = GET_OBJ_AFFECTS(obj);
+	extra_flags_ = obj->obj_flags.extra_flags;
+	REMOVE_BIT(GET_FLAG(extra_flags_, ITEM_TICKTIMER), ITEM_TICKTIMER);
+	no_flags_ = GET_OBJ_NO(obj);
+}
+
+void AcquiredAffects::print(CHAR_DATA *ch) const
+{
+	send_to_char(ch, "\r\nЗачаровано %s:%s\r\n", name_.c_str(), CCCYN(ch, C_NRM));
+
+	for (std::vector<obj_affected_type>::const_iterator i = affected_.begin(),
+		iend = affected_.end(); i != iend; ++i)
+	{
+		print_obj_affects(ch, *i);
+	}
+
+	if (sprintbits(affects_flags_, weapon_affects, buf2, ","))
+	{
+		send_to_char(ch, "%s   аффекты: %s%s\r\n",
+				CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+	}
+
+	if (sprintbits(extra_flags_, extra_bits, buf2, ","))
+	{
+		send_to_char(ch, "%s   экстрафлаги: %s%s\r\n",
+				CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+	}
+
+	if (sprintbits(no_flags_, no_bits, buf2, ","))
+	{
+		send_to_char(ch, "%s   неудобен: %s%s\r\n",
+				CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+	}
+}
+
+void AcquiredAffects::apply_to_obj(OBJ_DATA *obj) const
+{
+	for (std::vector<obj_affected_type>::const_iterator i = affected_.begin(),
+		iend = affected_.end(); i != iend; ++i)
+	{
+		for (int k = 0; k < MAX_OBJ_AFFECT; k++)
+		{
+			if (obj->affected[k].location == i->location)
+			{
+				obj->affected[k].modifier += i->modifier;
+				break;
+			}
+			else if (obj->affected[k].location == APPLY_NONE)
+			{
+				obj->affected[k].location = i->location;
+				obj->affected[k].modifier = i->modifier;
+				break;
+			}
+		}
+	}
+
+	GET_FLAG(GET_OBJ_AFFECTS(obj), INT_ZERRO) |= GET_FLAG(affects_flags_, INT_ZERRO);
+	GET_FLAG(GET_OBJ_AFFECTS(obj), INT_ONE) |= GET_FLAG(affects_flags_, INT_ONE);
+	GET_FLAG(GET_OBJ_AFFECTS(obj), INT_TWO) |= GET_FLAG(affects_flags_, INT_TWO);
+	GET_FLAG(GET_OBJ_AFFECTS(obj), INT_THREE) |= GET_FLAG(affects_flags_, INT_THREE);
+
+	GET_FLAG(obj->obj_flags.extra_flags, INT_ZERRO) |= GET_FLAG(extra_flags_, INT_ZERRO);
+	GET_FLAG(obj->obj_flags.extra_flags, INT_ONE) |= GET_FLAG(extra_flags_, INT_ONE);
+	GET_FLAG(obj->obj_flags.extra_flags, INT_TWO) |= GET_FLAG(extra_flags_, INT_TWO);
+	GET_FLAG(obj->obj_flags.extra_flags, INT_THREE) |= GET_FLAG(extra_flags_, INT_THREE);
+
+	GET_FLAG(obj->obj_flags.no_flag, INT_ZERRO) |= GET_FLAG(no_flags_, INT_ZERRO);
+	GET_FLAG(obj->obj_flags.no_flag, INT_ONE) |= GET_FLAG(no_flags_, INT_ONE);
+	GET_FLAG(obj->obj_flags.no_flag, INT_TWO) |= GET_FLAG(no_flags_, INT_TWO);
+	GET_FLAG(obj->obj_flags.no_flag, INT_THREE) |= GET_FLAG(no_flags_, INT_THREE);
+}
+
+int AcquiredAffects::get_type() const
+{
+	return type_;
+}
+
+std::string AcquiredAffects::print_to_file() const
+{
+	std::stringstream out;
+	out << "Ench: I " << name_ << "\n" << " T "<< type_ << "\n";
+
+	for (std::vector<obj_affected_type>::const_iterator i = affected_.begin(),
+		iend = affected_.end(); i != iend; ++i)
+	{
+		out << " A " << i->location << " " << i->modifier << "\n";
+	}
+
+	*buf = '\0';
+	tascii((int *) &affects_flags_, 4, buf);
+	out << " F " << buf << "\n";
+
+	*buf = '\0';
+	tascii((int *) &extra_flags_, 4, buf);
+	out << " E " << buf << "\n";
+
+	*buf = '\0';
+	tascii((int *) &no_flags_, 4, buf);
+	out << " N " << buf << "\n~\n";
+
+	return out.str();
+}
+
+////////////////////////////////////////////////////////////////////////////////

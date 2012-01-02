@@ -23,6 +23,10 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *ch);
 const int SAVE_PERIOD = 10;
 // для генерации книги улучшения умения
 const int BOOK_UPGRD_VNUM = 1920;
+// для генерации энчантов
+const int WARR1_ENCHANT_VNUM = 1921;
+const int WARR2_ENCHANT_VNUM = 1922;
+const int WARR3_ENCHANT_VNUM = 1923;
 
 } // namespace GlobalDrop
 

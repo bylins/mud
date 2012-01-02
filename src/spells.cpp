@@ -1293,9 +1293,36 @@ void print_book_uprgd_skill(CHAR_DATA *ch, const OBJ_DATA *obj)
 	}
 }
 
+void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect)
+{
+	sprinttype(affect.location, apply_types, buf2);
+	bool negative = false;
+	for (int j = 0; *apply_negative[j] != '\n'; j++)
+	{
+		if (!str_cmp(buf2, apply_negative[j]))
+		{
+			negative = true;
+			break;
+		}
+	}
+	if (!negative && affect.modifier < 0)
+	{
+		negative = true;
+	}
+	else if (negative && affect.modifier < 0)
+	{
+		negative = false;
+	}
+	sprintf(buf, "   %s%s%s%s%s%d%s\r\n",
+			CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
+			CCCYN(ch, C_NRM),
+			negative ? " ухудшает на " : " улучшает на ", abs(affect.modifier), CCNRM(ch, C_NRM));
+	send_to_char(buf, ch);
+}
+
 void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 {
-	int i, found, drndice = 0, drsdice = 0, count = 0, negative, j;
+	int i, found, drndice = 0, drsdice = 0, j;
 	long int li;
 
 	send_to_char("Вы узнали следующее:\r\n", ch);
@@ -1451,7 +1478,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			if (drndice >= 0)
 			{
 				drsdice = imrecipes[drndice].level;
-				count = imrecipes[drndice].remort;
+				int count = imrecipes[drndice].remort;
 				if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)
 					drsdice = LVL_IMPL;
 				sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
@@ -1582,42 +1609,16 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		return;
 
 	found = FALSE;
-	count = MAX_OBJ_AFFECT;
-	for (i = 0; i < count; i++)
+	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
-		drndice = obj->affected[i].location;
-		drsdice = obj->affected[i].modifier;
-		if ((drndice != APPLY_NONE) && (drsdice != 0))
+		if (obj->affected[i].location != APPLY_NONE && obj->affected[i].modifier != 0)
 		{
 			if (!found)
 			{
 				send_to_char("Дополнительные свойства :\r\n", ch);
 				found = TRUE;
 			}
-			sprinttype(drndice, apply_types, buf2);
-			negative = 0;
-			for (j = 0; *apply_negative[j] != '\n'; j++)
-				if (!str_cmp(buf2, apply_negative[j]))
-				{
-					negative = TRUE;
-					break;
-				}
-			switch (negative)
-			{
-			case FALSE:
-				if (obj->affected[i].modifier < 0)
-					negative = TRUE;
-				break;
-			case TRUE:
-				if (obj->affected[i].modifier < 0)
-					negative = FALSE;
-				break;
-			}
-			sprintf(buf, "   %s%s%s%s%s%d%s\r\n",
-					CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
-					CCCYN(ch, C_NRM),
-					negative ? " ухудшает на " : " улучшает на ", abs(drsdice), CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
+			print_obj_affects(ch, obj->affected[i]);
 		}
 	}
 
@@ -1665,11 +1666,16 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				break;
 			}
 	//end by WorM
+	for (std::vector<AcquiredAffects>::const_iterator i = obj->acquired_affects.begin(),
+		iend = obj->acquired_affects.end(); i != iend; ++i)
+	{
+		i->print(ch);
+	}
 }
 
 void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 {
-	int i, found, negative, j, drndice = 0, drsdice = 0;
+	int i, found, drndice = 0, drsdice = 0;
 	long int li;
 
 	send_to_char("Вы узнали следующее:\r\n", ch);
@@ -1910,40 +1916,14 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	found = FALSE;
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
-		if ((obj->affected[i].location != APPLY_NONE) && (obj->affected[i].modifier != 0))
+		if (obj->affected[i].location != APPLY_NONE && obj->affected[i].modifier != 0)
 		{
 			if (!found)
 			{
 				send_to_char("Дополнительные свойства :\r\n", ch);
 				found = TRUE;
 			}
-			sprinttype(obj->affected[i].location, apply_types, buf2);
-			negative = FALSE;
-			for (j = 0; *apply_negative[j] != '\n'; j++)
-			{
-				if (!str_cmp(buf2, apply_negative[j]))
-				{
-					negative = TRUE;
-					break;
-				}
-			}
-			switch (negative)
-			{
-			case FALSE:
-				if (obj->affected[i].modifier < 0)
-					negative = TRUE;
-				break;
-			case TRUE:
-				if (obj->affected[i].modifier < 0)
-					negative = FALSE;
-				break;
-			}
-			sprintf(buf, "   %s%s%s%s%s%d%s\r\n",
-					CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
-					CCCYN(ch, C_NRM),
-					negative ? " ухудшает на " : " улучшает на ",
-					abs(obj->affected[i].modifier), CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
+			print_obj_affects(ch, obj->affected[i]);
 		}
 	}
 	if (obj->has_skills())
@@ -1990,6 +1970,11 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 				break;
 			}
 	//end by WorM
+	for (std::vector<AcquiredAffects>::const_iterator i = obj->acquired_affects.begin(),
+		iend = obj->acquired_affects.end(); i != iend; ++i)
+	{
+		i->print(ch);
+	}
 }
 
 #define IDENT_SELF_LEVEL 6

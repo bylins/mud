@@ -1545,7 +1545,80 @@ ACMD(do_split)
 	}
 }
 
+OBJ_DATA * get_obj_equip_or_carry(CHAR_DATA *ch, const std::string &text)
+{
+	int eq_num = 0;
+	OBJ_DATA *obj = get_object_in_equip_vis(ch, text, ch->equipment, &eq_num);
+	if (!obj)
+	{
+		obj = get_obj_in_list_vis(ch, text, ch->carrying);
+	}
+	return obj;
+}
 
+void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
+{
+	std::string tmp_buf;
+	GetOneParam(text, tmp_buf);
+	if (tmp_buf.empty())
+	{
+		send_to_char("Укажите цель применения.\r\n", ch);
+		return;
+	}
+
+	OBJ_DATA *target = get_obj_equip_or_carry(ch, tmp_buf);
+	if (!target)
+	{
+		send_to_char(ch, "Окститесь, нет у Вас %s.\r\n", arg);
+		return;
+	}
+
+	if (OBJ_FLAGGED(target, ITEM_SETSTUFF))
+	{
+		std::string name = GET_OBJ_PNAME(target, 0) ? GET_OBJ_PNAME(target, 0) : "<null>";
+		name[0] = UPPER(name[0]);
+		send_to_char(ch, "%s не %s быть зачарован%s, т.к. %s частью набора предметов.\r\n",
+				name.c_str(),
+				GET_OBJ_SEX(target) == SEX_POLY ? "могут" : "может",
+				GET_OBJ_VIS_SUF_6(target, ch),
+				GET_OBJ_SEX(target) == SEX_POLY ? "являются" : "является");
+		return;
+	}
+	for (std::vector<AcquiredAffects>::const_iterator i = target->acquired_affects.begin(),
+		iend = target->acquired_affects.end(); i != iend; ++i)
+	{
+		if (i->get_type() == ACQUIRED_ENCHANT)
+		{
+			send_to_char(ch, "На %s уже наложено зачарование.\r\n", GET_OBJ_PNAME(target, 3));
+			return;
+		}
+	}
+
+	int check_slots = GET_OBJ_WEAR(obj) & GET_OBJ_WEAR(target);
+	if (check_slots > 0 && check_slots != ITEM_WEAR_TAKE)
+	{
+		send_to_char(ch, "Вы успешно зачаровали %s.\r\n", GET_OBJ_PNAME(target, 0));
+		AcquiredAffects tmp_aff(obj);
+		tmp_aff.apply_to_obj(target);
+		target->acquired_affects.push_back(tmp_aff);
+		extract_obj(obj);
+	}
+	else
+	{
+		int slots = obj->obj_flags.wear_flags;
+		REMOVE_BIT(slots, ITEM_WEAR_TAKE);
+		if (sprintbit(slots, wear_bits, buf2))
+		{
+			send_to_char(ch,
+				"Это зачарование применяется к предметам со слотами надевания: %s\r\n", buf2);
+		}
+		else
+		{
+			send_to_char(ch,
+				"Некорретное зачарование, не проставлены слоты надевания.\r\n", buf2);
+		}
+	}
+}
 
 ACMD(do_use)
 {
@@ -1579,12 +1652,17 @@ ACMD(do_use)
 				sprintf(buf2, "Окститесь, нет у Вас %s.\r\n", arg);
 				send_to_char(buf2, ch);
 				return;
-			};
+			}
 			break;
 		case SCMD_USE:
-			sprintf(buf2, "Возьмите в руку '%s' перед применением !\r\n", arg);
-			send_to_char(buf2, ch);
-			return;
+			mag_item = get_obj_in_list_vis(ch, arg, ch->carrying);
+			if (!mag_item || GET_OBJ_TYPE(mag_item) != ITEM_ENCHANT)
+			{
+				sprintf(buf2, "Возьмите в руку '%s' перед применением !\r\n", arg);
+				send_to_char(buf2, ch);
+				return;
+			}
+			break;
 		default:
 			log("SYSERR: Unknown subcmd %d passed to do_use.", subcmd);
 			return;
@@ -1614,6 +1692,11 @@ ACMD(do_use)
 		do_hold = 1;
 		break;
 	case SCMD_USE:
+		if (GET_OBJ_TYPE(mag_item) == ITEM_ENCHANT)
+		{
+			apply_enchant(ch, mag_item, buf);
+			return;
+		}
 		/*    if (IS_NPC(ch) && AFF_FLAGGED(ch,AFF_CHARM))
 		       {send_to_char("Чармисы не могую юзать палки :-Qr\n", ch);
 		        return;
@@ -3714,6 +3797,9 @@ ACMD(do_bandage)
  */
 ACMD(do_inlay)
 {
+	send_to_char("Пока отключено, читаем анонсы как появятся.\r\n", ch);
+	return;
+
 	if (IS_NPC(ch))
 	{
 		return;

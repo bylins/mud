@@ -770,10 +770,11 @@ typedef struct trig_data TRIG_DATA;
 #define ITEM_INGRADIENT 25	/* Item is magical ingradient */
 #define ITEM_MING      26	/* Магический ингредиент */
 #define ITEM_MATERIAL  27	/* Материал для крафтовых умений */
-#define ITEM_BANDAGE   28   // бинты для перевязки
-#define ITEM_ARMOR_LIGHT  29 // легкий тип брони
-#define ITEM_ARMOR_MEDIAN 30 // средний тип брони
-#define ITEM_ARMOR_HEAVY  31 // тяжелый тип брони
+#define ITEM_BANDAGE   28  	// бинты для перевязки
+#define ITEM_ARMOR_LIGHT  29 	// легкий тип брони
+#define ITEM_ARMOR_MEDIAN 30 	// средний тип брони
+#define ITEM_ARMOR_HEAVY  31 	// тяжелый тип брони
+#define ITEM_ENCHANT      32	// зачарование предмета
 
 // +newbook.patch (Alisher)
 /* Типы магических книг */

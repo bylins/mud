@@ -5,6 +5,10 @@
 #ifndef OBJ_HPP_INCLUDED
 #define OBJ_HPP_INCLUDED
 
+#include <vector>
+#include <boost/array.hpp>
+#include <string>
+#include <map>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -62,8 +66,11 @@ struct obj_affected_type
 {
 	int location;		/* Which ability to change (APPLY_XXX) */
 	int modifier;		/* How much it changes by              */
+
 	obj_affected_type() : location(APPLY_NONE), modifier(0) {}
-	obj_affected_type(int __location, int __modifier) : location(__location), modifier(__modifier) {}
+
+	obj_affected_type(int __location, int __modifier)
+		: location(__location), modifier(__modifier) {}
 };
 
 class activation
@@ -300,6 +307,45 @@ private:
 	int timer_; // сколько еще будет висеть (в минутах)
 };
 
+////////////////////////////////////////////////////////////////////////////////
+
+enum { ACQUIRED_ENCHANT, ACQUIRED_STONE, ACQUIRED_TOTAL_TYPES };
+
+// список аффектов от какого-то одного источника (энчанта, камня)
+class AcquiredAffects
+{
+	// имя источника аффектов
+	std::string name_;
+	// тип источника аффектов
+	int type_;
+	// список APPLY аффектов (affected[MAX_OBJ_AFFECT])
+	std::vector<obj_affected_type> affected_;
+	// аффекты обкаста (obj_flags.affects)
+	FLAG_DATA affects_flags_;
+	// экстра аффекты (obj_flags.extra_flags)
+	FLAG_DATA extra_flags_;
+	// запреты на ношение (obj_flags.no_flag)
+	FLAG_DATA no_flags_;
+	// для лоада из файла объектов
+	AcquiredAffects();
+
+public:
+	// инит свои аффекты из указанного предмета (для энчантов)
+	AcquiredAffects(OBJ_DATA *obj);
+	// добавить свои аффектф на предмет (на случай стирания, например в сетах)
+	void apply_to_obj(OBJ_DATA *obj) const;
+	// распечатка аффектов для опознания
+	void print(CHAR_DATA *ch) const;
+	// тип источника (для удаления из предмета)
+	int get_type() const;
+	// генерация строки с энчантом для файла объекта
+	std::string print_to_file() const;
+	// для лоада из файла объектов
+	friend OBJ_DATA *read_one_object_new(char **data, int *error);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 struct obj_data
 {
 	obj_data();
@@ -338,6 +384,7 @@ struct obj_data
 	max_in_world;		/* max in world             */
 
 	TimedSpell timed_spell;    // временный обкаст
+	std::vector<AcquiredAffects> acquired_affects;
 
 	const std::string activate_obj(const activation& __act);
 	const std::string deactivate_obj(const activation& __act);

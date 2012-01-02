@@ -367,7 +367,8 @@ obj.spell.o: obj.spell.cpp conf.h sysdep.h structs.h spells.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h screen.h \
  poison.hpp char.hpp player_i.hpp morph.hpp db.h room.hpp
 obj.o: obj.cpp obj.hpp conf.h sysdep.h structs.h utils.h features.hpp \
- pugixml.hpp pugiconfig.hpp pk.h celebrates.hpp
+ pugixml.hpp pugiconfig.hpp pk.h celebrates.hpp screen.h comm.h char.hpp \
+ player_i.hpp morph.hpp db.h constants.h
 room.o: room.cpp room.hpp conf.h sysdep.h structs.h
 spam.o: spam.cpp spam.hpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp char.hpp player_i.hpp morph.hpp \
