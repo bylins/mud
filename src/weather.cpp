@@ -71,16 +71,9 @@ void gods_day_now(CHAR_DATA * ch)
 							poly_name.c_str(), CCNRM(ch, C_NRM));
 		}
 
-		if (real_name != "")
-		{
-			sprintf(real, "В реальном мире : %s %s. %s\r\n", CCWHT(ch, C_NRM),
-							real_name.c_str(), CCNRM(ch, C_NRM));
-		}
-
 		sprintf(mono + strlen(mono), "Пасха    : %d.%02d\r\n", EasterDay + 1, EasterMonth + 1);
 		send_to_char(poly, ch);
 		send_to_char(mono, ch);
-		send_to_char(real, ch);
 	}
 	else if (GET_RELIGION(ch) == RELIGION_POLY)
 	{
@@ -100,6 +93,12 @@ void gods_day_now(CHAR_DATA * ch)
 			send_to_char(mono, ch);
 		}
 	}
+	if (real_name != "")
+	{
+		sprintf(real, "В реальном мире : %s %s. %s\r\n", CCWHT(ch, C_NRM),
+						real_name.c_str(), CCNRM(ch, C_NRM));
+	}
+	send_to_char(real, ch);
 }
 
 void weather_and_time(int mode)

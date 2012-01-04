@@ -43,7 +43,9 @@ typedef std::map<long, OBJ_DATA *> CelebrateObjs;
 
 struct CelebrateData
 {
+	CelebrateData() : is_clean(true) {};
 	std::string name;
+	bool is_clean;
 	CelebrateZonList rooms;
 	AttachZonList mobsToAttach;
 	AttachZonList objsToAttach;
@@ -53,7 +55,8 @@ typedef boost::shared_ptr<CelebrateData> CelebrateDataPtr;
 
 struct CelebrateDay
 {
-	bool is_clean;
+	CelebrateDay() : last(false), start_at(0), finish_at(24) {};
+	bool last;
 	int start_at;
 	int finish_at;
 	CelebrateDataPtr celebrate;

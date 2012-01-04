@@ -4933,6 +4933,11 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 			{
 				OBJ_DATA *obj, *obj_in, *obj_room;
 				obj_rnum rnum = real_object((*load)->vnum);
+				if (rnum == -1)
+				{
+					log("{Error] Processing celebrate %s while loading obj %d", celebrate->name.c_str(), (*load)->vnum);
+					return;
+				}
 				int obj_in_room = 0;
 
 				for (obj_room = world[rn]->contents;

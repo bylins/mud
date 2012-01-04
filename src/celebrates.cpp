@@ -1,3 +1,4 @@
+#include <boost/lexical_cast.hpp>
 #include <algorithm>
 #include "pugixml.hpp"
 
@@ -74,14 +75,37 @@ std::string get_name_poly(int day)
 		else return "";
 }
 
+std::string add_rest(CelebrateList::iterator it, CelebrateDataPtr celebrate)
+{
+		int days_count = 0;
+		while (it->second->celebrate == celebrate)
+		{
+			days_count++;
+			++it;
+		}
+		--it;
+		--days_count;
+		int hours = it->second->finish_at;
+		hours -= get_real_hour();
+		if (hours < 0)
+		{
+			--days_count;
+			hours = 24 + hours;
+		}
+		return ". До окончания - дней: " + boost::lexical_cast<std::string>(days_count) + 
+				", часов: " +boost::lexical_cast<std::string>(hours);
+}
+
 std::string get_name_real(int day)
 {
-	if (real_celebrates.find(day) == real_celebrates.end())
-		return "";
-	else
+	CelebrateList::iterator it = real_celebrates.find(day);
+	std::string result="";
+	if (it != real_celebrates.end())
+	{
 		if (real_celebrates[day]->start_at <= get_real_hour() && real_celebrates[day]->finish_at >= get_real_hour())
-			return real_celebrates[day]->celebrate->name;
-		else return "";
+			result = real_celebrates[day]->celebrate->name + add_rest(it, real_celebrates[day]->celebrate);
+	}
+	return result;
 }
 
 void parse_trig_list(pugi::xml_node node, TrigList* triggers)
@@ -237,9 +261,6 @@ void load_celebrates(pugi::xml_node node_list, CelebrateList &celebrates, bool i
 			baseDay = DAYS_PER_MONTH * (month - 1) + day;
 		CelebrateDayPtr tmp_day(new CelebrateDay);
 		tmp_day->celebrate = tmp_holiday;
-		tmp_day->start_at = 0;
-		tmp_day->finish_at = 24;
-		tmp_day->is_clean = true;
 		celebrates[baseDay] = tmp_day;
 		if (start>0)
 		{
@@ -248,13 +269,11 @@ void load_celebrates(pugi::xml_node node_list, CelebrateList &celebrates, bool i
 			{
 				start -= 24;
 				dayBefore = get_previous_day(dayBefore, is_real);
-				celebrates[dayBefore] = tmp_day; //копируем указатель на базовый день - этот день такой же
+				celebrates[dayBefore] = tmp_day; 
 			}
 			CelebrateDayPtr tmp_day1(new CelebrateDay);
 			tmp_day1->celebrate = tmp_holiday;
 			tmp_day1->start_at = 24-start;
-			tmp_day1->finish_at = 24;
-			tmp_day1->is_clean = true;
 			dayBefore = get_previous_day(dayBefore, is_real);
 			celebrates[dayBefore] = tmp_day1;
 		}
@@ -265,16 +284,16 @@ void load_celebrates(pugi::xml_node node_list, CelebrateList &celebrates, bool i
 			{
 				end -= 24;
 				dayAfter = get_next_day(dayAfter, is_real);
-				celebrates[dayAfter] = tmp_day; //копируем указатель на базовый день - этот день такой же
+				celebrates[dayAfter] = tmp_day;
 			}
 			CelebrateDayPtr tmp_day2(new CelebrateDay);
 			tmp_day2->celebrate = tmp_holiday;
-			tmp_day2->start_at = 0;
 			tmp_day2->finish_at = end;
-			tmp_day2->is_clean = true;
+			tmp_day2->last = true;
 			dayAfter = get_next_day(dayAfter, is_real);
 			celebrates[dayAfter] = tmp_day2;
-		}
+		} else
+			tmp_day->last = true;
 	}
 }
 
@@ -321,7 +340,29 @@ bool is_active(CelebrateList::iterator it, bool is_real)
 {
 	int hours = is_real ? get_real_hour() : time_info.hours;
 	int day = is_real ? get_real_day() : get_mud_day();
-	return  (day == it->first) && hours >= it->second->start_at && hours <= it->second->finish_at;
+	CelebrateList::const_iterator celebrate;
+	if (is_real)
+	{
+		celebrate = real_celebrates.find(day);
+		if (celebrate == real_celebrates.end())
+			return false;
+		if (celebrate->second->celebrate == it->second->celebrate && hours <= it->second->finish_at)
+			return true;
+	}
+	else
+	{
+		celebrate = poly_celebrates.find(day);
+		if (celebrate == poly_celebrates.end())
+			return false;
+		if (celebrate != poly_celebrates.end() && celebrate->second->celebrate == it->second->celebrate && hours <= it->second->finish_at)
+			return true;
+		celebrate = mono_celebrates.find(day);
+		if (celebrate == mono_celebrates.end())
+			return false;
+		if (celebrate != mono_celebrates.end() && celebrate->second->celebrate == it->second->celebrate && hours <= it->second->finish_at)
+			return true;
+	}
+	return false;
 }
 
 CelebrateDataPtr get_mono_celebrate()
@@ -332,7 +373,7 @@ CelebrateDataPtr get_mono_celebrate()
 		if (is_active(mono_celebrates.find(day), false))
 		{
 			result = mono_celebrates[day]->celebrate;
-			mono_celebrates[day]->is_clean = false;
+			mono_celebrates[day]->celebrate->is_clean = false;
 		}
 	return result;
 };
@@ -346,7 +387,7 @@ CelebrateDataPtr get_poly_celebrate()
 		if (is_active(poly_celebrates.find(day), false))
 		{
 			result = poly_celebrates[day]->celebrate;
-			poly_celebrates[day]->is_clean = false;
+			poly_celebrates[day]->celebrate->is_clean = false;
 		}
 	return result;
 };
@@ -359,7 +400,7 @@ CelebrateDataPtr get_real_celebrate()
 		if (is_active(real_celebrates.find(day), true))
 		{
 			result = real_celebrates[day]->celebrate;
-			real_celebrates[day]->is_clean = false;
+			real_celebrates[day]->celebrate->is_clean = false;
 		}
 	return result;
 };
@@ -498,13 +539,16 @@ bool make_clean(CelebrateDataPtr celebrate)
 	{
 		for (CelebrateRoomsList::iterator room = rooms->second.begin(); room != rooms->second.end(); ++room)
 		{
-			int rnum = real_room((*room)->vnum);
-			remove_triggers((*room)->triggers, world[rnum]->script);
-			if (SCRIPT(world[rnum]) && !TRIGGERS(SCRIPT(world[rnum])))
+			if (!(*room)->triggers.empty())
 			{
-				free_script(SCRIPT(world[rnum]));	// без комментариев
-				SCRIPT(world[rnum]) = NULL;
-			}			
+				int rnum = real_room((*room)->vnum);
+				remove_triggers((*room)->triggers, world[rnum]->script);
+				if (SCRIPT(world[rnum]) && !TRIGGERS(SCRIPT(world[rnum])))
+				{
+					free_script(SCRIPT(world[rnum]));	// без комментариев
+					SCRIPT(world[rnum]) = NULL;
+				}
+			}
 		}
 	}
 
@@ -516,9 +560,9 @@ void clear_real_celebrates(CelebrateList celebrates)
 	CelebrateList::iterator it;
 	for (it = celebrates.begin();it != celebrates.end(); ++it)
 	{
-		if (!it->second->is_clean && !is_active(it, true)) 
+		if (!it->second->celebrate->is_clean && !is_active(it, true) && it->second->last) 
 			if (make_clean(it->second->celebrate))
-				it->second->is_clean = true;
+				it->second->celebrate->is_clean = true;
 	}
 }
 
@@ -527,9 +571,9 @@ void clear_mud_celebrates(CelebrateList celebrates)
 	CelebrateList::iterator it;
 	for (it = celebrates.begin();it != celebrates.end(); ++it)
 	{
-		if (!it->second->is_clean && !is_active(it, false)) 
+		if (!it->second->celebrate->is_clean && !is_active(it, false) && it->second->last) 
 			if (make_clean(it->second->celebrate))
-				it->second->is_clean = true;
+				it->second->celebrate->is_clean = true;
 	}
 }
 
@@ -539,5 +583,4 @@ void sanitize()
 	clear_mud_celebrates(poly_celebrates);
 	clear_mud_celebrates(mono_celebrates);
 }
-
 }
