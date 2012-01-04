@@ -258,8 +258,8 @@ bool is_armor_type(const OBJ_DATA *obj)
 ////////////////////////////////////////////////////////////////////////////////
 
 AcquiredAffects::AcquiredAffects()
+	: type_(0), weight_(0)
 {
-	type_ = 0;
 	affects_flags_ = clear_flags;
 	extra_flags_ = clear_flags;
 	no_flags_ = clear_flags;
@@ -283,11 +283,12 @@ AcquiredAffects::AcquiredAffects(OBJ_DATA *obj)
 	extra_flags_ = obj->obj_flags.extra_flags;
 	REMOVE_BIT(GET_FLAG(extra_flags_, ITEM_TICKTIMER), ITEM_TICKTIMER);
 	no_flags_ = GET_OBJ_NO(obj);
+	weight_ = GET_OBJ_VAL(obj, 0);
 }
 
 void AcquiredAffects::print(CHAR_DATA *ch) const
 {
-	send_to_char(ch, "\r\nЗачаровано %s:%s\r\n", name_.c_str(), CCCYN(ch, C_NRM));
+	send_to_char(ch, "\r\nЗачаровано %s :%s\r\n", name_.c_str(), CCCYN(ch, C_NRM));
 
 	for (std::vector<obj_affected_type>::const_iterator i = affected_.begin(),
 		iend = affected_.end(); i != iend; ++i)
@@ -311,6 +312,13 @@ void AcquiredAffects::print(CHAR_DATA *ch) const
 	{
 		send_to_char(ch, "%s   неудобен: %s%s\r\n",
 				CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+	}
+
+	if (weight_ != 0)
+	{
+		send_to_char(ch, "%s   %s вес предмета на %d%s\r\n", CCCYN(ch, C_NRM),
+				weight_ > 0 ? "увеличивает" : "уменьшает",
+				abs(weight_), CCNRM(ch, C_NRM));
 	}
 }
 
@@ -349,6 +357,12 @@ void AcquiredAffects::apply_to_obj(OBJ_DATA *obj) const
 	GET_FLAG(obj->obj_flags.no_flag, INT_ONE) |= GET_FLAG(no_flags_, INT_ONE);
 	GET_FLAG(obj->obj_flags.no_flag, INT_TWO) |= GET_FLAG(no_flags_, INT_TWO);
 	GET_FLAG(obj->obj_flags.no_flag, INT_THREE) |= GET_FLAG(no_flags_, INT_THREE);
+
+	GET_OBJ_WEIGHT(obj) += weight_;
+	if (GET_OBJ_WEIGHT(obj) <= 0)
+	{
+		GET_OBJ_WEIGHT(obj) = 1;
+	}
 }
 
 int AcquiredAffects::get_type() const
@@ -377,7 +391,9 @@ std::string AcquiredAffects::print_to_file() const
 
 	*buf = '\0';
 	tascii((int *) &no_flags_, 4, buf);
-	out << " N " << buf << "\n~\n";
+	out << " N " << buf << "\n";
+
+	out << " W " << weight_ << "\n~\n";
 
 	return out.str();
 }

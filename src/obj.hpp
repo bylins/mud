@@ -326,6 +326,8 @@ class AcquiredAffects
 	FLAG_DATA extra_flags_;
 	// запреты на ношение (obj_flags.no_flag)
 	FLAG_DATA no_flags_;
+	// изменение веса (+-)
+	int weight_;
 	// для лоада из файла объектов
 	AcquiredAffects();
 

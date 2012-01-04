@@ -1621,6 +1621,17 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			print_obj_affects(ch, obj->affected[i]);
 		}
 	}
+	if (GET_OBJ_TYPE(obj) == ITEM_ENCHANT && GET_OBJ_VAL(obj, 0) != 0)
+	{
+		if (!found)
+		{
+			send_to_char("Дополнительные свойства :\r\n", ch);
+			found = TRUE;
+		}
+		send_to_char(ch, "%s   %s вес предмета на %d%s\r\n", CCCYN(ch, C_NRM),
+				GET_OBJ_VAL(obj, 0) > 0 ? "увеличивает" : "уменьшает",
+				abs(GET_OBJ_VAL(obj, 0)), CCNRM(ch, C_NRM));
+	}
 
 	if (obj->has_skills())
 	{
@@ -1926,6 +1937,18 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			print_obj_affects(ch, obj->affected[i]);
 		}
 	}
+	if (GET_OBJ_TYPE(obj) == ITEM_ENCHANT && GET_OBJ_VAL(obj, 0) != 0)
+	{
+		if (!found)
+		{
+			send_to_char("Дополнительные свойства :\r\n", ch);
+			found = TRUE;
+		}
+		send_to_char(ch, "%s   %s вес предмета на %d%s\r\n", CCCYN(ch, C_NRM),
+				GET_OBJ_VAL(obj, 0) > 0 ? "увеличивает" : "уменьшает",
+				abs(GET_OBJ_VAL(obj, 0)), CCNRM(ch, C_NRM));
+	}
+
 	if (obj->has_skills())
 	{
 		send_to_char("Меняет умения :\r\n", ch);

@@ -476,12 +476,12 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 					switch (tmp_buf[0])
 					{
 					case 'I':
-						if (sscanf(tmp_buf.c_str(), "I %s", buf2) != 1)
+						tmp_aff.name_ = tmp_buf.substr(1);
+						boost::trim(tmp_aff.name_);
+						if (tmp_aff.name_.empty())
 						{
-							*error = 51;
-							return object;
+							tmp_aff.name_ = "<null>";
 						}
-						tmp_aff.name_ = *buf2 ? buf2 : "<null>";
 						break;
 					case 'T':
 						if (sscanf(tmp_buf.c_str(), "T %d", &tmp_aff.type_) != 1)
@@ -524,6 +524,13 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 							return object;
 						}
 						asciiflag_conv(buf2, &tmp_aff.no_flags_);
+						break;
+					case 'W':
+						if (sscanf(tmp_buf.c_str(), "W %d", &tmp_aff.weight_) != 1)
+						{
+							*error = 57;
+							return object;
+						}
 						break;
 					}
 				}

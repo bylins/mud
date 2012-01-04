@@ -965,6 +965,9 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 	case ITEM_BANDAGE:
 		send_to_char("Хитов в секунду: ", d->character);
 		break;
+	case ITEM_ENCHANT:
+		send_to_char("Изменяет вес: ", d->character);
+		break;
 
 	default:
 		oedit_disp_menu(d);
