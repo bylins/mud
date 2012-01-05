@@ -236,7 +236,7 @@ ACMD(do_named)
 {
 	mob_rnum r_num;
 	std::string out;
-	int first = 0, last, found = 0;
+	int first = 0, last = 0, found = 0;
 
 	switch (subcmd)
 	{
