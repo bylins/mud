@@ -73,7 +73,7 @@ void AnimalMorph::set_skill(int skill_num, int percent)
 		if (diff > 0 && number(1,2)==2)//Polud в звериной форме вся прокачка идет в оборотничество
 		{
 			sprintf(buf, "%sВаши успехи сделали Вас опытнее в оборотничестве.%s\r\n", CCICYN(ch_, C_NRM), CCINRM(ch_, C_NRM));
-			send_to_char(buf, ch_); 		
+			send_to_char(buf, ch_);
 			skills_[SKILL_MORPH]+= diff;
 		}
 	}
@@ -206,7 +206,7 @@ ACMD(do_morph)
 
 	skip_spaces(&argument);
 	one_argument(argument, arg);
-	
+
 
 	if (ch->is_morphed())
 	{
@@ -243,7 +243,7 @@ ACMD(do_morph)
 		send_to_char("Ваша правая лапа бессильно опустила " + string(ch->equipment[WEAR_WIELD]->PNames[3])+".\r\n", ch);
 		perform_remove(ch, WEAR_WIELD);
 	}
-	if (ch->equipment[WEAR_HOLD]) 
+	if (ch->equipment[WEAR_HOLD])
 	{
 		send_to_char("Ваша левая лапа не удержала " + string(ch->equipment[WEAR_HOLD]->PNames[3])+".\r\n", ch);
 		perform_remove(ch, WEAR_HOLD);
@@ -270,7 +270,7 @@ ACMD(do_morphset)
 		PrintAllMorphsList(ch);
 		return;
 	}
-	
+
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)))
 	{
 		send_to_char(NOPERSON, ch);
@@ -280,14 +280,14 @@ ACMD(do_morphset)
 	skip_spaces(&argument);
 
 	string morphId = GetMorphIdByName(argument);
-	
+
 	if (morphId.empty())
 	{
 		send_to_char("Форма '"+string(argument)+"' не найдена. \r\n", ch);
 		PrintAllMorphsList(ch);
 		return;
 	}
-	
+
 	if (vict->know_morph(morphId))
 	{
 		send_to_char(string(vict->get_name()) + " уже знает эту форму. \r\n", ch);
@@ -295,7 +295,7 @@ ACMD(do_morphset)
 	}
 
 	vict->add_morph(morphId);
-	
+
 	sprintf(buf2, "%s add morph %s to %s.", GET_NAME(ch), MorphList[morphId]->Name().c_str(), GET_NAME(vict));
 	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
 	imm_log("%s add morph %s to %s.", GET_NAME(ch), MorphList[morphId]->Name().c_str(), GET_NAME(vict));
@@ -321,7 +321,7 @@ void load_morphs()
 		return;
 	}
 	MIN_WIS_FOR_MORPH = node_list.attribute("minWis").as_int();
-	
+
 	for (pugi::xml_node morph = node_list.child("morph");morph; morph = morph.next_sibling("morph"))
 	{
 		string id = string(morph.attribute("id").value());
@@ -341,12 +341,12 @@ void load_morphs()
 		}
 		CharSkillsType skills;
 		std::vector<long> affs;
-		pugi::xml_node skillsList=morph.child("skills"); 
-		pugi::xml_node affectsList=morph.child("affects"); 
-		pugi::xml_node messagesList=morph.child("messages"); 
+		pugi::xml_node skillsList=morph.child("skills");
+		pugi::xml_node affectsList=morph.child("affects");
+		pugi::xml_node messagesList=morph.child("messages");
 		string name = morph.child_value("name");
 		string padName = morph.child_value("padName");
-		string coverDesc = morph.child_value("cover");		
+		string coverDesc = morph.child_value("cover");
 		string speech = morph.child_value("speech");
 		string messageToChar, messageToRoom;
 
@@ -426,7 +426,7 @@ void morphs_load(CHAR_DATA* ch, std::string line)
 {
 	std::vector<string> morphs;
 	std::vector<string>::const_iterator it;
-	boost::split( morphs, line, boost::is_any_of("#"), boost::token_compress_on );
+	boost::split( morphs, line, boost::is_any_of(std::string("#")), boost::token_compress_on );
 	for (it = morphs.begin(), ++it;it!=morphs.end();++it)
 	{
 		if (ExistsMorph(*it) && !ch->know_morph(*it))

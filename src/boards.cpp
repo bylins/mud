@@ -297,7 +297,7 @@ ACMD(DoBoard)
 	std::string buffer, buffer2 = argument;
 	time_t const date = GET_BOARD_DATE(ch, (*board)->type);
 	GetOneParam(buffer2, buffer);
-	boost::trim_if(buffer2, boost::is_any_of(" \'"));
+	boost::trim_if(buffer2, boost::is_any_of(std::string(" \'")));
 	// первый аргумент в buffer, второй в buffer2
 
 	if (CompareParam(buffer, "список") || CompareParam(buffer, "list"))
@@ -705,7 +705,7 @@ SPECIAL(Board::Special)
 	// список сообщений
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
-	boost::trim_if(buffer, boost::is_any_of(" \'"));
+	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 	if ((CMD_IS("смотреть") || CMD_IS("осмотреть") || CMD_IS("look") || CMD_IS("examine")
 			|| CMD_IS("читать") || CMD_IS("read")) && (CompareParam(buffer2, "доска") || CompareParam(buffer2, "board")))
 	{

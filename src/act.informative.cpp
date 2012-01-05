@@ -387,7 +387,7 @@ std::string space_before_string(char const *text)
 		std::string tmp(" ");
 		tmp += text;
 		boost::replace_all(tmp, "\n", "\n ");
-		boost::trim_right_if(tmp, boost::is_any_of(" "));
+		boost::trim_right_if(tmp, boost::is_any_of(std::string(" ")));
 		return tmp;
 	}
 	return "";

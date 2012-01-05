@@ -456,7 +456,7 @@ ACMD(do_proxy)
 			return;
 		}
 
-		boost::trim_if(buffer, boost::is_any_of(" \'"));
+		boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 		if (buffer.empty())
 		{
 			send_to_char("Укажите причину регистрации.\r\n", ch);

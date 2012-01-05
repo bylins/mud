@@ -1664,7 +1664,7 @@ ACMD(DoClanList)
 		return;
 
 	std::string buffer = argument;
-	boost::trim_if(buffer, boost::is_any_of(" \'"));
+	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 	ClanListType::const_iterator clan;
 
 	if (buffer.empty())
@@ -1792,7 +1792,7 @@ ACMD(DoShowWars)
 	ClanListType::const_iterator clan1, clan2;
 
 	std::string buffer = argument;
-	boost::trim_if(buffer, boost::is_any_of(" \'"));
+	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 
 	std::ostringstream buffer3;
 	buffer3 << "Дружины, находящиеся в состоянии войны:\r\n";
@@ -1842,7 +1842,7 @@ ACMD(DoShowPolitics)
 	}
 
 	std::string buffer = argument;
-	boost::trim_if(buffer, boost::is_any_of(" \'"));
+	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 	if (!buffer.empty() && CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_POLITICS])
 	{
 		CLAN(ch)->ManagePolitics(ch, buffer);
@@ -2283,7 +2283,7 @@ void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 	std::string abbrev;
 	GetOneParam(buffer, abbrev);
 	// название клана
-	boost::trim_if(buffer, boost::is_any_of(" \'"));
+	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 	std::string name = buffer;
 
 	// тут проверяем наличие все этого дела
@@ -2396,7 +2396,7 @@ void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 // удаление дружины (hcontrol destroy)
 void Clan::HcontrolDestroy(CHAR_DATA * ch, std::string & buffer)
 {
-	boost::trim_if(buffer, boost::is_any_of(" \'"));
+	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 	int rent = atoi(buffer.c_str());
 
 	ClanListType::iterator clan;
@@ -2584,7 +2584,7 @@ ACMD(DoClanPkList)
 			send_to_char("Давайте не будем засорять список всяким бредом?\r\n", ch);
 			return;
 		}
-		boost::trim_if(buffer, boost::is_any_of(" \'"));
+		boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 		if (buffer.empty())
 		{
 			send_to_char("Потрудитесь прокомментировать, за что Вы его так.\r\n", ch);
@@ -5011,7 +5011,7 @@ void SetChestMode(CHAR_DATA *ch, std::string &buffer)
 		return;
 	}
 
-	boost::trim_if(buffer, boost::is_any_of(" \'"));
+	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 	if (CompareParam(buffer, "нет"))
 	{
 		REMOVE_BIT(PRF_FLAGS(ch, PRF_DECAY_MODE), PRF_DECAY_MODE);

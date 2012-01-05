@@ -3894,7 +3894,7 @@ void load_zones(FILE * fl, char *zonename)
 	if (*buf == '^')
 	{
 		std::string comment(buf);
-		boost::trim_if(comment, boost::is_any_of("^~"));
+		boost::trim_if(comment, boost::is_any_of(std::string("^~")));
 		Z.comment = str_dup(comment.c_str());
 		line_num += get_line(fl, buf);
 	}
