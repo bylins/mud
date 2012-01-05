@@ -4519,24 +4519,32 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 22:
 	case 23:
 	case 24:
+	{
+		const unsigned num = mode - 22; // magic number циркулевских времен
+		if (num >= (ch)->player_specials->saved.conditions.size())
+		{
+			send_to_char("Ошибка: num >= saved.conditions.size(), сообщите кодерам.\r\n", ch);
+			return 0;
+		}
 		if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл"))
 		{
-			GET_COND(vict, (mode - 29)) = (char) - 1;	/* warning: magic number here */
+			GET_COND(vict, num) = -1;
 			sprintf(output, "Для %s %s сейчас отключен.", GET_PAD(vict, 1), set_fields[mode].cmd);
 		}
 		else if (is_number(val_arg))
 		{
 			value = atoi(val_arg);
 			RANGE(0, 24);
-			GET_COND(vict, (mode - 29)) = (char) value;	/* and here too */
+			GET_COND(vict, num) = value;
 			sprintf(output, "Для %s %s установлен в %d.", GET_PAD(vict, 1), set_fields[mode].cmd, value);
 		}
 		else
 		{
 			send_to_char("Должно быть 'off' или значение от 0 до 24.\r\n", ch);
-			return (0);
+			return 0;
 		}
 		break;
+	}
 	case 25:
 		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_THIEF), PLR_THIEF);
 		break;
