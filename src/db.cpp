@@ -170,7 +170,7 @@ void SaveGlobalUID(void);
 void LoadGlobalUID(void);
 bool check_object_spell_number(OBJ_DATA * obj, unsigned val);
 int check_object_level(OBJ_DATA * obj, int val);
-void setup_dir(FILE * fl, int room, int dir);
+void setup_dir(FILE * fl, int room, unsigned dir);
 void index_boot(int mode);
 void discrete_load(FILE * fl, int mode, char *filename);
 int check_object(OBJ_DATA *);
@@ -2516,8 +2516,14 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 
 
 /* read direction data */
-void setup_dir(FILE * fl, int room, int dir)
+void setup_dir(FILE * fl, int room, unsigned dir)
 {
+	if (dir >= world[room]->dir_option.size())
+	{
+		log("SYSERROR : dir=%d (%s:%d)", dir, __FILE__, __LINE__);
+		return;
+	}
+
 	int t[5];
 	char line[256];
 
