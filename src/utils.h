@@ -160,15 +160,13 @@ int move_gain(CHAR_DATA * ch);
 void advance_level(CHAR_DATA * ch);
 void gain_exp(CHAR_DATA * ch, int gain, int clan_exp = 0);
 void gain_exp_regardless(CHAR_DATA * ch, int gain);
+void gain_condition(CHAR_DATA * ch, unsigned condition, int value);
 void check_idling(CHAR_DATA * ch);
 void point_update(void);
 void room_point_update();
 void exchange_point_update();
 void obj_point_update();
 void update_pos(CHAR_DATA * victim);
-
-enum ConditionType { DRUNK, FULL, THIRST};
-void gain_condition(CHAR_DATA * ch, ConditionType condition, int value);
 
 /* various constants *****************************************************/
 

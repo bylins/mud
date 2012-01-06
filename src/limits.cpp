@@ -894,8 +894,13 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 	}
 }
 
-void gain_condition(CHAR_DATA * ch, ConditionType condition, int value)
+void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 {
+	if (condition >= ch->player_specials->saved.conditions.size())
+	{
+		log("SYSERROR : condition=%d (%s:%d)", condition, __FILE__, __LINE__);
+		return;
+	}
 	if (IS_NPC(ch) || GET_COND(ch, condition) == -1)
 	{
 		return;

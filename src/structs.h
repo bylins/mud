@@ -1047,6 +1047,8 @@ typedef struct trig_data TRIG_DATA;
 
 /* other miscellaneous defines *******************************************/
 
+enum { DRUNK, FULL, THIRST};
+
 /* Sun state for weather_data */
 #define SUN_DARK  0
 #define SUN_RISE  1
