@@ -1047,13 +1047,6 @@ typedef struct trig_data TRIG_DATA;
 
 /* other miscellaneous defines *******************************************/
 
-
-/* Player conditions */
-#define DRUNK        0
-#define FULL         1
-#define THIRST       2
-
-
 /* Sun state for weather_data */
 #define SUN_DARK  0
 #define SUN_RISE  1

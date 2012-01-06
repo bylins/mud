@@ -894,18 +894,16 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 	}
 }
 
-
-void gain_condition(CHAR_DATA * ch, int condition, int value)
+void gain_condition(CHAR_DATA * ch, ConditionType condition, int value)
 {
-	bool intoxicated;
-
-	if (IS_NPC(ch) || GET_COND(ch, condition) == -1)	/* No change */
+	if (IS_NPC(ch) || GET_COND(ch, condition) == -1)
+	{
 		return;
+	}
 
-	intoxicated = (GET_COND(ch, DRUNK) >= CHAR_DRUNKED);
+	bool intoxicated = (GET_COND(ch, DRUNK) >= CHAR_DRUNKED);
 
 	GET_COND(ch, condition) += value;
-
 	GET_COND(ch, condition) = MAX(0, GET_COND(ch, condition));
 	GET_COND(ch, condition) = MIN(24, GET_COND(ch, condition));
 
