@@ -613,6 +613,7 @@ const char *connected_types[] = { "В игре",
 								  "NamedStuff OLC",
                                   "Select new kin",
                                   "Select new race",
+								  "Interactive console",
 								  "\n"
 								};
 

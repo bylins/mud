@@ -9,7 +9,6 @@
 #include <map>
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
-//#include <ext/hash_map>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -330,7 +329,12 @@ public:
 	const char * get_npc_name() const;
 	void set_npc_name(const char *name);
 	const std::string & get_name_str() const;
-
+	const char* get_pad(unsigned pad) const;
+	void set_pad(unsigned pad, const char* s);
+	const char* get_long_descr() const;
+	void set_long_descr(const char*);
+	const char* get_description() const;
+	void set_description(const char*);
 	short get_class() const;
 	void set_class(short chclass);
 
@@ -351,6 +355,27 @@ public:
 
 	time_t get_last_logon() const;
 	void set_last_logon(time_t num);
+
+	byte get_sex() const;
+	void set_sex(const byte );
+	ubyte get_weight() const;
+	void set_weight(const ubyte );
+	ubyte get_height() const;
+	void set_height(const ubyte );
+	ubyte get_religion() const;
+	void set_religion(const ubyte );
+	ubyte get_kin() const;
+	void set_kin(const ubyte );
+	ubyte get_race() const;
+	void set_race(const ubyte );
+	int get_hit() const;
+	void set_hit(const int );
+	int get_max_hit() const;
+	void set_max_hit(const int );
+	sh_int get_move() const;
+	void set_move(const sh_int );
+	sh_int get_max_move() const;
+	void set_max_move(const sh_int );
 
 	////////////////////////////////////////////////////////////////////////////
 	long get_gold() const;
@@ -475,6 +500,7 @@ private:
 	long idnum_;
 	// uid (бывший unique) чара
 	int uid_;
+	//#
 	// экспа
 	long exp_;
 	// реморты
@@ -537,7 +563,6 @@ public:
 
 	OBJ_DATA *carrying;	/* Head of list                  */
 	DESCRIPTOR_DATA *desc;	/* NULL for mobiles              */
-
 	long id;			/* used by DG triggers             */
 	struct trig_proto_list *proto_script;	/* list of default triggers      */
 	struct script_data *script;	/* script info for the object      */

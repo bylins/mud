@@ -53,6 +53,7 @@
 #include "glory_const.hpp"
 #include "glory_misc.hpp"
 #include "named_stuff.hpp"
+#include "scripting.hpp"
 #include "player_races.hpp"
 #include "birth_places.hpp"
 
@@ -400,6 +401,7 @@ ACMD(do_sanitize);
 ACMD(do_morph);
 ACMD(do_morphset);
 ACMD(do_inlay);
+ACMD(do_console);
 
 /* This is the Master Command List(tm).
 
@@ -946,6 +948,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"proxy", POS_DEAD, do_proxy, LVL_GRGOD, 0, 0},
 	{"purge", POS_DEAD, do_purge, LVL_GOD, 0, 0},
 	{"put", POS_RESTING, do_put, 0, 0, 500},
+	{"python", POS_DEAD, do_console, LVL_GOD, 0, 0},
 	{"quaff", POS_RESTING, do_use, 0, SCMD_QUAFF, 500},
 	{"qui", POS_SLEEPING, do_quit, 0, 0, 0},
 	{"quit", POS_SLEEPING, do_quit, 0, SCMD_QUIT, -1},
@@ -2488,8 +2491,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	char buf[MAX_STRING_LENGTH];
 	int player_i, load_result;
 	char tmp_name[MAX_INPUT_LENGTH], pwd_name[MAX_INPUT_LENGTH], pwd_pwd[MAX_INPUT_LENGTH];
-
-	skip_spaces(&arg);
+	if (STATE(d) != CON_CONSOLE)
+		skip_spaces(&arg);
 
 	switch (STATE(d))
 	{
@@ -2529,6 +2532,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	case CON_NAMED_STUFF:
 		if (!NamedStuff::parse_nedit_menu(d->character, arg))
 			NamedStuff::nedit_menu(d->character);
+		break;
+	case CON_CONSOLE:
+		d->console->push(arg);
 		break;
 		/*. End of OLC states . */
 

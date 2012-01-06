@@ -17,16 +17,17 @@ CFLAGS = -ggdb3 -O2 -Wall -DBOOST_ENABLE_ASSERT_HANDLER
 TESTCFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH
 DEBUGFLAGS = -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC
 FASTTEST   = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -O3
+SEARCHPATH = -I /usr/include/python2.6
 
 #LIBS =  -lsocket -lnsl
-LIBS =  -lz -lcrypt
+LIBS =  -lz -lcrypt -lpython2.6 -lboost_python-mt
 
 OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	act.offensive.o act.other.o act.social.o act.wizard.o alias.o ban.o \
 	boards.o class.o comm.o config.o constants.o features.o db.o fight.o \
 	graph.o handler.o house.o interpreter.o limits.o magic.o mail.o \
 	mobact.o modify.o objsave.o olc.o random.o shop.o spec_assign.o \
-	spec_procs.o spell_parser.o spells.o utils.o weather.o \
+	spec_procs.o spell_parser.o spells.o utils.o weather.o scripting.o\
 	redit.o oedit.o zedit.o medit.o sedit.o \
 	dg_comm.o dg_db_scripts.o dg_event.o dg_handler.o dg_mobcmd.o \
 	dg_misc.o dg_objcmd.o dg_scripts.o dg_triggers.o dg_wldcmd.o dg_olc.o \
@@ -36,7 +37,7 @@ OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	char.o char_player.o quested.o mobmax.o parcel.o liquid.o poison.o \
 	corpse.o house_exp.o remember.o name_list.o dps.o obj.spell.o obj.o room.o \
 	spam.o AffectHandler.o glory_const.o pugixml.o morph.o glory_misc.o \
-	shop_ext.o named_stuff.o birth_places.o player_races.o celebrates.o version.o
+	shop_ext.o named_stuff.o birth_places.o player_races.o celebrates.o cache.o version.o
 	
 
 CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
@@ -48,14 +49,14 @@ CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	redit.cpp oedit.cpp zedit.cpp medit.cpp sedit.cpp \
 	dg_comm.cpp dg_db_scripts.cpp dg_event.cpp dg_handler.cpp dg_mobcmd.cpp \
 	dg_misc.cpp dg_objcmd.cpp dg_scripts.cpp dg_triggers.cpp dg_wldcmd.cpp dg_olc.cpp \
-	color.cpp pk.cpp genchar.cpp diskio.cpp im.cpp names.cpp \
+	color.cpp pk.cpp genchar.cpp diskio.cpp im.cpp names.cpp scripting.cpp \
 	auction.cpp item.creation.cpp skills.cpp exchange.cpp top.cpp stuff.cpp \
 	description.cpp deathtrap.cpp title.cpp password.cpp privilege.cpp \
 	depot.cpp glory.cpp file_crc.cpp char.cpp char_player.cpp quested.cpp mobmax.cpp \
 	parcel.cpp liquid.cpp poison.cpp corpse.cpp house_exp.cpp remember.cpp \
 	name_list.cpp dps.cpp obj.spell.cpp obj.cpp room.cpp spam.cpp AffectHandler.cpp \
 	glory_const.cpp pugixml.cpp glory_misc.cpp shop_ext.cpp named_stuff.cpp \
-	celebrates.cpp birth_places.cpp player_races.cpp morph.cpp version.cpp
+	celebrates.cpp birth_places.cpp player_races.cpp morph.cpp cache.cpp version.cpp
 
 default: circle
 
@@ -100,7 +101,7 @@ fasttest:
 # gcc -MM)
 
 .cpp.o:
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) $(SEARCHPATH) -c $(CFLAGS) -o $@ $<
 
 include .depend
 

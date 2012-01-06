@@ -63,6 +63,7 @@
 #include "glory_misc.hpp"
 #include "glory_const.hpp"
 #include "celebrates.hpp"
+#include "scripting.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -499,7 +500,7 @@ void init_game(ush_int port)
 
 	log("Opening mother connection.");
 	mother_desc = init_socket(port);
-
+	scripting::init();
 	boot_db();
 
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
@@ -509,6 +510,7 @@ void init_game(ush_int port)
 
 	/* If we made it this far, we will be able to restart without problem. */
 	remove(KILLSCRIPT_FILE);
+
 	log("Entering game loop.");
 
 	game_loop(mother_desc);
@@ -545,6 +547,7 @@ void init_game(ush_int port)
 	MoneyDropStat::print_log();
 	ZoneExpStat::print_log();
 	print_rune_log();
+	scripting::terminate();
 
 	log("Closing all sockets.");
 	while (descriptor_list)
@@ -1778,6 +1781,8 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		sprintf(prompt, "\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы (%d/%d).", d->showstr_page, d->showstr_count);
 	else if (d->str)
 		strcpy(prompt, "] ");
+	else if (STATE(d) == CON_CONSOLE)
+		strcpy(prompt, d->console->get_prompt().c_str());
 	else if (STATE(d) == CON_PLAYING && !IS_NPC(d->character))
 	{
 		int count = 0;

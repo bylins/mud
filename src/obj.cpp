@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "pk.h"
 #include "celebrates.hpp"
+#include "cache.hpp"
 #include "screen.h"
 #include "comm.h"
 #include "char.hpp"
@@ -44,14 +45,22 @@ obj_data::obj_data() :
 	timer_(0),
 	mort_req_(0)
 {
+	caching::obj_cache.add(this);
 	memset(&obj_flags, 0, sizeof(obj_flag_data));
 
 	for (int i = 0; i < 6; i++)
 		PNames[i] = NULL;
 }
 
+obj_data::obj_data(const obj_data& other)
+{
+	*this = other;
+	caching::obj_cache.add(this);
+}
+
 obj_data::~obj_data()
 {
+	caching::obj_cache.remove(this);
 	bloody::remove_obj(this); //см. комментарий в структуре BloodyInfo из pk.cpp
 	//weak_ptr тут бы был какраз в тему
 	Celebrates::remove_from_obj_lists(this->uid);

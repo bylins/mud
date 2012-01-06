@@ -712,6 +712,7 @@ typedef struct trig_data TRIG_DATA;
 #define CON_NAMED_STUFF  50 // редактирует именной стаф
 #define CON_RESET_KIN    51 // выбор расы после смены/удаления оной (или иного способа испоганивания значения)
 #define CON_RESET_RACE   52 // выбор РОДА посла смены/сброса оного
+#define CON_CONSOLE      53 // Интерактивная скриптовая консоль
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 /* Character equipment positions: used as index for char_data.equipment[] */
@@ -1500,6 +1501,11 @@ struct stuff_node;
 
 }
 
+namespace scripting
+{
+	class Console;
+}
+
 struct descriptor_data
 {
 	socket_t descriptor;	/* file descriptor for socket    */
@@ -1568,6 +1574,7 @@ struct descriptor_data
 	// вливание славы2
 	boost::shared_ptr<GloryConst::glory_olc> glory_const;
 	boost::shared_ptr<NamedStuff::stuff_node> named_obj;	// редактируемая именная шмотка
+	boost::shared_ptr<scripting::Console> console;	// Скриптовая консоль
 	unsigned long cur_vnum;					// текущий внум именной шмотки
 	unsigned long old_vnum;					// старый внум именной шмотки
     short CharBirthPlace;                   // ID точки входа в игру для новых чаров, тупо, но что поделать

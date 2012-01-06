@@ -77,7 +77,7 @@ class activation
 {
 	std::string actmsg, deactmsg, room_actmsg, room_deactmsg;
 	flag_data affects;
-	obj_affected_type affected[MAX_OBJ_AFFECT];
+	boost::array<obj_affected_type, MAX_OBJ_AFFECT> affected;
 	int weight, ndices, nsides;
 	std::map<int, int> skills;
 
@@ -220,7 +220,7 @@ public:
 		return *this;
 	}
 
-	const obj_affected_type*
+	const boost::array<obj_affected_type, MAX_OBJ_AFFECT>&
 	get_affected() const
 	{
 		return affected;
@@ -351,6 +351,7 @@ public:
 struct obj_data
 {
 	obj_data();
+	obj_data(const obj_data&);
 	~obj_data();
 
 	unsigned int uid;
@@ -358,7 +359,7 @@ struct obj_data
 	room_rnum in_room;	/* In what room -1 when conta/carr */
 
 	struct obj_flag_data obj_flags;		/* Object information       */
-	struct obj_affected_type affected[MAX_OBJ_AFFECT];	/* affects */
+	boost::array<obj_affected_type, MAX_OBJ_AFFECT> affected;	/* affects */
 
 	char *name;		/* Title of object :get etc.        */
 	char *description;	/* When in room                     */

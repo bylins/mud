@@ -22,6 +22,7 @@
 #include "room.hpp"
 #include "player_races.hpp"
 #include "celebrates.hpp"
+#include "cache.hpp"
 
 std::string PlayerI::empty_const_str;
 
@@ -87,6 +88,7 @@ Character::Character()
 {
 	this->zero_init();
 	current_morph_ = NormalMorph::GetNormalMorph(this);
+	caching::character_cache.add(this);
 }
 
 Character::~Character()
@@ -194,6 +196,7 @@ void Character::zero_init()
 */
 void Character::purge(bool destructor)
 {
+	caching::character_cache.remove(this);
 	if (purged_)
 	{
 		log("SYSERROR: double purge (%s:%d)", __FILE__, __LINE__);
@@ -775,6 +778,59 @@ void Character::set_npc_name(const char *name)
 	}
 }
 
+const char* Character::get_pad(unsigned pad) const
+{
+	if (pad < 6)
+		return player_data.PNames[pad];
+	else return NULL;
+}
+
+void Character::set_pad(unsigned pad, const char* s)
+{
+	int i;
+	if (GET_PAD(this, pad))
+	{
+		bool f = !IS_NPC(this) || (IS_NPC(this) && GET_MOB_RNUM(this) == -1); //if this is a player, or a non-prototyped non-player
+		if (!f) f |= (i = GET_MOB_RNUM(this)) >= 0 && GET_PAD(this, pad) != GET_PAD(&mob_proto[i], pad); //prototype mob, field modified
+		if (f) free(GET_PAD(this, pad));
+	}
+	GET_PAD(this, pad) = str_dup(s);
+}
+
+const char* Character::get_long_descr() const
+{
+	return player_data.long_descr;
+}
+
+void Character::set_long_descr(const char* s)
+{
+	int i;
+	if (player_data.long_descr)
+	{
+		bool f = !IS_NPC(this) || (IS_NPC(this) && GET_MOB_RNUM(this) == -1); //if this is a player, or a non-prototyped non-player
+		if (!f) f |= (i = GET_MOB_RNUM(this)) >= 0 && player_data.long_descr != mob_proto[i].player_data.long_descr; //prototype mob, field modified
+		if (f) free(player_data.long_descr);
+	}
+	player_data.long_descr = str_dup(s);
+}
+
+const char* Character::get_description() const
+{
+	return player_data.description;
+}
+
+void Character::set_description(const char* s)
+{
+	int i;
+	if (player_data.description)
+	{
+		bool f = !IS_NPC(this) || (IS_NPC(this) && GET_MOB_RNUM(this) == -1); //if this is a player, or a non-prototyped non-player
+		if (!f) f |= (i = GET_MOB_RNUM(this)) >= 0 && player_data.description != mob_proto[i].player_data.description; //prototype mob, field modified
+		if (f) free(player_data.description);
+	}
+	player_data.description = str_dup(s);
+}
+
 short Character::get_class() const
 {
 	return chclass_;
@@ -857,6 +913,113 @@ time_t Character::get_last_logon() const
 void Character::set_last_logon(time_t num)
 {
 	last_logon_ = num;
+}
+
+byte Character::get_sex() const
+{
+	return player_data.sex;
+}
+
+void Character::set_sex(const byte v)
+{
+	if (v>=0 && v<NUM_SEXES)
+		player_data.sex = v;
+}
+
+ubyte Character::get_weight() const
+{
+	return player_data.weight;
+}
+
+void Character::set_weight(const ubyte v)
+{
+	player_data.weight = v;
+}
+
+ubyte Character::get_height() const
+{
+	return player_data.height;
+}
+
+void Character::set_height(const ubyte v)
+{
+	player_data.height = v;
+}
+
+ubyte Character::get_religion() const
+{
+	return player_data.Religion;
+}
+
+void Character::set_religion(const ubyte v)
+{
+	if (v>=0 && v < 2)
+		player_data.Religion = v;
+}
+
+ubyte Character::get_kin() const
+{
+	return player_data.Kin;
+}
+
+void Character::set_kin(const ubyte v)
+{
+	if (v>=0 && v < NUM_KIN)
+		player_data.Kin = v;
+}
+
+ubyte Character::get_race() const
+{
+	return player_data.Race;
+}
+
+void Character::set_race(const ubyte v)
+{
+	player_data.Race = v;
+}
+
+int Character::get_hit() const
+{
+	return points.hit;
+}
+
+void Character::set_hit(const int v)
+{
+	if (v>=-10)
+		points.hit = v;
+}
+
+int Character::get_max_hit() const
+{
+	return points.max_hit;
+}
+
+void Character::set_max_hit(const int v)
+{
+	if (v >= 0)
+		points.max_hit = v;
+}
+
+sh_int Character::get_move() const
+{
+	return points.move;
+}
+
+void Character::set_move(const sh_int v)
+{
+	if (v >= 0)
+		points.move = v;
+}
+
+sh_int Character::get_max_move() const
+{
+	return points.max_move;
+}
+
+void Character::set_max_move(const sh_int v)
+{
+	if (v >= 0)
+		points.max_move = v;
 }
 
 long Character::get_gold() const
