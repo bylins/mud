@@ -168,7 +168,7 @@ class insert_wanted_gem iwg;
 /* local functions */
 void SaveGlobalUID(void);
 void LoadGlobalUID(void);
-int check_object_spell_number(OBJ_DATA * obj, int val);
+bool check_object_spell_number(OBJ_DATA * obj, unsigned val);
 int check_object_level(OBJ_DATA * obj, int val);
 void setup_dir(FILE * fl, int room, int dir);
 void index_boot(int mode);
@@ -216,7 +216,7 @@ void init_basic_values(void);
 int init_grouping(void);
 void init_portals(void);
 void init_im(void);
-void init_zone_types(void);
+void init_zone_types();
 void load_guardians();
 pugi::xml_node XMLLoad(const string *PathToFile, const string *MainTag, const string *ErrorStr); // Базовая функция загрузки XML конфигов
 
@@ -696,7 +696,7 @@ void boot_world(void)
 }
 
 //MZ.load
-void init_zone_types(void)
+void init_zone_types()
 {
 	FILE *zt_file;
 	char tmp[1024], dummy[128], name[128], itype_num[128];
@@ -6591,22 +6591,28 @@ int check_object(OBJ_DATA * obj)
 	return (error);
 }
 
-int check_object_spell_number(OBJ_DATA * obj, int val)
+bool check_object_spell_number(OBJ_DATA * obj, unsigned val)
 {
-	int error = FALSE;
+	if (val >= obj->obj_flags.value.size())
+	{
+		log("SYSERROR : val=%d (%s:%d)", val, __FILE__, __LINE__);
+		return true;
+	}
+
+	bool error = false;
 	const char *spellname;
 
 	if (GET_OBJ_VAL(obj, val) == -1)	/* i.e.: no spell */
-		return (error);
+		return error;
 
 	/*
 	 * Check for negative spells, spells beyond the top define, and any
 	 * spell which is actually a skill.
 	 */
 	if (GET_OBJ_VAL(obj, val) < 0)
-		error = TRUE;
+		error = true;
 	if (GET_OBJ_VAL(obj, val) > TOP_SPELL_DEFINE)
-		error = TRUE;
+		error = true;
 	if (error)
 		log("SYSERR: Object #%d (%s) has out of range spell #%d.",
 			GET_OBJ_VNUM(obj), obj->short_description, GET_OBJ_VAL(obj, val));
@@ -6623,16 +6629,17 @@ int check_object_spell_number(OBJ_DATA * obj, int val)
 #endif
 
 	if (scheck)		/* Spell names don't exist in syntax check mode. */
-		return (error);
+		return error;
 
 	/* Now check for unnamed spells. */
 	spellname = spell_name(GET_OBJ_VAL(obj, val));
 
 	if ((spellname == unused_spellname || !str_cmp("UNDEFINED", spellname))
-			&& (error = TRUE))
+			&& (error = true))
 		log("SYSERR: Object #%d (%s) uses '%s' spell #%d.", GET_OBJ_VNUM(obj),
 			obj->short_description, spellname, GET_OBJ_VAL(obj, val));
-	return (error);
+
+	return error;
 }
 
 int check_object_level(OBJ_DATA * obj, int val)
