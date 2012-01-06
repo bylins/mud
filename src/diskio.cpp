@@ -356,8 +356,7 @@ int fbcat(char *fromfilename, FBFILE * tofile)
 
 namespace DiskIo
 {
-using namespace std;
-
+using std::string;
 
 const int read_line_blocksize = 1024;
 

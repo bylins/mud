@@ -1,16 +1,19 @@
 #ifndef MORPH_HPP_INCLUDED
 #define MORPH_HPP_INCLUDED
 
-#include <list> 
-#include <vector> 
+#include <list>
+#include <vector>
 #include <boost/shared_ptr.hpp>
-#include "comm.h" 
+#include "comm.h"
 
-using namespace std;
+using std::list;
+using std::string;
+using std::map;
+using std::vector;
 
 extern short MIN_WIS_FOR_MORPH;
 
-typedef struct 
+typedef struct
 {
 	int fromLevel;
 	string desc;
@@ -38,7 +41,7 @@ public:
 	virtual string GetMorphTitle()=0;
 	virtual void InitSkills(int value) {};
 	virtual void InitAbils() {};
-	virtual void SetAbilsParams(short toStr, short toDex, short toCon, short toInt, short toCha) {}; 
+	virtual void SetAbilsParams(short toStr, short toDex, short toCon, short toInt, short toCha) {};
 	virtual void SetChar(CHAR_DATA *ch) {};
 	virtual string CoverDesc() {return "";};
 	virtual bool isAffected(long flag) const {return false;}
@@ -127,16 +130,16 @@ class AnimalMorph : public IMorph
 	string messageToRoom_, messageToChar_;
 
 public:
-	AnimalMorph(string id, string name, string padName, DescListType descList, MorphSkillsList skills, string coverDesc, string speech) : 
+	AnimalMorph(string id, string name, string padName, DescListType descList, MorphSkillsList skills, string coverDesc, string speech) :
 		id_(id),
-		name_(name), 
+		name_(name),
 		padName_(padName),
 		descList_(descList),
 		skills_(skills),
 		coverDesc_(coverDesc),
 		speech_(speech)
 	{};
-	
+
 	~AnimalMorph() {};
 
 	string GetMorphDesc();
@@ -147,14 +150,14 @@ public:
 	void InitSkills(int value);
 	void InitAbils();
 	void SetChar(CHAR_DATA *ch);
-	void SetAbilsParams(short toStr, short toDex, short toCon, short toInt, short toCha) 
+	void SetAbilsParams(short toStr, short toDex, short toCon, short toInt, short toCha)
 	{
 		toStr_ = toStr;
 		toDex_ = toDex;
 		toCon_ = toCon;
 		toCha_ = toCha;
 		toInt_ = toInt;
-	}; 
+	};
 	bool isAffected(long flag) const;
 	void AddAffect(long flag);
 	std::vector<long> GetAffects();

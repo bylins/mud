@@ -400,7 +400,6 @@ ACMD(do_bandage);
 ACMD(do_sanitize);
 ACMD(do_morph);
 ACMD(do_morphset);
-ACMD(do_inlay);
 ACMD(do_console);
 
 /* This is the Master Command List(tm).
@@ -530,7 +529,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"вскочить", POS_FIGHTING, do_horseon, 0, 0, 500},
 	{"встать", POS_RESTING, do_stand, 0, 0, 500},
 	{"вспомнить", POS_DEAD, do_remember_char, 0, 0, 0},
-	{"вставить", POS_RESTING, do_inlay, 0, 0, 0},
 	{"выбросить", POS_RESTING, do_drop, 0, 0 /*SCMD_DONATE */ , 300},
 	{"выследить", POS_STANDING, do_track, 0, 0, 500},
 	{"вылить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},

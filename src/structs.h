@@ -847,9 +847,9 @@ typedef struct trig_data TRIG_DATA;
 #define ITEM_NO_FAIL       (INT_ONE | (1 << 7)) // не фейлится при изучении (в случае книги)
 #define ITEM_NAMED         (INT_ONE | (1 << 8)) // именной предмет
 #define ITEM_BLOODY        (INT_ONE | (1 << 9)) // окровавленная вещь (снятая с трупа)
-#define ITEM_1INLAID       (INT_ONE | (1 << 10)) // инкрустированная 1 камнем
-#define ITEM_2INLAID       (INT_ONE | (1 << 11)) // инкрустированная 2 камнями
-#define ITEM_3INLAID       (INT_ONE | (1 << 12)) // инкрустированная 3 камнями
+#define ITEM_1INLAID       (INT_ONE | (1 << 10)) // инкрустированная 1 камнем (TODO: не используется)
+#define ITEM_2INLAID       (INT_ONE | (1 << 11)) // инкрустированная 2 камнями -//-
+#define ITEM_3INLAID       (INT_ONE | (1 << 12)) // инкрустированная 3 камнями -//-
 
 #define ITEM_NO_MONO       (1 << 0)
 #define ITEM_NO_POLY       (1 << 1)

@@ -35,7 +35,7 @@
 
 namespace DiskIo
 {
-//using namespace std;
+
 bool read_line(FILE * fl, std::string & line, bool cut_cr_lf);
 
 } typedef struct

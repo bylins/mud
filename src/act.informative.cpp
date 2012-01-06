@@ -2110,20 +2110,6 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 				strcat(buf, "нет слотов\r\n");
 			sprintf(buf+strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
 		}
-
-		if (GET_CLASS(ch) == CLASS_WARRIOR)
-		{
-			sprintf(buf+strlen(buf), "Слоты для инкрустации : %s", CCCYN(ch, C_NRM));
-			if (OBJ_FLAGGED(obj, ITEM_3INLAID))
-				strcat(buf, "доступно 3 слота\r\n");
-			else if (OBJ_FLAGGED(obj, ITEM_2INLAID))
-				strcat(buf, "доступно 2 слота\r\n");
-			else if (OBJ_FLAGGED(obj, ITEM_1INLAID))
-				strcat(buf, "доступен 1 слот\r\n");
-			else
-				strcat(buf, "нет слотов\r\n");
-			sprintf(buf+strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
-		}
 }
 /*
  * Given the argument "look at <target>", figure out what object or char

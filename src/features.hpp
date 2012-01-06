@@ -110,7 +110,7 @@ using std::bitset;
 #define ARMOR_LIGHT_FEAT		91 // ношение легкого типа доспехов
 #define ARMOR_MEDIAN_FEAT		92 // ношение среднего типа доспехов
 #define ARMOR_HEAVY_FEAT		93 // ношение тяжелого типа доспехов
-#define GEMS_INLAY_FEAT			94 // инкрустация камнями
+#define GEMS_INLAY_FEAT			94 // инкрустация камнями (TODO: не используется)
 #define WARRIOR_STR_FEAT		95 // богатырская сила
 
 /*

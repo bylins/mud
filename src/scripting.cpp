@@ -722,7 +722,7 @@ struct _arrayN
 {
     typedef boost::array<T,N> arrayN;
 
-    static T get(arrayN const& self, int idx) 
+    static T get(arrayN const& self, int idx)
     {
       if( !(0<=idx && idx<N ))
 	  {
@@ -732,9 +732,9 @@ struct _arrayN
 	  return self[idx];
     }
 
-    static boost::python::list getslice(arrayN const& self, int a,int b) 
+    static boost::python::list getslice(arrayN const& self, int a,int b)
     {
-      if( !(a>=0 && a<N && b>0 && b<=N) ) 
+      if( !(a>=0 && a<N && b>0 && b<=N) )
       {
        PyErr_SetString(PyExc_KeyError,"index out of range");
        throw_error_already_set();
@@ -746,16 +746,16 @@ struct _arrayN
           t.append(self[i]);
        return t;
     }
-    static void setslice(arrayN& self, int a,int b,boost::python::object& v) 
+    static void setslice(arrayN& self, int a,int b,boost::python::object& v)
     {
-      if( !(a>=0 && a<N && b>0 && b<=N) ) 
+      if( !(a>=0 && a<N && b>0 && b<=N) )
       {
        PyErr_SetString(PyExc_KeyError,"index out of range");
        throw_error_already_set();
       }
       if(b>N){b=N;}
       if(a<0){a=0;}
-      
+
       for(int i=a;i<b;++i)
           self[i]=extract<T>(v[i]);
     }
@@ -1230,15 +1230,15 @@ object obj_affected_type_str(const obj_affected_type& affect)
 	{
 		negative = false;
 	}
-	return str("%s%s%d") % 
-	make_tuple(buf, 
-	negative ? " ухудшает на " : " улучшает на ", 
+	return str("%s%s%d") %
+	make_tuple(buf,
+	negative ? " ухудшает на " : " улучшает на ",
 	affect.modifier>=0 ? affect.modifier : -affect.modifier);
 }
 
 BOOST_PYTHON_MODULE(mud)
 {
-	def("log", mudlog, ( py::arg("msg"), py::arg("msg_type")=DEF, py::arg("level")=LVL_IMMORT, py::arg("channel")=SYSLOG, py::arg("to_file")=TRUE ) , 
+	def("log", mudlog, ( py::arg("msg"), py::arg("msg_type")=DEF, py::arg("level")=LVL_IMMORT, py::arg("channel")=SYSLOG, py::arg("to_file")=TRUE ) ,
 	"Записывает сообщение msg типа msg_type в канал лога channel для уровня level.\n"
 	"\n"
 	"msg_type принимает значения констант из utils.h, defines for mudlog.\n"
@@ -1403,7 +1403,7 @@ BOOST_PYTHON_MODULE(mud)
 		.staticmethod("__iter__")
 	();
 
-	class_<affect_data, auto_ptr<affect_data> >("Affect", "Игровой аффект.")
+	class_<affect_data, std::auto_ptr<affect_data> >("Affect", "Игровой аффект.")
 		.def_readwrite("spell_type", &affect_data::type, "Номер заклинания, которое наложило этот аффект")
 		.add_property("spell_type_str", get_spell_type_str, "Название заклинания (только для чтения)")
 		.add_property("location_str", get_location_str, "Название изменяемого параметра (только для чтения)")
@@ -1713,7 +1713,7 @@ std::string parse_python_exception()
 		handle<> h_type(type_ptr);
 		str type_pstr(extract<object>(h_type.get())().attr("__name__"));
 		ret = extract<std::string>(type_pstr);
-	} catch (error_already_set const &) 
+	} catch (error_already_set const &)
 	{
 		ret = "Internal error getting exception type";
 		PyErr_Print();
