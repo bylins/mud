@@ -564,7 +564,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		strcat(buf, diag_weapon_to_char(object, TRUE));
 		strcat(buf, diag_armor_type_to_char(object).c_str());
 		strcat(buf, diag_timer_to_char(object));
-		strcat(buf, diag_uses_to_char(object, ch));
+		//strcat(buf, diag_uses_to_char(object, ch)); // commented by WorM перенес в obj_info чтобы заряды рун было видно на базаре/ауке
 		strcat(buf, object->timed_spell.diag_to_char(ch).c_str());
 	}
 	page_string(ch->desc, buf, TRUE);
@@ -2110,6 +2110,7 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 				strcat(buf, "нет слотов\r\n");
 			sprintf(buf+strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
 		}
+		sprintf(buf+strlen(buf), diag_uses_to_char(obj, ch));
 }
 /*
  * Given the argument "look at <target>", figure out what object or char

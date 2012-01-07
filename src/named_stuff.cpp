@@ -49,10 +49,14 @@ void save()
 			stuf_node.append_attribute("can_clan") = i->second->can_clan;
 		if(i->second->can_alli)
 			stuf_node.append_attribute("can_alli") = i->second->can_alli;
-		if(!i->second->wear_msg.empty())
-			stuf_node.append_attribute("wear_msg") = i->second->wear_msg.c_str();
-		if(!i->second->cant_msg.empty())
-			stuf_node.append_attribute("cant_msg") = i->second->cant_msg.c_str();
+		if(!i->second->wear_msg_v.empty())
+			stuf_node.append_attribute("wear_msg_v") = i->second->wear_msg_v.c_str();
+		if(!i->second->wear_msg_a.empty())
+			stuf_node.append_attribute("wear_msg_a") = i->second->wear_msg_a.c_str();
+		if(!i->second->cant_msg_v.empty())
+			stuf_node.append_attribute("cant_msg_v") = i->second->cant_msg_v.c_str();
+		if(!i->second->cant_msg_a.empty())
+			stuf_node.append_attribute("cant_msg_a") = i->second->cant_msg_a.c_str();
 	}
 
 	doc.save_file(LIB_PLRSTUFF"named_stuff_list.xml");
@@ -88,9 +92,11 @@ bool wear_msg(CHAR_DATA * ch, OBJ_DATA * obj)
 	if (it != stuff_list.end()) {
 		if (check_named(ch, obj, true))
 		{
-			if (!it->second->cant_msg.empty())
+			if (!it->second->cant_msg_v.empty())
 			{
-				act(it->second->cant_msg.c_str(), FALSE, ch, obj, 0, TO_CHAR);
+				if (!it->second->cant_msg_a.empty())
+					act(it->second->cant_msg_a.c_str(), FALSE, ch, obj, 0, TO_ROOM);
+				act(it->second->cant_msg_v.c_str(), FALSE, ch, obj, 0, TO_CHAR);
 				return true;
 			}
 			else
@@ -98,12 +104,13 @@ bool wear_msg(CHAR_DATA * ch, OBJ_DATA * obj)
 		}
 		else
 		{
-			if (!it->second->wear_msg.empty())
+			if (!it->second->wear_msg_v.empty())
 			{
 				if (number(1, 100) <= 20)
 				{
-					act(it->second->wear_msg.c_str(), FALSE, ch, obj, 0, TO_ROOM);
-					act(it->second->wear_msg.c_str(), FALSE, ch, obj, 0, TO_CHAR);
+					if (!it->second->wear_msg_a.empty())
+						act(it->second->wear_msg_a.c_str(), FALSE, ch, obj, 0, TO_ROOM);
+					act(it->second->wear_msg_v.c_str(), FALSE, ch, obj, 0, TO_CHAR);
 				}
 				return true;
 			}
@@ -165,17 +172,33 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 		case '5':
 			if(*buf2)
 			{
-				ch->desc->named_obj->wear_msg = delete_doubledollar(buf2);
-				if(!strcmp(ch->desc->named_obj->wear_msg.c_str(), "_"))
-					ch->desc->named_obj->wear_msg == "";
+				ch->desc->named_obj->wear_msg_v = delete_doubledollar(buf2);
+				if(!strcmp(ch->desc->named_obj->wear_msg_v.c_str(), "_"))
+					ch->desc->named_obj->wear_msg_v == "";
 			}
 			break;
 		case '6':
 			if(*buf2)
 			{
-				ch->desc->named_obj->cant_msg = delete_doubledollar(buf2);
-				if(!strcmp(ch->desc->named_obj->cant_msg.c_str(), "_"))
-					ch->desc->named_obj->cant_msg == "";
+				ch->desc->named_obj->wear_msg_a = delete_doubledollar(buf2);
+				if(!strcmp(ch->desc->named_obj->wear_msg_a.c_str(), "_"))
+					ch->desc->named_obj->wear_msg_a == "";
+			}
+			break;
+		case '7':
+			if(*buf2)
+			{
+				ch->desc->named_obj->cant_msg_v = delete_doubledollar(buf2);
+				if(!strcmp(ch->desc->named_obj->cant_msg_v.c_str(), "_"))
+					ch->desc->named_obj->cant_msg_v == "";
+			}
+			break;
+		case '8':
+			if(*buf2)
+			{
+				ch->desc->named_obj->cant_msg_a = delete_doubledollar(buf2);
+				if(!strcmp(ch->desc->named_obj->cant_msg_a.c_str(), "_"))
+					ch->desc->named_obj->cant_msg_a == "";
 			}
 			break;
 		case 'У':
@@ -194,8 +217,10 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 			tmp_node->can_clan = ch->desc->named_obj->can_clan;
 			tmp_node->can_alli = ch->desc->named_obj->can_alli;
 			tmp_node->mail = ch->desc->named_obj->mail;
-			tmp_node->wear_msg = ch->desc->named_obj->wear_msg;
-			tmp_node->cant_msg = ch->desc->named_obj->cant_msg;
+			tmp_node->wear_msg_v = ch->desc->named_obj->wear_msg_v;
+			tmp_node->wear_msg_a = ch->desc->named_obj->wear_msg_a;
+			tmp_node->cant_msg_v = ch->desc->named_obj->cant_msg_v;
+			tmp_node->cant_msg_a = ch->desc->named_obj->cant_msg_a;
 			if(ch->desc->old_vnum)
 				stuff_list.erase(ch->desc->old_vnum);
 			stuff_list[ch->desc->cur_vnum] = tmp_node;
@@ -223,8 +248,10 @@ void nedit_menu(CHAR_DATA * ch)
 	out << CCIGRN(ch, C_SPR) << "2" << CCNRM(ch, C_SPR) << ") Владелец: " << GetNameByUnique(ch->desc->named_obj->uid,0) << " e-mail: " << ch->desc->named_obj->mail << "\r\n";
 	out << CCIGRN(ch, C_SPR) << "3" << CCNRM(ch, C_SPR) << ") Доступно клану: " << (int)(bool)ch->desc->named_obj->can_clan << "\r\n";
 	out << CCIGRN(ch, C_SPR) << "4" << CCNRM(ch, C_SPR) << ") Доступно альянсу: " << (int)(bool)ch->desc->named_obj->can_alli << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "5" << CCNRM(ch, C_SPR) << ") Сообщение при одевании: " << ch->desc->named_obj->wear_msg << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "6" << CCNRM(ch, C_SPR) << ") Сообщение если вещь недоступна: " << ch->desc->named_obj->cant_msg << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "5" << CCNRM(ch, C_SPR) << ") Сообщение при одевании персу: " << ch->desc->named_obj->wear_msg_v << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "6" << CCNRM(ch, C_SPR) << ") Сообщение при одевании вокруг перса: " << ch->desc->named_obj->wear_msg_a << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "7" << CCNRM(ch, C_SPR) << ") Сообщение если вещь недоступна персу: " << ch->desc->named_obj->cant_msg_v << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "8" << CCNRM(ch, C_SPR) << ") Сообщение если вещь недоступна вокруг перса: " << ch->desc->named_obj->cant_msg_a << "\r\n";
 	if(ch->desc->old_vnum)
 		out << CCIGRN(ch, C_SPR) << "У" << CCNRM(ch, C_SPR) << ") Удалить\r\n";
 	out << CCIGRN(ch, C_SPR) << "В" << CCNRM(ch, C_SPR) << ") Выйти и сохранить\r\n";
@@ -309,8 +336,10 @@ ACMD(do_named)
 					tmp_node->can_clan = it->second->can_clan;
 					tmp_node->can_alli = it->second->can_alli;
 					tmp_node->mail = str_dup(it->second->mail.c_str());
-					tmp_node->wear_msg = str_dup(it->second->wear_msg.c_str());
-					tmp_node->cant_msg = str_dup(it->second->cant_msg.c_str());
+					tmp_node->wear_msg_v = str_dup(it->second->wear_msg_v.c_str());
+					tmp_node->wear_msg_a = str_dup(it->second->wear_msg_a.c_str());
+					tmp_node->cant_msg_v = str_dup(it->second->cant_msg_v.c_str());
+					tmp_node->cant_msg_a = str_dup(it->second->cant_msg_a.c_str());
 				}
 				else
 				{
@@ -320,8 +349,10 @@ ACMD(do_named)
 					tmp_node->can_clan = 0;
 					tmp_node->can_alli = 0;
 					tmp_node->mail = str_dup("");
-					tmp_node->wear_msg = str_dup("");
-					tmp_node->cant_msg = str_dup("");
+					tmp_node->wear_msg_v = str_dup("");
+					tmp_node->wear_msg_a = str_dup("");
+					tmp_node->cant_msg_v = str_dup("");
+					tmp_node->cant_msg_a = str_dup("");
 				}
 				ch->desc->named_obj = tmp_node;
 				STATE(ch->desc) = CON_NAMED_STUFF;
@@ -432,10 +463,22 @@ void load()
 				tmp_node->mail = node.attribute("mail").value();
 			}
 			if(node.attribute("wear_msg")) {
-				tmp_node->wear_msg = node.attribute("wear_msg").value();
+				tmp_node->wear_msg_v = node.attribute("wear_msg").value();
+			}
+			if(node.attribute("wear_msg_v")) {
+				tmp_node->wear_msg_v = node.attribute("wear_msg_v").value();
+			}
+			if(node.attribute("wear_msg_a")) {
+				tmp_node->wear_msg_a = node.attribute("wear_msg_a").value();
 			}
 			if(node.attribute("cant_msg")) {
-				tmp_node->cant_msg = node.attribute("cant_msg").value();
+				tmp_node->cant_msg_v = node.attribute("cant_msg").value();
+			}
+			if(node.attribute("cant_msg_v")) {
+				tmp_node->cant_msg_v = node.attribute("cant_msg_v").value();
+			}
+			if(node.attribute("cant_msg_a")) {
+				tmp_node->cant_msg_a = node.attribute("cant_msg_a").value();
 			}
 			if (!valid_email(tmp_node->mail.c_str()))
 			{
