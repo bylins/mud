@@ -130,6 +130,11 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 	{
 		return false;
 	}
+	if ((*buf1<'1' || *buf1>'8') && (*buf1!='в' && *buf1!='В' && *buf1!='х' && *buf1!='Х' && *buf1!='у' && *buf1!='У'))
+	{
+		send_to_char("Неверный параметр!\r\n", ch);
+		return false;
+	}
 	if(!*buf2 && *buf1!='в' && *buf1!='В' && *buf1!='х' && *buf1!='Х' && *buf1!='у' && *buf1!='У')
 	{
 		send_to_char("Не указан второй параметр!\r\n", ch);
