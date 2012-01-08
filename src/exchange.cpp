@@ -250,6 +250,16 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		send_to_char(tmpbuf, ch);
 		return false;
 	}
+	else if (is_big_set(obj))
+	{
+		snprintf(buf, MAX_STRING_LENGTH,
+				"%s является частью большого набора предметов.\r\n",
+				OBJ_PAD(obj, 0));
+		send_to_char(CAP(buf), ch);
+		return false;
+	}
+
+
 	if (item_cost <= 0)
 	{
 		item_cost = MAX(1, GET_OBJ_COST(obj));

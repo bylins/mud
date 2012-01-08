@@ -6,6 +6,7 @@
 #define DEPOT_HPP_INCLUDED
 
 #include <string>
+#include <set>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -43,6 +44,8 @@ void renumber_obj_rnum(int rnum);
 void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto);
 void rename_char(CHAR_DATA *ch);
 void add_offline_money(long uid, int money);
+
+bool find_set_item(CHAR_DATA *ch, const std::set<int> &vnum_list);
 
 } // namespace Depot
 

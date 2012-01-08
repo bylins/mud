@@ -33,10 +33,7 @@
 #include "room.hpp"
 #include "mail.h"
 #include "dg_scripts.h"
-
-/* these factors should be unique integers */
-#define RENT_FACTOR 	1
-#define CRYO_FACTOR 	4
+#include "objsave.h"
 
 #define LOC_INVENTORY	0
 #define MAX_BAG_ROWS	5
@@ -75,7 +72,6 @@ void tascii(int *pointer, int num_planes, char *ascii);
 /* local functions */
 void Crash_extract_norent_eq(CHAR_DATA * ch);
 int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location);
-int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int factor, int *totalcost);
 int Crash_report_unrentables(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj);
 void Crash_report_rent(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj,
 					   int *cost, long *nitems, int display, int factor, int equip, int recursive);
@@ -86,8 +82,8 @@ void Crash_save(std::stringstream &write_buffer, int iplayer, OBJ_DATA * obj, in
 void Crash_rent_deadline(CHAR_DATA * ch, CHAR_DATA * recep, long cost);
 void Crash_restore_weight(OBJ_DATA * obj);
 void Crash_extract_objs(OBJ_DATA * obj);
-int Crash_is_unrentable(OBJ_DATA * obj);
-void Crash_extract_norents(OBJ_DATA * obj);
+int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA * obj);
+void Crash_extract_norents(CHAR_DATA *ch, OBJ_DATA * obj);
 void Crash_extract_expensive(OBJ_DATA * obj);
 int Crash_calculate_rent(OBJ_DATA * obj);
 int Crash_calculate_rent_eq(OBJ_DATA * obj);
@@ -2139,26 +2135,31 @@ void Crash_extract_objs(OBJ_DATA *obj)
 	}
 }
 
-int Crash_is_unrentable(OBJ_DATA * obj)
+int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA * obj)
 {
 	if (!obj)
 		return FALSE;
 
-	if (IS_OBJ_STAT(obj, ITEM_NORENT) ||
-			GET_OBJ_RENT(obj) < 0 || GET_OBJ_RNUM(obj) <= NOTHING || GET_OBJ_TYPE(obj) == ITEM_KEY)
+	if (IS_OBJ_STAT(obj, ITEM_NORENT)
+		|| GET_OBJ_RENT(obj) < 0
+		|| GET_OBJ_RNUM(obj) <= NOTHING
+		|| GET_OBJ_TYPE(obj) == ITEM_KEY
+		|| is_norent_set(ch, obj))
+	{
 		return TRUE;
+	}
 
 	return FALSE;
 }
 
-void Crash_extract_norents(OBJ_DATA * obj)
+void Crash_extract_norents(CHAR_DATA *ch, OBJ_DATA * obj)
 {
 	OBJ_DATA *next;
 	for (; obj; obj = next)
 	{
 		next = obj->next_content;
-		Crash_extract_norents(obj->contains);
-		if (Crash_is_unrentable(obj))
+		Crash_extract_norents(ch, obj->contains);
+		if (Crash_is_unrentable(ch, obj))
 			extract_obj(obj);
 	}
 }
@@ -2172,10 +2173,10 @@ void Crash_extract_norent_eq(CHAR_DATA * ch)
 		if (GET_EQ(ch, j) == NULL)
 			continue;
 
-		if (Crash_is_unrentable(GET_EQ(ch, j)))
+		if (Crash_is_unrentable(ch, GET_EQ(ch, j)))
 			obj_to_char(unequip_char(ch, j), ch);
 		else
-			Crash_extract_norents(GET_EQ(ch, j));
+			Crash_extract_norents(ch, GET_EQ(ch, j));
 	}
 }
 
@@ -2294,7 +2295,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 	if (savetype != RENT_CRASH)  	/*не crash и не ld */
 	{
 		Crash_extract_norent_eq(ch);
-		Crash_extract_norents(ch->carrying);
+		Crash_extract_norents(ch, ch->carrying);
 	}
 
 	/*количество предметов */
@@ -2476,10 +2477,20 @@ int Crash_report_unrentables(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj)
 
 	if (obj)
 	{
-		if (Crash_is_unrentable(obj))
+		if (Crash_is_unrentable(ch, obj))
 		{
 			has_norents = 1;
-			sprintf(buf, "$n сказал$g Вам : \"Я не приму на постой %s.\"", OBJN(obj, ch, 3));
+			if (is_norent_set(ch, obj))
+			{
+				snprintf(buf, MAX_STRING_LENGTH,
+						"$n сказал$g Вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
+						OBJN(obj, ch, 3));
+			}
+			else
+			{
+				snprintf(buf, MAX_STRING_LENGTH,
+						"$n сказал$g Вам : \"Я не приму на постой %s.\"", OBJN(obj, ch, 3));
+			}
 			act(buf, FALSE, recep, 0, ch, TO_VICT);
 		}
 		has_norents += Crash_report_unrentables(ch, recep, obj->contains);
@@ -2531,7 +2542,7 @@ void Crash_report_rent(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj, int *c
 
 	if (obj)
 	{
-		if (!Crash_is_unrentable(obj))
+		if (!Crash_is_unrentable(ch, obj))
 		{
 			/*(*nitems)++;
 			*cost += MAX(0, ((equip ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj)) * factor));

@@ -1035,6 +1035,14 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 		send_to_char(ch, "В %s что-то лежит.\r\n", OBJ_PAD(obj, 5));
 		return 0;
 	}
+	else if (is_norent_set(ch, obj))
+	{
+		snprintf(buf, MAX_STRING_LENGTH,
+				"%s - требуется две и более вещи из набора.\r\n",
+				OBJ_PAD(obj, 0));
+		send_to_char(CAP(buf), ch);
+		return 0;
+	}
 	return 1;
 }
 
@@ -1601,6 +1609,26 @@ void add_offline_money(long uid, int money)
 	{
 		it->second.money += money;
 	}
+}
+
+/**
+ * Поиск в хранилище внума из списка vnum_list.
+ */
+bool find_set_item(CHAR_DATA *ch, const std::set<int> &vnum_list)
+{
+	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
+	if (it != depot_list.end())
+	{
+		for (ObjListType::iterator obj_it = it->second.pers_online.begin(),
+			obj_it_end = it->second.pers_online.end(); obj_it != obj_it_end; ++obj_it)
+		{
+			if (vnum_list.find(GET_OBJ_VNUM(*obj_it)) != vnum_list.end())
+			{
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 } // namespace Depot

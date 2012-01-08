@@ -46,6 +46,7 @@
 #include "char_player.hpp"
 #include "remember.hpp"
 #include "room.hpp"
+#include "objsave.h"
 
 using std::ifstream;
 using std::fstream;
@@ -75,7 +76,6 @@ void perform_immort_vis(CHAR_DATA * ch);
 int have_mind(CHAR_DATA * ch);
 SPECIAL(shop_keeper);
 ACMD(do_gen_comm);
-void Crash_rentsave(CHAR_DATA * ch, int cost);
 int Crash_delete_file(char *name, int mask);
 int HaveMind(CHAR_DATA * ch);
 char *color_value(CHAR_DATA * ch, int real, int max);

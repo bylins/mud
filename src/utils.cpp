@@ -12,10 +12,14 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include <vector>
+#include <string>
 #include <fstream>
 #include <cmath>
 #include <iomanip>
+#include <algorithm>
 #include <boost/lexical_cast.hpp>
+#include <boost/bind.hpp>
 
 #include "conf.h"
 #include "sysdep.h"
@@ -38,10 +42,12 @@
 #include "modify.h"
 #include "house.h"
 #include "player_races.hpp"
+#include "depot.hpp"
+#include "objsave.h"
 
 extern DESCRIPTOR_DATA *descriptor_list;
-
 extern CHAR_DATA *mob_proto;
+extern int top_of_p_table;
 
 /* local functions */
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
@@ -2647,3 +2653,201 @@ char* colored_name(char * str, int len)//возвращает строку длины len + кол-во цв
 	snprintf(cstr, sizeof(cstr), fmt, str);
 	return cstr;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+namespace {
+
+const unsigned BIG_SET_ITEMS = 8;
+std::set<int> vnum_list;
+
+bool find_set_item(OBJ_DATA *obj)
+{
+	for (; obj; obj = obj->next_content)
+	{
+		std::set<int>::const_iterator i = vnum_list.find(GET_OBJ_VNUM(obj));
+		if (i != vnum_list.end())
+		{
+			return true;
+		}
+		if (find_set_item(obj->contains))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+} // namespace
+
+/**
+ * Почта, базар.
+ * Предметы сетов из BIG_SET_ITEMS и более предметов не принимаются.
+ */
+bool is_big_set(OBJ_DATA *obj)
+{
+	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	{
+		return false;
+	}
+	for (id_to_set_info_map::const_iterator i = obj_data::set_table.begin(),
+		iend = obj_data::set_table.end(); i != iend; ++i)
+	{
+		if (i->second.find(GET_OBJ_VNUM(obj)) != i->second.end()
+			&& i->second.size() > BIG_SET_ITEMS)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Экипировка, инвентарь, чармисы, перс. хран.
+ * Требуется наличие двух и более предметов, если сетина из большого сета.
+ * Перс. хран, рента.
+ */
+bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
+{
+	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF))
+	{
+		return false;
+	}
+
+	vnum_list.clear();
+	for (id_to_set_info_map::const_iterator i = obj_data::set_table.begin(),
+		iend = obj_data::set_table.end(); i != iend; ++i)
+	{
+		if (i->second.find(GET_OBJ_VNUM(obj)) != i->second.end()
+			&& i->second.size() > BIG_SET_ITEMS)
+		{
+			for (set_info::const_iterator k = i->second.begin(),
+				kend = i->second.end(); k != kend; ++k)
+			{
+				if (k->first != GET_OBJ_VNUM(obj))
+				{
+					vnum_list.insert(k->first);
+				}
+			}
+		}
+	}
+	if (vnum_list.empty())
+	{
+		return false;
+	}
+	// экипировка
+	for (int i = 0; i < NUM_WEARS; ++i)
+	{
+		if (find_set_item(GET_EQ(ch, i)))
+		{
+			return false;
+		}
+	}
+	// инвентарь
+	if (find_set_item(ch->carrying))
+	{
+		return false;
+	}
+	// чармисы
+	if (ch->followers)
+	{
+		for (struct follow_type *k = ch->followers; k; k = k->next)
+		{
+			if (!IS_CHARMICE(k->follower) || !k->follower->master)
+			{
+				continue;
+			}
+			for (int j = 0; j < NUM_WEARS; j++)
+			{
+				if (find_set_item(GET_EQ(k->follower, j)))
+				{
+					return false;
+				}
+			}
+			if (find_set_item(k->follower->carrying))
+			{
+				return false;
+			}
+		}
+	}
+	// перс. хранилище
+	if (Depot::find_set_item(ch, vnum_list))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Ищем шмотку vnum в больших сетах, после чего ищем любую другую
+ * шмотку из этого набора в массиве cont.
+ * \return true - шмотку нужно удалять
+ */
+bool check_rent_item(int vnum, const std::vector<save_time_info> &cont)
+{
+	for (id_to_set_info_map::const_iterator i = obj_data::set_table.begin(),
+		iend = obj_data::set_table.end(); i != iend; ++i)
+	{
+		if (i->second.find(vnum) != i->second.end()
+			&& i->second.size() > BIG_SET_ITEMS)
+		{
+			for (set_info::const_iterator k = i->second.begin(),
+				kend = i->second.end(); k != kend; ++k)
+			{
+				if (k->first != vnum)
+				{
+					std::vector<save_time_info>::const_iterator tmp =
+							std::find_if(cont.begin(), cont.end(),
+									boost::bind(std::equal_to<int>(),
+									boost::bind(&save_time_info::vnum, _1), k->first));
+					if (tmp != cont.end())
+					{
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Проход по тайм-дате в рентах персонажей и удаление по условию check_rent_item.
+ * Обновляется инфа макс в мире и пересохраняется файл таймеров.
+ */
+void check_sets_on_start()
+{
+	for (int i = 0; i <= top_of_p_table; i++)
+	{
+		if (player_table[i].timer /*&& player_table[i].timer->rent.rentcode == RENT_CRASH*/)
+		{
+			bool need_save = false;
+			for (std::vector<save_time_info>::iterator it = player_table[i].timer->time.begin(),
+				it_end = player_table[i].timer->time.end(); it != it_end; ++it)
+			{
+				if (it->timer >= 0 && check_rent_item(it->vnum, player_table[i].timer->time))
+				{
+					log("[TO] Player %s : set-item %d deleted",
+							player_table[i].name, it->vnum);
+					it->timer = -1;
+					int rnum = real_object(it->vnum);
+					if (rnum >= 0)
+					{
+						obj_index[rnum].stored--;
+					}
+					need_save = true;
+				}
+			}
+			if (need_save)
+			{
+				if (!Crash_write_timer(i))
+				{
+					log("SYSERROR: [TO] Error writing timer file for %s",
+							player_table[i].name);
+				}
+			}
+		}
+	}
+}
+////////////////////////////////////////////////////////////////////////////////

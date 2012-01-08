@@ -1441,6 +1441,10 @@ int dex_ac_bonus(int dex);
 void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type);
 int wis_bonus(int stat, int type);
 
+bool is_big_set(OBJ_DATA *obj);
+bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
+void check_sets_on_start();
+
 #define CAN_CARRY_W(ch) ((str_bonus(GET_REAL_STR(ch), STR_CARRY_W) * (HAVE_FEAT(ch, PORTER_FEAT) ? 110 : 100))/100)
 #define CAN_CARRY_N(ch) (5 + (GET_REAL_DEX(ch) >> 1) + (GET_LEVEL(ch) >> 1) \
 			 + (HAVE_FEAT(ch, JUGGLER_FEAT) ? (GET_LEVEL(ch) >> 1) : 0))

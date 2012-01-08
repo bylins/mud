@@ -1727,18 +1727,21 @@ void boot_db(void)
 	log("Init offtop block list.");
 	OfftopSystem::init();
 
-	log("load shop_ext list start");
+	log("load shop_ext list start.");
 	ShopExt::load();
-	log("load shop_ext list stop");
+	log("load shop_ext list stop.");
 
-	log("Init town shop_keepers");
+	log("Init town shop_keepers.");
 	town_shop_keepers();
 
-	log("Set zone average mob_level");
+	log("Set zone average mob_level.");
 	set_zone_mob_level();
 
 //	log("Init stop list for snoop.");
 //	init_snoop_stop_list();
+
+//	log("Check big sets in rent.");
+//	check_sets_on_start();
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");

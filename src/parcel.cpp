@@ -183,13 +183,24 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj)
 			|| GET_OBJ_RENT(obj) < 0
 			|| GET_OBJ_RNUM(obj) <= NOTHING)
 	{
-		snprintf(buf, MAX_STRING_LENGTH, "$n сказал$g Вам : '%s - мы не отправляем такие вещи!'", OBJ_PAD(obj, 1));
-		act("$n сказал$g Вам : 'Мы не отправляем такие вещи!'", FALSE, mailman, 0, ch, TO_VICT);
+		snprintf(buf, MAX_STRING_LENGTH,
+				"$n сказал$g Вам : '%s - мы не отправляем такие вещи!'\r\n",
+				OBJ_PAD(obj, 0));
+		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return 0;
 	}
 	else if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && obj->contains)
 	{
-		snprintf(buf, MAX_STRING_LENGTH, "$n сказал$g Вам : 'В %s что-то лежит.'\r\n", OBJ_PAD(obj, 5));
+		snprintf(buf, MAX_STRING_LENGTH,
+				"$n сказал$g Вам : 'В %s что-то лежит.'\r\n", OBJ_PAD(obj, 5));
+		act(buf, FALSE, mailman, 0, ch, TO_VICT);
+		return 0;
+	}
+	else if (is_big_set(obj))
+	{
+		snprintf(buf, MAX_STRING_LENGTH,
+				"$n сказал$g Вам : '%s является частью большого набора предметов.'\r\n",
+				OBJ_PAD(obj, 0));
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return 0;
 	}

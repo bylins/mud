@@ -39,6 +39,7 @@
 #include "char_player.hpp"
 #include "room.hpp"
 #include "birth_places.hpp"
+#include "objsave.h"
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 
@@ -74,7 +75,6 @@ int mag_manacost(CHAR_DATA * ch, int spellnum);
 
 /* local functions */
 int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6);
-void Crash_rentsave(CHAR_DATA * ch, int cost);
 int level_exp(CHAR_DATA * ch, int level);
 void update_char_objects(CHAR_DATA * ch);	/* handler.cpp */
 // Delete this, if you delete overflow fix in beat_points_update below.
