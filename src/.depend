@@ -29,7 +29,7 @@ act.other.o: act.other.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  spells.h skills.h screen.h house.h house_exp.hpp char.hpp player_i.hpp \
  morph.hpp remember.hpp constants.h dg_scripts.h pk.h fight.h magic.h \
  depot.hpp privilege.hpp random.hpp char_player.hpp quested.hpp \
- mobmax.hpp dps.hpp room.hpp
+ mobmax.hpp dps.hpp room.hpp objsave.h
 act.social.o: act.social.cpp conf.h sysdep.h structs.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h interpreter.h \
  handler.h db.h spells.h char.hpp player_i.hpp morph.hpp room.hpp
@@ -121,7 +121,7 @@ limits.o: limits.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  handler.h screen.h interpreter.h constants.h dg_scripts.h house.h \
  house_exp.hpp char.hpp player_i.hpp morph.hpp remember.hpp exchange.h \
  top.h deathtrap.hpp ban.hpp diskio.h depot.hpp glory.hpp char_player.hpp \
- quested.hpp mobmax.hpp dps.hpp room.hpp birth_places.hpp
+ quested.hpp mobmax.hpp dps.hpp room.hpp birth_places.hpp objsave.h
 magic.o: magic.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp comm.h spells.h skills.h handler.h db.h \
  interpreter.h screen.h constants.h dg_scripts.h pk.h magic.h fight.h \
@@ -143,7 +143,7 @@ objsave.o: objsave.cpp conf.h sysdep.h structs.h comm.h handler.h db.h \
  pugixml.hpp pugiconfig.hpp interpreter.h utils.h features.hpp obj.hpp \
  spells.h screen.h house.h house_exp.hpp char.hpp player_i.hpp morph.hpp \
  remember.hpp im.h depot.hpp liquid.hpp file_crc.hpp room.hpp mail.h \
- dg_scripts.h
+ dg_scripts.h objsave.h
 olc.o: olc.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h db.h olc.h \
  dg_olc.h dg_scripts.h screen.h item.creation.hpp im.h privilege.hpp \
@@ -178,7 +178,7 @@ utils.o: utils.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp db.h comm.h screen.h spells.h handler.h \
  interpreter.h constants.h im.h dg_scripts.h boards.h privilege.hpp \
  char.hpp player_i.hpp morph.hpp room.hpp modify.h house.h house_exp.hpp \
- remember.hpp player_races.hpp
+ remember.hpp player_races.hpp depot.hpp objsave.h
 weather.o: weather.cpp conf.h sysdep.h structs.h spells.h skills.h \
  pugixml.hpp pugiconfig.hpp utils.h features.hpp obj.hpp comm.h handler.h \
  interpreter.h db.h screen.h constants.h random.hpp char.hpp player_i.hpp \
