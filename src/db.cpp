@@ -1740,8 +1740,8 @@ void boot_db(void)
 //	log("Init stop list for snoop.");
 //	init_snoop_stop_list();
 
-//	log("Check big sets in rent.");
-//	check_sets_on_start();
+	log("Check big sets in rent.");
+	check_sets_on_start();
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");
