@@ -1332,7 +1332,12 @@ inline void heartbeat()
 	// сами по себе работают намного дольше 1го пульса
 	// здесь важно то, что они не перекрываются друг другом в момент тика
 
-	// сохранение клан-хранов
+	// сохранение лога клан-хранов
+	if (!((pulse + 50) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
+	{
+		ClanSystem::save_chest_log();
+	}
+	// сохранение клан-хранов для ингров
 	if (!((pulse + 48) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
 		ClanSystem::save_ingr_chests();
@@ -1343,7 +1348,7 @@ inline void heartbeat()
 		GlobalDrop::save();
 	}
 	// снятие денег за шмот в клановых сундуках
-	if (!((pulse + 45) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
+	if (!((pulse + 46) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
 		Clan::ChestUpdate();
 	}

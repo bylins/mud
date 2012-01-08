@@ -8,6 +8,7 @@
 #include <list>
 #include <map>
 #include <string>
+#include <vector>
 #include "conf.h"
 #include "sysdep.h"
 #include "char.hpp"
@@ -71,5 +72,21 @@ private:
 	typedef std::map<std::string /* месяц.год */, long long /* экспа*/> HistoryExpListType;
 	HistoryExpListType list_;
 };
+
+////////////////////////////////////////////////////////////////////////////////
+class ClanChestLog
+{
+	std::list<std::string> chest_log_;
+	bool need_save_;
+
+public:
+	ClanChestLog() : need_save_(false) {};
+
+	void add(const std::string &text);
+	void print(CHAR_DATA *ch, std::string &text) const;
+	void save(const std::string &abbrev);
+	void load(const std::string &abbrev);
+};
+////////////////////////////////////////////////////////////////////////////////
 
 #endif // HOUSE_EXP_HPP_INCLUDED

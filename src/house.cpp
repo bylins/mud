@@ -688,6 +688,7 @@ void Clan::ClanLoad()
 		tempClan->pk_log.load(tempClan->get_file_abbrev());
 		tempClan->last_exp.load(tempClan->get_file_abbrev());
 		tempClan->init_ingr_chest();
+		tempClan->chest_log.load(tempClan->get_file_abbrev());
 
 		Clan::ClanList.push_back(tempClan);
 	}
@@ -1038,6 +1039,10 @@ ACMD(DoHouse)
 	{
 		CLAN(ch)->pk_log.print(ch);
 	}
+	else if (CompareParam(buffer2, "лог"))
+	{
+		CLAN(ch)->chest_log.print(ch, buffer);
+	}
 	else
 	{
 		// обработка списка доступных команд по званию персонажа
@@ -1061,6 +1066,7 @@ ACMD(DoHouse)
 			buffer += "  политика (только просмотр)\r\n";
 		}
 		buffer += "  клан пк (список последних сражений)\r\n";
+		buffer += "  клан лог <без параметров|строка поиска>\r\n";
 		send_to_char(buffer, ch);
 	}
 }
@@ -2237,6 +2243,7 @@ ACMD(DoHcontrol)
 		Clan::save_pk_log();
 		save_ingr_chests();
 		save_clan_exp();
+		save_chest_log();
 	}
 	else if (CompareParam(buffer2, "title") && !buffer.empty())
 	{
@@ -2817,11 +2824,25 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 		obj_from_char(obj);
 		obj_to_obj(obj, chest);
 
+		std::string log_text = boost::str(boost::format("%s сдал%s %s\r\n")
+				% GET_NAME(ch) % GET_CH_SUF_1(ch) % obj->PNames[3]);
+		CLAN(ch)->chest_log.add(log_text);
+
 		// канал хранилища
 		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
-			if (d->character && STATE(d) == CON_PLAYING && !AFF_FLAGGED(d->character, AFF_DEAFNESS) && CLAN(d->character) && CLAN(d->character) == CLAN(ch) && PRF_FLAGGED(d->character, PRF_TAKE_MODE))
-				send_to_char(d->character, "[Хранилище]: %s'%s сдал%s %s.'%s\r\n", CCIRED(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch), obj->PNames[3], CCNRM(d->character, C_NRM));
-
+		{
+			if (d->character
+				&& STATE(d) == CON_PLAYING
+				&& !AFF_FLAGGED(d->character, AFF_DEAFNESS)
+				&& CLAN(d->character)
+				&& CLAN(d->character) == CLAN(ch)
+				&& PRF_FLAGGED(d->character, PRF_TAKE_MODE))
+			{
+				send_to_char(d->character, "[Хранилище]: %s'%s сдал%s %s.'%s\r\n",
+						CCIRED(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch),
+						obj->PNames[3], CCNRM(d->character, C_NRM));
+			}
+		}
 		if (!PRF_FLAGGED(ch, PRF_DECAY_MODE))
 			act("Вы положили $o3 в $O3.", FALSE, ch, obj, chest, TO_CHAR);
 		CLAN(ch)->chest_objcount++;
@@ -2844,6 +2865,10 @@ bool Clan::TakeChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 	obj_to_char(obj, ch);
 	if (obj->carried_by == ch)
 	{
+		std::string log_text = boost::str(boost::format("%s забрал%s %s\r\n")
+				% GET_NAME(ch) % GET_CH_SUF_1(ch) % obj->PNames[3]);
+		CLAN(ch)->chest_log.add(log_text);
+
 		// канал хранилища
 		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 			if (d->character && STATE(d) == CON_PLAYING && !AFF_FLAGGED(d->character, AFF_DEAFNESS) && CLAN(d->character) && CLAN(d->character) == CLAN(ch) && PRF_FLAGGED(d->character, PRF_TAKE_MODE))
@@ -5762,4 +5787,13 @@ void Clan::disable_ingr_chest(CHAR_DATA *ch)
 int Clan::ingr_chest_max_objects()
 {
 	return 600 + this->last_exp.get_exp() / 10000000;
+}
+
+void ClanSystem::save_chest_log()
+{
+	for (ClanListType::const_iterator i = Clan::ClanList.begin(),
+		iend = Clan::ClanList.end(); i != iend; ++i)
+	{
+		(*i)->chest_log.save((*i)->get_file_abbrev());
+	}
 }

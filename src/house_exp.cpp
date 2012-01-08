@@ -12,6 +12,7 @@
 #include "house.h"
 #include "comm.h"
 #include "room.hpp"
+#include "modify.h"
 
 namespace
 {
@@ -20,6 +21,10 @@ namespace
 const unsigned int MAX_LIST_NODES = 720;
 // сколько экспы должен набрать клан за х месяцев, чтобы не быть удаленным
 const int MIN_EXP_HISTORY = 50000000;
+// макс. кол-во записей в списке сражений
+const unsigned MAX_PK_LOG = 15;
+// макс. кол-во записей в логе клан-храна
+const unsigned MAX_CHEST_LOG = 5000;
 
 } // namespace
 
@@ -133,15 +138,6 @@ void save_clan_exp()
 
 ////////////////////////////////////////////////////////////////////////////////
 // ClanPkLog
-
-namespace
-{
-
-// макс. кол-во записей в списке сражений
-const unsigned MAX_PK_LOG = 15;
-
-} // namespace
-
 
 void ClanPkLog::add(const std::string &text)
 {
@@ -387,3 +383,103 @@ void ClanExpHistory::show(CHAR_DATA *ch) const
 	send_to_char(ch, "Напоминаем, что в системе автоматической очистки неактивных кланов учитывается\r\n"
 			"опыт, набранный за два последних ПОЛНЫХ календарных месяца ( >= %s в сумме).\r\n", thousands_sep(MIN_EXP_HISTORY).c_str());
 }
+
+////////////////////////////////////////////////////////////////////////////////
+void ClanChestLog::add(const std::string &text)
+{
+	char timeBuf[20];
+	time_t curr_time = time(0);
+	strftime(timeBuf, sizeof(timeBuf), "[%d/%m %H:%M] ", localtime(&curr_time));
+
+	if (chest_log_.size() >= MAX_CHEST_LOG)
+	{
+		chest_log_.pop_back();
+	}
+
+	chest_log_.push_front(timeBuf + text);
+	need_save_ = true;
+}
+
+void ClanChestLog::print(CHAR_DATA *ch, std::string &text) const
+{
+	boost::trim(text);
+	std::string out;
+	if (text.empty())
+	{
+		out += "История хранилища дружины:\r\n";
+		for (std::list<std::string>::const_iterator i = chest_log_.begin(),
+			iend = chest_log_.end(); i != iend; ++i)
+		{
+			out += *i;
+		}
+		out += "\r\n";
+		page_string(ch->desc, out, 1);
+	}
+	else
+	{
+		out += "Выборка из истории хранилища дружины (" + text + "):\r\n";
+		for (std::list<std::string>::const_iterator i = chest_log_.begin(),
+			iend = chest_log_.end(); i != iend; ++i)
+		{
+			if ((*i).find(text) != std::string::npos)
+			{
+				out += *i;
+			}
+		}
+		out += "\r\n";
+		page_string(ch->desc, out, 1);
+	}
+}
+
+void ClanChestLog::save(const std::string &abbrev)
+{
+	if (!need_save_)
+	{
+		return;
+	}
+
+	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".log";
+	if (chest_log_.empty())
+	{
+		remove(filename.c_str());
+		return;
+	}
+
+	std::ofstream file(filename.c_str());
+	if (!file.is_open())
+	{
+		log("Error open file: %s! (%s %s %d)",
+				filename.c_str(), __FILE__, __func__, __LINE__);
+		return;
+	}
+
+	for (std::list<std::string>::const_iterator i = chest_log_.begin(),
+		iend = chest_log_.end(); i != iend; ++i)
+	{
+		file << *i;
+	}
+
+	file.close();
+	need_save_ = false;
+}
+
+void ClanChestLog::load(const std::string &abbrev)
+{
+	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + ".log";
+
+	std::ifstream file(filename.c_str(), std::ios::binary);
+	if (!file.is_open())
+	{
+		return;
+	}
+
+	std::string buffer;
+	while(std::getline(file, buffer))
+	{
+		boost::trim(buffer);
+		buffer += "\r\n";
+		chest_log_.push_back(buffer);
+	}
+	file.close();
+}
+////////////////////////////////////////////////////////////////////////////////

@@ -240,6 +240,8 @@ public:
 	ClanExp last_exp;
 	// помесячная история экспы без учета минусов
 	ClanExpHistory exp_history;
+	// лог клан-храна
+	ClanChestLog chest_log;
 
 private:
 	std::string abbrev; // аббревиатура клана, ОДНО слово
@@ -341,6 +343,7 @@ namespace ClanSystem
 bool is_ingr_chest(OBJ_DATA *obj);
 void save_ingr_chests();
 bool show_ingr_chest(OBJ_DATA *obj, CHAR_DATA *ch);
+void save_chest_log();
 
 } // namespace ClanSystem
 
