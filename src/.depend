@@ -64,7 +64,8 @@ comm.o: comm.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  dg_scripts.h screen.h ban.hpp diskio.h auction.h exchange.h \
  deathtrap.hpp title.hpp depot.hpp glory.hpp file_crc.hpp char_player.hpp \
  quested.hpp mobmax.hpp dps.hpp parcel.hpp pk.h spells.h skills.h \
- corpse.hpp room.hpp glory_misc.hpp glory_const.hpp celebrates.hpp
+ corpse.hpp room.hpp glory_misc.hpp glory_const.hpp celebrates.hpp \
+ scripting.hpp
 config.o: config.cpp conf.h sysdep.h structs.h interpreter.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp constants.h char.hpp \
  player_i.hpp morph.hpp comm.h birth_places.hpp
@@ -114,7 +115,7 @@ interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
  top.h title.hpp password.hpp privilege.hpp depot.hpp glory.hpp \
  char_player.hpp quested.hpp mobmax.hpp dps.hpp parcel.hpp liquid.hpp \
  name_list.hpp modify.h room.hpp glory_const.hpp glory_misc.hpp \
- named_stuff.hpp player_races.hpp birth_places.hpp
+ named_stuff.hpp scripting.hpp player_races.hpp birth_places.hpp
 limits.o: limits.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp spells.h skills.h comm.h db.h \
  handler.h screen.h interpreter.h constants.h dg_scripts.h house.h \
@@ -262,6 +263,10 @@ names.o: names.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp comm.h interpreter.h handler.h db.h screen.h \
  privilege.hpp char.hpp player_i.hpp morph.hpp char_player.hpp \
  quested.hpp mobmax.hpp remember.hpp dps.hpp
+scripting.o: scripting.cpp utils.h conf.h features.hpp obj.hpp sysdep.h \
+ structs.h pugixml.hpp pugiconfig.hpp comm.h char.hpp player_i.hpp \
+ morph.hpp interpreter.h db.h cache.hpp spells.h handler.h constants.h \
+ modify.h scripting.hpp
 auction.o: auction.cpp conf.h sysdep.h structs.h screen.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h interpreter.h \
  handler.h db.h auction.h constants.h char.hpp player_i.hpp morph.hpp \
@@ -321,7 +326,7 @@ char.o: char.cpp char.hpp conf.h sysdep.h structs.h player_i.hpp \
  morph.hpp comm.h utils.h features.hpp obj.hpp pugixml.hpp pugiconfig.hpp \
  db.h pk.h im.h handler.h interpreter.h boards.h privilege.hpp skills.h \
  constants.h char_player.hpp quested.hpp mobmax.hpp remember.hpp dps.hpp \
- spells.h room.hpp player_races.hpp celebrates.hpp
+ spells.h room.hpp player_races.hpp celebrates.hpp cache.hpp
 char_player.o: char_player.cpp char_player.hpp conf.h sysdep.h structs.h \
  quested.hpp mobmax.hpp remember.hpp char.hpp player_i.hpp morph.hpp \
  comm.h dps.hpp utils.h features.hpp obj.hpp pugixml.hpp pugiconfig.hpp \
@@ -352,7 +357,7 @@ corpse.o: corpse.cpp corpse.hpp conf.h sysdep.h structs.h db.h \
 house_exp.o: house_exp.cpp house_exp.hpp conf.h sysdep.h char.hpp \
  structs.h player_i.hpp morph.hpp comm.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp house.h db.h interpreter.h remember.hpp \
- room.hpp
+ room.hpp modify.h
 remember.o: remember.cpp remember.hpp conf.h sysdep.h structs.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h db.h char.hpp \
  player_i.hpp morph.hpp interpreter.h screen.h house.h house_exp.hpp \
@@ -367,8 +372,8 @@ obj.spell.o: obj.spell.cpp conf.h sysdep.h structs.h spells.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h screen.h \
  poison.hpp char.hpp player_i.hpp morph.hpp db.h room.hpp
 obj.o: obj.cpp obj.hpp conf.h sysdep.h structs.h utils.h features.hpp \
- pugixml.hpp pugiconfig.hpp pk.h celebrates.hpp screen.h comm.h char.hpp \
- player_i.hpp morph.hpp db.h constants.h
+ pugixml.hpp pugiconfig.hpp pk.h celebrates.hpp cache.hpp screen.h comm.h \
+ char.hpp player_i.hpp morph.hpp db.h constants.h
 room.o: room.cpp room.hpp conf.h sysdep.h structs.h
 spam.o: spam.cpp spam.hpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp char.hpp player_i.hpp morph.hpp \
@@ -406,5 +411,6 @@ player_races.o: player_races.cpp conf.h sysdep.h utils.h features.hpp \
 morph.o: morph.cpp pugixml.hpp pugiconfig.hpp utils.h conf.h features.hpp \
  obj.hpp sysdep.h structs.h screen.h interpreter.h handler.h skills.h \
  spells.h char.hpp player_i.hpp morph.hpp comm.h db.h
+cache.o: cache.cpp cache.hpp
 version.o: version.cpp conf.h sysdep.h structs.h comm.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp

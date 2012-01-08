@@ -78,7 +78,7 @@ clean:
 	rm -f *.o
 
 depend:
-	$(CC) -MM $(CXREF_FILES) > .depend
+	$(CC) $(SEARCHPATH) -MM $(CXREF_FILES) > .depend
 	@echo "Done building dependencies."
 
 testdepend:
