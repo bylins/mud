@@ -48,6 +48,7 @@ int EasterDay = 0;
 void gods_day_now(CHAR_DATA * ch)
 {
 	char mono[MAX_INPUT_LENGTH], poly[MAX_INPUT_LENGTH], real[MAX_INPUT_LENGTH];
+	*mono=0; *poly=0; *real=0;
 
 	std::string mono_name = Celebrates::get_name_mono(Celebrates::get_mud_day());
 	std::string poly_name = Celebrates::get_name_poly(Celebrates::get_mud_day());

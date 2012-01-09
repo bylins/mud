@@ -334,6 +334,7 @@ ACMD(do_iron_wind);
 ACMD(do_exchange);
 ACMD(do_godtest);
 ACMD(do_print_armor);
+ACMD(do_relocate);
 
 /* DG Script ACMD's */
 ACMD(do_attach);
@@ -676,6 +677,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"перековать", POS_STANDING, do_transform_weapon, 0, SKILL_TRANSFORMWEAPON, -1},
 	{"передать", POS_STANDING, do_givehorse, 0, 0, -1},
 	{"перевести", POS_STANDING, do_not_here, 1, 0, -1},
+	{"переместиться", POS_STANDING, do_relocate, 1, 0, 0},
 	{"послать", POS_DEAD, do_email, LVL_IMPL, 0, 0},
 	{"перевоплотитьс", POS_STANDING, do_remort, 0, 0, -1},
 	{"перевоплотиться", POS_STANDING, do_remort, 0, 1, -1},
@@ -2344,6 +2346,13 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	for (std::vector<int>::iterator it = RaceFeatures.begin();it != RaceFeatures.end();++it)
 		if (can_get_feat(d->character, *it))
 			SET_FEAT(d->character, *it);
+
+	//Заменяем закл !переместиться! на способность
+	if (GET_SPELL_TYPE(d->character, SPELL_RELOCATE) == SPELL_KNOW && !IS_GOD(d->character))
+	{
+		GET_SPELL_TYPE(d->character, SPELL_RELOCATE) = 0;
+		SET_FEAT(d->character, RELOCATE_FEAT);
+	}
 
 	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
 	REMOVE_BIT(AFF_FLAGS(d->character, AFF_GROUP), AFF_GROUP);

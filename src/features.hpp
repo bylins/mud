@@ -112,6 +112,7 @@ using std::bitset;
 #define ARMOR_HEAVY_FEAT		93 // ношение тяжелого типа доспехов
 #define GEMS_INLAY_FEAT			94 // инкрустация камнями (TODO: не используется)
 #define WARRIOR_STR_FEAT		95 // богатырская сила
+#define RELOCATE_FEAT			96 // переместиться
 
 /*
 #define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух
