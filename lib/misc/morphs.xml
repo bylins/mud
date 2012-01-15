@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<animalMorphs minWis="12">
+ <morph id="1">
+  <name>Волк</name>
+  <padName>Волком</padName>
+
+  <cover>густой шерстью</cover>
+
+  <speech>Грррр!</speech>
+
+  <toStr>20</toStr>
+  <toDex>30</toDex>
+  <toCon>40</toCon>
+  <toInt>0</toInt>
+  <toCha>0</toCha>
+
+  <description lvl="1">Молодой волк</description>
+  <description lvl="25">Волк</description>
+  <description lvl="32">Огромный волк</description>
+  <description lvl="36">Матерый волк</description>
+  <description lvl="39">Белый волк</description>
+  <description lvl="42">Матерый белый волк</description>
+  <description lvl="44">Исполинский белый волк</description>
+
+  <skills>
+   <skill>выследить</skill>
+   <skill>кулачный бой</skill>
+   <skill>спасти</skill>
+   <skill>уклониться</skill>
+  </skills>
+ </morph>
+ <morph id="2">
+  <name>Рысь</name>
+  <padName>Рысью</padName>
+
+  <cover>шелковистой шерстью</cover>
+
+  <speech>Аагррррххх!</speech>
+
+  <toStr>60</toStr>
+  <toDex>30</toDex>
+  <toCon>10</toCon>
+  <toInt>0</toInt>
+  <toCha>0</toCha>
+
+  <description lvl="1">Молодая рысь</description>
+  <description lvl="25">Рысь</description>
+  <description lvl="32">Огромная рысь</description>
+  <description lvl="36">Матерая рысь</description>
+  <description lvl="39">Снежный барс</description>
+  <description lvl="42">Матерый снежный барс</description>
+  <description lvl="44">Исполинский снежный барс</description>
+
+
+  <skills>
+   <skill>выследить</skill>
+   <skill>кулачный бой</skill>
+   <skill>спасти</skill>
+   <skill>подножка</skill>
+   <skill>спрятаться</skill>
+  </skills>
+ </morph>
+ <morph id="3">
+  <name>Сокол</name>
+  <padName>Соколом</padName>
+
+  <cover>перьями</cover>
+  <speech>Кьяк-кьяк-кьяк!</speech>
+
+
+  <toStr>0</toStr>
+  <toDex>0</toDex>
+  <toCon>0</toCon>
+  <toInt>0</toInt>
+  <toCha>0</toCha>
+
+  <description lvl="1">Сокол</description>
+
+  <skills>
+   <skill>кулачный бой</skill>
+  </skills>
+ </morph>
+ <morph id="4">
+  <name>Щука</name>
+  <padName>Щукой</padName>
+
+  <cover>мелкой чешуей</cover>
+  <speech>Блурп...</speech>
+
+  <toStr>0</toStr>
+  <toDex>0</toDex>
+  <toCon>0</toCon>
+  <toInt>0</toInt>
+  <toCha>0</toCha>
+
+  <description lvl="1">Щуренок</description>
+  <description lvl="25">Молодая щука</description>
+  <description lvl="32">Большая щука</description>
+  <description lvl="36">Огромная щука</description>
+  <description lvl="39">Старая щука</description>
+  <description lvl="42">Пудовая щука</description>
+  <description lvl="44">Зубастая щука</description>
+
+  <skills>
+   <skill>кулачный бой</skill>
+   <skill>уклониться</skill>
+  </skills>
+ </morph>
+</animalMorphs>

@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<mobraces>
+  <mobrace key="100" name ="Обычный">
+  </mobrace>
+  <mobrace key="101" name ="Человек">
+    <imlist>
+      <im type="201" name ="зубы">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">2</prob>
+        <prob lvl="21">3</prob>
+        <prob lvl="26">4</prob>
+        <prob lvl="31">3</prob>
+        <prob lvl="36">2</prob>
+        <prob lvl="41">2</prob>
+        <prob lvl="46">4</prob>
+      </im>
+      <im type="203" name ="глаза">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">1</prob>
+        <prob lvl="21">2</prob>
+        <prob lvl="26">3</prob>
+        <prob lvl="31">2</prob>
+        <prob lvl="36">2</prob>
+        <prob lvl="41">2</prob>
+        <prob lvl="46">3</prob>
+      </im>
+      <im type="205" name ="волосы">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">4</prob>
+        <prob lvl="21">6</prob>
+        <prob lvl="26">17</prob>
+        <prob lvl="31">26</prob>
+        <prob lvl="36">25</prob>
+        <prob lvl="41">25</prob>
+        <prob lvl="46">17</prob>
+      </im>
+      <im type="206" name ="сердце">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+    </imlist>
+  </mobrace>
+  <mobrace key="102" name ="Человек-зверь">
+    <imlist>
+      <im type="1" name="шерсть">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">6</prob>
+        <prob lvl="21">11</prob>
+        <prob lvl="26">32</prob>
+        <prob lvl="31">41</prob>
+        <prob lvl="36">40</prob>
+        <prob lvl="41">40</prob>
+        <prob lvl="46">32</prob>
+      </im>
+      <im type="201" name ="зубы">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">2</prob>
+        <prob lvl="21">3</prob>
+        <prob lvl="26">4</prob>
+        <prob lvl="31">3</prob>
+        <prob lvl="36">2</prob>
+        <prob lvl="41">2</prob>
+        <prob lvl="46">4</prob>
+      </im>
+      <im type="203" name ="глаза">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+      <im type="204" name ="печень">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">2</prob>
+        <prob lvl="21">4</prob>
+        <prob lvl="26">5</prob>
+        <prob lvl="31">4</prob>
+        <prob lvl="36">3</prob>
+        <prob lvl="41">3</prob>
+        <prob lvl="46">5</prob>
+      </im>
+      <im type="205" name ="волосы">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">6</prob>
+        <prob lvl="21">7</prob>
+        <prob lvl="26">19</prob>
+        <prob lvl="31">28</prob>
+        <prob lvl="36">27</prob>
+        <prob lvl="41">27</prob>
+        <prob lvl="46">19</prob>
+      </im>
+      <im type="206" name ="сердце">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+    </imlist>
+  </mobrace>
+  <mobrace key="103" name ="Птица">
+    <imlist>
+      <im type="202" name ="когти">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">13</prob>
+        <prob lvl="21">18</prob>
+        <prob lvl="26">30</prob>
+        <prob lvl="31">40</prob>
+        <prob lvl="36">48</prob>
+        <prob lvl="41">48</prob>
+        <prob lvl="46">31</prob>
+      </im>
+      <im type="203" name ="глаза">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+      <im type="204" name ="печень">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">2</prob>
+        <prob lvl="21">4</prob>
+        <prob lvl="26">5</prob>
+        <prob lvl="31">4</prob>
+        <prob lvl="36">3</prob>
+        <prob lvl="41">3</prob>
+        <prob lvl="46">5</prob>
+      </im>
+      <im type="206" name ="сердце">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+      <im type="208" name ="крылья">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">14</prob>
+        <prob lvl="21">30</prob>
+        <prob lvl="26">61</prob>
+        <prob lvl="31">60</prob>
+        <prob lvl="36">59</prob>
+        <prob lvl="41">59</prob>
+        <prob lvl="46">41</prob>
+      </im>
+    </imlist>
+  </mobrace>
+  <mobrace key="104" name ="Животное">
+    <imlist>
+      <im type="1" name="шерсть">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">14</prob>
+        <prob lvl="21">22</prob>
+        <prob lvl="26">43</prob>
+        <prob lvl="31">42</prob>
+        <prob lvl="36">41</prob>
+        <prob lvl="41">41</prob>
+        <prob lvl="46">33</prob>
+      </im>
+      <im type="201" name ="зубы">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+      <im type="203" name ="глаза">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">2</prob>
+        <prob lvl="21">4</prob>
+        <prob lvl="26">5</prob>
+        <prob lvl="31">4</prob>
+        <prob lvl="36">3</prob>
+        <prob lvl="41">3</prob>
+        <prob lvl="46">5</prob>
+      </im>
+      <im type="204" name ="печень">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">4</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">6</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+      <im type="206" name ="сердце">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+    </imlist>
+  </mobrace>
+  <mobrace key="105" name ="Пресмыкающееся">
+    <imlist>
+      <im type="201" name ="зубы">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+      <im type="203" name ="глаза">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">2</prob>
+        <prob lvl="21">4</prob>
+        <prob lvl="26">5</prob>
+        <prob lvl="31">4</prob>
+        <prob lvl="36">3</prob>
+        <prob lvl="41">3</prob>
+        <prob lvl="46">5</prob>
+      </im>
+      <im type="204" name ="печень">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">2</prob>
+        <prob lvl="21">4</prob>
+        <prob lvl="26">5</prob>
+        <prob lvl="31">4</prob>
+        <prob lvl="36">3</prob>
+        <prob lvl="41">3</prob>
+        <prob lvl="46">5</prob>
+      </im>
+      <im type="206" name ="сердце">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+      <im type="207" name ="чешуйка">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">12</prob>
+        <prob lvl="21">31</prob>
+        <prob lvl="26">42</prob>
+        <prob lvl="31">41</prob>
+        <prob lvl="36">40</prob>
+        <prob lvl="41">40</prob>
+        <prob lvl="46">32</prob>
+      </im>
+    </imlist>
+  </mobrace>
+  <mobrace key="106" name ="Рыба">
+    <imlist>
+      <im type="203" name ="глаза">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+      <im type="204" name ="печень">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">2</prob>
+        <prob lvl="21">4</prob>
+        <prob lvl="26">5</prob>
+        <prob lvl="31">4</prob>
+        <prob lvl="36">3</prob>
+        <prob lvl="41">3</prob>
+        <prob lvl="46">5</prob>
+      </im>
+      <im type="206" name ="сердце">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+      <im type="207" name ="чешуйка">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">7</prob>
+        <prob lvl="21">25</prob>
+        <prob lvl="26">31</prob>
+        <prob lvl="31">30</prob>
+        <prob lvl="36">49</prob>
+        <prob lvl="41">49</prob>
+        <prob lvl="46">31</prob>
+      </im>
+    </imlist>
+  </mobrace>
+  <mobrace key="107" name ="Насекомое">
+  </mobrace>
+  <mobrace key="108" name ="Растение">
+  </mobrace>
+  <mobrace key="109" name ="Предмет">
+  </mobrace>
+  <mobrace key="110" name ="Живой труп">
+    <imlist>
+      <im type="201" name ="зубы">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+      <im type="204" name ="печень">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">4</prob>
+        <prob lvl="26">5</prob>
+        <prob lvl="31">4</prob>
+        <prob lvl="36">3</prob>
+        <prob lvl="41">3</prob>
+        <prob lvl="46">5</prob>
+      </im>
+    </imlist>
+  </mobrace>
+  <mobrace key="111" name ="Призрак">
+  </mobrace>
+  <mobrace key="112" name ="Нечисть">
+    <imlist>
+      <im type="1" name="шерсть">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">5</prob>
+        <prob lvl="21">15</prob>
+        <prob lvl="26">18</prob>
+        <prob lvl="31">15</prob>
+        <prob lvl="36">15</prob>
+        <prob lvl="41">15</prob>
+        <prob lvl="46">12</prob>
+      </im>
+      <im type="201" name ="зубы">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+      <im type="202" name ="когти">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">7</prob>
+        <prob lvl="21">9</prob>
+        <prob lvl="26">20</prob>
+        <prob lvl="31">49</prob>
+        <prob lvl="36">48</prob>
+        <prob lvl="41">48</prob>
+        <prob lvl="46">24</prob>
+      </im>
+      <im type="203" name ="глаза">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+      <im type="204" name ="печень">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">4</prob>
+        <prob lvl="26">5</prob>
+        <prob lvl="31">4</prob>
+        <prob lvl="36">3</prob>
+        <prob lvl="41">3</prob>
+        <prob lvl="46">5</prob>
+      </im>
+      <im type="205" name ="волосы">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">6</prob>
+        <prob lvl="21">8</prob>
+        <prob lvl="26">19</prob>
+        <prob lvl="31">28</prob>
+        <prob lvl="36">27</prob>
+        <prob lvl="41">27</prob>
+        <prob lvl="46">19</prob>
+      </im>
+      <im type="206" name ="сердце">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+      <im type="207" name ="чешуйка">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">7</prob>
+        <prob lvl="21">15</prob>
+        <prob lvl="26">15</prob>
+        <prob lvl="31">17</prob>
+        <prob lvl="36">14</prob>
+        <prob lvl="41">14</prob>
+        <prob lvl="46">12</prob>
+      </im>
+    </imlist>
+  </mobrace>
+  <mobrace key="113" name ="Нематериальный дух">
+  </mobrace>
+  <mobrace key="114" name ="Магическое создание">
+    <imlist>
+      <im type="203" name ="глаза">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+      <im type="206" name ="сердце">
+        <prob lvl="1">1</prob>
+        <prob lvl="11">3</prob>
+        <prob lvl="21">5</prob>
+        <prob lvl="26">6</prob>
+        <prob lvl="31">5</prob>
+        <prob lvl="36">4</prob>
+        <prob lvl="41">4</prob>
+        <prob lvl="46">6</prob>
+      </im>
+    </imlist>
+  </mobrace>
+</mobraces>
