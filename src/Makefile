@@ -3,6 +3,8 @@ CC = g++
 TESTCC = g++
 TESTCC4 = g++-4
 
+MKDIR = mkdir -p
+
 # Path to cxref utility
 CXREF = cxref
 
@@ -70,6 +72,7 @@ circle:
 	$(MAKE) $(BINDIR)/circle
 
 $(BINDIR)/circle : $(OBJFILES)
+	$(MKDIR) $(BINDIR)
 	$(CC) -o $(BINDIR)/circle $(OBJFILES) $(LIBS)
 	rm -f version.o
 	@echo "Done building Bylins."
