@@ -1925,7 +1925,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 	if (!any_item)
 		buffer = "Базар пуст !\r\n";
 
-	page_string(ch->desc, buffer, 1);
+	page_string(ch->desc, buffer);
 }
 
 int parse_exch_filter(char *buf, char *filter_name, char *filter_owner, int *filter_type,

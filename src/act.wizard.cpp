@@ -1979,7 +1979,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 				out += buf1;
 				cur_log = cur_log->next;
 			}
-			page_string(ch->desc, out.c_str(), 1);
+			page_string(ch->desc, out);
 		}
 		log("End logon list stat");
 	}
@@ -2837,7 +2837,7 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 	need_warn = true;
 	sprintf(buf1, "Всего найдено: %d\r\n", found);
 	out += buf1;
-	page_string(ch->desc, out.c_str(), 1);
+	page_string(ch->desc, out);
 }
 
 
@@ -5469,7 +5469,7 @@ ACMD(do_spellstat)
 
 	if (!str_cmp(argument, "показать"))
 	{
-		page_string(ch->desc, statToPrint(), 1);
+		page_string(ch->desc, statToPrint());
 		return;
 	}
 
@@ -5954,7 +5954,7 @@ ACMD(do_print_armor)
 	if (!out.str().empty())
 	{
 		send_to_char(ch, "Всего найдено предметов: %d\r\n\r\n", tmp_list.size());
-		page_string(ch->desc, out.str(), TRUE);
+		page_string(ch->desc, out.str());
 	}
 	else
 	{

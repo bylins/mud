@@ -409,7 +409,7 @@ ACMD(do_proxy)
 		for (ProxyListType::const_iterator it = proxyList.begin(); it != proxyList.end(); ++it)
 			out << proxyFormat % it->second->textIp % it->second->textIp2 % it->second->num % it->second->text;
 
-		page_string(ch->desc, out.str(), 1);
+		page_string(ch->desc, out.str());
 
 	}
 	else if (CompareParam(buffer2, "add") || CompareParam(buffer2, "добавить"))

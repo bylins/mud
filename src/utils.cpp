@@ -2212,7 +2212,7 @@ void print(CHAR_DATA *ch)
 		out << "  " << std::setw(4) << i->second << " - " << i->first << "\r\n";
 //		send_to_char(ch, "  %4d - %ld\r\n", i->second, i->first);
 	}
-	page_string(ch->desc, out.str(), 1);
+	page_string(ch->desc, out.str());
 }
 
 void print_log()
@@ -2314,7 +2314,7 @@ void print_gain(CHAR_DATA *ch)
 	{
 		out << "  " << std::setw(4) << i->second << " - " << i->first << "\r\n";
 	}
-	page_string(ch->desc, out.str(), 1);
+	page_string(ch->desc, out.str());
 }
 
 void print_log()

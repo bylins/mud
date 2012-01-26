@@ -1428,13 +1428,13 @@ void page_string(DESCRIPTOR_DATA * d, char *str, int keep_internal)
 }
 
 // TODO типа временно для стрингов
-void page_string(DESCRIPTOR_DATA * d, std::string buf, int keep_internal)
+void page_string(DESCRIPTOR_DATA * d, std::string buf)
 {
 	// TODO: при keep_internal == true (а в 99% случаев так оно есть)
 	// получаем дальше в page_string повторный str_dup.
 	// как бы собраться с силами и переписать все это :/
 	char *str = str_dup(buf.c_str());
-	page_string(d, str, keep_internal);
+	page_string(d, str, true);
 	free(str);
 }
 

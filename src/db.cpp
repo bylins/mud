@@ -4214,7 +4214,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 
 	if (!out.empty())
 	{
-		page_string(ch->desc, out, TRUE);
+		page_string(ch->desc, out);
 	}
 	return found;
 }

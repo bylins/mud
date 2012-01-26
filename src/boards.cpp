@@ -249,7 +249,7 @@ void Board::ShowMessage(CHAR_DATA * ch, MessagePtr message)
 	<< message->subject << "\r\n\r\n"
 	<< message->text << "\r\n";
 
-	page_string(ch->desc, buffer.str(), 1);
+	page_string(ch->desc, buffer.str());
 }
 
 void set_last_read(CHAR_DATA *ch, int type, time_t date)
@@ -329,7 +329,7 @@ ACMD(DoBoard)
 			<< "(" << (*message)->author << ") :: "
 			<< (*message)->subject << "\r\n" <<  CCNRM(ch, C_NRM);
 		}
-		page_string(ch->desc, body.str(), 1);
+		page_string(ch->desc, body.str());
 		return;
 	}
 
@@ -356,7 +356,7 @@ ACMD(DoBoard)
 				<< (*message)->text;
 			}
 			set_last_read(ch, (*board)->type, time(0));
-			page_string(ch->desc, body.str(), 1);
+			page_string(ch->desc, body.str());
 			return;
 		}
 		// дрновости в ленточном варианте
@@ -371,7 +371,7 @@ ACMD(DoBoard)
 				body << "[" << (*message)->author << "] " << CCNRM(ch, C_NRM) << (*message)->text;
 			}
 			set_last_read(ch, (*board)->type, time(0));
-			page_string(ch->desc, body.str(), 1);
+			page_string(ch->desc, body.str());
 			return;
 		}
 

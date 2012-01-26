@@ -704,7 +704,7 @@ ACMD(do_list_make)
 
 	}
 
-	page_string(ch->desc, tmpstr.c_str(), 1);
+	page_string(ch->desc, tmpstr);
 	return;
 }
 

@@ -180,7 +180,7 @@ void show_log(CHAR_DATA *ch , char const * const value)
 			out << time_buf << " " << it->second->karma << "\r\n";
 		}
 	}
-	page_string(ch->desc, out.str(), 1);
+	page_string(ch->desc, out.str());
 }
 
 /**

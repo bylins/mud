@@ -636,7 +636,7 @@ void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 		}
 	}
 	if (clan_chest)
-		page_string(ch->desc, buffer.str(), TRUE);
+		page_string(ch->desc, buffer.str());
 }
 
 void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch)
