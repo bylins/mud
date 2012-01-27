@@ -552,13 +552,13 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	int total_money = 0;
 
 
+	OBJ_DATA *obj;
 	while (bought < item_count
 		&& check_money(ch, price, (*shop)->currency)
 		&& IS_CARRYING_N(ch) < CAN_CARRY_N(ch)
 		&& IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(proto) <= CAN_CARRY_W(ch)
 		&& (bought < can_sell_count(shop, item_num) || can_sell_count(shop, item_num) == -1))
 	{
-		OBJ_DATA *obj;
 
 		if ((*shop)->item_list[item_num]->temporary_id != 0)
 		{
@@ -644,7 +644,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	tell_to_char(keeper, ch, buf);
 	send_to_char(ch, "Теперь Вы стали %s %s.\r\n",
 		IS_MALE(ch) ? "счастливым обладателем" : "счастливой обладательницей",
-		item_count_message(proto, bought, 1).c_str());
+		item_count_message(obj, bought, 1).c_str());
 }
 
 void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::const_iterator &shop, std::string cmd)
@@ -652,6 +652,13 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	if (!obj) return;
 	int rnum = GET_OBJ_RNUM(obj);
 	if (rnum < 0) return;
+	if (OBJ_FLAGGED(obj, ITEM_ARMORED) || OBJ_FLAGGED(obj, ITEM_SHARPEN) ||
+		OBJ_FLAGGED(obj, ITEM_NODONATE) || OBJ_FLAGGED(obj, ITEM_NODROP) ||
+		OBJ_FLAGGED(obj, ITEM_NOSELL))
+	{
+		tell_to_char(keeper, ch, string("Я не собираюсь иметь дела с этой вещью").c_str());
+		return;
+	}
 	
 	int buy_price = GET_OBJ_COST(obj);
 	
@@ -670,7 +677,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	std::string price_to_show = boost::lexical_cast<string>(buy_price) + " " + string(desc_count(buy_price, WHAT_MONEYu));
 
 	if (cmd == "Оценить")
-			tell_to_char(keeper, ch, string("Я, пожалуй, куплю " + string(GET_OBJ_PNAME(obj, 2)) + " за " + price_to_show + ".").c_str());
+			tell_to_char(keeper, ch, string("Я, пожалуй, куплю " + string(GET_OBJ_PNAME(obj, 3)) + " за " + price_to_show + ".").c_str());
 
 	if (cmd == "Продать")
 	{
@@ -682,7 +689,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 		tmp_item->timer = obj->get_timer();
 		tmp_item->temporary_id = obj->uid;
 		(*shop)->item_list.push_back(tmp_item);
-		tell_to_char(keeper, ch, string("Получи за " + string(GET_OBJ_PNAME(obj, 2)) + " " + price_to_show + ".").c_str());
+		tell_to_char(keeper, ch, string("Получи за " + string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
 		ch->add_gold(buy_price);
 
 		(*shop)->waste.push_back(obj);

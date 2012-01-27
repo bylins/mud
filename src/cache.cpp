@@ -2,7 +2,6 @@
 // Part of Bylins http://www.mud.ru
 
 #include "cache.hpp"
-
 using namespace boost;
 
 template class caching::Cache<Character*>;
@@ -14,3 +13,4 @@ template class caching::Cache<obj_data*>;
 template<>
 caching::id_t caching::ObjCache::max_id = 0;
 caching::ObjCache caching::obj_cache;
+

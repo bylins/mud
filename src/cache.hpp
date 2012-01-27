@@ -7,7 +7,7 @@
 #include <boost/unordered_map.hpp>
 
 class Character;
-class obj_data;
+struct obj_data;
 
 namespace caching
 {
