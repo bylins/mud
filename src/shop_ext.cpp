@@ -362,6 +362,16 @@ int can_sell_count(ShopListType::const_iterator &shop, int item_num)
 	}
 }
 
+OBJ_DATA * get_obj_from_waste(ShopListType::const_iterator &shop, unsigned uid)
+{
+	std::list<OBJ_DATA *>::const_iterator it;
+	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end(); ++it)
+	{
+		if ((*it)->uid == uid)
+			return (*it);
+	}
+	return 0;
+}
 
 void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::string arg)
 {
@@ -375,10 +385,25 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 		kend = (*shop)->item_list.end(); k != kend; ++k)
 	{
 		int count = can_sell_count(shop, num - 1);
+		
+		std::string print_value="";
+
+//Polud у проданных в магаз объектов отображаем в списке не значение из прототипа, а уже, возможно, измененное значение
+// чтобы не было в списках всяких "гриб @n1"
+		if ((*k)->temporary_id == 0)
+			print_value = GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0);
+		else
+		{
+			OBJ_DATA * tmp_obj = get_obj_from_waste(shop, (*k)->temporary_id);
+			if (tmp_obj)
+				print_value = std::string(tmp_obj->short_description);
+		}
+
 		std::string numToShow = count == -1 ? "Навалом" : boost::lexical_cast<string>(count);
+		
 		if (arg.empty() || isname(arg.c_str(), GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0)))
 				out += boost::str(boost::format("%3d)  %10s  %-47s %8d\r\n")
-					% num++ % numToShow % GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0) % (*k)->price);
+					% num++ % numToShow % print_value % (*k)->price);
 			else
 				num++;
 	}
@@ -419,17 +444,6 @@ void empty_waste(ShopListType::const_iterator &shop)
 		extract_obj((*it));
 	}
 	(*shop)->waste.clear();
-}
-
-OBJ_DATA * get_obj_from_waste(ShopListType::const_iterator &shop, unsigned uid)
-{
-	std::list<OBJ_DATA *>::const_iterator it;
-	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end(); ++it)
-	{
-		if ((*it)->uid == uid)
-			return (*it);
-	}
-	return 0;
 }
 
 void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType::const_iterator &shop)

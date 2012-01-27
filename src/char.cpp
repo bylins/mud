@@ -1198,6 +1198,7 @@ int Character::calc_morale() const
 ///////////////////////////////////////////////////////////////////////////////
 int Character::get_str() const
 {
+	check_purged(this, "get_str");
 	return current_morph_->GetStr();
 }
 
@@ -1228,6 +1229,7 @@ void Character::set_str_add(int param)
 ///////////////////////////////////////////////////////////////////////////////
 int Character::get_dex() const
 {
+	check_purged(this, "get_dex");
 	return current_morph_->GetDex();
 }
 
@@ -1259,6 +1261,7 @@ void Character::set_dex_add(int param)
 ///////////////////////////////////////////////////////////////////////////////
 int Character::get_con() const
 {
+	check_purged(this, "get_con");
 	return current_morph_->GetCon();
 }
 
@@ -1289,6 +1292,7 @@ void Character::set_con_add(int param)
 
 int Character::get_int() const
 {
+	check_purged(this, "get_int");
 	return current_morph_->GetIntel();
 }
 
@@ -1319,6 +1323,7 @@ void Character::set_int_add(int param)
 ////////////////////////////////////////
 int Character::get_wis() const
 {
+	check_purged(this, "get_wis");
 	return current_morph_->GetWis();
 }
 
@@ -1350,6 +1355,7 @@ void Character::set_wis_add(int param)
 ///////////////////////////////////////////////////////////////////////////////
 int Character::get_cha() const
 {
+	check_purged(this, "get_cha");
 	return current_morph_->GetCha();
 }
 
