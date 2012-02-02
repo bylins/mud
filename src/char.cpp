@@ -1,4 +1,4 @@
-// $RCSfile$     $Date$     $Revision$
+// $RCSfile: char.cpp,v $     $Date: 2012/01/27 04:04:43 $     $Revision: 1.85 $
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
@@ -28,7 +28,6 @@ std::string PlayerI::empty_const_str;
 
 namespace
 {
-
 // список чаров/мобов после пуржа для последующего удаления оболочки
 typedef std::vector<CHAR_DATA *> PurgedListType;
 PurgedListType purged_list;
@@ -1198,6 +1197,7 @@ int Character::calc_morale() const
 ///////////////////////////////////////////////////////////////////////////////
 int Character::get_str() const
 {
+	check_purged(this, "get_str");
 	return current_morph_->GetStr();
 }
 
@@ -1228,6 +1228,7 @@ void Character::set_str_add(int param)
 ///////////////////////////////////////////////////////////////////////////////
 int Character::get_dex() const
 {
+	check_purged(this, "get_dex");
 	return current_morph_->GetDex();
 }
 
@@ -1259,6 +1260,7 @@ void Character::set_dex_add(int param)
 ///////////////////////////////////////////////////////////////////////////////
 int Character::get_con() const
 {
+	check_purged(this, "get_con");
 	return current_morph_->GetCon();
 }
 
@@ -1289,6 +1291,7 @@ void Character::set_con_add(int param)
 
 int Character::get_int() const
 {
+	check_purged(this, "get_int");
 	return current_morph_->GetIntel();
 }
 
@@ -1319,6 +1322,7 @@ void Character::set_int_add(int param)
 ////////////////////////////////////////
 int Character::get_wis() const
 {
+	check_purged(this, "get_wis");
 	return current_morph_->GetWis();
 }
 
@@ -1350,6 +1354,7 @@ void Character::set_wis_add(int param)
 ///////////////////////////////////////////////////////////////////////////////
 int Character::get_cha() const
 {
+	check_purged(this, "get_cha");
 	return current_morph_->GetCha();
 }
 

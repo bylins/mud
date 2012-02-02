@@ -85,5 +85,5 @@ log.crash.3
 makelog
 proxy
 scan_proxies.pl
-
+src/Bylins.*
 .crash
