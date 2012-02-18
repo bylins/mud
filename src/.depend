@@ -41,7 +41,7 @@ act.wizard.o: act.wizard.cpp conf.h sysdep.h structs.h utils.h \
  privilege.hpp depot.hpp glory.hpp genchar.h file_crc.hpp char_player.hpp \
  quested.hpp mobmax.hpp dps.hpp parcel.hpp liquid.hpp modify.h room.hpp \
  glory_misc.hpp glory_const.hpp shop_ext.hpp celebrates.hpp \
- player_races.hpp birth_places.hpp
+ player_races.hpp birth_places.hpp corpse.hpp
 alias.o: alias.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp interpreter.h db.h char.hpp player_i.hpp \
  morph.hpp comm.h
@@ -75,7 +75,8 @@ constants.o: constants.cpp conf.h sysdep.h structs.h spells.h skills.h \
  remember.hpp
 features.o: features.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp handler.h comm.h db.h interpreter.h \
- skills.h spells.h char.hpp player_i.hpp morph.hpp player_races.hpp
+ skills.h spells.h char.hpp player_i.hpp morph.hpp player_races.hpp \
+ room.hpp house.h house_exp.hpp remember.hpp screen.h pk.h dg_scripts.h
 db.o: db.cpp conf.h sysdep.h structs.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp db.h comm.h handler.h spells.h mail.h \
  interpreter.h house.h house_exp.hpp char.hpp player_i.hpp morph.hpp \
