@@ -199,7 +199,7 @@ void load()
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
 			}
-			tmp_shop->mob_vnums.push_back(mob_vnum);		
+			tmp_shop->mob_vnums.push_back(mob_vnum);
 			// проверяем и сетим мобу спешиал
 			// даже если дальше магаз не залоадится - моб будет выдавать ошибку на магазинные спешиалы
 			int mob_rnum = real_mobile(mob_vnum);
@@ -356,7 +356,7 @@ int can_sell_count(ShopListType::const_iterator &shop, int item_num)
 	else
 	{
 		int numToSell = obj_proto[(*shop)->item_list[item_num]->rnum]->max_in_world;
-		if (numToSell != -1) 
+		if (numToSell != -1)
 			numToSell -= obj_index[(*shop)->item_list[item_num]->rnum].number;
 		return numToSell;
 	}
@@ -385,7 +385,7 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 		kend = (*shop)->item_list.end(); k != kend; ++k)
 	{
 		int count = can_sell_count(shop, num - 1);
-		
+
 		std::string print_value="";
 
 //Polud у проданных в магаз объектов отображаем в списке не значение из прототипа, а уже, возможно, измененное значение
@@ -400,7 +400,7 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 		}
 
 		std::string numToShow = count == -1 ? "Навалом" : boost::lexical_cast<string>(count);
-		
+
 		if (arg.empty() || isname(arg.c_str(), GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0)))
 				out += boost::str(boost::format("%3d)  %10s  %-47s %8d\r\n")
 					% num++ % numToShow % print_value % (*k)->price);
@@ -547,12 +547,12 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		send_to_char(buf, ch);
 		return;
 	}
-	
+
 	int bought = 0;
 	int total_money = 0;
 
 
-	OBJ_DATA *obj;
+	OBJ_DATA *obj = 0;
 	while (bought < item_count
 		&& check_money(ch, price, (*shop)->currency)
 		&& IS_CARRYING_N(ch) < CAN_CARRY_N(ch)
@@ -568,7 +568,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		}
 		else
 			obj = read_object((*shop)->item_list[item_num]->rnum, REAL);
-		
+
 		if (obj)
 		{
 			obj_to_char(obj, ch);
@@ -600,7 +600,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 				spent_today += price;
 			}
 			++bought;
-			
+
 			total_money += price;
 		}
 		else
@@ -642,9 +642,12 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		"Это будет стоить %d %s.", total_money,
 		desc_count(total_money, (*shop)->currency == "куны"? WHAT_MONEYu : WHAT_GLORYu));
 	tell_to_char(keeper, ch, buf);
-	send_to_char(ch, "Теперь Вы стали %s %s.\r\n",
-		IS_MALE(ch) ? "счастливым обладателем" : "счастливой обладательницей",
-		item_count_message(obj, bought, 1).c_str());
+	if (obj)
+	{
+		send_to_char(ch, "Теперь Вы стали %s %s.\r\n",
+			IS_MALE(ch) ? "счастливым обладателем" : "счастливой обладательницей",
+			item_count_message(obj, bought, 1).c_str());
+	}
 }
 
 void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::const_iterator &shop, std::string cmd)
@@ -659,11 +662,11 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 		tell_to_char(keeper, ch, string("Я не собираюсь иметь дела с этой вещью").c_str());
 		return;
 	}
-	
+
 	int buy_price = GET_OBJ_COST(obj);
-	
+
 	buy_price = (buy_price * obj->get_timer()) / obj_proto[rnum]->get_timer(); //учтем таймер
-	
+
 	int new_sell_price = MMAX(1, buy_price);
 
 	buy_price = (buy_price * obj->obj_flags.Obj_cur) / obj->obj_flags.Obj_max; //учтем повреждения
@@ -671,9 +674,9 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	int repair = GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj);
 	int repair_price = MAX(1, GET_OBJ_COST(obj) * MAX(0, repair) / MAX(1, GET_OBJ_MAX(obj)));
 
-	if (ch->get_class()	!= CLASS_MERCHANT) 
+	if (ch->get_class()	!= CLASS_MERCHANT)
 		 buy_price = MMAX(1, (buy_price * (*shop)->profit) / 100); //учтем прибыль магазина
-	
+
 	std::string price_to_show = boost::lexical_cast<string>(buy_price) + " " + string(desc_count(buy_price, WHAT_MONEYu));
 
 	if (cmd == "Оценить")
@@ -737,9 +740,9 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 			return;
 		}
 
-		tell_to_char(keeper, ch, string("Починка " + string(GET_OBJ_PNAME(obj, 1)) + " обойдется в " 
+		tell_to_char(keeper, ch, string("Починка " + string(GET_OBJ_PNAME(obj, 1)) + " обойдется в "
 			+ boost::lexical_cast<string>(repair_price)+" " + desc_count(repair_price, WHAT_MONEYu)).c_str());
-		
+
 		if (!IS_GOD(ch) && repair_price > ch->get_gold())
 		{
 			act("А вот их у тебя как-раз то и нет.", FALSE, ch, 0, 0, TO_CHAR);
@@ -752,7 +755,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 		}
 
 		act("$n сноровисто починил$g $o3.", FALSE, keeper, obj, 0, TO_ROOM);
-		
+
 		GET_OBJ_CUR(obj) = GET_OBJ_MAX(obj);
 	}
 }
@@ -782,14 +785,14 @@ void process_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 					if (cmd == "Чинить" && is_abbrev(argument, "экипировка"))
 					{
 						for(i = 0; i < NUM_WEARS; i++)
-							if (ch->equipment[i]) 
+							if (ch->equipment[i])
 								do_shop_cmd(ch, keeper, ch->equipment[i], shop, cmd);
 						return;
 					}
 					send_to_char("У Вас нет " + buffer + "!\r\n", ch);
 					return;
 				}
-				
+
 				do_shop_cmd(ch, keeper, obj, shop, cmd);
 				break;
 		case FIND_ALL:
@@ -892,10 +895,10 @@ SPECIAL(shop_ext)
 	}
 	if (!(CMD_IS("список") || CMD_IS("list")
 		|| CMD_IS("купить") || CMD_IS("buy")
-		|| CMD_IS("характеристики") || CMD_IS("identify") 
-		|| CMD_IS("оценить") || CMD_IS("value") 
-		|| CMD_IS("продать") || CMD_IS("sell") 
-		|| CMD_IS("чинить") || CMD_IS("repair") 
+		|| CMD_IS("характеристики") || CMD_IS("identify")
+		|| CMD_IS("оценить") || CMD_IS("value")
+		|| CMD_IS("продать") || CMD_IS("sell")
+		|| CMD_IS("чинить") || CMD_IS("repair")
 		|| CMD_IS("steal") || CMD_IS("украсть")))
 	{
 		return 0;
@@ -942,7 +945,7 @@ SPECIAL(shop_ext)
 		process_ident(ch, keeper, argument, shop);
 		return 1;
 	}
-	
+
 	if (CMD_IS("value") || CMD_IS("оценить"))
 	{
 		process_cmd(ch, keeper, argument, shop, "Оценить");
