@@ -1743,6 +1743,9 @@ void boot_db(void)
 	log("Check big sets in rent.");
 	check_sets_on_start();
 
+	log("Init FullSetDrop lists.");
+	FullSetDrop::init();
+
 	boot_time = time(0);
 	log("Boot db -- DONE.");
 }

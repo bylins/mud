@@ -1011,6 +1011,12 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 --*/
 void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koef)
 {
+	if (!EXTRA_FLAGGED(victim, EXTRA_GRP_KILL_COUNT) && !IS_NPC(ch) && IS_NPC(victim))
+	{
+		FullSetDrop::add_kill(victim, members);
+		SET_BIT(EXTRA_FLAGS(victim, EXTRA_GRP_KILL_COUNT), EXTRA_GRP_KILL_COUNT);
+	}
+
 // Странно, но для NPC эта функция тоже должна работать
 //  if (IS_NPC(ch) || !OK_GAIN_EXP(ch,victim))
 	if (!OK_GAIN_EXP(ch, victim))

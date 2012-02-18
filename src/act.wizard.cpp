@@ -55,6 +55,7 @@
 #include "celebrates.hpp"
 #include "player_races.hpp"
 #include "birth_places.hpp"
+#include "corpse.hpp"
 
 /*   external vars  */
 extern bool need_warn;
@@ -4034,7 +4035,8 @@ ACMD(do_show)
 		Parcel::show_stats(ch);
 		send_to_char(ch, "  Список полей сражающихся: %d\r\n", fighting_list_size());
 		send_to_char(ch, "  Передвижения: %d\r\n", motion);
-		send_to_char(ch, "  Потрачено кун в магазинах2 за ребут: %d", ShopExt::get_spent_today());
+		send_to_char(ch, "  Потрачено кун в магазинах2 за ребут: %d\r\n", ShopExt::get_spent_today());
+		FullSetDrop::show_stats(ch);
 		break;
 	}
 	case 5:

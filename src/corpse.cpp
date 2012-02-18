@@ -15,6 +15,112 @@ extern int max_npc_corpse_time, max_pc_corpse_time;
 extern MobRaceListType mobraces_list;
 extern void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload);
 
+////////////////////////////////////////////////////////////////////////////////
+
+namespace FullSetDrop
+{
+
+const char *SOLO_FILE = LIB_PLRSTUFF"killed_solo.lst";
+const char *GROUP_FILE = LIB_PLRSTUFF"killed_group.lst";
+
+struct MobNode
+{
+	MobNode() : lvl(0), cnt(0) {};
+
+	int lvl;
+	int cnt;
+};
+
+std::map<int /* mob vnum */, MobNode> solo_kill_list;
+std::map<int /* mob vnum */, MobNode> group_kill_list;
+
+void save_list(bool list_type)
+{
+	const char *curr_file = (list_type == SOLO_TYPE) ? SOLO_FILE : GROUP_FILE;
+	std::map<int, MobNode> &curr_list =
+		(list_type == SOLO_TYPE) ? solo_kill_list : group_kill_list;
+
+	std::ofstream file(curr_file);
+	if (!file.is_open())
+	{
+		log("SYSERROR: не удалось открыть файл на запись: %s", curr_file);
+		return;
+	}
+	for (std::map<int, MobNode>::iterator it = curr_list.begin(),
+		iend = curr_list.end(); it != iend; ++it)
+	{
+		file << it->first << " " << it->second.lvl << " " << it->second.cnt << "\n";
+	}
+}
+
+void init_list(bool list_type)
+{
+	const char *curr_file = (list_type == SOLO_TYPE) ? SOLO_FILE : GROUP_FILE;
+	std::map<int, MobNode> &curr_list =
+		(list_type == SOLO_TYPE) ? solo_kill_list : group_kill_list;
+
+	std::ifstream file(curr_file);
+	if (!file.is_open())
+	{
+		log("SYSERROR: не удалось открыть файл на чтение: %s", curr_file);
+		return;
+	}
+
+	int vnum, lvl, cnt;
+	while(file >> vnum >> lvl >> cnt)
+	{
+		MobNode tmp_node;
+		tmp_node.lvl = lvl;
+		tmp_node.cnt = cnt;
+		curr_list.insert(std::make_pair(vnum, tmp_node));
+	}
+}
+
+void init()
+{
+	init_list(SOLO_TYPE);
+	init_list(GROUP_TYPE);
+}
+
+void add_to_list(CHAR_DATA *mob, std::map<int, MobNode> &curr_list)
+{
+	std::map<int, MobNode>::iterator it = curr_list.find(GET_MOB_VNUM(mob));
+	if (it != curr_list.end())
+	{
+		it->second.lvl = GET_LEVEL(mob);
+		it->second.cnt += 1;
+	}
+	else
+	{
+		MobNode tmp_node;
+		tmp_node.lvl = GET_LEVEL(mob);
+		tmp_node.cnt = 1;
+		curr_list.insert(std::make_pair(GET_MOB_VNUM(mob), tmp_node));
+	}
+}
+
+void add_kill(CHAR_DATA *mob, int members)
+{
+	if (members > 1)
+	{
+		add_to_list(mob, group_kill_list);
+	}
+	else
+	{
+		add_to_list(mob, solo_kill_list);
+	}
+}
+
+void show_stats(CHAR_DATA *ch)
+{
+	send_to_char(ch, "  FullSetDrop: solo %d, group %d\r\n",
+			solo_kill_list.size(), group_kill_list.size());
+}
+
+} // namespace FullSetDrop
+
+////////////////////////////////////////////////////////////////////////////////
+
 namespace GlobalDrop
 {
 

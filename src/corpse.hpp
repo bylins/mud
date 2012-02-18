@@ -11,6 +11,26 @@
 void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer);
 OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer = NULL);
 
+namespace FullSetDrop
+{
+
+// период сохранения списков мобов (минуты)
+const int SAVE_PERIOD = 27;
+// для сохранения списков по отдельности
+const bool SOLO_TYPE = false;
+const bool GROUP_TYPE = true;
+
+// лоад списков при старте мада
+void init();
+// добавление моба в списки в зависимости от кол-ва убивших игроков
+void add_kill(CHAR_DATA *mob, int members);
+// сохранение списков
+void save_list(bool list_type);
+// вывод размера список по show stats
+void show_stats(CHAR_DATA *ch);
+
+} // namespace FullSetDrop
+
 namespace GlobalDrop
 {
 

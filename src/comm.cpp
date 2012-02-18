@@ -548,6 +548,8 @@ void init_game(ush_int port)
 	ZoneExpStat::print_log();
 	print_rune_log();
 	scripting::terminate();
+	FullSetDrop::save_list(FullSetDrop::SOLO_TYPE);
+	FullSetDrop::save_list(FullSetDrop::GROUP_TYPE);
 
 	log("Closing all sockets.");
 	while (descriptor_list)
@@ -1322,6 +1324,17 @@ inline void heartbeat()
 		MoneyDropStat::print_log();
 		ZoneExpStat::print_log();
 		print_rune_log();
+	}
+
+
+	if (!((pulse + 54) % (60 * FullSetDrop::SAVE_PERIOD * PASSES_PER_SEC)))
+	{
+		FullSetDrop::save_list(FullSetDrop::SOLO_TYPE);
+	}
+
+	if (!((pulse + 52) % (60 * FullSetDrop::SAVE_PERIOD * PASSES_PER_SEC)))
+	{
+		FullSetDrop::save_list(FullSetDrop::GROUP_TYPE);
 	}
 
 // раз в 10 минут >> ///////////////////////////////////////////////////////////
@@ -3313,7 +3326,7 @@ RETSIGTYPE unrestrict_game(int sig)
 /* clean up our zombie kids to avoid defunct processes */
 RETSIGTYPE reap(int sig)
 {
-	while (waitpid(-1, NULL, WNOHANG) > 0);
+	while (waitpid(-1, (int *)NULL, WNOHANG) > 0);
 
 	my_signal(SIGCHLD, reap);
 }
