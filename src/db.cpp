@@ -586,6 +586,10 @@ ACMD(do_reboot)
 		//Celebrates::load(XMLLoad(LIB_MISC CELEBRATES_FILE, CELEBRATES_MAIN_TAG, CELEBRATES_ERROR_STR));
 		Celebrates::load();
 	}
+	else if (!str_cmp(arg, "fullsetdrop") && PRF_FLAGGED(ch, PRF_CODERINFO))
+	{
+		FullSetDrop::reload();
+	}
 	else
 	{
 		send_to_char("Неверный параметр для перезагрузки файлов.\r\n", ch);

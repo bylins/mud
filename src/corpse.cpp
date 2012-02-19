@@ -1,6 +1,9 @@
 // $RCSfile$     $Date$     $Revision$
 // Part of Bylins http://www.mud.ru
 
+#include <boost/bind.hpp>
+#include <sstream>
+#include <iostream>
 #include "corpse.hpp"
 #include "db.h"
 #include "utils.h"
@@ -10,18 +13,27 @@
 #include "dg_scripts.h"
 #include "im.h"
 #include "room.hpp"
+#include "pugixml.hpp"
+#include "modify.h"
 
 extern int max_npc_corpse_time, max_pc_corpse_time;
 extern MobRaceListType mobraces_list;
 extern void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload);
+extern int top_of_helpt;
+extern struct help_index_element *help_table;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace FullSetDrop
 {
 
-const char *SOLO_FILE = LIB_PLRSTUFF"killed_solo.lst";
-const char *GROUP_FILE = LIB_PLRSTUFF"killed_group.lst";
+// списки статистики по убийствам мобов
+const char *SOLO_FILE = LIB_PLRSTUFF"killed_solo_new.lst";
+const char *GROUP_FILE = LIB_PLRSTUFF"killed_group_new.lst";
+// список сетин на дроп
+const char *CONFIG_FILE = LIB_MISC"full_set_drop.xml";
+// минимальный уровень моба для участия в списке дропа
+const int MIN_MOB_LVL = 30;
 
 struct MobNode
 {
@@ -33,6 +45,32 @@ struct MobNode
 
 std::map<int /* mob vnum */, MobNode> solo_kill_list;
 std::map<int /* mob vnum */, MobNode> group_kill_list;
+
+struct TmpNode
+{
+	TmpNode() : zone(0) {};
+
+	int zone;
+	std::list<int> mobs;
+};
+
+// список сетин на лоад
+std::list<int /* obj vnum */> obj_list;
+// временный список мобов на лоад сетин
+std::list<TmpNode> mob_list;
+// сгенерированная справка по дропу сетов
+std::string xhelp_str;
+
+struct DropNode
+{
+	DropNode() : obj_rnum(0), max_in_world(0) {};
+
+	int obj_rnum;
+	int max_in_world;
+};
+
+// финальный список дропа по мобам
+std::map<int /* mob rnum */, DropNode> drop_list;
 
 void save_list(bool list_type)
 {
@@ -76,10 +114,183 @@ void init_list(bool list_type)
 	}
 }
 
+void init_obj_list()
+{
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
+	if (!result)
+	{
+		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
+    pugi::xml_node node_list = doc.child("fullsetdrop");
+    if (!node_list)
+    {
+		snprintf(buf, MAX_STRING_LENGTH, "...<fullsetdrop> read fail");
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+    }
+	for (pugi::xml_node node = node_list.child("obj"); node; node = node.next_sibling("obj"))
+	{
+		int obj_vnum = xmlparse_int(node, "vnum");
+		if (real_object(obj_vnum) < 0)
+		{
+			snprintf(buf, MAX_STRING_LENGTH, "...bad obj attributes (vnum=%d)", obj_vnum);
+			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			continue;
+		}
+		obj_list.push_back(obj_vnum);
+	}
+}
+
+void init_mob_list()
+{
+	for (std::map<int, MobNode>::iterator it = group_kill_list.begin(),
+		iend = group_kill_list.end(); it != iend; ++it)
+	{
+		if (it->second.lvl < MIN_MOB_LVL
+			|| solo_kill_list.find(it->first) != solo_kill_list.end())
+		{
+			continue;
+		}
+		TmpNode tmp_node;
+		tmp_node.zone =  it->first/100;
+
+		std::list<TmpNode>::iterator k = std::find_if(mob_list.begin(), mob_list.end(),
+			boost::bind(std::equal_to<int>(),
+			boost::bind(&TmpNode::zone, _1), tmp_node.zone));
+		if (k != mob_list.end())
+		{
+			k->mobs.push_back(it->first);
+		}
+		else
+		{
+			tmp_node.mobs.push_back(it->first);
+			mob_list.push_back(tmp_node);
+		}
+	}
+
+	for (std::list<TmpNode>::iterator it = mob_list.begin(),
+		iend = mob_list.end(); it != iend; ++it)
+	{
+		it->mobs.sort();
+		it->mobs.unique();
+	}
+}
+
+int calc_max_in_world(int mob_rnum)
+{
+	int max_in_world = 0;
+	for (int i = 0; i <= top_of_zone_table; ++i)
+	{
+		for (int cmd_no = 0; zone_table[i].cmd[cmd_no].command != 'S'; ++cmd_no)
+		{
+			if (zone_table[i].cmd[cmd_no].command == 'M'
+				&& zone_table[i].cmd[cmd_no].arg1 == mob_rnum)
+			{
+				max_in_world = MAX(max_in_world, zone_table[i].cmd[cmd_no].arg2);
+			}
+		}
+	}
+	return max_in_world;
+}
+
+void init_drop_table()
+{
+	std::list<int> tmp_obj_list(obj_list);
+
+	while(!tmp_obj_list.empty() && !mob_list.empty())
+	{
+		std::list<int>::iterator it = tmp_obj_list.begin();
+		std::advance(it, number(0, tmp_obj_list.size() - 1));
+		const int obj_rnum = real_object(*it);
+
+		std::list<TmpNode>::iterator k = mob_list.begin();
+		std::advance(k, number(0, mob_list.size() - 1));
+
+		std::list<int>::iterator l = k->mobs.begin();
+		std::advance(l, number(0, k->mobs.size() - 1));
+		const int mob_rnum = real_mobile(*l);
+
+		k->mobs.erase(l);
+		if (k->mobs.empty())
+		{
+			mob_list.erase(k);
+		}
+		// проверка на нормальность лоада моба
+		// иначе сетина не проинится и пойдет по новой
+		const int max_in_world = calc_max_in_world(mob_rnum);
+		if (max_in_world > 0 && max_in_world <= 20)
+		{
+			DropNode tmp_node;
+			tmp_node.obj_rnum = obj_rnum;
+			tmp_node.max_in_world = max_in_world;
+			drop_list.insert(std::make_pair(mob_rnum, tmp_node));
+			tmp_obj_list.erase(it);
+		}
+	}
+}
+
+void init_xhelp()
+{
+	std::stringstream out;
+	out << "Наборы предметов, участвующие в системе автоматического выпадения:\r\n";
+
+	for (id_to_set_info_map::const_iterator it = obj_data::set_table.begin(),
+		iend = obj_data::set_table.end(); it != iend; ++it)
+	{
+		bool print_set_name = true;
+		for (set_info::const_iterator obj = it->second.begin(),
+			iend = it->second.end(); obj != iend; ++obj)
+		{
+			for (std::map<int, DropNode>::iterator k = drop_list.begin(),
+					kend = drop_list.end(); k != kend; ++k)
+			{
+				if (obj_index[k->second.obj_rnum].vnum == obj->first)
+				{
+					if (print_set_name)
+					{
+						out << "\r\n" << it->second.get_name().c_str() << "\r\n";
+						print_set_name = false;
+					}
+					out.precision(1);
+					out << "   " << GET_OBJ_PNAME(obj_proto[k->second.obj_rnum], 0)
+						<< " - " << (mob_proto[k->first]).get_name()
+						<< " (" << zone_table[mob_index[k->first].zone].name << ")"
+						<< " - " << std::fixed << 20.0 / k->second.max_in_world << "%\r\n";
+				}
+			}
+		}
+	}
+	xhelp_str = out.str();
+}
+
+void print_xhelp(CHAR_DATA *ch)
+{
+	page_string(ch->desc, xhelp_str, 1);
+}
+
+void reload()
+{
+	obj_list.clear();
+	mob_list.clear();
+	drop_list.clear();
+
+	init_obj_list();
+	init_mob_list();
+	init_drop_table();
+	init_xhelp();
+}
+
 void init()
 {
 	init_list(SOLO_TYPE);
 	init_list(GROUP_TYPE);
+	init_obj_list();
+	init_mob_list();
+	init_drop_table();
+	init_xhelp();
 }
 
 void add_to_list(CHAR_DATA *mob, std::map<int, MobNode> &curr_list)

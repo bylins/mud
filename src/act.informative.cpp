@@ -49,6 +49,7 @@
 #include "room.hpp"
 #include "glory_const.hpp"
 #include "player_races.hpp"
+#include "corpse.hpp"
 
 using std::string;
 
@@ -3895,6 +3896,12 @@ ACMD(do_help)
 			}
 		}
 		send_to_char(out.c_str(), ch);
+		return;
+	}
+	else if ((PRF_FLAGGED(ch, PRF_CODERINFO) || IS_IMMORTAL(ch))
+		&& (!str_cmp(argument, "наборыпредметов") || !str_cmp(argument, "наборы предметов")))
+	{
+		FullSetDrop::print_xhelp(ch);
 		return;
 	}
 

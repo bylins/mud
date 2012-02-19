@@ -1011,7 +1011,11 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 --*/
 void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koef)
 {
-	if (!EXTRA_FLAGGED(victim, EXTRA_GRP_KILL_COUNT) && !IS_NPC(ch) && IS_NPC(victim))
+	if (!EXTRA_FLAGGED(victim, EXTRA_GRP_KILL_COUNT)
+		&& !IS_NPC(ch)
+		&& !IS_IMMORTAL(ch)
+		&& IS_NPC(victim)
+		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
 	{
 		FullSetDrop::add_kill(victim, members);
 		SET_BIT(EXTRA_FLAGS(victim, EXTRA_GRP_KILL_COUNT), EXTRA_GRP_KILL_COUNT);
