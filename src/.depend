@@ -9,7 +9,7 @@ act.informative.o: act.informative.cpp conf.h sysdep.h structs.h utils.h \
  dg_scripts.h mail.h im.h house.h house_exp.hpp char.hpp player_i.hpp \
  morph.hpp remember.hpp description.h privilege.hpp depot.hpp glory.hpp \
  random.hpp char_player.hpp quested.hpp mobmax.hpp dps.hpp parcel.hpp \
- liquid.hpp modify.h room.hpp glory_const.hpp player_races.hpp
+ liquid.hpp modify.h room.hpp glory_const.hpp player_races.hpp corpse.hpp
 act.item.o: act.item.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp comm.h interpreter.h handler.h db.h \
  spells.h skills.h constants.h dg_scripts.h house.h house_exp.hpp \
@@ -354,7 +354,8 @@ poison.o: poison.cpp poison.hpp conf.h sysdep.h structs.h char.hpp \
  skills.h room.hpp
 corpse.o: corpse.cpp corpse.hpp conf.h sysdep.h structs.h db.h \
  pugixml.hpp pugiconfig.hpp utils.h features.hpp obj.hpp char.hpp \
- player_i.hpp morph.hpp comm.h handler.h dg_scripts.h im.h room.hpp
+ player_i.hpp morph.hpp comm.h handler.h dg_scripts.h im.h room.hpp \
+ modify.h
 house_exp.o: house_exp.cpp house_exp.hpp conf.h sysdep.h char.hpp \
  structs.h player_i.hpp morph.hpp comm.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp house.h db.h interpreter.h remember.hpp \
