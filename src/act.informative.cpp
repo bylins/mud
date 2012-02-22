@@ -3898,8 +3898,7 @@ ACMD(do_help)
 		send_to_char(out.c_str(), ch);
 		return;
 	}
-	else if ((PRF_FLAGGED(ch, PRF_CODERINFO) || IS_IMMORTAL(ch))
-		&& (!str_cmp(argument, "наборыпредметов") || !str_cmp(argument, "наборы предметов")))
+	else if (!str_cmp(argument, "сеты"))
 	{
 		FullSetDrop::print_xhelp(ch);
 		return;

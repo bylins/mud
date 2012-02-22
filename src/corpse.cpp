@@ -35,27 +35,39 @@ const char *CONFIG_FILE = LIB_MISC"full_set_drop.xml";
 // минимальный уровень моба для участия в списке дропа
 const int MIN_MOB_LVL = 30;
 
-struct MobNode
+struct KillListNode
 {
-	MobNode() : lvl(0), cnt(0) {};
+	KillListNode() : lvl(0), cnt(0) {};
 
 	int lvl;
 	int cnt;
 };
 
-std::map<int /* mob vnum */, MobNode> solo_kill_list;
-std::map<int /* mob vnum */, MobNode> group_kill_list;
+std::map<int /* mob vnum */, KillListNode> solo_kill_list;
+std::map<int /* mob vnum */, KillListNode> group_kill_list;
+
+struct MobNode
+{
+	MobNode() : vnum(0), rnum(0), miw(0) {};
+	int vnum;
+	int rnum;
+	// макс.в.мире
+	int miw;
+	// имя моба (для фильтрации)
+	std::string name;
+};
 
 struct TmpNode
 {
 	TmpNode() : zone(0) {};
-
+	// внум зоны
 	int zone;
-	std::list<int> mobs;
+	// список мобов в зоне
+	std::list<MobNode> mobs;
 };
 
-// список сетин на лоад
-std::list<int /* obj vnum */> obj_list;
+// список сетин на лоад (vnum)
+std::list<int> obj_list;
 // временный список мобов на лоад сетин
 std::list<TmpNode> mob_list;
 // сгенерированная справка по дропу сетов
@@ -63,19 +75,20 @@ std::string xhelp_str;
 
 struct DropNode
 {
-	DropNode() : obj_rnum(0), max_in_world(0) {};
-
+	DropNode() : obj_rnum(0), mob_mix(0) {};
+	// рнум сетины
 	int obj_rnum;
-	int max_in_world;
+	// макс.в.мире дропающего моба
+	int mob_mix;
 };
 
-// финальный список дропа по мобам
-std::map<int /* mob rnum */, DropNode> drop_list;
+// финальный список дропа по мобам (mob_rnum)
+std::map<int, DropNode> drop_list;
 
 void save_list(bool list_type)
 {
 	const char *curr_file = (list_type == SOLO_TYPE) ? SOLO_FILE : GROUP_FILE;
-	std::map<int, MobNode> &curr_list =
+	std::map<int, KillListNode> &curr_list =
 		(list_type == SOLO_TYPE) ? solo_kill_list : group_kill_list;
 
 	std::ofstream file(curr_file);
@@ -84,17 +97,20 @@ void save_list(bool list_type)
 		log("SYSERROR: не удалось открыть файл на запись: %s", curr_file);
 		return;
 	}
-	for (std::map<int, MobNode>::iterator it = curr_list.begin(),
+	for (std::map<int, KillListNode>::iterator it = curr_list.begin(),
 		iend = curr_list.end(); it != iend; ++it)
 	{
 		file << it->first << " " << it->second.lvl << " " << it->second.cnt << "\n";
 	}
 }
 
+/**
+ * Инициализация списков груп/соло статистики по убийствам мобов.
+ */
 void init_list(bool list_type)
 {
 	const char *curr_file = (list_type == SOLO_TYPE) ? SOLO_FILE : GROUP_FILE;
-	std::map<int, MobNode> &curr_list =
+	std::map<int, KillListNode> &curr_list =
 		(list_type == SOLO_TYPE) ? solo_kill_list : group_kill_list;
 
 	std::ifstream file(curr_file);
@@ -107,13 +123,16 @@ void init_list(bool list_type)
 	int vnum, lvl, cnt;
 	while(file >> vnum >> lvl >> cnt)
 	{
-		MobNode tmp_node;
+		KillListNode tmp_node;
 		tmp_node.lvl = lvl;
 		tmp_node.cnt = cnt;
 		curr_list.insert(std::make_pair(vnum, tmp_node));
 	}
 }
 
+/**
+ * Инициализация списка сетов на лоад.
+ */
 void init_obj_list()
 {
 	pugi::xml_document doc;
@@ -144,41 +163,10 @@ void init_obj_list()
 	}
 }
 
-void init_mob_list()
-{
-	for (std::map<int, MobNode>::iterator it = group_kill_list.begin(),
-		iend = group_kill_list.end(); it != iend; ++it)
-	{
-		if (it->second.lvl < MIN_MOB_LVL
-			|| solo_kill_list.find(it->first) != solo_kill_list.end())
-		{
-			continue;
-		}
-		TmpNode tmp_node;
-		tmp_node.zone =  it->first/100;
-
-		std::list<TmpNode>::iterator k = std::find_if(mob_list.begin(), mob_list.end(),
-			boost::bind(std::equal_to<int>(),
-			boost::bind(&TmpNode::zone, _1), tmp_node.zone));
-		if (k != mob_list.end())
-		{
-			k->mobs.push_back(it->first);
-		}
-		else
-		{
-			tmp_node.mobs.push_back(it->first);
-			mob_list.push_back(tmp_node);
-		}
-	}
-
-	for (std::list<TmpNode>::iterator it = mob_list.begin(),
-		iend = mob_list.end(); it != iend; ++it)
-	{
-		it->mobs.sort();
-		it->mobs.unique();
-	}
-}
-
+/**
+ * Расчет макс.в.мире на основе поля резета зоны.
+ * Если если мест лоада несколько - берется максимальное значение.
+ */
 int calc_max_in_world(int mob_rnum)
 {
 	int max_in_world = 0;
@@ -196,42 +184,163 @@ int calc_max_in_world(int mob_rnum)
 	return max_in_world;
 }
 
+int filter_dupe_names()
+{
+	int total = 0;
+	for (std::list<TmpNode>::iterator it = mob_list.begin(),
+		iend = mob_list.end(); it != iend; ++it)
+	{
+		std::list<MobNode> tmp_list;
+		// отсеиваем (включая оригинал) одинаковые имена с разными внумами
+		for (std::list<MobNode>::iterator k = it->mobs.begin(),
+			kend = it->mobs.end(); k != kend; ++k)
+		{
+			bool good = true;
+
+			for (std::list<MobNode>::iterator l = it->mobs.begin(),
+				lend = it->mobs.end(); l != lend; ++l)
+			{
+				if (k->vnum != l->vnum && k->name == l->name)
+				{
+					good = false;
+					break;
+				}
+			}
+			if (good)
+			{
+				// заодно сразу конверт в рнумы и проверка макс.в.мире
+				const int mob_rnum = real_mobile(k->vnum);
+				const int max_in_world = calc_max_in_world(mob_rnum);
+				if (max_in_world > 0 && max_in_world <= 20)
+				{
+					k->rnum = mob_rnum;
+					k->miw = max_in_world;
+					tmp_list.push_back(*k);
+				}
+			}
+		}
+		it->mobs = tmp_list;
+		total += it->mobs.size();
+	}
+	return total;
+}
+
+void filter_extra_mobs(int total)
+{
+	// обрезание лишних мобов в самых заполненных зонах
+	int num_del = total - obj_list.size();
+	while (num_del > 0)
+	{
+		unsigned max_num = 0;
+		for (std::list<TmpNode>::iterator it = mob_list.begin(),
+			iend = mob_list.end(); it != iend; ++it)
+		{
+			if (it->mobs.size() > max_num)
+			{
+				max_num = it->mobs.size();
+			}
+		}
+		for (std::list<TmpNode>::iterator it = mob_list.begin(),
+			iend = mob_list.end(); it != iend; ++it)
+		{
+			if (it->mobs.size() >= max_num)
+			{
+				std::list<MobNode>::iterator l = it->mobs.begin();
+				std::advance(l, number(0, it->mobs.size() - 1));
+				it->mobs.erase(l);
+				if (it->mobs.empty())
+				{
+					mob_list.erase(it);
+				}
+				--num_del;
+				break;
+			}
+		}
+	}
+}
+
+/**
+ * Выборка мобов, присутствующих в груп-киллах и отсутствующих в соло-киллах.
+ */
+void init_mob_list()
+{
+	for (std::map<int, KillListNode>::iterator it = group_kill_list.begin(),
+		iend = group_kill_list.end(); it != iend; ++it)
+	{
+		const int mob_rnum = real_mobile(it->first);
+		const int zone = it->first/100;
+		if (mob_rnum < 0
+			|| zone < 100 // системные и нуб-зоны
+			|| it->second.lvl < MIN_MOB_LVL
+			|| solo_kill_list.find(it->first) != solo_kill_list.end())
+		{
+			continue;
+		}
+
+		std::list<TmpNode>::iterator k = std::find_if(mob_list.begin(), mob_list.end(),
+			boost::bind(std::equal_to<int>(),
+			boost::bind(&TmpNode::zone, _1), zone));
+
+		MobNode node;
+		node.vnum = it->first;
+		node.name = mob_proto[mob_rnum].get_name();
+
+		if (k != mob_list.end())
+		{
+			k->mobs.push_back(node);
+		}
+		else
+		{
+			TmpNode tmp_node;
+			tmp_node.zone = zone;
+			tmp_node.mobs.push_back(node);
+			mob_list.push_back(tmp_node);
+		}
+	}
+
+	const int total = filter_dupe_names();
+	filter_extra_mobs(total);
+}
+
+/**
+ * Генерация финальной таблицы дропа с мобов.
+ */
 void init_drop_table()
 {
-	std::list<int> tmp_obj_list(obj_list);
-
-	while(!tmp_obj_list.empty() && !mob_list.empty())
+	while(!obj_list.empty() && !mob_list.empty())
 	{
-		std::list<int>::iterator it = tmp_obj_list.begin();
-		std::advance(it, number(0, tmp_obj_list.size() - 1));
+		std::list<int>::iterator it = obj_list.begin();
+		std::advance(it, number(0, obj_list.size() - 1));
 		const int obj_rnum = real_object(*it);
 
 		std::list<TmpNode>::iterator k = mob_list.begin();
 		std::advance(k, number(0, mob_list.size() - 1));
 
-		std::list<int>::iterator l = k->mobs.begin();
-		std::advance(l, number(0, k->mobs.size() - 1));
-		const int mob_rnum = real_mobile(*l);
-
-		k->mobs.erase(l);
+		// по идее чистить надо сразу после удаления последнего
+		// элемента, но тут может получиться ситауция, что на входе
+		// изначально был пустой список после всяких фильтраций
 		if (k->mobs.empty())
 		{
 			mob_list.erase(k);
+			continue;
 		}
-		// проверка на нормальность лоада моба
-		// иначе сетина не проинится и пойдет по новой
-		const int max_in_world = calc_max_in_world(mob_rnum);
-		if (max_in_world > 0 && max_in_world <= 20)
-		{
-			DropNode tmp_node;
-			tmp_node.obj_rnum = obj_rnum;
-			tmp_node.max_in_world = max_in_world;
-			drop_list.insert(std::make_pair(mob_rnum, tmp_node));
-			tmp_obj_list.erase(it);
-		}
+
+		std::list<MobNode>::iterator l = k->mobs.begin();
+		std::advance(l, number(0, k->mobs.size() - 1));
+
+		DropNode tmp_node;
+		tmp_node.obj_rnum = obj_rnum;
+		tmp_node.mob_mix = l->miw;
+		drop_list.insert(std::make_pair(l->rnum, tmp_node));
+
+		obj_list.erase(it);
+		k->mobs.erase(l);
 	}
 }
 
+/**
+ * Генерация сообщения в справку.
+ */
 void init_xhelp()
 {
 	std::stringstream out;
@@ -255,10 +364,11 @@ void init_xhelp()
 						print_set_name = false;
 					}
 					out.precision(1);
+					double chance = 10 + MIN(10, MAX(0, mob_proto[k->first].get_level() - MIN_MOB_LVL));
 					out << "   " << GET_OBJ_PNAME(obj_proto[k->second.obj_rnum], 0)
-						<< " - " << (mob_proto[k->first]).get_name()
+						<< " - " << mob_proto[k->first].get_name()
 						<< " (" << zone_table[mob_index[k->first].zone].name << ")"
-						<< " - " << std::fixed << 20.0 / k->second.max_in_world << "%\r\n";
+						<< " - " << std::fixed << chance / k->second.mob_mix << "%\r\n";
 				}
 			}
 		}
@@ -271,6 +381,9 @@ void print_xhelp(CHAR_DATA *ch)
 	page_string(ch->desc, xhelp_str, 1);
 }
 
+/**
+ * Релоад таблицы дропа, без релоада статистики по убийствам мобов.
+ */
 void reload()
 {
 	obj_list.clear();
@@ -293,9 +406,9 @@ void init()
 	init_xhelp();
 }
 
-void add_to_list(CHAR_DATA *mob, std::map<int, MobNode> &curr_list)
+void add_to_list(CHAR_DATA *mob, std::map<int, KillListNode> &curr_list)
 {
-	std::map<int, MobNode>::iterator it = curr_list.find(GET_MOB_VNUM(mob));
+	std::map<int, KillListNode>::iterator it = curr_list.find(GET_MOB_VNUM(mob));
 	if (it != curr_list.end())
 	{
 		it->second.lvl = GET_LEVEL(mob);
@@ -303,7 +416,7 @@ void add_to_list(CHAR_DATA *mob, std::map<int, MobNode> &curr_list)
 	}
 	else
 	{
-		MobNode tmp_node;
+		KillListNode tmp_node;
 		tmp_node.lvl = GET_LEVEL(mob);
 		tmp_node.cnt = 1;
 		curr_list.insert(std::make_pair(GET_MOB_VNUM(mob), tmp_node));
