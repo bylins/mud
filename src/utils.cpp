@@ -2401,6 +2401,21 @@ int xmlparse_int(pugi::xml_node &node, const char *text)
 	return result;
 }
 
+std::string xmlparse_str(pugi::xml_node &node, const char *text)
+{
+	pugi::xml_attribute attr = node.attribute(text);
+	if (!attr)
+	{
+		snprintf(buf, MAX_STRING_LENGTH, "...%s read fail", text);
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+	}
+	else
+	{
+		return attr.value();
+	}
+	return "";
+}
+
 int str_bonus(int str, int type)
 {
 	int bonus = 0;

@@ -1431,6 +1431,7 @@ void print_log();
 std::string thousands_sep(long long n);
 void kill_log(const char *format, ...);
 int xmlparse_int(pugi::xml_node &node, const char *text);
+std::string xmlparse_str(pugi::xml_node &node, const char *text);
 
 enum { STR_TO_HIT, STR_TO_DAM, STR_CARRY_W, STR_WIELD_W, STR_HOLD_W };
 enum { WIS_MAX_LEARN_L20, WIS_SPELL_SUCCESS, WIS_MAX_SKILLS, WIS_FAILS };

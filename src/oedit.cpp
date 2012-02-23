@@ -275,6 +275,7 @@ void renumber_obj_rnum(int rnum)
 	Parcel::renumber_obj_rnum(rnum);
 	GlobalDrop::renumber_obj_rnum(rnum);
 	ShopExt::renumber_obj_rnum(rnum);
+	FullSetDrop::renumber_obj_rnum(rnum);
 }
 
 /**

@@ -321,6 +321,12 @@ void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch)
 		return;
 	}
 
+	const int rnum = FullSetDrop::check_mob(GET_MOB_RNUM(ch));
+	if (rnum > 0)
+	{
+		obj_to_corpse(corpse, ch, rnum, false);
+	}
+
 	if (GlobalDrop::check_mob(corpse, ch))
 	{
 		return;

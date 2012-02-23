@@ -33,6 +33,10 @@ void print_xhelp(CHAR_DATA *ch);
 // релоад списка сетов и перегенерация списка дропов
 // без релоада списков соло и груп-киллов
 void reload();
+// проверка дропа сетины
+int check_mob(int mob_rnum);
+// тянем этот тупизм дальше
+void renumber_obj_rnum(int rnum);
 
 } // namespace FullSetDrop
 
