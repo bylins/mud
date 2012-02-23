@@ -21,6 +21,8 @@ extern MobRaceListType mobraces_list;
 extern void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload);
 extern int top_of_helpt;
 extern struct help_index_element *help_table;
+extern int hsort(const void *a, const void *b);
+extern void go_boot_xhelp(void);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -477,9 +479,30 @@ void init_xhelp()
 	xhelp_str = out.str();
 }
 
-void print_xhelp(CHAR_DATA *ch)
+void add_global_help()
 {
-	page_string(ch->desc, xhelp_str, 1);
+	std::vector<std::string> help_list;
+	help_list.push_back("сеты");
+	help_list.push_back("сэты");
+	help_list.push_back("наборыпредметов");
+
+	int num = help_list.size();
+	RECREATE(help_table, struct help_index_element, top_of_helpt + num + 1);
+
+	struct help_index_element el;
+	el.min_level = 0;
+	el.duplicate = 0;
+	el.entry = str_dup(xhelp_str.c_str());
+
+	for (std::vector<std::string>::const_iterator i = help_list.begin(),
+		iend = help_list.end(); i != iend; ++i)
+	{
+		el.keyword = str_dup((*i).c_str());
+		help_table[++top_of_helpt] = el;
+		++el.duplicate;
+	}
+
+	qsort(help_table, top_of_helpt + 1, sizeof(struct help_index_element), hsort);
 }
 
 /**
@@ -501,6 +524,9 @@ void reload()
 	init_drop_table(SOLO_MOB);
 	init_drop_table(GROUP_MOB);
 	init_xhelp();
+	// справку надо полностью срелоадить
+	// add_global_help() вызовется там же
+	go_boot_xhelp();
 }
 
 void init()
@@ -514,6 +540,7 @@ void init()
 	init_drop_table(SOLO_MOB);
 	init_drop_table(GROUP_MOB);
 	init_xhelp();
+	add_global_help();
 }
 
 void add_to_list(CHAR_DATA *mob, std::map<int, KillListNode> &curr_list)

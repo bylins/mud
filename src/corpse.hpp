@@ -28,8 +28,6 @@ void add_kill(CHAR_DATA *mob, int members);
 void save_list(bool list_type);
 // вывод размера список по show stats
 void show_stats(CHAR_DATA *ch);
-// распечатка справки по сетам
-void print_xhelp(CHAR_DATA *ch);
 // релоад списка сетов и перегенерация списка дропов
 // без релоада списков соло и груп-киллов
 void reload();
@@ -37,6 +35,8 @@ void reload();
 int check_mob(int mob_rnum);
 // тянем этот тупизм дальше
 void renumber_obj_rnum(int rnum);
+// добавление инфы в систему справки
+void add_global_help();
 
 } // namespace FullSetDrop
 

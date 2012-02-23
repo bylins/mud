@@ -3898,11 +3898,6 @@ ACMD(do_help)
 		send_to_char(out.c_str(), ch);
 		return;
 	}
-	else if (!str_cmp(argument, "сеты"))
-	{
-		FullSetDrop::print_xhelp(ch);
-		return;
-	}
 
 	int bin_search_direct  = 0; // будет показывать направление для бинарного поиска
 	int bin_search_bottom  = 0; // нижняя граница бинарного поиска

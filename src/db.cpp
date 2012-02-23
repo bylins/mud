@@ -353,6 +353,7 @@ void go_boot_xhelp(void)
 	}
 	top_of_helpt = 0;
 	index_boot(DB_BOOT_HLP);
+	FullSetDrop::add_global_help();
 }
 
 void load_sheduled_reboot()
