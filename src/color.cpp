@@ -184,6 +184,7 @@ void proc_color(char *inbuf, int colour)
 {
 	register int j = 0, p = 0;
 	int k, max, c = 0;
+	bool show_all=false;
 	char out_buf[32768];
 
 	if (inbuf[0] == '\0')
@@ -191,20 +192,27 @@ void proc_color(char *inbuf, int colour)
 
 	while (inbuf[j] != '\0')
 	{
-		if ((inbuf[j] == '\\') && (inbuf[j + 1] == 'c')
+		// WorM: Добавил ключи &S и &s, начало и конец текста без обработки цветов и _
+		if (inbuf[j] == '&' && ((!show_all && inbuf[j + 1] == 'S') || (show_all && inbuf[j + 1] == 's')))
+		{
+			show_all = !show_all;
+			j += 2;
+			continue;
+		}
+		if (!show_all && (inbuf[j] == '\\') && (inbuf[j + 1] == 'c')
 				&& isnum(inbuf[j + 2]) && isnum(inbuf[j + 3]))
 		{
 			c = (inbuf[j + 2] - '0') * 10 + inbuf[j + 3] - '0';
 			j += 4;
 		}
-		else if ((inbuf[j] == '&') && !(is_colour(inbuf[j + 1]) == -1))
+		else if (!show_all && (inbuf[j] == '&') && !(is_colour(inbuf[j + 1]) == -1))
 		{
 			c = is_colour(inbuf[j + 1]);
 			j += 2;
 		}
 		else
 		{
-			out_buf[p] = inbuf[j];
+			out_buf[p] = (!show_all && inbuf[j] == '_' ? ' ' : inbuf[j]);
 			j++;
 			p++;
 			continue;

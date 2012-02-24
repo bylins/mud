@@ -355,11 +355,32 @@ void Player::save_char()
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
 	if (this->desc)//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
 		strcpy(buf, this->desc->host);
-	else if (player_table[get_ptable_by_unique(GET_UNIQUE(this))].last_ip)//по сути так должен норм сохраняцо айпи
-		strcpy(buf, player_table[get_ptable_by_unique(GET_UNIQUE(this))].last_ip);
-	else
-		strcpy(buf, "Unknown");
+	else//по сути так должен норм сохраняцо последний айпи
+	{
+		li = 0;
+		if (LOGON_LIST(this))
+		{
+			struct logon_data * cur_log = LOGON_LIST(this);
+			while (cur_log)
+			{
+				if ((cur_log)->lasttime > li)
+				{
+					strcpy(buf, cur_log->ip);
+					li = cur_log->lasttime;
+					log("%s\r\n", buf);
+				}
+				cur_log = cur_log->next;
+			}
+		}
+		else
+			strcpy(buf, "Unknown");
+	}
 	fprintf(saved, "Host: %s\n", buf);
+	if (get_ptable_by_unique(GET_UNIQUE(this))>0)
+	{
+		free(player_table[get_ptable_by_unique(GET_UNIQUE(this))].last_ip);
+		player_table[get_ptable_by_unique(GET_UNIQUE(this))].last_ip = str_dup(buf);
+	}
 	fprintf(saved, "Id  : %ld\n", GET_IDNUM(this));
 	fprintf(saved, "Exp : %ld\n", GET_EXP(this));
 	if (GET_REMORT(this) > 0)

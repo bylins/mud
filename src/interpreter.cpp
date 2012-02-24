@@ -2888,7 +2888,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 
-		if (STATE(d) == CON_CNFPASSWD)
+		// commented by WorM: убрал выбор расы раз уж делать их никто не собирается то и смущать людей выбором незачем
+		/*if (STATE(d) == CON_CNFPASSWD)
 		{
             SEND_TO_Q("\r\nКакой народ вам ближе по духу:\r\n", d);
 			SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
@@ -2896,6 +2897,14 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			("\r\nВаше Племя (Для более полной информации Вы можете набрать"
 			 " \r\nсправка <интересующие племя>): ", d);
 			STATE(d) = CON_QKIN;
+		}*/
+		if (STATE(d) == CON_CNFPASSWD)
+		{
+			GET_KIN(d->character) = 0; // added by WorM: Выставляем расу в Русич(коммент выше)
+        		SEND_TO_Q(class_menu, d);
+			SEND_TO_Q("\r\nВаша профессия (Для более полной информации Вы можете набрать"
+				  " \r\nсправка <интересующая профессия>): ", d);
+			STATE(d) = CON_QCLASS;
 		}
 		else
 		{

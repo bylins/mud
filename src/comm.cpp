@@ -1186,6 +1186,7 @@ void game_loop(socket_t mother_desc)
 void beat_points_update(int pulse);
 #define FRAC_SAVE TRUE
 
+extern void inspecting(CHAR_DATA *ch);
 inline void heartbeat()
 {
 	static int mins_since_crashsave = 0, pulse = 0;
@@ -1255,6 +1256,13 @@ inline void heartbeat()
 		mobile_activity(pulse, 10);
 	}
 	//log("Stop it...");
+	if (!(pulse % 2))
+	{
+		DESCRIPTOR_DATA *pt;
+		for (pt = descriptor_list; pt; pt = pt->next)
+			if (STATE(pt) == CON_PLAYING && pt->character && !IS_NPC(pt->character) && pt->character->player_specials->insp_req)
+				inspecting(pt->character);
+	}
 
 	if (!(pulse % (2 * PASSES_PER_SEC)))
 	{
@@ -2354,8 +2362,9 @@ int process_output(DESCRIPTOR_DATA * t)
 	 * CRLF, otherwise send the straight output sans CRLF.
 	 */
 
-	for (c = 0; *(pi + c); c++)
-		*(pi + c) = (*(pi + c) == '_') ? ' ' : *(pi + c);
+	// WorM: перенес в color.cpp
+	/*for (c = 0; *(pi + c); c++)
+		*(pi + c) = (*(pi + c) == '_') ? ' ' : *(pi + c);*/
 
 	switch (t->keytable)
 	{

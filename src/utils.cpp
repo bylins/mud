@@ -2660,12 +2660,17 @@ int count_colors(char * str)//считает кол-во цветов &R и т.п. в строке
 
 char* colored_name(char * str, int len)//возвращает строку длины len + кол-во цветов*2 для того чтоб в табличке все было ровненько
 {
-	static char cstr[100];
-	char fmt[5];
-	int cc;
+	static char cstr[128];
+	char fmt[6];
+	unsigned int cc;
 	cc = len + count_colors(str) * 2;
-	snprintf(fmt, sizeof(fmt), "%%%ds", cc);
-	snprintf(cstr, sizeof(cstr), fmt, str);
+	if (strlen(str)<cc)
+	{
+		snprintf(fmt, sizeof(fmt), "%%%ds", cc);
+		snprintf(cstr, sizeof(cstr), fmt, str);
+	}
+	else
+		snprintf(cstr, sizeof(cstr), "%s", str);
 	return cstr;
 }
 

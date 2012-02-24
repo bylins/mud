@@ -1636,6 +1636,9 @@ void boot_db(void)
 	// последовательность лоада кланов/досок не менять
 	log("Booting boards");
 	Board::BoardInit();
+	log("Load named stuff");
+	// загрузка списка именных вещей
+	NamedStuff::load();
 	log("Booting clans");
 	Clan::ClanLoad();
 
@@ -1717,8 +1720,6 @@ void boot_db(void)
 	log("Load glory log.");
 	GloryMisc::load_log();
 
-	// загрузка списка именных вещей
-	NamedStuff::load();
 	//Polud грузим параметры рас мобов
 	log("Load mob races.");
 	load_mobraces();

@@ -29,6 +29,7 @@
 #include "modify.h"
 #include "room.hpp"
 #include "named_stuff.hpp"
+#include "spells.h"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -1603,7 +1604,9 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 	return FALSE;
 }
 
-
+//WorM: добавил для работы can_get_spell
+extern int slot_for_char(CHAR_DATA * ch, int slot_num);
+#define SpINFO spell_info[num]
 /* sets str to be the value of var.field */
 void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					  int type, char *var, char *field, char *subfield, char *str)
@@ -2398,6 +2401,23 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					strcpy(str, "0");
 				else
 					strcpy(str, "1");
+			}
+			else if (!str_cmp(field, "can_get_spell"))
+			{
+				if ((num = find_spell_num(subfield)) > 0)
+				{
+					if ((MIN_CAST_LEV(SpINFO, c) > GET_LEVEL(c) || MIN_CAST_REM(SpINFO, c) > GET_REMORT(c) ||
+			 		 slot_for_char(c, SpINFO.slot_forc[(int) GET_CLASS(c)][(int) GET_KIN(c)]) <= 0))
+						strcpy(str, "0");
+					else
+						strcpy(str, "1");
+				}
+				else
+				{
+					sprintf(buf, "wrong spell name '%s'!", subfield);
+					trig_log(trig, buf);
+					strcpy(str, "0");
+				}
 			}
 			else if (!str_cmp(field, "can_get_feat"))
 			{

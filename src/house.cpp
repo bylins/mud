@@ -31,6 +31,7 @@
 #include "room.hpp"
 #include "objsave.h"
 #include "handler.h"
+#include "named_stuff.hpp"
 
 using namespace ClanSystem;
 
@@ -2999,7 +3000,10 @@ void Clan::ChestLoad()
 					log("<Clan> Items reading fail for %s error %d.", filename.c_str(), error);
 				continue;
 			}
-			obj_to_obj(obj, chest);
+			if (!NamedStuff::check_named(NULL, obj))//Если объект есть в списке именных то ему нечего делать в хранилище
+				obj_to_obj(obj, chest);
+			else
+				extract_obj(obj);
 		}
 		delete [] databuf;
 	}

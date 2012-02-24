@@ -4460,7 +4460,7 @@ ACMD(do_who_new)
 		{
 			sprintf(buf + strlen(buf), " &W!îå ïäïâòåîï!&n");
 			sprintf(buf + strlen(buf),
-					"\r\nðÁÄÅÖÉ: %s/%s/%s/%s/%s/%s  E-mail: %s\r\n",
+					"\r\nðÁÄÅÖÉ: %s/%s/%s/%s/%s/%s  E-mail: &S%s&s\r\n",
 					GET_PAD(tch, 0), GET_PAD(tch, 1), GET_PAD(tch,
 							2),
 					GET_PAD(tch, 3), GET_PAD(tch, 4), GET_PAD(tch, 5), GET_EMAIL(tch));
@@ -4899,7 +4899,7 @@ ACMD(do_users)
 
 		if (showemail)
 		{
-			sprintf(line2, "[%s]",
+			sprintf(line2, "[&S%s&s]",
 					d->original ? GET_EMAIL(d->original) : d->character ? GET_EMAIL(d->character) : "");
 			strcat(line, line2);
 		}
@@ -4981,7 +4981,7 @@ ACMD(do_gen_ps)
 				GET_PAD(ch, 0), GET_PAD(ch, 1), GET_PAD(ch, 2),
 				GET_PAD(ch, 3), GET_PAD(ch, 4), GET_PAD(ch, 5));
 
-		sprintf(buf + strlen(buf), "÷ÁÛ e-mail : %s\r\n", GET_EMAIL(ch));
+		sprintf(buf + strlen(buf), "÷ÁÛ e-mail : &S%s&s\r\n", GET_EMAIL(ch));
 		time_t birt = ch->player_data.time.birth;
 		sprintf(buf + strlen(buf), "äÁÔÁ ÷ÁÛÅÇÏ ÒÏÖÄÅÎÉÑ : %s\r\n", rustime(localtime(&birt)));
 		sprintf(buf + strlen(buf), "÷ÁÛ IP-ÁÄÒÅÓ : %s\r\n", ch->desc ? ch->desc->host : "Unknown");

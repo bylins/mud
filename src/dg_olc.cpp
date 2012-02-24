@@ -223,7 +223,7 @@ void trigedit_disp_menu(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 			"[H[J"
 #endif
-			"Trigger Editor [%s%d%s]\r\n\r\n" "%s1)%s Name         : %s%s\r\n" "%s2)%s Intended for : %s%s\r\n" "%s3)%s Trigger types: %s%s\r\n" "%s4)%s Numberic Arg : %s%d\r\n" "%s5)%s Arguments    : %s%s\r\n" "%s6)%s Commands:\r\n%s%s\r\n" "%sQ)%s Quit\r\n" "Enter Choice :", grn, OLC_NUM(d), nrm,	/* vnum on the title line */
+			"Trigger Editor [%s%d%s]\r\n\r\n" "%s1)%s Name         : %s%s\r\n" "%s2)%s Intended for : %s%s\r\n" "%s3)%s Trigger types: %s%s\r\n" "%s4)%s Numberic Arg : %s%d\r\n" "%s5)%s Arguments    : %s%s\r\n" "%s6)%s Commands:\r\n%s&S%s&s\r\n" "%sQ)%s Quit\r\n" "Enter Choice :", grn, OLC_NUM(d), nrm,	/* vnum on the title line */
 			grn, nrm, yel, GET_TRIG_NAME(trig),	/* name                   */
 			grn, nrm, yel, attach_type,	/* attach type            */
 			grn, nrm, yel, trgtypes,	/* greet/drop/etc         */
@@ -318,7 +318,7 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			d->backstr = NULL;
 			if (OLC_STORAGE(d))
 			{
-				send_to_char(OLC_STORAGE(d), d->character);
+				send_to_char(d->character, "&S%s&s", OLC_STORAGE(d));
 				d->backstr = str_dup(OLC_STORAGE(d));
 			}
 			d->str = &OLC_STORAGE(d);

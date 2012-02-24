@@ -315,6 +315,8 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	obj->set_timer(tmp.get_timer());
 	if (OBJ_FLAGGED(&tmp, ITEM_TICKTIMER))//если у старого объекта запущен таймер
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_TICKTIMER), ITEM_TICKTIMER);//ставим флаг таймер запущен
+	if (OBJ_FLAGGED(&tmp, ITEM_NAMED))//если у старого объекта стоит флаг именной предмет
+		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NAMED), ITEM_NAMED);//ставим флаг именной предмет
 //	ObjectAlias::remove(obj);
 //	ObjectAlias::add(obj);
 }
@@ -1591,27 +1593,27 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_MODE(d) = OEDIT_EDIT_NAMELIST;
 			break;
 		case '2':
-			send_to_char("Именительный падеж [это ЧТО] : ", d->character);
+			send_to_char(d->character, "&S%s&s\r\nИменительный падеж [это ЧТО] : ", OLC_OBJ(d)->PNames[0]);
 			OLC_MODE(d) = OEDIT_PAD0;
 			break;
 		case '3':
-			send_to_char("Родительный падеж [нет ЧЕГО] : ", d->character);
+			send_to_char(d->character, "&S%s&s\r\nРодительный падеж [нет ЧЕГО] : ", d->character, OLC_OBJ(d)->PNames[1]);
 			OLC_MODE(d) = OEDIT_PAD1;
 			break;
 		case '4':
-			send_to_char("Дательный падеж [прикрепить к ЧЕМУ] : ", d->character);
+			send_to_char(d->character, "&S%s&s\r\nДательный падеж [прикрепить к ЧЕМУ] : ", d->character, OLC_OBJ(d)->PNames[2]);
 			OLC_MODE(d) = OEDIT_PAD2;
 			break;
 		case '5':
-			send_to_char("Винительный падеж [держать ЧТО] : ", d->character);
+			send_to_char(d->character, "&S%s&s\r\nВинительный падеж [держать ЧТО] : ", d->character, OLC_OBJ(d)->PNames[3]);
 			OLC_MODE(d) = OEDIT_PAD3;
 			break;
 		case '6':
-			send_to_char("Творительный падеж [вооружиться ЧЕМ] : ", d->character);
+			send_to_char(d->character, "&S%s&s\r\nТворительный падеж [вооружиться ЧЕМ] : ", d->character, OLC_OBJ(d)->PNames[4]);
 			OLC_MODE(d) = OEDIT_PAD4;
 			break;
 		case '7':
-			send_to_char("Предложный падеж [писать на ЧЕМ] : ", d->character);
+			send_to_char(d->character, "&S%s&s\r\nПредложный падеж [писать на ЧЕМ] : ", d->character, OLC_OBJ(d)->PNames[5]);
 			OLC_MODE(d) = OEDIT_PAD5;
 			break;
 		case '8':

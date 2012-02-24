@@ -2575,11 +2575,11 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 			if (obj->action_description)
 				act(obj->action_description, FALSE, ch, obj, tobj, TO_CHAR);
 			else
-				act("Вы прикоснулись $o4 к $P2.", FALSE, ch, obj, tobj, TO_CHAR);
+				act("Вы прикоснулись $o4 к $P.", FALSE, ch, obj, tobj, TO_CHAR);
 			if (obj->action_description)
 				act(obj->action_description, FALSE, ch, obj, tobj, TO_ROOM);
 			else
-				act("$n прикоснул$u $o4 к $P2.", TRUE, ch, obj, tobj, TO_ROOM);
+				act("$n прикоснул$u $o4 к $P.", TRUE, ch, obj, tobj, TO_ROOM);
 		}
 
 		if (GET_OBJ_VAL(obj, 2) <= 0)

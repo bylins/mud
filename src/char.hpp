@@ -176,6 +176,19 @@ struct cast_attack_type
 	ROOM_DATA *troom;
 };
 
+struct inspect_request
+{
+	int sfor;			//тип запроса
+	int unique;			//UID
+	int fullsearch;			//полный поиск или нет
+	int found;			//сколько всего найдено
+	char *req;			//собственно сам запрос
+	char *mail;			//мыло
+	int pos;			//позиция в таблице
+	struct logon_data * ip_log;	//айпи адреса по которым идет поиск
+	std::string out;		//буфер в который накапливается вывод
+};
+
 struct player_special_data_saved
 {
 	int wimp_level;		/* Below this # of hit points, flee!  */
@@ -259,6 +272,7 @@ struct player_special_data
 	boost::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
 
 	struct board_data *board; // последние прочитанные мессаги на досках
+	struct inspect_request *insp_req; // запрос inspect'а
 };
 
 class Player;

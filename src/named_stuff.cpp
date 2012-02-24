@@ -67,6 +67,8 @@ bool check_named(CHAR_DATA * ch, OBJ_DATA * obj, const bool simple)
 	StuffListType::iterator it = stuff_list.find(GET_OBJ_VNUM(obj));
 	if (it != stuff_list.end())
 	{
+		if(!ch)// если нету персонажа то вещь недоступна, это чтобы чистились клан храны
+			return true;
 		if(IS_NPC(ch))
 			return true;
 		if(it->second->uid==GET_UNIQUE(ch))//Это владелец предмета
@@ -125,7 +127,9 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 {
 	int num;
 	StuffNodePtr tmp_node(new stuff_node);
+        char i[256];
 	half_chop(arg, buf1, buf2);
+	i[0]=0;
 	if(!*buf1)
 	{
 		return false;
@@ -137,7 +141,30 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 	}
 	if(!*buf2 && *buf1!='в' && *buf1!='В' && *buf1!='х' && *buf1!='Х' && *buf1!='у' && *buf1!='У')
 	{
-		send_to_char("Не указан второй параметр!\r\n", ch);
+		if (*buf1<'5' ||  *buf1>'8')
+			send_to_char("Не указан второй параметр!\r\n", ch);
+		else
+		{
+			switch (*buf1)
+			{
+				case '5':
+					snprintf(i, 256, "&S%s&s\r\n", ch->desc->named_obj->wear_msg_v.c_str());
+					break;
+				case '6':
+					snprintf(i, 256, "&S%s&s\r\n", ch->desc->named_obj->wear_msg_a.c_str());
+					break;
+				case '7':
+					snprintf(i, 256, "&S%s&s\r\n", ch->desc->named_obj->cant_msg_v.c_str());
+					break;
+				case '8':
+					snprintf(i, 256, "&S%s&s\r\n", ch->desc->named_obj->cant_msg_a.c_str());
+					break;
+				default:
+					snprintf(i, 256, "&RОшибка.&n\r\n");
+					break;
+			}
+			send_to_char(i, ch);
+		}
 		return false;
 	}
 	switch (*buf1)
@@ -250,7 +277,7 @@ void nedit_menu(CHAR_DATA * ch)
 	std::ostringstream out;
 
 	out << CCIGRN(ch, C_SPR) << "1" << CCNRM(ch, C_SPR) << ") Vnum: " << ch->desc->cur_vnum << " Название: " << (real_object(ch->desc->cur_vnum)?obj_proto[real_object(ch->desc->cur_vnum)]->short_description:"&Rнеизвестно&n") << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "2" << CCNRM(ch, C_SPR) << ") Владелец: " << GetNameByUnique(ch->desc->named_obj->uid,0) << " e-mail: " << ch->desc->named_obj->mail << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "2" << CCNRM(ch, C_SPR) << ") Владелец: " << GetNameByUnique(ch->desc->named_obj->uid,0) << " e-mail: &S" << ch->desc->named_obj->mail << "&s\r\n";
 	out << CCIGRN(ch, C_SPR) << "3" << CCNRM(ch, C_SPR) << ") Доступно клану: " << (int)(bool)ch->desc->named_obj->can_clan << "\r\n";
 	out << CCIGRN(ch, C_SPR) << "4" << CCNRM(ch, C_SPR) << ") Доступно альянсу: " << (int)(bool)ch->desc->named_obj->can_alli << "\r\n";
 	out << CCIGRN(ch, C_SPR) << "5" << CCNRM(ch, C_SPR) << ") Сообщение при одевании персу: " << ch->desc->named_obj->wear_msg_v << "\r\n";
@@ -306,7 +333,7 @@ ACMD(do_named)
 							sprintf(buf2, "%6d) %s",
 									obj_index[r_num].vnum, colored_name(obj_proto[r_num]->short_description, 50));
 							if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
-								sprintf(buf2, "%s Игра:%d Пост:%d Владелец:%16s e-mail:%s\r\n", buf2,
+								sprintf(buf2, "%s Игра:%d Пост:%d Владелец:%16s e-mail:&S%s&s\r\n", buf2,
 									obj_index[r_num].number, obj_index[r_num].stored,
 									GetNameByUnique(it->second->uid,false).c_str(), it->second->mail.c_str());
 							else
@@ -489,7 +516,7 @@ void load()
 			{
 				std::string name = GetNameByUnique(tmp_node->uid, false);
 				snprintf(buf, MAX_STRING_LENGTH,
-					"NamedStuff: указан не корректный e-mail=%s для предмета vnum=%ld (владелец=%s).", tmp_node->mail.c_str(), vnum, (name.empty()?"неизвестен":name.c_str()));
+					"NamedStuff: указан не корректный e-mail=&S%s&s для предмета vnum=%ld (владелец=%s).", tmp_node->mail.c_str(), vnum, (name.empty()?"неизвестен":name.c_str()));
 				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
 			}
 			if(node.attribute("can_clan"))

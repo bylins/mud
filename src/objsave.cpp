@@ -2482,13 +2482,13 @@ int Crash_report_unrentables(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj)
 			has_norents = 1;
 			if (SetSystem::is_norent_set(ch, obj))
 			{
-				snprintf(buf, MAX_STRING_LENGTH,
+				snprintf(buf, sizeof(buf),
 						"$n сказал$g Вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
 						OBJN(obj, ch, 3));
 			}
 			else
 			{
-				snprintf(buf, MAX_STRING_LENGTH,
+				snprintf(buf, sizeof(buf),
 						"$n сказал$g Вам : \"Я не приму на постой %s.\"", OBJN(obj, ch, 3));
 			}
 			act(buf, FALSE, recep, 0, ch, TO_VICT);

@@ -3190,7 +3190,7 @@ void set_obj_eff(struct obj_data *itemobj, int type, int mod)
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 		if (itemobj->affected[i].location == type)
 		{
-			itemobj->affected[i].modifier += mod;
+			(itemobj->affected[i].modifier) += mod;
 			break;
 		}
 		else if (itemobj->affected[i].location == APPLY_NONE)
