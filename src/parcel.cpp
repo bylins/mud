@@ -196,7 +196,7 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj)
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return 0;
 	}
-	else if (is_big_set(obj))
+	else if (SetSystem::is_big_set(obj))
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
 				"$n сказал$g Вам : '%s является частью большого набора предметов.'\r\n",

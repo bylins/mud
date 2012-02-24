@@ -2144,7 +2144,7 @@ int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA * obj)
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= NOTHING
 		|| GET_OBJ_TYPE(obj) == ITEM_KEY
-		|| is_norent_set(ch, obj))
+		|| SetSystem::is_norent_set(ch, obj))
 	{
 		return TRUE;
 	}
@@ -2480,7 +2480,7 @@ int Crash_report_unrentables(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj)
 		if (Crash_is_unrentable(ch, obj))
 		{
 			has_norents = 1;
-			if (is_norent_set(ch, obj))
+			if (SetSystem::is_norent_set(ch, obj))
 			{
 				snprintf(buf, MAX_STRING_LENGTH,
 						"$n сказал$g Вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
@@ -2644,6 +2644,7 @@ int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int 
 	norent = Crash_report_unrentables(ch, receptionist, ch->carrying);
 	for (i = 0; i < NUM_WEARS; i++)
 		norent += Crash_report_unrentables(ch, receptionist, GET_EQ(ch, i));
+	norent += Depot::report_unrentables(ch, receptionist);
 
 	if (norent)
 		return (FALSE);

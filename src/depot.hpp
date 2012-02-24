@@ -46,6 +46,10 @@ void rename_char(CHAR_DATA *ch);
 void add_offline_money(long uid, int money);
 
 bool find_set_item(CHAR_DATA *ch, const std::set<int> &vnum_list);
+int report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep);
+
+void check_rented(int uid);
+void delete_set_item(int uid, int vnum);
 
 } // namespace Depot
 

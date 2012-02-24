@@ -24,6 +24,7 @@
 #include "char_player.hpp"
 #include "modify.h"
 #include "objsave.h"
+#include "room.hpp"
 
 extern SPECIAL(bank);
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
@@ -1035,7 +1036,7 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 		send_to_char(ch, "В %s что-то лежит.\r\n", OBJ_PAD(obj, 5));
 		return 0;
 	}
-	else if (is_norent_set(ch, obj))
+	else if (SetSystem::is_norent_set(ch, obj))
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
 				"%s - требуется две и более вещи из набора.\r\n",
@@ -1629,6 +1630,69 @@ bool find_set_item(CHAR_DATA *ch, const std::set<int> &vnum_list)
 		}
 	}
 	return false;
+}
+
+/**
+ * Запрет на ренту при наличии единственной сетины в хранилище с сообщением от рент-кипера.
+ */
+int report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep)
+{
+	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
+	if (it != depot_list.end())
+	{
+		for (ObjListType::iterator obj_it = it->second.pers_online.begin(),
+			obj_it_end = it->second.pers_online.end(); obj_it != obj_it_end; ++obj_it)
+		{
+			if (SetSystem::is_norent_set(ch, *obj_it))
+			{
+				snprintf(buf, MAX_STRING_LENGTH,
+					"$n сказал$g Вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
+					OBJN(*obj_it, ch, 3));
+				act(buf, FALSE, recep, 0, ch, TO_VICT);
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
+/**
+ * Проверка при ребуте на сныканые одинокие фулл-сетины.
+ */
+void check_rented(int uid)
+{
+	DepotListType::iterator it = depot_list.find(uid);
+	if (it != depot_list.end())
+	{
+		for (TimerListType::iterator k = it->second.offline_list.begin(),
+			kend = it->second.offline_list.end(); k != kend; ++k)
+		{
+			SetSystem::check_item(k->vnum);
+		}
+	}
+}
+
+/**
+ * Обнуление таймера указанной шмотки в оффлайн хранилище (при ребуте).
+ * Макс.в.мире учтется при последующем обновлении таймеров хранилища.
+ */
+void delete_set_item(int uid, int vnum)
+{
+	DepotListType::iterator i = depot_list.find(uid);
+	if (i != depot_list.end())
+	{
+		TimerListType::iterator k = std::find_if(
+			i->second.offline_list.begin(),
+			i->second.offline_list.end(),
+			boost::bind(std::equal_to<long>(),
+				boost::bind(&OfflineNode::vnum, _1), vnum));
+		if (k != i->second.offline_list.end())
+		{
+			log("[TO] Player %s depot : set-item %d deleted",
+				i->second.name.c_str(), k->vnum);
+			k->timer = -1;
+		}
+	}
 }
 
 } // namespace Depot

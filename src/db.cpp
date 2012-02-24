@@ -1746,7 +1746,7 @@ void boot_db(void)
 //	init_snoop_stop_list();
 
 	log("Check big sets in rent.");
-	check_sets_on_start();
+	SetSystem::check_rented();
 
 	log("Init FullSetDrop lists.");
 	FullSetDrop::init();

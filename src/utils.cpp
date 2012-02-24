@@ -2670,29 +2670,147 @@ char* colored_name(char * str, int len)//возвращает строку длины len + кол-во цв
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-namespace {
+namespace SetSystem {
 
+struct SetNode
+{
+	// список шмоток по конкретному сету для сверки
+	// инится один раз при ребуте и больше не меняется
+	std::set<int> set_vnum;
+	// список шмоток из данного сета у текущего чара
+	// если после заполнения в списке только 1 предмет
+	// значит удаляем его как единственный у чара
+	std::vector<int> obj_vnum;
+};
+
+std::vector<SetNode> set_list;
 const unsigned BIG_SET_ITEMS = 8;
+// для проверок при попытке ренты
 std::set<int> vnum_list;
 
-bool find_set_item(OBJ_DATA *obj)
+/**
+ * Заполнение списка фулл-сетов для последующих сверок.
+ */
+void init_set_list()
 {
-	for (; obj; obj = obj->next_content)
+	for (id_to_set_info_map::const_iterator i = obj_data::set_table.begin(),
+		iend = obj_data::set_table.end(); i != iend; ++i)
 	{
-		std::set<int>::const_iterator i = vnum_list.find(GET_OBJ_VNUM(obj));
-		if (i != vnum_list.end())
+		if (i->second.size() > BIG_SET_ITEMS)
 		{
-			return true;
-		}
-		if (find_set_item(obj->contains))
-		{
-			return true;
+			SetNode node;
+			for (set_info::const_iterator k = i->second.begin(),
+				kend = i->second.end(); k != kend; ++k)
+			{
+				node.set_vnum.insert(k->first);
+			}
+			set_list.push_back(node);
 		}
 	}
-	return false;
 }
 
-} // namespace
+/**
+ * Удаление инфы от последнего сверявшегося чара.
+ */
+void reset_set_list()
+{
+	for (std::vector<SetNode>::iterator i = set_list.begin(),
+		iend = set_list.end(); i != iend; ++i)
+	{
+		i->obj_vnum.clear();
+	}
+}
+
+/**
+ * Проверка шмотки на принадлежность к сетам из set_list.
+ */
+void check_item(int vnum)
+{
+	for (std::vector<SetNode>::iterator i = set_list.begin(),
+		iend = set_list.end(); i != iend; ++i)
+	{
+		std::set<int>::const_iterator k = i->set_vnum.find(vnum);
+		if (k != i->set_vnum.end())
+		{
+			i->obj_vnum.push_back(vnum);
+		}
+	}
+}
+
+/**
+ * Обнуление таймера шмотки в ренте или перс.хране.
+ */
+void delete_item(int pt_num, int vnum)
+{
+	bool need_save = false;
+	// рента
+	if (player_table[pt_num].timer)
+	{
+		for (std::vector<save_time_info>::iterator i = player_table[pt_num].timer->time.begin(),
+			iend = player_table[pt_num].timer->time.end(); i != iend; ++i)
+		{
+			if (i->vnum == vnum)
+			{
+				log("[TO] Player %s : set-item %d deleted",
+					player_table[pt_num].name, i->vnum);
+				i->timer = -1;
+				int rnum = real_object(i->vnum);
+				if (rnum >= 0)
+				{
+					obj_index[rnum].stored--;
+				}
+				need_save = true;
+			}
+		}
+	}
+	if (need_save)
+	{
+		if (!Crash_write_timer(pt_num))
+		{
+			log("SYSERROR: [TO] Error writing timer file for %s",
+				player_table[pt_num].name);
+		}
+		return;
+	}
+	// перс.хран
+	Depot::delete_set_item(player_table[pt_num].unique, vnum);
+}
+
+/**
+ * Проверка при ребуте всех рент и перс.хранилищ чаров.
+ */
+void check_rented()
+{
+	init_set_list();
+
+	for (int i = 0; i <= top_of_p_table; i++)
+	{
+		reset_set_list();
+		// рента
+		if (player_table[i].timer)
+		{
+			for (std::vector<save_time_info>::iterator it = player_table[i].timer->time.begin(),
+				it_end = player_table[i].timer->time.end(); it != it_end; ++it)
+			{
+				if (it->timer >= 0)
+				{
+					check_item(it->vnum);
+				}
+			}
+		}
+		// перс.хран
+		Depot::check_rented(player_table[i].unique);
+		// проверка итогового списка
+		for (std::vector<SetNode>::iterator it = set_list.begin(),
+			iend = set_list.end(); it != iend; ++it)
+		{
+			if (it->obj_vnum.size() == 1)
+			{
+				delete_item(i, it->obj_vnum[0]);
+			}
+		}
+	}
+}
 
 /**
  * Почта, базар.
@@ -2716,6 +2834,47 @@ bool is_big_set(OBJ_DATA *obj)
 	return false;
 }
 
+bool find_set_item(OBJ_DATA *obj)
+{
+	for (; obj; obj = obj->next_content)
+	{
+		std::set<int>::const_iterator i = vnum_list.find(GET_OBJ_VNUM(obj));
+		if (i != vnum_list.end())
+		{
+			return true;
+		}
+		if (find_set_item(obj->contains))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Генерация списка сетин из того же набора, что и vnum (исключая ее саму).
+ */
+void init_vnum_list(int vnum)
+{
+	vnum_list.clear();
+	for (id_to_set_info_map::const_iterator i = obj_data::set_table.begin(),
+		iend = obj_data::set_table.end(); i != iend; ++i)
+	{
+		if (i->second.find(vnum) != i->second.end()
+			&& i->second.size() > BIG_SET_ITEMS)
+		{
+			for (set_info::const_iterator k = i->second.begin(),
+				kend = i->second.end(); k != kend; ++k)
+			{
+				if (k->first != vnum)
+				{
+					vnum_list.insert(k->first);
+				}
+			}
+		}
+	}
+}
+
 /**
  * Экипировка, инвентарь, чармисы, перс. хран.
  * Требуется наличие двух и более предметов, если сетина из большого сета.
@@ -2728,27 +2887,13 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
 		return false;
 	}
 
-	vnum_list.clear();
-	for (id_to_set_info_map::const_iterator i = obj_data::set_table.begin(),
-		iend = obj_data::set_table.end(); i != iend; ++i)
-	{
-		if (i->second.find(GET_OBJ_VNUM(obj)) != i->second.end()
-			&& i->second.size() > BIG_SET_ITEMS)
-		{
-			for (set_info::const_iterator k = i->second.begin(),
-				kend = i->second.end(); k != kend; ++k)
-			{
-				if (k->first != GET_OBJ_VNUM(obj))
-				{
-					vnum_list.insert(k->first);
-				}
-			}
-		}
-	}
+	init_vnum_list(GET_OBJ_VNUM(obj));
+
 	if (vnum_list.empty())
 	{
 		return false;
 	}
+
 	// экипировка
 	for (int i = 0; i < NUM_WEARS; ++i)
 	{
@@ -2793,76 +2938,6 @@ bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
 	return true;
 }
 
-/**
- * Ищем шмотку vnum в больших сетах, после чего ищем любую другую
- * шмотку из этого набора в массиве cont.
- * \return true - шмотку нужно удалять
- */
-bool check_rent_item(int vnum, const std::vector<save_time_info> &cont)
-{
-	for (id_to_set_info_map::const_iterator i = obj_data::set_table.begin(),
-		iend = obj_data::set_table.end(); i != iend; ++i)
-	{
-		if (i->second.find(vnum) != i->second.end()
-			&& i->second.size() > BIG_SET_ITEMS)
-		{
-			for (set_info::const_iterator k = i->second.begin(),
-				kend = i->second.end(); k != kend; ++k)
-			{
-				if (k->first != vnum)
-				{
-					std::vector<save_time_info>::const_iterator tmp =
-							std::find_if(cont.begin(), cont.end(),
-									boost::bind(std::equal_to<int>(),
-									boost::bind(&save_time_info::vnum, _1), k->first));
-					if (tmp != cont.end())
-					{
-						return false;
-					}
-				}
-			}
-			return true;
-		}
-	}
-	return false;
-}
+} // namespace SetSystem
 
-/**
- * Проход по тайм-дате в рентах персонажей и удаление по условию check_rent_item.
- * Обновляется инфа макс в мире и пересохраняется файл таймеров.
- */
-void check_sets_on_start()
-{
-	for (int i = 0; i <= top_of_p_table; i++)
-	{
-		if (player_table[i].timer /*&& player_table[i].timer->rent.rentcode == RENT_CRASH*/)
-		{
-			bool need_save = false;
-			for (std::vector<save_time_info>::iterator it = player_table[i].timer->time.begin(),
-				it_end = player_table[i].timer->time.end(); it != it_end; ++it)
-			{
-				if (it->timer >= 0 && check_rent_item(it->vnum, player_table[i].timer->time))
-				{
-					log("[TO] Player %s : set-item %d deleted",
-							player_table[i].name, it->vnum);
-					it->timer = -1;
-					int rnum = real_object(it->vnum);
-					if (rnum >= 0)
-					{
-						obj_index[rnum].stored--;
-					}
-					need_save = true;
-				}
-			}
-			if (need_save)
-			{
-				if (!Crash_write_timer(i))
-				{
-					log("SYSERROR: [TO] Error writing timer file for %s",
-							player_table[i].name);
-				}
-			}
-		}
-	}
-}
 ////////////////////////////////////////////////////////////////////////////////
