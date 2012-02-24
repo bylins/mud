@@ -2620,13 +2620,10 @@ void inspecting(CHAR_DATA *ch)
 	time_t mytime;
 	DESCRIPTOR_DATA *d_vict = 0;
 	CHAR_DATA *vict = 0;
-	//std::string out;
 	int mail_found = 0;
 	int is_online;
 	need_warn = false;
-	//send_to_char(ch, "inspecting req: %s sfor: %d fullsearch: %d\r\n",
-	//		ch->player_specials->insp_req->req, ch->player_specials->insp_req->sfor, ch->player_specials->insp_req->fullsearch);
-	//while (ch->player_specials->insp_req->pos <= top_of_p_table)
+
 	gettimeofday(&start, NULL);
 	for(;ch->player_specials->insp_req->pos <= top_of_p_table; ch->player_specials->insp_req->pos++)
 	{
@@ -2634,10 +2631,11 @@ void inspecting(CHAR_DATA *ch)
 		timediff(&result, &stop, &start);
 		if (result.tv_sec > 0 || result.tv_usec >= MAX_TRIG_USEC)
 		{
-			//send_to_char(ch, "aborted by timeout\r\n");
 			return;
 		}
-		//log("inspecting %d/%d", ch->player_specials->insp_req->pos, top_of_p_table);
+		#ifdef TEST_BUILD
+		log("inspecting %d/%d", ch->player_specials->insp_req->pos, top_of_p_table);
+		#endif
 		if(!*ch->player_specials->insp_req->req)
 		{
 			send_to_char(ch, "Ошибка: пустой параметр для поиска");//впринципе никогда не должно вылезти, но на всякий случай воткнул проверку
@@ -2722,7 +2720,6 @@ void inspecting(CHAR_DATA *ch)
 			ch->player_specials->insp_req->out += buf1;
 			ch->player_specials->insp_req->found++;
 		}
-		//(ch->player_specials->insp_req->pos)++;
 	}
 	while (ch->player_specials->insp_req->ip_log)
 	{
