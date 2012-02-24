@@ -421,8 +421,10 @@ void init_drop_table(int type)
 		tmp_node.obj_rnum = obj_rnum;
 		if (type == GROUP_MOB)
 		{
+			int mob_lvl = mob_proto[l->rnum].get_level();
 			int zone_lvl = zone_table[mob_index[l->rnum].zone].mob_level;
-			int lvl_mod = MIN(15, MAX(0, zone_lvl - MIN_MOB_LVL));
+			int total_lvl = (mob_lvl + zone_lvl) / 2;
+			int lvl_mod = MIN(15, MAX(0, total_lvl - MIN_MOB_LVL));
 			double chance = (5 + lvl_mod * 0.75) / l->miw;
 			tmp_node.chance = static_cast<int>(chance * 10);
 		}
