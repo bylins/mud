@@ -581,8 +581,9 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	int i, count = 0;
 	if (feat <= 0 || feat >= MAX_FEATS)
 	{
-		sprintf(buf, "Неверный номер способности (%d) передан в features::can_get_feat!", feat);
-		mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
+		sprintf(buf, "Неверный номер способности (feat=%d, ch=%s) передан в features::can_get_feat!",
+			feat, ch->get_name());
+		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		return FALSE;
 	}
 	/* Доступность по классу, реморту. */
