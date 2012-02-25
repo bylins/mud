@@ -1261,7 +1261,10 @@ inline void heartbeat()
 		DESCRIPTOR_DATA *pt;
 		for (pt = descriptor_list; pt; pt = pt->next)
 			if (STATE(pt) == CON_PLAYING && pt->character && !IS_NPC(pt->character) && pt->character->player_specials->insp_req)
-				inspecting(pt->character);
+		{
+			inspecting(pt->character);
+			break;
+		}
 	}
 
 	if (!(pulse % (2 * PASSES_PER_SEC)))

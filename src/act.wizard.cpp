@@ -2692,7 +2692,7 @@ void inspecting(CHAR_DATA *ch)
 					{
 						if(!ch_log->ip)
 						{
-							send_to_char(ch, "Ошибка: пустой ip");//поиск прерываеться если криво заполнено поле ip для поиска
+							send_to_char(ch, "Ошибка: пустой ip\r\n");//поиск прерываеться если криво заполнено поле ip для поиска
 							break;
 						}
 						if((ch->player_specials->insp_req->sfor == IP && strstr(cur_log->ip, ch_log->ip)) || !str_cmp(cur_log->ip, ch_log->ip))
@@ -2772,6 +2772,11 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 		send_to_char("Слишком длинный запрос\r\n", ch);
 		return;
 	}
+	if (is_abbrev(buf, "char") && (GetUniqueByName(buf2)<=0))
+	{
+		send_to_char(ch, "Некорректное имя персонажа (%s) inspecting char.\r\n", buf2);
+		return;
+	}
 	ch->player_specials->insp_req = new(struct inspect_request);
 	ch->player_specials->insp_req->ip_log = NULL;
 	ch->player_specials->insp_req->mail = NULL;
@@ -2812,6 +2817,8 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 			|| (player_table[i].level > GET_LEVEL(ch) && !IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)))//если левел больше то облом
 		{
 			send_to_char(ch, "Некорректное имя персонажа (%s) inspecting char.\r\n", ch->player_specials->insp_req->req);
+			delete ch->player_specials->insp_req;
+			ch->player_specials->insp_req = NULL;
 			return;
 		}
 
@@ -2821,8 +2828,6 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 		sprintf(buf,  "Персонаж: %s%s%s e-mail: %s&S%s&s%s Last: %s%s%s\r\n", (d_vict ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)),
 				player_table[i].name, CCNRM(ch, C_SPR),	CCWHT(ch, C_SPR), ch->player_specials->insp_req->mail, CCNRM(ch, C_SPR),
 				CCWHT(ch, C_SPR), rustime(localtime(&tmp_time)), CCNRM(ch, C_SPR));
-		//send_to_char(ch, "Персонаж: %s%s%s e-mail: %s&S%s&s%s\r\n", (d_vict ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)),
-		//		player_table[i].name, CCNRM(ch, C_SPR),	CCWHT(ch, C_SPR), ch->player_specials->insp_req->mail, CCNRM(ch, C_SPR));
 		if (ch->player_specials->insp_req->fullsearch)
 		{
 			if (d_vict)
@@ -2874,6 +2879,9 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 			ch->player_specials->insp_req->ip_log->next = 0;
 		}
 	}
+	if (ch->player_specials->insp_req->sfor < CHAR)
+		sprintf(buf,  "%s: %s&S%s&s%s\r\n", (ch->player_specials->insp_req->sfor==IP?"IP":"e-mail"),
+			CCWHT(ch, C_SPR), ch->player_specials->insp_req->req, CCNRM(ch, C_SPR));
 	ch->player_specials->insp_req->pos = 0;
 	ch->player_specials->insp_req->found = 0;
 	ch->player_specials->insp_req->out += buf;
