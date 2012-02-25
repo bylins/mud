@@ -44,6 +44,7 @@
 	$COLORCПревосходная память$COLORn
 
 Приобретаемые способности:
+<------>$COLORCПереместиться$COLORn
 	Боевой дух
 	Выносливость
 	Горные тропы
@@ -958,9 +959,9 @@
 	$COLORCМолния$COLORn                        $COLORCОбжигающая хватка$COLORn
 	$COLORCОгненная стрела$COLORn               $COLORCОгненный поток$COLORn
 	$COLORCОгненный шар$COLORn                  $COLORCОгненный щит$COLORn
-	$COLORCПереместиться$COLORn                 $COLORCПереход$COLORn
 	$COLORCСуд богов$COLORn                     $COLORCЦепь молний$COLORn
 	$COLORCШаровая молния$COLORn                $COLORCЯркий блик$COLORn
+	$COLORCПереход$COLORn
 	Видеть невидимое              Дышать водой
 	Защита                        Кислота
 	Мантия теней                  Молчание
