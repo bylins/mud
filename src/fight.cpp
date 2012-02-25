@@ -1018,6 +1018,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
 	{
 		FullSetDrop::add_kill(victim, members);
+		FullSetDrop::add_mob_stat(victim, members);
 		SET_BIT(EXTRA_FLAGS(victim, EXTRA_GRP_KILL_COUNT), EXTRA_GRP_KILL_COUNT);
 	}
 

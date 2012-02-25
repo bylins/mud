@@ -37,6 +37,12 @@ int check_mob(int mob_rnum);
 void renumber_obj_rnum(int rnum);
 // добавление инфы в систему справки
 void add_global_help();
+// тестовый сбор статы по убийствам мобов
+void add_mob_stat(CHAR_DATA *mob, int members);
+// инит списка тестовой статы мобов
+void init_mob_stat();
+// сейв тестовой статы мобов
+void save_mob_stat();
 
 } // namespace FullSetDrop
 

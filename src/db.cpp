@@ -1752,6 +1752,9 @@ void boot_db(void)
 	log("Init FullSetDrop lists.");
 	FullSetDrop::init();
 
+	log("Init FullSetDrop test stat.");
+	FullSetDrop::init_mob_stat();
+
 	boot_time = time(0);
 	log("Boot db -- DONE.");
 }

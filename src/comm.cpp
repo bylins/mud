@@ -1335,6 +1335,11 @@ inline void heartbeat()
 	}
 
 
+	if (!((pulse + 56) % (60 * FullSetDrop::SAVE_PERIOD * PASSES_PER_SEC)))
+	{
+		FullSetDrop::save_mob_stat();
+	}
+
 	if (!((pulse + 54) % (60 * FullSetDrop::SAVE_PERIOD * PASSES_PER_SEC)))
 	{
 		FullSetDrop::save_list(FullSetDrop::SOLO_TYPE);

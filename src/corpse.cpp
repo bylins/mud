@@ -1,9 +1,10 @@
 // $RCSfile$     $Date$     $Revision$
 // Part of Bylins http://www.mud.ru
 
-#include <boost/bind.hpp>
 #include <sstream>
 #include <iostream>
+#include <boost/bind.hpp>
+#include <boost/lexical_cast.hpp>
 #include "corpse.hpp"
 #include "db.h"
 #include "utils.h"
@@ -100,6 +101,12 @@ struct DropNode
 std::map<int, DropNode> drop_list;
 // сгенерированная справка по дропу сетов
 std::string xhelp_str;
+
+// статистика по мобам: vnum моба, размер группы, кол-во убийств
+std::map<int, std::vector<int> > mob_stat;
+// макс. кол-во участников в группе учитываемое в статистике
+const int MAX_GROUP_SIZE = 12;
+const char *MOB_STAT_FILE = LIB_PLRSTUFF"mob_stat.xml";
 
 void save_list(bool list_type)
 {
@@ -576,8 +583,8 @@ void add_kill(CHAR_DATA *mob, int members)
 
 void show_stats(CHAR_DATA *ch)
 {
-	send_to_char(ch, "  FullSetDrop: solo %d, group %d\r\n",
-			solo_kill_list.size(), group_kill_list.size());
+	send_to_char(ch, "  FullSetDrop: solo %d, group %d, test: %d\r\n",
+			solo_kill_list.size(), group_kill_list.size(), mob_stat.size());
 }
 
 /**
@@ -610,6 +617,97 @@ void renumber_obj_rnum(int rnum)
 		}
 	}
 }
+
+void save_mob_stat()
+{
+	pugi::xml_document doc;
+	doc.append_child().set_name("mob_list");
+	pugi::xml_node mob_list = doc.child("mob_list");
+
+	for (std::map<int, std::vector<int> >::const_iterator i = mob_stat.begin(),
+		iend = mob_stat.end(); i != iend; ++i)
+	{
+		pugi::xml_node mob_node = mob_list.append_child();
+		mob_node.set_name("mob");
+		mob_node.append_attribute("vnum") = i->first;
+
+		for (int k = 1; k <= MAX_GROUP_SIZE; ++k)
+		{
+			if (i->second[k] > 0)
+			{
+				snprintf(buf, sizeof(buf), "n%d", k);
+				mob_node.append_attribute(buf) = i->second[k];
+			}
+		}
+	}
+	doc.save_file(MOB_STAT_FILE);
+}
+
+void add_mob_stat(CHAR_DATA *mob, int members)
+{
+	if (members < 1 || members > MAX_GROUP_SIZE)
+	{
+		snprintf(buf, sizeof(buf), "add_mob_stat error: mob_vnum=%d, members=%d",
+			GET_MOB_VNUM(mob), members);
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
+	std::map<int, std::vector<int> >::iterator i = mob_stat.find(GET_MOB_VNUM(mob));
+	if (i != mob_stat.end())
+	{
+		i->second[members] += 1;
+	}
+	else
+	{
+		std::vector<int> node(MAX_GROUP_SIZE + 1, 0);
+		node[members] += 1;
+		mob_stat.insert(std::make_pair(GET_MOB_VNUM(mob), node));
+	}
+}
+
+void init_mob_stat()
+{
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file(MOB_STAT_FILE);
+	if (!result)
+	{
+		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
+    pugi::xml_node node_list = doc.child("mob_list");
+    if (!node_list)
+    {
+		snprintf(buf, MAX_STRING_LENGTH, "...<mob_list> read fail");
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+    }
+	for (pugi::xml_node mob_node = node_list.child("mob"); mob_node; mob_node = mob_node.next_sibling("mob"))
+	{
+		int mob_vnum = xmlparse_int(mob_node, "vnum");
+		if (real_mobile(mob_vnum) < 0)
+		{
+			snprintf(buf, MAX_STRING_LENGTH, "...bad mob attributes (vnum=%d)", mob_vnum);
+			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			continue;
+		}
+
+		std::vector<int> node(MAX_GROUP_SIZE + 1, 0);
+
+		for (int k = 1; k <= MAX_GROUP_SIZE; ++k)
+		{
+			snprintf(buf, sizeof(buf), "n%d", k);
+			pugi::xml_attribute attr = mob_node.attribute(buf);
+			if (attr && attr.as_int() > 0)
+			{
+				node[k] = attr.as_int();
+			}
+		}
+
+		mob_stat.insert(std::make_pair(mob_vnum, node));
+	}
+}
+
 
 } // namespace FullSetDrop
 
