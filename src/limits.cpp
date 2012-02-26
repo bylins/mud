@@ -13,6 +13,8 @@
 ************************************************************************ */
 
 #include <boost/array.hpp>
+#include <boost/format.hpp>
+#include <boost/bind.hpp>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -1204,18 +1206,41 @@ void exchange_point_update()
 */
 void clan_chest_invoice(OBJ_DATA *j)
 {
-	int room = GET_ROOM_VNUM(j->in_obj->in_room);
+	const int room = GET_ROOM_VNUM(j->in_obj->in_room);
+
+	if (room <= 0)
+	{
+		snprintf(buf, sizeof(buf), "clan_chest_invoice: room=%d, obj_vnum=%d",
+			room, GET_OBJ_VNUM(j));
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
+
 	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 	{
 		if (d->character
 			&& STATE(d) == CON_PLAYING
 			&& !AFF_FLAGGED(d->character, AFF_DEAFNESS)
-			&& CLAN(d->character)
 			&& PRF_FLAGGED(d->character, PRF_DECAY_MODE)
-			&& world[real_room(CLAN(d->character)->GetRent())]->zone == world[real_room(room)]->zone)
+			&& CLAN(d->character)
+			&& CLAN(d->character)->GetRent() == room)
 		{
 			send_to_char(d->character, "[Хранилище]: %s'%s рассыпал%s в прах'%s\r\n",
-				CCIRED(d->character, C_NRM), j->short_description, GET_OBJ_SUF_2(j), CCNRM(d->character, C_NRM));
+				CCIRED(d->character, C_NRM),
+				j->short_description, GET_OBJ_SUF_2(j),
+				CCNRM(d->character, C_NRM));
+		}
+	}
+
+	for (ClanListType::iterator i = Clan::ClanList.begin(),
+		iend = Clan::ClanList.end(); i != iend; ++i)
+	{
+		if ((*i)->GetRent() == room)
+		{
+			std::string log_text = boost::str(boost::format("%s рассыпал%s в прах\r\n")
+				% j->short_description % GET_OBJ_SUF_2(j));
+			(*i)->chest_log.add(log_text);
+			return;
 		}
 	}
 }
