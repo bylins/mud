@@ -3,8 +3,10 @@
 
 #include <sstream>
 #include <iostream>
+#include <set>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include "corpse.hpp"
 #include "db.h"
 #include "utils.h"
@@ -99,14 +101,24 @@ struct DropNode
 
 // финальный список дропа по мобам (mob_rnum)
 std::map<int, DropNode> drop_list;
-// сгенерированная справка по дропу сетов
-std::string xhelp_str;
 
 // статистика по мобам: vnum моба, размер группы, кол-во убийств
 std::map<int, std::vector<int> > mob_stat;
 // макс. кол-во участников в группе учитываемое в статистике
 const int MAX_GROUP_SIZE = 12;
 const char *MOB_STAT_FILE = LIB_PLRSTUFF"mob_stat.xml";
+
+struct HelpNode
+{
+	// список алиасов для справки
+	std::string alias_list;
+	// полное имя сета для текста справки
+	std::string title;
+	// список предметов
+	std::set<int> vnum_list;
+};
+// список соответствий алиасов сетов для справки
+std::vector<HelpNode> help_list;
 
 void save_list(bool list_type)
 {
@@ -166,37 +178,73 @@ void init_obj_list()
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
-    pugi::xml_node node_list = doc.child("fullsetdrop");
+    pugi::xml_node node_list = doc.child("set_list");
     if (!node_list)
     {
-		snprintf(buf, MAX_STRING_LENGTH, "...<fullsetdrop> read fail");
+		snprintf(buf, MAX_STRING_LENGTH, "...<set_list> read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
     }
-	for (pugi::xml_node node = node_list.child("obj"); node; node = node.next_sibling("obj"))
+	for (pugi::xml_node set_node = node_list.child("set");
+		set_node; set_node = set_node.next_sibling("set"))
 	{
-		int obj_vnum = xmlparse_int(node, "vnum");
-		if (real_object(obj_vnum) < 0)
+		HelpNode node;
+		node.alias_list = xmlparse_str(set_node, "help_alias");
+		if (node.alias_list.empty())
 		{
-			snprintf(buf, MAX_STRING_LENGTH, "...bad obj attributes (vnum=%d)", obj_vnum);
+			snprintf(buf, MAX_STRING_LENGTH, "...bad set attributes (empty help_alias)");
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			continue;
 		}
-		std::string type = xmlparse_str(node, "type");
-		if (type == "solo")
+		// список сета сортированный по макс.активаторам
+		std::multimap<int, int> set_sort_list;
+
+		for (pugi::xml_node obj_node = set_node.child("obj");
+			obj_node; obj_node = obj_node.next_sibling("obj"))
 		{
-			solo_obj_list.push_back(obj_vnum);
+			const int obj_vnum = xmlparse_int(obj_node, "vnum");
+			if (real_object(obj_vnum) < 0)
+			{
+				snprintf(buf, MAX_STRING_LENGTH, "...bad obj_node attributes (vnum=%d)", obj_vnum);
+				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+				continue;
+			}
+			// заполнение списка активаторов
+			for (id_to_set_info_map::const_iterator it = obj_data::set_table.begin(),
+				iend = obj_data::set_table.end(); it != iend; ++it)
+			{
+				for (set_info::const_iterator obj = it->second.begin(),
+					iend = it->second.end(); obj != iend; ++obj)
+				{
+					if (obj->first == obj_vnum && !obj->second.empty())
+					{
+						// берется последний (максимальный) в списке активатор
+						set_sort_list.insert(std::make_pair(obj->second.rbegin()->first, obj_vnum));
+						node.vnum_list.insert(obj_vnum);
+						if (node.title.empty())
+						{
+							node.title = it->second.get_name();
+						}
+					}
+				}
+			}
 		}
-		else if (type == "group")
+		// первая половина активаторов в соло-лист, вторая в групп
+		int num = 0, total_num = set_sort_list.size();
+		for (std::multimap<int, int>::const_iterator i = set_sort_list.begin(),
+			iend = set_sort_list.end(); i != iend; ++i, ++num)
 		{
-			group_obj_list.push_back(obj_vnum);
+			if (num < total_num / 2)
+			{
+				solo_obj_list.push_back(i->second);
+			}
+			else
+			{
+				group_obj_list.push_back(i->second);
+			}
 		}
-		else
-		{
-			snprintf(buf, MAX_STRING_LENGTH, "...bad obj attributes (type=%s)", type.c_str());
-			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-			continue;
-		}
+		// список алиасов и сетин для справки
+		help_list.push_back(node);
 	}
 }
 
@@ -451,6 +499,34 @@ void init_drop_table(int type)
 	mob_list.clear();
 }
 
+void add_to_help_table(const std::vector<std::string> &key_list, const std::string &text)
+{
+	if (key_list.empty() || text.empty())
+	{
+		snprintf(buf, sizeof(buf), "add_to_help_table error: key_list or text empty");
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
+
+	int num = key_list.size();
+	RECREATE(help_table, struct help_index_element, top_of_helpt + num + 1);
+
+	struct help_index_element el;
+	el.min_level = 0;
+	el.duplicate = 0;
+	el.entry = str_dup(text.c_str());
+
+	for (std::vector<std::string>::const_iterator i = key_list.begin(),
+		iend = key_list.end(); i != iend; ++i)
+	{
+		el.keyword = str_dup((*i).c_str());
+		help_table[++top_of_helpt] = el;
+		++el.duplicate;
+	}
+	// немного избыточно в цикле, но зато все в одном месте
+	qsort(help_table, top_of_helpt + 1, sizeof(struct help_index_element), hsort);
+}
+
 /**
  * Генерация сообщения в справку.
  */
@@ -481,37 +557,49 @@ void init_xhelp()
 						<< " - " << mob_proto[k->first].get_name()
 						<< " (" << zone_table[mob_index[k->first].zone].name << ")"
 						<< " - " << std::fixed << k->second.chance / 10.0 << "%\r\n";
+					break;
 				}
 			}
 		}
 	}
-	xhelp_str = out.str();
-}
 
-void add_global_help()
-{
 	std::vector<std::string> help_list;
 	help_list.push_back("сеты");
 	help_list.push_back("сэты");
 	help_list.push_back("наборыпредметов");
+	add_to_help_table(help_list, out.str());
+}
 
-	int num = help_list.size();
-	RECREATE(help_table, struct help_index_element, top_of_helpt + num + 1);
-
-	struct help_index_element el;
-	el.min_level = 0;
-	el.duplicate = 0;
-	el.entry = str_dup(xhelp_str.c_str());
-
-	for (std::vector<std::string>::const_iterator i = help_list.begin(),
+void init_xhelp_full()
+{
+	for (std::vector<HelpNode>::const_iterator i = help_list.begin(),
 		iend = help_list.end(); i != iend; ++i)
 	{
-		el.keyword = str_dup((*i).c_str());
-		help_table[++top_of_helpt] = el;
-		++el.duplicate;
-	}
+		std::stringstream out;
+		out << "\r\n" << i->title << "\r\n";
 
-	qsort(help_table, top_of_helpt + 1, sizeof(struct help_index_element), hsort);
+		for (std::set<int>::const_iterator l = i->vnum_list.begin(),
+			lend = i->vnum_list.end(); l != lend; ++l)
+		{
+			for (std::map<int, DropNode>::iterator k = drop_list.begin(),
+					kend = drop_list.end(); k != kend; ++k)
+			{
+				if (obj_index[k->second.obj_rnum].vnum == *l)
+				{
+					out.precision(1);
+					out << "   " << GET_OBJ_PNAME(obj_proto[k->second.obj_rnum], 0)
+						<< " - " << mob_proto[k->first].get_name()
+						<< " (" << zone_table[mob_index[k->first].zone].name << ")"
+						<< " - " << std::fixed << k->second.chance / 10.0 << "%\r\n";
+					break;
+				}
+			}
+		}
+
+		std::vector<std::string> str_list;
+		boost::split(str_list, i->alias_list, boost::is_any_of(", "));
+		add_to_help_table(str_list, out.str());
+	}
 }
 
 /**
@@ -525,6 +613,7 @@ void reload()
 	group_mob_list.clear();
 	solo_mob_list.clear();
 	drop_list.clear();
+	help_list.clear();
 
 	init_obj_list();
 	init_mob_name_list();
@@ -532,9 +621,8 @@ void reload()
 	split_mob_name_list();
 	init_drop_table(SOLO_MOB);
 	init_drop_table(GROUP_MOB);
-	init_xhelp();
 	// справку надо полностью срелоадить
-	// add_global_help() вызовется там же
+	// init_xhelp() и init_xhelp_full() вызовется там же
 	go_boot_xhelp();
 }
 
@@ -542,14 +630,16 @@ void init()
 {
 	init_list(SOLO_TYPE);
 	init_list(GROUP_TYPE);
+
 	init_obj_list();
 	init_mob_name_list();
 	filter_dupe_names();
 	split_mob_name_list();
 	init_drop_table(SOLO_MOB);
 	init_drop_table(GROUP_MOB);
+
 	init_xhelp();
-	add_global_help();
+	init_xhelp_full();
 }
 
 void add_to_list(CHAR_DATA *mob, std::map<int, KillListNode> &curr_list)

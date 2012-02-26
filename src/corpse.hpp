@@ -36,7 +36,8 @@ int check_mob(int mob_rnum);
 // тянем этот тупизм дальше
 void renumber_obj_rnum(int rnum);
 // добавление инфы в систему справки
-void add_global_help();
+void init_xhelp();
+void init_xhelp_full();
 // тестовый сбор статы по убийствам мобов
 void add_mob_stat(CHAR_DATA *mob, int members);
 // инит списка тестовой статы мобов
