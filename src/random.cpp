@@ -3,7 +3,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include "conf.h"
-#include <boost/random.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
 #include "random.hpp"
 #include "sysdep.h"
 
@@ -15,21 +16,20 @@ class NormalRand
 public:
 	NormalRand()
 	{
-		rng.seed(static_cast<unsigned>(time(0)));
+		_rng.seed(static_cast<unsigned>(time(0)));
 	};
 	int number(int from, int to);
 
 private:
-	boost::mt19937 rng;
+	boost::random::mt19937 _rng;
 };
 
 NormalRand rnd;
 
 int NormalRand::number(int from, int to)
 {
-	boost::uniform_int<> dist(from, to);
-	boost::variate_generator<boost::mt19937&, boost::uniform_int<> >  dice(rng, dist);
-	return dice();
+	boost::random::uniform_int_distribution<> dist(from, to);
+	return dist(_rng);
 }
 
 } // namespace Random
