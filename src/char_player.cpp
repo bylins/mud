@@ -670,8 +670,6 @@ void Player::save_char()
 
 	fprintf(saved, "Disp: %ld\n", disposable_flags_.to_ulong());
 
-/*29.11.09. Статистика по рипам (c) Василиса*/
-//edited by WorM 2011.05.21
     fprintf(saved, "Ripa: %d\n", GET_RIP_ARENA(this)); //Rip_arena
     fprintf(saved, "Wina: %d\n", GET_WIN_ARENA(this)); //Win_arena
     fprintf(saved, "Expa: %llu\n", GET_EXP_ARENA(this)); //Exp_arena
@@ -691,31 +689,44 @@ void Player::save_char()
     fprintf(saved, "Exot: %llu\n", GET_EXP_OTHERTHIS(this)); ////Exp_other_this
     fprintf(saved, "Ript: %d\n", GET_RIP_PKTHIS(this)); //Rip_pk_this
     fprintf(saved, "Expt: %llu\n", GET_EXP_PKTHIS(this));//Exp_pk_this
-//end by WorM
-/*конец правки (с) Василиса*/
+
 	// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 	i = 0;
-	if (this->followers && GET_CLASS(this) == CLASS_MERCHANT && !IS_IMMORTAL(this))
+	if (this->followers
+		&& GET_CLASS(this) == CLASS_MERCHANT
+		&& !IS_IMMORTAL(this))
 	{
 		struct follow_type *k;
 		for (k = this->followers; k; k = k->next)
-			if (AFF_FLAGGED(k->follower, AFF_HELPER) && AFF_FLAGGED(k->follower, AFF_CHARM))
-				break;
-		if(k)
 		{
-			for (int j = 0; j < MAX_OBJ_AFFECT; j++)
-			 if (k->follower->affected[j].type==SPELL_CHARM)
+			if (k->follower
+				&& AFF_FLAGGED(k->follower, AFF_HELPER)
+				&& AFF_FLAGGED(k->follower, AFF_CHARM))
 			{
-				if(k->follower->mob_specials.hire_price == 0)
-					break;
-				i = (int)(((k->follower->affected[j].duration-1)/2)*k->follower->mob_specials.hire_price);
 				break;
 			}
 		}
+		if(k && k->follower->affected)
+		{
+			for (AFFECT_DATA *aff = k->follower->affected; aff; aff = aff->next)
+			{
+				if (aff->type == SPELL_CHARM)
+				{
+					if(k->follower->mob_specials.hire_price == 0)
+					{
+						break;
+					}
+					int i = ((aff->duration-1)/2)*k->follower->mob_specials.hire_price;
+					if(i != 0)
+					{
+						fprintf(saved, "GldH: %d\n", i);
+					}
+					break;
+				}
+			}
+		}
 	}
-	if(i != 0)
-		fprintf(saved, "GldH: %d\n", i);
-	// end by WorM
+
 	this->quested_save(saved);
 	this->mobmax_save(saved);
 	save_pkills(this, saved);
