@@ -1,0 +1,3666 @@
+#100
+костяк скелет~
+скелет~
+скелета~
+скелету~
+скелета~
+скелетом~
+скелете~
+Скелет стоит здесь, обводя округу пустыми глазницами.
+~
+Ужасный скелет, поднятый из земли темными силами.
+~
+d0o0p0r0z0f2 k0n0 -600 E
+5 15 8 10d4+60 3d3+4
+0d0+0 0
+8 8 1
+Str: 10
+Dex: 10
+Int: 10
+Wis: 10
+Con: 3
+Cha: 10
+Size: 30
+Class: 100
+Race: 110
+Height: 150
+Weight: 150
+Special_Bitvector: 0 
+Skill: 136 15
+E
+#101
+мертвяк полуразложившийся труп~
+мертвяк~
+мертвяка~
+мертвяку~
+мертвяка~
+мертвяком~
+мертвяке~
+Мертвяк стоит здесь, плотоядно облизываясь.
+~
+Полуразложившийся труп, поднятый из земли темными чарами.
+~
+d0o0p0r0z0f2 k0n0 -600 E
+10 10 5 10d5+100 4d4+6
+0d0+0 0
+8 8 1
+Str: 14
+Dex: 14
+Int: 10
+Wis: 10
+Con: 3
+Cha: 10
+Size: 40
+Class: 100
+Race: 110
+Height: 150
+Weight: 150
+Special_Bitvector: 0 
+Skill: 136 30
+E
+#102
+костяная гончая~
+костяная гончая~
+костяной гончей~
+костяной гончей~
+костяную гончую~
+костяной гончей~
+костяной гончей~
+Костяная гончая стоит здесь, ожидая приказа своего хозяина.
+~
+Груда костей, скрепленная темной магией  в ужасное порождение тьмы.
+~
+d0o0p0r0z0f2 k0n0 -600 E
+15 5 3 10d4+220 5d4+10
+0d0+0 0
+8 8 2
+Saves: 80 0 0 0
+Resistances: 15 0 0 0 100 10 300
+Str: 18
+Dex: 18
+Int: 10
+Wis: 10
+Con: 3
+Cha: 10
+Size: 45
+ExtraAttack: 1
+Class: 100
+Race: 110
+Height: 150
+Weight: 150
+Special_Bitvector: 0 
+Skill: 136 45
+E
+#103
+дракон костяной порождение ужаса~
+костяной дракон~
+костяного дракона~
+костяному дракону~
+костяного дракона~
+костяным драконом~
+костяном драконе~
+Костяной дракон, порождение Ужаса, готов разорвать любого по приказу хозяина.
+~
+Ужасное исчадие Тьмы, поднятое страшной магией крови.
+~
+d0o0p0r0z0f2 k0n0x0 -600 E
+25 -5 0 10d5+330 5d3+15
+0d0+0 0
+8 8 1
+Saves: 100 0 0 0
+Resistances: 30 0 0 0 300 20 300
+Str: 22
+Dex: 20
+Int: 10
+Wis: 10
+Con: 3
+Cha: 10
+Size: 85
+ExtraAttack: 1
+Class: 100
+Race: 105
+Height: 200
+Weight: 150
+Special_Bitvector: 0 
+Skill: 136 75
+E
+#104
+хранитель неизвестный~
+хранитель~
+хранителя~
+хранителю~
+хранителя~
+хранителем~
+хранителе~
+Дух неизвестного существа летает тут.
+~
+Созданное силой магии существо повинуется любой воле своего хозяина.
+~
+d0z0f2 d0k0x0 0 E
+1 2 -2 15d10+150 5d4+0
+0d0+0 0
+8 8 1
+BareHandAttack: 2
+Str: 3
+Dex: 19
+Int: 12
+Wis: 12
+Con: 10
+Cha: 14
+Size: 30
+ExtraAttack: 1
+Class: 101
+Race: 110
+Height: 50
+Weight: 50
+Special_Bitvector: 0 
+Skill: 136 85
+E
+#105
+огненный хранитель неизвестный~
+огненный хранитель~
+огненного хранителя~
+огненному хранителю~
+огненного хранителя~
+огненным хранителем~
+огненном хранителе~
+Дух неизвестного существа, светясь красноватой аурой, летает тут.
+~
+Тонкое, обманчиво-хрупкое на вид создание, окруженное 
+сполохами пламени. Воплощение огненной стихии - 
+хранитель опасен и неуловим. Его дыхание - жар бездны, 
+в его глазах - мощь стихии.
+~
+d0a2f2 d0k0x0D0 0 E
+25 20 0 0d0+200 8d3+5
+0d0+0 0
+8 8 1
+Saves: 20 0 0 20
+Resistances: 30 0 -15 0 50 0 300
+Str: 3
+Dex: 20
+Int: 25
+Wis: 50
+Con: 10
+Cha: 30
+Size: 40
+LikeWork: 20
+Class: 101
+Race: 110
+Height: 50
+Weight: 60
+Special_Bitvector: 0 
+Skill: 136 75
+Skill: 137 150
+Skill: 157 100
+Spell: 130
+E
+#106
+заплечных дел мастер~
+заплечных дел мастер~
+заплечных дел мастера~
+заплечных дел мастеру~
+заплечных дел мастера~
+заплечных дел мастером~
+заплечных дел мастере~
+Заплечных дел мастер стоит тут, держа в руке раскаленные клещи.
+~
+С мощным торсом, перекатывающимися мышцами на руках, этот палач много
+сил потратил, совершенствуя свое ремесло, и вот Вам и выпала доля
+проверить это.
+~
+b0d0g0n0B0u2 d0f0k0 0 E
+11 1 -10 30d30+930 10d10+0
+0d0+0 0
+8 8 1
+Str: 30
+Dex: 25
+Con: 30
+Cha: 5
+Size: 70
+ExtraAttack: 1
+Class: 102
+Race: 101
+Height: 198
+Weight: 200
+Special_Bitvector: a0b0c0d0e0f0 
+Skill: 136 33
+E
+T 199
+#107
+Валькирия Valkyre~
+Валькирия~
+Валькирии~
+Валькирии~
+Валькирию~
+Валькирией~
+Валькирии~
+Огромная мускулистая женщина, скрестив на груди руки, летает тут.
+~
+Женщина-воин. Один посылает их на ратное поля собирать умерших и убивать тех, чей жизненный путь предрешен.
+~
+d0e0l0m0n0p0q0r0u0x0A0b1 d0f0h0u0x0 0 E
+40 -10 -8 30d100+10000 30d40+40
+100d100+0 0
+8 8 2
+Str: 40
+Dex: 50
+Int: 40
+Wis: 40
+Con: 40
+Cha: 40
+Size: 40
+ExtraAttack: 2
+Class: 100
+Race: 100
+Height: 200
+Weight: 200
+Special_Bitvector: l0A0B0b1c1m3B3C3 
+Skill: 3 121
+Skill: 4 80
+Skill: 7 121
+Skill: 21 80
+Skill: 136 120
+Skill: 142 150
+Skill: 149 121
+Skill: 150 150
+Skill: 157 121
+Skill: 160 133
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 9
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 55
+Spell: 55
+Spell: 55
+Spell: 55
+Spell: 55
+Spell: 55
+Spell: 55
+Spell: 55
+Spell: 55
+Spell: 55
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 76
+Spell: 76
+Spell: 76
+Spell: 76
+Spell: 76
+Spell: 76
+Spell: 76
+Spell: 76
+Spell: 76
+Spell: 76
+Spell: 76
+Spell: 76
+Spell: 76
+Spell: 76
+Spell: 76
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 124
+Spell: 124
+Spell: 124
+Spell: 124
+Spell: 124
+Spell: 124
+Spell: 124
+Spell: 124
+Spell: 124
+Spell: 124
+Spell: 128
+Spell: 128
+Spell: 128
+Spell: 128
+Spell: 128
+Spell: 128
+Spell: 132
+Spell: 132
+Spell: 132
+Spell: 132
+Spell: 132
+Spell: 132
+Spell: 132
+Spell: 132
+Spell: 132
+Spell: 132
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+Spell: 135
+E
+#108
+Небесная защитница~
+Небесная защитница~
+Небесной защитницы~
+Небесной защитнице~
+Небесную защитницу~
+Небесной защитницей~
+Небесной защитнице~
+Небесная защитница
+~
+Сияющая призрачная фигура о двух крылах.
+~
+d0x0e2f2j2 p0 1 E
+1 5 8 1d1+600 8d5+0
+0d0+0 0
+8 8 2
+BareHandAttack: 3
+Dex: 22
+Int: 25
+Wis: 25
+Con: 17
+Cha: 22
+Size: 65
+ExtraAttack: 1
+Class: 100
+Race: 114
+Height: 200
+Weight: 150
+Special_Bitvector: l0 
+Skill: 136 3
+E
+#109
+Терминатор Т-100 человек робот~
+Терминатор Т-100~
+Терминатора Т-100~
+Терминатору Т-100~
+Терминатора Т-100~
+Терминатором Т-100~
+Терминаторе Т-100~
+Металлический человек стоит тут, оглядывая всех пришедших красными глазами из под металлического лба.
+~
+ Высокий металлический человек-скелет. Глаза горят дьявольским красным огнем, железный череп усмехается над вами. На виске написано - Т-100.
+~
+d0e0f0l0n0o0p0q0r0t0u0x0s1f2g2i2m2u2 d0f0k0 0 E
+50 -30 5 30d50+30000 10d50+20
+1d99999+1 0
+8 8 1
+Saves: 50 50 50 50
+Resistances: 0 0 0 0 200 0 300
+HPreg: 200
+Armour: 100
+AResist: 100
+MResist: 100
+BareHandAttack: 6
+Str: 40
+Dex: 15
+Con: 50
+Size: 30
+Class: 100
+Race: 109
+Height: 198
+Weight: 200
+Special_Bitvector: b1 
+Feat: 1
+Feat: 2
+Feat: 20
+Feat: 22
+Feat: 25
+Feat: 29
+Feat: 38
+Feat: 44
+Feat: 66
+Feat: 77
+Feat: 80
+Skill: 3 200
+Skill: 4 200
+Skill: 5 200
+Skill: 21 200
+Skill: 132 200
+Skill: 136 200
+Skill: 154 200
+Skill: 155 200
+E
+#110
+княжеский сборщик податей~
+сборщик податей~
+сборщика податей~
+сборщику податей~
+сборщика податей~
+сборщику податей~
+сборщике податей~
+Княжеский сборщик податей проходит мимо, зыркая по сторонам.
+~
+Крепкий мужик с вострой сабелькой на боку, вместительным ящиком на лямке
+и пронзительным взглядом оглядывает вас, бормоча:
+А шубейка, шубейка-то не из дешевых. Да и сапожки, ничего так...
+~
+d0n0u0s1j2u2 d0f0k0 0 E
+30 -7 -1 20d7+1500 10d5+20
+0d0+0 0
+8 8 1
+Resistances: 0 0 0 0 150 0 0
+CastSuccess: 60
+AResist: 51
+MResist: 51
+BareHandAttack: 7
+Str: 27
+Dex: 23
+Int: 18
+Wis: 25
+Con: 20
+Cha: 18
+Size: 30
+LikeWork: 75
+ExtraAttack: 2
+Class: 100
+Race: 101
+Height: 198
+Weight: 200
+Special_Bitvector: 0 
+Feat: 1
+Skill: 136 100
+Skill: 167 50
+E
+#111
+старик дед разсказчик сказочник~
+старик сказочник~
+старика сказочника~
+старику сказочнику~
+старика сказочника~
+стариком сказочником~
+старике сказочнике~
+Старик-сказочник мирно дремлет здесь.
+~
+Выглядит достаточно незавершенно.
+Старик забыл сказок больше, чем Вы слышали за всю жизнь
+~
+b0d0 0 0 E
+1 20 0 1d100+1 1d1+0
+0d0+0 0
+8 8 1
+Size: 30
+Class: 100
+Race: 100
+Height: 198
+Weight: 200
+Special_Bitvector: 0 
+Skill: 136 3
+E
+T 102
+T 110
+T 111
+T 112
+T 113
+T 114
+T 115
+T 116
+T 117
+T 118
+T 119
+T 120
+T 121
+T 122
+T 123
+T 124
+T 125
+T 126
+T 127
+T 128
+T 129
+T 130
+#112
+пес Гарм~
+&Kпес Гарм~
+&Kпса Гарма~
+&Kпсу Гарму~
+&Kпса Гарма~
+&Kпсом Гармом~
+&Kпсе Гарме~
+_&KПес Гарм сидит здесь, охраняя вход в чертог.
+~
+___Огромный четырехглазый пес прикован у входа в Хельхейм.
+~
+d0s0e2k2 d0f0s0m2 0 E
+36 -10 5 2d2+3000 2d2+30
+0d0+0 1000000
+6 6 1
+Saves: -30 -30 -30 -30
+BareHandAttack: 4
+Str: 50
+Dex: 50
+Int: 30
+Wis: 30
+Con: 50
+Cha: 3
+Size: 90
+ExtraAttack: 5
+Class: 103
+Race: 104
+Height: 200
+Weight: 200
+Special_Bitvector: 0 
+Skill: 165 200
+E
+#113
+2~
+юзается в коде, не трогать~
+неоконченного моба~
+неоконченному мобу~
+неоконченного моба~
+неоконченным мобом~
+неоконченном мобе~
+Неоконченный моб стоит тут.
+~
+Выглядит достаточно незавершенно.
+~
+d0 d0f0k0 0 E
+20 0 0 1d100+2000 1d1+20
+0d0+0 40000
+8 8 1
+Size: 30
+Class: 100
+Race: 100
+Height: 50
+Weight: 200
+Special_Bitvector: 0 
+E
+#115
+хомяк хомячек~
+хомячек~
+хомячка~
+хомячку~
+хомячка~
+хомячком~
+хомячке~
+Маленький толстый хомячек золотистого цвета спит на полу.
+~
+Маленький упитанный хомячек золотистого цвета спит на полу. Щеки его непомерно раздуты от спрzтанной там заначки. Но без боя он вам не сдастся!
+~
+c0d0e0h0n0o0p0q0r0t0u0A0s1t1f2i2j2k2l2u2 b0d0e0f0k0m0n0t0j1g2 0 E
+15 -30 10 30d99+30000 1d1+0
+99d99+0 0
+8 8 1
+Resistances: 20 20 20 20 20 20 20
+HPreg: 20
+Armour: 20
+PlusMem: 80
+CastSuccess: 80
+Success: 80
+Initiative: 20
+MResist: 20
+BareHandAttack: 4
+Str: 50
+Dex: 50
+Int: 25
+Wis: 50
+Con: 50
+Cha: 50
+Size: 10
+Class: 103
+Race: 104
+Height: 198
+Weight: 200
+Special_Bitvector: h0i0a1 
+Feat: 6
+Feat: 8
+Feat: 19
+Feat: 20
+Feat: 22
+Feat: 53
+Feat: 56
+Feat: 58
+Feat: 62
+Skill: 9 120
+Skill: 12 140
+Skill: 22 120
+Skill: 133 120
+Skill: 135 120
+Skill: 139 150
+Skill: 150 140
+Skill: 151 140
+Skill: 156 120
+Skill: 157 140
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 78
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 88
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 111
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 122
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+Spell: 156
+E
+#120
+розовый слоник~
+&Mрозовый слоник&n~
+розового слоника~
+розовому слонику~
+розового слоника~
+розовым слоником~
+розовом слонике~
+Розовый слоник парит над вами, радостно взмахивая ушами.
+~
+Товарищ, да ты обкурился уже. Это же лучший в мире розовый летающий слоник! Мдаа.. не узнаешь старого друга.
+~
+d0e0p0q0s0b1t1i2l2 d0f0k0x0D0d1 0 E
+4 20 0 1d100+2 1d1+0
+0d0+0 0
+8 8 1
+BareHandAttack: 14
+Str: 35
+Size: 100
+Class: 100
+Race: 100
+Height: 198
+Weight: 200
+Special_Bitvector: 0 
+Skill: 136 12
+E
+T 131
+#130
+белоснежный волк~
+белоснежный волк~
+белоснежного волка~
+белоснежному волку~
+белоснежного волка~
+белоснежным волком~
+белоснежном волке~
+Огромный волк с густой белоснежной шерстью развалился у подножья трона.
+~
+Явно его родители были арктическими волками, но он был явно крупнее своих
+сородичей. Странные изумрудные глаза смотрят на Вас с подозрением, а острые
+клыки слегка сверкают в ощерившейся пасти.
+~
+b0d0g0B0 0 1 E
+1 20 0 1d100+1 1d1+0
+0d0+1 0
+5 5 1
+Size: 30
+Class: 100
+Race: 100
+Height: 198
+Weight: 200
+Special_Bitvector: 0 
+Skill: 136 3
+E
+#131
+ворон~
+ворон~
+ворона~
+ворону~
+ворона~
+вороном~
+вороне~
+Черный ворон восседает на спинке трона и внимательно изучает Вас.
+~
+
+Старый Ворон, давний спутник Морены, внимательно наблюдает за Вами, слегка наклонив голову и сверкая обсидианом глаз.
+~
+b0d0B0 0 0 E
+1 20 0 1d100+1 1d1+0
+0d0+0 0
+8 8 1
+Size: 30
+Class: 100
+Race: 103
+Height: 198
+Weight: 200
+Special_Bitvector: 0 
+Skill: 136 3
+E
+#132
+огромный бык буйвол тур~
+огромный бык~
+огромного быка~
+огромному быку~
+огромного быка~
+огромным быком~
+огромном быке~
+Огромная куча мышц смотрит на вас добрыми глазами.
+~
+__Огромный бык с большими рогами.
+~
+d0n0o0s0f2g2 d0f0k0A0o1t1 0 E
+34 -20 0 1d1000+30000 5d5+50
+0d0+0 0
+8 8 1
+BareHandAttack: 14
+Str: 30
+Dex: 25
+Int: 20
+Wis: 20
+Con: 35
+Cha: 35
+Size: 100
+ExtraAttack: 2
+Class: 100
+Race: 100
+Height: 200
+Weight: 200
+Special_Bitvector: p0 
+Skill: 1 100
+Skill: 7 100
+Skill: 32 100
+Skill: 136 102
+Skill: 140 100
+Skill: 150 100
+Skill: 157 100
+Skill: 165 100
+E
+#133
+сильный раб~
+раб~
+раба~
+рабу~
+раба~
+рабом~
+рабе~
+Мужчина в лохмотьях, но с гордо поднятой головой стоит здесь.
+~
+Наверное, беглый раб
+~
+b0d0e0t0y0r1f2g2i2 d0f0k0s0z0A0m1p1t1 0 E
+25 -30 -1 10d100+4000 30d10+50
+0d0+0 100000
+8 8 1
+Str: 25
+Dex: 35
+Int: 25
+Wis: 25
+Con: 45
+Cha: 40
+Size: 60
+ExtraAttack: 1
+Class: 100
+Race: 100
+Height: 198
+Weight: 200
+Special_Bitvector: p0 
+Skill: 4 200
+Skill: 22 200
+Skill: 131 150
+Skill: 132 200
+Skill: 136 90
+Skill: 137 200
+Skill: 157 100
+Skill: 160 100
+Skill: 165 100
+Spell: 23
+Spell: 23
+Spell: 23
+Spell: 23
+Spell: 23
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 38
+Spell: 38
+Spell: 38
+Spell: 38
+Spell: 38
+Spell: 68
+Spell: 68
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 75
+Spell: 111
+Spell: 114
+Spell: 114
+Spell: 114
+Spell: 132
+Spell: 132
+E
+#134
+воспитатель культуры общения~
+воспитатель культуры общения~
+воспитатель культуры общения~
+воспитатель культуры общения~
+воспитатель культуры общения~
+воспитатель культуры общения~
+воспитатель культуры общения~
+Воспитатель культуры общения стоит тут, полируя двуручный пневмопих.
+~
+Ну что?! Есть кто, а?!!
+~
+b0d0B0 d0f0k0 0 E
+50 10 0 1d100+1000 10d1+10
+0d0+0 0
+8 8 1
+Str: 3
+Size: 30
+Class: 100
+Race: 100
+Height: 198
+Weight: 200
+Special_Bitvector: 0 
+E
+T 131
+#155
+денежный моб~
+денежный моб~
+денежного моба~
+денежному моббу~
+денежного моба~
+денежным мобом~
+денежном мобе~
+Денежный моб с толстой сумкой кун стоит тут.
+~
+толстый моб
+~
+d0 0 0 E
+1 20 0 30d100+1 1d1+0
+10000d0+100000 0
+8 8 0
+Con: 3
+Size: 30
+Class: 100
+Race: 100
+Height: 198
+Weight: 200
+Special_Bitvector: 0 
+Skill: 136 3
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+E
+#156
+Секретарша~
+Секретарша~
+Секретарши~
+Секретарше~
+Секретаршу~
+Секретаршей~
+Секретарше~
+Страшная наемная секретутка - Древень явно любитель экзотики...
+~
+Выглядит достаточно незавершенно.
+~
+d0 0 0 E
+1 20 0 1d100+1 1d1+0
+0d0+0 0
+6 8 2
+Size: 30
+Class: 100
+Race: 100
+Height: 198
+Weight: 200
+Special_Bitvector: 0 
+Skill: 136 3
+E
+#166
+белый единорог edinorog166~
+Белый единорог~
+Белого единорога~
+Белому единорогу~
+Белого единорога~
+Белым единорогом~
+Белом единороге~
+&WБелый единорог охраняет долину.&n
+~
+Могучий зверь, похожий на огромного снежно-белого коня,
+но с гораздо более тонкими и изящными ногами. Его лоб украшает
+длинный витой рог.
+~
+b0d0B0 0 0 E
+0 20 0 1d100+1 1d1+0
+0d0+0 0
+8 8 1
+Size: 30
+Class: 100
+Race: 104
+Height: 198
+Weight: 200
+Special_Bitvector: 0 
+E
+#167
+Звездочка~
+звездочка~
+звездочки~
+звездочке~
+звездочку~
+звездочкой~
+звездочке~
+&KМаленькая &mзвездочка &Kмерцает на небосклоне.&n
+~
+
+~
+b0d0 s1f2 1 E
+1 19 0 1d100+1 1d1+1
+0d0+0 0
+8 8 2
+BareHandAttack: 16
+Destination: 166
+Size: 30
+Class: 101
+Race: 110
+Height: 198
+Weight: 200
+Special_Bitvector: 0 
+E
+#168
+призрак кошмара~
+призрак кошмара~
+призрака кошмара~
+призраку кошмара~
+призрака кошмара~
+призраком кошмара~
+призраке кошмара~
+Призрак &Kкошмара&n &Rнаводит на Вас ужас.&n
+~
+Нечто полупрозрачное витает в воздухе пред Вами.
+Стоит только попытаться вглядеться в него получше, 
+как он принимает очертания самого ужасного Вашего &Kкошмара&n.
+~
+b0d0B0 b0d0f0k0 1 E
+35 10 0 1d10000+1000 30d1+10
+0d0+0 0
+8 8 1
+Size: 30
+Class: 100
+Race: 100
+Height: 198
+Weight: 200
+Special_Bitvector: a0 
+E
+T 167
+#170
+жар птица~
+жар-птица~
+жар-птицы~
+жар-птице~
+жар-птицу~
+жар-птицой~
+жар-птице~
+Огромная красивая птица распустила здесь свои перья, объятые языками разноцветного пламени.
+~
+Величественное существо. Размером с хорошего воина, эта хищная птица уставилась на Вас,
+предвкушая легкую добычу. Ее огненные перья ярко искрятся и вспыхивают красивым сине-зеленым
+пламенем.
+~
+a0b0d0l0r0t0A0f2h2i2 k0t1x1y1 1 E
+25 -30 3 30d400+10 20d15+20
+0d0+5000 100000
+8 8 2
+BareHandAttack: 12
+Str: 30
+Dex: 30
+Int: 30
+Wis: 30
+Con: 30
+Cha: 30
+Size: 50
+ExtraAttack: 2
+Class: 100
+Race: 100
+Height: 100
+Weight: 200
+Special_Bitvector: m3p3 
+Skill: 3 100
+Skill: 4 100
+Skill: 5 100
+Skill: 12 20
+Skill: 132 100
+Skill: 136 108
+Skill: 150 100
+Skill: 151 100
+Skill: 156 100
+Skill: 157 100
+Spell: 15
+Spell: 15
+Spell: 15
+Spell: 15
+Spell: 15
+Spell: 15
+Spell: 15
+Spell: 15
+Spell: 15
+Spell: 15
+Spell: 23
+Spell: 23
+Spell: 23
+Spell: 23
+Spell: 23
+Spell: 23
+Spell: 23
+Spell: 23
+Spell: 23
+Spell: 23
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 54
+Spell: 54
+Spell: 54
+Spell: 54
+Spell: 54
+Spell: 54
+Spell: 54
+Spell: 54
+Spell: 54
+Spell: 54
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 68
+Spell: 68
+Spell: 68
+Spell: 68
+Spell: 68
+Spell: 68
+Spell: 68
+Spell: 68
+Spell: 68
+Spell: 68
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 82
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 93
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 124
+Spell: 124
+Spell: 124
+Spell: 124
+Spell: 124
+Spell: 124
+Spell: 124
+Spell: 124
+Spell: 124
+Spell: 124
+Spell: 141
+Spell: 141
+Spell: 141
+Spell: 141
+Spell: 141
+Spell: 141
+Spell: 141
+Spell: 141
+Spell: 141
+Spell: 141
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 150
+Spell: 152
+Spell: 152
+Spell: 152
+Spell: 152
+Spell: 152
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+Spell: 153
+E
+#188
+морской дракон~
+морской дракон~
+морского дракона~
+морскому дракону~
+морского дракона~
+морским драконом~
+морском драконе~
+Величественный морской дракон свернулся кольцом вокруг подножия трона.
+~
+Гигантский зверь поднял свой увенчаную короной голову, чтобы взглянуть
+на осмелившихся потревожить его покой. Изумрудно-зеленые его глаза заглядывают
+на самое дно вашей души - впрочем, вы больше поглощены зрелищем величественного
+дракона - должно быть царя и прародителя всех морских драконов. Его чещуя переливается
+всеми оттенками красного - от нежно розовых проблесков утренней зари и искр пурпура,
+до тяжелого грозного багрянца, подобного пролитой крови. 
+~
+b0d0n0o0z0 d0f0k0 0 E
+50 -10 -1 1d100+30000 30d127+50
+0d0+0 0
+8 8 1
+BareHandAttack: 6
+Str: 50
+Dex: 50
+Int: 50
+Wis: 50
+Con: 50
+Cha: 50
+Size: 100
+LikeWork: 100
+ExtraAttack: 3
+Class: 100
+Race: 100
+Height: 200
+Weight: 200
+Special_Bitvector: 0 
+Skill: 136 150
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 113
+Spell: 144
+Spell: 144
+Spell: 144
+Spell: 144
+Spell: 144
+Spell: 144
+Spell: 144
+Spell: 144
+Spell: 144
+Spell: 144
+E
+#189
+страж сокровищницы богов~
+страж сокровищницы богов~
+стража сокровищницы богов~
+стражу сокровищницы богов~
+стража сокровищницы богов~
+стражем сокровищницы богов~
+страже сокровищницы богов~
+Высокий старик в белом одеянии пристально смотрит на вас.
+~
+Высокий старик в белом одеянии.
+Годы не сумели согнуть его статную фигуру бывшего воина.
+~
+b0d0n0q0r0t0u0x0B0t1f2g2i2 h0C0r1 600 E
+50 -30 -10 30d50+20000 30d127+50
+0d0+0 0
+8 8 1
+Str: 50
+Dex: 50
+Int: 50
+Wis: 50
+Con: 50
+Cha: 50
+Size: 30
+LikeWork: 100
+ExtraAttack: 1
+Class: 100
+Race: 100
+Height: 198
+Weight: 200
+Special_Bitvector: 0 
+Skill: 136 150
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+Spell: 94
+E
+T 1190
+T 165
+#190
+попугай~
+попугай~
+попугая~
+попугаю~
+попугая~
+попугаем~
+попугае~
+Заморский птах сидит тут на жердочке.
+~
+Ничего интересного на попе.. э.. то есть на попугае! Вы не заметили.
+~
+b0d0 d0h0 0 E
+30 10 1 1d10+0 10d1+10
+0d0+0 0
+8 8 1
+Str: 22
+Dex: 15
+Int: 22
+Wis: 22
+Con: 18
+Size: 30
+ExtraAttack: 1
+Class: 100
+Race: 100
+Height: 198
+Weight: 200
+Special_Bitvector: 0 
+Skill: 136 90
+E
+#191
+предупреждение Такурусаву~
+предупреждение Такурусаву~
+предупреждения Такурусаву~
+предупреждению Такурусаву~
+предупреждение Такурусаву~
+предупреждением Такурусаву~
+предупреждении Такурусаву~
+Предупреждение Такурусаву стоит тут. (многозначительно помахимивая нефиговым прибором)
+~
+Страшный полуразложившийся труп, поднятый из земли темными чарами.
+~
+d0n0o0p0t0z0j2l2 d0f0k0 600 E
+15 4 10 1d1+100 0d0+1
+0d0+0 0
+8 8 0
+Str: 25
+Dex: 30
+Con: 25
+Size: 30
+Class: 100
+Race: 100
+Height: 198
+Weight: 200
+Special_Bitvector: 0 
+Skill: 136 45
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+Spell: 125
+E
+T 180
+T 181
+T 182
+T 183
+#192
+птичка певчая~
+птичка певчая~
+птички певчей~
+птичке певчей~
+птичку певчую~
+птичкой певчей~
+птичке певчей~
+Крохотная певчая птичка порхает тут.
+~
+Что-то вроде канарейки... А может жаворонка?
+Черт его знает - орнитология всегда была моим слабым местом.
+~
+d0o1 d0f0k0x0D0 0 E
+1 20 0 1d10+1 1d1+0
+0d0+0 0
+8 8 2
+BareHandAttack: 15
+Int: 4
+Size: 30
+Class: 100
+Race: 100
+Height: 198
+Weight: 200
+Special_Bitvector: l0 
+Skill: 136 3
+E
+T 1005
+#193
+княжеский палач~
+княжеский палач~
+княжеского палача~
+княжескому палачу~
+княжеского палача~
+княжеским палачом~
+княжеском палаче~
+Княжеский палач стоит здесь, опираясь на громадный топор.
+~
+Огромный, голый по пояс волосатый детина, с бугрящимися могучими мышцами руками.
+Его голова вместе с шеей, как и часть груди, скрыта кожаной маской, выкрашенной в кроваво-красный цвет.
+Что-то вам подсказывает, что не стоит связываться с представителем княжеской власти.
+~
+d0e0l0n0o0p0q0r0t0u0x0y0z0s1t1f2g2i2l2 d0e0f0g0k0m0n0p0r0z0A0k1m1t1 600 E
+30 -30 8 30d125+25000 4d4+4
+0d0+0 0
+8 8 1
+BareHandAttack: 3
+Str: 32
+Dex: 21
+Int: 21
+Wis: 20
+Con: 32
+Size: 30
+LikeWork: 70
+ExtraAttack: 1
+Class: 100
+Race: 100
+Height: 198
+Weight: 200
+Special_Bitvector: h0j0 
+Skill: 7 200
+Skill: 21 50
+Skill: 22 200
+Skill: 136 90
+Skill: 140 200
+Skill: 150 120
+Skill: 156 200
+Skill: 157 120
+Skill: 158 120
+Skill: 165 200
+Spell: 28
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 40
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 97
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+Spell: 119
+E
+T 196
+T 195
+T 194
+T 193
+T 192
+#197
+горыныч змей~
+&Rзмей &gГорыныч&n~
+&Rзмея &gГорыныча&n~
+&Rзмею &gГорынычу&n~
+&Rзмея &gГорыныча&n~
+&Rзмеем &gГорынычем&n~
+&Rзмее &gГорыныче&n~
+Трехголовый &gЗмей&R пролетает мимо, помахивая крыльями.&R
+~
+Вы содрогнулись, оценив чудовищные размеры змея и увидев окруженные
+языками пламени клыки в трех отверстых пастях.
+~
+d0f0n0o0p0q0u0b1q1s1t1a2f2g2i2 d0f0k0n0r0x0z0m1o1 -600 E
+50 20 8 25d100+30000 20d35+25
+0d0+0 0
+8 8 1
+BareHandAttack: 2
+Str: 36
+Dex: 25
+Int: 20
+Wis: 36
+Con: 36
+Cha: 3
+Size: 70
+ExtraAttack: 2
+Class: 100
+Race: 100
+Height: 200
+Weight: 200
+Special_Bitvector: l0u0x0 
+Skill: 4 120
+Skill: 21 50
+Skill: 22 150
+Skill: 132 120
+Skill: 136 150
+Skill: 158 100
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 26
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+Spell: 56
+E
+T 1008
+#198
+кровожадная мошка~
+кровожадная мошка~
+кровожадной мошки~
+кровожадной мошке~
+кровожадную мошку~
+кровожадной мошкой~
+кровожадной мошке~
+Огромная кровожадная мошка летает здесь, пытаясь сожрать Вас!
+~
+Выглядит достаточно незавершенно.
+Просто монстр.
+~
+b0d0B0 d0f0 1 E
+1 20 0 1d100+1 1d1+0
+0d0+0 0
+8 8 2
+Size: 30
+Class: 100
+Race: 100
+Height: 198
+Weight: 200
+Special_Bitvector: a0b0c0d0e0f0 
+Skill: 136 3
+E
+#199
+Змей Горыныч Трехголовый~
+Змей Горыныч~
+Змея Горыныча~
+Змею Горынычу~
+Змея Горыныча~
+Змеем Горынычем~
+Змее Горыныче~
+Змей Горыныч Трехголовый лениво пролетает мимо...
+~
+Ужас обуял Вас, когда вы увидели это мощное, усеянное крупной чешуей и шипами
+тело
+~
+d0f0n0p0q0r0t0x0y0b1s1 c0d0f0k0x0m1 1 E
+28 -30 -5 30d1000+7000 30d127+50
+0d0+200000 150000
+8 8 1
+Saves: 50 50 50 50
+Initiative: 100
+AResist: 80
+MResist: 80
+BareHandAttack: 2
+Str: 50
+Dex: 35
+Int: 35
+Wis: 25
+Con: 25
+Cha: 3
+Size: 50
+ExtraAttack: 5
+Class: 100
+Race: 100
+Height: 198
+Weight: 200
+Special_Bitvector: l0u0 
+Skill: 1 100
+Skill: 3 100
+Skill: 132 200
+Skill: 134 100
+Skill: 136 100
+Skill: 149 100
+Skill: 150 100
+Skill: 151 100
+Skill: 157 100
+Skill: 160 100
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 28
+Spell: 48
+Spell: 48
+Spell: 48
+Spell: 48
+Spell: 48
+Spell: 48
+Spell: 48
+Spell: 48
+Spell: 48
+Spell: 48
+E
+$

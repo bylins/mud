@@ -413,7 +413,7 @@ void ClanChestLog::print(CHAR_DATA *ch, std::string &text) const
 			out += *i;
 		}
 		out += "\r\n";
-		page_string(ch->desc, out, 1);
+		page_string(ch->desc, out);
 	}
 	else
 	{
@@ -427,7 +427,7 @@ void ClanChestLog::print(CHAR_DATA *ch, std::string &text) const
 			}
 		}
 		out += "\r\n";
-		page_string(ch->desc, out, 1);
+		page_string(ch->desc, out);
 	}
 }
 

@@ -1116,8 +1116,13 @@ void save()
 void load()
 {
 	pugi::xml_document doc;
-	doc.load_file(LIB_PLRSTUFF"glory_const.xml");
-
+	pugi::xml_parse_result result = doc.load_file(LIB_PLRSTUFF"glory_const.xml");
+	if (!result)
+	{
+		snprintf(buf, MAX_STRING_LENGTH, "SYSERR: error reading glory_const.xml: %s", result.description());
+		perror(buf);
+		return;
+	}
     pugi::xml_node char_list = doc.child("glory_list");
 	for (pugi::xml_node node = char_list.child("char"); node; node = node.next_sibling("char"))
 	{

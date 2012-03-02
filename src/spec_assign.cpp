@@ -176,6 +176,8 @@ void init_spec_procs(void)
 	if (!(magic = fopen(LIB_MISC "specials.lst", "r")))
 	{
 		log("Cann't open specials list file...");
+		assign_mobiles();
+		assign_objects();
 		return;
 	}
 	while (get_line(magic, name))

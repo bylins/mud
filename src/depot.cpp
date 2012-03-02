@@ -991,7 +991,7 @@ void show_depot(CHAR_DATA *ch)
 
 	std::string out;
 	out = print_obj_list(ch, it->second.pers_online, "Ваше персональное хранилище:\r\n", (ch->get_gold() + ch->get_bank()));
-	page_string(ch->desc, out, 1);
+	page_string(ch->desc, out);
 }
 
 /**

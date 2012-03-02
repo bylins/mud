@@ -409,7 +409,7 @@ ACMD(do_proxy)
 		for (ProxyListType::const_iterator it = proxyList.begin(); it != proxyList.end(); ++it)
 			out << proxyFormat % it->second->textIp % it->second->textIp2 % it->second->num % it->second->text;
 
-		page_string(ch->desc, out.str(), 1);
+		page_string(ch->desc, out.str());
 
 	}
 	else if (CompareParam(buffer2, "add") || CompareParam(buffer2, "добавить"))
@@ -607,11 +607,16 @@ BanList::BanList() :
 	current_proxy_sort_algorithm(0)
 {
 
+	//Do not fail if ban fiels weren't found, this is not critical at all
+	/*
 	if (!(reload_ban() && reload_proxy_ban(RELOAD_MODE_MAIN)))
 	{
 		log("Failed to initialize ban structures.\r\n");
 		exit(0);
 	}
+	*/
+	reload_ban() ;
+	reload_proxy_ban(RELOAD_MODE_MAIN);
 	sort_ip(SORT_BY_NAME);
 	sort_proxy(SORT_BY_NAME);
 	purge_obsolete();

@@ -1527,6 +1527,29 @@ void boot_db(void)
 	zone_rnum i;
 
 	log("Boot db -- BEGIN.");
+	struct stat st;
+	#define MKDIR(dir) if (stat((dir), &st) != 0) \
+		mkdir((dir), 0744)
+	#define MKLETTERS(BASE) MKDIR(#BASE); \
+		MKDIR(#BASE "/A-E"); \
+		MKDIR(#BASE "/F-J"); \
+		MKDIR(#BASE "/K-O"); \
+		MKDIR(#BASE "/P-T"); \
+		MKDIR(#BASE "/U-Z"); \
+		MKDIR(#BASE "/ZZZ")
+
+	MKDIR("etc");
+	MKDIR("etc/board");
+	MKLETTERS(plralias);
+	MKLETTERS(plrobjs);
+	MKLETTERS(plrs);
+	MKDIR("plrstuff");
+	MKDIR("plrstuff/depot");
+	MKDIR("plrstuff/house");
+	MKDIR("stat");
+
+	#undef MKLETTERS
+	#undef MKDIR
 
 	log("Resetting the game time:");
 	reset_time();
@@ -4204,7 +4227,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 
 	if (!out.empty())
 	{
-		page_string(ch->desc, out, TRUE);
+		page_string(ch->desc, out);
 	}
 	return found;
 }

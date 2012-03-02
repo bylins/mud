@@ -561,7 +561,7 @@ void init_guilds(void)
 	if (!(magic = fopen(LIB_MISC "guilds.lst", "r")))
 	{
 		log("Cann't open guilds list file...");
-		_exit(1);
+		return;
 	}
 	while (get_line(magic, name))
 	{

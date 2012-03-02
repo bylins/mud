@@ -1,4 +1,4 @@
-// $RCSfile$     $Date$     $Revision$
+// $RCSfile: shop_ext.cpp,v $     $Date: 2012/01/27 05:36:40 $     $Revision: 1.16 $
 // Copyright (c) 2010 Krodo
 // Part of Bylins http://www.mud.ru
 
@@ -500,7 +500,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	}
 
 	--item_num;
-	const OBJ_DATA * const proto = read_object_mirror((*shop)->item_list[item_num]->rnum, REAL);
+	const OBJ_DATA * proto = read_object_mirror((*shop)->item_list[item_num]->rnum, REAL);
 	if (!proto)
 	{
 		log("SYSERROR : не удалось прочитать прототип (%s:%d)", __FILE__, __LINE__);

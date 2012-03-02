@@ -2543,7 +2543,7 @@ ACMD(DoClanPkList)
 		}
 		if (info.str().empty())
 			info << "Записи в выбранном списке отсутствуют.\r\n";
-		page_string(ch->desc, info.str(), 1);
+		page_string(ch->desc, info.str());
 
 	}
 	else if (CompareParam(buffer2, "все") || CompareParam(buffer2, "all"))
@@ -2562,7 +2562,7 @@ ACMD(DoClanPkList)
 		if (info.str().empty())
 			info << "Записи в выбранном списке отсутствуют.\r\n";
 
-		page_string(ch->desc, info.str(), 1);
+		page_string(ch->desc, info.str());
 
 	}
 	else if ((CompareParam(buffer2, "добавить") || CompareParam(buffer2, "add")) && CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_PKLIST])
@@ -2757,7 +2757,7 @@ ACMD(DoClanPkList)
 			}
 		}
 		if (!out.str().empty())
-			page_string(ch->desc, out.str(), 1);
+			page_string(ch->desc, out.str());
 		else
 		{
 			send_to_char("По Вашему запросу никого не найдено.\r\n", ch);
@@ -4675,7 +4675,7 @@ ACMD(DoStoreHouse)
 		}
 	}
 	if (!out.str().empty())
-		page_string(ch->desc, out.str(), TRUE);
+		page_string(ch->desc, out.str());
 	else
 		send_to_char("Ничего не найдено.\r\n", ch);
 }
@@ -4877,7 +4877,7 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 			<< std::setw(3) << it->second.second->exp_persent << " |"
 			<< it->second.first << "\r\n";
 	}
-	page_string(ch->desc, out.str(), 1);
+	page_string(ch->desc, out.str());
 }
 
 // напоминалка про кончину денег в казне дружины

@@ -5,6 +5,7 @@
 import sys
 import code
 import pydoc
+import constants
 import mud
 
 class HelpCommand(object):
@@ -42,17 +43,20 @@ class PythonConsole(code.InteractiveConsole):
 			"exit":ExitConsoleCommand(ch),
 			"quit":ExitConsoleCommand(ch),
 			"mud": mud,
+			"constants": constants,
 			"self": ch,
 		}
 		code.InteractiveConsole.__init__(self, locals=self.namespace)
 		self.ch = ch
 		self.prompt = ">>>"
+		self._output = []
+
 
 	def get_prompt(self):
 		return self.prompt
 
 	def write(self, data):
-		self.ch.page_string(data)
+		self._output.append(data)
 
 	def push(self, line):
 		#self.write("%s %s\r\n" % (self.prompt, line))
@@ -61,5 +65,7 @@ class PythonConsole(code.InteractiveConsole):
 		sys.stdout = sys.stderr = self
 		more = code.InteractiveConsole.push(self, line)
 		sys.stdout, sys.stderr = stdout, stderr
+		self.ch.page_string("".join(self._output))
+		self._output = []
 		self.prompt = "..." if more else ">>>"
 		return more

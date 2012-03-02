@@ -1,4 +1,4 @@
-// $RCSfile$     $Date$     $Revision$
+// $RCSfile: char.cpp,v $     $Date: 2012/01/27 04:04:43 $     $Revision: 1.85 $
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
@@ -28,7 +28,6 @@ std::string PlayerI::empty_const_str;
 
 namespace
 {
-
 // список чаров/мобов после пуржа для последующего удаления оболочки
 typedef std::vector<CHAR_DATA *> PurgedListType;
 PurgedListType purged_list;

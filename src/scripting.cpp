@@ -116,10 +116,10 @@ void send(const char* msg)
 	send_to_char(msg, (Character*)ch);
 }
 
-void _page_string(const char* msg)
+void _page_string(const string& msg)
 {
 	Ensurer ch(*this);
-	page_string(ch->desc, msg, 1);
+	page_string(ch->desc, msg);
 }
 
 void close_console()
@@ -1685,13 +1685,14 @@ void scripting::init()
 	//add "scripts" to python module path
 	import("sys").attr("path").attr("insert")(0, "scripts");
 	/*object main_module = import("__main__");
-	object main_namespace = main_module.attr("__dict__");
-	//exec("import sys;import os;sys.path.insert(0, os.path.join(os.getcwd(), 'lib', 'scripts'))", main_namespace);
-	exec("import sys;print sys.path", main_namespace);*/
+	object main_namespace = main_module.attr("__dict__");*/
 	import("console");
 	} catch(error_already_set const &)
 	{
 		log(parse_python_exception().c_str());
+		//Лучше не дать маду запуститься с зафейлившим питоном, чем потом обрабатывать это состояние везде по коду
+		puts("SYSERR: error initializing Python");
+		exit(1);
 	}
 }
 
