@@ -1271,3 +1271,19 @@ ACMD(do_relocate)
 	greet_otrigger(ch, -1);
 	greet_memory_mtrigger(ch);
 }
+
+/**
+ * Выставление чару расовых способностей.
+ */
+void set_race_feats(CHAR_DATA *ch)
+{
+	std::vector<int> feat_list = PlayerRace::GetRaceFeatures((int)GET_KIN(ch),(int)GET_RACE(ch));
+	for (std::vector<int>::iterator i = feat_list.begin(),
+		iend = feat_list.end(); i != iend; ++i)
+	{
+		if (can_get_feat(ch, *i))
+		{
+			SET_FEAT(ch, *i);
+		}
+	}
+}

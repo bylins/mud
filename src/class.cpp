@@ -2175,12 +2175,13 @@ void advance_level(CHAR_DATA * ch)
 
 	/* Set natural & race features */
 	for (i = 1; i < MAX_FEATS; i++)
+	{
 		if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && can_get_feat(ch, i))
+		{
 			SET_FEAT(ch, i);
-	std::vector<int> RaceFeatures = PlayerRace::GetRaceFeatures((int)GET_KIN(ch),(int)GET_RACE(ch));
-	for (std::vector<int>::iterator it = RaceFeatures.begin();it != RaceFeatures.end();++it)
-		if (can_get_feat(ch, *it))
-			SET_FEAT(ch, *it);
+		}
+	}
+	set_race_feats(ch);
 
 	if (IS_IMMORTAL(ch))
 	{

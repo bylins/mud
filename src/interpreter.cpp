@@ -2341,11 +2341,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 				SET_FEAT(d->character, i);
 		}
 	};
-
-	std::vector<int> RaceFeatures = PlayerRace::GetRaceFeatures((int)GET_KIN(d->character),(int)GET_RACE(d->character));
-	for (std::vector<int>::iterator it = RaceFeatures.begin();it != RaceFeatures.end();++it)
-		if (can_get_feat(d->character, *it))
-			SET_FEAT(d->character, *it);
+	set_race_feats(d->character);
 
 	//Заменяем закл !переместиться! на способность
 	if (GET_SPELL_TYPE(d->character, SPELL_RELOCATE) == SPELL_KNOW && !IS_GOD(d->character))

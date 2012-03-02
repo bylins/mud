@@ -1706,12 +1706,14 @@ int Player::load_char_ascii(const char *name, bool reboot)
 
 	/* Set natural & race features - added by Gorrah */
 	for (i = 1; i < MAX_FEATS; i++)
-		if (can_get_feat(this, i) && feat_info[i].natural_classfeat[(int) GET_CLASS(this)][(int) GET_KIN(this)])
+	{
+		if (can_get_feat(this, i)
+			&& feat_info[i].natural_classfeat[(int) GET_CLASS(this)][(int) GET_KIN(this)])
+		{
 			SET_FEAT(this, i);
-	std::vector<int> RaceFeatures = PlayerRace::GetRaceFeatures((int)GET_KIN(this),(int)GET_RACE(this));
-	for (std::vector<int>::iterator it = RaceFeatures.begin();it != RaceFeatures.end();++it)
-		if (can_get_feat(this, *it))
-			SET_FEAT(this, *it);
+		}
+	}
+	set_race_feats(this);
 
 	if (IS_GRGOD(this))
 	{

@@ -165,10 +165,9 @@ std::vector<int> PlayerRace::GetRaceFeatures(int Kin,int Race)
 {
 	std::vector<int> RaceFeatures;
 	PlayerRacePtr RacePtr = PlayerRace::GetPlayerRace(Kin, Race);
-	if (RacePtr != NULL) {
+	if (RacePtr != NULL)
+	{
 		RaceFeatures = RacePtr->_RaceFeatureList;
-	} else {
-		RaceFeatures.push_back(0);
 	}
 	return RaceFeatures;
 }

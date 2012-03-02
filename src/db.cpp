@@ -3063,7 +3063,7 @@ void interpret_espec(const char *keyword, const char *value, int i, int nr)
 		}
 		GET_SPELL_MEM(mob_proto + i, t[0]) += 1;
 		GET_CASTER(mob_proto + i) += (IS_SET(spell_info[t[0]].routines, NPC_CALCULATE) ? 1 : 0);
-		log("Set spell %d to %d(%s)", t[0], GET_SPELL_MEM(mob_proto + i, t[0]), GET_NAME(mob_proto + i));
+		// log("Set spell %d to %d(%s)", t[0], GET_SPELL_MEM(mob_proto + i, t[0]), GET_NAME(mob_proto + i));
 	}
 
 	CASE("Helper")
@@ -3389,7 +3389,7 @@ void set_test_data(CHAR_DATA *mob)
 
 	if (GET_EXP(mob) > test_levels[49])
 	{
-		log("test1: %s - %d -> %d", mob->get_name(), mob->get_level(), 50);
+		// log("test1: %s - %d -> %d", mob->get_name(), mob->get_level(), 50);
 		mob->set_level(50);
 	}
 	else
@@ -3398,7 +3398,7 @@ void set_test_data(CHAR_DATA *mob)
 		{
 			if (test_levels[i] >= GET_EXP(mob))
 			{
-				log("test2: %s - %d -> %d", mob->get_name(), mob->get_level(), i + 1);
+				// log("test2: %s - %d -> %d", mob->get_name(), mob->get_level(), i + 1);
 				mob->set_level(i + 1);
 				break;
 			}
@@ -3412,7 +3412,7 @@ void set_test_data(CHAR_DATA *mob)
 			int min_save = -(10 + 4 * (mob->get_level() - 31));
 			if (GET_SAVE(mob, i) > min_save)
 			{
-				log("test3: %s - %d -> %d", mob->get_name(), GET_SAVE(mob, i), min_save);
+				// log("test3: %s - %d -> %d", mob->get_name(), GET_SAVE(mob, i), min_save);
 				GET_SAVE(mob, i) = min_save;
 			}
 		}
