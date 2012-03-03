@@ -238,11 +238,12 @@ void update_pos(CHAR_DATA * victim);
 
 extern SPECIAL(receptionist);
 extern SPECIAL(postmaster);
-
+extern SPECIAL(bank);
 
 #define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_keeper)
 #define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)
 #define IS_POSTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == postmaster)
+#define IS_BANKKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == bank)
 
 /* string utils **********************************************************/
 

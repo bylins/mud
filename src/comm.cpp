@@ -548,8 +548,7 @@ void init_game(ush_int port)
 	ZoneExpStat::print_log();
 	print_rune_log();
 	scripting::terminate();
-	FullSetDrop::save_list(FullSetDrop::SOLO_TYPE);
-	FullSetDrop::save_list(FullSetDrop::GROUP_TYPE);
+	FullSetDrop::save_mob_stat();
 
 	log("Closing all sockets.");
 	while (descriptor_list)
@@ -1338,19 +1337,9 @@ inline void heartbeat()
 	}
 
 
-	if (!((pulse + 56) % (60 * FullSetDrop::SAVE_PERIOD * PASSES_PER_SEC)))
-	{
-		FullSetDrop::save_mob_stat();
-	}
-
-	if (!((pulse + 54) % (60 * FullSetDrop::SAVE_PERIOD * PASSES_PER_SEC)))
-	{
-		FullSetDrop::save_list(FullSetDrop::SOLO_TYPE);
-	}
-
 	if (!((pulse + 52) % (60 * FullSetDrop::SAVE_PERIOD * PASSES_PER_SEC)))
 	{
-		FullSetDrop::save_list(FullSetDrop::GROUP_TYPE);
+		FullSetDrop::save_mob_stat();
 	}
 
 // раз в 10 минут >> ///////////////////////////////////////////////////////////
