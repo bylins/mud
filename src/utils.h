@@ -1448,7 +1448,7 @@ namespace SetSystem
 
 void check_item(int vnum);
 void check_rented();
-bool is_big_set(OBJ_DATA *obj);
+bool is_big_set(const OBJ_DATA *obj);
 bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
 
 } // namespace SetSystem

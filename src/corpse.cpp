@@ -129,47 +129,74 @@ void init_obj_list()
     pugi::xml_node node_list = doc.child("set_list");
     if (!node_list)
     {
-		snprintf(buf, MAX_STRING_LENGTH, "...<set_list> read fail");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		mudlog("...<set_list> read fail", CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
     }
 	for (pugi::xml_node set_node = node_list.child("set");
 		set_node; set_node = set_node.next_sibling("set"))
 	{
 		HelpNode node;
+
 		node.alias_list = xmlparse_str(set_node, "help_alias");
 		if (node.alias_list.empty())
 		{
-			snprintf(buf, MAX_STRING_LENGTH, "...bad set attributes (empty help_alias)");
+			mudlog("...bad set attributes (empty help_alias)",
+				CMP, LVL_IMMORT, SYSLOG, TRUE);
+			continue;
+		}
+
+		std::string type = xmlparse_str(set_node, "type");
+		if (type.empty() || (type != "auto" && type != "manual"))
+		{
+			snprintf(buf, sizeof(buf),
+				"...bad set attributes (type=%s)", type.c_str());
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			continue;
 		}
-		// список сета сортированный по макс.активаторам
-		std::multimap<int, int> set_sort_list;
 
-		for (pugi::xml_node obj_node = set_node.child("obj");
-			obj_node; obj_node = obj_node.next_sibling("obj"))
+		if (type == "manual")
 		{
-			const int obj_vnum = xmlparse_int(obj_node, "vnum");
-			if (real_object(obj_vnum) < 0)
+			for (pugi::xml_node obj_node = set_node.child("obj");
+				obj_node; obj_node = obj_node.next_sibling("obj"))
 			{
-				snprintf(buf, MAX_STRING_LENGTH, "...bad obj_node attributes (vnum=%d)", obj_vnum);
-				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-				continue;
-			}
-			// заполнение списка активаторов
-			for (id_to_set_info_map::const_iterator it = obj_data::set_table.begin(),
-				iend = obj_data::set_table.end(); it != iend; ++it)
-			{
-				for (set_info::const_iterator obj = it->second.begin(),
-					iend = it->second.end(); obj != iend; ++obj)
+				const int obj_vnum = xmlparse_int(obj_node, "vnum");
+				if (real_object(obj_vnum) < 0)
 				{
-					if (obj->first == obj_vnum && !obj->second.empty())
+					snprintf(buf, sizeof(buf),
+						"...bad obj_node attributes (vnum=%d)", obj_vnum);
+					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				std::string list_type = xmlparse_str(obj_node, "list");
+				if (list_type.empty()
+					|| (list_type != "solo" && list_type != "group"))
+				{
+					snprintf(buf, sizeof(buf),
+						"...bad manual obj attributes (list=%s, obj_vnum=%d)",
+						list_type.c_str(), obj_vnum);
+					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				if (list_type == "solo")
+				{
+					solo_obj_list.push_back(obj_vnum);
+				}
+				else
+				{
+					group_obj_list.push_back(obj_vnum);
+				}
+				// список сетин для справки
+				node.vnum_list.insert(obj_vnum);
+				// имя сета
+				if (node.title.empty())
+				{
+					for (id_to_set_info_map::const_iterator it = obj_data::set_table.begin(),
+						iend = obj_data::set_table.end(); it != iend; ++it)
 					{
-						// берется последний (максимальный) в списке активатор
-						set_sort_list.insert(std::make_pair(obj->second.rbegin()->first, obj_vnum));
-						node.vnum_list.insert(obj_vnum);
-						if (node.title.empty())
+						set_info::const_iterator k = it->second.find(obj_vnum);
+						if (k != it->second.end())
 						{
 							node.title = it->second.get_name();
 						}
@@ -177,18 +204,55 @@ void init_obj_list()
 				}
 			}
 		}
-		// первая половина активаторов в соло-лист, вторая в групп
-		int num = 0, total_num = set_sort_list.size();
-		for (std::multimap<int, int>::const_iterator i = set_sort_list.begin(),
-			iend = set_sort_list.end(); i != iend; ++i, ++num)
+		else
 		{
-			if (num < total_num / 2)
+			// список сета сортированный по макс.активаторам
+			std::multimap<int, int> set_sort_list;
+
+			for (pugi::xml_node obj_node = set_node.child("obj");
+				obj_node; obj_node = obj_node.next_sibling("obj"))
 			{
-				solo_obj_list.push_back(i->second);
+				const int obj_vnum = xmlparse_int(obj_node, "vnum");
+				if (real_object(obj_vnum) < 0)
+				{
+					snprintf(buf, sizeof(buf),
+						"...bad obj_node attributes (vnum=%d)", obj_vnum);
+					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+				// заполнение списка активаторов
+				for (id_to_set_info_map::const_iterator it = obj_data::set_table.begin(),
+					iend = obj_data::set_table.end(); it != iend; ++it)
+				{
+					set_info::const_iterator k = it->second.find(obj_vnum);
+					if (k != it->second.end() && !k->second.empty())
+					{
+						// берется последний (максимальный) в списке активатор
+						set_sort_list.insert(
+							std::make_pair(k->second.rbegin()->first, obj_vnum));
+						// список сетин для справки
+						node.vnum_list.insert(obj_vnum);
+						// имя сета
+						if (node.title.empty())
+						{
+							node.title = it->second.get_name();
+						}
+					}
+				}
 			}
-			else
+			// первая половина активаторов в соло-лист, вторая в групп
+			int num = 0, total_num = set_sort_list.size();
+			for (std::multimap<int, int>::const_iterator i = set_sort_list.begin(),
+				iend = set_sort_list.end(); i != iend; ++i, ++num)
 			{
-				group_obj_list.push_back(i->second);
+				if (num < total_num / 2)
+				{
+					solo_obj_list.push_back(i->second);
+				}
+				else
+				{
+					group_obj_list.push_back(i->second);
+				}
 			}
 		}
 		// список алиасов и сетин для справки
@@ -554,7 +618,7 @@ void split_mob_name_list()
 	filter_extra_mobs(total_solo_mobs, SOLO_MOB);
 }
 
-int calc_drop_chance(std::list<MobNode>::iterator &mob)
+int calc_drop_chance(std::list<MobNode>::iterator &mob, int obj_rnum)
 {
 	int chance = 0;
 
@@ -585,16 +649,22 @@ int calc_drop_chance(std::list<MobNode>::iterator &mob)
 		}
 		// и среднее между ними
 		double num_mod = (num1 + num2) / 2.0;
-		// 6 + 1.5-9
-		double tmp_chance = (6 + num_mod * 0.75) / mob->miw;
+		// 4 + 1.8/10.8
+		double tmp_chance = (4 + num_mod * 0.9) / mob->miw;
 		chance = static_cast<int>(tmp_chance * 10);
 	}
 	else
 	{
-		// 2 + 0.4-2.4
+		// 2 + 0/2.4
 		int mob_lvl = mob_proto[mob->rnum].get_level();
 		int lvl_mod = MAX(0, mob_lvl - MIN_SOLO_MOB_LVL);
 		double tmp_chance = (2 + lvl_mod * 0.4) / mob->miw;
+		// мини сеты в соло увеличенный шанс на дроп
+		const OBJ_DATA *obj = obj_proto[obj_rnum];
+		if (!SetSystem::is_big_set(obj))
+		{
+			tmp_chance *= 1.75;
+		}
 		chance = static_cast<int>(tmp_chance * 10);
 	}
 
@@ -632,7 +702,7 @@ void init_drop_table(int type)
 
 		DropNode tmp_node;
 		tmp_node.obj_rnum = obj_rnum;
-		tmp_node.chance = calc_drop_chance(l);
+		tmp_node.chance = calc_drop_chance(l, obj_rnum);
 
 		drop_list.insert(std::make_pair(l->rnum, tmp_node));
 

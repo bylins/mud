@@ -2821,7 +2821,7 @@ void check_rented()
  * Почта, базар.
  * Предметы сетов из BIG_SET_ITEMS и более предметов не принимаются.
  */
-bool is_big_set(OBJ_DATA *obj)
+bool is_big_set(const OBJ_DATA *obj)
 {
 	if (!OBJ_FLAGGED(obj, ITEM_SETSTUFF))
 	{
