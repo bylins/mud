@@ -107,7 +107,8 @@ house.o: house.cpp conf.h house.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp db.h interpreter.h house_exp.hpp \
  char.hpp player_i.hpp morph.hpp comm.h remember.hpp handler.h pk.h \
  screen.h boards.h skills.h spells.h privilege.hpp char_player.hpp \
- quested.hpp mobmax.hpp dps.hpp modify.h room.hpp objsave.h
+ quested.hpp mobmax.hpp dps.hpp modify.h room.hpp objsave.h \
+ named_stuff.hpp
 interpreter.o: interpreter.cpp conf.h sysdep.h structs.h comm.h \
  interpreter.h utils.h features.hpp obj.hpp pugixml.hpp pugiconfig.hpp \
  constants.h db.h spells.h skills.h handler.h house.h house_exp.hpp \
@@ -233,7 +234,7 @@ dg_scripts.o: dg_scripts.cpp conf.h sysdep.h structs.h dg_scripts.h \
  interpreter.h handler.h dg_event.h db.h screen.h house.h house_exp.hpp \
  char.hpp player_i.hpp morph.hpp remember.hpp constants.h top.h \
  char_player.hpp quested.hpp mobmax.hpp dps.hpp name_list.hpp modify.h \
- room.hpp named_stuff.hpp
+ room.hpp named_stuff.hpp spells.h
 dg_triggers.o: dg_triggers.cpp conf.h sysdep.h structs.h dg_scripts.h \
  utils.h features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h \
  interpreter.h handler.h db.h olc.h char.hpp player_i.hpp morph.hpp \
@@ -314,7 +315,7 @@ depot.o: depot.cpp depot.hpp conf.h sysdep.h structs.h db.h pugixml.hpp \
  pugiconfig.hpp handler.h utils.h features.hpp obj.hpp comm.h auction.h \
  exchange.h interpreter.h screen.h char.hpp player_i.hpp morph.hpp \
  name_list.hpp char_player.hpp quested.hpp mobmax.hpp remember.hpp \
- dps.hpp modify.h objsave.h
+ dps.hpp modify.h objsave.h room.hpp
 glory.o: glory.cpp conf.h glory.hpp sysdep.h structs.h interpreter.h \
  utils.h features.hpp obj.hpp pugixml.hpp pugiconfig.hpp db.h comm.h \
  password.hpp genchar.h screen.h top.h char.hpp player_i.hpp morph.hpp \
@@ -355,7 +356,7 @@ poison.o: poison.cpp poison.hpp conf.h sysdep.h structs.h char.hpp \
 corpse.o: corpse.cpp corpse.hpp conf.h sysdep.h structs.h db.h \
  pugixml.hpp pugiconfig.hpp utils.h features.hpp obj.hpp char.hpp \
  player_i.hpp morph.hpp comm.h handler.h dg_scripts.h im.h room.hpp \
- modify.h
+ modify.h house.h interpreter.h house_exp.hpp remember.hpp
 house_exp.o: house_exp.cpp house_exp.hpp conf.h sysdep.h char.hpp \
  structs.h player_i.hpp morph.hpp comm.h utils.h features.hpp obj.hpp \
  pugixml.hpp pugiconfig.hpp house.h db.h interpreter.h remember.hpp \
