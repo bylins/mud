@@ -819,8 +819,10 @@ void init_xhelp_full()
 
 /**
  * Релоад таблицы дропа, без релоада статистики по убийствам мобов.
+ * \param zone_vnum - если не нулевой, удаляет из статистики мобов
+ * всю указанную зону и релоадит список дропов уже без нее
  */
-void reload()
+void reload(int zone_vnum)
 {
 	group_obj_list.clear();
 	solo_obj_list.clear();
@@ -829,6 +831,23 @@ void reload()
 	solo_mob_list.clear();
 	drop_list.clear();
 	help_list.clear();
+
+	if (zone_vnum > 0)
+	{
+		for (std::map<int, std::vector<int> >::iterator i = mob_stat.begin(),
+			iend = mob_stat.end(); i != iend; /* пусто */)
+		{
+			if (i->first/100 == zone_vnum)
+			{
+				mob_stat.erase(i++);
+			}
+			else
+			{
+				++i;
+			}
+		}
+		save_mob_stat();
+	}
 
 	init_obj_list();
 

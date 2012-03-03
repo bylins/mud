@@ -22,7 +22,7 @@ void init();
 void show_stats(CHAR_DATA *ch);
 // релоад списка сетов и перегенерация списка дропов
 // без релоада статистики по убийствам мобов
-void reload();
+void reload(int zone_vnum = 0);
 // проверка дропа сетины
 int check_mob(int mob_rnum);
 // тянем этот тупизм дальше
