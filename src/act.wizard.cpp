@@ -3849,6 +3849,7 @@ struct show_struct show_fields[] =
 	{"money", LVL_IMPL},
 	{"expgain", LVL_IMPL},
 	{"runes", LVL_IMPL},
+	{"mobstat", LVL_IMPL},
 	{"\n", 0}
 };
 
@@ -4299,6 +4300,18 @@ ACMD(do_show)
 	case 23: // runes
 		print_rune_stats(ch);
 		break;
+	case 24: // mobstat
+	{
+		if (*value && is_number(value))
+		{
+			FullSetDrop::show_zone_stat(ch, atoi(value));
+		}
+		else
+		{
+			send_to_char("Формат комнады: show mobstat zone-vnum.\r\n", ch);
+		}
+		break;
+	}
 	default:
 		send_to_char("Извините, неверная команда.\r\n", ch);
 		break;

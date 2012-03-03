@@ -947,6 +947,33 @@ void add_mob_stat(CHAR_DATA *mob, int members)
 	}
 }
 
+void show_zone_stat(CHAR_DATA *ch, int zone_vnum)
+{
+	std::stringstream out;
+	out << "Статистика убийств мобов в зоне номер " << zone_vnum << "\r\n";
+	out << "   vnum : размер группы = кол-во убийств\r\n\r\n";
+
+	for (std::map<int, std::vector<int> >::const_iterator i = mob_stat.begin(),
+		iend = mob_stat.end(); i != iend; ++i)
+	{
+		if (i->first/100 == zone_vnum)
+		{
+			out << i->first << " :";
+			for (int k = 1; k <= MAX_GROUP_SIZE; ++k)
+			{
+				if (i->second[k] > 0)
+				{
+					out << " n" << k << "=" << i->second[k];
+				}
+			}
+			out << "\r\n";
+		}
+	}
+
+	send_to_char(out.str().c_str(), ch);
+}
+
+
 } // namespace FullSetDrop
 
 ////////////////////////////////////////////////////////////////////////////////

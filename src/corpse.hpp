@@ -34,6 +34,8 @@ void init_xhelp_full();
 void add_mob_stat(CHAR_DATA *mob, int members);
 // сейв статы мобов
 void save_mob_stat();
+// печать статистики имму по конкретной зоне
+void show_zone_stat(CHAR_DATA *ch, int zone_vnum);
 
 } // namespace FullSetDrop
 
