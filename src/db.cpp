@@ -3418,14 +3418,22 @@ void set_test_data(CHAR_DATA *mob)
 
 	if (mob->get_level() > 30)
 	{
+		// -10..-86
+		const int min_save = -(10 + 4 * (mob->get_level() - 31));
 		for (int i = 0; i < 4; ++i)
 		{
-			int min_save = -(10 + 4 * (mob->get_level() - 31));
 			if (GET_SAVE(mob, i) > min_save)
 			{
-				// log("test3: %s - %d -> %d", mob->get_name(), GET_SAVE(mob, i), min_save);
+				//log("test3: %s - %d -> %d", mob->get_name(), GET_SAVE(mob, i), min_save);
 				GET_SAVE(mob, i) = min_save;
 			}
+		}
+		// 20..77
+		const int min_cast = 20 + 3 * (mob->get_level() - 31);
+		if (GET_CAST_SUCCESS(mob) < min_cast)
+		{
+			//log("test4: %s - %d -> %d", mob->get_name(), GET_CAST_SUCCESS(mob), min_cast);
+			GET_CAST_SUCCESS(mob) = min_cast;
 		}
 	}
 }
