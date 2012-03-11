@@ -117,13 +117,13 @@ const char *drinknames[] = { "водой",
 
 /* effect of drinks on DRUNK, FULL, THIRST -- see values.doc */
 const int drink_aff[][3] = { {0, 1, 10},	// вода
-	{2, 2, 5},			// пиво
-	{5, 2, 5},			// вино
-	{2, 2, 5},			// медовуха
+	{2, 2, 3},			// пиво
+	{5, 2, 2},			// вино
+	{3, 2, 3},			// медовуха
 	{1, 2, 5},			// квас
-	{6, 1, 4},			// самогон
+	{8, 1, 1},			// самогон
 	{0, 1, 8},			// морс
-	{10, 0, 0},			// водка
+	{10, 0, 1},			// водка
 	{3, 3, 3},			// брага
 	{0, 4, -8},			// мед
 	{0, 3, 6},			// молоко
@@ -297,17 +297,20 @@ ACMD(do_drink)
 	}
 	//Конец изменений Adept'ом
 
-	if ((GET_COND(ch, DRUNK) > CHAR_DRUNKED) && (GET_COND(ch, THIRST) > 0))  	// The pig is drunk
-	{
-		send_to_char("Вы не смогли сделать и глотка.\r\n", ch);
-		act("$n попытал$u выпить еще, но не смог$q сделать и глотка.", TRUE, ch, 0, 0, TO_ROOM);
-		return;
-	}
+//	if ((GET_COND(ch, THIRST) > 0) && AFF_FLAGGED(ch, AFF_DRUNKED))  	// The pig is drunk
+//	{
+//		send_to_char("Вы не смогли сделать и глотка.\r\n", ch);
+//		act("$n попытал$u выпить еще, но не смог$q сделать и глотка.", TRUE, ch, 0, 0, TO_ROOM);
+//		return;
+//	}
 
 	if (subcmd == SCMD_DRINK)
 	{
 		if (drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] > 0)
-			amount = (25 - GET_COND(ch, THIRST)) / drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK];
+			if (GET_DRUNK_STATE(ch)<MAX_COND_VALUE && !AFF_FLAGGED(ch, AFF_ABSTINENT))
+				amount = 24 / drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK];
+			else
+				amount = 0;
 		else
 			amount = number(3, 10);
 	}
@@ -343,7 +346,14 @@ ACMD(do_drink)
 
 	if (GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN)
 		weight_change_object(temp, -weight);	/* Subtract amount */
-	gain_condition(ch, DRUNK, (int)((int) drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] * amount) / 4);
+
+	
+	if (GET_DRUNK_STATE(ch) < MAX_COND_VALUE && GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK) 
+		|| GET_COND(ch, DRUNK) < CHAR_DRUNKED && !AFF_FLAGGED(ch, AFF_ABSTINENT))
+	{
+		gain_condition(ch, DRUNK, (int)((int) drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] * amount) / 4);
+		GET_DRUNK_STATE(ch) = MAX(GET_DRUNK_STATE(ch), GET_COND(ch, DRUNK));
+	}
 
 	gain_condition(ch, FULL, (int)((int) drink_aff[GET_OBJ_VAL(temp, 2)][FULL] * amount) / 4);
 
@@ -357,18 +367,24 @@ ACMD(do_drink)
 
 	if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED)
 	{
-		if (GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED)
+		if (GET_DRUNK_STATE(ch) == MAX_COND_VALUE || GET_COND(ch, DRUNK) < GET_DRUNK_STATE(ch))
 		{
-			send_to_char("Напилися Вы пьяны, не дойти Вам до дому....\r\n", ch);
-			duration = 2;
-		}
-		else
-		{
-			send_to_char("Приятное тепло разлилось по Вашему телу.\r\n", ch);
-			duration = 2 + MAX(0, GET_COND(ch, DRUNK) - CHAR_DRUNKED);
-		}
-		GET_DRUNK_STATE(ch) = MAX(GET_DRUNK_STATE(ch), GET_COND(ch, DRUNK));
-		if (!AFF_FLAGGED(ch, AFF_DRUNKED) && !AFF_FLAGGED(ch, AFF_ABSTINENT))
+			send_to_char("На сегодня Вам достаточно, крошки уже плавают...\r\n", ch);
+		}else
+			if (GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED)
+			{
+				send_to_char("Напилися Вы пьяны, не дойти Вам до дому....\r\n", ch);
+			}
+			else
+			{
+				send_to_char("Приятное тепло разлилось по Вашему телу.\r\n", ch);
+			}
+		duration = 2 + MAX(0, GET_COND(ch, DRUNK) - CHAR_DRUNKED);
+		if (can_use_feat(ch, DRUNKARD_FEAT))
+			duration += duration/2;
+		if (!AFF_FLAGGED(ch, AFF_ABSTINENT) 
+				&& GET_DRUNK_STATE(ch) < MAX_COND_VALUE 
+					&& GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK))
 		{
 			send_to_char("Винные пары ударили Вам в голову.\r\n", ch);
 			/***** Decrease AC ******/
@@ -525,14 +541,18 @@ ACMD(do_drunkoff)
 		return;
 	}
 
+	amount = MAX(1, GET_WEIGHT(ch) / 50);
+	if (amount > GET_OBJ_VAL(obj, 1))
+	{
+		send_to_char("Вам точно не хватит этого количества для опохмела...\r\n", ch);
+		return;
+	}
+
 	timed.skill = SKILL_DRUNKOFF;
 	timed.time = can_use_feat(ch, DRUNKARD_FEAT) ? feature_mod(DRUNKARD_FEAT, FEAT_TIMER) : 12;
 	timed_to_char(ch, &timed);
 
-	amount = MAX(1, GET_WEIGHT(ch) / 50);
 	percent = number(1, skill_info[SKILL_DRUNKOFF].max_percent);
-	if (amount > GET_OBJ_VAL(obj, 1))
-		percent += 50;
 	prob = train_skill(ch, SKILL_DRUNKOFF, skill_info[SKILL_DRUNKOFF].max_percent, 0);
 	amount = MIN(amount, GET_OBJ_VAL(obj, 1));
 	weight = MIN(amount, GET_OBJ_WEIGHT(obj));
@@ -937,4 +957,31 @@ void name_to_drinkcon(OBJ_DATA * obj, int type)
 			free(obj->PNames[c]);
 		obj->PNames[c] = str_dup(new_name);
 	}
+}
+
+void set_abstinent(CHAR_DATA *ch)
+{
+	AFFECT_DATA af;
+	
+	int duration = pc_duration(ch, 2, MAX(0, GET_DRUNK_STATE(ch) - CHAR_DRUNKED), 4, 2, 5);
+	
+	if (can_use_feat(ch, DRUNKARD_FEAT))
+		duration /= 2;
+
+	af.type = SPELL_ABSTINENT;
+	af.bitvector = AFF_ABSTINENT;
+	af.duration = duration;
+
+	af.location = APPLY_AC;
+	af.modifier = 20;
+	affect_join(ch, &af, 0,0,0,0);
+
+	af.location = APPLY_HITROLL;
+	af.modifier = -2;
+	affect_join(ch, &af, 0,0,0,0);
+
+	af.location = APPLY_DAMROLL;
+	af.modifier = -2;
+	affect_join(ch, &af, 0,0,0,0);
+
 }

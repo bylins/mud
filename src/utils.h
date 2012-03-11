@@ -127,6 +127,7 @@ extern const char *ACTNULL;
 #define AUCTION_PULSES             30
 #define CHAR_DRUNKED               10
 #define CHAR_MORTALLY_DRUNKED      16
+#define MAX_COND_VALUE			   24
 
 int MAX(int a, int b);
 int MIN(int a, int b);

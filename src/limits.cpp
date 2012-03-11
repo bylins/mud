@@ -912,7 +912,7 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 
 	GET_COND(ch, condition) += value;
 	GET_COND(ch, condition) = MAX(0, GET_COND(ch, condition));
-	GET_COND(ch, condition) = MIN(24, GET_COND(ch, condition));
+	GET_COND(ch, condition) = MIN(MAX_COND_VALUE, GET_COND(ch, condition));
 
 	if (GET_COND(ch, condition) || PLR_FLAGGED(ch, PLR_WRITING))
 		return;
@@ -926,11 +926,9 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 		send_to_char("Вас мучает жажда.\r\n", ch);
 		return;
 	case DRUNK:
-		if (AFF_FLAGGED(ch, AFF_ABSTINENT) || AFF_FLAGGED(ch, AFF_DRUNKED))
-			GET_COND(ch, DRUNK) = MAX(CHAR_DRUNKED, GET_COND(ch, DRUNK));
 		if (intoxicated && GET_COND(ch, DRUNK) < CHAR_DRUNKED)
-			send_to_char("Наконец то Вы протрезвели.\r\n", ch);
-		GET_DRUNK_STATE(ch) = MAX(GET_DRUNK_STATE(ch), GET_COND(ch, DRUNK));
+			send_to_char("Наконец-то Вы протрезвели.\r\n", ch);
+		GET_DRUNK_STATE(ch) = 0;
 		return;
 	default:
 		break;

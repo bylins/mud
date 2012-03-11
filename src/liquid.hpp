@@ -53,3 +53,4 @@ ACMD(do_pour);
 
 void name_from_drinkcon(OBJ_DATA * obj);
 void name_to_drinkcon(OBJ_DATA * obj, int type);
+void set_abstinent(CHAR_DATA *ch);
