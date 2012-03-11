@@ -16,21 +16,13 @@ namespace FullSetDrop
 
 // период сохранения списков мобов (минуты)
 const int SAVE_PERIOD = 27;
-// для сохранения списков по отдельности
-const bool SOLO_TYPE = false;
-const bool GROUP_TYPE = true;
-
 // лоад списков при старте мада
 void init();
-// добавление моба в списки в зависимости от кол-ва убивших игроков
-void add_kill(CHAR_DATA *mob, int members);
-// сохранение списков
-void save_list(bool list_type);
 // вывод размера список по show stats
 void show_stats(CHAR_DATA *ch);
 // релоад списка сетов и перегенерация списка дропов
-// без релоада списков соло и груп-киллов
-void reload();
+// без релоада статистики по убийствам мобов
+void reload(int zone_vnum = 0);
 // проверка дропа сетины
 int check_mob(int mob_rnum);
 // тянем этот тупизм дальше
@@ -38,12 +30,12 @@ void renumber_obj_rnum(int rnum);
 // добавление инфы в систему справки
 void init_xhelp();
 void init_xhelp_full();
-// тестовый сбор статы по убийствам мобов
+// сбор статы по убийствам мобов
 void add_mob_stat(CHAR_DATA *mob, int members);
-// инит списка тестовой статы мобов
-void init_mob_stat();
-// сейв тестовой статы мобов
+// сейв статы мобов
 void save_mob_stat();
+// печать статистики имму по конкретной зоне
+void show_zone_stat(CHAR_DATA *ch, int zone_vnum);
 
 } // namespace FullSetDrop
 

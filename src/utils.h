@@ -127,6 +127,7 @@ extern const char *ACTNULL;
 #define AUCTION_PULSES             30
 #define CHAR_DRUNKED               10
 #define CHAR_MORTALLY_DRUNKED      16
+#define MAX_COND_VALUE			   24
 
 int MAX(int a, int b);
 int MIN(int a, int b);
@@ -238,11 +239,12 @@ void update_pos(CHAR_DATA * victim);
 
 extern SPECIAL(receptionist);
 extern SPECIAL(postmaster);
-
+extern SPECIAL(bank);
 
 #define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_keeper)
 #define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)
 #define IS_POSTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == postmaster)
+#define IS_BANKKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == bank)
 
 /* string utils **********************************************************/
 
@@ -1447,7 +1449,7 @@ namespace SetSystem
 
 void check_item(int vnum);
 void check_rented();
-bool is_big_set(OBJ_DATA *obj);
+bool is_big_set(const OBJ_DATA *obj);
 bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
 
 } // namespace SetSystem

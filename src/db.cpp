@@ -467,7 +467,7 @@ pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *
  */
 ACMD(do_reboot)
 {
-	one_argument(argument, arg);
+	argument = one_argument(argument, arg);
 
 	if (!str_cmp(arg, "all") || *arg == '*')
 	{
@@ -552,20 +552,26 @@ ACMD(do_reboot)
 		load_mobraces();
 	else if (!str_cmp(arg, "morphs"))
 		load_morphs();
-	else if (!str_cmp(arg, "depot"))
+	else if (!str_cmp(arg, "depot") && PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
-		argument = one_argument(argument, arg);
 		skip_spaces(&argument);
 		if (*argument)
 		{
 			long uid = GetUniqueByName(std::string(argument));
 			if (uid > 0)
+			{
 				Depot::reload_char(uid, ch);
+			}
 			else
-				send_to_char("Формат команды: reload depot <имя чара>.\r\n", ch);
+			{
+				send_to_char("Указанный чар не найден\r\n"
+					"Формат команды: reload depot <имя чара>.\r\n", ch);
+			}
 		}
 		else
+		{
 			send_to_char("Формат команды: reload depot <имя чара>.\r\n", ch);
+		}
 	}
 	else if (!str_cmp(arg, "globaldrop"))
 	{
@@ -590,7 +596,15 @@ ACMD(do_reboot)
 	}
 	else if (!str_cmp(arg, "fullsetdrop") && PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
-		FullSetDrop::reload();
+		skip_spaces(&argument);
+		if (*argument && is_number(argument))
+		{
+			FullSetDrop::reload(atoi(argument));
+		}
+		else
+		{
+			FullSetDrop::reload();
+		}
 	}
 	else
 	{
@@ -1775,9 +1789,6 @@ void boot_db(void)
 
 	log("Init FullSetDrop lists.");
 	FullSetDrop::init();
-
-	log("Init FullSetDrop test stat.");
-	FullSetDrop::init_mob_stat();
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");
@@ -3430,14 +3441,22 @@ void set_test_data(CHAR_DATA *mob)
 
 	if (mob->get_level() > 30)
 	{
+		// -10..-86
+		const int min_save = -(10 + 4 * (mob->get_level() - 31));
 		for (int i = 0; i < 4; ++i)
 		{
-			int min_save = -(10 + 4 * (mob->get_level() - 31));
 			if (GET_SAVE(mob, i) > min_save)
 			{
-				// log("test3: %s - %d -> %d", mob->get_name(), GET_SAVE(mob, i), min_save);
+				//log("test3: %s - %d -> %d", mob->get_name(), GET_SAVE(mob, i), min_save);
 				GET_SAVE(mob, i) = min_save;
 			}
+		}
+		// 20..77
+		const int min_cast = 20 + 3 * (mob->get_level() - 31);
+		if (GET_CAST_SUCCESS(mob) < min_cast)
+		{
+			//log("test4: %s - %d -> %d", mob->get_name(), GET_CAST_SUCCESS(mob), min_cast);
+			GET_CAST_SUCCESS(mob) = min_cast;
 		}
 	}
 }

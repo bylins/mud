@@ -2612,7 +2612,7 @@ ACMD(do_purge)
 
 const int IP = 1;
 const int MAIL = 2;
-const int CHAR = 3;
+const int BY_CHAR = 3;
 
 void inspecting(CHAR_DATA *ch)
 {
@@ -2641,7 +2641,7 @@ void inspecting(CHAR_DATA *ch)
 			send_to_char(ch, "Ошибка: пустой параметр для поиска");//впринципе никогда не должно вылезти, но на всякий случай воткнул проверку
 			break;
 		}
-		if ((ch->player_specials->insp_req->sfor == CHAR && ch->player_specials->insp_req->unique == player_table[ch->player_specials->insp_req->pos].unique)//Это тот же перс которого мы статим
+		if ((ch->player_specials->insp_req->sfor == BY_CHAR && ch->player_specials->insp_req->unique == player_table[ch->player_specials->insp_req->pos].unique)//Это тот же перс которого мы статим
 			|| (player_table[ch->player_specials->insp_req->pos].level >= LVL_IMMORT && !IS_GRGOD(ch))//Иммов могут чекать только 33+
 			|| (player_table[ch->player_specials->insp_req->pos].level > GET_LEVEL(ch) && !IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)))//если левел больше то облом
 				continue;
@@ -2666,20 +2666,20 @@ void inspecting(CHAR_DATA *ch)
 				}
 			}
 		}
-		if (ch->player_specials->insp_req->sfor == MAIL || ch->player_specials->insp_req->sfor == CHAR)
+		if (ch->player_specials->insp_req->sfor == MAIL || ch->player_specials->insp_req->sfor == BY_CHAR)
 		{
 			mail_found = 0;
 			if(player_table[ch->player_specials->insp_req->pos].mail)
-			 if((ch->player_specials->insp_req->sfor == MAIL && strstr(player_table[ch->player_specials->insp_req->pos].mail, ch->player_specials->insp_req->req)) || (ch->player_specials->insp_req->sfor == CHAR && !strcmp(player_table[ch->player_specials->insp_req->pos].mail, ch->player_specials->insp_req->mail)))
+			 if((ch->player_specials->insp_req->sfor == MAIL && strstr(player_table[ch->player_specials->insp_req->pos].mail, ch->player_specials->insp_req->req)) || (ch->player_specials->insp_req->sfor == BY_CHAR && !strcmp(player_table[ch->player_specials->insp_req->pos].mail, ch->player_specials->insp_req->mail)))
 				mail_found = 1;
 		}
-		if (ch->player_specials->insp_req->sfor == IP || ch->player_specials->insp_req->sfor == CHAR)
+		if (ch->player_specials->insp_req->sfor == IP || ch->player_specials->insp_req->sfor == BY_CHAR)
 		{
 			if(!ch->player_specials->insp_req->fullsearch)
 			{
 				if(player_table[ch->player_specials->insp_req->pos].last_ip)
 				 if((ch->player_specials->insp_req->sfor == IP && strstr(player_table[ch->player_specials->insp_req->pos].last_ip, ch->player_specials->insp_req->req)) || (ch->player_specials->insp_req->ip_log && !str_cmp(player_table[ch->player_specials->insp_req->pos].last_ip, ch->player_specials->insp_req->ip_log->ip)))
-					sprintf(buf1 + strlen(buf1), " IP:%s%-16s%s\r\n", (ch->player_specials->insp_req->sfor == CHAR? CCBLU(ch, C_SPR) : ""), player_table[ch->player_specials->insp_req->pos].last_ip, (ch->player_specials->insp_req->sfor == CHAR? CCNRM(ch, C_SPR) : ""));
+					sprintf(buf1 + strlen(buf1), " IP:%s%-16s%s\r\n", (ch->player_specials->insp_req->sfor == BY_CHAR? CCBLU(ch, C_SPR) : ""), player_table[ch->player_specials->insp_req->pos].last_ip, (ch->player_specials->insp_req->sfor == BY_CHAR? CCNRM(ch, C_SPR) : ""));
 			}
 			else if (vict && LOGON_LIST(vict))
 			{
@@ -2698,8 +2698,8 @@ void inspecting(CHAR_DATA *ch)
 						if((ch->player_specials->insp_req->sfor == IP && strstr(cur_log->ip, ch_log->ip)) || !str_cmp(cur_log->ip, ch_log->ip))
 						{
 							sprintf(buf1 + strlen(buf1), " IP:%s%-16s%sCount:%5ld Last: %-30s%s",
-								(ch->player_specials->insp_req->sfor == CHAR? CCBLU(ch, C_SPR) : ""), cur_log->ip, (ch->player_specials->insp_req->sfor == CHAR? CCNRM(ch, C_SPR) : ""), cur_log->count, rustime(localtime(&cur_log->lasttime)),(ch->player_specials->insp_req->sfor == IP?"\r\n":""));
-							if(ch->player_specials->insp_req->sfor == CHAR)
+								(ch->player_specials->insp_req->sfor == BY_CHAR? CCBLU(ch, C_SPR) : ""), cur_log->ip, (ch->player_specials->insp_req->sfor == BY_CHAR? CCNRM(ch, C_SPR) : ""), cur_log->count, rustime(localtime(&cur_log->lasttime)),(ch->player_specials->insp_req->sfor == IP?"\r\n":""));
+							if(ch->player_specials->insp_req->sfor == BY_CHAR)
 								sprintf(buf1 + strlen(buf1), "-> Count:%5ld Last : %s\r\n",
 									ch_log->count, rustime(localtime(&ch_log->lasttime)));
 						}
@@ -2809,7 +2809,7 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 	}
 	else if (is_abbrev(buf, "char"))
 	{
-		ch->player_specials->insp_req->sfor = CHAR;
+		ch->player_specials->insp_req->sfor = BY_CHAR;
 		ch->player_specials->insp_req->unique = GetUniqueByName(ch->player_specials->insp_req->req);
 		i = get_ptable_by_unique(ch->player_specials->insp_req->unique);
 		if ((ch->player_specials->insp_req->unique <= 0)//Перс не существует
@@ -2879,7 +2879,7 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 			ch->player_specials->insp_req->ip_log->next = 0;
 		}
 	}
-	if (ch->player_specials->insp_req->sfor < CHAR)
+	if (ch->player_specials->insp_req->sfor < BY_CHAR)
 		sprintf(buf,  "%s: %s&S%s&s%s\r\n", (ch->player_specials->insp_req->sfor==IP?"IP":"e-mail"),
 			CCWHT(ch, C_SPR), ch->player_specials->insp_req->req, CCNRM(ch, C_SPR));
 	ch->player_specials->insp_req->pos = 0;
@@ -3067,6 +3067,9 @@ ACMD(do_restore)
 			}
 		}
 		update_pos(vict);
+		affect_from_char(vict, SPELL_DRUNKED);
+		GET_DRUNK_STATE(vict)=GET_COND(vict, DRUNK)=0;
+		affect_from_char(vict, SPELL_ABSTINENT);
 		send_to_char(OK, ch);
 		act("Вы были полностью восстановлены $N4!", FALSE, vict, 0, ch, TO_CHAR);
 	}
@@ -3849,6 +3852,7 @@ struct show_struct show_fields[] =
 	{"money", LVL_IMPL},
 	{"expgain", LVL_IMPL},
 	{"runes", LVL_IMPL},
+	{"mobstat", LVL_IMPL},
 	{"\n", 0}
 };
 
@@ -4299,6 +4303,18 @@ ACMD(do_show)
 	case 23: // runes
 		print_rune_stats(ch);
 		break;
+	case 24: // mobstat
+	{
+		if (*value && is_number(value))
+		{
+			FullSetDrop::show_zone_stat(ch, atoi(value));
+		}
+		else
+		{
+			send_to_char("Формат комнады: show mobstat zone-vnum.\r\n", ch);
+		}
+		break;
+	}
 	default:
 		send_to_char("Извините, неверная команда.\r\n", ch);
 		break;

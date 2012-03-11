@@ -827,7 +827,6 @@ void affect_remove(CHAR_DATA * ch, AFFECT_DATA * af)
 							 was_hdrk = AFF_FLAGGED(ch, AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, duration;
 
 	AFFECT_DATA *temp;
-	int change = 0;
 
 	// if (IS_IMMORTAL(ch))
 	//   {sprintf(buf,"<%d>\r\n",was_hdrk);
@@ -846,45 +845,13 @@ void affect_remove(CHAR_DATA * ch, AFFECT_DATA * af)
 	{
 		GET_DRUNK_STATE(ch) = GET_COND(ch, DRUNK) = MIN(GET_COND(ch, DRUNK), CHAR_DRUNKED - 1);
 	}
-	else if (af->type == SPELL_DRUNKED)
-	{
-		duration = pc_duration(ch, 3, MAX(0, GET_DRUNK_STATE(ch) - CHAR_DRUNKED), 0, 0, 0);
-		if (can_use_feat(ch, DRUNKARD_FEAT))
-			duration /= 2;
-		if (af->location == APPLY_AC)
-		{
-			af->type = SPELL_ABSTINENT;
-			af->duration = duration;
-			af->modifier = 20;
-			af->bitvector = AFF_ABSTINENT;
-			change = 1;
-		}
-		else if (af->location == APPLY_HITROLL)
-		{
-			af->type = SPELL_ABSTINENT;
-			af->duration = duration;
-			af->modifier = -2;
-			af->bitvector = AFF_ABSTINENT;
-			change = 1;
-		}
-		else if (af->location == APPLY_DAMROLL)
-		{
-			af->type = SPELL_ABSTINENT;
-			af->duration = duration;
-			af->modifier = -2;
-			af->bitvector = AFF_ABSTINENT;
-			change = 1;
-		}
-	}
+	if (af->type == SPELL_DRUNKED && af->duration == 0)
+		set_abstinent(ch);
 
-	if (change)
-		affect_modify(ch, af->location, af->modifier, af->bitvector, TRUE);
-	else
-	{
-		REMOVE_FROM_LIST(af, ch->affected, next);
-		if (af->handler!=0) af->handler.reset();
-		free(af);
-	}
+	REMOVE_FROM_LIST(af, ch->affected, next);
+	if (af->handler!=0) af->handler.reset();
+	free(af);
+
 	//log("[AFFECT_REMOVE->AFFECT_TOTAL] Start");
 	affect_total(ch);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Stop");
