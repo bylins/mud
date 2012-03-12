@@ -500,7 +500,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	}
 
 	--item_num;
-	const OBJ_DATA * proto = read_object_mirror((*shop)->item_list[item_num]->rnum, REAL);
+	const OBJ_DATA * const proto = read_object_mirror((*shop)->item_list[item_num]->rnum, REAL);
 	if (!proto)
 	{
 		log("SYSERROR : не удалось прочитать прототип (%s:%d)", __FILE__, __LINE__);
