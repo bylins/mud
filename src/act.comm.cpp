@@ -15,7 +15,6 @@
 #include <sstream>
 #include <list>
 #include <string>
-
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
