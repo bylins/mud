@@ -649,23 +649,21 @@ int calc_drop_chance(std::list<MobNode>::iterator &mob, int obj_rnum)
 		}
 		// и среднее между ними
 		double num_mod = (num1 + num2) / 2.0;
-		// 4 + 1.8/10.8
-		double tmp_chance = (4 + num_mod * 0.9) / mob->miw;
-		chance = static_cast<int>(tmp_chance * 10);
+		// 5.8% .. 14.8%
+		chance = (40 + num_mod * 9) / mob->miw;
 	}
 	else
 	{
-		// 2 + 0/2.4
+		// 3% .. 4.2%
 		int mob_lvl = mob_proto[mob->rnum].get_level();
-		int lvl_mod = MAX(0, mob_lvl - MIN_SOLO_MOB_LVL);
-		double tmp_chance = (2 + lvl_mod * 0.4) / mob->miw;
+		int lvl_mod = MIN(MAX(0, mob_lvl - MIN_SOLO_MOB_LVL), 6);
+		chance = (30 + lvl_mod * 2) / mob->miw;
 		// мини сеты в соло увеличенный шанс на дроп
 		const OBJ_DATA *obj = obj_proto[obj_rnum];
 		if (!SetSystem::is_big_set(obj))
 		{
-			tmp_chance *= 1.75;
+			chance *= 1.75;
 		}
-		chance = static_cast<int>(tmp_chance * 10);
 	}
 
 	return chance;
