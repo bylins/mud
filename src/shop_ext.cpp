@@ -22,6 +22,7 @@
 #include "glory_const.hpp"
 #include "screen.h"
 #include "house.h"
+#include "liquid.hpp"
 
 /*
 Пример конфига (plrstuff/shop/test.xml):
@@ -131,8 +132,23 @@ void log_shop_load()
 	}
 }
 
+void empty_waste(ShopListType::const_iterator &shop)
+{
+	std::list<OBJ_DATA *>::const_iterator it;
+	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end(); ++it)
+	{
+		extract_obj((*it));
+	}
+	(*shop)->waste.clear();
+}
+
 void load()
 {
+	for (ShopListType::iterator i = shop_list.begin(); i != shop_list.end(); ++i)
+	{
+		empty_waste(i);
+	}
+
 	shop_list.clear();
 
 	pugi::xml_document doc;
@@ -391,12 +407,18 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 //Polud у проданных в магаз объектов отображаем в списке не значение из прототипа, а уже, возможно, измененное значение
 // чтобы не было в списках всяких "гриб @n1"
 		if ((*k)->temporary_id == 0)
+		{
 			print_value = GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0);
+			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == ITEM_DRINKCON)
+				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[(*k)->rnum], 2)]);
+		}
 		else
 		{
 			OBJ_DATA * tmp_obj = get_obj_from_waste(shop, (*k)->temporary_id);
 			if (tmp_obj)
+			{
 				print_value = std::string(tmp_obj->short_description);
+			}
 		}
 
 		std::string numToShow = count == -1 ? "Навалом" : boost::lexical_cast<string>(count);
@@ -434,16 +456,6 @@ void remove_from_waste(ShopListType::const_iterator &shop, OBJ_DATA *obj)
 			return;
 		}
 	}
-}
-
-void empty_waste(ShopListType::const_iterator &shop)
-{
-	std::list<OBJ_DATA *>::const_iterator it;
-	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end(); ++it)
-	{
-		extract_obj((*it));
-	}
-	(*shop)->waste.clear();
 }
 
 void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType::const_iterator &shop)
@@ -650,6 +662,14 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	}
 }
 
+bool exists_item_in_shop(ItemListType item_list, int rnum)
+{
+	ItemListType::const_iterator it;
+	for (it = item_list.begin(); it!=item_list.end(); ++it)
+		if ((*it)->temporary_id ==0 && (*it)->rnum == rnum) return true;
+	return false;
+}
+
 void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::const_iterator &shop, std::string cmd)
 {
 	if (!obj) return;
@@ -659,7 +679,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 		OBJ_FLAGGED(obj, ITEM_NODONATE) || OBJ_FLAGGED(obj, ITEM_NODROP) ||
 		OBJ_FLAGGED(obj, ITEM_NOSELL))
 	{
-		tell_to_char(keeper, ch, string("Я не собираюсь иметь дела с этой вещью").c_str());
+		tell_to_char(keeper, ch, string("Я не собираюсь иметь дела с этой вещью.").c_str());
 		return;
 	}
 
@@ -685,17 +705,22 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	if (cmd == "Продать")
 	{
 		obj_from_char(obj);
-
-		ItemNodePtr tmp_item(new item_node);
-		tmp_item->rnum = rnum;
-		tmp_item->price = new_sell_price;
-		tmp_item->timer = obj->get_timer();
-		tmp_item->temporary_id = obj->uid;
-		(*shop)->item_list.push_back(tmp_item);
 		tell_to_char(keeper, ch, string("Получи за " + string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
 		ch->add_gold(buy_price);
 
-		(*shop)->waste.push_back(obj);
+		if (exists_item_in_shop((*shop)->item_list, rnum))
+		{
+			extract_obj(obj);
+		}else
+		{
+			ItemNodePtr tmp_item(new item_node);
+			tmp_item->rnum = rnum;
+			tmp_item->price = new_sell_price;
+			tmp_item->timer = obj->get_timer();
+			tmp_item->temporary_id = obj->uid;
+			(*shop)->item_list.push_back(tmp_item);
+			(*shop)->waste.push_back(obj);
+		}
 	}
 	if (cmd == "Чинить")
 	{

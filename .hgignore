@@ -86,4 +86,5 @@ makelog
 proxy
 scan_proxies.pl
 src/Bylins.*
+src/Debug/*
 .crash
