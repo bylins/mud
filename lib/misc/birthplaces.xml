@@ -7,7 +7,7 @@
 Формат:
 <birthplaces>
     <birthplace id="num">
-        <name>Нахвание</name>
+        <name>Название</name>
         <shortdesc>Короткое описание для парсинга !без прописных букв!</shortdesc>
         <menustring>Строка для меню выбора</menustring>
         <room>VNUM комнаты</room>

@@ -87,4 +87,15 @@ proxy
 scan_proxies.pl
 src/Bylins.*
 src/Debug/*
+src.old/*
+backup/*
+ip.log
+ip.log.scanned
+ip.temp
+lib/misc/full_set_drop.xml
+lib/misc/stuff.old.lst
+lib/plrstuff/mob_stat.xml
+lib/plrstuff/shop/shops.OLD
+lib/text/help/rules.old.hlp
+
 .crash

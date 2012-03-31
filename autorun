@@ -1,3 +1,0 @@
-#!/bin/sh
-
-bin/circle -q 4000

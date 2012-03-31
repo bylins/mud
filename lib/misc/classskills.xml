@@ -163,6 +163,7 @@
       <skill name="короткие лезвия" remort="0" level="1" improve="100"/>
       <skill name="опохмелиться" remort="0" level="1" improve="54000"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
+      <skill name="оборотничество" remort="0" level="1" imrove="1000"/>
     </class>
     <class name="витязь" class_num="9">
       <skill name="атака левой рукой" remort="0" level="1" improve="0"/>
@@ -285,6 +286,7 @@
       <skill name="копья и рогатины" remort="0" level="1" improve="150"/>
       <skill name="опохмелиться" remort="0" level="1" improve="54000"/>
       <skill name="горное дело" remort="0" level="1" improve="600"/>
+      <skill name="оборотничество" remort="0" level="1" imrove="1000"/>
     </class>
   </race>
   <race name="Викинги" num_kin="1">

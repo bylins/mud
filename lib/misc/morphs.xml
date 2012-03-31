@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <animalMorphs minWis="12">
- <morph id="1">
+ <morph id="MORPH_WOLF">
   <name>Волк</name>
   <padName>Волком</padName>
 
@@ -8,9 +8,9 @@
 
   <speech>Грррр!</speech>
 
-  <toStr>20</toStr>
+  <toStr>50</toStr>
   <toDex>30</toDex>
-  <toCon>40</toCon>
+  <toCon>20</toCon>
   <toInt>0</toInt>
   <toCha>0</toCha>
 
@@ -22,14 +22,27 @@
   <description lvl="42">Матерый белый волк</description>
   <description lvl="44">Исполинский белый волк</description>
 
+  <messages>
+    <message destination="room">$n обернул$u, повернул$u - %1% обернул$u.</message>
+    <message destination="char">Обернулись Вы, повернулись, и %1% обернулись.</message>
+  </messages>
+
   <skills>
+   <skill>удар левой рукой</skill>
    <skill>выследить</skill>
    <skill>кулачный бой</skill>
    <skill>спасти</skill>
    <skill>уклониться</skill>
   </skills>
+
+  <affects>
+	<affect>освящение</affect>
+	<affect>доблесть</affect>
+	<affect>чувствовать жизнь</affect>
+  </affects>
+
  </morph>
- <morph id="2">
+ <morph id="MORPH_LYNX">
   <name>Рысь</name>
   <padName>Рысью</padName>
 
@@ -37,8 +50,8 @@
 
   <speech>Аагррррххх!</speech>
 
-  <toStr>60</toStr>
-  <toDex>30</toDex>
+  <toStr>20</toStr>
+  <toDex>70</toDex>
   <toCon>10</toCon>
   <toInt>0</toInt>
   <toCha>0</toCha>
@@ -51,16 +64,27 @@
   <description lvl="42">Матерый снежный барс</description>
   <description lvl="44">Исполинский снежный барс</description>
 
+  <messages>
+    <message destination="room">Плюнул$g $n через плечо, прыгнул$g задом наперед и обернул$u %1%.</message>
+    <message destination="char">Плюнули Вы через плечо, прыгнули задом наперед и обернулись %1%.</message>
+  </messages>
 
   <skills>
    <skill>выследить</skill>
+   <skill>удар левой рукой</skill>
    <skill>кулачный бой</skill>
    <skill>спасти</skill>
    <skill>подножка</skill>
    <skill>спрятаться</skill>
   </skills>
+
+  <affects>
+	<affect>доблесть</affect>
+	<affect>чувствовать жизнь</affect>
+  </affects>
+
  </morph>
- <morph id="3">
+ <morph id="MORPH_FALCON">
   <name>Сокол</name>
   <padName>Соколом</padName>
 
@@ -69,29 +93,41 @@
 
 
   <toStr>0</toStr>
-  <toDex>0</toDex>
+  <toDex>100</toDex>
   <toCon>0</toCon>
   <toInt>0</toInt>
   <toCha>0</toCha>
+
+  <messages>
+    <message destination="room">Ударил$u $n о сыру землю, %1% предстал.</message>
+    <message destination="char">Ударились Вы о сыру землю, %1% предстали.</message>
+  </messages>
 
   <description lvl="1">Сокол</description>
 
   <skills>
    <skill>кулачный бой</skill>
   </skills>
+
+  <affects>
+	<affect>летит</affect>
+	<affect>чувствовать жизнь</affect>
+  </affects>
+
  </morph>
- <morph id="4">
+
+ <morph id="MORPH_PIKE">
   <name>Щука</name>
   <padName>Щукой</padName>
 
   <cover>мелкой чешуей</cover>
   <speech>Блурп...</speech>
 
-  <toStr>0</toStr>
-  <toDex>0</toDex>
-  <toCon>0</toCon>
-  <toInt>0</toInt>
-  <toCha>0</toCha>
+  <toStr>10</toStr>
+  <toDex>10</toDex>
+  <toCon>10</toCon>
+  <toInt>10</toInt>
+  <toCha>10</toCha>
 
   <description lvl="1">Щуренок</description>
   <description lvl="25">Молодая щука</description>
@@ -101,9 +137,21 @@
   <description lvl="42">Пудовая щука</description>
   <description lvl="44">Зубастая щука</description>
 
+
+  <messages>
+    <message destination="room">$n гикнул$g-свистнул$g да и обернул$u %1%.</message>
+    <message destination="char">Вы гикнули-свистнули да и обернулись %1%.</message>
+  </messages>
+
   <skills>
    <skill>кулачный бой</skill>
    <skill>уклониться</skill>
   </skills>
+
+  <affects>
+	<affect>дышать водой</affect>
+	<affect>чувствовать жизнь</affect>
+  </affects>
+
  </morph>
 </animalMorphs>
