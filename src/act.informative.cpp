@@ -5075,7 +5075,7 @@ void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur)
 	}
 	else if (obj->carried_by)
 	{
-		sprintf(buf + strlen(buf), "затарено %s\r\n", PERS(obj->carried_by, ch, 4));
+		sprintf(buf + strlen(buf), "затарено %s[%d] в комнате [%d]\r\n", PERS(obj->carried_by, ch, 4), GET_MOB_VNUM(obj->carried_by), world[obj->carried_by->in_room]->number);
 		send_to_char(buf, ch);
 	}
 	else if (obj->worn_by)

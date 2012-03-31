@@ -137,7 +137,7 @@ void empty_waste(ShopListType::const_iterator &shop)
 	std::list<OBJ_DATA *>::const_iterator it;
 	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end(); ++it)
 	{
-		extract_obj((*it));
+		if ((*it)) extract_obj((*it));
 	}
 	(*shop)->waste.clear();
 }
@@ -383,8 +383,14 @@ OBJ_DATA * get_obj_from_waste(ShopListType::const_iterator &shop, unsigned uid)
 	std::list<OBJ_DATA *>::const_iterator it;
 	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end(); ++it)
 	{
-		if ((*it)->uid == uid)
-			return (*it);
+		if (*it)
+		{
+			if ((*it)->uid == uid)
+				return (*it);
+		}
+		else
+			(*shop)->waste.erase(it);
+
 	}
 	return 0;
 }
@@ -418,7 +424,8 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 			if (tmp_obj)
 			{
 				print_value = std::string(tmp_obj->short_description);
-			}
+			}else
+				(*shop)->item_list.erase(k);
 		}
 
 		std::string numToShow = count == -1 ? "Навалом" : boost::lexical_cast<string>(count);
@@ -450,7 +457,7 @@ void remove_from_waste(ShopListType::const_iterator &shop, OBJ_DATA *obj)
 	std::list<OBJ_DATA *>::iterator it;
 	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end(); ++it)
 	{
-		if ((*it) == obj)
+		if ((*it) && (*it) == obj)
 		{
 			(*shop)->waste.erase(it);
 			return;
