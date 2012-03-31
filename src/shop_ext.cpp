@@ -144,7 +144,7 @@ void empty_waste(ShopListType::const_iterator &shop)
 
 void load()
 {
-	for (ShopListType::iterator i = shop_list.begin(); i != shop_list.end(); ++i)
+	for (ShopListType::const_iterator i = shop_list.begin(); i != shop_list.end(); ++i)
 	{
 		empty_waste(i);
 	}
