@@ -403,7 +403,7 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 		(*shop)->currency.c_str());
 	int num = 1;
 	std::string out;
-	for (ItemListType::const_iterator k = (*shop)->item_list.begin(),
+	for (ItemListType::iterator k = (*shop)->item_list.begin(),
 		kend = (*shop)->item_list.end(); k != kend; ++k)
 	{
 		int count = can_sell_count(shop, num - 1);
