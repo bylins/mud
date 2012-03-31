@@ -380,7 +380,7 @@ int can_sell_count(ShopListType::const_iterator &shop, int item_num)
 
 OBJ_DATA * get_obj_from_waste(ShopListType::const_iterator &shop, unsigned uid)
 {
-	std::list<OBJ_DATA *>::const_iterator it;
+	std::list<OBJ_DATA *>::iterator it;
 	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end(); ++it)
 	{
 		if (*it)
