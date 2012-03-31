@@ -3085,6 +3085,10 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			{
 				sprintf(str, "%d", r->number);
 			}
+			else if (!str_cmp(field, "sectortype"))//Polud возвращает строку - тип комнаты
+			{
+				sprinttype(r->sector_type, sector_types, str);			
+			}
 			else if (!str_cmp(field, "id"))
 			{
 				sprintf(str, "%c%d", UID_ROOM, find_room_uid(r->number));
