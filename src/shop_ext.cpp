@@ -22,6 +22,7 @@
 #include "glory_const.hpp"
 #include "screen.h"
 #include "house.h"
+#include "modify.h"
 #include "liquid.hpp"
 
 /*
@@ -93,6 +94,7 @@ struct shop_node
 	std::string currency;
 	std::string id;
 	ItemListType item_list;
+	std::map<long, ItemListType> keeper_item_list;
 	int profit;
 	std::list<OBJ_DATA *> waste;
 	int waste_time_min;
@@ -142,14 +144,25 @@ void empty_waste(ShopListType::const_iterator &shop)
 	(*shop)->waste.clear();
 }
 
-void load()
+void load(bool reload)
 {
-	for (ShopListType::const_iterator i = shop_list.begin(); i != shop_list.end(); ++i)
+	if (reload)
 	{
-		empty_waste(i);
+		for (ShopListType::const_iterator i = shop_list.begin(); i != shop_list.end(); ++i)
+		{
+			empty_waste(i);
+			for (std::list<int>::iterator k = (*i)->mob_vnums.begin();k!=(*i)->mob_vnums.end(); ++k)
+			{
+				int mob_rnum = real_mobile((*k));
+				if (mob_rnum >= 0)
+				{
+					mob_index[mob_rnum].func = NULL;
+				}
+			}
+		}
+		
+		shop_list.clear();
 	}
-
-	shop_list.clear();
 
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(LIB_PLRSTUFF"/shop/shops.xml");
@@ -436,7 +449,7 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 			else
 				num++;
 	}
-	send_to_char(out, ch);
+	page_string(ch->desc, out);
 //	send_to_char("В корзине " + boost::lexical_cast<string>((*shop)->waste.size()) + " элементов\r\n", ch);
 }
 
@@ -683,8 +696,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	int rnum = GET_OBJ_RNUM(obj);
 	if (rnum < 0) return;
 	if (OBJ_FLAGGED(obj, ITEM_ARMORED) || OBJ_FLAGGED(obj, ITEM_SHARPEN) ||
-		OBJ_FLAGGED(obj, ITEM_NODONATE) || OBJ_FLAGGED(obj, ITEM_NODROP) ||
-		OBJ_FLAGGED(obj, ITEM_NOSELL))
+		OBJ_FLAGGED(obj, ITEM_NODONATE) || OBJ_FLAGGED(obj, ITEM_NODROP))
 	{
 		tell_to_char(keeper, ch, string("Я не собираюсь иметь дела с этой вещью.").c_str());
 		return;
@@ -707,28 +719,38 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	std::string price_to_show = boost::lexical_cast<string>(buy_price) + " " + string(desc_count(buy_price, WHAT_MONEYu));
 
 	if (cmd == "Оценить")
+		if (OBJ_FLAGGED(obj, ITEM_NOSELL))
+		{
+			tell_to_char(keeper, ch, string("Такое я не покупаю.").c_str());
+			return;
+		}else
 			tell_to_char(keeper, ch, string("Я, пожалуй, куплю " + string(GET_OBJ_PNAME(obj, 3)) + " за " + price_to_show + ".").c_str());
 
 	if (cmd == "Продать")
-	{
-		obj_from_char(obj);
-		tell_to_char(keeper, ch, string("Получи за " + string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
-		ch->add_gold(buy_price);
-
-		if (exists_item_in_shop((*shop)->item_list, rnum))
+		if (OBJ_FLAGGED(obj, ITEM_NOSELL))
 		{
-			extract_obj(obj);
+			tell_to_char(keeper, ch, string("Такое я не покупаю.").c_str());
+			return;
 		}else
 		{
-			ItemNodePtr tmp_item(new item_node);
-			tmp_item->rnum = rnum;
-			tmp_item->price = new_sell_price;
-			tmp_item->timer = obj->get_timer();
-			tmp_item->temporary_id = obj->uid;
-			(*shop)->item_list.push_back(tmp_item);
-			(*shop)->waste.push_back(obj);
+			obj_from_char(obj);
+			tell_to_char(keeper, ch, string("Получи за " + string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
+			ch->add_gold(buy_price);
+
+			if (exists_item_in_shop((*shop)->item_list, rnum))
+			{
+				extract_obj(obj);
+			}else
+			{
+				ItemNodePtr tmp_item(new item_node);
+				tmp_item->rnum = rnum;
+				tmp_item->price = new_sell_price;
+				tmp_item->timer = obj->get_timer();
+				tmp_item->temporary_id = obj->uid;
+				(*shop)->item_list.push_back(tmp_item);
+				(*shop)->waste.push_back(obj);
+			}
 		}
-	}
 	if (cmd == "Чинить")
 	{
 		if (repair <= 0)

@@ -583,7 +583,7 @@ ACMD(do_reboot)
 	}
 	else if (!str_cmp(arg, "shop"))
 	{
-		ShopExt::load();
+		ShopExt::load(true);
 	}
 	else if (!str_cmp(arg, "named"))
 	{
@@ -1772,7 +1772,7 @@ void boot_db(void)
 	OfftopSystem::init();
 
 	log("load shop_ext list start.");
-	ShopExt::load();
+	ShopExt::load(false);
 	log("load shop_ext list stop.");
 
 	log("Init town shop_keepers.");
