@@ -69,18 +69,19 @@ extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fulln
 
 namespace ShopExt
 {
+int get_sell_price(OBJ_DATA * obj);
 
 const int IDENTIFY_COST = 110;
 int spent_today = 0;
 
+
 struct item_node
 {
-	item_node() : rnum(0), price(0), timer(-1), temporary_id(0) {};
+	item_node() : rnum(0), price(0) {};
 
 	int rnum;
 	int price;
-	int timer;
-	unsigned temporary_id;
+	std::vector<unsigned> temporary_ids;
 };
 
 typedef boost::shared_ptr<item_node> ItemNodePtr;
@@ -380,8 +381,8 @@ bool check_money(CHAR_DATA *ch, int price, std::string currency)
 
 int can_sell_count(ShopListType::const_iterator &shop, int item_num)
 {
-	if ((*shop)->item_list[item_num]->temporary_id != 0)
-		return 1;
+	if ((*shop)->item_list[item_num]->temporary_ids.size() != 0)
+		return (*shop)->item_list[item_num]->temporary_ids.size();
 	else
 	{
 		int numToSell = obj_proto[(*shop)->item_list[item_num]->rnum]->max_in_world;
@@ -391,15 +392,17 @@ int can_sell_count(ShopListType::const_iterator &shop, int item_num)
 	}
 }
 
-OBJ_DATA * get_obj_from_waste(ShopListType::const_iterator &shop, unsigned uid)
+OBJ_DATA * get_obj_from_waste(ShopListType::const_iterator &shop, std::vector<unsigned> uids)
 {
 	std::list<OBJ_DATA *>::iterator it;
 	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end(); ++it)
 	{
 		if (*it)
 		{
-			if ((*it)->uid == uid)
+			if ((*it)->uid == uids[0])
+			{
 				return (*it);
+			}
 		}
 		else
 			(*shop)->waste.erase(it);
@@ -425,7 +428,7 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 
 //Polud у проданных в магаз объектов отображаем в списке не значение из прототипа, а уже, возможно, измененное значение
 // чтобы не было в списках всяких "гриб @n1"
-		if ((*k)->temporary_id == 0)
+		if ((*k)->temporary_ids.empty())
 		{
 			print_value = GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0);
 			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == ITEM_DRINKCON)
@@ -433,12 +436,16 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 		}
 		else
 		{
-			OBJ_DATA * tmp_obj = get_obj_from_waste(shop, (*k)->temporary_id);
+			OBJ_DATA * tmp_obj = get_obj_from_waste(shop, (*k)->temporary_ids);
 			if (tmp_obj)
 			{
 				print_value = std::string(tmp_obj->short_description);
+				(*k)->price = get_sell_price(tmp_obj);
 			}else
+			{
 				(*shop)->item_list.erase(k);
+				continue;
+			}
 		}
 
 		std::string numToShow = count == -1 ? "Навалом" : boost::lexical_cast<string>(count);
@@ -592,10 +599,12 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		&& (bought < can_sell_count(shop, item_num) || can_sell_count(shop, item_num) == -1))
 	{
 
-		if ((*shop)->item_list[item_num]->temporary_id != 0)
+		if ((*shop)->item_list[item_num]->temporary_ids.size() != 0)
 		{
-			obj = get_obj_from_waste(shop, (*shop)->item_list[item_num]->temporary_id);
-			(*shop)->item_list.erase((*shop)->item_list.begin() + item_num);
+			obj = get_obj_from_waste(shop, (*shop)->item_list[item_num]->temporary_ids);
+			(*shop)->item_list[item_num]->temporary_ids.erase((*shop)->item_list[item_num]->temporary_ids.begin());
+			if ((*shop)->item_list[item_num]->temporary_ids.empty())
+				(*shop)->item_list.erase((*shop)->item_list.begin() + item_num);
 			remove_from_waste(shop, obj);
 		}
 		else
@@ -682,13 +691,41 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	}
 }
 
-bool exists_item_in_shop(ItemListType item_list, int rnum)
+int get_sell_price(OBJ_DATA * obj)
+{
+	int cost = GET_OBJ_COST(obj);
+	cost = (cost * obj->get_timer()) / obj_proto[GET_OBJ_RNUM(obj)]->get_timer(); //учтем таймер
+
+	return MMAX(1, cost);
+}
+
+void put_item_in_shop(ShopListType::const_iterator &shop, OBJ_DATA * obj)
 {
 	ItemListType::const_iterator it;
-	for (it = item_list.begin(); it!=item_list.end(); ++it)
-		if ((*it)->temporary_id ==0 && (*it)->rnum == rnum) return true;
-	return false;
+	for (it = (*shop)->item_list.begin(); it!=(*shop)->item_list.end(); ++it)
+		if ((*it)->rnum == GET_OBJ_RNUM(obj))
+		{
+			if ((*it)->temporary_ids.empty())
+			{
+				extract_obj(obj);
+				return;
+			}
+			else
+			{
+				(*it)->temporary_ids.push_back(obj->uid);
+				(*shop)->waste.push_back(obj);
+				return;
+			}
+		}
+	
+		ItemNodePtr tmp_item(new item_node);
+		tmp_item->rnum = GET_OBJ_RNUM(obj);
+		tmp_item->price = get_sell_price(obj);
+		tmp_item->temporary_ids.push_back(obj->uid);
+		(*shop)->item_list.push_back(tmp_item);
+		(*shop)->waste.push_back(obj);
 }
+
 
 void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::const_iterator &shop, std::string cmd)
 {
@@ -701,12 +738,17 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 		tell_to_char(keeper, ch, string("Я не собираюсь иметь дела с этой вещью.").c_str());
 		return;
 	}
-
+	if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER)
+	{
+		if (obj->contains)
+		{
+			tell_to_char(keeper, ch, string("Не надо предлагать мне кота в мешке.").c_str());
+			return;
+		}
+	}
 	int buy_price = GET_OBJ_COST(obj);
 
 	buy_price = (buy_price * obj->get_timer()) / obj_proto[rnum]->get_timer(); //учтем таймер
-
-	int new_sell_price = MMAX(1, buy_price);
 
 	buy_price = (buy_price * obj->obj_flags.Obj_cur) / obj->obj_flags.Obj_max; //учтем повреждения
 
@@ -739,27 +781,14 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 			obj_from_char(obj);
 			tell_to_char(keeper, ch, string("Получи за " + string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
 			ch->add_gold(buy_price);
-
-			if (exists_item_in_shop((*shop)->item_list, rnum))
-			{
-				extract_obj(obj);
-			}else
-			{
-				ItemNodePtr tmp_item(new item_node);
-				tmp_item->rnum = rnum;
-				tmp_item->price = new_sell_price;
-				tmp_item->timer = obj->get_timer();
-				tmp_item->temporary_id = obj->uid;
-				(*shop)->item_list.push_back(tmp_item);
-				(*shop)->waste.push_back(obj);
-			}
+			put_item_in_shop(shop, obj);
 		}
 	}
 	if (cmd == "Чинить")
 	{
 		if (repair <= 0)
 		{
-			tell_to_char(keeper, ch, string(string(GET_OBJ_PNAME(obj, 2))+" не нужно чинить.").c_str());
+			tell_to_char(keeper, ch, string(string(GET_OBJ_PNAME(obj, 3))+" не нужно чинить.").c_str());
 			return;
 		}
 
