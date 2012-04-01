@@ -719,14 +719,17 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	std::string price_to_show = boost::lexical_cast<string>(buy_price) + " " + string(desc_count(buy_price, WHAT_MONEYu));
 
 	if (cmd == "Оценить")
+	{
 		if (OBJ_FLAGGED(obj, ITEM_NOSELL))
 		{
 			tell_to_char(keeper, ch, string("Такое я не покупаю.").c_str());
 			return;
 		}else
 			tell_to_char(keeper, ch, string("Я, пожалуй, куплю " + string(GET_OBJ_PNAME(obj, 3)) + " за " + price_to_show + ".").c_str());
+	}
 
 	if (cmd == "Продать")
+	{
 		if (OBJ_FLAGGED(obj, ITEM_NOSELL))
 		{
 			tell_to_char(keeper, ch, string("Такое я не покупаю.").c_str());
@@ -751,6 +754,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 				(*shop)->waste.push_back(obj);
 			}
 		}
+	}
 	if (cmd == "Чинить")
 	{
 		if (repair <= 0)
