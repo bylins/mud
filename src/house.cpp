@@ -1985,7 +1985,9 @@ const char *HCONTROL_FORMAT =
 	"        hcontrol save\r\n"
 	"        hcontrol title <vnum ренты> <аббревиатура для муж рода> <аббревиатура для жен рода>\r\n"
 	"        hcontrol rank <vnum ренты> <старое звание муж рода> <звание для муж рода> <звание для жен рода>\r\n"
-	"        hcontrol owner <vnum ренты> <имя нового воеводы>\r\n";
+	"        hcontrol owner <vnum ренты> <имя нового воеводы>\r\n"
+	"        hcontrol ingr <vnum ренты> <vnum комнаты для сундука с ингредиентами>\r\n"
+    "        hcontrol exphitory <число месяцев>\r\n";
 
 
 /**

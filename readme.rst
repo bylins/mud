@@ -26,6 +26,7 @@ BRus MUD Engine readme
 2. Клонируем репозиторий (предполагается, что меркуриал уже установлен)::
 
     hg clone https://bitbucket.org/Posvist/mud/
+
 3. Создаем чистый проект, идем в Project->Add existing Item и добавляем все файлы из mud\\src\\.
 4. В Project->Properties->General выставляем Output Directory в mud\\bin.
 5. После чего жмем Build->Build Solution и все должно собраться. 
