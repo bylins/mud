@@ -2788,7 +2788,7 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 		send_to_char("Слишком короткий запрос\r\n", ch);
 		return;
 	}
-	if(strlen(buf2)>19)
+	if(strlen(buf2)>65)
 	{
 		send_to_char("Слишком длинный запрос\r\n", ch);
 		return;
