@@ -45,9 +45,9 @@ void sort_keeper_objs(CHAR_DATA * keeper, int shop_nr);
 int do_social(CHAR_DATA * ch, char *argument);
 char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear);
 char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode);
-char *diag_timer_to_char(OBJ_DATA * obj);
-int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
-int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
+char *diag_timer_to_char(const OBJ_DATA * obj);
+int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
+int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 void clear_mob_charm(CHAR_DATA *mob);
 
 /* Local variables */

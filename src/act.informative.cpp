@@ -90,8 +90,8 @@ void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur);
 const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
 void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode);
-char *diag_obj_timer(OBJ_DATA * obj);
-char *diag_timer_to_char(OBJ_DATA * obj);
+char *diag_obj_timer(const OBJ_DATA * obj);
+char *diag_timer_to_char(const OBJ_DATA * obj);
 const char * print_god_or_player(int level);
 int get_pick_chance(int skill_pick, int lock_complexity);
 
@@ -321,7 +321,7 @@ char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear)
 }
 
 // Чтобы можно было получить только строку состяния
-char *diag_obj_timer(OBJ_DATA * obj)
+char *diag_obj_timer(const OBJ_DATA * obj)
 {
 	static char out_str[MAX_STRING_LENGTH];
 	*out_str = 0;
@@ -348,7 +348,7 @@ char *diag_obj_timer(OBJ_DATA * obj)
 	return (out_str);
 }
 
-char *diag_timer_to_char(OBJ_DATA * obj)
+char *diag_timer_to_char(const OBJ_DATA * obj)
 {
 	static char out_str[MAX_STRING_LENGTH];
 	*out_str = 0;

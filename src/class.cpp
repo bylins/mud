@@ -62,11 +62,11 @@ long find_class_bitvector(char arg);
 byte saving_throws(int class_num, int type, int level);
 int thaco(int class_num, int level);
 void do_start(CHAR_DATA * ch, int newbie);
-int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
-int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj);
+int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
+int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int level_exp(CHAR_DATA * ch, int level);
 byte extend_saving_throws(int class_num, int type, int level);
-int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
+int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 
 /* Names first */
 
@@ -2268,7 +2268,7 @@ void decrease_level(CHAR_DATA * ch)
  * usable by a particular class, based on the ITEM_ANTI_{class} bitvectors.
  */
 
-int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj)
+int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj)
 {
 	OBJ_DATA *object;
 	if (!IS_CORPSE(obj))
@@ -2283,7 +2283,7 @@ int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj)
 	return (TRUE);
 }
 
-int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj)
+int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 {
 	OBJ_DATA *object;
 	if (!IS_CORPSE(obj))
@@ -2324,7 +2324,7 @@ int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj)
 	return (FALSE);
 }
 
-int invalid_no_class(CHAR_DATA * ch, OBJ_DATA * obj)
+int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 {
 	if (IS_OBJ_NO(obj, ITEM_NO_CHARMICE) && AFF_FLAGGED(ch, AFF_CHARM))
 		return (TRUE);

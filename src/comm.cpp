@@ -64,6 +64,7 @@
 #include "glory_const.hpp"
 #include "celebrates.hpp"
 #include "scripting.hpp"
+#include "shop_ext.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -1421,6 +1422,11 @@ inline void heartbeat(const int missed_pulses)
 		CharacterSystem::release_purged_list();
 	}
 
+	// апдейт таймеров в магазинах
+	if (!((pulse + 27) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	{
+		ShopExt::update_timers();
+	}
 	// апдейт таймеров в личных хранах + пурж чего надо
 	if (!((pulse + 25) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{

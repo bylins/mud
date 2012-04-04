@@ -61,11 +61,11 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where);
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
 bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont, int mode);
 void perform_remove(CHAR_DATA * ch, int pos);
-int invalid_anti_class(CHAR_DATA * ch, OBJ_DATA * obj);
+int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 void feed_charmice(CHAR_DATA * ch, char *arg);
 int get_player_charms(CHAR_DATA * ch, int spellnum);
 OBJ_DATA *create_skin(CHAR_DATA * mob);
-int invalid_unique(CHAR_DATA * ch, OBJ_DATA * obj);
+int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 
 ACMD(do_split);
 ACMD(do_remove);

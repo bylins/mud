@@ -66,6 +66,13 @@
 extern ACMD(do_echo);
 extern int do_social(CHAR_DATA * ch, char *argument);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
+extern int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
+extern int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
+extern int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
+extern int invalid_align(CHAR_DATA * ch, const OBJ_DATA * obj);
+extern char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear);
+extern char *diag_timer_to_char(const OBJ_DATA * obj);
+
 
 namespace ShopExt
 {
@@ -392,10 +399,52 @@ int can_sell_count(ShopListType::const_iterator &shop, int item_num)
 	}
 }
 
+void remove_item_id(ShopListType::const_iterator &shop, int uid)
+{
+	for (ItemListType::iterator k = (*shop)->item_list.begin();k!= (*shop)->item_list.end(); ++k)
+	{
+		for(std::vector<unsigned>::iterator it = (*k)->temporary_ids.begin(); it != (*k)->temporary_ids.end(); ++it)
+		{
+			if ((*it) == uid)
+			{
+				(*k)->temporary_ids.erase(it);
+				if ((*k)->temporary_ids.empty())
+					(*shop)->item_list.erase(k);
+				return;
+			}
+		}
+	}
+}
+
+void update_shop_timers(ShopListType::const_iterator &shop)
+{
+	std::list<OBJ_DATA *>::iterator it;
+	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end();)
+	{
+		(*it)->dec_timer();
+		if ((*it)->get_timer() <= 0)
+		{
+			remove_item_id(shop, (*it)->uid);
+			extract_obj((*it));
+			it = (*shop)->waste.erase(it);
+		}
+		else 
+			++it;
+	}
+}
+
+void update_timers()
+{
+	for (ShopListType::const_iterator shop = shop_list.begin(); shop != shop_list.end(); ++shop)
+	{
+		update_shop_timers(shop);
+	}
+}
+
 OBJ_DATA * get_obj_from_waste(ShopListType::const_iterator &shop, std::vector<unsigned> uids)
 {
 	std::list<OBJ_DATA *>::iterator it;
-	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end(); ++it)
+	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end();)
 	{
 		if (*it)
 		{
@@ -403,9 +452,10 @@ OBJ_DATA * get_obj_from_waste(ShopListType::const_iterator &shop, std::vector<un
 			{
 				return (*it);
 			}
+			 ++it;
 		}
 		else
-			(*shop)->waste.erase(it);
+			it=(*shop)->waste.erase(it);
 
 	}
 	return 0;
@@ -589,14 +639,15 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 
 	int bought = 0;
 	int total_money = 0;
+	int sell_count = can_sell_count(shop, item_num);
 
 
 	OBJ_DATA *obj = 0;
-	while (bought < item_count
+	while (bought < item_count 
 		&& check_money(ch, price, (*shop)->currency)
 		&& IS_CARRYING_N(ch) < CAN_CARRY_N(ch)
 		&& IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(proto) <= CAN_CARRY_W(ch)
-		&& (bought < can_sell_count(shop, item_num) || can_sell_count(shop, item_num) == -1))
+		&& (bought < sell_count || sell_count == -1))
 	{
 
 		if ((*shop)->item_list[item_num]->temporary_ids.size() != 0)
@@ -604,7 +655,9 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 			obj = get_obj_from_waste(shop, (*shop)->item_list[item_num]->temporary_ids);
 			(*shop)->item_list[item_num]->temporary_ids.erase((*shop)->item_list[item_num]->temporary_ids.begin());
 			if ((*shop)->item_list[item_num]->temporary_ids.empty())
+			{
 				(*shop)->item_list.erase((*shop)->item_list.begin() + item_num);
+			}
 			remove_from_waste(shop, obj);
 		}
 		else
@@ -694,7 +747,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 int get_sell_price(OBJ_DATA * obj)
 {
 	int cost = GET_OBJ_COST(obj);
-	cost = (cost * obj->get_timer()) / obj_proto[GET_OBJ_RNUM(obj)]->get_timer(); //учтем таймер
+	cost = (cost * obj->get_timer()) / MAX(1, obj_proto[GET_OBJ_RNUM(obj)]->get_timer()); //учтем таймер
 
 	return MMAX(1, cost);
 }
@@ -748,9 +801,9 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	}
 	int buy_price = GET_OBJ_COST(obj);
 
-	buy_price = (buy_price * obj->get_timer()) / obj_proto[rnum]->get_timer(); //учтем таймер
+	buy_price = obj_proto[rnum]->get_timer()<=0 ? 1 : (buy_price * obj->get_timer()) / obj_proto[rnum]->get_timer(); //учтем таймер
 
-	buy_price = (buy_price * obj->obj_flags.Obj_cur) / obj->obj_flags.Obj_max; //учтем повреждения
+	buy_price = obj->obj_flags.Obj_max <=0 ? 1 : (buy_price * obj->obj_flags.Obj_cur) / obj->obj_flags.Obj_max; //учтем повреждения
 
 	int repair = GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj);
 	int repair_price = MAX(1, GET_OBJ_COST(obj) * MAX(0, repair) / MAX(1, GET_OBJ_MAX(obj)));
@@ -769,7 +822,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 		}else
 			tell_to_char(keeper, ch, string("Я, пожалуй, куплю " + string(GET_OBJ_PNAME(obj, 3)) + " за " + price_to_show + ".").c_str());
 	}
-
+	
 	if (cmd == "Продать")
 	{
 		if (OBJ_FLAGGED(obj, ITEM_NOSELL))
@@ -905,7 +958,7 @@ void process_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 
 }
 
-void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType::const_iterator &shop)
+void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType::const_iterator &shop, std::string cmd)
 {
 	std::string buffer(argument);
 	boost::trim(buffer);
@@ -943,35 +996,51 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 		send_to_char("Ошибочка вышла.\r\n", ch);
 		return;
 	}
-
-	if (ch->get_gold() < IDENTIFY_COST)
+	if (cmd == "Рассмотреть")
 	{
-		tell_to_char(keeper, ch, "У вас нет столько денег!");
-		char local_buf[MAX_INPUT_LENGTH];
-		switch (number(0, 3))
+		std::string tell = "Предмет "+ std::string(proto->short_description)+" :";
+		tell += std::string(item_types[GET_OBJ_TYPE(proto)])+"\r\n";
+		tell += std::string(diag_weapon_to_char(proto, TRUE));
+		tell += std::string(diag_timer_to_char(proto));
+		tell_to_char(keeper, ch, tell.c_str());
+		if (invalid_anti_class(ch, proto) || invalid_unique(ch, proto))
 		{
-		case 0:
-			snprintf(local_buf, MAX_INPUT_LENGTH, "ругать %s!", GET_NAME(ch));
-			do_social(keeper, local_buf);
-			break;
-		case 1:
-			snprintf(local_buf, MAX_INPUT_LENGTH,
-				"отхлебнул$g немелкий глоток %s",
-				IS_MALE(keeper) ? "водки" : "медовухи");
-			do_echo(keeper, local_buf, 0, SCMD_EMOTE);
-			break;
+			tell = "Но лучше бы тебе не заглядываться на нее, не унесешь все равно.";
+			tell_to_char(keeper, ch, tell.c_str());
 		}
-		return;
 	}
 
-	snprintf(buf, MAX_STRING_LENGTH,
-		"Эта услуга будет стоить %d %s.", IDENTIFY_COST,
-		desc_count(IDENTIFY_COST, WHAT_MONEYu));
-	tell_to_char(keeper, ch, buf);
+	if (cmd == "Характеристики")
+	{
+		if (ch->get_gold() < IDENTIFY_COST)
+		{
+			tell_to_char(keeper, ch, "У вас нет столько денег!");
+			char local_buf[MAX_INPUT_LENGTH];
+			switch (number(0, 3))
+			{
+			case 0:
+				snprintf(local_buf, MAX_INPUT_LENGTH, "ругать %s!", GET_NAME(ch));
+				do_social(keeper, local_buf);
+				break;
+			case 1:
+				snprintf(local_buf, MAX_INPUT_LENGTH,
+					"отхлебнул$g немелкий глоток %s",
+					IS_MALE(keeper) ? "водки" : "медовухи");
+				do_echo(keeper, local_buf, 0, SCMD_EMOTE);
+				break;
+			}
+			return;
+		}
 
-	send_to_char(ch, "Характеристики предмета: %s\r\n", GET_OBJ_PNAME(proto, 0));
-	mort_show_obj_values(proto, ch, 200);
-	ch->remove_gold(IDENTIFY_COST);
+		snprintf(buf, MAX_STRING_LENGTH,
+			"Эта услуга будет стоить %d %s.", IDENTIFY_COST,
+			desc_count(IDENTIFY_COST, WHAT_MONEYu));
+		tell_to_char(keeper, ch, buf);
+
+		send_to_char(ch, "Характеристики предмета: %s\r\n", GET_OBJ_PNAME(proto, 0));
+		mort_show_obj_values(proto, ch, 200);
+		ch->remove_gold(IDENTIFY_COST);
+	}
 }
 
 SPECIAL(shop_ext)
@@ -982,6 +1051,7 @@ SPECIAL(shop_ext)
 	}
 	if (!(CMD_IS("список") || CMD_IS("list")
 		|| CMD_IS("купить") || CMD_IS("buy")
+		|| CMD_IS("рассмотреть") || CMD_IS("examine")
 		|| CMD_IS("характеристики") || CMD_IS("identify")
 		|| CMD_IS("оценить") || CMD_IS("value")
 		|| CMD_IS("продать") || CMD_IS("sell")
@@ -1029,9 +1099,10 @@ SPECIAL(shop_ext)
 	}
 	if (CMD_IS("характеристики") || CMD_IS("identify"))
 	{
-		process_ident(ch, keeper, argument, shop);
+		process_ident(ch, keeper, argument, shop, "Характеристики");
 		return 1;
 	}
+
 
 	if (CMD_IS("value") || CMD_IS("оценить"))
 	{
@@ -1046,6 +1117,11 @@ SPECIAL(shop_ext)
 	if (CMD_IS("чинить") || CMD_IS("repair"))
 	{
 		process_cmd(ch, keeper, argument, shop, "Чинить");
+		return 1;
+	}
+	if (CMD_IS("рассмотреть") || CMD_IS("examine"))
+	{
+		process_ident(ch, keeper, argument, shop, "Рассмотреть");
 		return 1;
 	}
 

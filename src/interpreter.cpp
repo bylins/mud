@@ -789,6 +789,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"учить", POS_STANDING, do_not_here, 0, 0, -1},
 
 	{"хранилище", POS_DEAD, DoStoreHouse, 0, 0, 0},
+	{"характеристики", POS_DEAD, do_not_here, 0, 0, -1},
 
 	{"цвет", POS_DEAD, do_color, 0, 0, 0},
 

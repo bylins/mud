@@ -16,6 +16,7 @@ SPECIAL(shop_ext);
 void load(bool reload);
 int get_spent_today();
 void renumber_obj_rnum(int rnum);
+void update_timers();
 
 } // namespace ShopExt
 

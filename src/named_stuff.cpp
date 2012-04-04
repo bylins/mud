@@ -62,7 +62,7 @@ void save()
 	doc.save_file(LIB_PLRSTUFF"named_stuff_list.xml");
 }
 
-bool check_named(CHAR_DATA * ch, OBJ_DATA * obj, const bool simple)
+bool check_named(CHAR_DATA * ch, const OBJ_DATA * obj, const bool simple)
 {
 	StuffListType::iterator it = stuff_list.find(GET_OBJ_VNUM(obj));
 	if (it != stuff_list.end())

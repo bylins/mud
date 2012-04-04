@@ -40,7 +40,7 @@ void save();
 void load();
 //Проверка доступен ли именной предмет чару, simple без проверки клана и союзов
 //Возвращаемое значение по аналогии с check_anti_classes false-доступен true-недоступен
-bool check_named(CHAR_DATA * ch, OBJ_DATA * obj, const bool simple=false);
+bool check_named(CHAR_DATA * ch, const OBJ_DATA * obj, const bool simple=false);
 bool wear_msg(CHAR_DATA * ch, OBJ_DATA * obj);
 //Процедура получения именного стафа у ямщика
 void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman);
