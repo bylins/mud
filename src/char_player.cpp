@@ -376,11 +376,8 @@ void Player::save_char()
 			strcpy(buf, "Unknown");
 	}
 	fprintf(saved, "Host: %s\n", buf);
-	if (get_ptable_by_unique(GET_UNIQUE(this))>0)
-	{
-		free(player_table[get_ptable_by_unique(GET_UNIQUE(this))].last_ip);
-		player_table[get_ptable_by_unique(GET_UNIQUE(this))].last_ip = str_dup(buf);
-	}
+	free(player_table[this->get_pfilepos()].last_ip);
+	player_table[this->get_pfilepos()].last_ip = str_dup(buf);
 	fprintf(saved, "Id  : %ld\n", GET_IDNUM(this));
 	fprintf(saved, "Exp : %ld\n", GET_EXP(this));
 	if (GET_REMORT(this) > 0)

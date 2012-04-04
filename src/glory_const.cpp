@@ -109,6 +109,22 @@ const int SAVE_FACTOR = 15;
 //Резисты
 const int RESIST_FACTOR = 7;
 
+const char *olc_stat_name[] =
+{
+	"Сила",
+	"Ловкость",
+	"Ум",
+	"Мудрость",
+	"Здоровье",
+	"Обаяние",
+	"Макс.жизнь",
+	"Успех.колдовства",
+	"Воля",
+	"Стойкость",
+	"Реакция",
+	"Разум"
+};
+
 void transfer_log(const char *format, ...)
 {
 	const char *filename = "../log/glory_transfer.log";
@@ -185,54 +201,20 @@ void add_glory(long uid, int amount)
 */
 void print_glory(CHAR_DATA *ch, GloryListType::iterator &it)
 {
-	std::ostringstream out;
+	*buf = '\0';
 	for (std::map<int, int>::const_iterator i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i)
 	{
-		switch (i->first)
+		if ((i->first >= 0) && (i->first < (int)sizeof(olc_stat_name))) {
+			//out << olc_stat_name[i->first] << ": +";
+			sprintf(buf+strlen(buf), "%-16s: +%d\r\n", olc_stat_name[i->first], i->second);
+		}
+		else
 		{
-		case GLORY_STR:
-			out << "Сила : +";
-			break;
-		case GLORY_DEX:
-			out << "Подв : +";
-			break;
-		case GLORY_INT:
-			out << "Ум   : +";
-			break;
-		case GLORY_WIS:
-			out << "Мудр : +";
-			break;
-		case GLORY_CON:
-			out << "Тело : +";
-			break;
-		case GLORY_CHA:
-			out << "Обаян: +";
-			break;
-		case GLORY_HIT:
-			out << "Макс.жизнь: +";
-			break;
-		case GLORY_SUCCESS:
-			out << "Успех.колдовства: +";
-			break;
-		case GLORY_WILL:
-			out << "Воля: +";
-			break;
-		case GLORY_STABILITY:
-			out << "Стойкость: +";
-			break;
-		case GLORY_REFLEX:
-			out << "Реакция: +";
-			break;
-		case GLORY_MIND:
-			out << "Разум: +";
-			break;
-		default:
 			log("Glory: некорректный номер стата %d (uid: %ld)", i->first, it->first);
 		}
-		out << i->second << "\r\n";
 	}
-	out << "Свободных очков: " << it->second->free_glory << "\r\n";
-	send_to_char(out.str(), ch);
+	sprintf(buf+strlen(buf), "Свободных очков : %d\r\n", it->second->free_glory);
+	send_to_char(buf, ch);
 	return;
 }
 
@@ -339,22 +321,6 @@ int remove_stat_cost(int stat, boost::shared_ptr<GloryConst::glory_olc> olc)
 	return glory;
 }
 
-const char *olc_stat_name[] =
-{
-	"Сила",
-	"Ловкость",
-	"Ум",
-	"Мудрость",
-	"Здоровье",
-	"Обаяние",
-	"Макс.жизнь",
-	"Успех.колдовства",
-	"Воля",
-	"Стойкость",
-	"Реакция",
-	"Разум"
-};
-
 const char *olc_del_name[] =
 {
 	"А",
@@ -395,7 +361,7 @@ std::string olc_print_stat(CHAR_DATA *ch, int stat)
 		return "";
 	}
 
-	return boost::str(boost::format("  %-8s :  %s(+%5d)%s  (%s%s%s) %2d (%s%s%s)  %s(-%5d)  | %d%s\r\n")
+	return boost::str(boost::format("  %-16s :  %s(+%5d)%s  (%s%s%s) %2d (%s%s%s)  %s(-%5d)  | %d%s\r\n")
 		% olc_stat_name[stat]
 		% CCINRM(ch, C_NRM)
 		% remove_stat_cost(stat, ch->desc->glory_const)

@@ -78,7 +78,7 @@ SPECIAL(shop_keeper);
 ACMD(do_gen_comm);
 int Crash_delete_file(char *name, int mask);
 int HaveMind(CHAR_DATA * ch);
-char *color_value(CHAR_DATA * ch, int real, int max);
+extern char *color_value(CHAR_DATA * ch, int real, int max);
 int posi_value(int real, int max);
 /* local functions */
 ACMD(do_antigods);

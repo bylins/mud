@@ -483,10 +483,10 @@ void message_auction(char *message, CHAR_DATA * ch)
 				!ROOM_FLAGGED(IN_ROOM(i->character), ROOM_SOUNDPROOF) && GET_POS(i->character) > POS_SLEEPING)
 		{
 			if (COLOR_LEV(i->character) >= C_NRM)
-				send_to_char(CCIYEL(i->character, C_NRM), i->character);
+				send_to_char("&Y&q", i->character);
 			act(message, FALSE, i->character, 0, 0, TO_CHAR | TO_SLEEP);
 			if (COLOR_LEV(i->character) >= C_NRM)
-				send_to_char(CCNRM(i->character, C_NRM), i->character);
+				send_to_char("&Q&n", i->character);
 		}
 	}
 }

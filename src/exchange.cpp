@@ -1842,7 +1842,12 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 				|| ((show_type == 2) && ((GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT) ||
 										 (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) < 200)
 										 || (GET_OBJ_VNUM(GET_EXCHANGE_ITEM(j)) > 299)))
-				|| ((show_type == 3) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR))
+				//|| ((show_type == 3) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR))
+				|| ((show_type == 3) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR)
+							&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_LIGHT)
+							&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_MEDIAN)
+							&& (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_ARMOR_HEAVY)
+					)
 				|| ((show_type == 4) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_WEAPON))
 				|| ((show_type == 5) && (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_BOOK))
 
@@ -1864,7 +1869,8 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 
 		// ну идиотизм сидеть статить 5-10 страниц резных
 		if (is_abbrev("резное запястье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0))
-			|| is_abbrev("широкое серебряное обручье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0)))
+			|| is_abbrev("широкое серебряное обручье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0))
+			|| is_abbrev("медное запястье", GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0)))
 		{
 			sprintbits(GET_EXCHANGE_ITEM(j)->obj_flags.affects, weapon_affects, buf, ",");
 			// небольшое дублирование кода, чтобы зря не гонять по аффектам всех шмоток
@@ -1916,7 +1922,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 			sprintf(tmpbuf, "[%4d]   %s", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0));
 		}
 
-		sprintf(tmpbuf, "%-63s %9d  %-s\r\n", tmpbuf, GET_EXCHANGE_ITEM_COST(j), diag_obj_timer(GET_EXCHANGE_ITEM(j)));
+		sprintf(tmpbuf, "%s %9d  %-s\r\n", colored_name(tmpbuf, 63, true), GET_EXCHANGE_ITEM_COST(j), diag_obj_timer(GET_EXCHANGE_ITEM(j)));
 		// Такое вот кино, на выделения для каждой строчки тут уходило до 0.6 секунды при выводе всего базара. стринги рулят -- Krodo
 		buffer += tmpbuf;
 		any_item = 1;

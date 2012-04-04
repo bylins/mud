@@ -569,8 +569,8 @@ void redit_disp_menu(DESCRIPTOR_DATA * d)
 			"[H[J"
 #endif
 			"-- Комната : [%s%d%s]  	Зона: [%s%d%s]\r\n"
-			"%s1%s) Название    : %s%s\r\n"
-			"%s2%s) Описание    :\r\n%s%s"
+			"%s1%s) Название    : &C&q%s&e&Q\r\n"
+			"%s2&n) Описание    :\r\n%s&e"
 			"%s3%s) Флаги       : %s%s\r\n"
 			"%s4%s) Поверхность : %s%s\r\n"
 			"%s5%s) На севере   : %s%d\r\n"
@@ -586,8 +586,8 @@ void redit_disp_menu(DESCRIPTOR_DATA * d)
 			"Ваш выбор : ",
 			cyn, OLC_NUM(d), nrm,
 			cyn, zone_table[OLC_ZNUM(d)].number, nrm,
-			grn, nrm, yel, room->name,
-			grn, nrm, yel, room->temp_description,
+			grn, nrm, room->name,
+			grn, room->temp_description,
 			grn, nrm, cyn, buf1, grn, nrm, cyn, buf2, grn, nrm, cyn, room->dir_option[NORTH]
 			&& room->dir_option[NORTH]->to_room !=
 			NOWHERE ? world[room->dir_option[NORTH]->to_room]->

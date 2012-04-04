@@ -289,7 +289,7 @@ void NewNameShow(CHAR_DATA * ch)
 	for (NewNameListType::const_iterator it = NewNameList.begin(); it != NewNameList.end(); ++it)
 		buffer << "Имя: " << it->first << " " << it->second->name0 << "/" << it->second->name1
 		<< "/" << it->second->name2 << "/" << it->second->name3 << "/" << it->second->name4
-		<< "/" << it->second->name5 << " Email: " << it->second->email << " Пол: "
+		<< "/" << it->second->name5 << " Email: &S" << it->second->email << "&s Пол: "
 		<< genders[it->second->sex] << "\r\n";
 	buffer << CCNRM(ch, C_NRM);
 	send_to_char(buffer.str(), ch);

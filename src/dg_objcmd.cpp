@@ -144,8 +144,9 @@ OCMD(do_oecho)
 		if (world[room]->people)
 			sub_write(argument, world[room]->people, TRUE, TO_ROOM | TO_CHAR);
 	}
-	else
-		obj_log(obj, "oecho called by object in NOWHERE");
+	// WorM: особой необходимсоти спамить это нету
+	//else
+	//	obj_log(obj, "oecho called by object in NOWHERE");
 }
 
 

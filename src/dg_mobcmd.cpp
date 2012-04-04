@@ -550,6 +550,7 @@ ACMD(do_mpurge)
 ACMD(do_mgoto)
 {
 	char arg[MAX_INPUT_LENGTH];
+	char buf[MAX_INPUT_LENGTH];
 	int location;
 
 	if (!MOB_OR_IMPL(ch))
@@ -569,9 +570,10 @@ ACMD(do_mgoto)
 		return;
 	}
 
-	if ((location = find_target_room(ch, arg, 0)) == NOWHERE)
+	if ((location = find_target_room(ch, arg, 1)) == NOWHERE)
 	{
-		mob_log(ch, "mgoto: invalid location");
+		sprintf(buf, "mgoto: invalid location '%s'", arg);
+		mob_log(ch, buf);
 		return;
 	}
 
@@ -587,6 +589,7 @@ ACMD(do_mgoto)
 ACMD(do_mat)
 {
 	char arg[MAX_INPUT_LENGTH];
+	char buf[MAX_INPUT_LENGTH];
 	int location;
 	int original;
 
@@ -607,9 +610,10 @@ ACMD(do_mat)
 		return;
 	}
 
-	if ((location = find_target_room(ch, arg, 0)) == NOWHERE)
+	if ((location = find_target_room(ch, arg, 1)) == NOWHERE)
 	{
-		mob_log(ch, "mat: invalid location");
+		sprintf(buf, "mat: invalid location '%s'", arg);
+		mob_log(ch, buf);
 		return;
 	}
 

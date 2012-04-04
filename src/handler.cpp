@@ -231,8 +231,8 @@ bool is_wear_light(CHAR_DATA *ch)
 void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef)
 {
 	int light_equip = FALSE;
-	if (!IS_NPC(ch) && !ch->desc)
-		return;
+	//if (!IS_NPC(ch) && !ch->desc) // а какая разница есть дескриптор у перса или нету?
+	//	return;                 // все равно пока он не вошел в игру он в NOWHERE находится
 	if (IN_ROOM(ch) == NOWHERE)
 		return;
 	//if (IS_IMMORTAL(ch))

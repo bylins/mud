@@ -186,8 +186,13 @@ struct inspect_request
 	char *mail;			//мыло
 	int pos;			//позиция в таблице
 	struct logon_data * ip_log;	//айпи адреса по которым идет поиск
+	struct timeval start;		//время когда запустили запрос для отладки
 	std::string out;		//буфер в который накапливается вывод
 };
+
+
+typedef boost::shared_ptr<inspect_request> InspReqPtr;
+typedef std::map < int/* filepos, позиция в player_table перса который делает запрос */, InspReqPtr/* сам запрос */ > InspReqListType;
 
 struct player_special_data_saved
 {
@@ -272,7 +277,6 @@ struct player_special_data
 	boost::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
 
 	struct board_data *board; // последние прочитанные мессаги на досках
-	struct inspect_request *insp_req; // запрос inspect'а
 };
 
 class Player;

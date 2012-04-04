@@ -2668,6 +2668,17 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				gm_flag(subfield, affected_bits,
 						c->char_specials.saved.affected_by, str);
 			}
+			//added by WorM
+			//собственно подозреваю что никто из билдеров даже не вкурсе насчет всего функционала этого affect
+			//тупизм какой-то проверять аффекты обездвижен,летит и т.п.
+			//к тому же они в том списке не все кличи например никак там не отображаются
+			else if (!str_cmp(field, "affected_by"))
+			{
+				if ((num = find_spell_num(subfield)) > 0)
+				{
+					sprintf(str, "%d", (int)affected_by_spell(c, num));
+				}
+			}
 			else if (!str_cmp(field, "action"))
 			{
 				if (IS_NPC(c))

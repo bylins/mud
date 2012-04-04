@@ -29,6 +29,7 @@ using std::list;
 
 /* external declarations and prototypes **********************************/
 
+#define not_null(ptr, str) (ptr && *ptr) ? ptr : str ? str : "undefined"
 extern struct weather_data weather_info;
 extern char AltToKoi[];
 extern char KoiToAlt[];
@@ -1228,8 +1229,8 @@ int awake_sneak(CHAR_DATA * ch);
 int awaking(CHAR_DATA * ch, int mode);
 std::string time_format(int timer, int flag = 0);
 
-int count_colors(char * str);
-char* colored_name(char * str, int len);
+int count_colors(const char * str);
+char* colored_name(const char * str, int len, const bool left_align = false);
 
 /* OS compatibility ******************************************************/
 

@@ -1364,23 +1364,24 @@ void dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int w_type)
 
 	/* damage message to damager */
 	if (dam)
-		send_to_char(CCIYEL(ch, C_CMP), ch);
+		send_to_char("&Y&q", ch);
 	else
-		send_to_char(CCYEL(ch, C_CMP), ch);
+		send_to_char("&y&q", ch);
 	buf = replace_string(dam_weapons[msgnum].to_char,
 						 attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
 	act(buf, FALSE, ch, NULL, victim, TO_CHAR);
-	send_to_char(CCNRM(ch, C_CMP), ch);
+	send_to_char("&Q&n", ch);
 
 	/* damage message to damagee */
-	if (dam)
+	/*if (dam)
 		send_to_char(CCIRED(victim, C_CMP), victim);
 	else
-		send_to_char(CCIRED(victim, C_CMP), victim);
+		send_to_char(CCIRED(victim, C_CMP), victim);*/
+	send_to_char("&R&q", victim);
 	buf = replace_string(dam_weapons[msgnum].to_victim,
 						 attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
 	act(buf, FALSE, ch, NULL, victim, TO_VICT | TO_SLEEP);
-	send_to_char(CCNRM(victim, C_CMP), victim);
+	send_to_char("&Q&n", victim);
 //  sprintf(buf,"Нанесенные повреждения - %d\n",dam);
 //  send_to_char(buf,ch);
 }
@@ -2056,14 +2057,14 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 			affect_join(victim, af + i, TRUE, FALSE, TRUE, FALSE);
 	if (to_char)
 	{
-		sprintf(buf, "%sВаше точное попадание %s.%s", CCIGRN(ch, C_NRM), to_char, CCNRM(ch, C_NRM));
+		sprintf(buf, "&G&qВаше точное попадание %s.&Q&n", to_char);
 		act(buf, FALSE, ch, 0, victim, TO_CHAR);
 		sprintf(buf, "Точное попадание $n1 %s.", to_char);
 		act(buf, TRUE, ch, 0, victim, TO_NOTVICT);
 	}
 	if (to_vict)
 	{
-		sprintf(buf, "%sМеткое попадание $n1 %s.%s", CCIRED(victim, C_NRM), to_vict, CCNRM(victim, C_NRM));
+		sprintf(buf, "&R&qМеткое попадание $n1 %s.&Q&n", to_vict);
 		act(buf, FALSE, ch, 0, victim, TO_VICT);
 	}
 	if (unequip_pos && GET_EQ(victim, unequip_pos))
@@ -2136,8 +2137,7 @@ void might_hit_bash(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (GET_POS(victim) > POS_SITTING)
 	{
 		GET_POS(victim) = POS_SITTING;
-		send_to_char(victim, "%sБогатырский удар %s сбил Вас с ног.%s\r\n",
-				CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
+		send_to_char(victim, "&R&qБогатырский удар %s сбил Вас с ног.&Q&n\r\n", PERS(ch, victim, 1));
 	}
 }
 
@@ -2178,16 +2178,15 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				prob = 0;
 			if (prob * 100 / percent < 100 || dam == 0)
 			{
-				sprintf(buf, "%sВаш богатырский удар пропал впустую.%s\r\n",
-						CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+				sprintf(buf, "&c&qВаш богатырский удар пропал впустую.&Q&n\r\n");
 				send_to_char(buf, ch);
 				lag = 3;
 				dam = 0;
 			}
 			else if (prob * 100 / percent < 150)
 			{
-				sprintf(buf, "%sВаш богатырский удар задел %s.%s\r\n",
-						CCBLU(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
+				sprintf(buf, "&b&qВаш богатырский удар задел %s.&Q&n\r\n",
+						PERS(victim, ch, 3));
 				send_to_char(buf, ch);
 				lag = 1;
 				WAIT_STATE(victim, PULSE_VIOLENCE);
@@ -2199,8 +2198,8 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
 				sprintf(buf,
-						"%sВаше сознание затуманилось после удара %s.%s\r\n",
-						CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
+						"&R&qВаше сознание затуманилось после удара %s.&Q&n\r\n",
+						PERS(ch, victim, 1));
 				send_to_char(buf, victim);
 				act("$N содрогнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT);
 				if (!number(0, 2))
@@ -2210,8 +2209,8 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 			}
 			else if (prob * 100 / percent < 400)
 			{
-				sprintf(buf, "%sВаш богатырский удар пошатнул %s.%s\r\n",
-						CCGRN(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
+				sprintf(buf, "&g&qВаш богатырский удар пошатнул %s.&Q&n\r\n",
+						PERS(victim, ch, 3));
 				send_to_char(buf, ch);
 				lag = 2;
 				dam += (dam / 1);
@@ -2224,8 +2223,8 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
 				sprintf(buf,
-						"%sВаше сознание помутилось после удара %s.%s\r\n",
-						CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
+						"&R&qВаше сознание помутилось после удара %s.&Q&n\r\n",
+						PERS(ch, victim, 1));
 				send_to_char(buf, victim);
 				act("$N пошатнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT);
 				if (!number(0, 1))
@@ -2235,8 +2234,8 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 			}
 			else
 			{
-				sprintf(buf, "%sВаш богатырский удар сотряс %s.%s\r\n",
-						CCIGRN(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
+				sprintf(buf, "&G&qВаш богатырский удар сотряс %s.&Q&n\r\n",
+						PERS(victim, ch, 3));
 				send_to_char(buf, ch);
 				lag = 2;
 				dam *= 4;
@@ -2248,8 +2247,8 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				af.duration = pc_duration(victim, 3, 0, 0, 0, 0);
 				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
-				sprintf(buf, "%sВаше сознание померкло после удара %s.%s\r\n",
-						CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
+				sprintf(buf, "&R&qВаше сознание померкло после удара %s.&Q&n\r\n",
+						PERS(ch, victim, 1));
 				send_to_char(buf, victim);
 				act("$N зашатал$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT);
 				might_hit_bash(ch, victim);
@@ -2282,16 +2281,16 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 			if (prob * 100 / percent < 117 || dam == 0 || MOB_FLAGGED(victim, MOB_NOSTUPOR))
 			{
 				sprintf(buf,
-						"%sВы попытались оглушить %s, но не смогли.%s\r\n",
-						CCCYN(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
+						"&c&qВы попытались оглушить %s, но не смогли.&Q&n\r\n",
+						PERS(victim, ch, 3));
 				send_to_char(buf, ch);
 				lag = 3;
 				dam = 0;
 			}
 			else if (prob * 100 / percent < 300)
 			{
-				sprintf(buf, "%sВаша мощная атака оглушила %s.%s\r\n",
-						CCGRN(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
+				sprintf(buf, "&g&qВаша мощная атака оглушила %s.&Q&n\r\n",
+						PERS(victim, ch, 3));
 				send_to_char(buf, ch);
 				lag = 2;
 				k = ch->get_skill(SKILL_STUPOR) / 30;
@@ -2302,19 +2301,19 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				dam *= MAX(2, number(1, k));
 				WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
 				sprintf(buf,
-						"%sВаше сознание помутилось после удара %s.%s\r\n",
-						CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
+						"&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n",
+						PERS(ch, victim, 1));
 				send_to_char(buf, victim);
 				act("$n оглушил$a $N3.", TRUE, ch, 0, victim, TO_NOTVICT);
 			}
 			else
 			{
 				if (MOB_FLAGGED(victim, MOB_NOBASH))
-					sprintf(buf, "%sВаш мощнейший удар оглушил %s.%s\r\n",
-							CCIGRN(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
+					sprintf(buf, "&G&qВаш мощнейший удар оглушил %s.&Q&n\r\n",
+							PERS(victim, ch, 3));
 				else
-					sprintf(buf, "%sВаш мощнейший удар сбил %s с ног.%s\r\n",
-							CCIGRN(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
+					sprintf(buf, "&G&qВаш мощнейший удар сбил %s с ног.&Q&n\r\n",
+							PERS(victim, ch, 3));
 				send_to_char(buf, ch);
 				if (MOB_FLAGGED(victim, MOB_NOBASH))
 					act("$n мощным ударом оглушил$a $N3.", TRUE, ch, 0, victim, TO_NOTVICT);
@@ -2332,15 +2331,15 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				if (GET_POS(victim) > POS_SITTING && !MOB_FLAGGED(victim, MOB_NOBASH))
 				{
 					GET_POS(victim) = POS_SITTING;
-					sprintf(buf, "%sОглушающий удар %s сбил Вас с ног.%s\r\n",
-							CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
+					sprintf(buf, "&R&qОглушающий удар %s сбил Вас с ног.&Q&n\r\n",
+							PERS(ch, victim, 1));
 					send_to_char(buf, victim);
 				}
 				else
 				{
 					sprintf(buf,
-							"%sВаше сознание помутилось после удара %s.%s\r\n",
-							CCIRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
+							"&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n",
+							PERS(ch, victim, 1));
 					send_to_char(buf, victim);
 				}
 			}
@@ -2464,9 +2463,8 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 */
 void try_remove_extrahits(CHAR_DATA *ch, CHAR_DATA *victim)
 {
-	if ((!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
+	if (((!IS_NPC(ch) && ch != victim) || (ch->master && !IS_NPC(ch->master) && ch->master != victim))
 		&& !IS_NPC(victim)
-		&& ch != victim
 		&& GET_POS(victim) != POS_DEAD
 		&& GET_HIT(victim) > GET_REAL_MAX_HIT(victim) * 1.5
 		&& number(1, 100) == 1)
@@ -2714,11 +2712,11 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		dam = compute_critical(ch, victim, dam);
 		if (!dam_critic && attacktype != SPELL_POISON)
 		{
-			sprintf(buf, "%sВаше меткое попадание тяжело ранило %s.%s\r\n",
-					CCIBLU(ch, C_NRM), PERS(victim, ch, 3), CCNRM(ch, C_NRM));
+			sprintf(buf, "&B&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
+					PERS(victim, ch, 3));
 			send_to_char(buf, ch);
-			sprintf(buf, "%sМеткое попадание %s тяжело ранило Вас.%s\r\n",
-					CCRED(victim, C_NRM), PERS(ch, victim, 1), CCNRM(victim, C_NRM));
+			sprintf(buf, "&r&qМеткое попадание %s тяжело ранило Вас.&Q&n\r\n",
+					PERS(ch, victim, 1));
 			send_to_char(buf, victim);
 			/* Закомментил чтобы не спамило, сделать потом в виде режима */
 			//act("Меткое попадание $N1 заставило $n3 пошатнуться.", TRUE, victim, 0, ch, TO_NOTVICT);
@@ -2801,7 +2799,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 					send_to_char(victim, "%s пожетрвовал%s своей жизнью, вытаскивая Вас с того света!\r\n",
 							GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
 					snprintf(buf, MAX_STRING_LENGTH, "%s пожетрвовал%s своей жизнью, вытаскивая %s с того света!",
-							GET_PAD(keeper, 0), GET_CH_SUF_1(keeper), GET_PAD(victim, 1));
+							GET_PAD(keeper, 0), GET_CH_SUF_1(keeper), GET_PAD(victim, 3));
 					act(buf, FALSE, victim, 0, 0, TO_ROOM);
 
 					extract_char(keeper, 0);
@@ -4712,7 +4710,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		&& !AFF_FLAGGED(victim, AFF_STOPFIGHT)
 		&& !AFF_FLAGGED(victim, AFF_MAGICSTOPFIGHT)
 		&& GET_MOB_HOLD(victim) == 0
-		&& BATTLECNTR(victim) <= (GET_LEVEL(victim) + 7 / 8))
+		&& BATTLECNTR(victim) < (GET_LEVEL(victim) + 7) / 8)
 	{
 		/**** Обработаем команду   УКЛОНИТЬСЯ */
 		hit_deviate(ch, victim, &dam);

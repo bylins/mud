@@ -132,7 +132,7 @@ extern struct zone_data *zone_table;
 extern const char *save_info_msg[];	/* In olc.cpp */
 extern CHAR_DATA *character_list;
 extern CHAR_DATA *combat_list;
-extern void proc_color(char *inbuf, int color);
+extern int proc_color(char *inbuf, int color);
 extern void tact_auction(void);
 extern time_t boot_time;
 extern void log_code_date();
@@ -205,7 +205,7 @@ int perform_alias(DESCRIPTOR_DATA * d, char *orig);
 void record_usage(void);
 char *make_prompt(DESCRIPTOR_DATA * point);
 void check_idle_passwords(void);
-void heartbeat();
+void heartbeat(const int missed_pulses);
 struct in_addr *get_bind_addr(void);
 int parse_ip(const char *addr, struct in_addr *inaddr);
 int set_sendbuf(socket_t s);
@@ -1169,7 +1169,7 @@ void game_loop(socket_t mother_desc)
 		while (missed_pulses--)
 		{
 			process_io(input_set, output_set, exc_set, null_set, mother_desc, maxdesc);
-			heartbeat();
+			heartbeat(missed_pulses);
 		}
 
 		// dupe_player_index();
@@ -1185,8 +1185,11 @@ void game_loop(socket_t mother_desc)
 void beat_points_update(int pulse);
 #define FRAC_SAVE TRUE
 
-extern void inspecting(CHAR_DATA *ch);
-inline void heartbeat()
+//вызов инспекта
+extern void inspecting();
+//список запросов инспекта
+extern InspReqListType inspect_list;
+inline void heartbeat(const int missed_pulses)
 {
 	static int mins_since_crashsave = 0, pulse = 0;
 //	static int lr_firstrun = 1;
@@ -1255,16 +1258,8 @@ inline void heartbeat()
 		mobile_activity(pulse, 10);
 	}
 	//log("Stop it...");
-	if (!(pulse % 2))
-	{
-		DESCRIPTOR_DATA *pt;
-		for (pt = descriptor_list; pt; pt = pt->next)
-			if (STATE(pt) == CON_PLAYING && pt->character && !IS_NPC(pt->character) && pt->character->player_specials->insp_req)
-		{
-			inspecting(pt->character);
-			break;
-		}
-	}
+	if ((missed_pulses == 0) && (inspect_list.size() > 0))
+		inspecting();
 
 	if (!(pulse % (2 * PASSES_PER_SEC)))
 	{
@@ -1711,29 +1706,29 @@ int posi_value(int real, int max)
 
 char *color_value(CHAR_DATA * ch, int real, int max)
 {
-	static char color[256];
+	static char color[8];
 	switch (posi_value(real, max))
 	{
 	case -1:
 	case 0:
 	case 1:
-		sprintf(color, "%s", CCRED(ch, C_NRM));
+		sprintf(color, "&r");
 		break;
 	case 2:
 	case 3:
-		sprintf(color, "%s", CCIRED(ch, C_NRM));
+		sprintf(color, "&R");
 		break;
 	case 4:
 	case 5:
-		sprintf(color, "%s", CCIYEL(ch, C_NRM));
+		sprintf(color, "&Y");
 		break;
 	case 6:
 	case 7:
 	case 8:
-		sprintf(color, "%s", CCIGRN(ch, C_NRM));
+		sprintf(color, "&G");
 		break;
 	default:
-		sprintf(color, "%s", CCGRN(ch, C_NRM));
+		sprintf(color, "&g");
 		break;
 	}
 	return (color);
@@ -1784,7 +1779,7 @@ char *show_state(CHAR_DATA * ch, CHAR_DATA * victim)
 										};
 
 	ch_hp = posi_value(GET_HIT(victim), GET_REAL_MAX_HIT(victim)) + 1;
-	sprintf(buf, "%s[%s:%s%s]%s ",
+	sprintf(buf, "%s&q[%s:%s%s]%s&Q ",
 			color_value(ch, GET_HIT(victim), GET_REAL_MAX_HIT(victim)),
 			PERS(victim, ch, 0), WORD_STATE[ch_hp], GET_CH_SUF_6(victim), CCNRM(ch, C_NRM));
 	return buf;
@@ -2339,7 +2334,8 @@ int process_output(DESCRIPTOR_DATA * t)
 		{
 			if (*(i+c)=='\n' || *(i+c)=='\r')
 				break;
-			else if (*(i+c)!=';' && *(i+c)!='\033' && *(i+c)!='m' && !(*(i+c)>='0' && *(i+c)<='9')  && *(i+c)!='[')
+			else if (*(i+c)!=';' && *(i+c)!='\033' && *(i+c)!='m' && !(*(i+c)>='0' && *(i+c)<='9') &&
+			         *(i+c)!='[' && *(i+c)!='&' && *(i+c)!='n' && *(i+c)!='R'  && *(i+c)!='Q' && *(i+c)!='q')
 			{
 				strcat(i, "\r\n");
 				break;
@@ -2351,8 +2347,13 @@ int process_output(DESCRIPTOR_DATA * t)
 	strncat(i, make_prompt(t), MAX_PROMPT_LENGTH);
 
 	/* easy color */
-	if (t->character)
-		proc_color(i, (clr(t->character, C_NRM)));
+	int pos;
+	if ((t->character) && (pos = proc_color(i, (clr(t->character, C_NRM)))))
+	{
+		sprintf(buf, "SYSERR: %s pos:%d player:%s in proc_color!", (pos<0?(pos==-1?"NULL buffer":"zero length buffer"):"go out of buffer"), pos, GET_NAME(t->character));
+		mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
+	}
+		
 
 	/*
 	 * now, send the output.  If this is an 'interruption', use the prepended
@@ -3563,10 +3564,14 @@ void send_to_room(const char *messg, room_rnum room, int to_awake)
 }
 
 
+#define CHK_NULL(pointer, expression) \
+  ((pointer) == NULL) ? ACTNULL : (expression)
+
 /* higher-level communication: the act() function */
 void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, CHAR_DATA * to)
 {
 	const char *i = NULL;
+	char nbuf[256];
 	char lbuf[MAX_STRING_LENGTH], *buf;
 	ubyte padis;
 	int stopbyte;
@@ -3584,22 +3589,30 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 			{
 			case 'n':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
-					i = (!IS_NPC(ch) && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_NAME(ch) : PERS(ch, to, 0);
+				{
+					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", (!IS_NPC(ch) && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_NAME(ch) : PERS(ch, to, 0));
+					i = nbuf;
+					//i = (!IS_NPC(ch) && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_NAME(ch) : PERS(ch, to, 0);
+				}
 				else
 				{
 					padis = *(++orig) - '0';
-					i = (!IS_NPC(ch) && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_PAD(ch, padis) : PERS(ch, to, padis);
+					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", (!IS_NPC(ch) && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_PAD(ch, padis) : PERS(ch, to, padis));
+					i = nbuf;
+					//i = (!IS_NPC(ch) && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_PAD(ch, padis) : PERS(ch, to, padis);
 				}
 				break;
 			case 'N':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
 				{
-					CHECK_NULL(vict_obj, PERS((const CHAR_DATA *) vict_obj, to, 0));
+					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj, PERS((const CHAR_DATA *) vict_obj, to, 0)));
+					i = nbuf;
 				}
 				else
 				{
 					padis = *(++orig) - '0';
-					CHECK_NULL(vict_obj, PERS((const CHAR_DATA *) vict_obj, to, padis));
+					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj, PERS((const CHAR_DATA *) vict_obj, to, padis)));
+					i = nbuf;
 				}
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
@@ -3640,24 +3653,28 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 			case 'o':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
 				{
-					CHECK_NULL(obj, OBJN(obj, to, 0));
+					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(obj, OBJN(obj, to, 0)));
+					i = nbuf;
 				}
 				else
 				{
 					padis = *(++orig) - '0';
-					CHECK_NULL(obj, OBJN(obj, to, padis > 5 ? 0 : padis));
+					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(obj, OBJN(obj, to, padis > 5 ? 0 : padis)));
+					i = nbuf;
 				}
 				break;
 			case 'O':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
 				{
-					CHECK_NULL(vict_obj, OBJN((const OBJ_DATA *) vict_obj, to, 0));
+					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj, OBJN((const OBJ_DATA *) vict_obj, to, 0)));
+					i = nbuf;
 				}
 				else
 				{
 					padis = *(++orig) - '0';
-					CHECK_NULL(vict_obj,
-							   OBJN((const OBJ_DATA *) vict_obj, to, padis > 5 ? 0 : padis));
+					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj,
+							   OBJN((const OBJ_DATA *) vict_obj, to, padis > 5 ? 0 : padis)));
+					i = nbuf;
 				}
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;

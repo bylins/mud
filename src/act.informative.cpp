@@ -1718,15 +1718,15 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 			send_to_char(buf, ch);
 	}
 
-	send_to_char(CCIYEL(ch, C_NRM), ch);
+	send_to_char("&Y&q", ch);
 //  if (IS_SET(GET_SPELL_TYPE(ch, SPELL_TOWNPORTAL),SPELL_KNOW))
 	if (ch->get_skill(SKILL_TOWNPORTAL))
 		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room)))
 			send_to_char("Рунный камень с изображением пентаграммы немного выступает из земли.\r\n", ch);
 	list_obj_to_char(world[ch->in_room]->contents, ch, 0, FALSE);
-	send_to_char(CCIRED(ch, C_NRM), ch);
+	send_to_char("&R&q", ch);
 	list_char_to_char(world[ch->in_room]->people, ch);
-	send_to_char(CCNRM(ch, C_NRM), ch);
+	send_to_char("&Q&n", ch);
 }
 
 int get_pick_chance(int skill_pick, int lock_complexity)
@@ -1785,7 +1785,7 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			send_to_char(buf, ch);
 			if (info_is & EXIT_SHOW_LOOKING)
 			{
-				send_to_char(CCIRED(ch, C_NRM), ch);
+				send_to_char("&R&q", ch);
 				for (count = 0, tch = world[rdata->to_room]->people; tch; tch = tch->next_in_room)
 				{
 					percent = number(1, skill_info[SKILL_LOOKING].max_percent);
@@ -1800,7 +1800,7 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 				}
 				if (!count)
 					send_to_char("Вы ничего не смогли разглядеть!\r\n", ch);
-				send_to_char(CCNRM(ch, C_NRM), ch);
+				send_to_char("&Q&n", ch);
 			}
 		}
 		else
@@ -1810,9 +1810,9 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			else
 				count += sprintf(buf + count, "%s\r\n", world[rdata->to_room]->name);
 			send_to_char(buf, ch);
-			send_to_char(CCIRED(ch, C_NRM), ch);
+			send_to_char("&R&q", ch);
 			list_char_to_char(world[rdata->to_room]->people, ch);
-			send_to_char(CCNRM(ch, C_NRM), ch);
+			send_to_char("&Q&n", ch);
 		}
 	}
 	else if (info_is & EXIT_SHOW_WALL)
@@ -3050,9 +3050,13 @@ ACMD(do_score)
 //Напоминаем о метке, если она есть.
         label_room  = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
 		if (label_room)
+		{
 			sprintf(buf + strlen(buf),
-					" %s|| %sВы поставили рунную метку в комнате '%-43s%s||\r\n",
-					CCCYN(ch, C_NRM), CCIGRN(ch, C_NRM), string(label_room->name+string("'.")).c_str(), CCCYN(ch, C_NRM));
+					" %s|| &G&qВы поставили рунную метку в комнате %s%s||\r\n",
+					CCCYN(ch, C_NRM),
+					colored_name(string(string("'")+label_room->name+string("&n&Q'.")).c_str(), 44),
+					CCCYN(ch, C_NRM));
+		}
 
 		int glory = Glory::get_glory(GET_UNIQUE(ch));
 		if (glory)
@@ -3340,8 +3344,8 @@ ACMD(do_score)
     label_room  = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
     if (label_room)
         sprintf(buf + strlen(buf),
-                "%sВы поставили рунную метку в комнате '%s%s\r\n",
-                CCIGRN(ch, C_NRM), string(label_room->name+string("'.")).c_str(), CCCYN(ch, C_NRM));
+                "&G&qВы поставили рунную метку в комнате '%s'.&Q&n\r\n",
+                string(label_room->name).c_str());
 
 	int glory = Glory::get_glory(GET_UNIQUE(ch));
 	if (glory)
@@ -4264,7 +4268,7 @@ ACMD(do_who)
 				if (showname)
 				{
 					sprintf(buf + strlen(buf),
-							"\r\nПадежи: %s/%s/%s/%s/%s/%s Email: %s Пол: %s",
+							"\r\nПадежи: %s/%s/%s/%s/%s/%s Email: &S%s&s Пол: %s",
 							GET_PAD(tch, 0), GET_PAD(tch, 1), GET_PAD(tch, 2),
 							GET_PAD(tch, 3), GET_PAD(tch, 4), GET_PAD(tch, 5), GET_EMAIL(tch),
 							genders[(int)GET_SEX(tch)]);
@@ -5080,7 +5084,7 @@ void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur)
 	}
 	else if (obj->worn_by)
 	{
-		sprintf(buf + strlen(buf), "надет на %s\r\n", PERS(obj->worn_by, ch, 1));
+		sprintf(buf + strlen(buf), "надет на %s[%d] в комнате [%d]\r\n", PERS(obj->worn_by, ch, 3), GET_MOB_VNUM(obj->worn_by), world[obj->worn_by->in_room]->number);
 		send_to_char(buf, ch);
 	}
 	else if (obj->in_obj)
@@ -5102,10 +5106,10 @@ void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur)
 * Иммский поиск шмоток по 'где' с проходом как по глобальному списку, так
 * и по спискам хранилищ и почты.
 */
-bool print_imm_where_obj(CHAR_DATA *ch, char *arg)
+bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 {
 	bool found = false;
-	int num = 1;
+	//int num = 1;
 	for (OBJ_DATA *k = object_list; k; k = k->next)
 	{
 		if (isname(arg, k->name))
@@ -5125,14 +5129,17 @@ bool print_imm_where_obj(CHAR_DATA *ch, char *arg)
 	if (!found && tmp_num == num)
 		return false;
 	else
+	{
+		num = tmp_num;
 		return true;
+	}
 }
 
 void perform_immort_where(CHAR_DATA * ch, char *arg)
 {
 	register CHAR_DATA *i;
 	DESCRIPTOR_DATA *d;
-	int num = 0, found = 0;
+	int num = 1, found = 0;
 
 	if (!*arg)
 	{
@@ -5168,12 +5175,12 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 			if (CAN_SEE(ch, i) && i->in_room != NOWHERE && isname(arg, i->get_pc_name()))
 			{
 				found = 1;
-				sprintf(buf, "M%3d. %-25s - [%5d] %s\r\n", ++num, GET_NAME(i),
+				sprintf(buf, "M%3d. %-25s - [%5d] %s\r\n", num++, GET_NAME(i),
 						GET_ROOM_VNUM(IN_ROOM(i)), world[IN_ROOM(i)]->name);
 				send_to_char(buf, ch);
 			}
 		}
-		if (!found && !print_imm_where_obj(ch, arg))
+		if (!print_imm_where_obj(ch, arg, num) && !found)
 			send_to_char("Нет ничего похожего.\r\n", ch);
 	}
 }
@@ -5439,6 +5446,8 @@ ACMD(do_zone)
 	else
 	{
 		send_to_char(ch, "%s.\r\n", zone_table[world[ch->in_room]->zone].name);
+		if ((IS_IMMORTAL(ch) || Privilege::check_flag(ch, Privilege::KRODER)) && zone_table[world[ch->in_room]->zone].comment)
+			send_to_char(ch, "%s.\r\n", zone_table[world[ch->in_room]->zone].comment);
 	}
 }
 

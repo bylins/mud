@@ -1987,7 +1987,7 @@ const char *HCONTROL_FORMAT =
 	"        hcontrol rank <vnum ренты> <старое звание муж рода> <звание для муж рода> <звание для жен рода>\r\n"
 	"        hcontrol owner <vnum ренты> <имя нового воеводы>\r\n"
 	"        hcontrol ingr <vnum ренты> <vnum комнаты для сундука с ингредиентами>\r\n"
-    "        hcontrol exphitory <число месяцев>\r\n";
+	"        hcontrol exphitory <число месяцев>\r\n";
 
 
 /**
@@ -2551,7 +2551,7 @@ ACMD(DoClanPkList)
 	else if (CompareParam(buffer2, "все") || CompareParam(buffer2, "all"))
 	{
 		// выводим весь список
-		send_to_char(ch, "%sСписок отображатеся полностью:%s\r\n\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		send_to_char(ch, "%sСписок отображается полностью:%s\r\n\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		// пкл
 		if (!subcmd)
 			for (ClanPkList::const_iterator it = CLAN(ch)->pkList.begin(); it != CLAN(ch)->pkList.end(); ++it)
@@ -2732,7 +2732,7 @@ ACMD(DoClanPkList)
 		if (online)
 			send_to_char(ch, "%sОтображаются только находящиеся в игре персонажи:%s\r\n\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		else
-			send_to_char(ch, "%sСписок отображатеся полностью:%s\r\n\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+			send_to_char(ch, "%sСписок отображается полностью:%s\r\n\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 
 		std::ostringstream out;
 

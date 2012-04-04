@@ -172,6 +172,15 @@ int is_colour(char code)
 	case 'u':
 		return 28;
 		break;		/* Underline (Only for mono screens) */
+	case 'q':
+		return -2;
+		break;		// set default color to current
+	case 'Q':
+		return -3;
+		break;		// set default color back to normal
+	case 'e':
+		return -4;
+		break;		// print error when color not reseted to normal
 
 	default:
 		return -1;
@@ -180,17 +189,21 @@ int is_colour(char code)
 	return -1;
 }
 
-void proc_color(char *inbuf, int colour)
+int proc_color(char *inbuf, int colour)
 {
 	register int j = 0, p = 0;
-	int k, max, c = 0;
-	bool show_all=false;
+	int k, max, c = 0, tmp = 0, nc = 0; // normal colour CNRM by default
+	bool show_all = false;
 	char out_buf[32768];
 
-	if (inbuf[0] == '\0')
-		return;
+	if (inbuf == NULL)
+		return -1;
 
-	while (inbuf[j] != '\0')
+	int len = strlen(inbuf);
+	if (len == 0)
+		return -2;
+
+	while (j < len)
 	{
 		// WorM: Добавил ключи &S и &s, начало и конец текста без обработки цветов и _
 		if (inbuf[j] == '&' && ((!show_all && inbuf[j + 1] == 'S') || (show_all && inbuf[j + 1] == 's')))
@@ -205,10 +218,26 @@ void proc_color(char *inbuf, int colour)
 			c = (inbuf[j + 2] - '0') * 10 + inbuf[j + 3] - '0';
 			j += 4;
 		}
-		else if (!show_all && (inbuf[j] == '&') && !(is_colour(inbuf[j + 1]) == -1))
+		else if (!show_all && (inbuf[j] == '&') && !((tmp = is_colour(inbuf[j + 1])) == -1))
 		{
-			c = is_colour(inbuf[j + 1]);
 			j += 2;
+			if (tmp == -4)
+			{
+				// ключ &e выводит три воскл.знака если тут не закрыты цвета ключом &n
+				if (c != nc)
+				{
+					out_buf[p++] = '!';
+					out_buf[p++] = '!';
+					out_buf[p++] = '!';
+				}
+			}
+			else
+			{
+		        	// WorM: ключ &q сохраняем текущий цвет как стандартный &n вместо 0 будет возвращать его
+				(tmp < 0 ? nc : c) = (tmp == -2 ? c : (tmp == -3 ? 0 : tmp));
+			}
+			if (tmp < 0)
+				continue;
 		}
 		else
 		{
@@ -219,16 +248,18 @@ void proc_color(char *inbuf, int colour)
 		}
 		if (c >= MAX_COLORS)
 			c = 0;
-		max = strlen(COLOURLIST[c]);
+		max = strlen(COLOURLIST[(c == 0 && nc != 0 ? nc : c)]);
 		if (colour || max == 1)
 			for (k = 0; k < max; k++)
 			{
-				out_buf[p] = COLOURLIST[c][k];
+				out_buf[p] = COLOURLIST[(c == 0 && nc != 0 ? nc : c)][k];
 				p++;
 			}
 	}
-
 	out_buf[p] = '\0';
 
 	strcpy(inbuf, out_buf);
+	if (j > len)
+		return j;
+	return 0;
 }

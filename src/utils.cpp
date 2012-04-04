@@ -2647,7 +2647,7 @@ long GetAffectNumByName(std::string affName)
 	return -1;
 }
 
-int count_colors(char * str)//считает кол-во цветов &R и т.п. в строке
+int count_colors(const char * str)//считает кол-во цветов &R и т.п. в строке
 {
 	unsigned int c, cc=0;
 	for (c=0; c<strlen(str)-1; c++)
@@ -2658,7 +2658,9 @@ int count_colors(char * str)//считает кол-во цветов &R и т.п. в строке
 	return cc;
 }
 
-char* colored_name(char * str, int len)//возвращает строку длины len + кол-во цветов*2 для того чтоб в табличке все было ровненько
+//возвращает строку длины len + кол-во цветов*2 для того чтоб в табличке все было ровненько
+//left_align выравнивание строки влево
+char* colored_name(const char * str, int len, const bool left_align)
 {
 	static char cstr[128];
 	char fmt[6];
@@ -2666,7 +2668,7 @@ char* colored_name(char * str, int len)//возвращает строку длины len + кол-во цв
 	cc = len + count_colors(str) * 2;
 	if (strlen(str)<cc)
 	{
-		snprintf(fmt, sizeof(fmt), "%%%ds", cc);
+		snprintf(fmt, sizeof(fmt), "%%%s%ds", (left_align?"-":""), cc);
 		snprintf(cstr, sizeof(cstr), fmt, str);
 	}
 	else

@@ -136,15 +136,15 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 				case SKILL_THROW + TYPE_HIT:
 				case SKILL_BASH + TYPE_HIT:
 				case SKILL_KICK + TYPE_HIT:
-					send_to_char(CCWHT(ch, C_CMP), ch);
+					send_to_char("&W&q", ch);
 					break;
 				default:
-					send_to_char(CCYEL(ch, C_CMP), ch);
+					send_to_char("&y&q", ch);
 					break;
 				}
 				act(msg->god_msg.attacker_msg, FALSE, ch, weap, vict,
 					TO_CHAR);
-				send_to_char(CCNRM(ch, C_CMP), ch);
+				send_to_char("&Q&n", ch);
 
 				act(msg->god_msg.victim_msg, FALSE, ch, weap, vict, TO_VICT);
 				act(msg->god_msg.room_msg, FALSE, ch, weap, vict,
@@ -154,28 +154,28 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 			{
 				if (GET_POS(vict) == POS_DEAD)
 				{
-					send_to_char(CCIYEL(ch, C_CMP), ch);
+					send_to_char("&Y&q", ch);
 					act(msg->die_msg.attacker_msg, FALSE, ch, weap, vict,
 						TO_CHAR);
-					send_to_char(CCNRM(ch, C_CMP), ch);
+					send_to_char("&Q&n", ch);
 
-					send_to_char(CCIRED(vict, C_CMP), vict);
+					send_to_char("&R&q", vict);
 					act(msg->die_msg.victim_msg, FALSE, ch, weap, vict,
 						TO_VICT | TO_SLEEP);
-					send_to_char(CCNRM(vict, C_CMP), vict);
+					send_to_char("&Q&n", vict);
 					act(msg->die_msg.room_msg, FALSE, ch, weap, vict,
 						TO_NOTVICT);
 				}
 				else
 				{
-					send_to_char(CCIYEL(ch, C_CMP), ch);
+					send_to_char("&Y&q", ch);
 					act(msg->hit_msg.attacker_msg, FALSE, ch, weap, vict,
 						TO_CHAR);
-					send_to_char(CCNRM(ch, C_CMP), ch);
-					send_to_char(CCIRED(vict, C_CMP), vict);
+					send_to_char("&Q&n", ch);
+					send_to_char("&R&q", vict);
 					act(msg->hit_msg.victim_msg, FALSE, ch, weap, vict,
 						TO_VICT | TO_SLEEP);
-					send_to_char(CCNRM(vict, C_CMP), vict);
+					send_to_char("&Q&n", vict);
 					act(msg->hit_msg.room_msg, FALSE, ch, weap, vict,
 						TO_NOTVICT);
 				}
@@ -188,20 +188,20 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 				case SKILL_THROW + TYPE_HIT:
 				case SKILL_BASH + TYPE_HIT:
 				case SKILL_KICK + TYPE_HIT:
-					send_to_char(CCWHT(ch, C_CMP), ch);
+					send_to_char("&W&q", ch);
 					break;
 				default:
-					send_to_char(CCYEL(ch, C_CMP), ch);
+					send_to_char("&y&q", ch);
 					break;
 				}
 				act(msg->miss_msg.attacker_msg, FALSE, ch, weap, vict,
 					TO_CHAR);
-				send_to_char(CCNRM(ch, C_CMP), ch);
+				send_to_char("&Q&n", ch);
 
-				send_to_char(CCRED(vict, C_CMP), vict);
+				send_to_char("&r&q", vict);
 				act(msg->miss_msg.victim_msg, FALSE, ch, weap, vict,
 					TO_VICT | TO_SLEEP);
-				send_to_char(CCNRM(vict, C_CMP), vict);
+				send_to_char("&Q&n", vict);
 
 				act(msg->miss_msg.room_msg, FALSE, ch, weap, vict,
 					TO_NOTVICT);

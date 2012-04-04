@@ -180,13 +180,10 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	dst->set_normal_morph();//вот это копировать не нада
 
 	// Теперь дублирую память
-	GET_LDESC(dst) = str_dup((GET_LDESC(src)
-							  && *GET_LDESC(src)) ? GET_LDESC(src) : "неопределен");
-	GET_DDESC(dst) = str_dup((GET_DDESC(src)
-							  && *GET_DDESC(src)) ? GET_DDESC(src) : "неопределен");
+	GET_LDESC(dst) = str_dup(not_null(GET_LDESC(src), "неопределен"));
+	GET_DDESC(dst) = str_dup(not_null(GET_DDESC(src), "неопределен"));
 	for (j = 0; j < NUM_PADS; j++)
-		GET_PAD(dst, j) = str_dup(GET_PAD(src, j)
-								  && *GET_PAD(src, j) ? GET_PAD(src, j) : "неопределен");
+		GET_PAD(dst, j) = str_dup(not_null(GET_PAD(src, j), "неопределен"));
 	dst->mob_specials.Questor = (src->mob_specials.Questor
 								 && *src->mob_specials.Questor ? str_dup(src->mob_specials.Questor)
 								 : NULL);
@@ -642,31 +639,21 @@ void medit_save_to_disk(int zone_num)
 			/*
 			 * Clean up strings.
 			 */
-			strcpy(buf1, (GET_LDESC(mob)
-						  && *GET_LDESC(mob)) ? GET_LDESC(mob) : "неопределен");
+			strcpy(buf1, not_null(GET_LDESC(mob), "неопределен"));
 			strip_string(buf1);
-			strcpy(buf2, (GET_DDESC(mob)
-						  && *GET_DDESC(mob)) ? GET_DDESC(mob) : "undefined");
+			strcpy(buf2, not_null(GET_DDESC(mob), "undefined"));
 			strip_string(buf2);
 
 
 			fprintf(mob_file,
-					"%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n", (GET_ALIAS(mob)
-							&&
-							*GET_ALIAS
-							(mob)) ?
-					GET_ALIAS(mob) : "неопределен", (GET_PAD(mob, 0)
-							&& *GET_PAD(mob, 0)) ? GET_PAD(mob, 0) : "кто",
-					(GET_PAD(mob, 1)
-					 && *GET_PAD(mob, 1)) ? GET_PAD(mob, 1) : "кого", (GET_PAD(mob, 2)
-							 && *GET_PAD(mob, 2)) ? GET_PAD(mob,
-															2) :
-					"кому", (GET_PAD(mob, 3)
-								 && *GET_PAD(mob, 3)) ? GET_PAD(mob, 3) : "кого", (GET_PAD(mob, 4)
-										 && *GET_PAD(mob,
-													 4)) ?
-					GET_PAD(mob, 4) : "кем", (GET_PAD(mob, 5)
-												 && *GET_PAD(mob, 5)) ? GET_PAD(mob, 5) : "о ком", buf1, buf2);
+					"%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n",
+					not_null(GET_ALIAS(mob), "неопределен"),
+					not_null(GET_PAD(mob, 0), "кто"),
+					not_null(GET_PAD(mob, 1), "кого"),
+					not_null(GET_PAD(mob, 2), "кому"),
+					not_null(GET_PAD(mob, 3), "кого"),
+					not_null(GET_PAD(mob, 4), "кем"),
+					not_null(GET_PAD(mob, 5), "о ком"), buf1, buf2);
 			if (mob->mob_specials.Questor)
 				strcpy(buf1, mob->mob_specials.Questor);
 			else
@@ -1359,14 +1346,14 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 			"-- МОБ:  [%s%d%s]\r\n"
 			"%s1%s) Пол: %s%-7.7s%s\r\n"
 			"%s2%s) Синонимы: %s%s\r\n"
-			"%s3%s) Именительный (это кто)         : %s%s\r\n"
-			"%s4%s) Родительный (нет кого)         : %s%s\r\n"
-			"%s5%s) Дательный  (дать кому)         : %s%s\r\n"
-			"%s6%s) Винительный (ударить кого)     : %s%s\r\n"
-			"%s7%s) Творительный (сражаться с кем) : %s%s\r\n"
-			"%s8%s) Предложный (ехать на ком)      : %s%s\r\n"
-			"%s9%s) Короткое :-\r\n%s%s"
-			"%sA%s) Детальное:-\r\n%s%s"
+			"%s3&n) Именительный (это кто)         : %s&e\r\n"
+			"%s4&n) Родительный (нет кого)         : %s&e\r\n"
+			"%s5&n) Дательный  (дать кому)         : %s&e\r\n"
+			"%s6&n) Винительный (ударить кого)     : %s&e\r\n"
+			"%s7&n) Творительный (сражаться с кем) : %s&e\r\n"
+			"%s8&n) Предложный (ехать на ком)      : %s&e\r\n"
+			"%s9&n) Короткое :-\r\n&R&q%s&Q&e"
+			"%sA%s) Детальное:-\r\n%s"
 			"%sB%s) Уровень    : [%s%4d%s],%sC%s) Наклонности:  [%s%4d%s]\r\n"
 			"%sD%s) Хитролы    : [%s%4d%s],%sE%s) Дамролы:      [%s%4d%s]\r\n"
 			"%sF%s) NumDamDice : [%s%4d%s],%sG%s) SizeDamDice:  [%s%4d%s]\r\n"
@@ -1376,14 +1363,14 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 			cyn, OLC_NUM(d), nrm,
 			grn, nrm, yel, genders[(int) GET_SEX(mob)], nrm,
 			grn, nrm, yel, GET_ALIAS(mob),
-			grn, nrm, yel, GET_PAD(mob, 0),
-			grn, nrm, yel, GET_PAD(mob, 1),
-			grn, nrm, yel, GET_PAD(mob, 2),
-			grn, nrm, yel, GET_PAD(mob, 3),
-			grn, nrm, yel, GET_PAD(mob, 4),
-			grn, nrm, yel, GET_PAD(mob, 5),
-			grn, nrm, yel, GET_LDESC(mob),
-			grn, nrm, yel, GET_DDESC(mob),
+			grn, GET_PAD(mob, 0),
+			grn, GET_PAD(mob, 1),
+			grn, GET_PAD(mob, 2),
+			grn, GET_PAD(mob, 3),
+			grn, GET_PAD(mob, 4),
+			grn, GET_PAD(mob, 5),
+			grn, GET_LDESC(mob),
+			grn, nrm, GET_DDESC(mob),
 			grn, nrm, cyn, GET_LEVEL(mob), nrm,
 			grn, nrm, cyn, GET_ALIGNMENT(mob), nrm,
 			grn, nrm, cyn, GET_HR(mob), nrm,
@@ -1650,7 +1637,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			i--;
 			break;
 		case '9':
-			send_to_char("Введите длинное описание :-\r\n| ", d->character);
+			send_to_char(d->character, "&S%s&s\r\nВведите длинное описание :-\r\n| ", GET_LDESC(OLC_MOB(d)));
 			OLC_MODE(d) = MEDIT_L_DESC;
 			i--;
 			break;
@@ -2014,44 +2001,44 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 		/*-------------------------------------------------------------------*/
 	case MEDIT_ALIAS:
-		OLC_MOB(d)->set_pc_name((arg && *arg) ? arg : "неопределен");
+		OLC_MOB(d)->set_pc_name(not_null(arg, "неопределен"));
 		break;
 		/*-------------------------------------------------------------------*/
 	case MEDIT_PAD0:
 		if (GET_PAD(OLC_MOB(d), 0))
 			free(GET_PAD(OLC_MOB(d), 0));
-		GET_PAD(OLC_MOB(d), 0) = str_dup((arg && *arg) ? arg : "кто-то");
-		OLC_MOB(d)->set_npc_name((arg && *arg) ? arg : "кто-то");
+		GET_PAD(OLC_MOB(d), 0) = str_dup(not_null(arg, "кто-то"));
+		OLC_MOB(d)->set_npc_name(not_null(arg, "кто-то"));
 		break;
 		/*-------------------------------------------------------------------*/
 	case MEDIT_PAD1:
 		if (GET_PAD(OLC_MOB(d), 1))
 			free(GET_PAD(OLC_MOB(d), 1));
-		GET_PAD(OLC_MOB(d), 1) = str_dup((arg && *arg) ? arg : "кого-то");
+		GET_PAD(OLC_MOB(d), 1) = str_dup(not_null(arg, "кого-то"));
 		break;
 		/*-------------------------------------------------------------------*/
 	case MEDIT_PAD2:
 		if (GET_PAD(OLC_MOB(d), 2))
 			free(GET_PAD(OLC_MOB(d), 2));
-		GET_PAD(OLC_MOB(d), 2) = str_dup((arg && *arg) ? arg : "кому-то");
+		GET_PAD(OLC_MOB(d), 2) = str_dup(not_null(arg, "кому-то"));
 		break;
 		/*-------------------------------------------------------------------*/
 	case MEDIT_PAD3:
 		if (GET_PAD(OLC_MOB(d), 3))
 			free(GET_PAD(OLC_MOB(d), 3));
-		GET_PAD(OLC_MOB(d), 3) = str_dup((arg && *arg) ? arg : "кого-то");
+		GET_PAD(OLC_MOB(d), 3) = str_dup(not_null(arg, "кого-то"));
 		break;
 		/*-------------------------------------------------------------------*/
 	case MEDIT_PAD4:
 		if (GET_PAD(OLC_MOB(d), 4))
 			free(GET_PAD(OLC_MOB(d), 4));
-		GET_PAD(OLC_MOB(d), 4) = str_dup((arg && *arg) ? arg : "кем-то");
+		GET_PAD(OLC_MOB(d), 4) = str_dup(not_null(arg, "кем-то"));
 		break;
 		/*-------------------------------------------------------------------*/
 	case MEDIT_PAD5:
 		if (GET_PAD(OLC_MOB(d), 5))
 			free(GET_PAD(OLC_MOB(d), 5));
-		GET_PAD(OLC_MOB(d), 5) = str_dup((arg && *arg) ? arg : "о ком-то");
+		GET_PAD(OLC_MOB(d), 5) = str_dup(not_null(arg, "о ком-то"));
 		break;
 		/*-------------------------------------------------------------------*/
 	case MEDIT_L_DESC:

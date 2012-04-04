@@ -2560,6 +2560,7 @@ ACMD(do_turn_undead)
 				 dice(1, GET_REAL_WIS(ch))))
 		{
 			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);
+			pk_agro_action(ch, ch_vict);
 			damage(ch, ch_vict, 0, SKILL_TURN_UNDEAD + TYPE_HIT, TRUE);
 			//send_to_char (ch, "Ваши потуги оказались напрасными.\r\n");
 			continue;

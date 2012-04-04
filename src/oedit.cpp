@@ -558,15 +558,14 @@ void oedit_save_to_disk(int zone_num)
 					"%d %d %d %d\n"
 					"%d %d %d %d\n",
 					GET_OBJ_VNUM(obj),
-					(obj->name && *obj->name) ? obj->name : "undefined",
+					not_null(obj->name, NULL),
 					obj->PNames[0] ? obj->PNames[0] : "что-то",
 					obj->PNames[1] ? obj->PNames[1] : "чего-то",
 					obj->PNames[2] ? obj->PNames[2] : "чему-то",
 					obj->PNames[3] ? obj->PNames[3] : "что-то",
 					obj->PNames[4] ? obj->PNames[4] : "чем-то",
 					obj->PNames[5] ? obj->PNames[5] : "о чем-то",
-					(obj->description && *obj->description) ?
-					obj->description : "undefined",
+					not_null(obj->description, NULL),
 					buf1,
 					GET_OBJ_SKILL(obj), GET_OBJ_MAX(obj), GET_OBJ_CUR(obj),
 					GET_OBJ_MATER(obj), GET_OBJ_SEX(obj),
@@ -686,12 +685,9 @@ void oedit_disp_extradesc_menu(DESCRIPTOR_DATA * d)
 			"%s3%s) Следующий дескриптор: %s\r\n"
 			"%s0%s) Выход\r\n"
 			"Ваш выбор : ",
-			grn, nrm, yel, (extra_desc->keyword
-							&& *extra_desc->keyword) ? extra_desc->
-			keyword : "<NONE>", grn, nrm, yel, (extra_desc->description
-												&& *extra_desc->
-												description) ? extra_desc->
-			description : "<NONE>", grn, nrm, buf1, grn, nrm);
+			grn, nrm, yel, not_null(extra_desc->keyword, "<NONE>"),
+			grn, nrm, yel, not_null(extra_desc->description, "<NONE>"),
+			grn, nrm, buf1, grn, nrm);
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = OEDIT_EXTRADESC_MENU;
 }
@@ -1429,33 +1425,27 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 #endif
 			"-- Предмет : [%s%d%s]\r\n"
 			"%s1%s) Синонимы : %s%s\r\n"
-			"%s2%s) Именительный (это ЧТО)             : %s%s\r\n"
-			"%s3%s) Родительный  (нету ЧЕГО)           : %s%s\r\n"
-			"%s4%s) Дательный    (прикрепить к ЧЕМУ)   : %s%s\r\n"
-			"%s5%s) Винительный  (держать ЧТО)         : %s%s\r\n"
-			"%s6%s) Творительный (вооружиться ЧЕМ)     : %s%s\r\n"
-			"%s7%s) Предложный   (писать на ЧЕМ)       : %s%s\r\n"
-			"%s8%s) Описание          :-\r\n%s%s\r\n"
-			"%s9%s) Опис.при действии :-\r\n%s%s\r\n"
+			"%s2&n) Именительный (это ЧТО)             : %s&e\r\n"
+			"%s3&n) Родительный  (нету ЧЕГО)           : %s&e\r\n"
+			"%s4&n) Дательный    (прикрепить к ЧЕМУ)   : %s&e\r\n"
+			"%s5&n) Винительный  (держать ЧТО)         : %s&e\r\n"
+			"%s6&n) Творительный (вооружиться ЧЕМ)     : %s&e\r\n"
+			"%s7&n) Предложный   (писать на ЧЕМ)       : %s&e\r\n"
+			"%s8&n) Описание          :-\r\n&Y&q%s&Q&e\r\n"
+			"%s9&n) Опис.при действии :-\r\n%s%s\r\n"
 			"%sA%s) Тип предмета      :-\r\n%s%s\r\n"
 			"%sB%s) Экстрафлаги       :-\r\n%s%s\r\n",
 			cyn, OLC_NUM(d), nrm,
-			grn, nrm, yel, (obj->name && *obj->name) ? obj->name : "undefined", grn, nrm, yel, (obj->PNames[0]
-					&& *obj->
-					PNames[0]) ? obj->
-			PNames[0] : "undefined", grn, nrm, yel, (obj->PNames[1]
-					&& *obj->PNames[1]) ? obj->PNames[1] : "undefined", grn, nrm,
-			yel, (obj->PNames[2]
-				  && *obj->PNames[2]) ? obj->PNames[2] : "undefined", grn, nrm, yel, (obj->PNames[3]
-						  && *obj->PNames[3]) ? obj->
-			PNames[3] : "undefined", grn, nrm, yel, (obj->PNames[4]
-					&& *obj->PNames[4]) ? obj->PNames[4] : "undefined", grn, nrm,
-			yel, (obj->PNames[5]
-				  && *obj->PNames[5]) ? obj->PNames[5] : "undefined", grn, nrm, yel, (obj->description
-						  && *obj->description) ? obj->
-			description : "undefined", grn, nrm, yel, (obj->action_description
-					&& *obj->action_description) ? obj->
-			action_description : "<not set>\r\n", grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
+			grn, nrm, yel, not_null(obj->name, NULL),
+			grn, not_null(obj->PNames[0], NULL),
+			grn, not_null(obj->PNames[1], NULL),
+			grn, not_null(obj->PNames[2], NULL),
+			grn, not_null(obj->PNames[3], NULL),
+			grn, not_null(obj->PNames[4], NULL),
+			grn, not_null(obj->PNames[5], NULL),
+			grn, not_null(obj->description, NULL),
+			grn, yel, not_null(obj->action_description, "<not set>\r\n"),
+			grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
 	/*
 	 * Send first half.
 	 */
@@ -1597,27 +1587,27 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_MODE(d) = OEDIT_PAD0;
 			break;
 		case '3':
-			send_to_char(d->character, "&S%s&s\r\nРодительный падеж [нет ЧЕГО] : ", d->character, OLC_OBJ(d)->PNames[1]);
+			send_to_char(d->character, "&S%s&s\r\nРодительный падеж [нет ЧЕГО] : ", OLC_OBJ(d)->PNames[1]);
 			OLC_MODE(d) = OEDIT_PAD1;
 			break;
 		case '4':
-			send_to_char(d->character, "&S%s&s\r\nДательный падеж [прикрепить к ЧЕМУ] : ", d->character, OLC_OBJ(d)->PNames[2]);
+			send_to_char(d->character, "&S%s&s\r\nДательный падеж [прикрепить к ЧЕМУ] : ", OLC_OBJ(d)->PNames[2]);
 			OLC_MODE(d) = OEDIT_PAD2;
 			break;
 		case '5':
-			send_to_char(d->character, "&S%s&s\r\nВинительный падеж [держать ЧТО] : ", d->character, OLC_OBJ(d)->PNames[3]);
+			send_to_char(d->character, "&S%s&s\r\nВинительный падеж [держать ЧТО] : ", OLC_OBJ(d)->PNames[3]);
 			OLC_MODE(d) = OEDIT_PAD3;
 			break;
 		case '6':
-			send_to_char(d->character, "&S%s&s\r\nТворительный падеж [вооружиться ЧЕМ] : ", d->character, OLC_OBJ(d)->PNames[4]);
+			send_to_char(d->character, "&S%s&s\r\nТворительный падеж [вооружиться ЧЕМ] : ", OLC_OBJ(d)->PNames[4]);
 			OLC_MODE(d) = OEDIT_PAD4;
 			break;
 		case '7':
-			send_to_char(d->character, "&S%s&s\r\nПредложный падеж [писать на ЧЕМ] : ", d->character, OLC_OBJ(d)->PNames[5]);
+			send_to_char(d->character, "&S%s&s\r\nПредложный падеж [писать на ЧЕМ] : ", OLC_OBJ(d)->PNames[5]);
 			OLC_MODE(d) = OEDIT_PAD5;
 			break;
 		case '8':
-			send_to_char("Введите длинное описание :-\r\n| ", d->character);
+			send_to_char(d->character, "&S%s&s\r\nВведите длинное описание :-\r\n| ", OLC_OBJ(d)->description);
 			OLC_MODE(d) = OEDIT_LONGDESC;
 			break;
 		case '9':
@@ -1782,7 +1772,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case OEDIT_EDIT_NAMELIST:
 		if (OLC_OBJ(d)->name)
 			free(OLC_OBJ(d)->name);
-		OLC_OBJ(d)->name = str_dup((arg && *arg) ? arg : "undefined");
+		OLC_OBJ(d)->name = str_dup(not_null(arg, NULL));
 		break;
 
 	case OEDIT_PAD0:
@@ -1790,44 +1780,44 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			free(OLC_OBJ(d)->PNames[0]);
 		if (OLC_OBJ(d)->short_description)
 			free(OLC_OBJ(d)->short_description);
-		OLC_OBJ(d)->short_description = str_dup((arg && *arg) ? arg : "что-то");
-		OLC_OBJ(d)->PNames[0] = str_dup((arg && *arg) ? arg : "что-то");
+		OLC_OBJ(d)->short_description = str_dup(not_null(arg, "что-то"));
+		OLC_OBJ(d)->PNames[0] = str_dup(not_null(arg, "что-то"));
 		break;
 
 	case OEDIT_PAD1:
 		if (OLC_OBJ(d)->PNames[1])
 			free(OLC_OBJ(d)->PNames[1]);
-		OLC_OBJ(d)->PNames[1] = str_dup((arg && *arg) ? arg : "-чего-то");
+		OLC_OBJ(d)->PNames[1] = str_dup(not_null(arg, "-чего-то"));
 		break;
 
 	case OEDIT_PAD2:
 		if (OLC_OBJ(d)->PNames[2])
 			free(OLC_OBJ(d)->PNames[2]);
-		OLC_OBJ(d)->PNames[2] = str_dup((arg && *arg) ? arg : "-чему-то");
+		OLC_OBJ(d)->PNames[2] = str_dup(not_null(arg, "-чему-то"));
 		break;
 
 	case OEDIT_PAD3:
 		if (OLC_OBJ(d)->PNames[3])
 			free(OLC_OBJ(d)->PNames[3]);
-		OLC_OBJ(d)->PNames[3] = str_dup((arg && *arg) ? arg : "-что-то");
+		OLC_OBJ(d)->PNames[3] = str_dup(not_null(arg, "-что-то"));
 		break;
 
 	case OEDIT_PAD4:
 		if (OLC_OBJ(d)->PNames[4])
 			free(OLC_OBJ(d)->PNames[4]);
-		OLC_OBJ(d)->PNames[4] = str_dup((arg && *arg) ? arg : "-чем-то");
+		OLC_OBJ(d)->PNames[4] = str_dup(not_null(arg, "-чем-то"));
 		break;
 
 	case OEDIT_PAD5:
 		if (OLC_OBJ(d)->PNames[5])
 			free(OLC_OBJ(d)->PNames[5]);
-		OLC_OBJ(d)->PNames[5] = str_dup((arg && *arg) ? arg : "-чем-то");
+		OLC_OBJ(d)->PNames[5] = str_dup(not_null(arg, "-чем-то"));
 		break;
 
 	case OEDIT_LONGDESC:
 		if (OLC_OBJ(d)->description)
 			free(OLC_OBJ(d)->description);
-		OLC_OBJ(d)->description = str_dup((arg && *arg) ? arg : "неопределено");
+		OLC_OBJ(d)->description = str_dup(not_null(arg, "неопределено"));
 		break;
 
 	case OEDIT_TYPE:
@@ -2274,7 +2264,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case OEDIT_EXTRADESC_KEY:
 		if (OLC_DESC(d)->keyword)
 			free(OLC_DESC(d)->keyword);
-		OLC_DESC(d)->keyword = str_dup((arg && *arg) ? arg : "undefined");
+		OLC_DESC(d)->keyword = str_dup(not_null(arg, NULL));
 		oedit_disp_extradesc_menu(d);
 		return;
 
