@@ -68,7 +68,7 @@ void TimedSpell::clear(OBJ_DATA *obj, bool send_message)
 			break;
 		default:
 			send_to_char(ch, "С %s что-то исчезло (%d)... Оо Сообщите Богам!\r\n",
-					spell_, GET_OBJ_PNAME(obj, 1));
+					GET_OBJ_PNAME(obj, 1), spell_);
 		}
 	}
 	spell_ = -1;
