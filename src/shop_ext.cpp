@@ -399,7 +399,7 @@ int can_sell_count(ShopListType::const_iterator &shop, int item_num)
 	}
 }
 
-void remove_item_id(ShopListType::const_iterator &shop, int uid)
+void remove_item_id(ShopListType::const_iterator &shop, unsigned uid)
 {
 	for (ItemListType::iterator k = (*shop)->item_list.begin();k!= (*shop)->item_list.end(); ++k)
 	{
@@ -765,9 +765,15 @@ void put_item_in_shop(ShopListType::const_iterator &shop, OBJ_DATA * obj)
 			}
 			else
 			{
-				(*it)->temporary_ids.push_back(obj->uid);
-				(*shop)->waste.push_back(obj);
-				return;
+				OBJ_DATA * tmp_obj = get_obj_from_waste(shop, (*it)->temporary_ids);
+				if (!tmp_obj) continue;
+				if (GET_OBJ_TYPE(obj) != ITEM_MING || //а у них всех один рнум
+					std::string(obj->short_description) == std::string(tmp_obj->short_description))
+				{
+					(*it)->temporary_ids.push_back(obj->uid);
+					(*shop)->waste.push_back(obj);
+					return;
+				}
 			}
 		}
 	
