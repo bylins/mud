@@ -943,11 +943,15 @@ void process_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 				}
 				break;
 		case FIND_ALLDOT:
-				obj = ch->carrying;
+				obj = get_obj_in_list_vis(ch, buffer, ch->carrying);
+				if (!obj)
+				{
+					send_to_char("У Вас нет " + buffer + "!\r\n", ch);
+					return;
+				}
 				while (obj)
 				{
-					obj_next = obj->next_content;
-					obj = get_obj_in_list_vis(ch, buffer, obj);
+					obj_next = get_obj_in_list_vis(ch, buffer, obj->next_content);
 					do_shop_cmd(ch, keeper, obj, shop, cmd);
 					obj = obj_next;
 				}
@@ -998,7 +1002,7 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 	}
 	if (cmd == "Рассмотреть")
 	{
-		std::string tell = "Предмет "+ std::string(proto->short_description)+" :";
+		std::string tell = "Предмет "+ std::string(proto->short_description)+": ";
 		tell += std::string(item_types[GET_OBJ_TYPE(proto)])+"\r\n";
 		tell += std::string(diag_weapon_to_char(proto, TRUE));
 		tell += std::string(diag_timer_to_char(proto));
