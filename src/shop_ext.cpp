@@ -82,6 +82,13 @@ const int IDENTIFY_COST = 110;
 int spent_today = 0;
 
 
+struct waste_node
+{
+	waste_node() : rnum(0), obj(NULL) {};
+	int rnum;
+	OBJ_DATA * obj;
+};
+
 struct item_node
 {
 	item_node() : rnum(0), price(0) {};
@@ -104,7 +111,7 @@ struct shop_node
 	ItemListType item_list;
 	std::map<long, ItemListType> keeper_item_list;
 	int profit;
-	std::list<OBJ_DATA *> waste;
+	std::list<waste_node> waste;
 	int waste_time_min;
 };
 
@@ -144,10 +151,10 @@ void log_shop_load()
 
 void empty_waste(ShopListType::const_iterator &shop)
 {
-	std::list<OBJ_DATA *>::const_iterator it;
+	std::list<waste_node>::const_iterator it;
 	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end(); ++it)
 	{
-		if ((*it)) extract_obj((*it));
+		if (GET_OBJ_RNUM(it->obj) == it->rnum) extract_obj(it->obj);
 	}
 	(*shop)->waste.clear();
 }
@@ -418,14 +425,14 @@ void remove_item_id(ShopListType::const_iterator &shop, unsigned uid)
 
 void update_shop_timers(ShopListType::const_iterator &shop)
 {
-	std::list<OBJ_DATA *>::iterator it;
+	std::list<waste_node>::iterator it;
 	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end();)
 	{
-		(*it)->dec_timer();
-		if ((*it)->get_timer() <= 0)
+		it->obj->dec_timer();
+		if (it->obj->get_timer() <= 0)
 		{
-			remove_item_id(shop, (*it)->uid);
-			extract_obj((*it));
+			remove_item_id(shop, it->obj->uid);
+			if (it->obj->item_number == it->rnum) extract_obj(it->obj);
 			it = (*shop)->waste.erase(it);
 		}
 		else 
@@ -443,14 +450,14 @@ void update_timers()
 
 OBJ_DATA * get_obj_from_waste(ShopListType::const_iterator &shop, std::vector<unsigned> uids)
 {
-	std::list<OBJ_DATA *>::iterator it;
+	std::list<waste_node>::iterator it;
 	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end();)
 	{
-		if (*it)
+		if (it->obj->item_number == it->rnum)
 		{
-			if ((*it)->uid == uids[0])
+			if (it->obj->uid == uids[0])
 			{
-				return (*it);
+				return (it->obj);
 			}
 			 ++it;
 		}
@@ -524,10 +531,10 @@ void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 
 void remove_from_waste(ShopListType::const_iterator &shop, OBJ_DATA *obj)
 {
-	std::list<OBJ_DATA *>::iterator it;
+	std::list<waste_node>::iterator it;
 	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end(); ++it)
 	{
-		if ((*it) && (*it) == obj)
+		if (it->obj == obj)
 		{
 			(*shop)->waste.erase(it);
 			return;
@@ -650,7 +657,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		&& (bought < sell_count || sell_count == -1))
 	{
 
-		if ((*shop)->item_list[item_num]->temporary_ids.size() != 0)
+		if (!(*shop)->item_list[item_num]->temporary_ids.empty())
 		{
 			obj = get_obj_from_waste(shop, (*shop)->item_list[item_num]->temporary_ids);
 			(*shop)->item_list[item_num]->temporary_ids.erase((*shop)->item_list[item_num]->temporary_ids.begin());
@@ -771,7 +778,10 @@ void put_item_in_shop(ShopListType::const_iterator &shop, OBJ_DATA * obj)
 					std::string(obj->short_description) == std::string(tmp_obj->short_description))
 				{
 					(*it)->temporary_ids.push_back(obj->uid);
-					(*shop)->waste.push_back(obj);
+					waste_node tmp_node;
+					tmp_node.obj = obj;
+					tmp_node.rnum = obj->item_number;
+					(*shop)->waste.push_back(tmp_node);
 					return;
 				}
 			}
@@ -782,7 +792,10 @@ void put_item_in_shop(ShopListType::const_iterator &shop, OBJ_DATA * obj)
 		tmp_item->price = get_sell_price(obj);
 		tmp_item->temporary_ids.push_back(obj->uid);
 		(*shop)->item_list.push_back(tmp_item);
-		(*shop)->waste.push_back(obj);
+		waste_node tmp_node;
+		tmp_node.rnum = obj->item_number;
+		tmp_node.obj = obj;
+		(*shop)->waste.push_back(tmp_node);
 }
 
 
