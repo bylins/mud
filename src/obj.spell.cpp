@@ -23,6 +23,11 @@
 */
 void TimedSpell::clear(OBJ_DATA *obj, bool send_message)
 {
+	if (!obj)
+	{
+		log("SYSERROR: NULL object %s:%d, spell_ = %d", __FILE__, __LINE__, spell_);
+		return;
+	}
 	// если что-то надо сделать со шмоткой при снятии обкаста
 	switch (spell_)
 	{

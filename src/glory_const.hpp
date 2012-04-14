@@ -12,6 +12,29 @@
 namespace GloryConst
 {
 
+const int cur_ver=1;//текуща€ верси€ нужна чтоб определить надо обновл€ть xml файл/пересчитывать статы или нет
+
+// процент комиссии на вложенную славу при вынимании
+const int STAT_RETURN_FEE = 10;
+// комис за перевод славы (проценты)
+const int TRANSFER_FEE = 5;
+// минимальный комис за перевод славы (не проценты)
+const int MIN_TRANSFER_TAX = 50;
+// минимальное кол-во славы дл€ перевода (>= MIN_TRANSFER_TAX)
+const int MIN_TRANSFER_AMOUNT = 100;
+
+// ол-во единиц жизни, добавл€емое за раз
+const int HP_FACTOR=50; //перенесено в glory_const.hpp
+
+//каст
+const int SUCCESS_FACTOR=7;
+
+//—ависы
+const int SAVE_FACTOR = 15;
+
+//–езисты
+const int RESIST_FACTOR = 7;
+
 int get_glory(long uid);
 void add_glory(long uid, int amount);
 int remove_glory(long uid, int amount);

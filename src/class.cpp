@@ -1997,6 +1997,10 @@ void do_start(CHAR_DATA * ch, int newbie)
     for (std::vector<int>::iterator it = ItemList.begin();it != ItemList.end();++it)
     {
         obj = read_object((*it), VIRTUAL);
+        if (!OBJ_FLAGGED(obj, ITEM_NOSELL))
+		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_NOSELL), ITEM_NOSELL);
+        if (!OBJ_FLAGGED(obj, ITEM_DECAY))
+		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_DECAY), ITEM_DECAY);
         if (obj)
             obj_to_char(obj, ch);
     };
@@ -2294,8 +2298,6 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		return (TRUE);
 	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch))
 		return (FALSE);
-	if ((OBJ_FLAGGED(obj, ITEM_NAMED)) && NamedStuff::check_named(ch, obj))//added by WorM(Видолюб) проверка именного стафа
-		return (TRUE);
 	if ((IS_OBJ_ANTI(obj, ITEM_AN_MONO) && GET_RELIGION(ch) == RELIGION_MONO) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_POLY) && GET_RELIGION(ch) == RELIGION_POLY) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch)) ||
@@ -2320,6 +2322,8 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 /*		(IS_OBJ_ANTI(obj, ITEM_AN_KILLERONLY)
 		 && !PLR_FLAGGED(ch, PLR_KILLER)) || */
 		(IS_OBJ_ANTI(obj, ITEM_AN_COLORED) && IS_COLORED(ch)))
+		return (TRUE);
+	if ((OBJ_FLAGGED(obj, ITEM_NAMED)) && NamedStuff::check_named(ch, obj))//added by WorM(Видолюб) проверка именного стафа
 		return (TRUE);
 	return (FALSE);
 }

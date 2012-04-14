@@ -615,9 +615,11 @@ void mudlog(const char *str, int type, int level, int channel, int file)
  */
 const char *empty_string = "ничего";
 
-bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div)
+bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const bool print_flag)
 {
 	long nr = 0, fail = 0, divider = FALSE;
+	int plane = 0;
+	char c='a';
 
 	*result = '\0';
 
@@ -632,10 +634,12 @@ bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const
 	while (fail)
 	{
 		if (*names[nr] == '\n')
+		{
 			fail--;
+			plane++;
+		}
 		nr++;
 	}
-
 
 	for (; bitvector; bitvector >>= 1)
 	{
@@ -643,16 +647,28 @@ bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const
 		{
 			if (*names[nr] != '\n')
 			{
+				#ifdef TESTBUILD
+				if (print_flag)
+					sprintf(result + strlen(result), "%c%d:", c, plane);
+				#endif
 				strcat(result, names[nr]);
 				strcat(result, div);
 				divider = TRUE;
 			}
 			else
 			{
+				if (print_flag)
+					sprintf(result + strlen(result), "%c%d:", c, plane);
 				strcat(result, "UNDEF");
 				strcat(result, div);
 				divider = TRUE;
 			}
+		}
+		if (print_flag)
+		{
+			c++;
+			if(c > 'z')
+				c = 'A';
 		}
 		if (*names[nr] != '\n')
 			nr++;
@@ -674,7 +690,7 @@ bool sprintbit(bitvector_t bitvector, const char *names[], char *result)
 	return sprintbitwd(bitvector, names, result, ",");
 }
 
-bool sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div)
+bool sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div, const bool print_flag)
 {
 	bool have_flags = false;
 	char buffer[MAX_STRING_LENGTH];
@@ -682,7 +698,7 @@ bool sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *
 	*result = '\0';
 	for (i = 0; i < 4; i++)
 	{
-		if (sprintbitwd(flags.flags[i] | (i << 30), names, buffer, div))
+		if (sprintbitwd(flags.flags[i] | (i << 30), names, buffer, div, print_flag))
 		{
 			if (strlen(result))
 				strcat(result, div);
@@ -883,7 +899,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	if (!IS_SET(mode, SF_SILENCE))
 	{
 		act("Вы прекратили следовать за $N4.", FALSE, ch, 0, ch->master, TO_CHAR);
-		act("$n прекратил$g следовать за $N4.", TRUE, ch, 0, ch->master, TO_NOTVICT);
+		act("$n прекратил$g следовать за $N4.", TRUE, ch, 0, ch->master, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 
 	//log("[Stop follower] Stop horse");
@@ -946,7 +962,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 		{
 			if (MOB_FLAGGED(ch, MOB_CORPSE))
 			{
-				act("Налетевший ветер развеял $n3, не оставив и следа.", TRUE, ch, 0, 0, TO_ROOM);
+				act("Налетевший ветер развеял $n3, не оставив и следа.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(IN_ROOM(ch));
 				perform_drop_gold(ch, ch->get_gold(), SCMD_DROP, 0);
 				ch->set_gold(0);
@@ -967,7 +983,9 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 					{
 						act("$n посчитал$g, что Вы заслуживаете смерти !",
 							FALSE, ch, 0, master, TO_VICT | CHECK_DEAF);
-						act("$n заорал$g : \"Ты долго водил$G меня за нос, но дальше так не пойдет !\"" "              \"Теперь только твоя смерть может искупить твой обман !!!\"", TRUE, ch, 0, master, TO_NOTVICT | CHECK_DEAF);
+						act("$n заорал$g : \"Ты долго водил$G меня за нос, но дальше так не пойдет !\""
+						    "              \"Теперь только твоя смерть может искупить твой обман !!!\"",
+						    TRUE, ch, 0, master, TO_NOTVICT | CHECK_DEAF);
 						set_fighting(ch, master);
 					}
 				}
@@ -1049,7 +1067,7 @@ void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence)
 		act("Вы начали следовать за $N4.", FALSE, ch, 0, leader, TO_CHAR);
 		//if (CAN_SEE(leader, ch))
 		act("$n начал$g следовать за Вами.", TRUE, ch, 0, leader, TO_VICT);
-		act("$n начал$g следовать за $N4.", TRUE, ch, 0, leader, TO_NOTVICT);
+		act("$n начал$g следовать за $N4.", TRUE, ch, 0, leader, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 }
 

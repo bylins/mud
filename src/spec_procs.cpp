@@ -32,6 +32,7 @@
 #include "room.hpp"
 #include "depot.hpp"
 #include "player_races.hpp"
+#include "magic.h"
 
 /*   external vars  */
 
@@ -51,7 +52,6 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, int skill_no);
 int has_key(CHAR_DATA * ch, obj_vnum key);
 int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch);
 void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd);
-int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract);
 SPECIAL(shop_keeper);
 void ASSIGNMASTER(mob_vnum mob, SPECIAL(fname), int learn_info);
 int mag_manacost(CHAR_DATA * ch, int spellnum);

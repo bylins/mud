@@ -63,6 +63,7 @@ ACMD(do_remember_char);
 ACMD(do_ignore);
 
 #define SIELENCE ("Вы немы, как рыба об лед.\r\n")
+#define SOUNDPROOF ("Стены заглушили Ваши слова.\r\n")
 
 
 ACMD(do_say)
@@ -79,6 +80,11 @@ ACMD(do_say)
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
+		return;
+	}
+	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
+	{
+		send_to_char(SOUNDPROOF, ch);
 		return;
 	}
 
@@ -118,6 +124,11 @@ ACMD(do_gsay)
 	if (AFF_FLAGGED(ch, AFF_SIELENCE))
 	{
 		send_to_char(SIELENCE, ch);
+		return;
+	}
+	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
+	{
+		send_to_char(SOUNDPROOF, ch);
 		return;
 	}
 
@@ -282,7 +293,7 @@ int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict)
 		return (TRUE);
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
-		send_to_char("Стены заглушили Ваши слова.\r\n", ch);
+		send_to_char(SOUNDPROOF, ch);
 	else if ((!IS_NPC(vict) &&
 			  (PRF_FLAGGED(vict, PRF_NOTELL) || ignores(vict, ch, IGNORE_TELL))) ||
 			 ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF))
@@ -309,6 +320,11 @@ ACMD(do_tell)
 	if (AFF_FLAGGED(ch, AFF_SIELENCE))
 	{
 		send_to_char(SIELENCE, ch);
+		return;
+	}
+	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
+	{
+		send_to_char(SOUNDPROOF, ch);
 		return;
 	}
 
@@ -343,6 +359,11 @@ ACMD(do_reply)
 	if (AFF_FLAGGED(ch, AFF_SIELENCE))
 	{
 		send_to_char(SIELENCE, ch);
+		return;
+	}
+	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
+	{
+		send_to_char(SOUNDPROOF, ch);
 		return;
 	}
 
@@ -698,9 +719,9 @@ ACMD(do_gen_comm)
 		send_to_char(com_msgs[subcmd].muted_msg, ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) || ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
-		send_to_char("Стены заглушили Ваши слова.\r\n", ch);
+		send_to_char(SOUNDPROOF, ch);
 		return;
 	}
 
@@ -784,6 +805,11 @@ ACMD(do_gen_comm)
 	}
 	else
 	{
+		if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
+		{
+			send_to_char(SOUNDPROOF, ch);
+			return;
+		}
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(OK, ch);
 		else
@@ -992,9 +1018,9 @@ ACMD(do_offtop)
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) || ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
-		send_to_char("Стены заглушили Ваши слова.\r\n", ch);
+		send_to_char(SOUNDPROOF, ch);
 		return;
 	}
 	if (GET_LEVEL(ch) < SpamSystem::MIN_OFFTOP_LVL && !GET_REMORT(ch))

@@ -518,6 +518,7 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 {
 	CHAR_DATA *ch, *ch_next;
 	TRIG_DATA *t;
+	TRIG_DATA *dummy;
 	char buf[MAX_INPUT_LENGTH];
 
 	for (ch = world[IN_ROOM(actor)]->people; ch; ch = ch_next)
@@ -528,6 +529,21 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 		{
 			for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 			{
+				if (t->attach_type != MOB_TRIGGER)//детачим триги не для мобов
+				{
+					sprintf(buf, "SYSERR: M-Trigger #%d has wrong attach_type %s expected %s char:%s[%d]!",
+						GET_TRIG_VNUM(t), attach_name[(int)t->attach_type], attach_name[MOB_TRIGGER], GET_PAD(ch, 0), GET_MOB_VNUM(ch));
+					mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
+					sprintf(buf, "%d", GET_TRIG_VNUM(t));
+					remove_trigger(SCRIPT(ch), buf, &dummy);
+					if (!TRIGGERS(SCRIPT(ch)))
+					{
+						free_script(SCRIPT(ch));
+						SCRIPT(ch) = NULL;
+					}
+					break;
+				}
+
 				if (!TRIGGER_CHECK(t, MTRIG_COMMAND))
 					continue;
 
@@ -986,11 +1002,26 @@ int get_otrigger(OBJ_DATA * obj, CHAR_DATA * actor)
 int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, char *argument, int type)
 {
 	TRIG_DATA *t;
+	TRIG_DATA *dummy;
 	char buf[MAX_INPUT_LENGTH];
 
 	if (obj && SCRIPT_CHECK(obj, OTRIG_COMMAND))
 		for (t = TRIGGERS(SCRIPT(obj)); t; t = t->next)
 		{
+			if (t->attach_type != OBJ_TRIGGER)//детачим триги не для объектов
+			{
+				sprintf(buf, "SYSERR: O-Trigger #%d has wrong attach_type %s expected %s Object:%s[%d]!",
+					GET_TRIG_VNUM(t), attach_name[(int)t->attach_type], attach_name[OBJ_TRIGGER], not_null(obj->PNames[0], NULL), GET_OBJ_VNUM(obj));
+				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
+				sprintf(buf, "%d", GET_TRIG_VNUM(t));
+				remove_trigger(SCRIPT(obj), buf, &dummy);
+				if (!TRIGGERS(SCRIPT(obj)))
+				{
+					free_script(SCRIPT(obj));
+					SCRIPT(obj) = NULL;
+				}
+				break;
+			}
 			if (!TRIGGER_CHECK(t, OTRIG_COMMAND))
 				continue;
 
@@ -1339,6 +1370,7 @@ int enter_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir)
 int command_wtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 {
 	ROOM_DATA *room;
+	TRIG_DATA *dummy;
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
@@ -1348,6 +1380,21 @@ int command_wtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 	room = world[IN_ROOM(actor)];
 	for (t = TRIGGERS(SCRIPT(room)); t; t = t->next)
 	{
+		if (t->attach_type != WLD_TRIGGER)//детачим триги не для комнат
+		{
+			sprintf(buf, "SYSERR: W-Trigger #%d has wrong attach_type %s expected %s room:%s[%d]!",
+				GET_TRIG_VNUM(t), attach_name[(int)t->attach_type], attach_name[MOB_TRIGGER], room->name, room->number);
+			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
+			sprintf(buf, "%d", GET_TRIG_VNUM(t));
+			remove_trigger(SCRIPT(room), buf, &dummy);
+			if (!TRIGGERS(SCRIPT(room)))
+			{
+				free_script(SCRIPT(room));
+				SCRIPT(room) = NULL;
+			}
+			break;
+		}
+				
 		if (!TRIGGER_CHECK(t, WTRIG_COMMAND))
 			continue;
 

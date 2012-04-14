@@ -480,7 +480,10 @@ int same_time_update(CHAR_DATA *ch, AFFECT_DATA *af)
 	if (af->location == APPLY_POISON)
 	{
 		int poison_dmg = GET_POISON(ch) * (IS_NPC(ch) ? 4 : 5);
-		poison_dmg = interpolate(poison_dmg, 2);
+		// мобов яд ядит на тике, а чаров каждый батл тик соответсвенно если это не моб надо делить на 30 или тип того
+		if(!IS_NPC(ch))
+			poison_dmg = poison_dmg/30;
+		//poison_dmg = interpolate(poison_dmg, 2); // И как оно должно работать чото нифига не понял, понял только что оно не работает
 		result = damage(ch, ch, poison_dmg, SPELL_POISON, false);
 	}
 	else if (af->location == APPLY_ACONITUM_POISON)

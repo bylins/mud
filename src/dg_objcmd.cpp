@@ -26,6 +26,7 @@
 #include "skills.h"
 #include "name_list.hpp"
 #include "room.hpp"
+#include "magic.h"
 
 extern INDEX_DATA *obj_index;
 extern const char *dirs[];
@@ -38,7 +39,6 @@ void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 room_data *get_room(char *name);
 void asciiflag_conv(const char *flag, void *value);
-int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
 void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktype, int mayflee);
 #define OCMD(name)  \
    void (name)(OBJ_DATA *obj, char *argument, int cmd, int subcmd)
@@ -144,7 +144,7 @@ OCMD(do_oecho)
 		if (world[room]->people)
 			sub_write(argument, world[room]->people, TRUE, TO_ROOM | TO_CHAR);
 	}
-	// WorM: НЯНАНИ МЕНАУНДХЛЯНРХ ЯОЮЛХРЭ ЩРН МЕРС
+	// WorM: особой необходимости спамить это нету
 	//else
 	//	obj_log(obj, "oecho called by object in NOWHERE");
 }

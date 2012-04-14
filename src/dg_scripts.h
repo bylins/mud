@@ -19,6 +19,7 @@
 #define    OBJ_TRIGGER   1
 #define    WLD_TRIGGER   2
 
+extern const char *attach_name[];
 #define DG_NO_TRIG         256	/* don't check act trigger   */
 
 /* mob trigger types */

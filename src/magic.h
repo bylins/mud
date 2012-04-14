@@ -35,5 +35,6 @@
 int get_resist_type(int spellnum);
 void delete_from_tmp_char_list(CHAR_DATA *ch);
 bool is_room_forbidden(ROOM_DATA * room);
+int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract, const CHAR_DATA * targ = NULL);
 
 #endif

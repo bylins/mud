@@ -235,7 +235,7 @@ ASPELL(spell_recall)
 		pk_agro_action(ch, victim->get_fighting());
 	}
 
-	act("$n исчез$q.", TRUE, victim, 0, 0, TO_ROOM);
+	act("$n исчез$q.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	char_from_room(victim);
 	char_to_room(victim, fnd_room);
 	check_horse(victim);
@@ -638,11 +638,11 @@ ASPELL(spell_summon)
 	}
 
 	/* Ничто не помешало нашему суммону - и он все-таки произошел */
-	act("$n растворил$u на Ваших глазах.", TRUE, victim, 0, 0, TO_ROOM);
+	act("$n растворил$u на Ваших глазах.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	char_from_room(victim);
 	char_to_room(victim, ch_room);
 	check_horse(victim);
-	act("$n прибыл$g по вызову.", TRUE, victim, 0, 0, TO_ROOM);
+	act("$n прибыл$g по вызову.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	act("$n призвал$g Вас!", FALSE, ch, 0, victim, TO_VICT);
 	look_at_room(victim, 0);
 	entry_memory_mtrigger(victim);
@@ -2337,7 +2337,7 @@ ASPELL(spell_control_weather)
 				world[i]->weather.duration = duration;
 				if (world[i]->people)
 				{
-					act(sky_info, FALSE, world[i]->people, 0, 0, TO_ROOM);
+					act(sky_info, FALSE, world[i]->people, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 					act(sky_info, FALSE, world[i]->people, 0, 0, TO_CHAR);
 				}
 			}
@@ -2471,7 +2471,7 @@ ASPELL(spell_holystrike)
 	OBJ_DATA *o;
 
 	act(msg1, FALSE, ch, 0, 0, TO_CHAR);
-	act(msg1, FALSE, ch, 0, 0, TO_ROOM);
+	act(msg1, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
 	for (tch = world[IN_ROOM(ch)]->people; tch; tch = nxt)
 	{
@@ -2493,7 +2493,7 @@ ASPELL(spell_holystrike)
 	}
 
 	act(msg2, FALSE, ch, 0, 0, TO_CHAR);
-	act(msg2, FALSE, ch, 0, 0, TO_ROOM);
+	act(msg2, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
 	do
 	{
@@ -2698,7 +2698,7 @@ ASPELL(spell_angel)
 	if (IS_FEMALE(mob))
 	{
 //   act("Небесная защитница шагнула к вам из сгустка света!", FALSE, ch, 0, 0, TO_CHAR);
-		act("Небесная защитница появилась в яркой вспышке света!", TRUE, mob, 0, 0, TO_ROOM);
+		act("Небесная защитница появилась в яркой вспышке света!", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 	else
 	{

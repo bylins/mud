@@ -29,6 +29,7 @@
 #include "name_list.hpp"
 #include "corpse.hpp"
 #include "shop_ext.hpp"
+#include "constants.h"
 
 /*------------------------------------------------------------------------*/
 
@@ -1203,7 +1204,7 @@ void oedit_disp_extra_menu(DESCRIPTOR_DATA * d)
 				extra_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_OBJ(d)->obj_flags.extra_flags, extra_bits, buf1, ",");
+	sprintbits(OLC_OBJ(d)->obj_flags.extra_flags, extra_bits, buf1, ",", true);
 	sprintf(buf, "\r\nЭкстрафлаги: %s%s%s\r\n" "Выберите экстрафлаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1234,7 +1235,7 @@ void oedit_disp_anti_menu(DESCRIPTOR_DATA * d)
 				anti_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_OBJ(d)->obj_flags.anti_flag, anti_bits, buf1, ",");
+	sprintbits(OLC_OBJ(d)->obj_flags.anti_flag, anti_bits, buf1, ",", true);
 	sprintf(buf, "\r\nПредмет запрещен для : %s%s%s\r\n" "Выберите флаг запрета (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1265,7 +1266,7 @@ void oedit_disp_no_menu(DESCRIPTOR_DATA * d)
 				no_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_OBJ(d)->obj_flags.no_flag, no_bits, buf1, ",");
+	sprintbits(OLC_OBJ(d)->obj_flags.no_flag, no_bits, buf1, ",", true);
 	sprintf(buf, "\r\nПредмет неудобен для : %s%s%s\r\n" "Выберите флаг неудобств (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1296,7 +1297,7 @@ void oedit_disp_affects_menu(DESCRIPTOR_DATA * d)
 				weapon_affects[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_OBJ(d)->obj_flags.affects, weapon_affects, buf1, ",");
+	sprintbits(OLC_OBJ(d)->obj_flags.affects, weapon_affects, buf1, ",", true);
 	sprintf(buf, "\r\nНакладываемые аффекты : %s%s%s\r\n" "Выберите аффект (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1431,7 +1432,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			"%s5&n) Винительный  (держать ЧТО)         : %s&e\r\n"
 			"%s6&n) Творительный (вооружиться ЧЕМ)     : %s&e\r\n"
 			"%s7&n) Предложный   (писать на ЧЕМ)       : %s&e\r\n"
-			"%s8&n) Описание          :-\r\n&Y&q%s&Q&e\r\n"
+			"%s8&n) Описание          :-\r\n&Y&q%s&e&Q\r\n"
 			"%s9&n) Опис.при действии :-\r\n%s%s\r\n"
 			"%sA%s) Тип предмета      :-\r\n%s%s\r\n"
 			"%sB%s) Экстрафлаги       :-\r\n%s%s\r\n",
@@ -1472,7 +1473,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			"%sR%s) Меню наводимых аффектов\r\n"
 			"%sT%s) Меню экстраописаний\r\n"
 			"%sS%s) Скрипт      : %s%s\r\n"
-			"%sU%s) Пол         : %s%d\r\n"
+			"%sU%s) Пол         : %s%s\r\n"
 			"%sV%s) Макс.в мире : %s%d\r\n"
 			"%sW%s) Меню умений\r\n"
 			"%sX%s) Требует перевоплощений : %s%d\r\n"
@@ -1492,7 +1493,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 			GET_OBJ_VAL(obj, 3), grn, nrm, grn, buf2, grn, nrm, grn, nrm, grn,
 			nrm, cyn, obj->proto_script ? "Set." : "Not Set.",
-			grn, nrm, cyn, GET_OBJ_SEX(obj),
+			grn, nrm, cyn, genders[GET_OBJ_SEX(obj)],
 			grn, nrm, cyn, GET_OBJ_MIW(obj),
 			grn, nrm,
 			grn, nrm, cyn, obj->get_mort_req(),

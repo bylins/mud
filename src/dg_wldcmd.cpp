@@ -26,6 +26,7 @@
 #include "char.hpp"
 #include "skills.h"
 #include "room.hpp"
+#include "magic.h"
 
 extern const char *dirs[];
 extern struct zone_data *zone_table;
@@ -37,7 +38,6 @@ void asciiflag_conv(const char *flag, void *value);
 CHAR_DATA *get_char_by_room(room_data * room, char *name);
 room_data *get_room(char *name);
 OBJ_DATA *get_obj_by_room(room_data * room, char *name);
-int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
 void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktype, int mayflee);
 #define WCMD(name)  \
     void (name)(room_data *room, char *argument, int cmd, int subcmd)

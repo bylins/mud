@@ -803,14 +803,14 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 {
 	if (!obj) return;
 	int rnum = GET_OBJ_RNUM(obj);
-	if (rnum < 0) return;
-	if (OBJ_FLAGGED(obj, ITEM_ARMORED) || OBJ_FLAGGED(obj, ITEM_SHARPEN) ||
-		OBJ_FLAGGED(obj, ITEM_NODONATE) || OBJ_FLAGGED(obj, ITEM_NODROP))
+	if (rnum < 0 || OBJ_FLAGGED(obj, ITEM_ARMORED) || OBJ_FLAGGED(obj, ITEM_SHARPEN) ||
+		//OBJ_FLAGGED(obj, ITEM_NODONATE) || //Реально не пойму почему все торгаши так ненавидят стаф !пожертовать ?!!!
+		OBJ_FLAGGED(obj, ITEM_NODROP))
 	{
 		tell_to_char(keeper, ch, string("Я не собираюсь иметь дела с этой вещью.").c_str());
 		return;
 	}
-	if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER)
+	if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && cmd != "Чинить")
 	{
 		if (obj->contains)
 		{
@@ -834,7 +834,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 
 	if (cmd == "Оценить")
 	{
-		if (OBJ_FLAGGED(obj, ITEM_NOSELL))
+		if (OBJ_FLAGGED(obj, ITEM_NOSELL) || OBJ_FLAGGED(obj, ITEM_NAMED))
 		{
 			tell_to_char(keeper, ch, string("Такое я не покупаю.").c_str());
 			return;
@@ -844,7 +844,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	
 	if (cmd == "Продать")
 	{
-		if (OBJ_FLAGGED(obj, ITEM_NOSELL))
+		if (OBJ_FLAGGED(obj, ITEM_NOSELL) || OBJ_FLAGGED(obj, ITEM_NAMED))
 		{
 			tell_to_char(keeper, ch, string("Такое я не покупаю.").c_str());
 			return;

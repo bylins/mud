@@ -65,8 +65,8 @@ void mudlog(const char *str, int type, int level, int channel, int file);
 int number(int from, int to);
 int dice(int number, int size);
 bool sprintbit(bitvector_t vektor, const char *names[], char *result);
-bool sprintbitwd(bitvector_t vektor, const char *names[], char *result, const char *div);
-bool sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div);
+bool sprintbitwd(bitvector_t vektor, const char *names[], char *result, const char *div, const bool print_flag = false);
+bool sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div, const bool print_flag = false);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE * fl, char *buf);
 int get_filename(const char *orig_name, char *filename, int mode);
@@ -1073,8 +1073,13 @@ extern SPECIAL(bank);
                            (pad) == 1 ? "кого-то" : "кто-то")
 
 #define PERS(ch,vict,pad) (CAN_SEE(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
+//для арены
+#define APERS(ch,vict,pad,arena) ((arena) || CAN_SEE(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
 
 #define OBJS(obj,vict) (CAN_SEE_OBJ((vict), (obj)) ? \
+                      (obj)->short_description  : "что-то")
+//для арены
+#define AOBJS(obj,vict,arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
                       (obj)->short_description  : "что-то")
 
 #define GET_PAD_OBJ(pad)  ((pad) == 5 ? "чем-то" :\
@@ -1086,6 +1091,10 @@ extern SPECIAL(bank);
 #define OBJ_PAD(obj,pad)  ((obj)->PNames[pad])
 
 #define OBJN(obj,vict,pad) (CAN_SEE_OBJ((vict), (obj)) ? \
+                           ((obj)->PNames[pad]) ? (obj)->PNames[pad] : (obj)->short_description \
+                           : GET_PAD_OBJ(pad))
+//для арены
+#define AOBJN(obj,vict,pad,arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
                            ((obj)->PNames[pad]) ? (obj)->PNames[pad] : (obj)->short_description \
                            : GET_PAD_OBJ(pad))
 

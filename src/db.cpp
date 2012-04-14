@@ -1604,7 +1604,7 @@ void boot_db(void)
 	log("Booting zone types and ingredient types for each zone type.");
 	init_zone_types();
 
-	log("Booting inser_wanted.lst.");
+	log("Booting insert_wanted.lst.");
 	iwg.init();
 
 	log("Load guardians.");

@@ -88,27 +88,6 @@ struct glory_olc
 	int olc_was_free_glory;
 };
 
-// процент комиссии на вложенную славу при вынимании
-const int STAT_RETURN_FEE = 10;
-// комис за перевод славы (проценты)
-const int TRANSFER_FEE = 5;
-// минимальный комис за перевод славы (не проценты)
-const int MIN_TRANSFER_TAX = 50;
-// минимальное кол-во славы для перевода (>= MIN_TRANSFER_TAX)
-const int MIN_TRANSFER_AMOUNT = 100;
-
-//Кол-во единиц жизни, добавляемое за раз
-const int HP_FACTOR=50;
-
-//каст
-const int SUCCESS_FACTOR=10;
-
-//Сависы
-const int SAVE_FACTOR = 15;
-
-//Резисты
-const int RESIST_FACTOR = 7;
-
 const char *olc_stat_name[] =
 {
 	"Сила",
@@ -196,6 +175,20 @@ void add_glory(long uid, int amount)
 	save();
 }
 
+int stat_multi(int stat)
+{
+	int multi = 1;
+	if(stat == GLORY_HIT)
+		multi = HP_FACTOR;
+	if(stat == GLORY_SUCCESS)
+		multi = SUCCESS_FACTOR;
+	if(stat >= GLORY_WILL && stat <= GLORY_REFLEX)
+		multi = SAVE_FACTOR;
+	if(stat == GLORY_MIND)
+		multi = RESIST_FACTOR;
+	return multi;
+}
+
 /**
 * Распечатка 'слава информация'.
 */
@@ -205,8 +198,10 @@ void print_glory(CHAR_DATA *ch, GloryListType::iterator &it)
 	for (std::map<int, int>::const_iterator i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i)
 	{
 		if ((i->first >= 0) && (i->first < (int)sizeof(olc_stat_name))) {
-			//out << olc_stat_name[i->first] << ": +";
-			sprintf(buf+strlen(buf), "%-16s: +%d\r\n", olc_stat_name[i->first], i->second);
+			sprintf(buf+strlen(buf), "%-16s: +%d", olc_stat_name[i->first], i->second * stat_multi(i->first));
+			if (stat_multi(i->first) > 1)
+				sprintf(buf+strlen(buf), "(%d)", i->second);
+			strcat(buf, "\r\n");
 		}
 		else
 		{
@@ -243,34 +238,7 @@ int add_stat_cost(int stat, boost::shared_ptr<GloryConst::glory_olc> olc)
 		return 0;
 	}
 
-	int glory = 0;
-	switch(stat)
-	{
-		case GLORY_STR:
-		case GLORY_DEX:
-		case GLORY_INT:
-		case GLORY_WIS:
-		case GLORY_CON:
-		case GLORY_CHA:
-			glory = (olc->stat_add[stat] * 200) + 1000;
-			break;
-		case GLORY_HIT:
-			glory = (olc->stat_add[stat]/HP_FACTOR * 200) + 1000;
-			break;
-		case GLORY_SUCCESS:
-			glory = (olc->stat_add[stat]/SUCCESS_FACTOR * 200) + 1000;
-			break;
-		case GLORY_WILL:
-		case GLORY_STABILITY:
-		case GLORY_REFLEX:
-			glory = (olc->stat_add[stat]/SAVE_FACTOR * 200) + 1000;
-			break;
-		case GLORY_MIND:
-			glory = (olc->stat_add[stat]/RESIST_FACTOR * 200) + 1000;
-			break;
-		default:
-			log("SYSERROR : bad stat %d (%s:%d)", stat, __FILE__, __LINE__);
-	}
+	int glory = (olc->stat_add[stat] * 200) + 1000;
 	if (olc->stat_was[stat] - olc->stat_add[stat] > 0)
 		glory -= glory * STAT_RETURN_FEE / 100;
 	return glory;
@@ -288,34 +256,7 @@ int remove_stat_cost(int stat, boost::shared_ptr<GloryConst::glory_olc> olc)
 		return 0;
 	}
 
-	int glory = 0;
-	switch(stat)
-	{
-		case GLORY_STR:
-		case GLORY_DEX:
-		case GLORY_INT:
-		case GLORY_WIS:
-		case GLORY_CON:
-		case GLORY_CHA:
-			glory = ((olc->stat_add[stat] -1) * 200) + 1000;
-			break;
-		case GLORY_HIT:
-			glory = ((olc->stat_add[stat] -1)/HP_FACTOR * 200) + 1000;
-			break;
-		case GLORY_SUCCESS:
-			glory = ((olc->stat_add[stat] -1)/SUCCESS_FACTOR * 200) + 1000;
-			break;
-		case GLORY_WILL:
-		case GLORY_STABILITY:
-		case GLORY_REFLEX:
-			glory = ((olc->stat_add[stat] -1)/SAVE_FACTOR * 200) + 1000;
-			break;
-		case GLORY_MIND:
-			glory = ((olc->stat_add[stat] -1)/RESIST_FACTOR * 200) + 1000;
-			break;
-		default:
-			log("SYSERROR : bad stat %d (%s:%d)", stat, __FILE__, __LINE__);
-	}
+	int glory = ((olc->stat_add[stat] -1) * 200) + 1000;
 	if (olc->stat_was[stat] - olc->stat_add[stat] >= 0)
 		glory -= glory * STAT_RETURN_FEE / 100;
 	return glory;
@@ -361,13 +302,14 @@ std::string olc_print_stat(CHAR_DATA *ch, int stat)
 		return "";
 	}
 
-	return boost::str(boost::format("  %-16s :  %s(+%5d)%s  (%s%s%s) %2d (%s%s%s)  %s(-%5d)  | %d%s\r\n")
+
+	return boost::str(boost::format("  %-16s :  %s(+%5d)%s  (%s%s%s) %4d (%s%s%s)  %s(-%5d)  | %d%s\r\n")
 		% olc_stat_name[stat]
 		% CCINRM(ch, C_NRM)
 		% remove_stat_cost(stat, ch->desc->glory_const)
 		% CCNRM(ch, C_NRM)
 		% CCIGRN(ch, C_NRM) % olc_del_name[stat] % CCNRM(ch, C_NRM)
-		% (ch->desc->glory_const->stat_cur[stat] + ch->desc->glory_const->stat_add[stat])
+		% ((ch->desc->glory_const->stat_cur[stat] + ch->desc->glory_const->stat_add[stat])*stat_multi(stat))
 		% CCIGRN(ch, C_NRM) % olc_add_name[stat] % CCNRM(ch, C_NRM)
 		% CCINRM(ch, C_NRM)
 		% add_stat_cost(stat, ch->desc->glory_const)
@@ -412,103 +354,61 @@ void spend_glory_menu(CHAR_DATA *ch)
 
 void olc_del_stat(CHAR_DATA *ch, int stat)
 {
-	int REMOVE_AMOUNT = 0;
-	switch(stat)
+	if (stat < 0 || stat >= GLORY_TOTAL)
 	{
-		case GLORY_STR:
-		case GLORY_DEX:
-		case GLORY_INT:
-		case GLORY_WIS:
-		case GLORY_CON:
-		case GLORY_CHA:
-			REMOVE_AMOUNT = 1;
-			break;
-		case GLORY_HIT:
-			REMOVE_AMOUNT = HP_FACTOR;
-			break;
-		case GLORY_SUCCESS:
-			REMOVE_AMOUNT = SUCCESS_FACTOR;
-			break;
-		case GLORY_WILL:
-		case GLORY_STABILITY:
-		case GLORY_REFLEX:
-			REMOVE_AMOUNT = SAVE_FACTOR;
-			break;
-		case GLORY_MIND:
-			REMOVE_AMOUNT = RESIST_FACTOR;
-			break;
-		default:
-			log("SYSERROR : bad stat %d (%s:%d)", stat, __FILE__, __LINE__);
+		log("SYSERROR : bad stat %d (%s:%d)", stat, __FILE__, __LINE__);
+		return;
 	}
 	if (ch->desc->glory_const->stat_add[stat] > 0)
 	{
 		ch->desc->glory_const->olc_free_glory +=
 			remove_stat_cost(stat, ch->desc->glory_const);
-		ch->desc->glory_const->stat_add[stat] -= REMOVE_AMOUNT;
+		ch->desc->glory_const->stat_add[stat] -= 1;
 	}
 }
 
 void olc_add_stat(CHAR_DATA *ch, int stat)
 {
 	int need_glory = add_stat_cost(stat, ch->desc->glory_const);
-	switch(stat)
+	bool ok = false;
+	switch (stat)
 	{
 		case GLORY_CON:
-		{
 			if (ch->desc->glory_const->olc_free_glory >= need_glory)
-			{
-				ch->desc->glory_const->olc_free_glory -= need_glory;
-				ch->desc->glory_const->stat_add[stat] += 1;
-			}
+				ok = true;
 			break;
-		}
 		case GLORY_STR:
 		case GLORY_DEX:
 		case GLORY_INT:
 		case GLORY_WIS:
 		case GLORY_CHA:
-		{
 			if (ch->desc->glory_const->olc_free_glory >= need_glory
 				&& ch->desc->glory_const->stat_cur[stat]
 					+ ch->desc->glory_const->stat_add[stat] < 50)
-			{
-				ch->desc->glory_const->olc_free_glory -= need_glory;
-				ch->desc->glory_const->stat_add[stat] += 1;
-			}
+				ok = true;
 			break;
-		}
 		case GLORY_HIT:
-		if (ch->desc->glory_const->olc_free_glory >= need_glory)
-		{
-			ch->desc->glory_const->olc_free_glory -= need_glory;
-			ch->desc->glory_const->stat_add[stat] += HP_FACTOR;
-		}
-		break;
+			if (ch->desc->glory_const->olc_free_glory >= need_glory
+				&& ch->desc->glory_const->stat_cur[stat]
+					+ ch->desc->glory_const->stat_add[stat] < 127)
+				ok = true;
+			break;
 		case GLORY_SUCCESS:
-		if (ch->desc->glory_const->olc_free_glory >= need_glory)
-		{
-			ch->desc->glory_const->olc_free_glory -= need_glory;
-			ch->desc->glory_const->stat_add[stat] += SUCCESS_FACTOR;
-		}
-		break;
 		case GLORY_WILL:
 		case GLORY_STABILITY:
 		case GLORY_REFLEX:
-		if (ch->desc->glory_const->olc_free_glory >= need_glory)
-		{
-			ch->desc->glory_const->olc_free_glory -= need_glory;
-			ch->desc->glory_const->stat_add[stat] += SAVE_FACTOR;
-		}
-		break;
-		case GLORY_MIND:
-		if (ch->desc->glory_const->olc_free_glory >= need_glory)
-		{
-			ch->desc->glory_const->olc_free_glory -= need_glory;
-			ch->desc->glory_const->stat_add[stat] += RESIST_FACTOR;
-		}
-		break;
+			if (ch->desc->glory_const->olc_free_glory >= need_glory
+				&& (ch->desc->glory_const->stat_cur[stat]
+					+ ch->desc->glory_const->stat_add[stat] + 1)*stat_multi(stat) < 127)
+				ok = true;
+			break;
 		default:
 			log("SYSERROR : bad stat %d (%s:%d)", stat, __FILE__, __LINE__);
+	}
+	if (ok)
+	{
+			ch->desc->glory_const->olc_free_glory -= need_glory;
+			ch->desc->glory_const->stat_add[stat] += 1;
 	}
 }
 
@@ -524,138 +424,88 @@ int calculate_glory_in_stats(GloryListType::const_iterator &i)
 	for (std::map<int, int>::const_iterator k = i->second->stats.begin(),
 		kend = i->second->stats.end(); k != kend; ++k)
 	{
-		int factor = 0;
-		switch(k->first)
-		{
-			case GLORY_STR:
-			case GLORY_DEX:
-			case GLORY_INT:
-			case GLORY_WIS:
-			case GLORY_CON:
-			case GLORY_CHA:
-				factor = 1;
-				break;
-			case GLORY_HIT:
-				factor = HP_FACTOR;
-				break;
-			case GLORY_SUCCESS:
-				factor = SUCCESS_FACTOR;
-				break;
-			case GLORY_WILL:
-			case GLORY_STABILITY:
-			case GLORY_REFLEX:
-				factor = SAVE_FACTOR;
-				break;
-			case GLORY_MIND:
-				factor = RESIST_FACTOR;
-				break;
-				}
-		for (int m = 0; m < k->second; m+=factor)
-			total += (m/factor * 200) + 1000;
+		for (int m = 0; m < k->second; m++)
+			total += m * 200 + 1000;
 	}
 	return total;
 }
 
 bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 {
-	switch (*arg)
+	switch (LOWER(*arg))
 	{
-		case 'А':
 		case 'а':
 			olc_del_stat(ch, GLORY_STR);
 			break;
-		case 'Б':
 		case 'б':
 			olc_del_stat(ch, GLORY_DEX);
 			break;
-		case 'Г':
 		case 'г':
 			olc_del_stat(ch, GLORY_INT);
 			break;
-		case 'Д':
 		case 'д':
 			olc_del_stat(ch, GLORY_WIS);
 			break;
-		case 'Е':
 		case 'е':
 			olc_del_stat(ch, GLORY_CON);
 			break;
-		case 'Ж':
 		case 'ж':
 			olc_del_stat(ch, GLORY_CHA);
 			break;
-		case 'З':
 		case 'з':
 			olc_del_stat(ch, GLORY_HIT);
 			break;
-		case 'И':
 		case 'и':
 			olc_del_stat(ch, GLORY_SUCCESS);
 			break;
-		case 'К':
 		case 'к':
 			olc_del_stat(ch, GLORY_WILL);
 			break;
-		case 'Л':
 		case 'л':
 			olc_del_stat(ch, GLORY_STABILITY);
 			break;
-		case 'М':
 		case 'м':
 			olc_del_stat(ch, GLORY_REFLEX);
 			break;
-		case 'Н':
 		case 'н':
 			olc_del_stat(ch, GLORY_MIND);
 			break;
 		case 'о':
 			olc_add_stat(ch, GLORY_STR);
 			break;
-		case 'П':
 		case 'п':
 			olc_add_stat(ch, GLORY_DEX);
 			break;
-		case 'Р':
 		case 'р':
 			olc_add_stat(ch, GLORY_INT);
 			break;
-		case 'С':
 		case 'с':
 			olc_add_stat(ch, GLORY_WIS);
 			break;
-		case 'Т':
 		case 'т':
 			olc_add_stat(ch, GLORY_CON);
 			break;
-		case 'У':
 		case 'у':
 			olc_add_stat(ch, GLORY_CHA);
 			break;
-		case 'Ф':
 		case 'ф':
 			olc_add_stat(ch, GLORY_HIT);
 			break;
-		case 'Х':
 		case 'х':
 			olc_add_stat(ch, GLORY_SUCCESS);
 			break;
-		case 'Ц':
 		case 'ц':
 			olc_add_stat(ch, GLORY_WILL);
 			break;
-		case 'Ч':
 		case 'ч':
 			olc_add_stat(ch, GLORY_STABILITY);
 			break;
-		case 'Ш':
 		case 'ш':
 			olc_add_stat(ch, GLORY_REFLEX);
 			break;
-		case 'Щ':
 		case 'щ':
 			olc_add_stat(ch, GLORY_MIND);
 			break;
-			case 'В':
 		case 'в':
 		{
 			// получившиеся статы
@@ -708,7 +558,6 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 			save();
 			return 1;
 		}
-		case 'Я':
 		case 'я':
 			ch->desc->glory_const.reset();
 			STATE(ch->desc) = CON_PLAYING;
@@ -1048,9 +897,11 @@ ACMD(do_glory)
 void save()
 {
 	pugi::xml_document doc;
+	doc.append_attribute("encoding") = "koi8-r";
 	doc.append_child().set_name("glory_list");
 	pugi::xml_node char_list = doc.child("glory_list");
 
+	char_list.append_attribute("version") = cur_ver;
 	for (GloryListType::const_iterator i = glory_list.begin(), iend = glory_list.end(); i != iend; ++i)
 	{
 		pugi::xml_node char_node = char_list.append_child();
@@ -1061,10 +912,17 @@ void save()
 		for (std::map<int, int>::const_iterator k = i->second->stats.begin(),
 			kend = i->second->stats.end(); k != kend; ++k)
 		{
-			pugi::xml_node stat = char_node.append_child();
-			stat.set_name("stat");
-			stat.append_attribute("num") = k->first;
-			stat.append_attribute("amount") = k->second;
+			if (k->second > 0)
+			{
+				pugi::xml_node stat = char_node.append_child();
+				stat.set_name("stat");
+				stat.append_attribute("num") = k->first;
+				stat.append_attribute("amount") = k->second;
+			}
+		}
+		if ((char_node.begin() == char_node.end()) && (i->second->free_glory == 0))
+		{
+			char_list.remove_child(char_node);
 		}
 	}
 
@@ -1081,6 +939,7 @@ void save()
 
 void load()
 {
+	int ver=0;
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(LIB_PLRSTUFF"glory_const.xml");
 	if (!result)
@@ -1089,7 +948,16 @@ void load()
 		perror(buf);
 		return;
 	}
-    pugi::xml_node char_list = doc.child("glory_list");
+	pugi::xml_node char_list = doc.child("glory_list");
+	if(char_list.attribute("version")) {
+		ver = boost::lexical_cast<int>(char_list.attribute("version").value());
+		if (ver > cur_ver)
+		{
+			snprintf(buf, MAX_STRING_LENGTH, "SYSERR: error reading glory_const.xml: unsupported version: %d, current version: %d", ver, cur_ver);
+			perror(buf);
+			return;
+		}
+	} 
 	for (pugi::xml_node node = char_list.child("char"); node; node = node.next_sibling("char"))
 	{
 		long uid = boost::lexical_cast<long>(node.attribute("uid").value());
@@ -1113,8 +981,20 @@ void load()
 
 		for (pugi::xml_node stat = node.child("stat"); stat; stat = stat.next_sibling("stat"))
 		{
+			int divider = 1;
 			int stat_num = boost::lexical_cast<int>(stat.attribute("num").value());
-			int stat_amount = boost::lexical_cast<int>(stat.attribute("amount").value());
+			if (ver == 0)
+			{
+				if(stat_num == GLORY_HIT)
+					divider = 50;
+				if(stat_num == GLORY_SUCCESS)
+					divider = 10;
+				if(stat_num >= GLORY_WILL && stat_num <= GLORY_REFLEX)
+					divider = 15;
+				if(stat_num == GLORY_MIND)
+					divider = 7;
+			}
+			int stat_amount = boost::lexical_cast<int>(stat.attribute("amount").value())/divider;
 			if (stat_num >= GLORY_TOTAL && stat_num < 0)
 			{
 				log("SYSERROR : невалидный номер влитого стата num=%d, name=%s (%s:%d)",
@@ -1141,6 +1021,8 @@ void load()
     {
 		total_spent = boost::lexical_cast<int>(spent_node.attribute("amount").value());
     }
+    if (ver < cur_ver)//автоматом обновляем xml
+    	save();
 }
 
 void set_stats(CHAR_DATA *ch)
@@ -1240,14 +1122,15 @@ void apply_modifiers(CHAR_DATA *ch)
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	if (it==glory_list.end())
 		return;
+	
 	for (std::map<int, int>::const_iterator i = it->second->stats.begin(); i != it->second->stats.end(); ++i)
 	{
 		int location = 0;
 		bool add = true;
-	switch (i->first)
+		switch (i->first)
 		{
 			case GLORY_HIT:
-				location = APPLY_HIT;
+				location = APPLY_HIT_GLORY;
 				break;
 			case GLORY_SUCCESS:
 				location = APPLY_CAST_SUCCESS;
@@ -1270,9 +1153,10 @@ void apply_modifiers(CHAR_DATA *ch)
 			default:
 				break;
 		}
+		// TODO: убрать наверно надо эти костыли блин, но аппли у нас не позволяет навесить что либо больше чем влазит в signed byte т.е. +127
 		if (location)
-			affect_modify(ch, location, i->second, 0, add);
-		}
-		}
+			affect_modify(ch, location, (i->second) * (location != APPLY_HIT_GLORY ? stat_multi(i->first) : 1), 0, add);
+	}
+}
 
 } // namespace GloryConst

@@ -54,6 +54,16 @@ extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 extern char const *class_abbrevs[];
 
+void fix_ingr_chest_rnum(const int room_rnum)//Нужно чтоб позиция короба не съехала
+{
+	for (ClanListType::iterator i = Clan::ClanList.begin(),
+		iend = Clan::ClanList.end(); i != iend; ++i)
+	{
+		if ((*i)->get_ingr_chest_room_rnum() >= room_rnum)
+			(*i)->set_ingr_chest_room_rnum((*i)->get_ingr_chest_room_rnum() + 1);
+	}
+}
+
 namespace
 {
 
@@ -160,7 +170,6 @@ void delete_board_message(const std::string &name, int vnum)
 	}
 	(*board)->Save();
 }
-
 
 } // namespace
 
@@ -1543,6 +1552,11 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 	// своей дружине
 	case SCMD_CHANNEL:
 	{
+		if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
+		{
+			send_to_char("Пришли наблюдать, так наблюдайте!\r\n", ch);
+			return;
+		}
 		// вспомнить
 		snprintf(buf, MAX_STRING_LENGTH, "%s дружине: &R'%s'.&n\r\n", GET_NAME(ch), text.c_str());
 		CLAN(ch)->add_remember(buf, Remember::CLAN);
@@ -1569,6 +1583,11 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 	// союзникам
 	case SCMD_ACHANNEL:
 	{
+		if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
+		{
+			send_to_char("Пришли наблюдать, так наблюдайте!\r\n", ch);
+			return;
+		}
 		// вспомнить
 		snprintf(buf, MAX_STRING_LENGTH, "%s союзникам: &G'%s'.&n\r\n", GET_NAME(ch), text.c_str());
 		for (ClanListType::iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)

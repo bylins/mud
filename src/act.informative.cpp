@@ -5070,7 +5070,7 @@ void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur)
 	if (num > 0)
 		sprintf(buf, "O%3d. %-25s - ", num, obj->short_description);
 	else
-		sprintf(buf, "%33s", " - ");
+		sprintf(buf, "%34s", " - ");
 
 	if (obj->in_room > NOWHERE)
 	{

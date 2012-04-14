@@ -158,7 +158,7 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 		}
 		obj_to_obj(obj, cont);
 
-		act("$n положил$g $o3 в $O3.", TRUE, ch, obj, cont, TO_ROOM);
+		act("$n положил$g $o3 в $O3.", TRUE, ch, obj, cont, TO_ROOM | TO_ARENA_LISTEN);
 
 		/* Yes, I realize this is strange until we have auto-equip on rent. -gg */
 		if (IS_OBJ_STAT(obj, ITEM_NODROP) && !IS_OBJ_STAT(cont, ITEM_NODROP))
@@ -505,7 +505,7 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	else if (invalid_unique(ch, obj) || (strstr(obj->name, "clan") && (IS_NPC(ch) || !CLAN(ch) || !strstr(obj->name, buf))))
 	{
 		act("Вас обожгло при попытке взять $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		return (0);
 	}
 	return (1);
@@ -568,11 +568,11 @@ bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont,
 			if (bloody::is_bloody(obj))
 			{
 				act("Вы взяли $o3 из $O1, испачкав свои руки кровью!", FALSE, ch, obj, cont, TO_CHAR);
-				act("$n взял$g $o3 из $O1, испачкав руки кровью.", TRUE, ch, obj, cont, TO_ROOM);
+				act("$n взял$g $o3 из $O1, испачкав руки кровью.", TRUE, ch, obj, cont, TO_ROOM | TO_ARENA_LISTEN);
 			} else
 			{
 				act("Вы взяли $o3 из $O1.", FALSE, ch, obj, cont, TO_CHAR);
-				act("$n взял$g $o3 из $O1.", TRUE, ch, obj, cont, TO_ROOM);
+				act("$n взял$g $o3 из $O1.", TRUE, ch, obj, cont, TO_ROOM | TO_ARENA_LISTEN);
 			}
 			get_check_money(ch, obj);
 		}
@@ -662,10 +662,10 @@ int perform_get_from_room(CHAR_DATA * ch, OBJ_DATA * obj)
 			if (bloody::is_bloody(obj))
 			{
 				act("Вы подняли $o3, испачкав  свои руки кровью!", FALSE, ch, obj, 0, TO_CHAR);
-				act("$n поднял$g $o3, испачкав руки кровью.", TRUE, ch, obj, 0, TO_ROOM);
+				act("$n поднял$g $o3, испачкав руки кровью.", TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 			} else {
 				act("Вы подняли $o3.", FALSE, ch, obj, 0, TO_CHAR);
-				act("$n поднял$g $o3.", TRUE, ch, obj, 0, TO_ROOM);
+				act("$n поднял$g $o3.", TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 			}
 			get_check_money(ch, obj);
 			return (1);
@@ -975,7 +975,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 					sprintf(buf, "Вы бросили %d %s на землю.", amount, desc_count(amount, WHAT_MONEYu));
 					send_to_char(buf, ch);
 					sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
-					act(buf, TRUE, ch, 0, 0, TO_ROOM);
+					act(buf, TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				}
 				obj_to_room(obj, ch->in_room);
 			}
@@ -1019,7 +1019,7 @@ int perform_drop(CHAR_DATA * ch, OBJ_DATA * obj, byte mode, const int sname, roo
 	sprintf(buf, "Вы %s $o3.%s", drop_op[sname][1], VANISH(mode));
 	act(buf, FALSE, ch, obj, 0, TO_CHAR);
 	sprintf(buf, "$n %s$g $o3.%s", drop_op[sname][2], VANISH(mode));
-	act(buf, TRUE, ch, obj, 0, TO_ROOM);
+	act(buf, TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 	obj_from_char(obj);
 
 	if ((mode == SCMD_DONATE) && IS_OBJ_STAT(obj, ITEM_NODONATE))
@@ -1183,7 +1183,7 @@ ACMD(do_drop)
 	if (amount && (subcmd == SCMD_JUNK))
 	{
 		send_to_char("Боги не обратили внимания на этот хлам.\r\n", ch);
-		act("$n принес$q жертву. Но Боги были глухи к н$m !", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n принес$q жертву. Но Боги были глухи к н$m !", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 
 }
@@ -1218,7 +1218,7 @@ void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj)
 
 	act("Вы дали $o3 $N2.", FALSE, ch, obj, vict, TO_CHAR);
 	act("$n дал$g Вам $o3.", FALSE, ch, obj, vict, TO_VICT);
-	act("$n дал$g $o3 $N2.", TRUE, ch, obj, vict, TO_NOTVICT);
+	act("$n дал$g $o3 $N2.", TRUE, ch, obj, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 	obj_from_char(obj);
 	obj_to_char(obj, vict);
 }
@@ -1269,7 +1269,7 @@ void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 	sprintf(buf, "$n дал$g Вам %d %s.", amount, desc_count(amount, WHAT_MONEYu));
 	act(buf, FALSE, ch, 0, vict, TO_VICT);
 	sprintf(buf, "$n дал$g %s $N2.", money_desc(amount, 3));
-	act(buf, TRUE, ch, 0, vict, TO_NOTVICT);
+	act(buf, TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 	if (IS_NPC(ch) || !IS_IMPL(ch))
 	{
 		ch->remove_gold(amount);
@@ -1460,12 +1460,12 @@ ACMD(do_eat)
 	if (subcmd == SCMD_EAT || (subcmd == SCMD_TASTE && GET_OBJ_TYPE(food) == ITEM_NOTE))
 	{
 		act("Вы съели $o3.", FALSE, ch, food, 0, TO_CHAR);
-		act("$n съел$g $o3.", TRUE, ch, food, 0, TO_ROOM);
+		act("$n съел$g $o3.", TRUE, ch, food, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 	else
 	{
 		act("Вы откусили маленький кусочек от $o1.", FALSE, ch, food, 0, TO_CHAR);
-		act("$n попробовал$g $o3 на вкус.", TRUE, ch, food, 0, TO_ROOM);
+		act("$n попробовал$g $o3 на вкус.", TRUE, ch, food, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 
 	amount = ((subcmd == SCMD_EAT && GET_OBJ_TYPE(food) != ITEM_NOTE)
@@ -1479,7 +1479,7 @@ ACMD(do_eat)
 	if (GET_OBJ_VAL(food, 3) && !IS_IMMORTAL(ch))  	/* The shit was poisoned ! */
 	{
 		send_to_char("Однако, какой странный вкус !\r\n", ch);
-		act("$n закашлял$u и начал$g отплевываться.", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n закашлял$u и начал$g отплевываться.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
 		af.type = SPELL_POISON;
 		af.duration = pc_duration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
@@ -1975,7 +1975,7 @@ void perform_remove(CHAR_DATA * ch, int pos)
 			if (!remove_otrigger(obj, ch))
 				return;
 			act("Вы прекратили использовать $o3.", FALSE, ch, obj, 0, TO_CHAR);
-			act("$n прекратил$g использовать $o3.", TRUE, ch, obj, 0, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 			obj_to_char(unequip_char(ch, pos | 0x40), ch);
 		}
 }
@@ -2118,18 +2118,18 @@ ACMD(do_upgrade)
 	case MAT_COLOR:
 	case MAT_BONE:
 		act("Вы взялись точить $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n взял$u точить $o3.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$n взял$u точить $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		weight = -1;
 		break;
 	case MAT_WOOD:
 	case MAT_SUPERWOOD:
 		act("Вы взялись стругать $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n взял$u стругать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$n взял$u стругать $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		weight = -1;
 		break;
 	case MAT_SKIN:
 		act("Вы взялись проклепывать $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n взял$u проклепывать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$n взял$u проклепывать $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		weight = + 1;
 		break;
 	default:
@@ -2231,16 +2231,16 @@ ACMD(do_armored)
 	case MAT_IRON:
 	case MAT_STEEL:
 		act("Вы принялись закалять $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n принял$u закалять $o3.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$n принял$u закалять $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		break;
 	case MAT_WOOD:
 	case MAT_SUPERWOOD:
 		act("Вы принялись обшивать $o3 железом.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n принял$u обшивать $o3 железом.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$n принял$u обшивать $o3 железом.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		break;
 	case MAT_SKIN:
 		act("Вы принялись проклепывать $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n принял$u проклепывать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$n принял$u проклепывать $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		break;
 	default:
 		sprintf(buf, "К сожалению, %s сделан из неподходящего материала.\r\n", OBJN(obj, ch, 0));
@@ -2329,7 +2329,7 @@ ACMD(do_fire)
 	{
 		world[IN_ROOM(ch)]->fires = MAX(0, (prob - percent) / 5) + 1;
 		send_to_char("Вы набрали хворосту и разожгли огонь.\n\r", ch);
-		act("$n развел$g огонь.", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n развел$g огонь.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		improove_skill(ch, SKILL_FIRE, TRUE, 0);
 	}
 }
@@ -2369,7 +2369,7 @@ ACMD(do_extinguish)
         {
             world[IN_ROOM(ch)]->fires = 0;
             send_to_char("Вы затоптали костер.\r\n", ch);
-            act("$n затоптал$g костер.", FALSE, ch, 0, 0, TO_ROOM);
+            act("$n затоптал$g костер.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
             lag = 2;
         }
         else
@@ -2383,7 +2383,7 @@ ACMD(do_extinguish)
         {
             affect_room_remove(world[IN_ROOM(ch)], aff);
             send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
-            act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM);
+            act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
             if (GET_ID(ch) != aff->caster_id) //чел стирает не свою метку - вай, нехорошо
             {
                 //Ищем кастера по миру
@@ -2501,7 +2501,7 @@ ACMD(do_firstaid)
 			{
 				act("Вы оказали первую помощь $N2.", FALSE, ch, 0, vict, TO_CHAR);
 				act("$N оказал$G Вам первую помощь.", FALSE, vict, 0, ch, TO_CHAR);
-				act("$n оказал$g первую помощь $N2.", TRUE, ch, 0, vict, TO_NOTVICT);
+				act("$n оказал$g первую помощь $N2.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 				if (spellnum)
 					affect_from_char(vict, spellnum);
 			}
@@ -2512,7 +2512,7 @@ ACMD(do_firstaid)
 				act("$N безрезультатно попытал$U оказать Вам первую помощь.",
 					FALSE, vict, 0, ch, TO_CHAR);
 				act("$n безрезультатно попытал$u оказать первую помощь $N2.",
-					TRUE, ch, 0, vict, TO_NOTVICT);
+					TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 			}
 		}
 		else
@@ -2520,7 +2520,7 @@ ACMD(do_firstaid)
 			if (success)
 			{
 				act("Вы оказали себе первую помощь.", FALSE, ch, 0, 0, TO_CHAR);
-				act("$n оказал$g себе первую помощь.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n оказал$g себе первую помощь.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				if (spellnum)
 					affect_from_char(vict, spellnum);
 			}
@@ -2529,7 +2529,7 @@ ACMD(do_firstaid)
 				act("Вы безрезультатно попытались оказать себе первую помощь.",
 					FALSE, ch, 0, vict, TO_CHAR);
 				act("$n безрезультатно попытал$u оказать себе первую помощь.",
-					FALSE, ch, 0, vict, TO_ROOM);
+					FALSE, ch, 0, vict, TO_ROOM | TO_ARENA_LISTEN);
 			}
 		}
 	}
@@ -2604,7 +2604,7 @@ ACMD(do_poisoned)
 
 	snprintf(buf, sizeof(buf), "Вы осторожно нанесли немного %s на $o3.", drinks[GET_OBJ_VAL(cont, 2)]);
 	act(buf, FALSE, ch, weapon, 0, TO_CHAR);
-	act("$n осторожно нанес$q яд на $o3.", FALSE, ch, weapon, 0, TO_ROOM);
+	act("$n осторожно нанес$q яд на $o3.", FALSE, ch, weapon, 0, TO_ROOM | TO_ARENA_LISTEN);
 }
 
 ACMD(do_repair)
@@ -2663,7 +2663,7 @@ ACMD(do_repair)
 		if (obj->obj_flags.Obj_cur)
 		{
 			act("Вы попытались починить $o3, но сломали $S еще больше.", FALSE, ch, obj, 0, TO_CHAR);
-			act("$n попытал$u починить $o3, но сломал$g $S еще больше.", FALSE, ch, obj, 0, TO_ROOM);
+			act("$n попытал$u починить $o3, но сломал$g $S еще больше.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 			decay = (GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj)) / 10;
 			decay = MAX(1, MIN(decay, GET_OBJ_MAX(obj) / 20));
 			if (GET_OBJ_MAX(obj) > decay)
@@ -2674,7 +2674,7 @@ ACMD(do_repair)
 		else
 		{
 			act("Вы окончательно доломали $o3.", FALSE, ch, obj, 0, TO_CHAR);
-			act("$n окончательно доломал$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
+			act("$n окончательно доломал$g $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 			extract_obj(obj);
 		}
 	}
@@ -2687,7 +2687,7 @@ ACMD(do_repair)
 		}
 		GET_OBJ_CUR(obj) = MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1);
 		send_to_char(ch, "Теперь %s выгляд%s лучше.\r\n", GET_OBJ_PNAME(obj, 0), GET_OBJ_POLY_1(ch, obj));
-		act("$n умело починил$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$n умело починил$g $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 }
 
@@ -2743,12 +2743,12 @@ ACMD(do_makefood)
 	if (prob > percent || !(tobj = read_object(meet_vnum[number(0, 3)], VIRTUAL)))
 	{
 		act("Вы не сумели освежевать $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n попытал$u освежевать $o3, но неудачно.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$n попытал$u освежевать $o3, но неудачно.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 	else
 	{
 		//sprintf (buf, "$n умело вырезал$g %s из $o1.", tobj->PNames[3]);
-		act("$n умело освежевал$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$n умело освежевал$g $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		//sprintf (buf, "Вы умело вырезали %s из $o1.", tobj->PNames[3]);
 		act("Вы умело освежевали $o3.", FALSE, ch, obj, 0, TO_CHAR);
 
@@ -2828,7 +2828,7 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	//end Ann
 	if (number(1, 100) < chance_to_eat)
 	{
-		act("$N подавил$U и начал$G сильно кашлять.", TRUE, ch, NULL, ch, TO_ROOM);
+		act("$N подавил$U и начал$G сильно кашлять.", TRUE, ch, NULL, ch, TO_ROOM | TO_ARENA_LISTEN);
 		GET_HIT(ch) -= 3 * mob_level;
 		update_pos(ch);
 		// Подавился насмерть.
@@ -2860,9 +2860,9 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 
 	affect_join_fspell(ch, &af);
 
-	act("Громко чавкая, $N сожрал$G труп.", TRUE, ch, obj, ch, TO_ROOM);
+	act("Громко чавкая, $N сожрал$G труп.", TRUE, ch, obj, ch, TO_ROOM | TO_ARENA_LISTEN);
 	act("Похоже, лакомство пришлось по вкусу.", TRUE, ch, NULL, ch->master, TO_VICT);
-	act("От омерзительного зрелища Вас едва не вывернуло.", TRUE, ch, NULL, ch->master, TO_NOTVICT);
+	act("От омерзительного зрелища Вас едва не вывернуло.", TRUE, ch, NULL, ch->master, TO_NOTVICT | TO_ARENA_LISTEN);
 
 	if (GET_HIT(ch) < GET_MAX_HIT(ch))
 	{
@@ -2872,8 +2872,9 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	if (GET_HIT(ch) >= GET_MAX_HIT(ch))
 	{
 		act("$n сыто рыгнул$g и благодарно посмотрел$g на Вас.", TRUE, ch, NULL, ch->master, TO_VICT);
-		act("$n сыто рыгнул$g и благодарно посмотрел$g на $N3.", TRUE, ch, NULL, ch->master, TO_NOTVICT);
+		act("$n сыто рыгнул$g и благодарно посмотрел$g на $N3.", TRUE, ch, NULL, ch->master, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 
 	extract_obj(obj);
 }
+

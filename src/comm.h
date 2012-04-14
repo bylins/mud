@@ -30,7 +30,7 @@ void send_to_outdoor(const char *messg, int control);
 void send_to_gods(const char *messg);
 void perform_to_all(const char *messg, CHAR_DATA * ch);
 void close_socket(DESCRIPTOR_DATA * d, int derect);
-void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, CHAR_DATA * to);
+void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, CHAR_DATA * to, const int arena = 0);
 void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, int type);
 unsigned long get_ip(const char *addr);
 
@@ -41,12 +41,13 @@ unsigned long get_ip(const char *addr);
 #define TO_VICT		2
 #define TO_NOTVICT	3
 #define TO_CHAR		4
-#define TO_ROOM_HIDE    5	/* В комнату, но только тем, кто чувствует жизнь */
+#define TO_ROOM_HIDE    5	// В комнату, но только тем, кто чувствует жизнь
 #define CHECK_NODEAF    32	// посылать только глухим
 #define CHECK_DEAF      64	// не посылать глухим
-#define TO_SLEEP	128	/* to char, even if sleeping */
+#define TO_SLEEP	128	// to char, even if sleeping
+#define TO_ARENA_LISTEN	512	// не отсылать сообщение с арены слушателям, чтоб не спамить передвижениями и тп
 
-/* I/O functions */
+// I/O functions
 int write_to_descriptor(socket_t desc, const char *txt, size_t total);
 void write_to_q(const char *txt, struct txt_q *queue, int aliased);
 void write_to_output(const char *txt, DESCRIPTOR_DATA * d);

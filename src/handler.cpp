@@ -40,6 +40,7 @@
 #include "name_list.hpp"
 #include "room.hpp"
 #include "named_stuff.hpp"
+#include "glory_const.hpp"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 
@@ -473,6 +474,9 @@ void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool a
 		break;
 	case APPLY_DATURA_POISON:
 		GET_POISON(ch) += mod;
+		break;
+	case APPLY_HIT_GLORY: //вкачка +хп за славу
+		GET_HIT_ADD(ch) += mod * GloryConst::HP_FACTOR;
 		break;
 	default:
 		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);

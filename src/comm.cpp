@@ -212,7 +212,7 @@ int parse_ip(const char *addr, struct in_addr *inaddr);
 int set_sendbuf(socket_t s);
 void setup_logs(void);
 int open_logfile(log_info * li, FILE * stderr_fp);
-void make_who2html();
+//void make_who2html();
 
 #if defined(POSIX)
 sigfunc *my_signal(int signo, sigfunc * func);
@@ -965,7 +965,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 					char_from_room(d->character);
 				char_to_room(d->character, d->character->get_was_in_room());
 				d->character->set_was_in_room(NOWHERE);
-				act("$n вернул$u.", TRUE, d->character, 0, 0, TO_ROOM);
+				act("$n вернул$u.", TRUE, d->character, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				GET_WAIT_STATE(d->character) = 1;
 			}
 		}
@@ -1069,7 +1069,7 @@ void game_loop(socket_t mother_desc)
 		if (descriptor_list == NULL)
 		{
 			log("No connections.  Going to sleep.");
-			make_who2html();
+			//make_who2html();
 			FD_ZERO(&input_set);
 			FD_SET(mother_desc, &input_set);
 			if (select(mother_desc + 1, &input_set, (fd_set *) 0, (fd_set *) 0, NULL) < 0)
@@ -1276,7 +1276,7 @@ inline void heartbeat(const int missed_pulses)
 
 	if (!(pulse % (30 * PASSES_PER_SEC)))
 	{
-		make_who2html();
+		//make_who2html();
 		if (uptime_minutes >= (reboot_uptime - 30) && shutdown_time == 0)
 		{
 			//reboot after 30 minutes minimum. Auto reboot cannot run earlier.
@@ -2282,10 +2282,12 @@ int new_descriptor(socket_t s)
 	descriptor_list = newd;
 
 	SEND_TO_Q("Using keytable\r\n"
-			  "  0) Koi-8\r\n"
-			  "  1) Alt\r\n"
-			  "  2) Windows(JMC,MMC)\r\n"
-			  "  3) Windows(zMUD)\r\n" "  4) Windows(zMUD ver. 6+)\r\n" "Select one : ", newd);
+		  "  0) Koi-8\r\n"
+		  "  1) Alt\r\n"
+		  "  2) Windows(JMC,MMC)\r\n"
+		  "  3) Windows(zMUD)\r\n"
+		  "  4) Windows(zMUD ver. 6+)\r\n"
+		  "Select one : ", newd);
 
 #if defined(HAVE_ZLIB)
 //  write_to_descriptor(newd->descriptor, will_sig, strlen(will_sig));
@@ -2341,7 +2343,7 @@ int process_output(DESCRIPTOR_DATA * t)
 			if (*(i+c)=='\n' || *(i+c)=='\r')
 				break;
 			else if (*(i+c)!=';' && *(i+c)!='\033' && *(i+c)!='m' && !(*(i+c)>='0' && *(i+c)<='9') &&
-			         *(i+c)!='[' && *(i+c)!='&' && *(i+c)!='n' && *(i+c)!='R'  && *(i+c)!='Q' && *(i+c)!='q')
+			         *(i+c)!='[' && *(i+c)!='&' && *(i+c)!='n' && *(i+c)!='R' && *(i+c)!='Y' && *(i+c)!='Q' && *(i+c)!='q')
 			{
 				strcat(i, "\r\n");
 				break;
@@ -3158,7 +3160,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 
 		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT)
 		{
-			act("$n потерял$g связь.", TRUE, d->character, 0, 0, TO_ROOM);
+			act("$n потерял$g связь.", TRUE, d->character, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			if (d->character->get_fighting() && PRF_FLAGGED(d->character, PRF_ANTIDC_MODE))
 			{
 				snprintf(buf2, sizeof(buf2), "зачитать свиток.возврата");
@@ -3574,7 +3576,7 @@ void send_to_room(const char *messg, room_rnum room, int to_awake)
   ((pointer) == NULL) ? ACTNULL : (expression)
 
 /* higher-level communication: the act() function */
-void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, CHAR_DATA * to)
+void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, CHAR_DATA * to, const int arena)
 {
 	const char *i = NULL;
 	char nbuf[256];
@@ -3596,28 +3598,26 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 			case 'n':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
 				{
-					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", (!IS_NPC(ch) && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_NAME(ch) : PERS(ch, to, 0));
+					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", (!IS_NPC(ch) && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_NAME(ch) : APERS(ch, to, 0, arena));
 					i = nbuf;
-					//i = (!IS_NPC(ch) && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_NAME(ch) : PERS(ch, to, 0);
 				}
 				else
 				{
 					padis = *(++orig) - '0';
-					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", (!IS_NPC(ch) && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_PAD(ch, padis) : PERS(ch, to, padis));
+					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", (!IS_NPC(ch) && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_PAD(ch, padis) : APERS(ch, to, padis, arena));
 					i = nbuf;
-					//i = (!IS_NPC(ch) && (IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))) ? GET_PAD(ch, padis) : PERS(ch, to, padis);
 				}
 				break;
 			case 'N':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
 				{
-					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj, PERS((const CHAR_DATA *) vict_obj, to, 0)));
+					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj, APERS((const CHAR_DATA *) vict_obj, to, 0, arena)));
 					i = nbuf;
 				}
 				else
 				{
 					padis = *(++orig) - '0';
-					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj, PERS((const CHAR_DATA *) vict_obj, to, padis)));
+					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj, APERS((const CHAR_DATA *) vict_obj, to, padis, arena)));
 					i = nbuf;
 				}
 				dg_victim = (CHAR_DATA *) vict_obj;
@@ -3659,37 +3659,37 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 			case 'o':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
 				{
-					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(obj, OBJN(obj, to, 0)));
+					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(obj, AOBJN(obj, to, 0, arena)));
 					i = nbuf;
 				}
 				else
 				{
 					padis = *(++orig) - '0';
-					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(obj, OBJN(obj, to, padis > 5 ? 0 : padis)));
+					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(obj, AOBJN(obj, to, padis > 5 ? 0 : padis, arena)));
 					i = nbuf;
 				}
 				break;
 			case 'O':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
 				{
-					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj, OBJN((const OBJ_DATA *) vict_obj, to, 0)));
+					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj, AOBJN((const OBJ_DATA *) vict_obj, to, 0, arena)));
 					i = nbuf;
 				}
 				else
 				{
 					padis = *(++orig) - '0';
 					snprintf(nbuf, sizeof(nbuf), "&q%s&Q", CHK_NULL(vict_obj,
-							   OBJN((const OBJ_DATA *) vict_obj, to, padis > 5 ? 0 : padis)));
+							   AOBJN((const OBJ_DATA *) vict_obj, to, padis > 5 ? 0 : padis, arena)));
 					i = nbuf;
 				}
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 'p':
-				CHECK_NULL(obj, OBJS(obj, to));
+				CHECK_NULL(obj, AOBJS(obj, to, arena));
 				break;
 			case 'P':
-				CHECK_NULL(vict_obj, OBJS((const OBJ_DATA *) vict_obj, to));
+				CHECK_NULL(vict_obj, AOBJS((const OBJ_DATA *) vict_obj, to, arena));
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
@@ -3710,68 +3710,68 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 				break;
 
 			case 'a':
-				i = IS_IMMORTAL(ch) ? GET_CH_SUF_6(ch) : GET_CH_VIS_SUF_6(ch, to);
+				i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_6(ch) : GET_CH_VIS_SUF_6(ch, to);
 				break;
 			case 'A':
 				if (vict_obj)
-					i = GET_CH_VIS_SUF_6((const CHAR_DATA *) vict_obj, to);
+					i = arena ? GET_CH_SUF_6((const CHAR_DATA *) vict_obj) : GET_CH_VIS_SUF_6((const CHAR_DATA *) vict_obj, to);
 				else
-					CHECK_NULL(obj, GET_OBJ_VIS_SUF_6(obj, to));
+					CHECK_NULL(obj, arena ? GET_OBJ_SUF_6(obj) : GET_OBJ_VIS_SUF_6(obj, to));
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 'g':
-				i = IS_IMMORTAL(ch) ? GET_CH_SUF_1(ch) : GET_CH_VIS_SUF_1(ch, to);
+				i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_1(ch) : GET_CH_VIS_SUF_1(ch, to);
 				break;
 			case 'G':
 				if (vict_obj)
-					i = GET_CH_VIS_SUF_1((const CHAR_DATA *) vict_obj, to);
+					i = arena ? GET_CH_SUF_1((const CHAR_DATA *) vict_obj) : GET_CH_VIS_SUF_1((const CHAR_DATA *) vict_obj, to);
 				else
-					CHECK_NULL(obj, GET_OBJ_VIS_SUF_1(obj, to));
+					CHECK_NULL(obj, arena ? GET_OBJ_SUF_1(obj) : GET_OBJ_VIS_SUF_1(obj, to));
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 'y':
-				i = IS_IMMORTAL(ch) ? GET_CH_SUF_5(ch) : GET_CH_VIS_SUF_5(ch, to);
+				i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_5(ch) : GET_CH_VIS_SUF_5(ch, to);
 				break;
 			case 'Y':
 				if (vict_obj)
-					i = GET_CH_VIS_SUF_5((const CHAR_DATA *) vict_obj, to);
+					i = arena ? GET_CH_SUF_5((const CHAR_DATA *) vict_obj) : GET_CH_VIS_SUF_5((const CHAR_DATA *) vict_obj, to);
 				else
-					CHECK_NULL(obj, GET_OBJ_VIS_SUF_5(obj, to));
+					CHECK_NULL(obj, arena ? GET_OBJ_SUF_5(obj) : GET_OBJ_VIS_SUF_5(obj, to));
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 'u':
-				i = IS_IMMORTAL(ch) ? GET_CH_SUF_2(ch) : GET_CH_VIS_SUF_2(ch, to);
+				i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_2(ch) : GET_CH_VIS_SUF_2(ch, to);
 				break;
 			case 'U':
 				if (vict_obj)
-					i = GET_CH_VIS_SUF_2((const CHAR_DATA *) vict_obj, to);
+					i = arena ? GET_CH_SUF_2((const CHAR_DATA *) vict_obj) : GET_CH_VIS_SUF_2((const CHAR_DATA *) vict_obj, to);
 				else
-					CHECK_NULL(obj, GET_OBJ_VIS_SUF_2(obj, to));
+					CHECK_NULL(obj, arena ? GET_OBJ_SUF_2(obj) : GET_OBJ_VIS_SUF_2(obj, to));
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 'w':
-				i = IS_IMMORTAL(ch) ? GET_CH_SUF_3(ch) : GET_CH_VIS_SUF_3(ch, to);
+				i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_3(ch) : GET_CH_VIS_SUF_3(ch, to);
 				break;
 			case 'W':
 				if (vict_obj)
-					i = GET_CH_VIS_SUF_3((const CHAR_DATA *) vict_obj, to);
+					i = arena ? GET_CH_SUF_3((const CHAR_DATA *) vict_obj) : GET_CH_VIS_SUF_3((const CHAR_DATA *) vict_obj, to);
 				else
-					CHECK_NULL(obj, GET_OBJ_VIS_SUF_3(obj, to));
+					CHECK_NULL(obj, arena ? GET_OBJ_SUF_3(obj) : GET_OBJ_VIS_SUF_3(obj, to));
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 
 			case 'q':
-				i = IS_IMMORTAL(ch) ? GET_CH_SUF_4(ch) : GET_CH_VIS_SUF_4(ch, to);
+				i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_4(ch) : GET_CH_VIS_SUF_4(ch, to);
 				break;
 			case 'Q':
 				if (vict_obj)
-					i = GET_CH_VIS_SUF_4((const CHAR_DATA *) vict_obj, to);
+					i = arena ? GET_CH_SUF_4((const CHAR_DATA *) vict_obj) : GET_CH_VIS_SUF_4((const CHAR_DATA *) vict_obj, to);
 				else
-					CHECK_NULL(obj, GET_OBJ_VIS_SUF_4(obj, to));
+					CHECK_NULL(obj, arena ? GET_OBJ_SUF_4(obj) : GET_OBJ_VIS_SUF_4(obj, to));
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
 //Polud Добавил склонение местоимения Ваш(е,а,и)
@@ -3825,7 +3825,11 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 	{
 		/* Делаем первый символ большим, учитывая &X */
 		if (lbuf[0] == '&')
+		{
 			CAP(lbuf + 2);
+			if (lbuf[2] == '&')
+				CAP(lbuf + 4);
+		}
 		SEND_TO_Q(CAP(lbuf), to->desc);
 	}
 
@@ -3842,7 +3846,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, int type)
 {
 	CHAR_DATA *to;
-	int to_sleeping, check_deaf, check_nodeaf, stopcount;
+	int to_sleeping, check_deaf, check_nodeaf, stopcount, to_arena=0, arena_room_rnum;
 
 	if (!str || !*str)
 		return;
@@ -3861,6 +3865,8 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 	 * do not change it to something else.  In short, it is a hack.
 	 */
 
+	if ((to_arena = (type & TO_ARENA_LISTEN)))
+		type &= ~TO_ARENA_LISTEN;
 	/* check if TO_SLEEP is there, and remove it if it is. */
 	if ((to_sleeping = (type & TO_SLEEP)))
 		type &= ~TO_SLEEP;
@@ -3901,25 +3907,67 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 		return;
 	}
 
-	for (stopcount = 0; to && stopcount < 1000; to = to->next_in_room, stopcount++)
+	// нужно чтоб не выводились сообщения только для арены лишний раз
+	if (type == TO_NOTVICT || type == TO_ROOM || type == TO_ROOM_HIDE)
 	{
-		if (!SENDOK(to) || (to == ch))
-			continue;
-		if (hide_invisible && ch && !CAN_SEE(to, ch))
-			continue;
-		if ((type != TO_ROOM && type != TO_ROOM_HIDE) && to == vict_obj)
-			continue;
-//надо отдельно PRF_DEAF
-		/*       if (!IS_NPC(to) && check_deaf && PRF_FLAGGED(to, PRF_NOTELL))
-		          continue; */
-		if (check_deaf && AFF_FLAGGED(to, AFF_DEAFNESS))
-			continue;
-		if (check_nodeaf && !AFF_FLAGGED(to, AFF_DEAFNESS))
-			continue;
-		if (type == TO_ROOM_HIDE && !AFF_FLAGGED(to, AFF_SENSE_LIFE))
-			continue;
-		perform_act(str, ch, obj, vict_obj, to);
+		for (stopcount = 0; to && stopcount < 1000; to = to->next_in_room, stopcount++)
+		{
+			if (!SENDOK(to) || (to == ch))
+				continue;
+			if (hide_invisible && ch && !CAN_SEE(to, ch))
+				continue;
+			if ((type != TO_ROOM && type != TO_ROOM_HIDE) && to == vict_obj)
+				continue;
+			//надо отдельно PRF_DEAF
+			/*       if (!IS_NPC(to) && check_deaf && PRF_FLAGGED(to, PRF_NOTELL))
+				  continue; */
+			if (check_deaf && AFF_FLAGGED(to, AFF_DEAFNESS))
+				continue;
+			if (check_nodeaf && !AFF_FLAGGED(to, AFF_DEAFNESS))
+				continue;
+			if (type == TO_ROOM_HIDE && !AFF_FLAGGED(to, AFF_SENSE_LIFE) && (IS_NPC(to) || !PRF_FLAGGED(to, PRF_HOLYLIGHT)))
+				continue;
+			if ((type == TO_ROOM_HIDE) && (PRF_FLAGGED(to, PRF_HOLYLIGHT)))
+			{
+				std::string buffer = str;
+				unsigned index = 0;
+				if (!IS_MALE(ch) && ((index = buffer.find("ся", 0))>=0))
+					buffer.replace(index, 2, GET_CH_SUF_2(ch));
+				if ((index = buffer.find("Кто-то", 0)) >= 0 )
+					buffer.replace(index, 6, GET_PAD(ch,0));
+				perform_act(buffer.c_str(), ch, obj, vict_obj, to);
+			}
+			else
+			{
+				perform_act(str, ch, obj, vict_obj, to);
+			}
+		}
 	}
+	//Реализация флага слышно арену
+	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)
+		&& ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENASEND) && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENARECV))
+	{
+		arena_room_rnum = ch->in_room;
+		// находим первую клетку в зоне
+		while((int)world[arena_room_rnum-1]->number / 100 == (int)world[arena_room_rnum]->number / 100)
+			arena_room_rnum--;
+		//пробегаемся по всем клеткам в зоне
+		while((int)world[arena_room_rnum+1]->number / 100 == (int)world[arena_room_rnum]->number / 100)
+		{
+			// находим клетку в которой слышно арену и всем игрокам в ней передаем сообщение с арены
+			if (ch->in_room != arena_room_rnum && ROOM_FLAGGED(arena_room_rnum, ROOM_ARENARECV))
+			{
+				to = world[arena_room_rnum]->people;
+				for (stopcount = 0; to && stopcount < 200; to = to->next_in_room, stopcount++)
+				{
+					if (!IS_NPC(to))
+						perform_act(str, ch, obj, vict_obj, to, to_arena);
+				}
+			}
+			arena_room_rnum++;
+		}
+	}
+
 }
 
 /*

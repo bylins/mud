@@ -310,7 +310,7 @@ void pulse_room_affect_handler(ROOM_DATA * room, CHAR_DATA * ch, AFFECT_DATA * a
 			if (tch)
 			{
 				send_to_char("Удар молнии просто испепелил Вас", tch);
-				act("Удар молнии призванной испепелил $n!", FALSE, tch, 0, 0, TO_ROOM);
+				act("Удар молнии призванной испепелил $n!", FALSE, tch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				pk_agro_action(ch, tch);
 				raw_kill(tch, ch);
 			}
@@ -598,7 +598,7 @@ int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	if (success)
 	{
 		if (to_room != NULL)
-			act(to_room, TRUE, ch, 0, 0, TO_ROOM);
+			act(to_room, TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		if (to_char != NULL)
 			act(to_char, TRUE, ch, 0, 0, TO_CHAR);
 		return 1;
@@ -800,7 +800,7 @@ void mobile_affect_update(void)
 				af->duration--;
 				if (af->type == SPELL_CHARM && !charmed_msg && af->duration <= 1)
 				{
-					act("$n начал$g растерянно оглядываться по сторонам.", FALSE, i, 0, 0, TO_ROOM);
+					act("$n начал$g растерянно оглядываться по сторонам.", FALSE, i, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 					charmed_msg = TRUE;
 				}
 			}
@@ -1177,7 +1177,7 @@ void extract_item(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 	}
 }
 
-int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract)
+int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract, const CHAR_DATA * targ)
 {
 	OBJ_DATA *obj;
 	OBJ_DATA *obj0 = NULL, *obj1 = NULL, *obj2 = NULL, *obj3 = NULL, *objo = NULL;
@@ -1329,7 +1329,7 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract)
 			{
 				strcat(buf, " и создали $o3.");
 				act(buf, FALSE, ch, obj, 0, TO_CHAR);
-				act("$n создал$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
+				act("$n создал$g $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 				obj_to_char(obj, ch);
 			}
 			else
@@ -1346,7 +1346,7 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract)
 				strcat(buf, "и создали магическую смесь.\r\n");
 				act(buf, FALSE, ch, 0, 0, TO_CHAR);
 				act("$n смешал$g что-то в своей ноше.\r\n"
-					"Вы почувствовали резкий запах.", TRUE, ch, NULL, NULL, TO_ROOM);
+					"Вы почувствовали резкий запах.", TRUE, ch, NULL, NULL, TO_ROOM | TO_ARENA_LISTEN);
 			}
 			else if (spelltype == SPELL_RUNES)
 			{
@@ -1357,6 +1357,8 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract)
 				act(buf, FALSE, ch, 0, 0, TO_CHAR);
 				act("$n сложил$g руны, которые вспыхнули ярким пламенем.",
 					TRUE, ch, NULL, NULL, TO_ROOM);
+				sprintf(buf, "$n сложил$g руны в заклинание '%s'%s%s.", spell_name(spellnum), (targ && targ != ch ? " на " : ""), (targ && targ != ch ? GET_PAD(targ, 1) : ""));
+				act(buf, TRUE, ch, NULL, NULL, TO_ARENA_LISTEN);
 			}
 		}
 		extract_item(ch, obj0, spelltype);
@@ -1592,7 +1594,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 				!WAITLESS(victim) && (number(1, 999)  > GET_AR(victim) * 10) &&
 				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, SAVING_REFLEX, CALC_SUCCESS(modi, 30))))
 		{
-			act("$n3 повалило на землю.", FALSE, victim, 0, 0, TO_ROOM);
+			act("$n3 повалило на землю.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			act("Вас повалило на землю.", FALSE, victim, 0, 0, TO_CHAR);
 			GET_POS(victim) = POS_SITTING;
 			update_pos(victim);
@@ -1609,7 +1611,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 				!WAITLESS(victim) && (number(1, 999)  > GET_AR(victim) * 10) &&
 				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, SAVING_STABILITY, CALC_SUCCESS(modi, 60))))
 		{
-			act("$n3 повалило на землю.", FALSE, victim, 0, 0, TO_ROOM);
+			act("$n3 повалило на землю.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			act("Вас повалило на землю.", FALSE, victim, 0, 0, TO_CHAR);
 			GET_POS(victim) = POS_SITTING;
 			update_pos(victim);
@@ -1926,7 +1928,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 				act("Черное облако вокруг Вас нейтрализовало действие тумана, растворившись в нем.",
 					FALSE, victim, 0, 0, TO_CHAR);
 				act("Черное облако вокруг $n1 нейтрализовало действие тумана.",
-					FALSE, victim, 0, 0, TO_ROOM);
+					FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				affect_from_char(victim, SPELL_EVILESS);
 			}
 			else
@@ -1957,7 +1959,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 				!WAITLESS(victim) &&
 				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, SAVING_STABILITY, GET_REAL_CON(ch))))
 		{
-			act("$n3 повалило на землю.", FALSE, victim, 0, 0, TO_ROOM);
+			act("$n3 повалило на землю.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			act("Вас повалило на землю.", FALSE, victim, 0, 0, TO_CHAR);
 			GET_POS(victim) = POS_SITTING;
 			update_pos(victim);
@@ -2919,12 +2921,12 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			{
 				sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(victim, 0),
 						GET_CH_SUF_2(victim));
-				act(buf, FALSE, victim, 0, 0, TO_ROOM);
+				act(buf, FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				REMOVE_BIT(AFF_FLAGS(victim, AFF_HORSE), AFF_HORSE);
 			}
 
 			send_to_char("Вы слишком устали...  Спать... Спа...\r\n", victim);
-			act("$n прилег$q подремать.", TRUE, victim, 0, 0, TO_ROOM);
+			act("$n прилег$q подремать.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
 			GET_POS(victim) = POS_SLEEPING;
 		}
@@ -3246,7 +3248,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			{
 				affect_join(victim, af, accum_duration, FALSE, accum_affect, FALSE);
 				act(to_vict, FALSE, victim, 0, ch, TO_CHAR);
-				act(to_room, TRUE, victim, 0, ch, TO_ROOM);
+				act(to_room, TRUE, victim, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 			}
 		case SPELL_ICESTORM:
 		case SPELL_EARTHFALL:
@@ -3704,7 +3706,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		if (to_vict != NULL)
 			act(to_vict, FALSE, victim, 0, ch, TO_CHAR);
 		if (to_room != NULL)
-			act(to_room, TRUE, victim, 0, ch, TO_ROOM);
+			act(to_room, TRUE, victim, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 		return 1;
 	}
 	return 0;
@@ -3909,7 +3911,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	{
 		clear_char_skills(mob);
 		// Меняем именование.
-		sprintf(buf2, "умертвие %s", GET_NAME(mob));
+		sprintf(buf2, "умертвие %s %s", GET_PAD(mob, 1), GET_NAME(mob));
 		mob->set_pc_name(buf2);
 		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
 		mob->set_npc_name(buf2);
@@ -3997,7 +3999,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	SET_BIT(MOB_FLAGS(mob, MOB_CORPSE), MOB_CORPSE);
 	if (spellnum == SPELL_CLONE)  	/* Don't mess up the proto with strcpy. */
 	{
-		sprintf(buf2, "двойник %s", GET_NAME(ch));
+		sprintf(buf2, "двойник %s %s", GET_PAD(ch, 1), GET_NAME(ch));
 		mob->set_pc_name(buf2);
 		sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
 		mob->set_npc_name(buf2);
@@ -4049,7 +4051,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		SET_BIT(MOB_FLAGS(mob, MOB_CLONE), MOB_CLONE);
 		REMOVE_BIT(MOB_FLAGS(mob, MOB_MOUNTING), MOB_MOUNTING);
 	}
-	act(mag_summon_msgs[msg], FALSE, ch, 0, mob, TO_ROOM);
+	act(mag_summon_msgs[msg], FALSE, ch, 0, mob, TO_ROOM | TO_ARENA_LISTEN);
 //   load_mtrigger(mob);
 	add_follower(mob, ch);
 	if (spellnum == SPELL_CLONE)
@@ -4102,7 +4104,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 			obj_from_obj(tobj);
 			obj_to_room(tobj, IN_ROOM(ch));
 			if (!obj_decay(tobj) && tobj->in_room != NOWHERE)
-				act("На земле остал$U лежать $o.", FALSE, ch, tobj, 0, TO_ROOM);
+				act("На земле остал$U лежать $o.", FALSE, ch, tobj, 0, TO_ROOM | TO_ARENA_LISTEN);
 			tobj = next_obj;
 		}
 		extract_obj(obj);
@@ -4322,7 +4324,7 @@ int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, i
 	if (to_vict != NULL)
 		act(to_vict, FALSE, victim, 0, ch, TO_CHAR);
 	if (to_room != NULL)
-		act(to_room, TRUE, victim, 0, ch, TO_ROOM);
+		act(to_room, TRUE, victim, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 
 	return 1;
 }
@@ -4470,7 +4472,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		act(to_char, TRUE, ch, obj, 0, TO_CHAR);
 
 	if (to_room != NULL)
-		act(to_room, TRUE, ch, obj, 0, TO_ROOM);
+		act(to_room, TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 
 	return 1;
 }
@@ -4504,7 +4506,7 @@ int mag_creations(int level, CHAR_DATA * ch, int spellnum)
 		log("SYSERR: spell_creations, spell %d, obj %d: obj not found", spellnum, z);
 		return 0;
 	}
-	act("$n создал$g $o3.", FALSE, ch, tobj, 0, TO_ROOM);
+	act("$n создал$g $o3.", FALSE, ch, tobj, 0, TO_ROOM | TO_ARENA_LISTEN);
 	act("Вы создали $o3.", FALSE, ch, tobj, 0, TO_CHAR);
 	load_otrigger(tobj);
 
@@ -4753,7 +4755,7 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 			if ((msg = masses_messages[i].to_char) != NULL)
 				act(msg, FALSE, ch, 0, 0, TO_CHAR);
 			if ((msg = masses_messages[i].to_room) != NULL)
-				act(msg, FALSE, ch, 0, 0, TO_ROOM);
+				act(msg, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}
 	};
 
@@ -4898,7 +4900,7 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 			if ((msg = areas_messages[i].to_char) != NULL)
 				act(msg, FALSE, ch, 0, victim, TO_CHAR);
 			if ((msg = areas_messages[i].to_room) != NULL)
-				act(msg, FALSE, ch, 0, victim, TO_ROOM);
+				act(msg, FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
 		}
 	}
 	decay = areas_messages[i].decay;
@@ -5067,7 +5069,7 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 		if ((msg = groups_messages[i].to_char) != NULL)
 			act(msg, FALSE, ch, 0, 0, TO_CHAR);
 		if ((msg = groups_messages[i].to_room) != NULL)
-			act(msg, FALSE, ch, 0, 0, TO_ROOM);
+			act(msg, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 
 	for (i = 0, ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)

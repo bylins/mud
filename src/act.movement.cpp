@@ -486,7 +486,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			{
 				act("$Z $N отказывается туда идти, и Вам пришлось соскочить.",
 					FALSE, ch, 0, get_horse(ch), TO_CHAR);
-				act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM);
+				act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
 				REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
 			}
 		}
@@ -504,7 +504,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			{
 				act("$Z $N заупрямил$U, и Вам пришлось соскочить.",
 					FALSE, ch, 0, get_horse(ch), TO_CHAR);
-				act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM);
+				act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
 				REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
 			}
 		}
@@ -877,7 +877,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		if (MOB_FLAGGED(vict, MOB_AWARE) &&
 				GET_POS(vict) < POS_FIGHTING && !AFF_FLAGGED(vict, AFF_HOLD) && GET_POS(vict) > POS_SLEEPING)
 		{
-			act("$n поднял$u.", FALSE, vict, 0, 0, TO_ROOM);
+			act("$n поднял$u.", FALSE, vict, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			GET_POS(vict) = POS_STANDING;
 		}
 	}
@@ -952,7 +952,7 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 								&& !GET_WAIT(k->follower)
 							)
 						{
-							act("$n поднял$u.", FALSE, k->follower, 0, 0, TO_ROOM);
+							act("$n поднял$u.", FALSE, k->follower, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 							GET_POS(k->follower) = POS_STANDING;
 						}
 						else
@@ -1426,7 +1426,7 @@ ACMD(do_enter)
 				{
 					act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 						FALSE, ch, 0, get_horse(ch), TO_CHAR);
-					act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM);
+					act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
 					REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
 				}
 				//проверка на ванрум и лошадь
@@ -1442,7 +1442,7 @@ ACMD(do_enter)
 					{
 						act("$Z $N заупрямил$U, и вам пришлось соскочить.",
 							FALSE, ch, 0, get_horse(ch), TO_CHAR);
-						act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM);
+						act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
 						REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
 					}
 				}
@@ -1581,7 +1581,7 @@ ACMD(do_stand)
 	if (GET_POS(ch) > POS_SLEEPING && AFF_FLAGGED(ch, AFF_SLEEP))
 	{
 		send_to_char("Вы сладко зевнули и решили еще немного подремать.\r\n", ch);
-		act("$n сладко зевнул$a и решил$a еще немного подремать.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n сладко зевнул$a и решил$a еще немного подремать.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_SLEEPING;
 	}
 
@@ -1597,13 +1597,13 @@ ACMD(do_stand)
 		break;
 	case POS_SITTING:
 		send_to_char("Вы встали.\r\n", ch);
-		act("$n поднял$u.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n поднял$u.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		/* Will be sitting after a successful bash and may still be fighting. */
 		GET_POS(ch) = ch->get_fighting() ? POS_FIGHTING : POS_STANDING;
 		break;
 	case POS_RESTING:
 		send_to_char("Вы прекратили отдыхать и встали.\r\n", ch);
-		act("$n прекратил$g отдых и поднял$u.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n прекратил$g отдых и поднял$u.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = ch->get_fighting() ? POS_FIGHTING : POS_STANDING;
 		break;
 	case POS_SLEEPING:
@@ -1614,7 +1614,7 @@ ACMD(do_stand)
 		break;
 	default:
 		send_to_char("Вы прекратили летать и опустились на грешную землю.\r\n", ch);
-		act("$n опустил$u на землю.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n опустил$u на землю.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_STANDING;
 		break;
 	}
@@ -1632,7 +1632,7 @@ ACMD(do_sit)
 	{
 	case POS_STANDING:
 		send_to_char("Вы сели.\r\n", ch);
-		act("$n сел$g.", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n сел$g.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_SITTING;
 		break;
 	case POS_SITTING:
@@ -1640,7 +1640,7 @@ ACMD(do_sit)
 		break;
 	case POS_RESTING:
 		send_to_char("Вы прекратили отдыхать и сели.\r\n", ch);
-		act("$n прервал$g отдых и сел$g.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n прервал$g отдых и сел$g.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_SITTING;
 		break;
 	case POS_SLEEPING:
@@ -1651,7 +1651,7 @@ ACMD(do_sit)
 		break;
 	default:
 		send_to_char("Вы прекратили свой полет и сели.\r\n", ch);
-		act("$n прекратил$g свой полет и сел$g.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n прекратил$g свой полет и сел$g.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_SITTING;
 		break;
 	}
@@ -1669,12 +1669,12 @@ ACMD(do_rest)
 	{
 	case POS_STANDING:
 		send_to_char("Вы присели отдохнуть.\r\n", ch);
-		act("$n присел$g отдохнуть.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n присел$g отдохнуть.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_RESTING;
 		break;
 	case POS_SITTING:
 		send_to_char("Вы пристроились поудобнее для отдыха.\r\n", ch);
-		act("$n пристроил$u поудобнее для отдыха.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n пристроил$u поудобнее для отдыха.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_RESTING;
 		break;
 	case POS_RESTING:
@@ -1688,7 +1688,7 @@ ACMD(do_rest)
 		break;
 	default:
 		send_to_char("Вы прекратили полет и присели отдохнуть.\r\n", ch);
-		act("$n прекратил$g полет и пристроил$u поудобнее для отдыха.", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n прекратил$g полет и пристроил$u поудобнее для отдыха.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_SITTING;
 		break;
 	}
@@ -1713,7 +1713,7 @@ ACMD(do_sleep)
 	case POS_SITTING:
 	case POS_RESTING:
 		send_to_char("Вы заснули.\r\n", ch);
-		act("$n сладко зевнул$g и задал$g храпака.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n сладко зевнул$g и задал$g храпака.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_SLEEPING;
 		break;
 	case POS_SLEEPING:
@@ -1724,7 +1724,7 @@ ACMD(do_sleep)
 		break;
 	default:
 		send_to_char("Вы прекратили свой полет и отошли ко сну.\r\n", ch);
-		act("$n прекратил$g летать и нагло заснул$g.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n прекратил$g летать и нагло заснул$g.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_SLEEPING;
 		break;
 	}
@@ -1779,7 +1779,7 @@ ACMD(do_horseon)
 		if (affected_by_spell(ch, SPELL_FLY))
 			affect_from_char(ch, SPELL_FLY);
 		act("Вы взобрались на спину $N1.", FALSE, ch, 0, horse, TO_CHAR);
-		act("$n вскочил$g на $N3.", FALSE, ch, 0, horse, TO_ROOM);
+		act("$n вскочил$g на $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
 		SET_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
 	}
 }
@@ -1803,7 +1803,7 @@ ACMD(do_horseoff)
 	}
 
 	act("Вы слезли со спины $N1.", FALSE, ch, 0, horse, TO_CHAR);
-	act("$n соскочил$g с $N1.", FALSE, ch, 0, horse, TO_ROOM);
+	act("$n соскочил$g с $N1.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
 	REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
 }
 
@@ -1845,7 +1845,7 @@ ACMD(do_horseget)
 	else
 	{
 		act("Вы отвязали $N3.", FALSE, ch, 0, horse, TO_CHAR);
-		act("$n отвязал$g $N3.", FALSE, ch, 0, horse, TO_ROOM);
+		act("$n отвязал$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
 		REMOVE_BIT(AFF_FLAGS(horse, AFF_TETHERED), AFF_TETHERED);
 	}
 }
@@ -1887,7 +1887,7 @@ ACMD(do_horseput)
 	else
 	{
 		act("Вы привязали $N3.", FALSE, ch, 0, horse, TO_CHAR);
-		act("$n привязал$g $N3.", FALSE, ch, 0, horse, TO_ROOM);
+		act("$n привязал$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
 		SET_BIT(AFF_FLAGS(horse, AFF_TETHERED), AFF_TETHERED);
 	}
 }
@@ -1987,7 +1987,7 @@ ACMD(do_horsetake)
 				act("Вы неудачно попытались украсть скакуна у $N1.", FALSE, ch,
 					0, horse->master, TO_CHAR);
 				act("$n неудачно попытал$u украсть скакуна у $N1.", TRUE, ch,
-					0, horse->master, TO_NOTVICT);
+					0, horse->master, TO_NOTVICT | TO_ARENA_LISTEN);
 				if (IN_ROOM(ch) == IN_ROOM(horse->master))
 					act("$n пытал$u увести Вашего скакуна !", FALSE, ch, 0, horse->master, TO_VICT);
 				WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
@@ -1998,7 +1998,7 @@ ACMD(do_horsetake)
 	if (stop_follower(horse, SF_EMPTY))
 		return;
 	act("Вы оседлали $N3.", FALSE, ch, 0, horse, TO_CHAR);
-	act("$n оседлал$g $N3.", FALSE, ch, 0, horse, TO_ROOM);
+	act("$n оседлал$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
 	make_horse(horse, ch);
 }
 
@@ -2055,7 +2055,7 @@ ACMD(do_givehorse)
 		return;
 	act("Вы передали своего скакуна $N2.", FALSE, ch, 0, victim, TO_CHAR);
 	act("$n передал$g Вам своего скакуна.", FALSE, ch, 0, victim, TO_VICT);
-	act("$n передал$g своего скакуна $N2.", TRUE, ch, 0, victim, TO_NOTVICT);
+	act("$n передал$g своего скакуна $N2.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 	make_horse(horse, victim);
 }
 
@@ -2089,10 +2089,10 @@ ACMD(do_stophorse)
 	if (stop_follower(horse, SF_EMPTY))
 		return;
 	act("Вы отпустили  $N3.", FALSE, ch, 0, horse, TO_CHAR);
-	act("$n отпустил$g $N3.", FALSE, ch, 0, horse, TO_ROOM);
+	act("$n отпустил$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
 	if (GET_MOB_VNUM(horse) == HORSE_VNUM)
 	{
-		act("$n убежал$g в свою конюшню.\r\n", FALSE, horse, 0, 0, TO_ROOM);
+		act("$n убежал$g в свою конюшню.\r\n", FALSE, horse, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		extract_char(horse, FALSE);
 	}
 }
@@ -2149,7 +2149,7 @@ ACMD(do_wake)
 	else
 	{
 		send_to_char("Вы проснулись и сели.\r\n", ch);
-		act("$n проснул$u.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n проснул$u.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_SITTING;
 	}
 }

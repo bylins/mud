@@ -134,12 +134,12 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 	{
 		return false;
 	}
-	if ((*buf1<'1' || *buf1>'8') && (*buf1!='в' && *buf1!='В' && *buf1!='х' && *buf1!='Х' && *buf1!='у' && *buf1!='У'))
+	if ((*buf1<'1' || *buf1>'8') && (LOWER(*buf1)!='в' && LOWER(*buf1)!='х' && LOWER(*buf1)!='у'))
 	{
-		send_to_char("Неверный параметр!\r\n", ch);
+		send_to_char(ch, "Неверный параметр %c!\r\n", *buf1);
 		return false;
 	}
-	if(!*buf2 && *buf1!='в' && *buf1!='В' && *buf1!='х' && *buf1!='Х' && *buf1!='у' && *buf1!='У')
+	if(!*buf2 && LOWER(*buf1)!='в' && LOWER(*buf1)!='х' && LOWER(*buf1)!='у')
 	{
 		if (*buf1<'5' ||  *buf1>'8')
 			send_to_char("Не указан второй параметр!\r\n", ch);
@@ -167,7 +167,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 		}
 		return false;
 	}
-	switch (*buf1)
+	switch (LOWER(*buf1))
 	{
 		case '1':
 			if(a_isdigit(*buf2) && sscanf(buf2, "%d", &num))
@@ -233,7 +233,6 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 					ch->desc->named_obj->cant_msg_a == "";
 			}
 			break;
-		case 'У':
 		case 'у':
 			if(!ch->desc->old_vnum)
 				return false;
@@ -243,7 +242,6 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 			save();
 			return true;
 			break;
-		case 'В':
 		case 'в':
 			tmp_node->uid = ch->desc->named_obj->uid;
 			tmp_node->can_clan = ch->desc->named_obj->can_clan;
@@ -261,7 +259,6 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 			save();
 			return true;
 			break;
-		case 'Х':
 		case 'х':
 			STATE(ch->desc) = CON_PLAYING;
 			send_to_char(OK, ch);

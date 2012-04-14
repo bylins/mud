@@ -29,6 +29,7 @@
 #include "char.hpp"
 #include "interpreter.h"
 #include "room.hpp"
+#include "magic.h"
 
 void trig_data_copy(TRIG_DATA * this_data, const TRIG_DATA * trg);
 void trig_data_free(TRIG_DATA * this_data);
@@ -41,7 +42,6 @@ extern INDEX_DATA *obj_index;
 
 extern void asciiflag_conv(const char *flag, void *value);
 
-int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract);
 int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
 
 char * indent_trigger(char * cmd , int * level)
@@ -426,9 +426,18 @@ void assign_triggers(void *i, int type)
 			}
 			else
 			{
-				if (!SCRIPT(mob))
-					CREATE(SCRIPT(mob), SCRIPT_DATA, 1);
-				add_trigger(SCRIPT(mob), read_trigger(rnum), -1);
+				if (trig_index[rnum]->proto->attach_type != MOB_TRIGGER)
+				{
+					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %s, for mob #%d",
+							trg_proto->vnum, attach_name[(int)trig_index[rnum]->proto->attach_type], mob_index[mob->nr].vnum);
+					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
+				}
+				else
+				{
+					if (!SCRIPT(mob))
+						CREATE(SCRIPT(mob), SCRIPT_DATA, 1);
+					add_trigger(SCRIPT(mob), read_trigger(rnum), -1);
+				}
 			}
 			trg_proto = trg_proto->next;
 		}
@@ -447,9 +456,18 @@ void assign_triggers(void *i, int type)
 			}
 			else
 			{
-				if (!SCRIPT(obj))
-					CREATE(SCRIPT(obj), SCRIPT_DATA, 1);
-				add_trigger(SCRIPT(obj), read_trigger(rnum), -1);
+				if (trig_index[rnum]->proto->attach_type != OBJ_TRIGGER)
+				{
+					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type:%s, for obj #%d",
+							trg_proto->vnum, attach_name[(int)trig_index[rnum]->proto->attach_type], obj_index[obj->item_number].vnum);
+					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
+				}
+				else
+				{
+					if (!SCRIPT(obj))
+						CREATE(SCRIPT(obj), SCRIPT_DATA, 1);
+					add_trigger(SCRIPT(obj), read_trigger(rnum), -1);
+				}
 			}
 			trg_proto = trg_proto->next;
 		}
@@ -468,9 +486,18 @@ void assign_triggers(void *i, int type)
 			}
 			else
 			{
-				if (!SCRIPT(room))
-					CREATE(SCRIPT(room), SCRIPT_DATA, 1);
-				add_trigger(SCRIPT(room), read_trigger(rnum), -1);
+				if (trig_index[rnum]->proto->attach_type != WLD_TRIGGER)
+				{
+					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type:%s, for room #%d",
+							trg_proto->vnum, attach_name[(int)trig_index[rnum]->proto->attach_type], room->number);
+					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
+				}
+				else
+				{
+					if (!SCRIPT(room))
+						CREATE(SCRIPT(room), SCRIPT_DATA, 1);
+					add_trigger(SCRIPT(room), read_trigger(rnum), -1);
+				}
 			}
 			trg_proto = trg_proto->next;
 		}

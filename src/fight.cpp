@@ -413,19 +413,19 @@ void set_battle_pos(CHAR_DATA * ch)
 		{
 			if (IS_NPC(ch))
 			{
-				act("$n встал$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n встал$g на ноги.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				GET_POS(ch) = POS_FIGHTING;
 			}
 			else if (GET_POS(ch) == POS_SLEEPING)
 			{
 				act("Вы проснулись и сели.", FALSE, ch, 0, 0, TO_CHAR);
-				act("$n проснул$u и сел$g.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n проснул$u и сел$g.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				GET_POS(ch) = POS_SITTING;
 			}
 			else if (GET_POS(ch) == POS_RESTING)
 			{
 				act("Вы прекратили отдых и сели.", FALSE, ch, 0, 0, TO_CHAR);
-				act("$n прекратил$g отдых и сел$g.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n прекратил$g отдых и сел$g.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				GET_POS(ch) = POS_SITTING;
 			}
 		}
@@ -447,7 +447,7 @@ void restore_battle_pos(CHAR_DATA * ch)
 				GET_WAIT(ch) <= 0 &&
 				!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, AFF_SLEEP) && !AFF_FLAGGED(ch, AFF_CHARM))
 		{
-			act("$n встал$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
+			act("$n встал$g на ноги.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			GET_POS(ch) = POS_STANDING;
 		}
 		break;
@@ -579,7 +579,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 		if (GET_POS(ch) > POS_INCAP)
 		{
 			send_to_char("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", ch);
-			act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.", FALSE, ch, 0, 0, TO_ROOM);
+			act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		};
 	};
 }
@@ -599,7 +599,7 @@ void change_alignment(CHAR_DATA * ch, CHAR_DATA * victim)
 void death_cry(CHAR_DATA * ch)
 {
 	int door;
-	act("Кровушка стынет в жилах от предсмертного крика $n1.", FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF);
+	act("Кровушка стынет в жилах от предсмертного крика $n1.", FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF | TO_ARENA_LISTEN);
 
 	for (door = 0; door < NUM_OF_DIRS; door++)
 	{
@@ -652,7 +652,7 @@ void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
 
 	if(IS_NPC(ch) && killer && killer != ch && MOB_FLAGGED(ch, MOB_CLONE) && ch->master && affected_by_spell(ch, SPELL_CAPABLE))
 	{
-		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.", FALSE, ch, 0, killer, TO_ROOM);
+		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.", FALSE, ch, 0, killer, TO_ROOM | TO_ARENA_LISTEN);
 		int pos = GET_POS(ch);
 		GET_POS(ch) = POS_STANDING;
 		call_magic(ch, killer, NULL, world[IN_ROOM(ch)], ch->mob_specials.capable_spell, GET_LEVEL(ch), CAST_SPELL);
@@ -1360,7 +1360,7 @@ void dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int w_type)
 
 	buf = replace_string(dam_weapons[msgnum].to_room,
 						 attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
-	act(buf, FALSE, ch, NULL, victim, TO_NOTVICT);
+	act(buf, FALSE, ch, NULL, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 
 	/* damage message to damager */
 	if (dam)
@@ -2060,7 +2060,7 @@ int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
 		sprintf(buf, "&G&qВаше точное попадание %s.&Q&n", to_char);
 		act(buf, FALSE, ch, 0, victim, TO_CHAR);
 		sprintf(buf, "Точное попадание $n1 %s.", to_char);
-		act(buf, TRUE, ch, 0, victim, TO_NOTVICT);
+		act(buf, TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 	if (to_vict)
 	{
@@ -2131,7 +2131,7 @@ void might_hit_bash(CHAR_DATA *ch, CHAR_DATA *victim)
 		return;
 	}
 
-	act("$n обреченно повалил$u на землю.", TRUE, victim, 0, 0, TO_ROOM);
+	act("$n обреченно повалил$u на землю.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
 
 	if (GET_POS(victim) > POS_SITTING)
@@ -2201,7 +2201,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 						"&R&qВаше сознание затуманилось после удара %s.&Q&n\r\n",
 						PERS(ch, victim, 1));
 				send_to_char(buf, victim);
-				act("$N содрогнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT);
+				act("$N содрогнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				if (!number(0, 2))
 				{
 					might_hit_bash(ch, victim);
@@ -2226,7 +2226,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 						"&R&qВаше сознание помутилось после удара %s.&Q&n\r\n",
 						PERS(ch, victim, 1));
 				send_to_char(buf, victim);
-				act("$N пошатнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT);
+				act("$N пошатнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				if (!number(0, 1))
 				{
 					might_hit_bash(ch, victim);
@@ -2250,7 +2250,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 				sprintf(buf, "&R&qВаше сознание померкло после удара %s.&Q&n\r\n",
 						PERS(ch, victim, 1));
 				send_to_char(buf, victim);
-				act("$N зашатал$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT);
+				act("$N зашатал$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				might_hit_bash(ch, victim);
 			}
 			if (!WAITLESS(ch))
@@ -2304,7 +2304,7 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 						"&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n",
 						PERS(ch, victim, 1));
 				send_to_char(buf, victim);
-				act("$n оглушил$a $N3.", TRUE, ch, 0, victim, TO_NOTVICT);
+				act("$n оглушил$a $N3.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 			}
 			else
 			{
@@ -2316,10 +2316,10 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 							PERS(victim, ch, 3));
 				send_to_char(buf, ch);
 				if (MOB_FLAGGED(victim, MOB_NOBASH))
-					act("$n мощным ударом оглушил$a $N3.", TRUE, ch, 0, victim, TO_NOTVICT);
+					act("$n мощным ударом оглушил$a $N3.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				else
 					act("$n своим оглушающим ударом сбил$a $N3 с ног.", TRUE, ch,
-						0, victim, TO_NOTVICT);
+						0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				lag = 2;
 				k = ch->get_skill(SKILL_STUPOR) / 20;
 				if (!IS_NPC(victim))
@@ -2385,26 +2385,26 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktyp
 	switch (GET_POS(victim))
 	{
 	case POS_MORTALLYW:
-		act("$n смертельно ранен$a и умрет, если $m не помогут.", TRUE, victim, 0, 0, TO_ROOM);
+		act("$n смертельно ранен$a и умрет, если $m не помогут.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		send_to_char("Вы смертельно ранены и умрете, если Вам не помогут.\r\n", victim);
 		break;
 	case POS_INCAP:
-		act("$n без сознания и медленно умирает. Помогите же $m.", TRUE, victim, 0, 0, TO_ROOM);
+		act("$n без сознания и медленно умирает. Помогите же $m.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		send_to_char("Вы без сознания и медленно умираете, брошенные без помощи.\r\n", victim);
 		break;
 	case POS_STUNNED:
-		act("$n без сознания, но возможно $e еще повоюет (попозже :).", TRUE, victim, 0, 0, TO_ROOM);
+		act("$n без сознания, но возможно $e еще повоюет (попозже :).", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		send_to_char("Сознание покинуло Вас. В битве от Вас пока проку мало.\r\n", victim);
 		break;
 	case POS_DEAD:
 		if (IS_NPC(victim) && (MOB_FLAGGED(victim, MOB_CORPSE)))
 		{
-			act("$n вспыхнул$g и рассыпал$u в прах.", FALSE, victim, 0, 0, TO_ROOM);
+			act("$n вспыхнул$g и рассыпал$u в прах.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Похоже Вас убили и даже тела не оставили !\r\n", victim);
 		}
 		else
 		{
-			act("$n мертв$a, $s душа медленно подымается в небеса.", FALSE, victim, 0, 0, TO_ROOM);
+			act("$n мертв$a, $s душа медленно подымается в небеса.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Вы мертвы!  Hам очень жаль...\r\n", victim);
 		}
 		break;
@@ -2467,13 +2467,13 @@ void try_remove_extrahits(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& !IS_NPC(victim)
 		&& GET_POS(victim) != POS_DEAD
 		&& GET_HIT(victim) > GET_REAL_MAX_HIT(victim) * 1.5
-		&& number(1, 100) == 1)
+		&& number(1, 100) == 5)// пусть будет 5, а то 1 по субъективным ощущениям выпадает как-то часто
 	{
 		GET_HIT(victim) = GET_REAL_MAX_HIT(victim);
 		send_to_char(victim, "%s'Будь%s тощ%s аки прежде' - мелькнула чужая мысль в Вашей голове.%s\r\n",
 				CCWHT(victim, C_NRM), GET_CH_POLY_1(victim), GET_CH_EXSUF_1(victim), CCNRM(victim, C_NRM));
 		act("Вы прервали золотистую нить, питающую $N3 жизнью.", FALSE, ch, 0, victim, TO_CHAR);
-		act("$n прервал$g золотистую нить, питающую $N3 жизнью.", FALSE, ch, 0, victim, TO_NOTVICT);
+		act("$n прервал$g золотистую нить, питающую $N3 жизнью.", FALSE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 }
 
@@ -2620,7 +2620,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 			act("Магический кокон полностью поглотил удар $N1.", FALSE, victim, 0, ch, TO_CHAR);
 			act("Магический кокон вокруг $N1 полностью поглотил Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
 			act("Магический кокон вокруг $N1 полностью поглотил удар $n1.",
-				TRUE, ch, 0, victim, TO_NOTVICT);
+				TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 			return (0);
 		}
 
@@ -2637,7 +2637,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		{
 			act("Ледяной щит принял часть удара на себя.", FALSE, ch, 0, victim, TO_VICT);
 			act("Ледяной щит вокруг $N1 смягчил Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
-			act("Ледяной щит вокруг $N1 смягчил удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT);
+			act("Ледяной щит вокруг $N1 смягчил удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 			dam -= (dam * number(30, 50) / 100);
 		}
 
@@ -2645,7 +2645,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 		{
 			act("Воздушный щит смягчил удар $n1.", FALSE, ch, 0, victim, TO_VICT);
 			act("Воздушный щит вокруг $N1 ослабил Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
-			act("Воздушный щит вокруг $N1 ослабил удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT);
+			act("Воздушный щит вокруг $N1 ослабил удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 			dam -= (dam * number(30, 50) / 100);
 		}
 
@@ -2663,7 +2663,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 					{
 						act("Ваши доспехи полностью поглотили удар $n1.", FALSE, ch, 0, victim, TO_VICT);
 						act("Доспехи $N1 полностью поглотили Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
-						act("Доспехи $N1 полностью поглотили удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT);
+						act("Доспехи $N1 полностью поглотили удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 						return 0;
 					}
 					// броня + поглощение роляет до 75% снижения дамаги
@@ -2678,7 +2678,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 					{
 						act("Ваши доспехи полностью поглотили удар $n1.", FALSE, ch, 0, victim, TO_VICT);
 						act("Доспехи $N1 полностью поглотили Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
-						act("Доспехи $N1 полностью поглотили удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT);
+						act("Доспехи $N1 полностью поглотили удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 						return 0;
 					}
 					// броня + поглощение роляет до 50% снижения дамаги
@@ -2800,7 +2800,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 							GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
 					snprintf(buf, MAX_STRING_LENGTH, "%s пожетрвовал%s своей жизнью, вытаскивая %s с того света!",
 							GET_PAD(keeper, 0), GET_CH_SUF_1(keeper), GET_PAD(victim, 3));
-					act(buf, FALSE, victim, 0, 0, TO_ROOM);
+					act(buf, FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
 					extract_char(keeper, 0);
 					GET_HIT(victim) = MIN(300, GET_MAX_HIT(victim) / 2);
@@ -3742,14 +3742,14 @@ void hit_touching(CHAR_DATA *ch, CHAR_DATA *vict, int *dam)
 		{
 			act("Вы не смогли перехватить атаку $N1.", FALSE, vict, 0, ch, TO_CHAR);
 			act("$N не смог$Q перехватить Вашу атаку.", FALSE, ch, 0, vict, TO_CHAR);
-			act("$n не смог$q перехватить атаку $N1.", TRUE, vict, 0, ch, TO_NOTVICT);
+			act("$n не смог$q перехватить атаку $N1.", TRUE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 			prob = 2;
 		}
 		else
 		{
 			act("Вы перехватили атаку $N1.", FALSE, vict, 0, ch, TO_CHAR);
 			act("$N перехватил$G Вашу атаку.", FALSE, ch, 0, vict, TO_CHAR);
-			act("$n перехватил$g атаку $N1.", TRUE, vict, 0, ch, TO_NOTVICT);
+			act("$n перехватил$g атаку $N1.", TRUE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 			*dam = -1;
 			prob = 1;
 		}
@@ -3773,27 +3773,27 @@ void hit_deviate(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
 	{
 		act("Вы не смогли уклониться от атаки $N1", FALSE, victim, 0, ch, TO_CHAR);
 		act("$N не сумел$G уклониться от Вашей атаки", FALSE, ch, 0, victim, TO_CHAR);
-		act("$n не сумел$g уклониться от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT);
+		act("$n не сумел$g уклониться от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 	else if (prob < 100)
 	{
 		act("Вы немного уклонились от атаки $N1", FALSE, victim, 0, ch, TO_CHAR);
 		act("$N немного уклонил$U от Вашей атаки", FALSE, ch, 0, victim, TO_CHAR);
-		act("$n немного уклонил$u от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT);
+		act("$n немного уклонил$u от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 		*dam = *dam * 10 / 15;
 	}
 	else if (prob < 200)
 	{
 		act("Вы частично уклонились от атаки $N1", FALSE, victim, 0, ch, TO_CHAR);
 		act("$N частично уклонил$U от Вашей атаки", FALSE, ch, 0, victim, TO_CHAR);
-		act("$n частично уклонил$u от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT);
+		act("$n частично уклонил$u от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 		*dam = *dam / 2;
 	}
 	else
 	{
 		act("Вы уклонились от атаки $N1", FALSE, victim, 0, ch, TO_CHAR);
 		act("$N уклонил$U от Вашей атаки", FALSE, ch, 0, victim, TO_CHAR);
-		act("$n уклонил$u от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT);
+		act("$n уклонил$u от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 		*dam = -1;
 	}
 	BATTLECNTR(victim)++;
@@ -3826,7 +3826,7 @@ void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int w_type, int *dam
 		{
 			act("Вы не смогли отбить атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
 			act("$N не сумел$G отбить Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
-			act("$n не сумел$g отбить атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT);
+			act("$n не сумел$g отбить атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 			prob = 2;
 			SET_AF_BATTLE(victim, EAF_USEDLEFT);
 		}
@@ -3834,7 +3834,7 @@ void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int w_type, int *dam
 		{
 			act("Вы немного отклонили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
 			act("$N немного отклонил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
-			act("$n немного отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT);
+			act("$n немного отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 10);
 			prob = 1;
 			*dam = *dam * 10 / 15;
@@ -3844,7 +3844,7 @@ void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int w_type, int *dam
 		{
 			act("Вы частично отклонили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
 			act("$N частично отклонил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
-			act("$n частично отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT);
+			act("$n частично отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 15);
 			prob = 0;
 			*dam = *dam / 2;
@@ -3854,7 +3854,7 @@ void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int w_type, int *dam
 		{
 			act("Вы полностью отклонили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
 			act("$N полностью отклонил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
-			act("$n полностью отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT);
+			act("$n полностью отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 25);
 			prob = 0;
 			*dam = -1;
@@ -3902,13 +3902,13 @@ void hit_multyparry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int w_type, int
 		{
 			act("Вы не смогли отбить атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
 			act("$N не сумел$G отбить Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
-			act("$n не сумел$g отбить атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT);
+			act("$n не сумел$g отбить атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 		}
 		else if (prob < 90)
 		{
 			act("Вы немного отклонили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
 			act("$N немного отклонил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
-			act("$n немного отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT);
+			act("$n немного отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 10);
 			*dam = *dam * 10 / 15;
 		}
@@ -3916,7 +3916,7 @@ void hit_multyparry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int w_type, int
 		{
 			act("Вы частично отклонили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
 			act("$N частично отклонил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
-			act("$n частично отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT);
+			act("$n частично отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 15);
 			*dam = *dam / 2;
 		}
@@ -3924,7 +3924,7 @@ void hit_multyparry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int w_type, int
 		{
 			act("Вы полностью отклонили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
 			act("$N полностью отклонил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
-			act("$n полностью отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT);
+			act("$n полностью отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 25);
 			*dam = -1;
 		}
@@ -3950,13 +3950,13 @@ void hit_block(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
 		{
 			act("Вы не смогли отразить атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
 			act("$N не сумел$G отразить Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
-			act("$n не сумел$g отразить атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT);
+			act("$n не сумел$g отразить атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 		}
 		else if (prob < 150)
 		{
 			act("Вы немного отразили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
 			act("$N немного отразил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
-			act("$n немного отразил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT);
+			act("$n немного отразил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 			alt_equip(victim, WEAR_SHIELD, *dam, 10);
 			*dam = *dam * 10 / 15;
 		}
@@ -3964,7 +3964,7 @@ void hit_block(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
 		{
 			act("Вы частично отразили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
 			act("$N частично отразил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
-			act("$n частично отразил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT);
+			act("$n частично отразил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 			alt_equip(victim, WEAR_SHIELD, *dam, 15);
 			*dam = *dam / 2;
 		}
@@ -3972,7 +3972,7 @@ void hit_block(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
 		{
 			act("Вы полностью отразили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
 			act("$N полностью отразил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
-			act("$n полностью отразил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT);
+			act("$n полностью отразил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 			alt_equip(victim, WEAR_SHIELD, *dam, 25);
 			*dam = -1;
 		}
@@ -5362,7 +5362,7 @@ void mob_casting(CHAR_DATA * ch)
 						if (ch != victim)
 						{
 							obj_from_char(item);
-							act("$n передал$g $o3 $N2.", FALSE, ch, item, victim, TO_ROOM);
+							act("$n передал$g $o3 $N2.", FALSE, ch, item, victim, TO_ROOM | TO_ARENA_LISTEN);
 							obj_to_char(item, victim);
 						}
 						else
@@ -5433,17 +5433,17 @@ void perform_violence(void)
 						continue;
 					if (!sk_use && GET_RACE(ch) == NPC_RACE_HUMAN)
 						act("$n воззвал$g : \"На помощь, мои верные соратники !\"",
-							FALSE, ch, 0, 0, TO_ROOM);
+							FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 					if (IN_ROOM(vict) != IN_ROOM(ch))
 					{
 						char_from_room(vict);
 						char_to_room(vict, IN_ROOM(ch));
 						act("$n прибыл$g на зов и вступил$g на помощь $N2.", FALSE,
-							vict, 0, ch, TO_ROOM);
+							vict, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 					}
 					else
 						act("$n вступил$g в битву на стороне $N1.", FALSE, vict, 0,
-							ch, TO_ROOM);
+							ch, TO_ROOM | TO_ARENA_LISTEN);
 					set_fighting(vict, ch->get_fighting());
 				};
 	}
@@ -5502,19 +5502,19 @@ void perform_violence(void)
 		{
 			if (IS_NPC(ch))
 			{
-				act("$n встал$g на ноги.", TRUE, ch, 0, 0, TO_ROOM);
+				act("$n встал$g на ноги.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				GET_POS(ch) = POS_FIGHTING;
 			}
 			else if (GET_POS(ch) == POS_SLEEPING)
 			{
 				act("Вы проснулись и сели.", TRUE, ch, 0, 0, TO_CHAR);
-				act("$n проснул$u и сел$g.", TRUE, ch, 0, 0, TO_ROOM);
+				act("$n проснул$u и сел$g.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				GET_POS(ch) = POS_SITTING;
 			}
 			else if (GET_POS(ch) == POS_RESTING)
 			{
 				act("Вы прекратили отдых и сели.", TRUE, ch, 0, 0, TO_CHAR);
-				act("$n прекратил$g отдых и сел$g.", TRUE, ch, 0, 0, TO_ROOM);
+				act("$n прекратил$g отдых и сел$g.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				GET_POS(ch) = POS_SITTING;
 			}
 		}

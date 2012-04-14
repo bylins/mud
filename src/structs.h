@@ -175,6 +175,8 @@ typedef struct trig_data TRIG_DATA;
 #define ROOM_SLOWDEATH      (INT_ONE | (1 << 4))
 #define ROOM_ICEDEATH       (INT_ONE | (1 << 5))
 #define ROOM_NORELOCATEIN   (INT_ONE | (1 << 6))
+#define ROOM_ARENARECV      (INT_ONE | (1 << 7))	// комната в которой слышно сообщения арены
+#define ROOM_ARENASEND      (INT_ONE | (1 << 8))	// комната из которой отправляются сообщения арены
 
 #define ROOM_NOITEM         (INT_TWO|(1<<0))	// Передача вещей в комнате запрещена
 #define ROOM_RUSICHI        (INT_TWO|(1<<1))
@@ -1007,7 +1009,8 @@ typedef struct trig_data TRIG_DATA;
 #define APPLY_SCOPOLIA_POISON  54
 #define APPLY_BELENA_POISON    55
 #define APPLY_DATURA_POISON    56
-#define NUM_APPLIES	           57
+#define APPLY_HIT_GLORY        57
+#define NUM_APPLIES	           58
 
 /* APPLY - эффекты для комнат */
 #define APPLY_ROOM_NONE        0

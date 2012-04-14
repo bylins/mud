@@ -122,7 +122,7 @@ ACMD(do_antigods)
 			affect_from_char(ch, SPELL_SHIELD);
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_SHIELD), AFF_SHIELD);
 		send_to_char("Голубой кокон вокруг Вашего тела угас.\r\n", ch);
-		act("&W$n отринул$g защиту, дарованную богами.&n", TRUE, ch, 0, 0, TO_ROOM);
+		act("&W$n отринул$g защиту, дарованную богами.&n", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 	else
 		send_to_char("Вы и так не под защитой богов.\r\n", ch);
@@ -161,7 +161,7 @@ ACMD(do_quit)
 			return;
 		}
 		if (!GET_INVIS_LEV(ch))
-			act("$n покинул$g игру.", TRUE, ch, 0, 0, TO_ROOM);
+			act("$n покинул$g игру.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		sprintf(buf, "%s quit the game.", GET_NAME(ch));
 		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 		send_to_char("До свидания, странник... Мы ждем тебя снова !\r\n", ch);
@@ -591,7 +591,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 				else
 				{
 					act("Вы раздели $N3 и взяли $o3.", FALSE, ch, obj, vict, TO_CHAR);
-					act("$n украл$g $o3 у $N1.", FALSE, ch, obj, vict, TO_NOTVICT);
+					act("$n украл$g $o3 у $N1.", FALSE, ch, obj, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 					obj_to_char(unequip_char(vict, eq_pos), ch);
 				}
 			}
@@ -621,7 +621,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 				};
 				send_to_char("Атас.. Дружина на конях !\r\n", ch);
 				act("$n пытал$u обокрасть Вас!", FALSE, ch, 0, vict, TO_VICT);
-				act("$n пытал$u украсть нечто у $N1.", TRUE, ch, 0, vict, TO_NOTVICT);
+				act("$n пытал$u украсть нечто у $N1.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 			}
 			else  	/* Steal the item */
 			{
@@ -662,7 +662,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 			};
 			send_to_char("Вы влипли.. Вас посодют.. А Вы не воруйте..\r\n", ch);
 			act("Вы обнаружили руку $n1 в своем кармане.", FALSE, ch, 0, vict, TO_VICT);
-			act("$n пытал$u спионерить деньги у $N1.", TRUE, ch, 0, vict, TO_NOTVICT);
+			act("$n пытал$u спионерить деньги у $N1.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		}
 		else  	/* Steal some gold coins */
 		{
@@ -913,7 +913,7 @@ ACMD(do_courage)
 		strcpy(buf, "Глаза $n1 налились кровью и $e яростно сжал$g в руках $o3.");
 	else
 		strcpy(buf, "Глаза $n1 налились кровью.");
-	act(buf, FALSE, ch, obj, 0, TO_ROOM);
+	act(buf, FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 }
 
 int max_group_size(CHAR_DATA *ch)
@@ -1022,7 +1022,7 @@ int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
 	{
 		act("$N принят$A в члены Вашего кружка (тьфу-ты, группы :).", FALSE, ch, 0, vict, TO_CHAR);
 		act("Вы приняты в группу $n1.", FALSE, ch, 0, vict, TO_VICT);
-		act("$N принят$A в группу $n1.", FALSE, ch, 0, vict, TO_NOTVICT);
+		act("$N принят$A в группу $n1.", FALSE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 	return (TRUE);
 }
@@ -1373,7 +1373,7 @@ ACMD(do_group)
 		{
 			act("$N исключен$A из состава Вашей группы.", FALSE, ch, 0, vict, TO_CHAR);
 			act("Вы исключены из группы $n1!", FALSE, ch, 0, vict, TO_VICT);
-			act("$N был$G исключен$A из группы $n1!", FALSE, ch, 0, vict, TO_NOTVICT);
+			act("$N был$G исключен$A из группы $n1!", FALSE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 			REMOVE_BIT(AFF_FLAGS(vict, AFF_GROUP), AFF_GROUP);
 		}
 	}
@@ -1420,7 +1420,7 @@ ACMD(do_ungroup)
 			REMOVE_BIT(AFF_FLAGS(tch, AFF_GROUP), AFF_GROUP);
 			act("$N более не член Вашей группы.", FALSE, ch, 0, tch, TO_CHAR);
 			act("Вы исключены из группы $n1 !", FALSE, ch, 0, tch, TO_VICT);
-			act("$N был$G изгнан$A из группы $n1 !", FALSE, ch, 0, tch, TO_NOTVICT);
+			act("$N был$G изгнан$A из группы $n1 !", FALSE, ch, 0, tch, TO_NOTVICT | TO_ARENA_LISTEN);
 			stop_follower(tch, SF_EMPTY);
 			return;
 		}
@@ -1742,7 +1742,7 @@ ACMD(do_use)
 		if (GET_EQ(ch, do_hold))
 		{
 			act("Вы прекратили использовать $o3.", FALSE, ch, GET_EQ(ch, do_hold), 0, TO_CHAR);
-			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, do_hold), 0, TO_ROOM);
+			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, do_hold), 0, TO_ROOM | TO_ARENA_LISTEN);
 			obj_to_char(unequip_char(ch, do_hold), ch);
 		}
 		if (GET_EQ(ch, WEAR_HOLD))
@@ -2647,7 +2647,7 @@ ACMD(do_pray)
 	if (subcmd == SCMD_PRAY)
 	{
 		sprintf(buf, "$n затеплил$g свечку и вознес$q молитву %s.", pray_whom[metter]);
-		act(buf, FALSE, ch, 0, 0, TO_ROOM);
+		act(buf, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		sprintf(buf, "Вы затеплили свечку и вознесли молитву %s.", pray_whom[metter]);
 		act(buf, FALSE, ch, 0, 0, TO_CHAR);
 		ch->remove_gold(10);
@@ -2655,7 +2655,7 @@ ACMD(do_pray)
 	else if (subcmd == SCMD_DONATE && obj)
 	{
 		sprintf(buf, "$n принес$q $o3 в жертву %s.", pray_whom[metter]);
-		act(buf, FALSE, ch, obj, 0, TO_ROOM);
+		act(buf, FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		sprintf(buf, "Вы принесли $o3 в жертву %s.", pray_whom[metter]);
 		act(buf, FALSE, ch, obj, 0, TO_CHAR);
 		obj_from_char(obj);
@@ -2699,7 +2699,7 @@ ACMD(do_recall)
 		{
 			send_to_char
 			("Вы почувствовали, как чья-то огромная рука подхватила вас и куда-то унесла!\r\n", ch);
-			act("$n поднял$a глаза к небу и внезапно исчез$q!", TRUE, ch, 0, 0, TO_ROOM);
+			act("$n поднял$a глаза к небу и внезапно исчез$q!", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			char_from_room(ch);
 			char_to_room(ch, real_room(GET_LOADROOM(ch)));
 			look_at_room(ch, 0);
@@ -2794,7 +2794,7 @@ void insert_wanted_gem::init()
 	temp.clear();
 
 	file.open(LIB_MISC "insert_wanted.lst", fstream::in);
-	if (!file.is_open()) return;
+	if (!file.is_open()) return log("failed to open insert_wanted.lst.");
 
 	file.width(MAX_INPUT_LENGTH);
 
@@ -2854,6 +2854,7 @@ void insert_wanted_gem::init()
 				break;
 			default:
 			{
+				log("something goes wrong\r\nclosed insert_wanted.lst.");
 				file.close();
 				return;
 			}
@@ -2864,6 +2865,7 @@ void insert_wanted_gem::init()
 	}
 
 	file.close();
+	log("closed insert_wanted.lst.");
 
 	if (!temp.empty())
 	{
@@ -3765,7 +3767,7 @@ ACMD(do_bandage)
 	}
 
 	send_to_char("Вы достали бинты и начали оказывать себе первую помощь...\r\n", ch);
-	act("$n начал$g перевязывать свои раны.&n", TRUE, ch, 0, 0, TO_ROOM);
+	act("$n начал$g перевязывать свои раны.&n", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
 	AFFECT_DATA af;
 	af.type = SPELL_BANDAGE;

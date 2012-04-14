@@ -40,6 +40,8 @@
 
 /* external vars from triggers.cpp */
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
+const char *attach_name[] = { "mob", "obj", "room", "unknown!!!" };
+
 int last_trig_vnum=0;
 
 /* other external vars */
@@ -1047,11 +1049,22 @@ ACMD(do_attach)
 	tn = atoi(trig_name);
 	loc = (*loc_name) ? atoi(loc_name) : -1;
 
+	rn = real_trigger(tn);
+	if (rn >= 0 && ((is_abbrev(arg, "mtr") && trig_index[rn]->proto->attach_type != MOB_TRIGGER) || 
+			(is_abbrev(arg, "otr") && trig_index[rn]->proto->attach_type != OBJ_TRIGGER) || 
+			(is_abbrev(arg, "wtr") && trig_index[rn]->proto->attach_type != WLD_TRIGGER)))
+	{
+		tn = (is_abbrev(arg, "mtr") ? 0 : is_abbrev(arg, "otr") ? 1 : is_abbrev(arg, "wtr") ? 2 : 3);
+		sprintf(buf, "Trigger %d (%s) has wrong attach_type %s expected %s.\r\n",
+				tn, GET_TRIG_NAME(trig_index[rn]->proto), attach_name[(int)trig_index[rn]->proto->attach_type], attach_name[tn]);
+		send_to_char(buf, ch);
+		return;
+	}
 	if (is_abbrev(arg, "mtr"))
 	{
 		if ((victim = get_char_vis(ch, targ_name, FIND_CHAR_WORLD)))
 		{
-			if (IS_NPC(victim))  	/* have a valid mob, now get trigger */
+			//if (IS_NPC(victim))  	/* have a valid mob, now get trigger */
 			{
 				rn = real_trigger(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn)))
@@ -1067,8 +1080,8 @@ ACMD(do_attach)
 				else
 					send_to_char("That trigger does not exist.\r\n", ch);
 			}
-			else
-				send_to_char("Players can't have scripts.\r\n", ch);
+			//else //Теперь и игроки могут быть с тригами
+			//	send_to_char("Players can't have scripts.\r\n", ch);
 		}
 		else
 			send_to_char("That mob does not exist.\r\n", ch);
@@ -2347,14 +2360,20 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				else
 					sprintf(str, "null");
 			}
+			else if (!str_cmp(field, "m"))
+				strcpy(str, HMHR(c));
+			else if (!str_cmp(field, "s"))
+				strcpy(str, HSHR(c));
+			else if (!str_cmp(field, "e"))
+				strcpy(str, HSSH(c));
 			else if (!str_cmp(field, "g"))
 				strcpy(str, GET_CH_SUF_1(c));
-			else if (!str_cmp(field, "q"))
-				strcpy(str, GET_CH_SUF_4(c));
 			else if (!str_cmp(field, "u"))
 				strcpy(str, GET_CH_SUF_2(c));
 			else if (!str_cmp(field, "w"))
 				strcpy(str, GET_CH_SUF_3(c));
+			else if (!str_cmp(field, "q"))
+				strcpy(str, GET_CH_SUF_4(c));
 			else if (!str_cmp(field, "y"))
 				strcpy(str, GET_CH_SUF_5(c));
 			else if (!str_cmp(field, "a"))
@@ -3930,6 +3949,16 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 
 	/* locate and load the trigger specified */
 	trignum = real_trigger(atoi(trignum_s));
+	if (trignum >=0 && (((c) && trig_index[trignum]->proto->attach_type != MOB_TRIGGER) ||
+		((o) && trig_index[trignum]->proto->attach_type != OBJ_TRIGGER) ||
+		((r) && trig_index[trignum]->proto->attach_type != WLD_TRIGGER)))
+	{
+		sprintf(buf2, "attach trigger : '%s' invalid attach_type: %s expected %s", trignum_s,
+		attach_name[(int)trig_index[trignum]->proto->attach_type],
+		attach_name[(c?0:(o?1:(r?2:3)))]);
+		trig_log(trig, buf2);
+		return;
+	}
 	if (trignum < 0 || !(newtrig = read_trigger(trignum)))
 	{
 		sprintf(buf2, "attach invalid trigger: '%s'", trignum_s);

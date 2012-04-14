@@ -548,6 +548,13 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 		if (GET_OBJ_WEIGHT(object) < GET_OBJ_VAL(object, 1))
 			GET_OBJ_WEIGHT(object) = GET_OBJ_VAL(object, 1) + 5;
 	}
+	// проставляем имя жидкости
+	if (GET_OBJ_TYPE(object) == ITEM_DRINKCON)
+	{
+		name_from_drinkcon(object);
+		if (GET_OBJ_VAL(object, 1) && GET_OBJ_VAL(object, 2))
+			name_to_drinkcon(object, GET_OBJ_VAL(object, 2));
+	}
 	// Проверка на ингры
 	if (GET_OBJ_TYPE(object) == ITEM_MING)
 	{

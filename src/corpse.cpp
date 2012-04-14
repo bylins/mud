@@ -1246,6 +1246,7 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	GET_OBJ_TYPE(corpse) = ITEM_CONTAINER;
 	GET_OBJ_WEAR(corpse) = ITEM_WEAR_TAKE;
 	SET_BIT(GET_OBJ_EXTRA(corpse, ITEM_NODONATE), ITEM_NODONATE);
+	SET_BIT(GET_OBJ_EXTRA(corpse, ITEM_NOSELL), ITEM_NOSELL);
 	GET_OBJ_VAL(corpse, 0) = 0;	/* You can't store stuff in a corpse */
 	GET_OBJ_VAL(corpse, 2) = IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1;
 	GET_OBJ_VAL(corpse, 3) = 1;	/* corpse identifier */

@@ -23,6 +23,7 @@
 #include "char.hpp"
 #include "char_player.hpp"
 #include "room.hpp"
+#include "house.h"
 
 /* List each room saved, was used for debugging. */
 #if 0
@@ -167,6 +168,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 		}
 		else
 			world.push_back(new_room);
+		fix_ingr_chest_rnum(room_num);//Фиксим позиции сундуков с инграми
 
 		// Copy world table over to new one.
 		top_of_world++;

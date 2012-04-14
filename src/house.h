@@ -63,6 +63,8 @@ const unsigned CLAN_PRIVILEGES_NUM = 13;
 
 #define CHEST_IDENT_PAY 110
 
+void fix_ingr_chest_rnum(const int room_rnum);//Нужно чтоб позиция короба не съехала
+
 class ClanMember
 {
 public:
@@ -212,6 +214,7 @@ public:
 
 	void init_ingr_chest();
 	int get_ingr_chest_room_rnum() const { return ingr_chest_room_rnum_; };
+	void set_ingr_chest_room_rnum(const int new_rnum) { ingr_chest_room_rnum_ = new_rnum; };
 	int ingr_chest_tax();
 	void purge_ingr_chest();
 	int get_ingr_chest_objcount() const { return ingr_chest_objcount_; };
@@ -336,7 +339,7 @@ private:
 
 void SetChestMode(CHAR_DATA *ch, std::string &buffer);
 std::string GetChestMode(CHAR_DATA *ch);
-
+  
 namespace ClanSystem
 {
 

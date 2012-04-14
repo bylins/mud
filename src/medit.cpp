@@ -1352,8 +1352,8 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 			"%s6&n) Винительный (ударить кого)     : %s&e\r\n"
 			"%s7&n) Творительный (сражаться с кем) : %s&e\r\n"
 			"%s8&n) Предложный (ехать на ком)      : %s&e\r\n"
-			"%s9&n) Короткое :-\r\n&R&q%s&Q&e"
-			"%sA%s) Детальное:-\r\n%s"
+			"%s9&n) Короткое :-\r\n&R&q%s&e&Q"
+			"%sA&n) Детальное:-\r\n%s&e"
 			"%sB%s) Уровень    : [%s%4d%s],%sC%s) Наклонности:  [%s%4d%s]\r\n"
 			"%sD%s) Хитролы    : [%s%4d%s],%sE%s) Дамролы:      [%s%4d%s]\r\n"
 			"%sF%s) NumDamDice : [%s%4d%s],%sG%s) SizeDamDice:  [%s%4d%s]\r\n"
@@ -1370,7 +1370,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, GET_PAD(mob, 4),
 			grn, GET_PAD(mob, 5),
 			grn, GET_LDESC(mob),
-			grn, nrm, GET_DDESC(mob),
+			grn, GET_DDESC(mob),
 			grn, nrm, cyn, GET_LEVEL(mob), nrm,
 			grn, nrm, cyn, GET_ALIGNMENT(mob), nrm,
 			grn, nrm, cyn, GET_HR(mob), nrm,

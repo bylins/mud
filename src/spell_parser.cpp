@@ -34,6 +34,7 @@
 #include "depot.hpp"
 #include "parcel.hpp"
 #include "room.hpp"
+#include "magic.h"
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct spell_create_type spell_create[TOP_SPELL_DEFINE + 1];
@@ -49,7 +50,6 @@ extern const char *cast_phrase[LAST_USED_SPELL + 1][2];
 extern CHAR_DATA *character_list;
 extern vector < OBJ_DATA * >obj_proto;
 extern int what_sky;
-int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract);
 int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe);
 
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
@@ -1737,6 +1737,7 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 		else
 			perform_act(buf2, ch, tobj, tch, i);
 	}
+	act(buf1, 1, ch, tobj, tch, TO_ARENA_LISTEN);
 
 	if (tch != NULL && tch != ch && IN_ROOM(tch) == IN_ROOM(ch)
 			&& !AFF_FLAGGED(tch, AFF_DEAFNESS))
@@ -2060,7 +2061,7 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOMAGIC) && !may_cast_in_nomagic(caster, cvict, spellnum))
 	{
 		send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", caster);
-		act("Магия $n1 потерпела неудачу и развеялась по воздуху.", FALSE, caster, 0, 0, TO_ROOM);
+		act("Магия $n1 потерпела неудачу и развеялась по воздуху.", FALSE, caster, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		return 0;
 	}
 
@@ -2069,12 +2070,12 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 		if (IS_SET(SpINFO.routines, MAG_WARCRY))
 		{
 			send_to_char("Ваш громовой глас сотряс воздух, но ничего не произошло !\r\n", caster);
-			act("Вы вздрогнули от неожиданного крика, но ничего не произошло.", FALSE, caster, 0, 0, TO_ROOM);
+			act("Вы вздрогнули от неожиданного крика, но ничего не произошло.", FALSE, caster, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}
 		else
 		{
 			send_to_char("Ваша магия обратилась всего лишь в яркую вспышку !\r\n", caster);
-			act("Яркая вспышка на миг осветила комнату, и тут же погасла.", FALSE, caster, 0, 0, TO_ROOM);
+			act("Яркая вспышка на миг осветила комнату, и тут же погасла.", FALSE, caster, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}
 		return 0;
 	}
@@ -2487,14 +2488,14 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		else
 			act("Вы ударили $o4 о землю.", FALSE, ch, obj, 0, TO_CHAR);
 		if (obj->action_description)
-			act(obj->action_description, FALSE, ch, obj, 0, TO_ROOM);
+			act(obj->action_description, FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		else
-			act("$n ударил$g $o4 о землю.", FALSE, ch, obj, 0, TO_ROOM);
+			act("$n ударил$g $o4 о землю.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 
 		if (GET_OBJ_VAL(obj, 2) <= 0)
 		{
 			send_to_char("Похоже, кончились заряды :)\r\n", ch);
-			act("И ничего не случилось.", FALSE, ch, obj, 0, TO_ROOM);
+			act("И ничего не случилось.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}
 		else
 		{
@@ -2543,9 +2544,9 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 				else
 					act("Вы обвели $o4 вокруг комнаты.", FALSE, ch, obj, NULL, TO_CHAR);
 				if (obj->action_description)
-					act(obj->action_description, FALSE, ch, obj, tch, TO_ROOM);
+					act(obj->action_description, FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
 				else
-					act("$n обвел$g $o4 вокруг комнаты.", TRUE, ch, obj, NULL, TO_ROOM);
+					act("$n обвел$g $o4 вокруг комнаты.", TRUE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
 			}
 			else if (tch == ch)
 			{
@@ -2554,9 +2555,9 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 				else
 					act("Вы указали $o4 на себя.", FALSE, ch, obj, 0, TO_CHAR);
 				if (obj->action_description)
-					act(obj->action_description, FALSE, ch, obj, tch, TO_ROOM);
+					act(obj->action_description, FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
 				else
-					act("$n указал$g $o4 на себя.", FALSE, ch, obj, 0, TO_ROOM);
+					act("$n указал$g $o4 на себя.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 			}
 			else
 			{
@@ -2565,9 +2566,9 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 				else
 					act("Вы ткнули $o4 в $N1.", FALSE, ch, obj, tch, TO_CHAR);
 				if (obj->action_description)
-					act(obj->action_description, FALSE, ch, obj, tch, TO_ROOM);
+					act(obj->action_description, FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
 				else
-					act("$n ткнул$g $o4 в $N1.", TRUE, ch, obj, tch, TO_ROOM);
+					act("$n ткнул$g $o4 в $N1.", TRUE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
 			}
 		}
 		else if (tobj)
@@ -2577,15 +2578,15 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 			else
 				act("Вы прикоснулись $o4 к $P.", FALSE, ch, obj, tobj, TO_CHAR);
 			if (obj->action_description)
-				act(obj->action_description, FALSE, ch, obj, tobj, TO_ROOM);
+				act(obj->action_description, FALSE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
 			else
-				act("$n прикоснул$u $o4 к $P.", TRUE, ch, obj, tobj, TO_ROOM);
+				act("$n прикоснул$u $o4 к $P.", TRUE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
 		}
 
 		if (GET_OBJ_VAL(obj, 2) <= 0)
 		{
 			send_to_char("Похоже, магия кончилась.\r\n", ch);
-			act("И ничего не произошло.", FALSE, ch, obj, 0, TO_ROOM);
+			act("И ничего не произошло.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 			return;
 		}
 		GET_OBJ_VAL(obj, 2)--;
@@ -2615,9 +2616,9 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		else
 			act("Вы зачитали $o3, котор$W рассыпался в прах.", TRUE, ch, obj, 0, TO_CHAR);
 		if (obj->action_description)
-			act(obj->action_description, FALSE, ch, obj, NULL, TO_ROOM);
+			act(obj->action_description, FALSE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
 		else
-			act("$n зачитал$g $o3.", FALSE, ch, obj, NULL, TO_ROOM);
+			act("$n зачитал$g $o3.", FALSE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
 
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		for (i = 1; i <= 3; i++)
@@ -2632,9 +2633,9 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		tch = ch;
 		act("Вы осушили $o3.", FALSE, ch, obj, NULL, TO_CHAR);
 		if (obj->action_description)
-			act(obj->action_description, FALSE, ch, obj, NULL, TO_ROOM);
+			act(obj->action_description, FALSE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
 		else
-			act("$n осушил$g $o3.", TRUE, ch, obj, NULL, TO_ROOM);
+			act("$n осушил$g $o3.", TRUE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
 
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		for (i = 1; i <= 3; i++)
@@ -3301,7 +3302,7 @@ ACMD(do_mixture)
 
 	/* You throws the dice and you takes your chances.. 101% is total failure */
 
-	if (check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, TRUE))
+	if (check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, TRUE, tch))
 	{
 		if (!spell_use_success(ch, tch, SAVING_NONE, spellnum))
 		{
@@ -3489,7 +3490,7 @@ ACMD(do_learn)
 	if (!*arg)
 	{
 		send_to_char("Вы принялись внимательно изучать свои ногти. Да, пора бы и подстричь.\r\n", ch);
-		act("$n удивленно уставил$u на свои ногти. Подстриг бы их кто-нибудь $m.", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n удивленно уставил$u на свои ногти. Подстриг бы их кто-нибудь $m.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		return;
 	}
 

@@ -224,7 +224,7 @@ int proc_color(char *inbuf, int colour)
 			if (tmp == -4)
 			{
 				// ключ &e выводит три воскл.знака если тут не закрыты цвета ключом &n
-				if (c != nc)
+				if (c != 0 && c != nc)
 				{
 					out_buf[p++] = '!';
 					out_buf[p++] = '!';

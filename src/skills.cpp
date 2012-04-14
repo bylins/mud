@@ -148,7 +148,7 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 
 				act(msg->god_msg.victim_msg, FALSE, ch, weap, vict, TO_VICT);
 				act(msg->god_msg.room_msg, FALSE, ch, weap, vict,
-					TO_NOTVICT);
+					TO_NOTVICT | TO_ARENA_LISTEN);
 			}
 			else if (dam != 0)
 			{
@@ -164,7 +164,7 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 						TO_VICT | TO_SLEEP);
 					send_to_char("&Q&n", vict);
 					act(msg->die_msg.room_msg, FALSE, ch, weap, vict,
-						TO_NOTVICT);
+						TO_NOTVICT | TO_ARENA_LISTEN);
 				}
 				else
 				{
@@ -177,7 +177,7 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 						TO_VICT | TO_SLEEP);
 					send_to_char("&Q&n", vict);
 					act(msg->hit_msg.room_msg, FALSE, ch, weap, vict,
-						TO_NOTVICT);
+						TO_NOTVICT | TO_ARENA_LISTEN);
 				}
 			}
 			else if (ch != vict)  	/* Dam == 0 */
@@ -204,7 +204,7 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 				send_to_char("&Q&n", vict);
 
 				act(msg->miss_msg.room_msg, FALSE, ch, weap, vict,
-					TO_NOTVICT);
+					TO_NOTVICT | TO_ARENA_LISTEN);
 			}
 			return (1);
 		}

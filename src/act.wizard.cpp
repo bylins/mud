@@ -1629,7 +1629,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		send_to_char("Племя: -- ", ch);
 	else
 	{
-		sprintf(buf, "Племя: %s Род: %s ", string(PlayerRace::GetKinNameByNum(GET_KIN(k),GET_SEX(k))).c_str(), string(PlayerRace::GetRaceNameByNum(GET_KIN(ch),GET_RACE(ch),GET_SEX(ch))).substr(0, 14).c_str());
+		sprintf(buf, "Племя: %s Род: %s ", string(PlayerRace::GetKinNameByNum(GET_KIN(k),GET_SEX(k))).c_str(), k->get_race_name().c_str());
 		send_to_char(buf, ch);
 	}
 
@@ -2750,7 +2750,7 @@ void inspecting()
 	need_warn = true;
 	gettimeofday(&stop, NULL);
 	timediff(&result, &stop, &it->second->start);
-	sprintf(buf1, "Всего найдено: %d за %ld.%ldсек.\r\n", it->second->found, result.tv_sec, (long int)result.tv_usec/1000);
+	sprintf(buf1, "Всего найдено: %d за %ldсек.\r\n", it->second->found, result.tv_sec);
 	it->second->out += buf1;
 	page_string(ch->desc, it->second->out);
 	free(it->second->req);
