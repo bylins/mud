@@ -17,6 +17,7 @@
 #include "shop.h"
 #include "handler.h"
 #include "constants.h"
+#include "dg_scripts.h"
 #include "room.hpp"
 #include "glory.hpp"
 #include "glory_const.hpp"
@@ -82,6 +83,22 @@ const int IDENTIFY_COST = 110;
 int spent_today = 0;
 
 
+struct item_desc_node
+{
+		std::string name;
+		std::string description ;
+		std::string short_description ;
+		std::string PNames0 ;
+		std::string PNames1 ;
+		std::string PNames2 ;
+		std::string PNames3 ;
+		std::string PNames4 ;
+		std::string PNames5 ;
+};
+
+std::map<int, item_desc_node> item_descriptions;
+typedef boost::shared_ptr<item_desc_node> ItemDescNodePtr;
+
 struct waste_node
 {
 	waste_node() : rnum(0), obj(NULL) {};
@@ -96,6 +113,8 @@ struct item_node
 	int rnum;
 	int price;
 	std::vector<unsigned> temporary_ids;
+	std::list<unsigned> trigs;
+	ItemDescNodePtr descs;
 };
 
 typedef boost::shared_ptr<item_node> ItemNodePtr;
@@ -159,6 +178,74 @@ void empty_waste(ShopListType::const_iterator &shop)
 	(*shop)->waste.clear();
 }
 
+std::list<std::string> split(std::string s, char c)
+{
+	std::list<std::string> result;
+	int idx = s.find_first_of(c);
+	while (idx != std::string::npos)
+	{
+		int l = s.length();
+		result.push_back(s.substr(0, idx));
+		s = s.substr(idx+1, l-idx);
+		idx = s.find_first_of(c);
+	}
+	if (!s.empty())
+		result.push_back(s);
+	return result;
+}
+
+void load_item_desc()
+{
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file(LIB_PLRSTUFF"/shop/item_desc.xml");
+	if (!result)
+	{
+		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
+ 
+	pugi::xml_node node_list = doc.child("items");
+    if (!node_list)
+    {
+		snprintf(buf, MAX_STRING_LENGTH, "...item list read fail");
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+    }
+	pugi::xml_node child;
+	for (pugi::xml_node item = node_list.child("item"); item; item = item.next_sibling("item"))
+	{
+		int item_vnum = xmlparse_int(item, "vnum");
+		if (item_vnum <= 0)
+		{
+				snprintf(buf, MAX_STRING_LENGTH,
+					"...bad item description attributes (item_vnum=%d)", item_vnum);
+				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+				return;
+		}
+		item_desc_node desc_node;
+		child = item.child("name");
+		desc_node.name = child.child_value();
+		child = item.child("description");
+		desc_node.description = child.child_value();
+		child = item.child("short_description");
+		desc_node.short_description = child.child_value();
+		child = item.child("PNames0");
+		desc_node.PNames0 = child.child_value();
+		child = item.child("PNames1");
+		desc_node.PNames1 = child.child_value();
+		child = item.child("PNames2");
+		desc_node.PNames2 = child.child_value();
+		child = item.child("PNames3");
+		desc_node.PNames3 = child.child_value();
+		child = item.child("PNames4");
+		desc_node.PNames4 = child.child_value();
+		child = item.child("PNames5");
+		desc_node.PNames5 = child.child_value();
+		item_descriptions[item_vnum] = desc_node;
+	}
+}
+
 void load(bool reload)
 {
 	if (reload)
@@ -178,6 +265,7 @@ void load(bool reload)
 		
 		shop_list.clear();
 	}
+	load_item_desc();
 
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(LIB_PLRSTUFF"/shop/shops.xml");
@@ -254,15 +342,13 @@ void load(bool reload)
 					snprintf(buf, MAX_STRING_LENGTH,
 						"...shopkeeper already with special (mob_vnum=%d)", mob_vnum);
 					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-					return;
-				}
-				mob_index[mob_rnum].func = shop_ext;
+				}else
+					mob_index[mob_rnum].func = shop_ext;
 			}
 			else
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "...incorrect mob_vnum=%d", mob_vnum);
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-				return;
 			}
 		}
 		// и список его продукции
@@ -270,6 +356,7 @@ void load(bool reload)
 		{
 			int item_vnum = xmlparse_int(item, "vnum");
 			int price = xmlparse_int(item, "price");
+			std::string attach = item.attribute("attach").value();
 			if (item_vnum < 0 || price < 0)
 			{
 				snprintf(buf, MAX_STRING_LENGTH,
@@ -285,10 +372,47 @@ void load(bool reload)
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
 			}
+			// парсим список триггеров
+			std::list<std::string> trigs = split(attach, ',');
+			std::list<std::string>::const_iterator it;
+			std::list<unsigned> trig_vnums;
+			int trig_vnum;
+			for (it = trigs.begin(); it!=trigs.end(); ++it)
+			{
+				try
+				{	
+					std::string tmp = (*it);
+					boost::trim(tmp);
+					trig_vnum = boost::lexical_cast<unsigned>(tmp);
+				}
+				catch (boost::bad_lexical_cast &)
+				{
+					snprintf(buf, MAX_STRING_LENGTH, "...error while castin to num (item_vnum=%d, casting value=%s)", item_vnum, (*it).c_str());
+					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				if (trig_vnum <= 0)
+				{
+					snprintf(buf, MAX_STRING_LENGTH, "...error while parsing triggers (item_vnum=%d, parsed value=%s)", item_vnum, (*it).c_str());
+					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+					return;
+				}
+				trig_vnums.push_back(trig_vnum);
+			}
+
 			// иним ее в магазе
 			ItemNodePtr tmp_item(new item_node);
 			tmp_item->rnum = item_rnum;
 			tmp_item->price = price == 0 ? GET_OBJ_COST(obj_proto[item_rnum]) : price; //если не указана цена - берем цену из прототипа
+			tmp_item->trigs = trig_vnums;
+			//ищем замену описаний
+			
+			if (item_descriptions.find(item_vnum) != item_descriptions.end())
+			{
+				ItemDescNodePtr tmp_desc(new item_desc_node(item_descriptions[item_vnum]));
+				tmp_item->descs = tmp_desc;
+			}
 			tmp_shop->item_list.push_back(tmp_item);
 		}
 		//и еще добавим наборы
@@ -487,7 +611,10 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 // чтобы не было в списках всяких "гриб @n1"
 		if ((*k)->temporary_ids.empty())
 		{
-			print_value = GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0);
+			if ((*k)->descs)
+				print_value = (*k)->descs->short_description;
+			else
+				print_value = GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0);
 			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == ITEM_DRINKCON)
 				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[(*k)->rnum], 2)]);
 		}
@@ -540,6 +667,30 @@ void remove_from_waste(ShopListType::const_iterator &shop, OBJ_DATA *obj)
 			return;
 		}
 	}
+}
+void attach_triggers(OBJ_DATA *obj, ItemNodePtr item)
+{
+	if (!obj->script)
+		CREATE(obj->script, SCRIPT_DATA, 1);
+	for (std::list<unsigned>::iterator it = item->trigs.begin(); it != item->trigs.end(); ++it)
+	{
+		int rnum = real_trigger(*it);
+		if (rnum != -1)
+			add_trigger(obj->script, read_trigger(rnum), -1);
+	}
+}
+
+void replace_descs(OBJ_DATA *obj, ItemNodePtr item)
+{
+	strcpy(obj->description, item->descs->description.c_str());
+	strcpy(obj->name, item->descs->name.c_str());
+	strcpy(obj->short_description, item->descs->short_description.c_str());
+	strcpy(obj->PNames[0], item->descs->PNames0.c_str());
+	strcpy(obj->PNames[1], item->descs->PNames1.c_str());
+	strcpy(obj->PNames[2], item->descs->PNames2.c_str());
+	strcpy(obj->PNames[3], item->descs->PNames3.c_str());
+	strcpy(obj->PNames[4], item->descs->PNames4.c_str());
+	strcpy(obj->PNames[5], item->descs->PNames5.c_str());
 }
 
 void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType::const_iterator &shop)
@@ -672,6 +823,11 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 
 		if (obj)
 		{
+			if ((*shop)->item_list[item_num]->descs)
+				replace_descs(obj, (*shop)->item_list[item_num]);
+			if (!(*shop)->item_list[item_num]->trigs.empty())
+				attach_triggers(obj, (*shop)->item_list[item_num]);
+
 			obj_to_char(obj, ch);
 			if ((*shop)->currency == "слава")
 			{
@@ -922,6 +1078,10 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 void process_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType::const_iterator &shop, std::string cmd)
 {
 	OBJ_DATA *obj;
+	OBJ_DATA * obj_next;
+	std::string buffer(argument), buffer1;
+	GetOneParam(buffer, buffer1);
+	boost::trim(buffer);
 
 	if (!*argument)
 	{
@@ -929,56 +1089,80 @@ void process_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		return;
 	}
 
-	skip_spaces(&argument);
-	int i, dotmode = find_all_dots(argument);
-	std::string buffer(argument);
-	OBJ_DATA * obj_next;
-	switch (dotmode)
-	{
-		case FIND_INDIV:
+	if (!buffer1.empty())
+	{	
+		if (is_number(buffer1.c_str()))
+		{
+			int n = boost::lexical_cast<int>(buffer1);
 
-				obj = get_obj_in_list_vis(ch, buffer, ch->carrying);
+			obj = get_obj_in_list_vis(ch, buffer, ch->carrying);
 
-				if (!obj)
-				{
-					if (cmd == "Чинить" && is_abbrev(argument, "экипировка"))
-					{
-						for(i = 0; i < NUM_WEARS; i++)
-							if (ch->equipment[i])
-								do_shop_cmd(ch, keeper, ch->equipment[i], shop, cmd);
-						return;
-					}
-					send_to_char("У Вас нет " + buffer + "!\r\n", ch);
-					return;
-				}
+			if (!obj)
+			{
+				send_to_char("У Вас нет " + buffer + "!\r\n", ch);
+				return;
+			}
 
+			while (obj && n > 0)
+			{
+				obj_next = get_obj_in_list_vis(ch, buffer, obj->next_content);
 				do_shop_cmd(ch, keeper, obj, shop, cmd);
-				break;
-		case FIND_ALL:
-				for (obj = ch->carrying; obj; obj = obj_next)
-				{
-					obj_next = obj->next_content;
-					do_shop_cmd(ch, keeper, obj, shop, cmd);
-				}
-				break;
-		case FIND_ALLDOT:
-				obj = get_obj_in_list_vis(ch, buffer, ch->carrying);
-				if (!obj)
-				{
-					send_to_char("У Вас нет " + buffer + "!\r\n", ch);
-					return;
-				}
-				while (obj)
-				{
-					obj_next = get_obj_in_list_vis(ch, buffer, obj->next_content);
-					do_shop_cmd(ch, keeper, obj, shop, cmd);
-					obj = obj_next;
-				}
-				break;
-		default:
-			break;
-	};
+				obj = obj_next;
+				n--;
+			}
+		}
+		else
+		{
+			skip_spaces(&argument);
+			int i, dotmode = find_all_dots(argument);
+			std::string buffer2(argument);
+			switch (dotmode)
+			{
+				case FIND_INDIV:
 
+						obj = get_obj_in_list_vis(ch, buffer2, ch->carrying);
+
+						if (!obj)
+						{
+							if (cmd == "Чинить" && is_abbrev(argument, "экипировка"))
+							{
+								for(i = 0; i < NUM_WEARS; i++)
+									if (ch->equipment[i])
+										do_shop_cmd(ch, keeper, ch->equipment[i], shop, cmd);
+								return;
+							}
+							send_to_char("У Вас нет " + buffer2 + "!\r\n", ch);
+							return;
+						}
+
+						do_shop_cmd(ch, keeper, obj, shop, cmd);
+						break;
+				case FIND_ALL:
+						for (obj = ch->carrying; obj; obj = obj_next)
+						{
+							obj_next = obj->next_content;
+							do_shop_cmd(ch, keeper, obj, shop, cmd);
+						}
+						break;
+				case FIND_ALLDOT:
+						obj = get_obj_in_list_vis(ch, buffer2, ch->carrying);
+						if (!obj)
+						{
+							send_to_char("У Вас нет " + buffer2 + "!\r\n", ch);
+							return;
+						}
+						while (obj)
+						{
+							obj_next = get_obj_in_list_vis(ch, buffer2, obj->next_content);
+							do_shop_cmd(ch, keeper, obj, shop, cmd);
+							obj = obj_next;
+						}
+						break;
+				default:
+					break;
+			};
+		}
+	}
 }
 
 void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType::const_iterator &shop, std::string cmd)
@@ -1012,23 +1196,28 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 
 	--item_num;
 
-	const OBJ_DATA * const proto = read_object_mirror((*shop)->item_list[item_num]->rnum, REAL);
-	if (!proto)
+	const OBJ_DATA *ident_obj = NULL;
+	if ((*shop)->item_list[item_num]->temporary_ids.empty())
+		ident_obj = read_object_mirror((*shop)->item_list[item_num]->rnum, REAL);
+	else
+		ident_obj = get_obj_from_waste(shop, (*shop)->item_list[item_num]->temporary_ids);
+
+	if (!ident_obj)
 	{
-		log("SYSERROR : не удалось прочитать прототип (%s:%d)", __FILE__, __LINE__);
+		log("SYSERROR : не удалось получить объект (%s:%d)", __FILE__, __LINE__);
 		send_to_char("Ошибочка вышла.\r\n", ch);
 		return;
 	}
 	if (cmd == "Рассмотреть")
 	{
-		std::string tell = "Предмет "+ std::string(proto->short_description)+": ";
-		tell += std::string(item_types[GET_OBJ_TYPE(proto)])+"\r\n";
-		tell += std::string(diag_weapon_to_char(proto, TRUE));
-		tell += std::string(diag_timer_to_char(proto));
+		std::string tell = "Предмет "+ std::string(ident_obj->short_description)+": ";
+		tell += std::string(item_types[GET_OBJ_TYPE(ident_obj)])+"\r\n";
+		tell += std::string(diag_weapon_to_char(ident_obj, TRUE));
+		tell += std::string(diag_timer_to_char(ident_obj));
 		tell_to_char(keeper, ch, tell.c_str());
-		if (invalid_anti_class(ch, proto) || invalid_unique(ch, proto))
+		if (invalid_anti_class(ch, ident_obj) || invalid_unique(ch, ident_obj))
 		{
-			tell = "Но лучше бы тебе не заглядываться на нее, не унесешь все равно.";
+			tell = "Но лучше бы тебе не заглядываться на эту вещь, не унесешь все равно.";
 			tell_to_char(keeper, ch, tell.c_str());
 		}
 	}
@@ -1060,8 +1249,8 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 			desc_count(IDENTIFY_COST, WHAT_MONEYu));
 		tell_to_char(keeper, ch, buf);
 
-		send_to_char(ch, "Характеристики предмета: %s\r\n", GET_OBJ_PNAME(proto, 0));
-		mort_show_obj_values(proto, ch, 200);
+		send_to_char(ch, "Характеристики предмета: %s\r\n", GET_OBJ_PNAME(ident_obj, 0));
+		mort_show_obj_values(ident_obj, ch, 200);
 		ch->remove_gold(IDENTIFY_COST);
 	}
 }
