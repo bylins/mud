@@ -2,5 +2,7 @@
 python 2.7, например, отсюда - http://www.python.org/ftp/python/2.7.3/python-2.7.3.msi
 и взять с репозитария папку lib, в которой переименовать файлы и папки вида имя.template,
 убрав .template. 
+Если лень переименовывать руками - запустите renamelib.bat, предварительно положив его в
+ту же папку, где уже лежит взятый с репозитария lib.
 Т.е. файл lib/misc/global_drop.xml.template нужно переименовать в lib/misc/global_drop.xml
 и т.д.
