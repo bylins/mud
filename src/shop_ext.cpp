@@ -181,7 +181,7 @@ void empty_waste(ShopListType::const_iterator &shop)
 std::list<std::string> split(std::string s, char c)
 {
 	std::list<std::string> result;
-	int idx = s.find_first_of(c);
+	size_t idx = s.find_first_of(c);
 	while (idx != std::string::npos)
 	{
 		int l = s.length();
