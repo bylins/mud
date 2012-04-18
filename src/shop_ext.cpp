@@ -99,8 +99,7 @@ struct item_desc_node
 };
 typedef std::map<int/*vnum предмета*/, item_desc_node> ObjDescType;
 std::map<std::string/*id шаблона*/, ObjDescType> item_descriptions;
-typedef boost::shared_ptr<item_desc_node> ItemDescNodePtr;
-typedef std::map<int/*vnum продавца*/, ItemDescNodePtr> ItemDescNodeList;
+typedef std::map<int/*vnum продавца*/, item_desc_node> ItemDescNodeList;
 
 struct waste_node
 {
@@ -471,7 +470,7 @@ void load(bool reload)
 			{
 				if (id->second.find((*it)->vnum) != id->second.end())
 				{
-					ItemDescNodePtr tmp_desc(new item_desc_node(id->second[(*it)->vnum]));
+					item_desc_node tmp_desc(id->second[(*it)->vnum]);
 					for (std::list<int>::iterator mob_vnum = tmp_shop->mob_vnums.begin(); mob_vnum != tmp_shop->mob_vnums.end(); ++mob_vnum)
 					{
 						if (mob_to_template.find((*mob_vnum)) != mob_to_template.end())
@@ -644,7 +643,7 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 		if ((*k)->temporary_ids.empty())
 		{
 			if (!(*k)->descs.empty() && (*k)->descs.find(keeper_vnum) != (*k)->descs.end())
-				print_value = (*k)->descs[keeper_vnum]->short_description;
+				print_value = (*k)->descs[keeper_vnum].PNames0;
 			else
 				print_value = GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0);
 			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == ITEM_DRINKCON)
@@ -714,18 +713,18 @@ void attach_triggers(OBJ_DATA *obj, std::list<unsigned> trigs)
 
 void replace_descs(OBJ_DATA *obj, ItemNodePtr item, int vnum)
 {
-	strcpy(obj->description, item->descs[vnum]->description.c_str());
-	strcpy(obj->name, item->descs[vnum]->name.c_str());
-	strcpy(obj->short_description, item->descs[vnum]->short_description.c_str());
-	strcpy(obj->PNames[0], item->descs[vnum]->PNames0.c_str());
-	strcpy(obj->PNames[1], item->descs[vnum]->PNames1.c_str());
-	strcpy(obj->PNames[2], item->descs[vnum]->PNames2.c_str());
-	strcpy(obj->PNames[3], item->descs[vnum]->PNames3.c_str());
-	strcpy(obj->PNames[4], item->descs[vnum]->PNames4.c_str());
-	strcpy(obj->PNames[5], item->descs[vnum]->PNames5.c_str());
-	obj->obj_flags.Obj_sex = item->descs[vnum]->sex;
-	if (!item->descs[vnum]->trigs.empty())
-		attach_triggers(obj, item->descs[vnum]->trigs);
+	obj->description = strdup(item->descs[vnum].description.c_str());
+	obj->name = strdup(item->descs[vnum].name.c_str());
+	obj->short_description = strdup(item->descs[vnum].short_description.c_str());
+	obj->PNames[0]= strdup(item->descs[vnum].PNames0.c_str());
+	obj->PNames[1]= strdup(item->descs[vnum].PNames1.c_str());
+	obj->PNames[2]= strdup(item->descs[vnum].PNames2.c_str());
+	obj->PNames[3]= strdup(item->descs[vnum].PNames3.c_str());
+	obj->PNames[4]= strdup(item->descs[vnum].PNames4.c_str());
+	obj->PNames[5]= strdup(item->descs[vnum].PNames5.c_str());
+	obj->obj_flags.Obj_sex = item->descs[vnum].sex;
+	if (!item->descs[vnum].trigs.empty())
+		attach_triggers(obj, item->descs[vnum].trigs);
 }
 
 void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType::const_iterator &shop)
