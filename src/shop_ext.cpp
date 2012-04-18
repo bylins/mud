@@ -86,18 +86,21 @@ int spent_today = 0;
 struct item_desc_node
 {
 		std::string name;
-		std::string description ;
-		std::string short_description ;
-		std::string PNames0 ;
-		std::string PNames1 ;
-		std::string PNames2 ;
-		std::string PNames3 ;
-		std::string PNames4 ;
-		std::string PNames5 ;
+		std::string description;
+		std::string short_description;
+		std::string PNames0;
+		std::string PNames1;
+		std::string PNames2;
+		std::string PNames3;
+		std::string PNames4;
+		std::string PNames5;
+		int sex;
+		std::list<unsigned> trigs;
 };
 
-std::map<int, item_desc_node> item_descriptions;
+std::map<std::string/*id шаблона*/, std::map<int/*vnum предмета*/, item_desc_node>> item_descriptions;
 typedef boost::shared_ptr<item_desc_node> ItemDescNodePtr;
+typedef std::map<int/*vnum продавца*/, ItemDescNodePtr> ItemDescNodeList;
 
 struct waste_node
 {
@@ -108,13 +111,13 @@ struct waste_node
 
 struct item_node
 {
-	item_node() : rnum(0), price(0) {};
+	item_node() : rnum(0), vnum(0), price(0) {};
 
 	int rnum;
+	int vnum;
 	int price;
 	std::vector<unsigned> temporary_ids;
-	std::list<unsigned> trigs;
-	ItemDescNodePtr descs;
+	ItemDescNodeList descs;
 };
 
 typedef boost::shared_ptr<item_node> ItemNodePtr;
@@ -205,46 +208,83 @@ void load_item_desc()
 		return;
 	}
  
-	pugi::xml_node node_list = doc.child("items");
+	pugi::xml_node node_list = doc.child("templates");
     if (!node_list)
     {
-		snprintf(buf, MAX_STRING_LENGTH, "...item list read fail");
+		snprintf(buf, MAX_STRING_LENGTH, "...templates list read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
     }
 	pugi::xml_node child;
-	for (pugi::xml_node item = node_list.child("item"); item; item = item.next_sibling("item"))
+	for (pugi::xml_node item_template = node_list.child("template"); item_template; item_template = item_template.next_sibling("template"))
 	{
-		int item_vnum = xmlparse_int(item, "vnum");
-		if (item_vnum <= 0)
+		std::string templateId = item_template.attribute("id").value();
+		for (pugi::xml_node item = item_template.child("item"); item; item = item.next_sibling("item")) 
 		{
-				snprintf(buf, MAX_STRING_LENGTH,
-					"...bad item description attributes (item_vnum=%d)", item_vnum);
-				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-				return;
+
+			int item_vnum = xmlparse_int(item, "vnum");
+			if (item_vnum <= 0)
+			{
+					snprintf(buf, MAX_STRING_LENGTH,
+						"...bad item description attributes (item_vnum=%d)", item_vnum);
+					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+					return;
+			}
+			item_desc_node desc_node;
+			child = item.child("name");
+			desc_node.name = child.child_value();
+			child = item.child("description");
+			desc_node.description = child.child_value();
+			child = item.child("short_description");
+			desc_node.short_description = child.child_value();
+			child = item.child("PNames0");
+			desc_node.PNames0 = child.child_value();
+			child = item.child("PNames1");
+			desc_node.PNames1 = child.child_value();
+			child = item.child("PNames2");
+			desc_node.PNames2 = child.child_value();
+			child = item.child("PNames3");
+			desc_node.PNames3 = child.child_value();
+			child = item.child("PNames4");
+			desc_node.PNames4 = child.child_value();
+			child = item.child("PNames5");
+			desc_node.PNames5 = child.child_value();
+			child = item.child("sex");
+			desc_node.sex = atoi(child.child_value());
+			
+			// парсим список триггеров
+			pugi::xml_node trig_list = item.child("triggers");
+			std::list<unsigned> trig_vnums;
+			for (pugi::xml_node trig = trig_list.child("trig"); trig; trig = trig.next_sibling("trig"))
+			{
+				int trig_vnum; 
+				std::string tmp_value = trig.child_value();
+				boost::trim(tmp_value);
+				try
+				{	
+					trig_vnum = boost::lexical_cast<unsigned>(tmp_value);
+				}
+				catch (boost::bad_lexical_cast &)
+				{
+					snprintf(buf, MAX_STRING_LENGTH, "...error while casting to num (item_vnum=%d, casting value=%s)", item_vnum, tmp_value.c_str());
+					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+					continue;
+				}
+
+				if (trig_vnum <= 0)
+				{
+					snprintf(buf, MAX_STRING_LENGTH, "...error while parsing triggers (item_vnum=%d, parsed value=%s)", item_vnum, tmp_value.c_str());
+					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+					return;
+				}
+				trig_vnums.push_back(trig_vnum);
+			}
+			desc_node.trigs = trig_vnums;
+			item_descriptions[templateId][item_vnum] = desc_node;
 		}
-		item_desc_node desc_node;
-		child = item.child("name");
-		desc_node.name = child.child_value();
-		child = item.child("description");
-		desc_node.description = child.child_value();
-		child = item.child("short_description");
-		desc_node.short_description = child.child_value();
-		child = item.child("PNames0");
-		desc_node.PNames0 = child.child_value();
-		child = item.child("PNames1");
-		desc_node.PNames1 = child.child_value();
-		child = item.child("PNames2");
-		desc_node.PNames2 = child.child_value();
-		child = item.child("PNames3");
-		desc_node.PNames3 = child.child_value();
-		child = item.child("PNames4");
-		desc_node.PNames4 = child.child_value();
-		child = item.child("PNames5");
-		desc_node.PNames5 = child.child_value();
-		item_descriptions[item_vnum] = desc_node;
 	}
 }
+
 
 void load(bool reload)
 {
@@ -321,9 +361,12 @@ void load(bool reload)
 		tmp_shop->currency = currency;
 		tmp_shop->profit = profit;
 
+		std::map<int, std::string> mob_to_template;
+
 		for (pugi::xml_node mob = node.child("mob"); mob; mob=mob.next_sibling("mob"))
 		{
 			int mob_vnum = xmlparse_int(mob, "mob_vnum");
+			std::string templateId = mob.attribute("template").value();
 			if (mob_vnum < 0)
 			{
 				snprintf(buf, MAX_STRING_LENGTH,
@@ -331,6 +374,7 @@ void load(bool reload)
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
 			}
+			mob_to_template[mob_vnum] = templateId;		
 			tmp_shop->mob_vnums.push_back(mob_vnum);
 			// проверяем и сетим мобу спешиал
 			// даже если дальше магаз не залоадится - моб будет выдавать ошибку на магазинные спешиалы
@@ -356,7 +400,7 @@ void load(bool reload)
 		{
 			int item_vnum = xmlparse_int(item, "vnum");
 			int price = xmlparse_int(item, "price");
-			std::string attach = item.attribute("attach").value();
+			std::string items_template = item.attribute("template").value();
 			if (item_vnum < 0 || price < 0)
 			{
 				snprintf(buf, MAX_STRING_LENGTH,
@@ -372,47 +416,12 @@ void load(bool reload)
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
 			}
-			// парсим список триггеров
-			std::list<std::string> trigs = split(attach, ',');
-			std::list<std::string>::const_iterator it;
-			std::list<unsigned> trig_vnums;
-			int trig_vnum;
-			for (it = trigs.begin(); it!=trigs.end(); ++it)
-			{
-				try
-				{	
-					std::string tmp = (*it);
-					boost::trim(tmp);
-					trig_vnum = boost::lexical_cast<unsigned>(tmp);
-				}
-				catch (boost::bad_lexical_cast &)
-				{
-					snprintf(buf, MAX_STRING_LENGTH, "...error while castin to num (item_vnum=%d, casting value=%s)", item_vnum, (*it).c_str());
-					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-					continue;
-				}
-
-				if (trig_vnum <= 0)
-				{
-					snprintf(buf, MAX_STRING_LENGTH, "...error while parsing triggers (item_vnum=%d, parsed value=%s)", item_vnum, (*it).c_str());
-					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-					return;
-				}
-				trig_vnums.push_back(trig_vnum);
-			}
 
 			// иним ее в магазе
 			ItemNodePtr tmp_item(new item_node);
 			tmp_item->rnum = item_rnum;
+			tmp_item->vnum = item_vnum;
 			tmp_item->price = price == 0 ? GET_OBJ_COST(obj_proto[item_rnum]) : price; //если не указана цена - берем цену из прототипа
-			tmp_item->trigs = trig_vnums;
-			//ищем замену описаний
-			
-			if (item_descriptions.find(item_vnum) != item_descriptions.end())
-			{
-				ItemDescNodePtr tmp_desc(new item_desc_node(item_descriptions[item_vnum]));
-				tmp_item->descs = tmp_desc;
-			}
 			tmp_shop->item_list.push_back(tmp_item);
 		}
 		//и еще добавим наборы
@@ -437,6 +446,7 @@ void load(bool reload)
 						// иним ее в магазе
 						ItemNodePtr tmp_item(new item_node);
 						tmp_item->rnum = item_rnum;
+						tmp_item->vnum = (*it)->item_list[i].item_vnum;
 						tmp_item->price = price == 0 ? GET_OBJ_COST(obj_proto[item_rnum]) : price;
 						tmp_shop->item_list.push_back(tmp_item);
 					}
@@ -448,6 +458,28 @@ void load(bool reload)
 			snprintf(buf, MAX_STRING_LENGTH, "...item list empty (shop_id=%s)", shop_id.c_str());
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return;
+		}
+
+		//ищем замену описаний
+		ItemListType::iterator it;
+		
+		std::map<std::string/*id шаблона*/, std::map<int/*vnum предмета*/, item_desc_node>>::iterator id;
+
+		for (it = tmp_shop->item_list.begin(); it != tmp_shop->item_list.end(); ++it)
+		{
+			for (id = item_descriptions.begin(); id != item_descriptions.end(); ++id)
+			{
+				if (id->second.find((*it)->vnum) != id->second.end())
+				{
+					ItemDescNodePtr tmp_desc(new item_desc_node(id->second[(*it)->vnum]));
+					for (std::list<int>::iterator mob_vnum = tmp_shop->mob_vnums.begin(); mob_vnum != tmp_shop->mob_vnums.end(); ++mob_vnum)
+					{
+						if (mob_to_template.find((*mob_vnum)) != mob_to_template.end())
+							if (mob_to_template[(*mob_vnum)] == id->first)
+								(*it)->descs[(*mob_vnum)] = tmp_desc;
+					}
+				}
+			}
 		}
 		shop_list.push_back(tmp_shop);
     }
@@ -592,7 +624,7 @@ OBJ_DATA * get_obj_from_waste(ShopListType::const_iterator &shop, std::vector<un
 	return 0;
 }
 
-void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::string arg)
+void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::string arg, int keeper_vnum)
 {
 	send_to_char(ch,
 		" ##    Доступно   Предмет                                      Цена (%s)\r\n"
@@ -611,8 +643,8 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 // чтобы не было в списках всяких "гриб @n1"
 		if ((*k)->temporary_ids.empty())
 		{
-			if ((*k)->descs)
-				print_value = (*k)->descs->short_description;
+			if (!(*k)->descs.empty() && (*k)->descs.find(keeper_vnum) != (*k)->descs.end())
+				print_value = (*k)->descs[keeper_vnum]->short_description;
 			else
 				print_value = GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0);
 			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == ITEM_DRINKCON)
@@ -668,11 +700,11 @@ void remove_from_waste(ShopListType::const_iterator &shop, OBJ_DATA *obj)
 		}
 	}
 }
-void attach_triggers(OBJ_DATA *obj, ItemNodePtr item)
+void attach_triggers(OBJ_DATA *obj, std::list<unsigned> trigs)
 {
 	if (!obj->script)
 		CREATE(obj->script, SCRIPT_DATA, 1);
-	for (std::list<unsigned>::iterator it = item->trigs.begin(); it != item->trigs.end(); ++it)
+	for (std::list<unsigned>::iterator it = trigs.begin(); it != trigs.end(); ++it)
 	{
 		int rnum = real_trigger(*it);
 		if (rnum != -1)
@@ -680,17 +712,20 @@ void attach_triggers(OBJ_DATA *obj, ItemNodePtr item)
 	}
 }
 
-void replace_descs(OBJ_DATA *obj, ItemNodePtr item)
+void replace_descs(OBJ_DATA *obj, ItemNodePtr item, int vnum)
 {
-	strcpy(obj->description, item->descs->description.c_str());
-	strcpy(obj->name, item->descs->name.c_str());
-	strcpy(obj->short_description, item->descs->short_description.c_str());
-	strcpy(obj->PNames[0], item->descs->PNames0.c_str());
-	strcpy(obj->PNames[1], item->descs->PNames1.c_str());
-	strcpy(obj->PNames[2], item->descs->PNames2.c_str());
-	strcpy(obj->PNames[3], item->descs->PNames3.c_str());
-	strcpy(obj->PNames[4], item->descs->PNames4.c_str());
-	strcpy(obj->PNames[5], item->descs->PNames5.c_str());
+	strcpy(obj->description, item->descs[vnum]->description.c_str());
+	strcpy(obj->name, item->descs[vnum]->name.c_str());
+	strcpy(obj->short_description, item->descs[vnum]->short_description.c_str());
+	strcpy(obj->PNames[0], item->descs[vnum]->PNames0.c_str());
+	strcpy(obj->PNames[1], item->descs[vnum]->PNames1.c_str());
+	strcpy(obj->PNames[2], item->descs[vnum]->PNames2.c_str());
+	strcpy(obj->PNames[3], item->descs[vnum]->PNames3.c_str());
+	strcpy(obj->PNames[4], item->descs[vnum]->PNames4.c_str());
+	strcpy(obj->PNames[5], item->descs[vnum]->PNames5.c_str());
+	obj->obj_flags.Obj_sex = item->descs[vnum]->sex;
+	if (!item->descs[vnum]->trigs.empty())
+		attach_triggers(obj, item->descs[vnum]->trigs);
 }
 
 void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType::const_iterator &shop)
@@ -823,10 +858,8 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 
 		if (obj)
 		{
-			if ((*shop)->item_list[item_num]->descs)
-				replace_descs(obj, (*shop)->item_list[item_num]);
-			if (!(*shop)->item_list[item_num]->trigs.empty())
-				attach_triggers(obj, (*shop)->item_list[item_num]);
+			if (!(*shop)->item_list[item_num]->descs.empty())
+				replace_descs(obj, (*shop)->item_list[item_num], GET_MOB_VNUM(keeper));
 
 			obj_to_char(obj, ch);
 			if ((*shop)->currency == "слава")
@@ -1301,7 +1334,7 @@ SPECIAL(shop_ext)
 	{
 		std::string buffer = argument, buffer2;
 		GetOneParam(buffer, buffer2);
-		print_shop_list(ch, shop, buffer2);
+		print_shop_list(ch, shop, buffer2, GET_MOB_VNUM(keeper));
 		return 1;
 	}
 	if (CMD_IS("купить") || CMD_IS("buy"))

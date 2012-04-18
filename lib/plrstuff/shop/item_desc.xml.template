@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <!--- пример заполнения замены описаний
+	sex: 1-мужской, 2-женский, 0 - средний
 <items>
  <item vnum = "160100">
   <name>колодец</name>
@@ -11,6 +12,11 @@
   <PNames4>колодцем</PNames4>
   <PNames5>колодце</PNames5>
   <description>Глубокий колодец c родниковой водой, вырытый посреди города, находится здесь.</description>
+  <sex>1</sex>
+  <triggers>
+   <trig>123</trig>
+   <trig>345</trig>
+  </triggers>
  </item>
  <item vnum = "160101">
   <name>ключ из светлого металла</name>
@@ -22,6 +28,8 @@
   <PNames4>ключем из светлого металла</PNames4>
   <PNames5>ключе из светлого металла</PNames5>
   <description>Небольшой ключ из светлого металла лежит здесь.</description>
+  <sex>1</sex>
+  <triggers/>
  </item>
  <item vnum = "161617">
   <name>массивные наковальни</name>
@@ -33,6 +41,8 @@
   <PNames4>массивными наковальнями</PNames4>
   <PNames5>массивных наковальнях</PNames5>
   <description>Десять массивных наковален стоят по всей кузне. </description>
+  <sex>1</sex>
+  <triggers/>
  </item>
 
 </items>
