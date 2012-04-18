@@ -97,8 +97,8 @@ struct item_desc_node
 		int sex;
 		std::list<unsigned> trigs;
 };
-
-std::map<std::string/*id шаблона*/, std::map<int/*vnum предмета*/, item_desc_node>> item_descriptions;
+typedef std::map<int/*vnum предмета*/, item_desc_node> ObjDescType;
+std::map<std::string/*id шаблона*/, ObjDescType> item_descriptions;
 typedef boost::shared_ptr<item_desc_node> ItemDescNodePtr;
 typedef std::map<int/*vnum продавца*/, ItemDescNodePtr> ItemDescNodeList;
 
@@ -463,7 +463,7 @@ void load(bool reload)
 		//ищем замену описаний
 		ItemListType::iterator it;
 		
-		std::map<std::string/*id шаблона*/, std::map<int/*vnum предмета*/, item_desc_node>>::iterator id;
+		std::map<std::string/*id шаблона*/, ObjDescType>::iterator id;
 
 		for (it = tmp_shop->item_list.begin(); it != tmp_shop->item_list.end(); ++it)
 		{
