@@ -110,7 +110,7 @@ struct waste_node
 
 struct item_node
 {
-	item_node() : rnum(0), vnum(0), price(0) {};
+	item_node() : rnum(0), vnum(0), price(0) {descs.clear(); temporary_ids.clear();};
 
 	int rnum;
 	int vnum;
