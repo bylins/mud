@@ -391,6 +391,30 @@ void log(const char *format, ...)
 #endif
 }
 
+void shop_log(const char *format, ...)
+{
+	const char *filename = "../log/shop.log";
+
+	FILE *file = fopen(filename, "a");
+	if (!file)
+	{
+		log("SYSERR: can't open %s!", filename);
+		return;
+	}
+
+	if (!format)
+		format = "SYSERR: olc_log received a NULL format.";
+
+	write_time(file);
+	va_list args;
+	va_start(args, format);
+	vfprintf(file, format, args);
+	va_end(args);
+	fprintf(file, "\n");
+
+	fclose(file);
+}
+
 void olc_log(const char *format, ...)
 {
 	const char *filename = "../log/olc.log";

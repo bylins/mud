@@ -56,6 +56,7 @@ int strn_cmp(const std::string &arg1, const std::string &arg2, int n);
 void write_time(FILE *file);
 void log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void olc_log(const char *format, ...);
+void shop_log(const char *format, ...);
 void imm_log(const char *format, ...);
 void pers_log(CHAR_DATA *ch, const char *format, ...);
 void temp_log(const char *format, ...);

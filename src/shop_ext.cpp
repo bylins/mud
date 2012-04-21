@@ -25,6 +25,7 @@
 #include "house.h"
 #include "modify.h"
 #include "liquid.hpp"
+#include "utils.h"
 
 /*
 Пример конфига (plrstuff/shop/test.xml):
@@ -124,7 +125,7 @@ typedef std::vector<ItemNodePtr> ItemListType;
 
 struct shop_node
 {
-	shop_node() : waste_time_min(0) {};
+	shop_node() : waste_time_min(0), can_buy(true) {};
 
 	std::list<int> mob_vnums;
 	std::string currency;
@@ -134,6 +135,7 @@ struct shop_node
 	int profit;
 	std::list<waste_node> waste;
 	int waste_time_min;
+	bool can_buy;
 };
 
 struct item_set_node
@@ -214,6 +216,7 @@ void load_item_desc()
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
     }
+	item_descriptions.clear();
 	pugi::xml_node child;
 	for (pugi::xml_node item_template = node_list.child("template"); item_template; item_template = item_template.next_sibling("template"))
 	{
@@ -354,11 +357,14 @@ void load(bool reload)
 		std::string shop_id = node.attribute("id").value();
 		std::string currency = node.attribute("currency").value();
 		int profit = node.attribute("profit").as_int();
+		std::string can_buy_value = node.attribute("can_buy").value();
+		bool shop_can_buy = can_buy_value != "false";
 		// иним сам магазин
 		ShopNodePtr tmp_shop(new shop_node);
 		tmp_shop->id = shop_id;
 		tmp_shop->currency = currency;
 		tmp_shop->profit = profit;
+		tmp_shop->can_buy = shop_can_buy;
 
 		std::map<int, std::string> mob_to_template;
 
@@ -713,6 +719,27 @@ void attach_triggers(OBJ_DATA *obj, std::list<unsigned> trigs)
 
 void replace_descs(OBJ_DATA *obj, ItemNodePtr item, int vnum)
 {
+	if (item->descs[vnum].PNames0.empty() || item->descs[vnum].name.empty() || item->descs[vnum].short_description.empty())
+	{
+		shop_log("!!!! Пустая замена описаний !!!!!");
+		shop_log("Item Node: vnum = %d, rnum = %d, descs.size = %d", item->vnum, item->rnum, item->descs.size());
+		shop_log("Keeper vnum = %d", vnum);
+		shop_log("OBJ: name %s, vnum %d, rnum %d, short_desc %s", obj->name, GET_OBJ_VNUM(obj), GET_OBJ_RNUM(obj), obj->short_description);
+		ItemDescNodeList::iterator it;
+		for (it = item->descs.begin(); it != item->descs.end(); ++it)
+		{
+			shop_log("Descs: first = %d, description = %s", it->first, it->second.description);
+			shop_log("Descs: first = %d, name = %s", it->first, it->second.name);
+			shop_log("Descs: first = %d, short_description = %s", it->first, it->second.short_description);
+			shop_log("Descs: first = %d, PNames0 = %s", it->first, it->second.PNames0);
+			shop_log("Descs: first = %d, PNames1 = %s", it->first, it->second.PNames1);
+			shop_log("Descs: first = %d, PNames2 = %s", it->first, it->second.PNames2);
+			shop_log("Descs: first = %d, PNames3 = %s", it->first, it->second.PNames3);
+			shop_log("Descs: first = %d, PNames4 = %s", it->first, it->second.PNames4);
+			shop_log("Descs: first = %d, PNames5 = %s", it->first, it->second.PNames5);
+		}
+		return;
+	}
 	obj->description = strdup(item->descs[vnum].description.c_str());
 	obj->name = strdup(item->descs[vnum].name.c_str());
 	obj->short_description = strdup(item->descs[vnum].short_description.c_str());
@@ -1114,6 +1141,12 @@ void process_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	std::string buffer(argument), buffer1;
 	GetOneParam(buffer, buffer1);
 	boost::trim(buffer);
+
+	if (cmd == "Продать" && !(*shop)->can_buy)
+	{
+		tell_to_char(keeper, ch, "Извини, у меня свои поставщики...");
+		return;
+	}
 
 	if (!*argument)
 	{
