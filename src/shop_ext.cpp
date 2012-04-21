@@ -27,6 +27,8 @@
 #include "liquid.hpp"
 #include "utils.h"
 
+ACMD(do_tell);
+extern int cmd_tell;
 /*
 Пример конфига (plrstuff/shop/test.xml):
 <?xml version="1.0"?>
@@ -671,7 +673,8 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 
 		std::string numToShow = count == -1 ? "Навалом" : boost::lexical_cast<string>(count);
 
-		if (arg.empty() || isname(arg.c_str(), GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0)))
+		// имхо вполне логично раз уж мы получаем эту надпись в ней и искать
+		if (arg.empty() || isname(arg.c_str(), print_value.c_str()))
 				out += boost::str(boost::format("%3d)  %10s  %-47s %8d\r\n")
 					% num++ % numToShow % print_value % (*k)->price);
 			else
@@ -688,9 +691,12 @@ void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 {
 	char local_buf[MAX_INPUT_LENGTH];
 	snprintf(local_buf, MAX_INPUT_LENGTH,
-		"%s сказал%s Вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
-	send_to_char(ch, "%s%s%s\r\n",
-		CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
+		"%s! %s", GET_NAME(ch), arg);
+	do_tell(keeper, CAP(local_buf), cmd_tell, 0);
+	//snprintf(local_buf, MAX_INPUT_LENGTH,
+	//	"%s! сказал%s Вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
+	//send_to_char(ch, "%s%s%s\r\n",
+	//	CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
 }
 
 void remove_from_waste(ShopListType::const_iterator &shop, OBJ_DATA *obj)
@@ -948,8 +954,12 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		}
 		else
 		{
-			snprintf(buf, MAX_STRING_LENGTH,
-				"Я продам тебе только %d.", bought);
+			if (bought > 0)
+				snprintf(buf, MAX_STRING_LENGTH,
+					"Я продам тебе только %d.", bought);
+			else
+				snprintf(buf, MAX_STRING_LENGTH,
+					"Я не продам тебе ничего.");
 		}
 		tell_to_char(keeper, ch, buf);
 	}
