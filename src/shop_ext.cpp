@@ -734,15 +734,15 @@ void replace_descs(OBJ_DATA *obj, ItemNodePtr item, int vnum)
 		ItemDescNodeList::iterator it;
 		for (it = item->descs.begin(); it != item->descs.end(); ++it)
 		{
-			shop_log("Descs: first = %d, description = %s", it->first, it->second.description);
-			shop_log("Descs: first = %d, name = %s", it->first, it->second.name);
-			shop_log("Descs: first = %d, short_description = %s", it->first, it->second.short_description);
-			shop_log("Descs: first = %d, PNames0 = %s", it->first, it->second.PNames0);
-			shop_log("Descs: first = %d, PNames1 = %s", it->first, it->second.PNames1);
-			shop_log("Descs: first = %d, PNames2 = %s", it->first, it->second.PNames2);
-			shop_log("Descs: first = %d, PNames3 = %s", it->first, it->second.PNames3);
-			shop_log("Descs: first = %d, PNames4 = %s", it->first, it->second.PNames4);
-			shop_log("Descs: first = %d, PNames5 = %s", it->first, it->second.PNames5);
+			shop_log("Descs: first = %d, description = %s", it->first, it->second.description.c_str());
+			shop_log("Descs: first = %d, name = %s", it->first, it->second.name.c_str());
+			shop_log("Descs: first = %d, short_description = %s", it->first, it->second.short_description.c_str());
+			shop_log("Descs: first = %d, PNames0 = %s", it->first, it->second.PNames0.c_str());
+			shop_log("Descs: first = %d, PNames1 = %s", it->first, it->second.PNames1.c_str());
+			shop_log("Descs: first = %d, PNames2 = %s", it->first, it->second.PNames2.c_str());
+			shop_log("Descs: first = %d, PNames3 = %s", it->first, it->second.PNames3.c_str());
+			shop_log("Descs: first = %d, PNames4 = %s", it->first, it->second.PNames4.c_str());
+			shop_log("Descs: first = %d, PNames5 = %s", it->first, it->second.PNames5.c_str());
 		}
 		return;
 	}
