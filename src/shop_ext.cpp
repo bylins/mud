@@ -379,7 +379,9 @@ void load(bool reload)
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 				return;
 			}
-			mob_to_template[mob_vnum] = templateId;		
+			if (!templateId.empty())
+				mob_to_template[mob_vnum] = templateId;		
+			
 			tmp_shop->mob_vnums.push_back(mob_vnum);
 			// проверяем и сетим мобу спешиал
 			// даже если дальше магаз не залоадится - моб будет выдавать ошибку на магазинные спешиалы
@@ -719,27 +721,6 @@ void attach_triggers(OBJ_DATA *obj, std::list<unsigned> trigs)
 
 void replace_descs(OBJ_DATA *obj, ItemNodePtr item, int vnum)
 {
-	if (item->descs[vnum].PNames0.empty() || item->descs[vnum].name.empty() || item->descs[vnum].short_description.empty())
-	{
-		shop_log("!!!! Пустая замена описаний !!!!!");
-		shop_log("Item Node: vnum = %d, rnum = %d, descs.size = %d", item->vnum, item->rnum, item->descs.size());
-		shop_log("Keeper vnum = %d", vnum);
-		shop_log("OBJ: name %s, vnum %d, rnum %d, short_desc %s", obj->name, GET_OBJ_VNUM(obj), GET_OBJ_RNUM(obj), obj->short_description);
-		ItemDescNodeList::iterator it;
-		for (it = item->descs.begin(); it != item->descs.end(); ++it)
-		{
-			shop_log("Descs: first = %d, description = %s", it->first, it->second.description);
-			shop_log("Descs: first = %d, name = %s", it->first, it->second.name);
-			shop_log("Descs: first = %d, short_description = %s", it->first, it->second.short_description);
-			shop_log("Descs: first = %d, PNames0 = %s", it->first, it->second.PNames0);
-			shop_log("Descs: first = %d, PNames1 = %s", it->first, it->second.PNames1);
-			shop_log("Descs: first = %d, PNames2 = %s", it->first, it->second.PNames2);
-			shop_log("Descs: first = %d, PNames3 = %s", it->first, it->second.PNames3);
-			shop_log("Descs: first = %d, PNames4 = %s", it->first, it->second.PNames4);
-			shop_log("Descs: first = %d, PNames5 = %s", it->first, it->second.PNames5);
-		}
-		return;
-	}
 	obj->description = strdup(item->descs[vnum].description.c_str());
 	obj->name = strdup(item->descs[vnum].name.c_str());
 	obj->short_description = strdup(item->descs[vnum].short_description.c_str());
@@ -884,7 +865,8 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 
 		if (obj)
 		{
-			if (!(*shop)->item_list[item_num]->descs.empty())
+			if (!(*shop)->item_list[item_num]->descs.empty() && 
+				(*shop)->item_list[item_num]->descs.find(GET_MOB_VNUM(keeper)) != (*shop)->item_list[item_num]->descs.end())
 				replace_descs(obj, (*shop)->item_list[item_num], GET_MOB_VNUM(keeper));
 
 			obj_to_char(obj, ch);
