@@ -72,8 +72,7 @@ void TimedSpell::clear(OBJ_DATA *obj, bool send_message)
 					GET_OBJ_VIS_SUF_1(obj, ch));
 			break;
 		default:
-			send_to_char(ch, "С %s что-то исчезло (%d)... Оо Сообщите Богам!\r\n",
-					GET_OBJ_PNAME(obj, 1), spell_);
+			log("SYSERROR: Неожиданный номер spell_ в TimedSpell\r\n");
 		}
 	}
 	spell_ = -1;
