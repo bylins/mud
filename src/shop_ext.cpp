@@ -495,7 +495,17 @@ void load(bool reload)
     log_shop_load();
 }
 
-unsigned get_item_num(ShopListType::const_iterator &shop, std::string &item_name)
+std::string get_item_name(ItemNodePtr item, int keeper_vnum)
+{
+	std::string value;
+	if (!item->descs.empty() && item->descs.find(keeper_vnum) != item->descs.end())
+		value = item->descs[keeper_vnum].PNames0;
+	else
+		value = GET_OBJ_PNAME(obj_proto[item->rnum], 0);
+	return value;
+}
+
+unsigned get_item_num(ShopListType::const_iterator &shop, std::string &item_name, int keeper_vnum)
 {
 	int num = 1;
 	if (!item_name.empty() && isdigit(item_name[0]))
@@ -515,7 +525,7 @@ unsigned get_item_num(ShopListType::const_iterator &shop, std::string &item_name
 	int count = 0;
 	for (unsigned i = 0; i < (*shop)->item_list.size(); ++i)
 	{
-		if (isname(item_name, GET_OBJ_PNAME(obj_proto[(*shop)->item_list[i]->rnum], 0)))
+		if (isname(item_name, get_item_name((*shop)->item_list[i], keeper_vnum).c_str()))
 		{
 			++count;
 			if (count == num)
@@ -565,6 +575,8 @@ int can_sell_count(ShopListType::const_iterator &shop, int item_num)
 	else
 	{
 		int numToSell = obj_proto[(*shop)->item_list[item_num]->rnum]->max_in_world;
+		if (numToSell == 0)
+			return numToSell;
 		if (numToSell != -1)
 			numToSell -= obj_index[(*shop)->item_list[item_num]->rnum].number;
 		return numToSell;
@@ -652,10 +664,7 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 // чтобы не было в списках всяких "гриб @n1"
 		if ((*k)->temporary_ids.empty())
 		{
-			if (!(*k)->descs.empty() && (*k)->descs.find(keeper_vnum) != (*k)->descs.end())
-				print_value = (*k)->descs[keeper_vnum].PNames0;
-			else
-				print_value = GET_OBJ_PNAME(obj_proto[(*k)->rnum], 0);
+			print_value = get_item_name((*k), keeper_vnum);
 			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == ITEM_DRINKCON)
 				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[(*k)->rnum], 2)]);
 		}
@@ -694,11 +703,11 @@ void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 	char local_buf[MAX_INPUT_LENGTH];
 	snprintf(local_buf, MAX_INPUT_LENGTH,
 		"%s! %s", GET_NAME(ch), arg);
-	do_tell(keeper, CAP(local_buf), cmd_tell, 0);
-	//snprintf(local_buf, MAX_INPUT_LENGTH,
-	//	"%s! сказал%s Вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
-	//send_to_char(ch, "%s%s%s\r\n",
-	//	CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
+//	do_tell(keeper, CAP(local_buf), cmd_tell, 0); хотите универсальности - обрабатывайте сами ситуации типа вижу-не вижу
+	snprintf(local_buf, MAX_INPUT_LENGTH,
+		"%s! сказал%s Вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
+	send_to_char(ch, "%s%s%s\r\n",
+		CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
 }
 
 void remove_from_waste(ShopListType::const_iterator &shop, OBJ_DATA *obj)
@@ -765,7 +774,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		else
 		{
 			// buy sword
-			item_num = get_item_num(shop, buffer1);
+			item_num = get_item_num(shop, buffer1, GET_MOB_VNUM(keeper));
 		}
 	}
 	else if (is_number(buffer1.c_str()))
@@ -778,7 +787,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		else
 		{
 			// buy 5 sword
-			item_num = get_item_num(shop, buffer2);
+			item_num = get_item_num(shop, buffer2, GET_MOB_VNUM(keeper));
 		}
 		item_count = boost::lexical_cast<unsigned>(buffer1);
 	}
@@ -1242,7 +1251,7 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 	else
 	{
 		// характеристики меч
-		item_num = get_item_num(shop, buffer);
+		item_num = get_item_num(shop, buffer, GET_MOB_VNUM(keeper));
 	}
 
 	if (!item_num || item_num > (*shop)->item_list.size())
