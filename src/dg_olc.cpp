@@ -264,7 +264,7 @@ void trigedit_disp_types(DESCRIPTOR_DATA * d)
 		sprintf(buf, "%s%2d%s) %-20.20s  %s", grn, i + 1, nrm, types[i], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbit(GET_TRIG_TYPE(OLC_TRIG(d)), types, buf1);
+	sprintbit(GET_TRIG_TYPE(OLC_TRIG(d)), types, buf1, 2);
 	sprintf(buf, "\r\nCurrent types : %s%s%s\r\nEnter type (0 to quit) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 

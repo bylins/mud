@@ -761,8 +761,7 @@ void show_spell_off(int aff, CHAR_DATA * ch)
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_WRITING))
 		return;
 
-	//send_to_char(spell_wear_off_msg[aff], ch);
-	act(spell_wear_off_msg[aff], FALSE, ch, 0, 0, TO_CHAR);
+	act(spell_wear_off_msg[aff], FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
 	send_to_char("\r\n", ch);
 
 }
@@ -4158,7 +4157,7 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		send_to_char("По Вашему телу начала струиться живительная сила.\r\n", victim);
 		break;
 	case SPELL_FULL:
-		if (!IS_NPC(victim))
+		if (!IS_NPC(victim) && !IS_IMMORTAL(victim))
 		{
 			GET_COND(victim, THIRST) = 24;
 			GET_COND(victim, FULL) = 24;
@@ -4658,9 +4657,9 @@ const spl_message masses_messages[] =
 	{SPELL_MASS_CURSE,
 	 "Медленно оглянувшись, Вы прошептали древние слова.",
 	 NULL,
-	 "$n злобно посмотрел$a на Вас и начал$a шептать древние слова."},
+	 "$n злобно посмотрел$g на Вас и начал$g шептать древние слова."},
 	{SPELL_MASS_SIELENCE,
-	 "Поведя вокруг грозным взгядом, Вы заставили всех замолчать.",
+	 "Поведя вокруг грозным взглядом, Вы заставили всех замолчать.",
 	 NULL,
 	 "Вы встретились взглядом с $n4, и у Вас появилось ощущение, что горлу чего-то не хватает."},
 	{SPELL_MASS_DEAFNESS,
@@ -4670,7 +4669,7 @@ const spl_message masses_messages[] =
 	{SPELL_MASS_SLOW,
 	 "Положив ладони на землю, вы вызвали цепкие корни,\r\nопутавшие существ, стоящих рядом с Вами.",
 	 NULL,
-	 "$n вызвал$a цепкие корни, опутавшие ваши ноги."},
+	 "$n вызвал$g цепкие корни, опутавшие ваши ноги."},
 	{SPELL_ARMAGEDDON,
 	 "Вы сплели руки в замысловатом жесте, и все потускнело !",
 	 "$n сплел$g руки в замысловатом жесте, и все потускнело !",

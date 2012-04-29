@@ -1840,7 +1840,7 @@ int Crash_load(CHAR_DATA * ch)
 		if(!IS_IMMORTAL(ch) && GET_CLASS(ch) == CLASS_MERCHANT && ch->player_specials->saved.HiredCost!=0)
 		{
 			if(ch->player_specials->saved.HiredCost<0)
-				ch->add_bank(-ch->player_specials->saved.HiredCost, false);
+				ch->add_bank(abs(ch->player_specials->saved.HiredCost), false);
 			else
 				ch->add_gold(ch->player_specials->saved.HiredCost, false);
 		}

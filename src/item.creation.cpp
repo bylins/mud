@@ -376,7 +376,15 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case MREDIT_INGR_PROTO:
 
 		i = atoi(sagr.c_str());
-		if (real_object(i) < 0)
+		if (i == 0)
+		{
+			if (trec->parts[OLC_NUM(d)].proto != i)
+				OLC_VAL(d) = 1;
+			trec->parts[OLC_NUM(d)].proto = 0;
+			trec->parts[OLC_NUM(d)].min_weight = 0;
+			trec->parts[OLC_NUM(d)].min_power = 0;
+		}
+		else if (real_object(i) < 0)
 		{
 			send_to_char("Прототип выбранного Вами ингредиента не существует.\r\n", d->character);
 		}
@@ -1643,12 +1651,14 @@ int MakeRecept::get_ingr_lev(OBJ_DATA * ingrobj)
 		return (GET_OBJ_VAL(ingrobj, 0) >> 8);
 
 	}
-	else if (GET_OBJ_TYPE(ingrobj) == ITEM_MING || GET_OBJ_TYPE(ingrobj) == ITEM_MATERIAL)
+	else if (GET_OBJ_TYPE(ingrobj) == ITEM_MING)
 	{
 		// У ингров типа 26 совпадает уровень и сила.
 		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
 
 	}
+	else if (GET_OBJ_TYPE(ingrobj) == ITEM_MATERIAL)
+		return GET_OBJ_VAL(ingrobj, 0);
 	else
 		return (-1);
 }

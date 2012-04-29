@@ -395,7 +395,7 @@ ACMD(do_hit)
 				return;
 			}
 			vict = try_protect(vict, ch);
-			stop_fighting(ch, FALSE);
+			stop_fighting(ch, 2); //просто переключаемся
 			set_fighting(ch, vict);
 			set_wait(ch, 2, TRUE);
 		}
@@ -940,7 +940,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 //         GET_NAME(vict), GET_LEVEL(vict), GET_REAL_DEX(vict),
 //         percent, prob, dam);
 //делаем блокирование баша
-		if ((GET_AF_BATTLE(vict, EAF_BLOCK) || can_auto_block(vict))
+		if ((GET_AF_BATTLE(vict, EAF_BLOCK) || (GET_CLASS(vict) == CLASS_GUARD && GET_EQ(vict, WEAR_SHIELD) && PRF_FLAGGED(vict, PRF_AWAKE) && vict->get_skill(SKILL_AWAKE) && vict->get_skill(SKILL_BLOCK) && GET_POS(vict) > POS_SITTING))
 			&& !AFF_FLAGGED(vict, AFF_STOPFIGHT)
 			&& !AFF_FLAGGED(vict, AFF_MAGICSTOPFIGHT)
 			&& !AFF_FLAGGED(vict, AFF_STOPLEFT)
@@ -971,6 +971,12 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 						FALSE, ch, 0, vict, TO_CHAR);
 					act("$n блокировал$g попытку $N1 сбить $s.", TRUE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 					alt_equip(vict, WEAR_SHIELD, 30, 10);
+					//если атакуем с баша, то бой начинается
+					if (!ch->get_fighting())
+					{
+						set_fighting(ch, vict);
+						set_wait(ch, 1, TRUE);
+					}
 					return;
 				}
 			}
@@ -1990,7 +1996,7 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim)
 		act("Вы попытаетесь нанести богатырский удар по $N2.", FALSE, ch, 0, victim, TO_CHAR);
 		if (ch->get_fighting() != victim)
 		{
-			stop_fighting(ch, FALSE);
+			stop_fighting(ch, 2); //просто переключаемся
 			set_fighting(ch, victim);
 			set_wait(ch, 2, TRUE);
 		}

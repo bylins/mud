@@ -65,9 +65,9 @@ int touch(const char *path);
 void mudlog(const char *str, int type, int level, int channel, int file);
 int number(int from, int to);
 int dice(int number, int size);
-bool sprintbit(bitvector_t vektor, const char *names[], char *result);
-bool sprintbitwd(bitvector_t vektor, const char *names[], char *result, const char *div, const bool print_flag = false);
-bool sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div, const bool print_flag = false);
+bool sprintbit(bitvector_t vektor, const char *names[], char *result, const int print_flag = 0);
+bool sprintbitwd(bitvector_t vektor, const char *names[], char *result, const char *div, const int print_flag = 0);
+bool sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div, const int print_flag = 0);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE * fl, char *buf);
 int get_filename(const char *orig_name, char *filename, int mode);
@@ -773,6 +773,9 @@ extern SPECIAL(bank);
 #define GET_CH_SUF_7(ch) (IS_NOSEXY(ch) ? "ым" :\
                           IS_MALE(ch) ? "ым"  :\
                           IS_FEMALE(ch) ? "ой" : "ыми")
+#define GET_CH_SUF_8(ch) (IS_NOSEXY(ch) ? "ое" :\
+                          IS_MALE(ch) ? "ой"  :\
+                          IS_FEMALE(ch) ? "ая" : "ие")
 
 #define GET_CH_VIS_SUF_1(ch,och) (!CAN_SEE(och,ch) ? "" :\
                           IS_NOSEXY(ch) ? "о" :\
@@ -802,6 +805,10 @@ extern SPECIAL(bank);
                           IS_NOSEXY(ch) ? "ым" :\
                           IS_MALE(ch) ? "ой"  :\
                           IS_FEMALE(ch) ? "ым" : "ыми")
+#define GET_CH_VIS_SUF_8(ch,och) (!CAN_SEE(och,ch) ? "ой" :\
+                          IS_NOSEXY(ch) ? "ое" :\
+                          IS_MALE(ch) ? "ой"  :\
+                          IS_FEMALE(ch) ? "ая" : "ие")
 
 
 #define GET_OBJ_SEX(obj) ((obj)->obj_flags.Obj_sex)
@@ -832,6 +839,9 @@ extern SPECIAL(bank);
 #define GET_OBJ_SUF_7(obj) (IS_OBJ_NOSEXY(obj) ? "е" :\
                             IS_OBJ_MALE(obj) ? ""  :\
                             IS_OBJ_FEMALE(obj) ? "а" : "и")
+#define GET_OBJ_SUF_8(ch) (IS_OBJ_NOSEXY(obj) ? "ое" :\
+                          IS_OBJ_MALE(obj) ? "ой"  :\
+                          IS_OBJ_FEMALE(obj) ? "ая" : "ие")
 
 
 #define GET_OBJ_VIS_SUF_1(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "о" :\
@@ -862,6 +872,10 @@ extern SPECIAL(bank);
                             IS_OBJ_NOSEXY(obj) ? "е" :\
                             IS_OBJ_MALE(obj) ? ""  :\
                             IS_OBJ_FEMALE(obj) ? "а" : "и")
+#define GET_OBJ_VIS_SUF_8(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "ой" :\
+                          IS_OBJ_NOSEXY(obj) ? "ое" :\
+                          IS_OBJ_MALE(obj) ? "ой"  :\
+                          IS_OBJ_FEMALE(obj) ? "ая" : "ие")
 
 #define GET_CH_EXSUF_1(ch) (IS_NOSEXY(ch) ? "им" :\
                             IS_MALE(ch) ? "им"  :\

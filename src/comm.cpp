@@ -3582,13 +3582,15 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 	char nbuf[256];
 	char lbuf[MAX_STRING_LENGTH], *buf;
 	ubyte padis;
-	int stopbyte;
+	int stopbyte, cap = 0;
 	CHAR_DATA *dg_victim = NULL;
 	OBJ_DATA *dg_target = NULL;
 	char *dg_arg = NULL;
 
 	buf = lbuf;
 
+	if (orig == NULL)
+		return mudlog("perform_act: NULL *orig string", BRF, -1, ERRLOG, TRUE);
 	for (stopbyte = 0; stopbyte < MAX_STRING_LENGTH; stopbyte++)
 	{
 		if (*orig == '$')
@@ -3639,7 +3641,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 				break;
 			case 'S':
 				if (vict_obj)
-					i = HSHR((const CHAR_DATA *) vict_obj);
+					i = CHK_NULL(vict_obj, HSHR((const CHAR_DATA *) vict_obj));
 				else
 					CHECK_NULL(obj, OSHR(obj));
 				dg_victim = (CHAR_DATA *) vict_obj;
@@ -3650,7 +3652,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 				break;
 			case 'E':
 				if (vict_obj)
-					i = HSSH((const CHAR_DATA *) vict_obj);
+					i = CHK_NULL(vict_obj, HSSH((const CHAR_DATA *) vict_obj));
 				else
 					CHECK_NULL(obj, OSSH(obj));
 				dg_victim = (CHAR_DATA *) vict_obj;
@@ -3774,6 +3776,28 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 					CHECK_NULL(obj, arena ? GET_OBJ_SUF_4(obj) : GET_OBJ_VIS_SUF_4(obj, to));
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
+//WorM Добавил суффикс глуп(ым,ой,ыми)
+			case 'r':
+				i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_7(ch) : GET_CH_VIS_SUF_7(ch, to);
+				break;
+			case 'R':
+				if (vict_obj)
+					i = arena ? GET_CH_SUF_7((const CHAR_DATA *) vict_obj) : GET_CH_VIS_SUF_7((const CHAR_DATA *) vict_obj, to);
+				else
+					CHECK_NULL(obj, arena ? GET_OBJ_SUF_7(obj) : GET_OBJ_VIS_SUF_7(obj, to));
+				dg_victim = (CHAR_DATA *) vict_obj;
+				break;
+//WorM Добавил суффикс как(ое,ой,ая,ие)
+			case 'x':
+				i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_8(ch) : GET_CH_VIS_SUF_8(ch, to);
+				break;
+			case 'X':
+				if (vict_obj)
+					i = arena ? GET_CH_SUF_8((const CHAR_DATA *) vict_obj) : GET_CH_VIS_SUF_8((const CHAR_DATA *) vict_obj, to);
+				else
+					CHECK_NULL(obj, arena ? GET_OBJ_SUF_8(obj) : GET_OBJ_VIS_SUF_8(obj, to));
+				dg_victim = (CHAR_DATA *) vict_obj;
+				break;
 //Polud Добавил склонение местоимения Ваш(е,а,и)
 			case 'z':
 				if (obj)
@@ -3794,6 +3818,20 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 				i = "";
 				break;
 			}
+			if (cap)
+			{
+				if (*i == '&')
+				{
+					*buf = *(i++);
+					buf++;
+					*buf = *(i++);
+					buf++;
+				}
+				*buf = a_ucc(*i);
+				i++;
+				buf++;
+				cap = 0;
+			}
 			while ((*buf = *(i++)))
 				buf++;
 			orig++;
@@ -3810,6 +3848,11 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 				*(buf++) = '\n';
 				orig += 2;
 			}
+			else if (*(orig + 1) == 'u')//Следующая подстановка $... будет с большой буквы
+			{
+				cap = 1;
+				orig += 2;
+			}
 			else
 				*(buf++) = *(orig++);
 		}
@@ -3824,11 +3867,14 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 	if (to->desc)
 	{
 		/* Делаем первый символ большим, учитывая &X */
+		// в связи с нововведениями таких ключей может быть несколько пропустим их все
 		if (lbuf[0] == '&')
 		{
-			CAP(lbuf + 2);
-			if (lbuf[2] == '&')
-				CAP(lbuf + 4);
+			char *tmp;
+			tmp = lbuf;
+			while ((tmp - lbuf < (int)strlen(lbuf) - 2) && (*tmp == '&'))
+				tmp+=2;
+			CAP(tmp);
 		}
 		SEND_TO_Q(CAP(lbuf), to->desc);
 	}

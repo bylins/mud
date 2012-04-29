@@ -59,12 +59,12 @@ struct obj_command_info
 
 
 /* attaches object name and vnum to msg and sends it to script_log */
-void obj_log(OBJ_DATA * obj, const char *msg)
+void obj_log(OBJ_DATA * obj, const char *msg, const int type = 0)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
 
 	sprintf(buf, "(Obj: '%s', VNum: %d, trig: %d): %s", obj->short_description, GET_OBJ_VNUM(obj), last_trig_vnum, msg);
-	script_log(buf);
+	script_log(buf, type);
 }
 
 
@@ -1090,7 +1090,7 @@ void obj_command_interpreter(OBJ_DATA * obj, char *argument)
 	if (*obj_cmd_info[cmd].command == '\n')
 	{
 		sprintf(buf2, "Unknown object cmd: '%s'", argument);
-		obj_log(obj, buf2);
+		obj_log(obj, buf2, LGH);
 	}
 	else
 		((*obj_cmd_info[cmd].command_pointer)

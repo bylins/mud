@@ -538,7 +538,7 @@ void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff)
 	const int ch_kin = static_cast<int>(GET_KIN(ch));
 	const int ch_class = static_cast<int>(GET_CLASS(ch));
 
-	if (ch->get_skill(skillnum))
+	if (ch->get_trained_skill(skillnum))
 	{
 		if (skilldiff) return;
 
@@ -559,15 +559,15 @@ void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff)
 
 void trg_skilladd(CHAR_DATA * ch, int skillnum, int skilldiff)
 {
-	int skill = ch->get_skill(skillnum);
-	ch->set_skill(skillnum, (MAX(1, MIN(ch->get_skill(skillnum) + skilldiff, 200))));
+	int skill = ch->get_trained_skill(skillnum);
+	ch->set_skill(skillnum, (MAX(1, MIN(ch->get_trained_skill(skillnum) + skilldiff, 200))));
 
-	if (skill > ch->get_skill(skillnum))
+	if (skill > ch->get_trained_skill(skillnum))
 	{
 		send_to_char(ch, "Ваше умение '%s' понизилось.\r\n", skill_name(skillnum));
 		log("Decrease %s from %s (trigskilladd)", skill_name(skillnum), GET_NAME(ch));
 	}
-	else if (skill < ch->get_skill(skillnum))
+	else if (skill < ch->get_trained_skill(skillnum))
 	{
 		send_to_char(ch, "Вы повысили свое умение '%s'.\r\n", skill_name(skillnum));
 		log("Raise %s to %s (trigskilladd)", skill_name(skillnum), GET_NAME(ch));

@@ -737,7 +737,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		if (strlen(str) + strlen(*d->str) + 3 > d->max_str)  	/* \r\n\0 */
 		{
 			//log("[SA] 1.1");
-			send_to_char("Слишком длинное послание. Последняя строка пригнорирована.\r\n", d->character);
+			send_to_char(d->character, "Слишком длинное послание > %d симв. Последняя строка проигнорирована.\r\n", d->max_str - 3);
 			action = TRUE;
 			/* terminator = 1; */
 		}

@@ -143,6 +143,11 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 				title = buffer.substr(beg_idx);
 			boost::trim(title);
 			boost::trim(pre_title);
+			if (!pre_title.empty())
+			{
+				sprintf(buf2, "%c%s", UPPER(pre_title.substr(0, 1).c_str()[0]), pre_title.substr(1).c_str());
+				pre_title = buf2;
+			}
 			if (!pre_title.empty() && !check_pre_title(pre_title, ch)) return;
 			if (!title.empty() && !check_title(title, ch)) return;
 		}

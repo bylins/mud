@@ -61,12 +61,12 @@ struct wld_command_info
 
 
 /* attaches room vnum to msg and sends it to script_log */
-void wld_log(room_data * room, const char *msg)
+void wld_log(room_data * room, const char *msg, const int type = 0)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
 
 	sprintf(buf, "(Room: %d, trig: %d): %s", room->number, last_trig_vnum, msg);
-	script_log(buf);
+	script_log(buf, type);
 }
 
 
@@ -160,7 +160,7 @@ WCMD(do_wsend)
 			sub_write(msg, ch, TRUE, TO_ROOM);
 	}
 	else
-		wld_log(room, "no target found for wsend");
+		wld_log(room, "no target found for wsend", LGH);
 }
 
 int real_zone(int number)
@@ -1037,7 +1037,7 @@ void wld_command_interpreter(room_data * room, char *argument)
 	if (*wld_cmd_info[cmd].command == '\n')
 	{
 		sprintf(buf2, "Unknown world cmd: '%s'", argument);
-		wld_log(room, buf2);
+		wld_log(room, buf2, LGH);
 	}
 	else
 		((*wld_cmd_info[cmd].command_pointer)

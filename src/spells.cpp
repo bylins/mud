@@ -111,7 +111,7 @@ ASPELL(spell_create_water)
 			}
 		}
 	}
-	if (victim && !IS_NPC(victim))
+	if (victim && !IS_NPC(victim) && !IS_IMMORTAL(victim))
 	{
 		gain_condition(victim, THIRST, 25);
 		send_to_char("Вы полностью утолили жажду.\r\n", victim);

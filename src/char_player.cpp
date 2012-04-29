@@ -693,7 +693,7 @@ void Player::save_char()
 		&& GET_CLASS(this) == CLASS_MERCHANT
 		&& !IS_IMMORTAL(this))
 	{
-		struct follow_type *k;
+		struct follow_type *k = NULL;
 		for (k = this->followers; k; k = k->next)
 		{
 			if (k->follower
@@ -703,7 +703,7 @@ void Player::save_char()
 				break;
 			}
 		}
-		if(k && k->follower->affected)
+		if(k && k->follower && k->follower->affected)
 		{
 			for (AFFECT_DATA *aff = k->follower->affected; aff; aff = aff->next)
 			{
@@ -715,9 +715,7 @@ void Player::save_char()
 					}
 					int i = ((aff->duration-1)/2)*k->follower->mob_specials.hire_price;
 					if(i != 0)
-					{
 						fprintf(saved, "GldH: %d\n", i);
-					}
 					break;
 				}
 			}

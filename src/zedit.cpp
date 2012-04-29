@@ -932,7 +932,7 @@ void zedit_disp_menu(DESCRIPTOR_DATA * d)
 			reset_mode ? ((OLC_ZONE(d)->reset_mode == 1) ?
 						  "Если в зоне нет игроков."
 						  : ((OLC_ZONE(d)->reset_mode == 3) ?
-							 "Общая очистка." : "Обычная очистка.")) : "Никогда не очищается",
+							 "Общая очистка(комплекс зон)." : "Обычная очистка(даже если есть игроки).")) : "Никогда не очищается",
 					grn, nrm, yel, OLC_ZONE(d)->reset_idle ? "Да" : "Нет", nrm);
 
 	if (OLC_ZONE(d)->reset_mode == 3)
@@ -1555,8 +1555,8 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			send_to_char("\r\n"
 						 "0) Никогда не очищать\r\n"
 						 "1) Очищать, если в зоне нет игроков\r\n"
-						 "2) Обычная очистка\r\n"
-						 "3) Общая очистка\r\n" "Выберите тип очистки зоны : ", d->character);
+						 "2) Обычная очистка(даже если есть игроки)\r\n"
+						 "3) Общая очистка(комплекс зон)\r\n" "Выберите тип очистки зоны : ", d->character);
 			OLC_MODE(d) = ZEDIT_ZONE_RESET;
 			break;
 		case 'a':

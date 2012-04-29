@@ -292,25 +292,41 @@ ACMD(do_named)
 {
 	mob_rnum r_num;
 	std::string out;
-	int first = 0, last = 0, found = 0;
+	int first = 0, last = 0, found = 0, uid = -1;
+
+	two_arguments(argument, buf, buf2);
+
+	if (*buf)
+	{
+		if (is_number(buf))
+		{
+			first = atoi(buf);
+			if (*buf2)
+				last = atoi(buf2);
+			else
+				last = first;
+			*buf = '\0';
+		}
+		else
+		{
+		 	last = 1;
+		 	first = 0x7fffffff;
+			uid = GetUniqueByName(buf);
+			//*buf = '\0';
+			if (uid > 0)
+			{
+				strncpy(buf, player_table[get_ptable_by_unique(uid)].mail, sizeof(buf));
+			}
+		}
+	}
 
 	switch (subcmd)
 	{
 		case SCMD_NAMED_LIST:
-			two_arguments(argument, buf, buf2);
-
-			if (*buf)
-			{
-				first = atoi(buf);
-				if (*buf2)
-					last = atoi(buf2);
-				else
-					last = first;
-			}
-
-			out += "Список именных предметов:\r\n";
+			sprintf(buf1, "Список именных предметов:\r\n");
 			if(stuff_list.size() == 0)
 			{
+				out += buf1;
 				out += " Пока что пусто.\r\n";
 			}
 			else
@@ -319,13 +335,15 @@ ACMD(do_named)
 				{
 					if ((r_num = real_object(it->first)) < 0)
 					{
-						sprintf(buf2, "%6ld) Неизвестный объект",
+						sprintf(buf2, "%6ld) Неизвестный объект\r\n",
 							it->first);
 						out += buf2;
 					}
 					else
 					{
-						if (first == 0 || (obj_index[r_num].vnum >= first && obj_index[r_num].vnum <= last))
+						if ((*buf && strstr(it->second->mail.c_str(), buf)) ||
+						   (uid != -1 && uid == it->second->uid) ||
+						   (uid == -1 && obj_index[r_num].vnum >= first && obj_index[r_num].vnum <= last))
 						{
 							sprintf(buf2, "%6d) %s",
 									obj_index[r_num].vnum, colored_name(obj_proto[r_num]->short_description, 50));
@@ -335,6 +353,8 @@ ACMD(do_named)
 									GetNameByUnique(it->second->uid,false).c_str(), it->second->mail.c_str());
 							else
 								sprintf(buf2, "%s\r\n", buf2);
+							if (found == 0)
+								out += buf1;
 							found++;
 							out += buf2;
 						}
@@ -342,38 +362,45 @@ ACMD(do_named)
 				}
 			}
 			if (!found)
-				out += "Нет таких именных вещей.\r\n";
+			{
+				sprintf(buf, "Нет таких именных вещей.\r\nСинтаксис %s [vnum [vnum] | имя | email]\r\n", CMD_NAME);
+				out += buf;
+			}
 			send_to_char(out.c_str(), ch);
 			break;
 		case SCMD_NAMED_EDIT:
-			int vnum;
-			StuffListType::iterator it;
-			one_argument(argument, buf1);
-			if(*buf1 && a_isdigit(*buf1) && sscanf(buf1, "%d", &vnum))
+			int found = 0;
+			if((first > 0 && first < 0x7fffffff) || uid != -1 || *buf)
 			{
-				if(real_object(vnum) < 0)
+				if(first > 0 && first < 0x7fffffff && real_object(first) < 0)
 				{
 					send_to_char(ch, "Такого объекта не существует.\r\n");
 					return;
 				}
+
 				StuffNodePtr tmp_node(new stuff_node);
-				if((it = stuff_list.find(vnum)) != stuff_list.end())
+				for (StuffListType::iterator it = stuff_list.begin(), iend = stuff_list.end(); it != iend; ++it)
 				{
-					ch->desc->old_vnum = vnum;
-					ch->desc->cur_vnum = vnum;
-					tmp_node->uid = it->second->uid;
-					tmp_node->can_clan = it->second->can_clan;
-					tmp_node->can_alli = it->second->can_alli;
-					tmp_node->mail = str_dup(it->second->mail.c_str());
-					tmp_node->wear_msg_v = str_dup(it->second->wear_msg_v.c_str());
-					tmp_node->wear_msg_a = str_dup(it->second->wear_msg_a.c_str());
-					tmp_node->cant_msg_v = str_dup(it->second->cant_msg_v.c_str());
-					tmp_node->cant_msg_a = str_dup(it->second->cant_msg_a.c_str());
+					if((uid == -1 && it->first == first) || it->second->uid == uid || !str_cmp(it->second->mail.c_str(), buf))
+					{
+						ch->desc->old_vnum = it->first;
+						ch->desc->cur_vnum = it->first;
+						tmp_node->uid = it->second->uid;
+						tmp_node->can_clan = it->second->can_clan;
+						tmp_node->can_alli = it->second->can_alli;
+						tmp_node->mail = str_dup(it->second->mail.c_str());
+						tmp_node->wear_msg_v = str_dup(it->second->wear_msg_v.c_str());
+						tmp_node->wear_msg_a = str_dup(it->second->wear_msg_a.c_str());
+						tmp_node->cant_msg_v = str_dup(it->second->cant_msg_v.c_str());
+						tmp_node->cant_msg_a = str_dup(it->second->cant_msg_a.c_str());
+						found++;
+						break;
+					}
 				}
-				else
+				if (!found && first > 0 && first < 0x7fffffff)
 				{
 					ch->desc->old_vnum = 0;
-					ch->desc->cur_vnum = vnum;
+					ch->desc->cur_vnum = first;
 					tmp_node->uid = 0;
 					tmp_node->can_clan = 0;
 					tmp_node->can_alli = 0;
@@ -382,13 +409,20 @@ ACMD(do_named)
 					tmp_node->wear_msg_a = str_dup("");
 					tmp_node->cant_msg_v = str_dup("");
 					tmp_node->cant_msg_a = str_dup("");
+					found++;
 				}
-				ch->desc->named_obj = tmp_node;
-				STATE(ch->desc) = CON_NAMED_STUFF;
-				nedit_menu(ch);
-				return;
+				if (found)
+				{
+					ch->desc->named_obj = tmp_node;
+					STATE(ch->desc) = CON_NAMED_STUFF;
+					nedit_menu(ch);
+					return;
+				}
+				else
+					tmp_node.reset();
 			}
-			send_to_char("Укажите VNUM для редактирования.\r\n", ch);
+			send_to_char(ch, "Нет таких именных вещей.\r\nСинтаксис %s [vnum | имя | email]\r\n", CMD_NAME);
+			//send_to_char("Укажите VNUM для редактирования.\r\n", ch);
 			break;
 	}
 }

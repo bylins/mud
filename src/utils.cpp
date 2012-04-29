@@ -639,7 +639,7 @@ void mudlog(const char *str, int type, int level, int channel, int file)
  */
 const char *empty_string = "ничего";
 
-bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const bool print_flag)
+bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag)
 {
 	long nr = 0, fail = 0, divider = FALSE;
 	int plane = 0;
@@ -671,24 +671,26 @@ bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const
 		{
 			if (*names[nr] != '\n')
 			{
-				#ifdef TESTBUILD
-				if (print_flag)
+				if (print_flag == 1)
 					sprintf(result + strlen(result), "%c%d:", c, plane);
-				#endif
+				if ((print_flag == 2) && (!strcmp(names[nr], "UNUSED")))
+					sprintf(result + strlen(result), "%ld:", nr + 1);
 				strcat(result, names[nr]);
 				strcat(result, div);
 				divider = TRUE;
 			}
 			else
 			{
-				if (print_flag)
+				if (print_flag == 2)
+					sprintf(result + strlen(result), "%ld:", nr + 1);
+				else if (print_flag == 1)
 					sprintf(result + strlen(result), "%c%d:", c, plane);
 				strcat(result, "UNDEF");
 				strcat(result, div);
 				divider = TRUE;
 			}
 		}
-		if (print_flag)
+		if (print_flag == 1)
 		{
 			c++;
 			if(c > 'z')
@@ -709,12 +711,12 @@ bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const
 	return true;
 }
 
-bool sprintbit(bitvector_t bitvector, const char *names[], char *result)
+bool sprintbit(bitvector_t bitvector, const char *names[], char *result, const int print_flag)
 {
-	return sprintbitwd(bitvector, names, result, ",");
+	return sprintbitwd(bitvector, names, result, ",", print_flag);
 }
 
-bool sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div, const bool print_flag)
+bool sprintbits(FLAG_DATA flags, const char *names[], char *result, const char *div, const int print_flag)
 {
 	bool have_flags = false;
 	char buffer[MAX_STRING_LENGTH];

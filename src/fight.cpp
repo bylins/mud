@@ -544,44 +544,47 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	// send_to_gods(buf);
 	/**** switch others *****/
 
-	for (temp = combat_list; temp; temp = temp->next_fighting)
+	if (switch_others != 2)
 	{
-		if (temp->get_touching() == ch)
+		for (temp = combat_list; temp; temp = temp->next_fighting)
 		{
-			temp->set_touching(0);
-			CLR_AF_BATTLE(temp, EAF_TOUCH);
+			if (temp->get_touching() == ch)
+			{
+				temp->set_touching(0);
+				CLR_AF_BATTLE(temp, EAF_TOUCH);
+			}
+			if (temp->get_extra_victim() == ch)
+				temp->set_extra_attack(0, 0);
+			if (temp->get_cast_char() == ch)
+				temp->set_cast(0, 0, 0, 0, 0);
+			if (temp->get_fighting() == ch && switch_others)
+			{
+				log("[Stop fighting] %s : Change victim for fighting", GET_NAME(temp));
+				for (found = combat_list; found; found = found->next_fighting)
+					if (found != ch && found->get_fighting() == temp)
+					{
+						act("Вы переключили свое внимание на $N3.", FALSE, temp, 0, found, TO_CHAR);
+						temp->set_fighting(found);
+						break;
+					}
+				if (!found)
+					stop_fighting(temp, FALSE);
+			}
 		}
-		if (temp->get_extra_victim() == ch)
-			temp->set_extra_attack(0, 0);
-		if (temp->get_cast_char() == ch)
-			temp->set_cast(0, 0, 0, 0, 0);
-		if (temp->get_fighting() == ch && switch_others)
-		{
-			log("[Stop fighting] %s : Change victim for fighting", GET_NAME(temp));
-			for (found = combat_list; found; found = found->next_fighting)
-				if (found != ch && found->get_fighting() == temp)
-				{
-					act("Вы переключили свое внимание на $N3.", FALSE, temp, 0, found, TO_CHAR);
-					temp->set_fighting(found);
-					break;
-				}
-			if (!found)
-				stop_fighting(temp, FALSE);
-		}
-	}
 
-	update_pos(ch);
+		update_pos(ch);
 
-	/* проверка скилла "железный ветер" - снимаем флаг по окончанию боя */
-	if ((ch->get_fighting() == NULL) && IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
-	{
-		REMOVE_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
-		if (GET_POS(ch) > POS_INCAP)
+		/* проверка скилла "железный ветер" - снимаем флаг по окончанию боя */
+		if ((ch->get_fighting() == NULL) && IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
 		{
-			send_to_char("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", ch);
-			act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			REMOVE_BIT(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND);
+			if (GET_POS(ch) > POS_INCAP)
+			{
+				send_to_char("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", ch);
+				act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			};
 		};
-	};
+	}
 }
 
 /* When ch kills victim */
@@ -2796,9 +2799,9 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 				if ((keeper_leader == victim_leader) && (may_kill_here(keeper->master, ch)))
 				{
 					pk_agro_action(keeper->master, ch);
-					send_to_char(victim, "%s пожетрвовал%s своей жизнью, вытаскивая Вас с того света!\r\n",
+					send_to_char(victim, "%s пожертвовал%s своей жизнью, вытаскивая Вас с того света!\r\n",
 							GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
-					snprintf(buf, MAX_STRING_LENGTH, "%s пожетрвовал%s своей жизнью, вытаскивая %s с того света!",
+					snprintf(buf, MAX_STRING_LENGTH, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
 							GET_PAD(keeper, 0), GET_CH_SUF_1(keeper), GET_PAD(victim, 3));
 					act(buf, FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
@@ -4753,7 +4756,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		&& type != TYPE_NOPARRY
 		&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
 		&& !GET_AF_BATTLE(ch, EAF_STUPOR)
-		&& (GET_AF_BATTLE(victim, EAF_BLOCK) || can_auto_block(victim))
+		&& ((GET_AF_BATTLE(victim, EAF_BLOCK) || can_auto_block(victim)) && GET_POS(victim) > POS_SITTING)
 		&& !AFF_FLAGGED(victim, AFF_STOPFIGHT)
 		&& !AFF_FLAGGED(victim, AFF_MAGICSTOPFIGHT)
 		&& !AFF_FLAGGED(victim, AFF_STOPLEFT)

@@ -74,12 +74,12 @@ extern void die(CHAR_DATA * ch, CHAR_DATA * killer);
  */
 
 /* attaches mob's name and vnum to msg and sends it to script_log */
-void mob_log(CHAR_DATA * mob, const char *msg)
+void mob_log(CHAR_DATA * mob, const char *msg, const int type = 0)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
 
 	sprintf(buf, "(Mob: '%s', VNum: %d, trig: %d): %s", GET_SHORT(mob), GET_MOB_VNUM(mob), last_trig_vnum, msg);
-	script_log(buf);
+	script_log(buf, type);
 }
 
 /*
@@ -290,14 +290,14 @@ ACMD(do_mechoaround)
 		if (!(victim = get_char(arg)))
 		{
 			sprintf(buf, "mechoaround: victim (%s) does not exist", arg);
-			mob_log(ch, buf);
+			mob_log(ch, buf, LGH);
 			return;
 		}
 	}
 	else if (!(victim = get_char_room_vis(ch, arg)))
 	{
 		sprintf(buf, "mechoaround: victim (%s) does not exist", arg);
-		mob_log(ch, buf);
+		mob_log(ch, buf, LGH);
 		return;
 	}
 
@@ -343,14 +343,14 @@ ACMD(do_msend)
 		if (!(victim = get_char(arg)))
 		{
 			sprintf(buf, "msend: victim (%s) does not exist", arg);
-			mob_log(ch, buf);
+			mob_log(ch, buf, LGH);
 			return;
 		}
 	}
 	else if (!(victim = get_char_room_vis(ch, arg)))
 	{
 		sprintf(buf, "msend: victim (%s) does not exist", arg);
-		mob_log(ch, buf);
+		mob_log(ch, buf, LGH);
 		return;
 	}
 

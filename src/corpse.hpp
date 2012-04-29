@@ -26,7 +26,7 @@ void reload(int zone_vnum = 0);
 // проверка дропа сетины
 int check_mob(int mob_rnum);
 // тянем этот тупизм дальше
-void renumber_obj_rnum(int rnum);
+void renumber_obj_rnum(const int rnum, const int mob_rnum = -1);
 // добавление инфы в систему справки
 void init_xhelp();
 void init_xhelp_full();

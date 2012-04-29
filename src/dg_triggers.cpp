@@ -1383,7 +1383,7 @@ int command_wtrigger(CHAR_DATA * actor, char *cmd, char *argument)
 		if (t->attach_type != WLD_TRIGGER)//детачим триги не для комнат
 		{
 			sprintf(buf, "SYSERR: W-Trigger #%d has wrong attach_type %s expected %s room:%s[%d]!",
-				GET_TRIG_VNUM(t), attach_name[(int)t->attach_type], attach_name[MOB_TRIGGER], room->name, room->number);
+				GET_TRIG_VNUM(t), attach_name[(int)t->attach_type], attach_name[WLD_TRIGGER], room->name, room->number);
 			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 			sprintf(buf, "%d", GET_TRIG_VNUM(t));
 			remove_trigger(SCRIPT(room), buf, &dummy);

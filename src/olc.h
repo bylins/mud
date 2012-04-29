@@ -409,7 +409,7 @@ extern struct olc_save_info *olc_save_list;
 #define MAX_ROOM_NAME	75
 #define MAX_MOB_NAME	50
 #define MAX_OBJ_NAME	50
-#define MAX_ROOM_DESC	1024
+#define MAX_ROOM_DESC	3072
 #define MAX_EXIT_DESC	256
 #define MAX_EXTRA_DESC  512
 #define MAX_MOB_DESC	512

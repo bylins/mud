@@ -173,26 +173,28 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 	bool sfound;
 
 	//Найдем максимальный слот, который вобще может потребоваться данному персонажу на текущем морте
-    max_slot =  MAX_ACC_FEAT(ch);
-    char  **names = new char*[max_slot];
+	max_slot =  MAX_ACC_FEAT(ch);
+	char  **names = new char*[max_slot];
 	for (int k = 0; k< max_slot; k++)
 		names[k]=new char[MAX_STRING_LENGTH];
 
 	if (all_feats)
 	{
-        sprintf(names[0], "\r\nКруг 1  (1  уровень):\r\n");
-	} else
+		sprintf(names[0], "\r\nКруг 1  (1  уровень):\r\n");
+	}
+	else
 		*names[0] = '\0';
 	for (i = 1; i < max_slot; i++)
 		if (all_feats)
 		{
-		    j = i*28/(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)]); //на каком уровне появится этот слот?
-            sprintf(names[i], "\r\nКруг %-2d (%-2d уровень):\r\n", i + 1, j);
-		} else
+			j = i*28/(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)]); //на каком уровне появится этот слот?
+			sprintf(names[i], "\r\nКруг %-2d (%-2d уровень):\r\n", i + 1, j);
+		}
+		else
 			*names[i] = '\0';
 
 	sprintf(buf2, "\r\nВрожденные способности :\r\n");
-    j = 0;
+	j = 0;
 	if (all_feats)
 	{
 		send_to_char(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
@@ -208,14 +210,13 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 					can_get_feat(ch, sortpos) ? CCNRM(vict, C_NRM) : CCRED(vict, C_NRM),
 					feat_info[sortpos].name, CCNRM(vict, C_NRM));
 
-			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
 			{
 				strcat(buf2, buf);
 				j++;
 			}
-			else
-                if (FEAT_SLOT(ch, sortpos) < max_slot)
-                        strcat(names[FEAT_SLOT(ch, sortpos)], buf);
+			else if (FEAT_SLOT(ch, sortpos) < max_slot)
+                        	strcat(names[FEAT_SLOT(ch, sortpos)], buf);
 		}
 		sprintf(buf1, "-------------------------------------");
 		for (i = 0; i < max_slot; i++)

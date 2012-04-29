@@ -32,7 +32,6 @@
 #include "dg_scripts.h"
 #include "pk.h"
 #include "im.h"
-#include "utils.h"
 #include "top.h"
 #include "ban.hpp"
 #include "description.h"
@@ -1227,7 +1226,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 
 	vnum = GET_OBJ_VNUM(j);
 	rnum = GET_OBJ_RNUM(j);
-	sprintf(buf, "Название: '%s%s%s',\r\nСинонимы: %s\r\n",
+	sprintf(buf, "Название: '%s%s%s',\r\nСинонимы: &S%s&s\r\n",
 			CCYEL(ch, C_NRM),
 			((j->short_description) ? j->short_description : "<None>"), CCNRM(ch, C_NRM), j->name);
 	send_to_char(buf, ch);
@@ -1512,7 +1511,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 
 	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
 	int k_room = -1;
-	if (god_level == LVL_IMPL || (god_level == LVL_GRGOD && !IS_NPC(k)))
+	if (!virt && (god_level == LVL_IMPL || (god_level == LVL_GRGOD && !IS_NPC(k))))
 		k_room = GET_ROOM_VNUM(IN_ROOM(k));
 
 	sprinttype(GET_SEX(k), genders, buf);
@@ -1522,7 +1521,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	send_to_char(strcat(buf, buf2), ch);
 	if (IS_MOB(k))
 	{
-		sprintf(buf, "Синонимы: %s, VNum: [%5d], RNum: [%5d]\r\n",
+		sprintf(buf, "Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n",
 				k->get_pc_name(), GET_MOB_VNUM(k), GET_MOB_RNUM(k));
 		send_to_char(buf, ch);
 	}
@@ -2616,6 +2615,57 @@ const int IIP   = 1;
 const int IMAIL = 2;
 const int ICHAR = 3;
 
+char *show_pun_time(int time)
+{
+	static char time_buf[16];
+	time_buf[0] = '\0';
+	if (time < 3600)
+		snprintf(time_buf, sizeof(time_buf), "%d m", (int)time / 60);
+	else if (time < 3600 * 24)
+		snprintf(time_buf, sizeof(time_buf), "%d h", (int)time / 3600);
+	else if (time < 3600 * 24 * 30)
+		snprintf(time_buf, sizeof(time_buf), "%d D", (int)time / (3600 * 24));
+	else if (time < 3600 * 24 * 365)
+		snprintf(time_buf, sizeof(time_buf), "%d M", (int)time / (3600 * 24 * 30));
+	else
+		snprintf(time_buf, sizeof(time_buf), "%d Y", (int)time / (3600 * 24 * 365));
+	return time_buf;
+}
+//выводим наказания для чара
+void show_pun(CHAR_DATA *vict, char *buf)
+{
+	if (PLR_FLAGGED(vict, PLR_FROZEN)
+			&& FREEZE_DURATION(vict))
+		sprintf(buf + strlen(buf), "FREEZE : %s [%s].\r\n",
+				show_pun_time(FREEZE_DURATION(vict) - time(NULL)),
+				FREEZE_REASON(vict) ? FREEZE_REASON(vict)
+				: "-");
+
+	if (PLR_FLAGGED(vict, PLR_MUTE)
+			&& MUTE_DURATION(vict))
+		sprintf(buf + strlen(buf), "MUTE   : %s [%s].\r\n",
+				show_pun_time(MUTE_DURATION(vict) - time(NULL)),
+				MUTE_REASON(vict) ? MUTE_REASON(vict) : "-");
+
+	if (PLR_FLAGGED(vict, PLR_DUMB)
+			&& DUMB_DURATION(vict))
+		sprintf(buf + strlen(buf), "DUMB   : %s [%s].\r\n",
+				show_pun_time(DUMB_DURATION(vict) - time(NULL)),
+				DUMB_REASON(vict) ? DUMB_REASON(vict) : "-");
+
+	if (PLR_FLAGGED(vict, PLR_HELLED)
+			&& HELL_DURATION(vict))
+		sprintf(buf + strlen(buf), "HELL   : %s [%s].\r\n",
+				show_pun_time(HELL_DURATION(vict) - time(NULL)),
+				HELL_REASON(vict) ? HELL_REASON(vict) : "-");
+
+	if (!PLR_FLAGGED(vict, PLR_REGISTERED)
+			&& UNREG_DURATION(vict))
+		sprintf(buf + strlen(buf), "UNREG  : %s [%s].\r\n",
+				show_pun_time(UNREG_DURATION(vict) - time(NULL)),
+				UNREG_REASON(vict) ? UNREG_REASON(vict) : "-");
+}
+
 void inspecting()
 {
 	if(inspect_list.size() == 0)
@@ -2662,6 +2712,7 @@ void inspecting()
 			|| (player_table[it->second->pos].level > GET_LEVEL(ch) && !IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)))//если левел больше то облом
 				continue;
 		buf1[0] = '\0';
+		buf2[0] = '\0';
 		is_online = 0;
 		vict = 0;
 		d_vict = DescByUID(player_table[it->second->pos].unique);
@@ -2681,6 +2732,7 @@ void inspecting()
 					continue;
 				}
 			}
+			show_pun(vict, buf2);
 		}
 		if (it->second->sfor == IMAIL || it->second->sfor == ICHAR)
 		{
@@ -2731,8 +2783,12 @@ void inspecting()
 		{
 			mytime = player_table[it->second->pos].last_logon;
 			sprintf(buf, "Имя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s\r\n",
-				(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)), player_table[it->second->pos].name, CCNRM(ch, C_SPR), (mail_found && it->second->sfor!=IMAIL? CCBLU(ch, C_SPR) : ""), player_table[it->second->pos].mail, (mail_found? CCNRM(ch, C_SPR) : ""), rustime(localtime(&mytime)));
+				(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)), player_table[it->second->pos].name, CCNRM(ch, C_SPR),
+				(mail_found && it->second->sfor!=IMAIL? CCBLU(ch, C_SPR) : ""),
+				player_table[it->second->pos].mail, (mail_found? CCNRM(ch, C_SPR) : ""),
+				rustime(localtime(&mytime)));
 			it->second->out += buf;
+			it->second->out += buf2;
 			it->second->out += buf1;
 			it->second->found++;
 		}
@@ -2803,6 +2859,7 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 	req->mail = NULL;
 	req->fullsearch = 0;
 	req->req = str_dup(buf2);
+	buf2[0] = '\0';
 
 	if(argument && isname(argument, "все all"))
 	{
@@ -2863,6 +2920,7 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 					return;
 				}
 			}
+			show_pun(vict, buf2);
 			if (vict && LOGON_LIST(vict))
 			{
 				#ifdef TEST_BUILD
@@ -2912,6 +2970,7 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 	req->pos = 0;
 	req->found = 0;
 	req->out += buf;
+	req->out += buf2;
 
 	gettimeofday(&req->start, NULL);
 	inspect_list[ch->get_pfilepos()] = req;
@@ -4434,7 +4493,7 @@ struct set_struct		/*
 	{"karma", LVL_IMPL, PC, MISC},
 	{"unreg", LVL_GOD, PC, MISC}, // 56
 	{"executor", LVL_IMPL, PC, BINARY}, // 57
-    {"killer", LVL_IMPL, PC, BINARY}, // 58
+	{"killer", LVL_IMPL, PC, BINARY}, // 58
 	{"\n", 0, BOTH, MISC}
 };
 

@@ -2063,14 +2063,14 @@ char *find_exdesc(char *word, EXTRA_DESCR_DATA * list)
 void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 {
 	int j;
-		if (GET_CLASS(ch) == CLASS_MERCHANT && GET_LEVEL(ch) >= 20)
+		if ((GET_CLASS(ch) == CLASS_MERCHANT && GET_LEVEL(ch) >= 20) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))
 		{
 			sprintf(buf+strlen(buf), "Материал : %s", CCCYN(ch, C_NRM));
 			sprinttype(obj->obj_flags.Obj_mater, material_name, buf+strlen(buf));
 			sprintf(buf+strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
 		}
 
-		if (can_use_feat(ch, BREW_POTION_FEAT) && GET_OBJ_TYPE(obj) == ITEM_MING)
+		if (GET_OBJ_TYPE(obj) == ITEM_MING && (can_use_feat(ch, BREW_POTION_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
 		{
 			for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT)  && j <= top_imtypes;)
 				j++;
@@ -2098,7 +2098,7 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 			}
 		}
 
-		if (GET_CLASS(ch) == CLASS_SMITH && ch->get_skill(SKILL_INSERTGEM) >= 60)
+		if ((GET_CLASS(ch) == CLASS_SMITH && ch->get_skill(SKILL_INSERTGEM) >= 60) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))
 		{
 			sprintf(buf+strlen(buf), "Слоты : %s", CCCYN(ch, C_NRM));
 			if (OBJ_FLAGGED(obj, ITEM_WITH3SLOTS))
@@ -3983,12 +3983,18 @@ ACMD(do_help)
 			// Перемещаемся по списку слов подпадающих под условие, если левел позволяет,
 			// записываем их в список + увеличиваем счетчик.
 			sprintf(buf, "&WПо Вашему запросу '&w%s&W' найдены следующие разделы справки:&n\r\n\r\n", argument);
-			while (help_table[mid].keyword != NULL && !strn_cmp(argument, help_table[mid].keyword, minlen))
+			while (mid <= top_of_helpt && help_table[mid].keyword != NULL && !strn_cmp(argument, help_table[mid].keyword, minlen))
 			{
-				if (trust_level >= help_table[mid].min_level)
+				if (trust_level >= help_table[mid].min_level && (int)strlen(help_table[mid].keyword) >= minlen)
 				{
 					// строгий поиск
 					if (strong && *(help_table[mid].keyword + minlen))
+					{
+						mid++;
+						continue;
+					}
+					// если нашли одно и тоже но с разными алиасами то нефик выводить список
+					if (topic_need && !str_cmp(help_table[topic_need].entry, help_table[mid].entry))
 					{
 						mid++;
 						continue;
@@ -4014,6 +4020,9 @@ ACMD(do_help)
 						strcat(buf, "\r\n");
 				}
 				mid++;
+				//фикс креша при нахождении последнего раздела в списке
+				if(mid >= top_of_helpt)
+					break;
 			}
 			sprintf(buf + strlen(buf), "\r\n\r\nДля получения справки по интересующему разделу, введите его название полностью,\r\nлибо воспользуйтесь индексацией или строгим поиском.\r\n\r\n&cПримеры:&n\r\n\t\"справка 3.защита\"\r\n\t\"справка 4.защита\"\r\n\t\"справка защитаоттьмы\"\r\n\t\"справка защита!\"\r\n\t\"справка 3.защита!\"\r\n\r\nСм. также: &CИСПОЛЬЗОВАНИЕСПРАВКИ&n\r\n");
 			mid--;

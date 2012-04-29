@@ -25,6 +25,7 @@
 #include "skills.h"
 #include "name_list.hpp"
 #include "room.hpp"
+#include "corpse.hpp"
 
 /*
  * Set this to 1 for debugging logs in medit_save_internally.
@@ -577,6 +578,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 			}
 		}
 
+		FullSetDrop::renumber_obj_rnum(-1, new_mob_num);
 	}			// совершенно новый моб
 
 #if defined(OASIS_MPROG)
@@ -1253,7 +1255,7 @@ void medit_disp_mob_flags(DESCRIPTOR_DATA * d)
 				action_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_MOB(d)->char_specials.saved.act, action_bits, buf1, ",");
+	sprintbits(OLC_MOB(d)->char_specials.saved.act, action_bits, buf1, ",", 1);
 	sprintf(buf, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1283,7 +1285,7 @@ void medit_disp_npc_flags(DESCRIPTOR_DATA * d)
 				function_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_MOB(d)->mob_specials.npc_flags, function_bits, buf1, ",");
+	sprintbits(OLC_MOB(d)->mob_specials.npc_flags, function_bits, buf1, ",", 1);
 	sprintf(buf, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1320,7 +1322,7 @@ void medit_disp_aff_flags(DESCRIPTOR_DATA * d)
 				affected_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_MOB(d)->char_specials.saved.affected_by, affected_bits, buf1, ",");
+	sprintbits(OLC_MOB(d)->char_specials.saved.affected_by, affected_bits, buf1, ",", 1);
 	sprintf(buf, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flags (0 to quit) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1345,7 +1347,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 #endif
 			"-- МОБ:  [%s%d%s]\r\n"
 			"%s1%s) Пол: %s%-7.7s%s\r\n"
-			"%s2%s) Синонимы: %s%s\r\n"
+			"%s2%s) Синонимы: %s&S%s&s\r\n"
 			"%s3&n) Именительный (это кто)         : %s&e\r\n"
 			"%s4&n) Родительный (нет кого)         : %s&e\r\n"
 			"%s5&n) Дательный  (дать кому)         : %s&e\r\n"

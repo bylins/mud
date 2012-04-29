@@ -2396,6 +2396,13 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 		char * temp_buf = fread_string(fl, buf2);
 		if (!temp_buf)
 			temp_buf = str_dup("");
+		else
+		{
+			std::string buffer(temp_buf);
+			boost::trim_right_if(buffer, boost::is_any_of(std::string(" _"))); //убираем пробелы в конце строки
+			RECREATE(temp_buf, char, strlen(buffer.c_str()) + 1);
+			strcpy(temp_buf, buffer.c_str());
+		}
 		world[room_nr]->description_num = RoomDescription::add_desc(temp_buf);
 		free(temp_buf);
 

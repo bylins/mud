@@ -1204,7 +1204,7 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		{
 			sprintf(buf,
 					"%sëÏÍÎÁÔÁ=%s%d %só×ÅÔ=%s%d %sïÓ×ÅÝ=%s%d %sëÏÓÔÅÒ=%s%d %sìÅÄ=%s%d "
-					"%sôØÍÁ=%s%d %sóÏÌÎÃÅ=%s%d %sîÅÂÏ=%s%d %sìÕÎÁ=%s%d.\r\n",
+					"%sôØÍÁ=%s%d %sóÏÌÎÃÅ=%s%d %sîÅÂÏ=%s%d %sìÕÎÁ=%s%d%s.\r\n",
 					CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), room,
 					CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[room]->light,
 					CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[room]->glight,
@@ -1213,7 +1213,7 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 					CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[room]->gdark,
 					CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
 					CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
-					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day);
+					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 

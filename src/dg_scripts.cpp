@@ -121,7 +121,7 @@ void proto_script_free(struct trig_proto_list *src)
 	}
 }
 
-void script_log(const char *msg)
+void script_log(const char *msg, const int type)
 {
 	char tmpbuf[MAX_INPUT_LENGTH];
 	char *pos;
@@ -130,7 +130,7 @@ void script_log(const char *msg)
 	while ((pos = strchr(tmpbuf, '%')) != NULL)
 		* pos = '$';
 
-	mudlog(tmpbuf, NRM, LVL_BUILDER, ERRLOG, TRUE);
+	mudlog(tmpbuf, type ? type : NRM, LVL_BUILDER, ERRLOG, TRUE);
 
 }
 
@@ -138,11 +138,11 @@ void script_log(const char *msg)
  *  Logs any errors caused by scripts to the system log.
  *  Will eventually allow on-line view of script errors.
  */
-void trig_log(TRIG_DATA * trig, const char *msg)
+void trig_log(TRIG_DATA * trig, const char *msg, const int type)
 {
 	char tmpbuf[MAX_INPUT_LENGTH];
 	sprintf(tmpbuf, "(Trigger: %s, VNum: %d) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg);
-	script_log(tmpbuf);
+	script_log(tmpbuf, type);
 }
 
 
@@ -2378,6 +2378,10 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				strcpy(str, GET_CH_SUF_5(c));
 			else if (!str_cmp(field, "a"))
 				strcpy(str, GET_CH_SUF_6(c));
+			else if (!str_cmp(field, "r"))
+				strcpy(str, GET_CH_SUF_7(c));
+			else if (!str_cmp(field, "x"))
+				strcpy(str, GET_CH_SUF_8(c));
 			else if (!str_cmp(field, "weight"))
 				sprintf(str, "%d", GET_WEIGHT(c));
 			else if (!str_cmp(field, "canbeseen"))
@@ -3546,9 +3550,11 @@ foreach i <список>
 	char value[MAX_INPUT_LENGTH];
 	char result[MAX_INPUT_LENGTH];
 	char *list, *p;
-	struct trig_var_data *v;
+	struct trig_var_data *v, *pos;
+	int v_strpos = MAX_INPUT_LENGTH;
 
 
+	*value = '\0';
 	skip_spaces(&cond);
 	list = one_argument(cond, name);
 	skip_spaces(&list);
@@ -3563,9 +3569,19 @@ foreach i <список>
 	list = result;
 
 	v = find_var_cntx(&GET_TRIG_VARS(trig), name, 0);
+	//загружаем позицию в строке со списком во избежание бесконечного цикла
+	sprintf(value, "%s_strpos", name);
+	pos = find_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 	if (v)
 	{
 		char *ptr = strstr(list, v->value);
+		if (pos && pos->value)
+		{
+			v_strpos = atoi(pos->value);
+			ptr = list + v_strpos;
+		}
+		else
+			v_strpos = ptr - list;
 		// Проверяем на наличие пробела перед найденой строкой и после нее
 		while (ptr)
 		{
@@ -3595,12 +3611,25 @@ foreach i <список>
 	p = value;
 	while (*list && a_isspace(*list))
 		++list;		// пропуск пробелов
+	v_strpos = list - result;
 	while (*list && !a_isspace(*list))
 		*p++ = *list++;	// копирование слова
 	*p = 0;
 
 	if (!*value)
+	{
+		if (pos)
+		{
+			strcat(name, "_strpos");
+			remove_var_cntx(&GET_TRIG_VARS(trig), name, 0);
+		}
 		return 0;
+	}
+	add_var_cntx(&GET_TRIG_VARS(trig), name, value, 0);
+	//сохраняем позицию в строке со списком во избежание бесконечного цикла
+	//правда фиг его знает чо будет если внутри одного foreach другой foreach решит использовать туже переменную
+	strcat(name, "_strpos");
+	sprintf(value, "%d", v_strpos);
 	add_var_cntx(&GET_TRIG_VARS(trig), name, value, 0);
 	return 1;
 }
@@ -4214,7 +4243,7 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 	}
 	else
 	{
-		trig_log(runtrig, "Attempt to run waiting trigger");
+		trig_log(runtrig, "Attempt to run waiting trigger", LGH);
 	}
 
 	if (go && type == MOB_TRIGGER && reinterpret_cast<CHAR_DATA *>(go)->purged())
@@ -5023,8 +5052,10 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 						cur_trig = prev_trig;
 						return ret_val;
 					}
-					if (GET_TRIG_LOOPS(trig) == 100)
-						trig_log(trig, "looping 100 times.");
+					if (GET_TRIG_LOOPS(trig) == 300)
+						trig_log(trig, "looping 300 times.", LGH);
+					if (GET_TRIG_LOOPS(trig) == 1000)
+						trig_log(trig, "looping 1000 times.", DEF);
 				}
 			}
 		}

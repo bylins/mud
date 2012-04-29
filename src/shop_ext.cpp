@@ -27,8 +27,6 @@
 #include "liquid.hpp"
 #include "utils.h"
 
-ACMD(do_tell);
-extern int cmd_tell;
 /*
 Пример конфига (plrstuff/shop/test.xml):
 <?xml version="1.0"?>
@@ -106,9 +104,10 @@ typedef std::map<int/*vnum продавца*/, item_desc_node> ItemDescNodeList;
 
 struct waste_node
 {
-	waste_node() : rnum(0), obj(NULL) {};
+	waste_node() : rnum(0), obj(NULL), last_activity(time(NULL)) {};
 	int rnum;
 	OBJ_DATA * obj;
+	int last_activity;
 };
 
 struct item_node
@@ -159,6 +158,8 @@ typedef std::vector<ShopNodePtr> ShopListType;
 typedef boost::shared_ptr<item_set> ItemSetPtr;
 typedef std::vector<ItemSetPtr> ItemSetListType;
 ShopListType shop_list;
+	
+OBJ_DATA * get_obj_from_waste(ShopListType::const_iterator &shop, std::vector<unsigned> uids);
 
 void log_shop_load()
 {
@@ -361,12 +362,14 @@ void load(bool reload)
 		int profit = node.attribute("profit").as_int();
 		std::string can_buy_value = node.attribute("can_buy").value();
 		bool shop_can_buy = can_buy_value != "false";
+		int waste_time_min = (node.attribute("waste_time_min").value() ? node.attribute("waste_time_min").as_int() : 180);
 		// иним сам магазин
 		ShopNodePtr tmp_shop(new shop_node);
 		tmp_shop->id = shop_id;
 		tmp_shop->currency = currency;
 		tmp_shop->profit = profit;
 		tmp_shop->can_buy = shop_can_buy;
+		tmp_shop->waste_time_min = waste_time_min;
 
 		std::map<int, std::string> mob_to_template;
 
@@ -523,9 +526,24 @@ unsigned get_item_num(ShopListType::const_iterator &shop, std::string &item_name
 	}
 
 	int count = 0;
+	std::string name_value="";
 	for (unsigned i = 0; i < (*shop)->item_list.size(); ++i)
 	{
-		if (isname(item_name, get_item_name((*shop)->item_list[i], keeper_vnum).c_str()))
+		if ((*shop)->item_list[i]->temporary_ids.empty())
+		{
+			name_value = get_item_name((*shop)->item_list[i], keeper_vnum);
+			if (GET_OBJ_TYPE(obj_proto[(*shop)->item_list[i]->rnum]) == ITEM_DRINKCON)
+				name_value += " " + std::string(drinknames[GET_OBJ_VAL(obj_proto[(*shop)->item_list[i]->rnum], 2)]);
+		}
+		else
+		{
+			OBJ_DATA * tmp_obj = get_obj_from_waste(shop, ((*shop)->item_list[i])->temporary_ids);
+			if (!tmp_obj)
+				continue;
+			name_value = std::string(tmp_obj->name);
+		}
+
+		if (isname(item_name, name_value.c_str()))
 		{
 			++count;
 			if (count == num)
@@ -603,10 +621,12 @@ void remove_item_id(ShopListType::const_iterator &shop, unsigned uid)
 void update_shop_timers(ShopListType::const_iterator &shop)
 {
 	std::list<waste_node>::iterator it;
+	int cur_time = time(NULL);
+	int waste_time = (*shop)->waste_time_min * 60;
 	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end();)
 	{
 		it->obj->dec_timer();
-		if (it->obj->get_timer() <= 0)
+		if (it->obj->get_timer() <= 0 || ((waste_time > 0) && (cur_time - it->last_activity > waste_time)))
 		{
 			remove_item_id(shop, it->obj->uid);
 			if (it->obj->item_number == it->rnum) extract_obj(it->obj);
@@ -653,12 +673,15 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 		(*shop)->currency.c_str());
 	int num = 1;
 	std::string out;
+	std::string print_value="";
+	std::string name_value="";
 	for (ItemListType::iterator k = (*shop)->item_list.begin(),
 		kend = (*shop)->item_list.end(); k != kend; ++k)
 	{
 		int count = can_sell_count(shop, num - 1);
 
-		std::string print_value="";
+		print_value="";
+		name_value="";
 
 //Polud у проданных в магаз объектов отображаем в списке не значение из прототипа, а уже, возможно, измененное значение
 // чтобы не было в списках всяких "гриб @n1"
@@ -674,8 +697,10 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 			if (tmp_obj)
 			{
 				print_value = std::string(tmp_obj->short_description);
+				name_value = std::string(tmp_obj->name);
 				(*k)->price = get_sell_price(tmp_obj);
-			}else
+			}
+			else
 			{
 				(*shop)->item_list.erase(k);
 				continue;
@@ -685,7 +710,7 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 		std::string numToShow = count == -1 ? "Навалом" : boost::lexical_cast<string>(count);
 
 		// имхо вполне логично раз уж мы получаем эту надпись в ней и искать
-		if (arg.empty() || isname(arg.c_str(), print_value.c_str()))
+		if (arg.empty() || isname(arg.c_str(), print_value.c_str()) || (!name_value.empty() && isname(arg.c_str(), name_value.c_str())))
 				out += boost::str(boost::format("%3d)  %10s  %-47s %8d\r\n")
 					% num++ % numToShow % print_value % (*k)->price);
 			else
@@ -700,12 +725,12 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
  */
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 {
+	if (AFF_FLAGGED(ch, AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL))
+		return;
 	char local_buf[MAX_INPUT_LENGTH];
+// ррррррыч
 	snprintf(local_buf, MAX_INPUT_LENGTH,
-		"%s! %s", GET_NAME(ch), arg);
-//	do_tell(keeper, CAP(local_buf), cmd_tell, 0); хотите универсальности - обрабатывайте сами ситуации типа вижу-не вижу
-	snprintf(local_buf, MAX_INPUT_LENGTH,
-		"%s! сказал%s Вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
+		"%s сказал%s Вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
 	send_to_char(ch, "%s%s%s\r\n",
 		CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
 }
@@ -1143,7 +1168,7 @@ void process_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	GetOneParam(buffer, buffer1);
 	boost::trim(buffer);
 
-	if (cmd == "Продать" && !(*shop)->can_buy)
+	if ((cmd == "Продать" || cmd == "Оценить") && !(*shop)->can_buy)
 	{
 		tell_to_char(keeper, ch, "Извини, у меня свои поставщики...");
 		return;
@@ -1263,8 +1288,19 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 	--item_num;
 
 	const OBJ_DATA *ident_obj = NULL;
+	OBJ_DATA *tmp_obj = NULL;
 	if ((*shop)->item_list[item_num]->temporary_ids.empty())
-		ident_obj = read_object_mirror((*shop)->item_list[item_num]->rnum, REAL);
+	{
+		if (!(*shop)->item_list[item_num]->descs.empty() && 
+			(*shop)->item_list[item_num]->descs.find(GET_MOB_VNUM(keeper)) != (*shop)->item_list[item_num]->descs.end())
+		{
+			tmp_obj = read_object((*shop)->item_list[item_num]->rnum, REAL);
+			replace_descs(tmp_obj, (*shop)->item_list[item_num], GET_MOB_VNUM(keeper));
+			ident_obj = tmp_obj;
+		}
+		else
+			ident_obj = read_object_mirror((*shop)->item_list[item_num]->rnum, REAL);
+	}
 	else
 		ident_obj = get_obj_from_waste(shop, (*shop)->item_list[item_num]->temporary_ids);
 
@@ -1307,18 +1343,21 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 				do_echo(keeper, local_buf, 0, SCMD_EMOTE);
 				break;
 			}
-			return;
 		}
+		else
+		{
+			snprintf(buf, MAX_STRING_LENGTH,
+				"Эта услуга будет стоить %d %s.", IDENTIFY_COST,
+				desc_count(IDENTIFY_COST, WHAT_MONEYu));
+			tell_to_char(keeper, ch, buf);
 
-		snprintf(buf, MAX_STRING_LENGTH,
-			"Эта услуга будет стоить %d %s.", IDENTIFY_COST,
-			desc_count(IDENTIFY_COST, WHAT_MONEYu));
-		tell_to_char(keeper, ch, buf);
-
-		send_to_char(ch, "Характеристики предмета: %s\r\n", GET_OBJ_PNAME(ident_obj, 0));
-		mort_show_obj_values(ident_obj, ch, 200);
-		ch->remove_gold(IDENTIFY_COST);
+			send_to_char(ch, "Характеристики предмета: %s\r\n", GET_OBJ_PNAME(ident_obj, 0));
+			mort_show_obj_values(ident_obj, ch, 200);
+			ch->remove_gold(IDENTIFY_COST);
+		}
 	}
+	if (tmp_obj)
+		extract_obj(tmp_obj);
 }
 
 SPECIAL(shop_ext)

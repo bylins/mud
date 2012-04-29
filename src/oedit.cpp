@@ -282,6 +282,7 @@ void renumber_obj_rnum(int rnum)
 /**
 * Обновление данных у конкретной шмотки (для update_online_objects).
 */
+extern bool is_potion(OBJ_DATA *obj);
 void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 {
 	// Итак, нашел объект
@@ -314,6 +315,16 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	obj->set_serial_num(tmp.get_serial_num());
 	GET_OBJ_CUR(obj) = GET_OBJ_CUR(&tmp);
 	obj->set_timer(tmp.get_timer());
+	// емкостям сохраняем жидкость и кол-во глотков, во избежание жалоб
+	if ((GET_OBJ_TYPE(&tmp) == ITEM_DRINKCON) && (GET_OBJ_TYPE(obj) == ITEM_DRINKCON))
+	{
+		GET_OBJ_VAL(obj, 1) = GET_OBJ_VAL(&tmp, 1); //кол-во глотков
+		if (is_potion(&tmp))
+		{
+			GET_OBJ_VAL(obj, 2) = GET_OBJ_VAL(&tmp, 2); //описание жидкости
+			GET_OBJ_SKILL(obj) = GET_OBJ_SKILL(&tmp);   //vnum зелья
+		}
+	}
 	if (OBJ_FLAGGED(&tmp, ITEM_TICKTIMER))//если у старого объекта запущен таймер
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_TICKTIMER), ITEM_TICKTIMER);//ставим флаг таймер запущен
 	if (OBJ_FLAGGED(&tmp, ITEM_NAMED))//если у старого объекта стоит флаг именной предмет
@@ -1425,7 +1436,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			"[H[J"
 #endif
 			"-- Предмет : [%s%d%s]\r\n"
-			"%s1%s) Синонимы : %s%s\r\n"
+			"%s1%s) Синонимы : %s&S%s&s\r\n"
 			"%s2&n) Именительный (это ЧТО)             : %s&e\r\n"
 			"%s3&n) Родительный  (нету ЧЕГО)           : %s&e\r\n"
 			"%s4&n) Дательный    (прикрепить к ЧЕМУ)   : %s&e\r\n"

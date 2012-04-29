@@ -905,14 +905,28 @@ int check_mob(int mob_rnum)
 	return -1;
 }
 
-void renumber_obj_rnum(int rnum)
+void renumber_obj_rnum(const int rnum, const int mob_rnum)
 {
+	if((rnum < 0) && (mob_rnum < 0))
+	{
+		snprintf(buf, MAX_STRING_LENGTH, "FullSetDrop: renumber_obj_rnum wrong parameters...");
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
 	for (std::map<int, DropNode>::iterator it = drop_list.begin(),
 		iend = drop_list.end(); it != iend; ++it)
 	{
-		if (it->second.obj_rnum >= rnum)
+		if ((rnum > -1) && ((it)->second.obj_rnum >= rnum))
+			(it)->second.obj_rnum += 1;
+		if ((mob_rnum > -1) && ((it)->first >= mob_rnum))
 		{
-			it->second.obj_rnum += 1;
+			int m_rnum = (it)->first+1;
+			DropNode tmp_node;
+			tmp_node.obj_rnum = it->second.obj_rnum;
+			tmp_node.chance = it->second.chance;
+
+			drop_list.erase(it);
+			drop_list.insert(std::make_pair(m_rnum, tmp_node));
 		}
 	}
 }
