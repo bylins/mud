@@ -3575,7 +3575,10 @@ foreach i <список>
 	if (v)
 	{
 		char *ptr = strstr(list, v->value);
-		if (pos && pos->value)
+		// извращение еще то но я чото хезе чо еще можно сделать со списками типо %self.pc%,
+		// которые генеряцо на каждой итерации цикла и тригами на телепорт, которые уменьшают эти списки
+		// здесь мы проверяем строку в списке в нужной позиции на соотвествие со значением переменной
+		if (pos && pos->value && ((unsigned)atoi(pos->value) < strlen(list)) && !(strncmp(list + v_strpos, v->value, strlen(v->value))))
 		{
 			v_strpos = atoi(pos->value);
 			ptr = list + v_strpos;
