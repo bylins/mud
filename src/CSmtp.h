@@ -11,7 +11,7 @@
 #include <string.h>
 #include <assert.h>
 
-#ifdef LINUX
+#ifdef OS_UNIX
 	#include <sys/types.h>
 	#include <sys/socket.h>
 	#include <sys/ioctl.h>
