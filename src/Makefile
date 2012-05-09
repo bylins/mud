@@ -59,7 +59,7 @@ CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	parcel.cpp liquid.cpp poison.cpp corpse.cpp house_exp.cpp remember.cpp \
 	name_list.cpp dps.cpp obj.spell.cpp obj.cpp room.cpp spam.cpp AffectHandler.cpp \
 	glory_const.cpp pugixml.cpp glory_misc.cpp shop_ext.cpp named_stuff.cpp \
-	celebrates.cpp birth_places.cpp player_races.cpp morph.cpp cache.cpp \ 
+	celebrates.cpp birth_places.cpp player_races.cpp morph.cpp cache.cpp \
 	base64.cpp CSmtp.cpp version.cpp
 
 default: circle
