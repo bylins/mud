@@ -55,6 +55,8 @@
 #include "player_races.hpp"
 #include "birth_places.hpp"
 #include "corpse.hpp"
+#include "CSmtp.h"
+#include "pugixml.hpp"
 
 /*   external vars  */
 extern bool need_warn;
@@ -630,12 +632,24 @@ ACMD(do_email)
 	CHAR_DATA *victim;
 	char *name = arg;
 	char newpass[] = "1234567890";
-	char buff[255];
 	int i = 0;
 	one_argument(argument, arg);
 	if (!*name)
 	{
 		send_to_char("Формат команды : имя_чара \r\n", ch);
+		return;
+	}
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file(LIB_ETC"smtp.xml");	
+	if (!result)
+	{
+		send_to_char("Ошибка открытия файла etc/smtp.xml\r\n", ch);
+		return;
+	}
+	pugi::xml_node smtp = doc.child("smtp");
+	if (!smtp)
+	{
+		send_to_char("Ошибка чтения файла etc/smtp.xml. Не удалось получить узел <smtp>\r\n", ch);
 		return;
 	}
 	while (i < (int) strlen(newpass))
@@ -647,38 +661,82 @@ ACMD(do_email)
 			i++;
 		}
 	}
+
+	Player t_victim;
 	if ((victim = get_player_vis(ch, name, FIND_CHAR_WORLD)))
 	{
 		send_to_char("[char is online]\r\n", ch);
 		Password::set_password(victim, std::string(newpass));
-		sprintf(buff,
-				"echo \"Subject: Ваш чар\r\nContent-Type: text/plain; charset=koi8-r\r\n\r\nПроизведена замена пароля\r\nИмя: %s\r\nПароль: %s\"|/usr/sbin/sendmail -F\"Bylins MUD\" %s\r\n",
-				GET_NAME(victim), newpass, GET_EMAIL(victim));
-//		system(buff);
-		sprintf(buf, "Выслан пароль %s, чару %s, на e-mail &S%s&s.\r\n", newpass,
-				GET_NAME(victim), GET_EMAIL(victim));
-		send_to_char(buf, ch);
 	}
 	else
 	{
-		Player t_victim;
-		Player *victim = &t_victim;
 		send_to_char("[char is offline]\r\n", ch);
-		if (load_char(name, victim) < 0)
+		if (load_char(name, &t_victim) < 0)
 		{
 			send_to_char("Такого персонажа не существует.\r\n", ch);
 			return;
 		}
+		victim = &t_victim;
 		Password::set_password(victim, std::string(newpass));
-		sprintf(buff,
-				"echo \"Subject: Ваш чар\r\nContent-Type: text/plain; charset=koi8-r\r\n\r\nПроизведена замена пароля\r\nИмя: %s\r\nПароль: %s\"|/usr/sbin/sendmail -F\"Bylins MUD\" %s\r\n",
-				GET_NAME(victim), newpass, GET_EMAIL(victim));
 		victim->save_char();
-//		system(buff);
-		sprintf(buf, "Выслан пароль %s, чару %s, на e-mail &S%s&s.\r\n", newpass,
-				GET_NAME(victim), GET_EMAIL(victim));
+	}
+
+	bool bError = false;
+	try
+	{
+		CSmtp mail;
+		pugi::xml_node node = smtp.child("Port");
+		std::string value = node.child_value();
+		int port = atoi(value.c_str());
+		if (port == 0) 
+		{
+			send_to_char("Ошибка чтения узла <Port>.\r\n", ch);
+			return;
+		}
+		node = smtp.child("Server");
+		value = node.child_value();
+		mail.SetSMTPServer(value.c_str(), port);
+		node = smtp.child("Login");
+		value = node.child_value();
+		mail.SetLogin(value.c_str());
+		node = smtp.child("Password");
+		value = node.child_value();
+		mail.SetPassword(value.c_str());
+		node = smtp.child("SenderName");
+		value = node.child_value();
+  		mail.SetSenderName(value.c_str());
+		node = smtp.child("SenderMail");
+		value = node.child_value();
+  		mail.SetSenderMail(value.c_str());
+		node = smtp.child("ReplyTo");
+		value = node.child_value();
+  		mail.SetReplyTo(value.c_str());
+		node = smtp.child("Subject");
+		value = node.child_value();
+  		mail.SetSubject(value.c_str());
+  		mail.SetXPriority(XPRIORITY_NORMAL);
+  		mail.SetXMailer("The Bat! (v3.02) Professional");
+  		mail.AddMsgLine("Здравствуйте!");
+		mail.AddMsgLine("Пароль Вашего персонажа в МПМ \"Былины\" был изменен!"); 
+		mail.AddMsgLine("Персонаж:");
+		mail.AddMsgLine(GET_NAME(victim));
+		mail.AddMsgLine("Новый пароль:");
+		mail.AddMsgLine(newpass);
+		mail.AddRecipient(GET_EMAIL(victim));
+		mail.Send();
+	}
+	catch(ECSmtp e)
+	{
+		send_to_char(ch, "Пароль изменен, но сообщение не было отправлено, ибо '%s'", e.GetErrorText().c_str());
+		bError = true;
+	}
+	if(!bError)
+	{
+		sprintf(buf, "Персонажу '%s' выслан новый пароль на адрес электронной почты, указанный при регистрации.\r\n", 
+			GET_NAME(victim));
 		send_to_char(buf, ch);
 	}
+
 }
 
 ACMD(do_echo)
