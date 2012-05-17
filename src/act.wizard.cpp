@@ -55,7 +55,7 @@
 #include "player_races.hpp"
 #include "birth_places.hpp"
 #include "corpse.hpp"
-#include "CSmtp.h"
+#include "scripting.hpp"
 #include "pugixml.hpp"
 
 /*   external vars  */
@@ -681,61 +681,37 @@ ACMD(do_email)
 		victim->save_char();
 	}
 
-	bool bError = false;
-	try
+	std::string s_port = smtp.child("Port").child_value();
+	int port = atoi(s_port.c_str());
+	if (port == 0) 
 	{
-		CSmtp mail;
-		pugi::xml_node node = smtp.child("Port");
-		std::string value = node.child_value();
-		int port = atoi(value.c_str());
-		if (port == 0) 
-		{
-			send_to_char("Ошибка чтения узла <Port>.\r\n", ch);
-			return;
-		}
-		node = smtp.child("Server");
-		value = node.child_value();
-		mail.SetSMTPServer(value.c_str(), port);
-		node = smtp.child("Login");
-		value = node.child_value();
-		mail.SetLogin(value.c_str());
-		node = smtp.child("Password");
-		value = node.child_value();
-		mail.SetPassword(value.c_str());
-		node = smtp.child("SenderName");
-		value = node.child_value();
-  		mail.SetSenderName(value.c_str());
-		node = smtp.child("SenderMail");
-		value = node.child_value();
-  		mail.SetSenderMail(value.c_str());
-		node = smtp.child("ReplyTo");
-		value = node.child_value();
-  		mail.SetReplyTo(value.c_str());
-		node = smtp.child("Subject");
-		value = node.child_value();
-  		mail.SetSubject(value.c_str());
-  		mail.SetXPriority(XPRIORITY_NORMAL);
-  		mail.SetXMailer("The Bat! (v3.02) Professional");
-  		mail.AddMsgLine("Здравствуйте!");
-		mail.AddMsgLine("Пароль Вашего персонажа в МПМ \"Былины\" был изменен!"); 
-		mail.AddMsgLine("Персонаж:");
-		mail.AddMsgLine(GET_NAME(victim));
-		mail.AddMsgLine("Новый пароль:");
-		mail.AddMsgLine(newpass);
-		mail.AddRecipient(GET_EMAIL(victim));
-		mail.Send();
+		send_to_char("Ошибка чтения узла <Port>.\r\n", ch);
+		return;
 	}
-	catch(ECSmtp e)
-	{
-		send_to_char(ch, "Пароль изменен, но сообщение не было отправлено, ибо '%s'", e.GetErrorText().c_str());
-		bError = true;
-	}
-	if(!bError)
+	std::string server = smtp.child("Server").child_value();
+	std::string login = smtp.child("Login").child_value();
+	std::string pass = smtp.child("Password").child_value();
+	std::string senderName = smtp.child("SenderName").child_value();
+	std::string senderMail = smtp.child("SenderMail").child_value();
+	std::string from = senderName + "<" + senderMail + ">";
+	std::string subject = smtp.child("Subject").child_value();
+	std::string msg = "Здравствуйте!\r\n";
+	msg += "Пароль Вашего персонажа в МПМ \"Былины\" был изменен!\r\n"; 
+	msg += "Персонаж: " + std::string(GET_NAME(victim))+"\r\n";
+	msg += "Новый пароль: " + std::string(newpass);
+	std::string addr_to = std::string(GET_EMAIL(victim));
+
+	if (scripting::send_email(server, s_port, login, pass, from, addr_to, msg, subject))
 	{
 		sprintf(buf, "Персонажу '%s' выслан новый пароль на адрес электронной почты, указанный при регистрации.\r\n", 
 			GET_NAME(victim));
-		send_to_char(buf, ch);
 	}
+	else
+	{
+		sprintf(buf, "Пароль персонажы '%s' был ИЗМЕНЕН, но при отправке почты возникла ошибка!\r\n", 
+			GET_NAME(victim));
+	}
+	send_to_char(buf, ch);
 
 }
 

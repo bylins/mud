@@ -11,7 +11,9 @@ namespace scripting
 {
 void init();
 void terminate();
-
+bool send_email(std::string smtp_server, std::string smtp_port, std::string smtp_login, 
+					std::string smtp_pass, std::string addr_from, std::string addr_to, 
+						std::string msg_text, std::string subject);
 class Console_impl;
 
 class Console
