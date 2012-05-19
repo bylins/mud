@@ -170,7 +170,7 @@ void log_shop_load()
 		log("ShopExt: currency=%s", (*i)->currency.c_str());
 		for (ItemListType::iterator k = (*i)->item_list.begin(); k != (*i)->item_list.end(); ++k)
 		{
-			log("ItemList: vnum=%d, price=%d", GET_OBJ_VNUM(obj_proto[(*k)->rnum]), (*k)->price);
+			log("ItemList: vnum=%d, price=%ld", GET_OBJ_VNUM(obj_proto[(*k)->rnum]), (*k)->price);
 		}
 	}
 }

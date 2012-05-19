@@ -896,12 +896,12 @@ void name_from_drinkcon(OBJ_DATA * obj)
 {
 	char new_name[MAX_STRING_LENGTH];
 
-	sprintf(new_name, "%s%", obj_proto[GET_OBJ_RNUM(obj)]->name);
+	sprintf(new_name, "%s", obj_proto[GET_OBJ_RNUM(obj)]->name);
 	if (GET_OBJ_RNUM(obj) < 0 || obj->name != obj_proto[GET_OBJ_RNUM(obj)]->name)
 		free(obj->name);
 	obj->name = str_dup(new_name);
 
-	sprintf(new_name, "%s%", obj_proto[GET_OBJ_RNUM(obj)]->short_description);
+	sprintf(new_name, "%s", obj_proto[GET_OBJ_RNUM(obj)]->short_description);
 	if (GET_OBJ_RNUM(obj) < 0 || obj->short_description != obj_proto[GET_OBJ_RNUM(obj)]->short_description)
 		free(obj->short_description);
 	obj->short_description = str_dup(new_name);
@@ -909,7 +909,7 @@ void name_from_drinkcon(OBJ_DATA * obj)
 
 	for (int c = 0; c < NUM_PADS; c++)
 	{
-		sprintf(new_name, "%s%", obj_proto[GET_OBJ_RNUM(obj)]->PNames[c]);
+		sprintf(new_name, "%s", obj_proto[GET_OBJ_RNUM(obj)]->PNames[c]);
 		if (GET_OBJ_RNUM(obj) < 0 || obj->PNames[c] != obj_proto[GET_OBJ_RNUM(obj)]->PNames[c])
 			free(obj->PNames[c]);
 		obj->PNames[c] = str_dup(new_name);
