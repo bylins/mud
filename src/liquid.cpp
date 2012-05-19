@@ -894,43 +894,25 @@ ACMD(do_pour)
 
 void name_from_drinkcon(OBJ_DATA * obj)
 {
-	int i, c, j = 0;
 	char new_name[MAX_STRING_LENGTH];
 
-	for (i = 0; *(obj->name + i) && a_isspace(*(obj->name + i)); i++);
-	for (j = 0; *(obj->name + i) && !(a_isspace(*(obj->name + i))); new_name[j] = *(obj->name + i), i++, j++);
-	new_name[j] = '\0';
-	if (*new_name)
-	{
-		if (GET_OBJ_RNUM(obj) < 0 || obj->name != obj_proto[GET_OBJ_RNUM(obj)]->name)
-			free(obj->name);
-		obj->name = str_dup(new_name);
-	}
+	sprintf(new_name, "%s%", obj_proto[GET_OBJ_RNUM(obj)]->name);
+	if (GET_OBJ_RNUM(obj) < 0 || obj->name != obj_proto[GET_OBJ_RNUM(obj)]->name)
+		free(obj->name);
+	obj->name = str_dup(new_name);
 
-	for (i = 0; *(obj->short_description + i)
-			&& a_isspace(*(obj->short_description + i)); i++);
-	for (j = 0; *(obj->short_description + i)
-			&& !(a_isspace(*(obj->short_description + i))); new_name[j] = *(obj->short_description + i), i++, j++);
-	new_name[j] = '\0';
-	if (*new_name)
-	{
-		if (GET_OBJ_RNUM(obj) < 0 || obj->short_description != obj_proto[GET_OBJ_RNUM(obj)]->short_description)
-			free(obj->short_description);
-		obj->short_description = str_dup(new_name);
-	}
+	sprintf(new_name, "%s%", obj_proto[GET_OBJ_RNUM(obj)]->short_description);
+	if (GET_OBJ_RNUM(obj) < 0 || obj->short_description != obj_proto[GET_OBJ_RNUM(obj)]->short_description)
+		free(obj->short_description);
+	obj->short_description = str_dup(new_name);
 
 
-	for (c = 0; c < NUM_PADS; c++)
+	for (int c = 0; c < NUM_PADS; c++)
 	{
-		for (i = 0; a_isspace(*(obj->PNames[c] + i)); i++);
-		for (j = 0; !a_isspace(*(obj->PNames[c] + i)); new_name[j] = *(obj->PNames[c] + i), i++, j++);
-		new_name[j] = '\0';
-		if (*new_name)
-		{
-			if (GET_OBJ_RNUM(obj) < 0 || obj->PNames[c] != obj_proto[GET_OBJ_RNUM(obj)]->PNames[c])
-				free(obj->PNames[c]);
-			obj->PNames[c] = str_dup(new_name);
-		}
+		sprintf(new_name, "%s%", obj_proto[GET_OBJ_RNUM(obj)]->PNames[c]);
+		if (GET_OBJ_RNUM(obj) < 0 || obj->PNames[c] != obj_proto[GET_OBJ_RNUM(obj)]->PNames[c])
+			free(obj->PNames[c]);
+		obj->PNames[c] = str_dup(new_name);
 	}
 }
 

@@ -4497,7 +4497,6 @@ OBJ_DATA *read_object(obj_vnum nr, int type)
 	GET_ID(obj) = max_id++;
 	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON)
 	{
-		name_from_drinkcon(obj);
 		if (GET_OBJ_VAL(obj, 1) && GET_OBJ_VAL(obj, 2))
 			name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2));
 	}

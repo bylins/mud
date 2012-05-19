@@ -78,7 +78,7 @@ extern char *diag_timer_to_char(const OBJ_DATA * obj);
 
 namespace ShopExt
 {
-int get_sell_price(OBJ_DATA * obj);
+long get_sell_price(OBJ_DATA * obj);
 
 const int IDENTIFY_COST = 110;
 int spent_today = 0;
@@ -116,7 +116,7 @@ struct item_node
 
 	int rnum;
 	int vnum;
-	int price;
+	long price;
 	std::vector<unsigned> temporary_ids;
 	ItemDescNodeList descs;
 };
@@ -574,7 +574,7 @@ std::string item_count_message(const OBJ_DATA *obj, int num, int pad)
 	return out;
 }
 
-bool check_money(CHAR_DATA *ch, int price, std::string currency)
+bool check_money(CHAR_DATA *ch, long price, std::string currency)
 {
 	if (currency == "слава")
 	{
@@ -837,7 +837,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		return;
 	}
 
-	const int price = (*shop)->item_list[item_num]->price;
+	const long price = (*shop)->item_list[item_num]->price;
 
 	if (!check_money(ch, price, (*shop)->currency))
 	{
@@ -864,7 +864,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
 			"%s, я понимаю, своя ноша карман не тянет,\r\n"
-			"но %s Вам явно некуда положить.\r\n", GET_NAME(ch), OBJN(proto, ch, 3));
+			"но столько вещей Вам явно некуда положить.\r\n", GET_NAME(ch));
 		send_to_char(buf, ch);
 		return;
 	}
@@ -872,7 +872,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
 			"%s, я понимаю, своя ноша карман не тянет,\r\n"
-			"но %s Вам явно не поднять.\r\n", GET_NAME(ch), OBJN(proto, ch, 3));
+			"но столько вещей Вам явно не поднять.\r\n", GET_NAME(ch));
 		send_to_char(buf, ch);
 		return;
 	}
@@ -992,9 +992,9 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	}
 }
 
-int get_sell_price(OBJ_DATA * obj)
+long get_sell_price(OBJ_DATA * obj)
 {
-	int cost = GET_OBJ_COST(obj);
+	long cost = GET_OBJ_COST(obj);
 	cost = (cost * obj->get_timer()) / MAX(1, obj_proto[GET_OBJ_RNUM(obj)]->get_timer()); //учтем таймер
 
 	return MMAX(1, cost);
@@ -1059,11 +1059,11 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 			return;
 		}
 	}
-	int buy_price = GET_OBJ_COST(obj);
+	long buy_price = GET_OBJ_COST(obj);
 
-	buy_price = obj_proto[rnum]->get_timer()<=0 ? 1 : (buy_price * obj->get_timer()) / obj_proto[rnum]->get_timer(); //учтем таймер
+	buy_price = obj_proto[rnum]->get_timer()<=0 ? 1 : buy_price*(obj->get_timer() / obj_proto[rnum]->get_timer()); //учтем таймер
 
-	buy_price = obj->obj_flags.Obj_max <=0 ? 1 : (buy_price * obj->obj_flags.Obj_cur) / obj->obj_flags.Obj_max; //учтем повреждения
+	buy_price = obj->obj_flags.Obj_max <=0 ? 1 : buy_price*(obj->obj_flags.Obj_cur / obj->obj_flags.Obj_max); //учтем повреждения
 
 	int repair = GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj);
 	int repair_price = MAX(1, GET_OBJ_COST(obj) * MAX(0, repair) / MAX(1, GET_OBJ_MAX(obj)));
