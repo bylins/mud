@@ -901,14 +901,15 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 			remove_from_waste(shop, obj);
 		}
 		else
+		{
 			obj = read_object((*shop)->item_list[item_num]->rnum, REAL);
+			if (obj && !(*shop)->item_list[item_num]->descs.empty() && 
+				(*shop)->item_list[item_num]->descs.find(GET_MOB_VNUM(keeper)) != (*shop)->item_list[item_num]->descs.end())
+				replace_descs(obj, (*shop)->item_list[item_num], GET_MOB_VNUM(keeper));
+		}
 
 		if (obj)
 		{
-			if (!(*shop)->item_list[item_num]->descs.empty() && 
-				(*shop)->item_list[item_num]->descs.find(GET_MOB_VNUM(keeper)) != (*shop)->item_list[item_num]->descs.end())
-				replace_descs(obj, (*shop)->item_list[item_num], GET_MOB_VNUM(keeper));
-
 			obj_to_char(obj, ch);
 			if ((*shop)->currency == "слава")
 			{
@@ -1061,9 +1062,9 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	}
 	long buy_price = GET_OBJ_COST(obj);
 
-	buy_price = obj_proto[rnum]->get_timer()<=0 ? 1 : buy_price*(obj->get_timer() / obj_proto[rnum]->get_timer()); //учтем таймер
+	buy_price = obj_proto[rnum]->get_timer()<=0 ? 1 : (long)buy_price*((float)obj->get_timer() / (float)obj_proto[rnum]->get_timer()); //учтем таймер
 
-	buy_price = obj->obj_flags.Obj_max <=0 ? 1 : buy_price*(obj->obj_flags.Obj_cur / obj->obj_flags.Obj_max); //учтем повреждения
+	buy_price = obj->obj_flags.Obj_max <=0 ? 1 : (long)buy_price*((float)obj->obj_flags.Obj_cur / (float)obj->obj_flags.Obj_max); //учтем повреждения
 
 	int repair = GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj);
 	int repair_price = MAX(1, GET_OBJ_COST(obj) * MAX(0, repair) / MAX(1, GET_OBJ_MAX(obj)));
