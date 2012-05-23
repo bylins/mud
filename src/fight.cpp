@@ -4617,7 +4617,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 				was_critic += MAX(0, ch->get_skill(skill) -  70);
 				break;
 			}
-		if (can_use_feat(ch, THIEVES_STRIKE_FEAT)
+		if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
 			was_critic += ch->get_skill(SKILL_BACKSTAB);
 		if (GET_CLASS(ch) == CLASS_PALADINE)
 			was_critic += (int)(ch->get_skill(SKILL_PUNCTUAL) / 2);
