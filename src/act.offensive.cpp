@@ -456,7 +456,7 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	pk_agro_action(ch, vict);
 
-	if (((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) || (vict->get_fighting() && GET_CLASS(ch) != CLASS_THIEF))
+	if (((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) || (vict->get_fighting() && !can_use_feat(ch, THIEVES_STRIKE_FEAT)))
 			&& !IS_GOD(ch))
 	{
 		act("Вы заметили, что $N попытал$y Вас заколоть !", FALSE, vict, 0, ch, TO_CHAR);
@@ -549,7 +549,7 @@ ACMD(do_backstab)
 		return;
 	}
 
-	if (vict->get_fighting() && GET_CLASS(ch) != CLASS_THIEF)
+	if (vict->get_fighting() && !can_use_feat(ch, THIEVES_STRIKE_FEAT))
 	{
 		send_to_char("Ваша цель слишком быстро движется - Вы можете пораниться !\r\n", ch);
 		return;

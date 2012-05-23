@@ -1988,8 +1988,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		}
 		dam = dice(ndice, sdice) + adice;
 		dam = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, dam);
-		if ((GET_CLASS(ch) == CLASS_BATTLEMAGE)
-				|| (GET_CLASS(ch) == CLASS_NPC_BATLEMAGE))
+		if (can_use_feat(ch, POWER_MAGIC_FEAT) || (GET_CLASS(ch) == CLASS_NPC_BATLEMAGE))
 		{
 			dam += IS_NPC(victim) ? dam : 0;	/* колдуны всегда в 2 раза сильнее фрагают  */
 			if (GET_POS(victim) < POS_FIGHTING)

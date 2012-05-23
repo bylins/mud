@@ -35,7 +35,7 @@ using std::bitset;
 #define HEALER_FEAT			16  //целитель
 #define LIGHTING_REFLEX_FEAT		17  //мгновенная реакция
 #define DRUNKARD_FEAT			18  //пьяница
-#define DIEHARD_FEAT			19  //обмануть смерть
+#define POWER_MAGIC_FEAT			19  //мощь колдовства
 #define ENDURANCE_FEAT			20  //выносливость
 #define GREAT_FORTITUDE_FEAT		21  //сила духа
 #define FAST_REGENERATION_FEAT		22  //быстрое заживление
@@ -113,6 +113,9 @@ using std::bitset;
 #define GEMS_INLAY_FEAT			94 // инкрустация камнями (TODO: не используется)
 #define WARRIOR_STR_FEAT		95 // богатырская сила
 #define RELOCATE_FEAT			96 // переместиться
+#define SILVER_TONGUED_FEAT		97 //сладкоречие
+#define BULLY_FEAT				98 //забияка
+#define THIEVES_STRIKE_FEAT		99 //воровской удар
 
 /*
 #define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух

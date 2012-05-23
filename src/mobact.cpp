@@ -299,7 +299,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		// Mobile aggresive
 		if (!kill_this && extra_aggr)
 		{
-			if (GET_CLASS(vict) == CLASS_MERCHANT &&
+			if (can_use_feat(vict, SILVER_TONGUED_FEAT) &&
 					number(1, GET_LEVEL(vict) * GET_REAL_CHA(vict)) >
 					number(1, GET_LEVEL(ch) * GET_REAL_INT(ch)))
 				continue;

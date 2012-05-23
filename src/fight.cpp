@@ -3610,7 +3610,7 @@ double crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
-	else if (GET_CLASS(ch) == CLASS_THIEF)
+	else if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
 	{
 		// по чарам коэф. до 1.25 при 200 скила
 		bs_coeff *= 1 + (ch->get_skill(SKILL_BACKSTAB) * 0.00125);
@@ -4201,7 +4201,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		if (!IS_NPC(ch))
 		{
 			// кулаками у нас полагается бить только богатырям :)
-			if (GET_CLASS(ch) != CLASS_WARRIOR)
+			if (!can_use_feat(ch, BULLY_FEAT))
 				calc_thaco += 4;
 			else	// а богатырям положен бонус за отсутствие оружия
 				calc_thaco -= 3;
@@ -4503,7 +4503,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			dam += number(1, 3);
 		}
 
-		if (GET_CLASS(ch) == CLASS_WARRIOR)
+		if (can_use_feat(ch, BULLY_FEAT))
 		{
 			dam += GET_LEVEL(ch) / 5;
 			dam += MAX(0, GET_REAL_STR(ch) - 25);
@@ -4617,7 +4617,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 				was_critic += MAX(0, ch->get_skill(skill) -  70);
 				break;
 			}
-		if (GET_CLASS(ch) == CLASS_THIEF)
+		if (can_use_feat(ch, THIEVES_STRIKE_FEAT)
 			was_critic += ch->get_skill(SKILL_BACKSTAB);
 		if (GET_CLASS(ch) == CLASS_PALADINE)
 			was_critic += (int)(ch->get_skill(SKILL_PUNCTUAL) / 2);

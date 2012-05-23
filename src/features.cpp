@@ -238,8 +238,8 @@ void assign_feats(void)
 	feat_app.insert(FEAT_TIMER, 8);
 	feato(DRUNKARD_FEAT, "пьяница", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
-//19 -*
-	feato(DIEHARD_FEAT, "обмануть смерть", NORMAL_FTYPE, TRUE, feat_app);
+//19
+	feato(POWER_MAGIC_FEAT, "мощь колдовства", NORMAL_FTYPE, TRUE, feat_app);
 //20
 	feat_app.insert(APPLY_MOVEREG, 40);
 	feato(ENDURANCE_FEAT, "выносливость", AFFECT_FTYPE, TRUE, feat_app);
@@ -501,6 +501,12 @@ void assign_feats(void)
 	feato(WARRIOR_STR_FEAT, "богатырская сила", NORMAL_FTYPE, TRUE, feat_app);
 //96
 	feato(RELOCATE_FEAT, "переместиться", NORMAL_FTYPE, TRUE, feat_app);
+//97
+	feato(SILVER_TONGUED_FEAT, "сладкоречие", NORMAL_FTYPE, TRUE, feat_app);
+//98
+	feato(BULLY_FEAT, "забияка", NORMAL_FTYPE, TRUE, feat_app);
+//99
+	feato(THIEVES_STRIKE_FEAT, "воровской удар", NORMAL_FTYPE, TRUE, feat_app);
 	/*
 	//
 		feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);

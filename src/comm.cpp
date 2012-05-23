@@ -1878,7 +1878,8 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		}
 		// Заряды кличей для батыров
 		if (PRF_FLAGGED(d->character, PRF_DISP_WC)
-			&& GET_CLASS(d->character) == CLASS_WARRIOR
+//			&& GET_CLASS(d->character) == CLASS_WARRIOR
+//И зачем тут проверять класс? Есть скилл -- значит могут быть и заряды.
 			&& d->character->get_skill(SKILL_WARCRY))
 		{
 			int wc_count = (HOURS_PER_DAY - timed_by_skill(d->character, SKILL_WARCRY)) / HOURS_PER_WARCRY;
@@ -2361,7 +2362,7 @@ int process_output(DESCRIPTOR_DATA * t)
 		sprintf(buf, "SYSERR: %s pos:%d player:%s in proc_color!", (pos<0?(pos==-1?"NULL buffer":"zero length buffer"):"go out of buffer"), pos, GET_NAME(t->character));
 		mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
 	}
-		
+
 
 	/*
 	 * now, send the output.  If this is an 'interruption', use the prepended
