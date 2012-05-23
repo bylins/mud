@@ -671,7 +671,7 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 	switch (type)
 	{
 	case SAVING_REFLEX:
-		if ((save > 0) && (GET_CLASS(victim) == CLASS_THIEF))
+		if ((save > 0) && can_use_feat(victim, DODGER_FEAT))
 			save >>= 1;
 		save -= dex_bonus(GET_REAL_DEX(victim));
 		break;
@@ -696,7 +696,7 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 	// Учет осторожного стиля
 	if (PRF_FLAGGED(victim, PRF_AWAKE))
 	{
-		if (GET_CLASS(victim) == CLASS_GUARD)
+		if (can_use_feat(victim, IMPREGNABLE_FEAT))
 			save -= MAX(0, victim->get_skill(SKILL_AWAKE) - 80)  /  2;
 		save -= calculate_awake_mod(killer, victim);
 	}
@@ -723,24 +723,8 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 
 int multi_cast_say(CHAR_DATA * ch)
 {
-	switch (GET_CLASS(ch))
-	{
-	case CLASS_CLERIC:
-	case CLASS_BATTLEMAGE:
-	case CLASS_THIEF:
-	case CLASS_WARRIOR:
-	case CLASS_ASSASINE:
-	case CLASS_GUARD:
-	case CLASS_DEFENDERMAGE:
-	case CLASS_CHARMMAGE:
-	case CLASS_NECROMANCER:
-	case CLASS_PALADINE:
-	case CLASS_RANGER:
-	case CLASS_SMITH:
-	case CLASS_MERCHANT:
-	case CLASS_DRUID:
-		return 1;
-	}
+	if (!IS_NPC(ch))
+        return 1;
 	switch (GET_RACE(ch))
 	{
 	case NPC_RACE_EVIL_SPIRIT:

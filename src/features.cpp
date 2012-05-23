@@ -195,14 +195,14 @@ void assign_feats(void)
 	feat_app.clear();
 //5-*
 	feato(APPROACHING_ATTACK_FEAT, "встречная атака", NORMAL_FTYPE, TRUE, feat_app);
-//6-*
-	feato(DODGE_FEAT, "увертка", NORMAL_FTYPE, TRUE, feat_app);
-//7-*
-	feato(TWO_WEAPON_FIGHTING_FEAT, "двуручный бой", NORMAL_FTYPE, TRUE, feat_app);
+//6
+	feato(DEFENDER_FEAT, "щитоносец", NORMAL_FTYPE, TRUE, feat_app);
+//7
+	feato(DODGER_FEAT, "изворотливость", NORMAL_FTYPE, TRUE, feat_app);
 //8
 	feato(LIGHT_WALK_FEAT, "легкая поступь", NORMAL_FTYPE, TRUE, feat_app);
-//9-*
-	feato(DEPOSIT_FINDING_FEAT, "лозоходство", NORMAL_FTYPE, TRUE, feat_app);
+//9
+	feato(WRIGGLER_FEAT, "проныра", NORMAL_FTYPE, TRUE, feat_app);
 //10
 	feato(SPELL_SUBSTITUTE_FEAT, "подмена заклинания", NORMAL_FTYPE, TRUE, feat_app);
 //11

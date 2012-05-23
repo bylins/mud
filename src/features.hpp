@@ -22,10 +22,10 @@ using std::bitset;
 #define BLIND_FIGHT_FEAT		3   //слепой бой
 #define IMPREGNABLE_FEAT		4   //мгновенная атака
 #define APPROACHING_ATTACK_FEAT		5   //встречная атака
-#define DODGE_FEAT			6   //увертка
-#define TWO_WEAPON_FIGHTING_FEAT	7   //двуручный бой
+#define DEFENDER_FEAT			6   //щитоносец
+#define DODGER_FEAT	7   //изворотливость
 #define LIGHT_WALK_FEAT			8   //легкая поступь
-#define DEPOSIT_FINDING_FEAT		9   //лозоходство
+#define WRIGGLER_FEAT		9   //проныра
 #define SPELL_SUBSTITUTE_FEAT		10  //подмена заклинания
 #define POWER_ATTACK_FEAT		11  //мощная атака
 #define WOODEN_SKIN_FEAT		12  //деревянная кожа

@@ -507,7 +507,7 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 			SET_AF_BATTLE(ch, EAF_AWAKE);
 	}
 
-	if (GET_CLASS(ch) == CLASS_GUARD && ch->get_skill(SKILL_BLOCK))
+	if (can_use_feat(ch, DEFENDER_FEAT) && ch->get_skill(SKILL_BLOCK))
 	{
 		SET_AF_BATTLE(ch, EAF_AUTOBLOCK);
 	}
@@ -2657,7 +2657,7 @@ int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayf
 			alt_equip(victim, NOWHERE, dam, 50);
 			if (!was_critic)
 			{
-				if (GET_CLASS(victim) == CLASS_GUARD && IS_SET(PRF_FLAGS(victim, PRF_AWAKE), PRF_AWAKE))
+				if (can_use_feat(victim, IMPREGNABLE_FEAT) && IS_SET(PRF_FLAGS(victim, PRF_AWAKE), PRF_AWAKE))
 				{
 					// у дружа в осторожке поглощение роляет до 99
 					int decrease = MIN(50, (GET_ABSORBE(victim) + 1) / 2) + GET_ARMOUR(victim);
