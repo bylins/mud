@@ -896,7 +896,7 @@ size_t find_liquid_name(char * name)
 {
 	std::string tmp = std::string(name);
 	size_t pos, result = std::string::npos;
-	for (int i = 0; drinknames[i] != "\n";i++)
+	for (int i = 0; strcmp(drinknames[i],"\n"); i++)
 	{
 		pos = tmp.find(drinknames[i]);
 		if (pos != std::string::npos)
