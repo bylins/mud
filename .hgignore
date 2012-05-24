@@ -28,6 +28,8 @@ lib/misc/setstuff.lst
 lib/misc/specials.lst
 lib/misc/stuff.lst
 lib/misc/xnames
+lib/misc/guards.xml
+lib/misc/im.lst
 lib/plrs/players.lst
 lib/plrs/players.dup
 lib/plrs/*/*.player
@@ -97,5 +99,9 @@ lib/misc/stuff.old.lst
 lib/plrstuff/mob_stat.xml
 lib/plrstuff/shop/shops.OLD
 lib/text/help/rules.old.hlp
+autorun
+lib/etc/smtp.xml
+lib/plrstuff/shop/item_desc.xml
+lib/text/immlist
 
 .crash

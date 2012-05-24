@@ -1960,12 +1960,11 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 		{
 			if (OBJVAL_FLAGGED(obj, CONT_CLOSED))
 			{
-				act("Закрыт$g.", FALSE, ch, obj, 0, TO_CHAR);
+				act("Закрыт$G.", FALSE, ch, obj, 0, TO_CHAR);
 				int skill_pick = ch->get_skill(SKILL_PICK_LOCK) ;
+				int count = sprintf(buf, "Заперт%s.", GET_OBJ_SUF_6(obj));
 				if (OBJVAL_FLAGGED(obj, CONT_LOCKED) && skill_pick)
 				{
-					int count = sprintf(buf, "Заперт%s.", GET_OBJ_SUF_6(obj));
-
 					if (OBJVAL_FLAGGED(obj, CONT_PICKPROOF))
 						count += sprintf(buf+count, "%s Вы никогда не сможете ЭТО взломать !%s\r\n", CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
 					else if (OBJVAL_FLAGGED(obj, CONT_BROKEN))
