@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<mobraces>
+  <mobrace key="100" name ="Обычный">
+  </mobrace>
+  <mobrace key="101" name ="Человек">
+  </mobrace>
+  <mobrace key="102" name ="Человек-зверь">
+  </mobrace>
+  <mobrace key="103" name ="Птица">
+  </mobrace>
+  <mobrace key="104" name ="Животное">
+  </mobrace>
+  <mobrace key="105" name ="Пресмыкающееся">
+  </mobrace>
+  <mobrace key="106" name ="Рыба">
+  </mobrace>
+  <mobrace key="107" name ="Насекомое">
+  </mobrace>
+  <mobrace key="108" name ="Растение">
+  </mobrace>
+  <mobrace key="109" name ="Предмет">
+  </mobrace>
+  <mobrace key="110" name ="Живой труп">
+  </mobrace>
+  <mobrace key="111" name ="Призрак">
+  </mobrace>
+  <mobrace key="112" name ="Нечисть">
+  </mobrace>
+  <mobrace key="113" name ="Нематериальный дух">
+  </mobrace>
+  <mobrace key="114" name ="Магическое создание">
+  </mobrace>
+</mobraces>

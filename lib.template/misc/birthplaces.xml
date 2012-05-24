@@ -1,0 +1,68 @@
+<!--
+    Документ указывает комнаты, в которых персонажи начинают игру.
+    Также дополнительные параметры, как-то, описания для меню,
+    списки предметов, которые загрузятся в инвентарь при первом
+    вступлении в игру в данной комнате и так далее.
+
+Формат:
+<birthplaces>
+    <birthplace id="num">
+        <name>Название</name>
+        <shortdesc>Короткое описание для парсинга !без прописных букв!</shortdesc>
+        <menustring>Строка для меню выбора</menustring>
+        <room>VNUM комнаты</room>
+        <items>
+            <item vnum="VNUM предмета" /> - предметы, которые будут выданы на руки при первом входе в игру
+        </items>
+    <birthplace>
+</birthplaces>
+
+-->
+<?xml version="1.0" encoding="koi8-r"?>
+<birthplaces>
+    <birthplace id="1">
+        <name>Деревня в лесах</name>
+        <shortdesc>киев</shortdesc>
+        <menustring>Киевское княжество (рекомендуется для новичков).</menustring>
+        <room vnum="4056" />
+        <items>
+            <item vnum="4004" />
+        </items>
+    </birthplace>
+    <birthplace id="2">
+        <name>Деревня у реки</name>
+        <shortdesc>киев</shortdesc>
+        <menustring>Киевское княжество (рекомендуется для новичков).</menustring>
+        <room vnum="5000" />
+        <items>
+            <item vnum="5017" />
+        </items>
+    </birthplace>
+    <birthplace id="3">
+        <name>Степная деревня</name>
+        <shortdesc>киев</shortdesc>
+        <menustring>Киевское княжество (рекомендуется для новичков).</menustring>
+        <room vnum="6049" />
+        <items>
+            <item vnum="6004" />
+        </items>
+    </birthplace>
+    <birthplace id="4">
+        <name>Беличья падь</name>
+        <shortdesc>новгород</shortdesc>
+        <menustring>Новгородские вольные земли.</menustring>
+        <room vnum="8010" />
+    </birthplace>
+    <birthplace id="5">
+        <name>Погост Холуй</name>
+        <shortdesc>новгород</shortdesc>
+        <menustring>Новгородские вольные земли.</menustring>
+        <room vnum="7038" />
+    </birthplace>
+    <birthplace id="6">
+        <name>Медвежья гора</name>
+        <shortdesc>новгород</shortdesc>
+        <menustring>Новгородские вольные земли.</menustring>
+        <room vnum="9007" />
+    </birthplace>
+</birthplaces>

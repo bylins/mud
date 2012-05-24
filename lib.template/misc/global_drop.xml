@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<globaldrop>
+	<drop obj_vnum="1" mob_lvl="1" max_mob_lvl="0" />
+	<drop obj_vnum="-100" mob_lvl="1" max_mob_lvl="0" >
+		<obj vnum="123" />
+		<obj vnum="124" />
+	</drop>
+</globaldrop>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<animalMorphs minWis="12">
+ <morph id="MORPH_WOLF">
+  <name>Волк</name>
+  <padName>Волком</padName>
+
+  <cover>густой шерстью</cover>
+
+  <speech>Грррр!</speech>
+
+  <toStr>50</toStr>
+  <toDex>30</toDex>
+  <toCon>20</toCon>
+  <toInt>0</toInt>
+  <toCha>0</toCha>
+
+  <description lvl="1">Молодой волк</description>
+  <description lvl="25">Волк</description>
+  <description lvl="32">Огромный волк</description>
+  <description lvl="36">Матерый волк</description>
+  <description lvl="39">Белый волк</description>
+  <description lvl="42">Матерый белый волк</description>
+  <description lvl="44">Исполинский белый волк</description>
+
+  <messages>
+    <message destination="room">$n обернул$u, повернул$u - %1% обернул$u.</message>
+    <message destination="char">Обернулись Вы, повернулись, и %1% обернулись.</message>
+  </messages>
+
+  <skills>
+   <skill>удар левой рукой</skill>
+   <skill>выследить</skill>
+   <skill>кулачный бой</skill>
+   <skill>спасти</skill>
+   <skill>уклониться</skill>
+  </skills>
+
+  <affects>
+	<affect>освящение</affect>
+	<affect>доблесть</affect>
+	<affect>чувствовать жизнь</affect>
+  </affects>
+
+ </morph>
+ <morph id="MORPH_LYNX">
+  <name>Рысь</name>
+  <padName>Рысью</padName>
+
+  <cover>шелковистой шерстью</cover>
+
+  <speech>Аагррррххх!</speech>
+
+  <toStr>20</toStr>
+  <toDex>70</toDex>
+  <toCon>10</toCon>
+  <toInt>0</toInt>
+  <toCha>0</toCha>
+
+  <description lvl="1">Молодая рысь</description>
+  <description lvl="25">Рысь</description>
+  <description lvl="32">Огромная рысь</description>
+  <description lvl="36">Матерая рысь</description>
+  <description lvl="39">Снежный барс</description>
+  <description lvl="42">Матерый снежный барс</description>
+  <description lvl="44">Исполинский снежный барс</description>
+
+  <messages>
+    <message destination="room">Плюнул$g $n через плечо, прыгнул$g задом наперед и обернул$u %1%.</message>
+    <message destination="char">Плюнули Вы через плечо, прыгнули задом наперед и обернулись %1%.</message>
+  </messages>
+
+  <skills>
+   <skill>выследить</skill>
+   <skill>удар левой рукой</skill>
+   <skill>кулачный бой</skill>
+   <skill>спасти</skill>
+   <skill>подножка</skill>
+   <skill>спрятаться</skill>
+  </skills>
+
+  <affects>
+	<affect>доблесть</affect>
+	<affect>чувствовать жизнь</affect>
+  </affects>
+
+ </morph>
+ <morph id="MORPH_FALCON">
+  <name>Сокол</name>
+  <padName>Соколом</padName>
+
+  <cover>перьями</cover>
+  <speech>Кьяк-кьяк-кьяк!</speech>
+
+
+  <toStr>0</toStr>
+  <toDex>100</toDex>
+  <toCon>0</toCon>
+  <toInt>0</toInt>
+  <toCha>0</toCha>
+
+  <messages>
+    <message destination="room">Ударил$u $n о сыру землю, %1% предстал.</message>
+    <message destination="char">Ударились Вы о сыру землю, %1% предстали.</message>
+  </messages>
+
+  <description lvl="1">Сокол</description>
+
+  <skills>
+   <skill>кулачный бой</skill>
+  </skills>
+
+  <affects>
+	<affect>летит</affect>
+	<affect>чувствовать жизнь</affect>
+  </affects>
+
+ </morph>
+
+ <morph id="MORPH_PIKE">
+  <name>Щука</name>
+  <padName>Щукой</padName>
+
+  <cover>мелкой чешуей</cover>
+  <speech>Блурп...</speech>
+
+  <toStr>10</toStr>
+  <toDex>10</toDex>
+  <toCon>10</toCon>
+  <toInt>10</toInt>
+  <toCha>10</toCha>
+
+  <description lvl="1">Щуренок</description>
+  <description lvl="25">Молодая щука</description>
+  <description lvl="32">Большая щука</description>
+  <description lvl="36">Огромная щука</description>
+  <description lvl="39">Старая щука</description>
+  <description lvl="42">Пудовая щука</description>
+  <description lvl="44">Зубастая щука</description>
+
+
+  <messages>
+    <message destination="room">$n гикнул$g-свистнул$g да и обернул$u %1%.</message>
+    <message destination="char">Вы гикнули-свистнули да и обернулись %1%.</message>
+  </messages>
+
+  <skills>
+   <skill>кулачный бой</skill>
+   <skill>уклониться</skill>
+  </skills>
+
+  <affects>
+	<affect>дышать водой</affect>
+	<affect>чувствовать жизнь</affect>
+  </affects>
+
+ </morph>
+</animalMorphs>

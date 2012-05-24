@@ -1,0 +1,32 @@
+# предустановленные группы (названия не менять):
+# default - команды, доступные всем иммам по умолчанию (демигоды не в счет)
+# default_demigod - команды всем демигодам по дефолту
+# boards - полный доступ на доски ошибок и кодеров
+# arena - команды, которые доступны только на арене, без set и show (+ спеллы переход, призвать и слово возврата)
+# skills - флаг, позволяющий имму пользоваться заклинаниями, умениями, рунами, взламывать двери (34е по дефолту)
+# fullzedit - возможность открытия/закрытия зон для записи (zed lock/unlock) (34е по дефолту)
+# title - одобрение/запрет чужих титулов
+# остальные группы вписываете сколько хотите
+# иммы: имя уид (0 не канает, теперь надо сразу писать уид) команды/группы
+# hunt - ловля мультеров
+
+<groups>
+default = wizhelp wiznet register имя титул title holylight uptime date ; rules nohassle set (name) show (punishment stats player)
+default_demigod = wizhelp wiznet имя ктои rules date uptime
+arena = purge restore
+olc = invis purge olc load attach detach medit mlist oedit olist redit rlist sedit stat tlist trigedit tstat vnum vstat zedit zlist zreset мсписок осписок исписок ксписок зсписок
+goto = goto прыжок poofin poofout
+
+mute = mute замолчать set (mute)
+dumb = dumb set (dumb)
+hell = hell set (hell) name
+punish = mute dumb hell name замолчать set (mute dumb hell)
+
+log = syslog errlog imlog
+ban = ban unban proxy last dc users
+echo = эхо гэхо echo gecho
+hunt = last set (email) show (linkdrop) stat unregister users
+</groups>
+
+<gods>
+</gods>

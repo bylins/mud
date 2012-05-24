@@ -1,0 +1,59 @@
+* zone names and types of ingredients in this zone type
+* FORMAT:
+*
+* ινρ <name_of_zone_type>
+* τιπω <ids of ingredient types if any>
+*
+* WARNING: ADD NEW ZONE TYPES ONLY IN THE END OF THIS
+* FILE OR YOU WILL CHANGE TYPES OF EXISTING ZONES
+
+ινρ no_ingredients
+τιπω
+ινρ town
+τιπω
+ινρ light_forest
+τιπω
+ινρ dark_forest
+τιπω
+ινρ fields
+τιπω
+ινρ mountains
+τιπω
+ινρ rivers
+τιπω
+ινρ house
+τιπω
+ινρ near_house
+τιπω
+ινρ hills
+τιπω
+ινρ caves
+τιπω
+ινρ little_town
+τιπω
+ινρ village
+τιπω
+ινρ town_environs
+τιπω
+ινρ wield_forest
+τιπω
+ινρ wield_steppe
+τιπω
+ινρ sea
+τιπω
+ινρ ruins
+τιπω
+ινρ forest_way
+τιπω
+ινρ steppe_way
+τιπω
+ινρ mountain_way
+τιπω
+ινρ swamp
+τιπω
+ινρ desert
+τιπω
+ινρ castle
+τιπω
+ινρ near_castle
+τιπω

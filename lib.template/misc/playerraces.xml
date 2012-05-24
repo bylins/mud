@@ -1,0 +1,260 @@
+<!--
+    Документ описывает расы, рода и родовые бонусы mud "Былины"
+    Бонус задается в виде номера способности по коду, то есть, чтобы задать
+    такой-то бонус -- должна существовать такая способность.
+    Номера рас и родов должны быть уникальными!
+    Формат:
+
+    <races> - корневой тэг
+        <kin kinnum="0" enabled="1"> - новая раса, ее номер и флаг доступности для морталов
+            <menu>Строка расы для внутриигрового меню</menu>
+            <kinname> - названия для расы
+                <itname>Имя расы ср.р. ед.ч.</itname>
+                <hename>Имя расы м.р. ед.ч.</hename>
+                <shename>Имя расы ж.р. ед.ч.</shename>
+                <pluralname>Имя расы ср.р. мн.ч.</pluralname>
+            </kinname>
+            <kinraces> - рода расы
+                <race racenum="0" enabled="1"> - новый род, его номер и флаг доступности
+                    <menu>Строка рода для внутриигрового меню</menu>
+                    <racename>
+                        <itname>Имя рода ср.р. ед.ч.</itname>
+                        <hename>Имя рода м.р. ед.ч.</hename>
+                        <shename>Имя рода ж.р. ед.ч.</shename>
+                        <pluralname>Имя рода ср.р. мн.ч.</pluralname>
+                    </racename>
+                    <feature featnum="65"/> - родовая способность #1
+                    <feature featnum="44"/> - родовая способность #2
+                    <birthplace id="3"/> - место рождения с идом 3 (задается через файл birthplaces.xml)
+                    <birthplace id="6"/>
+                </race>
+            </kinraces>
+        <kin>
+    </races>
+
+-->
+<?xml version="1.0" encoding="koi8-r"?>
+<races>
+    <kin kinnum="0" enabled="1">
+        <menu>Русичи</menu>
+        <kinname>
+            <itname>Русич</itname>
+            <hename>Русич</hename>
+            <shename>Русич</shename>
+            <pluralname>Русичи</pluralname>
+        </kinname>
+        <kinraces>
+            <race racenum="0" enabled="1">
+                <menu>Северяне</menu>
+                <racename>
+                    <itname>Северне</itname>
+                    <hename>Северянин</hename>
+                    <shename>Северянка</shename>
+                    <pluralname>Северяне</pluralname>
+                </racename>
+                <feature featnum="47"/>
+                <birthplace id="1"/>
+            </race>
+            <race racenum="1" enabled="1">
+                <menu>Поляне</menu>
+                <racename>
+                    <itname>Поляне</itname>
+                    <hename>Полянин</hename>
+                    <shename>Полянка</shename>
+                    <pluralname>Поляне</pluralname>
+                </racename>
+                <feature featnum="45"/>
+                <feature featnum="49"/>
+                <birthplace id="1"/>
+            </race>
+            <race racenum="2" enabled="1">
+                <menu>Кривичи</menu>
+                <racename>
+                    <itname>Кривиче</itname>
+                    <hename>Кривич</hename>
+                    <shename>Кривич</shename>
+                    <pluralname>Кривичи</pluralname>
+                </racename>
+                <feature featnum="46"/>
+                <birthplace id="1"/>
+            </race>
+            <race racenum="3" enabled="1">
+                <menu>Вятичи</menu>
+                <racename>
+                    <itname>Вятиче</itname>
+                    <hename>Вятич</hename>
+                    <shename>Вятич</shename>
+                    <pluralname>Вятичи</pluralname>
+                </racename>
+                <feature featnum="61"/>
+                <feature featnum="43"/>
+                <birthplace id="1"/>
+            </race>
+            <race racenum="4" enabled="1">
+                <menu>Веляне</menu>
+                <racename>
+                    <itname>Веляне</itname>
+                    <hename>Велянин</hename>
+                    <shename>Велянка</shename>
+                    <pluralname>Веляне</pluralname>
+                </racename>
+                <feature featnum="48"/>
+                <birthplace id="1"/>
+            </race>
+            <race racenum="5" enabled="1">
+                <menu>Древляне</menu>
+                <racename>
+                    <itname>Древляне</itname>
+                    <hename>Древлянин</hename>
+                    <shename>Древлянка</shename>
+                    <pluralname>Древляне</pluralname>
+                </racename>
+                <feature featnum="50"/>
+                <birthplace id="1"/>
+            </race>
+        </kinraces>
+    </kin>
+    <kin kinnum="1" enabled="0">
+        <menu>Степняки (находится в стадии тестирования)</menu>
+        <kinname>
+            <itname>Степняк</itname>
+            <hename>Степняк</hename>
+            <shename>Степнячка</shename>
+            <pluralname>Степняки</pluralname>
+        </kinname>
+        <kinraces>
+            <menu>Половцы</menu>
+            <race racenum="0">
+                <menu>Половцы</menu>
+                <racename>
+                    <itname>Половец</itname>
+                    <hename>Половец</hename>
+                    <shename>Половчанка</shename>
+                    <pluralname>Половцы</pluralname>
+                </racename>
+                <feature featnum="65"/>
+            </race>
+            <race racenum="1">
+                <menu>Печенеги</menu>
+                <racename>
+                    <itname>Печенег</itname>
+                    <hename>Печенег</hename>
+                    <shename>Печенежка</shename>
+                    <pluralname>Печенеги</pluralname>
+                </racename>
+                <feature featnum="65"/>
+            </race>
+            <race racenum="2">
+                <menu>Монголы</menu>
+                <racename>
+                    <itname>Монгол</itname>
+                    <hename>Монгол</hename>
+                    <shename>Монголка</shename>
+                    <pluralname>Монголы</pluralname>
+                </racename>
+                <feature featnum="65"/>
+            </race>
+            <race racenum="3">
+                <menu>Уйгуры</menu>
+                <racename>
+                    <itname>Уйгур</itname>
+                    <hename>Уйгур</hename>
+                    <shename>Уйгурка</shename>
+                    <pluralname>Уйгурки</pluralname>
+                </racename>
+                <feature featnum="65"/>
+            </race>
+            <race racenum="4">
+                <menu>Кангары</menu>
+                <racename>
+                    <itname>Кангар</itname>
+                    <hename>Кангар</hename>
+                    <shename>Кангарка</shename>
+                    <pluralname>Кангары</pluralname>
+                </racename>
+                <feature featnum="65"/>
+            </race>
+            <race racenum="5">
+                <menu>Хазары</menu>
+                <racename>
+                    <itname>Хазарин</itname>
+                    <hename>Хазарин</hename>
+                    <shename>Хазарка</shename>
+                    <pluralname>Хазары</pluralname>
+                </racename>
+                <feature featnum="65"/>
+            </race>
+        </kinraces>
+    </kin>
+    <kin kinnum="2" enabled="0">
+            <menu>Викинги (находится в стадии тестирования)</menu>
+        <kinname>
+            <itname>Викинг</itname>
+            <hename>Викинг</hename>
+            <shename>Викинг</shename>
+            <pluralname>Викинги</pluralname>
+        </kinname>
+        <kinraces>
+            <race racenum="0">
+                <menu>Свеи</menu>
+                <racename>
+                    <itname>Свей</itname>
+                    <hename>Свей</hename>
+                    <shename>Свейка</shename>
+                    <pluralname>Свеи</pluralname>
+                </racename>
+                <feature featnum="65"/>
+            </race>
+            <race racenum="1">
+                <menu>Датчане</menu>
+                <racename>
+                    <itname>Датчанин</itname>
+                    <hename>Датчанин</hename>
+                    <shename>Датчанка</shename>
+                    <pluralname>Датчане</pluralname>
+                </racename>
+                <feature featnum="65"/>
+            </race>
+            <race racenum="2">
+                <menu>Гетты</menu>
+                <racename>
+                    <itname>Гетт</itname>
+                    <hename>Гетт</hename>
+                    <shename>Геттка</shename>
+                    <pluralname>Гетты</pluralname>
+                </racename>
+                <feature featnum="65"/>
+            </race>
+            <race racenum="3">
+                <menu>Ютты</menu>
+                <racename>
+                    <itname>Ютт</itname>
+                    <hename>Ютт</hename>
+                    <shename>Юттка</shename>
+                    <pluralname>Ютты</pluralname>
+                </racename>
+                <feature featnum="65"/>
+            </race>
+            <race racenum="4">
+                <menu>Халейги</menu>
+                <racename>
+                    <itname>Халейг</itname>
+                    <hename>Халейг</hename>
+                    <shename>Халейжанка</shename>
+                    <pluralname>Халейги</pluralname>
+                </racename>
+                <feature featnum="65"/>
+            </race>
+            <race racenum="5">
+                <menu>Норвежцы</menu>
+                <racename>
+                    <itname>Норвежец</itname>
+                    <hename>Норвежец</hename>
+                    <shename>Норвежка</shename>
+                    <pluralname>Норвежцы</pluralname>
+                </racename>
+                <feature featnum="65"/>
+            </race>
+        </kinraces>
+    </kin>
+</races>

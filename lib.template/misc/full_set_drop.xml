@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    <set_list>
+	<set type="auto" help_alias="сетнс, сетневидимойсмерти">
+	    <obj vnum="1222" />
+	    <obj vnum="1223" />
+	</set>
+	<set type="manual" help_alias="сетвс,сетвеликойсудьбы">
+	    <obj vnum="1217" list="solo" />
+	    <obj vnum="1218" list="solo" />
+	    <obj vnum="1219" list="solo" />
+	    <obj vnum="1220" list="solo" />
+	    <obj vnum="1221" list="group" />
+	</set>
+    </set_list>
+
+    help_alias - список алиасов через запятую или пробел
+	для отдельной справки по данному сету
+    type = auto - сет автоматом делится на две части по активаторам,
+	половина с большими идет как group, остальные как solo
+    type = manual - у каждой сетины должно быть руками прописан тип
+	списка group или solo
+-->
+
+<set_list>
+</set_list>
