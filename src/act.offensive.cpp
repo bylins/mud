@@ -940,7 +940,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 //         GET_NAME(vict), GET_LEVEL(vict), GET_REAL_DEX(vict),
 //         percent, prob, dam);
 //делаем блокирование баша
-		if ((GET_AF_BATTLE(vict, EAF_BLOCK) || (GET_CLASS(vict) == CLASS_GUARD && GET_EQ(vict, WEAR_SHIELD) && PRF_FLAGGED(vict, PRF_AWAKE) && vict->get_skill(SKILL_AWAKE) && vict->get_skill(SKILL_BLOCK) && GET_POS(vict) > POS_SITTING))
+		if ((GET_AF_BATTLE(vict, EAF_BLOCK) || (can_use_feat(vict, DEFENDER_FEAT) && GET_EQ(vict, WEAR_SHIELD) && PRF_FLAGGED(vict, PRF_AWAKE) && vict->get_skill(SKILL_AWAKE) && vict->get_skill(SKILL_BLOCK) && GET_POS(vict) > POS_SITTING))
 			&& !AFF_FLAGGED(vict, AFF_STOPFIGHT)
 			&& !AFF_FLAGGED(vict, AFF_MAGICSTOPFIGHT)
 			&& !AFF_FLAGGED(vict, AFF_STOPLEFT)

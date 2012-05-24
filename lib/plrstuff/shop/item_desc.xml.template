@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <!--- пример заполнения замены описаний
 	sex: 1-мужской, 2-женский, 0 - средний
+--->
+<templates
+<template id="RSP">
 <items>
  <item vnum = "160100">
   <name>колодец</name>
@@ -44,6 +47,5 @@
   <sex>1</sex>
   <triggers/>
  </item>
-
-</items>
---->
+</template>
+</templates>
