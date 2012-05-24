@@ -892,16 +892,38 @@ ACMD(do_pour)
 	weight_change_object(to_obj, amount);	/* Add weight */
 }
 
+size_t find_liquid_name(char * name)
+{
+	std::string tmp = std::string(name);
+	size_t pos, result = std::string::npos;
+	for (int i = 0; drinknames[i] != "\n";i++)
+	{
+		pos = tmp.find(drinknames[i]);
+		if (pos != std::string::npos)
+			result = pos;
+	}
+	return result;
+}
+
 void name_from_drinkcon(OBJ_DATA * obj)
 {
 	char new_name[MAX_STRING_LENGTH];
+	std::string tmp;
 
-	sprintf(new_name, "%s", obj_proto[GET_OBJ_RNUM(obj)]->name);
+	size_t pos = find_liquid_name(obj->name);
+	if (pos == std::string::npos) return;
+	tmp = std::string(obj->name).substr(0, pos - 1);
+
+	sprintf(new_name, "%s", tmp.c_str());
 	if (GET_OBJ_RNUM(obj) < 0 || obj->name != obj_proto[GET_OBJ_RNUM(obj)]->name)
 		free(obj->name);
 	obj->name = str_dup(new_name);
 
-	sprintf(new_name, "%s", obj_proto[GET_OBJ_RNUM(obj)]->short_description);
+	pos = find_liquid_name(obj->short_description);
+	if (pos == std::string::npos) return;
+	tmp = std::string(obj->short_description).substr(0, pos - 3);
+
+	sprintf(new_name, "%s", tmp.c_str());
 	if (GET_OBJ_RNUM(obj) < 0 || obj->short_description != obj_proto[GET_OBJ_RNUM(obj)]->short_description)
 		free(obj->short_description);
 	obj->short_description = str_dup(new_name);
@@ -909,7 +931,10 @@ void name_from_drinkcon(OBJ_DATA * obj)
 
 	for (int c = 0; c < NUM_PADS; c++)
 	{
-		sprintf(new_name, "%s", obj_proto[GET_OBJ_RNUM(obj)]->PNames[c]);
+		pos = find_liquid_name(obj->PNames[c]);
+		if (pos == std::string::npos) return;
+		tmp = std::string(obj->PNames[c]).substr(0, pos - 3);
+		sprintf(new_name, "%s", tmp.c_str());
 		if (GET_OBJ_RNUM(obj) < 0 || obj->PNames[c] != obj_proto[GET_OBJ_RNUM(obj)]->PNames[c])
 			free(obj->PNames[c]);
 		obj->PNames[c] = str_dup(new_name);
