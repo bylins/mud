@@ -1409,8 +1409,7 @@ ACMD(do_eat)
 
 	if (subcmd == SCMD_DEVOUR)
 	{
-		// changed by Pereplut
-		if (MOB_FLAGGED(ch, MOB_RESURRECTED) && GET_CLASS(ch->master) == CLASS_NECROMANCER)
+		if (MOB_FLAGGED(ch, MOB_RESURRECTED) &&  can_use_feat(ch->master, ZOMBIE_DROVER_FEAT))
 		{
 			feed_charmice(ch, arg);
 			return;

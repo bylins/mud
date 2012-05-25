@@ -638,7 +638,7 @@ OBJ_DATA *get_purchase_obj(CHAR_DATA * ch, char *arg, CHAR_DATA * keeper, int sh
 int buy_price(OBJ_DATA * obj, CHAR_DATA * ch, int shop_nr)
 {
 	int profit;
-	if (ch && !IS_NPC(ch) && GET_CLASS(ch) == CLASS_MERCHANT)
+	if (ch && !IS_NPC(ch) && can_use_feat(ch, SKILLED_TRADER_FEAT))
 	{
 		profit = (int)(SHOP_BUYPROFIT(shop_nr) * 100);
 		if (profit < 100)
@@ -892,7 +892,7 @@ int sell_price(OBJ_DATA * obj, CHAR_DATA * ch, int shop_nr)
 	}
 
 	double profit;
-	if (ch && !IS_NPC(ch) && GET_CLASS(ch) == CLASS_MERCHANT)
+	if (ch && !IS_NPC(ch) && can_use_feat(ch, SKILLED_TRADER_FEAT))
 		profit = MMAX(SHOP_SELLPROFIT(shop_nr), 1.0);
 	else
 		profit = SHOP_SELLPROFIT(shop_nr);
@@ -1213,7 +1213,7 @@ void shopping_change(char *argument, CHAR_DATA * ch, CHAR_DATA * keeper, int sho
 	}
 	// Calc outgouing value
 	buyprice = GET_OBJ_COST(obj) * buynum;
-	if (!IS_NPC(ch) && GET_CLASS(ch) == CLASS_MERCHANT)
+	if (!IS_NPC(ch) && can_use_feat(ch, SKILLED_TRADER_FEAT))
 		profit = MMAX(SHOP_CHANGEPROFIT(shop_nr), 1.0);
 	else
 		profit = SHOP_CHANGEPROFIT(shop_nr);

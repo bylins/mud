@@ -3666,7 +3666,7 @@ int charm_points(CHAR_DATA * ch)
 {
 	int lp;
 
-	if (GET_CLASS(ch) != CLASS_CHARMMAGE)
+	if (!can_use_feat(ch, GOLD_TONGUE_FEAT))
 		return (0);
 	lp = GET_LEVEL(ch) + GET_REAL_CHA(ch) - 16;
 	return (lp);

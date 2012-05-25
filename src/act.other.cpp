@@ -1711,6 +1711,12 @@ ACMD(do_use)
 				|| GET_OBJ_VAL(mag_item, 3) == SPELL_ANIMATE_DEAD
 				|| GET_OBJ_VAL(mag_item, 3) == SPELL_RESSURECTION)
 		{
+			if (!can_use_feat(ch, MAGIC_USER_FEAT))
+			{
+				send_to_char("Да, штука явно магическая! Но совершенно непонятно как ей пользоваться. :(\r\n", ch);
+				return;
+			}
+			/*
 			if (GET_LEVEL(ch) >= 25)
 			{
 				send_to_char("Вы слишком сильны для применения этого предмета!\r\n", ch);
@@ -1726,7 +1732,7 @@ ACMD(do_use)
 			{
 				send_to_char("Да, штука явно магическая! Но совершенно непонятно как ей пользоваться. :(\r\n", ch);
 				return;
-			}
+			}*/
 		}
 		break;
 	}

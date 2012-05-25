@@ -25,6 +25,7 @@
 #include "AffectHandler.hpp"
 #include "player_races.hpp"
 #include "morph.hpp"
+#include "features.hpp"
 
 void tascii(int *pointer, int num_planes, char *ascii);
 int level_exp(CHAR_DATA * ch, int level);
@@ -690,7 +691,8 @@ void Player::save_char()
 	// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 	i = 0;
 	if (this->followers
-		&& GET_CLASS(this) == CLASS_MERCHANT
+		//&& GET_CLASS(this) == CLASS_MERCHANT
+		&& can_use_feat(this, EMPLOYER_FEAT)
 		&& !IS_IMMORTAL(this))
 	{
 		struct follow_type *k = NULL;
@@ -1279,7 +1281,8 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 			else if (!strcmp(tag, "GldH"))
 			{
-				if(num != 0 && !IS_IMMORTAL(this) && GET_CLASS(this) == CLASS_MERCHANT)
+				if(num != 0 && !IS_IMMORTAL(this) && can_use_feat(this, EMPLOYER_FEAT))
+					// GET_CLASS(this) == CLASS_MERCHANT)
 				{
 					this->player_specials->saved.HiredCost = num;
 				}

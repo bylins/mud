@@ -105,7 +105,7 @@ using std::bitset;
 #define TO_FIT_ITEM_FEAT		86  //подгонка
 #define TO_FIT_CLOTHCES_FEAT		87  //перешить
 #define STRENGTH_CONCETRATION_FEAT	88 // концентрация силы
-#define DARK_READING_FEAT		89 // кошачий глаз зы. Копи паст рулит!
+#define DARK_READING_FEAT		89 // кошачий глаз
 #define SPELL_CAPABLE_FEAT		90 // зачаровать
 #define ARMOR_LIGHT_FEAT		91 // ношение легкого типа доспехов
 #define ARMOR_MEDIAN_FEAT		92 // ношение среднего типа доспехов
@@ -116,6 +116,12 @@ using std::bitset;
 #define SILVER_TONGUED_FEAT		97 //сладкоречие
 #define BULLY_FEAT				98 //забияка
 #define THIEVES_STRIKE_FEAT		99 //воровской удар
+#define MASTER_JEWELER_FEAT		100 //искусный ювелир
+#define SKILLED_TRADER_FEAT		101 //торговая сметка
+#define ZOMBIE_DROVER_FEAT		102 //погонщик умертвий
+#define EMPLOYER_FEAT			103 //навык найма
+#define MAGIC_USER_FEAT			104 //использование амулетов
+#define GOLD_TONGUE_FEAT		105 //златоуст
 
 /*
 #define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух

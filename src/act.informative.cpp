@@ -2061,8 +2061,8 @@ char *find_exdesc(char *word, EXTRA_DESCR_DATA * list)
 //buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
 void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 {
-	int j;
-		if ((GET_CLASS(ch) == CLASS_MERCHANT && GET_LEVEL(ch) >= 20) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))
+	int j,s;
+		if (can_use_feat(ch, SKILLED_TRADER_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))
 		{
 			sprintf(buf+strlen(buf), "Материал : %s", CCCYN(ch, C_NRM));
 			sprinttype(obj->obj_flags.Obj_mater, material_name, buf+strlen(buf));
@@ -2097,18 +2097,19 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 			}
 		}
 
-		if ((GET_CLASS(ch) == CLASS_SMITH && ch->get_skill(SKILL_INSERTGEM) >= 60) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))
+		if (can_use_feat(ch, MASTER_JEWELER_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))
 		{
-			sprintf(buf+strlen(buf), "Слоты : %s", CCCYN(ch, C_NRM));
 			if (OBJ_FLAGGED(obj, ITEM_WITH3SLOTS))
-				strcat(buf, "доступно 3 слота\r\n");
+				s = 3;
 			else if (OBJ_FLAGGED(obj, ITEM_WITH2SLOTS))
-				strcat(buf, "доступно 2 слота\r\n");
+				s = 2;
 			else if (OBJ_FLAGGED(obj, ITEM_WITH1SLOT))
-				strcat(buf, "доступен 1 слот\r\n");
+				s = 1;
 			else
-				strcat(buf, "нет слотов\r\n");
-			sprintf(buf+strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
+				s = 0;
+
+			if (s > 0)
+				sprintf(buf+strlen(buf), "Доступно слотов: %s%d%s\r\n", CCCYN(ch, C_NRM), s, CCNRM(ch, C_NRM));
 		}
 		sprintf(buf+strlen(buf), diag_uses_to_char(obj, ch));
 }
@@ -2275,71 +2276,6 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 		*buf = '\0';
 		obj_info(ch, found_obj, buf);
 		send_to_char(buf, ch);
-		/*if (GET_CLASS(ch) == CLASS_MERCHANT && GET_LEVEL(ch) >= 20)
-		{
-			send_to_char("Материал : ", ch);
-			send_to_char(CCCYN(ch, C_NRM), ch);
-			sprinttype(found_obj->obj_flags.Obj_mater, material_name, buf);
-			strcat(buf, "\r\n");
-			send_to_char(buf, ch);
-			send_to_char(CCNRM(ch, C_NRM), ch);
-		}
-
-		if (can_use_feat(ch, BREW_POTION_FEAT) && GET_OBJ_TYPE(found_obj) == ITEM_MING)
-		{
-			for (j = 0; imtypes[j].id != GET_OBJ_VAL(found_obj, IM_TYPE_SLOT)  && j <= top_imtypes;)
-				j++;
-			sprintf(buf, "Это ингредиент вида '%s'.\r\n", imtypes[j].name);
-			send_to_char(buf, ch);
-			int imquality = GET_OBJ_VAL(found_obj, IM_POWER_SLOT);
-			if (GET_LEVEL(ch) >= imquality)
-			{
-				sprintf(buf, "Качество ингредиента ");
-				if (imquality > 25)
-					strcat(buf, "наилучшее.\r\n");
-				else if (imquality > 20)
-					strcat(buf, "отличное.\r\n");
-				else if (imquality > 15)
-					strcat(buf, "очень хорошее.\r\n");
-				else if (imquality > 10)
-					strcat(buf, "выше среднего.\r\n");
-				else if (imquality > 5)
-					strcat(buf, "весьма посредственное.\r\n");
-				else
-					strcat(buf, "хуже не бывает.\r\n");
-				send_to_char(buf, ch);
-			}
-			else
-			{
-				send_to_char("Вы не в состоянии определить качество этого ингредиента.\r\n", ch);
-			}
-		}
-
-		if ((CAN_WEAR(found_obj, ITEM_WEAR_BODY) ||
-				CAN_WEAR(found_obj, ITEM_WEAR_HEAD) ||
-				CAN_WEAR(found_obj, ITEM_WEAR_LEGS) ||
-				CAN_WEAR(found_obj, ITEM_WEAR_ARMS) ||
-				CAN_WEAR(found_obj, ITEM_WEAR_SHIELD) ||
-				CAN_WEAR(found_obj, ITEM_WEAR_WIELD) ||
-				CAN_WEAR(found_obj, ITEM_WEAR_HOLD) ||
-				CAN_WEAR(found_obj, ITEM_WEAR_BOTHS)) &&
-				(GET_CLASS(ch) == CLASS_SMITH && ch->get_skill(SKILL_INSERTGEM) >= 60))
-		{
-			send_to_char("Слоты : ", ch);
-			send_to_char(CCCYN(ch, C_NRM), ch);
-			if (OBJ_FLAGGED(found_obj, ITEM_WITH3SLOTS))
-				strcat(buf, "доступно 3 слота\r\n");
-			else if (OBJ_FLAGGED(found_obj, ITEM_WITH2SLOTS))
-				strcat(buf, "доступно 2 слота\r\n");
-			else if (OBJ_FLAGGED(found_obj, ITEM_WITH1SLOT))
-				strcat(buf, "доступен 1 слот\r\n");
-			else
-				strcat(buf, "нет слотов\r\n");
-			strcat(buf, "\r\n");
-			send_to_char(buf, ch);
-			send_to_char(CCNRM(ch, C_NRM), ch);
-		}*/
-
 	}
 	else
 		send_to_char("Похоже, этого здесь нет !\r\n", ch);

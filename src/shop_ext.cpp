@@ -158,7 +158,7 @@ typedef std::vector<ShopNodePtr> ShopListType;
 typedef boost::shared_ptr<item_set> ItemSetPtr;
 typedef std::vector<ItemSetPtr> ItemSetListType;
 ShopListType shop_list;
-	
+
 OBJ_DATA * get_obj_from_waste(ShopListType::const_iterator &shop, std::vector<unsigned> uids);
 
 void log_shop_load()
@@ -211,7 +211,7 @@ void load_item_desc()
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
- 
+
 	pugi::xml_node node_list = doc.child("templates");
     if (!node_list)
     {
@@ -224,7 +224,7 @@ void load_item_desc()
 	for (pugi::xml_node item_template = node_list.child("template"); item_template; item_template = item_template.next_sibling("template"))
 	{
 		std::string templateId = item_template.attribute("id").value();
-		for (pugi::xml_node item = item_template.child("item"); item; item = item.next_sibling("item")) 
+		for (pugi::xml_node item = item_template.child("item"); item; item = item.next_sibling("item"))
 		{
 
 			int item_vnum = xmlparse_int(item, "vnum");
@@ -256,17 +256,17 @@ void load_item_desc()
 			desc_node.PNames5 = child.child_value();
 			child = item.child("sex");
 			desc_node.sex = atoi(child.child_value());
-			
+
 			// парсим список триггеров
 			pugi::xml_node trig_list = item.child("triggers");
 			std::list<unsigned> trig_vnums;
 			for (pugi::xml_node trig = trig_list.child("trig"); trig; trig = trig.next_sibling("trig"))
 			{
-				int trig_vnum; 
+				int trig_vnum;
 				std::string tmp_value = trig.child_value();
 				boost::trim(tmp_value);
 				try
-				{	
+				{
 					trig_vnum = boost::lexical_cast<unsigned>(tmp_value);
 				}
 				catch (boost::bad_lexical_cast &)
@@ -307,7 +307,7 @@ void load(bool reload)
 				}
 			}
 		}
-		
+
 		shop_list.clear();
 	}
 	load_item_desc();
@@ -385,8 +385,8 @@ void load(bool reload)
 				return;
 			}
 			if (!templateId.empty())
-				mob_to_template[mob_vnum] = templateId;		
-			
+				mob_to_template[mob_vnum] = templateId;
+
 			tmp_shop->mob_vnums.push_back(mob_vnum);
 			// проверяем и сетим мобу спешиал
 			// даже если дальше магаз не залоадится - моб будет выдавать ошибку на магазинные спешиалы
@@ -474,7 +474,7 @@ void load(bool reload)
 
 		//ищем замену описаний
 		ItemListType::iterator it;
-		
+
 		std::map<std::string/*id шаблона*/, ObjDescType>::iterator id;
 
 		for (it = tmp_shop->item_list.begin(); it != tmp_shop->item_list.end(); ++it)
@@ -632,7 +632,7 @@ void update_shop_timers(ShopListType::const_iterator &shop)
 			if (it->obj->item_number == it->rnum) extract_obj(it->obj);
 			it = (*shop)->waste.erase(it);
 		}
-		else 
+		else
 			++it;
 	}
 }
@@ -883,7 +883,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 
 
 	OBJ_DATA *obj = 0;
-	while (bought < item_count 
+	while (bought < item_count
 		&& check_money(ch, price, (*shop)->currency)
 		&& IS_CARRYING_N(ch) < CAN_CARRY_N(ch)
 		&& IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(proto) <= CAN_CARRY_W(ch)
@@ -903,7 +903,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		else
 		{
 			obj = read_object((*shop)->item_list[item_num]->rnum, REAL);
-			if (obj && !(*shop)->item_list[item_num]->descs.empty() && 
+			if (obj && !(*shop)->item_list[item_num]->descs.empty() &&
 				(*shop)->item_list[item_num]->descs.find(GET_MOB_VNUM(keeper)) != (*shop)->item_list[item_num]->descs.end())
 				replace_descs(obj, (*shop)->item_list[item_num], GET_MOB_VNUM(keeper));
 		}
@@ -1028,7 +1028,7 @@ void put_item_in_shop(ShopListType::const_iterator &shop, OBJ_DATA * obj)
 				}
 			}
 		}
-	
+
 		ItemNodePtr tmp_item(new item_node);
 		tmp_item->rnum = GET_OBJ_RNUM(obj);
 		tmp_item->price = get_sell_price(obj);
@@ -1069,7 +1069,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 	int repair = GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj);
 	int repair_price = MAX(1, GET_OBJ_COST(obj) * MAX(0, repair) / MAX(1, GET_OBJ_MAX(obj)));
 
-	if (ch->get_class()	!= CLASS_MERCHANT)
+	if (!can_use_feat(ch, SKILLED_TRADER_FEAT))
 		 buy_price = MMAX(1, (buy_price * (*shop)->profit) / 100); //учтем прибыль магазина
 
 	std::string price_to_show = boost::lexical_cast<string>(buy_price) + " " + string(desc_count(buy_price, WHAT_MONEYu));
@@ -1083,7 +1083,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 		}else
 			tell_to_char(keeper, ch, string("Я, пожалуй, куплю " + string(GET_OBJ_PNAME(obj, 3)) + " за " + price_to_show + ".").c_str());
 	}
-	
+
 	if (cmd == "Продать")
 	{
 		if (OBJ_FLAGGED(obj, ITEM_NOSELL) || OBJ_FLAGGED(obj, ITEM_NAMED))
@@ -1182,7 +1182,7 @@ void process_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	}
 
 	if (!buffer1.empty())
-	{	
+	{
 		if (is_number(buffer1.c_str()))
 		{
 			int n = boost::lexical_cast<int>(buffer1);
@@ -1292,7 +1292,7 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 	OBJ_DATA *tmp_obj = NULL;
 	if ((*shop)->item_list[item_num]->temporary_ids.empty())
 	{
-		if (!(*shop)->item_list[item_num]->descs.empty() && 
+		if (!(*shop)->item_list[item_num]->descs.empty() &&
 			(*shop)->item_list[item_num]->descs.find(GET_MOB_VNUM(keeper)) != (*shop)->item_list[item_num]->descs.end())
 		{
 			tmp_obj = read_object((*shop)->item_list[item_num]->rnum, REAL);

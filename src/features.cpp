@@ -507,6 +507,19 @@ void assign_feats(void)
 	feato(BULLY_FEAT, "забияка", NORMAL_FTYPE, TRUE, feat_app);
 //99
 	feato(THIEVES_STRIKE_FEAT, "воровской удар", NORMAL_FTYPE, TRUE, feat_app);
+//100
+	feato(MASTER_JEWELER_FEAT, "искусный ювелир", NORMAL_FTYPE, TRUE, feat_app);
+//101
+	feato(SKILLED_TRADER_FEAT, "торговая сметка", NORMAL_FTYPE, TRUE, feat_app);
+//102
+	feato(ZOMBIE_DROVER_FEAT, "погонщик умертвий", NORMAL_FTYPE, TRUE, feat_app);
+//103
+	feato(EMPLOYER_FEAT, "навык найма", NORMAL_FTYPE, TRUE, feat_app);
+//104
+	feato(MAGIC_USER_FEAT, "использование амулетов", NORMAL_FTYPE, TRUE, feat_app);
+//105
+	feato(GOLD_TONGUE_FEAT, "златоуст", NORMAL_FTYPE, TRUE, feat_app);
+
 	/*
 	//
 		feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);
@@ -575,6 +588,18 @@ bool can_use_feat(CHAR_DATA *ch, int feat)
 		break;
 	case DOUBLESHOT_FEAT:
 		if (ch->get_skill(SKILL_BOWS) < 40)
+			return FALSE;
+		break;
+	case MASTER_JEWELER_FEAT:
+		if (ch->get_skill(SKILL_INSERTGEM) < 60)
+			return FALSE;
+		break;
+	case SKILLED_TRADER_FEAT:
+		if ((GET_LEVEL(ch)-GET_REMORT(ch)/3) < 20)
+			return FALSE;
+		break;
+	case MAGIC_USER_FEAT:
+		if (GET_LEVEL(ch) > 24)
 			return FALSE;
 		break;
 	}
@@ -694,6 +719,10 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 		break;
 	case RUNE_ULTIMATE_FEAT:
 		if (!HAVE_FEAT(ch, RUNE_MASTER_FEAT))
+			return FALSE;
+		break;
+	case MASTER_JEWELER_FEAT:
+		if (ch->get_skill(SKILL_INSERTGEM) < 60)
 			return FALSE;
 		break;
 	}

@@ -1052,7 +1052,7 @@ ACMD(do_findhelpee)
 	int cost=0, times, i;
 	char isbank[MAX_INPUT_LENGTH];
 
-	if (IS_NPC(ch) || (!WAITLESS(ch) && GET_CLASS(ch) != CLASS_MERCHANT))
+	if (IS_NPC(ch) || (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT)))
 	{
 		send_to_char("Вам недоступно это !\r\n", ch);
 		return;

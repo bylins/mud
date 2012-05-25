@@ -33,6 +33,7 @@
 #include "room.hpp"
 #include "mail.h"
 #include "dg_scripts.h"
+#include "features.hpp"
 #include "objsave.h"
 
 #define LOC_INVENTORY	0
@@ -1837,7 +1838,7 @@ int Crash_load(CHAR_DATA * ch)
 	// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
 	if(RENTCODE(index) == RENT_CRASH)
 	{
-		if(!IS_IMMORTAL(ch) && GET_CLASS(ch) == CLASS_MERCHANT && ch->player_specials->saved.HiredCost!=0)
+		if(!IS_IMMORTAL(ch) && can_use_feat(ch, EMPLOYER_FEAT) && ch->player_specials->saved.HiredCost!=0)
 		{
 			if(ch->player_specials->saved.HiredCost<0)
 				ch->add_bank(abs(ch->player_specials->saved.HiredCost), false);
