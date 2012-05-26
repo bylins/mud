@@ -143,6 +143,7 @@ char *immlist = NULL;		/* list of peon gods             */
 char *background = NULL;	/* background story              */
 char *handbook = NULL;		/* handbook for new immortals    */
 char *policies = NULL;		/* policies page                 */
+char *name_rules = NULL;		/* rules of character's names    */
 
 struct help_index_element *help_table = 0;	/* the help table        */
 int top_of_helpt = 0;		/* top of help index table       */
@@ -482,6 +483,7 @@ ACMD(do_reboot)
 		file_to_string_alloc(POLICIES_FILE, &policies);
 		file_to_string_alloc(HANDBOOK_FILE, &handbook);
 		file_to_string_alloc(BACKGROUND_FILE, &background);
+		file_to_string_alloc(NAME_RULES_FILE, &name_rules);
 		go_boot_xhelp();
 		go_boot_socials();
 		init_im();
@@ -525,6 +527,8 @@ ACMD(do_reboot)
 		file_to_string_alloc(HANDBOOK_FILE, &handbook);
 	else if (!str_cmp(arg, "background"))
 		file_to_string_alloc(BACKGROUND_FILE, &background);
+	else if (!str_cmp(arg, "namerules"))
+		file_to_string_alloc(NAME_RULES_FILE, &name_rules);
 	else if (!str_cmp(arg, "greetings"))
 	{
 		if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
@@ -1578,6 +1582,7 @@ void boot_db(void)
 	file_to_string_alloc(POLICIES_FILE, &policies);
 	file_to_string_alloc(HANDBOOK_FILE, &handbook);
 	file_to_string_alloc(BACKGROUND_FILE, &background);
+	file_to_string_alloc(NAME_RULES_FILE, &name_rules);
 	if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
 		prune_crlf(GREETINGS);
 
@@ -6110,7 +6115,8 @@ int file_to_string(const char *name, char *buf)
 	if (!(fl = fopen(name, "r")))
 	{
 		log("SYSERR: reading %s: %s", name, strerror(errno));
-		return (-1);
+		sprintf(buf+strlen(buf), "Error: file '%s' is empty.\r\n", name);
+		return (0);
 	}
 	do
 	{

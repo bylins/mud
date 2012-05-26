@@ -151,6 +151,7 @@ enum SetStuffMode
 #define BACKGROUND_FILE	LIB_TEXT"background"	/* for the background story */
 #define POLICIES_FILE	LIB_TEXT"policies"	/* player policies/rules     */
 #define HANDBOOK_FILE	LIB_TEXT"handbook"	/* handbook for new immorts  */
+#define NAME_RULES_FILE LIB_TEXT"namerules" /* rules of character's names */
 
 #define PROXY_FILE	    LIB_MISC"proxy"	/* register proxy list  */
 #define IDEA_FILE	    LIB_MISC"ideas"	/* for the 'idea'-command       */
