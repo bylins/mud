@@ -1232,7 +1232,7 @@ object obj_affected_type_str(const obj_affected_type& affect)
 	}
 	return str("%s%s%d") %
 	make_tuple(buf,
-	negative ? " ухудшает на " : " улучшает на ",
+	negative ? str(" ухудшает на ") : str(" улучшает на "),
 	affect.modifier>=0 ? affect.modifier : -affect.modifier);
 }
 
