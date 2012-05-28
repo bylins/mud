@@ -203,7 +203,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 					 "\r\n Способность\r\n", vict);
 		for (sortpos = 1; sortpos < MAX_FEATS; sortpos++)
 		{
-			if (!feat_info[sortpos].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+			if (!feat_info[sortpos].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && !PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
 				continue;
 			sprintf(buf, "	%s%-30s%s\r\n",
 					HAVE_FEAT(ch, sortpos) ? CCGRN(vict, C_NRM) :

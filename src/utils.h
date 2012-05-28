@@ -435,7 +435,7 @@ extern SPECIAL(bank);
 #define GET_HELPER(ch)  ((ch)->helpers)
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_LEVEL(ch)   ((ch)->get_level())
-#define GET_MAX_MANA(ch)      MIN(9998,mana[(int) GET_REAL_WIS(ch)]+GET_REMORT(ch)*500)
+#define GET_MAX_MANA(ch)      MIN(9998,mana[MIN(50, (int) GET_REAL_WIS(ch))]+GET_REMORT(ch)*500)
 /*#define GET_MANA_COST(ch,spellnum)      (mana_cost_cs[(int)GET_LEVEL(ch)][spell_create[spellnum].runes.krug-1]) */
 #define GET_MANA_COST(ch,spellnum)      mag_manacost(ch,spellnum)
 #define GET_MANA_STORED(ch)   ((ch)->MemQueue.stored)
