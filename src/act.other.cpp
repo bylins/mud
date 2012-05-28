@@ -1716,23 +1716,6 @@ ACMD(do_use)
 				send_to_char("Да, штука явно магическая! Но совершенно непонятно как ей пользоваться. :(\r\n", ch);
 				return;
 			}
-			/*
-			if (GET_LEVEL(ch) >= 25)
-			{
-				send_to_char("Вы слишком сильны для применения этого предмета!\r\n", ch);
-				return;
-			}
-			if (GET_CLASS(ch) == CLASS_THIEF
-					|| GET_CLASS(ch) == CLASS_ASSASINE
-					|| GET_CLASS(ch) == CLASS_MERCHANT
-					|| GET_CLASS(ch) == CLASS_WARRIOR
-					|| GET_CLASS(ch) == CLASS_RANGER
-					|| GET_CLASS(ch) == CLASS_PALADINE
-					|| GET_CLASS(ch) == CLASS_SMITH)
-			{
-				send_to_char("Да, штука явно магическая! Но совершенно непонятно как ей пользоваться. :(\r\n", ch);
-				return;
-			}*/
 		}
 		break;
 	}

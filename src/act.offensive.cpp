@@ -692,7 +692,7 @@ void go_flee(CHAR_DATA * ch)
 				{
 					loss = MAX(1, GET_REAL_MAX_HIT(was_fighting) - GET_HIT(was_fighting));
 					loss *= GET_LEVEL(was_fighting);
-					if (!IS_THIEF(ch) && !IS_MERCHANT(ch) && !ROOM_FLAGGED(was_in, ROOM_ARENA))
+					if (!can_use_feat(ch, RETREAT_FEAT)  && !ROOM_FLAGGED(was_in, ROOM_ARENA))
 						gain_exp(ch, -loss);
 				}
 				return;
@@ -732,8 +732,7 @@ void go_flee(CHAR_DATA * ch)
 				{
 					loss = MAX(1, GET_REAL_MAX_HIT(was_fighting) - GET_HIT(was_fighting));
 					loss *= GET_LEVEL(was_fighting);
-					if (!IS_THIEF(ch) &&
-							!IS_MERCHANT(ch) && !IS_ASSASINE(ch) && !ROOM_FLAGGED(was_in, ROOM_ARENA))
+					if (!can_use_feat(ch, RETREAT_FEAT) && !ROOM_FLAGGED(was_in, ROOM_ARENA))
 						gain_exp(ch, -loss);
 				}
 			}
@@ -796,7 +795,7 @@ void go_dir_flee(CHAR_DATA * ch, int direction)
 			{
 				loss = GET_REAL_MAX_HIT(was_fighting) - GET_HIT(was_fighting);
 				loss *= GET_LEVEL(was_fighting);
-				if (!IS_THIEF(ch) && !IS_MERCHANT(ch) && !ROOM_FLAGGED(was_in, ROOM_ARENA))
+				if (!can_use_feat(ch, RETREAT_FEAT) && !ROOM_FLAGGED(was_in, ROOM_ARENA))
 					gain_exp(ch, -loss);
 			}
 			return;
@@ -825,7 +824,7 @@ ACMD(do_flee)
 		send_to_char("Но вы ведь ни с кем не сражаетесь !\r\n", ch);
 		return;
 	}
-	if (IS_THIEF(ch) || IS_MERCHANT(ch) || IS_IMMORTAL(ch)
+	if (can_use_feat(ch, CALMNESS_FEAT) || IS_IMMORTAL(ch)
 			|| GET_GOD_FLAG(ch, GF_GODSLIKE))
 	{
 		one_argument(argument, arg);

@@ -25,6 +25,7 @@
 #include "modify.h"
 #include "objsave.h"
 #include "room.hpp"
+#include "features.hpp"
 
 extern SPECIAL(bank);
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
@@ -876,7 +877,7 @@ void print_obj(std::stringstream &out, OBJ_DATA *obj, int count)
 */
 unsigned int get_max_pers_slots(CHAR_DATA *ch)
 {
-	if (GET_CLASS(ch) == CLASS_DRUID)
+	if (can_use_feat(ch, THRIFTY_FEAT))
 		return MAX_PERS_SLOTS * 2;
 	else
 		return MAX_PERS_SLOTS;
@@ -927,7 +928,7 @@ std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string 
 	int expired = rent_per_day ? (money / rent_per_day) : 0;
 	head << CCWHT(ch, C_NRM) << chest_name
 	<< "Вещей: " << cont.size()
-	<< ", свободно мест: " << get_max_pers_slots(ch) - cont.size()
+	<< ", свободно мест: " << MAX(get_max_pers_slots(ch) - cont.size(), 0)
 	<< ", рента в день: " << rent_per_day << " " << desc_count(rent_per_day, WHAT_MONEYa);
 	if (rent_per_day)
 		head << ", денег на " << expired << " " << desc_count(expired, WHAT_DAY);

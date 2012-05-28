@@ -1574,6 +1574,7 @@ struct extra_affects_type MageAffects[] = { {AFF_INFRAVISION, 1},
 };
 struct extra_affects_type ThiefAffects[] = { {AFF_INFRAVISION, 1},
 	{AFF_SENSE_LIFE, 1},
+	{AFF_BLINK, 1},
 	{ -1, -1}
 };
 struct extra_affects_type WarriorAffects[] = { { -1, -1} };

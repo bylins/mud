@@ -1947,7 +1947,7 @@ ACMD(do_horsetake)
 	}
 	else if (IS_HORSE(horse))
 	{
-		if (!IS_IMMORTAL(ch) && !(GET_CLASS(ch) == CLASS_THIEF))
+		if (!IS_IMMORTAL(ch) && !(ch->get_skill(SKILL_STEAL)))
 		{
 			send_to_char("Это не Ваш скакун.\r\n", ch);
 			return;

@@ -2485,7 +2485,9 @@ ASPELL(spell_holystrike)
 		}
 		else
 		{
-			if (GET_CLASS(tch) != CLASS_NECROMANCER)
+			//Чуток нелогично, но раз зомби гоняет -- сам немного мертвяк. :)
+			//Тут сам спелл бредовый... Но пока на скорую руку.
+			if (!can_use_feat(tch, ZOMBIE_DROVER_FEAT))
 				continue;
 		}
 		mag_affects(GET_LEVEL(ch), ch, tch, SPELL_HOLYSTRIKE, SAVING_STABILITY);

@@ -1876,10 +1876,8 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 			else
 				count += sprintf(prompt + count, "Зауч:0 ");
 		}
-		// Заряды кличей для батыров
+		// Заряды кличей
 		if (PRF_FLAGGED(d->character, PRF_DISP_WC)
-//			&& GET_CLASS(d->character) == CLASS_WARRIOR
-//И зачем тут проверять класс? Есть скилл -- значит могут быть и заряды.
 			&& d->character->get_skill(SKILL_WARCRY))
 		{
 			int wc_count = (HOURS_PER_DAY - timed_by_skill(d->character, SKILL_WARCRY)) / HOURS_PER_WARCRY;

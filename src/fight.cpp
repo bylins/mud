@@ -4252,7 +4252,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	//    AWAKE style - decrease hitroll
 	if (GET_AF_BATTLE(ch, EAF_AWAKE)
-		&& GET_CLASS(ch) != CLASS_ASSASINE
+		&& !can_use_feat(ch, SHADOW_STRIKE_FEAT)
 		&& type != SKILL_THROW
 		&& type != SKILL_BACKSTAB)
 	{
@@ -4440,11 +4440,10 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		return;
 	}
 
-	if ((AFF_FLAGGED(victim, AFF_BLINK)
-			|| (GET_CLASS(victim) == CLASS_THIEF))
+	if (AFF_FLAGGED(victim, AFF_BLINK)
 			&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
 			&& !GET_AF_BATTLE(ch, EAF_STUPOR)
-			&& (!(type == SKILL_BACKSTAB && GET_CLASS(ch) == CLASS_THIEF))
+			&& (!(type == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT)))
 			&& number(1, 100) <= 20)
 	{
 		sprintf(buf,
@@ -4518,7 +4517,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		if (!GET_AF_BATTLE(ch, EAF_MIGHTHIT))
 		{
 			modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)) : 0));
-			if (IS_NPC(ch) || IS_WARRIOR(ch))
+			if (IS_NPC(ch) || can_use_feat(ch, BULLY_FEAT))
 				modi = MAX(100, modi);
 			dam = modi * dam / 100;
 		}
@@ -4610,7 +4609,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			|| (IS_NPC(ch) && (!AFF_FLAGGED(ch, AFF_CHARM) && !AFF_FLAGGED(ch, AFF_HELPER))))
 	{
 		was_critic = MIN(ch->get_skill(skill), 70);
-		/* Gorrah Мастерские фиты по оружию удваивают шанс критического попадания */
+		/* Мастерские фиты по оружию удваивают шанс критического попадания */
 		for (i = PUNCH_MASTER_FEAT; i <= BOWS_MASTER_FEAT; i++)
 			if ((ubyte) feat_info[i].affected[0].location == skill && can_use_feat(ch, i))
 			{
@@ -4619,10 +4618,14 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			}
 		if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
 			was_critic += ch->get_skill(SKILL_BACKSTAB);
-		if (GET_CLASS(ch) == CLASS_PALADINE)
+	//Нафига тут проверять класс?
+	//Скиллы уникальные, другим классам все равно недоступны.
+	//А чтоб мобы не лютовали -- есть проверка на игрока.
+		if (!IS_NPC(ch))
+		{
 			was_critic += (int)(ch->get_skill(SKILL_PUNCTUAL) / 2);
-		if (GET_CLASS(ch) == CLASS_ASSASINE)
 			was_critic += (int)(ch->get_skill(SKILL_NOPARRYHIT) / 3);
+		}
 		if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
 			was_critic += GET_LEVEL(ch);
 	} else was_critic = FALSE; //Polud не должны - так пусть и не критают

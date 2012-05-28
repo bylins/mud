@@ -519,6 +519,14 @@ void assign_feats(void)
 	feato(MAGIC_USER_FEAT, "использование амулетов", NORMAL_FTYPE, TRUE, feat_app);
 //105
 	feato(GOLD_TONGUE_FEAT, "златоуст", NORMAL_FTYPE, TRUE, feat_app);
+//106
+	feato(CALMNESS_FEAT, "хладнокровие", NORMAL_FTYPE, TRUE, feat_app);
+//107
+	feato(RETREAT_FEAT, "отступление", NORMAL_FTYPE, TRUE, feat_app);
+//108
+	feato(SHADOW_STRIKE_FEAT, "танцующая тень", NORMAL_FTYPE, TRUE, feat_app);
+//109
+	feato(THRIFTY_FEAT, "запасливость", NORMAL_FTYPE, TRUE, feat_app);
 
 	/*
 	//

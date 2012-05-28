@@ -2564,11 +2564,11 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 				if (obj->action_description)
 					act(obj->action_description, FALSE, ch, obj, tch, TO_CHAR);
 				else
-					act("Вы ткнули $o4 в $N1.", FALSE, ch, obj, tch, TO_CHAR);
+					act("Вы ткнули $o4 в $N3.", FALSE, ch, obj, tch, TO_CHAR);
 				if (obj->action_description)
 					act(obj->action_description, FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
 				else
-					act("$n ткнул$g $o4 в $N1.", TRUE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+					act("$n ткнул$g $o4 в $N3.", TRUE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
 			}
 		}
 		else if (tobj)

@@ -847,7 +847,7 @@ int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim)
 		result = victim->get_skill(SKILL_AWAKE) / 2;
 	else
 	{
-		if (GET_CLASS(victim) != CLASS_ASSASINE)
+		if (!can_use_feat(victim, SHADOW_STRIKE_FEAT))
 			result = victim->get_skill(SKILL_AWAKE) / 2;
 		else
 			result = static_cast<int>(victim->get_skill(SKILL_AWAKE) / 2.5);

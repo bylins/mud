@@ -2061,6 +2061,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 
 	case CLASS_GUARD:
 	case CLASS_PALADINE:
+			ch->set_skill(SKILL_HORSE, 10);
 	case CLASS_SMITH:
 		obj = read_object(START_SWORD, VIRTUAL);
 		if (obj)
@@ -2069,8 +2070,6 @@ void do_start(CHAR_DATA * ch, int newbie)
 		if (obj)
 			equip_char(ch, obj, WEAR_BODY);
 		ch->set_skill(SKILL_SATTACK, 95);
-		if (GET_CLASS(ch) != CLASS_SMITH)
-			ch->set_skill(SKILL_HORSE, 10);
 		break;
 
 	case CLASS_RANGER:

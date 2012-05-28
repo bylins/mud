@@ -122,6 +122,10 @@ using std::bitset;
 #define EMPLOYER_FEAT			103 //навык найма
 #define MAGIC_USER_FEAT			104 //использование амулетов
 #define GOLD_TONGUE_FEAT		105 //златоуст
+#define CALMNESS_FEAT			106 //хладнокровие
+#define RETREAT_FEAT			107 //отступление
+#define SHADOW_STRIKE_FEAT		108 //танцующая тень
+#define	THRIFTY_FEAT			109 //запасливость
 
 /*
 #define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух

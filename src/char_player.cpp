@@ -691,7 +691,6 @@ void Player::save_char()
 	// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 	i = 0;
 	if (this->followers
-		//&& GET_CLASS(this) == CLASS_MERCHANT
 		&& can_use_feat(this, EMPLOYER_FEAT)
 		&& !IS_IMMORTAL(this))
 	{
@@ -1282,7 +1281,6 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			else if (!strcmp(tag, "GldH"))
 			{
 				if(num != 0 && !IS_IMMORTAL(this) && can_use_feat(this, EMPLOYER_FEAT))
-					// GET_CLASS(this) == CLASS_MERCHANT)
 				{
 					this->player_specials->saved.HiredCost = num;
 				}
