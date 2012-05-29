@@ -596,7 +596,7 @@ int can_sell_count(ShopListType::const_iterator &shop, int item_num)
 		if (numToSell == 0)
 			return numToSell;
 		if (numToSell != -1)
-			numToSell -= obj_index[(*shop)->item_list[item_num]->rnum].number;
+			numToSell -= MIN(numToSell, obj_index[(*shop)->item_list[item_num]->rnum].number);
 		return numToSell;
 	}
 }

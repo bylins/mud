@@ -2061,7 +2061,7 @@ char *find_exdesc(char *word, EXTRA_DESCR_DATA * list)
 //buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
 void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 {
-	int j,s;
+	int j;
 		if (can_use_feat(ch, SKILLED_TRADER_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))
 		{
 			sprintf(buf+strlen(buf), "Материал : %s", CCCYN(ch, C_NRM));
@@ -2097,19 +2097,19 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 			}
 		}
 
-		if (can_use_feat(ch, MASTER_JEWELER_FEAT) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))
+ 		//|| PRF_FLAGGED(ch, PRF_HOLYLIGHT)
+		if (can_use_feat(ch, MASTER_JEWELER_FEAT))
 		{
+			sprintf(buf+strlen(buf), "Слоты : %s", CCCYN(ch, C_NRM));
 			if (OBJ_FLAGGED(obj, ITEM_WITH3SLOTS))
-				s = 3;
+				strcat(buf, "доступно 3 слота\r\n");
 			else if (OBJ_FLAGGED(obj, ITEM_WITH2SLOTS))
-				s = 2;
+				strcat(buf, "доступно 2 слота\r\n");
 			else if (OBJ_FLAGGED(obj, ITEM_WITH1SLOT))
-				s = 1;
+				strcat(buf, "доступен 1 слот\r\n");
 			else
-				s = 0;
-
-			if (s > 0)
-				sprintf(buf+strlen(buf), "Доступно слотов: %s%d%s\r\n", CCCYN(ch, C_NRM), s, CCNRM(ch, C_NRM));
+				strcat(buf, "нет слотов\r\n");
+			sprintf(buf+strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
 		}
 		sprintf(buf+strlen(buf), diag_uses_to_char(obj, ch));
 }

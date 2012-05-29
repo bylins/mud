@@ -1467,14 +1467,8 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	// Magic glass
 	if (!IS_SET(SpINFO.routines, MAG_WARCRY))
 	{
-		if (ch != victim && spellnum < MAX_SPELLS && ((AFF_FLAGGED(victim, AFF_MAGICGLASS)
-				&& number(1, 100) < (GET_LEVEL(victim) / 3)) || (IS_GOD(victim)
-						&& (IS_NPC(ch)
-							||
-							GET_LEVEL
-							(victim) >
-							GET_LEVEL
-							(ch)))))
+		if (ch != victim && spellnum < MAX_SPELLS &&
+			((AFF_FLAGGED(victim, AFF_MAGICGLASS) && number(1, 100) < (GET_LEVEL(victim) / 3))))
 		{
 			act("Магическое зеркало $N1 отразило Вашу магию !", FALSE, ch, 0, victim, TO_CHAR);
 			act("Магическое зеркало $N1 отразило магию $n1 !", FALSE, ch, 0, victim, TO_NOTVICT);
@@ -1493,7 +1487,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		}
 	}
 
-	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && AFF_FLAGGED(victim, AFF_SHADOW_CLOAK) && spellnum < MAX_SPELLS && number(1, 1000) <= 200)
+	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && AFF_FLAGGED(victim, AFF_SHADOW_CLOAK) && spellnum < MAX_SPELLS && number(1, 100) < 21)
 	{
 		act("Густая тень вокруг $N1 жадно поглотила вашу магию.", FALSE, ch, 0, victim, TO_CHAR);
 		act("Густая тень вокруг $N1 жадно поглотила магию $n1.", FALSE, ch, 0, victim, TO_NOTVICT);
@@ -4585,6 +4579,14 @@ int mag_manual(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovic
 //---------------------------------------------------------
 int mag_single_target(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int savetype)
 {
+	//туповато конечно, но подобные проверки тут как счупалцьа перепутаны
+	//и чтоб сделать по человечески надо треть пары модулей перелопатить
+	if (IS_GOD(cvict) && (IS_NPC(caster) || GET_LEVEL(cvict) > GET_LEVEL(caster)))
+	{
+		send_to_char(NOEFFECT, caster);
+		return (-1);
+	}
+
 	if (IS_SET(SpINFO.routines, MAG_WARCRY) && cvict && IS_UNDEAD(cvict))
 		return 1;
 
