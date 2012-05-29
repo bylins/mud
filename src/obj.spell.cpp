@@ -137,7 +137,7 @@ std::string TimedSpell::diag_to_char(CHAR_DATA *ch)
 			break;
 		case SPELL_FLY:
 			out << CCCYN(ch, C_NRM) << "Наложено заклинание 'полет' (" << time_format(timer_, true)
-					<< ")." << CCCYN(ch, C_NRM) << "\r\n";
+					<< ").\r\n" << CCCYN(ch, C_NRM);
 			break;
 		default:
 			out << "Наложено неизвестное заклинание (" << spell_ << ")... Оо Соообщите Богам!\r\n";

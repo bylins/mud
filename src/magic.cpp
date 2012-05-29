@@ -4581,7 +4581,7 @@ int mag_single_target(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA
 {
 	//туповато конечно, но подобные проверки тут как счупалцьа перепутаны
 	//и чтоб сделать по человечески надо треть пары модулей перелопатить
-	if (IS_GOD(cvict) && (IS_NPC(caster) || GET_LEVEL(cvict) > GET_LEVEL(caster)))
+	if (cvict && IS_GOD(cvict) && (IS_NPC(caster) || GET_LEVEL(cvict) > GET_LEVEL(caster)))
 	{
 		send_to_char(NOEFFECT, caster);
 		return (-1);
