@@ -527,8 +527,10 @@ unsigned get_item_num(ShopListType::const_iterator &shop, std::string &item_name
 
 	int count = 0;
 	std::string name_value="";
+	std::string print_value;
 	for (unsigned i = 0; i < (*shop)->item_list.size(); ++i)
 	{
+		print_value="";
 		if ((*shop)->item_list[i]->temporary_ids.empty())
 		{
 			name_value = get_item_name((*shop)->item_list[i], keeper_vnum);
@@ -541,9 +543,10 @@ unsigned get_item_num(ShopListType::const_iterator &shop, std::string &item_name
 			if (!tmp_obj)
 				continue;
 			name_value = std::string(tmp_obj->name);
+			print_value = std::string(tmp_obj->short_description);
 		}
 
-		if (isname(item_name, name_value.c_str()))
+		if (isname(item_name, name_value.c_str()) || isname(item_name, print_value.c_str()))
 		{
 			++count;
 			if (count == num)
@@ -596,7 +599,8 @@ int can_sell_count(ShopListType::const_iterator &shop, int item_num)
 		if (numToSell == 0)
 			return numToSell;
 		if (numToSell != -1)
-			numToSell -= MIN(numToSell, obj_index[(*shop)->item_list[item_num]->rnum].number);
+			numToSell -= MIN(numToSell, obj_index[(*shop)->item_list[item_num]->rnum].number
+					+ obj_index[(*shop)->item_list[item_num]->rnum].stored);//считаем не только онлайн, но и то что в ренте
 		return numToSell;
 	}
 }
@@ -829,7 +833,18 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	}
 
 	--item_num;
-	const OBJ_DATA * const proto = read_object_mirror((*shop)->item_list[item_num]->rnum, REAL);
+	OBJ_DATA * tmp_obj = NULL;
+	if (!(*shop)->item_list[item_num]->temporary_ids.empty())
+	{
+		tmp_obj = get_obj_from_waste(shop, ((*shop)->item_list[item_num])->temporary_ids);
+		if (!tmp_obj)
+		{
+			log("SYSERROR : не удалось прочитать предмет (%s:%d)", __FILE__, __LINE__);
+			send_to_char("Ошибочка вышла.\r\n", ch);
+			return;
+		}
+	}
+	const OBJ_DATA * const proto = ( tmp_obj ? tmp_obj : read_object_mirror((*shop)->item_list[item_num]->rnum, REAL));
 	if (!proto)
 	{
 		log("SYSERROR : не удалось прочитать прототип (%s:%d)", __FILE__, __LINE__);
@@ -864,7 +879,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
 			"%s, я понимаю, своя ноша карман не тянет,\r\n"
-			"но столько вещей Вам явно некуда положить.\r\n", GET_NAME(ch));
+			"но %s Вам явно некуда положить.\r\n", GET_NAME(ch), OBJN(proto, ch, 3));
 		send_to_char(buf, ch);
 		return;
 	}
@@ -872,7 +887,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
 			"%s, я понимаю, своя ноша карман не тянет,\r\n"
-			"но столько вещей Вам явно не поднять.\r\n", GET_NAME(ch));
+			"но %s Вам явно некуда положить.\r\n", GET_NAME(ch), OBJN(proto, ch, 3));
 		send_to_char(buf, ch);
 		return;
 	}
@@ -1050,6 +1065,11 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 		OBJ_FLAGGED(obj, ITEM_NODROP))
 	{
 		tell_to_char(keeper, ch, string("Я не собираюсь иметь дела с этой вещью.").c_str());
+		return;
+	}
+	if ((GET_OBJ_TYPE(obj) == ITEM_WAND || GET_OBJ_TYPE(obj) == ITEM_STAFF) && GET_OBJ_VAL(obj, 2) == 0)
+	{
+		tell_to_char(keeper, ch, "Я не покупаю использованные вещи!");
 		return;
 	}
 	if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && cmd != "Чинить")
