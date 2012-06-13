@@ -1157,7 +1157,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 				OBJ_FLAGGED(obj, ITEM_DECAY) ||
 				OBJ_FLAGGED(obj, ITEM_NOSELL) || OBJ_FLAGGED(obj, ITEM_NODROP))
 		{
-			tell_to_char(keeper, ch, string("Я не буду тратить свое драгоценное время на " + string(GET_OBJ_PNAME(obj, 2))+".").c_str());
+			tell_to_char(keeper, ch, string("Я не буду тратить свое драгоценное время на " + string(GET_OBJ_PNAME(obj, 3))+".").c_str());
 			return;
 		}
 

@@ -1237,7 +1237,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	{
 		if (i->get_fighting())
 		{
-			strcat(buf, IS_POLY(i) ? "сражаются с " : "сражается c ");
+			strcat(buf, IS_POLY(i) ? "сражаются с " : "сражается с ");
 			if (i->in_room != i->get_fighting()->in_room)
 				strcat(buf, "чьей-то тенью ");
 			else if (i->get_fighting() == ch)

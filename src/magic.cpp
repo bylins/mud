@@ -3086,7 +3086,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = pc_duration(victim, 10, GET_REMORT(ch), 1, 0, 0);
 		af[0].bitvector = AFF_BROKEN_CHAINS;
 		af[0].battleflag = AF_BATTLEDEC;
-		to_room = "Ярко-синий ореол вспыхнул вокруг $n и тут же угас.";
+		to_room = "Ярко-синий ореол вспыхнул вокруг $n1 и тут же угас.";
 		to_vict = "Волна ярко-синего света омыла Вас с головы до ног.";
 		break;
 
@@ -4684,7 +4684,7 @@ const spl_message masses_messages[] =
 	 "$n0 оглядел$g комнату устрашающим взглядом." /*Added by Niker */ ,
 	 NULL},
 	{SPELL_GLITTERDUST,
-	 "Вы сдегка прищелкнули пальцами, и вокруг сгустилось облако блестящей пыли.",
+	 "Вы слегка прищелкнули пальцами, и вокруг сгустилось облако блестящей пыли.",
 	 "$n0 сотворил$g облако блестящей пыли, медленно осевшее на землю.",
 	 NULL},
 	{ -1}

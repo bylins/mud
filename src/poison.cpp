@@ -211,14 +211,14 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 							CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
 					send_to_char(vict, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",
 							GET_PAD(get_horse(vict), 5));
-					act("$n0 зашатался и не смог усидеть на $N5.", true, vict, 0, get_horse(vict), TO_NOTVICT);
+					act("$n0 зашатал$u и не смог$q усидеть на $N5.", true, vict, 0, get_horse(vict), TO_NOTVICT);
 				}
 				else
 				{
 					send_to_char(ch, "%sОт действия Вашего яда у %s подкосились ноги!%s\r\n",
 							CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
 					send_to_char(vict, "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
-					act("$N0 зашатался и не смог устоять на ногах.", true, ch, 0, vict, TO_NOTVICT);
+					act("$N0 зашатал$U и не смог$Q устоять на ногах.", true, ch, 0, vict, TO_NOTVICT);
 				}
 				GET_POS(vict) = POS_SITTING;
 				drop_from_horse(vict);
@@ -246,7 +246,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 			send_to_char(ch, "%sОт действия Вашего яда %s побледнел%s!%s\r\n",
 					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 			send_to_char(vict, "Вы почувствовали слабость во всем теле!\r\n");
-			act("$N0 побледнел на Ваших глазах.", true, ch, 0, vict, TO_NOTVICT);
+			act("$N0 побледнел$G на Ваших глазах.", true, ch, 0, vict, TO_NOTVICT);
 			break;
 		}
 		case 3:
@@ -263,7 +263,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 			send_to_char(ch, "%sОт действия Вашего яда %s стал%s хуже реагировать на движения противников!%s\r\n",
 					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 			send_to_char(vict, "Вам стало труднее реагировать на движения противников!\r\n");
-			act("$N0 стал$g хуже реагировать на Ваши движения!", true, ch, 0, vict, TO_NOTVICT);
+			act("$N0 стал$G хуже реагировать на Ваши движения!", true, ch, 0, vict, TO_NOTVICT);
 			break;
 		}
 		case 4:
@@ -280,7 +280,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 			send_to_char(ch, "%sОт действия Вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
 					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 			send_to_char(vict, "Вы стали заметно медленнее двигаться!\r\n");
-			act("$N0 стал$g заметно медленнее двигаться!", true, ch, 0, vict, TO_NOTVICT);
+			act("$N0 стал$G заметно медленнее двигаться!", true, ch, 0, vict, TO_NOTVICT);
 			break;
 		}
 		case 5:
@@ -297,7 +297,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 			send_to_char(ch, "%sОт действия Вашего яда %s стал%s хуже переносить повреждения!%s\r\n",
 					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 			send_to_char(vict, "Вы стали хуже переносить повреждения!\r\n");
-			act("$N0 стал$g хуже переносить повреждения!", true, ch, 0, vict, TO_NOTVICT);
+			act("$N0 стал$G хуже переносить повреждения!", true, ch, 0, vict, TO_NOTVICT);
 			break;
 		}
 		} // switch

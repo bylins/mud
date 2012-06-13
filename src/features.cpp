@@ -1122,7 +1122,7 @@ ACMD(do_spell_capable)
 		IS_SET(SpINFO.routines, MAG_MASSES) || IS_SET(SpINFO.routines, MAG_GROUPS) ||
 		IS_SET(SpINFO.routines, MAG_AREAS))
 	{
-		send_to_char("Вы кончно мастер, но не такой магии.\r\n", ch);
+		send_to_char("Вы конечно мастер, но не такой магии.\r\n", ch);
 		return;
 	}
 	affect_from_char(ch, SPELL_CAPABLE_FEAT);
