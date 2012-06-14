@@ -2411,7 +2411,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 		GET_BAD_PWS(d->character) = 0;
 	}
 	time_t tmp_time = LAST_LOGON(d->character);
-	sprintf(buf, "\r\nПоследний раз Вы заходили к нам в %s c адреса (%s).\r\n",
+	sprintf(buf, "\r\nПоследний раз Вы заходили к нам в %s с адреса (%s).\r\n",
 			rustime(localtime(&tmp_time)), GET_LASTIP(d->character));
 	SEND_TO_Q(buf, d);
 

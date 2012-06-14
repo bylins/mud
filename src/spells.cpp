@@ -1554,7 +1554,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LEVEL))
 		{
-			sprintf(buf, "можно применить c %d уровня.\r\n", (GET_OBJ_VAL(obj, 0) >> 8) & 0x1F);
+			sprintf(buf, "можно применить с %d уровня.\r\n", (GET_OBJ_VAL(obj, 0) >> 8) & 0x1F);
 			send_to_char(buf, ch);
 		}
 
@@ -1907,7 +1907,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LEVEL))
 		{
-			sprintf(buf, "можно применить c %d уровня.\r\n", (GET_OBJ_VAL(obj, 0) >> 8) & 0x1F);
+			sprintf(buf, "можно применить с %d уровня.\r\n", (GET_OBJ_VAL(obj, 0) >> 8) & 0x1F);
 			send_to_char(buf, ch);
 		}
 

@@ -951,7 +951,7 @@ void name_to_drinkcon(OBJ_DATA * obj, int type)
 		free(obj->name);
 	obj->name = str_dup(new_name);
 
-	sprintf(new_name, "%s c %s", obj->short_description, drinknames[type]);
+	sprintf(new_name, "%s Ó %s", obj->short_description, drinknames[type]);
 	if (GET_OBJ_RNUM(obj) < 0 || obj->short_description != obj_proto[GET_OBJ_RNUM(obj)]->short_description)
 		free(obj->short_description);
 	obj->short_description = str_dup(new_name);

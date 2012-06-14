@@ -1444,7 +1444,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 
 		if (IS_SET(GET_OBJ_SKILL(j), ITEM_CHECK_LEVEL))
 		{
-			sprintf(buf, "можно применить c %d уровня.\r\n", (GET_OBJ_VAL(j, 0) >> 8) & 0x1F);
+			sprintf(buf, "можно применить с %d уровня.\r\n", (GET_OBJ_VAL(j, 0) >> 8) & 0x1F);
 			send_to_char(buf, ch);
 		}
 

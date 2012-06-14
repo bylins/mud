@@ -119,7 +119,7 @@ SPECIAL(exchange)
 		}
 		if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 		{
-			send_to_char("Вам запрещено общаться c торговцами!\r\n", ch);
+			send_to_char("Вам запрещено общаться с торговцами!\r\n", ch);
 			return 1;
 		}
 		/*
