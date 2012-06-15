@@ -682,7 +682,7 @@ ACMD(do_mteleport)
 			next_ch = vict->next_in_room;
 			if (IS_NPC(vict)
 					&& !(IS_HORSE(vict) || AFF_FLAGGED(vict, AFF_CHARM)
-						 || MOB_FLAGGED(ch, MOB_ANGEL)))
+						 || MOB_FLAGGED(vict, MOB_ANGEL)))
 				continue;
 			/*			if (on_horse(vict) || has_horse(vict, TRUE))
 							horse = get_horse(vict);
