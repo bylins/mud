@@ -1730,10 +1730,10 @@ void message_exchange(char *message, CHAR_DATA * ch, EXCHANGE_ITEM_DATA * j)
 						  &filter_wereon, &filter_weaponclass))))
 			{
 				if (COLOR_LEV(i->character) >= C_NRM)
-					send_to_char(CCIYEL(i->character, C_NRM), i->character);
+					send_to_char("&Y&q", i->character);
 				act(message, FALSE, i->character, 0, 0, TO_CHAR | TO_SLEEP);
 				if (COLOR_LEV(i->character) >= C_NRM)
-					send_to_char(CCNRM(i->character, C_NRM), i->character);
+					send_to_char("&Q&n", i->character);
 			}
 		}
 	}

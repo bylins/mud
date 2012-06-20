@@ -5385,18 +5385,18 @@ ACMD(do_liblist)
 
 	two_arguments(argument, buf, buf2);
 
-	if (!*buf || !*buf2)
+	if (!*buf || (!*buf2 && (subcmd == SCMD_ZLIST)))
 	{
 		switch (subcmd)
 		{
 		case SCMD_RLIST:
-			send_to_char("Использование: ксписок <начальный номер> <конечный номер>\r\n", ch);
+			send_to_char("Использование: ксписок <начальный номер или номер зоны> [<конечный номер>]\r\n", ch);
 			break;
 		case SCMD_OLIST:
-			send_to_char("Использование: осписок <начальный номер> <конечный номер>\r\n", ch);
+			send_to_char("Использование: осписок <начальный номер или номер зоны> [<конечный номер>]\r\n", ch);
 			break;
 		case SCMD_MLIST:
-			send_to_char("Использование: мсписок <начальный номер> <конечный номер>\r\n", ch);
+			send_to_char("Использование: мсписок <начальный номер или номер зоны> [<конечный номер>]\r\n", ch);
 			break;
 		case SCMD_ZLIST:
 			send_to_char("Использование: зсписок <начальный номер> <конечный номер>\r\n", ch);
@@ -5408,9 +5408,14 @@ ACMD(do_liblist)
 		}
 		return;
 	}
-
 	first = atoi(buf);
-	last = atoi(buf2);
+	if (*buf2)
+		last = atoi(buf2);
+	else
+	{
+		first *= 100;
+		last = first + 99;
+	}
 
 	if ((first < 0) || (first > MAX_PROTO_NUMBER) || (last < 0) || (last > MAX_PROTO_NUMBER))
 	{
