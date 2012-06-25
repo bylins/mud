@@ -1270,7 +1270,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	else
 		strcpy(buf2, "None");
 	sprintf(buf,
-			"VNum: [%s%5d%s], RNum: [%5d], Тип: %s, СрецПроцедура: %s\r\n",
+			"VNum: [%s%5d%s], RNum: [%5d], Тип: %s, СпецПроцедура: %s\r\n",
 			CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), buf1, buf2);
 	send_to_char(buf, ch);
 
