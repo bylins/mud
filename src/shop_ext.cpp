@@ -1011,7 +1011,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 long get_sell_price(OBJ_DATA * obj)
 {
 	long cost = GET_OBJ_COST(obj);
-	cost = (cost * obj->get_timer()) / MAX(1, obj_proto[GET_OBJ_RNUM(obj)]->get_timer()); //учтем таймер
+	cost = obj_proto[GET_OBJ_RNUM(obj)]->get_timer()<=0 ? 1 : cost * ((float)obj->get_timer() / (float)obj_proto[GET_OBJ_RNUM(obj)]->get_timer()); //учтем таймер
 
 	return MMAX(1, cost);
 }
