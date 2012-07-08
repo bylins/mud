@@ -31,5 +31,6 @@ ip.log
 ip.log.scanned
 ip.temp
 autorun
-
 .crash
+src/*.cbp
+src/*.layout

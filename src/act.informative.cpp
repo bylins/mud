@@ -1620,9 +1620,18 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 
 	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_ROOMFLAGS))
 	{
+		// иммам рандомная * во флагах ломает мапер грят
+		const bool has_flag = ROOM_FLAGGED(ch->in_room, ROOM_BFS_MARK) ? true : false;
+		REMOVE_BIT(ROOM_FLAGS(ch->in_room, ROOM_BFS_MARK), ROOM_BFS_MARK);
+
 		sprintbits(world[ch->in_room]->room_flags, room_bits, buf, ";");
 		sprintf(buf2, "[%5d] %s [%s]", GET_ROOM_VNUM(IN_ROOM(ch)), world[ch->in_room]->name, buf);
 		send_to_char(buf2, ch);
+
+		if (has_flag)
+		{
+			SET_BIT(ROOM_FLAGS(ch->in_room, ROOM_BFS_MARK), ROOM_BFS_MARK);
+		}
 	}
 	else
 		send_to_char(world[ch->in_room]->name, ch);

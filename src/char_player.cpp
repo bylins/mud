@@ -273,6 +273,9 @@ void Player::dps_add_exp(int exp, bool battle)
 	}
 }
 
+// не дергать wear/remove триги при скрытом раздевании/одевании чара во время сейва
+#define NO_EXTRANEOUS_TRIGGERS
+
 void Player::save_char()
 {
 	FILE *saved;
@@ -766,6 +769,8 @@ void Player::save_char()
 		//end by WorM
 	}
 }
+
+#undef NO_EXTRANEOUS_TRIGGERS
 
 // на счет reboot: используется только при старте мада в вызовах из entrycount
 // при включенном флаге файл читается только до поля Rebt, все остальные поля пропускаются
