@@ -235,10 +235,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Desc"))
 			{
 				*error = 13;
-				if (strcmp(buffer, "NULL"))
-					GET_OBJ_DESC(object) = NULL;
-				else
-					GET_OBJ_DESC(object) = str_dup(buffer);
+				GET_OBJ_DESC(object) = str_dup(buffer);
 			}
 			else if (!strcmp(read_line, "ADsc"))
 			{
