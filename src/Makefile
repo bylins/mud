@@ -1,7 +1,6 @@
 # C compiler to use
 CC = g++
 TESTCC = g++
-TESTCC4 = g++-4
 
 MKDIR = mkdir -p
 
@@ -14,14 +13,14 @@ CXREF = cxref
 
 BINDIR = ../bin
 
-CFLAGS = -ggdb3 -O2 -Wall -DBOOST_ENABLE_ASSERT_HANDLER
+CFLAGS = -ggdb3 -O2 -Wall -DBOOST_ENABLE_ASSERT_HANDLER -DHAVE_ICONV
+
 # use 'make test' for faster compile w/o optimizations, crypt and 34lvl god for first character
 TESTCFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH
 DEBUGFLAGS = -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC
 FASTTEST   = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -O3
 SEARCHPATH = -I /usr/include/python2.6
 
-#LIBS =  -lsocket -lnsl
 LIBS =  -lz -lcrypt -lpython2.6 -lboost_python-mt
 
 OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
@@ -93,9 +92,6 @@ testdepend:
 test:
 	$(MAKE) CFLAGS="$(TESTCFLAGS)" CC="$(TESTCC)" $(BINDIR)/circle
 
-test4:
-	$(MAKE) CFLAGS="$(TESTCFLAGS)" CC="$(TESTCC4)" $(BINDIR)/circle
-
 debug:
 	$(MAKE) CFLAGS="$(TESTCFLAGS) $(DEBUGFLAGS)" CC="$(TESTCC)" $(BINDIR)/circle
 
@@ -109,4 +105,3 @@ fasttest:
 	$(CC) $(SEARCHPATH) -c $(CFLAGS) -o $@ $<
 
 include .depend
-

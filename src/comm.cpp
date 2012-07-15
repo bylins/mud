@@ -111,6 +111,10 @@
 #define INVALID_SOCKET -1
 #endif
 
+#ifdef HAVE_ICONV
+#include <iconv.h>
+#endif
+
 /* externs */
 extern int num_invalid;
 extern char *GREETINGS;
@@ -2286,6 +2290,9 @@ int new_descriptor(socket_t s)
 		  "  2) Windows(JMC,MMC)\r\n"
 		  "  3) Windows(zMUD)\r\n"
 		  "  4) Windows(zMUD ver. 6+)\r\n"
+#ifdef HAVE_ICONV
+		  "  5) UTF-8\r\n"
+#endif
 		  "Select one : ", newd);
 
 #if defined(HAVE_ZLIB)
@@ -2296,6 +2303,56 @@ int new_descriptor(socket_t s)
 	return (0);
 }
 
+#ifdef HAVE_ICONV
+void koi_to_utf8(char *str_i, char *str_o)
+{
+	iconv_t cd;
+	size_t len_i, len_o = MAX_SOCK_BUF * 6;
+	size_t i;
+
+	if ((cd = iconv_open("UTF-8","KOI8-R")) == (iconv_t) - 1)
+	{
+		printf("koi_to_utf8: iconv_open error\n");
+		return;
+	}
+	len_i = strlen(str_i);
+	if ((i = iconv(cd, &str_i, &len_i, &str_o, &len_o)) == (size_t) - 1)
+	{
+		printf("koi_to_utf8: iconv error\n");
+		return;
+	}
+	*str_o = 0;
+	if (iconv_close(cd) == -1)
+	{
+		printf("koi_to_utf8: iconv_close error\n");
+		return;
+	}
+}
+
+void utf8_to_koi(char *str_i, char *str_o)
+{
+	iconv_t cd;
+	size_t len_i, len_o = MAX_SOCK_BUF * 6;
+	size_t i;
+
+	if ((cd = iconv_open("KOI8-R", "UTF-8")) == (iconv_t) - 1)
+	{
+		printf("utf8_to_koi: iconv_open error\n");
+		return;
+	}
+	len_i = strlen(str_i);
+	if ((i=iconv(cd, &str_i, &len_i, &str_o, &len_o)) == (size_t) - 1)
+	{
+		printf("utf8_to_koi: iconv error\n");
+		// return;
+	}
+	if (iconv_close(cd) == -1)
+	{
+		printf("utf8_to_koi: iconv_close error\n");
+		return;
+	}
+}
+#endif // HAVE_ICONV
 
 /*
  * Send all of the output that we've accumulated for a player out to
@@ -2303,7 +2360,7 @@ int new_descriptor(socket_t s)
  */
 int process_output(DESCRIPTOR_DATA * t)
 {
-	char i[MAX_SOCK_BUF * 2], o[MAX_SOCK_BUF * 2], *pi, *po;
+	char i[MAX_SOCK_BUF * 2], o[MAX_SOCK_BUF * 2 * 3], *pi, *po;
 	int written = 0, offset, result, c;
 
 
@@ -2387,11 +2444,21 @@ int process_output(DESCRIPTOR_DATA * t)
 	case KT_WINZ6:
 		for (; *pi; *po = KtoW2(*pi), pi++, po++);
 		break;
+#ifdef HAVE_ICONV
+	case KT_UTF8:
+		koi_to_utf8(pi, po);
+		break;
+#endif
 	default:
 		for (; *pi; *po = *pi, pi++, po++);
 		break;
 	}
-	*po = '\0';
+
+	if (t->keytable != KT_UTF8)
+	{
+		*po = '\0';
+	}
+
 	for (c = 0; o[c]; c++)
 	{
 		i[c] = o[c];
@@ -2901,6 +2968,7 @@ int process_input(DESCRIPTOR_DATA * t)
 				default:
 					t->keytable = 0;
 				case 0:
+				case KT_UTF8:
 					*(write_point++) = *ptr;
 					break;
 				case KT_ALT:
@@ -2935,6 +3003,26 @@ int process_input(DESCRIPTOR_DATA * t)
 		}
 
 		*write_point = '\0';
+
+#ifdef HAVE_ICONV
+		if (t->keytable == KT_UTF8)
+		{
+			int i;
+			char utf8_tmp[MAX_SOCK_BUF * 2 * 3];
+			size_t len_i, len_o;
+
+			len_i = strlen(tmp);
+
+			for (i = 0; i < MAX_SOCK_BUF * 2 * 3; i++)
+			{
+				utf8_tmp[i] = 0;
+			}
+			utf8_to_koi(tmp, utf8_tmp);
+			len_o = strlen(utf8_tmp);
+			strncpy(tmp, utf8_tmp, MAX_INPUT_LENGTH - 1);
+			space_left = space_left + len_i - len_o;
+		}
+#endif
 
 		if ((space_left <= 0) && (ptr < nl_pos))
 		{
