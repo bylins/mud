@@ -443,7 +443,8 @@ typedef struct trig_data TRIG_DATA;
 #define MOB_NOTRIP           (INT_ONE | (1 << 19))
 #define MOB_ANGEL            (INT_ONE | (1 << 20))
 #define MOB_GUARDIAN         (INT_ONE | (1 << 21)) //Polud моб-стражник, ставится программно, берется из файла guards.xml
-#define MOB_IGNORE_FORBIDDEN (INT_ONE | (1 << 22))// игнорирует печать
+#define MOB_IGNORE_FORBIDDEN (INT_ONE | (1 << 22)) // игнорирует печать
+#define MOB_NO_BATTLE_EXP    (INT_ONE | (1 << 23)) // не дает экспу за удары
 
 #define MOB_FIREBREATH    (INT_TWO | (1 << 0))
 #define MOB_GASBREATH     (INT_TWO | (1 << 1))

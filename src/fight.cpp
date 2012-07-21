@@ -2449,7 +2449,8 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 		&& GET_EXP(victim) > 0
 		&& !AFF_FLAGGED(victim, AFF_CHARM)
 		&& !MOB_FLAGGED(victim, MOB_ANGEL)
-		&& !IS_NPC(ch))
+		&& !IS_NPC(ch)
+		&& !MOB_FLAGGED(victim, MOB_NO_BATTLE_EXP))
 	{
 		int max_exp = MIN(max_exp_gain_pc(ch), (GET_LEVEL(victim) * GET_MAX_HIT(victim) + 4) /
 			(5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
