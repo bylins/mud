@@ -766,18 +766,7 @@ std::string gen_timer_text()
 	strftime(time_buf, sizeof(time_buf), "%H:%M %d-%m-%Y", localtime(&next_reset_time));
 
 	std::stringstream out;
-	out << "Следующее обновление таблицы: " << time_buf;
-
-	const int hours = (next_reset_time - time(0)) / 60 / 60;
-	if (hours >= 1)
-	{
-		out << " (" << hours << "ч)";
-	}
-	else
-	{
-		out << " (меньше часа)";
-	}
-	out << "\r\n";
+	out << "Следующее обновление таблицы: " << time_buf << "\r\n";
 
 	return out.str();
 }
