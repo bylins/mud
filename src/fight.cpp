@@ -42,6 +42,7 @@
 #include "AffectHandler.hpp"
 #include "genchar.h"
 #include "sets_drop.hpp"
+#include "olc.h"
 
 extern CHAR_DATA *mob_proto;
 
@@ -2145,6 +2146,26 @@ void might_hit_bash(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 }
 
+/**
+ * Попытка зафиксить неприменимость молота мобами с типом атаки отличным от нулевого (ударил),
+ * т.к. при всех остальных типах атаки attacktype будет равен 400 + порядковый номер типа
+ * и стоявшая до этого проверка на молот attacktype == TYPE_HIT фейлится.
+ */
+bool check_attacktype_mighthit(CHAR_DATA *ch, int attacktype)
+{
+	if (IS_NPC(ch)
+		&& attacktype >= TYPE_HIT
+		&& attacktype <= TYPE_HIT + NUM_ATTACK_TYPES - 1)
+	{
+		return true;
+	}
+	if (!IS_NPC(ch) && attacktype == TYPE_HIT)
+	{
+		return true;
+	}
+	return false;
+}
+
 int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_DATA * wielded, int mayflee)
 {
 	if (!ch || ch->purged() || !victim || victim->purged())
@@ -2163,7 +2184,9 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 		dam = 0;
 
 	// MIGHT_HIT
-	if (attacktype == TYPE_HIT && GET_AF_BATTLE(ch, EAF_MIGHTHIT) && GET_WAIT(ch) <= 0)
+	if (check_attacktype_mighthit(ch, attacktype)
+		&& GET_AF_BATTLE(ch, EAF_MIGHTHIT)
+		&& GET_WAIT(ch) <= 0)
 	{
 		CLR_AF_BATTLE(ch, EAF_MIGHTHIT);
 		if (IS_NPC(ch) ||
