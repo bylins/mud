@@ -334,14 +334,15 @@ struct player_index_element
 struct help_index_element
 {
 	help_index_element()
-		: keyword(0), entry(0), duplicate(0), min_level(0), immlog(true) {};
+		: keyword(0), entry(0), duplicate(0), min_level(0), sets_drop_page(false) {};
 
 	char *keyword;
 	char *entry;
 	int duplicate;
 	int min_level;
-	// писать или нет чтение данной справки в иммлог (чтобы не спамить сеты)
-	bool immlog;
+	// для сгенерированных страниц дропа сетов
+	// не спамят в иммлог при чтении, выводят перед страницей таймер
+	bool sets_drop_page;
 };
 
 #define SEASON_WINTER		0

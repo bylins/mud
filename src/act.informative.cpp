@@ -50,6 +50,7 @@
 #include "glory_const.hpp"
 #include "player_races.hpp"
 #include "corpse.hpp"
+#include "sets_drop.hpp"
 
 using std::string;
 
@@ -3979,7 +3980,11 @@ ACMD(do_help)
 			}
 			else if (topic_count == 1)
 			{
-				if (help_table[topic_need].immlog)
+				if (help_table[topic_need].sets_drop_page)
+				{
+					SetsDrop::print_timer_str(ch);
+				}
+				else
 				{
 					sprintf(buf1, "%s uses command HELP: %s (read)", GET_NAME(ch), argument);
 					mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);

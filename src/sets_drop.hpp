@@ -34,6 +34,8 @@ void add_mob_stat(CHAR_DATA *mob, int members);
 void save_mob_stat();
 // печать статистики имму по конкретной зоне
 void show_zone_stat(CHAR_DATA *ch, int zone_vnum);
+// печать таймера резета таблицы дропа перед страницей справки
+void print_timer_str(CHAR_DATA *ch);
 
 } // namespace SetsDrop
 

@@ -747,7 +747,7 @@ void add_to_help_table(const std::vector<std::string> &key_list, const std::stri
 	el.min_level = 0;
 	el.duplicate = 0;
 	el.entry = str_dup(text.c_str());
-	el.immlog = false;
+	el.sets_drop_page = true;
 
 	for (std::vector<std::string>::const_iterator i = key_list.begin(),
 		iend = key_list.end(); i != iend; ++i)
@@ -760,25 +760,13 @@ void add_to_help_table(const std::vector<std::string> &key_list, const std::stri
 	qsort(help_table, top_of_helpt + 1, sizeof(struct help_index_element), hsort);
 }
 
-std::string gen_timer_text()
-{
-	char time_buf[17];
-	strftime(time_buf, sizeof(time_buf), "%H:%M %d-%m-%Y", localtime(&next_reset_time));
-
-	std::stringstream out;
-	out << "Следующее обновление таблицы: " << time_buf << "\r\n";
-
-	return out.str();
-}
-
 /**
  * Генерация сообщения в справку.
  */
 void init_xhelp()
 {
 	std::stringstream out;
-	out << gen_timer_text()
-		<< "Наборы предметов, участвующие в системе автоматического выпадения:\r\n";
+	out << "Наборы предметов, участвующие в системе автоматического выпадения:\r\n";
 
 	for (id_to_set_info_map::const_iterator it = obj_data::set_table.begin(),
 		iend = obj_data::set_table.end(); it != iend; ++it)
@@ -821,8 +809,7 @@ void init_xhelp_full()
 		iend = help_list.end(); i != iend; ++i)
 	{
 		std::stringstream out;
-		out << gen_timer_text()
-			<< "\r\n" << i->title << "\r\n";
+		out << i->title << "\r\n";
 
 		for (std::set<int>::const_iterator l = i->vnum_list.begin(),
 			lend = i->vnum_list.end(); l != lend; ++l)
@@ -1159,6 +1146,32 @@ void show_zone_stat(CHAR_DATA *ch, int zone_vnum)
 			out << "\r\n";
 		}
 	}
+
+	send_to_char(out.str().c_str(), ch);
+}
+
+void print_timer_str(CHAR_DATA *ch)
+{
+	char time_buf[17];
+	strftime(time_buf, sizeof(time_buf), "%H:%M %d-%m-%Y", localtime(&next_reset_time));
+
+	std::stringstream out;
+	out << "Следующее обновление таблицы: " << time_buf;
+
+	const int minutes = (next_reset_time - time(0)) / 60;
+	if (minutes >= 60)
+	{
+		out << " (" << minutes / 60 << "ч)";
+	}
+	else if (minutes >= 1)
+	{
+		out << " (" << minutes << "м)";
+	}
+	else
+	{
+		out << " (меньше минуты)";
+	}
+	out << "\r\n";
 
 	send_to_char(out.str().c_str(), ch);
 }
