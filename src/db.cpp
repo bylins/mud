@@ -357,6 +357,7 @@ void go_boot_xhelp(void)
 	index_boot(DB_BOOT_HLP);
 	SetsDrop::init_xhelp();
 	SetsDrop::init_xhelp_full();
+	ClanSystem::init_xhelp();
 }
 
 void load_sheduled_reboot()

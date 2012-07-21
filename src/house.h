@@ -226,6 +226,8 @@ public:
 	void add_offline_member(const std::string &name, int uid, int rank);
 	int ingr_chest_max_objects();
 
+	std::string get_web_url() const { return web_url_; };
+
 	friend ACMD(DoHouse);
 	friend ACMD(DoClanChannel);
 	friend ACMD(DoClanList);
@@ -278,6 +280,8 @@ private:
 	std::string mod_text; // сообщение дружины
 	// рнум комнаты, где стоит хранилище под ингры (-1 если опция выключена)
 	int ingr_chest_room_rnum_;
+	// адрес сайта дружины для 'справка сайтыдружин'
+	std::string web_url_;
 
 	//no save
 	int chest_objcount;
@@ -301,6 +305,7 @@ private:
 	void HouseStat(CHAR_DATA * ch, std::string & buffer);
 	void remove_member(ClanMemberList::iterator &it);
 	void save_clan_file(const std::string &filename) const;
+	void house_web_url(CHAR_DATA *ch, std::string &buffer);
 
 	// house аля олц
 	void MainMenu(DESCRIPTOR_DATA * d);
@@ -339,7 +344,7 @@ private:
 
 void SetChestMode(CHAR_DATA *ch, std::string &buffer);
 std::string GetChestMode(CHAR_DATA *ch);
-  
+
 namespace ClanSystem
 {
 
@@ -347,6 +352,11 @@ bool is_ingr_chest(OBJ_DATA *obj);
 void save_ingr_chests();
 bool show_ingr_chest(OBJ_DATA *obj, CHAR_DATA *ch);
 void save_chest_log();
+
+// обновление справки сайтов дружин раз в минуту, если были какие-то изменения
+void check_update_xhelp();
+// первичная генерация справки сайтов дружин
+void init_xhelp();
 
 } // namespace ClanSystem
 

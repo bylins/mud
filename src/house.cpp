@@ -15,6 +15,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/range/algorithm/remove_if.hpp>
 #include "conf.h"
 #include "house.h"
 #include "comm.h"
@@ -53,6 +54,11 @@ extern const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode,
 extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 extern char const *class_abbrevs[];
+// для генерации справки сайтыдружин
+extern int top_of_helpt;
+extern struct help_index_element *help_table;
+extern int hsort(const void *a, const void *b);
+extern void go_boot_xhelp(void);
 
 void fix_ingr_chest_rnum(const int room_rnum)//Нужно чтоб позиция короба не съехала
 {
@@ -222,6 +228,8 @@ Clan::~Clan()
 // лоад/релоад индекса и файлов кланов
 void Clan::ClanLoad()
 {
+	const bool reload = Clan::ClanList.empty() ? false : true;
+
 	init_chest_rnum();
 	// на случай релоада
 	Clan::ClanList.clear();
@@ -482,6 +490,10 @@ void Clan::ClanLoad()
 					break;
 				}
 			}
+			else if (buffer == "Site:")
+			{
+				file >> tempClan->web_url_;
+			}
 			else if (buffer == "StoredExp:")
 			{
 				if (!(file >> tempClan->clan_exp))
@@ -710,6 +722,18 @@ void Clan::ClanLoad()
 	Board::ClanInit();
 	save_ingr_chests();
 
+	if (reload)
+	{
+		go_boot_xhelp();
+	}
+	else
+	{
+		// релоадить всю справку при старте мада имх черевато, потому что
+		// не известно в каком там порядке будут иниться системы и корректно ли
+		// будет обновлена эта самая справка в том или ином случае
+		ClanSystem::init_xhelp();
+	}
+
 	// на случай релоада кланов для выставления изменений игрокам онлайн
 	// лдшникам воткнется в другом месте, можно и тут чар-лист прогнать, варианты одинаково корявые
 	DESCRIPTOR_DATA *d;
@@ -775,6 +799,11 @@ void Clan::save_clan_file(const std::string &filename) const
 		<< "StoredExp: " << clan_exp << "\n"
 		<< "ClanLevel: " << clan_level << "\n"
 		<< "Bank: " << bank << "\n";
+
+	if (!web_url_.empty())
+	{
+		file << "Site: " << web_url_ << "\n";
+	}
 
 	file << "Politics:\n";
 	for (ClanPolitics::const_iterator it = politics.begin(); it != politics.end(); ++it)
@@ -1053,6 +1082,10 @@ ACMD(DoHouse)
 	{
 		CLAN(ch)->chest_log.print(ch, buffer);
 	}
+	else if (CompareParam(buffer2, "сайт") && !CLAN_MEMBER(ch)->rank_num)
+	{
+		CLAN(ch)->house_web_url(ch, buffer);
+	}
 	else
 	{
 		// обработка списка доступных команд по званию персонажа
@@ -1062,7 +1095,10 @@ ACMD(DoHouse)
 				buffer += HOUSE_FORMAT[i];
 		// воевода до кучи может сам сменить у дружины воеводу
 		if (!CLAN_MEMBER(ch)->rank_num)
+		{
 			buffer += "  клан воевода (имя)\r\n";
+			buffer += "  клан сайт (адрес сайта вашей дружины для 'справка сайтыдружин')\r\n";
+		}
 		buffer += "  клан налог (процент отдаваемого опыта)\r\n";
 		if (CLAN(ch)->storehouse)
 			buffer += "  хранилище <фильтры>\r\n";
@@ -5821,4 +5857,103 @@ void ClanSystem::save_chest_log()
 	{
 		(*i)->chest_log.save((*i)->get_file_abbrev());
 	}
+}
+
+namespace ClanSystem
+{
+
+bool need_update_xhelp = false;
+
+/**
+ * Генерация справки 'сайтыдружин'.
+ */
+void init_xhelp()
+{
+	std::vector<std::string> key_list;
+	key_list.push_back("САЙТЫДРУЖИН");
+	key_list.push_back("CLANSITES");
+	key_list.push_back("INTERNETLINKS");
+
+	RECREATE(help_table, struct help_index_element, top_of_helpt + key_list.size() + 1);
+
+	std::stringstream out;
+	out << "  В данном разделе приведены адреса сайтов,  принадлежащим той или иной дружине.\r\n"
+		"Как  правило,  на  подобных  сайтах  Вы  можете  ознакомиться с уставом дружины,\r\n"
+		"узнать условия вступления в дружину, а также получить довольно много  информации\r\n"
+		"о  политике дружины, ее составе, важных событиях, участие в которых принимали ее\r\n"
+		"ратники и многое другое.\r\n\r\n"
+		"  Список сайтов дружин:\r\n\r\n";
+
+	for (ClanListType::const_iterator i = Clan::ClanList.begin(),
+		iend = Clan::ClanList.end(); i != iend; ++i)
+	{
+		out << "    $COLORW" << std::setw(7) << std::left
+			<< (*i)->GetAbbrev() << "$COLORn --   $COLORC"
+			<< ((*i)->get_web_url().empty() ? "$COLORW[ НЕТ ИНФОРМАЦИИ ]" : (*i)->get_web_url())
+			<< "$COLORn\r\n";
+	}
+
+	out << "\r\n  Официальный сайт мада МПМ Былины:$COLORc www.mud.ru$COLORn\r\n"
+		<< "  Сайт истории мада МПМ Былины:$COLORc mudhistory.nm.ru$COLORn\r\n"
+		<< "\r\nСм. также:$COLORC ДРУЖИНЫ $COLORn\r\n";
+
+	struct help_index_element el;
+	el.min_level = 0;
+	el.duplicate = 0;
+	el.entry = str_dup(out.str().c_str());
+
+	for (std::vector<std::string>::const_iterator i = key_list.begin(),
+		iend = key_list.end(); i != iend; ++i)
+	{
+		el.keyword = str_dup((*i).c_str());
+		help_table[++top_of_helpt] = el;
+		++el.duplicate;
+	}
+	qsort(help_table, top_of_helpt + 1, sizeof(struct help_index_element), hsort);
+}
+
+/**
+ * При любом изменении нужно релоадить всю справку, чтобы чистить старые страницы.
+ */
+void check_update_xhelp()
+{
+	if (need_update_xhelp)
+	{
+		go_boot_xhelp();
+		need_update_xhelp = false;
+	}
+}
+
+} // ClanSystem
+
+// клан сайт <текст>
+void Clan::house_web_url(CHAR_DATA *ch, std::string &buffer)
+{
+	const unsigned MAX_URL_LENGTH = 40;
+	std::istringstream tmp(buffer);
+	std::string url;
+	tmp >> url;
+//	url.erase(boost::remove_if(url, boost::is_any_of("$\\")), url.end());
+//	boost::erase_all(url, "$");
+
+	if (url.size() > MAX_URL_LENGTH)
+	{
+		url = url.substr(0, MAX_URL_LENGTH);
+		send_to_char(ch, "Строка была обрезана до %u символов.\r\n", MAX_URL_LENGTH);
+	}
+
+	if (url.empty())
+	{
+		send_to_char("Адрес сайта вашей дружины удален.\r\n"
+			"Обновление справки 'сайтыдружин' состоится в течении минуты.\r\n", ch);
+		this->web_url_.clear();
+	}
+	else
+	{
+		this->web_url_ = url;
+		send_to_char("Адрес сайта вашей дружины установлен.\r\n"
+			"Обновление справки 'сайтыдружин' состоится в течении минуты.\r\n", ch);
+	}
+
+	ClanSystem::need_update_xhelp = true;
 }

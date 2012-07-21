@@ -1408,12 +1408,18 @@ inline void heartbeat(const int missed_pulses)
 		TitleSystem::save_title_list();
 	}
 	// сейв зареганных мыл
-	if (!((pulse + 31) % (5 * 60 * PASSES_PER_SEC)))
+	if (!((pulse + 32) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		RegisterSystem::save();
 	}
 
 // раз в минуту >> /////////////////////////////////////////////////////////////
+
+	// проверка необходимости обновления справки сайтыдружин
+	if (!((pulse + 31) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	{
+		ClanSystem::check_update_xhelp();
+	}
 
 	// обновление таблицы дропа сетов
 	if (!((pulse + 30) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
@@ -2934,6 +2940,15 @@ int process_input(DESCRIPTOR_DATA * t)
 			{
 				if (GET_LEVEL(t->character) < LVL_IMPL)
 					*ptr = '8';
+			}
+			if (*ptr == '$'
+				&& (STATE(t) == CON_PLAYING
+					|| STATE(t) == CON_EXDESC
+					|| STATE(t) == CON_WRITEBOARD
+					|| STATE(t) == CON_WRITE_MOD))
+			{
+				if (GET_LEVEL(t->character) < LVL_IMPL)
+					*ptr = '4';
 			}
 			if (*ptr == '\\'
 				&& (STATE(t) == CON_PLAYING
