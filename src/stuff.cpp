@@ -22,6 +22,7 @@
 #include "corpse.hpp"
 #include "screen.h"
 #include "skills.h"
+#include "sets_drop.hpp"
 
 extern const char *skill_name(int num);
 extern void set_obj_eff(struct obj_data *itemobj, int type, int mod);
@@ -321,7 +322,7 @@ void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch)
 		return;
 	}
 
-	const int rnum = FullSetDrop::check_mob(GET_MOB_RNUM(ch));
+	const int rnum = SetsDrop::check_mob(GET_MOB_RNUM(ch));
 	if (rnum > 0)
 	{
 		obj_to_corpse(corpse, ch, rnum, false);

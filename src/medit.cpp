@@ -26,6 +26,7 @@
 #include "name_list.hpp"
 #include "room.hpp"
 #include "corpse.hpp"
+#include "sets_drop.hpp"
 
 /*
  * Set this to 1 for debugging logs in medit_save_internally.
@@ -578,7 +579,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 			}
 		}
 
-		FullSetDrop::renumber_obj_rnum(-1, new_mob_num);
+		SetsDrop::renumber_obj_rnum(-1, new_mob_num);
 	}			// совершенно новый моб
 
 #if defined(OASIS_MPROG)

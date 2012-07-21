@@ -57,6 +57,7 @@
 #include "corpse.hpp"
 #include "scripting.hpp"
 #include "pugixml.hpp"
+#include "sets_drop.hpp"
 
 /*   external vars  */
 extern bool need_warn;
@@ -640,7 +641,7 @@ ACMD(do_email)
 		return;
 	}
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(LIB_ETC"smtp.xml");	
+	pugi::xml_parse_result result = doc.load_file(LIB_ETC"smtp.xml");
 	if (!result)
 	{
 		send_to_char("Ошибка открытия файла etc/smtp.xml\r\n", ch);
@@ -683,7 +684,7 @@ ACMD(do_email)
 
 	std::string s_port = smtp.child("Port").child_value();
 	int port = atoi(s_port.c_str());
-	if (port == 0) 
+	if (port == 0)
 	{
 		send_to_char("Ошибка чтения узла <Port>.\r\n", ch);
 		return;
@@ -696,19 +697,19 @@ ACMD(do_email)
 	std::string from = senderName + "<" + senderMail + ">";
 	std::string subject = smtp.child("Subject").child_value();
 	std::string msg = "Здравствуйте!\r\n";
-	msg += "Пароль Вашего персонажа в МПМ \"Былины\" был изменен!\r\n"; 
+	msg += "Пароль Вашего персонажа в МПМ \"Былины\" был изменен!\r\n";
 	msg += "Персонаж: " + std::string(GET_NAME(victim))+"\r\n";
 	msg += "Новый пароль: " + std::string(newpass);
 	std::string addr_to = std::string(GET_EMAIL(victim));
 
 	if (scripting::send_email(server, s_port, login, pass, from, addr_to, msg, subject))
 	{
-		sprintf(buf, "Персонажу '%s' выслан новый пароль на адрес электронной почты, указанный при регистрации.\r\n", 
+		sprintf(buf, "Персонажу '%s' выслан новый пароль на адрес электронной почты, указанный при регистрации.\r\n",
 			GET_NAME(victim));
 	}
 	else
 	{
-		sprintf(buf, "Пароль персонажа '%s' был ИЗМЕНЕН, но при отправке почты возникла ошибка!\r\n", 
+		sprintf(buf, "Пароль персонажа '%s' был ИЗМЕНЕН, но при отправке почты возникла ошибка!\r\n",
 			GET_NAME(victim));
 	}
 	send_to_char(buf, ch);
@@ -4209,7 +4210,7 @@ ACMD(do_show)
 		send_to_char(ch, "  Список полей сражающихся: %d\r\n", fighting_list_size());
 		send_to_char(ch, "  Передвижения: %d\r\n", motion);
 		send_to_char(ch, "  Потрачено кун в магазинах2 за ребут: %d\r\n", ShopExt::get_spent_today());
-		FullSetDrop::show_stats(ch);
+		SetsDrop::show_stats(ch);
 		break;
 	}
 	case 5:
@@ -4428,7 +4429,7 @@ ACMD(do_show)
 	{
 		if (*value && is_number(value))
 		{
-			FullSetDrop::show_zone_stat(ch, atoi(value));
+			SetsDrop::show_zone_stat(ch, atoi(value));
 		}
 		else
 		{

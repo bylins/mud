@@ -30,6 +30,7 @@
 #include "corpse.hpp"
 #include "shop_ext.hpp"
 #include "constants.h"
+#include "sets_drop.hpp"
 
 /*------------------------------------------------------------------------*/
 
@@ -276,7 +277,7 @@ void renumber_obj_rnum(int rnum)
 	Parcel::renumber_obj_rnum(rnum);
 	GlobalDrop::renumber_obj_rnum(rnum);
 	ShopExt::renumber_obj_rnum(rnum);
-	FullSetDrop::renumber_obj_rnum(rnum);
+	SetsDrop::renumber_obj_rnum(rnum);
 }
 
 /**

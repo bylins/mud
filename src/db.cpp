@@ -70,6 +70,7 @@
 #include "morph.hpp"
 #include "birth_places.hpp"
 #include "pugixml.hpp"
+#include "sets_drop.hpp"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -354,8 +355,8 @@ void go_boot_xhelp(void)
 	}
 	top_of_helpt = 0;
 	index_boot(DB_BOOT_HLP);
-	FullSetDrop::init_xhelp();
-	FullSetDrop::init_xhelp_full();
+	SetsDrop::init_xhelp();
+	SetsDrop::init_xhelp_full();
 }
 
 void load_sheduled_reboot()
@@ -598,16 +599,16 @@ ACMD(do_reboot)
 		//Celebrates::load(XMLLoad(LIB_MISC CELEBRATES_FILE, CELEBRATES_MAIN_TAG, CELEBRATES_ERROR_STR));
 		Celebrates::load();
 	}
-	else if (!str_cmp(arg, "fullsetdrop") && PRF_FLAGGED(ch, PRF_CODERINFO))
+	else if (!str_cmp(arg, "setsdrop") && PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
 		skip_spaces(&argument);
 		if (*argument && is_number(argument))
 		{
-			FullSetDrop::reload(atoi(argument));
+			SetsDrop::reload(atoi(argument));
 		}
 		else
 		{
-			FullSetDrop::reload();
+			SetsDrop::reload();
 		}
 	}
 	else
@@ -1792,8 +1793,8 @@ void boot_db(void)
 	log("Check big sets in rent.");
 	SetSystem::check_rented();
 
-	log("Init FullSetDrop lists.");
-	FullSetDrop::init();
+	log("Init SetsDrop lists.");
+	SetsDrop::init();
 
 	boot_time = time(0);
 	log("Boot db -- DONE.");

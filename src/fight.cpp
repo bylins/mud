@@ -41,6 +41,7 @@
 #include "room.hpp"
 #include "AffectHandler.hpp"
 #include "genchar.h"
+#include "sets_drop.hpp"
 
 extern CHAR_DATA *mob_proto;
 
@@ -1020,7 +1021,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		&& IS_NPC(victim)
 		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
 	{
-		FullSetDrop::add_mob_stat(victim, members);
+		SetsDrop::add_mob_stat(victim, members);
 		SET_BIT(EXTRA_FLAGS(victim, EXTRA_GRP_KILL_COUNT), EXTRA_GRP_KILL_COUNT);
 	}
 

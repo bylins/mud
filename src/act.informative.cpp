@@ -3979,8 +3979,11 @@ ACMD(do_help)
 			}
 			else if (topic_count == 1)
 			{
-				sprintf(buf1, "%s uses command HELP: %s (read)", GET_NAME(ch), argument);
-				mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
+				if (help_table[topic_need].immlog)
+				{
+					sprintf(buf1, "%s uses command HELP: %s (read)", GET_NAME(ch), argument);
+					mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
+				}
 				page_string(ch->desc, help_table[topic_need].entry, 0);
 				return;
 			}

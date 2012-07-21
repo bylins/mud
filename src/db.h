@@ -333,10 +333,15 @@ struct player_index_element
 
 struct help_index_element
 {
+	help_index_element()
+		: keyword(0), entry(0), duplicate(0), min_level(0), immlog(true) {};
+
 	char *keyword;
 	char *entry;
 	int duplicate;
 	int min_level;
+	// писать или нет чтение данной справки в иммлог (чтобы не спамить сеты)
+	bool immlog;
 };
 
 #define SEASON_WINTER		0

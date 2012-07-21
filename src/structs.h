@@ -1082,7 +1082,7 @@ enum { DRUNK, FULL, THIRST};
 #define EXTRA_FAILHIDE       (1 << 0)
 #define EXTRA_FAILSNEAK      (1 << 1)
 #define EXTRA_FAILCAMOUFLAGE (1 << 2)
-// для избежания повторных записей моба в списки FullSetDrop
+// для избежания повторных записей моба в списки SetsDrop
 #define EXTRA_GRP_KILL_COUNT (1 << 3)
 
 /* other #defined constants **********************************************/

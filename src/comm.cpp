@@ -65,6 +65,7 @@
 #include "celebrates.hpp"
 #include "scripting.hpp"
 #include "shop_ext.hpp"
+#include "sets_drop.hpp"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -553,7 +554,7 @@ void init_game(ush_int port)
 	ZoneExpStat::print_log();
 	print_rune_log();
 	scripting::terminate();
-	FullSetDrop::save_mob_stat();
+	SetsDrop::save_mob_stat();
 
 	log("Closing all sockets.");
 	while (descriptor_list)
@@ -1337,9 +1338,9 @@ inline void heartbeat(const int missed_pulses)
 	}
 
 
-	if (!((pulse + 52) % (60 * FullSetDrop::SAVE_PERIOD * PASSES_PER_SEC)))
+	if (!((pulse + 52) % (60 * SetsDrop::SAVE_PERIOD * PASSES_PER_SEC)))
 	{
-		FullSetDrop::save_mob_stat();
+		SetsDrop::save_mob_stat();
 	}
 
 // раз в 10 минут >> ///////////////////////////////////////////////////////////
@@ -1407,12 +1408,18 @@ inline void heartbeat(const int missed_pulses)
 		TitleSystem::save_title_list();
 	}
 	// сейв зареганных мыл
-	if (!((pulse + 29) % (5 * 60 * PASSES_PER_SEC)))
+	if (!((pulse + 31) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		RegisterSystem::save();
 	}
 
 // раз в минуту >> /////////////////////////////////////////////////////////////
+
+	// обновление таблицы дропа сетов
+	if (!((pulse + 30) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	{
+		SetsDrop::reload_by_timer();
+	}
 
 	// клан-пк
 	if (!((pulse + 29) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
