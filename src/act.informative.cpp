@@ -2140,7 +2140,7 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 	OBJ_DATA *found_obj = NULL;
 	struct char_portal_type *tmp;
 	char *desc, *what, whatp[MAX_INPUT_LENGTH], where[MAX_INPUT_LENGTH];
-	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP | FIND_CHAR_ROOM;
+	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP | FIND_CHAR_ROOM | FIND_OBJ_EXDESC;
 
 	if (!ch->desc)
 		return 0;
@@ -2454,7 +2454,7 @@ ACMD(do_examine)
 	CHAR_DATA *tmp_char;
 	OBJ_DATA *tmp_object;
 	char where[MAX_INPUT_LENGTH];
-	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP | FIND_CHAR_ROOM;
+	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP | FIND_CHAR_ROOM | FIND_OBJ_EXDESC;
 
 
 	if (GET_POS(ch) < POS_SLEEPING)

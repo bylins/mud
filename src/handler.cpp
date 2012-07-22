@@ -110,6 +110,7 @@ int get_player_charms(CHAR_DATA * ch, int spellnum);
 extern struct zone_data *zone_table;
 extern int global_uid;
 extern void change_leader(CHAR_DATA *ch, CHAR_DATA *vict);
+extern char *find_exdesc(char *word, EXTRA_DESCR_DATA * list);
 
 char *fname(const char *namelist)
 {
@@ -3390,7 +3391,6 @@ OBJ_DATA *create_money(int amount)
 	return (obj);
 }
 
-
 /* Generic Find, designed to find any object/character
  *
  * Calling:
@@ -3453,35 +3453,66 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** 
 		return 0;
 
 	if (IS_SET(bitvector, FIND_OBJ_EQUIP))
+	{
 		for (l = 0; l < NUM_WEARS; l++)
-			if (GET_EQ(ch, l))
-				if (CAN_SEE_OBJ(ch, GET_EQ(ch, l)))
-					if (isname(tmp, GET_EQ(ch, l)->name))
-						if (++j == number)
-						{
-							*tar_obj = GET_EQ(ch, l);
-							return (FIND_OBJ_EQUIP);
-						}
+		{
+			if (GET_EQ(ch, l) && CAN_SEE_OBJ(ch, GET_EQ(ch, l)))
+			{
+				if (isname(tmp, GET_EQ(ch, l)->name)
+					|| (IS_SET(bitvector, FIND_OBJ_EXDESC)
+						&& find_exdesc(tmp, GET_EQ(ch, l)->ex_description)))
+				{
+					if (++j == number)
+					{
+						*tar_obj = GET_EQ(ch, l);
+						return (FIND_OBJ_EQUIP);
+					}
+				}
+			}
+		}
+	}
 
 	if (IS_SET(bitvector, FIND_OBJ_INV))
+	{
 		for (i = ch->carrying; i && (j <= number); i = i->next_content)
-			if (isname(tmp, i->name))
+		{
+			if (isname(tmp, i->name)
+				|| (IS_SET(bitvector, FIND_OBJ_EXDESC)
+					&& find_exdesc(tmp, i->ex_description)))
+			{
 				if (CAN_SEE_OBJ(ch, i))
+				{
 					if (++j == number)
 					{
 						*tar_obj = i;
 						return (FIND_OBJ_INV);
 					}
+				}
+			}
+		}
+	}
 
 	if (IS_SET(bitvector, FIND_OBJ_ROOM))
-		for (i = world[ch->in_room]->contents; i && (j <= number); i = i->next_content)
-			if (isname(tmp, i->name))
+	{
+		for (i = world[ch->in_room]->contents;
+			i && (j <= number); i = i->next_content)
+		{
+			if (isname(tmp, i->name)
+				|| (IS_SET(bitvector, FIND_OBJ_EXDESC)
+					&& find_exdesc(tmp ,i->ex_description)))
+			{
 				if (CAN_SEE_OBJ(ch, i))
+				{
 					if (++j == number)
 					{
 						*tar_obj = i;
 						return (FIND_OBJ_ROOM);
 					}
+				}
+			}
+		}
+	}
+
 //  if (IS_SET (bitvector, FIND_OBJ_EQUIP))
 //    {
 //      if ((*tar_obj = get_obj_in_eq_vis (ch, name)) != NULL)

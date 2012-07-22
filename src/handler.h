@@ -137,6 +137,7 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** 
 #define FIND_OBJ_WORLD     (1 << 4)
 #define FIND_OBJ_EQUIP     (1 << 5)
 #define FIND_CHAR_DISCONNECTED (1 << 6)
+#define FIND_OBJ_EXDESC    (1 << 7)
 
 #define CRASH_DELETE_OLD   (1 << 0)
 #define CRASH_DELETE_NEW   (1 << 1)
