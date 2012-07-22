@@ -938,7 +938,7 @@ void script_stat(CHAR_DATA * ch, SCRIPT_DATA * sc)
 void do_sstat_room(CHAR_DATA * ch)
 {
 	ROOM_DATA *rm = world[ch->in_room];
-	
+
 	do_sstat_room(rm, ch);
 
 }
@@ -1050,8 +1050,8 @@ ACMD(do_attach)
 	loc = (*loc_name) ? atoi(loc_name) : -1;
 
 	rn = real_trigger(tn);
-	if (rn >= 0 && ((is_abbrev(arg, "mtr") && trig_index[rn]->proto->attach_type != MOB_TRIGGER) || 
-			(is_abbrev(arg, "otr") && trig_index[rn]->proto->attach_type != OBJ_TRIGGER) || 
+	if (rn >= 0 && ((is_abbrev(arg, "mtr") && trig_index[rn]->proto->attach_type != MOB_TRIGGER) ||
+			(is_abbrev(arg, "otr") && trig_index[rn]->proto->attach_type != OBJ_TRIGGER) ||
 			(is_abbrev(arg, "wtr") && trig_index[rn]->proto->attach_type != WLD_TRIGGER)))
 	{
 		tn = (is_abbrev(arg, "mtr") ? 0 : is_abbrev(arg, "otr") ? 1 : is_abbrev(arg, "wtr") ? 2 : 3);
@@ -2083,12 +2083,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			else if (!str_cmp(field, "pname"))
 				strcpy(str, GET_PAD(c, 5));
 			else if (!str_cmp(field, "name"))
-			{
-				if (GET_SHORT(c))
-					strcpy(str, GET_SHORT(c));
-				else
-					strcpy(str, GET_NAME(c));
-			}
+				strcpy(str, GET_NAME(c));
 			else if (!str_cmp(field, "id"))
 				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c));
 			else if (!str_cmp(field, "uniq"))
@@ -2097,7 +2092,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					sprintf(str, "%d", GET_UNIQUE(c));
 			}
 			else if (!str_cmp(field, "alias"))
-				strcpy(str, GET_NAME(c));
+				strcpy(str, GET_PC_NAME(c));
 			else if (!str_cmp(field, "level"))
 				sprintf(str, "%d", GET_LEVEL(c));
 			else if (!str_cmp(field, "remort"))
@@ -3121,7 +3116,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			else if (!str_cmp(field, "sectortype"))//Polud возвращает строку - тип комнаты
 			{
-				sprinttype(r->sector_type, sector_types, str);			
+				sprinttype(r->sector_type, sector_types, str);
 			}
 			else if (!str_cmp(field, "id"))
 			{
