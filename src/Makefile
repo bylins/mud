@@ -13,7 +13,7 @@ CXREF = cxref
 
 BINDIR = ../bin
 
-CFLAGS = -ggdb3 -O2 -Wall -DBOOST_ENABLE_ASSERT_HANDLER -DHAVE_ICONV
+CFLAGS = -ggdb3 -O2 -Wall -DBOOST_ENABLE_ASSERT_HANDLER -DHAVE_ICONV -DLOG_AUTOFLUSH
 
 # use 'make test' for faster compile w/o optimizations, crypt and 34lvl god for first character
 TESTCFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH
