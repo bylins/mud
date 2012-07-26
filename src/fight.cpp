@@ -2146,22 +2146,20 @@ void might_hit_bash(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 }
 
-/**
- * Попытка зафиксить неприменимость молота мобами с типом атаки отличным от нулевого (ударил),
- * т.к. при всех остальных типах атаки attacktype будет равен 400 + порядковый номер типа
- * и стоявшая до этого проверка на молот attacktype == TYPE_HIT фейлится.
- */
-bool check_attacktype_mighthit(CHAR_DATA *ch, int attacktype)
+bool check_mighthit_weapon(CHAR_DATA *ch)
 {
-	if (IS_NPC(ch)
-		&& attacktype >= TYPE_HIT
-		&& attacktype <= TYPE_HIT + NUM_ATTACK_TYPES - 1)
+	if (IS_IMMORTAL(ch)
+		|| (IS_NPC(ch) && !IS_CHARMICE(ch)))
 	{
 		return true;
 	}
-	if (!IS_NPC(ch) && attacktype == TYPE_HIT)
+	if (!GET_EQ(ch, WEAR_BOTHS)
+		&& !GET_EQ(ch, WEAR_WIELD)
+		&& !GET_EQ(ch, WEAR_HOLD)
+		&& !GET_EQ(ch, WEAR_LIGHT)
+		&& !GET_EQ(ch, WEAR_SHIELD))
 	{
-		return true;
+			return true;
 	}
 	return false;
 }
@@ -2184,16 +2182,12 @@ int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_D
 		dam = 0;
 
 	// MIGHT_HIT
-	if (check_attacktype_mighthit(ch, attacktype)
-		&& GET_AF_BATTLE(ch, EAF_MIGHTHIT)
-		&& GET_WAIT(ch) <= 0)
+	// в эти условия ничего добавлять не надо, иначе EAF_MIGHTHIT не снимется
+	// с моба по ходу боя, если он не может по каким-то причинам смолотить
+	if (GET_AF_BATTLE(ch, EAF_MIGHTHIT) && GET_WAIT(ch) <= 0)
 	{
 		CLR_AF_BATTLE(ch, EAF_MIGHTHIT);
-		if (IS_NPC(ch) ||
-				IS_IMMORTAL(ch) ||
-				!(GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_WIELD) ||
-				  GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_LIGHT) ||
-				  GET_EQ(ch, WEAR_SHIELD) || GET_AF_BATTLE(ch, EAF_TOUCH)))
+		if (check_mighthit_weapon(ch) && !GET_AF_BATTLE(ch, EAF_TOUCH))
 		{
 			percent = number(1, skill_info[SKILL_MIGHTHIT].max_percent);
 			prob = train_skill(ch, SKILL_MIGHTHIT, skill_info[SKILL_MIGHTHIT].max_percent, victim);
@@ -5611,7 +5605,10 @@ void perform_violence(void)
 			}
 			// 6) mighthit
 			do_this = number(0, 100);
-			if (!sk_use && do_this <= GET_LIKES(ch) && ch->get_skill(SKILL_MIGHTHIT))
+			if (!sk_use
+				&& do_this <= GET_LIKES(ch)
+				&& ch->get_skill(SKILL_MIGHTHIT)
+				&& check_mighthit_weapon(ch))
 			{
 				SET_AF_BATTLE(ch, EAF_MIGHTHIT);
 				sk_use = TRUE;

@@ -38,6 +38,7 @@ extern TIME_INFO_DATA time_info;
 extern SPECIAL(guild_poly);
 extern guardian_type guardian_list;
 extern struct zone_data * zone_table;
+extern bool check_mighthit_weapon(CHAR_DATA *ch);
 SPECIAL(shop_keeper);
 
 ACMD(do_get);
@@ -462,19 +463,29 @@ int perform_mob_switch(CHAR_DATA * ch)
 {
 	CHAR_DATA *best;
 	best = find_best_mob_victim(ch, SKIP_HIDING | SKIP_CAMOUFLAGE | SKIP_SNEAKING | CHECK_OPPONENT);
+
 	if (!best)
 		return FALSE;
+
 	best = try_protect(best, ch);
 	if (best == ch->get_fighting())
 		return FALSE;
+
 	// переключаюсь на best
 	stop_fighting(ch, FALSE);
 	set_fighting(ch, best);
 	set_wait(ch, 2, FALSE);
-	if (ch->get_skill(SKILL_MIGHTHIT))
+
+	if (ch->get_skill(SKILL_MIGHTHIT)
+		&& check_mighthit_weapon(ch))
+	{
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
+	}
 	else if (ch->get_skill(SKILL_STUPOR))
+	{
 		SET_AF_BATTLE(ch, SKILL_STUPOR);
+	}
+
 	return TRUE;
 }
 
