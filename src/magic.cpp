@@ -4889,6 +4889,21 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 	}
 	decay = areas_messages[i].decay;
 
+	// список генерится до дамага по виктиму, т.к. на нем могут висеть death тригеры
+	// с появлением новых мобов, по которым тот же шок бьет уже после смерти основной цели
+	for (i = 0, ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
+	{
+		if (IS_IMMORTAL(ch_vict))
+			continue;
+		if (!HERE(ch_vict))
+			continue;
+		if (ch_vict == victim)
+			continue;
+		if (SpINFO.violent && same_group(ch, ch_vict))
+			continue;
+		add_to_tmp_char_list(ch_vict);
+	}
+
 	mag_single_target(level, ch, victim, NULL, spellnum, savetype);
 	if (ch->purged())
 	{
@@ -4906,19 +4921,6 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 		{
 			return 1;
 		}
-	}
-
-	for (i = 0, ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
-	{
-		if (IS_IMMORTAL(ch_vict))
-			continue;
-		if (!HERE(ch_vict))
-			continue;
-		if (ch_vict == victim)
-			continue;
-		if (SpINFO.violent && same_group(ch, ch_vict))
-			continue;
-		add_to_tmp_char_list(ch_vict);
 	}
 
 	int size = tmp_char_list.size();
