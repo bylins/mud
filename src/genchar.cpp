@@ -235,14 +235,14 @@ void roll_real_abils(CHAR_DATA * ch)
 			ch->set_cha(10 + number(0, 2));
 			ch->set_wis(20 + number(0, 3));
 			ch->set_int(18 + number(0, 5));
-		}		// 55/45 roll 14/10
+		}	// 58/48
 		while (ch->get_cha()+ ch->get_wis()+ ch->get_int()!= 55);
 		do
 		{
 			ch->set_str(9 + number(0, 6));
 			ch->set_dex(9 + number(0, 4));
-			ch->set_con(11 + number(0, 3));
-		}		// 92/87 roll 9/5
+			ch->set_con(11 + number(0, 2));
+		}	// 96/84
 		while (ch->get_str() + ch->get_con() + ch->get_dex() +
 				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
 		/* ADD SPECIFIC STATS */
@@ -258,14 +258,14 @@ void roll_real_abils(CHAR_DATA * ch)
 			ch->set_str(16 + number(0, 3));
 			ch->set_con(14 + number(0, 3));
 			ch->set_dex(20 + number(0, 3));
-		}		// 57/50 roll 9/7
+		}	// 59/50
 		while (ch->get_str() + ch->get_con() + ch->get_dex() != 57);
 		do
 		{
 			ch->set_wis(9 + number(0, 3));
-			ch->set_cha(13 + number(0, 3));
+			ch->set_cha(13 + number(0, 2));
 			ch->set_int(9 + number(0, 3));
-		}		// 92/87 roll 9/5
+		}	// 96/88
 		while (ch->get_str() + ch->get_con() + ch->get_dex() +
 				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
 		/* ADD SPECIFIC STATS */
@@ -304,14 +304,14 @@ void roll_real_abils(CHAR_DATA * ch)
 		{
 			ch->set_str(16 + number(0, 5));
 			ch->set_dex(18 + number(0, 5));
-			ch->set_con(14 + number(0, 3));
-		}		// 55/48 roll 15/7
+			ch->set_con(14 + number(0, 2));
+		}	// 60/48
 		while (ch->get_str() + ch->get_con() + ch->get_dex() != 55);
 		do
 		{
 			ch->set_int(11 + number(0, 3));
 			ch->set_wis(11 + number(0, 3));
-		}		// 92/87 roll 8/5
+		}	// 95/89
 		while (ch->get_str() + ch->get_con() + ch->get_dex() +
 				ch->get_wis()+ ch->get_int()+ ch->get_cha()!= 92);
 		/* ADD SPECIFIC STATS */
