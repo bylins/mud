@@ -8,6 +8,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
+#include <boost/array.hpp>
 #include "pugixml.hpp"
 
 #include "shop_ext.hpp"
@@ -89,12 +90,7 @@ struct item_desc_node
 		std::string name;
 		std::string description;
 		std::string short_description;
-		std::string PNames0;
-		std::string PNames1;
-		std::string PNames2;
-		std::string PNames3;
-		std::string PNames4;
-		std::string PNames5;
+		boost::array<std::string, 6> PNames;
 		int sex;
 		std::list<unsigned> trigs;
 };
@@ -243,17 +239,17 @@ void load_item_desc()
 			child = item.child("short_description");
 			desc_node.short_description = child.child_value();
 			child = item.child("PNames0");
-			desc_node.PNames0 = child.child_value();
+			desc_node.PNames[0] = child.child_value();
 			child = item.child("PNames1");
-			desc_node.PNames1 = child.child_value();
+			desc_node.PNames[1] = child.child_value();
 			child = item.child("PNames2");
-			desc_node.PNames2 = child.child_value();
+			desc_node.PNames[2] = child.child_value();
 			child = item.child("PNames3");
-			desc_node.PNames3 = child.child_value();
+			desc_node.PNames[3] = child.child_value();
 			child = item.child("PNames4");
-			desc_node.PNames4 = child.child_value();
+			desc_node.PNames[4] = child.child_value();
 			child = item.child("PNames5");
-			desc_node.PNames5 = child.child_value();
+			desc_node.PNames[5] = child.child_value();
 			child = item.child("sex");
 			desc_node.sex = atoi(child.child_value());
 
@@ -498,13 +494,20 @@ void load(bool reload)
     log_shop_load();
 }
 
-std::string get_item_name(ItemNodePtr item, int keeper_vnum)
+std::string get_item_name(ItemNodePtr item, int keeper_vnum, int pad = 0)
 {
+	if (pad < 0 || pad > 5)
+	{
+		log("SYSERROR : obj_vnum=%d mob_vnum=%d, pad=%d (%s:%d)",
+			item->vnum, keeper_vnum, pad, __FILE__, __LINE__);
+		return "<ERROR>";
+	}
+
 	std::string value;
 	if (!item->descs.empty() && item->descs.find(keeper_vnum) != item->descs.end())
-		value = item->descs[keeper_vnum].PNames0;
+		value = item->descs[keeper_vnum].PNames[pad];
 	else
-		value = GET_OBJ_PNAME(obj_proto[item->rnum], 0);
+		value = GET_OBJ_PNAME(obj_proto[item->rnum], pad);
 	return value;
 }
 
@@ -768,12 +771,12 @@ void replace_descs(OBJ_DATA *obj, ItemNodePtr item, int vnum)
 	obj->description = strdup(item->descs[vnum].description.c_str());
 	obj->name = strdup(item->descs[vnum].name.c_str());
 	obj->short_description = strdup(item->descs[vnum].short_description.c_str());
-	obj->PNames[0]= strdup(item->descs[vnum].PNames0.c_str());
-	obj->PNames[1]= strdup(item->descs[vnum].PNames1.c_str());
-	obj->PNames[2]= strdup(item->descs[vnum].PNames2.c_str());
-	obj->PNames[3]= strdup(item->descs[vnum].PNames3.c_str());
-	obj->PNames[4]= strdup(item->descs[vnum].PNames4.c_str());
-	obj->PNames[5]= strdup(item->descs[vnum].PNames5.c_str());
+	obj->PNames[0]= strdup(item->descs[vnum].PNames[0].c_str());
+	obj->PNames[1]= strdup(item->descs[vnum].PNames[1].c_str());
+	obj->PNames[2]= strdup(item->descs[vnum].PNames[2].c_str());
+	obj->PNames[3]= strdup(item->descs[vnum].PNames[3].c_str());
+	obj->PNames[4]= strdup(item->descs[vnum].PNames[4].c_str());
+	obj->PNames[5]= strdup(item->descs[vnum].PNames[5].c_str());
 	obj->obj_flags.Obj_sex = item->descs[vnum].sex;
 	if (!item->descs[vnum].trigs.empty())
 		attach_triggers(obj, item->descs[vnum].trigs);
@@ -875,19 +878,15 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		}
 		return;
 	}
-	if ((IS_CARRYING_N(ch) + 1 > CAN_CARRY_N(ch)))
+
+	if ((IS_CARRYING_N(ch) + 1 > CAN_CARRY_N(ch))
+		|| ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(proto)) > CAN_CARRY_W(ch)))
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
 			"%s, я понимаю, своя ноша карман не тянет,\r\n"
-			"но %s Вам явно некуда положить.\r\n", GET_NAME(ch), OBJN(proto, ch, 3));
-		send_to_char(buf, ch);
-		return;
-	}
-	if ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(proto)) > CAN_CARRY_W(ch))
-	{
-		snprintf(buf, MAX_STRING_LENGTH,
-			"%s, я понимаю, своя ноша карман не тянет,\r\n"
-			"но %s Вам явно некуда положить.\r\n", GET_NAME(ch), OBJN(proto, ch, 3));
+			"но %s Вам явно некуда положить.\r\n",
+				GET_NAME(ch),
+				get_item_name((*shop)->item_list[item_num], GET_MOB_VNUM(keeper), 3).c_str());
 		send_to_char(buf, ch);
 		return;
 	}
@@ -895,7 +894,6 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	int bought = 0;
 	int total_money = 0;
 	int sell_count = can_sell_count(shop, item_num);
-
 
 	OBJ_DATA *obj = 0;
 	while (bought < item_count
