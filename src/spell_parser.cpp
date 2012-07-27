@@ -128,6 +128,54 @@ struct syllable syls[] =
 
 const char *unused_spellname = "!UNUSED!";	/* So we can get &unused_spellname */
 
+
+////////////////////////////////////////////////////////////////////////////////
+namespace
+{
+
+class MaxClassSlot
+{
+public:
+	MaxClassSlot()
+	{
+		for (int i = 0; i < NUM_CLASSES; ++i)
+		{
+			for (int k = 0; k < NUM_KIN; ++k)
+			{
+				max_class_slot_[i][k] = 0;
+			}
+		}
+	};
+
+	void init(int chclass, int kin, int slot)
+	{
+		if (max_class_slot_[chclass][kin] < slot)
+		{
+			max_class_slot_[chclass][kin] = slot;
+		}
+	};
+
+	int get(int chclass, int kin)
+	{
+		if (kin < 0
+			|| kin >= NUM_KIN
+			|| chclass < 0
+			|| chclass >=  NUM_CLASSES)
+		{
+			return 0;
+		}
+		return max_class_slot_[chclass][kin];
+	};
+
+private:
+	int max_class_slot_[NUM_CLASSES][NUM_KIN];
+};
+
+MaxClassSlot max_slots;
+
+} // namespace
+////////////////////////////////////////////////////////////////////////////////
+
 int MAGIC_SLOT_VALUES[LVL_IMPL + 1][MAX_SLOT] = { {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},	// 0
 	{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	{3, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -1457,6 +1505,12 @@ int slot_for_char(CHAR_DATA * ch, int slot_num)
 
 	if (IS_IMMORTAL(ch))
 		return 10;
+
+	if (max_slots.get(GET_CLASS(ch), GET_KIN(ch)) < slot_num)
+	{
+		return 0;
+	}
+
 	slot_num--;
 
 	switch (GET_CLASS(ch))
@@ -4101,7 +4155,6 @@ void mspell_level(char *name, int spell, int kin, int chclass, int level)
 	}
 }
 
-
 void mspell_slot(char *name, int spell, int kin , int chclass, int slot)
 {
 	int bad = 0;
@@ -4133,6 +4186,7 @@ void mspell_slot(char *name, int spell, int kin , int chclass, int slot)
 	if (!bad)
 	{
 		spell_info[spell].slot_forc[chclass][kin] = slot;
+		max_slots.init(chclass, kin, slot);
 		log("SLOT set '%s' kin '%d' classes %d value %d", name, kin, chclass, slot);
 	}
 
