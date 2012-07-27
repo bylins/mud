@@ -2654,7 +2654,7 @@ void Crash_report_rent(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj, int *c
 int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int factor, int *totalcost)
 {
 	char buf[MAX_EXTEND_LENGTH];
-	int i, divide = 1;
+	int i;
 	long numitems = 0, norent;
 // added by Dikiy (Лель)
 	long numitems_weared = 0;
@@ -2703,34 +2703,50 @@ int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int 
 		act(buf, FALSE, receptionist, 0, ch, TO_VICT);
 		return (FALSE);
 	}
-	divide = 1;
+
+	int divide = 1;
+	if (min_rent_cost(ch) <= 0 && *totalcost <= 1000)
+	{
+		divide = 2;
+	}
 
 	if (display)
 	{
-		if (min_rent_cost(ch))
+		if (min_rent_cost(ch) > 0)
 		{
 			sprintf(buf,
 					"$n сказал$g Вам : \"И еще %d %s мне на сбитень с медовухой :)\"",
 					min_rent_cost(ch) * factor, desc_count(min_rent_cost(ch) * factor, WHAT_MONEYu));
 			act(buf, FALSE, receptionist, 0, ch, TO_VICT);
 		}
+
 		sprintf(buf, "$n сказал$g Вам : \"В сумме это составит %d %s %s.\"",
-				*totalcost, desc_count(*totalcost, WHAT_MONEYu), (factor == RENT_FACTOR ? "в день " : ""));
+			*totalcost, desc_count(*totalcost, WHAT_MONEYu),
+				(factor == RENT_FACTOR ? "в день " : ""));
 		act(buf, FALSE, receptionist, 0, ch, TO_VICT);
+
 		if (MAX(0, *totalcost / divide) > ch->get_gold() + ch->get_bank())
 		{
 			act("\"...которых у тебя отродясь не было.\"", FALSE, receptionist, 0, ch, TO_VICT);
 			return (FALSE);
-		};
+		}
 
 		*totalcost = MAX(0, *totalcost / divide);
-		if (divide > 1)
-			act("\"Так уж и быть, я скощу тебе половину.\"", FALSE, receptionist, 0, ch, TO_VICT);
+		if (divide == 2)
+		{
+			act("$n сказал$g Вам : \"Так уж и быть, я скощу тебе половину.\"",
+				FALSE, receptionist, 0, ch, TO_VICT);
+		}
+
 		if (factor == RENT_FACTOR)
+		{
 			Crash_rent_deadline(ch, receptionist, *totalcost);
+		}
 	}
 	else
+	{
 		*totalcost = MAX(0, *totalcost / divide);
+	}
 	return (TRUE);
 }
 
