@@ -289,22 +289,18 @@ extern std::vector < OBJ_DATA * >obj_proto;
 class TimedSpell
 {
 public:
-	TimedSpell() : spell_(-1), timer_(-1) {};
-
-	int get() const;
-	bool is_spell_poisoned() const;
+	bool check_spell(int spell) const;
+	int is_spell_poisoned() const;
 	bool empty() const;
 	std::string print() const;
-
 	void dec_timer(OBJ_DATA *obj, int time = 1);
-	void set(OBJ_DATA *obj, int spell, int time);
+	void add(OBJ_DATA *obj, int spell, int time);
 	std::string diag_to_char(CHAR_DATA *ch);
 
 private:
-	void clear(OBJ_DATA *obj, bool send_message);
+	void remove_spell(OBJ_DATA *obj, int spell, bool message);
 
-	int spell_; // номер заклинания (SPELL_ХХХ)
-	int timer_; // сколько еще будет висеть (в минутах)
+	std::map<int /* номер заклинания (SPELL_ХХХ) */, int /* таймер в минутах */> spell_list_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

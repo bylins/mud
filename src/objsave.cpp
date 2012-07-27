@@ -446,12 +446,27 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "TSpl"))
 			{
 				*error = 49;
-				sscanf(buffer, "%d %d", t, t + 1);
-				object->timed_spell.set(object, t[0], t[1]);
+				std::stringstream text(buffer);
+				std::string tmp_buf;
+
+				while (std::getline(text, tmp_buf))
+				{
+					boost::trim(tmp_buf);
+					if (tmp_buf.empty() || tmp_buf[0] == '~')
+					{
+						break;
+					}
+					if (sscanf(tmp_buf.c_str(), "%d %d", t, t + 1) != 2)
+					{
+						*error = 50;
+						return object;
+					}
+					object->timed_spell.add(object, t[0], t[1]);
+				}
 			}
 			else if (!strcmp(read_line, "Mort"))
 			{
-				*error = 50;
+				*error = 51;
 				object->set_mort_req(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Ench"))

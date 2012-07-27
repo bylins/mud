@@ -475,10 +475,15 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 			}
 			else
 			{
-				if (object->timed_spell.is_spell_poisoned())
-					sprintf(buf2, " %s*%s%s", CCGRN(ch, C_NRM), CCCYN(ch, C_NRM), diag_obj_to_char(ch, object, 1));
+				if (object->timed_spell.is_spell_poisoned() != -1)
+				{
+					sprintf(buf2, " %s*%s%s", CCGRN(ch, C_NRM),
+						CCNRM(ch, C_NRM), diag_obj_to_char(ch, object, 1));
+				}
 				else
+				{
 					sprintf(buf2, " %s", diag_obj_to_char(ch, object, 1));
+				}
 			}
 			if (GET_OBJ_TYPE(object) == ITEM_CONTAINER)
 			{

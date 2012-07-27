@@ -4334,6 +4334,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 			GET_OBJ_MAX(obj) += MAX(GET_OBJ_MAX(obj) >> 2, 1);
 			GET_OBJ_CUR(obj) = GET_OBJ_MAX(obj);
 			to_char = "$o вспыхнул$G голубым светом и тут же погас$Q.";
+			obj->timed_spell.add(obj, SPELL_BLESS, -1);
 		}
 		break;
 	case SPELL_CURSE:
@@ -4414,7 +4415,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 		}
 		break;
 	case SPELL_FLY:
-		obj->timed_spell.set(obj, SPELL_FLY, 60 * 24 * 3);
+		obj->timed_spell.add(obj, SPELL_FLY, 60 * 24 * 3);
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
 		to_char = "$o вспыхнул$G зеленоватым светом и тут же погас$Q.";

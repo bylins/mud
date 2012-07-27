@@ -10,7 +10,7 @@
 #include "structs.h"
 
 void poison_victim(CHAR_DATA * ch, CHAR_DATA * vict, int modifier);
-void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, OBJ_DATA *wielded);
+void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num);
 
 bool poison_in_vessel(int liquid_num);
 void set_weap_poison(OBJ_DATA *weapon, int liquid_num);

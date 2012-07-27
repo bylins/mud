@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <string>
+#include <boost/format.hpp>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -16,20 +17,34 @@
 #include "db.h"
 #include "room.hpp"
 
-/**
-* Снятие каста со шмотки.
-* \param send_message - true выводить мессагу при снятии каста
-*                     - false не выводить
+/*
+Система следующая:
+хотим что-то сделать при касте на шмотку - пишем в mag_alter_objs()
+надо что-то сделать при снятии обкаста - check_spell_remove()
+если надо постоянный обкаст - ставим таймер на -1 в timed_spell.add()
+надо проверить есть ли каст на шмотке - timed_spell.check_spell(spell_num)
+
 */
-void TimedSpell::clear(OBJ_DATA *obj, bool send_message)
+
+////////////////////////////////////////////////////////////////////////////////
+namespace
+{
+
+/**
+ * Проверка надо ли что-то делать со шмоткой или писать чару
+ * при снятии заклинания со шмотки.
+ */
+void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 {
 	if (!obj)
 	{
-		log("SYSERROR: NULL object %s:%d, spell_ = %d", __FILE__, __LINE__, spell_);
+		log("SYSERROR: NULL object %s:%d, spell = %d",
+			__FILE__, __LINE__, spell);
 		return;
 	}
+
 	// если что-то надо сделать со шмоткой при снятии обкаста
-	switch (spell_)
+	switch (spell)
 	{
 	case SPELL_ACONITUM_POISON:
 	case SPELL_SCOPOLIA_POISON:
@@ -49,15 +64,13 @@ void TimedSpell::clear(OBJ_DATA *obj, bool send_message)
 		}
 		break;
 	}
-	default:
-		log("SYSERROR: %s:%d, spell_ = %d", __FILE__, __LINE__, spell_);
 	} // switch
 
 	// онлайн уведомление чару
 	if (send_message && (obj->carried_by || obj->worn_by))
 	{
 		CHAR_DATA *ch = obj->carried_by ? obj->carried_by : obj->worn_by;
-		switch (spell_)
+		switch (spell)
 		{
 		case SPELL_ACONITUM_POISON:
 		case SPELL_SCOPOLIA_POISON:
@@ -71,50 +84,102 @@ void TimedSpell::clear(OBJ_DATA *obj, bool send_message)
 					GET_OBJ_VIS_SUF_7(obj, ch), GET_OBJ_PNAME(obj, 0),
 					GET_OBJ_VIS_SUF_1(obj, ch));
 			break;
-		default:
-			log("SYSERROR: Неожиданный номер spell_ в TimedSpell\r\n");
 		}
 	}
-	spell_ = -1;
-	timer_ = -1;
+
 }
 
 /**
-* Тик доп.спелла на шмотке (раз в минуту).
-* \param time по дефолту = 1.
-*/
-void TimedSpell::dec_timer(OBJ_DATA *obj, int time)
+ * Распечатка строки с заклинанием и таймером при осмотре шмотки.
+ */
+std::string print_spell_str(CHAR_DATA *ch, int spell, int timer)
 {
-	if (timer_ == -1 || !obj || time <= 0)
+	if (spell < 0 || spell >= LAST_USED_SPELL)
 	{
-		log("SYSERROR: func: %s, timer_ = %d, obj = %s, time = %d", __func__, timer_, obj ? "true" : "false", time);
-		return;
+		log("SYSERROR: %s, spell = %d, time = %d", __func__, spell, timer);
+		return "";
 	}
 
-	timer_ -= time;
-	if (timer_ <= 0)
+	std::string out;
+	switch (spell)
 	{
-		this->clear(obj, true);
+	case SPELL_ACONITUM_POISON:
+	case SPELL_SCOPOLIA_POISON:
+	case SPELL_BELENA_POISON:
+	case SPELL_DATURA_POISON:
+		out = boost::str(boost::format(
+			"%1%Отравлено %2% еще %3% %4%.%5%\r\n")
+			% CCGRN(ch, C_NRM) % get_poison_by_spell(spell) % timer
+			% desc_count(timer, WHAT_MINu) % CCNRM(ch, C_NRM));
+		break;
+	default:
+	{
+		if (timer == -1)
+		{
+			out = boost::str(boost::format(
+				"%1%Наложено постоянное заклинание '%2%'.%3%\r\n")
+				% CCCYN(ch, C_NRM)
+				% (spell_info[spell].name ? spell_info[spell].name : "<null>")
+				% CCNRM(ch, C_NRM));
+		}
+		else
+		{
+			out = boost::str(boost::format(
+				"%1%Наложено заклинание '%2%' (%3%).%4%\r\n")
+				% CCCYN(ch, C_NRM)
+				% (spell_info[spell].name ? spell_info[spell].name : "<null>")
+				% time_format(timer, true)
+				% CCNRM(ch, C_NRM));
+		}
+		break;
+	}
+	}
+	return out;
+}
+
+} // namespace
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Удаление заклинания со шмотки с проверкой на действия/сообщения
+ * при снятии обкаста.
+ */
+void TimedSpell::remove_spell(OBJ_DATA *obj, int spell, bool message)
+{
+	std::map<int, int>::iterator i = spell_list_.find(spell);
+	if (i != spell_list_.end())
+	{
+		check_spell_remove(obj, spell, message);
+		spell_list_.erase(i);
 	}
 }
 
 /**
 * Сет доп.спела с таймером на шмотку.
+* \param time = -1 для постоянного обкаста
 */
-void TimedSpell::set(OBJ_DATA *obj, int spell, int time)
+void TimedSpell::add(OBJ_DATA *obj, int spell, int time)
 {
-	if (!obj || spell < 0 || spell >= LAST_USED_SPELL || time < 0)
+	if (!obj || spell < 0 || spell >= LAST_USED_SPELL)
 	{
-		log("SYSERROR: func: %s, obj = %s, spell = %d, time = %d", __func__, obj ? "true" : "false", spell, time);
+		log("SYSERROR: func: %s, obj = %s, spell = %d, time = %d",
+			__func__, obj ? "true" : "false", spell, time);
 		return;
 	}
-	// иначе получится глупость
-	if (!this->empty())
+
+	// замещение ядов друг другом
+	if (spell == SPELL_ACONITUM_POISON
+		|| spell == SPELL_SCOPOLIA_POISON
+		|| spell == SPELL_BELENA_POISON
+		|| spell == SPELL_DATURA_POISON)
 	{
-		this->clear(obj, false);
+		remove_spell(obj, SPELL_ACONITUM_POISON, false);
+		remove_spell(obj, SPELL_SCOPOLIA_POISON, false);
+		remove_spell(obj, SPELL_BELENA_POISON, false);
+		remove_spell(obj, SPELL_DATURA_POISON, false);
 	}
-	timer_ = time;
-	spell_ = spell;
+
+	spell_list_[spell] = time;
 }
 
 /**
@@ -122,40 +187,35 @@ void TimedSpell::set(OBJ_DATA *obj, int spell, int time)
 */
 std::string TimedSpell::diag_to_char(CHAR_DATA *ch)
 {
-	if (spell_ != -1 && ch)
+	if (spell_list_.empty())
 	{
-		std::stringstream out;
-		switch (spell_)
-		{
-		case SPELL_ACONITUM_POISON:
-		case SPELL_SCOPOLIA_POISON:
-		case SPELL_BELENA_POISON:
-		case SPELL_DATURA_POISON:
-			out << CCGRN(ch, C_NRM) << "Отравлено " << get_poison_by_spell(spell_)
-					<< " еще " << timer_ << " " << desc_count(timer_, WHAT_MINu)
-					<< "." << CCCYN(ch, C_NRM) << "\r\n";
-			break;
-		case SPELL_FLY:
-			out << CCCYN(ch, C_NRM) << "Наложено заклинание 'полет' (" << time_format(timer_, true)
-					<< ")." << CCNRM(ch, C_NRM) << "\r\n";
-			break;
-		default:
-			out << "Наложено неизвестное заклинание (" << spell_ << ")... Оо Соообщите Богам!\r\n";
-		}
-		return out.str();
-	}
-	else
 		return "";
+	}
+
+	std::string out;
+	for(std::map<int, int>::iterator i = spell_list_.begin(),
+		iend = spell_list_.end(); i != iend; ++i)
+	{
+		out += print_spell_str(ch, i->first, i->second);
+	}
+	return out;
 }
 
-bool TimedSpell::is_spell_poisoned() const
+/**
+ * Проверка на обкаст шмотки любым видом яда.
+ * \return -1 если яда нет, spell_num если есть.
+ */
+int TimedSpell::is_spell_poisoned() const
 {
-	if (check_poison(spell_))
+	for(std::map<int, int>::const_iterator i = spell_list_.begin(),
+		iend = spell_list_.end(); i != iend; ++i)
 	{
-		return true;
+		if (check_poison(i->first))
+		{
+			return i->first;
+		}
 	}
-	else
-		return false;
+	return -1;
 }
 
 /**
@@ -163,10 +223,7 @@ bool TimedSpell::is_spell_poisoned() const
 */
 bool TimedSpell::empty() const
 {
-	if (spell_ != -1)
-		return false;
-	else
-		return true;
+	return spell_list_.empty();
 }
 
 /**
@@ -175,15 +232,56 @@ bool TimedSpell::empty() const
 std::string TimedSpell::print() const
 {
 	std::stringstream out;
-	if (spell_ != -1)
-		out << "TSpl: " << spell_ << " " << timer_ << "~\n";
+
+	out << "TSpl: ";
+	for(std::map<int, int>::const_iterator i = spell_list_.begin(),
+		iend = spell_list_.end(); i != iend; ++i)
+	{
+		out << i->first << " " << i->second << "\n";
+	}
+	out << "~\n";
+
 	return out.str();
 }
 
 /**
-* Возвращает номер заклинания (-1 в случае его отсутствия).
-*/
-int TimedSpell::get() const
+ * Поиск заклинания по spell_num.
+ */
+bool TimedSpell::check_spell(int spell) const
 {
-	return spell_;
+	std::map<int, int>::const_iterator i = spell_list_.find(spell);
+	if (i != spell_list_.end())
+	{
+		return true;
+	}
+	return false;
+}
+
+/**
+* Тик доп.спеллов на шмотке (раз в минуту).
+* \param time по дефолту = 1.
+*/
+void TimedSpell::dec_timer(OBJ_DATA *obj, int time)
+{
+	for(std::map<int, int>::iterator i = spell_list_.begin(),
+		iend = spell_list_.end(); i != iend; /* empty */)
+	{
+		if (i->second != -1)
+		{
+			i->second -= time;
+			if (i->second <= 0)
+			{
+				check_spell_remove(obj, i->first, true);
+				spell_list_.erase(i++);
+			}
+			else
+			{
+				++i;
+			}
+		}
+		else
+		{
+			++i;
+		}
+	}
 }
