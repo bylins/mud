@@ -496,13 +496,6 @@ void load(bool reload)
 
 std::string get_item_name(ItemNodePtr item, int keeper_vnum, int pad = 0)
 {
-	if (pad < 0 || pad > 5)
-	{
-		log("SYSERROR : obj_vnum=%d mob_vnum=%d, pad=%d (%s:%d)",
-			item->vnum, keeper_vnum, pad, __FILE__, __LINE__);
-		return "<ERROR>";
-	}
-
 	std::string value;
 	if (!item->descs.empty() && item->descs.find(keeper_vnum) != item->descs.end())
 		value = item->descs[keeper_vnum].PNames[pad];
@@ -837,6 +830,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 
 	--item_num;
 	OBJ_DATA * tmp_obj = NULL;
+	bool obj_from_proto = true;
 	if (!(*shop)->item_list[item_num]->temporary_ids.empty())
 	{
 		tmp_obj = get_obj_from_waste(shop, ((*shop)->item_list[item_num])->temporary_ids);
@@ -846,6 +840,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 			send_to_char("Ошибочка вышла.\r\n", ch);
 			return;
 		}
+		obj_from_proto = false;
 	}
 	const OBJ_DATA * const proto = ( tmp_obj ? tmp_obj : read_object_mirror((*shop)->item_list[item_num]->rnum, REAL));
 	if (!proto)
@@ -886,7 +881,8 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 			"%s, я понимаю, своя ноша карман не тянет,\r\n"
 			"но %s Вам явно некуда положить.\r\n",
 				GET_NAME(ch),
-				get_item_name((*shop)->item_list[item_num], GET_MOB_VNUM(keeper), 3).c_str());
+				obj_from_proto ? get_item_name((*shop)->item_list[item_num],
+					GET_MOB_VNUM(keeper), 3).c_str() : tmp_obj->short_description);
 		send_to_char(buf, ch);
 		return;
 	}
