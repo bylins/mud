@@ -7,6 +7,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <iomanip>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -1124,18 +1125,37 @@ void add_mob_stat(CHAR_DATA *mob, int members)
 	}
 }
 
+std::string print_mobstat_name(int mob_vnum)
+{
+	std::string name = "null";
+	const int rnum = real_mobile(mob_vnum);
+	if (rnum > 0 && rnum <= top_of_mobt)
+	{
+		name = mob_proto[rnum].get_name();
+	}
+	if (name.size() > 20)
+	{
+		name = name.substr(0, 20);
+	}
+	return name;
+}
+
+/**
+ * show mobstat
+ */
 void show_zone_stat(CHAR_DATA *ch, int zone_vnum)
 {
 	std::stringstream out;
 	out << "Статистика убийств мобов в зоне номер " << zone_vnum << "\r\n";
-	out << "   vnum : размер группы = кол-во убийств\r\n\r\n";
+	out << "   vnum : имя : размер группы = кол-во убийств (n3=100 моба убили 100 раз втроем)\r\n\r\n";
 
 	for (std::map<int, std::vector<int> >::const_iterator i = mob_stat.begin(),
 		iend = mob_stat.end(); i != iend; ++i)
 	{
 		if (i->first/100 == zone_vnum)
 		{
-			out << i->first << " :";
+			out << i->first << " : " << std::setw(20)
+				<< print_mobstat_name(i->first) << " :";
 			for (int k = 1; k <= MAX_GROUP_SIZE; ++k)
 			{
 				if (i->second[k] > 0)
