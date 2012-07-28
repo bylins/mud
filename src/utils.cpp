@@ -1493,7 +1493,7 @@ void format_text(char **ptr_string, int mode, DESCRIPTOR_DATA * d, int maxlen)
 const char *some_pads[3][27] =
 {
 	{"дней", "часов", "лет", "очков", "минут", "минут", "кун", "кун", "штук", "штук", "уровней", "верст", "верст", "единиц", "единиц", "секунд", "градусов", "строк", "предметов", "перевоплощений", "недель", "месяцев", "недель", "славы", "славы", "человек", "силы"},
-	{"день", "час", "год", "очко", "минута", "минуту", "куна", "куну", "штука", "штуку", "уровень", "верста", "версту", "единица", "единицу", "секунду", "градус", "строка", "предмет", "перевоплощение", "неделя", "месяц", "неделю", "слава", "славу", "человек", "силу"},
+	{"день", "час", "год", "очко", "минута", "минуту", "куна", "куну", "штука", "штуку", "уровень", "верста", "версту", "единица", "единицу", "секунду", "градус", "строка", "предмет", "перевоплощение", "неделя", "месяц", "неделю", "слава", "славу", "человек", "сила"},
 	{"дня", "часа", "года", "очка", "минуты", "минуты", "куны", "куны", "штуки", "штуки", "уровня", "версты", "версты", "единицы", "единицы", "секунды", "градуса", "строки", "предмета", "перевоплощения", "недели", "месяца", "недели", "славы", "славы", "человека", "силы"}
 };
 
@@ -2494,28 +2494,31 @@ int str_bonus(int str, int type)
 		bonus = str * 50;
 		break;
 	case STR_WIELD_W:
-		// 1 ... 30
 		if (str <= 20)
 		{
+			// w 1 .. 20
 			bonus = str;
 		}
 		else if (str < 30)
 		{
+			// w 20,5 .. 24,5
 			bonus = 20 + (str - 20) / 2;
 		}
 		else
 		{
+			// w >= 25
 			bonus = 25 + (str - 30) / 4;
 		}
 		break;
 	case STR_HOLD_W:
-		// 0 ... 20
 		if (str <= 29)
 		{
+			// w 1 .. 15
 			bonus = (str + 1) / 2;
 		}
 		else
 		{
+			// w >= 16
 			bonus = 15 + (str - 29) / 4;
 		}
 		break;
@@ -2606,9 +2609,6 @@ int wis_bonus(int stat, int type)
 	return bonus;
 }
 
-namespace
-{
-
 int calc_str_req(int weight, int type)
 {
 	int str = 0;
@@ -2621,15 +2621,19 @@ int calc_str_req(int weight, int type)
 		{
 			str = weight;
 		}
+		else if (weight <= 24)
+		{
+			str = 2 * weight - 20;
+		}
 		else
 		{
-			str = 3 * weight - 40;
+			str = 4 * weight - 70;
 		}
 		break;
 	case STR_HOLD_W:
-		if (weight * 2 <= 29)
+		if (weight <= 15)
 		{
-			str = weight * 2;
+			str = 2 * weight - 1;
 		}
 		else
 		{
@@ -2644,12 +2648,8 @@ int calc_str_req(int weight, int type)
 	return str;
 }
 
-} // namespace
-
 void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 {
-	return;
-
 	int need_str = 0;
 	switch (type)
 	{
@@ -2665,9 +2665,8 @@ void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 				__FILE__, __func__, __LINE__);
 		return;
 	}
-	send_to_char(ch, "%s требу%s %d %s.\r\n", GET_OBJ_PNAME(obj, 0),
-			GET_OBJ_SEX(obj) == SEX_POLY ? "ют" : "ет",
-			need_str, desc_count(need_str, WHAT_STR));
+	send_to_char(ch, "Для этого требуется %d %s.\r\n",
+		need_str, desc_count(need_str, WHAT_STR));
 }
 
 long GetAffectNumByName(std::string affName)
