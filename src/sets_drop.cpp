@@ -23,6 +23,7 @@
 #include "pugixml.hpp"
 #include "modify.h"
 #include "house.h"
+#include "screen.h"
 
 extern int top_of_helpt;
 extern struct help_index_element *help_table;
@@ -45,6 +46,10 @@ const char *MOB_STAT_FILE = LIB_PLRSTUFF"mob_stat.xml";
 const char *DROP_TABLE_FILE = LIB_PLRSTUFF"sets_drop.xml";
 // сброс таблицы лоада каждый х часов
 const int RESET_TIMER = 35;
+// сообщение игрокам при резете таблицы дропа
+const char *RESET_MESSAGE =
+	"Внезапно мир содрогнулся, день поменялся с ночью, земля с небом\r\n"
+	"...но через миг все вернулось на круги своя.";
 
 enum { SOLO_MOB, GROUP_MOB, SOLO_ZONE, GROUP_ZONE };
 
@@ -978,6 +983,19 @@ void reload_by_timer()
 	}
 }
 
+void message_for_players()
+{
+	for (DESCRIPTOR_DATA *i = descriptor_list; i; i = i->next)
+	{
+		if (STATE(i) == CON_PLAYING && i->character)
+		{
+			send_to_char(i->character, "%s%s%s\r\n",
+				CCICYN(i->character, C_NRM), RESET_MESSAGE,
+				CCNRM(i->character, C_NRM));
+		}
+	}
+}
+
 /**
  * Релоад таблицы дропа, без релоада статистики по убийствам мобов.
  * \param zone_vnum - если не нулевой, удаляет из статистики мобов
@@ -1004,6 +1022,8 @@ void reload(int zone_vnum)
 	// справку надо полностью срелоадить
 	// init_xhelp() и init_xhelp_full() вызовется там же
 	go_boot_xhelp();
+
+	message_for_players();
 }
 
 /**
