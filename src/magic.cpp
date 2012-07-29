@@ -37,7 +37,6 @@
 #include "room.hpp"
 #include "AffectHandler.hpp"
 
-extern void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer);
 extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct zone_data *zone_table;

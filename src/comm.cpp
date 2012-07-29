@@ -66,6 +66,7 @@
 #include "scripting.hpp"
 #include "shop_ext.hpp"
 #include "sets_drop.hpp"
+#include "fight.h"
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -235,7 +236,6 @@ void player_affect_update(void);	/* In spells.cpp */
 void RoomSpells::room_affect_update(void);		/* In spells.cpp */
 void mobile_affect_update(void);
 void mobile_activity(int activity_level, int missed_pulses);
-void perform_violence(void);
 void process_events(void);
 void show_string(DESCRIPTOR_DATA * d, char *input);
 void weather_and_time(int mode);
@@ -1273,10 +1273,9 @@ inline void heartbeat(const int missed_pulses)
 		underwater_check();
 	}
 
-	if (!((pulse + 3) % PULSE_VIOLENCE))  	//log("Perform violence...");
+	if (!((pulse + 3) % PULSE_VIOLENCE))
 	{
 		perform_violence();
-		//log("Stop it...");
 	}
 
 	if (!(pulse % (30 * PASSES_PER_SEC)))

@@ -23,6 +23,7 @@
 #include "player_races.hpp"
 #include "celebrates.hpp"
 #include "cache.hpp"
+#include "fight.h"
 
 std::string PlayerI::empty_const_str;
 

@@ -58,6 +58,7 @@
 #include "scripting.hpp"
 #include "pugixml.hpp"
 #include "sets_drop.hpp"
+#include "fight.h"
 
 /*   external vars  */
 extern bool need_warn;
@@ -69,7 +70,6 @@ extern DESCRIPTOR_DATA *descriptor_list;
 extern INDEX_DATA *mob_index;
 extern INDEX_DATA *obj_index;
 extern struct zone_data *zone_table;
-extern struct attack_hit_type attack_hit_text[];
 extern char const *class_abbrevs[];
 extern char const *kin_abbrevs[];
 extern const char *weapon_affects[];

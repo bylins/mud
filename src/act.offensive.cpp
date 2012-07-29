@@ -30,19 +30,18 @@
 #include "random.hpp"
 #include "char.hpp"
 #include "room.hpp"
+#include "fight.h"
 
 /* extern variables */
 extern DESCRIPTOR_DATA *descriptor_list;
 
 /* extern functions */
-void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer);
 int compute_armor_class(CHAR_DATA * ch);
 int awake_others(CHAR_DATA * ch);
 void appear(CHAR_DATA * ch);
 int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg);
 void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance);
 void go_protect(CHAR_DATA * ch, CHAR_DATA * vict);
-extern bool can_auto_block(CHAR_DATA *ch);
 
 /* local functions */
 ACMD(do_assist);

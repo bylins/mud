@@ -42,6 +42,7 @@
 #include "room.hpp"
 #include "birth_places.hpp"
 #include "objsave.h"
+#include "fight.h"
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 

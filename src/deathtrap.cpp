@@ -4,7 +4,6 @@
 
 #include <list>
 #include <algorithm>
-
 #include "conf.h"
 #include "deathtrap.hpp"
 #include "constants.h"
@@ -17,6 +16,7 @@
 #include "char.hpp"
 #include "corpse.hpp"
 #include "room.hpp"
+#include "fight.h"
 
 extern int has_boat(CHAR_DATA * ch);
 extern void die(CHAR_DATA * ch, CHAR_DATA * killer);

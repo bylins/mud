@@ -35,6 +35,7 @@
 #include "parcel.hpp"
 #include "room.hpp"
 #include "magic.h"
+#include "fight.h"
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct spell_create_type spell_create[TOP_SPELL_DEFINE + 1];

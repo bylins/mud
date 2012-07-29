@@ -1,0 +1,3671 @@
+// Part of Bylins http://www.mud.ru
+
+#include "fight.h"
+#include "fight_local.hpp"
+#include "utils.h"
+#include "char.hpp"
+#include "skills.h"
+#include "constants.h"
+#include "spells.h"
+#include "handler.h"
+#include "db.h"
+#include "room.hpp"
+#include "screen.h"
+#include "interpreter.h"
+#include "dg_scripts.h"
+#include "pk.h"
+#include "dps.hpp"
+#include "house_exp.hpp"
+#include "poison.hpp"
+
+#define IS_WEAPON(type) (((type) >= TYPE_HIT) && ((type) < TYPE_MAGIC))
+
+// extern
+ACMD(do_get);
+ACMD(do_flee);
+int extra_aco(int class_num, int level);
+void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance);
+int thaco(int class_num, int level);
+int ok_damage_shopkeeper(CHAR_DATA * ch, CHAR_DATA * victim);
+void npc_groupbattle(CHAR_DATA * ch);
+
+namespace
+{
+
+/*  Global variables for critical damage */
+int was_critic = FALSE;
+int dam_critic = 0;
+
+} // namespace
+
+/* Weapon attack texts */
+struct attack_hit_type attack_hit_text[] =
+{
+	{"ударил", "ударить"},	/* 0 */
+	{"ободрал", "ободрать"},
+	{"хлестнул", "хлестнуть"},
+	{"рубанул", "рубануть"},
+	{"укусил", "укусить"},
+	{"огрел", "огреть"},	/* 5 */
+	{"сокрушил", "сокрушить"},
+	{"резанул", "резануть"},
+	{"оцарапал", "оцарапать"},
+	{"подстрелил", "подстрелить"},
+	{"пырнул", "пырнуть"},	/* 10 */
+	{"уколол", "уколоть"},
+	{"ткнул", "ткнуть"},
+	{"лягнул", "лягнуть"},
+	{"боднул", "боднуть"},
+	{"клюнул", "клюнуть"},
+	{"ужалил", "ужалить"},
+	{"*", "*"},
+	{"*", "*"},
+	{"*", "*"}
+};
+
+int calc_leadership(CHAR_DATA * ch)
+{
+	int prob, percent;
+	CHAR_DATA *leader = 0;
+
+	if (IS_NPC(ch) || !AFF_FLAGGED(ch, AFF_GROUP) || (!ch->master && !ch->followers))
+		return (FALSE);
+
+	if (ch->master)
+	{
+		if (IN_ROOM(ch) != IN_ROOM(ch->master))
+			return (FALSE);
+		leader = ch->master;
+	}
+	else
+		leader = ch;
+
+	if (!leader->get_skill(SKILL_LEADERSHIP))
+		return (FALSE);
+
+	percent = number(1, 101);
+	prob = calculate_skill(leader, SKILL_LEADERSHIP, 121, 0);
+	if (percent > prob)
+		return (FALSE);
+	else
+		return (TRUE);
+}
+
+int armor_class_limit(CHAR_DATA * ch)
+{
+	if (IS_CHARMICE(ch))
+	{
+		return -200;
+	};
+	if (IS_NPC(ch))
+	{
+		return -300;
+	};
+	switch (GET_CLASS(ch))
+	{
+	case CLASS_ASSASINE:
+	case CLASS_THIEF:
+	case CLASS_GUARD:
+		return -250;
+		break;
+	case CLASS_MERCHANT:
+	case CLASS_WARRIOR:
+	case CLASS_PALADINE:
+	case CLASS_RANGER:
+	case CLASS_SMITH:
+		return -200;
+		break;
+	case CLASS_CLERIC:
+	case CLASS_DRUID:
+		return -150;
+		break;
+	case CLASS_BATTLEMAGE:
+	case CLASS_DEFENDERMAGE:
+	case CLASS_CHARMMAGE:
+	case CLASS_NECROMANCER:
+		return -100;
+		break;
+	default:
+		return -300;
+	}
+}
+
+int compute_armor_class(CHAR_DATA * ch)
+{
+	int armorclass = GET_REAL_AC(ch);
+
+	if (AWAKE(ch))
+	{
+		armorclass -= dex_ac_bonus(GET_REAL_DEX(ch)) * 10;
+		armorclass += extra_aco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
+	};
+
+	if (AFF_FLAGGED(ch, AFF_BERSERK))
+	{
+		armorclass -= (240 * ((GET_REAL_MAX_HIT(ch) / 2) - GET_HIT(ch)) / GET_REAL_MAX_HIT(ch));
+	}
+
+	/* Gorrah: штраф к КЗ от применения умения "железный ветер" */
+	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+		armorclass += ch->get_skill(SKILL_IRON_WIND) / 2;
+
+	armorclass += (size_app[GET_POS_SIZE(ch)].ac * 10);
+
+	if (GET_AF_BATTLE(ch, EAF_PUNCTUAL))
+	{
+		if (GET_EQ(ch, WEAR_WIELD))
+		{
+			if (GET_EQ(ch, WEAR_HOLD))
+				armorclass +=
+					10 * MAX(-1,
+							 (GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD)) +
+							  GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) / 5 - 6);
+			else
+				armorclass += 10 * MAX(-1, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD)) / 5 - 6);
+		}
+		if (GET_EQ(ch, WEAR_BOTHS))
+			armorclass += 10 * MAX(-1, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) / 5 - 6);
+	}
+
+	armorclass = MIN(100, armorclass);
+	return (MAX(armor_class_limit(ch), armorclass));
+}
+
+void haemorragia(CHAR_DATA * ch, int percent)
+{
+	AFFECT_DATA af[3];
+	int i;
+
+	af[0].type = SPELL_HAEMORRAGIA;
+	af[0].location = APPLY_HITREG;
+	af[0].modifier = -percent;
+	af[0].duration = pc_duration(ch, number(1, 31 - GET_REAL_CON(ch)), 0, 0, 0, 0);
+	af[0].bitvector = 0;
+	af[0].battleflag = 0;
+	af[1].type = SPELL_HAEMORRAGIA;
+	af[1].location = APPLY_MOVEREG;
+	af[1].modifier = -percent;
+	af[1].duration = af[0].duration;
+	af[1].bitvector = 0;
+	af[1].battleflag = 0;
+	af[2].type = SPELL_HAEMORRAGIA;
+	af[2].location = APPLY_MANAREG;
+	af[2].modifier = -percent;
+	af[2].duration = af[0].duration;
+	af[2].bitvector = 0;
+	af[2].battleflag = 0;
+
+	for (i = 0; i < 3; i++)
+		affect_join(ch, &af[i], TRUE, FALSE, TRUE, FALSE);
+}
+
+int compute_critical(CHAR_DATA * ch, CHAR_DATA * victim, int dam)
+{
+	const char *to_char = NULL, *to_vict = NULL;
+	AFFECT_DATA af[4];
+	OBJ_DATA *obj;
+	int i, unequip_pos = 0;
+
+	if (!dam_critic)
+		return(dam);
+
+	for (i = 0; i < 4; i++)
+	{
+		af[i].type = 0;
+		af[i].location = APPLY_NONE;
+		af[i].bitvector = 0;
+		af[i].modifier = 0;
+		af[i].battleflag = 0;
+		af[i].duration = pc_duration(victim, 2, 0, 0, 0, 0);
+	}
+
+	was_critic = FALSE;
+	switch (number(1, 10))
+	{
+	case 1:
+	case 2:
+	case 3:
+	case 4:		// FEETS
+		switch (dam_critic)
+		{
+		case 1:
+		case 2:
+		case 3:
+			// Nothing
+			return dam;
+		case 5:	// Hit genus, victim bashed, speed/2
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 10);
+		case 4:	// victim bashed
+			if (GET_POS(victim) > POS_SITTING)
+				GET_POS(victim) = POS_SITTING;
+			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+			to_char = "повалило $N3 на землю";
+			to_vict = "повредило Вам колено";
+			break;
+		case 6:	// foot damaged, speed/2
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 9);
+			to_char = "замедлило движения $N1";
+			to_vict = "сломало Вам лодыжку";
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		case 7:
+		case 9:	// armor damaged else foot damaged, speed/4
+			if (GET_EQ(victim, WEAR_LEGS))
+				alt_equip(victim, WEAR_LEGS, 100, 100);
+			else
+			{
+				dam *= (ch->get_skill(SKILL_PUNCTUAL) / 8);
+				to_char = "замедлило движения $N1";
+				to_vict = "сломало Вам ногу";
+				af[0].type = SPELL_BATTLE;
+				af[0].bitvector = AFF_NOFLEE;
+				SET_AF_BATTLE(victim, EAF_SLOW);
+			}
+			break;
+		case 8:	// femor damaged, no speed
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 7);
+			to_char = "сильно замедлило движения $N1";
+			to_vict = "сломало Вам бедро";
+			af[0].type = SPELL_BATTLE;
+			af[0].bitvector = AFF_NOFLEE;
+			haemorragia(victim, 20);
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		case 10:	// genus damaged, no speed, -2HR
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 7);
+			to_char = "сильно замедлило движения $N1";
+			to_vict = "раздробило Вам колено";
+			af[0].type = SPELL_BATTLE;
+			af[0].location = APPLY_HITROLL;
+			af[0].modifier = -2;
+			af[0].bitvector = AFF_NOFLEE;
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		case 11:	// femor damaged, no speed, no attack
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 7);
+			to_char = "вывело $N3 из строя";
+			to_vict = "раздробило Вам бедро";
+			af[0].type = SPELL_BATTLE;
+			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			af[1].type = SPELL_BATTLE;
+			af[1].bitvector = AFF_NOFLEE;
+			haemorragia(victim, 20);
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		default:	// femor damaged, no speed, no attack
+			if (dam_critic > 12)
+				dam *= (ch->get_skill(SKILL_PUNCTUAL) / 5);
+			else
+				dam *= (ch->get_skill(SKILL_PUNCTUAL) / 6);
+			to_char = "вывело $N3 из строя";
+			to_vict = "изуродовало Вам ногу";
+			af[0].type = SPELL_BATTLE;
+			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			af[1].type = SPELL_BATTLE;
+			af[1].bitvector = AFF_NOFLEE;
+			haemorragia(victim, 50);
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		}
+		break;
+	case 5:		//  ABDOMINAL
+		switch (dam_critic)
+		{
+		case 1:
+		case 2:
+		case 3:
+			// nothing
+			return dam;
+		case 4:	// waits 1d6
+			WAIT_STATE(victim, number(2, 6) * PULSE_VIOLENCE);
+			to_char = "сбило $N2 дыхание";
+			to_vict = "сбило Вам дыхание";
+			break;
+
+		case 5:	// abdomin damaged, waits 1, speed/2
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 8);
+			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+			to_char = "ранило $N3 в живот";
+			to_vict = "ранило Вас в живот";
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		case 6:	// armor damaged else dam*3, waits 1d6
+			WAIT_STATE(victim, number(2, 6) * PULSE_VIOLENCE);
+			if (GET_EQ(victim, WEAR_WAIST))
+				alt_equip(victim, WEAR_WAIST, 100, 100);
+			else
+				dam *= (ch->get_skill(SKILL_PUNCTUAL) / 7);
+			to_char = "повредило $N2 живот";
+			to_vict = "повредило Вам живот";
+			break;
+		case 7:
+		case 8:	// abdomin damage, speed/2, HR-2
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 6);
+			to_char = "ранило $N3 в живот";
+			to_vict = "ранило Вас в живот";
+			af[0].type = SPELL_BATTLE;
+			af[0].location = APPLY_HITROLL;
+			af[0].modifier = -2;
+			af[0].bitvector = AFF_NOFLEE;
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		case 9:	// armor damaged, abdomin damaged, speed/2, HR-2
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 5);
+			alt_equip(victim, WEAR_BODY, 100, 100);
+			to_char = "ранило $N3 в живот";
+			to_vict = "ранило Вас в живот";
+			af[0].type = SPELL_BATTLE;
+			af[0].location = APPLY_HITROLL;
+			af[0].modifier = -2;
+			af[0].bitvector = AFF_NOFLEE;
+			haemorragia(victim, 20);
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		case 10:	// abdomin damaged, no speed, no attack
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 4);
+			to_char = "повредило $N2 живот";
+			to_vict = "повредило Вам живот";
+			af[0].type = SPELL_BATTLE;
+			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			af[1].type = SPELL_BATTLE;
+			af[1].bitvector = AFF_NOFLEE;
+			haemorragia(victim, 20);
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		case 11:	// abdomin damaged, no speed, no attack
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 3);
+			to_char = "разорвало $N2 живот";
+			to_vict = "разорвало Вам живот";
+			af[0].type = SPELL_BATTLE;
+			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			af[1].type = SPELL_BATTLE;
+			af[1].bitvector = AFF_NOFLEE;
+			haemorragia(victim, 40);
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		default:	// abdomin damaged, hits = 0
+			dam *= ch->get_skill(SKILL_PUNCTUAL) / 2;
+			to_char = "размозжило $N2 живот";
+			to_vict = "размозжило Вам живот";
+			haemorragia(victim, 60);
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		}
+		break;
+	case 6:
+	case 7:		// CHEST
+		switch (dam_critic)
+		{
+		case 1:
+		case 2:
+		case 3:
+			// nothing
+			return dam;
+		case 4:	// waits 1d4, bashed
+			WAIT_STATE(victim, number(2, 5) * PULSE_VIOLENCE);
+			if (GET_POS(victim) > POS_SITTING)
+				GET_POS(victim) = POS_SITTING;
+			to_char = "повредило $N2 грудь";
+			to_vict = "повредило Вам грудь";
+			break;
+		case 5:	// chest damaged, waits 1, speed/2
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 6);
+			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+			to_char = "повредило $N2 туловище";
+			to_vict = "повредило Вам туловище";
+			af[0].type = SPELL_BATTLE;
+			af[0].bitvector = AFF_NOFLEE;
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		case 6:	// shield damaged, chest damaged, speed/2
+			alt_equip(victim, WEAR_SHIELD, 100, 100);
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 6);
+			to_char = "повредило $N2 туловище";
+			to_vict = "повредило Вам туловище";
+			af[0].type = SPELL_BATTLE;
+			af[0].bitvector = AFF_NOFLEE;
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		case 7:	// srmor damaged, chest damaged, speed/2, HR-2
+			alt_equip(victim, WEAR_BODY, 100, 100);
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 5);
+			to_char = "повредило $N2 туловище";
+			to_vict = "повредило Вам туловище";
+			af[0].type = SPELL_BATTLE;
+			af[0].location = APPLY_HITROLL;
+			af[0].modifier = -2;
+			af[0].bitvector = AFF_NOFLEE;
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		case 8:	// chest damaged, no speed, no attack
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 5);
+			to_char = "вывело $N3 из строя";
+			to_vict = "повредило Вам туловище";
+			af[0].type = SPELL_BATTLE;
+			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			af[1].type = SPELL_BATTLE;
+			af[1].bitvector = AFF_NOFLEE;
+			haemorragia(victim, 20);
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		case 9:	// chest damaged, speed/2, HR-2
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 4);
+			to_char = "заставило $N3 ослабить натиск";
+			to_vict = "сломало Вам ребра";
+			af[0].type = SPELL_BATTLE;
+			af[0].location = APPLY_HITROLL;
+			af[0].modifier = -2;
+			af[1].type = SPELL_BATTLE;
+			af[1].bitvector = AFF_NOFLEE;
+			haemorragia(victim, 20);
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		case 10:	// chest damaged, no speed, no attack
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 4);
+			to_char = "вывело $N3 из строя";
+			to_vict = "сломало Вам ребра";
+			af[0].type = SPELL_BATTLE;
+			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			af[1].type = SPELL_BATTLE;
+			af[1].bitvector = AFF_NOFLEE;
+			haemorragia(victim, 40);
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		case 11:	// chest crushed, hits 0
+			af[0].type = SPELL_BATTLE;
+			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			dam *= ch->get_skill(SKILL_PUNCTUAL) / 2;
+			haemorragia(victim, 50);
+			to_char = "вывело $N3 из строя";
+			to_vict = "разорвало Вам грудь";
+			break;
+		default:	// chest crushed, killing
+			af[0].type = SPELL_BATTLE;
+			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			dam *= ch->get_skill(SKILL_PUNCTUAL) / 2;
+			haemorragia(victim, 60);
+			to_char = "вывело $N3 из строя";
+			to_vict = "размозжило Вам грудь";
+			break;
+		}
+		break;
+	case 8:
+	case 9:		// HANDS
+		switch (dam_critic)
+		{
+		case 1:
+		case 2:
+		case 3:
+			return dam;
+		case 4:	// hands damaged, weapon/shield putdown
+			to_char = "ослабило натиск $N1";
+			to_vict = "ранило Вам руку";
+			if (GET_EQ(victim, WEAR_BOTHS))
+				unequip_pos = WEAR_BOTHS;
+			else if (GET_EQ(victim, WEAR_WIELD))
+				unequip_pos = WEAR_WIELD;
+			else if (GET_EQ(victim, WEAR_HOLD))
+				unequip_pos = WEAR_HOLD;
+			else if (GET_EQ(victim, WEAR_SHIELD))
+				unequip_pos = WEAR_SHIELD;
+			break;
+		case 5:	// hands damaged, shield damaged/weapon putdown
+			to_char = "ослабило натиск $N1";
+			to_vict = "ранило Вас в руку";
+			if (GET_EQ(victim, WEAR_SHIELD))
+				alt_equip(victim, WEAR_SHIELD, 100, 100);
+			else if (GET_EQ(victim, WEAR_BOTHS))
+				unequip_pos = WEAR_BOTHS;
+			else if (GET_EQ(victim, WEAR_WIELD))
+				unequip_pos = WEAR_WIELD;
+			else if (GET_EQ(victim, WEAR_HOLD))
+				unequip_pos = WEAR_HOLD;
+			break;
+
+		case 6:	// hands damaged, HR-2, shield putdown
+			to_char = "ослабило натиск $N1";
+			to_vict = "сломало Вам руку";
+			if (GET_EQ(victim, WEAR_SHIELD))
+				unequip_pos = WEAR_SHIELD;
+			af[0].type = SPELL_BATTLE;
+			af[0].location = APPLY_HITROLL;
+			af[0].modifier = -2;
+			break;
+		case 7:	// armor damaged, hand damaged if no armour
+			if (GET_EQ(victim, WEAR_ARMS))
+				alt_equip(victim, WEAR_ARMS, 100, 100);
+			else
+				alt_equip(victim, WEAR_HANDS, 100, 100);
+			if (!GET_EQ(victim, WEAR_ARMS) && !GET_EQ(victim, WEAR_HANDS))
+				dam *= (ch->get_skill(SKILL_PUNCTUAL) / 7);
+			to_char = "ослабило атаку $N1";
+			to_vict = "повредило Вам руку";
+			break;
+		case 8:	// shield damaged, hands damaged, waits 1
+			alt_equip(victim, WEAR_SHIELD, 100, 100);
+			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 7);
+			to_char = "придержало $N3";
+			to_vict = "повредило Вам руку";
+			break;
+		case 9:	// weapon putdown, hands damaged, waits 1d4
+			WAIT_STATE(victim, number(2, 4) * PULSE_VIOLENCE);
+			if (GET_EQ(victim, WEAR_BOTHS))
+				unequip_pos = WEAR_BOTHS;
+			else if (GET_EQ(victim, WEAR_WIELD))
+				unequip_pos = WEAR_WIELD;
+			else if (GET_EQ(victim, WEAR_HOLD))
+				unequip_pos = WEAR_HOLD;
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 6);
+			to_char = "придержало $N3";
+			to_vict = "повредило Вам руку";
+			break;
+		case 10:	// hand damaged, no attack this
+			if (!AFF_FLAGGED(victim, AFF_STOPRIGHT))
+			{
+				to_char = "ослабило атаку $N1";
+				to_vict = "изуродовало Вам правую руку";
+				af[0].type = SPELL_BATTLE;
+				af[0].bitvector = AFF_STOPRIGHT;
+				af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			}
+			else if (!AFF_FLAGGED(victim, AFF_STOPLEFT))
+			{
+				to_char = "ослабило атаку $N1";
+				to_vict = "изуродовало Вам левую руку";
+				af[0].type = SPELL_BATTLE;
+				af[0].bitvector = AFF_STOPLEFT;
+				af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			}
+			else
+			{
+				to_char = "вывело $N3 из строя";
+				to_vict = "вывело Вас из строя";
+				af[0].type = SPELL_BATTLE;
+				af[0].bitvector = AFF_STOPFIGHT;
+				af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			}
+			haemorragia(victim, 20);
+			break;
+		default:	// no hand attack, no speed, dam*2 if >= 13
+			if (!AFF_FLAGGED(victim, AFF_STOPRIGHT))
+			{
+				to_char = "ослабило натиск $N1";
+				to_vict = "изуродовало Вам правую руку";
+				af[0].type = SPELL_BATTLE;
+				af[0].bitvector = AFF_STOPRIGHT;
+				af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			}
+			else if (!AFF_FLAGGED(victim, AFF_STOPLEFT))
+			{
+				to_char = "ослабило натиск $N1";
+				to_vict = "изуродовало Вам левую руку";
+				af[0].type = SPELL_BATTLE;
+				af[0].bitvector = AFF_STOPLEFT;
+				af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			}
+			else
+			{
+				to_char = "вывело $N3 из строя";
+				to_vict = "вывело Вас из строя";
+				af[0].type = SPELL_BATTLE;
+				af[0].bitvector = AFF_STOPFIGHT;
+				af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			}
+			af[1].type = SPELL_BATTLE;
+			af[1].bitvector = AFF_NOFLEE;
+			haemorragia(victim, 30);
+			if (dam_critic >= 13)
+				dam *= ch->get_skill(SKILL_PUNCTUAL) / 5;
+			SET_AF_BATTLE(victim, EAF_SLOW);
+			break;
+		}
+		break;
+	default:		// HEAD
+		switch (dam_critic)
+		{
+		case 1:
+		case 2:
+		case 3:
+			// nothing
+			return dam;
+		case 4:	// waits 1d6
+			WAIT_STATE(victim, number(2, 6) * PULSE_VIOLENCE);
+			to_char = "помутило $N2 сознание";
+			to_vict = "помутило Ваше сознание";
+			break;
+
+		case 5:	// head damaged, cap putdown, waits 1, HR-2 if no cap
+			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+			if (GET_EQ(victim, WEAR_HEAD))
+				unequip_pos = WEAR_HEAD;
+			else
+			{
+				af[0].type = SPELL_BATTLE;
+				af[0].location = APPLY_HITROLL;
+				af[0].modifier = -2;
+			}
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 4);
+			to_char = "повредило $N2 голову";
+			to_vict = "повредило Вам голову";
+			break;
+		case 6:	// head damaged
+			af[0].type = SPELL_BATTLE;
+			af[0].location = APPLY_HITROLL;
+			af[0].modifier = -2;
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 4);
+			to_char = "повредило $N2 голову";
+			to_vict = "повредило Вам голову";
+			break;
+		case 7:	// cap damaged, waits 1d6, speed/2, HR-4
+			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+			alt_equip(victim, WEAR_HEAD, 100, 100);
+			af[0].type = SPELL_BATTLE;
+			af[0].location = APPLY_HITROLL;
+			af[0].modifier = -4;
+			af[0].bitvector = AFF_NOFLEE;
+			to_char = "ранило $N3 в голову";
+			to_vict = "ранило Вас в голову";
+			break;
+		case 8:	// cap damaged, hits 0
+			WAIT_STATE(victim, 4 * PULSE_VIOLENCE);
+			alt_equip(victim, WEAR_HEAD, 100, 100);
+			//dam = GET_HIT(victim);
+			dam *= ch->get_skill(SKILL_PUNCTUAL) / 2;
+			to_char = "отбило у $N1 сознание";
+			to_vict = "отбило у Вас сознание";
+			haemorragia(victim, 20);
+			break;
+		case 9:	// head damaged, no speed, no attack
+			af[0].type = SPELL_BATTLE;
+			af[0].bitvector = AFF_STOPFIGHT;
+			af[0].duration = pc_duration(victim, 1, 0, 0, 0, 0);
+			haemorragia(victim, 30);
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 3);
+			to_char = "повергло $N3 в оцепенение";
+			to_vict = "повергло Вас в оцепенение";
+			break;
+		case 10:	// head damaged, -1 INT/WIS/CHA
+			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 2);
+			af[0].type = SPELL_BATTLE;
+			af[0].location = APPLY_INT;
+			af[0].modifier = -1;
+			af[0].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
+			af[0].battleflag = AF_DEADKEEP;
+			af[1].type = SPELL_BATTLE;
+			af[1].location = APPLY_WIS;
+			af[1].modifier = -1;
+			af[1].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
+			af[1].battleflag = AF_DEADKEEP;
+			af[2].type = SPELL_BATTLE;
+			af[2].location = APPLY_CHA;
+			af[2].modifier = -1;
+			af[2].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
+			af[2].battleflag = AF_DEADKEEP;
+			af[3].type = SPELL_BATTLE;
+			af[3].bitvector = AFF_STOPFIGHT;
+			af[3].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
+			haemorragia(victim, 50);
+			to_char = "сорвало у $N1 крышу";
+			to_vict = "сорвало у Вас крышу";
+			break;
+		case 11:	// hits 0, WIS/2, INT/2, CHA/2
+			dam *= ch->get_skill(SKILL_PUNCTUAL) / 2;
+			af[0].type = SPELL_BATTLE;
+			af[0].location = APPLY_INT;
+			af[0].modifier = -victim->get_int() / 2;
+			af[0].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
+			af[0].battleflag = AF_DEADKEEP;
+			af[1].type = SPELL_BATTLE;
+			af[1].location = APPLY_WIS;
+			af[1].modifier = -victim->get_wis() / 2;
+			af[1].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
+			af[1].battleflag = AF_DEADKEEP;
+			af[2].type = SPELL_BATTLE;
+			af[2].location = APPLY_CHA;
+			af[2].modifier = -victim->get_cha() / 2;
+			af[2].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
+			af[2].battleflag = AF_DEADKEEP;
+			haemorragia(victim, 60);
+			to_char = "сорвало у $N1 крышу";
+			to_vict = "сорвало у Вас крышу";
+			break;
+		default:	// killed
+			af[0].type = SPELL_BATTLE;
+			af[0].location = APPLY_INT;
+			af[0].modifier = -victim->get_int() / 2;
+			af[0].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
+			af[0].battleflag = AF_DEADKEEP;
+			af[1].type = SPELL_BATTLE;
+			af[1].location = APPLY_WIS;
+			af[1].modifier = -victim->get_wis() / 2;
+			af[1].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
+			af[1].battleflag = AF_DEADKEEP;
+			af[2].type = SPELL_BATTLE;
+			af[2].location = APPLY_CHA;
+			af[2].modifier = -victim->get_cha() / 2;
+			af[2].duration = pc_duration(victim, number(1, 6) * 24, 0, 0, 0, 0);
+			af[2].battleflag = AF_DEADKEEP;
+			dam *= ch->get_skill(SKILL_PUNCTUAL) / 2;
+			to_char = "размозжило $N2 голову";
+			to_vict = "размозжило Вам голову";
+			haemorragia(victim, 90);
+			break;
+		}
+		break;
+	}
+
+	for (i = 0; i < 4; i++)
+		if (af[i].type)
+			affect_join(victim, af + i, TRUE, FALSE, TRUE, FALSE);
+	if (to_char)
+	{
+		sprintf(buf, "&G&qВаше точное попадание %s.&Q&n", to_char);
+		act(buf, FALSE, ch, 0, victim, TO_CHAR);
+		sprintf(buf, "Точное попадание $n1 %s.", to_char);
+		act(buf, TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+	}
+	if (to_vict)
+	{
+		sprintf(buf, "&R&qМеткое попадание $n1 %s.&Q&n", to_vict);
+		act(buf, FALSE, ch, 0, victim, TO_VICT);
+	}
+	if (unequip_pos && GET_EQ(victim, unequip_pos))
+	{
+		obj = unequip_char(victim, unequip_pos);
+		if (!IS_NPC(victim) && ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
+			obj_to_char(obj, victim);
+		else
+			obj_to_room(obj, IN_ROOM(victim));
+		obj_decay(obj);
+	}
+	if (!IS_NPC(victim))
+	{
+		dam /= 5;
+	}
+	return calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
+}
+
+/**
+* Расчет множителя дамаги пушки с концентрацией силы.
+* Текущая: 1 + ((сила-25)*0.4 + левел*0.2)/10 * ремы/5,
+* в цифрах множитель выглядит от 1 до 2.6 с равномерным
+* распределением 62.5% на силу и 37.5% на уровни + штрафы до 5 ремов.
+* Способность не плюсуется при железном ветре и оглушении.
+*/
+int calculate_strconc_damage(CHAR_DATA * ch, OBJ_DATA * wielded, int damage)
+{
+	if (IS_NPC(ch)
+		|| GET_REAL_STR(ch) <= 25
+		|| !can_use_feat(ch, STRENGTH_CONCETRATION_FEAT)
+		|| GET_AF_BATTLE(ch, EAF_IRON_WIND)
+		|| GET_AF_BATTLE(ch, EAF_STUPOR))
+	{
+		return damage;
+	}
+	float str_mod = (GET_REAL_STR(ch) - 25) * 0.4;
+	float lvl_mod = GET_LEVEL(ch) * 0.2;
+	float rmt_mod = MIN(5, GET_REMORT(ch)) / 5.0;
+	float res_mod = 1 + (str_mod + lvl_mod) / 10.0 * rmt_mod;
+
+	return static_cast<int>(damage * res_mod);
+}
+
+/**
+* Расчет прибавки дамаги со скрытого стиля.
+* (скилл/5 + реморты*3) * (среднее/(10 + среднее/2)) * (левел/30)
+*/
+int calculate_noparryhit_dmg(CHAR_DATA * ch, OBJ_DATA * wielded)
+{
+	if (!ch->get_skill(SKILL_NOPARRYHIT)) return 0;
+
+	float weap_dmg = (((GET_OBJ_VAL(wielded, 2) + 1) / 2.0) * GET_OBJ_VAL(wielded, 1));
+	float weap_mod = weap_dmg / (10 + weap_dmg / 2);
+	float level_mod = static_cast<float>(GET_LEVEL(ch)) / 30;
+	float skill_mod = static_cast<float>(ch->get_skill(SKILL_NOPARRYHIT)) / 5;
+
+	return static_cast<int>((skill_mod + GET_REMORT(ch) * 3) * weap_mod * level_mod);
+}
+
+void might_hit_bash(CHAR_DATA *ch, CHAR_DATA *victim)
+{
+	if (MOB_FLAGGED(victim, MOB_NOBASH) || !GET_MOB_HOLD(victim))
+	{
+		return;
+	}
+
+	act("$n обреченно повалил$u на землю.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+	WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
+
+	if (GET_POS(victim) > POS_SITTING)
+	{
+		GET_POS(victim) = POS_SITTING;
+		send_to_char(victim, "&R&qБогатырский удар %s сбил Вас с ног.&Q&n\r\n", PERS(ch, victim, 1));
+	}
+}
+
+bool check_mighthit_weapon(CHAR_DATA *ch)
+{
+	if (IS_IMMORTAL(ch)
+		|| (IS_NPC(ch) && !IS_CHARMICE(ch)))
+	{
+		return true;
+	}
+	if (!GET_EQ(ch, WEAR_BOTHS)
+		&& !GET_EQ(ch, WEAR_WIELD)
+		&& !GET_EQ(ch, WEAR_HOLD)
+		&& !GET_EQ(ch, WEAR_LIGHT)
+		&& !GET_EQ(ch, WEAR_SHIELD))
+	{
+			return true;
+	}
+	return false;
+}
+
+/**
+* При надуве выше х 1.5 в пк есть 1% того, что весь надув слетит одним ударом.
+*/
+void try_remove_extrahits(CHAR_DATA *ch, CHAR_DATA *victim)
+{
+	if (((!IS_NPC(ch) && ch != victim) || (ch->master && !IS_NPC(ch->master) && ch->master != victim))
+		&& !IS_NPC(victim)
+		&& GET_POS(victim) != POS_DEAD
+		&& GET_HIT(victim) > GET_REAL_MAX_HIT(victim) * 1.5
+		&& number(1, 100) == 5)// пусть будет 5, а то 1 по субъективным ощущениям выпадает как-то часто
+	{
+		GET_HIT(victim) = GET_REAL_MAX_HIT(victim);
+		send_to_char(victim, "%s'Будь%s тощ%s аки прежде' - мелькнула чужая мысль в Вашей голове.%s\r\n",
+				CCWHT(victim, C_NRM), GET_CH_POLY_1(victim), GET_CH_EXSUF_1(victim), CCNRM(victim, C_NRM));
+		act("Вы прервали золотистую нить, питающую $N3 жизнью.", FALSE, ch, 0, victim, TO_CHAR);
+		act("$n прервал$g золотистую нить, питающую $N3 жизнью.", FALSE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+	}
+}
+
+/**
+* Дамажим дополнительным выстрелом.
+* Проценты при 100 скилле и 21 ловки: 100  60 30 10
+* Проценты при 200 скилее и 50 ловки: 100 100 70 30
+* На заднице 70% от итоговых процентов.
+* У чармисов 100% и 60% без остальных допов.
+*/
+void addshot_damage(CHAR_DATA * ch, int type, int weapon)
+{
+	int prob = train_skill(ch, SKILL_ADDSHOT, skill_info[SKILL_ADDSHOT].max_percent, ch->get_fighting());
+
+	// ловка роляет только выше 21 (стартовый максимум охота) и до 50
+	float dex_mod = static_cast<float>(MAX(GET_REAL_DEX(ch) - 21, 0)) / 29;
+	// штраф на 4й и 5й выстрелы для чаров ниже 5 мортов, по 20% за морт
+	float remort_mod = static_cast<float>(GET_REMORT(ch)) / 5;
+	if (remort_mod > 1) remort_mod = 1;
+	// на жопе процентовка снижается на 70% от текущего максимума каждого допа
+	float sit_mod = (GET_POS(ch) >= POS_FIGHTING) ? 1 : 0.7;
+
+	// у чармисов никаких плюшек от 100+ скилла и максимум 2 доп атаки
+	if (IS_CHARMICE(ch))
+	{
+		prob = MIN(100, prob);
+		dex_mod = 0;
+		remort_mod = 0;
+	}
+
+	// выше 100% идет другая формула
+	float add_prob = MAX(prob - 100, 0);
+	// скилл выше 100 добавляет равный ловке процент в максимуме
+	float skill_mod = add_prob / 100;
+	// а для скилла до сотни все остается как было
+	prob = MIN(100, prob);
+
+	int percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
+	// 1й доп - не более 100% при скилее 100+
+	if (prob * sit_mod >= percent / 2)
+		hit(ch, ch->get_fighting(), type, weapon);
+
+	percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
+	// 2й доп - 60% при скилле 100, до 100% при максимуме скилла и дексы
+	if ((prob * 3 + skill_mod * 100 + dex_mod * 100) * sit_mod > percent * 5 / 2 && ch->get_fighting())
+		hit(ch, ch->get_fighting(), type, weapon);
+
+	percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
+	// 3й доп - 30% при скилле 100, до 70% при максимуме скилла и дексы (при 5+ мортов)
+	if ((prob * 3 + skill_mod * 200 + dex_mod * 200) * remort_mod * sit_mod > percent * 5 && ch->get_fighting())
+		hit(ch, ch->get_fighting(), type, weapon);
+
+	percent = number(1, skill_info[SKILL_ADDSHOT].max_percent);
+	// 4й доп - 10% при скилле 100, до 30% при максимуме скилла и дексы (при 5+ мортов)
+	if ((prob + skill_mod * 100 + dex_mod * 100) * remort_mod * sit_mod > percent * 5 && ch->get_fighting())
+		hit(ch, ch->get_fighting(), type, weapon);
+}
+
+// бонусы/штрафы классам за юзание определенных видов оружия
+void apply_weapon_bonus(int ch_class, int skill, int *damroll, int *hitroll)
+{
+	int dam = *damroll;
+	int calc_thaco = *hitroll;
+
+	switch (ch_class)
+	{
+	case CLASS_CLERIC:
+		switch (skill)
+		{
+		case SKILL_CLUBS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_AXES:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_LONGS:
+			calc_thaco += 2;
+			dam -= 1;
+			break;
+		case SKILL_SHORTS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_NONSTANDART:
+			calc_thaco += 1;
+			dam -= 2;
+			break;
+		case SKILL_BOTHHANDS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_PICK:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_SPADES:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_BOWS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		}
+		break;
+	case CLASS_BATTLEMAGE:
+	case CLASS_DEFENDERMAGE:
+	case CLASS_CHARMMAGE:
+	case CLASS_NECROMANCER:
+		switch (skill)
+		{
+		case SKILL_CLUBS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_AXES:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_LONGS:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_SHORTS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_NONSTANDART:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_BOTHHANDS:
+			calc_thaco += 1;
+			dam -= 3;
+			break;
+		case SKILL_PICK:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_SPADES:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_BOWS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		}
+		break;
+	case CLASS_WARRIOR:
+		switch (skill)
+		{
+		case SKILL_CLUBS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_AXES:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_LONGS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_SHORTS:
+			calc_thaco += 2;
+			dam += 0;
+			break;
+		case SKILL_NONSTANDART:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_BOTHHANDS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_PICK:
+			calc_thaco += 2;
+			dam += 0;
+			break;
+		case SKILL_SPADES:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_BOWS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		}
+		break;
+	case CLASS_RANGER:
+		switch (skill)
+		{
+		case SKILL_CLUBS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_AXES:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_LONGS:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_SHORTS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_NONSTANDART:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_BOTHHANDS:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_PICK:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_SPADES:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_BOWS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		}
+		break;
+	case CLASS_GUARD:
+	case CLASS_THIEF:
+		switch (skill)
+		{
+		case SKILL_CLUBS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_AXES:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_LONGS:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_SHORTS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_NONSTANDART:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_BOTHHANDS:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_PICK:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_SPADES:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_BOWS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		}
+		break;
+	case CLASS_ASSASINE:
+		switch (skill)
+		{
+		case SKILL_CLUBS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_AXES:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_LONGS:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_SHORTS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_NONSTANDART:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_BOTHHANDS:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_PICK:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_SPADES:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_BOWS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		}
+		break;
+		/*	case CLASS_PALADINE:
+			case CLASS_SMITH:
+				switch (skill) {
+					case SKILL_CLUBS:	calc_thaco -= 0; dam += 0; break;
+					case SKILL_AXES:	calc_thaco -= 0; dam += 0; break;
+					case SKILL_LONGS:	calc_thaco -= 0; dam += 0; break;
+					case SKILL_SHORTS:	calc_thaco -= 0; dam += 0; break;
+					case SKILL_NONSTANDART:	calc_thaco -= 0; dam += 0; break;
+					case SKILL_BOTHHANDS:	calc_thaco -= 0; dam += 0; break;
+					case SKILL_PICK:	calc_thaco -= 0; dam += 0; break;
+					case SKILL_SPADES:	calc_thaco -= 0; dam += 0; break;
+					case SKILL_BOWS:	calc_thaco -= 0; dam += 0; break;
+				}
+				break; */
+	case CLASS_MERCHANT:
+		switch (skill)
+		{
+		case SKILL_CLUBS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_AXES:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_LONGS:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_SHORTS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_NONSTANDART:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_BOTHHANDS:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_PICK:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_SPADES:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_BOWS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		}
+		break;
+	case CLASS_DRUID:
+		switch (skill)
+		{
+		case SKILL_CLUBS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_AXES:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_LONGS:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_SHORTS:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_NONSTANDART:
+			calc_thaco -= 0;
+			dam += 0;
+			break;
+		case SKILL_BOTHHANDS:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		case SKILL_PICK:
+			calc_thaco += 0;
+			dam += 0;
+			break;
+		case SKILL_SPADES:
+			calc_thaco += 0;
+			dam += 0;
+			break;
+		case SKILL_BOWS:
+			calc_thaco += 1;
+			dam += 0;
+			break;
+		}
+		break;
+	}
+
+	*damroll = dam;
+	*hitroll = calc_thaco;
+}
+
+int do_punctual(CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *wielded)
+{
+	int dam_critic = 0, skill, wapp;
+
+	if (wielded)
+		wapp = (int)(GET_OBJ_SKILL(wielded) == SKILL_BOWS) ?
+			   GET_OBJ_WEIGHT(wielded) * 1 / 3 : GET_OBJ_WEIGHT(wielded);
+	else
+		wapp = 0;
+
+	if (wapp < 10)
+		dam_critic = dice(1, 6);
+	else
+		if (wapp < 19)
+			dam_critic = dice(2, 5);
+		else
+			if (wapp < 27)
+				dam_critic = dice(3, 4);
+			else
+				if (wapp < 36)
+					dam_critic = dice(3, 5);
+				else
+					if (wapp < 44)
+						dam_critic = dice(3, 6);
+					else
+						dam_critic = dice(4, 5);
+	skill = 1 + ch->get_skill(SKILL_PUNCTUAL) / 6;
+	dam_critic = MIN(number(4, skill), dam_critic);
+
+	return dam_critic;
+}
+
+/**
+* Умножение дамаги при стабе.
+*/
+int backstab_mult(int level)
+{
+	if (level <= 0)
+		return 1;	/* level 0 */
+	else if (level <= 5)
+		return 2;	/* level 1 - 5 */
+	else if (level <= 10)
+		return 3;	/* level 6 - 10 */
+	else if (level <= 15)
+		return 4;	/* level 11 - 15 */
+	else if (level <= 20)
+		return 5;	/* level 16 - 20 */
+	else if (level <= 25)
+		return 6;	/* level 21 - 25 */
+	else if (level <= 30)
+		return 7;	/* level 26 - 30 */
+	else
+		return 10;
+}
+
+/**
+* Процент прохождения крит.стаба = скилл/11 + (декса-20)/(декса/30)
+* Влияение по 50% от скилла и дексы, максимум 36,18%.
+*/
+int calculate_crit_backstab_percent(CHAR_DATA *ch)
+{
+	return static_cast<int>(ch->get_skill(SKILL_BACKSTAB)/11.0 + (GET_REAL_DEX(ch) - 20) / (GET_REAL_DEX(ch) / 30.0));
+}
+
+/**
+* Расчет множителя крит.стаба (по игрокам только для татей).
+*/
+double crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
+{
+	double bs_coeff = 1;
+	if (IS_NPC(victim))
+	{
+		if (ch->get_skill(SKILL_BACKSTAB) <= 100)
+		{
+			bs_coeff = ch->get_skill(SKILL_BACKSTAB) / 20;
+			if (bs_coeff < 2)
+				bs_coeff = 2;
+		}
+		else
+		{
+			bs_coeff = 5 + (ch->get_skill(SKILL_BACKSTAB) - 100) / 40;
+		}
+		send_to_char("&GПрямо в сердце!&n\r\n", ch);
+	}
+	else if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
+	{
+		// по чарам коэф. до 1.25 при 200 скила
+		bs_coeff *= 1 + (ch->get_skill(SKILL_BACKSTAB) * 0.00125);
+		// санку при крите как бы игнорим
+		if (AFF_FLAGGED(victim, AFF_SANCTUARY))
+			bs_coeff *= 2;
+		send_to_char("&GПрямо в сердце!&n\r\n", ch);
+	}
+	return bs_coeff;
+}
+
+/**
+* Может ли персонаж блокировать атаки автоматом (вообще в данный момент, без учета лагов).
+*/
+bool can_auto_block(CHAR_DATA *ch)
+{
+	if (GET_EQ(ch, WEAR_SHIELD) && GET_AF_BATTLE(ch, EAF_AWAKE) && GET_AF_BATTLE(ch, EAF_AUTOBLOCK))
+		return true;
+	else
+		return false;
+}
+
+/**
+* Проверка на фит "любимое оружие".
+*/
+void check_weap_feats(CHAR_DATA *ch, int skill, int *dam, int *calc_thaco)
+{
+	switch (skill)
+	{
+	case SKILL_PUNCH:
+		if (HAVE_FEAT(ch, PUNCH_FOCUS_FEAT))
+		{
+			*calc_thaco -= 2;
+			*dam += 2;
+		}
+		break;
+	case SKILL_CLUBS:
+		if (HAVE_FEAT(ch, CLUB_FOCUS_FEAT))
+		{
+			*calc_thaco -= 2;
+			*dam += 2;
+		}
+		break;
+	case SKILL_AXES:
+		if (HAVE_FEAT(ch, AXES_FOCUS_FEAT))
+		{
+			*calc_thaco -= 1;
+			*dam += 2;
+		}
+		break;
+	case SKILL_LONGS:
+		if (HAVE_FEAT(ch, LONGS_FOCUS_FEAT))
+		{
+			*calc_thaco -= 1;
+			*dam += 2;
+		}
+		break;
+	case SKILL_SHORTS:
+		if (HAVE_FEAT(ch, SHORTS_FOCUS_FEAT))
+		{
+			*calc_thaco -= 2;
+			*dam += 3;
+		}
+		break;
+	case SKILL_NONSTANDART:
+		if (HAVE_FEAT(ch, NONSTANDART_FOCUS_FEAT))
+		{
+			*calc_thaco -= 1;
+			*dam += 3;
+		}
+		break;
+	case SKILL_BOTHHANDS:
+		if (HAVE_FEAT(ch, BOTHHANDS_FOCUS_FEAT))
+		{
+			*calc_thaco -= 1;
+			*dam += 3;
+		}
+		break;
+	case SKILL_PICK:
+		if (HAVE_FEAT(ch, PICK_FOCUS_FEAT))
+		{
+			*calc_thaco -= 2;
+			*dam += 3;
+		}
+		break;
+	case SKILL_SPADES:
+		if (HAVE_FEAT(ch, SPADES_FOCUS_FEAT))
+		{
+			*calc_thaco -= 1;
+			*dam += 2;
+		}
+		break;
+	case SKILL_BOWS:
+		if (HAVE_FEAT(ch, BOWS_FOCUS_FEAT))
+		{
+			*calc_thaco -= 2;
+			*dam += 2;
+		}
+		break;
+	}
+}
+
+/**
+* Захват.
+*/
+void hit_touching(CHAR_DATA *ch, CHAR_DATA *vict, int *dam)
+{
+	if (vict->get_touching() == ch
+		&& !AFF_FLAGGED(vict, AFF_STOPFIGHT)
+		&& !AFF_FLAGGED(vict, AFF_MAGICSTOPFIGHT)
+		&& !AFF_FLAGGED(vict, AFF_STOPRIGHT)
+		&& GET_WAIT(vict) <= 0
+		&& !GET_MOB_HOLD(vict)
+		&& (IS_IMMORTAL(vict) || IS_NPC(vict)
+			|| !(GET_EQ(vict, WEAR_WIELD) || GET_EQ(vict, WEAR_BOTHS)))
+		&& GET_POS(vict) > POS_SLEEPING)
+	{
+		int percent = number(1, skill_info[SKILL_TOUCH].max_percent);
+		int prob = train_skill(vict, SKILL_TOUCH, skill_info[SKILL_TOUCH].max_percent, ch);
+		if (IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE))
+		{
+			percent = prob;
+		}
+		if (GET_GOD_FLAG(vict, GF_GODSCURSE))
+		{
+			percent = 0;
+		}
+		CLR_AF_BATTLE(vict, EAF_TOUCH);
+		SET_AF_BATTLE(vict, EAF_USEDRIGHT);
+		vict->set_touching(0);
+		if (prob < percent)
+		{
+			act("Вы не смогли перехватить атаку $N1.", FALSE, vict, 0, ch, TO_CHAR);
+			act("$N не смог$Q перехватить Вашу атаку.", FALSE, ch, 0, vict, TO_CHAR);
+			act("$n не смог$q перехватить атаку $N1.", TRUE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+			prob = 2;
+		}
+		else
+		{
+			act("Вы перехватили атаку $N1.", FALSE, vict, 0, ch, TO_CHAR);
+			act("$N перехватил$G Вашу атаку.", FALSE, ch, 0, vict, TO_CHAR);
+			act("$n перехватил$g атаку $N1.", TRUE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+			*dam = -1;
+			prob = 1;
+		}
+		if (!WAITLESS(vict))
+		{
+			WAIT_STATE(vict, prob * PULSE_VIOLENCE);
+		}
+	}
+}
+
+void hit_deviate(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
+{
+	int range = number(1, skill_info[SKILL_DEVIATE].max_percent);
+	int prob = train_skill(victim, SKILL_DEVIATE, skill_info[SKILL_DEVIATE].max_percent, ch);
+	if (GET_GOD_FLAG(victim, GF_GODSCURSE))
+	{
+		prob = 0;
+	}
+	prob = prob * 100 / range;
+	if (prob < 60)
+	{
+		act("Вы не смогли уклониться от атаки $N1", FALSE, victim, 0, ch, TO_CHAR);
+		act("$N не сумел$G уклониться от Вашей атаки", FALSE, ch, 0, victim, TO_CHAR);
+		act("$n не сумел$g уклониться от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+	}
+	else if (prob < 100)
+	{
+		act("Вы немного уклонились от атаки $N1", FALSE, victim, 0, ch, TO_CHAR);
+		act("$N немного уклонил$U от Вашей атаки", FALSE, ch, 0, victim, TO_CHAR);
+		act("$n немного уклонил$u от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+		*dam = *dam * 10 / 15;
+	}
+	else if (prob < 200)
+	{
+		act("Вы частично уклонились от атаки $N1", FALSE, victim, 0, ch, TO_CHAR);
+		act("$N частично уклонил$U от Вашей атаки", FALSE, ch, 0, victim, TO_CHAR);
+		act("$n частично уклонил$u от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+		*dam = *dam / 2;
+	}
+	else
+	{
+		act("Вы уклонились от атаки $N1", FALSE, victim, 0, ch, TO_CHAR);
+		act("$N уклонил$U от Вашей атаки", FALSE, ch, 0, victim, TO_CHAR);
+		act("$n уклонил$u от атаки $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+		*dam = -1;
+	}
+	BATTLECNTR(victim)++;
+}
+
+void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int w_type, int *dam)
+{
+	if (!((GET_EQ(victim, WEAR_WIELD)
+			&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_WIELD)) == ITEM_WEAPON
+			&& GET_EQ(victim, WEAR_HOLD)
+			&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_HOLD)) == ITEM_WEAPON)
+		|| IS_NPC(victim)
+		|| IS_IMMORTAL(victim)))
+	{
+		send_to_char("У Вас нечем отклонить атаку противника\r\n", victim);
+		CLR_AF_BATTLE(victim, EAF_PARRY);
+	}
+	else
+	{
+		int range = number(1, skill_info[SKILL_PARRY].max_percent);
+		int prob = train_skill(victim, SKILL_PARRY,
+				skill_info[SKILL_PARRY].max_percent, ch);
+		prob = prob * 100 / range;
+
+		if (prob < 70
+			|| ((skill == SKILL_BOWS || w_type == TYPE_MAUL)
+				&& !IS_IMMORTAL(victim)
+				&& (!can_use_feat(victim, PARRY_ARROW_FEAT)
+				|| number(1, 1000) >= 20 * MIN(GET_REAL_DEX(victim), 35))))
+		{
+			act("Вы не смогли отбить атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
+			act("$N не сумел$G отбить Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
+			act("$n не сумел$g отбить атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+			prob = 2;
+			SET_AF_BATTLE(victim, EAF_USEDLEFT);
+		}
+		else if (prob < 100)
+		{
+			act("Вы немного отклонили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
+			act("$N немного отклонил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
+			act("$n немного отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 10);
+			prob = 1;
+			*dam = *dam * 10 / 15;
+			SET_AF_BATTLE(victim, EAF_USEDLEFT);
+		}
+		else if (prob < 170)
+		{
+			act("Вы частично отклонили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
+			act("$N частично отклонил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
+			act("$n частично отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 15);
+			prob = 0;
+			*dam = *dam / 2;
+			SET_AF_BATTLE(victim, EAF_USEDLEFT);
+		}
+		else
+		{
+			act("Вы полностью отклонили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
+			act("$N полностью отклонил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
+			act("$n полностью отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 25);
+			prob = 0;
+			*dam = -1;
+		}
+		if (!WAITLESS(ch) && prob)
+		{
+			WAIT_STATE(victim, PULSE_VIOLENCE * prob);
+		}
+		CLR_AF_BATTLE(victim, EAF_PARRY);
+	}
+}
+
+void hit_multyparry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int w_type, int *dam)
+{
+	if (!((GET_EQ(victim, WEAR_WIELD)
+			&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_WIELD)) == ITEM_WEAPON
+			&& GET_EQ(victim, WEAR_HOLD)
+			&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_HOLD)) == ITEM_WEAPON)
+		|| IS_NPC(victim)
+		|| IS_IMMORTAL(victim)))
+	{
+		send_to_char("У Вас нечем отклонять атаки противников\r\n", victim);
+	}
+	else
+	{
+		int range = number(1,
+				skill_info[SKILL_MULTYPARRY].max_percent) + 15 * BATTLECNTR(victim);
+		int prob = train_skill(victim, SKILL_MULTYPARRY,
+				skill_info[SKILL_MULTYPARRY].max_percent + BATTLECNTR(ch) * 15, ch);
+		prob = prob * 100 / range;
+
+		if ((skill == SKILL_BOWS || w_type == TYPE_MAUL)
+			&& !IS_IMMORTAL(victim)
+			&& (!can_use_feat(victim, PARRY_ARROW_FEAT)
+				|| number(1, 1000) >= 20 * MIN(GET_REAL_DEX(victim), 35)))
+		{
+			prob = 0;
+		}
+		else
+		{
+			BATTLECNTR(victim)++;
+		}
+
+		if (prob < 50)
+		{
+			act("Вы не смогли отбить атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
+			act("$N не сумел$G отбить Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
+			act("$n не сумел$g отбить атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+		}
+		else if (prob < 90)
+		{
+			act("Вы немного отклонили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
+			act("$N немного отклонил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
+			act("$n немного отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 10);
+			*dam = *dam * 10 / 15;
+		}
+		else if (prob < 180)
+		{
+			act("Вы частично отклонили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
+			act("$N частично отклонил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
+			act("$n частично отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 15);
+			*dam = *dam / 2;
+		}
+		else
+		{
+			act("Вы полностью отклонили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
+			act("$N полностью отклонил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
+			act("$n полностью отклонил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+			alt_equip(victim, number(0, 2) ? WEAR_WIELD : WEAR_HOLD, *dam, 25);
+			*dam = -1;
+		}
+	}
+}
+
+void hit_block(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
+{
+	if (!(GET_EQ(victim, WEAR_SHIELD)
+		|| IS_NPC(victim)
+		|| IS_IMMORTAL(victim)))
+	{
+		send_to_char("У Вас нечем отразить атаку противника\r\n", victim);
+	}
+	else
+	{
+		int range = number(1, skill_info[SKILL_BLOCK].max_percent);
+		int prob =
+			train_skill(victim, SKILL_BLOCK, skill_info[SKILL_BLOCK].max_percent, ch);
+		prob = prob * 100 / range;
+		BATTLECNTR(victim)++;
+		if (prob < 100)
+		{
+			act("Вы не смогли отразить атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
+			act("$N не сумел$G отразить Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
+			act("$n не сумел$g отразить атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+		}
+		else if (prob < 150)
+		{
+			act("Вы немного отразили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
+			act("$N немного отразил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
+			act("$n немного отразил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+			alt_equip(victim, WEAR_SHIELD, *dam, 10);
+			*dam = *dam * 10 / 15;
+		}
+		else if (prob < 250)
+		{
+			act("Вы частично отразили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
+			act("$N частично отразил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
+			act("$n частично отразил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+			alt_equip(victim, WEAR_SHIELD, *dam, 15);
+			*dam = *dam / 2;
+		}
+		else
+		{
+			act("Вы полностью отразили атаку $N1", FALSE, victim, 0, ch, TO_CHAR);
+			act("$N полностью отразил$G Вашу атаку", FALSE, ch, 0, victim, TO_CHAR);
+			act("$n полностью отразил$g атаку $N1", TRUE, victim, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+			alt_equip(victim, WEAR_SHIELD, *dam, 25);
+			*dam = -1;
+		}
+	}
+}
+
+void appear(CHAR_DATA * ch)
+{
+	int appear_msg = AFF_FLAGGED(ch, AFF_INVISIBLE) || AFF_FLAGGED(ch, AFF_CAMOUFLAGE) || AFF_FLAGGED(ch, AFF_HIDE);
+
+	if (affected_by_spell(ch, SPELL_INVISIBLE))
+		affect_from_char(ch, SPELL_INVISIBLE);
+	if (affected_by_spell(ch, SPELL_HIDE))
+		affect_from_char(ch, SPELL_HIDE);
+	if (affected_by_spell(ch, SPELL_SNEAK))
+		affect_from_char(ch, SPELL_SNEAK);
+	if (affected_by_spell(ch, SPELL_CAMOUFLAGE))
+		affect_from_char(ch, SPELL_CAMOUFLAGE);
+
+	REMOVE_BIT(AFF_FLAGS(ch, AFF_INVISIBLE), AFF_INVISIBLE);
+	REMOVE_BIT(AFF_FLAGS(ch, AFF_HIDE), AFF_HIDE);
+	REMOVE_BIT(AFF_FLAGS(ch, AFF_SNEAK), AFF_SNEAK);
+	REMOVE_BIT(AFF_FLAGS(ch, AFF_CAMOUFLAGE), AFF_CAMOUFLAGE);
+
+	if (appear_msg)
+	{
+		if (IS_NPC(ch) || GET_LEVEL(ch) < LVL_IMMORT)
+			act("$n медленно появил$u из пустоты.", FALSE, ch, 0, 0, TO_ROOM);
+		else
+			act("Вы почувствовали странное присутствие $n1.", FALSE, ch, 0, 0, TO_ROOM);
+	}
+}
+
+/* message for doing damage with a weapon */
+void dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int w_type)
+{
+	char *buf;
+	int msgnum;
+
+	static struct dam_weapon_type
+	{
+		const char *to_room;
+		const char *to_char;
+		const char *to_victim;
+	} dam_weapons[] =
+	{
+
+		/* use #w for singular (i.e. "slash") and #W for plural (i.e. "slashes") */
+
+		{
+			"$n попытал$u #W $N3, но промахнул$u.",	/* 0: 0      0 */
+			"Вы попытались #W $N3, но промахнулись.",
+			"$n попытал$u #W Вас, но промахнул$u."
+		}, {
+			"$n легонько #w$g $N3.",	/*  1..5 1 */
+			"Вы легонько #wи $N3.",
+			"$n легонько #w$g Вас."
+		}, {
+			"$n слегка #w$g $N3.",	/*  6..11  2 */
+			"Вы слегка #wи $N3.",
+			"$n слегка #w$g Вас."
+		}, {
+			"$n #w$g $N3.",	/*  12..18   3 */
+			"Вы #wи $N3.",
+			"$n #w$g Вас."
+		}, {
+			"$n #w$g $N3.",	/* 19..26  4 */
+			"Вы #wи $N3.",
+			"$n #w$g Вас."
+		}, {
+			"$n сильно #w$g $N3.",	/* 27..35  5 */
+			"Вы сильно #wи $N3.",
+			"$n сильно #w$g Вас."
+		}, {
+			"$n очень сильно #w$g $N3.",	/*  36..45 6  */
+			"Вы очень сильно #wи $N3.",
+			"$n очень сильно #w$g Вас."
+		}, {
+			"$n чрезвычайно сильно #w$g $N3.",	/*  46..55  7 */
+			"Вы чрезвычайно сильно #wи $N3.",
+			"$n чрезвычайно сильно #w$g Вас."
+		}, {
+			"$n БОЛЬНО #w$g $N3.",	/*  56..96   8 */
+			"Вы БОЛЬНО #wи $N3.",
+			"$n БОЛЬНО #w$g Вас."
+		}, {
+			"$n ОЧЕНЬ БОЛЬНО #w$g $N3.",	/*    97..136  9  */
+			"Вы ОЧЕНЬ БОЛЬНО #wи $N3.",
+			"$n ОЧЕНЬ БОЛЬНО #w$g Вас."
+		}, {
+			"$n ЧРЕЗВЫЧАЙНО БОЛЬНО #w$g $N3.",	/*   137..176  10 */
+			"Вы ЧРЕЗВЫЧАЙНО БОЛЬНО #wи $N3.",
+			"$n ЧРЕЗВЫЧАЙНО БОЛЬНО #w$g Вас."
+		}, {
+			"$n НЕВЫНОСИМО БОЛЬНО #w$g $N3.",	/*    177..216  11 */
+			"Вы НЕВЫНОСИМО БОЛЬНО #wи $N3.",
+			"$n НЕВЫНОСИМО БОЛЬНО #w$g Вас."
+		}, {
+			"$n УЖАСНО #w$g $N3.",	/*    217..256  13 */
+			"Вы УЖАСНО #wи $N3.",
+			"$n УЖАСНО #w$g Вас."
+		}, {
+			"$n УБИЙСТВЕННО #w$g $N3.",	/*    257..296  15 */
+			"Вы УБИЙСТВЕННО #wи $N3.",
+			"$n УБИЙСТВЕННО #w$g Вас."
+		}, {
+			"$n СМЕРТЕЛЬНО #w$g $N3.",	/* 297+  16 */
+			"Вы СМЕРТЕЛЬНО #wи $N3.",
+			"$n СМЕРТЕЛЬНО #w$g Вас."
+		}
+	};
+
+
+	if (w_type >= TYPE_HIT && w_type < TYPE_MAGIC)
+		w_type -= TYPE_HIT;	/* Change to base of table with text */
+	else
+		w_type = TYPE_HIT;
+
+	if (dam == 0)
+		msgnum = 0;
+	else if (dam <= 5)
+		msgnum = 1;
+	else if (dam <= 11)
+		msgnum = 2;
+	else if (dam <= 18)
+		msgnum = 3;
+	else if (dam <= 26)
+		msgnum = 4;
+	else if (dam <= 35)
+		msgnum = 5;
+	else if (dam <= 45)
+		msgnum = 6;
+	else if (dam <= 56)
+		msgnum = 7;
+	else if (dam <= 96)
+		msgnum = 8;
+	else if (dam <= 136)
+		msgnum = 9;
+	else if (dam <= 176)
+		msgnum = 10;
+	else if (dam <= 216)
+		msgnum = 11;
+	else if (dam <= 256)
+		msgnum = 12;
+	else if (dam <= 296)
+		msgnum = 13;
+	else
+		msgnum = 14;
+
+	/* damage message to onlookers */
+
+	buf = replace_string(dam_weapons[msgnum].to_room,
+						 attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
+	act(buf, FALSE, ch, NULL, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+
+	/* damage message to damager */
+	if (dam)
+		send_to_char("&Y&q", ch);
+	else
+		send_to_char("&y&q", ch);
+	buf = replace_string(dam_weapons[msgnum].to_char,
+						 attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
+	act(buf, FALSE, ch, NULL, victim, TO_CHAR);
+	send_to_char("&Q&n", ch);
+
+	/* damage message to damagee */
+	/*if (dam)
+		send_to_char(CCIRED(victim, C_CMP), victim);
+	else
+		send_to_char(CCIRED(victim, C_CMP), victim);*/
+	send_to_char("&R&q", victim);
+	buf = replace_string(dam_weapons[msgnum].to_victim,
+						 attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
+	act(buf, FALSE, ch, NULL, victim, TO_VICT | TO_SLEEP);
+	send_to_char("&Q&n", victim);
+//  sprintf(buf,"Нанесенные повреждения - %d\n",dam);
+//  send_to_char(buf,ch);
+}
+
+/*
+ * Alert: As of bpl14, this function returns the following codes:
+ *	< 0	Victim  died.
+ *	= 0	No damage.
+ *	> 0	How much damage done.
+ */
+
+void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktype, int mayflee)
+{
+	if (IN_ROOM(ch) == NOWHERE)
+		return;
+	switch (GET_POS(victim))
+	{
+	case POS_MORTALLYW:
+		act("$n смертельно ранен$a и умрет, если $m не помогут.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		send_to_char("Вы смертельно ранены и умрете, если Вам не помогут.\r\n", victim);
+		break;
+	case POS_INCAP:
+		act("$n без сознания и медленно умирает. Помогите же $m.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		send_to_char("Вы без сознания и медленно умираете, брошенные без помощи.\r\n", victim);
+		break;
+	case POS_STUNNED:
+		act("$n без сознания, но возможно $e еще повоюет (попозже :).", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		send_to_char("Сознание покинуло Вас. В битве от Вас пока проку мало.\r\n", victim);
+		break;
+	case POS_DEAD:
+		if (IS_NPC(victim) && (MOB_FLAGGED(victim, MOB_CORPSE)))
+		{
+			act("$n вспыхнул$g и рассыпал$u в прах.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			send_to_char("Похоже Вас убили и даже тела не оставили !\r\n", victim);
+		}
+		else
+		{
+			act("$n мертв$a, $s душа медленно подымается в небеса.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			send_to_char("Вы мертвы!  Нам очень жаль...\r\n", victim);
+		}
+		break;
+	default:		/* >= POSITION SLEEPING */
+		if (dam > (GET_REAL_MAX_HIT(victim) / 4))
+			send_to_char("Это действительно БОЛЬНО !\r\n", victim);
+
+		if (dam > 0 && GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4))
+		{
+			sprintf(buf2,
+					"%s Вы желаете, чтобы Ваши раны не кровоточили так сильно ! %s\r\n",
+					CCRED(victim, C_SPR), CCNRM(victim, C_SPR));
+			send_to_char(buf2, victim);
+		}
+		if (ch != victim &&
+				IS_NPC(victim) &&
+				GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4) &&
+				MOB_FLAGGED(victim, MOB_WIMPY) && mayflee && GET_POS(victim) > POS_SITTING)
+			do_flee(victim, NULL, 0, 0);
+
+		if (ch != victim &&
+				!IS_NPC(victim) &&
+				HERE(victim) &&
+				GET_WIMP_LEV(victim) &&
+				GET_HIT(victim) < GET_WIMP_LEV(victim) && mayflee && GET_POS(victim) > POS_SITTING)
+		{
+			send_to_char("Вы запаниковали и попытались убежать !\r\n", victim);
+			do_flee(victim, NULL, 0, 0);
+		}
+		break;
+	}
+}
+
+// обработка щитов, зб, поглощения, сообщения для огн. щита НЕ ЗДЕСЬ
+// возвращает сделанный дамаг
+int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayflee)
+{
+	if (!ch || ch->purged() || !victim || victim->purged())
+	{
+		log("SYSERROR: ch = %s, victim = %s (%s:%d)",
+				ch ? (ch->purged() ? "purged" : "true") : "false",
+				victim ? (victim->purged() ? "purged" : "true") : "false",
+				__FILE__, __LINE__);
+		return 0;
+	}
+
+	int FS_damage = 0;
+	ACMD(do_get);
+//  long local_gold = 0;
+//  char local_corpse[256];
+
+
+	if (IN_ROOM(victim) == NOWHERE || IN_ROOM(ch) == NOWHERE || IN_ROOM(ch) != IN_ROOM(victim))
+	{
+		log("SYSERR: Attempt to damage '%s' in room NOWHERE by '%s'.", GET_NAME(victim), GET_NAME(ch));
+		return 0;
+	}
+
+	if (GET_POS(victim) <= POS_DEAD)
+	{
+		log("SYSERR: Attempt to damage corpse '%s' in room #%d by '%s'.",
+			GET_NAME(victim), GET_ROOM_VNUM(IN_ROOM(victim)), GET_NAME(ch));
+		die(victim, NULL);
+		return 0;	/* -je, 7/7/92 */
+	}
+
+	// первая такая проверка идет в hit перед ломанием пушек
+	if (dam >= 0 && damage_mtrigger(ch, victim))
+		return 0;
+
+	// Shopkeeper protection
+	if (!ok_damage_shopkeeper(ch, victim))
+		return 0;
+
+	// No fight mobiles
+	if ((IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOFIGHT)) || (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_NOFIGHT)))
+	{
+		return 0;
+	}
+
+	if (dam > 0)
+	{
+		// You can't damage an immortal!
+		if (IS_GOD(victim))
+			dam = 0;
+		else if (IS_IMMORTAL(victim) || GET_GOD_FLAG(victim, GF_GODSLIKE))
+			dam /= 4;
+		else if (GET_GOD_FLAG(victim, GF_GODSCURSE))
+			dam *= 2;
+	}
+
+// запоминание.
+// чара-обидчика моб помнит всегда, если он его бьет непосредственно.
+// если бьют клоны (проверка на MOB_CLONE), тоже помнит всегда.
+// если бьют храны или чармис (все остальные под чармом), то только если
+// моб может видеть их хозяина.
+
+// первое -- бьют моба, он запоминает обидчика
+	if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_MEMORY))
+	{
+		if (!IS_NPC(ch))
+			remember(victim, ch);
+		else if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master && !IS_NPC(ch->master))
+		{
+			if (MOB_FLAGGED(ch, MOB_CLONE))
+				remember(victim, ch->master);
+			else if (IN_ROOM(ch->master) == IN_ROOM(victim) && CAN_SEE(victim, ch->master))
+				remember(victim, ch->master);
+		}
+	}
+
+// второе -- бьет сам моб и запоминает, кого потом добивать :)
+	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_MEMORY))
+	{
+		if (!IS_NPC(victim))
+			remember(ch, victim);
+		else if (AFF_FLAGGED(victim, AFF_CHARM) && victim->master && !IS_NPC(victim->master))
+		{
+			if (MOB_FLAGGED(victim, MOB_CLONE))
+				remember(ch, victim->master);
+			else if (IN_ROOM(victim->master) == IN_ROOM(ch) && CAN_SEE(ch, victim->master))
+				remember(ch, victim->master);
+		}
+	}
+
+	//*************** If the attacker is invisible, he becomes visible
+	appear(ch);
+
+	// shapirus
+	//*************** Если жертва невидима, с нее тоже инвиз убираем для
+	//*************** предотвращения невидимости жертвы в случае бегства
+	appear(victim);
+
+	//**************** If you attack a pet, it hates your guts
+
+	if (!same_group(ch, victim))
+		check_agro_follower(ch, victim);
+
+
+	if (victim != ch)  	//**************** Start the attacker fighting the victim
+	{
+		if (GET_POS(ch) > POS_STUNNED && (ch->get_fighting() == NULL))
+		{
+			pk_agro_action(ch, victim);
+			set_fighting(ch, victim);
+			npc_groupbattle(ch);
+		}
+		//***************** Start the victim fighting the attacker
+		if (GET_POS(victim) > POS_STUNNED && (victim->get_fighting() == NULL))
+		{
+			set_fighting(victim, ch);
+			npc_groupbattle(victim);
+		}
+	}
+
+	//*************** If negative damage - return
+	if (dam < 0 || IN_ROOM(ch) == NOWHERE || IN_ROOM(victim) == NOWHERE || IN_ROOM(ch) != IN_ROOM(victim))
+		return (0);
+
+	// Сюда при отрицательном уроне не пройдет, и сообщений видно не будет
+
+	// added by WorM(Видолюб) поглощение физ.урона в %
+	if(GET_PR(victim) && IS_NPC(victim) && (attacktype <= 0 || attacktype > TOP_SPELL_DEFINE))
+	{
+		dam = dam - (dam * GET_PR(victim) / 100);
+	}
+
+	if (victim != ch)
+	{
+		if (dam && AFF_FLAGGED(victim, AFF_SHIELD))
+		{
+			if (attacktype == SKILL_BASH + TYPE_HIT)
+				skill_message(dam, ch, victim, attacktype);
+			act("Магический кокон полностью поглотил удар $N1.", FALSE, victim, 0, ch, TO_CHAR);
+			act("Магический кокон вокруг $N1 полностью поглотил Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
+			act("Магический кокон вокруг $N1 полностью поглотил удар $n1.",
+				TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+			return (0);
+		}
+
+		if ((dam > 0 && !was_critic && AFF_FLAGGED(victim, AFF_FIRESHIELD))
+				&& (attacktype != (TYPE_HIT + SKILL_BACKSTAB))
+				&& (attacktype != (TYPE_HIT + SKILL_THROW))
+				&& (attacktype <= 0 || attacktype >= LAST_USED_SPELL || !IS_SET(spell_info[attacktype].routines, MAG_WARCRY)))
+		{
+			FS_damage = dam * 20 / 100;
+			dam -= (dam * number(10, 30) / 100);
+		}
+
+		if (dam > 0 && !was_critic && AFF_FLAGGED(victim, AFF_ICESHIELD))
+		{
+			act("Ледяной щит принял часть удара на себя.", FALSE, ch, 0, victim, TO_VICT);
+			act("Ледяной щит вокруг $N1 смягчил Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
+			act("Ледяной щит вокруг $N1 смягчил удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+			dam -= (dam * number(30, 50) / 100);
+		}
+
+		if (dam > 0 && !was_critic && AFF_FLAGGED(victim, AFF_AIRSHIELD))
+		{
+			act("Воздушный щит смягчил удар $n1.", FALSE, ch, 0, victim, TO_VICT);
+			act("Воздушный щит вокруг $N1 ослабил Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
+			act("Воздушный щит вокруг $N1 ослабил удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+			dam -= (dam * number(30, 50) / 100);
+		}
+
+		if (dam && (IS_WEAPON(attacktype) || attacktype == (SKILL_KICK + TYPE_HIT)))
+		{
+			alt_equip(victim, NOWHERE, dam, 50);
+			if (!was_critic)
+			{
+				if (can_use_feat(victim, IMPREGNABLE_FEAT) && IS_SET(PRF_FLAGS(victim, PRF_AWAKE), PRF_AWAKE))
+				{
+					// у дружа в осторожке поглощение роляет до 99
+					int decrease = MIN(50, (GET_ABSORBE(victim) + 1) / 2) + GET_ARMOUR(victim);
+					// шанс полностью поглотить удар 4%
+					if (decrease >= number(dam, dam * 25))
+					{
+						act("Ваши доспехи полностью поглотили удар $n1.", FALSE, ch, 0, victim, TO_VICT);
+						act("Доспехи $N1 полностью поглотили Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
+						act("Доспехи $N1 полностью поглотили удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+						return 0;
+					}
+					// броня + поглощение роляет до 75% снижения дамаги
+					dam -= (dam * MAX(0, MIN(75, decrease)) / 100);
+				}
+				else
+				{
+					// у всех остальных поглощение роляет до 49
+					int decrease = MIN(25, (GET_ABSORBE(victim) + 1) / 2) + GET_ARMOUR(victim);
+					// шанс полностью поглотить удар 2%
+					if (decrease >= number(dam, dam * 50))
+					{
+						act("Ваши доспехи полностью поглотили удар $n1.", FALSE, ch, 0, victim, TO_VICT);
+						act("Доспехи $N1 полностью поглотили Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
+						act("Доспехи $N1 полностью поглотили удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+						return 0;
+					}
+					// броня + поглощение роляет до 50% снижения дамаги
+					dam -= (dam * MAX(0, MIN(50, decrease)) / 100);
+				}
+				/* умножаем дамаг при крит ударе, если щитов нет и игнор ничего не дает
+				   по призме не умножаем, чтобы не уносило танков с 1 удара */
+			}
+			else if ((GET_LEVEL(victim) >= 5 || !IS_NPC(ch))
+					 && !AFF_FLAGGED(victim, AFF_PRISMATICAURA) && !AFF_FLAGGED(victim, AFF_FIRESHIELD)
+					 && !AFF_FLAGGED(victim, AFF_ICESHIELD) && !AFF_FLAGGED(victim, AFF_AIRSHIELD))
+				dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2));
+
+		}
+	}
+	else if (MOB_FLAGGED(victim, MOB_PROTECT))
+	{
+		return (0);
+	}
+	//*************** Set the maximum damage per round and subtract the hit points
+	if (MOB_FLAGGED(victim, MOB_PROTECT))
+	{
+		act("$n находится под защитой Богов.", FALSE, victim, 0, 0, TO_ROOM);
+		return (0);
+	}
+	// log("[DAMAGE] Compute critic...");
+	dam = MAX(dam, 0);
+	if (dam && was_critic)
+	{
+		FS_damage = 0;
+		dam = compute_critical(ch, victim, dam);
+		if (!dam_critic && attacktype != SPELL_POISON)
+		{
+			sprintf(buf, "&B&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
+					PERS(victim, ch, 3));
+			send_to_char(buf, ch);
+			sprintf(buf, "&r&qМеткое попадание %s тяжело ранило Вас.&Q&n\r\n",
+					PERS(ch, victim, 1));
+			send_to_char(buf, victim);
+			/* Закомментил чтобы не спамило, сделать потом в виде режима */
+			//act("Меткое попадание $N1 заставило $n3 пошатнуться.", TRUE, victim, 0, ch, TO_NOTVICT);
+		}
+	}
+
+	// по идее этот attacktype там только для мессаг, но пока должно
+	// работать и здесь, а вообще система номеров идиотская
+	if (attacktype != SKILL_BACKSTAB+TYPE_HIT)
+	{
+		// + процент дамага с яда скополии
+		if (AFF_FLAGGED(victim, AFF_SCOPOLIA_POISON))
+		{
+			int mod = dam * GET_POISON(victim) / 100;
+			dam += mod;
+		}
+	}
+	/* Обрезаем макс дамаг */
+	dam = MIN(dam, MAX_HITS);
+
+	//*************** Gain exp for the hit
+	//Battle exp gain for mobs is DISABLED
+	gain_battle_exp(ch, victim, dam);
+
+	int real_dam = dam;
+	int over_dam = 0;
+
+	if (attacktype == SPELL_FIRE_SHIELD)
+	{
+		if ((GET_HIT(victim) -= dam) < 1)
+		{
+			GET_HIT(victim) = 1;
+			real_dam = GET_HIT(victim) - 1;
+			over_dam = dam - real_dam;
+		}
+	}
+	else
+	{
+		if (dam > GET_HIT(victim) + 11)
+		{
+			real_dam = GET_HIT(victim) + 11;
+			over_dam = dam - real_dam;
+		}
+		GET_HIT(victim) -= dam;
+	}
+
+	if (!IS_NPC(ch))
+	{
+		ch->dps_add_dmg(DpsSystem::PERS_DPS, real_dam, over_dam);
+		if (AFF_FLAGGED(ch, AFF_GROUP))
+		{
+			CHAR_DATA *leader = ch->master ? ch->master : ch;
+			leader->dps_add_dmg(DpsSystem::GROUP_DPS, real_dam, over_dam, ch);
+		}
+	}
+	else if (IS_CHARMICE(ch) && ch->master)
+	{
+		ch->master->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
+		if (AFF_FLAGGED(ch->master, AFF_GROUP))
+		{
+			CHAR_DATA *leader = ch->master->master ? ch->master->master : ch->master;
+			leader->dps_add_dmg(DpsSystem::GROUP_CHARM_DPS, real_dam, over_dam, ch);
+		}
+	}
+
+	// если виктим в группе с кем-то с ангелом - вместо смерти виктима умирает ангел
+	if (GET_HIT(victim) <= 0 && !IS_NPC(victim) && AFF_FLAGGED(victim, AFF_GROUP))
+	{
+		for (CHAR_DATA *keeper = world[IN_ROOM(victim)]->people; keeper; keeper = keeper->next_in_room)
+		{
+			if (IS_NPC(keeper) && MOB_FLAGGED(keeper, MOB_ANGEL)
+				&& keeper->master && AFF_FLAGGED(keeper->master, AFF_GROUP))
+			{
+				CHAR_DATA *keeper_leader = keeper->master->master ? keeper->master->master : keeper->master;
+				CHAR_DATA *victim_leader = victim->master ? victim->master : victim;
+
+				if ((keeper_leader == victim_leader) && (may_kill_here(keeper->master, ch)))
+				{
+					pk_agro_action(keeper->master, ch);
+					send_to_char(victim, "%s пожертвовал%s своей жизнью, вытаскивая Вас с того света!\r\n",
+							GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
+					snprintf(buf, MAX_STRING_LENGTH, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
+							GET_PAD(keeper, 0), GET_CH_SUF_1(keeper), GET_PAD(victim, 3));
+					act(buf, FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+
+					extract_char(keeper, 0);
+					GET_HIT(victim) = MIN(300, GET_MAX_HIT(victim) / 2);
+				}
+			}
+		}
+	}
+
+	update_pos(victim);
+
+	if (attacktype != SPELL_POISON && dam > 0)
+		try_remove_extrahits(ch, victim);
+
+	// * skill_message sends a message from the messages file in lib/misc.
+	//  * dam_message just sends a generic "You hit $n extremely hard.".
+	// * skill_message is preferable to dam_message because it is more
+	// * descriptive.
+	// *
+	// * If we are _not_ attacking with a weapon (i.e. a spell), always use
+	// * skill_message. If we are attacking with a weapon: If this is a miss or a
+	// * death blow, send a skill_message if one exists; if not, default to a
+	// * dam_message. Otherwise, always send a dam_message.
+	// log("[DAMAGE] Attack message...");
+
+	if (!IS_WEAPON(attacktype))
+		skill_message(dam, ch, victim, attacktype);
+	else
+	{
+		if (GET_POS(victim) == POS_DEAD || dam == 0)
+		{
+			if (!skill_message(dam, ch, victim, attacktype))
+				dam_message(dam, ch, victim, attacktype);
+		}
+		else
+		{
+			dam_message(dam, ch, victim, attacktype);
+		}
+	}
+
+	// log("[DAMAGE] Victim message...");
+	//******** Use send_to_char -- act() doesn't send message if you are DEAD.
+	char_dam_message(dam, ch, victim, attacktype, mayflee);
+	// log("[DAMAGE] Flee etc...");
+
+	// Проверить, что жертва все еще тут. Может уже сбежала по трусости.
+	// Думаю, простой проверки достаточно.
+	// Примечание, если сбежал в FIRESHIELD,
+	// то обратного повреждения по атакующему не будет
+	if (IN_ROOM(ch) != IN_ROOM(victim))
+		return dam;
+
+	// *********** Stop someone from fighting if they're stunned or worse
+	if ((GET_POS(victim) <= POS_STUNNED) && (victim->get_fighting() != NULL))
+	{
+		stop_fighting(victim, GET_POS(victim) <= POS_DEAD);
+	}
+	// *********** Uh oh.  Victim died.
+	if (GET_POS(victim) == POS_DEAD)
+	{
+		CHAR_DATA *killer = NULL;
+
+		if (IS_NPC(victim) || victim->desc)
+		{
+			if (victim == ch && IN_ROOM(victim) != NOWHERE)
+			{
+				if (attacktype == SPELL_POISON)
+				{
+					CHAR_DATA *poisoner;
+					for (poisoner = world[IN_ROOM(victim)]->people; poisoner;
+							poisoner = poisoner->next_in_room)
+						if (poisoner != victim && GET_ID(poisoner) == victim->Poisoner)
+							killer = poisoner;
+				}
+				else if (attacktype == TYPE_SUFFERING)
+				{
+					CHAR_DATA *attacker;
+					for (attacker = world[IN_ROOM(victim)]->people; attacker;
+							attacker = attacker->next_in_room)
+						if (attacker->get_fighting() == victim)
+							killer = attacker;
+				}
+			}
+			if (ch != victim)
+				killer = ch;
+		}
+
+		if (killer)
+		{
+			if (AFF_FLAGGED(killer, AFF_GROUP))
+// т.к. помечен флагом AFF_GROUP - точно PC
+				group_gain(killer, victim);
+			else if ((AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL)) && killer->master)
+// killer - зачармленный NPC с хозяином
+			{
+				if (!IS_NPC(killer->master)
+						&& AFF_FLAGGED(killer->master, AFF_GROUP))
+// Хозяин - PC в группе => опыт группе
+					group_gain(killer->master, victim);
+				else if (IN_ROOM(killer) == IN_ROOM(killer->master))
+					// Чармис и хозяин в одной комнате
+					// Опыт хозяину
+				{
+					perform_group_gain(killer->master, victim, 1, 100);
+					//solo_gain(killer->master, victim);
+					//solo_gain(killer,victim);
+				}
+				// else
+				// А хозяина то рядом не оказалось, все чармису - убрано
+// нефиг абьюзить чарм  perform_group_gain( killer, victim, 1, 100 );
+			}
+			else
+				// Просто NPC или PC сам по себе
+				perform_group_gain(killer, victim, 1, 100);
+		}
+		// в сислог иммам идут только смерти в пк (без арен), в файл пишутся все смерти чаров
+		if (!IS_NPC(victim) && !(killer && PRF_FLAGGED(killer, PRF_EXECUTOR)))//если чар убит палачем то тоже не спамим
+		{
+			ClanPkLog::check(ch, victim);
+			sprintf(buf2, "%s killed by %s at %s", GET_NAME(victim),
+					GET_NAME(ch), IN_ROOM(victim) != NOWHERE ? world[IN_ROOM(victim)]->name : "NOWHERE");
+			log(buf2);
+
+			if ((!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
+					&& (RENTABLE(victim) && !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)))
+			{
+				mudlog(buf2, BRF, LVL_IMPL, SYSLOG, 0);
+				if (IS_NPC(ch)
+						&& (AFF_FLAGGED(ch, AFF_CHARM) || IS_HORSE(ch))
+						&& ch->master && !IS_NPC(ch->master))
+				{
+					sprintf(buf2, "%s подчиняется %s.", GET_NAME(ch), GET_PAD(ch->master, 2));
+					mudlog(buf2, BRF, LVL_IMPL, SYSLOG, TRUE);
+				}
+			}
+
+			if (MOB_FLAGGED(ch, MOB_MEMORY))
+				forget(ch, victim);
+		}
+
+		/* Есть ли в будующем трупе куны...? */
+//      if (IS_NPC (victim))
+//      local_gold = victim->get_gold();
+//Polos.poison_mob_max_fix
+		if (killer) ch = killer;
+//-Polos.poison_mob_max_fix
+		die(victim, ch);
+		/* Автограбеж */
+//      sprintf (local_corpse, "труп.%s", GET_PAD (victim, 1));
+//      if (IS_NPC (victim) && !IS_NPC (ch) && PRF_FLAGGED (ch, PRF_AUTOLOOT)
+//        && get_obj_in_list_vis (ch, local_corpse,
+//                                world[ch->in_room]->contents))
+//      {
+//        sprintf (local_corpse, "все труп.%s земля", GET_PAD (victim, 1));
+//        do_get (ch, local_corpse, 0, 0);
+//      }
+//      else
+//      {
+//        /* Брать куны */
+//        if (IS_NPC (victim) && !IS_NPC (ch)
+//            && PRF_FLAGGED (ch, PRF_AUTOMONEY) && (local_gold > 0)
+//            && get_obj_in_list_vis (ch, local_corpse,
+//                                    world[ch->in_room]->contents))
+//          {
+//            sprintf (local_corpse, "все.кун труп.%s земля",
+//                     GET_PAD (victim, 1));
+//            do_get (ch, local_corpse, 0, 0);
+//          }
+//      }
+		return (-1);
+	}
+	if (FS_damage && victim->get_fighting() && GET_POS(victim) > POS_STUNNED
+			&& IN_ROOM(victim) != NOWHERE && attacktype != SKILL_TURN_UNDEAD + TYPE_HIT)
+		damage(victim, ch, FS_damage, SPELL_FIRE_SHIELD, FALSE);
+
+	return (dam);
+}
+
+int extdamage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, OBJ_DATA * wielded, int mayflee)
+{
+	if (!ch || ch->purged() || !victim || victim->purged())
+	{
+		log("SYSERROR: ch = %s, victim = %s (%s:%d)",
+				ch ? (ch->purged() ? "purged" : "true") : "false",
+				victim ? (victim->purged() ? "purged" : "true") : "false",
+				__FILE__, __LINE__);
+		return 0;
+	}
+
+	int prob, percent = 0, lag = 0, k, mem_dam = dam;
+	AFFECT_DATA af;
+
+	if (dam < 0)
+		dam = 0;
+
+	// MIGHT_HIT
+	// в эти условия ничего добавлять не надо, иначе EAF_MIGHTHIT не снимется
+	// с моба по ходу боя, если он не может по каким-то причинам смолотить
+	if (GET_AF_BATTLE(ch, EAF_MIGHTHIT) && GET_WAIT(ch) <= 0)
+	{
+		CLR_AF_BATTLE(ch, EAF_MIGHTHIT);
+		if (check_mighthit_weapon(ch) && !GET_AF_BATTLE(ch, EAF_TOUCH))
+		{
+			percent = number(1, skill_info[SKILL_MIGHTHIT].max_percent);
+			prob = train_skill(ch, SKILL_MIGHTHIT, skill_info[SKILL_MIGHTHIT].max_percent, victim);
+			if (GET_MOB_HOLD(victim))
+			{
+				prob = MAX(prob, percent);
+			}
+			if (IS_IMMORTAL(victim))
+				prob = 0;
+			if (prob * 100 / percent < 100 || dam == 0)
+			{
+				sprintf(buf, "&c&qВаш богатырский удар пропал впустую.&Q&n\r\n");
+				send_to_char(buf, ch);
+				lag = 3;
+				dam = 0;
+			}
+			else if (prob * 100 / percent < 150)
+			{
+				sprintf(buf, "&b&qВаш богатырский удар задел %s.&Q&n\r\n",
+						PERS(victim, ch, 3));
+				send_to_char(buf, ch);
+				lag = 1;
+				WAIT_STATE(victim, PULSE_VIOLENCE);
+				af.type = SPELL_BATTLE;
+				af.bitvector = AFF_STOPFIGHT;
+				af.location = 0;
+				af.modifier = 0;
+				af.duration = pc_duration(victim, 1, 0, 0, 0, 0);
+				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+				affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
+				sprintf(buf,
+						"&R&qВаше сознание затуманилось после удара %s.&Q&n\r\n",
+						PERS(ch, victim, 1));
+				send_to_char(buf, victim);
+				act("$N содрогнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+				if (!number(0, 2))
+				{
+					might_hit_bash(ch, victim);
+				}
+			}
+			else if (prob * 100 / percent < 400)
+			{
+				sprintf(buf, "&g&qВаш богатырский удар пошатнул %s.&Q&n\r\n",
+						PERS(victim, ch, 3));
+				send_to_char(buf, ch);
+				lag = 2;
+				dam += (dam / 1);
+				WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+				af.type = SPELL_BATTLE;
+				af.bitvector = AFF_STOPFIGHT;
+				af.location = 0;
+				af.modifier = 0;
+				af.duration = pc_duration(victim, 2, 0, 0, 0, 0);
+				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+				affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
+				sprintf(buf,
+						"&R&qВаше сознание помутилось после удара %s.&Q&n\r\n",
+						PERS(ch, victim, 1));
+				send_to_char(buf, victim);
+				act("$N пошатнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+				if (!number(0, 1))
+				{
+					might_hit_bash(ch, victim);
+				}
+			}
+			else
+			{
+				sprintf(buf, "&G&qВаш богатырский удар сотряс %s.&Q&n\r\n",
+						PERS(victim, ch, 3));
+				send_to_char(buf, ch);
+				lag = 2;
+				dam *= 4;
+				WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
+				af.type = SPELL_BATTLE;
+				af.bitvector = AFF_STOPFIGHT;
+				af.location = 0;
+				af.modifier = 0;
+				af.duration = pc_duration(victim, 3, 0, 0, 0, 0);
+				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+				affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
+				sprintf(buf, "&R&qВаше сознание померкло после удара %s.&Q&n\r\n",
+						PERS(ch, victim, 1));
+				send_to_char(buf, victim);
+				act("$N зашатал$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+				might_hit_bash(ch, victim);
+			}
+			if (!WAITLESS(ch))
+				WAIT_STATE(ch, lag * PULSE_VIOLENCE);
+		}
+	}
+	// STUPOR
+	else if (GET_AF_BATTLE(ch, EAF_STUPOR) && GET_WAIT(ch) <= 0)
+	{
+		CLR_AF_BATTLE(ch, EAF_STUPOR);
+		if (IS_NPC(ch)
+			|| IS_IMMORTAL(ch)
+			|| (wielded && GET_OBJ_WEIGHT(wielded) > 18
+				&& GET_OBJ_SKILL(wielded) != SKILL_BOWS
+				&& !GET_AF_BATTLE(ch, EAF_PARRY)
+				&& !GET_AF_BATTLE(ch, EAF_MULTYPARRY)))
+		{
+			percent = number(1, skill_info[SKILL_STUPOR].max_percent);
+			prob = train_skill(ch, SKILL_STUPOR, skill_info[SKILL_STUPOR].max_percent, victim);
+			if (GET_MOB_HOLD(victim))
+			{
+				prob = MAX(prob, percent * 150 / 100 + 1);
+			}
+			if (IS_IMMORTAL(victim))
+			{
+				prob = 0;
+			}
+			if (prob * 100 / percent < 117 || dam == 0 || MOB_FLAGGED(victim, MOB_NOSTUPOR))
+			{
+				sprintf(buf,
+						"&c&qВы попытались оглушить %s, но не смогли.&Q&n\r\n",
+						PERS(victim, ch, 3));
+				send_to_char(buf, ch);
+				lag = 3;
+				dam = 0;
+			}
+			else if (prob * 100 / percent < 300)
+			{
+				sprintf(buf, "&g&qВаша мощная атака оглушила %s.&Q&n\r\n",
+						PERS(victim, ch, 3));
+				send_to_char(buf, ch);
+				lag = 2;
+				k = ch->get_skill(SKILL_STUPOR) / 30;
+				if (!IS_NPC(victim))
+				{
+					k = MIN(2, k);
+				}
+				dam *= MAX(2, number(1, k));
+				WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
+				sprintf(buf,
+						"&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n",
+						PERS(ch, victim, 1));
+				send_to_char(buf, victim);
+				act("$n оглушил$a $N3.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+			}
+			else
+			{
+				if (MOB_FLAGGED(victim, MOB_NOBASH))
+					sprintf(buf, "&G&qВаш мощнейший удар оглушил %s.&Q&n\r\n",
+							PERS(victim, ch, 3));
+				else
+					sprintf(buf, "&G&qВаш мощнейший удар сбил %s с ног.&Q&n\r\n",
+							PERS(victim, ch, 3));
+				send_to_char(buf, ch);
+				if (MOB_FLAGGED(victim, MOB_NOBASH))
+					act("$n мощным ударом оглушил$a $N3.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+				else
+					act("$n своим оглушающим ударом сбил$a $N3 с ног.", TRUE, ch,
+						0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+				lag = 2;
+				k = ch->get_skill(SKILL_STUPOR) / 20;
+				if (!IS_NPC(victim))
+				{
+					k = MIN(4, k);
+				}
+				dam *= MAX(3, number(1, k));
+				WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
+				if (GET_POS(victim) > POS_SITTING && !MOB_FLAGGED(victim, MOB_NOBASH))
+				{
+					GET_POS(victim) = POS_SITTING;
+					sprintf(buf, "&R&qОглушающий удар %s сбил Вас с ног.&Q&n\r\n",
+							PERS(ch, victim, 1));
+					send_to_char(buf, victim);
+				}
+				else
+				{
+					sprintf(buf,
+							"&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n",
+							PERS(ch, victim, 1));
+					send_to_char(buf, victim);
+				}
+			}
+			if (!WAITLESS(ch))
+				WAIT_STATE(ch, lag * PULSE_VIOLENCE);
+		}
+	}
+	// отравленные пушки
+	else if (!MOB_FLAGGED(victim, MOB_PROTECT)
+		&& dam
+		&& wielded
+		&& !wielded->timed_spell.empty()
+		&& ch->get_skill(SKILL_POISONED))
+	{
+		try_weap_poison(ch, victim, wielded->timed_spell.is_spell_poisoned());
+	}
+	// Calculate mob-poisoner
+	else if (dam &&
+			 IS_NPC(ch) &&
+			 NPC_FLAGGED(ch, NPC_POISON) &&
+			 !AFF_FLAGGED(ch, AFF_CHARM) &&
+			 GET_WAIT(ch) <= 0 &&
+			 !AFF_FLAGGED(victim, AFF_POISON) && number(0, 100) < GET_LIKES(ch) + GET_LEVEL(ch) - GET_LEVEL(victim)
+			 && !general_savingthrow(ch, victim, SAVING_CRITICAL, - GET_REAL_CON(victim)))
+	{
+		poison_victim(ch, victim, MAX(1, GET_LEVEL(ch) - GET_LEVEL(victim)) * 10);
+	}
+
+	// Если удар парирован, необходимо все равно ввязаться в драку.
+	// Вызывается damage с отрицательным уроном
+	return damage(ch, victim, mem_dam >= 0 ? dam : -1, attacktype, mayflee);
+}
+
+/**
+* обработка ударов оружием, санка, призма, стили, итд.
+* \param weapon = 1 - атака правой или двумя руками
+*               = 2 - атака левой рукой
+*/
+void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
+{
+	if (!victim)
+	{
+		return;
+	}
+	if (!ch || ch->purged() || victim->purged())
+	{
+		log("SYSERROR: ch = %s, victim = %s (%s:%d)",
+				ch ? (ch->purged() ? "purged" : "true") : "false",
+				victim->purged() ? "purged" : "true", __FILE__, __LINE__);
+		return;
+	}
+
+	/* Do some sanity checking, in case someone flees, etc. */
+	if (IN_ROOM(ch) != IN_ROOM(victim) || IN_ROOM(ch) == NOWHERE)
+	{
+		if (ch->get_fighting() && ch->get_fighting() == victim)
+		{
+			stop_fighting(ch, TRUE);
+		}
+		return;
+	}
+
+	/* Stand awarness mobs */
+	if (CAN_SEE(victim, ch)
+		&& !victim->get_fighting()
+		&& ((IS_NPC(victim) && (GET_HIT(victim) < GET_MAX_HIT(victim)
+			|| MOB_FLAGGED(victim, MOB_AWARE)))
+			|| AFF_FLAGGED(victim, AFF_AWARNESS))
+		&& !GET_MOB_HOLD(victim) && GET_WAIT(victim) <= 0)
+	{
+		set_battle_pos(victim);
+	}
+
+	OBJ_DATA *wielded = 0;
+	int weapon_pos = WEAR_WIELD;
+
+	/* Find weapon for attack number weapon */
+	if (weapon == 1)
+	{
+		if (!(wielded = GET_EQ(ch, WEAR_WIELD)))
+		{
+			wielded = GET_EQ(ch, WEAR_BOTHS);
+			weapon_pos = WEAR_BOTHS;
+		}
+	}
+	else if (weapon == 2)
+	{
+		wielded = GET_EQ(ch, WEAR_HOLD);
+		weapon_pos = WEAR_HOLD;
+	}
+
+	/* Обработка SKILL_NOPARRYHIT */
+	if (type == TYPE_UNDEFINED && ch->get_skill(SKILL_NOPARRYHIT))
+	{
+		int tmp_skill = train_skill(ch, SKILL_NOPARRYHIT,
+				skill_info[SKILL_NOPARRYHIT].max_percent, ch->get_fighting());
+		// TODO: max_percent в данный момент 100 (хорошо бы не тупо 200, а с % фейла)
+		if (tmp_skill >= number(1, skill_info[SKILL_NOPARRYHIT].max_percent))
+		{
+			type = TYPE_NOPARRY;
+		}
+	}
+
+	int skill = 0, skill_is = 0;
+	if (wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
+	{
+		// для всех типов атак скилл берется из пушки, если она есть
+		skill = GET_OBJ_SKILL(wielded);
+		skill_is = train_skill(ch, skill, skill_info[skill].max_percent, victim);
+	}
+	else
+	{
+		// удар голыми руками
+		skill = SKILL_PUNCH;
+		skill_is = train_skill(ch, skill, skill_info[skill].max_percent, victim);
+	}
+
+	int calc_thaco = 0, victim_ac = 0, dam = 0;
+	int i, w_type = 0, prob, range;
+	int percent, modi = 0;
+
+	/* Find the weapon type (for display purposes only) */
+	if (type == SKILL_THROW || type == SKILL_BACKSTAB)
+	{
+		w_type = type + TYPE_HIT;
+	}
+	else if (wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
+	{
+		if (!IS_NPC(ch))
+		{
+			// Apply HR for light weapon
+			percent = 0;
+			switch (weapon_pos)
+			{
+			case WEAR_WIELD:
+				percent = (str_bonus(GET_REAL_STR(ch), STR_WIELD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+				break;
+			case WEAR_HOLD:
+				percent = (str_bonus(GET_REAL_STR(ch), STR_HOLD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+				break;
+			case WEAR_BOTHS:
+				percent = (str_bonus(GET_REAL_STR(ch), STR_WIELD_W) +
+						   str_bonus(GET_REAL_STR(ch), STR_HOLD_W) - GET_OBJ_WEIGHT(wielded) + 1) / 2;
+				break;
+			}
+			calc_thaco -= MIN(3, MAX(percent, 0));
+
+			// Penalty for unknown weapon type
+// shapirus: старый штраф нифига не работает, тем более, что unknown_weapon_fault
+// нигде не определяется. сделан новый на базе инты чара. плюс сделан штраф на дамролл.
+// если скилл есть, то штраф не даем, а применяем бонусы/штрафы по профам
+			if (ch->get_skill(skill) == 0)
+			{
+				calc_thaco += (50 - MIN(50, GET_REAL_INT(ch))) / 3;
+				dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
+			}
+			else
+			{
+				apply_weapon_bonus(GET_CLASS(ch), skill, &dam, &calc_thaco);
+			}
+
+			// Bonus for leadership
+			if (calc_leadership(ch))
+				calc_thaco -= 2;
+		}
+		w_type = GET_OBJ_VAL(wielded, 3) + TYPE_HIT;
+	}
+	else
+	{
+		weapon_pos = 0;
+
+		if (!IS_NPC(ch))
+		{
+			// кулаками у нас полагается бить только богатырям :)
+			if (!can_use_feat(ch, BULLY_FEAT))
+				calc_thaco += 4;
+			else	// а богатырям положен бонус за отсутствие оружия
+				calc_thaco -= 3;
+
+			// штраф в размере 1 хитролла за каждые
+			// недокачанные 10% скилла "удар левой рукой"
+			if (weapon == 2)
+				calc_thaco += (skill_info[SKILL_SHIT].max_percent -
+							   train_skill(ch, SKILL_SHIT,
+										   skill_info[SKILL_SHIT].max_percent, victim)) / 10;
+			// Bonus for leadership
+			if (calc_leadership(ch))
+				calc_thaco -= 2;
+		}
+
+		if (IS_NPC(ch) && (ch->mob_specials.attack_type != 0))
+			w_type = ch->mob_specials.attack_type + TYPE_HIT;
+		else
+			w_type += TYPE_HIT;
+	}
+
+	/*  Обработка доп. маг дамага */
+	if (AFF_FLAGGED(ch, AFF_CLOUD_OF_ARROWS) && IS_WEAPON(w_type))
+	{
+		// тут уже можно получить спурженную чардату
+		if (mag_damage(1, ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX) == -1)
+			return;
+	}
+
+	check_weap_feats(ch, skill, &dam, &calc_thaco);
+
+	// courage
+	if (affected_by_spell(ch, SPELL_COURAGE))
+	{
+		range = number(1, skill_info[SKILL_COURAGE].max_percent + GET_REAL_MAX_HIT(ch) - GET_HIT(ch));
+		prob = train_skill(ch, SKILL_COURAGE, skill_info[SKILL_COURAGE].max_percent, victim);
+		if (prob > range)
+		{
+			dam += ((ch->get_skill(SKILL_COURAGE) + 19) / 20);
+			calc_thaco -= ((ch->get_skill(SKILL_COURAGE) + 9) / 20);
+		}
+	}
+
+	if (GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT))
+	{
+		calc_thaco -= MAX(0, (ch->get_skill(skill) - 70) / 8);
+	}
+
+	//    AWAKE style - decrease hitroll
+	if (GET_AF_BATTLE(ch, EAF_AWAKE)
+		&& !can_use_feat(ch, SHADOW_STRIKE_FEAT)
+		&& type != SKILL_THROW
+		&& type != SKILL_BACKSTAB)
+	{
+		if (can_auto_block(ch))
+		{
+			// осторожка со щитом в руках у дружа с блоком - штрафы на хитролы (от 0 до 10)
+			calc_thaco += ch->get_skill(SKILL_AWAKE) * 5 / 100;
+		}
+		else
+		{
+			// здесь еще были штрафы на дамаг через деление, но положительного дамага
+			// на этом этапе еще нет, так что делили по сути нули
+			calc_thaco += ((ch->get_skill(SKILL_AWAKE) + 9) / 10) + 2;
+		}
+	}
+
+	if (!IS_NPC(ch) && type != SKILL_THROW && type != SKILL_BACKSTAB)
+	{
+		// Casters use weather, int and wisdom
+		if (IS_CASTER(ch))
+		{
+			/*	  calc_thaco +=
+				    (10 -
+				     complex_skill_modifier (ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS,
+							     10));
+			*/
+			calc_thaco -= (int)((GET_REAL_INT(ch) - 13) / GET_LEVEL(ch));
+			calc_thaco -= (int)((GET_REAL_WIS(ch) - 13) / GET_LEVEL(ch));
+		}
+		// Horse modifier for attacker
+		if (on_horse(ch))
+		{
+			prob = train_skill(ch, SKILL_HORSE, skill_info[SKILL_HORSE].max_percent, victim);
+			dam += ((prob + 19) / 10);
+			range = number(1, skill_info[SKILL_HORSE].max_percent);
+			if (range > prob)
+				calc_thaco += ((range - prob) + 19 / 20);
+			else
+				calc_thaco -= ((prob - range) + 19 / 20);
+		}
+		// Skill level increase damage
+		if (ch->get_skill(skill) >= 60)
+			dam += ((ch->get_skill(skill) - 50) / 10);
+	}
+	// not can see (blind, dark, etc)
+	if (!CAN_SEE(ch, victim))
+		calc_thaco += (can_use_feat(ch, BLIND_FIGHT_FEAT) ? 2 : IS_NPC(ch) ? 6 : 10);
+	if (!CAN_SEE(victim, ch))
+		calc_thaco -= (can_use_feat(victim, BLIND_FIGHT_FEAT) ? 2 : 8);
+
+	// bless
+	if (AFF_FLAGGED(ch, AFF_BLESS))
+	{
+		calc_thaco -= 4;
+	}
+	// curse
+	if (AFF_FLAGGED(ch, AFF_CURSE))
+	{
+		calc_thaco += 6;
+		dam -= 5;
+	}
+	/* Учет мощной и прицельной атаки */
+	if (PRF_FLAGGED(ch, PRF_POWERATTACK) && can_use_feat(ch, POWER_ATTACK_FEAT))
+	{
+		calc_thaco += 2;
+		dam += 5;
+	}
+	else if (PRF_FLAGGED(ch, PRF_GREATPOWERATTACK) && can_use_feat(ch, GREAT_POWER_ATTACK_FEAT))
+	{
+		calc_thaco += 4;
+		dam += 10;
+	}
+	else if (PRF_FLAGGED(ch, PRF_AIMINGATTACK) && can_use_feat(ch, AIMING_ATTACK_FEAT))
+	{
+		calc_thaco -= 2;
+		dam -= 5;
+	}
+	else if (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK) && can_use_feat(ch, GREAT_AIMING_ATTACK_FEAT))
+	{
+		calc_thaco -= 4;
+		dam -= 10;
+	}
+
+	/* Gorrah: бонус к повреждениям от умения "железный ветер" */
+	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
+		dam += ch->get_skill(SKILL_IRON_WIND) / 10;
+
+	// some protects
+	if (AFF_FLAGGED(victim, AFF_PROTECT_EVIL) && IS_EVIL(ch))
+		calc_thaco += 2;
+	if (AFF_FLAGGED(victim, AFF_PROTECT_GOOD) && IS_GOOD(ch))
+		calc_thaco += 2;
+
+	// "Dirty" methods for battle
+	if (type != SKILL_THROW && type != SKILL_BACKSTAB)
+	{
+		prob = (ch->get_skill(skill) + cha_app[GET_REAL_CHA(ch)].illusive) -
+			   (victim->get_skill(skill) + int_app[GET_REAL_INT(victim)].observation);
+		if (prob >= 30 && !GET_AF_BATTLE(victim, EAF_AWAKE)
+				&& (IS_NPC(ch) || !GET_AF_BATTLE(ch, EAF_PUNCTUAL)))
+		{
+			calc_thaco -= (ch->get_skill(skill) - victim->get_skill(skill) > 60 ? 2 : 1);
+			if (!IS_NPC(victim))
+				dam += (prob >= 70 ? 3 : (prob >= 50 ? 2 : 1));
+		}
+	}
+	// AWAKE style for victim
+	if (GET_AF_BATTLE(victim, EAF_AWAKE) &&
+			!AFF_FLAGGED(victim, AFF_STOPFIGHT) &&
+			!AFF_FLAGGED(victim, AFF_MAGICSTOPFIGHT) &&
+			!GET_MOB_HOLD(victim) &&
+			train_skill(victim, SKILL_AWAKE, skill_info[SKILL_AWAKE].max_percent,
+						ch) >= number(1, skill_info[SKILL_AWAKE].max_percent))
+	{
+		dam -= IS_NPC(ch) ? 5 : 5;
+		calc_thaco += IS_NPC(ch) ? 4 : 2;
+	}
+
+	// Calculate the THAC0 of the attacker
+	if (!IS_NPC(ch))
+	{
+		calc_thaco += thaco((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
+	}
+	else
+	{
+		// штраф мобам по рекомендации Триглава
+		calc_thaco += (25 - GET_LEVEL(ch) / 3);
+	}
+	calc_thaco -= GET_REAL_HR(ch);
+
+	/* Использование ловкости вместо силы для попадания */
+	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
+	{
+		if (wielded && GET_OBJ_WEIGHT(wielded) > 20)
+			calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
+		else
+			calc_thaco -= str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
+	}
+	else
+	{
+		calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
+	}
+
+	if ((type == SKILL_THROW || type == SKILL_BACKSTAB) && wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
+	{
+		if (type == SKILL_BACKSTAB)
+			calc_thaco -= MAX(0, (ch->get_skill(SKILL_SNEAK) + ch->get_skill(SKILL_HIDE) - 100) / 30);
+	}
+	else
+// тюнинг оверности делается тут :)
+		calc_thaco += 4;
+
+	if (skill_is <= 80)
+		calc_thaco -= skill_is / 20;
+	else if (skill_is <= 110)
+		calc_thaco -= 4 + (skill_is - 80) / 10;
+	else
+		calc_thaco -= 4 + 3 + (skill_is - 110) / 5;
+
+	// Calculate the raw armor including magic armor.  Lower AC is better.
+
+	victim_ac += compute_armor_class(victim);
+	victim_ac /= 10;
+
+	if (GET_POS(victim) < POS_FIGHTING)
+		victim_ac += 4;
+	if (GET_POS(victim) < POS_RESTING)
+		victim_ac += 3;
+	if (AFF_FLAGGED(victim, AFF_HOLD))
+		victim_ac += 4;
+	if (AFF_FLAGGED(victim, AFF_CRYING))
+		victim_ac += 4;
+
+	// roll the dice and take your chances...
+	const int diceroll = number(100, 2099) / 100;
+
+	// decide whether this is a hit or a miss
+	// всегда есть 5% вероятность попасть или промазать,
+	// какой бы AC у противника ни был
+	if (((diceroll < 20) && AWAKE(victim)) && ((diceroll == 1) || (calc_thaco - diceroll > victim_ac)))
+	{
+		// the attacker missed the victim
+		extdamage(ch, victim, 0, w_type, wielded, TRUE);
+		hitprcnt_mtrigger(victim);
+		return;
+	}
+
+	if (AFF_FLAGGED(victim, AFF_BLINK)
+			&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
+			&& !GET_AF_BATTLE(ch, EAF_STUPOR)
+			&& (!(type == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT)))
+			&& number(1, 100) <= 20)
+	{
+		sprintf(buf,
+				"%sНа мгновение Вы исчезли из поля зрения противника.%s\r\n",
+				CCINRM(victim, C_NRM), CCNRM(victim, C_NRM));
+		send_to_char(buf, victim);
+		extdamage(ch, victim, 0, w_type, wielded, TRUE);
+		return;
+	}
+	// okay, we know the guy has been hit.  now calculate damage.
+
+	// Start with the damage bonuses: the damroll and strength apply
+
+	dam += GET_REAL_DR(ch);
+	dam = dam > 0 ? number(1, (dam * 2)) : dam;
+	dam += str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+
+	if (GET_EQ(ch, WEAR_BOTHS) && skill != SKILL_BOWS)
+		dam *= 2;
+
+	if (IS_NPC(ch))
+	{
+		dam += dice(ch->mob_specials.damnodice, ch->mob_specials.damsizedice);
+	}
+
+	// этот вот изврат - чтобы учесть положения наема, но при этом обойти санку/призму
+	// потому что просто поменяв их тут местами - срежется последовательность модификаторов
+	int noparryhit = 0;
+
+	if (wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)  	// Add weapon-based damage if a weapon is being wielded
+	{
+		percent = dice(GET_OBJ_VAL(wielded, 1), GET_OBJ_VAL(wielded, 2));
+		if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM)
+				&& !MOB_FLAGGED(ch, MOB_ANGEL))
+		{
+			percent *= MOB_DAMAGE_MULT;
+		}
+		else
+		{
+			percent = MIN(percent, percent * GET_OBJ_CUR(wielded) / MAX(1, GET_OBJ_MAX(wielded)));
+		}
+		percent = calculate_strconc_damage(ch, wielded, percent);
+		dam += MAX(1, percent);
+		noparryhit += calculate_noparryhit_dmg(ch, wielded);
+		if (type == SKILL_BACKSTAB)
+			noparryhit = noparryhit * 10 / 15;
+	}
+	else  	// If no weapon, add bare hand damage instead
+	{
+		if (AFF_FLAGGED(ch, AFF_STONEHAND))
+		{
+			dam += number(5, 10);
+		}
+		else
+		{
+			dam += number(1, 3);
+		}
+
+		if (can_use_feat(ch, BULLY_FEAT))
+		{
+			dam += GET_LEVEL(ch) / 5;
+			dam += MAX(0, GET_REAL_STR(ch) - 25);
+		}
+		// Мультипликатор повреждений без оружия и в перчатках (линейная интерполяция)
+		// <вес перчаток> <увеличение>
+		// 0  50%
+		// 5 100%
+		// 10 150%
+		// 15 200%
+		// НА МОЛОТ НЕ ВЛИЯЕТ
+		if (!GET_AF_BATTLE(ch, EAF_MIGHTHIT))
+		{
+			modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)) : 0));
+			if (IS_NPC(ch) || can_use_feat(ch, BULLY_FEAT))
+				modi = MAX(100, modi);
+			dam = modi * dam / 100;
+		}
+	}
+
+	//dzMUDiST Обработка !исступления! +Gorrah
+	if (affected_by_spell(ch, SPELL_BERSERK))
+	{
+		if (AFF_FLAGGED(ch, AFF_BERSERK))
+		{
+			dam = (dam * MAX(150, 150 + GET_LEVEL(ch) + dice(0, GET_REMORT(ch)) * 2)) / 100;
+			calc_thaco -= (12 * ((GET_REAL_MAX_HIT(ch) / 2) - GET_HIT(ch)) / GET_REAL_MAX_HIT(ch));
+		}
+	}
+
+// изменения дамага со всяких скиллов надо делать выше
+
+	// Include a damage multiplier if victim isn't ready to fight:
+	// Position sitting  1.5 x normal
+	// Position resting  2.0 x normal
+	// Position sleeping 2.5 x normal
+	// Position stunned  3.0 x normal
+	// Position incap    3.5 x normal
+	// Position mortally 4.0 x normal
+	//
+	// Note, this is a hack because it depends on the particular
+	// values of the POSITION_XXX constants.
+	//
+	if (GET_POS(ch) < POS_FIGHTING)
+	{
+		dam -= (dam * (POS_FIGHTING - GET_POS(ch)) / 4);
+		noparryhit -= (noparryhit * (POS_FIGHTING - GET_POS(ch)) / 4);
+	}
+
+	if (GET_POS(victim) == POS_SITTING
+			&& (AFF_FLAGGED(victim, AFF_AIRSHIELD)
+				|| AFF_FLAGGED(victim, AFF_FIRESHIELD)
+				|| AFF_FLAGGED(victim, AFF_ICESHIELD)))
+	{
+		// жертва сидит в щите, повреждения не меняются
+		// на скрытый в том числе
+	}
+	else if (GET_POS(victim) < POS_FIGHTING)
+	{
+		dam += (dam * (POS_FIGHTING - GET_POS(victim)) / 3);
+		noparryhit += (noparryhit * (POS_FIGHTING - GET_POS(victim)) / 3);
+	}
+
+	if (GET_MOB_HOLD(victim))
+	{
+		if (IS_NPC(ch))
+			dam = dam * 15 / 10;
+		else
+			dam = dam * 125 / 100;
+	}
+
+	// Cut damage in half if victim has sanct, to a minimum 1
+	if (AFF_FLAGGED(victim, AFF_PRISMATICAURA))
+		dam *= 2;
+	if (AFF_FLAGGED(victim, AFF_SANCTUARY) && dam >= 2)
+		dam /= 2;
+
+	// прибавляем дамаг со скрытого, в обход санки и призмы
+	dam += noparryhit;
+
+	if (!IS_NPC(victim) && IS_CHARMICE(ch))
+		dam = dam * 8 / 10;
+
+	if (AFF_FLAGGED(ch, AFF_BELENA_POISON))
+		dam -= dam * GET_POISON(ch) / 100;
+
+	// at least 1 hp damage min per hit
+	dam = MAX(1, dam);
+
+	// Shopkeeper protection
+	if (damage_mtrigger(ch, victim) || !ok_damage_shopkeeper(ch, victim))
+	{
+		// зовется до alt_equip, чтобы не абузить повреждение пушек
+		return;
+	}
+	if (weapon_pos)
+	{
+		alt_equip(ch, weapon_pos, dam, 10);
+	}
+	dam_critic = 0;
+	was_critic = 0;
+	/* Маги, волхвы и не-купеческие чармисы не умеют критать */
+	if ((!IS_NPC(ch) && !IS_MAGIC_USER(ch) && !IS_DRUID(ch))
+			|| (IS_NPC(ch) && (!AFF_FLAGGED(ch, AFF_CHARM) && !AFF_FLAGGED(ch, AFF_HELPER))))
+	{
+		was_critic = MIN(ch->get_skill(skill), 70);
+		/* Мастерские фиты по оружию удваивают шанс критического попадания */
+		for (i = PUNCH_MASTER_FEAT; i <= BOWS_MASTER_FEAT; i++)
+			if ((ubyte) feat_info[i].affected[0].location == skill && can_use_feat(ch, i))
+			{
+				was_critic += MAX(0, ch->get_skill(skill) -  70);
+				break;
+			}
+		if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
+			was_critic += ch->get_skill(SKILL_BACKSTAB);
+	//Нафига тут проверять класс?
+	//Скиллы уникальные, другим классам все равно недоступны.
+	//А чтоб мобы не лютовали -- есть проверка на игрока.
+		if (!IS_NPC(ch))
+		{
+			was_critic += (int)(ch->get_skill(SKILL_PUNCTUAL) / 2);
+			was_critic += (int)(ch->get_skill(SKILL_NOPARRYHIT) / 3);
+		}
+		if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
+			was_critic += GET_LEVEL(ch);
+	} else was_critic = FALSE; //Polud не должны - так пусть и не критают
+	//critical hit ignore magic_shields and armour
+	if (number(0, 2000) < was_critic)
+		was_critic = TRUE;
+	else
+		was_critic = FALSE;
+
+	if (type == SKILL_BACKSTAB)
+	{
+		dam *= backstab_mult(GET_LEVEL(ch));
+		if (number(1, 100) < calculate_crit_backstab_percent(ch)
+			&& !general_savingthrow(ch, victim, SAVING_REFLEX, dex_bonus(GET_REAL_DEX(ch))))
+		{
+			dam = static_cast<int>(dam * crit_backstab_multiplier(ch, victim));
+		}
+
+		//Adept: учитываем резисты от крит. повреждений
+		dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
+		extdamage(ch, victim, dam, w_type, 0, TRUE);
+		return;
+	}
+
+	if (type == SKILL_THROW)
+	{
+		dam *= (calculate_skill(ch, SKILL_THROW, skill_info[SKILL_THROW].max_percent, victim) + 10) / 10;
+		if (IS_NPC(ch))
+			dam = MIN(300, dam);
+		dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
+		extdamage(ch, victim, dam, w_type, 0, TRUE);
+		return;
+	}
+
+	if (GET_AF_BATTLE(ch, EAF_PUNCTUAL)
+		&& GET_PUNCTUAL_WAIT(ch) <= 0
+		&& GET_WAIT(ch) <= 0
+		&& (diceroll >= 18 - GET_MOB_HOLD(victim))
+		&& !MOB_FLAGGED(victim, MOB_NOTKILLPUNCTUAL))
+	{
+		percent = train_skill(ch, SKILL_PUNCTUAL,
+				skill_info[SKILL_PUNCTUAL].max_percent, victim);
+		if (!PUNCTUAL_WAITLESS(ch))
+		{
+			PUNCTUAL_WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+		}
+		if (percent >= number(1, skill_info[SKILL_PUNCTUAL].max_percent)
+			&& (calc_thaco - diceroll < victim_ac - 5
+				|| percent >= skill_info[SKILL_PUNCTUAL].max_percent))
+		{
+			was_critic = TRUE;
+			dam_critic = do_punctual(ch, victim, wielded);
+
+			if (!PUNCTUAL_WAITLESS(ch))
+			{
+				PUNCTUAL_WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
+			}
+		}
+	}
+
+	/* обнуляем флаги, если у нападающего есть лаг */
+	if ((GET_AF_BATTLE(ch, EAF_STUPOR)
+		|| GET_AF_BATTLE(ch, EAF_MIGHTHIT))
+		&& GET_WAIT(ch) > 0)
+	{
+		CLR_AF_BATTLE(ch, EAF_STUPOR);
+		CLR_AF_BATTLE(ch, EAF_MIGHTHIT);
+	}
+
+	if (type != TYPE_NOPARRY
+		&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
+		&& !GET_AF_BATTLE(ch, EAF_STUPOR))
+	{
+		/**** обработаем ситуацию ЗАХВАТ */
+		for (CHAR_DATA *vict = world[IN_ROOM(ch)]->people; vict && dam >= 0;
+			vict = vict->next_in_room)
+		{
+			hit_touching(ch, vict, &dam);
+		}
+	}
+
+	if (dam > 0
+		&& type != TYPE_NOPARRY
+		&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
+		&& !GET_AF_BATTLE(ch, EAF_STUPOR)
+		&& GET_AF_BATTLE(victim, EAF_DEVIATE)
+		&& GET_WAIT(victim) <= 0
+		&& !AFF_FLAGGED(victim, AFF_STOPFIGHT)
+		&& !AFF_FLAGGED(victim, AFF_MAGICSTOPFIGHT)
+		&& GET_MOB_HOLD(victim) == 0
+		&& BATTLECNTR(victim) < (GET_LEVEL(victim) + 7) / 8)
+	{
+		/**** Обработаем команду   УКЛОНИТЬСЯ */
+		hit_deviate(ch, victim, &dam);
+	}
+	else
+	if (dam > 0
+		&& type != TYPE_NOPARRY
+		&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
+		&& !GET_AF_BATTLE(ch, EAF_STUPOR)
+		&& GET_AF_BATTLE(victim, EAF_PARRY)
+		&& !AFF_FLAGGED(victim, AFF_STOPFIGHT)
+		&& !AFF_FLAGGED(victim, AFF_MAGICSTOPFIGHT)
+		&& !AFF_FLAGGED(victim, AFF_STOPRIGHT)
+		&& !AFF_FLAGGED(victim, AFF_STOPLEFT)
+		&& GET_WAIT(victim) <= 0
+		&& GET_MOB_HOLD(victim) == 0)
+	{
+		/**** обработаем команду  ПАРИРОВАТЬ */
+		hit_parry(ch, victim, skill, w_type, &dam);
+	}
+	else
+	if (dam > 0
+		&& type != TYPE_NOPARRY
+		&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
+		&& !GET_AF_BATTLE(ch, EAF_STUPOR)
+		&& GET_AF_BATTLE(victim, EAF_MULTYPARRY)
+		&& !AFF_FLAGGED(victim, AFF_STOPFIGHT)
+		&& !AFF_FLAGGED(victim, AFF_MAGICSTOPFIGHT)
+		&& !AFF_FLAGGED(victim, AFF_STOPRIGHT)
+		&& !AFF_FLAGGED(victim, AFF_STOPLEFT)
+		&& BATTLECNTR(victim) < (GET_LEVEL(victim) + 4) / 5
+		&& GET_WAIT(victim) <= 0
+		&& GET_MOB_HOLD(victim) == 0)
+	{
+		/**** обработаем команду  ВЕЕРНАЯ ЗАЩИТА */
+		hit_multyparry(ch, victim, skill, w_type, &dam);
+	}
+	else
+	if (dam > 0
+		&& type != TYPE_NOPARRY
+		&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
+		&& !GET_AF_BATTLE(ch, EAF_STUPOR)
+		&& ((GET_AF_BATTLE(victim, EAF_BLOCK) || can_auto_block(victim)) && GET_POS(victim) > POS_SITTING)
+		&& !AFF_FLAGGED(victim, AFF_STOPFIGHT)
+		&& !AFF_FLAGGED(victim, AFF_MAGICSTOPFIGHT)
+		&& !AFF_FLAGGED(victim, AFF_STOPLEFT)
+		&& GET_WAIT(victim) <= 0
+		&& GET_MOB_HOLD(victim) == 0
+		&& BATTLECNTR(victim) < (GET_LEVEL(victim) + 8) / 9)
+	{
+		/**** Обработаем команду   БЛОКИРОВАТЬ */
+		hit_block(ch, victim, &dam);
+	}
+
+	DamageActorParameters params(ch, victim, dam);
+	handle_affects(params);
+	dam = params.damage;
+	DamageVictimParameters params1(ch, victim, dam);
+	handle_affects(params1);
+	dam = params1.damage;
+
+	int made_dam = extdamage(ch, victim, dam, w_type, wielded, TRUE);
+	was_critic = FALSE;
+	dam_critic = 0;
+
+	/* check if the victim has a hitprcnt trigger */
+	if (made_dam != -1)
+	{
+		// victim is not dead after hit
+		hitprcnt_mtrigger(victim);
+	}
+}
+
+/**** This function realize second shot for bows *******/
+void exthit(CHAR_DATA * ch, int type, int weapon)
+{
+	if (!ch || ch->purged())
+	{
+		log("SYSERROR: ch = %s (%s:%d)",
+				ch ? (ch->purged() ? "purged" : "true") : "false",
+				__FILE__, __LINE__);
+		return;
+	}
+
+	OBJ_DATA *wielded = NULL;
+	int percent = 0, prob = 0, div = 0, moves = 0;
+	CHAR_DATA *tch;
+
+
+	if (IS_NPC(ch))
+	{
+		if (MOB_FLAGGED(ch, MOB_EADECREASE) && weapon > 1)
+		{
+			if (ch->mob_specials.ExtraAttack * GET_HIT(ch) * 2 < weapon * GET_REAL_MAX_HIT(ch))
+				return;
+		}
+		if (MOB_FLAGGED(ch, (MOB_FIREBREATH | MOB_GASBREATH | MOB_FROSTBREATH |
+							 MOB_ACIDBREATH | MOB_LIGHTBREATH)))
+		{
+			for (prob = percent = 0; prob <= 4; prob++)
+				if (MOB_FLAGGED(ch, (INT_TWO | (1 << prob))))
+					percent++;
+			percent = weapon % percent;
+			for (prob = 0; prob <= 4; prob++)
+				if (MOB_FLAGGED(ch, (INT_TWO | (1 << prob))))
+				{
+					if (percent)
+						percent--;
+					else
+						break;
+				}
+			if (MOB_FLAGGED(ch, MOB_AREA_ATTACK))
+			{
+				for (tch = world[IN_ROOM(ch)]->people; tch; tch = tch->next_in_room)
+				{
+					if (IS_IMMORTAL(tch))	/* immortal    */
+						continue;
+					if (IN_ROOM(ch) == NOWHERE ||	/* Something killed in process ... */
+							IN_ROOM(tch) == NOWHERE)
+						continue;
+					if (tch != ch && !same_group(ch, tch))
+						mag_damage(GET_LEVEL(ch), ch, tch,
+								   SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_CRITICAL);
+				}
+			}
+			else
+				mag_damage(GET_LEVEL(ch), ch, ch->get_fighting(),
+						   SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_CRITICAL);
+			return;
+		}
+	}
+
+	if (weapon == RIGHT_WEAPON)
+	{
+		if (!(wielded = GET_EQ(ch, WEAR_WIELD)))
+			wielded = GET_EQ(ch, WEAR_BOTHS);
+	}
+	else if (weapon == LEFT_WEAPON)
+		wielded = GET_EQ(ch, WEAR_HOLD);
+
+	if (wielded
+			&& !GET_EQ(ch, WEAR_SHIELD)
+			&& GET_OBJ_SKILL(wielded) == SKILL_BOWS
+			&& GET_EQ(ch, WEAR_BOTHS))
+	{
+		/* Лук в обеих руках - юзаем доп. или двойной выстрел */
+		if (can_use_feat(ch, DOUBLESHOT_FEAT) && !ch->get_skill(SKILL_ADDSHOT)
+				&& MIN(850, 200 + ch->get_skill(SKILL_BOWS) * 4 + GET_REAL_DEX(ch) * 5) >= number(1, 1000))
+		{
+			hit(ch, ch->get_fighting(), type, weapon);
+			prob = 0;
+		}
+		else if (ch->get_skill(SKILL_ADDSHOT) > 0)
+		{
+			addshot_damage(ch, type, weapon);
+		}
+	}
+
+	/*
+	собсно работа скилла "железный ветер"
+	первая дополнительная атака правой наносится 100%
+	вторая дополнительная атака правой начинает наноситься с 80%+ скилла, но не более чем с 80% вероятностью
+	первая дополнительная атака левой начинает наноситься сразу, но не более чем с 80% вероятностью
+	вторая дополнительная атака левей начинает наноситься с 170%+ скилла, но не более чем с 30% вероятности
+	*/
+	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	{
+		percent = ch->get_skill(SKILL_IRON_WIND);
+		moves = GET_MAX_MOVE(ch) / (6 + MAX(10, percent) / 10);
+		prob = GET_AF_BATTLE(ch, EAF_IRON_WIND);
+		if (prob && !check_moves(ch, moves))
+		{
+			CLR_AF_BATTLE(ch, EAF_IRON_WIND);
+		}
+		else if (!prob && (GET_MOVE(ch) > moves))
+		{
+			SET_AF_BATTLE(ch, EAF_IRON_WIND);
+		};
+	};
+	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
+	{
+		(void) train_skill(ch, SKILL_IRON_WIND, skill_info[SKILL_IRON_WIND].max_percent, ch->get_fighting());
+		if (weapon == RIGHT_WEAPON)
+		{
+			div = 100 + MIN(80, MAX(1, percent - 80));
+			prob = 100;
+		}
+		else
+		{
+			div = MIN(80, percent + 10);
+			prob = 80 - MIN(30, MAX(0, percent - 170));
+		};
+		while (div > 0)
+		{
+			if (number(1, 100) < div)
+				hit(ch, ch->get_fighting(), type, weapon);
+			div -= prob;
+		};
+	};
+
+	hit(ch, ch->get_fighting(), type, weapon);
+}
+
+/*
+int limit_added_dr(CHAR_DATA *ch, int damroll, int total_dr)
+{
+	int calc_dr = damroll;
+	int rmrt = MIN(14, GET_REMORT(ch));
+
+	if (ch->get_level() < 30 - grouping[GET_CLASS(ch)][rmrt])
+	{
+		int cap_dr = MIN(2 * ch->get_level(), total_dr);
+		if (cap_dr < total_dr)
+		{
+			double coeff = total_dr / static_cast<double>(cap_dr);
+			calc_dr = static_cast<int>(damroll/coeff);
+		}
+	}
+
+	return MIN(calc_dr, damroll);
+}
+
+int add_pc_damroll(CHAR_DATA *ch, int dam, bool info = false)
+{
+	int dr_by_str = GET_REAL_STR(ch) - 14;
+	int native_str_dr = ch->get_start_stat(G_STR) + ch->get_remort() - 14;
+	int obj_str_dr = MAX(0, dr_by_str - native_str_dr);
+
+	int added_dr_total = GET_REAL_DR(ch) + obj_str_dr;
+
+	dam += limit_added_dr(ch, GET_REAL_DR(ch), added_dr_total);
+	if (!info)
+	{
+		dam = dam > 0 ? number(1, (dam * 2)) : dam;
+	}
+	dam += limit_added_dr(ch, obj_str_dr, added_dr_total);
+	dam += MAX(0, native_str_dr);
+
+	return dam;
+}
+
+int limit_weap_dam(CHAR_DATA *ch, OBJ_DATA *weap, int dam)
+{
+	int rmrt = MIN(14, GET_REMORT(ch));
+	if (GET_OBJ_TYPE(weap) != ITEM_WEAPON || ch->get_level() >= 30 - grouping[GET_CLASS(ch)][rmrt])
+	{
+		return dam;
+	}
+
+	double median_dam = 1.0, capped_dam = 1.0;
+	switch (GET_OBJ_SKILL(weap))
+	{
+	case SKILL_BOWS:
+		// 1..5 лвл = 4 ср
+		// 6..25 лвл = 4,5..14 ср
+		median_dam = MMAX(1.0, (GET_OBJ_VAL(weap, 2) + 1) * GET_OBJ_VAL(weap, 1) / 2.0);
+		capped_dam = MMAX(5.0, 1.5 + ch->get_level() * 0.5);
+		break;
+	case SKILL_SHORTS:
+	case SKILL_LONGS:
+	case SKILL_AXES:
+	case SKILL_CLUBS:
+	case SKILL_NONSTANDART:
+	case SKILL_BOTHHANDS:
+	case SKILL_PICK:
+	case SKILL_SPADES:
+		// 1..5 лвл = 6 ср
+		// 6..25 лвл = 6,7..20 ср
+		median_dam = MMAX(1.0, (GET_OBJ_VAL(weap, 2) + 1) * GET_OBJ_VAL(weap, 1) / 2.0);
+		capped_dam = MMAX(5.0, 2.5 + ch->get_level() * 0.7);
+		break;
+	}
+
+	double over_coeff = median_dam / capped_dam;
+	int limited_dam = static_cast<int>(dam / over_coeff);
+
+	return MIN(limited_dam, dam);
+}
+
+*/

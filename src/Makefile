@@ -39,7 +39,7 @@ OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	corpse.o house_exp.o remember.o name_list.o dps.o obj.spell.o obj.o room.o \
 	spam.o AffectHandler.o glory_const.o pugixml.o morph.o glory_misc.o \
 	shop_ext.o named_stuff.o birth_places.o player_races.o celebrates.o cache.o \
-	sets_drop.o version.o
+	sets_drop.o fight_hit.o fight_stuff.o version.o
 	
 
 CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
@@ -59,7 +59,7 @@ CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	name_list.cpp dps.cpp obj.spell.cpp obj.cpp room.cpp spam.cpp AffectHandler.cpp \
 	glory_const.cpp pugixml.cpp glory_misc.cpp shop_ext.cpp named_stuff.cpp \
 	celebrates.cpp birth_places.cpp player_races.cpp morph.cpp cache.cpp \
-	sets_drop.cpp version.cpp
+	sets_drop.cpp fight_hit.cpp fight_stuff.cpp version.cpp
 
 default: circle
 

@@ -31,6 +31,7 @@
 #include "shop_ext.hpp"
 #include "constants.h"
 #include "sets_drop.hpp"
+#include "fight.h"
 
 /*------------------------------------------------------------------------*/
 
@@ -45,7 +46,6 @@ extern obj_rnum top_of_objt;
 extern struct zone_data *zone_table;
 extern SHOP_DATA *shop_index;
 extern int top_shop;
-extern struct attack_hit_type attack_hit_text[];
 extern const char *item_types[];
 extern const char *wear_bits[];
 extern const char *extra_bits[];

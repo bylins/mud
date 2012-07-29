@@ -20,7 +20,6 @@
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
-
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -44,6 +43,7 @@
 #include "player_races.hpp"
 #include "depot.hpp"
 #include "objsave.h"
+#include "fight.h"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *mob_proto;

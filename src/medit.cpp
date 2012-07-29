@@ -27,6 +27,7 @@
 #include "room.hpp"
 #include "corpse.hpp"
 #include "sets_drop.hpp"
+#include "fight.h"
 
 /*
  * Set this to 1 for debugging logs in medit_save_internally.
@@ -47,7 +48,6 @@ extern CHAR_DATA *character_list;
 extern mob_rnum top_of_mobt;
 extern struct zone_data *zone_table;
 extern struct player_special_data dummy_mob;
-extern struct attack_hit_type attack_hit_text[];
 extern int top_shop;
 extern SHOP_DATA *shop_index;
 extern DESCRIPTOR_DATA *descriptor_list;

@@ -143,7 +143,6 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** 
 #define CRASH_DELETE_NEW   (1 << 1)
 
 /* prototypes from crash save system */
-
 int Crash_get_filename(char *orig_name, char *filename);
 int Crash_delete_files(int index);
 int Crash_delete_crashfile(CHAR_DATA * ch);
@@ -154,14 +153,9 @@ void Crash_crashsave(CHAR_DATA * ch);
 void Crash_idlesave(CHAR_DATA * ch);
 void Crash_save_all(void);
 
-/* prototypes from fight.cpp */
-void set_fighting(CHAR_DATA * ch, CHAR_DATA * victim);
-void stop_fighting(CHAR_DATA * ch, int switch_others);
 bool stop_follower(CHAR_DATA * ch, int mode);
-void hit(CHAR_DATA * ch, CHAR_DATA * victim, int type, int weapon);
 void forget(CHAR_DATA * ch, CHAR_DATA * victim);
 void remember(CHAR_DATA * ch, CHAR_DATA * victim);
-int damage(CHAR_DATA * ch, CHAR_DATA * victim, int dam, int attacktype, int mayflee);
 
 /* townportal */
 char *find_portal_by_vnum(int vnum);

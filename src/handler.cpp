@@ -41,6 +41,7 @@
 #include "room.hpp"
 #include "named_stuff.hpp"
 #include "glory_const.hpp"
+#include "fight.h"
 
 // Это ужасно, но иначе цигвин крешит. Может быть на родном юниксе все ок...
 

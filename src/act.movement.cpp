@@ -34,6 +34,7 @@
 #include "corpse.hpp"
 #include "room.hpp"
 #include "named_stuff.hpp"
+#include "fight.h"
 
 /* external functs */
 void death_cry(CHAR_DATA * ch);

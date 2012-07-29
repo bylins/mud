@@ -12,6 +12,7 @@
 #include "comm.h"
 #include "skills.h"
 #include "room.hpp"
+#include "fight.h"
 
 extern void drop_from_horse(CHAR_DATA *victim);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);

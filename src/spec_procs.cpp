@@ -33,6 +33,7 @@
 #include "depot.hpp"
 #include "player_races.hpp"
 #include "magic.h"
+#include "fight.h"
 
 /*   external vars  */
 

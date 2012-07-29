@@ -95,6 +95,7 @@ char *diag_obj_timer(const OBJ_DATA * obj);
 char *diag_timer_to_char(const OBJ_DATA * obj);
 const char * print_god_or_player(int level);
 int get_pick_chance(int skill_pick, int lock_complexity);
+int thaco(int class_num, int level);
 
 ACMD(do_affects);
 ACMD(do_look);

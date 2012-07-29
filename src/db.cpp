@@ -71,6 +71,7 @@
 #include "birth_places.hpp"
 #include "pugixml.hpp"
 #include "sets_drop.hpp"
+#include "fight.h"
 
 #define  TEST_OBJECT_TIMER   30
 
@@ -254,6 +255,7 @@ int real_zone(int number);
 int level_exp(CHAR_DATA * ch, int level);
 extern void NewNameRemove(CHAR_DATA * ch);
 extern void NewNameLoad();
+extern char *fread_action(FILE * fl, int nr);
 
 //polud
 void load_mobraces();
@@ -1540,6 +1542,68 @@ bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void load_messages(void)
+{
+	FILE *fl;
+	int i, type;
+	struct message_type *messages;
+	char chk[128];
+
+	if (!(fl = fopen(MESS_FILE, "r")))
+	{
+		log("SYSERR: Error reading combat message file %s: %s", MESS_FILE, strerror(errno));
+		exit(1);
+	}
+	for (i = 0; i < MAX_MESSAGES; i++)
+	{
+		fight_messages[i].a_type = 0;
+		fight_messages[i].number_of_attacks = 0;
+		fight_messages[i].msg = 0;
+	}
+
+
+	fgets(chk, 128, fl);
+	while (!feof(fl) && (*chk == '\n' || *chk == '*'))
+		fgets(chk, 128, fl);
+
+	while (*chk == 'M')
+	{
+		fgets(chk, 128, fl);
+		sscanf(chk, " %d\n", &type);
+		for (i = 0; (i < MAX_MESSAGES) &&
+				(fight_messages[i].a_type != type) && (fight_messages[i].a_type); i++);
+		if (i >= MAX_MESSAGES)
+		{
+			log("SYSERR: Too many combat messages.  Increase MAX_MESSAGES and recompile.");
+			exit(1);
+		}
+		log("BATTLE MESSAGE %d(%d)", i, type);
+		CREATE(messages, struct message_type, 1);
+		fight_messages[i].number_of_attacks++;
+		fight_messages[i].a_type = type;
+		messages->next = fight_messages[i].msg;
+		fight_messages[i].msg = messages;
+
+		messages->die_msg.attacker_msg = fread_action(fl, i);
+		messages->die_msg.victim_msg = fread_action(fl, i);
+		messages->die_msg.room_msg = fread_action(fl, i);
+		messages->miss_msg.attacker_msg = fread_action(fl, i);
+		messages->miss_msg.victim_msg = fread_action(fl, i);
+		messages->miss_msg.room_msg = fread_action(fl, i);
+		messages->hit_msg.attacker_msg = fread_action(fl, i);
+		messages->hit_msg.victim_msg = fread_action(fl, i);
+		messages->hit_msg.room_msg = fread_action(fl, i);
+		messages->god_msg.attacker_msg = fread_action(fl, i);
+		messages->god_msg.victim_msg = fread_action(fl, i);
+		messages->god_msg.room_msg = fread_action(fl, i);
+		fgets(chk, 128, fl);
+		while (!feof(fl) && (*chk == '\n' || *chk == '*'))
+			fgets(chk, 128, fl);
+	}
+
+	fclose(fl);
+}
 
 /* body of the booting system */
 void boot_db(void)

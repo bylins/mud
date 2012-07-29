@@ -29,6 +29,7 @@
 #include "house.h"
 #include "room.hpp"
 #include "shop_ext.hpp"
+#include "fight.h"
 
 /* external structs */
 extern CHAR_DATA *character_list;
