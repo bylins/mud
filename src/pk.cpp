@@ -1079,8 +1079,8 @@ void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch)
 	set_bloody_flag(list->contains, ch);
 	set_bloody_flag(list->next_content, ch);
 	const int t = GET_OBJ_TYPE(list);
-	if ((t == ITEM_LIGHT || t == ITEM_WAND || t == ITEM_STAFF || t == ITEM_WEAPON 
-		|| t == ITEM_ARMOR || (t == ITEM_CONTAINER && GET_OBJ_VAL(list, 0)) || t == ITEM_ARMOR_LIGHT 
+	if ((t == ITEM_LIGHT || t == ITEM_WAND || t == ITEM_STAFF || t == ITEM_WEAPON
+		|| t == ITEM_ARMOR || (t == ITEM_CONTAINER && GET_OBJ_VAL(list, 0)) || t == ITEM_ARMOR_LIGHT
 		|| t == ITEM_ARMOR_MEDIAN || t == ITEM_ARMOR_HEAVY || t == ITEM_INGRADIENT
 		|| t == ITEM_WORN) && !IS_OBJ_STAT(list, ITEM_BLOODY))
 	{
@@ -1124,12 +1124,12 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 	pk_translate_pair(&ch, &victim);
 	bool result = false;
 	BloodyInfoMap::iterator it = bloody_map.find(obj);
-	if (!IS_OBJ_STAT(obj, ITEM_BLOODY) || it == bloody_map.end()) 
+	if (!IS_OBJ_STAT(obj, ITEM_BLOODY) || it == bloody_map.end())
 		result = true;
 	else
 	//Если отдаем владельцу или берет владелец
-	if (victim && (GET_UNIQUE(victim) == it->second.owner_unique || (CLAN(victim) && 
-		(CLAN(victim)->is_clan_member(it->second.owner_unique) || CLAN(victim)->is_alli_member(it->second.owner_unique))) 
+	if (victim && (GET_UNIQUE(victim) == it->second.owner_unique || (CLAN(victim) &&
+		(CLAN(victim)->is_clan_member(it->second.owner_unique) || CLAN(victim)->is_alli_member(it->second.owner_unique)))
 		|| strcmp(player_table[get_ptable_by_unique(it->second.owner_unique)].mail, GET_EMAIL(victim))==0))
 	{
 	remove_obj(obj); //снимаем флаг
@@ -1142,7 +1142,7 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 		AGRO(victim) = MAX(AGRO(victim), KILLER_UNRENTABLE * 60 +it->second.kill_at);
 		RENTABLE(victim) = MAX(RENTABLE(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
 		result = true;
-	} 
+	}
 	else if (ch && container && (container->carried_by == ch || container->worn_by == ch)) //чар пытается положить в контейнер в инвентаре или экипировке
 		result = true;
 	else //нельзя передавать кровавый шмот
@@ -1160,8 +1160,14 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 void bloody::handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer)
 {
 	pk_translate_pair(&ch, &killer);
-	//Если игрок убил игрока, который не был в агро бд и убитый не душегуб, то с него выпадает окровавленный стаф
-	if (ch && killer && !IS_NPC(ch) && !IS_NPC(killer) && !PLR_FLAGGED(ch, PLR_KILLER) && !AGRO(ch))
+	//Если игрок убил игрока, который не был в агро бд и убитый не душегуб,
+	// то с него выпадает окровавленный стаф
+	if (ch && killer
+		&& ch != killer
+		&& !IS_NPC(ch)
+		&& !IS_NPC(killer)
+		&& !PLR_FLAGGED(ch, PLR_KILLER)
+		&& !AGRO(ch))
 	{
 		//Проверим, может у killer есть месть на ch
 		struct PK_Memory_type *pk = 0;
