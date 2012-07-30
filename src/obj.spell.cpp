@@ -263,8 +263,8 @@ bool TimedSpell::check_spell(int spell) const
 */
 void TimedSpell::dec_timer(OBJ_DATA *obj, int time)
 {
-	for(std::map<int, int>::iterator i = spell_list_.begin(),
-		iend = spell_list_.end(); i != iend; /* empty */)
+	for(std::map<int, int>::iterator i = spell_list_.begin();
+		i != spell_list_.end(); /* empty */)
 	{
 		if (i->second != -1)
 		{
