@@ -2296,16 +2296,24 @@ int new_descriptor(socket_t s)
 	newd->next = descriptor_list;
 	descriptor_list = newd;
 
+#ifdef HAVE_ICONV
 	SEND_TO_Q("Using keytable\r\n"
 		  "  0) Koi-8\r\n"
 		  "  1) Alt\r\n"
 		  "  2) Windows(JMC,MMC)\r\n"
 		  "  3) Windows(zMUD)\r\n"
 		  "  4) Windows(zMUD ver. 6+)\r\n"
-#ifdef HAVE_ICONV
 		  "  5) UTF-8\r\n"
-#endif
 		  "Select one : ", newd);
+#else
+	SEND_TO_Q("Using keytable\r\n"
+		  "  0) Koi-8\r\n"
+		  "  1) Alt\r\n"
+		  "  2) Windows(JMC,MMC)\r\n"
+		  "  3) Windows(zMUD)\r\n"
+		  "  4) Windows(zMUD ver. 6+)\r\n"
+		  "Select one : ", newd);
+#endif
 
 #if defined(HAVE_ZLIB)
 //  write_to_descriptor(newd->descriptor, will_sig, strlen(will_sig));
