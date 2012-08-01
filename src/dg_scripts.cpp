@@ -2997,7 +2997,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				//let's make it nobody's!
 				if (o->worn_by)
 					unequip_char(o->worn_by, o->worn_on);
-				if (o->carried_by)
+				else if (o->carried_by)
 					obj_from_char(o);
 				else if (o->in_obj)
 					obj_from_obj(o);
