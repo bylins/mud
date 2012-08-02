@@ -2631,11 +2631,11 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 			if (obj->action_description)
 				act(obj->action_description, FALSE, ch, obj, tobj, TO_CHAR);
 			else
-				act("Вы прикоснулись $o4 к $P.", FALSE, ch, obj, tobj, TO_CHAR);
+				act("Вы прикоснулись $o4 к $O2.", FALSE, ch, obj, tobj, TO_CHAR);
 			if (obj->action_description)
 				act(obj->action_description, FALSE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
 			else
-				act("$n прикоснул$u $o4 к $P.", TRUE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
+				act("$n прикоснул$u $o4 к $O2.", TRUE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
 		}
 
 		if (GET_OBJ_VAL(obj, 2) <= 0)
