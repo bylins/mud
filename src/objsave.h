@@ -5,6 +5,10 @@
 #ifndef OBJSAVE_HPP_INCLUDED
 #define OBJSAVE_HPP_INCLUDED
 
+#include "conf.h"
+#include "sysdep.h"
+#include "structs.h"
+
 /* these factors should be unique integers */
 #define RENT_FACTOR 	1
 #define CRYO_FACTOR 	4
@@ -14,5 +18,15 @@ int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int 
 void Crash_rentsave(CHAR_DATA * ch, int cost);
 void Crash_crashsave(CHAR_DATA * ch);
 int Crash_write_timer(int index);
+
+namespace ObjSaveSync
+{
+
+enum { CHAR_SAVE, CLAN_SAVE };
+
+void add(int init_uid, int targ_uid, int targ_type);
+void check(int uid);
+
+} // namespace ObjSaveSync
 
 #endif // OBJSAVE_HPP_INCLUDED

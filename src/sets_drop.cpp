@@ -1074,27 +1074,43 @@ int check_mob(int mob_rnum)
 
 void renumber_obj_rnum(const int rnum, const int mob_rnum)
 {
-	if((rnum < 0) && (mob_rnum < 0))
+	if(rnum < 0 && mob_rnum < 0)
 	{
-		snprintf(buf, MAX_STRING_LENGTH, "SetsDrop: renumber_obj_rnum wrong parameters...");
+		snprintf(buf, MAX_STRING_LENGTH,
+			"SetsDrop: renumber_obj_rnum wrong parameters...");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
-	for (std::map<int, DropNode>::iterator it = drop_list.begin(),
-		iend = drop_list.end(); it != iend; ++it)
+	if (rnum > -1)
 	{
-		if ((rnum > -1) && ((it)->second.obj_rnum >= rnum))
-			(it)->second.obj_rnum += 1;
-		if ((mob_rnum > -1) && ((it)->first >= mob_rnum))
+		for (std::map<int, DropNode>::iterator it = drop_list.begin(),
+			iend = drop_list.end(); it != iend; ++it)
 		{
-			int m_rnum = (it)->first+1;
-			DropNode tmp_node;
-			tmp_node.obj_rnum = it->second.obj_rnum;
-			tmp_node.chance = it->second.chance;
-
-			drop_list.erase(it);
-			drop_list.insert(std::make_pair(m_rnum, tmp_node));
+			if (it->second.obj_rnum >= rnum)
+			{
+				it->second.obj_rnum += 1;
+			}
 		}
+	}
+	if (mob_rnum > -1)
+	{
+		std::map<int, DropNode> tmp_list;
+		for (std::map<int, DropNode>::iterator it = drop_list.begin(),
+			iend = drop_list.end(); it != iend; ++it)
+		{
+			if (it->first >= mob_rnum)
+			{
+				DropNode tmp_node;
+				tmp_node.obj_rnum = it->second.obj_rnum;
+				tmp_node.chance = it->second.chance;
+				tmp_list.insert(std::make_pair(it->first + 1, tmp_node));
+			}
+			else
+			{
+				tmp_list.insert(std::make_pair(it->first, it->second));
+			}
+		}
+		drop_list = tmp_list;
 	}
 }
 

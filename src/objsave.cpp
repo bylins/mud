@@ -2298,6 +2298,9 @@ void crash_save_and_restore_weight(std::stringstream &write_buffer, int iplayer,
 /********************* save_char_objects ********************************/
 int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 {
+	log("Save obj: %s", ch->get_name());
+	ObjSaveSync::check(ch->get_uid());
+
 	char fname[MAX_STRING_LENGTH];
 	struct save_rent_info rent;
 	int j, num = 0, iplayer = -1, cost;

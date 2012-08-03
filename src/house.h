@@ -145,7 +145,7 @@ public:
 
 	static void ClanLoad();
 	static void ClanSave();
-	static void ChestSave();
+	static void SaveChestAll();
 	static void HconShow(CHAR_DATA * ch);
 	static void SetClanData(CHAR_DATA * ch);
 	static void ChestUpdate();
@@ -225,6 +225,8 @@ public:
 	int calculate_clan_tax() const;
 	void add_offline_member(const std::string &name, int uid, int rank);
 	int ingr_chest_max_objects();
+
+	void save_chest();
 
 	std::string get_web_url() const { return web_url_; };
 

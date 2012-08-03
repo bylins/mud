@@ -1418,6 +1418,12 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 		IS_CARRYING_W(ch) += GET_OBJ_WEIGHT(object);
 		IS_CARRYING_N(ch)++;
 
+		if (!IS_NPC(ch))
+		{
+			log("obj_to_char: %s -> %d", ch->get_name(),
+				GET_OBJ_VNUM(object));
+		}
+
 		/* set flag for crash-save system, but not on mobs! */
 		if (!IS_NPC(ch))
 			SET_BIT(PLR_FLAGS(ch, PLR_CRASH), PLR_CRASH);
@@ -1442,7 +1448,11 @@ void obj_from_char(OBJ_DATA * object)
 
 	/* set flag for crash-save system, but not on mobs! */
 	if (!IS_NPC(object->carried_by))
+	{
 		SET_BIT(PLR_FLAGS(object->carried_by, PLR_CRASH), PLR_CRASH);
+		log("obj_from_char: %s -> %d", object->carried_by->get_name(),
+			GET_OBJ_VNUM(object));
+	}
 
 	IS_CARRYING_W(object->carried_by) -= GET_OBJ_WEIGHT(object);
 	IS_CARRYING_N(object->carried_by)--;

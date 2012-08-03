@@ -539,7 +539,7 @@ void init_game(ush_int port)
 	exchange_database_save();	//exchange database save
 
 	Clan::ChestUpdate();
-	Clan::ChestSave();
+	Clan::SaveChestAll();
 	Clan::ClanSave();
 	save_clan_exp();
 	ClanSystem::save_ingr_chests();
@@ -1373,7 +1373,7 @@ inline void heartbeat(const int missed_pulses)
 	// сохранение клан-хранов
 	if (!((pulse + 44) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
-		Clan::ChestSave();
+		Clan::SaveChestAll();
 	}
 	// и самих кланов
 	if (!((pulse + 40) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))

@@ -717,7 +717,7 @@ void Clan::ClanLoad()
 
 	Clan::ChestLoad();
 	Clan::ChestUpdate();
-	Clan::ChestSave();
+	Clan::SaveChestAll();
 	Clan::ClanSave();
 	Board::ClanInit();
 	save_ingr_chests();
@@ -2297,7 +2297,7 @@ ACMD(DoHcontrol)
 	{
 		Clan::ClanSave();
 		Clan::ChestUpdate();
-		Clan::ChestSave();
+		Clan::SaveChestAll();
 		Clan::save_pk_log();
 		save_ingr_chests();
 		save_clan_exp();
@@ -2881,6 +2881,7 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 		}
 		obj_from_char(obj);
 		obj_to_obj(obj, chest);
+		ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
 
 		std::string log_text = boost::str(boost::format("%s сдал%s %s\r\n")
 				% GET_NAME(ch) % GET_CH_SUF_1(ch) % obj->PNames[3]);
@@ -2921,6 +2922,8 @@ bool Clan::TakeChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 
 	obj_from_obj(obj);
 	obj_to_char(obj, ch);
+	ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
+
 	if (obj->carried_by == ch)
 	{
 		std::string log_text = boost::str(boost::format("%s забрал%s %s\r\n")
@@ -2939,40 +2942,50 @@ bool Clan::TakeChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 	return 1;
 }
 
+void Clan::save_chest()
+{
+	log("Save obj: %s", this->abbrev.c_str());
+	ObjSaveSync::check(this->GetRent());
+
+	std::string buffer = this->abbrev;
+	for (unsigned i = 0; i != buffer.length(); ++i)
+		buffer[i] = LOWER(AtoL(buffer[i]));
+	std::string filename = LIB_HOUSE + buffer + "/" + buffer + ".obj";
+
+	for (OBJ_DATA *chest = world[real_room(this->chest_room)]->contents;
+		chest; chest = chest->next_content)
+	{
+		if (Clan::is_clan_chest(chest))
+		{
+			std::stringstream out;
+			out << "* Items file\n";
+			for (OBJ_DATA *temp = chest->contains; temp; temp = temp->next_content)
+			{
+				write_one_object(out, temp, 0);
+			}
+			out << "\n$\n$\n";
+
+			std::ofstream file(filename.c_str());
+			if (!file.is_open())
+			{
+				log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				return;
+			}
+			file << out.rdbuf();
+			file.close();
+			break;
+		}
+	}
+}
+
 // сохраняем все сундуки в файлы
 // пользует write_one_object (мне кажется это разуменее, чем плодить свои форматы везде и потом
 // заниматься с ними сексом при изменении параметров на шмотках)
-void Clan::ChestSave()
+void Clan::SaveChestAll()
 {
-	OBJ_DATA *chest, *temp;
-
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
 	{
-		std::string buffer = (*clan)->abbrev;
-		for (unsigned i = 0; i != buffer.length(); ++i)
-			buffer[i] = LOWER(AtoL(buffer[i]));
-		std::string filename = LIB_HOUSE + buffer + "/" + buffer + ".obj";
-		for (chest = world[real_room((*clan)->chest_room)]->contents; chest; chest = chest->next_content)
-			if (Clan::is_clan_chest(chest))
-			{
-				std::stringstream out;
-				out << "* Items file\n";
-				for (temp = chest->contains; temp; temp = temp->next_content)
-				{
-					write_one_object(out, temp, 0);
-				}
-				out << "\n$\n$\n";
-
-				std::ofstream file(filename.c_str());
-				if (!file.is_open())
-				{
-					log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-					return;
-				}
-				file << out.rdbuf();
-				file.close();
-				break;
-			}
+		(*clan)->save_chest();
 	}
 }
 
