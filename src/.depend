@@ -15,7 +15,7 @@ act.item.o: act.item.cpp conf.h sysdep.h structs.h utils.h features.hpp \
  obj.hpp pugixml.hpp pugiconfig.hpp comm.h interpreter.h handler.h db.h \
  spells.h skills.h constants.h dg_scripts.h house.h house_exp.hpp \
  char.hpp player_i.hpp morph.hpp remember.hpp magic.h fight.h depot.hpp \
- liquid.hpp poison.hpp pk.h room.hpp named_stuff.hpp
+ liquid.hpp poison.hpp pk.h room.hpp named_stuff.hpp objsave.h
 act.movement.o: act.movement.cpp conf.h sysdep.h structs.h utils.h \
  features.hpp obj.hpp pugixml.hpp pugiconfig.hpp comm.h interpreter.h \
  handler.h db.h spells.h skills.h house.h house_exp.hpp char.hpp \
@@ -445,4 +445,4 @@ version.o: version.cpp conf.h sysdep.h structs.h comm.h utils.h \
 objsave_ext.o: objsave_ext.cpp objsave.h conf.h sysdep.h structs.h \
  house.h utils.h features.hpp obj.hpp pugixml.hpp pugiconfig.hpp db.h \
  interpreter.h house_exp.hpp char.hpp player_i.hpp morph.hpp comm.h \
- remember.hpp
+ remember.hpp depot.hpp parcel.hpp

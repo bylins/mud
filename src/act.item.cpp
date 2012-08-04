@@ -1222,7 +1222,11 @@ void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj)
 	act("$n дал$g $o3 $N2.", TRUE, ch, obj, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 	obj_from_char(obj);
 	obj_to_char(obj, vict);
-	ObjSaveSync::add(ch->get_uid(), vict->get_uid(), ObjSaveSync::CHAR_SAVE);
+
+	if (!IS_NPC(ch) && !IS_NPC(vict))
+	{
+		ObjSaveSync::add(ch->get_uid(), vict->get_uid(), ObjSaveSync::CHAR_SAVE);
+	}
 }
 
 /* utility function for give */

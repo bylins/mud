@@ -1069,6 +1069,7 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	if (IS_NPC(ch)) return 0;
+
 	if (IS_IMMORTAL(ch))
 	{
 		send_to_char("И без хранилища обойдешься...\r\n" , ch);
@@ -1133,6 +1134,7 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 void take_depot(CHAR_DATA *vict, char *arg, int howmany)
 {
 	if (IS_NPC(vict)) return;
+
 	if (IS_IMMORTAL(vict))
 	{
 		send_to_char("И без хранилища обойдешься...\r\n" , vict);

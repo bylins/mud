@@ -158,10 +158,11 @@ void check(int uid, int type)
 	for (std::vector<ForceNodeType>::const_iterator i = force_list.begin(),
 		iend = force_list.end(); i != iend; ++i)
 	{
-		if (i->uid != uid && i->type != type)
+		if (i->uid == uid && i->type == type)
 		{
-			write_file(i->uid, i->type);
+			continue;
 		}
+		write_file(i->uid, i->type);
 	}
 	force_list.clear();
 
