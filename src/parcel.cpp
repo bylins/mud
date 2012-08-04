@@ -34,7 +34,7 @@ const int SEND_COST = 100; // в любом случае снимается за посылку шмотки
 const int RESERVED_COST_COEFF = 3; // цена ренты за 3 дня
 const int MAX_SLOTS = 25; // сколько шмоток может находиться в отправке от одного игрока
 const int RETURNED_TIMER = -1; // при развороте посылки идет двойной таймер шмоток без капания ренты
-const char * FILE_NAME = LIB_DEPOT"parcel.db";
+const char *FILE_NAME = LIB_DEPOT"parcel.db";
 
 // для возврата посылки отправителю
 const bool RETURN_WITH_MONEY = 1;
@@ -258,7 +258,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 
 	ch->remove_both_gold(total_cost);
 	obj_from_char(obj);
-	ch->save_char();
+	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 
 	check_auction(NULL, obj);
 	OBJ_DATA *temp;
@@ -589,6 +589,7 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
 			act("$N дал$G $n2 посылку.", FALSE, ch, 0, mailman, TO_ROOM);
 			++was_sended;
 		}
+		ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 		parcel_list.erase(it);
 	}
 }
@@ -747,7 +748,7 @@ LoadNode parcel_read_one_object(char **data, int *error)
 void load()
 {
 	FILE *fl;
-	if (!(fl = fopen(LIB_DEPOT"parcel.db", "r")))
+	if (!(fl = fopen(FILE_NAME, "r")))
 	{
 		log("SYSERR: Error opening parcel database.");
 		return;
@@ -802,6 +803,9 @@ void load()
 */
 void save()
 {
+	log("Save obj: parcel");
+	ObjSaveSync::check(0, ObjSaveSync::PARCEL_SAVE);
+
 	std::stringstream out;
 	for (ParcelListType::const_iterator it = parcel_list.begin(); it != parcel_list.end(); ++it)
 	{
@@ -1045,6 +1049,7 @@ void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman)
 				FALSE, mailman, 0, ch, TO_VICT);
 		std::string name = GET_NAME(ch);
 		return_money(name, money/2, RETURN_WITH_MONEY);
+		ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 	}
 	else if (empty)
 	{

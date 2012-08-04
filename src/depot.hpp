@@ -22,6 +22,7 @@ void load_chests();
 void save_timedata();
 void save_all_online_objs();
 void update_timers();
+void save_char_by_uid(int uid);
 
 bool is_depot(OBJ_DATA *obj);
 void show_depot(CHAR_DATA *ch);

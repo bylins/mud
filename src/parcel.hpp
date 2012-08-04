@@ -20,6 +20,7 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman);
 void update_timers();
 void show_stats(CHAR_DATA *ch);
 void load();
+void save();
 void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman);
 
 int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num);

@@ -1,9 +1,12 @@
 // Part of Bylins http://www.mud.ru
 
 #include <list>
-#include <map>
+#include <vector>
+#include <boost/bind.hpp>
 #include "objsave.h"
 #include "house.h"
+#include "depot.hpp"
+#include "parcel.hpp"
 
 namespace ObjSaveSync
 {
@@ -20,7 +23,16 @@ struct NodeType
 	int targ_type;
 };
 
+struct ForceNodeType
+{
+	int uid;
+	int type;
+};
+
+// список всех пар на будующий сейв
 std::list<NodeType> save_list;
+// очищенный от дублей список на текущий форс-сейв
+std::vector<ForceNodeType> force_list;
 
 void add(int init_uid, int targ_uid, int targ_type)
 {
@@ -57,37 +69,103 @@ void write_file(int uid, int type)
 			}
 		}
 	}
+	else if (type == PERS_CHEST_SAVE)
+	{
+		Depot::save_char_by_uid(uid);
+	}
+	else if (type == PARCEL_SAVE)
+	{
+		Parcel::save();
+	}
 }
 
-void check(int uid)
+void add_to_list(int uid, int type)
 {
-	log("ObjSaveSync::check start");
-	std::map<int /* uid */, int /* type */> tmp_list;
+	if (type == PARCEL_SAVE)
+	{
+		// почта одна на всех - отсекаются дубли по совпадению type
+		std::vector<ForceNodeType>::const_iterator i =
+			std::find_if(force_list.begin(), force_list.end(),
+				boost::bind(&ForceNodeType::type, _1) == type);
+		if (i != force_list.end())
+		{
+			return;
+		}
+	}
+	else
+	{
+		// отсекаются остальные дубли по совпадению и uid, и type
+		std::vector<ForceNodeType>::const_iterator i =
+			std::find_if(force_list.begin(), force_list.end(),
+				boost::bind(&ForceNodeType::uid, _1) == uid &&
+				boost::bind(&ForceNodeType::type, _1) == type);
+		if (i != force_list.end())
+		{
+			return;
+		}
+	}
+	ForceNodeType node;
+	node.uid = uid;
+	node.type = type;
+	force_list.push_back(node);
+}
 
+void fill_force_list(int uid, int type)
+{
 	for (std::list<NodeType>::iterator i = save_list.begin();
 		i != save_list.end(); /* empty */)
 	{
-		if (i->init_uid == uid)
+		// случай с посылками, у которых вся бд в одном файле
+		// в save_list оно только в виде init чар -> targ посылка
+		// поэтому дергаем всех, завязанных на посылки в targ
+		if ((type == PARCEL_SAVE && i->targ_type == PARCEL_SAVE)
+			|| (i->targ_uid == uid && i->targ_type == type))
 		{
-			tmp_list[i->targ_uid] = i->targ_type;
-			i = save_list.erase(i);
+			const int uid = i->init_uid, type = i->init_type;
+			save_list.erase(i);
+			add_to_list(uid, type);
+			fill_force_list(uid, type);
+			i = save_list.begin();
 		}
-		else if (i->targ_uid == uid)
+		else if (i->init_uid == uid && i->init_type == type)
 		{
-			tmp_list[i->init_uid] = i->init_type;
-			i = save_list.erase(i);
+			const int uid = i->targ_uid, type = i->targ_type;
+			save_list.erase(i);
+			add_to_list(uid, type);
+			fill_force_list(uid, type);
+			i = save_list.begin();
 		}
 		else
 		{
 			++i;
 		}
 	}
+}
 
-	for(std::map<int, int>::const_iterator i = tmp_list.begin(),
-		iend = tmp_list.end(); i != iend; ++i)
+// весь нужный список генерится за один вызов fill_force_list
+// поэтому потом в процессе сейва в цикле не надо дергать новые
+// проверки и пытаться записать файлы
+bool checking = false;
+
+void check(int uid, int type)
+{
+	if (checking) return;
+
+	log("ObjSaveSync::check start");
+	checking = true;
+
+	fill_force_list(uid, type);
+	for (std::vector<ForceNodeType>::const_iterator i = force_list.begin(),
+		iend = force_list.end(); i != iend; ++i)
 	{
-		write_file(i->first, i->second);
+		if (i->uid != uid && i->type != type)
+		{
+			write_file(i->uid, i->type);
+		}
 	}
+	force_list.clear();
+
+	checking = false;
 	log("ObjSaveSync::check end");
 }
 

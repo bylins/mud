@@ -2945,7 +2945,7 @@ bool Clan::TakeChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 void Clan::save_chest()
 {
 	log("Save obj: %s", this->abbrev.c_str());
-	ObjSaveSync::check(this->GetRent());
+	ObjSaveSync::check(this->GetRent(), ObjSaveSync::CLAN_SAVE);
 
 	std::string buffer = this->abbrev;
 	for (unsigned i = 0; i != buffer.length(); ++i)

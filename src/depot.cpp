@@ -693,6 +693,9 @@ void CharNode::save_online_objs()
 {
 	if (need_save)
 	{
+		log("Save obj: %s depot", ch->get_name());
+		ObjSaveSync::check(ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
+
 		write_obj_file(name, PERS_DEPOT_FILE, pers_online);
 		need_save = false;
 	}
@@ -705,6 +708,18 @@ void save_all_online_objs()
 {
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
 		it->second.save_online_objs();
+}
+
+/**
+ * Сохранение файла хранилища из системы синхронизации.
+ */
+void save_char_by_uid(int uid)
+{
+	DepotListType::iterator it = depot_list.find(uid);
+	if (it != depot_list.end())
+	{
+		it->second.save_online_objs();
+	}
 }
 
 /**
@@ -1107,6 +1122,7 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 	OBJ_DATA *temp;
 	REMOVE_FROM_LIST(obj, object_list, next);
 //	ObjectAlias::remove(obj);
+	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
 
 	return 1;
 }
@@ -1153,6 +1169,7 @@ void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, CHA
 	act("$n взял$g $o3 из персонального хранилища.", TRUE, vict, *obj_it, 0, TO_ROOM);
 	cont.erase(obj_it++);
 	need_save = true;
+	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
 }
 
 /**
