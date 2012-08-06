@@ -110,6 +110,7 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victim);
 
 int train_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict);
+bool can_get_skill(CHAR_DATA *ch, int skill);
 
 // зптопе демп
 

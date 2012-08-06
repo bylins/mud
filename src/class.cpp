@@ -2493,11 +2493,14 @@ void load_skills()
 	}
 
 	pugi::xml_node xNodeClass, xNodeSkill, race;
-	int i, j;
-	for (i=0, race = node_list.child("race"); race; race = race.next_sibling("race"), i++)
+	int PCkin, PCclass, level_decrement;
+	for (race = node_list.child("race"); race; race = race.next_sibling("race"))
 	{
-		for (j=0, xNodeClass = race.child("class"); xNodeClass; xNodeClass = xNodeClass.next_sibling("class"), j++)
+		PCkin = race.attribute("num_kin").as_int();
+		for (xNodeClass = race.child("class"); xNodeClass; xNodeClass = xNodeClass.next_sibling("class"))
 		{
+			PCclass = xNodeClass.attribute("class_num").as_int();
+			level_decrement = xNodeClass.attribute("level_decrement").as_int();
 			for (xNodeSkill = xNodeClass.child("skill"); xNodeSkill; xNodeSkill = xNodeSkill.next_sibling("skill"))
 			{
 				int sk_num;
@@ -2507,16 +2510,17 @@ void load_skills()
 						log("Skill '%s' not found...", name.c_str());
 						_exit(1);
 					}
-				skill_info[sk_num].classknow[j][i] = KNOW_SKILL;
-				log("Умение '%s' для расы %d класса %d разрешено.", skill_info[sk_num].name, i, j);
+				skill_info[sk_num].classknow[PCclass][PCkin] = KNOW_SKILL;
+				skill_info[sk_num].level_decrement[PCclass][PCkin] = level_decrement;
+				//log("Умение '%s' для расы %d класса %d разрешено.", skill_info[sk_num].name, PCkin, PCclass);
 				int value = xNodeSkill.attribute("improve").as_int();
-				skill_info[sk_num].k_improove[j][i] = MAX(1, value);
-				log("Коэффициент улучшения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, i, j, (int)skill_info[sk_num].k_improove[j][i]);
+				skill_info[sk_num].k_improove[PCclass][PCkin] = MAX(1, value);
+				//log("Коэффициент улучшения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, (int)skill_info[sk_num].k_improove[PCclass][PCkin]);
 				value = xNodeSkill.attribute("level").as_int();
 				if (value>0 && value<LVL_IMMORT)
 				{
-					skill_info[sk_num].min_level[j][i] = value;
-					log("Минимальный уровень изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, i, j, value);
+					skill_info[sk_num].min_level[PCclass][PCkin] = value;
+					//log("Минимальный уровень изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, value);
 				}else
 				{
 					log("ERROR: Недопустимый минимальный уровень изучения умения '%s' - %d", skill_info[sk_num].name, value);
@@ -2525,8 +2529,8 @@ void load_skills()
 				value = xNodeSkill.attribute("remort").as_int();
 				if (value>=0 && value<MAX_REMORT)
 				{
-					skill_info[sk_num].min_remort[j][i] = value;
-					log("Минимальное количество ремортов для изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, i, j, skill_info[sk_num].min_remort[j][i]);
+					skill_info[sk_num].min_remort[PCclass][PCkin] = value;
+					//log("Минимальное количество ремортов для изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, skill_info[sk_num].min_remort[j][PCkin]);
 				}else
 				{
 					log("ERROR: Недопустимое минимальное количество ремортов для умения '%s' - %d", skill_info[sk_num].name, value);

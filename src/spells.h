@@ -433,6 +433,7 @@ struct skill_info_type
 	byte min_position;	/* Position for caster */
 	int min_remort[NUM_CLASSES][NUM_KIN];
 	int min_level[NUM_CLASSES][NUM_KIN];
+	int level_decrement[NUM_CLASSES][NUM_KIN];
 	long int k_improove[NUM_CLASSES][NUM_KIN];
 	int classknow[NUM_CLASSES][NUM_KIN];
 	int max_percent;

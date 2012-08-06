@@ -603,7 +603,7 @@ bool can_use_feat(CHAR_DATA *ch, int feat)
 			return FALSE;
 		break;
 	case SKILLED_TRADER_FEAT:
-		if ((GET_LEVEL(ch)-GET_REMORT(ch)/3) < 20)
+		if ((ch->get_level()-(ch->get_remort()/3)) < 20)
 			return FALSE;
 		break;
 	case MAGIC_USER_FEAT:

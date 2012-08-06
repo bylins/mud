@@ -833,7 +833,7 @@ SPECIAL(guild_mono)
 				// log("%d - %d",(guild_mono_info[info_num].learn_info+i)->skill_no, (guild_mono_info[info_num].learn_info+i)->spell_no);
 				if ((skill_no = bits =
 									(guild_mono_info[info_num].learn_info + i)->skill_no) > 0
-						&& (!ch->get_skill(skill_no) || IS_GRGOD(ch)))
+						&& (!ch->get_skill(skill_no) || IS_GRGOD(ch)) && can_get_skill(ch, skill_no))
 				{
 					gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
 									  CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
@@ -1103,7 +1103,7 @@ SPECIAL(guild_poly)
 
 				if ((skill_no = bits =
 									(guild_poly_info[info_num] + i)->skill_no) > 0
-						&& (!ch->get_skill(skill_no) || IS_GRGOD(ch)))
+						&& (!ch->get_skill(skill_no) || IS_GRGOD(ch)) && can_get_skill(ch, skill_no))
 				{
 					gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
 									  CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));

@@ -212,6 +212,23 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 	return (0);
 }
 
+/*
+функция определяет, может ли персонаж илучить скилл
+впоследствии ее нужно будет перенести в класс "инфа о классе персонажа"
+*/
+bool can_get_skill(CHAR_DATA *ch, int skill)
+{
+	if (ch->get_remort() < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()])
+		return FALSE;
+	if (ch->get_level() <
+		(skill_info[skill].min_level[ch->get_class()][ch->get_kin()] -
+		(MAX(0,ch->get_remort()/skill_info[skill].level_decrement[ch->get_class()][ch->get_kin()]))))
+		return FALSE;
+
+	return TRUE;
+};
+
+
 /**** This function return chance of skill */
 int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict)
 {

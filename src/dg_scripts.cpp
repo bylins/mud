@@ -30,6 +30,7 @@
 #include "room.hpp"
 #include "named_stuff.hpp"
 #include "spells.h"
+#include "skills.h"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -2419,6 +2420,22 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					strcpy(str, "0");
 				else
 					strcpy(str, "1");
+			}
+			else if (!str_cmp(field, "can_get_skill"))
+			{
+				if ((num = find_skill_num(subfield)) > 0)
+				{
+					if (can_get_skill(c, num))
+						strcpy(str, "1");
+					else
+						strcpy(str, "0");
+				}
+				else
+				{
+					sprintf(buf, "wrong skill name '%s'!", subfield);
+					trig_log(trig, buf);
+					strcpy(str, "0");
+				}
 			}
 			else if (!str_cmp(field, "can_get_spell"))
 			{
