@@ -2511,7 +2511,13 @@ void load_skills()
 						_exit(1);
 					}
 				skill_info[sk_num].classknow[PCclass][PCkin] = KNOW_SKILL;
-				skill_info[sk_num].level_decrement[PCclass][PCkin] = level_decrement;
+				if ((level_decrement < 1 && level_decrement != -1) || level_decrement > MAX_REMORT)
+				{
+					log("ERROR: Недопустимый параметр level decrement класса %d.", PCclass);
+					skill_info[sk_num].level_decrement[PCclass][PCkin] = -1;
+				}
+				else
+					skill_info[sk_num].level_decrement[PCclass][PCkin] = level_decrement;
 				//log("Умение '%s' для расы %d класса %d разрешено.", skill_info[sk_num].name, PCkin, PCclass);
 				int value = xNodeSkill.attribute("improve").as_int();
 				skill_info[sk_num].k_improove[PCclass][PCkin] = MAX(1, value);
