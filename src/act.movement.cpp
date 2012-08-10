@@ -1316,7 +1316,7 @@ ACMD(do_gen_door)
 	char type[MAX_INPUT_LENGTH], dir[MAX_INPUT_LENGTH];
 	OBJ_DATA *obj = NULL;
 	CHAR_DATA *victim = NULL;
-	int where_bits = FIND_OBJ_ROOM;
+	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP;
 
 	if (AFF_FLAGGED(ch, AFF_BLIND))
 	{
