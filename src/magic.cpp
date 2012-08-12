@@ -2030,9 +2030,13 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	for (; count > 0 && rand >= 0; count--)
 	{
-		if (IN_ROOM(ch) != NOWHERE &&
-				IN_ROOM(victim) != NOWHERE && GET_POS(ch) > POS_STUNNED && GET_POS(victim) > POS_DEAD)
-			rand = damage(ch, victim, dam, spellnum, count <= 1);
+		if (IN_ROOM(ch) != NOWHERE
+			&& IN_ROOM(victim) != NOWHERE
+			&& GET_POS(ch) > POS_STUNNED
+			&& GET_POS(victim) > POS_DEAD)
+		{
+			rand = damage(ch, victim, dam, spellnum, count <= 1, MAGE_DMG);
+		}
 	}
 	return rand;
 }

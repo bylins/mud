@@ -1456,7 +1456,6 @@ void print_log();
 } // ZoneExpStat
 
 std::string thousands_sep(long long n);
-void kill_log(const char *format, ...);
 int xmlparse_int(pugi::xml_node &node, const char *text);
 std::string xmlparse_str(pugi::xml_node &node, const char *text);
 

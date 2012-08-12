@@ -789,7 +789,6 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 			sprintf(buf, "%s advanced %d level%s to level %d.",
 					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
 			mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
-			kill_log(buf);
 		}
 	}
 	else if (gain < 0 && GET_LEVEL(ch) < LVL_IMMORT)
@@ -942,11 +941,15 @@ void underwater_check(void)
 	DESCRIPTOR_DATA *d;
 	for (d = descriptor_list; d; d = d->next)
 	{
-		if (d->character && SECT(d->character->in_room) == SECT_UNDERWATER && !IS_GOD(d->character) && !AFF_FLAGGED(d->character, AFF_WATERBREATH))
+		if (d->character
+			&& SECT(d->character->in_room) == SECT_UNDERWATER
+			&& !IS_GOD(d->character)
+			&& !AFF_FLAGGED(d->character, AFF_WATERBREATH))
 		{
-			sprintf(buf,
-					"Player %s died under water (room %d)", GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
-			if (damage(d->character, d->character, MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), TYPE_WATERDEATH, FALSE) < 0)
+			sprintf(buf, "Player %s died under water (room %d)",
+				GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
+
+			if (damage(d->character, d->character, MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), TYPE_WATERDEATH, false, UNDEF_DMG) < 0)
 			{
 				log(buf);
 			}
@@ -1736,12 +1739,12 @@ void point_update(void)
 		}
 		else if (GET_POS(i) == POS_INCAP)
 		{
-			if (damage(i, i, 1, TYPE_SUFFERING, FALSE) == -1)
+			if (damage(i, i, 1, TYPE_SUFFERING, false, UNDEF_DMG) == -1)
 				continue;
 		}
 		else if (GET_POS(i) == POS_MORTALLYW)
 		{
-			if (damage(i, i, 2, TYPE_SUFFERING, FALSE) == -1)
+			if (damage(i, i, 2, TYPE_SUFFERING, false, UNDEF_DMG) == -1)
 				continue;
 		}
 		update_char_objects(i);

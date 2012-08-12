@@ -31,7 +31,6 @@
 #include "shop_ext.hpp"
 #include "constants.h"
 #include "sets_drop.hpp"
-#include "fight.h"
 
 /*------------------------------------------------------------------------*/
 

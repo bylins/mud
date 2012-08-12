@@ -27,6 +27,7 @@
 #include "name_list.hpp"
 #include "room.hpp"
 #include "magic.h"
+#include "fight.h"
 
 extern INDEX_DATA *obj_index;
 extern const char *dirs[];
@@ -39,7 +40,6 @@ void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 room_data *get_room(char *name);
 void asciiflag_conv(const char *flag, void *value);
-void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktype, int mayflee);
 #define OCMD(name)  \
    void (name)(OBJ_DATA *obj, char *argument, int cmd, int subcmd)
 

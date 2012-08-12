@@ -75,12 +75,17 @@ void DeathTrap::activity()
 	CHAR_DATA *ch, *next;
 
 	for (std::list<ROOM_DATA*>::const_iterator it = room_list.begin(); it != room_list.end(); ++it)
+	{
 		for (ch = (*it)->people; ch; ch = next)
 		{
 			next = ch->next_in_room;
-			if (!IS_NPC(ch) && (damage(ch, ch, MAX(1, GET_REAL_MAX_HIT(ch) >> 2), TYPE_ROOMDEATH, FALSE) < 0))
+			if (!IS_NPC(ch)
+				&& (damage(ch, ch, MAX(1, GET_REAL_MAX_HIT(ch) >> 2), TYPE_ROOMDEATH, false, UNDEF_DMG) < 0))
+			{
 				log("Player %s died in slow DT (room %d)", GET_NAME(ch), (*it)->number);
+			}
 		}
+	}
 }
 
 namespace OneWayPortal

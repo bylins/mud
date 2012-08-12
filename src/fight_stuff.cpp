@@ -17,6 +17,8 @@
 #include "sets_drop.hpp"
 #include "top.h"
 #include "constants.h"
+#include "screen.h"
+#include "magic.h"
 
 // extern
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
@@ -24,6 +26,7 @@ int level_exp(CHAR_DATA * ch, int chlevel);
 int max_exp_gain_pc(CHAR_DATA * ch);
 int max_exp_loss_pc(CHAR_DATA * ch);
 void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
+ACMD(do_flee);
 
 extern int material_value[];
 extern int max_exp_gain_npc;
@@ -167,7 +170,35 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 //end by WorM
 /*конец правки (с) Василиса */
 
-void die(CHAR_DATA * ch, CHAR_DATA * killer)
+void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
+{
+	/* train LEADERSHIP */
+	if (IS_NPC(ch)
+		&& killer
+		&& !IS_NPC(killer)
+		&& AFF_FLAGGED(killer, AFF_GROUP)
+		&& killer->master
+		&& killer->master->get_skill(SKILL_LEADERSHIP) > 0
+		&& IN_ROOM(killer) == IN_ROOM(killer->master))
+	{
+		improove_skill(killer->master, SKILL_LEADERSHIP, number(0, 1), ch);
+	}
+
+	/* decrease LEADERSHIP */
+	if (!IS_NPC(ch)
+		&& killer
+		&& IS_NPC(killer)
+		&& AFF_FLAGGED(ch, AFF_GROUP)
+		&& ch->master
+		&& IN_ROOM(ch) == IN_ROOM(ch->master)
+		&& ch->master->get_inborn_skill(SKILL_LEADERSHIP) > 1)
+	{
+		ch->master->set_skill(SKILL_LEADERSHIP,
+			ch->master->get_trained_skill(SKILL_LEADERSHIP) - 1);
+	}
+}
+
+void die(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	int dec_exp = 0, e = GET_EXP(ch);
 
@@ -202,34 +233,13 @@ void die(CHAR_DATA * ch, CHAR_DATA * killer)
 			process_mobmax(ch, killer);
 		}
 
-		/* train LEADERSHIP */
-		if (IS_NPC(ch)
-			&& killer
-			&& !IS_NPC(killer)
-			&& AFF_FLAGGED(killer, AFF_GROUP)
-			&& killer->master
-			&& killer->master->get_skill(SKILL_LEADERSHIP) > 0
-			&& IN_ROOM(killer) == IN_ROOM(killer->master))
+		if (killer)
 		{
-			improove_skill(killer->master, SKILL_LEADERSHIP, number(0, 1), ch);
-		}
-
-		/* decrease LEADERSHIP */
-		if (!IS_NPC(ch)
-			&& killer
-			&& IS_NPC(killer)
-			&& AFF_FLAGGED(ch, AFF_GROUP)
-			&& ch->master
-			&& IN_ROOM(ch) == IN_ROOM(ch->master)
-			&& ch->master->get_inborn_skill(SKILL_LEADERSHIP) > 1)
-		{
-			ch->master->set_skill(SKILL_LEADERSHIP,
-				ch->master->get_trained_skill(SKILL_LEADERSHIP) - 1);
+			update_leadership(ch, killer);
 		}
 	}
 
 	update_die_counts(ch, killer, dec_exp);
-
 	raw_kill(ch, killer);
 }
 
@@ -298,160 +308,197 @@ void death_cry(CHAR_DATA * ch)
 	}
 }
 
-void raw_kill(CHAR_DATA * ch, CHAR_DATA * killer)
+void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 {
-	CHAR_DATA *hitter;
-	OBJ_DATA *corpse = NULL;
-	int to_room;
-	long local_gold = 0;
+	make_arena_corpse(ch, killer);
+	//Если убил палач то все деньги перекачивают к нему
+	if(killer && PRF_FLAGGED(killer, PRF_EXECUTOR))
+	{
+		killer->set_gold(ch->get_gold() + killer->get_gold());
+		ch->set_gold(0);
+	}
+	change_fighting(ch, TRUE);
+	GET_HIT(ch) = 1;
+	GET_POS(ch) = POS_SITTING;
+	char_from_room(ch);
+	int to_room = real_room(GET_LOADROOM(ch));
+	// тут придется ручками тащить чара за ворота, если ему в замке не рады
+	if (!Clan::MayEnter(ch, to_room, HCE_PORTAL))
+	{
+		to_room = Clan::CloseRent(to_room);
+	}
+	if (to_room == NOWHERE)
+	{
+		SET_BIT(PLR_FLAGS(ch, PLR_HELLED), PLR_HELLED);
+		HELL_DURATION(ch) = time(0) + 6;
+		to_room = r_helled_start_room;
+	}
+	char_to_room(ch, to_room);
+	look_at_room(ch, to_room);
+	act("$n со стонами упал$g с небес...", FALSE, ch, 0, 0, TO_ROOM);
+}
+
+void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gold)
+{
 	char obj[256];
 
-
-	if(IS_NPC(ch) && killer && killer != ch && MOB_FLAGGED(ch, MOB_CLONE) && ch->master && affected_by_spell(ch, SPELL_CAPABLE))
+	if (IS_NPC(ch)
+		&& !IS_NPC(killer)
+		&& PRF_FLAGGED(killer, PRF_AUTOLOOT)
+		&& (corpse != NULL)
+		&& can_loot(killer))
 	{
-		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.", FALSE, ch, 0, killer, TO_ROOM | TO_ARENA_LISTEN);
+		sprintf(obj, "all");
+		get_from_container(killer, corpse, obj, FIND_OBJ_INV, 1, true);
+	}
+	else if (IS_NPC(ch)
+		&& !IS_NPC(killer)
+		&& local_gold
+		&& PRF_FLAGGED(killer, PRF_AUTOMONEY)
+		&& (corpse != NULL)
+		&& can_loot(killer))
+	{
+		sprintf(obj, "all.coin");
+		get_from_container(killer, corpse, obj, FIND_OBJ_INV, 1, false);
+	}
+	else if (IS_NPC(ch)
+		&& IS_NPC(killer)
+		&& (AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
+		&& (corpse != NULL)
+		&& killer->master
+		&& killer->in_room == killer->master->in_room
+		&& PRF_FLAGGED(killer->master, PRF_AUTOLOOT)
+		&& can_loot(killer->master))
+	{
+		sprintf(obj, "all");
+		get_from_container(killer->master, corpse, obj, FIND_OBJ_INV, 1, true);
+	}
+	else if (IS_NPC(ch)
+		&& IS_NPC(killer)
+		&& local_gold
+		&& (AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
+		&& (corpse != NULL)
+		&& killer->master
+		&& killer->in_room == killer->master->in_room
+		&& PRF_FLAGGED(killer->master, PRF_AUTOMONEY)
+		&& can_loot(killer->master))
+	{
+		sprintf(obj, "all.coin");
+		get_from_container(killer->master, corpse, obj, FIND_OBJ_INV, 1, false);
+	}
+}
+
+void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer)
+{
+	if(IS_NPC(ch)
+		&& killer
+		&& killer != ch
+		&& MOB_FLAGGED(ch, MOB_CLONE)
+		&& ch->master
+		&& affected_by_spell(ch, SPELL_CAPABLE))
+	{
+		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.",
+			FALSE, ch, 0, killer, TO_ROOM | TO_ARENA_LISTEN);
 		int pos = GET_POS(ch);
 		GET_POS(ch) = POS_STANDING;
-		call_magic(ch, killer, NULL, world[IN_ROOM(ch)], ch->mob_specials.capable_spell, GET_LEVEL(ch), CAST_SPELL);
+		call_magic(ch, killer, NULL, world[IN_ROOM(ch)], ch->mob_specials.capable_spell,
+			GET_LEVEL(ch), CAST_SPELL);
 		GET_POS(ch) = pos;
 	}
+}
+
+void clear_mobs_memory(CHAR_DATA *ch)
+{
+	for (CHAR_DATA *hitter = character_list; hitter; hitter = hitter->next)
+	{
+		if (IS_NPC(hitter) && MEMORY(hitter))
+		{
+			forget(hitter, ch);
+		}
+	}
+}
+
+void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
+{
+	const long local_gold = ch->get_gold();
+	OBJ_DATA *corpse = make_corpse(ch, killer);
+	bloody::handle_corpse(corpse, ch, killer);
+
+	// Перенес вызов pk_revenge_action из die, чтобы на момент создания
+	// трупа месть на убийцу была еще жива
+	if (IS_NPC(ch) || !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA) || RENTABLE(ch))
+	{
+		pk_revenge_action(killer, ch);
+	}
+
+	if (!IS_NPC(ch))
+	{
+		forget_all_spells(ch);
+		clear_mobs_memory(ch);
+		/* Если убит в бою - то может выйти из игры */
+		RENTABLE(ch) = 0;
+		AGRESSOR(ch) = 0;
+		AGRO(ch) = 0;
+	}
+	else
+	{
+		if (killer && (!IS_NPC(killer) || IS_CHARMICE(killer)))
+		{
+			log("Killed: %d %d %ld", GET_LEVEL(ch), GET_MAX_HIT(ch), GET_EXP(ch));
+			obj_load_on_death(corpse, ch);
+		}
+		if (MOB_FLAGGED(ch, MOB_CORPSE))
+		{
+			perform_drop_gold(ch, local_gold, SCMD_DROP, 0);
+			ch->set_gold(0);
+		}
+		dl_load_obj(corpse, ch, NULL, DL_ORDINARY);
+		dl_load_obj(corpse, ch, NULL, DL_PROGRESSION);
+	}
+
+	// Теперь реализация режимов "автограбеж" и "брать куны" происходит не в damage,
+	// а здесь, после создания соответствующего трупа. Кроме того,
+	// если убил чармис и хозяин в комнате, то автолут происходит хозяину
+	if ((ch != NULL) && (killer != NULL))
+	{
+		auto_loot(ch, killer, corpse, local_gold);
+	}
+}
+
+void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
+{
+	check_spell_capable(ch, killer);
+
 	if (ch->get_fighting())
 		stop_fighting(ch, TRUE);
 
-	for (hitter = combat_list; hitter; hitter = hitter->next_fighting)
+	for (CHAR_DATA *hitter = combat_list; hitter; hitter = hitter->next_fighting)
+	{
 		if (hitter->get_fighting() == ch)
+		{
 			WAIT_STATE(hitter, 0);
+		}
+	}
 
 	reset_affects(ch);
 
-	if (!killer || death_mtrigger(ch, killer))
-		if (IN_ROOM(ch) != NOWHERE)
-			death_cry(ch);
+	if ((!killer || death_mtrigger(ch, killer)) && IN_ROOM(ch) != NOWHERE)
+	{
+		death_cry(ch);
+	}
 
 	if (IN_ROOM(ch) != NOWHERE)
 	{
-		if (!IS_NPC(ch) && ((!RENTABLE(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA))
-				|| (killer && PRF_FLAGGED(killer, PRF_EXECUTOR))))//Если убили на арене или палач
+		if (!IS_NPC(ch)
+			&& ((!RENTABLE(ch) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA))
+				|| (killer && PRF_FLAGGED(killer, PRF_EXECUTOR))))
 		{
-			make_arena_corpse(ch, killer);
-			if(killer && PRF_FLAGGED(killer, PRF_EXECUTOR))//Если убил палач то все деньги перекачивают к нему
-			{
-				killer->set_gold(ch->get_gold() + killer->get_gold());
-				ch->set_gold(0);
-			}
-			change_fighting(ch, TRUE);
-			GET_HIT(ch) = 1;
-			GET_POS(ch) = POS_SITTING;
-			char_from_room(ch);
-			to_room = real_room(GET_LOADROOM(ch));
-			// тут придется ручками тащить чара за ворота, если ему в замке не рады
-			if (!Clan::MayEnter(ch, to_room, HCE_PORTAL))
-				to_room = Clan::CloseRent(to_room);
-			if (to_room == NOWHERE)
-			{
-				SET_BIT(PLR_FLAGS(ch, PLR_HELLED), PLR_HELLED);
-				HELL_DURATION(ch) = time(0) + 6;
-				to_room = r_helled_start_room;
-			}
-			char_to_room(ch, to_room);
-			look_at_room(ch, to_room);
-			act("$n со стонами упал$g с небес...", FALSE, ch, 0, 0, TO_ROOM);
+			//Если убили на арене или палач
+			arena_kill(ch, killer);
 		}
 		else
 		{
-			if (IS_NPC(ch) && killer && (!IS_NPC(killer) || IS_CHARMICE(killer)))
-			{
-				log("Killed: %d %d %ld", GET_LEVEL(ch), GET_MAX_HIT(ch), GET_EXP(ch));
-				CHAR_DATA *master = killer;
-				if (IS_CHARMICE(killer))
-				{
-					master = killer->master ? killer->master : killer;
-				}
-				kill_log("%s (%d): %d", GET_NAME(master), GET_LEVEL(master), GET_LEVEL(ch));
-			}
-			local_gold = ch->get_gold();
-			corpse = make_corpse(ch, killer);
-			bloody::handle_corpse(corpse, ch, killer);
-			//Перенес вызов pk_revenge_action из die, чтобы на момент создания трупа месть на убийцу была еще жива
-			if (IS_NPC(ch) || !ROOM_FLAGGED(IN_ROOM(ch), ROOM_ARENA)
-					|| RENTABLE(ch))
-				pk_revenge_action(killer, ch);
-			if (MOB_FLAGGED(ch, MOB_CORPSE))
-			{
-				perform_drop_gold(ch, local_gold, SCMD_DROP, 0);
-				ch->set_gold(0);
-			}
-			if (killer && (!IS_NPC(killer) || IS_CHARMICE(killer)))
-			{
-				obj_load_on_death(corpse, ch);
-			}
-
-			if (!IS_NPC(ch))
-			{
-				forget_all_spells(ch);
-				for (hitter = character_list; hitter; hitter = hitter->next)
-					if (IS_NPC(hitter) && MEMORY(hitter))
-						forget(hitter, ch);
-				/*
-				   for (hitter = character_list; hitter && IS_NPC(hitter) && MEMORY(hitter); hitter = hitter->next)
-				   forget(hitter, ch);
-				 */
-			}
-			else
-			{
-				dl_load_obj(corpse, ch, NULL, DL_ORDINARY);
-				dl_load_obj(corpse, ch, NULL, DL_PROGRESSION);
-			}
-//send_to_char (buf,killer);
-			/* Начало изменений.
-			   (с) Дмитрий ака dzMUDiST */
-
-// Теперь реализация режимов "автограбеж" и "брать куны" происходит не в damage,
-// а здесь, после создания соответствующего трупа. Кроме того,
-// если убил чармис и хозяин в комнате, то автолут происходит хозяину
-			if ((ch != NULL) && (killer != NULL))
-			{
-				if (IS_NPC(ch) && !IS_NPC(killer) && PRF_FLAGGED(killer, PRF_AUTOLOOT)
-						&& (corpse != NULL) && can_loot(killer))
-				{
-					sprintf(obj, "all");
-					get_from_container(killer, corpse, obj, FIND_OBJ_INV, 1, true);
-				}
-				else if (IS_NPC(ch) && !IS_NPC(killer) && local_gold
-						 && PRF_FLAGGED(killer, PRF_AUTOMONEY) && (corpse != NULL)
-						 && can_loot(killer))
-				{
-					sprintf(obj, "all.coin");
-					get_from_container(killer, corpse, obj, FIND_OBJ_INV, 1, false);
-				}
-				else if (IS_NPC(ch) && IS_NPC(killer) && (AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
-						 && (corpse != NULL) && killer->master
-						 && killer->in_room == killer->master->in_room
-						 && PRF_FLAGGED(killer->master, PRF_AUTOLOOT) && can_loot(killer->master))
-				{
-					sprintf(obj, "all");
-					get_from_container(killer->master, corpse, obj, FIND_OBJ_INV, 1, true);
-				}
-				else if (IS_NPC(ch) && IS_NPC(killer) && local_gold && (AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL))
-						 && (corpse != NULL) && killer->master
-						 && killer->in_room == killer->master->in_room
-						 && PRF_FLAGGED(killer->master, PRF_AUTOMONEY) && can_loot(killer->master))
-				{
-					sprintf(obj, "all.coin");
-					get_from_container(killer->master, corpse, obj, FIND_OBJ_INV, 1, false);
-				}
-			}
-
-			/* Конец изменений.
-			   (с) Дмитрий ака dzMUDiST */
-
-			/* Если убит в бою - то может выйти из игры */
-			if (!IS_NPC(ch))
-			{
-				RENTABLE(ch) = 0;
-				AGRESSOR(ch) = 0;
-				AGRO(ch) = 0;
-			}
+			real_kill(ch, killer);
 			extract_char(ch, TRUE);
 		}
 	}
@@ -772,6 +819,117 @@ char *replace_string(const char *str, const char *weapon_singular, const char *w
 	}			/* For */
 
 	return (buf);
+}
+
+bool check_valid_chars(CHAR_DATA *ch, CHAR_DATA *victim, const char *fname, int line)
+{
+	if (!ch || ch->purged() || !victim || victim->purged())
+	{
+		log("SYSERROR: ch = %s, victim = %s (%s:%d)",
+			ch ? (ch->purged() ? "purged" : "true") : "false",
+			victim ? (victim->purged() ? "purged" : "true") : "false",
+			fname, line);
+		return false;
+	}
+	return true;
+}
+
+/*
+ * Alert: As of bpl14, this function returns the following codes:
+ *	< 0	Victim  died.
+ *	= 0	No damage.
+ *	> 0	How much damage done.
+ */
+
+void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktype, bool mayflee)
+{
+	if (IN_ROOM(ch) == NOWHERE)
+		return;
+
+	switch (GET_POS(victim))
+	{
+	case POS_MORTALLYW:
+		act("$n смертельно ранен$a и умрет, если $m не помогут.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		send_to_char("Вы смертельно ранены и умрете, если Вам не помогут.\r\n", victim);
+		break;
+	case POS_INCAP:
+		act("$n без сознания и медленно умирает. Помогите же $m.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		send_to_char("Вы без сознания и медленно умираете, брошенные без помощи.\r\n", victim);
+		break;
+	case POS_STUNNED:
+		act("$n без сознания, но возможно $e еще повоюет (попозже :).", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		send_to_char("Сознание покинуло Вас. В битве от Вас пока проку мало.\r\n", victim);
+		break;
+	case POS_DEAD:
+		if (IS_NPC(victim) && (MOB_FLAGGED(victim, MOB_CORPSE)))
+		{
+			act("$n вспыхнул$g и рассыпал$u в прах.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			send_to_char("Похоже Вас убили и даже тела не оставили !\r\n", victim);
+		}
+		else
+		{
+			act("$n мертв$a, $s душа медленно подымается в небеса.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			send_to_char("Вы мертвы!  Нам очень жаль...\r\n", victim);
+		}
+		break;
+	default:		/* >= POSITION SLEEPING */
+		if (dam > (GET_REAL_MAX_HIT(victim) / 4))
+			send_to_char("Это действительно БОЛЬНО !\r\n", victim);
+
+		if (dam > 0 && GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4))
+		{
+			sprintf(buf2,
+					"%s Вы желаете, чтобы Ваши раны не кровоточили так сильно ! %s\r\n",
+					CCRED(victim, C_SPR), CCNRM(victim, C_SPR));
+			send_to_char(buf2, victim);
+		}
+		if (ch != victim &&
+				IS_NPC(victim) &&
+				GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4) &&
+				MOB_FLAGGED(victim, MOB_WIMPY) && mayflee && GET_POS(victim) > POS_SITTING)
+			do_flee(victim, NULL, 0, 0);
+
+		if (ch != victim &&
+				!IS_NPC(victim) &&
+				HERE(victim) &&
+				GET_WIMP_LEV(victim) &&
+				GET_HIT(victim) < GET_WIMP_LEV(victim) && mayflee && GET_POS(victim) > POS_SITTING)
+		{
+			send_to_char("Вы запаниковали и попытались убежать !\r\n", victim);
+			do_flee(victim, NULL, 0, 0);
+		}
+		break;
+	}
+}
+
+void test_self_hitroll(CHAR_DATA *ch)
+{
+	HitType hit;
+	hit.type = TYPE_UNDEFINED;
+	hit.weapon = RIGHT_WEAPON;
+	hit.init(ch, ch);
+	hit.calc_base_hr(ch);
+	log("t2: %d", hit.calc_thaco);
+
+	HitType hit2;
+	hit2.type = TYPE_UNDEFINED;
+	hit2.weapon = LEFT_WEAPON;
+	hit2.init(ch, ch	);
+	hit2.calc_base_hr(ch);
+	log("t3: %d", hit2.calc_thaco);
+}
+
+/**
+ * Обертка для старого кода
+ */
+int damage(CHAR_DATA *ch, CHAR_DATA *victim, int dam, int attacktype, bool mayflee, int dmg_type)
+{
+	DmgType dmg;
+	dmg.dam = dam;
+	dmg.w_type = attacktype;
+	dmg.mayflee = mayflee;
+	dmg.dmg_type = dmg_type;
+	return dmg.damage(ch, victim);
 }
 
 /*

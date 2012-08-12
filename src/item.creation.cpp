@@ -26,13 +26,13 @@
 #include "char.hpp"
 #include "modify.h"
 #include "room.hpp"
+#include "fight.h"
 
 #define SpINFO   spell_info[spellnum]
 
 extern int material_value[];
 
 int slot_for_char(CHAR_DATA * ch, int i);
-void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktype, int mayflee);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 
 struct create_item_type created_item[] = { {300, 0x7E, 15, 40, {{COAL_PROTO, 0, 0}}, SKILL_TRANSFORMWEAPON,
