@@ -4745,6 +4745,7 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 
 	k = i;
 
+	tmp_char_list.clear();
 	for (i = 0, ch_vict = room->people; ch_vict; ch_vict = ch_vict->next_in_room)
 	{
 		if (IS_IMMORTAL(ch_vict))
@@ -4778,12 +4779,10 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 		mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
 		if (ch->purged())
 		{
-			tmp_char_list.clear();
 			return 1;
 		}
 		GET_CAST_SUCCESS(ch) = atacker_cast - atacker_cast * targets_count * 9 / 100;
 	}
-	tmp_char_list.clear();
 	GET_CAST_SUCCESS(ch) = atacker_cast;
 
 	return 1;
@@ -4891,6 +4890,7 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 
 	// список генерится до дамага по виктиму, т.к. на нем могут висеть death тригеры
 	// с появлением новых мобов, по которым тот же шок бьет уже после смерти основной цели
+	tmp_char_list.clear();
 	for (i = 0, ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
 	{
 		if (IS_IMMORTAL(ch_vict))
@@ -4946,7 +4946,6 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 		level -= decay;
 		++count;
 	}
-	tmp_char_list.clear();
 
 	return 1;
 }
@@ -5058,6 +5057,7 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 			act(msg, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 
+	tmp_char_list.clear();
 	for (i = 0, ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
 	{
 		if (!HERE(ch_vict))
@@ -5077,12 +5077,10 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 		mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
 		if (ch->purged())
 		{
-			tmp_char_list.clear();
 			return 1;
 		}
 	}
 
-	tmp_char_list.clear();
 	return 1;
 }
 

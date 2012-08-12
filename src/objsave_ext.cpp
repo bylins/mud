@@ -160,6 +160,12 @@ void check(int uid, int type)
 	{
 		if (i->uid == uid && i->type == type)
 		{
+			// пропускаем лишний сейв себя
+			continue;
+		}
+		if (type == PARCEL_SAVE && i->type == PARCEL_SAVE)
+		{
+			// у почты нужно совпадение только по типу
 			continue;
 		}
 		write_file(i->uid, i->type);
