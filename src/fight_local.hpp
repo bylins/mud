@@ -46,7 +46,6 @@ struct HitType
 	int extdamage(CHAR_DATA *ch, CHAR_DATA *victim);
 	void try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim);
 	void try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim);
-	void compute_critical(CHAR_DATA *ch, CHAR_DATA *victim);
 
 	/** init() */
 	// 1 - атака правой или двумя руками (RIGHT_WEAPON),
@@ -89,8 +88,8 @@ struct DmgType
 		fs_damage(0), mayflee(true), dmg_type(PHYS_DMG) {};
 
 	int damage(CHAR_DATA *ch, CHAR_DATA *victim);
-	int magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim);
-	int armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim);
+	bool magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim);
+	bool armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim);
 	void compute_critical(CHAR_DATA *ch, CHAR_DATA *victim);
 
 	// type + TYPE_HIT для вывода сообщений об ударе и еще хрен знает чего

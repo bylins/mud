@@ -162,7 +162,7 @@ void haemorragia(CHAR_DATA * ch, int percent)
 		affect_join(ch, &af[i], TRUE, FALSE, TRUE, FALSE);
 }
 
-void HitType::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
+void DmgType::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	const char *to_char = NULL, *to_vict = NULL;
 	AFFECT_DATA af[4];
@@ -1938,7 +1938,7 @@ void update_mob_memory(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 }
 
-int DmgType::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
+bool DmgType::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	if (dam && AFF_FLAGGED(victim, AFF_SHIELD))
 	{
@@ -1952,7 +1952,7 @@ int DmgType::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			FALSE, ch, 0, victim, TO_CHAR);
 		act("Магический кокон вокруг $N1 полностью поглотил удар $n1.",
 			TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-		return 0;
+		return true;
 	}
 
 	if ((dam > 0 && !was_critic && AFF_FLAGGED(victim, AFF_FIRESHIELD))
@@ -1983,10 +1983,10 @@ int DmgType::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		dam -= (dam * number(30, 50) / 100);
 	}
 
-	return dam;
+	return false;
 }
 
-int DmgType::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
+bool DmgType::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	if (dam && dmg_type == PHYS_DMG)
 	{
@@ -2003,7 +2003,7 @@ int DmgType::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
 					act("Ваши доспехи полностью поглотили удар $n1.", FALSE, ch, 0, victim, TO_VICT);
 					act("Доспехи $N1 полностью поглотили Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
 					act("Доспехи $N1 полностью поглотили удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-					return 0;
+					return true;
 				}
 				// броня + поглощение роляет до 75% снижения дамаги
 				dam -= (dam * MAX(0, MIN(75, decrease)) / 100);
@@ -2018,7 +2018,7 @@ int DmgType::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
 					act("Ваши доспехи полностью поглотили удар $n1.", FALSE, ch, 0, victim, TO_VICT);
 					act("Доспехи $N1 полностью поглотили Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
 					act("Доспехи $N1 полностью поглотили удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-					return 0;
+					return true;
 				}
 				// броня + поглощение роляет до 50% снижения дамаги
 				dam -= (dam * MAX(0, MIN(50, decrease)) / 100);
@@ -2034,7 +2034,7 @@ int DmgType::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 
-	return dam;
+	return false;
 }
 
 void send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim)
@@ -2309,9 +2309,9 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 	// зб, щиты, броня, поглощение
 	if (victim != ch)
 	{
-		magic_shields_dam(ch, victim);
-		armor_dam_reduce(ch, victim);
-		if (dam <= 0)
+		bool shield_full_absorb = magic_shields_dam(ch, victim);
+		bool armor_full_absorb = armor_dam_reduce(ch, victim);
+		if (shield_full_absorb || armor_full_absorb)
 		{
 			return 0;
 		}
@@ -2329,6 +2329,12 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 	dam = MAX(dam, 0);
 
 	/** увеличение дамага */
+
+	// точный стиль
+	if (dam && was_critic && dam_critic)
+	{
+		compute_critical(ch, victim);
+	}
 
 	// яд скополии
 	if (w_type != SKILL_BACKSTAB + TYPE_HIT
@@ -2700,12 +2706,6 @@ int HitType::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 	// Если удар парирован, необходимо все равно ввязаться в драку.
 	// Вызывается damage с отрицательным уроном
 	dam = mem_dam >= 0 ? dam : -1;
-
-	/** точный стиль */
-	if (dam && was_critic && dam_critic)
-	{
-		compute_critical(ch, victim);
-	}
 
 	DmgType dmg;
 	dmg.w_type = w_type;
