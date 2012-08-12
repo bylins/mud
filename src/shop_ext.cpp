@@ -620,11 +620,19 @@ void remove_item_id(ShopListType::const_iterator &shop, unsigned uid)
 
 void update_shop_timers(ShopListType::const_iterator &shop)
 {
+	log("update_shop_timers start");
+	if (!(*shop)->mob_vnums.empty())
+	{
+		log("mob: %d", (*(*shop)->mob_vnums.begin()));
+	}
+
 	std::list<waste_node>::iterator it;
 	int cur_time = time(NULL);
 	int waste_time = (*shop)->waste_time_min * 60;
 	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end();)
 	{
+		log("obj: vnum=%d, timer=%d, uid=%u",
+			GET_OBJ_VNUM(it->obj), it->obj->get_timer(), it->obj->uid);
 		it->obj->dec_timer();
 		if (it->obj->get_timer() <= 0 || ((waste_time > 0) && (cur_time - it->last_activity > waste_time)))
 		{
@@ -635,6 +643,7 @@ void update_shop_timers(ShopListType::const_iterator &shop)
 		else
 			++it;
 	}
+	log("update_shop_timers end");
 }
 
 void update_timers()
