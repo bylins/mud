@@ -1053,7 +1053,7 @@ void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman)
 	}
 	else if (empty)
 	{
-		act("$n сказал$g Вам : 'У нас нет ниодной Вашей посылки!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g Вам : 'У нас нет ни одной Вашей посылки!'", FALSE, mailman, 0, ch, TO_VICT);
 	}
 }
 
