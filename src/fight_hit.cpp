@@ -1955,11 +1955,10 @@ bool DmgType::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		return true;
 	}
 
-	if ((dam > 0 && !was_critic && AFF_FLAGGED(victim, AFF_FIRESHIELD))
-		&& (w_type != (TYPE_HIT + SKILL_BACKSTAB))
-		&& (w_type != (TYPE_HIT + SKILL_THROW))
+	if (dam > 0 && !was_critic && AFF_FLAGGED(victim, AFF_FIRESHIELD)
 		&& dmg_type == PHYS_DMG
-		&& !IS_SET(spell_info[w_type].routines, MAG_WARCRY))
+		&& w_type != TYPE_HIT + SKILL_BACKSTAB
+		&& w_type != TYPE_HIT + SKILL_THROW)
 	{
 		fs_damage = dam * 20 / 100;
 		dam -= (dam * number(10, 30) / 100);
