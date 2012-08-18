@@ -2035,7 +2035,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			&& GET_POS(ch) > POS_STUNNED
 			&& GET_POS(victim) > POS_DEAD)
 		{
-			rand = damage(ch, victim, dam, spellnum, count <= 1, MAGE_DMG);
+			rand = damage(ch, victim, dam, SpellDmg(spellnum), count <= 1, MAGE_DMG);
 		}
 	}
 	return rand;

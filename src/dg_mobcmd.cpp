@@ -1852,7 +1852,7 @@ ACMD(do_mdamage)
 		}
 
 		update_pos(victim);
-		char_dam_message(dam, victim, victim, TYPE_UNDEFINED, 0);
+		char_dam_message(dam, victim, victim, 0);
 		if (GET_POS(victim) == POS_DEAD)
 		{
 			if (!IS_NPC(victim))

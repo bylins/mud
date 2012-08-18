@@ -80,7 +80,7 @@ void DeathTrap::activity()
 		{
 			next = ch->next_in_room;
 			if (!IS_NPC(ch)
-				&& (damage(ch, ch, MAX(1, GET_REAL_MAX_HIT(ch) >> 2), TYPE_ROOMDEATH, false, UNDEF_DMG) < 0))
+				&& (damage(ch, ch, MAX(1, GET_REAL_MAX_HIT(ch) >> 2), SimpleDmg(TYPE_ROOMDEATH), false, UNDEF_DMG) < 0))
 			{
 				log("Player %s died in slow DT (room %d)", GET_NAME(ch), (*it)->number);
 			}

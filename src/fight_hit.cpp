@@ -162,7 +162,7 @@ void haemorragia(CHAR_DATA * ch, int percent)
 		affect_join(ch, &af[i], TRUE, FALSE, TRUE, FALSE);
 }
 
-void DmgType::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
+void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	const char *to_char = NULL, *to_vict = NULL;
 	AFFECT_DATA af[4];
@@ -1371,7 +1371,7 @@ bool can_auto_block(CHAR_DATA *ch)
 /**
  * Проверка на фит "любимое оружие".
  */
-void HitType::check_weap_feats(CHAR_DATA *ch)
+void HitData::check_weap_feats(CHAR_DATA *ch)
 {
 	switch (weap_skill)
 	{
@@ -1537,7 +1537,7 @@ void hit_deviate(CHAR_DATA *ch, CHAR_DATA *victim, int *dam)
 	BATTLECNTR(victim)++;
 }
 
-void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int w_type, int *dam)
+void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, int *dam)
 {
 	if (!((GET_EQ(victim, WEAR_WIELD)
 			&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_WIELD)) == ITEM_WEAPON
@@ -1557,7 +1557,7 @@ void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int w_type, int *dam
 		prob = prob * 100 / range;
 
 		if (prob < 70
-			|| ((skill == SKILL_BOWS || w_type == TYPE_MAUL)
+			|| ((skill == SKILL_BOWS || hit_type == type_maul)
 				&& !IS_IMMORTAL(victim)
 				&& (!can_use_feat(victim, PARRY_ARROW_FEAT)
 				|| number(1, 1000) >= 20 * MIN(GET_REAL_DEX(victim), 35))))
@@ -1605,7 +1605,7 @@ void hit_parry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int w_type, int *dam
 	}
 }
 
-void hit_multyparry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int w_type, int *dam)
+void hit_multyparry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int hit_type, int *dam)
 {
 	if (!((GET_EQ(victim, WEAR_WIELD)
 			&& GET_OBJ_TYPE(GET_EQ(victim, WEAR_WIELD)) == ITEM_WEAPON
@@ -1624,7 +1624,7 @@ void hit_multyparry(CHAR_DATA *ch, CHAR_DATA *victim, int skill, int w_type, int
 				skill_info[SKILL_MULTYPARRY].max_percent + BATTLECNTR(ch) * 15, ch);
 		prob = prob * 100 / range;
 
-		if ((skill == SKILL_BOWS || w_type == TYPE_MAUL)
+		if ((skill == SKILL_BOWS || hit_type == type_maul)
 			&& !IS_IMMORTAL(victim)
 			&& (!can_use_feat(victim, PARRY_ARROW_FEAT)
 				|| number(1, 1000) >= 20 * MIN(GET_REAL_DEX(victim), 35)))
@@ -1942,9 +1942,9 @@ bool DmgType::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	if (dam && AFF_FLAGGED(victim, AFF_SHIELD))
 	{
-		if (w_type == SKILL_BASH + TYPE_HIT)
+		if (skill_num == SKILL_BASH)
 		{
-			skill_message(dam, ch, victim, w_type);
+			skill_message(dam, ch, victim, msg_num);
 		}
 		act("Магический кокон полностью поглотил удар $N1.",
 			FALSE, victim, 0, ch, TO_CHAR);
@@ -1957,8 +1957,8 @@ bool DmgType::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	if (dam > 0 && !was_critic && AFF_FLAGGED(victim, AFF_FIRESHIELD)
 		&& dmg_type == PHYS_DMG
-		&& w_type != TYPE_HIT + SKILL_BACKSTAB
-		&& w_type != TYPE_HIT + SKILL_THROW)
+		&& skill_num != SKILL_BACKSTAB
+		&& skill_num != SKILL_THROW)
 	{
 		fs_damage = dam * 20 / 100;
 		dam -= (dam * number(10, 30) / 100);
@@ -2121,7 +2121,7 @@ void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 }
 
-void process_death(CHAR_DATA *ch, CHAR_DATA *victim, int attacktype)
+void DmgType::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	CHAR_DATA *killer = NULL;
 
@@ -2129,7 +2129,7 @@ void process_death(CHAR_DATA *ch, CHAR_DATA *victim, int attacktype)
 	{
 		if (victim == ch && IN_ROOM(victim) != NOWHERE)
 		{
-			if (attacktype == SPELL_POISON)
+			if (spell_num == SPELL_POISON)
 			{
 				CHAR_DATA *poisoner;
 				for (poisoner = world[IN_ROOM(victim)]->people; poisoner;
@@ -2139,7 +2139,7 @@ void process_death(CHAR_DATA *ch, CHAR_DATA *victim, int attacktype)
 						killer = poisoner;
 				}
 			}
-			else if (attacktype == TYPE_SUFFERING)
+			else if (msg_num == TYPE_SUFFERING)
 			{
 				CHAR_DATA *attacker;
 				for (attacker = world[IN_ROOM(victim)]->people; attacker;
@@ -2329,15 +2329,8 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	/** увеличение дамага */
 
-	// точный стиль
-	if (dam && was_critic && dam_critic)
-	{
-		compute_critical(ch, victim);
-	}
-
 	// яд скополии
-	if (w_type != SKILL_BACKSTAB + TYPE_HIT
-		&& AFF_FLAGGED(victim, AFF_SCOPOLIA_POISON))
+	if (skill_num != SKILL_BACKSTAB && AFF_FLAGGED(victim, AFF_SCOPOLIA_POISON))
 	{
 		dam += dam * GET_POISON(victim) / 100;
 	}
@@ -2351,7 +2344,7 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 	int over_dam = 0;
 
 	/** собственно нанесение дамага */
-	if (w_type == SPELL_FIRE_SHIELD)
+	if (spell_num == SPELL_FIRE_SHIELD)
 	{
 		if ((GET_HIT(victim) -= dam) < 1)
 		{
@@ -2380,11 +2373,11 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 	update_pos(victim);
 
 	/** сбивание надува черноков */
-	if (w_type != SPELL_POISON && dam > 0)
+	if (spell_num != SPELL_POISON && dam > 0)
 		try_remove_extrahits(ch, victim);
 
 	/** сообщения о крит ударах */
-	if (dam && was_critic && !dam_critic && w_type != SPELL_POISON)
+	if (dam && was_critic && !dam_critic && spell_num != SPELL_POISON)
 	{
 		send_critical_message(ch, victim);
 	}
@@ -2401,25 +2394,27 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 	// log("[DAMAGE] Attack message...");
 
 	/** сообщения об ударах */
-	if (!IS_WEAPON(w_type))
-		skill_message(dam, ch, victim, w_type);
+	if (skill_num >= 0 || spell_num >= 0 || hit_type < 0)
+	{
+		// скилл, спелл, необычный дамаг
+		skill_message(dam, ch, victim, msg_num);
+	}
 	else
 	{
+		// простой удар рукой/оружием
 		if (GET_POS(victim) == POS_DEAD || dam == 0)
 		{
-			if (!skill_message(dam, ch, victim, w_type))
-				dam_message(dam, ch, victim, w_type);
+			if (!skill_message(dam, ch, victim, msg_num))
+				dam_message(dam, ch, victim, msg_num);
 		}
 		else
 		{
-			dam_message(dam, ch, victim, w_type);
+			dam_message(dam, ch, victim, msg_num);
 		}
 	}
 
-	// log("[DAMAGE] Victim message...");
 	//******** Use send_to_char -- act() doesn't send message if you are DEAD.
-	char_dam_message(dam, ch, victim, w_type, mayflee);
-	// log("[DAMAGE] Flee etc...");
+	char_dam_message(dam, ch, victim, mayflee);
 
 	// Проверить, что жертва все еще тут. Может уже сбежала по трусости.
 	// Думаю, простой проверки достаточно.
@@ -2437,7 +2432,7 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 	/** жертва умирает */
 	if (GET_POS(victim) == POS_DEAD)
 	{
-		process_death(ch, victim, w_type);
+		process_death(ch, victim);
 		return -1;
 	}
 
@@ -2446,20 +2441,15 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& victim->get_fighting()
 		&& GET_POS(victim) > POS_STUNNED
 		&& IN_ROOM(victim) != NOWHERE
-		&& w_type != SKILL_TURN_UNDEAD + TYPE_HIT)
+		&& skill_num != SKILL_TURN_UNDEAD)
 	{
-		DmgType fire_dmg;
-		fire_dmg.w_type = SPELL_FIRE_SHIELD;
-		fire_dmg.dam = fs_damage;
-		fire_dmg.mayflee = false;
-		fire_dmg.dmg_type = MAGE_DMG;
-		fire_dmg.damage(victim, ch);
+		::damage(victim, ch, dam, SpellDmg(SPELL_FIRE_SHIELD), false, MAGE_DMG);
 	}
 
 	return dam;
 }
 
-void HitType::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
+void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	int percent = number(1, skill_info[SKILL_MIGHTHIT].max_percent);
 	int prob = train_skill(ch, SKILL_MIGHTHIT, skill_info[SKILL_MIGHTHIT].max_percent, victim);
@@ -2557,7 +2547,7 @@ void HitType::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 }
 
-void HitType::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim)
+void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	int percent = number(1, skill_info[SKILL_STUPOR].max_percent);
 	int prob = train_skill(ch, SKILL_STUPOR, skill_info[SKILL_STUPOR].max_percent, victim);
@@ -2642,7 +2632,7 @@ void HitType::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 }
 
-int HitType::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
+int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	if (!check_valid_chars(ch, victim, __FILE__, __LINE__))
 	{
@@ -2701,16 +2691,23 @@ int HitType::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		poison_victim(ch, victim, MAX(1, GET_LEVEL(ch) - GET_LEVEL(victim)) * 10);
 	}
+	/** точный стиль */
+	else if (dam && was_critic && dam_critic)
+	{
+		compute_critical(ch, victim);
+	}
 
 	// Если удар парирован, необходимо все равно ввязаться в драку.
 	// Вызывается damage с отрицательным уроном
 	dam = mem_dam >= 0 ? dam : -1;
 
 	DmgType dmg;
-	dmg.w_type = w_type;
+	dmg.skill_num = skill_num;
+	dmg.hit_type = hit_type;
 	dmg.dam = dam;
 	dmg.was_critic = was_critic;
 	dmg.dam_critic = dam_critic;
+	dmg.init_msg_num();
 
 	return dmg.damage(ch, victim);
 }
@@ -2719,7 +2716,7 @@ int HitType::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
  * Инициализация всех нужных первичных полей (отделены в хедере), после
  * этой функции уже начинаются подсчеты собсна хитролов/дамролов и прочего.
  */
-void HitType::init(CHAR_DATA *ch, CHAR_DATA *victim)
+void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	/* Find weapon for attack number weapon */
 	if (weapon == 1)
@@ -2748,34 +2745,34 @@ void HitType::init(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 	weap_skill_is = train_skill(ch, weap_skill, skill_info[weap_skill].max_percent, victim);
 
-	/* Обработка SKILL_NOPARRYHIT */
-	if (type == TYPE_UNDEFINED && ch->get_skill(SKILL_NOPARRYHIT))
+	/** обработка SKILL_NOPARRYHIT */
+	if (skill_num == TYPE_UNDEFINED && ch->get_skill(SKILL_NOPARRYHIT))
 	{
 		int tmp_skill = train_skill(ch, SKILL_NOPARRYHIT,
 				skill_info[SKILL_NOPARRYHIT].max_percent, ch->get_fighting());
 		// TODO: max_percent в данный момент 100 (хорошо бы не тупо 200, а с % фейла)
 		if (tmp_skill >= number(1, skill_info[SKILL_NOPARRYHIT].max_percent))
 		{
-			type = TYPE_NOPARRY;
+			hit_no_parry = true;
 		}
 	}
 
-	/* Find the weapon type (for display purposes only) */
-	if (type == SKILL_THROW || type == SKILL_BACKSTAB)
+	if (GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT))
 	{
-		w_type = type + TYPE_HIT;
+		hit_no_parry = true;
 	}
-	else if (wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
+
+	if (wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
 	{
-		w_type = GET_OBJ_VAL(wielded, 3) + TYPE_HIT;
+		hit_type = GET_OBJ_VAL(wielded, 3);
 	}
 	else
 	{
 		weapon_pos = 0;
 		if (IS_NPC(ch))
-			w_type = ch->mob_specials.attack_type + TYPE_HIT;
-		else
-			w_type = TYPE_HIT;
+		{
+			hit_type = ch->mob_specials.attack_type;
+		}
 	}
 }
 
@@ -2785,9 +2782,9 @@ void HitType::init(CHAR_DATA *ch, CHAR_DATA *victim)
  * Предполагается, что в итоге это пойдет в 'счет все' через что-то вроде
  * test_self_hitroll() в данный момент.
  */
-void HitType::calc_base_hr(CHAR_DATA *ch)
+void HitData::calc_base_hr(CHAR_DATA *ch)
 {
-	if (type != SKILL_THROW && type != SKILL_BACKSTAB)
+	if (skill_num != SKILL_THROW && skill_num != SKILL_BACKSTAB)
 	{
 		if (wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON && !IS_NPC(ch))
 		{
@@ -2845,8 +2842,8 @@ void HitType::calc_base_hr(CHAR_DATA *ch)
 	//    AWAKE style - decrease hitroll
 	if (GET_AF_BATTLE(ch, EAF_AWAKE)
 		&& !can_use_feat(ch, SHADOW_STRIKE_FEAT)
-		&& type != SKILL_THROW
-		&& type != SKILL_BACKSTAB)
+		&& skill_num != SKILL_THROW
+		&& skill_num != SKILL_BACKSTAB)
 	{
 		if (can_auto_block(ch))
 		{
@@ -2861,7 +2858,7 @@ void HitType::calc_base_hr(CHAR_DATA *ch)
 		}
 	}
 
-	if (!IS_NPC(ch) && type != SKILL_THROW && type != SKILL_BACKSTAB)
+	if (!IS_NPC(ch) && skill_num != SKILL_THROW && skill_num != SKILL_BACKSTAB)
 	{
 		// Casters use weather, int and wisdom
 		if (IS_CASTER(ch))
@@ -2938,9 +2935,9 @@ void HitType::calc_base_hr(CHAR_DATA *ch)
 		calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
 	}
 
-	if ((type == SKILL_THROW || type == SKILL_BACKSTAB) && wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
+	if ((skill_num == SKILL_THROW || skill_num == SKILL_BACKSTAB) && wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
 	{
-		if (type == SKILL_BACKSTAB)
+		if (skill_num == SKILL_BACKSTAB)
 			calc_thaco -= MAX(0, (ch->get_skill(SKILL_SNEAK) + ch->get_skill(SKILL_HIDE) - 100) / 30);
 	}
 	else
@@ -2961,11 +2958,11 @@ void HitType::calc_base_hr(CHAR_DATA *ch)
  * Соответственно подсчет динамических хитролов, не попавших в calc_base_hr()
  * Все, что меняется от раза к разу или при разных противниках.
  */
-void HitType::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
+void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	if (weapon == 2
-		&& type != SKILL_THROW
-		&& type != SKILL_BACKSTAB
+		&& skill_num != SKILL_THROW
+		&& skill_num != SKILL_BACKSTAB
 		&& !(wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
 		&& !IS_NPC(ch))
 	{
@@ -2987,7 +2984,7 @@ void HitType::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 
-	if (!IS_NPC(ch) && type != SKILL_THROW && type != SKILL_BACKSTAB && on_horse(ch))
+	if (!IS_NPC(ch) && skill_num != SKILL_THROW && skill_num != SKILL_BACKSTAB && on_horse(ch))
 	{
 		// Horse modifier for attacker
 		int prob = train_skill(ch, SKILL_HORSE, skill_info[SKILL_HORSE].max_percent, victim);
@@ -3012,7 +3009,7 @@ void HitType::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 		calc_thaco += 2;
 
 	// "Dirty" methods for battle
-	if (type != SKILL_THROW && type != SKILL_BACKSTAB)
+	if (skill_num != SKILL_THROW && skill_num != SKILL_BACKSTAB)
 	{
 		int prob = (ch->get_skill(weap_skill) + cha_app[GET_REAL_CHA(ch)].illusive) -
 			   (victim->get_skill(weap_skill) + int_app[GET_REAL_INT(victim)].observation);
@@ -3048,7 +3045,7 @@ void HitType::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 /**
  * Подсчет армор класса жертвы.
  */
-void HitType::calc_ac(CHAR_DATA *victim)
+void HitData::calc_ac(CHAR_DATA *victim)
 {
 	// Calculate the raw armor including magic armor.  Lower AC is better.
 	victim_ac += compute_armor_class(victim);
@@ -3067,11 +3064,9 @@ void HitType::calc_ac(CHAR_DATA *victim)
 /**
  * Обработка защитных скиллов: захват, уклон, веер, блок.
  */
-void HitType::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
+void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
 {
-	if (type != TYPE_NOPARRY
-		&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
-		&& !GET_AF_BATTLE(ch, EAF_STUPOR))
+	if (!hit_no_parry)
 	{
 		/**** обработаем ситуацию ЗАХВАТ */
 		for (CHAR_DATA *vict = world[IN_ROOM(ch)]->people; vict && dam >= 0;
@@ -3082,9 +3077,7 @@ void HitType::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 
 	if (dam > 0
-		&& type != TYPE_NOPARRY
-		&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
-		&& !GET_AF_BATTLE(ch, EAF_STUPOR)
+		&& !hit_no_parry
 		&& GET_AF_BATTLE(victim, EAF_DEVIATE)
 		&& GET_WAIT(victim) <= 0
 		&& !AFF_FLAGGED(victim, AFF_STOPFIGHT)
@@ -3097,9 +3090,7 @@ void HitType::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 	else
 	if (dam > 0
-		&& type != TYPE_NOPARRY
-		&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
-		&& !GET_AF_BATTLE(ch, EAF_STUPOR)
+		&& !hit_no_parry
 		&& GET_AF_BATTLE(victim, EAF_PARRY)
 		&& !AFF_FLAGGED(victim, AFF_STOPFIGHT)
 		&& !AFF_FLAGGED(victim, AFF_MAGICSTOPFIGHT)
@@ -3109,13 +3100,11 @@ void HitType::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& GET_MOB_HOLD(victim) == 0)
 	{
 		/**** обработаем команду  ПАРИРОВАТЬ */
-		hit_parry(ch, victim, weap_skill, w_type, &dam);
+		hit_parry(ch, victim, weap_skill, hit_type, &dam);
 	}
 	else
 	if (dam > 0
-		&& type != TYPE_NOPARRY
-		&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
-		&& !GET_AF_BATTLE(ch, EAF_STUPOR)
+		&& !hit_no_parry
 		&& GET_AF_BATTLE(victim, EAF_MULTYPARRY)
 		&& !AFF_FLAGGED(victim, AFF_STOPFIGHT)
 		&& !AFF_FLAGGED(victim, AFF_MAGICSTOPFIGHT)
@@ -3126,13 +3115,11 @@ void HitType::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& GET_MOB_HOLD(victim) == 0)
 	{
 		/**** обработаем команду  ВЕЕРНАЯ ЗАЩИТА */
-		hit_multyparry(ch, victim, weap_skill, w_type, &dam);
+		hit_multyparry(ch, victim, weap_skill, hit_type, &dam);
 	}
 	else
 	if (dam > 0
-		&& type != TYPE_NOPARRY
-		&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
-		&& !GET_AF_BATTLE(ch, EAF_STUPOR)
+		&& !hit_no_parry
 		&& ((GET_AF_BATTLE(victim, EAF_BLOCK) || can_auto_block(victim)) && GET_POS(victim) > POS_SITTING)
 		&& !AFF_FLAGGED(victim, AFF_STOPFIGHT)
 		&& !AFF_FLAGGED(victim, AFF_MAGICSTOPFIGHT)
@@ -3150,9 +3137,9 @@ void HitType::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
  * В данный момент:
  * добавление дамролов с пушек
  * добавление дамага от концентрации силы
- * инициализация noparryhit для дамага со скрытого удара
+ * инициализация skill_noparryhit_dam для дамага со скрытого удара
  */
-void HitType::add_weapon_damage(CHAR_DATA *ch)
+void HitData::add_weapon_damage(CHAR_DATA *ch)
 {
 	int damroll = dice(GET_OBJ_VAL(wielded, 1),
 		GET_OBJ_VAL(wielded, 2));
@@ -3172,18 +3159,18 @@ void HitType::add_weapon_damage(CHAR_DATA *ch)
 	damroll = calculate_strconc_damage(ch, wielded, damroll);
 
 	dam += MAX(1, damroll);
-	noparryhit += calculate_noparryhit_dmg(ch, wielded);
+	skill_noparryhit_dam += calculate_noparryhit_dmg(ch, wielded);
 
-	if (type == SKILL_BACKSTAB)
+	if (skill_num == SKILL_BACKSTAB)
 	{
-		noparryhit = noparryhit * 10 / 15;
+		skill_noparryhit_dam = skill_noparryhit_dam * 10 / 15;
 	}
 }
 
 /**
  * Добавление дамага от голых рук и молота.
  */
-void HitType::add_hand_damage(CHAR_DATA *ch)
+void HitData::add_hand_damage(CHAR_DATA *ch)
 {
 	if (AFF_FLAGGED(ch, AFF_STONEHAND))
 		dam += number(5, 10);
@@ -3216,7 +3203,7 @@ void HitType::add_hand_damage(CHAR_DATA *ch)
 /**
  * Расчет шанса на критический удар (не точкой).
  */
-void HitType::calc_crit_chance(CHAR_DATA *ch)
+void HitData::calc_crit_chance(CHAR_DATA *ch)
 {
 	dam_critic = 0;
 	was_critic = 0;
@@ -3304,13 +3291,13 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 
 	/** старт инициализации полей для удара */
-	HitType hit_params;
-	hit_params.type = type;
+	HitData hit_params;
+	hit_params.skill_num = type;
 	hit_params.weapon = weapon;
 	hit_params.init(ch, victim);
 
 	/**  дополнительный маг. дамаг независимо от попадания физ. атаки */
-	if (AFF_FLAGGED(ch, AFF_CLOUD_OF_ARROWS) && IS_WEAPON(hit_params.w_type))
+	if (AFF_FLAGGED(ch, AFF_CLOUD_OF_ARROWS) && hit_params.skill_num < 0)
 	{
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
 		mag_damage(1, ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
@@ -3341,7 +3328,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	if (AFF_FLAGGED(victim, AFF_BLINK)
 		&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
 		&& !GET_AF_BATTLE(ch, EAF_STUPOR)
-		&& (!(hit_params.type == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT)))
+		&& (!(hit_params.skill_num == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT)))
 		&& number(1, 100) <= 20)
 	{
 		sprintf(buf,
@@ -3404,7 +3391,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	if (GET_POS(ch) < POS_FIGHTING)
 	{
 		hit_params.dam -= (hit_params.dam * (POS_FIGHTING - GET_POS(ch)) / 4);
-		hit_params.noparryhit -= (hit_params.noparryhit * (POS_FIGHTING - GET_POS(ch)) / 4);
+		hit_params.skill_noparryhit_dam -= (hit_params.skill_noparryhit_dam * (POS_FIGHTING - GET_POS(ch)) / 4);
 	}
 
 	if (GET_POS(victim) == POS_SITTING
@@ -3418,7 +3405,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	else if (GET_POS(victim) < POS_FIGHTING)
 	{
 		hit_params.dam += (hit_params.dam * (POS_FIGHTING - GET_POS(victim)) / 3);
-		hit_params.noparryhit += (hit_params.noparryhit * (POS_FIGHTING - GET_POS(victim)) / 3);
+		hit_params.skill_noparryhit_dam += (hit_params.skill_noparryhit_dam * (POS_FIGHTING - GET_POS(victim)) / 3);
 	}
 
 	/** изменение урона по холду */
@@ -3438,7 +3425,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		hit_params.dam /= 2;
 
 	// прибавляем дамаг со скрытого, в обход санки и призмы
-	hit_params.dam += hit_params.noparryhit;
+	hit_params.dam += hit_params.skill_noparryhit_dam;
 
 	if (!IS_NPC(victim) && IS_CHARMICE(ch))
 		hit_params.dam = hit_params.dam * 8 / 10;
@@ -3464,7 +3451,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	/** расчет критических ударов */
 	hit_params.calc_crit_chance(ch);
 
-	if (hit_params.type == SKILL_BACKSTAB)
+	if (hit_params.skill_num == SKILL_BACKSTAB)
 	{
 		hit_params.dam *= backstab_mult(GET_LEVEL(ch));
 		if (number(1, 100) < calculate_crit_backstab_percent(ch)
@@ -3478,7 +3465,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		return;
 	}
 
-	if (hit_params.type == SKILL_THROW)
+	if (hit_params.skill_num == SKILL_THROW)
 	{
 		hit_params.dam *= (calculate_skill(ch, SKILL_THROW, skill_info[SKILL_THROW].max_percent, victim) + 10) / 10;
 		if (IS_NPC(ch))

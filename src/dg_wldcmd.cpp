@@ -614,7 +614,7 @@ WCMD(do_wdamage)
 		}
 
 		update_pos(ch);
-		char_dam_message(dam, ch, ch, TYPE_UNDEFINED, 0);
+		char_dam_message(dam, ch, ch, 0);
 		if (GET_POS(ch) == POS_DEAD)
 		{
 			if (!IS_NPC(ch))

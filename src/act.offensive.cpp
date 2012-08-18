@@ -483,7 +483,7 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (percent > prob)
 	{
-		damage(ch, vict, 0, SKILL_BACKSTAB + TYPE_HIT, true);
+		damage(ch, vict, 0, SkillDmg(SKILL_BACKSTAB), true);
 	}
 	else
 	{
@@ -535,7 +535,7 @@ ACMD(do_backstab)
 		return;
 	}
 
-	if (GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) != TYPE_PIERCE - TYPE_HIT)
+	if (GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) != type_pierce)
 	{
 		send_to_char("ЗаКОЛоть можно только КОЛющи оружием !\r\n", ch);
 		return;
@@ -909,7 +909,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (percent > prob)
 	{
-		damage(ch, vict, 0, SKILL_BASH + TYPE_HIT, true);
+		damage(ch, vict, 0, SkillDmg(SKILL_BASH), true);
 		GET_POS(ch) = POS_SITTING;
 		prob = 3;
 	}
@@ -982,7 +982,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 //делаем блокирование баша
 
 		prob = 0;
-		dam = damage(ch, vict, dam, SKILL_BASH + TYPE_HIT, false);
+		dam = damage(ch, vict, dam, SkillDmg(SKILL_BASH), false);
 
 		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, AFF_SHIELD)))  	/* -1 = dead, 0 = miss */
 		{
@@ -1191,7 +1191,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (percent > prob)
 	{
-		damage(ch, vict, 0, SKILL_KICK + TYPE_HIT, true);
+		damage(ch, vict, 0, SkillDmg(SKILL_KICK), true);
 		prob = 2;
 	}
 	else
@@ -1251,7 +1251,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			dam /= 2;
 
 //---
-		damage(ch, vict, dam, SKILL_KICK + TYPE_HIT, true);
+		damage(ch, vict, dam, SkillDmg(SKILL_KICK), true);
 
 		prob = 2;
 	}
@@ -1914,7 +1914,7 @@ void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (!ch->get_fighting())
 	{
 		SET_AF_BATTLE(ch, EAF_STUPOR);
-		hit(ch, victim, TYPE_NOPARRY, 1);
+		hit(ch, victim, TYPE_UNDEFINED, 1);
 		set_wait(ch, 2, TRUE);
 	}
 	else
@@ -1986,7 +1986,7 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (!ch->get_fighting())
 	{
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
-		hit(ch, victim, TYPE_NOPARRY, 1);
+		hit(ch, victim, TYPE_UNDEFINED, 1);
 		set_wait(ch, 2, TRUE);
 	}
 	else if ((victim->get_fighting() != ch) && (ch->get_fighting() != victim))
@@ -2290,7 +2290,7 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * vict)
 	// log("Start throw");
 	if (percent > prob)
 	{
-		damage(ch, vict, 0, SKILL_THROW + TYPE_HIT, true);
+		damage(ch, vict, 0, SkillDmg(SKILL_THROW), true);
 	}
 	else
 		hit(ch, vict, SKILL_THROW, 1);
@@ -2421,7 +2421,7 @@ ACMD(do_manadrain)
 
 	if (percent > prob)
 	{
-		damage(ch, vict, 0, SKILL_MANADRAIN + TYPE_HIT, true, MAGE_DMG);
+		damage(ch, vict, 0, SkillDmg(SKILL_MANADRAIN), true, MAGE_DMG);
 	}
 	else
 	{
@@ -2429,7 +2429,7 @@ ACMD(do_manadrain)
 		   уровня чара - 10% мин. */
 		skill = MAX(10, skill - 10 * MAX(0, GET_LEVEL(ch) - GET_LEVEL(vict)));
 		drained_mana = (GET_MAX_MANA(ch) - GET_MANA_STORED(ch)) * skill / 100;
-		damage(ch, vict, 10, SKILL_MANADRAIN + TYPE_HIT, true, MAGE_DMG);
+		damage(ch, vict, 10, SkillDmg(SKILL_MANADRAIN), true, MAGE_DMG);
 		GET_MANA_STORED(ch) = MIN(GET_MAX_MANA(ch), GET_MANA_STORED(ch) + drained_mana);
 	}
 
@@ -2569,7 +2569,7 @@ ACMD(do_turn_undead)
 		{
 			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);
 			pk_agro_action(ch, ch_vict);
-			damage(ch, ch_vict, 0, SKILL_TURN_UNDEAD + TYPE_HIT, true, MAGE_DMG);
+			damage(ch, ch_vict, 0, SkillDmg(SKILL_TURN_UNDEAD), true, MAGE_DMG);
 			continue;
 		}
 		sum -= GET_LEVEL(ch_vict);
@@ -2585,7 +2585,7 @@ ACMD(do_turn_undead)
 				dam = dice(8, 4 * GET_REAL_WIS(ch) + GET_REAL_INT(ch)) + GET_LEVEL(ch);
 		}
 		train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);
-		damage(ch, ch_vict, dam, SKILL_TURN_UNDEAD + TYPE_HIT, true, MAGE_DMG);
+		damage(ch, ch_vict, dam, SkillDmg(SKILL_TURN_UNDEAD), true, MAGE_DMG);
 
 		if (!MOB_FLAGGED(ch_vict, MOB_NOFEAR) &&
 				!general_savingthrow(ch, ch_vict, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch)))

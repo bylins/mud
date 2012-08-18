@@ -102,7 +102,6 @@
 #define EAF_POISONED    (1 << 20) // отравление с пушек раз в раунд
 #define EAF_FIRST_POISON (1 << 21) // отравление цели первый раз за бой
 
-#define TYPE_NOPARRY		    -2
 #define TYPE_UNDEFINED              -1
 #define SPELL_RESERVED_DBC          0	/* SKILL NUMBER ZERO -- RESERVED */
 
@@ -364,6 +363,7 @@
 /* WEAPON ATTACK TYPES */
 
 #define TYPE_HIT                     400
+/*
 #define TYPE_STING                   401
 #define TYPE_WHIP                    402
 #define TYPE_SLASH                   403
@@ -375,10 +375,11 @@
 #define TYPE_MAUL                    409
 #define TYPE_THRASH                  410
 #define TYPE_PIERCE                  411
-#define TYPE_BLAST		     412
-#define TYPE_PUNCH		     413
-#define TYPE_STAB		     414
+#define TYPE_BLAST		             412
+#define TYPE_PUNCH		             413
+#define TYPE_STAB		             414
 #define TYPE_PICK                    415
+*/
 #define TYPE_MAGIC                   420
 /* new attack types can be added here - up to TYPE_SUFFERING */
 #define TYPE_ROOMDEATH			498

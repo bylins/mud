@@ -841,7 +841,7 @@ bool check_valid_chars(CHAR_DATA *ch, CHAR_DATA *victim, const char *fname, int 
  *	> 0	How much damage done.
  */
 
-void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktype, bool mayflee)
+void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool mayflee)
 {
 	if (IN_ROOM(ch) == NOWHERE)
 		return;
@@ -904,33 +904,53 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, int attacktyp
 
 void test_self_hitroll(CHAR_DATA *ch)
 {
-	HitType hit;
-	hit.type = TYPE_UNDEFINED;
+	HitData hit;
 	hit.weapon = RIGHT_WEAPON;
 	hit.init(ch, ch);
 	hit.calc_base_hr(ch);
 	log("t2: %d", hit.calc_thaco);
 
-	HitType hit2;
-	hit2.type = TYPE_UNDEFINED;
+	HitData hit2;
 	hit2.weapon = LEFT_WEAPON;
 	hit2.init(ch, ch	);
 	hit2.calc_base_hr(ch);
 	log("t3: %d", hit2.calc_thaco);
 }
 
-/**
- * Обертка для старого кода
- */
-int damage(CHAR_DATA *ch, CHAR_DATA *victim, int dam, int attacktype, bool mayflee, int dmg_type)
+void DmgType::init_msg_num()
 {
-	DmgType dmg;
-	dmg.dam = dam;
-	dmg.w_type = attacktype;
-	dmg.mayflee = mayflee;
-	dmg.dmg_type = dmg_type;
-	return dmg.damage(ch, victim);
+	if (msg_num == -1)
+	{
+		if (skill_num >= 0)
+		{
+			msg_num = skill_num + TYPE_HIT;
+		}
+		else if (spell_num >= 0)
+		{
+			msg_num = spell_num;
+		}
+		else if (hit_type >= 0)
+		{
+			msg_num = hit_type + TYPE_HIT;
+		}
+		else
+		{
+			msg_num = TYPE_HIT;
+		}
+	}
 }
+
+void DmgType::zero_init()
+{
+	dam = 0;
+	was_critic = 0;
+	dam_critic = 0;
+	fs_damage = 0;
+	mayflee = true;
+	dmg_type = PHYS_DMG;
+	hit_type = -1;
+	init_msg_num();
+};
 
 /*
 void solo_gain(CHAR_DATA * ch, CHAR_DATA * victim)

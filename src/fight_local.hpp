@@ -22,11 +22,12 @@ template <class S> void handle_affects( S& params ) //тип params определяется пр
 	}
 }
 
-struct HitType
+struct HitData
 {
-	HitType() : weapon(0), wielded(0), weapon_pos(WEAR_WIELD), weap_skill(0),
-		weap_skill_is(0), type(0), w_type(0), victim_ac(0), calc_thaco(0),
-		dam(0), noparryhit(0), was_critic(0), dam_critic(0)
+	HitData() : weapon(0), wielded(0), weapon_pos(WEAR_WIELD), weap_skill(0),
+		weap_skill_is(0), skill_num(-1), hit_type(0), hit_no_parry(false),
+		victim_ac(0), calc_thaco(0), dam(0), skill_noparryhit_dam(0),
+		was_critic(0), dam_critic(0)
 	{
 		diceroll = number(100, 2099) / 100;
 	};
@@ -46,6 +47,7 @@ struct HitType
 	int extdamage(CHAR_DATA *ch, CHAR_DATA *victim);
 	void try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim);
 	void try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim);
+	void compute_critical(CHAR_DATA *ch, CHAR_DATA *victim);
 
 	/** init() */
 	// 1 - атака правой или двумя руками (RIGHT_WEAPON),
@@ -57,15 +59,19 @@ struct HitType
 	int weapon_pos;
 	// номер скила, взятый из пушки или голых рук
 	int weap_skill;
-	// кол-во очков скила skill у чара
+	// очки скила weap_skill у чара, взятые через train_skill (могут быть сфейлены)
 	int weap_skill_is;
 	// брошенные кубики на момент расчета попадания
 	int diceroll;
-	// номер скила атаки, пришедший из вызова hit()
-	// проверяется на TYPE_UNDEFINED и TYPE_NOPARRY, в extdamage не идет
-	int type;
-	// type + TYPE_HIT для вывода сообщений об ударе и еще хрен знает чего
-	int w_type;
+	// номер скила, пришедший из вызова hit(), может быть TYPE_UNDEFINED
+	// в целом если < 0 - считается, что бьем простой атакой hit_type
+	// если >= 0 - считается, что бьем скилом
+	int skill_num;
+	// тип удара пушкой или руками (attack_hit_text[])
+	// инится в любом случае независимо от skill_num
+	int hit_type;
+	// true - удар не парируется/не блочится/не веерится и т.п.
+	bool hit_no_parry;
 
 	/** высчитывается по мере сил */
 	// ац жертвы для расчета попадания
@@ -75,37 +81,11 @@ struct HitType
 	// дамаг атакующего
 	int dam;
 	// дамаг от скрытого стиля, который потом плюсуется к dam
-	int noparryhit;
+	int skill_noparryhit_dam;
 	// was_critic = TRUE, dam_critic = 0 - критический удар
 	// was_critic = TRUE, dam_critic > 0 - удар точным стилем
 	int was_critic;
 	int dam_critic;
-};
-
-struct DmgType
-{
-	DmgType() : w_type(0), dam(0), was_critic(0), dam_critic(0),
-		fs_damage(0), mayflee(true), dmg_type(PHYS_DMG) {};
-
-	int damage(CHAR_DATA *ch, CHAR_DATA *victim);
-	bool magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim);
-	bool armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim);
-	void compute_critical(CHAR_DATA *ch, CHAR_DATA *victim);
-
-	// type + TYPE_HIT для вывода сообщений об ударе и еще хрен знает чего
-	int w_type;
-	// дамаг атакующего
-	int dam;
-	// was_critic = TRUE, dam_critic = 0 - критический удар
-	// was_critic = TRUE, dam_critic > 0 - удар точным стилем
-	int was_critic;
-	int dam_critic;
-	// обратный дамаг от огненного щита
-	int fs_damage;
-	// можно ли сбежать
-	bool mayflee;
-	// тип урона (физ/маг/обычный)
-	int dmg_type;
 };
 
 /** fight.cpp */
