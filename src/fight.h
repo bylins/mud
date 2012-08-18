@@ -60,8 +60,8 @@ struct DmgType
 	DmgType(SimpleDmg &obj)
 		: skill_num(-1), spell_num(-1), msg_num(obj.msg_num) { zero_init(); };
 
-	void init_msg_num();
 	void zero_init();
+	void init_msg_num();
 
 	int damage(CHAR_DATA *ch, CHAR_DATA *victim);
 	bool magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim);
@@ -87,6 +87,7 @@ struct DmgType
 	// см. описание в HitData, но здесь может быть -1
 	int hit_type;
 	// номер сообщения об ударе из файла messages
+	// инится только начиная с вызова damage
 	int msg_num;
 };
 

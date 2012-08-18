@@ -949,7 +949,6 @@ void DmgType::zero_init()
 	mayflee = true;
 	dmg_type = PHYS_DMG;
 	hit_type = -1;
-	init_msg_num();
 };
 
 /*

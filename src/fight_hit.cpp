@@ -2213,6 +2213,8 @@ void DmgType::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 // возвращает сделанный дамаг
 int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 {
+	init_msg_num();
+
 	if (!check_valid_chars(ch, victim, __FILE__, __LINE__))
 	{
 		return 0;
@@ -2707,7 +2709,6 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 	dmg.dam = dam;
 	dmg.was_critic = was_critic;
 	dmg.dam_critic = dam_critic;
-	dmg.init_msg_num();
 
 	return dmg.damage(ch, victim);
 }
