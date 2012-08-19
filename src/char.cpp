@@ -487,7 +487,7 @@ int Character::get_skills_count()
 
 int Character::get_obj_slot(int slot_num)
 {
-	if (slot_num > 0 && slot_num < MAX_ADD_SLOTS)
+	if (slot_num >= 0 && slot_num < MAX_ADD_SLOTS)
 	{
 		return add_abils.obj_slot[slot_num];
 	}
@@ -496,7 +496,7 @@ int Character::get_obj_slot(int slot_num)
 
 void Character::add_obj_slot(int slot_num, int count)
 {
-	if (slot_num > 0 && slot_num < MAX_ADD_SLOTS)
+	if (slot_num >= 0 && slot_num < MAX_ADD_SLOTS)
 	{
 		add_abils.obj_slot[slot_num] += count;
 	}
