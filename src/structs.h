@@ -1071,15 +1071,6 @@ enum { DRUNK, FULL, THIRST};
 #define SKY_RAINING      2
 #define SKY_LIGHTNING   3
 
-
-/* Rent codes */
-#define RENT_UNDEF      0
-#define RENT_CRASH      1
-#define RENT_RENTED     2
-#define RENT_CRYO       3
-#define RENT_FORCED     4
-#define RENT_TIMEDOUT   5
-
 #define EXTRA_FAILHIDE       (1 << 0)
 #define EXTRA_FAILSNEAK      (1 << 1)
 #define EXTRA_FAILCAMOUFLAGE (1 << 2)

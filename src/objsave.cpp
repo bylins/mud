@@ -99,6 +99,17 @@ int Crash_calc_charmee_items(CHAR_DATA *ch);
 #define END_LINES '~'
 #define COM_CHAR  '*'
 
+/* Rent codes */
+enum
+{
+	RENT_UNDEF,    // не используется
+	RENT_CRASH,    // регулярный автосейв на случай креша
+	RENT_RENTED,   // зарентился сам
+	RENT_CRYO,     // не используется
+	RENT_FORCED,   // заренчен на ребуте
+	RENT_TIMEDOUT, // заренчен после idle_rent_time
+};
+
 int get_buf_line(char **source, char *target)
 {
 	char *otarget = target;
@@ -1860,7 +1871,9 @@ int Crash_load(CHAR_DATA * ch)
 		ch->player_specials->saved.HiredCost=0;
 	}
 	// end by WorM
-	if ((RENTCODE(index) == RENT_CRASH || RENTCODE(index) == RENT_FORCED) && SAVEINFO(index)->rent.time + free_crashrent_period * SECS_PER_REAL_HOUR > time(0))  	/*Бесплатная рента, если выйти в течение 2 часов после ребута или креша */
+  	/* Бесплатная рента, если выйти в течение 2 часов после ребута или креша */
+  	if ((RENTCODE(index) == RENT_CRASH || RENTCODE(index) == RENT_FORCED)
+		&& SAVEINFO(index)->rent.time + free_crashrent_period * SECS_PER_REAL_HOUR > time(0))
 	{
 		sprintf(buf, "%s** На сей раз постой был бесплатным **%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
@@ -2200,18 +2213,35 @@ void Crash_extract_norent_eq(CHAR_DATA * ch)
 	}
 }
 
-/*
-void Crash_extract_expensive(OBJ_DATA * obj)
+void Crash_extract_norent_charmee(CHAR_DATA *ch)
 {
-  OBJ_DATA *tobj, *max;
-
-  max = obj;
-  for (tobj = obj; tobj; tobj = tobj->next_content)
-      if (GET_OBJ_RENT(tobj) > GET_OBJ_RENT(max))
-         max = tobj;
-  extract_obj(max);
+	if (ch->followers)
+	{
+		for (struct follow_type *k = ch->followers; k; k = k->next)
+		{
+			if (!IS_CHARMICE(k->follower) || !k->follower->master)
+			{
+				continue;
+			}
+			for (int j = 0; j < NUM_WEARS; ++j)
+			{
+				if (!GET_EQ(k->follower, j))
+				{
+					continue;
+				}
+				if (Crash_is_unrentable(k->follower, GET_EQ(k->follower, j)))
+				{
+					obj_to_char(unequip_char(k->follower, j), k->follower);
+				}
+				else
+				{
+					Crash_extract_norents(k->follower, GET_EQ(k->follower, j));
+				}
+			}
+			Crash_extract_norents(k->follower, k->follower->carrying);
+		}
+	}
 }
-*/
 
 int Crash_calculate_rent(OBJ_DATA * obj)
 {
@@ -2235,6 +2265,27 @@ int Crash_calculate_rent_eq(OBJ_DATA * obj)
 	return (cost);
 }
 
+int Crash_calculate_charmee_rent(CHAR_DATA *ch)
+{
+	int cost = 0;
+	if (ch->followers)
+	{
+		for (struct follow_type *k = ch->followers; k; k = k->next)
+		{
+			if (!IS_CHARMICE(k->follower) || !k->follower->master)
+			{
+				continue;
+			}
+			cost = Crash_calculate_rent(k->follower->carrying);
+			for (int j = 0; j < NUM_WEARS; ++j)
+			{
+				cost += Crash_calculate_rent_eq(GET_EQ(k->follower, j));
+			}
+		}
+	}
+	return cost;
+}
+
 int Crash_calcitems(OBJ_DATA * obj)
 {
 	int i = 0;
@@ -2245,8 +2296,6 @@ int Crash_calcitems(OBJ_DATA * obj)
 
 int Crash_calc_charmee_items(CHAR_DATA *ch)
 {
-	if (!ch->followers) return 0;
-
 	int num = 0;
 	if (ch->followers)
 	{
@@ -2312,21 +2361,33 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 		return FALSE;
 	}
 
-	if (savetype != RENT_CRASH)  	/*не crash и не ld */
+	/** удаление !рент предметов */
+	if (savetype != RENT_CRASH)
 	{
 		Crash_extract_norent_eq(ch);
 		Crash_extract_norents(ch, ch->carrying);
 	}
+	// при ребуте у чармиса тоже чистим
+	if (savetype == RENT_FORCED)
+	{
+		Crash_extract_norent_charmee(ch);
+	}
 
-	/*количество предметов */
+	/** подсчет количества предметов */
 	for (j = 0; j < NUM_WEARS; j++)
+	{
 		num += Crash_calcitems(GET_EQ(ch, j));
+	}
 	num += Crash_calcitems(ch->carrying);
 
-	if (savetype == RENT_CRASH)
-		num += Crash_calc_charmee_items(ch);
+	int charmee_items = 0;
+	if (savetype == RENT_CRASH || savetype == RENT_FORCED)
+	{
+		charmee_items = Crash_calc_charmee_items(ch);
+		num += charmee_items;
+	}
 
-	log("Save obj: %s -> %d", ch->get_name(), num);
+	log("Save obj: %s -> %d (%d)", ch->get_name(), num, charmee_items);
 	ObjSaveSync::check(ch->get_uid(), ObjSaveSync::CHAR_SAVE);
 
 	if (!num)
@@ -2335,25 +2396,26 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 		return FALSE;
 	}
 
-	/*цена ренты */
+	/** цена ренты */
 	cost = Crash_calculate_rent(ch->carrying);
 	for (j = 0; j < NUM_WEARS; j++)
+	{
 		cost += Crash_calculate_rent_eq(GET_EQ(ch, j));
+	}
+	if (savetype == RENT_CRASH || savetype == RENT_FORCED)
+	{
+		cost += Crash_calculate_charmee_rent(ch);
+	}
 
-	/*чаевые */
-	if (min_rent_cost(ch))
+	/** чаевые */
+	if (min_rent_cost(ch) > 0)
 		cost += MAX(0, min_rent_cost(ch));
-
-	if (GET_LEVEL(ch) <= 15)
+	else
 		cost /= 2;
 
 	if (savetype == RENT_TIMEDOUT)
 		cost *= 2;
 
-	rent.rentcode = savetype;
-	rent.net_cost_per_diem = cost;
-	rent.time = time(0);
-	rent.nitems = num;
 	//CRYO-rent надо дорабатывать либо выкидывать нафиг
 	if (savetype == RENT_CRYO)
 	{
@@ -2361,7 +2423,17 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 		ch->remove_gold(cost);
 	}
 	if (savetype == RENT_RENTED)
+	{
 		rent.net_cost_per_diem = rentcost;
+	}
+	else
+	{
+		rent.net_cost_per_diem = cost;
+	}
+
+	rent.rentcode = savetype;
+	rent.time = time(0);
+	rent.nitems = num;
 	rent.gold = ch->get_gold();
 	rent.account = ch->get_bank();
 
@@ -2381,7 +2453,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 
 	crash_save_and_restore_weight(write_buffer, iplayer, ch->carrying, 0, savetype);
 
-	if (ch->followers && savetype == RENT_CRASH)
+	if (ch->followers && (savetype == RENT_CRASH || savetype == RENT_FORCED))
 	{
 		for (struct follow_type *k = ch->followers; k; k = k->next)
 		{
@@ -2394,6 +2466,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 		}
 	}
 
+	// в принципе экстрактить здесь чармисовый шмот в случае ребута - смысла ноль
 	if (savetype != RENT_CRASH)
 	{
 		for (j = 0; j < NUM_WEARS; j++)
@@ -2922,23 +2995,23 @@ void Crash_save_all(void)
 	}
 }
 
+/**
+ * Сейв при плановом ребуте/остановке с таймером != 0.
+ */
 void Crash_save_all_rent(void)
 {
-	int cost;
-
-// shapirus: проходим не по списку дескрипторов,
-// а по списку чаров, чтобы сохранить заодно и тех,
-// кто перед ребутом ушел в ЛД с целью сохранить
-// свои грязные денежки.
-	CHAR_DATA *ch, *tch;
-	for (ch = character_list; ch; ch = tch)
+	// shapirus: проходим не по списку дескрипторов,
+	// а по списку чаров, чтобы сохранить заодно и тех,
+	// кто перед ребутом ушел в ЛД с целью сохранить
+	// свои грязные денежки.
+	CHAR_DATA *tch;
+	for (CHAR_DATA *ch = character_list; ch; ch = tch)
 	{
 		tch = ch->next;
 		if (!IS_NPC(ch))
 		{
-			Crash_offer_rent(ch, ch, FALSE, RENT_FACTOR, &cost);
-			Crash_rentsave(ch, cost);
-			log("Saving char: %s with rent %i \n", GET_NAME(ch), cost);
+			save_char_objects(ch, RENT_FORCED, 0);
+			log("Saving char: %s", GET_NAME(ch));
 			REMOVE_BIT(PLR_FLAGS(ch, PLR_CRASH), PLR_CRASH);
 			REMOVE_BIT(AFF_FLAGS(ch, AFF_GROUP), AFF_GROUP);
 			REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);

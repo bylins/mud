@@ -2148,10 +2148,10 @@ ACMD(do_stat)
 
 ACMD(do_shutdown)
 {
-	static char const *help = "Формат команды shutdown [reboot|die|pause|schedule] кол-во секунд\r\n"
-							  "               shutdown now|cancel";
-	int times = 0;
-	time_t reboot_time;
+	static char const *help =
+		"Формат команды shutdown [reboot|die|pause] кол-во секунд\r\n"
+		"               shutdown schedule кол-во минут\r\n"
+		"               shutdown now|cancel|schedule";
 
 	two_arguments(argument, arg, buf);
 
@@ -2161,135 +2161,94 @@ ACMD(do_shutdown)
 		return;
 	}
 
-	if (*buf && (times = atoi(buf)) > 0)
+	int times = 0;
+	if (*buf)
 	{
-		shutdown_time = time(NULL) + times;
+		times = atoi(buf);
 	}
-	else if (str_cmp(arg, "schedule"))
-		shutdown_time = time(NULL);
 
-	if (!str_cmp(arg, "reboot"))
+	if (!str_cmp(arg, "reboot") && times > 0)
 	{
-		if (!times)
-		{
-			send_to_char(help, ch);
-			return;
-		}
-		else
-		{
-			sprintf(buf, "[ПЕРЕЗАГРУЗКА через %d %s]\r\n", times, desc_count(times, WHAT_SEC));
-			send_to_all(buf);
-		};
+		times = MAX(30, times);
+		sprintf(buf, "[ПЕРЕЗАГРУЗКА через %d %s]\r\n", times, desc_count(times, WHAT_SEC));
+		send_to_all(buf);
 		log("(GC) Reboot by %s.", GET_NAME(ch));
 		imm_log("Reboot by %s.", GET_NAME(ch));
 		touch(FASTBOOT_FILE);
-		if (!times)
-			circle_shutdown = 1;
-		else
-			circle_shutdown = 2;
+		circle_shutdown = 2;
 		circle_reboot = 1;
+		shutdown_time = time(0) + times;
 		return;
 	}
-	if (!str_cmp(arg, "now"))
+	else if (!str_cmp(arg, "die") && times > 0)
+	{
+		times = MAX(30, times);
+		sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", times, desc_count(times, WHAT_SEC));
+		send_to_all(buf);
+		log("(GC) Shutdown die by %s.", GET_NAME(ch));
+		imm_log("Shutdown die by %s.", GET_NAME(ch));
+		touch(KILLSCRIPT_FILE);
+		circle_shutdown = 2;
+		circle_reboot = 0;
+		shutdown_time = time(0) + times;
+		return;
+	}
+	else if (!str_cmp(arg, "pause") && times > 0)
+	{
+		times = MAX(30, times);
+		sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", times, desc_count(times, WHAT_SEC));
+		send_to_all(buf);
+		log("(GC) Shutdown pause by %s.", GET_NAME(ch));
+		imm_log("Shutdown pause by %s.", GET_NAME(ch));
+		touch(PAUSE_FILE);
+		circle_shutdown = 2;
+		circle_reboot = 0;
+		shutdown_time = time(0) + times;
+		return;
+	}
+	else if (!str_cmp(arg, "now"))
 	{
 		sprintf(buf, "(GC) Shutdown NOW by %s.", GET_NAME(ch));
 		log(buf);
 		imm_log("Shutdown NOW by %s.", GET_NAME(ch));
 		send_to_all("ПЕРЕЗАГРУЗКА.. Вернетесь через пару минут.\r\n");
-		shutdown_time = 0;
 		circle_shutdown = 1;
 		circle_reboot = 2;
-		return;
-	}
-	if (!str_cmp(arg, "die"))
-	{
-		if (!times)
-		{
-			send_to_char(help, ch);
-			return;
-		}
-		else
-		{
-			sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", times, desc_count(times, WHAT_SEC));
-			send_to_all(buf);
-		};
-		log("(GC) Shutdown die by %s.", GET_NAME(ch));
-		imm_log("Shutdown die by %s.", GET_NAME(ch));
-		touch(KILLSCRIPT_FILE);
-		circle_reboot = 0;
-		if (!times)
-			circle_shutdown = 1;
-		else
-			circle_shutdown = 2;
-		return;
-	}
-	if (!str_cmp(arg, "pause"))
-	{
-		if (!times)
-		{
-			send_to_char(help, ch);
-			return;
-		}
-		else
-		{
-			sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", times, desc_count(times, WHAT_SEC));
-			send_to_all(buf);
-		};
-		log("(GC) Shutdown pause by %s.", GET_NAME(ch));
-		imm_log("Shutdown pause by %s.", GET_NAME(ch));
-		touch(PAUSE_FILE);
-		circle_reboot = 0;
-		if (!times)
-			circle_shutdown = 1;
-		else
-			circle_shutdown = 2;
-		return;
-	}
-	if (!str_cmp(arg, "schedule"))
-	{
-		if (shutdown_time == 0)
-			reboot_time = boot_time + (time_t)(60 * reboot_uptime);
-		else
-			reboot_time = shutdown_time;
-		if (!times)
-		{
-			reboot_time = boot_time + (time_t)(60 * reboot_uptime);
-			sprintf(buf, "Сервер будет автоматически перезагружен в %s", rustime(localtime(&reboot_time)));
-			send_to_char(buf, ch);
-			buf[0] = 0;
-			return;
-		}
-		else if (times <= 30 && times > 0)
-		{
-			reboot_uptime = 30;
-			log("(GC) Shutdown scheduled by %s.", GET_NAME(ch));
-			imm_log("Shutdown scheduled  by %s.", GET_NAME(ch));
-		}
-		else
-		{
-			if (times > 30)
-				reboot_uptime = times;
-
-			reboot_time = boot_time + (time_t)(60 * reboot_uptime);
-			log("(GC) Shutdown scheduled by %s.", GET_NAME(ch));
-			imm_log("Shutdown scheduled  by %s.", GET_NAME(ch));
-		}
-		sprintf(buf, "Сервер будет автоматически перезагружен в %s", rustime(localtime(&reboot_time)));
-		mudlog(buf, NRM, LVL_IMMORT, IMLOG, FALSE);
-		send_to_char(buf, ch);
 		shutdown_time = 0;
+		return;
+	}
+	else if (!str_cmp(arg, "schedule"))
+	{
+		if (times <= 0)
+		{
+			time_t tmp_time = boot_time + (time_t)(60 * reboot_uptime);
+			send_to_char(ch, "Сервер будет автоматически перезагружен в %s\r\n",
+				rustime(localtime(&tmp_time)));
+			return;
+		}
+
+		time_t uptime = time(0) - boot_time;
+		reboot_uptime = uptime / 60 + times;
 		circle_shutdown = 0;
 		circle_reboot = 0;
+		shutdown_time = 0;
+
+		time_t tmp_time = boot_time + (time_t)(60 * reboot_uptime);
+		send_to_char(ch, "Сервер будет автоматически перезагружен в %s\r\n",
+			rustime(localtime(&tmp_time)));
+		log("(GC) Shutdown scheduled by %s.", GET_NAME(ch));
+		imm_log("Shutdown scheduled by %s.", GET_NAME(ch));
 		return;
 	}
-	if (!str_cmp(arg, "cancel"))
+	else if (!str_cmp(arg, "cancel"))
 	{
 		log("(GC) Shutdown canceled by %s.", GET_NAME(ch));
 		imm_log("Shutdown canceled by %s.", GET_NAME(ch));
-		shutdown_time = 0;
+		send_to_all("ПЕРЕЗАГРУЗКА ОТМЕНЕНА.\r\n");
+
 		circle_reboot = 0;
 		circle_shutdown = 0;
-		send_to_all("ПЕРЕЗАГРУЗКА ОТМЕНЕНА.\r\n");
+		shutdown_time = 0;
 		return;
 	}
 	send_to_char(help, ch);
