@@ -159,7 +159,7 @@ void generate_book_upgrd(OBJ_DATA *obj)
 	{
 		free(obj->description);
 	}
-	obj->description = str_dup(("Книга секретов умения: " + book_name + "лежит здесь.").c_str());
+	obj->description = str_dup(("Книга секретов умения: " + book_name + " лежит здесь.").c_str());
 
 	for (int i = 0; i < NUM_PADS; ++i)
 	{

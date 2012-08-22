@@ -2088,7 +2088,7 @@ ACMD(do_stophorse)
 	}
 	if (stop_follower(horse, SF_EMPTY))
 		return;
-	act("Вы отпустили  $N3.", FALSE, ch, 0, horse, TO_CHAR);
+	act("Вы отпустили $N3.", FALSE, ch, 0, horse, TO_CHAR);
 	act("$n отпустил$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
 	if (GET_MOB_VNUM(horse) == HORSE_VNUM)
 	{
