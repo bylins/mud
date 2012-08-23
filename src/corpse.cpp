@@ -256,7 +256,7 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 
 	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
 	corpse->PNames[0] = str_dup(buf2);
-	corpse->name = str_dup(buf2);
+	corpse->aliases = str_dup(buf2);
 
 	sprintf(buf2, "останков %s", GET_PAD(ch, 1));
 	corpse->PNames[1] = str_dup(buf2);

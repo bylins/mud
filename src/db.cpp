@@ -3694,7 +3694,7 @@ char *parse_object(FILE * obj_f, int nr)
 	sprintf(buf2, "object #%d", nr);
 
 	/* *** string data *** */
-	if ((tobj->name = fread_string(obj_f, buf2)) == NULL)
+	if ((tobj->aliases = fread_string(obj_f, buf2)) == NULL)
 	{
 		log("SYSERR: Null obj name or format error at or near %s", buf2);
 		exit(1);
@@ -4212,7 +4212,7 @@ int vnum_object(char *searchname, CHAR_DATA * ch)
 
 	for (nr = 0; nr <= top_of_objt; nr++)
 	{
-		if (isname(searchname, obj_proto[nr]->name))
+		if (isname(searchname, obj_proto[nr]->aliases))
 		{
 			sprintf(buf, "%3d. [%5d] %s\r\n", ++found, obj_index[nr].vnum, obj_proto[nr]->short_description);
 			send_to_char(buf, ch);
@@ -4496,7 +4496,7 @@ OBJ_DATA *create_obj(const char *alias)
 	object_list = obj;
 	GET_ID(obj) = max_id++;
 
-	obj->name = str_dup(alias);
+	obj->aliases = str_dup(alias);
 //	ObjectAlias::add(obj);
 
 	return (obj);
@@ -6063,8 +6063,8 @@ void free_obj(OBJ_DATA * obj)
 
 	if ((nr = GET_OBJ_RNUM(obj)) == -1)
 	{
-		if (obj->name)
-			free(obj->name);
+		if (obj->aliases)
+			free(obj->aliases);
 
 		for (i = 0; i < NUM_PADS; i++)
 			if (obj->PNames[i])
@@ -6092,8 +6092,8 @@ void free_obj(OBJ_DATA * obj)
 	}
 	else
 	{
-		if (obj->name && obj->name != obj_proto[nr]->name)
-			free(obj->name);
+		if (obj->aliases && obj->aliases != obj_proto[nr]->aliases)
+			free(obj->aliases);
 
 		for (i = 0; i < NUM_PADS; i++)
 			if (obj->PNames[i] && obj->PNames[i] != obj_proto[nr]->PNames[i])
@@ -6641,16 +6641,16 @@ int check_object(OBJ_DATA * obj)
 	switch (GET_OBJ_TYPE(obj))
 	{
 	case ITEM_DRINKCON:
-//  { char onealias[MAX_INPUT_LENGTH], *space = strchr(obj->name, ' ');
+//  { char onealias[MAX_INPUT_LENGTH], *space = strchr(obj->aliases, ' ');
 //
-//    int offset = space ? space - obj->name : strlen(obj->name);
+//    int offset = space ? space - obj->aliases : strlen(obj->aliases);
 //
-//    strncpy(onealias, obj->name, offset);
+//    strncpy(onealias, obj->aliases, offset);
 //    onealias[offset] = '\0';
 //
 //    if (search_block(onealias, drinknames, TRUE) < 0 && (error = TRUE))
 //       log("SYSERR: Object #%d (%s) doesn't have drink type as first alias. (%s)",
-//                   GET_OBJ_VNUM(obj), obj->short_description, obj->name);
+//                   GET_OBJ_VNUM(obj), obj->short_description, obj->aliases);
 //  }
 		/* Fall through. */
 	case ITEM_FOUNTAIN:

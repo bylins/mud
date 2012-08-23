@@ -451,7 +451,7 @@ ACMD(do_put)
 				{
 					next_obj = obj->next_content;
 					if (obj != cont && CAN_SEE_OBJ(ch, obj) &&
-							(obj_dotmode == FIND_ALL || isname(theobj, obj->name)))
+							(obj_dotmode == FIND_ALL || isname(theobj, obj->aliases)))
 					{
 						found = 1;
 						if (perform_put(ch, obj, cont) == 1)
@@ -503,7 +503,7 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 			act("$p: Эта вещь не предназначена для Вас !", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
 	}
-	else if (invalid_unique(ch, obj) || (strstr(obj->name, "clan") && (IS_NPC(ch) || !CLAN(ch) || !strstr(obj->name, buf))))
+	else if (invalid_unique(ch, obj) || (strstr(obj->aliases, "clan") && (IS_NPC(ch) || !CLAN(ch) || !strstr(obj->aliases, buf))))
 	{
 		act("Вас обожгло при попытке взять $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -627,7 +627,7 @@ void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, in
 		for (obj = cont->contains; obj; obj = next_obj)
 		{
 			next_obj = obj->next_content;
-			if (CAN_SEE_OBJ(ch, obj) && (obj_dotmode == FIND_ALL || isname(arg, obj->name)))
+			if (CAN_SEE_OBJ(ch, obj) && (obj_dotmode == FIND_ALL || isname(arg, obj->aliases)))
 			{
 				if (autoloot && (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT || GET_OBJ_TYPE(obj) == ITEM_MING) && PRF_FLAGGED(ch, PRF_NOINGR_LOOT))
 				{
@@ -718,7 +718,7 @@ void get_from_room(CHAR_DATA * ch, char *arg, int howmany)
 		for (obj = world[ch->in_room]->contents; obj; obj = next_obj)
 		{
 			next_obj = obj->next_content;
-			if (CAN_SEE_OBJ(ch, obj) && (dotmode == FIND_ALL || isname(arg, obj->name)))
+			if (CAN_SEE_OBJ(ch, obj) && (dotmode == FIND_ALL || isname(arg, obj->aliases)))
 			{
 				found = 1;
 				perform_get_from_room(ch, obj);
@@ -775,7 +775,7 @@ ACMD(do_mark)
 				return;
 			}
 			for (cont = ch->carrying; cont; cont = cont->next_content)
-				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(arg1, cont->name)))
+				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(arg1, cont->aliases)))
 				{
 					cont->obj_flags.Obj_owner = atoi(arg2);
 					act("Вы пометили $o3.", FALSE, ch, cont, 0, TO_CHAR);
@@ -783,7 +783,7 @@ ACMD(do_mark)
 				}
 			for (cont = world[ch->in_room]->contents; cont; cont = cont->next_content)
 				if (CAN_SEE_OBJ(ch, cont)
-						&& (cont_dotmode == FIND_ALL || isname(arg2, cont->name)))
+						&& (cont_dotmode == FIND_ALL || isname(arg2, cont->aliases)))
 				{
 					cont->obj_flags.Obj_owner = atoi(arg2);
 					act("Вы пометили $o3.", FALSE, ch, cont, 0, TO_CHAR);
@@ -877,7 +877,7 @@ ACMD(do_get)
 				return;
 			}
 			for (cont = ch->carrying; cont && IS_SET(where_bits, FIND_OBJ_INV); cont = cont->next_content)
-				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(thecont, cont->name)))
+				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(thecont, cont->aliases)))
 				{
 					if (GET_OBJ_TYPE(cont) == ITEM_CONTAINER)
 					{
@@ -892,7 +892,7 @@ ACMD(do_get)
 				}
 			for (cont = world[ch->in_room]->contents;
 					cont && IS_SET(where_bits, FIND_OBJ_ROOM); cont = cont->next_content)
-				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(thecont, cont->name)))
+				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(thecont, cont->aliases)))
 				{
 					if (GET_OBJ_TYPE(cont) == ITEM_CONTAINER)
 					{
@@ -1361,7 +1361,7 @@ ACMD(do_give)
 				for (obj = ch->carrying; obj; obj = next_obj)
 				{
 					next_obj = obj->next_content;
-					if (CAN_SEE_OBJ(ch, obj) && ((dotmode == FIND_ALL || isname(arg, obj->name))))
+					if (CAN_SEE_OBJ(ch, obj) && ((dotmode == FIND_ALL || isname(arg, obj->aliases))))
 					{
 						perform_give(ch, vict, obj);
 						has_items = true;
@@ -2020,7 +2020,7 @@ ACMD(do_remove)
 		{
 			found = 0;
 			for (i = 0; i < NUM_WEARS; i++)
-				if (GET_EQ(ch, i) && CAN_SEE_OBJ(ch, GET_EQ(ch, i)) && isname(arg, GET_EQ(ch, i)->name))
+				if (GET_EQ(ch, i) && CAN_SEE_OBJ(ch, GET_EQ(ch, i)) && isname(arg, GET_EQ(ch, i)->aliases))
 				{
 					perform_remove(ch, i);
 					found = 1;

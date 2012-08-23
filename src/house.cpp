@@ -4649,8 +4649,8 @@ ACMD(DoStoreHouse)
 			{
 				std::ostringstream modif;
 				// сверяем имя
-				//if (!filter.name.empty() && !CompareParam(filter.name, temp_obj->name))
-				if (!filter.name.empty() && !isname(filter.name.c_str(), temp_obj->name))
+				//if (!filter.name.empty() && !CompareParam(filter.name, temp_obj->aliases))
+				if (!filter.name.empty() && !isname(filter.name.c_str(), temp_obj->aliases))
 					continue;
 				// тип
 				if (filter.type >= 0 && filter.type != GET_OBJ_TYPE(temp_obj))
@@ -5200,7 +5200,7 @@ ACMD(do_clanstuff)
 			continue;
 
 		sprintf(buf, "%s %s clan%d!", it->name.c_str(), title.c_str(), CLAN(ch)->GetRent());
-		obj->name              = str_dup(buf);
+		obj->aliases              = str_dup(buf);
 		obj->short_description = str_dup((it->PNames[0] + " " + title).c_str());
 
 		for (int i = 0;i < 6; i++)
@@ -5384,7 +5384,7 @@ int Clan::print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 				{
 					if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
 						continue;
-					if (!isname(name.c_str(), temp->name))
+					if (!isname(name.c_str(), temp->aliases))
 						continue;
 
 					snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся в хранилище дружины '%s'.\r\n",

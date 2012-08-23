@@ -121,7 +121,7 @@ void oedit_object_copy(OBJ_DATA * dst, OBJ_DATA * src)
 	// Теперь нужно выделить собственные области памяти
 
 	// Имена и названия
-	dst->name = str_dup(src->name ? src->name : "нет");
+	dst->aliases = str_dup(src->aliases ? src->aliases : "нет");
 	dst->short_description = str_dup(src->short_description ? src->short_description : "неопределено");
 	dst->description = str_dup(src->description ? src->description : "неопределено");
 	dst->action_description = (src->action_description ? str_dup(src->action_description) : NULL);
@@ -165,8 +165,8 @@ void oedit_object_free(OBJ_DATA * obj)
 	if (i == -1 || obj == obj_proto[i])
 	{
 		// Нет прототипа или сам прототип, удалять все подряд
-		if (obj->name)
-			free(obj->name);
+		if (obj->aliases)
+			free(obj->aliases);
 		if (obj->description)
 			free(obj->description);
 		if (obj->short_description)
@@ -189,8 +189,8 @@ void oedit_object_free(OBJ_DATA * obj)
 	else
 	{
 		// Есть прототип, удалять несовпадающее
-		if (obj->name && obj->name != obj_proto[i]->name)
-			free(obj->name);
+		if (obj->aliases && obj->aliases != obj_proto[i]->aliases)
+			free(obj->aliases);
 		if (obj->description && obj->description != obj_proto[i]->description)
 			free(obj->description);
 		if (obj->short_description && obj->short_description != obj_proto[i]->short_description)
@@ -234,7 +234,7 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 
 	if (real_num == -1)
 	{
-		obj->name = str_dup("новый предмет");
+		obj->aliases = str_dup("новый предмет");
 		obj->description = str_dup("что-то новое лежит здесь");
 		obj->short_description = str_dup("новый предмет");
 		obj->PNames[0] = str_dup("это что");
@@ -570,7 +570,7 @@ void oedit_save_to_disk(int zone_num)
 					"%d %d %d %d\n"
 					"%d %d %d %d\n",
 					GET_OBJ_VNUM(obj),
-					not_null(obj->name, NULL),
+					not_null(obj->aliases, NULL),
 					obj->PNames[0] ? obj->PNames[0] : "что-то",
 					obj->PNames[1] ? obj->PNames[1] : "чего-то",
 					obj->PNames[2] ? obj->PNames[2] : "чему-то",
@@ -1448,7 +1448,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			"%sA%s) Тип предмета      :-\r\n%s%s\r\n"
 			"%sB%s) Экстрафлаги       :-\r\n%s%s\r\n",
 			cyn, OLC_NUM(d), nrm,
-			grn, nrm, yel, not_null(obj->name, NULL),
+			grn, nrm, yel, not_null(obj->aliases, NULL),
 			grn, not_null(obj->PNames[0], NULL),
 			grn, not_null(obj->PNames[1], NULL),
 			grn, not_null(obj->PNames[2], NULL),
@@ -1782,9 +1782,9 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case OEDIT_EDIT_NAMELIST:
-		if (OLC_OBJ(d)->name)
-			free(OLC_OBJ(d)->name);
-		OLC_OBJ(d)->name = str_dup(not_null(arg, NULL));
+		if (OLC_OBJ(d)->aliases)
+			free(OLC_OBJ(d)->aliases);
+		OLC_OBJ(d)->aliases = str_dup(not_null(arg, NULL));
 		break;
 
 	case OEDIT_PAD0:

@@ -790,7 +790,7 @@ ASPELL(spell_locate_object)
 		if (IS_CORPSE(i))
 			continue;
 
-		if (!isname(name, i->name))
+		if (!isname(name, i->aliases))
 			continue;
 
 		if (SECT(IN_ROOM(i)) == SECT_SECRET)

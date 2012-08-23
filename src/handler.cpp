@@ -1342,7 +1342,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 		if (invalid_anti_class(ch, object) || invalid_unique(ch, object))
 			may_carry = FALSE;
 
-		if (strstr(object->name, "clan"))
+		if (strstr(object->aliases, "clan"))
 		{
 			if (!CLAN(ch))
 				may_carry = FALSE;
@@ -1350,7 +1350,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			{
 				char buf[128];
 				sprintf(buf, "clan%d!", CLAN(ch)->GetRent());
-				if (!strstr(object->name, buf))
+				if (!strstr(object->aliases, buf))
 					may_carry = FALSE;
 			}
 		}
@@ -3117,7 +3117,7 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list)
 		return (NULL);
 
 	for (i = list; i && (j <= number); i = i->next_content)
-		if (isname(tmp, i->name))
+		if (isname(tmp, i->aliases))
 			if (CAN_SEE_OBJ(ch, i))
 				if (++j == number)  	//* sprintf(buf,"Show obj %d %s %x ", number, i->name, i);
 				{
@@ -3137,7 +3137,7 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const std::string &name, OBJ_DATA 
 		return (NULL);
 
 	for (i = list; i && (j <= number); i = i->next_content)
-		if (isname(tmp, i->name))
+		if (isname(tmp, i->aliases))
 			if (CAN_SEE_OBJ(ch, i))
 				if (++j == number)  	//* sprintf(buf,"Show obj %d %s %x ", number, i->name, i);
 				{
@@ -3173,7 +3173,7 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name)
 
 	/* ok.. no luck yet. scan the entire obj list   */
 	for (i = object_list; i && (j <= number); i = i->next)
-		if (isname(tmp, i->name))
+		if (isname(tmp, i->aliases))
 			if (CAN_SEE_OBJ(ch, i))
 				if (++j == number)
 					return (i);
@@ -3200,7 +3200,7 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const std::string &name)
 
 	/* ok.. no luck yet. scan the entire obj list   */
 	for (i = object_list; i && (j <= number); i = i->next)
-		if (isname(tmp, i->name))
+		if (isname(tmp, i->aliases))
 			if (CAN_SEE_OBJ(ch, i))
 				if (++j == number)
 					return (i);
@@ -3223,7 +3223,7 @@ OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const char *arg, OBJ_DATA * eq
 	for ((*j) = 0, l = 0; (*j) < NUM_WEARS; (*j)++)
 		if (equipment[(*j)])
 			if (CAN_SEE_OBJ(ch, equipment[(*j)]))
-				if (isname(tmp, equipment[(*j)]->name))
+				if (isname(tmp, equipment[(*j)]->aliases))
 					if (++l == number)
 						return (equipment[(*j)]);
 
@@ -3240,7 +3240,7 @@ OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const std::string &arg, OBJ_DA
 	for ((*j) = 0, l = 0; (*j) < NUM_WEARS; (*j)++)
 		if (equipment[(*j)])
 			if (CAN_SEE_OBJ(ch, equipment[(*j)]))
-				if (isname(tmp, equipment[(*j)]->name))
+				if (isname(tmp, equipment[(*j)]->aliases))
 					if (++l == number)
 						return (equipment[(*j)]);
 
@@ -3261,7 +3261,7 @@ OBJ_DATA *get_obj_in_eq_vis(CHAR_DATA * ch, const char *arg)
 	for (j = 0, l = 0; j < NUM_WEARS; j++)
 		if (GET_EQ(ch, j))
 			if (CAN_SEE_OBJ(ch, GET_EQ(ch, j)))
-				if (isname(tmp, GET_EQ(ch, j)->name))
+				if (isname(tmp, GET_EQ(ch, j)->aliases))
 					if (++l == number)
 						return (GET_EQ(ch, j));
 
@@ -3278,7 +3278,7 @@ OBJ_DATA *get_obj_in_eq_vis(CHAR_DATA * ch, const std::string &arg)
 	for (j = 0, l = 0; j < NUM_WEARS; j++)
 		if (GET_EQ(ch, j))
 			if (CAN_SEE_OBJ(ch, GET_EQ(ch, j)))
-				if (isname(tmp, GET_EQ(ch, j)->name))
+				if (isname(tmp, GET_EQ(ch, j)->aliases))
 					if (++l == number)
 						return (GET_EQ(ch, j));
 
@@ -3362,7 +3362,7 @@ OBJ_DATA *create_money(int amount)
 	if (amount == 1)
 	{
 		sprintf(buf, "coin gold кун деньги денег монет %s", money_desc(amount, 0));
-		obj->name = str_dup(buf);
+		obj->aliases = str_dup(buf);
 		obj->short_description = str_dup("куна");
 		obj->description = str_dup("Одна куна лежит здесь.");
 		new_descr->keyword = str_dup("coin gold монет кун денег");
@@ -3373,7 +3373,7 @@ OBJ_DATA *create_money(int amount)
 	else
 	{
 		sprintf(buf, "coins gold кун денег %s", money_desc(amount, 0));
-		obj->name = str_dup(buf);
+		obj->aliases = str_dup(buf);
 		obj->short_description = str_dup(money_desc(amount, 0));
 		for (i = 0; i < NUM_PADS; i++)
 			obj->PNames[i] = str_dup(money_desc(amount, i));
@@ -3469,7 +3469,7 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** 
 		{
 			if (GET_EQ(ch, l) && CAN_SEE_OBJ(ch, GET_EQ(ch, l)))
 			{
-				if (isname(tmp, GET_EQ(ch, l)->name)
+				if (isname(tmp, GET_EQ(ch, l)->aliases)
 					|| (IS_SET(bitvector, FIND_OBJ_EXDESC)
 						&& find_exdesc(tmp, GET_EQ(ch, l)->ex_description)))
 				{
@@ -3487,7 +3487,7 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** 
 	{
 		for (i = ch->carrying; i && (j <= number); i = i->next_content)
 		{
-			if (isname(tmp, i->name)
+			if (isname(tmp, i->aliases)
 				|| (IS_SET(bitvector, FIND_OBJ_EXDESC)
 					&& find_exdesc(tmp, i->ex_description)))
 			{
@@ -3508,7 +3508,7 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** 
 		for (i = world[ch->in_room]->contents;
 			i && (j <= number); i = i->next_content)
 		{
-			if (isname(tmp, i->name)
+			if (isname(tmp, i->aliases)
 				|| (IS_SET(bitvector, FIND_OBJ_EXDESC)
 					&& find_exdesc(tmp ,i->ex_description)))
 			{

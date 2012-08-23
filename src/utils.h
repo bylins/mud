@@ -907,7 +907,7 @@ extern SPECIAL(bank);
 /* object utils **********************************************************/
 #define GET_OBJ_UID(obj)	((obj)->uid)
 
-#define GET_OBJ_ALIAS(obj)      ((obj)->short_description)
+#define GET_OBJ_ALIAS(obj)      ((obj)->aliases)
 #define GET_OBJ_PNAME(obj,pad)  ((obj)->PNames[pad])
 #define GET_OBJ_DESC(obj)       ((obj)->description)
 #define GET_OBJ_SPELL(obj) ((obj)->obj_flags.Obj_spell)

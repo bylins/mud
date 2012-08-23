@@ -245,7 +245,7 @@ ACMD(do_mjunk)
 		for (obj = ch->carrying; obj != NULL; obj = obj_next)
 		{
 			obj_next = obj->next_content;
-			if (arg[3] == '\0' || isname(arg + 4, obj->name))
+			if (arg[3] == '\0' || isname(arg + 4, obj->aliases))
 			{
 				extract_obj(obj);
 			}

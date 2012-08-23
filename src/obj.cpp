@@ -23,7 +23,7 @@ obj_data::obj_data() :
 	uid(0),
 	item_number(NOTHING),
 	in_room(NOWHERE),
-	name(NULL),
+	aliases(NULL),
 	description(NULL),
 	short_description(NULL),
 	action_description(NULL),

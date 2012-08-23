@@ -1220,8 +1220,7 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 		if (!get_buf_lines(data, buffer))
 			return (item);
 		// Алиасы
-		GET_OBJ_ALIAS(GET_EXCHANGE_ITEM(item)) = str_dup(buffer);
-		GET_EXCHANGE_ITEM(item)->name = str_dup(buffer);
+		GET_EXCHANGE_ITEM(item)->aliases = str_dup(buffer);
 		// Падежи
 		*error = 15;
 		for (i = 0; i < NUM_PADS; i++)
@@ -1229,6 +1228,7 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object(char **data, int *error)
 			if (!get_buf_lines(data, buffer))
 				return (item);
 			GET_OBJ_PNAME(GET_EXCHANGE_ITEM(item), i) = str_dup(buffer);
+			if (i==0) GET_EXCHANGE_ITEM(item)->short_description = str_dup(buffer);
 		}
 		// Описание когда на земле
 		*error = 16;
@@ -1752,7 +1752,7 @@ int obj_matches_filter(EXCHANGE_ITEM_DATA * j, char *filter_name, char *filter_o
 				(GET_OBJ_TYPE(GET_EXCHANGE_ITEM(j)) != ITEM_INGRADIENT))
 			return 0;
 		//Для ингридиентов, дополнительно проверяем синонимы прототипa
-		else if (!isname(filter_name, obj_proto[GET_OBJ_RNUM(GET_EXCHANGE_ITEM(j))]->name))
+		else if (!isname(filter_name, obj_proto[GET_OBJ_RNUM(GET_EXCHANGE_ITEM(j))]->aliases))
 			return 0;
 	}
 	if (*filter_owner && !isname(filter_owner, get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(j))))

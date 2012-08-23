@@ -18,6 +18,7 @@
 #include "db.h"
 #include "interpreter.h"
 
+
 extern const int MAX_MESSAGE_LENGTH;
 extern const int MIN_WRITE_LEVEL;
 extern const unsigned int MAX_BOARD_MESSAGES;

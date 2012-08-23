@@ -910,8 +910,8 @@ std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string 
 
 	cont.sort(
 		boost::bind(std::less<char *>(),
-					boost::bind(&obj_data::name, _1),
-					boost::bind(&obj_data::name, _2)));
+					boost::bind(&obj_data::aliases, _1),
+					boost::bind(&obj_data::aliases, _2)));
 
 	ObjListType::const_iterator prev_obj_it = cont.end();
 	int count = 0;
@@ -1190,7 +1190,7 @@ bool CharNode::obj_from_obj_list(char *name, CHAR_DATA *vict)
 
 	for (ObjListType::iterator obj_it = cont.begin(); obj_it != cont.end() && (j <= number); ++obj_it)
 	{
-		if (isname(tmp, (*obj_it)->name) && ++j == number)
+		if (isname(tmp, (*obj_it)->aliases) && ++j == number)
 		{
 			remove_item(obj_it, cont, vict);
 			return true;
@@ -1228,7 +1228,7 @@ void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany)
 		bool found = 0;
 		for (ObjListType::iterator obj_list_it = cont.begin(); obj_list_it != cont.end();)
 		{
-			if (obj_dotmode == FIND_ALL || isname(arg, (*obj_list_it)->name))
+			if (obj_dotmode == FIND_ALL || isname(arg, (*obj_list_it)->aliases))
 			{
 				// чтобы нельзя было разом собрать со шкафчика неск.тыс шмоток
 				if (!can_take_obj(vict, *obj_list_it)) return;
@@ -1544,7 +1544,7 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 		{
 			if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
 				continue;
-			if (!isname(name.c_str(), (*obj_it)->name))
+			if (!isname(name.c_str(), (*obj_it)->aliases))
 				continue;
 
 			snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у кого-то в персональном хранилище.\r\n",
@@ -1565,7 +1565,7 @@ int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 	{
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end(); ++obj_it)
 		{
-			if (isname(arg, (*obj_it)->name))
+			if (isname(arg, (*obj_it)->aliases))
 			{
 				send_to_char(ch, "O%3d. %-25s - наход%sся в персональном хранилище (%s).\r\n",
 						num++, (*obj_it)->short_description, GET_OBJ_POLY_1(ch, (*obj_it)), it->second.name.c_str());
@@ -1611,7 +1611,7 @@ OBJ_DATA * locate_object(const char *str)
 	{
 		for (ObjListType::const_iterator k = i->second.pers_online.begin(); k != i->second.pers_online.end(); ++k)
 		{
-			if (isname(str, (*k)->name))
+			if (isname(str, (*k)->aliases))
 			{
 				return *k;
 			}

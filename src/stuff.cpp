@@ -138,12 +138,12 @@ void generate_book_upgrd(OBJ_DATA *obj)
 	GET_OBJ_VAL(obj, 1) = skill_list[number(0, skills_count - 1)];
 	std::string book_name = skill_name(GET_OBJ_VAL(obj, 1));
 
-	if (obj->name
-		&& (GET_OBJ_RNUM(obj) < 0 || obj->name != obj_proto[GET_OBJ_RNUM(obj)]->name))
+	if (obj->aliases
+		&& (GET_OBJ_RNUM(obj) < 0 || obj->aliases != obj_proto[GET_OBJ_RNUM(obj)]->aliases))
 	{
-		free(obj->name);
+		free(obj->aliases);
 	}
-	obj->name = str_dup(("книга секретов умения: " + book_name).c_str());
+	obj->aliases = str_dup(("книга секретов умения: " + book_name).c_str());
 
 	if (obj->short_description
 		&& (GET_OBJ_RNUM(obj) < 0

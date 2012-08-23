@@ -2332,7 +2332,7 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 		{
 			int i;
 			for (i = 0; i < NUM_WEARS; i++)
-				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->name))
+				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->aliases))
 				{
 					*tobj = GET_EQ(ch, i);
 					return TRUE;
@@ -2462,7 +2462,7 @@ int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DA
 		{
 			int i;
 			for (i = 0; i < NUM_WEARS; i++)
-				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->name))
+				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->aliases))
 				{
 					*tobj = GET_EQ(ch, i);
 					return TRUE;

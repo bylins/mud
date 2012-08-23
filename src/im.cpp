@@ -359,10 +359,10 @@ int im_assign_power(OBJ_DATA * obj)
 		free(GET_OBJ_ALIAS(obj));
 	GET_OBJ_ALIAS(obj) = str_dup(replace_alias(ptr, sample, rnum, "a"));
 
-	ptr = obj_proto[GET_OBJ_RNUM(obj)]->name;
-	if (obj->name != ptr)
-		free(obj->name);
-	obj->name = str_dup(replace_alias(ptr, sample, rnum, "m"));
+	ptr = obj_proto[GET_OBJ_RNUM(obj)]->aliases;
+	if (obj->aliases != ptr)
+		free(obj->aliases);
+	obj->aliases = str_dup(replace_alias(ptr, sample, rnum, "m"));
 
 // Обработка других полей объекта
 // -- пока не сделано --

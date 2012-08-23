@@ -5079,7 +5079,7 @@ bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 	//int num = 1;
 	for (OBJ_DATA *k = object_list; k; k = k->next)
 	{
-		if (isname(arg, k->name))
+		if (isname(arg, k->aliases))
 		{
 			found = true;
 			print_object_location(num++, k, ch, TRUE);

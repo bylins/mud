@@ -198,7 +198,7 @@ OBJ_DATA *get_obj_in_list(char *name, OBJ_DATA * list)
 	else
 	{
 		for (i = list; i; i = i->next_content)
-			if (isname(name, i->name))
+			if (isname(name, i->aliases))
 				return i;
 	}
 
@@ -230,7 +230,7 @@ OBJ_DATA *get_object_in_equip(CHAR_DATA * ch, char *name)
 
 		for (j = 0; (j < NUM_WEARS) && (n <= number); j++)
 			if ((obj = GET_EQ(ch, j)))
-				if (isname(tmp, obj->name))
+				if (isname(tmp, obj->aliases))
 					if (++n == number)
 						return (obj);
 	}
@@ -440,7 +440,7 @@ OBJ_DATA *get_obj(char *name, int vnum)
 	else
 	{
 		for (OBJ_DATA *obj = object_list; obj; obj = obj->next)
-			if (isname(name, obj->name))
+			if (isname(name, obj->aliases))
 				return obj;
 //		return ObjectAlias::get_by_name(name);
 	}
@@ -564,7 +564,7 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name)
 			if (id == GET_ID(obj->in_obj))
 				return obj->in_obj;
 		}
-		else if (isname(name, obj->in_obj->name))
+		else if (isname(name, obj->in_obj->aliases))
 			return obj->in_obj;
 	}
 	else if (obj->worn_by && (i = get_object_in_equip(obj->worn_by, name)))
@@ -585,7 +585,7 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name)
 	else
 	{
 		for (i = object_list; i; i = i->next)
-			if (isname(name, i->name))
+			if (isname(name, i->aliases))
 				break;
 	}
 
@@ -616,11 +616,11 @@ OBJ_DATA *get_obj_by_room(room_data * room, char *name)
 	else
 	{
 		for (obj = room->contents; obj; obj = obj->next_content)
-			if (isname(name, obj->name))
+			if (isname(name, obj->aliases))
 				return obj;
 
 		for (obj = object_list; obj; obj = obj->next)
-			if (isname(name, obj->name))
+			if (isname(name, obj->aliases))
 				return obj;
 	}
 
@@ -652,11 +652,11 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 	{
 		if (ch)
 			for (obj = ch->carrying; obj; obj = obj->next_content)
-				if (isname(name, obj->name))
+				if (isname(name, obj->aliases))
 					return obj;
 
 		for (obj = object_list; obj; obj = obj->next)
-			if (isname(name, obj->name))
+			if (isname(name, obj->aliases))
 				return obj;
 	}
 
@@ -844,7 +844,7 @@ void find_uid_name(char *uid, char *name)
 	if ((ch = get_char(uid)))
 		strcpy(name, ch->get_pc_name());
 	else if ((obj = get_obj(uid)))
-		strcpy(name, obj->name);
+		strcpy(name, obj->aliases);
 	else
 		sprintf(name, "uid = %s, (not found)", uid + 1);
 }
@@ -1100,7 +1100,7 @@ ACMD(do_attach)
 
 				sprintf(buf, "Trigger %d (%s) attached to %s.\r\n",
 						tn, GET_TRIG_NAME(trig),
-						(object->short_description ? object->short_description : object->name));
+						(object->short_description ? object->short_description : object->aliases));
 				send_to_char(buf, ch);
 			}
 			else
@@ -1321,7 +1321,7 @@ ACMD(do_detach)
 				free_script(SCRIPT(object));	// без комментариев
 				SCRIPT(object) = NULL;
 				sprintf(buf, "All triggers removed from %s.\r\n",
-						object->short_description ? object->short_description : object->name);
+						object->short_description ? object->short_description : object->aliases);
 				send_to_char(buf, ch);
 			}
 			else if (remove_trigger(SCRIPT(object), trigger, &dummy))
@@ -2835,34 +2835,34 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				if (o->PNames[0])
 					strcpy(str, o->PNames[0]);
 				else
-					strcpy(str, o->name);
+					strcpy(str, o->aliases);
 			else if (!str_cmp(field, "rname"))
 				if (o->PNames[1])
 					strcpy(str, o->PNames[1]);
 				else
-					strcpy(str, o->name);
+					strcpy(str, o->aliases);
 			else if (!str_cmp(field, "dname"))
 				if (o->PNames[2])
 					strcpy(str, o->PNames[2]);
 				else
-					strcpy(str, o->name);
+					strcpy(str, o->aliases);
 			else if (!str_cmp(field, "vname"))
 				if (o->PNames[3])
 					strcpy(str, o->PNames[3]);
 				else
-					strcpy(str, o->name);
+					strcpy(str, o->aliases);
 			else if (!str_cmp(field, "tname"))
 				if (o->PNames[4])
 					strcpy(str, o->PNames[4]);
 				else
-					strcpy(str, o->name);
+					strcpy(str, o->aliases);
 			else if (!str_cmp(field, "pname"))
 				if (o->PNames[5])
 					strcpy(str, o->PNames[5]);
 				else
-					strcpy(str, o->name);
+					strcpy(str, o->aliases);
 			else if (!str_cmp(field, "name"))
-				strcpy(str, o->name);
+				strcpy(str, o->aliases);
 			else if (!str_cmp(field, "id"))
 				sprintf(str, "%c%ld", UID_OBJ, GET_ID(o));
 			else if (!str_cmp(field, "uid"))
@@ -3035,7 +3035,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				else
 				{
 					sprintf(buf2, "object.put: ATTENTION! за время подготовки объекта >%s< к передаче перестал существовать адресат. Объект сейчас в NOWHERE",
-						o->name);
+						o->short_description);
 					trig_log(trig, buf2);
 					return;
 				}

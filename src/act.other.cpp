@@ -555,7 +555,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 		{
 			for (eq_pos = 0; eq_pos < NUM_WEARS; eq_pos++)
 				if (GET_EQ(vict, eq_pos) &&
-						(isname(obj_name, GET_EQ(vict, eq_pos)->name)) &&
+						(isname(obj_name, GET_EQ(vict, eq_pos)->aliases)) &&
 						CAN_SEE_OBJ(ch, GET_EQ(vict, eq_pos)))
 				{
 					obj = GET_EQ(vict, eq_pos);
@@ -1635,13 +1635,13 @@ ACMD(do_use)
 
 	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
 	{
-		send_to_char("Вы в бою, и Вам сейчас не до этих магических выкрутас!\r\n", ch);
+		send_to_char("Вы в бою, и Вам сейчас не до этих магических выкрутасов!\r\n", ch);
 		return;
 	}
 
 	mag_item = GET_EQ(ch, WEAR_HOLD);
 
-	if (!mag_item || !isname(arg, mag_item->name))
+	if (!mag_item || !isname(arg, mag_item->aliases))
 	{
 		switch (subcmd)
 		{
@@ -2914,7 +2914,7 @@ void break_inst(CHAR_DATA *ch)
 
 	for (i = WEAR_WIELD; i <= WEAR_BOTHS; i++)
 	{
-		if (GET_EQ(ch, i) && (strstr(GET_EQ(ch, i)->name, "лопата") || strstr(GET_EQ(ch, i)->name, "кирка")))
+		if (GET_EQ(ch, i) && (strstr(GET_EQ(ch, i)->aliases, "лопата") || strstr(GET_EQ(ch, i)->aliases, "кирка")))
 		{
 			if (GET_OBJ_CUR(GET_EQ(ch, i)) > 1)
 			{
@@ -2929,7 +2929,7 @@ void break_inst(CHAR_DATA *ch)
 			}
 			if (GET_OBJ_CUR(GET_EQ(ch, i)) <= 1 && number(1, 3) == 1)
 			{
-				sprintf(buf, "Ваша %s трескается!\r\n", GET_EQ(ch, i)->name);
+				sprintf(buf, "Ваша %s трескается!\r\n", GET_EQ(ch, i)->short_description);
 				send_to_char(buf, ch);
 			}
 		}
@@ -2943,7 +2943,7 @@ int check_for_dig(CHAR_DATA *ch)
 
 	for (i = WEAR_WIELD; i <= WEAR_BOTHS; i++)
 	{
-		if (GET_EQ(ch, i) && (strstr(GET_EQ(ch, i)->name, "лопата") || strstr(GET_EQ(ch, i)->name, "кирка")))
+		if (GET_EQ(ch, i) && (strstr(GET_EQ(ch, i)->aliases, "лопата") || strstr(GET_EQ(ch, i)->aliases, "кирка")))
 		{
 			return 1;
 		}
@@ -3363,7 +3363,7 @@ ACMD(do_insertgem)
 
 		if (percent > prob / insgem_vars.prob_divide)
 		{
-			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n", gemobj->name,
+			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n", gemobj->short_description,
 					itemobj->PNames[3]);
 			send_to_char(buf, ch);
 			sprintf(buf, "$n испортил$g %s, вплавляя его в %s!\r\n", gemobj->PNames[3], itemobj->PNames[3]);
@@ -3409,7 +3409,7 @@ ACMD(do_insertgem)
 		//успех или фэйл? при 80% скила успех 30% при 100% скила 50% при 200% скила успех 75%
 		if (number(1, ch->get_skill(SKILL_INSERTGEM)) > (ch->get_skill(SKILL_INSERTGEM) - 50))
 		{
-			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n", gemobj->name,
+			sprintf(buf, "Вы неудачно попытались вплавить %s в %s, испортив камень...\r\n", gemobj->short_description,
 					itemobj->PNames[3]);
 			send_to_char(buf, ch);
 			sprintf(buf, "$n испортил$g %s, вплавляя его в %s!\r\n", gemobj->PNames[3], itemobj->PNames[3]);

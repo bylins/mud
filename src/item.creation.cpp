@@ -1497,7 +1497,7 @@ MakeRecept *MakeReceptList::get_by_name(string & rname)
 		const OBJ_DATA *tobj = read_object_mirror((*p)->obj_proto);
 		if (!tobj)
 			return 0;
-		tmpstr = string(tobj->name);
+		tmpstr = string(tobj->aliases);
 
 //    cout << tmpstr << endl;
 
@@ -2264,7 +2264,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		{
 			CREATE(desc, EXTRA_DESCR_DATA, 1);
 			obj->ex_description = desc;
-			desc->keyword = str_dup(obj->name);
+			desc->keyword = str_dup(obj->aliases);
 			desc->description = str_dup(tagchar);
 			desc->next = NULL;	// На всякий случай :)
 		}

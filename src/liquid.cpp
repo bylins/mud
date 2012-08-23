@@ -910,14 +910,14 @@ void name_from_drinkcon(OBJ_DATA * obj)
 	char new_name[MAX_STRING_LENGTH];
 	std::string tmp;
 
-	size_t pos = find_liquid_name(obj->name);
+	size_t pos = find_liquid_name(obj->aliases);
 	if (pos == std::string::npos) return;
-	tmp = std::string(obj->name).substr(0, pos - 1);
+	tmp = std::string(obj->aliases).substr(0, pos - 1);
 
 	sprintf(new_name, "%s", tmp.c_str());
-	if (GET_OBJ_RNUM(obj) < 0 || obj->name != obj_proto[GET_OBJ_RNUM(obj)]->name)
-		free(obj->name);
-	obj->name = str_dup(new_name);
+	if (GET_OBJ_RNUM(obj) < 0 || obj->aliases != obj_proto[GET_OBJ_RNUM(obj)]->aliases)
+		free(obj->aliases);
+	obj->aliases = str_dup(new_name);
 
 	pos = find_liquid_name(obj->short_description);
 	if (pos == std::string::npos) return;
@@ -946,10 +946,10 @@ void name_to_drinkcon(OBJ_DATA * obj, int type)
 	int c;
 	char new_name[MAX_INPUT_LENGTH];
 
-	sprintf(new_name, "%s %s", obj->name, drinknames[type]);
-	if (GET_OBJ_RNUM(obj) < 0 || obj->name != obj_proto[GET_OBJ_RNUM(obj)]->name)
-		free(obj->name);
-	obj->name = str_dup(new_name);
+	sprintf(new_name, "%s %s", obj->aliases, drinknames[type]);
+	if (GET_OBJ_RNUM(obj) < 0 || obj->aliases != obj_proto[GET_OBJ_RNUM(obj)]->aliases)
+		free(obj->aliases);
+	obj->aliases = str_dup(new_name);
 
 	sprintf(new_name, "%s Ó %s", obj->short_description, drinknames[type]);
 	if (GET_OBJ_RNUM(obj) < 0 || obj->short_description != obj_proto[GET_OBJ_RNUM(obj)]->short_description)

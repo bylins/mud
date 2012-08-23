@@ -403,7 +403,7 @@ ACMD(do_sanitize);
 ACMD(do_morph);
 ACMD(do_morphset);
 ACMD(do_console);
-
+ACMD(do_shops_list);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -567,6 +567,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"лучшие", POS_DEAD, DoBest, 0, 0, 0},
 
 	{"маскировка", POS_RESTING, do_camouflage, 0, 0, 500},
+	{"магазины", POS_DEAD, do_shops_list, LVL_IMMORT, 0, 0},
 	{"метнуть", POS_FIGHTING, do_throw, 0, 0, -1},
 	{"менять", POS_STANDING, do_not_here, 0, 0, -1},
 	{"месть", POS_RESTING, do_revenge, 0, 0, 0},

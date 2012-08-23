@@ -156,10 +156,10 @@ namespace ObjectAlias
 */
 void add(OBJ_DATA *obj)
 {
-	if (!obj->name) return;
+	if (!obj->aliases) return;
 
 	obj->set_serial_num(++obj_serial_num);
-	std::string name(obj->name), word;
+	std::string name(obj->aliases), word;
 	lower_convert(name);
 
 	while (!name.empty())
@@ -224,7 +224,7 @@ OBJ_DATA * search_by_word(const char *name, const std::string &search_word)
 		{
 			for (ObjNodeListType::reverse_iterator k = i->second.rbegin(); k != i->second.rend(); ++k)
 			{
-				if (isname(name, k->second->name))
+				if (isname(name, k->second->aliases))
 				{
 					if (!obj || (obj && obj->get_serial_num() < k->second->get_serial_num()))
 					{
@@ -289,7 +289,7 @@ OBJ_DATA * locate_object(const char *str)
 		{
 			for (ObjNodeListType::reverse_iterator k = i->second.rbegin(); k != i->second.rend(); ++k)
 			{
-				if (isname(str, k->second->name))
+				if (isname(str, k->second->aliases))
 				{
 					return k->second;
 				}

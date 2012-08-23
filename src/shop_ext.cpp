@@ -28,6 +28,9 @@
 #include "liquid.hpp"
 #include "utils.h"
 
+
+
+
 /*
 Пример конфига (plrstuff/shop/test.xml):
 <?xml version="1.0"?>
@@ -84,7 +87,6 @@ long get_sell_price(OBJ_DATA * obj);
 const int IDENTIFY_COST = 110;
 int spent_today = 0;
 
-
 struct item_desc_node
 {
 		std::string name;
@@ -120,8 +122,10 @@ struct item_node
 typedef boost::shared_ptr<item_node> ItemNodePtr;
 typedef std::vector<ItemNodePtr> ItemListType;
 
-struct shop_node
+
+class shop_node : public DictionaryItem
 {
+public:
 	shop_node() : waste_time_min(0), can_buy(true) {};
 
 	std::list<int> mob_vnums;
@@ -134,6 +138,10 @@ struct shop_node
 	int waste_time_min;
 	bool can_buy;
 };
+
+
+typedef boost::shared_ptr<shop_node> ShopNodePtr;
+typedef std::vector<ShopNodePtr> ShopListType;
 
 struct item_set_node
 {
@@ -149,11 +157,10 @@ struct item_set
 	std::vector<item_set_node> item_list;
 };
 
-typedef boost::shared_ptr<shop_node> ShopNodePtr;
-typedef std::vector<ShopNodePtr> ShopListType;
 typedef boost::shared_ptr<item_set> ItemSetPtr;
 typedef std::vector<ItemSetPtr> ItemSetListType;
 ShopListType shop_list;
+
 
 OBJ_DATA * get_obj_from_waste(ShopListType::const_iterator &shop, std::vector<unsigned> uids);
 
@@ -366,6 +373,9 @@ void load(bool reload)
 		tmp_shop->profit = profit;
 		tmp_shop->can_buy = shop_can_buy;
 		tmp_shop->waste_time_min = waste_time_min;
+		//словарные данные
+		tmp_shop->SetDictionaryName(shop_id);//а нету у магазинов названия
+		tmp_shop->SetDictionaryTID(shop_id);
 
 		std::map<int, std::string> mob_to_template;
 
@@ -538,7 +548,7 @@ unsigned get_item_num(ShopListType::const_iterator &shop, std::string &item_name
 			OBJ_DATA * tmp_obj = get_obj_from_waste(shop, ((*shop)->item_list[i])->temporary_ids);
 			if (!tmp_obj)
 				continue;
-			name_value = std::string(tmp_obj->name);
+			name_value = std::string(tmp_obj->aliases);
 			print_value = std::string(tmp_obj->short_description);
 		}
 
@@ -697,7 +707,7 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 			if (tmp_obj)
 			{
 				print_value = std::string(tmp_obj->short_description);
-				name_value = std::string(tmp_obj->name);
+				name_value = std::string(tmp_obj->aliases);
 				(*k)->price = get_sell_price(tmp_obj);
 			}
 			else
@@ -762,7 +772,7 @@ void attach_triggers(OBJ_DATA *obj, std::list<unsigned> trigs)
 void replace_descs(OBJ_DATA *obj, ItemNodePtr item, int vnum)
 {
 	obj->description = strdup(item->descs[vnum].description.c_str());
-	obj->name = strdup(item->descs[vnum].name.c_str());
+	obj->aliases = strdup(item->descs[vnum].name.c_str());
 	obj->short_description = strdup(item->descs[vnum].short_description.c_str());
 	obj->PNames[0]= strdup(item->descs[vnum].PNames[0].c_str());
 	obj->PNames[1]= strdup(item->descs[vnum].PNames[1].c_str());
@@ -1510,3 +1520,20 @@ void town_shop_keepers()
 		}
 	}
 }
+
+ACMD(do_shops_list)
+{
+	DictionaryPtr dic = DictionaryPtr(new Dictionary(SHOP));
+	int n = dic->Size();
+	std::string out = std::string();
+	for (int i =0; i< n; i++)
+		out = out + boost::lexical_cast<string>(i+1)+" " + dic->GetNameByNID(i) + " " + dic->GetTIDByNID(i) + "\r\n";
+	send_to_char(out, ch);
+}
+
+void fill_shop_dictionary(DictionaryType &dic)
+{
+	ShopExt::ShopListType::const_iterator it = ShopExt::shop_list.begin();
+	for (;it != ShopExt::shop_list.end();++it)
+		dic.push_back((*it)->GetDictionaryItem());
+};

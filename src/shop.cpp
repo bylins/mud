@@ -338,7 +338,7 @@ int evaluate_expression(OBJ_DATA * obj, char *expr)
 						bit <<= 1;
 					}
 				if (*extra_bits[index] == '\n')
-					push(&vals, isname(name, obj->name));
+					push(&vals, isname(name, obj->aliases));
 			}
 			else
 			{
@@ -567,7 +567,7 @@ OBJ_DATA *get_slide_obj_vis(CHAR_DATA * ch, char *name, OBJ_DATA * list)
 		return (0);
 
 	for (i = list, j = 1; i && (j <= number); i = i->next_content)
-		if (isname(tmp, i->name))
+		if (isname(tmp, i->aliases))
 			if (CAN_SEE_OBJ(ch, i) && !same_obj(last_match, i))
 			{
 				if (j == number)
@@ -1674,7 +1674,7 @@ void shopping_list(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 				else
 				{
 					index++;
-					if (!(*name) || isname(name, last_obj->name))
+					if (!(*name) || isname(name, last_obj->aliases))
 					{
 						buf = str_add(buf, list_object(last_obj, cnt, index, shop_nr));
 					}
@@ -1692,7 +1692,7 @@ void shopping_list(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 		else
 			buf = str_add(buf, "Увы, товара пока нет.\r\n");
 	}
-	else if (!(*name) || isname(name, last_obj->name))
+	else if (!(*name) || isname(name, last_obj->aliases))
 		buf = str_add(buf, list_object(last_obj, cnt, index, shop_nr));
 
 	page_string(ch->desc, buf, 1);

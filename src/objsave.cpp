@@ -210,13 +210,13 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			if (!strcmp(read_line, "Alia"))
 			{
 				*error = 6;
-				GET_OBJ_ALIAS(object) = str_dup(buffer);
-				object->name = str_dup(buffer);
+				object->aliases = str_dup(buffer);
 			}
 			else if (!strcmp(read_line, "Pad0"))
 			{
 				*error = 7;
 				GET_OBJ_PNAME(object, 0) = str_dup(buffer);
+				object->short_description = str_dup(buffer);
 			}
 			else if (!strcmp(read_line, "Pad1"))
 			{
@@ -626,8 +626,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 		if (!get_buf_lines(data, buffer))
 			return (object);
 		// Алиасы
-		GET_OBJ_ALIAS(object) = str_dup(buffer);
-		object->name = str_dup(buffer);
+		object->aliases = str_dup(buffer);
 		// Падежи
 		*error = 5;
 		for (i = 0; i < NUM_PADS; i++)
@@ -635,6 +634,8 @@ OBJ_DATA *read_one_object(char **data, int *error)
 			if (!get_buf_lines(data, buffer))
 				return (object);
 			GET_OBJ_PNAME(object, i) = str_dup(buffer);
+			if (i==0) 
+				object->short_description = str_dup(buffer);
 		}
 		// Описание когда на земле
 		*error = 6;

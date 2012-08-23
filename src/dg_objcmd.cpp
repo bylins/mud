@@ -548,7 +548,7 @@ OCMD(do_dgoload)
 			obj_log(obj, "oload: bad object vnum");
 			return;
 		}
-		log("Load obj #%d by %s (oload)", number, obj->name);
+		log("Load obj #%d by %s (oload)", number, obj->aliases);
 		GET_OBJ_ZONE(object) = world[room]->zone;
 		obj_to_room(object, room);
 		load_otrigger(object);

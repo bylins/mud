@@ -357,7 +357,7 @@ struct obj_data
 	struct obj_flag_data obj_flags;		/* Object information       */
 	boost::array<obj_affected_type, MAX_OBJ_AFFECT> affected;	/* affects */
 
-	char *name;		/* Title of object :get etc.        */
+	char *aliases;		/* Title of object :get etc.        */
 	char *description;	/* When in room                     */
 	char *short_description;	/* when worn/carry/in cont.         */
 	char *action_description;	/* What to write when used          */

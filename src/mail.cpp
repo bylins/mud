@@ -647,7 +647,7 @@ void postmaster_receive_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char 
 	while (has_mail(GET_IDNUM(ch)))
 	{
 		obj = create_obj();
-		obj->name = str_dup("mail paper letter письмо почта бумага");
+		obj->aliases = str_dup("mail paper letter письмо почта бумага");
 		obj->short_description = str_dup("письмо");
 		obj->description = str_dup("Кто-то забыл здесь свое письмо.");
 		obj->PNames[0] = str_dup("письмо");

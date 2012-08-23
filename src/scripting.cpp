@@ -779,19 +779,19 @@ class ObjWrapper: public Wrapper<obj_data>
 public:
 ObjWrapper(obj_data* obj):Wrapper<obj_data>(obj, caching::obj_cache) { }
 
-string get_name() const
+string get_aliases() const
 {
 	Ensurer obj(*this);
-	return obj->name;
+	return obj->aliases;
 }
 
-void set_name(const char* name)
+void set_aliases(const char* aliases)
 {
 	Ensurer obj(*this);
 	obj_rnum i = GET_OBJ_RNUM(obj);
-	if (i == -1 || obj->name != obj_proto[i]->name)
-		if (obj->name) free(obj->name);
-	obj->name = str_dup(name);
+	if (i == -1 || obj->aliases != obj_proto[i]->aliases)
+		if (obj->aliases) free(obj->aliases);
+	obj->aliases = str_dup(aliases);
 }
 
 string get_description() const
@@ -1356,7 +1356,7 @@ BOOST_PYTHON_MODULE(mud)
 
 	//wraps obj_data (see obj.hpp)
 	class_<ObjWrapper>("Object", "Игровой объект (вещь).", no_init)
-	.add_property("name", &ObjWrapper::get_name, &ObjWrapper::set_name, "Алиасы объекта")
+	.add_property("name", &ObjWrapper::get_aliases, &ObjWrapper::set_aliases, "Алиасы объекта")
 	.add_property("description", &ObjWrapper::get_description, &ObjWrapper::set_description, "Описание объекта когда лежит.")
 	.add_property("short_description", &ObjWrapper::get_short_description, &ObjWrapper::set_short_description, "название объекта (именительный падеж)")
 	.add_property("action_description", &ObjWrapper::get_action_description, &ObjWrapper::set_action_description, "Описание при действии (палочки и т.п.)")

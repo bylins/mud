@@ -361,7 +361,7 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 				for (obj = ch->carrying; obj; obj = next_obj)
 				{
 					next_obj = obj->next_content;
-					if (CAN_SEE_OBJ(ch, obj) && ((dotmode == FIND_ALL || isname(tmp_arg, obj->name))))
+					if (CAN_SEE_OBJ(ch, obj) && ((dotmode == FIND_ALL || isname(tmp_arg, obj->aliases))))
 					{
 						send_object(ch, mailman, vict_uid, obj);
 						has_items = true;
@@ -432,7 +432,7 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 			{
 				if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
 					continue;
-				if (!isname(name.c_str(), it3->obj_->name))
+				if (!isname(name.c_str(), it3->obj_->aliases))
 					continue;
 
 				snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у почтового голубя в инвентаре.\r\n",
@@ -533,7 +533,7 @@ int calculate_timer_cost(std::list<Node>::iterator const &it)
 OBJ_DATA * create_parcel()
 {
 	OBJ_DATA *obj = create_obj();
-	obj->name = str_dup("посылка бандероль пакет ящик parcel box case chest");
+	obj->aliases = str_dup("посылка бандероль пакет ящик parcel box case chest");
 	obj->short_description = str_dup("посылка");
 	obj->description = str_dup("Кто-то забыл здесь свою посылку.");
 	obj->PNames[0] = str_dup("посылка");
@@ -949,7 +949,7 @@ int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 		{
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
 			{
-				if (isname(arg, it3->obj_->name))
+				if (isname(arg, it3->obj_->aliases))
 				{
 					std::string target = GetNameByUnique(it->first);
 					std::string sender = GetNameByUnique(it2->first);
@@ -992,7 +992,7 @@ OBJ_DATA * locate_object(const char *str)
 		{
 			for (std::list<Node>::const_iterator o = k->second.begin(); o != k->second.end(); ++o)
 			{
-				if (isname(str, o->obj_->name))
+				if (isname(str, o->obj_->aliases))
 				{
 					return o->obj_;
 				}

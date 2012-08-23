@@ -1263,7 +1263,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	rnum = GET_OBJ_RNUM(j);
 	sprintf(buf, "Название: '%s%s%s',\r\nСинонимы: &S%s&s\r\n",
 			CCYEL(ch, C_NRM),
-			((j->short_description) ? j->short_description : "<None>"), CCNRM(ch, C_NRM), j->name);
+			((j->short_description) ? j->short_description : "<None>"), CCNRM(ch, C_NRM), j->aliases);
 	send_to_char(buf, ch);
 	sprinttype(GET_OBJ_TYPE(j), item_types, buf1);
 	if (GET_OBJ_RNUM(j) >= 0)
@@ -2436,7 +2436,7 @@ ACMD(do_load)
 		act("Вы создали $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		load_otrigger(obj);
 		obj_decay(obj);
-		olc_log("%s load obj %s #%d", GET_NAME(ch), GET_OBJ_ALIAS(obj), number);
+		olc_log("%s load obj %s #%d", GET_NAME(ch), obj->short_description, number);
 	}
 	else if (is_abbrev(buf, "ing"))
 	{
@@ -2463,7 +2463,7 @@ ACMD(do_load)
 		mudlog(buf, NRM, LVL_BUILDER, IMLOG, TRUE);
 		load_otrigger(obj);
 		obj_decay(obj);
-		olc_log("%s load ing %s #%d", GET_NAME(ch), GET_OBJ_ALIAS(obj), power);
+		olc_log("%s load ing %s #%d", GET_NAME(ch), obj->short_description, power);
 	}
 	else
 		send_to_char("Нет уж. Ты создай че-нить нормальное.\r\n", ch);
