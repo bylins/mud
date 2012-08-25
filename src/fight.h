@@ -19,9 +19,16 @@ enum
 	type_pick, type_sting
 };
 
+// игнор санки
 const int IGNORE_SANCT = 0;
+// игнор призмы
 const int IGNORE_PRISM = 1;
-const unsigned HIT_TYPE_FLAGS_NUM = 2;
+// игнор брони и поглощения (физ дамаг)
+const int IGNORE_ARMOR = 2;
+// ополовинивание учитываемой брони и поглощения (физ дамаг)
+const int HALF_IGNORE_ARMOR = 3;
+// кол-во флагов
+const unsigned HIT_TYPE_FLAGS_NUM = 4;
 
 /**
  * Для входа со скила без инита остальных полей:

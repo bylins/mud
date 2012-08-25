@@ -1988,10 +1988,10 @@ bool DmgType::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 
 bool DmgType::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
 {
-	if (dam && dmg_type == PHYS_DMG)
+	if (dam > 0 && dmg_type == PHYS_DMG)
 	{
 		alt_equip(victim, NOWHERE, dam, 50);
-		if (!was_critic)
+		if (!was_critic && !flags[IGNORE_ARMOR])
 		{
 			if (can_use_feat(victim, IMPREGNABLE_FEAT) && IS_SET(PRF_FLAGS(victim, PRF_AWAKE), PRF_AWAKE))
 			{
@@ -2006,12 +2006,23 @@ bool DmgType::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
 					return true;
 				}
 				// броня + поглощение роляет до 75% снижения дамаги
-				dam -= (dam * MAX(0, MIN(75, decrease)) / 100);
+				int tmp_dam = (dam * MAX(0, MIN(75, decrease)) / 100);
+				// ополовинивание брони по флагу
+				if (tmp_dam >= 2 && flags[HALF_IGNORE_ARMOR])
+				{
+					tmp_dam /= 2;
+				}
+				dam -= tmp_dam;
 			}
 			else
 			{
 				// у всех остальных поглощение роляет до 49
 				int decrease = MIN(25, (GET_ABSORBE(victim) + 1) / 2) + GET_ARMOUR(victim);
+				// ополовинивание брони
+				if (decrease >= 2 && flags[HALF_IGNORE_ARMOR])
+				{
+					decrease /= 2;
+				}
 				// шанс полностью поглотить удар 2%
 				if (decrease >= number(dam, dam * 50))
 				{
@@ -2021,14 +2032,21 @@ bool DmgType::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
 					return true;
 				}
 				// броня + поглощение роляет до 50% снижения дамаги
-				dam -= (dam * MAX(0, MIN(50, decrease)) / 100);
+				int tmp_dam  = (dam * MAX(0, MIN(50, decrease)) / 100);
+				// ополовинивание брони по флагу
+				if (tmp_dam >= 2 && flags[HALF_IGNORE_ARMOR])
+				{
+					tmp_dam /= 2;
+				}
+				dam -= tmp_dam;
 			}
 			/* умножаем дамаг при крит ударе, если щитов нет и игнор ничего не дает
 			   по призме не умножаем, чтобы не уносило танков с 1 удара */
 		}
-		else if ((GET_LEVEL(victim) >= 5 || !IS_NPC(ch))
-				 && !AFF_FLAGGED(victim, AFF_PRISMATICAURA) && !AFF_FLAGGED(victim, AFF_FIRESHIELD)
-				 && !AFF_FLAGGED(victim, AFF_ICESHIELD) && !AFF_FLAGGED(victim, AFF_AIRSHIELD))
+		else if (was_critic
+			&& (GET_LEVEL(victim) >= 5 || !IS_NPC(ch))
+			&& !AFF_FLAGGED(victim, AFF_PRISMATICAURA) && !AFF_FLAGGED(victim, AFF_FIRESHIELD)
+			&& !AFF_FLAGGED(victim, AFF_ICESHIELD) && !AFF_FLAGGED(victim, AFF_AIRSHIELD))
 		{
 			dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2));
 		}
@@ -3525,6 +3543,17 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	if (hit_params.skill_num == SKILL_BACKSTAB)
 	{
+		hit_params.was_critic = false;
+		if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
+		{
+			// тати игнорят броню полностью
+			hit_params.flags.set(IGNORE_ARMOR);
+		}
+		else
+		{
+			// наемы и, видимо, мобы игнорят вполовину
+			hit_params.flags.set(HALF_IGNORE_ARMOR);
+		}
 		hit_params.dam *= backstab_mult(GET_LEVEL(ch));
 		if (number(1, 100) < calculate_crit_backstab_percent(ch)
 			&& !general_savingthrow(ch, victim, SAVING_REFLEX, dex_bonus(GET_REAL_DEX(ch))))

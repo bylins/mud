@@ -1244,12 +1244,6 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 		if (GET_MOB_HOLD(vict))
 			dam += (dam >> 1);
 
-		// Cut damage in half if victim has sanct, to a minimum 1
-		if (AFF_FLAGGED(vict, AFF_PRISMATICAURA))
-			dam *= 2;
-		if (AFF_FLAGGED(vict, AFF_SANCTUARY) && dam >= 2)
-			dam /= 2;
-
 //---
 		damage(ch, vict, dam, SkillDmg(SKILL_KICK), true);
 
