@@ -1328,7 +1328,7 @@ int calculate_crit_backstab_percent(CHAR_DATA *ch)
 /**
 * Расчет множителя крит.стаба (по игрокам только для татей).
 */
-double crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
+double HitData::crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	double bs_coeff = 1;
 	if (IS_NPC(victim))
@@ -1349,9 +1349,10 @@ double crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		// по чарам коэф. до 1.25 при 200 скила
 		bs_coeff *= 1 + (ch->get_skill(SKILL_BACKSTAB) * 0.00125);
-		// санку при крите как бы игнорим
-		if (AFF_FLAGGED(victim, AFF_SANCTUARY))
-			bs_coeff *= 2;
+		// санку и призму при крите игнорим,
+		// чтобы дамаг был более-менее предсказуемым
+		flags.set(IGNORE_SANCT);
+		flags.set(IGNORE_PRISM);
 		send_to_char("&GПрямо в сердце!&n\r\n", ch);
 	}
 	return bs_coeff;
@@ -2299,6 +2300,31 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 		return (0);
 	}
 
+	/** санка/призма для физ и маг урона */
+	if (dam >= 2)
+	{
+		if (AFF_FLAGGED(victim, AFF_PRISMATICAURA) && !flags[IGNORE_PRISM])
+		{
+			if (dmg_type == PHYS_DMG)
+				dam *= 2;
+			else if (dmg_type == MAGE_DMG)
+				dam /= 2;
+		}
+		if (AFF_FLAGGED(victim, AFF_SANCTUARY) && !flags[IGNORE_SANCT])
+		{
+			if (dmg_type == PHYS_DMG)
+				dam /= 2;
+			else if (dmg_type == MAGE_DMG)
+				dam *= 2;
+		}
+	}
+
+	// временно
+	if (skill_noparryhit_dam > 0)
+	{
+		dam += skill_noparryhit_dam;
+	}
+
 	/** уменьшение дамага */
 
 	// added by WorM(Видолюб) поглощение физ.урона в %
@@ -2709,6 +2735,8 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 	dmg.dam = dam;
 	dmg.was_critic = was_critic;
 	dmg.dam_critic = dam_critic;
+	dmg.flags = flags;
+	dmg.skill_noparryhit_dam = skill_noparryhit_dam;
 
 	return dmg.damage(ch, victim);
 }
@@ -3186,7 +3214,6 @@ void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
  * В данный момент:
  * добавление дамролов с пушек
  * добавление дамага от концентрации силы
- * инициализация skill_noparryhit_dam для дамага со скрытого удара
  */
 void HitData::add_weapon_damage(CHAR_DATA *ch)
 {
@@ -3206,14 +3233,7 @@ void HitData::add_weapon_damage(CHAR_DATA *ch)
 	}
 
 	damroll = calculate_strconc_damage(ch, wielded, damroll);
-
 	dam += MAX(1, damroll);
-	skill_noparryhit_dam += calculate_noparryhit_dmg(ch, wielded);
-
-	if (skill_num == SKILL_BACKSTAB)
-	{
-		skill_noparryhit_dam = skill_noparryhit_dam * 10 / 15;
-	}
 }
 
 /**
@@ -3391,8 +3411,15 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	/** обработка по факту попадания */
 	hit_params.dam += GET_REAL_DR(ch);
-	hit_params.dam = hit_params.dam > 0 ? number(1, (hit_params.dam * 2)) : hit_params.dam;
 	hit_params.dam += str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+
+	// рандом разброс базового дамага
+	if (hit_params.dam > 0)
+	{
+		int min_rnd = hit_params.dam - hit_params.dam / 4;
+		int max_rnd = hit_params.dam + hit_params.dam / 4;
+		hit_params.dam = MAX(1, number(min_rnd, max_rnd));
+	}
 
 	if (GET_EQ(ch, WEAR_BOTHS) && hit_params.weap_skill != SKILL_BOWS)
 		hit_params.dam *= 2;
@@ -3406,6 +3433,12 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	if (hit_params.wielded && GET_OBJ_TYPE(hit_params.wielded) == ITEM_WEAPON)
 	{
 		hit_params.add_weapon_damage(ch);
+		// скрытый удар
+		hit_params.skill_noparryhit_dam += calculate_noparryhit_dmg(ch, hit_params.wielded);
+		if (hit_params.skill_num == SKILL_BACKSTAB)
+		{
+			hit_params.skill_noparryhit_dam = hit_params.skill_noparryhit_dam * 10 / 15;
+		}
 	}
 	else
 	{
@@ -3466,13 +3499,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			hit_params.dam = hit_params.dam * 125 / 100;
 	}
 
-	/** санка/призма */
-	// Cut damage in half if victim has sanct, to a minimum 1
-	if (AFF_FLAGGED(victim, AFF_PRISMATICAURA))
-		hit_params.dam *= 2;
-	if (AFF_FLAGGED(victim, AFF_SANCTUARY) && hit_params.dam >= 2)
-		hit_params.dam /= 2;
-
 	// прибавляем дамаг со скрытого, в обход санки и призмы
 	hit_params.dam += hit_params.skill_noparryhit_dam;
 
@@ -3506,7 +3532,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		if (number(1, 100) < calculate_crit_backstab_percent(ch)
 			&& !general_savingthrow(ch, victim, SAVING_REFLEX, dex_bonus(GET_REAL_DEX(ch))))
 		{
-			hit_params.dam = static_cast<int>(hit_params.dam * crit_backstab_multiplier(ch, victim));
+			hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
 		}
 		//Adept: учитываем резисты от крит. повреждений
 		hit_params.dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, hit_params.dam);

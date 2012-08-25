@@ -43,6 +43,7 @@ struct HitData
 	void check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim);
 	void calc_crit_chance(CHAR_DATA *ch);
 	void check_weap_feats(CHAR_DATA *ch);
+	double crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim);
 
 	/** extdamage */
 	int extdamage(CHAR_DATA *ch, CHAR_DATA *victim);
@@ -87,6 +88,8 @@ struct HitData
 	// was_critic = TRUE, dam_critic > 0 - удар точным стилем
 	int was_critic;
 	int dam_critic;
+	// какой-никакой набор флагов, так же передается в damage()
+	std::bitset<HIT_TYPE_FLAGS_NUM> flags;
 };
 
 /** fight.cpp */

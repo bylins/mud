@@ -19,6 +19,10 @@ enum
 	type_pick, type_sting
 };
 
+const int IGNORE_SANCT = 0;
+const int IGNORE_PRISM = 1;
+const unsigned HIT_TYPE_FLAGS_NUM = 2;
+
 /**
  * Для входа со скила без инита остальных полей:
  * damage(ch, victim, dam, SkillDmg(SKILL_NUM), mayflee);
@@ -89,6 +93,10 @@ struct DmgType
 	// номер сообщения об ударе из файла messages
 	// инится только начиная с вызова damage
 	int msg_num;
+	// набор флагов из HitType
+	std::bitset<HIT_TYPE_FLAGS_NUM> flags;
+	// временно из HitType
+	int skill_noparryhit_dam;
 };
 
 template<class T> int damage(CHAR_DATA *ch, CHAR_DATA *victim, int dam, T obj,

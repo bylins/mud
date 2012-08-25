@@ -2005,11 +2005,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 		if (!IS_SET(SpINFO.routines, MAG_WARCRY))
 		{
-			if (AFF_FLAGGED(victim, AFF_SANCTUARY))
-				koeff *= 2;
 			if (ch != victim && general_savingthrow(ch, victim, savetype, modi))
-				koeff /= 2;
-			if (AFF_FLAGGED(victim, AFF_PRISMATICAURA))
 				koeff /= 2;
 			koeff -= (koeff * MIN((GET_ABSORBE(victim) + 1) / 2, 25) / 100);
 		}
