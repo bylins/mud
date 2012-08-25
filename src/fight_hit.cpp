@@ -2957,18 +2957,19 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 
 /**
  * Соответственно подсчет динамических хитролов, не попавших в calc_base_hr()
- * Все, что меняется от раза к разу или при разных противниках.
+ * Все, что меняется от раза к разу или при разных противниках
+ * При любом изменении содержимого нужно поддерживать адекватность calc_stat_hr()
  */
 void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 {
-	if (weapon == 2
+	// штраф в размере 1 хитролла за каждые
+	// недокачанные 10% скилла "удар левой рукой"
+	if (weapon == LEFT_WEAPON
 		&& skill_num != SKILL_THROW
 		&& skill_num != SKILL_BACKSTAB
 		&& !(wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
 		&& !IS_NPC(ch))
 	{
-		// штраф в размере 1 хитролла за каждые
-		// недокачанные 10% скилла "удар левой рукой"
 		calc_thaco += (skill_info[SKILL_SHIT].max_percent -
 		   train_skill(ch, SKILL_SHIT, skill_info[SKILL_SHIT].max_percent, victim)) / 10;
 	}
@@ -2985,9 +2986,9 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 
+	// Horse modifier for attacker
 	if (!IS_NPC(ch) && skill_num != SKILL_THROW && skill_num != SKILL_BACKSTAB && on_horse(ch))
 	{
-		// Horse modifier for attacker
 		int prob = train_skill(ch, SKILL_HORSE, skill_info[SKILL_HORSE].max_percent, victim);
 		dam += ((prob + 19) / 10);
 		int range = number(1, skill_info[SKILL_HORSE].max_percent);
@@ -3035,12 +3036,59 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 		calc_thaco += IS_NPC(ch) ? 4 : 2;
 	}
 
+	// скилл владения пушкой или голыми руками
 	if (weap_skill_is <= 80)
 		calc_thaco -= weap_skill_is / 20;
-	else if (weap_skill_is <= 110)
+	else if (weap_skill_is <= 160)
 		calc_thaco -= 4 + (weap_skill_is - 80) / 10;
 	else
-		calc_thaco -= 4 + 3 + (weap_skill_is - 110) / 5;
+		calc_thaco -= 4 + 8 + (weap_skill_is - 160) / 5;
+}
+
+/**
+ * Версия calc_rand_hr для показа по 'счет', без рандомов и статов жертвы.
+ */
+void HitData::calc_stat_hr(CHAR_DATA *ch)
+{
+	// штраф в размере 1 хитролла за каждые
+	// недокачанные 10% скилла "удар левой рукой"
+	if (weapon == LEFT_WEAPON
+		&& skill_num != SKILL_THROW
+		&& skill_num != SKILL_BACKSTAB
+		&& !(wielded && GET_OBJ_TYPE(wielded) == ITEM_WEAPON)
+		&& !IS_NPC(ch))
+	{
+		calc_thaco += (skill_info[SKILL_SHIT].max_percent - ch->get_skill(SKILL_SHIT)) / 10;
+	}
+
+	// courage
+	if (affected_by_spell(ch, SPELL_COURAGE))
+	{
+		dam += ((ch->get_skill(SKILL_COURAGE) + 19) / 20);
+		calc_thaco -= ((ch->get_skill(SKILL_COURAGE) + 9) / 20);
+	}
+
+	// Horse modifier for attacker
+	if (!IS_NPC(ch) && skill_num != SKILL_THROW && skill_num != SKILL_BACKSTAB && on_horse(ch))
+	{
+		int prob = ch->get_skill(SKILL_HORSE);
+		int range = skill_info[SKILL_HORSE].max_percent / 2;
+
+		dam += ((prob + 19) / 10);
+
+		if (range > prob)
+			calc_thaco += ((range - prob) + 19 / 20);
+		else
+			calc_thaco -= ((prob - range) + 19 / 20);
+	}
+
+	// скилл владения пушкой или голыми руками
+	if (ch->get_skill(weap_skill) <= 80)
+		calc_thaco -= ch->get_skill(weap_skill) / 20;
+	else if (ch->get_skill(weap_skill) <= 160)
+		calc_thaco -= 4 + (ch->get_skill(weap_skill) - 80) / 10;
+	else
+		calc_thaco -= 4 + 8 + (ch->get_skill(weap_skill) - 160) / 5;
 }
 
 /**

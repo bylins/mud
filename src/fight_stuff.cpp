@@ -908,13 +908,17 @@ void test_self_hitroll(CHAR_DATA *ch)
 	hit.weapon = RIGHT_WEAPON;
 	hit.init(ch, ch);
 	hit.calc_base_hr(ch);
-	log("t2: %d", hit.calc_thaco);
+	hit.calc_stat_hr(ch);
+	hit.calc_ac(ch);
 
 	HitData hit2;
 	hit2.weapon = LEFT_WEAPON;
-	hit2.init(ch, ch	);
+	hit2.init(ch, ch);
 	hit2.calc_base_hr(ch);
-	log("t3: %d", hit2.calc_thaco);
+	hit2.calc_stat_hr(ch);
+
+	send_to_char(ch, "RIGHT_WEAPON: hitroll=%d, LEFT_WEAPON: hitroll=%d, AC=%d\r\n",
+		hit.calc_thaco * -1, hit2.calc_thaco * -1, hit.victim_ac);
 }
 
 void DmgType::init_msg_num()

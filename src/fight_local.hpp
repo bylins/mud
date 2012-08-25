@@ -36,6 +36,7 @@ struct HitData
 	void init(CHAR_DATA *ch, CHAR_DATA *victim);
 	void calc_base_hr(CHAR_DATA *ch);
 	void calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim);
+	void calc_stat_hr(CHAR_DATA *ch);
 	void calc_ac(CHAR_DATA *victim);
 	void add_weapon_damage(CHAR_DATA *ch);
 	void add_hand_damage(CHAR_DATA *ch);
