@@ -2319,12 +2319,6 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 
-	// временно
-	if (skill_noparryhit_dam > 0)
-	{
-		dam += skill_noparryhit_dam;
-	}
-
 	/** уменьшение дамага */
 
 	// added by WorM(Видолюб) поглощение физ.урона в %
@@ -2736,7 +2730,6 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 	dmg.was_critic = was_critic;
 	dmg.dam_critic = dam_critic;
 	dmg.flags = flags;
-	dmg.skill_noparryhit_dam = skill_noparryhit_dam;
 
 	return dmg.damage(ch, victim);
 }
@@ -3434,10 +3427,19 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	{
 		hit_params.add_weapon_damage(ch);
 		// скрытый удар
-		hit_params.skill_noparryhit_dam += calculate_noparryhit_dmg(ch, hit_params.wielded);
-		if (hit_params.skill_num == SKILL_BACKSTAB)
+		int tmp_dam = calculate_noparryhit_dmg(ch, hit_params.wielded);
+		if (tmp_dam > 0)
 		{
-			hit_params.skill_noparryhit_dam = hit_params.skill_noparryhit_dam * 10 / 15;
+			// 0 раунд и стаб = 40% скрытого, дальше раунд * 0.4 (до 5 раунда)
+			int round_dam = tmp_dam * 4 / 10;
+			if (hit_params.skill_num == SKILL_BACKSTAB || ROUND_COUNTER(ch) <= 0)
+			{
+				hit_params.dam += round_dam;
+			}
+			else
+			{
+				hit_params.dam += round_dam * MIN(5, ROUND_COUNTER(ch));
+			}
 		}
 	}
 	else
@@ -3473,7 +3475,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	if (GET_POS(ch) < POS_FIGHTING)
 	{
 		hit_params.dam -= (hit_params.dam * (POS_FIGHTING - GET_POS(ch)) / 4);
-		hit_params.skill_noparryhit_dam -= (hit_params.skill_noparryhit_dam * (POS_FIGHTING - GET_POS(ch)) / 4);
 	}
 
 	if (GET_POS(victim) == POS_SITTING
@@ -3487,7 +3488,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	else if (GET_POS(victim) < POS_FIGHTING)
 	{
 		hit_params.dam += (hit_params.dam * (POS_FIGHTING - GET_POS(victim)) / 3);
-		hit_params.skill_noparryhit_dam += (hit_params.skill_noparryhit_dam * (POS_FIGHTING - GET_POS(victim)) / 3);
 	}
 
 	/** изменение урона по холду */
@@ -3498,9 +3498,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		else
 			hit_params.dam = hit_params.dam * 125 / 100;
 	}
-
-	// прибавляем дамаг со скрытого, в обход санки и призмы
-	hit_params.dam += hit_params.skill_noparryhit_dam;
 
 	if (!IS_NPC(victim) && IS_CHARMICE(ch))
 		hit_params.dam = hit_params.dam * 8 / 10;

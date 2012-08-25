@@ -26,8 +26,7 @@ struct HitData
 {
 	HitData() : weapon(0), wielded(0), weapon_pos(WEAR_WIELD), weap_skill(0),
 		weap_skill_is(0), skill_num(-1), hit_type(0), hit_no_parry(false),
-		victim_ac(0), calc_thaco(0), dam(0), skill_noparryhit_dam(0),
-		was_critic(0), dam_critic(0)
+		victim_ac(0), calc_thaco(0), dam(0), was_critic(0), dam_critic(0)
 	{
 		diceroll = number(100, 2099) / 100;
 	};
@@ -82,8 +81,6 @@ struct HitData
 	int calc_thaco;
 	// дамаг атакующего
 	int dam;
-	// дамаг от скрытого стиля, который потом плюсуется к dam
-	int skill_noparryhit_dam;
 	// was_critic = TRUE, dam_critic = 0 - критический удар
 	// was_critic = TRUE, dam_critic > 0 - удар точным стилем
 	int was_critic;

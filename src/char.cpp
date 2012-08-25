@@ -163,6 +163,7 @@ void Character::zero_init()
 	ExtractTimer = 0;
 	Initiative = 0;
 	BattleCounter = 0;
+	round_counter = 0;
 	Poisoner = 0;
 	ing_list = 0;
 	dl_list = 0;

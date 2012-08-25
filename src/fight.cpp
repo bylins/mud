@@ -254,6 +254,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	ch->set_fighting(0);
 	INITIATIVE(ch) = 0;
 	BATTLECNTR(ch) = 0;
+	ROUND_COUNTER(ch) = 0;
 	ch->set_extra_attack(0, 0);
 	ch->set_cast(0, 0, 0, 0, 0);
 	restore_battle_pos(ch);

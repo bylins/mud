@@ -95,8 +95,6 @@ struct DmgType
 	int msg_num;
 	// набор флагов из HitType
 	std::bitset<HIT_TYPE_FLAGS_NUM> flags;
-	// временно из HitType
-	int skill_noparryhit_dam;
 };
 
 template<class T> int damage(CHAR_DATA *ch, CHAR_DATA *victim, int dam, T obj,
