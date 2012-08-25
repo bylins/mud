@@ -2471,7 +2471,7 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& IN_ROOM(victim) != NOWHERE
 		&& skill_num != SKILL_TURN_UNDEAD)
 	{
-		::damage(victim, ch, dam, SpellDmg(SPELL_FIRE_SHIELD), false, MAGE_DMG);
+		::damage(victim, ch, fs_damage, SpellDmg(SPELL_FIRE_SHIELD), false, MAGE_DMG);
 	}
 
 	return dam;
