@@ -354,15 +354,17 @@ int im_assign_power(OBJ_DATA * obj)
 		free(GET_OBJ_DESC(obj));
 	GET_OBJ_DESC(obj) = str_dup(replace_alias(ptr, sample, rnum, "s"));
 
+	ptr = obj_proto[GET_OBJ_RNUM(obj)]->short_description;
+	if (obj->short_description != ptr)
+		free(obj->short_description);
+	obj->short_description = str_dup(replace_alias(ptr, sample, rnum, def_alias[0]));
+
 	ptr = GET_OBJ_ALIAS(obj_proto[GET_OBJ_RNUM(obj)]);
 	if (GET_OBJ_ALIAS(obj) != ptr)
 		free(GET_OBJ_ALIAS(obj));
-	GET_OBJ_ALIAS(obj) = str_dup(replace_alias(ptr, sample, rnum, "a"));
-
-	ptr = obj_proto[GET_OBJ_RNUM(obj)]->aliases;
-	if (obj->aliases != ptr)
-		free(obj->aliases);
-	obj->aliases = str_dup(replace_alias(ptr, sample, rnum, "m"));
+	std::string aliases = replace_alias(ptr, sample, rnum, "a");
+	aliases += std::string(" ") + obj->short_description;
+	GET_OBJ_ALIAS(obj) = str_dup(aliases.c_str());
 
 // Обработка других полей объекта
 // -- пока не сделано --
