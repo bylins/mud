@@ -1073,20 +1073,19 @@ void set_mob_skills_flags(CHAR_DATA *ch)
 		SET_AF_BATTLE(ch, EAF_DEVIATE);
 		sk_use = true;
 	}
-	// 5) stupor
+	// 5) mighthit
+	do_this = number(0, 100);
+	if (!sk_use && do_this <= GET_LIKES(ch) && ch->get_skill(SKILL_MIGHTHIT)
+		&& check_mighthit_weapon(ch))
+	{
+		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
+		sk_use = true;
+	}
+	// 6) stupor
 	do_this = number(0, 100);
 	if (!sk_use && do_this <= GET_LIKES(ch) && ch->get_skill(SKILL_STUPOR))
 	{
 		SET_AF_BATTLE(ch, EAF_STUPOR);
-		sk_use = true;
-	}
-	// 6) mighthit
-	do_this = number(0, 100);
-	if (!sk_use && do_this <= GET_LIKES(ch)
-		&& ch->get_skill(SKILL_MIGHTHIT)
-		&& check_mighthit_weapon(ch))
-	{
-		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
 		sk_use = true;
 	}
 	// 7) styles

@@ -1906,6 +1906,12 @@ void npc_wield(CHAR_DATA * ch)
 	if (!NPC_FLAGGED(ch, NPC_WIELDING))
 		return;
 
+	if (ch->get_skill(SKILL_MIGHTHIT) > 0
+		&& ch->get_skill(SKILL_STUPOR) < ch->get_skill(SKILL_MIGHTHIT))
+	{
+		return;
+	}
+
 	if (GET_REAL_INT(ch) < 10 || IS_SHOPKEEPER(ch))
 		return;
 

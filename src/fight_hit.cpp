@@ -814,11 +814,6 @@ void might_hit_bash(CHAR_DATA *ch, CHAR_DATA *victim)
 
 bool check_mighthit_weapon(CHAR_DATA *ch)
 {
-	if (IS_IMMORTAL(ch)
-		|| (IS_NPC(ch) && !IS_CHARMICE(ch)))
-	{
-		return true;
-	}
 	if (!GET_EQ(ch, WEAR_BOTHS)
 		&& !GET_EQ(ch, WEAR_WIELD)
 		&& !GET_EQ(ch, WEAR_HOLD)

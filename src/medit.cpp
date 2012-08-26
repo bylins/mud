@@ -1421,7 +1421,8 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 			"%sВ%s) Сила : [%s%4d%s],%sГ%s) Ловк : [%s%4d%s],%sД%s) Тело : [%s%4d%s]\r\n"
 			"%sЕ%s) Мудр : [%s%4d%s],%sЖ%s) Ум   : [%s%4d%s],%sЗ%s) Обая : [%s%4d%s]\r\n"
 			"%sИ%s) Рост : [%s%4d%s],%sК%s) Вес  : [%s%4d%s],%sЛ%s) Разм : [%s%4d%s]\r\n"
-			"%sМ%s) ЭксА : [%s%4d%s],%sН%s) Like : [%s%4d%s]\r\n"
+			"%sМ%s) ЭксА : [%s%4d%s]r\n"
+			"%sН%s) Шансы использования умений: [%s%4d%s]\r\n"
 			"%sО%s) Ингредиенты: %s%s\r\n"
 			"%sП%s) Загружаемые объекты: %s%s\r\n"
 			"%sР%s) Класс моба: %s%s\r\n"
@@ -1846,9 +1847,9 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		case 'н':
 		case 'Н':
+			send_to_char(d->character, "\r\nВведите новое значение от 0 до 100%% :");
 			OLC_MODE(d) = MEDIT_LIKE;
-			i++;
-			break;
+			return;
 		case 'о':
 		case 'О':
 			OLC_MODE(d) = MEDIT_ING;
