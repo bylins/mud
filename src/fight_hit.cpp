@@ -2026,21 +2026,35 @@ bool DmgType::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (dmg_type == PHYS_DMG
 		&& dam > 0
 		&& GET_ABSORBE(victim) > 0
-		&& !flags[IGNORE_ARMOR])
+		&& !flags[IGNORE_ABSORBE])
 	{
-		// физ урон - прямое вычитание из дамага
-		dam -= flags[HALF_IGNORE_ARMOR] ? GET_ABSORBE(victim) / 20 : GET_ABSORBE(victim) / 10;
-		if (dam <= 0)
+		// шансы поглощения: непробиваемый в осторожке 15%, остальные 10%
+		int chance = 10;
+		if (can_use_feat(victim, IMPREGNABLE_FEAT)
+			&& IS_SET(PRF_FLAGS(victim, PRF_AWAKE), PRF_AWAKE))
 		{
-			act("Ваши доспехи полностью поглотили удар $n1.", FALSE, ch, 0, victim, TO_VICT);
-			act("Доспехи $N1 полностью поглотили Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
-			act("Доспехи $N1 полностью поглотили удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-			return true;
+			chance = 15;
+		}
+		// физ урон - прямое вычитание из дамага
+		if (number(1, 100) <= chance)
+		{
+			dam -= GET_ABSORBE(victim) / 2;
+			if (dam <= 0)
+			{
+				act("Ваши доспехи полностью поглотили удар $n1.",
+					FALSE, ch, 0, victim, TO_VICT);
+				act("Доспехи $N1 полностью поглотили Ваш удар.",
+					FALSE, ch, 0, victim, TO_CHAR);
+				act("Доспехи $N1 полностью поглотили удар $n1.",
+					TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+				return true;
+			}
 		}
 	}
 	else if (dmg_type == MAGE_DMG
 		&& dam > 0
-		&& GET_ABSORBE(victim) > 0)
+		&& GET_ABSORBE(victim) > 0
+		&& !flags[IGNORE_ABSORBE])
 	{
 		// маг урон - по 1% за каждые 2 абсорба, максимум 25% (цифры из mag_damage)
 		int absorb = MIN(GET_ABSORBE(victim) / 2, 25);
@@ -3542,6 +3556,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	if (hit_params.skill_num == SKILL_BACKSTAB)
 	{
 		hit_params.was_critic = false;
+		// любой стабер игнорит поглощение
+		hit_params.flags.set(IGNORE_ABSORBE);
 		if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
 		{
 			// тати игнорят броню полностью

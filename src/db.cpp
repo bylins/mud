@@ -3537,6 +3537,9 @@ void set_test_data(CHAR_DATA *mob)
 			GET_CAST_SUCCESS(mob) = min_cast;
 		}
 	}
+
+	// поглощение пока принудительно всем
+	GET_ABSORBE(mob) = mob->get_level();
 }
 
 void parse_mobile(FILE * mob_f, int nr)

@@ -1981,18 +1981,14 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		}
 		dam = dice(ndice, sdice) + adice;
 		dam = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, dam);
-		if (can_use_feat(ch, POWER_MAGIC_FEAT) || (GET_CLASS(ch) == CLASS_NPC_BATLEMAGE))
+
+		/* колдуны всегда в 2 раза сильнее фрагают  */
+		if (can_use_feat(ch, POWER_MAGIC_FEAT))
 		{
-			dam += IS_NPC(victim) ? dam : 0;	/* колдуны всегда в 2 раза сильнее фрагают  */
+			dam += IS_NPC(victim) ? dam : 0;
 			if (GET_POS(victim) < POS_FIGHTING)
 				dam += (dam * (POS_FIGHTING - GET_POS(victim)) / 3);
 		}
-
-		/*
-		dam *= MAX(MIN(100, wis_bonus(GET_REAL_WIS(ch), WIS_SPELL_SUCCESS) + 100 + MAX(0, wis_bonus(ch->get_wis(), WIS_SPELL_SUCCESS))),
-				   number(MAX(0, wis_bonus(ch->get_wis(), WIS_SPELL_SUCCESS)), 100) + wis_bonus(GET_REAL_WIS(ch), WIS_SPELL_SUCCESS));
-		dam /= 100;
-		*/
 
 		// по +5% дамага за каждую мудрость от 23 и выше
 		if (GET_REAL_WIS(ch) >= 23)
@@ -2030,7 +2026,16 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			&& GET_POS(ch) > POS_STUNNED
 			&& GET_POS(victim) > POS_DEAD)
 		{
-			rand = damage(ch, victim, dam, SpellDmg(spellnum), count <= 1, MAGE_DMG);
+			DmgType dmg;
+			dmg.dam = dam;
+			dmg.spell_num = spellnum;
+			dmg.mayflee = count <= 1;
+			dmg.dmg_type = MAGE_DMG;
+			if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim))
+			{
+				dmg.flags.set(IGNORE_ABSORBE);
+			}
+			rand = dmg.damage(ch, victim);
 		}
 	}
 	return rand;

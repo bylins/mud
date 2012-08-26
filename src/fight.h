@@ -23,12 +23,14 @@ enum
 const int IGNORE_SANCT = 0;
 // игнор призмы
 const int IGNORE_PRISM = 1;
-// игнор брони и поглощения (физ дамаг)
+// игнор брони
 const int IGNORE_ARMOR = 2;
-// ополовинивание учитываемой брони и поглощения (физ дамаг)
+// ополовинивание учитываемой брони
 const int HALF_IGNORE_ARMOR = 3;
+// игнор поглощения
+const int IGNORE_ABSORBE = 4;
 // кол-во флагов
-const unsigned HIT_TYPE_FLAGS_NUM = 4;
+const unsigned HIT_TYPE_FLAGS_NUM = 5;
 
 /**
  * Для входа со скила без инита остальных полей:
