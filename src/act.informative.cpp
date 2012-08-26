@@ -3170,7 +3170,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	strcat(buf, " -------------------------------------------------------------------------------------\r\n");
 	strcat(buf, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
-	test_self_hitroll(ch);
+//	test_self_hitroll(ch);
 }
 
 ACMD(do_score)

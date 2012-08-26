@@ -2029,7 +2029,7 @@ bool DmgType::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& !flags[IGNORE_ARMOR])
 	{
 		// физ урон - прямое вычитание из дамага
-		dam -= flags[HALF_IGNORE_ARMOR] ? GET_ABSORBE(victim) / 2 : GET_ABSORBE(victim);
+		dam -= flags[HALF_IGNORE_ARMOR] ? GET_ABSORBE(victim) / 20 : GET_ABSORBE(victim) / 10;
 		if (dam <= 0)
 		{
 			act("Ваши доспехи полностью поглотили удар $n1.", FALSE, ch, 0, victim, TO_VICT);
