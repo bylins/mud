@@ -20,7 +20,7 @@ using std::bitset;
 #define BERSERK_FEAT			1   //предсмертная ярость
 #define PARRY_ARROW_FEAT		2   //отбить стрелу
 #define BLIND_FIGHT_FEAT		3   //слепой бой
-#define IMPREGNABLE_FEAT		4   //мгновенная атака
+#define IMPREGNABLE_FEAT		4   //непробиваемый
 #define APPROACHING_ATTACK_FEAT		5   //встречная атака
 #define DEFENDER_FEAT			6   //щитоносец
 #define DODGER_FEAT	7   //изворотливость

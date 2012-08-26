@@ -2007,7 +2007,6 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		{
 			if (ch != victim && general_savingthrow(ch, victim, savetype, modi))
 				koeff /= 2;
-			koeff -= (koeff * MIN((GET_ABSORBE(victim) + 1) / 2, 25) / 100);
 		}
 
 		if (dam > 0)

@@ -1986,60 +1986,29 @@ bool DmgType::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	return false;
 }
 
-bool DmgType::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
+void DmgType::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
 {
+	// броня на физ дамаг
 	if (dam > 0 && dmg_type == PHYS_DMG)
 	{
 		alt_equip(victim, NOWHERE, dam, 50);
 		if (!was_critic && !flags[IGNORE_ARMOR])
 		{
-			if (can_use_feat(victim, IMPREGNABLE_FEAT) && IS_SET(PRF_FLAGS(victim, PRF_AWAKE), PRF_AWAKE))
+			// 50 брони = 50% снижение дамага
+			int max_armour = 50;
+			if (can_use_feat(victim, IMPREGNABLE_FEAT)
+				&& IS_SET(PRF_FLAGS(victim, PRF_AWAKE), PRF_AWAKE))
 			{
-				// у дружа в осторожке поглощение роляет до 99
-				int decrease = MIN(50, (GET_ABSORBE(victim) + 1) / 2) + GET_ARMOUR(victim);
-				// шанс полностью поглотить удар 4%
-				if (decrease >= number(dam, dam * 25))
-				{
-					act("Ваши доспехи полностью поглотили удар $n1.", FALSE, ch, 0, victim, TO_VICT);
-					act("Доспехи $N1 полностью поглотили Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
-					act("Доспехи $N1 полностью поглотили удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-					return true;
-				}
-				// броня + поглощение роляет до 75% снижения дамаги
-				int tmp_dam = (dam * MAX(0, MIN(75, decrease)) / 100);
-				// ополовинивание брони по флагу
-				if (tmp_dam >= 2 && flags[HALF_IGNORE_ARMOR])
-				{
-					tmp_dam /= 2;
-				}
-				dam -= tmp_dam;
+				// непробиваемый в осторожке - до 75 брони
+				max_armour = 75;
 			}
-			else
+			int tmp_dam = dam * MAX(0, MIN(max_armour, GET_ARMOUR(victim))) / 100;
+			// ополовинивание брони по флагу скила
+			if (tmp_dam >= 2 && flags[HALF_IGNORE_ARMOR])
 			{
-				// у всех остальных поглощение роляет до 49
-				int decrease = MIN(25, (GET_ABSORBE(victim) + 1) / 2) + GET_ARMOUR(victim);
-				// ополовинивание брони
-				if (decrease >= 2 && flags[HALF_IGNORE_ARMOR])
-				{
-					decrease /= 2;
-				}
-				// шанс полностью поглотить удар 2%
-				if (decrease >= number(dam, dam * 50))
-				{
-					act("Ваши доспехи полностью поглотили удар $n1.", FALSE, ch, 0, victim, TO_VICT);
-					act("Доспехи $N1 полностью поглотили Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
-					act("Доспехи $N1 полностью поглотили удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-					return true;
-				}
-				// броня + поглощение роляет до 50% снижения дамаги
-				int tmp_dam  = (dam * MAX(0, MIN(50, decrease)) / 100);
-				// ополовинивание брони по флагу
-				if (tmp_dam >= 2 && flags[HALF_IGNORE_ARMOR])
-				{
-					tmp_dam /= 2;
-				}
-				dam -= tmp_dam;
+				tmp_dam /= 2;
 			}
+			dam -= tmp_dam;
 			/* умножаем дамаг при крит ударе, если щитов нет и игнор ничего не дает
 			   по призме не умножаем, чтобы не уносило танков с 1 удара */
 		}
@@ -2051,7 +2020,37 @@ bool DmgType::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
 			dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2));
 		}
 	}
+}
 
+/**
+ * Обработка поглощения физ и маг урона.
+ * \return true - полное поглощение
+ */
+bool DmgType::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim)
+{
+	if (dmg_type == PHYS_DMG
+		&& dam > 0
+		&& GET_ABSORBE(victim) > 0
+		&& !flags[IGNORE_ARMOR])
+	{
+		// физ урон - прямое вычитание из дамага
+		dam -= flags[HALF_IGNORE_ARMOR] ? GET_ABSORBE(victim) / 2 : GET_ABSORBE(victim);
+		if (dam <= 0)
+		{
+			act("Ваши доспехи полностью поглотили удар $n1.", FALSE, ch, 0, victim, TO_VICT);
+			act("Доспехи $N1 полностью поглотили Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
+			act("Доспехи $N1 полностью поглотили удар $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+			return true;
+		}
+	}
+	else if (dmg_type == MAGE_DMG
+		&& dam > 0
+		&& GET_ABSORBE(victim) > 0)
+	{
+		// маг урон - по 1% за каждые 2 абсорба, максимум 25% (цифры из mag_damage)
+		int absorb = MIN(GET_ABSORBE(victim) / 2, 25);
+		dam -= dam * absorb / 100;
+	}
 	return false;
 }
 
@@ -2349,7 +2348,11 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (victim != ch)
 	{
 		bool shield_full_absorb = magic_shields_dam(ch, victim);
-		bool armor_full_absorb = armor_dam_reduce(ch, victim);
+		// сначала броня
+		armor_dam_reduce(ch, victim);
+		// потом абсорб
+		bool armor_full_absorb = dam_absorb(ch, victim);
+		// полное поглощение
 		if (shield_full_absorb || armor_full_absorb)
 		{
 			return 0;

@@ -76,7 +76,8 @@ struct DmgType
 
 	int damage(CHAR_DATA *ch, CHAR_DATA *victim);
 	bool magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim);
-	bool armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim);
+	void armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim);
+	bool dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim);
 	void process_death(CHAR_DATA *ch, CHAR_DATA *victim);
 
 	// дамаг атакующего
