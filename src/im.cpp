@@ -362,9 +362,7 @@ int im_assign_power(OBJ_DATA * obj)
 	ptr = GET_OBJ_ALIAS(obj_proto[GET_OBJ_RNUM(obj)]);
 	if (GET_OBJ_ALIAS(obj) != ptr)
 		free(GET_OBJ_ALIAS(obj));
-	std::string aliases = replace_alias(ptr, sample, rnum, "a");
-	aliases += std::string(" ") + obj->short_description;
-	GET_OBJ_ALIAS(obj) = str_dup(aliases.c_str());
+	GET_OBJ_ALIAS(obj) = str_dup(replace_alias(ptr, sample, rnum, "m"));
 
 // Обработка других полей объекта
 // -- пока не сделано --
