@@ -208,9 +208,11 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (AFF_FLAGGED(ch, AFF_SLEEP))
 		affect_from_char(ch, SPELL_SLEEP);
+
 	ch->set_fighting(vict);
+
 	NUL_AF_BATTLE(ch);
-//Polud вступление в битву не мешает прикрывать
+	//Polud вступление в битву не мешает прикрывать
 	if (ch->get_protecting())
 		SET_AF_BATTLE(ch, EAF_PROTECT);
 	ch->set_touching(0);
@@ -219,6 +221,19 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 	ROUND_COUNTER(ch) = 0;
 	ch->set_extra_attack(0, 0);
 	set_battle_pos(ch);
+
+	// если до начала боя на мобе есть лаг, то мы его выравниваем до целых
+	// раундов в большую сторону (для подножки, должно давать чару зазор в две
+	// секунды после подножки, чтобы моб всеравно встал только на 3й раунд)
+	if (IS_NPC(ch) && GET_WAIT(ch) > 0)
+	{
+		div_t tmp = div(GET_WAIT(ch), PULSE_VIOLENCE);
+		if (tmp.rem > 0)
+		{
+			WAIT_STATE(ch, (tmp.quot + 1) * PULSE_VIOLENCE);
+		}
+	}
+
 	/* Set combat style */
 	if (!AFF_FLAGGED(ch, AFF_COURAGE) && !AFF_FLAGGED(ch, AFF_DRUNKED) && !AFF_FLAGGED(ch, AFF_ABSTINENT))
 	{
