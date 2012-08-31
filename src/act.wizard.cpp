@@ -1266,34 +1266,31 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 			((j->short_description) ? j->short_description : "<None>"), CCNRM(ch, C_NRM), j->aliases);
 	send_to_char(buf, ch);
 	sprinttype(GET_OBJ_TYPE(j), item_types, buf1);
+
 	if (GET_OBJ_RNUM(j) >= 0)
 		strcpy(buf2, (obj_index[GET_OBJ_RNUM(j)].func ? "Есть" : "Нет"));
 	else
 		strcpy(buf2, "None");
-	sprintf(buf,
-			"VNum: [%s%5d%s], RNum: [%5d], Тип: %s, СпецПроцедура: %s\r\n",
-			CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), buf1, buf2);
-	send_to_char(buf, ch);
+
+	send_to_char(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d]\r\n",
+		CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UID(j));
+
+	send_to_char(ch, "Тип: %s, СпецПроцедура: %s", buf1, buf2);
 
 	if (GET_OBJ_OWNER(j))
 	{
-		sprintf(buf, "Владелец : %s, ", get_name_by_unique(GET_OBJ_OWNER(j)));
-		send_to_char(buf, ch);
+		send_to_char(ch, ", Владелец : %s", get_name_by_unique(GET_OBJ_OWNER(j)));
 	}
-
 	if (GET_OBJ_MAKER(j))
 	{
-		sprintf(buf, "Создатель : %s, ", get_name_by_unique(GET_OBJ_MAKER(j)));
-		send_to_char(buf, ch);
+		send_to_char(ch, ", Создатель : %s", get_name_by_unique(GET_OBJ_MAKER(j)));
 	}
-
 	if (GET_OBJ_PARENT(j))
 	{
-		sprintf(buf, "Родитель(VNum) : [%d], ", GET_OBJ_PARENT(j));
-		send_to_char(buf, ch);
+		send_to_char(ch, ", Родитель(VNum) : [%d]", GET_OBJ_PARENT(j));
 	}
 
-	sprintf(buf, "L-Des: %s\r\n%s", ((j->description) ? j->description : "Нет"), CCNRM(ch, C_NRM));
+	sprintf(buf, "\r\nL-Des: %s\r\n%s", ((j->description) ? j->description : "Нет"), CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
 	if (j->ex_description)

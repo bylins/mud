@@ -1363,7 +1363,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			return;
 		}
 
-		if (!IS_NPC(ch))
+		if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
 		{
 			// Контроль уникальности предметов
 			if (object && // Объект существует

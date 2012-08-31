@@ -1931,7 +1931,7 @@ void npc_wield(CHAR_DATA * ch)
 	for (obj = ch->carrying; obj; obj = next)
 	{
 		next = obj->next_content;
-		if (GET_OBJ_TYPE(obj) != ITEM_WEAPON)
+		if (GET_OBJ_TYPE(obj) != ITEM_WEAPON || GET_OBJ_UID(obj) != 0)
 			continue;
 		if (CAN_WEAR(obj, ITEM_WEAR_HOLD) && OK_HELD(ch, obj))
 			best_weapon(ch, obj, &left);
@@ -2030,7 +2030,7 @@ void npc_armor(CHAR_DATA * ch)
 	for (obj = ch->carrying; obj; obj = next)
 	{
 		next = obj->next_content;
-		if (!ObjSystem::is_armor_type(obj))
+		if (!ObjSystem::is_armor_type(obj) || GET_OBJ_UID(obj) != 0)
 			continue;
 		if (CAN_WEAR(obj, ITEM_WEAR_FINGER))
 			where = WEAR_FINGER_R;
