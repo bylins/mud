@@ -2051,11 +2051,10 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 	if (fullness < 90 && ch != victim)
 		return;
 
-	val0 = compute_armor_class(victim);
-	val1 = GET_HR(victim);
-	val2 = GET_DR(victim);
-	sprintf(buf, "Защита : %d, Атака : %d, Повреждения : %d\r\n", val0, val1, val2);
-	send_to_char(buf, ch);
+	send_to_char(ch, "Атака : %d, Повреждения : %d\r\n",
+		GET_HR(victim), GET_DR(victim));
+	send_to_char(ch, "Защита : %d, Броня : %d, Поглощение : %d\r\n",
+		compute_armor_class(victim), GET_ARMOUR(victim), GET_ABSORBE(victim));
 
 	if (fullness < 100 || (ch != victim && !IS_NPC(victim)))
 		return;
