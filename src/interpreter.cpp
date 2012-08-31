@@ -1166,6 +1166,13 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 	else
 		line = any_one_arg(argument, arg);
 
+	if ((length = strlen(arg)) && length > 1 && *(arg + length - 1) == '!')
+	{
+		hardcopy = TRUE;
+		*(arg + (--length)) = '\0';
+		*(argument + length) = ' ';
+	}
+
 	if ((!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, AFF_STOPFIGHT) && !AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT)))
 	{
 		int cont;	/* continue the command checks */
@@ -1182,13 +1189,6 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 	}
 
 	/* otherwise, find the command */
-	if ((length = strlen(arg)) && length > 1 && *(arg + length - 1) == '!')
-	{
-		hardcopy = TRUE;
-		*(arg + (--length)) = '\0';
-		*(argument + length) = ' ';
-	}
-
 	for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
 	{
 		if (hardcopy)
