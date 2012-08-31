@@ -739,7 +739,7 @@ OCMD(do_osetval)
 	int position, new_value;
 
 	two_arguments(argument, arg1, arg2);
-	if (!!*arg1 || !*arg2 || !is_number(arg1) || !is_number(arg2))
+	if (!*arg1 || !*arg2 || !is_number(arg1) || !is_number(arg2))
 	{
 		obj_log(obj, "osetval: bad syntax");
 		return;
