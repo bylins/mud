@@ -159,10 +159,6 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
 {
 	CHAR_DATA *caster = NULL;
-	CHAR_DATA *tch;
-	OBJ_DATA *tobj;
-	ROOM_DATA *troom;
-
 	ROOM_DATA *caster_room = NULL;
 	char *s, *t;
 	int spellnum, target = 0;
@@ -265,12 +261,17 @@ void do_dg_cast(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cm
 		IN_ROOM(caster) = real_room(caster_room->number);
 	}
 
-
 	/* Find the target */
 	if (t != NULL)
 		one_argument(t, arg);
 	else
 		*arg = '\0';
+
+	// в find_dg_cast_target можем и не попасть для инита нулями и в call_magic пойдет мусор
+	CHAR_DATA *tch = 0;
+	OBJ_DATA *tobj = 0;
+	ROOM_DATA *troom = 0;
+
 	if (*arg == UID_CHAR)
 	{
 		if (!(tch = get_char(arg)))
