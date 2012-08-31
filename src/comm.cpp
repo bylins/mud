@@ -4179,18 +4179,6 @@ void setup_logs(void)
 {
 	mkdir("log", 0700);
 	mkdir("log/perslog", 0700);
-	mkdir("lib/plrstuff", 0700);
-	mkdir("lib/plrstuff/depot", 0700);
-	mkdir("lib/plrstuff/depot/A-E", 0700);
-	mkdir("lib/plrstuff/depot/F-J", 0700);
-	mkdir("lib/plrstuff/depot/K-O", 0700);
-	mkdir("lib/plrstuff/depot/P-T", 0700);
-	mkdir("lib/plrstuff/depot/U-Z", 0700);
-	mkdir("lib/plrstuff/depot/ZZZ", 0700);
-	mkdir("lib/plrstuff/house", 0700);
-	mkdir("lib/etc", 0700);
-	mkdir("lib/etc/board", 0700);
-	mkdir("lib/stat", 0700);
 
 	FILE *s_fp;
 	int i;

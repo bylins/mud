@@ -1612,6 +1612,7 @@ void boot_db(void)
 
 	log("Boot db -- BEGIN.");
 	struct stat st;
+
 	#define MKDIR(dir) if (stat((dir), &st) != 0) \
 		mkdir((dir), 0744)
 	#define MKLETTERS(BASE) MKDIR(#BASE); \
@@ -1627,8 +1628,10 @@ void boot_db(void)
 	MKLETTERS(plralias);
 	MKLETTERS(plrobjs);
 	MKLETTERS(plrs);
+	MKLETTERS(plrvars);
 	MKDIR("plrstuff");
 	MKDIR("plrstuff/depot");
+	MKLETTERS(plrstuff/depot);
 	MKDIR("plrstuff/house");
 	MKDIR("stat");
 

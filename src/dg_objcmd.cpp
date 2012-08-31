@@ -341,6 +341,8 @@ OCMD(do_otransform)
 		GET_OBJ_ZONE(o) = GET_OBJ_ZONE(&tmpobj);
 //		ObjectAlias::remove(obj);
 //		ObjectAlias::add(obj);
+		if (OBJ_FLAGGED(o, ITEM_TICKTIMER))
+			SET_BIT(GET_OBJ_EXTRA(obj, ITEM_TICKTIMER), ITEM_TICKTIMER);
 
 		if (wearer)
 		{
