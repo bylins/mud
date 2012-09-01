@@ -483,7 +483,8 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (percent > prob)
 	{
-		damage(ch, vict, 0, SkillDmg(SKILL_BACKSTAB), true);
+		Damage dmg(SkillDmg(SKILL_BACKSTAB), 0, FightSystem::PHYS_DMG);
+		dmg.process(ch, vict);
 	}
 	else
 	{
@@ -535,7 +536,7 @@ ACMD(do_backstab)
 		return;
 	}
 
-	if (GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) != type_pierce)
+	if (GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) != FightSystem::type_pierce)
 	{
 		send_to_char("ЗаКОЛоть можно только КОЛющи оружием !\r\n", ch);
 		return;
@@ -909,7 +910,8 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (percent > prob)
 	{
-		damage(ch, vict, 0, SkillDmg(SKILL_BASH), true);
+		Damage dmg(SkillDmg(SKILL_BASH), 0, FightSystem::PHYS_DMG);
+		dmg.process(ch, vict);
 		GET_POS(ch) = POS_SITTING;
 		prob = 3;
 	}
@@ -982,7 +984,10 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 //делаем блокирование баша
 
 		prob = 0;
-		dam = damage(ch, vict, dam, SkillDmg(SKILL_BASH), false);
+
+		Damage dmg(SkillDmg(SKILL_BASH), dam, FightSystem::PHYS_DMG);
+		dmg.flags.set(FightSystem::NO_FLEE);
+		dam = dmg.process(ch, vict);
 
 		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, AFF_SHIELD)))  	/* -1 = dead, 0 = miss */
 		{
@@ -1191,7 +1196,8 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (percent > prob)
 	{
-		damage(ch, vict, 0, SkillDmg(SKILL_KICK), true);
+		Damage dmg(SkillDmg(SKILL_KICK), 0, FightSystem::PHYS_DMG);
+		dmg.process(ch, vict);
 		prob = 2;
 	}
 	else
@@ -1215,38 +1221,9 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 //      log("[KICK damage] Name==%s dam==%d",GET_NAME(ch),dam);
 		if (AFF_FLAGGED(ch, EAF_AWAKE))
 			dam >>= 2;	// в 4 раза меньше
-//+++++
-// Это очень некрасиво, однако иначе придется переделывать кучу функций
-// Взято из fight.c
-		// Include a damage multiplier if victim isn't ready to fight:
-		// Position sitting  1.5 x normal
-		// Position resting  2.0 x normal
-		// Position sleeping 2.5 x normal
-		// Position stunned  3.0 x normal
-		// Position incap    3.5 x normal
-		// Position mortally 4.0 x normal
-		//
-		// Note, this is a hack because it depends on the particular
-		// values of the POSITION_XXX constants.
-		//
-		if (GET_POS(ch) < POS_FIGHTING)
-			dam -= (dam * (POS_FIGHTING - GET_POS(ch)) / 4);
 
-		if (GET_POS(vict) == POS_SITTING &&
-				(AFF_FLAGGED(vict, AFF_AIRSHIELD) ||
-				 AFF_FLAGGED(vict, AFF_FIRESHIELD) || AFF_FLAGGED(vict, AFF_ICESHIELD)))
-		{
-			// жертва сидит в щите, повреждения не меняются
-		}
-		else if (GET_POS(vict) < POS_FIGHTING)
-			dam += (dam * (POS_FIGHTING - GET_POS(vict)) / 3);
-
-		if (GET_MOB_HOLD(vict))
-			dam += (dam >> 1);
-
-//---
-		damage(ch, vict, dam, SkillDmg(SKILL_KICK), true);
-
+		Damage dmg(SkillDmg(SKILL_KICK), dam, FightSystem::PHYS_DMG);
+		dmg.process(ch, vict);
 		prob = 2;
 	}
 	set_wait(ch, prob, TRUE);
@@ -2284,7 +2261,8 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * vict)
 	// log("Start throw");
 	if (percent > prob)
 	{
-		damage(ch, vict, 0, SkillDmg(SKILL_THROW), true);
+		Damage dmg(SkillDmg(SKILL_THROW), 0, FightSystem::PHYS_DMG);
+		dmg.process(ch, vict);
 	}
 	else
 		hit(ch, vict, SKILL_THROW, 1);
@@ -2415,7 +2393,8 @@ ACMD(do_manadrain)
 
 	if (percent > prob)
 	{
-		damage(ch, vict, 0, SkillDmg(SKILL_MANADRAIN), true, MAGE_DMG);
+		Damage dmg(SkillDmg(SKILL_MANADRAIN), 0, FightSystem::MAGE_DMG);
+		dmg.process(ch, vict);
 	}
 	else
 	{
@@ -2423,8 +2402,10 @@ ACMD(do_manadrain)
 		   уровня чара - 10% мин. */
 		skill = MAX(10, skill - 10 * MAX(0, GET_LEVEL(ch) - GET_LEVEL(vict)));
 		drained_mana = (GET_MAX_MANA(ch) - GET_MANA_STORED(ch)) * skill / 100;
-		damage(ch, vict, 10, SkillDmg(SKILL_MANADRAIN), true, MAGE_DMG);
 		GET_MANA_STORED(ch) = MIN(GET_MAX_MANA(ch), GET_MANA_STORED(ch) + drained_mana);
+
+		Damage dmg(SkillDmg(SKILL_MANADRAIN), 10, FightSystem::MAGE_DMG);
+		dmg.process(ch, vict);
 	}
 
 	if (!IS_IMMORTAL(ch))
@@ -2563,7 +2544,10 @@ ACMD(do_turn_undead)
 		{
 			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);
 			pk_agro_action(ch, ch_vict);
-			damage(ch, ch_vict, 0, SkillDmg(SKILL_TURN_UNDEAD), true, MAGE_DMG);
+
+			Damage dmg(SkillDmg(SKILL_TURN_UNDEAD), 0, FightSystem::MAGE_DMG);
+			dmg.flags.set(FightSystem::IGNORE_FSHIELD);
+			dmg.process(ch, ch_vict);
 			continue;
 		}
 		sum -= GET_LEVEL(ch_vict);
@@ -2579,7 +2563,10 @@ ACMD(do_turn_undead)
 				dam = dice(8, 4 * GET_REAL_WIS(ch) + GET_REAL_INT(ch)) + GET_LEVEL(ch);
 		}
 		train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);
-		damage(ch, ch_vict, dam, SkillDmg(SKILL_TURN_UNDEAD), true, MAGE_DMG);
+
+		Damage dmg(SkillDmg(SKILL_TURN_UNDEAD), dam, FightSystem::MAGE_DMG);
+		dmg.flags.set(FightSystem::IGNORE_FSHIELD);
+		dmg.process(ch, ch_vict);
 
 		if (!MOB_FLAGGED(ch_vict, MOB_NOFEAR) &&
 				!general_savingthrow(ch, ch_vict, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch)))

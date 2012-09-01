@@ -921,7 +921,7 @@ void test_self_hitroll(CHAR_DATA *ch)
 		hit.calc_thaco * -1, hit2.calc_thaco * -1, hit.victim_ac);
 }
 
-void DmgType::init_msg_num()
+void Damage::post_init(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	if (msg_num == -1)
 	{
@@ -942,17 +942,28 @@ void DmgType::init_msg_num()
 			msg_num = TYPE_HIT;
 		}
 	}
+	if (ch_start_pos == -1)
+	{
+		ch_start_pos = GET_POS(ch);
+	}
+	if (victim_start_pos == -1)
+	{
+		victim_start_pos = GET_POS(victim);
+	}
 }
 
-void DmgType::zero_init()
+void Damage::zero_init()
 {
 	dam = 0;
-	was_critic = 0;
 	dam_critic = 0;
-	fs_damage = 0;
-	mayflee = true;
-	dmg_type = PHYS_DMG;
+	fs_damage = false;
+	dmg_type = -1;
+	skill_num = -1;
+	spell_num = -1;
 	hit_type = -1;
+	msg_num = -1;
+	ch_start_pos = -1;
+	victim_start_pos = -1;
 };
 
 /*

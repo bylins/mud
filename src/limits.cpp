@@ -949,7 +949,10 @@ void underwater_check(void)
 			sprintf(buf, "Player %s died under water (room %d)",
 				GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
 
-			if (damage(d->character, d->character, MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), SimpleDmg(TYPE_WATERDEATH), false, UNDEF_DMG) < 0)
+			Damage dmg(SimpleDmg(TYPE_WATERDEATH), MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), FightSystem::UNDEF_DMG);
+			dmg.flags.set(FightSystem::NO_FLEE);
+
+			if (dmg.process(d->character, d->character) < 0)
 			{
 				log(buf);
 			}
@@ -1739,12 +1742,18 @@ void point_update(void)
 		}
 		else if (GET_POS(i) == POS_INCAP)
 		{
-			if (damage(i, i, 1, SimpleDmg(TYPE_SUFFERING), false, UNDEF_DMG) == -1)
+			Damage dmg(SimpleDmg(TYPE_SUFFERING), 1, FightSystem::UNDEF_DMG);
+			dmg.flags.set(FightSystem::NO_FLEE);
+
+			if (dmg.process(i, i) == -1)
 				continue;
 		}
 		else if (GET_POS(i) == POS_MORTALLYW)
 		{
-			if (damage(i, i, 2, SimpleDmg(TYPE_SUFFERING), false, UNDEF_DMG) == -1)
+			Damage dmg(SimpleDmg(TYPE_SUFFERING), 2, FightSystem::UNDEF_DMG);
+			dmg.flags.set(FightSystem::NO_FLEE);
+
+			if (dmg.process(i, i) == -1)
 				continue;
 		}
 		update_char_objects(i);

@@ -1494,6 +1494,11 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		return (0);
 	}
 
+	// позиции до начала атаки для расчета модификаторов в damage()
+	// в принципе могут меняться какими-то заклами, но пока по дефолту нет
+	int ch_start_pos = GET_POS(ch);
+	int victim_start_pos = GET_POS(victim);
+
 	if (ch != victim)
 	{
 		modi = calc_anti_savings(ch);
@@ -1986,8 +1991,6 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		if (can_use_feat(ch, POWER_MAGIC_FEAT))
 		{
 			dam += IS_NPC(victim) ? dam : 0;
-			if (GET_POS(victim) < POS_FIGHTING)
-				dam += (dam * (POS_FIGHTING - GET_POS(victim)) / 3);
 		}
 
 		// по +5% дамага за каждую мудрость от 23 и выше
@@ -2019,6 +2022,16 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	if (ch == victim)
 		dam = MIN(dam, GET_HIT(victim) + 1);
 
+	// инит полей для дамага
+	Damage dmg(SpellDmg(spellnum), dam, FightSystem::MAGE_DMG);
+	dmg.ch_start_pos = ch_start_pos;
+	dmg.victim_start_pos = victim_start_pos;
+	// колдуны игнорят поглощение у мобов
+	if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim))
+	{
+		dmg.flags.set(FightSystem::IGNORE_ABSORBE);
+	}
+
 	for (; count > 0 && rand >= 0; count--)
 	{
 		if (IN_ROOM(ch) != NOWHERE
@@ -2026,16 +2039,15 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			&& GET_POS(ch) > POS_STUNNED
 			&& GET_POS(victim) > POS_DEAD)
 		{
-			DmgType dmg;
-			dmg.dam = dam;
-			dmg.spell_num = spellnum;
-			dmg.mayflee = count <= 1;
-			dmg.dmg_type = MAGE_DMG;
-			if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim))
+			if (count <= 1)
 			{
-				dmg.flags.set(IGNORE_ABSORBE);
+				dmg.flags.reset(FightSystem::NO_FLEE);
 			}
-			rand = dmg.damage(ch, victim);
+			else
+			{
+				dmg.flags.set(FightSystem::NO_FLEE);
+			}
+			rand = dmg.process(ch, victim);
 		}
 	}
 	return rand;

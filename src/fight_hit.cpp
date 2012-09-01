@@ -18,8 +18,6 @@
 #include "house_exp.hpp"
 #include "poison.hpp"
 
-#define IS_WEAPON(type) (((type) >= TYPE_HIT) && ((type) < TYPE_MAGIC))
-
 // extern
 int extra_aco(int class_num, int level);
 void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance);
@@ -1934,7 +1932,7 @@ void update_mob_memory(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 }
 
-bool DmgType::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
+bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	if (dam && AFF_FLAGGED(victim, AFF_SHIELD))
 	{
@@ -1951,16 +1949,42 @@ bool DmgType::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		return true;
 	}
 
-	if (dam > 0 && !was_critic && AFF_FLAGGED(victim, AFF_FIRESHIELD)
-		&& dmg_type == PHYS_DMG
-		&& skill_num != SKILL_BACKSTAB
-		&& skill_num != SKILL_THROW)
+	if (dam <= 0 || flags[CRIT_HIT])
 	{
-		fs_damage = dam * 20 / 100;
-		dam -= (dam * number(10, 30) / 100);
+		return false;
 	}
 
-	if (dam > 0 && !was_critic && AFF_FLAGGED(victim, AFF_ICESHIELD))
+	enum { FIRESHIELD, ICESHIELD, AIRSHIELD };
+	std::vector<int> shields;
+
+	if (AFF_FLAGGED(victim, AFF_FIRESHIELD))
+		shields.push_back(FIRESHIELD);
+	if (AFF_FLAGGED(victim, AFF_ICESHIELD))
+		shields.push_back(ICESHIELD);
+	if (AFF_FLAGGED(victim, AFF_AIRSHIELD))
+		shields.push_back(AIRSHIELD);
+
+	if (shields.empty())
+		return false;
+
+	int shield_num = number(0, shields.size() - 1);
+
+	if (shields[shield_num] == FIRESHIELD)
+	{
+		if (dmg_type == PHYS_DMG && !flags[IGNORE_FSHIELD])
+		{
+			fs_damage = true;
+		}
+		else
+		{
+			act("Огненный щит принял часть повреждений на себя.", FALSE, ch, 0, victim, TO_VICT);
+			act("Огненный щит вокруг $N1 ослабил Вашу атаку.", FALSE, ch, 0, victim, TO_CHAR);
+			act("Огненный щит вокруг $N1 ослабил атаку $n1.",
+				TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+		}
+		dam -= (dam * number(30, 50) / 100);
+	}
+	else if (shields[shield_num] == ICESHIELD)
 	{
 		act("Ледяной щит принял часть удара на себя.", FALSE, ch, 0, victim, TO_VICT);
 		act("Ледяной щит вокруг $N1 смягчил Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
@@ -1968,8 +1992,7 @@ bool DmgType::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 		dam -= (dam * number(30, 50) / 100);
 	}
-
-	if (dam > 0 && !was_critic && AFF_FLAGGED(victim, AFF_AIRSHIELD))
+	else if (shields[shield_num] == AIRSHIELD)
 	{
 		act("Воздушный щит смягчил удар $n1.", FALSE, ch, 0, victim, TO_VICT);
 		act("Воздушный щит вокруг $N1 ослабил Ваш удар.", FALSE, ch, 0, victim, TO_CHAR);
@@ -1981,13 +2004,13 @@ bool DmgType::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	return false;
 }
 
-void DmgType::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
+void Damage::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	// броня на физ дамаг
 	if (dam > 0 && dmg_type == PHYS_DMG)
 	{
 		alt_equip(victim, NOWHERE, dam, 50);
-		if (!was_critic && !flags[IGNORE_ARMOR])
+		if (!flags[CRIT_HIT] && !flags[IGNORE_ARMOR])
 		{
 			// 50 брони = 50% снижение дамага
 			int max_armour = 50;
@@ -2004,13 +2027,12 @@ void DmgType::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
 				tmp_dam /= 2;
 			}
 			dam -= tmp_dam;
-			/* умножаем дамаг при крит ударе, если щитов нет и игнор ничего не дает
-			   по призме не умножаем, чтобы не уносило танков с 1 удара */
+			// крит удар умножает дамаг, если жертва без призмы и без лед.щита
 		}
-		else if (was_critic
+		else if (flags[CRIT_HIT]
 			&& (GET_LEVEL(victim) >= 5 || !IS_NPC(ch))
-			&& !AFF_FLAGGED(victim, AFF_PRISMATICAURA) && !AFF_FLAGGED(victim, AFF_FIRESHIELD)
-			&& !AFF_FLAGGED(victim, AFF_ICESHIELD) && !AFF_FLAGGED(victim, AFF_AIRSHIELD))
+			&& !AFF_FLAGGED(victim, AFF_PRISMATICAURA)
+			&& !AFF_FLAGGED(victim, AFF_ICESHIELD))
 		{
 			dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2));
 		}
@@ -2021,12 +2043,13 @@ void DmgType::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
  * Обработка поглощения физ и маг урона.
  * \return true - полное поглощение
  */
-bool DmgType::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim)
+bool Damage::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	if (dmg_type == PHYS_DMG
+		&& skill_num < 0
+		&& spell_num < 0
 		&& dam > 0
-		&& GET_ABSORBE(victim) > 0
-		&& !flags[IGNORE_ABSORBE])
+		&& GET_ABSORBE(victim) > 0)
 	{
 		// шансы поглощения: непробиваемый в осторожке 15%, остальные 10%
 		int chance = 10;
@@ -2036,7 +2059,7 @@ bool DmgType::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim)
 			chance = 15;
 		}
 		// физ урон - прямое вычитание из дамага
-		if (number(1, 100) <= chance)
+		if (number(1, 10) <= chance)
 		{
 			dam -= GET_ABSORBE(victim) / 2;
 			if (dam <= 0)
@@ -2148,7 +2171,7 @@ void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 }
 
-void DmgType::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
+void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	CHAR_DATA *killer = NULL;
 
@@ -2238,9 +2261,9 @@ void DmgType::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 
 // обработка щитов, зб, поглощения, сообщения для огн. щита НЕ ЗДЕСЬ
 // возвращает сделанный дамаг
-int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
+int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 {
-	init_msg_num();
+	post_init(ch, victim);
 
 	if (!check_valid_chars(ch, victim, __FILE__, __LINE__))
 	{
@@ -2345,7 +2368,51 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 
-	/** уменьшение дамага */
+	/** учет положения атакующего и жертвы */
+	// Include a damage multiplier if victim isn't ready to fight:
+	// Position sitting  1.5 x normal
+	// Position resting  2.0 x normal
+	// Position sleeping 2.5 x normal
+	// Position stunned  3.0 x normal
+	// Position incap    3.5 x normal
+	// Position mortally 4.0 x normal
+	// Note, this is a hack because it depends on the particular
+	// values of the POSITION_XXX constants.
+
+	// физ дамага атакера из сидячего положения
+	if (ch_start_pos < POS_FIGHTING && dmg_type == PHYS_DMG)
+	{
+		dam -= dam * (POS_FIGHTING - ch_start_pos) / 4;
+	}
+
+	// дамаг не увеличивается если:
+	// на жертве есть воздушный щит
+	// атака - каст моба (в mage_damage увеличение дамага от позиции было только у колдунов)
+	if (victim_start_pos < POS_FIGHTING
+		&& !AFF_FLAGGED(victim, AFF_AIRSHIELD)
+		&& !(dmg_type == MAGE_DMG && IS_NPC(ch)))
+	{
+		dam += dam * (POS_FIGHTING - victim_start_pos) / 3;
+	}
+
+	/** прочие множители */
+
+	// изменение физ урона по холду
+	if (GET_MOB_HOLD(victim) && dmg_type == PHYS_DMG)
+	{
+		if (IS_NPC(ch))
+			dam = dam * 15 / 10;
+		else
+			dam = dam * 125 / 100;
+	}
+
+	// тюнинг дамага чармисов по чарам
+	if (!IS_NPC(victim) && IS_CHARMICE(ch))
+		dam = dam * 8 / 10;
+
+	// яд белены для физ урона
+	if (AFF_FLAGGED(ch, AFF_BELENA_POISON) && dmg_type == PHYS_DMG)
+		dam -= dam * GET_POISON(ch) / 100;
 
 	// added by WorM(Видолюб) поглощение физ.урона в %
 	if(GET_PR(victim) && IS_NPC(victim) && dmg_type == PHYS_DMG)
@@ -2368,6 +2435,7 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 
+	// зб на мобе
 	if (MOB_FLAGGED(victim, MOB_PROTECT))
 	{
 		if (victim != ch)
@@ -2377,21 +2445,26 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 		return 0;
 	}
 
-	dam = MAX(dam, 0);
-
-	/** увеличение дамага */
-
 	// яд скополии
 	if (skill_num != SKILL_BACKSTAB && AFF_FLAGGED(victim, AFF_SCOPOLIA_POISON))
 	{
 		dam += dam * GET_POISON(victim) / 100;
 	}
 
-	dam = MIN(dam, MAX_HITS);
+	// пока здесь, всеравно внутри пусто
+	DamageActorParameters params(ch, victim, dam);
+	handle_affects(params);
+	dam = params.damage;
+	DamageVictimParameters params1(ch, victim, dam);
+	handle_affects(params1);
+	dam = params1.damage;
+
+	dam = MAX(0, MIN(dam, MAX_HITS));
 
 	/** расчет бэтл-экспы для чаров */
 	gain_battle_exp(ch, victim, dam);
 
+	// real_dam так же идет в обратку от огн.щита
 	int real_dam = dam;
 	int over_dam = 0;
 
@@ -2429,7 +2502,7 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 		try_remove_extrahits(ch, victim);
 
 	/** сообщения о крит ударах */
-	if (dam && was_critic && !dam_critic && spell_num != SPELL_POISON)
+	if (dam && flags[CRIT_HIT] && !dam_critic && spell_num != SPELL_POISON)
 	{
 		send_critical_message(ch, victim);
 	}
@@ -2466,7 +2539,7 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 
 	//******** Use send_to_char -- act() doesn't send message if you are DEAD.
-	char_dam_message(dam, ch, victim, mayflee);
+	char_dam_message(dam, ch, victim, flags[NO_FLEE]);
 
 	// Проверить, что жертва все еще тут. Может уже сбежала по трусости.
 	// Думаю, простой проверки достаточно.
@@ -2492,10 +2565,11 @@ int DmgType::damage(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (fs_damage
 		&& victim->get_fighting()
 		&& GET_POS(victim) > POS_STUNNED
-		&& IN_ROOM(victim) != NOWHERE
-		&& skill_num != SKILL_TURN_UNDEAD)
+		&& IN_ROOM(victim) != NOWHERE)
 	{
-		::damage(victim, ch, fs_damage, SpellDmg(SPELL_FIRE_SHIELD), false, MAGE_DMG);
+		Damage dmg(SpellDmg(SPELL_FIRE_SHIELD), real_dam / 5, MAGE_DMG);
+		dmg.flags.set(NO_FLEE);
+		dmg.process(victim, ch);
 	}
 
 	return dam;
@@ -2744,7 +2818,7 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 		poison_victim(ch, victim, MAX(1, GET_LEVEL(ch) - GET_LEVEL(victim)) * 10);
 	}
 	/** точный стиль */
-	else if (dam && was_critic && dam_critic)
+	else if (dam && flags[CRIT_HIT] && dam_critic)
 	{
 		compute_critical(ch, victim);
 	}
@@ -2753,15 +2827,14 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 	// Вызывается damage с отрицательным уроном
 	dam = mem_dam >= 0 ? dam : -1;
 
-	DmgType dmg;
-	dmg.skill_num = skill_num;
+	Damage dmg(SkillDmg(skill_num), dam, PHYS_DMG);
 	dmg.hit_type = hit_type;
-	dmg.dam = dam;
-	dmg.was_critic = was_critic;
 	dmg.dam_critic = dam_critic;
 	dmg.flags = flags;
+	dmg.ch_start_pos = ch_start_pos;
+	dmg.victim_start_pos = victim_start_pos;
 
-	return dmg.damage(ch, victim);
+	return dmg.process(ch, victim);
 }
 
 /**
@@ -2826,6 +2899,10 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim)
 			hit_type = ch->mob_specials.attack_type;
 		}
 	}
+
+	// позиции сражающихся до применения скилов и прочего, что может из изменить
+	ch_start_pos = GET_POS(ch);
+	victim_start_pos = GET_POS(victim);
 }
 
 /**
@@ -3298,50 +3375,54 @@ void HitData::add_hand_damage(CHAR_DATA *ch)
 void HitData::calc_crit_chance(CHAR_DATA *ch)
 {
 	dam_critic = 0;
-	was_critic = 0;
+	int calc_critic = 0;
 
 	/* Маги, волхвы и не-купеческие чармисы не умеют критать */
 	if ((!IS_NPC(ch) && !IS_MAGIC_USER(ch) && !IS_DRUID(ch))
 		|| (IS_NPC(ch) && (!AFF_FLAGGED(ch, AFF_CHARM) && !AFF_FLAGGED(ch, AFF_HELPER))))
 	{
-		was_critic = MIN(ch->get_skill(weap_skill), 70);
+		calc_critic = MIN(ch->get_skill(weap_skill), 70);
 		/* Мастерские фиты по оружию удваивают шанс критического попадания */
 		for (int i = PUNCH_MASTER_FEAT; i <= BOWS_MASTER_FEAT; i++)
 		{
 			if ((ubyte) feat_info[i].affected[0].location == weap_skill && can_use_feat(ch, i))
 			{
-				was_critic += MAX(0, ch->get_skill(weap_skill) -  70);
+				calc_critic += MAX(0, ch->get_skill(weap_skill) -  70);
 				break;
 			}
 		}
 		if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
 		{
-			was_critic += ch->get_skill(SKILL_BACKSTAB);
+			calc_critic += ch->get_skill(SKILL_BACKSTAB);
 		}
 		//Нафига тут проверять класс?
 		//Скиллы уникальные, другим классам все равно недоступны.
 		//А чтоб мобы не лютовали -- есть проверка на игрока.
 		if (!IS_NPC(ch))
 		{
-			was_critic += (int)(ch->get_skill(SKILL_PUNCTUAL) / 2);
-			was_critic += (int)(ch->get_skill(SKILL_NOPARRYHIT) / 3);
+			calc_critic += (int)(ch->get_skill(SKILL_PUNCTUAL) / 2);
+			calc_critic += (int)(ch->get_skill(SKILL_NOPARRYHIT) / 3);
 		}
 		if (IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM))
 		{
-			was_critic += GET_LEVEL(ch);
+			calc_critic += GET_LEVEL(ch);
 		}
 	}
 	else
 	{
 		//Polud не должны - так пусть и не критают
-		was_critic = FALSE;
+		flags.reset(CRIT_HIT);
 	}
 
 	//critical hit ignore magic_shields and armour
-	if (number(0, 2000) < was_critic)
-		was_critic = TRUE;
+	if (number(0, 2000) < calc_critic)
+	{
+		flags.set(CRIT_HIT);
+	}
 	else
-		was_critic = FALSE;
+	{
+		flags.reset(CRIT_HIT);
+	}
 }
 
 /**
@@ -3490,51 +3571,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 	}
 
-	/** учет положения атакующего и жертвы */
-	// Include a damage multiplier if victim isn't ready to fight:
-	// Position sitting  1.5 x normal
-	// Position resting  2.0 x normal
-	// Position sleeping 2.5 x normal
-	// Position stunned  3.0 x normal
-	// Position incap    3.5 x normal
-	// Position mortally 4.0 x normal
-	//
-	// Note, this is a hack because it depends on the particular
-	// values of the POSITION_XXX constants.
-	//
-	if (GET_POS(ch) < POS_FIGHTING)
-	{
-		hit_params.dam -= (hit_params.dam * (POS_FIGHTING - GET_POS(ch)) / 4);
-	}
-
-	if (GET_POS(victim) == POS_SITTING
-			&& (AFF_FLAGGED(victim, AFF_AIRSHIELD)
-				|| AFF_FLAGGED(victim, AFF_FIRESHIELD)
-				|| AFF_FLAGGED(victim, AFF_ICESHIELD)))
-	{
-		// жертва сидит в щите, повреждения не меняются
-		// на скрытый в том числе
-	}
-	else if (GET_POS(victim) < POS_FIGHTING)
-	{
-		hit_params.dam += (hit_params.dam * (POS_FIGHTING - GET_POS(victim)) / 3);
-	}
-
-	/** изменение урона по холду */
-	if (GET_MOB_HOLD(victim))
-	{
-		if (IS_NPC(ch))
-			hit_params.dam = hit_params.dam * 15 / 10;
-		else
-			hit_params.dam = hit_params.dam * 125 / 100;
-	}
-
-	if (!IS_NPC(victim) && IS_CHARMICE(ch))
-		hit_params.dam = hit_params.dam * 8 / 10;
-
-	if (AFF_FLAGGED(ch, AFF_BELENA_POISON))
-		hit_params.dam -= hit_params.dam * GET_POISON(ch) / 100;
-
 	// at least 1 hp damage min per hit
 	hit_params.dam = MAX(1, hit_params.dam);
 
@@ -3555,9 +3591,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	if (hit_params.skill_num == SKILL_BACKSTAB)
 	{
-		hit_params.was_critic = false;
-		// любой стабер игнорит поглощение
-		hit_params.flags.set(IGNORE_ABSORBE);
+		hit_params.flags.reset(CRIT_HIT);
+		hit_params.flags.set(IGNORE_FSHIELD);
 		if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
 		{
 			// тати игнорят броню полностью
@@ -3582,6 +3617,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	if (hit_params.skill_num == SKILL_THROW)
 	{
+		hit_params.flags.set(IGNORE_FSHIELD);
 		hit_params.dam *= (calculate_skill(ch, SKILL_THROW, skill_info[SKILL_THROW].max_percent, victim) + 10) / 10;
 		if (IS_NPC(ch))
 		{
@@ -3608,7 +3644,9 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			&& (hit_params.calc_thaco - hit_params.diceroll < hit_params.victim_ac - 5
 				|| percent >= skill_info[SKILL_PUNCTUAL].max_percent))
 		{
-			hit_params.was_critic = TRUE;
+			hit_params.flags.set(CRIT_HIT);
+			// CRIT_HIT и так щиты игнорит, но для порядку
+			hit_params.flags.set(IGNORE_FSHIELD);
 			hit_params.dam_critic = do_punctual(ch, victim, hit_params.wielded);
 
 			if (!PUNCTUAL_WAITLESS(ch))
@@ -3628,13 +3666,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	/** обработка защитных скилов (захват, уклон, парир, веер, блок) */
 	hit_params.check_defense_skills(ch, victim);
-
-	DamageActorParameters params(ch, victim, hit_params.dam);
-	handle_affects(params);
-	hit_params.dam = params.damage;
-	DamageVictimParameters params1(ch, victim, hit_params.dam);
-	handle_affects(params1);
-	hit_params.dam = params1.damage;
 
 	/** итоговый дамаг */
 	int made_dam = hit_params.extdamage(ch, victim);

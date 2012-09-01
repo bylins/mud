@@ -7,8 +7,12 @@
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
+#include "char.hpp"
 
-enum { UNDEF_DMG, PHYS_DMG, MAGE_DMG };
+namespace FightSystem
+{
+
+enum DmgType { UNDEF_DMG, PHYS_DMG, MAGE_DMG };
 
 // attack_hit_text[]
 enum
@@ -29,12 +33,21 @@ const int IGNORE_ARMOR = 2;
 const int HALF_IGNORE_ARMOR = 3;
 // игнор поглощения
 const int IGNORE_ABSORBE = 4;
+// нельзя сбежать
+const int NO_FLEE = 5;
+// крит удар
+const int CRIT_HIT = 6;
+// игнор возврата дамаги от огненного щита
+const int IGNORE_FSHIELD = 7;
 // кол-во флагов
-const unsigned HIT_TYPE_FLAGS_NUM = 5;
+const unsigned HIT_TYPE_FLAGS_NUM = 8;
+
+} // namespace FightSystem
 
 /**
  * Для входа со скила без инита остальных полей:
- * damage(ch, victim, dam, SkillDmg(SKILL_NUM), mayflee);
+ * Damage obj(SkillDmg(SKILL_NUM), dam, FightSystem::UNDEF_DMG|PHYS_DMG|MAGE_DMG)
+ * obj.process(ch, victim);
  */
 struct SkillDmg
 {
@@ -44,7 +57,8 @@ struct SkillDmg
 
 /**
  * Для входа с закла без инита остальных полей:
- * damage(ch, victim, dam, SpellDmg(SPELL_NUM), mayflee);
+ * Damage obj(SpellDmg(SPELL_NUM), dam, FightSystem::UNDEF_DMG|PHYS_DMG|MAGE_DMG)
+ * obj.process(ch, victim);
  */
 struct SpellDmg
 {
@@ -54,7 +68,8 @@ struct SpellDmg
 
 /**
  * Для входа с необычного дамага без инита остальных полей (инится сразу номер messages):
- * damage(ch, victim, dam, SimpleDmg(TYPE_NUM), mayflee);
+ * Damage obj(SimpleDmg(TYPE_NUM), dam, FightSystem::UNDEF_DMG|PHYS_DMG|MAGE_DMG)
+ * obj.process(ch, victim);
  */
 struct SimpleDmg
 {
@@ -62,21 +77,51 @@ struct SimpleDmg
 	int msg_num;
 };
 
-struct DmgType
+/**
+ * Процесс инициализации, обязательные поля:
+ *   dam - величина урона
+ *   msg_num - напрямую или через skill_num/spell_num/hit_type
+ *   dmg_type - UNDEF_DMG/PHYS_DMG/MAGE_DMG
+ * Остальное по необходимости:
+ *   ch_start_pos - если нужны модификаторы урона от позиции атакующего (физ дамаг)
+ *   victim_start_pos - если нужны модификаторы урона от позиции жертвы (физ/маг дамаг)
+ */
+struct Damage
 {
-	DmgType()
-		: skill_num(-1), spell_num(-1), msg_num(-1) { zero_init(); };
-	DmgType(SkillDmg &obj)
-		: skill_num(obj.skill_num), spell_num(-1), msg_num(-1) { zero_init(); };
-	DmgType(SpellDmg &obj)
-		: skill_num(-1), spell_num(obj.spell_num), msg_num(-1) { zero_init(); };
-	DmgType(SimpleDmg &obj)
-		: skill_num(-1), spell_num(-1), msg_num(obj.msg_num) { zero_init(); };
+	// полностью ручное создание объекта
+	Damage() { zero_init(); };
+	// скилы
+	Damage(SkillDmg obj, int in_dam, FightSystem::DmgType in_dmg_type)
+	{
+		zero_init();
+		skill_num = obj.skill_num;
+		dam = in_dam;
+		dmg_type = in_dmg_type;
+	};
+	// заклинания
+	Damage(SpellDmg obj, int in_dam, FightSystem::DmgType in_dmg_type)
+	{
+		zero_init();
+		spell_num = obj.spell_num;
+		dam = in_dam;
+		dmg_type = in_dmg_type;
+	};
+	// прочий дамаг
+	Damage(SimpleDmg obj, int in_dam, FightSystem::DmgType in_dmg_type)
+	{
+		zero_init();
+		msg_num = obj.msg_num;
+		dam = in_dam;
+		dmg_type = in_dmg_type;
+	};
 
+	// инит всех полей дефолтными значениями дя конструкторов
 	void zero_init();
-	void init_msg_num();
+	// инит msg_num, ch_start_pos, victim_start_pos
+	// дергается в начале process, когда все уже заполнено
+	void post_init(CHAR_DATA *ch, CHAR_DATA *victim);
 
-	int damage(CHAR_DATA *ch, CHAR_DATA *victim);
+	int process(CHAR_DATA *ch, CHAR_DATA *victim);
 	bool magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim);
 	void armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim);
 	bool dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim);
@@ -84,14 +129,11 @@ struct DmgType
 
 	// дамаг атакующего
 	int dam;
-	// was_critic = TRUE, dam_critic = 0 - критический удар
-	// was_critic = TRUE, dam_critic > 0 - удар точным стилем
-	int was_critic;
+	// flags[CRIT_HIT] = true, dam_critic = 0 - критический удар
+	// flags[CRIT_HIT] = true, dam_critic > 0 - удар точным стилем
 	int dam_critic;
 	// обратный дамаг от огненного щита
-	int fs_damage;
-	// можно ли сбежать
-	bool mayflee;
+	bool fs_damage;
 	// тип урона (физ/маг/обычный)
 	int dmg_type;
 	// см. описание в HitData
@@ -101,20 +143,14 @@ struct DmgType
 	// см. описание в HitData, но здесь может быть -1
 	int hit_type;
 	// номер сообщения об ударе из файла messages
-	// инится только начиная с вызова damage
+	// инится только начиная с вызова process
 	int msg_num;
 	// набор флагов из HitType
-	std::bitset<HIT_TYPE_FLAGS_NUM> flags;
-};
-
-template<class T> int damage(CHAR_DATA *ch, CHAR_DATA *victim, int dam, T obj,
-	bool mayflee, int dmg_type = PHYS_DMG)
-{
-	DmgType dmg(obj);
-	dmg.dam = dam;
-	dmg.mayflee = mayflee;
-	dmg.dmg_type = dmg_type;
-	return dmg.damage(ch, victim);
+	std::bitset<FightSystem::HIT_TYPE_FLAGS_NUM> flags;
+	// позиция атакующего на начало атаки (по дефолту будет = текущему положению)
+	int ch_start_pos;
+	// позиция жертвы на начало атаки (по дефолту будет = текущему положению)
+	int victim_start_pos;
 };
 
 /** fight.cpp */

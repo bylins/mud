@@ -11,6 +11,8 @@
 #define RIGHT_WEAPON 1
 #define LEFT_WEAPON  2
 
+using namespace FightSystem;
+
 //Polud функция, вызывающая обработчики аффектов, если они есть
 template <class S> void handle_affects( S& params ) //тип params определяется при вызове функции
 {
@@ -26,7 +28,8 @@ struct HitData
 {
 	HitData() : weapon(0), wielded(0), weapon_pos(WEAR_WIELD), weap_skill(0),
 		weap_skill_is(0), skill_num(-1), hit_type(0), hit_no_parry(false),
-		victim_ac(0), calc_thaco(0), dam(0), was_critic(0), dam_critic(0)
+		ch_start_pos(-1), victim_start_pos(-1), victim_ac(0), calc_thaco(0),
+		dam(0), dam_critic(0)
 	{
 		diceroll = number(100, 2099) / 100;
 	};
@@ -73,6 +76,10 @@ struct HitData
 	int hit_type;
 	// true - удар не парируется/не блочится/не веерится и т.п.
 	bool hit_no_parry;
+	// позиция атакующего на начало атаки
+	int ch_start_pos;
+	// позиция жертвы на начало атаки
+	int victim_start_pos;
 
 	/** высчитывается по мере сил */
 	// ац жертвы для расчета попадания
@@ -81,9 +88,8 @@ struct HitData
 	int calc_thaco;
 	// дамаг атакующего
 	int dam;
-	// was_critic = TRUE, dam_critic = 0 - критический удар
-	// was_critic = TRUE, dam_critic > 0 - удар точным стилем
-	int was_critic;
+	// flags[CRIT_HIT] = true, dam_critic = 0 - критический удар
+	// flags[CRIT_HIT] = true, dam_critic > 0 - удар точным стилем
 	int dam_critic;
 	// какой-никакой набор флагов, так же передается в damage()
 	std::bitset<HIT_TYPE_FLAGS_NUM> flags;

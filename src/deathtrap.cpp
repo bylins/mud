@@ -68,8 +68,8 @@ void DeathTrap::remove(ROOM_DATA* room)
 }
 
 /**
-* Проверка активности дт, дергается каждые 2 секунды в хеарбите.
-*/
+ * Проверка активности дт, дергается каждые 2 секунды в хеарбите.
+ */
 void DeathTrap::activity()
 {
 	CHAR_DATA *ch, *next;
@@ -78,11 +78,20 @@ void DeathTrap::activity()
 	{
 		for (ch = (*it)->people; ch; ch = next)
 		{
-			next = ch->next_in_room;
-			if (!IS_NPC(ch)
-				&& (damage(ch, ch, MAX(1, GET_REAL_MAX_HIT(ch) >> 2), SimpleDmg(TYPE_ROOMDEATH), false, UNDEF_DMG) < 0))
+			if (IS_NPC(ch))
 			{
-				log("Player %s died in slow DT (room %d)", GET_NAME(ch), (*it)->number);
+				continue;
+			}
+
+			next = ch->next_in_room;
+			std::string name = GET_NAME(ch);
+
+			Damage dmg(SimpleDmg(TYPE_ROOMDEATH), MAX(1, GET_REAL_MAX_HIT(ch) >> 2), FightSystem::UNDEF_DMG);
+			dmg.flags.set(FightSystem::NO_FLEE);
+
+			if (dmg.process(ch, ch) < 0)
+			{
+				log("Player %s died in slow DT (room %d)", name.c_str(), (*it)->number);
 			}
 		}
 	}

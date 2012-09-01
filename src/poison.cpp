@@ -493,11 +493,15 @@ int same_time_update(CHAR_DATA *ch, AFFECT_DATA *af)
 		if(!IS_NPC(ch))
 			poison_dmg = poison_dmg/30;
 		//poison_dmg = interpolate(poison_dmg, 2); // И как оно должно работать чото нифига не понял, понял только что оно не работает
-		result = damage(ch, ch, poison_dmg, SpellDmg(SPELL_POISON), false, UNDEF_DMG);
+		Damage dmg(SpellDmg(SPELL_POISON), poison_dmg, FightSystem::UNDEF_DMG);
+		dmg.flags.set(FightSystem::NO_FLEE);
+		result = dmg.process(ch, ch);
 	}
 	else if (af->location == APPLY_ACONITUM_POISON)
 	{
-		result = damage(ch, ch, GET_POISON(ch), SpellDmg(SPELL_POISON), false, UNDEF_DMG);
+		Damage dmg(SpellDmg(SPELL_POISON), GET_POISON(ch), FightSystem::UNDEF_DMG);
+		dmg.flags.set(FightSystem::NO_FLEE);
+		result = dmg.process(ch, ch);
 	}
 	return result;
 }
