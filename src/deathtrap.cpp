@@ -78,12 +78,13 @@ void DeathTrap::activity()
 	{
 		for (ch = (*it)->people; ch; ch = next)
 		{
+			next = ch->next_in_room;
+
 			if (IS_NPC(ch))
 			{
 				continue;
 			}
 
-			next = ch->next_in_room;
 			std::string name = GET_NAME(ch);
 
 			Damage dmg(SimpleDmg(TYPE_ROOMDEATH), MAX(1, GET_REAL_MAX_HIT(ch) >> 2), FightSystem::UNDEF_DMG);

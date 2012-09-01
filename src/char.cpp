@@ -781,18 +781,25 @@ void Character::set_npc_name(const char *name)
 
 const char* Character::get_pad(unsigned pad) const
 {
-	if (pad < 6)
+	if (pad < 6 && pad >= 0)
 		return player_data.PNames[pad];
 	else return NULL;
 }
 
 void Character::set_pad(unsigned pad, const char* s)
 {
+	if (pad >= 6 || pad < 0)
+	{
+		return;
+	}
+
 	int i;
 	if (GET_PAD(this, pad))
 	{
-		bool f = !IS_NPC(this) || (IS_NPC(this) && GET_MOB_RNUM(this) == -1); //if this is a player, or a non-prototyped non-player
-		if (!f) f |= (i = GET_MOB_RNUM(this)) >= 0 && GET_PAD(this, pad) != GET_PAD(&mob_proto[i], pad); //prototype mob, field modified
+		 //if this is a player, or a non-prototyped non-player
+		bool f = !IS_NPC(this) || (IS_NPC(this) && GET_MOB_RNUM(this) == -1);
+		//prototype mob, field modified
+		if (!f) f |= (i = GET_MOB_RNUM(this)) >= 0 && GET_PAD(this, pad) != GET_PAD(&mob_proto[i], pad);
 		if (f) free(GET_PAD(this, pad));
 	}
 	GET_PAD(this, pad) = str_dup(s);
