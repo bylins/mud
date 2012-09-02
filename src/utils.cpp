@@ -1900,6 +1900,28 @@ void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	}
 }
 
+/**
+ * Бывшее #define CAN_CARRY_OBJ(ch,obj)  \
+   (((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) <= CAN_CARRY_W(ch)) &&   \
+    ((IS_CARRYING_N(ch) + 1) <= CAN_CARRY_N(ch)))
+ */
+bool CAN_CARRY_OBJ(CHAR_DATA *ch, OBJ_DATA *obj)
+{
+	// для анлимного лута мобами из трупов
+	if (IS_NPC(ch) && !IS_CHARMICE(ch))
+	{
+		return true;
+	}
+
+	if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) <= CAN_CARRY_W(ch)
+		&& IS_CARRYING_N(ch) + 1 <= CAN_CARRY_N(ch))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 // shapirus: проверка, игнорирет ли чар who чара whom
 bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 {

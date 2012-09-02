@@ -56,7 +56,7 @@ int max_exp_gain_npc = 100000;	/* max gainable per kill */
 
 /* number of tics (usually 75 seconds) before PC/NPC corpses decompose */
 int max_npc_corpse_time = 5;
-int max_pc_corpse_time = 10;
+int max_pc_corpse_time = 30;
 
 /* How many ticks before a player is sent to the void or idle-rented. */
 int idle_void = 10;

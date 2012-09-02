@@ -1072,10 +1072,6 @@ extern SPECIAL(bank);
     MORT_CAN_SEE_OBJ(sub, obj) || \
     (!IS_NPC(sub) && PRF_FLAGGED((sub), PRF_HOLYLIGHT)))
 
-#define CAN_CARRY_OBJ(ch,obj)  \
-   (((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) <= CAN_CARRY_W(ch)) &&   \
-    ((IS_CARRYING_N(ch) + 1) <= CAN_CARRY_N(ch)))
-
 #define CAN_GET_OBJ(ch, obj)   \
    (CAN_WEAR((obj), ITEM_WEAR_TAKE) && CAN_CARRY_OBJ((ch),(obj)) && \
     CAN_SEE_OBJ((ch),(obj))) && \
@@ -1200,6 +1196,7 @@ int day_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value);
 int weather_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value);
 int complex_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value);
 void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj);
+bool CAN_CARRY_OBJ(CHAR_DATA *ch, OBJ_DATA *obj);
 bool ignores(CHAR_DATA *, CHAR_DATA *, unsigned int);
 
 /* PADS for something ****************************************************/
