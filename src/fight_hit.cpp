@@ -2059,7 +2059,7 @@ bool Damage::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim)
 			chance = 15;
 		}
 		// физ урон - прямое вычитание из дамага
-		if (number(1, 10) <= chance)
+		if (number(1, 100) <= chance)
 		{
 			dam -= GET_ABSORBE(victim) / 2;
 			if (dam <= 0)
