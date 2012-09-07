@@ -3203,7 +3203,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 
 
 /* substitutes any variables into line and returns it as buf */
-void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *line, char *buf)
+void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, const char *line, char *buf)
 {
 	char tmp[MAX_INPUT_LENGTH], repl_str[MAX_INPUT_LENGTH], *var, *field, *p;
 	char *subfield_p, subfield[MAX_INPUT_LENGTH];
@@ -3249,7 +3249,7 @@ void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *lin
 			{
 				*(p++) = '\0';
 				local_p = local;
-				for (field = p; *p && ((*p != '%') || (paren_count)); p++)
+				for (field = p; *p && local_p && ((*p != '%') || (paren_count)); p++)
 				{
 					if (*p == '(')
 					{

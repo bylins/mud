@@ -1503,6 +1503,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	{
 		modi = calc_anti_savings(ch);
 	}
+
 	if (!IS_NPC(ch) && (GET_LEVEL(ch) > 10))
 		modi += (GET_LEVEL(ch) - 10);
 //  if (!IS_NPC(ch) && !IS_NPC(victim))
@@ -1987,10 +1988,10 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		dam = dice(ndice, sdice) + adice;
 		dam = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, dam);
 
-		/* колдуны всегда в 2 раза сильнее фрагают  */
-		if (can_use_feat(ch, POWER_MAGIC_FEAT))
+		// колдуны в 2 раза сильнее фрагают по мобам
+		if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim))
 		{
-			dam += IS_NPC(victim) ? dam : 0;
+			dam += dam;
 		}
 
 		// по +5% дамага за каждую мудрость от 23 и выше
@@ -2019,9 +2020,6 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && number(1, 999) <= GET_MR(victim) * 10)
 		dam = 0;
 
-	if (ch == victim)
-		dam = MIN(dam, GET_HIT(victim) + 1);
-
 	// инит полей для дамага
 	Damage dmg(SpellDmg(spellnum), dam, FightSystem::MAGE_DMG);
 	dmg.ch_start_pos = ch_start_pos;
@@ -2030,6 +2028,11 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim))
 	{
 		dmg.flags.set(FightSystem::IGNORE_ABSORBE);
+	}
+	// отражение магии в кастующего
+	if (ch == victim)
+	{
+		dmg.flags.set(FightSystem::MAGIC_REFLECT);
 	}
 
 	for (; count > 0 && rand >= 0; count--)

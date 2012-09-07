@@ -2392,7 +2392,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& !AFF_FLAGGED(victim, AFF_AIRSHIELD)
 		&& !(dmg_type == MAGE_DMG && IS_NPC(ch)))
 	{
-		dam += dam * (POS_FIGHTING - victim_start_pos) / 3;
+		dam += dam * (POS_FIGHTING - victim_start_pos) / 4;
 	}
 
 	/** прочие множители */
@@ -2451,13 +2451,22 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		dam += dam * GET_POISON(victim) / 100;
 	}
 
-	// пока здесь, всеравно внутри пусто
+	// внутри есть !боевое везение!, для какого типа дамага - не знаю
 	DamageActorParameters params(ch, victim, dam);
 	handle_affects(params);
 	dam = params.damage;
 	DamageVictimParameters params1(ch, victim, dam);
 	handle_affects(params1);
 	dam = params1.damage;
+
+	// обратка от зеркал/огненного щита
+	if (flags[MAGIC_REFLECT])
+	{
+		// ограничение для зеркал на 40% от макс хп кастера
+		dam = MIN(dam, GET_MAX_HIT(victim) * 4 / 10);
+		// чтобы не убивало обраткой
+		dam = MIN(dam, GET_HIT(victim) - 1);
+	}
 
 	dam = MAX(0, MIN(dam, MAX_HITS));
 
@@ -2469,24 +2478,12 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	int over_dam = 0;
 
 	/** собственно нанесение дамага */
-	if (spell_num == SPELL_FIRE_SHIELD)
+	if (dam > GET_HIT(victim) + 11)
 	{
-		if ((GET_HIT(victim) -= dam) < 1)
-		{
-			GET_HIT(victim) = 1;
-			real_dam = GET_HIT(victim) - 1;
-			over_dam = dam - real_dam;
-		}
+		real_dam = GET_HIT(victim) + 11;
+		over_dam = dam - real_dam;
 	}
-	else
-	{
-		if (dam > GET_HIT(victim) + 11)
-		{
-			real_dam = GET_HIT(victim) + 11;
-			over_dam = dam - real_dam;
-		}
-		GET_HIT(victim) -= dam;
-	}
+	GET_HIT(victim) -= dam;
 
 	/** запись в дметр фактического и овер дамага */
 	update_dps_stats(ch, real_dam, over_dam);
@@ -2569,6 +2566,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		Damage dmg(SpellDmg(SPELL_FIRE_SHIELD), real_dam / 5, MAGE_DMG);
 		dmg.flags.set(NO_FLEE);
+		dmg.flags.set(MAGIC_REFLECT);
 		dmg.process(victim, ch);
 	}
 

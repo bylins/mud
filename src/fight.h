@@ -23,24 +23,30 @@ enum
 	type_pick, type_sting
 };
 
-// игнор санки
-const int IGNORE_SANCT = 0;
-// игнор призмы
-const int IGNORE_PRISM = 1;
-// игнор брони
-const int IGNORE_ARMOR = 2;
-// ополовинивание учитываемой брони
-const int HALF_IGNORE_ARMOR = 3;
-// игнор поглощения
-const int IGNORE_ABSORBE = 4;
-// нельзя сбежать
-const int NO_FLEE = 5;
-// крит удар
-const int CRIT_HIT = 6;
-// игнор возврата дамаги от огненного щита
-const int IGNORE_FSHIELD = 7;
-// кол-во флагов
-const unsigned HIT_TYPE_FLAGS_NUM = 8;
+enum
+{
+	// игнор санки
+	IGNORE_SANCT,
+	// игнор призмы
+	IGNORE_PRISM,
+	// игнор брони
+	IGNORE_ARMOR,
+	// ополовинивание учитываемой брони
+	HALF_IGNORE_ARMOR,
+	// игнор поглощения
+	IGNORE_ABSORBE,
+	// нельзя сбежать
+	NO_FLEE,
+	// крит удар
+	CRIT_HIT,
+	// игнор возврата дамаги от огненного щита
+	IGNORE_FSHIELD,
+	// дамаг идет от магического зеркала или звукового барьера
+	MAGIC_REFLECT,
+
+	// кол-во флагов
+	HIT_TYPE_FLAGS_NUM
+};
 
 } // namespace FightSystem
 
@@ -86,8 +92,9 @@ struct SimpleDmg
  *   ch_start_pos - если нужны модификаторы урона от позиции атакующего (физ дамаг)
  *   victim_start_pos - если нужны модификаторы урона от позиции жертвы (физ/маг дамаг)
  */
-struct Damage
+class Damage
 {
+public:
 	// полностью ручное создание объекта
 	Damage() { zero_init(); };
 	// скилы
@@ -115,25 +122,13 @@ struct Damage
 		dmg_type = in_dmg_type;
 	};
 
-	// инит всех полей дефолтными значениями дя конструкторов
-	void zero_init();
-	// инит msg_num, ch_start_pos, victim_start_pos
-	// дергается в начале process, когда все уже заполнено
-	void post_init(CHAR_DATA *ch, CHAR_DATA *victim);
-
 	int process(CHAR_DATA *ch, CHAR_DATA *victim);
-	bool magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim);
-	void armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim);
-	bool dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim);
-	void process_death(CHAR_DATA *ch, CHAR_DATA *victim);
 
 	// дамаг атакующего
 	int dam;
 	// flags[CRIT_HIT] = true, dam_critic = 0 - критический удар
 	// flags[CRIT_HIT] = true, dam_critic > 0 - удар точным стилем
 	int dam_critic;
-	// обратный дамаг от огненного щита
-	bool fs_damage;
 	// тип урона (физ/маг/обычный)
 	int dmg_type;
 	// см. описание в HitData
@@ -151,6 +146,21 @@ struct Damage
 	int ch_start_pos;
 	// позиция жертвы на начало атаки (по дефолту будет = текущему положению)
 	int victim_start_pos;
+
+private:
+	// инит всех полей дефолтными значениями дя конструкторов
+	void zero_init();
+	// инит msg_num, ch_start_pos, victim_start_pos
+	// дергается в начале process, когда все уже заполнено
+	void post_init(CHAR_DATA *ch, CHAR_DATA *victim);
+	// process()
+	bool magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim);
+	void armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim);
+	bool dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim);
+	void process_death(CHAR_DATA *ch, CHAR_DATA *victim);
+
+	// обратный дамаг от огненного щита
+	bool fs_damage;
 };
 
 /** fight.cpp */
