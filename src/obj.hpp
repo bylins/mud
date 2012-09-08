@@ -407,7 +407,11 @@ struct obj_data
 	static id_to_set_info_map set_table;
 	static void init_set_table();
 
+	void purge(bool destructor = false);
+	bool purged() const;
+
 private:
+	void zero_init();
 	// если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
 	std::map<int, int>* skills;
 	// порядковый номер в списке чаров (для name_list)
@@ -416,12 +420,15 @@ private:
 	int timer_;
 	// требование по минимальным мортам
 	int mort_req_;
+	// true - объект спуржен и ждет вызова delete для оболочки
+	bool purged_;
 };
 
 namespace ObjSystem
 {
 
 bool is_armor_type(const OBJ_DATA *obj);
+void release_purged_list();
 
 } // namespace ObjSystem
 

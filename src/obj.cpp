@@ -19,37 +19,19 @@ extern void tascii(int *pointer, int num_planes, char *ascii);
 
 id_to_set_info_map obj_data::set_table;
 
-obj_data::obj_data() :
-	uid(0),
-	item_number(NOTHING),
-	in_room(NOWHERE),
-	aliases(NULL),
-	description(NULL),
-	short_description(NULL),
-	action_description(NULL),
-	ex_description(NULL),
-	carried_by(NULL),
-	worn_by(NULL),
-	worn_on(NOWHERE),
-	in_obj(NULL),
-	contains(NULL),
-	id(0),
-	proto_script(NULL),
-	script(NULL),
-	next_content(NULL),
-	next(NULL),
-	room_was_in(NOWHERE),
-	max_in_world(0),
-	skills(NULL),
-	serial_num_(0),
-	timer_(0),
-	mort_req_(0)
+namespace
 {
-	caching::obj_cache.add(this);
-	memset(&obj_flags, 0, sizeof(obj_flag_data));
 
-	for (int i = 0; i < 6; i++)
-		PNames[i] = NULL;
+// список шмоток после пуржа для последующего удаления оболочки
+typedef std::vector<OBJ_DATA *> PurgedObjList;
+PurgedObjList purged_obj_list;
+
+} // namespace
+
+obj_data::obj_data()
+{
+	this->zero_init();
+	caching::obj_cache.add(this);
 }
 
 obj_data::obj_data(const obj_data& other)
@@ -60,10 +42,82 @@ obj_data::obj_data(const obj_data& other)
 
 obj_data::~obj_data()
 {
+	if (!purged_)
+	{
+		this->purge(true);
+	}
+}
+
+/**
+ * См. Character::zero_init()
+ */
+void obj_data::zero_init()
+{
+	uid = 0;
+	item_number = NOTHING;
+	in_room = NOWHERE;
+	aliases = NULL;
+	description = NULL;
+	short_description = NULL;
+	action_description = NULL;
+	ex_description = NULL;
+	carried_by = NULL;
+	worn_by = NULL;
+	worn_on = NOWHERE;
+	in_obj = NULL;
+	contains = NULL;
+	id = 0;
+	proto_script = NULL;
+	script = NULL;
+	next_content = NULL;
+	next = NULL;
+	room_was_in = NOWHERE;
+	max_in_world = 0;
+	skills = NULL;
+	serial_num_ = 0;
+	timer_ = 0;
+	mort_req_ = 0;
+	purged_ = false;
+
+	memset(&obj_flags, 0, sizeof(obj_flag_data));
+
+	for (int i = 0; i < 6; i++)
+	{
+		PNames[i] = NULL;
+	}
+}
+
+/**
+ * См. Character::purge()
+ */
+void obj_data::purge(bool destructor)
+{
+	if (purged_)
+	{
+		log("SYSERROR: double purge (%s:%d)", __FILE__, __LINE__);
+		return;
+	}
+
 	caching::obj_cache.remove(this);
-	bloody::remove_obj(this); //см. комментарий в структуре BloodyInfo из pk.cpp
+	//см. комментарий в структуре BloodyInfo из pk.cpp
+	bloody::remove_obj(this);
 	//weak_ptr тут бы был какраз в тему
 	Celebrates::remove_from_obj_lists(this->uid);
+
+	if (!destructor)
+	{
+		// обнуляем все
+		this->zero_init();
+		// проставляем неподходящие из конструктора поля
+		purged_ = true;
+		// закидываем в список ожидающих делета указателей
+		purged_obj_list.push_back(this);
+	}
+}
+
+bool obj_data::purged() const
+{
+	return purged_;
 }
 
 int obj_data::get_serial_num()
@@ -246,6 +300,8 @@ void obj_data::set_mort_req(int param)
 	mort_req_ = MAX(0, param);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 namespace ObjSystem
 {
 
@@ -260,6 +316,19 @@ bool is_armor_type(const OBJ_DATA *obj)
 		return true;
 	}
 	return false;
+}
+
+/**
+* См. CharacterSystem::release_purged_list()
+*/
+void release_purged_list()
+{
+	for (PurgedObjList::iterator i = purged_obj_list.begin();
+		i != purged_obj_list.end(); ++i)
+	{
+		delete *i;
+	}
+	purged_obj_list.clear();
 }
 
 } // namespace ObjSystem

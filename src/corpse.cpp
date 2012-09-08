@@ -344,11 +344,16 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 
 	/* transfer character's equipment to the corpse */
 	for (i = 0; i < NUM_WEARS; i++)
+	{
 		if (GET_EQ(ch, i))
 		{
 			remove_otrigger(GET_EQ(ch, i), ch);
+			if (GET_EQ(ch, i)->purged()) continue;
+
 			obj_to_char(unequip_char(ch, i), ch);
 		}
+	}
+
 	// Считаем вес шмоток после того как разденем чара
 	GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch) + IS_CARRYING_W(ch);
 

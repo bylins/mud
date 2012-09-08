@@ -1432,10 +1432,11 @@ inline void heartbeat(const int missed_pulses)
 		Clan::save_pk_log();
 	}
 
-	// очистка спурженных character
+	// очистка спурженных char_data и obj_data
 	if (!((pulse + 28) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
 		CharacterSystem::release_purged_list();
+		ObjSystem::release_purged_list();
 	}
 
 	// апдейт таймеров в магазинах

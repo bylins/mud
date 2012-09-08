@@ -29,9 +29,10 @@ std::string PlayerI::empty_const_str;
 
 namespace
 {
+
 // список чаров/мобов после пуржа для последующего удаления оболочки
-typedef std::vector<CHAR_DATA *> PurgedListType;
-PurgedListType purged_list;
+typedef std::vector<CHAR_DATA *> PurgedCharList;
+PurgedCharList purged_char_list;
 
 /**
 * На перспективу - втыкать во все методы character.
@@ -69,15 +70,16 @@ namespace CharacterSystem
 {
 
 /**
-* Реальное удаление указателей чаров после пуржа.
+* Реальное удаление указателей.
 */
 void release_purged_list()
 {
-	for (PurgedListType::iterator i = purged_list.begin(); i != purged_list.end(); ++i)
+	for (PurgedCharList::iterator i = purged_char_list.begin();
+		i != purged_char_list.end(); ++i)
 	{
 		delete *i;
 	}
-	purged_list.clear();
+	purged_char_list.clear();
 }
 
 } // namespace CharacterSystem
@@ -190,11 +192,20 @@ void Character::zero_init()
 }
 
 /**
-* Освобождение выделенной в Character памяти, вынесено из деструктора,
-* т.к. есть необходимость дергать отдельно от delete.
-* \param destructor - true вызов произошел из дестркутора и обнулять/добавлять
-* в purged_list не нужно, по дефолту = false.
-*/
+ * Освобождение выделенной в Character памяти, вынесено из деструктора,
+ * т.к. есть необходимость дергать отдельно от delete.
+ * \param destructor - true вызов произошел из дестркутора и обнулять/добавлять
+ * в purged_list не нужно, по дефолту = false.
+ *
+ * Система в целом: там, где уже все обработано и почищено, и предполагается вызов
+ * финального delete - вместо него вызывается метод purge(), в котором идет аналог
+ * деструктора с полной очисткой объекта, но сама оболочка при этом сохраняется,
+ * плюс инится флаг purged_, после чего по коду можно проверять старый указатель на
+ * объект через метод purged() и, соответственно, не использовать его, если объект
+ * по факту был удален. Таким образом мы не нарываемся на невалидные указатели, если
+ * по ходу функции были спуржены чар/моб/шмотка. Гарантии ес-сно только в пределах
+ * вызовов до выхода в обработку heartbeat(), где раз в минуту удаляются оболочки.
+ */
 void Character::purge(bool destructor)
 {
 	caching::character_cache.remove(this);
@@ -202,7 +213,6 @@ void Character::purge(bool destructor)
 	{
 		log("SYSERROR: double purge (%s:%d)", __FILE__, __LINE__);
 		return;
-
 	}
 	if (GET_NAME(this))
 		log("[FREE CHAR] (%s)", GET_NAME(this));
@@ -376,7 +386,7 @@ void Character::purge(bool destructor)
 			player_specials = &dummy_mob;
 		}
 		// закидываем в список ожидающих делета указателей
-		purged_list.push_back(this);
+		purged_char_list.push_back(this);
 	}
 }
 

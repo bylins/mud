@@ -6137,7 +6137,8 @@ void free_obj(OBJ_DATA * obj)
 				free(thisd);
 			}
 	}
-	delete obj;
+	// delete obj;
+	obj->purge();
 }
 
 

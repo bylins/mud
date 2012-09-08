@@ -491,7 +491,7 @@ private:
 	void check_fighting_list();
 	void zero_init();
 
-	CharSkillsType skills;  // список изученных скиллов 
+	CharSkillsType skills;  // список изученных скиллов
 	////////////////////////////////////////////////////////////////////////////
 	CHAR_DATA *protecting_; // цель для 'прикрыть'
 	CHAR_DATA *touching_;   // цель для 'перехватить'

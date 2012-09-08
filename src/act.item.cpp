@@ -90,10 +90,8 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 {
 	if (!bloody::handle_transfer(ch, NULL, obj, cont))
 		return 2;
-	if (!drop_otrigger(obj, ch))
-	{
+	if (!drop_otrigger(obj, ch) || obj->purged())
 		return 2;
-	}
 	// если кладем в клановый сундук
 	if (Clan::is_clan_chest(cont))
 	{
@@ -964,11 +962,15 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 			}
 			else
 			{
-				if (!drop_wtrigger(obj, ch))
+				int result = drop_wtrigger(obj, ch);
+				if (obj->purged()) return;
+
+				if (!result)
 				{
 					extract_obj(obj);
 					return;
 				}
+
 				/* Если этот моб трупа не оставит, то не выводить сообщение
 				   иначе ужасно коряво смотрится в бою и в тригах */
 				if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE))
@@ -1002,14 +1004,15 @@ const char *drop_op[3][3] =
 	{"пожертвовать", "пожертвовали", "пожертвовал"},
 	{"бросить", "бросили", "бросил"}
 };
+
 int perform_drop(CHAR_DATA * ch, OBJ_DATA * obj, byte mode, const int sname, room_rnum RDR)
 {
 	int value;
-	if (!drop_otrigger(obj, ch))
+	if (!drop_otrigger(obj, ch) || obj->purged())
 		return 0;
 	if (!bloody::handle_transfer(ch, NULL, obj))
 		return 0;
-	if ((mode == SCMD_DROP) && !drop_wtrigger(obj, ch))
+	if ((mode == SCMD_DROP && !drop_wtrigger(obj, ch)) || obj->purged())
 		return 0;
 	if (IS_OBJ_STAT(obj, ITEM_NODROP))
 	{
@@ -1977,8 +1980,9 @@ void perform_remove(CHAR_DATA * ch, int pos)
 			act("$p: Вы не можете нести столько вещей!", FALSE, ch, obj, 0, TO_CHAR);
 		else
 		{
-			if (!remove_otrigger(obj, ch))
+			if (!remove_otrigger(obj, ch) || obj->purged())
 				return;
+
 			act("Вы прекратили использовать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 			act("$n прекратил$g использовать $o3.", TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 			obj_to_char(unequip_char(ch, pos | 0x40), ch);

@@ -2639,6 +2639,13 @@ void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 				act("$n снял$g $o3 и бросил$g на землю.", FALSE, ch, obj, 0, TO_ROOM);
 			msgShown = true;
 		}
+
+		drop_otrigger(obj, ch);
+		if (obj->purged()) return;
+
+		drop_wtrigger(obj, ch);
+		if (obj->purged()) return;
+
 		obj_to_room(obj, ch->in_room);
 		if (!obj_decay(obj) && !msgShown)
 		{
@@ -2707,6 +2714,11 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		if (GET_EQ(ch, i))
 		{
 			OBJ_DATA *obj_eq = unequip_char(ch, i);
+			if (!obj_eq) continue;
+
+			remove_otrigger(obj_eq, ch);
+			if (obj_eq->purged()) continue;
+
 			drop_obj_on_zreset(ch, obj_eq, 0, zone_reset);
 		}
 	}
