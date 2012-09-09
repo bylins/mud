@@ -3083,11 +3083,36 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					sprintf(str, "%d", GET_OBJ_OWNER(o));
 				}
 			}
-			else
-			{
-				sprintf(buf2, "Type: %d. unknown object field: '%s'", type, field);
-				trig_log(trig, buf2);
-			}
+			else if (!str_cmp(field, "varexists"))
+				{
+					strcpy(str, "0");
+					if (SCRIPT(o))
+					{
+						if (find_var_cntx
+							(&((SCRIPT(o))->global_vars), subfield, sc->context))
+							strcpy(str, "1");
+					}
+				}
+				else //get global var. obj.varname
+				{
+					if (SCRIPT(o))
+					{
+						vd = find_var_cntx(&((SCRIPT(o))->global_vars), field,
+										   sc->context);
+						if (vd)
+							sprintf(str, "%s", vd->value);
+						else
+						{
+							sprintf(buf2, "unknown object field: '%s'", field);
+							trig_log(trig, buf2);
+						}
+					}
+					else
+					{
+						sprintf(buf2, "Type: %d. unknown object field: '%s'", type, field);
+						trig_log(trig, buf2);
+					}
+				}
 		}
 		else if (r)
 		{
@@ -3190,10 +3215,36 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
  					return;
  				}
  				//mixaz - end
-				else
+				//room.varexists<0;1>
+				else if (!str_cmp(field, "varexists"))
 				{
-					sprintf(buf2, "Type: %d. unknown room field: '%s'", type, field);
-					trig_log(trig, buf2);
+					strcpy(str, "0");
+					if (SCRIPT(r))
+					{
+						if (find_var_cntx
+							(&((SCRIPT(r))->global_vars), subfield, sc->context))
+							strcpy(str, "1");
+					}
+				}
+				else //get global var. room.varname
+				{
+					if (SCRIPT(r))
+					{
+						vd = find_var_cntx(&((SCRIPT(r))->global_vars), field,
+										   sc->context);
+						if (vd)
+							sprintf(str, "%s", vd->value);
+						else
+						{
+							sprintf(buf2, "unknown room field: '%s'", field);
+							trig_log(trig, buf2);
+						}
+					}
+					else
+					{
+						sprintf(buf2, "unknown room field: '%s'", field);
+						trig_log(trig, buf2);
+					}
 				}
 		}
 		else if (text_processed(field, subfield, vd, str))
