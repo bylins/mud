@@ -2020,21 +2020,6 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && number(1, 999) <= GET_MR(victim) * 10)
 		dam = 0;
 
-	// инит полей для дамага
-	Damage dmg(SpellDmg(spellnum), dam, FightSystem::MAGE_DMG);
-	dmg.ch_start_pos = ch_start_pos;
-	dmg.victim_start_pos = victim_start_pos;
-	// колдуны игнорят поглощение у мобов
-	if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim))
-	{
-		dmg.flags.set(FightSystem::IGNORE_ABSORBE);
-	}
-	// отражение магии в кастующего
-	if (ch == victim)
-	{
-		dmg.flags.set(FightSystem::MAGIC_REFLECT);
-	}
-
 	for (; count > 0 && rand >= 0; count--)
 	{
 		if (IN_ROOM(ch) != NOWHERE
@@ -2042,6 +2027,20 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			&& GET_POS(ch) > POS_STUNNED
 			&& GET_POS(victim) > POS_DEAD)
 		{
+			// инит полей для дамага
+			Damage dmg(SpellDmg(spellnum), dam, FightSystem::MAGE_DMG);
+			dmg.ch_start_pos = ch_start_pos;
+			dmg.victim_start_pos = victim_start_pos;
+			// колдуны игнорят поглощение у мобов
+			if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim))
+			{
+				dmg.flags.set(FightSystem::IGNORE_ABSORBE);
+			}
+			// отражение магии в кастующего
+			if (ch == victim)
+			{
+				dmg.flags.set(FightSystem::MAGIC_REFLECT);
+			}
 			if (count <= 1)
 			{
 				dmg.flags.reset(FightSystem::NO_FLEE);
