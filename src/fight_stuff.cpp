@@ -841,7 +841,7 @@ bool check_valid_chars(CHAR_DATA *ch, CHAR_DATA *victim, const char *fname, int 
  *	> 0	How much damage done.
  */
 
-void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool mayflee)
+void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 {
 	if (IN_ROOM(ch) == NOWHERE)
 		return;
@@ -886,14 +886,14 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool mayflee)
 		if (ch != victim &&
 				IS_NPC(victim) &&
 				GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4) &&
-				MOB_FLAGGED(victim, MOB_WIMPY) && mayflee && GET_POS(victim) > POS_SITTING)
+				MOB_FLAGGED(victim, MOB_WIMPY) && !noflee && GET_POS(victim) > POS_SITTING)
 			do_flee(victim, NULL, 0, 0);
 
 		if (ch != victim &&
 				!IS_NPC(victim) &&
 				HERE(victim) &&
 				GET_WIMP_LEV(victim) &&
-				GET_HIT(victim) < GET_WIMP_LEV(victim) && mayflee && GET_POS(victim) > POS_SITTING)
+				GET_HIT(victim) < GET_WIMP_LEV(victim) && !noflee && GET_POS(victim) > POS_SITTING)
 		{
 			send_to_char("Вы запаниковали и попытались убежать !\r\n", victim);
 			do_flee(victim, NULL, 0, 0);

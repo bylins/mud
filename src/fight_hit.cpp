@@ -2898,7 +2898,7 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 
-	// позиции сражающихся до применения скилов и прочего, что может из изменить
+	// позиции сражающихся до применения скилов и прочего, что может их изменить
 	ch_start_pos = GET_POS(ch);
 	victim_start_pos = GET_POS(victim);
 }
