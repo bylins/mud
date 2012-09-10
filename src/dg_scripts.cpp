@@ -2275,6 +2275,11 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			else if (!str_cmp(field, "morale"))
 			{
+				//GET_MORALE(c) = (int) gm_char_field(c, field, subfield, (long) GET_MORALE(c));
+				sprintf(str, "%d", c->calc_morale());
+			}
+			else if (!str_cmp(field, "moraleadd"))
+			{
 				GET_MORALE(c) = (int) gm_char_field(c, field, subfield, (long) GET_MORALE(c));
 				sprintf(str, "%d", GET_MORALE(c));
 			}
