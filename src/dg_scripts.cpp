@@ -3089,35 +3089,33 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				}
 			}
 			else if (!str_cmp(field, "varexists"))
+			{
+				strcpy(str, "0");
+				if (SCRIPT(o))
 				{
-					strcpy(str, "0");
-					if (SCRIPT(o))
-					{
-						if (find_var_cntx
-							(&((SCRIPT(o))->global_vars), subfield, sc->context))
-							strcpy(str, "1");
-					}
+					if (find_var_cntx(&((SCRIPT(o))->global_vars), subfield, sc->context))
+						strcpy(str, "1");
 				}
-				else //get global var. obj.varname
+			}
+			else //get global var. obj.varname
+			{
+				if (SCRIPT(o))
 				{
-					if (SCRIPT(o))
-					{
-						vd = find_var_cntx(&((SCRIPT(o))->global_vars), field,
-										   sc->context);
-						if (vd)
-							sprintf(str, "%s", vd->value);
-						else
-						{
-							sprintf(buf2, "unknown object field: '%s'", field);
-							trig_log(trig, buf2);
-						}
-					}
+					vd = find_var_cntx(&((SCRIPT(o))->global_vars), field, sc->context);
+					if (vd)
+						sprintf(str, "%s", vd->value);
 					else
 					{
 						sprintf(buf2, "Type: %d. unknown object field: '%s'", type, field);
 						trig_log(trig, buf2);
 					}
 				}
+				else
+				{
+					sprintf(buf2, "Type: %d. unknown object field: '%s'", type, field);
+					trig_log(trig, buf2);
+				}
+			}
 		}
 		else if (r)
 		{
@@ -3176,81 +3174,81 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				if (r->people)
 					sprintf(str, "%c%ld", UID_CHAR, GET_ID(r->people));
 			}
-			else
-				if (!str_cmp(field, "char") ||
-						!str_cmp(field, "pc") || !str_cmp(field, "npc") || !str_cmp(field, "all"))
+			else if (!str_cmp(field, "char")
+				|| !str_cmp(field, "pc")
+				|| !str_cmp(field, "npc")
+				|| !str_cmp(field, "all"))
+			{
+				int inroom;
+
+				// Составление списка (для room)
+				inroom = real_room(r->number);
+				if (inroom == NOWHERE)
 				{
-					int inroom;
-
-					// Составление списка (для room)
-					inroom = real_room(r->number);
-					if (inroom == NOWHERE)
-					{
-						trig_log(trig, "room-построитель списка в NOWHERE");
-						return;
-					}
-
-					for (rndm = world[inroom]->people; rndm; rndm = rndm->next_in_room)
-					{
-						if ((*field == 'a') ||
-								(!IS_NPC(rndm) && *field != 'n') ||
-								(IS_NPC(rndm) && IS_CHARMED(rndm) && *field == 'c') ||
-								(IS_NPC(rndm) && !IS_CHARMED(rndm) && *field == 'n'))
-							sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(rndm));
-					}
-
+					trig_log(trig, "room-построитель списка в NOWHERE");
 					return;
 				}
- 				//mixaz  Выдаем список объектов в комнате
- 				else
- 				if (!str_cmp(field, "objects"))
- 				{
-					int inroom;
- 					// Составление списка (для room)
- 					inroom = real_room(r->number);
- 					if (inroom == NOWHERE)
- 					{
- 						trig_log(trig, "room-построитель списка в NOWHERE");
-						return;
- 					}
- 					for (obj = world[inroom]->contents; obj; obj = obj->next_content)
- 					{
- 							sprintf(str + strlen(str), "%c%ld ", UID_OBJ, GET_ID(obj));
- 					}
- 					return;
- 				}
- 				//mixaz - end
-				//room.varexists<0;1>
-				else if (!str_cmp(field, "varexists"))
+
+				for (rndm = world[inroom]->people; rndm; rndm = rndm->next_in_room)
 				{
-					strcpy(str, "0");
-					if (SCRIPT(r))
+					if ((*field == 'a')
+						|| (!IS_NPC(rndm) && *field != 'n')
+						|| (IS_NPC(rndm) && IS_CHARMED(rndm) && *field == 'c')
+						|| (IS_NPC(rndm) && !IS_CHARMED(rndm) && *field == 'n'))
 					{
-						if (find_var_cntx
-							(&((SCRIPT(r))->global_vars), subfield, sc->context))
-							strcpy(str, "1");
+						sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(rndm));
 					}
 				}
-				else //get global var. room.varname
+
+				return;
+			}
+ 			else if (!str_cmp(field, "objects"))
+			{
+				//mixaz  Выдаем список объектов в комнате
+				int inroom;
+				// Составление списка (для room)
+				inroom = real_room(r->number);
+				if (inroom == NOWHERE)
 				{
-					if (SCRIPT(r))
-					{
-						vd = find_var_cntx(&((SCRIPT(r))->global_vars), field,
-										   sc->context);
-						if (vd)
-							sprintf(str, "%s", vd->value);
-						else
-						{
-							sprintf(buf2, "unknown room field: '%s'", field);
-							trig_log(trig, buf2);
-						}
-					}
+					trig_log(trig, "room-построитель списка в NOWHERE");
+					return;
+				}
+ 				for (obj = world[inroom]->contents; obj; obj = obj->next_content)
+ 				{
+					sprintf(str + strlen(str), "%c%ld ", UID_OBJ, GET_ID(obj));
+ 				}
+				return;
+ 				//mixaz - end
+			}
+			else if (!str_cmp(field, "varexists"))
+			{
+				//room.varexists<0;1>
+				strcpy(str, "0");
+				if (SCRIPT(r))
+				{
+					if (find_var_cntx(&((SCRIPT(r))->global_vars), subfield, sc->context))
+						strcpy(str, "1");
+				}
+			}
+			else //get global var. room.varname
+			{
+				if (SCRIPT(r))
+				{
+					vd = find_var_cntx(&((SCRIPT(r))->global_vars), field, sc->context);
+					if (vd)
+						sprintf(str, "%s", vd->value);
 					else
 					{
-						sprintf(buf2, "unknown room field: '%s'", field);
+						sprintf(buf2, "Type: %d. unknown room field: '%s'", type, field);
 						trig_log(trig, buf2);
 					}
 				}
+				else
+				{
+					sprintf(buf2, "Type: %d. unknown room field: '%s'", type, field);
+					trig_log(trig, buf2);
+				}
+			}
 		}
 		else if (text_processed(field, subfield, vd, str))
 			return;
