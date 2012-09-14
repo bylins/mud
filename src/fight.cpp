@@ -959,7 +959,7 @@ void summon_mob_helpers(CHAR_DATA *ch)
 			{
 				char_from_room(vict);
 				char_to_room(vict, IN_ROOM(ch));
-				act("$n прибыл$g на зов и вступил$g на помощь $N2.",
+				act("$n прибыл$g на зов и вступил$g в битву на стороне $N1.",
 					FALSE, vict, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 			}
 			else
