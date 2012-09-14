@@ -2273,12 +2273,12 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			{
 				sprintf(str, "%d", GET_REAL_AC(c));
 			}
-			else if (!str_cmp(field, "morale"))
+			else if (!str_cmp(field, "morale")) // общая сумма морали
 			{
 				//GET_MORALE(c) = (int) gm_char_field(c, field, subfield, (long) GET_MORALE(c));
 				sprintf(str, "%d", c->calc_morale());
 			}
-			else if (!str_cmp(field, "moraleadd"))
+			else if (!str_cmp(field, "moraleadd")) // добавочная мораль
 			{
 				GET_MORALE(c) = (int) gm_char_field(c, field, subfield, (long) GET_MORALE(c));
 				sprintf(str, "%d", GET_MORALE(c));

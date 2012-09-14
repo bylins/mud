@@ -3045,7 +3045,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	if (GET_LEVEL(ch) < LVL_IMMORT)
 		sprintf(buf + strlen(buf),
 				" || %sВы можете вступить в группу с максимальной разницей                             %s||\r\n"
-				" || %sв %d %-76s%s||\r\n",
+				" || %sв %2d %-75s%s||\r\n",
 				CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
 				grouping[(int)GET_CLASS(ch)][MIN(14, (int)GET_REMORT(ch))],
 				(string(desc_count(grouping[(int)GET_CLASS(ch)][MIN(14, (int)GET_REMORT(ch))], WHAT_LEVEL))

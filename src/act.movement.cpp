@@ -544,7 +544,8 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 				continue;
 			if (NPC_FLAGGED(tch, 1 << dir) &&
 					AWAKE(tch) &&
-					GET_POS(tch) > POS_SLEEPING && CAN_SEE(tch, ch) && !AFF_FLAGGED(tch, AFF_CHARM))
+					GET_POS(tch) > POS_SLEEPING && CAN_SEE(tch, ch) &&
+					!AFF_FLAGGED(tch, AFF_CHARM) && !AFF_FLAGGED(tch, AFF_HOLD))
 			{
 				if (show_msg)
 					act("$N преградил$G Вам путь.", FALSE, ch, 0, tch, TO_CHAR);
