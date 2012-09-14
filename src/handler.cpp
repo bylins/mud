@@ -1833,10 +1833,10 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 
 	if (!IS_NPC(ch) || IS_CHARMICE(ch))
 	{
-		int rem = IS_CHARMICE(ch) && ch->master ? GET_REMORT(ch->master) : GET_REMORT(ch);
-		if (obj->get_mort_req() > rem)
+		CHAR_DATA *master = IS_CHARMICE(ch) && ch->master ? ch->master : ch;
+		if (obj->get_mort_req() > GET_REMORT(master))
 		{
-			send_to_char(ch, "Для использования %s требуется %d %s.\r\n",
+			send_to_char(master, "Для использования %s требуется %d %s.\r\n",
 					GET_OBJ_PNAME(obj, 1), obj->get_mort_req(),
 					desc_count(obj->get_mort_req(), WHAT_REMORT));
 			act("$n попытал$u надеть $o3, но у н$s ничего не получилось.",
@@ -3895,7 +3895,7 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim)
 		stat_overlimit =
 			VPOSI(stat_overlimit - GET_REMORT(ch) * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0), 0, 100);
 	else if (GET_LEVEL(ch) > 26)
-		stat_overlimit = VPOSI(stat_overlimit - GET_REMORT(ch), 0, 100);
+		stat_overlimit = VPOSI(stat_overlimit - MIN(GET_REMORT(ch), 16), 0, 100);
 
 	float price = 0;
 	float real_cha = 1.0 + GET_LEVEL(ch) / 2.0 + stat_overlimit / 2.0;
