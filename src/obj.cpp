@@ -331,7 +331,7 @@ namespace
 
 const float SQRT_MOD = 1.7095;
 const int AFF_SHIELD_MOD = 30;
-const int AFF_BLINK_MOD = 5;
+const int AFF_BLINK_MOD = 10;
 
 float count_affect_weight(OBJ_DATA *obj, int num, int mod)
 {

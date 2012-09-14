@@ -3483,12 +3483,38 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	hit_params.calc_rand_hr(ch, victim);
 	hit_params.calc_ac(victim);
 
+	const int victim_lvl_miss = victim->get_level() + victim->get_remort();
+	const int ch_lvl_miss = ch->get_level() + ch->get_remort();
+
 	/** собсно выяснение попали или нет */
-	// всегда есть 5% вероятность попасть или промазать,
-	// какой бы AC у противника ни был
+	if (victim_lvl_miss - ch_lvl_miss <= 5
+		|| (!IS_NPC(ch) && !IS_NPC(victim)))
+	{
+		// 5% шанс промазать, если цель в пределах 5 уровней или пвп случай
+		if ((number(1, 100) <= 5))
+		{
+			hit_params.dam = 0;
+			hit_params.extdamage(ch, victim);
+			hitprcnt_mtrigger(victim);
+			return;
+		}
+	}
+	else
+	{
+		// шанс промазать = разнице уровней и мортов
+		const int diff = victim_lvl_miss - ch_lvl_miss;
+		if (number(1, 100) <= diff)
+		{
+			hit_params.dam = 0;
+			hit_params.extdamage(ch, victim);
+			hitprcnt_mtrigger(victim);
+			return;
+		}
+	}
+
+	// всегда есть 5% вероятность попасть (diceroll == 20)
 	if ((hit_params.diceroll < 20 && AWAKE(victim))
-		&& (hit_params.diceroll == 1
-			|| hit_params.calc_thaco - hit_params.diceroll > hit_params.victim_ac))
+		&& hit_params.calc_thaco - hit_params.diceroll > hit_params.victim_ac)
 	{
 		hit_params.dam = 0;
 		hit_params.extdamage(ch, victim);
