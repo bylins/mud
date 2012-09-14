@@ -76,8 +76,9 @@ void obj_data::zero_init()
 	skills = NULL;
 	serial_num_ = 0;
 	timer_ = 0;
-	mort_req_ = 0;
+	manual_mort_req_ = -1;
 	purged_ = false;
+	ilevel_ = 0;
 
 	memset(&obj_flags, 0, sizeof(obj_flag_data));
 
@@ -290,15 +291,114 @@ void obj_data::dec_timer(int time)
 	}
 }
 
-int obj_data::get_mort_req() const
+int obj_data::get_manual_mort_req() const
 {
-	return mort_req_;
+	return manual_mort_req_;
 }
 
-void obj_data::set_mort_req(int param)
+void obj_data::set_manual_mort_req(int param)
 {
-	mort_req_ = MAX(0, param);
+	manual_mort_req_ = param;
 }
+
+unsigned obj_data::get_ilevel() const
+{
+	return ilevel_;
+}
+
+void obj_data::set_ilevel(unsigned ilvl)
+{
+	ilevel_ = ilvl;
+}
+
+int obj_data::get_mort_req() const
+{
+	if (manual_mort_req_ >= 0)
+	{
+		return manual_mort_req_;
+	}
+	else if (ilevel_ > 30)
+	{
+		return 9;
+	}
+	return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+namespace
+{
+
+const float SQRT_MOD = 1.7095;
+const int AFF_SHIELD_MOD = 30;
+const int AFF_BLINK_MOD = 5;
+
+float count_affect_weight(OBJ_DATA *obj, int num, int mod)
+{
+	float weight = 0;
+
+	switch(num)
+	{
+	case APPLY_STR:
+		weight = mod * 5.0;
+		break;
+	case APPLY_DEX:
+		weight = mod * 10.0;
+		break;
+	case APPLY_INT:
+		weight = mod * 10.0;
+		break;
+	case APPLY_WIS:
+		weight = mod * 10.0;
+		break;
+	case APPLY_CON:
+		weight = mod * 10.0;
+		break;
+	case APPLY_CHA:
+		weight = mod * 10.0;
+		break;
+	case APPLY_HIT:
+		weight = mod * 0.2;
+		break;
+	case APPLY_AC:
+		weight = mod * -1.0;
+		break;
+	case APPLY_HITROLL:
+		weight = mod * 3.3;
+		break;
+	case APPLY_DAMROLL:
+		weight = mod * 3.3;
+		break;
+	case APPLY_SAVING_WILL:
+		weight = mod * -1.0;
+		break;
+	case APPLY_SAVING_CRITICAL:
+		weight = mod * -1.0;
+		break;
+	case APPLY_SAVING_STABILITY:
+		weight = mod * -1.0;
+		break;
+	case APPLY_SAVING_REFLEX:
+		weight = mod * -1.0;
+		break;
+	case APPLY_CAST_SUCCESS:
+		weight = mod * 1.0;
+		break;
+	case APPLY_MORALE:
+		weight = mod * 2.0;
+		break;
+	case APPLY_INITIATIVE:
+		weight = mod * 2.0;
+		break;
+	case APPLY_ABSORBE:
+		weight = mod * 1.0;
+		break;
+	}
+
+	return weight;
+}
+
+} // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -329,6 +429,172 @@ void release_purged_list()
 		delete *i;
 	}
 	purged_obj_list.clear();
+}
+
+bool is_mob_item(OBJ_DATA *obj)
+{
+	if (IS_OBJ_NO(obj, ITEM_NO_MALE)
+		&& IS_OBJ_NO(obj, ITEM_NO_FEMALE)
+		&& IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
+	{
+		return true;
+	}
+	if (IS_OBJ_NO(obj, ITEM_NO_MONO)
+		&& IS_OBJ_NO(obj, ITEM_NO_POLY)
+		&& IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
+	{
+		return true;
+	}
+	if (IS_OBJ_NO(obj, ITEM_NO_RUSICHI)
+		&& IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
+	{
+		return true;
+	}
+	if (IS_OBJ_NO(obj, ITEM_NO_CLERIC)
+		&& IS_OBJ_NO(obj, ITEM_NO_THIEF)
+		&& IS_OBJ_NO(obj, ITEM_NO_WARRIOR)
+		&& IS_OBJ_NO(obj, ITEM_NO_ASSASINE)
+		&& IS_OBJ_NO(obj, ITEM_NO_GUARD)
+		&& IS_OBJ_NO(obj, ITEM_NO_PALADINE)
+		&& IS_OBJ_NO(obj, ITEM_NO_RANGER)
+		&& IS_OBJ_NO(obj, ITEM_NO_SMITH)
+		&& IS_OBJ_NO(obj, ITEM_NO_MERCHANT)
+		&& IS_OBJ_NO(obj, ITEM_NO_DRUID)
+		&& IS_OBJ_NO(obj, ITEM_NO_BATTLEMAGE)
+		&& IS_OBJ_NO(obj, ITEM_NO_CHARMMAGE)
+		&& IS_OBJ_NO(obj, ITEM_NO_DEFENDERMAGE)
+		&& IS_OBJ_NO(obj, ITEM_NO_NECROMANCER)
+		&& IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
+	{
+		return true;
+	}
+	if (IS_OBJ_NO(obj, ITEM_NO_SEVERANE)
+		&& IS_OBJ_NO(obj, ITEM_NO_POLANE)
+		&& IS_OBJ_NO(obj, ITEM_NO_KRIVICHI)
+		&& IS_OBJ_NO(obj, ITEM_NO_VATICHI)
+		&& IS_OBJ_NO(obj, ITEM_NO_VELANE)
+		&& IS_OBJ_NO(obj, ITEM_NO_DREVLANE)
+		&& IS_OBJ_NO(obj, ITEM_NO_CHARMICE))
+	{
+		return true;
+	}
+	if (IS_OBJ_ANTI(obj, ITEM_AN_MALE)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_FEMALE)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE))
+	{
+		return true;
+	}
+	if (IS_OBJ_ANTI(obj, ITEM_AN_MONO)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_POLY)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE))
+	{
+		return true;
+	}
+	if (IS_OBJ_ANTI(obj, ITEM_AN_RUSICHI)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE))
+	{
+		return true;
+	}
+	if (IS_OBJ_ANTI(obj, ITEM_AN_CLERIC)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_THIEF)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_WARRIOR)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_ASSASINE)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_GUARD)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_PALADINE)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_RANGER)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_SMITH)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_MERCHANT)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_DRUID)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_BATTLEMAGE)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMMAGE)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_DEFENDERMAGE)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_NECROMANCER)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE))
+	{
+		return true;
+	}
+	if (IS_OBJ_ANTI(obj, ITEM_AN_SEVERANE)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_POLANE)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_KRIVICHI)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_VATICHI)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_VELANE)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_DREVLANE)
+		&& IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+void init_ilvl(OBJ_DATA *obj)
+{
+	if (is_mob_item(obj)
+		|| OBJ_FLAGGED(obj, ITEM_SETSTUFF)
+		|| obj->get_manual_mort_req() >= 0)
+	{
+		obj->set_ilevel(0);
+		return;
+	}
+
+	float total_weight = 0.0;
+
+	// аффекты APPLY_x
+	for (int k = 0; k < MAX_OBJ_AFFECT; k++)
+	{
+		if (obj->affected[k].location == 0) continue;
+
+		// случай, если один аффект прописан в нескольких полях
+		for (int kk = 0; kk < MAX_OBJ_AFFECT; kk++)
+		{
+			if (obj->affected[k].location == obj->affected[kk].location
+				&& k != kk)
+			{
+				log("SYSERROR: double affect=%d, obj_vnum=%d",
+					obj->affected[k].location, GET_OBJ_VNUM(obj));
+				obj->set_ilevel(1000000);
+				return;
+			}
+		}
+		float weight = count_affect_weight(obj, obj->affected[k].location,
+			obj->affected[k].modifier);
+		total_weight += pow(weight, SQRT_MOD);
+	}
+	// аффекты AFF_x через weapon_affect
+	for (int m = 0; weapon_affect[m].aff_bitvector != -1; ++m)
+	{
+		if (weapon_affect[m].aff_bitvector == AFF_AIRSHIELD
+			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
+		{
+			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+		}
+		else if (weapon_affect[m].aff_bitvector == AFF_FIRESHIELD
+			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
+		{
+			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+		}
+		else if (weapon_affect[m].aff_bitvector == AFF_ICESHIELD
+			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
+		{
+			total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+		}
+		else if (weapon_affect[m].aff_bitvector == AFF_BLINK
+			&& IS_SET(GET_OBJ_AFF(obj, weapon_affect[m].aff_pos), weapon_affect[m].aff_pos))
+		{
+			total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
+		}
+	}
+
+	obj->set_ilevel(ceil(pow(total_weight, 1/SQRT_MOD)));
+}
+
+void init_item_levels()
+{
+	for (std::vector <OBJ_DATA *>::iterator i = obj_proto.begin(),
+		iend = obj_proto.end(); i != iend; ++i)
+	{
+		init_ilvl(*i);
+	}
 }
 
 } // namespace ObjSystem

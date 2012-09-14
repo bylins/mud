@@ -1521,8 +1521,22 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 			send_to_char(buf, ch);
 		}
 	}
-
 	send_to_char("\r\n", ch);
+
+	if (j->get_ilevel() > 0)
+	{
+		send_to_char(ch, "Уровень (ilvl): %d\r\n", j->get_ilevel());
+	}
+
+	if (j->get_manual_mort_req() >= 0)
+	{
+		send_to_char(ch, "Проставлено поле минимальных перевоплощений: %d\r\n", j->get_manual_mort_req());
+	}
+	else if (j->get_mort_req() > 0)
+	{
+		send_to_char(ch, "Требует перевоплощений: %d\r\n", j->get_mort_req());
+	}
+
 	if (is_grgod)
 	{
 		sprintf(buf, "Сейчас в мире : %d. На постое : %d\r\n",
@@ -5413,8 +5427,9 @@ ACMD(do_liblist)
 		{
 			if (obj_index[nr].vnum >= first && obj_index[nr].vnum <= last)
 			{
-				sprintf(bf, "%s%5d. %s [%5d]", bf, ++found,
-						colored_name(obj_proto[nr]->short_description, 45), obj_index[nr].vnum);
+				sprintf(bf, "%s%5d. %s [%5d] [ilvl=%d]", bf, ++found,
+					colored_name(obj_proto[nr]->short_description, 45),
+					obj_index[nr].vnum, obj_proto[nr]->get_ilevel());
 				if (GET_LEVEL(ch) >= LVL_GRGOD || PRF_FLAGGED(ch, PRF_CODERINFO))
 					sprintf(bf, "%s Игра:%d Пост:%d\r\n", bf,
 							obj_index[nr].number, obj_index[nr].stored);

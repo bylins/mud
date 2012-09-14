@@ -404,6 +404,7 @@ ACMD(do_morph);
 ACMD(do_morphset);
 ACMD(do_console);
 ACMD(do_shops_list);
+
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order

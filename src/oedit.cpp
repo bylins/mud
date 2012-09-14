@@ -359,7 +359,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 
 //  robj_num = real_object(OLC_NUM(d));
 	robj_num = GET_OBJ_RNUM(OLC_OBJ(d));
-
+	ObjSystem::init_ilvl(OLC_OBJ(d));
 
 	/*
 	 * Write object to internal tables.
@@ -594,9 +594,9 @@ void oedit_save_to_disk(int zone_num)
 				fprintf(fp, "M %d\n", GET_OBJ_MIW(obj));
 			}
 
-			if (obj->get_mort_req() > 0)
+			if (obj->get_manual_mort_req() >= 0)
 			{
-				fprintf(fp, "R %d\n", obj->get_mort_req());
+				fprintf(fp, "R %d\n", obj->get_manual_mort_req());
 			}
 
 			/*
@@ -1507,7 +1507,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, nrm, cyn, genders[GET_OBJ_SEX(obj)],
 			grn, nrm, cyn, GET_OBJ_MIW(obj),
 			grn, nrm,
-			grn, nrm, cyn, obj->get_mort_req(),
+			grn, nrm, cyn, obj->get_manual_mort_req(),
 			grn, nrm);
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = OEDIT_MAIN_MENU;
@@ -1587,7 +1587,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		case 'x':
 		case 'X':
-			send_to_char("Требует перевоплощений : ", d->character);
+			send_to_char("Требует перевоплощений: (-1 для выключения поля) ", d->character);
 			OLC_MODE(d) = OEDIT_MORT_REQ;
 			break;
 		case '1':
@@ -2370,10 +2370,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		return;
 	case OEDIT_MORT_REQ:
 		number = atoi(arg);
-		if (number < 0)
-			send_to_char("Число не должно быть меньше нуля.\r\n", d->character);
-		else
-			OLC_OBJ(d)->set_mort_req(number);
+		OLC_OBJ(d)->set_manual_mort_req(number);
 		break;
 
 	default:

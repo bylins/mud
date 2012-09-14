@@ -478,7 +478,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Mort"))
 			{
 				*error = 51;
-				object->set_mort_req(atoi(buffer));
+				object->set_manual_mort_req(atoi(buffer));
 			}
 			else if (!strcmp(read_line, "Ench"))
 			{
@@ -634,7 +634,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 			if (!get_buf_lines(data, buffer))
 				return (object);
 			GET_OBJ_PNAME(object, i) = str_dup(buffer);
-			if (i==0) 
+			if (i==0)
 				object->short_description = str_dup(buffer);
 		}
 		// Описание когда на земле
@@ -1048,9 +1048,10 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		}
 
 		// требования по мортам
-		if (object->get_mort_req() > 0 && object->get_mort_req() != proto->get_mort_req())
+		if (object->get_manual_mort_req() >= 0
+			&& object->get_manual_mort_req() != proto->get_manual_mort_req())
 		{
-			out << "Mort: " << object->get_mort_req() << "~\n";
+			out << "Mort: " << object->get_manual_mort_req() << "~\n";
 		}
 	}
 	else  		// Если у шмотки нет прототипа - придется сохранять ее целиком.
@@ -1202,9 +1203,9 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		}
 
 		// требования по мортам
-		if (object->get_mort_req() > 0)
+		if (object->get_manual_mort_req() >= 0)
 		{
-			out << "Mort: " << object->get_mort_req() << "~\n";
+			out << "Mort: " << object->get_manual_mort_req() << "~\n";
 		}
 	}
 	// обкаст (если он есть) сохраняется в любом случае независимо от прототипа

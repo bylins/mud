@@ -1864,6 +1864,9 @@ void boot_db(void)
 	log("Init SetsDrop lists.");
 	SetsDrop::init();
 
+	log("Init item levels.");
+	ObjSystem::init_item_levels();
+
 	boot_time = time(0);
 	log("Boot db -- DONE.");
 }
@@ -3891,7 +3894,7 @@ char *parse_object(FILE * obj_f, int nr)
 			GET_OBJ_MIW(tobj) = atoi(line + 1);
 			break;
 		case 'R':
-			tobj->set_mort_req(atoi(line + 1));
+			tobj->set_manual_mort_req(atoi(line + 1));
 			break;
 		case 'S':
 			if (!get_line(obj_f, line))

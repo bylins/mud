@@ -401,14 +401,17 @@ struct obj_data
 	int get_timer() const;
 	void dec_timer(int time = 1);
 
-	int get_mort_req() const;
-	void set_mort_req(int);
-
 	static id_to_set_info_map set_table;
 	static void init_set_table();
 
 	void purge(bool destructor = false);
 	bool purged() const;
+
+	unsigned get_ilevel() const;
+	void set_ilevel(unsigned ilvl);
+	int get_manual_mort_req() const;
+	void set_manual_mort_req(int);
+	int get_mort_req() const;
 
 private:
 	void zero_init();
@@ -418,10 +421,12 @@ private:
 	int serial_num_;
 	// таймер (в минутах рл)
 	int timer_;
-	// требование по минимальным мортам
-	int mort_req_;
+	// если >= 0 - требование по минимальным мортам, проставленное в олц
+	int manual_mort_req_;
 	// true - объект спуржен и ждет вызова delete для оболочки
 	bool purged_;
+	// расчетный уровень шмотки, не сохраняется
+	unsigned ilevel_;
 };
 
 namespace ObjSystem
@@ -429,6 +434,9 @@ namespace ObjSystem
 
 bool is_armor_type(const OBJ_DATA *obj);
 void release_purged_list();
+void init_item_levels();
+void init_ilvl(OBJ_DATA *obj);
+bool is_mob_item(OBJ_DATA *obj);
 
 } // namespace ObjSystem
 
