@@ -33,4 +33,4 @@ mkdir ./lib.template/plrstuff/depot/P-T
 mkdir ./lib.template/plrstuff/depot/U-Z
 mkdir ./lib.template/plrstuff/depot/ZZZ
 mkdir ./lib.template/stat
-
+cp -r lib.template lib
