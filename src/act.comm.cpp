@@ -837,7 +837,7 @@ ACMD(do_gen_comm)
 		if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP || subcmd == SCMD_HOLLER))
 		{
 			snprintf(buf1, MAX_STRING_LENGTH, "%s'%s'%s\r\n", color_on, argument, KNRM);
-			ch->remember_add(buf1, Remember::GOSSIP);
+			//ch->remember_add(buf1, Remember::GOSSIP);
 		}
 	}
 
@@ -877,6 +877,12 @@ ACMD(do_gen_comm)
 				send_to_char(KNRM, i->character);
 
 			std::string text = Remember::format_gossip(ch, i->character, subcmd, argument);
+
+			if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP || subcmd == SCMD_HOLLER))
+			{
+				i->character->remember_add(text, Remember::GOSSIP);
+			}
+
 			i->character->remember_add(text, Remember::ALL);
 		}
 	}
