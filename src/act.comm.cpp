@@ -82,12 +82,15 @@ ACMD(do_say)
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
+	
+	/* Непонятно нафига! Если захотят спамить - спамить все равно будут!
 	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
 		send_to_char(SOUNDPROOF, ch);
 		return;
 	}
-
+	*/
+	
 	if (!*argument)
 		send_to_char("Вы задумались: \"Чего бы такого сказать?\"\r\n", ch);
 	else
@@ -126,11 +129,14 @@ ACMD(do_gsay)
 		send_to_char(SIELENCE, ch);
 		return;
 	}
+	
+	/* Непонятно нафига нужно
 	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
 		send_to_char(SOUNDPROOF, ch);
 		return;
 	}
+	*/
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
@@ -322,11 +328,14 @@ ACMD(do_tell)
 		send_to_char(SIELENCE, ch);
 		return;
 	}
+	
+	/* Непонятно нафига нужно
 	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
 		send_to_char(SOUNDPROOF, ch);
 		return;
 	}
+	*/
 
 	half_chop(argument, buf, buf2);
 
@@ -361,11 +370,14 @@ ACMD(do_reply)
 		send_to_char(SIELENCE, ch);
 		return;
 	}
+	
+	/* И тут не ясно нафиг надо
 	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
 		send_to_char(SOUNDPROOF, ch);
 		return;
 	}
+	*/
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
@@ -719,7 +731,8 @@ ACMD(do_gen_comm)
 		send_to_char(com_msgs[subcmd].muted_msg, ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) || ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
+	//if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) || ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
 	{
 		send_to_char(SOUNDPROOF, ch);
 		return;
@@ -805,11 +818,13 @@ ACMD(do_gen_comm)
 	}
 	else
 	{
+		/* Непонятный запрет
 		if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 		{
 			send_to_char(SOUNDPROOF, ch);
 			return;
 		}
+		*/
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(OK, ch);
 		else
@@ -1018,7 +1033,8 @@ ACMD(do_offtop)
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) || ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
+	//if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) || ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
 	{
 		send_to_char(SOUNDPROOF, ch);
 		return;

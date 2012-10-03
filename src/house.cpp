@@ -1588,11 +1588,13 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 	// своей дружине
 	case SCMD_CHANNEL:
 	{
+		/* Непонятно нафига такой запрет был сделан...
 		if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 		{
 			send_to_char("Пришли наблюдать, так наблюдайте!\r\n", ch);
 			return;
 		}
+		...так что убрал пока что */
 		// вспомнить
 		snprintf(buf, MAX_STRING_LENGTH, "%s дружине: &R'%s'.&n\r\n", GET_NAME(ch), text.c_str());
 		CLAN(ch)->add_remember(buf, Remember::CLAN);
@@ -1619,11 +1621,13 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 	// союзникам
 	case SCMD_ACHANNEL:
 	{
+		/* Непонятно нафига такой запрет был сделан...
 		if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 		{
 			send_to_char("Пришли наблюдать, так наблюдайте!\r\n", ch);
 			return;
 		}
+		...так что убрал пока что */
 		// вспомнить
 		snprintf(buf, MAX_STRING_LENGTH, "%s союзникам: &G'%s'.&n\r\n", GET_NAME(ch), text.c_str());
 		for (ClanListType::iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
