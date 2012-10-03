@@ -916,7 +916,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"reroll", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_REROLL},
 	{"rescue", POS_FIGHTING, do_rescue, 1, 0, -1},
 	{"rest", POS_RESTING, do_rest, 0, 0, -1},
-	{"restore", POS_DEAD, do_restore, LVL_GRGOD, 0, 0},
+	{"restore", POS_DEAD, do_restore, LVL_GRGOD, SCMD_RESTORE_GOD, 0},
 	{"return", POS_DEAD, do_return, 0, 0, -1},
 	{"rset", POS_SLEEPING, do_rset, LVL_BUILDER, 0, 0},
 	{"rules", POS_DEAD, do_gen_ps, LVL_IMMORT, SCMD_RULES, 0},

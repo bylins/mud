@@ -3169,8 +3169,11 @@ ACMD(do_restore)
 		affect_from_char(vict, SPELL_DRUNKED);
 		GET_DRUNK_STATE(vict)=GET_COND(vict, DRUNK)=0;
 		affect_from_char(vict, SPELL_ABSTINENT);
-		send_to_char(OK, ch);
-		act("Вы были полностью восстановлены $N4!", FALSE, vict, 0, ch, TO_CHAR);
+		if (subcmd == SCMD_RESTORE_GOD)
+		{
+			send_to_char(OK, ch);
+			act("Вы были полностью восстановлены $N4!", FALSE, vict, 0, ch, TO_CHAR);
+		}
 	}
 }
 

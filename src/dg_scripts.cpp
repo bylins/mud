@@ -82,6 +82,7 @@ void reset_zone(int znum);
 
 void free_script(SCRIPT_DATA * sc);
 
+ACMD(do_restore);
 ACMD(do_mpurge);
 ACMD(do_mjunk);
 
@@ -2306,6 +2307,11 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			else if (!str_cmp(field, "religion"))
 				sprintf(str, "%d", GET_RELIGION(c));
+			else if (!str_cmp(field, "restore"))
+			{
+				do_restore(c, (char*)c->get_name(), 0, SCMD_RESTORE_TRIGGER);
+				trig_log(trig, "был произведен вызов do_restore!");
+			}
 			else if (!str_cmp(field, "gold"))
 			{
 				c->set_gold(MAX(0, gm_char_field(c, field, subfield, c->get_gold())));
