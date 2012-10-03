@@ -1201,10 +1201,10 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 		<< "Рейтинг вашего замка: " << this->exp
 		<< " Это очень круто :), но ничего Вам не дает.\r\n"
 		<< "В хранилище замка может храниться до " << this->ChestMaxObjects()
-		<< " " << desc_count(this->ChestMaxObjects(), WHAT_OBJECT)
+		<< " " << desc_count(this->ChestMaxObjects(), WHAT_OBJu)
 		<< " с общим весом не более чем " << this->ChestMaxWeight() << "\r\n"
 		<< "В хранилище ингредиентов может храниться до " << this->ingr_chest_max_objects()
-		<< " " << desc_count(this->ingr_chest_max_objects(), WHAT_OBJECT)
+		<< " " << desc_count(this->ingr_chest_max_objects(), WHAT_OBJu)
 		<< ".\r\n";
 
 	// инфа о банке и хранилище

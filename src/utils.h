@@ -1220,14 +1220,15 @@ const char * desc_count(long how_many, int of_what);
 #define WHAT_DEGREE	16
 #define WHAT_ROW	17
 #define WHAT_OBJECT	18
-#define WHAT_REMORT	19
-#define WHAT_WEEK	20
-#define WHAT_MONTH	21
-#define WHAT_WEEKu	22
-#define WHAT_GLORY	23
-#define WHAT_GLORYu	24
-#define WHAT_PEOPLE 25
-#define WHAT_STR    26
+#define WHAT_OBJu	19
+#define WHAT_REMORT	20
+#define WHAT_WEEK	21
+#define WHAT_MONTH	22
+#define WHAT_WEEKu	23
+#define WHAT_GLORY	24
+#define WHAT_GLORYu	25
+#define WHAT_PEOPLE	26
+#define WHAT_STR	27
 
 #undef AW_HIDE // конфликтует с winuser.h
 /* some awaking cases */
