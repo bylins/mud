@@ -3146,6 +3146,13 @@ ACMD(do_restore)
 		{
 			GET_MEM_COMPLETED(vict) = GET_MEM_TOTAL(vict);
 		}
+		if (GET_CLASS(vict) == CLASS_WARRIOR)
+		{
+			struct timed_type wctimed;
+			wctimed.skill = SKILL_WARCRY;
+			wctimed.time = 0;
+			timed_to_char(vict, &wctimed);
+		}
 		if (IS_GRGOD(ch) && IS_IMMORTAL(vict))
 		{
 			if (IS_GRGOD(vict))

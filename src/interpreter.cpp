@@ -920,6 +920,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"return", POS_DEAD, do_return, 0, 0, -1},
 	{"rset", POS_SLEEPING, do_rset, LVL_BUILDER, 0, 0},
 	{"rules", POS_DEAD, do_gen_ps, LVL_IMMORT, SCMD_RULES, 0},
+	{"runes", POS_FIGHTING, do_mixture, 0, SCMD_RUNES, -1},
 	{"save", POS_SLEEPING, do_save, 0, LVL_IMPL, 0},
 	{"say", POS_RESTING, do_say, 0, 0, -1},
 	{"scan", POS_RESTING, do_sides, 0, 0, 500},
