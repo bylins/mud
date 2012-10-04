@@ -903,7 +903,13 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 
 	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOFIGHT))
 		return (FALSE);
-
+	//запрет на любые агры
+	if (ch != victim && (ROOM_FLAGGED(ch->in_room, ROOM_NOBATTLE)
+	 			|| ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE)))
+	{
+		send_to_char("Боги запретили здесь любые драки!\r\n", ch);
+		return (FALSE);
+	}
 	if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_NOFIGHT))
 	{
 		act("Боги предотвратили Ваше нападение на $N3.", FALSE, ch, 0, victim, TO_CHAR);
