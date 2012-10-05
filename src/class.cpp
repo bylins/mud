@@ -152,7 +152,12 @@ const char *class_menu =
 	"  [Д]ружинник\r\n"
 	"  К[у]десник\r\n"
 	"  [В]олшебник\r\n"
-	"  [Ч]ернокнижник\r\n" "  В[и]тязь\r\n" "  [О]хотник\r\n" "  Ку[з]нец\r\n" "  Ку[п]ец\r\n" "  Вол[x]в\r\n";
+	"  [Ч]ернокнижник\r\n"
+	"  В[и]тязь\r\n"
+	"  [О]хотник\r\n"
+	"  Ку[з]нец\r\n"
+	"  Ку[п]ец\r\n"
+	"  Вол[x]в\r\n";
 
 const char *class_menu_vik =
 	"\r\n"
@@ -2295,8 +2300,8 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 				return (TRUE);
 	if (IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE) && AFF_FLAGGED(ch, AFF_CHARM))
 		return (TRUE);
-	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch))
-		return (FALSE);
+	if (((IS_NPC(ch) && !OBJ_FLAGGED(obj, ITEM_NAMED)) || WAITLESS(ch)) && !IS_CHARMICE(ch))
+		return (FALSE); //Добавил проверку не именная ли шмотка (Купала)
 	if ((IS_OBJ_ANTI(obj, ITEM_AN_MONO) && GET_RELIGION(ch) == RELIGION_MONO) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_POLY) && GET_RELIGION(ch) == RELIGION_POLY) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch)) ||
@@ -2323,7 +2328,7 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		(IS_OBJ_ANTI(obj, ITEM_AN_COLORED) && IS_COLORED(ch)))
 		return (TRUE);
 	if ((OBJ_FLAGGED(obj, ITEM_NAMED)) && NamedStuff::check_named(ch, obj))//added by WorM(Видолюб) проверка именного стафа
-		return (TRUE);
+		return (TRUE); 
 	return (FALSE);
 }
 
