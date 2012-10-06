@@ -313,6 +313,10 @@ struct alias_data
 #define SCMD_CHANNEL 0
 #define SCMD_ACHANNEL 1
 
+/* do_restore*/
+#define SCMD_RESTORE_GOD 0
+#define SCMD_RESTORE_TRIGGER 1
+
 /**
 * copy the first non-fill-word, space-delimited argument of 'argument'
 * to 'first_arg'; return a pointer to the remainder of the string.

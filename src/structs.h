@@ -178,6 +178,7 @@ typedef struct trig_data TRIG_DATA;
 #define ROOM_NORELOCATEIN   (INT_ONE | (1 << 6))
 #define ROOM_ARENARECV      (INT_ONE | (1 << 7))	// комната в которой слышно сообщения арены
 #define ROOM_ARENASEND      (INT_ONE | (1 << 8))	// комната из которой отправляются сообщения арены
+#define ROOM_NOBATTLE    (INT_ONE | (1 << 9)) //в клетке нельзя начать бой
 
 #define ROOM_NOITEM         (INT_TWO|(1<<0))	// Передача вещей в комнате запрещена
 #define ROOM_RUSICHI        (INT_TWO|(1<<1))

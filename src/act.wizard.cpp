@@ -3146,6 +3146,13 @@ ACMD(do_restore)
 		{
 			GET_MEM_COMPLETED(vict) = GET_MEM_TOTAL(vict);
 		}
+		if (GET_CLASS(vict) == CLASS_WARRIOR)
+		{
+			struct timed_type wctimed;
+			wctimed.skill = SKILL_WARCRY;
+			wctimed.time = 0;
+			timed_to_char(vict, &wctimed);
+		}
 		if (IS_GRGOD(ch) && IS_IMMORTAL(vict))
 		{
 			if (IS_GRGOD(vict))
@@ -3162,8 +3169,11 @@ ACMD(do_restore)
 		affect_from_char(vict, SPELL_DRUNKED);
 		GET_DRUNK_STATE(vict)=GET_COND(vict, DRUNK)=0;
 		affect_from_char(vict, SPELL_ABSTINENT);
-		send_to_char(OK, ch);
-		act("Вы были полностью восстановлены $N4!", FALSE, vict, 0, ch, TO_CHAR);
+		if (subcmd == SCMD_RESTORE_GOD)
+		{
+			send_to_char(OK, ch);
+			act("Вы были полностью восстановлены $N4!", FALSE, vict, 0, ch, TO_CHAR);
+		}
 	}
 }
 
