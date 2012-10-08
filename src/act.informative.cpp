@@ -702,6 +702,45 @@ void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch)
 		}
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
+	
+	strcpy(buf, PERS(i, ch, 0));
+	CAP(buf);
+
+	if (!on_horse(i))
+		switch (GET_POS(i))
+			{
+			case POS_MORTALLYW:
+				strcat(buf, IS_POLY(i) ? " умирают." : " плавает здесь.");
+			break;
+			case POS_INCAP:
+				strcat(buf, IS_POLY(i) ? " лежат без сознания." : " лежит без сознания.");
+			break;
+			case POS_STUNNED:
+				strcat(buf, IS_POLY(i) ? " лежат в обмороке." : " лежит в обмороке.");
+			break;
+			case POS_SLEEPING:
+				strcat(buf, IS_POLY(i) ? " спят." : " спит.");
+			break;
+			case POS_RESTING:
+				strcat(buf, IS_POLY(i) ? " отдыхают." : " отдыхает.");
+			break;
+			case POS_SITTING:
+				strcat(buf, IS_POLY(i) ? " сидят." : " сидит.");
+			break;
+			case POS_FIGHTING:
+				if (i->get_fighting())
+					strcat(buf, IS_POLY(i) ? " сражаются." : " сражается.");
+				else
+					strcat(buf, IS_POLY(i) ? " махают кулаками." : " махает кулаками.");
+			break;
+			default:
+				return;
+			break;
+		}
+	else
+		strcat(buf, IS_POLY(i) ? " сидят верхом." : " сидит верхом.");
+	strcat(buf, "\r\n");
+	send_to_char(buf, ch);
 }
 
 

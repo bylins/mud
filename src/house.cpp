@@ -2846,6 +2846,9 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 		return 0;
 	}
 
+	if (IS_IMMORTAL(ch) && (GET_OBJ_TYPE(obj) == ITEM_MONEY))
+		send_to_char("Не надо читерить!\r\n", ch);
+		return 0;
 	if (GET_OBJ_TYPE(obj) == ITEM_MONEY)
 	{
 		long gold = GET_OBJ_VAL(obj, 0);
@@ -2859,7 +2862,7 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 			ch->add_gold(gold);
 			obj_from_char(obj);
 			extract_obj(obj);
-			send_to_char(ch, "Вы удалось вложить в казну дружины только %ld %s.\r\n", over, desc_count(over, WHAT_MONEYu));
+			send_to_char(ch, "Вам удалось вложить в казну дружины только %ld %s.\r\n", over, desc_count(over, WHAT_MONEYu));
 			return 1;
 		}
 		CLAN(ch)->bank += gold;

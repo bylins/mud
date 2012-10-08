@@ -1740,7 +1740,7 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	/* 0 */
 		"!PORTAL!",
 		"!DISPELL MAGIC!",	/* 120 *//* 120 */
 		"!SUMMON KEEPER!",
-		"Живительная сила покинула Вас",
+		"Живительная сила покинула Вас.",
 		"!CREATE WEAPON!",
 		"Огненный щит вокруг Вашего тела исчез.",
 		"!RELOCATE!",		/* 125 */

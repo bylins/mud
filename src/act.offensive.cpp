@@ -607,14 +607,14 @@ ACMD(do_order)
 		{
 			sprintf(buf, "$N приказал$g Вам '%s'", message);
 			act(buf, FALSE, vict, 0, ch, TO_CHAR | CHECK_DEAF);
-			act("$n отдал$g приказ $N2.", FALSE, ch, 0, vict, TO_ROOM | CHECK_DEAF | TO_ARENA_LISTEN);
+			act("$n отдал$g приказ $N2.", FALSE, ch, 0, vict, TO_ROOM | CHECK_DEAF);
 
 			if ((vict->master != ch) || !AFF_FLAGGED(vict, AFF_CHARM) || AFF_FLAGGED(vict, AFF_DEAFNESS))
 			{
 				if (!IS_POLY(vict))
-					act("$n безразлично смотрит по сторонам.", FALSE, vict, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+					act("$n безразлично смотрит по сторонам.", FALSE, vict, 0, 0, TO_ROOM);
 				else
-					act("$n безразлично смотрят по сторонам.", FALSE, vict, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+					act("$n безразлично смотрят по сторонам.", FALSE, vict, 0, 0, TO_ROOM);
 			}
 			else
 			{
@@ -632,7 +632,7 @@ ACMD(do_order)
 		else  	/* This is order "followers" */
 		{
 			org_room = ch->in_room;
-			act("$n отдал$g приказ.", FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF | TO_ARENA_LISTEN);
+			act("$n отдал$g приказ.", FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF);
 
 			for (k = ch->followers; k; k = k_next)
 			{
