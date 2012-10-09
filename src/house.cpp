@@ -2846,11 +2846,13 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 		return 0;
 	}
 
-	if (IS_IMMORTAL(ch) && (GET_OBJ_TYPE(obj) == ITEM_MONEY))
-		send_to_char("Не надо читерить!\r\n", ch);
-		return 0;
 	if (GET_OBJ_TYPE(obj) == ITEM_MONEY)
 	{
+		if (IS_IMMORTAL(ch))
+		{
+			send_to_char("Не надо читерить!\r\n", ch);
+			return 0;
+		}
 		long gold = GET_OBJ_VAL(obj, 0);
 		// здесь и далее: в случае переполнения  - кладем сколько можем, остальное возвращаем чару
 		if ((CLAN(ch)->bank + gold) < 0)
