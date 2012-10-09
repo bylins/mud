@@ -278,7 +278,8 @@ int can_loot(CHAR_DATA * ch)
 		if (!IS_NPC(ch)
 			&& GET_MOB_HOLD(ch) == 0 // если под холдом
 			&& !AFF_FLAGGED(ch, AFF_STOPFIGHT) // парализован точкой
-			&& !AFF_FLAGGED(ch, AFF_BLIND))	// слеп
+			&& !AFF_FLAGGED(ch, AFF_BLIND)	// слеп
+			&& (GET_POS(ch) >= POS_RESTING)) // мертв, умирает, без сознания, спит
 		{
 			return TRUE;
 		}

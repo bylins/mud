@@ -68,6 +68,9 @@ int get_player_charms(CHAR_DATA * ch, int spellnum);
 OBJ_DATA *create_skin(CHAR_DATA * mob);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 
+/* from class.cpp */
+int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
+
 ACMD(do_split);
 ACMD(do_remove);
 ACMD(do_put);
@@ -1580,6 +1583,7 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 	if (!IS_IMMORTAL(ch) && (where == WEAR_SHIELD) && !OK_SHIELD(ch, obj))
 	{
 		act("Вам слишком тяжело нести $o3 на левой руке.", FALSE, ch, obj, 0, TO_CHAR);
+		message_str_need(ch, obj, STR_SHIELD_W);
 		return;
 	}
 
@@ -1860,6 +1864,7 @@ ACMD(do_wield)
 				if (!IS_IMMORTAL(ch) && !OK_BOTH(ch, obj))
 				{
 					act("Вам слишком тяжело держать $o3 двумя руками.", FALSE, ch, obj, 0, TO_CHAR);
+					message_str_need(ch, obj, STR_BOTH_W);
 					return;
 				};
 				perform_wear(ch, obj, WEAR_BOTHS);
@@ -1882,6 +1887,7 @@ ACMD(do_wield)
 			if (wear == WEAR_BOTHS && !IS_IMMORTAL(ch) && !OK_BOTH(ch, obj))
 			{
 				act("Вам слишком тяжело держать $o3 двумя руками.", FALSE, ch, obj, 0, TO_CHAR);
+				message_str_need(ch, obj, STR_BOTH_W);
 				return;
 			};
 			perform_wear(ch, obj, wear);
@@ -1947,8 +1953,8 @@ ACMD(do_grab)
 				{
 					if (!OK_BOTH(ch, obj))
 					{
-						act("Вам слишком тяжело держать $o3 двумя руками.",
-							FALSE, ch, obj, 0, TO_CHAR);
+						act("Вам слишком тяжело держать $o3 двумя руками.", FALSE, ch, obj, 0, TO_CHAR);
+						message_str_need(ch, obj, STR_BOTH_W);
 						return;
 					}
 					else

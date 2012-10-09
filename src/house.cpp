@@ -5654,6 +5654,7 @@ bool Clan::put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest)
 		send_to_char(ch,
 				"%s - Хранилище ингредиентов не предназначено для предметов данного типа.\r\n",
 				GET_OBJ_PNAME(obj, 0));
+		return 0;
 	}
 	else if (IS_OBJ_STAT(obj, ITEM_NODROP)
 		|| OBJ_FLAGGED(obj, ITEM_ZONEDECAY)

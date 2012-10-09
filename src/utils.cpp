@@ -2635,6 +2635,9 @@ int calc_str_req(int weight, int type)
 			str = 4 * weight - 31;
 		}
 		break;
+	case STR_BOTH_W:
+		str = both_str[weight];
+		break;
 	default:
 		log("SYSERROR: weight=%d, type=%d (%s %s %d)",
 				weight, type, __FILE__, __func__, __LINE__);
@@ -2653,6 +2656,12 @@ void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 		break;
 	case STR_HOLD_W:
 		need_str = calc_str_req(GET_OBJ_WEIGHT(obj), STR_HOLD_W);
+		break;
+	case STR_BOTH_W:
+		need_str = calc_str_req(GET_OBJ_WEIGHT(obj), STR_BOTH_W);
+		break;
+	case STR_SHIELD_W:
+		need_str = calc_str_req(GET_OBJ_WEIGHT(obj)/2, STR_HOLD_W);
 		break;
 	default:
 		log("SYSERROR: ch=%s, weight=%d, type=%d (%s %s %d)",

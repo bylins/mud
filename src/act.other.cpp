@@ -80,6 +80,7 @@ int Crash_delete_file(char *name, int mask);
 int HaveMind(CHAR_DATA * ch);
 extern char *color_value(CHAR_DATA * ch, int real, int max);
 int posi_value(int real, int max);
+int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 /* local functions */
 ACMD(do_antigods);
 ACMD(do_quit);
@@ -1739,7 +1740,8 @@ ACMD(do_use)
 		//obj_from_char(mag_item);
 		equip_char(ch, mag_item, WEAR_HOLD);
 	}
-	mag_objectmagic(ch, mag_item, buf);
+	if ((do_hold && GET_EQ(ch, WEAR_HOLD) == mag_item) || (!do_hold))
+		mag_objectmagic(ch, mag_item, buf);
 }
 
 

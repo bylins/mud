@@ -231,7 +231,6 @@ ACMD(do_name);
 ACMD(do_disarm);
 ACMD(do_chopoff);
 ACMD(do_deviate);
-ACMD(do_leave);
 ACMD(do_levels);
 ACMD(do_liblist);
 ACMD(do_lightwalk);
@@ -642,7 +641,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"перевязать", POS_RESTING, do_bandage, 0, 0, 0},
 	{"переделать", POS_RESTING, do_fit, 0, SCMD_DO_ADAPT, 500},
 	{"подсмотреть", POS_RESTING, do_look, 0, SCMD_LOOK_HIDE, 0},
-	{"покинуть", POS_STANDING, do_leave, 0, 0, -2},
 	{"положить", POS_RESTING, do_put, 0, 0, 400},
 	{"получить", POS_STANDING, do_not_here, 1, 0, -1},
 	{"политика", POS_SLEEPING, DoShowPolitics, 0, 0, 0},
@@ -737,7 +735,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"учить", POS_STANDING, do_not_here, 0, 0, -1},
 
 	{"хранилище", POS_DEAD, DoStoreHouse, 0, 0, 0},
-	{"характеристики", POS_DEAD, do_not_here, 0, 0, -1},
+	{"характеристики", POS_STANDING, do_not_here, 0, 0, -1},
 
 	{"цвет", POS_DEAD, do_color, 0, 0, 0},
 
@@ -861,7 +859,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"kick", POS_FIGHTING, do_kick, 1, 0, -1},
 	{"kill", POS_FIGHTING, do_kill, 0, 0, -1},
 	{"last", POS_DEAD, do_last, LVL_GOD, 0, 0},
-	{"leave", POS_STANDING, do_leave, 0, 0, -2},
 	{"levels", POS_DEAD, do_levels, 0, 0, 0},
 	{"list", POS_STANDING, do_not_here, 0, 0, -1},
 	{"load", POS_DEAD, do_load, LVL_BUILDER, 0, 0},

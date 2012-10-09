@@ -695,6 +695,7 @@ void affect_total(CHAR_DATA * ch)
 			if (!IS_NPC(ch))
 			{
 				act("Вам слишком тяжело держать $o3 в обоих руках !", FALSE, ch, obj, 0, TO_CHAR);
+				message_str_need(ch, obj, STR_BOTH_W);
 			}
 			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_BOTHS), ch);
@@ -733,7 +734,10 @@ void affect_total(CHAR_DATA * ch)
 		if ((obj = GET_EQ(ch, WEAR_SHIELD)) && !OK_SHIELD(ch, obj))
 		{
 			if (!IS_NPC(ch))
+			{
 				act("Вам слишком тяжело держать $o3 на левой руке!", FALSE, ch, obj, 0, TO_CHAR);
+				message_str_need(ch, obj, STR_SHIELD_W);
+			}
 			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_SHIELD), ch);
 			return;

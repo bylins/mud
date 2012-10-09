@@ -56,7 +56,6 @@ extern int get_pick_chance(int skill_pick, int lock_complexity);
 
 ACMD(do_gen_door);
 ACMD(do_enter);
-ACMD(do_leave);
 ACMD(do_stand);
 ACMD(do_sit);
 ACMD(do_rest);
@@ -1551,28 +1550,6 @@ ACMD(do_enter)
 						return;
 					}
 		send_to_char("Вы не можете найти вход.\r\n", ch);
-	}
-}
-
-
-ACMD(do_leave)
-{
-	int door;
-
-	if (OUTSIDE(ch))
-		send_to_char("Вы и так снаружи.. А в космос Вам рановато !\r\n", ch);
-	else
-	{
-		for (door = 0; door < NUM_OF_DIRS; door++)
-			if (EXIT(ch, door))
-				if (EXIT(ch, door)->to_room != NOWHERE)
-					if (!EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED) &&
-							!ROOM_FLAGGED(EXIT(ch, door)->to_room, ROOM_INDOORS))
-					{
-						perform_move(ch, door, 1, TRUE, 0);
-						return;
-					}
-		send_to_char("Выхода нет.\r\n", ch);
 	}
 }
 

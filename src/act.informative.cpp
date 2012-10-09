@@ -710,7 +710,7 @@ void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch)
 		switch (GET_POS(i))
 			{
 			case POS_MORTALLYW:
-				strcat(buf, IS_POLY(i) ? " умирают." : " плавает здесь.");
+				strcat(buf, IS_POLY(i) ? " умирают." : " умирает.");
 			break;
 			case POS_INCAP:
 				strcat(buf, IS_POLY(i) ? " лежат без сознания." : " лежит без сознания.");
@@ -726,6 +726,9 @@ void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch)
 			break;
 			case POS_SITTING:
 				strcat(buf, IS_POLY(i) ? " сидят." : " сидит.");
+			break;
+			case POS_STANDING:
+				strcat(buf, IS_POLY(i) ? " стоят." : " стоит.");
 			break;
 			case POS_FIGHTING:
 				if (i->get_fighting())
