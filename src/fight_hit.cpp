@@ -1949,7 +1949,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		return true;
 	}
 
-	if (dam <= 0 || flags[CRIT_HIT])
+	if (dam <= 0)
 	{
 		return false;
 	}
@@ -1968,6 +1968,11 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		return false;
 
 	int shield_num = number(0, shields.size() - 1);
+	
+	/* Проверка на крит, если крит.удар и рандом выпал
+	не на ледяной щит, дамага НЕ уменьшается (Купала) */
+	if (flags[CRIT_HIT] && (shields[shield_num] != ICESHIELD))
+		return false;
 
 	if (shields[shield_num] == FIRESHIELD)
 	{
@@ -2088,10 +2093,20 @@ bool Damage::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim)
 
 void send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim)
 {
-	sprintf(buf, "&B&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
+	/* Блочить мессагу крита при ледяном щите вроде нелогично,
+	так что добавил отдельные сообщения для ледяного щита (Купала) */
+	if (!AFF_FLAGGED(victim, AFF_ICESHIELD))
+		sprintf(buf, "&B&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
 		PERS(victim, ch, 3));
+	else
+		sprintf(buf, "&B&qВаше меткое попадание утонуло в ледяной пелене щита %s.&Q&n\r\n",
+		PERS(victim, ch, 1));
 	send_to_char(buf, ch);
-	sprintf(buf, "&r&qМеткое попадание %s тяжело ранило Вас.&Q&n\r\n",
+	if (!AFF_FLAGGED(victim, AFF_ICESHIELD))
+		sprintf(buf, "&r&qМеткое попадание %s тяжело ранило Вас.&Q&n\r\n",
+		PERS(ch, victim, 1));
+	else
+		sprintf(buf, "&r&qМеткое попадание %s утонуло в ледяной пелене Вашего щита.&Q&n\r\n",
 		PERS(ch, victim, 1));
 	send_to_char(buf, victim);
 	/* Закомментил чтобы не спамило, сделать потом в виде режима */
