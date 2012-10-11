@@ -44,12 +44,13 @@ const int LIQ_POTION_GOLD = 20;
 const int LIQ_POTION_BLACK = 21;
 const int LIQ_POTION_GREY = 22;
 const int LIQ_POTION_FUCHSIA = 23;
-const int LIQ_POISON_ACONITUM = 24;
-const int LIQ_POISON_SCOPOLIA = 25;
-const int LIQ_POISON_BELENA = 26;
-const int LIQ_POISON_DATURA = 27;
+const int LIQ_POTION_PINK = 24;
+const int LIQ_POISON_ACONITUM = 25;
+const int LIQ_POISON_SCOPOLIA = 26;
+const int LIQ_POISON_BELENA = 27;
+const int LIQ_POISON_DATURA = 28;
 // терминатор
-const int NUM_LIQ_TYPES = 28;
+const int NUM_LIQ_TYPES = 29;
 
 /* LIQ_x */
 const char *drinks[] = { "воды",
@@ -76,6 +77,7 @@ const char *drinks[] = { "воды",
 						 "черного колдовского зелья",
 						 "серого колдовского зелья",
 						 "фиолетового колдовского зелья",
+						 "розового колдовского зелья",
 						 "настойки аконита",
 						 "настойки скополии",
 						 "настойки белены",
@@ -108,6 +110,7 @@ const char *drinknames[] = { "водой",
 							 "черным колдовским зельем",
 							 "серым колдовским зельем",
 							 "фиолетовым колдовским зельем",
+							 "розовым колдовским зельем",
 							 "настойкой аконита",
 							 "настойкой скополии",
 							 "настойкой белены",
@@ -136,10 +139,11 @@ const int drink_aff[][3] = { {0, 1, 10},	// вода
 	{0, 1, -1},			// красное магическое зелье
 	{0, 1, -1},			// синее магическое зелье
 	{0, 1, -1},			// белое магическое зелье
-	{0, 1, -1},			// золотистоемагическое зелье
-	{0, 1, -1},			// черноемагическое зелье
+	{0, 1, -1},			// золотистое магическое зелье
+	{0, 1, -1},			// черное магическое зелье
 	{0, 1, -1},			// серое магическое зелье
 	{0, 1, -1},			// фиолетовое магическое зелье
+	{0, 1, -1},			// розовое магическое зелье
 	{0, 0, 0},			// настойка аконита
 	{0, 0, 0},			// настойка скополии
 	{0, 0, 0},			// настойка белены
@@ -171,6 +175,7 @@ const char *color_liquid[] = { "прозрачной",
 							   "черной вязкой",
 							   "бесцветной",
 							   "фиолетовой",
+							   "розовой",
 							   "ядовитой",
 							   "ядовитой",
 							   "ядовитой",
@@ -195,6 +200,7 @@ bool is_potion(OBJ_DATA *obj)
 	case LIQ_POTION_BLACK:
 	case LIQ_POTION_GREY:
 	case LIQ_POTION_FUCHSIA:
+	case LIQ_POTION_PINK:
 		return true;
 		break;
 	}
@@ -814,6 +820,14 @@ ACMD(do_pour)
 					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_FUCHSIA;
 					name_to_drinkcon(to_obj, LIQ_POTION_FUCHSIA);
 					break;
+				case SPELL_PRISMATICAURA:
+				case SPELL_GROUP_PRISMATICAURA:
+				case SPELL_AIR_AURA:
+				case SPELL_FIRE_AURA:
+				case SPELL_ICE_AURA:
+					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION_PINK;
+					name_to_drinkcon(to_obj, LIQ_POTION_PINK);
+					break;
 				default:
 					GET_OBJ_VAL(to_obj, 2) = LIQ_POTION;
 					name_to_drinkcon(to_obj, LIQ_POTION);	/* добавляем новый синоним */
@@ -834,7 +848,7 @@ ACMD(do_pour)
 	//Переливает из емкости или колодца с зельем куда-то
 	if ((GET_OBJ_TYPE(from_obj) == ITEM_DRINKCON ||
 			GET_OBJ_TYPE(from_obj) == ITEM_FOUNTAIN) &&
-			GET_OBJ_VAL(from_obj, 2) >= LIQ_POTION && GET_OBJ_VAL(from_obj, 2) <= LIQ_POTION_FUCHSIA)
+			GET_OBJ_VAL(from_obj, 2) >= LIQ_POTION && GET_OBJ_VAL(from_obj, 2) <= LIQ_POTION_PINK)
 	{
 		if ((GET_OBJ_SKILL(from_obj) == GET_OBJ_SKILL(to_obj)) || GET_OBJ_VAL(to_obj, 1) == 0)
 			GET_OBJ_SKILL(to_obj) = GET_OBJ_SKILL(from_obj);
