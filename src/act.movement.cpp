@@ -1062,65 +1062,62 @@ int find_door(CHAR_DATA * ch, const char *type, char *dir, const char *cmdname)
 {
 	int door;
 
-
-	if (*dir)  		/* a direction was specified */
+	if (*dir)  //Указано направление (второй аргумент)
 	{
-		if ((door = search_block(dir, dirs, FALSE)) == -1 && (door = search_block(dir, DirIs, FALSE)) == -1)  	/* Partial Match */
+		//Проверяем соответствует ли аргумент английским или русским направлениям
+		if ((door = search_block(dir, dirs, FALSE)) == -1 && (door = search_block(dir, DirIs, FALSE)) == -1)  	// Partial Match
 		{
-			send_to_char("Уточните направление.\r\n", ch);
-			return (-1);
+			//strcpy(doorbuf,"Уточните направление.\r\n");
+			return (-1); //НЕВЕРНОЕ НАПРАВЛЕНИЕ
 		}
-		if (EXIT(ch, door))  	/* Braces added according to indent. -gg */
+		if (EXIT(ch, door)) //Проверяем есть ли такая дверь в указанном направлении
 		{
-			if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword)
+			if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) //Дверь как-то по-особенному называется?
 			{
 				if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword))
+					//Первый аргумент соответствует именительному или винительному алиасу двери
 					return (door);
 				else
 				{
-					sprintf(buf2, "Вы не видите '%s' в этой комнате.\r\n", type);
-					send_to_char(buf2, ch);
-					return (-1);
+					return (-2); //НЕ ПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ В ЭТОМ НАПРАВЛЕНИИ
 				}
 			}
-			else
+			else if (is_abbrev(type, "дверь") || is_abbrev(type, "door"))
+				//Аргумент соответствует "дверь" или "door" и есть в указанном направлении
 				return (door);
+			else
+				//Дверь с названием "дверь" есть, но аргумент не соответствует
+				return (-2);
 		}
 		else
 		{
-			sprintf(buf2, "Вы не можете это '%s'.\r\n", cmdname);
-			send_to_char(buf2, ch);
-			return (-1);
+			return (-3); //В ЭТОМ НАПРАВЛЕНИИ НЕТ ДВЕРЕЙ
 		}
 	}
-	else  		/* try to locate the keyword */
+	else //Направления не указано, ищем дверь по названию
 	{
-		if (!*type)
+		if (!*type) //Названия не указано
 		{
-			sprintf(buf2, "Что вы хотите '%s'?\r\n", cmdname);
-			send_to_char(buf2, ch);
-			return (-1);
+			return (-4); //НЕ УКАЗАНО АРГУМЕНТОВ
 		}
-		for (door = 0; door < NUM_OF_DIRS; door++)
+		for (door = 0; door < NUM_OF_DIRS; door++) //Проверяем все направления, не найдется ли двери?
 		{
-			if (EXIT(ch, door))
+			if (EXIT(ch, door)) //Есть выход в этом направлении
 			{
-				if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword)
+				if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) //Дверь как-то по-особенному называется?
 				{
 					if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword))
+						//Аргумент соответствует имени этой двери
 						return (door);
 				}
 				else if (DOOR_IS(ch, door) && (is_abbrev(type, "дверь") || is_abbrev(type, "door")))
+					//Дверь не имеет особых алиасов, аргумент соответствует двери
 					return (door);
 			}
 		}
-
-		sprintf(buf2, "Вы не видите здесь '%s'.\r\n", type);
-		send_to_char(buf2, ch);
-		return (-1);
+		return (-5); //НЕПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ БЕЗ УКАЗАНИЯ НАПРАВЛЕНИЯ
 	}
 }
-
 
 int has_key(CHAR_DATA * ch, obj_vnum key)
 {
@@ -1308,7 +1305,6 @@ int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd)
 }
 
 
-
 ACMD(do_gen_door)
 {
 	int door = -1;
@@ -1345,9 +1341,37 @@ ACMD(do_gen_door)
 	else if (isname(dir, "экипировка equipment"))
 		where_bits = FIND_OBJ_EQUIP;
 
-	if (!generic_find(type, where_bits, ch, &victim, &obj))
-		door = find_door(ch, type, dir, a_cmd_door[subcmd]);
-
+	//Сначала ищем дверь, считая второй аргумент указанием на сторону света
+	door = find_door(ch, type, dir, a_cmd_door[subcmd]);
+	//Если двери не нашлось, проверяем объекты в экипировке, инвентаре, на земле
+	if (door < 0)
+		if (!generic_find(type, where_bits, ch, &victim, &obj))
+		{
+			//Если и объектов не нашлось, выдаем одно из сообщений об ошибке
+			switch (door)
+			{
+			case -1: //НЕВЕРНОЕ НАПРАВЛЕНИЕ
+				send_to_char("Уточните направление.\r\n",ch);
+				break;
+			case -2: //НЕ ПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ В ЭТОМ НАПРАВЛЕНИИ
+				sprintf(buf, "Вы не видите '%s' в этой комнате.\r\n", type);
+				send_to_char(buf, ch);
+				break;
+			case -3: //В ЭТОМ НАПРАВЛЕНИИ НЕТ ДВЕРЕЙ
+				sprintf(buf, "Вы не можете это '%s'.\r\n", a_cmd_door[subcmd]);
+				send_to_char(buf, ch);
+				break;
+			case -4: //НЕ УКАЗАНО АРГУМЕНТОВ
+				sprintf(buf, "Что вы хотите '%s'?\r\n", a_cmd_door[subcmd]);
+				send_to_char(buf, ch);
+				break;
+			case -5: //НЕПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ БЕЗ УКАЗАНИЯ НАПРАВЛЕНИЯ
+				sprintf(buf, "Вы не видите здесь '%s'.\r\n", type);
+				send_to_char(buf, ch); 
+				break;
+			}
+			return;
+		}
 	if ((obj) || (door >= 0))
 	{
 		if ((obj) && !IS_IMMORTAL(ch) && (OBJ_FLAGGED(obj, ITEM_NAMED)) && NamedStuff::check_named(ch, obj, true))//Именной предмет открывать(закрывать) может только владелец
