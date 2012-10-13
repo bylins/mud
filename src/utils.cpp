@@ -2636,7 +2636,18 @@ int calc_str_req(int weight, int type)
 		}
 		break;
 	case STR_BOTH_W:
-		str = both_str[weight];
+		if (weight <= 31)
+		{
+			str = weight - (weight + 1) / 3;
+		}
+		else if (weight <= 40)
+		{
+			str = weight - 10;
+		}
+		else
+		{
+			str = (weight - 39) * 2 + 29 - (weight + 1) % 2;
+		}
 		break;
 	default:
 		log("SYSERROR: weight=%d, type=%d (%s %s %d)",
