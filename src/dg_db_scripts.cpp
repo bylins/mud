@@ -547,9 +547,7 @@ void trg_skillturn(CHAR_DATA * ch, int skillnum, int skilldiff)
 		log("Remove %s from %s (trigskillturn)", skill_name(skillnum), GET_NAME(ch));
 	}
 	else if (skilldiff
-			 && skill_info[skillnum].classknow[ch_class][ch_kin] == KNOW_SKILL
-			 && GET_LEVEL(ch) >= skill_info[skillnum].min_level[ch_class][ch_kin]
-			 && GET_REMORT(ch) >= skill_info[skillnum].min_remort[ch_class][ch_kin])
+			 && skill_info[skillnum].classknow[ch_class][ch_kin] == KNOW_SKILL)
 	{
 		ch->set_skill(skillnum, 5);
 		send_to_char(ch, "Вы изучили умение '%s'.\r\n", skill_name(skillnum));

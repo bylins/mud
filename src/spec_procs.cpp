@@ -968,6 +968,10 @@ SPECIAL(guild_mono)
 				{
 					if (ch->get_skill(skill_no))
 						act("$N сказал$g Вам : 'Ничем помочь не могу, ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
+					else if (!can_get_skill(ch, skill_no))
+					{
+						act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
+					}
 					else
 					{
 						sprintf(buf, "$N научил$G Вас умению %s\"%s\"%s",
@@ -1219,7 +1223,11 @@ SPECIAL(guild_poly)
 				if (skill_no == (guild_poly_info[info_num] + i)->skill_no)
 				{
 					if (ch->get_skill(skill_no))
-						act("$N сказал$G Вам : 'Ничем помочь не могу, ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
+						act("$N сказал$G Вам : 'Ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
+					else if (!can_get_skill(ch, skill_no))
+					{
+						act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
+					}
 					else
 					{
 						sprintf(buf, "$N научил$G Вас умению %s\"%s\"%s",

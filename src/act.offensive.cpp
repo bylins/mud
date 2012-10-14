@@ -2365,7 +2365,7 @@ ACMD(do_manadrain)
 		return;
 	}
 
-	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL))
+	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) || ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOBATTLE))
 	{
 		send_to_char("Поищите другое место для выражения своих кровожадных наклонностей.\r\n", ch);
 		return;

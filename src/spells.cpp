@@ -609,6 +609,7 @@ ASPELL(spell_summon)
 				ROOM_FLAGGED(ch_room, ROOM_SLOWDEATH) ||	// суммонер в медленном ДТ
 				ROOM_FLAGGED(ch_room, ROOM_TUNNEL) ||	// суммонер в ван-руме
 				ROOM_FLAGGED(ch_room, ROOM_PEACEFUL) ||	// суммонер в мирной комнате
+				ROOM_FLAGGED(ch_room, ROOM_NOBATTLE) ||	// суммонер в комнате с запретом на драки
 				ROOM_FLAGGED(ch_room, ROOM_GODROOM) ||	// суммонер в комнате для бессмертных
 				ROOM_FLAGGED(ch_room, ROOM_ARENA) ||	// суммонер на арене
 				!Clan::MayEnter(victim, ch_room, HCE_PORTAL) ||	// суммонер стоит во внутренней части клан-замка

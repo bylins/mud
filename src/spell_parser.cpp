@@ -1971,7 +1971,7 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 		return TRUE;
 
 	// не в мирке можно кастовать все что угодно
-	if (!ROOM_FLAGGED(IN_ROOM(caster), ROOM_PEACEFUL))
+	if (!ROOM_FLAGGED(IN_ROOM(caster), ROOM_PEACEFUL) && !ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOBATTLE))
 		return TRUE;
 
 	// Проверяю, что закл имеет одну из допустимых комбинаций параметров

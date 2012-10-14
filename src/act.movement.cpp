@@ -1377,21 +1377,21 @@ ACMD(do_gen_door)
 		if ((obj) && !IS_IMMORTAL(ch) && (OBJ_FLAGGED(obj, ITEM_NAMED)) && NamedStuff::check_named(ch, obj, true))//Именной предмет открывать(закрывать) может только владелец
 		{
 			if (!NamedStuff::wear_msg(ch, obj))
-				send_to_char("Просьба не трогать ! Частная собственность !\r\n", ch);
+				send_to_char("Просьба не трогать! Частная собственность!\r\n", ch);
 			return;
 		}
 		keynum = DOOR_KEY(ch, obj, door);
 		if ((subcmd == SCMD_CLOSE || subcmd == SCMD_LOCK) && !IS_NPC(ch) && RENTABLE(ch))
 			send_to_char("Ведите себя достойно во время боевых действий!\r\n", ch);
 		else if (!(DOOR_IS_OPENABLE(ch, obj, door)))
-			act("Вы никогда не сможете $F это !", FALSE, ch, 0, a_cmd_door[subcmd], TO_CHAR);
+			act("Вы никогда не сможете $F это!", FALSE, ch, 0, a_cmd_door[subcmd], TO_CHAR);
 		else if (!DOOR_IS_OPEN(ch, obj, door)
 				 && IS_SET(flags_door[subcmd], NEED_OPEN))
-			send_to_char("Вообще-то здесь закрыто !\r\n", ch);
+			send_to_char("Вообще-то здесь закрыто!\r\n", ch);
 		else if (!DOOR_IS_CLOSED(ch, obj, door) && IS_SET(flags_door[subcmd], NEED_CLOSED))
-			send_to_char("Уже открыто !\r\n", ch);
+			send_to_char("Уже открыто!\r\n", ch);
 		else if (!(DOOR_IS_LOCKED(ch, obj, door)) && IS_SET(flags_door[subcmd], NEED_LOCKED))
-			send_to_char("Да отперли уже все..\r\n", ch);
+			send_to_char("Да отперли уже все...\r\n", ch);
 		else if (!(DOOR_IS_UNLOCKED(ch, obj, door)) && IS_SET(flags_door[subcmd], NEED_UNLOCKED))
 			send_to_char("Угу, заперто.\r\n", ch);
 		else if (!has_key(ch, keynum) && !Privilege::check_flag(ch, Privilege::USE_SKILLS) && ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))

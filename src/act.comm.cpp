@@ -82,7 +82,7 @@ ACMD(do_say)
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
-	
+
 	/* Непонятно нафига! Если захотят спамить - спамить все равно будут!
 	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
@@ -90,7 +90,7 @@ ACMD(do_say)
 		return;
 	}
 	*/
-	
+
 	if (!*argument)
 		send_to_char("Вы задумались: \"Чего бы такого сказать?\"\r\n", ch);
 	else
@@ -129,7 +129,7 @@ ACMD(do_gsay)
 		send_to_char(SIELENCE, ch);
 		return;
 	}
-	
+
 	/* Непонятно нафига нужно
 	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
@@ -328,7 +328,7 @@ ACMD(do_tell)
 		send_to_char(SIELENCE, ch);
 		return;
 	}
-	
+
 	/* Непонятно нафига нужно
 	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
@@ -370,7 +370,7 @@ ACMD(do_reply)
 		send_to_char(SIELENCE, ch);
 		return;
 	}
-	
+
 	/* И тут не ясно нафиг надо
 	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
@@ -760,7 +760,7 @@ ACMD(do_gen_comm)
 	/* make sure that there is something there to say! */
 	if (!*argument && subcmd != SCMD_AUCTION)
 	{
-		sprintf(buf1, "ЛЕГКО ! Но, Ярило Вас побери, ЧТО %s ???\r\n", com_msgs[subcmd].action);
+		sprintf(buf1, "ЛЕГКО! Но, Ярило Вас побери, ЧТО %s???\r\n", com_msgs[subcmd].action);
 		send_to_char(buf1, ch);
 		return;
 	}
@@ -797,7 +797,7 @@ ACMD(do_gen_comm)
 		/* фильтруем одинаковые сообщения в эфире */
 		if (!str_cmp(ch->get_last_tell().c_str(), argument))
 		{
-			send_to_char("Но Вы же недавно говорили тоже самое!?!\r\n", ch);
+			send_to_char("Но Вы же недавно говорили тоже самое?!\r\n", ch);
 			return;
 		}
 		ch->set_last_tell(argument);
@@ -852,7 +852,7 @@ ACMD(do_gen_comm)
 		if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP || subcmd == SCMD_HOLLER))
 		{
 			snprintf(buf1, MAX_STRING_LENGTH, "%s'%s'%s\r\n", color_on, argument, KNRM);
-			//ch->remember_add(buf1, Remember::GOSSIP);
+			ch->remember_add(buf1, Remember::GOSSIP);
 		}
 	}
 
@@ -892,12 +892,11 @@ ACMD(do_gen_comm)
 				send_to_char(KNRM, i->character);
 
 			std::string text = Remember::format_gossip(ch, i->character, subcmd, argument);
-
-			if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP || subcmd == SCMD_HOLLER))
-			{
-				i->character->remember_add(text, Remember::GOSSIP);
-			}
-
+			//пока закрыл это дело, ибо в лоб не получается сделать запоминание
+			//if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP || subcmd == SCMD_HOLLER))
+			//{
+				//	i->character->remember_add(text, Remember::GOSSIP);
+			//}
 			i->character->remember_add(text, Remember::ALL);
 		}
 	}

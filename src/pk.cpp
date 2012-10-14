@@ -540,7 +540,8 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim)
 
 	pk_translate_pair(&agressor, &victim);
 	if (!agressor || !victim || agressor == victim || ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA) || ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA) ||	// предотвращаем баги с чармисами и ареной
-			IS_NPC(agressor) || IS_NPC(victim))
+			IS_NPC(agressor) || IS_NPC(victim) || (agressor != victim && (ROOM_FLAGGED(agressor->in_room, ROOM_NOBATTLE)
+	 			|| ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE))))
 		return PK_ACTION_NO;
 
 	// Душегубов можно бить когда угодно и кому угодно
@@ -903,16 +904,16 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 
 	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOFIGHT))
 		return (FALSE);
-	//запрет на любые агры
-	if (ch != victim && (ROOM_FLAGGED(ch->in_room, ROOM_NOBATTLE)
-	 			|| ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE)))
-	{
-		send_to_char("Боги запретили здесь любые драки!\r\n", ch);
-		return (FALSE);
-	}
+
 	if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_NOFIGHT))
 	{
 		act("Боги предотвратили Ваше нападение на $N3.", FALSE, ch, 0, victim, TO_CHAR);
+		return (FALSE);
+	}
+	//запрет на любые агры
+	if (ch != victim && (ROOM_FLAGGED(ch->in_room, ROOM_NOBATTLE) || ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE)))
+	{
+		send_to_char("Высшие силы воспретили здесь сражаться!\r\n", ch);
 		return (FALSE);
 	}
 	// не агрим чарами <=10 на чаров >=20
@@ -926,7 +927,8 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 	if ((ch->get_fighting() && ch->get_fighting() == victim) || (victim->get_fighting() && victim->get_fighting() == ch))
 		return (TRUE);
 
-	if (ch != victim && !ROOM_FLAGGED(victim->in_room, ROOM_ARENA) && (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)))
+	if (ch != victim && !ROOM_FLAGGED(victim->in_room, ROOM_ARENA)
+		&& (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)))
 	{
 		// Один из участников в мирной комнате
 		if (MOB_FLAGGED(victim, MOB_HORDE) || (MOB_FLAGGED(ch, MOB_IGNORPEACE) && !AFF_FLAGGED(ch, AFF_CHARM)))

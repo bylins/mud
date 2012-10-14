@@ -218,7 +218,8 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 */
 bool can_get_skill(CHAR_DATA *ch, int skill)
 {
-	if (ch->get_remort() < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()])
+	if (ch->get_remort() < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()] ||
+		(skill_info[skill].classknow[ch->get_class()][ch->get_kin()] != KNOW_SKILL))
 		return FALSE;
 	if (ch->get_level() <
 		(skill_info[skill].min_level[ch->get_class()][ch->get_kin()] -
