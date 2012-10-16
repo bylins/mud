@@ -1294,7 +1294,7 @@ int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd)
 			send_to_char("Вы все-таки сломали этот замок...\r\n", ch);
 			if (obj)
 				SET_BIT(GET_OBJ_VAL(obj, 1), CONT_BROKEN);
-			if (door != -1)
+			if (door > -1)
 				SET_BIT(EXIT(ch, door)->exit_info, EX_BROKEN);
 		}
 		else

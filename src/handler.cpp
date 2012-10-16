@@ -1618,7 +1618,7 @@ void wear_message(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 	};
 
 	act(wear_messages[where][1], FALSE, ch, obj, 0, TO_CHAR);
-	act(wear_messages[where][0], IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM) ? FALSE : TRUE, ch, obj, 0, TO_ROOM);
+	act(wear_messages[where][0], IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_CHARM) ? FALSE : TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 }
 
 int flag_data_by_char_class(const CHAR_DATA * ch)
