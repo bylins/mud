@@ -2231,8 +2231,12 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 		else if ((AFF_FLAGGED(killer, AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL)) && killer->master)
 			// killer - зачармленный NPC с хозяином
 		{
+			// по логике надо бы сделать, что если хозяина нет в клетке, но
+			// кто-то из группы хозяина в клетке, то опыт накинуть согруппам,
+			// которые рядом с убившим моба чармисом.
 			if (!IS_NPC(killer->master)
-					&& AFF_FLAGGED(killer->master, AFF_GROUP))
+					&& AFF_FLAGGED(killer->master, AFF_GROUP)
+					&& IN_ROOM(killer) == IN_ROOM(killer->master))
 			{
 			// Хозяин - PC в группе => опыт группе
 				group_gain(killer->master, victim);
