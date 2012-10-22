@@ -6,12 +6,14 @@
 
 ## Содержание:
 ### I. Visual Studio C++: 
-
 1. _Сборка под VSC++._
 
 ### II. Сygwin
 1. _Сборка под Cygwin._
 2. _Управление репозиторием из Cygwin._
+
+### III. CentOS 6.2
+1. _Сборка под CentOS 6.2._
 
 - - -
 
@@ -166,6 +168,69 @@
 	* hg pull -r default https://bitbucket.org/Posvist/mud
 	* hg update
 	* hg push
+
+- - -
+
+##III. CentOS 6.2.
+**II. 1. Cборка под CentOS 6.2.**
+
+Дистрибутив minimal является достаточным для сборки кода Былин, значительно уменьшая объем трафика, скачанного из инета.
+После того как вы получили готовую систему и зашли в нее под root-ом, делаем следующее:
+
+1. Настройка сети:
+В файле /etc/sysconfig/network-scripts/ifcfg-ethN (где вместо N чаще всего 0) добавляем\изменяем строки.
+(Из текстовых редакторов доступен только довольно своеобразный в современном понимании редактор vi)
+### В случае наличия DHCP в сети:
+> ONBOOT="yes"
+> BOOTPROTO="dhcp"
+### В остальных случаях:
+> BOOTPROTO="static"
+> ONBOOT="yes"
+> TYPE="Ethernet"
+> IPADDR="IP.адрес"			- ip-адрес сервера (4 цифры от 0 до 254)
+> NETMASK="255.255.255.0"	- маска сети
+> GATEWAY="IP.адрес"		- ip-адрес шлюза
+Кроме того, если у Вас нет DHCP, необходимо указать адрес DNS-сервера в файле /etc/resolv.conf
+
+После чего выполняем перезапуск службы сети.
+# service network restart
+
+2. Удаляем и ставим пакеты
+# yum remove boost* (на случай если Вы все же взяли не minimal)
+Ставим обязательные для сборки всего и вся пакеты
+# yum install wget make mercurial gcc-c++ python-devel zlib-devel bzip2-devel python-devel
+А также некоторые вещи для удобства (можно добавить что-то еще по вкусу)
+# yum install mc nano ftp
+
+3. Достаем исходники из репозитория:
+# cd ~
+# hg clone https://bitbucket.org/Posvist/mud
+В результате чего появится папка ~/mud
+
+4. Ставим более свежую, чем в репозиториях, версию Boost-а (>=1.49)
+Достаем дистрибутив минимально подходящей для нас версии Boost-а:
+# wget http://sourceforge.net/projects/boost/files/boost/1.49.0/boost_1_49_0.tar.bz2/download
+Распаковываем в /usr/local/src
+Заходим в появившуюся папку boost_1_49_0 и выполняем следующие команды:
+# ./bootstrap.sh
+# ./b2
+# ./b2 install
+
+5. Вбиваем костыль в Boost:
+# yum install boost-python
+# ln -s /usr/lib/libboost_python-mt.so.5 /usr/lib/libboost_python-mt.so
+И два раза бьем в бубен, повернувшись спиной к закату.
+
+6. Отключаем и убираем из автозагрузки iptables (фаервол)
+# /etc/init.d/iptables stop
+# chkconfig --level 0123456 iptables off
+
+7. Заканчиваем: компилируем, готовим к запуску, запускаем
+# cd ~/mud/src
+# make test
+# cd ..
+# ./prepare
+# bin/circle
 
 - - -
 
