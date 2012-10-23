@@ -419,6 +419,7 @@ void do_dg_affect(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int script_type,
 	{
 		/* remove affect */
 		affect_from_char(ch, index_s);
-		trig_log(trig, "dg_affect: affect removed from char");
+		/* trig_log(trig, "dg_affect: affect removed from char");
+		Вроде не критично уже видеть все снятия аффектов */ 
 	}
 }
