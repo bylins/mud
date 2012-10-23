@@ -458,7 +458,7 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 	if (((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) || (vict->get_fighting() && !can_use_feat(ch, THIEVES_STRIKE_FEAT)))
 			&& !IS_GOD(ch))
 	{
-		act("Вы заметили, что $N попытал$y Вас заколоть !", FALSE, vict, 0, ch, TO_CHAR);
+		act("Вы заметили, что $N попытал$u Вас заколоть !", FALSE, vict, 0, ch, TO_CHAR);
 		act("$n заметил$g Вашу попытку заколоть $s !", FALSE, vict, 0, ch, TO_VICT);
 		act("$n заметил$g попытку $N1 заколоть $s !", FALSE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 		set_hit(vict, ch);

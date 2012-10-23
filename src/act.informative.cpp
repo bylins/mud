@@ -661,89 +661,86 @@ void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch)
 
 	if (percent >= 100)
 	{
-		sprintf(buf2, " невредим%s.", GET_CH_SUF_6(i));
+		sprintf(buf2, " невредим%s", GET_CH_SUF_6(i));
 		strcat(buf, buf2);
 	}
 	else if (percent >= 90)
 	{
-		sprintf(buf2, " слегка поцарапан%s.", GET_CH_SUF_6(i));
+		sprintf(buf2, " слегка поцарапан%s", GET_CH_SUF_6(i));
 		strcat(buf, buf2);
 	}
 	else if (percent >= 75)
 	{
-		sprintf(buf2, " легко ранен%s.", GET_CH_SUF_6(i));
+		sprintf(buf2, " легко ранен%s", GET_CH_SUF_6(i));
 		strcat(buf, buf2);
 	}
 	else if (percent >= 50)
 	{
-		sprintf(buf2, " ранен%s.", GET_CH_SUF_6(i));
+		sprintf(buf2, " ранен%s", GET_CH_SUF_6(i));
 		strcat(buf, buf2);
 	}
 	else if (percent >= 30)
 	{
-		sprintf(buf2, " тяжело ранен%s.", GET_CH_SUF_6(i));
+		sprintf(buf2, " тяжело ранен%s", GET_CH_SUF_6(i));
 		strcat(buf, buf2);
 	}
 	else if (percent >= 15)
 	{
-		sprintf(buf2, " смертельно ранен%s.", GET_CH_SUF_6(i));
+		sprintf(buf2, " смертельно ранен%s", GET_CH_SUF_6(i));
 		strcat(buf, buf2);
 	}
 	else if (percent >= 0)
-		strcat(buf, " в ужасном состоянии.");
+		strcat(buf, " в ужасном состоянии");
 	else
-		strcat(buf, " умирает.");
-
-	if (AFF_FLAGGED(ch, AFF_DETECT_POISON))
-		if (AFF_FLAGGED(i, AFF_POISON))
-		{
-			sprintf(buf2, " (отравлен%s)", GET_CH_SUF_6(i));
-			strcat(buf, buf2);
-		}
-	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
-	
-	strcpy(buf, PERS(i, ch, 0));
-	CAP(buf);
+		strcat(buf, " умирает");
 
 	if (!on_horse(i))
 		switch (GET_POS(i))
 			{
 			case POS_MORTALLYW:
-				strcat(buf, IS_POLY(i) ? " умирают." : " умирает.");
+				strcat(buf, ".");
 			break;
 			case POS_INCAP:
-				strcat(buf, IS_POLY(i) ? " лежат без сознания." : " лежит без сознания.");
+				strcat(buf, IS_POLY(i) ? ", лежат без сознания." : ", лежит без сознания.");
 			break;
 			case POS_STUNNED:
-				strcat(buf, IS_POLY(i) ? " лежат в обмороке." : " лежит в обмороке.");
+				strcat(buf, IS_POLY(i) ? ", лежат в обмороке." : ", лежит в обмороке.");
 			break;
 			case POS_SLEEPING:
-				strcat(buf, IS_POLY(i) ? " спят." : " спит.");
+				strcat(buf, IS_POLY(i) ? ", спят." : ", спит.");
 			break;
 			case POS_RESTING:
-				strcat(buf, IS_POLY(i) ? " отдыхают." : " отдыхает.");
+				strcat(buf, IS_POLY(i) ? ", отдыхают." : ", отдыхает.");
 			break;
 			case POS_SITTING:
-				strcat(buf, IS_POLY(i) ? " сидят." : " сидит.");
+				strcat(buf, IS_POLY(i) ? ", сидят." : ", сидит.");
 			break;
 			case POS_STANDING:
-				strcat(buf, IS_POLY(i) ? " стоят." : " стоит.");
+				strcat(buf, IS_POLY(i) ? ", стоят." : ", стоит.");
 			break;
 			case POS_FIGHTING:
 				if (i->get_fighting())
-					strcat(buf, IS_POLY(i) ? " сражаются." : " сражается.");
+					strcat(buf, IS_POLY(i) ? ", сражаются." : ", сражается.");
 				else
-					strcat(buf, IS_POLY(i) ? " махают кулаками." : " махает кулаками.");
+					strcat(buf, IS_POLY(i) ? ", махают кулаками." : ", махает кулаками.");
 			break;
 			default:
 				return;
 			break;
 		}
 	else
-		strcat(buf, IS_POLY(i) ? " сидят верхом." : " сидит верхом.");
+		strcat(buf, IS_POLY(i) ? ", сидят верхом." : ", сидит верхом.");
+	
+	if (AFF_FLAGGED(ch, AFF_DETECT_POISON))
+		if (AFF_FLAGGED(i, AFF_POISON))
+		{
+			sprintf(buf2, " (отравлен%s)", GET_CH_SUF_6(i));
+			strcat(buf, buf2);
+		}
+
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
+	
 }
 
 
