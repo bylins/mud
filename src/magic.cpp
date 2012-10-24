@@ -3696,6 +3696,11 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	{
 		if (spellnum == SPELL_POISON)
 			victim->Poisoner = GET_ID(ch);
+		if (spellnum == SPELL_EVILESS && (GET_HIT(victim) < GET_MAX_HIT(victim)))
+		{
+			GET_HIT(victim) = GET_MAX_HIT(victim); //Без этой строки update_pos еще не видит восстановленных ХП
+			update_pos(victim);
+		}
 		if (to_vict != NULL)
 			act(to_vict, FALSE, victim, 0, ch, TO_CHAR);
 		if (to_room != NULL)
