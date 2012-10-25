@@ -2848,12 +2848,16 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 
 	if (GET_OBJ_TYPE(obj) == ITEM_MONEY)
 	{
+		long gold = GET_OBJ_VAL(obj, 0);
 		if (IS_IMMORTAL(ch))
 		{
-			send_to_char("Не надо читерить!\r\n", ch);
-			return 0;
+			obj_from_char(obj);
+			extract_obj(obj);
+			ch->add_gold(gold);
+			send_to_char(ch, "Вам это не положено! Вы вновь обрели %d %s.\r\n",
+				gold, desc_count(gold, WHAT_MONEYu));
+			return 1;
 		}
-		long gold = GET_OBJ_VAL(obj, 0);
 		// здесь и далее: в случае переполнения  - кладем сколько можем, остальное возвращаем чару
 		if ((CLAN(ch)->bank + gold) < 0)
 		{
@@ -5656,7 +5660,15 @@ bool Clan::put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest)
 		send_to_char(ch,
 				"%s - Хранилище ингредиентов не предназначено для предметов данного типа.\r\n",
 				GET_OBJ_PNAME(obj, 0));
-		return 0;
+		if (GET_OBJ_TYPE(obj) == ITEM_MONEY)
+		{
+			int howmany = GET_OBJ_VAL(obj, 0);
+			obj_from_char(obj);
+			extract_obj(obj);
+			ch->add_gold(howmany);
+			send_to_char(ch, "Вы вновь обрели %d %s.\r\n",
+				howmany, desc_count(howmany, WHAT_MONEYu));
+		}
 	}
 	else if (IS_OBJ_STAT(obj, ITEM_NODROP)
 		|| OBJ_FLAGGED(obj, ITEM_ZONEDECAY)
