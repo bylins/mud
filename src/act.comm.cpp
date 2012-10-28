@@ -246,8 +246,8 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 
 	if (!IS_NPC(vict) && !IS_NPC(ch))
 	{
-		snprintf(buf, MAX_STRING_LENGTH, "%s%s : '%s'%s\r\n", CCICYN(ch, C_NRM),
-				tell_can_see(ch, vict) ? GET_NAME(ch) : "Кто-то", arg, CCNRM(ch, C_NRM));
+		snprintf(buf, MAX_STRING_LENGTH, "%s%s : '%s'%s\r\n", CCICYN(vict, C_NRM),
+				tell_can_see(ch, vict) ? GET_NAME(ch) : "Кто-то", arg, CCNRM(vict, C_NRM));
 		vict->remember_add(buf, Remember::PERSONAL);
 	}
 
