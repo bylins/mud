@@ -2330,13 +2330,9 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_EQUIP))
 		{
-			int i;
-			for (i = 0; i < NUM_WEARS; i++)
-				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->aliases))
-				{
-					*tobj = GET_EQ(ch, i);
-					return TRUE;
-				}
+			int tmp;
+			if ((*tobj = get_object_in_equip_vis(ch, t, ch->equipment, &tmp)) != NULL)
+				return TRUE;
 		}
 
 		if (IS_SET(SpINFO.targets, TAR_OBJ_ROOM))

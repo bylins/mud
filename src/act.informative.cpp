@@ -4234,7 +4234,7 @@ ACMD(do_who)
 		else
 		{
 			if (IS_IMPL(ch) || kroder)
-				sprintf(buf, "%s[%2d %s %s(%3d)] %s%s%s%s",
+				sprintf(buf, "%s[%2d %s %s(%5d)] %s%s%s%s",
 						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
 						GET_LEVEL(tch),
 						KIN_ABBR(tch),
