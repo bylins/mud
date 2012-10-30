@@ -24,6 +24,8 @@ namespace py=boost::python;
 using namespace scripting;
 
 std::string parse_python_exception();
+void register_global_command(const string& command, object callable, sh_int minimum_position, sh_int minimum_level, int unhide_percent);
+void unregister_global_command(const string& command);
 
 template <class t>
 inline t pass_through(const t& o) { return o; }
@@ -1265,7 +1267,14 @@ BOOST_PYTHON_MODULE(mud)
 	"num  виртуальный (vnum) или реальный (rnum) прототипа.\n"
 	"virtual  определяет смысл первого параметра. True - задан vnum, False - задан rnum.\n"
 	"После создания, моба нужно поместить куданибудь (например установкой поля in_room)."));
-
+	def("register_global_command", register_global_command, (py::arg("command"), py::arg("func"), py::arg("minimum_position"), py::arg("minimum_level"), py::arg("unhide_percent")=-1), "Регистрирует игровую команду, реализованную на питоне.\n"
+	"\n"
+	"command - полное сллово команды\n"
+	"func - питоновская функция или любой вызываемый объект. Вызывается с тремя параметрами: чар, строка команды, строка аргументов.\n"
+	"minimum_position - позиция, начиная с которой команду можно выполнять. constants.POS_XXX\n"
+	"minimum_level - мин. уровень игрока для выполнения команды\n"
+	"unhide_percent - вероятность разхайдиться");
+	def("unregister_global_command", unregister_global_command, "Отменяет регистрацию игровой команды, реализованной на питоне.");
 	ObjectDoesNotExist = handle<>(PyErr_NewException((char*)"mud.ObjectDoesNotExist", PyExc_RuntimeError, NULL));
 	scope().attr("ObjectDoesNotExist") = ObjectDoesNotExist;
 	class_<CharacterWrapper>("Character", "Игровой персонаж.", no_init)
@@ -1672,6 +1681,16 @@ BOOST_PYTHON_MODULE(constants)
 	DEFINE_CONSTANT(ITEM_WEAR_WIELD);
 	DEFINE_CONSTANT(ITEM_WEAR_HOLD);
 	DEFINE_CONSTANT(ITEM_WEAR_BOTHS);
+
+	DEFINE_CONSTANT(POS_DEAD);
+	DEFINE_CONSTANT(POS_MORTALLYW);
+	DEFINE_CONSTANT(POS_INCAP);
+	DEFINE_CONSTANT(POS_STUNNED);
+	DEFINE_CONSTANT(POS_SLEEPING);
+	DEFINE_CONSTANT(POS_RESTING);
+	DEFINE_CONSTANT(POS_SITTING);
+	DEFINE_CONSTANT(POS_FIGHTING);
+	DEFINE_CONSTANT(POS_STANDING);
 }
 
 void scripting::init()
@@ -1837,4 +1856,98 @@ result_t CIterator<t, nextfunc, getfunc, result_t>::next()
 	if (_object)
 		_object = _next_func(_object);
 	return _get_func(result);
+}
+
+struct PythonUserCommand
+{
+	string command;
+	object callable;
+	byte minimum_position;
+	sh_int minimum_level;
+	int unhide_percent;
+	PythonUserCommand(const string& command_, const object& callable_, byte minimum_position_, sh_int minimum_level_, int unhide_percent_):
+		command(command_), callable(callable_), minimum_position(minimum_position_), minimum_level(minimum_level_), unhide_percent(unhide_percent_) { }
+};
+typedef std::vector<PythonUserCommand> python_command_list_t;
+ python_command_list_t global_commands;
+
+ extern void check_hiding_cmd(CHAR_DATA * ch, int percent);
+
+ bool check_command_on_list(const python_command_list_t& lst, CHAR_DATA* ch, const string& command, const string& args)
+{
+	for (python_command_list_t::const_iterator i = lst.begin(); i != lst.end(); ++i)
+	{
+		if (i->command.compare(0, command.length(), command) != 0) continue;
+		//Copied from interpreter.cpp
+		if (IS_NPC(ch) && i->minimum_level >= LVL_IMMORT)
+		{
+			send_to_char("Вы еще не БОГ, чтобы делать это.\r\n", ch);
+			return true;
+		}
+		if (GET_POS(ch) < i->minimum_position)
+		{
+			switch (GET_POS(ch))
+			{
+			case POS_DEAD:
+				send_to_char("Очень жаль - ВЫ МЕРТВЫ !!! :-(\r\n", ch);
+				break;
+			case POS_INCAP:
+			case POS_MORTALLYW:
+				send_to_char("Вы в критическом состоянии и не можете ничего делать!\r\n", ch);
+				break;
+			case POS_STUNNED:
+				send_to_char("Вы слишком слабы, чтобы сделать это!\r\n", ch);
+				break;
+			case POS_SLEEPING:
+				send_to_char("Сделать это в Ваших снах ?\r\n", ch);
+				break;
+			case POS_RESTING:
+				send_to_char("Нет... Вы слишком расслаблены..\r\n", ch);
+				break;
+			case POS_SITTING:
+				send_to_char("Пожалуй, Вам лучше встать на ноги.\r\n", ch);
+				break;
+			case POS_FIGHTING:
+				send_to_char("Ни за что !  Вы сражаетесь за свою жизнь!\r\n", ch);
+				break;
+			}
+		return true;
+		}
+		check_hiding_cmd(ch, i->unhide_percent);
+		try
+		{
+			i->callable(CharacterWrapper(ch), command, args);
+			return true;
+		} catch(error_already_set const &)
+		{
+			mudlog(std::string("Error executing Python command: " + parse_python_exception()).c_str(), CMP, LVL_IMMORT, ERRLOG, true);
+			return false;
+		}
+	}
+	return false;
+}
+
+void register_global_command(const string& command, object callable, sh_int minimum_position, sh_int minimum_level, int unhide_percent)
+{
+	global_commands.push_back(PythonUserCommand(command, callable, minimum_position, minimum_level, unhide_percent));
+}
+
+void unregister_global_command(const string& command)
+{
+	python_command_list_t::iterator found = global_commands.end();
+	for (python_command_list_t::iterator i = global_commands.begin(); i != global_commands.end() && found == global_commands.end(); ++i)
+		if (i->command == command)
+			found = i;
+	if (found != global_commands.end())
+		global_commands.erase(found);
+	else {
+		PyErr_SetString(PyExc_ValueError, "Command not found");
+		throw_error_already_set();
+	}
+}
+
+// returns true if command is found & dispatched
+bool scripting::execute_player_command(CHAR_DATA* ch, const char* command, const char* args)
+{
+	return check_command_on_list(global_commands, ch, command, args);
 }

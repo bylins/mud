@@ -1187,6 +1187,10 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		}
 	}
 
+	//Try scripting
+	if (scripting::execute_player_command(ch, arg, line))
+		return;
+    
 	/* otherwise, find the command */
 	for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
 	{
