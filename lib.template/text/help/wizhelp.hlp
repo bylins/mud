@@ -525,20 +525,40 @@ RELOAD
 | На момент написания этого топика команда 'все' не перезагружает "все".       |
 +------------------------------------------------------------------------------+
 | Возможные значения:                                                          |
-|    Имя         Путь до файлов                                                |
-|  background (/mud_dir/lib/text/background)                                   |
-|  credits    (/mud_dir/lib/text/credits)                                      |
-|  greetings  (/mud_dir/lib/text/greetings)                                    |
-|  handbook   (/mud_dir/lib/text/handbook)                                     |
-|  help       (/mud_dir/lib/text/help)                                         |
-|  immlist    (/mud_dir/lib/text/immlist)                                      |
-|  imotd      (/mud_dir/lib/text/imotd)                                        |
-|  news       (/mud_dir/lib/text/news)                                         |
-|  motd       (/mud_dir/lib/text/motd)                                         |
-|  info       (/mud_dir/lib/text/info)                                         |
-|  policy     (/mud_dir/lib/text/policies)                                     |
-|  wizlist    (/mud_dir/lib/text/wizlist)                                      |
-|  xhelp      (/mud_dir/lib/text/help/*)                                       |
+|    Имя         Путь до файлов                                    Пояснение   |
+|  background (/mud_dir/lib/text/background)                               -   |
+|  boards     (/mud_dir/lib/etc/board/*)                               доски   |
+|  celebrates (/mud_dir/lib/misc/celebrates.xml)                   праздники   |
+|  clan       (/mud_dir/lib/plrstuff/house/index)              список кланов   |
+|  credits    (/mud_dir/lib/text/credits)              вывод команды credits   |
+|  depot      (/mud_dir/lib/plrstuff/depot/...)           персхран персонажа   |
+|  emails     (/mud_dir/lib/plrstuff/registered-email.lst)   зареге-ные мыла   |
+|  globaldrop (/mud_dir/lib/misc/global_drop.xml)         глобал дроп шмоток   |
+|  greetings  (/mud_dir/lib/text/greetings)             вывод заставки былин   |
+|  handbook   (/mud_dir/lib/text/handbook)                                 -   |
+|  help       (/mud_dir/lib/text/help/screen)          вывод команды справка   |
+|  imagic     (/mud_dir/lib/misc/im.lst)                     ингры и рецепты   |
+|  immlist    (/mud_dir/lib/text/immlist)                 вывод команды боги   |
+|  imotd      (/mud_dir/lib/text/imotd)                                    -   |
+|  info       (/mud_dir/lib/text/info)                 вывод команды новичок   |
+|  mobraces   (/mud_dir/lib/misc/mobrace.xml)                  ингры в мобах   |
+|  morphs     (/mud_dir/lib/misc/morphs.xml)                  формы оборотня   |
+|  motd       (/mud_dir/lib/text/motd)                                     -   |
+|  named      (/mud_dir/lib/plrstuff/named_stuff_list.xml)      именные вещи   |
+|  namerules  (/mud_dir/lib/text/namerules)                                -   |
+|  offtop     (/mud_dir/lib/misc/offtop.lst)               blocklist оффтопа   |
+|  policy     (/mud_dir/lib/text/policies)                                 -   |
+|  portals    (/mud_dir/lib/misc/portals.lst)                 камни для врат   |
+|  privilege  (/mud_dir/lib/misc/privilege.lst)        привелегии имморталов   |
+|  proxy      (/mud_dir/lib/misc/proxy)            список разрешенных прокси   |
+|  rules      (/mud_dir/lib/text/rules)                                    -   |
+|  setsdrop   (/mud_dir/lib/misc/setstuff.lst) таблица лоада сетов + справка   |
+|  schedule   (/mud_dir/lib/misc/schedule)         релоад расписания ребутов   |
+|  shop       (/mud_dir/lib/plrstuff/shop/shops.xml)                магазины   |
+|  socials    (/mud_dir/lib/misc/socials)                            социалы   |
+|  titles     (/mud_dir/lib/plrstuff/titles.lst)                           -   |
+|  xhelp      (/mud_dir/lib/text/help/*)                   все файлы справки   |
+|  ztypes     (/mud_dir/lib/misc/ztypes.lst)        ингры по типам местности   |
 +------------------------------------------------------------------------------+
 
 #31
