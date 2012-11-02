@@ -25,6 +25,7 @@
 #include "skills.h"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "named_stuff.hpp"
 #include "modify.h"
 #include "room.hpp"
 #include "mail.h"
@@ -521,9 +522,9 @@ int exchange_information(CHAR_DATA * ch, char *arg)
 		strcat(buf, buf2);
 		strcat(buf, "\n");
 	};
-	if (invalid_anti_class(ch, GET_EXCHANGE_ITEM(item)) || invalid_unique(ch, GET_EXCHANGE_ITEM(item)))
+	if (invalid_anti_class(ch, GET_EXCHANGE_ITEM(item)) || invalid_unique(ch, GET_EXCHANGE_ITEM(item)) || NamedStuff::check_named(ch, GET_EXCHANGE_ITEM(item), 0))
 	{
-		sprintf(buf2, "Эта вещь вам недоступна!.");
+		sprintf(buf2, "Эта вещь Вам недоступна!");
 		strcat(buf, buf2);
 		strcat(buf, "\n");
 	}

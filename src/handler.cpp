@@ -1343,7 +1343,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 	if (object && ch)
 	{
 		restore_object(object, ch);
-		if (invalid_anti_class(ch, object) || invalid_unique(ch, object))
+		if (invalid_anti_class(ch, object) || invalid_unique(ch, object) || NamedStuff::check_named(ch, object, 0))
 			may_carry = FALSE;
 
 		if (strstr(object->aliases, "clan"))

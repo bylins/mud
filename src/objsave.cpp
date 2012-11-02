@@ -30,6 +30,7 @@
 #include "char.hpp"
 #include "liquid.hpp"
 #include "file_crc.hpp"
+#include "named_stuff.hpp"
 #include "room.hpp"
 #include "mail.h"
 #include "dg_scripts.h"
@@ -1309,7 +1310,7 @@ int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 						 * Check the characters's alignment to prevent them from being
 						 * zapped through the auto-equipping.
 						 */
-				if (invalid_align(ch, obj) || invalid_anti_class(ch, obj) || invalid_no_class(ch, obj))
+				if (invalid_align(ch, obj) || invalid_anti_class(ch, obj) || invalid_no_class(ch, obj) || NamedStuff::check_named(ch, obj, 0))
 					location = LOC_INVENTORY;
 				else
 				{
@@ -2049,7 +2050,7 @@ int Crash_load(CHAR_DATA * ch)
 			continue;
 		}
 		// Check valid class
-		if (invalid_anti_class(ch, obj) || invalid_unique(ch, obj))
+		if (invalid_anti_class(ch, obj) || invalid_unique(ch, obj) || NamedStuff::check_named(ch, obj, 0))
 		{
 			sprintf(buf, "%s рассыпал%s, как запрещенн%s для Вас.\r\n",
 					CAP(obj->PNames[0]), GET_OBJ_SUF_2(obj), GET_OBJ_SUF_3(obj));

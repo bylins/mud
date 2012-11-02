@@ -64,6 +64,8 @@ void save()
 
 bool check_named(CHAR_DATA * ch, const OBJ_DATA * obj, const bool simple)
 {
+	if (!OBJ_FLAGGED(obj, ITEM_NAMED))
+		return false; // если шмотка не именная - остальное и проверять не нужно
 	StuffListType::iterator it = stuff_list.find(GET_OBJ_VNUM(obj));
 	if (it != stuff_list.end())
 	{

@@ -2296,12 +2296,12 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 	OBJ_DATA *object;
 	if (!IS_CORPSE(obj))
 		for (object = obj->contains; object; object = object->next_content)
-			if (invalid_anti_class(ch, object))
+			if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, 0))
 				return (TRUE);
 	if (IS_OBJ_ANTI(obj, ITEM_AN_CHARMICE) && AFF_FLAGGED(ch, AFF_CHARM))
 		return (TRUE);
-	if (((IS_NPC(ch) && !OBJ_FLAGGED(obj, ITEM_NAMED)) || WAITLESS(ch)) && !IS_CHARMICE(ch))
-		return (FALSE); //Добавил проверку не именная ли шмотка (Купала)
+	if ((IS_NPC(ch) || WAITLESS(ch)) && !IS_CHARMICE(ch))
+		return (FALSE);
 	if ((IS_OBJ_ANTI(obj, ITEM_AN_MONO) && GET_RELIGION(ch) == RELIGION_MONO) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_POLY) && GET_RELIGION(ch) == RELIGION_POLY) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch)) ||
@@ -2322,13 +2322,13 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		(IS_OBJ_ANTI(obj, ITEM_AN_MERCHANT) && IS_MERCHANT(ch)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_DRUID) && IS_DRUID(ch)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
-/* нелогичный флаг */
-/*		(IS_OBJ_ANTI(obj, ITEM_AN_KILLERONLY)
+		/* нелогичный флаг
+		(IS_OBJ_ANTI(obj, ITEM_AN_KILLERONLY)
 		 && !PLR_FLAGGED(ch, PLR_KILLER)) || */
 		(IS_OBJ_ANTI(obj, ITEM_AN_COLORED) && IS_COLORED(ch)))
 		return (TRUE);
-	if ((OBJ_FLAGGED(obj, ITEM_NAMED)) && NamedStuff::check_named(ch, obj))//added by WorM(Видолюб) проверка именного стафа
-		return (TRUE); 
+	/* if ((OBJ_FLAGGED(obj, ITEM_NAMED)) && NamedStuff::check_named(ch, obj))//added by WorM(Видолюб) проверка именного стафа
+		return (TRUE);  убрано Купалой - проверка на класс должна быть отдельно от проверки именного */
 	return (FALSE);
 }
 

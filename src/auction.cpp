@@ -21,6 +21,7 @@
 #include "constants.h"
 #include "char.hpp"
 #include "room.hpp"
+#include "named_stuff.hpp"
 #include "pk.h"
 
 /* external functions */
@@ -448,9 +449,9 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 			strcat(buf, buf2);
 			strcat(buf, "\n");
 		};
-		if (invalid_anti_class(ch, obj) || invalid_unique(ch, obj))
+		if (invalid_anti_class(ch, obj) || invalid_unique(ch, obj) || NamedStuff::check_named(ch, obj, 0))
 		{
-			sprintf(buf2, "Эта вещь вам недоступна!.");
+			sprintf(buf2, "Эта вещь Вам недоступна!");
 			strcat(buf, buf2);
 			strcat(buf, "\n");
 		}

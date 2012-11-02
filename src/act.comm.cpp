@@ -912,6 +912,8 @@ ACMD(do_mobshout)
 		return;
 	if (AFF_FLAGGED(ch, AFF_CHARM))
 		return;
+
+	skip_spaces(&argument); //убираем пробел в начале сообщения
 	sprintf(buf, "$n заорал$g : '%s'", argument);
 
 	/* now send all the strings out */

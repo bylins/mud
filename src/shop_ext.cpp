@@ -22,6 +22,7 @@
 #include "room.hpp"
 #include "glory.hpp"
 #include "glory_const.hpp"
+#include "named_stuff.hpp"
 #include "screen.h"
 #include "house.h"
 #include "modify.h"
@@ -1342,7 +1343,7 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 		tell += std::string(diag_weapon_to_char(ident_obj, TRUE));
 		tell += std::string(diag_timer_to_char(ident_obj));
 		tell_to_char(keeper, ch, tell.c_str());
-		if (invalid_anti_class(ch, ident_obj) || invalid_unique(ch, ident_obj))
+		if (invalid_anti_class(ch, ident_obj) || invalid_unique(ch, ident_obj) || NamedStuff::check_named(ch, ident_obj, 0))
 		{
 			tell = "Но лучше бы тебе не заглядываться на эту вещь, не унесешь все равно.";
 			tell_to_char(keeper, ch, tell.c_str());

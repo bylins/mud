@@ -500,8 +500,13 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	}
 	else if (invalid_anti_class(ch, obj))
 	{
-		if(!OBJ_FLAGGED(obj, ITEM_NAMED) || !NamedStuff::wear_msg(ch, obj))
-			act("$p: Эта вещь не предназначена для Вас !", FALSE, ch, obj, 0, TO_CHAR);
+		act("$p: Эта вещь не предназначена для Вас!", FALSE, ch, obj, 0, TO_CHAR);
+		return (0);
+	}
+	else if NamedStuff::check_named(ch, obj, 0)
+	{
+		if(!NamedStuff::wear_msg(ch, obj))
+			act("$p: Эта вещь не предназначена для Вас!", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
 	}
 	else if (invalid_unique(ch, obj) || (strstr(obj->aliases, "clan") && (IS_NPC(ch) || !CLAN(ch) || !strstr(obj->aliases, buf))))

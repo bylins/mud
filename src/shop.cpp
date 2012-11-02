@@ -29,6 +29,7 @@
 #include "dg_scripts.h"
 #include "constants.h"
 #include "features.hpp"
+#include "named_stuff.hpp"
 #include "char.hpp"
 #include "modify.h"
 #include "room.hpp"
@@ -1323,7 +1324,7 @@ void show_values(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr, int
 	};
 	strcat(buf, diag_timer_to_char(obj));
 	do_tell(keeper, buf, cmd_tell, 0);
-	if (invalid_anti_class(ch, obj) || invalid_unique(ch, obj))
+	if (invalid_anti_class(ch, obj) || invalid_unique(ch, obj) || NamedStuff::check_named(ch, obj, 0))
 	{
 		sprintf(buf, "%s Но лучше бы тебе не заглядываться на нее, не унесешь все равно.", GET_NAME(ch));
 		do_tell(keeper, buf, cmd_tell, 0);
