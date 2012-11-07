@@ -985,17 +985,17 @@ room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 	{
 		if (ROOM_FLAGGED(location, ROOM_GODROOM) && GET_LEVEL(ch) < LVL_GRGOD)
 		{
-			send_to_char("Вы не столь божественны, чтобы получить доступ в это комнату!\r\n", ch);
+			send_to_char("Вы не столь божественны, чтобы получить доступ в эту комнату!\r\n", ch);
 			return (NOWHERE);
 		}
 		if (ROOM_FLAGGED(location, ROOM_NOTELEPORTIN) && trig != 1)
 		{
-			send_to_char("В комнату не телепортировать\r\n", ch);
+			send_to_char("В комнату не телепортировать!\r\n", ch);
 			return (NOWHERE);
 		}
 		if (!Clan::MayEnter(ch, location, HCE_PORTAL))
 		{
-			send_to_char("Частная собственность - посторонним в ней делать нечего !\r\n", ch);
+			send_to_char("Частная собственность - посторонним в ней делать нечего!\r\n", ch);
 			return (NOWHERE);
 		}
 	}
@@ -1018,7 +1018,7 @@ ACMD(do_at)
 
 	if (!*command)
 	{
-		send_to_char("Что Вы собираетесь там делать ?\r\n", ch);
+		send_to_char("Что Вы собираетесь там делать?\r\n", ch);
 		return;
 	}
 
@@ -1075,7 +1075,7 @@ ACMD(do_teleport)
 	two_arguments(argument, buf, buf2);
 
 	if (!*buf)
-		send_to_char("Кого Вы хотите переместить ?\r\n", ch);
+		send_to_char("Кого Вы хотите переместить?\r\n", ch);
 	else if (!(victim = get_char_vis(ch, buf, FIND_CHAR_WORLD)))
 		send_to_char(NOPERSON, ch);
 	else if (victim == ch)
@@ -1083,7 +1083,7 @@ ACMD(do_teleport)
 	else if (GET_LEVEL(victim) >= GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
 		send_to_char("Попробуйте придумать что-то другое.\r\n", ch);
 	else if (!*buf2)
-		act("Куда Вы хотите $S переместить ?", FALSE, ch, 0, victim, TO_CHAR);
+		act("Куда Вы хотите $S переместить?", FALSE, ch, 0, victim, TO_CHAR);
 	else if ((target = find_target_room(ch, buf2, 0)) != NOWHERE)
 	{
 		send_to_char(OK, ch);
@@ -1092,7 +1092,7 @@ ACMD(do_teleport)
 		char_to_room(victim, target);
 		check_horse(victim);
 		act("$n появил$u, окутанн$w розовым туманом.", FALSE, victim, 0, 0, TO_ROOM);
-		act("$n переместил$g Вас !", FALSE, ch, 0, (char *) victim, TO_VICT);
+		act("$n переместил$g Вас!", FALSE, ch, 0, (char *) victim, TO_VICT);
 		look_at_room(victim, 0);
 	}
 }
