@@ -2686,7 +2686,8 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 	if (!WAITLESS(ch))
 	{
-		WAIT_STATE(ch, lag);
+		WAIT_STATE(ch, lag * PULSE_VIOLENCE);
+		// WAIT_STATE(ch, lag); TODO: Разобраться!
 	}
 }
 
@@ -2771,7 +2772,8 @@ void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 	if (!WAITLESS(ch))
 	{
-		WAIT_STATE(ch, lag);
+		WAIT_STATE(ch, lag * PULSE_VIOLENCE);
+		// WAIT_STATE(ch, lag); TODO: разобраться можно ли убрать лаг вне боя, оставив лаг в бою
 	}
 }
 
