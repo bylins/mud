@@ -2686,7 +2686,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 	if (!WAITLESS(ch))
 	{
-		WAIT_STATE(ch, lag * PULSE_VIOLENCE);
+		WAIT_STATE(ch, lag);
 	}
 }
 
@@ -2771,7 +2771,7 @@ void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 	if (!WAITLESS(ch))
 	{
-		WAIT_STATE(ch, lag * PULSE_VIOLENCE);
+		WAIT_STATE(ch, lag);
 	}
 }
 

@@ -1609,6 +1609,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 		if (AFF_FLAGGED(ch, AFF_SIELENCE))
 		{
 			send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
+			ch->set_cast(0, 0, 0, 0, 0);
 		}
 		else
 		{
