@@ -24,6 +24,7 @@ void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance);
 int thaco(int class_num, int level);
 int ok_damage_shopkeeper(CHAR_DATA * ch, CHAR_DATA * victim);
 void npc_groupbattle(CHAR_DATA * ch);
+void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
 int calc_leadership(CHAR_DATA * ch)
 {
@@ -2770,11 +2771,7 @@ void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			send_to_char(buf, victim);
 		}
 	}
-	if (!WAITLESS(ch))
-	{
-		WAIT_STATE(ch, lag * PULSE_VIOLENCE);
-		// WAIT_STATE(ch, lag); TODO: разобраться можно ли убрать лаг вне боя, оставив лаг в бою
-	}
+	set_wait(ch, lag, TRUE);
 }
 
 int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
@@ -3179,7 +3176,7 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& train_skill(victim, SKILL_AWAKE, skill_info[SKILL_AWAKE].max_percent,
 			ch) >= number(1, skill_info[SKILL_AWAKE].max_percent))
 	{
-		dam -= IS_NPC(ch) ? 5 : 5;
+		dam -= IS_NPC(ch) ? 5 : 5; //и зачем так? кто балансом занимается поправте.
 		calc_thaco += IS_NPC(ch) ? 4 : 2;
 	}
 
@@ -3484,7 +3481,9 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	/** старт инициализации полей для удара */
 	HitData hit_params;
-	hit_params.skill_num = type;
+	//конвертация скиллов, которые предполагают вызов hit()
+	//c тип_андеф, в тип_андеф.
+	hit_params.skill_num = type != SKILL_STUPOR && type != SKILL_MIGHTHIT ? type : TYPE_UNDEFINED;
 	hit_params.weapon = weapon;
 	hit_params.init(ch, victim);
 
@@ -3718,6 +3717,12 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	/** итоговый дамаг */
 	int made_dam = hit_params.extdamage(ch, victim);
+	
+	//Обнуление лага, когда виктим убит с применением
+	//оглушить или молотить. Чтобы все это было похоже на
+	//действие скиллов экстраатак(пнуть, сбить и т.д.)
+	if (CHECK_WAIT(ch) && made_dam == -1 && (type == SKILL_STUPOR || type == SKILL_MIGHTHIT))
+			GET_WAIT(ch) = 0;
 
 	/* check if the victim has a hitprcnt trigger */
 	if (made_dam != -1)

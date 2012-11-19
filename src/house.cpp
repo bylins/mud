@@ -4221,6 +4221,7 @@ struct ChestFilter
 	int wear_message;      // для названия куда одеть
 	int weap_class;        // класс оружие
 	int weap_message;      // для названия оружия
+	int cost;             // для цены
 	vector<int> affect;    // аффекты weap
 	vector<int> affect2;   // аффекты apply
 	vector<int> affect3;   // экстрафлаг
@@ -4297,11 +4298,13 @@ ACMD(DoStoreHouse)
 	filter.wear_message = -1;
 	filter.weap_class = -1;
 	filter.weap_message = -1;
+	filter.cost = -1;
 
 	int num = 0;
 	unsigned int len;
 	bool find = 0;
 	char tmpbuf[MAX_INPUT_LENGTH];
+	char sign = '\0';
 	while (*argument)
 	{
 		switch (*argument)
@@ -4447,6 +4450,14 @@ ACMD(DoStoreHouse)
 			else
 			{
 				send_to_char("Неверное место одевания предмета.\r\n", ch);
+				return;
+			}
+			break;
+		case 'Ц':
+			argument = one_argument(++argument, tmpbuf);
+			if (!sscanf(tmpbuf, "%d%[-+]", &filter.cost, &sign))
+			{
+				send_to_char("Неверный формат в фильтре ""Ц"": Ц<цена><знак + или ->", ch);
 				return;
 			}
 			break;
@@ -4625,6 +4636,11 @@ ACMD(DoStoreHouse)
 		buffer += weapon_class[filter.weap_message];
 		buffer += " ";
 	}
+	if (filter.cost >= 0)
+	{
+		sprintf(buf, "%d%c ", filter.cost, sign);
+		buffer += buf;
+	}
 	if (!filter.affect.empty())
 	{
 		for (vector<int>::const_iterator it = filter.affect.begin(); it != filter.affect.end(); ++it)
@@ -4686,6 +4702,16 @@ ACMD(DoStoreHouse)
 				// класс оружия
 				if (filter.weap_class >= 0 && filter.weap_class != GET_OBJ_SKILL(temp_obj))
 					continue;
+				// цена
+				if (filter.cost >= 0)
+				{
+					if (sign == '\0' && (GET_OBJ_COST(temp_obj) != filter.cost))
+						continue;
+					if (sign == '+' && (GET_OBJ_COST(temp_obj) < filter.cost))
+						continue;
+					if (sign == '-' && (GET_OBJ_COST(temp_obj) > filter.cost))
+						continue;
+				}
 				// аффекты
 				find = 1;
 				if (!filter.affect.empty())
