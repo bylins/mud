@@ -668,7 +668,7 @@ int perform_get_from_room(CHAR_DATA * ch, OBJ_DATA * obj)
 		{
 			if (bloody::is_bloody(obj))
 			{
-				act("Вы подняли $o3, испачкав  свои руки кровью!", FALSE, ch, obj, 0, TO_CHAR);
+				act("Вы подняли $o3, испачкав свои руки кровью!", FALSE, ch, obj, 0, TO_CHAR);
 				act("$n поднял$g $o3, испачкав руки кровью.", TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 			} else {
 				act("Вы подняли $o3.", FALSE, ch, obj, 0, TO_CHAR);
