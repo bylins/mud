@@ -2685,11 +2685,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		act("$N зашатал$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 		might_hit_bash(ch, victim);
 	}
-	if (!WAITLESS(ch))
-	{
-		WAIT_STATE(ch, lag * PULSE_VIOLENCE);
-		// WAIT_STATE(ch, lag); TODO: Разобраться!
-	}
+	set_wait(ch, lag, TRUE);
 }
 
 void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim)

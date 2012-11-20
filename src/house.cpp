@@ -4457,7 +4457,7 @@ ACMD(DoStoreHouse)
 			argument = one_argument(++argument, tmpbuf);
 			if (!sscanf(tmpbuf, "%d%[-+]", &filter.cost, &sign))
 			{
-				send_to_char("Неверный формат в фильтре ""Ц"": Ц<цена><знак + или ->", ch);
+				send_to_char("Неверный формат в фильтре: Ц<цена>[+-].\r\n", ch);
 				return;
 			}
 			break;
@@ -5053,7 +5053,7 @@ bool Clan::ChestShow(OBJ_DATA * obj, CHAR_DATA * ch)
 	{
 		send_to_char("Хранилище Вашей дружины:\r\n", ch);
 		int cost = CLAN(ch)->ChestTax();
-		send_to_char(ch, "Всего вещей: %d   Рента в день: %d %s\r\n\r\n", CLAN(ch)->chest_objcount, cost, desc_count(cost, WHAT_MONEYa));
+		send_to_char(ch, "Всего вещей: %d Рента в день: %d %s\r\n\r\n", CLAN(ch)->chest_objcount, cost, desc_count(cost, WHAT_MONEYa));
 		list_obj_to_char(obj->contains, ch, 1, 3);
 	}
 	else
