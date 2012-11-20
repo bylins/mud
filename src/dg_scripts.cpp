@@ -2312,6 +2312,13 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				do_restore(c, (char*)c->get_name(), 0, SCMD_RESTORE_TRIGGER);
 				trig_log(trig, "был произведен вызов do_restore!");
 			}
+			else if (!str_cmp(field, "dispel"))
+			{
+				if (c->affected)
+					send_to_char("Вы словно заново родились!\r\n", c);
+				while (c->affected)
+					affect_remove(c, c->affected);
+			}
 			else if (!str_cmp(field, "gold"))
 			{
 				c->set_gold(MAX(0, gm_char_field(c, field, subfield, c->get_gold())));
@@ -2730,12 +2737,19 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				if (IS_NPC(c))
 					gm_flag(subfield, action_bits, c->char_specials.saved.act, str);
 			}
-			else if (!str_cmp(field, "function"))
+			/*else if (!str_cmp(field, "function"))
 			{
 				if (IS_NPC(c))
 					gm_flag(subfield, function_bits,
 							c->mob_specials.npc_flags, str);
 			}
+			>> fatal error C1061: ограничение компилятора: недопустимая степень вложения блоков
+			Ввиду ограничения в студии в 128 elseif-ов,
+			выкидываю нигде не использовавшийся function чтоб вставить 
+			нужный в данный момент dispel, если кто скажет как сделать
+			по-человески - могу муторную переделку всех этих 128 пунктов
+			(то есть копипасту) взять на себя (Купала)
+			*/
 			else if (!str_cmp(field, "leader"))
 			{
 				if (c->master)

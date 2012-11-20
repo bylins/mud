@@ -1230,7 +1230,8 @@ void print_group(CHAR_DATA * ch)
 			for (f = g->follower->followers; f; f = f->next)
 			{
 				if (!(AFF_FLAGGED(f->follower, AFF_CHARM)
-						|| MOB_FLAGGED(f->follower, MOB_ANGEL)))
+						|| MOB_FLAGGED(f->follower, MOB_ANGEL))
+						|| !AFF_FLAGGED(ch, AFF_GROUP))
 					continue;
 				if (f->follower->master == ch || !AFF_FLAGGED(f->follower->master, AFF_GROUP))
 					continue;

@@ -1563,9 +1563,12 @@ bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 	if (!ch || !tch)
 		return false;
 
-	if (IS_NPC(ch) && ch->master && !IS_NPC(ch->master))
+	// Добавлены проверки чтобы не любой заследовавшийся моб считался согруппником (Купала)
+	if (IS_NPC(ch) && ch->master && !IS_NPC(ch->master)
+		&& (IS_HORSE(ch) || AFF_FLAGGED(ch, AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL)))
 		ch = ch->master;
-	if (IS_NPC(tch) && tch->master && !IS_NPC(tch->master))
+	if (IS_NPC(tch) && tch->master && !IS_NPC(tch->master)
+		&& (IS_HORSE(tch) || AFF_FLAGGED(tch, AFF_CHARM) || MOB_FLAGGED(tch, MOB_ANGEL)))
 		tch = tch->master;
 
 	// NPC's always in same group
@@ -2659,6 +2662,8 @@ int calc_str_req(int weight, int type)
 
 void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 {
+	if (GET_POS(ch) == POS_DEAD)
+		return;
 	int need_str = 0;
 	switch (type)
 	{

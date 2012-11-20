@@ -19,7 +19,7 @@ namespace DpsSystem
 // кол-во учитываемых чармисов с каждого чара
 const unsigned MAX_DPS_CHARMICE = 5;
 boost::format dps_stat_format(" %25s |  %15d | %5d |  %5d | %11d |\r\n");
-boost::format dps_group_stat_format(" %25s |  %8d | %3.0f%% | %5d |  %5d | %11d |\r\n");
+boost::format dps_group_stat_format(" %25s |  %8d | %5.1f%% | %5d |  %5d | %11d |\r\n");
 
 /**
 * Добавление эффективной дамаги и овер-дамаги.
@@ -265,7 +265,7 @@ void Dps::print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 	}
 
 	send_to_char("\r\nСтатистика Вашей группы:\r\n"
-			"---------------------------|------------------|----------------|-------------|\r\n", coder);
+			"---------------------------|--------------------|----------------|-------------|\r\n", coder);
 
 	CHAR_DATA *leader = ch->master ? ch->master : ch;
 	for (follow_type *f = leader->followers; f; f = f->next)
@@ -550,7 +550,7 @@ ACMD(do_dmeter)
 			}
 			if (ch->master)
 			{
-				send_to_char("Вы не являетесь лидеров группы.\r\n", ch);
+				send_to_char("Вы не являетесь лидером группы.\r\n", ch);
 				return;
 			}
 			ch->dps_clear(DpsSystem::GROUP_DPS);
@@ -566,7 +566,7 @@ ACMD(do_dmeter)
 		}
 		else
 		{
-			send_to_char("Нет такого чара.\r\n", ch);
+			send_to_char("Нет такого персонажа.\r\n", ch);
 		}
 	}
 	else
