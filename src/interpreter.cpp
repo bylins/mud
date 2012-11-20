@@ -1260,16 +1260,16 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 			send_to_char("Вы слишком слабы, чтобы сделать это!\r\n", ch);
 			break;
 		case POS_SLEEPING:
-			send_to_char("Сделать это в Ваших снах ?\r\n", ch);
+			send_to_char("Сделать это в Ваших снах?\r\n", ch);
 			break;
 		case POS_RESTING:
-			send_to_char("Нет... Вы слишком расслаблены..\r\n", ch);
+			send_to_char("Нет... Вы слишком расслаблены...\r\n", ch);
 			break;
 		case POS_SITTING:
 			send_to_char("Пожалуй, Вам лучше встать на ноги.\r\n", ch);
 			break;
 		case POS_FIGHTING:
-			send_to_char("Ни за что !  Вы сражаетесь за свою жизнь!\r\n", ch);
+			send_to_char("Ни за что! Вы сражаетесь за свою жизнь!\r\n", ch);
 			break;
 		}
 		return;

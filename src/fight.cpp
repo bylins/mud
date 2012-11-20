@@ -1658,7 +1658,12 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 				|| GET_GOD_FLAG(ch, GF_GODSLIKE)
 				|| !GET_AF_BATTLE(ch, EAF_USEDRIGHT)))
 		{
-			exthit(ch, TYPE_UNDEFINED, RIGHT_WEAPON);
+			//Знаю, выглядит страшно, но зато в hit()
+			//можно будет узнать применялось ли оглушить
+			//или молотить, по баттл-аффекту узнать получиться
+			//не во всех частях процедуры, а параметр type
+			//хранит значение до её конца.
+			exthit(ch, GET_AF_BATTLE(ch, EAF_STUPOR) ? SKILL_STUPOR : GET_AF_BATTLE(ch, EAF_MIGHTHIT) ? SKILL_MIGHTHIT : TYPE_UNDEFINED, RIGHT_WEAPON);
 		}
 		CLR_AF_BATTLE(ch, EAF_FIRST);
 		SET_AF_BATTLE(ch, EAF_SECOND);

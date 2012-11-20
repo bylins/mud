@@ -1885,7 +1885,7 @@ void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (!ch->get_fighting())
 	{
 		SET_AF_BATTLE(ch, EAF_STUPOR);
-		hit(ch, victim, TYPE_UNDEFINED, 1);
+		hit(ch, victim, SKILL_STUPOR, 1);
 		set_wait(ch, 2, TRUE);
 	}
 	else
@@ -1957,7 +1957,7 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (!ch->get_fighting())
 	{
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
-		hit(ch, victim, TYPE_UNDEFINED, 1);
+		hit(ch, victim, SKILL_MIGHTHIT, 1);
 		set_wait(ch, 2, TRUE);
 	}
 	else if ((victim->get_fighting() != ch) && (ch->get_fighting() != victim))

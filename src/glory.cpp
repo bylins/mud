@@ -1307,9 +1307,15 @@ void print_glory_top(CHAR_DATA *ch)
 			hide << it->second->name << " ";
 	}
 
+	out << CCWHT(ch, C_NRM) << "Лучшие прославленные:\r\n" << CCNRM(ch, C_NRM);
+
 	int i = 0;
 	for (std::map<int, GloryNodePtr>::reverse_iterator t_it = temp_list.rbegin(); t_it != temp_list.rend() && i < MAX_TOP_CLASS; ++t_it, ++i)
+	{
+		//имя с заглавной буквы. мб можно сделать как-то лучше...
+		t_it->second->name[0] = UPPER(t_it->second->name[0]);
 		out << class_format % t_it->second->name % (t_it->second->free_glory + t_it->second->spend_glory * 1000);
+	}
 	send_to_char(ch, out.str().c_str());
 
 	if (print_hide)

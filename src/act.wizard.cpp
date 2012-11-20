@@ -4989,7 +4989,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			vict->set_name(npad[0]);
 
 			if (!IS_SET(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN) && !IS_SET(PLR_FLAGS(vict, PLR_DELETED), PLR_DELETED) && !IS_IMMORTAL(vict))
-				TopPlayer::Refresh(ch);
+				TopPlayer::Refresh(vict);
 
 			free(player_table[ptnum].name);
 			CREATE(player_table[ptnum].name, char, strlen(npad[0]) + 1);
