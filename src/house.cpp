@@ -4221,8 +4221,8 @@ struct ChestFilter
 	int wear_message;      // для названия куда одеть
 	int weap_class;        // класс оружие
 	int weap_message;      // для названия оружия
-	int cost;             // для цены
-	vector<int> affect;    // аффекты weap
+	int cost;              // для цены
+	vector<int> affect;	   // аффекты weap
 	vector<int> affect2;   // аффекты apply
 	vector<int> affect3;   // экстрафлаг
 };
