@@ -4222,7 +4222,7 @@ struct ChestFilter
 	int weap_class;        // класс оружие
 	int weap_message;      // для названия оружия
 	int cost;              // для цены
-	vector<int> affect;	   // аффекты weap
+	vector<int> affect;    // аффекты weap
 	vector<int> affect2;   // аффекты apply
 	vector<int> affect3;   // экстрафлаг
 };
@@ -5053,7 +5053,7 @@ bool Clan::ChestShow(OBJ_DATA * obj, CHAR_DATA * ch)
 	{
 		send_to_char("Хранилище Вашей дружины:\r\n", ch);
 		int cost = CLAN(ch)->ChestTax();
-		send_to_char(ch, "Всего вещей: %d Рента в день: %d %s\r\n\r\n", CLAN(ch)->chest_objcount, cost, desc_count(cost, WHAT_MONEYa));
+		send_to_char(ch, "Всего вещей: %d, Рента в день: %d %s\r\n\r\n", CLAN(ch)->chest_objcount, cost, desc_count(cost, WHAT_MONEYa));
 		list_obj_to_char(obj->contains, ch, 1, 3);
 	}
 	else

@@ -2339,6 +2339,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	look_at_room(d->character, 0);
 	d->has_prompt = 0;
 	login_change_invoice(d->character);
+	check_light(d->character, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 0);
 }
 
 //По кругу проверяем корректность параметров

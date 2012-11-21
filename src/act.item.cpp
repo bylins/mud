@@ -2081,7 +2081,7 @@ ACMD(do_remove)
 ACMD(do_upgrade)
 {
 	OBJ_DATA *obj;
-	int weight, add_hr, add_dr, prob, percent, i;
+	int weight, add_hr, add_dr, prob, percent, min_mod, max_mod, i;
 
 	if (!ch->get_skill(SKILL_UPGRADE))
 	{
@@ -2092,7 +2092,7 @@ ACMD(do_upgrade)
 	one_argument(argument, arg);
 
 	if (!*arg)
-		send_to_char("Что вы хотите заточить ?\r\n", ch);
+		send_to_char("Что вы хотите заточить?\r\n", ch);
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{
@@ -2113,15 +2113,17 @@ ACMD(do_upgrade)
 		return;
 	}
 
-	if (OBJ_FLAGGED(obj, ITEM_MAGIC) || OBJ_FLAGGED(obj, ITEM_SHARPEN))
+	if (OBJ_FLAGGED(obj, ITEM_MAGIC))
 	{
-		send_to_char("Вы не можете заточить этот предмет.\r\n", ch);
+		send_to_char("Вы не можете заточить заколдованный предмет.\r\n", ch);
 		return;
 	}
 
-	/* Make sure no other affections. */
+	/* Make sure no other (than hitroll & damroll) affections. */ 
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
-		if (obj->affected[i].location != APPLY_NONE)
+		if ((obj->affected[i].location != APPLY_NONE)
+			&& (obj->affected[i].location != APPLY_HITROLL)
+			&& (obj->affected[i].location != APPLY_DAMROLL))
 		{
 			send_to_char("Этот предмет не может быть заточен.\r\n", ch);
 			return;
@@ -2158,19 +2160,42 @@ ACMD(do_upgrade)
 		return;
 	}
 
-	SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SHARPEN), ITEM_SHARPEN);
+	//Заточить повторно можно, но это уменьшает таймер шмотки на 7%
+	if (OBJ_FLAGGED(obj, ITEM_SHARPEN))
+	{
+		int timer = obj->get_timer() - obj->get_timer() / 14;
+		obj->set_timer(timer);
+	}
+	else
+		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SHARPEN), ITEM_SHARPEN);
+
 	percent = number(1, skill_info[SKILL_UPGRADE].max_percent);
 	prob = train_skill(ch, SKILL_UPGRADE, skill_info[SKILL_UPGRADE].max_percent, 0);
 
-	add_hr = IS_IMMORTAL(ch) ? 10 : number(1, (GET_LEVEL(ch) + 5) / 6);
-	add_dr = IS_IMMORTAL(ch) ? 5 : number(1, (GET_LEVEL(ch) + 5) / 6);
+	min_mod = 1 + ch->get_trained_skill(SKILL_UPGRADE) / 90;
+	max_mod = (GET_LEVEL(ch) + 5) / 6;
+	
+	if (IS_IMMORTAL(ch))
+	{
+		add_hr = 10;
+		add_dr = 5;
+	}
+	else
+	{
+		add_hr = (max_mod <= min_mod) ? min_mod : number(min_mod, max_mod);
+		add_dr = (max_mod <= min_mod) ? min_mod : number(min_mod, max_mod);
+	}
 	if (percent > prob || GET_GOD_FLAG(ch, GF_GODSCURSE))
 	{
 		act("Но только загубили $S.", FALSE, ch, obj, 0, TO_CHAR);
 		add_hr = -add_hr;
 		add_dr = -add_dr;
 	}
-
+	else
+	{
+		act("И вроде бы неплохо в итоге получилось.", FALSE, ch, obj, 0, TO_CHAR);
+	}
+	
 	obj->affected[0].location = APPLY_HITROLL;
 	obj->affected[0].modifier = add_hr;
 
