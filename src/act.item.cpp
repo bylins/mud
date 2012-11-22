@@ -2172,13 +2172,15 @@ ACMD(do_upgrade)
 	percent = number(1, skill_info[SKILL_UPGRADE].max_percent);
 	prob = train_skill(ch, SKILL_UPGRADE, skill_info[SKILL_UPGRADE].max_percent, 0);
 
-	min_mod = 1 + ch->get_trained_skill(SKILL_UPGRADE) / 90;
-	max_mod = (GET_LEVEL(ch) + 5) / 6;
+	//При 200% заточки любая шмотка будет точиться на 5 хитролов и 5 дамролов
+	min_mod = ch->get_trained_skill(SKILL_UPGRADE) / 50;
+	//С мортами все меньший уровень требуется для макс. заточки
+	max_mod = MAX(1,MIN(5,(GET_LEVEL(ch) + 5 + GET_REMORT(ch) / 4) / 6));
 	
 	if (IS_IMMORTAL(ch))
 	{
 		add_hr = 10;
-		add_dr = 5;
+		add_dr = 10;
 	}
 	else
 	{
@@ -2192,9 +2194,7 @@ ACMD(do_upgrade)
 		add_dr = -add_dr;
 	}
 	else
-	{
 		act("И вроде бы неплохо в итоге получилось.", FALSE, ch, obj, 0, TO_CHAR);
-	}
 	
 	obj->affected[0].location = APPLY_HITROLL;
 	obj->affected[0].modifier = add_hr;
