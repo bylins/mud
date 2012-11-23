@@ -2935,15 +2935,15 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 
 		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 
-		if (save_room == r_named_start_room)
+		if ((save_room == r_helled_start_room)
+			|| (save_room == r_named_start_room)
+			|| (save_room == r_unreg_start_room))
 			act("$n проводил$g $N3 мощным пинком на свободную лавку.", FALSE, recep, 0, ch, TO_ROOM);
-		else if (save_room == r_helled_start_room || save_room == r_unreg_start_room)
-			act("$n проводил$g $N3 мощным пинком на свободные нары.", FALSE, recep, 0, ch, TO_ROOM);
 		else
+		{
 			act("$n помог$q $N2 отойти ко сну.", FALSE, recep, 0, ch, TO_NOTVICT);
-		if (save_room != r_helled_start_room &&
-				save_room != r_named_start_room && save_room != r_unreg_start_room)
 			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
+		}
 		Clan::clan_invoice(ch, false);
 		extract_char(ch, FALSE);
 	}
@@ -2954,19 +2954,14 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 	}
 	else
 	{
-		if (save_room == r_named_start_room)
-			act("$N сказал$G : \"Куда же ты денешься от меня?", FALSE, ch, 0, recep, TO_CHAR);
-		else if (save_room == r_helled_start_room || save_room == r_unreg_start_room)
-			act("$N сказал$G : \"Куда же ты денешься от меня?", FALSE, ch, 0, recep, TO_CHAR);
+		if ((save_room == r_helled_start_room)
+			|| (save_room == r_named_start_room)
+			|| (save_room == r_unreg_start_room))
+			act("$N сказал$G : \"Куда же ты денешься от меня?\"", FALSE, ch, 0, recep, TO_CHAR);
 		else
 		{
 			act("$n предложил$g $N2 поселиться у н$s.", FALSE, recep, 0, ch, TO_NOTVICT);
 			act("$N сказал$G : \"Конечно, примем в любое время и почти в любом состоянии!\"", FALSE, ch, 0, recep, TO_CHAR);
-		}
-		if ((save_room != r_helled_start_room)
-			&& (save_room != r_named_start_room)
-			&& (save_room != r_unreg_start_room))
-		{
 			sprintf(buf, "%s has changed loadroom from %d to %d.", GET_NAME(ch), GET_LOADROOM(ch), GET_ROOM_VNUM(save_room));
 			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
 			mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
