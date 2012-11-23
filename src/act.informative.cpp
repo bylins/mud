@@ -1721,11 +1721,11 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	{
 		if (world[IN_ROOM(ch)]->pkPenterUnique)
 			sprintf(buf,
-					"%sЛазурная пентаграмма %sс кровавым отблеском%s переливается ярко сверкает здесь.%s\r\n",
+					"%sЛазурная пентаграмма %sс кровавым отблеском%s ярко сверкает здесь.%s\r\n",
 					CCIBLU(ch, C_NRM), CCIRED(ch, C_NRM), CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 		else
 			sprintf(buf,
-					"%sЛазурная пентаграмма переливается ярко сверкает здесь.%s\r\n",
+					"%sЛазурная пентаграмма ярко сверкает здесь.%s\r\n",
 					CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 
 		send_to_char(buf, ch);
