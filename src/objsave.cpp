@@ -2842,8 +2842,10 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 	if (!cmd && !number(0, 5))
 		return (FALSE);
 
-	if (!CMD_IS("offer") && !CMD_IS("rent") &&
-			!CMD_IS("постой") && !CMD_IS("предложение") && !CMD_IS("конец") && !CMD_IS("quit"))
+	if (!CMD_IS("offer") && !CMD_IS("предложение")
+			&& !CMD_IS("rent") && !CMD_IS("постой")
+			&& !CMD_IS("quit") && !CMD_IS("конец")
+			&& !CMD_IS("settle") && !CMD_IS("поселиться"))
 		return (FALSE);
 
 	save_room = IN_ROOM(ch);
@@ -2945,10 +2947,31 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 		Clan::clan_invoice(ch, false);
 		extract_char(ch, FALSE);
 	}
-	else
+	else if (CMD_IS("offer") || CMD_IS("предложение"))
 	{
 		Crash_offer_rent(ch, recep, TRUE, mode, &cost);
 		act("$N предложил$G $n2 остановиться у н$S.", FALSE, ch, 0, recep, TO_ROOM);
+	}
+	else
+	{
+		if (save_room == r_named_start_room)
+			act("$N сказал$G : \"Куда же ты денешься от меня?", FALSE, ch, 0, recep, TO_CHAR);
+		else if (save_room == r_helled_start_room || save_room == r_unreg_start_room)
+			act("$N сказал$G : \"Куда же ты денешься от меня?", FALSE, ch, 0, recep, TO_CHAR);
+		else
+		{
+			act("$n предложил$g $N2 поселиться у н$s.", FALSE, recep, 0, ch, TO_NOTVICT);
+			act("$N сказал$G : \"Конечно, примем в любое время и почти в любом состоянии!\"", FALSE, ch, 0, recep, TO_CHAR);
+		}
+		if ((save_room != r_helled_start_room)
+			&& (save_room != r_named_start_room)
+			&& (save_room != r_unreg_start_room))
+		{
+			sprintf(buf, "%s has changed loadroom from %d to %d.", GET_NAME(ch), GET_LOADROOM(ch), GET_ROOM_VNUM(save_room));
+			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
+			mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+			ch->save_char();
+		}
 	}
 	return (TRUE);
 }

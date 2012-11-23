@@ -647,6 +647,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"помочь", POS_FIGHTING, do_assist, 1, 0, -1},
 	{"помощь", POS_DEAD, do_help, 0, 0, 0},
 	{"пометить", POS_DEAD, do_mark, LVL_IMPL, 0, 0},
+	{"поселиться", POS_STANDING, do_not_here, 1, 0, -1},
 	{"постой", POS_STANDING, do_not_here, 1, 0, -1},
 	{"почта", POS_STANDING, do_not_here, 1, 0, -1},
 	{"появиться", POS_RESTING, do_visible, 1, 0, -1},
@@ -927,6 +928,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"send", POS_SLEEPING, do_send, LVL_GRGOD, 0, 0},
 	{"sense", POS_STANDING, do_sense, 0, 0, 500},
 	{"set", POS_DEAD, do_set, LVL_IMMORT, 0, 0},
+	{"settle", POS_STANDING, do_not_here, 1, 0, -1},
 	{"shout", POS_RESTING, do_gen_comm, 0, SCMD_SHOUT, -1},
 	{"show", POS_DEAD, do_show, LVL_IMMORT, 0, 0},
 	{"shutdown", POS_DEAD, do_shutdown, LVL_IMPL, SCMD_SHUTDOWN, 0},
@@ -1112,6 +1114,8 @@ bool check_frozen_cmd(CHAR_DATA *ch, int cmd)
 		|| !strcmp(cmd_info[cmd].command, "offer")
 		|| !strcmp(cmd_info[cmd].command, "постой")
 		|| !strcmp(cmd_info[cmd].command, "rent")
+		|| !strcmp(cmd_info[cmd].command, "поселиться")
+		|| !strcmp(cmd_info[cmd].command, "settle")
 		|| !strcmp(cmd_info[cmd].command, "ктоя")
 		|| !strcmp(cmd_info[cmd].command, "whoami")
 		|| !strcmp(cmd_info[cmd].command, "справка")

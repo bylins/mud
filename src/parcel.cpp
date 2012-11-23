@@ -246,7 +246,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 
 	if (send_buffer.empty())
 		send_buffer += "Адресат: " + name + ", отправлено:\r\n";
-
+		
 	snprintf(buf, sizeof(buf), "%s%s%s\r\n", CCWHT(ch, C_NRM), GET_OBJ_PNAME(obj, 0), CCNRM(ch, C_NRM));
 	send_buffer += buf;
 
@@ -273,11 +273,12 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 {
 	if (IS_NPC(ch)) return;
 
-	if (IS_IMMORTAL(ch))
+	/*if (IS_IMMORTAL(ch))
 	{
 		send_to_char("Не не не...\r\n" , ch);
 		return;
-	}
+	} Запрет бессмысленный, у всех есть goto на случай читерства :) */
+	
 	if (GET_UNIQUE(ch) == vict_uid)
 	{
 		act("$n сказал$g Вам : 'Не загружай понапрасну почту!'", FALSE, mailman, 0, ch, TO_VICT);
