@@ -2159,12 +2159,13 @@ ACMD(do_upgrade)
 		send_to_char(buf, ch);
 		return;
 	}
-
+	bool change_weight = 1;
 	//Заточить повторно можно, но это уменьшает таймер шмотки на 7%
 	if (OBJ_FLAGGED(obj, ITEM_SHARPEN))
 	{
 		int timer = obj->get_timer() - obj->get_timer() / 14;
 		obj->set_timer(timer);
+		change_weight = 0;
 	}
 	else
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SHARPEN), ITEM_SHARPEN);
@@ -2201,8 +2202,14 @@ ACMD(do_upgrade)
 
 	obj->affected[1].location = APPLY_DAMROLL;
 	obj->affected[1].modifier = add_dr;
-	obj->obj_flags.weight += weight;
-	IS_CARRYING_W(ch) += weight;
+
+	//Вес меняется только если шмотка еще не была заточена
+	//Также вес НЕ меняется если он уже нулевой и должен снизиться
+	if ((change_weight) && !((obj->obj_flags.weight == 0) && (weight < 0)))
+	{
+		obj->obj_flags.weight += weight;
+		IS_CARRYING_W(ch) += weight;
+	}
 //obj->obj_flags.Obj_owner  = GET_UNIQUE(ch);
 }
 
