@@ -2160,10 +2160,10 @@ ACMD(do_upgrade)
 		return;
 	}
 	bool change_weight = 1;
-	//Заточить повторно можно, но это уменьшает таймер шмотки на 7%
+	//Заточить повторно можно, но это уменьшает таймер шмотки на 16%
 	if (OBJ_FLAGGED(obj, ITEM_SHARPEN))
 	{
-		int timer = obj->get_timer() - obj->get_timer() / 14;
+		int timer = obj->get_timer() - obj->get_timer() / 6;
 		obj->set_timer(timer);
 		change_weight = 0;
 	}
