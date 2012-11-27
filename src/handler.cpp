@@ -1838,7 +1838,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	if (!IS_NPC(ch) || IS_CHARMICE(ch))
 	{
 		CHAR_DATA *master = IS_CHARMICE(ch) && ch->master ? ch->master : ch;
-		if (obj->get_mort_req() > GET_REMORT(master))
+		if ((obj->get_mort_req() > GET_REMORT(master)) && !IS_IMMORTAL(master))
 		{
 			send_to_char(master, "Для использования %s требуется %d %s.\r\n",
 					GET_OBJ_PNAME(obj, 1), obj->get_mort_req(),

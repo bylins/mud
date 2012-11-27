@@ -784,6 +784,7 @@ void replace_descs(OBJ_DATA *obj, ItemNodePtr item, int vnum)
 	obj->obj_flags.Obj_sex = item->descs[vnum].sex;
 	if (!item->descs[vnum].trigs.empty())
 		attach_triggers(obj, item->descs[vnum].trigs);
+	obj->ex_description = NULL; //Пока в конфиге нельзя указать экстраописания - убираем нафиг
 }
 
 void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType::const_iterator &shop)
