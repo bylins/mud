@@ -1285,18 +1285,24 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		{
 			strcat(buf, IS_POLY(i) ? "сражаются с " : "сражается с ");
 			if (i->in_room != i->get_fighting()->in_room)
-				strcat(buf, "чьей-то тенью ");
+				strcat(buf, "чьей-то тенью");
 			else if (i->get_fighting() == ch)
-				strcat(buf, "ВАМИ ");
+				strcat(buf, "ВАМИ");
 			else
-			{
 				strcat(buf, GET_PAD(i->get_fighting(), 4));
-				strcat(buf, " ");
-			}
-			strcat(buf, "! ");
+			if (on_horse(i))
+				sprintf(buf + strlen(buf), ", сидя верхом на %s! ", PERS(get_horse(i), ch, 5));
+			else
+				strcat(buf, "! ");
 		}
 		else		/* NIL fighting pointer */
-			strcat(buf, IS_POLY(i) ? "колотят по воздуху. " : "колотит по воздуху. ");
+		{
+			strcat(buf, IS_POLY(i) ? "колотят по воздуху" : "колотит по воздуху");
+			if (on_horse(i))
+				sprintf(buf + strlen(buf), ", сидя верхом на %s. ", PERS(get_horse(i), ch, 5));
+			else
+				strcat(buf, ". ");
+		}
 	}
 
 	if (AFF_FLAGGED(ch, AFF_DETECT_MAGIC)
