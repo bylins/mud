@@ -90,6 +90,8 @@ bool check_named(CHAR_DATA * ch, const OBJ_DATA * obj, const bool simple)
 		}
 		if(IS_NPC(ch))
 			return true;
+		if(WAITLESS(ch)) // Имм
+			return false;
 		if(it->second->uid==GET_UNIQUE(ch))//Это владелец предмета
 			return false;
 		else if(!strcmp(GET_EMAIL(ch), it->second->mail.c_str()))//Это владелец предмета судя по мылу
