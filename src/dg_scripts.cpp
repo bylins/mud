@@ -4484,6 +4484,64 @@ void calcuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *c
 	add_var_cntx(&GET_TRIG_VARS(trig), varname, uid, 0);
 }
 
+/*
+ * Поиск чаров с записью в переменную UID-а в случае онлайна человека
+ * Возвращает в указанную переменную UID первого PC, с именем которого 
+ * совпадает аргумент
+ */
+void charuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
+{
+	CHAR_DATA *tch;
+	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
+	char who[MAX_INPUT_LENGTH], uid[MAX_INPUT_LENGTH];
+	char uid_type = UID_CHAR;
+
+	int result = -1;
+
+	three_arguments(cmd, arg, varname, who);
+
+	if (!*varname)
+	{
+		sprintf(buf2, "charuid w/o an arg: '%s'", cmd);
+		trig_log(trig, buf2);
+		return;
+	}
+
+	if (!*who)
+	{
+		sprintf(buf2, "charuid name is missing: '%s'", cmd);
+		trig_log(trig, buf2);
+		return;
+	}
+
+	for (tch = character_list; tch; tch = tch->next)
+	{
+		if (IS_NPC(tch))
+			continue;
+
+		if (!HERE(tch))
+			continue;
+
+		if (*who && !isname(who, GET_NAME(tch)))
+			continue;
+
+		if (IN_ROOM(tch) != NOWHERE)
+			result = GET_ID(tch);
+	}
+	
+	
+	if (result <= -1)
+	{
+		sprintf(buf2, "charuid target not found, name: '%s'",who);
+		trig_log(trig, buf2);
+		*uid = '\0';
+		return;
+	}
+
+	sprintf(uid, "%c%d", uid_type, result);
+	add_var_cntx(&GET_TRIG_VARS(trig), varname, uid, 0);
+}
+
 /**
 * Поиск мобов для calcuidall_var.
 */
@@ -5169,6 +5227,8 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 				calcuid_var(go, sc, trig, type, cmd);
 			else if (!strn_cmp(cmd, "calcuidall ", 11))
 				calcuidall_var(go, sc, trig, type, cmd);
+			else if (!strn_cmp(cmd, "charuid ", 8))
+				charuid_var(go, sc, trig, cmd);
 			else if (!strn_cmp(cmd, "halt", 4))
 				break;
 			else if (!strn_cmp(cmd, "dg_cast ", 8))
