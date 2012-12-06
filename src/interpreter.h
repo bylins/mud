@@ -100,8 +100,8 @@ struct alias_data
 #define ALIAS_SIMPLE 0
 #define ALIAS_COMPLEX   1
 
-#define ALIAS_SEP_CHAR  ';'
-#define ALIAS_VAR_CHAR  '$'
+#define ALIAS_SEP_CHAR  '+'
+#define ALIAS_VAR_CHAR  '='
 #define ALIAS_GLOB_CHAR '*'
 
 /*
