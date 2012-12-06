@@ -3112,9 +3112,14 @@ void print_do_score_all(CHAR_DATA *ch)
 				" || %sТут Вы чувствуете себя в безопасности.                                          %s||\r\n",
 				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
+	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_SMITH) && (ch->get_skill(SKILL_INSERTGEM) || ch->get_skill(SKILL_REPAIR) || ch->get_skill(SKILL_TRANSFORMWEAPON)))
+		sprintf(buf + strlen(buf),
+				" || %sЭто место отлично подходит для занятий кузнечным делом.                         %s||\r\n",
+				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
+
 	if (has_mail(GET_IDNUM(ch)))
 		sprintf(buf + strlen(buf),
-				" || %sВас ожидает новое письмо, зайдите на почту                                      %s||\r\n",
+				" || %sВас ожидает новое письмо, зайдите на почту.                                     %s||\r\n",
 				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
 	if (ch->get_protecting())
@@ -3440,6 +3445,12 @@ ACMD(do_score)
 	else if ((IN_ROOM(ch) != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER))
 	{
 		sprintf(buf, "%sТут Вы чувствуете себя в безопасности.%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
+	}
+
+	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_SMITH) && (ch->get_skill(SKILL_INSERTGEM) || ch->get_skill(SKILL_REPAIR) || ch->get_skill(SKILL_TRANSFORMWEAPON)))
+	{
+		sprintf(buf, "%sЭто место отлично подходит для занятий кузнечным делом.%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	}
 

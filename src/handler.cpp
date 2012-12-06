@@ -233,20 +233,17 @@ bool is_wear_light(CHAR_DATA *ch)
 
 void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef)
 {
-	int light_equip = FALSE;
-	//if (!IS_NPC(ch) && !ch->desc) // а какая разница есть дескриптор у перса или нету?
-	//	return;                 // все равно пока он не вошел в игру он в NOWHERE находится
 	if (IN_ROOM(ch) == NOWHERE)
 		return;
-	//if (IS_IMMORTAL(ch))
-	//   {sprintf(buf,"%d %d %d (%d)\r\n",world[IN_ROOM(ch)]->light,world[IN_ROOM(ch)]->glight,world[IN_ROOM(ch)]->gdark,koef);
-	//    send_to_char(buf,ch);
-	//   }
-	//Polud светить должно не только то что надето для освещения, а любой источник света
-	light_equip = is_wear_light(ch);
-	//-Polud
+	
+	/*if (IS_IMMORTAL(ch))
+	{
+		sprintf(buf,"%d %d %d (%d)\r\n",world[IN_ROOM(ch)]->light,world[IN_ROOM(ch)]->glight,world[IN_ROOM(ch)]->gdark,koef);
+		send_to_char(buf,ch);
+	}*/
+	
 	// In equipment
-	if (light_equip)
+	if (is_wear_light(ch))
 	{
 		if (was_equip == LIGHT_NO)
 			world[ch->in_room]->light = MAX(0, world[ch->in_room]->light + koef);
@@ -256,7 +253,8 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 		if (was_equip == LIGHT_YES)
 			world[ch->in_room]->light = MAX(0, world[ch->in_room]->light - koef);
 	}
-	// Singleligt affect
+
+	// Singlelight affect
 	if (AFF_FLAGGED(ch, AFF_SINGLELIGHT))
 	{
 		if (was_single == LIGHT_NO)
@@ -267,7 +265,8 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 		if (was_single == LIGHT_YES)
 			world[ch->in_room]->light = MAX(0, world[ch->in_room]->light - koef);
 	}
-	// Holyligh affect
+	
+	// Holylight affect
 	if (AFF_FLAGGED(ch, AFF_HOLYLIGHT))
 	{
 		if (was_holylight == LIGHT_NO)
@@ -278,27 +277,34 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 		if (was_holylight == LIGHT_YES)
 			world[ch->in_room]->glight = MAX(0, world[ch->in_room]->glight - koef);
 	}
+	
+	/*if (IS_IMMORTAL(ch))
+	{
+		sprintf(buf,"holydark was %d\r\n",was_holydark);
+		send_to_char(buf,ch);
+	}*/
+	
 	// Holydark affect
-	// if (IS_IMMORTAL(ch))
-	//    {sprintf(buf,"holydark was %d\r\n",was_holydark);
-	//     send_to_char(buf,ch);
-	//    }
 	if (AFF_FLAGGED(ch, AFF_HOLYDARK))  	// if (IS_IMMORTAL(ch))
 	{
-		//    send_to_char("holydark on\r\n",ch);
+		/*if (IS_IMMORTAL(ch))
+			send_to_char("HOLYDARK ON\r\n",ch);*/
 		if (was_holydark == LIGHT_NO)
 			world[ch->in_room]->gdark = MAX(0, world[ch->in_room]->gdark + koef);
 	}
 	else  		// if (IS_IMMORTAL(ch))
 	{
-		//   send_to_char("HOLYDARK OFF\r\n",ch);
+		/*if (IS_IMMORTAL(ch))
+			send_to_char("HOLYDARK OFF\r\n",ch);*/
 		if (was_holydark == LIGHT_YES)
 			world[ch->in_room]->gdark = MAX(0, world[ch->in_room]->gdark - koef);
 	}
-	//if (IS_IMMORTAL(ch))
-	//   {sprintf(buf,"%d %d %d (%d)\r\n",world[IN_ROOM(ch)]->light,world[IN_ROOM(ch)]->glight,world[IN_ROOM(ch)]->gdark,koef);
-	//    send_to_char(buf,ch);
-	//   }
+
+	/*if (IS_IMMORTAL(ch))
+	{
+		sprintf(buf,"%d %d %d (%d)\r\n",world[IN_ROOM(ch)]->light,world[IN_ROOM(ch)]->glight,world[IN_ROOM(ch)]->gdark,koef);
+		send_to_char(buf,ch);
+	}*/
 }
 
 void affect_modify(CHAR_DATA * ch, byte loc, sbyte mod, bitvector_t bitv, bool add)
@@ -1192,7 +1198,7 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
 	else
 	{
-		if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA))
+		if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
 		{
 			send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 			char_to_room(ch, ch->get_from_room());
