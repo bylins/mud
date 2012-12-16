@@ -1969,7 +1969,7 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 	/*  More than 33 level - may cast always */
 	if (IS_GRGOD(caster))
 		return TRUE;
-	
+
 	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOBATTLE) && SpINFO.violent)
 		return FALSE;
 
@@ -3571,7 +3571,7 @@ ACMD(do_learn)
 
 	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && slot_for_char(ch, 1) <= 0)
 	{
-		send_to_char("Далась Вам эта магия ! Пошли-бы, водочки выпили...\r\n", ch);
+		send_to_char("Далась Вам эта магия! Пошли-бы, водочки выпили...\r\n", ch);
 		return;
 	}
 
@@ -3579,7 +3579,7 @@ ACMD(do_learn)
 			GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_FEAT &&
 			GET_OBJ_VAL(obj, 0) != BOOK_RECPT)
 	{
-		send_to_char("НЕКОРРЕКТНЫЙ УРОВЕНЬ - сообщите Богам !\r\n", ch);
+		send_to_char("НЕКОРРЕКТНЫЙ УРОВЕНЬ - сообщите Богам!\r\n", ch);
 		return;
 	}
 
@@ -3591,27 +3591,27 @@ ACMD(do_learn)
 	if ((GET_OBJ_VAL(obj, 0) == BOOK_SKILL || GET_OBJ_VAL(obj, 0) == BOOK_UPGRD)
 			&& GET_OBJ_VAL(obj, 1) < 1 && GET_OBJ_VAL(obj, 1) > MAX_SKILL_NUM)
 	{
-		send_to_char("СТИЛЬ НЕ ОПРЕДЕЛЕН - сообщите Богам !\r\n", ch);
+		send_to_char("УМЕНИЕ НЕ ОПРЕДЕЛЕНО - сообщите Богам!\r\n", ch);
 		return;
 	}
 	if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && rcpt < 0)
 	{
-		send_to_char("РЕЦЕПТ НЕ ОПРЕДЕЛЕН - сообщите Богам !\r\n", ch);
+		send_to_char("РЕЦЕПТ НЕ ОПРЕДЕЛЕН - сообщите Богам!\r\n", ch);
 		return;
 	}
-	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && (GET_OBJ_VAL(obj, 1) < 1 || GET_OBJ_VAL(obj, 1) > LAST_USED_SPELL))
+	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && (GET_OBJ_VAL(obj, 1) < 1 || GET_OBJ_VAL(obj, 1) >= LAST_USED_SPELL))
 	{
-		send_to_char("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам !\r\n", ch);
+		send_to_char("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		return;
 	}
-	if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && (GET_OBJ_VAL(obj, 1) < 1 || GET_OBJ_VAL(obj, 1) > MAX_FEATS))
+	if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && (GET_OBJ_VAL(obj, 1) < 1 || GET_OBJ_VAL(obj, 1) >= MAX_FEATS))
 	{
-		send_to_char("СПОСОБНОСТЬ НЕ ОПРЕДЕЛЕНА - сообщите Богам !\r\n", ch);
+		send_to_char("СПОСОБНОСТЬ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
 		return;
 	}
 
-	if (GET_OBJ_VAL(obj, 0) == BOOK_SKILL &&
-			skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == KNOW_SKILL)
+		//	skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == KNOW_SKILL)
+	if (GET_OBJ_VAL(obj, 0) == BOOK_SKILL && can_get_skill(ch, GET_OBJ_VAL(obj, 1)))
 	{
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = skill_info[spellnum].name;
@@ -3621,12 +3621,14 @@ ACMD(do_learn)
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = skill_info[spellnum].name;
 	}
-	else if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= LAST_USED_SPELL)
+	else if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && can_get_spell(ch, GET_OBJ_VAL(obj, 1)))
 	{
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = SpINFO.name;
 	}
-	else if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && imrecipes[rcpt].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE)
+	else if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT
+			&& imrecipes[rcpt].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE
+			&& imrecipes[rcpt].level <= GET_LEVEL(ch) && imrecipes[rcpt].remort <= GET_REMORT(ch))
 	{
 		spellnum = rcpt;
 		rs = im_get_char_rskill(ch, spellnum);
@@ -3637,7 +3639,7 @@ ACMD(do_learn)
 			return;
 		}
 	}
-	else if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) <= MAX_FEATS)
+	else if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && can_get_feat(ch, GET_OBJ_VAL(obj, 1)))
 	{
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = feat_info[spellnum].name;
@@ -3677,20 +3679,7 @@ ACMD(do_learn)
 		}
 	}
 
-	if ((GET_OBJ_VAL(obj, 2) > GET_LEVEL(ch) && GET_OBJ_VAL(obj, 0) != BOOK_UPGRD &&
-			GET_OBJ_VAL(obj, 0) != BOOK_SPELL && GET_OBJ_VAL(obj, 0) != BOOK_FEAT &&
-			GET_OBJ_VAL(obj, 0) != BOOK_RECPT) ||
-			((GET_OBJ_VAL(obj, 0) == BOOK_SKILL || GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) &&
-			 skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] != KNOW_SKILL) ||
-			(GET_OBJ_VAL(obj, 0) == BOOK_UPGRD && !ch->get_trained_skill(GET_OBJ_VAL(obj, 1))) ||
-			(GET_OBJ_VAL(obj, 0) == BOOK_SPELL &&
-			 (MIN_CAST_LEV(SpINFO, ch) > GET_LEVEL(ch) || MIN_CAST_REM(SpINFO, ch) > GET_REMORT(ch) ||
-			  slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)) ||
-			(GET_OBJ_VAL(obj, 0) == BOOK_FEAT && !can_get_feat(ch, spellnum)) ||
-			(GET_OBJ_VAL(obj, 0) == BOOK_RECPT &&
-			 (imrecipes[rcpt].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE ||
-			  imrecipes[rcpt].level > GET_LEVEL(ch) || imrecipes[rcpt].level == -1 ||
-			  imrecipes[rcpt].remort > GET_REMORT(ch) || imrecipes[rcpt].remort == -1)))
+	if (!spellnum)
 	{
 		sprintf(buf,
 				"- \"Какие интересные буковки ! Особенно %s, похожая на %s\".\r\n"

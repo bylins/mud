@@ -212,24 +212,6 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype)
 	return (0);
 }
 
-/*
-функция определяет, может ли персонаж илучить скилл
-впоследствии ее нужно будет перенести в класс "инфа о классе персонажа"
-*/
-bool can_get_skill(CHAR_DATA *ch, int skill)
-{
-	if (ch->get_remort() < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()] ||
-		(skill_info[skill].classknow[ch->get_class()][ch->get_kin()] != KNOW_SKILL))
-		return FALSE;
-	if (ch->get_level() <
-		(skill_info[skill].min_level[ch->get_class()][ch->get_kin()] -
-		(MAX(0,ch->get_remort()/skill_info[skill].level_decrement[ch->get_class()][ch->get_kin()]))))
-		return FALSE;
-
-	return TRUE;
-};
-
-
 /**** This function return chance of skill */
 int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vict)
 {
@@ -872,6 +854,29 @@ int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim)
 	}
 	return result;
 }
+
+/*
+функция определяет, может ли персонаж илучить скилл
+впоследствии ее нужно будет перенести в класс "инфа о классе персонажа"
+*/
+
+int min_skill_level(CHAR_DATA *ch, int skill)
+{
+	return {skill_info[skill].min_level[ch->get_class()][ch->get_kin()] -
+		(MAX(0,ch->get_remort()/skill_info[skill].level_decrement[ch->get_class()][ch->get_kin()]))};
+};
+
+bool can_get_skill(CHAR_DATA *ch, int skill)
+{
+	if (ch->get_remort() < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()] ||
+		(skill_info[skill].classknow[ch->get_class()][ch->get_kin()] != KNOW_SKILL))
+		return FALSE;
+	if (ch->get_level() < min_skill_level(ch, skill))
+		return FALSE;
+
+	return TRUE;
+};
+
 
 /*
     Реализация класса Skill

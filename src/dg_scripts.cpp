@@ -1620,8 +1620,8 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 }
 
 //WorM: добавил для работы can_get_spell
-extern int slot_for_char(CHAR_DATA * ch, int slot_num);
-#define SpINFO spell_info[num]
+//extern int slot_for_char(CHAR_DATA * ch, int slot_num);
+//#define SpINFO spell_info[num]
 /* sets str to be the value of var.field */
 void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 					  int type, char *var, char *field, char *subfield, char *str)
@@ -2459,11 +2459,10 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			{
 				if ((num = find_spell_num(subfield)) > 0)
 				{
-					if ((MIN_CAST_LEV(SpINFO, c) > GET_LEVEL(c) || MIN_CAST_REM(SpINFO, c) > GET_REMORT(c) ||
-			 		 slot_for_char(c, SpINFO.slot_forc[(int) GET_CLASS(c)][(int) GET_KIN(c)]) <= 0))
-						strcpy(str, "0");
-					else
+					if (can_get_spell(c, num))
 						strcpy(str, "1");
+					else
+						strcpy(str, "0");
 				}
 				else
 				{
@@ -2745,7 +2744,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			>> fatal error C1061: ограничение компилятора: недопустимая степень вложения блоков
 			Ввиду ограничения в студии в 128 elseif-ов,
-			выкидываю нигде не использовавшийся function чтоб вставить 
+			выкидываю нигде не использовавшийся function чтоб вставить
 			нужный в данный момент dispel, если кто скажет как сделать
 			по-человески - могу муторную переделку всех этих 128 пунктов
 			(то есть копипасту) взять на себя (Купала)

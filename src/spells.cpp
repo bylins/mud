@@ -52,11 +52,13 @@ extern const char *weapon_affects[];
 extern TIME_INFO_DATA time_info;
 extern int mini_mud, cmd_tell;
 extern char cast_argument[MAX_INPUT_LENGTH];
+extern int slot_for_char(CHAR_DATA * ch, int slot_num);
 // added by WorM  опознание магических ингров 2011.05.21
 extern im_type *imtypes;
 extern int top_imtypes;
 //end by WorM
 
+bool can_get_spell(CHAR_DATA *ch, int spellnum);
 void clearMemory(CHAR_DATA * ch);
 void weight_change_object(OBJ_DATA * obj, int weight);
 int compute_armor_class(CHAR_DATA * ch);
@@ -78,6 +80,15 @@ int what_sky = SKY_CLOUDLESS;
 /*
  * Special spells appear below.
  */
+
+/* Функция определяет возможность изучения спелла из книги или в гильдии */
+bool can_get_spell(CHAR_DATA *ch, int spellnum)
+{
+	if ((MIN_CAST_LEV(spell_info[spellnum], ch) > GET_LEVEL(ch) || MIN_CAST_REM(spell_info[spellnum], ch) > GET_REMORT(ch) ||
+			 		 slot_for_char(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0))
+			 		 return FALSE;
+	return TRUE;
+};
 
 ASPELL(spell_create_water)
 {
@@ -1459,7 +1470,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				drndice = GET_OBJ_VAL(obj, 1);
 				if (skill_info[drndice].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == KNOW_SKILL)
 				{
-					drsdice = GET_OBJ_VAL(obj, 2);
+					drsdice = min_skill_level(ch, drndice);
 				}
 				else
 				{
