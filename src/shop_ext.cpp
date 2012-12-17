@@ -741,7 +741,7 @@ void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 	char local_buf[MAX_INPUT_LENGTH];
 // ррррррыч
 	snprintf(local_buf, MAX_INPUT_LENGTH,
-		"%s сказал%s Вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
+		"%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
 	send_to_char(ch, "%s%s%s\r\n",
 		CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
 }
@@ -891,7 +891,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
 			"%s, я понимаю, своя ноша карман не тянет,\r\n"
-			"но %s Вам явно некуда положить.\r\n",
+			"но %s вам явно некуда положить.\r\n",
 				GET_NAME(ch),
 				obj_from_proto ? get_item_name((*shop)->item_list[item_num],
 					GET_MOB_VNUM(keeper), 3).c_str() : tmp_obj->short_description);
@@ -1008,7 +1008,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	tell_to_char(keeper, ch, buf);
 	if (obj)
 	{
-		send_to_char(ch, "Теперь Вы стали %s %s.\r\n",
+		send_to_char(ch, "Теперь вы стали %s %s.\r\n",
 			IS_MALE(ch) ? "счастливым обладателем" : "счастливой обладательницей",
 			item_count_message(obj, bought, 1).c_str());
 	}
@@ -1217,7 +1217,7 @@ void process_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 
 			if (!obj)
 			{
-				send_to_char("У Вас нет " + buffer + "!\r\n", ch);
+				send_to_char("У вас нет " + buffer + "!\r\n", ch);
 				return;
 			}
 
@@ -1249,7 +1249,7 @@ void process_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 										do_shop_cmd(ch, keeper, ch->equipment[i], shop, cmd);
 								return;
 							}
-							send_to_char("У Вас нет " + buffer2 + "!\r\n", ch);
+							send_to_char("У вас нет " + buffer2 + "!\r\n", ch);
 							return;
 						}
 
@@ -1266,7 +1266,7 @@ void process_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 						obj = get_obj_in_list_vis(ch, buffer2, ch->carrying);
 						if (!obj)
 						{
-							send_to_char("У Вас нет " + buffer2 + "!\r\n", ch);
+							send_to_char("У вас нет " + buffer2 + "!\r\n", ch);
 							return;
 						}
 						while (obj)

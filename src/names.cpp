@@ -401,7 +401,7 @@ void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 
 	if (GET_LEVEL(vict) > god_level)
 	{
-		send_to_char("А он ведь старше Вас....\r\n", ch);
+		send_to_char("А он ведь старше вас....\r\n", ch);
 		return;
 	}
 
@@ -411,13 +411,13 @@ void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 		lev = lev - 1000;
 	if (lev > god_level)
 	{
-		send_to_char("Об этом имени уже позаботился бог старше Вас.\r\n", ch);
+		send_to_char("Об этом имени уже позаботился бог старше вас.\r\n", ch);
 		return;
 	}
 
 	if (lev == god_level)
 		if (NAME_ID_GOD(vict) != GET_IDNUM(ch))
-			send_to_char("Об этом имени уже позаботился другой бог Вашего уровня.\r\n", ch);
+			send_to_char("Об этом имени уже позаботился другой бог вашего уровня.\r\n", ch);
 
 	if (action == NAME_AGREE)
 	{

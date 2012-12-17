@@ -200,7 +200,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 	{
 		send_to_char(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
 					 " Зеленым цветом выделены уже изученные способности.\r\n"
-					 " Красным цветом выделены способности, недоступные Вам в настоящий момент.\r\n"
+					 " Красным цветом выделены способности, недоступные вам в настоящий момент.\r\n"
 					 "\r\n Способность\r\n", vict);
 		for (sortpos = 1; sortpos < MAX_FEATS; sortpos++)
 		{
@@ -509,7 +509,7 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 		}
 	}
 	else
-		gcount += sprintf(buf2 + gcount, "\r\nВ настоящее время магия Вам недоступна !");
+		gcount += sprintf(buf2 + gcount, "\r\nВ настоящее время магия вам недоступна !");
 	gcount += sprintf(buf2 + gcount, "\r\n");
 	//page_string(ch->desc, buf2, 1);
 	send_to_char(buf2, vict);
@@ -876,7 +876,7 @@ SPECIAL(guild_mono)
 			{
 				if ((guild_mono_info[info_num].learn_info + i)->level > GET_LEVEL(ch))
 					continue;
-				if ((skill_no = bits = (guild_mono_info[info_num].learn_info + i)->skill_no) > 0 && !ch->get_skill(skill_no))  	// sprintf(buf, "$N научил$G Вас умению %s\"%s\"\%s",
+				if ((skill_no = bits = (guild_mono_info[info_num].learn_info + i)->skill_no) > 0 && !ch->get_skill(skill_no))  	// sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
 				{
 					//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 					// act(buf,FALSE,ch,0,victim,TO_CHAR);
@@ -888,7 +888,7 @@ SPECIAL(guild_mono)
 				if ((skill_no = (guild_mono_info[info_num].learn_info + i)->spell_no)
 						&& !((GET_SPELL_TYPE(ch, skill_no) & bits) == bits))
 				{
-					gcount += sprintf(buf, "$N научил$G Вас магии %s\"%s\"%s",
+					gcount += sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
 									  CCCYN(ch, C_NRM), spell_name(skill_no), CCNRM(ch, C_NRM));
 					act(buf, FALSE, ch, 0, victim, TO_CHAR);
 					if (IS_SET(bits, SPELL_KNOW))
@@ -925,7 +925,7 @@ SPECIAL(guild_mono)
 					"'$n, к сожалению, это может сильно затруднить твое постижение умений.'\r\n"
 					"'Выбери лишь самые необходимые тебе умения.'", FALSE, ch, 0, victim, TO_CHAR);
 			if (!found)
-				act("$N ничему новому Вас не научил$G.", FALSE, ch, 0, victim, TO_CHAR);
+				act("$N ничему новому вас не научил$G.", FALSE, ch, 0, victim, TO_CHAR);
 			return (1);
 		}
 
@@ -938,14 +938,14 @@ SPECIAL(guild_mono)
 				if (skill_no == (guild_mono_info[info_num].learn_info + i)->feat_no)
 				{
 					if (HAVE_FEAT(ch, skill_no))
-						act("$N сказал$g Вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'", FALSE, ch, 0, victim, TO_CHAR);
+						act("$N сказал$g вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'", FALSE, ch, 0, victim, TO_CHAR);
 					else if (!can_get_feat(ch, skill_no))
 					{
 						act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
 					}
 					else
 					{
-						sprintf(buf, "$N научил$G Вас способности %s\"%s\"%s",
+						sprintf(buf, "$N научил$G вас способности %s\"%s\"%s",
 								CCCYN(ch, C_NRM), feat_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						SET_FEAT(ch, skill_no);
@@ -967,14 +967,14 @@ SPECIAL(guild_mono)
 				if (skill_no == (guild_mono_info[info_num].learn_info + i)->skill_no)
 				{
 					if (ch->get_skill(skill_no))
-						act("$N сказал$g Вам : 'Ничем помочь не могу, ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
+						act("$N сказал$g вам : 'Ничем помочь не могу, ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
 					else if (!can_get_skill(ch, skill_no))
 					{
 						act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
 					}
 					else
 					{
-						sprintf(buf, "$N научил$G Вас умению %s\"%s\"%s",
+						sprintf(buf, "$N научил$G вас умению %s\"%s\"%s",
 								CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						ch->set_skill(skill_no, 10);
@@ -1026,7 +1026,7 @@ SPECIAL(guild_mono)
 					}
 					else
 					{
-						sprintf(buf, "$N научил$G Вас магии %s\"%s\"%s",
+						sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
 								CCCYN(ch, C_NRM), spell_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						if (IS_SET(bits, SPELL_KNOW))
@@ -1059,7 +1059,7 @@ SPECIAL(guild_mono)
 			return (1);
 		}
 
-		act("$N сказал$G Вам : 'Я никогда и никого этому не учил$G.'", FALSE, ch, 0, victim, TO_CHAR);
+		act("$N сказал$G вам : 'Я никогда и никого этому не учил$G.'", FALSE, ch, 0, victim, TO_CHAR);
 		return (1);
 	}
 	return (0);
@@ -1155,7 +1155,7 @@ SPECIAL(guild_poly)
 						|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch)))
 					continue;
 
-				if ((skill_no = bits = (guild_poly_info[info_num] + i)->skill_no) > 0 && !ch->get_skill(skill_no))  	// sprintf(buf, "$N научил$G Вас умению %s\"%s\"\%s",
+				if ((skill_no = bits = (guild_poly_info[info_num] + i)->skill_no) > 0 && !ch->get_skill(skill_no))  	// sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
 				{
 					//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 					// act(buf,FALSE,ch,0,victim,TO_CHAR);
@@ -1173,7 +1173,7 @@ SPECIAL(guild_poly)
 				if ((skill_no = (guild_poly_info[info_num] + i)->spell_no) &&
 						!((GET_SPELL_TYPE(ch, skill_no) & bits) == bits))
 				{
-					gcount += sprintf(buf, "$N научил$G Вас магии %s\"%s\"%s",
+					gcount += sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
 									  CCCYN(ch, C_NRM), spell_name(skill_no), CCNRM(ch, C_NRM));
 					act(buf, FALSE, ch, 0, victim, TO_CHAR);
 
@@ -1206,7 +1206,7 @@ SPECIAL(guild_poly)
 					"'$n, к сожалению, это может сильно затруднить твое постижение умений.'\r\n"
 					"'Выбери лишь самые необходимые тебе умения.'", FALSE, ch, 0, victim, TO_CHAR);
 			if (!found)
-				act("$N ничему новому Вас не научил$G.", FALSE, ch, 0, victim, TO_CHAR);
+				act("$N ничему новому вас не научил$G.", FALSE, ch, 0, victim, TO_CHAR);
 			return (1);
 		}
 
@@ -1223,14 +1223,14 @@ SPECIAL(guild_poly)
 				if (skill_no == (guild_poly_info[info_num] + i)->skill_no)
 				{
 					if (ch->get_skill(skill_no))
-						act("$N сказал$G Вам : 'Ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
+						act("$N сказал$G вам : 'Ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
 					else if (!can_get_skill(ch, skill_no))
 					{
 						act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
 					}
 					else
 					{
-						sprintf(buf, "$N научил$G Вас умению %s\"%s\"%s",
+						sprintf(buf, "$N научил$G вас умению %s\"%s\"%s",
 								CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						ch->set_skill(skill_no, 10);
@@ -1259,14 +1259,14 @@ SPECIAL(guild_poly)
 				if (skill_no == (guild_poly_info[info_num] + i)->feat_no)
 				{
 					if (HAVE_FEAT(ch, skill_no))
-						act("$N сказал$G Вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'", FALSE, ch, 0, victim, TO_CHAR);
+						act("$N сказал$G вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'", FALSE, ch, 0, victim, TO_CHAR);
 					else if (!can_get_feat(ch, skill_no))
 					{
 						act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
 					}
 					else
 					{
-						sprintf(buf, "$N научил$G Вас способности %s\"%s\"%s",
+						sprintf(buf, "$N научил$G вас способности %s\"%s\"%s",
 								CCCYN(ch, C_NRM), feat_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						SET_FEAT(ch, skill_no);
@@ -1324,7 +1324,7 @@ SPECIAL(guild_poly)
 					}
 					else
 					{
-						sprintf(buf, "$N научил$G Вас магии %s\"%s\"%s",
+						sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
 								CCCYN(ch, C_NRM), spell_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						if (IS_SET(bits, SPELL_KNOW))
@@ -1360,7 +1360,7 @@ SPECIAL(guild_poly)
 			else return (1);
 		}
 
-		act("$N сказал$G Вам : 'Я никогда и никого этому не учил$G.'", FALSE, ch, 0, victim, TO_CHAR);
+		act("$N сказал$G вам : 'Я никогда и никого этому не учил$G.'", FALSE, ch, 0, victim, TO_CHAR);
 		return (1);
 	}
 	return (0);
@@ -1379,7 +1379,7 @@ SPECIAL(horse_keeper)
 
 	if (ch->is_morphed())
 	{
-		send_to_char("Лошадка испугается Вас в таком виде... \r\n", ch);
+		send_to_char("Лошадка испугается вас в таком виде... \r\n", ch);
 		return (TRUE);
 	}
 
@@ -1420,7 +1420,7 @@ SPECIAL(horse_keeper)
 		}
 		make_horse(horse, ch);
 		char_to_room(horse, IN_ROOM(ch));
-		sprintf(buf, "$N оседлал$G %s и отдал$G %s Вам.", GET_PAD(horse, 3), HSHR(horse));
+		sprintf(buf, "$N оседлал$G %s и отдал$G %s вам.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, FALSE, ch, 0, victim, TO_CHAR);
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s $n2.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, FALSE, ch, 0, victim, TO_ROOM);
@@ -2379,7 +2379,7 @@ SPECIAL(dump)
 
 	if (value)
 	{
-		send_to_char("Боги оценили Вашу жертву.\r\n", ch);
+		send_to_char("Боги оценили вашу жертву.\r\n", ch);
 		act("$n оценен$y Богами.", TRUE, ch, 0, 0, TO_ROOM);
 		if (GET_LEVEL(ch) < 3)
 			gain_exp(ch, value);
@@ -2608,7 +2608,7 @@ SPECIAL(guild_guard)
 {
 	int i;
 	CHAR_DATA *guard = (CHAR_DATA *) me;
-	const char *buf = "Охранник остановил Вас, преградив дорогу.\r\n";
+	const char *buf = "Охранник остановил вас, преградив дорогу.\r\n";
 	const char *buf2 = "Охранник остановил $n, преградив $m дорогу.";
 
 	if (!IS_MOVE(cmd) || AFF_FLAGGED(guard, AFF_BLIND)
@@ -2845,10 +2845,10 @@ SPECIAL(bank)
 	if (CMD_IS("balance") || CMD_IS("баланс") || CMD_IS("сальдо"))
 	{
 		if (ch->get_bank() > 0)
-			sprintf(buf, "У Вас на счету %ld %s.\r\n",
+			sprintf(buf, "У вас на счету %ld %s.\r\n",
 					ch->get_bank(), desc_count(ch->get_bank(), WHAT_MONEYa));
 		else
-			sprintf(buf, "У Вас нет денег.\r\n");
+			sprintf(buf, "У вас нет денег.\r\n");
 		send_to_char(buf, ch);
 		return (1);
 	}
@@ -2856,12 +2856,12 @@ SPECIAL(bank)
 	{
 		if ((amount = atoi(argument)) <= 0)
 		{
-			send_to_char("Сколько Вы хотите вложить ?\r\n", ch);
+			send_to_char("Сколько вы хотите вложить ?\r\n", ch);
 			return (1);
 		}
 		if (ch->get_gold() < amount)
 		{
-			send_to_char("О такой сумме Вы можете только мечтать !\r\n", ch);
+			send_to_char("О такой сумме вы можете только мечтать !\r\n", ch);
 			return (1);
 		}
 		ch->remove_gold(amount, false);
@@ -2875,12 +2875,12 @@ SPECIAL(bank)
 	{
 		if ((amount = atoi(argument)) <= 0)
 		{
-			send_to_char("Уточните количество денег, которые Вы хотите получить ?\r\n", ch);
+			send_to_char("Уточните количество денег, которые вы хотите получить ?\r\n", ch);
 			return (1);
 		}
 		if (ch->get_bank() < amount)
 		{
-			send_to_char("Да Вы отродясь столько денег не видели !\r\n", ch);
+			send_to_char("Да вы отродясь столько денег не видели !\r\n", ch);
 			return (1);
 		}
 		ch->add_gold(amount, false);
@@ -2907,7 +2907,7 @@ SPECIAL(bank)
 		}
 		if (amount <= 0)
 		{
-			send_to_char("Уточните количество денег, которые Вы хотите получить ?\r\n", ch);
+			send_to_char("Уточните количество денег, которые вы хотите получить?\r\n", ch);
 			return (1);
 		}
 		if (amount <= 100)
@@ -2918,7 +2918,7 @@ SPECIAL(bank)
 
 		if (ch->get_bank() < amount)
 		{
-			send_to_char("Да Вы отродясь столько денег не видели !\r\n", ch);
+			send_to_char("Да вы отродясь столько денег не видели !\r\n", ch);
 			return (1);
 		}
 		if (ch->get_bank() < amount + ((amount * 5) / 100))

@@ -479,7 +479,7 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 				SCRIPT(obj) = NULL;
 				obj_decay(obj);
 
-				act("$n дал$g Вам $o3.", FALSE, mailman, obj, ch, TO_VICT);
+				act("$n дал$g вам $o3.", FALSE, mailman, obj, ch, TO_VICT);
 				act("$N дал$G $n2 $o3.", FALSE, ch, obj, mailman, TO_ROOM);
 			}
 			else
@@ -497,9 +497,9 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 	}
 	if(!found) {
 		if(!in_world)
-			act("$n сказал$g Вам : 'Кажется для тебя ничего нет'", FALSE, mailman, 0, ch, TO_VICT);
+			act("$n сказал$g вам : 'Кажется для тебя ничего нет'", FALSE, mailman, 0, ch, TO_VICT);
 		else
-			act("$n сказал$g Вам : 'Забрал кто-то твои вещи'", FALSE, mailman, 0, ch, TO_VICT);
+			act("$n сказал$g вам : 'Забрал кто-то твои вещи'", FALSE, mailman, 0, ch, TO_VICT);
 	}
 	set_wait(ch, 3, FALSE);
 }

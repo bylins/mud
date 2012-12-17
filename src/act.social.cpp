@@ -86,7 +86,7 @@ int do_social(CHAR_DATA * ch, char *argument)
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
-		send_to_char("Боги наказали Вас и Вы не можете выражать эмоции!\r\n", ch);
+		send_to_char("Боги наказали вас и вы не можете выражать эмоции!\r\n", ch);
 		return (FALSE);
 	}
 
@@ -141,7 +141,7 @@ int do_social(CHAR_DATA * ch, char *argument)
 	else
 	{
 		if (GET_POS(vict) < action->vict_min_pos || GET_POS(vict) > action->vict_max_pos)
-			act("$N2 сейчас, похоже, не до Вас.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+			act("$N2 сейчас, похоже, не до вас.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		else
 		{
 			act(action->char_found, 0, ch, 0, vict, TO_CHAR | TO_SLEEP);
@@ -171,13 +171,13 @@ ACMD(do_insult)
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
-		send_to_char("Боги наказали Вас и Вы не можете выражать эмоции!\r\n", ch);
+		send_to_char("Боги наказали вас и вы не можете выражать эмоции!\r\n", ch);
 		return;
 	}
 	if (*arg)
 	{
 		if (!(victim = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
-			send_to_char("&KА он Вас и не услышит :(&n\r\n", ch);
+			send_to_char("&KА он вас и не услышит :(&n\r\n", ch);
 		else
 		{
 			if (victim != ch)
@@ -191,7 +191,7 @@ ACMD(do_insult)
 					if (IS_MALE(ch))
 					{
 						if (IS_MALE(victim))
-							act("&K$n высмеял$g Вашу манеру держать меч !&n",
+							act("&K$n высмеял$g вашу манеру держать меч !&n",
 								FALSE, ch, 0, victim, TO_VICT);
 						else
 							act("&K$n заявил$g, что удел любой женщины - дети, кухня и церковь.&n", FALSE, ch, 0, victim, TO_VICT);
@@ -199,17 +199,17 @@ ACMD(do_insult)
 					else  	/* Ch == Woman */
 					{
 						if (IS_MALE(victim))
-							act("&K$n заявил$g Вам, что у н$s больше... (что $e имел$g в виду ?)&n", FALSE, ch, 0, victim, TO_VICT);
+							act("&K$n заявил$g вам, что у н$s больше... (что $e имел$g в виду ?)&n", FALSE, ch, 0, victim, TO_VICT);
 						else
-							act("&K$n обьявил$g всем о Вашем близком родстве с Бабой-Ягой.&n", FALSE, ch, 0, victim, TO_VICT);
+							act("&K$n обьявил$g всем о вашем близком родстве с Бабой-Ягой.&n", FALSE, ch, 0, victim, TO_VICT);
 					}
 					break;
 				case 1:
-					act("&K$n1 чем-то не удовлетворила Ваша мама!&n", FALSE,
+					act("&K$n1 чем-то не удовлетворила ваша мама!&n", FALSE,
 						ch, 0, victim, TO_VICT);
 					break;
 				default:
-					act("&K$n предложил$g Вам посетить ближайший хутор !\r\n"
+					act("&K$n предложил$g вам посетить ближайший хутор!\r\n"
 						"$e заявил$g, что там обитают на редкость крупные бабочки.&n",
 						FALSE, ch, 0, victim, TO_VICT);
 					break;
@@ -224,7 +224,7 @@ ACMD(do_insult)
 		}
 	}
 	else
-		send_to_char("&KВы уверены, что стоит оскорблять такими словами всех ?&n\r\n", ch);
+		send_to_char("&KВы уверены, что стоит оскорблять такими словами всех?&n\r\n", ch);
 }
 
 char *str_dup_bl(const char *source)

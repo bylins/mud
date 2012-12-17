@@ -1106,7 +1106,7 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 	if (!ch->get_bank() && !ch->get_gold())
 	{
 		send_to_char(ch,
-					 "У Вас ведь совсем нет денег, чем Вы собираетесь расплачиваться за хранение вещей?\r\n",
+					 "У вас ведь совсем нет денег, чем вы собираетесь расплачиваться за хранение вещей?\r\n",
 					 OBJ_PAD(obj, 5));
 		return 0;
 	}
@@ -1150,7 +1150,7 @@ void take_depot(CHAR_DATA *vict, char *arg, int howmany)
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(vict));
 	if (it == depot_list.end())
 	{
-		send_to_char("В данный момент Ваше хранилище абсолютно пусто.\r\n", vict);
+		send_to_char("В данный момент ваше хранилище абсолютно пусто.\r\n", vict);
 		return;
 	}
 
@@ -1398,7 +1398,7 @@ void enter_char(CHAR_DATA *ch)
 		// снимаем бабло, если что-то было потрачено на ренту
 		if (it->second.money_spend > 0)
 		{
-			send_to_char(ch, "%sХранилище: за время Вашего отсутствия удержано %d %s.%s\r\n\r\n",
+			send_to_char(ch, "%sХранилище: за время вашего отсутствия удержано %d %s.%s\r\n\r\n",
 					CCWHT(ch, C_NRM), it->second.money_spend,
 					desc_count(it->second.money_spend, WHAT_MONEYa), CCNRM(ch, C_NRM));
 
@@ -1666,7 +1666,7 @@ int report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep)
 			if (SetSystem::is_norent_set(ch, *obj_it))
 			{
 				snprintf(buf, MAX_STRING_LENGTH,
-					"$n сказал$g Вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
+					"$n сказал$g вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
 					OBJN(*obj_it, ch, 3));
 				act(buf, FALSE, recep, 0, ch, TO_VICT);
 				return 1;

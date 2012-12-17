@@ -792,7 +792,7 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 								C_NRM));
 			else
 				sprintf(buf,
-						"%sПоняв свои ошибки, Вы повысили уровень умения \"%s\".%s\r\n",
+						"%sПоняв свои ошибки, вы повысили уровень умения \"%s\".%s\r\n",
 						CCICYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch,
 								C_NRM));
 			send_to_char(buf, ch);

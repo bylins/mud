@@ -1847,7 +1847,7 @@ int Crash_load(CHAR_DATA * ch)
 		sprintf(buf, "SYSERR: %s entering game with undefined rent code %d.", GET_NAME(ch), RENTCODE(index));
 		mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 		send_to_char("\r\n** Неизвестный код ренты **\r\n"
-					 "Проблемы с восстановлением Ваших вещей из файла.\r\n"
+					 "Проблемы с восстановлением ваших вещей из файла.\r\n"
 					 "Обращайтесь за помощью к Богам.\r\n", ch);
 		Crash_clear_objects(index);
 		return (1);
@@ -1888,7 +1888,7 @@ int Crash_load(CHAR_DATA * ch)
 		sprintf(buf, "%sВы находились на постое %1.2f дней.\n\r"
 				"%s"
 				"Вам предъявили счет на %d %s за постой (%d %s в день).\r\n"
-				"Но все, что у Вас было - %ld %s... Увы. Все Ваши вещи переданы мобам.%s\n\r",
+				"Но все, что у вас было - %ld %s... Увы. Все ваши вещи переданы мобам.%s\n\r",
 				CCWHT(ch, C_NRM),
 				num_of_days,
 				RENTCODE(index) ==
@@ -1913,7 +1913,7 @@ int Crash_load(CHAR_DATA * ch)
 		{
 			sprintf(buf, "%sВы находились на постое %1.2f дней.\n\r"
 					"%s"
-					"С Вас содрали %d %s за постой (%d %s в день).%s\r\n",
+					"С вас содрали %d %s за постой (%d %s в день).%s\r\n",
 					CCWHT(ch, C_NRM),
 					num_of_days,
 					RENTCODE(index) ==
@@ -1931,7 +1931,7 @@ int Crash_load(CHAR_DATA * ch)
 	if (!get_filename(GET_NAME(ch), fname, TEXT_CRASH_FILE) || !(fl = fopen(fname, "r+b")))
 	{
 		send_to_char("\r\n** Нет файла описания вещей **\r\n"
-					 "Проблемы с восстановлением Ваших вещей из файла.\r\n"
+					 "Проблемы с восстановлением ваших вещей из файла.\r\n"
 					 "Обращайтесь за помощью к Богам.\r\n", ch);
 		Crash_clear_objects(index);
 		return (1);
@@ -1942,7 +1942,7 @@ int Crash_load(CHAR_DATA * ch)
 	{
 		fclose(fl);
 		send_to_char("\r\n** Файл описания вещей пустой **\r\n"
-					 "Проблемы с восстановлением Ваших вещей из файла.\r\n"
+					 "Проблемы с восстановлением ваших вещей из файла.\r\n"
 					 "Обращайтесь за помощью к Богам.\r\n", ch);
 		Crash_clear_objects(index);
 		return (1);
@@ -1955,7 +1955,7 @@ int Crash_load(CHAR_DATA * ch)
 		fclose(fl);
 		FileCRC::check_crc(fname, FileCRC::TEXTOBJS, GET_UNIQUE(ch));
 		send_to_char("\r\n** Ошибка чтения файла описания вещей **\r\n"
-					 "Проблемы с восстановлением Ваших вещей из файла.\r\n"
+					 "Проблемы с восстановлением ваших вещей из файла.\r\n"
 					 "Обращайтесь за помощью к Богам.\r\n", ch);
 		log("Memory error or cann't read %s(%d)...", fname, fsize);
 		free(readdata);
@@ -2052,7 +2052,7 @@ int Crash_load(CHAR_DATA * ch)
 		// Check valid class
 		if (invalid_anti_class(ch, obj) || invalid_unique(ch, obj) || NamedStuff::check_named(ch, obj, 0))
 		{
-			sprintf(buf, "%s рассыпал%s, как запрещенн%s для Вас.\r\n",
+			sprintf(buf, "%s рассыпал%s, как запрещенн%s для вас.\r\n",
 					CAP(obj->PNames[0]), GET_OBJ_SUF_2(obj), GET_OBJ_SUF_3(obj));
 			send_to_char(buf, ch);
 			extract_obj(obj);
@@ -2555,7 +2555,7 @@ void Crash_rent_deadline(CHAR_DATA * ch, CHAR_DATA * recep, long cost)
 		return;
 	}
 
-	act("$n сказал$g Вам :\r\n", FALSE, recep, 0, ch, TO_VICT);
+	act("$n сказал$g вам :\r\n", FALSE, recep, 0, ch, TO_VICT);
 
 	int depot_cost = Depot::get_total_cost_per_day(ch);
 	if (depot_cost)
@@ -2582,13 +2582,13 @@ int Crash_report_unrentables(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj)
 			if (SetSystem::is_norent_set(ch, obj))
 			{
 				snprintf(buf, sizeof(buf),
-						"$n сказал$g Вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
+						"$n сказал$g вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
 						OBJN(obj, ch, 3));
 			}
 			else
 			{
 				snprintf(buf, sizeof(buf),
-						"$n сказал$g Вам : \"Я не приму на постой %s.\"", OBJN(obj, ch, 3));
+						"$n сказал$g вам : \"Я не приму на постой %s.\"", OBJN(obj, ch, 3));
 			}
 			act(buf, FALSE, recep, 0, ch, TO_VICT);
 		}
@@ -2686,9 +2686,9 @@ void Crash_report_rent(CHAR_DATA * ch, CHAR_DATA * recep, OBJ_DATA * obj, int *c
 					if (*nitems == 1)
 					{
 						if (!recursive)
-							act("$n сказал$g Вам : \"Одет$W спать будешь? Хм.. Ну смотри, тогда дешевле возьму\"", FALSE, recep, 0, ch, TO_VICT);
+							act("$n сказал$g вам : \"Одет$W спать будешь? Хм.. Ну смотри, тогда дешевле возьму\"", FALSE, recep, 0, ch, TO_VICT);
 						else
-							act("$n сказал$g Вам : \"Это я в чулане запру:\"", FALSE,
+							act("$n сказал$g вам : \"Это я в чулане запру:\"", FALSE,
 								recep, 0, ch, TO_VICT);
 					}
 					if (!push)
@@ -2770,15 +2770,15 @@ int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int 
 
 	if (!numitems)
 	{
-		act("$n сказал$g Вам : \"Но у тебя ведь ничего нет ! Просто набери \"конец\" !\"",
+		act("$n сказал$g вам : \"Но у тебя ведь ничего нет ! Просто набери \"конец\" !\"",
 			FALSE, receptionist, 0, ch, TO_VICT);
 		return (FALSE);
 	}
 	if (numitems > MAX_SAVED_ITEMS)
 	{
 		sprintf(buf,
-				"$n сказал$g Вам : \"Извините, но я не могу хранить больше %d предметов.\"\r\n"
-				"$n сказал$g Вам : \"В данный момент их у Вас %ld.\"", MAX_SAVED_ITEMS, numitems);
+				"$n сказал$g вам : \"Извините, но я не могу хранить больше %d предметов.\"\r\n"
+				"$n сказал$g вам : \"В данный момент их у вас %ld.\"", MAX_SAVED_ITEMS, numitems);
 		act(buf, FALSE, receptionist, 0, ch, TO_VICT);
 		return (FALSE);
 	}
@@ -2794,12 +2794,12 @@ int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int 
 		if (min_rent_cost(ch) > 0)
 		{
 			sprintf(buf,
-					"$n сказал$g Вам : \"И еще %d %s мне на сбитень с медовухой :)\"",
+					"$n сказал$g вам : \"И еще %d %s мне на сбитень с медовухой :)\"",
 					min_rent_cost(ch) * factor, desc_count(min_rent_cost(ch) * factor, WHAT_MONEYu));
 			act(buf, FALSE, receptionist, 0, ch, TO_VICT);
 		}
 
-		sprintf(buf, "$n сказал$g Вам : \"В сумме это составит %d %s %s.\"",
+		sprintf(buf, "$n сказал$g вам : \"В сумме это составит %d %s %s.\"",
 			*totalcost, desc_count(*totalcost, WHAT_MONEYu),
 				(factor == RENT_FACTOR ? "в день " : ""));
 		act(buf, FALSE, receptionist, 0, ch, TO_VICT);
@@ -2813,7 +2813,7 @@ int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int 
 		*totalcost = MAX(0, *totalcost / divide);
 		if (divide == 2)
 		{
-			act("$n сказал$g Вам : \"Так уж и быть, я скощу тебе половину.\"",
+			act("$n сказал$g вам : \"Так уж и быть, я скощу тебе половину.\"",
 				FALSE, receptionist, 0, ch, TO_VICT);
 		}
 
@@ -2860,7 +2860,7 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 
 	if (!AWAKE(recep))
 	{
-		sprintf(buf, "%s не в состоянии говорить с Вами...\r\n", HSSH(recep));
+		sprintf(buf, "%s не в состоянии говорить с вами...\r\n", HSSH(recep));
 		send_to_char(buf, ch);
 		return (TRUE);
 	}
@@ -2885,7 +2885,7 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 	}
 	if (free_rent)
 	{
-		act("$n сказал$g Вам : \"Сегодня спим нахаляву.  Наберите просто \"конец\".\"",
+		act("$n сказал$g вам : \"Сегодня спим нахаляву.  Наберите просто \"конец\".\"",
 			FALSE, recep, 0, ch, TO_VICT);
 		return (1);
 	}
@@ -2898,17 +2898,17 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 		{
 			if (mode == RENT_FACTOR)
 				sprintf(buf,
-						"$n сказал$g Вам : \"Дневной постой обойдется тебе в %d %s.\"",
+						"$n сказал$g вам : \"Дневной постой обойдется тебе в %d %s.\"",
 						cost, desc_count(cost, WHAT_MONEYu));
 			else if (mode == CRYO_FACTOR)
 				sprintf(buf,
-						"$n сказал$g Вам : \"Дневной постой обойдется тебе в %d %s (за пользование холодильником :)\"",
+						"$n сказал$g вам : \"Дневной постой обойдется тебе в %d %s (за пользование холодильником :)\"",
 						cost, desc_count(cost, WHAT_MONEYu));
 			act(buf, FALSE, recep, 0, ch, TO_VICT);
 
 			if (cost > ch->get_gold() + ch->get_bank())
 			{
-				act("$n сказал$g Вам : '..но такой голытьбе, как ты, это не по карману.'",
+				act("$n сказал$g вам : '..но такой голытьбе, как ты, это не по карману.'",
 					FALSE, recep, 0, ch, TO_VICT);
 				return (TRUE);
 			}
@@ -2918,16 +2918,16 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 
 		if (mode == RENT_FACTOR)
 		{
-			act("$n запер$q Ваши вещи в сундук и повел$g в тесную каморку.", FALSE, recep, 0, ch, TO_VICT);
+			act("$n запер$q ваши вещи в сундук и повел$g в тесную каморку.", FALSE, recep, 0, ch, TO_VICT);
 			Crash_rentsave(ch, cost);
 			sprintf(buf, "%s has rented (%d/day, %ld tot.)",
 					GET_NAME(ch), cost, ch->get_gold() + ch->get_bank());
 		}
 		else  	/* cryo */
 		{
-			act("$n запер$q Ваши вещи в сундук и повел$g в тесную каморку.\r\n"
-				"Белый призрак появился в комнате, обдав Вас холодом...\r\n"
-				"Вы потеряли связь с окружающими Вас...", FALSE, recep, 0, ch, TO_VICT);
+			act("$n запер$q ваши вещи в сундук и повел$g в тесную каморку.\r\n"
+				"Белый призрак появился в комнате, обдав вас холодом...\r\n"
+				"Вы потеряли связь с окружающими вас...", FALSE, recep, 0, ch, TO_VICT);
 			Crash_cryosave(ch, cost);
 			sprintf(buf, "%s has cryo-rented.", GET_NAME(ch));
 			SET_BIT(PLR_FLAGS(ch, PLR_CRYO), PLR_CRYO);

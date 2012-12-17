@@ -851,7 +851,7 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 	{
 	case POS_MORTALLYW:
 		act("$n смертельно ранен$a и умрет, если $m не помогут.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		send_to_char("Вы смертельно ранены и умрете, если Вам не помогут.\r\n", victim);
+		send_to_char("Вы смертельно ранены и умрете, если вам не помогут.\r\n", victim);
 		break;
 	case POS_INCAP:
 		act("$n без сознания и медленно умирает. Помогите же $m.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -859,28 +859,28 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 		break;
 	case POS_STUNNED:
 		act("$n без сознания, но возможно $e еще повоюет (попозже :).", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		send_to_char("Сознание покинуло Вас. В битве от Вас пока проку мало.\r\n", victim);
+		send_to_char("Сознание покинуло вас. В битве от вас пока проку мало.\r\n", victim);
 		break;
 	case POS_DEAD:
 		if (IS_NPC(victim) && (MOB_FLAGGED(victim, MOB_CORPSE)))
 		{
 			act("$n вспыхнул$g и рассыпал$u в прах.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			send_to_char("Похоже Вас убили и даже тела не оставили !\r\n", victim);
+			send_to_char("Похоже вас убили и даже тела не оставили !\r\n", victim);
 		}
 		else
 		{
 			act("$n мертв$a, $s душа медленно подымается в небеса.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			send_to_char("Вы мертвы!  Нам очень жаль...\r\n", victim);
+			send_to_char("Вы мертвы! Нам очень жаль...\r\n", victim);
 		}
 		break;
 	default:		/* >= POSITION SLEEPING */
 		if (dam > (GET_REAL_MAX_HIT(victim) / 4))
-			send_to_char("Это действительно БОЛЬНО !\r\n", victim);
+			send_to_char("Это действительно БОЛЬНО!\r\n", victim);
 
 		if (dam > 0 && GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4))
 		{
 			sprintf(buf2,
-					"%s Вы желаете, чтобы Ваши раны не кровоточили так сильно ! %s\r\n",
+					"%s Вы желаете, чтобы ваши раны не кровоточили так сильно! %s\r\n",
 					CCRED(victim, C_SPR), CCNRM(victim, C_SPR));
 			send_to_char(buf2, victim);
 		}
@@ -896,7 +896,7 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 				GET_WIMP_LEV(victim) &&
 				GET_HIT(victim) < GET_WIMP_LEV(victim) && !noflee && GET_POS(victim) > POS_SITTING)
 		{
-			send_to_char("Вы запаниковали и попытались убежать !\r\n", victim);
+			send_to_char("Вы запаниковали и попытались убежать!\r\n", victim);
 			do_flee(victim, NULL, 0, 0);
 		}
 		break;

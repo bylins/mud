@@ -794,7 +794,7 @@ void check_berserk(CHAR_DATA * ch)
 			(GET_HIT(ch) > GET_REAL_MAX_HIT(ch) / 2))
 	{
 		affect_from_char(ch, SPELL_BERSERK);
-		send_to_char("Предсмертное исступление оставило Вас.\r\n", ch);
+		send_to_char("Предсмертное исступление оставило вас.\r\n", ch);
 	}
 //!IS_NPC(ch) &&
 	if (can_use_feat(ch, BERSERK_FEAT) && ch->get_fighting() &&
@@ -867,7 +867,7 @@ ACMD(do_lightwalk)
 	timed.time = 24;
 	timed_feat_to_char(ch, &timed);
 
-	send_to_char("Хорошо, Вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
+	send_to_char("Хорошо, вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
 	af.type = SPELL_LIGHT_WALK;
 	af.duration = pc_duration(ch, 2, GET_LEVEL(ch), 5, 2, 8);
 	af.modifier = 0;
@@ -924,7 +924,7 @@ ACMD(do_fit)
 
 	if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)))
 	{
-		sprintf(buf, "У Вас нет \'%s\'.\r\n", arg1);
+		sprintf(buf, "У вас нет \'%s\'.\r\n", arg1);
 		send_to_char(buf, ch);
 		return;
 	};
@@ -1043,7 +1043,7 @@ ACMD(do_spell_capable)
 	s = strtok(argument, "'*!");
 	if (s == NULL)
 	{
-		send_to_char("ЧТО Вы хотите колдовать ?\r\n", ch);
+		send_to_char("ЧТО вы хотите колдовать?\r\n", ch);
 		return;
 	}
 	s = strtok(NULL, "'*!");
@@ -1056,7 +1056,7 @@ ACMD(do_spell_capable)
 	spellnum = find_spell_num(s);
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
-		send_to_char("И откуда Вы набрались таких выражений ?\r\n", ch);
+		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
 
@@ -1068,7 +1068,7 @@ ACMD(do_spell_capable)
 				|| GET_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
 				||  slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
 		{
-			send_to_char("Рано еще Вам бросаться такими словами !\r\n", ch);
+			send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
 			return;
 		}
 		else
@@ -1284,7 +1284,7 @@ ACMD(do_relocate)
 
 	timed.skill = RELOCATE_FEAT;
 	act("$n медленно исчез$q из виду.", TRUE, ch, 0, 0, TO_ROOM);
-	send_to_char("Лазурные сполохи пронеслись перед Вашими глазами.\r\n", ch);
+	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
 	char_from_room(ch);
 	char_to_room(ch, fnd_room);
 	check_horse(ch);

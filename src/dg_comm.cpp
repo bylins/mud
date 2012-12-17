@@ -71,7 +71,7 @@ void sub_write_to_char(CHAR_DATA * ch, char *tokens[], void *otokens[], char typ
 			if (!otokens[i])
 				strcat(sb, "чей-то");
 			else if ((CHAR_DATA *) otokens[i] == ch)
-				strcat(sb, "Ваш");
+				strcat(sb, "ваш");
 			else
 			{
 				strcat(sb, PERS((CHAR_DATA *) otokens[i], ch, 1));
@@ -82,7 +82,7 @@ void sub_write_to_char(CHAR_DATA * ch, char *tokens[], void *otokens[], char typ
 			if (!otokens[i] || !CAN_SEE(ch, (CHAR_DATA *) otokens[i]))
 				strcat(sb, "чей-то");
 			else if (otokens[i] == ch)
-				strcat(sb, "Ваш");
+				strcat(sb, "ваш");
 			else
 				strcat(sb, HSHR((CHAR_DATA *) otokens[i]));
 			break;
@@ -100,7 +100,7 @@ void sub_write_to_char(CHAR_DATA * ch, char *tokens[], void *otokens[], char typ
 			if (!otokens[i] || !CAN_SEE(ch, (CHAR_DATA *) otokens[i]))
 				strcat(sb, "ему");
 			else if (otokens[i] == ch)
-				strcat(sb, "Вам");
+				strcat(sb, "вам");
 			else
 				strcat(sb, HMHR((CHAR_DATA *) otokens[i]));
 			break;

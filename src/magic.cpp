@@ -308,7 +308,7 @@ void pulse_room_affect_handler(ROOM_DATA * room, CHAR_DATA * ch, AFFECT_DATA * a
 			tch = random_char_in_room(room);
 			if (tch)
 			{
-				send_to_char("Удар молнии просто испепелил Вас", tch);
+				send_to_char("Удар молнии просто испепелил вас", tch);
 				act("Удар молнии призванной испепелил $n!", FALSE, tch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				pk_agro_action(ch, tch);
 				raw_kill(tch, ch);
@@ -1153,7 +1153,7 @@ void extract_item(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 	if (extract)
 	{
 		if (spelltype == SPELL_RUNES)
-			act("$o рассыпал$U у Вас в руках.", FALSE, ch, obj, 0, TO_CHAR);
+			act("$o рассыпал$U у вас в руках.", FALSE, ch, obj, 0, TO_CHAR);
 		obj_from_char(obj);
 		extract_obj(obj);
 	}
@@ -1469,9 +1469,9 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		if (ch != victim && spellnum < MAX_SPELLS &&
 			((AFF_FLAGGED(victim, AFF_MAGICGLASS) && number(1, 100) < (GET_LEVEL(victim) / 3))))
 		{
-			act("Магическое зеркало $N1 отразило Вашу магию !", FALSE, ch, 0, victim, TO_CHAR);
-			act("Магическое зеркало $N1 отразило магию $n1 !", FALSE, ch, 0, victim, TO_NOTVICT);
-			act("Ваше магическое зеркало отразило поражение $n1 !", FALSE, ch, 0, victim, TO_VICT);
+			act("Магическое зеркало $N1 отразило вашу магию!", FALSE, ch, 0, victim, TO_CHAR);
+			act("Магическое зеркало $N1 отразило магию $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
+			act("Ваше магическое зеркало отразило поражение $n1!", FALSE, ch, 0, victim, TO_VICT);
 			return (mag_damage(level, ch, ch, spellnum, savetype));
 		}
 	}
@@ -1479,9 +1479,9 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	{
 		if (ch != victim && spellnum < MAX_SPELLS && IS_GOD(victim) && (IS_NPC(ch) || GET_LEVEL(victim) > GET_LEVEL(ch)))
 		{
-			act("Звуковой барьер $N1 отразил Ваш крик !", FALSE, ch, 0, victim, TO_CHAR);
-			act("Звуковой барьер $N1 отразил крик $n1 !", FALSE, ch, 0, victim, TO_NOTVICT);
-			act("Ваш звуковой барьер отразил крик $n1 !", FALSE, ch, 0, victim, TO_VICT);
+			act("Звуковой барьер $N1 отразил ваш крик!", FALSE, ch, 0, victim, TO_CHAR);
+			act("Звуковой барьер $N1 отразил крик $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
+			act("Ваш звуковой барьер отразил крик $n1!", FALSE, ch, 0, victim, TO_VICT);
 			return (mag_damage(level, ch, ch, spellnum, savetype));
 		}
 	}
@@ -1490,7 +1490,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	{
 		act("Густая тень вокруг $N1 жадно поглотила вашу магию.", FALSE, ch, 0, victim, TO_CHAR);
 		act("Густая тень вокруг $N1 жадно поглотила магию $n1.", FALSE, ch, 0, victim, TO_NOTVICT);
-		act("Густая тень вокруг Вас поглотила магию $n1.", FALSE, ch, 0, victim, TO_VICT);
+		act("Густая тень вокруг вас поглотила магию $n1.", FALSE, ch, 0, victim, TO_VICT);
 		return (0);
 	}
 
@@ -1814,13 +1814,13 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		adice = level;
 		if (ch != victim && IS_EVIL(ch) && !WAITLESS(ch) && GET_HIT(ch) > 1)
 		{
-			send_to_char("Ваша магия обратилась против Вас.", ch);
+			send_to_char("Ваша магия обратилась против вас.", ch);
 			GET_HIT(ch) = 1;
 		}
 		if (!IS_EVIL(victim))
 		{
 			if (victim != ch)
-				act("Боги защитили $N3 от Вашей магии.", FALSE, ch, 0, victim, TO_CHAR);
+				act("Боги защитили $N3 от вашей магии.", FALSE, ch, 0, victim, TO_CHAR);
 			return (0);
 		};
 		break;
@@ -1830,13 +1830,13 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		adice = level;
 		if (ch != victim && IS_GOOD(ch) && !WAITLESS(ch) && GET_HIT(ch) > 1)
 		{
-			send_to_char("Ваша магия обратилась против Вас.", ch);
+			send_to_char("Ваша магия обратилась против вас.", ch);
 			GET_HIT(ch) = 1;
 		}
 		if (!IS_GOOD(victim))
 		{
 			if (victim != ch)
-				act("Боги защитили $N3 от Вашей магии.", FALSE, ch, 0, victim, TO_CHAR);
+				act("Боги защитили $N3 от вашей магии.", FALSE, ch, 0, victim, TO_CHAR);
 			return (0);
 		};
 		break;
@@ -1907,7 +1907,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			// смерть или диспелл :)
 			if (general_savingthrow(ch, victim, SAVING_WILL, modi))
 			{
-				act("Черное облако вокруг Вас нейтрализовало действие тумана, растворившись в нем.",
+				act("Черное облако вокруг вас нейтрализовало действие тумана, растворившись в нем.",
 					FALSE, victim, 0, 0, TO_CHAR);
 				act("Черное облако вокруг $n1 нейтрализовало действие тумана.",
 					FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -2134,9 +2134,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 					 && number(1, 100) < (GET_LEVEL(victim) / 3)) || (IS_GOD(victim)
 							 && (IS_NPC(ch) || GET_LEVEL(victim) > GET_LEVEL(ch)))))
 		{
-			act("Магическое зеркало $N1 отразило Вашу магию !", FALSE, ch, 0, victim, TO_CHAR);
-			act("Магическое зеркало $N1 отразило магию $n1 !", FALSE, ch, 0, victim, TO_NOTVICT);
-			act("Ваше магическое зеркало отразило поражение $n1 !", FALSE, ch, 0, victim, TO_VICT);
+			act("Магическое зеркало $N1 отразило вашу магию!", FALSE, ch, 0, victim, TO_CHAR);
+			act("Магическое зеркало $N1 отразило магию $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
+			act("Ваше магическое зеркало отразило поражение $n1!", FALSE, ch, 0, victim, TO_VICT);
 			mag_affects(level, ch, ch, spellnum, savetype);
 			return 0;
 		}
@@ -2145,9 +2145,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	{
 		if (ch != victim && SpINFO.violent && IS_GOD(victim) && (IS_NPC(ch) || GET_LEVEL(victim) > GET_LEVEL(ch)))
 		{
-			act("Звуковой барьер $N1 отразил Ваш крик !", FALSE, ch, 0, victim, TO_CHAR);
-			act("Звуковой барьер $N1 отразил крик $n1 !", FALSE, ch, 0, victim, TO_NOTVICT);
-			act("Ваш звуковой барьер отразил крик $n1 !", FALSE, ch, 0, victim, TO_VICT);
+			act("Звуковой барьер $N1 отразил ваш крик!", FALSE, ch, 0, victim, TO_CHAR);
+			act("Звуковой барьер $N1 отразил крик $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
+			act("Ваш звуковой барьер отразил крик $n1!", FALSE, ch, 0, victim, TO_VICT);
 			mag_affects(level, ch, ch, spellnum, savetype);
 			return 0;
 		}
@@ -2198,7 +2198,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].battleflag = AF_BATTLEDEC;
 		accum_duration = TRUE;
 		to_room = "Боевый пыл $n1 несколько остыл.";
-		to_vict = "Вы почувствовали себя слабее !";
+		to_vict = "Вы почувствовали себя слабее!";
 		break;
 
 	case SPELL_ENERGY_DRAIN:
@@ -2228,7 +2228,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].battleflag = AF_BATTLEDEC;
 		accum_duration = TRUE;
 		to_room = "$n стал$g немного слабее.";
-		to_vict = "Вы почувствовали себя слабее !";
+		to_vict = "Вы почувствовали себя слабее!";
 		spellnum = SPELL_WEAKNESS;
 		break;
 	case SPELL_STONESKIN:
@@ -2248,7 +2248,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[1].modifier = 50;
 		af[1].duration = af[0].duration;
 		accum_duration = TRUE;
-		to_room = "$n расцвел$g на Ваших глазах.";
+		to_room = "$n расцвел$g на ваших глазах.";
 		to_vict = "Вас наполнила живительная сила.";
 		break;
 
@@ -2402,7 +2402,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
 		accum_duration = TRUE;
 		to_vict =
-			"Вы попытались вспомнить уроки старой цыганки, что учила Вас людям головы морочить.\r\nХотя Вы ее не очень то слушали.\r\n";
+			"Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить.\r\nХотя вы ее не очень то слушали.\r\n";
 		to_room =
 			"$n0 достал$g из маленькой сумочки какие-то вонючие порошки и отвернул$u, бормоча под нос \r\n\"..так это на ресницы надо, кажется... Эх, только бы не перепутать...\" \r\n";
 
@@ -2427,7 +2427,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[1].duration = af[0].duration;
 		af[1].bitvector = AFF_BLESS;
 		to_room = "$n осветил$u на миг неземным светом.";
-		to_vict = "Боги одарили Вас своей улыбкой.";
+		to_vict = "Боги одарили вас своей улыбкой.";
 		spellnum = SPELL_BLESS;
 		break;
 
@@ -2495,7 +2495,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
 		accum_duration = TRUE;
 		to_room = "$n скрыл$u в густой тени.";
-		to_vict = "Густые тени окутали Вас.";
+		to_vict = "Густые тени окутали вас.";
 		break;
 
 	case SPELL_ENLARGE:
@@ -2601,8 +2601,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[2].modifier = -5;
 		af[2].duration = af[0].duration;
 
-		to_room = "$n0 стал$g слаб$g на голову !";
-		to_vict = "Ваш разум помутился !";
+		to_room = "$n0 стал$g слаб$g на голову!";
+		to_vict = "Ваш разум помутился!";
 		break;
 
 	case SPELL_DUSTSTORM:
@@ -2642,8 +2642,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 		af[0].bitvector = AFF_BLIND;
 		af[0].battleflag = AF_BATTLEDEC;
-		to_room = "$n0 ослеп$q !";
-		to_vict = "Вы ослепли !";
+		to_room = "$n0 ослеп$q!";
+		to_vict = "Вы ослепли!";
 		spellnum = SPELL_BLINDNESS;
 		break;
 
@@ -2659,8 +2659,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 3, 0, 0, 0, 0));
 		af[0].bitvector = AFF_NOFLEE;
-		to_room = "Теперь $n не сможет сбежать из боя !";
-		to_vict = "Вас обуяло безумие боя !";
+		to_room = "Теперь $n не сможет сбежать из боя!";
+		to_vict = "Вас обуяло безумие боя!";
 		break;
 
 	case SPELL_WEB:
@@ -2684,8 +2684,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[1].duration = af[0].duration;
 		af[1].battleflag = AF_BATTLEDEC;
 		af[1].bitvector = AFF_NOFLEE;
-		to_room = "$n3 покрыла невидимая паутина, сковывая $s движения !";
-		to_vict = "Вас покрыла невидимая паутина !";
+		to_room = "$n3 покрыла невидимая паутина, сковывая $s движения!";
+		to_vict = "Вас покрыла невидимая паутина!";
 		break;
 
 
@@ -2715,7 +2715,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		accum_affect = TRUE;
 		to_room = "Красное сияние вспыхнуло над $n4 и тут же погасло !";
-		to_vict = "Боги сурово поглядели на Вас.";
+		to_vict = "Боги сурово поглядели на вас.";
 		spellnum = SPELL_CURSE;
 		break;
 
@@ -2886,7 +2886,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
 		af[0].bitvector = AFF_SANCTUARY;
-		to_vict = "Белая аура мгновенно окружила Вас.";
+		to_vict = "Белая аура мгновенно окружила вас.";
 		to_room = "Белая аура покрыла $n3 с головы до пят.";
 		spellnum = SPELL_SANCTUARY;
 		break;
@@ -2918,7 +2918,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 				REMOVE_BIT(AFF_FLAGS(victim, AFF_HORSE), AFF_HORSE);
 			}
 
-			send_to_char("Вы слишком устали...  Спать... Спа...\r\n", victim);
+			send_to_char("Вы слишком устали... Спать... Спа...\r\n", victim);
 			act("$n прилег$q подремать.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
 			GET_POS(victim) = POS_SLEEPING;
@@ -2952,7 +2952,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].modifier = GET_LEVEL(ch) * 2 + GET_REMORT(ch);
 		if (GET_ALIGNMENT(victim) >= 0)
 		{
-			to_vict = "Исходящий с небес свет на мгновение озарил Вас.";
+			to_vict = "Исходящий с небес свет на мгновение озарил вас.";
 			to_room = "Исходящий с небес свет на мгновение озарил $n3.";
 		}
 		else
@@ -2973,14 +2973,14 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
 		af[0].bitvector = AFF_WATERWALK;
 		accum_duration = TRUE;
-		to_vict = "На рыбалку Вы можете отправляться без лодки.";
+		to_vict = "На рыбалку вы можете отправляться без лодки.";
 		break;
 
 	case SPELL_WATERBREATH:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
 		af[0].bitvector = AFF_WATERBREATH;
 		accum_duration = TRUE;
-		to_vict = "У Вас выросли жабры.";
+		to_vict = "У вас выросли жабры.";
 		to_room = "У $n1 выросли жабры.";
 		break;
 
@@ -3010,7 +3010,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 		af[0].bitvector = AFF_HOLD;
 		af[0].battleflag = AF_BATTLEDEC;
-		to_room = "$n0 замер$q на месте !";
+		to_room = "$n0 замер$q на месте!";
 		to_vict = "Вы замерли на месте, не в силах пошевельнуться.";
 		spellnum = SPELL_HOLD;
 		break;
@@ -3057,7 +3057,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 		af[0].bitvector = AFF_DEAFNESS;
 		af[0].battleflag = AF_BATTLEDEC;
-		to_room = "$n0 оглох$q !";
+		to_room = "$n0 оглох$q!";
 		to_vict = "Вы оглохли.";
 		spellnum = SPELL_DEAFNESS;
 		break;
@@ -3079,7 +3079,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 						 : pc_duration(victim, 2, level + 7, 8, 3, 0));
 		af[0].bitvector = AFF_SIELENCE;
 		af[0].battleflag = AF_BATTLEDEC;
-		to_room = "$n0 прикусил$g язык !";
+		to_room = "$n0 прикусил$g язык!";
 		to_vict = "Вы не в состоянии вымолвить ни слова.";
 		spellnum = SPELL_SIELENCE;
 		break;
@@ -3104,7 +3104,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].bitvector = AFF_BROKEN_CHAINS;
 		af[0].battleflag = AF_BATTLEDEC;
 		to_room = "Ярко-синий ореол вспыхнул вокруг $n1 и тут же угас.";
-		to_vict = "Волна ярко-синего света омыла Вас с головы до ног.";
+		to_vict = "Волна ярко-синего света омыла вас с головы до ног.";
 		break;
 
 	case SPELL_BLINK:
@@ -3126,7 +3126,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[2].duration = af[0].duration;
 		accum_duration = TRUE;
 		to_room = "Сверкающий щит вспыхнул вокруг $n1 и угас.";
-		to_vict = "Сверкающий щит вспыхнул вокруг Вас и угас.";
+		to_vict = "Сверкающий щит вспыхнул вокруг вас и угас.";
 		break;
 
 	case SPELL_NOFLEE: // "приковать противника"
@@ -3183,7 +3183,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[2].location = APPLY_HIT;
 		af[2].modifier = GET_REAL_MAX_HIT(victim);
 		af[2].bitvector = AFF_EVILESS;
-		to_vict = "Черное облако покрыло Вас.";
+		to_vict = "Черное облако покрыло вас.";
 		to_room = "Черное облако покрыло $n3 с головы до пят.";
 		break;
 
@@ -3228,7 +3228,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			af[0].duration = complex_spell_modifier(ch, SPELL_DEAFNESS, GAPPLY_SPELL_EFFECT, af[0].duration);
 			af[0].bitvector = AFF_DEAFNESS;
 			af[0].battleflag = AF_BATTLEDEC;
-			to_room = "$n0 оглох$q !";
+			to_room = "$n0 оглох$q!";
 			to_vict = "Вы оглохли.";
 
 			if ((IS_NPC(victim) && AFF_FLAGGED(victim, af[0].bitvector)) ||
@@ -3381,7 +3381,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[1].duration = af[0].duration;
 		af[1].modifier = - (GET_LEVEL(ch) + GET_REMORT(ch) * 3) / 15;
 		to_room = "Тяжелое бурое облако сгустилось над $n4.";
-		to_vict = "Тяжелые тучи сгустились над Вами, и вы почувствовали, что удача покинула Вас.";
+		to_vict = "Тяжелые тучи сгустились над вами, и вы почувствовали, что удача покинула вас.";
 		break;
 
 	case SPELL_GLITTERDUST:
@@ -3413,7 +3413,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		accum_affect = TRUE;
 		to_room = "Облако ярко блестящей пыли накрыло $n3.";
-		to_vict = "Липкая блестящая пыль покрыла Вас с головы до пят.";
+		to_vict = "Липкая блестящая пыль покрыла вас с головы до пят.";
 		break;
 
 	case SPELL_SCREAM:
@@ -3498,7 +3498,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 2, level + 3, 4, 6, 0));
 		af[0].modifier = -dice((7 + level) / 8, 3);
-		to_vict = "Похоже, сегодня не Ваш день.";
+		to_vict = "Похоже, сегодня не ваш день.";
 		to_room = "Удача покинула $n3.";
 		break;
 
@@ -3727,15 +3727,15 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 const char *mag_summon_msgs[] =
 {
 	"\r\n",
-	"$n сделал$g несколько изящних пассов - Вы почувствовали странное дуновение !",
+	"$n сделал$g несколько изящних пассов - вы почувствовали странное дуновение !",
 	"$n поднял$g труп !",
 	"$N появил$G из клубов голубого дыма !",
 	"$N появил$G из клубов зеленого дыма !",
 	"$N появил$G из клубов красного дыма !",
-	"$n сделал$g несколько изящных пассов - Вас обдало порывом холодного ветра.",
-	"$n сделал$g несколько изящных пассов, от чего Ваши волосы встали дыбом.",
-	"$n сделал$g несколько изящных пассов, обдав Вас нестерпимым жаром.",
-	"$n сделал$g несколько изящных пассов, вызвав у Вас приступ тошноты.",
+	"$n сделал$g несколько изящных пассов - вас обдало порывом холодного ветра.",
+	"$n сделал$g несколько изящных пассов, от чего ваши волосы встали дыбом.",
+	"$n сделал$g несколько изящных пассов, обдав вас нестерпимым жаром.",
+	"$n сделал$g несколько изящных пассов, вызвав у вас приступ тошноты.",
 	"$n раздвоил$u !",
 	"$n оживил$g труп !",
 	"$n призвал$g защитника !",
@@ -3751,10 +3751,10 @@ const char *mag_summon_fail_msgs[] =
 	"Нет такого существа в мире.\r\n",
 	"Жаль, сорвалось...\r\n",
 	"Ничего.\r\n",
-	"Черт ! Ничего не вышло.\r\n",
-	"Вы не смогли сделать этого !\r\n",
+	"Черт! Ничего не вышло.\r\n",
+	"Вы не смогли сделать этого!\r\n",
 	"Ваша магия провалилась.\r\n",
-	"У Вас нет подходящего трупа !\r\n"
+	"У вас нет подходящего трупа!\r\n"
 };
 
 int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int savetype)
@@ -3866,7 +3866,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		}
 		if ((mob_num = GET_OBJ_VAL(obj, 2)) <= 0)
 		{
-			send_to_char("Вы не можете поднять труп этого монстра !\r\n", ch);
+			send_to_char("Вы не можете поднять труп этого монстра!\r\n", ch);
 			return 0;
 		}
 
@@ -3887,7 +3887,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 
 	if (AFF_FLAGGED(ch, AFF_CHARM))
 	{
-		send_to_char("Вы слишком зависимы, чтобы искать себе последователей !\r\n", ch);
+		send_to_char("Вы слишком зависимы, чтобы искать себе последователей!\r\n", ch);
 		return 0;
 	}
 
@@ -4153,7 +4153,7 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		break;
 	case SPELL_EXTRA_HITS:
 		hit = dice(10, level / 3) + level;
-		send_to_char("По Вашему телу начала струиться живительная сила.\r\n", victim);
+		send_to_char("По вашему телу начала струиться живительная сила.\r\n", victim);
 		break;
 	case SPELL_FULL:
 		if (!IS_NPC(victim) && !IS_IMMORTAL(victim))
@@ -4165,7 +4165,7 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		break;
 	case SPELL_WC_OF_POWER:
 		hit = (4 * ch->get_con() + ch->get_skill(SKILL_WARCRY)) / 2;
-		send_to_char("По Вашему телу начала струиться живительная сила.\r\n", victim);
+		send_to_char("По вашему телу начала струиться живительная сила.\r\n", victim);
 		break;
 	}
 
@@ -4217,12 +4217,12 @@ int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, i
 	{
 	case SPELL_CURE_BLIND:
 		spell = SPELL_BLINDNESS;
-		to_vict = "К Вам вернулась способность видеть.";
+		to_vict = "К вам вернулась способность видеть.";
 		to_room = "$n прозрел$g.";
 		break;
 	case SPELL_REMOVE_POISON:
 		spell = SPELL_POISON;
-		to_vict = "Тепло заполнило Ваше тело.";
+		to_vict = "Тепло заполнило ваше тело.";
 		to_room = "$n выглядит лучше.";
 		break;
 	case SPELL_CURE_PLAQUE:
@@ -4231,19 +4231,19 @@ int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, i
 		break;
 	case SPELL_REMOVE_CURSE:
 		spell = SPELL_CURSE;
-		to_vict = "Боги вернули Вам свое покровительство.";
+		to_vict = "Боги вернули вам свое покровительство.";
 		break;
 	case SPELL_REMOVE_HOLD:
 		spell = SPELL_HOLD;
-		to_vict = "К Вам вернулась способность двигаться.";
+		to_vict = "К вам вернулась способность двигаться.";
 		break;
 	case SPELL_REMOVE_SIELENCE:
 		spell = SPELL_SIELENCE;
-		to_vict = "К Вам вернулась способность разговаривать.";
+		to_vict = "К вам вернулась способность разговаривать.";
 		break;
 	case SPELL_REMOVE_DEAFNESS:
 		spell = SPELL_DEAFNESS;
-		to_vict = "К Вам вернулась способность слышать.";
+		to_vict = "К вам вернулась способность слышать.";
 		break;
 	case SPELL_DISPELL_MAGIC:
 		if (!IS_NPC(ch) && !same_group(ch, victim))
@@ -4337,7 +4337,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 
 	if (IS_OBJ_STAT(obj, ITEM_NOALTER))
 	{
-		act("$o устойчив$A к Вашей магии.", TRUE, ch, obj, 0, TO_CHAR);
+		act("$o устойчив$A к вашей магии.", TRUE, ch, obj, 0, TO_CHAR);
 		return 0;
 	}
 
@@ -4655,48 +4655,48 @@ typedef struct
 const spl_message masses_messages[] =
 {
 	{SPELL_MASS_BLINDNESS,
-		"У Вас над головой возникла яркая вспышка, которая ослепила все живое.",
+		"У вас над головой возникла яркая вспышка, которая ослепила все живое.",
 		"Вдруг над головой $n1 возникла яркая вспышка.",
-		"Вы невольно взглянули на вспышку света, вызванную $n4, и Ваши глаза заслезились."},
+		"Вы невольно взглянули на вспышку света, вызванную $n4, и ваши глаза заслезились."},
 	{SPELL_MASS_HOLD,
-	 "Вы сжали зубы от боли, когда из Вашего тела вырвалось множество невидимых каменных лучей.",
+	 "Вы сжали зубы от боли, когда из вашего тела вырвалось множество невидимых каменных лучей.",
 	 NULL,
-	 "В Вас попал каменный луч, исходящий от $n1."},
+	 "В вас попал каменный луч, исходящий от $n1."},
 	{SPELL_MASS_CURSE,
-	 "Медленно оглянувшись, Вы прошептали древние слова.",
+	 "Медленно оглянувшись, вы прошептали древние слова.",
 	 NULL,
-	 "$n злобно посмотрел$g на Вас и начал$g шептать древние слова."},
+	 "$n злобно посмотрел$g на вас и начал$g шептать древние слова."},
 	{SPELL_MASS_SIELENCE,
-	 "Поведя вокруг грозным взглядом, Вы заставили всех замолчать.",
+	 "Поведя вокруг грозным взглядом, вы заставили всех замолчать.",
 	 NULL,
-	 "Вы встретились взглядом с $n4, и у Вас появилось ощущение, что горлу чего-то не хватает."},
+	 "Вы встретились взглядом с $n4, и у вас появилось ощущение, что горлу чего-то не хватает."},
 	{SPELL_MASS_DEAFNESS,
 	 "Вы нахмурились, склонив голову, и громкий хлопок сотряс воздух.",
 	 "Как только $n0 склонил$g голову, раздался оглушающий хлопок.",
 	 NULL},
 	{SPELL_MASS_SLOW,
-	 "Положив ладони на землю, вы вызвали цепкие корни,\r\nопутавшие существ, стоящих рядом с Вами.",
+	 "Положив ладони на землю, вы вызвали цепкие корни,\r\nопутавшие существ, стоящих рядом с вами.",
 	 NULL,
 	 "$n вызвал$g цепкие корни, опутавшие ваши ноги."},
 	{SPELL_ARMAGEDDON,
-	 "Вы сплели руки в замысловатом жесте, и все потускнело !",
-	 "$n сплел$g руки в замысловатом жесте, и все потускнело !",
+	 "Вы сплели руки в замысловатом жесте, и все потускнело!",
+	 "$n сплел$g руки в замысловатом жесте, и все потускнело!",
 	 NULL},
 	{SPELL_EARTHQUAKE,
-	 "Вы опустили руки, и земля начала дрожать вокруг Вас !",
-	 "$n опустил$g руки, и земля задрожала !",
+	 "Вы опустили руки, и земля начала дрожать вокруг вас!",
+	 "$n опустил$g руки, и земля задрожала!",
 	 NULL},
 	{SPELL_METEORSTORM,
-	 "Вы воздели руки к небу, и огромные глыбы посыпались с небес !",
-	 "$n воздел$g руки к небу, и огромные глыбы посыпались с небес !",
+	 "Вы воздели руки к небу, и огромные глыбы посыпались с небес!",
+	 "$n воздел$g руки к небу, и огромные глыбы посыпались с небес!",
 	 NULL},
 	{SPELL_FIREBLAST,
-	 "Вы потерли ладони, и на них вспыхнуло яркое пламя !",
-	 "На ладонях $n1 вспыхнуло яркое пламя !",
+	 "Вы потерли ладони, и на них вспыхнуло яркое пламя!",
+	 "На ладонях $n1 вспыхнуло яркое пламя!",
 	 NULL},
 	{SPELL_ICESTORM,
-	 "Вы воздели руки к небу, и тысячи мелких льдинок хлынули вниз !",
-	 "$n воздел$g руки к небу, и тысячи мелких льдинок хлынули вниз !",
+	 "Вы воздели руки к небу, и тысячи мелких льдинок хлынули вниз!",
+	 "$n воздел$g руки к небу, и тысячи мелких льдинок хлынули вниз!",
 	 NULL},
 	{SPELL_DUSTSTORM,
 	 "Вы взмахнули руками и вызвали огромное пылевое облако,\r\nскрывшее все вокруг.",
@@ -4814,8 +4814,8 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 const spl_message areas_messages[] =
 {
 	{SPELL_CHAIN_LIGHTNING,
-		"Вы подняли руки к небу и оно осветилось яркими вспышками !",
-		"$n поднял$g руки к небу и оно осветилось яркими вспышками !",
+		"Вы подняли руки к небу и оно осветилось яркими вспышками!",
+		"$n поднял$g руки к небу и оно осветилось яркими вспышками!",
 		NULL,
 		5},
 	{SPELL_EARTHFALL,
@@ -4844,8 +4844,8 @@ const spl_message areas_messages[] =
 	 NULL,
 	 7},
 	{SPELL_SCREAM,
-	 "Вы испустили кошмарный вопль, едва не разорвавший Вам горло.",
-	 "$n0 испустил$g кошмарный вопль, отдавшийся в Вашей душе замогильным холодом.",
+	 "Вы испустили кошмарный вопль, едва не разорвавший вам горло.",
+	 "$n0 испустил$g кошмарный вопль, отдавшийся в вашей душе замогильным холодом.",
 	 NULL,
 	 5},
 	{SPELL_WC_OF_CHALLENGE,
@@ -4980,7 +4980,7 @@ const spl_message groups_messages[] =
 		NULL,
 		NULL},
 	{SPELL_GROUP_ARMOR,
-	 "Вы создали защитную сферу, которая окутала Вас и пространство рядом с Вами.\r\n",
+	 "Вы создали защитную сферу, которая окутала вас и пространство рядом с вами.\r\n",
 	 NULL,
 	 NULL},
 	{SPELL_GROUP_RECALL,
@@ -4992,19 +4992,19 @@ const spl_message groups_messages[] =
 	 NULL,
 	 NULL},
 	{SPELL_GROUP_BLESS,
-	 "Прикрыв глаза, Вы прошептали таинственную молитву.\r\n",
+	 "Прикрыв глаза, вы прошептали таинственную молитву.\r\n",
 	 NULL,
 	 NULL},
 	{SPELL_GROUP_HASTE,
-	 "Разведя руки в стороны, Вы ощутили всю мощь стихии ветра.\r\n",
+	 "Разведя руки в стороны, вы ощутили всю мощь стихии ветра.\r\n",
 	 NULL,
 	 NULL},
 	{SPELL_GROUP_FLY,
-	 "Ваше заклинание вызвало белое облако, которое разделилось, подхватывая Вас и товарищей.\r\n",
+	 "Ваше заклинание вызвало белое облако, которое разделилось, подхватывая вас и товарищей.\r\n",
 	 NULL,
 	 NULL},
 	{SPELL_GROUP_INVISIBLE,
-	 "Вы вызвали прозрачный туман, поглотивший все дружественное Вам.\r\n",
+	 "Вы вызвали прозрачный туман, поглотивший все дружественное вам.\r\n",
 	 NULL,
 	 NULL},
 	{SPELL_GROUP_MAGICGLASS,
@@ -5016,19 +5016,19 @@ const spl_message groups_messages[] =
 	 NULL,
 	 NULL},
 	{SPELL_GROUP_PRISMATICAURA,
-	 "Силы духа, призванные Вами, окутали Вас и окружающих голубоватым сиянием.\r\n",
+	 "Силы духа, призванные вами, окутали вас и окружающих голубоватым сиянием.\r\n",
 	 NULL,
 	 NULL},
 	{SPELL_FIRE_AURA,
-	 "Силы огня пришли к Вам на помощь и защитили Вас.\r\n",
+	 "Силы огня пришли к вам на помощь и защитили вас.\r\n",
 	 NULL,
 	 NULL},
 	{SPELL_AIR_AURA,
-	 "Силы воздуха пришли к Вам на помощь и защитили Вас.\r\n",
+	 "Силы воздуха пришли к вам на помощь и защитили вас.\r\n",
 	 NULL,
 	 NULL},
 	{SPELL_ICE_AURA,
-	 "Силы холода пришли к Вам на помощь и защитили Вас.\r\n",
+	 "Силы холода пришли к вам на помощь и защитили вас.\r\n",
 	 NULL,
 	 NULL},
 	{SPELL_GROUP_REFRESH,

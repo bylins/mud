@@ -862,19 +862,19 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 		send_to_char(buf, ch);
 	}
 	else
-		act("\r\nНичего необычного в $n5 Вы не заметили.", FALSE, i, 0, ch, TO_VICT);
+		act("\r\nНичего необычного в $n5 вы не заметили.", FALSE, i, 0, ch, TO_VICT);
 
 	if (AFF_FLAGGED(i, AFF_CHARM) && i->master == ch)
 	{
 		if (low_charm(i))
-			act("$n скоро перестанет следовать за Вами.", FALSE, i, 0, ch, TO_VICT);
+			act("$n скоро перестанет следовать за вами.", FALSE, i, 0, ch, TO_VICT);
 		else
 		{
 			AFFECT_DATA *aff;
 			for (aff = i->affected; aff; aff = aff->next)
 				if (aff->type == SPELL_CHARM)
 				{
-					sprintf(buf, IS_POLY(i) ? "$n будут слушаться Вас еще %d %s." : "$n будет слушаться Вас еще %d %s.", aff->duration / 2, desc_count(aff->duration / 2, 1));
+					sprintf(buf, IS_POLY(i) ? "$n будут слушаться вас еще %d %s." : "$n будет слушаться вас еще %d %s.", aff->duration / 2, desc_count(aff->duration / 2, 1));
 					act(buf, FALSE, i, 0, ch, TO_VICT);
 					break;
 				}
@@ -884,7 +884,7 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 
 	if (IS_HORSE(i) && i->master == ch)
 	{
-		strcpy(buf, "\r\nЭто Ваш скакун. Он ");
+		strcpy(buf, "\r\nЭто ваш скакун. Он ");
 		if (GET_HORSESTATE(i) <= 0)
 			strcat(buf, "загнан.\r\n");
 		else if (GET_HORSESTATE(i) <= 20)
@@ -998,9 +998,9 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		if (ch == i->master)
 		{
 			if (!IS_POLY(i))
-				act("$N несет Вас на своей спине.", FALSE, ch, 0, i, TO_CHAR);
+				act("$N несет вас на своей спине.", FALSE, ch, 0, i, TO_CHAR);
 			else
-				act("$N несут Вас на своей спине.", FALSE, ch, 0, i, TO_CHAR);
+				act("$N несут вас на своей спине.", FALSE, ch, 0, i, TO_CHAR);
 		}
 		return;
 	}
@@ -1475,7 +1475,7 @@ void list_char_to_char(CHAR_DATA * list, CHAR_DATA * ch)
 				list_one_char(i, ch, 0);
 			else if (IS_DARK(i->in_room) &&
 					 IN_ROOM(i) == IN_ROOM(ch) && !CAN_SEE_IN_DARK(ch) && AFF_FLAGGED(i, AFF_INFRAVISION))
-				send_to_char("Пара светящихся глаз смотрит на Вас.\r\n", ch);
+				send_to_char("Пара светящихся глаз смотрит на вас.\r\n", ch);
 		}
 }
 
@@ -1754,7 +1754,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		case SECT_FOREST_SNOW:
 		case SECT_HILLS_SNOW:
 		case SECT_MOUNTAIN_SNOW:
-			sprintf(buf, "%sСнежный ковер лежит у Вас под ногами.%s\r\n",
+			sprintf(buf, "%sСнежный ковер лежит у вас под ногами.%s\r\n",
 					CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 			break;
 		case SECT_FIELD_RAIN:
@@ -1763,15 +1763,15 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 			sprintf(buf, "%sВы просто увязаете в грязи.%s\r\n", CCIWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 			break;
 		case SECT_THICK_ICE:
-			sprintf(buf, "%sУ Вас под ногами толстый лед.%s\r\n", CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+			sprintf(buf, "%sУ вас под ногами толстый лед.%s\r\n", CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 			break;
 		case SECT_NORMAL_ICE:
-			sprintf(buf, "%sУ Вас под ногами достаточно толстый лед.%s\r\n",
+			sprintf(buf, "%sУ вас под ногами достаточно толстый лед.%s\r\n",
 					CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 			break;
 		case SECT_THIN_ICE:
 			sprintf(buf,
-					"%sТоненький ледок вот-вот проломится под Вами.%s\r\n",
+					"%sТоненький ледок вот-вот проломится под вами.%s\r\n",
 					CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
 			break;
 		};
@@ -1816,7 +1816,7 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			{
 				if (EXIT_FLAGGED(rdata, EX_PICKPROOF))
 				{
-					count += sprintf(buf+count-2, "%s Вы никогда не сможете ЭТО взломать !%s\r\n", CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
+					count += sprintf(buf+count-2, "%s вы никогда не сможете ЭТО взломать!%s\r\n", CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
 				}
 				else if (EXIT_FLAGGED(rdata, EX_BROKEN))
 				{
@@ -1877,7 +1877,7 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 		}
 	}
 	else if (info_is & EXIT_SHOW_WALL)
-		send_to_char("И что Вы там мечтаете увидеть ?\r\n", ch);
+		send_to_char("И что вы там мечтаете увидеть?\r\n", ch);
 }
 
 void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
@@ -1890,7 +1890,7 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 
 	if (AFF_FLAGGED(ch, AFF_DEAFNESS))
 	{
-		send_to_char("Вы забыли, что вы глухи ?\r\n", ch);
+		send_to_char("Вы забыли, что вы глухи?\r\n", ch);
 		return;
 	}
 	if (CAN_GO(ch, dir))
@@ -2027,7 +2027,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 				if (OBJVAL_FLAGGED(obj, CONT_LOCKED) && skill_pick)
 				{
 					if (OBJVAL_FLAGGED(obj, CONT_PICKPROOF))
-						count += sprintf(buf+count, "%s Вы никогда не сможете ЭТО взломать !%s\r\n", CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
+						count += sprintf(buf+count, "%s Вы никогда не сможете ЭТО взломать!%s\r\n", CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
 					else if (OBJVAL_FLAGGED(obj, CONT_BROKEN))
 						count += sprintf(buf+count, "%s Замок сломан... %s\r\n", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 					else
@@ -2198,7 +2198,7 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 
 	if (!*arg)
 	{
-		send_to_char("На что Вы так мечтаете посмотреть ?\r\n", ch);
+		send_to_char("На что вы так мечтаете посмотреть?\r\n", ch);
 		return 0;
 	}
 
@@ -2251,12 +2251,12 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 	{
 		int r = IN_ROOM(ch), to_room;
 		to_room = world[r]->portal_room;
-		send_to_char("Приблизившись к пентаграмме, Вы осторожно заглянули в нее.\r\n\r\n", ch);
+		send_to_char("Приблизившись к пентаграмме, вы осторожно заглянули в нее.\r\n\r\n", ch);
 		act("$n0 осторожно заглянул$g в пентаграмму.\r\n", TRUE, ch, 0, 0, TO_ROOM);
 		if (world[to_room]->portal_time && (r == world[to_room]->portal_room))
 		{
 			send_to_char
-			("Яркий свет, идущий с противоположного конца прохода, застилает Вам глаза.\r\n\r\n", ch);
+			("Яркий свет, идущий с противоположного конца прохода, застилает вам глаза.\r\n\r\n", ch);
 			return 0;
 		}
 		IN_ROOM(ch) = world[IN_ROOM(ch)]->portal_room;
@@ -2286,7 +2286,7 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 					return 0;
 			}
 			if (CAN_SEE(found_char, ch))
-				act("$n оглядел$g Вас с головы до пят.", TRUE, ch, 0, found_char, TO_VICT);
+				act("$n оглядел$g вас с головы до пят.", TRUE, ch, 0, found_char, TO_VICT);
 			act("$n посмотрел$g на $N3.", TRUE, ch, 0, found_char, TO_NOTVICT);
 		}
 		return 0;
@@ -2376,7 +2376,7 @@ ACMD(do_look)
 	if (GET_POS(ch) < POS_SLEEPING)
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
 	else if (AFF_FLAGGED(ch, AFF_BLIND))
-		send_to_char("Вы ослеплены !\r\n", ch);
+		send_to_char("Вы ослеплены!\r\n", ch);
 	else if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch))
 	{
 		skip_hide_on_look(ch);
@@ -2393,7 +2393,7 @@ ACMD(do_look)
 		if (subcmd == SCMD_READ)
 		{
 			if (!*arg)
-				send_to_char("Что вы хотите прочитать ?\r\n", ch);
+				send_to_char("Что вы хотите прочитать?\r\n", ch);
 			else
 				look_at_target(ch, arg, subcmd);
 			return;
@@ -2423,7 +2423,7 @@ ACMD(do_sides)
 	if (GET_POS(ch) <= POS_SLEEPING)
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
 	else if (AFF_FLAGGED(ch, AFF_BLIND))
-		send_to_char("Вы ослеплены !\r\n", ch);
+		send_to_char("Вы ослеплены!\r\n", ch);
 	else
 	{
 		skip_hide_on_look(ch);
@@ -2446,11 +2446,11 @@ ACMD(do_looking)
 		return;
 
 	if (GET_POS(ch) < POS_SLEEPING)
-		send_to_char("Белый Ангел возник перед Вами, маняще помахивая крыльями.\r\n", ch);
+		send_to_char("Белый Ангел возник перед вами, маняще помахивая крыльями.\r\n", ch);
 	if (GET_POS(ch) == POS_SLEEPING)
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
 	else if (AFF_FLAGGED(ch, AFF_BLIND))
-		send_to_char("Вы ослеплены !\r\n", ch);
+		send_to_char("Вы ослеплены!\r\n", ch);
 	else if (ch->get_skill(SKILL_LOOKING))
 	{
 		if (check_moves(ch, LOOKING_MOVES))
@@ -2480,7 +2480,7 @@ ACMD(do_hearing)
 	}
 
 	if (GET_POS(ch) < POS_SLEEPING)
-		send_to_char("Вам начали слышаться голоса предков, зовущие Вас к себе.\r\n", ch);
+		send_to_char("Вам начали слышаться голоса предков, зовущие вас к себе.\r\n", ch);
 	if (GET_POS(ch) == POS_SLEEPING)
 		send_to_char("Морфей медленно задумчиво провел рукой по струнам и заиграл колыбельную.\r\n", ch);
 	else if (ch->get_skill(SKILL_HEARING))
@@ -2515,7 +2515,7 @@ ACMD(do_examine)
 	}
 	else if (AFF_FLAGGED(ch, AFF_BLIND))
 	{
-		send_to_char("Вы ослеплены !\r\n", ch);
+		send_to_char("Вы ослеплены!\r\n", ch);
 		return;
 	}
 
@@ -2523,7 +2523,7 @@ ACMD(do_examine)
 
 	if (!*arg)
 	{
-		send_to_char("Что Вы желаете осмотреть ?\r\n", ch);
+		send_to_char("Что вы желаете осмотреть?\r\n", ch);
 		return;
 	}
 
@@ -2560,9 +2560,9 @@ ACMD(do_gold)
 {
 	int count = 0;
 	if (ch->get_gold() == 0)
-		send_to_char("Вы разорены !\r\n", ch);
+		send_to_char("Вы разорены!\r\n", ch);
 	else if (ch->get_gold() == 1)
-		send_to_char("У Вас есть всего лишь одна куна.\r\n", ch);
+		send_to_char("У вас есть всего лишь одна куна.\r\n", ch);
 	else
 	{
 		count += sprintf(buf, "У Вас есть %ld %s.\r\n", ch->get_gold(), desc_count(ch->get_gold(), WHAT_MONEYa));
@@ -3077,14 +3077,14 @@ void print_do_score_all(CHAR_DATA *ch)
 	if (!NAME_GOD(ch) && GET_LEVEL(ch) <= NAME_LEVEL)
 	{
 		sprintf(buf + strlen(buf),
-				" &c|| &RВНИМАНИЕ!&n Ваше имя не одобрил никто из богов!&c                                   ||\r\n");
+				" &c|| &RВНИМАНИЕ!&n ваше имя не одобрил никто из богов!&c                                   ||\r\n");
 		sprintf(buf + strlen(buf),
 				" || &nCкоро вы прекратите получать опыт, обратитесь к богам для одобрения имени.      &c||\r\n");
 	}
 	else if (NAME_BAD(ch))
 	{
 		sprintf(buf + strlen(buf),
-				" || &RВНИМАНИЕ!&n Ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.   &c||\r\n");
+				" || &RВНИМАНИЕ!&n ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.   &c||\r\n");
 	}
 
 	if (GET_LEVEL(ch) < LVL_IMMORT)
@@ -3101,7 +3101,7 @@ void print_do_score_all(CHAR_DATA *ch)
 		time_t rent_time = RENTABLE(ch) - time(0);
 		int minutes = rent_time > 60 ? rent_time / 60 : 0;
 		sprintf(buf + strlen(buf),
-				" || %sВ связи с боевыми действиями Вы не можете уйти на постой еще %-18s%s ||\r\n",
+				" || %sВ связи с боевыми действиями вы не можете уйти на постой еще %-18s%s ||\r\n",
 				CCIRED(ch, C_NRM),
 				minutes ? (boost::lexical_cast<std::string>(minutes) + string(" ") + string(desc_count(minutes, WHAT_MINu)) + string(".")).substr(0, 18).c_str()
 						: (boost::lexical_cast<std::string>(rent_time) + string(" ") + string(desc_count(rent_time, WHAT_SEC)) + string(".")).substr(0, 18).c_str(),
@@ -3109,7 +3109,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	}
 	else if ((IN_ROOM(ch) != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER))
 		sprintf(buf + strlen(buf),
-				" || %sТут Вы чувствуете себя в безопасности.                                          %s||\r\n",
+				" || %sТут вы чувствуете себя в безопасности.                                          %s||\r\n",
 				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
 	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_SMITH) && (ch->get_skill(SKILL_INSERTGEM) || ch->get_skill(SKILL_REPAIR) || ch->get_skill(SKILL_TRANSFORMWEAPON)))
@@ -3259,11 +3259,11 @@ ACMD(do_score)
 		sprintf(buf + strlen(buf), "Очень скоро вы прекратите получать опыт.\r\n\r\n");
 	}
 
-	sprintf(buf + strlen(buf), "Сейчас Вам %d %s. ", GET_REAL_AGE(ch), desc_count(GET_REAL_AGE(ch), WHAT_YEAR));
+	sprintf(buf + strlen(buf), "Сейчас вам %d %s. ", GET_REAL_AGE(ch), desc_count(GET_REAL_AGE(ch), WHAT_YEAR));
 
 	if (age(ch)->month == 0 && age(ch)->day == 0)
 	{
-		sprintf(buf2, "%sУ Вас сегодня День Варенья !%s\r\n", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(buf2, "%sУ вас сегодня День Варенья!%s\r\n", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		strcat(buf, buf2);
 	}
 	else
@@ -3278,7 +3278,7 @@ ACMD(do_score)
 	if (IS_MANA_CASTER(ch))
 	{
 		sprintf(buf + strlen(buf),
-				"Ваша магическая энергия %d(%d) и Вы восстанавливаете %d в сек.\r\n",
+				"Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
 				GET_MANA_STORED(ch), GET_MAX_MANA(ch), mana_gain(ch));
 	}
 
@@ -3326,7 +3326,7 @@ ACMD(do_score)
 	     sprintf(buf + strlen(buf),  " Из них свободно   : %4d\r\n",
 	             charm_points(ch) - used_charm_points(ch));
 	  } */
-	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, у Вас на руках %ld %s",
+	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, у вас на руках %ld %s",
 			GET_EXP(ch), desc_count(GET_EXP(ch), WHAT_POINT), ch->get_gold(), desc_count(ch->get_gold(), WHAT_MONEYa));
 	if (ch->get_bank() > 0)
 		sprintf(buf + strlen(buf), "(и еще %ld %s припрятано в лежне).\r\n",
@@ -3431,20 +3431,20 @@ ACMD(do_score)
 		if (on_horse(ch))
 			sprintf(buf + strlen(buf), "Вы верхом на %s.\r\n", GET_PAD(get_horse(ch), 5));
 		else
-			sprintf(buf + strlen(buf), "У Вас есть %s.\r\n", GET_NAME(get_horse(ch)));
+			sprintf(buf + strlen(buf), "У вас есть %s.\r\n", GET_NAME(get_horse(ch)));
 	}
 	strcat(buf, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 	if (RENTABLE(ch))
 	{
 		sprintf(buf,
-				"%sВ связи с боевыми действиями Вы не можете уйти на постой.%s\r\n",
+				"%sВ связи с боевыми действиями вы не можете уйти на постой.%s\r\n",
 				CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	}
 	else if ((IN_ROOM(ch) != NOWHERE) && ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !PLR_FLAGGED(ch, PLR_KILLER))
 	{
-		sprintf(buf, "%sТут Вы чувствуете себя в безопасности.%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(buf, "%sТут вы чувствуете себя в безопасности.%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	}
 
@@ -3546,7 +3546,7 @@ ACMD(do_mystat)
 	else
 	{
 		sprintf(buf,    " &C--------------------------------------------------------------------------------------&n\r\n"
-				" &C||&n   Статистика Ваших смертей   &C|&n         &WТекущее&n         &C|&n                         &C||&n\r\n"
+				" &C||&n   Статистика ваших смертей   &C|&n         &WТекущее&n         &C|&n                         &C||&n\r\n"
 				" &C||&n (количество, потеряно опыта) &C|&n      &Wперевоплощение&n     &C|&n           &KВсего&n         &C||&n\r\n"
 				" &C--------------------------------------------------------------------------------------&n\r\n"
 				" &C||&n    В неравном бою с тварями: &C|&n &W%4d (%16llu)&n &C|&n &K%4d (%16llu)&n &C||&n\r\n"
@@ -3587,7 +3587,7 @@ ACMD(do_equipment)
 	int i, found = 0;
 	skip_spaces(&argument);
 
-	send_to_char("На Вас надето:\r\n", ch);
+	send_to_char("На вас надето:\r\n", ch);
 	for (i = 0; i < NUM_WEARS; i++)
 	{
 		if (GET_EQ(ch, i))
@@ -3620,7 +3620,7 @@ ACMD(do_equipment)
 	if (!found)
 	{
 		if (IS_FEMALE(ch))
-			send_to_char("Костюм Евы Вам очень идет :)\r\n", ch);
+			send_to_char("Костюм Евы вам очень идет :)\r\n", ch);
 		else
 			send_to_char(" Вы голы, аки сокол.\r\n", ch);
 	}
@@ -3975,7 +3975,7 @@ ACMD(do_help)
 			// НЕ НАЙДЕНО
 			sprintf(buf1, "%s uses command HELP: %s (not found)", GET_NAME(ch), argument);
 			mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
-			sprintf(buf, "&WПо Вашему запросу '&w%s&W' ничего не было найдено.&n\r\n", argument);
+			sprintf(buf, "&WПо вашему запросу '&w%s&W' ничего не было найдено.&n\r\n", argument);
 			sprintf(buf + strlen(buf), "\r\n\r\n&cИнформация:&n\r\nЕсли применять команду \"справка\" без параметров, будут отображены основные команды,\r\nособенно необходимые новичкам. Кроме того полезно ознакомиться с разделом &CНОВИЧОК&n.\r\n\r\nСправочная система позволяет использовать в запросе индексацию разделов и использовать строгий поиск.\r\n\r\n&cПримеры:&n\r\n\t\"справка 3.защита\"\r\n\t\"справка 4.защита\"\r\n\t\"справка защитаоттьмы\"\r\n\t\"справка защита!\"\r\n\t\"справка 3.защита!\"\r\n\r\nСм. также: &CИСПОЛЬЗОВАНИЕСПРАВКИ&n\r\n");
 			send_to_char(buf, ch);
 			return;
@@ -3993,7 +3993,7 @@ ACMD(do_help)
 
 			// Перемещаемся по списку слов подпадающих под условие, если левел позволяет,
 			// записываем их в список + увеличиваем счетчик.
-			sprintf(buf, "&WПо Вашему запросу '&w%s&W' найдены следующие разделы справки:&n\r\n\r\n", argument);
+			sprintf(buf, "&WПо вашему запросу '&w%s&W' найдены следующие разделы справки:&n\r\n\r\n", argument);
 			while (mid <= top_of_helpt && help_table[mid].keyword != NULL && !strn_cmp(argument, help_table[mid].keyword, minlen))
 			{
 				if (trust_level >= help_table[mid].min_level && (int)strlen(help_table[mid].keyword) >= minlen)
@@ -5014,7 +5014,7 @@ ACMD(do_gen_ps)
 
 		sprintf(buf + strlen(buf), "Ваш e-mail : &S%s&s\r\n", GET_EMAIL(ch));
 		time_t birt = ch->player_data.time.birth;
-		sprintf(buf + strlen(buf), "Дата Вашего рождения : %s\r\n", rustime(localtime(&birt)));
+		sprintf(buf + strlen(buf), "Дата вашего рождения : %s\r\n", rustime(localtime(&birt)));
 		sprintf(buf + strlen(buf), "Ваш IP-адрес : %s\r\n", ch->desc ? ch->desc->host : "Unknown");
 //               GET_LASTIP (ch));
 		send_to_char(buf, ch);
@@ -5232,7 +5232,7 @@ ACMD(do_levels)
 
 	if (IS_NPC(ch))
 	{
-		send_to_char("Боги уже придумали Ваш уровень.\r\n", ch);
+		send_to_char("Боги уже придумали ваш уровень.\r\n", ch);
 		return;
 	}
 	*buf = '\0';
@@ -5258,12 +5258,12 @@ ACMD(do_consider)
 
 	if (!(victim = get_char_vis(ch, buf, FIND_CHAR_ROOM)))
 	{
-		send_to_char("Кого Вы хотите оценить ?\r\n", ch);
+		send_to_char("Кого вы хотите оценить?\r\n", ch);
 		return;
 	}
 	if (victim == ch)
 	{
-		send_to_char("Легко!  Выберите параметр <Удалить персонаж> !\r\n", ch);
+		send_to_char("Легко! Выберите параметр <Удалить персонаж>!\r\n", ch);
 		return;
 	}
 	if (!IS_NPC(victim))
@@ -5288,13 +5288,13 @@ ACMD(do_consider)
 	else if (diff <= 2)
 		send_to_char("Вам потребуется везение!\r\n", ch);
 	else if (diff <= 3)
-		send_to_char("Удача и хорошее снаряжение Вам сильно пригодятся!\r\n", ch);
+		send_to_char("Удача и хорошее снаряжение вам сильно пригодятся!\r\n", ch);
 	else if (diff <= 5)
 		send_to_char("Вы берете на себя слишком много.\r\n", ch);
 	else if (diff <= 10)
 		send_to_char("Ладно, войдете еще раз.\r\n", ch);
 	else if (diff <= 100)
-		send_to_char("Срочно к психиатру - Вы страдаете манией величия!\r\n", ch);
+		send_to_char("Срочно к психиатру - вы страдаете манией величия!\r\n", ch);
 
 }
 

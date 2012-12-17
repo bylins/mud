@@ -1713,8 +1713,8 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
             say_to_other = "$n взглянул$g на $N3 и бросил$g : '%s'.";
             say_to_obj_vis = "$n глянул$g на $o3 и произнес$q : '%s'.";
             say_to_something = "$n произнес$q : '%s'.";
-            damagee_vict = "$n зыркнул$g на Вас и проревел$g : '%s'.";
-            helpee_vict = "$n улыбнул$u Вам и произнес$q : '%s'.";
+            damagee_vict = "$n зыркнул$g на вас и проревел$g : '%s'.";
+            helpee_vict = "$n улыбнул$u вам и произнес$q : '%s'.";
             spell_prefix(spellnum, &say_to_self, &say_to_other, &say_to_obj_vis, &say_to_something, &damagee_vict, &helpee_vict);
             break;
 
@@ -1730,8 +1730,8 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
             // say_to_other     = "$n взглянул$g на $N3 и глухо просипел$q : '%s'.";
             // say_to_obj_vis   = "$n посмотрел$g на $o3 и произнес$q : '%s'.";
             // say_to_something = "$n молвил$g : '%s'.";
-            // damagee_vict     = "$n злобно рыкнул$g на Вас : '%s'.";
-            // helpee_vict      = "$n тихо пробормотал$g Вам : '%s'.";
+            // damagee_vict     = "$n злобно рыкнул$g на вас : '%s'.";
+            // helpee_vict      = "$n тихо пробормотал$g вам : '%s'.";
 	}
     } else {
 		if (*cast_phrase[spellnum][GET_RELIGION(ch)] != '\n')
@@ -1740,8 +1740,8 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 		say_to_other = "$n взглянул$g на $N3 и произнес$q : '%s'.";
 		say_to_obj_vis = "$n посмотрел$g на $o3 и произнес$q : '%s'.";
 		say_to_something = "$n произнес$q : '%s'.";
-		damagee_vict = "$n зыркнул$g на Вас и произнес$q : '%s'.";
-		helpee_vict = "$n подмигнул$g Вам и произнес$q : '%s'.";
+		damagee_vict = "$n зыркнул$g на вас и произнес$q : '%s'.";
+		helpee_vict = "$n подмигнул$g вам и произнес$q : '%s'.";
 		spell_prefix(spellnum, &say_to_self, &say_to_other, &say_to_obj_vis, &say_to_something, &damagee_vict, &helpee_vict);
     }
 
@@ -2382,11 +2382,11 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 	}
 	/* TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD */
 	if (IS_SET(SpINFO.routines, MAG_WARCRY))
-		sprintf(buf, "И на %s же Вы хотите так громко крикнуть ?\r\n",
+		sprintf(buf, "И на %s же вы хотите так громко крикнуть?\r\n",
 				IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
 				? "ЧТО" : "КОГО");
 	else
-		sprintf(buf, "На %s Вы хотите ЭТО колдовать ?\r\n",
+		sprintf(buf, "На %s Вы хотите ЭТО колдовать?\r\n",
 				IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
 				? "ЧТО" : "КОГО");
 	send_to_char(buf, ch);
@@ -2498,11 +2498,11 @@ int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DA
 	}
 	/* TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD */
 	if (IS_SET(SpINFO.routines, MAG_WARCRY))
-		sprintf(buf, "И на %s же Вы хотите так громко крикнуть ?\r\n",
+		sprintf(buf, "И на %s же вы хотите так громко крикнуть?\r\n",
 				IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
 				? "ЧТО" : "КОГО");
 	else
-		sprintf(buf, "На %s Вы хотите ЭТО колдовать ?\r\n",
+		sprintf(buf, "На %s вы хотите ЭТО колдовать?\r\n",
 				IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
 				? "ЧТО" : "КОГО");
 	send_to_char(buf, ch);
@@ -2751,13 +2751,13 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 			send_to_char("Вы спите и не могете думать больше ни о чем.\r\n", ch);
 			break;
 		case POS_RESTING:
-			send_to_char("Вы расслаблены и отдыхаете. И далась Вам эта магия ?\r\n", ch);
+			send_to_char("Вы расслаблены и отдыхаете. И далась вам эта магия?\r\n", ch);
 			break;
 		case POS_SITTING:
 			send_to_char("Похоже, в этой позе Вы много не наколдуете.\r\n", ch);
 			break;
 		case POS_FIGHTING:
-			send_to_char("Невозможно!  Вы сражаетесь ! Это Вам не шухры-мухры.\r\n", ch);
+			send_to_char("Невозможно! Вы сражаетесь! Это вам не шухры-мухры.\r\n", ch);
 			break;
 		default:
 			send_to_char("Вам вряд ли это удасться.\r\n", ch);
@@ -2767,18 +2767,18 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 	}
 	if (AFF_FLAGGED(ch, AFF_CHARM) && (ch->master == tch))
 	{
-		send_to_char("Вы не посмеете поднять руку на Вашего повелителя !\r\n", ch);
+		send_to_char("Вы не посмеете поднять руку на вашего повелителя!\r\n", ch);
 		return (0);
 	}
 	if (tch != ch && !IS_IMMORTAL(ch)
 			&& IS_SET(SpINFO.targets, TAR_SELF_ONLY))
 	{
-		send_to_char("Вы можете колдовать это только на себя !\r\n", ch);
+		send_to_char("Вы можете колдовать это только на себя!\r\n", ch);
 		return (0);
 	}
 	if (tch == ch && IS_SET(SpINFO.targets, TAR_NOT_SELF))
 	{
-		send_to_char("Колдовать ? ЭТО ? На себя ?! Да Вы с ума сошли !\r\n", ch);
+		send_to_char("Колдовать? ЭТО? На себя?! Да вы с ума сошли!\r\n", ch);
 		return (0);
 	}
 	if ((!tch || IN_ROOM(tch) == NOWHERE) && !tobj && !troom &&
@@ -2804,7 +2804,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 
 	/* Gorrah: убрал ограничение
 		if (IS_SET(SpINFO.routines, MAG_GROUPS) && !IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_GROUP)) {
-			send_to_char("Но Вы же не член группы !\r\n", ch);
+			send_to_char("Но вы же не член группы !\r\n", ch);
 			return (0);
 		} */
 
@@ -2969,7 +2969,7 @@ ACMD(do_cast)
 	s = strtok(argument, "'*!");
 	if (s == NULL)
 	{
-		send_to_char("ЧТО Вы хотите колдовать ?\r\n", ch);
+		send_to_char("ЧТО вы хотите колдовать?\r\n", ch);
 		return;
 	}
 	s = strtok(NULL, "'*!");
@@ -2992,7 +2992,7 @@ ACMD(do_cast)
 	/* Unknown spell */
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
-		send_to_char("И откуда Вы набрались таких выражений ?\r\n", ch);
+		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
 
@@ -3005,7 +3005,7 @@ ACMD(do_cast)
 				|| GET_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
 				||  slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
 		{
-			send_to_char("Рано еще Вам бросаться такими словами !\r\n", ch);
+			send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
 			return;
 		}
 		else
@@ -3033,7 +3033,7 @@ ACMD(do_cast)
 				}
 			if (i >= LAST_USED_SPELL)
 			{
-				send_to_char("У Вас нет заученных заклинаний этого круга.\r\n", ch);
+				send_to_char("У вас нет заученных заклинаний этого круга.\r\n", ch);
 				return;
 			}
 
@@ -3056,13 +3056,13 @@ ACMD(do_cast)
 
 	if (target && (tch == ch) && SpINFO.violent)
 	{
-		send_to_char("Лекари не рекомендуют использовать ЭТО на себя !\r\n", ch);
+		send_to_char("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
 		return;
 	}
 
 	if (!target)
 	{
-		send_to_char("Тяжеловато найти цель Вашего заклинания !\r\n", ch);
+		send_to_char("Тяжеловато найти цель вашего заклинания!\r\n", ch);
 		return;
 	}
 
@@ -3086,7 +3086,7 @@ ACMD(do_cast)
 		affect_total(ch);
 		//log("[DO_CAST->AFFECT_TOTAL] Stop");
 		if (!tch || !skill_message(0, ch, tch, spellnum))
-			send_to_char("Вы не смогли сосредоточиться !\r\n", ch);
+			send_to_char("Вы не смогли сосредоточиться!\r\n", ch);
 	}
 	else  		/* cast spell returns 1 on success; subtract mana & set waitstate */
 	{
@@ -3116,7 +3116,7 @@ ACMD(do_warcry)
 
 	if (!ch->get_skill(SKILL_WARCRY))
 	{
-		send_to_char("Но Вы не знаете как.\r\n", ch);
+		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
@@ -3154,7 +3154,7 @@ ACMD(do_warcry)
 	{
 		if (tok_iter == tok.end())
 		{
-			send_to_char("Какой клич Вы хотите использовать ?\r\n", ch);
+			send_to_char("Какой клич вы хотите использовать ?\r\n", ch);
 			return;
 		}
 		else
@@ -3168,7 +3168,7 @@ ACMD(do_warcry)
 	/* Unknown warcry */
 	if (spellnum < 1 || spellnum > MAX_SPELLS || ch->get_skill(SKILL_WARCRY) < SpINFO.mana_change)
 	{
-		send_to_char("И откуда Вы набрались таких выражений ?\r\n", ch);
+		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
 
@@ -3195,13 +3195,13 @@ ACMD(do_warcry)
 
 	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(SpINFO.targets, TAR_SELF_ONLY))
 	{
-		send_to_char("Этот клич предназначен только для Вас !\r\n", ch);
+		send_to_char("Этот клич предназначен только для вас!\r\n", ch);
 		return;
 	}
 
 	if (tch == ch && IS_SET(SpINFO.targets, TAR_NOT_SELF))
 	{
-		send_to_char("Да Вы с ума сошли !\r\n", ch);
+		send_to_char("Да вы с ума сошли!\r\n", ch);
 		return;
 	}
 
@@ -3217,7 +3217,7 @@ ACMD(do_warcry)
 
 	if (GET_MOVE(ch) < SpINFO.mana_max)
 	{
-		send_to_char("У Вас не хватит сил для этого.\r\n", ch);
+		send_to_char("У вас не хватит сил для этого.\r\n", ch);
 		return;
 	}
 
@@ -3259,9 +3259,9 @@ ACMD(do_mixture)
 	if (!s)
 	{
 		if (subcmd == SCMD_RUNES)
-			send_to_char("Что Вы хотите сложить ?\r\n", ch);
+			send_to_char("Что вы хотите сложить?\r\n", ch);
 		else if (subcmd == SCMD_ITEMS)
-			send_to_char("Что Вы хотите смешать ?\r\n", ch);
+			send_to_char("Что вы хотите смешать?\r\n", ch);
 		return;
 	}
 	s = strtok(NULL, "'*!");
@@ -3277,7 +3277,7 @@ ACMD(do_mixture)
 	/* Unknown spell */
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
-		send_to_char("И откуда Вы набрались рецептов ?\r\n", ch);
+		send_to_char("И откуда вы набрались рецептов?\r\n", ch);
 		return;
 	}
 
@@ -3287,7 +3287,7 @@ ACMD(do_mixture)
 			|| (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_RUNES)
 				&& subcmd == SCMD_RUNES)) && !IS_GOD(ch))
 	{
-		send_to_char("Это блюдо Вам явно не понравится.\r\n" "Научитесь его правильно готовить.\r\n", ch);
+		send_to_char("Это блюдо вам явно не понравится.\r\n" "Научитесь его правильно готовить.\r\n", ch);
 		return;
 	}
 
@@ -3297,9 +3297,9 @@ ACMD(do_mixture)
 	if (!check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, FALSE))
 	{
 		if (subcmd == SCMD_ITEMS)
-			send_to_char("У Вас нет нужных ингредиентов !\r\n", ch);
+			send_to_char("У вас нет нужных ингредиентов!\r\n", ch);
 		else if (subcmd == SCMD_RUNES)
-			send_to_char("У Вас нет нужных рун !\r\n", ch);
+			send_to_char("У вас нет нужных рун!\r\n", ch);
 		return;
 	}
 
@@ -3313,19 +3313,19 @@ ACMD(do_mixture)
 
 	if (target && (tch == ch) && SpINFO.violent)
 	{
-		send_to_char("Лекари не рекомендуют использовать ЭТО на себя !\r\n", ch);
+		send_to_char("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
 		return;
 	}
 
 	if (!target)
 	{
-		send_to_char("Тяжеловато найти цель для Вашей магии !\r\n", ch);
+		send_to_char("Тяжеловато найти цель для вашей магии!\r\n", ch);
 		return;
 	}
 
 	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(SpINFO.targets, TAR_SELF_ONLY))
 	{
-		send_to_char("Вы можете колдовать это только на себя !\r\n", ch);
+		send_to_char("Вы можете колдовать это только на себя!\r\n", ch);
 		return;
 	}
 
@@ -3345,7 +3345,7 @@ ACMD(do_mixture)
 
 		if (GET_MANA_STORED(ch) < GET_MANA_COST(ch, spellnum))
 		{
-			send_to_char("У Вас маловато магической энергии!\r\n", ch);
+			send_to_char("У вас маловато магической энергии!\r\n", ch);
 			return;
 		}
 		else
@@ -3364,9 +3364,9 @@ ACMD(do_mixture)
 			if (!tch || !skill_message(0, ch, tch, spellnum))
 			{
 				if (subcmd == SCMD_ITEMS)
-					send_to_char("Вы неправильно смешали ингредиенты !\r\n", ch);
+					send_to_char("Вы неправильно смешали ингредиенты!\r\n", ch);
 				else if (subcmd == SCMD_RUNES)
-					send_to_char("Вы не смогли правильно истолковать значение рун !\r\n", ch);
+					send_to_char("Вы не смогли правильно истолковать значение рун!\r\n", ch);
 			}
 
 		}
@@ -3397,9 +3397,9 @@ ACMD(do_create)
 	if (!*arg)
 	{
 		if (subcmd == SCMD_RECIPE)
-			send_to_char("Состав ЧЕГО Вы хотите узнать ?\r\n", ch);
+			send_to_char("Состав ЧЕГО вы хотите узнать?\r\n", ch);
 		else
-			send_to_char("ЧТО Вы хотите создать ?\r\n", ch);
+			send_to_char("ЧТО вы хотите создать?\r\n", ch);
 		return;
 	}
 
@@ -3444,7 +3444,7 @@ ACMD(do_create)
 	s = strtok(argument, "'*!");
 	if (s == NULL)
 	{
-		sprintf(buf, "Уточните тип состава !\r\n");
+		sprintf(buf, "Уточните тип состава!\r\n");
 		send_to_char(buf, ch);
 		return;
 	}
@@ -3460,7 +3460,7 @@ ACMD(do_create)
 	/* Unknown spell */
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
-		send_to_char("И откуда Вы набрались рецептов ?\r\n", ch);
+		send_to_char("И откуда вы набрались рецептов?\r\n", ch);
 		return;
 	}
 
@@ -3485,7 +3485,7 @@ ACMD(do_create)
 
 	if (!check_recipe_items(ch, spellnum, itemnum, TRUE))
 	{
-		send_to_char("У Вас нет нужных инградиентов !\r\n", ch);
+		send_to_char("У вас нет нужных инградиентов!\r\n", ch);
 		return;
 	}
 }
@@ -3493,7 +3493,7 @@ ACMD(do_create)
 void book_upgrd_fail_message(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	send_to_char(ch,
-			"Изучив %s от корки до корки Вы так и не узнали ничего нового.\r\n",
+			"Изучив %s от корки до корки вы так и не узнали ничего нового.\r\n",
 			obj->PNames[3]);
 	act("$n с интересом принял$g читать $o3.\r\n"
 			"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
@@ -3550,7 +3550,7 @@ ACMD(do_learn)
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{
-		send_to_char("А у Вас этого нет.\r\n", ch);
+		send_to_char("А у вас этого нет.\r\n", ch);
 		return;
 	}
 
@@ -3571,7 +3571,7 @@ ACMD(do_learn)
 
 	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && slot_for_char(ch, 1) <= 0)
 	{
-		send_to_char("Далась Вам эта магия! Пошли-бы, водочки выпили...\r\n", ch);
+		send_to_char("Далась вам эта магия! Пошли-бы, водочки выпили...\r\n", ch);
 		return;
 	}
 
@@ -3683,8 +3683,8 @@ ACMD(do_learn)
 	{
 		sprintf(buf,
 				"- \"Какие интересные буковки ! Особенно %s, похожая на %s\".\r\n"
-				"Полюбовавшись еще несколько минут на сию красоту, Вы с чувством выполненного\r\n"
-				"долга закрыли %s. До %s Вы еще не доросли.\r\n", number(0,
+				"Полюбовавшись еще несколько минут на сию красоту, вы с чувством выполненного\r\n"
+				"долга закрыли %s. До %s вы еще не доросли.\r\n", number(0,
 						1) ?
 				"вон та" : number(0, 1) ? "вот эта" : "пятая справа",
 				number(0, 1) ? "жука" : number(0, 1) ? "бабочку" : "русалку",
@@ -3715,7 +3715,7 @@ ACMD(do_learn)
 	{
 		sprintf(buf, "Вы взяли в руки %s и начали изучать. Непослушные\r\n"
 				"буквы никак не хотели выстраиваться в понятные и доступные фразы.\r\n"
-				"Промучившись несколько минут, Вы бросили это унылое занятие,\r\n"
+				"Промучившись несколько минут, вы бросили это унылое занятие,\r\n"
 				"с удивлением отметив исчезновение %s.\r\n", obj->PNames[3], obj->PNames[1]);
 		send_to_char(buf, ch);
 	}
@@ -3723,7 +3723,7 @@ ACMD(do_learn)
 	{
 		sprintf(buf, "Вы взяли в руки %s и начали изучать. Постепенно,\r\n"
 				"незнакомые доселе, буквы стали складываться в понятные слова и фразы.\r\n"
-				"Буквально через несколько минут Вы узнали %s %s \"%s\".\r\n",
+				"Буквально через несколько минут вы узнали %s %s \"%s\".\r\n",
 				obj->PNames[3], (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) ? stype0[1] : stype0[0], stype2[GET_OBJ_VAL(obj, 0)], spellname);
 		send_to_char(buf, ch);
 		switch (GET_OBJ_VAL(obj, 0))
@@ -3816,7 +3816,7 @@ void show_wizdom(CHAR_DATA * ch, int bitset)
 		}
 		else
 		{
-			gcount += sprintf(buf2 + gcount, "\r\nСейчас у Вас нет заученных заклинаний.");
+			gcount += sprintf(buf2 + gcount, "\r\nСейчас у вас нет заученных заклинаний.");
 		}
 		gcount += sprintf(buf2 + gcount, "\r\n");
 	}
@@ -3924,13 +3924,13 @@ ACMD(do_remember)
 	}
 	if (IS_IMMORTAL(ch))
 	{
-		send_to_char("Господи, хоть ты не подкалывай !\r\n", ch);
+		send_to_char("Господи, хоть ты не подкалывай!\r\n", ch);
 		return;
 	}
 	s = strtok(argument, "'*!");
 	if (s == NULL)
 	{
-		send_to_char("Какое заклинание Вы хотите заучить ?\r\n", ch);
+		send_to_char("Какое заклинание вы хотите заучить?\r\n", ch);
 		return;
 	}
 	s = strtok(NULL, "'*!");
@@ -3943,7 +3943,7 @@ ACMD(do_remember)
 
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
-		send_to_char("И откуда Вы набрались таких выражений ?\r\n", ch);
+		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
 	/* Caster is lower than spell level */
@@ -3951,7 +3951,7 @@ ACMD(do_remember)
 			||  GET_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
 			||    slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
 	{
-		send_to_char("Рано еще Вам бросаться такими словами !\r\n", ch);
+		send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
 		return;
 	};
 	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
@@ -3988,13 +3988,13 @@ ACMD(do_forget)
 	/* get: blank, spell name, target name */
 	if (IS_IMMORTAL(ch))
 	{
-		send_to_char("Господи, тебе лень набрать skillset ?\r\n", ch);
+		send_to_char("Господи, тебе лень набрать skillset?\r\n", ch);
 		return;
 	}
 	s = strtok(argument, "'*!");
 	if (s == NULL)
 	{
-		send_to_char("Какое заклинание Вы хотите забыть ?\r\n", ch);
+		send_to_char("Какое заклинание вы хотите забыть?\r\n", ch);
 		return;
 	}
 	s = strtok(NULL, "'*!");
@@ -4007,7 +4007,7 @@ ACMD(do_forget)
 	/* Unknown spell */
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
-		send_to_char("И откуда Вы набрались таких выражений ?\r\n", ch);
+		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
 	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW | SPELL_TEMP))

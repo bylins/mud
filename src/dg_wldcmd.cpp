@@ -603,13 +603,13 @@ WCMD(do_wdamage)
 
 		if (GET_LEVEL(ch) >= LVL_IMMORT && dam > 0)
 		{
-			send_to_char("Будучи бессмертным, Вы избежали повреждения...", ch);
+			send_to_char("Будучи бессмертным, вы избежали повреждения...", ch);
 			return;
 		}
 		GET_HIT(ch) -= dam;
 		if (dam < 0)
 		{
-			send_to_char("Вам почувствовали себя лучше.\r\n", ch);
+			send_to_char("Вы почувствовали себя лучше.\r\n", ch);
 			return;
 		}
 

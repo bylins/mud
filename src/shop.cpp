@@ -702,14 +702,14 @@ void shopping_buy(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 	if ((IS_CARRYING_N(ch) + 1 > CAN_CARRY_N(ch)))
 	{
 		sprintf(buf, "%s, я понимаю, своя ноша карман не тянет,\r\n"
-				"но %s Вам явно некуда положить.\r\n", GET_NAME(ch), OBJN(obj, ch, 3));
+				"но %s вам явно некуда положить.\r\n", GET_NAME(ch), OBJN(obj, ch, 3));
 		send_to_char(buf, ch);
 		return;
 	}
 	if ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) > CAN_CARRY_W(ch))
 	{
 		sprintf(buf, "%s, я понимаю, своя ноша карман не тянет,\r\n"
-				"но %s Вам явно не поднять.\r\n", GET_NAME(ch), OBJN(obj, ch, 3));
+				"но %s вам явно не поднять.\r\n", GET_NAME(ch), OBJN(obj, ch, 3));
 		send_to_char(buf, ch);
 		return;
 	}
@@ -787,7 +787,7 @@ void shopping_buy(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 	write_buf(buf, shop_index[shop_nr].message_buy, GET_NAME(ch), goldamt, WHAT_MONEYu);
 	do_tell(keeper, buf, cmd_tell, 0);
 
-	sprintf(buf, "Теперь Вы стали %s %s.\r\n",
+	sprintf(buf, "Теперь вы стали %s %s.\r\n",
 			IS_MALE(ch) ? "счастливым обладателем" :
 			"счастливой обладательницей", times_message(obj /* ch->carrying */ , 0, bought, 1));
 	send_to_char(buf, ch);
@@ -1093,7 +1093,7 @@ void shopping_change(char *argument, CHAR_DATA * ch, CHAR_DATA * keeper, int sho
 				continue;
 			else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 			{
-				sprintf(buf, "У Вас нет ничего похожего на %s.\r\n", arg);
+				sprintf(buf, "У вас нет ничего похожего на %s.\r\n", arg);
 				send_to_char(buf, ch);
 			}
 			else
@@ -1376,7 +1376,7 @@ void shopping_repair_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, in
 
 	if (!obj)
 	{
-		sprintf(buf, "%s! Что я Вам должен починить ?", GET_NAME(ch));
+		sprintf(buf, "%s! Что я вам должен починить ?", GET_NAME(ch));
 		do_tell(keeper, buf, cmd_tell, 0);
 		return;
 	}
@@ -1510,7 +1510,7 @@ void do_multi(int subcmd, char *argument, CHAR_DATA * ch, CHAR_DATA * keeper, in
 		}
 		else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 		{
-			sprintf(buf, "У Вас нет ничего похожего на %s.\r\n", arg);
+			sprintf(buf, "У вас нет ничего похожего на %s.\r\n", arg);
 			send_to_char(buf, ch);
 		}
 		else
@@ -1540,7 +1540,7 @@ void do_multi(int subcmd, char *argument, CHAR_DATA * ch, CHAR_DATA * keeper, in
 		if (dotmode == FIND_ALL)
 		{
 			if (!ch->carrying)
-				send_to_char("А у Вас ничего и нет.\r\n", ch);
+				send_to_char("А у вас ничего и нет.\r\n", ch);
 			else
 				for (obj = ch->carrying; obj; obj = next_obj)
 				{
@@ -1568,7 +1568,7 @@ void do_multi(int subcmd, char *argument, CHAR_DATA * ch, CHAR_DATA * keeper, in
 			}
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 			{
-				sprintf(buf, "У Вас нет ничего похожего на '%s'.\r\n", arg);
+				sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 			}
 			while (obj)
@@ -1592,7 +1592,7 @@ void do_multi(int subcmd, char *argument, CHAR_DATA * ch, CHAR_DATA * keeper, in
 		{
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 			{
-				sprintf(buf, "У Вас нет '%s'.\r\n", arg);
+				sprintf(buf, "У вас нет '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 			}
 			else

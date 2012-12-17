@@ -278,7 +278,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf, "Mute OFF by %s", GET_NAME(ch));
 			add_karma(vict, buf, reason);
 
-			sprintf(buf, "%s%s разрешил$G Вам кричать.%s",
+			sprintf(buf, "%s%s разрешил$G вам кричать.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 			sprintf(buf2, "$n2 вернулся голос.");
@@ -320,7 +320,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf, "Dumb OFF by %s", GET_NAME(ch));
 			add_karma(vict, buf, reason);
 
-			sprintf(buf, "%s%s разрешил$G Вам издавать звуки.%s",
+			sprintf(buf, "%s%s разрешил$G вам издавать звуки.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 			sprintf(buf2, "$n2 нарушил обет молчания.");
@@ -363,7 +363,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				look_at_room(vict, result);
 			};
 
-			sprintf(buf, "%s%s выпустил$G Вас из темницы.%s",
+			sprintf(buf, "%s%s выпустил$G вас из темницы.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 			sprintf(buf2, "$n выпущен$a из темницы !");
@@ -407,7 +407,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				char_to_room(vict, result);
 				look_at_room(vict, result);
 			};
-			sprintf(buf, "%s%s выпустил$G Вас из комнаты имени.%s",
+			sprintf(buf, "%s%s выпустил$G вас из комнаты имени.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 			sprintf(buf2, "$n выпущен$a из комнаты имени !");
@@ -451,7 +451,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				char_to_room(vict, result);
 				look_at_room(vict, result);
 			};
-			sprintf(buf, "%s%s зарегистрировал$G Вас.%s",
+			sprintf(buf, "%s%s зарегистрировал$G вас.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 			sprintf(buf2, "$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации !");
@@ -493,7 +493,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf, "Mute ON (%ldh) by %s", times , GET_NAME(ch));
 			add_karma(vict, buf, reason);
 
-			sprintf(buf, "%s%s запретил$G Вам кричать.%s",
+			sprintf(buf, "%s%s запретил$G вам кричать.%s",
 					CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 			sprintf(buf2, "$n подавился своим криком.");
@@ -512,7 +512,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf, "Freeze ON (%ldh) by %s", times , GET_NAME(ch));
 			add_karma(vict, buf, reason);
 
-			sprintf(buf, "%sАдский холод сковал Ваше тело ледяным панцирем.\r\n%s",
+			sprintf(buf, "%sАдский холод сковал ваше тело ледяным панцирем.\r\n%s",
 					CCIBLU(vict, C_NRM), CCNRM(vict, C_NRM));
 
 			sprintf(buf2, "Ледяной панцирь покрыл тело $n1! Стало очень тихо и холодно.");
@@ -532,7 +532,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf, "Dumb ON (%ldm) by %s", times , GET_NAME(ch));
 			add_karma(vict, buf, reason);
 
-			sprintf(buf, "%s%s запретил$G Вам издавать звуки.%s",
+			sprintf(buf, "%s%s запретил$G вам издавать звуки.%s",
 					CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
 			sprintf(buf2, "$n дал обет молчания.");
@@ -559,7 +559,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf, "Moved TO hell (%ldh) by %s", times, GET_NAME(ch));
 			add_karma(vict, buf, reason);
 
-			sprintf(buf, "%s%s поместил$G Вас в темницу.%s", GET_NAME(ch),
+			sprintf(buf, "%s%s поместил$G вас в темницу.%s", GET_NAME(ch),
 					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
 			sprintf(buf2, "$n водворен$a в темницу !");
 			break;
@@ -585,7 +585,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf, "Removed TO nameroom (%ldh) by %s", times, GET_NAME(ch));
 			add_karma(vict, buf, reason);
 
-			sprintf(buf, "%s%s поместил$G Вас в комнату имени.%s",
+			sprintf(buf, "%s%s поместил$G вас в комнату имени.%s",
 					CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 			sprintf(buf2, "$n помещен$a в комнату имени !");
 			break;
@@ -612,7 +612,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf, "Unregistered (%ldh) by %s", times, GET_NAME(ch));
 			add_karma(vict, buf, reason);
 
-			sprintf(buf, "%s%s снял$G с Вас ... регистрацию :).%s",
+			sprintf(buf, "%s%s снял$G с вас... регистрацию :).%s",
 					CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 			sprintf(buf2, "$n лишен$a регистрации!");
 
@@ -697,7 +697,7 @@ ACMD(do_email)
 	std::string from = senderName + "<" + senderMail + ">";
 	std::string subject = smtp.child("Subject").child_value();
 	std::string msg = "Здравствуйте!\r\n";
-	msg += "Пароль Вашего персонажа в МПМ \"Былины\" был изменен!\r\n";
+	msg += "Пароль вашего персонажа в МПМ \"Былины\" был изменен!\r\n";
 	msg += "Персонаж: " + std::string(GET_NAME(victim))+"\r\n";
 	msg += "Новый пароль: " + std::string(newpass);
 	std::string addr_to = std::string(GET_EMAIL(victim));
@@ -729,7 +729,7 @@ ACMD(do_echo)
 	skip_spaces(&argument);
 
 	if (!*argument)
-		send_to_char("И что Вы хотите выразить столь красочно ?\r\n", ch);
+		send_to_char("И что вы хотите выразить столь красочно ?\r\n", ch);
 	else
 	{
 		if (subcmd == SCMD_EMOTE)
@@ -742,7 +742,7 @@ ACMD(do_echo)
 				{
 // shapirus: правильно пишется не "так-же", а "так же".
 // и запятая пропущена была :-P.
-					send_to_char("Ваши последователи так же немы, как и Вы!\r\n", ch->master);
+					send_to_char("Ваши последователи так же немы, как и вы!\r\n", ch->master);
 					return;
 				}
 			}
@@ -970,7 +970,7 @@ room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 			location = target_obj->in_room;
 		else
 		{
-			send_to_char("Этот объект Вам недоступен.\r\n", ch);
+			send_to_char("Этот объект вам недоступен.\r\n", ch);
 			return (NOWHERE);
 		}
 	}
@@ -1018,7 +1018,7 @@ ACMD(do_at)
 
 	if (!*command)
 	{
-		send_to_char("Что Вы собираетесь там делать?\r\n", ch);
+		send_to_char("Что вы собираетесь там делать?\r\n", ch);
 		return;
 	}
 
@@ -1075,7 +1075,7 @@ ACMD(do_teleport)
 	two_arguments(argument, buf, buf2);
 
 	if (!*buf)
-		send_to_char("Кого Вы хотите переместить?\r\n", ch);
+		send_to_char("Кого вы хотите переместить?\r\n", ch);
 	else if (!(victim = get_char_vis(ch, buf, FIND_CHAR_WORLD)))
 		send_to_char(NOPERSON, ch);
 	else if (victim == ch)
@@ -1083,7 +1083,7 @@ ACMD(do_teleport)
 	else if (GET_LEVEL(victim) >= GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
 		send_to_char("Попробуйте придумать что-то другое.\r\n", ch);
 	else if (!*buf2)
-		act("Куда Вы хотите $S переместить?", FALSE, ch, 0, victim, TO_CHAR);
+		act("Куда вы хотите $S переместить?", FALSE, ch, 0, victim, TO_CHAR);
 	else if ((target = find_target_room(ch, buf2, 0)) != NOWHERE)
 	{
 		send_to_char(OK, ch);
@@ -1092,7 +1092,7 @@ ACMD(do_teleport)
 		char_to_room(victim, target);
 		check_horse(victim);
 		act("$n появил$u, окутанн$w розовым туманом.", FALSE, victim, 0, 0, TO_ROOM);
-		act("$n переместил$g Вас!", FALSE, ch, 0, (char *) victim, TO_VICT);
+		act("$n переместил$g вас!", FALSE, ch, 0, (char *) victim, TO_VICT);
 		look_at_room(victim, 0);
 	}
 }
@@ -2101,7 +2101,7 @@ ACMD(do_stat)
 				victim = &t_victim;
 				if (GET_LEVEL(victim) > level)
 				{
-					send_to_char("Извините, Вам это еще рано.\r\n", ch);
+					send_to_char("Извините, вам это еще рано.\r\n", ch);
 				}
 				else
 				{
@@ -2301,7 +2301,7 @@ ACMD(do_snoop)
 	else if (victim->desc->snoop_by)
 		send_to_char("Дык его уже кто-то из богов подслушивает.\r\n", ch);
 //	else if (!can_snoop(ch, victim))
-//		send_to_char("Дружина данного персонажа находится в состоянии войны с Вашей дружиной.\r\n", ch);
+//		send_to_char("Дружина данного персонажа находится в состоянии войны с вашей дружиной.\r\n", ch);
 	else
 	{
 		if (victim->desc->original)
@@ -2410,7 +2410,7 @@ ACMD(do_load)
 	}
 	if ((number = atoi(buf2)) < 0)
 	{
-		send_to_char("Отрицательный моб опасен для Вашего здоровья !\r\n", ch);
+		send_to_char("Отрицательный моб опасен для вашего здоровья!\r\n", ch);
 		return;
 	}
 	if (is_abbrev(buf, "mob"))
@@ -2546,7 +2546,7 @@ ACMD(do_purge)
 		{
 			if (!IS_NPC(vict) && GET_LEVEL(ch) <= GET_LEVEL(vict) && !Privilege::check_flag(ch, Privilege::KRODER))
 			{
-				send_to_char("Да я Вас за это...\r\n", ch);
+				send_to_char("Да я вас за это...\r\n", ch);
 				return;
 			}
 			act("$n обратил$g в прах $N3.", FALSE, ch, 0, vict, TO_NOTVICT);
@@ -2587,7 +2587,7 @@ ACMD(do_purge)
 	}
 	else  		/* no argument. clean out the room */
 	{
-		act("$n произнес$q СЛОВО... Вас окружило пламя !", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n произнес$q СЛОВО... вас окружило пламя !", FALSE, ch, 0, 0, TO_ROOM);
 		send_to_room("Мир стал немного чище.\r\n", ch->in_room, FALSE);
 
 		for (vict = world[ch->in_room]->people; vict; vict = next_v)
@@ -3027,7 +3027,7 @@ ACMD(do_syslog)
 		}
 		GET_LOGS(ch)[subcmd] = tp;
 	}
-	sprintf(buf, "Тип Вашего лога (%s) сейчас %s.\r\n", logs[subcmd].name, logtypes[tp]);
+	sprintf(buf, "Тип вашего лога (%s) сейчас %s.\r\n", logs[subcmd].name, logtypes[tp]);
 	send_to_char(buf, ch);
 	return;
 }
@@ -3091,7 +3091,7 @@ ACMD(do_advance)
 	{
 		act("$n сделал$g несколько странных пасов.\r\n"
 			"Вам показалось, будто неземное тепло разлилось по каждой клеточке\r\n"
-			"Вашего тела, наполняя его доселе невиданными Вами ощущениями.\r\n", FALSE, ch, 0, victim, TO_VICT);
+			"Вашего тела, наполняя его доселе невиданными вами ощущениями.\r\n", FALSE, ch, 0, victim, TO_VICT);
 	}
 
 	send_to_char(OK, ch);
@@ -3120,7 +3120,7 @@ ACMD(do_restore)
 
 	one_argument(argument, buf);
 	if (!*buf)
-		send_to_char("Кого Вы хотите восстановить ?\r\n", ch);
+		send_to_char("Кого вы хотите восстановить?\r\n", ch);
 	else if (!(vict = get_char_vis(ch, buf, FIND_CHAR_WORLD)))
 		send_to_char(NOPERSON, ch);
 	else
@@ -3183,7 +3183,7 @@ void perform_immort_vis(CHAR_DATA * ch)
 	if (GET_INVIS_LEV(ch) == 0 &&
 			!AFF_FLAGGED(ch, AFF_HIDE) && !AFF_FLAGGED(ch, AFF_INVISIBLE) && !AFF_FLAGGED(ch, AFF_CAMOUFLAGE))
 	{
-		send_to_char("Ну вот Вас и заметили. Стало ли Вам легче от этого ?\r\n", ch);
+		send_to_char("Ну вот вас и заметили. Стало ли вам легче от этого ?\r\n", ch);
 		return;
 	}
 
@@ -3205,7 +3205,7 @@ void perform_immort_invis(CHAR_DATA * ch, int level)
 		if (tch == ch)
 			continue;
 		if (GET_LEVEL(tch) >= GET_INVIS_LEV(ch) && GET_LEVEL(tch) < level)
-			act("Вы вздрогнули, когда $n растворил$u на Ваших глазах.", FALSE, ch, 0, tch, TO_VICT);
+			act("Вы вздрогнули, когда $n растворил$u на ваших глазах.", FALSE, ch, 0, tch, TO_VICT);
 		if (GET_LEVEL(tch) < GET_INVIS_LEV(ch) && GET_LEVEL(tch) >= level)
 			act("$n медленно появил$u из пустоты.", FALSE, ch, 0, tch, TO_VICT);
 	}
@@ -3243,7 +3243,7 @@ ACMD(do_invis)
 	{
 		level = MIN(atoi(arg), LVL_IMPL);
 		if (level > GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
-			send_to_char("Вы не можете достичь невидимости выше Вашего уровня.\r\n", ch);
+			send_to_char("Вы не можете достичь невидимости выше вашего уровня.\r\n", ch);
 		else if (GET_LEVEL(ch) < LVL_IMPL && level > LVL_IMMORT && !Privilege::check_flag(ch, Privilege::KRODER))
 			perform_immort_invis(ch, LVL_IMMORT);
 		else if (level < 1)
@@ -3326,16 +3326,19 @@ ACMD(do_dc)
 		send_to_char("Нет такого соединения.\r\n", ch);
 		return;
 	}
-
-	int victim_level = Privilege::check_flag(d->character, Privilege::KRODER) ? LVL_IMPL : GET_LEVEL(d->character);
-	int god_level = Privilege::check_flag(ch, Privilege::KRODER) ? LVL_IMPL : GET_LEVEL(ch);
-	if (d->character && victim_level >= god_level)
+	
+	if (d->character) //Чтоб не крешило при попытке разъединить незалогиненного
 	{
-		if (!CAN_SEE(ch, d->character))
-			send_to_char("Нет такого соединения.\r\n", ch);
-		else
-			send_to_char("Да уж.. Это не есть праффильная идея...\r\n", ch);
-		return;
+		int victim_level = Privilege::check_flag(d->character, Privilege::KRODER) ? LVL_IMPL : GET_LEVEL(d->character);
+		int god_level = Privilege::check_flag(ch, Privilege::KRODER) ? LVL_IMPL : GET_LEVEL(ch);
+		if (victim_level >= god_level)
+		{
+			if (!CAN_SEE(ch, d->character))
+				send_to_char("Нет такого соединения.\r\n", ch);
+			else
+				send_to_char("Да уж.. Это не есть праффильная идея...\r\n", ch);
+			return;
+		}
 	}
 
 	/* We used to just close the socket here using close_socket(), but
@@ -3445,7 +3448,7 @@ ACMD(do_last)
 	one_argument(argument, arg);
 	if (!*arg)
 	{
-		send_to_char("Кого Вы хотите найти ?\r\n", ch);
+		send_to_char("Кого вы хотите найти ?\r\n", ch);
 		return;
 	}
 
@@ -3480,10 +3483,10 @@ ACMD(do_force)
 
 	half_chop(argument, arg, to_force);
 
-	sprintf(buf1, "$n принудил$g Вас '%s'.", to_force);
+	sprintf(buf1, "$n принудил$g вас '%s'.", to_force);
 
 	if (!*arg || !*to_force)
-		send_to_char("Кого и что Вы хотите принудить сделать ?\r\n", ch);
+		send_to_char("Кого и что вы хотите принудить сделать?\r\n", ch);
 	else if (!IS_GRGOD(ch) || (str_cmp("all", arg) && str_cmp("room", arg) && str_cmp("все", arg)
 							   && str_cmp("здесь", arg)))
 	{
@@ -3583,7 +3586,7 @@ ACMD(do_wiznet)
 			level = MAX(atoi(buf1), LVL_IMMORT);
 			if (level > GET_LEVEL(ch))
 			{
-				send_to_char("Вы не можете изрекать выше Вашего уровня.\r\n", ch);
+				send_to_char("Вы не можете изрекать выше вашего уровня.\r\n", ch);
 				return;
 			}
 		}
@@ -3601,7 +3604,7 @@ ACMD(do_wiznet)
 				if (!bookmark1)
 				{
 					strcpy(buf1,
-						   "Боги/привилегированные которые смогут (наверное) Вас услышать:\r\n");
+						   "Боги/привилегированные которые смогут (наверное) вас услышать:\r\n");
 					bookmark1 = TRUE;
 				}
 				sprintf(buf1 + strlen(buf1), "  %s", GET_NAME(d->character));
@@ -3623,10 +3626,10 @@ ACMD(do_wiznet)
 				{
 					if (!bookmark1)
 						strcpy(buf1,
-							   "Боги/привилегированные которые не смогут Вас услышать:\r\n");
+							   "Боги/привилегированные которые не смогут вас услышать:\r\n");
 					else
 						strcat(buf1,
-							   "Боги/привилегированные которые не смогут Вас услышать:\r\n");
+							   "Боги/привилегированные которые не смогут вас услышать:\r\n");
 
 					bookmark2 = TRUE;
 				}
@@ -3764,9 +3767,9 @@ ACMD(do_wizutil)
 	else if (!(vict = get_player_pun(ch, arg, FIND_CHAR_WORLD)))
 		send_to_char("Нет такого игрока.\r\n", ch);
 	else if (GET_LEVEL(vict) > GET_LEVEL(ch) && !GET_GOD_FLAG(ch, GF_DEMIGOD) && !Privilege::check_flag(ch, Privilege::KRODER))
-		send_to_char("А он ведь старше Вас....\r\n", ch);
+		send_to_char("А он ведь старше вас....\r\n", ch);
 	else if (GET_LEVEL(vict) >= LVL_IMMORT && GET_GOD_FLAG(ch, GF_DEMIGOD))
-		send_to_char("А он ведь старше Вас....\r\n", ch);
+		send_to_char("А он ведь старше вас....\r\n", ch);
 	else
 	{
 		switch (subcmd)
@@ -3828,7 +3831,7 @@ ACMD(do_wizutil)
 			{
 				while (vict->affected)
 					affect_remove(vict, vict->affected);
-				send_to_char("Яркая вспышка осветила Вас!\r\n"
+				send_to_char("Яркая вспышка осветила вас!\r\n"
 							 "Вы почувствовали себя немного иначе.\r\n", vict);
 				send_to_char("Все афекты сняты.\r\n", ch);
 			}
@@ -4531,7 +4534,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			{
 				if (GET_LEVEL(ch) <= GET_LEVEL(vict) && !Privilege::check_flag(ch, Privilege::KRODER))
 				{
-					send_to_char("Это не так просто, как Вам кажется...\r\n", ch);
+					send_to_char("Это не так просто, как вам кажется...\r\n", ch);
 					return (0);
 				}
 			}
@@ -4539,7 +4542,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			{
 				if (GET_LEVEL(vict) >= LVL_IMMORT || Privilege::check_flag(vict, Privilege::KRODER))
 				{
-					send_to_char("Это не так просто, как Вам кажется...\r\n", ch);
+					send_to_char("Это не так просто, как вам кажется...\r\n", ch);
 					return (0);
 				}
 			}
@@ -4547,7 +4550,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	}
 	if (!Privilege::can_do_priv(ch, std::string(set_fields[mode].cmd), 0, 1))
 	{
-		send_to_char("Кем Вы себя возомнили ?\r\n", ch);
+		send_to_char("Кем вы себя возомнили?\r\n", ch);
 		return (0);
 	}
 
@@ -4559,7 +4562,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	}
 	else if (!IS_NPC(vict) && !(set_fields[mode].pcnpc & PC))
 	{
-		act("Вы оскорбляете $S - $E ведь не моб !", FALSE, ch, 0, vict, TO_CHAR);
+		act("Вы оскорбляете $S - $E ведь не моб!", FALSE, ch, 0, vict, TO_CHAR);
 		return (0);
 	}
 
@@ -4662,7 +4665,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 17:
 		if (!IS_IMPL(ch) && ch != vict && !Privilege::check_flag(ch, Privilege::KRODER))
 		{
-			send_to_char("Вы не столь Божественны, как Вам кажется!\r\n", ch);
+			send_to_char("Вы не столь Божественны, как вам кажется!\r\n", ch);
 			return (0);
 		}
 		GET_INVIS_LEV(vict) = RANGE(0, GET_LEVEL(vict));
@@ -4670,7 +4673,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 18:
 		if (!IS_IMPL(ch) && ch != vict && !Privilege::check_flag(ch, Privilege::KRODER))
 		{
-			send_to_char("Вы не столь Божественны, как Вам кажется!\r\n", ch);
+			send_to_char("Вы не столь Божественны, как вам кажется!\r\n", ch);
 			return (0);
 		}
 		SET_OR_REMOVE(PRF_FLAGS(vict, PRF_NOHASSLE), PRF_NOHASSLE);
@@ -4763,7 +4766,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		/* Флаг для морталов с привилегиями */
 		if (!IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
 		{
-			send_to_char("Вы не столь Божественны, как Вам кажется!\r\n", ch);
+			send_to_char("Вы не столь Божественны, как вам кажется!\r\n", ch);
 			return 0;
 		}
 		if (on)

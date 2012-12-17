@@ -1841,13 +1841,13 @@ ACMD(do_mdamage)
 		if (GET_LEVEL(victim) >= LVL_IMMORT && dam > 0)
 		{
 			send_to_char
-			("Будучи очень крутым, Вы сделали шаг в сторону не получили повреждений...\r\n", victim);
+			("Будучи очень крутым, вы сделали шаг в сторону и не получили повреждений...\r\n", victim);
 			return;
 		}
 		GET_HIT(victim) -= dam;
 		if (dam < 0)
 		{
-			send_to_char("Вам почувствовали себя лучше.\r\n", victim);
+			send_to_char("Вы почувствовали себя лучше.\r\n", victim);
 			return;
 		}
 

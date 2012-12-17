@@ -330,7 +330,7 @@ ACMD(do_drink)
 
 	if (amount <= 0)
 	{
-		send_to_char("В Вас больше не лезет.\r\n", ch);
+		send_to_char("В вас больше не лезет.\r\n", ch);
 		return;
 	}
 	else if (subcmd == SCMD_DRINK)
@@ -375,15 +375,15 @@ ACMD(do_drink)
 	{
 		if (GET_DRUNK_STATE(ch) == MAX_COND_VALUE || GET_COND(ch, DRUNK) < GET_DRUNK_STATE(ch))
 		{
-			send_to_char("На сегодня Вам достаточно, крошки уже плавают...\r\n", ch);
+			send_to_char("На сегодня вам достаточно, крошки уже плавают...\r\n", ch);
 		}else
 			if (GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED)
 			{
-				send_to_char("Напилися Вы пьяны, не дойти Вам до дому....\r\n", ch);
+				send_to_char("Напилися вы пьяны, не дойти вам до дому....\r\n", ch);
 			}
 			else
 			{
-				send_to_char("Приятное тепло разлилось по Вашему телу.\r\n", ch);
+				send_to_char("Приятное тепло разлилось по вашему телу.\r\n", ch);
 			}
 		duration = 2 + MAX(0, GET_COND(ch, DRUNK) - CHAR_DRUNKED);
 		if (can_use_feat(ch, DRUNKARD_FEAT))
@@ -392,7 +392,7 @@ ACMD(do_drink)
 				&& GET_DRUNK_STATE(ch) < MAX_COND_VALUE 
 					&& GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK))
 		{
-			send_to_char("Винные пары ударили Вам в голову.\r\n", ch);
+			send_to_char("Винные пары ударили вам в голову.\r\n", ch);
 			/***** Decrease AC ******/
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
@@ -473,7 +473,7 @@ ACMD(do_drunkoff)
 
 	if (AFF_FLAGGED(ch, AFF_DRUNKED))
 	{
-		send_to_char("Вы хотите испортить себе весь кураж ?\r\n" "Это не есть по русски !\r\n", ch);
+		send_to_char("Вы хотите испортить себе весь кураж?\r\n" "Это не есть по русски !\r\n", ch);
 		return;
 	}
 
@@ -486,7 +486,7 @@ ACMD(do_drunkoff)
 	if (timed_by_skill(ch, SKILL_DRUNKOFF))
 	{
 		send_to_char("Вы не в состоянии так часто похмеляться.\r\n"
-					 "Попросите Богов закодировать Вас.\r\n", ch);
+					 "Попросите Богов закодировать вас.\r\n", ch);
 		return;
 	}
 
@@ -499,7 +499,7 @@ ACMD(do_drunkoff)
 				break;
 		if (!obj)
 		{
-			send_to_char("У Вас нет подходящего напитка для похмелья.\r\n", ch);
+			send_to_char("У вас нет подходящего напитка для похмелья.\r\n", ch);
 			return;
 		}
 	}
@@ -516,7 +516,7 @@ ACMD(do_drunkoff)
 
 	if ((GET_OBJ_TYPE(obj) != ITEM_DRINKCON) && (GET_OBJ_TYPE(obj) != ITEM_FOUNTAIN))
 	{
-		send_to_char("Этим Вы вряд-ли сможете похмелиться.\r\n", ch);
+		send_to_char("Этим вы вряд-ли сможете похмелиться.\r\n", ch);
 		return;
 	}
 
@@ -574,7 +574,7 @@ ACMD(do_drunkoff)
 	if (percent > prob)
 	{
 		sprintf(buf,
-				"Вы отхлебнули %s из $o1, но Ваша голова стала еще тяжелее...", drinks[GET_OBJ_VAL(obj, 2)]);
+				"Вы отхлебнули %s из $o1, но ваша голова стала еще тяжелее...", drinks[GET_OBJ_VAL(obj, 2)]);
 		act(buf, FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попробовал$g похмелиться, но это не пошло $m на пользу.", FALSE, ch, 0, 0, TO_ROOM);
 		duration = MAX(1, amount / 3);
@@ -637,17 +637,17 @@ ACMD(do_pour)
 	{
 		if (!*arg1)  	/* No arguments */
 		{
-			send_to_char("Откуда переливаем ?\r\n", ch);
+			send_to_char("Откуда переливаем?\r\n", ch);
 			return;
 		}
 		if (!(from_obj = get_obj_in_list_vis(ch, arg1, ch->carrying)))
 		{
-			send_to_char("У Вас нет этого !\r\n", ch);
+			send_to_char("У вас нет этого!\r\n", ch);
 			return;
 		}
 		if (GET_OBJ_TYPE(from_obj) != ITEM_DRINKCON && GET_OBJ_TYPE(from_obj) != ITEM_POTION)
 		{
-			send_to_char("Вы не можете из этого переливать !\r\n", ch);
+			send_to_char("Вы не можете из этого переливать!\r\n", ch);
 			return;
 		}
 	}
@@ -655,12 +655,12 @@ ACMD(do_pour)
 	{
 		if (!*arg1)  	/* no arguments */
 		{
-			send_to_char("Что и из чего Вы хотели бы наполнить ?\r\n", ch);
+			send_to_char("Что и из чего вы хотели бы наполнить?\r\n", ch);
 			return;
 		}
 		if (!(to_obj = get_obj_in_list_vis(ch, arg1, ch->carrying)))
 		{
-			send_to_char("У Вас этого нет !\r\n", ch);
+			send_to_char("У вас этого нет!\r\n", ch);
 			return;
 		}
 		if (GET_OBJ_TYPE(to_obj) != ITEM_DRINKCON)
@@ -670,7 +670,7 @@ ACMD(do_pour)
 		}
 		if (!*arg2)  	/* no 2nd argument */
 		{
-			act("Из чего Вы планируете наполнить $o3?", FALSE, ch, to_obj, 0, TO_CHAR);
+			act("Из чего вы планируете наполнить $o3?", FALSE, ch, to_obj, 0, TO_CHAR);
 			return;
 		}
 		if (!(from_obj = get_obj_in_list_vis(ch, arg2, world[ch->in_room]->contents)))
@@ -694,7 +694,7 @@ ACMD(do_pour)
 	{
 		if (!*arg2)
 		{
-			send_to_char("Куда Вы хотите лить ?  На землю или во что-то ?\r\n", ch);
+			send_to_char("Куда вы хотите лить? На землю или во что-то?\r\n", ch);
 			return;
 		}
 		if (!str_cmp(arg2, "out") || !str_cmp(arg2, "земля"))
@@ -714,7 +714,7 @@ ACMD(do_pour)
 		}
 		if (!(to_obj = get_obj_in_list_vis(ch, arg2, ch->carrying)))
 		{
-			send_to_char("Вы не можете этого найти !\r\n", ch);
+			send_to_char("Вы не можете этого найти!\r\n", ch);
 			return;
 		}
 		if ((GET_OBJ_TYPE(to_obj) != ITEM_DRINKCON) && (GET_OBJ_TYPE(to_obj) != ITEM_FOUNTAIN))
@@ -725,7 +725,7 @@ ACMD(do_pour)
 	}
 	if (to_obj == from_obj)
 	{
-		send_to_char("Более тупого действа Вы придумать, конечно, не могли.\r\n", ch);
+		send_to_char("Более тупого действа вы придумать, конечно, не могли.\r\n", ch);
 		return;
 	}
 

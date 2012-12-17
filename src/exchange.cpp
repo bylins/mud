@@ -199,7 +199,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	}
 	if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL)
 	{
-		send_to_char("Боже, не лезьте в экономику смертных, Вам это не к чему.\r\n", ch);
+		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
 
@@ -222,7 +222,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	}
 	if (!(obj = get_obj_in_list_vis(ch, obj_name, ch->carrying)))
 	{
-		send_to_char("У Вас этого нет.\r\n", ch);
+		send_to_char("У вас этого нет.\r\n", ch);
 		return false;
 	}
 	if (!bloody::handle_transfer(ch, NULL, obj))
@@ -287,13 +287,13 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 
 	if (counter + (counter_ming / 20)  >= EXCHANGE_MAX_EXHIBIT_PER_CHAR)
 	{
-		send_to_char("Вы уже выставили на базар максимальное количество предметов !\r\n", ch);
+		send_to_char("Вы уже выставили на базар максимальное количество предметов!\r\n", ch);
 		return false;
 	}
 
 	if ((lot = get_unique_lot()) <= 0)
 	{
-		send_to_char("Базар переполнен !\r\n", ch);
+		send_to_char("Базар переполнен!\r\n", ch);
 		return false;
 	}
 
@@ -344,7 +344,7 @@ int exchange_change_cost(CHAR_DATA * ch, char *arg)
 	}
 	if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL)
 	{
-		send_to_char("Боже, не лезьте в экономику смертных, Вам это не к чему.\r\n", ch);
+		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
 	if (sscanf(arg, "%d %d", &lot, &newcost) != 2)
@@ -365,12 +365,12 @@ int exchange_change_cost(CHAR_DATA * ch, char *arg)
 	}
 	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GET_LEVEL(ch) < LVL_IMPL))
 	{
-		send_to_char("Это не Ваш лот.\r\n", ch);
+		send_to_char("Это не ваш лот.\r\n", ch);
 		return false;
 	}
 	if (newcost == GET_EXCHANGE_ITEM_COST(item))
 	{
-		send_to_char("Вашя новая цена совпадает с текущей.\r\n", ch);
+		send_to_char("Ваша новая цена совпадает с текущей.\r\n", ch);
 		return false;
 	}
 	if (newcost <= 0)
@@ -419,7 +419,7 @@ int exchange_withdraw(CHAR_DATA * ch, char *arg)
 	}
 	if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL)
 	{
-		send_to_char("Боже, не лезьте в экономику смертных, Вам это не к чему.\r\n", ch);
+		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
 
@@ -441,7 +441,7 @@ int exchange_withdraw(CHAR_DATA * ch, char *arg)
 	}
 	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GET_LEVEL(ch) < LVL_IMPL))
 	{
-		send_to_char("Это не Ваш лот.\r\n", ch);
+		send_to_char("Это не ваш лот.\r\n", ch);
 		return false;
 	}
 	act("Вы сняли $O3 с базара.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
@@ -524,7 +524,7 @@ int exchange_information(CHAR_DATA * ch, char *arg)
 	};
 	if (invalid_anti_class(ch, GET_EXCHANGE_ITEM(item)) || invalid_unique(ch, GET_EXCHANGE_ITEM(item)) || NamedStuff::check_named(ch, GET_EXCHANGE_ITEM(item), 0))
 	{
-		sprintf(buf2, "Эта вещь Вам недоступна!");
+		sprintf(buf2, "Эта вещь вам недоступна!");
 		strcat(buf, buf2);
 		strcat(buf, "\n");
 	}
@@ -623,7 +623,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 	}
 	if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL)
 	{
-		send_to_char("Боже, не лезьте в экономику смертных, Вам это не к чему.\r\n", ch);
+		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
 		return false;
 	}
 
@@ -645,7 +645,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 	}
 	if (GET_EXCHANGE_ITEM_SELLERID(item) == GET_IDNUM(ch))
 	{
-		send_to_char("Это же Ваш лот. Воспользуйтесь командой 'базар снять <лот>'\r\n", ch);
+		send_to_char("Это же ваш лот. Воспользуйтесь командой 'базар снять <лот>'\r\n", ch);
 		return false;
 	}
 	if ((ch->get_total_gold() < (GET_EXCHANGE_ITEM_COST(item))) && (GET_LEVEL(ch) < LVL_IMPL))
@@ -697,7 +697,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 		if (NOTIFY_EXCH_PRICE(seller) && GET_EXCHANGE_ITEM_COST(item) >= NOTIFY_EXCH_PRICE(seller))
 		{
 			sprintf(tmpbuf,
-				"Базар : лот %d(%s) продан%s. %d %s переведено на Ваш счет.\r\n", lot,
+				"Базар : лот %d(%s) продан%s. %d %s переведено на ваш счет.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->PNames[0], GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYa));
 			store_mail(GET_EXCHANGE_ITEM_SELLERID(item), -1, tmpbuf);
@@ -734,7 +734,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYu));
 		message_exchange(tmpbuf, seller, item);
 		sprintf(tmpbuf,
-				"Базар : лот %d(%s) продан%s. %d %s переведено на Ваш счет.\r\n", lot,
+				"Базар : лот %d(%s) продан%s. %d %s переведено на ваш счет.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->PNames[0], GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYa));
 		act(tmpbuf, FALSE, seller, 0, NULL, TO_CHAR);

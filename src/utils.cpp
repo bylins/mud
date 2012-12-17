@@ -858,7 +858,7 @@ void horse_drop(CHAR_DATA * ch)
 {
 	if (ch->master)
 	{
-		act("$N сбросил$G Вас со своей спины.", FALSE, ch->master, 0, ch, TO_CHAR);
+		act("$N сбросил$G вас со своей спины.", FALSE, ch->master, 0, ch, TO_CHAR);
 		REMOVE_BIT(AFF_FLAGS(ch->master, AFF_HORSE), AFF_HORSE);
 		WAIT_STATE(ch->master, 3 * PULSE_VIOLENCE);
 		if (GET_POS(ch->master) > POS_SITTING)
@@ -905,7 +905,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	if (get_horse(ch->master) == ch && on_horse(ch->master))
 		horse_drop(ch);
 	else
-		act("$n прекратил$g следовать за Вами.", TRUE, ch, 0, ch->master, TO_VICT);
+		act("$n прекратил$g следовать за вами.", TRUE, ch, 0, ch->master, TO_VICT);
 
 	//log("[Stop follower] Remove from followers list");
 	if (!ch->master->followers)
@@ -980,7 +980,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 				{
 					if (number(1, GET_REAL_INT(ch) * 2) > GET_REAL_CHA(master))
 					{
-						act("$n посчитал$g, что Вы заслуживаете смерти !",
+						act("$n посчитал$g, что вы заслуживаете смерти!",
 							FALSE, ch, 0, master, TO_VICT | CHECK_DEAF);
 						act("$n заорал$g : \"Ты долго водил$G меня за нос, но дальше так не пойдет !\""
 						    "              \"Теперь только твоя смерть может искупить твой обман !!!\"",
@@ -1065,7 +1065,7 @@ void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence)
 	{
 		act("Вы начали следовать за $N4.", FALSE, ch, 0, leader, TO_CHAR);
 		//if (CAN_SEE(leader, ch))
-		act("$n начал$g следовать за Вами.", TRUE, ch, 0, leader, TO_VICT);
+		act("$n начал$g следовать за вами.", TRUE, ch, 0, leader, TO_VICT);
 		act("$n начал$g следовать за $N4.", TRUE, ch, 0, leader, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 }
@@ -1806,7 +1806,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 					CHECK_NULL(obj, GET_OBJ_SUF_4(obj));
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
-//Polud Добавил склонение местоимения Ваш(е,а,и)
+//Polud Добавил склонение местоимения ваш(е,а,и)
 			case 'z':
 				if (obj)
 					i = OYOU(obj);

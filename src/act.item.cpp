@@ -370,7 +370,7 @@ ACMD(do_put)
 		}
 		if (ch->get_gold() < howmany)
 		{
-			send_to_char("Нет у Вас такой суммы.\r\n", ch);
+			send_to_char("Нет у вас такой суммы.\r\n", ch);
 			return;
 		}
 		obj_dotmode = FIND_INDIV;
@@ -386,7 +386,7 @@ ACMD(do_put)
 		send_to_char("Вы можете положить вещь только в один контейнер.\r\n", ch);
 	else if (!*thecont)
 	{
-		sprintf(buf, "Куда Вы хотите положить '%s' ?\r\n", theobj);
+		sprintf(buf, "Куда вы хотите положить '%s' ?\r\n", theobj);
 		send_to_char(buf, ch);
 	}
 	else
@@ -409,7 +409,7 @@ ACMD(do_put)
 				{
 					if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM))
 					{
-						act("Неведомая сила помешала Вам сделать это!!", FALSE,
+						act("Неведомая сила помешала вам сделать это!!", FALSE,
 							ch, 0, 0, TO_CHAR);
 						return;
 					}
@@ -429,7 +429,7 @@ ACMD(do_put)
 				}
 				else if (!(obj = get_obj_in_list_vis(ch, theobj, ch->carrying)))
 				{
-					sprintf(buf, "У Вас нет '%s'.\r\n", theobj);
+					sprintf(buf, "У вас нет '%s'.\r\n", theobj);
 					send_to_char(buf, ch);
 				}
 				else if (obj == cont)
@@ -500,13 +500,13 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	}
 	else if (invalid_anti_class(ch, obj))
 	{
-		act("$p: Эта вещь не предназначена для Вас!", FALSE, ch, obj, 0, TO_CHAR);
+		act("$p: Эта вещь не предназначена для вас!", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
 	}
 	else if (NamedStuff::check_named(ch, obj, 0))
 	{
 		if(!NamedStuff::wear_msg(ch, obj))
-			act("$p: Эта вещь не предназначена для Вас!", FALSE, ch, obj, 0, TO_CHAR);
+			act("$p: Эта вещь не предназначена для вас!", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
 	}
 	else if (invalid_unique(ch, obj) || (strstr(obj->aliases, "clan") && (IS_NPC(ch) || !CLAN(ch) || !strstr(obj->aliases, buf))))
@@ -627,7 +627,7 @@ void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, in
 	{
 		if (obj_dotmode == FIND_ALLDOT && !*arg)
 		{
-			send_to_char("Взять что \"все\" ?\r\n", ch);
+			send_to_char("Взять что \"все\"?\r\n", ch);
 			return;
 		}
 		for (obj = cont->contains; obj; obj = next_obj)
@@ -718,7 +718,7 @@ void get_from_room(CHAR_DATA * ch, char *arg, int howmany)
 	{
 		if (dotmode == FIND_ALLDOT && !*arg)
 		{
-			send_to_char("Взять что \"все\" ?\r\n", ch);
+			send_to_char("Взять что \"все\"?\r\n", ch);
 			return;
 		}
 		for (obj = world[ch->in_room]->contents; obj; obj = next_obj)
@@ -755,7 +755,7 @@ ACMD(do_mark)
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1)
-		send_to_char("Что Вы хотите маркировать ?\r\n", ch);
+		send_to_char("Что вы хотите маркировать?\r\n", ch);
 	else if (!*arg2 || !is_number(arg2))
 		send_to_char("Не указан или неверный маркер.\r\n", ch);
 	else
@@ -766,7 +766,7 @@ ACMD(do_mark)
 			mode = generic_find(arg1, FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP, ch, &tmp_char, &cont);
 			if (!cont)
 			{
-				sprintf(buf, "У Вас нет '%s'.\r\n", arg1);
+				sprintf(buf, "У вас нет '%s'.\r\n", arg1);
 				send_to_char(buf, ch);
 				return;
 			}
@@ -777,7 +777,7 @@ ACMD(do_mark)
 		{
 			if (cont_dotmode == FIND_ALLDOT && !*arg1)
 			{
-				send_to_char("Пометить что \"все\" ?\r\n", ch);
+				send_to_char("Пометить что \"все\"?\r\n", ch);
 				return;
 			}
 			for (cont = ch->carrying; cont; cont = cont->next_content)
@@ -827,16 +827,16 @@ ACMD(do_get)
 	argument = two_arguments(argument, arg3, arg4);
 
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
-		send_to_char("У Вас заняты руки !\r\n", ch);
+		send_to_char("У вас заняты руки!\r\n", ch);
 	else if (!*arg1)
-		send_to_char("Что Вы хотите взять ?\r\n", ch);
+		send_to_char("Что вы хотите взять?\r\n", ch);
 	else if (!*arg2 || isname(arg2, "земля комната ground room"))
 		get_from_room(ch, arg1, 1);
 	else if (is_number(arg1) && (!*arg3 || isname(arg3, "земля комната ground room")))
 		get_from_room(ch, arg2, atoi(arg1));
 	else if ((!*arg3 && isname(arg2, "инвентарь экипировка inventory equipment")) ||
 			 (is_number(arg1) && !*arg4 && isname(arg3, "инвентарь экипировка inventory equipment")))
-		send_to_char("Вы уже подобрали этот предмет !\r\n", ch);
+		send_to_char("Вы уже подобрали этот предмет!\r\n", ch);
 	else
 	{
 		if (is_number(arg1))
@@ -879,7 +879,7 @@ ACMD(do_get)
 		{
 			if (cont_dotmode == FIND_ALLDOT && !*thecont)
 			{
-				send_to_char("Взять из чего \"всего\" ?\r\n", ch);
+				send_to_char("Взять из чего \"всего\"?\r\n", ch);
 				return;
 			}
 			for (cont = ch->carrying; cont && IS_SET(where_bits, FIND_OBJ_INV); cont = cont->next_content)
@@ -930,9 +930,9 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 {
 	OBJ_DATA *obj;
 	if (amount <= 0)
-		send_to_char("Да, похоже Вы слишком переиграли сегодня.\r\n", ch);
+		send_to_char("Да, похоже вы слишком переиграли сегодня.\r\n", ch);
 	else if (ch->get_gold() < amount)
-		send_to_char("У Вас нет такой суммы !\r\n", ch);
+		send_to_char("У вас нет такой суммы!\r\n", ch);
 	else
 	{
 		if (mode != SCMD_JUNK)
@@ -940,7 +940,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 			WAIT_STATE(ch, PULSE_VIOLENCE);	/* to prevent coin-bombing */
 			if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM))
 			{
-				act("Неведомая сила помешала Вам сделать это!!", FALSE, ch, 0, 0, TO_CHAR);
+				act("Неведомая сила помешала вам сделать это!", FALSE, ch, 0, 0, TO_CHAR);
 				return;
 			}
 			//Находим сначала кучку в комнате
@@ -966,7 +966,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 				send_to_char(buf, ch);
 				act("$n выбросил$g деньги... На ветер :(", FALSE, ch, 0, 0, TO_ROOM);
 				obj_to_room(obj, RDR);
-				act("$o исчез$Q в клубах дыма !", 0, 0, obj, 0, TO_ROOM);
+				act("$o исчез$Q в клубах дыма!", 0, 0, obj, 0, TO_ROOM);
 			}
 			else
 			{
@@ -993,7 +993,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 		}
 		else
 		{
-			sprintf(buf, "$n пожертвовал$g %s... В подарок Богам !", money_desc(amount, 3));
+			sprintf(buf, "$n пожертвовал$g %s... В подарок Богам!", money_desc(amount, 3));
 			act(buf, FALSE, ch, 0, 0, TO_ROOM);
 			sprintf(buf, "Вы пожертвовали Богам %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
 			send_to_char(buf, ch);
@@ -1046,7 +1046,7 @@ int perform_drop(CHAR_DATA * ch, OBJ_DATA * obj, byte mode, const int sname, roo
 	case SCMD_DONATE:
 		obj_to_room(obj, RDR);
 		obj_decay(obj);
-		act("$o растворил$U в клубах дыма !", FALSE, 0, obj, 0, TO_ROOM);
+		act("$o растворил$U в клубах дыма!", FALSE, 0, obj, 0, TO_ROOM);
 		return (0);
 	case SCMD_JUNK:
 		value = MAX(1, MIN(200, GET_OBJ_COST(obj) / 16));
@@ -1104,7 +1104,7 @@ ACMD(do_drop)
 
 	if (!*arg)
 	{
-		sprintf(buf, "Что Вы хотите %s?\r\n", drop_op[sname][0]);
+		sprintf(buf, "Что вы хотите %s?\r\n", drop_op[sname][0]);
 		send_to_char(buf, ch);
 		return;
 	}
@@ -1118,12 +1118,12 @@ ACMD(do_drop)
 			send_to_char("Не имеет смысла.\r\n", ch);
 		else if (!*arg)
 		{
-			sprintf(buf, "%s %d чего ?\r\n", drop_op[sname][0], multi);
+			sprintf(buf, "%s %d чего?\r\n", drop_op[sname][0], multi);
 			send_to_char(buf, ch);
 		}
 		else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 		{
-			sprintf(buf, "У Вас нет ничего похожего на %s.\r\n", arg);
+			sprintf(buf, "У вас нет ничего похожего на %s.\r\n", arg);
 			send_to_char(buf, ch);
 		}
 		else
@@ -1146,13 +1146,13 @@ ACMD(do_drop)
 			if (subcmd == SCMD_JUNK)
 				send_to_char("Вас с нетерпением ждут. У психиатра :)\r\n", ch);
 			else
-				send_to_char("Такую жертву я принять не могу !\r\n", ch);
+				send_to_char("Такую жертву я принять не могу!\r\n", ch);
 			return;
 		}
 		if (dotmode == FIND_ALL)
 		{
 			if (!ch->carrying)
-				send_to_char("А у Вас ничего и нет.\r\n", ch);
+				send_to_char("А у вас ничего и нет.\r\n", ch);
 			else
 				for (obj = ch->carrying; obj; obj = next_obj)
 				{
@@ -1164,13 +1164,13 @@ ACMD(do_drop)
 		{
 			if (!*arg)
 			{
-				sprintf(buf, "%s \"все\" какого типа предметов ?\r\n", drop_op[sname][0]);
+				sprintf(buf, "%s \"все\" какого типа предметов?\r\n", drop_op[sname][0]);
 				send_to_char(buf, ch);
 				return;
 			}
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 			{
-				sprintf(buf, "У Вас нет ничего похожего на '%s'.\r\n", arg);
+				sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 			}
 			while (obj)
@@ -1184,7 +1184,7 @@ ACMD(do_drop)
 		{
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 			{
-				sprintf(buf, "У Вас нет '%s'.\r\n", arg);
+				sprintf(buf, "У вас нет '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 			}
 			else
@@ -1195,7 +1195,7 @@ ACMD(do_drop)
 	if (amount && (subcmd == SCMD_JUNK))
 	{
 		send_to_char("Боги не обратили внимания на этот хлам.\r\n", ch);
-		act("$n принес$q жертву. Но Боги были глухи к н$m !", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		act("$n принес$q жертву. Но Боги были глухи к н$m!", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 
 }
@@ -1207,12 +1207,12 @@ void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj)
 		return;
 	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM) && !IS_GOD(ch))
 	{
-		act("Неведомая сила помешала Вам сделать это!!", FALSE, ch, 0, 0, TO_CHAR);
+		act("Неведомая сила помешала вам сделать это!", FALSE, ch, 0, 0, TO_CHAR);
 		return;
 	}
 	if (IS_OBJ_STAT(obj, ITEM_NODROP))
 	{
-		act("Вы не можете передать $o3!!", FALSE, ch, obj, 0, TO_CHAR);
+		act("Вы не можете передать $o3!", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
 	if (IS_CARRYING_N(vict) >= CAN_CARRY_N(vict))
@@ -1229,7 +1229,7 @@ void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj)
 		return;
 
 	act("Вы дали $o3 $N2.", FALSE, ch, obj, vict, TO_CHAR);
-	act("$n дал$g Вам $o3.", FALSE, ch, obj, vict, TO_VICT);
+	act("$n дал$g вам $o3.", FALSE, ch, obj, vict, TO_VICT);
 	act("$n дал$g $o3 $N2.", TRUE, ch, obj, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 	obj_from_char(obj);
 	obj_to_char(obj, vict);
@@ -1247,7 +1247,7 @@ CHAR_DATA *give_find_vict(CHAR_DATA * ch, char *arg)
 
 	if (!*arg)
 	{
-		send_to_char("Кому ?\r\n", ch);
+		send_to_char("Кому?\r\n", ch);
 		return (NULL);
 	}
 	else if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
@@ -1274,16 +1274,16 @@ void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 	}
 	if (ch->get_gold() < amount && (IS_NPC(ch) || !IS_IMPL(ch)))
 	{
-		send_to_char("И откуда Вы их взять собираетесь ?\r\n", ch);
+		send_to_char("И откуда вы их взять собираетесь?\r\n", ch);
 		return;
 	}
 	if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM) && !IS_GOD(ch))
 	{
-		act("Неведомая сила помешала Вам сделать это!!", FALSE, ch, 0, 0, TO_CHAR);
+		act("Неведомая сила помешала вам сделать это!", FALSE, ch, 0, 0, TO_CHAR);
 		return;
 	}
 	send_to_char(OK, ch);
-	sprintf(buf, "$n дал$g Вам %d %s.", amount, desc_count(amount, WHAT_MONEYu));
+	sprintf(buf, "$n дал$g вам %d %s.", amount, desc_count(amount, WHAT_MONEYu));
 	act(buf, FALSE, ch, 0, vict, TO_VICT);
 	sprintf(buf, "$n дал$g %s $N2.", money_desc(amount, 3));
 	act(buf, TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -1305,7 +1305,7 @@ ACMD(do_give)
 	argument = one_argument(argument, arg);
 
 	if (!*arg)
-		send_to_char("Дать что и кому ?\r\n", ch);
+		send_to_char("Дать что и кому?\r\n", ch);
 	else if (is_number(arg))
 	{
 		amount = atoi(arg);
@@ -1319,7 +1319,7 @@ ACMD(do_give)
 		}
 		else if (!*arg)  	/* Give multiple code. */
 		{
-			sprintf(buf, "Чего %d Вы хотите дать ?\r\n", amount);
+			sprintf(buf, "Чего %d вы хотите дать?\r\n", amount);
 			send_to_char(buf, ch);
 		}
 		else if (!(vict = give_find_vict(ch, argument)))
@@ -1328,7 +1328,7 @@ ACMD(do_give)
 		}
 		else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 		{
-			sprintf(buf, "У Вас нет '%s'.\r\n", arg);
+			sprintf(buf, "У вас нет '%s'.\r\n", arg);
 			send_to_char(buf, ch);
 		}
 		else
@@ -1351,7 +1351,7 @@ ACMD(do_give)
 		{
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 			{
-				sprintf(buf, "У Вас нет '%s'.\r\n", arg);
+				sprintf(buf, "У вас нет '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 			}
 			else
@@ -1361,11 +1361,11 @@ ACMD(do_give)
 		{
 			if (dotmode == FIND_ALLDOT && !*arg)
 			{
-				send_to_char("Дать \"все\" какого типа предметов ?\r\n", ch);
+				send_to_char("Дать \"все\" какого типа предметов?\r\n", ch);
 				return;
 			}
 			if (!ch->carrying)
-				send_to_char("У Вас ведь ничего нет.\r\n", ch);
+				send_to_char("У вас ведь ничего нет.\r\n", ch);
 			else
 			{
 				bool has_items = false;
@@ -1379,7 +1379,7 @@ ACMD(do_give)
 					}
 				}
 				if (!has_items)
-					send_to_char(ch, "У Вас нет '%s'.\r\n", arg);
+					send_to_char(ch, "У вас нет '%s'.\r\n", arg);
 			}
 		}
 	}
@@ -1443,7 +1443,7 @@ ACMD(do_eat)
 
 	if (!*arg)
 	{
-		send_to_char("Чем Вы собрались закусить ?\r\n", ch);
+		send_to_char("Чем вы собрались закусить?\r\n", ch);
 		return;
 	}
 	if (ch->get_fighting())
@@ -1454,7 +1454,7 @@ ACMD(do_eat)
 
 	if (!(food = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{
-		sprintf(buf, "У Вас нет '%s'.\r\n", arg);
+		sprintf(buf, "У вас нет '%s'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	}
@@ -1465,12 +1465,12 @@ ACMD(do_eat)
 	}
 	if (GET_OBJ_TYPE(food) != ITEM_FOOD && GET_OBJ_TYPE(food) != ITEM_NOTE && !IS_GOD(ch))
 	{
-		send_to_char("Это несъедобно !\r\n", ch);
+		send_to_char("Это несъедобно!\r\n", ch);
 		return;
 	}
 	if (GET_COND(ch, FULL) > 20 && GET_OBJ_TYPE(food) != ITEM_NOTE)  	/* Stomach full */
 	{
-		send_to_char("Вы слишком сыты для этого !\r\n", ch);
+		send_to_char("Вы слишком сыты для этого!\r\n", ch);
 		return;
 	}
 	if (subcmd == SCMD_EAT || (subcmd == SCMD_TASTE && GET_OBJ_TYPE(food) == ITEM_NOTE))
@@ -1494,7 +1494,7 @@ ACMD(do_eat)
 
 	if (GET_OBJ_VAL(food, 3) && !IS_IMMORTAL(ch))  	/* The shit was poisoned ! */
 	{
-		send_to_char("Однако, какой странный вкус !\r\n", ch);
+		send_to_char("Однако, какой странный вкус!\r\n", ch);
 		act("$n закашлял$u и начал$g отплевываться.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
 		af.type = SPELL_POISON;
@@ -1519,7 +1519,7 @@ ACMD(do_eat)
 	{
 		if (!(--GET_OBJ_VAL(food, 0)))
 		{
-			send_to_char("Вы доели все !\r\n", ch);
+			send_to_char("Вы доели все!\r\n", ch);
 			extract_obj(food);
 		}
 	}
@@ -1542,20 +1542,20 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 
 	const char *already_wearing[] = { "Вы уже используете свет.\r\n",
 									  "YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
-									  "У Вас уже что-то надето на пальцах.\r\n",
+									  "У вас уже что-то надето на пальцах.\r\n",
 									  "YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
-									  "У Вас уже что-то надето на шею.\r\n",
-									  "У Вас уже что-то надето на туловище.\r\n",
-									  "У Вас уже что-то надето на голову.\r\n",
-									  "У Вас уже что-то надето на ноги.\r\n",
-									  "У Вас уже что-то надето на ступни.\r\n",
-									  "У Вас уже что-то надето на кисти.\r\n",
-									  "У Вас уже что-то надето на руки.\r\n",
+									  "У вас уже что-то надето на шею.\r\n",
+									  "У вас уже что-то надето на туловище.\r\n",
+									  "У вас уже что-то надето на голову.\r\n",
+									  "У вас уже что-то надето на ноги.\r\n",
+									  "У вас уже что-то надето на ступни.\r\n",
+									  "У вас уже что-то надето на кисти.\r\n",
+									  "У вас уже что-то надето на руки.\r\n",
 									  "Вы уже используете щит.\r\n",
 									  "Вы уже облачены во что-то.\r\n",
-									  "У Вас уже что-то надето на пояс.\r\n",
+									  "У вас уже что-то надето на пояс.\r\n",
 									  "YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
-									  "У Вас уже что-то надето на запястья.\r\n",
+									  "У вас уже что-то надето на запястья.\r\n",
 									  "Вы уже что-то держите в правой руке.\r\n",
 									  "Вы уже что-то держите в левой руке.\r\n",
 									  "Вы уже держите оружие в обеих руках.\r\n"
@@ -1581,7 +1581,7 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		/* не может держать свет если двуручник или держит */
 		(where == WEAR_LIGHT && (GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_BOTHS))))
 	{
-		send_to_char("У Вас заняты руки.\r\n", ch);
+		send_to_char("У вас заняты руки.\r\n", ch);
 		return;
 	}
 	/* нельзя надеть щит, если недостаточно силы */
@@ -1764,14 +1764,14 @@ ACMD(do_wear)
 
 	if (!*arg1)
 	{
-		send_to_char("Что Вы собрались надеть ?\r\n", ch);
+		send_to_char("Что вы собрались надеть?\r\n", ch);
 		return;
 	}
 	dotmode = find_all_dots(arg1);
 
 	if (*arg2 && (dotmode != FIND_INDIV))
 	{
-		send_to_char("И на какую часть тела Вы желаете это надеть ?!\r\n", ch);
+		send_to_char("И на какую часть тела вы желаете это надеть?!\r\n", ch);
 		return;
 	}
 	if (dotmode == FIND_ALL)
@@ -1787,18 +1787,18 @@ ACMD(do_wear)
 			}
 		}
 		if (!items_worn)
-			send_to_char("Увы, но надеть Вам нечего.\r\n", ch);
+			send_to_char("Увы, но надеть вам нечего.\r\n", ch);
 	}
 	else if (dotmode == FIND_ALLDOT)
 	{
 		if (!*arg1)
 		{
-			send_to_char("Надеть \"все\" чего ?\r\n", ch);
+			send_to_char("Надеть \"все\" чего?\r\n", ch);
 			return;
 		}
 		if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)))
 		{
-			sprintf(buf, "У Вас нет ничего похожего на '%s'.\r\n", arg1);
+			sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg1);
 			send_to_char(buf, ch);
 		}
 		else
@@ -1816,7 +1816,7 @@ ACMD(do_wear)
 	{
 		if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)))
 		{
-			sprintf(buf, "У Вас нет ничего похожего на '%s'.\r\n", arg1);
+			sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg1);
 			send_to_char(buf, ch);
 		}
 		else
@@ -1845,7 +1845,7 @@ ACMD(do_wield)
 	argument = one_argument(argument, arg);
 
 	if (!*arg)
-		send_to_char("Вооружиться чем ?\r\n", ch);
+		send_to_char("Вооружиться чем?\r\n", ch);
 	else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{
 		sprintf(buf, "Вы не видите ничего похожего на \'%s\'.\r\n", arg);
@@ -1916,10 +1916,10 @@ ACMD(do_grab)
 	}
 
 	if (!*arg)
-		send_to_char("Вы заорали : 'Держи его !!! Хватай его !!!'\r\n", ch);
+		send_to_char("Вы заорали : 'Держи его!!! Хватай его!!!'\r\n", ch);
 	else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{
-		sprintf(buf, "У Вас нет ничего похожего на '%s'.\r\n", arg);
+		sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg);
 		send_to_char(buf, ch);
 	}
 	else
@@ -2025,7 +2025,7 @@ ACMD(do_remove)
 				found = 1;
 			}
 		if (!found)
-			send_to_char("На Вас не надето предметов этого типа.\r\n", ch);
+			send_to_char("На вас не надето предметов этого типа.\r\n", ch);
 	}
 	else if (dotmode == FIND_ALLDOT)
 	{
@@ -2096,7 +2096,7 @@ ACMD(do_upgrade)
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{
-		sprintf(buf, "У Вас нет \'%s\'.\r\n", arg);
+		sprintf(buf, "У вас нет \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	};
@@ -2232,7 +2232,7 @@ ACMD(do_armored)
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{
-		sprintf(buf, "У Вас нет \'%s\'.\r\n", arg);
+		sprintf(buf, "У вас нет \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	};
@@ -2333,7 +2333,7 @@ ACMD(do_fire)
 	int percent, prob;
 	if (!ch->get_skill(SKILL_FIRE))
 	{
-		send_to_char("Но Вы не знаете как.\r\n", ch);
+		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
@@ -2345,7 +2345,7 @@ ACMD(do_fire)
 
 	if (AFF_FLAGGED(ch, AFF_BLIND))
 	{
-		send_to_char("Вы ничего не видите !\r\n", ch);
+		send_to_char("Вы ничего не видите!\r\n", ch);
 		return;
 	}
 
@@ -2374,7 +2374,7 @@ ACMD(do_fire)
 	prob = calculate_skill(ch, SKILL_FIRE, skill_info[SKILL_FIRE].max_percent, 0);
 	if (percent > prob)
 	{
-		send_to_char("Вы попытались разжечь костер, но у Вас ничего не вышло.\r\n", ch);
+		send_to_char("Вы попытались разжечь костер, но у вас ничего не вышло.\r\n", ch);
 		return;
 	}
 	else
@@ -2490,13 +2490,13 @@ ACMD(do_firstaid)
 		vict = ch;
 	else if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		send_to_char("Кого Вы хотите подлечить ?\r\n", ch);
+		send_to_char("Кого вы хотите подлечить?\r\n", ch);
 		return;
 	};
 
 	if (vict->get_fighting())
 	{
-		act("$N сражается, $M не до Ваших телячьих нежностей.", FALSE, ch, 0, vict, TO_CHAR);
+		act("$N сражается, $M не до ваших телячьих нежностей.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
 
@@ -2540,7 +2540,7 @@ ACMD(do_firstaid)
 	if (!need)
 		act("$N в лечении не нуждается.", FALSE, ch, 0, vict, TO_CHAR);
 	else if (!prob)
-		act("У Вас не хватит умения вылечить $N3.", FALSE, ch, 0, vict, TO_CHAR);
+		act("У вас не хватит умения вылечить $N3.", FALSE, ch, 0, vict, TO_CHAR);
 	else  			//improove_skill(ch, SKILL_AID, TRUE, 0);
 	{
 		timed.skill = SKILL_AID;
@@ -2552,7 +2552,7 @@ ACMD(do_firstaid)
 			if (success)
 			{
 				act("Вы оказали первую помощь $N2.", FALSE, ch, 0, vict, TO_CHAR);
-				act("$N оказал$G Вам первую помощь.", FALSE, vict, 0, ch, TO_CHAR);
+				act("$N оказал$G вам первую помощь.", FALSE, vict, 0, ch, TO_CHAR);
 				act("$n оказал$g первую помощь $N2.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 				if (spellnum)
 					affect_from_char(vict, spellnum);
@@ -2561,7 +2561,7 @@ ACMD(do_firstaid)
 			{
 				act("Вы безрезультатно попытались оказать первую помощь $N2.",
 					FALSE, ch, 0, vict, TO_CHAR);
-				act("$N безрезультатно попытал$U оказать Вам первую помощь.",
+				act("$N безрезультатно попытал$U оказать вам первую помощь.",
 					FALSE, vict, 0, ch, TO_CHAR);
 				act("$n безрезультатно попытал$u оказать первую помощь $N2.",
 					TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -2615,7 +2615,7 @@ ACMD(do_poisoned)
 
 	if (!weapon || !result)
 	{
-		send_to_char(ch, "У Вас нет \'%s\'.\r\n", arg);
+		send_to_char(ch, "У вас нет \'%s\'.\r\n", arg);
 		return;
 	}
 	else if (GET_OBJ_TYPE(weapon) != ITEM_WEAPON)
@@ -2627,7 +2627,7 @@ ACMD(do_poisoned)
 	OBJ_DATA *cont = get_obj_in_list_vis(ch, argument, ch->carrying);
 	if (!cont)
 	{
-		send_to_char(ch, "У Вас нет \'%s\'.\r\n", argument);
+		send_to_char(ch, "У вас нет \'%s\'.\r\n", argument);
 		return;
 	}
 	else if (GET_OBJ_TYPE(cont) != ITEM_DRINKCON)
@@ -2674,19 +2674,19 @@ ACMD(do_repair)
 
 	if (ch->get_fighting())
 	{
-		send_to_char("Вы не можете сделать это в бою !\r\n", ch);
+		send_to_char("Вы не можете сделать это в бою!\r\n", ch);
 		return;
 	}
 
 	if (!*arg)
 	{
-		send_to_char("Что Вы хотите ремонтировать ?\r\n", ch);
+		send_to_char("Что вы хотите ремонтировать?\r\n", ch);
 		return;
 	}
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{
-		sprintf(buf, "У Вас нет \'%s\'.\r\n", arg);
+		sprintf(buf, "У вас нет \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	};
@@ -2763,7 +2763,7 @@ ACMD(do_makefood)
 	one_argument(argument, arg);
 	if (!*arg)
 	{
-		send_to_char("Что Вы хотите освежевать ?\r\n", ch);
+		send_to_char("Что вы хотите освежевать?\r\n", ch);
 		return;
 	}
 
@@ -2914,7 +2914,7 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 
 	act("Громко чавкая, $N сожрал$G труп.", TRUE, ch, obj, ch, TO_ROOM | TO_ARENA_LISTEN);
 	act("Похоже, лакомство пришлось по вкусу.", TRUE, ch, NULL, ch->master, TO_VICT);
-	act("От омерзительного зрелища Вас едва не вывернуло.", TRUE, ch, NULL, ch->master, TO_NOTVICT | TO_ARENA_LISTEN);
+	act("От омерзительного зрелища вас едва не вывернуло.", TRUE, ch, NULL, ch->master, TO_NOTVICT | TO_ARENA_LISTEN);
 
 	if (GET_HIT(ch) < GET_MAX_HIT(ch))
 	{
@@ -2923,7 +2923,7 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 
 	if (GET_HIT(ch) >= GET_MAX_HIT(ch))
 	{
-		act("$n сыто рыгнул$g и благодарно посмотрел$g на Вас.", TRUE, ch, NULL, ch->master, TO_VICT);
+		act("$n сыто рыгнул$g и благодарно посмотрел$g на вас.", TRUE, ch, NULL, ch->master, TO_VICT);
 		act("$n сыто рыгнул$g и благодарно посмотрел$g на $N3.", TRUE, ch, NULL, ch->master, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 

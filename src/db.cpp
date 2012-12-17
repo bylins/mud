@@ -2455,7 +2455,7 @@ void parse_room(FILE * fl, int virtual_nr, int virt)
 	if (virt)
 	{
 		world[room_nr]->name = str_dup("Виртуальная комната");
-		world[room_nr]->description_num = RoomDescription::add_desc("Похоже, здесь Вам делать нечего.");
+		world[room_nr]->description_num = RoomDescription::add_desc("Похоже, здесь вам делать нечего.");
 		world[room_nr]->room_flags.flags[0] = 0;
 		world[room_nr]->room_flags.flags[1] = 0;
 		world[room_nr]->room_flags.flags[2] = 0;
@@ -6386,7 +6386,7 @@ void init_char(CHAR_DATA * ch)
 }
 
 const char *remort_msg =
-	"  Если Вы так настойчивы в желании начать все заново -\r\n" "наберите <перевоплотиться> полностью.\r\n";
+	"  Если вы так настойчивы в желании начать все заново -\r\n" "наберите <перевоплотиться> полностью.\r\n";
 
 ACMD(do_remort)
 {
@@ -6403,7 +6403,7 @@ ACMD(do_remort)
 //  if (!GET_GOD_FLAG(ch, GF_REMORT))
 	if (GET_EXP(ch) < level_exp(ch, LVL_IMMORT) - 1)
 	{
-		send_to_char("ЧАВО ???\r\n", ch);
+		send_to_char("ЧАВО???\r\n", ch);
 		return;
 	}
 	if (RENTABLE(ch))
@@ -6539,7 +6539,7 @@ ACMD(do_remort)
 	remove_rune_label(ch);
 
 	act("$n вступил$g в игру.", TRUE, ch, 0, 0, TO_ROOM);
-	act("Вы перевоплотились ! Желаем удачи !", FALSE, ch, 0, 0, TO_CHAR);
+	act("Вы перевоплотились! Желаем удачи!", FALSE, ch, 0, 0, TO_CHAR);
 }
 
 

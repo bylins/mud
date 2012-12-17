@@ -241,7 +241,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 			// Проверяем не производилось ли изменение
 			if (OLC_VAL(d))
 			{
-				send_to_char("Вы желаете сохранить изменения в рецепте ?(y/n) : ", d->character);
+				send_to_char("Вы желаете сохранить изменения в рецепте? (y/n) : ", d->character);
 				OLC_MODE(d) = MREDIT_CONFIRM_SAVE;
 				return;
 			}
@@ -263,7 +263,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		i = atoi(sagr.c_str());
 		if (real_object(i) < 0)
 		{
-			send_to_char("Прототип выбранного Вами объекта не существует.\r\n", d->character);
+			send_to_char("Прототип выбранного вами объекта не существует.\r\n", d->character);
 		}
 		else
 		{
@@ -386,7 +386,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else if (real_object(i) < 0)
 		{
-			send_to_char("Прототип выбранного Вами ингредиента не существует.\r\n", d->character);
+			send_to_char("Прототип выбранного вами ингредиента не существует.\r\n", d->character);
 		}
 		else
 		{
@@ -820,7 +820,7 @@ ACMD(do_make_item)
 		trec = canlist->get_by_name(tmpstr);
 		if (trec == NULL)
 		{
-			tmpstr = "Похоже у Вас творческий кризис.\r\n";
+			tmpstr = "Похоже у вас творческий кризис.\r\n";
 			send_to_char(tmpstr.c_str(), ch);
 			free(canlist);
 			return;
@@ -858,9 +858,9 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, int skill)
 	}
 
 	if (weight < created_item[obj_type].min_weight)
-		send_to_char("У Вас не хватило материала.\r\n", ch);
+		send_to_char("У вас не хватило материала.\r\n", ch);
 	else if (prob * 5 < percent)
-		send_to_char("У Вас ничего не получилось.\r\n", ch);
+		send_to_char("У вас ничего не получилось.\r\n", ch);
 	else if (!(tobj = read_object(created_item[obj_type].obj_vnum, VIRTUAL)))
 		send_to_char("Образец был невозвратимо утерян.\r\n", ch);
 	else
@@ -1042,10 +1042,10 @@ ACMD(do_transform_weapon)
 		switch (subcmd)
 		{
 		case SKILL_TRANSFORMWEAPON:
-			send_to_char("Во что Вы хотите перековать ?\r\n", ch);
+			send_to_char("Во что вы хотите перековать?\r\n", ch);
 			break;
 		case SKILL_CREATEBOW:
-			send_to_char("Что Вы хотите смастерить ?\r\n", ch);
+			send_to_char("Что вы хотите смастерить?\r\n", ch);
 			break;
 		}
 		return;
@@ -1120,7 +1120,7 @@ ACMD(do_transform_weapon)
 		if (i >= MAX_PROTO)
 		{
 			if (found)
-				act("Похоже, Вы уже что-то используете вместо $o1.", FALSE, ch, obj, 0, TO_CHAR);
+				act("Похоже, вы уже что-то используете вместо $o1.", FALSE, ch, obj, 0, TO_CHAR);
 			else
 				act("Похоже, $o не подойдет для этого.", FALSE, ch, obj, 0, TO_CHAR);
 			return;
@@ -1171,9 +1171,9 @@ ACMD(do_transform_weapon)
 				if (created_item[obj_type].proto[i] && !proto[i])
 				{
 					if ((rnum = real_object(created_item[obj_type].proto[i])) < 0)
-						act("У Вас нет необходимого ингредиента.", FALSE, ch, 0, 0, TO_CHAR);
+						act("У вас нет необходимого ингредиента.", FALSE, ch, 0, 0, TO_CHAR);
 					else
-						act("У Вас не хватает $o1 для этого.", FALSE, ch,
+						act("У вас не хватает $o1 для этого.", FALSE, ch,
 							obj_proto[rnum], 0, TO_CHAR);
 					found = FALSE;
 				}
@@ -1208,9 +1208,9 @@ ACMD(do_transform_weapon)
 			if (created_item[obj_type].proto[i] && !proto[i])
 			{
 				if ((rnum = real_object(created_item[obj_type].proto[i])) < 0)
-					act("У Вас нет необходимого ингредиента.", FALSE, ch, 0, 0, TO_CHAR);
+					act("У вас нет необходимого ингредиента.", FALSE, ch, 0, 0, TO_CHAR);
 				else
-					act("У Вас не хватает $o1 для этого.", FALSE, ch, obj_proto[rnum], 0, TO_CHAR);
+					act("У вас не хватает $o1 для этого.", FALSE, ch, obj_proto[rnum], 0, TO_CHAR);
 				found = FALSE;
 			}
 		if (!found)
@@ -1696,19 +1696,19 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// 1. Проверить есть ли скилл у чара
 	if (IS_NPC(ch) || !ch->get_skill(skill))
 	{
-		send_to_char("Странно что Вам вообще пришло в голову cделать это.\r\n", ch);
+		send_to_char("Странно что вам вообще пришло в голову cделать это.\r\n", ch);
 		return (FALSE);
 	}
 	// 2. Проверить есть ли ингры у чара
 	if (!can_make(ch))
 	{
-		send_to_char("У Вас нет составляющих для этого.\r\n", ch);
+		send_to_char("У вас нет составляющих для этого.\r\n", ch);
 		return (FALSE);
 	}
 
 	if (GET_MOVE(ch) < MIN_MAKE_MOVE)
 	{
-		send_to_char("Вы слишком устали и Вам ничего не хочется делать.\r\n", ch);
+		send_to_char("Вы слишком устали и вам ничего не хочется делать.\r\n", ch);
 		return (FALSE);
 	}
 
@@ -1772,11 +1772,11 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 		charwork = "Вы поместили заготовку на наковальню и начали ковать $o3.";
 		roomwork = "$n поместил$g закотовку на наковальню и начал$g ковать.";
-		charfail = "Заготовка под Вашими ударами покрылась сетью трещин и раскололась.";
+		charfail = "Заготовка под вашими ударами покрылась сетью трещин и раскололась.";
 		roomfail = "Под ударами молота $n1 заготовка раскололась.";
 		charsucc = "Вы выковали $o3.";
 		roomsucc = "$n выковал$G $o3.";
-		chardam = "Заготовка выскочила из под молота и больно ударила Вас.";
+		chardam = "Заготовка выскочила из под молота и больно ударила вас.";
 		roomdam = "Заготовка выскочила из под молота $n1, больно $s ударив.";
 		tagging = "Вы поставили свое клеймо на $o5.";
 		itemtag = "На $o5 стоит клеймо 'Выковал$g $n'.";
@@ -1790,11 +1790,11 @@ int MakeRecept::make(CHAR_DATA * ch)
 	case SKILL_MAKE_BOW:
 		charwork = "Вы начали мастерить $o3.";
 		roomwork = "$n начал мастерить что-то очень напоминающее $o3.";
-		charfail = "С громким треском $o сломал$U в Ваших неумелых руках.";
+		charfail = "С громким треском $o сломал$U в ваших неумелых руках.";
 		roomfail = "С громким треском $o сломал$U в неумелых руках $n1.";
 		charsucc = "Вы cмастерили $o3.";
 		roomsucc = "$n смастерил$g $o3.";
-		chardam = "$o3 с громким треском сломал$U оцарапав Вам руки.";
+		chardam = "$o3 с громким треском сломал$U оцарапав вам руки.";
 		roomdam = "$o3 с громким треском сломал$U оцарапав руки $n2.";
 		tagging = "Вы вырезали свое имя на $o5.";
 		itemtag = "На $o5 видна метка 'Смастерил$g $n'.";
@@ -1809,14 +1809,14 @@ int MakeRecept::make(CHAR_DATA * ch)
 	case SKILL_MAKE_WEAR:
 		charwork = "Вы взяли в руку иголку и начали шить $o3.";
 		roomwork = "$n взял в руку иголку и начал увлеченно шить.";
-		charfail = "У Вас ничего не получилось сшить.";
+		charfail = "У вас ничего не получилось сшить.";
 		roomfail = "$n пытался что-то сшить, но у него ничего не вышло.";
 		charsucc = "Вы сшили $o3.";
 		roomsucc = "$n сшил$g $o3.";
-		chardam = "Игла глубоко вошла в Вашу руку. Аккуратнее надо быть.";
+		chardam = "Игла глубоко вошла в вашу руку. Аккуратнее надо быть.";
 		roomdam = "$n глубоко воткнул$g иглу в себе в руку. \r\nА с виду вполне нормальный человек.";
 		tagging = "Вы пришили к $o2 бирку со своим именем.";
-		itemtag = "На $o5 Вы заметили бирку 'Сшил$g $n'.";
+		itemtag = "На $o5 вы заметили бирку 'Сшил$g $n'.";
 
 		// Бонус тело , не спрашивайте почему :))
 		stat_bonus = number(0, GET_REAL_CON(ch));
@@ -1832,7 +1832,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		roomfail = "Неудачное движение $n, сделало $s работу бессмысленной.";
 		charsucc = "Вы смастерили $o3.";
 		roomsucc = "$n смастерил$g $o3.";
-		chardam = "Мелкий кусочек материала отскочил и попал Вам в глаз.\r\nЭто было больно!";
+		chardam = "Мелкий кусочек материала отскочил и попал вам в глаз.\r\nЭто было больно!";
 		roomdam = "Мелкий кусочек материала отскочил и попал в глаз $n2.";
 		tagging = "Вы приладили к $o2 табличку со своим именем.";
 		itemtag = "С нижней стороны $o1 укреплена табличка 'Cделано $n4'.";
@@ -1853,7 +1853,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		charsucc =
 			"Тайные знаки нанесенные на $o3 вспыхнули и погасли.\r\nДа, $E хорошо послужит своему хозяину.";
 		roomsucc = "$n смастерил$g $o3. Вы почуствовали скрытую силу спрятанную в этом предмете.";
-		chardam = "$o взорвался в Ваших руках. Вас сильно обожгло.";
+		chardam = "$o взорвался в ваших руках. Вас сильно обожгло.";
 		roomdam = "$o взорвался в руках $n1, опалив его.\r\nВокруг приятно запахло жаренным мясом.";
 		tagging = "Вы начертили на $o2 свое имя.";
 		itemtag = "Среди рунных знаков видна надпись 'Создано $n4'.";
@@ -1873,12 +1873,12 @@ int MakeRecept::make(CHAR_DATA * ch)
 		charfail = "Вы не уследили как зелье закипело и пролилось в огонь.";
 		roomfail =
 			"Зелье которое варил$g $n закипело и пролилось в огонь,\r\n распространив по комнате ужасную вонь.";
-		charsucc = "Зелье удалось Вам на славу.";
-		roomsucc = "$n сварил$g $o3. Приятный аромат зелья из горшочка, так и манит Вас.";
+		charsucc = "Зелье удалось вам на славу.";
+		roomsucc = "$n сварил$g $o3. Приятный аромат зелья из горшочка, так и манит вас.";
 		chardam = "Вы опрокинули горшочек с зельем на себя, сильно ошпарившись.";
 		roomdam = "Горшочек с $o4 опрокинулся на $n1, ошпарив $s.";
 		tagging = "Вы на прикрепили к $o2 бирку со своим именем.";
-		itemtag = "На $o1 Вы заметили бирку 'Сварено $n4'";
+		itemtag = "На $o1 вы заметили бирку 'Сварено $n4'";
 
 		// Бонус мудра
 		stat_bonus = number(0, GET_REAL_WIS(ch));
@@ -2026,7 +2026,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 			// Наносим дамаг.
 			if (GET_LEVEL(ch) >= LVL_IMMORT && dam > 0)
 			{
-				send_to_char("Будучи бессмертным, Вы избежали повреждения...", ch);
+				send_to_char("Будучи бессмертным, вы избежали повреждения...", ch);
 				return (FALSE);
 			}
 			GET_HIT(ch) -= dam;

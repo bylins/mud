@@ -114,7 +114,7 @@ ACMD(do_antigods)
 {
 	if (IS_IMMORTAL(ch))
 	{
-		send_to_char("Оно Вам надо?\r\n", ch);
+		send_to_char("Оно вам надо?\r\n", ch);
 		return;
 	}
 	if (AFF_FLAGGED(ch, AFF_SHIELD))
@@ -122,7 +122,7 @@ ACMD(do_antigods)
 		if (affected_by_spell(ch, SPELL_SHIELD))
 			affect_from_char(ch, SPELL_SHIELD);
 		REMOVE_BIT(AFF_FLAGS(ch, AFF_SHIELD), AFF_SHIELD);
-		send_to_char("Голубой кокон вокруг Вашего тела угас.\r\n", ch);
+		send_to_char("Голубой кокон вокруг вашего тела угас.\r\n", ch);
 		act("&W$n отринул$g защиту, дарованную богами.&n", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 	else
@@ -139,7 +139,7 @@ ACMD(do_quit)
 	if (subcmd != SCMD_QUIT)
 		send_to_char("Вам стоит набрать эту команду полностью во избежание недоразумений!\r\n", ch);
 	else if (GET_POS(ch) == POS_FIGHTING)
-		send_to_char("Угу ! Щаз-з-з!  Вы, батенька, деретесь !\r\n", ch);
+		send_to_char("Угу! Щаз-з-з! Вы, батенька, деретесь!\r\n", ch);
 	else if (GET_POS(ch) < POS_STUNNED)
 	{
 		send_to_char("Вас пригласила к себе владелица косы...\r\n", ch);
@@ -356,7 +356,7 @@ ACMD(do_sneak)
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_SNEAK))
 	{
-		send_to_char("Но Вы не знаете как.\r\n", ch);
+		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
@@ -380,7 +380,7 @@ ACMD(do_sneak)
 		return;
 	}
 
-	send_to_char("Хорошо, Вы попытаетесь двигаться бесшумно.\r\n", ch);
+	send_to_char("Хорошо, вы попытаетесь двигаться бесшумно.\r\n", ch);
 	REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILSNEAK), EXTRA_FAILSNEAK);
 	percent = number(1, skill_info[SKILL_SNEAK].max_percent);
 	prob = calculate_skill(ch, SKILL_SNEAK, skill_info[SKILL_SNEAK].max_percent, 0);
@@ -405,7 +405,7 @@ ACMD(do_camouflage)
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_CAMOUFLAGE))
 	{
-		send_to_char("Но Вы не знаете как.\r\n", ch);
+		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
@@ -424,7 +424,7 @@ ACMD(do_camouflage)
 
 	if (timed_by_skill(ch, SKILL_CAMOUFLAGE))
 	{
-		send_to_char("У Вас пока не хватает фантазии. Побудьте немного самим собой.\r\n", ch);
+		send_to_char("У вас пока не хватает фантазии. Побудьте немного самим собой.\r\n", ch);
 		return;
 	}
 
@@ -467,13 +467,13 @@ ACMD(do_hide)
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_HIDE))
 	{
-		send_to_char("Но Вы не знаете как.\r\n", ch);
+		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
 	if (on_horse(ch))
 	{
-		act("А куда Вы хотите спрятать $N3 ?", FALSE, ch, 0, get_horse(ch), TO_CHAR);
+		act("А куда вы хотите спрятать $N3?", FALSE, ch, 0, get_horse(ch), TO_CHAR);
 		return;
 	}
 
@@ -492,11 +492,11 @@ ACMD(do_hide)
 
 	if (affected_by_spell(ch, SPELL_GLITTERDUST))
 	{
-		send_to_char("Спрятаться?! Да Вы сверкаете как корчма во время гулянки!.\r\n", ch);
+		send_to_char("Спрятаться?! Да вы сверкаете как корчма во время гулянки!.\r\n", ch);
 		return;
 	}
 
-	send_to_char("Хорошо, Вы попытаетесь спрятаться.\r\n", ch);
+	send_to_char("Хорошо, вы попытаетесь спрятаться.\r\n", ch);
 	REMOVE_BIT(EXTRA_FLAGS(ch, EXTRA_FAILHIDE), EXTRA_FAILHIDE);
 	percent = number(1, skill_info[SKILL_HIDE].max_percent);
 	prob = calculate_skill(ch, SKILL_HIDE, skill_info[SKILL_HIDE].max_percent, 0);
@@ -586,7 +586,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 				}
 				else if (IS_OBJ_STAT(obj, ITEM_BLOODY))
 				{
-					send_to_char("\"Мокрухой пахнет!\" - пронеслось у Вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
+					send_to_char("\"Мокрухой пахнет!\" - пронеслось у вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
 					return;
 				}
 				else
@@ -601,7 +601,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 		{
 			if (IS_OBJ_STAT(obj, ITEM_BLOODY))
 			{
-				send_to_char("\"Мокрухой пахнет!\" - пронеслось у Вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
+				send_to_char("\"Мокрухой пахнет!\" - пронеслось у вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
 				return;
 			}
 			percent += GET_OBJ_WEIGHT(obj);	/* Make heavy harder */
@@ -620,8 +620,8 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 					send_to_char("Вы прекратили прятаться.\r\n", ch);
 					act("$n прекратил$g прятаться.", FALSE, ch, 0, 0, TO_ROOM);
 				};
-				send_to_char("Атас.. Дружина на конях !\r\n", ch);
-				act("$n пытал$u обокрасть Вас!", FALSE, ch, 0, vict, TO_VICT);
+				send_to_char("Атас.. Дружина на конях!\r\n", ch);
+				act("$n пытал$u обокрасть вас!", FALSE, ch, 0, vict, TO_VICT);
 				act("$n пытал$u украсть нечто у $N1.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 			}
 			else  	/* Steal the item */
@@ -632,7 +632,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 					{
 						obj_from_char(obj);
 						obj_to_char(obj, ch);
-						act("Вы украли $o3 у $N1 !", FALSE, ch, obj, vict, TO_CHAR);
+						act("Вы украли $o3 у $N1!", FALSE, ch, obj, vict, TO_CHAR);
 					}
 				}
 				else
@@ -661,7 +661,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 				send_to_char("Вы прекратили прятаться.\r\n", ch);
 				act("$n прекратил$g прятаться.", FALSE, ch, 0, 0, TO_ROOM);
 			};
-			send_to_char("Вы влипли.. Вас посодют.. А Вы не воруйте..\r\n", ch);
+			send_to_char("Вы влипли... Вас посодют... А вы не воруйте..\r\n", ch);
 			act("Вы обнаружили руку $n1 в своем кармане.", FALSE, ch, 0, vict, TO_VICT);
 			act("$n пытал$u спионерить деньги у $N1.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		}
@@ -678,7 +678,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 				if ((number(1, 100) - ch->get_skill(SKILL_STEAL) -
 						ch->get_dex() + vict->get_wis() + vict->get_gold() / 500) < 0)
 				{
-					act("Тугой кошелек $N1 перекочевал к Вам.", TRUE, ch, 0, vict, TO_CHAR);
+					act("Тугой кошелек $N1 перекочевал к вам.", TRUE, ch, 0, vict, TO_CHAR);
 					gold = vict->get_gold();
 				}
 				else
@@ -690,7 +690,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 					vict->remove_gold(gold);
 					if (gold > 1)
 					{
-						sprintf(buf, "УР-Р-Р-А!  Вы таки сперли %d %s.\r\n",
+						sprintf(buf, "УР-Р-Р-А! Вы таки сперли %d %s.\r\n",
 								gold, desc_count(gold, WHAT_MONEYu));
 						send_to_char(buf, ch);
 					}
@@ -719,7 +719,7 @@ ACMD(do_steal)
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_STEAL))
 	{
-		send_to_char("Но Вы не знаете как.\r\n", ch);
+		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
@@ -1021,7 +1021,7 @@ int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
 	SET_BIT(AFF_FLAGS(vict, AFF_GROUP), AFF_GROUP);
 	if (ch != vict)
 	{
-		act("$N принят$A в члены Вашего кружка (тьфу-ты, группы :).", FALSE, ch, 0, vict, TO_CHAR);
+		act("$N принят$A в члены вашего кружка (тьфу-ты, группы :).", FALSE, ch, 0, vict, TO_CHAR);
 		act("Вы приняты в группу $n1.", FALSE, ch, 0, vict, TO_VICT);
 		act("$N принят$A в группу $n1.", FALSE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
@@ -1221,7 +1221,7 @@ void print_group(CHAR_DATA * ch)
 	}
 	if (!gfound && !cfound)
 	{
-		send_to_char("Но Вы же не член (в лучшем смысле этого слова) группы!\r\n", ch);
+		send_to_char("Но вы же не член (в лучшем смысле этого слова) группы!\r\n", ch);
 		return;
 	}
 	if (PRF_FLAGGED(ch, PRF_SHOWGROUP))
@@ -1290,7 +1290,7 @@ ACMD(do_group)
 
 	if (!ch->followers)
 	{
-		send_to_char("За Вами никто не следует.\r\n", ch);
+		send_to_char("За вами никто не следует.\r\n", ch);
 		return;
 	}
 // вычисляем количество последователей
@@ -1311,7 +1311,7 @@ ACMD(do_group)
 			found += perform_group(ch, f->follower);
 		}
 		if (!found)
-			send_to_char("Все, кто за Вами следуют, уже включены в Вашу группу.\r\n", ch);
+			send_to_char("Все, кто за вами следуют, уже включены в вашу группу.\r\n", ch);
 		return;
 	}
 	else if (!str_cmp(buf, "leader") || !str_cmp(buf, "лидер"))
@@ -1353,7 +1353,7 @@ ACMD(do_group)
 	if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)))
 		send_to_char(NOPERSON, ch);
 	else if ((vict->master != ch) && (vict != ch))
-		act("$N2 нужно следовать за Вами, чтобы стать членом Вашей группы.", FALSE, ch, 0, vict, TO_CHAR);
+		act("$N2 нужно следовать за вами, чтобы стать членом вашей группы.", FALSE, ch, 0, vict, TO_CHAR);
 	else
 	{
 		if (!AFF_FLAGGED(vict, AFF_GROUP))
@@ -1373,7 +1373,7 @@ ACMD(do_group)
 		}
 		else if (ch != vict)
 		{
-			act("$N исключен$A из состава Вашей группы.", FALSE, ch, 0, vict, TO_CHAR);
+			act("$N исключен$A из состава вашей группы.", FALSE, ch, 0, vict, TO_CHAR);
 			act("Вы исключены из группы $n1!", FALSE, ch, 0, vict, TO_VICT);
 			act("$N был$G исключен$A из группы $n1!", FALSE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 			REMOVE_BIT(AFF_FLAGS(vict, AFF_GROUP), AFF_GROUP);
@@ -1420,14 +1420,14 @@ ACMD(do_ungroup)
 		if (isname(buf, tch->get_pc_name()) && !AFF_FLAGGED(tch, AFF_CHARM) && !IS_HORSE(tch))
 		{
 			REMOVE_BIT(AFF_FLAGS(tch, AFF_GROUP), AFF_GROUP);
-			act("$N более не член Вашей группы.", FALSE, ch, 0, tch, TO_CHAR);
+			act("$N более не член вашей группы.", FALSE, ch, 0, tch, TO_CHAR);
 			act("Вы исключены из группы $n1 !", FALSE, ch, 0, tch, TO_VICT);
 			act("$N был$G изгнан$A из группы $n1 !", FALSE, ch, 0, tch, TO_NOTVICT | TO_ARENA_LISTEN);
 			stop_follower(tch, SF_EMPTY);
 			return;
 		}
 	}
-	send_to_char("Этот игрок не входит в состав Вашей группы.\r\n", ch);
+	send_to_char("Этот игрок не входит в состав вашей группы.\r\n", ch);
 	return;
 }
 
@@ -1438,7 +1438,7 @@ ACMD(do_report)
 
 	if (!AFF_FLAGGED(ch, AFF_GROUP) && !AFF_FLAGGED(ch, AFF_CHARM))
 	{
-		send_to_char("И перед кем Вы отчитываетесь ?\r\n", ch);
+		send_to_char("И перед кем вы отчитываетесь ?\r\n", ch);
 		return;
 	}
 	if (IS_MANA_CASTER(ch))
@@ -1461,7 +1461,7 @@ ACMD(do_report)
 			send_to_char(buf, f->follower);
 	if (k != ch && !AFF_FLAGGED(k, AFF_DEAFNESS))
 		send_to_char(buf, k);
-	send_to_char("Вы доложили о состоянии всем членам Вашей группы.\r\n", ch);
+	send_to_char("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
 }
 
 
@@ -1482,12 +1482,12 @@ ACMD(do_split)
 		amount = atoi(buf);
 		if (amount <= 0)
 		{
-			send_to_char("И как Вы это планируете сделать ?\r\n", ch);
+			send_to_char("И как вы это планируете сделать?\r\n", ch);
 			return;
 		}
 		if (amount > ch->get_gold())
 		{
-			send_to_char("И где бы взять Вам столько денег ?.\r\n", ch);
+			send_to_char("И где бы взять вам столько денег?.\r\n", ch);
 			return;
 		}
 
@@ -1510,13 +1510,13 @@ ACMD(do_split)
 		}
 		else
 		{
-			send_to_char("С кем Вы хотите разделить это добро ?\r\n", ch);
+			send_to_char("С кем вы хотите разделить это добро?\r\n", ch);
 			return;
 		}
 
 		ch->remove_gold(share * (num - 1));
 
-		sprintf(buf, "%s разделил%s %d %s; Вам досталось %d.\r\n",
+		sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, WHAT_MONEYu), share);
 		if (AFF_FLAGGED(k, AFF_GROUP) && IN_ROOM(k) == IN_ROOM(ch) && !IS_NPC(k) && k != ch)
 		{
@@ -1536,13 +1536,13 @@ ACMD(do_split)
 				amount, desc_count(amount, WHAT_MONEYu), num, share);
 		if (rest)
 			sprintf(buf + strlen(buf),
-					"Как истинный еврей Вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
+					"Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
 					rest, desc_count(rest, WHAT_MONEYu));
 		send_to_char(buf, ch);
 	}
 	else
 	{
-		send_to_char("Сколько и чего Вы хотите разделить ?\r\n", ch);
+		send_to_char("Сколько и чего вы хотите разделить?\r\n", ch);
 		return;
 	}
 }
@@ -1571,7 +1571,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 	OBJ_DATA *target = get_obj_equip_or_carry(ch, tmp_buf);
 	if (!target)
 	{
-		send_to_char(ch, "Окститесь, нет у Вас %s.\r\n", arg);
+		send_to_char(ch, "Окститесь, нет у вас %s.\r\n", arg);
 		return;
 	}
 
@@ -1630,14 +1630,14 @@ ACMD(do_use)
 	two_arguments(argument, arg, buf);
 	if (!*arg)
 	{
-		sprintf(buf2, "Что Вы хотите %s?\r\n", CMD_NAME);
+		sprintf(buf2, "Что вы хотите %s?\r\n", CMD_NAME);
 		send_to_char(buf2, ch);
 		return;
 	}
 
 	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
 	{
-		send_to_char("Вы в бою, и Вам сейчас не до этих магических выкрутасов!\r\n", ch);
+		send_to_char("Вы в бою, и вам сейчас не до этих магических выкрутасов!\r\n", ch);
 		return;
 	}
 
@@ -1651,7 +1651,7 @@ ACMD(do_use)
 		case SCMD_QUAFF:
 			if (!(mag_item = get_obj_in_list_vis(ch, arg, ch->carrying)))
 			{
-				sprintf(buf2, "Окститесь, нет у Вас %s.\r\n", arg);
+				sprintf(buf2, "Окститесь, нет у вас %s.\r\n", arg);
 				send_to_char(buf2, ch);
 				return;
 			}
@@ -1680,7 +1680,7 @@ ACMD(do_use)
 		}
 		if (GET_OBJ_TYPE(mag_item) != ITEM_POTION)
 		{
-			send_to_char("Осушить Вы можете только напиток (ну, Богам еще пЫво по вкусу ;)\r\n", ch);
+			send_to_char("Осушить вы можете только напиток (ну, Богам еще пЫво по вкусу ;)\r\n", ch);
 			return;
 		}
 		do_hold = 1;
@@ -1776,7 +1776,7 @@ ACMD(do_wimpy)
 		if ((wimp_lev = atoi(arg)) != 0)
 		{
 			if (wimp_lev < 0)
-				send_to_char("Да, перегрев похоже. С такими хитами Вы и так помрете :)\r\n", ch);
+				send_to_char("Да, перегрев похоже. С такими хитами вы и так помрете :)\r\n", ch);
 			else if (wimp_lev > GET_REAL_MAX_HIT(ch))
 				send_to_char("Осталось только дожить до такого количества ХП.\r\n", ch);
 			else if (wimp_lev > (GET_REAL_MAX_HIT(ch) / 2))
@@ -1797,7 +1797,7 @@ ACMD(do_wimpy)
 	}
 	else
 		send_to_char
-		("Уточните, при достижении какого количества ХП Вы планируете сбежать (0 - драться до смерти)\r\n",
+		("Уточните, при достижении какого количества ХП вы планируете сбежать (0 - драться до смерти)\r\n",
 		 ch);
 }
 
@@ -2105,7 +2105,7 @@ ACMD(do_mode)
 		showhelp = TRUE;
 	else if (GET_LEVEL(ch) < gen_tog_param[i >> 1].level && !Privilege::check_flag(ch, Privilege::KRODER))
 	{
-		send_to_char("Эта команда Вам недоступна.\r\n", ch);
+		send_to_char("Эта команда вам недоступна.\r\n", ch);
 		showhelp = TRUE;
 	}
 	else
@@ -2213,14 +2213,14 @@ void setNotifyEchange(CHAR_DATA* ch, char *argument)
 	long size = atol(argument);
 	if (size>=100)
 	{
-		send_to_char(ch, "Вам будут приходить уведомления о продаже с базара Ваших лотов стоимостью не менее чем %ld %s.\r\n",
+		send_to_char(ch, "Вам будут приходить уведомления о продаже с базара ваших лотов стоимостью не менее чем %ld %s.\r\n",
 			size, desc_count(size, WHAT_MONEYa));
 		NOTIFY_EXCH_PRICE(ch) = size;
 		ch->save_char();
 	}
 	else if (size>=0 && size<100)
 	{
-		send_to_char(ch, "Вам не будут приходить уведомления о продаже с базара Ваших лотов, так как указана цена меньше 100 кун.\r\n");
+		send_to_char(ch, "Вам не будут приходить уведомления о продаже с базара ваших лотов, так как указана цена меньше 100 кун.\r\n");
 		NOTIFY_EXCH_PRICE(ch) = 0;
 		ch->save_char();
 	}
@@ -2245,7 +2245,7 @@ ACMD(do_gen_tog)
 		 "Краткий режим включен.\r\n"},
 		{"Сжатый режим выключен.\r\n",
 		 "Сжатый режим включен.\r\n"},
-		{"К Вам можно обратиться.\r\n",
+		{"К вам можно обратиться.\r\n",
 		 "Вы глухи к обращениям.\r\n"},
 		{"Вам будут выводиться сообщения аукциона.\r\n",
 		 "Вы отключены от участия в аукционе.\r\n"},
@@ -2262,7 +2262,7 @@ ACMD(do_gen_tog)
 		{"Вы больше не будете видеть флаги комнат.\r\n",
 		 "Вы способны различать флаги комнат.\r\n"},
 		{"Ваши сообщения будут дублироваться.\r\n",
-		 "Ваши сообщения не будут дублироваться Вам.\r\n"},
+		 "Ваши сообщения не будут дублироваться вам.\r\n"},
 		{"HolyLight mode off.\r\n",
 		 "HolyLight mode on.\r\n"},
 		{"Nameserver_is_slow changed to NO; IP addresses will now be resolved.\r\n",
@@ -2285,7 +2285,7 @@ ACMD(do_gen_tog)
 		 "Вы глухи к крикам.\r\n"},
 		{"Режим автозавершения (IAC GA) выключен.\r\n",
 		 "Режим автозавершения (IAC GA) включен.\r\n"},
-		{"При просмотре состава группы будут отображаться только персонажи и Ваши последователи.\r\n",
+		{"При просмотре состава группы будут отображаться только персонажи и ваши последователи.\r\n",
 		 "При просмотре состава группы будут отображаться все персонажи и последователи.\r\n"},
 		{"Вы не будете автоматически помогать согрупникам.\r\n",
 		 "Вы будете автоматически помогать согрупникам.\r\n"},
@@ -2300,8 +2300,8 @@ ACMD(do_gen_tog)
 		 "Вы отключены от участия в базаре.\r\n"},
 		{"При просмотре состава группы будут отображаться все последователи.\r\n",
 		 "При просмотре состава группы не будут отображаться чужие двойники и хранители.\r\n"},
-		{"К Вам сможет обратиться кто угодно.\r\n",
-		 "К Вам смогут обратиться только те, кого Вы видите.\r\n"},
+		{"К вам сможет обратиться кто угодно.\r\n"
+		 "К вам смогут обратиться только те, кого вы видите.\r\n"},
 		{"", ""}, // SCMD_LENGTH
 		{"", ""}, // SCMD_WIDTH
 		{"", ""}, // SCMD_SCREEN
@@ -2539,7 +2539,7 @@ ACMD(do_pray)
 
 	if (subcmd == SCMD_DONATE && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_POLY))
 	{
-		send_to_char("Найдите подходящее место для Вашей жертвы.\r\n", ch);
+		send_to_char("Найдите подходящее место для вашей жертвы.\r\n", ch);
 		return;
 	}
 	if (subcmd == SCMD_PRAY && !ROOM_FLAGGED(IN_ROOM(ch), ROOM_MONO))
@@ -2561,7 +2561,7 @@ ACMD(do_pray)
 					send_to_char(pray_metter[metter], ch);
 					send_to_char("\r\n", ch);
 				}
-			send_to_char("Укажите, кому и что Вы хотите жертвовать.\r\n", ch);
+			send_to_char("Укажите, кому и что вы хотите жертвовать.\r\n", ch);
 		}
 		else if (subcmd == SCMD_PRAY)
 		{
@@ -2572,7 +2572,7 @@ ACMD(do_pray)
 					send_to_char(pray_metter[metter], ch);
 					send_to_char("\r\n", ch);
 				}
-			send_to_char("Укажите, кому Вы хотите вознести молитву.\r\n", ch);
+			send_to_char("Укажите, кому вы хотите вознести молитву.\r\n", ch);
 		}
 		return;
 	}
@@ -2606,7 +2606,7 @@ ACMD(do_pray)
 	{
 		if (ch->get_gold() < 10)
 		{
-			send_to_char("У Вас не хватит денег на свечку.\r\n", ch);
+			send_to_char("У вас не хватит денег на свечку.\r\n", ch);
 			return;
 		}
 	}
@@ -2711,7 +2711,7 @@ ACMD(do_recall)
 void perform_beep(CHAR_DATA *ch, CHAR_DATA *vict)
 {
 	send_to_char(CCRED(vict, C_NRM), vict);
-	sprintf(buf, "\007\007 $n вызывает Вас !");
+	sprintf(buf, "\007\007 $n вызывает вас!");
 	act(buf, FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
 	send_to_char(CCNRM(vict, C_NRM), vict);
 
@@ -2733,15 +2733,15 @@ ACMD(do_beep)
 	one_argument(argument, buf);
 
 	if (!*buf)
-		send_to_char("Кого вызывать ?\r\n", ch);
+		send_to_char("Кого вызывать?\r\n", ch);
 	else if (!(vict = get_char_vis(ch, buf, FIND_CHAR_WORLD)) || IS_NPC(vict))
 		send_to_char(NOPERSON, ch);
 	else if (ch == vict)
-		send_to_char("\007\007Вы вызвали себя !\r\n", ch);
+		send_to_char("\007\007Вы вызвали себя!\r\n", ch);
 	else if (PRF_FLAGGED(ch, PRF_NOTELL))
 		send_to_char("Вы не можете пищать в режиме обращения.\r\n", ch);
 	else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
-		send_to_char("Стены заглушили Ваш писк.\r\n", ch);
+		send_to_char("Стены заглушили ваш писк.\r\n", ch);
 	else if (!IS_NPC(vict) && !vict->desc)	/* linkless */
 		act("$N потерял связь.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	else if (PLR_FLAGGED(vict, PLR_WRITING))
@@ -2762,7 +2762,7 @@ void insert_wanted_gem::show(CHAR_DATA *ch, int gem_vnum)
 	it = content.find(gem_vnum);
 	if (it == content.end()) return;
 
-	send_to_char("Будучи искусным ювелиром, вы можете выбрать, какого эффекта Вы желаете добиться: \r\n", ch);
+	send_to_char("Будучи искусным ювелиром, вы можете выбрать, какого эффекта вы желаете добиться: \r\n", ch);
 	for (alias_it = it->second.begin();alias_it != it->second.end();++alias_it)
 	{
 		sprintf(buf, " %s\r\n", alias_it->first.c_str());
@@ -2992,7 +2992,7 @@ ACMD(do_dig)
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_DIG))
 	{
-		send_to_char("Но Вы не знаете как.\r\n", ch);
+		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
@@ -3224,7 +3224,7 @@ ACMD(do_insertgem)
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_INSERTGEM))
 	{
-		send_to_char("Но Вы не знаете как.\r\n", ch);
+		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
@@ -3247,7 +3247,7 @@ ACMD(do_insertgem)
 
 	if (!(gemobj = get_obj_in_list_vis(ch, gem, ch->carrying)))
 	{
-		sprintf(buf, "У Вас нет '%s'.\r\n", gem);
+		sprintf(buf, "У вас нет '%s'.\r\n", gem);
 		send_to_char(buf, ch);
 		return;
 	}
@@ -3269,7 +3269,7 @@ ACMD(do_insertgem)
 
 	if (!(itemobj = get_obj_in_list_vis(ch, item, ch->carrying)))
 	{
-		sprintf(buf, "У Вас нет '%s'.\r\n", item);
+		sprintf(buf, "У вас нет '%s'.\r\n", item);
 		send_to_char(buf, ch);
 		return;
 	}

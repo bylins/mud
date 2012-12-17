@@ -550,7 +550,7 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 	if (GET_LEVEL(ch) < MIN_MAIL_LEVEL)
 	{
 		sprintf(buf,
-				"$n сказал$g Вам, 'Извините, Вы должны достигнуть %d уровня, чтобы отправить письмо!'",
+				"$n сказал$g вам, 'Извините, вы должны достигнуть %d уровня, чтобы отправить письмо!'",
 				MIN_MAIL_LEVEL);
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return;
@@ -559,12 +559,12 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 
 	if (!*buf)  		/* you'll get no argument from me! */
 	{
-		act("$n сказал$g Вам, 'Вы не указали адресата!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам, 'Вы не указали адресата!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
 	if ((recipient = get_id_by_name(buf)) < 0)
 	{
-		act("$n сказал$g Вам, 'Извините, но такого игрока нет в игре!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам, 'Извините, но такого игрока нет в игре!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
 
@@ -578,15 +578,15 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 		}
 		else
 		{
-			act("$n сказал$g Вам : 'Ошибочка вышла, сообщите Богам!'", FALSE, mailman, 0, ch, TO_VICT);
+			act("$n сказал$g вам : 'Ошибочка вышла, сообщите Богам!'", FALSE, mailman, 0, ch, TO_VICT);
 		}
 		return;
 	}
 
 	if (ch->get_gold() < cost)
 	{
-		sprintf(buf, "$n сказал$g Вам, 'Письмо стоит %d %s.'\r\n"
-				"$n сказал$g Вам, '...которых у Вас просто-напросто нет.'",
+		sprintf(buf, "$n сказал$g вам, 'Письмо стоит %d %s.'\r\n"
+				"$n сказал$g вам, '...которых у вас просто-напросто нет.'",
 				STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYu));
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return;
@@ -594,12 +594,12 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 
 	act("$n начал$g писать письмо.", TRUE, ch, 0, 0, TO_ROOM);
 	if (cost == 0)
-		sprintf(buf, "$n сказал$g Вам, 'Со своих - почтовый сбор не берем.'\r\n"
-				"$n сказал$g Вам, 'Можете писать, (/s saves /h for help)'");
+		sprintf(buf, "$n сказал$g вам, 'Со своих - почтовый сбор не берем.'\r\n"
+				"$n сказал$g вам, 'Можете писать, (/s saves /h for help)'");
 	else
 		sprintf(buf,
-				"$n сказал$g Вам, 'Отлично, с Вас %d %s почтового сбора.'\r\n"
-				"$n сказал$g Вам, 'Можете писать, (/s saves /h for help)'",
+				"$n сказал$g вам, 'Отлично, с вас %d %s почтового сбора.'\r\n"
+				"$n сказал$g вам, 'Можете писать, (/s saves /h for help)'",
 				STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYa));
 
 	act(buf, FALSE, mailman, 0, ch, TO_VICT);
@@ -618,16 +618,16 @@ void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *a
 	if (has_mail(GET_IDNUM(ch)))
 	{
 		empty = false;
-		act("$n сказал$g Вам : 'Вас ожидает почта.'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам : 'Вас ожидает почта.'", FALSE, mailman, 0, ch, TO_VICT);
 	}
 	if (Parcel::has_parcel(ch))
 	{
 		empty = false;
-		act("$n сказал$g Вам : 'Вас ожидает посылка.'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам : 'Вас ожидает посылка.'", FALSE, mailman, 0, ch, TO_VICT);
 	}
 
 	if (empty)
-		act("$n сказал$g Вам : 'Похоже, сегодня Вам ничего нет.'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам : 'Похоже, сегодня вам ничего нет.'", FALSE, mailman, 0, ch, TO_VICT);
 
 	Parcel::print_sending_stuff(ch);
 }
@@ -640,7 +640,7 @@ void postmaster_receive_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char 
 
 	if (!has_mail(GET_IDNUM(ch)) && !Parcel::has_parcel(ch))
 	{
-		sprintf(buf, "$n удивленно сказал$g Вам : 'Но для Вас нет писем !?'");
+		sprintf(buf, "$n удивленно сказал$g вам : 'Но для вас нет писем !?'");
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
@@ -671,7 +671,7 @@ void postmaster_receive_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char 
 
 		obj_to_char(obj, ch);
 
-		act("$n дал$g Вам письмо.", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n дал$g вам письмо.", FALSE, mailman, 0, ch, TO_VICT);
 		act("$N дал$G $n2 письмо.", FALSE, ch, 0, mailman, TO_ROOM);
 	}
 	Parcel::receive(ch, mailman);

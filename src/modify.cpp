@@ -886,7 +886,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 						(*it)->num = count++;
 					d->board->SetLastRead(GET_UNIQUE(d->character));
 					d->board->Save();
-					SEND_TO_Q("Спасибо за Ваши излияния души, послание сохранено.\r\n", d);
+					SEND_TO_Q("Спасибо за ваши излияния души, послание сохранено.\r\n", d);
 				}
 				else
 					SEND_TO_Q("Ошибочка вышла...\r\n", d);
@@ -960,7 +960,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			if ((terminator == 1) && *d->str)  	//log("[SA] 4s");
 			{
 				store_mail(d->mail_to, GET_IDNUM(d->character), *d->str);
-				SEND_TO_Q("Ближайшей оказией я отправлю Ваше письмо адресату!\r\n", d);
+				SEND_TO_Q("Ближайшей оказией я отправлю ваше письмо адресату!\r\n", d);
 				DESCRIPTOR_DATA* i = get_desc_by_id(d->mail_to);
 				if (i)
 					send_to_char(i->character, "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",

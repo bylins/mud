@@ -265,7 +265,7 @@ bool Board::can_write(CHAR_DATA *ch)
 			|| PLR_FLAGGED(ch, PLR_NAMED)
 			|| PLR_FLAGGED(ch, PLR_DUMB))
 	{
-		send_to_char("У Вас нет возможности писать в этот раздел.\r\n", ch);
+		send_to_char("У вас нет возможности писать в этот раздел.\r\n", ch);
 		return false;
 	}
 	return true;
@@ -304,7 +304,7 @@ ACMD(DoBoard)
 	{
 		if ((*board)->Access(ch) == 2)
 		{
-			send_to_char("У Вас нет возможности читать этот раздел.\r\n", ch);
+			send_to_char("У вас нет возможности читать этот раздел.\r\n", ch);
 			return;
 		}
 		std::ostringstream body;
@@ -338,7 +338,7 @@ ACMD(DoBoard)
 	{
 		if ((*board)->Access(ch) == 2)
 		{
-			send_to_char("У Вас нет возможности читать этот раздел.\r\n", ch);
+			send_to_char("У вас нет возможности читать этот раздел.\r\n", ch);
 			return;
 		}
 		// новости мада в ленточном варианте
@@ -384,7 +384,7 @@ ACMD(DoBoard)
 				return;
 			}
 		}
-		send_to_char("У Вас нет непрочитанных сообщений.\r\n", ch);
+		send_to_char("У вас нет непрочитанных сообщений.\r\n", ch);
 		return;
 	}
 
@@ -394,7 +394,7 @@ ACMD(DoBoard)
 	{
 		if ((*board)->Access(ch) == 2)
 		{
-			send_to_char("У Вас нет возможности читать этот раздел.\r\n", ch);
+			send_to_char("У вас нет возможности читать этот раздел.\r\n", ch);
 			return;
 		}
 		if (CompareParam(buffer, "читать"))
@@ -403,7 +403,7 @@ ACMD(DoBoard)
 			num = atoi(buffer.c_str());
 		if (num <= 0 || num > (*board)->messages.size())
 		{
-			send_to_char("Это сообщение может Вам только присниться.\r\n", ch);
+			send_to_char("Это сообщение может вам только присниться.\r\n", ch);
 			return;
 		}
 		num = (*board)->messages.size() - num;
@@ -422,7 +422,7 @@ ACMD(DoBoard)
 				&& (*board)->type != PERS_BOARD
 				&& !Privilege::check_flag(ch, Privilege::BOARDS))
 		{
-			send_to_char("Да Вы ведь только что писали сюда.\r\n", ch);
+			send_to_char("Да вы ведь только что писали сюда.\r\n", ch);
 			return;
 		}
 
@@ -481,7 +481,7 @@ ACMD(DoBoard)
 		num = atoi(buffer2.c_str());
 		if (num <= 0 || num > (*board)->messages.size())
 		{
-			send_to_char("Это сообщение может Вам только присниться.\r\n", ch);
+			send_to_char("Это сообщение может вам только присниться.\r\n", ch);
 			return;
 		}
 		num = (*board)->messages.size() - num;
@@ -491,7 +491,7 @@ ACMD(DoBoard)
 		{
 			if ((*board)->messages[num]->unique != GET_UNIQUE(ch))
 			{
-				send_to_char("У Вас нет возможности удалить это сообщение.\r\n", ch);
+				send_to_char("У вас нет возможности удалить это сообщение.\r\n", ch);
 				return;
 			}
 		}
@@ -503,7 +503,7 @@ ACMD(DoBoard)
 		{
 			// для простых досок сверяем левела (для контроля иммов)
 			// клановые ниже, у персональных смысла нет
-			send_to_char("У Вас нет возможности удалить это сообщение.\r\n", ch);
+			send_to_char("У вас нет возможности удалить это сообщение.\r\n", ch);
 			return;
 		}
 		else if ((*board)->type == CLAN_BOARD || (*board)->type == CLANNEWS_BOARD)
@@ -511,7 +511,7 @@ ACMD(DoBoard)
 			// у кого привилегия на новости, те могут удалять везде чужие, если ранк автора такой же или ниже
 			if (CLAN_MEMBER(ch)->rank_num > (*board)->messages[num]->rank)
 			{
-				send_to_char("У Вас нет возможности удалить это сообщение.\r\n", ch);
+				send_to_char("У вас нет возможности удалить это сообщение.\r\n", ch);
 				return;
 			}
 		}

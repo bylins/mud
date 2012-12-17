@@ -32,7 +32,7 @@ const unsigned int MAX_TITLE_LENGTH = 80; // макс.длина строки титула (титул+пре
 const int SET_TITLE_COST = 1000;          // цена за попытку установки титула
 const char* TITLE_FILE = LIB_PLRSTUFF"titles.lst"; // файл сохранения/подгрузки ждущих одобрения титулов
 const char* MORTAL_DO_TITLE_FORMAT =
-	"титул - справка о команде и информация по титулу, находящемуся на рассмотрении или ждущего Вашего подтверждения\r\n"
+	"титул - справка о команде и информация по титулу, находящемуся на рассмотрении или ждущего вашего подтверждения\r\n"
 	"титул установить <текст> - предварительная установка нового титула, требует подтверждения\r\n"
 	"титул установить <текст предтитула!текст титула> - тоже, что и с титулом\r\n"
 	"титул согласен - подтверждение и отправка заявки Богам\r\n"
@@ -187,7 +187,7 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		{
 			if (ch->get_bank() < SET_TITLE_COST)
 			{
-				send_to_char("На Вашем счету не хватает денег для оплаты этой услуги.\r\n", ch);
+				send_to_char("На вашем счету не хватает денег для оплаты этой услуги.\r\n", ch);
 				return;
 			}
 			ch->remove_bank(SET_TITLE_COST);
@@ -197,7 +197,7 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 			send_to_char(TITLE_SEND_FORMAT, ch);
 		}
 		else
-			send_to_char("В данный момент нет заявки, на которую требуется Ваше согласие.\r\n", ch);
+			send_to_char("В данный момент нет заявки, на которую требуется ваше согласие.\r\n", ch);
 	}
 	else if (CompareParam(buffer2, "отменить"))
 	{
@@ -209,7 +209,7 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 			send_to_char("Ваша заявка на титул отменена.\r\n", ch);
 		}
 		else
-			send_to_char("В данный момент Вам нечего отменять.\r\n", ch);
+			send_to_char("В данный момент вам нечего отменять.\r\n", ch);
 	}
 	else if (CompareParam(buffer2, "удалить", 1))
 	{
@@ -241,7 +241,7 @@ bool TitleSystem::check_title(const std::string& text, CHAR_DATA* ch)
 
 	if (GET_LEVEL(ch) < 25 && !GET_REMORT(ch) && !IS_GOD(ch) && !Privilege::check_flag(ch, Privilege::TITLE))
 	{
-		send_to_char(ch, "Для права на титул Вы должны достигнуть 25го уровня или иметь перевоплощения.\r\n");
+		send_to_char(ch, "Для права на титул вы должны достигнуть 25го уровня или иметь перевоплощения.\r\n");
 		return 0;
 	}
 
@@ -282,7 +282,7 @@ bool TitleSystem::check_pre_title(std::string text, CHAR_DATA* ch)
 	}
 	if (word > GET_REMORT(ch))
 	{
-		send_to_char(ch, "У Вас недостаточно перевоплощений для стольких слов в предтитуле.\r\n");
+		send_to_char(ch, "У вас недостаточно перевоплощений для стольких слов в предтитуле.\r\n");
 		return 0;
 	}
 
@@ -532,7 +532,7 @@ void TitleSystem::do_title_empty(CHAR_DATA* ch)
 		it = temp_title_list.find(GET_NAME(ch));
 		if (it != temp_title_list.end())
 		{
-			out << "Данный титул ждет Вашего подтверждения для отправки заявки Богам:\r\n"
+			out << "Данный титул ждет вашего подтверждения для отправки заявки Богам:\r\n"
 			<< print_title_string(ch, it->second->pre_title, it->second->title)
 			<< print_agree_string(is_new_petition(ch)) << "\r\n";
 		}

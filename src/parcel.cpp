@@ -184,7 +184,7 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj)
 			|| GET_OBJ_RNUM(obj) <= NOTHING)
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
-				"$n сказал$g Вам : '%s - мы не отправляем такие вещи!'\r\n",
+				"$n сказал$g вам : '%s - мы не отправляем такие вещи!'\r\n",
 				OBJ_PAD(obj, 0));
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return 0;
@@ -192,14 +192,14 @@ bool can_send(CHAR_DATA *ch, CHAR_DATA *mailman, OBJ_DATA *obj)
 	else if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && obj->contains)
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
-				"$n сказал$g Вам : 'В %s что-то лежит.'\r\n", OBJ_PAD(obj, 5));
+				"$n сказал$g вам : 'В %s что-то лежит.'\r\n", OBJ_PAD(obj, 5));
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return 0;
 	}
 	else if (SetSystem::is_big_set(obj))
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
-				"$n сказал$g Вам : '%s является частью большого набора предметов.'\r\n",
+				"$n сказал$g вам : '%s является частью большого набора предметов.'\r\n",
 				OBJ_PAD(obj, 0));
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return 0;
@@ -226,12 +226,12 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 
 	if (ch->get_total_gold() < total_cost)
 	{
-		act("$n сказал$g Вам : 'Да у тебя ведь нет столько денег!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам : 'Да у тебя ведь нет столько денег!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
 	if (total_sended(ch) >= MAX_SLOTS)
 	{
-		act("$n сказал$g Вам : 'Ты уже и так отправил кучу вещей! Подожди, пока их получат адресаты!'",
+		act("$n сказал$g вам : 'Ты уже и так отправил кучу вещей! Подожди, пока их получат адресаты!'",
 				FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
@@ -239,7 +239,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 	std::string name = GetNameByUnique(vict_uid);
 	if (name.empty())
 	{
-		act("$n сказал$g Вам : 'Ошибка в имени получателя, сообщите Богам!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам : 'Ошибка в имени получателя, сообщите Богам!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
 	name_convert(name);
@@ -281,12 +281,12 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 	
 	if (GET_UNIQUE(ch) == vict_uid)
 	{
-		act("$n сказал$g Вам : 'Не загружай понапрасну почту!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам : 'Не загружай понапрасну почту!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
 	if (RENTABLE(ch))
 	{
-		act("$n сказал$g Вам : 'Да у тебя руки по локоть в крови, проваливай!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам : 'Да у тебя руки по локоть в крови, проваливай!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
 
@@ -301,14 +301,14 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 		int amount = atoi(tmp_arg);
 		if (!strn_cmp("coin", tmp_arg2, 4) || !strn_cmp("кун", tmp_arg2, 5) || !str_cmp("денег", tmp_arg2))
 		{
-			act("$n сказал$g Вам : 'Для перевода денег воспользуйтесь услугами банка.'", FALSE, mailman, 0, ch, TO_VICT);
+			act("$n сказал$g вам : 'Для перевода денег воспользуйтесь услугами банка.'", FALSE, mailman, 0, ch, TO_VICT);
 			return;
 		}
 		else if (!str_cmp("все", tmp_arg2) || !str_cmp("all", tmp_arg2))
 		{
 			if (!ch->carrying)
 			{
-				send_to_char("У Вас ведь ничего нет.\r\n", ch);
+				send_to_char("У вас ведь ничего нет.\r\n", ch);
 				return;
 			}
 			for (obj = ch->carrying; obj && amount; obj = next_obj)
@@ -320,11 +320,11 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 		}
 		else if (!*tmp_arg2)
 		{
-			send_to_char(ch, "Чего %d Вы хотите отправить ?\r\n", amount);
+			send_to_char(ch, "Чего %d вы хотите отправить ?\r\n", amount);
 		}
 		else if (!(obj = get_obj_in_list_vis(ch, tmp_arg2, ch->carrying)))
 		{
-			send_to_char(ch, "У Вас нет '%s'.\r\n", tmp_arg2);
+			send_to_char(ch, "У вас нет '%s'.\r\n", tmp_arg2);
 		}
 		else
 		{
@@ -343,7 +343,7 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 		{
 			if (!(obj = get_obj_in_list_vis(ch, tmp_arg, ch->carrying)))
 			{
-				send_to_char(ch, "У Вас нет '%s'.\r\n", tmp_arg);
+				send_to_char(ch, "У вас нет '%s'.\r\n", tmp_arg);
 			}
 			send_object(ch, mailman, vict_uid, obj);
 		}
@@ -355,7 +355,7 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 				return;
 			}
 			if (!ch->carrying)
-				send_to_char("У Вас ведь ничего нет.\r\n", ch);
+				send_to_char("У вас ведь ничего нет.\r\n", ch);
 			else
 			{
 				bool has_items = false;
@@ -369,14 +369,14 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 					}
 				}
 				if (!has_items)
-					send_to_char(ch, "У Вас нет '%s'.\r\n", tmp_arg);
+					send_to_char(ch, "У вас нет '%s'.\r\n", tmp_arg);
 			}
 		}
 	}
 
 	if (!send_buffer.empty())
 	{
-		snprintf(buf, sizeof(buf), "с Вас удержано %d %s и еще %d %s зарезервировано на 3 дня хранения.\r\n",
+		snprintf(buf, sizeof(buf), "с вас удержано %d %s и еще %d %s зарезервировано на 3 дня хранения.\r\n",
 			send_cost_buffer, desc_count(send_cost_buffer, WHAT_MONEYa),
 			send_reserved_buffer, desc_count(send_reserved_buffer, WHAT_MONEYa));
 		send_buffer += buf;
@@ -585,7 +585,7 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
 			return_money(name, money, RETURN_WITH_MONEY);
 
 			obj_to_char(obj, ch);
-			snprintf(buf, MAX_STRING_LENGTH, "$n дал$g Вам посылку (отправитель %s).", name.c_str());
+			snprintf(buf, MAX_STRING_LENGTH, "$n дал$g вам посылку (отправитель %s).", name.c_str());
 			act(buf, FALSE, mailman, 0, ch, TO_VICT);
 			act("$N дал$G $n2 посылку.", FALSE, ch, 0, mailman, TO_ROOM);
 			++was_sended;
@@ -652,7 +652,7 @@ void extract_parcel(const long sender_uid, const long target_uid, const std::lis
 {
 	long sender_id = get_id_by_uid(sender_uid);
 	long target_id = get_id_by_uid(target_uid);
-	snprintf(buf, MAX_STRING_LENGTH, "С прискорбием сообщаем Вам: %s рассыпал%s в прах.\r\n",
+	snprintf(buf, MAX_STRING_LENGTH, "С прискорбием сообщаем вам: %s рассыпал%s в прах.\r\n",
 			it->obj_->short_description, GET_OBJ_SUF_2(it->obj_));
 
 	char *tmp = str_dup(buf);
@@ -1030,7 +1030,7 @@ void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman)
 			obj_to_obj(l->obj_, obj);
 		}
 		obj_to_char(obj, ch);
-		snprintf(buf, MAX_STRING_LENGTH, "$n дал$g Вам посылку.");
+		snprintf(buf, MAX_STRING_LENGTH, "$n дал$g вам посылку.");
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		act("$N дал$G $n2 посылку.", FALSE, ch, 0, mailman, TO_ROOM);
 
@@ -1046,7 +1046,7 @@ void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman)
 	}
 	if (!empty && money > 0)
 	{
-		act("$n сказал$g Вам : 'За экстренный возврат посылок с Вас удержана половина зарезервированных кун.'",
+		act("$n сказал$g вам : 'За экстренный возврат посылок с вас удержана половина зарезервированных кун.'",
 				FALSE, mailman, 0, ch, TO_VICT);
 		std::string name = GET_NAME(ch);
 		return_money(name, money/2, RETURN_WITH_MONEY);
@@ -1054,7 +1054,7 @@ void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman)
 	}
 	else if (empty)
 	{
-		act("$n сказал$g Вам : 'У нас нет ни одной Вашей посылки!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n сказал$g вам : 'У нас нет ни одной вашей посылки!'", FALSE, mailman, 0, ch, TO_VICT);
 	}
 }
 

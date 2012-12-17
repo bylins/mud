@@ -166,13 +166,13 @@ void pk_update_clanflag(CHAR_DATA * agressor, CHAR_DATA * victim)
 	{
 		if (pk->clan_exp > time(NULL))
 		{
-			act("Вы продлили право клановой мести $N2 !", FALSE, victim, 0, agressor, TO_CHAR);
-			act("$N продлил$G право еще раз отомстить Вам !", FALSE, agressor, 0, victim, TO_CHAR);
+			act("Вы продлили право клановой мести $N2!", FALSE, victim, 0, agressor, TO_CHAR);
+			act("$N продлил$G право еще раз отомстить вам!", FALSE, agressor, 0, victim, TO_CHAR);
 		}
 		else
 		{
-			act("Вы получили право клановой мести $N2 !", FALSE, victim, 0, agressor, TO_CHAR);
-			act("$N получил$G право на Ваш отстрел !", FALSE, agressor, 0, victim, TO_CHAR);
+			act("Вы получили право клановой мести $N2!", FALSE, victim, 0, agressor, TO_CHAR);
+			act("$N получил$G право на ваш отстрел!", FALSE, agressor, 0, victim, TO_CHAR);
 		}
 	}
 	pk->clan_exp = time(NULL) + CLAN_REVENGE * 60;
@@ -268,13 +268,13 @@ void pk_increment_kill(CHAR_DATA * agressor, CHAR_DATA * victim, int rent, bool 
 		{
 			if (pk->kill_num > 0)
 			{
-				act("Вы получили право еще раз отомстить $N2 !", FALSE, victim, 0, agressor, TO_CHAR);
-				act("$N получил$G право еще раз отомстить Вам !", FALSE, agressor, 0, victim, TO_CHAR);
+				act("Вы получили право еще раз отомстить $N2!", FALSE, victim, 0, agressor, TO_CHAR);
+				act("$N получил$G право еще раз отомстить вам!", FALSE, agressor, 0, victim, TO_CHAR);
 			}
 			else
 			{
-				act("Вы получили право отомстить $N2 !", FALSE, victim, 0, agressor, TO_CHAR);
-				act("$N получил$G право на Ваш отстрел !", FALSE, agressor, 0, victim, TO_CHAR);
+				act("Вы получили право отомстить $N2!", FALSE, victim, 0, agressor, TO_CHAR);
+				act("$N получил$G право на ваш отстрел!", FALSE, agressor, 0, victim, TO_CHAR);
 			}
 		}
 		pk->kill_num++;
@@ -367,7 +367,7 @@ void pk_increment_revenge(CHAR_DATA * agressor, CHAR_DATA * victim)
 		return;
 	}
 	act("Вы использовали право мести $N2.", FALSE, agressor, 0, victim, TO_CHAR);
-	act("$N отомстил$G Вам.", FALSE, victim, 0, agressor, TO_CHAR);
+	act("$N отомстил$G вам.", FALSE, victim, 0, agressor, TO_CHAR);
 	if (pk->revenge_num == MAX_REVENGE)
 	{
 		mudlog("Переполнение revenge_num!", CMP, LVL_GOD, SYSLOG, TRUE);
@@ -505,9 +505,9 @@ void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim)
 			thief->pk_list = pk;
 		}
 		if (pk->thief_exp == 0)
-			act("$N получил$G право на Ваш отстрел !", FALSE, thief, 0, victim, TO_CHAR);
+			act("$N получил$G право на ваш отстрел!", FALSE, thief, 0, victim, TO_CHAR);
 		else
-			act("$N продлил$G право на Ваш отстрел !", FALSE, thief, 0, victim, TO_CHAR);
+			act("$N продлил$G право на ваш отстрел!", FALSE, thief, 0, victim, TO_CHAR);
 		pk->thief_exp = time(NULL) + THIEF_UNRENTABLE * 60;
 		RENTABLE(thief) = MAX(RENTABLE(thief), time(NULL) + THIEF_UNRENTABLE * 60);
 		break;
@@ -803,7 +803,7 @@ ACMD(do_forgive)
 	one_argument(argument, arg);
 	if (!*arg)
 	{
-		send_to_char("Кого Вы хотите простить?\r\n", ch);
+		send_to_char("Кого вы хотите простить?\r\n", ch);
 		return;
 	}
 
@@ -847,10 +847,10 @@ ACMD(do_forgive)
 	if (found && bForgive)
 	{
 		act("Вы великодушно простили $N3.", FALSE, ch, 0, tch, TO_CHAR);
-		act("$N великодушно простил$G Вас !", FALSE, tch, 0, ch, TO_CHAR);
+		act("$N великодушно простил$G вас!", FALSE, tch, 0, ch, TO_CHAR);
 	}
 	else if (found && !bForgive)
-		act("$N не нуждается в Вашем прощении.", FALSE, ch, 0, tch, TO_CHAR);
+		act("$N не нуждается в вашем прощении.", FALSE, ch, 0, tch, TO_CHAR);
 	else if (!found && bForgive)
 		send_to_char("Для отпущения грехов Боги рекомендуют воспользоваться церковью.\r\n", ch);
 	else
@@ -913,7 +913,7 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 
 	if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_NOFIGHT))
 	{
-		act("Боги предотвратили Ваше нападение на $N3.", FALSE, ch, 0, victim, TO_CHAR);
+		act("Боги предотвратили ваше нападение на $N3.", FALSE, ch, 0, victim, TO_CHAR);
 		return (FALSE);
 	}
 	//запрет на любые агры

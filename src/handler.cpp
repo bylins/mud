@@ -700,7 +700,7 @@ void affect_total(CHAR_DATA * ch)
 		{
 			if (!IS_NPC(ch))
 			{
-				act("Вам слишком тяжело держать $o3 в обоих руках !", FALSE, ch, obj, 0, TO_CHAR);
+				act("Вам слишком тяжело держать $o3 в обоих руках!", FALSE, ch, obj, 0, TO_CHAR);
 				message_str_need(ch, obj, STR_BOTH_W);
 			}
 			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
@@ -711,7 +711,7 @@ void affect_total(CHAR_DATA * ch)
 		{
 			if (!IS_NPC(ch))
 			{
-				act("Вам слишком тяжело держать $o3 в правой руке !", FALSE, ch, obj, 0, TO_CHAR);
+				act("Вам слишком тяжело держать $o3 в правой руке!", FALSE, ch, obj, 0, TO_CHAR);
 				message_str_need(ch, obj, STR_WIELD_W);
 			}
 			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
@@ -730,7 +730,7 @@ void affect_total(CHAR_DATA * ch)
 		{
 			if (!IS_NPC(ch))
 			{
-				act("Вам слишком тяжело держать $o3 в левой руке !", FALSE, ch, obj, 0, TO_CHAR);
+				act("Вам слишком тяжело держать $o3 в левой руке!", FALSE, ch, obj, 0, TO_CHAR);
 				message_str_need(ch, obj, STR_HOLD_W);
 			}
 			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
@@ -1399,7 +1399,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 							object->PNames[0], GET_OBJ_UID(object), GET_OBJ_VNUM(object), GET_NAME(ch), inworld);
 					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 					// Удаление предмета
-					act("$o0 замигал$Q и Вы увидели медленно проступившие руны 'DUPE'.", FALSE, ch, object, 0, TO_CHAR);
+					act("$o0 замигал$Q и вы увидели медленно проступившие руны 'DUPE'.", FALSE, ch, object, 0, TO_CHAR);
 					object->set_timer(0); // Хана предмету, развалится на тике
 					SET_BIT(GET_OBJ_EXTRA(object, ITEM_NOSELL), ITEM_NOSELL); // Ибо нефиг
 				}
@@ -1825,7 +1825,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	}
 	else if((!IS_NPC(ch) || IS_CHARMICE(ch)) && OBJ_FLAGGED(obj, ITEM_NAMED) && NamedStuff::check_named(ch, obj, true)) {
 		if(!NamedStuff::wear_msg(ch, obj))
-			send_to_char("Просьба не трогать ! Частная собственность !\r\n", ch);
+			send_to_char("Просьба не трогать! Частная собственность!\r\n", ch);
 		if (!obj->carried_by)
 			obj_to_char(obj, ch);
 		return;
@@ -1834,7 +1834,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	if ((!IS_NPC(ch) && invalid_align(ch, obj)) || invalid_no_class(ch, obj)
 			|| (AFF_FLAGGED(ch, AFF_CHARM) && (OBJ_FLAGGED(obj, ITEM_SHARPEN) || OBJ_FLAGGED(obj, ITEM_ARMORED))))
 	{
-		act("$o0 явно не предназначен$A для Вас.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$o0 явно не предназначен$A для вас.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u надеть $o3, но у н$s ничего не получилось.", FALSE, ch, obj, 0, TO_ROOM);
 		if (!obj->carried_by)
 			obj_to_char(obj, ch);
@@ -4012,7 +4012,7 @@ void MemQ_remember(CHAR_DATA * ch, int num)
 
 	if (slotcnt <= 0)
 	{
-		send_to_char("У Вас нет свободных ячеек этого круга.", ch);
+		send_to_char("У вас нет свободных ячеек этого круга.", ch);
 		return;
 	}
 

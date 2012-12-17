@@ -264,7 +264,7 @@ void Dps::print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 		coder = ch;
 	}
 
-	send_to_char("\r\nСтатистика Вашей группы:\r\n"
+	send_to_char("\r\nСтатистика вашей группы:\r\n"
 			"---------------------------|--------------------|----------------|-------------|\r\n", coder);
 
 	CHAR_DATA *leader = ch->master ? ch->master : ch;

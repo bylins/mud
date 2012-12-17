@@ -1254,7 +1254,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		switch (GET_POS(ch))
 		{
 		case POS_DEAD:
-			send_to_char("Очень жаль - ВЫ МЕРТВЫ !!! :-(\r\n", ch);
+			send_to_char("Очень жаль - ВЫ МЕРТВЫ!!! :-(\r\n", ch);
 			break;
 		case POS_INCAP:
 		case POS_MORTALLYW:
@@ -1264,13 +1264,13 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 			send_to_char("Вы слишком слабы, чтобы сделать это!\r\n", ch);
 			break;
 		case POS_SLEEPING:
-			send_to_char("Сделать это в Ваших снах?\r\n", ch);
+			send_to_char("Сделать это в ваших снах?\r\n", ch);
 			break;
 		case POS_RESTING:
 			send_to_char("Нет... Вы слишком расслаблены...\r\n", ch);
 			break;
 		case POS_SITTING:
-			send_to_char("Пожалуй, Вам лучше встать на ноги.\r\n", ch);
+			send_to_char("Пожалуй, вам лучше встать на ноги.\r\n", ch);
 			break;
 		case POS_FIGHTING:
 			send_to_char("Ни за что! Вы сражаетесь за свою жизнь!\r\n", ch);
@@ -2011,9 +2011,9 @@ int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0)
 				if (IN_ROOM(d->character) == r_unreg_start_room || d->character->get_was_in_room() == r_unreg_start_room)
 					return 0;
 				send_to_char(d->character,
-							 "&RВы вошли с игроком %s с одного IP(%s) !\r\n"
+							 "&RВы вошли с игроком %s с одного IP(%s)!\r\n"
 							 "Вам необходимо обратиться к Богам для регистрации.\r\n"
-							 "Пока Вы будете помещены в комнату для незарегистрированных игроков.&n\r\n",
+							 "Пока вы будете помещены в комнату для незарегистрированных игроков.&n\r\n",
 							 GET_PAD(i->character, 4), i->host);
 				sprintf(buf,
 						"! ВХОД С ОДНОГО IP ! незарегистрированного игрока.\r\n"
@@ -2024,7 +2024,7 @@ int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0)
 				return 0;
 			case 1:
 				if (autocheck) return 1;
-				send_to_char("&RС Вашего IP адреса находится максимально допустимое количество игроков.\r\n"
+				send_to_char("&RС вашего IP адреса находится максимально допустимое количество игроков.\r\n"
 							 "Обратитесь к Богам для увеличения лимита игроков с вашего адреса.&n", d->character);
 				return 0;
 			default:
@@ -2369,7 +2369,7 @@ bool ValidateStats(DESCRIPTOR_DATA * d)
     {
 		SEND_TO_Q("\r\nКакого роду-племени вы будете?\r\n", d);
 		SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
-		SEND_TO_Q("\r\nИз чьих Вы будете: ", d);
+		SEND_TO_Q("\r\nИз чьих вы будете: ", d);
         STATE(d) = CON_RESET_RACE;
         return false;
     }
@@ -2387,7 +2387,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 
 	if (ban->is_banned(d->host) == BanList::BAN_SELECT && !PLR_FLAGGED(d->character, PLR_SITEOK))
 	{
-		SEND_TO_Q("Извините, Вы не можете выбрать этого игрока с данного IP !\r\n", d);
+		SEND_TO_Q("Извините, вы не можете выбрать этого игрока с данного IP !\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Connection attempt for %s denied from %s", GET_NAME(d->character), d->host);
 		mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
@@ -2395,7 +2395,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 	}
 	if (GET_LEVEL(d->character) < circle_restrict)
 	{
-		SEND_TO_Q("Игра временно приостановлена.. Ждем Вас немного позже.\r\n", d);
+		SEND_TO_Q("Игра временно приостановлена.. Ждем вас немного позже.\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Request for login denied for %s [%s] (wizlock)", GET_NAME(d->character), d->host);
 		mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
@@ -2424,7 +2424,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 		GET_BAD_PWS(d->character) = 0;
 	}
 	time_t tmp_time = LAST_LOGON(d->character);
-	sprintf(buf, "\r\nПоследний раз Вы заходили к нам в %s с адреса (%s).\r\n",
+	sprintf(buf, "\r\nПоследний раз вы заходили к нам в %s с адреса (%s).\r\n",
 			rustime(localtime(&tmp_time)), GET_LASTIP(d->character));
 	SEND_TO_Q(buf, d);
 
@@ -2617,8 +2617,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				if (cmp_ptable_by_name(tmp_name, MIN_NAME_LENGTH + 1) >= 0)
 				{
 					SEND_TO_Q
-					("Первые символы Вашего имени совпадают с уже существующим персонажем.\r\n"
-					 "Для исключения разных недоразумений Вам необходимо выбрать другое имя.\r\n"
+					("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
+					 "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
 					 "Имя  : ", d);
 					return;
 				}
@@ -2641,13 +2641,13 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 						"Попытка создания персонажа %s отклонена для [%s] (siteban)",
 						GET_PC_NAME(d->character), d->host);
 				mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
-				SEND_TO_Q("Извините, создание нового персонажа для Вашего IP !!! ЗАПРЕЩЕНО !!!\r\n", d);
+				SEND_TO_Q("Извините, создание нового персонажа для вашего IP !!! ЗАПРЕЩЕНО !!!\r\n", d);
 				STATE(d) = CON_CLOSE;
 				return;
 			}
 			if (circle_restrict)
 			{
-				SEND_TO_Q("Извините, Вы не можете создать новый персонаж в настоящий момент.\r\n", d);
+				SEND_TO_Q("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
 				sprintf(buf,
 						"Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
 						GET_PC_NAME(d->character), d->host);
@@ -2727,8 +2727,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		}
 		if (cmp_ptable_by_name(tmp_name, MIN_NAME_LENGTH + 1) >= 0)
 		{
-			SEND_TO_Q("Первые символы Вашего имени совпадают с уже существующим персонажем.\r\n"
-					  "Для исключения разных недоразумений Вам необходимо выбрать другое имя.\r\n"
+			SEND_TO_Q("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
+					  "Для исключения разных недоразумений вам необходимо выбрать другое имя.\r\n"
 					  "Имя  : ", d);
 			return;
 		}
@@ -2740,13 +2740,13 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			sprintf(buf, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
 					GET_PC_NAME(d->character), d->host);
 			mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
-			SEND_TO_Q("Извините, создание нового персонажа для Вашего IP !!! ЗАПРЕЩЕНО !!!\r\n", d);
+			SEND_TO_Q("Извините, создание нового персонажа для вашего IP !!!ЗАПРЕЩЕНО!!!\r\n", d);
 			STATE(d) = CON_CLOSE;
 			return;
 		}
 		if (circle_restrict)
 		{
-			SEND_TO_Q("Извините, Вы не можете создать новый персонаж в настоящий момент.\r\n", d);
+			SEND_TO_Q("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
 			sprintf(buf,
 					"Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
 					GET_PC_NAME(d->character), d->host);
@@ -2850,7 +2850,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
             SEND_TO_Q("\r\nКакой народ вам ближе по духу:\r\n", d);
 			SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
 			SEND_TO_Q
-			("\r\nВаше Племя (Для более полной информации Вы можете набрать"
+			("\r\nВаше Племя (Для более полной информации вы можете набрать"
 			 " \r\nсправка <интересующие племя>): ", d);
 			STATE(d) = CON_QKIN;
 		}*/
@@ -2858,7 +2858,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		{
 			GET_KIN(d->character) = 0; // added by WorM: Выставляем расу в Русич(коммент выше)
         		SEND_TO_Q(class_menu, d);
-			SEND_TO_Q("\r\nВаша профессия (Для более полной информации Вы можете набрать"
+			SEND_TO_Q("\r\nВаша профессия (Для более полной информации вы можете набрать"
 				  " \r\nсправка <интересующая профессия>): ", d);
 			STATE(d) = CON_QCLASS;
 		}
@@ -2890,7 +2890,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			GET_SEX(d->character) = SEX_FEMALE;
 			break;
 		default:
-			SEND_TO_Q("Это может быть и пол, но явно не Ваш :)\r\n" "А какой у ВАС пол ? ", d);
+			SEND_TO_Q("Это может быть и пол, но явно не ваш :)\r\n" "А какой у ВАС пол ? ", d);
 			return;
 		}
 		SEND_TO_Q("Проверьте правильность склонения имени. В случае ошибки введите свой вариант.\r\n", d);
@@ -2930,7 +2930,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 Sventovit
  */
         SEND_TO_Q(class_menu, d);
-		SEND_TO_Q("\r\nВаша профессия (Для более полной информации Вы можете набрать"
+		SEND_TO_Q("\r\nВаша профессия (Для более полной информации вы можете набрать"
 				  " \r\nсправка <интересующая профессия>): ", d);
 		STATE(d) = CON_QCLASS;
 		break;
@@ -2952,7 +2952,7 @@ Sventovit
 			if (class_religion[(int) GET_CLASS(d->character)] == RELIGION_MONO)
 			{
 				SEND_TO_Q
-				("Персонаж выбранной Вами профессии не желает быть язычником!\r\n"
+				("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
 				 "Так каким Богам вы хотите служить ? ", d);
 				return;
 			}
@@ -2963,7 +2963,7 @@ Sventovit
 			if (class_religion[(int) GET_CLASS(d->character)] == RELIGION_POLY)
 			{
 				SEND_TO_Q
-				("Персонажу выбранной Вами профессии противно христианство!\r\n"
+				("Персонажу выбранной вами профессии противно христианство!\r\n"
 				 "Так каким Богам вы хотите служить ? ", d);
 				return;
 			}
@@ -2976,7 +2976,7 @@ Sventovit
 
 		SEND_TO_Q("\r\nКакой род вам ближе всего по духу:\r\n", d);
 		SEND_TO_Q(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
-		SEND_TO_Q("\r\nИз чьих Вы будете : ", d);
+		SEND_TO_Q("\r\nИз чьих вы будете : ", d);
 		STATE(d) = CON_RACE;
 		break;
 
@@ -3136,7 +3136,7 @@ Sventovit
 			return;
 		}
 		do_color(d->character, buf2, 0, 0);
-		SEND_TO_Q("\r\nВведите Ваш E-mail"
+		SEND_TO_Q("\r\nВведите ваш E-mail"
 				  "\r\n(ВСЕ ВАШИ ПЕРСОНАЖИ ДОЛЖНЫ ИМЕТЬ ОДИНАКОВЫЙ E-mail): ", d);
 		STATE(d) = CON_GET_EMAIL;
 		break;
@@ -3217,7 +3217,7 @@ Sventovit
 				if (timeout > 0)
 				{
 					time_t deltime = time(NULL) + timeout * 60 * 60 * 24;
-					sprintf(buf, "В случае Вашего отсутствия персонаж будет храниться до %s нашей эры :).\r\n",
+					sprintf(buf, "В случае вашего отсутствия персонаж будет храниться до %s нашей эры :).\r\n",
 							rustime(localtime(&deltime)));
 					SEND_TO_Q(buf, d);
 				}
@@ -3251,7 +3251,7 @@ Sventovit
 				d->backstr = str_dup(d->character->player_data.description);
 			}
 			SEND_TO_Q
-			("Введите описание Вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
+			("Введите описание вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
 			SEND_TO_Q("(/s сохранить /h помощь)\r\n", d);
 			d->str = &d->character->player_data.description;
 			d->max_str = EXDSCR_LENGTH;
@@ -3277,7 +3277,7 @@ Sventovit
 			}
 			if (IS_SET(PLR_FLAGS(d->character, PLR_NODELETE), PLR_NODELETE))
 			{
-				SEND_TO_Q("\r\nБоги запретили Вам суицид\r\n", d);
+				SEND_TO_Q("\r\nБоги запретили вам суицид\r\n", d);
 				SEND_TO_Q(MENU, d);
 				break;
 			}
@@ -3328,7 +3328,7 @@ Sventovit
 		{
 			if (PLR_FLAGGED(d->character, PLR_FROZEN))
 			{
-				SEND_TO_Q("Вы решились на суицид, но Боги остановили Вас.\r\n", d);
+				SEND_TO_Q("Вы решились на суицид, но Боги остановили вас.\r\n", d);
 				SEND_TO_Q("Персонаж не удален.\r\n", d);
 				STATE(d) = CON_CLOSE;
 				return;

@@ -96,7 +96,7 @@ void showlots(CHAR_DATA * ch)
 
 		if (GET_LOT(i)->prefect && GET_LOT(i)->prefect_unique == GET_UNIQUE(ch))
 		{
-			strcat(tmpbuf, "(Специально для Вас).\r\n");
+			strcat(tmpbuf, "(Специально для вас).\r\n");
 		}
 		send_to_char(tmpbuf, ch);
 	}
@@ -145,7 +145,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 		}
 		if (!(obj = get_obj_in_list_vis(ch, operation, ch->carrying)))
 		{
-			send_to_char("У Вас этого нет.\r\n", ch);
+			send_to_char("У вас этого нет.\r\n", ch);
 			return false;
 		}
 		if (GET_OBJ_TYPE(obj) != ITEM_BOOK)
@@ -192,7 +192,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 				    }*/
 			if (ch == tch)
 			{
-				send_to_char("Но это же Вы !\r\n", ch);
+				send_to_char("Но это же вы!\r\n", ch);
 				return false;
 			}
 		};
@@ -240,7 +240,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 		}
 		if (GET_LOT(lot)->seller != ch || GET_LOT(lot)->seller_unique != GET_UNIQUE(ch))
 		{
-			send_to_char("Это не Ваш лот.\r\n", ch);
+			send_to_char("Это не ваш лот.\r\n", ch);
 			return false;
 		}
 		act("Вы сняли $O3 с аукциона.\r\n", FALSE, ch, 0, GET_LOT(lot)->item, TO_CHAR);
@@ -271,7 +271,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 		}
 		if (GET_LOT(lot)->seller == ch || GET_LOT(lot)->seller_unique == GET_UNIQUE(ch))
 		{
-			send_to_char("Но это же Ваш лот !\r\n", ch);
+			send_to_char("Но это же ваш лот!\r\n", ch);
 			return false;
 		}
 		if (GET_LOT(lot)->prefect && GET_LOT(lot)->prefect_unique > 0 &&
@@ -302,7 +302,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 		}
 		if (value > ch->get_gold() + ch->get_bank())
 		{
-			send_to_char("У Вас нет такой суммы.\r\n", ch);
+			send_to_char("У вас нет такой суммы.\r\n", ch);
 			return false;
 		}
 		GET_LOT(lot)->cost = value;
@@ -310,7 +310,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 		GET_LOT(lot)->buyer = ch;
 		GET_LOT(lot)->buyer_unique = GET_UNIQUE(ch);
 		sprintf(tmpbuf,
-				"Хорошо, Вы согласны заплатить %d %s за %s (лот %d).\r\n",
+				"Хорошо, вы согласны заплатить %d %s за %s (лот %d).\r\n",
 				value, desc_count(value, WHAT_MONEYu), GET_LOT(lot)->item->PNames[3], lot);
 		send_to_char(tmpbuf, ch);
 		sprintf(tmpbuf, "Принята ставка %s на лот %d(%s) %d %s.\r\n",
@@ -336,12 +336,12 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 		}
 		if (GET_LOT(lot)->seller != ch || GET_LOT(lot)->seller_unique != GET_UNIQUE(ch))
 		{
-			send_to_char("Это не Ваш лот.\r\n", ch);
+			send_to_char("Это не ваш лот.\r\n", ch);
 			return false;
 		}
 		if (!GET_LOT(lot)->buyer)
 		{
-			send_to_char("Покупателя на Ваш товар пока нет.\r\n", ch);
+			send_to_char("Покупателя на ваш товар пока нет.\r\n", ch);
 			return false;
 		}
 
@@ -451,7 +451,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 		};
 		if (invalid_anti_class(ch, obj) || invalid_unique(ch, obj) || NamedStuff::check_named(ch, obj, 0))
 		{
-			sprintf(buf2, "Эта вещь Вам недоступна!");
+			sprintf(buf2, "Эта вещь вам недоступна!");
 			strcat(buf, buf2);
 			strcat(buf, "\n");
 		}
@@ -538,7 +538,7 @@ int check_sell(int lot)
 
 	if (tch->get_total_gold() < GET_LOT(lot)->cost)
 	{
-		sprintf(tmpbuf, "У Вас не хватает денег на покупку %s.\r\n", obj->PNames[1]);
+		sprintf(tmpbuf, "У вас не хватает денег на покупку %s.\r\n", obj->PNames[1]);
 		send_to_char(tmpbuf, tch);
 		sprintf(tmpbuf, "У покупателя %s не хватает денег.\r\n", obj->PNames[1]);
 		send_to_char(tmpbuf, ch);
@@ -574,14 +574,14 @@ void trans_auction(int lot)
 	// У покупателя есть 10% суммы на счету.
 	if (tch->get_total_gold() < (GET_LOT(lot)->cost + GET_LOT(lot)->cost / 10))
 	{
-		send_to_char("У Вас не хватает денег на передачу предмета.", tch);
+		send_to_char("У вас не хватает денег на передачу предмета.", tch);
 		return;
 	}
 
 	if (IN_ROOM(ch) == IN_ROOM(tch))
 	{
 		// Проверка на нахождение в одной комнате.
-		tmpstr = "$n стоит рядом с Вами.";
+		tmpstr = "$n стоит рядом с вами.";
 		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_VICT | TO_SLEEP);
 		return;
 	};
@@ -595,7 +595,7 @@ void trans_auction(int lot)
 		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_CHAR | TO_SLEEP);
 
 		tmpstr = "$n2 необходимо завершить боевые действия для передачи " +
-				 string(obj->PNames[1]) + " Вам.\r\n";
+				 string(obj->PNames[1]) + " вам.\r\n";
 
 		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_VICT | TO_SLEEP);
 		return;
@@ -607,7 +607,7 @@ void trans_auction(int lot)
 
 		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_VICT | TO_SLEEP);
 
-		tmpstr = "$N2 необходимо завершить боевые действия для получения денег от Вас.";
+		tmpstr = "$N2 необходимо завершить боевые действия для получения денег от вас.";
 		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_CHAR | TO_SLEEP);
 		return;
 	}
@@ -625,7 +625,7 @@ void trans_auction(int lot)
 
 		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_CHAR | TO_SLEEP);
 
-		tmpstr = "$N2 необходимо прибыть к ближайшей яме для передачи " + string(obj->PNames[1]) + " Вам.\r\n";
+		tmpstr = "$N2 необходимо прибыть к ближайшей яме для передачи " + string(obj->PNames[1]) + " вам.\r\n";
 
 		act(tmpstr.c_str(), FALSE, tch, 0, ch, TO_CHAR | TO_SLEEP);
 		return;
@@ -637,7 +637,7 @@ void trans_auction(int lot)
 		tmpstr = "Вам необходимо прибыть к ближайшей яме для передачи денег $N2.\r\n";
 		act(tmpstr.c_str(), FALSE, tch, 0, ch, TO_CHAR | TO_SLEEP);
 
-		tmpstr = "$N2 необходимо прибыть к ближайшей яме для передачи денег Вам.\r\n";
+		tmpstr = "$N2 необходимо прибыть к ближайшей яме для передачи денег вам.\r\n";
 		act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_CHAR | TO_SLEEP);
 		return;
 	}
@@ -652,7 +652,7 @@ void trans_auction(int lot)
 	}
 
 // - Забираем предмет у продавца
-	tmpstr = "Перед Вами появился слегка трезвый Иван Царевич на Сивке-бурке.";
+	tmpstr = "Перед вами появился слегка трезвый Иван Царевич на Сивке-бурке.";
 
 	act(tmpstr.c_str(), FALSE, ch, 0, tch, TO_CHAR);
 	act(tmpstr.c_str(), FALSE, tch, 0, tch, TO_CHAR);
@@ -662,7 +662,7 @@ void trans_auction(int lot)
 	act(tmpstr.c_str(), FALSE, ch, 0, ch, TO_ROOM);
 	act(tmpstr.c_str(), FALSE, tch, 0, tch, TO_ROOM);
 
-	act("Иван-Царевич дал Вам кучку кун.", FALSE, ch, 0, ch, TO_CHAR);
+	act("Иван-Царевич дал вам кучку кун.", FALSE, ch, 0, ch, TO_CHAR);
 	act("Иван-Царевич дал гору кун $n2", FALSE, ch, 0, ch, TO_ROOM);
 
 	tmpstr = "Вы отдали " + string(obj->PNames[3]) + " Ивану-Царевичу.";
@@ -675,13 +675,13 @@ void trans_auction(int lot)
 	act("$n дал$g гору кун Ивану-Царевичу.", FALSE, tch, 0, tch, TO_ROOM);
 
 
-	tmpstr = "Иван-Царевич отдал " + string(obj->PNames[3]) + " Вам.";
+	tmpstr = "Иван-Царевич отдал " + string(obj->PNames[3]) + " вам.";
 	act(tmpstr.c_str(), FALSE, tch, 0, tch, TO_CHAR);
 
 	tmpstr = "Иван-Царевич отдал " + string(obj->PNames[3]) + " $n2.";
 	act(tmpstr.c_str(), FALSE, tch, 0, tch, TO_ROOM);
 
-	tmpstr = "Иван-Царевич исчез в клубах пыли. На его суме Вы заметили надпись:\r\n";
+	tmpstr = "Иван-Царевич исчез в клубах пыли. На его суме вы заметили надпись:\r\n";
 	tmpstr += "'Иван да Сивка - бЕрежно дОпрем дОбро'.";
 
 	act(tmpstr.c_str(), FALSE, ch, 0, ch, TO_CHAR);

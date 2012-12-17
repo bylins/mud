@@ -650,7 +650,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			cleanup_olc(d, CLEANUP_ALL);
 			break;
 		default:
-			send_to_char("Неверный выбор!\r\nВы желаете сохранить комнату в памяти ? : ", d->character);
+			send_to_char("Неверный выбор!\r\nВы желаете сохранить комнату в памяти? : ", d->character);
 			break;
 		}
 		return;
@@ -662,7 +662,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'Q':
 			if (OLC_VAL(d))  	/* Something has been modified. */
 			{
-				send_to_char("Вы желаете сохранить комнату в памяти ? : ", d->character);
+				send_to_char("Вы желаете сохранить комнату в памяти? : ", d->character);
 				OLC_MODE(d) = REDIT_CONFIRM_SAVESTRING;
 			}
 			else

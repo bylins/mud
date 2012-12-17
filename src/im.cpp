@@ -1120,7 +1120,7 @@ void list_recipes(CHAR_DATA * ch, bool all_recipes)
 	{
 		sprintf(buf, " Список доступных рецептов.\r\n"
 				" Зеленым цветом выделены уже изученные рецепты.\r\n"
-				" Красным цветом выделены рецепты, недоступные Вам в настоящий момент.\r\n"
+				" Красным цветом выделены рецепты, недоступные вам в настоящий момент.\r\n"
 				"\r\n Рецепт                Уровень (реморт)\r\n"
 				"----------------------------------------\r\n");
 		strcpy(buf1, buf);
@@ -1361,7 +1361,7 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA * ch, char *argument, int *count)
 		o = get_obj_in_list_vis(ch, name, ch->carrying);
 		if (!o)
 		{
-			sprintf(buf, "У Вас нет %s.\r\n", name);
+			sprintf(buf, "У вас нет %s.\r\n", name);
 			break;
 		}
 		if (GET_OBJ_TYPE(o) != ITEM_MING)
@@ -1484,7 +1484,7 @@ ACMD(do_cook)
 		if (i == num)
 		{
 			imlog(NRM, "Не хватает основных ингредиентов");
-			send_to_char("Похоже, Вам не хватает ингредиентов.\r\n", ch);
+			send_to_char("Похоже, вам не хватает ингредиентов.\r\n", ch);
 			free(objs);
 			return;
 		}
@@ -1498,7 +1498,7 @@ ACMD(do_cook)
 		if (!TypeListCheck(&imtypes[itype].tlst, ktype))
 		{
 			imlog(NRM, "Ингредиенты перепутаны");
-			send_to_char("Похоже, Вы перепутали ингредиенты.\r\n", ch);
+			send_to_char("Похоже, вы перепутали ингредиенты.\r\n", ch);
 			free(objs);
 			return;
 		}

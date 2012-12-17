@@ -211,7 +211,7 @@ ACMD(do_sense)
 	/* The character must have the track skill. */
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_SENSE))
 	{
-		send_to_char("Но Вы не знаете как.\r\n", ch);
+		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
@@ -228,7 +228,7 @@ ACMD(do_sense)
 
 	if (!*arg)
 	{
-		send_to_char("Кого Вы хотите найти ?\r\n", ch);
+		send_to_char("Кого вы хотите найти?\r\n", ch);
 		return;
 	}
 	/* The person can't see the victim. */
@@ -249,7 +249,7 @@ ACMD(do_sense)
 	switch (dir)
 	{
 	case BFS_ERROR:
-		strcpy(buf, "Хммм.. Ваше чувство подвело Вас.");
+		strcpy(buf, "Хммм... Ваше чувство подвело вас.");
 		break;
 	case BFS_ALREADY_THERE:
 		strcpy(buf, "Вы же в одной комнате с $N4!");
@@ -259,7 +259,7 @@ ACMD(do_sense)
 		break;
 	default:		/* Success! */
 		improove_skill(ch, SKILL_SENSE, TRUE, vict);
-		sprintf(buf, "Чувство подсказало Вам : \"Ступай %s.\"\r\n", DirsTo[dir]);
+		sprintf(buf, "Чувство подсказало вам : \"Ступай %s.\"\r\n", DirsTo[dir]);
 		break;
 	}
 	act(buf, FALSE, ch, 0, vict, TO_CHAR);
@@ -313,7 +313,7 @@ ACMD(do_track)
 	/* The character must have the track skill. */
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_TRACK))
 	{
-		send_to_char("Но Вы не знаете как.\r\n", ch);
+		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 
@@ -445,7 +445,7 @@ ACMD(do_hidetrack)
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_HIDETRACK))
 	{
-		send_to_char("Но Вы не знаете как.\r\n", ch);
+		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
 

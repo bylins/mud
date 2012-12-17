@@ -72,7 +72,7 @@ void AnimalMorph::set_skill(int skill_num, int percent)
 		int diff = percent - it->second;//Polud	пока все снижения уровня скилов в звериной форме уходят в /dev/null
 		if (diff > 0 && number(1,2)==2)//Polud в звериной форме вся прокачка идет в оборотничество
 		{
-			sprintf(buf, "%sВаши успехи сделали Вас опытнее в оборотничестве.%s\r\n", CCICYN(ch_, C_NRM), CCINRM(ch_, C_NRM));
+			sprintf(buf, "%sВаши успехи сделали вас опытнее в оборотничестве.%s\r\n", CCICYN(ch_, C_NRM), CCINRM(ch_, C_NRM));
 			send_to_char(buf, ch_);
 			skills_[SKILL_MORPH]+= diff;
 		}
@@ -102,7 +102,7 @@ void ShowKnownMorphs(CHAR_DATA *ch)
 	}
 	std::list<string> knownMorphs = ch->get_morphs();
 	if (knownMorphs.empty())
-		send_to_char("На сей момент никакие формы Вам неизвестны...\r\n", ch);
+		send_to_char("На сей момент никакие формы вам неизвестны...\r\n", ch);
 	else
 		send_to_char("Вы можете обернуться:\r\n", ch);
 
@@ -223,7 +223,7 @@ ACMD(do_morph)
 	string morphId = FindMorphId(ch, arg);
 	if (morphId.empty())
 	{
-		send_to_char("Обернуться в ЭТО Вы не можете!\r\n", ch);
+		send_to_char("Обернуться в ЭТО вы не можете!\r\n", ch);
 		return;
 	}
 

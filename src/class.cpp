@@ -205,7 +205,7 @@ const char *color_menu =
 
 /* The menu for choosing a religion in interpreter.c: */
 const char *religion_menu =
-	"\r\n" "Какой религии Вы отдаете предпочтение :\r\n" "  Я[з]ычество\r\n" "  [Х]ристианство\r\n";
+	"\r\n" "Какой религии вы отдаете предпочтение :\r\n" "  Я[з]ычество\r\n" "  [Х]ристианство\r\n";
 
 #define RELIGION_ANY 100
 
@@ -2136,7 +2136,7 @@ void levelup_events(CHAR_DATA *ch)
 	{
 		SET_BIT(PRF_FLAGS(ch, PRF_OFFTOP_MODE), PRF_OFFTOP_MODE);
 		ch->set_disposable_flag(OFFTOP_MESSAGE);
-		send_to_char(ch, "\r\n%sТеперь Вы можете пользоваться каналом [оффтоп]!\r\n"
+		send_to_char(ch, "\r\n%sТеперь вы можете пользоваться каналом [оффтоп]!\r\n"
 				"Рекомендуем предварительно ознакомиться со справкой (справка оффтоп).%s\r\n",
 				CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
 	}

@@ -508,7 +508,7 @@ void beat_punish(CHAR_DATA * i)
 	if (GET_GOD_FLAG(i, GF_GODSCURSE) && GCURSE_DURATION(i) != 0 && GCURSE_DURATION(i) <= time(NULL))
 	{
 		CLR_GOD_FLAG(i, GF_GODSCURSE);
-		send_to_char("Боги более не в обиде на Вас.\r\n", i);
+		send_to_char("Боги более не в обиде на вас.\r\n", i);
 	}
 	if (PLR_FLAGGED(i, PLR_FROZEN) && FREEZE_DURATION(i) != 0 && FREEZE_DURATION(i) <= time(NULL))
 	{
@@ -536,7 +536,7 @@ void beat_punish(CHAR_DATA * i)
 				i->set_was_in_room(r_helled_start_room);
 			else
 			{
-				send_to_char("Чья-то злая воля вернула Вас в темницу.\r\n", i);
+				send_to_char("Чья-то злая воля вернула вас в темницу.\r\n", i);
 				act("$n возвращен$a в темницу.",
 					FALSE, i, 0, 0, TO_ROOM);
 
@@ -555,7 +555,7 @@ void beat_punish(CHAR_DATA * i)
 				i->set_was_in_room(r_named_start_room);
 			else
 			{
-				send_to_char("Чья-то злая воля вернула Вас в комнату имени.\r\n", i);
+				send_to_char("Чья-то злая воля вернула вас в комнату имени.\r\n", i);
 				act("$n возвращен$a в комнату имени.",
 					FALSE, i, 0, 0, TO_ROOM);
 				char_from_room(i);
@@ -694,7 +694,7 @@ void beat_points_update(int pulse)
 				if (GET_RELIGION(i) == RELIGION_MONO)
 				{
 					send_to_char
-					("Наконец Ваши занятия окончены. Вы с улыбкой захлопнули свой часослов.\r\n",
+					("Наконец ваши занятия окончены. Вы с улыбкой захлопнули свой часослов.\r\n",
 					 i);
 					act("Окончив занятия, $n с улыбкой захлопнул$g часослов.",
 						FALSE, i, 0, 0, TO_ROOM);
@@ -702,7 +702,7 @@ void beat_points_update(int pulse)
 				else
 				{
 					send_to_char
-					("Наконец Ваши занятия окончены. Вы с улыбкой убрали свои резы.\r\n", i);
+					("Наконец ваши занятия окончены. Вы с улыбкой убрали свои резы.\r\n", i);
 					act("Окончив занятия, $n с улыбкой убрал$g резы.", FALSE, i, 0, 0, TO_ROOM);
 				}
 			}
@@ -767,7 +767,7 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 			if (!GET_GOD_FLAG(ch, GF_REMORT) && GET_REMORT(ch) < MAX_REMORT)
 			{
 				sprintf(buf,
-						"%sПоздравляем, Вы получили право на перевоплощение !%s\r\n",
+						"%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
 						CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
 				SET_GOD_FLAG(ch, GF_REMORT);
@@ -778,7 +778,7 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 		{
 			ch->set_level(ch->get_level() + 1);
 			num_levels++;
-			sprintf(buf, "%sВы достигли следующего уровня !%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+			sprintf(buf, "%sВы достигли следующего уровня!%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 			advance_level(ch);
 			is_altered = TRUE;
@@ -804,7 +804,7 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 			ch->set_level(ch->get_level() - 1);
 			num_levels++;
 			sprintf(buf,
-					"%sВы потеряли уровень. Вам должно быть стыдно !%s\r\n",
+					"%sВы потеряли уровень. Вам должно быть стыдно!%s\r\n",
 					CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 			decrease_level(ch);
@@ -820,7 +820,7 @@ void gain_exp(CHAR_DATA * ch, int gain, int clan_exp)
 	if ((GET_EXP(ch) < level_exp(ch, LVL_IMMORT) - 1) &&
 			GET_GOD_FLAG(ch, GF_REMORT) && gain && (GET_LEVEL(ch) < LVL_IMMORT))
 	{
-		sprintf(buf, "%sВы потеряли право на перевоплощение !%s\r\n", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(buf, "%sВы потеряли право на перевоплощение!%s\r\n", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		CLR_GOD_FLAG(ch, GF_REMORT);
 	}
@@ -852,7 +852,7 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 			{
 				ch->set_level(ch->get_level() + 1);
 				num_levels++;
-				sprintf(buf, "%sВы достигли следующего уровня !%s\r\n",
+				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
 						CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
 
@@ -927,7 +927,7 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 		return;
 	case DRUNK:
 		if (intoxicated && GET_COND(ch, DRUNK) < CHAR_DRUNKED)
-			send_to_char("Наконец-то Вы протрезвели.\r\n", ch);
+			send_to_char("Наконец-то вы протрезвели.\r\n", ch);
 		GET_DRUNK_STATE(ch) = 0;
 		return;
 	default:
@@ -1287,9 +1287,9 @@ void charmee_obj_decay_tell(CHAR_DATA *charmee, OBJ_DATA *obj, int where)
 		return;
 
 	if (where == 0)
-		sprintf(buf1, "в Ваших руках");
+		sprintf(buf1, "в ваших руках");
 	else if (where == 1)
-		sprintf(buf1, "прямо на Вас");
+		sprintf(buf1, "прямо на вас");
 	else if (where == 2 && obj->in_obj)
 		snprintf(buf1, 128, "в %s", obj->in_obj->PNames[5]);
 	else
@@ -1301,7 +1301,7 @@ void charmee_obj_decay_tell(CHAR_DATA *charmee, OBJ_DATA *obj, int where)
 	   то в игре будет выглядеть неестественно.
 	   короче, рефакторинг приветствуется, если кто-нибудь придумает лучше.
 	*/
-	snprintf(buf, MAX_STRING_LENGTH, "%s сказал%s Вам : '%s рассыпал%s %s...'",
+	snprintf(buf, MAX_STRING_LENGTH, "%s сказал%s вам : '%s рассыпал%s %s...'",
 	         GET_NAME(charmee),
 	         GET_CH_SUF_1(charmee),
 	         CAP(OBJ_PAD(obj, 0)),
@@ -1391,7 +1391,7 @@ void obj_point_update()
 				// Конец Ладник
 				if (j->carried_by)
 				{
-					act("$p рассыпал$U в Ваших руках.", FALSE, j->carried_by, j, 0, TO_CHAR);
+					act("$p рассыпал$U в ваших руках.", FALSE, j->carried_by, j, 0, TO_CHAR);
 					obj_from_char(j);
 				}
 				else if (j->in_room != NOWHERE)
@@ -1478,13 +1478,13 @@ void obj_point_update()
 						if (IS_CHARMICE(j->worn_by))
 							charmee_obj_decay_tell(j->worn_by, j, 0);
 						else
-							act("$o рассыпал$U в Ваших руках...", FALSE, j->worn_by, j, 0, TO_CHAR);
+							act("$o рассыпал$U в ваших руках...", FALSE, j->worn_by, j, 0, TO_CHAR);
 						break;
 					default:
 						if (IS_CHARMICE(j->worn_by))
 							charmee_obj_decay_tell(j->worn_by, j, 1);
 						else
-							act("$o рассыпал$U прямо на Вас...", FALSE, j->worn_by, j, 0, TO_CHAR);
+							act("$o рассыпал$U прямо на вас...", FALSE, j->worn_by, j, 0, TO_CHAR);
 						break;
 					}
 					unequip_char(j->worn_by, j->worn_on);
@@ -1494,7 +1494,7 @@ void obj_point_update()
 					if (IS_CHARMICE(j->carried_by))
 						charmee_obj_decay_tell(j->carried_by, j, 0);
 					else
-						act("$o рассыпал$U в Ваших руках...", FALSE, j->carried_by, j, 0, TO_CHAR);
+						act("$o рассыпал$U в ваших руках...", FALSE, j->carried_by, j, 0, TO_CHAR);
 					obj_from_char(j);
 				}
 				else if (j->in_room != NOWHERE)
@@ -1791,7 +1791,7 @@ void repop_decay(zone_rnum zone)
 			if (j->worn_by)
 				act("$o рассыпал$U, вспыхнув ярким светом...", FALSE, j->worn_by, j, 0, TO_CHAR);
 			else if (j->carried_by)
-				act("$o рассыпал$U в Ваших руках, вспыхнув ярким светом...",
+				act("$o рассыпал$U в ваших руках, вспыхнув ярким светом...",
 					FALSE, j->carried_by, j, 0, TO_CHAR);
 			else if (j->in_room != NOWHERE)
 			{

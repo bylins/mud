@@ -135,7 +135,7 @@ bool check(CHAR_DATA *ch, int mode)
 			text << "интервал между сообщениями меньше " << MIN_MESSAGE_TIME << " секунды";
 			break;
 		case TOTAL_FLAG:
-			text << "высокий процент Ваших сообщений за последние " << MAX_TIME_TOTAL << " секунд";
+			text << "высокий процент ваших сообщений за последние " << MAX_TIME_TOTAL << " секунд";
 			break;
 		default:
 			log("SYSERROR: мы не должны были сюда попасть (%s %s %d)", __FILE__, __func__, __LINE__);

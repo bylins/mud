@@ -197,7 +197,7 @@ ACMD(do_olc)
 		}
 		else
 		{
-			send_to_char("Уточните, что Вы хотите делать!\r\n", ch);
+			send_to_char("Уточните, что вы хотите делать!\r\n", ch);
 			return;
 		}
 	}

@@ -208,7 +208,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 			{
 				if (on_horse(vict))
 				{
-					send_to_char(ch, "%sОт действия Вашего яда у %s закружилась голова!%s\r\n",
+					send_to_char(ch, "%sОт действия вашего яда у %s закружилась голова!%s\r\n",
 							CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
 					send_to_char(vict, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",
 							GET_PAD(get_horse(vict), 5));
@@ -216,7 +216,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 				}
 				else
 				{
-					send_to_char(ch, "%sОт действия Вашего яда у %s подкосились ноги!%s\r\n",
+					send_to_char(ch, "%sОт действия вашего яда у %s подкосились ноги!%s\r\n",
 							CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
 					send_to_char(vict, "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
 					act("$N0 зашатал$U и не смог$Q устоять на ногах.", true, ch, 0, vict, TO_NOTVICT);
@@ -244,10 +244,10 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 				affect_join(vict, &af, false, false, false, false);
 			}
 
-			send_to_char(ch, "%sОт действия Вашего яда %s побледнел%s!%s\r\n",
+			send_to_char(ch, "%sОт действия вашего яда %s побледнел%s!%s\r\n",
 					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 			send_to_char(vict, "Вы почувствовали слабость во всем теле!\r\n");
-			act("$N0 побледнел$G на Ваших глазах.", true, ch, 0, vict, TO_NOTVICT);
+			act("$N0 побледнел$G на ваших глазах.", true, ch, 0, vict, TO_NOTVICT);
 			break;
 		}
 		case 3:
@@ -261,10 +261,10 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 			af.bitvector = AFF_POISON;
 			af.battleflag = AF_SAME_TIME;
 			affect_join(vict, &af, false, false, false, false);
-			send_to_char(ch, "%sОт действия Вашего яда %s стал%s хуже реагировать на движения противников!%s\r\n",
+			send_to_char(ch, "%sОт действия вашего яда %s стал%s хуже реагировать на движения противников!%s\r\n",
 					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 			send_to_char(vict, "Вам стало труднее реагировать на движения противников!\r\n");
-			act("$N0 стал$G хуже реагировать на Ваши движения!", true, ch, 0, vict, TO_NOTVICT);
+			act("$N0 стал$G хуже реагировать на ваши движения!", true, ch, 0, vict, TO_NOTVICT);
 			break;
 		}
 		case 4:
@@ -278,7 +278,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 			af.bitvector = AFF_POISON;
 			af.battleflag = AF_SAME_TIME;
 			affect_join(vict, &af, false, false, false, false);
-			send_to_char(ch, "%sОт действия Вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
+			send_to_char(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
 					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 			send_to_char(vict, "Вы стали заметно медленнее двигаться!\r\n");
 			act("$N0 стал$G заметно медленнее двигаться!", true, ch, 0, vict, TO_NOTVICT);
@@ -295,7 +295,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 			af.bitvector = AFF_POISON;
 			af.battleflag = AF_SAME_TIME;
 			affect_join(vict, &af, false, false, false, false);
-			send_to_char(ch, "%sОт действия Вашего яда %s стал%s хуже переносить повреждения!%s\r\n",
+			send_to_char(ch, "%sОт действия вашего яда %s стал%s хуже переносить повреждения!%s\r\n",
 					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 			send_to_char(vict, "Вы стали хуже переносить повреждения!\r\n");
 			act("$N0 стал$G хуже переносить повреждения!", true, ch, 0, vict, TO_NOTVICT);
@@ -351,7 +351,7 @@ void poison_victim(CHAR_DATA * ch, CHAR_DATA * vict, int modifier)
 
 	snprintf(buf, sizeof(buf), "%sВы отравили $N3.%s", CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 	act(buf, false, ch, 0, vict, TO_CHAR);
-	snprintf(buf, sizeof(buf), "%s$n отравил$g Вас.%s", CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
+	snprintf(buf, sizeof(buf), "%s$n отравил$g вас.%s", CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
 	act(buf, false, ch, 0, vict, TO_VICT);
 }
 
@@ -402,7 +402,7 @@ void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 			{
 				send_to_char(ch, "Вы отравили %s.%s\r\n", PERS(ch, vict, 3));
 			}
-			send_to_char(vict, "%s%s отравил%s Вас.%s\r\n",
+			send_to_char(vict, "%s%s отравил%s вас.%s\r\n",
 					CCIRED(ch, C_NRM), PERS(ch, vict, 0),
 					GET_CH_VIS_SUF_1(ch, vict), CCNRM(ch, C_NRM));
 			weap_crit_poison(ch, vict, spell_num);

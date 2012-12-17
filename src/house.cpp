@@ -907,7 +907,7 @@ void Clan::SetClanData(CHAR_DATA * ch)
 	{
 		ch->desc->clan_olc.reset();
 		STATE(ch->desc) = CON_PLAYING;
-		send_to_char("Редактирование отменено из-за обновления Ваших данных в дружине.\r\n", ch);
+		send_to_char("Редактирование отменено из-за обновления ваших данных в дружине.\r\n", ch);
 	}
 
 	// если куда-то приписан, то дергаем сразу итераторы на клан и список членов
@@ -1089,7 +1089,7 @@ ACMD(DoHouse)
 	else
 	{
 		// обработка списка доступных команд по званию персонажа
-		buffer = "Доступные Вам привилегии дружины:\r\n";
+		buffer = "Доступные вам привилегии дружины:\r\n";
 		for (unsigned i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
 			if (CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][i])
 				buffer += HOUSE_FORMAT[i];
@@ -1199,7 +1199,7 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 	buffer << "Ваш замок набрал " << this->clan_exp
 		<< " очков опыта и имеет уровень " << this->clan_level << "\r\n"
 		<< "Рейтинг вашего замка: " << this->exp
-		<< " Это очень круто :), но ничего Вам не дает.\r\n"
+		<< " Это очень круто :), но ничего вам не дает.\r\n"
 		<< "В хранилище замка может храниться до " << this->ChestMaxObjects()
 		<< " " << desc_count(this->ChestMaxObjects(), WHAT_OBJu)
 		<< " с общим весом не более чем " << this->ChestMaxWeight() << "\r\n"
@@ -1213,7 +1213,7 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 	int options_tax = calculate_clan_tax();
 	int total_tax = cost + ingr_cost + options_tax;
 
-	buffer << "В хранилище Вашей дружины " << this->chest_objcount << " "
+	buffer << "В хранилище вашей дружины " << this->chest_objcount << " "
 		<< desc_count(this->chest_objcount, WHAT_OBJECT)
 		<< " общим весом в " << this->chest_weight
 		<< " (" << cost << " " << desc_count(cost, WHAT_MONEYa) << " в день).\r\n"
@@ -1389,7 +1389,7 @@ void Clan::HouseAdd(CHAR_DATA * ch, std::string & buffer)
 			temp_invite->rank = temp_rank;
 			d->clan_invite = temp_invite;
 			buffer = CCWHT(d->character, C_NRM);
-			buffer += "$N приглашен$G в Вашу дружину, статус - " + *it + ".";
+			buffer += "$N приглашен$G в вашу дружину, статус - " + *it + ".";
 			buffer += CCNRM(d->character, C_NRM);
 			// оповещаем счастливца
 			act(buffer.c_str(), FALSE, ch, 0, d->character, TO_CHAR);
@@ -1439,7 +1439,7 @@ void Clan::remove_member(ClanMemberList::iterator &it)
 	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 	{
 		if (d->character && CLAN(d->character) && CLAN(d->character)->GetRent() == this->GetRent())
-			send_to_char(d->character, "%s более не является членом Вашей дружины.\r\n", name.c_str());
+			send_to_char(d->character, "%s более не является членом вашей дружины.\r\n", name.c_str());
 	}
 }
 
@@ -1458,9 +1458,9 @@ void Clan::HouseRemove(CHAR_DATA * ch, std::string & buffer)
 	else if (unique == GET_UNIQUE(ch))
 		send_to_char("Выглядит довольно странно...\r\n", ch);
 	if (it == this->members.end())
-		send_to_char("Он и так не приписан к Вашей дружине.\r\n", ch);
+		send_to_char("Он и так не приписан к вашей дружине.\r\n", ch);
 	else if (it->second->rank_num <= CLAN_MEMBER(ch)->rank_num)
-		send_to_char("Вы можете исключить из дружины только персонажа со званием ниже Вашего.\r\n", ch);
+		send_to_char("Вы можете исключить из дружины только персонажа со званием ниже вашего.\r\n", ch);
 	else
 		remove_member(it);
 }
@@ -1469,8 +1469,8 @@ void Clan::HouseLeave(CHAR_DATA * ch)
 {
 	if (!CLAN_MEMBER(ch)->rank_num)
 	{
-		send_to_char("Если Вы хотите распустить свою дружину, то обращайтесь к Богам.\r\n"
-					 "А если Вам просто нечем заняться, то передайте воеводство и идите куда хотите...\r\n", ch);
+		send_to_char("Если вы хотите распустить свою дружину, то обращайтесь к Богам.\r\n"
+					 "А если вам просто нечем заняться, то передайте воеводство и идите куда хотите...\r\n", ch);
 		return;
 	}
 
@@ -1520,7 +1520,7 @@ void Clan::GodToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 	// на счет скобок я хз, по-моему так нагляднее все же в ифах, где условий штук 5, мож опять индентом пройтись? Ж)
 	if (text.empty())
 	{
-		send_to_char("Что Вы хотите им сообщить?\r\n", ch);
+		send_to_char("Что вы хотите им сообщить?\r\n", ch);
 		return;
 	}
 	switch (subcmd)
@@ -1579,7 +1579,7 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 	boost::trim(text);
 	if (text.empty())
 	{
-		send_to_char("Что Вы хотите сообщить?\r\n", ch);
+		send_to_char("Что вы хотите сообщить?\r\n", ch);
 		return;
 	}
 
@@ -1921,7 +1921,7 @@ ACMD(DoShowPolitics)
 
 	std::ostringstream buffer2;
 	buffer2 << "Отношения Вашей дружины с другими дружинами:\r\n" <<
-	"Название     Отношение Вашей дружины     Отношение к Вашей дружине\r\n";
+	"Название     Отношение Вашей дружины     Отношение к вашей дружине\r\n";
 
 	for (clanVictim = Clan::ClanList.begin(); clanVictim != Clan::ClanList.end(); ++clanVictim)
 	{
@@ -1978,7 +1978,7 @@ void Clan::ManagePolitics(CHAR_DATA * ch, std::string & buffer)
 			if (d->character && STATE(d) == CON_PLAYING && PRF_FLAGGED(d->character, PRF_POLIT_MODE))
 			{
 				if (CLAN(d->character) == *vict)
-					send_to_char(d->character, "%sДружина %s заключила с Вашей дружиной нейтралитет!%s\r\n", CCWHT(d->character, C_NRM), this->abbrev.c_str(), CCNRM(d->character, C_NRM));
+					send_to_char(d->character, "%sДружина %s заключила с вашей дружиной нейтралитет!%s\r\n", CCWHT(d->character, C_NRM), this->abbrev.c_str(), CCNRM(d->character, C_NRM));
 				else if (CLAN(d->character) == CLAN(ch))
 					send_to_char(d->character, "%sВаша дружина заключила с дружиной %s нейтралитет!%s\r\n", CCWHT(d->character, C_NRM), (*vict)->abbrev.c_str(), CCNRM(d->character, C_NRM));
 			}
@@ -2639,7 +2639,7 @@ ACMD(DoClanPkList)
 
 		if (!unique)
 		{
-			send_to_char("Интересующий Вас персонаж не найден.\r\n", ch);
+			send_to_char("Интересующий вас персонаж не найден.\r\n", ch);
 			return;
 		}
 		if (unique < 0)
@@ -2656,7 +2656,7 @@ ACMD(DoClanPkList)
 		boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 		if (buffer.empty())
 		{
-			send_to_char("Потрудитесь прокомментировать, за что Вы его так.\r\n", ch);
+			send_to_char("Потрудитесь прокомментировать, за что вы его так.\r\n", ch);
 			return;
 		}
 
@@ -2696,9 +2696,9 @@ ACMD(DoClanPkList)
 		if ((d = DescByUID(unique)) && PRF_FLAGGED(d->character, PRF_PKL_MODE))
 		{
 			if (!subcmd)
-				send_to_char(d->character, "%sДружина '%s' добавила Вас в список своих врагов!%s\r\n", CCIRED(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
+				send_to_char(d->character, "%sДружина '%s' добавила вас в список своих врагов!%s\r\n", CCIRED(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
 			else
-				send_to_char(d->character, "%sДружина '%s' добавила Вас в список своих друзей!%s\r\n", CCGRN(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
+				send_to_char(d->character, "%sДружина '%s' добавила вас в список своих друзей!%s\r\n", CCGRN(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
 			set_wait(ch, 1, FALSE);
 		}
 		send_to_char("Ладушки, добавили.\r\n", ch);
@@ -2728,7 +2728,7 @@ ACMD(DoClanPkList)
 
 		if (unique <= 0)
 		{
-			send_to_char("Интересующий Вас персонаж не найден.\r\n", ch);
+			send_to_char("Интересующий вас персонаж не найден.\r\n", ch);
 			return;
 		}
 		ClanPkList::iterator it;
@@ -2770,9 +2770,9 @@ ACMD(DoClanPkList)
 			if ((d = DescByUID(unique)) && PRF_FLAGGED(d->character, PRF_PKL_MODE))
 			{
 				if (!subcmd)
-					send_to_char(d->character, "%sДружина '%s' удалила Вас из списка своих врагов!%s\r\n", CCGRN(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
+					send_to_char(d->character, "%sДружина '%s' удалила вас из списка своих врагов!%s\r\n", CCGRN(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
 				else
-					send_to_char(d->character, "%sДружина '%s' удалила Вас из списка своих друзей!%s\r\n", CCIRED(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
+					send_to_char(d->character, "%sДружина '%s' удалила вас из списка своих друзей!%s\r\n", CCIRED(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
 				set_wait(ch, 1, FALSE);
 			}
 		}
@@ -2821,7 +2821,7 @@ ACMD(DoClanPkList)
 			page_string(ch->desc, out.str());
 		else
 		{
-			send_to_char("По Вашему запросу никого не найдено.\r\n", ch);
+			send_to_char("По вашему запросу никого не найдено.\r\n", ch);
 			if (CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_PKLIST])
 			{
 				buffer = CLAN_PKLIST_FORMAT[0];
@@ -3239,7 +3239,7 @@ bool Clan::BankManage(CHAR_DATA * ch, char *arg)
 
 	if (CompareParam(buffer2, "баланс") || CompareParam(buffer2, "balance"))
 	{
-		send_to_char(ch, "На счету Вашей дружины ровно %ld %s.\r\n", CLAN(ch)->bank, desc_count(CLAN(ch)->bank, WHAT_MONEYu));
+		send_to_char(ch, "На счету вашей дружины ровно %ld %s.\r\n", CLAN(ch)->bank, desc_count(CLAN(ch)->bank, WHAT_MONEYu));
 		return 1;
 
 	}
@@ -3250,12 +3250,12 @@ bool Clan::BankManage(CHAR_DATA * ch, char *arg)
 
 		if (gold <= 0)
 		{
-			send_to_char("Сколько Вы хотите вложить?\r\n", ch);
+			send_to_char("Сколько вы хотите вложить?\r\n", ch);
 			return 1;
 		}
 		if (ch->get_gold() < gold)
 		{
-			send_to_char("О такой сумме Вы можете только мечтать!\r\n", ch);
+			send_to_char("О такой сумме вы можете только мечтать!\r\n", ch);
 			return 1;
 		}
 
@@ -3266,7 +3266,7 @@ bool Clan::BankManage(CHAR_DATA * ch, char *arg)
 			CLAN(ch)->bank += over;
 			CLAN(ch)->members[GET_UNIQUE(ch)]->money += over;
 			ch->remove_gold(over);
-			send_to_char(ch, "Вы удалось вложить в казну дружины только %ld %s.\r\n", over, desc_count(over, WHAT_MONEYu));
+			send_to_char(ch, "Вам удалось вложить в казну дружины только %ld %s.\r\n", over, desc_count(over, WHAT_MONEYu));
 			act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
 			return 1;
 		}
@@ -3283,7 +3283,7 @@ bool Clan::BankManage(CHAR_DATA * ch, char *arg)
 	{
 		if (!CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_BANK])
 		{
-			send_to_char("К сожалению, у Вас нет возможности транжирить средства дружины.\r\n", ch);
+			send_to_char("К сожалению, у вас нет возможности транжирить средства дружины.\r\n", ch);
 			return 1;
 		}
 		GetOneParam(buffer, buffer2);
@@ -3291,12 +3291,12 @@ bool Clan::BankManage(CHAR_DATA * ch, char *arg)
 
 		if (gold <= 0)
 		{
-			send_to_char("Уточните количество денег, которые Вы хотите получить?\r\n", ch);
+			send_to_char("Уточните количество денег, которые вы хотите получить?\r\n", ch);
 			return 1;
 		}
 		if (CLAN(ch)->bank < gold)
 		{
-			send_to_char("К сожалению, Ваша дружина не так богата.\r\n", ch);
+			send_to_char("К сожалению, ваша дружина не так богата.\r\n", ch);
 			return 1;
 		}
 
@@ -3307,7 +3307,7 @@ bool Clan::BankManage(CHAR_DATA * ch, char *arg)
 			ch->add_gold(over);
 			CLAN(ch)->bank -= over;
 			CLAN(ch)->members[GET_UNIQUE(ch)]->money -= over;
-			send_to_char(ch, "Вы удалось снять только %ld %s.\r\n", over, desc_count(over, WHAT_MONEYu));
+			send_to_char(ch, "Вам удалось снять только %ld %s.\r\n", over, desc_count(over, WHAT_MONEYu));
 			act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
 			return 1;
 		}
@@ -3341,7 +3341,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 			// есть вариант, что за время в олц в клане изменят кол-во званий
 			if (d->clan_olc->clan->privileges.size() != d->clan_olc->privileges.size())
 			{
-				send_to_char("Во время редактирования привилегий в Вашей дружине было изменено количество званий.\r\n"
+				send_to_char("Во время редактирования привилегий в вашей дружине было изменено количество званий.\r\n"
 							 "Во избежание несоответствий зайдите в меню еще раз.\r\n"
 							 "Редактирование отменено.\r\n", d->character);
 				d->clan_olc.reset();
@@ -3836,10 +3836,10 @@ void Clan::AllMenu(DESCRIPTOR_DATA * d, unsigned flag)
 {
 	std::ostringstream buffer;
 	if (flag == 0)
-		buffer << "Выберите привилегии, который Вы хотите " << CCIRED(d->character, C_NRM)
+		buffer << "Выберите привилегии, которые вы хотите " << CCIRED(d->character, C_NRM)
 		<< "добавить всем" << CCNRM(d->character, C_NRM) << " званиям:\r\n";
 	else
-		buffer << "Выберите привилегии, который Вы хотите " << CCIRED(d->character, C_NRM)
+		buffer << "Выберите привилегии, которые вы хотите " << CCIRED(d->character, C_NRM)
 		<< "убрать у всех" << CCNRM(d->character, C_NRM) << " званий:\r\n";
 
 	int count = 0;
@@ -4015,7 +4015,7 @@ void Clan::ClanAddMember(CHAR_DATA * ch, int rank)
 		if (d->character && CLAN(d->character) && STATE(d) == CON_PLAYING && !AFF_FLAGGED(d->character, AFF_DEAFNESS)
 				&& this->GetRent() == CLAN(d->character)->GetRent() && ch != d->character)
 		{
-			send_to_char(d->character, "%s%s приписан%s к Вашей дружине, статус - '%s'.%s\r\n",
+			send_to_char(d->character, "%s%s приписан%s к вашей дружине, статус - '%s'.%s\r\n",
 						 CCWHT(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_6(ch), (this->ranks[rank]).c_str(), CCNRM(d->character, C_NRM));
 		}
 	}
@@ -4057,7 +4057,7 @@ void Clan::HouseOwner(CHAR_DATA * ch, std::string & buffer)
 		else
 			this->ClanAddMember(d->character, 0);
 		this->owner = buffer2;
-		send_to_char(ch, "Поздравляем, Вы передали свои полномочия %s!\r\n", GET_PAD(d->character, 2));
+		send_to_char(ch, "Поздравляем, вы передали свои полномочия %s!\r\n", GET_PAD(d->character, 2));
 	}
 }
 
@@ -4148,7 +4148,7 @@ void Clan::hcon_owner(CHAR_DATA *ch, std::string &text)
 	{
 		if (d->character && CLAN(d->character) && CLAN(d->character)->GetRent() == (*clan)->GetRent())
 		{
-			send_to_char(d->character, "%sОсуществлена принудительная смена воеводы Вашей дружины: %s -> %s.%s\r\n",
+			send_to_char(d->character, "%sОсуществлена принудительная смена воеводы вашей дружины: %s -> %s.%s\r\n",
 					CCIGRN(d->character, C_NRM), (*clan)->owner.c_str(), name.c_str(), CCNRM(d->character, C_NRM));
 		}
 	}
@@ -4605,6 +4605,8 @@ ACMD(DoStoreHouse)
 			++argument;
 		}
 	}
+	if (filter.weap_class != -1)
+		filter.type = ITEM_WEAPON; //Если указан класс - ищем только оружие
 	std::string buffer = "Выборка по следующим параметрам: ";
 	if (!filter.name.empty())
 		buffer += filter.name + " ";
@@ -4839,7 +4841,7 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 	{
 		if (CLAN_MEMBER(ch)->rank_num)
 		{
-			send_to_char("У Вас нет прав удалять статистику.\r\n", ch);
+			send_to_char("У вас нет прав удалять статистику.\r\n", ch);
 			return;
 		}
 		// можно почистить тока деньги для удобства сбора с мемберов налога
@@ -4858,23 +4860,23 @@ void Clan::HouseStat(CHAR_DATA * ch, std::string & buffer)
 		}
 
 		if (money)
-			send_to_char("Статистика доходов Вашей дружины очищена.\r\n", ch);
+			send_to_char("Статистика доходов вашей дружины очищена.\r\n", ch);
 		else
-			send_to_char("Статистика Вашей дружины полностью очищена.\r\n", ch);
+			send_to_char("Статистика вашей дружины полностью очищена.\r\n", ch);
 		return;
 	}
 	else if (CompareParam(buffer2, "все"))
 	{
 		all = 1;
-		out << "Статистика Вашей дружины ";
+		out << "Статистика вашей дружины ";
 	}
 	else if (!buffer2.empty())
 	{
 		name = 1;
-		out << "Статистика Вашей дружины (поиск по имени '" << buffer2 << "') ";
+		out << "Статистика вашей дружины (поиск по имени '" << buffer2 << "') ";
 	}
 	else
-		out << "Статистика Вашей дружины (находящиеся онлайн) ";
+		out << "Статистика вашей дружины (находящиеся онлайн) ";
 
 	// вывод режима сортировки
 	out << "(сортировка по: ";
@@ -5051,7 +5053,7 @@ bool Clan::ChestShow(OBJ_DATA * obj, CHAR_DATA * ch)
 
 	if (CLAN(ch) && real_room(CLAN(ch)->chest_room) == IN_ROOM(obj))
 	{
-		send_to_char("Хранилище Вашей дружины:\r\n", ch);
+		send_to_char("Хранилище вашей дружины:\r\n", ch);
 		int cost = CLAN(ch)->ChestTax();
 		send_to_char(ch, "Всего вещей: %d, Рента в день: %d %s\r\n\r\n", CLAN(ch)->chest_objcount, cost, desc_count(cost, WHAT_MONEYa));
 		list_obj_to_char(obj->contains, ch, 1, 3);
@@ -5748,7 +5750,7 @@ bool ClanSystem::show_ingr_chest(OBJ_DATA *obj, CHAR_DATA *ch)
 
 	if (CLAN(ch) && CLAN(ch)->ingr_chest_active() && CLAN(ch)->GetRent()/100 == GET_ROOM_VNUM(IN_ROOM(ch))/100)
 	{
-		send_to_char("Хранилище ингредиентов Вашей дружины:\r\n", ch);
+		send_to_char("Хранилище ингредиентов вашей дружины:\r\n", ch);
 		int cost = CLAN(ch)->ingr_chest_tax();
 		send_to_char(ch, "Всего вещей: %d/%d, Рента в день: %d %s\r\n\r\n",
 				CLAN(ch)->get_ingr_chest_objcount(), CLAN(ch)->ingr_chest_max_objects(),
@@ -5843,7 +5845,7 @@ void Clan::set_ingr_chest(CHAR_DATA *ch)
 {
 	if (GetRent()/100 != GET_ROOM_VNUM(IN_ROOM(ch))/100)
 	{
-		send_to_char("Данная комната находится вне зоны Вашего замка.\r\n", ch);
+		send_to_char("Данная комната находится вне зоны вашего замка.\r\n", ch);
 		return;
 	}
 
@@ -5885,7 +5887,7 @@ void Clan::disable_ingr_chest(CHAR_DATA *ch)
 {
 	if (!ingr_chest_active())
 	{
-		send_to_char("У Вас и так нет хранилища для ингредиентов.\r\n", ch);
+		send_to_char("У вас и так нет хранилища для ингредиентов.\r\n", ch);
 		return;
 	}
 
@@ -5939,7 +5941,7 @@ void init_xhelp()
 
 	std::stringstream out;
 	out << "  В данном разделе приведены адреса сайтов,  принадлежащим той или иной дружине.\r\n"
-		"Как  правило,  на  подобных  сайтах  Вы  можете  ознакомиться с уставом дружины,\r\n"
+		"Как  правило,  на  подобных  сайтах  вы  можете  ознакомиться с уставом дружины,\r\n"
 		"узнать условия вступления в дружину, а также получить довольно много  информации\r\n"
 		"о  политике дружины, ее составе, важных событиях, участие в которых принимали ее\r\n"
 		"ратники и многое другое.\r\n\r\n"

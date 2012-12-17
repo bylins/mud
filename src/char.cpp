@@ -652,7 +652,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 				if (j->get_fighting() == k)
 				{
 					act("Вы переключили внимание на $N3.", FALSE, k, 0, j, TO_CHAR);
-					act("$n переключил$u на Вас !", FALSE, k, 0, j, TO_VICT);
+					act("$n переключил$u на вас!", FALSE, k, 0, j, TO_VICT);
 					k->set_fighting(j);
 					break;
 				}
@@ -692,7 +692,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 				if (j->get_fighting() == k)
 				{
 					act("Вы переключили внимание на $N3.", FALSE, k, 0, j, TO_CHAR);
-					act("$n переключил$u на Вас !", FALSE, k, 0, j, TO_VICT);
+					act("$n переключил$u на вас!", FALSE, k, 0, j, TO_VICT);
 					k->set_fighting(j);
 					break;
 				}

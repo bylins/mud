@@ -95,8 +95,8 @@ int check_death_ice(int room, CHAR_DATA * ch)
 		return (FALSE);
 	if ((sector == SECT_THIN_ICE && mass > 500) || (sector == SECT_NORMAL_ICE && mass > 1500))
 	{
-		act("Лед проломился под Вашей тяжестью.", FALSE, world[room]->people, 0, 0, TO_ROOM);
-		act("Лед проломился под Вашей тяжестью.", FALSE, world[room]->people, 0, 0, TO_CHAR);
+		act("Лед проломился под вашей тяжестью.", FALSE, world[room]->people, 0, 0, TO_ROOM);
+		act("Лед проломился под вашей тяжестью.", FALSE, world[room]->people, 0, 0, TO_CHAR);
 		world[room]->weather.icelevel = 0;
 		world[room]->ices = 2;
 		SET_BIT(ROOM_FLAGS(room, ROOM_ICEDEATH), ROOM_ICEDEATH);
@@ -177,7 +177,7 @@ int skip_hiding(CHAR_DATA * ch, CHAR_DATA * vict)
 	{
 		if (awake_hide(ch))  	//if (affected_by_spell(ch, SPELL_HIDE))
 		{
-			send_to_char("Вы попытались спрятаться, но Ваша экипировка выдала Вас.\r\n", ch);
+			send_to_char("Вы попытались спрятаться, но ваша экипировка выдала вас.\r\n", ch);
 			affect_from_char(ch, SPELL_HIDE);
 			make_visible(ch, AFF_HIDE);
 			SET_BIT(EXTRA_FLAGS(ch, EXTRA_FAILHIDE), EXTRA_FAILHIDE);
@@ -215,7 +215,7 @@ int skip_camouflage(CHAR_DATA * ch, CHAR_DATA * vict)
 	{
 		if (awake_camouflage(ch))  	//if (affected_by_spell(ch,SPELL_CAMOUFLAGE))
 		{
-			send_to_char("Вы попытались замаскироваться, но Ваша экипировка выдала Вас.\r\n", ch);
+			send_to_char("Вы попытались замаскироваться, но ваша экипировка выдала вас.\r\n", ch);
 			affect_from_char(ch, SPELL_CAMOUFLAGE);
 			make_visible(ch, AFF_CAMOUFLAGE);
 			SET_BIT(EXTRA_FLAGS(ch, EXTRA_FAILCAMOUFLAGE), EXTRA_FAILCAMOUFLAGE);
@@ -253,7 +253,7 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 	{
 		if (awake_sneak(ch))  	//if (affected_by_spell(ch,SPELL_SNEAK))
 		{
-			send_to_char("Вы попытались подкрасться, но Ваша экипировка выдала Вас.\r\n", ch);
+			send_to_char("Вы попытались подкрасться, но ваша экипировка выдала вас.\r\n", ch);
 			affect_from_char(ch, SPELL_SNEAK);
 			if (affected_by_spell(ch, SPELL_HIDE))
 				affect_from_char(ch, SPELL_HIDE);
@@ -361,7 +361,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		if (show_msg)
 		{
 			send_to_char("Вы не можете покинуть свой идеал.\r\n", ch);
-			act("$N попытал$U покинуть Вас.", FALSE, ch->master, 0, ch, TO_CHAR);
+			act("$N попытал$U покинуть вас.", FALSE, ch->master, 0, ch, TO_CHAR);
 		}
 		return (FALSE);
 	}
@@ -474,7 +474,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room, HCE_ATRIUM))
 			{
 				if (show_msg)
-					send_to_char("Частная собственность ! Вход воспрещен !\r\n", ch);
+					send_to_char("Частная собственность! Вход воспрещен!\r\n", ch);
 				return (FALSE);
 			}
 		}
@@ -484,7 +484,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		{
 			if (show_msg)
 			{
-				act("$Z $N отказывается туда идти, и Вам пришлось соскочить.",
+				act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 					FALSE, ch, 0, get_horse(ch), TO_CHAR);
 				act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
 				REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
@@ -502,7 +502,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			}
 			else if (show_msg)
 			{
-				act("$Z $N заупрямил$U, и Вам пришлось соскочить.",
+				act("$Z $N заупрямил$U, и вам пришлось соскочить.",
 					FALSE, ch, 0, get_horse(ch), TO_CHAR);
 				act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
 				REMOVE_BIT(AFF_FLAGS(ch, AFF_HORSE), AFF_HORSE);
@@ -512,7 +512,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		if (on_horse(ch) && GET_HORSESTATE(get_horse(ch)) <= 0)
 		{
 			if (show_msg)
-				act("$Z $N загнан$G настолько, что не может нести Вас на себе.",
+				act("$Z $N загнан$G настолько, что не может нести вас на себе.",
 					FALSE, ch, 0, get_horse(ch), TO_CHAR);
 			return (FALSE);
 		}
@@ -520,7 +520,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		if (on_horse(ch) && (AFF_FLAGGED(get_horse(ch), AFF_HOLD) || AFF_FLAGGED(get_horse(ch), AFF_SLEEP)))
 		{
 			if (show_msg)
-				act("$Z $N не в состоянии нести Вас на себе.\r\n", FALSE, ch, 0, get_horse(ch),
+				act("$Z $N не в состоянии нести вас на себе.\r\n", FALSE, ch, 0, get_horse(ch),
 					TO_CHAR);
 			return (FALSE);
 		}
@@ -528,7 +528,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_GODROOM) && !IS_GRGOD(ch))
 		{
 			if (show_msg)
-				send_to_char("Вы не столь Божественны, как Вам кажется!\r\n", ch);
+				send_to_char("Вы не столь Божественны, как вам кажется!\r\n", ch);
 			return (FALSE);
 		}
 
@@ -547,7 +547,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 					!AFF_FLAGGED(tch, AFF_CHARM) && !AFF_FLAGGED(tch, AFF_HOLD))
 			{
 				if (show_msg)
-					act("$N преградил$G Вам путь.", FALSE, ch, 0, tch, TO_CHAR);
+					act("$N преградил$G вам путь.", FALSE, ch, 0, tch, TO_CHAR);
 				return (FALSE);
 			}
 		}
@@ -605,7 +605,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 			{
 				if (dir != ndir)
 				{
-					sprintf(buf, "Ваши ноги не хотят слушаться Вас...\r\n");
+					sprintf(buf, "Ваши ноги не хотят слушаться вас...\r\n");
 					send_to_char(buf, ch);
 				}
 				if (!ch->get_fighting() && number(10, 24) < GET_COND(ch, DRUNK))
@@ -997,7 +997,7 @@ ACMD(do_hidemove)
 
 	if (!*argument)
 	{
-		send_to_char("И куда это Вы направляетесь ?\r\n", ch);
+		send_to_char("И куда это вы направляетесь ?\r\n", ch);
 		return;
 	}
 
@@ -1247,7 +1247,7 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 		LOCK_DOOR(ch->in_room, obj, door);
 		if (back)
 			LOCK_DOOR(other_room, obj, rev_dir[door]);
-		send_to_char("Замок очень скоро поддался под Вашим натиском.\r\n", ch);
+		send_to_char("Замок очень скоро поддался под вашим натиском.\r\n", ch);
 		strcpy(local_buf, "$n умело взломал$g ");
 		break;
 	}
@@ -1288,7 +1288,7 @@ int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd)
 			send_to_char("С таким сложным замком даже и пытаться не следует...\r\n", ch);
 		else if ((ch->get_skill(SKILL_PICK_LOCK) - DOOR_LOCK_COMPLEX(ch, obj, door) <= 10)  && //если скилл больше сложности на 10 и более - даже трениться на таком замке нельзя
 			(percent > train_skill(ch, SKILL_PICK_LOCK, skill_info[SKILL_PICK_LOCK].max_percent, NULL)))
-			send_to_char("Взломщик из Вас пока еще никудышний.\r\n", ch);
+			send_to_char("Взломщик из вас пока еще никудышний.\r\n", ch);
 		else if (get_pick_chance(ch->get_skill(SKILL_PICK_LOCK), DOOR_LOCK_COMPLEX(ch, obj, door)) < number(1,10))
 		{
 			send_to_char("Вы все-таки сломали этот замок...\r\n", ch);
@@ -1316,13 +1316,13 @@ ACMD(do_gen_door)
 
 	if (AFF_FLAGGED(ch, AFF_BLIND))
 	{
-		send_to_char("Очнитесь, Вы же слепы!\r\n", ch);
+		send_to_char("Очнитесь, вы же слепы!\r\n", ch);
 		return;
 	}
 
 	if (subcmd == SCMD_PICK && !ch->get_skill(SKILL_PICK_LOCK))
 	{
-		send_to_char("Это умение Вам недоступно.\r\n", ch);
+		send_to_char("Это умение вам недоступно.\r\n", ch);
 		return;
 	}
 	skip_spaces(&argument);
@@ -1395,7 +1395,7 @@ ACMD(do_gen_door)
 		else if (!(DOOR_IS_UNLOCKED(ch, obj, door)) && IS_SET(flags_door[subcmd], NEED_UNLOCKED))
 			send_to_char("Угу, заперто.\r\n", ch);
 		else if (!has_key(ch, keynum) && !Privilege::check_flag(ch, Privilege::USE_SKILLS) && ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
-			send_to_char("У Вас нет ключа.\r\n", ch);
+			send_to_char("У вас нет ключа.\r\n", ch);
 		else if (DOOR_IS_BROKEN(ch, obj, door) && !Privilege::check_flag(ch, Privilege::USE_SKILLS) && ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
 			send_to_char("Замок сломан.\r\n", ch);
 		else if (ok_pick(ch, keynum, obj, door, subcmd))
@@ -1428,7 +1428,7 @@ ACMD(do_enter)
 				/* не пускать игрока на холженном коне */
 				if (on_horse(ch) && GET_MOB_HOLD(get_horse(ch)))
 				{
-					act("$Z $N не в состоянии нести Вас на себе.\r\n",
+					act("$Z $N не в состоянии нести вас на себе.\r\n",
 						FALSE, ch, 0, get_horse(ch), TO_CHAR);
 					return;
 				}
@@ -1442,7 +1442,7 @@ ACMD(do_enter)
 				/* Если чар под местью, и портал односторонний, то не пускать */
 				if (RENTABLE(ch) && !IS_NPC(ch) && !world[door]->portal_time)
 				{
-					send_to_char("Грехи мешают Вам воспользоваться вратами.\r\n", ch);
+					send_to_char("Грехи мешают вам воспользоваться вратами.\r\n", ch);
 					return;
 				}
 				//проверка на флаг нельзя_верхом
@@ -1484,7 +1484,7 @@ ACMD(do_enter)
 					act(buf, TRUE, ch, 0, 0, TO_CHAR);
 					act(buf, TRUE, ch, 0, 0, TO_ROOM);
 
-					send_to_char("Мощным ударом Вас отшвырнуло от пентаграммы.\r\n", ch);
+					send_to_char("Мощным ударом вас отшвырнуло от пентаграммы.\r\n", ch);
 					act("$n с визгом отлетел$g от пентаграммы.\r\n", TRUE, ch,
 						0, 0, TO_ROOM | CHECK_DEAF);
 					act("$n отлетел$g от пентаграммы.\r\n", TRUE, ch, 0, 0, TO_ROOM | CHECK_NODEAF);
@@ -1589,13 +1589,13 @@ ACMD(do_stand)
 
 	if (on_horse(ch))
 	{
-		act("Прежде всего, Вам стоит слезть с $N1.", FALSE, ch, 0, get_horse(ch), TO_CHAR);
+		act("Прежде всего, вам стоит слезть с $N1.", FALSE, ch, 0, get_horse(ch), TO_CHAR);
 		return;
 	}
 	switch (GET_POS(ch))
 	{
 	case POS_STANDING:
-		send_to_char("А Вы уже стоите.\r\n", ch);
+		send_to_char("А вы уже стоите.\r\n", ch);
 		break;
 	case POS_SITTING:
 		send_to_char("Вы встали.\r\n", ch);
@@ -1609,10 +1609,10 @@ ACMD(do_stand)
 		GET_POS(ch) = ch->get_fighting() ? POS_FIGHTING : POS_STANDING;
 		break;
 	case POS_SLEEPING:
-		send_to_char("Пожалуй, сначала стоит проснуться !\r\n", ch);
+		send_to_char("Пожалуй, сначала стоит проснуться!\r\n", ch);
 		break;
 	case POS_FIGHTING:
-		send_to_char("Вы дрались лежа ? Это что-то новенькое.\r\n", ch);
+		send_to_char("Вы дрались лежа? Это что-то новенькое.\r\n", ch);
 		break;
 	default:
 		send_to_char("Вы прекратили летать и опустились на грешную землю.\r\n", ch);
@@ -1627,7 +1627,7 @@ ACMD(do_sit)
 {
 	if (on_horse(ch))
 	{
-		act("Прежде всего, Вам стоит слезть с $N1.", FALSE, ch, 0, get_horse(ch), TO_CHAR);
+		act("Прежде всего, вам стоит слезть с $N1.", FALSE, ch, 0, get_horse(ch), TO_CHAR);
 		return;
 	}
 	switch (GET_POS(ch))
@@ -1638,7 +1638,7 @@ ACMD(do_sit)
 		GET_POS(ch) = POS_SITTING;
 		break;
 	case POS_SITTING:
-		send_to_char("А Вы и так сидите.\r\n", ch);
+		send_to_char("А вы и так сидите.\r\n", ch);
 		break;
 	case POS_RESTING:
 		send_to_char("Вы прекратили отдыхать и сели.\r\n", ch);
@@ -1649,7 +1649,7 @@ ACMD(do_sit)
 		send_to_char("Вам стоит проснуться.\r\n", ch);
 		break;
 	case POS_FIGHTING:
-		send_to_char("Сесть ? Во время боя ? Вы явно не в себе.\r\n", ch);
+		send_to_char("Сесть? Во время боя? Вы явно не в себе.\r\n", ch);
 		break;
 	default:
 		send_to_char("Вы прекратили свой полет и сели.\r\n", ch);
@@ -1664,7 +1664,7 @@ ACMD(do_rest)
 {
 	if (on_horse(ch))
 	{
-		act("Прежде всего, Вам стоит слезть с $N1.", FALSE, ch, 0, get_horse(ch), TO_CHAR);
+		act("Прежде всего, вам стоит слезть с $N1.", FALSE, ch, 0, get_horse(ch), TO_CHAR);
 		return;
 	}
 	switch (GET_POS(ch))
@@ -1686,7 +1686,7 @@ ACMD(do_rest)
 		send_to_char("Вам лучше сначала проснуться.\r\n", ch);
 		break;
 	case POS_FIGHTING:
-		send_to_char("Отдыха в бою Вам не будет !\r\n", ch);
+		send_to_char("Отдыха в бою вам не будет!\r\n", ch);
 		break;
 	default:
 		send_to_char("Вы прекратили полет и присели отдохнуть.\r\n", ch);
@@ -1701,12 +1701,12 @@ ACMD(do_sleep)
 {
 	if (GET_LEVEL(ch) >= LVL_IMMORT)
 	{
-		send_to_char("Не время Вам спать, родина в опасности!\r\n", ch);
+		send_to_char("Не время вам спать, родина в опасности!\r\n", ch);
 		return;
 	}
 	if (on_horse(ch))
 	{
-		act("Прежде всего, Вам стоит слезть с $N1.", FALSE, ch, 0, get_horse(ch), TO_CHAR);
+		act("Прежде всего, вам стоит слезть с $N1.", FALSE, ch, 0, get_horse(ch), TO_CHAR);
 		return;
 	}
 	switch (GET_POS(ch))
@@ -1719,7 +1719,7 @@ ACMD(do_sleep)
 		GET_POS(ch) = POS_SLEEPING;
 		break;
 	case POS_SLEEPING:
-		send_to_char("А Вы и так спите.\r\n", ch);
+		send_to_char("А вы и так спите.\r\n", ch);
 		break;
 	case POS_FIGHTING:
 		send_to_char("Вам нужно сражаться! Отоспитесь после смерти.\r\n", ch);
@@ -1741,7 +1741,7 @@ ACMD(do_horseon)
 
 	if (!get_horse(ch))
 	{
-		send_to_char("У Вас нет скакуна.\r\n", ch);
+		send_to_char("У вас нет скакуна.\r\n", ch);
 		return;
 	}
 
@@ -1760,13 +1760,13 @@ ACMD(do_horseon)
 	if (horse == NULL)
 		send_to_char(NOPERSON, ch);
 	else if (IN_ROOM(horse) != IN_ROOM(ch))
-		send_to_char("Ваш скакун далеко от Вас.\r\n", ch);
+		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		send_to_char("Это не скакун.\r\n", ch);
 	else if (horse->master != ch)
-		send_to_char("Это не Ваш скакун.\r\n", ch);
+		send_to_char("Это не ваш скакун.\r\n", ch);
 	else if (GET_POS(horse) < POS_FIGHTING)
-		act("$N не сможет Вас нести в таком состоянии.", FALSE, ch, 0, horse, TO_CHAR);
+		act("$N не сможет вас нести в таком состоянии.", FALSE, ch, 0, horse, TO_CHAR);
 	else if (AFF_FLAGGED(horse, AFF_TETHERED))
 		act("Вам стоит отвязать $N3.", FALSE, ch, 0, horse, TO_CHAR);
 	//чтоб не вскакивали в ванрумах
@@ -1794,7 +1794,7 @@ ACMD(do_horseoff)
 		return;
 	if (!(horse = get_horse(ch)))
 	{
-		send_to_char("У Вас нет скакуна.\r\n", ch);
+		send_to_char("У вас нет скакуна.\r\n", ch);
 		return;
 	}
 
@@ -1818,7 +1818,7 @@ ACMD(do_horseget)
 
 	if (!get_horse(ch))
 	{
-		send_to_char("У Вас нет скакуна.\r\n", ch);
+		send_to_char("У вас нет скакуна.\r\n", ch);
 		return;
 	}
 
@@ -1837,11 +1837,11 @@ ACMD(do_horseget)
 	if (horse == NULL)
 		send_to_char(NOPERSON, ch);
 	else if (IN_ROOM(horse) != IN_ROOM(ch))
-		send_to_char("Ваш скакун далеко от Вас.\r\n", ch);
+		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		send_to_char("Это не скакун.\r\n", ch);
 	else if (horse->master != ch)
-		send_to_char("Это не Ваш скакун.\r\n", ch);
+		send_to_char("Это не ваш скакун.\r\n", ch);
 	else if (!AFF_FLAGGED(horse, AFF_TETHERED))
 		act("А $N и не привязан$A.", FALSE, ch, 0, horse, TO_CHAR);
 	else
@@ -1861,7 +1861,7 @@ ACMD(do_horseput)
 		return;
 	if (!get_horse(ch))
 	{
-		send_to_char("У Вас нет скакуна.\r\n", ch);
+		send_to_char("У вас нет скакуна.\r\n", ch);
 		return;
 	}
 
@@ -1879,11 +1879,11 @@ ACMD(do_horseput)
 	if (horse == NULL)
 		send_to_char(NOPERSON, ch);
 	else if (IN_ROOM(horse) != IN_ROOM(ch))
-		send_to_char("Ваш скакун далеко от Вас.\r\n", ch);
+		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		send_to_char("Это не скакун.\r\n", ch);
 	else if (horse->master != ch)
-		send_to_char("Это не Ваш скакун.\r\n", ch);
+		send_to_char("Это не ваш скакун.\r\n", ch);
 	else if (AFF_FLAGGED(horse, AFF_TETHERED))
 		act("А $N уже и так привязан$A.", FALSE, ch, 0, horse, TO_CHAR);
 	else
@@ -1905,13 +1905,13 @@ ACMD(do_horsetake)
 
 	if (get_horse(ch))
 	{
-		send_to_char("Зачем Вам столько скакунов ?\r\n", ch);
+		send_to_char("Зачем вам столько скакунов?\r\n", ch);
 		return;
 	}
 
 	if (ch->is_morphed())
 	{
-		send_to_char("И как Вы собираетесь это проделать без рук и без ног, одними лапами ?\r\n", ch);
+		send_to_char("И как вы собираетесь это проделать без рук и без ног, одними лапами?\r\n", ch);
 		return;
 	}
 
@@ -1945,14 +1945,14 @@ ACMD(do_horsetake)
 	}
 	else if (GET_POS(horse) < POS_STANDING)
 	{
-		act("$N не сможет стать Вашим скакуном.", FALSE, ch, 0, horse, TO_CHAR);
+		act("$N не сможет стать вашим скакуном.", FALSE, ch, 0, horse, TO_CHAR);
 		return;
 	}
 	else if (IS_HORSE(horse))
 	{
 		if (!IS_IMMORTAL(ch) && !(ch->get_skill(SKILL_STEAL)))
 		{
-			send_to_char("Это не Ваш скакун.\r\n", ch);
+			send_to_char("Это не ваш скакун.\r\n", ch);
 			return;
 		}
 		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_PEACEFUL) && !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
@@ -1991,7 +1991,7 @@ ACMD(do_horsetake)
 				act("$n неудачно попытал$u украсть скакуна у $N1.", TRUE, ch,
 					0, horse->master, TO_NOTVICT | TO_ARENA_LISTEN);
 				if (IN_ROOM(ch) == IN_ROOM(horse->master))
-					act("$n пытал$u увести Вашего скакуна !", FALSE, ch, 0, horse->master, TO_VICT);
+					act("$n пытал$u увести вашего скакуна!", FALSE, ch, 0, horse->master, TO_VICT);
 				WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 				return;
 			}
@@ -2013,18 +2013,18 @@ ACMD(do_givehorse)
 
 	if (!(horse = get_horse(ch)))
 	{
-		send_to_char("Да нету у Вас скакуна.\r\n", ch);
+		send_to_char("Да нету у вас скакуна.\r\n", ch);
 		return;
 	}
 	if (!has_horse(ch, TRUE))
 	{
-		send_to_char("Ваш скакун далеко от Вас.\r\n", ch);
+		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 		return;
 	}
 	one_argument(argument, arg);
 	if (!*arg)
 	{
-		send_to_char("Кому Вы хотите передать скакуна ?\r\n", ch);
+		send_to_char("Кому вы хотите передать скакуна?\r\n", ch);
 		return;
 	}
 	if (!(victim = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
@@ -2056,7 +2056,7 @@ ACMD(do_givehorse)
 	if (stop_follower(horse, SF_EMPTY))
 		return;
 	act("Вы передали своего скакуна $N2.", FALSE, ch, 0, victim, TO_CHAR);
-	act("$n передал$g Вам своего скакуна.", FALSE, ch, 0, victim, TO_VICT);
+	act("$n передал$g вам своего скакуна.", FALSE, ch, 0, victim, TO_VICT);
 	act("$n передал$g своего скакуна $N2.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 	make_horse(horse, victim);
 }
@@ -2070,12 +2070,12 @@ ACMD(do_stophorse)
 
 	if (!(horse = get_horse(ch)))
 	{
-		send_to_char("Да нету у Вас скакуна.\r\n", ch);
+		send_to_char("Да нету у вас скакуна.\r\n", ch);
 		return;
 	}
 	if (!has_horse(ch, TRUE))
 	{
-		send_to_char("Ваш скакун далеко от Вас.\r\n", ch);
+		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 		return;
 	}
 	if (on_horse(ch))
@@ -2126,7 +2126,7 @@ ACMD(do_wake)
 	if (*arg)
 	{
 		if (GET_POS(ch) == POS_SLEEPING)
-			send_to_char("Может быть Вам лучше проснуться ?\r\n", ch);
+			send_to_char("Может быть вам лучше проснуться ?\r\n", ch);
 		else if ((vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)) == NULL)
 			send_to_char(NOPERSON, ch);
 		else if (vict == ch)
@@ -2138,16 +2138,16 @@ ACMD(do_wake)
 		else
 		{
 			act("Вы $S разбудили.", FALSE, ch, 0, vict, TO_CHAR);
-			act("$n растолкал$g Вас.", FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
+			act("$n растолкал$g вас.", FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
 			GET_POS(vict) = POS_SITTING;
 		}
 		if (!self)
 			return;
 	}
 	if (AFF_FLAGGED(ch, AFF_SLEEP))
-		send_to_char("Вы не можете проснуться !\r\n", ch);
+		send_to_char("Вы не можете проснуться!\r\n", ch);
 	else if (GET_POS(ch) > POS_SLEEPING)
-		send_to_char("А Вы и не спали...\r\n", ch);
+		send_to_char("А вы и не спали...\r\n", ch);
 	else
 	{
 		send_to_char("Вы проснулись и сели.\r\n", ch);
@@ -2185,7 +2185,7 @@ ACMD(do_follow)
 	}
 	else
 	{
-		send_to_char("За кем Вы хотите следовать ?\r\n", ch);
+		send_to_char("За кем вы хотите следовать?\r\n", ch);
 		return;
 	}
 
@@ -2196,7 +2196,7 @@ ACMD(do_follow)
 	}
 	if (AFF_FLAGGED(ch, AFF_CHARM) && (ch->master))
 	{
-		act("Но Вы можете следовать только за $N4!", FALSE, ch, 0, ch->master, TO_CHAR);
+		act("Но вы можете следовать только за $N4!", FALSE, ch, 0, ch->master, TO_CHAR);
 	}
 	else  		/* Not Charmed follow person */
 	{
@@ -2213,7 +2213,7 @@ ACMD(do_follow)
 		{
 			if (circle_follow(ch, leader))
 			{
-				send_to_char("Так у Вас целый хоровод получится.\r\n", ch);
+				send_to_char("Так у вас целый хоровод получится.\r\n", ch);
 				return;
 			}
 			//log("[Follow] Stop last follow...");
