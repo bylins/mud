@@ -2385,7 +2385,7 @@ void load_skills_definitions()
 			continue;
 		if (sscanf(name, "%s %s %d %d %d %d %d", line1, line2, i, i + 1, i + 2, i + 3, i + 4) != 7)
 		{
-			log("Bad format for skill string !\r\n"
+			log("Bad format for skill string!\r\n"
 				"Format : <skill name (%%s %%s)>  <kin (%%d)> <class (%%d)> <remort (%%d)> <minlevel> <improove (%%d)> !");
 			_exit(1);
 		}
@@ -2442,7 +2442,7 @@ void load_skills_definitions()
 			continue;
 		if (sscanf(name, "%s %s %s %s", line1, line2, line3, line4) != 4)
 		{
-			log("Bad format for skill string !\r\n" "Format : <skill name (%%s %%s)> <kin (%%s)> <skills (%%s)> !");
+			log("Bad format for skill string!\r\n" "Format : <skill name (%%s %%s)> <kin (%%s)> <skills (%%s)> !");
 			_exit(1);
 		}
 		name[0] = '\0';
@@ -2573,7 +2573,7 @@ void init_spell_levels(void)
 			continue;
 		if (sscanf(name, "%s %s %d %d %d %d %d %d", line1, line2, i, i + 1, i + 2, i + 3, i + 4, i + 5) != 8)
 		{
-			log("Bad format for magic string !\r\n"
+			log("Bad format for magic string!\r\n"
 				"Format : <spell name (%%s %%s)> <kin (%%d)> <classes (%%d)> <remort (%%d)> <slot (%%d)> <level (%%d)>");
 			_exit(1);
 		}
@@ -2626,7 +2626,7 @@ void init_spell_levels(void)
 			continue;
 		if (sscanf(name, "%s %s %s %d %d %d %d %d", line1, line2, line3, i, i + 1, i + 2, i + 3, i + 4) != 8)
 		{
-			log("Bad format for magic string !\r\n"
+			log("Bad format for magic string!\r\n"
 				"Format : <spell name (%%s %%s)> <type (%%s)> <items_vnum (%%d %%d %%d %%d)>");
 			_exit(1);
 		}
@@ -2715,7 +2715,7 @@ void init_spell_levels(void)
 			continue;
 		if (sscanf(name, "%s %s %d %d %d %d %d %d %d",	line1, line2, i, i + 1, i + 2, i + 3, i + 4, i + 5, i + 6) != 9)
 		{
-			log("Bad format for feature string !\r\n"
+			log("Bad format for feature string!\r\n"
 				"Format : <feature name (%%s %%s)>  <kin (%%d %%d %%d)> <class (%%d)> <remort (%%d)> <level (%%d)> <naturalfeat (%%d)>!");
 			_exit(1);
 		}
@@ -2882,7 +2882,7 @@ void init_spell_levels(void)
 			if (!name[0] || name[0] == ';')
 				continue;
 			if (sscanf(name, "%d %s %s", i, line1, line2) != 3) {
-				log("Bad format for magic string !\r\n"
+				log("Bad format for magic string!\r\n"
 				    "Format : <recipe number (%%d)> <races (%%s)> <classes (%%d)>");
 				_exit(1);
 			}

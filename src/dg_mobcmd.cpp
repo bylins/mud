@@ -97,7 +97,7 @@ ACMD(do_masound)
 {
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -136,7 +136,7 @@ ACMD(do_mkill)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -210,7 +210,7 @@ ACMD(do_mjunk)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -269,7 +269,7 @@ ACMD(do_mechoaround)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -322,7 +322,7 @@ ACMD(do_msend)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -373,7 +373,7 @@ ACMD(do_mecho)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -413,7 +413,7 @@ ACMD(do_mload)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -478,7 +478,7 @@ ACMD(do_mpurge)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -555,7 +555,7 @@ ACMD(do_mgoto)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -595,7 +595,7 @@ ACMD(do_mat)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -649,7 +649,7 @@ ACMD(do_mteleport)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -777,7 +777,7 @@ ACMD(do_mforce)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -853,7 +853,7 @@ ACMD(do_mexp)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -902,7 +902,7 @@ ACMD(do_mgold)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -960,7 +960,7 @@ ACMD(do_mremember)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -1024,7 +1024,7 @@ ACMD(do_mforget)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -1099,7 +1099,7 @@ ACMD(do_mtransform)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -1243,7 +1243,7 @@ ACMD(do_mdoor)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -1373,7 +1373,7 @@ ACMD(do_mfeatturn)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -1447,7 +1447,7 @@ ACMD(do_mskillturn)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -1487,7 +1487,7 @@ ACMD(do_mskillturn)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -1528,7 +1528,7 @@ ACMD(do_mskilladd)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -1560,7 +1560,7 @@ ACMD(do_mskilladd)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -1600,7 +1600,7 @@ ACMD(do_mspellturn)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -1637,7 +1637,7 @@ ACMD(do_mspellturn)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -1674,7 +1674,7 @@ ACMD(do_mspelladd)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -1702,7 +1702,7 @@ ACMD(do_mspelladd)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -1739,7 +1739,7 @@ ACMD(do_mspellitem)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -1816,7 +1816,7 @@ ACMD(do_mdamage)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 

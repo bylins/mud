@@ -855,7 +855,7 @@ void zedit_disp_commands(DESCRIPTOR_DATA * d, char *buf)
 				hl = (item->cmd.arg2 == room);
 				break;
 			default:
-				strcpy(buf2, "для ??? ");
+				strcpy(buf2, "для??? ");
 				break;
 			}
 			sprintf(buf2 + strlen(buf2),
@@ -1409,7 +1409,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		default:
 			send_to_char("Неверный выбор!\r\n", d->character);
-			send_to_char("Вы желаете сохранить зону в памяти ? : ", d->character);
+			send_to_char("Вы желаете сохранить зону в памяти? : ", d->character);
 			break;
 		}
 		break;
@@ -1423,7 +1423,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'X':
 			if (OLC_ZONE(d)->age || OLC_ZONE(d)->number)
 			{
-				send_to_char("Вы желаете сохранить изменения зоны в памяти ? (y/n) : ", d->character);
+				send_to_char("Вы желаете сохранить изменения зоны в памяти? (y/n) : ", d->character);
 				OLC_MODE(d) = ZEDIT_CONFIRM_SAVESTRING;
 			}
 			else
@@ -1452,25 +1452,25 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		case 'n':
 		case 'N':	// New entry
-			send_to_char("Выберите номер новой команды ? : ", d->character);
+			send_to_char("Выберите номер новой команды? : ", d->character);
 			OLC_MODE(d) = ZEDIT_NEW_ENTRY;
 			break;
 
 		case 'e':
 		case 'E':	// Change an entry
-			send_to_char("Какую команду Вы хотите изменить ? : ", d->character);
+			send_to_char("Какую команду Вы хотите изменить? : ", d->character);
 			OLC_MODE(d) = ZEDIT_CHANGE_ENTRY;
 			break;
 
 		case 'm':
 		case 'M':	// Move an entry
-			send_to_char("Какую команду и куда Вы хотите переместить ? : ", d->character);
+			send_to_char("Какую команду и куда Вы хотите переместить? : ", d->character);
 			OLC_MODE(d) = ZEDIT_MOVE_ENTRY;
 			break;
 
 		case 'd':
 		case 'D':	// Delete an entry
-			send_to_char("Какую команду Вы хотите удалить ? : ", d->character);
+			send_to_char("Какую команду Вы хотите удалить? : ", d->character);
 			OLC_MODE(d) = ZEDIT_DELETE_ENTRY;
 			break;
 

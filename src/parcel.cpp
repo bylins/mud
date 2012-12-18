@@ -320,7 +320,7 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 		}
 		else if (!*tmp_arg2)
 		{
-			send_to_char(ch, "Чего %d вы хотите отправить ?\r\n", amount);
+			send_to_char(ch, "Чего %d вы хотите отправить?\r\n", amount);
 		}
 		else if (!(obj = get_obj_in_list_vis(ch, tmp_arg2, ch->carrying)))
 		{
@@ -351,7 +351,7 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 		{
 			if (dotmode == FIND_ALLDOT && !*tmp_arg)
 			{
-				send_to_char("Отправить \"все\" какого типа предметов ?\r\n", ch);
+				send_to_char("Отправить \"все\" какого типа предметов?\r\n", ch);
 				return;
 			}
 			if (!ch->carrying)

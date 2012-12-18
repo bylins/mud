@@ -399,7 +399,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 		if IS_IMMORTAL
 		(ch)
 		{
-			send_to_char("Господи, ну зачем тебе это ?.\r\n", ch);
+			send_to_char("Господи, ну зачем тебе это?.\r\n", ch);
 			return false;
 		}
 		trans_auction(lot);

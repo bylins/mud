@@ -222,7 +222,7 @@ ACMD(do_drink)
 
 	if (!*arg)
 	{
-		send_to_char("Пить из чего ?\r\n", ch);
+		send_to_char("Пить из чего?\r\n", ch);
 		return;
 	}
 
@@ -243,7 +243,7 @@ ACMD(do_drink)
 	}
 	if ((GET_OBJ_TYPE(temp) != ITEM_DRINKCON) && (GET_OBJ_TYPE(temp) != ITEM_FOUNTAIN))
 	{
-		send_to_char("Не стоит. Козлят и так много !\r\n", ch);
+		send_to_char("Не стоит. Козлят и так много!\r\n", ch);
 		return;
 	}
 	if (on_ground && (GET_OBJ_TYPE(temp) == ITEM_DRINKCON))
@@ -422,7 +422,7 @@ ACMD(do_drink)
 
 	if (GET_OBJ_VAL(temp, 3) && !IS_GOD(ch))  	/* The shit was poisoned ! */
 	{
-		send_to_char("Что-то вкус какой-то странный !\r\n", ch);
+		send_to_char("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", TRUE, ch, 0, 0, TO_ROOM);
 
 		af.type = SPELL_POISON;
@@ -473,7 +473,7 @@ ACMD(do_drunkoff)
 
 	if (AFF_FLAGGED(ch, AFF_DRUNKED))
 	{
-		send_to_char("Вы хотите испортить себе весь кураж?\r\n" "Это не есть по русски !\r\n", ch);
+		send_to_char("Вы хотите испортить себе весь кураж?\r\n" "Это не есть по русски!\r\n", ch);
 		return;
 	}
 

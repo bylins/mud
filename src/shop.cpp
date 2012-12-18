@@ -674,7 +674,7 @@ void shopping_buy(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr)
 	}
 	if (!(*arg) || !(buynum))
 	{
-		sprintf(buf, "%s! ЧТО ты хочешь купить ?", GET_NAME(ch));
+		sprintf(buf, "%s! ЧТО ты хочешь купить?", GET_NAME(ch));
 		do_tell(keeper, buf, cmd_tell, 0);
 		return;
 	}
@@ -814,7 +814,7 @@ OBJ_DATA *get_selling_item(CHAR_DATA * ch, OBJ_DATA * obj, CHAR_DATA * keeper, i
 	switch (result)
 	{
 	case OBJECT_NOVAL:
-		sprintf(buf, "%s! Не впаривай мне мозги, этот хлам можешь оставить себе !", GET_NAME(ch));
+		sprintf(buf, "%s! Не впаривай мне мозги, этот хлам можешь оставить себе!", GET_NAME(ch));
 		break;
 	case OBJECT_NOTOK:
 		if (mode == MODE_REPAIR)
@@ -993,7 +993,7 @@ void shopping_sell_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int 
 
 	if (!obj)
 	{
-		sprintf(buf, "%s! ЧТО ты хочешь мне втюрить ?", GET_NAME(ch));
+		sprintf(buf, "%s! ЧТО ты хочешь мне втюрить?", GET_NAME(ch));
 		do_tell(keeper, buf, cmd_tell, 0);
 		return;
 	}
@@ -1069,7 +1069,7 @@ void shopping_change(char *argument, CHAR_DATA * ch, CHAR_DATA * keeper, int sho
 
 	if (!*argument)
 	{
-		sprintf(buf, "%s! ЧТО ты хочешь менять ?", GET_NAME(ch));
+		sprintf(buf, "%s! ЧТО ты хочешь менять?", GET_NAME(ch));
 		do_tell(keeper, buf, cmd_tell, 0);
 		return;
 	}
@@ -1164,7 +1164,7 @@ void shopping_change(char *argument, CHAR_DATA * ch, CHAR_DATA * keeper, int sho
 
 	if (!*argument || !buynum)
 	{
-		sprintf(buf, "%s! НА ЧТО ты хочешь это обменять ?", GET_NAME(ch));
+		sprintf(buf, "%s! НА ЧТО ты хочешь это обменять?", GET_NAME(ch));
 		do_tell(keeper, buf, cmd_tell, 0);
 		restore_objects(ch, source_list, srcs);
 		return;
@@ -1305,7 +1305,7 @@ void show_values(char *arg, CHAR_DATA * ch, CHAR_DATA * keeper, int shop_nr, int
 	}
 	if (!*arg)
 	{
-		sprintf(buf, "%s! ЧТО ты хочешь рассмотреть ?", GET_NAME(ch));
+		sprintf(buf, "%s! ЧТО ты хочешь рассмотреть?", GET_NAME(ch));
 		do_tell(keeper, buf, cmd_tell, 0);
 		return;
 	}
@@ -1341,7 +1341,7 @@ void shopping_value_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int
 
 	if (!obj)
 	{
-		sprintf(buf, "%s! Что я тебе должен оценить ?", GET_NAME(ch));
+		sprintf(buf, "%s! Что я тебе должен оценить?", GET_NAME(ch));
 		do_tell(keeper, buf, cmd_tell, 0);
 		return;
 	}
@@ -1376,7 +1376,7 @@ void shopping_repair_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, in
 
 	if (!obj)
 	{
-		sprintf(buf, "%s! Что я вам должен починить ?", GET_NAME(ch));
+		sprintf(buf, "%s! Что я вам должен починить?", GET_NAME(ch));
 		do_tell(keeper, buf, cmd_tell, 0);
 		return;
 	}
@@ -1505,7 +1505,7 @@ void do_multi(int subcmd, char *argument, CHAR_DATA * ch, CHAR_DATA * keeper, in
 			send_to_char("Не имеет смысла.\r\n", ch);
 		else if (!*arg)
 		{
-			sprintf(buf, "%s %d чего ?\r\n", shop_op[sname][0], multi);
+			sprintf(buf, "%s %d чего?\r\n", shop_op[sname][0], multi);
 			send_to_char(buf, ch);
 		}
 		else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
@@ -1562,7 +1562,7 @@ void do_multi(int subcmd, char *argument, CHAR_DATA * ch, CHAR_DATA * keeper, in
 		{
 			if (!*arg)
 			{
-				sprintf(buf, "%s \"все\" какого типа предметов ?\r\n", shop_op[sname][0]);
+				sprintf(buf, "%s \"все\" какого типа предметов?\r\n", shop_op[sname][0]);
 				send_to_char(buf, ch);
 				return;
 			}
@@ -2308,7 +2308,7 @@ void show_shops(CHAR_DATA * ch, char *arg)
 
 			if (shop_nr > top_shop)
 			{
-				send_to_char("Это не магазин !\r\n", ch);
+				send_to_char("Это не магазин!\r\n", ch);
 				return;
 			}
 		}

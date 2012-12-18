@@ -207,7 +207,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		if (sagr == "3")
 		{
-			send_to_char("Блокировать рецепт ?(y/n) : ", d->character);
+			send_to_char("Блокировать рецепт? (y/n): ", d->character);
 			OLC_MODE(d) = MREDIT_LOCK;
 			return;
 		}
@@ -222,7 +222,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		if (sagr == "d")
 		{
-			send_to_char("Удалить рецепт ?(y/n) :", d->character);
+			send_to_char("Удалить рецепт? (y/n):", d->character);
 			OLC_MODE(d) = MREDIT_DEL;
 			return;
 		}
@@ -1601,7 +1601,7 @@ int MakeRecept::can_make(CHAR_DATA * ch)
 			if (GET_LEVEL(ch) < SpINFO.min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] ||
 					slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
 			{
-				//send_to_char("Рано еще Вам бросаться такими словами !\r\n", ch);
+				//send_to_char("Рано еще Вам бросаться такими словами!\r\n", ch);
 				return (FALSE);
 			}
 			else

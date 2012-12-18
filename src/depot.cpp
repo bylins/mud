@@ -1222,7 +1222,7 @@ void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany)
 	{
 		if (obj_dotmode == FIND_ALLDOT && !*arg)
 		{
-			send_to_char("Взять что \"все\" ?\r\n", vict);
+			send_to_char("Взять что \"все\"?\r\n", vict);
 			return;
 		}
 		bool found = 0;

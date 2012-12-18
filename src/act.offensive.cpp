@@ -350,7 +350,7 @@ ACMD(do_assist)
 	else if (set_hit(ch, opponent))
 	{
 		act("Вы присоединились к битве, помогая $N2!", FALSE, ch, 0, helpee, TO_CHAR);
-		act("$N решил$G помочь вам в битве !", 0, helpee, 0, ch, TO_CHAR);
+		act("$N решил$G помочь вам в битве!", 0, helpee, 0, ch, TO_CHAR);
 		act("$n вступил$g в бой на стороне $N1.", FALSE, ch, 0, helpee, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 }
@@ -363,7 +363,7 @@ ACMD(do_hit)
 	one_argument(argument, arg);
 
 	if (!*arg)
-		send_to_char("Кого бить-то будем ?\r\n", ch);
+		send_to_char("Кого бить-то будем?\r\n", ch);
 	else if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 		send_to_char("Вы не видите цели.\r\n", ch);
 	else if (vict == ch)
@@ -538,7 +538,7 @@ ACMD(do_backstab)
 
 	if (GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) != FightSystem::type_pierce)
 	{
-		send_to_char("ЗаКОЛоть можно только КОЛющи оружием !\r\n", ch);
+		send_to_char("ЗаКОЛоть можно только КОЛющи оружием!\r\n", ch);
 		return;
 	}
 
@@ -821,7 +821,7 @@ ACMD(do_flee)
 	int direction = -1;
 	if (!ch->get_fighting())
 	{
-		send_to_char("Но вы ведь ни с кем не сражаетесь !\r\n", ch);
+		send_to_char("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
 		return;
 	}
 	if (can_use_feat(ch, CALMNESS_FEAT) || IS_IMMORTAL(ch)
@@ -1294,7 +1294,7 @@ ACMD(do_block)
 	}
 	if (!ch->get_fighting())
 	{
-		send_to_char("Но вы ни с кем не сражаетесь ?\r\n", ch);
+		send_to_char("Но вы ни с кем не сражаетесь!\r\n", ch);
 		return;
 	};
 	if (!(IS_NPC(ch) ||	// моб
@@ -1308,7 +1308,7 @@ ACMD(do_block)
 	}
 	if (GET_AF_BATTLE(ch, EAF_BLOCK))
 	{
-		send_to_char("Вы уже прикрываетесь щитом !\r\n", ch);
+		send_to_char("Вы уже прикрываетесь щитом!\r\n", ch);
 		return;
 	}
 	go_block(ch);
@@ -2308,7 +2308,7 @@ ACMD(do_throw)
 
 	if (ch == vict)
 	{
-		send_to_char("Не мечите, и не мечимы будете !\r\n", ch);
+		send_to_char("Не мечите, и не мечимы будете!\r\n", ch);
 		return;
 	}
 

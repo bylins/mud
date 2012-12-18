@@ -1581,7 +1581,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		default:
 			send_to_char("Неверный выбор!\r\n", d->character);
-			send_to_char("Вы хотите сохранить моба ? : ", d->character);
+			send_to_char("Вы хотите сохранить моба? : ", d->character);
 			break;
 		}
 		return;
@@ -1595,7 +1595,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'Q':
 			if (OLC_VAL(d))  	/* Anything been changed? */
 			{
-				send_to_char("Вы желаете сохранить изменения моба ? (y/n) : ", d->character);
+				send_to_char("Вы желаете сохранить изменения моба? (y/n): ", d->character);
 				OLC_MODE(d) = MEDIT_CONFIRM_SAVESTRING;
 			}
 			else
@@ -2155,7 +2155,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else if (i == OLC_MTOTAL(d) + 1)
 		{
-			send_to_char("Какого моба Вы хотите очистить ? ", d->character);
+			send_to_char("Какого моба Вы хотите очистить? ", d->character);
 			OLC_MODE(d) = MEDIT_PURGE_MPROG;
 		}
 		else

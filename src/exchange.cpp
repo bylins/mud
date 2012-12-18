@@ -272,7 +272,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	if ((ch->get_total_gold() < tax)
 			&& (GET_LEVEL(ch) < LVL_IMPL))
 	{
-		send_to_char("У вас не хватит денег на налоги !\r\n", ch);
+		send_to_char("У вас не хватит денег на налоги!\r\n", ch);
 		return false;
 	}
 	for (j = exchange_item_list, counter = 0, counter_ming = 0;
@@ -382,7 +382,7 @@ int exchange_change_cost(CHAR_DATA * ch, char *arg)
 	if (pay > 0)
 		if ((ch->get_total_gold() < (pay * EXCHANGE_EXHIBIT_PAY_COEFF)) && (GET_LEVEL(ch) < LVL_IMPL))
 		{
-			send_to_char("У вас не хватит денег на налоги !\r\n", ch);
+			send_to_char("У вас не хватит денег на налоги!\r\n", ch);
 			return false;
 		}
 
@@ -1826,7 +1826,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 	if (!parse_exch_filter(filter, filter_name, filter_owner, &filter_type, &filter_cost, &filter_timer,
 						   &filter_wereon, &filter_weaponclass))
 	{
-		send_to_char("Неверная строка фильтрации !\r\n", ch);
+		send_to_char("Неверная строка фильтрации!\r\n", ch);
 		log("Exchange: Player uses wrong filter '%s'", filter);
 		return;
 	}
@@ -1930,7 +1930,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 	}
 
 	if (!any_item)
-		buffer = "Базар пуст !\r\n";
+		buffer = "Базар пуст!\r\n";
 
 	page_string(ch->desc, buffer);
 }
@@ -2105,7 +2105,7 @@ ACMD(do_exchange)
 		|| is_abbrev(arg1, "цена") || is_abbrev(arg1, "cost")
 		|| is_abbrev(arg1, "снять") || is_abbrev(arg1, "withdraw")
 		|| is_abbrev(arg1, "купить") || is_abbrev(arg1, "purchase")
-		//commented by WorM 2011.05.21 а нафиг чтоб сохранить/загрузить базар быть у базарного торговца ?
+		//commented by WorM 2011.05.21 а нафиг чтоб сохранить/загрузить базар быть у базарного торговца?
 		/*|| (is_abbrev(arg1, "save") && (GET_LEVEL(ch) >= LVL_IMPL))
 		|| (is_abbrev(arg1, "savebackup") && (GET_LEVEL(ch) >= LVL_IMPL))
 		|| (is_abbrev(arg1, "reload") && (GET_LEVEL(ch) >= LVL_IMPL))

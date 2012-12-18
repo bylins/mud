@@ -663,12 +663,12 @@ void sedit_save_to_disk(int zone_num)
 			fprintf(shop_file,
 					"%s~\n%s~\n%s~\n%s~\n%s~\n%s~\n%s~\n"
 					"%d\n%ld\n%d\n%d\n",
-					S_NOITEM1(shop) ? S_NOITEM1(shop) : "%s Кхм ?!",
-					S_NOITEM2(shop) ? S_NOITEM2(shop) : "%s Кхм ?!",
+					S_NOITEM1(shop) ? S_NOITEM1(shop) : "%s Кхм?!",
+					S_NOITEM2(shop) ? S_NOITEM2(shop) : "%s Кхм?!",
 					S_NOBUY(shop) ? S_NOBUY(shop) : "%s Кхм?!",
 					S_NOCASH1(shop) ? S_NOCASH1(shop) : "%s Кхм?!",
 					S_NOCASH2(shop) ? S_NOCASH2(shop) : "%s Кхм?!",
-					S_BUY(shop) ? S_BUY(shop) : "%s Кхм?! %d ?",
+					S_BUY(shop) ? S_BUY(shop) : "%s Кхм?! %d?",
 					S_SELL(shop) ? S_SELL(shop) : "%s Кхм?! %d?",
 					S_BROKE_TEMPER(shop),
 					S_BITVECTOR(shop), mob_index[S_KEEPER(shop)].vnum, S_NOTRADE(shop));
@@ -1020,7 +1020,7 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			cleanup_olc(d, CLEANUP_ALL);
 			return;
 		default:
-			send_to_char("Неверный выбор!\r\nВы желаете сохранить магазин ? : ", d->character);
+			send_to_char("Неверный выбор!\r\nВы желаете сохранить магазин? : ", d->character);
 			return;
 		}
 		break;
@@ -1034,7 +1034,7 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'Q':
 			if (OLC_VAL(d))  	/* Anything been changed? */
 			{
-				send_to_char("Вы желаете сохранить изменения магазина ? (y/n) : ", d->character);
+				send_to_char("Вы желаете сохранить изменения магазина? (y/n) : ", d->character);
 				OLC_MODE(d) = SEDIT_CONFIRM_SAVESTRING;
 			}
 			else
@@ -1151,7 +1151,7 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		case 'd':
 		case 'D':
-			send_to_char("\r\nУдалить какой тип для покупки ? : ", d->character);
+			send_to_char("\r\nУдалить какой тип для покупки? : ", d->character);
 			OLC_MODE(d) = SEDIT_DELETE_BUYTYPE;
 			return;
 		case 'q':
@@ -1169,7 +1169,7 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		case 'd':
 		case 'D':
-			send_to_char("\r\nУдалить какой тип для обмена ? : ", d->character);
+			send_to_char("\r\nУдалить какой тип для обмена? : ", d->character);
 			OLC_MODE(d) = SEDIT_DELETE_CHANGETYPE;
 			return;
 		case 'q':
@@ -1188,7 +1188,7 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		case 'd':
 		case 'D':
-			send_to_char("\r\nУдалить какой предмет ? : ", d->character);
+			send_to_char("\r\nУдалить какой предмет? : ", d->character);
 			OLC_MODE(d) = SEDIT_DELETE_PRODUCT;
 			return;
 		case 'q':
@@ -1215,7 +1215,7 @@ void sedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		case 'd':
 		case 'D':
-			send_to_char("\r\nУдалить какую комнату ? : ", d->character);
+			send_to_char("\r\nУдалить какую комнату? : ", d->character);
 			OLC_MODE(d) = SEDIT_DELETE_ROOM;
 			return;
 		case 'q':

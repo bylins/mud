@@ -1903,7 +1903,7 @@ ACMD(DoShowPolitics)
 {
 	if (IS_NPC(ch) || !CLAN(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -2503,7 +2503,7 @@ ACMD(DoWhoClan)
 {
 	if (IS_NPC(ch) || !CLAN(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -2568,7 +2568,7 @@ ACMD(DoClanPkList)
 {
 	if (IS_NPC(ch) || !CLAN(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
@@ -4232,7 +4232,7 @@ ACMD(DoStoreHouse)
 {
 	if (IS_NPC(ch) || !CLAN(ch))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 	if (!CLAN(ch)->storehouse)

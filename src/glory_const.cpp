@@ -812,7 +812,7 @@ ACMD(do_glory)
 
 	if (mode != SHOW_GLORY && (!reason || !*reason))
 	{
-		send_to_char("Укажите причину изменения славы ?\r\n", ch);
+		send_to_char("Укажите причину изменения славы?\r\n", ch);
 		return;
 	}
 

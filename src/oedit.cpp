@@ -1563,8 +1563,8 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			cleanup_olc(d, CLEANUP_ALL);
 			break;
 		default:
-			send_to_char("Неверный выбор !\r\n", d->character);
-			send_to_char("Вы хотите сохранить этот предмет ?\r\n", d->character);
+			send_to_char("Неверный выбор!\r\n", d->character);
+			send_to_char("Вы хотите сохранить этот предмет?\r\n", d->character);
 			break;
 		}
 		return;
@@ -1579,7 +1579,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'Q':
 			if (OLC_VAL(d))  	/* Something has been modified. */
 			{
-				send_to_char("Вы хотите сохранить этот предмет ? : ", d->character);
+				send_to_char("Вы хотите сохранить этот предмет? : ", d->character);
 				OLC_MODE(d) = OEDIT_CONFIRM_SAVESTRING;
 			}
 			else
@@ -1868,7 +1868,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		number = atoi(arg);
 		if ((number < 0) || (number > NUM_ITEM_WEARS))
 		{
-			send_to_char("Неверный выбор !\r\n", d->character);
+			send_to_char("Неверный выбор!\r\n", d->character);
 			oedit_disp_wear_menu(d);
 			return;
 		}

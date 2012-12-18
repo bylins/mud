@@ -381,12 +381,12 @@ ACMD(do_put)
 	cont_dotmode = find_all_dots(thecont);
 
 	if (!*theobj)
-		send_to_char("Положить что и куда ?\r\n", ch);
+		send_to_char("Положить что и куда?\r\n", ch);
 	else if (cont_dotmode != FIND_INDIV)
 		send_to_char("Вы можете положить вещь только в один контейнер.\r\n", ch);
 	else if (!*thecont)
 	{
-		sprintf(buf, "Куда вы хотите положить '%s' ?\r\n", theobj);
+		sprintf(buf, "Куда вы хотите положить '%s'?\r\n", theobj);
 		send_to_char(buf, ch);
 	}
 	else
@@ -1739,7 +1739,7 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg)
 	{
 		if (((where = search_block(arg, keywords, FALSE)) < 0) || (*arg == '!'))
 		{
-			sprintf(buf, "'%s'?  Странная анатомия у этих русских !\r\n", arg);
+			sprintf(buf, "'%s'? Странная анатомия у этих русских!\r\n", arg);
 			send_to_char(buf, ch);
 			return -1;
 		}
@@ -2010,7 +2010,7 @@ ACMD(do_remove)
 
 	if (!*arg)
 	{
-		send_to_char("Снять что ?\r\n", ch);
+		send_to_char("Снять что?\r\n", ch);
 		return;
 	}
 	dotmode = find_all_dots(arg);
@@ -2030,7 +2030,7 @@ ACMD(do_remove)
 	else if (dotmode == FIND_ALLDOT)
 	{
 		if (!*arg)
-			send_to_char("Снять все вещи какого типа ?\r\n", ch);
+			send_to_char("Снять все вещи какого типа?\r\n", ch);
 		else
 		{
 			found = 0;
@@ -2228,7 +2228,7 @@ ACMD(do_armored)
 	one_argument(argument, arg);
 
 	if (!*arg)
-		send_to_char("Что вы хотите укрепить ?\r\n", ch);
+		send_to_char("Что вы хотите укрепить?\r\n", ch);
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{

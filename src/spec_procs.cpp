@@ -1389,7 +1389,7 @@ SPECIAL(horse_keeper)
 	{
 		if (has_horse(ch, FALSE))
 		{
-			act("$N поинтересовал$U : \"$n, зачем тебе второй скакун ? У тебя ведь одно седалище.\"",
+			act("$N поинтересовал$U : \"$n, зачем тебе второй скакун? У тебя ведь одно седалище.\"",
 				FALSE, ch, 0, victim, TO_CHAR);
 			return (TRUE);
 		}
@@ -2856,12 +2856,12 @@ SPECIAL(bank)
 	{
 		if ((amount = atoi(argument)) <= 0)
 		{
-			send_to_char("Сколько вы хотите вложить ?\r\n", ch);
+			send_to_char("Сколько вы хотите вложить?\r\n", ch);
 			return (1);
 		}
 		if (ch->get_gold() < amount)
 		{
-			send_to_char("О такой сумме вы можете только мечтать !\r\n", ch);
+			send_to_char("О такой сумме вы можете только мечтать!\r\n", ch);
 			return (1);
 		}
 		ch->remove_gold(amount, false);
@@ -2875,12 +2875,12 @@ SPECIAL(bank)
 	{
 		if ((amount = atoi(argument)) <= 0)
 		{
-			send_to_char("Уточните количество денег, которые вы хотите получить ?\r\n", ch);
+			send_to_char("Уточните количество денег, которые вы хотите получить?\r\n", ch);
 			return (1);
 		}
 		if (ch->get_bank() < amount)
 		{
-			send_to_char("Да вы отродясь столько денег не видели !\r\n", ch);
+			send_to_char("Да вы отродясь столько денег не видели!\r\n", ch);
 			return (1);
 		}
 		ch->add_gold(amount, false);
@@ -2918,12 +2918,12 @@ SPECIAL(bank)
 
 		if (ch->get_bank() < amount)
 		{
-			send_to_char("Да вы отродясь столько денег не видели !\r\n", ch);
+			send_to_char("Да вы отродясь столько денег не видели!\r\n", ch);
 			return (1);
 		}
 		if (ch->get_bank() < amount + ((amount * 5) / 100))
 		{
-			send_to_char("У вас не хватит денег на налоги !\r\n", ch);
+			send_to_char("У вас не хватит денег на налоги!\r\n", ch);
 			return (1);
 		}
 

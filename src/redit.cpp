@@ -777,7 +777,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		number = planebit(arg, &plane, &bit);
 		if (number < 0)
 		{
-			send_to_char("Неверный выбор !\r\n", d->character);
+			send_to_char("Неверный выбор!\r\n", d->character);
 			redit_disp_flag_menu(d);
 		}
 		else if (number == 0)

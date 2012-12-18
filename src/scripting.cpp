@@ -1333,7 +1333,7 @@ BOOST_PYTHON_MODULE(mud)
 		.add_property("skills_count", &CharacterWrapper::get_skills_count, "Содержит число умений, которыми владеет персонаж.")
 		.def("get_equipped_skill", &CharacterWrapper::get_equipped_skill, "Скилл со шмоток.")
 		.def("get_trained_skill", &CharacterWrapper::get_trained_skill, "Родной тренированный скилл чара.")
-		.def("get_spell", &CharacterWrapper::get_spell, "Владеет ли персонаж указанным заклинанием. .\n"
+		.def("get_spell", &CharacterWrapper::get_spell, "Владеет ли персонаж указанным заклинанием.\n"
 		"\n"
 		"Для получения номера заклинания по названию см. get_spell_num.")
 		.def("set_spell", &CharacterWrapper::set_spell, "Устанавливает изученность заклинания у персонажа.")
@@ -1899,7 +1899,7 @@ typedef std::vector<PythonUserCommand> python_command_list_t;
 				send_to_char("Вы слишком слабы, чтобы сделать это!\r\n", ch);
 				break;
 			case POS_SLEEPING:
-				send_to_char("Сделать это в ваших снах ?\r\n", ch);
+				send_to_char("Сделать это в ваших снах?\r\n", ch);
 				break;
 			case POS_RESTING:
 				send_to_char("Нет... Вы слишком расслаблены..\r\n", ch);

@@ -1240,7 +1240,7 @@ ACMD(do_findhelpee)
 		af.battleflag = 0;
 		affect_to_char(helpee, &af);
 		SET_BIT(AFF_FLAGS(helpee, AFF_HELPER), AFF_HELPER);
-		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s !\"",
+		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"",
 				GET_SEX(ch) == IS_FEMALE(ch) ? "хозяйка" : "хозяин");
 		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 		if (IS_NPC(helpee))

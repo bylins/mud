@@ -2368,7 +2368,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 		if (!tobj)	//не нашли ни одного ингридиента
 		{
-			act("Батюшки светы! А помаду то я дома забыл$g.\r\n", FALSE, victim, 0, ch, TO_CHAR);
+			act("Батюшки светы! А помаду-то я дома забыл$g.\r\n", FALSE, victim, 0, ch, TO_CHAR);
 			//send_to_char("Батюшки светы! А помаду то я дома забыл.\r\n",ch);
 			success = FALSE;
 			break;
@@ -2560,7 +2560,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_PRISMATICAURA:
 		if (!IS_NPC(ch) && !same_group(ch, victim))
 		{
-			send_to_char("Только на себя или одногруппника !\r\n", ch);
+			send_to_char("Только на себя или одногруппника!\r\n", ch);
 			return 0;
 		}
 		if (affected_by_spell(victim, SPELL_SANCTUARY))
@@ -2714,7 +2714,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 		accum_duration = TRUE;
 		accum_affect = TRUE;
-		to_room = "Красное сияние вспыхнуло над $n4 и тут же погасло !";
+		to_room = "Красное сияние вспыхнуло над $n4 и тут же погасло!";
 		to_vict = "Боги сурово поглядели на вас.";
 		spellnum = SPELL_CURSE;
 		break;
@@ -2869,7 +2869,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_SANCTUARY:
 		if (!IS_NPC(ch) && !same_group(ch, victim))
 		{
-			send_to_char("Только на себя или одногруппника !\r\n", ch);
+			send_to_char("Только на себя или одногруппника!\r\n", ch);
 			return 0;
 		}
 		if (affected_by_spell(victim, SPELL_PRISMATICAURA))
@@ -3149,7 +3149,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_LIGHT:
 		if (!IS_NPC(ch) && !same_group(ch, victim))
 		{
-			send_to_char("Только на себя или одногруппника !\r\n", ch);
+			send_to_char("Только на себя или одногруппника!\r\n", ch);
 			return 0;
 		}
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
@@ -3161,7 +3161,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_DARKNESS:
 		if (!IS_NPC(ch) && !same_group(ch, victim))
 		{
-			send_to_char("Только на себя или одногруппника !\r\n", ch);
+			send_to_char("Только на себя или одногруппника!\r\n", ch);
 			return 0;
 		}
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
@@ -3727,18 +3727,18 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 const char *mag_summon_msgs[] =
 {
 	"\r\n",
-	"$n сделал$g несколько изящних пассов - вы почувствовали странное дуновение !",
-	"$n поднял$g труп !",
-	"$N появил$G из клубов голубого дыма !",
-	"$N появил$G из клубов зеленого дыма !",
-	"$N появил$G из клубов красного дыма !",
+	"$n сделал$g несколько изящних пассов - вы почувствовали странное дуновение!",
+	"$n поднял$g труп!",
+	"$N появил$G из клубов голубого дыма!",
+	"$N появил$G из клубов зеленого дыма!",
+	"$N появил$G из клубов красного дыма!",
 	"$n сделал$g несколько изящных пассов - вас обдало порывом холодного ветра.",
 	"$n сделал$g несколько изящных пассов, от чего ваши волосы встали дыбом.",
 	"$n сделал$g несколько изящных пассов, обдав вас нестерпимым жаром.",
 	"$n сделал$g несколько изящных пассов, вызвав у вас приступ тошноты.",
-	"$n раздвоил$u !",
-	"$n оживил$g труп !",
-	"$n призвал$g защитника !",
+	"$n раздвоил$u!",
+	"$n оживил$g труп!",
+	"$n призвал$g защитника!",
 	"Огненный хранитель появился из вихря пламени!"
 };
 
@@ -4248,7 +4248,7 @@ int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, i
 	case SPELL_DISPELL_MAGIC:
 		if (!IS_NPC(ch) && !same_group(ch, victim))
 		{
-			send_to_char("Только на себя или одногруппника !\r\n", ch);
+			send_to_char("Только на себя или одногруппника!\r\n", ch);
 			return 0;
 		}
 

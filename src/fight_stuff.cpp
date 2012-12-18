@@ -865,7 +865,7 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 		if (IS_NPC(victim) && (MOB_FLAGGED(victim, MOB_CORPSE)))
 		{
 			act("$n вспыхнул$g и рассыпал$u в прах.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			send_to_char("Похоже вас убили и даже тела не оставили !\r\n", victim);
+			send_to_char("Похоже вас убили и даже тела не оставили!\r\n", victim);
 		}
 		else
 		{

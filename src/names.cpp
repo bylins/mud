@@ -401,7 +401,7 @@ void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 
 	if (GET_LEVEL(vict) > god_level)
 	{
-		send_to_char("А он ведь старше вас....\r\n", ch);
+		send_to_char("А он ведь старше вас...\r\n", ch);
 		return;
 	}
 

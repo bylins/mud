@@ -524,22 +524,22 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		}
 		if (IS_OBJ_STAT(object, ITEM_BLESS)
 				&& AFF_FLAGGED(ch, AFF_DETECT_ALIGN))
-			strcat(buf, " ..голубая аура !");
+			strcat(buf, " ..голубая аура!");
 		if (IS_OBJ_STAT(object, ITEM_MAGIC)
 				&& AFF_FLAGGED(ch, AFF_DETECT_MAGIC))
-			strcat(buf, " ..желтая аура !");
+			strcat(buf, " ..желтая аура!");
 		if (IS_OBJ_STAT(object, ITEM_POISONED)
 				&& AFF_FLAGGED(ch, AFF_DETECT_POISON))
 		{
-			sprintf(buf2, "..отравлен%s !", GET_OBJ_SUF_6(object));
+			sprintf(buf2, "..отравлен%s!", GET_OBJ_SUF_6(object));
 			strcat(buf, buf2);
 		}
 		if (IS_OBJ_STAT(object, ITEM_GLOW))
-			strcat(buf, " ..блестит !");
+			strcat(buf, " ..блестит!");
 		if (IS_OBJ_STAT(object, ITEM_HUM) && !AFF_FLAGGED(ch, AFF_SIELENCE))
-			strcat(buf, " ..шумит !");
+			strcat(buf, " ..шумит!");
 		if (IS_OBJ_STAT(object, ITEM_FIRE))
-			strcat(buf, " ..горит !");
+			strcat(buf, " ..горит!");
 		if (IS_OBJ_STAT(object, ITEM_BLOODY))
 			{
 		sprintf(buf2, " %s..покрыт%s кровью!%s", CCIRED(ch, C_NRM), GET_OBJ_SUF_6(object), CCNRM(ch, C_NRM));
@@ -1513,7 +1513,7 @@ ACMD(do_exits)
 
 	if (AFF_FLAGGED(ch, AFF_BLIND))
 	{
-		send_to_char("Вы слепы, как котенок !\r\n", ch);
+		send_to_char("Вы слепы, как котенок!\r\n", ch);
 		return;
 	}
 	for (door = 0; door < NUM_OF_DIRS; door++)
@@ -1535,11 +1535,11 @@ ACMD(do_exits)
 			}
 			strcat(buf, CAP(buf2));
 		}
-	send_to_char("Видимые выходы :\r\n", ch);
+	send_to_char("Видимые выходы:\r\n", ch);
 	if (*buf)
 		send_to_char(buf, ch);
 	else
-		send_to_char(" Замуровали, ДЕМОНЫ !\r\n", ch);
+		send_to_char(" Замуровали, ДЕМОНЫ!\r\n", ch);
 }
 
 
@@ -1963,7 +1963,7 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 	else
 	{
 		if (info_is & EXIT_SHOW_WALL)
-			send_to_char("И что вы там хотите услышать ?.\r\n", ch);
+			send_to_char("И что вы там хотите услышать?\r\n", ch);
 	}
 }
 
@@ -2000,7 +2000,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 	else if ((GET_OBJ_TYPE(obj) != ITEM_DRINKCON)
 			 && (GET_OBJ_TYPE(obj) != ITEM_FOUNTAIN)
 			 && (GET_OBJ_TYPE(obj) != ITEM_CONTAINER))
-		send_to_char("Ничего в нем нет !\r\n", ch);
+		send_to_char("Ничего в нем нет!\r\n", ch);
 	else
 	{
 		if (Clan::ChestShow(obj, ch))
@@ -2088,7 +2088,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 			{
 				if (GET_OBJ_VAL(obj, 0) <= 0 || GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0))
 				{
-					sprintf(buf, "Заполнен%s вакуумом ?!.\r\n", GET_OBJ_SUF_6(obj));	/* BUG */
+					sprintf(buf, "Заполнен%s вакуумом?!\r\n", GET_OBJ_SUF_6(obj));	/* BUG */
 				}
 				else
 				{
@@ -2295,7 +2295,7 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 	/* Strip off "number." from 2.foo and friends. */
 	if (!(fnum = get_number(&what)))
 	{
-		send_to_char("Что осматриваем ?\r\n", ch);
+		send_to_char("Что осматриваем?\r\n", ch);
 		return 0;
 	}
 
@@ -2339,7 +2339,7 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 		send_to_char(buf, ch);
 	}
 	else
-		send_to_char("Похоже, этого здесь нет !\r\n", ch);
+		send_to_char("Похоже, этого здесь нет!\r\n", ch);
 
 	return 0;
 }
@@ -3409,7 +3409,7 @@ ACMD(do_score)
 	if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED)
 	{
 		if (affected_by_spell(ch, SPELL_ABSTINENT))
-			strcat(buf, "Привет с большого бодуна !\r\n");
+			strcat(buf, "Привет с большого бодуна!\r\n");
 		else
 			strcat(buf, "Вы пьяны.\r\n");
 	}
@@ -4251,10 +4251,10 @@ ACMD(do_who)
 		else
 		{
 			if (IS_IMPL(ch) || kroder)
-				sprintf(buf, "%s[%2d %s %s(%5d)] %s%s%s%s",
+				sprintf(buf, "%s[%2d %2d %s(%5d)] %s%s%s%s",
 						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
 						GET_LEVEL(tch),
-						KIN_ABBR(tch),
+						GET_REMORT(tch),
 						CLASS_ABBR(tch),
 						tch->get_pfilepos(),
 						CCPK(ch, C_NRM, tch),
@@ -4398,7 +4398,7 @@ ACMD(do_who_new)
 {
 //  if (!GET_GOD_FLAG(ch,GF_DEMIGOD) && !IS_IMMORTAL(ch))
 //  {
-//    send_to_char("Чаво ? \n",ch);
+//    send_to_char("Чаво? \n",ch);
 //    return;
 //  }
 	CHAR_DATA *tch;
@@ -5276,7 +5276,7 @@ ACMD(do_consider)
 	if (diff <= -10)
 		send_to_char("Ути-пути, моя рыбонька.\r\n", ch);
 	else if (diff <= -5)
-		send_to_char("\"Сделаем без шуму и пыли !\"\r\n", ch);
+		send_to_char("\"Сделаем без шуму и пыли!\"\r\n", ch);
 	else if (diff <= -2)
 		send_to_char("Легко.\r\n", ch);
 	else if (diff <= -1)
@@ -5318,7 +5318,7 @@ ACMD(do_diagnose)
 		if (ch->get_fighting())
 			diag_char_to_char(ch->get_fighting(), ch);
 		else
-			send_to_char("На кого вы хотите взглянуть ?\r\n", ch);
+			send_to_char("На кого вы хотите взглянуть?\r\n", ch);
 	}
 }
 
@@ -5543,7 +5543,7 @@ ACMD(do_commands)
 
 	sprintf(buf, "Следующие %s%s доступны %s:\r\n",
 			wizhelp ? "привилегированные " : "",
-			socials ? "социалы" : "команды", vict == ch ? "Вам" : GET_PAD(vict, 2));
+			socials ? "социалы" : "команды", vict == ch ? "вам" : GET_PAD(vict, 2));
 
 	if (socials)
 		num_of = top_of_socialk + 1;

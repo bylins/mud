@@ -683,7 +683,7 @@ void init_im(void)
 					{
 						if (sscanf(tmp, "%s %d", dummy, &imrecipes[top_imrecipes].result) != 2)
 						{
-							log("[IM] Invalid OBJ recipe string (%2d) '%s' !\n"
+							log("[IM] Invalid OBJ recipe string (%2d) '%s'!\n"
 								"Format : OBJ <vnum (%%d)>",
 								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
 							sprintf(text, "[IM] Invalid OBJ recipe string (%2d) '%s' !",
@@ -697,7 +697,7 @@ void init_im(void)
 						if (sscanf
 								(tmp, "%s %d", dummy, &imrecipes[top_imrecipes].k_improove) != 2)
 						{
-							log("[IM] Invalid IMP recipe string (%2d) '%s' !\n",
+							log("[IM] Invalid IMP recipe string (%2d) '%s'!\n",
 								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
 							sprintf(text, "[IM] Invalid IMP recipe string (%2d) '%s' !",
 									imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
@@ -714,7 +714,7 @@ void init_im(void)
 								   &imrecipes[top_imrecipes].k[2],
 								   &imrecipes[top_imrecipes].kp) != 5)
 						{
-							log("[IM] Invalid CON recipe string (%2d) '%s' !\n"
+							log("[IM] Invalid CON recipe string (%2d) '%s'!\n"
 								"Format : CON <k1 (%%d)> <k2 (%%f)> <k3 (%%d)> <kp (%%d)>",
 								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
 							sprintf(text, "[IM] Invalid CON recipe string (%2d) '%s' !",
@@ -778,7 +778,7 @@ void init_im(void)
 								   &imrecipes[top_imrecipes].x,
 								   &imrecipes[top_imrecipes].y) != 3)
 						{
-							log("[IM] Invalid DAM recipe string (%2d) '%s' !\n"
+							log("[IM] Invalid DAM recipe string (%2d) '%s'!\n"
 								"Format : DAM <x (%%d)>d<y (%%d)>",
 								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
 							sprintf(text, "[IM] Invalid DAM recipe string (%2d) '%s' !",
@@ -798,7 +798,7 @@ void init_im(void)
 						if (sscanf(tmp, "%s %d %s %d %d %d",
 								   dummy, &n, name, &k0, &k1, &k2) != 6)
 						{
-							log("[IM] Invalid ADD recipe string (%2d) '%s' !\n"
+							log("[IM] Invalid ADD recipe string (%2d) '%s'!\n"
 								"Format : ADD <Nmax (%%d)> <type (%%s)> <n1 (%%d)> <n2 (%%d)> <n3 (%%d)>",
 								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
 							sprintf(text, "[IM] Invalid ADD recipe string (%2d) '%s' !",
@@ -881,7 +881,7 @@ void init_im(void)
 			continue;
 		if (sscanf(name, "%d %s %s %d %d", k, line1, line2, k + 1, k + 2) != 5)
 		{
-			log("Bad format for recipe string, recipe unavailable now !\r\n"
+			log("Bad format for recipe string, recipe unavailable now!\r\n"
 				"Format : <recipe number (%%d)> <races (%%s)> <classes (%%s)> <level (%%d)> <remort (%%d)>");
 			continue;
 		}

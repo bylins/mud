@@ -199,7 +199,7 @@ ACMD(do_insult)
 					else  	/* Ch == Woman */
 					{
 						if (IS_MALE(victim))
-							act("&K$n заявил$g вам, что у н$s больше... (что $e имел$g в виду ?)&n", FALSE, ch, 0, victim, TO_VICT);
+							act("&K$n заявил$g вам, что у н$s больше... (что $e имел$g в виду?)&n", FALSE, ch, 0, victim, TO_VICT);
 						else
 							act("&K$n обьявил$g всем о вашем близком родстве с Бабой-Ягой.&n", FALSE, ch, 0, victim, TO_VICT);
 					}

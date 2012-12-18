@@ -2127,12 +2127,12 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 	{
 		if (IS_SET(SpINFO.routines, MAG_WARCRY))
 		{
-			send_to_char("Ваш громовой глас сотряс воздух, но ничего не произошло !\r\n", caster);
+			send_to_char("Ваш громовой глас сотряс воздух, но ничего не произошло!\r\n", caster);
 			act("Вы вздрогнули от неожиданного крика, но ничего не произошло.", FALSE, caster, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}
 		else
 		{
-			send_to_char("Ваша магия обратилась всего лишь в яркую вспышку !\r\n", caster);
+			send_to_char("Ваша магия обратилась всего лишь в яркую вспышку!\r\n", caster);
 			act("Яркая вспышка на миг осветила комнату, и тут же погасла.", FALSE, caster, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}
 		return 0;
@@ -2804,7 +2804,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 
 	/* Gorrah: убрал ограничение
 		if (IS_SET(SpINFO.routines, MAG_GROUPS) && !IS_NPC(ch) && !AFF_FLAGGED(ch, AFF_GROUP)) {
-			send_to_char("Но вы же не член группы !\r\n", ch);
+			send_to_char("Но вы же не член группы!\r\n", ch);
 			return (0);
 		} */
 
@@ -3154,7 +3154,7 @@ ACMD(do_warcry)
 	{
 		if (tok_iter == tok.end())
 		{
-			send_to_char("Какой клич вы хотите использовать ?\r\n", ch);
+			send_to_char("Какой клич вы хотите использовать?\r\n", ch);
 			return;
 		}
 		else
@@ -3180,13 +3180,13 @@ ACMD(do_warcry)
 
 	if (!target)
 	{
-		send_to_char("Тяжеловато найти цель !\r\n", ch);
+		send_to_char("Тяжеловато найти цель!\r\n", ch);
 		return;
 	}
 
 	if (tch == ch && SpINFO.violent)
 	{
-		send_to_char("Не накликайте беды !\r\n", ch);
+		send_to_char("Не накликайте беды!\r\n", ch);
 		return;
 	}
 
@@ -3973,7 +3973,7 @@ ACMD(do_forget)
 
 	if (!*arg)
 	{
-		send_to_char("Что вы хотите забыть ?\r\n", ch);
+		send_to_char("Что вы хотите забыть?\r\n", ch);
 		return;
 	}
 

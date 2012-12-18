@@ -1222,7 +1222,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 			social = TRUE;
 		else
 		{
-			send_to_char("Чаво ?\r\n", ch);
+			send_to_char("Чаво?\r\n", ch);
 			return;
 		}
 	}
@@ -1861,7 +1861,7 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 
 			if (!target && STATE(k) == CON_PLAYING)
 			{
-				SEND_TO_Q("\r\nВаше тело уже кем-то занято !\r\n", k);
+				SEND_TO_Q("\r\nВаше тело уже кем-то занято!\r\n", k);
 				target = k->character;
 				mode = USURP;
 			}
@@ -1942,7 +1942,7 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 		break;
 	case USURP:
 //    toggle_compression(d);
-		SEND_TO_Q("Ваша душа вновь вернулась в тело, которое так ждало ее возвращения !\r\n", d);
+		SEND_TO_Q("Ваша душа вновь вернулась в тело, которое так ждало ее возвращения!\r\n", d);
 		act("$n надломил$u от боли, окруженн$w белой аурой...\r\n"
 			"Тело $s было захвачено новым духом !", TRUE, d->character, 0, 0, TO_ROOM);
 		sprintf(buf, "%s has re-logged in ... disconnecting old socket.", GET_NAME(d->character));
@@ -2387,7 +2387,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 
 	if (ban->is_banned(d->host) == BanList::BAN_SELECT && !PLR_FLAGGED(d->character, PLR_SITEOK))
 	{
-		SEND_TO_Q("Извините, вы не можете выбрать этого игрока с данного IP !\r\n", d);
+		SEND_TO_Q("Извините, вы не можете выбрать этого игрока с данного IP!\r\n", d);
 		STATE(d) = CON_CLOSE;
 		sprintf(buf, "Connection attempt for %s denied from %s", GET_NAME(d->character), d->host);
 		mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
@@ -2590,7 +2590,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
 					strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
 					d->character->set_pfilepos(player_i);
-					sprintf(buf, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ] ? ", tmp_name);
+					sprintf(buf, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ]? ", tmp_name);
 					SEND_TO_Q(buf, d);
 					STATE(d) = CON_NAME_CNFRM;
 				}
@@ -2626,7 +2626,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				CREATE(GET_PAD(d->character, 0), char, strlen(tmp_name) + 1);
 				strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
 				SEND_TO_Q(name_rules, d);
-				sprintf(buf, "Вы действительно выбрали имя  %s [ Y(Д) / N(Н) ] ? ", tmp_name);
+				sprintf(buf, "Вы действительно выбрали имя  %s [ Y(Д) / N(Н) ]? ", tmp_name);
 				SEND_TO_Q(buf, d);
 				STATE(d) = CON_NAME_CNFRM;
 			}
@@ -2671,14 +2671,14 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			default:
 				break;
 			};
-			SEND_TO_Q("Ваш пол [ М(M)/Ж(F) ] ? ", d);
+			SEND_TO_Q("Ваш пол [ М(M)/Ж(F) ]? ", d);
 			STATE(d) = CON_QSEX;
 			return;
 
 		}
 		else if (UPPER(*arg) == 'N' || UPPER(*arg) == 'Н')
 		{
-			SEND_TO_Q("Итак, чего изволите ? Учтите, бананов нет :)\r\n" "Имя : ", d);
+			SEND_TO_Q("Итак, чего изволите? Учтите, бананов нет :)\r\n" "Имя : ", d);
 			d->character->set_pc_name(0);
 			STATE(d) = CON_GET_NAME;
 		}
@@ -2771,7 +2771,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		default:
 			break;
 		};
-		SEND_TO_Q("Ваш пол [ М(M)/Ж(F) ] ? ", d);
+		SEND_TO_Q("Ваш пол [ М(M)/Ж(F) ]? ", d);
 		STATE(d) = CON_QSEX;
 		return;
 	case CON_PASSWORD:	/* get pwd for known player      */
@@ -2875,7 +2875,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	case CON_QSEX:		/* query sex of new user         */
 		if (pre_help(d->character, arg))
 		{
-			SEND_TO_Q("\r\nВаш пол [ М(M)/Ж(F) ] ? ", d);
+			SEND_TO_Q("\r\nВаш пол [ М(M)/Ж(F) ]? ", d);
 			STATE(d) = CON_QSEX;
 			return;
 		}
@@ -2890,7 +2890,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			GET_SEX(d->character) = SEX_FEMALE;
 			break;
 		default:
-			SEND_TO_Q("Это может быть и пол, но явно не ваш :)\r\n" "А какой у ВАС пол ? ", d);
+			SEND_TO_Q("Это может быть и пол, но явно не ваш :)\r\n" "А какой у ВАС пол? ", d);
 			return;
 		}
 		SEND_TO_Q("Проверьте правильность склонения имени. В случае ошибки введите свой вариант.\r\n", d);
@@ -2913,7 +2913,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		if (load_result == KIN_UNDEFINED)
 		{
 			SEND_TO_Q("Стыдно не помнить предков.\r\n"
-					  "Какое Племя вам ближе по духу ? ", d);
+					  "Какое Племя вам ближе по духу? ", d);
 			return;
 		}
 		GET_KIN(d->character) = load_result;
@@ -2953,7 +2953,7 @@ Sventovit
 			{
 				SEND_TO_Q
 				("Персонаж выбранной вами профессии не желает быть язычником!\r\n"
-				 "Так каким Богам вы хотите служить ? ", d);
+				 "Так каким Богам вы хотите служить? ", d);
 				return;
 			}
 			GET_RELIGION(d->character) = RELIGION_POLY;
@@ -2964,13 +2964,13 @@ Sventovit
 			{
 				SEND_TO_Q
 				("Персонажу выбранной вами профессии противно христианство!\r\n"
-				 "Так каким Богам вы хотите служить ? ", d);
+				 "Так каким Богам вы хотите служить? ", d);
 				return;
 			}
 			GET_RELIGION(d->character) = RELIGION_MONO;
 			break;
 		default:
-			SEND_TO_Q("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить ? ", d);
+			SEND_TO_Q("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
 			return;
 		}
 
@@ -3061,7 +3061,7 @@ Sventovit
         load_result = PlayerRace::CheckRace(GET_KIN(d->character), arg);
 		if (load_result == RACE_UNDEFINED)
 		{
-			SEND_TO_Q("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего ? ", d);
+			SEND_TO_Q("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
 			return;
 		}
 		GET_RACE(d->character) = load_result;
@@ -3286,7 +3286,7 @@ Sventovit
 			break;
 
 		default:
-			SEND_TO_Q("\r\nЭто не есть правильный ответ !\r\n", d);
+			SEND_TO_Q("\r\nЭто не есть правильный ответ!\r\n", d);
 			SEND_TO_Q(MENU, d);
 			break;
 		}
@@ -3317,7 +3317,7 @@ Sventovit
 		else
 		{
 			SEND_TO_Q("\r\n!!! ВАШ ПЕРСОНАЖ БУДЕТ УДАЛЕН !!!\r\n"
-					  "Вы АБСОЛЮТНО В ЭТОМ УВЕРЕНЫ ?\r\n\r\n"
+					  "Вы АБСОЛЮТНО В ЭТОМ УВЕРЕНЫ?\r\n\r\n"
 					  "Наберите \"YES / ДА\" для подтверждения: ", d);
 			STATE(d) = CON_DELCNF2;
 		}
@@ -3336,7 +3336,7 @@ Sventovit
 			if (GET_LEVEL(d->character) >= LVL_GRGOD)
 				return;
 			delete_char(GET_NAME(d->character));
-			sprintf(buf, "Персонаж '%s' удален !\r\n" "До свидания.\r\n", GET_NAME(d->character));
+			sprintf(buf, "Персонаж '%s' удален!\r\n" "До свидания.\r\n", GET_NAME(d->character));
 			SEND_TO_Q(buf, d);
 			sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GET_LEVEL(d->character));
 			mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
@@ -3510,7 +3510,7 @@ Sventovit
 		if (load_result == KIN_UNDEFINED)
 		{
 			SEND_TO_Q("Стыдно не помнить предков.\r\n"
-					  "Какое Племя вам ближе по духу ? ", d);
+					  "Какое Племя вам ближе по духу? ", d);
 			return;
 		}
 		GET_KIN(d->character) = load_result;
@@ -3531,7 +3531,7 @@ Sventovit
         load_result = PlayerRace::CheckRace(GET_KIN(d->character), arg);
 		if (load_result == RACE_UNDEFINED)
 		{
-			SEND_TO_Q("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего ? ", d);
+			SEND_TO_Q("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
 			return;
 		}
 		GET_RACE(d->character) = load_result;

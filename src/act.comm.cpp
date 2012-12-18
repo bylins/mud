@@ -148,7 +148,7 @@ ACMD(do_gsay)
 
 	if (!AFF_FLAGGED(ch, AFF_GROUP))
 	{
-		send_to_char("Вы не являетесь членом группы !\r\n", ch);
+		send_to_char("Вы не являетесь членом группы!\r\n", ch);
 		return;
 	}
 	if (!*argument)
@@ -388,7 +388,7 @@ ACMD(do_reply)
 	skip_spaces(&argument);
 
 	if (ch->get_answer_id() == NOBODY)
-		send_to_char("Вам некому ответить !\r\n", ch);
+		send_to_char("Вам некому ответить!\r\n", ch);
 	else if (!*argument)
 		send_to_char("Что вы собираетесь ответить?\r\n", ch);
 	else
@@ -616,7 +616,7 @@ ACMD(do_page)
 						act(buf, FALSE, ch, 0, d->character, TO_VICT);
 			}
 			else
-				send_to_char("Это доступно только БОГАМ !\r\n", ch);
+				send_to_char("Это доступно только БОГАМ!\r\n", ch);
 			return;
 		}
 		if ((vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)) != NULL)
@@ -628,7 +628,7 @@ ACMD(do_page)
 				act(buf, FALSE, ch, 0, vict, TO_CHAR);
 		}
 		else
-			send_to_char("Такой игрок отсутствует !\r\n", ch);
+			send_to_char("Такой игрок отсутствует!\r\n", ch);
 	}
 }
 
@@ -1031,7 +1031,7 @@ ACMD(do_offtop)
 {
 	if (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_IMMORT || PRF_FLAGGED(ch, PRF_IGVA_PRONA))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 

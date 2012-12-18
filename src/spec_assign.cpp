@@ -186,7 +186,7 @@ void init_spec_procs(void)
 			continue;
 		if (sscanf(name, "%s %d %s", line1, &i, line2) != 3)
 		{
-			log("Bad format for special string !\r\n"
+			log("Bad format for special string!\r\n"
 				"Format : <who/what (%%s)> <vnum (%%d)> <type (%%s)>");
 			_exit(1);
 		}
@@ -228,7 +228,7 @@ void init_spec_procs(void)
 		}
 		else
 		{
-			log("Error in specials file !\r\n" "May be : mob, obj or room...");
+			log("Error in specials file!\r\n" "May be : mob, obj or room...");
 			_exit(1);
 		}
 	}

@@ -729,7 +729,7 @@ ACMD(do_echo)
 	skip_spaces(&argument);
 
 	if (!*argument)
-		send_to_char("И что вы хотите выразить столь красочно ?\r\n", ch);
+		send_to_char("И что вы хотите выразить столь красочно?\r\n", ch);
 	else
 	{
 		if (subcmd == SCMD_EMOTE)
@@ -829,7 +829,7 @@ ACMD(do_glory)
 	{
 		if ((reason == 0) || (*reason == 0))
 		{
-			send_to_char("Укажите причину изменения славы ?\r\n", ch);
+			send_to_char("Укажите причину изменения славы?\r\n", ch);
 			return;
 		}
 	}
@@ -2042,7 +2042,7 @@ ACMD(do_stat)
 
 	if (!*buf1)
 	{
-		send_to_char("Состояние КОГО или ЧЕГО ?\r\n", ch);
+		send_to_char("Состояние КОГО или ЧЕГО?\r\n", ch);
 		return;
 	}
 
@@ -2056,7 +2056,7 @@ ACMD(do_stat)
 			if ((rnum = real_room(vnum)) != NOWHERE)
 				do_stat_room(ch, rnum);
 			else
-				send_to_char("Состояние какой комнаты ?\r\n", ch);
+				send_to_char("Состояние какой комнаты?\r\n", ch);
 		}
 		if (!*buf2)
 			do_stat_room(ch);
@@ -2064,7 +2064,7 @@ ACMD(do_stat)
 	else if (is_abbrev(buf1, "mob") && level >= LVL_BUILDER)
 	{
 		if (!*buf2)
-			send_to_char("Состояние какого создания ?\r\n", ch);
+			send_to_char("Состояние какого создания?\r\n", ch);
 		else
 		{
 			if ((victim = get_char_vis(ch, buf2, FIND_CHAR_WORLD)) != NULL)
@@ -2077,7 +2077,7 @@ ACMD(do_stat)
 	{
 		if (!*buf2)
 		{
-			send_to_char("Состояние какого игрока ?\r\n", ch);
+			send_to_char("Состояние какого игрока?\r\n", ch);
 		}
 		else
 		{
@@ -2091,7 +2091,7 @@ ACMD(do_stat)
 	{
 		if (!*buf2)
 		{
-			send_to_char("Состояние какого игрока(из файла) ?\r\n", ch);
+			send_to_char("Состояние какого игрока(из файла)?\r\n", ch);
 		}
 		else
 		{
@@ -2116,7 +2116,7 @@ ACMD(do_stat)
 	else if (is_abbrev(buf1, "object") && level >= LVL_BUILDER)
 	{
 		if (!*buf2)
-			send_to_char("Состояние какого предмета ?\r\n", ch);
+			send_to_char("Состояние какого предмета?\r\n", ch);
 		else
 		{
 			if ((object = get_obj_vis(ch, buf2)) != NULL)
@@ -2336,7 +2336,7 @@ ACMD(do_switch)
 	if (ch->desc->original)
 		send_to_char("Вы уже в чьем-то теле.\r\n", ch);
 	else if (!*arg)
-		send_to_char("Стать кем ?\r\n", ch);
+		send_to_char("Стать кем?\r\n", ch);
 	else if (!(victim = get_char_vis(ch, arg, FIND_CHAR_WORLD)))
 		send_to_char("Нет такого создания.\r\n", ch);
 	else if (ch == victim)
@@ -2498,7 +2498,7 @@ ACMD(do_vstat)
 	}
 	if ((number = atoi(buf2)) < 0)
 	{
-		send_to_char("Отрицательный номер ? Оригинально !\r\n", ch);
+		send_to_char("Отрицательный номер? Оригинально!\r\n", ch);
 		return;
 	}
 	if (is_abbrev(buf, "mob"))
@@ -3052,7 +3052,7 @@ ACMD(do_advance)
 	}
 	else
 	{
-		send_to_char("Повысить кого ?\r\n", ch);
+		send_to_char("Повысить кого?\r\n", ch);
 		return;
 	}
 
@@ -3183,7 +3183,7 @@ void perform_immort_vis(CHAR_DATA * ch)
 	if (GET_INVIS_LEV(ch) == 0 &&
 			!AFF_FLAGGED(ch, AFF_HIDE) && !AFF_FLAGGED(ch, AFF_INVISIBLE) && !AFF_FLAGGED(ch, AFF_CAMOUFLAGE))
 	{
-		send_to_char("Ну вот вас и заметили. Стало ли вам легче от этого ?\r\n", ch);
+		send_to_char("Ну вот вас и заметили. Стало ли вам легче от этого?\r\n", ch);
 		return;
 	}
 
@@ -3448,7 +3448,7 @@ ACMD(do_last)
 	one_argument(argument, arg);
 	if (!*arg)
 	{
-		send_to_char("Кого вы хотите найти ?\r\n", ch);
+		send_to_char("Кого вы хотите найти?\r\n", ch);
 		return;
 	}
 
@@ -3763,7 +3763,7 @@ ACMD(do_wizutil)
 	reason = two_arguments(argument, arg, num);
 
 	if (!*arg)
-		send_to_char("Для кого ?\r\n", ch);
+		send_to_char("Для кого?\r\n", ch);
 	else if (!(vict = get_player_pun(ch, arg, FIND_CHAR_WORLD)))
 		send_to_char("Нет такого игрока.\r\n", ch);
 	else if (GET_LEVEL(vict) > GET_LEVEL(ch) && !GET_GOD_FLAG(ch, GF_DEMIGOD) && !Privilege::check_flag(ch, Privilege::KRODER))
@@ -5730,7 +5730,7 @@ ACMD(do_print_armor)
 {
 	if (IS_NPC(ch) || (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)))
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 

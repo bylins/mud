@@ -165,7 +165,7 @@ ACMD(do_quit)
 			act("$n покинул$g игру.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		sprintf(buf, "%s quit the game.", GET_NAME(ch));
 		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-		send_to_char("До свидания, странник... Мы ждем тебя снова !\r\n", ch);
+		send_to_char("До свидания, странник... Мы ждем тебя снова!\r\n", ch);
 
 		int depot_cost = Depot::get_total_cost_per_day(ch);
 		if (depot_cost)
@@ -233,7 +233,7 @@ ACMD(do_save)
    special procedures - i.e., shop commands, mail commands, etc. */
 ACMD(do_not_here)
 {
-	send_to_char("Эта команда недоступна в этом месте !\r\n", ch);
+	send_to_char("Эта команда недоступна в этом месте!\r\n", ch);
 }
 
 int check_awake(CHAR_DATA * ch, int what)
@@ -571,7 +571,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 			{
 				if (!success)
 				{
-					send_to_char("Украсть ? Из экипировки ? Щаз-з-з !\r\n", ch);
+					send_to_char("Украсть? Из экипировки? Щаз-з-з!\r\n", ch);
 					return;
 				}
 				else if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
@@ -733,7 +733,7 @@ ACMD(do_steal)
 
 	if (!(vict = get_char_vis(ch, vict_name, FIND_CHAR_ROOM)))
 	{
-		send_to_char("Украсть у кого ?\r\n", ch);
+		send_to_char("Украсть у кого?\r\n", ch);
 		return;
 	}
 	else if (vict == ch)
@@ -1438,7 +1438,7 @@ ACMD(do_report)
 
 	if (!AFF_FLAGGED(ch, AFF_GROUP) && !AFF_FLAGGED(ch, AFF_CHARM))
 	{
-		send_to_char("И перед кем вы отчитываетесь ?\r\n", ch);
+		send_to_char("И перед кем вы отчитываетесь?\r\n", ch);
 		return;
 	}
 	if (IS_MANA_CASTER(ch))
@@ -1660,7 +1660,7 @@ ACMD(do_use)
 			mag_item = get_obj_in_list_vis(ch, arg, ch->carrying);
 			if (!mag_item || GET_OBJ_TYPE(mag_item) != ITEM_ENCHANT)
 			{
-				sprintf(buf2, "Возьмите в руку '%s' перед применением !\r\n", arg);
+				sprintf(buf2, "Возьмите в руку '%s' перед применением!\r\n", arg);
 				send_to_char(buf2, ch);
 				return;
 			}
@@ -1705,7 +1705,7 @@ ACMD(do_use)
 		       }*/
 		if ((GET_OBJ_TYPE(mag_item) != ITEM_WAND) && (GET_OBJ_TYPE(mag_item) != ITEM_STAFF))
 		{
-			send_to_char("Применять можно только магические предметы !\r\n", ch);
+			send_to_char("Применять можно только магические предметы!\r\n", ch);
 			return;
 		}
 		// палочки с чармами/оживлялками юзают только кастеры и дружи до 25 левева
@@ -1808,7 +1808,7 @@ ACMD(do_display)
 
 	if (IS_NPC(ch))
 	{
-		send_to_char("И зачем это монстру ? Не юродствуйте.\r\n", ch);
+		send_to_char("И зачем это монстру? Не юродствуйте.\r\n", ch);
 		return;
 	}
 	skip_spaces(&argument);

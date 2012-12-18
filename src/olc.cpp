@@ -173,7 +173,7 @@ ACMD(do_olc)
 				}
 				else
 				{
-					send_to_char("И какую зону писать ?\r\n", ch);
+					send_to_char("И какую зону писать?\r\n", ch);
 					return;
 				}
 			}

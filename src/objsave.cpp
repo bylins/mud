@@ -2770,7 +2770,7 @@ int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int 
 
 	if (!numitems)
 	{
-		act("$n сказал$g вам : \"Но у тебя ведь ничего нет ! Просто набери \"конец\" !\"",
+		act("$n сказал$g вам : \"Но у тебя ведь ничего нет! Просто набери \"конец\"!\"",
 			FALSE, receptionist, 0, ch, TO_VICT);
 		return (FALSE);
 	}
@@ -2866,12 +2866,12 @@ int gen_receptionist(CHAR_DATA * ch, CHAR_DATA * recep, int cmd, char *arg, int 
 	}
 	if (!CAN_SEE(recep, ch))
 	{
-		act("$n сказал$g : \"Не люблю говорить с теми, кого я не вижу !\"", FALSE, recep, 0, 0, TO_ROOM);
+		act("$n сказал$g : \"Не люблю говорить с теми, кого я не вижу!\"", FALSE, recep, 0, 0, TO_ROOM);
 		return (TRUE);
 	}
 	if (Clan::InEnemyZone(ch))
 	{
-		act("$n сказал$g : \"Чужакам здесь не место !\"", FALSE, recep, 0, 0, TO_ROOM);
+		act("$n сказал$g : \"Чужакам здесь не место!\"", FALSE, recep, 0, 0, TO_ROOM);
 		return (TRUE);
 	}
 	if (RENTABLE(ch))

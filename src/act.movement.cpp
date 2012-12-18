@@ -997,7 +997,7 @@ ACMD(do_hidemove)
 
 	if (!*argument)
 	{
-		send_to_char("И куда это вы направляетесь ?\r\n", ch);
+		send_to_char("И куда это вы направляетесь?\r\n", ch);
 		return;
 	}
 
@@ -1328,7 +1328,7 @@ ACMD(do_gen_door)
 	skip_spaces(&argument);
 	if (!*argument)
 	{
-		sprintf(buf, "%s что ?\r\n", a_cmd_door[subcmd]);
+		sprintf(buf, "%s что?\r\n", a_cmd_door[subcmd]);
 		send_to_char(CAP(buf), ch);
 		return;
 	}
@@ -2126,7 +2126,7 @@ ACMD(do_wake)
 	if (*arg)
 	{
 		if (GET_POS(ch) == POS_SLEEPING)
-			send_to_char("Может быть вам лучше проснуться ?\r\n", ch);
+			send_to_char("Может быть вам лучше проснуться?\r\n", ch);
 		else if ((vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)) == NULL)
 			send_to_char(NOPERSON, ch);
 		else if (vict == ch)

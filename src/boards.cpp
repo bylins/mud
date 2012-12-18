@@ -290,7 +290,7 @@ ACMD(DoBoard)
 	}
 	if (board == Board::BoardList.end())
 	{
-		send_to_char("Чаво ?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 
