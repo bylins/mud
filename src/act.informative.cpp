@@ -3456,7 +3456,7 @@ ACMD(do_score)
 
 	if (has_mail(GET_IDNUM(ch)))
 	{
-		sprintf(buf, "%sВас ожидает новое письмо, зайдите на почту!%s\r\n", CCIGRN(ch, C_NRM), CCINRM(ch, C_NRM));
+		sprintf(buf, "%sВас ожидает новое письмо, зайдите на почту!%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	}
 
