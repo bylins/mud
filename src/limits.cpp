@@ -494,7 +494,7 @@ void beat_punish(CHAR_DATA * i)
 			char_to_room(i, restore);
 			look_at_room(i, restore);
 
-			act("$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации !",
+			act("$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации!",
 				FALSE, i, 0, 0, TO_ROOM);
 		};
 

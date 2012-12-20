@@ -42,11 +42,11 @@ AUCTION_DATA auction_lots[MAX_AUCTION_LOT] = { { -1, NULL, -1, NULL, -1, NULL, -
 						   {-1, NULL, -1, NULL, -1, NULL, -1, NULL, 0, 0}  */
 };
 
-const char *tact_message[] = { "עבת !",
-							   "הקב !!",
-							   "פ-ע-ע-ע-י !!!",
-							   "‏ופשעו !!!!",
-							   "נספר !!!!!",
+const char *tact_message[] = { "עבת!",
+							   "הקב!!",
+							   "פ-ע-ע-ע-י!!!",
+							   "‏ופשעו!!!!",
+							   "נספר!!!!!",
 							   "\n"
 							 };
 

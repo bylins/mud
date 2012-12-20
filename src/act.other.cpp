@@ -1421,8 +1421,8 @@ ACMD(do_ungroup)
 		{
 			REMOVE_BIT(AFF_FLAGS(tch, AFF_GROUP), AFF_GROUP);
 			act("$N более не член вашей группы.", FALSE, ch, 0, tch, TO_CHAR);
-			act("Вы исключены из группы $n1 !", FALSE, ch, 0, tch, TO_VICT);
-			act("$N был$G изгнан$A из группы $n1 !", FALSE, ch, 0, tch, TO_NOTVICT | TO_ARENA_LISTEN);
+			act("Вы исключены из группы $n1!", FALSE, ch, 0, tch, TO_VICT);
+			act("$N был$G изгнан$A из группы $n1!", FALSE, ch, 0, tch, TO_NOTVICT | TO_ARENA_LISTEN);
 			stop_follower(tch, SF_EMPTY);
 			return;
 		}

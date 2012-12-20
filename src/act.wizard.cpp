@@ -344,7 +344,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 
 			if (IN_ROOM(vict) != NOWHERE)
 			{
-				act("$n выпущен$a из темницы !", FALSE, vict, 0, 0, TO_ROOM);
+				act("$n выпущен$a из темницы!", FALSE, vict, 0, 0, TO_ROOM);
 
 				if ((result = GET_LOADROOM(vict)) == NOWHERE)
 					result = calc_loadroom(vict);
@@ -366,7 +366,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf, "%s%s выпустил$G вас из темницы.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
-			sprintf(buf2, "$n выпущен$a из темницы !");
+			sprintf(buf2, "$n выпущен$a из темницы!");
 			break;
 
 		case SCMD_NAME:
@@ -410,7 +410,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf, "%s%s выпустил$G вас из комнаты имени.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
-			sprintf(buf2, "$n выпущен$a из комнаты имени !");
+			sprintf(buf2, "$n выпущен$a из комнаты имени!");
 			break;
 
 		case SCMD_UNREGISTER:
@@ -454,7 +454,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf, "%s%s зарегистрировал$G вас.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
 
-			sprintf(buf2, "$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации !");
+			sprintf(buf2, "$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации!");
 
 			break;
 
@@ -545,7 +545,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 
 			if (IN_ROOM(vict) != NOWHERE)
 			{
-				act("$n водворен$a в темницу !", FALSE, vict, 0, 0, TO_ROOM);
+				act("$n водворен$a в темницу!", FALSE, vict, 0, 0, TO_ROOM);
 
 				char_from_room(vict);
 				char_to_room(vict, r_helled_start_room);
@@ -561,7 +561,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 
 			sprintf(buf, "%s%s поместил$G вас в темницу.%s", GET_NAME(ch),
 					CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
-			sprintf(buf2, "$n водворен$a в темницу !");
+			sprintf(buf2, "$n водворен$a в темницу!");
 			break;
 
 		case SCMD_NAME:
@@ -572,7 +572,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 
 			if (IN_ROOM(vict) != NOWHERE)
 			{
-				act("$n водворен$a в комнату имени !", FALSE, vict, 0, 0, TO_ROOM);
+				act("$n водворен$a в комнату имени!", FALSE, vict, 0, 0, TO_ROOM);
 				char_from_room(vict);
 				char_to_room(vict, r_named_start_room);
 				look_at_room(vict, r_named_start_room);
@@ -587,7 +587,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 
 			sprintf(buf, "%s%s поместил$G вас в комнату имени.%s",
 					CCIRED(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
-			sprintf(buf2, "$n помещен$a в комнату имени !");
+			sprintf(buf2, "$n помещен$a в комнату имени!");
 			break;
 
 		case SCMD_UNREGISTER:
@@ -1364,7 +1364,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	{
 	case ITEM_LIGHT:
 		if (GET_OBJ_VAL(j, 2) < 0)
-			strcpy(buf, "Вечный свет !");
+			strcpy(buf, "Вечный свет!");
 		else
 			sprintf(buf, "Осталось светить: [%d]", GET_OBJ_VAL(j, 2));
 		break;
@@ -2587,7 +2587,7 @@ ACMD(do_purge)
 	}
 	else  		/* no argument. clean out the room */
 	{
-		act("$n произнес$q СЛОВО... вас окружило пламя !", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n произнес$q СЛОВО... вас окружило пламя!", FALSE, ch, 0, 0, TO_ROOM);
 		send_to_room("Мир стал немного чище.\r\n", ch->in_room, FALSE);
 
 		for (vict = world[ch->in_room]->people; vict; vict = next_v)

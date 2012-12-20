@@ -863,7 +863,7 @@ OBJ_DATA *get_selling_obj(CHAR_DATA * ch, char *name, CHAR_DATA * keeper, int sh
 	switch (result)
 	{
 	case OBJECT_NOVAL:
-		sprintf(buf, "%s! Не впаривай мне мозги, этот хлам можешь оставить себе !", GET_NAME(ch));
+		sprintf(buf, "%s! Не впаривай мне мозги, этот хлам можешь оставить себе!", GET_NAME(ch));
 		break;
 	case OBJECT_NOTOK:
 		sprintf(buf, shop_index[shop_nr].do_not_buy, GET_NAME(ch));
@@ -1149,7 +1149,7 @@ void shopping_change(char *argument, CHAR_DATA * ch, CHAR_DATA * keeper, int sho
 
 	if (!srcs)
 	{
-		sprintf(buf, "%s! Пустые слова !", GET_NAME(ch));
+		sprintf(buf, "%s! Пустые слова!", GET_NAME(ch));
 		do_tell(keeper, buf, cmd_tell, 0);
 		return;
 	}
@@ -1280,7 +1280,7 @@ void shopping_change(char *argument, CHAR_DATA * ch, CHAR_DATA * keeper, int sho
 		for (i = 0; i < srcs; i++)
 			if (source_list[i])
 				slide_obj(source_list[i], keeper, shop_nr);
-		sprintf(buf, "%s! По рукам !", GET_NAME(ch));
+		sprintf(buf, "%s! По рукам!", GET_NAME(ch));
 	}
 	do_tell(keeper, buf, cmd_tell, 0);
 }
@@ -1358,7 +1358,7 @@ void shopping_value_item(OBJ_DATA * obj, CHAR_DATA * ch, CHAR_DATA * keeper, int
 	}
 
 	int price = sell_price(obj, ch, shop_nr);
-	sprintf(buf, "%s! Я, пожалуй, дам тебе за %s %d %s !",
+	sprintf(buf, "%s! Я, пожалуй, дам тебе за %s %d %s!",
 			GET_NAME(ch), OBJN(obj, ch, 3), price, desc_count(price, WHAT_MONEYu));
 	do_tell(keeper, buf, cmd_tell, 0);
 

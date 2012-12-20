@@ -1944,7 +1944,7 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 //    toggle_compression(d);
 		SEND_TO_Q("Ваша душа вновь вернулась в тело, которое так ждало ее возвращения!\r\n", d);
 		act("$n надломил$u от боли, окруженн$w белой аурой...\r\n"
-			"Тело $s было захвачено новым духом !", TRUE, d->character, 0, 0, TO_ROOM);
+			"Тело $s было захвачено новым духом!", TRUE, d->character, 0, 0, TO_ROOM);
 		sprintf(buf, "%s has re-logged in ... disconnecting old socket.", GET_NAME(d->character));
 		mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 
@@ -3150,7 +3150,7 @@ Sventovit
 		}
 		else if (!valid_email(arg))
 		{
-			SEND_TO_Q("\r\nНекорректный E-mail !" "\r\nВаш E-mail :  ", d);
+			SEND_TO_Q("\r\nНекорректный E-mail!" "\r\nВаш E-mail :  ", d);
 			return;
 		}
 

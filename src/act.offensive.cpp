@@ -1658,7 +1658,7 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 		sprintf(buf, "%sВы не сумели обезоружить %s...%s\r\n",
 				CCWHT(ch, C_NRM), GET_PAD(vict, 3), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
-		// act("Вы не смогли обезоружить $N1 !",FALSE,ch,0,vict,TO_CHAR);
+		// act("Вы не смогли обезоружить $N1!",FALSE,ch,0,vict,TO_CHAR);
 		prob = 3;
 	}
 	else

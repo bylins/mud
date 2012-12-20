@@ -509,7 +509,7 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 		}
 	}
 	else
-		gcount += sprintf(buf2 + gcount, "\r\nВ настоящее время магия вам недоступна !");
+		gcount += sprintf(buf2 + gcount, "\r\nВ настоящее время магия вам недоступна!");
 	gcount += sprintf(buf2 + gcount, "\r\n");
 	//page_string(ch->desc, buf2, 1);
 	send_to_char(buf2, vict);
@@ -2361,7 +2361,7 @@ SPECIAL(dump)
 
 	for (k = world[ch->in_room]->contents; k; k = world[ch->in_room]->contents)
 	{
-		act("$p рассыпал$U в прах !", FALSE, 0, k, 0, TO_ROOM);
+		act("$p рассыпал$U в прах!", FALSE, 0, k, 0, TO_ROOM);
 		extract_obj(k);
 	}
 
@@ -2372,7 +2372,7 @@ SPECIAL(dump)
 
 	for (k = world[ch->in_room]->contents; k; k = world[ch->in_room]->contents)
 	{
-		act("$p рассыпал$U в прах !", FALSE, 0, k, 0, TO_ROOM);
+		act("$p рассыпал$U в прах!", FALSE, 0, k, 0, TO_ROOM);
 		value += MAX(1, MIN(1, GET_OBJ_COST(k) / 10));
 		extract_obj(k);
 	}

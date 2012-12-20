@@ -118,7 +118,7 @@ void pk_check_spamm(CHAR_DATA * ch)
 	{
 		SET_GOD_FLAG(ch, GF_GODSCURSE);
 		GCURSE_DURATION(ch) = time(0) + TIME_GODS_CURSE * 60 * 60;
-		act("Боги прокляли тот день, когда ты появился на свет !", FALSE, ch, 0, 0, TO_CHAR);
+		act("Боги прокляли тот день, когда ты появился на свет!", FALSE, ch, 0, 0, TO_CHAR);
 	}
 	if (pk_player_count(ch) >= KillerPK)
 		SET_BIT(PLR_FLAGS(ch, PLR_KILLER), PLR_KILLER);

@@ -400,7 +400,7 @@ ACMD(do_put)
 		else if (GET_OBJ_TYPE(cont) != ITEM_CONTAINER)
 			act("В $o3 нельзя ничего положить.", FALSE, ch, cont, 0, TO_CHAR);
 		else if (OBJVAL_FLAGGED(cont, CONT_CLOSED))
-			act("$o0 закрыт$A !", FALSE, ch, cont, 0, TO_CHAR);
+			act("$o0 закрыт$A!", FALSE, ch, cont, 0, TO_CHAR);
 		else
 		{
 			if (obj_dotmode == FIND_INDIV)  	/* put <obj> <container> */

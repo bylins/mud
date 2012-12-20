@@ -3565,7 +3565,7 @@ ACMD(do_learn)
 			GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && GET_OBJ_VAL(obj, 0) != BOOK_RECPT &&
 			GET_OBJ_VAL(obj, 0) != BOOK_FEAT)
 	{
-		act("מוקועמשך פינ כמיחי - ׃ֲֿֿÝֹװֵ גֱַֽֿ !", FALSE, ch, obj, 0, TO_CHAR);
+		act("מוקועמשך פינ כמיחי - ׃ֲֿֿÝֹװֵ גֱַֽֿ!", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
 
