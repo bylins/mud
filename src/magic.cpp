@@ -4439,7 +4439,8 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 	case SPELL_FLY:
 		obj->timed_spell.add(obj, SPELL_FLY, 60 * 24 * 3);
 		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
-		SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
+		//В связи с тем, что летающие вещи более не тонут, флаг плавает тут неуместен
+		//SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
 		to_char = "$o вспыхнул$G зеленоватым светом и тут же погас$Q.";
 		break;
 	case SPELL_ACID:

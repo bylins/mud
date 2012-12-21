@@ -2360,7 +2360,9 @@ int obj_decay(OBJ_DATA * object)
 	sect = real_sector(room);
 
 	if (((sect == SECT_WATER_SWIM || sect == SECT_WATER_NOSWIM) &&
-			!IS_CORPSE(object) && !OBJ_FLAGGED(object, ITEM_SWIMMING)))
+			!OBJ_FLAGGED(object, ITEM_SWIMMING) &&
+			!OBJ_FLAGGED(object, ITEM_FLYING) &&
+			!IS_CORPSE(object)))
 	{
 
 		act("$o0 медленно утонул$G.", FALSE, world[room]->people, object, 0, TO_ROOM);

@@ -58,10 +58,10 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 		{
 			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_FLYING), ITEM_FLYING);
 		}
-		if (!OBJ_FLAGGED(proto, ITEM_SWIMMING))
+		/*if (!OBJ_FLAGGED(proto, ITEM_SWIMMING))
 		{
 			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
-		}
+		} Ввиду того, что полет более не дает этого флага */
 		break;
 	}
 	} // switch
