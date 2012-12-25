@@ -103,7 +103,7 @@ std::string get_name_real(int day)
 	if (it != real_celebrates.end())
 	{
 		if (real_celebrates[day]->start_at <= get_real_hour() && real_celebrates[day]->finish_at >= get_real_hour())
-			result = real_celebrates[day]->celebrate->name + add_rest(it, real_celebrates[day]->celebrate);
+			result = real_celebrates[day]->celebrate->name/* + add_rest(it, real_celebrates[day]->celebrate)*/;
 	}
 	return result;
 }

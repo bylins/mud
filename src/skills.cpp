@@ -862,8 +862,8 @@ int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim)
 
 int min_skill_level(CHAR_DATA *ch, int skill)
 {
-	return {skill_info[skill].min_level[ch->get_class()][ch->get_kin()] -
-		(MAX(0,ch->get_remort()/skill_info[skill].level_decrement[ch->get_class()][ch->get_kin()]))};
+	return (skill_info[skill].min_level[ch->get_class()][ch->get_kin()] -
+		(MAX(0,ch->get_remort()/skill_info[skill].level_decrement[ch->get_class()][ch->get_kin()])));
 };
 
 bool can_get_skill(CHAR_DATA *ch, int skill)

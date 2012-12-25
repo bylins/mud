@@ -1815,8 +1815,8 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 
 	if (invalid_anti_class(ch, obj))
 	{
-		act("Вас обожгло при попытке надеть $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n попытал$u надеть $o3 - и чудом не обгорел$g.", FALSE, ch, obj, 0, TO_ROOM);
+		act("Вас обожгло при попытке использовать $o3.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$n попытал$u использовать $o3 - и чудом не обгорел$g.", FALSE, ch, obj, 0, TO_ROOM);
 		if (obj->carried_by)
 			obj_from_char(obj);
 		obj_to_room(obj, IN_ROOM(ch));
@@ -1835,7 +1835,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 			|| (AFF_FLAGGED(ch, AFF_CHARM) && (OBJ_FLAGGED(obj, ITEM_SHARPEN) || OBJ_FLAGGED(obj, ITEM_ARMORED))))
 	{
 		act("$o0 явно не предназначен$A для вас.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n попытал$u надеть $o3, но у н$s ничего не получилось.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$n попытал$u использовать $o3, но у н$s ничего не получилось.", FALSE, ch, obj, 0, TO_ROOM);
 		if (!obj->carried_by)
 			obj_to_char(obj, ch);
 		return;
@@ -1849,7 +1849,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 			send_to_char(master, "Для использования %s требуется %d %s.\r\n",
 					GET_OBJ_PNAME(obj, 1), obj->get_mort_req(),
 					desc_count(obj->get_mort_req(), WHAT_REMORT));
-			act("$n попытал$u надеть $o3, но у н$s ничего не получилось.",
+			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
 					FALSE, ch, obj, 0, TO_ROOM);
 			if (!obj->carried_by)
 				obj_to_char(obj, ch);
@@ -1859,7 +1859,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 
 	if (!IS_NPC(ch) && !check_armor_type(ch, obj))
 	{
-		act("$n попытал$u надеть $o3, но у н$s ничего не получилось.",
+		act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
 				FALSE, ch, obj, 0, TO_ROOM);
 		if (!obj->carried_by)
 			obj_to_char(obj, ch);
