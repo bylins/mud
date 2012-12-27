@@ -1761,6 +1761,13 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
+
+	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	{
+		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
+		return;
+	}
+
 	if (onhorse(ch))
 		return;
 
@@ -1949,6 +1956,12 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (AFF_FLAGGED(ch, AFF_STOPFIGHT) || AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))
 	{
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		return;
+	}
+
+	if (IS_SET(PRF_FLAGS(ch, PRF_IRON_WIND), PRF_IRON_WIND))
+	{
+		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
 

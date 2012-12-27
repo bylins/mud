@@ -388,7 +388,7 @@ float count_affect_weight(OBJ_DATA *obj, int num, int mod)
 		weight = mod * 2.0;
 		break;
 	case APPLY_INITIATIVE:
-		weight = mod * 2.0;
+		weight = mod * 1.0;
 		break;
 	case APPLY_ABSORBE:
 		weight = mod * 1.0;

@@ -33,6 +33,8 @@ extern char *diag_weapon_to_char(const OBJ_DATA * obj, int show_wear);
 extern char *diag_timer_to_char(const OBJ_DATA * obj);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 extern void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH]);
+extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
+extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 
 
 AUCTION_DATA auction_lots[MAX_AUCTION_LOT] = { { -1, NULL, -1, NULL, -1, NULL, -1, NULL, 0, 0},
@@ -56,6 +58,7 @@ const char *auction_cmd[] = { "поставить", "set",
 							  "продать", "sell",
 							  "транспорт", "transport",
 							  "рассмотреть", "examine",
+							  "характеристики", "identify",
 							  "\n"
 							};
 
@@ -119,7 +122,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 	argument = one_argument(argument, operation);
 	if ((mode = search_block(operation, auction_cmd, FALSE)) < 0)
 	{
-		send_to_char("Команды аукциона : поставить, снять, ставка, продать, транспорт, рассмотреть.\r\n", ch);
+		send_to_char("Команды аукциона : поставить, снять, ставка, продать, транспорт, характеристики, рассмотреть.\r\n", ch);
 		return false;
 	}
 	mode >>= 1;
@@ -409,7 +412,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 		OBJ_DATA * obj;
 		if (!sscanf(argument, "%d", &lot))
 		{
-			send_to_char("Не указан номер лота для передачи.\r\n", ch);
+			send_to_char("Не указан номер лота для изучения.\r\n", ch);
 			return false;
 		}
 
@@ -463,6 +466,56 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 			strcat(buf, "\n");
 		}
 		send_to_char(buf, ch);
+		return true;
+		break;
+	case 6:		//Identify
+		OBJ_DATA * iobj;
+		if (!sscanf(argument, "%d", &lot))
+		{
+			send_to_char("Не указан номер лота для изучения.\r\n", ch);
+			return false;
+		}
+
+		if (lot < 0 || lot >= MAX_AUCTION_LOT)
+		{
+			send_to_char("Неверный номер лота.\r\n", ch);
+			return false;
+		}
+
+		if (!GET_LOT(lot)->item || GET_LOT(lot)->item_id <= 0 ||
+			!GET_LOT(lot)->seller || GET_LOT(lot)->seller_unique <= 0)
+		{
+			send_to_char("Лот пуст.\r\n", ch);
+			return false;
+		}
+		
+		if (GET_LOT(lot)->seller == ch || GET_LOT(lot)->seller_unique == GET_UNIQUE(ch))
+		{
+			send_to_char("Но это же ваш лот!\r\n", ch);
+			return false;
+		}
+		
+		iobj = GET_LOT(lot)->item;
+
+		if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL)
+		{
+			send_to_char("Господи, а ведь смертные за это деньги платят.\r\n", ch);
+			return false;
+		}
+		if ((ch->get_total_gold() < AUCTION_IDENT_PAY) && (GET_LEVEL(ch) < LVL_IMPL))
+		{
+			send_to_char("У вас не хватит на это денег!\r\n", ch);
+			return false;
+		}
+		if (GET_LEVEL(ch) < LVL_IMPL)
+			mort_show_obj_values(iobj, ch, 200);	//200 - полное опознание
+		else
+			imm_show_obj_values(iobj, ch);
+
+		ch->remove_both_gold(AUCTION_IDENT_PAY);
+		send_to_char(ch, "\r\n%sЗа информацию о предмете с вашего счета сняли %d %s%s\r\n",
+		CCIGRN(ch, C_NRM), AUCTION_IDENT_PAY, desc_count(AUCTION_IDENT_PAY, WHAT_MONEYu), CCNRM(ch, C_NRM));
+
 		return true;
 		break;
 	}
