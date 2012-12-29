@@ -495,6 +495,12 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 			return false;
 		}
 		
+		if (GET_LEVEL(GET_LOT(lot)->seller) >= LVL_IMMORT)
+		{
+			send_to_char("Неисповедимы пути божественные.\r\n", ch);
+			return false;
+		}
+		
 		iobj = GET_LOT(lot)->item;
 
 		if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL)
