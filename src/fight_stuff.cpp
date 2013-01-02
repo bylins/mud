@@ -786,8 +786,8 @@ void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance)
 			pos = WEAR_HOLD;
 	}
 
-	if (pos <= 0 || pos > WEAR_BOTHS || !GET_EQ(ch, pos) || dam < 0)
-		return;
+	if (pos <= 0 || pos > WEAR_BOTHS || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, AFF_SHIELD))
+		return; // Добавил: под "зб" не убивается стаф (Купала)
 	alterate_object(GET_EQ(ch, pos), dam, chance);
 }
 

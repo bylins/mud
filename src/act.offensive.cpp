@@ -966,10 +966,12 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 				}
 				else
 				{
-					act("Вы блокировали попытку $N1 сбить вас с ног.", FALSE, vict, 0, ch, TO_CHAR);
+					act("Вы блокировали попытку $N1 сбить вас с ног.",
+						FALSE, vict, 0, ch, TO_CHAR);
 					act("Вы хотели сбить $N1, но он$G блокировал$G Вашу попытку.",
 						FALSE, ch, 0, vict, TO_CHAR);
-					act("$n блокировал$g попытку $N1 сбить $s.", TRUE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+					act("$n блокировал$g попытку $N1 сбить $s.",
+						TRUE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 					alt_equip(vict, WEAR_SHIELD, 30, 10);
 					//если атакуем с баша, то бой начинается
 					if (!ch->get_fighting())
@@ -1148,15 +1150,9 @@ ACMD(do_rescue)
 	// Если тот, кто собирается спасать - "чармис" и у него существует хозяин
 	if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master != NULL)
 	{
-		bool in_same_group;
-
-		// Если спасаем "чармиса", то проверять надо на нахождение в одной группе хозянина спасющего и спасаемого.
-		if (AFF_FLAGGED(vict, AFF_CHARM))
-			in_same_group = vict->master != NULL && same_group(vict->master, ch->master);
-		else
-			in_same_group = same_group(ch->master, vict);
-
-		if (!in_same_group)
+		// Если спасаем "чармиса", то проверять надо на нахождение в одной 
+		// группе хозянина спасющего и спасаемого.
+		if (AFF_FLAGGED(vict, AFF_CHARM) && (vict->master != NULL) && !same_group(vict->master, ch->master))
 		{
 			act("Спасали бы вы лучше другов своих.", FALSE, ch, 0, vict, TO_CHAR);
 			act("Вы не можете спасти весь мир.", FALSE, ch->master, 0, vict, TO_CHAR);
