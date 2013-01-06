@@ -2677,7 +2677,7 @@ void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 		need_str = calc_str_req(GET_OBJ_WEIGHT(obj), STR_BOTH_W);
 		break;
 	case STR_SHIELD_W:
-		need_str = calc_str_req(GET_OBJ_WEIGHT(obj)/2, STR_HOLD_W);
+		need_str = calc_str_req((GET_OBJ_WEIGHT(obj)+1)/2, STR_HOLD_W);
 		break;
 	default:
 		log("SYSERROR: ch=%s, weight=%d, type=%d (%s %s %d)",

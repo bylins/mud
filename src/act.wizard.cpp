@@ -5083,8 +5083,8 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			strncpy(GET_EMAIL(vict), val_arg, 127);
 			*(GET_EMAIL(vict) + 127) = '\0';
 			lower_convert(GET_EMAIL(vict));
-			RECREATE(player_table[top_of_p_table].mail, char, strlen(GET_EMAIL(vict)) + 1);
-			strcpy(player_table[top_of_p_table].mail, GET_EMAIL(vict));
+			//RECREATE(player_table[top_of_p_table].mail, char, strlen(GET_EMAIL(vict)) + 1);
+			//strcpy(player_table[top_of_p_table].mail, GET_EMAIL(vict));
 			/*for (i = 0, player_table[top_of_p_table].mail[i] = '\0';
 					(player_table[top_of_p_table].mail[i] = LOWER(GET_EMAIL(vict)[i])); i++);*/
 		}
