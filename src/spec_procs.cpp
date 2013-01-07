@@ -61,6 +61,7 @@ int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd);
 
 /* local functions */
 char *how_good(CHAR_DATA * ch, int percent);
+int feat_slot_lvl(int remort, int slot_for_remort, int slot);
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
@@ -155,6 +156,21 @@ extern int prac_params[4][NUM_CLASSES];
 #define MAXGAIN(ch) (prac_params[MAX_PER_PRAC][(int)GET_CLASS(ch)])
 #define SPLSKL(ch) (prac_types[prac_params[PRAC_TYPE][(int)GET_CLASS(ch)]])
 
+int feat_slot_lvl(int remort, int slot_for_remort, int slot)
+{
+	int result = 0;
+	for (result = 1; result < LVL_IMMORT; result++)
+		if (result*(5+remort/slot_for_remort)/28 == slot)
+			break;
+	/*
+	ВНИМАНИЕ: формула содрана с NUM_LEV_FEAT (utils.h)!
+	((int) 1+GET_LEVEL(ch)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
+	сделано это потому, что "обратная" формула, использованная ранее в list_feats,
+	выдавала неверные результаты ввиду нюансов округления
+	*/
+	return result;
+}
+
 /*
 1. Определяем есть ли способность, если нет - новый цикл
 2. Если есть
@@ -166,7 +182,6 @@ extern int prac_params[4][NUM_CLASSES];
 Примечание: удаление реализовано с целью сделать возможнным изменение слота в процессе игры.
 Лишние способности у персонажей удалятся автоматически при использовании команды "способности".
 */
-
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 {
 	int i = 0, j = 0, sortpos, slot, max_slot=0;
@@ -188,7 +203,8 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 	for (i = 1; i < max_slot; i++)
 		if (all_feats)
 		{
-			j = i*28/(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)]); //на каком уровне появится этот слот?
+			//j = i*28/(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)]); // старая формула, работавшая криво!
+			j = feat_slot_lvl(GET_REMORT(ch), feat_slot_for_remort[(int) GET_CLASS(ch)], i); // на каком уровне будет слот i?
 			sprintf(names[i], "\r\nКруг %-2d (%-2d уровень):\r\n", i + 1, j);
 		}
 		else
