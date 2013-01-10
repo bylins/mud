@@ -785,6 +785,8 @@ void replace_descs(OBJ_DATA *obj, ItemNodePtr item, int vnum)
 	if (!item->descs[vnum].trigs.empty())
 		attach_triggers(obj, item->descs[vnum].trigs);
 	obj->ex_description = NULL; //Пока в конфиге нельзя указать экстраописания - убираем нафиг
+	if ((GET_OBJ_TYPE(obj) == ITEM_DRINKCON) && (GET_OBJ_VAL(obj, 1) > 0)) //Если работаем с непустой емкостью...
+		name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2)); //...Следует указать содержимое емкости
 }
 
 void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType::const_iterator &shop)

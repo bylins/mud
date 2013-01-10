@@ -1188,7 +1188,7 @@ void bloody::handle_corpse(OBJ_DATA* corpse, CHAR_DATA* ch, CHAR_DATA* killer)
 		for (pk = ch->pk_list; pk; pk = pk->next)
 			if (pk->unique == GET_UNIQUE(killer) && (pk->thief_exp > time(NULL) || pk->kill_num))
 				break;
-		if (!pk) //не нашли мести
+		if (!pk && corpse) //не нашли мести
 			set_bloody_flag(corpse->contains, ch);
 	}
 }
