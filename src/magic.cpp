@@ -2534,7 +2534,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = pc_duration(victim, 10, GET_REMORT(ch), 1, 0, 0);
 		accum_duration = TRUE;
 		to_room = "$n3 покрыла зеркальная пелена.";
-		to_vict = "Вас прокрыло зеркало магии.";
+		to_vict = "Вас покрыло зеркало магии.";
 		spellnum = SPELL_MAGICGLASS;
 		break;
 
