@@ -838,26 +838,31 @@ void mobile_activity(int activity_level, int missed_pulses)
 			i--;
 		}
 
-		//Niker: LootCR// Start
-		//Не уверен, что рассмотрены все случаи, когда нужно снимать флаги с моба
-		//Реализация для лута и воровства
-		int grab_stuff = FALSE;
-		/* Looting the corpses            */
-
-		grab_stuff += npc_loot(ch);
-		grab_stuff += npc_steal(ch);
-
-		if (grab_stuff)
+		
+		if (EXTRACT_TIMER(ch) == 0)
 		{
-			REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_DAY), MOB_LIKE_DAY);	//Взял из make_horse
-			REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_NIGHT), MOB_LIKE_NIGHT);
-			REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_FULLMOON), MOB_LIKE_FULLMOON);
-			REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_WINTER), MOB_LIKE_WINTER);
-			REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_SPRING), MOB_LIKE_SPRING);
-			REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_SUMMER), MOB_LIKE_SUMMER);
-			REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_AUTUMN), MOB_LIKE_AUTUMN);
+			//чармисы, собирающиеся уходить - не лутят! (Купала)
+			//Niker: LootCR// Start
+			//Не уверен, что рассмотрены все случаи, когда нужно снимать флаги с моба
+			//Реализация для лута и воровства
+			int grab_stuff = FALSE;
+			/* Looting the corpses            */
+
+			grab_stuff += npc_loot(ch);
+			grab_stuff += npc_steal(ch);
+
+			if (grab_stuff)
+			{
+				REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_DAY), MOB_LIKE_DAY);	//Взял из make_horse
+				REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_NIGHT), MOB_LIKE_NIGHT);
+				REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_FULLMOON), MOB_LIKE_FULLMOON);
+				REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_WINTER), MOB_LIKE_WINTER);
+				REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_SPRING), MOB_LIKE_SPRING);
+				REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_SUMMER), MOB_LIKE_SUMMER);
+				REMOVE_BIT(MOB_FLAGS(ch, MOB_LIKE_AUTUMN), MOB_LIKE_AUTUMN);
+			}
+			//Niker: LootCR// End
 		}
-		//Niker: LootCR// End
 		npc_wield(ch);
 		npc_armor(ch);
 

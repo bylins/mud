@@ -528,7 +528,7 @@ void redit_disp_flag_menu(DESCRIPTOR_DATA * d)
 				room_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbits(OLC_ROOM(d)->room_flags, room_bits, buf1, ",");
+	sprintbits(OLC_ROOM(d)->room_flags, room_bits, buf1, ",", true);
 	sprintf(buf, "\r\nФлаги комнаты: %s%s%s\r\n" "Введите флаг комнаты (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = REDIT_FLAGS;

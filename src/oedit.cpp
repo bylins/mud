@@ -1330,7 +1330,7 @@ void oedit_disp_wear_menu(DESCRIPTOR_DATA * d)
 				wear_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	sprintbit(GET_OBJ_WEAR(OLC_OBJ(d)), wear_bits, buf1);
+	sprintbit(GET_OBJ_WEAR(OLC_OBJ(d)), wear_bits, buf1, true);
 	sprintf(buf, "\r\nМожет быть одет : %s%s%s\r\n" "Выберите позицию (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
