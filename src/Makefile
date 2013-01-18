@@ -28,7 +28,7 @@ OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	boards.o class.o comm.o config.o constants.o features.o db.o fight.o \
 	graph.o handler.o house.o interpreter.o limits.o magic.o mail.o \
 	mobact.o modify.o objsave.o olc.o random.o shop.o spec_assign.o \
-	spec_procs.o spell_parser.o spells.o utils.o weather.o scripting.o\
+	spec_procs.o spell_parser.o spells.o utils.o weather.o \
 	redit.o oedit.o zedit.o medit.o sedit.o \
 	dg_comm.o dg_db_scripts.o dg_event.o dg_handler.o dg_mobcmd.o \
 	dg_misc.o dg_objcmd.o dg_scripts.o dg_triggers.o dg_wldcmd.o dg_olc.o \
@@ -51,7 +51,7 @@ CXREF_FILES = act.comm.cpp act.informative.cpp act.item.cpp act.movement.cpp \
 	redit.cpp oedit.cpp zedit.cpp medit.cpp sedit.cpp \
 	dg_comm.cpp dg_db_scripts.cpp dg_event.cpp dg_handler.cpp dg_mobcmd.cpp \
 	dg_misc.cpp dg_objcmd.cpp dg_scripts.cpp dg_triggers.cpp dg_wldcmd.cpp dg_olc.cpp \
-	color.cpp pk.cpp genchar.cpp diskio.cpp im.cpp names.cpp scripting.cpp \
+	color.cpp pk.cpp genchar.cpp diskio.cpp im.cpp names.cpp \
 	auction.cpp item.creation.cpp skills.cpp exchange.cpp top.cpp stuff.cpp \
 	description.cpp deathtrap.cpp title.cpp password.cpp privilege.cpp \
 	depot.cpp glory.cpp file_crc.cpp char.cpp char_player.cpp quested.cpp mobmax.cpp \

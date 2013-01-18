@@ -55,7 +55,7 @@
 #include "player_races.hpp"
 #include "birth_places.hpp"
 #include "corpse.hpp"
-#include "scripting.hpp"
+//python_off #include "scripting.hpp"
 #include "pugixml.hpp"
 #include "sets_drop.hpp"
 #include "fight.h"
@@ -171,7 +171,7 @@ ACMD(do_set);
 ACMD(do_liblist);
 ACMD(do_name);
 //Gunner
-ACMD(do_email);
+//python_off ACMD(do_email);
 //
 ACMD(do_godtest);
 
@@ -628,7 +628,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 	return 1;
 }
 
-ACMD(do_email)
+/* python_off ACMD(do_email)
 {
 	CHAR_DATA *victim;
 	char *name = arg;
@@ -714,7 +714,7 @@ ACMD(do_email)
 	}
 	send_to_char(buf, ch);
 
-}
+}*/
 
 ACMD(do_echo)
 {

@@ -63,7 +63,7 @@
 #include "glory_misc.hpp"
 #include "glory_const.hpp"
 #include "celebrates.hpp"
-#include "scripting.hpp"
+//python_off #include "scripting.hpp"
 #include "shop_ext.hpp"
 #include "sets_drop.hpp"
 #include "fight.h"
@@ -497,7 +497,7 @@ void init_game(ush_int port)
 {
 	socket_t mother_desc;
 
-	/* We don't want to restart if we crash before we get up. */
+	// We don't want to restart if we crash before we get up.
 	touch(KILLSCRIPT_FILE);
 	touch("../.crash");
 
@@ -506,7 +506,7 @@ void init_game(ush_int port)
 
 	log("Opening mother connection.");
 	mother_desc = init_socket(port);
-	scripting::init();
+	//python_off scripting::init();
 	boot_db();
 
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
@@ -514,7 +514,7 @@ void init_game(ush_int port)
 	signal_setup();
 #endif
 
-	/* If we made it this far, we will be able to restart without problem. */
+	// If we made it this far, we will be able to restart without problem. 
 	remove(KILLSCRIPT_FILE);
 
 	log("Entering game loop.");
@@ -553,7 +553,7 @@ void init_game(ush_int port)
 	MoneyDropStat::print_log();
 	ZoneExpStat::print_log();
 	print_rune_log();
-	scripting::terminate();
+	//python_off scripting::terminate();
 	SetsDrop::save_mob_stat();
 
 	log("Closing all sockets.");
@@ -563,7 +563,7 @@ void init_game(ush_int port)
 	FileCRC::save(true);
 
 	CLOSE_SOCKET(mother_desc);
-	if (circle_reboot != 2 && olc_save_list)  	/* Don't save zones. */
+	if (circle_reboot != 2 && olc_save_list)  	// Don't save zones. 
 	{
 		struct olc_save_info *entry, *next_entry;
 		int rznum;
@@ -618,7 +618,7 @@ void init_game(ush_int port)
 	if (circle_reboot)
 	{
 		log("Rebooting.");
-		exit(52);	/* what's so great about HHGTTG, anyhow? */
+		exit(52);	// what's so great about HHGTTG, anyhow? 
 	}
 	log("Normal termination of game.");
 }
@@ -1822,8 +1822,8 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		sprintf(prompt, "\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы (%d/%d).", d->showstr_page, d->showstr_count);
 	else if (d->str)
 		strcpy(prompt, "] ");
-	else if (STATE(d) == CON_CONSOLE)
-		strcpy(prompt, d->console->get_prompt().c_str());
+	//python_off else if (STATE(d) == CON_CONSOLE)
+		//python_off strcpy(prompt, d->console->get_prompt().c_str());
 	else if (STATE(d) == CON_PLAYING && !IS_NPC(d->character))
 	{
 		int count = 0;
