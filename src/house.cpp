@@ -15,7 +15,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/range/algorithm/remove_if.hpp>
+//#include <boost/range/algorithm/remove_if.hpp>
 #include "conf.h"
 #include "house.h"
 #include "comm.h"

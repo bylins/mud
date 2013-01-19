@@ -19,9 +19,10 @@ CFLAGS = -ggdb3 -O2 -Wall -DBOOST_ENABLE_ASSERT_HANDLER -DHAVE_ICONV
 TESTCFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH
 DEBUGFLAGS = -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC
 FASTTEST   = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -O3
-SEARCHPATH = -I /usr/include/python2.6
+#SEARCHPATH = -I /usr/include/python2.6
 
-LIBS =  -lz -lcrypt -lpython2.6 -lboost_python-mt
+LIBS =  -lz -lcrypt
+#LIBS =  -lz -lcrypt -lpython2.6 -lboost_python-mt
 
 OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
 	act.offensive.o act.other.o act.social.o act.wizard.o alias.o ban.o \
