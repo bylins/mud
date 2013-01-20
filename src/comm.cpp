@@ -4381,7 +4381,7 @@ int toggle_compression(DESCRIPTOR_DATA * t)
 }
 
 #if defined(BOOST_ENABLE_ASSERT_HANDLER)
-/*
+
 namespace boost
 {
 
@@ -4391,5 +4391,5 @@ void assertion_failed(char const * expr, char const * function, char const * fil
 }
 
 }
-*/
+
 #endif
