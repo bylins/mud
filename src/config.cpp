@@ -14,6 +14,7 @@
 
 #define __CONFIG_C__
 
+#include <boost/version.hpp>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
