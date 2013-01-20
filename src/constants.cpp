@@ -534,6 +534,7 @@ const char *affected_bits[] = { "слепота",	/* 0 */
 								"перевязка",
 								"не может перевязываться",
 								"превращен",
+								"удушье",
 								"\n",
 								"\n",
 							  };
@@ -1815,7 +1816,8 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	/* 0 */
 		"!SPELL_LACKY!",
 		"Вы аккуратно перевязали свои раны.",
 		"Вы снова можете перевязывать свои раны.",
-		"!SPELL_CAPABLE!"
+		"!SPELL_CAPABLE!",
+		"Удушье отпустило вас, и вы вздохнули полной грудью." //SPELL_STRANGLE
 };
 
 
@@ -2248,7 +2250,11 @@ const char *cast_phrase[LAST_USED_SPELL + 1][2] = { {"\nRESERVED DB.C",	/* 0 */
 	 {"\n",
 	 "\n"}, // SPELL_BANDAGE
 	 {"\n",
-	 "\n"} // SPELL_NO_BANDAGE
+	 "\n"}, // SPELL_NO_BANDAGE
+	 {"\n",
+	 "\n"}, // SPELL_CAPABLE
+	 {"\n",
+	 "\n"} // SPELL_STRANGLE
 };
 
 
@@ -2707,7 +2713,7 @@ int mana_cost_cs[][9] = {	/* Круг
 							{1, 1, 1, 1, 1, 1, 1, 1, 1}	/* Lev 34 */
 						};
 
-						
+
 //MZ.load
 struct zone_type * zone_types = NULL;
 //-MZ.load

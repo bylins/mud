@@ -682,6 +682,8 @@ int calculate_skill(CHAR_DATA * ch, int skill_no, int max_value, CHAR_DATA * vic
 	case SKILL_MORPH:
 		percent = skill_is;
 		break;
+	case SKILL_STRANGLE:
+		percent = skill_is;
 	default:
 		percent = skill_is;
 		break;
@@ -754,7 +756,7 @@ void improove_skill(CHAR_DATA * ch, int skill_no, int success, CHAR_DATA * victi
 			 (diff =
 				  wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20 -
 				  trained_skill) > 0
-			 && trained_skill < MAX_EXP_PERCENT + GET_REMORT(ch) * 5))
+			 && trained_skill < MAX_EXP_RMRT_PERCENT(ch))
 	{
 		int how_many = ch->get_skills_count();
 		how_many += (im_get_char_rskill_count(ch) + 1) >> 1;

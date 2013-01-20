@@ -730,7 +730,7 @@ void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch)
 		}
 	else
 		strcat(buf, IS_POLY(i) ? ", сидят верхом." : ", сидит верхом.");
-	
+
 	if (AFF_FLAGGED(ch, AFF_DETECT_POISON))
 		if (AFF_FLAGGED(i, AFF_POISON))
 		{
@@ -740,7 +740,7 @@ void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch)
 
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
-	
+
 }
 
 
@@ -1215,14 +1215,17 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		if (AFF_FLAGGED(ch, AFF_DETECT_MAGIC))
 		{
 			if (AFF_FLAGGED(i, AFF_HOLD))
-				strcat(aura_txt, "....парализован$a");
+				strcat(aura_txt, "...парализован$a");
 			if (AFF_FLAGGED(i, AFF_SIELENCE))
-				strcat(aura_txt, "....нем$a");
+				strcat(aura_txt, "...нем$a");
 		}
 		if (AFF_FLAGGED(i, AFF_BLIND))
-			strcat(aura_txt, "....слеп$a");
+			strcat(aura_txt, "...слеп$a");
 		if (AFF_FLAGGED(i, AFF_DEAFNESS))
-			strcat(aura_txt, "....глух$a");
+			strcat(aura_txt, "...глух$a");
+		if (AFF_FLAGGED(i, AFF_STRANGLED))
+			strcat(aura_txt, "...задыхается.");
+
 		if (*aura_txt)
 			act(aura_txt, FALSE, i, 0, ch, TO_VICT);
 
@@ -1459,6 +1462,8 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		strcat(aura_txt, " ...слеп$a");
 	if (AFF_FLAGGED(i, AFF_DEAFNESS))
 		strcat(aura_txt, " ...глух$a");
+	if (AFF_FLAGGED(i, AFF_STRANGLED))
+		strcat(aura_txt, " ...задыхается");
 	if (*aura_txt)
 		act(aura_txt, FALSE, i, 0, ch, TO_VICT);
 }

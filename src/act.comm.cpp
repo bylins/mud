@@ -71,7 +71,7 @@ ACMD(do_say)
 	skip_spaces(&argument);
 	CHAR_DATA *to;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE))
+	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
@@ -124,7 +124,7 @@ ACMD(do_gsay)
 	CHAR_DATA *k;
 	struct follow_type *f;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE))
+	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
@@ -323,7 +323,7 @@ ACMD(do_tell)
 	if (AFF_FLAGGED(ch, AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE))
+	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
@@ -365,7 +365,7 @@ ACMD(do_reply)
 	if (IS_NPC(ch))
 		return;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE))
+	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
@@ -421,7 +421,7 @@ ACMD(do_spec_comm)
 	const char *action_sing, *action_plur, *action_others, *vict1, *vict2;
 	char vict3[MAX_INPUT_LENGTH];
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE))
+	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;
@@ -714,7 +714,7 @@ ACMD(do_gen_comm)
 	if (AFF_FLAGGED(ch, AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE))
+	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
 	{
 		send_to_char(SIELENCE, ch);
 		return;

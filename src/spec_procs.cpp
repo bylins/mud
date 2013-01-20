@@ -393,6 +393,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict)
 			case SKILL_MANADRAIN:
 			case SKILL_TOWNPORTAL:
 			case SKILL_TURN_UNDEAD:
+			case SKILL_STRANGLE:
 				if (timed_by_skill(ch, sortpos))
 					sprintf(buf, "[%3d] ", timed_by_skill(ch, sortpos));
 				else

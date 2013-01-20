@@ -514,7 +514,7 @@ void init_game(ush_int port)
 	signal_setup();
 #endif
 
-	// If we made it this far, we will be able to restart without problem. 
+	// If we made it this far, we will be able to restart without problem.
 	remove(KILLSCRIPT_FILE);
 
 	log("Entering game loop.");
@@ -563,7 +563,7 @@ void init_game(ush_int port)
 	FileCRC::save(true);
 
 	CLOSE_SOCKET(mother_desc);
-	if (circle_reboot != 2 && olc_save_list)  	// Don't save zones. 
+	if (circle_reboot != 2 && olc_save_list)  	// Don't save zones.
 	{
 		struct olc_save_info *entry, *next_entry;
 		int rznum;
@@ -618,7 +618,7 @@ void init_game(ush_int port)
 	if (circle_reboot)
 	{
 		log("Rebooting.");
-		exit(52);	// what's so great about HHGTTG, anyhow? 
+		exit(52);	// what's so great about HHGTTG, anyhow?
 	}
 	log("Normal termination of game.");
 }
@@ -4381,7 +4381,7 @@ int toggle_compression(DESCRIPTOR_DATA * t)
 }
 
 #if defined(BOOST_ENABLE_ASSERT_HANDLER)
-
+/*
 namespace boost
 {
 
@@ -4391,5 +4391,5 @@ void assertion_failed(char const * expr, char const * function, char const * fil
 }
 
 }
-
+*/
 #endif

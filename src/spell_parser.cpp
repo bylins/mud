@@ -2648,7 +2648,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		call_magic(ch, tch, tobj, world[IN_ROOM(ch)], GET_OBJ_VAL(obj, 3), level, CAST_WAND);
 		break;
 	case ITEM_SCROLL:
-		if (AFF_FLAGGED(ch, AFF_SIELENCE))
+		if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
 		{
 			send_to_char("Вы немы, как рыба.\r\n", ch);
 			return;
@@ -2684,6 +2684,11 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		break;
 
 	case ITEM_POTION:
+		if (AFF_FLAGGED(ch, AFF_STRANGLED))
+		{
+			send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
+			return;
+		}
 		tch = ch;
 		act("Вы осушили $o3.", FALSE, ch, obj, NULL, TO_CHAR);
 		if (obj->action_description)
@@ -3120,7 +3125,7 @@ ACMD(do_warcry)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, AFF_SIELENCE))
+	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
 	{
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
@@ -5058,6 +5063,8 @@ void mag_assign_spells(void)
 	spello(SPELL_NO_BANDAGE, "!нельзя перевязываться!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //197
 	spello(SPELL_CAPABLE, "!зачарован!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
+//198
+	spello(SPELL_STRANGLE, "!удушье!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.
@@ -5160,5 +5167,6 @@ void mag_assign_spells(void)
 	skillo(SKILL_WARCRY, "боевой клич", 100);
 	skillo(SKILL_TURN_UNDEAD, "изгнать нежить", 100);
 	skillo(SKILL_IRON_WIND, "железный ветер", 150);
+	skillo(SKILL_STRANGLE, "удавить", 150);
 
 }

@@ -647,6 +647,7 @@ typedef struct trig_data TRIG_DATA;
 #define AFF_BANDAGE			(INT_TWO | (1 << 14))
 #define AFF_NO_BANDAGE		(INT_TWO | (1 << 15))
 #define AFF_MORPH			(INT_TWO | (1 << 16))
+#define AFF_STRANGLED		(INT_TWO | (1 << 17))
 
 // shapirus: modes of ignoring
 #define IGNORE_TELL	(1 << 0)

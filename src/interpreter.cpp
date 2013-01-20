@@ -335,6 +335,7 @@ ACMD(do_exchange);
 ACMD(do_godtest);
 ACMD(do_print_armor);
 ACMD(do_relocate);
+ACMD(do_strangle);
 
 /* DG Script ACMD's */
 ACMD(do_attach);
@@ -727,6 +728,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"убить", POS_FIGHTING, do_kill, 0, 0, -1},
 	{"убрать", POS_RESTING, do_remove, 0, 0, 400},
 	{"ударить", POS_FIGHTING, do_hit, 0, SCMD_HIT, -1},
+	{"удавить", POS_FIGHTING, do_strangle, 0, 0, -1},
 	{"уклониться", POS_FIGHTING, do_deviate, 1, 0, -1},
 	{"украсть", POS_STANDING, do_steal, 1, 0, 0},
 	{"укрепить", POS_RESTING, do_armored, 0, 0, -1},
@@ -1198,7 +1200,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 	//python_off Try scripting
 	//python_off if (scripting::execute_player_command(ch, arg, line))
 		//python_off return;
-    
+
 	/* otherwise, find the command */
 	for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
 	{

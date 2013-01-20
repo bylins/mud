@@ -349,6 +349,7 @@ void boost::assertion_failed(char const * expr, char const * function, char cons
 	printf("Expression: %s\nFunction: %s\nFile: %s\nLine: %ld\n\n",
 	expr, function, file, line);
 }
+#endif
 
 #if BOOST_VERSION >= 104600
 void boost::assertion_failed_msg(char const * expr, char const * msg, char const * function, char const * file, long line)
@@ -358,6 +359,5 @@ void boost::assertion_failed_msg(char const * expr, char const * msg, char const
 	#endif
 	printf("Expression: %s Message: %s\nFunction: %s\nFile: %s\nLine: %ld\n\n",
 	expr, msg, function, file, line);
-} 
-#endif
+}
 #endif

@@ -55,6 +55,7 @@ ACMD(do_rescue);
 ACMD(do_kick);
 ACMD(do_manadrain);
 ACMD(do_coddle_out);
+ACMD(do_strangle);
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
 
 
@@ -578,7 +579,7 @@ ACMD(do_order)
 		send_to_char("Вы прокляты Богами и никто не слушается вас!\r\n", ch);
 		return;
 	}
-	if (AFF_FLAGGED(ch, AFF_SIELENCE))
+	if (AFF_FLAGGED(ch, AFF_SIELENCE) || AFF_FLAGGED(ch, AFF_STRANGLED))
 	{
 		send_to_char("Вы не в состоянии приказывать сейчас.\r\n", ch);
 		return;
@@ -1150,7 +1151,7 @@ ACMD(do_rescue)
 	// Если тот, кто собирается спасать - "чармис" и у него существует хозяин
 	if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master != NULL)
 	{
-		// Если спасаем "чармиса", то проверять надо на нахождение в одной 
+		// Если спасаем "чармиса", то проверять надо на нахождение в одной
 		// группе хозянина спасющего и спасаемого.
 		if (AFF_FLAGGED(vict, AFF_CHARM) && (vict->master != NULL) && !same_group(vict->master, ch->master))
 		{
@@ -2696,5 +2697,141 @@ ACMD(do_iron_wind)
 	go_iron_wind(ch, vict);
 }
 
-/* End of changes */
+void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
+{
+	int percent, prob, dam;
+	AFFECT_DATA af;
+	struct timed_type timed;
+
+	pk_agro_action(ch, vict);
+
+	/*if (((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)))	&& !IS_GOD(ch))
+	{
+		act("Вы заметили, что $N попытал$u набросить вам на шеую удавку!", FALSE, vict, 0, ch, TO_CHAR);
+		act("$n заметил$g вашу попытку задушить $s!", FALSE, vict, 0, ch, TO_VICT);
+		act("$n заметил$g попытку $N1 попытку задушить $s!", FALSE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+		set_hit(vict, ch);
+		return;
+	}*/
+
+	act("Вы попытались накинуть удавку на шею $N2.\r\n", FALSE, ch, 0, vict, TO_CHAR);
+
+	//Базовый шанс провала _при полностью прокачанном скилле_ 0.5
+	//С учетом штрафов-бонусов от морали. фитов и черт пойми чего еще...
+	prob = train_skill(ch, SKILL_STRANGLE, skill_info[SKILL_STRANGLE].max_percent, vict);
+	percent = number(1, MAX_EXP_RMRT_PERCENT(ch)*2);
+
+	//За каждую единицу ловкости выше 25 накидываем 0,5% к шансу успеха
+	//Опять-таки в предположении, что скилл докачан, при недокачке бонус ниже
+	prob += MAX(0, (prob*(ch->get_dex()-25))/200);
+
+	if (vict->get_fighting() || (((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)))	&& !IS_GOD(ch)))
+		prob /= 2;
+	if (GET_MOB_HOLD(vict))
+		prob = prob*5/ 4;
+	if (!CAN_SEE(ch,vict))
+		prob = prob*7/6;
+	if (GET_GOD_FLAG(vict, GF_GODSCURSE))
+		prob = percent;
+	if (GET_GOD_FLAG(vict, GF_GODSLIKE) || GET_GOD_FLAG(ch, GF_GODSCURSE))
+		prob = 0;
+	if (affected_by_spell(vict, SPELL_SHIELD) || MOB_FLAGGED(vict, MOB_PROTECT))
+		prob = 0;
+
+	if (percent > prob)
+	{
+		Damage dmg(SkillDmg(SKILL_STRANGLE), 0, FightSystem::PHYS_DMG);
+		dmg.flags.set(FightSystem::IGNORE_ARMOR);
+		dmg.process(ch, vict);
+	}
+	else
+	{
+		af.type = SPELL_STRANGLE;
+		af.duration = 15;
+		af.modifier = 0;
+		af.location = APPLY_NONE;
+		af.battleflag = 0;
+		af.battleflag = AF_SAME_TIME;
+		af.bitvector = AFF_STRANGLED;
+		affect_to_char(vict, &af);
+
+		dam = IS_NPC(vict) ? (GET_HIT(vict)/20) : number(1, 6)*(GET_HIT(vict)/20);
+		Damage dmg(SkillDmg(SKILL_STRANGLE), dam, FightSystem::PHYS_DMG);
+		dmg.flags.set(FightSystem::IGNORE_ARMOR);
+		dmg.process(ch, vict);
+	}
+
+	if (!IS_IMMORTAL(ch))
+	{
+		timed.skill = SKILL_STRANGLE;
+		timed.time = 4;
+		timed_to_char(ch, &timed);
+	}
+}
+
+ACMD(do_strangle)
+{
+	CHAR_DATA *vict;
+
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_STRANGLE))
+	{
+		send_to_char("Вы не умеете этого.\r\n", ch);
+		return;
+	}
+
+	if (GET_POS(ch) < POS_FIGHTING)
+	{
+		send_to_char("Вам стоит встать на ноги.\r\n", ch);
+		return;
+	}
+
+	one_argument(argument, arg);
+
+	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
+	{
+		send_to_char("Кого вы жаждете удавить?\r\n", ch);
+		return;
+	}
+
+	if (AFF_FLAGGED(vict, AFF_STRANGLED))
+	{
+		send_to_char("Ваша жертва хватается руками за горло - не подобраться!\r\n", ch);
+		return;
+	}
+
+	if (IS_UNDEAD(vict)
+		|| GET_RACE(vict) == NPC_RACE_FISH
+		|| GET_RACE(vict) == NPC_RACE_PLANT
+		|| GET_RACE(vict) == NPC_RACE_THING
+		|| GET_RACE(vict) == NPC_RACE_GHOST)
+	{
+		send_to_char("Вы бы еще верстовой столб удавить попробовали... Пить меньше надо!\r\n", ch);
+		return;
+	}
+
+	if (vict == ch)
+	{
+		send_to_char("Воспользуйтесь услугами княжеского палача.\r\nПостоянным клиентам - скидки!\r\n", ch);
+		return;
+	}
+
+	if (AFF_FLAGGED(ch, AFF_STOPRIGHT) || AFF_FLAGGED(ch, AFF_STOPFIGHT)
+			|| AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))
+	{
+		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		return;
+	}
+
+	if (ch->get_fighting())
+	{
+		send_to_char("Вы не можете делать это в бою!\r\n", ch);
+		return;
+	}
+
+	if (!may_kill_here(ch, vict))
+		return;
+	if (!check_pkill(ch, vict, arg))
+		return;
+	go_strangle(ch, vict);
+}
 
