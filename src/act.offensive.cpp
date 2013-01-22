@@ -2703,49 +2703,42 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 	AFFECT_DATA af;
 	struct timed_type timed;
 
+	vict = try_protect(vict, ch);
 	pk_agro_action(ch, vict);
-
-	/*if (((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)))	&& !IS_GOD(ch))
-	{
-		act("Вы заметили, что $N попытал$u набросить вам на шеую удавку!", FALSE, vict, 0, ch, TO_CHAR);
-		act("$n заметил$g вашу попытку задушить $s!", FALSE, vict, 0, ch, TO_VICT);
-		act("$n заметил$g попытку $N1 попытку задушить $s!", FALSE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
-		set_hit(vict, ch);
-		return;
-	}*/
 
 	act("Вы попытались накинуть удавку на шею $N2.\r\n", FALSE, ch, 0, vict, TO_CHAR);
 
-	//Базовый шанс провала _при полностью прокачанном скилле_ 0.5
-	//С учетом штрафов-бонусов от морали. фитов и черт пойми чего еще...
 	prob = train_skill(ch, SKILL_STRANGLE, skill_info[SKILL_STRANGLE].max_percent, vict);
-	percent = number(1, MAX_EXP_RMRT_PERCENT(ch)*2);
+	percent = number(1, skill_info[SKILL_STRANGLE].max_percent);
 
-	//За каждую единицу ловкости выше 25 накидываем 0,5% к шансу успеха
-	//Опять-таки в предположении, что скилл докачан, при недокачке бонус ниже
-	prob += MAX(0, (prob*(ch->get_dex()-25))/200);
+	prob = prob-0.5*(prob % 100);
+	prob += dex_app_skill[GET_REAL_DEX(ch)].traps;
 
-	if (vict->get_fighting() || (((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)))	&& !IS_GOD(ch)))
-		prob /= 2;
 	if (GET_MOB_HOLD(vict))
-		prob = prob*5/ 4;
-	if (!CAN_SEE(ch,vict))
-		prob = prob*7/6;
-	if (GET_GOD_FLAG(vict, GF_GODSCURSE))
-		prob = percent;
-	if (GET_GOD_FLAG(vict, GF_GODSLIKE) || GET_GOD_FLAG(ch, GF_GODSCURSE))
-		prob = 0;
-	if (affected_by_spell(vict, SPELL_SHIELD) || MOB_FLAGGED(vict, MOB_PROTECT))
-		prob = 0;
+	{
+		prob = prob*1.5;
+	} else
+	{
+		if (!CAN_SEE(ch,vict))
+			prob = prob*1.1;
+		if (((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict))) && !IS_GOD(ch))
+			prob /= 2;
+		prob -= 2*(GET_SAVE(vict, SAVING_REFLEX)+dex_app[GET_REAL_DEX(vict)].reaction);
+		if (PRF_FLAGGED(vict, PRF_AWAKE))
+			prob -= 0.2*vict->get_skill(SKILL_AWAKE);
+	}
+
 
 	if (percent > prob)
 	{
+		//act("Strangle failed.\r\n", FALSE, ch, 0, vict, TO_CHAR);
 		Damage dmg(SkillDmg(SKILL_STRANGLE), 0, FightSystem::PHYS_DMG);
 		dmg.flags.set(FightSystem::IGNORE_ARMOR);
 		dmg.process(ch, vict);
 	}
 	else
 	{
+		//act("Strangle success.\r\n", FALSE, ch, 0, vict, TO_CHAR);
 		af.type = SPELL_STRANGLE;
 		af.duration = 15;
 		af.modifier = 0;
@@ -2785,6 +2778,12 @@ ACMD(do_strangle)
 		return;
 	}
 
+	if (timed_by_skill(ch, SKILL_STRANGLE))
+	{
+		send_to_char("Так часто душить нельзя - человеки кончатся.\r\n", ch);
+		return;
+	}
+
 	one_argument(argument, arg);
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
@@ -2805,7 +2804,7 @@ ACMD(do_strangle)
 		|| GET_RACE(vict) == NPC_RACE_THING
 		|| GET_RACE(vict) == NPC_RACE_GHOST)
 	{
-		send_to_char("Вы бы еще верстовой столб удавить попробовали... Пить меньше надо!\r\n", ch);
+		send_to_char("Вы бы еще верстовой столб удавить попробовали...\r\n", ch);
 		return;
 	}
 
