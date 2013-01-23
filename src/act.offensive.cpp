@@ -2711,23 +2711,31 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 	prob = train_skill(ch, SKILL_STRANGLE, skill_info[SKILL_STRANGLE].max_percent, vict);
 	percent = number(1, skill_info[SKILL_STRANGLE].max_percent);
 
-	prob = prob-0.5*(prob % 100);
-	prob += dex_app_skill[GET_REAL_DEX(ch)].traps;
+	if (prob > 100)
+		prob = 100+(prob-100)/2; //от 0 до 150 в зависимости от % умения
+
+	prob += MAX(0, GET_REAL_DEX(ch)-25); //бонус за каждый стат ловки больше 25
 
 	if (GET_MOB_HOLD(vict))
+		prob += prob/2;
+	else
 	{
-		prob = prob*1.5;
-	} else
-	{
+		int visibl, aware, awake, react;
 		if (!CAN_SEE(ch,vict))
-			prob = prob*1.1;
-		if (((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict))) && !IS_GOD(ch))
-			prob /= 2;
-		prob -= 2*(GET_SAVE(vict, SAVING_REFLEX)+dex_app[GET_REAL_DEX(vict)].reaction);
+			visibl = prob/5;
+		if (vict->get_fighting() ||
+			(((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict))) && !IS_GOD(ch)))
+			aware = -prob/2;
 		if (PRF_FLAGGED(vict, PRF_AWAKE))
-			prob -= 0.2*vict->get_skill(SKILL_AWAKE);
+			awake = -(vict->get_skill(SKILL_AWAKE)/5);
+		react = -2*GET_SAVE(vict, SAVING_REFLEX);
+		prob = MAX(0,prob+visibl+aware+awake+react);
 	}
-
+	if (GET_GOD_FLAG(vict, GF_GODSCURSE))
+		prob = percent;
+	if (GET_GOD_FLAG(vict, GF_GODSLIKE) || GET_GOD_FLAG(ch, GF_GODSCURSE) ||
+		affected_by_spell(vict, SPELL_SHIELD) || MOB_FLAGGED(vict, MOB_PROTECT))
+		prob = 0;
 
 	if (percent > prob)
 	{
@@ -2735,6 +2743,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		Damage dmg(SkillDmg(SKILL_STRANGLE), 0, FightSystem::PHYS_DMG);
 		dmg.flags.set(FightSystem::IGNORE_ARMOR);
 		dmg.process(ch, vict);
+		set_wait(ch, 3, TRUE);
 	}
 	else
 	{
@@ -2752,6 +2761,8 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		Damage dmg(SkillDmg(SKILL_STRANGLE), dam, FightSystem::PHYS_DMG);
 		dmg.flags.set(FightSystem::IGNORE_ARMOR);
 		dmg.process(ch, vict);
+		set_wait(ch, 2, TRUE);
+		set_wait(vict, 1, TRUE);
 	}
 
 	if (!IS_IMMORTAL(ch))
@@ -2817,7 +2828,7 @@ ACMD(do_strangle)
 	if (AFF_FLAGGED(ch, AFF_STOPRIGHT) || AFF_FLAGGED(ch, AFF_STOPFIGHT)
 			|| AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))
 	{
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		send_to_char("Сейчас у вас не получится выполнить этот прием.\r\n", ch);
 		return;
 	}
 
