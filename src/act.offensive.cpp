@@ -2724,9 +2724,10 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		if (!CAN_SEE(ch,vict))
 			visibl = prob/5;
 		if (vict->get_fighting() ||
-			(((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict))) && !IS_GOD(ch)))
+			((MOB_FLAGGED(vict, MOB_AWARE) || AFF_FLAGGED(vict, AFF_AWARNESS)) && AWAKE(vict) && !IS_GOD(ch)))
 			aware = -prob/2;
-		if (PRF_FLAGGED(vict, PRF_AWAKE))
+		prob -= 2*(GET_SAVE(vict, SAVING_REFLEX)+dex_app[GET_REAL_DEX(vict)].reaction);
+		if (AFF_FLAGGED (vict, PRF_AWAKE))
 			awake = -(vict->get_skill(SKILL_AWAKE)/5);
 		react = -2*GET_SAVE(vict, SAVING_REFLEX);
 		prob = MAX(0,prob+visibl+aware+awake+react);
@@ -2757,7 +2758,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		af.bitvector = AFF_STRANGLED;
 		affect_to_char(vict, &af);
 
-		dam = IS_NPC(vict) ? (GET_HIT(vict)/20) : number(1, 6)*(GET_HIT(vict)/20);
+		dam = IS_NPC(vict) ? (GET_HIT(vict)/20) : (GET_HIT(vict)*(number(1, 30)/100));
 		Damage dmg(SkillDmg(SKILL_STRANGLE), dam, FightSystem::PHYS_DMG);
 		dmg.flags.set(FightSystem::IGNORE_ARMOR);
 		dmg.process(ch, vict);
