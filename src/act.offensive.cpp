@@ -2757,12 +2757,24 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		af.bitvector = AFF_STRANGLED;
 		affect_to_char(vict, &af);
 
-		dam = IS_NPC(vict) ? (GET_HIT(vict)/20) : (GET_HIT(vict)*(number(1, 30)/100));
+		dam = IS_NPC(vict) ? (GET_HIT(vict)/20) : ((GET_HIT(vict)*(number(1, 30))/100));
 		Damage dmg(SkillDmg(SKILL_STRANGLE), dam, FightSystem::PHYS_DMG);
 		dmg.flags.set(FightSystem::IGNORE_ARMOR);
 		dmg.process(ch, vict);
-		set_wait(ch, 2, TRUE);
-		set_wait(vict, 1, TRUE);
+		if (GET_POS(vict) > POS_DEAD)
+		{
+			set_wait(ch, 2, TRUE);
+			set_wait(vict, 2, TRUE); //на случай если чар сидит или трип не пройдет
+			if (on_horse(vict))
+			{
+				act("Рванув на себя, $N стащил$G Вас на землю.", FALSE, vict, 0, ch, TO_CHAR);
+				act("Рванув на себя, Вы стащили $n3 на землю.", FALSE, vict, 0, ch, TO_VICT);
+				act("Рванув на себя, $N стащил$G $n3 на землю.", FALSE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+				REMOVE_BIT(AFF_FLAGS(vict, AFF_HORSE), AFF_HORSE);
+			}
+			if (ch->get_skill(SKILL_CHOPOFF))
+				go_chopoff(ch, vict);
+		}
 	}
 
 	if (!IS_IMMORTAL(ch))
