@@ -2700,6 +2700,7 @@ ACMD(do_iron_wind)
 void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	int percent, prob, dam;
+	int visibl=0, aware=0, awake=0, react=0;
 	AFFECT_DATA af;
 	struct timed_type timed;
 
@@ -2720,7 +2721,6 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		prob += prob/2;
 	else
 	{
-		int visibl, aware, awake, react;
 		if (!CAN_SEE(ch,vict))
 			visibl = prob/5;
 		if (vict->get_fighting() ||
@@ -2757,7 +2757,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		af.bitvector = AFF_STRANGLED;
 		affect_to_char(vict, &af);
 
-		dam = IS_NPC(vict) ? (GET_HIT(vict)/20) : ((GET_HIT(vict)*(number(1, 30))/100));
+		dam = IS_NPC(vict) ? (1+GET_HIT(vict)/20) : ((1+GET_HIT(vict)*(number(1, 30))/100));
 		Damage dmg(SkillDmg(SKILL_STRANGLE), dam, FightSystem::PHYS_DMG);
 		dmg.flags.set(FightSystem::IGNORE_ARMOR);
 		dmg.process(ch, vict);

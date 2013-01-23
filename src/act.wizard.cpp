@@ -3169,6 +3169,13 @@ ACMD(do_restore)
 		affect_from_char(vict, SPELL_DRUNKED);
 		GET_DRUNK_STATE(vict)=GET_COND(vict, DRUNK)=0;
 		affect_from_char(vict, SPELL_ABSTINENT);
+
+		/*сброс таймеров скиллов и фитов*/
+		while (vict->timed)
+			timed_from_char(vict, vict->timed);
+		while (vict->timed_feat)
+			timed_feat_from_char(vict, vict->timed_feat);
+
 		if (subcmd == SCMD_RESTORE_GOD)
 		{
 			send_to_char(OK, ch);
@@ -3326,7 +3333,7 @@ ACMD(do_dc)
 		send_to_char("Нет такого соединения.\r\n", ch);
 		return;
 	}
-	
+
 	if (d->character) //Чтоб не крешило при попытке разъединить незалогиненного
 	{
 		int victim_level = Privilege::check_flag(d->character, Privilege::KRODER) ? LVL_IMPL : GET_LEVEL(d->character);
