@@ -2726,7 +2726,6 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		if (vict->get_fighting() ||
 			((MOB_FLAGGED(vict, MOB_AWARE) || AFF_FLAGGED(vict, AFF_AWARNESS)) && AWAKE(vict) && !IS_GOD(ch)))
 			aware = -prob/2;
-		prob -= 2*(GET_SAVE(vict, SAVING_REFLEX)+dex_app[GET_REAL_DEX(vict)].reaction);
 		if (AFF_FLAGGED (vict, PRF_AWAKE))
 			awake = -(vict->get_skill(SKILL_AWAKE)/5);
 		react = -2*GET_SAVE(vict, SAVING_REFLEX);
