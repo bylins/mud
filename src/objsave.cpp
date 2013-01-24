@@ -2178,7 +2178,7 @@ int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA * obj)
 
 	if (IS_OBJ_STAT(obj, ITEM_NORENT)
 		|| GET_OBJ_RENT(obj) < 0
-		|| GET_OBJ_RNUM(obj) <= NOTHING
+		|| ((GET_OBJ_RNUM(obj) <= NOTHING) && (GET_OBJ_TYPE(obj) != ITEM_MONEY))
 		|| GET_OBJ_TYPE(obj) == ITEM_KEY
 		|| SetSystem::is_norent_set(ch, obj))
 	{

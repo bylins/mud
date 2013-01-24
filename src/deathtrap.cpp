@@ -92,7 +92,9 @@ void DeathTrap::activity()
 
 			if (dmg.process(ch, ch) < 0)
 			{
-				log("Player %s died in slow DT (room %d)", name.c_str(), (*it)->number);
+				sprintf(buf1, "Player %s died in slow DT (room %d)", name.c_str(), (*it)->number);
+				log(buf1);
+				mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
 		}
 	}
@@ -302,6 +304,8 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 		{
 			OBJ_DATA *corpse;
 			DeathTrap::log_death_trap(ch);
+			sprintf(buf1, "Player %s died in DT (room %d)", GET_NAME(ch), GET_ROOM_VNUM(IN_ROOM(ch)));
+			mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
 			if (RENTABLE(ch))
 			{
 				die(ch, NULL);

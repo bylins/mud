@@ -393,7 +393,7 @@ int exchange_change_cost(CHAR_DATA * ch, char *arg)
 		ch->remove_both_gold(static_cast<long>(pay * EXCHANGE_EXHIBIT_PAY_COEFF));
 	}
 
-	sprintf(tmpbuf, "Вы назначили цену %d %s, за %s (лот %d).\r\n",
+	sprintf(tmpbuf, "Вы назначили цену %d %s за %s (лот %d).\r\n",
 			newcost, desc_count(newcost, WHAT_MONEYu), GET_EXCHANGE_ITEM(item)->PNames[3], GET_EXCHANGE_ITEM_LOT(item));
 	send_to_char(tmpbuf, ch);
 	sprintf(tmpbuf,
