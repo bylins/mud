@@ -172,20 +172,39 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 
 void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 {
-	/* train LEADERSHIP */
-	if (IS_NPC(ch)
-		&& killer
-		&& !IS_NPC(killer)
-		&& AFF_FLAGGED(killer, AFF_GROUP)
-		&& killer->master
-		&& killer->master->get_skill(SKILL_LEADERSHIP) > 0
-		&& IN_ROOM(killer) == IN_ROOM(killer->master))
+	// train LEADERSHIP
+	if (IS_NPC(ch) && killer) // Убили моба
 	{
-		improove_skill(killer->master, SKILL_LEADERSHIP, number(0, 1), ch);
+		if (!IS_NPC(killer) // Убил загрупленный чар
+			&& AFF_FLAGGED(killer, AFF_GROUP)
+			&& killer->master
+			&& killer->master->get_skill(SKILL_LEADERSHIP) > 0
+			&& IN_ROOM(killer) == IN_ROOM(killer->master))
+		{
+			improove_skill(killer->master, SKILL_LEADERSHIP, number(0, 1), ch);
+		}
+		else if (IS_NPC(killer) // Убил чармис загрупленного чара
+			&& IS_CHARMICE(killer)
+			&& killer->master
+			&& AFF_FLAGGED(killer->master, AFF_GROUP))
+		{
+			if (killer->master->master // Владелец чармиса НЕ лидер
+				&& killer->master->master->get_skill(SKILL_LEADERSHIP) > 0
+				&& IN_ROOM(killer) == IN_ROOM(killer->master)
+				&& IN_ROOM(killer) == IN_ROOM(killer->master->master))
+			{
+				improove_skill(killer->master->master, SKILL_LEADERSHIP, number(0, 1), ch);
+			}
+			else if (killer->master->get_skill(SKILL_LEADERSHIP) > 0 // Владелец чармиса лидер
+				&& IN_ROOM(killer) == IN_ROOM(killer->master))
+			{
+				improove_skill(killer->master, SKILL_LEADERSHIP, number(0, 1), ch);
+			}
+		}
 	}
 
-	/* decrease LEADERSHIP */
-	if (!IS_NPC(ch)
+	// decrease LEADERSHIP
+	if (!IS_NPC(ch) // Член группы убит мобом
 		&& killer
 		&& IS_NPC(killer)
 		&& AFF_FLAGGED(ch, AFF_GROUP)
