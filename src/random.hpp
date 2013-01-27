@@ -7,5 +7,6 @@
 
 int number(int from, int to);
 int dice(int number, int size);
+int GaussIntNumber(double mean, double sigma, int min_val, int max_val);
 
 #endif // RANDOM_HPP_INCLUDED

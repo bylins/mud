@@ -2737,6 +2737,14 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		affected_by_spell(vict, SPELL_SHIELD) || MOB_FLAGGED(vict, MOB_PROTECT))
 		prob = 0;
 
+//тестим гаусс - пока оставлено, мало ли что.
+	//double mean = 21-1/(0.25+((4*sqrt(11)-1)/320)*ch->get_skill(SKILL_STRANGLE));
+	//mean = (300+5*ch->get_skill(SKILL_STRANGLE))/70;
+	//awake = GaussIntNumber((300+5*ch->get_skill(SKILL_STRANGLE))/70, 7.0, 1, 30);
+	//dam = (GET_MAX_HIT(vict)*GaussIntNumber((300+5*ch->get_skill(SKILL_STRANGLE))/70, 7.0, 1, 30))/100;
+	//sprintf(buf1, "Gauss result mean = %f, sigma 7.0, percent  %d, damage %d", mean, awake, dam);
+	//mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
+
 	if (percent > prob)
 	{
 		//act("Strangle failed.\r\n", FALSE, ch, 0, vict, TO_CHAR);
@@ -2757,7 +2765,11 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		af.bitvector = AFF_STRANGLED;
 		affect_to_char(vict, &af);
 
-		dam = IS_NPC(vict) ? (1+GET_HIT(vict)/20) : ((1+GET_HIT(vict)*(number(1, 30))/100));
+		//Урон распределяется нормально. Матожидание линейно привязано к прокачке скилла. Сигма подобрана экспериментально.
+		//урон считается в процентах от максимального числа хитов жертвы.
+		dam = (GET_MAX_HIT(vict)*GaussIntNumber((300+5*ch->get_skill(SKILL_STRANGLE))/70, 7.0, 1, 30))/100;
+		//Ограничение урона сверху: по чарам максхиты наема*2, по мобам *6
+		dam = (IS_NPC(vict) ? MIN(dam, 6*GET_MAX_HIT(ch)) : MIN(dam, 2*GET_MAX_HIT(ch)));
 		Damage dmg(SkillDmg(SKILL_STRANGLE), dam, FightSystem::PHYS_DMG);
 		dmg.flags.set(FightSystem::IGNORE_ARMOR);
 		dmg.process(ch, vict);
