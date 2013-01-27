@@ -948,6 +948,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"stand", POS_RESTING, do_stand, 0, 0, -1},
 	{"stat", POS_DEAD, do_stat, LVL_GOD, 0, 0},
 	{"steal", POS_STANDING, do_steal, 1, 0, 300},
+	{"strangle", POS_FIGHTING, do_strangle, 0, 0, -1},
 	{"stupor", POS_FIGHTING, do_stupor, 0, 0, -1},
 	{"switch", POS_DEAD, do_switch, LVL_GRGOD, 0, 0},
 	{"syslog", POS_DEAD, do_syslog, LVL_IMMORT, SYSLOG, 0},

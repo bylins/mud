@@ -2757,7 +2757,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 	{
 		//act("Strangle success.\r\n", FALSE, ch, 0, vict, TO_CHAR);
 		af.type = SPELL_STRANGLE;
-		af.duration = 15;
+		af.duration = IS_NPC(vict) ? 8 : 15;
 		af.modifier = 0;
 		af.location = APPLY_NONE;
 		af.battleflag = 0;
