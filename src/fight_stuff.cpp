@@ -195,11 +195,6 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 			{
 				improove_skill(killer->master->master, SKILL_LEADERSHIP, number(0, 1), ch);
 			}
-			else if (killer->master->get_skill(SKILL_LEADERSHIP) > 0 // Владелец чармиса лидер
-				&& IN_ROOM(killer) == IN_ROOM(killer->master))
-			{
-				improove_skill(killer->master, SKILL_LEADERSHIP, number(0, 1), ch);
-			}
 		}
 	}
 
