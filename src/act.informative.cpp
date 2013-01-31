@@ -4214,10 +4214,7 @@ ACMD(do_who)
 		if (!*argument && GET_LEVEL(tch) < LVL_IMMORT)
 			++all;
 
-		std::string only_title = ch->only_title();
-
-		if (*name_search &&
-			!(isname(name_search, GET_NAME(tch)) || only_title.find(name_search) != string::npos ))
+		if (*name_search && !(isname(name_search, GET_NAME(tch))))
 			continue;
 
 		if (!CAN_SEE_CHAR(ch, tch) || GET_LEVEL(tch) < low || GET_LEVEL(tch) > high)

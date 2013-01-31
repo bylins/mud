@@ -2181,7 +2181,7 @@ void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim)
 			&& (AFF_FLAGGED(ch, AFF_CHARM) || IS_HORSE(ch))
 			&& ch->master && !IS_NPC(ch->master))
 		{
-			sprintf(buf2, "%s подчиняется %s.", GET_NAME(ch), GET_PAD(ch->master, 2));
+			sprintf(buf2, "%s is following %s.", GET_NAME(ch), GET_PAD(ch->master, 2));
 			mudlog(buf2, BRF, LVL_IMPL, SYSLOG, TRUE);
 		}
 	}
@@ -3484,7 +3484,9 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	hit_params.init(ch, victim);
 
 	/**  дополнительный маг. дамаг независимо от попадания физ. атаки */
-	if (AFF_FLAGGED(ch, AFF_CLOUD_OF_ARROWS) && hit_params.skill_num < 0)
+	if (AFF_FLAGGED(ch, AFF_CLOUD_OF_ARROWS) && hit_params.skill_num < 0
+		&& (ch->get_fighting()
+		|| (!GET_AF_BATTLE(ch, EAF_MIGHTHIT) && !GET_AF_BATTLE(ch, EAF_STUPOR))))
 	{
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
 		mag_damage(1, ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
