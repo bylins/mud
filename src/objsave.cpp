@@ -2058,6 +2058,11 @@ int Crash_load(CHAR_DATA * ch)
 			extract_obj(obj);
 			continue;
 		}
+		//очищаем от крови
+		if (IS_OBJ_STAT(obj, ITEM_BLOODY))
+		{
+			REMOVE_BIT(GET_OBJ_EXTRA(obj, ITEM_BLOODY), ITEM_BLOODY);
+		}
 		obj->next_content = obj_list;
 		obj_list = obj;
 	}
