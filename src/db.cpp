@@ -1,3 +1,4 @@
+
 /* ************************************************************************
 *   File: db.cpp                                        Part of Bylins    *
 *  Usage: Loading/saving chars, booting/resetting world, internal funcs   *
@@ -6250,10 +6251,6 @@ void reset_char(CHAR_DATA * ch)
 		GET_HIT(ch) = 1;
 	if (GET_MOVE(ch) <= 0)
 		GET_MOVE(ch) = 1;
-	if (!IS_MANA_CASTER(ch))
-	{
-		MemQ_init(ch);
-	}
 
 	GET_CASTER(ch) = 0;
 	GET_DAMAGE(ch) = 0;

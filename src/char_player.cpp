@@ -521,6 +521,15 @@ void Player::save_char()
 		fprintf(saved, "0 0\n");
 	}
 
+	/* Мемящиеся спелы */
+	if (GET_LEVEL(this) < LVL_IMMORT)
+	{
+		fprintf(saved, "SpTM:\n");
+		for (struct spell_mem_queue_item * qi = this->MemQueue.queue; qi != NULL; qi = qi->link)
+			fprintf(saved, "%d\n", qi->spellnum);
+		fprintf(saved, "0\n");
+	}
+
 	/* Рецепты */
 //    if (GET_LEVEL(this) < LVL_IMMORT)
 	{
@@ -1646,6 +1655,26 @@ int Player::load_char_ascii(const char *name, bool reboot)
 					sscanf(line, "%d %d", &num, &num2);
 					if (num != 0)
 						GET_SPELL_MEM(this, num) = num2;
+				}
+				while (num != 0);
+			}
+			else if (!strcmp(tag, "SpTM"))
+			{
+				struct spell_mem_queue_item *qi_cur, ** qi = &MemQueue.queue;
+				while (*qi)
+					qi = &((*qi)->link);
+				do
+				{
+					fbgetline(fl, line);
+					sscanf(line, "%d", &num);
+					if (num != 0)
+					{
+						CREATE(qi_cur, struct spell_mem_queue_item, 1);
+						*qi = qi_cur;
+						qi_cur->spellnum = num;
+						qi_cur->link = NULL;
+						qi = &qi_cur->link;
+					}
 				}
 				while (num != 0);
 			}
