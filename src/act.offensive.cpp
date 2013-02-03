@@ -2704,6 +2704,25 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 	AFFECT_DATA af;
 	struct timed_type timed;
 
+	if (AFF_FLAGGED(ch, AFF_STOPRIGHT) || AFF_FLAGGED(ch, AFF_STOPFIGHT)
+			|| AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))
+	{
+		send_to_char("Сейчас у вас не получится выполнить этот прием.\r\n", ch);
+		return;
+	}
+
+	if (ch->get_fighting())
+	{
+		send_to_char("Вы не можете делать это в бою!\r\n", ch);
+		return;
+	}
+
+	if (GET_POS(ch) < POS_FIGHTING)
+	{
+		send_to_char("Вам стоит встать на ноги.\r\n", ch);
+		return;
+	}
+
 	vict = try_protect(vict, ch);
 	pk_agro_action(ch, vict);
 
@@ -2807,12 +2826,6 @@ ACMD(do_strangle)
 		return;
 	}
 
-	if (GET_POS(ch) < POS_FIGHTING)
-	{
-		send_to_char("Вам стоит встать на ноги.\r\n", ch);
-		return;
-	}
-
 	if (timed_by_skill(ch, SKILL_STRANGLE))
 	{
 		send_to_char("Так часто душить нельзя - человеки кончатся.\r\n", ch);
@@ -2846,19 +2859,6 @@ ACMD(do_strangle)
 	if (vict == ch)
 	{
 		send_to_char("Воспользуйтесь услугами княжеского палача.\r\nПостоянным клиентам - скидки!\r\n", ch);
-		return;
-	}
-
-	if (AFF_FLAGGED(ch, AFF_STOPRIGHT) || AFF_FLAGGED(ch, AFF_STOPFIGHT)
-			|| AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))
-	{
-		send_to_char("Сейчас у вас не получится выполнить этот прием.\r\n", ch);
-		return;
-	}
-
-	if (ch->get_fighting())
-	{
-		send_to_char("Вы не можете делать это в бою!\r\n", ch);
 		return;
 	}
 

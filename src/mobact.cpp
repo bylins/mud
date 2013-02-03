@@ -50,6 +50,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_mighthit(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_stupor(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_throw(CHAR_DATA * ch, CHAR_DATA * vict);
+void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict);
 int skip_hiding(CHAR_DATA * ch, CHAR_DATA * vict);
 int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict);
 int skip_camouflage(CHAR_DATA * ch, CHAR_DATA * vict);
@@ -171,6 +172,11 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 	OBJ_DATA *wielded = GET_EQ(ch, WEAR_WIELD);
 	if (victim)
 	{
+		if (ch->get_skill(SKILL_STRANGLE) && !timed_by_skill(ch, SKILL_STRANGLE))
+		{
+			go_strangle(ch, victim);
+			return (TRUE);
+		}
 		if (ch->get_skill(SKILL_BACKSTAB) && !victim->get_fighting())
 		{
 			go_backstab(ch, victim);
@@ -838,7 +844,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 			i--;
 		}
 
-		
+
 		if (EXTRACT_TIMER(ch) == 0)
 		{
 			//чармисы, собирающиеся уходить - не лутят! (Купала)
