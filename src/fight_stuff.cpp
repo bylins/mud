@@ -674,10 +674,9 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 		}
 
 	// Вычисляем, надо ли резать экспу, смотрим сначала лидера, если он рядом
-	rmrt = MIN(14, (int)GET_REMORT(k));
-	if (maxlevel - GET_LEVEL(k) > grouping[(int)GET_CLASS(k)][rmrt] && leader_inroom)
+	if (maxlevel - GET_LEVEL(k) > grouping[(int)GET_CLASS(k)][(int)GET_REMORT(k)] && leader_inroom)
 	{
-		koef -= 50 + (maxlevel - GET_LEVEL(k) - grouping[(int)GET_CLASS(k)][rmrt]) * 2;
+		koef -= 50 + (maxlevel - GET_LEVEL(k) - grouping[(int)GET_CLASS(k)][(int)GET_REMORT(k)]) * 2;
 	}
 	else	// если с лидером все ок либо он не тут, смотрим по группе
 	{
@@ -685,12 +684,11 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 		{
 			if (AFF_FLAGGED(f->follower, AFF_GROUP) && f->follower->in_room == IN_ROOM(ch))
 			{
-				rmrt = MIN(14, (int)GET_REMORT(f->follower));
 				if (maxlevel - GET_LEVEL(f->follower) >
-						grouping[(int)GET_CLASS(f->follower)][rmrt])
+						grouping[(int)GET_CLASS(f->follower)][(int)GET_REMORT(f->follower)])
 				{
 					koef -= 50 + (maxlevel - GET_LEVEL(f->follower)
-						- grouping[(int)GET_CLASS(f->follower)][rmrt]) * 2;
+						- grouping[(int)GET_CLASS(f->follower)][(int)GET_REMORT(f->follower)]) * 2;
 					break;
 				}
 			}

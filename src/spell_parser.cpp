@@ -3968,10 +3968,17 @@ ACMD(do_remember)
 	return;
 }
 
+inline bool in_mem(char* arg)
+{
+	return (strlen(arg) != 0) &&
+		 (!strn_cmp("часослов", arg, strlen(arg)) ||
+		  !strn_cmp("резы", arg, strlen(arg)) || !strn_cmp("book", arg, strlen(arg)));
+}
+
 ACMD(do_forget)
 {
-	char *s, *t;
-	int spellnum, in_mem, i;
+	char *s=0, *t=0;
+	int spellnum, is_in_mem, i;
 
 	// проверка на аргумент рецепт|отвар
 	one_argument(argument, arg);
@@ -3990,6 +3997,22 @@ ACMD(do_forget)
 		return;
 	}
 
+	if (!strn_cmp(arg, "все", i) || !strn_cmp(arg, "all", i))
+	{
+		char arg2[MAX_INPUT_LENGTH];
+		two_arguments(argument, arg, arg2);
+		if (in_mem(arg2))
+		{
+			MemQ_flush(ch);
+			send_to_char("Вы вычеркнули все заклинания из своего списка для запоминания.\r\n", ch);
+		} else {
+			for (i = 1; i <= MAX_SPELLS; i++)
+				GET_SPELL_MEM(ch, i) = 0;
+			sprintf(buf, "Вы удалили все заклинания из %s.\r\n", GET_RELIGION(ch) == RELIGION_MONO ? "своего часослова" : "своих рез");
+			send_to_char(buf, ch);
+		}
+		return;
+	}
 	/* get: blank, spell name, target name */
 	if (IS_IMMORTAL(ch))
 	{
@@ -4021,15 +4044,13 @@ ACMD(do_forget)
 		return;
 	}
 	t = strtok(NULL, "\0");
-	in_mem = 0;
+	is_in_mem = 0;
 	if (t != NULL)
 	{
 		one_argument(t, arg);
-		in_mem = (strlen(arg) != 0) &&
-				 (!strn_cmp("часослов", arg, strlen(arg)) ||
-				  !strn_cmp("резы", arg, strlen(arg)) || !strn_cmp("book", arg, strlen(arg)));
+		is_in_mem = in_mem(arg);
 	}
-	if (!in_mem)
+	if (!is_in_mem)
 		if (!GET_SPELL_MEM(ch, spellnum))
 		{
 			send_to_char("Прежде чем забыть что-то ненужное, следует заучить что-то ненужное...\r\n", ch);

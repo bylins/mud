@@ -52,7 +52,7 @@ struct skillvariables_insgem insgem_vars;
 
 // 14 проф, 0-14 мортов
 // grouping[class][remorts]
-int grouping[14][15];
+int grouping[NUM_CLASSES][MAX_REMORT+1];
 
 int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 
@@ -2995,16 +2995,23 @@ void init_basic_values(void)
 	return;
 }
 
+/*
+	Берет misc/grouping, первый столбик цифр считает номерами мортов,
+	остальные столбики - значение макс. разрыва в уровнях для конкретного
+	класса. На момент написания этого в конфиге присутствует 26 строк, макс.
+	морт равен 50 - строки с мортами с 26 по 50 копируются с 25-мортовой строки.
+*/
 int init_grouping(void)
 {
 	FILE *f;
 	char buf[MAX_INPUT_LENGTH];
-	int tmp = 0, remorts = 0, rows_assigned = 0, i = 0, pos = 0;
+	int clss = 0, remorts = 0, rows_assigned = 0,
+		levels = 0, pos = 0, max_rows = MAX_REMORT+1;
 
-// пре-инициализация
-	for (i = 0; i < 15; i++)
-		for (tmp = 0; tmp < 14; tmp++)
-			grouping[tmp][i] = -1;
+	// пре-инициализация
+	for (remorts = 0; remorts < max_rows; remorts++) //Строк в массиве должно быть на 1 больше, чем макс. морт
+		for (clss = 0; clss < NUM_CLASSES; clss++) //Столбцов в массиве должно быть ровно столько же, сколько есть классов
+			grouping[clss][remorts] = -1;
 
 	if (!(f = fopen(LIB_MISC "grouping", "r")))
 	{
@@ -3014,55 +3021,55 @@ int init_grouping(void)
 
 	while (get_line(f, buf))
 	{
-		if (!buf[0] || buf[0] == ';' || buf[0] == '\n')
+		if (!buf[0] || buf[0] == ';' || buf[0] == '\n') //Строка пустая или строка-коммент
 			continue;
-		i = 0;
+		clss = 0;
 		pos = 0;
-		while (sscanf(&buf[pos], "%d", &tmp) == 1)
+		while (sscanf(&buf[pos], "%d", &levels) == 1)
 		{
-			if (i >= 15)
+			/*if (clss >= 15)
 			{
-				i = 16;
+				clss = 16;
 				break;
-			}
+			}*/
 			while (buf[pos] == ' ' || buf[pos] == '\t')
 				pos++;
-			if (i == 0)
+			if (clss == 0) //Первый проход цикла по строке
 			{
-				remorts = tmp;
+				remorts = levels; //Номера строк
 				if (grouping[0][remorts] != -1)
 				{
 					log("Ошибка при чтении файла %s: дублирование параметров для %d ремортов",
 						LIB_MISC "grouping", remorts);
 					return 2;
 				}
-				if (remorts > 14 || remorts < 0)
+				if (remorts > MAX_REMORT || remorts < 0)
 				{
 					log("Ошибка при чтении файла %s: неверное значение количества ремортов: %d, "
-						"должно быть в промежутке от 0 до 14",
-						LIB_MISC "grouping", remorts);
+						"должно быть в промежутке от 0 до %d",
+						LIB_MISC "grouping", remorts, MAX_REMORT);
 					return 3;
 				}
 			}
 			else
-				grouping[i - 1][remorts] = tmp;
-			i++;
+				grouping[clss - 1][remorts] = levels; // -1 потому что в массиве нет столбца с кол-вом мортов
+			clss++; //+Номер столбца массива
 			while (buf[pos] != ' ' && buf[pos] != '\t' && buf[pos] != 0)
-				pos++;
+				pos++; //Ищем следующее число в строке конфига
 		}
-		if (i != 15)
+		if (clss != NUM_CLASSES+1)
 		{
-			log("Ошибка при чтении файла %s: неверный формат строки '%s', должно быть 15 "
-				"целых чисел, прочитали %d", LIB_MISC "grouping", buf, i);
+			log("Ошибка при чтении файла %s: неверный формат строки '%s', должно быть %d "
+				"целых чисел, прочитали %d", LIB_MISC "grouping", buf, NUM_CLASSES+1, clss);
 			return 4;
 		}
 		rows_assigned++;
 	}
-	if (rows_assigned != 15)
+	if (rows_assigned < max_rows)
 	{
-		log("Ошибка при чтении файла %s: необходимо 15 строк от 0 до 14 "
-			"ремортов, прочитано строк: %d.", LIB_MISC "grouping", rows_assigned);
-		return 5;
+		for (levels = remorts; levels <= max_rows; levels++) //Берем свободную переменную
+			for (clss = 0; clss < NUM_CLASSES; clss++)
+				grouping[clss][levels] = grouping[clss][remorts]; //Копируем последнюю строку на все морты, для которых нет строк
 	}
 	fclose(f);
 	return 0;
