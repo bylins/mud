@@ -3052,7 +3052,10 @@ int init_grouping(void)
 				}
 			}
 			else
+			{
+				//log("Класс: %d, Мортов: %d, Группа: %d", clss-1, remorts, levels);
 				grouping[clss - 1][remorts] = levels; // -1 потому что в массиве нет столбца с кол-вом мортов
+			}
 			clss++; //+Номер столбца массива
 			while (buf[pos] != ' ' && buf[pos] != '\t' && buf[pos] != 0)
 				pos++; //Ищем следующее число в строке конфига
@@ -3067,9 +3070,12 @@ int init_grouping(void)
 	}
 	if (rows_assigned < max_rows)
 	{
-		for (levels = remorts; levels <= max_rows; levels++) //Берем свободную переменную
+		for (levels = remorts; levels < max_rows; levels++) //Берем свободную переменную
 			for (clss = 0; clss < NUM_CLASSES; clss++)
+			{
+				//log("Класс: %d, Мортов: %d, Группа: %d", clss, levels, grouping[clss][remorts]);
 				grouping[clss][levels] = grouping[clss][remorts]; //Копируем последнюю строку на все морты, для которых нет строк
+			}
 	}
 	fclose(f);
 	return 0;
