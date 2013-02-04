@@ -26,6 +26,8 @@ int level_exp(CHAR_DATA * ch, int chlevel);
 int max_exp_gain_pc(CHAR_DATA * ch);
 int max_exp_loss_pc(CHAR_DATA * ch);
 void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
+int slot_for_char(CHAR_DATA * ch, int i);
+int mag_manacost(CHAR_DATA * ch, int spellnum);
 ACMD(do_flee);
 
 extern int material_value[];
@@ -276,9 +278,33 @@ void reset_affects(CHAR_DATA *ch)
 
 void forget_all_spells(CHAR_DATA *ch)
 {
-	MemQ_flush(ch);
+	GET_MEM_COMPLETED(ch) = 0;
+	int slots[MAX_SLOT];
+	for (unsigned i = 0; i < MAX_SLOT; ++i)
+		slots[i] = slot_for_char(ch, i + 1);
+	struct spell_mem_queue_item *qi_cur, ** qi = &ch->MemQueue.queue;
+	while (*qi)
+	{
+		--slots[spell_info[(*(qi))->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1];
+		qi = &((*qi)->link);
+	}
+	int slotn;
+
 	for (int i = 0; i < MAX_SPELLS + 1; i++)
 	{
+		if (PRF_FLAGGED(ch, PRF_AUTOMEM) && ch->real_abils.SplMem[i])
+		{
+			slotn = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
+			for (unsigned j=0; (slots[slotn]>0 && j<ch->real_abils.SplMem[i]); ++j, --slots[slotn])
+			{
+				ch->MemQueue.total += mag_manacost(ch, i);
+				CREATE(qi_cur, struct spell_mem_queue_item, 1);
+				*qi = qi_cur;
+				qi_cur->spellnum = i;
+				qi_cur->link = NULL;
+				qi = &qi_cur->link;
+			}
+		}
 		ch->real_abils.SplMem[i] = 0;
 	}
 }
