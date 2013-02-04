@@ -555,7 +555,23 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 						break;
 					}
 				}
+				
 				object->acquired_affects.push_back(tmp_aff);
+			}
+			else if (!strcmp(read_line, "Clbl")) /* текст метки */
+			{
+				*error = 58;
+				object->custom_label = str_dup(buffer);
+			}
+			else if (!strcmp(read_line, "ClID")) /* id чара */
+			{
+				*error = 59;
+				object->custom_label_author = atoi(buffer);
+			}
+			else if (!strcmp(read_line, "ClCl")) /* аббревиатура клана */
+			{
+				*error = 60;
+				object->custom_label_clan = str_dup(buffer);
 			}
 			else
 			{
@@ -1222,6 +1238,15 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		{
 			out << i->print_to_file();
 		}
+	}
+
+	// кастомная метка
+	if (object->custom_label && object->custom_label_author != -2)
+	{
+		out << "Clbl: " << object->custom_label << "~\n";
+		out << "ClID: " << object->custom_label_author << "~\n";
+		if (object->custom_label_clan)
+			out << "ClCl: " << object->custom_label_clan << "~\n";
 	}
 }
 

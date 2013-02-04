@@ -3141,7 +3141,7 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list)
 		return (NULL);
 
 	for (i = list; i && (j <= number); i = i->next_content)
-		if (isname(tmp, i->aliases))
+		if (isname(tmp, i->aliases) || CHECK_CUSTOM_LABEL(tmp, i, ch))
 			if (CAN_SEE_OBJ(ch, i))
 				if (++j == number)  	//* sprintf(buf,"Show obj %d %s %x ", number, i->name, i);
 				{
@@ -3161,7 +3161,7 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const std::string &name, OBJ_DATA 
 		return (NULL);
 
 	for (i = list; i && (j <= number); i = i->next_content)
-		if (isname(tmp, i->aliases))
+		if (isname(tmp, i->aliases) || CHECK_CUSTOM_LABEL(tmp, i, ch))
 			if (CAN_SEE_OBJ(ch, i))
 				if (++j == number)  	//* sprintf(buf,"Show obj %d %s %x ", number, i->name, i);
 				{
@@ -3197,7 +3197,7 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name)
 
 	/* ok.. no luck yet. scan the entire obj list   */
 	for (i = object_list; i && (j <= number); i = i->next)
-		if (isname(tmp, i->aliases))
+		if (isname(tmp, i->aliases) || CHECK_CUSTOM_LABEL(tmp, i, ch))
 			if (CAN_SEE_OBJ(ch, i))
 				if (++j == number)
 					return (i);
@@ -3224,7 +3224,7 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const std::string &name)
 
 	/* ok.. no luck yet. scan the entire obj list   */
 	for (i = object_list; i && (j <= number); i = i->next)
-		if (isname(tmp, i->aliases))
+		if (isname(tmp, i->aliases) || CHECK_CUSTOM_LABEL(tmp, i, ch))
 			if (CAN_SEE_OBJ(ch, i))
 				if (++j == number)
 					return (i);
@@ -3247,7 +3247,7 @@ OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const char *arg, OBJ_DATA * eq
 	for ((*j) = 0, l = 0; (*j) < NUM_WEARS; (*j)++)
 		if (equipment[(*j)])
 			if (CAN_SEE_OBJ(ch, equipment[(*j)]))
-				if (isname(tmp, equipment[(*j)]->aliases))
+				if (isname(tmp, equipment[(*j)]->aliases) || CHECK_CUSTOM_LABEL(tmp, equipment[(*j)], ch))
 					if (++l == number)
 						return (equipment[(*j)]);
 
@@ -3264,7 +3264,7 @@ OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const std::string &arg, OBJ_DA
 	for ((*j) = 0, l = 0; (*j) < NUM_WEARS; (*j)++)
 		if (equipment[(*j)])
 			if (CAN_SEE_OBJ(ch, equipment[(*j)]))
-				if (isname(tmp, equipment[(*j)]->aliases))
+				if (isname(tmp, equipment[(*j)]->aliases) || CHECK_CUSTOM_LABEL(tmp, equipment[(*j)], ch))
 					if (++l == number)
 						return (equipment[(*j)]);
 
@@ -3493,7 +3493,7 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** 
 		{
 			if (GET_EQ(ch, l) && CAN_SEE_OBJ(ch, GET_EQ(ch, l)))
 			{
-				if (isname(tmp, GET_EQ(ch, l)->aliases)
+				if (isname(tmp, GET_EQ(ch, l)->aliases) || CHECK_CUSTOM_LABEL(tmp, GET_EQ(ch, l), ch)
 					|| (IS_SET(bitvector, FIND_OBJ_EXDESC)
 						&& find_exdesc(tmp, GET_EQ(ch, l)->ex_description)))
 				{
@@ -3511,7 +3511,7 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** 
 	{
 		for (i = ch->carrying; i && (j <= number); i = i->next_content)
 		{
-			if (isname(tmp, i->aliases)
+			if (isname(tmp, i->aliases) || CHECK_CUSTOM_LABEL(tmp, i, ch)
 				|| (IS_SET(bitvector, FIND_OBJ_EXDESC)
 					&& find_exdesc(tmp, i->ex_description)))
 			{
@@ -3532,7 +3532,7 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** 
 		for (i = world[ch->in_room]->contents;
 			i && (j <= number); i = i->next_content)
 		{
-			if (isname(tmp, i->aliases)
+			if (isname(tmp, i->aliases) || CHECK_CUSTOM_LABEL(tmp, i, ch)
 				|| (IS_SET(bitvector, FIND_OBJ_EXDESC)
 					&& find_exdesc(tmp ,i->ex_description)))
 			{

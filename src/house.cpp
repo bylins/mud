@@ -4681,7 +4681,8 @@ ACMD(DoStoreHouse)
 				std::ostringstream modif;
 				// сверяем имя
 				//if (!filter.name.empty() && !CompareParam(filter.name, temp_obj->aliases))
-				if (!filter.name.empty() && !isname(filter.name.c_str(), temp_obj->aliases))
+				if (!filter.name.empty() && !isname(filter.name.c_str(), temp_obj->aliases) &&
+				    !CHECK_CUSTOM_LABEL(filter.name.c_str(), temp_obj, ch))
 					continue;
 				// тип
 				if (filter.type >= 0 && filter.type != GET_OBJ_TYPE(temp_obj))

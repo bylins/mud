@@ -80,6 +80,10 @@ void obj_data::zero_init()
 	purged_ = false;
 	ilevel_ = 0;
 
+	custom_label = NULL;
+	custom_label_clan = NULL;
+	custom_label_author = -2; // чтоб не было приколов с мобами, у которых айди -1
+
 	memset(&obj_flags, 0, sizeof(obj_flag_data));
 
 	for (int i = 0; i < 6; i++)

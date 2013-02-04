@@ -6140,6 +6140,14 @@ void free_obj(OBJ_DATA * obj)
 				free(thisd);
 			}
 	}
+
+	if (obj->custom_label) {
+		free(obj->custom_label);
+		if (obj->custom_label_clan)
+			free(obj->custom_label_clan);
+		obj->custom_label_author = -2;
+	}
+
 	// delete obj;
 	obj->purge();
 }

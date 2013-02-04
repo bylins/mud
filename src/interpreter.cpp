@@ -336,6 +336,7 @@ ACMD(do_godtest);
 ACMD(do_print_armor);
 ACMD(do_relocate);
 ACMD(do_strangle);
+ACMD(do_custom_label);
 
 /* DG Script ACMD's */
 ACMD(do_attach);
@@ -584,6 +585,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"новичок", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
 	{"новости", POS_DEAD, DoBoard, 1, NEWS_BOARD, -1},
 	{"надеть", POS_RESTING, do_wear, 0, 0, 500},
+	{"нацарапать", POS_RESTING, do_custom_label, 0, 0, 0},
 
 	{"обезоружить", POS_FIGHTING, do_disarm, 0, 0, -1},
 	{"обернуться", POS_STANDING, do_morph, 0, 0, -1},

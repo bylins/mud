@@ -418,6 +418,18 @@ std::string diag_armor_type_to_char(const OBJ_DATA *obj)
 
 } // namespace
 
+// добавляет в скобках кастомные метки, если они есть и смотрящий является их автором
+void append_custom_label(char *buf, OBJ_DATA *obj, CHAR_DATA *ch)
+{
+	if (obj->custom_label != NULL && (obj->custom_label_author == ch->get_idnum() ||
+	    (ch->player_specials->clan && obj->custom_label_clan != NULL &&
+	     !strcmp(obj->custom_label_clan, ch->player_specials->clan->GetAbbrev())))) {
+		strcat(buf, " (");
+		strcat(buf, obj->custom_label);
+		strcat(buf, ")");
+	}
+}
+
 // mode 1 show_state 3 для хранилище (4 - хранилище ингров)
 const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how)
 {
@@ -425,10 +437,14 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 	if ((mode < 5) && PRF_FLAGGED(ch, PRF_ROOMFLAGS))
 		sprintf(buf, "[%5d] ", GET_OBJ_VNUM(object));
 
-	if ((mode == 0) && object->description)
+	if ((mode == 0) && object->description) {
 		strcat(buf, object->description);
-	else if (object->short_description && ((mode == 1) || (mode == 2) || (mode == 3) || (mode == 4)))
+		append_custom_label(buf, object, ch);
+	}
+	else if (object->short_description && ((mode == 1) || (mode == 2) || (mode == 3) || (mode == 4))) {
 		strcat(buf, object->short_description);
+		append_custom_label(buf, object, ch);
+	}
 	else if (mode == 5)
 	{
 		if (GET_OBJ_TYPE(object) == ITEM_NOTE)

@@ -364,6 +364,11 @@ struct obj_data
 	EXTRA_DESCR_DATA *ex_description;	/* extra descriptions     */
 	CHAR_DATA *carried_by;	/* Carried by :NULL in room/conta   */
 	CHAR_DATA *worn_by;	/* Worn by?              */
+
+	char *custom_label;		/* наносимая чаром метка */
+	char *custom_label_clan;	/* аббревиатура клана, если метка предназначена для клана */
+	int custom_label_author;	/* кем нанесена: содержит результат ch->get_idnum(), по умолчанию -2 */
+
 	short int
 	worn_on;		/* Worn where?          */
 

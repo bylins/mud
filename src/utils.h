@@ -960,6 +960,13 @@ extern SPECIAL(bank);
 #define CAN_WEAR(obj, part) (IS_SET((obj)->obj_flags.wear_flags, (part)))
 #define CAN_WEAR_ANY(obj) (((obj)->obj_flags.wear_flags>0) && ((obj)->obj_flags.wear_flags != ITEM_WEAR_TAKE) )
 
+// проверяет arg на совпадение с персональными или клановыми метками
+#define CHECK_CUSTOM_LABEL(arg, obj, ch) ( (obj)->custom_label != NULL && \
+              ( (obj)->custom_label_author == (ch)->get_idnum() || \
+                ( (ch)->player_specials->clan && (obj)->custom_label_clan != NULL && \
+                !strcmp((obj)->custom_label_clan, (ch)->player_specials->clan->GetAbbrev()) ) ) && \
+              isname((arg), (obj)->custom_label) )
+
 /* compound utilities and other macros **********************************/
 
 /*

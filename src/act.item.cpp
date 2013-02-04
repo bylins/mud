@@ -2930,3 +2930,67 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	extract_obj(obj);
 }
 
+ACMD(do_custom_label)
+{
+	char arg1[MAX_INPUT_LENGTH];
+	char arg2[MAX_INPUT_LENGTH];
+
+	char arg3[MAX_INPUT_LENGTH];
+	char arg4[MAX_INPUT_LENGTH];
+
+	OBJ_DATA *target = NULL;
+	int erase_only = 0; /* 0 -- наносим новую метку, 1 -- удаляем старую */
+	int clan = 0; /* клан режим, если единица. персональный, если не */
+
+	half_chop(argument, arg1, arg2);
+
+	if (!strlen(arg1))
+		send_to_char("На чем царапаем?\r\n", ch);
+	else
+	{
+		/* если после шмотки аргументов нет, то ставим флаг, что просто стираем.
+		   если есть, то смотрим, клан режим или нет, ставим флаг и продолжаем */
+		if (!strlen(arg2)) {
+			erase_only = 1;
+		} else {
+			half_chop(arg2, arg3, arg4);
+			if (!strcmp(arg3, "клан")) {
+				if (!strlen(arg4)) { /* если клан, но метка пустая, все равно просто стираем */
+					erase_only = 1;
+				} else {
+					clan = 1;
+					strl_cpy(arg2, arg4, MAX_INPUT_LENGTH);
+				}
+			}
+		}
+
+
+		if (!(target = get_obj_in_list_vis(ch, arg1, ch->carrying)))
+		{
+			sprintf(buf, "У вас нет \'%s\'.\r\n", arg1);
+			send_to_char(buf, ch);
+		} else {
+			if (target->custom_label != NULL) 
+				free(target->custom_label);
+			if (target->custom_label_clan != NULL) 
+				free(target->custom_label_clan);
+
+			target->custom_label = NULL;
+			target->custom_label_clan = NULL;
+			target->custom_label_author = -2;
+
+			if (erase_only) {
+				act("Вы затерли надписи на $o5.", FALSE, ch, target, 0, TO_CHAR);
+			} else {
+				target->custom_label = str_dup(arg2);
+				target->custom_label_author = ch->get_idnum();
+				if (clan && ch->player_specials->clan) {
+					target->custom_label_clan = str_dup(ch->player_specials->clan->GetAbbrev());
+					act("Вы покрыли $o3 каракулями, понятными разве что вашим соратникам.", FALSE, ch, target, 0, TO_CHAR);
+				} else {
+					act("Вы покрыли $o3 каракулями, которые никто кроме вас не разберет.", FALSE, ch, target, 0, TO_CHAR);
+				}
+			}
+		}
+	}
+}
