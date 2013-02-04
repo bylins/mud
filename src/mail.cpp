@@ -38,6 +38,9 @@ void postmaster_receive_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char 
 SPECIAL(postmaster);
 
 extern int no_mail;
+extern room_rnum r_helled_start_room;
+extern room_rnum r_named_start_room;
+extern room_rnum r_unreg_start_room;
 int find_name(const char *name);
 
 mail_index_type *mail_index = NULL;	/* list of recs in the mail file  */
@@ -571,6 +574,13 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char *ar
 	skip_spaces(&arg);
 	if (*arg)
 	{
+		if ((IN_ROOM(ch) == r_helled_start_room) ||
+			(IN_ROOM(ch) == r_named_start_room) ||
+			(IN_ROOM(ch) == r_unreg_start_room))
+		{
+			act("$n сказал$g вам : 'Посылку? Не положено!'", FALSE, mailman, 0, ch, TO_VICT);
+			return;
+		}
 		long vict_uid = GetUniqueByName(buf);
 		if (vict_uid > 0)
 		{
@@ -640,7 +650,7 @@ void postmaster_receive_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int cmd, char 
 
 	if (!has_mail(GET_IDNUM(ch)) && !Parcel::has_parcel(ch))
 	{
-		sprintf(buf, "$n удивленно сказал$g вам : 'Но для вас нет писем !?'");
+		sprintf(buf, "$n удивленно сказал$g вам : 'Но для вас нет писем!?'");
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}

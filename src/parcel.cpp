@@ -21,6 +21,10 @@
 #include "room.hpp"
 #include "objsave.h"
 
+extern room_rnum r_helled_start_room;
+extern room_rnum r_named_start_room;
+extern room_rnum r_unreg_start_room;
+
 extern CHAR_DATA *get_player_of_name(const char *name);
 extern int get_buf_line(char **source, char *target);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
@@ -561,6 +565,15 @@ OBJ_DATA * create_parcel()
 */
 void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
 {
+	if (((IN_ROOM(ch) == r_helled_start_room) ||
+		(IN_ROOM(ch) == r_named_start_room) ||
+		(IN_ROOM(ch) == r_unreg_start_room)) &&
+		has_parcel(ch))
+	{
+		act("$n сказал$g вам : 'А посылку-то не получишь, сюда не доставляем.'", FALSE, mailman, 0, ch, TO_VICT);
+		return;
+	}
+
 	ParcelListType::iterator it = parcel_list.find(GET_UNIQUE(ch));
 	if (it != parcel_list.end())
 	{

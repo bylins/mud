@@ -13,15 +13,15 @@ CXREF = cxref
 
 BINDIR = ../bin
 
-CFLAGS = -ggdb3 -O2 -Wall -DBOOST_ENABLE_ASSERT_HANDLER -DHAVE_ICONV
+CFLAGS = -m32 -ggdb3 -O2 -Wall -DBOOST_ENABLE_ASSERT_HANDLER -DHAVE_ICONV
 
 # use 'make test' for faster compile w/o optimizations, crypt and 34lvl god for first character
-TESTCFLAGS = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH
-DEBUGFLAGS = -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC
-FASTTEST   = -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -O3
+TESTCFLAGS = -m32 -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH
+DEBUGFLAGS = -m32 -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC
+FASTTEST   = -m32 -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -O3
 #SEARCHPATH = -I /usr/include/python2.6
 
-LIBS =  -lz -lcrypt
+LIBS =  -m32 -lz -lcrypt
 #LIBS =  -lz -lcrypt -lpython2.6 -lboost_python-mt
 
 OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
