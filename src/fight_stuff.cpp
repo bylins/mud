@@ -666,7 +666,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 --*/
 void group_gain(CHAR_DATA * ch, CHAR_DATA * victim)
 {
-	int inroom_members, koef = 100, maxlevel, rmrt;
+	int inroom_members, koef = 100, maxlevel;
 	CHAR_DATA *k;
 	struct follow_type *f;
 	int leader_inroom;
