@@ -3097,8 +3097,8 @@ void print_do_score_all(CHAR_DATA *ch)
 				" || %sВы можете вступить в группу с максимальной разницей                             %s||\r\n"
 				" || %sв %2d %-75s%s||\r\n",
 				CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-				grouping[(int)GET_CLASS(ch)][MIN(14, (int)GET_REMORT(ch))],
-				(string(desc_count(grouping[(int)GET_CLASS(ch)][MIN(14, (int)GET_REMORT(ch))], WHAT_LEVEL))
+				grouping[(int)GET_CLASS(ch)][(int)GET_REMORT(ch)],
+				(string(desc_count(grouping[(int)GET_CLASS(ch)][(int)GET_REMORT(ch)], WHAT_LEVEL))
 				 + string(" без потерь для опыта.")).substr(0, 76).c_str(), CCCYN(ch, C_NRM));
 
 	if (RENTABLE(ch))
@@ -3347,8 +3347,8 @@ ACMD(do_score)
 	if (GET_LEVEL(ch) < LVL_IMMORT)
 		sprintf(buf + strlen(buf),
 				"Вы можете вступить в группу с максимальной разницей в %d %s без потерь для опыта.\r\n",
-				grouping[(int)GET_CLASS(ch)][MIN(14, (int)GET_REMORT(ch))],
-				desc_count(grouping[(int)GET_CLASS(ch)][MIN(14, (int)GET_REMORT(ch))], WHAT_LEVEL));
+				grouping[(int)GET_CLASS(ch)][(int)GET_REMORT(ch)],
+				desc_count(grouping[(int)GET_CLASS(ch)][(int)GET_REMORT(ch)], WHAT_LEVEL));
 
 	//Напоминаем о метке, если она есть.
     ROOM_DATA *label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);

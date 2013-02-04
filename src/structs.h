@@ -1966,7 +1966,7 @@ struct set_struct
 	type;
 };
 
-extern int grouping[14][15];
+extern int grouping[NUM_CLASSES][MAX_REMORT+1];
 
 
 
