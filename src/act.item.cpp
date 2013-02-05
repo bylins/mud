@@ -2930,6 +2930,8 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	extract_obj(obj);
 }
 
+// ŞÔÏÂ ÎÅ ÁÂÕÚÉÌÉ ÄÌÉÎÕ. ĞÅÒÓÏÎÁÌØÎÙÅ ĞÏÆÉÇ, Á ËÌÁÎÏ×ÙÅ ÎÅ ÎÁÄÏ.
+#define MAX_LABEL_LENGTH 20
 ACMD(do_custom_label)
 {
 	char arg1[MAX_INPUT_LENGTH];
@@ -2998,6 +3000,8 @@ ACMD(do_custom_label)
 				act("÷Ù ÚÁÔÅÒÌÉ ÎÁÄĞÉÓÉ ÎÁ $o5.", FALSE, ch, target, 0, TO_CHAR);
 			}
 			else {
+				if (strlen(labels) > MAX_LABEL_LENGTH)
+					labels[MAX_LABEL_LENGTH] = '\0';
 				target->custom_label = init_custom_label();
 				target->custom_label->label_text = str_dup(labels);
 				target->custom_label->author = ch->get_idnum();
