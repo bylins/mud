@@ -2941,52 +2941,78 @@ ACMD(do_custom_label)
 	OBJ_DATA *target = NULL;
 	int erase_only = 0; // 0 -- наносим новую метку, 1 -- удаляем старую
 	int clan = 0; // клан режим, если единица. персональный, если не
+	int no_target = 0; // красиво сделать не выйдет, будем через флаги
+
+	char *objname = NULL;
+	char *labels = NULL;
 
 	half_chop(argument, arg1, arg2);
 
 	if (!strlen(arg1))
-		send_to_char("На чем царапаем?\r\n", ch);
+		no_target = 1;
 	else
 	{
-		// если после шмотки аргументов нет, то ставим флаг, что просто стираем.
-		// если есть, то смотрим, клан режим или нет, ставим флаг и продолжаем.
-		if (!strlen(arg2)) {
-			erase_only = 1;
-		} else {
-			half_chop(arg2, arg3, arg4);
-			if (!strcmp(arg3, "клан")) {
-				if (!strlen(arg4)) { // если клан, но метка пустая, все равно просто стираем
+		if (!strcmp(arg1, "клан")) { // если в arg1 "клан", то в arg2 ищем название объекта и метки
+			clan = 1;
+			if (strlen(arg2)) {
+				half_chop(arg2, arg3, arg4); // в arg3 получаем название объекта
+				objname = str_dup(arg3);
+				if (strlen(arg4))
+					labels = str_dup(arg4);
+				else
 					erase_only = 1;
-				} else {
-					clan = 1;
-					strl_cpy(arg2, arg4, MAX_INPUT_LENGTH);
-				}
+			}
+			else {
+				no_target = 1;
 			}
 		}
+		else { // слова "клан" не нашли, значит, ожидаем в arg1 сразу имя объекта и метки в arg2
+			if (strlen(arg1)) {
+				objname = str_dup(arg1);
+				if (strlen(arg2))
+					labels = str_dup(arg2);
+				else
+					erase_only = 1;
+			}
+			else {
+				no_target = 1;
+			}
+		}
+	}
 
-
-		if (!(target = get_obj_in_list_vis(ch, arg1, ch->carrying)))
+	if (no_target) {
+		send_to_char("На чем царапаем?\r\n", ch);
+	}
+	else {
+		if (!(target = get_obj_in_list_vis(ch, objname, ch->carrying)))
 		{
-			sprintf(buf, "У вас нет \'%s\'.\r\n", arg1);
+			sprintf(buf, "У вас нет \'%s\'.\r\n", objname);
 			send_to_char(buf, ch);
-		} else {
+		}
+		else {
 			if (target->custom_label)
 				free_custom_label(target->custom_label);
 
-			target->custom_label = init_custom_label();
-
 			if (erase_only) {
+				target->custom_label = NULL;
 				act("Вы затерли надписи на $o5.", FALSE, ch, target, 0, TO_CHAR);
-			} else {
-				target->custom_label->label_text = str_dup(arg2);
+			}
+			else {
+				target->custom_label = init_custom_label();
+				target->custom_label->label_text = str_dup(labels);
 				target->custom_label->author = ch->get_idnum();
 				if (clan && ch->player_specials->clan) {
 					target->custom_label->clan = str_dup(ch->player_specials->clan->GetAbbrev());
 					act("Вы покрыли $o3 каракулями, понятными разве что вашим соратникам.", FALSE, ch, target, 0, TO_CHAR);
-				} else {
+				}
+				else {
 					act("Вы покрыли $o3 каракулями, которые никто кроме вас не разберет.", FALSE, ch, target, 0, TO_CHAR);
 				}
 			}
 		}
 	}
+	if (objname)
+		free(objname);
+	if (labels)
+		free(labels);
 }
