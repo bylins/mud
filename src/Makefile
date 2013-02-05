@@ -21,7 +21,7 @@ DEBUGFLAGS = -m32 -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC
 FASTTEST   = -m32 -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -O3
 #SEARCHPATH = -I /usr/include/python2.6
 
-LIBS =  -m32 -lz -lcrypt
+LIBS =  -m32 -lz -lcrypt  -liconv
 #LIBS =  -lz -lcrypt -lpython2.6 -lboost_python-mt
 
 OBJFILES = act.comm.o act.informative.o act.item.o act.movement.o \
