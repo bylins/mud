@@ -33,6 +33,10 @@ ACMD(do_flee);
 extern int material_value[];
 extern int max_exp_gain_npc;
 
+//интервал в секундах между восстановлением кругов после рипа
+extern const unsigned RECALL_SPELLS_INTERVAL;
+const unsigned RECALL_SPELLS_INTERVAL = 28;
+
 void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	CHAR_DATA *master = 0;
@@ -280,8 +284,12 @@ void forget_all_spells(CHAR_DATA *ch)
 {
 	GET_MEM_COMPLETED(ch) = 0;
 	int slots[MAX_SLOT];
+	int max_slot = 0;
 	for (unsigned i = 0; i < MAX_SLOT; ++i)
+	{
 		slots[i] = slot_for_char(ch, i + 1);
+		if (slots[i]) max_slot = i+1;
+	}
 	struct spell_mem_queue_item *qi_cur, ** qi = &ch->MemQueue.queue;
 	while (*qi)
 	{
@@ -307,6 +315,15 @@ void forget_all_spells(CHAR_DATA *ch)
 		}
 		ch->real_abils.SplMem[i] = 0;
 	}
+	AFFECT_DATA af;
+	af.type = SPELL_RECALL_SPELLS;
+	af.location = APPLY_NONE;
+	af.modifier = 1; // номер круга, который восстанавливаем
+	//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
+	af.duration = pc_duration(ch, max_slot*RECALL_SPELLS_INTERVAL+SECS_PER_PLAYER_AFFECT, 0, 0, 0, 0);
+	af.bitvector = AFF_RECALL_SPELLS;
+	af.battleflag = AF_PULSEDEC | AF_DEADKEEP;
+	affect_join(ch, &af, 0, 0, 0, 0);
 }
 
 /* Функция используемая при "автограбеже" и "автолуте",

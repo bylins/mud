@@ -535,6 +535,7 @@ const char *affected_bits[] = { "слепота",	/* 0 */
 								"не может перевязываться",
 								"превращен",
 								"удушье",
+								"вспоминает заклинания",
 								"\n",
 								"\n",
 							  };
@@ -1817,7 +1818,8 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	/* 0 */
 		"Вы аккуратно перевязали свои раны.",
 		"Вы снова можете перевязывать свои раны.",
 		"!SPELL_CAPABLE!",
-		"Удушье отпустило вас, и вы вздохнули полной грудью." //SPELL_STRANGLE
+		"Удушье отпустило вас, и вы вздохнули полной грудью.", //SPELL_STRANGLE
+		"Вам стало не на чем концентрироваться." //SPELL_RECALL_SPELLS
 };
 
 
@@ -2254,7 +2256,9 @@ const char *cast_phrase[LAST_USED_SPELL + 1][2] = { {"\nRESERVED DB.C",	/* 0 */
 	 {"\n",
 	 "\n"}, // SPELL_CAPABLE
 	 {"\n",
-	 "\n"} // SPELL_STRANGLE
+	 "\n"}, // SPELL_STRANGLE
+	 {"\n",
+	 "\n"} // SPELL_RECALL_SPELLS
 };
 
 

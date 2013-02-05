@@ -65,8 +65,10 @@ extern room_rnum r_immort_start_room;
 extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;
 extern struct spell_create_type spell_create[];
+extern const unsigned RECALL_SPELLS_INTERVAL;
 extern int CheckProxy(DESCRIPTOR_DATA * ch);
 extern int check_death_ice(int room, CHAR_DATA * ch);
+extern int get_max_slot(CHAR_DATA* ch);
 
 void decrease_level(CHAR_DATA * ch);
 int max_exp_gain_pc(CHAR_DATA * ch);
@@ -106,6 +108,53 @@ int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6)
 		return (p6);	/* >= 80 */
 }
 
+void handle_recall_spells(CHAR_DATA* ch)
+{
+	AFFECT_DATA* aff = NULL;
+	for(AFFECT_DATA* af = ch->affected; af; af = af->next) 
+		if (af->type == SPELL_RECALL_SPELLS)
+		{
+			aff = af;
+			break;
+		}
+	if (!aff) return;
+	//максимальный доступный чару круг
+	unsigned max_slot = get_max_slot(ch);
+	//обрабатываем только каждые RECALL_SPELLS_INTERVAL секунд
+	int secs_left = (SECS_PER_PLAYER_AFFECT*aff->duration)/SECS_PER_MUD_HOUR -SECS_PER_PLAYER_AFFECT;
+	if (secs_left / RECALL_SPELLS_INTERVAL < max_slot -aff->modifier || secs_left <= 2)
+	{
+		int slot_to_restore = aff->modifier++;
+
+		bool found_spells = false;
+		struct spell_mem_queue_item *next = NULL, *prev=NULL, *i = ch->MemQueue.queue;
+		while (i) 
+		{
+			next = i->link;
+			if (spell_info[i->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == slot_to_restore) 
+			{
+				if (!found_spells)
+				{
+					send_to_char("Ваша голова прояснилась, в памяти всплыло несколько новых заклинаний.\r\n", ch);
+					found_spells = true;
+				}
+				if (prev) prev->link = next;
+				if (i == ch->MemQueue.queue)
+				{
+					 ch->MemQueue.queue = next;
+					GET_MEM_COMPLETED(ch) = 0;
+				}
+				GET_MEM_TOTAL(ch) = MAX(0, GET_MEM_TOTAL(ch) - mag_manacost(ch, i->spellnum));
+				sprintf(buf, "Вы вспомнили заклинание \"%s%s%s\".\r\n",
+						CCICYN(ch, C_NRM), spell_info[i->spellnum].name, CCNRM(ch, C_NRM));
+				send_to_char(buf, ch);
+				GET_SPELL_MEM(ch, i->spellnum)++;
+				free(i);
+			} else prev = i;
+			i = next;
+		}
+	}
+}
 
 /*
  * The hit_limit, mana_limit, and move_limit functions are gone.  They
@@ -679,6 +728,9 @@ void beat_points_update(int pulse)
 			restore = mana_gain(i);
 			restore = interpolate(restore, pulse);
 			GET_MEM_COMPLETED(i) += restore;
+
+	if (AFF_FLAGGED(i, AFF_RECALL_SPELLS))
+		handle_recall_spells(i);
 
 			while (GET_MEM_COMPLETED(i) > GET_MEM_CURRENT(i)
 					&& !MEMQUEUE_EMPTY(i))

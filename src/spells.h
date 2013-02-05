@@ -337,7 +337,8 @@
 #define SPELL_NO_BANDAGE           196
 #define SPELL_CAPABLE           197
 #define SPELL_STRANGLE          198
-#define LAST_USED_SPELL			199
+#define SPELL_RECALL_SPELLS     199
+#define LAST_USED_SPELL			200
 
 #define MAX_SLOT 13
 

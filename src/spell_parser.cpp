@@ -5086,6 +5086,8 @@ void mag_assign_spells(void)
 	spello(SPELL_CAPABLE, "!зачарован!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //198
 	spello(SPELL_STRANGLE, "!удушье!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
+	spello(SPELL_RECALL_SPELLS, "!вспоминает заклинания!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
+//199
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.
@@ -5190,4 +5192,9 @@ void mag_assign_spells(void)
 	skillo(SKILL_IRON_WIND, "железный ветер", 150);
 	skillo(SKILL_STRANGLE, "удавить", 200);
 
+}
+
+int get_max_slot(CHAR_DATA* ch)
+{
+	return max_slots.get(GET_CLASS(ch), GET_KIN(ch));
 }
