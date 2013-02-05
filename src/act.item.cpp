@@ -2931,7 +2931,7 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 }
 
 // чтоб не абузили длину. персональные пофиг, а клановые не надо.
-#define MAX_LABEL_LENGTH 20
+#define MAX_LABEL_LENGTH 32
 ACMD(do_custom_label)
 {
 	char arg1[MAX_INPUT_LENGTH];
