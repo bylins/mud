@@ -961,11 +961,12 @@ extern SPECIAL(bank);
 #define CAN_WEAR_ANY(obj) (((obj)->obj_flags.wear_flags>0) && ((obj)->obj_flags.wear_flags != ITEM_WEAR_TAKE) )
 
 // проверяет arg на совпадение с персональными или клановыми метками
-#define CHECK_CUSTOM_LABEL(arg, obj, ch) ( (obj)->custom_label != NULL && \
-              ( (obj)->custom_label_author == (ch)->get_idnum() || \
-                ( (ch)->player_specials->clan && (obj)->custom_label_clan != NULL && \
-                !strcmp((obj)->custom_label_clan, (ch)->player_specials->clan->GetAbbrev()) ) ) && \
-              isname((arg), (obj)->custom_label) )
+#define CHECK_CUSTOM_LABEL(arg, obj, ch) ( !IS_NPC(ch) && (obj)->custom_label != NULL && \
+              ( (obj)->custom_label->author == (ch)->get_idnum() || \
+                IS_IMPL(ch) || \
+                ( (ch)->player_specials->clan && (obj)->custom_label->clan != NULL && \
+                !strcmp((obj)->custom_label->clan, (ch)->player_specials->clan->GetAbbrev()) ) ) && \
+              isname((arg), (obj)->custom_label->label_text) )
 
 /* compound utilities and other macros **********************************/
 

@@ -48,6 +48,26 @@ obj_data::~obj_data()
 	}
 }
 
+// можно было бы отдельной функцией и не делать, но вдруг кто-нибудь потом захочет расширить функционал
+struct custom_label *init_custom_label()
+{
+	struct custom_label *ptr = (struct custom_label *)malloc(sizeof(struct custom_label));
+	ptr->label_text = NULL;
+	ptr->clan = NULL;
+	ptr->author = -2;
+
+	return ptr;
+}
+
+void free_custom_label(struct custom_label *custom_label) {
+	if (custom_label) {
+		free(custom_label->label_text);
+		if (custom_label->clan)
+			free(custom_label->clan);
+		free(custom_label);
+	}
+}
+
 /**
  * См. Character::zero_init()
  */
@@ -81,8 +101,6 @@ void obj_data::zero_init()
 	ilevel_ = 0;
 
 	custom_label = NULL;
-	custom_label_clan = NULL;
-	custom_label_author = -2; // чтоб не было приколов с мобами, у которых айди -1
 
 	memset(&obj_flags, 0, sizeof(obj_flag_data));
 

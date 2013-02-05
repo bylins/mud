@@ -419,13 +419,14 @@ std::string diag_armor_type_to_char(const OBJ_DATA *obj)
 } // namespace
 
 // добавляет в скобках кастомные метки, если они есть и смотрящий является их автором
-void append_custom_label(char *buf, OBJ_DATA *obj, CHAR_DATA *ch)
+int append_custom_label(char *buf, OBJ_DATA *obj, CHAR_DATA *ch)
 {
-	if (obj->custom_label != NULL && (obj->custom_label_author == ch->get_idnum() ||
-	    (ch->player_specials->clan && obj->custom_label_clan != NULL &&
-	     !strcmp(obj->custom_label_clan, ch->player_specials->clan->GetAbbrev())))) {
+	if (obj->custom_label != NULL && (obj->custom_label->author == ch->get_idnum() ||
+            IS_IMPL(ch) ||
+	    (ch->player_specials->clan && obj->custom_label->clan != NULL &&
+	     !strcmp(obj->custom_label->clan, ch->player_specials->clan->GetAbbrev())))) {
 		strcat(buf, " (");
-		strcat(buf, obj->custom_label);
+		strcat(buf, obj->custom_label->label_text);
 		strcat(buf, ")");
 	}
 }

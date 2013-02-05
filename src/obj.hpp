@@ -344,6 +344,16 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// метки для команды "нацарапать"
+struct custom_label {
+	char *label_text; // текст
+	char *clan;       // аббревиатура клана, если метка предназначена для клана
+	int author;     // кем нанесена: содержит результат ch->get_idnum(), по умолчанию -2
+};
+
+struct custom_label *init_custom_label();
+void free_custom_label(struct custom_label *);
+
 struct obj_data
 {
 	obj_data();
@@ -365,9 +375,7 @@ struct obj_data
 	CHAR_DATA *carried_by;	/* Carried by :NULL in room/conta   */
 	CHAR_DATA *worn_by;	/* Worn by?              */
 
-	char *custom_label;		/* наносимая чаром метка */
-	char *custom_label_clan;	/* аббревиатура клана, если метка предназначена для клана */
-	int custom_label_author;	/* кем нанесена: содержит результат ch->get_idnum(), по умолчанию -2 */
+	struct custom_label *custom_label;		/* наносимая чаром метка */
 
 	short int
 	worn_on;		/* Worn where?          */

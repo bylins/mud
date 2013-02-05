@@ -561,17 +561,23 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Clbl")) /* текст метки */
 			{
 				*error = 58;
-				object->custom_label = str_dup(buffer);
+				if (!object->custom_label)
+					object->custom_label = init_custom_label();
+				object->custom_label->label_text = str_dup(buffer);
 			}
 			else if (!strcmp(read_line, "ClID")) /* id чара */
 			{
 				*error = 59;
-				object->custom_label_author = atoi(buffer);
+				if (!object->custom_label)
+					object->custom_label = init_custom_label();
+				object->custom_label->author = atoi(buffer);
 			}
 			else if (!strcmp(read_line, "ClCl")) /* аббревиатура клана */
 			{
 				*error = 60;
-				object->custom_label_clan = str_dup(buffer);
+				if (!object->custom_label)
+					object->custom_label = init_custom_label();
+				object->custom_label->clan = str_dup(buffer);
 			}
 			else
 			{
@@ -1241,12 +1247,12 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 	}
 
 	// кастомная метка
-	if (object->custom_label && object->custom_label_author != -2)
+	if (object->custom_label)
 	{
-		out << "Clbl: " << object->custom_label << "~\n";
-		out << "ClID: " << object->custom_label_author << "~\n";
-		if (object->custom_label_clan)
-			out << "ClCl: " << object->custom_label_clan << "~\n";
+		out << "Clbl: " << object->custom_label->label_text << "~\n";
+		out << "ClID: " << object->custom_label->author << "~\n";
+		if (object->custom_label->clan)
+			out << "ClCl: " << object->custom_label->clan << "~\n";
 	}
 }
 
