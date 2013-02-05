@@ -135,7 +135,7 @@ void handle_recall_spells(CHAR_DATA* ch)
 			{
 				if (!found_spells)
 				{
-					send_to_char("Ваша голова прояснилась, в памяти всплыли несколько новых заклинаний.\r\n", ch);
+					send_to_char("Ваша голова прояснилась, в памяти всплыло несколько новых заклинаний.\r\n", ch);
 					found_spells = true;
 				}
 				if (prev) prev->link = next;
@@ -145,7 +145,7 @@ void handle_recall_spells(CHAR_DATA* ch)
 					GET_MEM_COMPLETED(ch) = 0;
 				}
 				GET_MEM_TOTAL(ch) = MAX(0, GET_MEM_TOTAL(ch) - mag_manacost(ch, i->spellnum));
-				sprintf(buf, "Вы выучили заклинание \"%s%s%s\".\r\n",
+				sprintf(buf, "Вы вспомнили заклинание \"%s%s%s\".\r\n",
 						CCICYN(ch, C_NRM), spell_info[i->spellnum].name, CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
 				GET_SPELL_MEM(ch, i->spellnum)++;

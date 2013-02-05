@@ -204,7 +204,7 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 	if (AFF_FLAGGED(ch, AFF_RECALL_SPELLS))
 	{
-		send_to_char("Вы забыли о концентрации на запоминании заклинаний и ринулись в бой!\r\n", ch);
+		send_to_char("Вы забыли о концентрации и ринулись в бой!\r\n", ch);
 		affect_from_char(ch, SPELL_RECALL_SPELLS);
 	}
 

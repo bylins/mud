@@ -1819,7 +1819,7 @@ const char *spell_wear_off_msg[LAST_USED_SPELL + 1] = { "RESERVED DB.C",	/* 0 */
 		"Вы снова можете перевязывать свои раны.",
 		"!SPELL_CAPABLE!",
 		"Удушье отпустило вас, и вы вздохнули полной грудью.", //SPELL_STRANGLE
-		"Концентрация на запоминании заклинаний прошла." //SPELL_RECALL_SPELLS
+		"Вам стало не на чем концентрироваться." //SPELL_RECALL_SPELLS
 };
 
 
