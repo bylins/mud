@@ -1294,7 +1294,7 @@ ACMD(do_relocate)
 		send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 			CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
 		pkPortal(ch);
-		timed.time = 18 -GET_REMORT(ch);
+		timed.time = 18 - MIN(GET_REMORT(ch),15);
 		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
 		//На время лага на чара нельзя ставить пенту
 			AFFECT_DATA af;
