@@ -1901,6 +1901,8 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 				int wc_count = (HOURS_PER_DAY - timed_by_skill(d->character, SKILL_WARCRY)) / HOURS_PER_WARCRY;
 				count += sprintf(prompt + count, "ëÌ:%d ", wc_count);
 			}
+			if (d->character->get_skill(SKILL_COURAGE))
+				count += sprintf(prompt + count, "ñÒ:%d ", timed_by_skill(d->character, SKILL_COURAGE));
 			if (d->character->get_skill(SKILL_STRANGLE))
 				count += sprintf(prompt + count, "õÄ:%d ", timed_by_skill(d->character, SKILL_STRANGLE));
 			if (d->character->get_skill(SKILL_TOWNPORTAL))

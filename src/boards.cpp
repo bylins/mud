@@ -24,7 +24,7 @@
 const int GENERAL_BOARD = 0;  // общая
 const int NEWS_BOARD = 1;  // новости
 const int IDEA_BOARD = 2;  // идеи
-const int ERROR_BOARD = 3;  // ошибки
+const int ERROR_BOARD = 3;  // баги (бывшая ошибки)
 const int GODNEWS_BOARD = 4;  // новости (только для иммов)
 const int GODGENERAL_BOARD = 5;  // общая (только для иммов)
 const int GODBUILD_BOARD = 6;  // билдеры (только для иммов)
@@ -34,7 +34,7 @@ const int PERS_BOARD = 9;  // персональная (только для иммов)
 const int CLAN_BOARD = 10; // клановая
 const int CLANNEWS_BOARD = 11; // клановые новости
 const int NOTICE_BOARD = 12;
-const int MISPRINT_BOARD = 13;
+const int MISPRINT_BOARD = 13; // очепятки (бывшая опечатки)
 // не забываем выставить BOARD_TOTAL в boards.h
 
 // максимальный размер сообщения
@@ -72,14 +72,14 @@ void Board::BoardInit()
 	create_board(GENERAL_BOARD, "Вече", "Базарная площадь", ETC_BOARD"general.board");
 	create_board(NEWS_BOARD, "Новости", "Анонсы и новости Былин", ETC_BOARD"news.board");
 	create_board(IDEA_BOARD, "Идеи", "Идеи и их обсуждение", ETC_BOARD"idea.board");
-	create_board(ERROR_BOARD, "Ошибки", "Сообщения об ошибках в мире", ETC_BOARD"error.board");
+	create_board(ERROR_BOARD, "Баги", "Сообщения об ошибках в мире", ETC_BOARD"error.board");
 	create_board(GODNEWS_BOARD, "GodNews", "Божественные новости", ETC_BOARD"god-news.board");
 	create_board(GODGENERAL_BOARD, "Божества", "Божественная базарная площадь", ETC_BOARD"god-general.board");
 	create_board(GODBUILD_BOARD, "Билдер", "Заметки билдеров", ETC_BOARD"god-build.board");
 	create_board(GODCODE_BOARD, "Кодер", "Заметки кодеров", ETC_BOARD"god-code.board");
 	create_board(GODPUNISH_BOARD, "Наказания", "Комментарии к наказаниям", ETC_BOARD"god-punish.board");
 	create_board(NOTICE_BOARD, "Анонсы", "Сообщения от администрации", ETC_BOARD"notice.board");
-	create_board(MISPRINT_BOARD, "Опечатки", "Опечатки в игровых локациях", ETC_BOARD"misprint.board");
+	create_board(MISPRINT_BOARD, "Очепятки", "Опечатки в игровых локациях", ETC_BOARD"misprint.board");
 }
 
 // лоад/релоад клановых досок
