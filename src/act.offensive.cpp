@@ -7,9 +7,9 @@
 *  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
 *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
 *                                                                         *
-*  $Author$                                                        *
-*  $Date$                                           *
-*  $Revision$                                                       *
+*  $Author$                                                               *
+*  $Date$                                                                 *
+*  $Revision$                                                             *
 ************************************************************************ */
 
 #include "conf.h"
@@ -2699,7 +2699,7 @@ ACMD(do_iron_wind)
 
 void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 {
-	int percent, prob, dam;
+	int percent, prob, dam, delay;
 	int visibl=0, aware=0, awake=0, react=0;
 	AFFECT_DATA af;
 	struct timed_type timed;
@@ -2729,6 +2729,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 	act("Вы попытались накинуть удавку на шею $N2.\r\n", FALSE, ch, 0, vict, TO_CHAR);
 
 	prob = train_skill(ch, SKILL_STRANGLE, skill_info[SKILL_STRANGLE].max_percent, vict);
+	delay = 6 - MIN(4, (ch->get_skill(SKILL_STRANGLE) + 30) / 50);
 	percent = number(1, skill_info[SKILL_STRANGLE].max_percent);
 
 	if (prob > 100)
@@ -2803,7 +2804,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 				act("Рванув на себя, $N стащил$G $n3 на землю.", FALSE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 				REMOVE_BIT(AFF_FLAGS(vict, AFF_HORSE), AFF_HORSE);
 			}
-			if (ch->get_skill(SKILL_CHOPOFF))
+			if (ch->get_skill(SKILL_CHOPOFF) && (IN_ROOM(ch) == IN_ROOM(vict)))
 				go_chopoff(ch, vict);
 		}
 	}
@@ -2811,7 +2812,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 	if (!IS_IMMORTAL(ch))
 	{
 		timed.skill = SKILL_STRANGLE;
-		timed.time = 4;
+		timed.time = delay;
 		timed_to_char(ch, &timed);
 	}
 }

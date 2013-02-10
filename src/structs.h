@@ -561,7 +561,7 @@ typedef struct trig_data TRIG_DATA;
 #define PRF_ANTIDC_MODE (INT_ONE | 1 << 26) // режим защиты от зисконекта в бою
 #define PRF_NOINGR_MODE (INT_ONE | 1 << 27) // не показывать продажу/покупку ингров в канале базара
 #define PRF_NOINGR_LOOT (INT_ONE | 1 << 28) // не лутить ингры в режиме автограбежа
-#define PRF_DISP_WC     (INT_ONE | 1 << 29) // показ зарядов кличей в статусе
+#define PRF_DISP_TIMED     (INT_ONE | 1 << 29) // показ задержек для характерных профам умений и способностей
 
 #define PRF_IGVA_PRONA	(INT_TWO | 1 << 0)  // для стоп-списка оффтоп
 #define PRF_EXECUTOR	(INT_TWO | 1 << 1)  // палач

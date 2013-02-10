@@ -1894,11 +1894,29 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 				count += sprintf(prompt + count, "úÁÕÞ:0 ");
 		}
 		// úÁÒÑÄÙ ËÌÉÞÅÊ
-		if (PRF_FLAGGED(d->character, PRF_DISP_WC)
-			&& d->character->get_skill(SKILL_WARCRY))
+		if (PRF_FLAGGED(d->character, PRF_DISP_TIMED))
 		{
-			int wc_count = (HOURS_PER_DAY - timed_by_skill(d->character, SKILL_WARCRY)) / HOURS_PER_WARCRY;
-			count += sprintf(prompt + count, "ë:%d ", wc_count);
+			if (d->character->get_skill(SKILL_WARCRY))
+			{
+				int wc_count = (HOURS_PER_DAY - timed_by_skill(d->character, SKILL_WARCRY)) / HOURS_PER_WARCRY;
+				count += sprintf(prompt + count, "ëÌ:%d ", wc_count);
+			}
+			if (d->character->get_skill(SKILL_COURAGE))
+				count += sprintf(prompt + count, "ñÒ:%d ", timed_by_skill(d->character, SKILL_COURAGE));
+			if (d->character->get_skill(SKILL_STRANGLE))
+				count += sprintf(prompt + count, "õÄ:%d ", timed_by_skill(d->character, SKILL_STRANGLE));
+			if (d->character->get_skill(SKILL_TOWNPORTAL))
+				count += sprintf(prompt + count, "÷Ò:%d ", timed_by_skill(d->character, SKILL_TOWNPORTAL));
+			if (d->character->get_skill(SKILL_MANADRAIN))
+				count += sprintf(prompt + count, "óÇ:%d ", timed_by_skill(d->character, SKILL_MANADRAIN));
+			if (d->character->get_skill(SKILL_CAMOUFLAGE))
+				count += sprintf(prompt + count, "íÓ:%d ", timed_by_skill(d->character, SKILL_CAMOUFLAGE));
+			if (d->character->get_skill(SKILL_TURN_UNDEAD))
+				count += sprintf(prompt + count, "éÚ:%d ", timed_by_skill(d->character, SKILL_TURN_UNDEAD));
+			if (HAVE_FEAT(d->character, RELOCATE_FEAT))
+				count += sprintf(prompt + count, "ðÒ:%d ", timed_by_feat(d->character, RELOCATE_FEAT));
+			if (HAVE_FEAT(d->character, SPELL_CAPABLE_FEAT))
+				count += sprintf(prompt + count, "úÞ:%d ", timed_by_feat(d->character, SPELL_CAPABLE_FEAT));
 		}
 
 		if (!d->character->get_fighting()

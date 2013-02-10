@@ -4996,7 +4996,9 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 					strcpy(GET_PAD(vict, i), npad[i]);
 				}
 			}
+			sprintf(buf, "Name changed from %s to %s", GET_NAME(vict), npad[0]);
 			vict->set_name(npad[0]);
+			add_karma(vict, buf, GET_NAME(ch));
 
 			if (!IS_SET(PLR_FLAGS(vict, PLR_FROZEN), PLR_FROZEN) && !IS_SET(PLR_FLAGS(vict, PLR_DELETED), PLR_DELETED) && !IS_IMMORTAL(vict))
 				TopPlayer::Refresh(vict);
@@ -5080,20 +5082,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 50:
 		if (valid_email(val_arg))
 		{
-			/*
-			if (!strcmp(GET_EMAIL(ch), GET_EMAIL(vict)))
-			{
-				send_to_char("Вы не можете сделать этого.\r\n", ch);
-				return 0;
-			}
-			*/
+			lower_convert(val_arg);
+			sprintf(buf, "Email changed from %s to %s", GET_EMAIL(vict), val_arg);
+			add_karma(vict, buf, GET_NAME(ch));
 			strncpy(GET_EMAIL(vict), val_arg, 127);
 			*(GET_EMAIL(vict) + 127) = '\0';
-			lower_convert(GET_EMAIL(vict));
-			//RECREATE(player_table[top_of_p_table].mail, char, strlen(GET_EMAIL(vict)) + 1);
-			//strcpy(player_table[top_of_p_table].mail, GET_EMAIL(vict));
-			/*for (i = 0, player_table[top_of_p_table].mail[i] = '\0';
-					(player_table[top_of_p_table].mail[i] = LOWER(GET_EMAIL(vict)[i])); i++);*/
 		}
 		else
 		{
@@ -5296,7 +5289,14 @@ ACMD(do_set)
 	}
 	else if (is_file)  	/* try to load the player off disk */
 	{
+		if (get_player_pun(ch, name, FIND_CHAR_WORLD))
+		{
+			send_to_char("Да разуй же глаза! Оно в сети!\r\n", ch);
+			return;
+		}
+
 		cbuf = new Player; // TODO: переделать на стек
+
 		if ((player_i = load_char(name, cbuf)) > -1)
 		{
 			/* Запрет на злоупотребление командой SET на бессмертных */
