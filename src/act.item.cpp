@@ -2948,6 +2948,9 @@ ACMD(do_custom_label)
 	char *objname = NULL;
 	char *labels = NULL;
 
+	if (IS_NPC(ch))
+		return;
+
 	half_chop(argument, arg1, arg2);
 
 	if (!strlen(arg1))
