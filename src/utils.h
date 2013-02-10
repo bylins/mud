@@ -961,12 +961,25 @@ extern SPECIAL(bank);
 #define CAN_WEAR_ANY(obj) (((obj)->obj_flags.wear_flags>0) && ((obj)->obj_flags.wear_flags != ITEM_WEAR_TAKE) )
 
 // проверяет arg на совпадение с персональными или клановыми метками
-#define CHECK_CUSTOM_LABEL(arg, obj, ch) ( !IS_NPC(ch) && (obj)->custom_label != NULL && \
-              ( (obj)->custom_label->author == (ch)->get_idnum() || \
-                IS_IMPL(ch) || \
-                ( (ch)->player_specials->clan && (obj)->custom_label->clan != NULL && \
-                !strcmp((obj)->custom_label->clan, (ch)->player_specials->clan->GetAbbrev()) ) ) && \
-              isname((arg), (obj)->custom_label->label_text) )
+// чармис автора меток их тоже может использовать
+#define CHECK_CUSTOM_LABEL(arg, obj, ch) (                                                                    \
+                  (obj)->custom_label != NULL                                                                 \
+                  &&                                                                                          \
+                  (                                                                                           \
+                  IS_NPC(ch) ?                                                                                \
+                    ( (IS_CHARMICE(ch) && (ch)->master) ? CHECK_CUSTOM_LABEL_CORE(obj, ch->master) : 0 )      \
+                   :                                                                                          \
+                    CHECK_CUSTOM_LABEL_CORE(obj, ch)                                                          \
+                  )                                                                                           \
+                  &&                                                                                          \
+                  isname((arg), (obj)->custom_label->label_text) )
+
+#define CHECK_CUSTOM_LABEL_CORE(obj, ch) ( \
+                  (obj)->custom_label->author == (ch)->get_idnum() || \
+                  ( (ch)->player_specials->clan && (obj)->custom_label->clan != NULL && \
+                    !strcmp((obj)->custom_label->clan, (ch)->player_specials->clan->GetAbbrev()) ) \
+                )
+
 
 /* compound utilities and other macros **********************************/
 
