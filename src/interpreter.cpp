@@ -596,7 +596,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"опознать", POS_RESTING, do_ident, 0, 0, 500},
 	{"опохмелиться", POS_RESTING, do_drunkoff, 0, 0, -1},
 	{"опечатка", POS_DEAD, report_on_board, 0, MISPRINT_BOARD, 0},
-	{"очепятки", POS_DEAD, DoBoard, 1, MISPRINT_BOARD, 0},
 	{"опустить", POS_RESTING, do_put, 0, 0, 500},
 	{"орать", POS_RESTING, do_gen_comm, 1, SCMD_HOLLER, -1},
 	{"осмотреть", POS_RESTING, do_examine, 0, 0, 0},
@@ -618,8 +617,10 @@ cpp_extern const struct command_info cmd_info[] =
 	{"оффтоп", POS_DEAD, do_offtop, 0, 0, -1},
 	{"оценить", POS_STANDING, do_not_here, 0, 0, 500},
 	{"очки", POS_DEAD, do_score, 0, 0, 0},
+	{"очепятки", POS_DEAD, DoBoard, 1, MISPRINT_BOARD, 0},
 	{"очистить", POS_DEAD, do_not_here, 0, SCMD_CLEAR, -1},
 	{"ошибка", POS_DEAD, report_on_board, 0, ERROR_BOARD, 0},
+
 	{"парировать", POS_FIGHTING, do_parry, 0, 0, -1},
 	{"перехватить", POS_FIGHTING, do_touch, 0, 0, -1},
 	{"перековать", POS_STANDING, do_transform_weapon, 0, SKILL_TRANSFORMWEAPON, -1},
@@ -716,7 +717,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"ставка", POS_STANDING, do_not_here, 0, 0, -1},
 	{"статус", POS_DEAD, do_display, 0, 0, 0},
 	{"статистика", POS_DEAD, do_statistic, 0, 0, 0},
-
 	{"стереть", POS_DEAD, do_gen_ps, 0, SCMD_CLEAR, 0},
 	{"стиль", POS_RESTING, do_style, 0, 0, 0},
 	{"строка", POS_DEAD, do_display, 0, 0, 0},
