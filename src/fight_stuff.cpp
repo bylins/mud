@@ -315,15 +315,18 @@ void forget_all_spells(CHAR_DATA *ch)
 		}
 		ch->real_abils.SplMem[i] = 0;
 	}
-	AFFECT_DATA af;
-	af.type = SPELL_RECALL_SPELLS;
-	af.location = APPLY_NONE;
-	af.modifier = 1; // номер круга, который восстанавливаем
-	//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
-	af.duration = pc_duration(ch, max_slot*RECALL_SPELLS_INTERVAL+SECS_PER_PLAYER_AFFECT, 0, 0, 0, 0);
-	af.bitvector = AFF_RECALL_SPELLS;
-	af.battleflag = AF_PULSEDEC | AF_DEADKEEP;
-	affect_join(ch, &af, 0, 0, 0, 0);
+	if (max_slot)
+	{
+		AFFECT_DATA af;
+		af.type = SPELL_RECALL_SPELLS;
+		af.location = APPLY_NONE;
+		af.modifier = 1; // номер круга, который восстанавливаем
+		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
+		af.duration = pc_duration(ch, max_slot*RECALL_SPELLS_INTERVAL+SECS_PER_PLAYER_AFFECT, 0, 0, 0, 0);
+		af.bitvector = AFF_RECALL_SPELLS;
+		af.battleflag = AF_PULSEDEC | AF_DEADKEEP;
+		affect_join(ch, &af, 0, 0, 0, 0);
+	}
 }
 
 /* Функция используемая при "автограбеже" и "автолуте",
