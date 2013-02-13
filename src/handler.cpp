@@ -1269,6 +1269,37 @@ void restore_object(OBJ_DATA * obj, CHAR_DATA * ch)
 	}
 }
 
+// выясняет, стокаются ли объекты с метками
+bool stockable_custom_labels(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
+{
+	// без меток стокаются
+	if (!obj_one->custom_label && !obj_two->custom_label)
+		return 1;
+
+	if (obj_one->custom_label && obj_two->custom_label)
+	{
+		// с разными типами меток не стокаются
+		if (!obj_one->custom_label->clan != !obj_two->custom_label->clan)
+			return 0;
+		else
+		{
+			// обе метки клановые один клан, текст совпадает -- стокается
+			if (obj_one->custom_label->clan && obj_two->custom_label->clan &&
+				!strcmp(obj_one->custom_label->clan, obj_two->custom_label->clan) &&
+				obj_one->custom_label->label_text && obj_two->custom_label->label_text &&
+				!strcmp(obj_one->custom_label->label_text, obj_two->custom_label->label_text))
+				return 1;
+			// обе метки личные, один автор, текст совпадает -- стокается
+			if (obj_one->custom_label->author == obj_two->custom_label->author &&
+				obj_one->custom_label->label_text && obj_two->custom_label->label_text &&
+				!strcmp(obj_one->custom_label->label_text, obj_two->custom_label->label_text))
+				return 1;
+		}
+	}
+
+	return 0;
+}
+
 // выяснение стокаются ли предметы
 bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 {
@@ -1277,7 +1308,8 @@ bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 			|| (GET_OBJ_TYPE(obj_one) == ITEM_DRINKCON && GET_OBJ_VAL(obj_one, 2) != GET_OBJ_VAL(obj_two, 2))
 			|| (GET_OBJ_TYPE(obj_one) == ITEM_CONTAINER && (obj_one->contains || obj_two->contains))
 			|| GET_OBJ_VNUM(obj_two) == -1
-			|| (GET_OBJ_TYPE(obj_one) == ITEM_BOOK && GET_OBJ_VAL(obj_one, 1) != GET_OBJ_VAL(obj_two, 1)))
+			|| (GET_OBJ_TYPE(obj_one) == ITEM_BOOK && GET_OBJ_VAL(obj_one, 1) != GET_OBJ_VAL(obj_two, 1))
+			|| !stockable_custom_labels(obj_one, obj_two))
 	{
 		return 0;
 	}

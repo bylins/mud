@@ -1,4 +1,3 @@
-
 /* ************************************************************************
 *   File: utils.h                                       Part of Bylins    *
 *  Usage: header file: utility macros and prototypes of utility funcs     *                                                                         *
@@ -962,24 +961,34 @@ extern SPECIAL(bank);
 
 // проверяет arg на совпадение с персональными или клановыми метками
 // чармис автора меток их тоже может использовать
-#define CHECK_CUSTOM_LABEL(arg, obj, ch) (                                                                    \
-                  (obj)->custom_label != NULL                                                                 \
-                  &&                                                                                          \
-                  (                                                                                           \
-                  IS_NPC(ch) ?                                                                                \
-                    ( (IS_CHARMICE(ch) && (ch)->master) ? CHECK_CUSTOM_LABEL_CORE(obj, ch->master) : 0 )      \
-                   :                                                                                          \
-                    CHECK_CUSTOM_LABEL_CORE(obj, ch)                                                          \
-                  )                                                                                           \
-                  &&                                                                                          \
-                  isname((arg), (obj)->custom_label->label_text) )
+#define CHECK_CUSTOM_LABEL(arg, obj, ch) (                                                      \
+	(obj)->custom_label != NULL                                                                 \
+	&&                                                                                          \
+	(                                                                                           \
+	IS_NPC(ch) ?                                                                                \
+	( (IS_CHARMICE(ch) && (ch)->master) ? CHECK_CUSTOM_LABEL_CORE(obj, ch->master) : 0 )        \
+	:                                                                                           \
+	CHECK_CUSTOM_LABEL_CORE(obj, ch)                                                            \
+	)                                                                                           \
+	&&                                                                                          \
+	isname((arg), (obj)->custom_label->label_text) )
 
-#define CHECK_CUSTOM_LABEL_CORE(obj, ch) ( \
-                  (obj)->custom_label->author == (ch)->get_idnum() || \
-                  ( (ch)->player_specials->clan && (obj)->custom_label->clan != NULL && \
-                    !strcmp((obj)->custom_label->clan, (ch)->player_specials->clan->GetAbbrev()) ) \
-                )
+#define CHECK_CUSTOM_LABEL_CORE(obj, ch) (                                                      \
+	((obj)->custom_label->author == (ch)->get_idnum() && !((obj)->custom_label->clan)) ||       \
+	( (ch)->player_specials->clan && (obj)->custom_label->clan != NULL &&                       \
+	!strcmp((obj)->custom_label->clan, (ch)->player_specials->clan->GetAbbrev()) )              \
+	)
 
+// видит ли ch метки obj
+#define AUTH_CUSTOM_LABEL(obj, ch) (                                                            \
+	(obj)->custom_label != NULL                                                                 \
+	&&                                                                                          \
+	(                                                                                           \
+	IS_NPC(ch) ?                                                                                \
+	( (IS_CHARMICE(ch) && (ch)->master) ? CHECK_CUSTOM_LABEL_CORE(obj, ch->master) : 0 )        \
+	:                                                                                           \
+	CHECK_CUSTOM_LABEL_CORE(obj, ch)                                                            \
+	))
 
 /* compound utilities and other macros **********************************/
 

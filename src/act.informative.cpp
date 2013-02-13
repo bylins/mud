@@ -421,13 +421,29 @@ std::string diag_armor_type_to_char(const OBJ_DATA *obj)
 // добавляет в скобках кастомные метки, если они есть и смотрящий является их автором
 void append_custom_label(char *buf, OBJ_DATA *obj, CHAR_DATA *ch)
 {
-	if (obj->custom_label != NULL && (obj->custom_label->author == ch->get_idnum() ||
+	const char *delim_l = NULL;
+	const char *delim_r = NULL;
+
+	// разные скобки для клановых и личных
+	if (obj->custom_label != NULL && (ch->player_specials->clan && obj->custom_label->clan != NULL &&
+	    !strcmp(obj->custom_label->clan, ch->player_specials->clan->GetAbbrev())))
+	{
+		delim_l = " *";
+		delim_r = "*";
+	} else {
+		delim_l = " (";
+		delim_r = ")";
+	}
+
+	if (obj->custom_label != NULL &&
+	    (
+	    (obj->custom_label->author == ch->get_idnum() && !obj->custom_label->clan) ||
             IS_IMPL(ch) ||
 	    (ch->player_specials->clan && obj->custom_label->clan != NULL &&
 	     !strcmp(obj->custom_label->clan, ch->player_specials->clan->GetAbbrev())))) {
-		strcat(buf, " (");
+		strcat(buf, delim_l);
 		strcat(buf, obj->custom_label->label_text);
-		strcat(buf, ")");
+		strcat(buf, delim_r);
 	}
 }
 
@@ -2193,6 +2209,14 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 			else
 				strcat(buf, "нет слотов\r\n");
 			sprintf(buf+strlen(buf), "\r\n%s", CCNRM(ch, C_NRM));
+		}
+		if (AUTH_CUSTOM_LABEL(obj, ch) && obj->custom_label->label_text)
+		{
+			if (obj->custom_label->clan)
+				strcat(buf, "Метки дружины: ");
+			else
+				strcat(buf, "Ваши метки: ");
+			sprintf(buf + strlen(buf), "%s\r\n", obj->custom_label->label_text);
 		}
 		sprintf(buf+strlen(buf), diag_uses_to_char(obj, ch));
 }

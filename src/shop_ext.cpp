@@ -1104,7 +1104,7 @@ void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, ShopListType::
 
 	if (cmd == "Оценить")
 	{
-		if (OBJ_FLAGGED(obj, ITEM_NOSELL) || OBJ_FLAGGED(obj, ITEM_NAMED))
+		if (OBJ_FLAGGED(obj, ITEM_NOSELL) || OBJ_FLAGGED(obj, ITEM_NAMED) || OBJ_FLAGGED(obj, ITEM_REPOP_DECAY))
 		{
 			tell_to_char(keeper, ch, string("Такое я не покупаю.").c_str());
 			return;

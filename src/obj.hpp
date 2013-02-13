@@ -348,7 +348,7 @@ public:
 struct custom_label {
 	char *label_text; // текст
 	char *clan;       // аббревиатура клана, если метка предназначена для клана
-	int author;     // кем нанесена: содержит результат ch->get_idnum(), по умолчанию -2
+	int author;       // кем нанесена: содержит результат ch->get_idnum(), по умолчанию -2
 };
 
 struct custom_label *init_custom_label();

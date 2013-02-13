@@ -452,7 +452,8 @@ ACMD(do_put)
 				{
 					next_obj = obj->next_content;
 					if (obj != cont && CAN_SEE_OBJ(ch, obj) &&
-							(obj_dotmode == FIND_ALL || isname(theobj, obj->aliases)))
+						(obj_dotmode == FIND_ALL || isname(theobj, obj->aliases) ||
+						CHECK_CUSTOM_LABEL(theobj, obj, ch)))
 					{
 						found = 1;
 						if (perform_put(ch, obj, cont) == 1)
@@ -633,7 +634,8 @@ void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, in
 		for (obj = cont->contains; obj; obj = next_obj)
 		{
 			next_obj = obj->next_content;
-			if (CAN_SEE_OBJ(ch, obj) && (obj_dotmode == FIND_ALL || isname(arg, obj->aliases)))
+			if (CAN_SEE_OBJ(ch, obj) && (obj_dotmode == FIND_ALL || isname(arg, obj->aliases) ||
+			    CHECK_CUSTOM_LABEL(arg, obj, ch)))
 			{
 				if (autoloot && (GET_OBJ_TYPE(obj) == ITEM_INGRADIENT || GET_OBJ_TYPE(obj) == ITEM_MING) && PRF_FLAGGED(ch, PRF_NOINGR_LOOT))
 				{
@@ -724,7 +726,8 @@ void get_from_room(CHAR_DATA * ch, char *arg, int howmany)
 		for (obj = world[ch->in_room]->contents; obj; obj = next_obj)
 		{
 			next_obj = obj->next_content;
-			if (CAN_SEE_OBJ(ch, obj) && (dotmode == FIND_ALL || isname(arg, obj->aliases)))
+			if (CAN_SEE_OBJ(ch, obj) && (dotmode == FIND_ALL || isname(arg, obj->aliases) ||
+				CHECK_CUSTOM_LABEL(arg, obj, ch)))
 			{
 				found = 1;
 				perform_get_from_room(ch, obj);
@@ -883,7 +886,8 @@ ACMD(do_get)
 				return;
 			}
 			for (cont = ch->carrying; cont && IS_SET(where_bits, FIND_OBJ_INV); cont = cont->next_content)
-				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(thecont, cont->aliases)))
+				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(thecont, cont->aliases) ||
+					CHECK_CUSTOM_LABEL(thecont, cont, ch)))
 				{
 					if (GET_OBJ_TYPE(cont) == ITEM_CONTAINER)
 					{
@@ -898,7 +902,8 @@ ACMD(do_get)
 				}
 			for (cont = world[ch->in_room]->contents;
 					cont && IS_SET(where_bits, FIND_OBJ_ROOM); cont = cont->next_content)
-				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(thecont, cont->aliases)))
+				if (CAN_SEE_OBJ(ch, cont) && (cont_dotmode == FIND_ALL || isname(thecont, cont->aliases) ||
+					CHECK_CUSTOM_LABEL(thecont, cont, ch)))
 				{
 					if (GET_OBJ_TYPE(cont) == ITEM_CONTAINER)
 					{
@@ -1372,7 +1377,8 @@ ACMD(do_give)
 				for (obj = ch->carrying; obj; obj = next_obj)
 				{
 					next_obj = obj->next_content;
-					if (CAN_SEE_OBJ(ch, obj) && ((dotmode == FIND_ALL || isname(arg, obj->aliases))))
+					if (CAN_SEE_OBJ(ch, obj) && (dotmode == FIND_ALL || isname(arg, obj->aliases) ||
+						CHECK_CUSTOM_LABEL(arg, obj, ch)))
 					{
 						perform_give(ch, vict, obj);
 						has_items = true;
@@ -2035,7 +2041,8 @@ ACMD(do_remove)
 		{
 			found = 0;
 			for (i = 0; i < NUM_WEARS; i++)
-				if (GET_EQ(ch, i) && CAN_SEE_OBJ(ch, GET_EQ(ch, i)) && isname(arg, GET_EQ(ch, i)->aliases))
+				if (GET_EQ(ch, i) && CAN_SEE_OBJ(ch, GET_EQ(ch, i)) &&
+					(isname(arg, GET_EQ(ch, i)->aliases) || CHECK_CUSTOM_LABEL(arg, GET_EQ(ch, i), ch)))
 				{
 					perform_remove(ch, i);
 					found = 1;
