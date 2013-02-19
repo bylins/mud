@@ -3022,8 +3022,6 @@ ACMD(do_custom_label)
 
 				target->custom_label = init_custom_label();
 				target->custom_label->label_text = str_dup(labels);
-				i = 0;
-				
 
 				target->custom_label->author = ch->get_idnum();
 				if (clan && ch->player_specials->clan)
