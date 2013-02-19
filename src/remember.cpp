@@ -262,7 +262,7 @@ ACMD(do_remember_char)
 			send_to_char(ch->remember_get(Remember::PRAY_PERSONAL), ch);
 		}
 	}
-	else if (GET_LEVEL(ch) < LVL_IMMORT && is_abbrev(arg, "оффтоп"))
+	else if ((GET_LEVEL(ch) < LVL_IMMORT || IS_IMPL(ch)) && is_abbrev(arg, "оффтоп"))
 	{
 		if (!PRF_FLAGGED(ch, PRF_IGVA_PRONA))
 		{
@@ -317,7 +317,7 @@ ACMD(do_remember_char)
 	}
 	else
 	{
-		if (IS_IMMORTAL(ch))
+		if (IS_IMMORTAL(ch) && !IS_IMPL(ch))
 			send_to_char("Формат команды: вспомнить [без параметров|болтать|воззвать|гг|гд|гс|гб|все]\r\n", ch);
 		else
 			send_to_char("Формат команды: вспомнить [без параметров|болтать|оффтоп|гг|гд|гс|все]\r\n", ch);

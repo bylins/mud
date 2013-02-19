@@ -1082,9 +1082,10 @@ ACMD(do_offtop)
 	for (DESCRIPTOR_DATA *i = descriptor_list; i; i = i->next)
 	{
 		// переплут как любитель почитывать логи за ночь очень хотел этот канал...
+		// а мы шо, не люди? даешь оффтоп 34-ым! кому не нравится - реж оффтоп...
 		if (STATE(i) == CON_PLAYING
 			&& i->character
-			&& (GET_LEVEL(i->character) < LVL_IMMORT || !strcmp(GET_NAME(i->character), "Переплут"))
+			&& (GET_LEVEL(i->character) < LVL_IMMORT || IS_IMPL(i->character))
 			&& PRF_FLAGGED(i->character, PRF_OFFTOP_MODE)
 			&& !PRF_FLAGGED(i->character, PRF_IGVA_PRONA)
 			&& !ignores(i->character, ch, IGNORE_OFFTOP))
