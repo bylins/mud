@@ -2951,6 +2951,7 @@ ACMD(do_custom_label)
 	int erase_only = 0; // 0 -- наносим новую метку, 1 -- удаляем старую
 	int clan = 0; // клан режим, если единица. персональный, если не
 	int no_target = 0; // красиво сделать не выйдет, будем через флаги
+	int i;
 
 	char *objname = NULL;
 	char *labels = NULL;
@@ -3009,17 +3010,29 @@ ACMD(do_custom_label)
 				target->custom_label = NULL;
 				act("Вы затерли надписи на $o5.", FALSE, ch, target, 0, TO_CHAR);
 			}
-			else {
+			else
+			{
 				if (strlen(labels) > MAX_LABEL_LENGTH)
 					labels[MAX_LABEL_LENGTH] = '\0';
+
+				// убираем тильды
+				for (i = 0; labels[i] != '\0'; i++)
+					if (labels[i] == '~')
+						labels[i] = '-';
+
 				target->custom_label = init_custom_label();
 				target->custom_label->label_text = str_dup(labels);
+				i = 0;
+				
+
 				target->custom_label->author = ch->get_idnum();
-				if (clan && ch->player_specials->clan) {
+				if (clan && ch->player_specials->clan)
+				{
 					target->custom_label->clan = str_dup(ch->player_specials->clan->GetAbbrev());
 					act("Вы покрыли $o3 каракулями, понятными разве что вашим соратникам.", FALSE, ch, target, 0, TO_CHAR);
 				}
-				else {
+				else
+				{
 					act("Вы покрыли $o3 каракулями, которые никто кроме вас не разберет.", FALSE, ch, target, 0, TO_CHAR);
 				}
 			}
