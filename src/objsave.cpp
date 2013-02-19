@@ -571,6 +571,14 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 				if (!object->custom_label)
 					object->custom_label = init_custom_label();
 				object->custom_label->author = atoi(buffer);
+				if (object->custom_label->author > 0)
+					for (int i = 0; i <= top_of_p_table; i++)
+						if (player_table[i].id == object->custom_label->author)
+						{
+							object->custom_label->author_mail =
+							str_dup(player_table[i].mail);
+							break;
+						}
 			}
 			else if (!strcmp(read_line, "ClCl")) /* аббревиатура клана */
 			{

@@ -55,6 +55,7 @@ struct custom_label *init_custom_label()
 	ptr->label_text = NULL;
 	ptr->clan = NULL;
 	ptr->author = -2;
+	ptr->author_mail = NULL;
 
 	return ptr;
 }
@@ -66,6 +67,8 @@ void free_custom_label(struct custom_label *custom_label) {
 		free(custom_label->label_text);
 		if (custom_label->clan)
 			free(custom_label->clan);
+		if (custom_label->author_mail)
+			free(custom_label->author_mail);
 		free(custom_label);
 	}
 }

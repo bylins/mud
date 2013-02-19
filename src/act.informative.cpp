@@ -435,12 +435,8 @@ void append_custom_label(char *buf, OBJ_DATA *obj, CHAR_DATA *ch)
 		delim_r = ")";
 	}
 
-	if (obj->custom_label != NULL &&
-	    (
-	    (obj->custom_label->author == ch->get_idnum() && !obj->custom_label->clan) ||
-            IS_IMPL(ch) ||
-	    (ch->player_specials->clan && obj->custom_label->clan != NULL &&
-	     !strcmp(obj->custom_label->clan, ch->player_specials->clan->GetAbbrev())))) {
+	if (AUTH_CUSTOM_LABEL(obj, ch))
+	{
 		strcat(buf, delim_l);
 		strcat(buf, obj->custom_label->label_text);
 		strcat(buf, delim_r);

@@ -961,8 +961,8 @@ extern SPECIAL(bank);
 
 // проверяет arg на совпадение с персональными или клановыми метками
 // чармис автора меток их тоже может использовать
-#define CHECK_CUSTOM_LABEL(arg, obj, ch) (                                                      \
-	(obj)->custom_label != NULL                                                                 \
+#define CHECK_CUSTOM_LABEL(arg, obj, ch) (                                                          \
+	(obj)->custom_label && (obj)->custom_label->label_text                                      \
 	&&                                                                                          \
 	(                                                                                           \
 	IS_NPC(ch) ?                                                                                \
@@ -973,15 +973,17 @@ extern SPECIAL(bank);
 	&&                                                                                          \
 	isname((arg), (obj)->custom_label->label_text) )
 
-#define CHECK_CUSTOM_LABEL_CORE(obj, ch) (                                                      \
-	((obj)->custom_label->author == (ch)->get_idnum() && !((obj)->custom_label->clan)) ||       \
-	( (ch)->player_specials->clan && (obj)->custom_label->clan != NULL &&                       \
-	!strcmp((obj)->custom_label->clan, (ch)->player_specials->clan->GetAbbrev()) )              \
+#define CHECK_CUSTOM_LABEL_CORE(obj, ch) (                                                             \
+	((obj)->custom_label->author == (ch)->get_idnum() && !((obj)->custom_label->clan)) ||          \
+	IS_IMPL(ch) ||                                                                                 \
+	( (ch)->player_specials->clan && (obj)->custom_label->clan != NULL &&                          \
+	  !strcmp((obj)->custom_label->clan, (ch)->player_specials->clan->GetAbbrev()) ) ||            \
+	((obj)->custom_label->author_mail && !strcmp(GET_EMAIL(ch), (obj)->custom_label->author_mail)) \
 	)
 
 // видит ли ch метки obj
-#define AUTH_CUSTOM_LABEL(obj, ch) (                                                            \
-	(obj)->custom_label != NULL                                                                 \
+#define AUTH_CUSTOM_LABEL(obj, ch) (                                                                \
+	(obj)->custom_label && (obj)->custom_label->label_text                                      \
 	&&                                                                                          \
 	(                                                                                           \
 	IS_NPC(ch) ?                                                                                \
