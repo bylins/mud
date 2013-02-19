@@ -2951,7 +2951,6 @@ ACMD(do_custom_label)
 	int erase_only = 0; // 0 -- наносим новую метку, 1 -- удаляем старую
 	int clan = 0; // клан режим, если единица. персональный, если не
 	int no_target = 0; // красиво сделать не выйдет, будем через флаги
-	int i;
 
 	char *objname = NULL;
 	char *labels = NULL;
@@ -3016,7 +3015,7 @@ ACMD(do_custom_label)
 					labels[MAX_LABEL_LENGTH] = '\0';
 
 				// убираем тильды
-				for (i = 0; labels[i] != '\0'; i++)
+				for (int i = 0; labels[i] != '\0'; i++)
 					if (labels[i] == '~')
 						labels[i] = '-';
 
