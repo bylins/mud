@@ -3020,9 +3020,11 @@ ACMD(do_custom_label)
 						labels[i] = '-';
 
 				target->custom_label = init_custom_label();
-				target->custom_label->label_text = str_dup(labels);
 
+				target->custom_label->label_text = str_dup(labels);
 				target->custom_label->author = ch->get_idnum();
+				target->custom_label->author_mail = str_dup(GET_EMAIL(ch));
+
 				if (clan && ch->player_specials->clan)
 				{
 					target->custom_label->clan = str_dup(ch->player_specials->clan->GetAbbrev());
