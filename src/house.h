@@ -362,4 +362,6 @@ void init_xhelp();
 
 } // namespace ClanSystem
 
+std::string clan_get_custom_label(OBJ_DATA *obj, ClanPtr clan);
+
 #endif

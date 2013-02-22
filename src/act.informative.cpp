@@ -17,6 +17,7 @@
 #include <sstream>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 
 #include "sysdep.h"
 #include "structs.h"
@@ -418,8 +419,9 @@ std::string diag_armor_type_to_char(const OBJ_DATA *obj)
 
 } // namespace
 
-// добавляет в скобках кастомные метки, если они есть и смотрящий является их автором
-void append_custom_label(char *buf, OBJ_DATA *obj, CHAR_DATA *ch)
+// для использования с чарами:
+// возвращает метки предмета, если они есть и смотрящий является их автором или является членом соотв. клана
+std::string char_get_custom_label(OBJ_DATA *obj, CHAR_DATA *ch)
 {
 	const char *delim_l = NULL;
 	const char *delim_r = NULL;
@@ -436,11 +438,9 @@ void append_custom_label(char *buf, OBJ_DATA *obj, CHAR_DATA *ch)
 	}
 
 	if (AUTH_CUSTOM_LABEL(obj, ch))
-	{
-		strcat(buf, delim_l);
-		strcat(buf, obj->custom_label->label_text);
-		strcat(buf, delim_r);
-	}
+		return boost::str(boost::format("%s%s%s") % delim_l % obj->custom_label->label_text % delim_r);
+
+	return "";
 }
 
 // mode 1 show_state 3 для хранилище (4 - хранилище ингров)
@@ -450,13 +450,15 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 	if ((mode < 5) && PRF_FLAGGED(ch, PRF_ROOMFLAGS))
 		sprintf(buf, "[%5d] ", GET_OBJ_VNUM(object));
 
-	if ((mode == 0) && object->description) {
+	if ((mode == 0) && object->description)
+	{
 		strcat(buf, object->description);
-		append_custom_label(buf, object, ch);
+		strcat(buf, char_get_custom_label(object, ch).c_str());
 	}
-	else if (object->short_description && ((mode == 1) || (mode == 2) || (mode == 3) || (mode == 4))) {
+	else if (object->short_description && ((mode == 1) || (mode == 2) || (mode == 3) || (mode == 4)))
+	{
 		strcat(buf, object->short_description);
-		append_custom_label(buf, object, ch);
+		strcat(buf, char_get_custom_label(object, ch).c_str());
 	}
 	else if (mode == 5)
 	{

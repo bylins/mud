@@ -32,6 +32,9 @@ extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);
 
+// не нашел подходящего .h, куда засунуть декларацию, так что пока так
+std::string char_get_custom_label(OBJ_DATA *, CHAR_DATA *);
+
 namespace Depot
 {
 
@@ -271,7 +274,8 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 		{
 			std::ostringstream text;
 			text << "[Персональное хранилище]: " << CCIRED(ch, C_NRM) << "'"
-			<< obj->short_description << " рассыпал" << GET_OBJ_SUF_2(obj)
+			<< obj->short_description << char_get_custom_label(obj, ch)
+			<< " рассыпал" << GET_OBJ_SUF_2(obj)
 			<<  " в прах'" << CCNRM(ch, C_NRM) << "\r\n";
 			extract_obj(obj);
 			return text.str();
@@ -738,8 +742,9 @@ void CharNode::update_online_item()
 				// входе в игру, чтобы уж точно увидел
 				if (ch->desc && STATE(ch->desc) == CON_PLAYING)
 				{
-					send_to_char(ch, "[Персональное хранилище]: %s'%s рассыпал%s в прах'%s\r\n",
+					send_to_char(ch, "[Персональное хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
 								 CCIRED(ch, C_NRM), (*obj_it)->short_description,
+								 char_get_custom_label(*obj_it, ch).c_str(),
 								 GET_OBJ_SUF_2((*obj_it)), CCNRM(ch, C_NRM));
 				}
 				else
@@ -878,9 +883,10 @@ bool is_depot(OBJ_DATA *obj)
 /**
 * Распечатка отдельного предмета при осмотре хранилища.
 */
-void print_obj(std::stringstream &out, OBJ_DATA *obj, int count)
+void print_obj(std::stringstream &out, OBJ_DATA *obj, int count, CHAR_DATA *ch)
 {
 	out << obj->short_description;
+	out << char_get_custom_label(obj, ch);
 	if (count > 1)
 		out << " [" << count << "]";
 	out << " [" << get_object_low_rent(obj) << " "
@@ -925,7 +931,7 @@ std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string 
 		}
 		else if (!equal_obj(*obj_it, *prev_obj_it))
 		{
-			print_obj(out, *prev_obj_it, count);
+			print_obj(out, *prev_obj_it, count, ch);
 			prev_obj_it = obj_it;
 			count = 1;
 		}
@@ -935,7 +941,7 @@ std::string print_obj_list(CHAR_DATA * ch, ObjListType &cont, const std::string 
 		found = true;
 	}
 	if (prev_obj_it != cont.end() && count)
-		print_obj(out, *prev_obj_it, count);
+		print_obj(out, *prev_obj_it, count, ch);
 	if (!found)
 		out << "В данный момент хранилище абсолютно пусто.\r\n";
 

@@ -2896,8 +2896,9 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 		obj_to_obj(obj, chest);
 		ObjSaveSync::add(ch->get_uid(), CLAN(ch)->GetRent(), ObjSaveSync::CLAN_SAVE);
 
-		std::string log_text = boost::str(boost::format("%s сдал%s %s\r\n")
-				% GET_NAME(ch) % GET_CH_SUF_1(ch) % obj->PNames[3]);
+		std::string log_text = boost::str(boost::format("%s сдал%s %s%s\r\n")
+				% GET_NAME(ch) % GET_CH_SUF_1(ch) % obj->PNames[3]
+				% clan_get_custom_label(obj, CLAN(ch)));
 		CLAN(ch)->chest_log.add(log_text);
 
 		// канал хранилища
@@ -2910,9 +2911,11 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 				&& CLAN(d->character) == CLAN(ch)
 				&& PRF_FLAGGED(d->character, PRF_TAKE_MODE))
 			{
-				send_to_char(d->character, "[Хранилище]: %s'%s сдал%s %s.'%s\r\n",
+				send_to_char(d->character, "[Хранилище]: %s'%s сдал%s %s%s.'%s\r\n",
 						CCIRED(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch),
-						obj->PNames[3], CCNRM(d->character, C_NRM));
+						obj->PNames[3],
+						clan_get_custom_label(obj, CLAN(ch)).c_str(),
+						CCNRM(d->character, C_NRM));
 			}
 		}
 		if (!PRF_FLAGGED(ch, PRF_DECAY_MODE))
@@ -2939,14 +2942,18 @@ bool Clan::TakeChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 
 	if (obj->carried_by == ch)
 	{
-		std::string log_text = boost::str(boost::format("%s забрал%s %s\r\n")
-				% GET_NAME(ch) % GET_CH_SUF_1(ch) % obj->PNames[3]);
+		std::string log_text = boost::str(boost::format("%s забрал%s %s%s\r\n")
+				% GET_NAME(ch) % GET_CH_SUF_1(ch) % obj->PNames[3]
+				% clan_get_custom_label(obj, CLAN(ch)));
 		CLAN(ch)->chest_log.add(log_text);
 
 		// канал хранилища
 		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 			if (d->character && STATE(d) == CON_PLAYING && !AFF_FLAGGED(d->character, AFF_DEAFNESS) && CLAN(d->character) && CLAN(d->character) == CLAN(ch) && PRF_FLAGGED(d->character, PRF_TAKE_MODE))
-				send_to_char(d->character, "[Хранилище]: %s'%s забрал%s %s.'%s\r\n", CCIRED(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch), obj->PNames[3], CCNRM(d->character, C_NRM));
+				send_to_char(d->character, "[Хранилище]: %s'%s забрал%s %s%s.'%s\r\n",
+				             CCIRED(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch),
+				             obj->PNames[3], clan_get_custom_label(obj, CLAN(d->character)).c_str(),
+				             CCNRM(d->character, C_NRM));
 
 		if (!PRF_FLAGGED(ch, PRF_TAKE_MODE))
 			act("Вы взяли $o3 из $O1.", FALSE, ch, obj, chest, TO_CHAR);
@@ -6021,3 +6028,19 @@ void Clan::house_web_url(CHAR_DATA *ch, std::string &buffer)
 
 	ClanSystem::need_update_xhelp = true;
 }
+
+// для использования с кланами (в "клан лог", сообщениях хранилища и т.д.):
+// возвращает клан-метку с ведущим пробелом
+std::string clan_get_custom_label(OBJ_DATA *obj, ClanPtr clan)
+{
+	if (obj->custom_label && obj->custom_label->label_text && obj->custom_label->clan &&
+	    clan && !strcmp(clan->GetAbbrev(), obj->custom_label->clan))
+	{
+		return boost::str(boost::format(" *%s*") % obj->custom_label->label_text);
+	}
+	else
+	{
+		return "";
+	}
+}
+

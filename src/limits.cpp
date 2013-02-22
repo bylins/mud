@@ -1282,9 +1282,11 @@ void clan_chest_invoice(OBJ_DATA *j)
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == room)
 		{
-			send_to_char(d->character, "[Хранилище]: %s'%s рассыпал%s в прах'%s\r\n",
+			send_to_char(d->character, "[Хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
 				CCIRED(d->character, C_NRM),
-				j->short_description, GET_OBJ_SUF_2(j),
+				j->short_description,
+				clan_get_custom_label(j, CLAN(d->character)).c_str(),
+				GET_OBJ_SUF_2(j),
 				CCNRM(d->character, C_NRM));
 		}
 	}
@@ -1294,8 +1296,10 @@ void clan_chest_invoice(OBJ_DATA *j)
 	{
 		if ((*i)->GetRent() == room)
 		{
-			std::string log_text = boost::str(boost::format("%s рассыпал%s в прах\r\n")
-				% j->short_description % GET_OBJ_SUF_2(j));
+			std::string log_text = boost::str(boost::format("%s%s рассыпал%s в прах\r\n")
+				% j->short_description
+				% clan_get_custom_label(j, *i)
+				% GET_OBJ_SUF_2(j));
 			(*i)->chest_log.add(log_text);
 			return;
 		}

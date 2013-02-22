@@ -543,6 +543,7 @@ void init_game(ush_int port)
 	Clan::ClanSave();
 	save_clan_exp();
 	ClanSystem::save_ingr_chests();
+	ClanSystem::save_chest_log();
 
 	TitleSystem::save_title_list();
 	RegisterSystem::save();
