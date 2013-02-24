@@ -32,9 +32,6 @@ extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);
 
-// не нашел подходящего .h, куда засунуть декларацию, так что пока так
-std::string char_get_custom_label(OBJ_DATA *, CHAR_DATA *);
-
 namespace Depot
 {
 

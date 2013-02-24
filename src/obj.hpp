@@ -454,4 +454,6 @@ bool is_mob_item(OBJ_DATA *obj);
 
 } // namespace ObjSystem
 
+std::string char_get_custom_label(OBJ_DATA *obj, CHAR_DATA *ch);
+
 #endif // OBJ_HPP_INCLUDED
