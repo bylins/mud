@@ -26,6 +26,7 @@
 #include "objsave.h"
 #include "room.hpp"
 #include "features.hpp"
+#include "house.h"
 
 extern SPECIAL(bank);
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
@@ -1193,7 +1194,7 @@ bool CharNode::obj_from_obj_list(char *name, CHAR_DATA *vict)
 
 	for (ObjListType::iterator obj_it = cont.begin(); obj_it != cont.end() && (j <= number); ++obj_it)
 	{
-		if (isname(tmp, (*obj_it)->aliases) && ++j == number)
+		if ((isname(tmp, (*obj_it)->aliases) || CHECK_CUSTOM_LABEL(tmp, *obj_it, vict)) && ++j == number)
 		{
 			remove_item(obj_it, cont, vict);
 			return true;
@@ -1231,7 +1232,7 @@ void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany)
 		bool found = 0;
 		for (ObjListType::iterator obj_list_it = cont.begin(); obj_list_it != cont.end();)
 		{
-			if (obj_dotmode == FIND_ALL || isname(arg, (*obj_list_it)->aliases))
+			if (obj_dotmode == FIND_ALL || isname(arg, (*obj_list_it)->aliases) || CHECK_CUSTOM_LABEL(arg, *obj_list_it, vict))
 			{
 				// чтобы нельзя было разом собрать со шкафчика неск.тыс шмоток
 				if (!can_take_obj(vict, *obj_list_it)) return;
