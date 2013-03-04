@@ -908,15 +908,24 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 	switch (GET_POS(victim))
 	{
 	case POS_MORTALLYW:
-		act("$n смертельно ранен$a и умрет, если $m не помогут.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		if (IS_POLY(victim))
+			act("$n смертельно ранены и умрут, если им не помогут.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		else
+			act("$n смертельно ранен$a и умрет, если $m не помогут.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		send_to_char("Вы смертельно ранены и умрете, если вам не помогут.\r\n", victim);
 		break;
 	case POS_INCAP:
-		act("$n без сознания и медленно умирает. Помогите же $m.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		if (IS_POLY(victim))
+			act("$n без сознания и медленно умирают. Помогите же им.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		else
+			act("$n без сознания и медленно умирает. Помогите же $m.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		send_to_char("Вы без сознания и медленно умираете, брошенные без помощи.\r\n", victim);
 		break;
 	case POS_STUNNED:
-		act("$n без сознания, но возможно $e еще повоюет (попозже :).", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		if (IS_POLY(victim))
+			act("$n без сознания, но возможно они еще повоюют (попозже :).", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		else
+			act("$n без сознания, но возможно $e еще повоюет (попозже :).", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		send_to_char("Сознание покинуло вас. В битве от вас пока проку мало.\r\n", victim);
 		break;
 	case POS_DEAD:
@@ -927,7 +936,10 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 		}
 		else
 		{
-			act("$n мертв$a, $s душа медленно подымается в небеса.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			if (IS_POLY(victim))
+				act("$n мертвы, их души медленно подымаются в небеса.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			else
+				act("$n мертв$a, $s душа медленно подымается в небеса.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Вы мертвы! Нам очень жаль...\r\n", victim);
 		}
 		break;
