@@ -4130,7 +4130,8 @@ ACMD(do_who)
 {
 //  DESCRIPTOR_DATA *d;
 	CHAR_DATA *tch;
-	char name_search[MAX_INPUT_LENGTH] = "\0";
+	char name_search[MAX_INPUT_LENGTH];
+	name_search[0] = '\0';
 
 	/* Строки содержащие имена  */
 	char *imms = NULL;
@@ -4146,14 +4147,11 @@ ACMD(do_who)
 	int who_room = 0, imms_num = 0, morts_num = 0, demigods_num = 0;
 	int showname = 0;
 
-// Добавлено Дажьбогом
-//  int    count_pk=0;
-	char name_who[MAX_STRING_LENGTH] = "\0";
-//
+	char name_who[MAX_STRING_LENGTH];
+	name_who[0] = '\0';
 
 	skip_spaces(&argument);
 	strcpy(buf, argument);
-	name_search[0] = '\0';
 
 	bool kroder = Privilege::check_flag(ch, Privilege::KRODER);
 
@@ -4231,6 +4229,9 @@ ACMD(do_who)
 
 		}
 	}			/* end while (parser) */
+
+	if (who_spamcontrol(ch, strlen(name_search) ? WHO_LISTNAME : WHO_LISTALL))
+		return;
 
 	/* Первоначальное заполнение строк imms, morts, demigods  */
 	sprintf(buf, "%sБОГИ%s\r\n", CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -4444,7 +4445,7 @@ ACMD(do_who_new)
 //  }
 	CHAR_DATA *tch;
 
-	char name_search[MAX_INPUT_LENGTH] = "\0";
+//	char name_search[MAX_INPUT_LENGTH] = "\0";
 	//imms[MAX_STRING_LENGTH],
 	//morts[MAX_STRING_LENGTH];
 	char *imms = NULL;
@@ -4455,11 +4456,11 @@ ACMD(do_who_new)
 	int num_can_see = 0;
 	int imms_num = 0, morts_num = 0;
 // Добавлено Дажьбогом
-	char name_who[MAX_STRING_LENGTH] = "\0";
-
+	char name_who[MAX_STRING_LENGTH];
+	name_who[0] = '\0';
 	skip_spaces(&argument);
 	strcpy(buf, argument);
-	name_search[0] = '\0';
+//	name_search[0] = '\0';
 
 	half_chop(buf, arg, buf1);
 	strcpy(buf, buf1);

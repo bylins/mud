@@ -680,25 +680,30 @@ void Player::save_char()
 
 	fprintf(saved, "Disp: %ld\n", disposable_flags_.to_ulong());
 
-    fprintf(saved, "Ripa: %d\n", GET_RIP_ARENA(this)); //Rip_arena
-    fprintf(saved, "Wina: %d\n", GET_WIN_ARENA(this)); //Win_arena
-    fprintf(saved, "Expa: %llu\n", GET_EXP_ARENA(this)); //Exp_arena
-    fprintf(saved, "Ripm: %d\n", GET_RIP_MOB(this)); //Rip_mob
-    fprintf(saved, "Expm: %llu\n", GET_EXP_MOB(this)); //Exp_mob
-    fprintf(saved, "Ripd: %d\n", GET_RIP_DT(this)); //Rip_dt
-    fprintf(saved, "Expd: %llu\n", GET_EXP_DT(this));//Exp_dt
-    fprintf(saved, "Ripo: %d\n", GET_RIP_OTHER(this));//Rip_other
-    fprintf(saved, "Expo: %llu\n", GET_EXP_OTHER(this));//Exp_other
-    fprintf(saved, "Ripp: %d\n", GET_RIP_PK(this));//Rip_pk
-    fprintf(saved, "Expp: %llu\n", GET_EXP_PK(this)); //Exp_pk
-    fprintf(saved, "Rimt: %d\n", GET_RIP_MOBTHIS(this)); //Rip_mob_this
-    fprintf(saved, "Exmt: %llu\n", GET_EXP_MOBTHIS(this));//Exp_mob_this
-    fprintf(saved, "Ridt: %d\n", GET_RIP_DTTHIS(this)); //Rip_dt_this
-    fprintf(saved, "Exdt: %llu\n", GET_EXP_DTTHIS(this)); //Exp_dt_this
-    fprintf(saved, "Riot: %d\n", GET_RIP_OTHERTHIS(this)); //Rip_other_this
-    fprintf(saved, "Exot: %llu\n", GET_EXP_OTHERTHIS(this)); ////Exp_other_this
-    fprintf(saved, "Ript: %d\n", GET_RIP_PKTHIS(this)); //Rip_pk_this
-    fprintf(saved, "Expt: %llu\n", GET_EXP_PKTHIS(this));//Exp_pk_this
+	fprintf(saved, "Ripa: %d\n", GET_RIP_ARENA(this)); //Rip_arena
+	fprintf(saved, "Wina: %d\n", GET_WIN_ARENA(this)); //Win_arena
+	fprintf(saved, "Expa: %llu\n", GET_EXP_ARENA(this)); //Exp_arena
+	fprintf(saved, "Ripm: %d\n", GET_RIP_MOB(this)); //Rip_mob
+	fprintf(saved, "Expm: %llu\n", GET_EXP_MOB(this)); //Exp_mob
+	fprintf(saved, "Ripd: %d\n", GET_RIP_DT(this)); //Rip_dt
+	fprintf(saved, "Expd: %llu\n", GET_EXP_DT(this));//Exp_dt
+	fprintf(saved, "Ripo: %d\n", GET_RIP_OTHER(this));//Rip_other
+	fprintf(saved, "Expo: %llu\n", GET_EXP_OTHER(this));//Exp_other
+	fprintf(saved, "Ripp: %d\n", GET_RIP_PK(this));//Rip_pk
+	fprintf(saved, "Expp: %llu\n", GET_EXP_PK(this)); //Exp_pk
+	fprintf(saved, "Rimt: %d\n", GET_RIP_MOBTHIS(this)); //Rip_mob_this
+	fprintf(saved, "Exmt: %llu\n", GET_EXP_MOBTHIS(this));//Exp_mob_this
+	fprintf(saved, "Ridt: %d\n", GET_RIP_DTTHIS(this)); //Rip_dt_this
+	fprintf(saved, "Exdt: %llu\n", GET_EXP_DTTHIS(this)); //Exp_dt_this
+	fprintf(saved, "Riot: %d\n", GET_RIP_OTHERTHIS(this)); //Rip_other_this
+	fprintf(saved, "Exot: %llu\n", GET_EXP_OTHERTHIS(this)); ////Exp_other_this
+	fprintf(saved, "Ript: %d\n", GET_RIP_PKTHIS(this)); //Rip_pk_this
+	fprintf(saved, "Expt: %llu\n", GET_EXP_PKTHIS(this));//Exp_pk_this
+
+	// не забываем рестить ману и при сейве
+	this->set_who_mana(MIN(WHO_MANA_MAX,
+	                       this->get_who_mana() + (time(0) - this->get_who_last()) * WHO_MANA_REST_PER_SECOND));
+	fprintf(saved, "Wman: %u\n", this->get_who_mana());
 
 	// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 	i = 0;
@@ -1091,6 +1096,8 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	CREATE(GET_LOGS(this), int, NLOG);
 	NOTIFY_EXCH_PRICE(this) = 0;
 	this->player_specials->saved.HiredCost = 0;
+	this->set_who_mana(WHO_MANA_MAX);
+	this->set_who_last(time(0));
 
 	GET_BOARD(this) = new(struct board_data);
 	// здесь можно указать дату, с которой пойдет отсчет новых сообщений,
@@ -1716,6 +1723,8 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			else if (!strcmp(tag, "Wina"))
 				GET_WIN_ARENA(this) = num;
 /*конец правки (с) Василиса*/
+			else if (!strcmp(tag, "Wman"))
+				this->set_who_mana(num);
 			break;
 
 		default:

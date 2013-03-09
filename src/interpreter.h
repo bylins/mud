@@ -425,4 +425,24 @@ template<class T> T three_arguments(T argument, char *first_arg, char *second_ar
 	return (one_argument(one_argument(one_argument(argument, first_arg), second_arg), third_arg));	/* :-) */
 }
 
+// константы для спам-контроля команды кто
+// если кто захочет и сможет вынести их во внешний конфиг, то почет ему и слава
+
+// максимум маны
+#define WHO_MANA_MAX  6000
+// расход на одно выполнение с выводом полного списка
+#define WHO_COST  200
+// расход на одно выполнение с поиском по имени
+#define WHO_COST_NAME  30
+// расход на вывод списка по кланам
+#define WHO_COST_CLAN  120
+// скорость восстановления
+#define WHO_MANA_REST_PER_SECOND  1
+// режимы выполнения
+#define WHO_LISTALL 0
+#define WHO_LISTNAME 1
+#define WHO_LISTCLAN 2
+
+bool who_spamcontrol(CHAR_DATA *, unsigned short int);
+
 #endif // _INTERPRETER_H_

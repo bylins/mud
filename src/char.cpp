@@ -1355,6 +1355,26 @@ void Character::set_wis(int param)
 	wis_ = MAX(1, param);
 }
 
+void Character::set_who_mana(unsigned int param)
+{
+	player_specials->saved.who_mana = param;
+}
+
+void Character::set_who_last(time_t param)
+{
+	char_specials.who_last = param;
+}
+
+unsigned int Character::get_who_mana()
+{
+	return player_specials->saved.who_mana;
+}
+
+time_t Character::get_who_last()
+{
+	return char_specials.who_last;
+}
+
 void Character::inc_wis(int param)
 {
 	wis_ = MAX(1, wis_ + param);

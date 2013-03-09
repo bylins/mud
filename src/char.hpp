@@ -120,6 +120,7 @@ struct char_special_data
 	int carry_weight;		/* Carried weight */
 	int carry_items;		/* Number of items carried   */
 	int timer;			/* Timer for update  */
+	time_t who_last; // таймстамп последнего использования команды кто
 
 	struct char_special_data_saved saved;			/* constants saved in plrfile  */
 };
@@ -240,6 +241,7 @@ struct player_special_data_saved
 	//Polud храним цену, начиная с которой нужно присылать оффлайн-уведомления с базара
 	long ntfyExchangePrice;
 	int HiredCost;// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
+	unsigned int who_mana; // количество энергии для использования команды кто
 };
 
 struct player_special_data
@@ -484,6 +486,11 @@ public:
 	void set_morphed_skill(int skill_num, int percent);
 	bool isAffected(long flag) const;
 	std::vector<long> GetMorphAffects();
+
+	void set_who_mana(unsigned int);
+	void set_who_last(time_t);
+	unsigned int get_who_mana();
+	time_t get_who_last();
 
 private:
 	std::string clan_for_title();

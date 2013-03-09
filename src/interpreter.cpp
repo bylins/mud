@@ -14,6 +14,7 @@
 #define __INTERPRETER_C__
 
 #include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
 
 #include "conf.h"
 #include "sysdep.h"
@@ -2327,6 +2328,9 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	d->character->set_last_logon(time(0));
 	player_table[get_ptable_by_unique(GET_UNIQUE(d->character))].last_logon = LAST_LOGON(d->character);
 	add_logon_record(d);
+	// чтобы восстановление маны спам-контроля "кто" не шло, когда чар заходит после
+	// того, как повисел на менюшке; важно, чтобы этот вызов шел раньше save_char()
+	d->character->set_who_last(time(0));
 	d->character->save_char();
 	act("$n вступил$g в игру.", TRUE, d->character, 0, 0, TO_ROOM);
 	/* with the copyover patch, this next line goes in enter_player_game() */
@@ -3842,3 +3846,65 @@ void login_change_invoice(CHAR_DATA* ch)
 		CLAN(ch)->print_mod(ch);
 	}
 }
+
+// спам-контроль для команды кто и списка по дружинам
+// работает аналогично восстановлению и расходованию маны у волхвов
+// константы пока определены через #define в interpreter.h
+// возвращает истину, если спамконтроль сработал и игроку придется подождать
+bool who_spamcontrol(CHAR_DATA *ch, unsigned short int mode = WHO_LISTALL)
+{
+	int mana, cost, last;
+	time_t ctime;
+
+	if (IS_IMMORTAL(ch))
+		return false;
+
+	ctime = time(0);
+
+	switch (mode)
+	{
+		case WHO_LISTALL:
+			cost = WHO_COST;
+			break;
+		case WHO_LISTNAME:
+			cost = WHO_COST_NAME;
+			break;
+		case WHO_LISTCLAN:
+			cost = WHO_COST_CLAN;
+			break;
+	}
+
+	mana = ch->get_who_mana();
+	last = ch->get_who_last();
+
+#ifdef WHO_DEBUG
+	send_to_char(boost::str(boost::format("\r\nСпам-контроль:\r\n  было маны: %u, расход: %u\r\n") % ch->get_who_mana() % cost).c_str(), ch);
+#endif
+
+	// рестим ману
+	mana = MIN(WHO_MANA_MAX, mana + (ctime - last) * WHO_MANA_REST_PER_SECOND);
+
+#ifdef WHO_DEBUG
+	send_to_char(boost::str(boost::format("  прошло %u с, восстановили %u, мана после регена: %u\r\n") %
+	                                      (ctime - last) % (mana - ch->get_who_mana()) % mana).c_str(), ch);
+#endif
+
+	ch->set_who_mana(mana);
+	ch->set_who_last(ctime);
+
+	if (mana < cost)
+	{
+		send_to_char("Запрос обрабатывается, ожидайте...\r\n", ch);
+		return true;
+	}
+	else
+	{
+		mana -= cost;
+		ch->set_who_mana(mana);
+	}
+#ifdef WHO_DEBUG
+	send_to_char(boost::str(boost::format("  осталось маны: %u\r\n") % mana).c_str(), ch);
+#endif
+	return false;
+}
+
