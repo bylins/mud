@@ -25,6 +25,10 @@
 #include "house.h"
 #include "dg_scripts.h"
 
+extern room_rnum r_helled_start_room;
+extern room_rnum r_named_start_room;
+extern room_rnum r_unreg_start_room;
+
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
 namespace NamedStuff
@@ -450,6 +454,14 @@ ACMD(do_named)
 
 void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 {
+	if ((IN_ROOM(ch) == r_helled_start_room) ||
+		(IN_ROOM(ch) == r_named_start_room) ||
+		(IN_ROOM(ch) == r_unreg_start_room))
+	{
+		act("$n сказал$g вам : 'Вот выйдешь - тогда и получишь!'", FALSE, mailman, 0, ch, TO_VICT);
+		return;
+	}
+
 	OBJ_DATA *obj;
 	mob_rnum r_num;
 	int found = 0;
@@ -461,7 +473,7 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 		{
 			if ((r_num = real_object(it->first)) < 0)
 			{
-				send_to_char("Странно но такого объекта не существует.\r\n", ch);
+				send_to_char("Странно, но такого объекта не существует.\r\n", ch);
 				snprintf(buf1, MAX_STRING_LENGTH, "объект не существует!!!");
 				continue;
 			}
