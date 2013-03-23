@@ -431,13 +431,13 @@ template<class T> T three_arguments(T argument, char *first_arg, char *second_ar
 // максимум маны
 #define WHO_MANA_MAX  6000
 // расход на одно выполнение с выводом полного списка
-#define WHO_COST  200
+#define WHO_COST  180
 // расход на одно выполнение с поиском по имени
 #define WHO_COST_NAME  30
 // расход на вывод списка по кланам
 #define WHO_COST_CLAN  120
 // скорость восстановления
-#define WHO_MANA_REST_PER_SECOND  1
+#define WHO_MANA_REST_PER_SECOND  3
 // режимы выполнения
 #define WHO_LISTALL 0
 #define WHO_LISTNAME 1

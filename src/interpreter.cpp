@@ -3881,8 +3881,8 @@ bool who_spamcontrol(CHAR_DATA *ch, unsigned short int mode = WHO_LISTALL)
 	send_to_char(boost::str(boost::format("\r\nСпам-контроль:\r\n  было маны: %u, расход: %u\r\n") % ch->get_who_mana() % cost).c_str(), ch);
 #endif
 
-	// рестим ману
-	mana = MIN(WHO_MANA_MAX, mana + (ctime - last) * WHO_MANA_REST_PER_SECOND);
+	// рестим ману, в БД скорость реста маны удваивается
+	mana = MIN(WHO_MANA_MAX, mana + (ctime - last) * WHO_MANA_REST_PER_SECOND + (ctime - last) * WHO_MANA_REST_PER_SECOND * (RENTABLE(ch) ? 1 : 0));
 
 #ifdef WHO_DEBUG
 	send_to_char(boost::str(boost::format("  прошло %u с, восстановили %u, мана после регена: %u\r\n") %
