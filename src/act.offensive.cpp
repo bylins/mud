@@ -928,7 +928,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 		//не дадим башить мобов в лаге которые спят, оглушены и прочее
 		if (GET_POS(vict) <= POS_STUNNED && GET_WAIT(vict) > 0)
 		{
-			send_to_char("Ваша жертва итак слишком слаба, надо быть милосерднее.\r\n", ch);
+			send_to_char("Ваша жертва и так слишком слаба, надо быть милосерднее.\r\n", ch);
 			set_wait(ch, 1, FALSE);
 			return;
 		}
