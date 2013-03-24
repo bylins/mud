@@ -79,6 +79,7 @@ extern const char *material_name[];
 extern im_type *imtypes;
 extern int top_imtypes;
 extern void show_code_date(CHAR_DATA *ch);
+extern int nameserver_is_slow; //config.cpp
 
 /* extern functions */
 long find_class_bitvector(char arg);
@@ -5411,79 +5412,85 @@ ACMD(do_toggle)
 	if (GET_LEVEL(ch) >= LVL_IMMORT || Privilege::check_flag(ch, Privilege::KRODER))
 	{
 		sprintf(buf,
-				" Не выследить  : %-3s     "
-				" Вечный свет   : %-3s     "
-				" Флаги комнат  : %-3s \r\n",
+				" Нет агров     : %-3s     "
+				" Супервидение  : %-3s     "
+				" Флаги комнат  : %-3s \r\n"
+				" Частный режим : %-3s     "
+				" Замедление    : %-3s     "
+				" Кодер         : %-3s \r\n",
 				ONOFF(PRF_FLAGGED(ch, PRF_NOHASSLE)),
-				ONOFF(PRF_FLAGGED(ch, PRF_HOLYLIGHT)), ONOFF(PRF_FLAGGED(ch, PRF_ROOMFLAGS)));
+				ONOFF(PRF_FLAGGED(ch, PRF_HOLYLIGHT)),
+				ONOFF(PRF_FLAGGED(ch, PRF_ROOMFLAGS)),
+				ONOFF(PRF_FLAGGED(ch, PRF_NOWIZ)),
+				ONOFF(nameserver_is_slow),
+				ONOFF(PRF_FLAGGED(ch, PRF_CODERINFO)));
 		send_to_char(buf, ch);
 	}
 
 	sprintf(buf,
-			" Уровень жизни : %-3s     "
-			" Обращения     : %-3s     " " Краткий режим : %-3s \r\n" " Энергия       : %-3s     "
-			" Кто-то        : %-6s  "
+			" Автовыходы    : %-3s     "
+			" Краткий режим : %-3s     "
 			" Сжатый режим  : %-3s \r\n"
-			" Опыт          : %-3s     "
-			" Орать         : %-3s     "
-			" Повтор команд : %-3s \r\n"
-			" Заучивание    : %-3s     "
-			" Болтать       : %-3s     "
-			" Автовыходы    : %-3s \r\n"
-			" Деньги        : %-3s     "
-			" Аукцион       : %-3s     "
+			" Повтор команд : %-3s     "
+			" Обращения     : %-3s     "
 			" Цвет          : %-8s\r\n"
-			" Выходы        : %-3s     "
-			" Себя в бою    : %-3s     "
-			" Сжатие        : %-3s \r\n"
-			" Брать куны    : %-3s     "
-			" Задание       : %-3s     "
-			" Трусость      : %-3s \r\n"
-			" Автозауч.     : %-3s     "
+			" Кто-то        : %-6s  "
+			" Болтать       : %-3s     "
+			" Орать         : %-3s \r\n"
+			" Аукцион       : %-3s     "
+			" Базар         : %-3s     "
+			" Автозаучивание: %-3s \r\n"
 			" Призыв        : %-3s     "
-			" Автопомощь    : %-3s \r\n"
-			" IAC GA        : %-3s     "
-			" Показ группы  : %-7s "
-			" Автодележ     : %-3s \r\n"
-			" Автограбеж    : %-7s " " Без двойников : %-3s     " " Арена         : %-3s \r\n"
-			" Базар         : %-3s     " " Ширина экрана : %-3d     " " Высота экрана : %-3d \r\n"
-			" Новости (вид) : %-5s   "   " Доски         : %-3s     " " Хранилище     : %-10s\r\n"
-			" Пклист        : %-3s     " " Политика      : %-3s     " " Пкформат      : %-10s\r\n"
-			" Соклановцы    : %-3s     " " Оффтоп        : %-3s     " " Потеря связи  : %-3s \r\n"
-			" Ингредиенты   : %-3s     " " Вспомнить     : %-3d     ",
-			ONOFF(PRF_FLAGGED(ch, PRF_DISPHP)),
-			ONOFF(!PRF_FLAGGED(ch, PRF_NOTELL)),
-			ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)), ONOFF(PRF_FLAGGED(ch, PRF_DISPMOVE)),
-			PRF_FLAGGED(ch, PRF_NOINVISTELL) ? "нельзя" : "можно",
-			ONOFF(PRF_FLAGGED(ch, PRF_COMPACT)),
-			ONOFF(PRF_FLAGGED(ch, PRF_DISPEXP)),
-			ONOFF(!PRF_FLAGGED(ch, PRF_NOHOLLER)),
-			YESNO(!PRF_FLAGGED(ch, PRF_NOREPEAT)),
-			ONOFF(PRF_FLAGGED(ch, PRF_DISPMANA)),
-			ONOFF(!PRF_FLAGGED(ch, PRF_NOGOSS)),
+			" Автозавершение: %-3s     "
+			" Группа (вид)  : %-7s \r\n"
+			" Без двойников : %-3s     "
+			" Автодележ     : %-3s     "
+			" Автограбеж    : %-7s \r\n"
+			" Брать куны    : %-3s     "
+			" Арена         : %-3s     "
+			" Трусость      : %-3s \r\n"
+			" Ширина экрана : %-3d     "
+			" Высота экрана : %-3d     "
+			" Сжатие        : %-6s \r\n"
+			" Новости (вид) : %-5s   "
+			" Доски         : %-3s     "
+			" Хранилище     : %-10s\r\n"
+			" Пклист        : %-3s     "
+			" Политика      : %-3s     "
+			" Пкформат      : %-10s\r\n"
+			" Соклановцы    : %-3s     "
+			" Оффтоп        : %-3s     "
+			" Потеря связи  : %-3s \r\n"
+			" Ингредиенты   : %-3s     "
+			" Вспомнить     : %-3d     ",
 			ONOFF(PRF_FLAGGED(ch, PRF_AUTOEXIT)),
-			ONOFF(PRF_FLAGGED(ch, PRF_DISPGOLD)),
+			ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)),
+			ONOFF(PRF_FLAGGED(ch, PRF_COMPACT)),
+			YESNO(!PRF_FLAGGED(ch, PRF_NOREPEAT)),
+			ONOFF(!PRF_FLAGGED(ch, PRF_NOTELL)),
+			ctypes[COLOR_LEV(ch)],
+			PRF_FLAGGED(ch, PRF_NOINVISTELL) ? "нельзя" : "можно",
+			ONOFF(!PRF_FLAGGED(ch, PRF_NOGOSS)),
+			ONOFF(!PRF_FLAGGED(ch, PRF_NOHOLLER)),
 			ONOFF(!PRF_FLAGGED(ch, PRF_NOAUCT)),
-			ctypes[COLOR_LEV(ch)], ONOFF(PRF_FLAGGED(ch, PRF_DISPEXITS)), ONOFF(!PRF_FLAGGED(ch, PRF_DISPFIGHT)),
+			ONOFF(!PRF_FLAGGED(ch, PRF_NOEXCHANGE)),
+			ONOFF(PRF_FLAGGED(ch, PRF_AUTOMEM)),
+			ONOFF(PRF_FLAGGED(ch, PRF_SUMMONABLE)),
+			ONOFF(PRF_FLAGGED(ch, PRF_GOAHEAD)),
+			PRF_FLAGGED(ch, PRF_SHOWGROUP) ? "полный" : "краткий",
+			ONOFF(PRF_FLAGGED(ch, PRF_NOCLONES)),
+			ONOFF(PRF_FLAGGED(ch, PRF_AUTOSPLIT)),
+			PRF_FLAGGED(ch, PRF_AUTOLOOT) ? PRF_FLAGGED(ch, PRF_NOINGR_LOOT) ? "NO-INGR" : "ALL    " : "OFF    ",
+			ONOFF(PRF_FLAGGED(ch, PRF_AUTOMONEY)),
+			ONOFF(!PRF_FLAGGED(ch, PRF_NOARENA)),
+			buf2,
+			STRING_LENGTH(ch),
+			STRING_WIDTH(ch),
 #if defined(HAVE_ZLIB)
 			ch->desc->deflate == NULL ? "нет" : (ch->desc->mccp_version == 2 ? "MCCPv2" : "MCCPv1"),
 #else
 			"N/A",
 #endif
-			ONOFF(PRF_FLAGGED(ch, PRF_AUTOMONEY)),
-			YESNO(PRF_FLAGGED(ch, PRF_QUEST)),
-			buf2,
-			ONOFF(PRF_FLAGGED(ch, PRF_AUTOMEM)),
-			ONOFF(PRF_FLAGGED(ch, PRF_SUMMONABLE)),
-			ONOFF(PRF_FLAGGED(ch, PRF_AUTOASSIST)),
-			ONOFF(PRF_FLAGGED(ch, PRF_GOAHEAD)),
-			PRF_FLAGGED(ch, PRF_SHOWGROUP) ? "полный" : "краткий",
-			ONOFF(PRF_FLAGGED(ch, PRF_AUTOSPLIT)),
-			PRF_FLAGGED(ch, PRF_AUTOLOOT) ? PRF_FLAGGED(ch, PRF_NOINGR_LOOT) ? "NO-INGR" : "ALL    " : "OFF    ",
-			ONOFF(PRF_FLAGGED(ch, PRF_NOCLONES)),
-			ONOFF(!PRF_FLAGGED(ch, PRF_NOARENA)),
-			ONOFF(!PRF_FLAGGED(ch, PRF_NOEXCHANGE)),
-			STRING_LENGTH(ch), STRING_WIDTH(ch),
 			PRF_FLAGGED(ch, PRF_NEWS_MODE) ? "доска" : "лента",
 			ONOFF(PRF_FLAGGED(ch, PRF_BOARD_MODE)),
 			GetChestMode(ch).c_str(),
@@ -5501,7 +5508,6 @@ ACMD(do_toggle)
 	else
 			sprintf(buf,  " Уведомления   : %-3s \r\n", "Нет");
 	send_to_char(buf, ch);
-
 }
 
 ACMD(do_zone)
