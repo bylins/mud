@@ -213,16 +213,16 @@ const char *religion_menu =
 /* Соответствие классов и религий. RELIGION_POLY-класс не может быть христианином
                                    RELIGION_MONO-класс не может быть язычником  (Кард)
 				   RELIGION_ANY - класс может быть кем угодно */
-const int class_religion[] = { RELIGION_ANY,	/*Лекарь */
-							   RELIGION_POLY,		/*Колдун */
+const int class_religion[] = { RELIGION_ANY,		/*Лекарь */
+							   RELIGION_ANY,		/*Колдун */
 							   RELIGION_ANY,		/*Тать */
-							   RELIGION_POLY,		/*Богатырь */
-							   RELIGION_MONO,		/*Наемник */
+							   RELIGION_ANY,		/*Богатырь */
+							   RELIGION_ANY,		/*Наемник */
 							   RELIGION_ANY,		/*Дружинник */
 							   RELIGION_ANY,		/*Кудесник */
-							   RELIGION_MONO,		/*Волшебник */
-							   RELIGION_POLY,		/*Чернокнижник */
-							   RELIGION_MONO,		/*Витязь */
+							   RELIGION_ANY,		/*Волшебник */
+							   RELIGION_ANY,		/*Чернокнижник */
+							   RELIGION_ANY,		/*Витязь */
 							   RELIGION_ANY,		/*Охотник */
 							   RELIGION_ANY,		/*Кузнец */
 							   RELIGION_ANY,		/*Купец */

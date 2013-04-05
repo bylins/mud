@@ -2306,7 +2306,12 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				sprintf(str, "%d", GET_ALIGNMENT(c));
 			}
 			else if (!str_cmp(field, "religion"))
-				sprintf(str, "%d", GET_RELIGION(c));
+			{
+				if (*subfield && (atoi(subfield) >= 0) && (atoi(subfield) < 2))
+					GET_RELIGION(c) = atoi(subfield);
+				else
+					sprintf(str, "%d", GET_RELIGION(c));
+			}
 			else if (!str_cmp(field, "restore"))
 			{
 				do_restore(c, (char*)c->get_name(), 0, SCMD_RESTORE_TRIGGER);
