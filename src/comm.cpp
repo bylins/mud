@@ -3469,7 +3469,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	int i;
 	if (events != NULL)
 		for (i = 0; i < n_ev; i++)
-			if (events[i].data.fd == d->descriptor)
+			if (events[i].data.ptr == d)
 				events[i].data.ptr = NULL;
 #endif
 	CLOSE_SOCKET(d->descriptor);
