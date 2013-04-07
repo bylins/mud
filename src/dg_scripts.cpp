@@ -2307,7 +2307,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			else if (!str_cmp(field, "religion"))
 			{
-				if (*subfield && (atoi(subfield) >= 0) && (atoi(subfield) < 2))
+				if (*subfield && ((atoi(subfield) == RELIGION_POLY) || (atoi(subfield) == RELIGION_MONO)))
 					GET_RELIGION(c) = atoi(subfield);
 				else
 					sprintf(str, "%d", GET_RELIGION(c));

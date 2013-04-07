@@ -1889,14 +1889,14 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		}
 	}
 
-	if (!IS_NPC(ch) && !check_armor_type(ch, obj))
-	{
-		act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
-				FALSE, ch, obj, 0, TO_ROOM);
-		if (!obj->carried_by)
-			obj_to_char(obj, ch);
-		return;
-	}
+	//if (!IS_NPC(ch) && !check_armor_type(ch, obj))
+	//{
+	//	act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
+	//			FALSE, ch, obj, 0, TO_ROOM);
+	//	if (!obj->carried_by)
+	//		obj_to_char(obj, ch);
+	//	return;
+	//} Нафиг недоделки (Купала)
 
 	if (obj->carried_by)
 		obj_from_char(obj);
