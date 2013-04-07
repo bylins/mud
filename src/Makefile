@@ -1,4 +1,10 @@
-# надпись на русском в koi-8 для того, чтобы веб-интерфейс bitbucket не тупил с кодировками
+# для сборки на платформах, не поддерживающих epoll (отличных от linux 2.6+),
+# используйте параметр NO_EPOLL:
+#
+# make [options] [target] NO_EPOLL=1
+#
+# это выключает устанавливаемый по умолчанию флаг -DHAS_EPOLL
+#
 
 # C compiler to use
 CC = g++
@@ -15,12 +21,18 @@ CXREF = cxref
 
 BINDIR = ../bin
 
-CFLAGS = -m32 -ggdb3 -O2 -Wall -DBOOST_ENABLE_ASSERT_HANDLER -DHAVE_ICONV $(EXTRA_CFLAGS)
+ifdef NO_EPOLL
+EPOLL_FLAG = 
+else
+EPOLL_FLAG = -DHAS_EPOLL
+endif
+
+CFLAGS = -m32 -ggdb3 -O2 -Wall -DBOOST_ENABLE_ASSERT_HANDLER -DHAVE_ICONV $(EPOLL_FLAG) $(EXTRA_CFLAGS)
 
 # use 'make test' for faster compile w/o optimizations, crypt and 34lvl god for first character
-TESTCFLAGS = -m32 -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH $(EXTRA_CFLAGS)
-DEBUGFLAGS = -m32 -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC $(EXTRA_CFLAGS)
-FASTTEST   = -m32 -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -O3 $(EXTRA_CFLAGS)
+TESTCFLAGS = -m32 -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -DLOG_AUTOFLUSH $(EPOLL_FLAG) $(EXTRA_CFLAGS)
+DEBUGFLAGS = -m32 -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC $(EPOLL_FLAG) $(EXTRA_CFLAGS)
+FASTTEST   = -m32 -ggdb3 -Wall -DNOCRYPT -DTEST_BUILD -O3 $(EPOLL_FLAG) $(EXTRA_CFLAGS)
 #SEARCHPATH = -I /usr/include/python2.6
 
 LIBS =  -m32 -lz -lcrypt

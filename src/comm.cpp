@@ -32,7 +32,6 @@
 #include <locale.h>
 #include "conf.h"
 #include <sys/stat.h>
-#include <sys/epoll.h>
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -69,6 +68,10 @@
 #include "sets_drop.hpp"
 #include "fight.h"
 #include <boost/format.hpp>
+
+#ifdef HAS_EPOLL
+#include <sys/epoll.h>
+#endif
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -120,7 +123,9 @@
 #endif
 
 // for epoll
+#ifdef HAS_EPOLL
 #define MAXEVENTS 1024
+#endif
 
 /* externs */
 extern int num_invalid;
@@ -202,9 +207,15 @@ void circle_sleep(struct timeval *timeout);
 int get_from_q(struct txt_q *queue, char *dest, int *aliased);
 void init_game(ush_int port);
 void signal_setup(void);
+#ifdef HAS_EPOLL
 void game_loop(int epoll, socket_t mother_desc);
-socket_t init_socket(ush_int port);
 int new_descriptor(int epoll, socket_t s);
+#else
+void game_loop(socket_t mother_desc);
+int new_descriptor(socket_t s);
+#endif
+
+socket_t init_socket(ush_int port);
 
 int get_max_players(void);
 int process_output(DESCRIPTOR_DATA * t);
@@ -501,9 +512,11 @@ int main(int argc, char **argv)
 void init_game(ush_int port)
 {
 	socket_t mother_desc;
+#ifdef HAS_EPOLL
 	int epoll;
 	struct epoll_event event;
 	DESCRIPTOR_DATA *mother_d;
+#endif
 
 	// We don't want to restart if we crash before we get up.
 	touch(KILLSCRIPT_FILE);
@@ -527,6 +540,8 @@ void init_game(ush_int port)
 
 	log("Entering game loop.");
 
+#ifdef HAS_EPOLL
+	log("Polling using epoll.");
 	epoll = epoll_create1(0);
 	if (epoll == -1)
 	{
@@ -550,6 +565,10 @@ void init_game(ush_int port)
 	}
 
 	game_loop(epoll, mother_desc);
+#else
+	log("Polling using select().");
+	game_loop(mother_desc);
+#endif
 
 	flush_player_index();
 
@@ -588,13 +607,20 @@ void init_game(ush_int port)
 	SetsDrop::save_mob_stat();
 
 	log("Closing all sockets.");
+#ifdef HAS_EPOLL
 	while (descriptor_list)
 		close_socket(descriptor_list, TRUE, epoll, NULL, 0);
+#else
+	while (descriptor_list)
+		close_socket(descriptor_list, TRUE);
+#endif
 	// должно идти после дисконекта плееров
 	FileCRC::save(true);
 
 	CLOSE_SOCKET(mother_desc);
+#ifdef HAS_EPOLL
 	free(mother_d);
+#endif
 	if (circle_reboot != 2 && olc_save_list)  	// Don't save zones.
 	{
 		struct olc_save_info *entry, *next_entry;
@@ -918,11 +944,19 @@ inline void rotate(log_info * li, long pos, struct tm *time)
 	chdir(cwd);
 }
 
+#ifdef HAS_EPOLL
 inline void process_io(int epoll, socket_t mother_desc, struct epoll_event *events)
+#else
+inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_set null_set,
+                       socket_t mother_desc, int maxdesc)
+#endif
 {
 	DESCRIPTOR_DATA *d, *next_d;
 	char comm[MAX_INPUT_LENGTH];
-	int aliased, n, i;
+	int aliased;
+
+#ifdef HAS_EPOLL
+	int n, i;
 
 	// неблокирующе получаем новые события
 	n = epoll_wait(epoll, events, MAXEVENTS, 0);
@@ -959,6 +993,39 @@ inline void process_io(int epoll, socket_t mother_desc, struct epoll_event *even
 			                             % events[i].events % __func__ % __FILE__ % __LINE__);
 			log(msg.c_str());
 		}
+#else
+	/* Poll (without blocking) for new input, output, and exceptions */
+	if (select(maxdesc + 1, &input_set, &output_set, &exc_set, &null_time)
+			< 0)
+	{
+		perror("SYSERR: Select poll");
+		return;
+	}
+	/* If there are new connections waiting, accept them. */
+	if (FD_ISSET(mother_desc, &input_set))
+		new_descriptor(mother_desc);
+
+	/* Kick out the freaky folks in the exception set and marked for close */
+	for (d = descriptor_list; d; d = next_d)
+	{
+		next_d = d->next;
+		if (FD_ISSET(d->descriptor, &exc_set))
+		{
+			FD_CLR(d->descriptor, &input_set);
+			FD_CLR(d->descriptor, &output_set);
+			close_socket(d, TRUE);
+		}
+	}
+
+	/* Process descriptors with input pending */
+	for (d = descriptor_list; d; d = next_d)
+	{
+		next_d = d->next;
+		if (FD_ISSET(d->descriptor, &input_set))
+			if (process_input(d) < 0)
+				close_socket(d, FALSE);
+	}
+#endif
 
 	/* Process commands we just read from process_input */
 	for (d = descriptor_list; d; d = next_d)
@@ -991,7 +1058,11 @@ inline void process_io(int epoll, socket_t mother_desc, struct epoll_event *even
 			if (STATE(d) != CON_PLAYING &&
 					STATE(d) != CON_DISCONNECT &&
 					time(NULL) - d->input_time > 300 && d->character && !IS_GOD(d->character))
+#ifdef HAS_EPOLL
 				close_socket(d, TRUE, epoll, events, n);
+#else
+				close_socket(d, TRUE);
+#endif
 			continue;
 		}
 
@@ -1027,6 +1098,7 @@ inline void process_io(int epoll, socket_t mother_desc, struct epoll_event *even
 		}
 	}
 
+#ifdef HAS_EPOLL
 	for (i = 0; i < n; i++)
 	{
 		d = (DESCRIPTOR_DATA *)events[i].data.ptr;
@@ -1042,41 +1114,35 @@ inline void process_io(int epoll, socket_t mother_desc, struct epoll_event *even
 				                     // порции вывода
 		}
 	}
-
-#if 0
-// этот код не готов к работе с epoll. поскольку он весь в "#if 0", то я его и не переделывал.
-	/* Send queued output out to the operating system (ultimately to user). */
+#else
 	for (d = descriptor_list; d; d = next_d)
 	{
 		next_d = d->next;
-		if (*(d->output) && FD_ISSET(d->descriptor, &output_set))  	/* Output for this player is ready */
+		if ((!d->has_prompt || *(d->output)) && FD_ISSET(d->descriptor, &output_set))
 		{
 			if (process_output(d) < 0)
-				close_socket(d, FALSE);
+				close_socket(d, FALSE);	// закрыл соединение
 			else
-				d->has_prompt = 1;
-		}
-	}
-
-	/* Print prompts for other descriptors who had no other output */
-	for (d = descriptor_list; d; d = d->next)
-	{
-		if (!d->has_prompt)  	//sprintf(buf,"\r\n%s",make_prompt(d));
-		{
-			//from_koi(buf, d->keytable);
-			SEND_TO_Q(make_prompt(d), d);
-			SEND_TO_Q(end_line, d);
-			d->has_prompt = 2;
+				d->has_prompt = 1;	// признак того, что промпт уже выводил
+			// следующий после команды или очередной
+			// порции вывода
 		}
 	}
 #endif
+
+// тут был кусок старого кода в #if 0 ... #endif. убрал, чтобы меньше хлама было.
+// если понадобится, вернем из истории.
 
 	/* Kick out folks in the CON_CLOSE or CON_DISCONNECT state */
 	for (d = descriptor_list; d; d = next_d)
 	{
 		next_d = d->next;
 		if (STATE(d) == CON_CLOSE || STATE(d) == CON_DISCONNECT)
+#ifdef HAS_EPOLL
 			close_socket(d, FALSE, epoll, events, n);
+#else
+			close_socket(d, FALSE);
+#endif
 	}
 
 }
@@ -1088,12 +1154,23 @@ inline void process_io(int epoll, socket_t mother_desc, struct epoll_event *even
  * output and sending it out to players, and calling "heartbeat" functions
  * such as mobile_activity().
  */
+#ifdef HAS_EPOLL
 void game_loop(int epoll, socket_t mother_desc)
+#else
+void game_loop(socket_t mother_desc)
+#endif
 {
-	struct timeval last_time, opt_time, process_time, temp_time;
-	struct timeval before_sleep, now, timeout;
-	int missed_pulses = 0;
+#ifdef HAS_EPOLL
 	struct epoll_event *events;
+#else
+	DESCRIPTOR_DATA *d;
+	fd_set input_set, output_set, exc_set, null_set;
+	int maxdesc;
+#endif
+
+	struct timeval last_time, opt_time, process_time, temp_time;
+	int missed_pulses = 0;
+	struct timeval before_sleep, now, timeout;
 
 	/* initialize various time values */
 	null_time.tv_sec = 0;
@@ -1102,7 +1179,11 @@ void game_loop(int epoll, socket_t mother_desc)
 	opt_time.tv_sec = 0;
 	last_rent_check = time(NULL);
 
+#ifdef HAS_EPOLL
 	events = (struct epoll_event *)calloc(1, MAXEVENTS * sizeof(struct epoll_event));
+#else
+	FD_ZERO(&null_set);
+#endif
 
 	gettimeofday(&last_time, (struct timezone *) 0);
 
@@ -1113,18 +1194,48 @@ void game_loop(int epoll, socket_t mother_desc)
 		{
 			log("No connections.  Going to sleep.");
 			//make_who2html();
+#ifdef HAS_EPOLL
 			if (epoll_wait(epoll, events, MAXEVENTS, -1) == -1)
+#else
+			FD_ZERO(&input_set);
+			FD_SET(mother_desc, &input_set);
+			if (select(mother_desc + 1, &input_set, (fd_set *) 0, (fd_set *) 0, NULL) < 0)
+#endif
 			{
 				if (errno == EINTR)
 					log("Waking up to process signal.");
 				else
+#ifdef HAS_EPOLL
 					perror(boost::str(boost::format("EPOLL: blocking epoll_wait() failed in %s() at %s:%d")
 					                  % __func__ % __FILE__ % __LINE__).c_str());
+#else
+					perror("SYSERR: Select coma");
+#endif
 			}
 			else
 				log("New connection.  Waking up.");
 			gettimeofday(&last_time, (struct timezone *) 0);
 		}
+
+#ifndef HAS_EPOLL
+		/* Set up the input, output, and exception sets for select(). */
+		FD_ZERO(&input_set);
+		FD_ZERO(&output_set);
+		FD_ZERO(&exc_set);
+		FD_SET(mother_desc, &input_set);
+
+		maxdesc = mother_desc;
+		for (d = descriptor_list; d; d = d->next)
+		{
+#ifndef CIRCLE_WINDOWS
+			if (d->descriptor > maxdesc)
+				maxdesc = d->descriptor;
+#endif
+			FD_SET(d->descriptor, &input_set);
+			FD_SET(d->descriptor, &output_set);
+			FD_SET(d->descriptor, &exc_set);
+		}
+#endif
 
 		/*
 		 * At this point, we have completed all input, output and heartbeat
@@ -1194,7 +1305,11 @@ void game_loop(int epoll, socket_t mother_desc)
 		/* Now execute the heartbeat functions */
 		while (missed_pulses--)
 		{
+#ifdef HAS_EPOLL
 			process_io(epoll, mother_desc, events);
+#else
+			process_io(input_set, output_set, exc_set, null_set, mother_desc, maxdesc);
+#endif
 			heartbeat(missed_pulses);
 		}
 
@@ -1206,7 +1321,9 @@ void game_loop(int epoll, socket_t mother_desc)
 		tics++;
 #endif
 	}
+#ifdef HAS_EPOLL
 	free(events);
+#endif
 }
 
 void beat_points_update(int pulse);
@@ -2230,7 +2347,11 @@ int set_sendbuf(socket_t s)
 // возвращает -1, если accept() вернул EINTR, EAGAIN или EWOULDBLOCK
 // возвращает -2 при других ошибках сокета
 // возвращает -3, если в соединении было отказано движком
+#ifdef HAS_EPOLL
 int new_descriptor(int epoll, socket_t s)
+#else
+int new_descriptor(socket_t s)
+#endif
 {
 	socket_t desc;
 	int sockets_connected = 0;
@@ -2239,7 +2360,9 @@ int new_descriptor(int epoll, socket_t s)
 	DESCRIPTOR_DATA *newd;
 	struct sockaddr_in peer;
 	struct hostent *from;
+#ifdef HAS_EPOLL
 	struct epoll_event event;
+#endif
 
 	/* accept the new connection */
 	i = sizeof(peer);
@@ -2318,6 +2441,7 @@ int new_descriptor(int epoll, socket_t s)
 		return (-3);
 	}
 
+#ifdef HAS_EPOLL
 	//
 	// Со следующей строкой связаны определенные проблемы.
 	//
@@ -2356,6 +2480,7 @@ int new_descriptor(int epoll, socket_t s)
 		free(newd);
 		return -2;
 	}
+#endif
 
 	/* initialize descriptor data */
 	newd->descriptor = desc;
@@ -2776,7 +2901,7 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 
 /*
  * write_to_descriptor takes a descriptor, and text to write to the
- * descriptor.  It keeps calling the system-level write() until all
+ * descriptor.  It keeps calling the system-level send() until all
  * the text has been delivered to the OS, or until an error is
  * encountered. 'written' is updated to add how many bytes were sent
  * over the socket successfully prior to the return. It is not zero'd.
@@ -3312,10 +3437,13 @@ bool any_other_ch(CHAR_DATA *ch)
 	return false;
 }
 
+#ifdef HAS_EPOLL
 void close_socket(DESCRIPTOR_DATA * d, int direct, int epoll, struct epoll_event *events, int n_ev)
+#else
+void close_socket(DESCRIPTOR_DATA * d, int direct)
+#endif
 {
 	DESCRIPTOR_DATA *temp;
-	int i;
 
 	if (d == NULL)
 	{
@@ -3334,13 +3462,16 @@ void close_socket(DESCRIPTOR_DATA * d, int direct, int epoll, struct epoll_event
 	}
 
 	REMOVE_FROM_LIST(d, descriptor_list, next);
+#ifdef HAS_EPOLL
 	if (epoll_ctl(epoll, EPOLL_CTL_DEL, d->descriptor, NULL) == -1)
 		log("SYSERR: EPOLL_CTL_DEL failed in close_socket()");
 	// см. комментарии в new_descriptor()
+	int i;
 	if (events != NULL)
 		for (i = 0; i < n_ev; i++)
 			if (events[i].data.fd == d->descriptor)
 				events[i].data.ptr = NULL;
+#endif
 	CLOSE_SOCKET(d->descriptor);
 	flush_queues(d);
 
