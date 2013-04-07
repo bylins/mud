@@ -1,6 +1,8 @@
 #include "dictionary.hpp"
 #include "shop_ext.hpp"
 
+// комментарий на русском в надежде починить кодировки bitbucket
+
 Dictionary::Dictionary(DictionaryMode mode)
 {
 	switch(mode)

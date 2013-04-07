@@ -15,6 +15,8 @@
 #include "utils.h"
 #include "diskio.h"
 
+// комментарий на русском в надежде починить кодировки bitbucket
+
 int fbgetline(FBFILE * fbfl, char *line)
 {
 	char *r = fbfl->ptr, *w = line;

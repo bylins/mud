@@ -2,6 +2,8 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
+// комментарий на русском в надежде починить кодировки bitbucket
+
 #ifndef OBJSAVE_HPP_INCLUDED
 #define OBJSAVE_HPP_INCLUDED
 

@@ -2,6 +2,8 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
+// комментарий на русском в надежде починить кодировки bitbucket
+
 #include "room.hpp"
 
 room_data::room_data()

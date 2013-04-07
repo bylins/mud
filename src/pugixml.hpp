@@ -11,6 +11,8 @@
  * Copyright (C) 2003, by Kristen Wegner (kristen@tima.net)
  */
 
+// комментарий на русском в надежде починить кодировки bitbucket
+
 #ifndef HEADER_PUGIXML_HPP
 #define HEADER_PUGIXML_HPP
 

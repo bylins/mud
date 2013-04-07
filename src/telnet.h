@@ -36,6 +36,8 @@
 *  $Date$                                           *
 *  $Revision$                                                       */
 
+// комментарий на русском в надежде починить кодировки bitbucket
+
 #ifndef _TELNET_H_
 #define _TELNET_H_
 

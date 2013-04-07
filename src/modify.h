@@ -1,5 +1,7 @@
 // -*- coding: koi8-r -*-
 
+// комментарий на русском в надежде починить кодировки bitbucket
+
 #ifndef _MODIFY_H_
 #define _MODIFY_H_
 

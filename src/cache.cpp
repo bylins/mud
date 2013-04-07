@@ -1,6 +1,8 @@
 // Copyright (c) 2011 Posvist
 // Part of Bylins http://www.mud.ru
 
+// комментарий на русском в надежде починить кодировки bitbucket
+
 #include "cache.hpp"
 using namespace boost;
 
