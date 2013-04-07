@@ -32,6 +32,7 @@
 #include <locale.h>
 #include "conf.h"
 #include <sys/stat.h>
+#include <sys/epoll.h>
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -67,6 +68,7 @@
 #include "shop_ext.hpp"
 #include "sets_drop.hpp"
 #include "fight.h"
+#include <boost/format.hpp>
 
 #ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
 # define SIGPIPE 13
@@ -109,13 +111,16 @@
 #include "telnet.h"
 #endif
 
-#ifndef INVALID_SOCKET
-#define INVALID_SOCKET -1
+#ifndef SOCKET_ERROR
+#define SOCKET_ERROR -1
 #endif
 
 #ifdef HAVE_ICONV
 #include <iconv.h>
 #endif
+
+// for epoll
+#define MAXEVENTS 1024
 
 /* externs */
 extern int num_invalid;
@@ -197,9 +202,9 @@ void circle_sleep(struct timeval *timeout);
 int get_from_q(struct txt_q *queue, char *dest, int *aliased);
 void init_game(ush_int port);
 void signal_setup(void);
-void game_loop(socket_t mother_desc);
+void game_loop(int epoll, socket_t mother_desc);
 socket_t init_socket(ush_int port);
-int new_descriptor(socket_t s);
+int new_descriptor(int epoll, socket_t s);
 
 int get_max_players(void);
 int process_output(DESCRIPTOR_DATA * t);
@@ -496,6 +501,9 @@ int main(int argc, char **argv)
 void init_game(ush_int port)
 {
 	socket_t mother_desc;
+	int epoll;
+	struct epoll_event event;
+	DESCRIPTOR_DATA *mother_d;
 
 	// We don't want to restart if we crash before we get up.
 	touch(KILLSCRIPT_FILE);
@@ -519,7 +527,29 @@ void init_game(ush_int port)
 
 	log("Entering game loop.");
 
-	game_loop(mother_desc);
+	epoll = epoll_create1(0);
+	if (epoll == -1)
+	{
+		perror(boost::str(boost::format("EPOLL: epoll_create1() failed in %s() at %s:%d")
+		                  % __func__ % __FILE__ % __LINE__).c_str());
+		return;
+	}
+	// необходимо, т.к. в event.data мы можем хранить либо ptr, либо fd.
+	// а поскольку для клиентских сокетов нам нужны ptr, то и для родительского
+	// дескриптора, где нам наоборот нужен fd, придется создать псевдоструктуру,
+	// в которой инициализируем только поле descriptor
+	mother_d = (DESCRIPTOR_DATA *)calloc(1, sizeof(DESCRIPTOR_DATA));
+	mother_d->descriptor = mother_desc;
+	event.data.ptr = mother_d;
+	event.events = EPOLLIN;
+	if (epoll_ctl(epoll, EPOLL_CTL_ADD, mother_desc, &event) == -1)
+	{
+		perror(boost::str(boost::format("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD mother_desc in %s() at %s:%d")
+		                  % __func__ % __FILE__ % __LINE__).c_str());
+		return;
+	}
+
+	game_loop(epoll, mother_desc);
 
 	flush_player_index();
 
@@ -559,11 +589,12 @@ void init_game(ush_int port)
 
 	log("Closing all sockets.");
 	while (descriptor_list)
-		close_socket(descriptor_list, TRUE);
+		close_socket(descriptor_list, TRUE, epoll, NULL, 0);
 	// должно идти после дисконекта плееров
 	FileCRC::save(true);
 
 	CLOSE_SOCKET(mother_desc);
+	free(mother_d);
 	if (circle_reboot != 2 && olc_save_list)  	// Don't save zones.
 	{
 		struct olc_save_info *entry, *next_entry;
@@ -654,7 +685,7 @@ socket_t init_socket(ush_int port)
 		}
 		log("Max players set to %d", max_players);
 
-		if ((s = socket(PF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+		if ((s = socket(PF_INET, SOCK_STREAM, 0)) == SOCKET_ERROR)
 		{
 			log("SYSERR: Error opening network connection: Winsock error #%d", WSAGetLastError());
 			exit(1);
@@ -887,44 +918,47 @@ inline void rotate(log_info * li, long pos, struct tm *time)
 	chdir(cwd);
 }
 
-inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_set null_set,
-					   socket_t mother_desc, int maxdesc)
+inline void process_io(int epoll, socket_t mother_desc, struct epoll_event *events)
 {
 	DESCRIPTOR_DATA *d, *next_d;
 	char comm[MAX_INPUT_LENGTH];
-	int aliased;
+	int aliased, n, i;
 
-	/* Poll (without blocking) for new input, output, and exceptions */
-	if (select(maxdesc + 1, &input_set, &output_set, &exc_set, &null_time)
-			< 0)
+	// неблокирующе получаем новые события
+	n = epoll_wait(epoll, events, MAXEVENTS, 0);
+	if (n == -1)
 	{
-		perror("SYSERR: Select poll");
+		std::string err = boost::str(boost::format("EPOLL: epoll_wait() failed in %s() at %s:%d")
+		                             % __func__ % __FILE__ % __LINE__);
+		log(err.c_str());
+		perror(err.c_str());
 		return;
 	}
-	/* If there are new connections waiting, accept them. */
-	if (FD_ISSET(mother_desc, &input_set))
-		new_descriptor(mother_desc);
 
-	/* Kick out the freaky folks in the exception set and marked for close */
-	for (d = descriptor_list; d; d = next_d)
-	{
-		next_d = d->next;
-		if (FD_ISSET(d->descriptor, &exc_set))
+	for (i = 0; i < n; i++)
+		if (events[i].events & EPOLLIN)
 		{
-			FD_CLR(d->descriptor, &input_set);
-			FD_CLR(d->descriptor, &output_set);
-			close_socket(d, TRUE);
+			d = (DESCRIPTOR_DATA *)events[i].data.ptr;
+			if (d == NULL)
+				continue;
+			if (mother_desc == d->descriptor) // событие на mother_desc: принимаем все ждущие соединения
+			{
+				int desc;
+				do
+					desc = new_descriptor(epoll, mother_desc);
+				while (desc > 0 || desc == -3);
+			}
+			else // событие на клиентском дескрипторе: получаем данные и закрываем сокет, если EOF
+				if (process_input(d) < 0)
+					close_socket(d, FALSE, epoll, events, n);
 		}
-	}
-
-	/* Process descriptors with input pending */
-	for (d = descriptor_list; d; d = next_d)
-	{
-		next_d = d->next;
-		if (FD_ISSET(d->descriptor, &input_set))
-			if (process_input(d) < 0)
-				close_socket(d, FALSE);
-	}
+		else if (events[i].events & !EPOLLOUT &!EPOLLIN) // тут ловим все события, имеющие флаги кроме in и out
+		{
+			// надо будет помониторить сислог на предмет этих сообщений
+			std::string msg = boost::str(boost::format("EPOLL: Got event %d in %s() at %s:%d")
+			                             % events[i].events % __func__ % __FILE__ % __LINE__);
+			log(msg.c_str());
+		}
 
 	/* Process commands we just read from process_input */
 	for (d = descriptor_list; d; d = next_d)
@@ -957,7 +991,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 			if (STATE(d) != CON_PLAYING &&
 					STATE(d) != CON_DISCONNECT &&
 					time(NULL) - d->input_time > 300 && d->character && !IS_GOD(d->character))
-				close_socket(d, TRUE);
+				close_socket(d, TRUE, epoll, events, n);
 			continue;
 		}
 
@@ -993,21 +1027,24 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		}
 	}
 
-	for (d = descriptor_list; d; d = next_d)
+	for (i = 0; i < n; i++)
 	{
-		next_d = d->next;
-		if ((!d->has_prompt || *(d->output)) && FD_ISSET(d->descriptor, &output_set))
+		d = (DESCRIPTOR_DATA *)events[i].data.ptr;
+		if (d == NULL)
+			continue;
+		if ((events[i].events & EPOLLOUT) && (!d->has_prompt || *(d->output)))
 		{
-			if (process_output(d) < 0)
-				close_socket(d, FALSE);	// закрыл соединение
+			if (process_output(d) < 0) // сокет умер
+				close_socket(d, FALSE, epoll, events, n);
 			else
-				d->has_prompt = 1;	// признак того, что промпт уже выводил
-			// следующий после команды или очередной
-			// порции вывода
+				d->has_prompt = 1;   // признак того, что промпт уже выводил
+				                     // следующий после команды или очередной
+				                     // порции вывода
 		}
 	}
 
 #if 0
+// этот код не готов к работе с epoll. поскольку он весь в "#if 0", то я его и не переделывал.
 	/* Send queued output out to the operating system (ultimately to user). */
 	for (d = descriptor_list; d; d = next_d)
 	{
@@ -1039,7 +1076,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 	{
 		next_d = d->next;
 		if (STATE(d) == CON_CLOSE || STATE(d) == CON_DISCONNECT)
-			close_socket(d, FALSE);
+			close_socket(d, FALSE, epoll, events, n);
 	}
 
 }
@@ -1051,21 +1088,21 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
  * output and sending it out to players, and calling "heartbeat" functions
  * such as mobile_activity().
  */
-void game_loop(socket_t mother_desc)
+void game_loop(int epoll, socket_t mother_desc)
 {
-	fd_set input_set, output_set, exc_set, null_set;
 	struct timeval last_time, opt_time, process_time, temp_time;
 	struct timeval before_sleep, now, timeout;
-	DESCRIPTOR_DATA *d;
-	int missed_pulses = 0, maxdesc;
+	int missed_pulses = 0;
+	struct epoll_event *events;
 
 	/* initialize various time values */
 	null_time.tv_sec = 0;
 	null_time.tv_usec = 0;
 	opt_time.tv_usec = OPT_USEC;
 	opt_time.tv_sec = 0;
-	FD_ZERO(&null_set);
 	last_rent_check = time(NULL);
+
+	events = (struct epoll_event *)calloc(1, MAXEVENTS * sizeof(struct epoll_event));
 
 	gettimeofday(&last_time, (struct timezone *) 0);
 
@@ -1076,35 +1113,17 @@ void game_loop(socket_t mother_desc)
 		{
 			log("No connections.  Going to sleep.");
 			//make_who2html();
-			FD_ZERO(&input_set);
-			FD_SET(mother_desc, &input_set);
-			if (select(mother_desc + 1, &input_set, (fd_set *) 0, (fd_set *) 0, NULL) < 0)
+			if (epoll_wait(epoll, events, MAXEVENTS, -1) == -1)
 			{
 				if (errno == EINTR)
 					log("Waking up to process signal.");
 				else
-					perror("SYSERR: Select coma");
+					perror(boost::str(boost::format("EPOLL: blocking epoll_wait() failed in %s() at %s:%d")
+					                  % __func__ % __FILE__ % __LINE__).c_str());
 			}
 			else
 				log("New connection.  Waking up.");
 			gettimeofday(&last_time, (struct timezone *) 0);
-		}
-		/* Set up the input, output, and exception sets for select(). */
-		FD_ZERO(&input_set);
-		FD_ZERO(&output_set);
-		FD_ZERO(&exc_set);
-		FD_SET(mother_desc, &input_set);
-
-		maxdesc = mother_desc;
-		for (d = descriptor_list; d; d = d->next)
-		{
-#ifndef CIRCLE_WINDOWS
-			if (d->descriptor > maxdesc)
-				maxdesc = d->descriptor;
-#endif
-			FD_SET(d->descriptor, &input_set);
-			FD_SET(d->descriptor, &output_set);
-			FD_SET(d->descriptor, &exc_set);
 		}
 
 		/*
@@ -1175,7 +1194,7 @@ void game_loop(socket_t mother_desc)
 		/* Now execute the heartbeat functions */
 		while (missed_pulses--)
 		{
-			process_io(input_set, output_set, exc_set, null_set, mother_desc, maxdesc);
+			process_io(epoll, mother_desc, events);
 			heartbeat(missed_pulses);
 		}
 
@@ -1187,6 +1206,7 @@ void game_loop(socket_t mother_desc)
 		tics++;
 #endif
 	}
+	free(events);
 }
 
 void beat_points_update(int pulse);
@@ -2206,7 +2226,11 @@ int set_sendbuf(socket_t s)
 	return (0);
 }
 
-int new_descriptor(socket_t s)
+// возвращает неотрицательное целое, если удалось создать сокет
+// возвращает -1, если accept() вернул EINTR, EAGAIN или EWOULDBLOCK
+// возвращает -2 при других ошибках сокета
+// возвращает -3, если в соединении было отказано движком
+int new_descriptor(int epoll, socket_t s)
 {
 	socket_t desc;
 	int sockets_connected = 0;
@@ -2215,13 +2239,18 @@ int new_descriptor(socket_t s)
 	DESCRIPTOR_DATA *newd;
 	struct sockaddr_in peer;
 	struct hostent *from;
+	struct epoll_event event;
 
 	/* accept the new connection */
 	i = sizeof(peer);
-	if ((desc = accept(s, (struct sockaddr *) & peer, &i)) == INVALID_SOCKET)
+	if ((desc = accept(s, (struct sockaddr *) & peer, &i)) == SOCKET_ERROR)
 	{
-		perror("SYSERR: accept");
-		return (-1);
+		if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK)
+		{
+			perror("SYSERR: accept");
+			return -2;
+		} else
+			return (-1);
 	}
 	/* keep it from blocking */
 	nonblock(desc);
@@ -2230,7 +2259,7 @@ int new_descriptor(socket_t s)
 	if (set_sendbuf(desc) < 0)
 	{
 		CLOSE_SOCKET(desc);
-		return (0);
+		return (-2);
 	}
 
 	/* make sure we have room for it */
@@ -2241,7 +2270,7 @@ int new_descriptor(socket_t s)
 	{
 		SEND_TO_SOCKET("Sorry, RUS MUD is full right now... please try again later!\r\n", desc);
 		CLOSE_SOCKET(desc);
-		return (0);
+		return (-3);
 	}
 	/* create a new descriptor */
 	CREATE(newd, DESCRIPTOR_DATA, 1);
@@ -2286,7 +2315,46 @@ int new_descriptor(socket_t s)
 		// sprintf(buf2, "Connection attempt denied from [%s]", newd->host);
 		// mudlog(buf2, CMP, LVL_GOD, SYSLOG, TRUE);
 		free(newd);
-		return (0);
+		return (-3);
+	}
+
+	//
+	// Со следующей строкой связаны определенные проблемы.
+	//
+	// Когда случается очередное событие, то ему в поле data.ptr записывается
+	// то значение, которое мы ему здесь присваиваем. В данном случае это ссылка
+	// на область памяти, выделенную под структуру данного дескриптора.
+	//
+	// Проблема здесь заключается в том, что в процессе выполнения цикла,
+	// обрабатывающего полученные в результате epoll_wait() события, мы
+	// потенциально можем оказаться в ситуации, когда в результате обработки
+	// первого события сокет был закрыт и память под структуру дескриптора
+	// освобождена. В этом случае значение data.ptr во всех последующих
+	// событиях для данного сокета становится уже невалидным, и при попытке
+	// обработки этих событий произойдет чудесный креш.
+	//
+	// Предотвращается этот возможный креш принудительной установкой data.ptr в NULL
+	// для всех событий, пришедших от данного сокета. Это делается в close_socket(),
+	// которому для этой цели теперь передается ссылка на массив событий.
+	// Также добавлена проверка аргумента на NULL в close_socket(), process_input()
+	// и process_output().
+	//
+	// Для алгоритма с использованием select() это было неактуально, поскольку
+	// после вызова select() цикл проходил по списку дескрипторов, где они все заведомо
+	// валидны, а с epoll мы проходим по списку событий, валидность сохраненного в
+	// которых дескриптора надо контролировать дополнительно.
+	//
+	event.data.ptr = newd;
+	//
+	//
+	event.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP;
+	if (epoll_ctl(epoll, EPOLL_CTL_ADD, desc, &event) == -1)
+	{
+		log(boost::str(boost::format("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD in %s() at %s:%d")
+		               % __func__ % __FILE__ % __LINE__).c_str());
+		CLOSE_SOCKET(desc);
+		free(newd);
+		return -2;
 	}
 
 	/* initialize descriptor data */
@@ -2340,7 +2408,7 @@ int new_descriptor(socket_t s)
 	write_to_descriptor(newd->descriptor, compress_will, strlen(compress_will));
 #endif
 
-	return (0);
+	return newd->descriptor;
 }
 
 #ifdef HAVE_ICONV
@@ -2403,6 +2471,13 @@ int process_output(DESCRIPTOR_DATA * t)
 	char i[MAX_SOCK_BUF * 2], o[MAX_SOCK_BUF * 2 * 3], *pi, *po;
 	int written = 0, offset, result, c;
 
+	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
+	if (t == NULL)
+	{
+		log(boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
+		               % __func__ % __FILE__ % __LINE__).c_str());
+		return -1;
+	}
 
 	// Отправляю данные снуперам
 	/* handle snooping: prepend "% " and send to snooper */
@@ -2655,7 +2730,7 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 {
 	ssize_t result;
 
-	result = write(desc, txt, length);
+	result = send(desc, txt, length, MSG_NOSIGNAL);
 
 	if (result > 0)
 	{
@@ -2839,6 +2914,14 @@ int process_input(DESCRIPTOR_DATA * t)
 	buf_length = strlen(t->inbuf);
 	read_point = t->inbuf + buf_length;
 	space_left = MAX_RAW_INPUT_LENGTH - buf_length - 1;
+
+	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
+	if (t == NULL)
+	{
+		log(boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
+		               % __func__ % __FILE__ % __LINE__).c_str());
+		return -1;
+	}
 
 	do
 	{
@@ -3229,9 +3312,17 @@ bool any_other_ch(CHAR_DATA *ch)
 	return false;
 }
 
-void close_socket(DESCRIPTOR_DATA * d, int direct)
+void close_socket(DESCRIPTOR_DATA * d, int direct, int epoll, struct epoll_event *events, int n_ev)
 {
 	DESCRIPTOR_DATA *temp;
+	int i;
+
+	if (d == NULL)
+	{
+		log(boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
+		               % __func__ % __FILE__ % __LINE__).c_str());
+		return;
+	}
 
 	/*  if (!direct && d->character && RENTABLE(d->character))
 	     return; */
@@ -3243,6 +3334,13 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	}
 
 	REMOVE_FROM_LIST(d, descriptor_list, next);
+	if (epoll_ctl(epoll, EPOLL_CTL_DEL, d->descriptor, NULL) == -1)
+		log("SYSERR: EPOLL_CTL_DEL failed in close_socket()");
+	// см. комментарии в new_descriptor()
+	if (events != NULL)
+		for (i = 0; i < n_ev; i++)
+			if (events[i].data.fd == d->descriptor)
+				events[i].data.ptr = NULL;
 	CLOSE_SOCKET(d->descriptor);
 	flush_queues(d);
 
