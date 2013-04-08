@@ -2368,7 +2368,11 @@ int new_descriptor(socket_t s)
 	i = sizeof(peer);
 	if ((desc = accept(s, (struct sockaddr *) & peer, &i)) == SOCKET_ERROR)
 	{
+#ifdef EWOULDBLOCK
 		if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK)
+#else
+		if (errno != EINTR && errno != EAGAIN)
+#endif
 		{
 			perror("SYSERR: accept");
 			return -2;
