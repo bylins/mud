@@ -3141,7 +3141,7 @@ Sventovit
 			snprintf(buf2, MAX_STRING_LENGTH, "полный");
 			break;
 		default:
-			SEND_TO_Q("Таких режимов нет выберите из присутствующих!", d);
+			SEND_TO_Q("Таких режимов нет, выберите из присутствующих!", d);
 			return;
 		}
 		do_color(d->character, buf2, 0, 0);
@@ -3191,6 +3191,8 @@ Sventovit
 		SEND_TO_Q(motd, d);
 		SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 		STATE(d) = CON_RMOTD;
+		d->character->set_who_mana(0);
+		d->character->set_who_last(time(0));
 
 		//sprintf(buf, "%s [%s] new player_data.", GET_NAME(d->character), d->host);
 		//mudlog(buf, NRM, LVL_IMMORT, SYSLOG, TRUE);
