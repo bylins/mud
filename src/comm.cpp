@@ -3155,6 +3155,7 @@ int process_input(DESCRIPTOR_DATA * t)
 
 	while (nl_pos != NULL)
 	{
+		int tilde = 0;
 		write_point = tmp;
 		space_left = MAX_INPUT_LENGTH - 1;
 
@@ -3304,6 +3305,7 @@ int process_input(DESCRIPTOR_DATA * t)
 		{
 			// очистка входной очереди
 			int dummy;
+			tilde = 1;
 			while (get_from_q(&t->input, buf2, &dummy));
 			// SEND_TO_Q("Входной буфер очищен.\r\n", t);
 			tmp[0] = 0;
@@ -3347,7 +3349,7 @@ int process_input(DESCRIPTOR_DATA * t)
 				t->history_pos = 0;
 		}
 
-		if (!failed_subst)
+		if (!failed_subst && !tilde)
 			write_to_q(tmp, &t->input, 0);
 
 		/* find the end of this line */
