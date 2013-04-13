@@ -3307,7 +3307,7 @@ int process_input(DESCRIPTOR_DATA * t)
 			int dummy;
 			tilde = 1;
 			while (get_from_q(&t->input, buf2, &dummy));
-			// SEND_TO_Q("Входной буфер очищен.\r\n", t);
+			SEND_TO_Q("Очередь очищена.\r\n", t);
 			tmp[0] = 0;
 		}
 		else if (*tmp == '!' && !(*(tmp + 1)))
