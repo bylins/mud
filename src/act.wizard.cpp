@@ -202,7 +202,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 		return 0;
 	}
 
-	if ((GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch)) || Privilege::check_flag(vict, Privilege::KRODER))
+	if ((GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch)) || PRF_FLAGGED(vict, PRF_CODERINFO))
 	{
 		send_to_char("Кем вы себя возомнили?\r\n", ch);
 		return 0;
@@ -233,7 +233,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 		break;
 	}
 	assert(pundata);
-	if (GET_LEVEL(ch) < pundata->level && !Privilege::check_flag(ch, Privilege::KRODER))
+	if (GET_LEVEL(ch) < pundata->level && !PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
 		send_to_char("Да кто ты такой!!? Чтобы оспаривать волю СТАРШИХ БОГОВ !!!\r\n", ch);
 		return 0;
@@ -472,7 +472,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 		else
 			skip_spaces(&reason);
 
-		pundata->level = Privilege::check_flag(ch, Privilege::KRODER) ? LVL_IMPL : GET_LEVEL(ch);
+		pundata->level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
 		pundata->godid = GET_UNIQUE(ch);
 
 		// Добавляем в причину имя имма
@@ -981,7 +981,7 @@ room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 	}
 
 	/* a location has been found -- if you're < GRGOD, check restrictions. */
-	if (!IS_GRGOD(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
+	if (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
 		if (ROOM_FLAGGED(location, ROOM_GODROOM) && GET_LEVEL(ch) < LVL_GRGOD)
 		{
@@ -1080,7 +1080,7 @@ ACMD(do_teleport)
 		send_to_char(NOPERSON, ch);
 	else if (victim == ch)
 		send_to_char("Используйте 'прыжок' для собственного перемещения.\r\n", ch);
-	else if (GET_LEVEL(victim) >= GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
+	else if (GET_LEVEL(victim) >= GET_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		send_to_char("Попробуйте придумать что-то другое.\r\n", ch);
 	else if (!*buf2)
 		act("Куда вы хотите $S переместить?", FALSE, ch, 0, victim, TO_CHAR);
@@ -2308,8 +2308,8 @@ ACMD(do_snoop)
 			tch = victim->desc->original;
 		else
 			tch = victim;
-		int god_level = Privilege::check_flag(ch, Privilege::KRODER) ? LVL_IMPL : GET_LEVEL(ch);
-		int victim_level = Privilege::check_flag(tch, Privilege::KRODER) ? LVL_IMPL : GET_LEVEL(tch);
+		int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
+		int victim_level = PRF_FLAGGED(tch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(tch);
 		if (victim_level >= god_level)
 		{
 			send_to_char("Вы не можете.\r\n", ch);
@@ -2544,7 +2544,7 @@ ACMD(do_purge)
 				 * or char */
 		if ((vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)) != NULL)
 		{
-			if (!IS_NPC(vict) && GET_LEVEL(ch) <= GET_LEVEL(vict) && !Privilege::check_flag(ch, Privilege::KRODER))
+			if (!IS_NPC(vict) && GET_LEVEL(ch) <= GET_LEVEL(vict) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 			{
 				send_to_char("Да я вас за это...\r\n", ch);
 				return;
@@ -2714,7 +2714,7 @@ void inspecting()
 		}
 		if ((it->second->sfor == ICHAR && it->second->unique == player_table[it->second->pos].unique)//Это тот же перс которого мы статим
 			|| (player_table[it->second->pos].level >= LVL_IMMORT && !IS_GRGOD(ch))//Иммов могут чекать только 33+
-			|| (player_table[it->second->pos].level > GET_LEVEL(ch) && !IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)))//если левел больше то облом
+			|| (player_table[it->second->pos].level > GET_LEVEL(ch) && !IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)))//если левел больше то облом
 				continue;
 		buf1[0] = '\0';
 		buf2[0] = '\0';
@@ -2868,7 +2868,7 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 
 	if(argument && isname(argument, "все all"))
 	{
-		if(IS_GRGOD(ch) || Privilege::check_flag(ch, Privilege::KRODER))
+		if(IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 		{
 			need_warn = false;
 			req->fullsearch = 1;
@@ -2897,7 +2897,7 @@ ACMD(do_inspect)//added by WorM Команда для поиска чаров с одинаковым(похожим) m
 		i = get_ptable_by_unique(req->unique);
 		if ((req->unique <= 0)//Перс не существует
 			|| (player_table[i].level >= LVL_IMMORT && !IS_GRGOD(ch))//Иммов могут чекать только 33+
-			|| (player_table[i].level > GET_LEVEL(ch) && !IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)))//если левел больше то облом
+			|| (player_table[i].level > GET_LEVEL(ch) && !IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)))//если левел больше то облом
 		{
 			send_to_char(ch, "Некорректное имя персонажа (%s) inspecting char.\r\n", req->req);
 			req.reset();
@@ -3056,7 +3056,7 @@ ACMD(do_advance)
 		return;
 	}
 
-	if (GET_LEVEL(ch) <= GET_LEVEL(victim) && !Privilege::check_flag(ch, Privilege::KRODER))
+	if (GET_LEVEL(ch) <= GET_LEVEL(victim) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
 		send_to_char("Нелогично.\r\n", ch);
 		return;
@@ -3072,7 +3072,7 @@ ACMD(do_advance)
 		send_to_char(buf, ch);
 		return;
 	}
-	if (newlevel > GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
+	if (newlevel > GET_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
 		send_to_char("Вы не можете установить уровень выше собственного.\r\n", ch);
 		return;
@@ -3249,9 +3249,9 @@ ACMD(do_invis)
 	else
 	{
 		level = MIN(atoi(arg), LVL_IMPL);
-		if (level > GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
+		if (level > GET_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 			send_to_char("Вы не можете достичь невидимости выше вашего уровня.\r\n", ch);
-		else if (GET_LEVEL(ch) < LVL_IMPL && level > LVL_IMMORT && !Privilege::check_flag(ch, Privilege::KRODER))
+		else if (GET_LEVEL(ch) < LVL_IMPL && level > LVL_IMMORT && !PRF_FLAGGED(ch, PRF_CODERINFO))
 			perform_immort_invis(ch, LVL_IMMORT);
 		else if (level < 1)
 			perform_immort_vis(ch);
@@ -3336,8 +3336,8 @@ ACMD(do_dc)
 
 	if (d->character) //Чтоб не крешило при попытке разъединить незалогиненного
 	{
-		int victim_level = Privilege::check_flag(d->character, Privilege::KRODER) ? LVL_IMPL : GET_LEVEL(d->character);
-		int god_level = Privilege::check_flag(ch, Privilege::KRODER) ? LVL_IMPL : GET_LEVEL(ch);
+		int victim_level = PRF_FLAGGED(d->character, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(d->character);
+		int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
 		if (victim_level >= god_level)
 		{
 			if (!CAN_SEE(ch, d->character))
@@ -3392,7 +3392,7 @@ ACMD(do_wizlock)
 		value = atoi(arg);
 		if (value > LVL_IMPL)
 			value = LVL_IMPL; // 34е всегда должны иметь возможность зайти
-		if (value < 0 || (value > GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER)))
+		if (value < 0 || (value > GET_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)))
 		{
 			send_to_char("Неверное значение для wizlock.\r\n", ch);
 			return;
@@ -3466,7 +3466,7 @@ ACMD(do_last)
 		send_to_char("Нет такого игрока.\r\n", ch);
 		return;
 	}
-	if (GET_LEVEL(chdata) > GET_LEVEL(ch) && !IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
+	if (GET_LEVEL(chdata) > GET_LEVEL(ch) && !IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
 		send_to_char("Вы не столь уж и божественны для этого.\r\n", ch);
 	}
@@ -3499,7 +3499,7 @@ ACMD(do_force)
 	{
 		if (!(vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)))
 			send_to_char(NOPERSON, ch);
-		else if (!IS_NPC(vict) && GET_LEVEL(ch) <= GET_LEVEL(vict) && !Privilege::check_flag(ch, Privilege::KRODER))
+		else if (!IS_NPC(vict) && GET_LEVEL(ch) <= GET_LEVEL(vict) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 			send_to_char("Господи, только не это!\r\n", ch);
 		else
 		{
@@ -3524,7 +3524,7 @@ ACMD(do_force)
 		for (vict = world[ch->in_room]->people; vict; vict = next_force)
 		{
 			next_force = vict->next_in_room;
-			if (!IS_NPC(vict) && GET_LEVEL(vict) >= GET_LEVEL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
+			if (!IS_NPC(vict) && GET_LEVEL(vict) >= GET_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 				continue;
 			act(buf1, TRUE, ch, NULL, vict, TO_VICT);
 			command_interpreter(vict, to_force);
@@ -3544,7 +3544,7 @@ ACMD(do_force)
 			if (STATE(i) != CON_PLAYING
 					|| !(vict = i->character)
 					|| (!IS_NPC(vict) && GET_LEVEL(vict) >= GET_LEVEL(ch)
-						&& !Privilege::check_flag(ch, Privilege::KRODER)))
+						&& !PRF_FLAGGED(ch, PRF_CODERINFO)))
 				continue;
 			act(buf1, TRUE, ch, NULL, vict, TO_VICT);
 			command_interpreter(vict, to_force);
@@ -3573,7 +3573,7 @@ ACMD(do_wiznet)
 		return;
 	}
 
-	if (Privilege::check_flag(ch, Privilege::KRODER)) return;
+	if (PRF_FLAGGED(ch, PRF_CODERINFO)) return;
 
 	/* Опускаем level для gf_demigod */
 	if (GET_GOD_FLAG(ch, GF_DEMIGOD))
@@ -3773,7 +3773,7 @@ ACMD(do_wizutil)
 		send_to_char("Для кого?\r\n", ch);
 	else if (!(vict = get_player_pun(ch, arg, FIND_CHAR_WORLD)))
 		send_to_char("Нет такого игрока.\r\n", ch);
-	else if (GET_LEVEL(vict) > GET_LEVEL(ch) && !GET_GOD_FLAG(ch, GF_DEMIGOD) && !Privilege::check_flag(ch, Privilege::KRODER))
+	else if (GET_LEVEL(vict) > GET_LEVEL(ch) && !GET_GOD_FLAG(ch, GF_DEMIGOD) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		send_to_char("А он ведь старше вас....\r\n", ch);
 	else if (GET_LEVEL(vict) >= LVL_IMMORT && GET_GOD_FLAG(ch, GF_DEMIGOD))
 		send_to_char("А он ведь старше вас....\r\n", ch);
@@ -4272,7 +4272,7 @@ ACMD(do_show)
 		{
 			if (d->snooping != NULL && d->character != NULL)
 				continue;
-			if (STATE(d) != CON_PLAYING || (GET_LEVEL(ch) < GET_LEVEL(d->character) && !Privilege::check_flag(ch, Privilege::KRODER)))
+			if (STATE(d) != CON_PLAYING || (GET_LEVEL(ch) < GET_LEVEL(d->character) && !PRF_FLAGGED(ch, PRF_CODERINFO)))
 				continue;
 			if (!CAN_SEE(ch, d->character) || IN_ROOM(d->character) == NOWHERE)
 				continue;
@@ -4539,7 +4539,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		{
 			if (!GET_GOD_FLAG(ch, GF_DEMIGOD))
 			{
-				if (GET_LEVEL(ch) <= GET_LEVEL(vict) && !Privilege::check_flag(ch, Privilege::KRODER))
+				if (GET_LEVEL(ch) <= GET_LEVEL(vict) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 				{
 					send_to_char("Это не так просто, как вам кажется...\r\n", ch);
 					return (0);
@@ -4547,7 +4547,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			}
 			else
 			{
-				if (GET_LEVEL(vict) >= LVL_IMMORT || Privilege::check_flag(vict, Privilege::KRODER))
+				if (GET_LEVEL(vict) >= LVL_IMMORT || PRF_FLAGGED(vict, PRF_CODERINFO))
 				{
 					send_to_char("Это не так просто, как вам кажется...\r\n", ch);
 					return (0);
@@ -4670,7 +4670,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		affect_total(vict);
 		break;
 	case 17:
-		if (!IS_IMPL(ch) && ch != vict && !Privilege::check_flag(ch, Privilege::KRODER))
+		if (!IS_IMPL(ch) && ch != vict && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		{
 			send_to_char("Вы не столь Божественны, как вам кажется!\r\n", ch);
 			return (0);
@@ -4678,7 +4678,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		GET_INVIS_LEV(vict) = RANGE(0, GET_LEVEL(vict));
 		break;
 	case 18:
-		if (!IS_IMPL(ch) && ch != vict && !Privilege::check_flag(ch, Privilege::KRODER))
+		if (!IS_IMPL(ch) && ch != vict && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		{
 			send_to_char("Вы не столь Божественны, как вам кажется!\r\n", ch);
 			return (0);
@@ -4727,7 +4727,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_THIEF), PLR_THIEF);
 		break;
 	case 26:
-		if (!Privilege::check_flag(ch, Privilege::KRODER)
+		if (!PRF_FLAGGED(ch, PRF_CODERINFO)
 				&& (value > GET_LEVEL(ch) || value > LVL_IMPL || GET_LEVEL(vict) > GET_LEVEL(ch)))
 		{
 			send_to_char("Вы не можете установить уровень игрока выше собственного.\r\n", ch);
@@ -4754,7 +4754,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		SET_OR_REMOVE(PLR_FLAGS(vict, PLR_SITEOK), PLR_SITEOK);
 		break;
 	case 30:
-		if (IS_IMPL(vict) || Privilege::check_flag(vict, Privilege::KRODER))
+		if (IS_IMPL(vict) || PRF_FLAGGED(vict, PRF_CODERINFO))
 		{
 			send_to_char("Истинные боги вечны!\r\n", ch);
 			return 0;
@@ -4771,7 +4771,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 	case 32:
 		/* Флаг для морталов с привилегиями */
-		if (!IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
+		if (!IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		{
 			send_to_char("Вы не столь Божественны, как вам кажется!\r\n", ch);
 			return 0;
@@ -4821,7 +4821,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		vict->set_idnum(value);
 		break;
 	case 36:
-		if (!IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER) && ch != vict)
+		if (!IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO) && ch != vict)
 		{
 			send_to_char("Давайте не будем экспериментировать.\r\n", ch);
 			return (0);
@@ -4938,7 +4938,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		else
 		{
-			/*if (!IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
+			/*if (!IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 			{
 				send_to_char("Для изменения падежей пользуйтесь форматом 'set имя name *падеж1 падеж2 падеж3 падеж4 падеж5 падеж6'.\r\nРенеймы не разрешаются.\r\n", ch);
 				return 0;
@@ -5135,7 +5135,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 
 	case 55:
-		if (GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch) && !Privilege::check_flag(ch, Privilege::KRODER))
+		if (GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		{
 			send_to_char("Кем вы себя возомнили?\r\n", ch);
 			return 0;
@@ -5262,7 +5262,7 @@ ACMD(do_set)
 			/* Запрет на злоупотребление командой SET на бессмертных */
 			if (!GET_GOD_FLAG(ch, GF_DEMIGOD))
 			{
-				if (GET_LEVEL(ch) <= GET_LEVEL(vict) && !Privilege::check_flag(ch, Privilege::KRODER))
+				if (GET_LEVEL(ch) <= GET_LEVEL(vict) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 				{
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
 					return;
@@ -5302,7 +5302,7 @@ ACMD(do_set)
 			/* Запрет на злоупотребление командой SET на бессмертных */
 			if (!GET_GOD_FLAG(ch, GF_DEMIGOD))
 			{
-				if (GET_LEVEL(ch) <= GET_LEVEL(cbuf) && !Privilege::check_flag(ch, Privilege::KRODER))
+				if (GET_LEVEL(ch) <= GET_LEVEL(cbuf) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 				{
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
 					delete cbuf;

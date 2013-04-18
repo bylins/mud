@@ -4154,8 +4154,6 @@ ACMD(do_who)
 	skip_spaces(&argument);
 	strcpy(buf, argument);
 
-	bool kroder = Privilege::check_flag(ch, Privilege::KRODER);
-
 	/* Проверка аргументов команды "кто" */
 	while (*buf)
 	{
@@ -4168,7 +4166,7 @@ ACMD(do_who)
 		}
 		else if (a_isdigit(*arg))
 		{
-			if (IS_GOD(ch) || kroder)
+			if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 				sscanf(arg, "%d-%d", &low, &high);
 			strcpy(buf, buf1);
 		}
@@ -4179,44 +4177,44 @@ ACMD(do_who)
 			{
 			case 'b':
 			case 'и':
-				if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_DEMIGOD) || kroder)
+				if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_DEMIGOD) || PRF_FLAGGED(ch, PRF_CODERINFO))
 					showname = 1;
 				strcpy(buf, buf1);
 				break;
 			case 'z':
-				if (IS_GOD(ch) || kroder)
+				if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 					localwho = 1;
 				strcpy(buf, buf1);
 				break;
 			case 's':
-				if (IS_IMMORTAL(ch) || kroder)
+				if (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 					short_list = 1;
 				strcpy(buf, buf1);
 				break;
 			case 'l':
 				half_chop(buf1, arg, buf);
-				if (IS_GOD(ch) || kroder)
+				if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 					sscanf(arg, "%d-%d", &low, &high);
 				break;
 			case 'n':
 				half_chop(buf1, name_search, buf);
 				break;
 			case 'r':
-				if (IS_GOD(ch) || kroder)
+				if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 					who_room = 1;
 				strcpy(buf, buf1);
 				break;
 			case 'c':
 
 				half_chop(buf1, arg, buf);
-				if (IS_GOD(ch) || kroder)
+				if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 					for (i = 0; i < strlen(arg); i++)
 						showclass |= find_class_bitvector(arg[i]);
 				break;
 			case 'h':
 			case '?':
 			default:
-				if (IS_IMMORTAL(ch) || kroder)
+				if (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 					send_to_char(IMM_WHO_FORMAT, ch);
 				else
 					send_to_char(MORT_WHO_FORMAT, ch);
@@ -4268,7 +4266,7 @@ ACMD(do_who)
 			continue;
 		if (showname && !(!NAME_GOD(tch) && GET_LEVEL(tch) <= NAME_LEVEL))
 			continue;
-		if (PLR_FLAGGED(tch, PLR_NAMED) && NAME_DURATION(tch) && !IS_IMMORTAL(ch) && !kroder && ch != tch)
+		if (PLR_FLAGGED(tch, PLR_NAMED) && NAME_DURATION(tch) && !IS_IMMORTAL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO) && ch != tch)
 			continue;
 
 		*buf = '\0';
@@ -4282,7 +4280,7 @@ ACMD(do_who)
 
 		if (short_list)
 		{
-			if (IS_IMPL(ch) || kroder)
+			if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 				sprintf(buf, "%s[%2d %s %s] %-30s%s",
 						IS_GOD(tch) ? CCWHT(ch, C_SPR) : "",
 						GET_LEVEL(tch), KIN_ABBR(tch), CLASS_ABBR(tch), name_who, IS_GOD(tch) ? CCNRM(ch, C_SPR) : "");
@@ -4293,7 +4291,7 @@ ACMD(do_who)
 		}
 		else
 		{
-			if (IS_IMPL(ch) || kroder)
+			if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 				sprintf(buf, "%s[%2d %2d %s(%5d)] %s%s%s%s",
 						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
 						GET_LEVEL(tch),
@@ -4344,7 +4342,7 @@ ACMD(do_who)
 							genders[(int)GET_SEX(tch)]);
 				}
 			}
-			else if ((IS_IMMORTAL(ch) || kroder) && NAME_BAD(tch))
+			else if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) && NAME_BAD(tch))
 			{
 				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", get_name_by_id(NAME_ID_GOD(tch)));
 			}
@@ -4359,7 +4357,7 @@ ACMD(do_who)
 			if (!short_list || !(imms_num % 4))
 				imms = str_add(imms, "\r\n");
 		}
-		else if (GET_GOD_FLAG(tch, GF_DEMIGOD) && (IS_IMMORTAL(ch) || kroder))
+		else if (GET_GOD_FLAG(tch, GF_DEMIGOD) && (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)))
 		{
 			demigods_num++;
 			demigods = str_add(demigods, buf);
@@ -4934,7 +4932,7 @@ ACMD(do_users)
 		}
 		else
 			strcpy(classname, "      -      ");
-		if (GET_LEVEL(ch) < LVL_IMPL && !Privilege::check_flag(ch, Privilege::KRODER))
+		if (GET_LEVEL(ch) < LVL_IMPL && !PRF_FLAGGED(ch, PRF_CODERINFO))
 			strcpy(classname, "      -      ");
 		timeptr = asctime(localtime(&d->login_time));
 		timeptr += 11;
@@ -5190,7 +5188,7 @@ bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 	}
 
 	int tmp_num = num;
-	if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::KRODER))
+	if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
 		tmp_num = Depot::print_imm_where_obj(ch, arg, tmp_num);
 		tmp_num = Parcel::print_imm_where_obj(ch, arg, tmp_num);
@@ -5213,7 +5211,7 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 
 	if (!*arg)
 	{
-		if (GET_LEVEL(ch) < LVL_IMPL && !Privilege::check_flag(ch, Privilege::KRODER))
+		if (GET_LEVEL(ch) < LVL_IMPL && !PRF_FLAGGED(ch, PRF_CODERINFO))
 			send_to_char("Где КТО конкретно?", ch);
 		else
 		{
@@ -5261,7 +5259,7 @@ ACMD(do_where)
 {
 	one_argument(argument, arg);
 
-	if (IS_GRGOD(ch) || Privilege::check_flag(ch, Privilege::KRODER))
+	if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 		perform_immort_where(ch, arg);
 	else
 		perform_mortal_where(ch, arg);
@@ -5409,7 +5407,7 @@ ACMD(do_toggle)
 	else
 		sprintf(buf2, "%-3d", GET_WIMP_LEV(ch));
 
-	if (GET_LEVEL(ch) >= LVL_IMMORT || Privilege::check_flag(ch, Privilege::KRODER))
+	if (GET_LEVEL(ch) >= LVL_IMMORT || PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
 		sprintf(buf,
 				" Нет агров     : %-3s     "
@@ -5521,7 +5519,7 @@ ACMD(do_zone)
 	else
 	{
 		send_to_char(ch, "%s.\r\n", zone_table[world[ch->in_room]->zone].name);
-		if ((IS_IMMORTAL(ch) || Privilege::check_flag(ch, Privilege::KRODER)) && zone_table[world[ch->in_room]->zone].comment)
+		if ((IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO)) && zone_table[world[ch->in_room]->zone].comment)
 			send_to_char(ch, "%s.\r\n", zone_table[world[ch->in_room]->zone].comment);
 	}
 }

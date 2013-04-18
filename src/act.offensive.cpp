@@ -431,7 +431,7 @@ ACMD(do_kill)
 			send_to_char("А его нет здесь :P.\r\n", ch);
 		else if (ch == vict)
 			send_to_char("Вы мазохист... :(\r\n", ch);
-		else if (IS_IMPL(vict) || Privilege::check_flag(vict, Privilege::KRODER))
+		else if (IS_IMPL(vict) || PRF_FLAGGED(vict, PRF_CODERINFO))
 			send_to_char("А если он вас чайником долбанет? Думай, Господи, думай!\r\n", ch);
 		else
 		{

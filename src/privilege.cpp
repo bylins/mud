@@ -324,7 +324,7 @@ bool can_do_priv(CHAR_DATA *ch, const std::string &cmd_name, int cmd_number, int
 	GodListType::const_iterator it = god_list.find(GET_UNIQUE(ch));
 	if (it != god_list.end() && CompareParam(it->second.name, GET_NAME(ch), 1))
 	{
-		if (GET_LEVEL(ch) == LVL_IMPL || Privilege::check_flag(ch, Privilege::KRODER))
+		if (GET_LEVEL(ch) == LVL_IMPL || PRF_FLAGGED(ch, PRF_CODERINFO))
 			return true;
 		switch (mode)
 		{

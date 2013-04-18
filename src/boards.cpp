@@ -428,7 +428,7 @@ ACMD(DoBoard)
 
 		// написание новостей от другого имени
 		std::string name = GET_NAME(ch);
-		if (((*board)->type == NEWS_BOARD || (*board)->type == NOTICE_BOARD) && Privilege::check_flag(ch, Privilege::KRODER))
+		if (((*board)->type == NEWS_BOARD || (*board)->type == NOTICE_BOARD) && PRF_FLAGGED(ch, PRF_CODERINFO))
 		{
 			GetOneParam(buffer2, buffer);
 			if (buffer.empty())
@@ -444,7 +444,7 @@ ACMD(DoBoard)
 		tempMessage->author = name;
 		tempMessage->unique = GET_UNIQUE(ch);
 		// для досок кроме клановых и персональных пишем левел автора (для возможной очистки кем-то)
-		Privilege::check_flag(ch, Privilege::KRODER) ? tempMessage->level = LVL_IMPL : tempMessage->level = GET_LEVEL(ch);
+		PRF_FLAGGED(ch, PRF_CODERINFO) ? tempMessage->level = LVL_IMPL : tempMessage->level = GET_LEVEL(ch);
 		// клановым еще ранг
 		if (CLAN(ch))
 			tempMessage->rank = CLAN_MEMBER(ch)->rank_num;
@@ -498,7 +498,7 @@ ACMD(DoBoard)
 		else if ((*board)->type != CLAN_BOARD
 				 && (*board)->type != CLANNEWS_BOARD
 				 && (*board)->type != PERS_BOARD
-				 && !Privilege::check_flag(ch, Privilege::KRODER)
+				 && !PRF_FLAGGED(ch, PRF_CODERINFO)
 				 && GET_LEVEL(ch) < (*board)->messages[num]->level)
 		{
 			// для простых досок сверяем левела (для контроля иммов)

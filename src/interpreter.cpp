@@ -2173,7 +2173,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 			GET_LOGS(d->character)[0] = 0;
 	}
 
-	if (GET_LEVEL(d->character) < LVL_IMPL && !Privilege::check_flag(d->character, Privilege::KRODER))
+	if (GET_LEVEL(d->character) < LVL_IMPL && !PRF_FLAGGED(d->character, PRF_CODERINFO))
 	{
 		if (PLR_FLAGGED(d->character, PLR_INVSTART))
 			GET_INVIS_LEV(d->character) = LVL_IMMORT;
@@ -2578,7 +2578,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				{
 					player_i = load_char(tmp_name, d->character);
 					d->character->set_pfilepos(player_i);
-					if (IS_IMMORTAL(d->character) || Privilege::check_flag(d->character, Privilege::KRODER))
+					if (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, PRF_CODERINFO))
 					{
 						SEND_TO_Q("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
 					}
@@ -2616,7 +2616,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				}
 				else  	/* undo it just in case they are set */
 				{
-					if (IS_IMMORTAL(d->character) || Privilege::check_flag(d->character, Privilege::KRODER))
+					if (IS_IMMORTAL(d->character) || PRF_FLAGGED(d->character, PRF_CODERINFO))
 					{
 						SEND_TO_Q("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
 						SEND_TO_Q("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);

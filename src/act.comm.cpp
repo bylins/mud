@@ -295,7 +295,7 @@ int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict)
 		return (FALSE);
 	}
 
-	if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::KRODER))
+	if (IS_GOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 		return (TRUE);
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))

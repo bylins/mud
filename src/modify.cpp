@@ -863,7 +863,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 					if (d->board->GetType() != NEWS_BOARD && d->board->GetType() != GODNEWS_BOARD && d->board->messages.size() >= MAX_BOARD_MESSAGES)
 						d->board->messages.erase(d->board->messages.begin());
 					DESCRIPTOR_DATA *f;
-					std::string name = Privilege::check_flag(d->character, Privilege::KRODER) ? d->message->author : GET_PAD(d->character, 1);
+					std::string name = PRF_FLAGGED(d->character, PRF_CODERINFO) ? d->message->author : GET_PAD(d->character, 1);
 					std::string buffer = "Новое сообщение в разделе '" + d->board->GetName() + "' от " + name + ", тема: " + d->message->subject + "\r\n";
 					// оповещаем соклановцев
 					if (d->board->GetType() == CLAN_BOARD || d->board->GetType() == CLANNEWS_BOARD)

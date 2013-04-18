@@ -961,7 +961,7 @@ bool Clan::MayEnter(CHAR_DATA * ch, room_rnum room, bool mode)
 			|| IS_GRGOD(ch)
 			|| !ROOM_FLAGGED(room, ROOM_HOUSE)
 			|| (*clan)->entranceMode
-			|| Privilege::check_flag(ch, Privilege::KRODER))
+			|| PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
 		return 1;
 	}

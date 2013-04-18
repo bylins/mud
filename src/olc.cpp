@@ -183,7 +183,7 @@ ACMD(do_olc)
 				number = atoi(buf2) * 100;
 			}
 		}
-		else if (subcmd == SCMD_OLC_ZEDIT && (GET_LEVEL(ch) >= LVL_BUILDER || Privilege::check_flag(ch, Privilege::KRODER)))
+		else if (subcmd == SCMD_OLC_ZEDIT && (GET_LEVEL(ch) >= LVL_BUILDER || PRF_FLAGGED(ch, PRF_CODERINFO)))
 		{
 			send_to_char("Создание новых зон отключено.\r\n", ch);
 			return;
