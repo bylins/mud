@@ -2765,7 +2765,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 			send_to_char("Невозможно! Вы сражаетесь! Это вам не шухры-мухры.\r\n", ch);
 			break;
 		default:
-			send_to_char("Вам вряд ли это удасться.\r\n", ch);
+			send_to_char("Вам вряд ли это удастся.\r\n", ch);
 			break;
 		}
 		return (0);

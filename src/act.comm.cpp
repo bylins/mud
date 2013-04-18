@@ -941,7 +941,7 @@ ACMD(do_pray_gods)
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
-		send_to_char("Вам запрещено обращаться к Богам, вероятно вы их замучали...\r\n", ch);
+		send_to_char("Вам запрещено обращаться к Богам, вероятно, вы их замучали...\r\n", ch);
 		return;
 	}
 

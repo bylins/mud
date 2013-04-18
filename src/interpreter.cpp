@@ -2576,9 +2576,20 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				}
 				else if (!Is_Valid_Dc(tmp_name))
 				{
-					SEND_TO_Q("Игрок с подобным именем находится в игре.\r\n", d);
+					player_i = load_char(tmp_name, d->character);
+					d->character->set_pfilepos(player_i);
+					if (IS_IMMORTAL(d->character) || Privilege::check_flag(d->character, Privilege::KRODER))
+					{
+						SEND_TO_Q("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
+					}
+					else
+					{
+						SEND_TO_Q("Игрок с подобным именем находится в игре.\r\n", d);
+					}
 					SEND_TO_Q("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
 					SEND_TO_Q("Имя и пароль через пробел : ", d);
+					delete d->character;
+					d->character = NULL;
 					return;
 				}
 			if ((player_i = load_char(tmp_name, d->character)) > -1)
@@ -2605,6 +2616,15 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				}
 				else  	/* undo it just in case they are set */
 				{
+					if (IS_IMMORTAL(d->character) || Privilege::check_flag(d->character, Privilege::KRODER))
+					{
+						SEND_TO_Q("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
+						SEND_TO_Q("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
+						SEND_TO_Q("Имя и пароль через пробел : ", d);
+						delete d->character;
+						d->character = NULL;
+						return;
+					}
 					REMOVE_BIT(PLR_FLAGS(d->character, PLR_MAILING), PLR_MAILING);
 					REMOVE_BIT(PLR_FLAGS(d->character, PLR_WRITING), PLR_WRITING);
 					REMOVE_BIT(PLR_FLAGS(d->character, PLR_CRYO), PLR_CRYO);
