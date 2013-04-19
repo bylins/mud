@@ -199,7 +199,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				GET_POS(victim) = POS_SITTING;
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 			to_char = "повалило $N3 на землю";
-			to_vict = "повредило вам колено";
+			to_vict = "повредило вам колено, повалив на землю";
 			break;
 		case 6:	// foot damaged, speed/2
 			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 9);
@@ -368,8 +368,8 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			WAIT_STATE(victim, number(2, 5) * PULSE_VIOLENCE);
 			if (GET_POS(victim) > POS_SITTING)
 				GET_POS(victim) = POS_SITTING;
-			to_char = "повредило $N2 грудь";
-			to_vict = "повредило вам грудь";
+			to_char = "повредило $N2 грудь, свалив $S с ног";
+			to_vict = "повредило вам грудь, свалив вас с ног";
 			break;
 		case 5:	// chest damaged, waits 1, speed/2
 			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 6);
@@ -740,6 +740,38 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (unequip_pos && GET_EQ(victim, unequip_pos))
 	{
 		obj = unequip_char(victim, unequip_pos);
+		switch (unequip_pos)
+		{
+			case 6:		//WEAR_HEAD
+				sprintf(buf, "%s слетел%s с вашей головы.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				act(buf, FALSE, ch, 0, victim, TO_VICT);
+				sprintf(buf, "%s слетел%s с головы $N1.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				act(buf, FALSE, ch, 0, victim, TO_CHAR);
+				act(buf, TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+				break;
+			case 11:	//WEAR_SHIELD
+				sprintf(buf, "%s слетел%s с вашей руки.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				act(buf, FALSE, ch, 0, victim, TO_VICT);
+				sprintf(buf, "%s слетел%s с руки $N1.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				act(buf, FALSE, ch, 0, victim, TO_CHAR);
+				act(buf, TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+				break;
+			case 16:	//WEAR_WIELD
+			case 17:	//WEAR_HOLD
+				sprintf(buf, "%s выпал%s из вашей руки.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				act(buf, FALSE, ch, 0, victim, TO_VICT);
+				sprintf(buf, "%s выпал%s из руки $N1.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				act(buf, FALSE, ch, 0, victim, TO_CHAR);
+				act(buf, TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+				break;
+			case 18:	//WEAR_BOTHS
+				sprintf(buf, "%s выпал%s из ваших рук.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				act(buf, FALSE, ch, 0, victim, TO_VICT);
+				sprintf(buf, "%s выпал%s из рук $N1.", obj->PNames[0], GET_OBJ_SUF_1(obj));
+				act(buf, FALSE, ch, 0, victim, TO_CHAR);
+				act(buf, TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+				break;
+		}
 		if (!IS_NPC(victim) && ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
 			obj_to_char(obj, victim);
 		else

@@ -1737,9 +1737,9 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 							{
 								if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC))
 								{
-									act("Магия $o1 потерпела неудачу и развеялась по воздуху",
+									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 										FALSE, ch, GET_EQ(ch, pos), 0, TO_ROOM);
-									act("Магия $o1 потерпела неудачу и развеялась по воздуху",
+									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 										FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
 								}
 								else
@@ -1766,9 +1766,9 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 						{
 							if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC))
 							{
-								act("Магия $o1 потерпела неудачу и развеялась по воздуху",
+								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 									FALSE, ch, obj, 0, TO_ROOM);
-								act("Магия $o1 потерпела неудачу и развеялась по воздуху",
+								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 									FALSE, ch, obj, 0, TO_CHAR);
 							}
 							else
@@ -1948,9 +1948,9 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 				{
 					if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOMAGIC))
 					{
-						act("Магия $o1 потерпела неудачу и развеялась по воздуху",
+						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 							FALSE, ch, obj, 0, TO_ROOM);
-						act("Магия $o1 потерпела неудачу и развеялась по воздуху",
+						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 							FALSE, ch, obj, 0, TO_CHAR);
 					}
 					else
@@ -2418,9 +2418,9 @@ int obj_decay(OBJ_DATA * object)
 			 GET_OBJ_ZONE(object) != NOWHERE && GET_OBJ_ZONE(object) != world[room]->zone))
 	{
 
-		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер", FALSE,
+		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", FALSE,
 			world[room]->people, object, 0, TO_ROOM);
-		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер", FALSE,
+		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", FALSE,
 			world[room]->people, object, 0, TO_CHAR);
 		extract_obj(object);
 		return (1);
