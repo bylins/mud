@@ -437,7 +437,7 @@ template<class T> T three_arguments(T argument, char *first_arg, char *second_ar
 // расход на вывод списка по кланам
 #define WHO_COST_CLAN  120
 // скорость восстановления
-#define WHO_MANA_REST_PER_SECOND  3
+#define WHO_MANA_REST_PER_SECOND  9
 // режимы выполнения
 #define WHO_LISTALL 0
 #define WHO_LISTNAME 1
