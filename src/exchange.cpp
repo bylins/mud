@@ -979,7 +979,7 @@ int exchange_setfilter(CHAR_DATA * ch, char *arg)
 	{
 		if (!EXCHANGE_FILTER(ch))
 		{
-			send_to_char("Ваш фильтр базара пуст\r\n", ch);
+			send_to_char("Ваш фильтр базара пуст.\r\n", ch);
 			return true;
 		}
 		if (!parse_exch_filter(EXCHANGE_FILTER(ch), filter_name, filter_owner,
@@ -1974,6 +1974,8 @@ int parse_exch_filter(char *buf, char *filter_name, char *filter_owner, int *fil
 				*filter_type = ITEM_OTHER;
 			else if (is_abbrev(tmpbuf, "контейнер") || is_abbrev(tmpbuf, "container"))
 				*filter_type = ITEM_CONTAINER;
+			else if (is_abbrev(tmpbuf, "емкость") || is_abbrev(tmpbuf, "tank"))
+				*filter_type = ITEM_DRINKCON;
 			else if (is_abbrev(tmpbuf, "книга") || is_abbrev(tmpbuf, "book"))
 				*filter_type = ITEM_BOOK;
 			else if (is_abbrev(tmpbuf, "руна") || is_abbrev(tmpbuf, "rune"))

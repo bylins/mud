@@ -4346,6 +4346,8 @@ ACMD(DoStoreHouse)
 				filter.type = ITEM_OTHER;
 			else if (is_abbrev(tmpbuf, "контейнер") || is_abbrev(tmpbuf, "container"))
 				filter.type = ITEM_CONTAINER;
+			else if (is_abbrev(tmpbuf, "емкость") || is_abbrev(tmpbuf, "tank"))
+				filter.type = ITEM_DRINKCON;
 			else if (is_abbrev(tmpbuf, "книга") || is_abbrev(tmpbuf, "book"))
 				filter.type = ITEM_BOOK;
 			else if (is_abbrev(tmpbuf, "руна") || is_abbrev(tmpbuf, "rune"))
