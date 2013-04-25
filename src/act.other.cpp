@@ -1446,13 +1446,31 @@ ACMD(do_report)
 		sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %d(%d)M\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch),
 				GET_HIT(ch), GET_REAL_MAX_HIT(ch),
-				GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), GET_MANA_STORED(ch), GET_MAX_MANA(ch));
+				GET_MOVE(ch), GET_REAL_MAX_MOVE(ch),
+				GET_MANA_STORED(ch), GET_MAX_MANA(ch));
+	}
+	else if (AFF_FLAGGED(ch, AFF_CHARM))
+	{
+		AFFECT_DATA *aff;
+		int loyalty;
+		for (aff = ch->affected; aff; aff = aff->next)
+			if (aff->type == SPELL_CHARM)
+			{
+				loyalty = aff->duration / 2;
+				break;
+			}
+		sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %dL\r\n",
+				GET_NAME(ch), GET_CH_SUF_1(ch),
+				GET_HIT(ch), GET_REAL_MAX_HIT(ch),
+				GET_MOVE(ch), GET_REAL_MAX_MOVE(ch),
+				loyalty);
 	}
 	else
 	{
 		sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch),
-				GET_HIT(ch), GET_REAL_MAX_HIT(ch), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch));
+				GET_HIT(ch), GET_REAL_MAX_HIT(ch),
+				GET_MOVE(ch), GET_REAL_MAX_MOVE(ch));
 	}
 	CAP(buf);
 	k = (ch->master ? ch->master : ch);

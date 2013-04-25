@@ -1344,7 +1344,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
-	strcpy(buf, diag_weapon_to_char(obj, TRUE));
+	strcpy(buf, diag_weapon_to_char(obj, 2));
 	if (*buf)
 		send_to_char(buf, ch);
 
@@ -1708,7 +1708,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
-	strcpy(buf, diag_weapon_to_char(obj, TRUE));
+	strcpy(buf, diag_weapon_to_char(obj, 2));
 	if (*buf)
 		send_to_char(buf, ch);
 

@@ -1496,6 +1496,7 @@ enum { WIS_MAX_LEARN_L20, WIS_SPELL_SUCCESS, WIS_MAX_SKILLS, WIS_FAILS };
 int str_bonus(int str, int type);
 int dex_bonus(int dex);
 int dex_ac_bonus(int dex);
+int calc_str_req(int weight, int type);
 void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type);
 int wis_bonus(int stat, int type);
 
