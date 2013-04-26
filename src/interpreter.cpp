@@ -2173,7 +2173,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 			GET_LOGS(d->character)[0] = 0;
 	}
 
-	if (GET_LEVEL(d->character) < LVL_IMPL && !PRF_FLAGGED(d->character, PRF_CODERINFO))
+	if (GET_LEVEL(d->character) < LVL_IMPL && !Privilege::check_flag(d->character, Privilege::KRODER))
 	{
 		if (PLR_FLAGGED(d->character, PLR_INVSTART))
 			GET_INVIS_LEV(d->character) = LVL_IMMORT;

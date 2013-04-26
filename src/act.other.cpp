@@ -2121,7 +2121,7 @@ ACMD(do_mode)
 		showhelp = TRUE;
 	else if ((i = search_block(arg, gen_tog_type, FALSE)) < 0)
 		showhelp = TRUE;
-	else if (GET_LEVEL(ch) < gen_tog_param[i >> 1].level && !PRF_FLAGGED(ch, PRF_CODERINFO))
+	else if (GET_LEVEL(ch) < gen_tog_param[i >> 1].level && !Privilege::check_flag(ch, Privilege::KRODER))
 	{
 		send_to_char("Эта команда вам недоступна.\r\n", ch);
 		showhelp = TRUE;
@@ -2133,7 +2133,7 @@ ACMD(do_mode)
 	{
 		strcpy(buf, "Вы можете установить следующее.\r\n");
 		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++)
-			if (GET_LEVEL(ch) >= gen_tog_param[i].level || PRF_FLAGGED(ch, PRF_CODERINFO))
+			if (GET_LEVEL(ch) >= gen_tog_param[i].level || Privilege::check_flag(ch, Privilege::KRODER))
 				sprintf(buf + strlen(buf), "%-20s(%s)\r\n", gen_tog_type[i << 1], gen_tog_type[(i << 1) + 1]);
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
