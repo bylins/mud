@@ -1919,7 +1919,9 @@ int MakeRecept::make(CHAR_DATA * ch)
 
 			send_to_char(tmpstr.c_str(), ch);
 
-			extract_obj(ingrs[i]);
+			//extract_obj(ingrs[i]); //заменим на обнуление веса
+			//чтобы не крешило дальше в обработке фейла (Купала)
+			GET_OBJ_WEIGHT(ingrs[i]) = 0;
 
 			make_fail = true;
 		}
