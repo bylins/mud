@@ -2583,6 +2583,14 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 	case ITEM_WAND:
 		spellnum = GET_OBJ_VAL(obj, 3);
 
+		if (GET_OBJ_VAL(obj, 2) <= 0)
+		{
+			send_to_char("Похоже, магия кончилась.\r\n", ch);
+			//act("И ничего не произошло.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
+			//перемещено чтобы не было возможности читерно использовать пустую палку с локейтом
+			return;
+		}
+
 		if (!*argument)
 			tch = ch;
 		else if (!find_cast_target(spellnum, argument, ch, &tch, &tobj, &troom))
@@ -2637,12 +2645,6 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 				act("$n прикоснул$u $o4 к $O2.", TRUE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
 		}
 
-		if (GET_OBJ_VAL(obj, 2) <= 0)
-		{
-			send_to_char("Похоже, магия кончилась.\r\n", ch);
-			act("И ничего не произошло.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
-			return;
-		}
 		GET_OBJ_VAL(obj, 2)--;
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		call_magic(ch, tch, tobj, world[IN_ROOM(ch)], GET_OBJ_VAL(obj, 3), level, CAST_WAND);
