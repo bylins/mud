@@ -527,28 +527,28 @@ ASPELL(spell_summon)
 {
 	room_rnum ch_room, vic_room;
 
-	/* Если переменные не определены или каст на себя - завершаем. */
+	// Если переменные не определены или каст на себя - завершаем.
 	if (ch == NULL || victim == NULL || ch == victim)
 		return;
 
 	ch_room = IN_ROOM(ch);
 	vic_room = IN_ROOM(victim);
 
-	/* Нельзя суммонить находясь в NOWHERE или если цель в NOWHERE. */
+	// Нельзя суммонить находясь в NOWHERE или если цель в NOWHERE.
 	if (ch_room == NOWHERE || vic_room == NOWHERE)
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	/* Игрок не может присуммонить моба. */
+	// Игрок не может присуммонить моба.
 	if (!IS_NPC(ch) && IS_NPC(victim))
 	{
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	/* Моб не может призвать моба */
+	// Моб не может призвать моба
 	// Насчет этого я не особо уверен что такое может случиться (разве что суммон запоминающим мобом чармиса),
 	// но в старом коде суммона данная строчка присутствовала в одном из условий.
 	if (IS_NPC(ch) && IS_NPC(victim))
@@ -557,7 +557,7 @@ ASPELL(spell_summon)
 		return;
 	}
 
-	/* Богов лучше не суммонить - им это может не понравится. */
+	// Богов лучше не суммонить - им это может не понравится.
 	if (IS_IMMORTAL(victim))
 	{
 		if (IS_NPC(ch) || (!IS_NPC(ch) && GET_LEVEL(ch) < GET_LEVEL(victim)))
@@ -567,16 +567,44 @@ ASPELL(spell_summon)
 		}
 	}
 
-	/* Ограничения для смертных (богов ниже следующее не касается) */
+	// Ограничения для смертных (богов ниже следующее не касается)
 	if (!IS_IMMORTAL(ch))
 	{
-		/* Жертву в лаге нельзя суммонить. */
+		// Если игрок не моб или чармис, то:
+		if (!IS_NPC(ch) || IS_CHARMICE(ch))
+		{
+			// Нельзя производить суммон под ЗБ
+			if (AFF_FLAGGED(ch, AFF_SHIELD))
+			{
+				send_to_char(SUMMON_FAIL3, ch);	// Про маг. кокон вокруг суммонера
+				return;
+			}
+			// Нельзя призвать жертву без режима (если не в группе)
+			if (!PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim))
+			{
+				send_to_char(SUMMON_FAIL2, ch);	// Устойчива
+				return;
+			}
+			// Нельзя призвать жертву в БД
+			if (RENTABLE(victim))
+			{
+				send_to_char(SUMMON_FAIL, ch);
+				return;
+			}
+			// Нельзя призвать жертву в бою
+			if (victim->get_fighting())
+			{
+				send_to_char(SUMMON_FAIL4, ch);	// Цель в бою
+				return;
+			}
+		}
+		// И независимо от того моб это или нет:
+		// Жертву в лаге нельзя суммонить.
 		if (GET_WAIT(victim) > 0)
 		{
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
-
 		// и чаров 10 и ниже левела тоже
 		if (!IS_NPC(ch) && GET_LEVEL(victim) <= 10)
 		{
@@ -584,36 +612,7 @@ ASPELL(spell_summon)
 			return;
 		}
 
-		/* Если игрок не моб или чармис, то: */
-		if (!IS_NPC(ch) || IS_CHARMICE(ch))
-		{
-			/* Нельзя производить суммон под ЗБ */
-			if (AFF_FLAGGED(ch, AFF_SHIELD))
-			{
-				send_to_char(SUMMON_FAIL3, ch);	// Про маг. кокон вокруг суммонера
-				return;
-			}
-			/* Нельзя призвать жертву в БД */
-			if (RENTABLE(victim))
-			{
-				send_to_char(SUMMON_FAIL, ch);
-				return;
-			}
-			/* Нельзя призвать жертву в бою  */
-			if (victim->get_fighting())
-			{
-				send_to_char(SUMMON_FAIL4, ch);	// Цель в бою
-				return;
-			}
-			/* Нельзя призвать жертву без режима (если не в группе) */
-			if (!PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim))
-			{
-				send_to_char(SUMMON_FAIL2, ch);	// Устойчива
-				return;
-			}
-		}
-
-		/* Проверка мест где нельзя суммонить и откуда нельзя суммонить. */
+		// Проверка мест где нельзя суммонить и откуда нельзя суммонить.
 		// Где нельзя суммонить:
 		if (ROOM_FLAGGED(ch_room, ROOM_NOSUMMON) ||	// суммонер в комнате с флагом !призвать
 				ROOM_FLAGGED(ch_room, ROOM_DEATH) ||	// суммонер в ДТ
@@ -641,7 +640,7 @@ ASPELL(spell_summon)
 			return;
 		}
 
-		/* Фейл заклинания суммон */
+		// Фейл заклинания суммон
 		if (number(1, 100) < 30)
 		{
 			send_to_char(SUMMON_FAIL, ch);
@@ -649,7 +648,7 @@ ASPELL(spell_summon)
 		}
 	}
 
-	/* Ничто не помешало нашему суммону - и он все-таки произошел */
+	// Ничто не помешало нашему суммону - и он все-таки произошел
 	act("$n растворил$u на ваших глазах.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	char_from_room(victim);
 	char_to_room(victim, ch_room);
