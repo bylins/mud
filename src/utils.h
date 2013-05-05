@@ -1262,6 +1262,7 @@ const char * desc_count(long how_many, int of_what);
 #define WHAT_GLORYu	25
 #define WHAT_PEOPLE	26
 #define WHAT_STR	27
+#define WHAT_GULP	28
 
 #undef AW_HIDE // конфликтует с winuser.h
 /* some awaking cases */
