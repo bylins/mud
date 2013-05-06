@@ -55,7 +55,7 @@ using std::iterator;
 
 extern class insert_wanted_gem iwg;
 
-/* extern variables */
+// extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
 extern INDEX_DATA *mob_index;
 extern char const *class_abbrevs[];
@@ -66,7 +66,7 @@ extern int auto_save;
 extern struct skillvariables_dig dig_vars;
 extern struct skillvariables_insgem insgem_vars;
 
-/* extern procedures */
+// extern procedures
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
@@ -81,7 +81,7 @@ int HaveMind(CHAR_DATA * ch);
 extern char *color_value(CHAR_DATA * ch, int real, int max);
 int posi_value(int real, int max);
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
-/* local functions */
+// local functions
 ACMD(do_antigods);
 ACMD(do_quit);
 ACMD(do_save);
@@ -204,7 +204,7 @@ ACMD(do_save)
 	if (IS_NPC(ch) || !ch->desc)
 		return;
 
-	/* Only tell the char we're saving if they actually typed "save" */
+	// Only tell the char we're saving if they actually typed "save"
 	if (cmd)
 	{		/*
 				 * This prevents item duplication by two PC's using coordinated saves
@@ -229,8 +229,8 @@ ACMD(do_save)
 }
 
 
-/* generic function for commands which are normally overridden by
-   special procedures - i.e., shop commands, mail commands, etc. */
+// generic function for commands which are normally overridden by
+// special procedures - i.e., shop commands, mail commands, etc.
 ACMD(do_not_here)
 {
 	send_to_char("Эта команда недоступна в этом месте!\r\n", ch);
@@ -533,16 +533,16 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 		return;
 	}
 
-	/* 101% is a complete failure */
+	// 101% is a complete failure
 	percent = number(1, skill_info[SKILL_STEAL].max_percent);
 
 	if (WAITLESS(ch) || (GET_POS(vict) <= POS_SLEEPING && !AFF_FLAGGED(vict, AFF_SLEEP)))
-		success = 1;	/* ALWAYS SUCCESS, unless heavy object. */
+		success = 1;	// ALWAYS SUCCESS, unless heavy object.
 
-	if (!AWAKE(vict))	/* Easier to steal from sleeping people. */
+	if (!AWAKE(vict))	// Easier to steal from sleeping people.
 		percent = MAX(percent - 50, 0);
 
-	/* NO NO With Imp's and Shopkeepers, and if player thieving is not allowed */
+	// NO NO With Imp's and Shopkeepers, and if player thieving is not allowed
 	if ((IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE) || GET_MOB_SPEC(vict) == shop_keeper) && !IS_IMPL(ch))
 	{
 		send_to_char("Вы постеснялись красть у такого хорошего человека.\r\n", ch);
@@ -567,7 +567,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 				act("А у н$S этого и нет - ха-ха-ха (2 раза)...", FALSE, ch, 0, vict, TO_CHAR);
 				return;
 			}
-			else  	/* It is equipment */
+			else  	// It is equipment
 			{
 				if (!success)
 				{
@@ -597,14 +597,14 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 				}
 			}
 		}
-		else  	/* obj found in inventory */
+		else  	// obj found in inventory
 		{
 			if (IS_OBJ_STAT(obj, ITEM_BLOODY))
 			{
 				send_to_char("\"Мокрухой пахнет!\" - пронеслось у вас в голове, и вы вовремя успели отдернуть руку, не испачкавшись в крови.\r\n", ch);
 				return;
 			}
-			percent += GET_OBJ_WEIGHT(obj);	/* Make heavy harder */
+			percent += GET_OBJ_WEIGHT(obj);	// Make heavy harder
 			prob = calculate_skill(ch, SKILL_STEAL, percent, vict);
 
 			if (AFF_FLAGGED(ch, AFF_HIDE))
@@ -624,7 +624,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 				act("$n пытал$u обокрасть вас!", FALSE, ch, 0, vict, TO_VICT);
 				act("$n пытал$u украсть нечто у $N1.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 			}
-			else  	/* Steal the item */
+			else  	// Steal the item
 			{
 				if (IS_CARRYING_N(ch) + 1 < CAN_CARRY_N(ch))
 				{
@@ -645,7 +645,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 				improove_skill(ch, SKILL_STEAL, 0, vict);
 		}
 	}
-	else  		/* Steal some coins */
+	else  		// Steal some coins
 	{
 		prob = calculate_skill(ch, SKILL_STEAL, percent, vict);
 		if (AFF_FLAGGED(ch, AFF_HIDE))
@@ -665,7 +665,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 			act("Вы обнаружили руку $n1 в своем кармане.", FALSE, ch, 0, vict, TO_VICT);
 			act("$n пытал$u спионерить деньги у $N1.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		}
-		else  	/* Steal some gold coins */
+		else  	// Steal some gold coins
 		{
 			if (!vict->get_gold())
 			{
@@ -816,7 +816,7 @@ ACMD(do_courage)
 	int prob;
 	struct timed_type timed;
 	int i;
-	if (IS_NPC(ch))		/* Cannot use GET_COND() on mobs. */
+	if (IS_NPC(ch))		// Cannot use GET_COND() on mobs.
 		return;
 
 	if (!ch->get_skill(SKILL_COURAGE))
@@ -834,7 +834,7 @@ ACMD(do_courage)
 	timed.skill = SKILL_COURAGE;
 	timed.time = 6;
 	timed_to_char(ch, &timed);
-	/******************** Remove to hit()
+	/******************* Remove to hit()
 	percent = number(1,skill_info[SKILL_COURAGE].max_percent+GET_REAL_MAX_HIT(ch)-GET_HIT(ch));
 	prob    = train_skill(ch,SKILL_COURAGE,skill_info[SKILL_COURAGE].max_percent,0);
 	if (percent > prob)
@@ -1717,10 +1717,6 @@ ACMD(do_use)
 			apply_enchant(ch, mag_item, buf);
 			return;
 		}
-		/*    if (IS_NPC(ch) && AFF_FLAGGED(ch,AFF_CHARM))
-		       {send_to_char("Чармисы не могую юзать палки :-Qr\n", ch);
-		        return;
-		       }*/
 		if ((GET_OBJ_TYPE(mag_item) != ITEM_WAND) && (GET_OBJ_TYPE(mag_item) != ITEM_STAFF))
 		{
 			send_to_char("Применять можно только магические предметы!\r\n", ch);
@@ -1769,7 +1765,7 @@ ACMD(do_wimpy)
 {
 	int wimp_lev;
 
-	/* 'wimp_level' is a player_special. -gg 2/25/98 */
+	// 'wimp_level' is a player_special. -gg 2/25/98
 	if (IS_NPC(ch))
 		return;
 
@@ -2174,9 +2170,7 @@ void SetScreen(CHAR_DATA * ch, char *argument, int flag)
 	}
 }
 
-/**
-* 'режим автограбеж все|ингредиенты', по дефолту - все
-*/
+// * 'режим автограбеж все|ингредиенты', по дефолту - все
 void set_autoloot_mode(CHAR_DATA *ch, char *argument)
 {
 	static const char *message_on = "Автоматический грабеж трупов включен.\r\n";
@@ -2760,7 +2754,7 @@ ACMD(do_beep)
 		send_to_char("Вы не можете пищать в режиме обращения.\r\n", ch);
 	else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
 		send_to_char("Стены заглушили ваш писк.\r\n", ch);
-	else if (!IS_NPC(vict) && !vict->desc)	/* linkless */
+	else if (!IS_NPC(vict) && !vict->desc)	// linkless
 		act("$N потерял связь.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	else if (PLR_FLAGGED(vict, PLR_WRITING))
 		act("$N пишет сейчас; Попищите позже.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
@@ -3059,7 +3053,7 @@ ACMD(do_dig)
 
 	break_inst(ch);
 
-	/* случайные события */
+	// случайные события
 
 	if (number(1, dig_vars.treasure_chance) == 1)	// копнули клад
 	{
@@ -3136,7 +3130,7 @@ ACMD(do_dig)
 	}
 
 
-	/* возможность копать мощные камни зависит от навыка */
+	// возможность копать мощные камни зависит от навыка
 
 	random_stone = number(1, MIN(prob, 100));
 	if (random_stone >= dig_vars.stone9_skill)
@@ -3715,7 +3709,7 @@ ACMD(do_insertgem)
 		}
 //-Polos.insert_wanted_gem
 
-		/* флаги, определяющие, сколько остается свободных слотов */
+		// флаги, определяющие, сколько остается свободных слотов
 		if (OBJ_FLAGGED(itemobj, ITEM_WITH3SLOTS))
 		{
 			REMOVE_BIT(GET_OBJ_EXTRA(itemobj, ITEM_WITH3SLOTS), ITEM_WITH3SLOTS);

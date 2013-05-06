@@ -240,17 +240,13 @@ void Player::dps_print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 	dps_.print_group_stats(ch, coder);
 }
 
-/**
-* Для dps_copy.
-*/
+// * Для dps_copy.
 void Player::dps_set(DpsSystem::Dps *dps)
 {
 	dps_ = *dps;
 }
 
-/**
-* Нужно только для копирования всего этого дела при передаче лидера.
-*/
+// * Нужно только для копирования всего этого дела при передаче лидера.
 void Player::dps_copy(CHAR_DATA *ch)
 {
 	ch->dps_set(&dps_);
@@ -294,15 +290,15 @@ void Player::save_char()
 	log("Save char %s", GET_NAME(this));
 	save_char_vars(this);
 
-	/* Запись чара в новом формате */
+	// Запись чара в новом формате
 	get_filename(GET_NAME(this), filename, PLAYERS_FILE);
 	if (!(saved = fopen(filename, "w")))
 	{
 		perror("Unable open charfile");
 		return;
 	}
-	/* подготовка */
-	/* снимаем все возможные аффекты  */
+	// подготовка
+	// снимаем все возможные аффекты
 	for (i = 0; i < NUM_WEARS; i++)
 	{
 		if (GET_EQ(this, i))
@@ -331,7 +327,7 @@ void Player::save_char()
 		}
 		else
 		{
-			tmp_aff[i].type = 0;	/* Zero signifies not used */
+			tmp_aff[i].type = 0;	// Zero signifies not used
 			tmp_aff[i].duration = 0;
 			tmp_aff[i].modifier = 0;
 			tmp_aff[i].location = 0;
@@ -435,14 +431,14 @@ void Player::save_char()
 	fprintf(saved, "Hite: %d\n", GET_HEIGHT(this));
 	fprintf(saved, "Wate: %d\n", GET_WEIGHT(this));
 	fprintf(saved, "Size: %d\n", GET_SIZE(this));
-	/* структуры */
+	// структуры
 	fprintf(saved, "Alin: %d\n", GET_ALIGNMENT(this));
 	*buf = '\0';
 	tascii(&AFF_FLAGS(this, 0), 4, buf);
 	fprintf(saved, "Aff : %s\n", buf);
 
-	/* дальше не по порядку */
-	/* статсы */
+	// дальше не по порядку
+	// статсы
 	fprintf(saved, "Str : %d\n", this->get_inborn_str());
 	fprintf(saved, "Int : %d\n", this->get_inborn_int());
 	fprintf(saved, "Wis : %d\n", this->get_inborn_wis());
@@ -450,7 +446,7 @@ void Player::save_char()
 	fprintf(saved, "Con : %d\n", this->get_inborn_con());
 	fprintf(saved, "Cha : %d\n", this->get_inborn_cha());
 
-	/* способности - added by Gorrah */
+	// способности - added by Gorrah
 	if (GET_LEVEL(this) < LVL_IMMORT)
 	{
 		fprintf(saved, "Feat:\n");
@@ -462,7 +458,7 @@ void Player::save_char()
 		fprintf(saved, "0 0\n");
 	}
 
-	/* Задержки на cпособности */
+	// Задержки на cпособности
 	if (GET_LEVEL(this) < LVL_IMMORT)
 	{
 		fprintf(saved, "FtTm:\n");
@@ -473,7 +469,7 @@ void Player::save_char()
 		fprintf(saved, "0 0\n");
 	}
 
-	/* скилы */
+	// скилы
 	if (GET_LEVEL(this) < LVL_IMMORT)
 	{
 		fprintf(saved, "Skil:\n");
@@ -487,7 +483,7 @@ void Player::save_char()
 		fprintf(saved, "0 0\n");
 	}
 
-	/* Задержки на скилы */
+	// Задержки на скилы
 	if (GET_LEVEL(this) < LVL_IMMORT)
 	{
 		fprintf(saved, "SkTm:\n");
@@ -498,7 +494,7 @@ void Player::save_char()
 		fprintf(saved, "0 0\n");
 	}
 
-	/* спелы */
+	// спелы
 	// волхвам всеравно известны тупо все спеллы, смысла их писать не вижу
 	if (GET_LEVEL(this) < LVL_IMMORT && GET_CLASS(this) != CLASS_DRUID)
 	{
@@ -509,7 +505,7 @@ void Player::save_char()
 		fprintf(saved, "0 0\n");
 	}
 
-	/* Замемленые спелы */
+	// Замемленые спелы
 	if (GET_LEVEL(this) < LVL_IMMORT)
 	{
 		fprintf(saved, "SpMe:\n");
@@ -521,7 +517,7 @@ void Player::save_char()
 		fprintf(saved, "0 0\n");
 	}
 
-	/* Мемящиеся спелы */
+	// Мемящиеся спелы
 	if (GET_LEVEL(this) < LVL_IMMORT)
 	{
 		fprintf(saved, "SpTM:\n");
@@ -530,7 +526,7 @@ void Player::save_char()
 		fprintf(saved, "0\n");
 	}
 
-	/* Рецепты */
+	// Рецепты
 //    if (GET_LEVEL(this) < LVL_IMMORT)
 	{
 		im_rskill *rs;
@@ -648,7 +644,7 @@ void Player::save_char()
 		}
 	}
 
-	/* affected_type */
+	// affected_type
 	if (tmp_aff[0].type > 0)
 	{
 		fprintf(saved, "Affs:\n");
@@ -663,7 +659,7 @@ void Player::save_char()
 		fprintf(saved, "0 0 0 0 0 0\n");
 	}
 
-	/* порталы */
+	// порталы
 	for (prt = GET_PORTALS(this); prt; prt = prt->next)
 	{
 		fprintf(saved, "Prtl: %d\n", prt->vnum);
@@ -748,8 +744,8 @@ void Player::save_char()
 	fclose(saved);
 	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UNIQUE(this));
 
-	/* восстанавливаем аффекты */
-	/* add spell and eq affections back in now */
+	// восстанавливаем аффекты
+	// add spell and eq affections back in now
 	for (i = 0; i < MAX_AFFECT; i++)
 	{
 		if (tmp_aff[i].type)
@@ -791,9 +787,7 @@ void Player::save_char()
 // поэтому при каких-то изменениях в entrycount, must_be_deleted и TopPlayer::Refresh следует
 // убедиться, что изменный код работает с действительно проинициализированными полями персонажа
 // на данный момент это: PLR_FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GET_LEVEL, GET_NAME, GET_REMORT, GET_UNIQUE, GET_EMAIL
-/**
-* \param reboot - по дефолту = false
-*/
+// * \param reboot - по дефолту = false
 int Player::load_char_ascii(const char *name, bool reboot)
 {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
@@ -975,8 +969,8 @@ int Player::load_char_ascii(const char *name, bool reboot)
 ///////////////////////////////////////////////////////////////////////////////
 
 
-	/* character init */
-	/* initializations necessary to keep some things straight */
+	// character init
+	// initializations necessary to keep some things straight
 
 	this->set_npc_name(0);
 	this->player_data.long_descr = NULL;
@@ -1232,7 +1226,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				EXCHANGE_FILTER(this) = str_dup(line);
 			else if (!strcmp(tag, "EMal"))
 				strcpy(GET_EMAIL(this), line);
-/*29.11.09. (c) Василиса*/
+//29.11.09. (c) Василиса
 //edited by WorM 2011.05.21
 			else if (!strcmp(tag, "Expa"))
 				GET_EXP_ARENA(this) = llnum;
@@ -1253,7 +1247,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			else if (!strcmp(tag, "Exdt"))
 				GET_EXP_DTTHIS(this) = llnum;
 //end by WorM
-/*Конец правки (с) Василиса*/
+//Конец правки (с) Василиса
 			break;
 
 		case 'F':
@@ -1557,7 +1551,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		case 'R':
 			if (!strcmp(tag, "Room"))
 				GET_LOADROOM(this) = num;
-/*29.11.09. (c) Василиса*/
+//29.11.09. (c) Василиса
 			else if (!strcmp(tag, "Ripa"))
 				GET_RIP_ARENA(this) = num;
 			else if (!strcmp(tag, "Ripm"))
@@ -1576,7 +1570,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				GET_RIP_DT(this) = num;
 			else if (!strcmp(tag, "Ridt"))
 				GET_RIP_DTTHIS(this) = num;
-/*(с) Василиса*/
+//(с) Василиса
 			else if (!strcmp(tag, "Rmbr"))
 				this->remember_set_num(num);
 			else if (!strcmp(tag, "Reli"))
@@ -1719,10 +1713,10 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				GET_WIMP_LEV(this) = num;
 			else if (!strcmp(tag, "Wis "))
 				this->set_wis(num);
-/*29.11.09 (c) Василиса*/
+//29.11.09 (c) Василиса
 			else if (!strcmp(tag, "Wina"))
 				GET_WIN_ARENA(this) = num;
-/*конец правки (с) Василиса*/
+//конец правки (с) Василиса
 			else if (!strcmp(tag, "Wman"))
 				this->set_who_mana(num);
 			break;
@@ -1732,7 +1726,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		}
 	}
 
-	/* initialization for imms */
+	// initialization for imms
 	if (GET_LEVEL(this) >= LVL_IMMORT)
 	{
 		set_god_skills(this);
@@ -1743,7 +1737,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		GET_LOADROOM(this) = NOWHERE;
 	}
 
-	/* Set natural & race features - added by Gorrah */
+	// Set natural & race features - added by Gorrah
 	for (i = 1; i < MAX_FEATS; i++)
 	{
 		if (can_get_feat(this, i)

@@ -19,7 +19,7 @@
 
 #define NUM_RESERVED_DESCS	8
 
-/* comm.cpp */
+// comm.cpp
 void send_to_all(const char *messg);
 void send_to_char(const char *messg, CHAR_DATA * ch);
 void send_to_char(CHAR_DATA * ch, const char *messg, ...);

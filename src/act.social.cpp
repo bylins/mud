@@ -24,18 +24,18 @@
 #include "char.hpp"
 #include "room.hpp"
 
-/* extern variables */
+// extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
 
 void get_one_line(FILE * fl, char *buf);
 
-/* local globals */
+// local globals
 int top_of_socialm = -1;
 int top_of_socialk = -1;
 struct social_messg *soc_mess_list = NULL;
 struct social_keyword *soc_keys_list = NULL;
 
-/* local functions */
+// local functions
 int find_action(char *cmd);
 int do_social(CHAR_DATA * ch, char *argument);
 ACMD(do_insult);
@@ -196,7 +196,7 @@ ACMD(do_insult)
 						else
 							act("&K$n заявил$g, что удел любой женщины - дети, кухня и церковь.&n", FALSE, ch, 0, victim, TO_VICT);
 					}
-					else  	/* Ch == Woman */
+					else  	// Ch == Woman
 					{
 						if (IS_MALE(victim))
 							act("&K$n заявил$g вам, что у н$s больше... (что $e имел$g в виду?)&n", FALSE, ch, 0, victim, TO_VICT);
@@ -213,11 +213,11 @@ ACMD(do_insult)
 						"$e заявил$g, что там обитают на редкость крупные бабочки.&n",
 						FALSE, ch, 0, victim, TO_VICT);
 					break;
-				}	/* end switch */
+				}	// end switch
 
 				act("&K$n оскорбил$g $N1. СМЕРТЕЛЬНО.&n", TRUE, ch, 0, victim, TO_NOTVICT);
 			}
-			else  	/* ch == victim */
+			else  	// ch == victim
 			{
 				send_to_char("&KВы почувствовали себя оскорбленным.&n\r\n", ch);
 			}
@@ -247,7 +247,7 @@ void load_socials(FILE * fl)
 	char line[MAX_INPUT_LENGTH], *scan, next_key[MAX_INPUT_LENGTH];
 	int key = -1, message = -1, c_min_pos, c_max_pos, v_min_pos, v_max_pos, what;
 
-	/* get the first keyword line */
+	// get the first keyword line
 	get_one_line(fl, line);
 	while (*line != '$')
 	{
@@ -309,7 +309,7 @@ void load_socials(FILE * fl)
 				what++;
 			get_one_line(fl, line);
 		}
-		/* get next keyword line (or $) */
+		// get next keyword line (or $)
 		get_one_line(fl, line);
 	}
 }

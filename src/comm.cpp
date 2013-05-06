@@ -73,31 +73,31 @@
 #include <sys/epoll.h>
 #endif
 
-#ifdef CIRCLE_MACINTOSH		/* Includes for the Macintosh */
+#ifdef CIRCLE_MACINTOSH		// Includes for the Macintosh
 # define SIGPIPE 13
 # define SIGALRM 14
-/* GUSI headers */
+// GUSI headers
 # include <sys/ioctl.h>
-/* Codewarrior dependant */
+// Codewarrior dependant
 # include <SIOUX.h>
 # include <console.h>
 #endif
 
-#ifdef CIRCLE_WINDOWS		/* Includes for Win32 */
+#ifdef CIRCLE_WINDOWS		// Includes for Win32
 # ifdef __BORLANDC__
 #  include <dir.h>
-# else				/* MSVC */
+# else				// MSVC
 #  include <direct.h>
 # endif
 # include <mmsystem.h>
-#endif				/* CIRCLE_WINDOWS */
+#endif				// CIRCLE_WINDOWS
 
-#ifdef CIRCLE_AMIGA		/* Includes for the Amiga */
+#ifdef CIRCLE_AMIGA		// Includes for the Amiga
 # include <sys/ioctl.h>
 # include <clib/socket_protos.h>
-#endif				/* CIRCLE_AMIGA */
+#endif				// CIRCLE_AMIGA
 
-#ifdef CIRCLE_ACORN		/* Includes for the Acorn (RiscOS) */
+#ifdef CIRCLE_ACORN		// Includes for the Acorn (RiscOS)
 # include <socklib.h>
 # include <inetlib.h>
 # include <sys/ioctl.h>
@@ -127,7 +127,7 @@
 #define MAXEVENTS 1024
 #endif
 
-/* externs */
+// externs
 extern int num_invalid;
 extern char *GREETINGS;
 extern const char *circlemud_version;
@@ -139,14 +139,14 @@ extern const char *DFLT_DIR;
 extern const char *DFLT_IP;
 extern const char *LOGNAME;
 extern int max_playing;
-extern int nameserver_is_slow;	/* see config.cpp */
-extern int auto_save;		/* see config.cpp */
-extern int autosave_time;	/* see config.cpp */
+extern int nameserver_is_slow;	// see config.cpp
+extern int auto_save;		// see config.cpp
+extern int autosave_time;	// see config.cpp
 extern int mana[];
 
 extern char *help;
 extern struct zone_data *zone_table;
-extern const char *save_info_msg[];	/* In olc.cpp */
+extern const char *save_info_msg[];	// In olc.cpp
 extern CHAR_DATA *character_list;
 extern CHAR_DATA *combat_list;
 extern int proc_color(char *inbuf, int color);
@@ -155,31 +155,31 @@ extern time_t boot_time;
 extern void log_code_date();
 extern void print_rune_log();
 
-/* external global objects and containers */
+// external global objects and containers
 extern BanList *ban;
 
-/* local globals */
-DESCRIPTOR_DATA *descriptor_list = NULL;	/* master desc list */
-struct txt_block *bufpool = 0;	/* pool of large output buffers */
-int buf_largecount = 0;		/* # of large buffers which exist */
-int buf_overflows = 0;		/* # of overflows of output */
-int buf_switches = 0;		/* # of switches from small to large buf */
-int circle_shutdown = 0;	/* clean shutdown */
+// local globals
+DESCRIPTOR_DATA *descriptor_list = NULL;	// master desc list
+struct txt_block *bufpool = 0;	// pool of large output buffers
+int buf_largecount = 0;		// # of large buffers which exist
+int buf_overflows = 0;		// # of overflows of output
+int buf_switches = 0;		// # of switches from small to large buf
+int circle_shutdown = 0;	// clean shutdown
 /*
 circle_shutdown = 0 - do not reboot
 circle_shutdown = 1 - shutdown/reboot normally with RENT_CRASH
 circle_shutdown = 2 - reboot with normal rent
 */
-int circle_reboot = 0;		/* reboot the game after a shutdown */
-int shutdown_time = 0;		/* reboot at this time */
-int no_specials = 0;		/* Suppress ass. of special routines */
-int max_players = 0;		/* max descriptors available */
-int tics = 0;			/* for extern checkpointing */
-int scheck = 0;			/* for syntax checking mode */
-long last_rent_check = 0;	/* at what time checked rented time */
-struct timeval null_time;	/* zero-valued time structure */
-int dg_act_check;		/* toggle for act_trigger */
-unsigned long dg_global_pulse = 0;	/* number of pulses since game start */
+int circle_reboot = 0;		// reboot the game after a shutdown
+int shutdown_time = 0;		// reboot at this time
+int no_specials = 0;		// Suppress ass. of special routines
+int max_players = 0;		// max descriptors available
+int tics = 0;			// for extern checkpointing
+int scheck = 0;			// for syntax checking mode
+long last_rent_check = 0;	// at what time checked rented time
+struct timeval null_time;	// zero-valued time structure
+int dg_act_check;		// toggle for act_trigger
+unsigned long dg_global_pulse = 0;	// number of pulses since game start
 unsigned long cmd_cnt = 0;
 unsigned long int number_of_bytes_read = 0;
 unsigned long int number_of_bytes_written = 0;
@@ -195,7 +195,7 @@ log_info logs[NLOG] =
 
 char src_path[4096];
 
-/* functions in this file */
+// functions in this file
 RETSIGTYPE unrestrict_game(int sig);
 RETSIGTYPE reap(int sig);
 RETSIGTYPE checkpointing(int sig);
@@ -245,11 +245,11 @@ void zlib_free(void *opaque, void *address);
 #endif
 
 
-/* extern fcnts */
+// extern fcnts
 void SaveGlobalUID(void);
 void boot_world(void);
-void player_affect_update(void);	/* In spells.cpp */
-void RoomSpells::room_affect_update(void);		/* In spells.cpp */
+void player_affect_update(void);	// In spells.cpp
+void RoomSpells::room_affect_update(void);		// In spells.cpp
 void mobile_affect_update(void);
 void mobile_activity(int activity_level, int missed_pulses);
 void process_events(void);
@@ -344,7 +344,7 @@ void gettimeofday(struct timeval *t, struct timezone *dummy)
 	t->tv_usec = (millisec % 1000) * 1000;
 }
 
-#endif				/* CIRCLE_WINDOWS || CIRCLE_MACINTOSH */
+#endif				// CIRCLE_WINDOWS || CIRCLE_MACINTOSH
 
 
 #define plant_magic(x)	do { (x)[sizeof(x) - 1] = MAGIC_NUMBER; } while (0)
@@ -366,7 +366,7 @@ int main(int argc, char **argv)
 	int pos = 1;
 	const char *dir;
 
-	/* Initialize these to check for overruns later. */
+	// Initialize these to check for overruns later.
 	plant_magic(buf);
 	plant_magic(buf1);
 	plant_magic(buf2);
@@ -378,7 +378,7 @@ int main(int argc, char **argv)
 	 * Codewarriors's SIOUX library
 	 */
 	argc = ccommand(&argv);
-	/* Initialize the GUSI library calls.  */
+	// Initialize the GUSI library calls.
 	GUSIDefaultSetup();
 #endif
 
@@ -428,7 +428,7 @@ int main(int argc, char **argv)
 			puts("Suppressing assignment of special routines.");
 			break;
 		case 'h':
-			/* From: Anil Mahajan <amahajan@proxicom.com> */
+			// From: Anil Mahajan <amahajan@proxicom.com>
 			printf
 			("Usage: %s [-c] [-m] [-q] [-r] [-s] [-d pathname] [port #]\n"
 			 "  -c             Enable syntax check mode.\n"
@@ -460,7 +460,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	/* All arguments have been parsed, try to open log file. */
+	// All arguments have been parsed, try to open log file.
 	setup_logs();
 
 	/*
@@ -508,7 +508,7 @@ int main(int argc, char **argv)
 
 
 
-/* Init sockets, run game, and cleanup sockets */
+// Init sockets, run game, and cleanup sockets
 void init_game(ush_int port)
 {
 	socket_t mother_desc;
@@ -734,7 +734,7 @@ socket_t init_socket(ush_int port)
 		perror("SYSERR: Error creating socket");
 		exit(1);
 	}
-#endif				/* CIRCLE_WINDOWS */
+#endif				// CIRCLE_WINDOWS
 
 #if defined(SO_REUSEADDR) && !defined(CIRCLE_MACINTOSH)
 	opt = 1;
@@ -759,11 +759,11 @@ socket_t init_socket(ush_int port)
 		ld.l_onoff = 0;
 		ld.l_linger = 0;
 		if (setsockopt(s, SOL_SOCKET, SO_LINGER, (char *) &ld, sizeof(ld)) < 0)
-			perror("SYSERR: setsockopt SO_LINGER");	/* Not fatal I suppose. */
+			perror("SYSERR: setsockopt SO_LINGER");	// Not fatal I suppose.
 	}
 #endif
 
-	/* Clear the structure */
+	// Clear the structure
 	memset((char *) &sa, 0, sizeof(sa));
 
 	sa.sin_family = AF_INET;
@@ -799,7 +799,7 @@ int get_max_players(void)
 	{
 		struct rlimit limit;
 
-		/* find the limit of file descs */
+		// find the limit of file descs
 		method = "rlimit";
 		if (getrlimit(RLIMIT_NOFILE, &limit) < 0)
 		{
@@ -807,7 +807,7 @@ int get_max_players(void)
 			exit(1);
 		}
 
-		/* set the current to the maximum */
+		// set the current to the maximum
 		limit.rlim_cur = limit.rlim_max;
 		if (setrlimit(RLIMIT_NOFILE, &limit) < 0)
 		{
@@ -829,8 +829,7 @@ int get_max_players(void)
 #define OPEN_MAX FOPEN_MAX
 #endif
 	method = "OPEN_MAX";
-	max_descs = OPEN_MAX;	/* Uh oh.. rlimit didn't work, but we have
-				 * OPEN_MAX */
+	max_descs = OPEN_MAX;	// Uh oh.. rlimit didn't work, but we have OPEN_MAX
 #elif defined (_SC_OPEN_MAX)
 	/*
 	 * Okay, you don't have getrlimit() and you don't have OPEN_MAX.  Time to
@@ -850,12 +849,12 @@ int get_max_players(void)
 		}
 	}
 #else
-	/* if everything has failed, we'll just take a guess */
+	// if everything has failed, we'll just take a guess
 	method = "random guess";
 	max_descs = max_playing + NUM_RESERVED_DESCS;
 #endif
 
-	/* now calculate max _players_ based on max descs */
+	// now calculate max _players_ based on max descs
 	max_descs = MIN(max_playing, max_descs - NUM_RESERVED_DESCS);
 
 	if (max_descs <= 0)
@@ -865,7 +864,7 @@ int get_max_players(void)
 	}
 	log("   Setting player limit to %d using %s.", max_descs, method);
 	return (max_descs);
-#endif				/* CIRCLE_UNIX */
+#endif				// CIRCLE_UNIX
 }
 
 int shutting_down(void)
@@ -994,18 +993,18 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 			log(msg.c_str());
 		}
 #else
-	/* Poll (without blocking) for new input, output, and exceptions */
+	// Poll (without blocking) for new input, output, and exceptions
 	if (select(maxdesc + 1, &input_set, &output_set, &exc_set, &null_time)
 			< 0)
 	{
 		perror("SYSERR: Select poll");
 		return;
 	}
-	/* If there are new connections waiting, accept them. */
+	// If there are new connections waiting, accept them.
 	if (FD_ISSET(mother_desc, &input_set))
 		new_descriptor(mother_desc);
 
-	/* Kick out the freaky folks in the exception set and marked for close */
+	// Kick out the freaky folks in the exception set and marked for close
 	for (d = descriptor_list; d; d = next_d)
 	{
 		next_d = d->next;
@@ -1017,7 +1016,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		}
 	}
 
-	/* Process descriptors with input pending */
+	// Process descriptors with input pending
 	for (d = descriptor_list; d; d = next_d)
 	{
 		next_d = d->next;
@@ -1027,7 +1026,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 	}
 #endif
 
-	/* Process commands we just read from process_input */
+	// Process commands we just read from process_input
 	for (d = descriptor_list; d; d = next_d)
 	{
 		next_d = d->next;
@@ -1067,7 +1066,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		}
 
 		d->input_time = time(NULL);
-		if (d->character)  	/* Reset the idle timer & pull char back from void if necessary */
+		if (d->character)  	// Reset the idle timer & pull char back from void if necessary
 		{
 			d->character->char_specials.timer = 0;
 			if (STATE(d) == CON_PLAYING && d->character->get_was_in_room() != NOWHERE)
@@ -1081,19 +1080,19 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 			}
 		}
 		d->has_prompt = 0;
-		if (d->showstr_count && STATE(d) != CON_DISCONNECT && STATE(d) != CON_CLOSE)	/* Reading something w/ pager */
+		if (d->showstr_count && STATE(d) != CON_DISCONNECT && STATE(d) != CON_CLOSE)	// Reading something w/ pager
 			show_string(d, comm);
 		else if (d->str && STATE(d) != CON_DISCONNECT && STATE(d) != CON_CLOSE)
 			string_add(d, comm);
-		else if (STATE(d) != CON_PLAYING)	/* In menus, etc. */
+		else if (STATE(d) != CON_PLAYING)	// In menus, etc.
 			nanny(d, comm);
-		else  	/* else: we're playing normally. */
+		else  	// else: we're playing normally.
 		{
-			if (aliased)	/* To prevent recursive aliases. */
-				d->has_prompt = 1;	/* To get newline before next cmd output. */
-			else if (perform_alias(d, comm))	/* Run it through aliasing system */
+			if (aliased)	// To prevent recursive aliases.
+				d->has_prompt = 1;	// To get newline before next cmd output.
+			else if (perform_alias(d, comm))	// Run it through aliasing system
 				get_from_q(&d->input, comm, &aliased);
-			command_interpreter(d->character, comm);	/* Send it to interpreter */
+			command_interpreter(d->character, comm);	// Send it to interpreter
 			cmd_cnt++;
 		}
 	}
@@ -1133,7 +1132,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 // тут был кусок старого кода в #if 0 ... #endif. убрал, чтобы меньше хлама было.
 // если понадобится, вернем из истории.
 
-	/* Kick out folks in the CON_CLOSE or CON_DISCONNECT state */
+	// Kick out folks in the CON_CLOSE or CON_DISCONNECT state
 	for (d = descriptor_list; d; d = next_d)
 	{
 		next_d = d->next;
@@ -1172,7 +1171,7 @@ void game_loop(socket_t mother_desc)
 	int missed_pulses = 0;
 	struct timeval before_sleep, now, timeout;
 
-	/* initialize various time values */
+	// initialize various time values
 	null_time.tv_sec = 0;
 	null_time.tv_usec = 0;
 	opt_time.tv_usec = OPT_USEC;
@@ -1187,8 +1186,8 @@ void game_loop(socket_t mother_desc)
 
 	gettimeofday(&last_time, (struct timezone *) 0);
 
-	/* The Main Loop.  The Big Cheese.  The Top Dog.  The Head Honcho.  The.. */
-	while (!shutting_down())  	/* Sleep if we don't have any connections */
+	// The Main Loop.  The Big Cheese.  The Top Dog.  The Head Honcho.  The..
+	while (!shutting_down())  	// Sleep if we don't have any connections
 	{
 		if (descriptor_list == NULL)
 		{
@@ -1218,7 +1217,7 @@ void game_loop(socket_t mother_desc)
 		}
 
 #ifndef HAS_EPOLL
-		/* Set up the input, output, and exception sets for select(). */
+		// Set up the input, output, and exception sets for select().
 		FD_ZERO(&input_set);
 		FD_ZERO(&output_set);
 		FD_ZERO(&exc_set);
@@ -1244,7 +1243,7 @@ void game_loop(socket_t mother_desc)
 		 * calculate how long we took processing the previous iteration.
 		 */
 
-		gettimeofday(&before_sleep, (struct timezone *) 0);	/* current time */
+		gettimeofday(&before_sleep, (struct timezone *) 0);	// current time
 		timediff(&process_time, &before_sleep, &last_time);
 
 		/*
@@ -1263,15 +1262,15 @@ void game_loop(socket_t mother_desc)
 			process_time.tv_usec = process_time.tv_usec % OPT_USEC;
 		}
 
-		/* Calculate the time we should wake up */
+		// Calculate the time we should wake up
 		timediff(&temp_time, &opt_time, &process_time);
 		timeadd(&last_time, &before_sleep, &temp_time);
 
-		/* Now keep sleeping until that time has come */
+		// Now keep sleeping until that time has come
 		gettimeofday(&now, (struct timezone *) 0);
 		timediff(&timeout, &last_time, &now);
 
-		/* Go to sleep */
+		// Go to sleep
 		do
 		{
 			circle_sleep(&timeout);
@@ -1293,16 +1292,16 @@ void game_loop(socket_t mother_desc)
 			missed_pulses = 1;
 		}
 
-		/* If we missed more than 30 seconds worth of pulses, just do 30 secs */
-		/* изменили на 4 сек */
-		/* изменили на 1 сек -- слишком уж опасно лагает :) */
+		// If we missed more than 30 seconds worth of pulses, just do 30 secs
+		// изменили на 4 сек
+		// изменили на 1 сек -- слишком уж опасно лагает :)
 		if (missed_pulses > (1 * PASSES_PER_SEC))
 		{
 			log("SYSERR: Missed %d seconds worth of pulses (%d).", missed_pulses / PASSES_PER_SEC, missed_pulses);
 			missed_pulses = 1 * PASSES_PER_SEC;
 		}
 
-		/* Now execute the heartbeat functions */
+		// Now execute the heartbeat functions
 		while (missed_pulses--)
 		{
 #ifdef HAS_EPOLL
@@ -1317,7 +1316,7 @@ void game_loop(socket_t mother_desc)
 		// _exit(0);
 
 #ifdef CIRCLE_UNIX
-		/* Update tics for deadlock protection (UNIX only) */
+		// Update tics for deadlock protection (UNIX only)
 		tics++;
 #endif
 	}
@@ -1344,7 +1343,7 @@ inline void heartbeat(const int missed_pulses)
 //	static long syslog_pos = 0;
 
 	pulse++;
-	/* Roll pulse over after 10 hours */
+	// Roll pulse over after 10 hours
 	if (pulse >= (600 * 60 * PASSES_PER_SEC))
 		pulse = 0;
 
@@ -1380,7 +1379,7 @@ inline void heartbeat(const int missed_pulses)
 	 ****************************/
 
 	if (!(pulse % (40 * PASSES_PER_SEC)))
-	{	/* 40 seconds *///log("Check idle password...");
+	{	// 40 seconds log("Check idle password...");
 		check_idle_passwords();
 		//log("Stop it...");
 	}
@@ -1797,7 +1796,7 @@ void timediff(struct timeval *rslt, struct timeval *a, struct timeval *b)
 			rslt->tv_usec = a->tv_usec - b->tv_usec;
 		}
 	}
-	else  		/* a->tv_sec > b->tv_sec */
+	else  		// a->tv_sec > b->tv_sec
 	{
 		rslt->tv_sec = a->tv_sec - b->tv_sec;
 		if (a->tv_usec < b->tv_usec)
@@ -1842,7 +1841,7 @@ void record_usage(void)
 
 	log("nusage: %-3d sockets connected, %-3d sockets playing", sockets_connected, sockets_playing);
 
-#ifdef RUSAGE			/* Not RUSAGE_SELF because it doesn't guarantee prototype. */
+#ifdef RUSAGE			// Not RUSAGE_SELF because it doesn't guarantee prototype.
 	{
 		struct rusage ru;
 
@@ -1955,7 +1954,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 	int door;
 	int perc;
 
-	/* Note, prompt is truncated at MAX_PROMPT_LENGTH chars (structs.h ) */
+	// Note, prompt is truncated at MAX_PROMPT_LENGTH chars (structs.h )
 	if (d->showstr_count)
 		sprintf(prompt, "\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы (%d/%d).", d->showstr_page, d->showstr_count);
 	else if (d->str)
@@ -2058,7 +2057,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		}
 
 		if (!d->character->get_fighting()
-				|| IN_ROOM(d->character) != IN_ROOM(d->character->get_fighting()))  	/* SHOW NON COMBAT INFO */
+				|| IN_ROOM(d->character) != IN_ROOM(d->character->get_fighting()))  	// SHOW NON COMBAT INFO
 		{
 
 			if (PRF_FLAGGED(d->character, PRF_DISPLEVEL))
@@ -2115,7 +2114,7 @@ void write_to_q(const char *txt, struct txt_q *queue, int aliased)
 	newt->text = str_dup(txt);
 	newt->aliased = aliased;
 
-	/* queue empty? */
+	// queue empty?
 	if (!queue->head)
 	{
 		newt->next = NULL;
@@ -2135,7 +2134,7 @@ int get_from_q(struct txt_q *queue, char *dest, int *aliased)
 {
 	struct txt_block *tmp;
 
-	/* queue empty? */
+	// queue empty?
 	if (!queue->head)
 		return (0);
 
@@ -2152,7 +2151,7 @@ int get_from_q(struct txt_q *queue, char *dest, int *aliased)
 
 
 
-/* Empty the queues before closing connection */
+// Empty the queues before closing connection
 void flush_queues(DESCRIPTOR_DATA * d)
 {
 	int dummy;
@@ -2165,12 +2164,12 @@ void flush_queues(DESCRIPTOR_DATA * d)
 	while (get_from_q(&d->input, buf2, &dummy));
 }
 
-/* Add a new string to a player's output queue */
+// Add a new string to a player's output queue
 void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 {
 	int size;
 
-	/* if we're in the overflow state already, ignore this new output */
+	// if we're in the overflow state already, ignore this new output
 	if (t->bufptr < 0)
 		return;
 
@@ -2181,7 +2180,7 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 
 	size = strlen(txt);
 
-	/* if we have enough space, just write to buffer and that's it! */
+	// if we have enough space, just write to buffer and that's it!
 	if (t->bufspace >= size)
 	{
 		strcpy(t->output + t->bufptr, txt);
@@ -2201,26 +2200,26 @@ void write_to_output(const char *txt, DESCRIPTOR_DATA * t)
 	}
 	buf_switches++;
 
-	/* if the pool has a buffer in it, grab it */
+	// if the pool has a buffer in it, grab it
 	if (bufpool != NULL)
 	{
 		t->large_outbuf = bufpool;
 		bufpool = bufpool->next;
 	}
-	else  		/* else create a new one */
+	else  		// else create a new one
 	{
 		CREATE(t->large_outbuf, struct txt_block, 1);
 		CREATE(t->large_outbuf->text, char, LARGE_BUFSIZE);
 		buf_largecount++;
 	}
 
-	strcpy(t->large_outbuf->text, t->output);	/* copy to big buffer */
-	t->output = t->large_outbuf->text;	/* make big buffer primary */
-	strcat(t->output, txt);	/* now add new text */
+	strcpy(t->large_outbuf->text, t->output);	// copy to big buffer
+	t->output = t->large_outbuf->text;	// make big buffer primary
+	strcat(t->output, txt);	// now add new text
 
-	/* set the pointer for the next write */
+	// set the pointer for the next write
 	t->bufptr = strlen(t->output);
-	/* calculate how much space is left in the buffer */
+	// calculate how much space is left in the buffer
 	t->bufspace = LARGE_BUFSIZE - 1 - t->bufptr;
 }
 
@@ -2243,17 +2242,17 @@ struct in_addr *get_bind_addr()
 {
 	static struct in_addr bind_addr;
 
-	/* Clear the structure */
+	// Clear the structure
 	memset((char *) &bind_addr, 0, sizeof(bind_addr));
 
-	/* If DLFT_IP is unspecified, use INADDR_ANY */
+	// If DLFT_IP is unspecified, use INADDR_ANY
 	if (DFLT_IP == NULL)
 	{
 		bind_addr.s_addr = htonl(INADDR_ANY);
 	}
 	else
 	{
-		/* If the parsing fails, use INADDR_ANY */
+		// If the parsing fails, use INADDR_ANY
 		if (!parse_ip(DFLT_IP, &bind_addr))
 		{
 			log("SYSERR: DFLT_IP of %s appears to be an invalid IP address", DFLT_IP);
@@ -2261,7 +2260,7 @@ struct in_addr *get_bind_addr()
 		}
 	}
 
-	/* Put the address that we've finally decided on into the logs */
+	// Put the address that we've finally decided on into the logs
 	if (bind_addr.s_addr == htonl(INADDR_ANY))
 		log("Binding to all IP interfaces on this host.");
 	else
@@ -2272,10 +2271,7 @@ struct in_addr *get_bind_addr()
 
 #ifdef HAVE_INET_ATON
 
-/*
- * inet_aton's interface is the same as parse_ip's: 0 on failure, non-0 if
- * successful
- */
+// * inet_aton's interface is the same as parse_ip's: 0 on failure, non-0 if successful
 int parse_ip(const char *addr, struct in_addr *inaddr)
 {
 	return (inet_aton(addr, inaddr));
@@ -2283,7 +2279,7 @@ int parse_ip(const char *addr, struct in_addr *inaddr)
 
 #elif HAVE_INET_ADDR
 
-/* inet_addr has a different interface, so we emulate inet_aton's */
+// inet_addr has a different interface, so we emulate inet_aton's
 int parse_ip(const char *addr, struct in_addr *inaddr)
 {
 	long ip;
@@ -2301,7 +2297,7 @@ int parse_ip(const char *addr, struct in_addr *inaddr)
 
 #else
 
-/* If you have neither function - sorry, you can't do specific binding. */
+// If you have neither function - sorry, you can't do specific binding.
 int parse_ip(const char *addr, struct in_addr *inaddr)
 {
 	log("SYSERR: warning: you're trying to set DFLT_IP but your system has no\n"
@@ -2309,7 +2305,7 @@ int parse_ip(const char *addr, struct in_addr *inaddr)
 	return (0);
 }
 
-#endif				/* INET_ATON and INET_ADDR */
+#endif				// INET_ATON and INET_ADDR
 
 unsigned long get_ip(const char *addr)
 {
@@ -2319,7 +2315,7 @@ unsigned long get_ip(const char *addr)
 }
 
 
-/* Sets the kernel's send buffer size for the descriptor */
+// Sets the kernel's send buffer size for the descriptor
 int set_sendbuf(socket_t s)
 {
 #if defined(SO_SNDBUF) && !defined(CIRCLE_MACINTOSH)
@@ -2356,7 +2352,7 @@ int new_descriptor(socket_t s)
 	socket_t desc;
 	int sockets_connected = 0;
 	socklen_t i;
-	static int last_desc = 0;	/* last descriptor number */
+	static int last_desc = 0;	// last descriptor number
 	DESCRIPTOR_DATA *newd;
 	struct sockaddr_in peer;
 	struct hostent *from;
@@ -2364,7 +2360,7 @@ int new_descriptor(socket_t s)
 	struct epoll_event event;
 #endif
 
-	/* accept the new connection */
+	// accept the new connection
 	i = sizeof(peer);
 	if ((desc = accept(s, (struct sockaddr *) & peer, &i)) == SOCKET_ERROR)
 	{
@@ -2379,17 +2375,17 @@ int new_descriptor(socket_t s)
 		} else
 			return (-1);
 	}
-	/* keep it from blocking */
+	// keep it from blocking
 	nonblock(desc);
 
-	/* set the send buffer size */
+	// set the send buffer size
 	if (set_sendbuf(desc) < 0)
 	{
 		CLOSE_SOCKET(desc);
 		return (-2);
 	}
 
-	/* make sure we have room for it */
+	// make sure we have room for it
 	for (newd = descriptor_list; newd; newd = newd->next)
 		sockets_connected++;
 
@@ -2399,17 +2395,17 @@ int new_descriptor(socket_t s)
 		CLOSE_SOCKET(desc);
 		return (-3);
 	}
-	/* create a new descriptor */
+	// create a new descriptor
 	CREATE(newd, DESCRIPTOR_DATA, 1);
 	memset((char *) newd, 0, sizeof(DESCRIPTOR_DATA));
 
-	/* find the sitename */
-	if (nameserver_is_slow || !(from = gethostbyaddr((char *) & peer.sin_addr, sizeof(peer.sin_addr), AF_INET)))  	/* resolution failed */
+	// find the sitename
+	if (nameserver_is_slow || !(from = gethostbyaddr((char *) & peer.sin_addr, sizeof(peer.sin_addr), AF_INET)))  	// resolution failed
 	{
 		if (!nameserver_is_slow)
 			perror("SYSERR: gethostbyaddr");
 
-		/* find the numeric site address */
+		// find the numeric site address
 		strncpy(newd->host, (char *) inet_ntoa(peer.sin_addr), HOST_LENGTH);
 		*(newd->host + HOST_LENGTH) = '\0';
 	}
@@ -2422,7 +2418,7 @@ int new_descriptor(socket_t s)
 	// ип в виде числа
 	newd->ip = TxtToIp(newd->host);
 
-	/* determine if the site is banned */
+	// determine if the site is banned
 #if 0
 	/*
 	 * Log new connections - probably unnecessary, but you may want it.
@@ -2486,7 +2482,7 @@ int new_descriptor(socket_t s)
 	}
 #endif
 
-	/* initialize descriptor data */
+	// initialize descriptor data
 	newd->descriptor = desc;
 	newd->idle_tics = 0;
 	newd->output = newd->small_outbuf;
@@ -2495,7 +2491,7 @@ int new_descriptor(socket_t s)
 	newd->login_time = time(0);
 	*newd->output = '\0';
 	newd->bufptr = 0;
-	newd->has_prompt = 1;	/* prompt is part of greetings */
+	newd->has_prompt = 1;	// prompt is part of greetings
 	newd->keytable = KT_SELECTMENU;
 	STATE(newd) = CON_GET_KEYTABLE;
 	/*
@@ -2509,7 +2505,7 @@ int new_descriptor(socket_t s)
 		last_desc = 1;
 	newd->desc_num = last_desc;
 
-	/* prepend to list */
+	// prepend to list
 	newd->next = descriptor_list;
 	descriptor_list = newd;
 
@@ -2609,7 +2605,7 @@ int process_output(DESCRIPTOR_DATA * t)
 	}
 
 	// Отправляю данные снуперам
-	/* handle snooping: prepend "% " and send to snooper */
+	// handle snooping: prepend "% " and send to snooper
 	if (t->output && t->snoop_by)
 	{
 		SEND_TO_Q("% ", t->snoop_by);
@@ -2619,17 +2615,17 @@ int process_output(DESCRIPTOR_DATA * t)
 
 	pi = i;
 	po = o;
-	/* we may need this \r\n for later -- see below */
+	// we may need this \r\n for later -- see below
 	strcpy(i, "\r\n");
 
-	/* now, append the 'real' output */
+	// now, append the 'real' output
 	strcpy(i + 2, t->output);
 
-	/* if we're in the overflow state, notify the user */
+	// if we're in the overflow state, notify the user
 	if (t->bufptr < 0)
 		strcat(i, "**OVERFLOW**\r\n");
 
-	/* add the extra CRLF if the person isn't in compact mode */
+	// add the extra CRLF if the person isn't in compact mode
 	if (STATE(t) == CON_PLAYING && t->character && !IS_NPC(t->character) && !PRF_FLAGGED(t->character, PRF_COMPACT))
 	{
 		strcat(i, "\r\n");
@@ -2651,10 +2647,10 @@ int process_output(DESCRIPTOR_DATA * t)
 		}
 	}// end by WorM
 
-	/* add a prompt */
+	// add a prompt
 	strncat(i, make_prompt(t), MAX_PROMPT_LENGTH);
 
-	/* easy color */
+	// easy color
 	int pos;
 	if ((t->character) && (pos = proc_color(i, (clr(t->character, C_NRM)))))
 	{
@@ -2709,7 +2705,7 @@ int process_output(DESCRIPTOR_DATA * t)
 	}
 	i[c] = 0;
 
-	if (t->has_prompt)	/* && !t->connected) */
+	if (t->has_prompt)	// && !t->connected)
 		offset = 0;
 	else
 		offset = 2;
@@ -2721,12 +2717,12 @@ int process_output(DESCRIPTOR_DATA * t)
 	 * This huge #ifdef could be a function of its own, if desired. -gg 2/27/99
 	 */
 #if defined(HAVE_ZLIB)
-	if (t->deflate)  	/* Complex case, compression, write it out. */
+	if (t->deflate)  	// Complex case, compression, write it out.
 	{
-		/* Keep compiler happy, and MUD, just in case we don't write anything. */
+		// Keep compiler happy, and MUD, just in case we don't write anything.
 		result = 1;
 
-		/* First we set up our input data. */
+		// First we set up our input data.
 		t->deflate->avail_in = strlen(i + offset);
 		t->deflate->next_in = (Bytef *)(i + offset);
 
@@ -2734,28 +2730,28 @@ int process_output(DESCRIPTOR_DATA * t)
 		{
 			int df, prevsize = SMALL_BUFSIZE - t->deflate->avail_out;
 
-			/* If there is input or the output has reset from being previously full, run compression again. */
+			// If there is input or the output has reset from being previously full, run compression again.
 			if (t->deflate->avail_in || t->deflate->avail_out == SMALL_BUFSIZE)
 				if ((df = deflate(t->deflate, Z_SYNC_FLUSH)) != 0)
 					log("SYSERR: process_output: deflate() returned %d.", df);
 
-			/* There should always be something new to write out. */
+			// There should always be something new to write out.
 			result =
 				write_to_descriptor(t->descriptor, t->small_outbuf + prevsize,
 									SMALL_BUFSIZE - t->deflate->avail_out - prevsize);
 
-			/* Wrap the buffer when we've run out of buffer space for the output. */
+			// Wrap the buffer when we've run out of buffer space for the output.
 			if (t->deflate->avail_out == 0)
 			{
 				t->deflate->avail_out = SMALL_BUFSIZE;
 				t->deflate->next_out = (Bytef *) t->small_outbuf;
 			}
 
-			/* Oops. This shouldn't happen, I hope. -gg 2/19/99 */
+			// Oops. This shouldn't happen, I hope. -gg 2/19/99
 			if (result <= 0)
 				return -1;
 
-			/* Need to loop while we still have input or when the output buffer was previously full. */
+			// Need to loop while we still have input or when the output buffer was previously full.
 		}
 		while (t->deflate->avail_out == SMALL_BUFSIZE || t->deflate->avail_in);
 	}
@@ -2776,16 +2772,16 @@ int process_output(DESCRIPTOR_DATA * t)
 		t->large_outbuf = NULL;
 		t->output = t->small_outbuf;
 	}
-	/* reset total bufspace back to that of a small buffer */
+	// reset total bufspace back to that of a small buffer
 	t->bufspace = SMALL_BUFSIZE - 1;
 	t->bufptr = 0;
 	*(t->output) = '\0';
 
-	/* Error, cut off. */
+	// Error, cut off.
 	if (result == 0)
 		return (-1);
 
-	/* Normal case, wrote ok. */
+	// Normal case, wrote ok.
 	if (result > 0)
 		return (1);
 
@@ -2826,25 +2822,25 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 
 	if (result > 0)
 	{
-		/* Write was sucessful */
+		// Write was sucessful
 		number_of_bytes_written += result;
 		return (result);
 	}
 
 	if (result == 0)
 	{
-		/* This should never happen! */
+		// This should never happen!
 		log("SYSERR: Huh??  write() returned 0???  Please report this!");
 		return (-1);
 	}
 
-	/* result < 0: An error was encountered. */
+	// result < 0: An error was encountered.
 
-	/* Transient error? */
+	// Transient error?
 	if (WSAGetLastError() == WSAEWOULDBLOCK || WSAGetLastError() == WSAEINTR)
 		return (0);
 
-	/* Must be a fatal error. */
+	// Must be a fatal error.
 	return (-1);
 }
 
@@ -2854,7 +2850,7 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 #define write	socketwrite
 #endif
 
-/* perform_socket_write for all Non-Windows platforms */
+// perform_socket_write for all Non-Windows platforms
 ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 {
 	ssize_t result;
@@ -2863,14 +2859,14 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 
 	if (result > 0)
 	{
-		/* Write was successful. */
+		// Write was successful.
 		number_of_bytes_written += result;
 		return (result);
 	}
 
 	if (result == 0)
 	{
-		/* This should never happen! */
+		// This should never happen!
 		log("SYSERR: Huh??  write() returned 0???  Please report this!");
 		return (-1);
 	}
@@ -2881,26 +2877,26 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 	 * indicate this.
 	 */
 
-#ifdef EAGAIN			/* POSIX */
+#ifdef EAGAIN			// POSIX
 	if (errno == EAGAIN)
 		return (0);
 #endif
 
-#ifdef EWOULDBLOCK		/* BSD */
+#ifdef EWOULDBLOCK		// BSD
 	if (errno == EWOULDBLOCK)
 		return (0);
 #endif
 
-#ifdef EDEADLK			/* Macintosh */
+#ifdef EDEADLK			// Macintosh
 	if (errno == EDEADLK)
 		return (0);
 #endif
 
-	/* Looks like the error was fatal.  Too bad. */
+	// Looks like the error was fatal.  Too bad.
 	return (-1);
 }
 
-#endif				/* CIRCLE_WINDOWS */
+#endif				// CIRCLE_WINDOWS
 
 
 /*
@@ -2931,7 +2927,7 @@ int write_to_descriptor(socket_t desc, const char *txt, size_t total)
 
 		if (bytes_written < 0)
 		{
-			/* Fatal error.  Disconnect the player_data. */
+			// Fatal error.  Disconnect the player_data.
 			perror("SYSERR: write_to_descriptor");
 			return (0);
 		}
@@ -2974,50 +2970,48 @@ ssize_t perform_socket_read(socket_t desc, char *read_point, size_t space_left)
 	ret = read(desc, read_point, space_left);
 #endif
 
-	/* Read was successful. */
+	// Read was successful.
 	if (ret > 0)
 	{
 		number_of_bytes_read += ret;
 		return (ret);
 	}
 
-	/* read() returned 0, meaning we got an EOF. */
+	// read() returned 0, meaning we got an EOF.
 	if (ret == 0)
 	{
 		log("WARNING: EOF on socket read (connection broken by peer)");
 		return (-1);
 	}
 
-	/*
-	 * read returned a value < 0: there was an error
-	 */
+	// * read returned a value < 0: there was an error
 
-#if defined(CIRCLE_WINDOWS)	/* Windows */
+#if defined(CIRCLE_WINDOWS)	// Windows
 	if (WSAGetLastError() == WSAEWOULDBLOCK || WSAGetLastError() == WSAEINTR)
 		return (0);
 #else
 
-#ifdef EINTR			/* Interrupted system call - various platforms */
+#ifdef EINTR			// Interrupted system call - various platforms
 	if (errno == EINTR)
 		return (0);
 #endif
 
-#ifdef EAGAIN			/* POSIX */
+#ifdef EAGAIN			// POSIX
 	if (errno == EAGAIN)
 		return (0);
 #endif
 
-#ifdef EWOULDBLOCK		/* BSD */
+#ifdef EWOULDBLOCK		// BSD
 	if (errno == EWOULDBLOCK)
 		return (0);
-#endif				/* EWOULDBLOCK */
+#endif				// EWOULDBLOCK
 
-#ifdef EDEADLK			/* Macintosh */
+#ifdef EDEADLK			// Macintosh
 	if (errno == EDEADLK)
 		return (0);
 #endif
 
-#endif				/* CIRCLE_WINDOWS */
+#endif				// CIRCLE_WINDOWS
 
 	/*
 	 * We don't know what happened, cut them off. This qualifies for
@@ -3039,7 +3033,7 @@ int process_input(DESCRIPTOR_DATA * t)
 	char *ptr, *read_point, *write_point, *nl_pos;
 	char tmp[MAX_INPUT_LENGTH];
 
-	/* first, find the point where we left off reading data */
+	// first, find the point where we left off reading data
 	buf_length = strlen(t->inbuf);
 	read_point = t->inbuf + buf_length;
 	space_left = MAX_RAW_INPUT_LENGTH - buf_length - 1;
@@ -3062,19 +3056,19 @@ int process_input(DESCRIPTOR_DATA * t)
 
 		bytes_read = perform_socket_read(t->descriptor, read_point, space_left);
 
-		if (bytes_read < 0)  	/* Error, disconnect them. */
+		if (bytes_read < 0)  	// Error, disconnect them.
 		{
 			return (-1);
 		}
-		else if (bytes_read == 0)	/* Just blocking, no problems. */
+		else if (bytes_read == 0)	// Just blocking, no problems.
 			return (0);
 
-		/* at this point, we know we got some data from the read */
+		// at this point, we know we got some data from the read
 
-		read_point[bytes_read] = '\0';	/* terminate the string */
+		read_point[bytes_read] = '\0';	// terminate the string
 
 #if defined(HAVE_ZLIB)
-		/* Search for an "Interpret As Command" marker. */
+		// Search for an "Interpret As Command" marker.
 		for (ptr = read_point; *ptr; ptr++)
 		{
 			if (ptr[0] != (char) IAC)
@@ -3114,7 +3108,7 @@ int process_input(DESCRIPTOR_DATA * t)
 		}
 #endif
 
-		/* search for a newline in the data we just read */
+		// search for a newline in the data we just read
 		for (ptr = read_point, nl_pos = NULL; *ptr && !nl_pos;)
 		{
 			if (ISNEWL(*ptr))
@@ -3144,7 +3138,7 @@ int process_input(DESCRIPTOR_DATA * t)
 
 	if (nl_pos == NULL)
 		return (0);
-#endif				/* POSIX_NONBLOCK_BROKEN */
+#endif				// POSIX_NONBLOCK_BROKEN
 
 	/*
 	 * okay, at this point we have at least one newline in the string; now we
@@ -3161,14 +3155,14 @@ int process_input(DESCRIPTOR_DATA * t)
 
 		for (ptr = read_point; (space_left > 1) && (ptr < nl_pos); ptr++)
 		{
-			/* Нафиг точку с запятой - задрали уроды с тригерами (Кард) */
+			// Нафиг точку с запятой - задрали уроды с тригерами (Кард)
 			if (*ptr == ';'
 				&& (STATE(t) == CON_PLAYING
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD))
 			{
-				/* Иммам или морталам с GF_DEMIGOD разрешено использовать ";". */
+				// Иммам или морталам с GF_DEMIGOD разрешено использовать ";".
 				if (GET_LEVEL(t->character) < LVL_IMMORT && !GET_GOD_FLAG(t->character, GF_DEMIGOD))
 					*ptr = ',';
 			}
@@ -3199,8 +3193,7 @@ int process_input(DESCRIPTOR_DATA * t)
 				if (GET_LEVEL(t->character) < LVL_GRGOD)
 					*ptr = '/';
 			}
-			/*****/
-			if (*ptr == '\b' || *ptr == 127)  	/* handle backspacing or delete key */
+			if (*ptr == '\b' || *ptr == 127)  	// handle backspacing or delete key
 			{
 				if (write_point > tmp)
 				{
@@ -3215,9 +3208,9 @@ int process_input(DESCRIPTOR_DATA * t)
 			}
 			else if (isascii(*ptr) && isprint(*ptr))
 			{
-				if ((*(write_point++) = *ptr) == '$')  	/* copy one character */
+				if ((*(write_point++) = *ptr) == '$')  	// copy one character
 				{
-					*(write_point++) = '$';	/* if it's a $, double it */
+					*(write_point++) = '$';	// if it's a $, double it
 					space_left -= 2;
 				}
 				else
@@ -3249,8 +3242,7 @@ int process_input(DESCRIPTOR_DATA * t)
 				space_left--;
 			}
 
-			/* Для того чтобы работали все триги в змаде - заменяем все вводимые 'z'
-			   на 'я' */
+			// Для того чтобы работали все триги в змаде - заменяем все вводимые 'z' на 'я'
 			if (STATE(t) == CON_PLAYING || (STATE(t) == CON_EXDESC))
 			{
 				if (t->keytable == KT_WINZ6 || t->keytable == KT_WINZ)
@@ -3311,7 +3303,7 @@ int process_input(DESCRIPTOR_DATA * t)
 			tmp[0] = 0;
 		}
 		else if (*tmp == '!' && !(*(tmp + 1)))
-			/* Redo last command. */
+			// Redo last command.
 			strcpy(tmp, t->last_input);
 		else if (*tmp == '!' && *(tmp + 1))
 		{
@@ -3330,7 +3322,7 @@ int process_input(DESCRIPTOR_DATA * t)
 					SEND_TO_Q("\r\n", t);
 					break;
 				}
-				if (cnt == 0)	/* At top, loop to bottom. */
+				if (cnt == 0)	// At top, loop to bottom.
 					cnt = HISTORY_SIZE;
 			}
 		}
@@ -3343,27 +3335,27 @@ int process_input(DESCRIPTOR_DATA * t)
 		{
 			strcpy(t->last_input, tmp);
 			if (t->history[t->history_pos])
-				free(t->history[t->history_pos]);	/* Clear the old line. */
-			t->history[t->history_pos] = str_dup(tmp);	/* Save the new. */
-			if (++t->history_pos >= HISTORY_SIZE)	/* Wrap to top. */
+				free(t->history[t->history_pos]);	// Clear the old line.
+			t->history[t->history_pos] = str_dup(tmp);	// Save the new.
+			if (++t->history_pos >= HISTORY_SIZE)	// Wrap to top.
 				t->history_pos = 0;
 		}
 
 		if (!failed_subst && !tilde)
 			write_to_q(tmp, &t->input, 0);
 
-		/* find the end of this line */
+		// find the end of this line
 		while (ISNEWL(*nl_pos))
 			nl_pos++;
 
-		/* see if there's another newline in the input buffer */
+		// see if there's another newline in the input buffer
 		read_point = ptr = nl_pos;
 		for (nl_pos = NULL; *ptr && !nl_pos; ptr++)
 			if (ISNEWL(*ptr))
 				nl_pos = ptr;
 	}
 
-	/* now move the rest of the buffer up to the beginning for the next pass */
+	// now move the rest of the buffer up to the beginning for the next pass
 	write_point = t->inbuf;
 	while (*read_point)
 		*(write_point++) = *(read_point++);
@@ -3390,7 +3382,7 @@ int perform_subst(DESCRIPTOR_DATA * t, char *orig, char *subst)
 	 */
 	first = subst + 1;
 
-	/* now find the second '^' */
+	// now find the second '^'
 	if (!(second = strchr(first, '^')))
 	{
 		SEND_TO_Q("Invalid substitution.\r\n", t);
@@ -3400,19 +3392,19 @@ int perform_subst(DESCRIPTOR_DATA * t, char *orig, char *subst)
 	 * to the beginning of the second string */
 	*(second++) = '\0';
 
-	/* now, see if the contents of the first string appear in the original */
+	// now, see if the contents of the first string appear in the original
 	if (!(strpos = strstr(orig, first)))
 	{
 		SEND_TO_Q("Invalid substitution.\r\n", t);
 		return (1);
 	}
-	/* now, we construct the new string for output. */
+	// now, we construct the new string for output.
 
-	/* first, everything in the original, up to the string to be replaced */
+	// first, everything in the original, up to the string to be replaced
 	strncpy(newsub, orig, (strpos - orig));
 	newsub[(strpos - orig)] = '\0';
 
-	/* now, the replacement string */
+	// now, the replacement string
 	strncat(newsub, second, (MAX_INPUT_LENGTH - strlen(newsub) - 1));
 
 	/* now, if there's anything left in the original after the string to
@@ -3420,7 +3412,7 @@ int perform_subst(DESCRIPTOR_DATA * t, char *orig, char *subst)
 	if (((strpos - orig) + strlen(first)) < strlen(orig))
 		strncat(newsub, strpos + strlen(first), (MAX_INPUT_LENGTH - strlen(newsub) - 1));
 
-	/* terminate the string in case of an overflow from strncat */
+	// terminate the string in case of an overflow from strncat
 	newsub[MAX_INPUT_LENGTH - 1] = '\0';
 	strcpy(subst, newsub);
 
@@ -3458,8 +3450,8 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		return;
 	}
 
-	/*  if (!direct && d->character && RENTABLE(d->character))
-	     return; */
+	//if (!direct && d->character && RENTABLE(d->character))
+	//	return;
 	// Нельзя делать лд при wait_state
 	if (d->character && !direct)
 	{
@@ -3481,7 +3473,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	CLOSE_SOCKET(d->descriptor);
 	flush_queues(d);
 
-	/* Forget snooping */
+	// Forget snooping
 	if (d->snooping)
 		d->snooping->snoop_by = NULL;
 
@@ -3490,7 +3482,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		SEND_TO_Q("Ваш подопечный выключил компьютер.\r\n", d->snoop_by);
 		d->snoop_by->snooping = NULL;
 	}
-	/*. Kill any OLC stuff . */
+	//. Kill any OLC stuff .
 	switch (d->connected)
 	{
 	case CON_OEDIT:
@@ -3559,11 +3551,11 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 //	 else
 //		mudlog("Losing descriptor without char.", LGH, LVL_IMMORT, SYSLOG, TRUE);
 
-	/* JE 2/22/95 -- part of my unending quest to make switch stable */
+	// JE 2/22/95 -- part of my unending quest to make switch stable
 	if (d->original && d->original->desc)
 		d->original->desc = NULL;
 
-	/* Clear the command history. */
+	// Clear the command history.
 	if (d->history)
 	{
 		int cnt;
@@ -3690,7 +3682,7 @@ void nonblock(socket_t s)
 	}
 }
 
-#endif				/* CIRCLE_UNIX || CIRCLE_OS2 || CIRCLE_MACINTOSH */
+#endif				// CIRCLE_UNIX || CIRCLE_OS2 || CIRCLE_MACINTOSH
 
 
 /* ******************************************************************
@@ -3709,7 +3701,7 @@ RETSIGTYPE unrestrict_game(int sig)
 
 #ifdef CIRCLE_UNIX
 
-/* clean up our zombie kids to avoid defunct processes */
+// clean up our zombie kids to avoid defunct processes
 RETSIGTYPE reap(int sig)
 {
 	while (waitpid(-1, (int *)NULL, WNOHANG) > 0);
@@ -3748,11 +3740,10 @@ RETSIGTYPE checkpointing(int sig)
 RETSIGTYPE hupsig(int sig)
 {
 	log("SYSERR: Received SIGHUP, SIGINT, or SIGTERM.  Shutting down...");
-	exit(1);		/* perhaps something more elegant should
-				 * substituted */
+	exit(1);		// perhaps something more elegant should substituted
 }
 
-#endif				/* CIRCLE_UNIX */
+#endif				// CIRCLE_UNIX
 
 /*
  * This is an implementation of signal() using sigaction() for portability.
@@ -3779,7 +3770,7 @@ sigfunc *my_signal(int signo, sigfunc * func)
 	sigemptyset(&act.sa_mask);
 	act.sa_flags = 0;
 #ifdef SA_INTERRUPT
-	act.sa_flags |= SA_INTERRUPT;	/* SunOS */
+	act.sa_flags |= SA_INTERRUPT;	// SunOS
 #endif
 
 	if (sigaction(signo, &act, &oact) < 0)
@@ -3787,7 +3778,7 @@ sigfunc *my_signal(int signo, sigfunc * func)
 
 	return (oact.sa_handler);
 }
-#endif				/* POSIX */
+#endif				// POSIX
 
 
 void signal_setup(void)
@@ -3813,10 +3804,10 @@ void signal_setup(void)
 	setitimer(ITIMER_VIRTUAL, &itime, NULL);
 	my_signal(SIGVTALRM, checkpointing);
 
-	/* just to be on the safe side: */
+	// just to be on the safe side:
 	my_signal(SIGHUP, hupsig);
 	my_signal(SIGCHLD, reap);
-#endif				/* CIRCLE_MACINTOSH */
+#endif				// CIRCLE_MACINTOSH
 	my_signal(SIGINT, hupsig);
 	my_signal(SIGTERM, hupsig);
 	my_signal(SIGPIPE, SIG_IGN);
@@ -3826,7 +3817,7 @@ void signal_setup(void)
 
 }
 
-#endif				/* CIRCLE_UNIX || CIRCLE_MACINTOSH */
+#endif				// CIRCLE_UNIX || CIRCLE_MACINTOSH
 
 /* ****************************************************************
 *       Public routines for system-to-player-communication        *
@@ -3946,7 +3937,7 @@ void send_to_room(const char *messg, room_rnum room, int to_awake)
 #define CHK_NULL(pointer, expression) \
   ((pointer) == NULL) ? ACTNULL : (expression)
 
-/* higher-level communication: the act() function */
+// higher-level communication: the act() function
 void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const void *vict_obj, CHAR_DATA * to, const int arena)
 {
 	const char *i = NULL;
@@ -4237,7 +4228,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 
 	if (to->desc)
 	{
-		/* Делаем первый символ большим, учитывая &X */
+		// Делаем первый символ большим, учитывая &X
 		// в связи с нововведениями таких ключей может быть несколько пропустим их все
 		if (lbuf[0] == '&')
 		{
@@ -4254,7 +4245,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA * obj, const v
 		act_mtrigger(to, lbuf, ch, dg_victim, obj, dg_target, dg_arg);
 }
 
-/* moved this to utils.h --- mah */
+// moved this to utils.h --- mah
 #ifndef SENDOK
 #define SENDOK(ch)	((ch)->desc && (to_sleeping || AWAKE(ch)) && \
 			(IS_NPC(ch) || !PLR_FLAGGED((ch), PLR_WRITING)))
@@ -4284,7 +4275,7 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 
 	if ((to_arena = (type & TO_ARENA_LISTEN)))
 		type &= ~TO_ARENA_LISTEN;
-	/* check if TO_SLEEP is there, and remove it if it is. */
+	// check if TO_SLEEP is there, and remove it if it is.
 	if ((to_sleeping = (type & TO_SLEEP)))
 		type &= ~TO_SLEEP;
 	if ((check_deaf = (type & CHECK_DEAF)))
@@ -4311,8 +4302,8 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 			perform_act(str, ch, obj, vict_obj, to);
 		return;
 	}
-	/* ASSUMPTION: at this point we know type must be TO_NOTVICT or TO_ROOM */
-	/* or TO_ROOM_HIDE */
+	// ASSUMPTION: at this point we know type must be TO_NOTVICT or TO_ROOM
+	// or TO_ROOM_HIDE
 
 	if (ch && ch->in_room != NOWHERE)
 		to = world[ch->in_room]->people;
@@ -4336,8 +4327,8 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA * o
 			if ((type != TO_ROOM && type != TO_ROOM_HIDE) && to == vict_obj)
 				continue;
 			//надо отдельно PRF_DEAF
-			/*       if (!IS_NPC(to) && check_deaf && PRF_FLAGGED(to, PRF_NOTELL))
-				  continue; */
+			//if (!IS_NPC(to) && check_deaf && PRF_FLAGGED(to, PRF_NOTELL))
+			//	continue;
 			if (check_deaf && AFF_FLAGGED(to, AFF_DEAFNESS))
 				continue;
 			if (check_nodeaf && !AFF_FLAGGED(to, AFF_DEAFNESS))
@@ -4400,9 +4391,7 @@ void sanity_check(void)
 {
 	int ok = TRUE;
 
-	/*
-	 * If any line is false, 'ok' will become false also.
-	 */
+	// * If any line is false, 'ok' will become false also.
 	ok &= (test_magic(buf) == MAGIC_NUMBER || test_magic(buf) == '\0');
 	ok &= (test_magic(buf1) == MAGIC_NUMBER || test_magic(buf1) == '\0');
 	ok &= (test_magic(buf2) == MAGIC_NUMBER || test_magic(buf2) == '\0');
@@ -4429,7 +4418,7 @@ void sanity_check(void)
 }
 
 extern FILE *logfile;
-/* Prefer the file over the descriptor. */
+// Prefer the file over the descriptor.
 void setup_logs(void)
 {
 	mkdir("log", 0700);
@@ -4480,7 +4469,7 @@ void setup_logs(void)
 
 int open_logfile(log_info * li, FILE * stderr_fp)
 {
-	if (stderr_fp)		/* freopen() the descriptor. */
+	if (stderr_fp)		// freopen() the descriptor.
 		li->logfile = freopen(li->filename, "w", stderr_fp);
 	else
 		li->logfile = fopen(li->filename, "w");
@@ -4495,9 +4484,7 @@ int open_logfile(log_info * li, FILE * stderr_fp)
 	return (FALSE);
 }
 
-/*
- * This may not be pretty but it keeps game_loop() neater than if it was inline.
- */
+// * This may not be pretty but it keeps game_loop() neater than if it was inline.
 #if defined(CIRCLE_WINDOWS)
 
 inline void circle_sleep(struct timeval *timeout)
@@ -4519,11 +4506,11 @@ inline void circle_sleep(struct timeval *timeout)
 	}
 }
 
-#endif				/* CIRCLE_WINDOWS */
+#endif				// CIRCLE_WINDOWS
 
 #if defined(HAVE_ZLIB)
 
-/* Compression stuff. */
+// Compression stuff.
 
 void *zlib_alloc(void *opaque, unsigned int items, unsigned int size)
 {
@@ -4547,7 +4534,7 @@ int mccp_start(DESCRIPTOR_DATA * t, int ver)
 	if (t->deflate)
 		return 1;	// компрессия уже включена
 
-	/* Set up zlib structures. */
+	// Set up zlib structures.
 	CREATE(t->deflate, z_stream, 1);
 	t->deflate->zalloc = zlib_alloc;
 	t->deflate->zfree = zlib_free;
@@ -4557,7 +4544,7 @@ int mccp_start(DESCRIPTOR_DATA * t, int ver)
 	t->deflate->avail_out = SMALL_BUFSIZE;
 	t->deflate->avail_in = 0;
 
-	/* Initialize. */
+	// Initialize.
 	if ((derr = deflateInit(t->deflate, Z_DEFAULT_COMPRESSION)) != 0)
 	{
 		log("SYSERR: deflateEnd returned %d.", derr);

@@ -103,7 +103,7 @@ std::string get_name_real(int day)
 	if (it != real_celebrates.end())
 	{
 		if (real_celebrates[day]->start_at <= get_real_hour() && real_celebrates[day]->finish_at >= get_real_hour())
-			result = real_celebrates[day]->celebrate->name/* + add_rest(it, real_celebrates[day]->celebrate)*/;
+			result = real_celebrates[day]->celebrate->name;// + add_rest(it, real_celebrates[day]->celebrate)
 	}
 	return result;
 }
@@ -425,13 +425,13 @@ void remove_triggers(TrigList trigs, script_data* sc)
 				tmp->next = tr->next;
 				extract_trigger(tr);
 			}
-			/* this was the first trigger */
+			// this was the first trigger
 			else
 			{
 				TRIGGERS(sc) = tr->next;
 				extract_trigger(tr);
 			}
-			/* update the script type bitvector */
+			// update the script type bitvector
 			SCRIPT_TYPES(sc) = 0;
 			for (tr = TRIGGERS(sc); tr; tr = tr->next)
 				SCRIPT_TYPES(sc) |= GET_TRIG_TYPE(tr);

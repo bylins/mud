@@ -37,15 +37,15 @@
 #include "named_stuff.hpp"
 #include "objsave.h"
 
-/* extern variables */
+// extern variables
 extern vector < OBJ_DATA * >obj_proto;
 extern CHAR_DATA *mob_proto;
 extern struct house_control_rec house_control[];
 
-/* from act.informative.cpp */
+// from act.informative.cpp
 char *find_exdesc(char *word, EXTRA_DESCR_DATA * list);
 
-/* local functions */
+// local functions
 int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
 void get_check_money(CHAR_DATA * ch, OBJ_DATA * obj);
 int perform_get_from_room(CHAR_DATA * ch, OBJ_DATA * obj);
@@ -68,7 +68,7 @@ int get_player_charms(CHAR_DATA * ch, int spellnum);
 OBJ_DATA *create_skin(CHAR_DATA * mob);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 
-/* from class.cpp */
+// from class.cpp
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 
 ACMD(do_split);
@@ -162,7 +162,7 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont)
 
 		act("$n положил$g $o3 в $O3.", TRUE, ch, obj, cont, TO_ROOM | TO_ARENA_LISTEN);
 
-		/* Yes, I realize this is strange until we have auto-equip on rent. -gg */
+		// Yes, I realize this is strange until we have auto-equip on rent. -gg
 		if (IS_OBJ_STAT(obj, ITEM_NODROP) && !IS_OBJ_STAT(cont, ITEM_NODROP))
 		{
 			SET_BIT(GET_OBJ_EXTRA(cont, ITEM_NODROP), ITEM_NODROP);
@@ -403,7 +403,7 @@ ACMD(do_put)
 			act("$o0 закрыт$A!", FALSE, ch, cont, 0, TO_CHAR);
 		else
 		{
-			if (obj_dotmode == FIND_INDIV)  	/* put <obj> <container> */
+			if (obj_dotmode == FIND_INDIV)  	// put <obj> <container>
 			{
 				if (money_mode)
 				{
@@ -588,9 +588,7 @@ bool perform_get_from_container(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * cont,
 	return 1;
 }
 
-/**
-* \param autoloot - true только при взятии шмоток из трупа в режиме автограбежа
-*/
+// *\param autoloot - true только при взятии шмоток из трупа в режиме автограбежа
 void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int howmany, bool autoloot)
 {
 	if (Depot::is_depot(cont))
@@ -689,7 +687,7 @@ void get_from_room(CHAR_DATA * ch, char *arg, int howmany)
 	OBJ_DATA *obj, *next_obj;
 	int dotmode, found = 0;
 
-	/* Are they trying to take something in a room extra description? */
+	// Are they trying to take something in a room extra description?
 	if (find_exdesc(arg, world[IN_ROOM(ch)]->ex_description) != NULL)
 	{
 		send_to_char("Вы не можете это взять.\r\n", ch);
@@ -942,7 +940,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 	{
 		if (mode != SCMD_JUNK)
 		{
-			WAIT_STATE(ch, PULSE_VIOLENCE);	/* to prevent coin-bombing */
+			WAIT_STATE(ch, PULSE_VIOLENCE);	// to prevent coin-bombing
 			if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_NOITEM))
 			{
 				act("Неведомая сила помешала вам сделать это!", FALSE, ch, 0, 0, TO_CHAR);
@@ -984,8 +982,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 					return;
 				}
 
-				/* Если этот моб трупа не оставит, то не выводить сообщение
-				   иначе ужасно коряво смотрится в бою и в тригах */
+				// Если этот моб трупа не оставит, то не выводить сообщение иначе ужасно коряво смотрится в бою и в тригах
 				if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE))
 				{
 					sprintf(buf, "Вы бросили %d %s на землю.", amount, desc_count(amount, WHAT_MONEYu));
@@ -1145,7 +1142,7 @@ ACMD(do_drop)
 	else
 	{
 		dotmode = find_all_dots(arg);
-		/* Can't junk or donate all */
+		// Can't junk or donate all
 		if ((dotmode == FIND_ALL) && (subcmd == SCMD_JUNK || subcmd == SCMD_DONATE))
 		{
 			if (subcmd == SCMD_JUNK)
@@ -1245,7 +1242,7 @@ void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj)
 	}
 }
 
-/* utility function for give */
+// utility function for give
 CHAR_DATA *give_find_vict(CHAR_DATA * ch, char *arg)
 {
 	CHAR_DATA *vict;
@@ -1322,7 +1319,7 @@ ACMD(do_give)
 				perform_give_gold(ch, vict, amount);
 			return;
 		}
-		else if (!*arg)  	/* Give multiple code. */
+		else if (!*arg)  	// Give multiple code.
 		{
 			sprintf(buf, "Чего %d вы хотите дать?\r\n", amount);
 			send_to_char(buf, ch);
@@ -1444,7 +1441,7 @@ ACMD(do_eat)
 		return;
 	}
 
-	if (IS_NPC(ch))		/* Cannot use GET_COND() on mobs. */
+	if (IS_NPC(ch))		// Cannot use GET_COND() on mobs.
 		return;
 
 	if (!*arg)
@@ -1474,7 +1471,7 @@ ACMD(do_eat)
 		send_to_char("Это несъедобно!\r\n", ch);
 		return;
 	}
-	if (GET_COND(ch, FULL) > 20 && GET_OBJ_TYPE(food) != ITEM_NOTE)  	/* Stomach full */
+	if (GET_COND(ch, FULL) > 20 && GET_OBJ_TYPE(food) != ITEM_NOTE)  	// Stomach full
 	{
 		send_to_char("Вы слишком сыты для этого!\r\n", ch);
 		return;
@@ -1498,7 +1495,7 @@ ACMD(do_eat)
 	if (GET_COND(ch, FULL) > 20)
 		send_to_char("Вы наелись.\r\n", ch);
 
-	if (GET_OBJ_VAL(food, 3) && !IS_IMMORTAL(ch))  	/* The shit was poisoned ! */
+	if (GET_OBJ_VAL(food, 3) && !IS_IMMORTAL(ch))  	// The shit was poisoned !
 	{
 		send_to_char("Однако, какой странный вкус!\r\n", ch);
 		act("$n закашлял$u и начал$g отплевываться.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -1567,30 +1564,30 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 									  "Вы уже держите оружие в обеих руках.\r\n"
 									};
 
-	/* first, make sure that the wear position is valid. */
+	// first, make sure that the wear position is valid.
 	if (!CAN_WEAR(obj, wear_bitvectors[where]))
 	{
 		act("Вы не можете надеть $o3 на эту часть тела.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
-	/* for neck, finger, and wrist, try pos 2 if pos 1 is already full */
-	if (   /* не может держать если есть свет или двуручник */
+	// for neck, finger, and wrist, try pos 2 if pos 1 is already full
+	if (   // не может держать если есть свет или двуручник
 		(where == WEAR_HOLD && (GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_LIGHT)
 								|| GET_EQ(ch, WEAR_SHIELD))) ||
-		/* не может вооружиться если есть двуручник */
+		// не может вооружиться если есть двуручник
 		(where == WEAR_WIELD && GET_EQ(ch, WEAR_BOTHS)) ||
-		/* не может держать щит если что-то держит или двуручник */
+		// не может держать щит если что-то держит или двуручник
 		(where == WEAR_SHIELD && (GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_BOTHS))) ||
-		/* не может двуручник если есть щит, свет, вооружен или держит */
+		// не может двуручник если есть щит, свет, вооружен или держит
 		(where == WEAR_BOTHS && (GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_LIGHT)
 								 || GET_EQ(ch, WEAR_SHIELD) || GET_EQ(ch, WEAR_WIELD))) ||
-		/* не может держать свет если двуручник или держит */
+		// не может держать свет если двуручник или держит
 		(where == WEAR_LIGHT && (GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_BOTHS))))
 	{
 		send_to_char("У вас заняты руки.\r\n", ch);
 		return;
 	}
-	/* нельзя надеть щит, если недостаточно силы */
+	// нельзя надеть щит, если недостаточно силы
 	if (!IS_IMMORTAL(ch) && (where == WEAR_SHIELD) && !OK_SHIELD(ch, obj))
 	{
 		act("Вам слишком тяжело нести $o3 на левой руке.", FALSE, ch, obj, 0, TO_CHAR);
@@ -1620,7 +1617,7 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg)
 {
 	int where = -1;
 
-	/* \r to prevent explicit wearing. Don't use \n, it's end-of-array marker. */
+	// \r to prevent explicit wearing. Don't use \n, it's end-of-array marker.
 	const char *keywords[] =
 	{
 		"\r!RESERVED!",
@@ -2054,7 +2051,7 @@ ACMD(do_remove)
 			}
 		}
 	}
-	else  		/* Returns object pointer but we don't need it, just true/false. */
+	else  		// Returns object pointer but we don't need it, just true/false.
 	{
 		if (!get_object_in_equip_vis(ch, arg, ch->equipment, &i))
 		{
@@ -2126,7 +2123,7 @@ ACMD(do_upgrade)
 		return;
 	}
 
-	/* Make sure no other (than hitroll & damroll) affections. */ 
+	// Make sure no other (than hitroll & damroll) affections.
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 		if ((obj->affected[i].location != APPLY_NONE)
 			&& (obj->affected[i].location != APPLY_HITROLL)
@@ -2256,7 +2253,7 @@ ACMD(do_armored)
 		return;
 	}
 
-	/* Make sure no other affections. */
+	// Make sure no other affections.
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 		if (obj->affected[i].location != APPLY_NONE)
 		{

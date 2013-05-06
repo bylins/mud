@@ -60,7 +60,7 @@
 #include "sets_drop.hpp"
 #include "fight.h"
 
-/*   external vars  */
+// external vars
 extern bool need_warn;
 extern FILE *player_fl;
 
@@ -89,19 +89,19 @@ extern const char *Dirs[];
 extern unsigned long int number_of_bytes_read;
 extern unsigned long int number_of_bytes_written;
 extern long max_id;
-/* for chars */
+// for chars
 extern const char *pc_class_types[];
 extern struct spell_info_type spell_info[];
-/*for name auto-agree*/
+// for name auto-agree
 extern void agree_name(CHAR_DATA * d, const char *immname, int immlev);
 extern void disagree_name(CHAR_DATA * d, const char *immname, int immlev);
-/* privileges class */
+// privileges class
 extern int reboot_uptime;
 extern BanList *ban;
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 extern bool CompareBits(FLAG_DATA flags, const char *names[], int affect);
 
-/* extern functions */
+// extern functions
 int level_exp(CHAR_DATA * ch, int level);
 void show_shops(CHAR_DATA * ch, char *value);
 void hcontrol_list_houses(CHAR_DATA * ch);
@@ -125,7 +125,7 @@ extern void NewNameRemove(CHAR_DATA * ch);
 extern void NewNameRemove(const std::string& name, CHAR_DATA * ch);
 extern void print_rune_stats(CHAR_DATA *ch);
 
-/* local functions */
+// local functions
 int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg);
 void perform_immort_invis(CHAR_DATA * ch, int level);
 ACMD(do_echo);
@@ -180,7 +180,7 @@ ACMD(do_godtest);
 
 extern const char *deaf_social;
 
-/* Adds karma string to KARMA*/
+// Adds karma string to KARMA
 void add_karma(CHAR_DATA * ch, char const * punish , const char * reason)
 {
 	if (reason && (reason[0] != '.'))
@@ -734,7 +734,7 @@ ACMD(do_echo)
 	{
 		if (subcmd == SCMD_EMOTE)
 		{
-			/* added by Pereplut */
+			// added by Pereplut
 			if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))
 			{
 				if PLR_FLAGGED
@@ -937,7 +937,7 @@ ACMD(do_send)
 
 
 
-/* take a string, and return an rnum.. used for goto, at, etc.  -je 4/6/93 */
+// take a string, and return an rnum.. used for goto, at, etc.  -je 4/6/93
 room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 {
 	room_vnum tmp;
@@ -980,7 +980,7 @@ room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 		return (NOWHERE);
 	}
 
-	/* a location has been found -- if you're < GRGOD, check restrictions. */
+	// a location has been found -- if you're < GRGOD, check restrictions.
 	if (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
 		if (ROOM_FLAGGED(location, ROOM_GODROOM) && GET_LEVEL(ch) < LVL_GRGOD)
@@ -1025,13 +1025,13 @@ ACMD(do_at)
 	if ((location = find_target_room(ch, buf, 0)) == NOWHERE)
 		return;
 
-	/* a location has been found. */
+	// a location has been found.
 	original_loc = ch->in_room;
 	char_from_room(ch);
 	char_to_room(ch, location);
 	command_interpreter(ch, command);
 
-	/* check if the char is still there */
+	// check if the char is still there
 	if (ch->in_room == location)
 	{
 		char_from_room(ch);
@@ -1244,7 +1244,7 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 		}
 		send_to_char(buf1, ch);
 	}
-	/* check the room for a script */
+	// check the room for a script
 	do_sstat_room(rm, ch);
 }
 
@@ -1347,10 +1347,8 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		sprintf(buf2, "%d", GET_ROOM_VNUM(IN_ROOM(j)));
 		strcat(buf, buf2);
 	}
-	/*
-	 * NOTE: In order to make it this far, we must already be able to see the
-	 *       character holding the object. Therefore, we do not need CAN_SEE().
-	 */
+	// NOTE: In order to make it this far, we must already be able to see the
+	//       character holding the object. Therefore, we do not need CAN_SEE().
 	strcat(buf, ", В контейнере: ");
 	strcat(buf, (j->in_obj && is_grgod) ? j->in_obj->short_description : "Нет");
 	strcat(buf, ", В инвентаре: ");
@@ -1461,10 +1459,8 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	}
 	send_to_char(strcat(buf, "\r\n"), ch);
 
-	/*
-	 * I deleted the "equipment status" code from here because it seemed
-	 * more or less useless and just takes up valuable screen space.
-	 */
+	// * I deleted the "equipment status" code from here because it seemed
+	// * more or less useless and just takes up valuable screen space.
 
 	if (j->contains)
 	{
@@ -1542,7 +1538,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		sprintf(buf, "Сейчас в мире : %d. На постое : %d\r\n",
 				rnum >= 0 ? obj_index[rnum].number - (virt ? 1 : 0) : -1, rnum >= 0 ? obj_index[rnum].stored : -1);
 		send_to_char(buf, ch);
-		/* check the object for a script */
+		// check the object for a script
 		do_sstat_object(ch, j);
 	}
 }
@@ -1678,7 +1674,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		send_to_char(buf, ch);
 	}
 
-	if (IS_NPC(k))  	/* Use GET_CLASS() macro? */
+	if (IS_NPC(k))  	// Use GET_CLASS() macro?
 	{
 		strcpy(buf, "Тип монстра: ");
 		sprinttype(k->get_class() - CLASS_BASIC_NPC, npc_class_types, buf2);
@@ -1729,7 +1725,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		sprintf(buf, "Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld)",
 			GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold());
 
-		/*. Display OLC zone for immorts . */
+		//. Display OLC zone for immorts .
 		if (GET_LEVEL(k) >= LVL_IMMORT)
 			sprintf(buf, "%s, OLC[%d]", buf, GET_OLC_ZONE(k));
 		strcat(buf, "\r\n");
@@ -1890,12 +1886,12 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		if (*buf)
 			send_to_char(strcat(buf, "\r\n"), ch);
 	}
-	/* Showing the bitvector */
+	// Showing the bitvector
 	sprintbits(k->char_specials.saved.affected_by, affected_bits, buf2, ",");
 	sprintf(buf, "Аффекты: %s%s%s\r\n", CCYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
-	/* Routine to show what spells a char is affected by */
+	// Routine to show what spells a char is affected by
 	if (k->affected)
 	{
 		for (aff = k->affected; aff; aff = aff->next)
@@ -1921,7 +1917,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		}
 	}
 
-	/* check mobiles for a script */
+	// check mobiles for a script
 	if (IS_NPC(k) && god_level >= LVL_BUILDER)
 	{
 		do_sstat_character(ch, k);
@@ -1956,7 +1952,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			}
 		}
 	}
-	else  		/* this is a PC, display their global variables */
+	else  		// this is a PC, display their global variables
 	{
 		if (k->script && k->script->global_vars)
 		{
@@ -1964,8 +1960,8 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			char name[MAX_INPUT_LENGTH];
 			void find_uid_name(char *uid, char *name);
 			send_to_char("Глобальные переменные:\r\n", ch);
-			/* currently, variable context for players is always 0, so it is */
-			/* not displayed here. in the future, this might change */
+			// currently, variable context for players is always 0, so it is
+			// not displayed here. in the future, this might change
 			for (tv = k->script->global_vars; tv; tv = tv->next)
 			{
 				if (*(tv->value) == UID_CHAR)
@@ -2486,8 +2482,8 @@ ACMD(do_vstat)
 {
 	CHAR_DATA *mob;
 	OBJ_DATA *obj;
-	mob_vnum number;	/* or obj_vnum ... */
-	mob_rnum r_num;		/* or obj_rnum ... */
+	mob_vnum number;	// or obj_vnum ...
+	mob_rnum r_num;		// or obj_rnum ...
 
 	two_arguments(argument, buf, buf2);
 
@@ -2531,7 +2527,7 @@ ACMD(do_vstat)
 
 
 
-/* clean a room of all mobiles and objects */
+// clean a room of all mobiles and objects
 ACMD(do_purge)
 {
 	CHAR_DATA *vict, *next_v;
@@ -2540,8 +2536,7 @@ ACMD(do_purge)
 	one_argument(argument, buf);
 
 	if (*buf)
-	{		/* argument supplied. destroy single object
-				 * or char */
+	{		// argument supplied. destroy single object or char
 		if ((vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)) != NULL)
 		{
 			if (!IS_NPC(vict) && GET_LEVEL(ch) <= GET_LEVEL(vict) && !PRF_FLAGGED(ch, PRF_CODERINFO))
@@ -2585,7 +2580,7 @@ ACMD(do_purge)
 		}
 		send_to_char(OK, ch);
 	}
-	else  		/* no argument. clean out the room */
+	else  		// no argument. clean out the room
 	{
 		act("$n произнес$q СЛОВО... вас окружило пламя!", FALSE, ch, 0, 0, TO_ROOM);
 		send_to_room("Мир стал немного чище.\r\n", ch->in_room, FALSE);
@@ -3170,7 +3165,7 @@ ACMD(do_restore)
 		GET_DRUNK_STATE(vict)=GET_COND(vict, DRUNK)=0;
 		affect_from_char(vict, SPELL_ABSTINENT);
 
-		/*сброс таймеров скиллов и фитов*/
+		//сброс таймеров скиллов и фитов
 		while (vict->timed)
 			timed_from_char(vict, vict->timed);
 		while (vict->timed_feat)
@@ -3530,7 +3525,7 @@ ACMD(do_force)
 			command_interpreter(vict, to_force);
 		}
 	}
-	else  		/* force all */
+	else  		// force all
 	{
 		send_to_char(OK, ch);
 		sprintf(buf, "(GC) %s forced all to %s", GET_NAME(ch), to_force);
@@ -3575,17 +3570,17 @@ ACMD(do_wiznet)
 
 	if (PRF_FLAGGED(ch, PRF_CODERINFO)) return;
 
-	/* Опускаем level для gf_demigod */
+	// Опускаем level для gf_demigod
 	if (GET_GOD_FLAG(ch, GF_DEMIGOD))
 		level = LVL_IMMORT;
 
-	/* использование доп. аргументов */
+	// использование доп. аргументов
 	switch (*argument)
 	{
 	case '*':
 		emote = TRUE;
 	case '#':
-		/* Установить уровень имм канала */
+		// Установить уровень имм канала
 		one_argument(argument + 1, buf1);
 		if (is_number(buf1))
 		{
@@ -3601,7 +3596,7 @@ ACMD(do_wiznet)
 			argument++;
 		break;
 	case '@':
-		/* Обнаруживаем всех кто может (теоретически) нас услышать */
+		// Обнаруживаем всех кто может (теоретически) нас услышать
 		for (d = descriptor_list; d; d = d->next)
 		{
 			if (STATE(d) == CON_PLAYING &&
@@ -3676,23 +3671,23 @@ ACMD(do_wiznet)
 	snprintf(buf2, MAX_STRING_LENGTH, "&c%s&n", buf1);
 	Remember::add_to_flaged_cont(Remember::wiznet_, buf2, level);
 
-	/* пробегаемся по списку дескрипторов чаров и кто должен - тот услышит богов */
+	// пробегаемся по списку дескрипторов чаров и кто должен - тот услышит богов
 	for (d = descriptor_list; d; d = d->next)
 	{
-		if ((STATE(d) == CON_PLAYING) &&	/* персонаж должен быть в игре */
-				((GET_LEVEL(d->character) >= level) ||	/* уровень равным или выше level */
-				 (GET_LEVEL(d->character) < LVL_IMMORT &&	/* игроки с флагом 'gd_demigod' могут видеть теллы в имм канал, */
-				  GET_GOD_FLAG(d->character, GF_DEMIGOD) &&	/* за исключением случая когда level > LVL_IMMORT               */
+		if ((STATE(d) == CON_PLAYING) &&	// персонаж должен быть в игре
+				((GET_LEVEL(d->character) >= level) ||	// уровень равным или выше level
+				 (GET_LEVEL(d->character) < LVL_IMMORT &&	// игроки с флагом 'gd_demigod' могут видеть теллы в имм канал,
+				  GET_GOD_FLAG(d->character, GF_DEMIGOD) &&	// за исключением случая когда level > LVL_IMMORT
 				  level <= LVL_IMMORT)
-				) && (!PRF_FLAGGED(d->character, PRF_NOWIZ)) &&	/* игрок с режимом NOWIZ не видит имм канала */
-				(!PLR_FLAGGED(d->character, PLR_WRITING)) &&	/* пишущий не видит имм канала               */
-				(!PLR_FLAGGED(d->character, PLR_MAILING)))	/* отправляющий письмо не видит имм канала   */
+				) && (!PRF_FLAGGED(d->character, PRF_NOWIZ)) &&	// игрок с режимом NOWIZ не видит имм канала
+				(!PLR_FLAGGED(d->character, PLR_WRITING)) &&	// пишущий не видит имм канала
+				(!PLR_FLAGGED(d->character, PLR_MAILING)))	// отправляющий письмо не видит имм канала
 		{
-			/* отправляем сообщение чару */
+			// отправляем сообщение чару
 			snprintf(buf2, MAX_STRING_LENGTH, "%s%s%s",
 					CCCYN(d->character, C_NRM), buf1, CCNRM(d->character, C_NRM));
 			d->character->remember_add(buf2, Remember::ALL);
-			/* не видино своих мессаг если 'режим repeat' */
+			// не видино своих мессаг если 'режим repeat'
 			if (d != ch->desc || !(PRF_FLAGGED(d->character, PRF_NOREPEAT)))
 			{
 				send_to_char(buf2, d->character);
@@ -3753,10 +3748,7 @@ ACMD(do_zreset)
 // Функции установки разных наказаний.
 
 
-/*
- *  General fn for wizcommands of the sort: cmd <player>
- */
-
+// *  General fn for wizcommands of the sort: cmd <player>
 ACMD(do_wizutil)
 {
 	CHAR_DATA *vict;
@@ -3857,8 +3849,8 @@ ACMD(do_wizutil)
 }
 
 
-/* single zone printing fn used by "show zone" so it's not repeated in the
-   code 3 times ... -je, 4/6/93 */
+// single zone printing fn used by "show zone" so it's not repeated in the
+// code 3 times ... -je, 4/6/93
 
 void print_zone_to_buf(char **bufptr, zone_rnum zone)
 {
@@ -3940,27 +3932,27 @@ void print_zone_enters_to_buf(char *bufptr, zone_rnum zone)
 
 struct show_struct show_fields[] =
 {
-	{"nothing", 0},		/* 0 */
-	{"zones", LVL_IMMORT},	/* 1 */
+	{"nothing", 0},		// 0
+	{"zones", LVL_IMMORT},	// 1
 	{"player", LVL_IMMORT},
 	{"rent", LVL_GRGOD},
 	{"stats", LVL_IMMORT},
-	{"errors", LVL_IMPL},	/* 5 */
+	{"errors", LVL_IMPL},	// 5
 	{"death", LVL_GOD},
 	{"godrooms", LVL_GOD},
 	{"shops", LVL_IMMORT},
 	{"snoop", LVL_GRGOD},
-	{"linkdrop", LVL_GRGOD},	/* 10 */
+	{"linkdrop", LVL_GRGOD},	// 10
 	{"punishment", LVL_IMMORT},
 	{"paths", LVL_GRGOD},
 	{"loadrooms", LVL_GRGOD},
 	{"skills", LVL_IMPL},
-	{"spells", LVL_IMPL},	/* 15 */
+	{"spells", LVL_IMPL},	// 15
 	{"ban", LVL_IMMORT},
 	{"features", LVL_IMPL},
 	{"glory", LVL_IMPL},
 	{"crc", LVL_IMMORT},
-	{"affectedrooms", LVL_IMMORT}, /* 20 */
+	{"affectedrooms", LVL_IMMORT}, // 20
 	{"money", LVL_IMPL},
 	{"expgain", LVL_IMPL},
 	{"runes", LVL_IMPL},
@@ -3970,7 +3962,7 @@ struct show_struct show_fields[] =
 
 ACMD(do_show)
 {
-	int i, j, k, l, con;	/* i, j, k to specifics? */
+	int i, j, k, l, con;	// i, j, k to specifics?
 
 	zone_rnum zrn;
 	zone_vnum zvn;
@@ -4013,13 +4005,13 @@ ACMD(do_show)
 	//bf[0] = '\0';
 	switch (l)
 	{
-	case 1:		/* zone */
-		/* tightened up by JE 4/6/93 */
+	case 1:		// zone
+		// tightened up by JE 4/6/93
 		if (self)
 			print_zone_to_buf(&bf, world[ch->in_room]->zone);
 		else if (*value1 && is_number(value) && is_number(value1))
 		{
-			/* хотят зоны в диапазоне увидеть */
+			// хотят зоны в диапазоне увидеть
 			int found = 0;
 			int zstart = atoi(value);
 			int zend = atoi(value1);
@@ -4095,7 +4087,7 @@ ACMD(do_show)
 		page_string(ch->desc, bf, TRUE);
 		free(bf);
 		break;
-	case 2:		/* player */
+	case 2:		// player
 		if (!*value)
 		{
 			send_to_char("Уточните имя.\r\n", ch);
@@ -4248,7 +4240,7 @@ ACMD(do_show)
 			}
 		}
 		send_to_char(*buf ? buf : "Никто не подслушивается.\r\n", ch);
-		break;		/* snoop */
+		break;		// snoop
 	case 10:		// show linkdrop
 		send_to_char("  Список игроков в состоянии 'link drop'\r\n", ch);
 		sprintf(buf, "%-50s%-16s   %s\r\n", "   Имя", "Комната", "Бездействие (тики)");
@@ -4434,7 +4426,7 @@ ACMD(do_show)
 }
 
 
-/***************** The do_set function ***********************************/
+// **************** The do_set function
 
 #define PC   1
 #define NPC  2
@@ -4452,7 +4444,7 @@ ACMD(do_show)
 #define RANGE(low, high) (value = MAX((low), MIN((high), (value))))
 
 
-/* The set options available */
+// The set options available
 struct set_struct		/*
 				   { const char *cmd;
 				   const char level;
@@ -4460,17 +4452,17 @@ struct set_struct		/*
 				   const char type;
 				   } */ set_fields[] =
 {
-	{"brief", LVL_GOD, PC, BINARY},	/* 0 */
-	{"invstart", LVL_GOD, PC, BINARY},	/* 1 */
+	{"brief", LVL_GOD, PC, BINARY},	// 0
+	{"invstart", LVL_GOD, PC, BINARY},	// 1
 	{"nosummon", LVL_GRGOD, PC, BINARY},
 	{"maxhit", LVL_IMPL, BOTH, NUMBER},
 	{"maxmana", LVL_GRGOD, BOTH, NUMBER},
-	{"maxmove", LVL_IMPL, BOTH, NUMBER},	/* 5 */
+	{"maxmove", LVL_IMPL, BOTH, NUMBER},	// 5
 	{"hit", LVL_GRGOD, BOTH, NUMBER},
 	{"mana", LVL_GRGOD, BOTH, NUMBER},
 	{"move", LVL_GRGOD, BOTH, NUMBER},
 	{"race", LVL_GRGOD, BOTH, NUMBER},
-	{"size", LVL_IMPL, BOTH, NUMBER},	/* 10 */
+	{"size", LVL_IMPL, BOTH, NUMBER},	// 10
 	{"ac", LVL_GRGOD, BOTH, NUMBER},
 	{"gold", LVL_IMPL, BOTH, NUMBER},
 	{"bank", LVL_IMPL, PC, NUMBER},
@@ -4532,7 +4524,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	char output[MAX_STRING_LENGTH], num[MAX_INPUT_LENGTH];
 	int rod;
 
-	/* Check to make sure all the levels are correct */
+	// Check to make sure all the levels are correct
 	if (!IS_IMPL(ch))
 	{
 		if (!IS_NPC(vict) && vict != ch)
@@ -4561,7 +4553,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		return (0);
 	}
 
-	/* Make sure the PC/NPC is correct */
+	// Make sure the PC/NPC is correct
 	if (IS_NPC(vict) && !(set_fields[mode].pcnpc & NPC))
 	{
 		send_to_char("Эта тварь недостойна такой чести!\r\n", ch);
@@ -4573,7 +4565,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		return (0);
 	}
 
-	/* Find the value of the argument */
+	// Find the value of the argument
 	if (set_fields[mode].type == BINARY)
 	{
 		if (!strn_cmp(val_arg, "on", 2) || !strn_cmp(val_arg, "yes", 3) || !strn_cmp(val_arg, "вкл", 3))
@@ -4627,7 +4619,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 8:
 		break;
 	case 9:
-		/* Выставляется род для РС */
+		// Выставляется род для РС
         rod = PlayerRace::CheckRace(GET_KIN(ch), val_arg);
 		if (rod == RACE_UNDEFINED)
 		{
@@ -4742,7 +4734,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char("Поищите другой МУД. В этом МУДе нет такой комнаты.\r\n", ch);
 			return (0);
 		}
-		if (IN_ROOM(vict) != NOWHERE)	/* Another Eric Green special. */
+		if (IN_ROOM(vict) != NOWHERE)	// Another Eric Green special.
 			char_from_room(vict);
 		char_to_room(vict, rnum);
 		check_horse(vict);
@@ -4770,7 +4762,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		vict->set_class(i);
 		break;
 	case 32:
-		/* Флаг для морталов с привилегиями */
+		// Флаг для морталов с привилегиями
 		if (!IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		{
 			send_to_char("Вы не столь Божественны, как вам кажется!\r\n", ch);
@@ -4851,8 +4843,8 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		GET_SEX(vict) = i;
 		break;
-	case 39:		/* set age */
-		if (value < 2 || value > 200)  	/* Arbitrary limits. */
+	case 39:		// set age
+		if (value < 2 || value > 200)  	// Arbitrary limits.
 		{
 			send_to_char("Поддерживаются возрасты от 2 до 200.\r\n", ch);
 			return (0);
@@ -4865,7 +4857,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		vict->player_data.time.birth = time(0) - ((value - 17) * SECS_PER_MUD_YEAR);
 		break;
 
-	case 40:		/* Blame/Thank Rick Glover. :) */
+	case 40:		// Blame/Thank Rick Glover. :)
 		GET_HEIGHT(vict) = value;
 		affect_total(vict);
 		break;
@@ -4903,7 +4895,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		GET_OLC_ZONE(vict) = value;
 		break;
 	case 45:
-		/* изменение имени !!! */
+		// изменение имени !!!
 
 		if ((i =
 					sscanf(val_arg, "%s %s %s %s %s %s", npad[0], npad[1], npad[2], npad[3], npad[4], npad[5])) != 6)
@@ -4966,8 +4958,6 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 							     "Для исключения разных недоразумений следует указать другое имя.\r\n", ch);
 							return (0);
 						}
-			*/
-			/*
 			        if ((ptnum = cmp_ptable_by_name(npad[0],MIN_NAME_LENGTH)) > 0
 			            player_table[ptnum].unique != GET_UNIQUE(vict)
 			           )
@@ -5096,7 +5086,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 
 	case 51:
-		/* Выставляется род для РС */
+		// Выставляется род для РС
 		rod = (*val_arg);
 		if (rod != '0' && rod != '1')
 		{
@@ -5111,7 +5101,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 
 	case 52:
-		/* Отдельный лог команд персонажа */
+		// Отдельный лог команд персонажа
 		if (on)
 		{
 			SET_GOD_FLAG(vict, GF_PERSLOG);
@@ -5248,7 +5238,7 @@ ACMD(do_set)
 		return;
 	}
 
-	/* find the target */
+	// find the target
 	if (!is_file)
 	{
 		if (is_player)
@@ -5259,7 +5249,7 @@ ACMD(do_set)
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
 			}
-			/* Запрет на злоупотребление командой SET на бессмертных */
+			// Запрет на злоупотребление командой SET на бессмертных
 			if (!GET_GOD_FLAG(ch, GF_DEMIGOD))
 			{
 				if (GET_LEVEL(ch) <= GET_LEVEL(vict) && !PRF_FLAGGED(ch, PRF_CODERINFO))
@@ -5277,7 +5267,7 @@ ACMD(do_set)
 				}
 			}
 		}
-		else  	/* is_mob */
+		else  	// is_mob
 		{
 			if (!(vict = get_char_vis(ch, name, FIND_CHAR_WORLD))
 					|| !IS_NPC(vict))
@@ -5287,7 +5277,7 @@ ACMD(do_set)
 			}
 		}
 	}
-	else if (is_file)  	/* try to load the player off disk */
+	else if (is_file)  	// try to load the player off disk
 	{
 		if (get_player_pun(ch, name, FIND_CHAR_WORLD))
 		{
@@ -5299,7 +5289,7 @@ ACMD(do_set)
 
 		if ((player_i = load_char(name, cbuf)) > -1)
 		{
-			/* Запрет на злоупотребление командой SET на бессмертных */
+			// Запрет на злоупотребление командой SET на бессмертных
 			if (!GET_GOD_FLAG(ch, GF_DEMIGOD))
 			{
 				if (GET_LEVEL(ch) <= GET_LEVEL(cbuf) && !PRF_FLAGGED(ch, PRF_CODERINFO))
@@ -5328,17 +5318,17 @@ ACMD(do_set)
 		}
 	}
 
-	/* find the command in the list */
+	// find the command in the list
 	len = strlen(field);
 	for (mode = 0; *(set_fields[mode].cmd) != '\n'; mode++)
 		if (!strncmp(field, set_fields[mode].cmd, len))
 			break;
 
-	/* perform the set */
+	// perform the set
 	strcpy(OName, GET_NAME(vict));
 	retval = perform_set(ch, vict, mode, val_arg);
 
-	/* save the character if a change was made */
+	// save the character if a change was made
 	if (retval && !IS_NPC(vict))
 	{
 		if (retval == 2)
@@ -5359,7 +5349,7 @@ ACMD(do_set)
 		}
 	}
 
-	/* free the memory if we allocated it earlier */
+	// free the memory if we allocated it earlier
 	if (is_file)
 		delete cbuf;
 
@@ -5523,19 +5513,19 @@ ACMD(do_liblist)
 ACMD(do_forcetime)
 {
 
-	extern void heartbeat(const int missed_pulses);	/* from comm.c */
+	extern void heartbeat(const int missed_pulses);	// from comm.c
 	int m, t = 0;
 	char *ca;
 
-	/* Parse command line */
+	// Parse command line
 	for (ca = strtok(argument, " "); ca; ca = strtok(NULL, " "))
 	{
 		m = LOWER(ca[strlen(ca) - 1]);
-		if (m == 'h')	/* hours */
+		if (m == 'h')	// hours
 			m = 60 * 60;
-		else if (m == 'm')	/* minutes */
+		else if (m == 'm')	// minutes
 			m = 60;
-		else if (m == 's' || isdigit(m))	/* seconds */
+		else if (m == 's' || isdigit(m))	// seconds
 			m = 1;
 		else
 			m = 0;
@@ -5548,7 +5538,7 @@ ACMD(do_forcetime)
 		}
 	}
 
-	if (!t)			/* 1 tick default */
+	if (!t)			// 1 tick default
 		t = (SECS_PER_MUD_HOUR);
 
 	for (m = 0; m < t * PASSES_PER_SEC; m++)
@@ -5680,7 +5670,7 @@ ACMD(do_sanitize)
 
 //-Polud
 
-/* This is test command for different testings */
+// This is test command for different testings
 ACMD(do_godtest)
 {
     int skl;
@@ -5730,9 +5720,6 @@ struct filter_type
 
 } // namespace
 
-/**
- *
- */
 ACMD(do_print_armor)
 {
 	if (IS_NPC(ch) || (!IS_GRGOD(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)))

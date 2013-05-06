@@ -34,9 +34,7 @@ namespace
 typedef std::vector<CHAR_DATA *> PurgedCharList;
 PurgedCharList purged_char_list;
 
-/**
-* На перспективу - втыкать во все методы character.
-*/
+// * На перспективу - втыкать во все методы character.
 void check_purged(const CHAR_DATA *ch, const char *fnc)
 {
 	if (ch->purged())
@@ -69,9 +67,7 @@ std::list<CHAR_DATA *> fighting_list;
 namespace CharacterSystem
 {
 
-/**
-* Реальное удаление указателей.
-*/
+// * Реальное удаление указателей.
 void release_purged_list()
 {
 	for (PurgedCharList::iterator i = purged_char_list.begin();
@@ -232,7 +228,7 @@ void Character::purge(bool destructor)
 	}
 
 	if (!IS_NPC(this) || (IS_NPC(this) && GET_MOB_RNUM(this) == -1))
-	{	/* if this is a player, or a non-prototyped non-player, free all */
+	{	// if this is a player, or a non-prototyped non-player, free all
 		for (j = 0; j < NUM_PADS; j++)
 			if (GET_PAD(this, j))
 				free(GET_PAD(this, j));
@@ -255,7 +251,7 @@ void Character::purge(bool destructor)
 			REMOVE_FROM_LIST(this->helpers, this->helpers, next_helper);
 	}
 	else if ((i = GET_MOB_RNUM(this)) >= 0)
-	{	/* otherwise, free strings only if the string is not pointing at proto */
+	{	// otherwise, free strings only if the string is not pointing at proto 
 		for (j = 0; j < NUM_PADS; j++)
 			if (GET_PAD(this, j)
 					&& (this->player_data.PNames[j] != mob_proto[i].player_data.PNames[j]))
@@ -300,7 +296,7 @@ void Character::purge(bool destructor)
 			free(this->player_specials->poofin);
 		if (this->player_specials->poofout)
 			free(this->player_specials->poofout);
-		/* рецепты */
+		// рецепты
 		while (GET_RSKILL(this) != NULL)
 		{
 			im_rskill *r;
@@ -308,7 +304,7 @@ void Character::purge(bool destructor)
 			free(GET_RSKILL(this));
 			GET_RSKILL(this) = r;
 		}
-		/* порталы */
+		// порталы
 		while (GET_PORTALS(this) != NULL)
 		{
 			struct char_portal_type *prt_next;
@@ -390,9 +386,7 @@ void Character::purge(bool destructor)
 	}
 }
 
-/**
-* Скилл с учетом всех плюсов и минусов от шмоток/яда.
-*/
+// * Скилл с учетом всех плюсов и минусов от шмоток/яда.
 int Character::get_skill(int skill_num)
 {
 	int skill = get_trained_skill(skill_num) + get_equipped_skill(skill_num);
@@ -403,9 +397,7 @@ int Character::get_skill(int skill_num)
 	return normolize_skill(skill);
 }
 
-/**
-* Скилл со шмоток.
-*/
+// * Скилл со шмоток.
 int Character::get_equipped_skill(int skill_num)
 {
 	int skill = 0;
@@ -426,9 +418,7 @@ int Character::get_equipped_skill(int skill_num)
 	return skill;
 }
 
-/**
-* Родной тренированный скилл чара.
-*/
+// * Родной тренированный скилл чара.
 int Character::get_inborn_skill(int skill_num)
 {
 	if (Privilege::check_skills(this))
@@ -451,9 +441,7 @@ int Character::get_trained_skill(int skill_num)
 	return 0;
 }
 
-/**
-* Нулевой скилл мы не сетим, а при обнулении уже имеющегося удалем эту запись.
-*/
+// * Нулевой скилл мы не сетим, а при обнулении уже имеющегося удалем эту запись.
 void Character::set_skill(int skill_num, int percent)
 {
 	if (skill_num < 0 || skill_num > MAX_SKILL_NUM)
@@ -479,18 +467,11 @@ void Character::set_morphed_skill(int skill_num, int percent)
 	current_morph_->set_skill(skill_num, percent);
 };
 
-
-/**
-*
-*/
 void Character::clear_skills()
 {
 	skills.clear();
 }
 
-/**
-*
-*/
 int Character::get_skills_count()
 {
 	return skills.size();
@@ -617,9 +598,7 @@ void Character::clear_fighing_list()
 	}
 }
 
-/**
-* Внутри цикла чар нигде не пуржится и сам список соответственно не меняется.
-*/
+// * Внутри цикла чар нигде не пуржится и сам список соответственно не меняется.
 void change_fighting(CHAR_DATA * ch, int need_stop)
 {
 	/*
@@ -1069,9 +1048,7 @@ void Character::add_gold(long num, bool need_log)
 	set_gold(get_gold() + num, need_log);
 }
 
-/**
- * см. add_gold()
- */
+// * см. add_gold()
 void Character::add_bank(long num, bool need_log)
 {
 	if (num < 0)
@@ -1115,9 +1092,7 @@ void Character::set_gold(long num, bool need_log)
 	gold_ = num;
 }
 
-/**
- * см. set_gold()
- */
+// * см. set_gold()
 void Character::set_bank(long num, bool need_log)
 {
 	if (get_bank() == num)
@@ -1170,9 +1145,7 @@ long Character::remove_gold(long num, bool need_log)
 	return rest;
 }
 
-/**
- * см. remove_gold()
- */
+// * см. remove_gold()
 long Character::remove_bank(long num, bool need_log)
 {
 	if (num < 0)
@@ -1205,9 +1178,7 @@ long Character::remove_both_gold(long num, bool need_log)
 	return remove_gold(rest, need_log);
 }
 
-/**
-* Удача (мораль) для расчетов в скилах и вывода чару по счет все.
-*/
+// * Удача (мораль) для расчетов в скилах и вывода чару по счет все.
 int Character::calc_morale() const
 {
 	return GET_REAL_CHA(this) / 2 + GET_MORALE(this);

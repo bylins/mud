@@ -32,10 +32,10 @@
 #include "room.hpp"
 #include "fight.h"
 
-/* extern variables */
+// extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
 
-/* extern functions */
+// extern functions
 int compute_armor_class(CHAR_DATA * ch);
 int awake_others(CHAR_DATA * ch);
 void appear(CHAR_DATA * ch);
@@ -43,7 +43,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg);
 void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance);
 void go_protect(CHAR_DATA * ch, CHAR_DATA * vict);
 
-/* local functions */
+// local functions
 ACMD(do_assist);
 ACMD(do_hit);
 ACMD(do_kill);
@@ -329,9 +329,7 @@ ACMD(do_assist)
 		return;
 	}
 
-	/*
-	 * Hit the same enemy the person you're helping is.
-	 */
+	// * Hit the same enemy the person you're helping is.
 	if (helpee->get_fighting())
 		opponent = helpee->get_fighting();
 	else
@@ -443,7 +441,7 @@ ACMD(do_kill)
 	}
 }
 
-/************************ BACKSTAB VICTIM */
+// *********************** BACKSTAB VICTIM
 void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	int percent, prob;
@@ -564,7 +562,7 @@ ACMD(do_backstab)
 }
 
 
-/******************* CHARM ORDERS PROCEDURES */
+// ****************** CHARM ORDERS PROCEDURES
 ACMD(do_order)
 {
 	char name[MAX_INPUT_LENGTH], message[MAX_INPUT_LENGTH];
@@ -630,7 +628,7 @@ ACMD(do_order)
 				}
 			}
 		}
-		else  	/* This is order "followers" */
+		else  	// This is order "followers"
 		{
 			org_room = ch->in_room;
 			act("$n отдал$g приказ.", FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF);
@@ -661,7 +659,7 @@ ACMD(do_order)
 	}
 }
 
-/********************** FLEE PROCEDURE */
+// ********************* FLEE PROCEDURE
 void go_flee(CHAR_DATA * ch)
 {
 	int i, attempt, loss, scandirs = 0, was_in = IN_ROOM(ch);
@@ -680,8 +678,7 @@ void go_flee(CHAR_DATA * ch)
 			if (!legal_dir(ch, attempt, TRUE, FALSE) ||
 					ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_DEATH))
 				continue;
-			/*далее проверка, чтобы не фликать на
-			   лошади в ванрумы и в комнаты с флагом !лошадь */
+			//далее проверка, чтобы не фликать на лошади в ванрумы и в комнаты с флагом !лошадь
 			if (ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_TUNNEL) ||
 					(ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_NOHORSE)))
 				continue;
@@ -721,7 +718,7 @@ void go_flee(CHAR_DATA * ch)
 		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 	for (i = 0; i < 6; i++)
 	{
-		attempt = number(0, NUM_OF_DIRS - 1);	/* Select a random direction */
+		attempt = number(0, NUM_OF_DIRS - 1);	// Select a random direction
 		if (legal_dir(ch, attempt, TRUE, FALSE) && !ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_DEATH))
 		{
 			act("$n запаниковал$g и пытал$u сбежать!", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -781,8 +778,7 @@ void go_dir_flee(CHAR_DATA * ch, int direction)
 		SET_BIT(scandirs, (1 << attempt));
 		if (!legal_dir(ch, attempt, TRUE, FALSE) || ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_DEATH))
 			continue;
-		/*далее проверка, чтобы не фликать на лошади в ванрумы
-		   и в комнаты с флагом !лошадь */
+		// далее проверка, чтобы не фликать на лошади в ванрумы и в комнаты с флагом !лошадь
 		if (ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_TUNNEL) ||
 				(ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_NOHORSE)))
 			if (on_horse(ch))
@@ -850,7 +846,7 @@ void drop_from_horse(CHAR_DATA *victim)
 		horse_drop(victim);
 }
 
-/************************** BASH PROCEDURES */
+// ************************* BASH PROCEDURES
 void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	int percent = 0, prob;
@@ -992,7 +988,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 		dmg.flags.set(FightSystem::NO_FLEE);
 		dam = dmg.process(ch, vict);
 
-		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, AFF_SHIELD)))  	/* -1 = dead, 0 = miss */
+		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, AFF_SHIELD)))  	// -1 = dead, 0 = miss
 		{
 			prob = 3;
 			if (IN_ROOM(ch) == IN_ROOM(vict))
@@ -1053,7 +1049,7 @@ ACMD(do_bash)
 	}
 }
 
-/******************** RESCUE PROCEDURES */
+// ******************* RESCUE PROCEDURES
 void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch)
 {
 	int percent, prob;
@@ -1167,7 +1163,7 @@ ACMD(do_rescue)
 	go_rescue(ch, vict, tmp_ch);
 }
 
-/*******************  KICK PROCEDURES */
+// ******************  KICK PROCEDURES
 void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	int percent, prob;
@@ -1183,7 +1179,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	vict = try_protect(vict, ch);
 
-	/* 101% is a complete failure */
+	// 101% is a complete failure
 	percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, skill_info[SKILL_KICK].max_percent);
 	prob = train_skill(ch, SKILL_KICK, skill_info[SKILL_KICK].max_percent, vict);
 	if (GET_GOD_FLAG(vict, GF_GODSCURSE) || GET_MOB_HOLD(vict) > 0)
@@ -1270,7 +1266,7 @@ ACMD(do_kick)
 	}
 }
 
-/******************** BLOCK PROCEDURES */
+// ******************* BLOCK PROCEDURES
 void go_block(CHAR_DATA * ch)
 {
 	if (AFF_FLAGGED(ch, AFF_STOPLEFT))
@@ -1311,7 +1307,7 @@ ACMD(do_block)
 	go_block(ch);
 }
 
-/***************** MULTYPARRY PROCEDURES */
+// **************** MULTYPARRY PROCEDURES
 void go_multyparry(CHAR_DATA * ch)
 {
 	if (AFF_FLAGGED(ch, AFF_STOPRIGHT) ||
@@ -1359,7 +1355,7 @@ ACMD(do_multyparry)
 
 
 
-/***************** PARRY PROCEDURES */
+// **************** PARRY PROCEDURES
 void go_parry(CHAR_DATA * ch)
 {
 	if (AFF_FLAGGED(ch, AFF_STOPRIGHT) ||
@@ -1420,7 +1416,7 @@ ACMD(do_parry)
 	go_parry(ch);
 }
 
-/*************** PROTECT PROCEDURES */
+// ************** PROTECT PROCEDURES
 void go_protect(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	if (AFF_FLAGGED(ch, AFF_STOPFIGHT) || AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))
@@ -1502,7 +1498,7 @@ ACMD(do_protect)
 	go_protect(ch, vict);
 }
 
-/************** TOUCH PROCEDURES */
+// ************* TOUCH PROCEDURES
 void go_touch(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	if (AFF_FLAGGED(ch, AFF_STOPRIGHT) || AFF_FLAGGED(ch, AFF_STOPFIGHT) || AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))
@@ -1579,7 +1575,7 @@ ACMD(do_touch)
 	go_touch(ch, vict);
 }
 
-/************** DEVIATE PROCEDURES */
+// ************* DEVIATE PROCEDURES
 void go_deviate(CHAR_DATA * ch)
 {
 	if (AFF_FLAGGED(ch, AFF_STOPFIGHT) || AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))
@@ -1618,7 +1614,7 @@ ACMD(do_deviate)
 	go_deviate(ch);
 }
 
-/************** DISARM PROCEDURES */
+// ************* DISARM PROCEDURES
 void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	int percent, prob, pos = 0;
@@ -1748,7 +1744,7 @@ ACMD(do_disarm)
 	}
 }
 
-/************************** CHOPOFF PROCEDURES */
+// ************************* CHOPOFF PROCEDURES
 void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	int percent, prob;
@@ -1768,7 +1764,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 	if (onhorse(ch))
 		return;
 
-	/* Апгрейд трипа: coded by Делан */
+	// Апгрейд трипа: coded by Делан
 	if ((GET_POS(vict) < POS_FIGHTING))
 	{
 		if (number(1, 100) < ch->get_skill(SKILL_CHOPOFF))
@@ -1869,7 +1865,7 @@ ACMD(do_chopoff)
 	}
 }
 
-/************************** STUPOR PROCEDURES */
+// ************************* STUPOR PROCEDURES
 void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	if (AFF_FLAGGED(ch, AFF_STOPFIGHT) || AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))
@@ -1947,7 +1943,7 @@ ACMD(do_stupor)
 	go_stupor(ch, vict);
 }
 
-/************************** MIGHTHIT PROCEDURES */
+// ************************* MIGHTHIT PROCEDURES
 void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	if (AFF_FLAGGED(ch, AFF_STOPFIGHT) || AFF_FLAGGED(ch, AFF_MAGICSTOPFIGHT))
@@ -2192,7 +2188,7 @@ ACMD(do_style)
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 }
 
-/****************** STOPFIGHT ************************************/
+// ***************** STOPFIGHT
 ACMD(do_stopfight)
 {
 	CHAR_DATA *tmp_ch;
@@ -2234,7 +2230,7 @@ ACMD(do_stopfight)
 	}
 }
 
-/************** THROW PROCEDURES */
+// ************* THROW PROCEDURES
 void go_throw(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	int percent, prob;
@@ -2396,8 +2392,7 @@ ACMD(do_manadrain)
 	skill = ch->get_skill(SKILL_MANADRAIN);
 
 	percent = number(1, skill_info[SKILL_MANADRAIN].max_percent);
-	/* Вероятность успеха - 90% - 5% за каждый уровень жертвы больше уровня чара
-	   20% мин. */
+	// Вероятность успеха - 90% - 5% за каждый уровень жертвы больше уровня чара 20% мин.
 	prob = MAX(20, 90 - 5 * MAX(0, GET_LEVEL(vict) - GET_LEVEL(ch)));
 	improove_skill(ch, SKILL_MANADRAIN, percent > prob, vict);
 
@@ -2408,8 +2403,7 @@ ACMD(do_manadrain)
 	}
 	else
 	{
-		/* % восстановленной маны - %умения - 10% за каждый уровень жертвы меньше
-		   уровня чара - 10% мин. */
+		// % восстановленной маны - %умения - 10% за каждый уровень жертвы меньше уровня чара - 10% мин.
 		skill = MAX(10, skill - 10 * MAX(0, GET_LEVEL(ch) - GET_LEVEL(vict)));
 		drained_mana = (GET_MAX_MANA(ch) - GET_MANA_STORED(ch)) * skill / 100;
 		GET_MANA_STORED(ch) = MIN(GET_MAX_MANA(ch), GET_MANA_STORED(ch) + drained_mana);
@@ -2474,7 +2468,7 @@ ACMD(do_townportal)
 
 }
 
-/* Added by Gorrah */
+// Added by Gorrah
 ACMD(do_turn_undead)
 {
 	int percent, dam = 0;
@@ -2483,7 +2477,7 @@ ACMD(do_turn_undead)
 	vector<CHAR_DATA*> ch_list;
 	CHAR_DATA *ch_vict;
 
-	if (IS_NPC(ch))		/* Cannot use on mobs. */
+	if (IS_NPC(ch))		// Cannot use on mobs.
 		return;
 
 	if (!ch->get_skill(SKILL_TURN_UNDEAD))
@@ -2585,8 +2579,7 @@ ACMD(do_turn_undead)
 
 }
 
-/* Умение "железный ветер" */
-
+// Умение "железный ветер"
 void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	OBJ_DATA *weapon;

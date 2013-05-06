@@ -15,29 +15,29 @@
 #include "player_i.hpp"
 #include "morph.hpp"
 
-/* These data contain information about a players time data */
+// These data contain information about a players time data
 struct time_data
 {
-	time_t birth;		/* This represents the characters age                */
-	time_t logon;		/* Time of the last logon (used to calculate played) */
-	int played;		/* This is the total accumulated time played in secs */
+	time_t birth;		// This represents the characters age
+	time_t logon;		// Time of the last logon (used to calculate played)
+	int played;		// This is the total accumulated time played in secs
 };
 
-/* general player-related info, usually PC's and NPC's */
+// general player-related info, usually PC's and NPC's
 struct char_player_data
 {
-	char *long_descr;	/* for 'look'               */
-	char *description;	/* Extra descriptions                   */
-	char *title;		/* PC / NPC's title                     */
-	byte sex;		/* PC / NPC's sex                       */
-	struct time_data time;			/* PC's AGE in days                 */
-	ubyte weight;		/* PC / NPC's weight                    */
-	ubyte height;		/* PC / NPC's height                    */
+	char *long_descr;	// for 'look'
+	char *description;	// Extra descriptions
+	char *title;		// PC / NPC's title
+	byte sex;		// PC / NPC's sex
+	struct time_data time;			// PC's AGE in days
+	ubyte weight;		// PC / NPC's weight
+	ubyte height;		// PC / NPC's height
 
 	boost::array<char *, 6> PNames;
 	ubyte Religion;
 	ubyte Kin;
-	ubyte Race;		/* PC / NPC's race*/
+	ubyte Race;		// PC / NPC's race
 };
 
 // кол-во +слотов со шмоток
@@ -45,7 +45,7 @@ const int MAX_ADD_SLOTS = 10;
 // типы резистов
 enum { FIRE_RESISTANCE = 0, AIR_RESISTANCE, WATER_RESISTANCE, EARTH_RESISTANCE, VITALITY_RESISTANCE, MIND_RESISTANCE, IMMUNITY_RESISTANCE, MAX_NUMBER_RESISTANCE };
 
-/* Char's additional abilities. Used only while work */
+// Char's additional abilities. Used only while work
 struct char_played_ability_data
 {
 	int weight_add;
@@ -68,18 +68,18 @@ struct char_played_ability_data
 	int initiative_add;
 	int poison_add;
 	int pray_add;
-	boost::array<sh_int, 4> apply_saving_throw;		/* Saving throw (Bonuses)  */
-	boost::array<sh_int, MAX_NUMBER_RESISTANCE> apply_resistance_throw;	/* Сопротивление (резисты) к магии, ядам и крит. ударам */
+	boost::array<sh_int, 4> apply_saving_throw;		// Saving throw (Bonuses)
+	boost::array<sh_int, MAX_NUMBER_RESISTANCE> apply_resistance_throw;	// Сопротивление (резисты) к магии, ядам и крит. ударам
 	ubyte mresist;
 	ubyte aresist;
 	ubyte presist;	// added by WorM(Видолюб) по просьбе <сумасшедшего> (зачеркнуто) безбашенного билдера поглощение физ.урона в %
 };
 
-/* Char's abilities. */
+// Char's abilities.
 struct char_ability_data
 {
-	boost::array<ubyte, MAX_SPELLS + 1> SplKnw; /* array of SPELL_KNOW_TYPE         */
-	boost::array<ubyte, MAX_SPELLS + 1> SplMem; /* array of MEMed SPELLS            */
+	boost::array<ubyte, MAX_SPELLS + 1> SplKnw; // array of SPELL_KNOW_TYPE
+	boost::array<ubyte, MAX_SPELLS + 1> SplMem; // array of MEMed SPELLS
 	bitset<MAX_FEATS> Feats;
 	sbyte size;
 	sbyte hitroll;
@@ -87,13 +87,13 @@ struct char_ability_data
 	short armor;
 };
 
-/* Char's points. */
+// Char's points.
 struct char_point_data
 {
 	int hit;
-	int max_hit;		/* Max hit for PC/NPC                      */
+	int max_hit;		// Max hit for PC/NPC
 	sh_int move;
-	sh_int max_move;	/* Max move for PC/NPC                     */
+	sh_int max_move;	// Max move for PC/NPC
 };
 
 /*
@@ -106,34 +106,34 @@ struct char_point_data
  */
 struct char_special_data_saved
 {
-	int alignment;		/* +-1000 for alignments                */
-	FLAG_DATA act;		/* act flag for NPC's; player flag for PC's */
+	int alignment;		// +-1000 for alignments
+	FLAG_DATA act;		// act flag for NPC's; player flag for PC's
 	FLAG_DATA affected_by;
-	/* Bitvector for spells/skills affected by */
+	// Bitvector for spells/skills affected by
 };
 
-/* Special playing constants shared by PCs and NPCs which aren't in pfile */
+// Special playing constants shared by PCs and NPCs which aren't in pfile
 struct char_special_data
 {
-	byte position;		/* Standing, fighting, sleeping, etc. */
+	byte position;		// Standing, fighting, sleeping, etc.
 
-	int carry_weight;		/* Carried weight */
-	int carry_items;		/* Number of items carried   */
-	int timer;			/* Timer for update  */
+	int carry_weight;		// Carried weight
+	int carry_items;		// Number of items carried
+	int timer;			// Timer for update
 	time_t who_last; // таймстамп последнего использования команды кто
 
-	struct char_special_data_saved saved;			/* constants saved in plrfile  */
+	struct char_special_data_saved saved;			// constants saved in plrfile
 };
 
-/* Specials used by NPCs, not PCs */
+// Specials used by NPCs, not PCs
 struct mob_special_data
 {
-	byte last_direction;	/* The last direction the monster went     */
-	int attack_type;		/* The Attack Type Bitvector for NPC's     */
-	byte default_pos;	/* Default position for NPC                */
-	memory_rec *memory;	/* List of attackers to remember          */
-	byte damnodice;		/* The number of damage dice's             */
-	byte damsizedice;	/* The size of the damage dice's           */
+	byte last_direction;	// The last direction the monster went
+	int attack_type;		// The Attack Type Bitvector for NPC's
+	byte default_pos;	// Default position for NPC
+	memory_rec *memory;	// List of attackers to remember
+	byte damnodice;		// The number of damage dice's
+	byte damsizedice;	// The size of the damage dice's
 	boost::array<int, MAX_DEST> dest;
 	int dest_dir;
 	int dest_pos;
@@ -161,7 +161,7 @@ struct spell_mem_queue
 	int total;			// полное время мема всей очереди
 };
 
-/* Structure used for extra_attack - bash, kick, diasrm, chopoff, etc */
+// Structure used for extra_attack - bash, kick, diasrm, chopoff, etc
 struct extra_attack_type
 {
 	int used_skill;
@@ -197,12 +197,12 @@ typedef std::map < int/* filepos, позиция в player_table перса который делает за
 
 struct player_special_data_saved
 {
-	int wimp_level;		/* Below this # of hit points, flee!  */
-	int invis_level;		/* level of invisibility      */
-	room_vnum load_room;	/* Which room to place char in      */
-	FLAG_DATA pref;		/* preference flags for PC's.    */
-	int bad_pws;		/* number of bad password attemps   */
-	boost::array<int, 3> conditions;		/* Drunk, full, thirsty        */
+	int wimp_level;		// Below this # of hit points, flee!
+	int invis_level;		// level of invisibility
+	room_vnum load_room;	// Which room to place char in
+	FLAG_DATA pref;		// preference flags for PC's.
+	int bad_pws;		// number of bad password attemps
+	boost::array<int, 3> conditions;		// Drunk, full, thirsty
 
 	int DrunkState;
 	int olc_zone;
@@ -216,7 +216,7 @@ struct player_special_data_saved
 	int stringLength;
 	int stringWidth;
 
-	/*29.11.09 переменные для подсчета количества рипов (с) Василиса*/
+	// 29.11.09 переменные для подсчета количества рипов (с) Василиса
 	int Rip_arena; //рипы на арене
 	int Rip_mob; // рипы от мобов всего
 	int Rip_pk; // рипы от чаров всего
@@ -237,7 +237,7 @@ struct player_special_data_saved
 	unsigned long long Exp_pk_this; //потеряно экспы  рипы от чаров на этом морте
 	unsigned long long Exp_dt_this; //потеряно экспы  дт на этом морте
 	unsigned long long Exp_other_this; //потеряно экспы  рипы от триггеров и прочее на этом морте
-	/*конец правки (с) Василиса */
+	//конец правки (с) Василиса
 	//Polud храним цену, начиная с которой нужно присылать оффлайн-уведомления с базара
 	long ntfyExchangePrice;
 	int HiredCost;// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
@@ -248,21 +248,21 @@ struct player_special_data
 {
 	struct player_special_data_saved saved;
 
-	char *poofin;		/* Description on arrival of a god. */
-	char *poofout;		/* Description upon a god's exit.   */
-	struct alias_data *aliases;	/* Character's aliases    */
-	time_t may_rent;		/* PK control                       */
-	int agressor;		/* Agression room(it is also a flag) */
-	time_t agro_time;		/* Last agression time (it is also a flag) */
-	struct _im_rskill_tag *rskill;	/* Известные рецепты */
-	struct char_portal_type *portals;	/* порталы теперь живут тут */
+	char *poofin;		// Description on arrival of a god.
+	char *poofout;		// Description upon a god's exit.
+	struct alias_data *aliases;	// Character's aliases
+	time_t may_rent;		// PK control
+	int agressor;		// Agression room(it is also a flag)
+	time_t agro_time;		// Last agression time (it is also a flag)
+	struct _im_rskill_tag *rskill;	// Известные рецепты
+	struct char_portal_type *portals;	// порталы теперь живут тут
 	int *logs;		// уровни подробности каналов log
 
 	char *Exchange_filter;
 	struct ignore_data *ignores;
-	char *Karma; /* Записи о поощрениях, наказаниях персонажа*/
+	char *Karma; // Записи о поощрениях, наказаниях персонажа
 
-	struct logon_data * logons; /*Записи о входах чара*/
+	struct logon_data * logons; //Записи о входах чара
 
 // Punishments structs
 	struct punish_data pmute;
@@ -286,9 +286,7 @@ typedef boost::shared_ptr<Player> PlayerPtr;
 typedef std::map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
 //typedef __gnu_cxx::hash_map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
 
-/**
-* Общий класс для игроков/мобов.
-*/
+// * Общий класс для игроков/мобов.
 class Character : public PlayerI
 {
 // новое
@@ -512,7 +510,7 @@ private:
 	// true - чар очищен и ждет вызова delete для оболочки
 	bool purged_;
 
-/** TODO: пока сюда скидывается, чтобы поля private были */
+// * TODO: пока сюда скидывается, чтобы поля private были
 	// имя чара или алиасы моба
 	std::string name_;
 	// имя моба (им.падеж)
@@ -566,39 +564,39 @@ private:
 	MorphPtr current_morph_;
 // старое
 public:
-	mob_rnum nr;		/* Mob's rnum                   */
-	room_rnum in_room;	/* Location (real room number)   */
-	int wait;			/* wait for how many loops         */
-	int punctual_wait;		/* wait for how many loops (punctual style) */
-	char *last_comm;		/* последний приказ чармису перед окончанием лага */
+	mob_rnum nr;		// Mob's rnum
+	room_rnum in_room;	// Location (real room number)
+	int wait;			// wait for how many loops
+	int punctual_wait;		// wait for how many loops (punctual style)
+	char *last_comm;		// последний приказ чармису перед окончанием лага
 
-	struct char_player_data player_data;		/* Normal data                   */
-	struct char_played_ability_data add_abils;		/* Abilities that add to main */
-	struct char_ability_data real_abils;		/* Abilities without modifiers   */
-	struct char_point_data points;		/* Points                       */
-	struct char_special_data char_specials;		/* PC/NPC specials     */
-	struct mob_special_data mob_specials;		/* NPC specials        */
+	struct char_player_data player_data;		// Normal data
+	struct char_played_ability_data add_abils;		// Abilities that add to main
+	struct char_ability_data real_abils;		// Abilities without modifiers
+	struct char_point_data points;		// Points
+	struct char_special_data char_specials;		// PC/NPC specials
+	struct mob_special_data mob_specials;		// NPC specials
 
-	struct player_special_data *player_specials;	/* PC specials        */
+	struct player_special_data *player_specials;	// PC specials
 
-	AFFECT_DATA *affected;	/* affected by what spells       */
-	struct timed_type *timed;	/* use which timed skill/spells  */
-	struct timed_type *timed_feat;	/* use which timed feats  */
-	OBJ_DATA *equipment[NUM_WEARS];	/* Equipment array               */
+	AFFECT_DATA *affected;	// affected by what spells
+	struct timed_type *timed;	// use which timed skill/spells
+	struct timed_type *timed_feat;	// use which timed feats
+	OBJ_DATA *equipment[NUM_WEARS];	// Equipment array
 
-	OBJ_DATA *carrying;	/* Head of list                  */
-	DESCRIPTOR_DATA *desc;	/* NULL for mobiles              */
-	long id;			/* used by DG triggers             */
-	struct trig_proto_list *proto_script;	/* list of default triggers      */
-	struct script_data *script;	/* script info for the object      */
-	struct script_memory *memory;	/* for mob memory triggers         */
+	OBJ_DATA *carrying;	// Head of list
+	DESCRIPTOR_DATA *desc;	// NULL for mobiles
+	long id;			// used by DG triggers
+	struct trig_proto_list *proto_script;	// list of default triggers
+	struct script_data *script;	// script info for the object
+	struct script_memory *memory;	// for mob memory triggers
 
-	CHAR_DATA *next_in_room;	/* For room->people - list         */
-	CHAR_DATA *next;	/* For either monster or ppl-list  */
-	CHAR_DATA *next_fighting;	/* For fighting list               */
+	CHAR_DATA *next_in_room;	// For room->people - list
+	CHAR_DATA *next;	// For either monster or ppl-list
+	CHAR_DATA *next_fighting;	// For fighting list
 
-	struct follow_type *followers;	/* List of chars followers       */
-	CHAR_DATA *master;	/* Who is char following?        */
+	struct follow_type *followers;	// List of chars followers
+	CHAR_DATA *master;	// Who is char following?
 
 	struct spell_mem_queue MemQueue;		// очередь изучаемых заклинаний
 

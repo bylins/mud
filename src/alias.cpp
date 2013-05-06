@@ -51,9 +51,9 @@ void write_aliases(CHAR_DATA * ch)
 		int aliaslen = strlen(temp->alias);
 		int repllen = strlen(temp->replacement) - 1;
 
-		fprintf(file, "%d\n%s\n"	/* Alias */
-				"%d\n%s\n"	/* Replacement */
-				"%d\n",	/* Type */
+		fprintf(file, "%d\n%s\n"	// Alias
+				"%d\n%s\n"	// Replacement
+				"%d\n",	// Type
 				aliaslen, temp->alias, repllen, temp->replacement + 1, temp->type);
 	}
 
@@ -83,19 +83,19 @@ void read_aliases(CHAR_DATA * ch)
 	CREATE(GET_ALIASES(ch), struct alias_data, 1);
 	t2 = GET_ALIASES(ch);
 
-	for (;;)  		/* Read the aliased command. */
+	for (;;)  		// Read the aliased command.
 	{
 		fscanf(file, "%d\n", &length);
 		fgets(xbuf, length + 1, file);
 		t2->alias = str_dup(xbuf);
 
-		/* Build the replacement. */
+		// Build the replacement.
 		fscanf(file, "%d\n", &length);
-		*xbuf = ' ';	/* Doesn't need terminated, fgets() will. */
+		*xbuf = ' ';	// Doesn't need terminated, fgets() will.
 		fgets(xbuf + 1, length + 1, file);
 		t2->replacement = str_dup(xbuf);
 
-		/* Figure out the alias type. */
+		// Figure out the alias type.
 		fscanf(file, "%d\n", &length);
 		t2->type = length;
 

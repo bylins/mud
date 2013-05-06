@@ -13,7 +13,6 @@
 ************************************************************************ */
 
 /*
- * Th
  * This file attempts to concentrate most of the code which must be changed
  * in order for new classes to be added.  If you're adding a new class,
  * you should go through this entire file from beginning to end and add
@@ -56,7 +55,7 @@ int grouping[NUM_CLASSES][MAX_REMORT+1];
 
 int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 
-/* local functions */
+// local functions
 int parse_class(char arg);
 long find_class_bitvector(char arg);
 byte saving_throws(int class_num, int type, int level);
@@ -68,7 +67,7 @@ int level_exp(CHAR_DATA * ch, int level);
 byte extend_saving_throws(int class_num, int type, int level);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 
-/* Names first */
+// Names first
 
 const char *class_abbrevs[] = { "Ле",
 								"Ко",
@@ -140,7 +139,7 @@ const char *pc_class_types[] = { "Лекарь",
 							   };
 
 
-/* The menu for choosing a class in interpreter.c: */
+// The menu for choosing a class in interpreter.c:
 const char *class_menu =
 	"\r\n"
 	"Выберите профессию :\r\n"
@@ -203,7 +202,7 @@ const char *color_menu =
 	"  [2]Обычный\r\n"
 	"  [3]Полный\r\n";
 
-/* The menu for choosing a religion in interpreter.c: */
+// The menu for choosing a religion in interpreter.c:
 const char *religion_menu =
 	"\r\n" "Какой религии вы отдаете предпочтение :\r\n" "  Я[з]ычество\r\n" "  [Х]ристианство\r\n";
 
@@ -213,23 +212,21 @@ const char *religion_menu =
 /* Соответствие классов и религий. RELIGION_POLY-класс не может быть христианином
                                    RELIGION_MONO-класс не может быть язычником  (Кард)
 				   RELIGION_ANY - класс может быть кем угодно */
-const int class_religion[] = { RELIGION_ANY,		/*Лекарь */
-							   RELIGION_ANY,		/*Колдун */
-							   RELIGION_ANY,		/*Тать */
-							   RELIGION_ANY,		/*Богатырь */
-							   RELIGION_ANY,		/*Наемник */
-							   RELIGION_ANY,		/*Дружинник */
-							   RELIGION_ANY,		/*Кудесник */
-							   RELIGION_ANY,		/*Волшебник */
-							   RELIGION_ANY,		/*Чернокнижник */
-							   RELIGION_ANY,		/*Витязь */
-							   RELIGION_ANY,		/*Охотник */
-							   RELIGION_ANY,		/*Кузнец */
-							   RELIGION_ANY,		/*Купец */
-							   RELIGION_POLY		/*Волхв */
+const int class_religion[] = { RELIGION_ANY,		//Лекарь
+							   RELIGION_ANY,		//Колдун
+							   RELIGION_ANY,		//Тать
+							   RELIGION_ANY,		//Богатырь
+							   RELIGION_ANY,		//Наемник
+							   RELIGION_ANY,		//Дружинник
+							   RELIGION_ANY,		//Кудесник
+							   RELIGION_ANY,		//Волшебник
+							   RELIGION_ANY,		//Чернокнижник
+							   RELIGION_ANY,		//Витязь
+							   RELIGION_ANY,		//Охотник
+							   RELIGION_ANY,		//Кузнец
+							   RELIGION_ANY,		//Купец
+							   RELIGION_POLY		//Волхв
 							 };
-
-/*****/
 
 /*
  * The code to interpret a class letter -- used in interpreter.cpp when a
@@ -512,17 +509,17 @@ find_class_bitvector_step(char arg)
 #define SPELL	0
 #define SKILL	1
 
-/* #define LEARNED_LEVEL	0  % known which is considered "learned" */
-/* #define MAX_PER_PRAC		1  max percent gain in skill per practice */
-/* #define MIN_PER_PRAC		2  min percent gain in skill per practice */
-/* #define PRAC_TYPE		3  should it say 'spell' or 'skill'?	*/
+// #define LEARNED_LEVEL	0  % known which is considered "learned"
+// #define MAX_PER_PRAC		1  max percent gain in skill per practice
+// #define MIN_PER_PRAC		2  min percent gain in skill per practice
+// #define PRAC_TYPE		3  should it say 'spell' or 'skill'?
 
-int prac_params[4][NUM_CLASSES] =  	/* MAG        CLE             THE             WAR */
+int prac_params[4][NUM_CLASSES] =  	// MAG        CLE             THE             WAR
 {
-	{95, 95, 85, 80},	/* learned level */
-	{100, 100, 12, 12},	/* max per prac */
-	{25, 25, 0, 0, },	/* min per pac */
-	{SPELL, SPELL, SKILL, SKILL}	/* prac name */
+	{95, 95, 85, 80},	// learned level
+	{100, 100, 12, 12},	// max per prac
+	{25, 25, 0, 0, },	// min per pac
+	{SPELL, SPELL, SKILL, SKILL}	// prac name
 };
 
 
@@ -540,16 +537,16 @@ int prac_params[4][NUM_CLASSES] =  	/* MAG        CLE             THE           
 int guild_info[][3] =
 {
 
-	/* Midgaard */
+	// Midgaard
 	{CLASS_BATTLEMAGE, 3017, SCMD_SOUTH},
 	{CLASS_CLERIC, 3004, SCMD_NORTH},
 	{CLASS_THIEF, 3027, SCMD_EAST},
 	{CLASS_WARRIOR, 3021, SCMD_EAST},
 
-	/* Brass Dragon */
+	// Brass Dragon
 	{ -999 /* all */ , 5065, SCMD_WEST},
 
-	/* this must go last -- add new guards above! */
+	// this must go last -- add new guards above!
 	{ -1, -1, -1}
 };
 
@@ -737,10 +734,6 @@ std_saving_type std_saving[] =
 		-1, {
 			sav_02, sav_12, sav_02, sav_16}}
 };
-//****************************************************************************
-//****************************************************************************
-//****************************************************************************
-
 
 byte saving_throws(int class_num, int type, int level)
 {
@@ -762,7 +755,7 @@ byte extend_saving_throws(int class_num, int type, int level)
 }
 
 
-/* THAC0 for classes and levels.  (To Hit Armor Class 0) */
+// THAC0 for classes and levels.  (To Hit Armor Class 0)
 int thaco(int class_num, int level)
 {
 	switch (class_num)
@@ -1161,13 +1154,11 @@ int thaco(int class_num, int level)
 		log("SYSERR: Unknown class in thac0 chart.");
 	}
 
-	/* Will not get there unless something is wrong. */
+	// Will not get there unless something is wrong.
 	return 100;
 }
 
-//*************************************************************************
-
-/* AC0 for classes and levels. */
+// AC0 for classes and levels.
 int extra_aco(int class_num, int level)
 {
 	switch (class_num)
@@ -1566,7 +1557,7 @@ int extra_aco(int class_num, int level)
 }
 
 
-/* DAMROLL for classes and levels. */
+// DAMROLL for classes and levels.
 int extra_damroll(int class_num, int level)
 {
 	switch (class_num)
@@ -1964,7 +1955,7 @@ int extra_damroll(int class_num, int level)
 	return 0;
 }
 
-/* Some initializations for characters, including initial skills */
+// Some initializations for characters, including initial skills
 void do_start(CHAR_DATA * ch, int newbie)
 {
 	OBJ_DATA *obj;
@@ -2113,10 +2104,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 		SET_BIT(PLR_FLAGS(ch, PLR_SITEOK), PLR_SITEOK);
 }
 
-/**
-* Перерасчет максимальных родных хп персонажа.
-* При входе в игру, левеле/делевеле, добавлении/удалении славы.
-*/
+// * Перерасчет максимальных родных хп персонажа.
+// * При входе в игру, левеле/делевеле, добавлении/удалении славы.
 void check_max_hp(CHAR_DATA *ch)
 {
 	int ch_class = GET_CLASS(ch);
@@ -2126,9 +2115,7 @@ void check_max_hp(CHAR_DATA *ch)
 	GET_MAX_HIT(ch) = 10 + static_cast<int>(add_hp_per_level * GET_LEVEL(ch));
 }
 
-/**
-* Обработка событий при левел-апе.
-*/
+// * Обработка событий при левел-апе.
 void levelup_events(CHAR_DATA *ch)
 {
 	if (SpamSystem::MIN_OFFTOP_LVL == GET_LEVEL(ch)
@@ -2181,7 +2168,7 @@ void advance_level(CHAR_DATA * ch)
 	check_max_hp(ch);
 	ch->points.max_move += MAX(1, add_move);
 
-	/* Set natural & race features */
+	// Set natural & race features
 	for (i = 1; i < MAX_FEATS; i++)
 	{
 		if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && can_get_feat(ch, i))
@@ -2203,9 +2190,6 @@ void advance_level(CHAR_DATA * ch)
 	ch->save_char();
 }
 
-/**
-*
-*/
 void check_max_skills(CHAR_DATA *ch)
 {
 	for (int i = 1; i <= MAX_SKILL_NUM; i++)
@@ -2322,13 +2306,9 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		(IS_OBJ_ANTI(obj, ITEM_AN_MERCHANT) && IS_MERCHANT(ch)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_DRUID) && IS_DRUID(ch)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
-		/* нелогичный флаг
-		(IS_OBJ_ANTI(obj, ITEM_AN_KILLERONLY)
-		 && !PLR_FLAGGED(ch, PLR_KILLER)) || */
+		// нелогичный флаг (IS_OBJ_ANTI(obj, ITEM_AN_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER)) ||
 		(IS_OBJ_ANTI(obj, ITEM_AN_COLORED) && IS_COLORED(ch)))
 		return (TRUE);
-	/* if ((OBJ_FLAGGED(obj, ITEM_NAMED)) && NamedStuff::check_named(ch, obj))//added by WorM(Видолюб) проверка именного стафа
-		return (TRUE);  убрано Купалой - проверка на класс должна быть отдельно от проверки именного */
 	return (FALSE);
 }
 
@@ -2359,7 +2339,7 @@ int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		(IS_OBJ_NO(obj, ITEM_NO_MERCHANT) && IS_MERCHANT(ch)) ||
 		(IS_OBJ_NO(obj, ITEM_NO_DRUID) && IS_DRUID(ch)) ||
 		(IS_OBJ_NO(obj, ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER)) ||
-		/*(IS_OBJ_NO(obj, ITEM_NO_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER)) ||*/
+		//(IS_OBJ_NO(obj, ITEM_NO_KILLERONLY) && !PLR_FLAGGED(ch, PLR_KILLER)) ||
 		((OBJ_FLAGGED(obj, ITEM_SHARPEN) || OBJ_FLAGGED(obj, ITEM_ARMORED)) && !IS_SMITH(ch)) ||
 		(IS_OBJ_NO(obj, ITEM_NO_COLORED) && IS_COLORED(ch)))
 	{
@@ -2703,7 +2683,7 @@ void init_spell_levels(void)
 	}
 	fclose(magic);
 
-	/* Load features variables - added by Gorrah */
+	// Load features variables - added by Gorrah
 	if (!(magic = fopen(LIB_MISC "features.lst", "r")))
 	{
 		log("Cann't open features list file...");
@@ -2771,7 +2751,7 @@ void init_spell_levels(void)
 			}
 	}
 	fclose(magic);
-	/* End of changed */
+	// End of changed
 
 //	Polud новый файл описания умений Skills.xml, если его нет - читаются старые
 	load_skills();
@@ -2782,9 +2762,9 @@ void init_spell_levels(void)
 		_exit(1);
 	}
 
-	/*** Загружаем переменные скилов из файла ***/
+	// Загружаем переменные скилов из файла
 
-	/** ГОРНОЕ ДЕЛО **/
+	// ГОРНОЕ ДЕЛО
 	// Предварительно ставим значения по дефолту
 
 	dig_vars.hole_max_deep = DIG_DFLT_HOLE_MAX_DEEP;
@@ -2815,7 +2795,7 @@ void init_spell_levels(void)
 	dig_vars.mob_vnum_end = DIG_DFLT_MOB_VNUM_END;
 	dig_vars.pandora_vnum = DIG_DFLT_PANDORA_VNUM;
 
-	/** ЮВЕЛИР **/
+	// ЮВЕЛИР
 	// Предварительно ставим значения по дефолту
 
 	insgem_vars.lag = INSGEM_DFLT_LAG;
@@ -3086,7 +3066,7 @@ int init_grouping(void)
  * than the exp required for immortality, plus at least 20,000 or so.
  */
 
-/* Function to return the exp required for each class/level */
+// Function to return the exp required for each class/level
 int level_exp(CHAR_DATA * ch, int level)
 {
 	if (level > LVL_IMPL || level < 0)
@@ -3104,7 +3084,7 @@ int level_exp(CHAR_DATA * ch, int level)
 		return EXP_IMPL - ((LVL_IMPL - level) * 1000);
 	}
 
-	/* Exp required for normal mortals is below */
+	// Exp required for normal mortals is below
 	float exp_modifier;
 	if (GET_REMORT(ch) < MAX_EXP_COEFFICIENTS_USED)
 		exp_modifier = exp_coefficients[GET_REMORT(ch)];
@@ -3182,7 +3162,7 @@ int level_exp(CHAR_DATA * ch, int level)
 			return int (exp_modifier * 47000000);
 		case 30:
 			return int (exp_modifier * 64000000);
-			/* add new levels here */
+			// add new levels here
 		case LVL_IMMORT:
 			return int (exp_modifier * 94000000);
 		}
@@ -3254,7 +3234,7 @@ int level_exp(CHAR_DATA * ch, int level)
 			return int (exp_modifier * 47000000);
 		case 30:
 			return int (exp_modifier * 64000000);
-			/* add new levels here */
+			// add new levels here
 		case LVL_IMMORT:
 			return int (exp_modifier * 87000000);
 		}
@@ -3325,7 +3305,7 @@ int level_exp(CHAR_DATA * ch, int level)
 			return int (exp_modifier * 28667000);
 		case 30:
 			return int (exp_modifier * 40000000);
-			/* add new levels here */
+			// add new levels here
 		case LVL_IMMORT:
 			return int (exp_modifier * 53000000);
 		}
@@ -3397,7 +3377,7 @@ int level_exp(CHAR_DATA * ch, int level)
 			return int (exp_modifier * 43000000);
 		case 30:
 			return int (exp_modifier * 59000000);
-			/* add new levels here */
+			// add new levels here
 		case LVL_IMMORT:
 			return int (exp_modifier * 79000000);
 		}
@@ -3472,7 +3452,7 @@ int level_exp(CHAR_DATA * ch, int level)
 			return int (exp_modifier * 44000000);
 		case 30:
 			return int (exp_modifier * 64000000);
-			/* add new levels here */
+			// add new levels here
 		case LVL_IMMORT:
 			return int (exp_modifier * 79000000);
 		}

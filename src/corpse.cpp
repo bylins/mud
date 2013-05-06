@@ -273,9 +273,9 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	GET_OBJ_WEAR(corpse) = ITEM_WEAR_TAKE;
 	SET_BIT(GET_OBJ_EXTRA(corpse, ITEM_NODONATE), ITEM_NODONATE);
 	SET_BIT(GET_OBJ_EXTRA(corpse, ITEM_NOSELL), ITEM_NOSELL);
-	GET_OBJ_VAL(corpse, 0) = 0;	/* You can't store stuff in a corpse */
+	GET_OBJ_VAL(corpse, 0) = 0;	// You can't store stuff in a corpse
 	GET_OBJ_VAL(corpse, 2) = IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1;
-	GET_OBJ_VAL(corpse, 3) = 1;	/* corpse identifier */
+	GET_OBJ_VAL(corpse, 3) = 1;	// corpse identifier
 	GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch);
 	GET_OBJ_RENT(corpse) = 100000;
 	corpse->set_timer(max_pc_corpse_time * 2);
@@ -328,9 +328,9 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	GET_OBJ_WEAR(corpse) = ITEM_WEAR_TAKE;
 	SET_BIT(GET_OBJ_EXTRA(corpse, ITEM_NODONATE), ITEM_NODONATE);
 	SET_BIT(GET_OBJ_EXTRA(corpse, ITEM_NOSELL), ITEM_NOSELL);
-	GET_OBJ_VAL(corpse, 0) = 0;	/* You can't store stuff in a corpse */
+	GET_OBJ_VAL(corpse, 0) = 0;	// You can't store stuff in a corpse
 	GET_OBJ_VAL(corpse, 2) = IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1;
-	GET_OBJ_VAL(corpse, 3) = 1;	/* corpse identifier */
+	GET_OBJ_VAL(corpse, 3) = 1;	// corpse identifier
 	GET_OBJ_RENT(corpse) = 100000;
 
 	if (IS_NPC(ch))
@@ -342,7 +342,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 		corpse->set_timer(max_pc_corpse_time * 2);
 	}
 
-	/* transfer character's equipment to the corpse */
+	// transfer character's equipment to the corpse
 	for (i = 0; i < NUM_WEARS; i++)
 	{
 		if (GET_EQ(ch, i))
@@ -357,7 +357,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	// Считаем вес шмоток после того как разденем чара
 	GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch) + IS_CARRYING_W(ch);
 
-	/* transfer character's inventory to the corpse */
+	// transfer character's inventory to the corpse
 	corpse->contains = ch->carrying;
 	for (o = corpse->contains; o != NULL; o = o->next_content)
 	{
@@ -366,8 +366,8 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	object_list_new_owner(corpse, NULL);
 
 
-	/* transfer gold */
-	if (ch->get_gold() > 0)  	/* following 'if' clause added to fix gold duplication loophole */
+	// transfer gold
+	if (ch->get_gold() > 0)  	// following 'if' clause added to fix gold duplication loophole
 	{
 		if (IS_NPC(ch) || (!IS_NPC(ch) && ch->desc))
 		{
@@ -406,8 +406,8 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	}
 
 	// Загружаю шмотки по листу. - перемещено в raw_kill
-	/*  if (IS_NPC (ch))
-	    dl_load_obj (corpse, ch); */
+	//if (IS_NPC (ch))
+	//	dl_load_obj (corpse, ch);
 
 	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
 	if(IS_CHARMICE(ch) && !MOB_FLAGGED(ch, MOB_CORPSE) && ch->master && ((killer && PRF_FLAGGED(killer, PRF_EXECUTOR))

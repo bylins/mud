@@ -55,7 +55,7 @@
 
 using std::string;
 
-/* extern variables */
+// extern variables
 extern int top_of_helpt;
 extern struct help_index_element *help_table;
 extern char *help;
@@ -81,14 +81,14 @@ extern int top_imtypes;
 extern void show_code_date(CHAR_DATA *ch);
 extern int nameserver_is_slow; //config.cpp
 
-/* extern functions */
+// extern functions
 long find_class_bitvector(char arg);
 int level_exp(CHAR_DATA * ch, int level);
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
 int compute_armor_class(CHAR_DATA * ch);
 int low_charm(CHAR_DATA * ch);
 int pk_count(CHAR_DATA * ch);
-/* local functions */
+// local functions
 void print_object_location(int num, OBJ_DATA * obj, CHAR_DATA * ch, int recur);
 const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
 void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
@@ -514,7 +514,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		{
 			strcpy(buf, "Вы не видите ничего необычного.");
 		}
-		else		/* ITEM_TYPE == ITEM_DRINKCON||FOUNTAIN */
+		else		// ITEM_TYPE == ITEM_DRINKCON||FOUNTAIN
 			strcpy(buf, "Это емкость для жидкости.");
 	}
 
@@ -713,7 +713,7 @@ void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch)
 	if (GET_REAL_MAX_HIT(i) > 0)
 		percent = (100 * GET_HIT(i)) / GET_REAL_MAX_HIT(i);
 	else
-		percent = -1;	/* How could MAX_HIT be < 1?? */
+		percent = -1;	// How could MAX_HIT be < 1??
 
 	strcpy(buf, PERS(i, ch, 0));
 	CAP(buf);
@@ -1357,7 +1357,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 			else
 				strcat(buf, "! ");
 		}
-		else		/* NIL fighting pointer */
+		else		// NIL fighting pointer
 		{
 			strcat(buf, IS_POLY(i) ? "колотят по воздуху" : "колотит по воздуху");
 			if (on_horse(i))
@@ -1550,7 +1550,7 @@ void do_auto_exits(CHAR_DATA * ch)
 	*buf = '\0';
 
 	for (door = 0; door < NUM_OF_DIRS; door++)
-		/* Наконец-то добавлена отрисовка в автовыходах закрытых дверей */
+		// Наконец-то добавлена отрисовка в автовыходах закрытых дверей
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room != NOWHERE)
 		{
 			if (EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED))
@@ -1762,11 +1762,11 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		show_extend_room(RoomDescription::show_desc(world[ch->in_room]->description_num).c_str(), ch);
 	}
 
-	/* autoexits */
+	// autoexits
 	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_AUTOEXIT))
 		do_auto_exits(ch);
 
-	/* Отображаем аффекты комнаты. После автовыходов чтобы не ломать популярный маппер. */
+	// Отображаем аффекты комнаты. После автовыходов чтобы не ломать популярный маппер.
 	if (AFF_FLAGGED(ch, AFF_DETECT_MAGIC) || IS_IMMORTAL(ch))
 		sprintbits(world[ch->in_room]->affected_by, room_aff_invis_bits, buf2, "\n");
 	else
@@ -1779,7 +1779,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		send_to_char(buf, ch);
 	}
 
-	/* now list characters & objects */
+	// now list characters & objects
 	if (world[IN_ROOM(ch)]->fires)
 	{
 		sprintf(buf, "%sВ центре %s.%s\r\n",
@@ -2144,7 +2144,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 				}
 			}
 		}
-		else  	/* item must be a fountain or drink container */
+		else  	// item must be a fountain or drink container
 		{
 			if (GET_OBJ_VAL(obj, 1) <= 0)
 				send_to_char("Пусто.\r\n", ch);
@@ -2152,7 +2152,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 			{
 				if (GET_OBJ_VAL(obj, 0) <= 0 || GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 0))
 				{
-					sprintf(buf, "Заполнен%s вакуумом?!\r\n", GET_OBJ_SUF_6(obj));	/* BUG */
+					sprintf(buf, "Заполнен%s вакуумом?!\r\n", GET_OBJ_SUF_6(obj));	// BUG
 				}
 				else
 				{
@@ -2284,7 +2284,7 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 	else if (isname(where, "экипировка equipment"))
 		where_bits = FIND_OBJ_EQUIP;
 
-	/* для townportal */
+	// для townportal
 	if (isname(whatp, "камень") &&
 //       IS_SET(GET_SPELL_TYPE(ch, SPELL_TOWNPORTAL), SPELL_KNOW) &&
 			ch->get_skill(SKILL_TOWNPORTAL) &&
@@ -2311,14 +2311,14 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 			send_to_char("На камне огненными буквами написано слово '&R", ch);
 			send_to_char(port->wrd, ch);
 			send_to_char("&n'.\r\n", ch);
-			/* теперь добавляем в память чара */
+			// теперь добавляем в память чара
 			add_portal_to_char(ch, GET_ROOM_VNUM(ch->in_room));
 			check_portals(ch);
 			return 0;
 		}
 	}
 
-	/* заглянуть в пентаграмму */
+	// заглянуть в пентаграмму
 	if (isname(whatp, "пентаграмма") && world[IN_ROOM(ch)]->portal_time && IS_SET(where_bits, FIND_OBJ_ROOM))
 	{
 		int r = IN_ROOM(ch), to_room;
@@ -2338,7 +2338,7 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 	}
 
 	bits = generic_find(what, where_bits, ch, &found_char, &found_obj);
-	/* Is the target a character? */
+	// Is the target a character?
 	if (found_char != NULL)
 	{
 		if (subcmd == SCMD_LOOK_HIDE && !check_moves(ch, LOOKHIDE_MOVES))
@@ -2364,21 +2364,21 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 		return 0;
 	}
 
-	/* Strip off "number." from 2.foo and friends. */
+	// Strip off "number." from 2.foo and friends.
 	if (!(fnum = get_number(&what)))
 	{
 		send_to_char("Что осматриваем?\r\n", ch);
 		return 0;
 	}
 
-	/* Does the argument match an extra desc in the room? */
+	// Does the argument match an extra desc in the room?
 	if ((desc = find_exdesc(what, world[ch->in_room]->ex_description)) != NULL && ++i == fnum)
 	{
 		page_string(ch->desc, desc, FALSE);
 		return 0;
 	}
 
-	/* If an object was found back in generic_find */
+	// If an object was found back in generic_find
 	if (bits && (found_obj != NULL))
 	{
 
@@ -2399,11 +2399,11 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 		// Собственно изменение. Вместо проверки "if (!found)" юзается проверка
 		// наличия описания у объекта, найденного функцией "generic_find"
 		if (!(desc = find_exdesc(what, found_obj->ex_description)))
-			show_obj_to_char(found_obj, ch, 5, TRUE, 1);	/* Show no-description */
+			show_obj_to_char(found_obj, ch, 5, TRUE, 1);	// Show no-description
 		else
 		{
 			send_to_char(desc, ch);
-			show_obj_to_char(found_obj, ch, 6, TRUE, 1);	/* Find hum, glow etc */
+			show_obj_to_char(found_obj, ch, 6, TRUE, 1);	// Find hum, glow etc
 		}
 
 		*buf = '\0';
@@ -2454,7 +2454,7 @@ ACMD(do_look)
 		skip_hide_on_look(ch);
 
 		send_to_char("Слишком темно...\r\n", ch);
-		list_char_to_char(world[ch->in_room]->people, ch);	/* glowing red eyes */
+		list_char_to_char(world[ch->in_room]->people, ch);	// glowing red eyes
 	}
 	else
 	{
@@ -2470,11 +2470,11 @@ ACMD(do_look)
 				look_at_target(ch, arg, subcmd);
 			return;
 		}
-		if (!*arg)	/* "look" alone, without an argument at all */
+		if (!*arg)	// "look" alone, without an argument at all
 			look_at_room(ch, 1);
 		else if (is_abbrev(arg, "in") || is_abbrev(arg, "внутрь"))
 			look_in_obj(ch, arg2);
-		/* did the char type 'look <direction>?' */
+		// did the char type 'look <direction>?'
 		else if (((look_type = search_block(arg, dirs, FALSE)) >= 0) ||
 				 ((look_type = search_block(arg, Dirs, FALSE)) >= 0))
 			look_in_direction(ch, look_type, EXIT_SHOW_WALL);
@@ -2689,47 +2689,47 @@ const char *class_name[] = { "лекарь",
 
 const char *ac_text[] =
 {
-	"&WВы защищены как БОГ",	/*  -30  */
-	"&WВы защищены как БОГ",	/*  -29  */
-	"&WВы защищены как БОГ",	/*  -28  */
-	"&gВы защищены почти как БОГ",	/*  -27  */
-	"&gВы защищены почти как БОГ",	/*  -26  */
-	"&gВы защищены почти как БОГ",	/*  -25  */
-	"&gНаилучшая защита",	/*  -24  */
-	"&gНаилучшая защита",	/*  -23  */
-	"&gНаилучшая защита",	/*  -22  */
-	"&gВеликолепная защита",	/*  -21  */
-	"&gВеликолепная защита",	/*  -20  */
-	"&gВеликолепная защита",	/*  -19  */
-	"&gОтличная защита",	/*  -18  */
-	"&gОтличная защита",	/*  -17  */
-	"&gОтличная защита",	/*  -16  */
-	"&GОчень хорошая защита",	/*  -15  */
-	"&GОчень хорошая защита",	/*  -14  */
-	"&GОчень хорошая защита",	/*  -13  */
-	"&GВесьма хорошая защита",	/*  -12  */
-	"&GВесьма хорошая защита",	/*  -11  */
-	"&GВесьма хорошая защита",	/*  -10  */
-	"&GХорошая защита",	/*   -9  */
-	"&GХорошая защита",	/*   -8  */
-	"&GХорошая защита",	/*   -7  */
-	"&GНеплохая защита",	/*   -6  */
-	"&GНеплохая защита",	/*   -5  */
-	"&GНеплохая защита",	/*   -4  */
-	"&YЗащита чуть выше среднего",	/*   -3  */
-	"&YЗащита чуть выше среднего",	/*   -2  */
-	"&YЗащита чуть выше среднего",	/*   -1  */
-	"&YСредняя защита",	/*    0  */
+	"&WВы защищены как БОГ",	//  -30 
+	"&WВы защищены как БОГ",	//  -29 
+	"&WВы защищены как БОГ",	//  -28 
+	"&gВы защищены почти как БОГ",	//  -27 
+	"&gВы защищены почти как БОГ",	//  -26 
+	"&gВы защищены почти как БОГ",	//  -25 
+	"&gНаилучшая защита",	//  -24 
+	"&gНаилучшая защита",	//  -23 
+	"&gНаилучшая защита",	//  -22 
+	"&gВеликолепная защита",	//  -21 
+	"&gВеликолепная защита",	//  -20 
+	"&gВеликолепная защита",	//  -19 
+	"&gОтличная защита",	//  -18 
+	"&gОтличная защита",	//  -17 
+	"&gОтличная защита",	//  -16 
+	"&GОчень хорошая защита",	//  -15 
+	"&GОчень хорошая защита",	//  -14 
+	"&GОчень хорошая защита",	//  -13 
+	"&GВесьма хорошая защита",	//  -12 
+	"&GВесьма хорошая защита",	//  -11 
+	"&GВесьма хорошая защита",	//  -10 
+	"&GХорошая защита",	//   -9 
+	"&GХорошая защита",	//   -8 
+	"&GХорошая защита",	//   -7 
+	"&GНеплохая защита",	//   -6 
+	"&GНеплохая защита",	//   -5 
+	"&GНеплохая защита",	//   -4 
+	"&YЗащита чуть выше среднего",	//   -3 
+	"&YЗащита чуть выше среднего",	//   -2 
+	"&YЗащита чуть выше среднего",	//   -1 
+	"&YСредняя защита",	//    0 
 	"&YЗащита чуть ниже среднего",
 	"&YСлабая защита",
 	"&RСлабая защита",
 	"&RОчень слабая защита",
-	"&RВы немного защищены",	/* 5 */
+	"&RВы немного защищены",	// 5
 	"&RВы совсем немного защищены",
 	"&rВы чуть-чуть защищены",
 	"&rВы легко уязвимы",
 	"&rВы почти полностью уязвимы",
-	"&rВы полностью уязвимы",	/* 10 */
+	"&rВы полностью уязвимы",	// 10
 };
 
 void print_do_score_all(CHAR_DATA *ch)
@@ -3601,7 +3601,7 @@ ACMD(do_score)
 
 }
 
-/*29.11.09 Отображение количества рипов (с) Василиса*/
+//29.11.09 Отображение количества рипов (с) Василиса
 // edited by WorM 2011.05.21
 ACMD(do_mystat)
 {
@@ -3645,7 +3645,7 @@ ACMD(do_mystat)
 	}
 }
 // end by WorM
-/* конец правки (с) Василиса*/
+// конец правки (с) Василиса
 
 ACMD(do_inventory)
 {
@@ -3771,7 +3771,7 @@ ACMD(do_time)
 	strcat(buf, ".\r\n");
 	send_to_char(buf, ch);
 
-	day = time_info.day + 1;	/* day in [1..35] */
+	day = time_info.day + 1;	// day in [1..35]
 	*buf = '\0';
 	if (GET_RELIGION(ch) == RELIGION_POLY || IS_IMMORTAL(ch))
 	{
@@ -3962,7 +3962,7 @@ ACMD(do_help)
 
 	skip_spaces(&argument);
 
-	/* печатаем экран справки если нет аргументов */
+	// печатаем экран справки если нет аргументов
 	if (!*argument)
 	{
 		page_string(ch->desc, help, 0);
@@ -4000,45 +4000,45 @@ ACMD(do_help)
 
 	char *space_pos; // указатель на пробел в строке
 
-	/*залочка на случай крешей и прочих багов */
+	//залочка на случай крешей и прочих багов
 //        send_to_char("Справка временно недоступна.\r\n", ch);
 //        return;
 
-	/* если таблица справки пуста */
+	// если таблица справки пуста
 	if (!help_table)
 	{
 		send_to_char("Помощь недоступна.\r\n", ch);
 		return;
 	}
 
-	/* подготовка к бинарному поиску */
+	// подготовка к бинарному поиску
 	bin_search_bottom = 0;
 	bin_search_top = top_of_helpt;
 
-	/* trust_level справки для демигодов - LVL_IMMORT */
+	// trust_level справки для демигодов - LVL_IMMORT
 	if (GET_GOD_FLAG(ch, GF_DEMIGOD))
 		trust_level = LVL_IMMORT;
 	else
 		trust_level = GET_LEVEL(ch);;
 
-	/* Получаем topic_num для индексации топика*/
+	// Получаем topic_num для индексации топика
 	sscanf(argument, "%d.%s", &topic_num, argument);
 
-	/* Обрезаем пробелы */
+	// Обрезаем пробелы
 	if ((space_pos = strchr(argument, ' ')))
 		* (space_pos) = '\0';
 
-	/* если последний символ аргумента '!' -- включаем строгий поиск */
+	// если последний символ аргумента '!' -- включаем строгий поиск
 	if (strlen(argument) > 1 && *(argument + strlen(argument) - 1) == '!')
 	{
 		strong = TRUE;
 		*(argument + strlen(argument) - 1) = '\0';
 	}
 
-	/* длинна строкового аргумента */
+	// длинна строкового аргумента
 	minlen = strlen(argument);
 
-	/* бинарный поиск начинается*/
+	// бинарный поиск начинается
 	for (;;)
 	{
 		mid = (bin_search_bottom + bin_search_top) / 2;
@@ -4161,7 +4161,7 @@ ACMD(do_who)
 	char name_search[MAX_INPUT_LENGTH];
 	name_search[0] = '\0';
 
-	/* Строки содержащие имена  */
+	// Строки содержащие имена
 	char *imms = NULL;
 	char *morts = NULL;
 	char *demigods = NULL;
@@ -4169,7 +4169,7 @@ ACMD(do_who)
 
 	char mode;
 	size_t i;
-	/* Флаги для опций  */
+	// Флаги для опций
 	int low = 0, high = LVL_IMPL, localwho = 0;
 	int showclass = 0, short_list = 0, num_can_see = 0;
 	int who_room = 0, imms_num = 0, morts_num = 0, demigods_num = 0;
@@ -4181,7 +4181,7 @@ ACMD(do_who)
 	skip_spaces(&argument);
 	strcpy(buf, argument);
 
-	/* Проверка аргументов команды "кто" */
+	// Проверка аргументов команды "кто"
 	while (*buf)
 	{
 		half_chop(buf, arg, buf1);
@@ -4199,7 +4199,7 @@ ACMD(do_who)
 		}
 		else if (*arg == '-')
 		{
-			mode = *(arg + 1);	/* just in case; we destroy arg in the switch */
+			mode = *(arg + 1);	// just in case; we destroy arg in the switch
 			switch (mode)
 			{
 			case 'b':
@@ -4246,20 +4246,20 @@ ACMD(do_who)
 				else
 					send_to_char(MORT_WHO_FORMAT, ch);
 				return;
-			}	/* end of switch */
+			}	// end of switch
 		}
-		else  	/* endif */
+		else  	// endif
 		{
 			strcpy(name_search, arg);
 			strcpy(buf, buf1);
 
 		}
-	}			/* end while (parser) */
+	}			// end while (parser)
 
 	if (who_spamcontrol(ch, strlen(name_search) ? WHO_LISTNAME : WHO_LISTALL))
 		return;
 
-	/* Первоначальное заполнение строк imms, morts, demigods  */
+	// Первоначальное заполнение строк imms, morts, demigods
 	sprintf(buf, "%sБОГИ%s\r\n", CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
 	imms = str_add(imms, buf);
 	sprintf(buf, "%sПривилегированные%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -4375,7 +4375,7 @@ ACMD(do_who)
 			}
 			if (IS_IMMORTAL(tch))
 				strcat(buf, CCNRM(ch, C_SPR));
-		}		/* endif shortlist */
+		}		// endif shortlist
 
 		if (IS_IMMORTAL(tch))
 		{
@@ -4398,7 +4398,7 @@ ACMD(do_who)
 			if (!short_list || !(morts_num % 4))
 				morts = str_add(morts, "\r\n");
 		}
-	}			/* end of for */
+	}			// end of for
 
 	if (morts_num + imms_num + demigods_num == 0)
 	{
@@ -4566,7 +4566,7 @@ ACMD(do_who_new)
 		}
 		if (IS_IMMORTAL(tch))
 			strcat(buf, CCNRM(ch, C_SPR));
-		//}                     /* endif shortlist */
+		//}                     // endif shortlist
 
 		if (IS_IMMORTAL(tch))
 		{
@@ -4582,7 +4582,7 @@ ACMD(do_who_new)
 			//if (!short_list || !(morts_num % 4)) //Ann: .
 			//morts = str_add (morts, "\r\n");
 		}
-	}			/* end of for */
+	}			// end of for
 
 	//send_to_char ("do_who_new end for", ch);
 	if (morts_num + imms_num == 0)
@@ -4771,7 +4771,7 @@ ACMD(do_users)
 		half_chop(buf, arg, buf1);
 		if (*arg == '-')
 		{
-			mode = *(arg + 1);	/* just in case; we destroy arg in the switch */
+			mode = *(arg + 1);	// just in case; we destroy arg in the switch
 			switch (mode)
 			{
 			case 'o':
@@ -4837,15 +4837,15 @@ ACMD(do_users)
 			default:
 				send_to_char(USERS_FORMAT, ch);
 				return;
-			}	/* end of switch */
+			}	// end of switch
 
 		}
-		else  	/* endif */
+		else  	// endif
 		{
 			strcpy(name_search, arg);
 			strcpy(buf, buf1);
 		}
-	}			/* end while (parser) */
+	}			// end while (parser)
 	if (showemail)
 	{
 		strcpy(line, "Ном Професс       Имя         Состояние       Idl Логин    Сайт       E-mail\r\n");
@@ -5038,7 +5038,7 @@ ACMD(do_users)
 	page_string(ch->desc, line, TRUE);
 }
 
-/* Generic page_string function for displaying text */
+// Generic page_string function for displaying text
 ACMD(do_gen_ps)
 {
 	//DESCRIPTOR_DATA *d;
@@ -5140,7 +5140,7 @@ void perform_mortal_where(CHAR_DATA * ch, char *arg)
 			send_to_char(buf, ch);
 		}
 	}
-	else  		/* print only FIRST char, not all. */
+	else  		// print only FIRST char, not all.
 	{
 		for (i = character_list; i; i = i->next)
 		{
@@ -5567,27 +5567,26 @@ void sort_commands(void)
 
 	num_of_cmds = 0;
 
-	/*
-	 * first, count commands (num_of_commands is actually one greater than the
-	 * number of commands; it inclues the '\n'.
-	 */
+	 // first, count commands (num_of_commands is actually one greater than the
+	 // number of commands; it inclues the '\n'.
+
 	while (*cmd_info[num_of_cmds].command != '\n')
 		num_of_cmds++;
 
-	/* create data array */
+	// create data array
 	CREATE(cmd_sort_info, struct sort_struct, num_of_cmds);
 
-	/* initialize it */
+	// initialize it
 	for (a = 1; a < num_of_cmds; a++)
 	{
 		cmd_sort_info[a].sort_pos = a;
 		cmd_sort_info[a].is_social = FALSE;
 	}
 
-	/* the infernal special case */
+	// the infernal special case
 	cmd_sort_info[find_command("insult")].is_social = TRUE;
 
-	/* Sort.  'a' starts at 1, not 0, to remove 'RESERVED' */
+	// Sort.  'a' starts at 1, not 0, to remove 'RESERVED'
 	for (a = 1; a < num_of_cmds - 1; a++)
 		for (b = a + 1; b < num_of_cmds; b++)
 			if (strcmp(cmd_info[cmd_sort_info[a].sort_pos].command,
@@ -5623,7 +5622,7 @@ ACMD(do_commands)
 	else
 		num_of = num_of_cmds - 1;
 
-	/* cmd_num starts at 1, not 0, to remove 'RESERVED' */
+	// cmd_num starts at 1, not 0, to remove 'RESERVED'
 	for (no = 1, cmd_num = socials ? 0 : 1; cmd_num < num_of; cmd_num++)
 		if (socials)
 		{
@@ -5664,7 +5663,7 @@ ACMD(do_affects)
 	int i, j;
 	char sp_name[MAX_STRING_LENGTH];
 
-	/* Showing the bitvector */
+	// Showing the bitvector
 	saved = ch->char_specials.saved.affected_by;
 	for (i = 0; (j = hiding[i]); i++)
 	{
@@ -5679,7 +5678,7 @@ ACMD(do_affects)
 		if (IS_SET(GET_FLAG(saved, j), j))
 			SET_BIT(AFF_FLAGS(ch, j), j);
 
-	/* Routine to show what spells a char is affected by */
+	// Routine to show what spells a char is affected by
 	if (ch->affected)
 	{
 		for (aff = ch->affected; aff; aff = aff->next)
@@ -5750,7 +5749,7 @@ void make_who2html(void)
 	char *buffer = NULL;
 
 	if ((opf = fopen(WHOLIST_FILE, "w")) == 0)
-		return;		/* or log it ? *shrug* */
+		return;		// or log it ? *shrug*
 
 	fprintf(opf, "<HTML><HEAD><TITLE>Кто сейчас в Былинах?</TITLE></HEAD>\n");
 	fprintf(opf, "<BODY><H1>Кто сейчас живет в Былинах?</H1><HR>\n");

@@ -79,10 +79,10 @@ extern struct attack_hit_type attack_hit_text[];
 extern struct zone_type * zone_types;
 //-MZ.load
 
-/*The number of changing coefficients (the others are unchanged) */
+//The number of changing coefficients (the others are unchanged)
 #define	MAX_EXP_COEFFICIENTS_USED 15
 
-/* unless you change this, Puff casts all your dg spells */
+// unless you change this, Puff casts all your dg spells
 #define DG_CASTER_PROXY 113
 
 #define FIRST_ROOM       1

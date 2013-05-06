@@ -18,7 +18,7 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-#include "interpreter.h"	/* alias_data definition for structs.h */
+#include "interpreter.h"	// alias_data definition for structs.h
 #include "utils.h"
 #include "constants.h"
 #include "char.hpp"
@@ -46,27 +46,25 @@
  *
  */
 
-/****************************************************************************/
-/****************************************************************************/
 int level_exp(CHAR_DATA * ch, int level);
 
-/* GAME PLAY OPTIONS */
+// GAME PLAY OPTIONS
 
-/* exp change limits */
-int max_exp_gain_npc = 100000;	/* max gainable per kill */
+// exp change limits
+int max_exp_gain_npc = 100000;	// max gainable per kill
 
-/* number of tics (usually 75 seconds) before PC/NPC corpses decompose */
+// number of tics (usually 75 seconds) before PC/NPC corpses decompose
 int max_npc_corpse_time = 5;
 int max_pc_corpse_time = 30;
 
-/* How many ticks before a player is sent to the void or idle-rented. */
+// How many ticks before a player is sent to the void or idle-rented.
 int idle_void = 10;
 int idle_rent_time = 40;
 
-/* This level and up is immune to idling, LVL_IMPL+1 will disable it. */
+// This level and up is immune to idling, LVL_IMPL+1 will disable it.
 int idle_max_level = LVL_IMMORT;
 
-/* should items in death traps automatically be junked? */
+// should items in death traps automatically be junked?
 int dts_are_dumps = YES;
 
 /*
@@ -78,7 +76,7 @@ int dts_are_dumps = YES;
  */
 int load_into_inventory = YES;
 
-/* "okay" etc. */
+// "okay" etc.
 const char *OK = "Ладушки.\r\n";
 const char *NOPERSON = "Нет такого создания в этом мире.\r\n";
 const char *NOEFFECT = "Ваши потуги оказались напрасными.\r\n";
@@ -91,11 +89,7 @@ const char *NOEFFECT = "Ваши потуги оказались напрасными.\r\n";
  */
 //int track_through_doors = YES;
 
-/****************************************************************************/
-/****************************************************************************/
-
-
-/* RENT/CRASHSAVE OPTIONS */
+// RENT/CRASHSAVE OPTIONS
 
 /*
  * Should the MUD allow you to 'rent' for free?  (i.e. if you just quit,
@@ -103,10 +97,10 @@ const char *NOEFFECT = "Ваши потуги оказались напрасными.\r\n";
  */
 int free_rent = NO;
 
-/* maximum number of items players are allowed to rent */
+// maximum number of items players are allowed to rent
 //int max_obj_save = 120;
 
-/* receptionist's surcharge on top of item costs */
+// receptionist's surcharge on top of item costs
 int min_rent_cost(CHAR_DATA * ch)
 {
 	if ((GET_LEVEL(ch) < 15) && (GET_REMORT(ch) == 0))
@@ -131,13 +125,13 @@ int auto_save = YES;
  */
 int autosave_time = 5;
 
-/* Lifetime of crashfiles, forced-rent and idlesave files in days */
+// Lifetime of crashfiles, forced-rent and idlesave files in days
 int crash_file_timeout = 30;
 
-/* Lifetime of normal rent files in days */
+// Lifetime of normal rent files in days
 int rent_file_timeout = 30;
 
-/* The period of free rent after crash or forced-rent in hours*/
+// The period of free rent after crash or forced-rent in hours
 int free_crashrent_period = 2;
 
 /* Система автоудаления
@@ -150,9 +144,9 @@ int free_crashrent_period = 2;
 */
 struct pclean_criteria_data pclean_criteria[] =
 {
-	/*     УРОВЕНЬ           ДНИ   */
-	{ -1, 0},		/* Удаленные чары - удалять сразу */
-	{0, 0},			/* Чары 0го уровня никогда не войдут в игру, так что глюки удалять сразу */
+	//     УРОВЕНЬ           ДНИ
+	{ -1, 0},		// Удаленные чары - удалять сразу
+	{0, 0},			// Чары 0го уровня никогда не войдут в игру, так что глюки удалять сразу
 	{1, 7},
 	{2, 14},
 	{3, 21},
@@ -178,35 +172,29 @@ struct pclean_criteria_data pclean_criteria[] =
 	{23, 161},
 	{24, 168},
 	{25, 360},
-	{LVL_IMPL, -1},		/* c 25го и дальше живут вечно */
-	{ -2, 0}			/* Последняя обязательная строка */
+	{LVL_IMPL, -1},		// c 25го и дальше живут вечно
+	{ -2, 0}			// Последняя обязательная строка
 };
 
-/****************************************************************************/
-/****************************************************************************/
 
+// ROOM NUMBERS
 
-/* ROOM NUMBERS */
+// virtual number of room that mortals should enter at
+room_vnum mortal_start_room = 4056;	// tavern in village
 
-/* virtual number of room that mortals should enter at */
-room_vnum mortal_start_room = 4056;	/* tavern in village */
+// virtual number of room that immorts should enter at by default
+room_vnum immort_start_room = 100;	// place  in castle
 
-/* virtual number of room that immorts should enter at by default */
-room_vnum immort_start_room = 100;	/* place  in castle */
+// virtual number of room that frozen players should enter at
+room_vnum frozen_start_room = 101;	// something in castle
 
-/* virtual number of room that frozen players should enter at */
-room_vnum frozen_start_room = 101;	/* something in castle */
-
-/* virtual number of room that helled players should enter at */
-room_vnum helled_start_room = 101;	/* something in castle */
+// virtual number of room that helled players should enter at
+room_vnum helled_start_room = 101;	// something in castle
 room_vnum named_start_room = 105;
 room_vnum unreg_start_room = 103;
 
-/****************************************************************************/
-/****************************************************************************/
 
-
-/* GAME OPERATION OPTIONS */
+// GAME OPERATION OPTIONS
 
 /*
  * This is the default port on which the game should run if no port is
@@ -227,10 +215,10 @@ ush_int DFLT_PORT = 4000;
  * course, that IP address must be one of your host's interfaces, or it
  * won't work.)
  */
-const char *DFLT_IP = NULL;	/* bind to all interfaces */
-/* const char *DFLT_IP = "192.168.1.1";  -- bind only to one interface */
+const char *DFLT_IP = NULL;	// bind to all interfaces
+// const char *DFLT_IP = "192.168.1.1";  -- bind only to one interface
 
-/* default directory to use as data directory */
+// default directory to use as data directory
 const char *DFLT_DIR = "lib";
 
 /*
@@ -240,15 +228,15 @@ const char *DFLT_DIR = "lib";
  * the screen. (Hint: Try 'tail -f' if you have a UNIX machine.)
  */
 const char *LOGNAME = NULL;
-/* const char *LOGNAME = "log/syslog";  -- useful for Windows users */
+// const char *LOGNAME = "log/syslog";  -- useful for Windows users
 
-/* maximum number of players allowed before game starts to turn people away */
+// maximum number of players allowed before game starts to turn people away
 int max_playing = 300;
 
-/* maximum size of bug, typo and idea files in bytes (to prevent bombing) */
+// maximum size of bug, typo and idea files in bytes (to prevent bombing)
 int max_filesize = 500000;
 
-/* maximum number of password attempts before disconnection */
+// maximum number of password attempts before disconnection
 int max_bad_pws = 3;
 
 /*
@@ -304,9 +292,6 @@ const char *START_MESSG =
 	"тебя в нашем мире.\r\n"
 	" Твоя задача непроста, но надеемся, что ты сумеешь достойно решить ее.\r\n"
 	" В добрый час, путник, и да будет скатертью тебе дорога...\r\n" "\r\n";
-
-/****************************************************************************/
-/****************************************************************************/
 
 int max_exp_gain_pc(CHAR_DATA * ch)
 {

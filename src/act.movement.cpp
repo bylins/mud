@@ -36,7 +36,7 @@
 #include "named_stuff.hpp"
 #include "fight.h"
 
-/* external functs */
+// external functs
 void death_cry(CHAR_DATA * ch);
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
@@ -45,7 +45,7 @@ int awake_others(CHAR_DATA * ch);
 void affect_from_char(CHAR_DATA * ch, int type);
 void do_aggressive_room(CHAR_DATA * ch, int check_sneak);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
-/* local functions */
+// local functions
 void check_ice(int room);
 int has_boat(CHAR_DATA * ch);
 int find_door(CHAR_DATA * ch, const char *type, char *dir, const char *cmdname);
@@ -75,11 +75,11 @@ const char *DirIs[] =
 	"\n"
 };
 
-/* check ice in room */
+// check ice in room
 int check_death_ice(int room, CHAR_DATA * ch)
 {
 	int sector, mass = 0, result = FALSE;
-	CHAR_DATA *vict /*, *next_vict */ ;
+	CHAR_DATA *vict; // *next_vict
 
 	if (room == NOWHERE)
 		return (FALSE);
@@ -108,15 +108,14 @@ int check_death_ice(int room, CHAR_DATA * ch)
 	return (result);
 }
 
-/* simple function to determine if char can walk on water */
+// simple function to determine if char can walk on water
 int has_boat(CHAR_DATA * ch)
 {
 	OBJ_DATA *obj;
 	int i;
-	/*
-	  if (ROOM_IDENTITY(ch->in_room) == DEAD_SEA)
-	     return (1);
-	*/
+
+	//if (ROOM_IDENTITY(ch->in_room) == DEAD_SEA)
+	//	return (1);
 
 	if (IS_IMMORTAL(ch))
 		return (TRUE);
@@ -130,12 +129,12 @@ int has_boat(CHAR_DATA * ch)
 	if (AFF_FLAGGED(ch, AFF_FLY))
 		return (TRUE);
 
-	/* non-wearable boats in inventory will do it */
+	// non-wearable boats in inventory will do it
 	for (obj = ch->carrying; obj; obj = obj->next_content)
 		if (GET_OBJ_TYPE(obj) == ITEM_BOAT && (find_eq_pos(ch, obj, NULL) < 0))
 			return (TRUE);
 
-	/* and any boat you're wearing will do it too */
+	// and any boat you're wearing will do it too
 	for (i = 0; i < NUM_WEARS; i++)
 		if (GET_EQ(ch, i) && GET_OBJ_TYPE(GET_EQ(ch, i)) == ITEM_BOAT)
 			return (TRUE);
@@ -347,7 +346,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 	if (!CAN_GO(ch, dir))
 		return (FALSE);
 
-	/* не пускать в ванрумы после пк */
+	// не пускать в ванрумы после пк
 	if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_TUNNEL) && !IS_NPC(ch) && RENTABLE(ch))
 	{
 		if (show_msg)
@@ -355,7 +354,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		return (FALSE);
 	}
 
-	/* charmed */
+	// charmed
 	if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master && ch->in_room == ch->master->in_room)
 	{
 		if (show_msg)
@@ -366,7 +365,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		return (FALSE);
 	}
 
-	/* check NPC's */
+	// check NPC's
 	if (IS_NPC(ch))
 	{
 		if (GET_DEST(ch) != NOWHERE)
@@ -590,7 +589,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	if (!(need_movement = legal_dir(ch, dir, need_specials_check, TRUE)))
 		return (FALSE);
 
-	/* Mortally drunked - it is loss direction */
+	// Mortally drunked - it is loss direction
 	if (!IS_NPC(ch) && !leader && GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED && !on_horse(ch) &&
 			GET_COND(ch, DRUNK) >= number(CHAR_DRUNKED, 50))
 	{
@@ -624,7 +623,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		}
 	}
 
-	/* Now we know we're allow to go into the room. */
+	// Now we know we're allow to go into the room.
 	if (!IS_IMMORTAL(ch) && !IS_NPC(ch))
 		GET_MOVE(ch) -= need_movement;
 
@@ -708,16 +707,16 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		act("Кто-то тихо удалился отсюда.", TRUE, ch, 0, 0, TO_ROOM_HIDE);
 	}
 
-	if (on_horse(ch) /* || has_horse(ch, TRUE) */)
+	if (on_horse(ch)) // || has_horse(ch, TRUE))
 		horse = get_horse(ch);
 
-	/* Если сбежали, и по противнику никто не бьет, то убираем с него аттаку */
+	// Если сбежали, и по противнику никто не бьет, то убираем с него аттаку
 	if (IsFlee)
 	{
 		stop_fighting(ch, TRUE);
 	}
 
-	/* track improovment */
+	// track improovment
 	if (!IS_NPC(ch) && IS_BITS(ch->track_dirs, dir))
 	{
 		send_to_char("Вы двинулись по следу.\r\n", ch);
@@ -797,7 +796,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	else
 	{
 		greet_memory_mtrigger(ch);
-		/* add track info */
+		// add track info
 		if (!AFF_FLAGGED(ch, AFF_NOTRACK) && (!IS_NPC(ch) || (mob_rnum = GET_MOB_RNUM(ch)) >= 0))
 		{
 			for (track = world[go_to]->track; track; track = track->next)
@@ -852,7 +851,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	}
 
 
-	/* hide improovment */
+	// hide improovment
 	if (IS_NPC(ch))
 		for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
 		{
@@ -862,7 +861,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 	income_mtrigger(ch, direction - 1);
 
-	/* char income, go mobs action */
+	// char income, go mobs action
 	for (vict = world[IN_ROOM(ch)]->people; !IS_NPC(ch) && vict; vict = vict->next_in_room)
 	{
 		if (!IS_NPC(vict))
@@ -873,7 +872,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 				AFF_FLAGGED(ch, AFF_CAMOUFLAGE) || vict->get_fighting() || GET_POS(vict) < POS_RESTING)
 			continue;
 
-		/* AWARE mobs */
+		// AWARE mobs
 		if (MOB_FLAGGED(vict, MOB_AWARE) &&
 				GET_POS(vict) < POS_FIGHTING && !AFF_FLAGGED(vict, AFF_HOLD) && GET_POS(vict) > POS_SLEEPING)
 		{
@@ -882,7 +881,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		}
 	}
 
-	/* If flee - go agressive mobs */
+	// If flee - go agressive mobs
 	if (!IS_NPC(ch) && IsFlee)
 		do_aggressive_room(ch, FALSE);
 
@@ -1252,12 +1251,12 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 		break;
 	}
 
-	/* Notify the room */
+	// Notify the room
 	sprintf(local_buf + strlen(local_buf), "%s.", (obj) ? "$p" : (EXIT(ch, door)->vkeyword ? "$F" : "дверь"));
 	if (!(obj) || (obj->in_room != NOWHERE))
 		act(local_buf, FALSE, ch, obj, obj ? 0 : EXIT(ch, door)->vkeyword, TO_ROOM);
 
-	/* Notify the other room */
+	// Notify the other room
 	if ((scmd == SCMD_OPEN || scmd == SCMD_CLOSE) && back)
 	{
 		if ((to = world[EXIT(ch, door)->to_room]->people))
@@ -1425,21 +1424,21 @@ ACMD(do_enter)
 			{
 				from_room = IN_ROOM(ch);
 				door = world[IN_ROOM(ch)]->portal_room;
-				/* не пускать игрока на холженном коне */
+				// не пускать игрока на холженном коне
 				if (on_horse(ch) && GET_MOB_HOLD(get_horse(ch)))
 				{
 					act("$Z $N не в состоянии нести вас на себе.\r\n",
 						FALSE, ch, 0, get_horse(ch), TO_CHAR);
 					return;
 				}
-				/* не пускать в ванрумы после пк */
+				// не пускать в ванрумы после пк
 				if (ROOM_FLAGGED(door, ROOM_TUNNEL) && RENTABLE(ch) && !IS_NPC(ch))
 				{
 					send_to_char
 					("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
 					return;
 				}
-				/* Если чар под местью, и портал односторонний, то не пускать */
+				// Если чар под местью, и портал односторонний, то не пускать
 				if (RENTABLE(ch) && !IS_NPC(ch) && !world[door]->portal_time)
 				{
 					send_to_char("Грехи мешают вам воспользоваться вратами.\r\n", ch);
@@ -1546,8 +1545,7 @@ ACMD(do_enter)
 			}
 		}
 		else
-		{	/* an argument was supplied, search for door
-				 * keyword */
+		{	// an argument was supplied, search for door keyword
 			for (door = 0; door < NUM_OF_DIRS; door++)
 				if (EXIT(ch, door))
 					if (EXIT(ch, door)->keyword && EXIT(ch, door)->keyword)
@@ -1562,7 +1560,7 @@ ACMD(do_enter)
 	}
 	else if (ROOM_FLAGGED(ch->in_room, ROOM_INDOORS))
 		send_to_char("Вы уже внутри.\r\n", ch);
-	else  			/* try to locate an entrance */
+	else  			// try to locate an entrance
 	{
 		for (door = 0; door < NUM_OF_DIRS; door++)
 			if (EXIT(ch, door))
@@ -1600,7 +1598,7 @@ ACMD(do_stand)
 	case POS_SITTING:
 		send_to_char("Вы встали.\r\n", ch);
 		act("$n поднял$u.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		/* Will be sitting after a successful bash and may still be fighting. */
+		// Will be sitting after a successful bash and may still be fighting.
 		GET_POS(ch) = ch->get_fighting() ? POS_FIGHTING : POS_STANDING;
 		break;
 	case POS_RESTING:
@@ -2198,7 +2196,7 @@ ACMD(do_follow)
 	{
 		act("Но вы можете следовать только за $N4!", FALSE, ch, 0, ch->master, TO_CHAR);
 	}
-	else  		/* Not Charmed follow person */
+	else  		// Not Charmed follow person
 	{
 		if (leader == ch)
 		{

@@ -50,11 +50,11 @@
 #define CAMP  "&"
 #define CSLH  "\\"
 
-#define CUDL  "\x1B[4m"		/* Underline ANSI code */
+#define CUDL  "\x1B[4m"		// Underline ANSI code
 #define CFSH  "\x1B[5m"		/* Flashing ANSI code.  Change to #define CFSH "" if
 * you want to disable flashing colour codes
 */
-#define CRVS  "\x1B[7m"		/* Reverse video ANSI code */
+#define CRVS  "\x1B[7m"		// Reverse video ANSI code
 
 const char *COLOURLIST[] = { CNRM, CRED, CGRN, CYEL, CBLU, CMAG, CCYN, CWHT,
 							 BRED, BGRN, BYEL, BBLU, BMAG, BCYN, BWHT,
@@ -73,105 +73,105 @@ int is_colour(char code)
 {
 	switch (code)
 	{
-		/* Normal colours */
+		// Normal colours
 	case 'k':
 		return 25;
-		break;		/* Black */
+		break;		// Black
 	case 'r':
 		return 1;
-		break;		/* Red */
+		break;		// Red
 	case 'g':
 		return 2;
-		break;		/* Green */
+		break;		// Green
 	case 'y':
 		return 3;
-		break;		/* Yellow */
+		break;		// Yellow
 	case 'b':
 		return 4;
-		break;		/* Blue */
+		break;		// Blue
 	case 'm':
 		return 5;
-		break;		/* Magenta */
+		break;		// Magenta
 	case 'c':
 		return 6;
-		break;		/* Cyan */
+		break;		// Cyan
 	case 'w':
 		return 7;
-		break;		/* White */
+		break;		// White
 
-		/* Bold colours */
+		// Bold colours
 	case 'K':
 		return 29;
-		break;		/* Bold black (Just for completeness) */
+		break;		// Bold black (Just for completeness)
 	case 'R':
 		return 8;
-		break;		/* Bold red */
+		break;		// Bold red
 	case 'G':
 		return 9;
-		break;		/* Bold green */
+		break;		// Bold green
 	case 'Y':
 		return 10;
-		break;		/* Bold yellow */
+		break;		// Bold yellow
 	case 'B':
 		return 11;
-		break;		/* Bold blue */
+		break;		// Bold blue
 	case 'M':
 		return 12;
-		break;		/* Bold magenta */
+		break;		// Bold magenta
 	case 'C':
 		return 13;
-		break;		/* Bold cyan */
+		break;		// Bold cyan
 	case 'W':
 		return 14;
-		break;		/* Bold white */
+		break;		// Bold white
 
-		/* Background colours */
+		// Background colours
 	case '0':
 		return 24;
-		break;		/* Black background */
+		break;		// Black background
 	case '1':
 		return 15;
-		break;		/* Red background */
+		break;		// Red background
 	case '2':
 		return 16;
-		break;		/* Green background */
+		break;		// Green background
 	case '3':
 		return 17;
-		break;		/* Yellow background */
+		break;		// Yellow background
 	case '4':
 		return 18;
-		break;		/* Blue background */
+		break;		// Blue background
 	case '5':
 		return 19;
-		break;		/* Magenta background */
+		break;		// Magenta background
 	case '6':
 		return 20;
-		break;		/* Cyan background */
+		break;		// Cyan background
 	case '7':
 		return 21;
-		break;		/* White background */
+		break;		// White background
 
-		/* Misc characters */
+		// Misc characters
 //	case '&':
 //		return 22;
-//		break;		/* The & character */
+//		break;		// The & character
 	case '\\':
 		return 23;
-		break;		/* The \ character */
+		break;		// The \ character
 
-		/* Special codes */
+		// Special codes
 	case 'n':
 		return 0;
-		break;		/* Normal */
+		break;		// Normal
 	case 'f':
 		return 26;
-		break;		/* Flash */
+		break;		// Flash
 	case 'v':
 		return 27;
-		break;		/* Reverse video */
+		break;		// Reverse video
 	case 'u':
 		return 28;
-		break;		/* Underline (Only for mono screens) */
+		break;		// Underline (Only for mono screens)
 	case 'q':
 		return -2;
 		break;		// set default color to current

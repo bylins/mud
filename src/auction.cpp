@@ -24,7 +24,7 @@
 #include "named_stuff.hpp"
 #include "pk.h"
 
-/* external functions */
+// external functions
 extern int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
@@ -40,8 +40,8 @@ extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fulln
 AUCTION_DATA auction_lots[MAX_AUCTION_LOT] = { { -1, NULL, -1, NULL, -1, NULL, -1, NULL, 0, 0},
 	{ -1, NULL, -1, NULL, -1, NULL, -1, NULL, 0, 0},
 	{ -1, NULL, -1, NULL, -1, NULL, -1, NULL, 0, 0}	/*,
-						   {-1, NULL, -1, NULL, -1, NULL, -1, NULL, 0, 0},
-						   {-1, NULL, -1, NULL, -1, NULL, -1, NULL, 0, 0}  */
+	{-1, NULL, -1, NULL, -1, NULL, -1, NULL, 0, 0},
+	{-1, NULL, -1, NULL, -1, NULL, -1, NULL, 0, 0}  */
 };
 
 const char *tact_message[] = { "тбъ!",
@@ -532,7 +532,7 @@ void message_auction(char *message, CHAR_DATA * ch)
 {
 	DESCRIPTOR_DATA *i;
 
-	/* now send all the strings out */
+	// now send all the strings out
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) == CON_PLAYING &&

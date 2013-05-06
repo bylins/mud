@@ -35,17 +35,17 @@
 #include "room.hpp"
 #include "spam.hpp"
 
-/* extern variables */
+// extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
 extern CHAR_DATA *character_list;
 extern TIME_INFO_DATA time_info;
 
-/* local functions */
+// local functions
 void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg);
 int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict);
 bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict);
 
-/* external functions */
+// external functions
 extern char *diag_timer_to_char(const OBJ_DATA * obj);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
@@ -284,7 +284,7 @@ int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict)
 		send_to_char("Вам запрещено обращаться к другим игрокам.\r\n", ch);
 		return (FALSE);
 	}
-	else if (!IS_NPC(vict) && !vict->desc)  	/* linkless */
+	else if (!IS_NPC(vict) && !vict->desc)  	// linkless
 	{
 		act("$N потерял$G связь в этот момент.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		return (FALSE);
@@ -490,7 +490,7 @@ ACMD(do_spec_comm)
 
 
 
-#define MAX_NOTE_LENGTH 1000	/* arbitrary */
+#define MAX_NOTE_LENGTH 1000	// arbitrary
 
 ACMD(do_write)
 {
@@ -505,12 +505,12 @@ ACMD(do_write)
 	if (!ch->desc)
 		return;
 
-	if (!*papername)  	/* nothing was delivered */
+	if (!*papername)  	// nothing was delivered
 	{
 		send_to_char("Написать?  Чем?  И на чем?\r\n", ch);
 		return;
 	}
-	if (*penname)  		/* there were two arguments */
+	if (*penname)  		// there were two arguments
 	{
 		if (!(paper = get_obj_in_list_vis(ch, papername, ch->carrying)))
 		{
@@ -525,7 +525,7 @@ ACMD(do_write)
 			return;
 		}
 	}
-	else  		/* there was one arg.. let's see what we can find */
+	else  		// there was one arg.. let's see what we can find
 	{
 		if (!(paper = get_obj_in_list_vis(ch, papername, ch->carrying)))
 		{
@@ -533,7 +533,7 @@ ACMD(do_write)
 			send_to_char(buf, ch);
 			return;
 		}
-		if (GET_OBJ_TYPE(paper) == ITEM_PEN)  	/* oops, a pen.. */
+		if (GET_OBJ_TYPE(paper) == ITEM_PEN)  	// oops, a pen..
 		{
 			pen = paper;
 			paper = NULL;
@@ -543,7 +543,7 @@ ACMD(do_write)
 			send_to_char("Вы не можете на ЭТОМ писать.\r\n", ch);
 			return;
 		}
-		/* One object was found.. now for the other one. */
+		// One object was found.. now for the other one.
 		if (!GET_EQ(ch, WEAR_HOLD))
 		{
 			sprintf(buf, "Вы нечем писать!\r\n");
@@ -562,14 +562,14 @@ ACMD(do_write)
 	}
 
 
-	/* ok.. now let's see what kind of stuff we've found */
+	// ok.. now let's see what kind of stuff we've found
 	if (GET_OBJ_TYPE(pen) != ITEM_PEN)
 		act("Вы не умеете писать $o4.", FALSE, ch, pen, 0, TO_CHAR);
 	else if (GET_OBJ_TYPE(paper) != ITEM_NOTE)
 		act("Вы не можете писать на $o5.", FALSE, ch, paper, 0, TO_CHAR);
 	else if (paper->action_description)
 		send_to_char("Там уже что-то записано.\r\n", ch);
-	else  			/* we can write - hooray! */
+	else  			// we can write - hooray!
 	{
 		/* this is the PERFECT code example of how to set up:
 		 * a) the text editor with a message already loaed
@@ -577,18 +577,18 @@ ACMD(do_write)
 		 */
 		ch->desc->backstr = NULL;
 		send_to_char("Можете писать.  (/s СОХРАНИТЬ ЗАПИСЬ  /h ПОМОЩЬ)\r\n", ch);
-		/* ok, here we check for a message ALREADY on the paper */
-		if (paper->action_description)  	/* we str_dup the original text to the descriptors->backstr */
+		// ok, here we check for a message ALREADY on the paper
+		if (paper->action_description)  	// we str_dup the original text to the descriptors->backstr
 		{
 			ch->desc->backstr = str_dup(paper->action_description);
-			/* send to the player what was on the paper (cause this is already */
-			/* loaded into the editor) */
+			// send to the player what was on the paper (cause this is already
+			// loaded into the editor)
 			send_to_char(paper->action_description, ch);
 		}
 		act("$n начал$g писать.", TRUE, ch, 0, 0, TO_ROOM);
-		/* assign the descriptor's->str the value of the pointer to the text */
-		/* pointer so that we can reallocate as needed (hopefully that made */
-		/* sense :>) */
+		// assign the descriptor's->str the value of the pointer to the text
+		// pointer so that we can reallocate as needed (hopefully that made
+		// sense :>)
 		string_write(ch->desc, &paper->action_description, MAX_NOTE_LENGTH, 0, NULL);
 	}
 }
@@ -668,7 +668,7 @@ ACMD(do_gen_comm)
 
 	struct communication_type com_msgs[] =
 	{
-		{"Вы не можете орать.\r\n",	/* holler */
+		{"Вы не можете орать.\r\n",	// holler
 		 "орать",
 		 "Вы вне видимости канала.",
 		 KIYEL,
@@ -678,7 +678,7 @@ ACMD(do_gen_comm)
 		 25,
 		 PRF_NOHOLLER},
 
-		{"Вам запрещено кричать.\r\n",	/* shout */
+		{"Вам запрещено кричать.\r\n",	// shout
 		 "кричать",
 		 "Вы вне видимости канала.\r\n",
 		 KIYEL,
@@ -688,7 +688,7 @@ ACMD(do_gen_comm)
 		 10,
 		 PRF_NOSHOUT},
 
-		{"Вам недозволено болтать.\r\n",	/* gossip */
+		{"Вам недозволено болтать.\r\n",	// gossip
 		 "болтать",
 		 "Вы вне видимости канала.\r\n",
 		 KYEL,
@@ -698,7 +698,7 @@ ACMD(do_gen_comm)
 		 15,
 		 PRF_NOGOSS},
 
-		{"Вам не к лицу торговаться.\r\n",	/* auction */
+		{"Вам не к лицу торговаться.\r\n",	// auction
 		 "торговать",
 		 "Вы вне видимости канала.\r\n",
 		 KIYEL,
@@ -709,7 +709,7 @@ ACMD(do_gen_comm)
 		 PRF_NOAUCT},
 	};
 
-	/* to keep pets, etc from being ordered to shout */
+	// to keep pets, etc from being ordered to shout
 //  if (!ch->desc)
 	if (AFF_FLAGGED(ch, AFF_CHARM))
 		return;
@@ -747,17 +747,17 @@ ACMD(do_gen_comm)
 		return;
 	}
 
-	/* make sure the char is on the channel */
+	// make sure the char is on the channel
 	if (PRF_FLAGGED(ch, com_msgs[subcmd].noflag))
 	{
 		send_to_char(com_msgs[subcmd].no_channel, ch);
 		return;
 	}
 
-	/* skip leading spaces */
+	// skip leading spaces
 	skip_spaces(&argument);
 
-	/* make sure that there is something there to say! */
+	// make sure that there is something there to say!
 	if (!*argument && subcmd != SCMD_AUCTION)
 	{
 		sprintf(buf1, "ЛЕГКО! Но, Ярило вас побери, ЧТО %s???\r\n", com_msgs[subcmd].action);
@@ -765,10 +765,10 @@ ACMD(do_gen_comm)
 		return;
 	}
 
-	/* set up the color on code */
+	// set up the color on code
 	strcpy(color_on, com_msgs[subcmd].color);
 
-	/* Анти-БУКОВКИ :coded by Делан */
+	// Анти-БУКОВКИ :coded by Делан
 
 #define MAX_UPPERS_CHAR_PRC 30
 #define MAX_UPPERS_SEQ_CHAR 3
@@ -778,7 +778,7 @@ ACMD(do_gen_comm)
 		unsigned int bad_smb_procent = MAX_UPPERS_CHAR_PRC;
 		int bad_simb_cnt = 0, bad_seq_cnt = 0;
 
-		/* фильтруем верхний регистр */
+		// фильтруем верхний регистр
 		for (int k = 0; argument[k] != '\0'; k++)
 		{
 			if (a_isupper(argument[k]))
@@ -794,7 +794,7 @@ ACMD(do_gen_comm)
 					 (bad_seq_cnt > MAX_UPPERS_SEQ_CHAR)))
 				argument[k] = a_lcc(argument[k]);
 		}
-		/* фильтруем одинаковые сообщения в эфире */
+		// фильтруем одинаковые сообщения в эфире
 		if (!str_cmp(ch->get_last_tell().c_str(), argument))
 		{
 			send_to_char("Но вы же недавно говорили тоже самое?!\r\n", ch);
@@ -809,7 +809,7 @@ ACMD(do_gen_comm)
 
 	char out_str[MAX_STRING_LENGTH];
 
-	/* first, set up strings to be given to the communicator */
+	// first, set up strings to be given to the communicator
 	if (subcmd == SCMD_AUCTION)
 	{
 		*buf = '\0';
@@ -871,7 +871,7 @@ ACMD(do_gen_comm)
 		ign_flag = 0;
 	}
 
-	/* now send all the strings out */
+	// now send all the strings out
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) == CON_PLAYING && i != ch->desc && i->character &&
@@ -907,7 +907,7 @@ ACMD(do_mobshout)
 {
 	DESCRIPTOR_DATA *i;
 
-	/* to keep pets, etc from being ordered to shout */
+	// to keep pets, etc from being ordered to shout
 	if (!(IS_NPC(ch) || WAITLESS(ch)))
 		return;
 	if (AFF_FLAGGED(ch, AFF_CHARM))
@@ -916,7 +916,7 @@ ACMD(do_mobshout)
 	skip_spaces(&argument); //убираем пробел в начале сообщения
 	sprintf(buf, "$n заорал$g : '%s'", argument);
 
-	/* now send all the strings out */
+	// now send all the strings out
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) == CON_PLAYING && i->character &&
@@ -947,7 +947,7 @@ ACMD(do_pray_gods)
 
 	if (IS_IMMORTAL(ch))
 	{
-		/* Выделяем чара кому отвечают иммы */
+		// Выделяем чара кому отвечают иммы
 		argument = one_argument(argument, arg1);
 		skip_spaces(&argument);
 		if (!*arg1)

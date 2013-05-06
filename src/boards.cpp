@@ -152,9 +152,7 @@ void Board::init_god_board(long uid, std::string name)
 	Board::BoardList.push_back(board);
 }
 
-/**
-* Релоад всех досок разом.
-*/
+// * Релоад всех досок разом.
 void Board::reload_all()
 {
 	BoardInit();

@@ -31,10 +31,10 @@
 extern DESCRIPTOR_DATA *descriptor_list;
 extern BanList *ban;
 
-/* external functions */
+// external functions
 extern void log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 
-/* local functions */
+// local functions
 void load_banned(void);
 
 ACMD(do_ban);
@@ -190,12 +190,12 @@ int Is_Valid_Name(char *newname)
 	if (!*invalid_list || num_invalid < 1)
 		return (1);
 
-	/* change to lowercase */
+	// change to lowercase
 	strcpy(tempname, newname);
 	for (i = 0; tempname[i]; i++)
 		tempname[i] = LOWER(tempname[i]);
 
-	/* Does the desired name contain a string in the invalid list? */
+	// Does the desired name contain a string in the invalid list?
 	for (i = 0; i < num_invalid; i++)
 		if (strstr(tempname, invalid_list[i]))
 			return (0);
@@ -1226,9 +1226,7 @@ bool need_save = 0;
 
 } // namespace RegisterSystem
 
-/**
-* Добавления мыла в список + проставления флага PLR_REGISTERED, registered_email не выставляется
-*/
+// * Добавления мыла в список + проставления флага PLR_REGISTERED, registered_email не выставляется
 void RegisterSystem::add(CHAR_DATA* ch, const char* text, const char* reason)
 {
 	SET_BIT(PLR_FLAGS(ch, PLR_REGISTERED), PLR_REGISTERED);
@@ -1295,9 +1293,7 @@ const std::string RegisterSystem::show_comment(const std::string& email)
 	return "";
 }
 
-/**
-* Загрузка и релоад списка мыл
-*/
+// * Загрузка и релоад списка мыл
 void RegisterSystem::load()
 {
 	email_list.clear();
@@ -1318,9 +1314,7 @@ void RegisterSystem::load()
 	file.close();
 }
 
-/**
-* Сохранение списка мыл, если оно требуется
-*/
+// * Сохранение списка мыл, если оно требуется
 void RegisterSystem::save()
 {
 	if (!need_save)

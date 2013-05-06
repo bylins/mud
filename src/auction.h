@@ -27,7 +27,7 @@ struct auction_data
 	int tact;
 };
 
-/* Auction functions  ****************************************************/
+// Auction functions  ***************************************************
 void showlots(CHAR_DATA * ch);
 bool auction_drive(CHAR_DATA * ch, char *argument);
 
