@@ -214,18 +214,29 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 	j = 0;
 	if (all_feats)
 	{
-		send_to_char(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
-					 " Зеленым цветом выделены уже изученные способности.\r\n"
-					 " Красным цветом выделены способности, недоступные вам в настоящий момент.\r\n"
-					 "\r\n Способность\r\n", vict);
+		if (clr(vict, C_NRM)) // реж цвет >= обычный
+			send_to_char(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
+						" Зеленым цветом выделены уже изученные способности.\r\n"
+						" Красным цветом выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
+		else
+			send_to_char(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
+						" Пометкой [И] выделены уже изученные способности.\r\n"
+						" Пометкой [Д] выделены доступные для изучения способности.\r\n"
+						" Пометкой [Н] выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
 		for (sortpos = 1; sortpos < MAX_FEATS; sortpos++)
 		{
 			if (!feat_info[sortpos].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && !PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
 				continue;
-			sprintf(buf, "	%s%-30s%s\r\n",
-					HAVE_FEAT(ch, sortpos) ? CCGRN(vict, C_NRM) :
-					can_get_feat(ch, sortpos) ? CCNRM(vict, C_NRM) : CCRED(vict, C_NRM),
-					feat_info[sortpos].name, CCNRM(vict, C_NRM));
+			if (clr(vict, C_NRM))
+				sprintf(buf, "        %s%-30s%s\r\n",
+					HAVE_FEAT(ch, sortpos) ? KGRN :
+					can_get_feat(ch, sortpos) ? KNRM : KRED,
+					feat_info[sortpos].name, KNRM);
+			else
+				sprintf(buf, "    %s %-30s\r\n",
+					HAVE_FEAT(ch, sortpos) ? "[И]" :
+					can_get_feat(ch, sortpos) ? "[Д]" : "[Н]",
+					feat_info[sortpos].name);
 
 			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
 			{
@@ -235,7 +246,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 			else if (FEAT_SLOT(ch, sortpos) < max_slot)
                         	strcat(names[FEAT_SLOT(ch, sortpos)], buf);
 		}
-		sprintf(buf1, "-------------------------------------");
+		sprintf(buf1, "--------------------------------------");
 		for (i = 0; i < max_slot; i++)
 		{
 			if (strlen(buf1) >= MAX_STRING_LENGTH - 60)
@@ -307,9 +318,13 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 			default:
 				sprintf(buf, "      ");
 			}
-			sprintf(buf + strlen(buf), "%s%s%s\r\n",
-					can_use_feat(ch, sortpos) ? CCIYEL(vict, C_NRM) : CCNRM(vict, C_NRM),
-					feat_info[sortpos].name, CCNRM(vict, C_NRM));
+			if (can_use_feat(ch, sortpos))
+				sprintf(buf + strlen(buf), "%s%s%s\r\n",
+					CCIYEL(vict, C_NRM), feat_info[sortpos].name, CCNRM(vict, C_NRM));
+			else if (clr(vict, C_NRM))
+				sprintf(buf + strlen(buf), "%s\r\n", feat_info[sortpos].name);
+			else
+				sprintf(buf, "[-Н-] %s\r\n", feat_info[sortpos].name);
 			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
 			{
 				sprintf(buf2 + strlen(buf2), "    ");

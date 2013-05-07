@@ -1118,11 +1118,19 @@ void list_recipes(CHAR_DATA * ch, bool all_recipes)
 
 	if (all_recipes)
 	{
-		sprintf(buf, " Список доступных рецептов.\r\n"
+		if (clr(ch, C_NRM))
+			sprintf(buf, " Список доступных рецептов.\r\n"
 				" Зеленым цветом выделены уже изученные рецепты.\r\n"
 				" Красным цветом выделены рецепты, недоступные вам в настоящий момент.\r\n"
-				"\r\n Рецепт                Уровень (реморт)\r\n"
-				"----------------------------------------\r\n");
+				"\r\n     Рецепт                Уровень (реморт)\r\n"
+				"------------------------------------------------\r\n");
+		else
+			sprintf(buf, " Список доступных рецептов.\r\n"
+				" Пометкой [И] выделены уже изученные рецепты.\r\n"
+				" Пометкой [Д] выделены доступные для изучения рецепты.\r\n"
+				" Пометкой [Н] выделены рецепты, недоступные вам в настоящий момент.\r\n"
+				"\r\n     Рецепт                Уровень (реморт)\r\n"
+				"------------------------------------------------\r\n");
 		strcpy(buf1, buf);
 		for (sortpos = 0, i = 0; sortpos <= top_imrecipes; sortpos++)
 		{
@@ -1134,11 +1142,18 @@ void list_recipes(CHAR_DATA * ch, bool all_recipes)
 				break;
 			}
 			rs = im_get_char_rskill(ch, sortpos);
-			sprintf(buf, " %s%-30s%s %2d (%2d)%s\r\n",
+			if (clr(ch, C_NRM))
+				sprintf(buf, "     %s%-30s%s %2d (%2d)%s\r\n",
 					(imrecipes[sortpos].level < 0 || imrecipes[sortpos].level > GET_LEVEL(ch) ||
 					 imrecipes[sortpos].remort < 0 || imrecipes[sortpos].remort > GET_REMORT(ch)) ?
-					CCRED(ch, C_NRM) : rs ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM),	imrecipes[sortpos].name, CCCYN(ch, C_NRM),
-					imrecipes[sortpos].level, imrecipes[sortpos].remort, CCNRM(ch, C_NRM));
+					KRED : rs ? KGRN : KNRM,	imrecipes[sortpos].name, KCYN,
+					imrecipes[sortpos].level, imrecipes[sortpos].remort, KNRM);
+			else
+				sprintf(buf, " %s %-30s %2d (%2d)\r\n",
+					(imrecipes[sortpos].level < 0 || imrecipes[sortpos].level > GET_LEVEL(ch) ||
+					 imrecipes[sortpos].remort < 0 || imrecipes[sortpos].remort > GET_REMORT(ch)) ?
+					"[Н]" : rs ? "[И]" : "[Д]",	imrecipes[sortpos].name,
+					imrecipes[sortpos].level, imrecipes[sortpos].remort);
 			strcat(buf1, buf);
 			++i;
 		}
